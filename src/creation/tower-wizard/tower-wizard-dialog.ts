@@ -425,6 +425,35 @@ export class TowerWizardDialog extends BaseDialog {
             window.setTimeout(() => this.#advanceAfterSelection(), 120);
         });
 
+        root.find('.js-tw-select-offense-active').on('click', (ev) => {
+            const el = $(ev.currentTarget);
+            const pickId = String(el.data('pick-id') || '');
+            const templateId = String(el.data('template-id') || '');
+            const specialRaw = el.data('special');
+            const special = specialRaw === undefined || specialRaw === null || specialRaw === ''
+                ? null
+                : String(specialRaw);
+
+            const picks = [...(this.selection.offenseActivePicks ?? [])];
+            const existing = picks.findIndex((p) => p.pickId === pickId);
+            if (existing >= 0) {
+                picks.splice(existing, 1);
+            } else {
+                if (picks.length >= 2) {
+                    ui.notifications?.warn('You can only select two Actives. Deselect one first.');
+                    return;
+                }
+                picks.push({ pickId, templateId, special });
+            }
+
+            this.selection.offenseActivePicks = picks.length > 0 ? picks : undefined;
+            this.selection.offenseId = undefined;
+            this.selection.offenseActiveOverrides = undefined;
+            this.#removePowerOverride('offense-0');
+            this.#removePowerOverride('offense-1');
+            this.render();
+        });
+
         root.find('.js-tw-select-offense').on('click', (ev) => {
             $(ev.currentTarget).addClass('is-picked');
             this.selection.offenseId = $(ev.currentTarget).data('offense-id') as OffensePackageId;

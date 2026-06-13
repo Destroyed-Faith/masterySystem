@@ -91,16 +91,26 @@
 
     {{#if isOffense}}
     <section class="tower-wizard-step">
-      <h3>{{copy.offense.question}}</h3>
-      <div class="tower-wizard-cards">
-        {{#each offensePackages}}
-        <button type="button" class="tower-wizard-card js-tw-select-offense{{#if (eq ../selection.offenseId this.id)}} is-selected{{/if}}" data-offense-id="{{this.id}}">
-          <span class="tower-wizard-card-title">{{this.label}}</span>
-          <span class="tower-wizard-card-text">{{this.explanation}}</span>
-          {{#if this.warning}}<span class="tower-wizard-warn">{{this.warning}}</span>{{/if}}
+      <h3>{{copy.offense.heading}}</h3>
+      <p class="tower-wizard-prose">{{copy.offense.body}}</p>
+      <p class="tower-wizard-offense-pick-status">{{offensePickLabel}}</p>
+      {{#unless offenseActiveGroups.length}}
+      <p class="tower-wizard-warn">{{copy.offense.emptyCatalog}}</p>
+      {{/unless}}
+      {{#each offenseActiveGroups}}
+      <h4>{{this.groupLabel}}</h4>
+      <div class="tower-wizard-passive-grid tower-wizard-offense-grid">
+        {{#each this.actives}}
+        <button type="button" class="tower-wizard-passive-card js-tw-select-offense-active{{#if this.isSelected}} is-selected{{/if}}" data-pick-id="{{this.pickId}}" data-template-id="{{this.templateId}}" data-special="{{this.special}}">
+          <span class="chip-label">{{this.label}}</span>
+          <span class="chip-mechanical">{{this.hint}}</span>
         </button>
         {{/each}}
       </div>
+      {{/each}}
+      {{#if (lt offensePickCount 2)}}
+      <p class="tower-wizard-prose tower-wizard-offense-hint">{{copy.offense.pickHint}}</p>
+      {{/if}}
     </section>
     {{/if}}
 

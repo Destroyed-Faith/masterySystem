@@ -35,6 +35,7 @@ You can keep that safety, or replace it with an offensive buff on the next step.
         body: 'Pick exactly two Rank 2 Actives from the catalog below. Click a card again to deselect it.',
         pickCount: (selected) => `${selected} of 2 selected`,
         pickHint: 'Select two different Actives, then click Continue.',
+        emptyCatalog: 'No Rank 2 Actives are available in the catalog for this character.',
     },
     weakenSave: {
         question: 'Which kind of Save do you want to pressure?',

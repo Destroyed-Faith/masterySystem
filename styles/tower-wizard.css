@@ -175,6 +175,22 @@
   margin: 4px 0 0;
 }
 
+.tower-wizard-offense-pick-status {
+  font-weight: 600;
+  margin: 0 0 12px;
+  color: var(--df-accent, #8b0000);
+}
+
+.tower-wizard-offense-hint {
+  margin-top: 8px;
+  font-size: 0.9rem;
+  opacity: 0.9;
+}
+
+.tower-wizard-offense-grid {
+  margin-bottom: 20px;
+}
+
 .tower-wizard-passive-grid {
   display: grid;
   grid-template-columns: 1fr;

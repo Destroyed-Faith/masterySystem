@@ -6,6 +6,7 @@ import {
     getDefaultActiveBuffPreview,
     getOffensiveActiveBuffGroups,
     getOffensiveActiveBuffOptions,
+    getOffenseActiveGroups,
     getSecondPassiveGroups,
     playerFacingPowerName,
     resolveGrant,
@@ -109,6 +110,40 @@ describe('tower-wizard-packages', () => {
         };
         const specs = buildPackageGrantSpecs(selection);
         expect(specs[2].templateId).toBe('ab-damage');
+    });
+
+    it('offense active catalog groups list rank-2 actives for wizard step 5', () => {
+        const groups = getOffenseActiveGroups(null);
+        expect(groups.length).toBeGreaterThan(0);
+        const total = groups.reduce((n, g) => n + g.actives.length, 0);
+        expect(total).toBeGreaterThan(2);
+        for (const group of groups) {
+            expect(group.groupLabel).toBeTruthy();
+            for (const active of group.actives) {
+                expect(active.pickId).toBeTruthy();
+                expect(active.templateId).toMatch(/^active-/);
+                expect(active.label).toBeTruthy();
+            }
+        }
+    });
+
+    it('catalog offense picks build two active grant specs', () => {
+        const groups = getOffenseActiveGroups(null);
+        const first = groups[0]?.actives[0];
+        const second = groups[0]?.actives[1] ?? groups[1]?.actives[0];
+        expect(first).toBeDefined();
+        expect(second).toBeDefined();
+        const selection: TowerWizardSelection = {
+            ...baseSelection,
+            offenseId: undefined,
+            offenseActivePicks: [
+                { pickId: first!.pickId, templateId: first!.templateId, special: first!.special ?? null },
+                { pickId: second!.pickId, templateId: second!.templateId, special: second!.special ?? null },
+            ],
+        };
+        const specs = buildPackageGrantSpecs(selection);
+        const actives = specs.filter((s) => s.templateId.startsWith('active-'));
+        expect(actives).toHaveLength(2);
     });
 
     it('hex package second active can be configured as split weapon', () => {
