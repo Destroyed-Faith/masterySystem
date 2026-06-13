@@ -30,6 +30,7 @@ import {
   getWorldArtifactItemsInFolder,
   resolveWorldItemByNodeId,
 } from '../utils/artifact-actor-tree.js';
+import { setRootActorLevels } from '../utils/world-artifact-flag-sync.js';
 import { isBumped, recordBump } from '../utils/xp-step-rule.js';
 
 export interface ArtifactEvolutionPath {
@@ -284,7 +285,7 @@ export async function linkArtifactForActor(
 
   const next: ArtifactActorProgress = { ...cur, linked: true };
   levels[A.id] = serializeActorArtifactProgress(next);
-  await root.setFlag('mastery-system', 'actorLevels', levels);
+  await setRootActorLevels(root, levels);
 
   if (emb) {
     await emb.setFlag('mastery-system', 'artifactActivated', true);
@@ -347,7 +348,7 @@ export async function resetArtifactActivationForActor(
   }
 
   levels[A.id] = serializeActorArtifactProgress({ ...prog, linked: false });
-  await root.setFlag('mastery-system', 'actorLevels', levels);
+  await setRootActorLevels(root, levels);
 
   await emb.setFlag('mastery-system', 'artifactActivated', false);
   await emb.unsetFlag('mastery-system', 'artifactActivationStoneAttr');
@@ -454,7 +455,7 @@ export async function upgradeArtifactForActor(
     linked: true,
   };
   levels[A.id] = serializeActorArtifactProgress(nextProg);
-  await root.setFlag('mastery-system', 'actorLevels', levels);
+  await setRootActorLevels(root, levels);
 
   ui.notifications?.info(`Evolved to ${tw.name}.`);
   return true;

@@ -5,6 +5,7 @@
 import { ARTIFACT_CAPACITY_DEFAULT, ARTIFACT_LINK_STONE_COST, ARTIFACT_UPGRADE_XP_COST, canArtifactLink, canBindMoreArtifacts, canSpendArtifactLinkStone, countBoundArtifacts, getArtifactBindingKind, getMaxArtifactSystemLevelForMasteryRank, getArtifactStonePoolLabel, isArtifactLinkedOnActor, readActorArtifactProgress, refundArtifactLinkStone, serializeActorArtifactProgress, spendArtifactLinkStone, usesStonePoolEconomy, } from '../utils/artifact-actor-rules.js';
 import { summarizeEmbeddedArtifactDisplay } from '../utils/artifact-echo-repair.js';
 import { buildArtifactDisplayLabels, collectArtifactNodeMeta, getChildWorldItemsForNode, getWorldArtifactItemsInFolder, resolveWorldItemByNodeId, } from '../utils/artifact-actor-tree.js';
+import { setRootActorLevels } from '../utils/world-artifact-flag-sync.js';
 import { isBumped, recordBump } from '../utils/xp-step-rule.js';
 function actorXpAvailable(actor) {
     const sys = actor.system || {};
@@ -204,7 +205,7 @@ export async function linkArtifactForActor(actor, rootWorldId, embeddedId, stone
     }
     const next = { ...cur, linked: true };
     levels[A.id] = serializeActorArtifactProgress(next);
-    await root.setFlag('mastery-system', 'actorLevels', levels);
+    await setRootActorLevels(root, levels);
     if (emb) {
         await emb.setFlag('mastery-system', 'artifactActivated', true);
         if (stoneAttr) {
@@ -257,7 +258,7 @@ export async function resetArtifactActivationForActor(actor, rootWorldId, embedd
         refunded = await refundArtifactLinkStone(actor);
     }
     levels[A.id] = serializeActorArtifactProgress({ ...prog, linked: false });
-    await root.setFlag('mastery-system', 'actorLevels', levels);
+    await setRootActorLevels(root, levels);
     await emb.setFlag('mastery-system', 'artifactActivated', false);
     await emb.unsetFlag('mastery-system', 'artifactActivationStoneAttr');
     const poolNote = stoneAttr ? ` (${getArtifactStonePoolLabel(stoneAttr)})` : '';
@@ -346,7 +347,7 @@ export async function upgradeArtifactForActor(actor, rootWorldId, embeddedId, ta
         linked: true,
     };
     levels[A.id] = serializeActorArtifactProgress(nextProg);
-    await root.setFlag('mastery-system', 'actorLevels', levels);
+    await setRootActorLevels(root, levels);
     ui.notifications?.info(`Evolved to ${tw.name}.`);
     return true;
 }

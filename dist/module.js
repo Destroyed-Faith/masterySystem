@@ -2527,6 +2527,8 @@ Hooks.once('ready', async function () {
     registerSkillSpendClickHandler();
     const { registerFaithFractureRerollHandlers } = await import('./chat/faith-fracture-reroll.js');
     registerFaithFractureRerollHandlers();
+    const { registerWorldArtifactFlagSyncSocket } = await import('./utils/world-artifact-flag-sync.js');
+    registerWorldArtifactFlagSyncSocket();
     // Players Guide ~6052–6067 — End-of-turn Save Ends prompt buttons.
     const { registerSaveEndsChatHandlers } = await import('./combat/save-ends.js');
     registerSaveEndsChatHandlers();

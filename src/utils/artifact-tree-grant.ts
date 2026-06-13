@@ -4,7 +4,6 @@
 
 import {
   readActorArtifactProgress,
-  serializeActorArtifactProgress,
 } from './artifact-actor-rules.js';
 import {
   findRootWorldArtifactInFolder,
@@ -13,6 +12,11 @@ import {
 } from './artifact-actor-tree.js';
 import { findEchoArtifactRootInWorld } from './seed-artifact-library.js';
 import { GENERAL_ARTIFACTS } from './general-artifacts.js';
+import {
+  setRootActorLevels,
+  upsertRootActorProgress,
+  upsertRootActorProgressForActor,
+} from './world-artifact-flag-sync.js';
 
 export interface WireArtifactResult {
   ok: boolean;
@@ -120,15 +124,14 @@ export async function wireEmbeddedArtifactToWorldTree(
   }
 
   const actorId = (actor as any).id;
-  const levels = {
-    ...((rootItem.getFlag?.('mastery-system', 'actorLevels') || {}) as Record<string, unknown>),
-  };
-  const prev = readActorArtifactProgress(levels[actorId], rootNodeId);
-  levels[actorId] = serializeActorArtifactProgress({
+  const prev = readActorArtifactProgress(
+    ((rootItem.getFlag?.('mastery-system', 'actorLevels') || {}) as Record<string, unknown>)[actorId],
+    rootNodeId,
+  );
+  await upsertRootActorProgress(rootItem, actorId, {
     nodeId,
     linked: prev.linked === true ? true : false,
   });
-  await rootItem.setFlag('mastery-system', 'actorLevels', levels);
 
   const { syncEmbeddedArtifactFromWorldNode } = await import('./artifact-echo-repair.js');
   await syncEmbeddedArtifactFromWorldNode(embeddedItem, actor);
@@ -192,9 +195,10 @@ export async function grantArtifactTreeToActor(
 
   const rootNodeId = rootItem.getFlag?.('mastery-system', 'nodeId') as string;
   const actorId = (actor as any).id;
-  const levels = { ...((rootItem.getFlag('mastery-system', 'actorLevels') || {}) as any) };
-  levels[actorId] = serializeActorArtifactProgress({ nodeId: rootNodeId, linked: false });
-  await rootItem.setFlag('mastery-system', 'actorLevels', levels);
+  await upsertRootActorProgress(rootItem, actorId, {
+    nodeId: rootNodeId,
+    linked: false,
+  });
 
   return created;
 }
@@ -250,11 +254,10 @@ export async function resetGeneralArtifactForRecreation(actor: Actor, emb: any):
   if (!rootNodeId) return;
 
   const actorId = (actor as any).id;
-  const levels = {
-    ...((root.getFlag?.('mastery-system', 'actorLevels') || {}) as Record<string, unknown>),
-  };
-  levels[actorId] = serializeActorArtifactProgress({ nodeId: rootNodeId, linked: false });
-  await root.setFlag('mastery-system', 'actorLevels', levels);
+  await upsertRootActorProgressForActor(root, actorId, {
+    nodeId: rootNodeId,
+    linked: false,
+  });
 
   await emb.setFlag('mastery-system', 'evolutionNodeId', rootNodeId);
   await emb.setFlag('mastery-system', 'artifactActivated', false);

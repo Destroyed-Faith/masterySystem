@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.42] - 2026-06-12
+
+### Fixed
+
+- **Echo grant permission:** Players no longer need GM permission to update world Items when granting or wiring Echo artifact trees. World-root `actorLevels` sync goes through a GM socket when the client cannot write the world Item directly; embedded item flags remain the source of truth if sync fails.
+
 ## [0.9.41] - 2026-06-12
 
 ### Added
