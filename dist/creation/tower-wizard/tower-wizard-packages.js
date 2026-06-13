@@ -1,9 +1,69 @@
 /**
  * Tower Wizard — declarative defense/offense package definitions.
  */
-import { TOWER_WIZARD_DEFENSIVE_RANK, TOWER_WIZARD_OFFENSIVE_RANK, findCatalogEntry, getAllCatalogEntries, } from '../../utils/power-catalog.js';
+import { TOWER_WIZARD_DEFENSIVE_RANK, TOWER_WIZARD_OFFENSIVE_RANK, findCatalogEntry, getAllCatalogEntries, powerIdentityKey, } from '../../utils/power-catalog.js';
 const DEF_RANK = TOWER_WIZARD_DEFENSIVE_RANK;
 const OFF_RANK = TOWER_WIZARD_OFFENSIVE_RANK;
+export function grantKeyCategory(grantKey) {
+    switch (grantKey) {
+        case 'passive-1':
+        case 'passive-2':
+            return 'passive';
+        case 'active-buff':
+            return 'activeBuff';
+        case 'reaction':
+            return 'reaction';
+        default:
+            return 'active';
+    }
+}
+export function grantKeyRank(grantKey) {
+    return grantKey.startsWith('offense-') ? OFF_RANK : DEF_RANK;
+}
+/** True when a catalog entry is valid for the wizard slot (category + rank). */
+export function catalogEntryMatchesGrantKey(entry, grantKey) {
+    if (entry.category !== grantKeyCategory(grantKey))
+        return false;
+    const rank = grantKeyRank(grantKey);
+    const levels = entry.raw?.levels;
+    return !!levels?.[String(rank)];
+}
+function findPowerOverride(selection, grantKey) {
+    return selection.powerOverrides?.find((o) => o.grantKey === grantKey);
+}
+function applyPackagePowerOverride(defaultSpec, override) {
+    if (!override)
+        return defaultSpec;
+    return {
+        templateId: override.templateId,
+        rank: defaultSpec.rank,
+        special: override.special ?? null,
+        isSpell: override.isSpell,
+        castingAttribute: override.castingAttribute,
+        spellResolution: override.spellResolution,
+    };
+}
+export function packageSpecIdentity(spec) {
+    return powerIdentityKey({
+        templateId: spec.templateId,
+        chosenSpecial: spec.special ? { key: spec.special } : null,
+    });
+}
+export function collectPackageIdentityKeys(specs, exceptGrantKey) {
+    const keys = new Set();
+    const grantKeys = [
+        'passive-1', 'passive-2', 'active-buff', 'reaction', 'offense-0', 'offense-1',
+    ];
+    specs.forEach((spec, i) => {
+        const grantKey = grantKeys[i];
+        if (exceptGrantKey && grantKey === exceptGrantKey)
+            return;
+        const key = packageSpecIdentity(spec);
+        if (key)
+            keys.add(key);
+    });
+    return keys;
+}
 function def(templateId, rank, extra = {}) {
     return { templateId, rank, ...extra };
 }
@@ -533,66 +593,110 @@ export function buildPackageGrantSpecs(selection) {
         delivery: selection.delivery,
         weakenSave: selection.weakenSave,
     };
-    const overrides = initializeOffenseOverrides(selection);
+    const offenseOverrides = initializeOffenseOverrides(selection);
     const baseOffense = offense.resolveGrants(offenseCtx);
     const offenseSpecs = baseOffense.map((spec, i) => {
-        const override = overrides.find((o) => o.grantKey === `offense-${i}`);
+        const grantKey = i === 0 ? 'offense-0' : 'offense-1';
+        const catalogOverride = findPowerOverride(selection, grantKey);
+        if (catalogOverride) {
+            return applyPackagePowerOverride(spec, catalogOverride);
+        }
+        const override = offenseOverrides.find((o) => o.grantKey === grantKey);
         return applyOverrideToSpec(spec, override, selection.delivery);
     });
-    return [
-        defense.grants.passive1,
-        def(selection.secondPassiveTemplateId, DEF_RANK),
-        resolveActiveBuffSpec(selection),
-        defense.grants.reaction,
-        ...offenseSpecs,
+    const defaults = [
+        { key: 'passive-1', spec: defense.grants.passive1 },
+        { key: 'passive-2', spec: def(selection.secondPassiveTemplateId, DEF_RANK) },
+        { key: 'active-buff', spec: resolveActiveBuffSpec(selection) },
+        { key: 'reaction', spec: defense.grants.reaction },
+        { key: 'offense-0', spec: offenseSpecs[0] },
+        { key: 'offense-1', spec: offenseSpecs[1] },
     ];
+    return defaults.map(({ key, spec }) => applyPackagePowerOverride(spec, findPowerOverride(selection, key)));
+}
+export function buildReviewPowerRows(selection) {
+    const specs = buildPackageGrantSpecs(selection);
+    const offenseOverrides = initializeOffenseOverrides(selection);
+    const roles = [
+        { key: 'passive-1', role: 'Passive 1' },
+        { key: 'passive-2', role: 'Passive 2' },
+        { key: 'active-buff', role: 'Active Buff' },
+        { key: 'reaction', role: 'Reaction' },
+        { key: 'offense-0', role: 'Active 1' },
+        { key: 'offense-1', role: 'Active 2' },
+    ];
+    return roles.map(({ key, role }, index) => {
+        const spec = specs[index];
+        const resolved = resolveGrant(spec);
+        const catalogOverride = !!findPowerOverride(selection, key);
+        const offenseIndex = key.startsWith('offense-') ? Number(key.replace('offense-', '')) : -1;
+        const variantOpts = !catalogOverride && offenseIndex >= 0
+            ? getVariantOptionsForOffenseSlot(selection.offenseId, offenseIndex)
+            : [];
+        const catalogOv = findPowerOverride(selection, key);
+        const offenseOverride = offenseIndex >= 0
+            ? offenseOverrides.find((o) => o.grantKey === key)
+            : undefined;
+        const spellOverride = resolved.category === 'active'
+            ? (catalogOv
+                ? {
+                    grantKey: key,
+                    isSpell: !!catalogOv.isSpell,
+                    castingAttribute: catalogOv.castingAttribute ?? 'intellect',
+                    spellResolution: catalogOv.spellResolution ?? 'spellAttack',
+                }
+                : offenseOverride)
+            : undefined;
+        return {
+            grantKey: key,
+            role,
+            playerName: playerFacingPowerName(spec, resolved),
+            rank: spec.rank,
+            category: resolved.category,
+            hasCatalogOverride: catalogOverride,
+            spec,
+            variantOptions: variantOpts.map((id) => ({
+                id,
+                label: playerFacingVariantLabel(id, spec),
+            })),
+            override: spellOverride,
+            showSpellConfig: resolved.category === 'active',
+        };
+    });
 }
 export function buildPackageReview(selection) {
     const defense = getDefensePackage(selection.defenseId);
     const offense = getOffensePackage(selection.offenseId);
     if (!defense || !offense) {
-        return { defenseRows: [], offenseRows: [], packageId: '', allOk: false };
+        return { defenseRows: [], offenseRows: [], reviewPowerRows: [], packageId: '', allOk: false };
     }
     const specs = buildPackageGrantSpecs(selection);
-    const defenseRows = [
-        { ...resolveGrant(defense.grants.passive1), role: 'Passive 1', playerName: playerFacingPowerName(defense.grants.passive1, resolveGrant(defense.grants.passive1)) },
-        {
-            ...resolveGrant(def(selection.secondPassiveTemplateId, DEF_RANK)),
-            role: 'Passive 2',
-            playerName: secondPassiveLabel(selection.secondPassiveTemplateId),
-        },
-        {
-            ...resolveGrant(resolveActiveBuffSpec(selection)),
-            role: 'Active Buff',
-            playerName: playerFacingPowerName(resolveActiveBuffSpec(selection), resolveGrant(resolveActiveBuffSpec(selection))),
-        },
-        { ...resolveGrant(defense.grants.reaction), role: 'Reaction', playerName: playerFacingPowerName(defense.grants.reaction, resolveGrant(defense.grants.reaction)) },
-    ];
-    const offenseSpecs = specs.slice(4);
-    const overrides = initializeOffenseOverrides(selection);
-    const offenseRows = offenseSpecs.map((spec, i) => {
-        const resolved = resolveGrant(spec);
-        const variantOpts = getVariantOptionsForOffenseSlot(selection.offenseId, i);
+    const reviewPowerRows = buildReviewPowerRows(selection);
+    const defenseRows = reviewPowerRows.slice(0, 4).map((row) => ({
+        ...resolveGrant(row.spec),
+        role: row.role,
+        playerName: row.playerName,
+    }));
+    const offenseRows = reviewPowerRows.slice(4).map((row) => {
+        const resolved = resolveGrant(row.spec);
         return {
-            role: `Active ${i + 1}`,
-            grantKey: `offense-${i}`,
+            role: row.role,
+            grantKey: row.grantKey,
             displayName: resolved.displayName,
-            playerName: playerFacingPowerName(spec, resolved),
+            playerName: row.playerName,
             mechanicalName: resolved.mechanicalName,
-            rank: spec.rank,
-            spec,
-            configurable: variantOpts.length > 0 || resolved.category === 'active',
-            variantOptions: variantOpts.map((id) => ({
-                id,
-                label: playerFacingVariantLabel(id, spec),
-            })),
-            override: overrides.find((o) => o.grantKey === `offense-${i}`),
+            rank: row.rank,
+            spec: row.spec,
+            configurable: (row.variantOptions?.length ?? 0) > 0 || resolved.category === 'active',
+            variantOptions: row.variantOptions,
+            override: row.override,
         };
     });
-    const allRows = [...defenseRows, ...offenseSpecs.map((s) => resolveGrant(s))];
+    const allRows = specs.map((s) => resolveGrant(s));
     return {
         defenseRows,
         offenseRows,
+        reviewPowerRows,
         packageId: `${selection.defenseId}__${selection.offenseId}`,
         allOk: allRows.every((r) => r.status === 'ok'),
     };

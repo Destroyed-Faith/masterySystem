@@ -47,6 +47,16 @@ describe('tower-wizard-validation', () => {
         ).toBeNull();
     });
 
+    it('rejects power override with wrong category for slot', () => {
+        const err = validateTowerWizardSelection({
+            ...baseSelection,
+            powerOverrides: [
+                { grantKey: 'offense-0', templateId: 'passive-temp-hp' },
+            ],
+        });
+        expect(err).toMatch(/Active slot cannot use that power type/i);
+    });
+
     it('validateTowerWizardCreation checks mixed ranks and counts', () => {
         const actor = {
             system: {

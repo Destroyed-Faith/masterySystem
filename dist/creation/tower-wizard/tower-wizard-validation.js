@@ -2,7 +2,7 @@
  * Tower Wizard — validation for selections and finalize.
  */
 import { CATEGORY_LABELS, CATEGORY_ORDER, findCatalogEntry, TOWER_WIZARD_DEFENSIVE_RANK, TOWER_WIZARD_MASTERY_RANK, TOWER_WIZARD_OFFENSIVE_RANK, TOWER_WIZARD_POWER_REQUIREMENTS, TOWER_WIZARD_POWER_TOTAL, countPowersByCategory, findDuplicatePowerLabel, resolvePowerCategoryFromItem, } from '../../utils/power-catalog.js';
-import { buildPackageGrantSpecs, buildPackageReview, getDefensePackage, getOffensePackage, isValidOffensiveActiveBuffId, } from './tower-wizard-packages.js';
+import { buildPackageGrantSpecs, buildPackageReview, catalogEntryMatchesGrantKey, getDefensePackage, getOffensePackage, grantKeyCategory, isValidOffensiveActiveBuffId, } from './tower-wizard-packages.js';
 export function isValidSecondPassiveForDefense(defenseId, templateId) {
     const defense = getDefensePackage(defenseId);
     if (!defense)
@@ -11,6 +11,22 @@ export function isValidSecondPassiveForDefense(defenseId, templateId) {
         return false;
     const entry = findCatalogEntry(templateId);
     return entry?.category === 'passive';
+}
+export function validatePowerOverrideForGrantKey(selection, override) {
+    const entry = findCatalogEntry(override.templateId, override.special);
+    if (!entry)
+        return 'One custom power is missing from the catalog.';
+    if (!catalogEntryMatchesGrantKey(entry, override.grantKey)) {
+        const expected = CATEGORY_LABELS[grantKeyCategory(override.grantKey)];
+        return `${expected} slot cannot use that power type. Reset or pick a ${expected} power.`;
+    }
+    if (override.grantKey === 'passive-2') {
+        const defense = getDefensePackage(selection.defenseId);
+        if (defense && override.templateId === defense.grants.passive1.templateId) {
+            return 'Passive 2 cannot be the same template as Passive 1.';
+        }
+    }
+    return null;
 }
 export function validateTowerWizardSelection(selection) {
     if (!selection.defenseId)
@@ -37,11 +53,24 @@ export function validateTowerWizardSelection(selection) {
         return 'Choose which Save to pressure for Weaken.';
     }
     const full = selection;
+    for (const override of full.powerOverrides ?? []) {
+        const overrideErr = validatePowerOverrideForGrantKey(full, override);
+        if (overrideErr)
+            return overrideErr;
+    }
     const review = buildPackageReview(full);
     if (!review.allOk)
         return 'One or more Powers in this package are missing from the catalog.';
     if (review.defenseRows.length + review.offenseRows.length !== TOWER_WIZARD_POWER_TOTAL) {
         return `Package must grant exactly ${TOWER_WIZARD_POWER_TOTAL} Powers.`;
+    }
+    const specs = buildPackageGrantSpecs(full);
+    const seen = new Set();
+    for (const spec of specs) {
+        const key = `${spec.templateId}::${spec.special ?? ''}`;
+        if (seen.has(key))
+            return 'This package contains duplicate Powers. Change or reset one of them.';
+        seen.add(key);
     }
     return null;
 }

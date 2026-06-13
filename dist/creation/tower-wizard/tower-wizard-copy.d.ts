@@ -47,9 +47,13 @@ export declare const TOWER_WIZARD_COPY: {
     };
     readonly review: {
         readonly heading: "Your Combat Package";
+        readonly powers: "Package Powers";
         readonly defense: "Defense";
         readonly offense: "Offense";
         readonly configureActives: "Configure your Actives";
+        readonly changePower: "Change power";
+        readonly resetPower: "Reset to default";
+        readonly customPower: "Custom";
         readonly apply: "Apply this package";
         readonly back: "Go back and choose another style";
         readonly castAsSpell: "Cast as Spell";

@@ -5,10 +5,9 @@
 import { applyTowerWizardPackage } from './tower-wizard-apply.js';
 import { TOWER_WIZARD_COPY } from './tower-wizard-copy.js';
 import {
+    buildPackageGrantSpecs,
+    collectPackageIdentityKeys,
     getDefensePackage,
-    resolveGrant,
-    resolveActiveBuffSpec,
-    secondPassiveLabel,
     sortOffensePackagesForDefense,
     TOWER_WIZARD_DEFENSE_PACKAGES,
     buildPackageReview,
@@ -19,9 +18,9 @@ import {
     packageNeedsDeliveryStep,
     packageNeedsOffensiveBuffStep,
     packageNeedsWeakenSaveStep,
-    playerFacingPowerName,
 } from './tower-wizard-packages.js';
-import { collectRelevantWarnings } from './tower-wizard-validation.js';
+import { showTowerWizardPowerPicker } from './tower-wizard-power-picker.js';
+import { collectRelevantWarnings, validateTowerWizardSelection } from './tower-wizard-validation.js';
 import type {
     ActiveBuffMode,
     DefensePackageId,
@@ -29,6 +28,8 @@ import type {
     OffenseActiveOverride,
     OffenseActiveVariant,
     OffensePackageId,
+    PackageGrantKey,
+    PackagePowerOverride,
     TowerWizardSelection,
     TowerWizardStep,
     WeakenSaveChoice,
@@ -59,6 +60,7 @@ function defaultSelection(): Partial<TowerWizardSelection> {
         delivery: 'melee',
         weakenSave: null,
         offenseActiveOverrides: undefined,
+        powerOverrides: undefined,
     };
 }
 
@@ -122,46 +124,12 @@ export class TowerWizardDialog extends BaseDialog {
             : [];
 
         const fullSelection = this.#fullSelection();
-        const activeBuffSpec = fullSelection
-            ? resolveActiveBuffSpec(fullSelection)
-            : defense?.grants.activeBuff;
-        const defenseSummaryRows = defense && this.selection.secondPassiveTemplateId && activeBuffSpec
-            ? [
-                {
-                    role: 'Passive 1',
-                    label: playerFacingPowerName(defense.grants.passive1, resolveGrant(defense.grants.passive1)),
-                    rank: 4,
-                },
-                {
-                    role: 'Passive 2',
-                    label: secondPassiveLabel(this.selection.secondPassiveTemplateId),
-                    rank: 4,
-                },
-                {
-                    role: 'Active Buff',
-                    label: playerFacingPowerName(activeBuffSpec, resolveGrant(activeBuffSpec)),
-                    rank: 4,
-                },
-                {
-                    role: 'Reaction',
-                    label: playerFacingPowerName(defense.grants.reaction, resolveGrant(defense.grants.reaction)),
-                    rank: 4,
-                },
-            ]
-            : [];
         const review = fullSelection
             ? buildPackageReview(fullSelection)
-            : { defenseRows: [], offenseRows: [], allOk: false, packageId: '' };
+            : { defenseRows: [], offenseRows: [], reviewPowerRows: [], allOk: false, packageId: '' };
 
         const warnings = fullSelection ? collectRelevantWarnings(fullSelection) : [];
-
-        const reviewOffenseConfig = review.offenseRows.map((row) => ({
-            grantKey: row.grantKey,
-            role: row.role,
-            displayName: row.playerName,
-            variantOptions: row.variantOptions ?? [],
-            override: row.override ?? { grantKey: row.grantKey, isSpell: false },
-        }));
+        const validationError = fullSelection ? validateTowerWizardSelection(fullSelection) : null;
 
         return {
             progressLabel: copy.progress(stepIndex, STEP_ORDER.length),
@@ -170,10 +138,10 @@ export class TowerWizardDialog extends BaseDialog {
             defensePackages: TOWER_WIZARD_DEFENSE_PACKAGES,
             secondPassiveGroups: passiveGroups,
             offensePackages,
-            defenseSummaryRows,
             review,
-            reviewOffenseConfig,
             warnings,
+            validationError,
+            canApply: !!fullSelection && review.allOk && !validationError,
             defaultActiveBuffPreview: this.selection.defenseId
                 ? getDefaultActiveBuffPreview(this.selection.defenseId)
                 : null,
@@ -278,6 +246,72 @@ export class TowerWizardDialog extends BaseDialog {
         return override;
     }
 
+    #clearPowerOverrides(): void {
+        this.selection.powerOverrides = undefined;
+    }
+
+    #upsertPowerOverride(entry: PackagePowerOverride): void {
+        const list = [...(this.selection.powerOverrides ?? [])];
+        const idx = list.findIndex((o) => o.grantKey === entry.grantKey);
+        if (idx >= 0) list[idx] = entry;
+        else list.push(entry);
+        this.selection.powerOverrides = list;
+    }
+
+    #removePowerOverride(grantKey: PackageGrantKey): void {
+        const list = (this.selection.powerOverrides ?? []).filter((o) => o.grantKey !== grantKey);
+        this.selection.powerOverrides = list.length ? list : undefined;
+    }
+
+    #hasCatalogOverride(grantKey: string): boolean {
+        return !!this.selection.powerOverrides?.some((o) => o.grantKey === grantKey);
+    }
+
+    #updateSpellConfig(grantKey: string, patch: Partial<OffenseActiveOverride>): void {
+        const powerIdx = this.selection.powerOverrides?.findIndex((o) => o.grantKey === grantKey) ?? -1;
+        if (powerIdx >= 0 && this.selection.powerOverrides) {
+            const list = [...this.selection.powerOverrides];
+            const current = list[powerIdx];
+            list[powerIdx] = {
+                ...current,
+                isSpell: patch.isSpell ?? current.isSpell,
+                castingAttribute: patch.castingAttribute ?? current.castingAttribute,
+                spellResolution: patch.spellResolution ?? current.spellResolution,
+            };
+            this.selection.powerOverrides = list;
+            this.render();
+            return;
+        }
+        this.#updateOverride(grantKey, patch);
+    }
+
+    async #openPowerPicker(grantKey: PackageGrantKey): Promise<void> {
+        const sel = this.#fullSelection();
+        if (!sel) return;
+        const specs = buildPackageGrantSpecs(sel);
+        const excludeIdentityKeys = collectPackageIdentityKeys(specs, grantKey);
+        const row = buildPackageReview(sel).reviewPowerRows.find((r) => r.grantKey === grantKey);
+        const echoKey = (this.actor.system as { echo?: { key?: string } })?.echo?.key ?? null;
+        const result = await showTowerWizardPowerPicker({
+            grantKey,
+            roleLabel: row?.role ?? grantKey,
+            excludeIdentityKeys,
+            actorEchoKey: echoKey,
+            currentTemplateId: row?.spec.templateId,
+            currentSpecial: row?.spec.special,
+        });
+        if (!result) return;
+        this.#upsertPowerOverride({
+            grantKey,
+            templateId: result.templateId,
+            special: result.special,
+            isSpell: result.isSpell,
+            castingAttribute: result.castingAttribute,
+            spellResolution: result.spellResolution,
+        });
+        this.render();
+    }
+
     #updateOverride(grantKey: string, patch: Partial<OffenseActiveOverride>): void {
         const list = [...(this.selection.offenseActiveOverrides ?? initializeOffenseOverrides(this.#fullSelection()!))];
         const idx = list.findIndex((o) => o.grantKey === grantKey);
@@ -303,12 +337,14 @@ export class TowerWizardDialog extends BaseDialog {
             this.selection.offensiveActiveBuffId = undefined;
             this.selection.offenseId = undefined;
             this.selection.offenseActiveOverrides = undefined;
+            this.#clearPowerOverrides();
             window.setTimeout(() => this.#advanceAfterSelection(), 120);
         });
 
         root.find('.js-tw-select-passive2').on('click', (ev) => {
             $(ev.currentTarget).addClass('is-picked');
             this.selection.secondPassiveTemplateId = String($(ev.currentTarget).data('passive-id') || '');
+            this.#removePowerOverride('passive-2');
             window.setTimeout(() => this.#advanceAfterSelection(), 120);
         });
 
@@ -319,12 +355,14 @@ export class TowerWizardDialog extends BaseDialog {
             if (mode === 'defensive') {
                 this.selection.offensiveActiveBuffId = undefined;
             }
+            this.#removePowerOverride('active-buff');
             window.setTimeout(() => this.#advanceAfterSelection(), 120);
         });
 
         root.find('.js-tw-select-offensive-buff').on('click', (ev) => {
             $(ev.currentTarget).addClass('is-picked');
             this.selection.offensiveActiveBuffId = String($(ev.currentTarget).data('buff-id') || '');
+            this.#removePowerOverride('active-buff');
             window.setTimeout(() => this.#advanceAfterSelection(), 120);
         });
 
@@ -332,6 +370,8 @@ export class TowerWizardDialog extends BaseDialog {
             $(ev.currentTarget).addClass('is-picked');
             this.selection.offenseId = $(ev.currentTarget).data('offense-id') as OffensePackageId;
             this.selection.offenseActiveOverrides = undefined;
+            this.#removePowerOverride('offense-0');
+            this.#removePowerOverride('offense-1');
             window.setTimeout(() => this.#advanceAfterSelection(), 120);
         });
 
@@ -339,6 +379,8 @@ export class TowerWizardDialog extends BaseDialog {
             $(ev.currentTarget).addClass('is-picked');
             const raw = String($(ev.currentTarget).data('save') || '');
             this.selection.weakenSave = raw ? (raw as WeakenSaveChoice) : 'body';
+            this.#removePowerOverride('offense-0');
+            this.#removePowerOverride('offense-1');
             window.setTimeout(() => this.#advanceAfterSelection(), 120);
         });
 
@@ -346,11 +388,25 @@ export class TowerWizardDialog extends BaseDialog {
             $(ev.currentTarget).addClass('is-picked');
             this.selection.delivery = $(ev.currentTarget).data('delivery') as DeliveryMode;
             this.selection.offenseActiveOverrides = undefined;
+            this.#removePowerOverride('offense-0');
+            this.#removePowerOverride('offense-1');
             window.setTimeout(() => this.#advanceAfterSelection(), 120);
+        });
+
+        root.find('.js-tw-change-power').on('click', async (ev) => {
+            const grantKey = String($(ev.currentTarget).data('grant-key') || '') as PackageGrantKey;
+            await this.#openPowerPicker(grantKey);
+        });
+
+        root.find('.js-tw-reset-power').on('click', (ev) => {
+            const grantKey = String($(ev.currentTarget).data('grant-key') || '') as PackageGrantKey;
+            this.#removePowerOverride(grantKey);
+            this.render();
         });
 
         root.find('.js-tw-variant').on('change', (ev) => {
             const grantKey = String($(ev.currentTarget).data('grant-key') || '');
+            if (this.#hasCatalogOverride(grantKey)) return;
             const variant = String($(ev.currentTarget).val() || '') as OffenseActiveVariant;
             const patch: Partial<OffenseActiveOverride> = { variant };
             if (variant === 'damage-t4-spell') {
@@ -365,8 +421,9 @@ export class TowerWizardDialog extends BaseDialog {
         root.find('.js-tw-is-spell').on('change', (ev) => {
             const grantKey = String($(ev.currentTarget).data('grant-key') || '');
             const isSpell = $(ev.currentTarget).prop('checked') === true;
+            root.find(`.js-tw-spell-fields[data-grant-key="${grantKey}"]`).toggle(isSpell);
             const current = this.#getOverride(grantKey);
-            this.#updateOverride(grantKey, {
+            this.#updateSpellConfig(grantKey, {
                 isSpell,
                 castingAttribute: current.castingAttribute ?? 'intellect',
                 spellResolution: current.spellResolution ?? 'spellAttack',
@@ -375,14 +432,14 @@ export class TowerWizardDialog extends BaseDialog {
 
         root.find('.js-tw-casting-attr').on('change', (ev) => {
             const grantKey = String($(ev.currentTarget).data('grant-key') || '');
-            this.#updateOverride(grantKey, {
+            this.#updateSpellConfig(grantKey, {
                 castingAttribute: String($(ev.currentTarget).val() || 'intellect') as CastingAttribute,
             });
         });
 
         root.find('.js-tw-spell-resolution').on('change', (ev) => {
             const grantKey = String($(ev.currentTarget).data('grant-key') || '');
-            this.#updateOverride(grantKey, {
+            this.#updateSpellConfig(grantKey, {
                 spellResolution: String($(ev.currentTarget).val() || 'spellAttack') as SpellResolution,
             });
         });
@@ -406,6 +463,7 @@ export class TowerWizardDialog extends BaseDialog {
             this.step = 'offense';
             this.selection.offenseId = undefined;
             this.selection.offenseActiveOverrides = undefined;
+            this.#clearPowerOverrides();
             this.render();
         });
 

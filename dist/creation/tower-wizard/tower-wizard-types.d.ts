@@ -9,6 +9,15 @@ export type DeliveryMode = 'melee' | 'ranged';
 export type WeakenSaveChoice = 'body' | 'mind' | 'spirit';
 export type TowerWizardStep = 'defense' | 'passive2' | 'activeBuffChoice' | 'offensiveBuff' | 'offense' | 'weakenSave' | 'delivery' | 'review';
 export type OffenseActiveVariant = 'weapon-single' | 'weapon-aoe' | 'weapon-split' | 'damage-t3' | 'damage-t4' | 'damage-t4-spell';
+export type PackageGrantKey = 'passive-1' | 'passive-2' | 'active-buff' | 'reaction' | 'offense-0' | 'offense-1';
+export interface PackagePowerOverride {
+    grantKey: PackageGrantKey;
+    templateId: string;
+    special?: string | null;
+    isSpell?: boolean;
+    castingAttribute?: CastingAttribute;
+    spellResolution?: SpellResolution;
+}
 export interface OffenseActiveOverride {
     /** `offense-0` or `offense-1` */
     grantKey: string;
@@ -35,6 +44,7 @@ export interface TowerWizardSelection {
     delivery: DeliveryMode;
     weakenSave: WeakenSaveChoice | null;
     offenseActiveOverrides?: OffenseActiveOverride[];
+    powerOverrides?: PackagePowerOverride[];
 }
 export interface TowerWizardDefensePackage {
     id: DefensePackageId;
@@ -69,6 +79,21 @@ export interface TowerWizardOffensePackage {
 export interface OffenseResolveContext {
     delivery: DeliveryMode;
     weakenSave: WeakenSaveChoice | null;
+}
+export interface ReviewPowerRow {
+    grantKey: PackageGrantKey;
+    role: string;
+    playerName: string;
+    rank: number;
+    category: string;
+    hasCatalogOverride: boolean;
+    spec: PowerGrantSpec;
+    variantOptions?: Array<{
+        id: OffenseActiveVariant;
+        label: string;
+    }>;
+    override?: OffenseActiveOverride;
+    showSpellConfig: boolean;
 }
 export interface PackageReviewRow {
     role: string;

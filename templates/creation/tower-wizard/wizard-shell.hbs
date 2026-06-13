@@ -138,56 +138,60 @@
       </ul>
       {{/if}}
 
-      <h4>{{copy.review.defense}}</h4>
-      <ul class="tower-wizard-summary-list">
-        {{#each defenseSummaryRows}}
-        <li><strong>{{this.role}}:</strong> {{this.label}} <span class="mechanical">(Rank {{this.rank}})</span></li>
-        {{/each}}
-      </ul>
-
-      <h4>{{copy.review.offense}}</h4>
-      <ul class="tower-wizard-summary-list">
-        {{#each review.offenseRows}}
-        <li><strong>{{this.role}}:</strong> {{this.playerName}} <span class="mechanical">(Rank {{this.rank}})</span></li>
-        {{/each}}
-      </ul>
-
-      <h4>{{copy.review.configureActives}}</h4>
-      {{#each reviewOffenseConfig}}
-      <div class="tower-wizard-active-config" data-grant-key="{{this.grantKey}}">
-        <div class="tower-wizard-active-config-header">
-          <strong>{{this.role}}:</strong> {{this.displayName}}
+      <h4>{{copy.review.powers}}</h4>
+      {{#each review.reviewPowerRows}}
+      <div class="tower-wizard-review-power" data-grant-key="{{this.grantKey}}">
+        <div class="tower-wizard-review-power-header">
+          <div class="tower-wizard-review-power-title">
+            <strong>{{this.role}}:</strong> {{this.playerName}}
+            <span class="mechanical">(Rank {{this.rank}})</span>
+            {{#if this.hasCatalogOverride}}<span class="tower-wizard-chip">{{../copy.review.customPower}}</span>{{/if}}
+          </div>
+          <div class="tower-wizard-review-power-actions">
+            <button type="button" class="tower-wizard-btn js-tw-change-power" data-grant-key="{{this.grantKey}}">{{../copy.review.changePower}}</button>
+            {{#if this.hasCatalogOverride}}
+            <button type="button" class="tower-wizard-btn js-tw-reset-power" data-grant-key="{{this.grantKey}}">{{../copy.review.resetPower}}</button>
+            {{/if}}
+          </div>
         </div>
-        {{#if this.variantOptions.length}}
-        <label class="tower-wizard-field">
-          <span>{{../copy.review.variant}}</span>
-          <select class="js-tw-variant" data-grant-key="{{this.grantKey}}">
-            {{#each this.variantOptions}}
-            <option value="{{this.id}}" {{#if (eq this.id ../override.variant)}}selected{{/if}}>{{this.label}}</option>
-            {{/each}}
-          </select>
-        </label>
+        {{#if this.showSpellConfig}}
+        <div class="tower-wizard-active-config tower-wizard-review-power-config">
+          {{#if this.variantOptions.length}}
+          <label class="tower-wizard-field">
+            <span>{{../copy.review.variant}}</span>
+            <select class="js-tw-variant" data-grant-key="{{this.grantKey}}">
+              {{#each this.variantOptions}}
+              <option value="{{this.id}}" {{#if (eq this.id ../override.variant)}}selected{{/if}}>{{this.label}}</option>
+              {{/each}}
+            </select>
+          </label>
+          {{/if}}
+          <label class="tower-wizard-field tower-wizard-checkbox">
+            <input type="checkbox" class="js-tw-is-spell" data-grant-key="{{this.grantKey}}" {{#if this.override.isSpell}}checked{{/if}} />
+            <span>{{../copy.review.castAsSpell}}</span>
+          </label>
+          <label class="tower-wizard-field js-tw-spell-fields" data-grant-key="{{this.grantKey}}" {{#unless this.override.isSpell}}style="display:none"{{/unless}}>
+            <span>{{../copy.review.castingAttribute}}</span>
+            <select class="js-tw-casting-attr" data-grant-key="{{this.grantKey}}">
+              <option value="intellect" {{#if (eq this.override.castingAttribute 'intellect')}}selected{{/if}}>Intellect</option>
+              <option value="resolve" {{#if (eq this.override.castingAttribute 'resolve')}}selected{{/if}}>Resolve</option>
+            </select>
+          </label>
+          <label class="tower-wizard-field js-tw-spell-fields" data-grant-key="{{this.grantKey}}" {{#unless this.override.isSpell}}style="display:none"{{/unless}}>
+            <span>{{../copy.review.resolution}}</span>
+            <select class="js-tw-spell-resolution" data-grant-key="{{this.grantKey}}">
+              <option value="spellAttack" {{#if (eq this.override.spellResolution 'spellAttack')}}selected{{/if}}>Spell Attack</option>
+              <option value="saveSpell" {{#if (eq this.override.spellResolution 'saveSpell')}}selected{{/if}}>Save Spell</option>
+            </select>
+          </label>
+        </div>
         {{/if}}
-        <label class="tower-wizard-field tower-wizard-checkbox">
-          <input type="checkbox" class="js-tw-is-spell" data-grant-key="{{this.grantKey}}" {{#if this.override.isSpell}}checked{{/if}} />
-          <span>{{../copy.review.castAsSpell}}</span>
-        </label>
-        <label class="tower-wizard-field js-tw-spell-fields" data-grant-key="{{this.grantKey}}" {{#unless this.override.isSpell}}style="display:none"{{/unless}}>
-          <span>{{../copy.review.castingAttribute}}</span>
-          <select class="js-tw-casting-attr" data-grant-key="{{this.grantKey}}">
-            <option value="intellect" {{#if (eq this.override.castingAttribute 'intellect')}}selected{{/if}}>Intellect</option>
-            <option value="resolve" {{#if (eq this.override.castingAttribute 'resolve')}}selected{{/if}}>Resolve</option>
-          </select>
-        </label>
-        <label class="tower-wizard-field js-tw-spell-fields" data-grant-key="{{this.grantKey}}" {{#unless this.override.isSpell}}style="display:none"{{/unless}}>
-          <span>{{../copy.review.resolution}}</span>
-          <select class="js-tw-spell-resolution" data-grant-key="{{this.grantKey}}">
-            <option value="spellAttack" {{#if (eq this.override.spellResolution 'spellAttack')}}selected{{/if}}>Spell Attack</option>
-            <option value="saveSpell" {{#if (eq this.override.spellResolution 'saveSpell')}}selected{{/if}}>Save Spell</option>
-          </select>
-        </label>
       </div>
       {{/each}}
+
+      {{#if validationError}}
+      <p class="tower-wizard-warn">{{validationError}}</p>
+      {{/if}}
 
       {{#unless review.allOk}}
       <p class="tower-wizard-warn">Some catalog entries are missing — cannot apply yet.</p>
@@ -201,7 +205,7 @@
     {{#if showNext}}<button type="button" class="tower-wizard-btn is-primary js-tw-next" {{#unless canAdvance}}disabled{{/unless}}>{{copy.buttons.next}}</button>{{/if}}
     {{#if isReview}}
     <button type="button" class="tower-wizard-btn js-tw-restart">{{copy.review.back}}</button>
-    <button type="button" class="tower-wizard-btn is-primary js-tw-apply" {{#unless review.allOk}}disabled{{/unless}}>{{copy.review.apply}}</button>
+    <button type="button" class="tower-wizard-btn is-primary js-tw-apply" {{#unless canApply}}disabled{{/unless}}>{{copy.review.apply}}</button>
     {{/if}}
   </footer>
 </div>

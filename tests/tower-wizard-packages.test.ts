@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
     buildPackageGrantSpecs,
     buildPackageReview,
+    catalogEntryMatchesGrantKey,
     getDefaultActiveBuffPreview,
     getOffensiveActiveBuffGroups,
     getOffensiveActiveBuffOptions,
@@ -12,7 +13,7 @@ import {
     TOWER_WIZARD_OFFENSE_PACKAGES,
     WIZARD_HIDDEN_OFFENSE_IDS,
 } from '../src/creation/tower-wizard/tower-wizard-packages.js';
-import { TOWER_WIZARD_DEFENSIVE_RANK, TOWER_WIZARD_OFFENSIVE_RANK, TOWER_WIZARD_POWER_TOTAL } from '../src/utils/power-catalog.js';
+import { TOWER_WIZARD_DEFENSIVE_RANK, TOWER_WIZARD_OFFENSIVE_RANK, TOWER_WIZARD_POWER_TOTAL, findCatalogEntry } from '../src/utils/power-catalog.js';
 import type { TowerWizardSelection } from '../src/creation/tower-wizard/tower-wizard-types.js';
 
 const baseSelection: TowerWizardSelection = {
@@ -136,6 +137,47 @@ describe('tower-wizard-packages', () => {
         const actives = specs.filter((s) => s.templateId.startsWith('active-'));
         expect(actives[0].special).toBe('hex');
         expect(actives[1].templateId).toBe('active-ranged-weapon-split');
+    });
+
+    it('power override replaces catalog grant on review row', () => {
+        const selection: TowerWizardSelection = {
+            ...baseSelection,
+            powerOverrides: [
+                { grantKey: 'passive-2', templateId: 'passive-deep-vitality' },
+            ],
+        };
+        const specs = buildPackageGrantSpecs(selection);
+        expect(specs[1].templateId).toBe('passive-deep-vitality');
+        const review = buildPackageReview(selection);
+        expect(review.reviewPowerRows).toHaveLength(6);
+        expect(review.reviewPowerRows[1]?.hasCatalogOverride).toBe(true);
+    });
+
+    it('catalog override on offense slot skips variant resolution', () => {
+        const selection: TowerWizardSelection = {
+            ...baseSelection,
+            powerOverrides: [
+                {
+                    grantKey: 'offense-1',
+                    templateId: 'active-ranged-damage-t4',
+                    special: 'mark',
+                },
+            ],
+        };
+        const specs = buildPackageGrantSpecs(selection);
+        expect(specs[5].special).toBe('mark');
+        expect(specs[5].templateId).toBe('active-ranged-damage-t4');
+    });
+
+    it('catalogEntryMatchesGrantKey rejects wrong category for slot', () => {
+        const passive = findCatalogEntry('passive-temp-hp');
+        const active = findCatalogEntry('active-ranged-damage-t4', 'mark');
+        expect(passive).toBeTruthy();
+        expect(active).toBeTruthy();
+        expect(catalogEntryMatchesGrantKey(passive!, 'passive-2')).toBe(true);
+        expect(catalogEntryMatchesGrantKey(passive!, 'offense-0')).toBe(false);
+        expect(catalogEntryMatchesGrantKey(active!, 'offense-0')).toBe(true);
+        expect(catalogEntryMatchesGrantKey(active!, 'passive-1')).toBe(false);
     });
 
     it('playerFacingPowerName prefers special names over tier labels', () => {

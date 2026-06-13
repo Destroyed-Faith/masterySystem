@@ -49,9 +49,13 @@ You can keep that safety, or replace it with an offensive buff on the next step.
     },
     review: {
         heading: 'Your Combat Package',
+        powers: 'Package Powers',
         defense: 'Defense',
         offense: 'Offense',
         configureActives: 'Configure your Actives',
+        changePower: 'Change power',
+        resetPower: 'Reset to default',
+        customPower: 'Custom',
         apply: 'Apply this package',
         back: 'Go back and choose another style',
         castAsSpell: 'Cast as Spell',

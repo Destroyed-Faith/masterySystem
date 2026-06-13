@@ -1,8 +1,16 @@
 /**
  * Tower Wizard — declarative defense/offense package definitions.
  */
+import type { PowerCategory } from '../../types/item.js';
 import type { PowerGrantSpec } from '../../utils/power-item-builder.js';
-import type { DefensePackageId, OffenseActiveOverride, OffenseActiveVariant, OffensePackageId, PackageReviewRow, ResolvedGrant, TowerWizardDefensePackage, TowerWizardOffensePackage, TowerWizardSelection, SecondPassiveGroup, WizardOffensiveActiveBuff, WizardOffensiveActiveBuffGroup, WizardActiveBuffPreview } from './tower-wizard-types.js';
+import type { CatalogEntry } from '../../utils/power-catalog.js';
+import type { DefensePackageId, OffenseActiveOverride, OffenseActiveVariant, OffensePackageId, PackageReviewRow, ResolvedGrant, TowerWizardDefensePackage, TowerWizardOffensePackage, TowerWizardSelection, PackageGrantKey, ReviewPowerRow, SecondPassiveGroup, WizardOffensiveActiveBuff, WizardOffensiveActiveBuffGroup, WizardActiveBuffPreview } from './tower-wizard-types.js';
+export declare function grantKeyCategory(grantKey: PackageGrantKey): PowerCategory;
+export declare function grantKeyRank(grantKey: PackageGrantKey): number;
+/** True when a catalog entry is valid for the wizard slot (category + rank). */
+export declare function catalogEntryMatchesGrantKey(entry: CatalogEntry, grantKey: PackageGrantKey): boolean;
+export declare function packageSpecIdentity(spec: PowerGrantSpec): string;
+export declare function collectPackageIdentityKeys(specs: PowerGrantSpec[], exceptGrantKey?: PackageGrantKey): Set<string>;
 /** Offense packages hidden from the wizard UI (still in type union for saved data). */
 export declare const WIZARD_HIDDEN_OFFENSE_IDS: OffensePackageId[];
 export declare function getDefaultActiveBuffPreview(defenseId: DefensePackageId): WizardActiveBuffPreview | null;
@@ -34,11 +42,14 @@ export declare function buildPackageGrantSpecs(selection: TowerWizardSelection):
 export interface PackageReview {
     defenseRows: Array<ResolvedGrant & {
         role: string;
+        playerName?: string;
     }>;
     offenseRows: Array<PackageReviewRow>;
+    reviewPowerRows: ReviewPowerRow[];
     packageId: string;
     allOk: boolean;
 }
+export declare function buildReviewPowerRows(selection: TowerWizardSelection): ReviewPowerRow[];
 export declare function buildPackageReview(selection: TowerWizardSelection): PackageReview;
 export declare function packageNeedsDeliveryStep(_offenseId: OffensePackageId): boolean;
 export declare function packageNeedsWeakenSaveStep(offenseId: OffensePackageId): boolean;
