@@ -9,9 +9,19 @@ export declare const TOWER_WIZARD_COPY: {
     };
     readonly passive2: {
         readonly heading: "Choose your second Passive";
-        readonly body: "Your first Passive is part of your defense package.\nChoose a second Passive that supports your character — extra durability, recovery, or damage.";
-        readonly recommended: "Recommended for your defense";
-        readonly allOptions: "All supported options";
+        readonly body: "Your first Passive comes from your defense package.\nDo you want to stay safer, or support your attacks? Pick one option below.";
+        readonly strengthenDefense: "Strengthen your defense";
+        readonly supportAttacks: "Support your attacks";
+    };
+    readonly activeBuffChoice: {
+        readonly heading: "How should your Active Buff work?";
+        readonly body: "Your defense package includes a defensive Active Buff by default.\nDo you want to keep that safety, or trade it for a more aggressive buff?";
+        readonly defensive: "Keep my defensive Active Buff — I want to stay safe";
+        readonly offensive: "Switch to an offensive Active Buff — I want to hit harder";
+    };
+    readonly offensiveBuff: {
+        readonly heading: "Choose your offensive Active Buff";
+        readonly body: "This replaces your defensive Active Buff. You only maintain one Active Buff at a time.";
     };
     readonly offense: {
         readonly question: "How do you want to pressure enemies?";

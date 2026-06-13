@@ -160,23 +160,29 @@
 
 .tower-wizard-passive-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
-  margin-bottom: 12px;
+  grid-template-columns: 1fr;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+@media (min-width: 560px) {
+  .tower-wizard-passive-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 .tower-wizard-passive-card {
   border: 1px solid var(--df-border-primary, #3a3f44);
   border-radius: 8px;
-  padding: 12px 14px;
+  padding: 14px 16px;
   background: var(--df-bg-primary, #20272b);
   cursor: pointer;
   color: inherit;
   text-align: left;
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  min-height: 64px;
+  gap: 8px;
+  min-height: 72px;
   transition: border-color 0.15s, background 0.15s;
 }
 

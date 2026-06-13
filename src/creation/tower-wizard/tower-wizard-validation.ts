@@ -55,6 +55,9 @@ export function validateTowerWizardSelection(selection: Partial<TowerWizardSelec
         return 'That second Passive conflicts with your defensive package.';
     }
     if (!selection.offenseId) return 'Choose an offensive style.';
+    if (selection.activeBuffMode === 'offensive' && !selection.offensiveActiveBuffId) {
+        return 'Choose an offensive Active Buff.';
+    }
     const offense = getOffensePackage(selection.offenseId);
     if (!offense?.catalogAvailable) return 'That offensive package is not available yet.';
     if (selection.offenseId === 'weaken-save' && !selection.weakenSave) {
@@ -155,6 +158,9 @@ export function collectRelevantWarnings(selection: TowerWizardSelection): string
     }
     if (selection.offenseId === 'bleeding-push') {
         out.push('This package works best when you understand positioning.');
+    }
+    if (selection.activeBuffMode === 'offensive') {
+        out.push('An offensive Active Buff replaces your defensive buff. You will be easier to hit or less protected while it is active.');
     }
     return [...new Set(out)];
 }

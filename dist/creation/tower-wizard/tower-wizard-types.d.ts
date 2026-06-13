@@ -7,7 +7,7 @@ export type DefensePackageId = 'armor' | 'evade' | 'damage-reduction' | 'phasing
 export type OffensePackageId = 'bleeding-push' | 'ignite' | 'freeze' | 'expose' | 'corrode-damage' | 'mark' | 'hex-spell' | 'weaken-save' | 'direct-damage';
 export type DeliveryMode = 'melee' | 'ranged';
 export type WeakenSaveChoice = 'body' | 'mind' | 'spirit';
-export type TowerWizardStep = 'defense' | 'passive2' | 'offense' | 'weakenSave' | 'delivery' | 'review';
+export type TowerWizardStep = 'defense' | 'passive2' | 'activeBuffChoice' | 'offensiveBuff' | 'offense' | 'weakenSave' | 'delivery' | 'review';
 export type OffenseActiveVariant = 'weapon-single' | 'weapon-aoe' | 'weapon-split' | 'damage-t3' | 'damage-t4' | 'damage-t4-spell';
 export interface OffenseActiveOverride {
     /** `offense-0` or `offense-1` */
@@ -25,9 +25,12 @@ export interface ResolvedGrant {
     category: string;
     status: CatalogStatus;
 }
+export type ActiveBuffMode = 'defensive' | 'offensive';
 export interface TowerWizardSelection {
     defenseId: DefensePackageId;
     secondPassiveTemplateId: string;
+    activeBuffMode: ActiveBuffMode;
+    offensiveActiveBuffId?: string;
     offenseId: OffensePackageId;
     delivery: DeliveryMode;
     weakenSave: WeakenSaveChoice | null;
@@ -66,6 +69,7 @@ export interface PackageReviewRow {
     role: string;
     grantKey?: string;
     displayName: string;
+    playerName: string;
     mechanicalName: string;
     rank: number;
     spec: PowerGrantSpec;
@@ -75,5 +79,10 @@ export interface PackageReviewRow {
         label: string;
     }>;
     override?: OffenseActiveOverride;
+}
+export interface WizardOffensiveActiveBuff {
+    id: string;
+    label: string;
+    explanation: string;
 }
 //# sourceMappingURL=tower-wizard-types.d.ts.map

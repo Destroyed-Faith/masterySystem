@@ -25,6 +25,8 @@ export type WeakenSaveChoice = 'body' | 'mind' | 'spirit';
 export type TowerWizardStep =
     | 'defense'
     | 'passive2'
+    | 'activeBuffChoice'
+    | 'offensiveBuff'
     | 'offense'
     | 'weakenSave'
     | 'delivery'
@@ -57,9 +59,13 @@ export interface ResolvedGrant {
     status: CatalogStatus;
 }
 
+export type ActiveBuffMode = 'defensive' | 'offensive';
+
 export interface TowerWizardSelection {
     defenseId: DefensePackageId;
     secondPassiveTemplateId: string;
+    activeBuffMode: ActiveBuffMode;
+    offensiveActiveBuffId?: string;
     offenseId: OffensePackageId;
     delivery: DeliveryMode;
     weakenSave: WeakenSaveChoice | null;
@@ -102,10 +108,17 @@ export interface PackageReviewRow {
     role: string;
     grantKey?: string;
     displayName: string;
+    playerName: string;
     mechanicalName: string;
     rank: number;
     spec: PowerGrantSpec;
     configurable?: boolean;
     variantOptions?: Array<{ id: OffenseActiveVariant; label: string }>;
     override?: OffenseActiveOverride;
+}
+
+export interface WizardOffensiveActiveBuff {
+    id: string;
+    label: string;
+    explanation: string;
 }

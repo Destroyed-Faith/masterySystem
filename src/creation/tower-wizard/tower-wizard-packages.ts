@@ -20,6 +20,7 @@ import type {
     TowerWizardDefensePackage,
     TowerWizardOffensePackage,
     TowerWizardSelection,
+    WizardOffensiveActiveBuff,
 } from './tower-wizard-types.js';
 
 const DEF_RANK = TOWER_WIZARD_DEFENSIVE_RANK;
@@ -59,21 +60,56 @@ function spellDamage(flavour: 'melee' | 'ranged', tier: 3 | 4 | 5 | 6, special?:
 }
 
 const VARIANT_LABELS: Record<OffenseActiveVariant, string> = {
-    'weapon-single': 'Single-target weapon',
-    'weapon-aoe': 'Area weapon',
-    'weapon-split': 'Split weapon attack',
-    'damage-t3': 'Damage (Tier 3)',
-    'damage-t4': 'Damage (Tier 4)',
-    'damage-t4-spell': 'Spell damage (Tier 4)',
+    'weapon-single': 'Single-target attack',
+    'weapon-aoe': 'Area attack',
+    'weapon-split': 'Split attack',
+    'damage-t3': 'Special attack',
+    'damage-t4': 'Special attack',
+    'damage-t4-spell': 'Spell attack',
 };
+
+/** Offense packages hidden from the wizard UI (still in type union for saved data). */
+export const WIZARD_HIDDEN_OFFENSE_IDS: OffensePackageId[] = ['ignite'];
 
 const SECOND_PASSIVE_LABELS: Record<string, string> = {
     'passive-temp-hp': 'Temporary HP',
     'passive-regeneration': 'Regeneration',
-    'passive-deep-vitality': 'Health',
-    'passive-killing-intent': 'Damage',
+    'passive-killing-intent': 'Attack Support',
     'passive-evade': 'Evade',
 };
+
+const SECOND_PASSIVE_HINTS: Record<string, string> = {
+    'passive-temp-hp': 'Extra buffer when combat starts.',
+    'passive-regeneration': 'Steady healing at the start of your turn.',
+    'passive-killing-intent': 'Bonus damage on the attacks you make.',
+    'passive-evade': 'Harder to hit in general.',
+};
+
+const WIZARD_DEFENSIVE_SECOND_PASSIVES = ['passive-temp-hp', 'passive-regeneration'] as const;
+const WIZARD_OFFENSIVE_SECOND_PASSIVES = ['passive-killing-intent'] as const;
+
+export const WIZARD_OFFENSIVE_ACTIVE_BUFFS: WizardOffensiveActiveBuff[] = [
+    {
+        id: 'ab-damage',
+        label: 'More damage on every attack',
+        explanation: 'Your Active Buff adds flat damage to your attacks while it is active.',
+    },
+    {
+        id: 'ab-penetration',
+        label: 'Ignore enemy Armor',
+        explanation: 'Your attacks ignore part of the target’s Armor while the buff lasts.',
+    },
+    {
+        id: 'ab-damage-penetration',
+        label: 'Damage and Armor penetration',
+        explanation: 'Hit harder and punch through Armor at the same time.',
+    },
+    {
+        id: 'ab-critical',
+        label: 'More critical hits',
+        explanation: 'Your attacks crit more often and crits hit harder.',
+    },
+];
 
 export const TOWER_WIZARD_DEFENSE_PACKAGES: TowerWizardDefensePackage[] = [
     {
@@ -86,9 +122,9 @@ export const TOWER_WIZARD_DEFENSE_PACKAGES: TowerWizardDefensePackage[] = [
             activeBuff: def('ab-armor', DEF_RANK),
             reaction: def('reaction-armor', DEF_RANK),
         },
-        secondPassiveTemplateIds: ['passive-temp-hp', 'passive-regeneration', 'passive-deep-vitality'],
-        recommendedSecondPassiveTemplateIds: ['passive-temp-hp', 'passive-regeneration', 'passive-deep-vitality'],
-        offenseRecommendations: ['bleeding-push', 'corrode-damage', 'direct-damage'],
+        secondPassiveTemplateIds: ['passive-temp-hp', 'passive-regeneration', 'passive-killing-intent'],
+        recommendedSecondPassiveTemplateIds: ['passive-temp-hp', 'passive-regeneration', 'passive-killing-intent'],
+        offenseRecommendations: ['bleeding-push', 'corrode-damage', 'direct-damage', 'mark', 'freeze', 'hex-spell', 'expose'],
     },
     {
         id: 'evade',
@@ -102,7 +138,7 @@ export const TOWER_WIZARD_DEFENSE_PACKAGES: TowerWizardDefensePackage[] = [
         },
         secondPassiveTemplateIds: ['passive-temp-hp', 'passive-regeneration', 'passive-killing-intent'],
         recommendedSecondPassiveTemplateIds: ['passive-temp-hp', 'passive-regeneration', 'passive-killing-intent'],
-        offenseRecommendations: ['expose', 'mark', 'freeze'],
+        offenseRecommendations: ['expose', 'mark', 'freeze', 'hex-spell'],
     },
     {
         id: 'damage-reduction',
@@ -116,9 +152,9 @@ export const TOWER_WIZARD_DEFENSE_PACKAGES: TowerWizardDefensePackage[] = [
             activeBuff: def('ab-damage-reduction', DEF_RANK),
             reaction: def('reaction-damage-reduction', DEF_RANK),
         },
-        secondPassiveTemplateIds: ['passive-deep-vitality', 'passive-temp-hp'],
-        recommendedSecondPassiveTemplateIds: ['passive-deep-vitality', 'passive-temp-hp'],
-        offenseRecommendations: ['direct-damage', 'corrode-damage', 'bleeding-push'],
+        secondPassiveTemplateIds: ['passive-temp-hp', 'passive-regeneration', 'passive-killing-intent'],
+        recommendedSecondPassiveTemplateIds: ['passive-temp-hp', 'passive-regeneration', 'passive-killing-intent'],
+        offenseRecommendations: ['direct-damage', 'corrode-damage', 'mark', 'freeze', 'hex-spell'],
     },
     {
         id: 'phasing',
@@ -132,9 +168,9 @@ export const TOWER_WIZARD_DEFENSE_PACKAGES: TowerWizardDefensePackage[] = [
             activeBuff: def('ab-phasing', DEF_RANK),
             reaction: def('reaction-phasing', DEF_RANK),
         },
-        secondPassiveTemplateIds: ['passive-temp-hp', 'passive-evade'],
-        recommendedSecondPassiveTemplateIds: ['passive-temp-hp', 'passive-evade'],
-        offenseRecommendations: ['mark', 'hex-spell', 'freeze'],
+        secondPassiveTemplateIds: ['passive-temp-hp', 'passive-regeneration', 'passive-killing-intent', 'passive-evade'],
+        recommendedSecondPassiveTemplateIds: ['passive-temp-hp', 'passive-regeneration', 'passive-killing-intent'],
+        offenseRecommendations: ['mark', 'hex-spell', 'freeze', 'expose'],
     },
 ];
 
@@ -153,7 +189,7 @@ function offensePackages(): TowerWizardOffensePackage[] {
             id: 'ignite',
             label: 'I want enemies to burn over time.',
             explanation: 'Ignite is simple and self-contained. You hit the enemy, the enemy burns, and the effect keeps applying pressure.',
-            catalogAvailable: true,
+            catalogAvailable: false,
             resolveGrants: ({ delivery }) => [dmg(delivery, 4, 'ignite'), weapon(delivery)],
         },
         {
@@ -167,9 +203,8 @@ function offensePackages(): TowerWizardOffensePackage[] {
             id: 'expose',
             label: 'I want enemies to be easier to hit.',
             explanation: 'Expose reduces enemy Evade. This helps you and your allies hit fast, slippery, or hard-to-hit enemies.',
-            catalogAvailable: false,
-            catalogTodo: 'TODO: add Expose Active catalog entries before enabling this package',
-            resolveGrants: () => [],
+            catalogAvailable: true,
+            resolveGrants: ({ delivery }) => [dmg(delivery, 4, 'expose'), weapon(delivery)],
         },
         {
             id: 'corrode-damage',
@@ -240,7 +275,70 @@ export function getOffensePackage(id: OffensePackageId): TowerWizardOffensePacka
 }
 
 export function getAvailableOffensePackages(): TowerWizardOffensePackage[] {
-    return TOWER_WIZARD_OFFENSE_PACKAGES.filter((p) => p.catalogAvailable);
+    return TOWER_WIZARD_OFFENSE_PACKAGES.filter(
+        (p) => p.catalogAvailable && !WIZARD_HIDDEN_OFFENSE_IDS.includes(p.id),
+    );
+}
+
+export function getSecondPassiveGroups(defenseId: DefensePackageId): {
+    defensive: Array<{ id: string; label: string; hint: string }>;
+    offensive: Array<{ id: string; label: string; hint: string }>;
+} {
+    const defense = getDefensePackage(defenseId);
+    const allowed = new Set(defense?.secondPassiveTemplateIds ?? []);
+    const mapEntry = (id: string) => ({
+        id,
+        label: secondPassiveLabel(id),
+        hint: secondPassiveHint(id),
+    });
+    const defensive = WIZARD_DEFENSIVE_SECOND_PASSIVES.filter((id) => allowed.has(id)).map(mapEntry);
+    const offensive = WIZARD_OFFENSIVE_SECOND_PASSIVES.filter((id) => allowed.has(id)).map(mapEntry);
+    if (defenseId === 'phasing' && allowed.has('passive-evade')) {
+        defensive.push(mapEntry('passive-evade'));
+    }
+    return { defensive, offensive };
+}
+
+export function resolveActiveBuffSpec(selection: TowerWizardSelection): PowerGrantSpec {
+    const defense = getDefensePackage(selection.defenseId);
+    if (!defense) return def('ab-armor', DEF_RANK);
+    if (selection.activeBuffMode === 'offensive' && selection.offensiveActiveBuffId) {
+        return def(selection.offensiveActiveBuffId, DEF_RANK);
+    }
+    return defense.grants.activeBuff;
+}
+
+function capitalizeSpecial(key: string): string {
+    if (!key) return key;
+    return key.charAt(0).toUpperCase() + key.slice(1);
+}
+
+export function playerFacingPowerName(spec: PowerGrantSpec, resolved?: ResolvedGrant): string {
+    if (spec.special) return capitalizeSpecial(spec.special);
+    const tid = spec.templateId;
+    if (tid.includes('weapon-single')) return 'Weapon Attack';
+    if (tid.includes('weapon-aoe')) return 'Area Attack';
+    if (tid.includes('weapon-split')) return 'Split Attack';
+    if (tid.includes('control-push-pull')) return 'Push / Pull';
+    if (spec.isSpell) return 'Spell Attack';
+    if (resolved?.displayName && !resolved.displayName.match(/tier\s*\d/i)) {
+        return resolved.displayName;
+    }
+    return resolved?.mechanicalName ?? secondPassiveLabel(spec.templateId);
+}
+
+export function playerFacingVariantLabel(
+    variant: OffenseActiveVariant,
+    baseSpec?: PowerGrantSpec,
+): string {
+    if (baseSpec?.special && (variant === 'damage-t4' || variant === 'damage-t3')) {
+        return capitalizeSpecial(baseSpec.special);
+    }
+    return VARIANT_LABELS[variant];
+}
+
+export function packageNeedsOffensiveBuffStep(selection: Partial<TowerWizardSelection>): boolean {
+    return selection.activeBuffMode === 'offensive';
 }
 
 export function sortOffensePackagesForDefense(defenseId: DefensePackageId): TowerWizardOffensePackage[] {
@@ -257,6 +355,10 @@ export function sortOffensePackagesForDefense(defenseId: DefensePackageId): Towe
 
 export function secondPassiveLabel(templateId: string): string {
     return SECOND_PASSIVE_LABELS[templateId] ?? templateId;
+}
+
+export function secondPassiveHint(templateId: string): string {
+    return SECOND_PASSIVE_HINTS[templateId] ?? '';
 }
 
 export function resolveGrant(spec: PowerGrantSpec): ResolvedGrant {
@@ -393,7 +495,7 @@ export function buildPackageGrantSpecs(selection: TowerWizardSelection): PowerGr
     return [
         defense.grants.passive1,
         def(selection.secondPassiveTemplateId, DEF_RANK),
-        defense.grants.activeBuff,
+        resolveActiveBuffSpec(selection),
         defense.grants.reaction,
         ...offenseSpecs,
     ];
@@ -415,11 +517,19 @@ export function buildPackageReview(selection: TowerWizardSelection): PackageRevi
 
     const specs = buildPackageGrantSpecs(selection);
 
-    const defenseRows: Array<ResolvedGrant & { role: string }> = [
-        { ...resolveGrant(defense.grants.passive1), role: 'Passive 1' },
-        { ...resolveGrant(def(selection.secondPassiveTemplateId, DEF_RANK)), role: 'Passive 2' },
-        { ...resolveGrant(defense.grants.activeBuff), role: 'Active Buff' },
-        { ...resolveGrant(defense.grants.reaction), role: 'Reaction' },
+    const defenseRows: Array<ResolvedGrant & { role: string; playerName: string }> = [
+        { ...resolveGrant(defense.grants.passive1), role: 'Passive 1', playerName: playerFacingPowerName(defense.grants.passive1, resolveGrant(defense.grants.passive1)) },
+        {
+            ...resolveGrant(def(selection.secondPassiveTemplateId, DEF_RANK)),
+            role: 'Passive 2',
+            playerName: secondPassiveLabel(selection.secondPassiveTemplateId),
+        },
+        {
+            ...resolveGrant(resolveActiveBuffSpec(selection)),
+            role: 'Active Buff',
+            playerName: playerFacingPowerName(resolveActiveBuffSpec(selection), resolveGrant(resolveActiveBuffSpec(selection))),
+        },
+        { ...resolveGrant(defense.grants.reaction), role: 'Reaction', playerName: playerFacingPowerName(defense.grants.reaction, resolveGrant(defense.grants.reaction)) },
     ];
 
     const offenseSpecs = specs.slice(4);
@@ -431,11 +541,15 @@ export function buildPackageReview(selection: TowerWizardSelection): PackageRevi
             role: `Active ${i + 1}`,
             grantKey: `offense-${i}`,
             displayName: resolved.displayName,
+            playerName: playerFacingPowerName(spec, resolved),
             mechanicalName: resolved.mechanicalName,
             rank: spec.rank,
             spec,
             configurable: variantOpts.length > 0 || resolved.category === 'active',
-            variantOptions: variantOpts.map((id) => ({ id, label: VARIANT_LABELS[id] })),
+            variantOptions: variantOpts.map((id) => ({
+                id,
+                label: playerFacingVariantLabel(id, spec),
+            })),
             override: overrides.find((o) => o.grantKey === `offense-${i}`),
         };
     });

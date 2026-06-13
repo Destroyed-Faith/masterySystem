@@ -3,13 +3,15 @@
  */
 import { applyTowerWizardPackage } from './tower-wizard-apply.js';
 import { TOWER_WIZARD_COPY } from './tower-wizard-copy.js';
-import { getDefensePackage, resolveGrant, secondPassiveLabel, sortOffensePackagesForDefense, TOWER_WIZARD_DEFENSE_PACKAGES, buildPackageReview, initializeOffenseOverrides, packageNeedsDeliveryStep, packageNeedsWeakenSaveStep, } from './tower-wizard-packages.js';
+import { getDefensePackage, resolveGrant, resolveActiveBuffSpec, secondPassiveLabel, sortOffensePackagesForDefense, TOWER_WIZARD_DEFENSE_PACKAGES, buildPackageReview, getSecondPassiveGroups, initializeOffenseOverrides, packageNeedsDeliveryStep, packageNeedsOffensiveBuffStep, packageNeedsWeakenSaveStep, playerFacingPowerName, WIZARD_OFFENSIVE_ACTIVE_BUFFS, } from './tower-wizard-packages.js';
 import { collectRelevantWarnings } from './tower-wizard-validation.js';
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const BaseDialog = HandlebarsApplicationMixin(ApplicationV2);
 const STEP_ORDER = [
     'defense',
     'passive2',
+    'activeBuffChoice',
+    'offensiveBuff',
     'offense',
     'weakenSave',
     'delivery',
@@ -19,6 +21,8 @@ function defaultSelection() {
     return {
         defenseId: undefined,
         secondPassiveTemplateId: undefined,
+        activeBuffMode: 'defensive',
+        offensiveActiveBuffId: undefined,
         offenseId: undefined,
         delivery: 'melee',
         weakenSave: null,
@@ -49,7 +53,13 @@ export class TowerWizardDialog extends BaseDialog {
         if (!this.selection.defenseId || !this.selection.secondPassiveTemplateId || !this.selection.offenseId) {
             return null;
         }
-        const sel = this.selection;
+        if (this.selection.activeBuffMode === 'offensive' && !this.selection.offensiveActiveBuffId) {
+            return null;
+        }
+        const sel = {
+            ...this.selection,
+            activeBuffMode: this.selection.activeBuffMode ?? 'defensive',
+        };
         if (this.step === 'review' || this.selection.offenseActiveOverrides) {
             sel.offenseActiveOverrides = initializeOffenseOverrides(sel);
         }
@@ -59,20 +69,9 @@ export class TowerWizardDialog extends BaseDialog {
         const stepIndex = STEP_ORDER.indexOf(this.step) + 1;
         const copy = TOWER_WIZARD_COPY;
         const defense = this.selection.defenseId ? getDefensePackage(this.selection.defenseId) : undefined;
-        const recommendedPassives = defense
-            ? defense.recommendedSecondPassiveTemplateIds.map((id) => ({
-                id,
-                label: secondPassiveLabel(id),
-                mechanical: resolveGrant({ templateId: id, rank: 4 }).mechanicalName,
-            }))
-            : [];
-        const allPassives = defense
-            ? defense.secondPassiveTemplateIds.map((id) => ({
-                id,
-                label: secondPassiveLabel(id),
-                mechanical: resolveGrant({ templateId: id, rank: 4 }).mechanicalName,
-            }))
-            : [];
+        const passiveGroups = this.selection.defenseId
+            ? getSecondPassiveGroups(this.selection.defenseId)
+            : { defensive: [], offensive: [] };
         const offensePackages = this.selection.defenseId
             ? sortOffensePackagesForDefense(this.selection.defenseId).map((p) => ({
                 id: p.id,
@@ -83,37 +82,34 @@ export class TowerWizardDialog extends BaseDialog {
                 thematic: this.selection.defenseId === 'evade' && p.id === 'expose',
             }))
             : [];
-        const defenseSummaryRows = defense
+        const fullSelection = this.#fullSelection();
+        const activeBuffSpec = fullSelection
+            ? resolveActiveBuffSpec(fullSelection)
+            : defense?.grants.activeBuff;
+        const defenseSummaryRows = defense && this.selection.secondPassiveTemplateId && activeBuffSpec
             ? [
                 {
                     role: 'Passive 1',
-                    label: resolveGrant(defense.grants.passive1).displayName,
-                    mechanical: resolveGrant(defense.grants.passive1).mechanicalName,
+                    label: playerFacingPowerName(defense.grants.passive1, resolveGrant(defense.grants.passive1)),
                     rank: 4,
                 },
-                this.selection.secondPassiveTemplateId
-                    ? {
-                        role: 'Passive 2',
-                        label: secondPassiveLabel(this.selection.secondPassiveTemplateId),
-                        mechanical: resolveGrant({ templateId: this.selection.secondPassiveTemplateId, rank: 4 }).mechanicalName,
-                        rank: 4,
-                    }
-                    : null,
+                {
+                    role: 'Passive 2',
+                    label: secondPassiveLabel(this.selection.secondPassiveTemplateId),
+                    rank: 4,
+                },
                 {
                     role: 'Active Buff',
-                    label: resolveGrant(defense.grants.activeBuff).displayName,
-                    mechanical: resolveGrant(defense.grants.activeBuff).mechanicalName,
+                    label: playerFacingPowerName(activeBuffSpec, resolveGrant(activeBuffSpec)),
                     rank: 4,
                 },
                 {
                     role: 'Reaction',
-                    label: resolveGrant(defense.grants.reaction).displayName,
-                    mechanical: resolveGrant(defense.grants.reaction).mechanicalName,
+                    label: playerFacingPowerName(defense.grants.reaction, resolveGrant(defense.grants.reaction)),
                     rank: 4,
                 },
-            ].filter(Boolean)
+            ]
             : [];
-        const fullSelection = this.#fullSelection();
         const review = fullSelection
             ? buildPackageReview(fullSelection)
             : { defenseRows: [], offenseRows: [], allOk: false, packageId: '' };
@@ -121,7 +117,7 @@ export class TowerWizardDialog extends BaseDialog {
         const reviewOffenseConfig = review.offenseRows.map((row) => ({
             grantKey: row.grantKey,
             role: row.role,
-            displayName: row.displayName,
+            displayName: row.playerName,
             variantOptions: row.variantOptions ?? [],
             override: row.override ?? { grantKey: row.grantKey, isSpell: false },
         }));
@@ -130,8 +126,9 @@ export class TowerWizardDialog extends BaseDialog {
             copy,
             selection: this.selection,
             defensePackages: TOWER_WIZARD_DEFENSE_PACKAGES,
-            recommendedPassives,
-            allPassives,
+            defensivePassives: passiveGroups.defensive,
+            offensivePassives: passiveGroups.offensive,
+            offensiveActiveBuffs: WIZARD_OFFENSIVE_ACTIVE_BUFFS,
             offensePackages,
             defenseSummaryRows,
             review,
@@ -139,13 +136,14 @@ export class TowerWizardDialog extends BaseDialog {
             warnings,
             isDefense: this.step === 'defense',
             isPassive2: this.step === 'passive2',
+            isActiveBuffChoice: this.step === 'activeBuffChoice',
+            isOffensiveBuff: this.step === 'offensiveBuff',
             isOffense: this.step === 'offense',
             isWeakenSave: this.step === 'weakenSave',
             isDelivery: this.step === 'delivery',
             isReview: this.step === 'review',
             showBack: this.step !== 'defense' && this.step !== 'review',
-            showNext: this.step !== 'review' && this.step !== 'defense' && this.step !== 'passive2'
-                && this.step !== 'offense' && this.step !== 'weakenSave' && this.step !== 'delivery',
+            showNext: false,
             canAdvance: this.#canAdvance(),
         };
     }
@@ -155,6 +153,10 @@ export class TowerWizardDialog extends BaseDialog {
                 return !!this.selection.defenseId;
             case 'passive2':
                 return !!this.selection.secondPassiveTemplateId;
+            case 'activeBuffChoice':
+                return !!this.selection.activeBuffMode;
+            case 'offensiveBuff':
+                return !!this.selection.offensiveActiveBuffId;
             case 'offense':
                 return !!this.selection.offenseId;
             case 'weakenSave':
@@ -169,6 +171,10 @@ export class TowerWizardDialog extends BaseDialog {
         const idx = STEP_ORDER.indexOf(from);
         let next = STEP_ORDER[idx + 1];
         while (next) {
+            if (next === 'offensiveBuff' && !packageNeedsOffensiveBuffStep(this.selection)) {
+                next = STEP_ORDER[STEP_ORDER.indexOf(next) + 1];
+                continue;
+            }
             if (next === 'weakenSave' && (!this.selection.offenseId || !packageNeedsWeakenSaveStep(this.selection.offenseId))) {
                 next = STEP_ORDER[STEP_ORDER.indexOf(next) + 1];
                 continue;
@@ -185,6 +191,10 @@ export class TowerWizardDialog extends BaseDialog {
         const idx = STEP_ORDER.indexOf(from);
         let prev = STEP_ORDER[idx - 1];
         while (prev) {
+            if (prev === 'offensiveBuff' && !packageNeedsOffensiveBuffStep(this.selection)) {
+                prev = STEP_ORDER[STEP_ORDER.indexOf(prev) - 1];
+                continue;
+            }
             if (prev === 'delivery' && (!this.selection.offenseId || !packageNeedsDeliveryStep(this.selection.offenseId))) {
                 prev = STEP_ORDER[STEP_ORDER.indexOf(prev) - 1];
                 continue;
@@ -241,6 +251,8 @@ export class TowerWizardDialog extends BaseDialog {
             el.addClass('is-picked');
             this.selection.defenseId = el.data('defense-id');
             this.selection.secondPassiveTemplateId = undefined;
+            this.selection.activeBuffMode = 'defensive';
+            this.selection.offensiveActiveBuffId = undefined;
             this.selection.offenseId = undefined;
             this.selection.offenseActiveOverrides = undefined;
             window.setTimeout(() => this.#advanceAfterSelection(), 120);
@@ -248,6 +260,20 @@ export class TowerWizardDialog extends BaseDialog {
         root.find('.js-tw-select-passive2').on('click', (ev) => {
             $(ev.currentTarget).addClass('is-picked');
             this.selection.secondPassiveTemplateId = String($(ev.currentTarget).data('passive-id') || '');
+            window.setTimeout(() => this.#advanceAfterSelection(), 120);
+        });
+        root.find('.js-tw-active-buff-mode').on('click', (ev) => {
+            $(ev.currentTarget).addClass('is-picked');
+            const mode = String($(ev.currentTarget).data('buff-mode') || 'defensive');
+            this.selection.activeBuffMode = mode;
+            if (mode === 'defensive') {
+                this.selection.offensiveActiveBuffId = undefined;
+            }
+            window.setTimeout(() => this.#advanceAfterSelection(), 120);
+        });
+        root.find('.js-tw-select-offensive-buff').on('click', (ev) => {
+            $(ev.currentTarget).addClass('is-picked');
+            this.selection.offensiveActiveBuffId = String($(ev.currentTarget).data('buff-id') || '');
             window.setTimeout(() => this.#advanceAfterSelection(), 120);
         });
         root.find('.js-tw-select-offense').on('click', (ev) => {

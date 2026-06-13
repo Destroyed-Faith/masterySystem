@@ -23,23 +23,51 @@
     <section class="tower-wizard-step">
       <h3>{{copy.passive2.heading}}</h3>
       <p class="tower-wizard-prose">{{copy.passive2.body}}</p>
-      {{#if recommendedPassives.length}}
-      <h4>{{copy.passive2.recommended}}</h4>
+      {{#if defensivePassives.length}}
+      <h4>{{copy.passive2.strengthenDefense}}</h4>
       <div class="tower-wizard-passive-grid">
-        {{#each recommendedPassives}}
+        {{#each defensivePassives}}
         <button type="button" class="tower-wizard-passive-card js-tw-select-passive2{{#if (eq ../selection.secondPassiveTemplateId this.id)}} is-selected{{/if}}" data-passive-id="{{this.id}}">
           <span class="chip-label">{{this.label}}</span>
-          <span class="chip-mechanical">{{this.mechanical}}</span>
+          <span class="chip-mechanical">{{this.hint}}</span>
         </button>
         {{/each}}
       </div>
       {{/if}}
-      <h4>{{copy.passive2.allOptions}}</h4>
+      {{#if offensivePassives.length}}
+      <h4>{{copy.passive2.supportAttacks}}</h4>
       <div class="tower-wizard-passive-grid">
-        {{#each allPassives}}
+        {{#each offensivePassives}}
         <button type="button" class="tower-wizard-passive-card js-tw-select-passive2{{#if (eq ../selection.secondPassiveTemplateId this.id)}} is-selected{{/if}}" data-passive-id="{{this.id}}">
           <span class="chip-label">{{this.label}}</span>
-          <span class="chip-mechanical">{{this.mechanical}}</span>
+          <span class="chip-mechanical">{{this.hint}}</span>
+        </button>
+        {{/each}}
+      </div>
+      {{/if}}
+    </section>
+    {{/if}}
+
+    {{#if isActiveBuffChoice}}
+    <section class="tower-wizard-step">
+      <h3>{{copy.activeBuffChoice.heading}}</h3>
+      <p class="tower-wizard-prose">{{copy.activeBuffChoice.body}}</p>
+      <div class="tower-wizard-choice-row">
+        <button type="button" class="tower-wizard-choice js-tw-active-buff-mode{{#if (eq selection.activeBuffMode 'defensive')}} is-selected{{/if}}" data-buff-mode="defensive">{{copy.activeBuffChoice.defensive}}</button>
+        <button type="button" class="tower-wizard-choice js-tw-active-buff-mode{{#if (eq selection.activeBuffMode 'offensive')}} is-selected{{/if}}" data-buff-mode="offensive">{{copy.activeBuffChoice.offensive}}</button>
+      </div>
+    </section>
+    {{/if}}
+
+    {{#if isOffensiveBuff}}
+    <section class="tower-wizard-step">
+      <h3>{{copy.offensiveBuff.heading}}</h3>
+      <p class="tower-wizard-prose">{{copy.offensiveBuff.body}}</p>
+      <div class="tower-wizard-cards">
+        {{#each offensiveActiveBuffs}}
+        <button type="button" class="tower-wizard-card js-tw-select-offensive-buff{{#if (eq ../selection.offensiveActiveBuffId this.id)}} is-selected{{/if}}" data-buff-id="{{this.id}}">
+          <span class="tower-wizard-card-title">{{this.label}}</span>
+          <span class="tower-wizard-card-text">{{this.explanation}}</span>
         </button>
         {{/each}}
       </div>
@@ -102,14 +130,14 @@
       <h4>{{copy.review.defense}}</h4>
       <ul class="tower-wizard-summary-list">
         {{#each defenseSummaryRows}}
-        <li><strong>{{this.role}}:</strong> {{this.label}} <span class="mechanical">({{this.mechanical}} · Rank {{this.rank}})</span></li>
+        <li><strong>{{this.role}}:</strong> {{this.label}} <span class="mechanical">(Rank {{this.rank}})</span></li>
         {{/each}}
       </ul>
 
       <h4>{{copy.review.offense}}</h4>
       <ul class="tower-wizard-summary-list">
         {{#each review.offenseRows}}
-        <li><strong>{{this.role}}:</strong> {{this.displayName}} <span class="mechanical">({{this.mechanicalName}} · Rank {{this.rank}})</span></li>
+        <li><strong>{{this.role}}:</strong> {{this.playerName}} <span class="mechanical">(Rank {{this.rank}})</span></li>
         {{/each}}
       </ul>
 

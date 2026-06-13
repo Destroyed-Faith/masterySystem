@@ -17,6 +17,7 @@ export const TIER_3_SPECIALS = [
 /** Tier 4 eligibility per Actives.md ~374–407. */
 export const TIER_4_SPECIALS = [
     'bleeding',
+    'expose',
     'freeze',
     'ignite',
     'mark',

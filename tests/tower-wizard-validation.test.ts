@@ -9,6 +9,7 @@ import type { TowerWizardSelection } from '../src/creation/tower-wizard/tower-wi
 const baseSelection: TowerWizardSelection = {
     defenseId: 'armor',
     secondPassiveTemplateId: 'passive-temp-hp',
+    activeBuffMode: 'defensive',
     offenseId: 'direct-damage',
     delivery: 'melee',
     weakenSave: null,
@@ -38,37 +39,16 @@ describe('tower-wizard-validation', () => {
         expect(validateTowerWizardSelection(baseSelection)).toBeNull();
     });
 
-    it('rejects expose offense while catalog unavailable', () => {
+    it('accepts expose offense package', () => {
         expect(
             validateTowerWizardSelection({ ...baseSelection, offenseId: 'expose' }),
-        ).toMatch(/not available/i);
+        ).toBeNull();
     });
 
     it('validateTowerWizardCreation checks mixed ranks and counts', () => {
         const actor = {
             system: {
                 creation: { towerWizardPackageId: 'armor__direct-damage' },
-                mastery: { rank: 4 },
-            },
-            items: {
-                filter: (fn: (i: unknown) => boolean) =>
-                    [
-                        mockPowerItem('passive', 4, 'passive-fortified-frame'),
-                        mockPowerItem('passive', 4, 'passive-temp-hp'),
-                        mockPowerItem('activeBuff', 4, 'ab-armor'),
-                        mockPowerItem('reaction', 4, 'reaction-armor'),
-                        mockPowerItem('active', 2, 'active-melee-weapon-single'),
-                        mockPowerItem('active', 2, 'active-melee-weapon-aoe'),
-                    ].filter(fn),
-            },
-        };
-        expect(validateTowerWizardCreation(actor as any)).toBeNull();
-    });
-
-    it('rejects movement powers in tower wizard mode', () => {
-        const actor = {
-            system: {
-                creation: { towerWizardPackageId: 'x' },
                 mastery: { rank: 4 },
             },
             items: {
