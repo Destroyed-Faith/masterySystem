@@ -108,8 +108,15 @@
 }
 
 .mastery-system.sheet.actor.character .points-box.points-box-faith {
-  min-width: 52px;
-  max-width: 68px;
+  min-width: 72px;
+  max-width: 92px;
+}
+
+.mastery-system.sheet.actor.character .points-box.points-box-faith label {
+  font-size: 7px;
+  line-height: 1.15;
+  text-align: center;
+  white-space: normal;
 }
 
 .mastery-system.sheet.actor.character .points-box.points-box-faith .faith-fractures-display {

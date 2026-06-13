@@ -7,7 +7,6 @@ import {
   getMinorExpressionDefinition,
   listMinorExpressionsByAttribute,
   isTierUnlocked,
-  minorExpressionPickDelta
 } from '../src/utils/minor-expressions';
 
 describe('minor-expressions catalog', () => {
@@ -53,14 +52,6 @@ describe('isTierUnlocked', () => {
     expect(isTierUnlocked(8, 8)).toBe(true);
     expect(isTierUnlocked(15, 16)).toBe(false);
     expect(isTierUnlocked(16, 16)).toBe(true);
-  });
-});
-
-describe('minorExpressionPickDelta', () => {
-  it('counts added and removed', () => {
-    expect(minorExpressionPickDelta(['a', 'b'], ['b', 'c'])).toEqual({ added: 1, removed: 1 });
-    expect(minorExpressionPickDelta([], ['x'])).toEqual({ added: 1, removed: 0 });
-    expect(minorExpressionPickDelta(['x'], [])).toEqual({ added: 0, removed: 1 });
   });
 });
 

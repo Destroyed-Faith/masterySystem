@@ -1,15 +1,6 @@
 /**
  * Dialog: choose Minor Expressions (cantrips) per attribute view, capped
  * by Mastery Rank globally, attribute ≥ 8.
- *
- * Players Guide 8273–8404 (Minor Expressions): each new pick costs **1
- * Reroll Point** and removing one refunds **1 Reroll Point**, capped at
- * the character's maximum Reroll-Point pool. The doc uses "Reroll
- * Points" while the data model historically named the field
- * `system.faithFractures` (see "Reroll Points — Fractures of Faith",
- * Players Guide 5496). The two terms refer to the **same** resource;
- * UI strings now show "Reroll Point" and the field name is preserved
- * for backward compatibility.
  */
 
 import {
@@ -18,7 +9,6 @@ import {
   getMinorExpressionDefinition,
   isTierUnlocked,
   listMinorExpressionsByAttribute,
-  minorExpressionPickDelta,
   sanitizeMinorExpressionIds,
   tierBodyForExpression,
   tierThresholdForAttributeValue,
@@ -134,16 +124,8 @@ export async function showMinorExpressionsDialog(
 
   const initialTotal = picksFromOtherAttrs.length + defs.filter((d) => selected.has(d.id)).length;
 
-  const faithMax = Math.max(0, Math.floor(Number(system.faithFractures?.maximum) || 0));
-  const faithCur = Math.max(0, Math.floor(Number(system.faithFractures?.current) || 0));
-  const faithLine =
-    faithMax > 0
-      ? `<p class="me-faith-line">Reroll Points: <strong id="me-faith-cur">${faithCur}</strong> / ${faithMax} · Neue Auswahl kostet je <strong>1</strong>, Entfernen erstattet <strong>1</strong>.</p>`
-      : `<p class="me-faith-line me-faith-line--na">Kein Reroll-Point-Pool — keine Kosten für Minor Expressions.</p>`;
-
   const content = `
     <p class="me-slots-summary"><strong><span id="me-count">${initialTotal}</span></strong> von <strong>${mr}</strong> ausgewählt</p>
-    ${faithLine}
     <p class="me-hint">Minor Expressions unterstützen und färben — sie ersetzen keine Powers.</p>
     ${buildSingleAttributeSection(focusAttribute, val, defs, selected)}
   `;
@@ -173,29 +155,7 @@ export async function showMinorExpressionsDialog(
                 );
               }
 
-              const { added, removed } = minorExpressionPickDelta(sanitized, cleaned);
-              const freshSys = actor.system || {};
-              const fMax = Math.max(0, Math.floor(Number(freshSys.faithFractures?.maximum) || 0));
-              const fCur = Math.max(0, Math.floor(Number(freshSys.faithFractures?.current) || 0));
-
-              if (fMax > 0) {
-                const newCur = fCur + removed - added;
-                if (newCur < 0) {
-                  (globalThis as any).ui?.notifications?.warn(
-                    `Nicht genug Reroll Points: ${added} neue Auswahl${added === 1 ? '' : 'en'}, dabei ${removed} entfernt — es fehlen ${Math.abs(
-                      newCur
-                    )} (aktuell ${fCur}).`
-                  );
-                  return false;
-                }
-                const clamped = Math.min(fMax, Math.max(0, newCur));
-                await actor.update({
-                  'system.minorExpressions': cleaned,
-                  'system.faithFractures.current': clamped
-                });
-              } else {
-                await actor.update({ 'system.minorExpressions': cleaned });
-              }
+              await actor.update({ 'system.minorExpressions': cleaned });
               resolve();
               return true;
             }

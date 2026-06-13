@@ -4061,7 +4061,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             masteryChargesReset: !!system?.mastery && Object.prototype.hasOwnProperty.call(system.mastery, 'charges'),
             stonesReleased: !!system?.stones,
         });
-        ui.notifications?.info('Safe Haven Rest: HP, Stress, Scars, Stones, Mastery Charges, Skills, Vitality saves, Faith Fractures and Echo uses fully restored.');
+        ui.notifications?.info('Safe Haven Rest: HP, Stress, Scars, Stones, Mastery Charges, Skills, Vitality saves, Reroll Points and Echo uses fully restored.');
         this.render();
     }
     /**
@@ -4070,22 +4070,22 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     async #onGmAwardFaithFracture(event) {
         event.preventDefault();
         if (!game.user?.isGM) {
-            ui.notifications?.warn('Only a GM can award Faith Fractures.');
+            ui.notifications?.warn('Only a GM can award Reroll Points.');
             return;
         }
         const system = this.actor.system;
         const max = Math.max(0, Number(system.faithFractures?.maximum) || 0);
         const cur = Math.max(0, Number(system.faithFractures?.current) || 0);
         if (max <= 0) {
-            ui.notifications?.warn('This actor has no Faith Fracture pool (maximum is 0).');
+            ui.notifications?.warn('This actor has no Reroll Point pool (maximum is 0).');
             return;
         }
         if (cur >= max) {
-            ui.notifications?.info(`${this.actor.name} is already at maximum Faith Fractures (${max}).`);
+            ui.notifications?.info(`${this.actor.name} is already at maximum Reroll Points (${max}).`);
             return;
         }
         await this.actor.update({ 'system.faithFractures.current': cur + 1 });
-        ui.notifications?.info(`${this.actor.name}: +1 Faith Fracture (${cur + 1}/${max}).`);
+        ui.notifications?.info(`${this.actor.name}: +1 Reroll Point (${cur + 1}/${max}).`);
         this.render();
     }
     /**

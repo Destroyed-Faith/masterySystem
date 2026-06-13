@@ -571,21 +571,6 @@ export function tierBodyForExpression(def: MinorExpressionDefinition, attributeV
   return def.tiers[tier];
 }
 
-/** Count of expressions newly selected vs removed (for Faith Fracture costs). */
-export function minorExpressionPickDelta(prev: string[], next: string[]): { added: number; removed: number } {
-  const a = new Set(prev.map((id) => String(id || '').trim()).filter(Boolean));
-  const b = new Set(next.map((id) => String(id || '').trim()).filter(Boolean));
-  let added = 0;
-  let removed = 0;
-  for (const id of b) {
-    if (!a.has(id)) added++;
-  }
-  for (const id of a) {
-    if (!b.has(id)) removed++;
-  }
-  return { added, removed };
-}
-
 export function sanitizeMinorExpressionIds(
   ids: string[] | undefined,
   getAttributeValue: (key: string) => number,

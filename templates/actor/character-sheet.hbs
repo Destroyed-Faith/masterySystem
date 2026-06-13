@@ -62,8 +62,8 @@
           <span class="points-value" id="sheet-xp-display">{{default system.points.xp 0}}</span>
         </div>
       </div>
-      <div class="points-box points-box-faith" title="Faith Fractures: noch verfügbar zum Ändern des Würfelergebnisses (je 1 pro Reroll im Chat)">
-        <label>FF</label>
+      <div class="points-box points-box-faith" title="Reroll Points: für Chat-Rerolls (je 1 pro Reroll)">
+        <label>Reroll Points</label>
         <div class="points-display faith-fractures-display">
           <span class="points-value" id="sheet-faith-current">{{default system.faithFractures.current 0}}</span>
           <span class="points-label">/ {{default system.faithFractures.maximum 0}}</span>
@@ -1213,12 +1213,12 @@
           </div>
         </div>
         <div class="safe-haven-rest-row">
-          <button type="button" class="safe-haven-rest" title="Rest at Safe Haven — restore Skill Points, Vitality save uses, and Faith Fractures">
+          <button type="button" class="safe-haven-rest" title="Rest at Safe Haven — restore Skill Points, Vitality save uses, and Reroll Points">
             <i class="fas fa-bed"></i> Safe Haven Rest
           </button>
           {{#if (userIsGM)}}
-          <button type="button" class="gm-award-faith-fracture" title="Reward playing out disadvantages (+1 Faith Fracture, up to maximum)">
-            <i class="fas fa-plus-circle"></i> GM: +1 Faith (RP)
+          <button type="button" class="gm-award-faith-fracture" title="Reward playing out disadvantages (+1 Reroll Point, up to maximum)">
+            <i class="fas fa-plus-circle"></i> GM: +1 Reroll Point
           </button>
           {{/if}}
         </div>
@@ -1976,7 +1976,7 @@
       
       {{#unless creationComplete}}
       <div class="creation-note">
-        <p><i class="fas fa-info-circle"></i> You must take at least <strong>{{creation.disadvantagePointsMin}}</strong> and at most <strong>{{creation.disadvantagePointsMax}}</strong> points of disadvantages to finalize creation. Total points set your starting Faith Fractures.</p>
+        <p><i class="fas fa-info-circle"></i> You must take at least <strong>{{creation.disadvantagePointsMin}}</strong> and at most <strong>{{creation.disadvantagePointsMax}}</strong> points of disadvantages to finalize creation. Total points set your starting Reroll Points.</p>
       </div>
       {{/unless}}
     </div>

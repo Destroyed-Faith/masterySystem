@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.44] - 2026-06-12
+
+### Changed
+
+- **Character sheet — Reroll Points:** Header and related labels use **Reroll Points** instead of **FF** / Faith Fractures for the disadvantage-derived reroll pool.
+
+### Fixed
+
+- **Minor Expressions:** Picking or changing Minor Expressions no longer spends or refunds Reroll Points — only the Mastery Rank cap and attribute ≥ 8 rules apply.
+
 ## [0.9.43] - 2026-06-12
 
 ### Fixed

@@ -24,11 +24,6 @@ export declare function tierThresholdForAttributeValue(value: number): MinorExpr
 /** True when the character's attribute value meets or exceeds this tier threshold. */
 export declare function isTierUnlocked(attributeValue: number, tier: MinorExpressionTier): boolean;
 export declare function tierBodyForExpression(def: MinorExpressionDefinition, attributeValue: number): string;
-/** Count of expressions newly selected vs removed (for Faith Fracture costs). */
-export declare function minorExpressionPickDelta(prev: string[], next: string[]): {
-    added: number;
-    removed: number;
-};
 export declare function sanitizeMinorExpressionIds(ids: string[] | undefined, getAttributeValue: (key: string) => number, masteryRank: number): string[];
 export declare const MINOR_EXPRESSION_ATTRIBUTES: MinorExpressionAttribute[];
 //# sourceMappingURL=minor-expressions.d.ts.map
