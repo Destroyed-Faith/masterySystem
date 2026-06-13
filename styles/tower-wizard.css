@@ -789,20 +789,31 @@
   color: var(--df-text-secondary, #cfd6dd);
 }
 
-/* ─── Change-Power categorized picker (modal Dialog) ───────────────── */
+/* ─── Change-Power categorized picker (modal Dialog) ─────────────────
+   Uses explicit dark colors (not theme vars) so Foundry's light theme
+   cannot wash out the reused wizard styling. */
 .tower-wizard-power-picker-dialog .window-content {
-  background: var(--df-bg-secondary, #161a1d);
-  color: var(--df-text-primary, #f0f3f6);
+  display: flex !important;
+  flex-direction: column;
+  background: #161a1d !important;
+  color: #f0f3f6 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
 }
 
 .tower-wizard-power-picker-dialog .dialog-content {
   flex: 1 1 auto;
   min-height: 0;
+  overflow-y: auto;
+  padding: 14px 16px;
 }
 
-.tower-wizard-power-picker-dialog .tower-wizard-offense-special-title,
-.tower-wizard-power-picker-dialog .chip-label {
-  color: var(--df-text-primary, #f0f3f6);
+.tower-wizard-power-picker-dialog .dialog-buttons {
+  flex: 0 0 auto;
+  margin: 0;
+  padding: 10px 14px;
+  border-top: 1px solid #3a3f44;
+  background: #12161a;
 }
 
 .tower-wizard-picker-body {
@@ -815,13 +826,71 @@
   margin: 0;
   font-size: 0.9rem;
   line-height: 1.45;
-  color: var(--df-text-secondary, #cfd6dd);
+  color: #cfd6dd;
 }
 
 .tower-wizard-picker-groups {
   display: flex;
   flex-direction: column;
   gap: 10px;
+}
+
+.tower-wizard-power-picker-dialog .tower-wizard-offense-special-details {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: #3a3f44;
+}
+
+.tower-wizard-power-picker-dialog .tower-wizard-offense-special-details[open] {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.tower-wizard-power-picker-dialog .tower-wizard-offense-special-title {
+  color: #f0f3f6;
+  font-weight: 600;
+}
+
+.tower-wizard-power-picker-dialog .tower-wizard-offense-special-summary::before {
+  color: #cfd6dd;
+  opacity: 0.9;
+}
+
+.tower-wizard-power-picker-dialog .tower-wizard-passive-card {
+  background: #20272b;
+  border-color: #3a3f44;
+  color: #f0f3f6;
+}
+
+.tower-wizard-power-picker-dialog .tower-wizard-passive-card:hover {
+  border-color: #8b0000;
+  background: #262d32;
+}
+
+.tower-wizard-power-picker-dialog .tower-wizard-passive-card.is-selected {
+  border-color: #8b0000;
+  background: rgba(139, 0, 0, 0.18);
+  box-shadow: inset 0 0 0 1px #8b0000;
+}
+
+.tower-wizard-power-picker-dialog .chip-label {
+  color: #f0f3f6;
+}
+
+.tower-wizard-power-picker-dialog .chip-mechanical {
+  color: #cfd6dd;
+}
+
+.tower-wizard-power-picker-dialog .tower-wizard-offense-variant {
+  background: #20272b;
+  border-color: #3a3f44;
+  color: #f0f3f6;
+}
+
+.tower-wizard-power-picker-dialog .tower-wizard-offense-pattern-label {
+  color: #f0f3f6;
+}
+
+.tower-wizard-power-picker-dialog .tower-wizard-offense-pattern-hint {
+  color: #cfd6dd;
 }
 
 .tower-wizard-picker-card-grid {
