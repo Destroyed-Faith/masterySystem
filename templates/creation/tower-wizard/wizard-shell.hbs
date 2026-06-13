@@ -6,6 +6,12 @@
   <div class="tower-wizard-body">
     {{#if isDefense}}
     <section class="tower-wizard-step">
+      <div class="tower-wizard-expert-skip">
+        <button type="button" class="tower-wizard-expert-skip-btn js-tw-skip-to-manual">
+          <span class="tower-wizard-expert-skip-title">{{copy.defense.expertButton}}</span>
+          <span class="tower-wizard-expert-skip-text">{{copy.defense.expertBody}}</span>
+        </button>
+      </div>
       <h3>{{copy.defense.question}}</h3>
       <div class="tower-wizard-cards">
         {{#each defensePackages}}
@@ -129,6 +135,9 @@
     {{#if isReview}}
     <section class="tower-wizard-step tower-wizard-review">
       <h3>{{copy.review.heading}}</h3>
+      {{#if manualBuildMode}}
+      <p class="tower-wizard-prose">{{copy.review.manualIntro}}</p>
+      {{/if}}
 
       {{#if warnings.length}}
       <ul class="tower-wizard-warnings">
@@ -201,10 +210,10 @@
   </div>
 
   <footer class="tower-wizard-footer">
-    {{#if showBack}}<button type="button" class="tower-wizard-btn js-tw-back">{{copy.buttons.back}}</button>{{/if}}
+    {{#if showBack}}<button type="button" class="tower-wizard-btn js-tw-back">{{#if manualBuildMode}}{{copy.review.manualBack}}{{else}}{{copy.buttons.back}}{{/if}}</button>{{/if}}
     {{#if showNext}}<button type="button" class="tower-wizard-btn is-primary js-tw-next" {{#unless canAdvance}}disabled{{/unless}}>{{copy.buttons.next}}</button>{{/if}}
     {{#if isReview}}
-    <button type="button" class="tower-wizard-btn js-tw-restart">{{copy.review.back}}</button>
+    <button type="button" class="tower-wizard-btn js-tw-restart">{{#if manualBuildMode}}{{copy.review.manualBack}}{{else}}{{copy.review.back}}{{/if}}</button>
     <button type="button" class="tower-wizard-btn is-primary js-tw-apply" {{#unless canApply}}disabled{{/unless}}>{{copy.review.apply}}</button>
     {{/if}}
   </footer>

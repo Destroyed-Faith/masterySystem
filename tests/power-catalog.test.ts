@@ -5,6 +5,7 @@ import {
     getSubfamiliesByCategory,
     CATEGORY_ORDER,
     _resetCatalogCache,
+    activeTemplateCanBeSpell,
     actorAlreadyHasPower,
     findDuplicatePowerLabel,
     powerIdentityKeyFromEntry,
@@ -129,5 +130,11 @@ describe('Power Catalog (Templates refactor)', () => {
         if (!b) return;
         expect(powerIdentityKeyFromEntry(a)).not.toBe(powerIdentityKeyFromEntry(b));
         expect(actorAlreadyHasPower([{ system: { templateId: a.templateId, chosenSpecial: a.chosenSpecial } }], b)).toBe(false);
+    });
+
+    it('only ranged active templates may become spells', () => {
+        expect(activeTemplateCanBeSpell('active-ranged-damage-t4')).toBe(true);
+        expect(activeTemplateCanBeSpell('active-melee-damage-t4')).toBe(false);
+        expect(activeTemplateCanBeSpell('active-melee-weapon-single')).toBe(false);
     });
 });

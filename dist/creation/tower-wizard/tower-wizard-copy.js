@@ -6,6 +6,9 @@ export const TOWER_WIZARD_COPY = {
     progress: (step, total) => `Step ${step} of ${total}`,
     defense: {
         question: 'How do you want to survive combat?',
+        expertTitle: 'Already know your full package?',
+        expertBody: 'Jump straight to the review page and pick all six Powers yourself from the catalog — Passives, Buff, Reaction, and both Actives.',
+        expertButton: 'Build my package manually',
     },
     passive2: {
         heading: 'Choose your second Passive',
@@ -31,7 +34,10 @@ You can keep that safety, or replace it with an offensive buff on the next step.
         durationNote: 'Duration',
     },
     offense: {
-        question: 'How do you want to pressure enemies?',
+        heading: 'Choose your two Actives',
+        body: 'Pick exactly two Rank 2 Actives from the catalog below. Click a card again to deselect it.',
+        pickCount: (selected) => `${selected} of 2 selected`,
+        pickHint: 'Select two different Actives, then click Continue.',
     },
     weakenSave: {
         question: 'Which kind of Save do you want to pressure?',
@@ -49,6 +55,7 @@ You can keep that safety, or replace it with an offensive buff on the next step.
     },
     review: {
         heading: 'Your Combat Package',
+        manualIntro: 'Choose each Power below from the catalog. You need all six before you can apply.',
         powers: 'Package Powers',
         defense: 'Defense',
         offense: 'Offense',
@@ -58,6 +65,7 @@ You can keep that safety, or replace it with an offensive buff on the next step.
         customPower: 'Custom',
         apply: 'Apply this package',
         back: 'Go back and choose another style',
+        manualBack: 'Back to wizard start',
         castAsSpell: 'Cast as Spell',
         castingAttribute: 'Casting attribute',
         resolution: 'Resolution',

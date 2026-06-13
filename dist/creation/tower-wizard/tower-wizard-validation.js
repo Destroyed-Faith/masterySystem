@@ -1,8 +1,8 @@
 /**
  * Tower Wizard — validation for selections and finalize.
  */
-import { CATEGORY_LABELS, CATEGORY_ORDER, findCatalogEntry, TOWER_WIZARD_DEFENSIVE_RANK, TOWER_WIZARD_MASTERY_RANK, TOWER_WIZARD_OFFENSIVE_RANK, TOWER_WIZARD_POWER_REQUIREMENTS, TOWER_WIZARD_POWER_TOTAL, countPowersByCategory, findDuplicatePowerLabel, resolvePowerCategoryFromItem, } from '../../utils/power-catalog.js';
-import { buildPackageGrantSpecs, buildPackageReview, catalogEntryMatchesGrantKey, getDefensePackage, getOffensePackage, grantKeyCategory, isValidOffensiveActiveBuffId, } from './tower-wizard-packages.js';
+import { CATEGORY_LABELS, CATEGORY_ORDER, activeTemplateCanBeSpell, findCatalogEntry, TOWER_WIZARD_DEFENSIVE_RANK, TOWER_WIZARD_MASTERY_RANK, TOWER_WIZARD_OFFENSIVE_RANK, TOWER_WIZARD_POWER_REQUIREMENTS, TOWER_WIZARD_POWER_TOTAL, countPowersByCategory, findDuplicatePowerLabel, resolvePowerCategoryFromItem, } from '../../utils/power-catalog.js';
+import { buildPackageGrantSpecs, buildPackageGrantSpecsFromOverrides, buildPackageReview, catalogEntryMatchesGrantKey, getDefensePackage, getOffensePackage, grantKeyCategory, isManualBuildMode, isValidOffensiveActiveBuffId, resolveGrant, selectionUsesCatalogOffense, } from './tower-wizard-packages.js';
 export function isValidSecondPassiveForDefense(defenseId, templateId) {
     const defense = getDefensePackage(defenseId);
     if (!defense)
@@ -21,14 +21,85 @@ export function validatePowerOverrideForGrantKey(selection, override) {
         return `${expected} slot cannot use that power type. Reset or pick a ${expected} power.`;
     }
     if (override.grantKey === 'passive-2') {
-        const defense = getDefensePackage(selection.defenseId);
-        if (defense && override.templateId === defense.grants.passive1.templateId) {
-            return 'Passive 2 cannot be the same template as Passive 1.';
+        const passive1Override = selection.powerOverrides?.find((o) => o.grantKey === 'passive-1');
+        if (passive1Override) {
+            if (passive1Override.templateId === override.templateId
+                && (passive1Override.special ?? null) === (override.special ?? null)) {
+                return 'Passive 2 cannot be the same as Passive 1.';
+            }
         }
+        else {
+            const defense = getDefensePackage(selection.defenseId);
+            if (defense && override.templateId === defense.grants.passive1.templateId) {
+                return 'Passive 2 cannot be the same template as Passive 1.';
+            }
+        }
+    }
+    if (override.isSpell && !activeTemplateCanBeSpell(override.templateId)) {
+        return 'Only Ranged Actives can be cast as Spells.';
+    }
+    return null;
+}
+export function validateOffenseActivePicks(selection) {
+    const picks = selection.offenseActivePicks;
+    if (!picks || picks.length !== 2)
+        return 'Choose exactly two Actives.';
+    const seen = new Set();
+    for (let i = 0; i < picks.length; i++) {
+        const pick = picks[i];
+        if (seen.has(pick.pickId))
+            return 'Choose two different Actives.';
+        seen.add(pick.pickId);
+        const entry = findCatalogEntry(pick.templateId, pick.special);
+        if (!entry)
+            return 'One chosen Active is missing from the catalog.';
+        const grantKey = i === 0 ? 'offense-0' : 'offense-1';
+        if (!catalogEntryMatchesGrantKey(entry, grantKey))
+            return 'Invalid Active selection.';
+    }
+    return null;
+}
+export function validateManualWizardSelection(selection) {
+    if (!isManualBuildMode(selection))
+        return null;
+    const specs = buildPackageGrantSpecsFromOverrides(selection);
+    if (!specs)
+        return 'Choose all six Powers on the review page before applying.';
+    const synthetic = {
+        ...selection,
+        defenseId: selection.defenseId ?? 'armor',
+        secondPassiveTemplateId: selection.secondPassiveTemplateId ?? '',
+        activeBuffMode: selection.activeBuffMode ?? 'defensive',
+        delivery: selection.delivery ?? 'melee',
+        weakenSave: selection.weakenSave ?? null,
+    };
+    for (const override of selection.powerOverrides ?? []) {
+        const overrideErr = validatePowerOverrideForGrantKey(synthetic, override);
+        if (overrideErr)
+            return overrideErr;
+    }
+    const passive1 = selection.powerOverrides?.find((o) => o.grantKey === 'passive-1');
+    const passive2 = selection.powerOverrides?.find((o) => o.grantKey === 'passive-2');
+    if (passive1 && passive2 && passive1.templateId === passive2.templateId
+        && (passive1.special ?? null) === (passive2.special ?? null)) {
+        return 'Passive 1 and Passive 2 must be different Powers.';
+    }
+    if (!specs.every((s) => resolveGrant(s).status === 'ok')) {
+        return 'One or more chosen Powers are missing from the catalog.';
+    }
+    const seen = new Set();
+    for (const spec of specs) {
+        const key = `${spec.templateId}::${spec.special ?? ''}`;
+        if (seen.has(key))
+            return 'This package contains duplicate Powers.';
+        seen.add(key);
     }
     return null;
 }
 export function validateTowerWizardSelection(selection) {
+    if (isManualBuildMode(selection)) {
+        return validateManualWizardSelection(selection);
+    }
     if (!selection.defenseId)
         return 'Choose a defensive style.';
     if (!selection.secondPassiveTemplateId)
@@ -36,8 +107,6 @@ export function validateTowerWizardSelection(selection) {
     if (!isValidSecondPassiveForDefense(selection.defenseId, selection.secondPassiveTemplateId)) {
         return 'That second Passive is not available for your package.';
     }
-    if (!selection.offenseId)
-        return 'Choose an offensive style.';
     if (selection.activeBuffMode === 'offensive' && !selection.offensiveActiveBuffId) {
         return 'Choose an offensive Active Buff.';
     }
@@ -46,11 +115,24 @@ export function validateTowerWizardSelection(selection) {
         && !isValidOffensiveActiveBuffId(selection.offensiveActiveBuffId)) {
         return 'That offensive Active Buff is not available.';
     }
-    const offense = getOffensePackage(selection.offenseId);
-    if (!offense?.catalogAvailable)
-        return 'That offensive package is not available yet.';
-    if (selection.offenseId === 'weaken-save' && !selection.weakenSave) {
-        return 'Choose which Save to pressure for Weaken.';
+    if (!selection.offenseId && !selectionUsesCatalogOffense(selection)) {
+        return 'Choose exactly two Actives.';
+    }
+    if (selectionUsesCatalogOffense(selection)) {
+        const pickErr = validateOffenseActivePicks(selection);
+        if (pickErr)
+            return pickErr;
+    }
+    else if (!selection.offenseId) {
+        return 'Choose exactly two Actives.';
+    }
+    else {
+        const offense = getOffensePackage(selection.offenseId);
+        if (!offense?.catalogAvailable)
+            return 'That offensive package is not available yet.';
+        if (selection.offenseId === 'weaken-save' && !selection.weakenSave) {
+            return 'Choose which Save to pressure for Weaken.';
+        }
     }
     const full = selection;
     for (const override of full.powerOverrides ?? []) {
@@ -122,6 +204,13 @@ export function validateTowerWizardCreation(actor) {
     return null;
 }
 export function validatePackageSpecs(selection) {
+    if (isManualBuildMode(selection)) {
+        const specs = buildPackageGrantSpecsFromOverrides(selection);
+        if (!specs || specs.length !== TOWER_WIZARD_POWER_TOTAL) {
+            return `Internal package error: expected ${TOWER_WIZARD_POWER_TOTAL} grants from manual picks.`;
+        }
+        return validateManualWizardSelection(selection);
+    }
     const specs = buildPackageGrantSpecs(selection);
     if (specs.length !== TOWER_WIZARD_POWER_TOTAL) {
         return `Internal package error: expected ${TOWER_WIZARD_POWER_TOTAL} grants, got ${specs.length}.`;
@@ -129,9 +218,11 @@ export function validatePackageSpecs(selection) {
     return validateTowerWizardSelection(selection);
 }
 export function collectRelevantWarnings(selection) {
+    if (isManualBuildMode(selection))
+        return [];
     const out = [];
     const defense = getDefensePackage(selection.defenseId);
-    const offense = getOffensePackage(selection.offenseId);
+    const offense = selection.offenseId ? getOffensePackage(selection.offenseId) : undefined;
     if (defense?.warning)
         out.push(defense.warning);
     if (offense?.warning)

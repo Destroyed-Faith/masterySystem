@@ -4,7 +4,7 @@
 import type { PowerCategory } from '../../types/item.js';
 import type { PowerGrantSpec } from '../../utils/power-item-builder.js';
 import type { CatalogEntry } from '../../utils/power-catalog.js';
-import type { DefensePackageId, OffenseActiveOverride, OffenseActiveVariant, OffensePackageId, PackageReviewRow, ResolvedGrant, TowerWizardDefensePackage, TowerWizardOffensePackage, TowerWizardSelection, PackageGrantKey, ReviewPowerRow, SecondPassiveGroup, WizardOffensiveActiveBuff, WizardOffensiveActiveBuffGroup, WizardActiveBuffPreview } from './tower-wizard-types.js';
+import type { DefensePackageId, OffenseActiveOverride, OffenseActiveVariant, OffensePackageId, PackageReviewRow, ResolvedGrant, TowerWizardDefensePackage, TowerWizardOffensePackage, TowerWizardSelection, PackageGrantKey, PackagePowerOverride, ReviewPowerRow, SecondPassiveGroup, OffenseActiveGroup, OffenseActivePick, WizardOffensiveActiveBuff, WizardOffensiveActiveBuffGroup, WizardActiveBuffPreview } from './tower-wizard-types.js';
 export declare function grantKeyCategory(grantKey: PackageGrantKey): PowerCategory;
 export declare function grantKeyRank(grantKey: PackageGrantKey): number;
 /** True when a catalog entry is valid for the wizard slot (category + rank). */
@@ -13,6 +13,10 @@ export declare function packageSpecIdentity(spec: PowerGrantSpec): string;
 export declare function collectPackageIdentityKeys(specs: PowerGrantSpec[], exceptGrantKey?: PackageGrantKey): Set<string>;
 /** Offense packages hidden from the wizard UI (still in type union for saved data). */
 export declare const WIZARD_HIDDEN_OFFENSE_IDS: OffensePackageId[];
+export declare function offensePickFromEntry(entry: CatalogEntry): OffenseActivePick;
+export declare function getOffenseActiveGroups(actorEchoKey?: string | null): OffenseActiveGroup[];
+export declare function resolveOffenseActiveSpecs(selection: TowerWizardSelection): PowerGrantSpec[] | null;
+export declare function selectionUsesCatalogOffense(selection: Partial<TowerWizardSelection>): boolean;
 export declare function getDefaultActiveBuffPreview(defenseId: DefensePackageId): WizardActiveBuffPreview | null;
 export declare function getOffensiveActiveBuffOptions(): WizardOffensiveActiveBuff[];
 export declare function getOffensiveActiveBuffGroups(): WizardOffensiveActiveBuffGroup[];
@@ -51,6 +55,11 @@ export interface PackageReview {
 }
 export declare function buildReviewPowerRows(selection: TowerWizardSelection): ReviewPowerRow[];
 export declare function buildPackageReview(selection: TowerWizardSelection): PackageReview;
-export declare function packageNeedsDeliveryStep(_offenseId: OffensePackageId): boolean;
-export declare function packageNeedsWeakenSaveStep(offenseId: OffensePackageId): boolean;
+export declare function isManualBuildMode(selection: Partial<TowerWizardSelection>): boolean;
+export declare function buildPackageGrantSpecsFromOverrides(selection: Partial<TowerWizardSelection>): PowerGrantSpec[] | null;
+export declare function collectOverrideIdentityKeys(overrides: PackagePowerOverride[], exceptGrantKey?: PackageGrantKey): Set<string>;
+export declare function buildManualReviewPowerRows(selection: Partial<TowerWizardSelection>): ReviewPowerRow[];
+export declare function buildManualPackageReview(selection: Partial<TowerWizardSelection>): PackageReview;
+export declare function packageNeedsDeliveryStep(selection: Partial<TowerWizardSelection>): boolean;
+export declare function packageNeedsWeakenSaveStep(selection: Partial<TowerWizardSelection>): boolean;
 //# sourceMappingURL=tower-wizard-packages.d.ts.map

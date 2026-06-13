@@ -143,6 +143,11 @@ export function powerIdentityKeyFromEntry(entry: CatalogEntry): string {
     });
 }
 
+/** Only ranged Active templates may be flagged as Spells (`active-ranged-*`). */
+export function activeTemplateCanBeSpell(templateId: string): boolean {
+    return templateId.includes('active-ranged');
+}
+
 export function collectOwnedPowerIdentityKeys(
     powers: Iterable<{ system?: { templateId?: string; templateName?: string; category?: PowerCategory; chosenSpecial?: { key?: string } } }>,
 ): Set<string> {

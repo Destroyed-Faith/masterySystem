@@ -2,7 +2,7 @@
  * Tower Wizard — catalog power picker (filter by category, subfamily, special, search).
  */
 import { renderPowerLevelTable } from '../../utils/power-rendering.js';
-import { CATEGORY_LABELS, filterCatalog, findCatalogEntryByName, findTemplateById, getSubfamiliesByCategory, getVisibleSpecialOptions, powerIdentityKeyFromEntry, } from '../../utils/power-catalog.js';
+import { activeTemplateCanBeSpell, CATEGORY_LABELS, filterCatalog, findCatalogEntryByName, findTemplateById, getSubfamiliesByCategory, getVisibleSpecialOptions, powerIdentityKeyFromEntry, } from '../../utils/power-catalog.js';
 import { catalogEntryMatchesGrantKey, grantKeyCategory, grantKeyRank } from './tower-wizard-packages.js';
 function labelSubfamily(key) {
     return key
@@ -39,7 +39,6 @@ export function catalogPickerResultToGrantSpec(result) {
 export async function showTowerWizardPowerPicker(options) {
     const category = grantKeyCategory(options.grantKey);
     const fixedRank = grantKeyRank(options.grantKey);
-    const showSpellPanel = category === 'active';
     const content = `
     <form class="power-creation-form power-catalog-form tower-wizard-power-picker">
       <p class="tower-wizard-picker-intro">Choose a replacement <strong>${CATEGORY_LABELS[category]}</strong> for <strong>${options.roleLabel}</strong> (Rank ${fixedRank}). Only powers of this type are shown.</p>
@@ -60,7 +59,7 @@ export async function showTowerWizardPowerPicker(options) {
             <option value="">-- Any Subfamily --</option>
           </select>
         </div>
-        <div class="form-group power-form-group pc-special-group" ${showSpellPanel ? '' : 'style="display:none"'}>
+        <div class="form-group power-form-group pc-special-group" ${category === 'active' ? '' : 'style="display:none"'}>
           <label class="power-form-label">Special:</label>
           <select id="tw-pc-special" class="power-form-select">
             <option value="">-- Any Special --</option>
@@ -82,7 +81,7 @@ export async function showTowerWizardPowerPicker(options) {
         <div id="tw-pc-description" class="power-description-text"></div>
         <div id="tw-pc-level-table" class="power-level-table-container"></div>
       </div>
-      <div class="form-group power-form-group pc-spell-panel" id="tw-pc-spell-panel" style="${showSpellPanel ? '' : 'display:none'}; border:1px solid #555; padding:8px; border-radius:4px;">
+      <div class="form-group power-form-group pc-spell-panel" id="tw-pc-spell-panel" style="display:none; border:1px solid #555; padding:8px; border-radius:4px;">
         <label class="power-form-label power-form-checkbox-label">
           <input type="checkbox" id="tw-pc-is-spell" class="power-form-checkbox" />
           <span><strong>Cast this Active as a Spell</strong></span>
@@ -140,7 +139,8 @@ export async function showTowerWizardPowerPicker(options) {
                             ui.notifications?.error('That power is already used elsewhere in this package.');
                             return false;
                         }
-                        const isSpell = showSpellPanel && html.find('#tw-pc-is-spell').prop('checked') === true;
+                        const canSpell = category === 'active' && activeTemplateCanBeSpell(entry.templateId);
+                        const isSpell = canSpell && html.find('#tw-pc-is-spell').prop('checked') === true;
                         finish({
                             templateId: entry.templateId,
                             special: entry.chosenSpecial?.key ?? null,
@@ -190,6 +190,15 @@ export async function showTowerWizardPowerPicker(options) {
                 const $count = html.find('#tw-pc-count');
                 const $isSpell = html.find('#tw-pc-is-spell');
                 const $spellFields = html.find('#tw-pc-spell-fields');
+                const $spellPanel = html.find('#tw-pc-spell-panel');
+                const refreshSpellPanel = (entry) => {
+                    const canSpell = category === 'active' && !!entry && activeTemplateCanBeSpell(entry.templateId);
+                    $spellPanel.toggle(canSpell);
+                    if (!canSpell) {
+                        $isSpell.prop('checked', false);
+                        $spellFields.hide();
+                    }
+                };
                 const refreshSubfamilyDropdown = () => {
                     $subfamilySelect.empty();
                     $subfamilySelect.append('<option value="">-- Any Subfamily --</option>');
@@ -258,6 +267,7 @@ export async function showTowerWizardPowerPicker(options) {
                     const skipped = entries.length - available.length;
                     $count.text(`${available.length} available${skipped > 0 ? ` (${skipped} already used in package)` : ''}`);
                     $details.hide();
+                    refreshSpellPanel(undefined);
                 };
                 $subfamilySelect.on('change', () => {
                     refreshSpecialDropdown();
@@ -272,15 +282,18 @@ export async function showTowerWizardPowerPicker(options) {
                     const name = String($(this).val() || '');
                     if (!name) {
                         $details.hide();
+                        refreshSpellPanel(undefined);
                         return;
                     }
                     const entry = findCatalogEntryByName(name);
                     if (!entry) {
                         $details.hide();
+                        refreshSpellPanel(undefined);
                         return;
                     }
                     renderEntryDetails(entry, $description, $levelTable);
                     $details.show();
+                    refreshSpellPanel(entry);
                     const template = findTemplateById(entry.templateId);
                     if (template?.spellHints?.defaultResolution) {
                         html.find('#tw-pc-resolution').val(template.spellHints.defaultResolution);

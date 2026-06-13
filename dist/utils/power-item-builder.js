@@ -2,7 +2,7 @@
  * Shared utilities for building embedded power Items from catalog entries.
  */
 import { renderRange, renderAoe, renderDuration } from './power-rendering.js';
-import { actorAlreadyHasPower, findCatalogEntry, findTemplateById, } from './power-catalog.js';
+import { actorAlreadyHasPower, activeTemplateCanBeSpell, findCatalogEntry, findTemplateById, } from './power-catalog.js';
 import { resolveSpellSaveTypeForEntry } from './spell-save-type.js';
 /** Build the full item data object for `actor.createEmbeddedDocuments`. */
 export function buildPowerItemFromCatalogEntry(entry, rank, spell = { isSpell: false }) {
@@ -84,10 +84,11 @@ export async function grantPowerSpecs(actor, specs) {
         }
         if (actorAlreadyHasPower(existing, entry))
             continue;
+        const canSpell = activeTemplateCanBeSpell(entry.templateId);
         const itemData = buildPowerItemFromCatalogEntry(entry, spec.rank, {
-            isSpell: !!spec.isSpell,
-            castingAttribute: spec.castingAttribute,
-            spellResolution: spec.spellResolution,
+            isSpell: canSpell && !!spec.isSpell,
+            castingAttribute: canSpell ? spec.castingAttribute : undefined,
+            spellResolution: canSpell ? spec.spellResolution : undefined,
         });
         if (!itemData) {
             throw new Error(`Rank ${spec.rank} data not found for ${entry.name}`);

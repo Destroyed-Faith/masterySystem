@@ -50,6 +50,43 @@
   margin: 0 0 16px;
 }
 
+.tower-wizard-expert-skip {
+  margin: 0 0 20px;
+}
+
+.tower-wizard-expert-skip-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  width: 100%;
+  padding: 18px 20px;
+  border: 2px solid var(--df-accent, #8b0000);
+  border-radius: 10px;
+  background: rgba(139, 0, 0, 0.14);
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.tower-wizard-expert-skip-btn:hover {
+  background: rgba(139, 0, 0, 0.22);
+  border-color: #b71c1c;
+}
+
+.tower-wizard-expert-skip-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.tower-wizard-expert-skip-text {
+  font-size: 0.9rem;
+  opacity: 0.88;
+  line-height: 1.45;
+}
+
 .tower-wizard-warn {
   color: #ffb74d;
   font-size: 0.88rem;

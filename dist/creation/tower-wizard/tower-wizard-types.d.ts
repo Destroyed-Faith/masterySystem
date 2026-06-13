@@ -35,16 +35,26 @@ export interface ResolvedGrant {
     status: CatalogStatus;
 }
 export type ActiveBuffMode = 'defensive' | 'offensive';
+export interface OffenseActivePick {
+    /** Stable catalog identity (`templateId` or `templateId::special`). */
+    pickId: string;
+    templateId: string;
+    special?: string | null;
+}
 export interface TowerWizardSelection {
     defenseId: DefensePackageId;
     secondPassiveTemplateId: string;
     activeBuffMode: ActiveBuffMode;
     offensiveActiveBuffId?: string;
-    offenseId: OffensePackageId;
+    /** @deprecated Legacy package flow — prefer `offenseActivePicks`. */
+    offenseId?: OffensePackageId;
+    offenseActivePicks?: OffenseActivePick[];
     delivery: DeliveryMode;
     weakenSave: WeakenSaveChoice | null;
     offenseActiveOverrides?: OffenseActiveOverride[];
     powerOverrides?: PackagePowerOverride[];
+    /** Skip guided steps; configure all six Powers on the review page. */
+    manualBuildMode?: boolean;
 }
 export interface TowerWizardDefensePackage {
     id: DefensePackageId;
@@ -65,6 +75,18 @@ export interface SecondPassiveOption {
 export interface SecondPassiveGroup {
     groupLabel: string;
     passives: SecondPassiveOption[];
+}
+export interface OffenseActiveOption {
+    pickId: string;
+    templateId: string;
+    special?: string | null;
+    label: string;
+    hint: string;
+    isSelected?: boolean;
+}
+export interface OffenseActiveGroup {
+    groupLabel: string;
+    actives: OffenseActiveOption[];
 }
 export interface TowerWizardOffensePackage {
     id: OffensePackageId;

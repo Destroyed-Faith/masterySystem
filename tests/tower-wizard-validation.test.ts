@@ -57,6 +57,10 @@ describe('tower-wizard-validation', () => {
         expect(err).toMatch(/Active slot cannot use that power type/i);
     });
 
+    it('manual build mode requires all six power overrides', () => {
+        expect(validateTowerWizardSelection({ manualBuildMode: true })).toMatch(/all six Powers/i);
+    });
+
     it('validateTowerWizardCreation checks mixed ranks and counts', () => {
         const actor = {
             system: {

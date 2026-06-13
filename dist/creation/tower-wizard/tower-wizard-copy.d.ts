@@ -6,6 +6,9 @@ export declare const TOWER_WIZARD_COPY: {
     readonly progress: (step: number, total: number) => string;
     readonly defense: {
         readonly question: "How do you want to survive combat?";
+        readonly expertTitle: "Already know your full package?";
+        readonly expertBody: "Jump straight to the review page and pick all six Powers yourself from the catalog — Passives, Buff, Reaction, and both Actives.";
+        readonly expertButton: "Build my package manually";
     };
     readonly passive2: {
         readonly heading: "Choose your second Passive";
@@ -29,7 +32,10 @@ export declare const TOWER_WIZARD_COPY: {
         readonly durationNote: "Duration";
     };
     readonly offense: {
-        readonly question: "How do you want to pressure enemies?";
+        readonly heading: "Choose your two Actives";
+        readonly body: "Pick exactly two Rank 2 Actives from the catalog below. Click a card again to deselect it.";
+        readonly pickCount: (selected: number) => string;
+        readonly pickHint: "Select two different Actives, then click Continue.";
     };
     readonly weakenSave: {
         readonly question: "Which kind of Save do you want to pressure?";
@@ -47,6 +53,7 @@ export declare const TOWER_WIZARD_COPY: {
     };
     readonly review: {
         readonly heading: "Your Combat Package";
+        readonly manualIntro: "Choose each Power below from the catalog. You need all six before you can apply.";
         readonly powers: "Package Powers";
         readonly defense: "Defense";
         readonly offense: "Offense";
@@ -56,6 +63,7 @@ export declare const TOWER_WIZARD_COPY: {
         readonly customPower: "Custom";
         readonly apply: "Apply this package";
         readonly back: "Go back and choose another style";
+        readonly manualBack: "Back to wizard start";
         readonly castAsSpell: "Cast as Spell";
         readonly castingAttribute: "Casting attribute";
         readonly resolution: "Resolution";

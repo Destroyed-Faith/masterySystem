@@ -74,6 +74,8 @@ export declare function powerIdentityKeyFromItem(item: {
     };
 }): string;
 export declare function powerIdentityKeyFromEntry(entry: CatalogEntry): string;
+/** Only ranged Active templates may be flagged as Spells (`active-ranged-*`). */
+export declare function activeTemplateCanBeSpell(templateId: string): boolean;
 export declare function collectOwnedPowerIdentityKeys(powers: Iterable<{
     system?: {
         templateId?: string;

@@ -15,6 +15,7 @@ import { renderRange, renderAoe, renderDuration } from './power-rendering.js';
 import { SPECIAL_EFFECTS_BY_ID } from './special-effects.js';
 import {
     actorAlreadyHasPower,
+    activeTemplateCanBeSpell,
     findCatalogEntry,
     findTemplateById,
     type CatalogEntry,
@@ -133,11 +134,12 @@ export async function grantPowerSpecs(actor: Actor, specs: PowerGrantSpec[]): Pr
         }
         if (actorAlreadyHasPower(existing, entry)) continue;
 
-        const itemData = buildPowerItemFromCatalogEntry(entry, spec.rank, {
-            isSpell: !!spec.isSpell,
-            castingAttribute: spec.castingAttribute,
-            spellResolution: spec.spellResolution,
-        });
+    const canSpell = activeTemplateCanBeSpell(entry.templateId);
+    const itemData = buildPowerItemFromCatalogEntry(entry, spec.rank, {
+        isSpell: canSpell && !!spec.isSpell,
+        castingAttribute: canSpell ? spec.castingAttribute : undefined,
+        spellResolution: canSpell ? spec.spellResolution : undefined,
+    });
         if (!itemData) {
             throw new Error(`Rank ${spec.rank} data not found for ${entry.name}`);
         }

@@ -115,6 +115,10 @@ export function powerIdentityKeyFromEntry(entry) {
         chosenSpecial: entry.chosenSpecial,
     });
 }
+/** Only ranged Active templates may be flagged as Spells (`active-ranged-*`). */
+export function activeTemplateCanBeSpell(templateId) {
+    return templateId.includes('active-ranged');
+}
 export function collectOwnedPowerIdentityKeys(powers) {
     const out = new Set();
     for (const p of powers) {

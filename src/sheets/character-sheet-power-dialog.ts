@@ -35,6 +35,7 @@ import {
     CREATION_POWER_REQUIREMENTS,
     CREATION_POWER_TOTAL,
     actorAlreadyHasPower,
+    activeTemplateCanBeSpell,
     collectOwnedPowerIdentityKeys,
     countPowersByCategory,
     filterCatalog,
@@ -190,7 +191,9 @@ export async function showPowerCreationDialog(
                     let rank = parseInt(($html.find('#pc-rank').val() as string) || '1', 10);
                     if (!creationComplete) rank = 2;
 
-                    const isSpell = entry.category === 'active' && !!$html.find('#pc-is-spell').prop('checked');
+                    const isSpell = entry.category === 'active'
+                        && activeTemplateCanBeSpell(entry.templateId)
+                        && !!$html.find('#pc-is-spell').prop('checked');
                     const castingAttribute = isSpell
                         ? (($html.find('#pc-casting-attr').val() as CastingAttribute) || 'intellect')
                         : undefined;
@@ -321,9 +324,19 @@ export async function showPowerCreationDialog(
                 const category = ($categorySelect.val() as string) || '';
                 const isActive = category === 'active';
                 $specialWrap.toggle(isActive);
-                $spellPanel.toggle(isActive);
                 if (!isActive) {
                     $specialSelect.val('');
+                    $isSpell.prop('checked', false);
+                    $spellFields.hide();
+                    $spellPanel.hide();
+                }
+            };
+
+            const refreshSpellEligibility = (entry?: CatalogEntry) => {
+                const category = ($categorySelect.val() as string) || '';
+                const canSpell = category === 'active' && !!entry && activeTemplateCanBeSpell(entry.templateId);
+                $spellPanel.toggle(canSpell);
+                if (!canSpell) {
                     $isSpell.prop('checked', false);
                     $spellFields.hide();
                 }
@@ -404,7 +417,12 @@ export async function showPowerCreationDialog(
 
             const updatePcSpellRulesHint = () => {
                 if (!$spellHint.length) return;
-                const showSpell = $isSpell.prop('checked') && ($categorySelect.val() as string) === 'active';
+                const powerName = ($powerSelect.val() as string) || '';
+                const ent = powerName ? findCatalogEntryByName(powerName) : undefined;
+                const showSpell = $isSpell.prop('checked') === true
+                    && ($categorySelect.val() as string) === 'active'
+                    && !!ent
+                    && activeTemplateCanBeSpell(ent.templateId);
                 if (!showSpell) {
                     $spellHint.text('');
                     return;
@@ -416,8 +434,6 @@ export async function showPowerCreationDialog(
                 const intellectVal = Number(system?.attributes?.intellect?.value ?? 0);
                 const saveDc = calculateSaveDC(masteryRank, intellectVal);
                 const res = ($resolution.val() as SpellResolution) || 'spellAttack';
-                const powerName = ($powerSelect.val() as string) || '';
-                const ent = powerName ? findCatalogEntryByName(powerName) : undefined;
                 const tmpl = ent ? findTemplateById(ent.templateId) : undefined;
                 const inferredSave =
                     res === 'saveSpell' && ent ? resolveSpellSaveTypeForEntry(ent, tmpl) : null;
@@ -467,15 +483,18 @@ export async function showPowerCreationDialog(
                 const name = ($(this).val() as string) || '';
                 if (!name) {
                     $details.hide();
+                    refreshSpellEligibility(undefined);
                     return;
                 }
                 const entry = findCatalogEntryByName(name);
                 if (!entry) {
                     $details.hide();
+                    refreshSpellEligibility(undefined);
                     return;
                 }
                 renderEntryDetails(entry, $description, $levelTable);
                 $details.show();
+                refreshSpellEligibility(entry);
 
                 const template = findTemplateById(entry.templateId);
                 refreshSpellPanelDefaults(template);

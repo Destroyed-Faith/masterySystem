@@ -5,7 +5,7 @@ import { applyXpCost, getXpState } from '../../progression/progression-hub-actio
 import { CREATION_MASTERY_RANK, CREATION_POWER_TOTAL, } from '../../utils/power-catalog.js';
 import { grantPowerSpecs } from '../../utils/power-item-builder.js';
 import { calculatePowersUpgradeRefund } from '../../utils/power-xp-refund.js';
-import { buildPackageGrantSpecs, buildPackageReview, } from './tower-wizard-packages.js';
+import { buildPackageGrantSpecs, buildPackageGrantSpecsFromOverrides, buildManualPackageReview, buildPackageReview, isManualBuildMode, } from './tower-wizard-packages.js';
 import { validatePackageSpecs } from './tower-wizard-validation.js';
 function isCreationMode(actor) {
     return actor.system?.creation?.complete === false;
@@ -16,7 +16,9 @@ export async function applyTowerWizardPackage(actor, selection, options) {
         ui.notifications?.error(err);
         return false;
     }
-    const review = buildPackageReview(selection);
+    const review = isManualBuildMode(selection)
+        ? buildManualPackageReview(selection)
+        : buildPackageReview(selection);
     if (!review.allOk) {
         ui.notifications?.error('Cannot apply package — catalog entries missing.');
         return false;
@@ -37,7 +39,13 @@ export async function applyTowerWizardPackage(actor, selection, options) {
         if (!confirmed)
             return false;
     }
-    const specs = buildPackageGrantSpecs(selection);
+    const specs = isManualBuildMode(selection)
+        ? buildPackageGrantSpecsFromOverrides(selection)
+        : buildPackageGrantSpecs(selection);
+    if (!specs) {
+        ui.notifications?.error('Cannot apply package — incomplete selection.');
+        return false;
+    }
     const powerIds = existingPowers.map((i) => i.id);
     if (powerIds.length > 0) {
         await actor.deleteEmbeddedDocuments('Item', powerIds);

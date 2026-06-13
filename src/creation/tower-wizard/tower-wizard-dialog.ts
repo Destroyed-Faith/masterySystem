@@ -6,18 +6,23 @@ import { applyTowerWizardPackage } from './tower-wizard-apply.js';
 import { TOWER_WIZARD_COPY } from './tower-wizard-copy.js';
 import {
     buildPackageGrantSpecs,
+    buildPackageGrantSpecsFromOverrides,
+    buildManualPackageReview,
+    collectOverrideIdentityKeys,
     collectPackageIdentityKeys,
     getDefensePackage,
-    sortOffensePackagesForDefense,
     TOWER_WIZARD_DEFENSE_PACKAGES,
     buildPackageReview,
     getSecondPassiveGroups,
+    getOffenseActiveGroups,
     getDefaultActiveBuffPreview,
     getOffensiveActiveBuffGroups,
     initializeOffenseOverrides,
+    isManualBuildMode,
     packageNeedsDeliveryStep,
     packageNeedsOffensiveBuffStep,
     packageNeedsWeakenSaveStep,
+    selectionUsesCatalogOffense,
 } from './tower-wizard-packages.js';
 import { showTowerWizardPowerPicker } from './tower-wizard-power-picker.js';
 import { collectRelevantWarnings, validateTowerWizardSelection } from './tower-wizard-validation.js';
@@ -27,6 +32,7 @@ import type {
     DeliveryMode,
     OffenseActiveOverride,
     OffenseActiveVariant,
+    OffenseActivePick,
     OffensePackageId,
     PackageGrantKey,
     PackagePowerOverride,
@@ -57,6 +63,7 @@ function defaultSelection(): Partial<TowerWizardSelection> {
         activeBuffMode: 'defensive',
         offensiveActiveBuffId: undefined,
         offenseId: undefined,
+        offenseActivePicks: undefined,
         delivery: 'melee',
         weakenSave: null,
         offenseActiveOverrides: undefined,
@@ -89,7 +96,28 @@ export class TowerWizardDialog extends BaseDialog {
     }
 
     #fullSelection(): TowerWizardSelection | null {
-        if (!this.selection.defenseId || !this.selection.secondPassiveTemplateId || !this.selection.offenseId) {
+        if (isManualBuildMode(this.selection)) {
+            const err = validateTowerWizardSelection(this.selection);
+            if (err) return null;
+            const specs = buildPackageGrantSpecsFromOverrides(this.selection);
+            if (!specs) return null;
+            return {
+                ...this.selection,
+                defenseId: this.selection.defenseId ?? 'armor',
+                secondPassiveTemplateId: this.selection.secondPassiveTemplateId ?? '',
+                activeBuffMode: this.selection.activeBuffMode ?? 'defensive',
+                delivery: this.selection.delivery ?? 'melee',
+                weakenSave: this.selection.weakenSave ?? null,
+                manualBuildMode: true,
+            } as TowerWizardSelection;
+        }
+        if (!this.selection.defenseId || !this.selection.secondPassiveTemplateId) {
+            return null;
+        }
+        if (!selectionUsesCatalogOffense(this.selection) && !this.selection.offenseId) {
+            return null;
+        }
+        if (selectionUsesCatalogOffense(this.selection) && (this.selection.offenseActivePicks?.length ?? 0) !== 2) {
             return null;
         }
         if (this.selection.activeBuffMode === 'offensive' && !this.selection.offensiveActiveBuffId) {
@@ -114,22 +142,29 @@ export class TowerWizardDialog extends BaseDialog {
             ? getSecondPassiveGroups(this.selection.defenseId)
             : [];
 
-        const offensePackages = this.selection.defenseId
-            ? sortOffensePackagesForDefense(this.selection.defenseId).map((p) => ({
-                id: p.id,
-                label: p.label,
-                explanation: p.explanation,
-                warning: p.warning,
-            }))
-            : [];
+        const echoKey = (this.actor.system as { echo?: { key?: string } })?.echo?.key ?? null;
+        const selectedPickIds = new Set((this.selection.offenseActivePicks ?? []).map((p) => p.pickId));
+        const offenseActiveGroups = getOffenseActiveGroups(echoKey).map((group) => ({
+            ...group,
+            actives: group.actives.map((active) => ({
+                ...active,
+                isSelected: selectedPickIds.has(active.pickId),
+            })),
+        }));
+        const offensePickCount = this.selection.offenseActivePicks?.length ?? 0;
 
         const fullSelection = this.#fullSelection();
-        const review = fullSelection
-            ? buildPackageReview(fullSelection)
-            : { defenseRows: [], offenseRows: [], reviewPowerRows: [], allOk: false, packageId: '' };
+        const manualMode = isManualBuildMode(this.selection);
+        const review = manualMode
+            ? buildManualPackageReview(this.selection)
+            : fullSelection
+                ? buildPackageReview(fullSelection)
+                : { defenseRows: [], offenseRows: [], reviewPowerRows: [], allOk: false, packageId: '' };
 
-        const warnings = fullSelection ? collectRelevantWarnings(fullSelection) : [];
-        const validationError = fullSelection ? validateTowerWizardSelection(fullSelection) : null;
+        const warnings = fullSelection && !manualMode ? collectRelevantWarnings(fullSelection) : [];
+        const validationError = manualMode || fullSelection
+            ? validateTowerWizardSelection(this.selection)
+            : null;
 
         return {
             progressLabel: copy.progress(stepIndex, STEP_ORDER.length),
@@ -137,11 +172,16 @@ export class TowerWizardDialog extends BaseDialog {
             selection: this.selection,
             defensePackages: TOWER_WIZARD_DEFENSE_PACKAGES,
             secondPassiveGroups: passiveGroups,
-            offensePackages,
+            offenseActiveGroups,
+            offensePickCount,
+            offensePickLabel: copy.offense.pickCount(offensePickCount),
             review,
             warnings,
             validationError,
-            canApply: !!fullSelection && review.allOk && !validationError,
+            canApply: manualMode
+                ? review.allOk && !validationError
+                : !!fullSelection && review.allOk && !validationError,
+            manualBuildMode: manualMode,
             defaultActiveBuffPreview: this.selection.defenseId
                 ? getDefaultActiveBuffPreview(this.selection.defenseId)
                 : null,
@@ -154,8 +194,8 @@ export class TowerWizardDialog extends BaseDialog {
             isWeakenSave: this.step === 'weakenSave',
             isDelivery: this.step === 'delivery',
             isReview: this.step === 'review',
-            showBack: this.step !== 'defense' && this.step !== 'review',
-            showNext: false,
+            showBack: this.step !== 'defense' && (this.step !== 'review' || manualMode),
+            showNext: this.step === 'offense',
             canAdvance: this.#canAdvance(),
         };
     }
@@ -171,7 +211,7 @@ export class TowerWizardDialog extends BaseDialog {
             case 'offensiveBuff':
                 return !!this.selection.offensiveActiveBuffId;
             case 'offense':
-                return !!this.selection.offenseId;
+                return (this.selection.offenseActivePicks?.length ?? 0) === 2;
             case 'weakenSave':
                 return true;
             case 'delivery':
@@ -189,11 +229,11 @@ export class TowerWizardDialog extends BaseDialog {
                 next = STEP_ORDER[STEP_ORDER.indexOf(next) + 1];
                 continue;
             }
-            if (next === 'weakenSave' && (!this.selection.offenseId || !packageNeedsWeakenSaveStep(this.selection.offenseId))) {
+            if (next === 'weakenSave' && !packageNeedsWeakenSaveStep(this.selection)) {
                 next = STEP_ORDER[STEP_ORDER.indexOf(next) + 1];
                 continue;
             }
-            if (next === 'delivery' && (!this.selection.offenseId || !packageNeedsDeliveryStep(this.selection.offenseId))) {
+            if (next === 'delivery' && !packageNeedsDeliveryStep(this.selection)) {
                 next = STEP_ORDER[STEP_ORDER.indexOf(next) + 1];
                 continue;
             }
@@ -210,11 +250,11 @@ export class TowerWizardDialog extends BaseDialog {
                 prev = STEP_ORDER[STEP_ORDER.indexOf(prev) - 1];
                 continue;
             }
-            if (prev === 'delivery' && (!this.selection.offenseId || !packageNeedsDeliveryStep(this.selection.offenseId))) {
+            if (prev === 'delivery' && !packageNeedsDeliveryStep(this.selection)) {
                 prev = STEP_ORDER[STEP_ORDER.indexOf(prev) - 1];
                 continue;
             }
-            if (prev === 'weakenSave' && (!this.selection.offenseId || !packageNeedsWeakenSaveStep(this.selection.offenseId))) {
+            if (prev === 'weakenSave' && !packageNeedsWeakenSaveStep(this.selection)) {
                 prev = STEP_ORDER[STEP_ORDER.indexOf(prev) - 1];
                 continue;
             }
@@ -286,18 +326,25 @@ export class TowerWizardDialog extends BaseDialog {
     }
 
     async #openPowerPicker(grantKey: PackageGrantKey): Promise<void> {
-        const sel = this.#fullSelection();
-        if (!sel) return;
-        const specs = buildPackageGrantSpecs(sel);
-        const excludeIdentityKeys = collectPackageIdentityKeys(specs, grantKey);
-        const row = buildPackageReview(sel).reviewPowerRows.find((r) => r.grantKey === grantKey);
+        const manualMode = isManualBuildMode(this.selection);
+        if (!manualMode && !this.#fullSelection()) return;
+
+        const excludeIdentityKeys = manualMode
+            ? collectOverrideIdentityKeys(this.selection.powerOverrides ?? [], grantKey)
+            : collectPackageIdentityKeys(
+                buildPackageGrantSpecs(this.#fullSelection()!),
+                grantKey,
+            );
+        const row = manualMode
+            ? buildManualPackageReview(this.selection).reviewPowerRows.find((r) => r.grantKey === grantKey)
+            : buildPackageReview(this.#fullSelection()!).reviewPowerRows.find((r) => r.grantKey === grantKey);
         const echoKey = (this.actor.system as { echo?: { key?: string } })?.echo?.key ?? null;
         const result = await showTowerWizardPowerPicker({
             grantKey,
             roleLabel: row?.role ?? grantKey,
             excludeIdentityKeys,
             actorEchoKey: echoKey,
-            currentTemplateId: row?.spec.templateId,
+            currentTemplateId: row?.spec.templateId || undefined,
             currentSpecial: row?.spec.special,
         });
         if (!result) return;
@@ -309,6 +356,15 @@ export class TowerWizardDialog extends BaseDialog {
             castingAttribute: result.castingAttribute,
             spellResolution: result.spellResolution,
         });
+        this.render();
+    }
+
+    #skipToManualReview(): void {
+        this.selection = {
+            ...defaultSelection(),
+            manualBuildMode: true,
+        };
+        this.step = 'review';
         this.render();
     }
 
@@ -331,6 +387,7 @@ export class TowerWizardDialog extends BaseDialog {
         root.find('.js-tw-select-defense').on('click', (ev) => {
             const el = $(ev.currentTarget);
             el.addClass('is-picked');
+            this.selection.manualBuildMode = false;
             this.selection.defenseId = el.data('defense-id') as DefensePackageId;
             this.selection.secondPassiveTemplateId = undefined;
             this.selection.activeBuffMode = 'defensive';
@@ -339,6 +396,10 @@ export class TowerWizardDialog extends BaseDialog {
             this.selection.offenseActiveOverrides = undefined;
             this.#clearPowerOverrides();
             window.setTimeout(() => this.#advanceAfterSelection(), 120);
+        });
+
+        root.find('.js-tw-skip-to-manual').on('click', () => {
+            this.#skipToManualReview();
         });
 
         root.find('.js-tw-select-passive2').on('click', (ev) => {
@@ -445,6 +506,12 @@ export class TowerWizardDialog extends BaseDialog {
         });
 
         root.find('.js-tw-back').on('click', () => {
+            if (isManualBuildMode(this.selection) && this.step === 'review') {
+                this.selection = defaultSelection();
+                this.step = 'defense';
+                this.render();
+                return;
+            }
             this.step = this.#prevStep(this.step);
             this.render();
         });
@@ -460,9 +527,15 @@ export class TowerWizardDialog extends BaseDialog {
         });
 
         root.find('.js-tw-restart').on('click', () => {
-            this.step = 'offense';
-            this.selection.offenseId = undefined;
-            this.selection.offenseActiveOverrides = undefined;
+            if (isManualBuildMode(this.selection)) {
+                this.selection = defaultSelection();
+                this.step = 'defense';
+            } else {
+                this.step = 'offense';
+                this.selection.offenseId = undefined;
+                this.selection.offenseActivePicks = undefined;
+                this.selection.offenseActiveOverrides = undefined;
+            }
             this.#clearPowerOverrides();
             this.render();
         });

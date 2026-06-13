@@ -11,7 +11,10 @@ import { grantPowerSpecs } from '../../utils/power-item-builder.js';
 import { calculatePowersUpgradeRefund } from '../../utils/power-xp-refund.js';
 import {
     buildPackageGrantSpecs,
+    buildPackageGrantSpecsFromOverrides,
+    buildManualPackageReview,
     buildPackageReview,
+    isManualBuildMode,
 } from './tower-wizard-packages.js';
 import { validatePackageSpecs } from './tower-wizard-validation.js';
 import type { TowerWizardSelection } from './tower-wizard-types.js';
@@ -31,7 +34,9 @@ export async function applyTowerWizardPackage(
         return false;
     }
 
-    const review = buildPackageReview(selection);
+    const review = isManualBuildMode(selection)
+        ? buildManualPackageReview(selection)
+        : buildPackageReview(selection);
     if (!review.allOk) {
         ui.notifications?.error('Cannot apply package — catalog entries missing.');
         return false;
@@ -56,7 +61,13 @@ export async function applyTowerWizardPackage(
         if (!confirmed) return false;
     }
 
-    const specs = buildPackageGrantSpecs(selection);
+    const specs = isManualBuildMode(selection)
+        ? buildPackageGrantSpecsFromOverrides(selection)
+        : buildPackageGrantSpecs(selection);
+    if (!specs) {
+        ui.notifications?.error('Cannot apply package — incomplete selection.');
+        return false;
+    }
     const powerIds = existingPowers.map((i: any) => i.id);
 
     if (powerIds.length > 0) {
