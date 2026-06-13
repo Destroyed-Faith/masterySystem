@@ -53,7 +53,6 @@
 .tower-wizard-warn {
   color: #ffb74d;
   font-size: 0.88rem;
-  margin: 10px 0 0;
   line-height: 1.45;
 }
 
@@ -63,15 +62,33 @@
   gap: 14px;
 }
 
+/* Option cards: only phrasing content inside <button> (no p/div) — invalid nesting breaks layout in Chromium */
+.tower-wizard-app button.tower-wizard-card,
+.tower-wizard-app button.tower-wizard-passive-card,
+.tower-wizard-app button.tower-wizard-choice {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  max-width: none;
+  white-space: normal;
+  text-align: left;
+  line-height: 1.45;
+  box-sizing: border-box;
+}
+
 .tower-wizard-card {
   text-align: left;
   border: 1px solid var(--df-border-primary, #3a3f44);
   border-radius: 8px;
-  padding: 14px 16px;
+  padding: 16px 18px;
   background: var(--df-bg-primary, #20272b);
   cursor: pointer;
   color: inherit;
   transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+  gap: 8px;
 }
 
 .tower-wizard-card:hover {
@@ -89,7 +106,19 @@
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  margin-bottom: 8px;
+  width: 100%;
+}
+
+.tower-wizard-card-badges:empty {
+  display: none;
+}
+
+.tower-wizard-card-title {
+  display: block;
+  width: 100%;
+  font-weight: 600;
+  font-size: 0.95rem;
+  line-height: 1.4;
 }
 
 .tower-wizard-card strong {
@@ -100,10 +129,18 @@
 }
 
 .tower-wizard-card-text {
+  display: block;
+  width: 100%;
   margin: 0;
   font-size: 0.9rem;
-  line-height: 1.5;
+  line-height: 1.55;
   word-break: break-word;
+}
+
+.tower-wizard-card .tower-wizard-warn {
+  display: block;
+  width: 100%;
+  margin: 4px 0 0;
 }
 
 .tower-wizard-badge {

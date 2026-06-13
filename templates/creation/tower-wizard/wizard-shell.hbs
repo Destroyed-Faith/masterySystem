@@ -10,9 +10,9 @@
       <div class="tower-wizard-cards">
         {{#each defensePackages}}
         <button type="button" class="tower-wizard-card js-tw-select-defense{{#if (eq ../selection.defenseId this.id)}} is-selected{{/if}}" data-defense-id="{{this.id}}">
-          <strong>{{this.label}}</strong>
-          <p class="tower-wizard-card-text">{{this.explanation}}</p>
-          {{#if this.warning}}<p class="tower-wizard-warn">{{this.warning}}</p>{{/if}}
+          <span class="tower-wizard-card-title">{{this.label}}</span>
+          <span class="tower-wizard-card-text">{{this.explanation}}</span>
+          {{#if this.warning}}<span class="tower-wizard-warn">{{this.warning}}</span>{{/if}}
         </button>
         {{/each}}
       </div>
@@ -52,13 +52,13 @@
       <div class="tower-wizard-cards">
         {{#each offensePackages}}
         <button type="button" class="tower-wizard-card js-tw-select-offense{{#if (eq ../selection.offenseId this.id)}} is-selected{{/if}}{{#if this.recommended}} is-recommended{{/if}}{{#if this.thematic}} is-thematic{{/if}}" data-offense-id="{{this.id}}">
-          <div class="tower-wizard-card-badges">
+          <span class="tower-wizard-card-badges">
             {{#if this.recommended}}<span class="tower-wizard-badge">{{../copy.offense.recommended}}</span>{{/if}}
             {{#if this.thematic}}<span class="tower-wizard-badge is-thematic">{{../copy.offense.thematicMatch}}</span>{{/if}}
-          </div>
-          <strong>{{this.label}}</strong>
-          <p class="tower-wizard-card-text">{{this.explanation}}</p>
-          {{#if this.warning}}<p class="tower-wizard-warn">{{this.warning}}</p>{{/if}}
+          </span>
+          <span class="tower-wizard-card-title">{{this.label}}</span>
+          <span class="tower-wizard-card-text">{{this.explanation}}</span>
+          {{#if this.warning}}<span class="tower-wizard-warn">{{this.warning}}</span>{{/if}}
         </button>
         {{/each}}
       </div>
