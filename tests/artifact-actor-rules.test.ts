@@ -8,6 +8,7 @@ import {
   canSpendArtifactLinkStone,
   canSpendArtifactLinkStoneFromPool,
   listArtifactSpendableStonePools,
+  poolSpendableStones,
   getMaxArtifactSystemLevelForMasteryRank,
   getArtifactBindingKind,
   isArtifactLinkedOnActor,
@@ -84,7 +85,7 @@ describe('artifact link stone helpers', () => {
     expect(canSpendArtifactLinkStone({ system: { stones: { current: 1 } } })).toBe(true);
   });
 
-  it('sums spendable stones from stonePools (current − sustained)', () => {
+  it('sums spendable stones from stonePools (current − sustained − artifact-bound)', () => {
     const actor = {
       system: {
         stonePools: {
@@ -102,7 +103,46 @@ describe('artifact link stone helpers', () => {
     expect(pools.map((p) => p.key)).toEqual(['might', 'agility']);
     expect(pools.find((p) => p.key === 'agility')?.canSpend).toBe(true);
   });
+
+  it('artifact-bound stones are not spendable for activation or Stone Powers', () => {
+    const actor = mockActorWithArtifacts(
+      { might: { current: 2, max: 2, sustained: 0 } },
+      [{ activated: true, stoneAttr: 'might' }],
+    );
+    expect(poolSpendableStones(actor, 'might')).toBe(1);
+    expect(canSpendArtifactLinkStoneFromPool(actor, 'might')).toBe(true);
+    expect(actorStonesCurrent(actor)).toBe(1);
+
+    const fullyBound = mockActorWithArtifacts(
+      { might: { current: 1, max: 1, sustained: 0 } },
+      [{ activated: true, stoneAttr: 'might' }],
+    );
+    expect(poolSpendableStones(fullyBound, 'might')).toBe(0);
+    expect(canSpendArtifactLinkStoneFromPool(fullyBound, 'might')).toBe(false);
+  });
 });
+
+function mockActorWithArtifacts(
+  pools: Record<string, { current: number; max: number; sustained?: number }>,
+  artifacts: Array<{ activated: boolean; stoneAttr?: string }>,
+) {
+  return {
+    system: { stonePools: pools },
+    items: {
+      filter: (fn: (i: any) => boolean) =>
+        artifacts
+          .map((a) => ({
+            type: 'artifact',
+            getFlag: (_ns: string, key: string) => {
+              if (key === 'artifactActivated') return a.activated;
+              if (key === 'artifactActivationStoneAttr') return a.stoneAttr;
+              return undefined;
+            },
+          }))
+          .filter(fn),
+    },
+  };
+}
 
 describe('isArtifactLinkedOnActor (echo)', () => {
   it('echo items stay inactive unless artifactActivated is true', () => {

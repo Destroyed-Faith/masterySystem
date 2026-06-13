@@ -10,6 +10,8 @@ import { STONE_POWERS, getAvailableStonePowers, activateStonePower, activateGene
 import { STONE_POWERS_BY_ATTRIBUTE, stonePowerSkipsFirstTier } from './stone-powers.js';
 import { getStoneUsageCount, getGenericStonePowerUsageCount, calculateStoneCost, getStonePool, isStonePowersConfigurationLocked, getActionEconomyActor } from '../combat/action-economy.js';
 import { getStoneGemStyle } from '../utils/stone-attribute-ui.js';
+import { poolSpendableStones } from '../utils/artifact-actor-rules.js';
+import { countArtifactActivationStones } from '../utils/artifact-stone-bound.js';
 import { getArtifactStoneFunctionStatus } from '../utils/artifact-stone-functions.js';
 import { refreshRadialMenuActionLabelsIfOpenForActor } from '../token-radial-menu.js';
 import { STONE_RITUALS_CATALOG } from './rituals-catalog.js';
@@ -801,20 +803,24 @@ export class StonePowersDialog extends BaseDialog {
             const current = pool?.current ?? pool?.value ?? 0;
             const max = pool?.max ?? pool?.maximum ?? 0;
             const sustained = pool?.sustained ?? 0;
-            const available = (Number(current) || 0) - (Number(sustained) || 0);
+            const artifactBound = countArtifactActivationStones(poolOwner, attr);
+            const spendable = poolSpendableStones(poolOwner, attr);
             const reserved = this.#reservedStonesInDialogForAttr(attr);
-            const poolDisplay = Math.max(0, available - reserved);
+            const poolDisplay = Math.max(0, spendable - reserved);
             const gemStyle = getStoneGemStyle(attr) ?? { fill: '#888888', stroke: '#aaaaaa' };
             const gemSlots = Array.from({ length: poolDisplay }, (_, i) => ({ index: i }));
+            const boundSlots = Array.from({ length: artifactBound }, (_, i) => ({ index: i }));
             return {
                 key: attr,
                 name: poolDisplayName(attr),
                 current: Number(current) || 0,
                 max: Number(max) || 0,
                 sustained: Number(sustained) || 0,
-                available,
+                artifactBound,
+                available: spendable,
                 gemStyle,
-                gemSlots
+                gemSlots,
+                boundSlots,
             };
         })
             .filter((pool) => pool.max > 0);
@@ -1616,14 +1622,7 @@ export class StonePowersDialog extends BaseDialog {
     }
     #actorPoolSpendable(attr) {
         const poolOwner = getActionEconomyActor(this.actor) ?? this.actor;
-        const system = poolOwner.system;
-        const stonePools = system?.stonePools || {};
-        const pool = stonePools[attr];
-        if (!pool)
-            return 0;
-        const current = pool?.current ?? pool?.value ?? 0;
-        const sustained = pool?.sustained ?? 0;
-        return Math.max(0, (Number(current) || 0) - (Number(sustained) || 0));
+        return poolSpendableStones(poolOwner, attr);
     }
     /** Brutto-Pool minus bereits im Dialog reservierte Steine dieser Farbe. */
     #spendableNetForAttr(attr) {

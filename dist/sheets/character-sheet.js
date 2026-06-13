@@ -6,10 +6,12 @@ import { SKILLS, SKILL_CATEGORIES } from '../utils/skills.js';
 import { getEquippedPhysicalSkillPenaltyDice } from '../utils/equipment-modifiers.js';
 import { DISADVANTAGES, getDisadvantageDefinition, calculateDisadvantagePoints, validateDisadvantageSelection, detailsForMentalRestrictionsDialog, detailsForPhysicalScarsDialog } from '../system/disadvantages.js';
 import { getAllSchticks } from '../utils/schticks.js';
-import { showPowerCreationDialog } from './character-sheet-power-dialog.js';
 import { showEchoCardPickDialog, showEchoCreationDialog } from './character-sheet-echo-dialog.js';
 import { buildFreshTraitUses, getCardOption, getEcho, getEchoCard, getEchoSubChoice, getUnlockedCardSlots } from '../utils/echos/index.js';
-import { CATEGORY_LABELS, CATEGORY_ORDER, CREATION_POWER_REQUIREMENTS, CREATION_POWER_TOTAL, CREATION_POWERS_AT_RANK_2, countPowersByCategory, findDuplicatePowerLabel, resolvePowerCategoryFromItem } from '../utils/power-catalog.js';
+import { CATEGORY_LABELS, CATEGORY_ORDER, CREATION_OFFENSIVE_RANK, CREATION_POWER_REQUIREMENTS, CREATION_POWER_TOTAL, countPowersByCategory, resolvePowerCategoryFromItem } from '../utils/power-catalog.js';
+import { hasTowerWizardPackage } from '../creation/tower-wizard/tower-wizard-apply.js';
+import { showTowerWizardDialog } from '../creation/tower-wizard/tower-wizard-dialog.js';
+import { validateTowerWizardCreation } from '../creation/tower-wizard/tower-wizard-validation.js';
 import { getLanguage as getLanguageDef, normalizeKnownLanguages } from '../utils/languages.js';
 import { showLanguagesDialog } from './languages-dialog.js';
 import { findFirstFit, fitsInGrid, parseInventorySize, rectsOverlap } from '../utils/inventory-grid.js';
@@ -107,31 +109,17 @@ export class MasteryCharacterSheet extends BaseActorSheet {
      */
     async #onPowerAddCreation(event) {
         event.preventDefault();
-        const presetCategory = $(event.currentTarget).data('category') || undefined;
-        console.log('Mastery System | #onPowerAddCreation called', {
-            actorId: this.actor.id,
-            creationComplete: this.actor.system?.creation?.complete,
-            presetCategory
-        });
-        await this.#openPowerDialogCreation(presetCategory);
+        await this.#onOpenTowerWizard(event);
     }
-    /**
-     * Open Power Creation Dialog with creation limits enforced
-     */
-    async #openPowerDialogCreation(presetCategory) {
-        console.log('Mastery System | #openPowerDialogCreation called', {
-            presetCategory,
-            actorId: this.actor.id,
-            creationComplete: this.actor.system?.creation?.complete
-        });
+    async #onOpenTowerWizard(event) {
+        event.preventDefault();
         try {
-            await showPowerCreationDialog(this.actor, presetCategory ? { presetCategory } : undefined);
-            console.log('Mastery System | Power dialog closed, re-rendering');
+            await showTowerWizardDialog(this.actor);
             this.render();
         }
         catch (error) {
-            console.error('Mastery System | Failed to open power creation dialog', error);
-            ui.notifications?.error('Failed to open power selection dialog');
+            console.error('Mastery System | Failed to open Tower Wizard', error);
+            ui.notifications?.error('Failed to open Combat Package Wizard');
         }
     }
     /**
@@ -515,20 +503,23 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             if (cat && cat in categoryCounts)
                 categoryCounts[cat]++;
         }
-        /** Starting character: 2 Active, 2 Passive, 1 Reaction, 1 Movement, 1 Active Buff — all Rank 2. */
+        /** Starting character: Combat Package via Tower Wizard (6 powers, mixed ranks). */
         const totalPowersRequired = CREATION_POWER_TOTAL;
         const totalPowersSelected = powers.length;
-        const powersAtRank2 = powers.filter((p) => Number(p.system?.level ?? 1) >= 2).length;
-        const categoryRequirements = CATEGORY_ORDER.map(cat => ({
+        const activesAtRank2 = powers.filter((p) => {
+            const cat = resolvePowerCategoryFromItem(p);
+            return cat === 'active' && Number(p.system?.level ?? 1) >= CREATION_OFFENSIVE_RANK;
+        }).length;
+        const categoryRequirements = CATEGORY_ORDER
+            .filter((cat) => CREATION_POWER_REQUIREMENTS[cat] > 0)
+            .map(cat => ({
             key: cat,
             label: CATEGORY_LABELS[cat],
             required: CREATION_POWER_REQUIREMENTS[cat],
             selected: categoryCounts[cat],
             valid: categoryCounts[cat] === CREATION_POWER_REQUIREMENTS[cat]
         }));
-        const categoriesValid = CATEGORY_ORDER.every(cat => categoryCounts[cat] === CREATION_POWER_REQUIREMENTS[cat]) &&
-            totalPowersSelected === CREATION_POWER_TOTAL &&
-            powersAtRank2 === CREATION_POWERS_AT_RANK_2;
+        const categoriesValid = validateTowerWizardCreation(this.actor) === null;
         // --- Echo view ------------------------------------------------------------
         const rawEcho = (context.system.echo || {});
         const echoKey = rawEcho.key || '';
@@ -663,8 +654,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             disadvantagesReviewed,
             powersSelected: selectedPowers.length,
             powersRequired: totalPowersRequired,
-            powersAtRank2,
-            powersAtRank2Required: CREATION_POWERS_AT_RANK_2,
+            activesAtRank2,
+            activesAtRank2Required: CREATION_OFFENSIVE_RANK,
+            towerWizardPackageId: context.system.creation?.towerWizardPackageId || '',
+            towerWizardConfigured: hasTowerWizardPackage(this.actor),
             categoryRequirements,
             categoryCounts,
             categoriesValid,
@@ -1927,7 +1920,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         html.find('.skill-add').on('click', this.#onSkillAdd.bind(this));
         // Add power
         // Power/Spell creation buttons (always visible)
-        html.find('.add-power-creation-btn').on('click', this.#onPowerAddCreation.bind(this));
+        html.find('.open-tower-wizard-btn').on('click', this.#onOpenTowerWizard.bind(this));
         // Echo creation / deck interactions
         html.find('.choose-echo-btn').on('click', this.#onEchoChoose.bind(this));
         html.find('.add-echo-card-btn').on('click', this.#onEchoCardAdd.bind(this));
@@ -5264,15 +5257,15 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         html.find('input[name="name"], textarea').prop('disabled', true);
         html.find('select:not(.power-rank-select):not(.attr-creation-select)').prop('disabled', true);
         // Disable buttons except creation controls
-        const buttonsToDisable = html.find('button:not(.attr-increase):not(.attr-decrease):not(.skill-increase):not(.skill-decrease):not(.finalize-creation):not(.reset-creation-attributes):not(.force-unlock-creation):not(.reset-character):not(.add-disadvantage-btn):not(.disadvantage-edit-btn):not(.disadvantage-remove-btn):not(.add-power-creation-btn):not(.add-spell-creation-btn):not(.power-rank-select):not(.item-delete):not(.power-toggle-details):not(.power-edit-mechanics):not(.general-items-btn):not(.choose-echo-btn):not(.add-echo-card-btn):not(.echo-card-use-btn):not(.open-languages-btn)');
+        const buttonsToDisable = html.find('button:not(.attr-increase):not(.attr-decrease):not(.skill-increase):not(.skill-decrease):not(.finalize-creation):not(.reset-creation-attributes):not(.force-unlock-creation):not(.reset-character):not(.add-disadvantage-btn):not(.disadvantage-edit-btn):not(.disadvantage-remove-btn):not(.open-tower-wizard-btn):not(.add-spell-creation-btn):not(.power-rank-select):not(.item-delete):not(.power-toggle-details):not(.power-edit-mechanics):not(.general-items-btn):not(.choose-echo-btn):not(.add-echo-card-btn):not(.echo-card-use-btn):not(.open-languages-btn)');
         console.log('Mastery System | Disabling buttons:', buttonsToDisable.length);
         buttonsToDisable.prop('disabled', true);
         // Ensure creation buttons are enabled
-        const creationButtons = html.find('.attr-increase, .attr-decrease, .skill-increase, .skill-decrease, .finalize-creation, .reset-creation-attributes, .force-unlock-creation, .reset-character, .add-disadvantage-btn, .disadvantage-edit-btn, .disadvantage-remove-btn, .add-power-creation-btn, .add-spell-creation-btn, .item-delete, .general-items-btn, .choose-echo-btn, .add-echo-card-btn, .echo-card-use-btn, .open-languages-btn');
+        const creationButtons = html.find('.attr-increase, .attr-decrease, .skill-increase, .skill-decrease, .finalize-creation, .reset-creation-attributes, .force-unlock-creation, .reset-character, .add-disadvantage-btn, .disadvantage-edit-btn, .disadvantage-remove-btn, .open-tower-wizard-btn, .add-spell-creation-btn, .item-delete, .general-items-btn, .choose-echo-btn, .add-echo-card-btn, .echo-card-use-btn, .open-languages-btn');
         console.log('Mastery System | Enabling creation buttons:', {
             total: creationButtons.length,
             addDisadvantageBtn: html.find('.add-disadvantage-btn').length,
-            addPowerCreationBtn: html.find('.add-power-creation-btn').length,
+            addPowerCreationBtn: html.find('.open-tower-wizard-btn').length,
             addSpellCreationBtn: html.find('.add-spell-creation-btn').length,
             addDisadvantageBtnDisabled: html.find('.add-disadvantage-btn').prop('disabled'),
             addPowerCreationBtnDisabled: html.find('.add-power-creation-btn').prop('disabled'),
@@ -5285,7 +5278,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         html.find('.power-display-name-input').prop('disabled', false);
         // Double-check all creation buttons are enabled
         const addDisadvantageBtn = html.find('.add-disadvantage-btn');
-        const addPowerCreationBtn = html.find('.add-power-creation-btn');
+        const addPowerCreationBtn = html.find('.open-tower-wizard-btn');
         const addSpellCreationBtn = html.find('.add-spell-creation-btn');
         if (addDisadvantageBtn.length > 0) {
             addDisadvantageBtn.prop('disabled', false);
@@ -5296,10 +5289,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         }
         if (addPowerCreationBtn.length > 0) {
             addPowerCreationBtn.prop('disabled', false);
-            console.log('Mastery System | add-power-creation-btn explicitly enabled, final state:', addPowerCreationBtn.prop('disabled'));
+            console.log('Mastery System | open-tower-wizard-btn explicitly enabled, final state:', addPowerCreationBtn.prop('disabled'));
         }
         else {
-            console.log('Mastery System | add-power-creation-btn not found (might be normal if creation complete)');
+            console.log('Mastery System | open-tower-wizard-btn not found (might be normal if creation complete)');
         }
         if (addSpellCreationBtn.length > 0) {
             addSpellCreationBtn.prop('disabled', false);
@@ -6026,26 +6019,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             ui.notifications?.error(`Must spend exactly ${skillPointsConfig} skill points. Currently spent: ${skillPointsSpent}`);
             return;
         }
-        for (const cat of CATEGORY_ORDER) {
-            const need = CREATION_POWER_REQUIREMENTS[cat];
-            const have = creationCategoryCounts[cat];
-            if (have !== need) {
-                ui.notifications?.error(`Must choose exactly ${need} ${CATEGORY_LABELS[cat]} power(s). Currently: ${have}.`);
-                return;
-            }
-        }
-        const duplicatePower = findDuplicatePowerLabel(powers);
-        if (duplicatePower) {
-            ui.notifications?.error(`Duplicate power "${duplicatePower}". Each power template can only be chosen once.`);
-            return;
-        }
-        if (powers.length !== CREATION_POWER_TOTAL) {
-            ui.notifications?.error(`Must choose exactly ${CREATION_POWER_TOTAL} starting Powers. Currently: ${powers.length}.`);
-            return;
-        }
-        const startingPowersAtRank2 = powers.filter((p) => Number(p.system?.level ?? 1) >= 2).length;
-        if (startingPowersAtRank2 !== CREATION_POWERS_AT_RANK_2) {
-            ui.notifications?.error(`All ${CREATION_POWER_TOTAL} starting Powers must be at Rank 2 (currently ${startingPowersAtRank2}).`);
+        const towerErr = validateTowerWizardCreation(this.actor);
+        if (towerErr) {
+            ui.notifications?.error(towerErr);
             return;
         }
         if (disadvantagePoints < minDisadvantagePts) {

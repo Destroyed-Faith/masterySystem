@@ -53,22 +53,38 @@ export const CATEGORY_LABELS: Record<PowerCategory, string> = {
 /**
  * Requirements for character creation per category.
  *
- * Starting character: **2 Active**, **2 Passive**, **1 Reaction**,
- * **1 Movement**, **1 Active Buff** — all at **Rank 2**.
+ * Starting character (Combat Package): **2 Passive (R4)**, **1 Active Buff (R4)**,
+ * **1 Reaction (R4)**, **2 Active (R2)** — no Movement Power.
  */
 export const CREATION_POWER_REQUIREMENTS: Record<PowerCategory, number> = {
     active: 2,
-    activeBuff: 1,
-    movement: 1,
-    reaction: 1,
     passive: 2,
+    activeBuff: 1,
+    reaction: 1,
+    movement: 0,
 };
 
-/** Total Powers picked at character creation (sum of requirements above). */
-export const CREATION_POWER_TOTAL = 7;
+/** Total Powers at character creation (sum of requirements above). */
+export const CREATION_POWER_TOTAL = 6;
 
-/** All starting Powers must be Rank 2 (= total count). */
-export const CREATION_POWERS_AT_RANK_2 = CREATION_POWER_TOTAL;
+/** Defensive powers (Passive ×2, Active Buff, Reaction) start at Rank 4. */
+export const CREATION_DEFENSIVE_RANK = 4;
+
+/** Offensive Actives start at Rank 2. */
+export const CREATION_OFFENSIVE_RANK = 2;
+
+/** Mastery Rank set when the combat package is applied. */
+export const CREATION_MASTERY_RANK = 4;
+
+/** @deprecated Use CREATION_OFFENSIVE_RANK — only Actives are Rank 2 at creation. */
+export const CREATION_POWERS_AT_RANK_2 = 2;
+
+/** Aliases used by the Tower Wizard module (same rules as creation). */
+export const TOWER_WIZARD_POWER_REQUIREMENTS = CREATION_POWER_REQUIREMENTS;
+export const TOWER_WIZARD_POWER_TOTAL = CREATION_POWER_TOTAL;
+export const TOWER_WIZARD_DEFENSIVE_RANK = CREATION_DEFENSIVE_RANK;
+export const TOWER_WIZARD_OFFENSIVE_RANK = CREATION_OFFENSIVE_RANK;
+export const TOWER_WIZARD_MASTERY_RANK = CREATION_MASTERY_RANK;
 
 /** Resolve a power item's category (`system.category` with legacy `powerType` fallback). */
 export function resolvePowerCategoryFromItem(
@@ -381,6 +397,22 @@ export function filterCatalog(filter: CatalogFilter): CatalogEntry[] {
         }
         return true;
     });
+}
+
+/** Resolve a single catalog entry by template id and optional special key. */
+export function findCatalogEntry(
+    templateId: string,
+    special?: string | null,
+): CatalogEntry | null {
+    const matches = filterCatalog({
+        templateId,
+        special: special ?? null,
+    });
+    if (matches.length === 0) return null;
+    if (special) {
+        return matches.find((m) => m.chosenSpecial?.key === special) ?? matches[0] ?? null;
+    }
+    return matches.find((m) => !m.chosenSpecial) ?? matches[0] ?? null;
 }
 
 // ─── Option lookups ──────────────────────────────────────────────────────

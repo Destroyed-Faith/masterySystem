@@ -1380,33 +1380,25 @@
           </button>
         </div>
         {{/if}}
-        <div class="powers-controls">
-          <button type="button" class="add-power-creation-btn" title="Add any Power (Mastery Tree or Spell School)">
-            <i class="fas fa-plus"></i> Add Power
-          </button>
-          {{#unless creationComplete}}
-          <button type="button" class="add-power-creation-btn" data-category="active" title="Add Active Power">
-            <i class="fas fa-plus"></i> Active
-          </button>
-          <button type="button" class="add-power-creation-btn" data-category="activeBuff" title="Add Active Buff">
-            <i class="fas fa-plus"></i> Active Buff
-          </button>
-          <button type="button" class="add-power-creation-btn" data-category="movement" title="Add Movement Power">
-            <i class="fas fa-plus"></i> Movement
-          </button>
-          <button type="button" class="add-power-creation-btn" data-category="reaction" title="Add Reaction">
-            <i class="fas fa-plus"></i> Reaction
-          </button>
-          <button type="button" class="add-power-creation-btn" data-category="passive" title="Add Passive">
-            <i class="fas fa-plus"></i> Passive
-          </button>
-          {{/unless}}
-        </div>
       </div>
       
       {{#unless creationComplete}}
-      <!-- CHARACTER CREATION: Powers & Magic Selection Status -->
+      <!-- CHARACTER CREATION: Combat Package -->
       <div class="creation-powers-section">
+        <div class="creation-tower-wizard-panel">
+          <h3><i class="fas fa-shield-alt"></i> Combat Package Wizard</h3>
+          <p>Choose your defensive foundation and offensive style. Every character gets <strong>2 Passive (R4)</strong>, <strong>1 Active Buff (R4)</strong>, <strong>1 Reaction (R4)</strong>, and <strong>2 Active (R2)</strong> — no Movement Power.</p>
+          <button type="button" class="open-tower-wizard-btn" title="Open the guided Combat Package Wizard">
+            <i class="fas fa-magic"></i> Open Combat Package Wizard
+          </button>
+          <p class="tower-wizard-status">
+            {{#if creation.towerWizardConfigured}}
+            <span class="valid"><i class="fas fa-check"></i> Package applied: {{creation.towerWizardPackageId}}</span>
+            {{else}}
+            <span class="invalid"><i class="fas fa-exclamation-circle"></i> No combat package configured yet.</span>
+            {{/if}}
+          </p>
+        </div>
         <div class="creation-banner">
           <h3><i class="fas fa-magic"></i> Character Creation: Powers & Magic Selection</h3>
           <div class="creation-status">
@@ -1425,9 +1417,9 @@
             </div>
             {{/each}}
             <div class="status-item">
-              <label>At Rank 2:</label>
-              <span class="{{#if (eq creation.powersAtRank2 creation.powersAtRank2Required)}}valid{{else}}invalid{{/if}}">
-                {{creation.powersAtRank2}} / {{creation.powersAtRank2Required}}
+              <label>Actives at R2:</label>
+              <span class="{{#if (eq creation.activesAtRank2 creation.activesAtRank2Required)}}valid{{else}}invalid{{/if}}">
+                {{creation.activesAtRank2}} / {{creation.activesAtRank2Required}}
               </span>
             </div>
           </div>
@@ -1436,8 +1428,7 @@
         <div class="creation-instructions">
           <p><strong>Character Creation Rules:</strong></p>
           <ul>
-            <li><strong>Powers</strong> — choose <strong>2 Active</strong>, <strong>2 Passive</strong>, <strong>1 Reaction</strong>, <strong>1 Movement</strong>, and <strong>1 Active Buff</strong>. All are <strong>Rank 2</strong>.</li>
-            <li>Mastery Trees and Spell Schools share one picker – filter by Category, Subfamily, and Special (Ignite, Freeze, Shock, …).</li>
+            <li><strong>Combat Package</strong> — use the wizard for <strong>2 Passive (R4)</strong>, <strong>1 Active Buff (R4)</strong>, <strong>1 Reaction (R4)</strong>, and <strong>2 Active (R2)</strong>. No Movement Power.</li>
             <li>Choose your <strong>Echo</strong> (ancestry, with sub-choice / Veiled Form if required) and pick your <strong>first Echo Card</strong>.</li>
           </ul>
         </div>
@@ -1585,7 +1576,7 @@
               </div>
             {{/each}}
           {{else}}
-            <p class="empty-message">No powers selected yet. Click "Add Power" (or one of the category shortcuts) to start.</p>
+            <p class="empty-message">No powers selected yet. Open the <strong>Combat Package Wizard</strong> above to choose your starting package.</p>
           {{/if}}
         </div>
       </div>

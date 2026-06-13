@@ -1,0 +1,193 @@
+<div class="tower-wizard-dialog">
+  <header class="tower-wizard-header">
+    <h2>{{title}}</h2>
+    <p class="tower-wizard-progress">{{progressLabel}}</p>
+  </header>
+
+  <div class="tower-wizard-body">
+    {{#if isIntro}}
+    <section class="tower-wizard-step">
+      <h3>{{copy.intro.heading}}</h3>
+      <p class="tower-wizard-prose">{{copy.intro.body}}</p>
+      <p class="tower-wizard-note">{{copy.intro.mrNote}}</p>
+    </section>
+    {{/if}}
+
+    {{#if isDefense}}
+    <section class="tower-wizard-step">
+      <h3>{{copy.defense.question}}</h3>
+      <div class="tower-wizard-cards">
+        {{#each defensePackages}}
+        <button type="button" class="tower-wizard-card js-tw-select-defense{{#if (eq ../selection.defenseId this.id)}} is-selected{{/if}}" data-defense-id="{{this.id}}">
+          <strong>{{this.label}}</strong>
+          <p>{{this.explanation}}</p>
+          {{#if this.warning}}<p class="tower-wizard-warn">{{this.warning}}</p>{{/if}}
+        </button>
+        {{/each}}
+      </div>
+    </section>
+    {{/if}}
+
+    {{#if isPassive2}}
+    <section class="tower-wizard-step">
+      <h3>{{copy.passive2.heading}}</h3>
+      <p class="tower-wizard-prose">{{copy.passive2.body}}</p>
+      {{#if recommendedPassives.length}}
+      <h4>{{copy.passive2.recommended}}</h4>
+      <div class="tower-wizard-chip-row">
+        {{#each recommendedPassives}}
+        <button type="button" class="tower-wizard-chip js-tw-select-passive2{{#if (eq ../selection.secondPassiveTemplateId this.id)}} is-selected{{/if}}" data-passive-id="{{this.id}}">
+          <span class="chip-label">{{this.label}}</span>
+          <span class="chip-mechanical">{{this.mechanical}}</span>
+        </button>
+        {{/each}}
+      </div>
+      {{/if}}
+      <h4>{{copy.passive2.allOptions}}</h4>
+      <div class="tower-wizard-chip-row">
+        {{#each allPassives}}
+        <button type="button" class="tower-wizard-chip js-tw-select-passive2{{#if (eq ../selection.secondPassiveTemplateId this.id)}} is-selected{{/if}}" data-passive-id="{{this.id}}">
+          <span class="chip-label">{{this.label}}</span>
+          <span class="chip-mechanical">{{this.mechanical}}</span>
+        </button>
+        {{/each}}
+      </div>
+    </section>
+    {{/if}}
+
+    {{#if isDefenseSummary}}
+    <section class="tower-wizard-step">
+      <h3>{{copy.defenseSummary.heading}}</h3>
+      <p class="tower-wizard-prose">{{copy.defenseSummary.body}}</p>
+      <ul class="tower-wizard-summary-list">
+        {{#each defenseSummaryRows}}
+        <li><strong>{{this.role}}:</strong> {{this.label}} <span class="mechanical">({{this.mechanical}} · Rank {{this.rank}})</span></li>
+        {{/each}}
+      </ul>
+      <p class="tower-wizard-note">{{copy.defenseSummary.buffNote}}</p>
+    </section>
+    {{/if}}
+
+    {{#if isBuffLimitation}}
+    <section class="tower-wizard-step">
+      <h3>{{copy.buffLimitation.heading}}</h3>
+      <p class="tower-wizard-prose">{{copy.buffLimitation.body}}</p>
+    </section>
+    {{/if}}
+
+    {{#if isSpellcaster}}
+    <section class="tower-wizard-step">
+      <h3>{{copy.spellcaster.question}}</h3>
+      <div class="tower-wizard-chip-row">
+        <button type="button" class="tower-wizard-chip js-tw-spellcaster{{#if selection.spellcaster}} is-selected{{/if}}" data-spellcaster="true">{{copy.spellcaster.yes}}</button>
+        <button type="button" class="tower-wizard-chip js-tw-spellcaster{{#unless selection.spellcaster}} is-selected{{/unless}}" data-spellcaster="false">{{copy.spellcaster.no}}</button>
+      </div>
+    </section>
+    {{/if}}
+
+    {{#if isOffense}}
+    <section class="tower-wizard-step">
+      <h3>{{copy.offense.question}}</h3>
+      <div class="tower-wizard-cards">
+        {{#each offensePackages}}
+        <button type="button" class="tower-wizard-card js-tw-select-offense{{#if (eq ../selection.offenseId this.id)}} is-selected{{/if}}{{#if this.recommended}} is-recommended{{/if}}{{#if this.thematic}} is-thematic{{/if}}" data-offense-id="{{this.id}}">
+          {{#if this.recommended}}<span class="tower-wizard-badge">{{../copy.offense.recommended}}</span>{{/if}}
+          {{#if this.thematic}}<span class="tower-wizard-badge is-thematic">{{../copy.offense.thematicMatch}}</span>{{/if}}
+          <strong>{{this.label}}</strong>
+          <p>{{this.explanation}}</p>
+          {{#if this.warning}}<p class="tower-wizard-warn">{{this.warning}}</p>{{/if}}
+        </button>
+        {{/each}}
+      </div>
+    </section>
+    {{/if}}
+
+    {{#if isWeakenSave}}
+    <section class="tower-wizard-step">
+      <h3>{{copy.weakenSave.question}}</h3>
+      <div class="tower-wizard-chip-row">
+        <button type="button" class="tower-wizard-chip js-tw-weaken-save{{#if (eq selection.weakenSave 'body')}} is-selected{{/if}}" data-save="body">{{copy.weakenSave.options.body}}</button>
+        <button type="button" class="tower-wizard-chip js-tw-weaken-save{{#if (eq selection.weakenSave 'mind')}} is-selected{{/if}}" data-save="mind">{{copy.weakenSave.options.mind}}</button>
+        <button type="button" class="tower-wizard-chip js-tw-weaken-save{{#if (eq selection.weakenSave 'spirit')}} is-selected{{/if}}" data-save="spirit">{{copy.weakenSave.options.spirit}}</button>
+        <button type="button" class="tower-wizard-chip js-tw-weaken-save{{#unless selection.weakenSave}} is-selected{{/unless}}" data-save="">{{copy.weakenSave.options.unsure}}</button>
+      </div>
+    </section>
+    {{/if}}
+
+    {{#if isDelivery}}
+    <section class="tower-wizard-step">
+      <h3>{{copy.delivery.question}}</h3>
+      <div class="tower-wizard-chip-row">
+        <button type="button" class="tower-wizard-chip js-tw-delivery{{#if (eq selection.delivery 'melee')}} is-selected{{/if}}" data-delivery="melee">{{copy.delivery.melee}}</button>
+        <button type="button" class="tower-wizard-chip js-tw-delivery{{#if (eq selection.delivery 'ranged')}} is-selected{{/if}}" data-delivery="ranged">{{copy.delivery.ranged}}</button>
+      </div>
+    </section>
+    {{/if}}
+
+    {{#if isCombatLoop}}
+    <section class="tower-wizard-step">
+      <h3>{{copy.combatLoop.heading}}</h3>
+      <p class="tower-wizard-prose">{{copy.combatLoop.intro}}</p>
+      <ol class="tower-wizard-loop-list">
+        <li>{{copy.combatLoop.buff}}</li>
+        <li>{{copy.combatLoop.turn}}</li>
+        <li>{{copy.combatLoop.reaction}}</li>
+        <li>{{copy.combatLoop.passives}}</li>
+      </ol>
+      <p class="tower-wizard-example"><strong>Your build:</strong> {{combatExample}}</p>
+    </section>
+    {{/if}}
+
+    {{#if isWarnings}}
+    <section class="tower-wizard-step">
+      <h3>Before you finish</h3>
+      {{#if warnings.length}}
+      <ul class="tower-wizard-warnings">
+        {{#each warnings}}
+        <li>{{this}}</li>
+        {{/each}}
+      </ul>
+      {{else}}
+      <p class="tower-wizard-prose">No extra warnings for this package.</p>
+      {{/if}}
+    </section>
+    {{/if}}
+
+    {{#if isReview}}
+    <section class="tower-wizard-step">
+      <h3>{{copy.review.heading}}</h3>
+      <h4>{{copy.review.defense}}</h4>
+      <ul class="tower-wizard-summary-list">
+        {{#each review.defenseRows}}
+        <li><strong>{{this.role}}:</strong> {{this.displayName}} <span class="mechanical">({{this.mechanicalName}} · Rank {{this.spec.rank}})</span></li>
+        {{/each}}
+      </ul>
+      <h4>{{copy.review.offense}}</h4>
+      <ul class="tower-wizard-summary-list">
+        {{#each review.offenseRows}}
+        <li><strong>{{this.role}}:</strong> {{this.displayName}} <span class="mechanical">({{this.mechanicalName}} · Rank {{this.spec.rank}})</span></li>
+        {{/each}}
+      </ul>
+      <h4>{{copy.review.combatPlan}}</h4>
+      <ol class="tower-wizard-loop-list">
+        <li>{{copy.combatLoop.buff}}</li>
+        <li>{{copy.combatLoop.turn}}</li>
+        <li>{{copy.combatLoop.reaction}}</li>
+        <li>{{copy.combatLoop.passives}}</li>
+      </ol>
+      {{#unless review.allOk}}
+      <p class="tower-wizard-warn">Some catalog entries are missing — cannot apply yet.</p>
+      {{/unless}}
+    </section>
+    {{/if}}
+  </div>
+
+  <footer class="tower-wizard-footer">
+    {{#if showBack}}<button type="button" class="tower-wizard-btn js-tw-back">{{copy.buttons.back}}</button>{{/if}}
+    {{#if showNext}}<button type="button" class="tower-wizard-btn is-primary js-tw-next" {{#unless canAdvance}}disabled{{/unless}}>{{copy.buttons.next}}</button>{{/if}}
+    {{#if isReview}}
+    <button type="button" class="tower-wizard-btn js-tw-restart">{{copy.review.back}}</button>
+    <button type="button" class="tower-wizard-btn is-primary js-tw-apply" {{#unless review.allOk}}disabled{{/unless}}>{{copy.review.apply}}</button>
+    {{/if}}
+  </footer>
+</div>

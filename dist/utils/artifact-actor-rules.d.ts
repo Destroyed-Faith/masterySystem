@@ -51,7 +51,7 @@ export declare function getMaxArtifactSystemLevelForMasteryRank(masteryRank: num
  */
 export declare function getMaxArtifactSpecLevelForMasteryRank(masteryRank: number): number;
 export declare function canArtifactLink(masteryRank: number): boolean;
-/** Spendable stones in one attribute pool (`current − sustained`). */
+/** Spendable stones in one attribute pool (`current − sustained − artifact-bound`). */
 export declare function poolSpendableStones(actor: any, attr: string): number;
 /** Total spendable stones across all attribute pools (falls back to legacy `stones.current`). */
 export declare function actorStonesCurrent(actor: any): number;

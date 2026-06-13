@@ -24,6 +24,7 @@ import { registerAttackRollClickHandler } from './chat/attack-roll-handler.js';
 import { registerDamageCardChatHooks } from './dice/damage-dialog.js';
 // Import combat-related modules statically
 import { PassiveSelectionDialog } from './sheets/passive-selection-dialog.js';
+import { showTowerWizardDialog } from './creation/tower-wizard/tower-wizard-dialog.js';
 import { CombatCarouselApp } from './ui/combat-carousel.js';
 import { initializeStoneHooks } from './stones/stone-hooks.js';
 import {
@@ -2668,6 +2669,7 @@ Hooks.once('ready', async function() {
   // Expose a small GM/macro API: game.masterySystem.refreshEchoArtifacts().
   (game as any).masterySystem = Object.assign((game as any).masterySystem || {}, {
     refreshEchoArtifacts: forceRefreshEchoArtifactLibrary,
+    openTowerWizard: showTowerWizardDialog,
   });
 
   // One-shot Trees → Templates power cutover (GM-only, guarded by world setting).

@@ -17,14 +17,8 @@
  * and resolution (attack vs save). Save family for save spells is taken from
  * the chosen Special's data in `special-effects.ts`, then `spellHints.defaultSaveType`.
  */
-import type { PowerCategory, SpellSaveType } from '../types/item.js';
-import { type CatalogEntry } from '../utils/power-catalog.js';
-import type { PowerTemplate } from '../utils/powers/templates/index.js';
-/**
- * Save spell family: chosen Special first (Body/Mind/Spirit from effect ref),
- * else template `spellHints.defaultSaveType`, else Body.
- */
-export declare function resolveSpellSaveTypeForEntry(entry: CatalogEntry, template: PowerTemplate | undefined): SpellSaveType;
+import type { PowerCategory } from '../types/item.js';
+export { resolveSpellSaveTypeForEntry } from '../utils/spell-save-type.js';
 /**
  * Show the template-based Power picker.
  */

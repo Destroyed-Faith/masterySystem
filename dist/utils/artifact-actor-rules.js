@@ -15,8 +15,9 @@
  *   • Bindings come in three flavors: `unbound`, `bound`, `echo`.
  *     `echo` bindings cannot be unbound through normal means.
  */
-import { getActionEconomyActor, setStonePool, STONE_POOL_ATTRIBUTE_KEYS, } from '../combat/action-economy.js';
+import { getActionEconomyActor, STONE_POOL_ATTRIBUTE_KEYS, } from '../combat/action-economy.js';
 import { getStoneGemStyle } from './stone-attribute-ui.js';
+import { countArtifactActivationStones } from './artifact-stone-bound.js';
 import { ARTIFACT_MAX_LEVEL as SPEC_ARTIFACT_MAX_LEVEL, } from './artifact-rules.js';
 const STONE_POOL_LABELS = {
     might: 'Might',
@@ -72,7 +73,7 @@ export function canArtifactLink(masteryRank) {
 function economyActor(actor) {
     return getActionEconomyActor(actor) ?? actor;
 }
-/** Spendable stones in one attribute pool (`current − sustained`). */
+/** Spendable stones in one attribute pool (`current − sustained − artifact-bound`). */
 export function poolSpendableStones(actor, attr) {
     const sys = economyActor(actor)?.system || {};
     const pool = sys.stonePools?.[attr];
@@ -83,7 +84,8 @@ export function poolSpendableStones(actor, attr) {
         return 0;
     const current = Math.max(0, Number(pool.current) || 0);
     const sustained = Math.max(0, Number(pool.sustained) || 0);
-    return Math.max(0, current - sustained);
+    const artifactBound = countArtifactActivationStones(actor, attr);
+    return Math.max(0, current - sustained - artifactBound);
 }
 /** Total spendable stones across all attribute pools (falls back to legacy `stones.current`). */
 export function actorStonesCurrent(actor) {
@@ -141,10 +143,8 @@ export async function spendArtifactLinkStone(actor, stoneAttr) {
     if (usesStonePoolEconomy(actor)) {
         if (!stoneAttr || !canSpendArtifactLinkStoneFromPool(actor, stoneAttr))
             return false;
-        const owner = economyActor(actor);
-        const pool = owner?.system?.stonePools?.[stoneAttr];
-        const current = Math.max(0, Number(pool?.current) || 0);
-        await setStonePool(actor, stoneAttr, current - ARTIFACT_LINK_STONE_COST);
+        // Permanent commitment is tracked on the artifact via `artifactActivationStoneAttr`;
+        // pool refills and the Stone Powers dialog subtract bound stones from spendable.
         return true;
     }
     if (!canSpendArtifactLinkStone(actor))
@@ -159,15 +159,7 @@ export async function refundArtifactLinkStone(actor, stoneAttr) {
     if (usesStonePoolEconomy(actor)) {
         if (!stoneAttr)
             return false;
-        const owner = economyActor(actor);
-        const pool = owner?.system?.stonePools?.[stoneAttr];
-        if (!pool)
-            return false;
-        const current = Math.max(0, Number(pool.current) || 0);
-        const max = Math.max(0, Number(pool.max) || 0);
-        const sustained = Math.max(0, Number(pool.sustained) || 0);
-        const cap = Math.max(0, max - sustained);
-        await setStonePool(actor, stoneAttr, Math.min(cap, current + ARTIFACT_LINK_STONE_COST));
+        // Bound stone is released when `artifactActivationStoneAttr` is cleared on deactivate.
         return true;
     }
     const sys = economyActor(actor)?.system || {};

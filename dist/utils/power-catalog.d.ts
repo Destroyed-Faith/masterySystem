@@ -27,14 +27,26 @@ export declare const CATEGORY_LABELS: Record<PowerCategory, string>;
 /**
  * Requirements for character creation per category.
  *
- * Starting character: **2 Active**, **2 Passive**, **1 Reaction**,
- * **1 Movement**, **1 Active Buff** — all at **Rank 2**.
+ * Starting character (Combat Package): **2 Passive (R4)**, **1 Active Buff (R4)**,
+ * **1 Reaction (R4)**, **2 Active (R2)** — no Movement Power.
  */
 export declare const CREATION_POWER_REQUIREMENTS: Record<PowerCategory, number>;
-/** Total Powers picked at character creation (sum of requirements above). */
-export declare const CREATION_POWER_TOTAL = 7;
-/** All starting Powers must be Rank 2 (= total count). */
-export declare const CREATION_POWERS_AT_RANK_2 = 7;
+/** Total Powers at character creation (sum of requirements above). */
+export declare const CREATION_POWER_TOTAL = 6;
+/** Defensive powers (Passive ×2, Active Buff, Reaction) start at Rank 4. */
+export declare const CREATION_DEFENSIVE_RANK = 4;
+/** Offensive Actives start at Rank 2. */
+export declare const CREATION_OFFENSIVE_RANK = 2;
+/** Mastery Rank set when the combat package is applied. */
+export declare const CREATION_MASTERY_RANK = 4;
+/** @deprecated Use CREATION_OFFENSIVE_RANK — only Actives are Rank 2 at creation. */
+export declare const CREATION_POWERS_AT_RANK_2 = 2;
+/** Aliases used by the Tower Wizard module (same rules as creation). */
+export declare const TOWER_WIZARD_POWER_REQUIREMENTS: Record<PowerCategory, number>;
+export declare const TOWER_WIZARD_POWER_TOTAL = 6;
+export declare const TOWER_WIZARD_DEFENSIVE_RANK = 4;
+export declare const TOWER_WIZARD_OFFENSIVE_RANK = 2;
+export declare const TOWER_WIZARD_MASTERY_RANK = 4;
 /** Resolve a power item's category (`system.category` with legacy `powerType` fallback). */
 export declare function resolvePowerCategoryFromItem(power: {
     system?: {
@@ -152,6 +164,8 @@ export declare function getAllCatalogEntries(): CatalogEntry[];
 /** Invalidate the catalog cache (mainly for tests). */
 export declare function _resetCatalogCache(): void;
 export declare function filterCatalog(filter: CatalogFilter): CatalogEntry[];
+/** Resolve a single catalog entry by template id and optional special key. */
+export declare function findCatalogEntry(templateId: string, special?: string | null): CatalogEntry | null;
 /** Unique list of subfamilies within a category (sorted). */
 export declare function getSubfamiliesByCategory(category: PowerCategory): string[];
 /** Unique list of templateIds in a (category, subfamily). */

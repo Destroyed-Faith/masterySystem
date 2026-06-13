@@ -18,42 +18,11 @@
  * the chosen Special's data in `special-effects.ts`, then `spellHints.defaultSaveType`.
  */
 import { calculateBaseTN, calculateSaveDC } from '../combat/spell-roll-handler.js';
-import { SPECIAL_EFFECTS_BY_ID } from '../utils/special-effects.js';
-import { renderRange, renderAoe, renderDuration, renderPowerLevelTable } from '../utils/power-rendering.js';
+import { renderPowerLevelTable } from '../utils/power-rendering.js';
+import { buildPowerItemFromCatalogEntry, } from '../utils/power-item-builder.js';
+import { resolveSpellSaveTypeForEntry } from '../utils/spell-save-type.js';
 import { CATEGORY_LABELS, CATEGORY_ORDER, CREATION_POWER_REQUIREMENTS, CREATION_POWER_TOTAL, actorAlreadyHasPower, collectOwnedPowerIdentityKeys, countPowersByCategory, filterCatalog, findCatalogEntryByName, powerIdentityKeyFromEntry, findTemplateById, getSubfamiliesByCategory, getVisibleSpecialOptions, } from '../utils/power-catalog.js';
-/** Map Special Effect `save` text to a single save family for spell items. */
-function spellSaveTypeFromSpecialSave(save) {
-    if (!save)
-        return undefined;
-    const t = String(save).trim();
-    if (t === '—' || t === '-' || t.toLowerCase() === 'none')
-        return undefined;
-    const low = t.toLowerCase();
-    if (low.includes('body'))
-        return 'body';
-    if (low.includes('mind'))
-        return 'mind';
-    if (low.includes('spirit'))
-        return 'spirit';
-    return undefined;
-}
-/**
- * Save spell family: chosen Special first (Body/Mind/Spirit from effect ref),
- * else template `spellHints.defaultSaveType`, else Body.
- */
-export function resolveSpellSaveTypeForEntry(entry, template) {
-    const key = entry.chosenSpecial?.key;
-    if (key) {
-        const eff = SPECIAL_EFFECTS_BY_ID.get(key);
-        const fromSpec = spellSaveTypeFromSpecialSave(eff?.save);
-        if (fromSpec)
-            return fromSpec;
-    }
-    const d = template?.spellHints?.defaultSaveType;
-    if (d === 'body' || d === 'mind' || d === 'spirit')
-        return d;
-    return 'body';
-}
+export { resolveSpellSaveTypeForEntry } from '../utils/spell-save-type.js';
 /** Friendly label for a subfamily key. */
 function labelSubfamily(key) {
     return key
@@ -67,6 +36,12 @@ function labelSubfamily(key) {
 export async function showPowerCreationDialog(actor, options) {
     const system = actor.system;
     const creationComplete = system?.creation?.complete !== false;
+    if (!creationComplete) {
+        ui.notifications?.info('Use the Combat Package Wizard to choose your starting powers.');
+        const { showTowerWizardDialog } = await import('../creation/tower-wizard/tower-wizard-dialog.js');
+        await showTowerWizardDialog(actor);
+        return;
+    }
     const masteryRank = system?.mastery?.rank || 2;
     const actorEchoKey = system?.echo?.key || null;
     const maxSpellLevel = masteryRank * 2;
@@ -187,9 +162,9 @@ export async function showPowerCreationDialog(actor, options) {
                         ui.notifications?.error(`Spell Level ${rank} exceeds Max Spell Level for this character (MR ${masteryRank} × 2 = ${maxSpellLevel}).`);
                         return false;
                     }
-                    const itemData = buildItemDataFromEntry(entry, rank, { isSpell, castingAttribute, spellResolution });
+                    const itemData = buildPowerItemFromCatalogEntry(entry, rank, { isSpell, castingAttribute, spellResolution });
                     if (!itemData) {
-                        ui.notifications?.error('Failed to construct power item data');
+                        ui.notifications?.error(`Rank ${rank} data not found for this power`);
                         return false;
                     }
                     const existingPowers = actor.items.filter((i) => i.type === 'power');
@@ -459,78 +434,5 @@ function renderEntryDetails(entry, $description, $levelTable) {
     else {
         $levelTable.empty();
     }
-}
-/** Build the full item data object for `actor.createEmbeddedDocuments`. */
-function buildItemDataFromEntry(entry, rank, spell) {
-    const template = entry.raw;
-    const templateDoc = findTemplateById(entry.templateId);
-    let spellSaveType;
-    if (spell.isSpell && spell.spellResolution === 'saveSpell') {
-        spellSaveType = resolveSpellSaveTypeForEntry(entry, templateDoc);
-    }
-    const chosenSpecial = entry.chosenSpecial
-        ? { key: entry.chosenSpecial.key, tier: entry.chosenSpecial.tier }
-        : undefined;
-    const levelKey = (String(rank));
-    const levelRow = template.levels?.[levelKey];
-    if (!levelRow) {
-        ui.notifications?.error(`Rank ${rank} data not found for this power`);
-        return null;
-    }
-    // If an Active has a chosenSpecial, bind the placeholder "SPECIAL" entry in
-    // the levels to the chosen key (so the persisted item's levels reflect the
-    // variation the user actually picked).
-    let levels = template.levels;
-    if (chosenSpecial) {
-        const next = {};
-        for (const [k, row] of Object.entries(template.levels)) {
-            const specials = (row.specials || []).map((s) => s.key === 'SPECIAL' ? { ...s, key: chosenSpecial.key } : s);
-            next[k] = { ...row, specials };
-        }
-        levels = next;
-    }
-    return {
-        name: entry.name,
-        type: 'power',
-        system: {
-            category: template.category,
-            tags: template.tags || [],
-            rank,
-            level: rank,
-            minLevel: 1,
-            fluff: template.fluff || '',
-            description: template.fluff || '',
-            trigger: template.trigger || levelRow.trigger || undefined,
-            cost: {
-                action: template.cost?.action,
-                stones: template.cost?.stones || 0,
-                charges: template.cost?.charges || 0,
-            },
-            roll: {
-                kind: template.roll?.kind,
-                attribute: template.roll?.attribute || undefined,
-                vs: template.roll?.vs || undefined,
-            },
-            levels,
-            // Template metadata
-            templateId: entry.templateId,
-            templateName: entry.templateName,
-            subfamily: entry.subfamily,
-            chosenSpecial,
-            // Active-as-Spell (plan §6)
-            isSpell: spell.isSpell,
-            castingAttribute: spell.castingAttribute,
-            spellResolution: spell.spellResolution,
-            spellSaveType,
-            // Legacy surface (kept so the rest of the UI keeps rendering)
-            powerType: template.category === 'activeBuff' ? 'buff' : template.category,
-            range: renderRange(levelRow.range),
-            aoe: renderAoe(levelRow.aoe),
-            duration: renderDuration(levelRow.duration),
-            effect: levelRow.effect?.text || '',
-            specials: (levelRow.specials || []).map((s) => s.rank !== undefined ? `${s.key}(${s.rank})` : s.key),
-            ap: 30,
-        },
-    };
 }
 //# sourceMappingURL=character-sheet-power-dialog.js.map
