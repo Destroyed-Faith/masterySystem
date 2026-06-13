@@ -37,6 +37,8 @@ import type {
     OffenseActiveSpecialGroup,
     OffenseActiveVariantOption,
     DeliveryMode,
+    PowerPickerGroup,
+    PowerPickerCard,
     WizardOffensiveActiveBuff,
     WizardOffensiveActiveBuffGroup,
     WizardActiveBuffPreview,
@@ -206,6 +208,66 @@ const PASSIVE_GROUP_ORDER = [
     'conditional-combined',
     'special-aura',
 ] as const;
+
+const ACTIVE_BUFF_SUBFAMILY_LABELS: Record<string, string> = {
+    'defensive-single': 'Defensive Buffs',
+    aura: 'Auras',
+    recovery: 'Recovery',
+    'damage-reduction': 'Damage Reduction',
+    phasing: 'Phasing',
+    combined: 'Combined Buffs',
+    offensive: 'Offensive Buffs',
+    'defensive-control': 'Defensive Control',
+    'special-overdrive': 'Special Overdrive',
+};
+
+const ACTIVE_BUFF_GROUP_ORDER = [
+    'defensive-single',
+    'aura',
+    'damage-reduction',
+    'phasing',
+    'recovery',
+    'combined',
+    'defensive-control',
+    'offensive',
+    'special-overdrive',
+] as const;
+
+const REACTION_SUBFAMILY_LABELS: Record<string, string> = {
+    armor: 'Armor',
+    evade: 'Evade',
+    'temp-hp': 'Temporary HP',
+    'damage-reduction': 'Damage Reduction',
+    phasing: 'Phasing',
+    combined: 'Combined Reactions',
+    ally: 'Ally Protection',
+    counter: 'Counterattacks',
+    'special-increase': 'Special Boost',
+};
+
+const REACTION_GROUP_ORDER = [
+    'armor',
+    'evade',
+    'temp-hp',
+    'damage-reduction',
+    'phasing',
+    'combined',
+    'ally',
+    'counter',
+    'special-increase',
+] as const;
+
+const CATEGORY_PICKER_LABELS: Partial<Record<PowerCategory, Record<string, string>>> = {
+    passive: PASSIVE_SUBFAMILY_LABELS,
+    activeBuff: ACTIVE_BUFF_SUBFAMILY_LABELS,
+    reaction: REACTION_SUBFAMILY_LABELS,
+};
+
+const CATEGORY_PICKER_ORDER: Partial<Record<PowerCategory, readonly string[]>> = {
+    passive: PASSIVE_GROUP_ORDER,
+    activeBuff: ACTIVE_BUFF_GROUP_ORDER,
+    reaction: REACTION_GROUP_ORDER,
+};
 
 const ACTIVE_SUBFAMILY_LABELS: Record<string, string> = {
     'damage-single': 'Single-Target Special Attacks',
@@ -389,9 +451,11 @@ function offensePatternHint(entry: CatalogEntry): string {
 export function getOffenseActiveSpecialGroups(
     actorEchoKey?: string | null,
     selectedPickIds?: Set<string>,
+    excludeIdentityKeys?: Set<string>,
 ): OffenseActiveSpecialGroup[] {
     const echoKey = (actorEchoKey || '').trim().toLowerCase();
     const selected = selectedPickIds ?? new Set<string>();
+    const excluded = excludeIdentityKeys ?? new Set<string>();
 
     type PatternBucket = {
         label: string;
@@ -407,6 +471,7 @@ export function getOffenseActiveSpecialGroups(
         if (entry.requiresEcho?.length) {
             if (!echoKey || !entry.requiresEcho.includes(echoKey)) continue;
         }
+        if (excluded.has(powerIdentityKeyFromEntry(entry))) continue;
 
         const groupKey = offenseCatalogGroupKey(entry);
         const groupLabel = OFFENSE_SYNTHETIC_GROUP_LABELS[groupKey]
@@ -497,6 +562,85 @@ export function getOffenseActiveGroups(actorEchoKey?: string | null): OffenseAct
             })),
         ),
     }));
+}
+
+function prettifySubfamily(key: string): string {
+    if (!key) return 'Other';
+    return key
+        .split('-')
+        .map((p) => (p.length ? p[0].toUpperCase() + p.slice(1) : p))
+        .join(' ');
+}
+
+function categoryCardHint(entry: CatalogEntry): string {
+    const text = (entry.description?.trim() || (entry.raw as { fluff?: string })?.fluff?.trim() || '');
+    if (!text) return '';
+    return text.length > 120 ? `${text.slice(0, 117)}…` : text;
+}
+
+/**
+ * Build collapsible, subfamily-grouped power cards for the Change-Power picker
+ * (non-active slots: passive, activeBuff, reaction). Active slots use
+ * getOffenseActiveSpecialGroups instead.
+ */
+export function getCategoryPickerGroups(
+    category: PowerCategory,
+    rank: number,
+    options?: {
+        excludeIdentityKeys?: Set<string>;
+        selectedIdentityKeys?: Set<string>;
+        actorEchoKey?: string | null;
+    },
+): PowerPickerGroup[] {
+    const excluded = options?.excludeIdentityKeys ?? new Set<string>();
+    const selected = options?.selectedIdentityKeys ?? new Set<string>();
+    const echoKey = (options?.actorEchoKey || '').trim().toLowerCase();
+    const labels = CATEGORY_PICKER_LABELS[category] ?? {};
+    const order = CATEGORY_PICKER_ORDER[category] ?? [];
+
+    const bySubfamily = new Map<string, PowerPickerCard[]>();
+    const seen = new Set<string>();
+
+    for (const entry of getAllCatalogEntries()) {
+        if (entry.category !== category) continue;
+        if (!catalogEntryHasRank(entry, rank)) continue;
+        if (entry.requiresEcho?.length) {
+            if (!echoKey || !entry.requiresEcho.includes(echoKey)) continue;
+        }
+        const identityKey = powerIdentityKeyFromEntry(entry);
+        if (excluded.has(identityKey)) continue;
+        if (seen.has(identityKey)) continue;
+        seen.add(identityKey);
+
+        const subfamily = entry.subfamily || 'other';
+        const list = bySubfamily.get(subfamily) ?? [];
+        list.push({
+            templateId: entry.templateId,
+            special: entry.chosenSpecial?.key ?? null,
+            label: entry.templateName || entry.name,
+            hint: categoryCardHint(entry),
+            identityKey,
+            isSelected: selected.has(identityKey),
+        });
+        bySubfamily.set(subfamily, list);
+    }
+
+    const sortKeys = (keys: string[]): string[] => {
+        const ordered = order.filter((k) => bySubfamily.has(k));
+        const rest = keys.filter((k) => !order.includes(k as never)).sort();
+        return [...ordered, ...rest];
+    };
+
+    const groups: PowerPickerGroup[] = [];
+    for (const subfamily of sortKeys([...bySubfamily.keys()])) {
+        const cards = bySubfamily.get(subfamily)!.sort((a, b) => a.label.localeCompare(b.label));
+        groups.push({
+            groupLabel: labels[subfamily] ?? prettifySubfamily(subfamily),
+            hasSelection: cards.some((c) => c.isSelected),
+            cards,
+        });
+    }
+    return groups;
 }
 
 export function resolveOffenseActiveSpecs(selection: TowerWizardSelection): PowerGrantSpec[] | null {

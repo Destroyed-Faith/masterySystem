@@ -788,3 +788,32 @@
   line-height: 1.45;
   color: var(--df-text-secondary, #cfd6dd);
 }
+
+/* ─── Change-Power categorized picker (modal Dialog) ───────────────── */
+.tower-wizard-power-picker-dialog .window-content {
+  color: var(--df-text-primary, #f0f3f6);
+}
+
+.tower-wizard-picker-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tower-wizard-picker-intro {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: var(--df-text-secondary, #cfd6dd);
+}
+
+.tower-wizard-picker-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.tower-wizard-picker-card-grid {
+  margin-bottom: 0;
+  padding: 4px 14px 14px;
+}

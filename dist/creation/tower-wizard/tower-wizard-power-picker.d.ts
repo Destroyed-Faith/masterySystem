@@ -1,5 +1,10 @@
 /**
- * Tower Wizard — catalog power picker (filter by category, subfamily, special, search).
+ * Tower Wizard — categorized Change-Power picker.
+ *
+ * Modal dialog that mirrors the wizard steps: collapsible groups of cards
+ * (and, for Active slots, the Offense-step pattern/Melee-Ranged layout).
+ * Clicking a card/variant selects it immediately and closes the dialog.
+ * Spell options stay in the review row beneath each Active.
  */
 import type { CastingAttribute, SpellResolution } from '../../types/item.js';
 import type { PowerGrantSpec } from '../../utils/power-item-builder.js';

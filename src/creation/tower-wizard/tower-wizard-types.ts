@@ -165,6 +165,24 @@ export interface OffenseActiveSpecialGroup {
     patterns: OffenseActivePattern[];
 }
 
+/** A single selectable power card in the Change-Power picker (non-active slots). */
+export interface PowerPickerCard {
+    templateId: string;
+    special: string | null;
+    label: string;
+    hint: string;
+    identityKey: string;
+    isSelected: boolean;
+}
+
+/** A collapsible group of power cards in the Change-Power picker. */
+export interface PowerPickerGroup {
+    groupLabel: string;
+    /** Open the collapsible section when a card in this group is the current pick. */
+    hasSelection: boolean;
+    cards: PowerPickerCard[];
+}
+
 export interface TowerWizardOffensePackage {
     id: OffensePackageId;
     label: string;

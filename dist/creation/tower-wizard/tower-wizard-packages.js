@@ -147,6 +147,60 @@ const PASSIVE_GROUP_ORDER = [
     'conditional-combined',
     'special-aura',
 ];
+const ACTIVE_BUFF_SUBFAMILY_LABELS = {
+    'defensive-single': 'Defensive Buffs',
+    aura: 'Auras',
+    recovery: 'Recovery',
+    'damage-reduction': 'Damage Reduction',
+    phasing: 'Phasing',
+    combined: 'Combined Buffs',
+    offensive: 'Offensive Buffs',
+    'defensive-control': 'Defensive Control',
+    'special-overdrive': 'Special Overdrive',
+};
+const ACTIVE_BUFF_GROUP_ORDER = [
+    'defensive-single',
+    'aura',
+    'damage-reduction',
+    'phasing',
+    'recovery',
+    'combined',
+    'defensive-control',
+    'offensive',
+    'special-overdrive',
+];
+const REACTION_SUBFAMILY_LABELS = {
+    armor: 'Armor',
+    evade: 'Evade',
+    'temp-hp': 'Temporary HP',
+    'damage-reduction': 'Damage Reduction',
+    phasing: 'Phasing',
+    combined: 'Combined Reactions',
+    ally: 'Ally Protection',
+    counter: 'Counterattacks',
+    'special-increase': 'Special Boost',
+};
+const REACTION_GROUP_ORDER = [
+    'armor',
+    'evade',
+    'temp-hp',
+    'damage-reduction',
+    'phasing',
+    'combined',
+    'ally',
+    'counter',
+    'special-increase',
+];
+const CATEGORY_PICKER_LABELS = {
+    passive: PASSIVE_SUBFAMILY_LABELS,
+    activeBuff: ACTIVE_BUFF_SUBFAMILY_LABELS,
+    reaction: REACTION_SUBFAMILY_LABELS,
+};
+const CATEGORY_PICKER_ORDER = {
+    passive: PASSIVE_GROUP_ORDER,
+    activeBuff: ACTIVE_BUFF_GROUP_ORDER,
+    reaction: REACTION_GROUP_ORDER,
+};
 const ACTIVE_SUBFAMILY_LABELS = {
     'damage-single': 'Single-Target Special Attacks',
     'damage-aoe': 'Area Special Attacks',
@@ -312,9 +366,10 @@ function offensePatternHint(entry) {
         return text.length > 100 ? `${text.slice(0, 97)}…` : text;
     return ACTIVE_SUBFAMILY_LABELS[normalizeActiveSubfamily(entry.subfamily)] ?? entry.subfamily;
 }
-export function getOffenseActiveSpecialGroups(actorEchoKey, selectedPickIds) {
+export function getOffenseActiveSpecialGroups(actorEchoKey, selectedPickIds, excludeIdentityKeys) {
     const echoKey = (actorEchoKey || '').trim().toLowerCase();
     const selected = selectedPickIds ?? new Set();
+    const excluded = excludeIdentityKeys ?? new Set();
     const bySpecial = new Map();
     for (const entry of getAllCatalogEntries()) {
         if (entry.category !== 'active')
@@ -325,6 +380,8 @@ export function getOffenseActiveSpecialGroups(actorEchoKey, selectedPickIds) {
             if (!echoKey || !entry.requiresEcho.includes(echoKey))
                 continue;
         }
+        if (excluded.has(powerIdentityKeyFromEntry(entry)))
+            continue;
         const groupKey = offenseCatalogGroupKey(entry);
         const groupLabel = OFFENSE_SYNTHETIC_GROUP_LABELS[groupKey]
             ?? capitalizeSpecial(groupKey);
@@ -412,6 +469,76 @@ export function getOffenseActiveGroups(actorEchoKey) {
             isSelected: v.isSelected,
         }))),
     }));
+}
+function prettifySubfamily(key) {
+    if (!key)
+        return 'Other';
+    return key
+        .split('-')
+        .map((p) => (p.length ? p[0].toUpperCase() + p.slice(1) : p))
+        .join(' ');
+}
+function categoryCardHint(entry) {
+    const text = (entry.description?.trim() || entry.raw?.fluff?.trim() || '');
+    if (!text)
+        return '';
+    return text.length > 120 ? `${text.slice(0, 117)}…` : text;
+}
+/**
+ * Build collapsible, subfamily-grouped power cards for the Change-Power picker
+ * (non-active slots: passive, activeBuff, reaction). Active slots use
+ * getOffenseActiveSpecialGroups instead.
+ */
+export function getCategoryPickerGroups(category, rank, options) {
+    const excluded = options?.excludeIdentityKeys ?? new Set();
+    const selected = options?.selectedIdentityKeys ?? new Set();
+    const echoKey = (options?.actorEchoKey || '').trim().toLowerCase();
+    const labels = CATEGORY_PICKER_LABELS[category] ?? {};
+    const order = CATEGORY_PICKER_ORDER[category] ?? [];
+    const bySubfamily = new Map();
+    const seen = new Set();
+    for (const entry of getAllCatalogEntries()) {
+        if (entry.category !== category)
+            continue;
+        if (!catalogEntryHasRank(entry, rank))
+            continue;
+        if (entry.requiresEcho?.length) {
+            if (!echoKey || !entry.requiresEcho.includes(echoKey))
+                continue;
+        }
+        const identityKey = powerIdentityKeyFromEntry(entry);
+        if (excluded.has(identityKey))
+            continue;
+        if (seen.has(identityKey))
+            continue;
+        seen.add(identityKey);
+        const subfamily = entry.subfamily || 'other';
+        const list = bySubfamily.get(subfamily) ?? [];
+        list.push({
+            templateId: entry.templateId,
+            special: entry.chosenSpecial?.key ?? null,
+            label: entry.templateName || entry.name,
+            hint: categoryCardHint(entry),
+            identityKey,
+            isSelected: selected.has(identityKey),
+        });
+        bySubfamily.set(subfamily, list);
+    }
+    const sortKeys = (keys) => {
+        const ordered = order.filter((k) => bySubfamily.has(k));
+        const rest = keys.filter((k) => !order.includes(k)).sort();
+        return [...ordered, ...rest];
+    };
+    const groups = [];
+    for (const subfamily of sortKeys([...bySubfamily.keys()])) {
+        const cards = bySubfamily.get(subfamily).sort((a, b) => a.label.localeCompare(b.label));
+        groups.push({
+            groupLabel: labels[subfamily] ?? prettifySubfamily(subfamily),
+            hasSelection: cards.some((c) => c.isSelected),
+            cards,
+        });
+    }
+    return groups;
 }
 export function resolveOffenseActiveSpecs(selection) {
     const picks = selection.offenseActivePicks;

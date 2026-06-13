@@ -6,6 +6,7 @@ import {
     getDefaultActiveBuffPreview,
     getOffensiveActiveBuffGroups,
     getOffensiveActiveBuffOptions,
+    getCategoryPickerGroups,
     getOffenseActiveGroups,
     getOffenseActiveSpecialGroups,
     getSecondPassiveGroups,
@@ -168,6 +169,60 @@ describe('tower-wizard-packages', () => {
             g.patterns.flatMap((p) => p.variants.map((v) => v.templateId)),
         );
         expect(allTemplateIds.some((id) => id.includes('dispel'))).toBe(false);
+    });
+
+    it('getOffenseActiveSpecialGroups excludes identity keys passed in', () => {
+        const groups = getOffenseActiveSpecialGroups(null);
+        const variant = groups[0]!.patterns[0]!.variants[0]!;
+        const filtered = getOffenseActiveSpecialGroups(
+            null,
+            undefined,
+            new Set([variant.pickId]),
+        );
+        const stillThere = filtered
+            .flatMap((g) => g.patterns.flatMap((p) => p.variants.map((v) => v.pickId)))
+            .includes(variant.pickId);
+        expect(stillThere).toBe(false);
+    });
+
+    it('getCategoryPickerGroups returns subfamily groups per category at slot rank', () => {
+        for (const category of ['passive', 'activeBuff', 'reaction'] as const) {
+            const groups = getCategoryPickerGroups(category, TOWER_WIZARD_DEFENSIVE_RANK);
+            expect(groups.length).toBeGreaterThan(0);
+            const cards = groups.flatMap((g) => g.cards);
+            expect(cards.length).toBeGreaterThan(0);
+            for (const card of cards) {
+                const entry = findCatalogEntry(card.templateId, card.special);
+                expect(entry?.category).toBe(category);
+            }
+        }
+    });
+
+    it('getCategoryPickerGroups excludes identity keys and omits dispel', () => {
+        const groups = getCategoryPickerGroups('reaction', TOWER_WIZARD_DEFENSIVE_RANK);
+        const first = groups[0]!.cards[0]!;
+        const filtered = getCategoryPickerGroups('reaction', TOWER_WIZARD_DEFENSIVE_RANK, {
+            excludeIdentityKeys: new Set([first.identityKey]),
+        });
+        const stillThere = filtered
+            .flatMap((g) => g.cards.map((c) => c.identityKey))
+            .includes(first.identityKey);
+        expect(stillThere).toBe(false);
+
+        const activeBuffs = getCategoryPickerGroups('activeBuff', TOWER_WIZARD_DEFENSIVE_RANK);
+        const buffIds = activeBuffs.flatMap((g) => g.cards.map((c) => c.templateId));
+        expect(buffIds.some((id) => id.includes('dispel'))).toBe(false);
+    });
+
+    it('getCategoryPickerGroups marks the current selection as selected', () => {
+        const groups = getCategoryPickerGroups('passive', TOWER_WIZARD_DEFENSIVE_RANK);
+        const target = groups[0]!.cards[0]!;
+        const withSelection = getCategoryPickerGroups('passive', TOWER_WIZARD_DEFENSIVE_RANK, {
+            selectedIdentityKeys: new Set([target.identityKey]),
+        });
+        const group = withSelection.find((g) => g.cards.some((c) => c.identityKey === target.identityKey))!;
+        expect(group.hasSelection).toBe(true);
+        expect(group.cards.find((c) => c.identityKey === target.identityKey)!.isSelected).toBe(true);
     });
 
     it('catalog offense picks build two active grant specs', () => {
