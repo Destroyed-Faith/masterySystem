@@ -162,6 +162,14 @@ export interface CatalogFilter {
     /** Actor's Echo key, lowercased. Echo-gated entries are hidden if missing. */
     actorEchoKey?: string | null;
 }
+/** Dispel actives are retired — cleanse covers table play; hide from all pickers. */
+export declare function isDispelCatalogEntry(entry: {
+    templateId: string;
+    subfamily?: string;
+    chosenSpecial?: {
+        key: string;
+    };
+}): boolean;
 export declare function getAllCatalogEntries(): CatalogEntry[];
 /** Invalidate the catalog cache (mainly for tests). */
 export declare function _resetCatalogCache(): void;

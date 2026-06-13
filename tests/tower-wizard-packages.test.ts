@@ -132,6 +132,44 @@ describe('tower-wizard-packages', () => {
         expect(totalVariants).toBeGreaterThan(2);
     });
 
+    it('offense groups put Normal Attacks first with single/split/aoe weapon patterns', () => {
+        const groups = getOffenseActiveSpecialGroups(null);
+        expect(groups[0]?.groupLabel).toBe('Normal Attacks');
+        const patternIds = groups[0]!.patterns.map((p) => p.patternId);
+        expect(patternIds.indexOf('weapon-single')).toBeLessThan(patternIds.indexOf('weapon-split'));
+        expect(patternIds.indexOf('weapon-split')).toBeLessThan(patternIds.indexOf('weapon-aoe'));
+    });
+
+    it('offense groups combine control actives including damage + stunned', () => {
+        const groups = getOffenseActiveSpecialGroups(null);
+        const control = groups.find((g) => g.groupLabel === 'Control');
+        expect(control).toBeDefined();
+        const patternIds = control!.patterns.map((p) => p.patternId);
+        expect(patternIds.some((id) => id.includes('damage-stunned'))).toBe(true);
+        expect(patternIds.some((id) => id.includes('control-'))).toBe(true);
+        expect(groups.indexOf(control!)).toBeLessThan(
+            groups.findIndex((g) => g.specialKey === 'bleeding'),
+        );
+    });
+
+    it('offense groups combine heal and cleanse support actives', () => {
+        const groups = getOffenseActiveSpecialGroups(null);
+        const healing = groups.find((g) => g.groupLabel === 'Healing');
+        expect(healing).toBeDefined();
+        const labels = healing!.patterns.map((p) => p.label);
+        expect(labels.some((l) => /heal/i.test(l))).toBe(true);
+        expect(labels.some((l) => /cleanse/i.test(l))).toBe(true);
+        expect(healing!.patterns.some((p) => p.patternId.includes('heal-cleanse-mixed'))).toBe(true);
+    });
+
+    it('offense groups omit dispel actives', () => {
+        const groups = getOffenseActiveSpecialGroups(null);
+        const allTemplateIds = groups.flatMap((g) =>
+            g.patterns.flatMap((p) => p.variants.map((v) => v.templateId)),
+        );
+        expect(allTemplateIds.some((id) => id.includes('dispel'))).toBe(false);
+    });
+
     it('catalog offense picks build two active grant specs', () => {
         const groups = getOffenseActiveSpecialGroups(null);
         const first = groups[0]?.patterns[0]?.variants[0];

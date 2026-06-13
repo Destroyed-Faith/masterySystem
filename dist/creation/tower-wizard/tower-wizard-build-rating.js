@@ -150,7 +150,7 @@ function accumulate(scores, f) {
     for (const k of REPOSITION_SPECIALS)
         if (specials.has(k))
             scores.mobility += 1;
-    if (/cleanse|dispel/.test(id))
+    if (/cleanse/.test(id))
         scores.mobility += 2;
     // tempHP also reinforces a defensive lean
     if (has(mech, 'tempHP'))

@@ -184,7 +184,7 @@ function accumulate(scores: RawScores, f: RowFeatures): void {
     if (has(mech, 'initiativeD8')) scores.mobility += 2;
     if (MOBILITY_SUBFAMILIES.has(f.subfamily)) scores.mobility += 2.5;
     for (const k of REPOSITION_SPECIALS) if (specials.has(k)) scores.mobility += 1;
-    if (/cleanse|dispel/.test(id)) scores.mobility += 2;
+    if (/cleanse/.test(id)) scores.mobility += 2;
 
     // tempHP also reinforces a defensive lean
     if (has(mech, 'tempHP')) scores.defense += 1.5;

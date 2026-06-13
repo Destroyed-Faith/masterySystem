@@ -353,16 +353,28 @@ function specialLabel(key: string): string {
 
 // ─── Build ───────────────────────────────────────────────────────────────
 
+/** Dispel actives are retired — cleanse covers table play; hide from all pickers. */
+export function isDispelCatalogEntry(entry: { templateId: string; subfamily?: string; chosenSpecial?: { key: string } }): boolean {
+    if (entry.templateId.includes('dispel')) return true;
+    if (entry.subfamily === 'support-dispel') return true;
+    if (entry.chosenSpecial?.key === 'dispel-magic') return true;
+    return false;
+}
+
 function buildEntries(): CatalogEntry[] {
     const out: CatalogEntry[] = [];
     for (const t of ALL_POWER_TEMPLATES) {
         if (t.category === 'active' && t.specialSlot) {
             for (const key of t.specialSlot.eligibleSpecialKeys) {
-                out.push(makeEntry(t, { key, tier: t.specialSlot.tier }));
+                const entry = makeEntry(t, { key, tier: t.specialSlot.tier });
+                if (isDispelCatalogEntry(entry)) continue;
+                out.push(entry);
             }
             continue;
         }
-        out.push(makeEntry(t, null));
+        const entry = makeEntry(t, null);
+        if (isDispelCatalogEntry(entry)) continue;
+        out.push(entry);
     }
     return out;
 }

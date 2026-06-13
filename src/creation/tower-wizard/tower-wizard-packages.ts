@@ -264,6 +264,73 @@ export function offensePickFromEntry(entry: CatalogEntry): OffenseActivePick {
 }
 
 const OFFENSE_UTILITY_GROUP_KEY = '__utility__';
+const OFFENSE_GROUP_NORMAL = '__normal-attacks__';
+const OFFENSE_GROUP_CONTROL = '__control__';
+const OFFENSE_GROUP_HEAL = '__heal__';
+
+const OFFENSE_SYNTHETIC_GROUP_LABELS: Record<string, string> = {
+    [OFFENSE_GROUP_NORMAL]: 'Normal Attacks',
+    [OFFENSE_GROUP_CONTROL]: 'Control',
+    [OFFENSE_GROUP_HEAL]: 'Healing',
+    [OFFENSE_UTILITY_GROUP_KEY]: 'Other Actives',
+};
+
+const OFFENSE_GROUP_ORDER = [
+    OFFENSE_GROUP_NORMAL,
+    OFFENSE_GROUP_CONTROL,
+    OFFENSE_GROUP_HEAL,
+] as const;
+
+const NORMAL_ATTACK_PATTERN_ORDER = ['weapon-single', 'weapon-split', 'weapon-aoe', 'weapon-autofire'];
+
+const HEAL_PATTERN_ORDER = ['single-heal', 'aoe-heal', 'single-cleanse', 'aoe-cleanse', 'heal-cleanse-mixed'];
+
+const CONTROL_PATTERN_ORDER = ['damage-stunned'];
+
+function isNormalWeaponAttack(entry: CatalogEntry): boolean {
+    return /active-(?:melee|ranged)-weapon-(single|aoe|split)$/.test(entry.templateId)
+        || entry.templateId === 'active-ranged-weapon-autofire';
+}
+
+function isControlActive(entry: CatalogEntry): boolean {
+    return entry.subfamily === 'control' || entry.subfamily === 'hard-control';
+}
+
+function isHealSupportActive(entry: CatalogEntry): boolean {
+    if (entry.subfamily === 'support-heal' || entry.subfamily === 'support-cleanse') return true;
+    return entry.templateId.includes('heal-cleanse-mixed');
+}
+
+function offenseCatalogGroupKey(entry: CatalogEntry): string {
+    if (isNormalWeaponAttack(entry)) return OFFENSE_GROUP_NORMAL;
+    if (isControlActive(entry)) return OFFENSE_GROUP_CONTROL;
+    if (isHealSupportActive(entry)) return OFFENSE_GROUP_HEAL;
+    if (entry.chosenSpecial?.key) return entry.chosenSpecial.key;
+    return OFFENSE_UTILITY_GROUP_KEY;
+}
+
+function offenseGroupSortIndex(groupKey: string): number {
+    const fixed = (OFFENSE_GROUP_ORDER as readonly string[]).indexOf(groupKey);
+    if (fixed >= 0) return fixed;
+    if (groupKey === OFFENSE_UTILITY_GROUP_KEY) return 1000;
+    return 100;
+}
+
+function offensePatternSortIndex(groupKey: string, patternId: string): number {
+    if (groupKey === OFFENSE_GROUP_NORMAL) {
+        const idx = NORMAL_ATTACK_PATTERN_ORDER.indexOf(patternId);
+        return idx >= 0 ? idx : 999;
+    }
+    if (groupKey === OFFENSE_GROUP_HEAL) {
+        const idx = HEAL_PATTERN_ORDER.findIndex((key) => patternId.includes(key));
+        return idx >= 0 ? idx : 999;
+    }
+    if (groupKey === OFFENSE_GROUP_CONTROL) {
+        const idx = CONTROL_PATTERN_ORDER.findIndex((key) => patternId.includes(key));
+        if (idx >= 0) return idx;
+    }
+    return 999;
+}
 
 function offensePatternKey(templateId: string): string {
     return templateId.replace(/^active-(?:melee|ranged)-/, '');
@@ -289,7 +356,19 @@ function offensePatternLabel(entry: CatalogEntry): string {
     );
 }
 
-function offenseSpecialGroupTooltip(specialKey: string | null): string {
+function offenseSpecialGroupTooltip(groupKey: string, specialKey: string | null): string {
+    if (groupKey === OFFENSE_GROUP_NORMAL) {
+        return 'Pure weapon attacks with no Special on hit — Single, Split, and AoE modes.';
+    }
+    if (groupKey === OFFENSE_GROUP_CONTROL) {
+        return 'Positioning, disables, and hard control — push, pull, prone, disarm, stun, and similar effects.';
+    }
+    if (groupKey === OFFENSE_GROUP_HEAL) {
+        return 'Restore hit points and remove afflictions using Heal and Cleanse.';
+    }
+    if (groupKey === OFFENSE_UTILITY_GROUP_KEY) {
+        return 'Barriers, illusion, zones, and other Actives that do not fit the categories above.';
+    }
     if (!specialKey) {
         return 'Weapon attacks, barriers, illusion, and other Actives that do not apply a Special condition on hit.';
     }
@@ -329,15 +408,14 @@ export function getOffenseActiveSpecialGroups(
             if (!echoKey || !entry.requiresEcho.includes(echoKey)) continue;
         }
 
-        const specialKey = entry.chosenSpecial?.key ?? OFFENSE_UTILITY_GROUP_KEY;
-        const groupLabel = specialKey === OFFENSE_UTILITY_GROUP_KEY
-            ? 'Weapons & Other Actives'
-            : capitalizeSpecial(specialKey);
+        const groupKey = offenseCatalogGroupKey(entry);
+        const groupLabel = OFFENSE_SYNTHETIC_GROUP_LABELS[groupKey]
+            ?? capitalizeSpecial(groupKey);
 
-        if (!bySpecial.has(specialKey)) {
-            bySpecial.set(specialKey, { groupLabel, patterns: new Map() });
+        if (!bySpecial.has(groupKey)) {
+            bySpecial.set(groupKey, { groupLabel, patterns: new Map() });
         }
-        const group = bySpecial.get(specialKey)!;
+        const group = bySpecial.get(groupKey)!;
         const patternKey = offensePatternKey(entry.templateId);
         if (!group.patterns.has(patternKey)) {
             group.patterns.set(patternKey, {
@@ -361,13 +439,13 @@ export function getOffenseActiveSpecialGroups(
 
     const groups: OffenseActiveSpecialGroup[] = [];
     const keys = [...bySpecial.keys()].sort((a, b) => {
-        if (a === OFFENSE_UTILITY_GROUP_KEY) return 1;
-        if (b === OFFENSE_UTILITY_GROUP_KEY) return -1;
+        const orderDiff = offenseGroupSortIndex(a) - offenseGroupSortIndex(b);
+        if (orderDiff !== 0) return orderDiff;
         return bySpecial.get(a)!.groupLabel.localeCompare(bySpecial.get(b)!.groupLabel);
     });
 
-    for (const specialKey of keys) {
-        const bucket = bySpecial.get(specialKey)!;
+    for (const groupKey of keys) {
+        const bucket = bySpecial.get(groupKey)!;
         const patterns: OffenseActivePattern[] = [];
         for (const [patternId, pattern] of bucket.patterns) {
             const variants = [...pattern.variants.values()].sort((a, b) => {
@@ -382,14 +460,19 @@ export function getOffenseActiveSpecialGroups(
                 variants,
             });
         }
-        patterns.sort((a, b) => a.label.localeCompare(b.label));
+        patterns.sort((a, b) => {
+            const orderDiff = offensePatternSortIndex(groupKey, a.patternId) - offensePatternSortIndex(groupKey, b.patternId);
+            if (orderDiff !== 0) return orderDiff;
+            return a.label.localeCompare(b.label);
+        });
         if (!patterns.length) continue;
-        const resolvedSpecialKey = specialKey === OFFENSE_UTILITY_GROUP_KEY ? null : specialKey;
+        const isSyntheticGroup = groupKey.startsWith('__');
+        const resolvedSpecialKey = isSyntheticGroup ? null : groupKey;
         const hasSelection = patterns.some((p) => p.variants.some((v) => v.isSelected));
         groups.push({
             groupLabel: bucket.groupLabel,
             specialKey: resolvedSpecialKey,
-            groupTooltip: offenseSpecialGroupTooltip(resolvedSpecialKey),
+            groupTooltip: offenseSpecialGroupTooltip(groupKey, resolvedSpecialKey),
             hasSelection,
             patterns,
         });

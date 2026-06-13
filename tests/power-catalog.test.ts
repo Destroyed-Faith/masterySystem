@@ -10,6 +10,7 @@ import {
     findDuplicatePowerLabel,
     powerIdentityKeyFromEntry,
     findTemplateById,
+    isDispelCatalogEntry,
 } from '../src/utils/power-catalog';
 
 describe('Power Catalog (Templates refactor)', () => {
@@ -155,5 +156,12 @@ describe('Power Catalog (Templates refactor)', () => {
         expect(levels['16'].effect?.text).toContain('Critical(4)');
         expect(levels['4'].mechanics?.critical).toBe(1);
         expect(levels['1'].mechanics?.critical).toBeUndefined();
+    });
+
+    it('excludes dispel actives from the catalog (cleanse replaces dispel at the table)', () => {
+        const entries = getAllCatalogEntries();
+        expect(entries.some((e) => isDispelCatalogEntry(e))).toBe(false);
+        expect(entries.some((e) => e.templateId.includes('dispel'))).toBe(false);
+        expect(filterCatalog({ category: 'active', search: 'dispel' }).every((e) => !isDispelCatalogEntry(e))).toBe(true);
     });
 });
