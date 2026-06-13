@@ -82,7 +82,17 @@ export interface TowerWizardDefensePackage {
         activeBuff: PowerGrantSpec;
         reaction: PowerGrantSpec;
     };
-    secondPassiveTemplateIds: string[];
+}
+
+export interface SecondPassiveOption {
+    id: string;
+    label: string;
+    hint: string;
+}
+
+export interface SecondPassiveGroup {
+    groupLabel: string;
+    passives: SecondPassiveOption[];
 }
 
 export interface TowerWizardOffensePackage {

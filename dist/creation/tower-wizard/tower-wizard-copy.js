@@ -10,9 +10,7 @@ export const TOWER_WIZARD_COPY = {
     passive2: {
         heading: 'Choose your second Passive',
         body: `Your first Passive comes from your defense package.
-Do you want to stay safer, or support your attacks? Pick one option below.`,
-        strengthenDefense: 'Strengthen your defense',
-        supportAttacks: 'Support your attacks',
+Pick any other Passive from the catalog below.`,
     },
     activeBuffChoice: {
         heading: 'How should your Active Buff work?',

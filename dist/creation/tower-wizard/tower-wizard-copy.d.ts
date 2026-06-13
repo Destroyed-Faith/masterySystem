@@ -9,9 +9,7 @@ export declare const TOWER_WIZARD_COPY: {
     };
     readonly passive2: {
         readonly heading: "Choose your second Passive";
-        readonly body: "Your first Passive comes from your defense package.\nDo you want to stay safer, or support your attacks? Pick one option below.";
-        readonly strengthenDefense: "Strengthen your defense";
-        readonly supportAttacks: "Support your attacks";
+        readonly body: "Your first Passive comes from your defense package.\nPick any other Passive from the catalog below.";
     };
     readonly activeBuffChoice: {
         readonly heading: "How should your Active Buff work?";

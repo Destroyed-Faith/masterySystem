@@ -5,6 +5,7 @@
 import {
     CATEGORY_LABELS,
     CATEGORY_ORDER,
+    findCatalogEntry,
     TOWER_WIZARD_DEFENSIVE_RANK,
     TOWER_WIZARD_MASTERY_RANK,
     TOWER_WIZARD_OFFENSIVE_RANK,
@@ -22,37 +23,22 @@ import {
 } from './tower-wizard-packages.js';
 import type { TowerWizardSelection } from './tower-wizard-types.js';
 
-const BLOCKED_SECOND_PASSIVE_PREFIXES = [
-    'passive-armor-',
-    'passive-evade-',
-    'passive-damage-',
-    'passive-awareness-',
-    'passive-health-',
-    'conditional-passive-',
-    'passive-damage-reduction',
-    'passive-ghostform',
-    'passive-fortified-frame',
-    'passive-evade',
-];
-
 export function isValidSecondPassiveForDefense(
     defenseId: string,
     templateId: string,
 ): boolean {
     const defense = getDefensePackage(defenseId as TowerWizardSelection['defenseId']);
     if (!defense) return false;
-    if (!defense.secondPassiveTemplateIds.includes(templateId)) return false;
-    if (BLOCKED_SECOND_PASSIVE_PREFIXES.some((p) => templateId.startsWith(p) && !defense.secondPassiveTemplateIds.includes(templateId))) {
-        return false;
-    }
-    return true;
+    if (templateId === defense.grants.passive1.templateId) return false;
+    const entry = findCatalogEntry(templateId);
+    return entry?.category === 'passive';
 }
 
 export function validateTowerWizardSelection(selection: Partial<TowerWizardSelection>): string | null {
     if (!selection.defenseId) return 'Choose a defensive style.';
     if (!selection.secondPassiveTemplateId) return 'Choose a second Passive.';
     if (!isValidSecondPassiveForDefense(selection.defenseId, selection.secondPassiveTemplateId)) {
-        return 'That second Passive conflicts with your defensive package.';
+        return 'That second Passive is not available for your package.';
     }
     if (!selection.offenseId) return 'Choose an offensive style.';
     if (selection.activeBuffMode === 'offensive' && !selection.offensiveActiveBuffId) {

@@ -23,28 +23,17 @@
     <section class="tower-wizard-step">
       <h3>{{copy.passive2.heading}}</h3>
       <p class="tower-wizard-prose">{{copy.passive2.body}}</p>
-      {{#if defensivePassives.length}}
-      <h4>{{copy.passive2.strengthenDefense}}</h4>
+      {{#each secondPassiveGroups}}
+      <h4>{{this.groupLabel}}</h4>
       <div class="tower-wizard-passive-grid">
-        {{#each defensivePassives}}
-        <button type="button" class="tower-wizard-passive-card js-tw-select-passive2{{#if (eq ../selection.secondPassiveTemplateId this.id)}} is-selected{{/if}}" data-passive-id="{{this.id}}">
+        {{#each this.passives}}
+        <button type="button" class="tower-wizard-passive-card js-tw-select-passive2{{#if (eq ../../selection.secondPassiveTemplateId this.id)}} is-selected{{/if}}" data-passive-id="{{this.id}}">
           <span class="chip-label">{{this.label}}</span>
           <span class="chip-mechanical">{{this.hint}}</span>
         </button>
         {{/each}}
       </div>
-      {{/if}}
-      {{#if offensivePassives.length}}
-      <h4>{{copy.passive2.supportAttacks}}</h4>
-      <div class="tower-wizard-passive-grid">
-        {{#each offensivePassives}}
-        <button type="button" class="tower-wizard-passive-card js-tw-select-passive2{{#if (eq ../selection.secondPassiveTemplateId this.id)}} is-selected{{/if}}" data-passive-id="{{this.id}}">
-          <span class="chip-label">{{this.label}}</span>
-          <span class="chip-mechanical">{{this.hint}}</span>
-        </button>
-        {{/each}}
-      </div>
-      {{/if}}
+      {{/each}}
     </section>
     {{/if}}
 

@@ -31,23 +31,22 @@ describe('tower-wizard-packages', () => {
         }
     });
 
-    it('second passive options exclude combined passives, awareness, and health', () => {
-        for (const pkg of TOWER_WIZARD_DEFENSE_PACKAGES) {
-            for (const id of pkg.secondPassiveTemplateIds) {
-                expect(id.startsWith('conditional-passive-')).toBe(false);
-                expect(id.includes('-armor-')).toBe(false);
-                expect(id.includes('-evade-')).toBe(false);
-                expect(id).not.toBe('passive-heightened-senses');
-                expect(id).not.toBe('passive-deep-vitality');
-            }
-        }
+    it('second passive groups include all catalog passives except the defense passive', () => {
+        const armor = getSecondPassiveGroups('armor');
+        const allIds = armor.flatMap((g) => g.passives.map((p) => p.id));
+        expect(allIds).toContain('passive-temp-hp');
+        expect(allIds).toContain('passive-deep-vitality');
+        expect(allIds).toContain('passive-armor-temp-hp');
+        expect(allIds).toContain('conditional-passive-armor-temp-hp');
+        expect(allIds).not.toContain('passive-fortified-frame');
+        expect(allIds.length).toBeGreaterThan(20);
     });
 
-    it('second passive groups include defense and attack support options', () => {
-        const armor = getSecondPassiveGroups('armor');
-        expect(armor.defensive.map((p) => p.id)).toEqual(['passive-temp-hp', 'passive-regeneration']);
-        expect(armor.offensive.map((p) => p.id)).toEqual(['passive-killing-intent']);
-        expect(armor.offensive[0]?.label).toBe('Attack Support');
+    it('second passive groups include combined and conditional passives for evade defense', () => {
+        const evade = getSecondPassiveGroups('evade');
+        const allIds = evade.flatMap((g) => g.passives.map((p) => p.id));
+        expect(allIds).not.toContain('passive-evade');
+        expect(allIds).toContain('passive-evade-damage');
     });
 
     it('ignite and weaken-save are hidden from wizard offense list', () => {

@@ -30,9 +30,11 @@ function mockPowerItem(category: string, level: number, templateId: string, spec
 }
 
 describe('tower-wizard-validation', () => {
-    it('rejects invalid second passive for defense package', () => {
-        expect(isValidSecondPassiveForDefense('armor', 'passive-evade')).toBe(false);
+    it('rejects duplicate first passive as second passive', () => {
+        expect(isValidSecondPassiveForDefense('armor', 'passive-fortified-frame')).toBe(false);
+        expect(isValidSecondPassiveForDefense('armor', 'passive-evade')).toBe(true);
         expect(isValidSecondPassiveForDefense('armor', 'passive-temp-hp')).toBe(true);
+        expect(isValidSecondPassiveForDefense('armor', 'passive-deep-vitality')).toBe(true);
     });
 
     it('accepts a complete valid selection', () => {

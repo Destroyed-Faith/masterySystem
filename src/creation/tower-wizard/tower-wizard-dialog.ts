@@ -109,7 +109,7 @@ export class TowerWizardDialog extends BaseDialog {
 
         const passiveGroups = this.selection.defenseId
             ? getSecondPassiveGroups(this.selection.defenseId)
-            : { defensive: [], offensive: [] };
+            : [];
 
         const offensePackages = this.selection.defenseId
             ? sortOffensePackagesForDefense(this.selection.defenseId).map((p) => ({
@@ -167,8 +167,7 @@ export class TowerWizardDialog extends BaseDialog {
             copy,
             selection: this.selection,
             defensePackages: TOWER_WIZARD_DEFENSE_PACKAGES,
-            defensivePassives: passiveGroups.defensive,
-            offensivePassives: passiveGroups.offensive,
+            secondPassiveGroups: passiveGroups,
             offensiveActiveBuffs: WIZARD_OFFENSIVE_ACTIVE_BUFFS,
             offensePackages,
             defenseSummaryRows,

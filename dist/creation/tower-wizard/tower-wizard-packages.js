@@ -1,7 +1,7 @@
 /**
  * Tower Wizard — declarative defense/offense package definitions.
  */
-import { TOWER_WIZARD_DEFENSIVE_RANK, TOWER_WIZARD_OFFENSIVE_RANK, findCatalogEntry, } from '../../utils/power-catalog.js';
+import { TOWER_WIZARD_DEFENSIVE_RANK, TOWER_WIZARD_OFFENSIVE_RANK, findCatalogEntry, getAllCatalogEntries, } from '../../utils/power-catalog.js';
 const DEF_RANK = TOWER_WIZARD_DEFENSIVE_RANK;
 const OFF_RANK = TOWER_WIZARD_OFFENSIVE_RANK;
 function def(templateId, rank, extra = {}) {
@@ -41,19 +41,38 @@ const VARIANT_LABELS = {
 /** Offense packages hidden from the wizard UI (still in type union for saved data). */
 export const WIZARD_HIDDEN_OFFENSE_IDS = ['ignite', 'weaken-save'];
 const SECOND_PASSIVE_LABELS = {
-    'passive-temp-hp': 'Temporary HP',
-    'passive-regeneration': 'Regeneration',
     'passive-killing-intent': 'Attack Support',
-    'passive-evade': 'Evade',
 };
-const SECOND_PASSIVE_HINTS = {
-    'passive-temp-hp': 'Extra buffer when combat starts.',
-    'passive-regeneration': 'Steady healing at the start of your turn.',
-    'passive-killing-intent': 'Bonus damage on the attacks you make.',
-    'passive-evade': 'Harder to hit in general.',
+const PASSIVE_SUBFAMILY_LABELS = {
+    armor: 'Armor',
+    'damage-reduction': 'Damage Reduction',
+    evade: 'Evade',
+    'temp-hp': 'Temporary HP',
+    regen: 'Regeneration',
+    phasing: 'Phasing',
+    health: 'Health',
+    recovery: 'Recovery',
+    damage: 'Damage & Offense',
+    awareness: 'Awareness',
+    combined: 'Combined Passives',
+    'conditional-combined': 'Conditional Combined Passives',
+    'special-aura': 'Special Aura',
 };
-const WIZARD_DEFENSIVE_SECOND_PASSIVES = ['passive-temp-hp', 'passive-regeneration'];
-const WIZARD_OFFENSIVE_SECOND_PASSIVES = ['passive-killing-intent'];
+const PASSIVE_GROUP_ORDER = [
+    'armor',
+    'damage-reduction',
+    'evade',
+    'temp-hp',
+    'regen',
+    'phasing',
+    'health',
+    'recovery',
+    'damage',
+    'awareness',
+    'combined',
+    'conditional-combined',
+    'special-aura',
+];
 export const WIZARD_OFFENSIVE_ACTIVE_BUFFS = [
     {
         id: 'ab-damage',
@@ -86,7 +105,6 @@ export const TOWER_WIZARD_DEFENSE_PACKAGES = [
             activeBuff: def('ab-armor', DEF_RANK),
             reaction: def('reaction-armor', DEF_RANK),
         },
-        secondPassiveTemplateIds: ['passive-temp-hp', 'passive-regeneration', 'passive-killing-intent'],
     },
     {
         id: 'evade',
@@ -97,7 +115,6 @@ export const TOWER_WIZARD_DEFENSE_PACKAGES = [
             activeBuff: def('ab-evade', DEF_RANK),
             reaction: def('reaction-evade', DEF_RANK),
         },
-        secondPassiveTemplateIds: ['passive-temp-hp', 'passive-regeneration', 'passive-killing-intent'],
     },
     {
         id: 'damage-reduction',
@@ -109,7 +126,6 @@ export const TOWER_WIZARD_DEFENSE_PACKAGES = [
             activeBuff: def('ab-damage-reduction', DEF_RANK),
             reaction: def('reaction-damage-reduction', DEF_RANK),
         },
-        secondPassiveTemplateIds: ['passive-temp-hp', 'passive-regeneration', 'passive-killing-intent'],
     },
     {
         id: 'phasing',
@@ -121,7 +137,6 @@ export const TOWER_WIZARD_DEFENSE_PACKAGES = [
             activeBuff: def('ab-phasing', DEF_RANK),
             reaction: def('reaction-phasing', DEF_RANK),
         },
-        secondPassiveTemplateIds: ['passive-temp-hp', 'passive-regeneration', 'passive-killing-intent', 'passive-evade'],
     },
 ];
 function offensePackages() {
@@ -221,18 +236,47 @@ export function getAvailableOffensePackages() {
 }
 export function getSecondPassiveGroups(defenseId) {
     const defense = getDefensePackage(defenseId);
-    const allowed = new Set(defense?.secondPassiveTemplateIds ?? []);
-    const mapEntry = (id) => ({
-        id,
-        label: secondPassiveLabel(id),
-        hint: secondPassiveHint(id),
-    });
-    const defensive = WIZARD_DEFENSIVE_SECOND_PASSIVES.filter((id) => allowed.has(id)).map(mapEntry);
-    const offensive = WIZARD_OFFENSIVE_SECOND_PASSIVES.filter((id) => allowed.has(id)).map(mapEntry);
-    if (defenseId === 'phasing' && allowed.has('passive-evade')) {
-        defensive.push(mapEntry('passive-evade'));
+    if (!defense)
+        return [];
+    const excluded = defense.grants.passive1.templateId;
+    const bySubfamily = new Map();
+    for (const entry of getAllCatalogEntries()) {
+        if (entry.category !== 'passive')
+            continue;
+        if (entry.templateId === excluded)
+            continue;
+        if (!findCatalogEntry(entry.templateId))
+            continue;
+        const subfamily = entry.subfamily ?? 'other';
+        const list = bySubfamily.get(subfamily) ?? [];
+        if (list.some((p) => p.id === entry.templateId))
+            continue;
+        list.push({
+            id: entry.templateId,
+            label: secondPassiveLabel(entry.templateId),
+            hint: secondPassiveHint(entry.templateId, entry.description),
+        });
+        bySubfamily.set(subfamily, list);
     }
-    return { defensive, offensive };
+    const groups = [];
+    for (const subfamily of PASSIVE_GROUP_ORDER) {
+        const passives = bySubfamily.get(subfamily);
+        if (!passives?.length)
+            continue;
+        groups.push({
+            groupLabel: PASSIVE_SUBFAMILY_LABELS[subfamily] ?? subfamily,
+            passives: passives.sort((a, b) => a.label.localeCompare(b.label)),
+        });
+    }
+    for (const [subfamily, passives] of bySubfamily.entries()) {
+        if (PASSIVE_GROUP_ORDER.includes(subfamily))
+            continue;
+        groups.push({
+            groupLabel: PASSIVE_SUBFAMILY_LABELS[subfamily] ?? subfamily,
+            passives: passives.sort((a, b) => a.label.localeCompare(b.label)),
+        });
+    }
+    return groups;
 }
 export function resolveActiveBuffSpec(selection) {
     const defense = getDefensePackage(selection.defenseId);
@@ -280,10 +324,16 @@ export function sortOffensePackagesForDefense(_defenseId) {
     return [...getAvailableOffensePackages()].sort((a, b) => a.label.localeCompare(b.label));
 }
 export function secondPassiveLabel(templateId) {
-    return SECOND_PASSIVE_LABELS[templateId] ?? templateId;
+    if (SECOND_PASSIVE_LABELS[templateId])
+        return SECOND_PASSIVE_LABELS[templateId];
+    const entry = findCatalogEntry(templateId);
+    return entry?.templateName ?? entry?.name ?? templateId;
 }
-export function secondPassiveHint(templateId) {
-    return SECOND_PASSIVE_HINTS[templateId] ?? '';
+export function secondPassiveHint(templateId, description) {
+    if (description?.trim())
+        return description.trim();
+    const entry = findCatalogEntry(templateId);
+    return entry?.description?.trim() ?? '';
 }
 export function resolveGrant(spec) {
     const entry = findCatalogEntry(spec.templateId, spec.special ?? null);

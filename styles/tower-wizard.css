@@ -145,6 +145,12 @@
   }
 }
 
+@media (min-width: 720px) {
+  .tower-wizard-passive-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
 .tower-wizard-passive-card {
   border: 1px solid var(--df-border-primary, #3a3f44);
   border-radius: 8px;

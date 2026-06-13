@@ -1,30 +1,16 @@
 /**
  * Tower Wizard — validation for selections and finalize.
  */
-import { CATEGORY_LABELS, CATEGORY_ORDER, TOWER_WIZARD_DEFENSIVE_RANK, TOWER_WIZARD_MASTERY_RANK, TOWER_WIZARD_OFFENSIVE_RANK, TOWER_WIZARD_POWER_REQUIREMENTS, TOWER_WIZARD_POWER_TOTAL, countPowersByCategory, findDuplicatePowerLabel, resolvePowerCategoryFromItem, } from '../../utils/power-catalog.js';
+import { CATEGORY_LABELS, CATEGORY_ORDER, findCatalogEntry, TOWER_WIZARD_DEFENSIVE_RANK, TOWER_WIZARD_MASTERY_RANK, TOWER_WIZARD_OFFENSIVE_RANK, TOWER_WIZARD_POWER_REQUIREMENTS, TOWER_WIZARD_POWER_TOTAL, countPowersByCategory, findDuplicatePowerLabel, resolvePowerCategoryFromItem, } from '../../utils/power-catalog.js';
 import { buildPackageGrantSpecs, buildPackageReview, getDefensePackage, getOffensePackage, } from './tower-wizard-packages.js';
-const BLOCKED_SECOND_PASSIVE_PREFIXES = [
-    'passive-armor-',
-    'passive-evade-',
-    'passive-damage-',
-    'passive-awareness-',
-    'passive-health-',
-    'conditional-passive-',
-    'passive-damage-reduction',
-    'passive-ghostform',
-    'passive-fortified-frame',
-    'passive-evade',
-];
 export function isValidSecondPassiveForDefense(defenseId, templateId) {
     const defense = getDefensePackage(defenseId);
     if (!defense)
         return false;
-    if (!defense.secondPassiveTemplateIds.includes(templateId))
+    if (templateId === defense.grants.passive1.templateId)
         return false;
-    if (BLOCKED_SECOND_PASSIVE_PREFIXES.some((p) => templateId.startsWith(p) && !defense.secondPassiveTemplateIds.includes(templateId))) {
-        return false;
-    }
-    return true;
+    const entry = findCatalogEntry(templateId);
+    return entry?.category === 'passive';
 }
 export function validateTowerWizardSelection(selection) {
     if (!selection.defenseId)
@@ -32,7 +18,7 @@ export function validateTowerWizardSelection(selection) {
     if (!selection.secondPassiveTemplateId)
         return 'Choose a second Passive.';
     if (!isValidSecondPassiveForDefense(selection.defenseId, selection.secondPassiveTemplateId)) {
-        return 'That second Passive conflicts with your defensive package.';
+        return 'That second Passive is not available for your package.';
     }
     if (!selection.offenseId)
         return 'Choose an offensive style.';
