@@ -47,6 +47,7 @@ import { registerEchoArtifactDedupeMigrationSetting, runEchoArtifactDedupeMigrat
 import { runElvenStrideLineageMigration } from './migrations/elven-stride-lineage-migration.js';
 import { registerPaperdollSlotCanonicalSetting, runPaperdollSlotCanonical, } from './migrations/paperdoll-slot-canonical.js';
 import { registerArtifactEchoLinkMigrationSetting, runArtifactEchoLinkMigration, } from './migrations/artifact-echo-link-migration.js';
+import { registerAbCriticalMilestonesMigrationSetting, runAbCriticalMilestonesMigration, } from './migrations/ab-critical-milestones-migration.js';
 import { registerArtifactEchoActivationMigrationSetting, runArtifactEchoActivationMigration, } from './migrations/artifact-echo-activation-migration.js';
 // Dice roller functions are imported in sheets where needed
 console.log('Mastery System | All imports completed');
@@ -177,6 +178,7 @@ Hooks.once('init', async function () {
     registerEchoArtifactTreeMigrationSetting();
     registerEchoArtifactDedupeMigrationSetting();
     registerPaperdollSlotCanonicalSetting();
+    registerAbCriticalMilestonesMigrationSetting();
     // Setup XP Management inline in settings
     setupXpManagementInline();
     // Handlebars helpers are already registered in registerHandlebarsHelpersImmediate()
@@ -2478,6 +2480,12 @@ Hooks.once('ready', async function () {
     }
     catch (error) {
         console.warn('Mastery System | Echo artifact dedupe migration failed', error);
+    }
+    try {
+        await runAbCriticalMilestonesMigration();
+    }
+    catch (error) {
+        console.warn('Mastery System | Active Buff Critical milestones migration failed', error);
     }
     // One-shot Paperdoll Slot canonicalization (GM-only, guarded by world setting).
     // Maps legacy slot keys (helmet/chest/boot/necklace/ring1/ring2/cloak/glove/belt/leggings)

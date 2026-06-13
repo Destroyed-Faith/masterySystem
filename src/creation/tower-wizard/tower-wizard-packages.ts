@@ -347,8 +347,8 @@ const OFFENSIVE_ACTIVE_BUFF_META: Record<
     },
     'ab-critical': {
         groupLabel: 'Critical hits',
-        label: 'More crits, harder crits',
-        explanation: 'For characters who already crit often or want burst windows when attacks connect cleanly.',
+        label: 'Critical subsystem',
+        explanation: 'Your maintained offensive buff grants Critical(1–4) at milestone ranks. No bonus damage, penetration, or other filler — Critical only.',
     },
     'ab-special-overdrive': {
         groupLabel: 'Special effects',

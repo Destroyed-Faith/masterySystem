@@ -78,6 +78,10 @@ import {
   runArtifactEchoLinkMigration,
 } from './migrations/artifact-echo-link-migration.js';
 import {
+  registerAbCriticalMilestonesMigrationSetting,
+  runAbCriticalMilestonesMigration,
+} from './migrations/ab-critical-milestones-migration.js';
+import {
   registerArtifactEchoActivationMigrationSetting,
   runArtifactEchoActivationMigration,
 } from './migrations/artifact-echo-activation-migration.js';
@@ -229,6 +233,7 @@ Hooks.once('init', async function() {
   registerEchoArtifactTreeMigrationSetting();
   registerEchoArtifactDedupeMigrationSetting();
   registerPaperdollSlotCanonicalSetting();
+  registerAbCriticalMilestonesMigrationSetting();
   
   // Setup XP Management inline in settings
   setupXpManagementInline();
@@ -2718,6 +2723,12 @@ Hooks.once('ready', async function() {
     await runEchoArtifactDedupeMigration();
   } catch (error) {
     console.warn('Mastery System | Echo artifact dedupe migration failed', error);
+  }
+
+  try {
+    await runAbCriticalMilestonesMigration();
+  } catch (error) {
+    console.warn('Mastery System | Active Buff Critical milestones migration failed', error);
   }
 
   // One-shot Paperdoll Slot canonicalization (GM-only, guarded by world setting).

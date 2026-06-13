@@ -9,6 +9,7 @@ import {
     actorAlreadyHasPower,
     findDuplicatePowerLabel,
     powerIdentityKeyFromEntry,
+    findTemplateById,
 } from '../src/utils/power-catalog';
 
 describe('Power Catalog (Templates refactor)', () => {
@@ -136,5 +137,23 @@ describe('Power Catalog (Templates refactor)', () => {
         expect(activeTemplateCanBeSpell('active-ranged-damage-t4')).toBe(true);
         expect(activeTemplateCanBeSpell('active-melee-damage-t4')).toBe(false);
         expect(activeTemplateCanBeSpell('active-melee-weapon-single')).toBe(false);
+    });
+
+    it('Active Buff: Critical uses milestone bands with no effect at L1–3', () => {
+        const template = findTemplateById('ab-critical');
+        expect(template).toBeDefined();
+        const levels = template!.levels;
+        expect(levels['1'].effect?.text).toBe('—');
+        expect(levels['3'].effect?.text).toBe('—');
+        expect(levels['4'].effect?.text).toContain('Critical(1)');
+        expect(levels['7'].effect?.text).toContain('Critical(1)');
+        expect(levels['8'].effect?.text).toContain('Critical(2)');
+        expect(levels['11'].effect?.text).toContain('Critical(2)');
+        expect(levels['12'].effect?.text).toContain('Critical(3)');
+        expect(levels['14'].effect?.text).toContain('Critical(3)');
+        expect(levels['15'].effect?.text).toContain('Critical(4)');
+        expect(levels['16'].effect?.text).toContain('Critical(4)');
+        expect(levels['4'].mechanics?.critical).toBe(1);
+        expect(levels['1'].mechanics?.critical).toBeUndefined();
     });
 });

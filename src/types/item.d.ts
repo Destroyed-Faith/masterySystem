@@ -327,6 +327,13 @@ export interface PowerMechanics {
     attackActions: 'perRank' | number;
   };
 
+  /**
+   * Critical subsystem — closed offensive axis. Only `Active Buff: Critical`
+   * may declare this field. Milestone bands grant Critical(N) to qualifying
+   * attacks while the buff is active (not linear per-level scaling).
+   */
+  critical?: number;
+
   /** Generic heal dice or flat (aggregator lists under breakdown.healing). */
   healing?: PowerMechanicsHealing;
 

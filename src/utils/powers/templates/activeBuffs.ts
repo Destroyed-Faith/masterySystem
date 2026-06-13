@@ -300,15 +300,20 @@ export const ACTIVE_BUFF_TEMPLATES: PowerTemplate[] = [
         subfamily: 'offensive',
         category: 'activeBuff',
         tags: [],
-        fluff: 'Your attacks crit more often; each crit lands with extra force.',
+        fluff: 'While this buff lasts, your qualifying attacks gain Critical at milestone ranks — not linear crit bonuses or filler riders.',
         cost: { action: 'attack' },
         roll: { kind: 'none' },
+        // SRD: L1–3 no effect; L4–7 Critical(1); L8–11 Critical(2); L12–14 Critical(3); L15–16 Critical(4).
         levels: buildLevels((lvl) => {
-            const chance = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16][lvl - 1];
+            const criticalTier = lvl >= 15 ? 4 : lvl >= 12 ? 3 : lvl >= 8 ? 2 : lvl >= 4 ? 1 : 0;
             return activeBuffRow({
                 duration: DURATION_MR_ROUNDS,
-                effectText: `Your attacks gain **+${chance}** crit chance (declarative) and +${Math.ceil(lvl / 2)}d8 on crit damage.`,
-                mechanics: { duration: 'masteryRankRounds' },
+                effectText: criticalTier === 0
+                    ? '—'
+                    : `Your attacks gain **Critical(${criticalTier})**.`,
+                mechanics: criticalTier === 0
+                    ? { duration: 'masteryRankRounds' }
+                    : { critical: criticalTier, duration: 'masteryRankRounds' },
             });
         }),
     },
