@@ -262,6 +262,84 @@
   gap: 8px;
 }
 
+.tower-wizard-buff-preview {
+  margin: 12px 0 16px;
+  padding: 12px 14px;
+  border: 1px solid var(--df-border-primary, #3a3f44);
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.18);
+}
+
+.tower-wizard-buff-preview-compact {
+  margin-bottom: 14px;
+}
+
+.tower-wizard-buff-preview h4 {
+  margin: 0 0 6px;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  opacity: 0.85;
+}
+
+.tower-wizard-buff-preview-name {
+  margin: 0 0 4px;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.tower-wizard-buff-preview-meta {
+  margin: 0 0 8px;
+  font-size: 0.78rem;
+  opacity: 0.75;
+}
+
+.tower-wizard-buff-preview-effect {
+  margin: 0 0 8px;
+  line-height: 1.5;
+  font-size: 0.92rem;
+}
+
+.tower-wizard-buff-preview-fluff {
+  margin: 0;
+  font-size: 0.88rem;
+  opacity: 0.85;
+  line-height: 1.45;
+}
+
+.tower-wizard-buff-replace-label {
+  margin: 0 0 6px;
+  font-size: 0.9rem;
+}
+
+.tower-wizard-buff-mode-cards {
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 640px) {
+  .tower-wizard-buff-mode-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.tower-wizard-buff-option-cards .tower-wizard-card-detail {
+  display: block;
+  width: 100%;
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.45;
+  color: var(--df-text-light, #c8d0d8);
+}
+
+.tower-wizard-buff-option-cards .tower-wizard-card-meta {
+  display: block;
+  width: 100%;
+  margin: 6px 0 0;
+  font-size: 0.78rem;
+  opacity: 0.72;
+  line-height: 1.35;
+}
+
 .tower-wizard-footer {
   display: flex;
   gap: 8px;

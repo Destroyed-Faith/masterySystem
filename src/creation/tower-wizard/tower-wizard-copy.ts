@@ -18,15 +18,22 @@ Pick any other Passive from the catalog below.`,
 
     activeBuffChoice: {
         heading: 'How should your Active Buff work?',
-        body: `Your defense package includes a defensive Active Buff by default.
-Do you want to keep that safety, or trade it for a more aggressive buff?`,
-        defensive: 'Keep my defensive Active Buff — I want to stay safe',
-        offensive: 'Switch to an offensive Active Buff — I want to hit harder',
+        body: `Your defense package includes a matched defensive Active Buff (shown below at Rank 4).
+You can keep that safety, or replace it with an offensive buff on the next step.`,
+        defaultHeading: 'Your default defensive Active Buff',
+        rankNote: 'At Rank 4',
+        defensiveTitle: 'Keep my defensive Active Buff',
+        defensiveBody: 'Stay with the buff that matches your defense package. Best if you want to survive first.',
+        offensiveTitle: 'Switch to an offensive Active Buff',
+        offensiveBody: 'Trade defensive safety for damage, armor break, crits, or stronger Specials. You pick the replacement next.',
     },
 
     offensiveBuff: {
         heading: 'Choose your offensive Active Buff',
-        body: 'This replaces your defensive Active Buff. You only maintain one Active Buff at a time.',
+        body: 'This replaces your defensive Active Buff for the whole package. You only run one Active Buff at a time.',
+        replacing: 'Replacing',
+        rankPreview: 'At Rank 4',
+        durationNote: 'Duration',
     },
 
     offense: {

@@ -13,13 +13,20 @@ export declare const TOWER_WIZARD_COPY: {
     };
     readonly activeBuffChoice: {
         readonly heading: "How should your Active Buff work?";
-        readonly body: "Your defense package includes a defensive Active Buff by default.\nDo you want to keep that safety, or trade it for a more aggressive buff?";
-        readonly defensive: "Keep my defensive Active Buff — I want to stay safe";
-        readonly offensive: "Switch to an offensive Active Buff — I want to hit harder";
+        readonly body: "Your defense package includes a matched defensive Active Buff (shown below at Rank 4).\nYou can keep that safety, or replace it with an offensive buff on the next step.";
+        readonly defaultHeading: "Your default defensive Active Buff";
+        readonly rankNote: "At Rank 4";
+        readonly defensiveTitle: "Keep my defensive Active Buff";
+        readonly defensiveBody: "Stay with the buff that matches your defense package. Best if you want to survive first.";
+        readonly offensiveTitle: "Switch to an offensive Active Buff";
+        readonly offensiveBody: "Trade defensive safety for damage, armor break, crits, or stronger Specials. You pick the replacement next.";
     };
     readonly offensiveBuff: {
         readonly heading: "Choose your offensive Active Buff";
-        readonly body: "This replaces your defensive Active Buff. You only maintain one Active Buff at a time.";
+        readonly body: "This replaces your defensive Active Buff for the whole package. You only run one Active Buff at a time.";
+        readonly replacing: "Replacing";
+        readonly rankPreview: "At Rank 4";
+        readonly durationNote: "Duration";
     };
     readonly offense: {
         readonly question: "How do you want to pressure enemies?";

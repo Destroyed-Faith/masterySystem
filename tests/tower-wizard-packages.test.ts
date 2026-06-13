@@ -2,6 +2,9 @@ import { describe, expect, it } from 'vitest';
 import {
     buildPackageGrantSpecs,
     buildPackageReview,
+    getDefaultActiveBuffPreview,
+    getOffensiveActiveBuffGroups,
+    getOffensiveActiveBuffOptions,
     getSecondPassiveGroups,
     playerFacingPowerName,
     resolveGrant,
@@ -77,6 +80,24 @@ describe('tower-wizard-packages', () => {
         const review = buildPackageReview(selection);
         expect(review.offenseRows[0]?.playerName).toBe('Mark');
         expect(review.offenseRows[0]?.playerName).not.toMatch(/tier/i);
+    });
+
+    it('offensive active buff options include five catalog buffs with rank previews', () => {
+        const options = getOffensiveActiveBuffOptions();
+        expect(options.length).toBeGreaterThanOrEqual(5);
+        expect(options.map((o) => o.id)).toContain('ab-special-overdrive');
+        for (const opt of options) {
+            expect(opt.rankPreview.length).toBeGreaterThan(0);
+            expect(opt.groupLabel.length).toBeGreaterThan(0);
+        }
+        const groups = getOffensiveActiveBuffGroups();
+        expect(groups.length).toBeGreaterThanOrEqual(3);
+    });
+
+    it('default active buff preview reflects defense package', () => {
+        const preview = getDefaultActiveBuffPreview('armor');
+        expect(preview?.id).toBe('ab-armor');
+        expect(preview?.rankPreview).toMatch(/17 Armor/i);
     });
 
     it('offensive active buff replaces defensive buff in package', () => {

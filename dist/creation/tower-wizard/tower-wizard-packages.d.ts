@@ -2,9 +2,14 @@
  * Tower Wizard — declarative defense/offense package definitions.
  */
 import type { PowerGrantSpec } from '../../utils/power-item-builder.js';
-import type { DefensePackageId, OffenseActiveOverride, OffenseActiveVariant, OffensePackageId, PackageReviewRow, ResolvedGrant, TowerWizardDefensePackage, TowerWizardOffensePackage, TowerWizardSelection, WizardOffensiveActiveBuff, SecondPassiveGroup } from './tower-wizard-types.js';
+import type { DefensePackageId, OffenseActiveOverride, OffenseActiveVariant, OffensePackageId, PackageReviewRow, ResolvedGrant, TowerWizardDefensePackage, TowerWizardOffensePackage, TowerWizardSelection, SecondPassiveGroup, WizardOffensiveActiveBuff, WizardOffensiveActiveBuffGroup, WizardActiveBuffPreview } from './tower-wizard-types.js';
 /** Offense packages hidden from the wizard UI (still in type union for saved data). */
 export declare const WIZARD_HIDDEN_OFFENSE_IDS: OffensePackageId[];
+export declare function getDefaultActiveBuffPreview(defenseId: DefensePackageId): WizardActiveBuffPreview | null;
+export declare function getOffensiveActiveBuffOptions(): WizardOffensiveActiveBuff[];
+export declare function getOffensiveActiveBuffGroups(): WizardOffensiveActiveBuffGroup[];
+export declare function isValidOffensiveActiveBuffId(templateId: string): boolean;
+/** @deprecated use getOffensiveActiveBuffOptions() */
 export declare const WIZARD_OFFENSIVE_ACTIVE_BUFFS: WizardOffensiveActiveBuff[];
 export declare const TOWER_WIZARD_DEFENSE_PACKAGES: TowerWizardDefensePackage[];
 export declare const TOWER_WIZARD_OFFENSE_PACKAGES: TowerWizardOffensePackage[];

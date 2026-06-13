@@ -89,5 +89,18 @@ export interface WizardOffensiveActiveBuff {
     id: string;
     label: string;
     explanation: string;
+    groupLabel: string;
+    rankPreview: string;
+    durationNote: string;
+}
+export interface WizardOffensiveActiveBuffGroup {
+    groupLabel: string;
+    buffs: WizardOffensiveActiveBuff[];
+}
+export interface WizardActiveBuffPreview {
+    id: string;
+    name: string;
+    rankPreview: string;
+    fluff: string;
 }
 //# sourceMappingURL=tower-wizard-types.d.ts.map

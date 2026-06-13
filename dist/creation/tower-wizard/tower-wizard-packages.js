@@ -73,28 +73,110 @@ const PASSIVE_GROUP_ORDER = [
     'conditional-combined',
     'special-aura',
 ];
-export const WIZARD_OFFENSIVE_ACTIVE_BUFFS = [
-    {
-        id: 'ab-damage',
-        label: 'More damage on every attack',
-        explanation: 'Your Active Buff adds flat damage to your attacks while it is active.',
+const ACTIVE_BUFF_DURATION_NOTE = 'Lasts for your Mastery Rank in rounds. Costs your Attack action to activate.';
+const OFFENSIVE_ACTIVE_BUFF_META = {
+    'ab-damage': {
+        groupLabel: 'Raw damage',
+        label: 'Flat damage on every attack',
+        explanation: 'The simplest offensive buff — your weapon and power hits deal extra damage every time they land.',
     },
-    {
-        id: 'ab-penetration',
+    'ab-penetration': {
+        groupLabel: 'Armor break',
         label: 'Ignore enemy Armor',
-        explanation: 'Your attacks ignore part of the target’s Armor while the buff lasts.',
+        explanation: 'Best against heavily armored targets. Your attacks treat part of their Armor as gone.',
     },
-    {
-        id: 'ab-damage-penetration',
+    'ab-damage-penetration': {
+        groupLabel: 'Armor break',
         label: 'Damage and Armor penetration',
-        explanation: 'Hit harder and punch through Armor at the same time.',
+        explanation: 'A hybrid buff for sustained pressure — hit harder and punch through Armor at the same time.',
     },
-    {
-        id: 'ab-critical',
-        label: 'More critical hits',
-        explanation: 'Your attacks crit more often and crits hit harder.',
+    'ab-critical': {
+        groupLabel: 'Critical hits',
+        label: 'More crits, harder crits',
+        explanation: 'For characters who already crit often or want burst windows when attacks connect cleanly.',
     },
+    'ab-special-overdrive': {
+        groupLabel: 'Special effects',
+        label: 'Boost a Special on your attacks',
+        explanation: 'Pick a Special you already use (Mark, Bleeding, Freeze, …) and make it hit harder while the buff lasts.',
+    },
+};
+const OFFENSIVE_ACTIVE_BUFF_ORDER = [
+    'ab-damage',
+    'ab-penetration',
+    'ab-damage-penetration',
+    'ab-critical',
+    'ab-special-overdrive',
 ];
+const OFFENSIVE_BUFF_GROUP_ORDER = ['Raw damage', 'Armor break', 'Critical hits', 'Special effects'];
+function stripMarkdown(text) {
+    return text.replace(/\*\*/g, '').trim();
+}
+function activeBuffEffectAtRank(templateId, rank = DEF_RANK) {
+    const entry = findCatalogEntry(templateId);
+    const levels = entry?.raw?.levels;
+    const row = levels?.[String(rank)];
+    const text = row?.effect?.text ?? entry?.description ?? '';
+    return stripMarkdown(String(text));
+}
+export function getDefaultActiveBuffPreview(defenseId) {
+    const defense = getDefensePackage(defenseId);
+    if (!defense)
+        return null;
+    const spec = defense.grants.activeBuff;
+    const resolved = resolveGrant(spec);
+    return {
+        id: spec.templateId,
+        name: playerFacingPowerName(spec, resolved),
+        rankPreview: activeBuffEffectAtRank(spec.templateId, DEF_RANK),
+        fluff: entryFluff(spec.templateId),
+    };
+}
+function entryFluff(templateId) {
+    const entry = findCatalogEntry(templateId);
+    return String(entry?.raw?.fluff ?? '');
+}
+export function getOffensiveActiveBuffOptions() {
+    return OFFENSIVE_ACTIVE_BUFF_ORDER.filter((id) => {
+        const meta = OFFENSIVE_ACTIVE_BUFF_META[id];
+        return meta && resolveGrant(def(id, DEF_RANK)).status === 'ok';
+    }).map((id) => {
+        const meta = OFFENSIVE_ACTIVE_BUFF_META[id];
+        return {
+            id,
+            label: meta.label,
+            explanation: meta.explanation,
+            groupLabel: meta.groupLabel,
+            rankPreview: activeBuffEffectAtRank(id, DEF_RANK),
+            durationNote: ACTIVE_BUFF_DURATION_NOTE,
+        };
+    });
+}
+export function getOffensiveActiveBuffGroups() {
+    const byGroup = new Map();
+    for (const buff of getOffensiveActiveBuffOptions()) {
+        const list = byGroup.get(buff.groupLabel) ?? [];
+        list.push(buff);
+        byGroup.set(buff.groupLabel, list);
+    }
+    const groups = [];
+    for (const label of OFFENSIVE_BUFF_GROUP_ORDER) {
+        const buffs = byGroup.get(label);
+        if (buffs?.length)
+            groups.push({ groupLabel: label, buffs });
+    }
+    for (const [groupLabel, buffs] of byGroup.entries()) {
+        if (OFFENSIVE_BUFF_GROUP_ORDER.includes(groupLabel))
+            continue;
+        groups.push({ groupLabel, buffs });
+    }
+    return groups;
+}
+export function isValidOffensiveActiveBuffId(templateId) {
+    return getOffensiveActiveBuffOptions().some((b) => b.id === templateId);
+}
+/** @deprecated use getOffensiveActiveBuffOptions() */
+export const WIZARD_OFFENSIVE_ACTIVE_BUFFS = getOffensiveActiveBuffOptions();
 export const TOWER_WIZARD_DEFENSE_PACKAGES = [
     {
         id: 'armor',

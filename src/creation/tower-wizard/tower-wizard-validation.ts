@@ -20,6 +20,7 @@ import {
     buildPackageReview,
     getDefensePackage,
     getOffensePackage,
+    isValidOffensiveActiveBuffId,
 } from './tower-wizard-packages.js';
 import type { TowerWizardSelection } from './tower-wizard-types.js';
 
@@ -43,6 +44,13 @@ export function validateTowerWizardSelection(selection: Partial<TowerWizardSelec
     if (!selection.offenseId) return 'Choose an offensive style.';
     if (selection.activeBuffMode === 'offensive' && !selection.offensiveActiveBuffId) {
         return 'Choose an offensive Active Buff.';
+    }
+    if (
+        selection.activeBuffMode === 'offensive'
+        && selection.offensiveActiveBuffId
+        && !isValidOffensiveActiveBuffId(selection.offensiveActiveBuffId)
+    ) {
+        return 'That offensive Active Buff is not available.';
     }
     const offense = getOffensePackage(selection.offenseId);
     if (!offense?.catalogAvailable) return 'That offensive package is not available yet.';

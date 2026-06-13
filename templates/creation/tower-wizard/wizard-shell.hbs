@@ -41,9 +41,24 @@
     <section class="tower-wizard-step">
       <h3>{{copy.activeBuffChoice.heading}}</h3>
       <p class="tower-wizard-prose">{{copy.activeBuffChoice.body}}</p>
-      <div class="tower-wizard-choice-row">
-        <button type="button" class="tower-wizard-choice js-tw-active-buff-mode{{#if (eq selection.activeBuffMode 'defensive')}} is-selected{{/if}}" data-buff-mode="defensive">{{copy.activeBuffChoice.defensive}}</button>
-        <button type="button" class="tower-wizard-choice js-tw-active-buff-mode{{#if (eq selection.activeBuffMode 'offensive')}} is-selected{{/if}}" data-buff-mode="offensive">{{copy.activeBuffChoice.offensive}}</button>
+      {{#if defaultActiveBuffPreview}}
+      <div class="tower-wizard-buff-preview">
+        <h4>{{copy.activeBuffChoice.defaultHeading}}</h4>
+        <p class="tower-wizard-buff-preview-name">{{defaultActiveBuffPreview.name}}</p>
+        <p class="tower-wizard-buff-preview-meta">{{copy.activeBuffChoice.rankNote}}</p>
+        <p class="tower-wizard-buff-preview-effect">{{defaultActiveBuffPreview.rankPreview}}</p>
+        {{#if defaultActiveBuffPreview.fluff}}<p class="tower-wizard-buff-preview-fluff">{{defaultActiveBuffPreview.fluff}}</p>{{/if}}
+      </div>
+      {{/if}}
+      <div class="tower-wizard-cards tower-wizard-buff-mode-cards">
+        <button type="button" class="tower-wizard-card js-tw-active-buff-mode{{#if (eq selection.activeBuffMode 'defensive')}} is-selected{{/if}}" data-buff-mode="defensive">
+          <span class="tower-wizard-card-title">{{copy.activeBuffChoice.defensiveTitle}}</span>
+          <span class="tower-wizard-card-text">{{copy.activeBuffChoice.defensiveBody}}</span>
+        </button>
+        <button type="button" class="tower-wizard-card js-tw-active-buff-mode{{#if (eq selection.activeBuffMode 'offensive')}} is-selected{{/if}}" data-buff-mode="offensive">
+          <span class="tower-wizard-card-title">{{copy.activeBuffChoice.offensiveTitle}}</span>
+          <span class="tower-wizard-card-text">{{copy.activeBuffChoice.offensiveBody}}</span>
+        </button>
       </div>
     </section>
     {{/if}}
@@ -52,14 +67,25 @@
     <section class="tower-wizard-step">
       <h3>{{copy.offensiveBuff.heading}}</h3>
       <p class="tower-wizard-prose">{{copy.offensiveBuff.body}}</p>
-      <div class="tower-wizard-cards">
-        {{#each offensiveActiveBuffs}}
-        <button type="button" class="tower-wizard-card js-tw-select-offensive-buff{{#if (eq ../selection.offensiveActiveBuffId this.id)}} is-selected{{/if}}" data-buff-id="{{this.id}}">
+      {{#if defaultActiveBuffPreview}}
+      <div class="tower-wizard-buff-preview tower-wizard-buff-preview-compact">
+        <p class="tower-wizard-buff-replace-label">{{copy.offensiveBuff.replacing}}: <strong>{{defaultActiveBuffPreview.name}}</strong></p>
+        <p class="tower-wizard-buff-preview-effect">{{defaultActiveBuffPreview.rankPreview}}</p>
+      </div>
+      {{/if}}
+      {{#each offensiveActiveBuffGroups}}
+      <h4>{{this.groupLabel}}</h4>
+      <div class="tower-wizard-cards tower-wizard-buff-option-cards">
+        {{#each this.buffs}}
+        <button type="button" class="tower-wizard-card js-tw-select-offensive-buff{{#if (eq ../../selection.offensiveActiveBuffId this.id)}} is-selected{{/if}}" data-buff-id="{{this.id}}">
           <span class="tower-wizard-card-title">{{this.label}}</span>
+          <span class="tower-wizard-card-detail">{{../../copy.offensiveBuff.rankPreview}}: {{this.rankPreview}}</span>
           <span class="tower-wizard-card-text">{{this.explanation}}</span>
+          <span class="tower-wizard-card-meta">{{this.durationNote}}</span>
         </button>
         {{/each}}
       </div>
+      {{/each}}
     </section>
     {{/if}}
 

@@ -2,7 +2,7 @@
  * Tower Wizard — validation for selections and finalize.
  */
 import { CATEGORY_LABELS, CATEGORY_ORDER, findCatalogEntry, TOWER_WIZARD_DEFENSIVE_RANK, TOWER_WIZARD_MASTERY_RANK, TOWER_WIZARD_OFFENSIVE_RANK, TOWER_WIZARD_POWER_REQUIREMENTS, TOWER_WIZARD_POWER_TOTAL, countPowersByCategory, findDuplicatePowerLabel, resolvePowerCategoryFromItem, } from '../../utils/power-catalog.js';
-import { buildPackageGrantSpecs, buildPackageReview, getDefensePackage, getOffensePackage, } from './tower-wizard-packages.js';
+import { buildPackageGrantSpecs, buildPackageReview, getDefensePackage, getOffensePackage, isValidOffensiveActiveBuffId, } from './tower-wizard-packages.js';
 export function isValidSecondPassiveForDefense(defenseId, templateId) {
     const defense = getDefensePackage(defenseId);
     if (!defense)
@@ -24,6 +24,11 @@ export function validateTowerWizardSelection(selection) {
         return 'Choose an offensive style.';
     if (selection.activeBuffMode === 'offensive' && !selection.offensiveActiveBuffId) {
         return 'Choose an offensive Active Buff.';
+    }
+    if (selection.activeBuffMode === 'offensive'
+        && selection.offensiveActiveBuffId
+        && !isValidOffensiveActiveBuffId(selection.offensiveActiveBuffId)) {
+        return 'That offensive Active Buff is not available.';
     }
     const offense = getOffensePackage(selection.offenseId);
     if (!offense?.catalogAvailable)

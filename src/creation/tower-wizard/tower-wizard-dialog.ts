@@ -13,12 +13,13 @@ import {
     TOWER_WIZARD_DEFENSE_PACKAGES,
     buildPackageReview,
     getSecondPassiveGroups,
+    getDefaultActiveBuffPreview,
+    getOffensiveActiveBuffGroups,
     initializeOffenseOverrides,
     packageNeedsDeliveryStep,
     packageNeedsOffensiveBuffStep,
     packageNeedsWeakenSaveStep,
     playerFacingPowerName,
-    WIZARD_OFFENSIVE_ACTIVE_BUFFS,
 } from './tower-wizard-packages.js';
 import { collectRelevantWarnings } from './tower-wizard-validation.js';
 import type {
@@ -168,12 +169,15 @@ export class TowerWizardDialog extends BaseDialog {
             selection: this.selection,
             defensePackages: TOWER_WIZARD_DEFENSE_PACKAGES,
             secondPassiveGroups: passiveGroups,
-            offensiveActiveBuffs: WIZARD_OFFENSIVE_ACTIVE_BUFFS,
             offensePackages,
             defenseSummaryRows,
             review,
             reviewOffenseConfig,
             warnings,
+            defaultActiveBuffPreview: this.selection.defenseId
+                ? getDefaultActiveBuffPreview(this.selection.defenseId)
+                : null,
+            offensiveActiveBuffGroups: getOffensiveActiveBuffGroups(),
             isDefense: this.step === 'defense',
             isPassive2: this.step === 'passive2',
             isActiveBuffChoice: this.step === 'activeBuffChoice',
