@@ -25,6 +25,7 @@ import type {
 } from '../types/item.js';
 import { calculateBaseTN, calculateSaveDC } from '../combat/spell-roll-handler.js';
 import { renderPowerLevelTable } from '../utils/power-rendering.js';
+import { setupPowerCatalogDialogChrome } from '../utils/legacy-dialog-resize.js';
 import {
     buildPowerItemFromCatalogEntry,
 } from '../utils/power-item-builder.js';
@@ -113,9 +114,9 @@ export async function showPowerCreationDialog(
           <input type="text" id="pc-search" class="power-form-input" placeholder="Name contains…" />
         </div>
       </div>
-      <div class="form-group power-form-group">
+      <div class="form-group power-form-group power-catalog-select-group">
         <label class="power-form-label">Power:</label>
-        <select name="power" id="pc-power" class="power-form-select power-catalog-select" size="10">
+        <select name="power" id="pc-power" class="power-form-select power-catalog-select">
           <option value="">-- Select a Power --</option>
         </select>
         <div class="power-catalog-count" id="pc-count" style="font-size: 0.85em; color: #888; margin-top: 4px;"></div>
@@ -267,26 +268,7 @@ export async function showPowerCreationDialog(
             const html = (htmlRaw instanceof HTMLElement) ? $(htmlRaw) : $(htmlRaw);
 
             setTimeout(() => {
-                const dialogElement = html.closest('.window-app.dialog');
-                if (dialogElement.length) {
-                    dialogElement.addClass('mastery-system power-creation-dialog power-catalog-dialog');
-                    dialogElement.css({
-                        height: 'auto',
-                        'min-height': '300px',
-                        'max-height': '90vh',
-                        width: 'auto',
-                        'min-width': '640px',
-                        'max-width': '980px',
-                    });
-                    const contentElement = dialogElement.find('.window-content');
-                    if (contentElement.length) {
-                        contentElement.css({
-                            height: 'auto',
-                            'max-height': 'calc(90vh - 100px)',
-                            'overflow-y': 'auto',
-                        });
-                    }
-                }
+                setupPowerCatalogDialogChrome(html);
             }, 0);
 
             const $categorySelect = html.find('#pc-category');
@@ -508,7 +490,7 @@ export async function showPowerCreationDialog(
             refreshList();
             updatePcSpellRulesHint();
         },
-    });
+    }, { width: 920, height: 720, resizable: true });
 
     dialog.render(true);
 }

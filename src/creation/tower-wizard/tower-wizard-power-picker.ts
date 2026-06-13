@@ -16,8 +16,9 @@ import {
     powerIdentityKeyFromEntry,
     type CatalogEntry,
 } from '../../utils/power-catalog.js';
-import type { PackageGrantKey } from './tower-wizard-types.js';
+import { setupPowerCatalogDialogChrome } from '../../utils/legacy-dialog-resize.js';
 import { catalogEntryMatchesGrantKey, grantKeyCategory, grantKeyRank } from './tower-wizard-packages.js';
+import type { PackageGrantKey } from './tower-wizard-types.js';
 
 export interface TowerWizardPowerPickerResult {
     templateId: string;
@@ -110,9 +111,9 @@ export async function showTowerWizardPowerPicker(options: {
           <input type="text" id="tw-pc-search" class="power-form-input" placeholder="Name contains…" />
         </div>
       </div>
-      <div class="form-group power-form-group">
+      <div class="form-group power-form-group power-catalog-select-group">
         <label class="power-form-label">Power:</label>
-        <select id="tw-pc-power" class="power-form-select power-catalog-select" size="10">
+        <select id="tw-pc-power" class="power-form-select power-catalog-select">
           <option value="">-- Select a Power --</option>
         </select>
         <div class="power-catalog-count" id="tw-pc-count" style="font-size: 0.85em; color: #888; margin-top: 4px;"></div>
@@ -211,15 +212,9 @@ export async function showTowerWizardPowerPicker(options: {
             render: (htmlRaw: JQuery | HTMLElement) => {
                 const html = htmlRaw instanceof HTMLElement ? $(htmlRaw) : $(htmlRaw);
                 setTimeout(() => {
-                    const dialogElement = html.closest('.window-app.dialog');
-                    if (dialogElement.length) {
-                        dialogElement.addClass('mastery-system power-creation-dialog power-catalog-dialog tower-wizard-power-picker-dialog');
-                        dialogElement.css({
-                            width: 'auto',
-                            'min-width': '640px',
-                            'max-width': '980px',
-                        });
-                    }
+                    setupPowerCatalogDialogChrome(html, {
+                        extraClasses: 'tower-wizard-power-picker-dialog',
+                    });
                 }, 0);
 
                 const $subfamilySelect = html.find('#tw-pc-subfamily');
@@ -356,7 +351,7 @@ export async function showTowerWizardPowerPicker(options: {
                 refreshList();
                 if ($powerSelect.val()) $powerSelect.trigger('change');
             },
-        }, { width: 720 });
+        }, { width: 920, height: 720, resizable: true });
 
         dialog.render(true);
     });
