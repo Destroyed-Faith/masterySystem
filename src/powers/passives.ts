@@ -3,10 +3,16 @@
  * Handles passive ability slots, activation, and management
  */
 
+/** Mastery Rank at which each passive slot unlocks (max 4 slots). */
+export const PASSIVE_SLOT_UNLOCK_RANKS: readonly number[] = [1, 2, 4, 6];
+
+export const MAX_PASSIVE_SLOTS = PASSIVE_SLOT_UNLOCK_RANKS.length;
+
 export interface PassiveSlot {
   slotIndex: number;
   passive: PassiveAbility | null;
   active: boolean;
+  unlockMasteryRank: number;
 }
 
 export interface PassiveAbility {
@@ -17,26 +23,43 @@ export interface PassiveAbility {
   level?: number;
 }
 
+/** How many passive slots are available at the given Mastery Rank. */
+export function getPassiveSlotCountForMasteryRank(masteryRank: number): number {
+  const mr = Math.max(1, Math.floor(Number(masteryRank) || 1));
+  let count = 0;
+  for (const unlock of PASSIVE_SLOT_UNLOCK_RANKS) {
+    if (mr >= unlock) count++;
+    else break;
+  }
+  return count;
+}
+
+/** Mastery Rank required to unlock a slot index (0-based), or null if out of range. */
+export function getPassiveSlotUnlockRank(slotIndex: number): number | null {
+  return PASSIVE_SLOT_UNLOCK_RANKS[slotIndex] ?? null;
+}
+
 /**
  * Get all passive slots for an actor
- * Returns only as many slots as the actor's Mastery Rank
+ * Returns slots unlocked by Mastery Rank (MR 1/2/4/6 → up to 4 slots).
  */
 export function getPassiveSlots(actor: Actor): PassiveSlot[] {
   const system = (actor.system as any);
   const passives = system.passives || {};
   const masteryRank = system.mastery?.rank || 2;
+  const slotCount = getPassiveSlotCountForMasteryRank(masteryRank);
   const slots: PassiveSlot[] = [];
-  
-  // Create slots based on Mastery Rank (not fixed 8)
-  for (let i = 0; i < masteryRank; i++) {
+
+  for (let i = 0; i < slotCount; i++) {
     const slotData = passives[`slot${i}`] || {};
     slots.push({
       slotIndex: i,
       passive: slotData.passive || null,
-      active: slotData.active || false
+      active: slotData.active || false,
+      unlockMasteryRank: getPassiveSlotUnlockRank(i) ?? 1,
     });
   }
-  
+
   return slots;
 }
 
@@ -146,13 +169,16 @@ export async function activatePassive(actor: Actor, slotIndex: number): Promise<
   }
   
   const masteryRank = system.mastery?.rank || 2;
+  const maxActive = getPassiveSlotCountForMasteryRank(masteryRank);
   const activeCount = getActivePassiveCount(actor);
-  
+
   // Toggle active state
   const currentActive = system.passives[slotKey].active || false;
-  
-  if (!currentActive && activeCount >= masteryRank) {
-    ui.notifications.warn(`You can only have ${masteryRank} active passives (Mastery Rank)`);
+
+  if (!currentActive && activeCount >= maxActive) {
+    ui.notifications.warn(
+      `You can only have ${maxActive} active passives at Mastery Rank ${masteryRank}.`,
+    );
     return;
   }
   

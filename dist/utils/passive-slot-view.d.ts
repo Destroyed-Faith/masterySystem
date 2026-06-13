@@ -15,6 +15,7 @@ export interface PassiveSlotRow {
     passiveId: string | null;
     passiveName: string | null;
     summary: string | null;
+    unlockMasteryRank: number;
 }
 export interface PassiveSlotViewAvailable {
     id: string;
@@ -28,6 +29,8 @@ export interface PassiveSlotView {
     availablePassives: PassiveSlotViewAvailable[];
     activeCount: number;
     maxSlots: number;
+    maxSlotsTotal: number;
+    masteryRank: number;
     canActivateMore: boolean;
 }
 export declare function buildPassiveSlotView(actor: any): PassiveSlotView;

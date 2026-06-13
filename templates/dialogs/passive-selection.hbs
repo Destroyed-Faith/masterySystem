@@ -8,7 +8,7 @@
       </div>
     </div>
     <div class="passive-limit">
-      <p>Max Active Passives: <strong>{{masteryRank}}</strong></p>
+      <p>Passive slots at MR {{masteryRank}}: <strong>{{maxPassiveSlots}}</strong> of {{maxPassiveSlotsTotal}} (unlock at MR 1, 2, 4, and 6)</p>
     </div>
   </header>
 
@@ -19,7 +19,7 @@
         <div class="passive-slot {{#if slot.passive}}active{{/if}} {{#unless slot.passive}}empty{{/unless}} droppable-slot" 
              data-slot-index="{{slot.slotIndex}}">
           <div class="slot-header">
-            <span class="slot-number">Slot {{inc slot.slotIndex}}</span>
+            <span class="slot-number">Slot {{inc slot.slotIndex}} <span class="slot-unlock">(MR {{slot.unlockMasteryRank}}+)</span></span>
           </div>
           
           {{#if slot.passive}}

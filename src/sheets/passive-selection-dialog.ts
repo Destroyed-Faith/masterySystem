@@ -11,6 +11,8 @@ import {
   getPassiveSlots,
   getAvailablePassives,
   getSlottedPassiveIds,
+  getPassiveSlotCountForMasteryRank,
+  MAX_PASSIVE_SLOTS,
   slotPassive,
   unslotPassive
 } from '../powers/passives.js';
@@ -131,6 +133,7 @@ export class PassiveSelectionDialog extends BaseDialog {
     const slots = getPassiveSlots(actor);
     const available = getAvailablePassives(actor);
     const masteryRank = (actor.system as any).mastery?.rank ?? 2;
+    const maxPassiveSlots = getPassiveSlotCountForMasteryRank(masteryRank);
 
     const slottedIds = getSlottedPassiveIds(actor);
     const selectablePassives = available.filter((p: any) => !slottedIds.has(String(p.id)));
@@ -140,6 +143,8 @@ export class PassiveSelectionDialog extends BaseDialog {
       slots,
       availablePassives: selectablePassives,
       masteryRank,
+      maxPassiveSlots,
+      maxPassiveSlotsTotal: MAX_PASSIVE_SLOTS,
       currentIndex: this.currentIndex + 1,
       total: this.pcs.length,
       isFirst: this.currentIndex === 0,

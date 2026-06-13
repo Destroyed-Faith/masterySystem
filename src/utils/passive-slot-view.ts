@@ -8,7 +8,7 @@
  * declarative and the core passives module remains free of UI concerns.
  */
 
-import { getPassiveSlots, getAvailablePassives } from '../powers/passives.js';
+import { getPassiveSlots, getAvailablePassives, getPassiveSlotCountForMasteryRank, MAX_PASSIVE_SLOTS, getPassiveSlotUnlockRank } from '../powers/passives.js';
 import { resolvePowerMechanics } from './power-mechanics.js';
 import { summarizePowerMechanics } from './power-mechanics-summary.js';
 
@@ -20,6 +20,7 @@ export interface PassiveSlotRow {
   passiveId: string | null;
   passiveName: string | null;
   summary: string | null;
+  unlockMasteryRank: number;
 }
 
 export interface PassiveSlotViewAvailable {
@@ -35,6 +36,8 @@ export interface PassiveSlotView {
   availablePassives: PassiveSlotViewAvailable[];
   activeCount: number;
   maxSlots: number;
+  maxSlotsTotal: number;
+  masteryRank: number;
   canActivateMore: boolean;
 }
 
@@ -42,6 +45,8 @@ export function buildPassiveSlotView(actor: any): PassiveSlotView {
   const slotsRaw = getPassiveSlots(actor);
   const available = getAvailablePassives(actor);
   const items = (actor as any).items ?? [];
+  const masteryRank = Math.max(1, Math.floor(Number((actor as any)?.system?.mastery?.rank) || 2));
+  const maxSlots = getPassiveSlotCountForMasteryRank(masteryRank);
 
   const slotIdToIndex = new Map<string, number>();
   for (const s of slotsRaw) {
@@ -68,6 +73,7 @@ export function buildPassiveSlotView(actor: any): PassiveSlotView {
       passiveId: pid,
       passiveName: s.passive?.name ?? null,
       summary,
+      unlockMasteryRank: s.unlockMasteryRank ?? getPassiveSlotUnlockRank(s.slotIndex) ?? 1,
     };
   });
 
@@ -85,13 +91,14 @@ export function buildPassiveSlotView(actor: any): PassiveSlotView {
   });
 
   const activeCount = slotRows.filter((r) => r.hasPassive).length;
-  const maxSlots = slotRows.length;
 
   return {
     slots: slotRows,
     availablePassives: availableRows,
     activeCount,
     maxSlots,
+    maxSlotsTotal: MAX_PASSIVE_SLOTS,
+    masteryRank,
     canActivateMore: activeCount < maxSlots,
   };
 }

@@ -2,10 +2,14 @@
  * Passive Abilities System
  * Handles passive ability slots, activation, and management
  */
+/** Mastery Rank at which each passive slot unlocks (max 4 slots). */
+export declare const PASSIVE_SLOT_UNLOCK_RANKS: readonly number[];
+export declare const MAX_PASSIVE_SLOTS: number;
 export interface PassiveSlot {
     slotIndex: number;
     passive: PassiveAbility | null;
     active: boolean;
+    unlockMasteryRank: number;
 }
 export interface PassiveAbility {
     id: string;
@@ -14,9 +18,13 @@ export interface PassiveAbility {
     category: string;
     level?: number;
 }
+/** How many passive slots are available at the given Mastery Rank. */
+export declare function getPassiveSlotCountForMasteryRank(masteryRank: number): number;
+/** Mastery Rank required to unlock a slot index (0-based), or null if out of range. */
+export declare function getPassiveSlotUnlockRank(slotIndex: number): number | null;
 /**
  * Get all passive slots for an actor
- * Returns only as many slots as the actor's Mastery Rank
+ * Returns slots unlocked by Mastery Rank (MR 1/2/4/6 → up to 4 slots).
  */
 export declare function getPassiveSlots(actor: Actor): PassiveSlot[];
 /**

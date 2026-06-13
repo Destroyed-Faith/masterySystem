@@ -6,7 +6,7 @@
  *
  * Migrated to Foundry VTT v13 ApplicationV2 + HandlebarsApplicationMixin
  */
-import { getPassiveSlots, getAvailablePassives, getSlottedPassiveIds, slotPassive, unslotPassive } from '../powers/passives.js';
+import { getPassiveSlots, getAvailablePassives, getSlottedPassiveIds, getPassiveSlotCountForMasteryRank, MAX_PASSIVE_SLOTS, slotPassive, unslotPassive } from '../powers/passives.js';
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 // Type workaround for Mixin
 const BaseDialog = HandlebarsApplicationMixin(ApplicationV2);
@@ -95,6 +95,7 @@ export class PassiveSelectionDialog extends BaseDialog {
         const slots = getPassiveSlots(actor);
         const available = getAvailablePassives(actor);
         const masteryRank = actor.system.mastery?.rank ?? 2;
+        const maxPassiveSlots = getPassiveSlotCountForMasteryRank(masteryRank);
         const slottedIds = getSlottedPassiveIds(actor);
         const selectablePassives = available.filter((p) => !slottedIds.has(String(p.id)));
         return {
@@ -102,6 +103,8 @@ export class PassiveSelectionDialog extends BaseDialog {
             slots,
             availablePassives: selectablePassives,
             masteryRank,
+            maxPassiveSlots,
+            maxPassiveSlotsTotal: MAX_PASSIVE_SLOTS,
             currentIndex: this.currentIndex + 1,
             total: this.pcs.length,
             isFirst: this.currentIndex === 0,
