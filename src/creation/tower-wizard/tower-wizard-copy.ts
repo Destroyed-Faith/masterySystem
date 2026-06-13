@@ -8,9 +8,6 @@ export const TOWER_WIZARD_COPY = {
 
     defense: {
         question: 'How do you want to survive combat?',
-        expertTitle: 'Already know your full package?',
-        expertBody: 'Jump straight to the review page and pick all six Powers yourself from the catalog — Passives, Buff, Reaction, and both Actives.',
-        expertButton: 'Build my package manually',
     },
 
     passive2: {
@@ -74,7 +71,8 @@ You can keep that safety, or replace it with an offensive buff on the next step.
         customPower: 'Custom',
         apply: 'Apply this package',
         back: 'Go back and choose another style',
-        manualBack: 'Back to wizard start',
+        manualBack: 'Back to character sheet',
+        manualRestart: 'Start over',
         castAsSpell: 'Cast as Spell',
         castingAttribute: 'Casting attribute',
         resolution: 'Resolution',

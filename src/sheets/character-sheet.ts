@@ -156,6 +156,17 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     }
   }
 
+  async #onOpenManualCombatPackage(event: JQuery.ClickEvent) {
+    event.preventDefault();
+    try {
+      await showTowerWizardDialog(this.actor, { manualBuildMode: true });
+      this.render();
+    } catch (error) {
+      console.error('Mastery System | Failed to open Manual Combat Package', error);
+      ui.notifications?.error('Failed to open Manual Combat Package');
+    }
+  }
+
   /**
    * Open the Echo Creation Dialog (Echo + sub-choice + veiled form + start card).
    */
@@ -2126,6 +2137,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     // Add power
     // Power/Spell creation buttons (always visible)
     html.find('.open-tower-wizard-btn').on('click', this.#onOpenTowerWizard.bind(this));
+    html.find('.open-manual-combat-package-btn').on('click', this.#onOpenManualCombatPackage.bind(this));
 
     // Echo creation / deck interactions
     html.find('.choose-echo-btn').on('click', this.#onEchoChoose.bind(this));
@@ -5877,12 +5889,12 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     html.find('select:not(.power-rank-select):not(.attr-creation-select)').prop('disabled', true);
     
     // Disable buttons except creation controls
-    const buttonsToDisable = html.find('button:not(.attr-increase):not(.attr-decrease):not(.skill-increase):not(.skill-decrease):not(.finalize-creation):not(.reset-creation-attributes):not(.force-unlock-creation):not(.reset-character):not(.add-disadvantage-btn):not(.disadvantage-edit-btn):not(.disadvantage-remove-btn):not(.open-tower-wizard-btn):not(.add-spell-creation-btn):not(.power-rank-select):not(.item-delete):not(.power-toggle-details):not(.power-edit-mechanics):not(.general-items-btn):not(.choose-echo-btn):not(.add-echo-card-btn):not(.echo-card-use-btn):not(.open-languages-btn)');
+    const buttonsToDisable = html.find('button:not(.attr-increase):not(.attr-decrease):not(.skill-increase):not(.skill-decrease):not(.finalize-creation):not(.reset-creation-attributes):not(.force-unlock-creation):not(.reset-character):not(.add-disadvantage-btn):not(.disadvantage-edit-btn):not(.disadvantage-remove-btn):not(.open-tower-wizard-btn):not(.open-manual-combat-package-btn):not(.add-spell-creation-btn):not(.power-rank-select):not(.item-delete):not(.power-toggle-details):not(.power-edit-mechanics):not(.general-items-btn):not(.choose-echo-btn):not(.add-echo-card-btn):not(.echo-card-use-btn):not(.open-languages-btn)');
     console.log('Mastery System | Disabling buttons:', buttonsToDisable.length);
     buttonsToDisable.prop('disabled', true);
     
     // Ensure creation buttons are enabled
-    const creationButtons = html.find('.attr-increase, .attr-decrease, .skill-increase, .skill-decrease, .finalize-creation, .reset-creation-attributes, .force-unlock-creation, .reset-character, .add-disadvantage-btn, .disadvantage-edit-btn, .disadvantage-remove-btn, .open-tower-wizard-btn, .add-spell-creation-btn, .item-delete, .general-items-btn, .choose-echo-btn, .add-echo-card-btn, .echo-card-use-btn, .open-languages-btn');
+    const creationButtons = html.find('.attr-increase, .attr-decrease, .skill-increase, .skill-decrease, .finalize-creation, .reset-creation-attributes, .force-unlock-creation, .reset-character, .add-disadvantage-btn, .disadvantage-edit-btn, .disadvantage-remove-btn, .open-tower-wizard-btn, .open-manual-combat-package-btn, .add-spell-creation-btn, .item-delete, .general-items-btn, .choose-echo-btn, .add-echo-card-btn, .echo-card-use-btn, .open-languages-btn');
     console.log('Mastery System | Enabling creation buttons:', {
       total: creationButtons.length,
       addDisadvantageBtn: html.find('.add-disadvantage-btn').length,

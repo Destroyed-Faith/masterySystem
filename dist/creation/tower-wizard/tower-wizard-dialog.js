@@ -51,6 +51,13 @@ export class TowerWizardDialog extends BaseDialog {
     constructor(actor, options = {}) {
         super(foundry.utils.mergeObject(TowerWizardDialog.DEFAULT_OPTIONS, options));
         this.actor = actor;
+        if (options.manualBuildMode === true) {
+            this.selection = {
+                ...defaultSelection(),
+                manualBuildMode: true,
+            };
+            this.step = 'review';
+        }
     }
     #fullSelection() {
         if (isManualBuildMode(this.selection)) {
@@ -303,13 +310,8 @@ export class TowerWizardDialog extends BaseDialog {
         });
         this.render();
     }
-    #skipToManualReview() {
-        this.selection = {
-            ...defaultSelection(),
-            manualBuildMode: true,
-        };
-        this.step = 'review';
-        this.render();
+    static startManualBuild(actor) {
+        return new TowerWizardDialog(actor, { manualBuildMode: true });
     }
     #updateOverride(grantKey, patch) {
         const list = [...(this.selection.offenseActiveOverrides ?? initializeOffenseOverrides(this.#fullSelection()))];
@@ -338,9 +340,6 @@ export class TowerWizardDialog extends BaseDialog {
             this.selection.offenseActiveOverrides = undefined;
             this.#clearPowerOverrides();
             window.setTimeout(() => this.#advanceAfterSelection(), 120);
-        });
-        root.find('.js-tw-skip-to-manual').on('click', () => {
-            this.#skipToManualReview();
         });
         root.find('.js-tw-select-passive2').on('click', (ev) => {
             $(ev.currentTarget).addClass('is-picked');
@@ -437,9 +436,7 @@ export class TowerWizardDialog extends BaseDialog {
         });
         root.find('.js-tw-back').on('click', () => {
             if (isManualBuildMode(this.selection) && this.step === 'review') {
-                this.selection = defaultSelection();
-                this.step = 'defense';
-                this.render();
+                this.close();
                 return;
             }
             this.step = this.#prevStep(this.step);
@@ -458,8 +455,11 @@ export class TowerWizardDialog extends BaseDialog {
         });
         root.find('.js-tw-restart').on('click', () => {
             if (isManualBuildMode(this.selection)) {
-                this.selection = defaultSelection();
-                this.step = 'defense';
+                this.selection = {
+                    ...defaultSelection(),
+                    manualBuildMode: true,
+                };
+                this.step = 'review';
             }
             else {
                 this.step = 'offense';
@@ -480,8 +480,10 @@ export class TowerWizardDialog extends BaseDialog {
         });
     }
 }
-export async function showTowerWizardDialog(actor) {
-    const dialog = new TowerWizardDialog(actor);
+export async function showTowerWizardDialog(actor, options) {
+    const dialog = options?.manualBuildMode
+        ? TowerWizardDialog.startManualBuild(actor)
+        : new TowerWizardDialog(actor);
     await dialog.render(true);
 }
 //# sourceMappingURL=tower-wizard-dialog.js.map

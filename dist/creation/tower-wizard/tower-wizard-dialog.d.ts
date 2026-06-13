@@ -27,8 +27,11 @@ export declare class TowerWizardDialog extends BaseDialog {
     };
     constructor(actor: Actor, options?: Record<string, unknown>);
     protected _prepareContext(_options: unknown): Promise<Record<string, unknown>>;
+    static startManualBuild(actor: Actor): TowerWizardDialog;
     protected _onRender(context: Record<string, unknown>, options: Record<string, unknown>): Promise<void>;
 }
-export declare function showTowerWizardDialog(actor: Actor): Promise<void>;
+export declare function showTowerWizardDialog(actor: Actor, options?: {
+    manualBuildMode?: boolean;
+}): Promise<void>;
 export {};
 //# sourceMappingURL=tower-wizard-dialog.d.ts.map

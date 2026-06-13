@@ -93,6 +93,13 @@ export class TowerWizardDialog extends BaseDialog {
     constructor(actor: Actor, options: Record<string, unknown> = {}) {
         super(foundry.utils.mergeObject(TowerWizardDialog.DEFAULT_OPTIONS, options));
         this.actor = actor;
+        if (options.manualBuildMode === true) {
+            this.selection = {
+                ...defaultSelection(),
+                manualBuildMode: true,
+            };
+            this.step = 'review';
+        }
     }
 
     #fullSelection(): TowerWizardSelection | null {
@@ -359,13 +366,8 @@ export class TowerWizardDialog extends BaseDialog {
         this.render();
     }
 
-    #skipToManualReview(): void {
-        this.selection = {
-            ...defaultSelection(),
-            manualBuildMode: true,
-        };
-        this.step = 'review';
-        this.render();
+    static startManualBuild(actor: Actor): TowerWizardDialog {
+        return new TowerWizardDialog(actor, { manualBuildMode: true });
     }
 
     #updateOverride(grantKey: string, patch: Partial<OffenseActiveOverride>): void {
@@ -396,10 +398,6 @@ export class TowerWizardDialog extends BaseDialog {
             this.selection.offenseActiveOverrides = undefined;
             this.#clearPowerOverrides();
             window.setTimeout(() => this.#advanceAfterSelection(), 120);
-        });
-
-        root.find('.js-tw-skip-to-manual').on('click', () => {
-            this.#skipToManualReview();
         });
 
         root.find('.js-tw-select-passive2').on('click', (ev) => {
@@ -507,9 +505,7 @@ export class TowerWizardDialog extends BaseDialog {
 
         root.find('.js-tw-back').on('click', () => {
             if (isManualBuildMode(this.selection) && this.step === 'review') {
-                this.selection = defaultSelection();
-                this.step = 'defense';
-                this.render();
+                this.close();
                 return;
             }
             this.step = this.#prevStep(this.step);
@@ -528,8 +524,11 @@ export class TowerWizardDialog extends BaseDialog {
 
         root.find('.js-tw-restart').on('click', () => {
             if (isManualBuildMode(this.selection)) {
-                this.selection = defaultSelection();
-                this.step = 'defense';
+                this.selection = {
+                    ...defaultSelection(),
+                    manualBuildMode: true,
+                };
+                this.step = 'review';
             } else {
                 this.step = 'offense';
                 this.selection.offenseId = undefined;
@@ -549,7 +548,12 @@ export class TowerWizardDialog extends BaseDialog {
     }
 }
 
-export async function showTowerWizardDialog(actor: Actor): Promise<void> {
-    const dialog = new TowerWizardDialog(actor);
+export async function showTowerWizardDialog(
+    actor: Actor,
+    options?: { manualBuildMode?: boolean },
+): Promise<void> {
+    const dialog = options?.manualBuildMode
+        ? TowerWizardDialog.startManualBuild(actor)
+        : new TowerWizardDialog(actor);
     await dialog.render(true);
 }

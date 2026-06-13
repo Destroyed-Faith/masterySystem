@@ -6,9 +6,6 @@ export declare const TOWER_WIZARD_COPY: {
     readonly progress: (step: number, total: number) => string;
     readonly defense: {
         readonly question: "How do you want to survive combat?";
-        readonly expertTitle: "Already know your full package?";
-        readonly expertBody: "Jump straight to the review page and pick all six Powers yourself from the catalog — Passives, Buff, Reaction, and both Actives.";
-        readonly expertButton: "Build my package manually";
     };
     readonly passive2: {
         readonly heading: "Choose your second Passive";
@@ -63,7 +60,8 @@ export declare const TOWER_WIZARD_COPY: {
         readonly customPower: "Custom";
         readonly apply: "Apply this package";
         readonly back: "Go back and choose another style";
-        readonly manualBack: "Back to wizard start";
+        readonly manualBack: "Back to character sheet";
+        readonly manualRestart: "Start over";
         readonly castAsSpell: "Cast as Spell";
         readonly castingAttribute: "Casting attribute";
         readonly resolution: "Resolution";
