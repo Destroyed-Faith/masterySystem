@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest';
 import {
     buildPackageGrantSpecs,
     buildPackageReview,
-    getDefensePackage,
     getSecondPassiveGroups,
     playerFacingPowerName,
     resolveGrant,
@@ -51,10 +50,13 @@ describe('tower-wizard-packages', () => {
         expect(armor.offensive[0]?.label).toBe('Attack Support');
     });
 
-    it('ignite is hidden from wizard offense list', () => {
+    it('ignite and weaken-save are hidden from wizard offense list', () => {
         expect(WIZARD_HIDDEN_OFFENSE_IDS).toContain('ignite');
+        expect(WIZARD_HIDDEN_OFFENSE_IDS).toContain('weaken-save');
         const expose = TOWER_WIZARD_OFFENSE_PACKAGES.find((p) => p.id === 'expose');
         expect(expose?.catalogAvailable).toBe(true);
+        const weaken = TOWER_WIZARD_OFFENSE_PACKAGES.find((p) => p.id === 'weaken-save');
+        expect(weaken?.catalogAvailable).toBe(false);
     });
 
     it('available offense packages resolve two actives at rank 2', () => {
@@ -118,11 +120,5 @@ describe('tower-wizard-packages', () => {
 
     it('playerFacingPowerName prefers special names over tier labels', () => {
         expect(playerFacingPowerName({ templateId: 'active-ranged-damage-t4', rank: 2, special: 'mark' })).toBe('Mark');
-    });
-
-    it('armor defense recommends expected offense packages', () => {
-        const armor = getDefensePackage('armor');
-        expect(armor?.offenseRecommendations).toContain('mark');
-        expect(armor?.offenseRecommendations).toContain('expose');
     });
 });

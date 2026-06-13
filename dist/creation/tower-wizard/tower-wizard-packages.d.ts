@@ -27,7 +27,7 @@ export declare function resolveActiveBuffSpec(selection: TowerWizardSelection): 
 export declare function playerFacingPowerName(spec: PowerGrantSpec, resolved?: ResolvedGrant): string;
 export declare function playerFacingVariantLabel(variant: OffenseActiveVariant, baseSpec?: PowerGrantSpec): string;
 export declare function packageNeedsOffensiveBuffStep(selection: Partial<TowerWizardSelection>): boolean;
-export declare function sortOffensePackagesForDefense(defenseId: DefensePackageId): TowerWizardOffensePackage[];
+export declare function sortOffensePackagesForDefense(_defenseId: DefensePackageId): TowerWizardOffensePackage[];
 export declare function secondPassiveLabel(templateId: string): string;
 export declare function secondPassiveHint(templateId: string): string;
 export declare function resolveGrant(spec: PowerGrantSpec): ResolvedGrant;

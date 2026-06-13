@@ -33,8 +33,6 @@ Do you want to keep that safety, or trade it for a more aggressive buff?`,
 
     offense: {
         question: 'How do you want to pressure enemies?',
-        recommended: 'Recommended for your defense',
-        thematicMatch: 'Strong thematic match',
     },
 
     weakenSave: {

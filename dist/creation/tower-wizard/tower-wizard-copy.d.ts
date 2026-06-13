@@ -25,8 +25,6 @@ export declare const TOWER_WIZARD_COPY: {
     };
     readonly offense: {
         readonly question: "How do you want to pressure enemies?";
-        readonly recommended: "Recommended for your defense";
-        readonly thematicMatch: "Strong thematic match";
     };
     readonly weakenSave: {
         readonly question: "Which kind of Save do you want to pressure?";

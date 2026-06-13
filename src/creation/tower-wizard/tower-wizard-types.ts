@@ -83,8 +83,6 @@ export interface TowerWizardDefensePackage {
         reaction: PowerGrantSpec;
     };
     secondPassiveTemplateIds: string[];
-    recommendedSecondPassiveTemplateIds: string[];
-    offenseRecommendations: OffensePackageId[];
 }
 
 export interface TowerWizardOffensePackage {
@@ -96,7 +94,6 @@ export interface TowerWizardOffensePackage {
     catalogAvailable: boolean;
     catalogTodo?: string;
     resolveGrants: (ctx: OffenseResolveContext) => PowerGrantSpec[];
-    recommendedForSpellcaster?: boolean;
 }
 
 export interface OffenseResolveContext {

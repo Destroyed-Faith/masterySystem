@@ -39,7 +39,7 @@ const VARIANT_LABELS = {
     'damage-t4-spell': 'Spell attack',
 };
 /** Offense packages hidden from the wizard UI (still in type union for saved data). */
-export const WIZARD_HIDDEN_OFFENSE_IDS = ['ignite'];
+export const WIZARD_HIDDEN_OFFENSE_IDS = ['ignite', 'weaken-save'];
 const SECOND_PASSIVE_LABELS = {
     'passive-temp-hp': 'Temporary HP',
     'passive-regeneration': 'Regeneration',
@@ -87,8 +87,6 @@ export const TOWER_WIZARD_DEFENSE_PACKAGES = [
             reaction: def('reaction-armor', DEF_RANK),
         },
         secondPassiveTemplateIds: ['passive-temp-hp', 'passive-regeneration', 'passive-killing-intent'],
-        recommendedSecondPassiveTemplateIds: ['passive-temp-hp', 'passive-regeneration', 'passive-killing-intent'],
-        offenseRecommendations: ['bleeding-push', 'corrode-damage', 'direct-damage', 'mark', 'freeze', 'hex-spell', 'expose'],
     },
     {
         id: 'evade',
@@ -100,8 +98,6 @@ export const TOWER_WIZARD_DEFENSE_PACKAGES = [
             reaction: def('reaction-evade', DEF_RANK),
         },
         secondPassiveTemplateIds: ['passive-temp-hp', 'passive-regeneration', 'passive-killing-intent'],
-        recommendedSecondPassiveTemplateIds: ['passive-temp-hp', 'passive-regeneration', 'passive-killing-intent'],
-        offenseRecommendations: ['expose', 'mark', 'freeze', 'hex-spell'],
     },
     {
         id: 'damage-reduction',
@@ -114,8 +110,6 @@ export const TOWER_WIZARD_DEFENSE_PACKAGES = [
             reaction: def('reaction-damage-reduction', DEF_RANK),
         },
         secondPassiveTemplateIds: ['passive-temp-hp', 'passive-regeneration', 'passive-killing-intent'],
-        recommendedSecondPassiveTemplateIds: ['passive-temp-hp', 'passive-regeneration', 'passive-killing-intent'],
-        offenseRecommendations: ['direct-damage', 'corrode-damage', 'mark', 'freeze', 'hex-spell'],
     },
     {
         id: 'phasing',
@@ -128,8 +122,6 @@ export const TOWER_WIZARD_DEFENSE_PACKAGES = [
             reaction: def('reaction-phasing', DEF_RANK),
         },
         secondPassiveTemplateIds: ['passive-temp-hp', 'passive-regeneration', 'passive-killing-intent', 'passive-evade'],
-        recommendedSecondPassiveTemplateIds: ['passive-temp-hp', 'passive-regeneration', 'passive-killing-intent'],
-        offenseRecommendations: ['mark', 'hex-spell', 'freeze', 'expose'],
     },
 ];
 function offensePackages() {
@@ -194,7 +186,7 @@ function offensePackages() {
             label: 'I want enemies to fail important Saves.',
             explanation: 'Weaken lowers one Save type. It is strongest when your next Power targets that same Save.',
             warning: 'Weaken needs a follow-up. It is weaker if nobody attacks the Save you weakened.',
-            catalogAvailable: true,
+            catalogAvailable: false,
             resolveGrants: ({ delivery, weakenSave }) => {
                 const save = weakenSave ?? 'body';
                 void save;
@@ -284,17 +276,8 @@ export function playerFacingVariantLabel(variant, baseSpec) {
 export function packageNeedsOffensiveBuffStep(selection) {
     return selection.activeBuffMode === 'offensive';
 }
-export function sortOffensePackagesForDefense(defenseId) {
-    const defense = getDefensePackage(defenseId);
-    const rec = new Set(defense?.offenseRecommendations ?? []);
-    const available = getAvailableOffensePackages();
-    return [...available].sort((a, b) => {
-        const aRec = rec.has(a.id) ? 0 : 1;
-        const bRec = rec.has(b.id) ? 0 : 1;
-        if (aRec !== bRec)
-            return aRec - bRec;
-        return a.label.localeCompare(b.label);
-    });
+export function sortOffensePackagesForDefense(_defenseId) {
+    return [...getAvailableOffensePackages()].sort((a, b) => a.label.localeCompare(b.label));
 }
 export function secondPassiveLabel(templateId) {
     return SECOND_PASSIVE_LABELS[templateId] ?? templateId;

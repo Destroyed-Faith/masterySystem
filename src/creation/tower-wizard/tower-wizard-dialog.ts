@@ -117,8 +117,6 @@ export class TowerWizardDialog extends BaseDialog {
                 label: p.label,
                 explanation: p.explanation,
                 warning: p.warning,
-                recommended: defense?.offenseRecommendations.includes(p.id),
-                thematic: this.selection.defenseId === 'evade' && p.id === 'expose',
             }))
             : [];
 
