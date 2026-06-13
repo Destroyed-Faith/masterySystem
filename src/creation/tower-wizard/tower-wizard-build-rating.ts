@@ -264,25 +264,17 @@ function buildRadar(axes: RoleAxisScore[]): RoleRadarGeometry {
 const AXIS_ADJECTIVE: Record<RoleAxisKey, string> = {
     offense: 'Offensive',
     defense: 'Defensive',
-    control: 'Controlling',
-    sustain: 'Sustaining',
+    control: 'Control',
+    sustain: 'Sustain',
     mobility: 'Mobile',
 };
 
-const AXIS_NOUN: Record<RoleAxisKey, string> = {
-    offense: 'damage dealer',
-    defense: 'bulwark',
-    control: 'controller',
-    sustain: 'bruiser',
-    mobility: 'skirmisher',
-};
-
-const AXIS_FULL_LABEL: Record<RoleAxisKey, string> = {
-    offense: 'Offensive damage dealer',
-    defense: 'Defensive bulwark',
-    control: 'Battlefield controller',
-    sustain: 'Resilient bruiser',
-    mobility: 'Mobile skirmisher',
+const AXIS_BUILD_LABEL: Record<RoleAxisKey, string> = {
+    offense: 'Offensive Build',
+    defense: 'Defensive Build',
+    control: 'Control Build',
+    sustain: 'Sustain Build',
+    mobility: 'Mobile Build',
 };
 
 const FOCUS_LABELS: Record<RoleFocusKey, string> = {
@@ -304,11 +296,11 @@ function deriveVerdict(axes: RoleAxisScore[]): {
 
     let directionLabel: string;
     if (!top || top.score <= 0) {
-        directionLabel = 'Undefined build';
+        directionLabel = 'Undefined Build';
     } else if (second && second.score > 0 && second.score >= top.score * 0.75) {
-        directionLabel = `${AXIS_ADJECTIVE[second.key]} ${AXIS_NOUN[top.key]}`;
+        directionLabel = `${AXIS_ADJECTIVE[top.key]} / ${AXIS_ADJECTIVE[second.key]} Build`;
     } else {
-        directionLabel = AXIS_FULL_LABEL[top.key];
+        directionLabel = AXIS_BUILD_LABEL[top.key];
     }
 
     let focusKey: RoleFocusKey;
@@ -331,11 +323,11 @@ function deriveVerdict(axes: RoleAxisScore[]): {
     if (!top || top.score <= 0) {
         summary = 'This build has no clear mechanical direction yet.';
     } else if (focusKey === 'sharp') {
-        summary = `This build has a clear identity as a ${directionLabel.toLowerCase()}.`;
+        summary = `Strong focus on ${AXIS_ADJECTIVE[top.key].toLowerCase()}.`;
     } else if (focusKey === 'balanced') {
-        summary = `A balanced ${directionLabel.toLowerCase()} with a solid secondary focus.`;
+        summary = `Leans ${AXIS_ADJECTIVE[top.key].toLowerCase()} with a secondary focus on ${AXIS_ADJECTIVE[second?.key ?? top.key].toLowerCase()}.`;
     } else {
-        summary = 'A flexible all-rounder without a single clear focus.';
+        summary = 'Flexible all-rounder without a single clear focus.';
     }
 
     return { directionLabel, focusKey, focusLabel: FOCUS_LABELS[focusKey], summary };

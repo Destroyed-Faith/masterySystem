@@ -678,16 +678,32 @@
   background: rgba(0, 0, 0, 0.14);
 }
 
-.tower-wizard-role-matrix h4 {
-  margin: 0 0 12px;
+.tower-wizard-role-matrix-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 16px;
+  margin-bottom: 10px;
+}
+
+.tower-wizard-role-matrix-header h4 {
+  margin: 0;
   font-size: 0.98rem;
+}
+
+.tower-wizard-role-verdict-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 10px;
 }
 
 .tower-wizard-role-matrix-body {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
-  gap: 18px;
+  align-items: flex-start;
+  gap: 14px 18px;
 }
 
 .tower-wizard-radar {
@@ -722,23 +738,14 @@
   font-weight: 600;
 }
 
-.tower-wizard-role-verdict {
-  flex: 1 1 200px;
-  min-width: 180px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
 .tw-role-direction {
-  margin: 0;
-  font-size: 1.15rem;
+  font-size: 1.05rem;
   font-weight: 700;
   color: var(--df-text-primary, #f0f3f6);
+  line-height: 1.2;
 }
 
 .tw-role-focus {
-  align-self: flex-start;
   padding: 3px 10px;
   border-radius: 999px;
   font-size: 0.78rem;
@@ -765,7 +772,10 @@
 }
 
 .tw-role-summary {
+  flex: 1 1 180px;
+  min-width: 160px;
   margin: 0;
+  padding-top: 4px;
   font-size: 0.9rem;
   line-height: 1.45;
   color: var(--df-text-secondary, #cfd6dd);
