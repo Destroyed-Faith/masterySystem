@@ -4,7 +4,7 @@
 import type { PowerCategory } from '../../types/item.js';
 import type { PowerGrantSpec } from '../../utils/power-item-builder.js';
 import type { CatalogEntry } from '../../utils/power-catalog.js';
-import type { DefensePackageId, OffenseActiveOverride, OffenseActiveVariant, OffensePackageId, PackageReviewRow, ResolvedGrant, TowerWizardDefensePackage, TowerWizardOffensePackage, TowerWizardSelection, PackageGrantKey, PackagePowerOverride, ReviewPowerRow, SecondPassiveGroup, OffenseActiveGroup, OffenseActivePick, WizardOffensiveActiveBuff, WizardOffensiveActiveBuffGroup, WizardActiveBuffPreview } from './tower-wizard-types.js';
+import type { DefensePackageId, OffenseActiveOverride, OffenseActiveVariant, OffensePackageId, PackageReviewRow, ResolvedGrant, TowerWizardDefensePackage, TowerWizardOffensePackage, TowerWizardSelection, PackageGrantKey, PackagePowerOverride, ReviewPowerRow, SecondPassiveGroup, OffenseActiveGroup, OffenseActivePick, OffenseActiveSpecialGroup, WizardOffensiveActiveBuff, WizardOffensiveActiveBuffGroup, WizardActiveBuffPreview } from './tower-wizard-types.js';
 export declare function grantKeyCategory(grantKey: PackageGrantKey): PowerCategory;
 export declare function grantKeyRank(grantKey: PackageGrantKey): number;
 /** True when a catalog entry is valid for the wizard slot (category + rank). */
@@ -14,6 +14,8 @@ export declare function collectPackageIdentityKeys(specs: PowerGrantSpec[], exce
 /** Offense packages hidden from the wizard UI (still in type union for saved data). */
 export declare const WIZARD_HIDDEN_OFFENSE_IDS: OffensePackageId[];
 export declare function offensePickFromEntry(entry: CatalogEntry): OffenseActivePick;
+export declare function getOffenseActiveSpecialGroups(actorEchoKey?: string | null, selectedPickIds?: Set<string>): OffenseActiveSpecialGroup[];
+/** Flat list grouped by subfamily — kept for tooling; wizard uses special groups. */
 export declare function getOffenseActiveGroups(actorEchoKey?: string | null): OffenseActiveGroup[];
 export declare function resolveOffenseActiveSpecs(selection: TowerWizardSelection): PowerGrantSpec[] | null;
 export declare function selectionUsesCatalogOffense(selection: Partial<TowerWizardSelection>): boolean;

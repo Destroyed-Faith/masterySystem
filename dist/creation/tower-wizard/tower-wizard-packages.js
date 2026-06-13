@@ -198,9 +198,31 @@ export function offensePickFromEntry(entry) {
         special: entry.chosenSpecial?.key ?? null,
     };
 }
-export function getOffenseActiveGroups(actorEchoKey) {
+const OFFENSE_UTILITY_GROUP_KEY = '__utility__';
+function offensePatternKey(templateId) {
+    return templateId.replace(/^active-(?:melee|ranged)-/, '');
+}
+function offenseDeliveryFromTemplateId(templateId) {
+    return templateId.includes('active-ranged') ? 'ranged' : 'melee';
+}
+function offensePatternLabel(entry) {
+    return entry.templateName
+        .replace(/^Melee\s+/i, '')
+        .replace(/^Ranged\s+/i, '')
+        .trim();
+}
+function offensePatternHint(entry) {
+    const text = entry.raw?.fluff?.trim()
+        || entry.description?.trim()
+        || '';
+    if (text)
+        return text.length > 100 ? `${text.slice(0, 97)}…` : text;
+    return ACTIVE_SUBFAMILY_LABELS[normalizeActiveSubfamily(entry.subfamily)] ?? entry.subfamily;
+}
+export function getOffenseActiveSpecialGroups(actorEchoKey, selectedPickIds) {
     const echoKey = (actorEchoKey || '').trim().toLowerCase();
-    const bySubfamily = new Map();
+    const selected = selectedPickIds ?? new Set();
+    const bySpecial = new Map();
     for (const entry of getAllCatalogEntries()) {
         if (entry.category !== 'active')
             continue;
@@ -210,37 +232,85 @@ export function getOffenseActiveGroups(actorEchoKey) {
             if (!echoKey || !entry.requiresEcho.includes(echoKey))
                 continue;
         }
+        const specialKey = entry.chosenSpecial?.key ?? OFFENSE_UTILITY_GROUP_KEY;
+        const groupLabel = specialKey === OFFENSE_UTILITY_GROUP_KEY
+            ? 'Weapons & Other Actives'
+            : capitalizeSpecial(specialKey);
+        if (!bySpecial.has(specialKey)) {
+            bySpecial.set(specialKey, { groupLabel, patterns: new Map() });
+        }
+        const group = bySpecial.get(specialKey);
+        const patternKey = offensePatternKey(entry.templateId);
+        if (!group.patterns.has(patternKey)) {
+            group.patterns.set(patternKey, {
+                label: offensePatternLabel(entry),
+                hint: offensePatternHint(entry),
+                variants: new Map(),
+            });
+        }
+        const pattern = group.patterns.get(patternKey);
+        const delivery = offenseDeliveryFromTemplateId(entry.templateId);
         const pick = offensePickFromEntry(entry);
-        const subfamily = normalizeActiveSubfamily(entry.subfamily);
-        const list = bySubfamily.get(subfamily) ?? [];
-        if (list.some((a) => a.pickId === pick.pickId))
-            continue;
-        list.push({
-            ...pick,
-            label: activeCatalogLabel(entry),
-            hint: activeCatalogHint(entry),
+        pattern.variants.set(delivery, {
+            pickId: pick.pickId,
+            templateId: pick.templateId,
+            special: pick.special ?? null,
+            delivery,
+            deliveryLabel: delivery === 'ranged' ? 'Ranged' : 'Melee',
+            isSelected: selected.has(pick.pickId),
         });
-        bySubfamily.set(subfamily, list);
     }
     const groups = [];
-    for (const subfamily of ACTIVE_GROUP_ORDER) {
-        const actives = bySubfamily.get(subfamily);
-        if (!actives?.length)
+    const keys = [...bySpecial.keys()].sort((a, b) => {
+        if (a === OFFENSE_UTILITY_GROUP_KEY)
+            return 1;
+        if (b === OFFENSE_UTILITY_GROUP_KEY)
+            return -1;
+        return bySpecial.get(a).groupLabel.localeCompare(bySpecial.get(b).groupLabel);
+    });
+    for (const specialKey of keys) {
+        const bucket = bySpecial.get(specialKey);
+        const patterns = [];
+        for (const [patternId, pattern] of bucket.patterns) {
+            const variants = [...pattern.variants.values()].sort((a, b) => {
+                if (a.delivery === b.delivery)
+                    return 0;
+                return a.delivery === 'melee' ? -1 : 1;
+            });
+            if (!variants.length)
+                continue;
+            patterns.push({
+                patternId,
+                label: pattern.label,
+                hint: pattern.hint,
+                variants,
+            });
+        }
+        patterns.sort((a, b) => a.label.localeCompare(b.label));
+        if (!patterns.length)
             continue;
         groups.push({
-            groupLabel: ACTIVE_SUBFAMILY_LABELS[subfamily] ?? subfamily,
-            actives: actives.sort((a, b) => a.label.localeCompare(b.label)),
-        });
-    }
-    for (const [subfamily, actives] of bySubfamily.entries()) {
-        if (ACTIVE_GROUP_ORDER.includes(subfamily))
-            continue;
-        groups.push({
-            groupLabel: ACTIVE_SUBFAMILY_LABELS[subfamily] ?? subfamily,
-            actives: actives.sort((a, b) => a.label.localeCompare(b.label)),
+            groupLabel: bucket.groupLabel,
+            specialKey: specialKey === OFFENSE_UTILITY_GROUP_KEY ? null : specialKey,
+            patterns,
         });
     }
     return groups;
+}
+/** Flat list grouped by subfamily — kept for tooling; wizard uses special groups. */
+export function getOffenseActiveGroups(actorEchoKey) {
+    const groups = getOffenseActiveSpecialGroups(actorEchoKey);
+    return groups.map((g) => ({
+        groupLabel: g.groupLabel,
+        actives: g.patterns.flatMap((p) => p.variants.map((v) => ({
+            pickId: v.pickId,
+            templateId: v.templateId,
+            special: v.special,
+            label: `${p.label} (${v.deliveryLabel})`,
+            hint: p.hint,
+            isSelected: v.isSelected,
+        }))),
+    }));
 }
 export function resolveOffenseActiveSpecs(selection) {
     const picks = selection.offenseActivePicks;

@@ -7,6 +7,7 @@ import {
     getOffensiveActiveBuffGroups,
     getOffensiveActiveBuffOptions,
     getOffenseActiveGroups,
+    getOffenseActiveSpecialGroups,
     getSecondPassiveGroups,
     playerFacingPowerName,
     resolveGrant,
@@ -112,25 +113,28 @@ describe('tower-wizard-packages', () => {
         expect(specs[2].templateId).toBe('ab-damage');
     });
 
-    it('offense active catalog groups list rank-2 actives for wizard step 5', () => {
-        const groups = getOffenseActiveGroups(null);
+    it('offense special groups dedupe melee/ranged into pattern rows', () => {
+        const groups = getOffenseActiveSpecialGroups(null);
         expect(groups.length).toBeGreaterThan(0);
-        const total = groups.reduce((n, g) => n + g.actives.length, 0);
-        expect(total).toBeGreaterThan(2);
-        for (const group of groups) {
-            expect(group.groupLabel).toBeTruthy();
-            for (const active of group.actives) {
-                expect(active.pickId).toBeTruthy();
-                expect(active.templateId).toMatch(/^active-/);
-                expect(active.label).toBeTruthy();
-            }
-        }
+        const bleeding = groups.find((g) => g.specialKey === 'bleeding');
+        expect(bleeding).toBeDefined();
+        const singleT4 = bleeding!.patterns.find((p) => p.patternId === 'damage-t4');
+        expect(singleT4).toBeDefined();
+        expect(singleT4!.variants.map((v) => v.delivery).sort()).toEqual(['melee', 'ranged']);
+        expect(singleT4!.variants).toHaveLength(2);
+        const totalVariants = groups.reduce(
+            (n, g) => n + g.patterns.reduce((m, p) => m + p.variants.length, 0),
+            0,
+        );
+        expect(totalVariants).toBeGreaterThan(2);
     });
 
     it('catalog offense picks build two active grant specs', () => {
-        const groups = getOffenseActiveGroups(null);
-        const first = groups[0]?.actives[0];
-        const second = groups[0]?.actives[1] ?? groups[1]?.actives[0];
+        const groups = getOffenseActiveSpecialGroups(null);
+        const first = groups[0]?.patterns[0]?.variants[0];
+        const second = groups[0]?.patterns[0]?.variants[1]
+            ?? groups[0]?.patterns[1]?.variants[0]
+            ?? groups[1]?.patterns[0]?.variants[0];
         expect(first).toBeDefined();
         expect(second).toBeDefined();
         const selection: TowerWizardSelection = {

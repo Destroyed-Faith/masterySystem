@@ -133,9 +133,32 @@ export interface OffenseActiveOption {
     isSelected?: boolean;
 }
 
+/** @deprecated Subfamily grouping — use OffenseActiveSpecialGroup. */
 export interface OffenseActiveGroup {
     groupLabel: string;
     actives: OffenseActiveOption[];
+}
+
+export interface OffenseActiveVariantOption {
+    pickId: string;
+    templateId: string;
+    special?: string | null;
+    delivery: DeliveryMode;
+    deliveryLabel: string;
+    isSelected?: boolean;
+}
+
+export interface OffenseActivePattern {
+    patternId: string;
+    label: string;
+    hint: string;
+    variants: OffenseActiveVariantOption[];
+}
+
+export interface OffenseActiveSpecialGroup {
+    groupLabel: string;
+    specialKey: string | null;
+    patterns: OffenseActivePattern[];
 }
 
 export interface TowerWizardOffensePackage {

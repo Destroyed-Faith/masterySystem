@@ -30,9 +30,9 @@ export declare const TOWER_WIZARD_COPY: {
     };
     readonly offense: {
         readonly heading: "Choose your two Actives";
-        readonly body: "Pick exactly two Rank 2 Actives from the catalog below. Click a card again to deselect it.";
+        readonly body: "Pick exactly two Rank 2 Actives. Each Special has its own section — choose the attack shape, then Melee or Ranged. Click again to deselect.";
         readonly pickCount: (selected: number) => string;
-        readonly pickHint: "Select two different Actives, then click Continue.";
+        readonly pickHint: "Select two Actives (each with Melee or Ranged), then click Continue.";
         readonly emptyCatalog: "No Rank 2 Actives are available in the catalog for this character.";
     };
     readonly weakenSave: {

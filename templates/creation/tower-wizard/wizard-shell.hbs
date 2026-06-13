@@ -90,21 +90,30 @@
     {{/if}}
 
     {{#if isOffense}}
-    <section class="tower-wizard-step">
+    <section class="tower-wizard-step tower-wizard-offense-step">
       <h3>{{copy.offense.heading}}</h3>
       <p class="tower-wizard-prose">{{copy.offense.body}}</p>
       <p class="tower-wizard-offense-pick-status">{{offensePickLabel}}</p>
-      {{#unless offenseActiveGroups.length}}
+      {{#unless offenseSpecialGroups.length}}
       <p class="tower-wizard-warn">{{copy.offense.emptyCatalog}}</p>
       {{/unless}}
-      {{#each offenseActiveGroups}}
-      <h4>{{this.groupLabel}}</h4>
-      <div class="tower-wizard-passive-grid tower-wizard-offense-grid">
-        {{#each this.actives}}
-        <button type="button" class="tower-wizard-passive-card js-tw-select-offense-active{{#if this.isSelected}} is-selected{{/if}}" data-pick-id="{{this.pickId}}" data-template-id="{{this.templateId}}" data-special="{{this.special}}">
-          <span class="chip-label">{{this.label}}</span>
-          <span class="chip-mechanical">{{this.hint}}</span>
-        </button>
+      {{#each offenseSpecialGroups}}
+      <div class="tower-wizard-offense-special-group">
+        <h4 class="tower-wizard-offense-special-heading">{{this.groupLabel}}</h4>
+        {{#each this.patterns}}
+        <div class="tower-wizard-offense-pattern">
+          <div class="tower-wizard-offense-pattern-head">
+            <span class="tower-wizard-offense-pattern-label">{{this.label}}</span>
+            <span class="tower-wizard-offense-pattern-hint">{{this.hint}}</span>
+          </div>
+          <div class="tower-wizard-offense-variants">
+            {{#each this.variants}}
+            <button type="button" class="tower-wizard-offense-variant js-tw-select-offense-variant{{#if this.isSelected}} is-selected{{/if}}" data-pick-id="{{this.pickId}}" data-template-id="{{this.templateId}}" data-special="{{this.special}}" title="{{this.deliveryLabel}} — {{../label}}">
+              {{this.deliveryLabel}}
+            </button>
+            {{/each}}
+          </div>
+        </div>
         {{/each}}
       </div>
       {{/each}}

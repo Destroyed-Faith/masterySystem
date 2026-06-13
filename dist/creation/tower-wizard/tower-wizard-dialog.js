@@ -3,7 +3,7 @@
  */
 import { applyTowerWizardPackage } from './tower-wizard-apply.js';
 import { TOWER_WIZARD_COPY } from './tower-wizard-copy.js';
-import { buildPackageGrantSpecs, buildPackageGrantSpecsFromOverrides, buildManualPackageReview, collectOverrideIdentityKeys, collectPackageIdentityKeys, getDefensePackage, TOWER_WIZARD_DEFENSE_PACKAGES, buildPackageReview, getSecondPassiveGroups, getOffenseActiveGroups, getDefaultActiveBuffPreview, getOffensiveActiveBuffGroups, initializeOffenseOverrides, isManualBuildMode, packageNeedsDeliveryStep, packageNeedsOffensiveBuffStep, packageNeedsWeakenSaveStep, selectionUsesCatalogOffense, } from './tower-wizard-packages.js';
+import { buildPackageGrantSpecs, buildPackageGrantSpecsFromOverrides, buildManualPackageReview, collectOverrideIdentityKeys, collectPackageIdentityKeys, getDefensePackage, TOWER_WIZARD_DEFENSE_PACKAGES, buildPackageReview, getSecondPassiveGroups, getOffenseActiveSpecialGroups, getDefaultActiveBuffPreview, getOffensiveActiveBuffGroups, initializeOffenseOverrides, isManualBuildMode, packageNeedsDeliveryStep, packageNeedsOffensiveBuffStep, packageNeedsWeakenSaveStep, selectionUsesCatalogOffense, } from './tower-wizard-packages.js';
 import { showTowerWizardPowerPicker } from './tower-wizard-power-picker.js';
 import { collectRelevantWarnings, validateTowerWizardSelection } from './tower-wizard-validation.js';
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
@@ -107,13 +107,7 @@ export class TowerWizardDialog extends BaseDialog {
             : [];
         const echoKey = this.actor.system?.echo?.key ?? null;
         const selectedPickIds = new Set((this.selection.offenseActivePicks ?? []).map((p) => p.pickId));
-        const offenseActiveGroups = getOffenseActiveGroups(echoKey).map((group) => ({
-            ...group,
-            actives: group.actives.map((active) => ({
-                ...active,
-                isSelected: selectedPickIds.has(active.pickId),
-            })),
-        }));
+        const offenseSpecialGroups = getOffenseActiveSpecialGroups(echoKey, selectedPickIds);
         const offensePickCount = this.selection.offenseActivePicks?.length ?? 0;
         const fullSelection = this.#fullSelection();
         const manualMode = isManualBuildMode(this.selection);
@@ -132,7 +126,7 @@ export class TowerWizardDialog extends BaseDialog {
             selection: this.selection,
             defensePackages: TOWER_WIZARD_DEFENSE_PACKAGES,
             secondPassiveGroups: passiveGroups,
-            offenseActiveGroups,
+            offenseSpecialGroups,
             offensePickCount,
             offensePickLabel: copy.offense.pickCount(offensePickCount),
             review,
@@ -363,7 +357,7 @@ export class TowerWizardDialog extends BaseDialog {
             this.#removePowerOverride('active-buff');
             window.setTimeout(() => this.#advanceAfterSelection(), 120);
         });
-        root.find('.js-tw-select-offense-active').on('click', (ev) => {
+        root.find('.js-tw-select-offense-variant').on('click', (ev) => {
             const el = $(ev.currentTarget);
             const pickId = String(el.data('pick-id') || '');
             const templateId = String(el.data('template-id') || '');

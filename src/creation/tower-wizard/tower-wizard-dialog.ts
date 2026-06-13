@@ -14,7 +14,7 @@ import {
     TOWER_WIZARD_DEFENSE_PACKAGES,
     buildPackageReview,
     getSecondPassiveGroups,
-    getOffenseActiveGroups,
+    getOffenseActiveSpecialGroups,
     getDefaultActiveBuffPreview,
     getOffensiveActiveBuffGroups,
     initializeOffenseOverrides,
@@ -151,13 +151,7 @@ export class TowerWizardDialog extends BaseDialog {
 
         const echoKey = (this.actor.system as { echo?: { key?: string } })?.echo?.key ?? null;
         const selectedPickIds = new Set((this.selection.offenseActivePicks ?? []).map((p) => p.pickId));
-        const offenseActiveGroups = getOffenseActiveGroups(echoKey).map((group) => ({
-            ...group,
-            actives: group.actives.map((active) => ({
-                ...active,
-                isSelected: selectedPickIds.has(active.pickId),
-            })),
-        }));
+        const offenseSpecialGroups = getOffenseActiveSpecialGroups(echoKey, selectedPickIds);
         const offensePickCount = this.selection.offenseActivePicks?.length ?? 0;
 
         const fullSelection = this.#fullSelection();
@@ -179,7 +173,7 @@ export class TowerWizardDialog extends BaseDialog {
             selection: this.selection,
             defensePackages: TOWER_WIZARD_DEFENSE_PACKAGES,
             secondPassiveGroups: passiveGroups,
-            offenseActiveGroups,
+            offenseSpecialGroups,
             offensePickCount,
             offensePickLabel: copy.offense.pickCount(offensePickCount),
             review,
@@ -425,7 +419,7 @@ export class TowerWizardDialog extends BaseDialog {
             window.setTimeout(() => this.#advanceAfterSelection(), 120);
         });
 
-        root.find('.js-tw-select-offense-active').on('click', (ev) => {
+        root.find('.js-tw-select-offense-variant').on('click', (ev) => {
             const el = $(ev.currentTarget);
             const pickId = String(el.data('pick-id') || '');
             const templateId = String(el.data('template-id') || '');
