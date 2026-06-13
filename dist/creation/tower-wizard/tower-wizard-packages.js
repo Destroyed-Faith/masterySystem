@@ -489,8 +489,13 @@ function categoryCardHint(entry) {
  * (non-active slots: passive, activeBuff, reaction). Active slots use
  * getOffenseActiveSpecialGroups instead.
  */
+export function getCatalogSubfamily(templateId, special) {
+    const entry = findCatalogEntry(templateId, special ?? null);
+    return entry?.subfamily ?? null;
+}
 export function getCategoryPickerGroups(category, rank, options) {
     const excluded = options?.excludeIdentityKeys ?? new Set();
+    const excludedSubfamilies = options?.excludeSubfamilies ?? new Set();
     const selected = options?.selectedIdentityKeys ?? new Set();
     const echoKey = (options?.actorEchoKey || '').trim().toLowerCase();
     const labels = CATEGORY_PICKER_LABELS[category] ?? {};
@@ -506,6 +511,8 @@ export function getCategoryPickerGroups(category, rank, options) {
             if (!echoKey || !entry.requiresEcho.includes(echoKey))
                 continue;
         }
+        if (entry.subfamily && excludedSubfamilies.has(entry.subfamily))
+            continue;
         const identityKey = powerIdentityKeyFromEntry(entry);
         if (excluded.has(identityKey))
             continue;

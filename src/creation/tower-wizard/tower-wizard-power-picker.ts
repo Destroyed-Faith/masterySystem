@@ -111,9 +111,11 @@ function renderCategoryGroupsHtml(options: {
     actorEchoKey?: string | null;
     selectedIds: Set<string>;
     excludeIds: Set<string>;
+    excludeSubfamilies: Set<string>;
 }): string {
     const groups = getCategoryPickerGroups(options.category, options.rank, {
         excludeIdentityKeys: options.excludeIds,
+        excludeSubfamilies: options.excludeSubfamilies,
         selectedIdentityKeys: options.selectedIds,
         actorEchoKey: options.actorEchoKey ?? null,
     });
@@ -151,6 +153,7 @@ export async function showTowerWizardPowerPicker(options: {
     grantKey: PackageGrantKey;
     roleLabel: string;
     excludeIdentityKeys: Set<string>;
+    excludeSubfamilies?: Set<string>;
     actorEchoKey?: string | null;
     currentTemplateId?: string;
     currentSpecial?: string | null;
@@ -179,6 +182,7 @@ export async function showTowerWizardPowerPicker(options: {
             actorEchoKey: options.actorEchoKey,
             selectedIds,
             excludeIds: options.excludeIdentityKeys,
+            excludeSubfamilies: options.excludeSubfamilies ?? new Set<string>(),
         });
 
     const content = `
@@ -222,12 +226,16 @@ export async function showTowerWizardPowerPicker(options: {
                         minWidth: 560,
                         minHeight: 420,
                     });
-                    // Foundry measures position before our width is applied; the tall card
-                    // grid overflows and pins left:0. Re-center now that size is constrained.
                     const dialogEl = html.closest('.window-app.dialog');
+                    // The chrome sets position:relative, which keeps the dialog in the
+                    // document flow and shifts Foundry's whole layout. Force fixed overlay
+                    // and re-center (Foundry measured left:0 before our width applied).
                     const left = Math.max(8, Math.round((window.innerWidth - dialogWidth) / 2));
                     const top = Math.max(8, Math.round((window.innerHeight - dialogHeight) / 2));
-                    dialogEl.css({ left: `${left}px`, top: `${top}px` });
+                    dialogEl.css({ position: 'fixed', left: `${left}px`, top: `${top}px` });
+                    // Reused wizard styling assumes a dark surface; force dark theme so the
+                    // light Foundry theme does not wash out our light-on-dark cards.
+                    dialogEl.removeClass('theme-light').addClass('themed theme-dark');
                 }, 0);
 
                 const pick = (el: JQuery) => {

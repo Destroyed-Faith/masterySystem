@@ -3,7 +3,7 @@
  */
 import { applyTowerWizardPackage } from './tower-wizard-apply.js';
 import { TOWER_WIZARD_COPY } from './tower-wizard-copy.js';
-import { buildPackageGrantSpecs, buildPackageGrantSpecsFromOverrides, buildManualPackageReview, collectOverrideIdentityKeys, collectPackageIdentityKeys, getDefensePackage, TOWER_WIZARD_DEFENSE_PACKAGES, buildPackageReview, getSecondPassiveGroups, getOffenseActiveSpecialGroups, getDefaultActiveBuffPreview, getOffensiveActiveBuffGroups, initializeOffenseOverrides, isManualBuildMode, packageNeedsDeliveryStep, packageNeedsOffensiveBuffStep, packageNeedsWeakenSaveStep, selectionUsesCatalogOffense, } from './tower-wizard-packages.js';
+import { buildPackageGrantSpecs, buildPackageGrantSpecsFromOverrides, buildManualPackageReview, collectOverrideIdentityKeys, collectPackageIdentityKeys, getDefensePackage, TOWER_WIZARD_DEFENSE_PACKAGES, buildPackageReview, getCatalogSubfamily, getSecondPassiveGroups, getOffenseActiveSpecialGroups, getDefaultActiveBuffPreview, getOffensiveActiveBuffGroups, initializeOffenseOverrides, isManualBuildMode, packageNeedsDeliveryStep, packageNeedsOffensiveBuffStep, packageNeedsWeakenSaveStep, selectionUsesCatalogOffense, } from './tower-wizard-packages.js';
 import { showTowerWizardPowerPicker } from './tower-wizard-power-picker.js';
 import { computeBuildRoleRating } from './tower-wizard-build-rating.js';
 import { collectRelevantWarnings, validateTowerWizardSelection } from './tower-wizard-validation.js';
@@ -285,14 +285,32 @@ export class TowerWizardDialog extends BaseDialog {
         const excludeIdentityKeys = manualMode
             ? collectOverrideIdentityKeys(this.selection.powerOverrides ?? [], grantKey)
             : collectPackageIdentityKeys(buildPackageGrantSpecs(this.#fullSelection()), grantKey);
-        const row = manualMode
-            ? buildManualPackageReview(this.selection).reviewPowerRows.find((r) => r.grantKey === grantKey)
-            : buildPackageReview(this.#fullSelection()).reviewPowerRows.find((r) => r.grantKey === grantKey);
+        const reviewRows = manualMode
+            ? buildManualPackageReview(this.selection).reviewPowerRows
+            : buildPackageReview(this.#fullSelection()).reviewPowerRows;
+        const row = reviewRows.find((r) => r.grantKey === grantKey);
+        // Forbid two passives sharing the same subfamily: exclude the sibling
+        // passive slot's subfamily from this picker.
+        const excludeSubfamilies = new Set();
+        const passiveSibling = {
+            'passive-1': 'passive-2',
+            'passive-2': 'passive-1',
+        };
+        const siblingKey = passiveSibling[grantKey];
+        if (siblingKey) {
+            const siblingRow = reviewRows.find((r) => r.grantKey === siblingKey);
+            const sub = siblingRow?.spec.templateId
+                ? getCatalogSubfamily(siblingRow.spec.templateId, siblingRow.spec.special)
+                : null;
+            if (sub)
+                excludeSubfamilies.add(sub);
+        }
         const echoKey = this.actor.system?.echo?.key ?? null;
         const result = await showTowerWizardPowerPicker({
             grantKey,
             roleLabel: row?.role ?? grantKey,
             excludeIdentityKeys,
+            excludeSubfamilies,
             actorEchoKey: echoKey,
             currentTemplateId: row?.spec.templateId || undefined,
             currentSpecial: row?.spec.special,

@@ -13,6 +13,7 @@ import {
     getDefensePackage,
     TOWER_WIZARD_DEFENSE_PACKAGES,
     buildPackageReview,
+    getCatalogSubfamily,
     getSecondPassiveGroups,
     getOffenseActiveSpecialGroups,
     getDefaultActiveBuffPreview,
@@ -342,14 +343,33 @@ export class TowerWizardDialog extends BaseDialog {
                 buildPackageGrantSpecs(this.#fullSelection()!),
                 grantKey,
             );
-        const row = manualMode
-            ? buildManualPackageReview(this.selection).reviewPowerRows.find((r) => r.grantKey === grantKey)
-            : buildPackageReview(this.#fullSelection()!).reviewPowerRows.find((r) => r.grantKey === grantKey);
+        const reviewRows = manualMode
+            ? buildManualPackageReview(this.selection).reviewPowerRows
+            : buildPackageReview(this.#fullSelection()!).reviewPowerRows;
+        const row = reviewRows.find((r) => r.grantKey === grantKey);
+
+        // Forbid two passives sharing the same subfamily: exclude the sibling
+        // passive slot's subfamily from this picker.
+        const excludeSubfamilies = new Set<string>();
+        const passiveSibling: Partial<Record<PackageGrantKey, PackageGrantKey>> = {
+            'passive-1': 'passive-2',
+            'passive-2': 'passive-1',
+        };
+        const siblingKey = passiveSibling[grantKey];
+        if (siblingKey) {
+            const siblingRow = reviewRows.find((r) => r.grantKey === siblingKey);
+            const sub = siblingRow?.spec.templateId
+                ? getCatalogSubfamily(siblingRow.spec.templateId, siblingRow.spec.special)
+                : null;
+            if (sub) excludeSubfamilies.add(sub);
+        }
+
         const echoKey = (this.actor.system as { echo?: { key?: string } })?.echo?.key ?? null;
         const result = await showTowerWizardPowerPicker({
             grantKey,
             roleLabel: row?.role ?? grantKey,
             excludeIdentityKeys,
+            excludeSubfamilies,
             actorEchoKey: echoKey,
             currentTemplateId: row?.spec.templateId || undefined,
             currentSpecial: row?.spec.special,

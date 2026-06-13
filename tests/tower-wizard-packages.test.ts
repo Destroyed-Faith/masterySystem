@@ -6,6 +6,7 @@ import {
     getDefaultActiveBuffPreview,
     getOffensiveActiveBuffGroups,
     getOffensiveActiveBuffOptions,
+    getCatalogSubfamily,
     getCategoryPickerGroups,
     getOffenseActiveGroups,
     getOffenseActiveSpecialGroups,
@@ -212,6 +213,20 @@ describe('tower-wizard-packages', () => {
         const activeBuffs = getCategoryPickerGroups('activeBuff', TOWER_WIZARD_DEFENSIVE_RANK);
         const buffIds = activeBuffs.flatMap((g) => g.cards.map((c) => c.templateId));
         expect(buffIds.some((id) => id.includes('dispel'))).toBe(false);
+    });
+
+    it('getCategoryPickerGroups omits an excluded subfamily entirely', () => {
+        const groups = getCategoryPickerGroups('passive', TOWER_WIZARD_DEFENSIVE_RANK);
+        const sampleCard = groups[0]!.cards[0]!;
+        const sub = getCatalogSubfamily(sampleCard.templateId, sampleCard.special);
+        expect(sub).toBeTruthy();
+        const filtered = getCategoryPickerGroups('passive', TOWER_WIZARD_DEFENSIVE_RANK, {
+            excludeSubfamilies: new Set([sub!]),
+        });
+        const remainingSubs = filtered.flatMap((g) =>
+            g.cards.map((c) => getCatalogSubfamily(c.templateId, c.special)),
+        );
+        expect(remainingSubs.includes(sub!)).toBe(false);
     });
 
     it('getCategoryPickerGroups marks the current selection as selected', () => {

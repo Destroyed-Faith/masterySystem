@@ -22,8 +22,10 @@ export declare function getOffenseActiveGroups(actorEchoKey?: string | null): Of
  * (non-active slots: passive, activeBuff, reaction). Active slots use
  * getOffenseActiveSpecialGroups instead.
  */
+export declare function getCatalogSubfamily(templateId: string, special?: string | null): string | null;
 export declare function getCategoryPickerGroups(category: PowerCategory, rank: number, options?: {
     excludeIdentityKeys?: Set<string>;
+    excludeSubfamilies?: Set<string>;
     selectedIdentityKeys?: Set<string>;
     actorEchoKey?: string | null;
 }): PowerPickerGroup[];
