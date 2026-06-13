@@ -1,15 +1,15 @@
 /**
  * Tower Wizard — Build Role Matrix.
  *
- * Scores a finished 6-power package across five axes (Offense, Defense,
- * Control, Sustain, Mobility/Utility) and derives a radar/pentagon geometry
- * plus a short verdict (dominant archetype + focus/coherence).
+ * Scores a finished 6-power package across four axes (Offense, Defense,
+ * Control, Sustain) and derives a radar/diamond geometry plus a short
+ * verdict (dominant archetype + focus/coherence).
  *
  * Pure module: no DOM, all trig done here so Handlebars only interpolates
  * precomputed coordinates.
  */
 import type { ReviewPowerRow } from './tower-wizard-types.js';
-export type RoleAxisKey = 'offense' | 'defense' | 'control' | 'sustain' | 'mobility';
+export type RoleAxisKey = 'offense' | 'defense' | 'control' | 'sustain';
 export interface RoleAxisScore {
     key: RoleAxisKey;
     label: string;

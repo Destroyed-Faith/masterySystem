@@ -224,9 +224,12 @@
       <section class="tower-wizard-role-matrix">
         <div class="tower-wizard-role-matrix-header">
           <h4>{{copy.roleMatrix.heading}}</h4>
-          <div class="tower-wizard-role-verdict-head">
-            <span class="tw-role-direction">{{roleRating.directionLabel}}</span>
-            <span class="tw-role-focus tw-role-focus-{{roleRating.focusKey}}">{{roleRating.focusLabel}}</span>
+          <div class="tower-wizard-role-verdict-block">
+            <div class="tower-wizard-role-verdict-head">
+              <span class="tw-role-direction">{{roleRating.directionLabel}}</span>
+              <span class="tw-role-focus tw-role-focus-{{roleRating.focusKey}}">{{roleRating.focusLabel}}</span>
+            </div>
+            <p class="tw-role-summary">{{roleRating.summary}}</p>
           </div>
         </div>
         <div class="tower-wizard-role-matrix-body">
@@ -236,7 +239,6 @@
             <polygon class="tw-radar-data" points="{{roleRating.radar.dataPolygon}}" />
             {{#each roleRating.radar.labels}}<text class="tw-radar-label" x="{{this.x}}" y="{{this.y}}" text-anchor="{{this.anchor}}">{{this.label}} {{this.score}}</text>{{/each}}
           </svg>
-          <p class="tw-role-summary">{{roleRating.summary}}</p>
         </div>
       </section>
       {{/if}}

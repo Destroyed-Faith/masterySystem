@@ -1,9 +1,9 @@
 /**
  * Tower Wizard — Build Role Matrix.
  *
- * Scores a finished 6-power package across five axes (Offense, Defense,
- * Control, Sustain, Mobility/Utility) and derives a radar/pentagon geometry
- * plus a short verdict (dominant archetype + focus/coherence).
+ * Scores a finished 6-power package across four axes (Offense, Defense,
+ * Control, Sustain) and derives a radar/diamond geometry plus a short
+ * verdict (dominant archetype + focus/coherence).
  *
  * Pure module: no DOM, all trig done here so Handlebars only interpolates
  * precomputed coordinates.
@@ -13,7 +13,7 @@ import { findCatalogEntry, findTemplateById } from '../../utils/power-catalog.js
 import type { PowerLevelKey } from '../../types/item.js';
 import type { ReviewPowerRow } from './tower-wizard-types.js';
 
-export type RoleAxisKey = 'offense' | 'defense' | 'control' | 'sustain' | 'mobility';
+export type RoleAxisKey = 'offense' | 'defense' | 'control' | 'sustain';
 
 export interface RoleAxisScore {
     key: RoleAxisKey;
@@ -49,15 +49,14 @@ export interface BuildRoleRating {
     summary: string;
 }
 
-/** Axis order around the pentagon, starting at the top and going clockwise. */
-const AXIS_ORDER: RoleAxisKey[] = ['offense', 'control', 'mobility', 'sustain', 'defense'];
+/** Axis order around the diamond, starting at the top and going clockwise. */
+const AXIS_ORDER: RoleAxisKey[] = ['offense', 'control', 'sustain', 'defense'];
 
 export const AXIS_LABELS: Record<RoleAxisKey, string> = {
     offense: 'Offense',
     defense: 'Defense',
     control: 'Control',
     sustain: 'Sustain',
-    mobility: 'Mobility',
 };
 
 /** Per-axis saturation — raw points that map to a 100 score. Heuristic. */
@@ -66,7 +65,6 @@ const AXIS_SATURATION: Record<RoleAxisKey, number> = {
     defense: 12,
     control: 10,
     sustain: 10,
-    mobility: 9,
 };
 
 const OFFENSIVE_ACTIVE_BUFFS = new Set([
@@ -86,19 +84,17 @@ const CONTROL_SPECIALS = new Set([
     'disarm', 'knockback', 'push', 'pull', 'hex', 'mark', 'weaken',
 ]);
 
-const REPOSITION_SPECIALS = new Set(['push', 'pull', 'knockback']);
 const DEFENSE_SPECIALS = new Set(['brace', 'bulwark', 'immovable']);
 
-const DEFENSE_SUBFAMILIES = new Set(['armor', 'evade', 'damage-reduction']);
+const DEFENSE_SUBFAMILIES = new Set(['armor', 'evade', 'damage-reduction', 'phasing', 'awareness']);
 const OFFENSE_SUBFAMILIES = new Set(['damage-single', 'damage-aoe', 'weapon-attack', 'damage']);
-const CONTROL_SUBFAMILIES = new Set(['control', 'hard-control', 'persistent-zone']);
+const CONTROL_SUBFAMILIES = new Set(['control', 'hard-control', 'persistent-zone', 'illusion', 'barrier']);
 const SUSTAIN_SUBFAMILIES = new Set(['temp-hp', 'regen', 'health', 'recovery']);
-const MOBILITY_SUBFAMILIES = new Set(['phasing', 'illusion', 'barrier', 'awareness']);
 
 type RawScores = Record<RoleAxisKey, number>;
 
 function emptyScores(): RawScores {
-    return { offense: 0, defense: 0, control: 0, sustain: 0, mobility: 0 };
+    return { offense: 0, defense: 0, control: 0, sustain: 0 };
 }
 
 interface RowFeatures {
@@ -147,6 +143,8 @@ function accumulate(scores: RawScores, f: RowFeatures): void {
     if (has(mech, 'armor')) scores.defense += 2;
     if (has(mech, 'evade')) scores.defense += 2;
     if (has(mech, 'damageReductionPct')) scores.defense += 3;
+    if (has(mech, 'phasing')) scores.defense += 3;
+    if (has(mech, 'initiativeD8')) scores.defense += 1.5;
     if (DEFENSE_SUBFAMILIES.has(f.subfamily)) scores.defense += 2;
     for (const k of DEFENSE_SPECIALS) if (specials.has(k)) scores.defense += 2;
 
@@ -177,14 +175,6 @@ function accumulate(scores: RawScores, f: RowFeatures): void {
     if (SUSTAIN_SUBFAMILIES.has(f.subfamily)) scores.sustain += 2.5;
     if (specials.has('regeneration')) scores.sustain += 2;
     if (/heal|cleanse/.test(id)) scores.sustain += 2;
-
-    // Mobility / Utility
-    if (has(mech, 'movementBonus')) scores.mobility += 3;
-    if (has(mech, 'phasing')) scores.mobility += 3;
-    if (has(mech, 'initiativeD8')) scores.mobility += 2;
-    if (MOBILITY_SUBFAMILIES.has(f.subfamily)) scores.mobility += 2.5;
-    for (const k of REPOSITION_SPECIALS) if (specials.has(k)) scores.mobility += 1;
-    if (/cleanse/.test(id)) scores.mobility += 2;
 
     // tempHP also reinforces a defensive lean
     if (has(mech, 'tempHP')) scores.defense += 1.5;
@@ -266,7 +256,6 @@ const AXIS_ADJECTIVE: Record<RoleAxisKey, string> = {
     defense: 'Defensive',
     control: 'Control',
     sustain: 'Sustain',
-    mobility: 'Mobile',
 };
 
 const AXIS_BUILD_LABEL: Record<RoleAxisKey, string> = {
@@ -274,7 +263,6 @@ const AXIS_BUILD_LABEL: Record<RoleAxisKey, string> = {
     defense: 'Defensive Build',
     control: 'Control Build',
     sustain: 'Sustain Build',
-    mobility: 'Mobile Build',
 };
 
 const FOCUS_LABELS: Record<RoleFocusKey, string> = {
@@ -312,9 +300,7 @@ function deriveVerdict(axes: RoleAxisScore[]): {
         const topShare = topScore / total;
         const gap = topScore - secondScore;
         const top2share = (topScore + secondScore) / total;
-        // A clear single direction: one axis dominates by a real margin.
         if (gap >= 15 && topShare >= 0.3) focusKey = 'sharp';
-        // Very even spread across the field: no real focus.
         else if (top2share <= 0.45) focusKey = 'unfocused';
         else focusKey = 'balanced';
     }

@@ -98,8 +98,10 @@ describe('computeBuildRoleRating', () => {
         expect(rating.radar.size).toBe(240);
         expect(rating.radar.center).toBe(120);
         expect(rating.radar.gridPolygons).toHaveLength(4);
-        expect(rating.radar.axisLines).toHaveLength(5);
-        expect(rating.radar.labels).toHaveLength(5);
+        expect(rating.radar.axisLines).toHaveLength(4);
+        expect(rating.radar.labels).toHaveLength(4);
+        expect(rating.axes).toHaveLength(4);
+        expect(rating.axes.map((a) => a.key)).toEqual(['offense', 'control', 'sustain', 'defense']);
         expect(rating.radar.dataPolygon).toMatch(/\d/);
         for (const label of rating.radar.labels) {
             expect(Object.values(AXIS_LABELS)).toContain(label.label);
