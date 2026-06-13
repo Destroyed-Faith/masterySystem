@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.43] - 2026-06-12
+
+### Fixed
+
+- **Languages during character creation:** The Languages picker button stays enabled while creation is incomplete, so players can pick their required additional language before finalizing.
+
 ## [0.9.42] - 2026-06-12
 
 ### Fixed
