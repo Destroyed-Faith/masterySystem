@@ -160,14 +160,22 @@ export async function showTowerWizardPowerPicker(options) {
             close: () => finish(null),
             render: (htmlRaw) => {
                 const html = htmlRaw instanceof HTMLElement ? $(htmlRaw) : $(htmlRaw);
+                const dialogWidth = 760;
+                const dialogHeight = 640;
                 setTimeout(() => {
                     setupPowerCatalogDialogChrome(html, {
                         extraClasses: 'tower-wizard-power-picker-dialog',
-                        initialWidth: 760,
-                        initialHeight: 640,
+                        initialWidth: dialogWidth,
+                        initialHeight: dialogHeight,
                         minWidth: 560,
                         minHeight: 420,
                     });
+                    // Foundry measures position before our width is applied; the tall card
+                    // grid overflows and pins left:0. Re-center now that size is constrained.
+                    const dialogEl = html.closest('.window-app.dialog');
+                    const left = Math.max(8, Math.round((window.innerWidth - dialogWidth) / 2));
+                    const top = Math.max(8, Math.round((window.innerHeight - dialogHeight) / 2));
+                    dialogEl.css({ left: `${left}px`, top: `${top}px` });
                 }, 0);
                 const pick = (el) => {
                     const templateId = String(el.data('template-id') || '');

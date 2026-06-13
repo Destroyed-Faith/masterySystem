@@ -791,6 +791,17 @@
 
 /* ─── Change-Power categorized picker (modal Dialog) ───────────────── */
 .tower-wizard-power-picker-dialog .window-content {
+  background: var(--df-bg-secondary, #161a1d);
+  color: var(--df-text-primary, #f0f3f6);
+}
+
+.tower-wizard-power-picker-dialog .dialog-content {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.tower-wizard-power-picker-dialog .tower-wizard-offense-special-title,
+.tower-wizard-power-picker-dialog .chip-label {
   color: var(--df-text-primary, #f0f3f6);
 }
 
