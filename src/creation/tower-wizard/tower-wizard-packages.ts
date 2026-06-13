@@ -3,6 +3,7 @@
  */
 
 import type { CastingAttribute, PowerCategory, SpellResolution } from '../../types/item.js';
+import { getEffectById } from '../../utils/special-effects.js';
 import {
     TOWER_WIZARD_DEFENSIVE_RANK,
     TOWER_WIZARD_OFFENSIVE_RANK,
@@ -272,11 +273,30 @@ function offenseDeliveryFromTemplateId(templateId: string): DeliveryMode {
     return templateId.includes('active-ranged') ? 'ranged' : 'melee';
 }
 
-function offensePatternLabel(entry: CatalogEntry): string {
-    return entry.templateName
-        .replace(/^Melee\s+/i, '')
-        .replace(/^Ranged\s+/i, '')
+function stripTierFromOffenseLabel(label: string): string {
+    return label
+        .replace(/\s*[—–-]\s*Tier\s*\d+(?:\s*[—–-]\s*Tier\s*\d+)*/gi, '')
+        .replace(/\s*Tier\s*\d+/gi, '')
         .trim();
+}
+
+function offensePatternLabel(entry: CatalogEntry): string {
+    return stripTierFromOffenseLabel(
+        entry.templateName
+            .replace(/^Melee\s+/i, '')
+            .replace(/^Ranged\s+/i, '')
+            .trim(),
+    );
+}
+
+function offenseSpecialGroupTooltip(specialKey: string | null): string {
+    if (!specialKey) {
+        return 'Weapon attacks, barriers, illusion, and other Actives that do not apply a Special condition on hit.';
+    }
+    const effect = getEffectById(specialKey);
+    if (!effect) return '';
+    const durationNote = effect.duration ? ` Duration: ${effect.duration}.` : '';
+    return `${effect.description}${durationNote}`;
 }
 
 function offensePatternHint(entry: CatalogEntry): string {
@@ -364,9 +384,13 @@ export function getOffenseActiveSpecialGroups(
         }
         patterns.sort((a, b) => a.label.localeCompare(b.label));
         if (!patterns.length) continue;
+        const resolvedSpecialKey = specialKey === OFFENSE_UTILITY_GROUP_KEY ? null : specialKey;
+        const hasSelection = patterns.some((p) => p.variants.some((v) => v.isSelected));
         groups.push({
             groupLabel: bucket.groupLabel,
-            specialKey: specialKey === OFFENSE_UTILITY_GROUP_KEY ? null : specialKey,
+            specialKey: resolvedSpecialKey,
+            groupTooltip: offenseSpecialGroupTooltip(resolvedSpecialKey),
+            hasSelection,
             patterns,
         });
     }

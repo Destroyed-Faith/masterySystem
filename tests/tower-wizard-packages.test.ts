@@ -120,7 +120,10 @@ describe('tower-wizard-packages', () => {
         expect(bleeding).toBeDefined();
         const singleT4 = bleeding!.patterns.find((p) => p.patternId === 'damage-t4');
         expect(singleT4).toBeDefined();
+        expect(singleT4!.label).toBe('Damage');
+        expect(singleT4!.label).not.toMatch(/tier\s*\d/i);
         expect(singleT4!.variants.map((v) => v.delivery).sort()).toEqual(['melee', 'ranged']);
+        expect(bleeding!.groupTooltip).toMatch(/move more than 0/i);
         expect(singleT4!.variants).toHaveLength(2);
         const totalVariants = groups.reduce(
             (n, g) => n + g.patterns.reduce((m, p) => m + p.variants.length, 0),

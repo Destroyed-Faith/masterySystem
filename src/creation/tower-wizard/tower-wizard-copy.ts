@@ -38,7 +38,7 @@ You can keep that safety, or replace it with an offensive buff on the next step.
 
     offense: {
         heading: 'Choose your two Actives',
-        body: 'Pick exactly two Rank 2 Actives. Each Special has its own section — choose the attack shape, then Melee or Ranged. Click again to deselect.',
+        body: 'Expand a Special to see its attack shapes, then pick Melee or Ranged for each Active. Hover a Special name for rules. Click again to deselect.',
         pickCount: (selected: number) => `${selected} of 2 selected`,
         pickHint: 'Select two Actives (each with Melee or Ranged), then click Continue.',
         emptyCatalog: 'No Rank 2 Actives are available in the catalog for this character.',
@@ -78,6 +78,10 @@ You can keep that safety, or replace it with an offensive buff on the next step.
         castingAttribute: 'Casting attribute',
         resolution: 'Resolution',
         variant: 'Power type',
+    },
+
+    roleMatrix: {
+        heading: 'Build Profile',
     },
 
     buttons: {

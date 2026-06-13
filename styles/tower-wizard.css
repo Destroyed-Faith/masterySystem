@@ -191,20 +191,90 @@
   margin-bottom: 20px;
 }
 
-.tower-wizard-offense-special-group {
-  margin-bottom: 24px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid var(--df-border-primary, #3a3f44);
+.tower-wizard-offense-special-details {
+  margin-bottom: 10px;
+  border: 1px solid var(--df-border-primary, #3a3f44);
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.08);
+  overflow: visible;
 }
 
-.tower-wizard-offense-special-group:last-of-type {
-  border-bottom: none;
+.tower-wizard-offense-special-details[open] {
+  background: rgba(0, 0, 0, 0.12);
 }
 
-.tower-wizard-offense-special-heading {
-  margin: 0 0 12px;
+.tower-wizard-offense-special-summary {
+  display: flex;
+  align-items: center;
+  padding: 12px 14px;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+
+.tower-wizard-offense-special-summary::-webkit-details-marker {
+  display: none;
+}
+
+.tower-wizard-offense-special-summary::before {
+  content: '▸';
+  flex: 0 0 auto;
+  margin-right: 10px;
+  font-size: 0.85rem;
+  opacity: 0.75;
+  transition: transform 0.15s ease;
+}
+
+.tower-wizard-offense-special-details[open] > .tower-wizard-offense-special-summary::before {
+  transform: rotate(90deg);
+}
+
+.tower-wizard-offense-special-title-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.tower-wizard-offense-special-title {
   font-size: 1.05rem;
+  font-weight: 700;
   color: var(--df-accent, #8b0000);
+  border-bottom: 1px dotted rgba(139, 0, 0, 0.45);
+  cursor: help;
+}
+
+.tower-wizard-offense-special-title-wrap .tower-wizard-special-tooltip {
+  display: none;
+  position: absolute;
+  left: 0;
+  top: calc(100% + 8px);
+  z-index: 30;
+  width: min(380px, calc(100vw - 48px));
+  padding: 10px 12px;
+  border: 1px solid var(--df-border-primary, #3a3f44);
+  border-radius: 6px;
+  background: var(--df-bg-primary, #1a1f22);
+  color: inherit;
+  font-size: 0.82rem;
+  font-weight: 400;
+  line-height: 1.5;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+  pointer-events: none;
+}
+
+.tower-wizard-offense-special-title-wrap:hover .tower-wizard-special-tooltip,
+.tower-wizard-offense-special-title-wrap:focus-within .tower-wizard-special-tooltip {
+  display: block;
+}
+
+.tower-wizard-offense-special-body {
+  padding: 0 14px 12px 34px;
+}
+
+.tower-wizard-offense-special-body .tower-wizard-offense-pattern:last-child {
+  margin-bottom: 0;
 }
 
 .tower-wizard-offense-pattern {
@@ -597,4 +667,106 @@
   width: 100%;
   font-size: 0.9rem;
   line-height: 1.4;
+}
+
+/* ─── Build Role Matrix (review step) ──────────────────────────────── */
+.tower-wizard-role-matrix {
+  margin-top: 18px;
+  padding: 14px 16px;
+  border: 1px solid var(--df-border-primary, #3a3f44);
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.14);
+}
+
+.tower-wizard-role-matrix h4 {
+  margin: 0 0 12px;
+  font-size: 0.98rem;
+}
+
+.tower-wizard-role-matrix-body {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 18px;
+}
+
+.tower-wizard-radar {
+  flex: 0 0 auto;
+  width: 240px;
+  height: 240px;
+  max-width: 100%;
+  overflow: visible;
+}
+
+.tw-radar-grid {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.12);
+  stroke-width: 1;
+}
+
+.tw-radar-axis {
+  stroke: rgba(255, 255, 255, 0.18);
+  stroke-width: 1;
+}
+
+.tw-radar-data {
+  fill: rgba(94, 169, 255, 0.28);
+  stroke: #5ea9ff;
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+
+.tw-radar-label {
+  fill: var(--df-text-secondary, #cfd6dd);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.tower-wizard-role-verdict {
+  flex: 1 1 200px;
+  min-width: 180px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tw-role-direction {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--df-text-primary, #f0f3f6);
+}
+
+.tw-role-focus {
+  align-self: flex-start;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.tw-role-focus-sharp {
+  background: rgba(76, 175, 80, 0.22);
+  color: #8be08f;
+  border: 1px solid rgba(76, 175, 80, 0.5);
+}
+
+.tw-role-focus-balanced {
+  background: rgba(255, 183, 77, 0.18);
+  color: #ffcd80;
+  border: 1px solid rgba(255, 183, 77, 0.45);
+}
+
+.tw-role-focus-unfocused {
+  background: rgba(229, 115, 115, 0.18);
+  color: #ef9a9a;
+  border: 1px solid rgba(229, 115, 115, 0.45);
+}
+
+.tw-role-summary {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: var(--df-text-secondary, #cfd6dd);
 }

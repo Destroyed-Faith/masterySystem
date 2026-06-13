@@ -1,6 +1,7 @@
 /**
  * Tower Wizard — declarative defense/offense package definitions.
  */
+import { getEffectById } from '../../utils/special-effects.js';
 import { TOWER_WIZARD_DEFENSIVE_RANK, TOWER_WIZARD_OFFENSIVE_RANK, findCatalogEntry, getAllCatalogEntries, powerIdentityKey, powerIdentityKeyFromEntry, activeTemplateCanBeSpell, } from '../../utils/power-catalog.js';
 const DEF_RANK = TOWER_WIZARD_DEFENSIVE_RANK;
 const OFF_RANK = TOWER_WIZARD_OFFENSIVE_RANK;
@@ -205,11 +206,27 @@ function offensePatternKey(templateId) {
 function offenseDeliveryFromTemplateId(templateId) {
     return templateId.includes('active-ranged') ? 'ranged' : 'melee';
 }
+function stripTierFromOffenseLabel(label) {
+    return label
+        .replace(/\s*[—–-]\s*Tier\s*\d+(?:\s*[—–-]\s*Tier\s*\d+)*/gi, '')
+        .replace(/\s*Tier\s*\d+/gi, '')
+        .trim();
+}
 function offensePatternLabel(entry) {
-    return entry.templateName
+    return stripTierFromOffenseLabel(entry.templateName
         .replace(/^Melee\s+/i, '')
         .replace(/^Ranged\s+/i, '')
-        .trim();
+        .trim());
+}
+function offenseSpecialGroupTooltip(specialKey) {
+    if (!specialKey) {
+        return 'Weapon attacks, barriers, illusion, and other Actives that do not apply a Special condition on hit.';
+    }
+    const effect = getEffectById(specialKey);
+    if (!effect)
+        return '';
+    const durationNote = effect.duration ? ` Duration: ${effect.duration}.` : '';
+    return `${effect.description}${durationNote}`;
 }
 function offensePatternHint(entry) {
     const text = entry.raw?.fluff?.trim()
@@ -289,9 +306,13 @@ export function getOffenseActiveSpecialGroups(actorEchoKey, selectedPickIds) {
         patterns.sort((a, b) => a.label.localeCompare(b.label));
         if (!patterns.length)
             continue;
+        const resolvedSpecialKey = specialKey === OFFENSE_UTILITY_GROUP_KEY ? null : specialKey;
+        const hasSelection = patterns.some((p) => p.variants.some((v) => v.isSelected));
         groups.push({
             groupLabel: bucket.groupLabel,
-            specialKey: specialKey === OFFENSE_UTILITY_GROUP_KEY ? null : specialKey,
+            specialKey: resolvedSpecialKey,
+            groupTooltip: offenseSpecialGroupTooltip(resolvedSpecialKey),
+            hasSelection,
             patterns,
         });
     }

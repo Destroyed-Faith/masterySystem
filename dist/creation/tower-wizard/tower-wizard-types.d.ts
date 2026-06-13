@@ -106,6 +106,10 @@ export interface OffenseActivePattern {
 export interface OffenseActiveSpecialGroup {
     groupLabel: string;
     specialKey: string | null;
+    /** Hover tooltip: how this Special works in the system. */
+    groupTooltip: string;
+    /** Open the collapsible section when a variant in this group is selected. */
+    hasSelection: boolean;
     patterns: OffenseActivePattern[];
 }
 export interface TowerWizardOffensePackage {

@@ -98,24 +98,33 @@
       <p class="tower-wizard-warn">{{copy.offense.emptyCatalog}}</p>
       {{/unless}}
       {{#each offenseSpecialGroups}}
-      <div class="tower-wizard-offense-special-group">
-        <h4 class="tower-wizard-offense-special-heading">{{this.groupLabel}}</h4>
-        {{#each this.patterns}}
-        <div class="tower-wizard-offense-pattern">
-          <div class="tower-wizard-offense-pattern-head">
-            <span class="tower-wizard-offense-pattern-label">{{this.label}}</span>
-            <span class="tower-wizard-offense-pattern-hint">{{this.hint}}</span>
+      <details class="tower-wizard-offense-special-details"{{#if this.hasSelection}} open{{/if}}>
+        <summary class="tower-wizard-offense-special-summary">
+          <span class="tower-wizard-offense-special-title-wrap">
+            <span class="tower-wizard-offense-special-title">{{this.groupLabel}}</span>
+            {{#if this.groupTooltip}}
+            <span class="tower-wizard-special-tooltip" role="tooltip">{{this.groupTooltip}}</span>
+            {{/if}}
+          </span>
+        </summary>
+        <div class="tower-wizard-offense-special-body">
+          {{#each this.patterns}}
+          <div class="tower-wizard-offense-pattern">
+            <div class="tower-wizard-offense-pattern-head">
+              <span class="tower-wizard-offense-pattern-label">{{this.label}}</span>
+              <span class="tower-wizard-offense-pattern-hint">{{this.hint}}</span>
+            </div>
+            <div class="tower-wizard-offense-variants">
+              {{#each this.variants}}
+              <button type="button" class="tower-wizard-offense-variant js-tw-select-offense-variant{{#if this.isSelected}} is-selected{{/if}}" data-pick-id="{{this.pickId}}" data-template-id="{{this.templateId}}" data-special="{{this.special}}" title="{{this.deliveryLabel}} — {{../label}}">
+                {{this.deliveryLabel}}
+              </button>
+              {{/each}}
+            </div>
           </div>
-          <div class="tower-wizard-offense-variants">
-            {{#each this.variants}}
-            <button type="button" class="tower-wizard-offense-variant js-tw-select-offense-variant{{#if this.isSelected}} is-selected{{/if}}" data-pick-id="{{this.pickId}}" data-template-id="{{this.templateId}}" data-special="{{this.special}}" title="{{this.deliveryLabel}} — {{../label}}">
-              {{this.deliveryLabel}}
-            </button>
-            {{/each}}
-          </div>
+          {{/each}}
         </div>
-        {{/each}}
-      </div>
+      </details>
       {{/each}}
       {{#if (lt offensePickCount 2)}}
       <p class="tower-wizard-prose tower-wizard-offense-hint">{{copy.offense.pickHint}}</p>
@@ -210,6 +219,25 @@
         {{/if}}
       </div>
       {{/each}}
+
+      {{#if roleRating}}
+      <section class="tower-wizard-role-matrix">
+        <h4>{{copy.roleMatrix.heading}}</h4>
+        <div class="tower-wizard-role-matrix-body">
+          <svg class="tower-wizard-radar" viewBox="0 0 {{roleRating.radar.size}} {{roleRating.radar.size}}" role="img" aria-label="{{copy.roleMatrix.heading}}">
+            {{#each roleRating.radar.gridPolygons}}<polygon class="tw-radar-grid" points="{{this}}" />{{/each}}
+            {{#each roleRating.radar.axisLines}}<line class="tw-radar-axis" x1="{{../roleRating.radar.center}}" y1="{{../roleRating.radar.center}}" x2="{{this.x2}}" y2="{{this.y2}}" />{{/each}}
+            <polygon class="tw-radar-data" points="{{roleRating.radar.dataPolygon}}" />
+            {{#each roleRating.radar.labels}}<text class="tw-radar-label" x="{{this.x}}" y="{{this.y}}" text-anchor="{{this.anchor}}">{{this.label}} {{this.score}}</text>{{/each}}
+          </svg>
+          <div class="tower-wizard-role-verdict">
+            <p class="tw-role-direction">{{roleRating.directionLabel}}</p>
+            <span class="tw-role-focus tw-role-focus-{{roleRating.focusKey}}">{{roleRating.focusLabel}}</span>
+            <p class="tw-role-summary">{{roleRating.summary}}</p>
+          </div>
+        </div>
+      </section>
+      {{/if}}
 
       {{#if validationError}}
       <p class="tower-wizard-warn">{{validationError}}</p>

@@ -5,6 +5,7 @@ import { applyTowerWizardPackage } from './tower-wizard-apply.js';
 import { TOWER_WIZARD_COPY } from './tower-wizard-copy.js';
 import { buildPackageGrantSpecs, buildPackageGrantSpecsFromOverrides, buildManualPackageReview, collectOverrideIdentityKeys, collectPackageIdentityKeys, getDefensePackage, TOWER_WIZARD_DEFENSE_PACKAGES, buildPackageReview, getSecondPassiveGroups, getOffenseActiveSpecialGroups, getDefaultActiveBuffPreview, getOffensiveActiveBuffGroups, initializeOffenseOverrides, isManualBuildMode, packageNeedsDeliveryStep, packageNeedsOffensiveBuffStep, packageNeedsWeakenSaveStep, selectionUsesCatalogOffense, } from './tower-wizard-packages.js';
 import { showTowerWizardPowerPicker } from './tower-wizard-power-picker.js';
+import { computeBuildRoleRating } from './tower-wizard-build-rating.js';
 import { collectRelevantWarnings, validateTowerWizardSelection } from './tower-wizard-validation.js';
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const BaseDialog = HandlebarsApplicationMixin(ApplicationV2);
@@ -120,6 +121,9 @@ export class TowerWizardDialog extends BaseDialog {
         const validationError = manualMode || fullSelection
             ? validateTowerWizardSelection(this.selection)
             : null;
+        const roleRating = this.step === 'review' && review.allOk
+            ? computeBuildRoleRating(review.reviewPowerRows)
+            : null;
         return {
             progressLabel: copy.progress(stepIndex, STEP_ORDER.length),
             copy,
@@ -130,6 +134,7 @@ export class TowerWizardDialog extends BaseDialog {
             offensePickCount,
             offensePickLabel: copy.offense.pickCount(offensePickCount),
             review,
+            roleRating,
             warnings,
             validationError,
             canApply: manualMode

@@ -25,6 +25,7 @@ import {
     selectionUsesCatalogOffense,
 } from './tower-wizard-packages.js';
 import { showTowerWizardPowerPicker } from './tower-wizard-power-picker.js';
+import { computeBuildRoleRating } from './tower-wizard-build-rating.js';
 import { collectRelevantWarnings, validateTowerWizardSelection } from './tower-wizard-validation.js';
 import type {
     ActiveBuffMode,
@@ -167,6 +168,10 @@ export class TowerWizardDialog extends BaseDialog {
             ? validateTowerWizardSelection(this.selection)
             : null;
 
+        const roleRating = this.step === 'review' && review.allOk
+            ? computeBuildRoleRating(review.reviewPowerRows)
+            : null;
+
         return {
             progressLabel: copy.progress(stepIndex, STEP_ORDER.length),
             copy,
@@ -177,6 +182,7 @@ export class TowerWizardDialog extends BaseDialog {
             offensePickCount,
             offensePickLabel: copy.offense.pickCount(offensePickCount),
             review,
+            roleRating,
             warnings,
             validationError,
             canApply: manualMode
