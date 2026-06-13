@@ -63,6 +63,10 @@ import {
   registerEchoArtifactTreeMigrationSetting,
   runEchoArtifactTreeMigration,
 } from './migrations/echo-artifact-tree-migration.js';
+import {
+  registerEchoArtifactDedupeMigrationSetting,
+  runEchoArtifactDedupeMigration,
+} from './migrations/echo-artifact-dedupe-migration.js';
 import { runElvenStrideLineageMigration } from './migrations/elven-stride-lineage-migration.js';
 import {
   registerPaperdollSlotCanonicalSetting,
@@ -222,6 +226,7 @@ Hooks.once('init', async function() {
   registerArtifactEchoLinkMigrationSetting();
   registerArtifactEchoActivationMigrationSetting();
   registerEchoArtifactTreeMigrationSetting();
+  registerEchoArtifactDedupeMigrationSetting();
   registerPaperdollSlotCanonicalSetting();
   
   // Setup XP Management inline in settings
@@ -2705,6 +2710,12 @@ Hooks.once('ready', async function() {
     await runEchoArtifactTreeMigration();
   } catch (error) {
     console.warn('Mastery System | Echo Artifact tree migration failed', error);
+  }
+
+  try {
+    await runEchoArtifactDedupeMigration();
+  } catch (error) {
+    console.warn('Mastery System | Echo artifact dedupe migration failed', error);
   }
 
   // One-shot Paperdoll Slot canonicalization (GM-only, guarded by world setting).

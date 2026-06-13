@@ -15,40 +15,7 @@ import { ALL_ECHOS, buildFreshTraitUses, ECHO_KEY_ORDER, getAllEchos, getEcho, g
 import { getEchoArtifactRules, listSelectableEchoArtifacts, validateEchoArtifactSelection, } from '../utils/echo-artifacts.js';
 import { grantEchoArtifactTreeToActor, seedArtifactLibrary } from '../utils/seed-artifact-library.js';
 import { buildEchoArtifactTree } from '../artifacts/echo-artifact-tree-builder.js';
-import { inferArtifactEquipSlots } from '../utils/equip-slots.js';
-/**
- * Equip a freshly-granted Echo Artifact into its slot and mark it Echo-bound
- * (locked). Elven Stride lineage is encoded in which of the four stride items
- * was granted (Fire / Earth / Water / Air).
- */
-async function equipEchoArtifact(actor, item) {
-    if (!item)
-        return;
-    const sys = item.system || {};
-    const slots = inferArtifactEquipSlots(sys) || [];
-    const primarySlot = slots[0] || null;
-    const currentFlags = item.getFlag?.('mastery-system', 'equipment') || {};
-    const update = {
-        'system.equipped': true,
-    };
-    // Persist equipSlots so occupancy checks (canEquipArtifactInSlots) see this
-    // item filling its slot(s) even before any paperdoll interaction.
-    if (slots.length > 0)
-        update['system.equipSlots'] = slots;
-    if (primarySlot) {
-        update['flags.mastery-system.equipment'] = {
-            ...currentFlags,
-            container: 'inventory',
-            slot: primarySlot,
-            band: currentFlags.band || 'not',
-        };
-    }
-    // Mark as echo-bound + locked (defence in depth alongside the echoBound flag
-    // already set by the generator).
-    update['flags.mastery-system.echoBound'] = true;
-    update['flags.mastery-system.echoLocked'] = true;
-    await item.update(update);
-}
+import { dedupeEchoArtifactsOnActor, equipEchoArtifact, getEchoArtifactKey, isEchoBoundArtifact, } from '../utils/echo-artifact-equip.js';
 /** Small HTML-escape helper used in dialog content (inline strings). */
 function esc(s) {
     return String(s ?? '').replace(/[&<>"']/g, ch => ({
@@ -212,7 +179,7 @@ export async function showEchoCreationDialog(actor) {
                         });
                         // Remove any previously-created echo-bound artifacts so we always
                         // reflect the latest selection (in case the player re-opens the dialog).
-                        const oldEchoArtifacts = actor.items.filter((it) => it.type === 'artifact' && it.getFlag?.('mastery-system', 'echoBound'));
+                        const oldEchoArtifacts = actor.items.filter((it) => it.type === 'artifact' && isEchoBoundArtifact(it));
                         if (oldEchoArtifacts.length > 0) {
                             const ids = oldEchoArtifacts.map((it) => it.id).filter(Boolean);
                             if (ids.length > 0) {
@@ -233,6 +200,7 @@ export async function showEchoCreationDialog(actor) {
                             const aDef = availableDefs.find((d) => d.key === aKey);
                             if (!aDef)
                                 continue;
+                            const actorHasEchoKey = () => Array.from(actor.items).some((it) => it.type === 'artifact' && getEchoArtifactKey(it) === aKey);
                             let granted = null;
                             try {
                                 granted = await grantEchoArtifactTreeToActor(actor, aDef.key);
@@ -250,7 +218,7 @@ export async function showEchoCreationDialog(actor) {
                                 grantedCount += 1;
                                 grantedItems.push(granted);
                             }
-                            else {
+                            else if (!actorHasEchoKey()) {
                                 // Last-resort single item: use the generator's faithful Level-1
                                 // root node (correct slot/profile, base values, powers).
                                 const rootNode = buildEchoArtifactTree(aDef).nodes[0];
@@ -277,6 +245,7 @@ export async function showEchoCreationDialog(actor) {
                                 console.warn('[mastery-system] failed to auto-equip echo artifact', err);
                             }
                         }
+                        await dedupeEchoArtifactsOnActor(actor);
                         ui.notifications?.info(`Echo set to ${def.name}${grantedCount ? ` (+${grantedCount} Echo Artifact${grantedCount === 1 ? '' : 's'})` : ''}. Ab MR2: 1 Stone zum Aktivieren über Artifacts.`);
                         return true;
                     }

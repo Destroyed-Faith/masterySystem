@@ -42,6 +42,7 @@ import { registerTemplatesCutoverSetting, runTemplatesCutover } from './migratio
 import { registerXpCurrentStepCutoverSetting, runXpCurrentStepCutover, } from './migrations/xp-currentstep-cutover.js';
 import { registerArtifactSpecBackfillSetting, runArtifactSpecBackfill, } from './migrations/artifact-spec-backfill.js';
 import { registerEchoArtifactTreeMigrationSetting, runEchoArtifactTreeMigration, } from './migrations/echo-artifact-tree-migration.js';
+import { registerEchoArtifactDedupeMigrationSetting, runEchoArtifactDedupeMigration, } from './migrations/echo-artifact-dedupe-migration.js';
 import { runElvenStrideLineageMigration } from './migrations/elven-stride-lineage-migration.js';
 import { registerPaperdollSlotCanonicalSetting, runPaperdollSlotCanonical, } from './migrations/paperdoll-slot-canonical.js';
 import { registerArtifactEchoLinkMigrationSetting, runArtifactEchoLinkMigration, } from './migrations/artifact-echo-link-migration.js';
@@ -173,6 +174,7 @@ Hooks.once('init', async function () {
     registerArtifactEchoLinkMigrationSetting();
     registerArtifactEchoActivationMigrationSetting();
     registerEchoArtifactTreeMigrationSetting();
+    registerEchoArtifactDedupeMigrationSetting();
     registerPaperdollSlotCanonicalSetting();
     // Setup XP Management inline in settings
     setupXpManagementInline();
@@ -2468,6 +2470,12 @@ Hooks.once('ready', async function () {
     }
     catch (error) {
         console.warn('Mastery System | Echo Artifact tree migration failed', error);
+    }
+    try {
+        await runEchoArtifactDedupeMigration();
+    }
+    catch (error) {
+        console.warn('Mastery System | Echo artifact dedupe migration failed', error);
     }
     // One-shot Paperdoll Slot canonicalization (GM-only, guarded by world setting).
     // Maps legacy slot keys (helmet/chest/boot/necklace/ring1/ring2/cloak/glove/belt/leggings)

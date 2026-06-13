@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.45] - 2026-06-12
+
+### Fixed
+
+- **Echo artifact duplicates:** Dragonborn Echo gear (Dragon Claws, Wyrm/Serpent Scales, Dragon Head, etc.) no longer appears twice — once equipped and again in the inventory grid. A one-shot GM migration dedupes existing actors; grant/fallback paths no longer create orphan copies; Echo-bound items are hidden from the carry inventory.
+
 ## [0.9.44] - 2026-06-12
 
 ### Changed

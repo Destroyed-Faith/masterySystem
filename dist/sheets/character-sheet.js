@@ -27,6 +27,7 @@ import { buildRadialManeuverPrefsContext } from '../utils/radial-maneuver-prefs.
 import { buildArtifactEvolutionCards } from '../artifacts/artifact-evolution-actions.js';
 import { actorHasProgressionArtifacts } from '../utils/artifact-tree-grant.js';
 import { applyAttributePendingChanges, calculateAttributePendingNetCost, calculatePowerPendingNetCost, calculateSingleSkillPendingXpNet, calculateSkillPendingNetCost, } from '../progression/progression-hub-actions.js';
+import { isEchoBoundArtifact, isEchoArtifactInventoryHidden } from '../utils/echo-artifact-equip.js';
 // Removed: showWeaponCreationDialog, showArmorCreationDialog, showShieldCreationDialog
 // Replaced with General Items Storage and Store dialogs
 // Use namespaced ActorSheet when available to avoid deprecation warnings
@@ -38,15 +39,7 @@ const BaseActorSheet = foundry?.appv1?.sheets?.ActorSheet || ActorSheet;
  * or deleted by the player.
  */
 function isEchoLockedItem(item) {
-    if (!item || item.type !== 'artifact')
-        return false;
-    const fl = item.getFlag?.('mastery-system', 'echoLocked');
-    if (fl === true)
-        return true;
-    // Fall back to the binding/echoBound markers set by the generator.
-    if (item.getFlag?.('mastery-system', 'echoBound') === true)
-        return true;
-    return String(item.system?.binding || '') === 'echo';
+    return isEchoBoundArtifact(item);
 }
 export class MasteryCharacterSheet extends BaseActorSheet {
     /** Preserves <details open> for Token-Radial prefs across re-renders (checkbox updates call render). */
@@ -1222,6 +1215,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 if (!slotMap[slot]) {
                     slotMap[slot] = item;
                 }
+            }
+            else if (isEchoArtifactInventoryHidden(item)) {
+                // Echo-bound artifacts belong on the paperdoll only — skip inventory clutter.
+                continue;
             }
             else {
                 // Legacy stash flags: show in carry inventory (stash panel removed from sheet).

@@ -17,6 +17,7 @@ import { seedGeneralItemsStorage } from '../utils/seed-general-items.js';
 import { getItemIcon } from '../utils/item-icons.js';
 import { matchesMasteryWeaponCatalog } from '../utils/weapons.js';
 import { normalizeSlotKey } from '../utils/equip-slots.js';
+import { isEchoArtifactInventoryHidden } from '../utils/echo-artifact-equip.js';
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const BaseDialog = HandlebarsApplicationMixin(ApplicationV2);
 export class GeneralItemsStorageDialog extends BaseDialog {
@@ -221,6 +222,9 @@ export class GeneralItemsStorageDialog extends BaseDialog {
                 if (!slotMap[slot]) {
                     slotMap[slot] = item;
                 }
+            }
+            else if (isEchoArtifactInventoryHidden(item)) {
+                continue;
             }
             else if (container === 'stash') {
                 stashItems.push(item);

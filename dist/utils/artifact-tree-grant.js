@@ -144,6 +144,15 @@ export async function grantArtifactTreeToActor(actor, artifactKey) {
     });
     if (!wire.ok && !wire.alreadyWired) {
         console.warn('[mastery-system] grantArtifactTreeToActor wire failed', wire.reason);
+        try {
+            await actor.deleteEmbeddedDocuments('Item', [created.id], {
+                masterySystemForceDelete: true,
+            });
+        }
+        catch (err) {
+            console.warn('[mastery-system] grantArtifactTreeToActor rollback failed', err);
+        }
+        return null;
     }
     await created.setFlag('mastery-system', 'echoArtifactKey', artifactKey);
     await created.setFlag('mastery-system', 'artifactActivated', false);

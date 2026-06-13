@@ -53,6 +53,7 @@ import {
   calculateSkillPendingNetCost,
 } from '../progression/progression-hub-actions.js';
 import type { MinorExpressionAttribute } from '../utils/minor-expressions.js';
+import { isEchoBoundArtifact, isEchoArtifactInventoryHidden } from '../utils/echo-artifact-equip.js';
 // Removed: showWeaponCreationDialog, showArmorCreationDialog, showShieldCreationDialog
 // Replaced with General Items Storage and Store dialogs
 
@@ -66,12 +67,7 @@ const BaseActorSheet: any = (foundry as any)?.appv1?.sheets?.ActorSheet || (Acto
  * or deleted by the player.
  */
 function isEchoLockedItem(item: any): boolean {
-  if (!item || item.type !== 'artifact') return false;
-  const fl = item.getFlag?.('mastery-system', 'echoLocked');
-  if (fl === true) return true;
-  // Fall back to the binding/echoBound markers set by the generator.
-  if (item.getFlag?.('mastery-system', 'echoBound') === true) return true;
-  return String((item.system as any)?.binding || '') === 'echo';
+  return isEchoBoundArtifact(item);
 }
 
 export class MasteryCharacterSheet extends BaseActorSheet {
@@ -1329,6 +1325,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         if (!slotMap[slot]) {
           slotMap[slot] = item;
         }
+      } else if (isEchoArtifactInventoryHidden(item)) {
+        // Echo-bound artifacts belong on the paperdoll only — skip inventory clutter.
+        continue;
       } else {
         // Legacy stash flags: show in carry inventory (stash panel removed from sheet).
         inventoryItems.push(item);
