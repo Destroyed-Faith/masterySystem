@@ -1,1 +1,1 @@
-{"version":3,"file":"artifact-awakening.d.ts","sourceRoot":"","sources":["../../src/artifacts/artifact-awakening.ts"],"names":[],"mappings":"AAAA;;;GAGG;AAQH;;GAEG;AACH,wBAAgB,2BAA2B,IAAI,IAAI,CA2jBlD;AAiFD;;GAEG;AACH,wBAAsB,4BAA4B,CAAC,QAAQ,EAAE,MAAM,GAAG,OAAO,CAAC,IAAI,CAAC,CAyBlF"}
+{"version":3,"file":"artifact-awakening.d.ts","sourceRoot":"","sources":["../../src/artifacts/artifact-awakening.ts"],"names":[],"mappings":"AAAA;;;GAGG;AAIH;;GAEG;AACH,wBAAgB,2BAA2B,IAAI,IAAI,CAkiBlD;AAiFD;;GAEG;AACH,wBAAsB,4BAA4B,CAAC,QAAQ,EAAE,MAAM,GAAG,OAAO,CAAC,IAAI,CAAC,CAyBlF"}

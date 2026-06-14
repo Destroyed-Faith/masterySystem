@@ -32,24 +32,6 @@
   color: #ffd700;
 }
 
-/* Actor Sheet Button */
-.ms-artifact-button {
-  background: var(--df-bg-panel, #2a3136);
-  border: 1px solid var(--df-border-primary, #3a3f44);
-  color: var(--df-text-primary, #d0d0d0);
-  padding: 6px 12px;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.2s;
-  margin-left: 8px;
-  width: 200px;
-}
-
-.ms-artifact-button:hover {
-  background: var(--df-bg-header, #1b2124);
-  border-color: var(--df-border-highlight, rgba(255, 255, 255, 0.2));
-}
-
 /* Artifact Builder Application */
 .artifact-builder {
   display: flex;

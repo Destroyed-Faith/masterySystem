@@ -536,25 +536,48 @@ const STAFF_OF_THE_DARK: GeneralArtifactDefinition = {
   key: 'staffOfTheDark',
   name: 'Staff of the Dark',
   echoKey: '',
+  // Not a melee weapon — a Spell Focus. `custom` keeps it out of the weapon
+  // kind so it never surfaces a weapon attack in the radial menu; it occupies
+  // one hand slot via `paperdollSlots`.
   slot: 'mainHand',
-  baseProfile: 'oneHandedWeapon',
+  baseProfile: 'custom',
   paperdollSlots: ['mainhand', 'offhand'],
   description:
-    'A bound arcane staff made from dark metallic wood, curved sharp edges, and an emerald-green core of living death. The Staff of the Dark may be used with Resolve or Influence and counts as a Spell Focus.',
-  restriction: 'The Staff of the Dark occupies one hand Slot (Main Hand or Off Hand).',
+    'A bound arcane staff made from dark metallic wood, curved sharp edges, and an emerald-green core of living death. It is not a melee weapon — it is a Spell Focus. The Staff of the Dark may be used with Resolve or Influence and adds its Spell Focus Bonus to damage of Spells cast through it.',
+  restriction:
+    'The Staff of the Dark occupies one hand Slot (Main Hand or Off Hand). It cannot be used to make melee weapon attacks unless another rule explicitly allows it. The Spell Focus Bonus applies only to Spells cast through this Staff, never to weapon attacks.',
   baseValues: [
-    { slot: 'a', label: 'Weapon Damage', note: '2d8 to 11d8 across levels.' },
-    { slot: 'b', label: 'Weapon Special', note: 'Hex(2) from L4, Hex(3) from L6, Hex(4) from L8, Hex(5) + True Staff of the Dark at L10.' },
+    {
+      slot: 'a',
+      label: 'Spell Focus Bonus',
+      note: '+2d8 (L1) to +11d8 (L10) damage to Spells cast through this Staff. Does not apply to weapon attacks.',
+    },
+    {
+      slot: 'b',
+      label: 'Focus Special',
+      note: 'Hex(2) from L4, Hex(3) from L6, Hex(4) from L8, Hex(5) at L10. Applies only if the Spell can legally carry it.',
+    },
   ],
+  // Special Boost Support: pre-fills the Intellect Ability "Special Boost"
+  // Stone Power (Tier 2 at L1, Tier 3 at L4, Tier 4 at L7). The character must
+  // always pay the lower tiers themselves.
+  stoneFunction: {
+    kind: 'stonePowerSupport',
+    attribute: 'intellect',
+    stonePowerId: 'intellect.specialBoost',
+    level: 1,
+    name: 'Special Boost Support',
+  },
   levelProgression: [
     {
       level: 1,
-      name: 'Might of the Dark I',
-      type: 'Active, Spell',
-      range: '20 m',
+      name: 'Special Boost Support I',
+      type: 'Stone Power Support',
+      range: 'Self',
       duration: 'Instant',
-      effect: 'Deal Staff Weapon Damage + 2d8 damage on hit.',
-      special: 'Hex(4)',
+      effect:
+        'The Staff of the Dark supports the Intellect Ability Special Boost Stone Power and pre-fills Tier 2. You must still pay Tier 1 yourself. If Tier 1 is not paid, the pre-filled Tier 2 has no effect.',
+      special: 'Special Boost',
     },
     {
       level: 2,
@@ -563,25 +586,28 @@ const STAFF_OF_THE_DARK: GeneralArtifactDefinition = {
       range: '20 m',
       duration: 'Instant',
       effect:
-        'Roll Staff Weapon Damage + 7d8 damage on hit. Split the total in half, rounded down. One half is dealt as damage. One willing creature within 20 m heals HP equal to the other half.',
+        'Roll Spell Focus Bonus + 7d8 damage on hit. Split the total in half, rounded down. One half is dealt as damage. One willing creature within 20 m heals HP equal to the other half.',
     },
     {
       level: 3,
-      name: 'Vision of the End I',
-      type: 'Active, Spell',
-      range: '20 m',
-      duration: 'Instant',
-      effect: 'Deal Staff Weapon Damage + 3d8 damage on hit.',
-      special: 'Frightened(4)',
+      name: 'Aura of the End I',
+      type: 'Artifact Only Active Buff, Spell',
+      range: 'Self',
+      aoe: '3 m radius',
+      duration: 'Mastery Rank Rounds',
+      effect:
+        'Enemies in the aura gain Frightened(2) while they remain in the aura. When an enemy leaves the aura, this Frightened value ends immediately. Aura of the End deals no damage and does not stack with itself.',
+      special: 'Frightened(2)',
     },
     {
       level: 4,
-      name: 'Might of the Dark II',
-      type: 'Active, Spell',
-      range: '44 m',
+      name: 'Special Boost Support II',
+      type: 'Stone Power Support',
+      range: 'Self',
       duration: 'Instant',
-      effect: 'Deal Staff Weapon Damage + 2d8 damage on hit.',
-      special: 'Hex(8)',
+      effect:
+        'The Staff of the Dark pre-fills Tier 3 of the Intellect Ability Special Boost Stone Power. You must still pay Tier 1 and Tier 2 yourself. If Tier 1 and Tier 2 are not paid, the pre-filled Tier 3 has no effect.',
+      special: 'Special Boost',
     },
     {
       level: 5,
@@ -590,25 +616,28 @@ const STAFF_OF_THE_DARK: GeneralArtifactDefinition = {
       range: '44 m',
       duration: 'Instant',
       effect:
-        'Roll Staff Weapon Damage + 17d8 damage on hit. Split the total in half, rounded down. One half is dealt as damage. One willing creature within 44 m heals HP equal to the other half.',
+        'Roll Spell Focus Bonus + 17d8 damage on hit. Split the total in half, rounded down. One half is dealt as damage. One willing creature within 44 m heals HP equal to the other half.',
     },
     {
       level: 6,
-      name: 'Vision of the End II',
-      type: 'Active, Spell',
-      range: '44 m',
-      duration: 'Instant',
-      effect: 'Deal Staff Weapon Damage + 3d8 damage on hit.',
-      special: 'Frightened(8)',
+      name: 'Aura of the End II',
+      type: 'Artifact Only Active Buff, Spell',
+      range: 'Self',
+      aoe: '5 m radius',
+      duration: 'Mastery Rank Rounds',
+      effect:
+        'Enemies in the aura gain Frightened(4) while they remain in the aura. When an enemy leaves the aura, this Frightened value ends immediately. Aura of the End deals no damage and does not stack with itself.',
+      special: 'Frightened(4)',
     },
     {
       level: 7,
-      name: 'Might of the Dark III',
-      type: 'Active, Spell',
-      range: '68 m',
+      name: 'Special Boost Support III',
+      type: 'Stone Power Support',
+      range: 'Self',
       duration: 'Instant',
-      effect: 'Deal Staff Weapon Damage + 2d8 damage on hit.',
-      special: 'Hex(10)',
+      effect:
+        'The Staff of the Dark pre-fills Tier 4 of the Intellect Ability Special Boost Stone Power. You must still pay Tier 1, Tier 2, and Tier 3 yourself. If the lower tiers are not paid, the pre-filled Tier 4 has no effect.',
+      special: 'Special Boost',
     },
     {
       level: 8,
@@ -617,16 +646,18 @@ const STAFF_OF_THE_DARK: GeneralArtifactDefinition = {
       range: '68 m',
       duration: 'Instant',
       effect:
-        'Roll Staff Weapon Damage + 27d8 damage on hit. Split the total in half, rounded down. One half is dealt as damage. One willing creature within 68 m heals HP equal to the other half.',
+        'Roll Spell Focus Bonus + 27d8 damage on hit. Split the total in half, rounded down. One half is dealt as damage. One willing creature within 68 m heals HP equal to the other half.',
     },
     {
       level: 9,
-      name: 'Vision of the End III',
-      type: 'Active, Spell',
-      range: '68 m',
-      duration: 'Instant',
-      effect: 'Deal Staff Weapon Damage + 3d8 damage on hit.',
-      special: 'Frightened(11)',
+      name: 'Aura of the End III',
+      type: 'Artifact Only Active Buff, Spell',
+      range: 'Self',
+      aoe: '7 m radius',
+      duration: 'Mastery Rank Rounds',
+      effect:
+        'Enemies in the aura gain Frightened(6) while they remain in the aura. When an enemy leaves the aura, this Frightened value ends immediately. Aura of the End deals no damage and does not stack with itself.',
+      special: 'Frightened(6)',
     },
     {
       level: 10,

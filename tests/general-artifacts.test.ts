@@ -217,15 +217,22 @@ describe('Shadowgrave Armor', () => {
 describe('Staff of the Dark', () => {
   const tree = buildEchoArtifactTree(getGeneralArtifact('staffOfTheDark')!);
 
-  it('can be equipped in either hand and deals 2d8 → 11d8', () => {
+  it('is a Spell Focus, not a melee weapon (no weapon attack surfaced)', () => {
     const sys = sysAt(tree, 1);
     expect(sys.slot).toBe('mainHand');
     expect(sys.equipSlots).toEqual(['mainhand', 'offhand']);
-    expect(baseValue(tree, 1, 'Weapon Damage').value).toBe('2d8');
-    expect(baseValue(tree, 10, 'Weapon Damage').value).toBe('11d8');
+    // Gear kind → the radial menu never builds a weapon attack for it.
+    expect(sys.artifactKind).toBe('gear');
+    expect(sys.artifactWeapon).toBeUndefined();
   });
 
-  it('Hex uses its own breakpoints: 2 at L4-5, 3 at L6-7, 4 at L8-9, 5 at L10', () => {
+  it('Spell Focus Bonus scales +2d8 (L1) → +11d8 (L10)', () => {
+    expect(baseValue(tree, 1, 'Spell Focus Bonus').value).toBe('+2d8');
+    expect(baseValue(tree, 5, 'Spell Focus Bonus').value).toBe('+6d8');
+    expect(baseValue(tree, 10, 'Spell Focus Bonus').value).toBe('+11d8');
+  });
+
+  it('Hex (Focus Special) uses its own breakpoints: 2 at L4-5, 3 at L6-7, 4 at L8-9, 5 at L10', () => {
     expect(baseValue(tree, 3, 'Hex')).toBeUndefined();
     expect(baseValue(tree, 4, 'Hex').value).toBe(2);
     expect(baseValue(tree, 5, 'Hex').value).toBe(2);
@@ -236,10 +243,25 @@ describe('Staff of the Dark', () => {
     expect(baseValue(tree, 10, 'Hex').value).toBe(5);
   });
 
-  it('marks its actives as spells', () => {
-    const power = sysAt(tree, 1).powers[0];
-    expect(power.tags).toContain('spell');
-    expect(power.category).toBe('active');
+  it('Life Taken is a spell active', () => {
+    const lifeTaken = sysAt(tree, 5).powers.find((p: any) => /Life Taken/.test(p.name));
+    expect(lifeTaken).toBeTruthy();
+    expect(lifeTaken.tags).toContain('spell');
+    expect(lifeTaken.category).toBe('active');
+  });
+
+  it('Aura of the End is an Artifact Only Active Buff', () => {
+    const aura = sysAt(tree, 6).powers.find((p: any) => /Aura of the End/.test(p.name));
+    expect(aura).toBeTruthy();
+    expect(aura.category).toBe('activeBuff');
+  });
+
+  it('Special Boost Support is its Stone Function (pre-fills intellect.specialBoost)', () => {
+    const sf = sysAt(tree, 1).stoneFunction;
+    expect(sf).toBeTruthy();
+    expect(sf.kind).toBe('stonePowerSupport');
+    expect(sf.attribute).toBe('intellect');
+    expect(sf.stonePowerId).toBe('intellect.specialBoost');
   });
 });
 

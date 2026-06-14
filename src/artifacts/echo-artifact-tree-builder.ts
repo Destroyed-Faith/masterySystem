@@ -53,7 +53,7 @@ import {
  * output (base values, powers, slot/profile, etc.) changes so the world seeder
  * can detect stale library copies and refresh them in place.
  */
-export const ECHO_ARTIFACT_SEED_VERSION = 10;
+export const ECHO_ARTIFACT_SEED_VERSION = 11;
 
 const ARTIFACT_LEVELS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] as const;
 const ALL_POWER_LEVEL_KEYS: PowerLevelKey[] = [
@@ -108,6 +108,10 @@ function scentOfBloodTierForLevel(level: number): string {
 /** One-handed general weapon damage — 2d8 (L1) … 11d8 (L10). */
 function oneHandedGeneralDamageForLevel(level: number): string {
   return `${clampLevel(level) + 1}d8`;
+}
+/** Staff of the Dark Spell Focus Bonus — +2d8 (L1) … +11d8 (L10). */
+function staffSpellFocusBonusForLevel(level: number): string {
+  return `+${clampLevel(level) + 1}d8`;
 }
 /** Staff of the Dark Hex rank — Hex(2) L4-5, Hex(3) L6-7, Hex(4) L8-9, Hex(5) L10. */
 function hexRankForLevel(level: number): number {
@@ -277,8 +281,22 @@ const BASE_VALUE_TABLES: Record<string, BaseValueSpec[]> = {
     },
   ],
   staffOfTheDark: [
-    { slot: 'a', type: 'weaponDamage', label: 'Weapon Damage', unlock: 1, valueAt: (l) => oneHandedGeneralDamageForLevel(l) },
-    { slot: 'b', type: 'weaponSpecial', label: 'Hex', unlock: 4, valueAt: (l) => hexRankForLevel(l) },
+    {
+      slot: 'a',
+      type: 'minorFeature',
+      label: 'Spell Focus Bonus',
+      unlock: 1,
+      valueAt: (l) => staffSpellFocusBonusForLevel(l),
+      note: 'Added to damage of Spells cast through the Staff; never to weapon attacks.',
+    },
+    {
+      slot: 'b',
+      type: 'weaponSpecial',
+      label: 'Hex',
+      unlock: 4,
+      valueAt: (l) => hexRankForLevel(l),
+      note: 'Focus Special — applies only if the Spell can legally carry it.',
+    },
   ],
   starfallenForceshield: [
     {
