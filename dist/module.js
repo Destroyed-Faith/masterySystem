@@ -1394,9 +1394,11 @@ function setupXpManagementInline() {
                 htmlContent += `<td class="xp-cell" title="${stepSummary.replace(/"/g, '&quot;')}">${stepTotal}</td>`;
                 htmlContent += `<td class="grant-cell"><div class="grant-controls">`;
                 htmlContent += `<div class="grant-group"><input type="number" class="xp-amount-input" data-character-id="${actor.id}" min="0" value="0" placeholder="+" title="Regular XP (Session)" />`;
-                htmlContent += `<button type="button" class="grant-xp-btn" data-character-id="${actor.id}" title="Regular XP vergeben"><i class="fas fa-plus"></i></button></div>`;
+                htmlContent += `<button type="button" class="grant-xp-btn" data-character-id="${actor.id}" title="Regular XP vergeben"><i class="fas fa-plus"></i></button>`;
+                htmlContent += `<button type="button" class="deduct-xp-btn" data-character-id="${actor.id}" title="Reguläre XP zurücknehmen (nur noch nicht ausgegebene)"><i class="fas fa-minus"></i></button></div>`;
                 htmlContent += `<div class="grant-group grant-group-free"><input type="number" class="free-xp-amount-input" data-character-id="${actor.id}" min="0" value="0" placeholder="+" title="Free XP (frei verteilbar)" />`;
-                htmlContent += `<button type="button" class="grant-free-xp-btn" data-character-id="${actor.id}" title="Free XP vergeben — kein Step-Limit"><i class="fas fa-star"></i></button></div>`;
+                htmlContent += `<button type="button" class="grant-free-xp-btn" data-character-id="${actor.id}" title="Free XP vergeben — kein Step-Limit"><i class="fas fa-star"></i></button>`;
+                htmlContent += `<button type="button" class="deduct-free-xp-btn" data-character-id="${actor.id}" title="Free XP zurücknehmen (nur noch nicht ausgegebene)"><i class="fas fa-minus"></i></button></div>`;
                 htmlContent += `<div class="xp-row-actions">`;
                 htmlContent += `<button type="button" class="end-xp-step-btn" data-character-id="${actor.id}" title="Upgrade Step beenden: +1-Limit-Listen leeren. Erlaubt im nächsten Step erneut +1 auf dasselbe Attribut/Skill — ersetzt kein Free XP."><i class="fas fa-flag-checkered"></i></button>`;
                 htmlContent += `<button type="button" class="history-xp-btn" data-character-id="${actor.id}" title="XP History"><i class="fas fa-history"></i></button>`;
@@ -1536,6 +1538,112 @@ function setupXpManagementInline() {
             pushXpHistory(actor, historyEntry);
             await actor.update({ 'system.xp.history': actor.system.xp.history });
             ui.notifications?.info(`Granted ${amount} Free XP to ${actor.name} (frei verteilbar).`);
+            app.render();
+        });
+        // Deduct (take back) unspent regular XP.
+        customContainer.find('.deduct-xp-btn').on('click', async (event) => {
+            const button = $(event.currentTarget);
+            if (!game.user?.isGM) {
+                ui.notifications?.warn('Nur der GM kann XP zurücknehmen.');
+                return;
+            }
+            const characterId = button.data('character-id');
+            const requested = parseInt(button.siblings('.xp-amount-input').val()) || 0;
+            if (requested <= 0) {
+                ui.notifications?.warn('Bitte einen Betrag größer als 0 eingeben.');
+                return;
+            }
+            const actor = game.actors?.get(characterId);
+            if (!actor) {
+                ui.notifications?.error('Character not found.');
+                return;
+            }
+            const xpState = getXpState(actor);
+            const removable = Math.max(0, xpState.available);
+            if (removable <= 0) {
+                ui.notifications?.warn(`${actor.name} hat keine freien regulären XP zum Zurücknehmen.`);
+                return;
+            }
+            const amount = Math.min(requested, removable);
+            const beforeState = {
+                available: xpState.available,
+                totalEarned: xpState.totalEarned,
+                totalSpent: xpState.totalSpent,
+            };
+            await actor.update({
+                'system.points.xp': xpState.available - amount,
+                'system.xp.totalEarned': Math.max(0, xpState.totalEarned - amount),
+            });
+            const user = game.user;
+            pushXpHistory(actor, {
+                ts: Date.now(),
+                userId: user?.id || '',
+                userName: user?.name || 'GM',
+                kind: 'adjust',
+                category: 'xp',
+                amount: -amount,
+                note: 'GM: reguläre XP zurückgenommen (nicht ausgegeben).',
+                before: beforeState,
+                after: {
+                    available: xpState.available - amount,
+                    totalEarned: Math.max(0, xpState.totalEarned - amount),
+                    totalSpent: xpState.totalSpent,
+                },
+            });
+            await actor.update({ 'system.xp.history': actor.system.xp.history });
+            const note = amount < requested ? ` (auf ${amount} begrenzt — nur unausgegebene XP)` : '';
+            ui.notifications?.info(`${actor.name}: ${amount} reguläre XP zurückgenommen${note}.`);
+            app.render();
+        });
+        // Deduct (take back) unspent Free XP.
+        customContainer.find('.deduct-free-xp-btn').on('click', async (event) => {
+            const button = $(event.currentTarget);
+            if (!game.user?.isGM) {
+                ui.notifications?.warn('Nur der GM kann XP zurücknehmen.');
+                return;
+            }
+            const characterId = button.data('character-id');
+            const requested = parseInt(button.siblings('.free-xp-amount-input').val()) || 0;
+            if (requested <= 0) {
+                ui.notifications?.warn('Bitte einen Betrag größer als 0 eingeben.');
+                return;
+            }
+            const actor = game.actors?.get(characterId);
+            if (!actor) {
+                ui.notifications?.error('Character not found.');
+                return;
+            }
+            const xpState = getXpState(actor);
+            const removable = Math.max(0, xpState.freeAvailable);
+            if (removable <= 0) {
+                ui.notifications?.warn(`${actor.name} hat keine freien Free XP zum Zurücknehmen.`);
+                return;
+            }
+            const amount = Math.min(requested, removable);
+            const beforeState = {
+                available: xpState.available,
+                totalEarned: xpState.totalEarned,
+                totalSpent: xpState.totalSpent,
+            };
+            await actor.update({
+                'system.points.xpFree': xpState.freeAvailable - amount,
+                'system.xp.freeEarned': Math.max(0, xpState.freeEarned - amount),
+            });
+            const user = game.user;
+            pushXpHistory(actor, {
+                ts: Date.now(),
+                userId: user?.id || '',
+                userName: user?.name || 'GM',
+                kind: 'adjust',
+                category: 'xp',
+                amount: -amount,
+                note: 'GM: Free XP zurückgenommen (nicht ausgegeben).',
+                before: beforeState,
+                after: beforeState,
+            });
+            await actor.update({ 'system.xp.history': actor.system.xp.history });
+            const note = amount < requested ? ` (auf ${amount} begrenzt — nur unausgegebene XP)` : '';
+            ui.notifications?.info(`${actor.name}: ${amount} Free XP zurückgenommen${note}.`);
             app.render();
         });
         // End Upgrade Step button — clears the once-per-step bump lists.
