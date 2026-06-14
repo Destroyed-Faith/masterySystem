@@ -1,0 +1,230 @@
+/* Encounter Generator dialog */
+
+.encounter-gen-app .window-content {
+  padding: 0;
+  background: var(--df-bg-panel, #1a1a1f);
+  color: var(--df-text-primary, #e8e8ea);
+}
+
+.encounter-gen-dialog {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+.encounter-gen-header {
+  padding: 10px 16px 0;
+}
+
+.encounter-gen-progress {
+  margin: 0;
+  font-size: 0.85rem;
+  opacity: 0.7;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.encounter-gen-body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: 12px 16px;
+  min-height: 0;
+}
+
+.encounter-gen-step h3 {
+  margin: 0 0 4px;
+  border: none;
+}
+
+.encounter-gen-step h4 {
+  margin: 16px 0 6px;
+  border-bottom: 1px solid var(--df-border, #3a3a42);
+  padding-bottom: 4px;
+}
+
+.encounter-gen-prose {
+  margin: 0 0 12px;
+  opacity: 0.85;
+  font-size: 0.9rem;
+}
+
+.encounter-gen-note {
+  margin-top: 12px;
+  font-size: 0.82rem;
+  opacity: 0.7;
+  font-style: italic;
+}
+
+.encounter-gen-empty {
+  padding: 24px;
+  text-align: center;
+  opacity: 0.7;
+}
+
+/* Card grids (difficulty, party) */
+.encounter-gen-cards,
+.encounter-gen-party-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 10px;
+}
+
+.encounter-gen-card,
+.encounter-gen-pc {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-align: left;
+  padding: 10px 12px;
+  border: 1px solid var(--df-border, #3a3a42);
+  border-radius: 8px;
+  background: var(--df-bg-elevated, #24242c);
+  color: inherit;
+  cursor: pointer;
+  transition: border-color 0.12s, background 0.12s;
+}
+
+.encounter-gen-card:hover,
+.encounter-gen-pc:hover {
+  border-color: var(--df-accent, #b8863b);
+}
+
+.encounter-gen-card.is-selected,
+.encounter-gen-pc.is-selected {
+  border-color: var(--df-accent, #b8863b);
+  background: var(--df-accent-bg, rgba(184, 134, 59, 0.18));
+}
+
+.encounter-gen-card-title,
+.encounter-gen-pc-name {
+  font-weight: 600;
+}
+
+.encounter-gen-card-text,
+.encounter-gen-pc-meta {
+  font-size: 0.82rem;
+  opacity: 0.8;
+}
+
+/* Metrics summary */
+.encounter-gen-metrics {
+  margin-top: 16px;
+  padding: 10px 12px;
+  border: 1px solid var(--df-border, #3a3a42);
+  border-radius: 8px;
+  background: var(--df-bg-elevated, #24242c);
+}
+
+.encounter-gen-metrics ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Composition form */
+.encounter-gen-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+}
+
+.encounter-gen-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.85rem;
+}
+
+.encounter-gen-field--wide {
+  max-width: 420px;
+}
+
+.encounter-gen-field input,
+.encounter-gen-field select {
+  background: var(--df-bg-input, #15151a);
+  color: inherit;
+  border: 1px solid var(--df-border, #3a3a42);
+  border-radius: 6px;
+  padding: 6px 8px;
+}
+
+/* Review tables */
+.encounter-gen-statblock {
+  margin-bottom: 14px;
+}
+
+.encounter-gen-statblock-head {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.encounter-gen-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.encounter-gen-table th,
+.encounter-gen-table td {
+  border: 1px solid var(--df-border, #3a3a42);
+  padding: 4px 6px;
+  text-align: center;
+}
+
+.encounter-gen-table th {
+  background: var(--df-bg-elevated, #24242c);
+  font-weight: 600;
+}
+
+.encounter-gen-table input {
+  width: 100%;
+  box-sizing: border-box;
+  background: var(--df-bg-input, #15151a);
+  color: inherit;
+  border: 1px solid var(--df-border, #3a3a42);
+  border-radius: 4px;
+  padding: 3px 4px;
+  text-align: center;
+}
+
+.encounter-gen-respawn {
+  margin-top: 12px;
+}
+
+/* Footer */
+.encounter-gen-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 10px 16px;
+  border-top: 1px solid var(--df-border, #3a3a42);
+}
+
+.encounter-gen-btn {
+  padding: 6px 16px;
+  border: 1px solid var(--df-border, #3a3a42);
+  border-radius: 6px;
+  background: var(--df-bg-elevated, #24242c);
+  color: inherit;
+  cursor: pointer;
+}
+
+.encounter-gen-btn:hover {
+  border-color: var(--df-accent, #b8863b);
+}
+
+.encounter-gen-btn--primary {
+  background: var(--df-accent, #b8863b);
+  border-color: var(--df-accent, #b8863b);
+  color: #1a1a1f;
+  font-weight: 600;
+}
+
+.encounter-gen-btn[disabled] {
+  opacity: 0.45;
+  cursor: not-allowed;
+}

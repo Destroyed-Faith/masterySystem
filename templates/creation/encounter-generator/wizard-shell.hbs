@@ -1,0 +1,187 @@
+<div class="encounter-gen-dialog">
+  <header class="encounter-gen-header">
+    <p class="encounter-gen-progress">{{progressLabel}}</p>
+  </header>
+
+  <div class="encounter-gen-body">
+    {{!-- Step 1: Party selection --}}
+    {{#if isParty}}
+    <section class="encounter-gen-step">
+      <h3>{{copy.party.heading}}</h3>
+      <p class="encounter-gen-prose">{{copy.party.body}}</p>
+      {{#if partyActors.length}}
+      <div class="encounter-gen-party-grid">
+        {{#each partyActors}}
+        <button type="button"
+          class="encounter-gen-pc js-eg-toggle-pc{{#if this.selected}} is-selected{{/if}}"
+          data-actor-id="{{this.id}}">
+          <span class="encounter-gen-pc-name">{{this.name}}</span>
+          <span class="encounter-gen-pc-meta">MR {{this.mr}} · {{this.hp}} HP · Ausw. {{this.evade}}</span>
+        </button>
+        {{/each}}
+      </div>
+      {{#if metrics}}
+      <div class="encounter-gen-metrics">
+        <h4>{{copy.party.metricsHeading}} ({{selectedLabel}})</h4>
+        <ul>
+          <li>Median MR: <strong>{{metrics.medianMR}}</strong></li>
+          <li>Ø HP: <strong>{{metrics.avgHP}}</strong></li>
+          <li>Ø Ausweichen: <strong>{{metrics.avgEvade}}</strong></li>
+          <li>Ø Ruestung: <strong>{{metrics.avgArmor}}</strong></li>
+          <li>Ø DR: <strong>{{metrics.avgDrPct}}%</strong></li>
+        </ul>
+      </div>
+      {{/if}}
+      {{else}}
+      <p class="encounter-gen-empty">{{copy.party.empty}}</p>
+      {{/if}}
+    </section>
+    {{/if}}
+
+    {{!-- Step 2: Difficulty --}}
+    {{#if isDifficulty}}
+    <section class="encounter-gen-step">
+      <h3>{{copy.difficulty.heading}}</h3>
+      <p class="encounter-gen-prose">{{copy.difficulty.body}}</p>
+      <div class="encounter-gen-cards">
+        <button type="button" class="encounter-gen-card js-eg-difficulty{{#if (eq selection.difficulty 'moderate')}} is-selected{{/if}}" data-difficulty="moderate">
+          <span class="encounter-gen-card-title">{{copy.difficulty.moderate.title}}</span>
+          <span class="encounter-gen-card-text">{{copy.difficulty.moderate.body}}</span>
+        </button>
+        <button type="button" class="encounter-gen-card js-eg-difficulty{{#if (eq selection.difficulty 'hard')}} is-selected{{/if}}" data-difficulty="hard">
+          <span class="encounter-gen-card-title">{{copy.difficulty.hard.title}}</span>
+          <span class="encounter-gen-card-text">{{copy.difficulty.hard.body}}</span>
+        </button>
+        <button type="button" class="encounter-gen-card js-eg-difficulty{{#if (eq selection.difficulty 'brutal')}} is-selected{{/if}}" data-difficulty="brutal">
+          <span class="encounter-gen-card-title">{{copy.difficulty.brutal.title}}</span>
+          <span class="encounter-gen-card-text">{{copy.difficulty.brutal.body}}</span>
+        </button>
+      </div>
+    </section>
+    {{/if}}
+
+    {{!-- Step 3: Composition --}}
+    {{#if isComposition}}
+    <section class="encounter-gen-step">
+      <h3>{{copy.composition.heading}}</h3>
+      <p class="encounter-gen-prose">{{copy.composition.body}}</p>
+      <div class="encounter-gen-form">
+        <label class="encounter-gen-field">
+          <span>{{copy.composition.bossCount}}</span>
+          <input type="number" class="js-eg-comp" data-field="bossCount" min="1" max="6" value="{{selection.composition.bossCount}}"/>
+        </label>
+        <label class="encounter-gen-field">
+          <span>{{copy.composition.phasesPerBoss}}</span>
+          <input type="number" class="js-eg-comp" data-field="phasesPerBoss" min="2" max="5" value="{{selection.composition.phasesPerBoss}}"/>
+        </label>
+        <label class="encounter-gen-field">
+          <span>{{copy.composition.minionCount}}</span>
+          <input type="number" class="js-eg-comp" data-field="minionCount" min="0" max="20" value="{{selection.composition.minionCount}}"/>
+        </label>
+        <label class="encounter-gen-field">
+          <span>{{copy.composition.respawnCadence}}</span>
+          <select class="js-eg-comp" data-field="respawnCadence">
+            {{#each cadenceOptions}}
+            <option value="{{this.value}}"{{#if this.selected}} selected{{/if}}>{{this.label}}</option>
+            {{/each}}
+          </select>
+        </label>
+      </div>
+      <p class="encounter-gen-note">{{copy.composition.respawnNote}}</p>
+    </section>
+    {{/if}}
+
+    {{!-- Step 4: Review + edit --}}
+    {{#if isReview}}
+    <section class="encounter-gen-step">
+      <h3>{{copy.review.heading}}</h3>
+      <p class="encounter-gen-prose">{{copy.review.body}}</p>
+
+      <h4>{{copy.review.bossesHeading}}</h4>
+      {{#each plan.bosses}}
+      <div class="encounter-gen-statblock">
+        <div class="encounter-gen-statblock-head">{{this.name}} · MR {{this.mr}} · {{copy.review.col.slots}}: {{this.attackSlots}}</div>
+        <table class="encounter-gen-table">
+          <thead>
+            <tr>
+              <th>{{../copy.review.col.phase}}</th>
+              <th>{{../copy.review.col.hp}}</th>
+              <th>{{../copy.review.col.evade}}</th>
+              <th>{{../copy.review.col.attackDice}}</th>
+              <th>{{../copy.review.col.damageDice}}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each this.phases}}
+            <tr>
+              <td>{{this.name}}</td>
+              <td><input type="number" class="js-eg-stat" data-kind="boss" data-block="{{@../index}}" data-phase="{{@index}}" data-field="hp" value="{{this.hp}}" min="1"/></td>
+              <td><input type="number" class="js-eg-stat" data-kind="boss" data-block="{{@../index}}" data-phase="{{@index}}" data-field="evade" value="{{this.evade}}" min="1"/></td>
+              <td><input type="number" class="js-eg-stat" data-kind="boss" data-block="{{@../index}}" data-phase="{{@index}}" data-field="attackDiceCount" value="{{this.attackDiceCount}}" min="2" max="16"/></td>
+              <td><input type="number" class="js-eg-stat" data-kind="boss" data-block="{{@../index}}" data-phase="{{@index}}" data-field="damageDiceCount" value="{{this.damageDiceCount}}" min="1" max="16"/></td>
+            </tr>
+            {{/each}}
+          </tbody>
+        </table>
+      </div>
+      {{/each}}
+
+      {{#if plan.minions.length}}
+      <h4>{{copy.review.minionsHeading}}</h4>
+      <table class="encounter-gen-table">
+        <thead>
+          <tr>
+            <th>{{copy.review.col.name}}</th>
+            <th>{{copy.review.col.hp}}</th>
+            <th>{{copy.review.col.evade}}</th>
+            <th>{{copy.review.col.attackDice}}</th>
+            <th>{{copy.review.col.damageDice}}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each plan.minions}}
+          <tr>
+            <td>{{this.name}}</td>
+            <td><input type="number" class="js-eg-stat" data-kind="minion" data-block="{{@index}}" data-phase="0" data-field="hp" value="{{this.phases.0.hp}}" min="1"/></td>
+            <td><input type="number" class="js-eg-stat" data-kind="minion" data-block="{{@index}}" data-phase="0" data-field="evade" value="{{this.phases.0.evade}}" min="1"/></td>
+            <td><input type="number" class="js-eg-stat" data-kind="minion" data-block="{{@index}}" data-phase="0" data-field="attackDiceCount" value="{{this.phases.0.attackDiceCount}}" min="2" max="12"/></td>
+            <td><input type="number" class="js-eg-stat" data-kind="minion" data-block="{{@index}}" data-phase="0" data-field="damageDiceCount" value="{{this.phases.0.damageDiceCount}}" min="1" max="12"/></td>
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
+      {{/if}}
+
+      <div class="encounter-gen-respawn">
+        <h4>{{copy.review.respawnHeading}}</h4>
+        <p>{{respawnRecommendLabel}}</p>
+      </div>
+
+      <p class="encounter-gen-note">{{copy.review.note}}</p>
+    </section>
+    {{/if}}
+
+    {{!-- Step 5: Name + generate --}}
+    {{#if isName}}
+    <section class="encounter-gen-step">
+      <h3>{{copy.name.heading}}</h3>
+      <p class="encounter-gen-prose">{{copy.name.body}}</p>
+      <label class="encounter-gen-field encounter-gen-field--wide">
+        <span>{{copy.name.label}}</span>
+        <input type="text" class="js-eg-name" value="{{selection.folderName}}" placeholder="{{copy.name.placeholder}}"/>
+      </label>
+    </section>
+    {{/if}}
+  </div>
+
+  <footer class="encounter-gen-footer">
+    {{#if showBack}}
+    <button type="button" class="encounter-gen-btn js-eg-back">{{copy.nav.back}}</button>
+    {{/if}}
+    {{#if isName}}
+    <button type="button" class="encounter-gen-btn encounter-gen-btn--primary js-eg-generate"{{#unless canGenerate}} disabled{{/unless}}>{{copy.nav.generate}}</button>
+    {{else}}
+    <button type="button" class="encounter-gen-btn encounter-gen-btn--primary js-eg-next"{{#unless canNext}} disabled{{/unless}}>{{copy.nav.next}}</button>
+    {{/if}}
+  </footer>
+</div>

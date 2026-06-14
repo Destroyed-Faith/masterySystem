@@ -25,6 +25,7 @@ import { registerDamageCardChatHooks } from './dice/damage-dialog.js';
 // Import combat-related modules statically
 import { PassiveSelectionDialog } from './sheets/passive-selection-dialog.js';
 import { showTowerWizardDialog } from './creation/tower-wizard/tower-wizard-dialog.js';
+import { showEncounterGeneratorDialog } from './creation/encounter-generator/encounter-generator-dialog.js';
 import { CombatCarouselApp } from './ui/combat-carousel.js';
 import { initializeStoneHooks } from './stones/stone-hooks.js';
 import {
@@ -257,6 +258,30 @@ Hooks.once('init', async function() {
   // Initialize scene controls
   initializeSceneControls();
   initializeTokenHUDButton();
+
+  // GM-only "Encounter erzeugen" button in the Actors directory header.
+  Hooks.on('renderActorDirectory', (_app: any, html: any) => {
+    if (!game.user?.isGM) return;
+    const root: HTMLElement | null = html instanceof HTMLElement ? html : html?.[0] ?? null;
+    if (!root) return;
+    if (root.querySelector('.eg-open-encounter-generator')) return;
+    const host =
+      root.querySelector('.directory-header .header-actions') ||
+      root.querySelector('.directory-header .action-buttons') ||
+      root.querySelector('.directory-header') ||
+      root.querySelector('.header-actions');
+    if (!host) return;
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'eg-open-encounter-generator';
+    btn.innerHTML = '<i class="fas fa-dragon"></i> Encounter';
+    btn.title = 'Encounter-Generator';
+    btn.addEventListener('click', (ev) => {
+      ev.preventDefault();
+      showEncounterGeneratorDialog();
+    });
+    host.appendChild(btn);
+  });
   
   // Initialize stone powers flow system
   initializeStonePowersFlow();
@@ -2675,6 +2700,7 @@ Hooks.once('ready', async function() {
   (game as any).masterySystem = Object.assign((game as any).masterySystem || {}, {
     refreshEchoArtifacts: forceRefreshEchoArtifactLibrary,
     openTowerWizard: showTowerWizardDialog,
+    openEncounterGenerator: showEncounterGeneratorDialog,
   });
 
   // One-shot Trees → Templates power cutover (GM-only, guarded by world setting).
