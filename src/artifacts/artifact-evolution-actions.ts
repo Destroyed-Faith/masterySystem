@@ -350,8 +350,29 @@ export async function resetArtifactActivationForActor(
   levels[A.id] = serializeActorArtifactProgress({ ...prog, linked: false });
   await setRootActorLevels(root, levels);
 
-  await emb.setFlag('mastery-system', 'artifactActivated', false);
-  await emb.unsetFlag('mastery-system', 'artifactActivationStoneAttr');
+  // Clear the activation flags on EVERY embedded copy of this artifact tree,
+  // not just the one the dialog points at. Stale/duplicate copies (see
+  // `dedupeEchoArtifactsOnActor`) otherwise keep an activation Stone blocked —
+  // sometimes on the wrong attribute pool.
+  const echoKey = emb.getFlag('mastery-system', 'echoArtifactKey') as string | undefined;
+  const copies: any[] = Array.from(
+    A.items.filter((it: any) => {
+      if (it.type !== 'artifact') return false;
+      if (it.id === emb.id) return true;
+      const itRoot = it.getFlag?.('mastery-system', 'evolutionRootItemId');
+      if (itRoot && itRoot === rootWorldId) return true;
+      const itEcho = it.getFlag?.('mastery-system', 'echoArtifactKey');
+      return !!echoKey && itEcho === echoKey;
+    }),
+  );
+  for (const copy of copies) {
+    if (copy.getFlag?.('mastery-system', 'artifactActivated') === true) {
+      await copy.setFlag('mastery-system', 'artifactActivated', false);
+    }
+    if (copy.getFlag?.('mastery-system', 'artifactActivationStoneAttr') != null) {
+      await copy.unsetFlag('mastery-system', 'artifactActivationStoneAttr');
+    }
+  }
 
   const poolNote = stoneAttr ? ` (${getArtifactStonePoolLabel(stoneAttr)})` : '';
   if (refunded) {
@@ -364,6 +385,68 @@ export async function resetArtifactActivationForActor(
     ui.notifications?.info(`Artifact-Aktivierung zurückgesetzt${poolNote}.`);
   }
   return true;
+}
+
+/**
+ * GM-only: hard-release ALL artifact activation Stones on an actor. Clears the
+ * `artifactActivated` / `artifactActivationStoneAttr` flags on every embedded
+ * artifact and marks the matching root progress as not-linked, so no stones
+ * remain blocked in the Stone Powers menu. Use to recover from stale/duplicate
+ * activations.
+ *
+ * @returns the number of activation bindings released.
+ */
+export async function releaseAllArtifactActivationStones(actor: Actor): Promise<number> {
+  if (!game.user?.isGM) {
+    ui.notifications?.warn('Nur der GM kann Aktivierungs-Steine freigeben.');
+    return 0;
+  }
+  const A = actor as any;
+  if (!A?.items?.filter) return 0;
+
+  const artifacts: any[] = Array.from(A.items.filter((it: any) => it.type === 'artifact'));
+  let released = 0;
+  const touchedRoots = new Set<string>();
+
+  for (const emb of artifacts) {
+    const wasActivated = emb.getFlag?.('mastery-system', 'artifactActivated') === true;
+    const hadAttr = emb.getFlag?.('mastery-system', 'artifactActivationStoneAttr') != null;
+    if (wasActivated) {
+      await emb.setFlag('mastery-system', 'artifactActivated', false);
+      released += 1;
+    }
+    if (hadAttr) {
+      await emb.unsetFlag('mastery-system', 'artifactActivationStoneAttr');
+    }
+
+    const rootWorldId = emb.getFlag?.('mastery-system', 'evolutionRootItemId') as string | undefined;
+    if (rootWorldId && !touchedRoots.has(rootWorldId)) {
+      touchedRoots.add(rootWorldId);
+      const root = (game as any).items?.get(rootWorldId);
+      if (root) {
+        const rootNodeId = root.getFlag?.('mastery-system', 'nodeId') as string | undefined;
+        const levels = { ...((root.getFlag?.('mastery-system', 'actorLevels') || {}) as any) };
+        const prog = readActorArtifactProgress(levels[A.id], rootNodeId || '');
+        if (prog.linked) {
+          levels[A.id] = serializeActorArtifactProgress({ ...prog, linked: false });
+          try {
+            await setRootActorLevels(root, levels);
+          } catch (err) {
+            console.warn('[mastery-system] could not clear root actorLevels on release', err);
+          }
+        }
+      }
+    }
+  }
+
+  if (released > 0) {
+    ui.notifications?.info(
+      `${released} Artifact-Aktivierungs-Stein${released === 1 ? '' : 'e'} freigegeben.`,
+    );
+  } else {
+    ui.notifications?.info('Keine blockierten Aktivierungs-Steine gefunden.');
+  }
+  return released;
 }
 
 /** Upgrade an artifact one tree step — costs 8 XP. */

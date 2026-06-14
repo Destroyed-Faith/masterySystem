@@ -9,7 +9,7 @@
 import { ARTIFACT_CAPACITY_DEFAULT, ARTIFACT_LINK_STONE_COST, ARTIFACT_MAX_SYSTEM_LEVEL, ARTIFACT_UPGRADE_XP_COST, countBoundArtifacts, listArtifactSpendableStonePools, usesStonePoolEconomy, } from '../utils/artifact-actor-rules.js';
 import { repairArtifactEvolutionLinks } from '../utils/artifact-echo-repair.js';
 import { listUnwiredEmbeddedArtifacts } from '../utils/artifact-tree-grant.js';
-import { buildArtifactEvolutionCards, linkArtifactForActor, resetArtifactActivationForActor, upgradeArtifactForActor, } from './artifact-evolution-actions.js';
+import { buildArtifactEvolutionCards, linkArtifactForActor, releaseAllArtifactActivationStones, resetArtifactActivationForActor, upgradeArtifactForActor, } from './artifact-evolution-actions.js';
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const BaseDialog = HandlebarsApplicationMixin(ApplicationV2);
 export class ArtifactEvolutionDialog extends BaseDialog {
@@ -87,6 +87,25 @@ export class ArtifactEvolutionDialog extends BaseDialog {
             closeBtn.onclick = (ev) => {
                 ev.preventDefault();
                 this.close();
+            };
+        }
+        const releaseAllBtn = root.querySelector('[data-action="ae-release-all-stones"]');
+        if (releaseAllBtn) {
+            releaseAllBtn.onclick = async (ev) => {
+                ev.preventDefault();
+                const confirmed = await Dialog.confirm({
+                    title: 'GM: Aktivierungs-Steine freigeben',
+                    content: '<p>Alle durch Artefakte blockierten <strong>Aktivierungs-Steine</strong> freigeben? ' +
+                        'Alle Artefakte dieses Charakters werden deaktiviert (Evolution-Level bleibt erhalten). ' +
+                        'Nützlich, wenn nach einem Reset noch falsche Steine blockiert sind.</p>',
+                    yes: () => true,
+                    no: () => false,
+                    defaultYes: false,
+                });
+                if (!confirmed)
+                    return;
+                await releaseAllArtifactActivationStones(this.actor);
+                await this.render({ force: true });
             };
         }
         root.querySelectorAll('[data-action="ae-activate"]').forEach((btn) => {

@@ -54,6 +54,16 @@ export declare function linkArtifactForActor(actor: Actor, rootWorldId: string, 
  * can choose a different pool.
  */
 export declare function resetArtifactActivationForActor(actor: Actor, rootWorldId: string, embeddedId: string): Promise<boolean>;
+/**
+ * GM-only: hard-release ALL artifact activation Stones on an actor. Clears the
+ * `artifactActivated` / `artifactActivationStoneAttr` flags on every embedded
+ * artifact and marks the matching root progress as not-linked, so no stones
+ * remain blocked in the Stone Powers menu. Use to recover from stale/duplicate
+ * activations.
+ *
+ * @returns the number of activation bindings released.
+ */
+export declare function releaseAllArtifactActivationStones(actor: Actor): Promise<number>;
 /** Upgrade an artifact one tree step — costs 8 XP. */
 export declare function upgradeArtifactForActor(actor: Actor, rootWorldId: string, embeddedId: string, targetWorldItemId: string, targetNodeId: string): Promise<boolean>;
 //# sourceMappingURL=artifact-evolution-actions.d.ts.map
