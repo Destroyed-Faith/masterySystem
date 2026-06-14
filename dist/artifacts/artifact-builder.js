@@ -37,6 +37,18 @@ export class ArtifactBuilder extends BaseApplication {
             classes: ['mastery-system', 'artifact-builder']
         });
     }
+    /**
+     * GM-only tool. Editing world artifact tree definitions is never available to
+     * players — block the render (covers macros, hooks, or any leaked entry point)
+     * so a player can never open or change these items.
+     */
+    render(...args) {
+        if (!game.user?.isGM) {
+            ui.notifications?.warn('Only the GM can open the Artifact Builder.');
+            return this;
+        }
+        return super.render(...args);
+    }
     getData(options) {
         const data = super.getData ? super.getData(options) : {};
         // Load all artifact items in the folder

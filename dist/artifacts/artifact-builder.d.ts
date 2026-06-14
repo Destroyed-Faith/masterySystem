@@ -8,6 +8,12 @@ export declare class ArtifactBuilder extends BaseApplication {
     private nodes;
     constructor(rootItem: Item);
     static get defaultOptions(): any;
+    /**
+     * GM-only tool. Editing world artifact tree definitions is never available to
+     * players — block the render (covers macros, hooks, or any leaked entry point)
+     * so a player can never open or change these items.
+     */
+    render(...args: any[]): any;
     getData(options?: any): any;
     activateListeners(html: JQuery): void;
     /**

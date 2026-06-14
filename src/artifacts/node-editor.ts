@@ -398,6 +398,18 @@ export class NodeEditor extends BaseDialog {
     });
   }
 
+  /**
+   * GM-only tool. Players must never be able to open or edit world artifact
+   * node definitions — block the render at the source.
+   */
+  render(...args: any[]): any {
+    if (!game.user?.isGM) {
+      ui.notifications?.warn('Only the GM can edit artifact nodes.');
+      return this;
+    }
+    return super.render(...args);
+  }
+
   getData(options?: any): any {
     const data: any = super.getData ? super.getData(options) : {};
     const system = this.item.system as any;
@@ -1179,6 +1191,10 @@ export class NodeEditor extends BaseDialog {
   }
 
   async saveNode(html: JQuery): Promise<void> {
+    if (!game.user?.isGM) {
+      ui.notifications?.warn('Only the GM can edit artifact nodes.');
+      return;
+    }
     const lineage = resolveLineageForItem(this.item);
 
     const baseProfileVal = String(html.find('#node-spec-base-profile').val() || '').trim();

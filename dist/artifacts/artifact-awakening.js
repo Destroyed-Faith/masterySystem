@@ -566,6 +566,10 @@ function findFreePlaceholderArtifactName() {
  * and the GM edits everything in the builder / node editor.
  */
 async function createNewArtifact() {
+    if (!game.user?.isGM) {
+        ui.notifications?.warn('Only the GM can create artifacts.');
+        return;
+    }
     try {
         const baseName = findFreePlaceholderArtifactName();
         const folder = await Folder.create({
@@ -613,6 +617,10 @@ async function createNewArtifact() {
  * Open artifact builder for a folder
  */
 export async function openArtifactBuilderForFolder(folderId) {
+    if (!game.user?.isGM) {
+        ui.notifications?.warn('Only the GM can open the Artifact Builder.');
+        return;
+    }
     const folder = game.folders?.get(folderId);
     if (!folder) {
         ui.notifications?.error('Folder not found.');
