@@ -803,8 +803,12 @@ export class StonePowersDialog extends BaseDialog {
             const current = pool?.current ?? pool?.value ?? 0;
             const max = pool?.max ?? pool?.maximum ?? 0;
             const sustained = pool?.sustained ?? 0;
-            const artifactBound = countArtifactActivationStones(poolOwner, attr);
-            const spendable = poolSpendableStones(poolOwner, attr);
+            // Artifact activation flags live on the embedded items of the actor the
+            // sheet / evolution dialog edit (`this.actor`). For unlinked tokens the
+            // economy actor (`poolOwner`) can be a different document whose item
+            // flags are stale, so always read the binding from `this.actor`.
+            const artifactBound = countArtifactActivationStones(this.actor, attr);
+            const spendable = poolSpendableStones(this.actor, attr);
             const reserved = this.#reservedStonesInDialogForAttr(attr);
             const poolDisplay = Math.max(0, spendable - reserved);
             const gemStyle = getStoneGemStyle(attr) ?? { fill: '#888888', stroke: '#aaaaaa' };
@@ -1621,8 +1625,10 @@ export class StonePowersDialog extends BaseDialog {
         return out;
     }
     #actorPoolSpendable(attr) {
-        const poolOwner = getActionEconomyActor(this.actor) ?? this.actor;
-        return poolSpendableStones(poolOwner, attr);
+        // Read from `this.actor` so artifact activation bindings match the sheet /
+        // evolution dialog (pool capacity is still derived via the economy actor
+        // inside poolSpendableStones).
+        return poolSpendableStones(this.actor, attr);
     }
     /** Brutto-Pool minus bereits im Dialog reservierte Steine dieser Farbe. */
     #spendableNetForAttr(attr) {
