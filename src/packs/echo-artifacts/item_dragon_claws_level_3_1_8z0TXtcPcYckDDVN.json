@@ -25,7 +25,7 @@
     "levelProgression": [
       {
         "level": 1,
-        "name": "Stone Support I",
+        "name": "Extra Damage Support I",
         "type": "Support",
         "range": "Self",
         "aoe": "",
@@ -35,23 +35,23 @@
       },
       {
         "level": 2,
-        "name": "Melee Damage + Dispel (Mixed) I",
-        "type": "Melee",
-        "range": "",
-        "aoe": "",
+        "name": "Rending Spiral I",
+        "type": "Melee AoE",
+        "range": "Self",
+        "aoe": "Radius 3m",
         "duration": "Instant",
-        "effect": "Deal **+2d8 damage** and dispel one magical effect of level ≤ 4.",
-        "special": "dispel-magic(4)"
+        "effect": "Make a melee AoE attack. Affected creatures take weapon damage + **4d8 damage**.",
+        "special": ""
       },
       {
         "level": 3,
-        "name": "Melee Control — Push + Pull I",
-        "type": "Melee",
-        "range": "",
-        "aoe": "",
+        "name": "Tail Sweep I",
+        "type": "Melee AoE",
+        "range": "Self",
+        "aoe": "Radius 3m",
         "duration": "Instant",
-        "effect": "Apply **push 4 m** + **pull 4 m**.",
-        "special": "push(4), pull(4)"
+        "effect": "Make a melee AoE attack. Affected creatures take weapon damage + **4d8 damage**.",
+        "special": ""
       }
     ],
     "stoneFunction": {
@@ -67,17 +67,20 @@
           "kind": "stonePowerSupport",
           "attribute": "might",
           "stonePowerId": "might.meleeDamage"
-        }
+        },
+        "displayName": "Extra Damage Support"
       },
       {
         "level": 2,
         "kind": "power",
-        "powerTemplateId": "active-melee-damage-dispel-mixed"
+        "powerTemplateId": "active-melee-weapon-aoe",
+        "displayName": "Rending Spiral"
       },
       {
         "level": 3,
         "kind": "power",
-        "powerTemplateId": "active-melee-control-push-pull"
+        "powerTemplateId": "active-melee-weapon-aoe",
+        "displayName": "Tail Sweep"
       }
     ],
     "lore": "Both hands become natural weapons: claws, scales, and tail.",
@@ -95,7 +98,7 @@
     "powers": [
       {
         "id": "dragonClaws-pw-1",
-        "name": "Stone Support I",
+        "name": "Extra Damage Support I",
         "category": "passive",
         "tags": [],
         "cost": {
@@ -301,8 +304,7 @@
       },
       {
         "id": "dragonClaws-pw-2",
-        "name": "Melee Damage + Dispel (Mixed) I",
-        "fluff": "Special: dispel-magic(4)",
+        "name": "Rending Spiral I",
         "category": "active",
         "tags": [],
         "cost": {
@@ -346,14 +348,20 @@
             "specials": []
           },
           "4": {
-            "type": "Melee",
-            "range": null,
-            "aoe": null,
+            "type": "Melee AoE",
+            "range": {
+              "kind": "self"
+            },
+            "aoe": {
+              "shape": "radius",
+              "m": 3,
+              "radiusM": 3
+            },
             "duration": {
               "kind": "instant"
             },
             "effect": {
-              "text": "Deal **+2d8 damage** and dispel one magical effect of level ≤ 4."
+              "text": "Make a melee AoE attack. Affected creatures take weapon damage + **4d8 damage**."
             },
             "specials": [],
             "lvl": 2
@@ -506,8 +514,7 @@
       },
       {
         "id": "dragonClaws-pw-3",
-        "name": "Melee Control — Push + Pull I",
-        "fluff": "Special: push(4), pull(4)",
+        "name": "Tail Sweep I",
         "category": "active",
         "tags": [],
         "cost": {
@@ -551,14 +558,20 @@
             "specials": []
           },
           "4": {
-            "type": "Melee",
-            "range": null,
-            "aoe": null,
+            "type": "Melee AoE",
+            "range": {
+              "kind": "self"
+            },
+            "aoe": {
+              "shape": "radius",
+              "m": 3,
+              "radiusM": 3
+            },
             "duration": {
               "kind": "instant"
             },
             "effect": {
-              "text": "Apply **push 4 m** + **pull 4 m**."
+              "text": "Make a melee AoE attack. Affected creatures take weapon damage + **4d8 damage**."
             },
             "specials": [],
             "lvl": 3
@@ -735,7 +748,7 @@
       ],
       "echoBound": "dragonborn",
       "echoArtifactKey": "dragonClaws",
-      "seedVersion": 8
+      "seedVersion": 10
     }
   },
   "_id": "8z0TXtcPcYckDDVN",

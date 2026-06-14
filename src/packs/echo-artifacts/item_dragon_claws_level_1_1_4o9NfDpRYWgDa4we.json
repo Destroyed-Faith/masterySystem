@@ -25,7 +25,7 @@
     "levelProgression": [
       {
         "level": 1,
-        "name": "Stone Support I",
+        "name": "Extra Damage Support I",
         "type": "Support",
         "range": "Self",
         "aoe": "",
@@ -47,17 +47,20 @@
           "kind": "stonePowerSupport",
           "attribute": "might",
           "stonePowerId": "might.meleeDamage"
-        }
+        },
+        "displayName": "Extra Damage Support"
       },
       {
         "level": 2,
         "kind": "power",
-        "powerTemplateId": "active-melee-damage-dispel-mixed"
+        "powerTemplateId": "active-melee-weapon-aoe",
+        "displayName": "Rending Spiral"
       },
       {
         "level": 3,
         "kind": "power",
-        "powerTemplateId": "active-melee-control-push-pull"
+        "powerTemplateId": "active-melee-weapon-aoe",
+        "displayName": "Tail Sweep"
       }
     ],
     "lore": "Both hands become natural weapons: claws, scales, and tail.",
@@ -75,7 +78,7 @@
     "powers": [
       {
         "id": "dragonClaws-pw-1",
-        "name": "Stone Support I",
+        "name": "Extra Damage Support I",
         "category": "passive",
         "tags": [],
         "cost": {
@@ -304,7 +307,7 @@
       "isRoot": true,
       "echoBound": "dragonborn",
       "echoArtifactKey": "dragonClaws",
-      "seedVersion": 8
+      "seedVersion": 10
     }
   },
   "_id": "4o9NfDpRYWgDa4we",

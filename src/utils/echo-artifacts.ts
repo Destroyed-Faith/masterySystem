@@ -888,10 +888,15 @@ const DRAGON_CLAWS: EchoArtifactDefinition = {
     attribute: 'might',
     stonePowerId: 'might.meleeDamage',
     level: 1,
+    name: 'Extra Damage Support',
   },
-  progressionPickIds: {
-    2: 'active-melee-damage-dispel-mixed',
-    3: 'active-melee-control-push-pull',
+  // Rending Spiral and Tail Sweep are real, editable catalog Powers — both are
+  // self-centered Melee AoE weapon attacks that deal the current Claw / Tail
+  // Weapon Damage in a radius. Only the names are overridden; the GM can add the
+  // Bleeding / Push Specials and tune them freely in the Node Editor.
+  progressionPickSpecs: {
+    2: { name: 'Rending Spiral', templateId: 'active-melee-weapon-aoe' },
+    3: { name: 'Tail Sweep', templateId: 'active-melee-weapon-aoe' },
   },
   baseValues: [
     {
@@ -913,12 +918,13 @@ const DRAGON_CLAWS: EchoArtifactDefinition = {
   levelProgression: [
     {
       level: 1,
-      name: 'Extra Attack Support I',
+      name: 'Extra Damage Support I',
       type: 'Stone Power Support',
       range: 'Self',
       duration: 'Instant',
-      effect: 'Dragon Claws support the Extra Attack Stone Power and pre-fill Tier 2.',
-      special: 'Extra Attack',
+      effect:
+        'Dragon Claws support the Extra Might Damage Stone Power. They pre-fill Tier 2. You must still pay Tier 1 yourself.',
+      special: '',
     },
     {
       level: 2,
@@ -942,12 +948,13 @@ const DRAGON_CLAWS: EchoArtifactDefinition = {
     },
     {
       level: 4,
-      name: 'Extra Attack Support II',
+      name: 'Extra Damage Support II',
       type: 'Stone Power Support',
       range: 'Self',
       duration: 'Instant',
-      effect: 'Pre-fills Tier 3 of the Extra Attack Stone Power.',
-      special: 'Extra Attack',
+      effect:
+        'Dragon Claws support the Extra Might Damage Stone Power. They pre-fill Tier 3. You must still pay Tier 1 and 2 yourself.',
+      special: '',
     },
     {
       level: 5,
@@ -971,12 +978,13 @@ const DRAGON_CLAWS: EchoArtifactDefinition = {
     },
     {
       level: 7,
-      name: 'Extra Attack Support III',
+      name: 'Extra Damage Support III',
       type: 'Stone Power Support',
       range: 'Self',
       duration: 'Instant',
-      effect: 'Pre-fills Tier 4 of the Extra Attack Stone Power.',
-      special: 'Extra Attack',
+      effect:
+        'Dragon Claws support the Extra Might Damage Stone Power. They pre-fill Tier 4. You must still pay Tier 1, 2 and 3 yourself.',
+      special: '',
     },
     {
       level: 8,
