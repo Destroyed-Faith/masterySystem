@@ -166,6 +166,12 @@ export class ItemInfoDialog extends BaseDialog {
   }
 
   static async show(item: any): Promise<void> {
+    // Artifacts have their own clean, read-only summary sheet (ArtifactSheetV2).
+    // Open it directly instead of the generic, verbose info dialog.
+    if (item?.type === 'artifact' && typeof item.sheet?.render === 'function') {
+      await item.sheet.render(true);
+      return;
+    }
     const id = `mastery-item-info-${item.id}`;
     const existing = foundry.applications.instances.get(id) as ItemInfoDialog | undefined;
     if (existing) {
