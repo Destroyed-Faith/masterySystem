@@ -8,6 +8,7 @@ import {
   promptResetActorXpAccounting,
   promptResetAllCharactersXpAccounting,
 } from '../utils/xp-account-reset.js';
+import { computeGroundTruthXp, formatXpRecalcHtml } from '../utils/xp-recalc.js';
 
 // Use ApplicationV2 with HandlebarsApplicationMixin if available, otherwise fall back to Application
 let BaseApplication: any;
@@ -506,6 +507,86 @@ export class XpManagementSettings extends BaseApplication {
         return;
       }
       promptResetActorXpAccounting(actor, () => (this as any).render());
+    });
+
+    html.find('.recalc-xp-btn').on('click', async (event) => {
+      const button = $(event.currentTarget);
+      if (button.prop('disabled')) return;
+      if (!(game as any).user?.isGM) {
+        ui.notifications?.warn('Nur der GM kann XP neu berechnen.');
+        return;
+      }
+      const characterId = button.data('character-id');
+      const actor = (game as any).actors?.get(characterId);
+      if (!actor) {
+        ui.notifications?.error('Character not found.');
+        return;
+      }
+
+      const result = computeGroundTruthXp(actor);
+      if (!result.ok) {
+        ui.notifications?.warn(result.error || 'Neuberechnung nicht möglich.');
+        return;
+      }
+
+      new Dialog({
+        title: `XP neu berechnen: ${actor.name}`,
+        content: formatXpRecalcHtml(actor.name, result),
+        buttons: {
+          apply: {
+            icon: '<i class="fas fa-calculator"></i>',
+            label:
+              result.delta === 0
+                ? 'Bereits korrekt'
+                : `Übernehmen (${result.delta > 0 ? '+' : ''}${result.delta} XP)`,
+            callback: async () => {
+              if (result.delta === 0) return;
+              const xpState = getXpState(actor);
+              const before = {
+                available: xpState.available,
+                totalEarned: xpState.totalEarned,
+                totalSpent: xpState.totalSpent,
+              };
+              await actor.update({
+                'system.points.xp': result.available,
+                'system.xp.totalSpent': result.totalSpent,
+              });
+              const user = (game as any).user;
+              pushXpHistory(actor, {
+                ts: Date.now(),
+                userId: user?.id || '',
+                userName: user?.name || 'GM',
+                kind: 'adjust',
+                category: 'xp',
+                amount: result.delta,
+                note: 'GM recalc: available XP recomputed from current build (earned − invested).',
+                details: {
+                  recalc: true,
+                  attributeSpent: result.attributeSpent,
+                  skillSpent: result.skillSpent,
+                  powerSpent: result.powerSpent,
+                },
+                before,
+                after: {
+                  available: result.available,
+                  totalEarned: result.totalEarned,
+                  totalSpent: result.totalSpent,
+                },
+              });
+              await actor.update({ 'system.xp.history': actor.system.xp.history });
+              ui.notifications?.info(
+                `${actor.name}: XP neu berechnet → ${result.available} verfügbar (${result.delta > 0 ? '+' : ''}${result.delta}).`,
+              );
+              (this as any).render();
+            },
+          },
+          cancel: {
+            label: 'Abbrechen',
+            callback: () => {},
+          },
+        },
+        default: result.delta === 0 ? 'cancel' : 'apply',
+      }).render(true);
     });
 
     html.find('.reset-progress-xp-btn').on('click', async (event) => {

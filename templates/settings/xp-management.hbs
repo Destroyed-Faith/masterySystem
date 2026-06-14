@@ -92,6 +92,9 @@
                       <i class="fas fa-history"></i>
                     </button>
                     {{#if (userIsGM)}}
+                    <button type="button" class="recalc-xp-btn" data-character-id="{{this.id}}" title="XP neu berechnen: Verfügbar = Verdient − tatsächlich investierte XP (Attribute/Skills/Powers). Korrigiert fehlerhafte History-Erstattungen." {{#unless this.hasPostCreationSnapshot}}disabled{{/unless}}>
+                      <i class="fas fa-calculator"></i>
+                    </button>
                     <button type="button" class="reset-xp-account-btn" data-character-id="{{this.id}}" title="XP-Konten und History auf 0 (Attribute/Skills bleiben)">
                       <i class="fas fa-eraser"></i>
                     </button>
