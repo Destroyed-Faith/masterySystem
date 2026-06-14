@@ -535,12 +535,11 @@ export class XpManagementSettings extends BaseApplication {
         buttons: {
           apply: {
             icon: '<i class="fas fa-calculator"></i>',
-            label:
-              result.delta === 0
-                ? 'Bereits korrekt'
-                : `Übernehmen (${result.delta > 0 ? '+' : ''}${result.delta} XP)`,
+            label: !result.changed
+              ? 'Bereits korrekt'
+              : `Übernehmen (${result.totalDelta > 0 ? '+' : ''}${result.totalDelta} XP)`,
             callback: async () => {
-              if (result.delta === 0) return;
+              if (!result.changed) return;
               const xpState = getXpState(actor);
               const before = {
                 available: xpState.available,
@@ -549,7 +548,9 @@ export class XpManagementSettings extends BaseApplication {
               };
               await actor.update({
                 'system.points.xp': result.available,
-                'system.xp.totalSpent': result.totalSpent,
+                'system.points.xpFree': result.freeAvailable,
+                'system.xp.totalSpent': result.regularSpent,
+                'system.xp.freeSpent': result.freeSpent,
               });
               const user = (game as any).user;
               pushXpHistory(actor, {
@@ -558,24 +559,27 @@ export class XpManagementSettings extends BaseApplication {
                 userName: user?.name || 'GM',
                 kind: 'adjust',
                 category: 'xp',
-                amount: result.delta,
-                note: 'GM recalc: available XP recomputed from current build (earned − invested).',
+                amount: result.totalDelta,
+                note: 'GM recalc: XP pools recomputed from current build (earned − invested, Free spent first).',
                 details: {
                   recalc: true,
                   attributeSpent: result.attributeSpent,
                   skillSpent: result.skillSpent,
                   powerSpent: result.powerSpent,
+                  totalInvested: result.totalInvested,
+                  regularSpent: result.regularSpent,
+                  freeSpent: result.freeSpent,
                 },
                 before,
                 after: {
                   available: result.available,
                   totalEarned: result.totalEarned,
-                  totalSpent: result.totalSpent,
+                  totalSpent: result.regularSpent,
                 },
               });
               await actor.update({ 'system.xp.history': actor.system.xp.history });
               ui.notifications?.info(
-                `${actor.name}: XP neu berechnet → ${result.available} verfügbar (${result.delta > 0 ? '+' : ''}${result.delta}).`,
+                `${actor.name}: XP neu berechnet → ${result.available} regulär / ${result.freeAvailable} Free (gesamt ${result.totalDelta > 0 ? '+' : ''}${result.totalDelta}).`,
               );
               (this as any).render();
             },
@@ -585,7 +589,7 @@ export class XpManagementSettings extends BaseApplication {
             callback: () => {},
           },
         },
-        default: result.delta === 0 ? 'cancel' : 'apply',
+        default: result.changed ? 'apply' : 'cancel',
       }).render(true);
     });
 

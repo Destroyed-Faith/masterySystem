@@ -3,8 +3,9 @@
  *
  * Recomputes a character's *invested* XP directly from the current build
  * (attributes, skills, power levels) measured against the immutable
- * post-creation baseline, then derives the correct available XP as
- * `available = totalEarned − invested`.
+ * post-creation baseline, then redistributes the two XP pools so that
+ * `invested = freeSpent + regularSpent` with the **Free pool spent first**
+ * (matching the live spend logic), and derives the correct available XP.
  *
  * This deliberately ignores the XP history log, so it self-corrects accounting
  * drift caused by buggy / duplicated refund entries (e.g. the old Combat
@@ -35,15 +36,17 @@ export function computeGroundTruthXp(actor) {
     const points = system.points ?? {};
     const totalEarned = Math.max(0, Math.floor(Number(xp.totalEarned) || 0));
     const freeEarned = Math.max(0, Math.floor(Number(xp.freeEarned) || 0));
-    const freeAvailable = Math.max(0, Math.floor(Number(points.xpFree) || 0));
     const previousAvailable = Math.max(0, Math.floor(Number(points.xp) || 0));
+    const previousFreeAvailable = Math.max(0, Math.floor(Number(points.xpFree) || 0));
     const previousSpent = Math.max(0, Math.floor(Number(xp.totalSpent) || 0));
+    const previousFreeSpent = Math.max(0, Math.floor(Number(xp.freeSpent) || 0));
     const base = {
         totalEarned,
         freeEarned,
-        freeAvailable,
         previousAvailable,
+        previousFreeAvailable,
         previousSpent,
+        previousFreeSpent,
     };
     const snap = xp.postCreationProgress;
     if (!snap?.attributes || !actorHasPostCreationSnapshot(actor)) {
@@ -54,9 +57,15 @@ export function computeGroundTruthXp(actor) {
             attributeSpent: 0,
             skillSpent: 0,
             powerSpent: 0,
-            totalSpent: 0,
+            totalInvested: 0,
+            regularSpent: previousSpent,
+            freeSpent: previousFreeSpent,
             available: previousAvailable,
+            freeAvailable: previousFreeAvailable,
             delta: 0,
+            freeDelta: 0,
+            totalDelta: 0,
+            changed: false,
         };
     }
     let attributeSpent = 0;
@@ -81,18 +90,34 @@ export function computeGroundTruthXp(actor) {
         type: i.type,
     }));
     const powerSpent = calculatePowersUpgradeRefund(powerItems);
-    const totalSpent = attributeSpent + skillSpent + powerSpent;
-    const available = Math.max(0, totalEarned - totalSpent);
+    const totalInvested = attributeSpent + skillSpent + powerSpent;
+    // Free pool is spent first, then regular (mirrors the live spend logic).
+    const freeSpent = Math.min(freeEarned, totalInvested);
+    const regularSpent = Math.max(0, totalInvested - freeSpent);
+    const freeAvailable = Math.max(0, freeEarned - freeSpent);
+    const available = Math.max(0, totalEarned - regularSpent);
     const delta = available - previousAvailable;
+    const freeDelta = freeAvailable - previousFreeAvailable;
+    const totalDelta = available + freeAvailable - (previousAvailable + previousFreeAvailable);
+    const changed = available !== previousAvailable ||
+        freeAvailable !== previousFreeAvailable ||
+        regularSpent !== previousSpent ||
+        freeSpent !== previousFreeSpent;
     return {
         ok: true,
         ...base,
         attributeSpent,
         skillSpent,
         powerSpent,
-        totalSpent,
+        totalInvested,
+        regularSpent,
+        freeSpent,
         available,
+        freeAvailable,
         delta,
+        freeDelta,
+        totalDelta,
+        changed,
     };
 }
 /** HTML breakdown for the GM confirm dialog. */
@@ -100,23 +125,20 @@ export function formatXpRecalcHtml(actorName, r) {
     if (!r.ok) {
         return `<p class="xp-recalc-error"><strong>${actorName}:</strong> ${r.error}</p>`;
     }
-    const deltaStr = r.delta === 0 ? '±0' : `${r.delta > 0 ? '+' : ''}${r.delta}`;
-    const freeNote = r.freeEarned > 0
-        ? `<p class="xp-recalc-note"><em>Hinweis: Dieser Charakter hat Free XP (${r.freeAvailable} verfügbar / ${r.freeEarned} verdient). Die Neuberechnung betrifft nur das reguläre XP-Konto.</em></p>`
-        : '';
+    const fmt = (n) => `${n > 0 ? '+' : ''}${n}`;
+    const totalEarnedAll = r.totalEarned + r.freeEarned;
     return (`<div class="xp-recalc-dialog">` +
         `<p>Neuberechnung der verfügbaren XP für <strong>${actorName}</strong> aus dem aktuellen Build:</p>` +
         `<table class="xp-recalc-table" style="width:100%;border-collapse:collapse;margin:8px 0;">` +
         `<tbody>` +
-        `<tr><td>Verdiente XP (Basis)</td><td style="text-align:right;"><strong>${r.totalEarned}</strong></td></tr>` +
+        `<tr><td>Verdient gesamt (Regular ${r.totalEarned} + Free ${r.freeEarned})</td><td style="text-align:right;"><strong>${totalEarnedAll}</strong></td></tr>` +
         `<tr><td>− Attribute</td><td style="text-align:right;">${r.attributeSpent}</td></tr>` +
         `<tr><td>− Skills</td><td style="text-align:right;">${r.skillSpent}</td></tr>` +
         `<tr><td>− Powers</td><td style="text-align:right;">${r.powerSpent}</td></tr>` +
-        `<tr style="border-top:1px solid rgba(255,255,255,0.2);"><td>= Investiert (gesamt)</td><td style="text-align:right;"><strong>${r.totalSpent}</strong></td></tr>` +
-        `<tr><td><strong>= Verfügbar (korrekt)</strong></td><td style="text-align:right;"><strong>${r.available}</strong></td></tr>` +
+        `<tr style="border-top:1px solid rgba(255,255,255,0.2);"><td>= Investiert (gesamt)</td><td style="text-align:right;"><strong>${r.totalInvested}</strong></td></tr>` +
         `</tbody></table>` +
-        `<p class="xp-recalc-compare">Aktuell verbucht: <strong>${r.previousAvailable}</strong> verfügbar / ${r.previousSpent} ausgegeben &nbsp;→&nbsp; Änderung: <strong>${deltaStr}</strong> XP.</p>` +
-        freeNote +
+        `<p class="xp-recalc-result" style="margin:6px 0;">Korrekt: <strong>${r.available}</strong> regulär verfügbar &nbsp;·&nbsp; <strong>${r.freeAvailable}</strong> Free verfügbar &nbsp;(Free zuerst ausgegeben).</p>` +
+        `<p class="xp-recalc-compare" style="opacity:0.8;">Aktuell verbucht: ${r.previousAvailable} regulär / ${r.previousFreeAvailable} Free &nbsp;→&nbsp; Änderung: Regular <strong>${fmt(r.delta)}</strong>, Free <strong>${fmt(r.freeDelta)}</strong> (gesamt <strong>${fmt(r.totalDelta)}</strong> XP).</p>` +
         `</div>`);
 }
 //# sourceMappingURL=xp-recalc.js.map

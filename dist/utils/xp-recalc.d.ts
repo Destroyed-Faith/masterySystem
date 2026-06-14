@@ -3,8 +3,9 @@
  *
  * Recomputes a character's *invested* XP directly from the current build
  * (attributes, skills, power levels) measured against the immutable
- * post-creation baseline, then derives the correct available XP as
- * `available = totalEarned − invested`.
+ * post-creation baseline, then redistributes the two XP pools so that
+ * `invested = freeSpent + regularSpent` with the **Free pool spent first**
+ * (matching the live spend logic), and derives the correct available XP.
  *
  * This deliberately ignores the XP history log, so it self-corrects accounting
  * drift caused by buggy / duplicated refund entries (e.g. the old Combat
@@ -13,18 +14,35 @@
 export interface XpRecalcResult {
     ok: boolean;
     error?: string;
+    /** Lifetime earned regular XP. */
     totalEarned: number;
+    /** Lifetime earned Free XP. */
     freeEarned: number;
-    freeAvailable: number;
     attributeSpent: number;
     skillSpent: number;
     powerSpent: number;
-    totalSpent: number;
+    /** Total XP invested in the current build (attributes + skills + powers). */
+    totalInvested: number;
+    /** Correct regular spent (after Free pool absorbs as much as possible). */
+    regularSpent: number;
+    /** Correct Free spent. */
+    freeSpent: number;
+    /** Correct regular available. */
     available: number;
+    /** Correct Free available. */
+    freeAvailable: number;
     previousAvailable: number;
+    previousFreeAvailable: number;
     previousSpent: number;
-    /** `available − previousAvailable` (negative means XP was removed). */
+    previousFreeSpent: number;
+    /** Change in regular available. */
     delta: number;
+    /** Change in Free available. */
+    freeDelta: number;
+    /** Change in total spendable (regular + free). */
+    totalDelta: number;
+    /** True when any pool value changes. */
+    changed: boolean;
 }
 /**
  * Recompute the correct XP balance for `actor` from its current build.
