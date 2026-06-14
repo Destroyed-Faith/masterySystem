@@ -30,6 +30,7 @@
  * The catalog is pure data; it is consumed by `character-sheet-echo-dialog.ts`
  * during creation, and by `artifact-actor-rules.ts` for echo-bound checks.
  */
+import { resolvePickFromUi } from './artifact-power-pick.js';
 // ----------------------------------------------------------------------
 // Stonebound Soles (Dwarf)
 // ----------------------------------------------------------------------
@@ -860,7 +861,17 @@ const DRAGON_HEAD = {
     restriction: 'A Dragonborn with Dragon Head cannot wear another Head Artifact, helmet, mask, crown, or magical headgear.',
     // The Bite is a real, usable natural weapon (1d8…10d8) even though the Head
     // slot's artifactKind is gear. Occupies no hand slots.
-    naturalWeapon: { weaponType: 'melee', hands: 0 },
+    naturalWeapon: { name: 'Bite', weaponType: 'melee', hands: 0 },
+    // The three Level Progression lines are real, editable catalog Powers, just
+    // flavored with the Dragon Head names. Breath Weapon = a Ranged AoE Special
+    // Damage active (Tier 4, default Ignite); Draconic Roar = the Armor Aura
+    // Active Buff; Draconic Recovery = a Stone Refresh (Might). All editable in
+    // the Node Editor; only the names are overridden.
+    progressionPickSpecs: {
+        1: { name: 'Breath Weapon', delivery: 'ranged-aoe', special: 'ignite' },
+        2: { name: 'Draconic Roar', templateId: 'ab-armor-aura' },
+    },
+    stoneFunction: { level: 3, kind: 'stoneRefresh', attribute: 'might', name: 'Draconic Recovery' },
     baseValues: [
         {
             slot: 'a',
@@ -1463,6 +1474,29 @@ export function buildEchoProgressionPicks(def) {
             picks[lvl - 1] = { level: lvl, kind: 'power', powerTemplateId: tplId };
         }
     }
+    // Rich pick specs (martial delivery+Special or non-martial template) with
+    // optional flavor names — take precedence over `progressionPickIds`.
+    const specs = def.progressionPickSpecs || {};
+    for (const lvl of [1, 2, 3]) {
+        const spec = specs[lvl];
+        if (!spec)
+            continue;
+        const displayName = spec.name?.trim() || undefined;
+        if (spec.delivery && spec.special) {
+            const resolved = resolvePickFromUi(spec.delivery, spec.special);
+            picks[lvl - 1] = {
+                level: lvl,
+                kind: 'power',
+                powerTemplateId: resolved.powerTemplateId,
+                delivery: resolved.delivery,
+                chosenSpecial: resolved.chosenSpecial,
+                displayName,
+            };
+        }
+        else if (spec.templateId) {
+            picks[lvl - 1] = { level: lvl, kind: 'power', powerTemplateId: spec.templateId, displayName };
+        }
+    }
     // Stone Function pick claims its level (overrides any Power pick there).
     const sf = def.stoneFunction;
     if (sf) {
@@ -1470,6 +1504,7 @@ export function buildEchoProgressionPicks(def) {
             level: sf.level,
             kind: 'stoneFunction',
             stoneFunction: buildEchoStoneFunction(def),
+            displayName: sf.name?.trim() || undefined,
         };
     }
     // Authored fallback: any base level (1/2/3) still empty but covered by the

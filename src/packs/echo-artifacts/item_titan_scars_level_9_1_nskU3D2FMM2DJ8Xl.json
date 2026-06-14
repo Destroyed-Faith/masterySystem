@@ -510,10 +510,10 @@
       {
         "id": "titanScars-pw-9",
         "name": "Ranged Single-Target Heal III",
-        "category": "passive",
+        "category": "active",
         "tags": [],
         "cost": {
-          "action": "none"
+          "action": "attack"
         },
         "levels": {
           "1": {

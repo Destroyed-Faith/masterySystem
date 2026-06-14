@@ -34,143 +34,64 @@
       {
         "level": 7,
         "name": "Breath Weapon III",
-        "type": "Active",
-        "range": "Self",
-        "aoe": "Chosen Breath Shape",
+        "type": "Ranged AoE",
+        "range": "72m",
+        "aoe": "Radius 17m",
         "duration": "Instant",
-        "effect": "Bite Damage + 24d8 damage to affected creatures.",
-        "special": "Chosen Breath Special"
+        "effect": "Deal **+4d8 damage** to every affected creature; Special applies at half value.",
+        "special": "ignite(6) bound at item-create via chosenSpecial (AoE = half value, T(X+1) cost)"
       },
       {
         "level": 8,
         "name": "Draconic Roar III",
         "type": "Active Buff",
         "range": "Self",
-        "aoe": "Radius 32 m",
-        "duration": "Mastery Rank Rounds",
-        "effect": "You and allies in the area gain +44 Armor.",
-        "special": "Armor Aura"
+        "aoe": "Aura 32m",
+        "duration": "MR Rounds",
+        "effect": "You and allies within **32 m** gain **+33 Armor**.",
+        "special": ""
       },
       {
         "level": 9,
         "name": "Draconic Recovery III",
-        "type": "Stone Refresh",
+        "type": "Support",
         "range": "Self",
         "aoe": "",
-        "duration": "Instant",
-        "effect": "Restore 4 spent Stones of the chosen Attribute.",
-        "special": "Stone Refresh"
+        "duration": "Passive",
+        "effect": "Stone Refresh (Might)",
+        "special": ""
       }
     ],
-    "stoneFunction": null,
+    "stoneFunction": {
+      "kind": "stoneRefresh",
+      "attribute": "might"
+    },
     "progressionPicks": [
       {
         "level": 1,
-        "kind": "authored",
-        "authoredStages": [
-          {
-            "level": 1,
-            "name": "Breath Weapon I",
-            "type": "Active",
-            "range": "Self",
-            "aoe": "Chosen Breath Shape",
-            "duration": "Instant",
-            "effect": "Bite Damage + 8d8 damage to affected creatures.",
-            "special": "Chosen Breath Special"
-          },
-          {
-            "level": 4,
-            "name": "Breath Weapon II",
-            "type": "Active",
-            "range": "Self",
-            "aoe": "Chosen Breath Shape",
-            "duration": "Instant",
-            "effect": "Bite Damage + 16d8 damage to affected creatures.",
-            "special": "Chosen Breath Special"
-          },
-          {
-            "level": 7,
-            "name": "Breath Weapon III",
-            "type": "Active",
-            "range": "Self",
-            "aoe": "Chosen Breath Shape",
-            "duration": "Instant",
-            "effect": "Bite Damage + 24d8 damage to affected creatures.",
-            "special": "Chosen Breath Special"
-          }
-        ]
+        "kind": "power",
+        "powerTemplateId": "active-ranged-aoe-damage-t4",
+        "delivery": "ranged-aoe",
+        "chosenSpecial": {
+          "key": "ignite",
+          "tier": 4
+        },
+        "displayName": "Breath Weapon"
       },
       {
         "level": 2,
-        "kind": "authored",
-        "authoredStages": [
-          {
-            "level": 2,
-            "name": "Draconic Roar I",
-            "type": "Active Buff",
-            "range": "Self",
-            "aoe": "Radius 8 m",
-            "duration": "Mastery Rank Rounds",
-            "effect": "You and allies in the area gain +12 Armor.",
-            "special": "Armor Aura"
-          },
-          {
-            "level": 5,
-            "name": "Draconic Roar II",
-            "type": "Active Buff",
-            "range": "Self",
-            "aoe": "Radius 20 m",
-            "duration": "Mastery Rank Rounds",
-            "effect": "You and allies in the area gain +28 Armor.",
-            "special": "Armor Aura"
-          },
-          {
-            "level": 8,
-            "name": "Draconic Roar III",
-            "type": "Active Buff",
-            "range": "Self",
-            "aoe": "Radius 32 m",
-            "duration": "Mastery Rank Rounds",
-            "effect": "You and allies in the area gain +44 Armor.",
-            "special": "Armor Aura"
-          }
-        ]
+        "kind": "power",
+        "powerTemplateId": "ab-armor-aura",
+        "displayName": "Draconic Roar"
       },
       {
         "level": 3,
-        "kind": "authored",
-        "authoredStages": [
-          {
-            "level": 3,
-            "name": "Draconic Recovery I",
-            "type": "Stone Refresh",
-            "range": "Self",
-            "aoe": "",
-            "duration": "Instant",
-            "effect": "Restore 1 spent Stone of the chosen Attribute.",
-            "special": "Stone Refresh"
-          },
-          {
-            "level": 6,
-            "name": "Draconic Recovery II",
-            "type": "Stone Refresh",
-            "range": "Self",
-            "aoe": "",
-            "duration": "Instant",
-            "effect": "Restore 2 spent Stones of the chosen Attribute.",
-            "special": "Stone Refresh"
-          },
-          {
-            "level": 9,
-            "name": "Draconic Recovery III",
-            "type": "Stone Refresh",
-            "range": "Self",
-            "aoe": "",
-            "duration": "Instant",
-            "effect": "Restore 4 spent Stones of the chosen Attribute.",
-            "special": "Stone Refresh"
-          }
-        ]
+        "kind": "stoneFunction",
+        "stoneFunction": {
+          "kind": "stoneRefresh",
+          "attribute": "might"
+        },
+        "displayName": "Draconic Recovery"
       }
     ],
     "lore": "A draconic head: a scaling Bite weapon, a Breath Weapon, the Draconic Roar armor aura, and stone-refreshing Draconic Recovery. Pick a Breath Shape and a Breath Special when the artifact is created.",
@@ -189,7 +110,7 @@
       {
         "id": "dragonHead-pw-7",
         "name": "Breath Weapon III",
-        "fluff": "Special: Chosen Breath Special",
+        "fluff": "Special: ignite(6) bound at item-create via chosenSpecial (AoE = half value, T(X+1) cost)",
         "category": "active",
         "tags": [],
         "cost": {
@@ -377,19 +298,21 @@
             "specials": []
           },
           "16": {
-            "type": "Active",
+            "type": "Ranged AoE",
             "range": {
-              "kind": "self"
+              "kind": "distance",
+              "m": 72
             },
             "aoe": {
               "shape": "radius",
-              "note": "Chosen Breath Shape"
+              "m": 17,
+              "radiusM": 17
             },
             "duration": {
               "kind": "instant"
             },
             "effect": {
-              "text": "Bite Damage + 24d8 damage to affected creatures."
+              "text": "Deal **+4d8 damage** to every affected creature; Special applies at half value."
             },
             "specials": [],
             "lvl": 7
@@ -399,7 +322,6 @@
       {
         "id": "dragonHead-pw-8",
         "name": "Draconic Roar III",
-        "fluff": "Special: Armor Aura",
         "category": "activeBuff",
         "tags": [],
         "cost": {
@@ -592,15 +514,16 @@
               "kind": "self"
             },
             "aoe": {
-              "shape": "radius",
+              "shape": "aura",
               "m": 32,
               "radiusM": 32
             },
             "duration": {
-              "kind": "masteryRankRounds"
+              "kind": "rounds",
+              "rounds": 1
             },
             "effect": {
-              "text": "You and allies in the area gain +44 Armor."
+              "text": "You and allies within **32 m** gain **+33 Armor**."
             },
             "specials": [],
             "lvl": 8
@@ -610,11 +533,8 @@
       {
         "id": "dragonHead-pw-9",
         "name": "Draconic Recovery III",
-        "fluff": "Special: Stone Refresh",
         "category": "passive",
-        "tags": [
-          "stone-function"
-        ],
+        "tags": [],
         "cost": {
           "action": "none"
         },
@@ -800,16 +720,16 @@
             "specials": []
           },
           "16": {
-            "type": "Stone Refresh",
+            "type": "Support",
             "range": {
               "kind": "self"
             },
             "aoe": null,
             "duration": {
-              "kind": "instant"
+              "kind": "scene"
             },
             "effect": {
-              "text": "Restore 4 spent Stones of the chosen Attribute."
+              "text": "Stone Refresh (Might)"
             },
             "specials": [],
             "lvl": 9
@@ -824,7 +744,8 @@
       "range": "0m",
       "hands": 0,
       "innateAbilities": [],
-      "specials": []
+      "specials": [],
+      "name": "Bite"
     },
     "equipSlots": [
       "head"

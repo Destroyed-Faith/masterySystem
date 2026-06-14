@@ -21,22 +21,70 @@
  */
 
 import type { RadialCombatOption } from './types.js';
-import type { CombatSlot } from '../system/combat-maneuvers.js';
 import type { ArtifactLevelProgressionRow } from '../types/item.js';
 import { getArtifactBindingKind } from '../utils/artifact-actor-rules.js';
 
-const ACTIVE_TYPES = new Set([
-    'Active Buff',
-    'Active',
-    'Active Use',
-    'Active-Buff',
-    'Movement',
-    'Stone Power Support',
-    'Support',
-    'Ultimate',
-]);
-
 const REACTION_TYPES = new Set(['Reaction']);
+
+type ArtifactRowCategory = 'attack' | 'activeBuff' | 'movement' | 'reaction' | 'utility' | 'passive';
+
+/**
+ * Classify a Level Progression row `type` into a radial category. The Type
+ * column mixes Player's-Guide labels ("Active", "Active Buff", "Movement",
+ * "Stone Power Support") with catalog martial/attack labels ("Ranged AoE",
+ * "Melee", "Ranged Zone", "Melee AoE"). Offensive attack rows must surface as
+ * usable attacks, not utilities.
+ */
+function classifyArtifactRowType(rowType: string): ArtifactRowCategory {
+    const t = String(rowType || '').trim().toLowerCase();
+    if (!t) return 'passive';
+    if (t.includes('reaction')) return 'reaction';
+    if (t.includes('movement')) return 'movement';
+    if (t.includes('active buff') || t.includes('active-buff') || (t.includes('buff') && !t.includes('debuff'))) {
+        return 'activeBuff';
+    }
+    if (t.includes('stone') || t.includes('support')) return 'utility';
+    // Offensive / attack-delivering rows (catalog martial + zone/aoe labels).
+    if (
+        t.includes('aoe') ||
+        t.includes('attack') ||
+        t.includes('zone') ||
+        t.includes('barrier') ||
+        t.includes('damage') ||
+        t === 'melee' ||
+        t === 'ranged' ||
+        t.startsWith('melee ') ||
+        t.startsWith('ranged ')
+    ) {
+        return 'attack';
+    }
+    if (t.startsWith('active') || t === 'ultimate') return 'attack';
+    return 'passive';
+}
+
+/** Parse a range string ("8m", "12 m", "Self", "Touch") to meters. */
+function parseRowRange(raw: string | undefined): number | undefined {
+    const s = String(raw || '').trim().toLowerCase();
+    if (!s) return undefined;
+    if (s === 'self' || s === 'touch' || s === 'melee' || s === '0m' || s === '0') return 0;
+    const m = s.match(/(\d+(?:\.\d+)?)\s*m/);
+    if (m) return parseFloat(m[1]);
+    return undefined;
+}
+
+/** Parse AoE shape + radius from a row's `aoe` string (e.g. "Radius 3m", "Cone 6m", "Line 8m"). */
+function parseRowAoe(raw: string | undefined): { shape: 'none' | 'radius' | 'cone' | 'line'; radiusM?: number } {
+    const s = String(raw || '').trim().toLowerCase();
+    if (!s || s === '—' || s === 'n/a') return { shape: 'none' };
+    const num = s.match(/(\d+(?:\.\d+)?)\s*m/);
+    const radiusM = num ? parseFloat(num[1]) : undefined;
+    if (s.includes('cone')) return { shape: 'cone', radiusM };
+    if (s.includes('line')) return { shape: 'line', radiusM };
+    if (s.includes('radius') || s.includes('burst') || s.includes('aura') || s.includes('zone') || radiusM !== undefined) {
+        return { shape: 'radius', radiusM };
+    }
+    return { shape: 'none' };
+}
 
 function isArtifactEquipped(item: any): boolean {
     if (!item) return false;
@@ -49,13 +97,6 @@ function isArtifactEquipped(item: any): boolean {
         // ignore
     }
     return false;
-}
-
-function rowToSlot(type: string): CombatSlot {
-    if (type === 'Reaction') return 'reaction';
-    if (type === 'Movement') return 'movement';
-    if (type === 'Stone Power Support' || type === 'Support') return 'utility';
-    return 'utility';
 }
 
 function rowDescription(row: ArtifactLevelProgressionRow): string {
@@ -86,42 +127,125 @@ export function buildArtifactRadialOptions(actor: any): RadialCombatOption[] {
             ? sys.levelProgression
             : [];
 
+        // Natural / artifact weapon (e.g. Dragon Head's Bite) → a usable attack
+        // that always rolls this weapon's damage (forcedWeaponItemId).
+        const aw = sys.artifactWeapon;
+        if (aw && aw.damage) {
+            const isRangedWeapon = aw.weaponType === 'ranged';
+            const wName = (typeof aw.name === 'string' && aw.name.trim()) || item.name || 'Natural Weapon';
+            const wRange = parseRowRange(aw.range) ?? (isRangedWeapon ? 12 : 2);
+            out.push({
+                id: `artifact-weapon:${item.id}`,
+                name: wName,
+                description: `${isRangedWeapon ? 'Ranged' : 'Melee'} natural weapon · Damage ${aw.damage}`,
+                slot: 'attack',
+                source: 'power',
+                range: isRangedWeapon ? Math.max(6, wRange) : wRange,
+                forcedWeaponItemId: item.id,
+                tags: ['artifact', 'attack', 'natural-weapon'],
+                costsMovement: false,
+                costsAction: true,
+                defaultTargetGroup: 'enemy',
+            });
+        }
+
         for (const row of progression) {
             const lvl = Number(row.level) || 1;
             if (lvl > currentLevel) continue;
 
             const rowType = String(row.type || '').trim();
-            const isActive = ACTIVE_TYPES.has(rowType);
-            const isReaction = REACTION_TYPES.has(rowType);
-            if (!isActive && !isReaction) continue;
-
-            const slot = rowToSlot(rowType);
-            // Reactions are surfaced via the defender-reactions pipeline; skip them here.
-            if (isReaction) continue;
+            const category = classifyArtifactRowType(rowType);
+            // Passives are descriptive only; Reactions are surfaced via the
+            // defender-reactions pipeline. Neither belongs in the active radial.
+            if (category === 'passive' || category === 'reaction') continue;
 
             const id = `artifact:${item.id}:${lvl}:${rowType}`;
             const name = row.name || `${item.name} L${lvl}`;
             const description = rowDescription(row);
+            const typeTag = rowType.toLowerCase().replace(/\s+/g, '-') || 'active';
 
+            if (category === 'movement') {
+                out.push({
+                    id,
+                    name,
+                    description,
+                    slot: 'movement',
+                    source: 'power',
+                    range: parseRowRange(row.range) ?? 0,
+                    item,
+                    powerType: 'movement',
+                    tags: ['artifact', typeTag],
+                    costsMovement: true,
+                    costsAction: false,
+                });
+                continue;
+            }
+
+            if (category === 'activeBuff') {
+                out.push({
+                    id,
+                    name,
+                    description,
+                    slot: 'utility',
+                    source: 'power',
+                    range: 0,
+                    item,
+                    powerType: 'active-buff',
+                    tags: ['artifact', 'active-buff', typeTag],
+                    costsMovement: false,
+                    costsAction: true,
+                });
+                continue;
+            }
+
+            if (category === 'utility') {
+                out.push({
+                    id,
+                    name,
+                    description,
+                    slot: 'utility',
+                    source: 'power',
+                    range: parseRowRange(row.range) ?? 0,
+                    item,
+                    powerType: 'utility',
+                    tags: ['artifact', typeTag],
+                    costsMovement: false,
+                    costsAction: true,
+                    allowManualTargetSelection: true,
+                    defaultTargetGroup: 'ally',
+                    aoeShape: 'none',
+                    aoePlacementProfile: 'utility',
+                });
+                continue;
+            }
+
+            // ── Attack: offensive artifact power (Melee / Ranged / AoE / Zone) ──
+            const range = parseRowRange(row.range) ?? 0;
+            const aoe = parseRowAoe(row.aoe);
+            const isRanged = /ranged|zone/i.test(rowType);
             const option: RadialCombatOption = {
                 id,
                 name,
                 description,
-                slot,
+                slot: 'attack',
                 source: 'power',
-                range: 0,
+                range,
                 item,
-                powerType: slot === 'movement' ? 'movement' : 'utility',
-                tags: ['artifact', rowType.toLowerCase().replace(/\s+/g, '-')],
-                costsMovement: slot === 'movement',
-                costsAction: slot !== 'movement' && rowType !== 'Active Buff',
+                powerType: 'active',
+                tags: ['artifact', 'attack', typeTag],
+                costsMovement: false,
+                costsAction: true,
             };
-            // Mark the option as utility-friendly so it picks up targeting UI.
-            if (slot === 'utility') {
+            if (aoe.shape !== 'none') {
+                option.aoeShape = aoe.shape;
+                option.aoeRadiusMeters = aoe.radiusM;
+                option.rangeMeters = isRanged ? range : 0;
+                option.defaultTargetGroup = 'enemy';
                 option.allowManualTargetSelection = true;
-                option.defaultTargetGroup = 'any';
-                option.aoeShape = 'none';
-                option.aoePlacementProfile = 'utility';
+                option.aoePlacementProfile = 'hostile-zone';
+                if (row.duration) option.zoneDurationNote = row.duration;
+            } else {
+                option.defaultTargetGroup = 'enemy';
             }
             out.push(option);
         }

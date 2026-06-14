@@ -31,6 +31,7 @@
  * during creation, and by `artifact-actor-rules.ts` for echo-bound checks.
  */
 import type { ArtifactBaseProfileKey, ArtifactSlotKey, ArtifactLevelProgressionRow, ArtifactStoneFunctionKind } from '../types/item.js';
+import { type MartialDelivery } from './artifact-power-pick.js';
 /**
  * Authoring shorthand for an Echo Artifact's single canonical Stone Function.
  * The generator copies this onto `system.stoneFunction` (so the actor-side
@@ -47,6 +48,26 @@ export interface EchoArtifactStoneFunctionHint {
     stonePowerId?: string;
     /** Basic level (1-3) that introduces the Stone Function. */
     level: 1 | 2 | 3;
+    /** Optional flavor/display name for the generated rows (e.g. "Draconic Recovery"). */
+    name?: string;
+}
+/**
+ * Rich Level Progression pick authoring for an Echo Artifact. Lets a definition
+ * map a Basic level (1-3) onto a real, editable catalog Power — either a
+ * martial damage pick (delivery + Special, tier derived from the Special) or a
+ * non-martial catalog template (e.g. `ab-armor-aura`) — with an optional flavor
+ * name (e.g. "Breath Weapon"). The underlying mechanics stay editable in the
+ * Node Editor; only the displayed name is overridden.
+ */
+export interface EchoArtifactProgressionPickSpec {
+    /** Flavor/display name for the generated rows (e.g. "Breath Weapon"). */
+    name?: string;
+    /** Non-martial catalog power template id (e.g. 'ab-armor-aura'). */
+    templateId?: string;
+    /** Martial damage delivery form (mutually exclusive with `templateId`). */
+    delivery?: 'melee-single' | 'melee-aoe' | 'ranged-single' | 'ranged-aoe';
+    /** Martial damage Special key — the damage tier is derived from it. */
+    special?: string;
 }
 export interface EchoArtifactBaseValueHint {
     /** Label as it appears in the Player's Guide (Base Value A / B / C). */
@@ -90,6 +111,14 @@ export interface EchoArtifactDefinition {
      */
     progressionPickIds?: Partial<Record<1 | 2 | 3, string>>;
     /**
+     * Rich per-level pick specs (martial delivery+Special or a non-martial
+     * catalog template) with optional flavor names. Takes precedence over
+     * `progressionPickIds` for any level it covers. Lets named artifact lines
+     * (e.g. Dragon Head's Breath Weapon / Draconic Roar) be real, editable
+     * catalog Powers instead of fixed text.
+     */
+    progressionPickSpecs?: Partial<Record<1 | 2 | 3, EchoArtifactProgressionPickSpec>>;
+    /**
      * Optional natural/innate weapon for a non-weapon-slot artifact (e.g. Dragon
      * Head's Bite). When set, the tree builder attaches a scaling `artifactWeapon`
      * profile (damage pulled from the `weaponDamage` Base Value table) even though
@@ -97,6 +126,8 @@ export interface EchoArtifactDefinition {
      * attack rather than a purely informational Base Value.
      */
     naturalWeapon?: {
+        /** Attack label shown in the radial menu (e.g. "Bite"). Defaults to the item name. */
+        name?: string;
         weaponType?: 'melee' | 'ranged';
         /** Hand slots occupied (a Bite occupies none → 0). */
         hands?: number;
@@ -158,6 +189,12 @@ export declare function buildEchoProgressionPicks(def: EchoArtifactDefinition): 
     powerTemplateId?: string;
     stoneFunction?: unknown;
     authoredStages?: unknown[];
+    delivery?: MartialDelivery;
+    chosenSpecial?: {
+        key: string;
+        tier: 3 | 4 | 5 | 6;
+    };
+    displayName?: string;
 }[];
 export declare function buildArtifactSystemFromEchoDef(def: EchoArtifactDefinition): Record<string, unknown>;
 //# sourceMappingURL=echo-artifacts.d.ts.map

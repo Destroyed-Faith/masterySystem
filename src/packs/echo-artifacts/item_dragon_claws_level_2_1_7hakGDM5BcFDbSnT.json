@@ -293,10 +293,10 @@
         "id": "dragonClaws-pw-2",
         "name": "Melee Damage + Dispel (Mixed) I",
         "fluff": "Special: dispel-magic(4)",
-        "category": "passive",
+        "category": "active",
         "tags": [],
         "cost": {
-          "action": "none"
+          "action": "attack"
         },
         "levels": {
           "1": {

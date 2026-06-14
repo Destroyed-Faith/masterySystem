@@ -112,7 +112,7 @@ export function deriveLevelProgressionFromPicks(
     if (pick.kind === 'power') {
       const tpl = pick.powerTemplateId ? getTemplate(pick.powerTemplateId) : undefined;
       if (!tpl) continue;
-      const displayBase = powerPickDisplayName(pick, tpl);
+      const displayBase = pick.displayName?.trim() || powerPickDisplayName(pick, tpl);
       const chosenKey = pick.chosenSpecial?.key;
       for (let s = 0; s < STAGE_NUMERALS.length; s++) {
         const level = baseLevel + 3 * s;
@@ -155,9 +155,10 @@ export function deriveLevelProgressionFromPicks(
       // Stone Power Support keeps the established "Stone Support" name (matches the
       // seeded echo tables); the other stone kinds name the row after their kind.
       const baseName =
-        pick.stoneFunction.kind === 'stonePowerSupport'
+        pick.displayName?.trim() ||
+        (pick.stoneFunction.kind === 'stonePowerSupport'
           ? 'Stone Support'
-          : STONE_KIND_LABELS[pick.stoneFunction.kind] || 'Stone Function';
+          : STONE_KIND_LABELS[pick.stoneFunction.kind] || 'Stone Function');
       for (let s = 0; s < STAGE_NUMERALS.length; s++) {
         const level = baseLevel + 3 * s;
         rows.push({

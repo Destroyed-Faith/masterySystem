@@ -28,8 +28,16 @@ export declare function isVirtualUnarmedWeapon(item: any | null | undefined): bo
 /** True for embedded items named "Unarmed" that were auto-seeded (legacy). */
 export declare function isLegacyUnarmedItem(item: any): boolean;
 /**
- * Resolve equipped weapon for an attack type. Melee falls back to the virtual
- * unarmed profile when nothing is equipped; ranged returns null.
+ * Convert an equipped artifact that carries an `artifactWeapon` profile (e.g.
+ * the Dragon Head's bite) into a weapon-shaped object the attack/damage
+ * pipeline understands. Returns `null` when the artifact has no weapon profile.
+ */
+export declare function artifactToVirtualWeapon(artifact: any): any | null;
+/**
+ * Resolve equipped weapon for an attack type. Conventional weapons win; an
+ * artifact natural weapon (e.g. Dragon Head bite) is used when no conventional
+ * weapon of that type is equipped. Melee finally falls back to virtual unarmed;
+ * ranged returns null.
  */
 export declare function resolveEquippedWeaponForAttackType(items: any[], attackType: 'melee' | 'ranged'): any | null;
 /** After weapon-id lookup fails, apply virtual unarmed for player melee attacks. */

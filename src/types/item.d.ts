@@ -761,6 +761,13 @@ export interface ArtifactProgressionPick {
    * order (I / II / III → artifact levels `level`, `level+3`, `level+6`).
    */
   authoredStages?: ArtifactLevelProgressionRow[];
+  /**
+   * Optional flavor name override for `power`/`stoneFunction` picks (e.g. a
+   * Dragon Head Breath Weapon that is mechanically a Ranged AoE Special Damage
+   * active). The generated rows are named `<displayName> I/II/III`. The
+   * underlying catalog template/mechanics are unchanged and still editable.
+   */
+  displayName?: string;
 }
 
 /**

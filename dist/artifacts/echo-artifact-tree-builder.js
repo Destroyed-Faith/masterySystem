@@ -24,7 +24,7 @@ import { getMinorMovementBaselineB, getPaperdollSlotsForArtifact, } from '../uti
  * output (base values, powers, slot/profile, etc.) changes so the world seeder
  * can detect stale library copies and refresh them in place.
  */
-export const ECHO_ARTIFACT_SEED_VERSION = 8;
+export const ECHO_ARTIFACT_SEED_VERSION = 9;
 const ARTIFACT_LEVELS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 const ALL_POWER_LEVEL_KEYS = [
     '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16',
@@ -289,6 +289,16 @@ function categoryForRowType(rowType) {
         return 'activeBuff';
     if (t.startsWith('active') || t === 'active' || t.includes('active,'))
         return 'active';
+    // Catalog martial / attack row types (e.g. "Ranged AoE", "Melee", "Ranged
+    // Single") are Actives that deliver an attack.
+    if (t.includes('aoe') ||
+        t.includes('attack') ||
+        t === 'melee' ||
+        t === 'ranged' ||
+        t.startsWith('melee ') ||
+        t.startsWith('ranged ')) {
+        return 'active';
+    }
     // Stone Functions, Support, Base Armor, Passive, Ultimate → passive (descriptive).
     return 'passive';
 }
@@ -475,7 +485,15 @@ function naturalWeaponProfileAtLevel(def, level) {
     const weaponType = nw.weaponType || 'melee';
     const hands = Number.isFinite(nw.hands) ? Number(nw.hands) : 0;
     const range = weaponType === 'ranged' && nw.rangeM ? `${nw.rangeM}m` : '0m';
-    return { weaponType, damage, range, hands, innateAbilities: [], specials: nw.specials || [] };
+    return {
+        weaponType,
+        damage,
+        range,
+        hands,
+        innateAbilities: [],
+        specials: nw.specials || [],
+        ...(nw.name ? { name: nw.name } : {}),
+    };
 }
 /** Shield profile for shield-kind artifacts at the given level (Shield Value scales). */
 function shieldProfileAtLevel(def, level) {

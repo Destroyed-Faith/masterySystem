@@ -35,6 +35,8 @@ export interface RadialCombatOption {
     /** Definition duration string for persistent zones (table tracking). */
     zoneDurationNote?: string;
     item?: any;
+    /** Force a specific weapon item (by id) for this attack, e.g. an artifact natural weapon (Bite). */
+    forcedWeaponItemId?: string;
     maneuver?: CombatManeuver;
     powerType?: string;
     tags?: string[];

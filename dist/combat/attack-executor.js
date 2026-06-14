@@ -5,7 +5,7 @@
 import { logActorItemSummary } from "../utils/debug-helpers.js";
 import { getAttackAttributeForPowerTreeOrSchool } from "../utils/power-roll-attribute.js";
 import { resolveEquippedWeaponForAttackType } from "../utils/equipment-modifiers.js";
-import { createVirtualUnarmedWeapon, isVirtualUnarmedWeapon } from "../utils/unarmed-fallback.js";
+import { artifactToVirtualWeapon, createVirtualUnarmedWeapon, isVirtualUnarmedWeapon } from "../utils/unarmed-fallback.js";
 import { evaluateThreatenedRanged } from "./threatened-ranged.js";
 import { formatNpcAttackSpecialsLine, getNpcAttackByIndex, npcAttackDiceCount, npcDamageDiceFormula } from "../utils/npc-attack-model.js";
 import { resolvePowerMechanics } from "../utils/power-mechanics.js";
@@ -219,6 +219,23 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
     logActorItemSummary(attacker, 'attack-card:create');
     const items = collectActorItems(attacker);
     let weapon = resolveWeaponForAttack(items, attackType);
+    // Forced weapon (e.g. an artifact natural weapon like the Dragon Head Bite):
+    // build a weapon-shaped object from the artifact's `artifactWeapon` profile so
+    // this attack always uses it regardless of any conventional weapon equipped.
+    const forcedWeaponItemId = option.forcedWeaponItemId;
+    if (forcedWeaponItemId) {
+        const forcedItem = items.find((i) => i.id === forcedWeaponItemId);
+        if (forcedItem) {
+            if (forcedItem.type === 'artifact' && forcedItem.system?.artifactWeapon) {
+                const vw = artifactToVirtualWeapon(forcedItem);
+                if (vw)
+                    weapon = vw;
+            }
+            else if (forcedItem.type === 'weapon') {
+                weapon = forcedItem;
+            }
+        }
+    }
     const isNpcAttack = option.source === "npc-attack";
     const npcAttackRow = isNpcAttack
         ? getNpcAttackByIndex(attacker.system, option.npcAttackIndex ?? 0, option.npcPhaseIndex)

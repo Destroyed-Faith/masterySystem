@@ -317,10 +317,10 @@
         "id": "dragonClaws-pw-5",
         "name": "Melee Damage + Dispel (Mixed) II",
         "fluff": "Special: dispel-magic(10)",
-        "category": "passive",
+        "category": "active",
         "tags": [],
         "cost": {
-          "action": "none"
+          "action": "attack"
         },
         "levels": {
           "1": {
@@ -522,10 +522,10 @@
         "id": "dragonClaws-pw-6",
         "name": "Melee Control — Push + Pull II",
         "fluff": "Special: push(10), pull(10)",
-        "category": "passive",
+        "category": "active",
         "tags": [],
         "cost": {
-          "action": "none"
+          "action": "attack"
         },
         "levels": {
           "1": {

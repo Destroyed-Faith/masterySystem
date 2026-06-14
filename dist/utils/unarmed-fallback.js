@@ -47,19 +47,80 @@ export function isLegacyUnarmedItem(item) {
         return false;
     return true;
 }
+/** True when an artifact is worn/bound and should contribute its weapon. */
+function isArtifactWieldable(item) {
+    if (!item || item.type !== 'artifact')
+        return false;
+    const sys = item.system || {};
+    if (sys.equipped === true)
+        return true;
+    const binding = String(sys.binding || '').toLowerCase();
+    if (binding === 'bound' || binding === 'echo')
+        return true;
+    try {
+        const flagSlot = item.getFlag?.('mastery-system', 'equipment')?.slot;
+        if (typeof flagSlot === 'string' && flagSlot.length > 0)
+            return true;
+    }
+    catch {
+        /* ignore */
+    }
+    return false;
+}
 /**
- * Resolve equipped weapon for an attack type. Melee falls back to the virtual
- * unarmed profile when nothing is equipped; ranged returns null.
+ * Convert an equipped artifact that carries an `artifactWeapon` profile (e.g.
+ * the Dragon Head's bite) into a weapon-shaped object the attack/damage
+ * pipeline understands. Returns `null` when the artifact has no weapon profile.
+ */
+export function artifactToVirtualWeapon(artifact) {
+    const sys = artifact?.system || {};
+    const w = sys.artifactWeapon;
+    if (!w)
+        return null;
+    const weaponType = w.weaponType === 'ranged' ? 'ranged' : 'melee';
+    const specials = Array.isArray(w.specials) ? w.specials : [];
+    return {
+        id: artifact.id,
+        name: artifact.name,
+        type: 'weapon',
+        system: {
+            weaponType,
+            damage: String(w.damage || '1d8'),
+            range: String(w.range || (weaponType === 'ranged' ? '12m' : '0m')),
+            specials,
+            equipped: true,
+            hands: Number.isFinite(Number(w.hands)) ? Number(w.hands) : 0,
+            innateAbilities: Array.isArray(w.innateAbilities) ? w.innateAbilities : [],
+            description: sys.description || '',
+            equipSlots: [],
+            fromArtifact: true,
+        },
+        flags: { 'mastery-system': { artifactWeaponSourceId: artifact.id } },
+    };
+}
+/** Equipped artifacts (bound/echo/worn) that expose an `artifactWeapon` profile. */
+function artifactWeaponCandidates(items) {
+    return items
+        .filter((i) => i.type === 'artifact' && isArtifactWieldable(i) && i.system?.artifactWeapon)
+        .map((i) => artifactToVirtualWeapon(i))
+        .filter((w) => !!w);
+}
+/**
+ * Resolve equipped weapon for an attack type. Conventional weapons win; an
+ * artifact natural weapon (e.g. Dragon Head bite) is used when no conventional
+ * weapon of that type is equipped. Melee finally falls back to virtual unarmed;
+ * ranged returns null.
  */
 export function resolveEquippedWeaponForAttackType(items, attackType) {
     const equippedWeapons = items.filter((i) => i.type === 'weapon' && i.system?.equipped === true);
-    if (equippedWeapons.length === 0) {
-        return attackType === 'melee' ? createVirtualUnarmedWeapon() : null;
-    }
+    const artifactWeapons = artifactWeaponCandidates(items);
     if (attackType === 'ranged') {
-        return equippedWeapons.find((w) => w.system?.weaponType === 'ranged') || null;
+        return (equippedWeapons.find((w) => w.system?.weaponType === 'ranged') ||
+            artifactWeapons.find((w) => w.system?.weaponType === 'ranged') ||
+            null);
     }
     return (equippedWeapons.find((w) => w.system?.weaponType !== 'ranged') ||
+        artifactWeapons.find((w) => w.system?.weaponType !== 'ranged') ||
         createVirtualUnarmedWeapon());
 }
 /** After weapon-id lookup fails, apply virtual unarmed for player melee attacks. */
