@@ -7,6 +7,7 @@ import { getEquippedPhysicalSkillPenaltyDice } from '../utils/equipment-modifier
 import { DISADVANTAGES, getDisadvantageDefinition, calculateDisadvantagePoints, validateDisadvantageSelection, detailsForMentalRestrictionsDialog, detailsForPhysicalScarsDialog } from '../system/disadvantages.js';
 import { getAllSchticks } from '../utils/schticks.js';
 import { showEchoCardPickDialog, showEchoCreationDialog } from './character-sheet-echo-dialog.js';
+import { openCharacterPrintSheet } from './character-print.js';
 import { buildFreshTraitUses, getCardOption, getEcho, getEchoCard, getEchoSubChoice, getUnlockedCardSlots } from '../utils/echos/index.js';
 import { CATEGORY_LABELS, CATEGORY_ORDER, CREATION_OFFENSIVE_RANK, CREATION_POWER_REQUIREMENTS, CREATION_POWER_TOTAL, countPowersByCategory, resolvePowerCategoryFromItem } from '../utils/power-catalog.js';
 import { hasTowerWizardPackage } from '../creation/tower-wizard/tower-wizard-apply.js';
@@ -98,6 +99,25 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         });
         console.log('Mastery System | Character Sheet defaultOptions:', options);
         return options;
+    }
+    /**
+     * Add a "Print / Export" button to the sheet window header that opens the
+     * printable 3-page character sheet with all values filled in.
+     * @override
+     */
+    _getHeaderButtons() {
+        const buttons = super._getHeaderButtons?.() ?? [];
+        if (this.actor?.type === 'character') {
+            buttons.unshift({
+                label: 'Bogen drucken',
+                class: 'mastery-print-sheet',
+                icon: 'fas fa-print',
+                onclick: () => {
+                    void openCharacterPrintSheet(this.actor);
+                }
+            });
+        }
+        return buttons;
     }
     /**
      * Add Spell → open magic power dialog

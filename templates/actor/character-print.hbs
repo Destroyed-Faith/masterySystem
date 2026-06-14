@@ -1,0 +1,288 @@
+{{!-- Printable character sheet (3 pages). Populated by buildCharacterPrintContext(). --}}
+
+{{!-- ============================ PAGE 1 ============================ --}}
+<section class="print-page print-page-1">
+
+  <div class="cp-row cp-identity">
+    <div class="cp-field cp-name"><span class="cp-field-label">Name</span><span class="cp-field-value">{{name}}</span></div>
+    <div class="cp-field cp-player"><span class="cp-field-label">Player</span><span class="cp-field-value">{{player}}</span></div>
+  </div>
+
+  <div class="cp-row cp-meta">
+    <div class="cp-meta-box"><span class="cp-meta-label">Echo</span><span class="cp-meta-value">{{echo}}</span></div>
+    <div class="cp-meta-box"><span class="cp-meta-label">Master Rank</span><span class="cp-meta-value">{{masteryRank}}</span></div>
+    <div class="cp-meta-box"><span class="cp-meta-label">Faith Fractures</span><span class="cp-meta-value">{{faithFractures.current}} / {{faithFractures.maximum}}</span></div>
+  </div>
+
+  <div class="cp-columns">
+
+    {{!-- Left column: Abilities + Stone Powers --}}
+    <div class="cp-col cp-col-left">
+      <h2 class="cp-section-title">Abilities <span class="cp-subtle">Stone Powers</span></h2>
+      <div class="cp-abilities">
+        {{#each abilities}}
+        <div class="cp-ability" data-attr="{{key}}">
+          <div class="cp-ability-head">
+            <span class="cp-ability-name">{{label}}</span>
+            <span class="cp-ability-value">{{value}}</span>
+          </div>
+          <div class="cp-ability-ladder">
+            {{#each ladder}}
+            <span class="cp-ladder-cell{{#if filled}} is-filled{{/if}}">{{n}}</span>
+            {{/each}}
+          </div>
+          <div class="cp-stone-overview">
+            <span class="cp-stone-label">Stones</span>
+            <span class="cp-stone-pips">
+              {{#each (range 1 stoneCapacity)}}<span class="cp-stone-pip"></span>{{/each}}
+            </span>
+            <span class="cp-stone-count">{{stoneCapacity}}</span>
+          </div>
+        </div>
+        {{/each}}
+      </div>
+    </div>
+
+    {{!-- Right column: Saves, defenses, health, stress --}}
+    <div class="cp-col cp-col-right">
+
+      <div class="cp-block cp-saves">
+        <h3 class="cp-block-title">Saving Throws</h3>
+        <div class="cp-saves-grid">
+          {{#each savingThrows}}
+          <div class="cp-save-box">
+            <div class="cp-save-label">{{label}}</div>
+            <div class="cp-save-sub">{{sub}}</div>
+            <div class="cp-save-values">
+              {{#each values}}<span class="cp-save-value">{{this}}</span>{{/each}}
+            </div>
+          </div>
+          {{/each}}
+        </div>
+        <div class="cp-vitality">Vitality <span class="cp-vitality-value">{{vitalitySave}}</span></div>
+      </div>
+
+      <div class="cp-block cp-defense">
+        <div class="cp-defense-names">
+          <div class="cp-field"><span class="cp-field-label">Armor Name</span><span class="cp-field-value">{{defense.armorName}}</span></div>
+          <div class="cp-field"><span class="cp-field-label">Shield Name</span><span class="cp-field-value">{{defense.shieldName}}</span></div>
+        </div>
+        <div class="cp-defense-grid">
+          <div class="cp-defense-cell"><span class="cp-defense-label">Evade (MR x4)</span><span class="cp-defense-value">{{defense.evadeBase}}</span></div>
+          <div class="cp-defense-cell"><span class="cp-defense-label">Total Evade</span><span class="cp-defense-value">{{defense.evadeTotal}}</span></div>
+          <div class="cp-defense-cell"><span class="cp-defense-label">Total Initiative</span><span class="cp-defense-value">{{defense.initiative}}</span></div>
+          <div class="cp-defense-cell"><span class="cp-defense-label">Armor Value</span><span class="cp-defense-value">{{defense.armorValue}}</span></div>
+          <div class="cp-defense-cell"><span class="cp-defense-label">Shield Value</span><span class="cp-defense-value">{{defense.shieldValue}}</span></div>
+          <div class="cp-defense-cell"><span class="cp-defense-label">Total Armor</span><span class="cp-defense-value">{{defense.armorTotal}}</span></div>
+        </div>
+      </div>
+
+      <div class="cp-block cp-vitals">
+        <div class="cp-health">
+          <h3 class="cp-block-title">Health <span class="cp-subtle">Temp HP: {{tempHP}}</span></h3>
+          <table class="cp-bar-table">
+            <thead><tr><th></th><th>Max</th><th>Current</th><th>Penalty</th></tr></thead>
+            <tbody>
+              {{#each healthBars}}
+              <tr><td class="cp-bar-name">{{name}}</td><td>{{max}}</td><td></td><td>{{penalty}}</td></tr>
+              {{/each}}
+            </tbody>
+          </table>
+        </div>
+        <div class="cp-stress">
+          <h3 class="cp-block-title">Stress</h3>
+          {{#if stressBars.length}}
+          <table class="cp-bar-table">
+            <thead><tr><th></th><th>Max</th><th>Current</th></tr></thead>
+            <tbody>
+              {{#each stressBars}}
+              <tr><td class="cp-bar-name">{{name}}</td><td>{{max}}</td><td></td></tr>
+              {{/each}}
+            </tbody>
+          </table>
+          {{else}}
+          <div class="cp-stress-scalar">
+            <span class="cp-defense-label">Current / Max</span>
+            <span class="cp-defense-value">{{stress.current}} / {{stress.maximum}}</span>
+          </div>
+          {{/if}}
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="cp-block cp-weapons">
+    <h3 class="cp-block-title">Weapons</h3>
+    <table class="cp-weapons-table">
+      <thead><tr><th>Weapon</th><th>Damage Dice</th><th>Specials / Tags</th></tr></thead>
+      <tbody>
+        {{#each weapons}}
+        <tr>
+          <td>{{#unless empty}}{{name}}{{/unless}}</td>
+          <td>{{#unless empty}}{{damage}}{{/unless}}</td>
+          <td>{{#unless empty}}{{specials}}{{/unless}}</td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="cp-block cp-powers">
+    <h3 class="cp-block-title">Martial / Spell / Form Powers</h3>
+    <div class="cp-power-grid">
+      {{#each martialPowers}}
+      <div class="cp-power-card{{#if empty}} is-empty{{/if}}">
+        {{#unless empty}}
+        <div class="cp-power-card-head">
+          <span class="cp-power-name">{{name}}</span>
+          <span class="cp-power-tile">
+            {{#if phase}}<span class="cp-phase cp-phase-{{phase}}">{{phase}}</span>{{/if}}
+            <span class="cp-use-box" title="einmal pro Runde"></span>
+          </span>
+        </div>
+        <div class="cp-power-effect">{{effect}}</div>
+        {{#if stones}}<div class="cp-power-cost">Stones: {{stones}}</div>{{/if}}
+        {{/unless}}
+      </div>
+      {{/each}}
+    </div>
+  </div>
+
+  <div class="cp-page-footer">-- 1 of 3 --</div>
+</section>
+
+{{!-- ============================ PAGE 2 ============================ --}}
+<section class="print-page print-page-2">
+
+  <div class="cp-block cp-initiative">
+    <h3 class="cp-block-title">Initiative <span class="cp-subtle">Roll your Mastery Dice — spend Combat Reflexes to add</span></h3>
+    <div class="cp-init-ladder">
+      <span class="cp-init-cell">4</span><span class="cp-init-cell">8</span><span class="cp-init-cell">12</span><span class="cp-init-cell">16</span><span class="cp-init-cell">20</span><span class="cp-init-cell">24</span><span class="cp-init-cell">28</span><span class="cp-init-cell">32</span><span class="cp-init-cell">36</span><span class="cp-init-cell">40</span><span class="cp-init-cell">44</span><span class="cp-init-cell">48</span><span class="cp-init-cell">52</span><span class="cp-init-cell">56</span><span class="cp-init-cell">60</span><span class="cp-init-cell">64</span><span class="cp-init-cell">68</span><span class="cp-init-cell">72</span>
+    </div>
+    <div class="cp-init-actions">
+      <span>+2 Move</span><span>Ini Swap</span><span>Extra Reaction</span><span>Remove 2d8 Stress</span><span>Extra Attack</span>
+    </div>
+  </div>
+
+  {{#each skillsByGroup}}
+  {{#unless (eq key "social")}}
+  <div class="cp-block cp-skills cp-skills-{{key}}">
+    <h3 class="cp-block-title">{{label}}</h3>
+    <div class="cp-skill-list">
+      {{#each skills}}
+      <div class="cp-skill-row">
+        <div class="cp-skill-name">{{name}} <span class="cp-skill-attr">({{attrs}})</span></div>
+        <div class="cp-skill-pips">
+          {{#each pips}}<span class="cp-skill-pip{{#if filled}} is-filled{{/if}}"></span>{{/each}}
+          <span class="cp-skill-rank">{{rank}}</span>
+        </div>
+      </div>
+      {{/each}}
+    </div>
+  </div>
+  {{#if (eq key "martial")}}
+
+  <div class="cp-block cp-powers cp-passives">
+    <h3 class="cp-block-title">Passive Powers</h3>
+    <div class="cp-power-grid">
+      {{#each ../passivePowerCards}}
+      <div class="cp-power-card{{#if empty}} is-empty{{/if}}">
+        {{#unless empty}}
+        <div class="cp-power-card-head">
+          <span class="cp-power-name">{{name}}</span>
+          <span class="cp-power-tile"><span class="cp-phase cp-phase-Passive">Passive</span><span class="cp-use-box"></span></span>
+        </div>
+        <div class="cp-power-effect">{{effect}}</div>
+        {{/unless}}
+      </div>
+      {{/each}}
+    </div>
+  </div>
+  {{/if}}
+  {{/unless}}
+  {{/each}}
+
+  <div class="cp-block cp-disadvantages">
+    <h3 class="cp-block-title">Disadvantages <span class="cp-subtle">Points: {{disadvantagePoints}}</span></h3>
+    <table class="cp-disadv-table">
+      <thead><tr><th>Disadvantage</th><th>Points</th></tr></thead>
+      <tbody>
+        {{#each disadvantages}}
+        <tr><td>{{label}}</td><td>{{points}}</td></tr>
+        {{/each}}
+      </tbody>
+    </table>
+    <div class="cp-rerolls"><span class="cp-defense-label">Total Rerolls / Used</span><span class="cp-use-box"></span></div>
+  </div>
+
+  <div class="cp-page-footer">-- 2 of 3 --</div>
+</section>
+
+{{!-- ============================ PAGE 3 ============================ --}}
+<section class="print-page print-page-3">
+
+  <div class="cp-block cp-social-combat">
+    <h3 class="cp-block-title">Social Combat <span class="cp-subtle">Phase Support Used? <span class="cp-use-box"></span></span></h3>
+    <div class="cp-success-counter">
+      {{#each (range -4 10)}}<span class="cp-success-cell">{{this}}</span>{{/each}}
+      <span class="cp-success-cell">11+</span>
+    </div>
+  </div>
+
+  {{#each skillsByGroup}}
+  {{#if (eq key "social")}}
+  <div class="cp-block cp-skills cp-skills-social">
+    <h3 class="cp-block-title">Social Skills</h3>
+    <div class="cp-skill-list cp-skill-list-2col">
+      {{#each skills}}
+      <div class="cp-skill-row">
+        <div class="cp-skill-name">{{name}} <span class="cp-skill-attr">({{attrs}})</span></div>
+        <div class="cp-skill-pips">
+          {{#each pips}}<span class="cp-skill-pip{{#if filled}} is-filled{{/if}}"></span>{{/each}}
+          <span class="cp-skill-rank">{{rank}}</span>
+        </div>
+      </div>
+      {{/each}}
+    </div>
+  </div>
+  {{/if}}
+  {{/each}}
+
+  <div class="cp-block cp-summons">
+    <h3 class="cp-block-title">Summons &amp; Familiars</h3>
+    {{#if familiars.length}}
+    <ul class="cp-familiar-list">
+      {{#each familiars}}<li>{{this}}</li>{{/each}}
+    </ul>
+    {{else}}
+    <div class="cp-familiar-empty">Familiar Name: ____________________</div>
+    {{/if}}
+    <table class="cp-summon-table">
+      <thead><tr><th></th><th>Base</th><th>Tiny</th><th>Small</th><th>Medium</th><th>Large</th></tr></thead>
+      <tbody>
+        <tr><td>Hit Points</td><td>10</td><td>10</td><td>22-46</td><td>58-82</td><td>94-106</td></tr>
+        <tr><td>Armor</td><td>0</td><td>0</td><td>3-9</td><td>12-18</td><td>21-24</td></tr>
+        <tr><td>Evade</td><td>4</td><td>4</td><td>8-16</td><td>24-28</td><td>32-36</td></tr>
+        <tr><td>Attack</td><td>2</td><td>2</td><td>4-8</td><td>10-14</td><td>16-18</td></tr>
+        <tr><td>Damage</td><td>1</td><td>1</td><td>2-4</td><td>5-7</td><td>8-9</td></tr>
+        <tr><td>Movement (Walk)</td><td>8</td><td>8</td><td>10-14</td><td>16-20</td><td>22-24</td></tr>
+        <tr><td>Movement (Fly)</td><td>4</td><td>4</td><td>5-7</td><td>8-10</td><td>11-12</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="cp-block cp-equipment">
+    <h3 class="cp-block-title">Equipment</h3>
+    <div class="cp-encumbrance-head"><span>Not Encumbered</span><span>Encumbered</span><span>Heavily Encumbered</span></div>
+    {{#if gear.length}}
+    <ul class="cp-gear-list">
+      {{#each gear}}<li>{{name}}{{#if quantity}} <span class="cp-gear-qty">x{{quantity}}</span>{{/if}}</li>{{/each}}
+    </ul>
+    {{else}}
+    <div class="cp-equipment-grid"></div>
+    {{/if}}
+  </div>
+
+  <div class="cp-page-footer">-- 3 of 3 --</div>
+</section>

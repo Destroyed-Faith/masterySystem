@@ -1,0 +1,693 @@
+/* Printable / exportable character sheet (3 pages).
+   Scoped under .mastery-print so it never leaks into the Foundry UI. */
+
+@page {
+  size: A4;
+  margin: 10mm;
+}
+
+.mastery-print {
+  margin: 0;
+  padding: 0;
+  background: #ffffff;
+  color: #1a1a1a;
+  font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  font-size: 9px;
+  line-height: 1.3;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.mastery-print * {
+  box-sizing: border-box;
+}
+
+/* ── Attribute colors ─────────────────────────────────────────────────── */
+.mastery-print {
+  --attr-might: #1a1a1a;
+  --attr-agility: #2e7d32;
+  --attr-vitality: #c62828;
+  --attr-intellect: #1565c0;
+  --attr-resolve: #6a1b9a;
+  --attr-influence: #ef6c00;
+  --attr-wits: #f9a825;
+}
+
+/* ── Page frame ───────────────────────────────────────────────────────── */
+.print-page {
+  position: relative;
+  width: 190mm;
+  margin: 0 auto 6mm;
+  padding: 4mm 0 8mm;
+}
+
+.print-page + .print-page {
+  border-top: 1px dashed #cccccc;
+}
+
+@media print {
+  .print-page {
+    page-break-after: always;
+    break-after: page;
+    margin: 0 auto;
+    border: none;
+  }
+  .print-page:last-child {
+    page-break-after: auto;
+  }
+}
+
+.cp-page-footer {
+  position: absolute;
+  bottom: 1mm;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 8px;
+  color: #777;
+  letter-spacing: 0.1em;
+}
+
+/* ── Generic blocks ───────────────────────────────────────────────────── */
+.cp-block {
+  border: 1px solid #444;
+  border-radius: 4px;
+  padding: 4px 6px;
+  margin-bottom: 6px;
+}
+
+.cp-section-title,
+.cp-block-title {
+  margin: 0 0 4px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.cp-block-title {
+  font-size: 10px;
+  border-bottom: 1px solid #999;
+  padding-bottom: 2px;
+}
+
+.cp-subtle {
+  font-weight: 400;
+  font-size: 8px;
+  color: #666;
+  letter-spacing: 0.02em;
+  text-transform: none;
+}
+
+.cp-row {
+  display: flex;
+  gap: 8px;
+}
+
+/* ── Identity / meta ──────────────────────────────────────────────────── */
+.cp-identity {
+  margin-bottom: 4px;
+}
+
+.cp-field {
+  flex: 1;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  border-bottom: 1px solid #333;
+  padding: 2px 2px 1px;
+}
+
+.cp-field-label {
+  font-size: 8px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #555;
+}
+
+.cp-field-value {
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.cp-meta {
+  margin-bottom: 6px;
+}
+
+.cp-meta-box {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #444;
+  border-radius: 3px;
+  padding: 2px 6px;
+  min-width: 80px;
+}
+
+.cp-meta-label {
+  font-size: 7px;
+  text-transform: uppercase;
+  color: #666;
+  letter-spacing: 0.04em;
+}
+
+.cp-meta-value {
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* ── Two-column main area ─────────────────────────────────────────────── */
+.cp-columns {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.cp-col-left {
+  flex: 0 0 44%;
+}
+
+.cp-col-right {
+  flex: 1;
+}
+
+/* ── Abilities ────────────────────────────────────────────────────────── */
+.cp-abilities {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.cp-ability {
+  border: 1px solid #ccc;
+  border-left: 5px solid var(--attr-color, #1a1a1a);
+  border-radius: 3px;
+  padding: 2px 4px;
+}
+
+.cp-ability[data-attr='might'] { --attr-color: var(--attr-might); }
+.cp-ability[data-attr='agility'] { --attr-color: var(--attr-agility); }
+.cp-ability[data-attr='vitality'] { --attr-color: var(--attr-vitality); }
+.cp-ability[data-attr='intellect'] { --attr-color: var(--attr-intellect); }
+.cp-ability[data-attr='resolve'] { --attr-color: var(--attr-resolve); }
+.cp-ability[data-attr='influence'] { --attr-color: var(--attr-influence); }
+.cp-ability[data-attr='wits'] { --attr-color: var(--attr-wits); }
+
+.cp-ability-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cp-ability-name {
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--attr-color, #1a1a1a);
+  letter-spacing: 0.04em;
+}
+
+.cp-ability-value {
+  font-size: 13px;
+  font-weight: 800;
+  min-width: 18px;
+  text-align: center;
+  border: 1px solid var(--attr-color, #1a1a1a);
+  border-radius: 3px;
+  padding: 0 3px;
+}
+
+.cp-ability-ladder {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  margin: 2px 0;
+}
+
+.cp-ladder-cell {
+  font-size: 7px;
+  width: 15px;
+  text-align: center;
+  border: 1px solid #bbb;
+  border-radius: 2px;
+  color: #888;
+}
+
+.cp-ladder-cell.is-filled {
+  background: var(--attr-color, #1a1a1a);
+  color: #fff;
+  border-color: var(--attr-color, #1a1a1a);
+}
+
+.cp-stone-overview {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.cp-stone-label {
+  font-size: 7px;
+  text-transform: uppercase;
+  color: #777;
+}
+
+.cp-stone-pips {
+  display: inline-flex;
+  gap: 2px;
+  flex-wrap: wrap;
+}
+
+.cp-stone-pip {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  border: 1px solid var(--attr-color, #1a1a1a);
+  background: var(--attr-color, #1a1a1a);
+  display: inline-block;
+}
+
+.cp-stone-count {
+  font-size: 9px;
+  font-weight: 700;
+}
+
+/* ── Saving throws ────────────────────────────────────────────────────── */
+.cp-saves-grid {
+  display: flex;
+  gap: 4px;
+}
+
+.cp-save-box {
+  flex: 1;
+  border: 1px solid #999;
+  border-radius: 3px;
+  padding: 2px 3px;
+  text-align: center;
+}
+
+.cp-save-label {
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.cp-save-sub {
+  font-size: 6.5px;
+  color: #666;
+  text-transform: uppercase;
+}
+
+.cp-save-values {
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+  margin-top: 2px;
+}
+
+.cp-save-value {
+  font-size: 11px;
+  font-weight: 700;
+  min-width: 16px;
+  border-bottom: 1px solid #333;
+}
+
+.cp-vitality {
+  margin-top: 3px;
+  text-align: center;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  background: #eee;
+  border-radius: 3px;
+  padding: 2px;
+}
+
+.cp-vitality-value {
+  font-size: 11px;
+}
+
+/* ── Defense block ────────────────────────────────────────────────────── */
+.cp-defense-names {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 3px;
+}
+
+.cp-defense-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 3px;
+}
+
+.cp-defense-cell {
+  border: 1px solid #999;
+  border-radius: 3px;
+  padding: 2px 3px;
+  text-align: center;
+}
+
+.cp-defense-label {
+  display: block;
+  font-size: 6.5px;
+  text-transform: uppercase;
+  color: #666;
+}
+
+.cp-defense-value {
+  display: block;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+/* ── Health & stress ──────────────────────────────────────────────────── */
+.cp-vitals {
+  display: flex;
+  gap: 6px;
+}
+
+.cp-health,
+.cp-stress {
+  flex: 1;
+}
+
+.cp-bar-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.cp-bar-table th,
+.cp-bar-table td {
+  border: 1px solid #bbb;
+  padding: 1px 3px;
+  font-size: 8px;
+  text-align: center;
+}
+
+.cp-bar-table th {
+  background: #eee;
+  font-size: 7px;
+  text-transform: uppercase;
+}
+
+.cp-bar-name {
+  text-align: left !important;
+  font-weight: 600;
+}
+
+.cp-stress-scalar {
+  text-align: center;
+  border: 1px solid #999;
+  border-radius: 3px;
+  padding: 4px;
+  margin-top: 4px;
+}
+
+/* ── Weapons ──────────────────────────────────────────────────────────── */
+.cp-weapons-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.cp-weapons-table th,
+.cp-weapons-table td {
+  border: 1px solid #999;
+  padding: 3px 5px;
+  font-size: 9px;
+  text-align: left;
+  height: 16px;
+}
+
+.cp-weapons-table th {
+  background: #333;
+  color: #fff;
+  font-size: 7px;
+  text-transform: uppercase;
+}
+
+/* ── Powers (tiles) ───────────────────────────────────────────────────── */
+.cp-power-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+}
+
+.cp-power-card {
+  border: 1px solid #888;
+  border-radius: 4px;
+  background: #f4f4f4;
+  padding: 3px 4px;
+  min-height: 54px;
+}
+
+.cp-power-card.is-empty {
+  background: #fafafa;
+}
+
+.cp-power-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 3px;
+  margin-bottom: 2px;
+}
+
+.cp-power-name {
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.cp-power-tile {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  flex: 0 0 auto;
+}
+
+.cp-phase {
+  font-size: 6.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: 1px 4px;
+  border-radius: 8px;
+  color: #fff;
+  white-space: nowrap;
+}
+
+.cp-phase-Movement { background: #2e7d32; }
+.cp-phase-Active { background: #1565c0; }
+.cp-phase-Reaction { background: #ef6c00; }
+.cp-phase-Passive { background: #6a1b9a; }
+
+.cp-use-box {
+  width: 10px;
+  height: 10px;
+  border: 1.5px solid #333;
+  border-radius: 2px;
+  display: inline-block;
+  flex: 0 0 auto;
+  background: #fff;
+}
+
+.cp-power-effect {
+  font-size: 7.5px;
+  color: #333;
+  line-height: 1.25;
+}
+
+.cp-power-cost {
+  margin-top: 2px;
+  font-size: 7px;
+  font-weight: 700;
+  color: #555;
+}
+
+/* ── Initiative ───────────────────────────────────────────────────────── */
+.cp-init-ladder {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  margin-bottom: 3px;
+}
+
+.cp-init-cell {
+  font-size: 8px;
+  width: 18px;
+  text-align: center;
+  border: 1px solid #999;
+  border-radius: 2px;
+  padding: 1px 0;
+}
+
+.cp-init-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: 7px;
+  color: #555;
+  text-transform: uppercase;
+}
+
+/* ── Skills ───────────────────────────────────────────────────────────── */
+.cp-skill-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2px 12px;
+}
+
+.cp-skill-list-2col {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.cp-skills-martial .cp-skill-list {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.cp-skill-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 6px;
+  border-bottom: 1px dotted #ccc;
+  padding: 1px 0;
+}
+
+.cp-skill-name {
+  font-size: 8.5px;
+  font-weight: 600;
+}
+
+.cp-skill-attr {
+  font-size: 7px;
+  color: #777;
+  font-weight: 400;
+}
+
+.cp-skill-pips {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  flex: 0 0 auto;
+}
+
+.cp-skill-pip {
+  width: 8px;
+  height: 8px;
+  border: 1px solid #555;
+  border-radius: 2px;
+  background: #fff;
+}
+
+.cp-skill-pip.is-filled {
+  background: #333;
+}
+
+.cp-skill-rank {
+  font-size: 8px;
+  font-weight: 700;
+  margin-left: 2px;
+  min-width: 10px;
+  text-align: right;
+}
+
+/* ── Disadvantages ────────────────────────────────────────────────────── */
+.cp-disadv-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.cp-disadv-table th,
+.cp-disadv-table td {
+  border: 1px solid #aaa;
+  padding: 2px 4px;
+  font-size: 8px;
+  text-align: left;
+}
+
+.cp-disadv-table th {
+  background: #eee;
+  text-transform: uppercase;
+  font-size: 7px;
+}
+
+.cp-rerolls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 3px;
+}
+
+/* ── Social combat ────────────────────────────────────────────────────── */
+.cp-success-counter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+}
+
+.cp-success-cell {
+  font-size: 8px;
+  min-width: 18px;
+  text-align: center;
+  border: 1px solid #999;
+  border-radius: 2px;
+  padding: 1px 2px;
+}
+
+/* ── Summons & familiars ──────────────────────────────────────────────── */
+.cp-familiar-list,
+.cp-gear-list {
+  margin: 2px 0 4px;
+  padding-left: 16px;
+  font-size: 8.5px;
+}
+
+.cp-familiar-empty {
+  font-size: 9px;
+  margin-bottom: 4px;
+}
+
+.cp-summon-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.cp-summon-table th,
+.cp-summon-table td {
+  border: 1px solid #bbb;
+  padding: 1px 3px;
+  font-size: 7.5px;
+  text-align: center;
+}
+
+.cp-summon-table th {
+  background: #eee;
+  text-transform: uppercase;
+  font-size: 7px;
+}
+
+.cp-summon-table td:first-child {
+  text-align: left;
+  font-weight: 600;
+}
+
+/* ── Equipment ────────────────────────────────────────────────────────── */
+.cp-encumbrance-head {
+  display: flex;
+  justify-content: space-between;
+  font-size: 7px;
+  text-transform: uppercase;
+  color: #555;
+  margin-bottom: 3px;
+}
+
+.cp-gear-qty {
+  color: #777;
+  font-size: 7px;
+}
+
+.cp-equipment-grid {
+  height: 60mm;
+  border: 1px solid #999;
+  border-radius: 3px;
+  background:
+    repeating-linear-gradient(0deg, transparent, transparent 7mm, #ddd 7mm, #ddd 7.2mm),
+    repeating-linear-gradient(90deg, transparent, transparent 7mm, #ddd 7mm, #ddd 7.2mm);
+}

@@ -16,6 +16,7 @@ import {
 } from '../system/disadvantages';
 import { getAllSchticks } from '../utils/schticks';
 import { showEchoCardPickDialog, showEchoCreationDialog } from './character-sheet-echo-dialog.js';
+import { openCharacterPrintSheet } from './character-print.js';
 import {
   buildFreshTraitUses,
   getCardOption,
@@ -129,6 +130,26 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     });
     console.log('Mastery System | Character Sheet defaultOptions:', options);
     return options;
+  }
+
+  /**
+   * Add a "Print / Export" button to the sheet window header that opens the
+   * printable 3-page character sheet with all values filled in.
+   * @override
+   */
+  _getHeaderButtons(): any[] {
+    const buttons = super._getHeaderButtons?.() ?? [];
+    if (this.actor?.type === 'character') {
+      buttons.unshift({
+        label: 'Bogen drucken',
+        class: 'mastery-print-sheet',
+        icon: 'fas fa-print',
+        onclick: () => {
+          void openCharacterPrintSheet(this.actor);
+        }
+      });
+    }
+    return buttons;
   }
 
   /**

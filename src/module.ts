@@ -2171,6 +2171,7 @@ async function preloadTemplates() {
   const templatePaths = [
     // Actor sheets (only load existing templates)
     'systems/mastery-system/templates/actor/character-sheet.hbs',
+    'systems/mastery-system/templates/actor/character-print.hbs',
     'systems/mastery-system/templates/actor/npc-sheet.hbs',
     'systems/mastery-system/templates/actor/summon-sheet.hbs',
     

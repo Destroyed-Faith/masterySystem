@@ -17,6 +17,12 @@ export declare class MasteryCharacterSheet extends BaseActorSheet {
     private _pendingSkillRankChanges;
     /** @override */
     static get defaultOptions(): any;
+    /**
+     * Add a "Print / Export" button to the sheet window header that opens the
+     * printable 3-page character sheet with all values filled in.
+     * @override
+     */
+    _getHeaderButtons(): any[];
     /** @override */
     get template(): string;
     /**
