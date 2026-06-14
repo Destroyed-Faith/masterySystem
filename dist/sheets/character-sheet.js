@@ -762,6 +762,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         context.equipmentUi = this.#prepareEquipmentUi(context.items);
         context.hasProgressionArtifacts = actorHasProgressionArtifacts(this.actor);
         context.hasArtifactEvolution = context.hasProgressionArtifacts;
+        const spendablePts = context.system?.points ?? {};
+        context.hasSpendableXp =
+            ((Number(spendablePts.xp) || 0) + (Number(spendablePts.xpFree) || 0)) > 0;
         context.radialManeuverPrefsPanel = buildRadialManeuverPrefsContext(context.system);
         context.radialManeuverPrefsDetailsOpen = this._radialManeuverPrefsDetailsOpen === true;
         if (context.creationComplete) {
@@ -5875,6 +5878,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         const shell = dialog.element;
         if (!shell?.length)
             return;
+        shell.removeClass('theme-light').addClass('themed theme-dark');
         if (kind === 'selection') {
             shell.addClass('mastery-system disadvantage-selection-dialog');
             queueMicrotask(() => {

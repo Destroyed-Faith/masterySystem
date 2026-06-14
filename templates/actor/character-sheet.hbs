@@ -380,12 +380,12 @@
                 <i class="fas fa-gem"></i> Stone powers
               </button>
               {{#if creationComplete}}
-              <button type="button" class="progression-hub-btn stone-powers-btn-header" data-action="openProgressionHub" title="Unified progression — attributes, skills, powers, artifacts">
+              <button type="button" class="progression-hub-btn stone-powers-btn-header{{#if hasSpendableXp}} xp-available{{/if}}" data-action="openProgressionHub" title="Unified progression — attributes, skills, powers, artifacts">
                 <i class="fas fa-layer-group"></i> Progression
               </button>
               {{/if}}
               {{#if hasProgressionArtifacts}}
-              <button type="button" class="artifact-evolution-btn stone-powers-btn-header" data-action="openArtifactEvolution" title="Artifact evolution — link and upgrade along the tree">
+              <button type="button" class="artifact-evolution-btn stone-powers-btn-header{{#if hasSpendableXp}} xp-available{{/if}}" data-action="openArtifactEvolution" title="Artifact evolution — link and upgrade along the tree">
                 <i class="fas fa-project-diagram"></i> Artifact evolution
               </button>
               {{/if}}
@@ -397,18 +397,25 @@
             <i class="fas fa-gem"></i> Stone powers
           </button>
           {{#if creationComplete}}
-          <button type="button" class="progression-hub-btn stone-powers-btn-header" data-action="openProgressionHub" title="Unified progression">
+          <button type="button" class="progression-hub-btn stone-powers-btn-header{{#if hasSpendableXp}} xp-available{{/if}}" data-action="openProgressionHub" title="Unified progression">
             <i class="fas fa-layer-group"></i> Progression
           </button>
           {{/if}}
           {{#if hasProgressionArtifacts}}
-          <button type="button" class="artifact-evolution-btn stone-powers-btn-header" data-action="openArtifactEvolution" title="Artifact evolution — link and upgrade along the tree">
+          <button type="button" class="artifact-evolution-btn stone-powers-btn-header{{#if hasSpendableXp}} xp-available{{/if}}" data-action="openArtifactEvolution" title="Artifact evolution — link and upgrade along the tree">
             <i class="fas fa-project-diagram"></i> Artifact evolution
           </button>
           {{/if}}
           </div>
           {{/if}}
         </div>
+
+        {{#unless creationComplete}}
+        <p class="attr-creation-hint">
+          <i class="fas fa-hand-pointer"></i>
+          Tipp: Die Werte <strong>8 / 6 / 4 / 2</strong> wählst du über die <strong>Dropdowns (<i class="fas fa-caret-down"></i>)</strong> in jeder Attribut-Karte — das sind keine Boni.
+        </p>
+        {{/unless}}
         
         <!-- Row 1: Physical + Mental Attributes -->
         <div class="attributes-grid">
@@ -433,7 +440,7 @@
                     </button>
                   </div>
                   {{else}}
-                  <select class="attr-creation-select" data-attribute="might">
+                  <select class="attr-creation-select" title="Attributwert auswählen (Dropdown)" aria-label="Attributwert auswählen" data-attribute="might">
                     {{#if @root.creation.attrCreationSelect.might.s2}}<option value="2" {{#if (eq value 2)}}selected{{/if}}>2</option>{{/if}}
                     {{#if @root.creation.attrCreationSelect.might.s4}}<option value="4" {{#if (eq value 4)}}selected{{/if}}>4</option>{{/if}}
                     {{#if @root.creation.attrCreationSelect.might.s6}}<option value="6" {{#if (eq value 6)}}selected{{/if}}>6</option>{{/if}}
@@ -480,7 +487,7 @@
                     </button>
                   </div>
                   {{else}}
-                  <select class="attr-creation-select" data-attribute="agility">
+                  <select class="attr-creation-select" title="Attributwert auswählen (Dropdown)" aria-label="Attributwert auswählen" data-attribute="agility">
                     {{#if @root.creation.attrCreationSelect.agility.s2}}<option value="2" {{#if (eq value 2)}}selected{{/if}}>2</option>{{/if}}
                     {{#if @root.creation.attrCreationSelect.agility.s4}}<option value="4" {{#if (eq value 4)}}selected{{/if}}>4</option>{{/if}}
                     {{#if @root.creation.attrCreationSelect.agility.s6}}<option value="6" {{#if (eq value 6)}}selected{{/if}}>6</option>{{/if}}
@@ -526,7 +533,7 @@
                     </button>
                   </div>
                   {{else}}
-                  <select class="attr-creation-select" data-attribute="vitality">
+                  <select class="attr-creation-select" title="Attributwert auswählen (Dropdown)" aria-label="Attributwert auswählen" data-attribute="vitality">
                     {{#if @root.creation.attrCreationSelect.vitality.s2}}<option value="2" {{#if (eq value 2)}}selected{{/if}}>2</option>{{/if}}
                     {{#if @root.creation.attrCreationSelect.vitality.s4}}<option value="4" {{#if (eq value 4)}}selected{{/if}}>4</option>{{/if}}
                     {{#if @root.creation.attrCreationSelect.vitality.s6}}<option value="6" {{#if (eq value 6)}}selected{{/if}}>6</option>{{/if}}
@@ -566,7 +573,7 @@
                     </button>
                   </div>
                   {{else}}
-                  <select class="attr-creation-select" data-attribute="wits">
+                  <select class="attr-creation-select" title="Attributwert auswählen (Dropdown)" aria-label="Attributwert auswählen" data-attribute="wits">
                     {{#if @root.creation.attrCreationSelect.wits.s2}}<option value="2" {{#if (eq value 2)}}selected{{/if}}>2</option>{{/if}}
                     {{#if @root.creation.attrCreationSelect.wits.s4}}<option value="4" {{#if (eq value 4)}}selected{{/if}}>4</option>{{/if}}
                     {{#if @root.creation.attrCreationSelect.wits.s6}}<option value="6" {{#if (eq value 6)}}selected{{/if}}>6</option>{{/if}}
@@ -617,7 +624,7 @@
                     </button>
                   </div>
                   {{else}}
-                  <select class="attr-creation-select" data-attribute="intellect">
+                  <select class="attr-creation-select" title="Attributwert auswählen (Dropdown)" aria-label="Attributwert auswählen" data-attribute="intellect">
                     {{#if @root.creation.attrCreationSelect.intellect.s2}}<option value="2" {{#if (eq value 2)}}selected{{/if}}>2</option>{{/if}}
                     {{#if @root.creation.attrCreationSelect.intellect.s4}}<option value="4" {{#if (eq value 4)}}selected{{/if}}>4</option>{{/if}}
                     {{#if @root.creation.attrCreationSelect.intellect.s6}}<option value="6" {{#if (eq value 6)}}selected{{/if}}>6</option>{{/if}}
@@ -663,7 +670,7 @@
                     </button>
                   </div>
                   {{else}}
-                  <select class="attr-creation-select" data-attribute="resolve">
+                  <select class="attr-creation-select" title="Attributwert auswählen (Dropdown)" aria-label="Attributwert auswählen" data-attribute="resolve">
                     {{#if @root.creation.attrCreationSelect.resolve.s2}}<option value="2" {{#if (eq value 2)}}selected{{/if}}>2</option>{{/if}}
                     {{#if @root.creation.attrCreationSelect.resolve.s4}}<option value="4" {{#if (eq value 4)}}selected{{/if}}>4</option>{{/if}}
                     {{#if @root.creation.attrCreationSelect.resolve.s6}}<option value="6" {{#if (eq value 6)}}selected{{/if}}>6</option>{{/if}}
@@ -709,7 +716,7 @@
                     </button>
                   </div>
                   {{else}}
-                  <select class="attr-creation-select" data-attribute="influence">
+                  <select class="attr-creation-select" title="Attributwert auswählen (Dropdown)" aria-label="Attributwert auswählen" data-attribute="influence">
                     {{#if @root.creation.attrCreationSelect.influence.s2}}<option value="2" {{#if (eq value 2)}}selected{{/if}}>2</option>{{/if}}
                     {{#if @root.creation.attrCreationSelect.influence.s4}}<option value="4" {{#if (eq value 4)}}selected{{/if}}>4</option>{{/if}}
                     {{#if @root.creation.attrCreationSelect.influence.s6}}<option value="6" {{#if (eq value 6)}}selected{{/if}}>6</option>{{/if}}
@@ -1799,12 +1806,12 @@
             <i class="fas fa-box"></i> General Items
           </button>
           {{#if creationComplete}}
-          <button type="button" class="progression-hub-btn stone-powers-btn-header" data-action="openProgressionHub" data-expand-section="artifacts" title="Progression — activate and upgrade artifacts">
+          <button type="button" class="progression-hub-btn stone-powers-btn-header{{#if hasSpendableXp}} xp-available{{/if}}" data-action="openProgressionHub" data-expand-section="artifacts" title="Progression — activate and upgrade artifacts">
             <i class="fas fa-layer-group"></i> Progression
           </button>
           {{/if}}
           {{#if hasProgressionArtifacts}}
-          <button type="button" class="artifact-evolution-btn stone-powers-btn-header" data-action="openArtifactEvolution" title="Echo &amp; Artifact Progression — activate and upgrade">
+          <button type="button" class="artifact-evolution-btn stone-powers-btn-header{{#if hasSpendableXp}} xp-available{{/if}}" data-action="openArtifactEvolution" title="Echo &amp; Artifact Progression — activate and upgrade">
             <i class="fas fa-project-diagram"></i> Artifacts
           </button>
           {{/if}}

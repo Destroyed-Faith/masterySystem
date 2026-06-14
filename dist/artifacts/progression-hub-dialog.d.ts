@@ -8,6 +8,8 @@ export declare class ProgressionHubDialog extends BaseDialog {
     #private;
     private actor;
     private expandSection;
+    private openSections;
+    private scrollTop;
     private pendingAttributes;
     private pendingSkills;
     private pendingPowers;

@@ -5471,35 +5471,63 @@
 
 /* ========== Attribute Creation Select ========== */
 .mastery-system.sheet.actor.character .attr-creation-select {
-  background: var(--df-bg-header, #1b2124);
-  border: 1px solid var(--df-border-primary, #3a3f44);
+  background-color: var(--df-bg-header, #1b2124);
+  /* Chevron arrow so the control is unmistakably a dropdown, not a bonus value. */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath fill='%23e0b341' d='M0 0l5 6 5-6z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 7px center;
+  background-size: 9px 6px;
+  border: 2px solid var(--ms-accent, #c0392b);
   color: var(--df-text-primary, #d0d0d0);
-  padding: 1px 2px;
+  padding: 1px 20px 1px 9px;
   border-radius: 4px;
   font-size: 13px;
   font-weight: 700;
   font-family: 'Cormorant Garamond', serif;
-  width: 44px;
+  width: 62px;
   min-width: 0;
-  height: 26px;
+  height: 28px;
   line-height: 24px;
-  text-align: center;
-  text-align-last: center;
+  text-align: left;
+  text-align-last: left;
   cursor: pointer;
+  box-shadow: 0 0 0 2px rgba(192, 57, 43, 0.12);
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
 }
 
 .mastery-system.sheet.actor.character .attr-creation-select:hover {
-  border-color: var(--ms-accent, #c0392b);
-  background: var(--df-bg-panel, #2a3136);
+  border-color: #e0b341;
+  background-color: var(--df-bg-panel, #2a3136);
+  box-shadow: 0 0 0 2px rgba(224, 179, 65, 0.25);
 }
 
 .mastery-system.sheet.actor.character .attr-creation-select:focus {
-  border-color: var(--ms-accent, #c0392b);
+  border-color: #e0b341;
   outline: none;
-  box-shadow: 0 0 0 2px rgba(192, 57, 43, 0.2);
+  box-shadow: 0 0 0 3px rgba(224, 179, 65, 0.3);
+}
+
+.mastery-system.sheet.actor.character .attr-creation-hint {
+  margin: 0 0 10px;
+  padding: 8px 12px;
+  background: rgba(224, 179, 65, 0.1);
+  border: 1px solid rgba(224, 179, 65, 0.45);
+  border-left: 3px solid #e0b341;
+  border-radius: 4px;
+  color: var(--df-text-primary, #d0d0d0);
+  font-size: 12.5px;
+  line-height: 1.4;
+}
+
+.mastery-system.sheet.actor.character .attr-creation-hint i {
+  color: #e0b341;
+  margin-right: 4px;
+}
+
+.mastery-system.sheet.actor.character .attr-creation-hint strong {
+  color: #ffe9a8;
 }
 
 .mastery-system.sheet.actor.character .attr-creation-select option {
@@ -5738,6 +5766,59 @@
 .mastery-system.sheet.actor.character .stone-powers-btn-header {
   padding: 0.45rem 0.85rem;
   font-size: 0.85rem;
+}
+
+/* Progression & Artifact buttons share the Stone-powers button look so they
+   read as proper active buttons. */
+.mastery-system.sheet.actor.character .progression-hub-btn,
+.mastery-system.sheet.actor.character .artifact-evolution-btn {
+  padding: 0.45rem 0.85rem;
+  background: var(--df-bg-panel, #2a3136);
+  border: 2px solid var(--df-border-primary, #3a3f44);
+  border-radius: 6px;
+  color: var(--df-text-primary, #d0d0d0);
+  font-size: 0.85rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 2px 8px var(--df-shadow, rgba(0, 0, 0, 0.5));
+  font-family: 'Cormorant Garamond', serif;
+}
+
+.mastery-system.sheet.actor.character .progression-hub-btn i,
+.mastery-system.sheet.actor.character .artifact-evolution-btn i {
+  margin-right: 0.5rem;
+}
+
+.mastery-system.sheet.actor.character .progression-hub-btn:hover,
+.mastery-system.sheet.actor.character .artifact-evolution-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px var(--df-shadow, rgba(0, 0, 0, 0.5));
+  background: var(--df-bg-header, #1b2124);
+  border-color: var(--df-border-highlight, rgba(255, 255, 255, 0.2));
+  color: var(--df-text-primary, #d0d0d0);
+}
+
+.mastery-system.sheet.actor.character .progression-hub-btn:active,
+.mastery-system.sheet.actor.character .artifact-evolution-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(139, 0, 0, 0.4);
+}
+
+/* Highlight only when there is spendable XP. */
+.mastery-system.sheet.actor.character .progression-hub-btn.xp-available,
+.mastery-system.sheet.actor.character .artifact-evolution-btn.xp-available {
+  border-color: #ffd700;
+  color: #ffe9a8;
+  background: linear-gradient(135deg, rgba(139, 0, 0, 0.28), var(--df-bg-panel, #2a3136));
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.35), 0 2px 8px var(--df-shadow, rgba(0, 0, 0, 0.5));
+}
+
+.mastery-system.sheet.actor.character .progression-hub-btn.xp-available:hover,
+.mastery-system.sheet.actor.character .artifact-evolution-btn.xp-available:hover {
+  border-color: #ffd700;
+  color: #fff3c4;
+  box-shadow: 0 0 14px rgba(255, 215, 0, 0.5), 0 4px 12px var(--df-shadow, rgba(0, 0, 0, 0.5));
 }
 
 /* ========== Character Creation Banner ========== */
@@ -6860,6 +6941,156 @@
 .mastery-system.disadvantage-config-dialog-styled .dialog-button:not(.default):hover {
   background: #e9e9e9;
   border-color: #999;
+}
+
+/* ========================================
+   Disadvantage dialogs — dark system theme (override the legacy light look)
+   ======================================== */
+.application.mastery-system.disadvantage-selection-dialog,
+.application.mastery-system.disadvantage-config-dialog-styled,
+.mastery-system.disadvantage-selection-dialog.window-app,
+.mastery-system.disadvantage-config-dialog-styled.window-app {
+  background: #161a1d !important;
+  border: 1px solid #3a3f44 !important;
+  color: #f0f3f6 !important;
+  box-shadow: 0 12px 38px rgba(0, 0, 0, 0.6) !important;
+  border-radius: 8px;
+}
+
+.mastery-system.disadvantage-selection-dialog .window-header,
+.mastery-system.disadvantage-config-dialog-styled .window-header {
+  background: #1b2124 !important;
+  border-bottom: 1px solid #3a3f44 !important;
+  color: #f0f3f6 !important;
+}
+
+.mastery-system.disadvantage-selection-dialog .window-title,
+.mastery-system.disadvantage-config-dialog-styled .window-title {
+  color: #f0f3f6 !important;
+  font-family: var(--df-font-head) !important;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.mastery-system.disadvantage-selection-dialog .window-content,
+.mastery-system.disadvantage-config-dialog-styled .window-content {
+  background: #161a1d !important;
+  color: #f0f3f6 !important;
+}
+
+.mastery-system.disadvantage-selection-dialog label,
+.mastery-system.disadvantage-config-dialog-styled label {
+  color: #e8ecf0 !important;
+}
+
+.application.mastery-system.disadvantage-selection-dialog.window-app select,
+.application.mastery-system.disadvantage-config-dialog-styled.window-app select,
+.application.mastery-system.disadvantage-selection-dialog.dialog select,
+.application.mastery-system.disadvantage-config-dialog-styled.dialog select,
+.application.mastery-system.disadvantage-config-dialog-styled.window-app input[type="text"],
+.application.mastery-system.disadvantage-config-dialog-styled.window-app input[type="number"],
+.application.mastery-system.disadvantage-config-dialog-styled.window-app textarea,
+.application.mastery-system.disadvantage-config-dialog-styled.dialog input[type="text"],
+.application.mastery-system.disadvantage-config-dialog-styled.dialog input[type="number"],
+.application.mastery-system.disadvantage-config-dialog-styled.dialog textarea {
+  background-color: #11151a !important;
+  color: #f0f3f6 !important;
+  border: 1px solid #3a3f44 !important;
+}
+
+.application.mastery-system.disadvantage-selection-dialog.window-app select option,
+.application.mastery-system.disadvantage-config-dialog-styled.window-app select option,
+.application.mastery-system.disadvantage-selection-dialog.dialog select option,
+.application.mastery-system.disadvantage-config-dialog-styled.dialog select option {
+  background-color: #11151a !important;
+  color: #f0f3f6 !important;
+}
+
+.application.mastery-system.disadvantage-selection-dialog.window-app select:hover,
+.application.mastery-system.disadvantage-config-dialog-styled.window-app select:hover,
+.application.mastery-system.disadvantage-config-dialog-styled.window-app input[type="text"]:hover,
+.application.mastery-system.disadvantage-config-dialog-styled.window-app input[type="number"]:hover,
+.application.mastery-system.disadvantage-config-dialog-styled.window-app textarea:hover {
+  border-color: #c0392b !important;
+}
+
+.application.mastery-system.disadvantage-selection-dialog.window-app select:focus,
+.application.mastery-system.disadvantage-config-dialog-styled.window-app select:focus,
+.application.mastery-system.disadvantage-config-dialog-styled.window-app input[type="text"]:focus,
+.application.mastery-system.disadvantage-config-dialog-styled.window-app input[type="number"]:focus,
+.application.mastery-system.disadvantage-config-dialog-styled.window-app textarea:focus {
+  outline: none;
+  border-color: #c0392b !important;
+  box-shadow: 0 0 0 2px rgba(192, 57, 43, 0.3) !important;
+}
+
+.mastery-system.disadvantage-config-dialog-styled .disadvantage-compact-intro,
+.mastery-system.disadvantage-config-dialog-styled .disadvantage-info {
+  background: linear-gradient(135deg, rgba(139, 0, 0, 0.2), #1b2124) !important;
+  border: 1px solid #3a3f44 !important;
+}
+
+.mastery-system.disadvantage-config-dialog-styled .disadvantage-kind-title,
+.mastery-system.disadvantage-config-dialog-styled .disadvantage-info h3 {
+  color: #ffb4b4 !important;
+}
+
+.mastery-system.disadvantage-config-dialog-styled .disadvantage-intro-one-liner,
+.mastery-system.disadvantage-config-dialog-styled .disadvantage-description {
+  color: #c8ced4 !important;
+}
+
+.mastery-system.disadvantage-config-dialog-styled .disadvantage-effect {
+  color: #e4e8ec !important;
+}
+
+.mastery-system.disadvantage-config-dialog-styled .disadvantage-rules-collapsible,
+.mastery-system.disadvantage-config-dialog-styled .disadvantage-info-details {
+  background: rgba(255, 255, 255, 0.04) !important;
+  border: 1px solid #3a3f44 !important;
+}
+
+.mastery-system.disadvantage-config-dialog-styled .disadvantage-rules-collapsible-summary,
+.mastery-system.disadvantage-config-dialog-styled .disadvantage-info-summary {
+  color: #cbd2d8 !important;
+}
+
+.mastery-system.disadvantage-config-dialog-styled .disadvantage-info-list {
+  color: #aeb5bd !important;
+}
+
+.mastery-system.disadvantage-selection-dialog .dialog-button:not(.default),
+.mastery-system.disadvantage-config-dialog-styled .dialog-button:not(.default) {
+  background: #2a3136 !important;
+  color: #e8ecf0 !important;
+  border: 1px solid #3a3f44 !important;
+}
+
+.mastery-system.disadvantage-selection-dialog .dialog-button:not(.default):hover,
+.mastery-system.disadvantage-config-dialog-styled .dialog-button:not(.default):hover {
+  background: #343b40 !important;
+  border-color: #5a6068 !important;
+}
+
+.mastery-system.disadvantage-config-dialog-styled .window-resizable-handle,
+.mastery-system.disadvantage-selection-dialog .window-resizable-handle {
+  background: linear-gradient(135deg, #3a3f44 0%, #2a3136 100%) !important;
+  border-color: #5a6068 !important;
+}
+
+/* ========================================
+   Heading font enforcement — every heading uses Laviossa (Destroyed Faith),
+   never the body font (Cormorant Garamond). Overrides hardcoded heading fonts.
+   ======================================== */
+.mastery-system h1,
+.mastery-system h2,
+.mastery-system h3,
+.mastery-system h4,
+.mastery-system h5,
+.mastery-system h6,
+.mastery-system .window-title,
+.mastery-system .disadvantage-kind-title {
+  font-family: var(--df-font-head) !important;
 }
 
 /* ========================================

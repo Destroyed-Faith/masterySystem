@@ -12,6 +12,8 @@ const BaseDialog = HandlebarsApplicationMixin(ApplicationV2);
 export class ProgressionHubDialog extends BaseDialog {
     actor;
     expandSection;
+    openSections = new Set();
+    scrollTop = 0;
     pendingAttributes = {};
     pendingSkills = {};
     pendingPowers = {};
@@ -32,6 +34,8 @@ export class ProgressionHubDialog extends BaseDialog {
         super(mergedOptions);
         this.actor = actor;
         this.expandSection = options.expandSection || 'overview';
+        this.openSections.add('overview');
+        this.openSections.add(this.expandSection);
     }
     async _prepareContext(_options) {
         const hub = buildProgressionHubContext(this.actor);
@@ -42,11 +46,11 @@ export class ProgressionHubDialog extends BaseDialog {
         const remainingAfterPending = hub.xp.available - attrNet - skillNet - powerNet;
         return {
             actor: this.actor,
-            expandOverview: this.expandSection === 'overview',
-            expandAttributes: this.expandSection === 'attributes',
-            expandSkills: this.expandSection === 'skills',
-            expandPowers: this.expandSection === 'powers',
-            expandArtifacts: this.expandSection === 'artifacts',
+            expandOverview: this.openSections.has('overview'),
+            expandAttributes: this.openSections.has('attributes'),
+            expandSkills: this.openSections.has('skills'),
+            expandPowers: this.openSections.has('powers'),
+            expandArtifacts: this.openSections.has('artifacts'),
             hub,
             stonePools,
             usesStonePools: usesStonePoolEconomy(this.actor),
@@ -86,6 +90,24 @@ export class ProgressionHubDialog extends BaseDialog {
         const root = this.#dialogRoot();
         if (!root)
             return;
+        // Preserve which sections are expanded across the full re-renders triggered
+        // by every +/- bump, so the section the user is working in does not collapse.
+        root.querySelectorAll('details.ph-section[data-section]').forEach((d) => {
+            const sec = d.dataset.section;
+            if (!sec)
+                return;
+            d.addEventListener('toggle', () => {
+                if (d.open)
+                    this.openSections.add(sec);
+                else
+                    this.openSections.delete(sec);
+            });
+        });
+        // Restore scroll position (a full re-render otherwise jumps back to the top).
+        const scrollBody = root.querySelector('.ph-scroll-body');
+        if (scrollBody && this.scrollTop > 0) {
+            scrollBody.scrollTop = this.scrollTop;
+        }
         root.querySelectorAll('.ae-stone-select').forEach((sel) => {
             if (!sel.value) {
                 const first = this.#firstEnabledOption(sel);
@@ -162,6 +184,7 @@ export class ProgressionHubDialog extends BaseDialog {
                 return;
             }
             this.pendingAttributes = {};
+            this.#captureScroll();
             await this.render({ force: true });
         };
         root.querySelector('[data-action="ph-confirm-skills"]').onclick = async (ev) => {
@@ -172,6 +195,7 @@ export class ProgressionHubDialog extends BaseDialog {
                 return;
             }
             this.pendingSkills = {};
+            this.#captureScroll();
             await this.render({ force: true });
         };
         root.querySelector('[data-action="ph-confirm-powers"]').onclick = async (ev) => {
@@ -182,6 +206,7 @@ export class ProgressionHubDialog extends BaseDialog {
                 return;
             }
             this.pendingPowers = {};
+            this.#captureScroll();
             await this.render({ force: true });
         };
         root.querySelectorAll('[data-action="ph-wire-artifact"]').forEach((btn) => {
@@ -272,7 +297,12 @@ export class ProgressionHubDialog extends BaseDialog {
                 delete map[key];
             }
         }
+        this.#captureScroll();
         void this.render({ force: true });
+    }
+    #captureScroll() {
+        const scrollBody = this.#dialogRoot()?.querySelector('.ph-scroll-body');
+        this.scrollTop = scrollBody?.scrollTop ?? 0;
     }
 }
 export async function openProgressionHubDialog(actor, options = {}) {

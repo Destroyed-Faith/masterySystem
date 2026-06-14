@@ -39,6 +39,8 @@ export type ProgressionHubSection = 'overview' | 'attributes' | 'skills' | 'powe
 export class ProgressionHubDialog extends BaseDialog {
   private actor: Actor;
   private expandSection: ProgressionHubSection;
+  private openSections = new Set<ProgressionHubSection>();
+  private scrollTop = 0;
   private pendingAttributes: Record<string, number> = {};
   private pendingSkills: Record<string, number> = {};
   private pendingPowers: Record<string, number> = {};
@@ -62,6 +64,8 @@ export class ProgressionHubDialog extends BaseDialog {
     super(mergedOptions);
     this.actor = actor;
     this.expandSection = (options.expandSection as ProgressionHubSection) || 'overview';
+    this.openSections.add('overview');
+    this.openSections.add(this.expandSection);
   }
 
   protected async _prepareContext(_options: unknown): Promise<Record<string, unknown>> {
@@ -74,11 +78,11 @@ export class ProgressionHubDialog extends BaseDialog {
 
     return {
       actor: this.actor,
-      expandOverview: this.expandSection === 'overview',
-      expandAttributes: this.expandSection === 'attributes',
-      expandSkills: this.expandSection === 'skills',
-      expandPowers: this.expandSection === 'powers',
-      expandArtifacts: this.expandSection === 'artifacts',
+      expandOverview: this.openSections.has('overview'),
+      expandAttributes: this.openSections.has('attributes'),
+      expandSkills: this.openSections.has('skills'),
+      expandPowers: this.openSections.has('powers'),
+      expandArtifacts: this.openSections.has('artifacts'),
       hub,
       stonePools,
       usesStonePools: usesStonePoolEconomy(this.actor),
@@ -119,6 +123,23 @@ export class ProgressionHubDialog extends BaseDialog {
   protected async _onRender(_context: unknown, _options: unknown): Promise<void> {
     const root = this.#dialogRoot();
     if (!root) return;
+
+    // Preserve which sections are expanded across the full re-renders triggered
+    // by every +/- bump, so the section the user is working in does not collapse.
+    root.querySelectorAll<HTMLDetailsElement>('details.ph-section[data-section]').forEach((d) => {
+      const sec = d.dataset.section as ProgressionHubSection | undefined;
+      if (!sec) return;
+      d.addEventListener('toggle', () => {
+        if (d.open) this.openSections.add(sec);
+        else this.openSections.delete(sec);
+      });
+    });
+
+    // Restore scroll position (a full re-render otherwise jumps back to the top).
+    const scrollBody = root.querySelector<HTMLElement>('.ph-scroll-body');
+    if (scrollBody && this.scrollTop > 0) {
+      scrollBody.scrollTop = this.scrollTop;
+    }
 
     root.querySelectorAll<HTMLSelectElement>('.ae-stone-select').forEach((sel) => {
       if (!sel.value) {
@@ -207,6 +228,7 @@ export class ProgressionHubDialog extends BaseDialog {
         return;
       }
       this.pendingAttributes = {};
+      this.#captureScroll();
       await this.render({ force: true });
     };
 
@@ -218,6 +240,7 @@ export class ProgressionHubDialog extends BaseDialog {
         return;
       }
       this.pendingSkills = {};
+      this.#captureScroll();
       await this.render({ force: true });
     };
 
@@ -229,6 +252,7 @@ export class ProgressionHubDialog extends BaseDialog {
         return;
       }
       this.pendingPowers = {};
+      this.#captureScroll();
       await this.render({ force: true });
     };
 
@@ -343,7 +367,13 @@ export class ProgressionHubDialog extends BaseDialog {
       }
     }
 
+    this.#captureScroll();
     void this.render({ force: true });
+  }
+
+  #captureScroll(): void {
+    const scrollBody = this.#dialogRoot()?.querySelector<HTMLElement>('.ph-scroll-body');
+    this.scrollTop = scrollBody?.scrollTop ?? 0;
   }
 }
 
