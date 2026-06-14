@@ -312,6 +312,19 @@ export async function releaseAllArtifactActivationStones(actor) {
     const A = actor;
     if (!A?.items?.filter)
         return 0;
+    // Phantom/duplicate embedded artifact copies (left over from earlier
+    // activate→reset cycles) each carry their own stale activation flag and so
+    // each block a Stone. The Evolution dialog only shows one card per tree, so
+    // these duplicates are invisible there but still inflate the bound count.
+    // Remove them first, keeping the best wired/slotted copy per artifact.
+    let removedDuplicates = 0;
+    try {
+        const { dedupeEchoArtifactsOnActor } = await import('../utils/echo-artifact-equip.js');
+        removedDuplicates = await dedupeEchoArtifactsOnActor(actor);
+    }
+    catch (err) {
+        console.warn('[mastery-system] dedupe before release failed', err);
+    }
     const artifacts = Array.from(A.items.filter((it) => it.type === 'artifact'));
     let released = 0;
     const touchedRoots = new Set();
@@ -345,8 +358,11 @@ export async function releaseAllArtifactActivationStones(actor) {
             }
         }
     }
-    if (released > 0) {
-        ui.notifications?.info(`${released} Artifact-Aktivierungs-Stein${released === 1 ? '' : 'e'} freigegeben.`);
+    const dupNote = removedDuplicates > 0
+        ? ` (${removedDuplicates} doppelte${removedDuplicates === 1 ? 's' : ''} Artefakt-Item entfernt)`
+        : '';
+    if (released > 0 || removedDuplicates > 0) {
+        ui.notifications?.info(`${released} Artifact-Aktivierungs-Stein${released === 1 ? '' : 'e'} freigegeben${dupNote}.`);
     }
     else {
         ui.notifications?.info('Keine blockierten Aktivierungs-Steine gefunden.');
