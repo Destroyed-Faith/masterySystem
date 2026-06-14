@@ -104,7 +104,10 @@ export function poolSpendableStones(actor: any, attr: string): number {
   if (!pool) return 0;
   const max = Math.max(0, Number(pool.max) || 0);
   if (max <= 0) return 0;
-  const current = Math.max(0, Number(pool.current) || 0);
+  // Never treat more stones than the pool can actually hold as spendable. A
+  // stale/inflated `current` (e.g. after the attribute max was lowered) must
+  // not let a player commit more permanent artifact bindings than capacity.
+  const current = Math.min(max, Math.max(0, Number(pool.current) || 0));
   const sustained = Math.max(0, Number(pool.sustained) || 0);
   const artifactBound = countArtifactActivationStones(actor, attr);
   return Math.max(0, current - sustained - artifactBound);
@@ -121,7 +124,9 @@ export function actorStonesCurrent(actor: any): number {
     }
     return total;
   }
-  return Math.max(0, Number(sys.stones?.current) || 0);
+  const legacyCur = Math.max(0, Number(sys.stones?.current) || 0);
+  const legacyMax = Math.max(0, Number(sys.stones?.maximum) || 0);
+  return legacyMax > 0 ? Math.min(legacyCur, legacyMax) : legacyCur;
 }
 
 /** True when the actor uses per-attribute `stonePools` (not legacy `stones.current` only). */
