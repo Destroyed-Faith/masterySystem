@@ -78,7 +78,9 @@ function renderActiveGroupsHtml(options: {
                     const variants = pattern.variants
                         .map((v) => {
                             const sel = v.isSelected ? ' is-selected' : '';
-                            return `<button type="button" class="tower-wizard-offense-variant js-tw-picker-variant${sel}" data-template-id="${escapeHtml(v.templateId)}" data-special="${dataSpecialAttr(v.special)}" title="${escapeHtml(v.deliveryLabel)} — ${escapeHtml(pattern.label)}">${escapeHtml(v.deliveryLabel)}</button>`;
+                            const mech = v.mechanics ? `\n\n${v.mechanics}` : '';
+                            const title = `${v.deliveryLabel} — ${pattern.label}${mech}`;
+                            return `<button type="button" class="tower-wizard-offense-variant js-tw-picker-variant${sel}" data-template-id="${escapeHtml(v.templateId)}" data-special="${dataSpecialAttr(v.special)}" title="${escapeHtml(title)}">${escapeHtml(v.deliveryLabel)}</button>`;
                         })
                         .join('');
                     return `
@@ -130,7 +132,10 @@ function renderCategoryGroupsHtml(options: {
                     const hint = card.hint
                         ? `<span class="chip-mechanical">${escapeHtml(card.hint)}</span>`
                         : '';
-                    return `<button type="button" class="tower-wizard-passive-card js-tw-picker-card${sel}" data-template-id="${escapeHtml(card.templateId)}" data-special="${dataSpecialAttr(card.special)}">
+                    const title = card.mechanics
+                        ? `${card.label}\n\n${card.mechanics}`
+                        : card.label;
+                    return `<button type="button" class="tower-wizard-passive-card js-tw-picker-card${sel}" data-template-id="${escapeHtml(card.templateId)}" data-special="${dataSpecialAttr(card.special)}" title="${escapeHtml(title)}">
                       <span class="chip-label">${escapeHtml(card.label)}</span>
                       ${hint}
                     </button>`;

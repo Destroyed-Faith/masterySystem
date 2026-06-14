@@ -17,6 +17,8 @@ export declare function offensePickFromEntry(entry: CatalogEntry): OffenseActive
 export declare function getOffenseActiveSpecialGroups(actorEchoKey?: string | null, selectedPickIds?: Set<string>, excludeIdentityKeys?: Set<string>): OffenseActiveSpecialGroup[];
 /** Flat list grouped by subfamily — kept for tooling; wizard uses special groups. */
 export declare function getOffenseActiveGroups(actorEchoKey?: string | null): OffenseActiveGroup[];
+/** Rank-specific mechanical effect text for a catalog entry (hover tooltip). */
+export declare function catalogMechanicsText(entry: CatalogEntry, rank: number): string;
 /**
  * Build collapsible, subfamily-grouped power cards for the Change-Power picker
  * (non-active slots: passive, activeBuff, reaction). Active slots use

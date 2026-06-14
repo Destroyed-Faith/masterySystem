@@ -498,6 +498,7 @@ export function getOffenseActiveSpecialGroups(
             special: pick.special ?? null,
             delivery,
             deliveryLabel: delivery === 'ranged' ? 'Ranged' : 'Melee',
+            mechanics: catalogMechanicsText(entry, OFF_RANK),
             isSelected: selected.has(pick.pickId),
         });
     }
@@ -578,6 +579,32 @@ function categoryCardHint(entry: CatalogEntry): string {
     return text.length > 120 ? `${text.slice(0, 117)}…` : text;
 }
 
+/** Rank-specific mechanical effect text for a catalog entry (hover tooltip). */
+export function catalogMechanicsText(entry: CatalogEntry, rank: number): string {
+    const levels = (entry.raw as { levels?: Record<string, {
+        effect?: { text?: string; dice?: string };
+        specials?: Array<{ key?: string; value?: number; rank?: number; note?: string }>;
+    }> })?.levels;
+    const row = levels?.[String(rank)];
+    if (!row) return '';
+    let text = String(row.effect?.text ?? '').replace(/\*\*/g, '').trim();
+    const dice = row.effect?.dice ? String(row.effect.dice).trim() : '';
+    if (dice && !text.includes(dice)) text = text ? `${text} (${dice})` : dice;
+    const specials = Array.isArray(row.specials) ? row.specials : [];
+    const sp = specials
+        .map((s) => {
+            const key = String(s.key ?? '').trim();
+            if (!key || key === 'special') return '';
+            if (s.value != null) return `${key}(${s.value})`;
+            if (s.rank != null) return `${key}(${s.rank})`;
+            return key;
+        })
+        .filter(Boolean)
+        .join(', ');
+    if (sp) text = text ? `${text} — ${sp}` : sp;
+    return text;
+}
+
 /**
  * Build collapsible, subfamily-grouped power cards for the Change-Power picker
  * (non-active slots: passive, activeBuff, reaction). Active slots use
@@ -627,6 +654,7 @@ export function getCategoryPickerGroups(
             special: entry.chosenSpecial?.key ?? null,
             label: entry.templateName || entry.name,
             hint: categoryCardHint(entry),
+            mechanics: catalogMechanicsText(entry, rank),
             identityKey,
             isSelected: selected.has(identityKey),
         });

@@ -145,6 +145,8 @@ export interface OffenseActiveVariantOption {
     special?: string | null;
     delivery: DeliveryMode;
     deliveryLabel: string;
+    /** Rank-specific mechanical effect text (hover tooltip). */
+    mechanics?: string;
     isSelected?: boolean;
 }
 
@@ -171,6 +173,8 @@ export interface PowerPickerCard {
     special: string | null;
     label: string;
     hint: string;
+    /** Rank-specific mechanical effect text (hover tooltip). */
+    mechanics: string;
     identityKey: string;
     isSelected: boolean;
 }

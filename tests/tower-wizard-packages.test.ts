@@ -6,6 +6,7 @@ import {
     getDefaultActiveBuffPreview,
     getOffensiveActiveBuffGroups,
     getOffensiveActiveBuffOptions,
+    catalogMechanicsText,
     getCatalogSubfamily,
     getCategoryPickerGroups,
     getOffenseActiveGroups,
@@ -227,6 +228,26 @@ describe('tower-wizard-packages', () => {
             g.cards.map((c) => getCatalogSubfamily(c.templateId, c.special)),
         );
         expect(remainingSubs.includes(sub!)).toBe(false);
+    });
+
+    it('picker cards carry rank-specific mechanical tooltip text', () => {
+        const groups = getCategoryPickerGroups('passive', TOWER_WIZARD_DEFENSIVE_RANK);
+        const bloodlust = groups
+            .flatMap((g) => g.cards)
+            .find((c) => c.templateId === 'passive-bloodlust');
+        expect(bloodlust).toBeDefined();
+        expect(bloodlust!.mechanics).toMatch(/bleeding/i);
+        expect(bloodlust!.mechanics).toMatch(/d6/i);
+        expect(bloodlust!.mechanics).not.toContain('**');
+    });
+
+    it('catalogMechanicsText reads the effect text for the requested rank', () => {
+        const entry = findCatalogEntry('passive-bloodlust', null)!;
+        expect(entry).toBeDefined();
+        const r4 = catalogMechanicsText(entry, 4);
+        const r1 = catalogMechanicsText(entry, 1);
+        expect(r4).toBeTruthy();
+        expect(r4).not.toBe(r1);
     });
 
     it('getCategoryPickerGroups marks the current selection as selected', () => {
