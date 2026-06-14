@@ -108,14 +108,6 @@ export type StoneUsageKey = string;
  * Check if an actor is a PC
  */
 export declare function isPC(actor: Actor | null | undefined): boolean;
-/**
- * Actor document that owns `mastery-system` roundState / stoneUsage flags for action economy.
- *
- * Unlinked PC tokens use a synthetic `token.actor` on the canvas; stone powers and `game.actors.get`
- * often refer to the **prototype** actor. Only `actorLink === true` is treated as linked; any other
- * value (false / undefined) uses the prototype so tracker, radial, and chat agree.
- * NPCs stay per-actor (no redirect) so multiple unlinked copies remain independent.
- */
 export declare function getActionEconomyActor(actor: Actor | null | undefined): Actor | null;
 /**
  * Get round state from actor flags

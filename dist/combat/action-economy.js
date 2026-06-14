@@ -55,6 +55,10 @@ export function isPC(actor) {
 /**
  * Find a placed token document for this actor id (combat first, then canvas).
  * `game.actors.get(id)` often has no `actor.token`, so we cannot detect unlinked from it alone.
+ *
+ * IMPORTANT: never read `token.actor` / `combatant.actor` here. Those getters build a
+ * synthetic Actor and run `prepareData`, which calls back into action-economy and can
+ * recurse forever while the canvas is drawing tokens.
  */
 function findPlacedTokenDocumentForActorId(actorId) {
     const combat = game.combat;
@@ -63,8 +67,7 @@ function findPlacedTokenDocumentForActorId(actorId) {
             const t = c.token;
             if (!t)
                 continue;
-            const ca = c.actor;
-            if (ca?.id === actorId || t.actorId === actorId)
+            if (t.actorId === actorId)
                 return t;
         }
     }
@@ -72,7 +75,7 @@ function findPlacedTokenDocumentForActorId(actorId) {
     if (placeables?.length) {
         for (const tok of placeables) {
             const td = tok.document;
-            if (tok.actor?.id === actorId || td?.actorId === actorId)
+            if (td?.actorId === actorId)
                 return td;
         }
     }
@@ -86,12 +89,25 @@ function findPlacedTokenDocumentForActorId(actorId) {
  * value (false / undefined) uses the prototype so tracker, radial, and chat agree.
  * NPCs stay per-actor (no redirect) so multiple unlinked copies remain independent.
  */
+const actionEconomyResolveInProgress = new Set();
 export function getActionEconomyActor(actor) {
     if (!actor)
         return null;
     const anyA = actor;
     if (anyA.type !== 'character')
         return actor;
+    if (actionEconomyResolveInProgress.has(anyA.id))
+        return actor;
+    actionEconomyResolveInProgress.add(anyA.id);
+    try {
+        return resolveActionEconomyActorInner(anyA);
+    }
+    finally {
+        actionEconomyResolveInProgress.delete(anyA.id);
+    }
+}
+function resolveActionEconomyActorInner(anyA) {
+    const actor = anyA;
     let doc = anyA.token?.document;
     if (!doc) {
         doc = findPlacedTokenDocumentForActorId(anyA.id);
@@ -110,7 +126,9 @@ export function getActionEconomyActor(actor) {
     // damage dialog (which refetches the world actor by id).
     const baseId = doc?.actorId ?? anyA.id;
     const world = baseId ? game.actors?.get(baseId) : undefined;
-    const tokenActor = (doc?.actor ?? (anyA.isToken ? actor : undefined));
+    // When already running on a token actor, use `actor` directly — `doc.actor` would
+    // re-enter prepareData on the same synthetic actor during canvas init.
+    const tokenActor = (anyA.isToken ? actor : doc?.actor);
     if (tokenActor &&
         totalStoneCapacityFromAttributes(tokenActor) > totalStoneCapacityFromAttributes(world)) {
         return tokenActor;
