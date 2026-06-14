@@ -1626,11 +1626,33 @@
 }
 
 /* --- Artifact Sheet V2: clean read-only summary card --- */
-.artifact-sheet-v2 {
+/* Force a consistent dark theme with light text (the default ItemSheet frame
+   is light, which made dark section text unreadable). */
+.app.artifact-sheet-v2 .window-content,
+.artifact-sheet-v2.window-app .window-content {
+  background: #14181b;
+  color: #e6ebef;
+  padding: 0;
+}
+
+form.artifact-sheet-v2 {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  padding: 8px;
+  padding: 10px;
+  background: #14181b;
+  color: #e6ebef;
+}
+form.artifact-sheet-v2 h1,
+form.artifact-sheet-v2 h2,
+form.artifact-sheet-v2 h3,
+form.artifact-sheet-v2 h4,
+form.artifact-sheet-v2 .artifact-bv-slot,
+form.artifact-sheet-v2 .artifact-bv-label,
+form.artifact-sheet-v2 .artifact-ability-name,
+form.artifact-sheet-v2 .artifact-ability-effect,
+form.artifact-sheet-v2 .artifact-ability-special {
+  color: #e6ebef;
 }
 
 .artifact-card-header {
@@ -1680,7 +1702,7 @@
   border: 1px solid var(--df-border-primary, #3a3f44);
   border-radius: 6px;
   padding: 8px 10px;
-  background: var(--df-bg-body, #14181b);
+  background: var(--df-bg-header, #1b2124);
 }
 .artifact-card-head {
   font-family: var(--df-font-head, 'Laviossa', serif);
