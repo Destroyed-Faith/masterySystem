@@ -5,7 +5,7 @@
 import { NodeEditor } from './node-editor.js';
 import { deriveLevelProgressionFromPicks } from './progression-compiler.js';
 import { syncArtifactInheritedFromParent } from '../utils/artifact-folder-sync.js';
-import { pushWorldArtifactNodeToEmbeddedActors } from '../utils/artifact-embedded-sync.js';
+import { pushWorldArtifactNodeToEmbeddedActors, resyncArtifactTreeToAllActors, } from '../utils/artifact-embedded-sync.js';
 import { inferArtifactEquipSlots } from '../utils/equip-slots.js';
 import { readActorArtifactProgress, serializeActorArtifactProgress } from '../utils/artifact-actor-rules.js';
 // Use V1 Application for reliable template rendering in v13
@@ -106,6 +106,9 @@ export class ArtifactBuilder extends BaseApplication {
                 return;
             }
             await this.updateArtifactName(newName);
+        });
+        html.find('.resync-artifact-actors').on('click', async () => {
+            await this.resyncToAllActors();
         });
         // Open node editor on node click
         html.on('click', '.node-content', async (e) => {
@@ -288,6 +291,33 @@ export class ArtifactBuilder extends BaseApplication {
             await folder.update({ name: newName });
         }
         await this.render();
+    }
+    /**
+     * GM: push the current world tree onto every linked actor's embedded copy,
+     * each refreshed from the world node matching the actor's own evolution level.
+     */
+    async resyncToAllActors() {
+        if (!game.user?.isGM) {
+            ui.notifications?.warn('Only a GM can resync artifacts to actors.');
+            return;
+        }
+        const confirmed = await Dialog.confirm({
+            title: 'Resync artifact to all actors',
+            content: '<p>Overwrite the <strong>name, image and stats</strong> of this artifact on every linked actor with the current Builder version?</p>' +
+                '<p>Each actor keeps their own evolution level; only the content of that level is refreshed. Activation and equip state are preserved.</p>',
+            yes: () => true,
+            no: () => false,
+            defaultYes: false,
+        });
+        if (!confirmed)
+            return;
+        const res = await resyncArtifactTreeToAllActors(this.rootItem);
+        if (res.items > 0) {
+            ui.notifications?.info(`Resynced ${res.items} artifact${res.items === 1 ? '' : 's'} on ${res.actors} actor${res.actors === 1 ? '' : 's'}.`);
+        }
+        else {
+            ui.notifications?.info('No linked actor copies found to resync.');
+        }
     }
     async updateArtifactImage(path) {
         const folderId = this.rootItem.folder?.id;

@@ -16,6 +16,11 @@ export declare class ArtifactBuilder extends BaseApplication {
     addChildNode(parentNodeId: string): Promise<void>;
     private getBaseArtifactName;
     private updateArtifactName;
+    /**
+     * GM: push the current world tree onto every linked actor's embedded copy,
+     * each refreshed from the world node matching the actor's own evolution level.
+     */
+    private resyncToAllActors;
     private updateArtifactImage;
     /** Stable labels: Level 1 (root), Level 2-1, Level 2-2, Level 3-1, … per tree row. */
     private buildNodeLabelMap;
