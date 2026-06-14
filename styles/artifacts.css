@@ -1625,34 +1625,72 @@
   color: #f88;
 }
 
-/* --- Artifact Sheet V2: read summary (what the artifact is + does) --- */
-.artifact-sheet-v2 .sheet-body .tab { display: none; }
-.artifact-sheet-v2 .sheet-body .tab.active { display: block; }
-.artifact-sheet-v2 .sheet-tabs .item.active { font-weight: 700; text-decoration: underline; }
+/* --- Artifact Sheet V2: clean read-only summary card --- */
+.artifact-sheet-v2 {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 8px;
+}
 
-.artifact-summary {
+.artifact-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.artifact-card-header .profile-img {
+  flex: 0 0 auto;
   border: 1px solid var(--df-border-primary, #3a3f44);
   border-radius: 6px;
-  padding: 8px 10px;
-  margin-bottom: 10px;
-  background: var(--df-bg-body, #14181b);
+  object-fit: cover;
 }
+.artifact-card-title { min-width: 0; }
+.artifact-card-name {
+  font-family: var(--df-font-head, 'Laviossa', serif);
+  font-size: 1.35rem;
+  line-height: 1.15;
+  margin: 0 0 4px;
+  border: none;
+}
+
 .artifact-summary-meta {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  margin-bottom: 6px;
 }
 .artifact-chip {
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   padding: 2px 8px;
   border-radius: 10px;
   border: 1px solid var(--df-border-primary, #3a3f44);
   background: var(--df-bg-header, #1b2124);
   color: var(--df-text-secondary, #b8c0c6);
 }
-.artifact-summary-section { margin-top: 8px; }
-.artifact-summary-section h4 { margin: 0 0 4px; font-size: 0.85rem; opacity: 0.85; }
+.artifact-chip-inactive {
+  border-color: #7a5b2a;
+  color: #d9b066;
+}
+
+.artifact-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.artifact-card-section {
+  border: 1px solid var(--df-border-primary, #3a3f44);
+  border-radius: 6px;
+  padding: 8px 10px;
+  background: var(--df-bg-body, #14181b);
+}
+.artifact-card-head {
+  font-family: var(--df-font-head, 'Laviossa', serif);
+  font-size: 1.02rem;
+  letter-spacing: 0.02em;
+  margin: 0 0 6px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--df-border-primary, #2a2f33);
+}
+
 .artifact-basevalues,
 .artifact-abilities {
   list-style: none;
@@ -1660,20 +1698,57 @@
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
 }
-.artifact-bv-type { opacity: 0.7; font-size: 0.85em; }
-.artifact-bv-value { font-weight: 600; }
-.artifact-ability { padding: 3px 0; border-bottom: 1px dashed var(--df-border-primary, #2a2f33); }
-.artifact-ability-locked { opacity: 0.45; }
-.artifact-ability-lvl {
-  display: inline-block;
-  min-width: 2.2em;
+.artifact-basevalues li {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.artifact-bv-slot {
+  flex: 0 0 auto;
   font-weight: 700;
-  opacity: 0.8;
+  opacity: 0.6;
+  min-width: 1.2em;
 }
-.artifact-ability-name { font-weight: 600; }
-.artifact-ability-type { opacity: 0.7; font-size: 0.85em; margin-left: 4px; }
-.artifact-ability-effect { font-size: 0.85rem; opacity: 0.85; margin-left: 2.2em; }
-.artifact-ability-special { font-size: 0.8rem; opacity: 0.7; margin-left: 2.2em; }
+.artifact-bv-label { flex: 1 1 auto; }
+.artifact-bv-value { font-weight: 700; color: var(--df-text-primary, #e6ebef); }
+
+.artifact-ability { padding: 4px 0; }
+.artifact-ability + .artifact-ability {
+  border-top: 1px dashed var(--df-border-primary, #2a2f33);
+}
+.artifact-ability-line {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.artifact-ability-name {
+  font-family: var(--df-font-head, 'Laviossa', serif);
+  font-size: 1rem;
+  font-weight: 600;
+}
+.artifact-ability-type {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: 1px 7px;
+  border-radius: 9px;
+  border: 1px solid var(--df-border-primary, #3a3f44);
+  background: var(--df-bg-header, #1b2124);
+  color: var(--df-text-secondary, #b8c0c6);
+}
+.artifact-ability-effect { font-size: 0.86rem; opacity: 0.9; margin-top: 2px; }
+.artifact-ability-special { font-size: 0.8rem; opacity: 0.72; margin-top: 2px; }
+
+.artifact-card-footer {
+  display: flex;
+  justify-content: flex-end;
+}
+.artifact-card-edit {
+  width: auto;
+  font-size: 0.82rem;
+  padding: 3px 10px;
+}
 

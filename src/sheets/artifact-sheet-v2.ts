@@ -7,16 +7,16 @@
  * what previously threw `cannot read properties of null (reading 'render')`
  * when clicking an artifact in the Items directory.
  *
- * Read-friendly summary (slot / profile / level, Base Values) plus a read-only
- * Progression tab. Abilities are generated from the Level 1/2/3 picks in the
- * Artifact Builder node editor — this sheet never edits embedded powers.
+ * Single, read-only summary card: meta (slot / profile / level), the current
+ * Base Values, and the up-to-3 active Level Progression abilities. No tabs, no
+ * editable fields. GMs get an "Edit in Node Editor" link; all authoring still
+ * happens in the Artifact Builder / Node Editor, never on this sheet.
  */
 
 import type { ArtifactData } from '../types/item.js';
 import {
   ARTIFACT_SLOT_LABELS,
   BASE_PROFILE_LABELS,
-  BASE_VALUE_TYPE_LABELS,
 } from '../utils/artifact-rules.js';
 import { isArtifactLinkedOnActor } from '../utils/artifact-actor-rules.js';
 import { visibleAbilityRows } from '../utils/artifact-visible-abilities.js';
@@ -26,18 +26,11 @@ export class ArtifactSheetV2 extends foundry.appv1.sheets.ItemSheet {
   static get defaultOptions() {
     return foundry.utils.mergeObject(super.defaultOptions as any, {
       classes: ['mastery-system', 'sheet', 'item', 'artifact-sheet-v2'],
-      width: 700,
-      height: 800,
+      width: 460,
+      height: 'auto',
       resizable: true,
-      submitOnChange: true,
+      submitOnChange: false,
       closeOnSubmit: false,
-      tabs: [
-        {
-          navSelector: '.sheet-tabs',
-          contentSelector: '.sheet-body',
-          initial: 'description'
-        }
-      ]
     });
   }
 
@@ -69,7 +62,6 @@ export class ArtifactSheetV2 extends foundry.appv1.sheets.ItemSheet {
       ? (Array.isArray((system as any).baseValues) ? (system as any).baseValues : []).map(
           (bv: any) => ({
             slot: String(bv.slot || '').toUpperCase(),
-            typeLabel: (BASE_VALUE_TYPE_LABELS as any)[bv.type] || bv.type || '',
             label: bv.label || '',
             value: bv.value != null && bv.value !== '' ? String(bv.value) : bv.note || '',
           }),
@@ -94,6 +86,7 @@ export class ArtifactSheetV2 extends foundry.appv1.sheets.ItemSheet {
     context.item = item;
     context.system = system;
     context.isEditable = this.isEditable;
+    context.isGM = !!game.user?.isGM;
     context.mechanicallyActive = mechanicallyActive;
     context.summary = {
       slotLabel: (ARTIFACT_SLOT_LABELS as any)[slotKey] || '',
@@ -105,5 +98,25 @@ export class ArtifactSheetV2 extends foundry.appv1.sheets.ItemSheet {
       hasBaseValues: baseValueRows.length > 0,
     };
     return context;
+  }
+
+  /** @override */
+  activateListeners(html: any): void {
+    super.activateListeners(html);
+    const root = html?.[0] ?? html;
+    if (!root || !game.user?.isGM) return;
+    const btn = root.querySelector?.('[data-action="open-node-editor"]');
+    if (!btn) return;
+    btn.addEventListener('click', async (ev: Event) => {
+      ev.preventDefault();
+      const { NodeEditor } = await import('../artifacts/node-editor.js');
+      const self = this;
+      const editor = new NodeEditor(this.item, {
+        onSaved: async () => {
+          await (self as any).render(false);
+        },
+      });
+      (editor as any).render(true);
+    });
   }
 }

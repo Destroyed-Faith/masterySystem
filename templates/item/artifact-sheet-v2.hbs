@@ -1,143 +1,62 @@
 <form class="artifact-sheet-v2 {{cssClass}}" autocomplete="off">
-  {{!-- Sheet Header --}}
-  <header class="sheet-header">
-    <img class="profile-img" src="{{item.img}}" data-edit="img" title="{{item.name}}" height="64" width="64"/>
-    <div class="header-fields">
-      <h1 class="charname">
-        <input name="name" type="text" value="{{item.name}}" placeholder="Artifact Name" {{#unless isEditable}}disabled{{/unless}}/>
-      </h1>
+  <header class="artifact-card-header">
+    <img class="profile-img" src="{{item.img}}" title="{{item.name}}" height="56" width="56"/>
+    <div class="artifact-card-title">
+      <h1 class="artifact-card-name">{{item.name}}</h1>
+      <div class="artifact-summary-meta">
+        {{#if summary.slotLabel}}<span class="artifact-chip">{{summary.slotLabel}}</span>{{/if}}
+        {{#if summary.baseProfileLabel}}<span class="artifact-chip">{{summary.baseProfileLabel}}</span>{{/if}}
+        <span class="artifact-chip">Level {{summary.currentLevel}}</span>
+      </div>
     </div>
   </header>
 
-  {{!-- Sheet Tab Navigation --}}
-  <nav class="sheet-tabs tabs" data-group="primary">
-    <a class="item" data-tab="description">Description</a>
-    <a class="item" data-tab="bonuses">Bonuses</a>
-    <a class="item" data-tab="progression">Progression</a>
-    <a class="item" data-tab="requirements">Requirements</a>
-  </nav>
-
-  {{!-- Sheet Body --}}
-  <section class="sheet-body">
-    {{!-- Description Tab --}}
-    <div class="tab" data-group="primary" data-tab="description">
-      {{!-- Read summary: what this artifact is + what it does --}}
-      <div class="artifact-summary">
-        <div class="artifact-summary-meta">
-          {{#if summary.slotLabel}}<span class="artifact-chip">{{summary.slotLabel}}</span>{{/if}}
-          {{#if summary.baseProfileLabel}}<span class="artifact-chip">{{summary.baseProfileLabel}}</span>{{/if}}
-          <span class="artifact-chip">Level {{summary.currentLevel}}</span>
-        </div>
-
-        {{#if summary.hasBaseValues}}
-        <div class="artifact-summary-section">
-          <h4>Base Values</h4>
-          <ul class="artifact-basevalues">
-            {{#each summary.baseValues}}
-            <li><strong>{{slot}}</strong> {{label}} <span class="artifact-bv-type">({{typeLabel}})</span>{{#if value}} — <span class="artifact-bv-value">{{value}}</span>{{/if}}</li>
-            {{/each}}
-          </ul>
-        </div>
-        {{/if}}
-
-        {{#unless mechanicallyActive}}
-        <p class="artifact-inactive-hint">Inactive on this character — activate via <strong>Artifacts</strong> (1 Stone at MR2+) to unlock base values and abilities.</p>
-        {{/unless}}
-
-        {{#if summary.hasAbilities}}
-        <div class="artifact-summary-section">
-          <h4>Abilities by Level</h4>
-          <ul class="artifact-abilities">
-            {{#each summary.abilities}}
-            <li class="artifact-ability {{#unless unlocked}}artifact-ability-locked{{/unless}}">
-              <span class="artifact-ability-lvl">L{{level}}</span>
-              <span class="artifact-ability-name">{{name}}</span>
-              {{#if type}}<span class="artifact-ability-type">{{type}}</span>{{/if}}
-              {{#if effect}}<div class="artifact-ability-effect">{{effect}}</div>{{/if}}
-              {{#if special}}<div class="artifact-ability-special">Special: {{special}}</div>{{/if}}
-            </li>
-            {{/each}}
-          </ul>
-        </div>
-        {{/if}}
-      </div>
-
-      <div class="form-group">
-        <label>Level</label>
-        <input type="number" name="system.level" value="{{system.level}}" min="1" {{#unless isEditable}}disabled{{/unless}}/>
-      </div>
-      <div class="form-group">
-        <label>Description</label>
-        <textarea name="system.description" rows="5" {{#unless isEditable}}disabled{{/unless}}>{{system.description}}</textarea>
-      </div>
-      <div class="form-group">
-        <label>Lore</label>
-        <textarea name="system.lore" rows="5" {{#unless isEditable}}disabled{{/unless}}>{{system.lore}}</textarea>
-      </div>
+  <section class="artifact-card-body">
+    {{#unless mechanicallyActive}}
+    <div class="artifact-card-section">
+      <span class="artifact-chip artifact-chip-inactive">Inactive — activate via Artifacts</span>
     </div>
+    {{/unless}}
 
-    {{!-- Bonuses Tab --}}
-    <div class="tab" data-group="primary" data-tab="bonuses">
-      <div class="form-group">
-        <label>Attack Bonus</label>
-        <input type="number" name="system.bonuses.attack" value="{{system.bonuses.attack}}" {{#unless isEditable}}disabled{{/unless}}/>
-      </div>
-      <div class="form-group">
-        <label>Defense Bonus</label>
-        <input type="number" name="system.bonuses.defense" value="{{system.bonuses.defense}}" {{#unless isEditable}}disabled{{/unless}}/>
-      </div>
-      <div class="form-group">
-        <label>Damage</label>
-        <input type="text" name="system.bonuses.damage" value="{{system.bonuses.damage}}" placeholder="e.g., +1d6" {{#unless isEditable}}disabled{{/unless}}/>
-      </div>
-      <div class="form-group">
-        <label>Specials (one per line)</label>
-        <textarea name="system.bonuses.specials" rows="5" {{#unless isEditable}}disabled{{/unless}}>{{#each system.bonuses.specials}}{{this}}{{#unless @last}}{{/unless}}{{/each}}</textarea>
-      </div>
+    {{#if summary.hasBaseValues}}
+    <div class="artifact-card-section">
+      <h3 class="artifact-card-head">Base Values</h3>
+      <ul class="artifact-basevalues">
+        {{#each summary.baseValues}}
+        <li>
+          <span class="artifact-bv-slot">{{slot}}</span>
+          <span class="artifact-bv-label">{{label}}</span>
+          {{#if value}}<span class="artifact-bv-value">{{value}}</span>{{/if}}
+        </li>
+        {{/each}}
+      </ul>
     </div>
+    {{/if}}
 
-    {{!-- Progression Tab (read-only; generated from the Level 1/2/3 picks) --}}
-    <div class="tab" data-group="primary" data-tab="progression">
-      <p class="artifact-progression-hint">Abilities are generated from the artifact's Level 1/2/3 picks. Edit them in the Artifact Builder node editor. Levels at or below the current Level ({{summary.currentLevel}}) are unlocked.</p>
-      {{#if summary.hasAbilities}}
-      <table class="artifact-progression-table">
-        <thead>
-          <tr>
-            <th>Lvl</th>
-            <th>Name</th>
-            <th>Type</th>
-            <th>Effect</th>
-            <th>Special</th>
-          </tr>
-        </thead>
-        <tbody>
-          {{#each summary.abilities}}
-          <tr class="{{#unless unlocked}}artifact-ability-locked{{/unless}}">
-            <td>{{level}}</td>
-            <td>{{name}}</td>
-            <td>{{type}}</td>
-            <td>{{effect}}</td>
-            <td>{{special}}</td>
-          </tr>
-          {{/each}}
-        </tbody>
-      </table>
-      {{else}}
-      <p class="artifact-progression-empty">No progression yet — pick a Power or Stone Function in the Artifact Builder.</p>
-      {{/if}}
+    {{#if summary.hasAbilities}}
+    <div class="artifact-card-section">
+      <h3 class="artifact-card-head">Abilities</h3>
+      <ul class="artifact-abilities">
+        {{#each summary.abilities}}
+        <li class="artifact-ability">
+          <div class="artifact-ability-line">
+            <span class="artifact-ability-name">{{name}}</span>
+            {{#if type}}<span class="artifact-ability-type">{{type}}</span>{{/if}}
+          </div>
+          {{#if effect}}<div class="artifact-ability-effect">{{effect}}</div>{{/if}}
+          {{#if special}}<div class="artifact-ability-special">Special: {{special}}</div>{{/if}}
+        </li>
+        {{/each}}
+      </ul>
     </div>
-
-    {{!-- Requirements Tab --}}
-    <div class="tab" data-group="primary" data-tab="requirements">
-      <div class="form-group">
-        <label>Stones Required</label>
-        <input type="number" name="system.requirements.stones" value="{{system.requirements.stones}}" min="0" {{#unless isEditable}}disabled{{/unless}}/>
-      </div>
-      <div class="form-group">
-        <label>Mastery Rank Required</label>
-        <input type="number" name="system.requirements.masteryRank" value="{{system.requirements.masteryRank}}" min="1" {{#unless isEditable}}disabled{{/unless}}/>
-      </div>
-    </div>
+    {{/if}}
   </section>
-</form>
 
+  {{#if isGM}}
+  <footer class="artifact-card-footer">
+    <button type="button" class="artifact-card-edit" data-action="open-node-editor" title="Edit this artifact in the Node Editor (GM only).">
+      <i class="fas fa-pen"></i> Edit in Node Editor
+    </button>
+  </footer>
+  {{/if}}
+</form>
