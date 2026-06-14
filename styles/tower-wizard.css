@@ -897,3 +897,12 @@
   margin-bottom: 0;
   padding: 4px 14px 14px;
 }
+
+/* Heading font (Laviossa) for span-based titles in the wizard and power picker
+   so they match the h-tag section headings. Body text stays on the body font. */
+.tower-wizard-card-title,
+.tower-wizard-offense-special-title,
+.tower-wizard-review-power-title,
+.tower-wizard-power-picker-dialog .tower-wizard-offense-special-title {
+  font-family: var(--df-font-head, 'Laviossa', 'Cinzel Decorative', serif);
+}
