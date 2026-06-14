@@ -24,7 +24,7 @@ import { getMinorMovementBaselineB, getPaperdollSlotsForArtifact, } from '../uti
  * output (base values, powers, slot/profile, etc.) changes so the world seeder
  * can detect stale library copies and refresh them in place.
  */
-export const ECHO_ARTIFACT_SEED_VERSION = 7;
+export const ECHO_ARTIFACT_SEED_VERSION = 8;
 const ARTIFACT_LEVELS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 const ALL_POWER_LEVEL_KEYS = [
     '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16',
@@ -463,6 +463,20 @@ function weaponProfileAtLevel(def, level) {
     const hands = def.baseProfile === 'twoHandedWeapon' ? 2 : 1;
     return { weaponType: 'melee', damage, range: '0m', hands, innateAbilities: [], specials: [] };
 }
+/**
+ * Natural-weapon profile for a non-weapon-slot artifact that still grants a
+ * usable attack (e.g. Dragon Head's Bite). Damage comes from the artifact's
+ * `weaponDamage` Base Value table so it scales 1d8…10d8 across levels.
+ */
+function naturalWeaponProfileAtLevel(def, level) {
+    const nw = def.naturalWeapon;
+    const dmgBv = (BASE_VALUE_TABLES[def.key] || []).find((b) => b.type === 'weaponDamage');
+    const damage = dmgBv ? String(dmgBv.valueAt(level)) : weaponDamageForLevel(level);
+    const weaponType = nw.weaponType || 'melee';
+    const hands = Number.isFinite(nw.hands) ? Number(nw.hands) : 0;
+    const range = weaponType === 'ranged' && nw.rangeM ? `${nw.rangeM}m` : '0m';
+    return { weaponType, damage, range, hands, innateAbilities: [], specials: nw.specials || [] };
+}
 /** Shield profile for shield-kind artifacts at the given level (Shield Value scales). */
 function shieldProfileAtLevel(def, level) {
     const shieldBv = (BASE_VALUE_TABLES[def.key] || []).find((b) => b.type === 'shieldValue');
@@ -526,7 +540,11 @@ export function buildEchoArtifactTree(def) {
             requirements: { stones: 0, masteryRank: 1 },
             powers,
             inventorySize: '1x1',
-            ...(isWeapon ? { artifactWeapon: weaponProfileAtLevel(def, level) } : {}),
+            ...(isWeapon
+                ? { artifactWeapon: weaponProfileAtLevel(def, level) }
+                : def.naturalWeapon
+                    ? { artifactWeapon: naturalWeaponProfileAtLevel(def, level) }
+                    : {}),
             ...(kind === 'shield' ? { artifactShield: shieldProfileAtLevel(def, level) } : {}),
             ...(paperdoll.length ? { equipSlots: paperdoll } : {}),
         };

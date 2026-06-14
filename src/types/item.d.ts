@@ -740,8 +740,14 @@ export interface ArtifactStoneFunction {
 export interface ArtifactProgressionPick {
   /** Basic level that introduces this line (1, 2 or 3). */
   level: 1 | 2 | 3;
-  /** What this pick grants. `none` = empty slot. */
-  kind: 'none' | 'power' | 'stoneFunction';
+  /**
+   * What this pick grants. `none` = empty slot. `authored` = a bespoke,
+   * hand-written line whose staged rows are stored on the pick itself (used by
+   * legacy/special artifacts like Dragon Head whose powers have no catalog
+   * template). Authored picks are shown read-only in the Node Editor and are
+   * preserved across saves and child inheritance (never recompiled away).
+   */
+  kind: 'none' | 'power' | 'stoneFunction' | 'authored';
   /** For `power`: the catalog `templateId`. */
   powerTemplateId?: string;
   /** For martial damage picks: delivery form (Special-first UI). */
@@ -750,6 +756,11 @@ export interface ArtifactProgressionPick {
   chosenSpecial?: { key: string; tier: ActiveSpecialTier };
   /** For `stoneFunction`: the Stone Function definition. */
   stoneFunction?: ArtifactStoneFunction | null;
+  /**
+   * For `authored`: the up-to-three staged rows this line expands to, in stage
+   * order (I / II / III → artifact levels `level`, `level+3`, `level+6`).
+   */
+  authoredStages?: ArtifactLevelProgressionRow[];
 }
 
 /**

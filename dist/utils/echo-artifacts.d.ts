@@ -89,6 +89,20 @@ export interface EchoArtifactDefinition {
      * a GM can refine them in the Artifact Builder node editor.
      */
     progressionPickIds?: Partial<Record<1 | 2 | 3, string>>;
+    /**
+     * Optional natural/innate weapon for a non-weapon-slot artifact (e.g. Dragon
+     * Head's Bite). When set, the tree builder attaches a scaling `artifactWeapon`
+     * profile (damage pulled from the `weaponDamage` Base Value table) even though
+     * the artifact's `artifactKind` is `gear`/`armor`, so the Bite is a usable
+     * attack rather than a purely informational Base Value.
+     */
+    naturalWeapon?: {
+        weaponType?: 'melee' | 'ranged';
+        /** Hand slots occupied (a Bite occupies none → 0). */
+        hands?: number;
+        rangeM?: number;
+        specials?: string[];
+    };
 }
 export declare const ECHO_ARTIFACTS: Record<string, EchoArtifactDefinition>;
 /** Per-Echo character-creation rules. */
@@ -140,9 +154,10 @@ export declare function buildEchoStoneFunction(def: EchoArtifactDefinition): {
  */
 export declare function buildEchoProgressionPicks(def: EchoArtifactDefinition): {
     level: 1 | 2 | 3;
-    kind: 'none' | 'power' | 'stoneFunction';
+    kind: 'none' | 'power' | 'stoneFunction' | 'authored';
     powerTemplateId?: string;
     stoneFunction?: unknown;
+    authoredStages?: unknown[];
 }[];
 export declare function buildArtifactSystemFromEchoDef(def: EchoArtifactDefinition): Record<string, unknown>;
 //# sourceMappingURL=echo-artifacts.d.ts.map

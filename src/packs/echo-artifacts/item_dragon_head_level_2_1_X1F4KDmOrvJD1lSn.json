@@ -48,15 +48,111 @@
     "progressionPicks": [
       {
         "level": 1,
-        "kind": "none"
+        "kind": "authored",
+        "authoredStages": [
+          {
+            "level": 1,
+            "name": "Breath Weapon I",
+            "type": "Active",
+            "range": "Self",
+            "aoe": "Chosen Breath Shape",
+            "duration": "Instant",
+            "effect": "Bite Damage + 8d8 damage to affected creatures.",
+            "special": "Chosen Breath Special"
+          },
+          {
+            "level": 4,
+            "name": "Breath Weapon II",
+            "type": "Active",
+            "range": "Self",
+            "aoe": "Chosen Breath Shape",
+            "duration": "Instant",
+            "effect": "Bite Damage + 16d8 damage to affected creatures.",
+            "special": "Chosen Breath Special"
+          },
+          {
+            "level": 7,
+            "name": "Breath Weapon III",
+            "type": "Active",
+            "range": "Self",
+            "aoe": "Chosen Breath Shape",
+            "duration": "Instant",
+            "effect": "Bite Damage + 24d8 damage to affected creatures.",
+            "special": "Chosen Breath Special"
+          }
+        ]
       },
       {
         "level": 2,
-        "kind": "none"
+        "kind": "authored",
+        "authoredStages": [
+          {
+            "level": 2,
+            "name": "Draconic Roar I",
+            "type": "Active Buff",
+            "range": "Self",
+            "aoe": "Radius 8 m",
+            "duration": "Mastery Rank Rounds",
+            "effect": "You and allies in the area gain +12 Armor.",
+            "special": "Armor Aura"
+          },
+          {
+            "level": 5,
+            "name": "Draconic Roar II",
+            "type": "Active Buff",
+            "range": "Self",
+            "aoe": "Radius 20 m",
+            "duration": "Mastery Rank Rounds",
+            "effect": "You and allies in the area gain +28 Armor.",
+            "special": "Armor Aura"
+          },
+          {
+            "level": 8,
+            "name": "Draconic Roar III",
+            "type": "Active Buff",
+            "range": "Self",
+            "aoe": "Radius 32 m",
+            "duration": "Mastery Rank Rounds",
+            "effect": "You and allies in the area gain +44 Armor.",
+            "special": "Armor Aura"
+          }
+        ]
       },
       {
         "level": 3,
-        "kind": "none"
+        "kind": "authored",
+        "authoredStages": [
+          {
+            "level": 3,
+            "name": "Draconic Recovery I",
+            "type": "Stone Refresh",
+            "range": "Self",
+            "aoe": "",
+            "duration": "Instant",
+            "effect": "Restore 1 spent Stone of the chosen Attribute.",
+            "special": "Stone Refresh"
+          },
+          {
+            "level": 6,
+            "name": "Draconic Recovery II",
+            "type": "Stone Refresh",
+            "range": "Self",
+            "aoe": "",
+            "duration": "Instant",
+            "effect": "Restore 2 spent Stones of the chosen Attribute.",
+            "special": "Stone Refresh"
+          },
+          {
+            "level": 9,
+            "name": "Draconic Recovery III",
+            "type": "Stone Refresh",
+            "range": "Self",
+            "aoe": "",
+            "duration": "Instant",
+            "effect": "Restore 4 spent Stones of the chosen Attribute.",
+            "special": "Stone Refresh"
+          }
+        ]
       }
     ],
     "lore": "A draconic head: a scaling Bite weapon, a Breath Weapon, the Draconic Roar armor aura, and stone-refreshing Draconic Recovery. Pick a Breath Shape and a Breath Special when the artifact is created.",
@@ -495,6 +591,14 @@
       }
     ],
     "inventorySize": "1x1",
+    "artifactWeapon": {
+      "weaponType": "melee",
+      "damage": "2d8",
+      "range": "0m",
+      "hands": 0,
+      "innateAbilities": [],
+      "specials": []
+    },
     "equipSlots": [
       "head"
     ]
@@ -510,7 +614,7 @@
       ],
       "echoBound": "dragonborn",
       "echoArtifactKey": "dragonHead",
-      "seedVersion": 7
+      "seedVersion": 8
     }
   },
   "_id": "X1F4KDmOrvJD1lSn",

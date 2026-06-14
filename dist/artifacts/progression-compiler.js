@@ -108,6 +108,27 @@ export function deriveLevelProgressionFromPicks(picks) {
                 });
             }
         }
+        else if (pick.kind === 'authored' && Array.isArray(pick.authoredStages)) {
+            // Bespoke line: emit the stored staged rows verbatim at levels
+            // base / base+3 / base+6 (stage I / II / III). No catalog lookup.
+            const stages = pick.authoredStages.slice(0, STAGE_NUMERALS.length);
+            for (let s = 0; s < stages.length; s++) {
+                const stored = stages[s];
+                if (!stored)
+                    continue;
+                const level = baseLevel + 3 * s;
+                rows.push({
+                    level,
+                    name: stored.name || '',
+                    type: stored.type || '',
+                    range: stored.range || '',
+                    aoe: stored.aoe || '',
+                    duration: stored.duration || '',
+                    effect: stored.effect || '',
+                    special: stored.special || '',
+                });
+            }
+        }
         else if (pick.kind === 'stoneFunction' && pick.stoneFunction) {
             const effect = stoneFunctionEffect(pick.stoneFunction);
             // Stone Power Support keeps the established "Stone Support" name (matches the

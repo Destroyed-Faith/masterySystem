@@ -66,6 +66,12 @@
         {{#each progressionPickRows as |row|}}
         <div class="node-select-row node-progression-pick" data-level="{{row.level}}"{{#if row.legacyTemplateId}} data-legacy-template-id="{{row.legacyTemplateId}}"{{/if}}>
           <span class="node-pick-level-label" title="Introduced at Basic Level {{row.level}}">Level {{row.level}}</span>
+          {{#if row.isAuthored}}
+          <input type="hidden" class="node-pick-kind" value="authored" />
+          <span class="node-pick-authored" title="Bespoke, hand-authored line (e.g. Dragon Head's Breath Weapon). Shown read-only; preserved on save. Its staged rows appear in the table below.">
+            <i class="fas fa-lock"></i> Authored{{#if row.authoredSummary}}: {{row.authoredSummary}}{{/if}}
+          </span>
+          {{else}}
           <select class="node-pick-kind">
             <option value="none" {{#if (eq row.kind "none")}}selected{{/if}}>— Empty —</option>
             <option value="power" {{#if (eq row.kind "power")}}selected{{/if}}>Power</option>
@@ -112,6 +118,7 @@
               </select>
             </span>
           </span>
+          {{/if}}
         </div>
         {{/each}}
       </div>

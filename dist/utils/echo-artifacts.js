@@ -858,6 +858,9 @@ const DRAGON_HEAD = {
     baseProfile: 'headArmor',
     description: 'A draconic head: a scaling Bite weapon, a Breath Weapon, the Draconic Roar armor aura, and stone-refreshing Draconic Recovery. Pick a Breath Shape and a Breath Special when the artifact is created.',
     restriction: 'A Dragonborn with Dragon Head cannot wear another Head Artifact, helmet, mask, crown, or magical headgear.',
+    // The Bite is a real, usable natural weapon (1d8…10d8) even though the Head
+    // slot's artifactKind is gear. Occupies no hand slots.
+    naturalWeapon: { weaponType: 'melee', hands: 0 },
     baseValues: [
         {
             slot: 'a',
@@ -1468,6 +1471,35 @@ export function buildEchoProgressionPicks(def) {
             kind: 'stoneFunction',
             stoneFunction: buildEchoStoneFunction(def),
         };
+    }
+    // Authored fallback: any base level (1/2/3) still empty but covered by the
+    // hand-written `levelProgression` table (e.g. Dragon Head's Breath Weapon /
+    // Draconic Roar / Draconic Recovery) becomes an `authored` pick carrying its
+    // staged rows. This keeps bespoke lines visible in the Node Editor and stops
+    // a save/inheritance from recompiling them away.
+    const authoredRows = Array.isArray(def.levelProgression) ? def.levelProgression : [];
+    if (authoredRows.length > 0) {
+        for (const baseLevel of [1, 2, 3]) {
+            if (picks[baseLevel - 1].kind !== 'none')
+                continue;
+            // Collect the slot's rows at levels base / base+3 / base+6 (skip L10 Ultimate).
+            const stages = [baseLevel, baseLevel + 3, baseLevel + 6]
+                .map((lvl) => authoredRows.find((r) => Number(r.level) === lvl))
+                .filter((r) => !!r)
+                .map((r) => ({
+                level: Number(r.level),
+                name: r.name || '',
+                type: r.type || '',
+                range: r.range || '',
+                aoe: r.aoe || '',
+                duration: r.duration || '',
+                effect: r.effect || '',
+                special: r.special || '',
+            }));
+            if (stages.length > 0) {
+                picks[baseLevel - 1] = { level: baseLevel, kind: 'authored', authoredStages: stages };
+            }
+        }
     }
     return picks;
 }

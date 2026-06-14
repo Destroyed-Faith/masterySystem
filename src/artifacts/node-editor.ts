@@ -48,6 +48,7 @@ import {
 import { syncArtifactInheritedFromParent } from '../utils/artifact-folder-sync.js';
 import { pushWorldArtifactNodeToEmbeddedActors } from '../utils/artifact-embedded-sync.js';
 import { deriveLevelProgressionFromPicks } from './progression-compiler.js';
+import { resolveFullLevelProgression } from '../utils/artifact-visible-abilities.js';
 import { inferArtifactEquipSlots } from '../utils/equip-slots.js';
 import {
   buildArtifactNodeIdMap,
@@ -527,11 +528,20 @@ export class NodeEditor extends BaseDialog {
       const p = pickByLevel.get(lvl);
       const sf = p?.stoneFunction || null;
       const legacy = p?.kind === 'power' ? parseLegacyPick(p) : null;
+      const isAuthored = p?.kind === 'authored';
+      const authoredSummary = isAuthored
+        ? (p?.authoredStages || [])
+            .map((r) => (r?.name || '').trim())
+            .filter((n) => n.length > 0)
+            .join(' → ')
+        : '';
       return {
         level: lvl,
         kind: p?.kind || 'none',
         isPower: p?.kind === 'power',
         isStoneFn: p?.kind === 'stoneFunction',
+        isAuthored,
+        authoredSummary,
         delivery: legacy?.delivery || '',
         specialKey: legacy?.specialKey || '',
         legacyNonMartial: legacy?.isLegacyNonMartial || false,
@@ -808,6 +818,15 @@ export class NodeEditor extends BaseDialog {
       html.find('.node-progression-stonefn-warning').toggleClass('hidden', count <= 1);
     };
 
+    // Authored picks aren't editable in the DOM; keep them around so the live
+    // preview (and save) reflect them instead of dropping the bespoke lines.
+    const storedAuthoredByLevel = new Map<number, ArtifactProgressionPick>();
+    for (const p of (Array.isArray((this.item.system as any).progressionPicks)
+      ? ((this.item.system as any).progressionPicks as ArtifactProgressionPick[])
+      : [])) {
+      if (p?.kind === 'authored') storedAuthoredByLevel.set(Number(p.level), p);
+    }
+
     // Read the current picks straight from the DOM (same shape `saveNode` builds).
     const readProgressionPicksFromDom = (): ArtifactProgressionPick[] => {
       const picks: ArtifactProgressionPick[] = [];
@@ -816,7 +835,10 @@ export class NodeEditor extends BaseDialog {
         const levelRaw = parseInt(String($row.attr('data-level') || ''), 10);
         const level = (levelRaw === 2 || levelRaw === 3 ? levelRaw : 1) as 1 | 2 | 3;
         const kind = String($row.find('.node-pick-kind').val() || 'none').trim();
-        if (kind === 'power') {
+        if (kind === 'authored') {
+          const stored = storedAuthoredByLevel.get(level);
+          if (stored) picks.push(stored);
+        } else if (kind === 'power') {
           const resolved = readPowerPickFields($row);
           if (resolved?.powerTemplateId) {
             picks.push({ level, kind: 'power', ...resolved });
@@ -1185,6 +1207,15 @@ export class NodeEditor extends BaseDialog {
       'stoneRefresh',
       'stoneBattery',
     ];
+    // Authored (bespoke) picks are read-only in the UI; reuse the stored pick so
+    // a save never recompiles them away.
+    const storedAuthoredByLevel = new Map<number, ArtifactProgressionPick>();
+    for (const p of (Array.isArray((this.item.system as any).progressionPicks)
+      ? ((this.item.system as any).progressionPicks as ArtifactProgressionPick[])
+      : [])) {
+      if (p?.kind === 'authored') storedAuthoredByLevel.set(Number(p.level), p);
+    }
+
     const progressionPicks: ArtifactProgressionPick[] = [];
     html.find('.node-progression-pick').each((_i, el) => {
       const $row = $(el);
@@ -1192,7 +1223,10 @@ export class NodeEditor extends BaseDialog {
       const level = (levelRaw === 2 || levelRaw === 3 ? levelRaw : 1) as 1 | 2 | 3;
       const kindRaw = String($row.find('.node-pick-kind').val() || 'none').trim();
 
-      if (kindRaw === 'power') {
+      if (kindRaw === 'authored') {
+        const stored = storedAuthoredByLevel.get(level);
+        if (stored) progressionPicks.push(stored);
+      } else if (kindRaw === 'power') {
         const resolved = readPowerPickFieldsFromRow($row);
         if (resolved?.powerTemplateId) {
           progressionPicks.push({ level, kind: 'power', ...resolved });
@@ -1227,9 +1261,13 @@ export class NodeEditor extends BaseDialog {
       );
     }
 
-    // Picks are the single source of truth: regenerate the 1-10 Level Progression
-    // table from the picks (auto-scaled across stages I/II/III at PL 4/10/16).
-    const levelProgression = deriveLevelProgressionFromPicks(progressionPicks);
+    // Picks are the single source of truth for the staged 1-9 rows; the Level 10
+    // Ultimate (e.g. True Dragon Head) lives only in the authored table, so merge
+    // it back in via resolveFullLevelProgression rather than dropping it.
+    const authoredTable = Array.isArray((this.item.system as any).levelProgression)
+      ? ((this.item.system as any).levelProgression as ArtifactLevelProgressionRow[])
+      : [];
+    const levelProgression = resolveFullLevelProgression(authoredTable, progressionPicks);
 
     const equipSlots = inferArtifactEquipSlots({
       artifactKind: kind,

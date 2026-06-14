@@ -98,6 +98,20 @@ export interface EchoArtifactDefinition {
    * a GM can refine them in the Artifact Builder node editor.
    */
   progressionPickIds?: Partial<Record<1 | 2 | 3, string>>;
+  /**
+   * Optional natural/innate weapon for a non-weapon-slot artifact (e.g. Dragon
+   * Head's Bite). When set, the tree builder attaches a scaling `artifactWeapon`
+   * profile (damage pulled from the `weaponDamage` Base Value table) even though
+   * the artifact's `artifactKind` is `gear`/`armor`, so the Bite is a usable
+   * attack rather than a purely informational Base Value.
+   */
+  naturalWeapon?: {
+    weaponType?: 'melee' | 'ranged';
+    /** Hand slots occupied (a Bite occupies none → 0). */
+    hands?: number;
+    rangeM?: number;
+    specials?: string[];
+  };
 }
 
 // ----------------------------------------------------------------------
@@ -978,6 +992,9 @@ const DRAGON_HEAD: EchoArtifactDefinition = {
     'A draconic head: a scaling Bite weapon, a Breath Weapon, the Draconic Roar armor aura, and stone-refreshing Draconic Recovery. Pick a Breath Shape and a Breath Special when the artifact is created.',
   restriction:
     'A Dragonborn with Dragon Head cannot wear another Head Artifact, helmet, mask, crown, or magical headgear.',
+  // The Bite is a real, usable natural weapon (1d8…10d8) even though the Head
+  // slot's artifactKind is gear. Occupies no hand slots.
+  naturalWeapon: { weaponType: 'melee', hands: 0 },
   baseValues: [
     {
       slot: 'a',
@@ -1614,15 +1631,17 @@ export function buildEchoProgressionPicks(
   def: EchoArtifactDefinition,
 ): {
   level: 1 | 2 | 3;
-  kind: 'none' | 'power' | 'stoneFunction';
+  kind: 'none' | 'power' | 'stoneFunction' | 'authored';
   powerTemplateId?: string;
   stoneFunction?: unknown;
+  authoredStages?: unknown[];
 }[] {
   const picks: {
     level: 1 | 2 | 3;
-    kind: 'none' | 'power' | 'stoneFunction';
+    kind: 'none' | 'power' | 'stoneFunction' | 'authored';
     powerTemplateId?: string;
     stoneFunction?: unknown;
+    authoredStages?: unknown[];
   }[] = [
     { level: 1, kind: 'none' },
     { level: 2, kind: 'none' },
@@ -1646,6 +1665,35 @@ export function buildEchoProgressionPicks(
       kind: 'stoneFunction',
       stoneFunction: buildEchoStoneFunction(def),
     };
+  }
+
+  // Authored fallback: any base level (1/2/3) still empty but covered by the
+  // hand-written `levelProgression` table (e.g. Dragon Head's Breath Weapon /
+  // Draconic Roar / Draconic Recovery) becomes an `authored` pick carrying its
+  // staged rows. This keeps bespoke lines visible in the Node Editor and stops
+  // a save/inheritance from recompiling them away.
+  const authoredRows = Array.isArray(def.levelProgression) ? def.levelProgression : [];
+  if (authoredRows.length > 0) {
+    for (const baseLevel of [1, 2, 3] as const) {
+      if (picks[baseLevel - 1].kind !== 'none') continue;
+      // Collect the slot's rows at levels base / base+3 / base+6 (skip L10 Ultimate).
+      const stages = [baseLevel, baseLevel + 3, baseLevel + 6]
+        .map((lvl) => authoredRows.find((r) => Number(r.level) === lvl))
+        .filter((r): r is NonNullable<typeof r> => !!r)
+        .map((r) => ({
+          level: Number(r.level),
+          name: r.name || '',
+          type: r.type || '',
+          range: r.range || '',
+          aoe: r.aoe || '',
+          duration: r.duration || '',
+          effect: r.effect || '',
+          special: r.special || '',
+        }));
+      if (stages.length > 0) {
+        picks[baseLevel - 1] = { level: baseLevel, kind: 'authored', authoredStages: stages };
+      }
+    }
   }
 
   return picks;
