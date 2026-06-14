@@ -437,23 +437,24 @@ const SHADOWGRAVE_ARMOR: GeneralArtifactDefinition = {
     },
     {
       level: 2,
-      name: 'Grave Call I',
-      type: 'Defensive Active',
-      range: 'Melee Reach',
-      duration: 'Instant',
-      effect:
-        'Make a melee control attack. On hit, the target takes no damage, is pushed 4 m, and falls Prone.',
-      special: 'Push + Prone',
-    },
-    {
-      level: 3,
       name: 'Deathly Reprisal I',
       type: 'Reaction',
       range: 'Self',
-      duration: 'Triggering attack only',
+      duration: 'Triggering melee attack only',
       effect:
         'When a creature hits you with a melee attack, deal 2d8 damage to the triggering creature and push it 4 m. The triggering creature applies Armor, Damage Reduction, resistance, immunity, and other legal mitigation normally.',
       special: 'Counter Damage + Push',
+    },
+    {
+      level: 3,
+      name: 'Hands of the Grave I',
+      type: 'Active',
+      range: '20 m',
+      aoe: 'Radius 3 m',
+      duration: 'Instant',
+      effect:
+        'Spectral hands claw out of the ground at a target point within range. Affected creatures take no damage and suffer Root(2). Hands of the Grave does not push, knock Prone, or create difficult terrain.',
+      special: 'Root(2)',
     },
     {
       level: 4,
@@ -462,28 +463,29 @@ const SHADOWGRAVE_ARMOR: GeneralArtifactDefinition = {
       range: 'Self',
       duration: 'Instant',
       effect:
-        'Shadowgrave Armor now pre-fills Tier 3 of the Temporary HP Stone Power. You must still pay Tier 1 and Tier 2 yourself. If Tier 1 and Tier 2 are not paid, the pre-filled Tier 3 has no effect.',
+        'Shadowgrave Armor pre-fills Tier 3 of the Temporary HP Stone Power. You must still pay Tier 1 and Tier 2 yourself. If Tier 1 and Tier 2 are not paid, the pre-filled Tier 3 has no effect.',
       special: 'Temporary HP Stone Power',
     },
     {
       level: 5,
-      name: 'Grave Call II',
-      type: 'Defensive Active',
-      range: 'Melee Reach',
-      duration: 'Instant',
-      effect:
-        'Make a melee control attack. On hit, the target takes no damage, is pushed 16 m, and falls Prone.',
-      special: 'Push + Prone',
-    },
-    {
-      level: 6,
       name: 'Deathly Reprisal II',
       type: 'Reaction',
       range: 'Self',
-      duration: 'Triggering attack only',
+      duration: 'Triggering melee attack only',
       effect:
         'When a creature hits you with a melee attack, deal 6d8 damage to the triggering creature and push it 8 m. The triggering creature applies Armor, Damage Reduction, resistance, immunity, and other legal mitigation normally.',
       special: 'Counter Damage + Push',
+    },
+    {
+      level: 6,
+      name: 'Hands of the Grave II',
+      type: 'Active',
+      range: '44 m',
+      aoe: 'Radius 5 m',
+      duration: 'Instant',
+      effect:
+        'Spectral hands claw out of the ground at a target point within range. Affected creatures take no damage and suffer Root(4). Hands of the Grave does not push, knock Prone, or create difficult terrain.',
+      special: 'Root(4)',
     },
     {
       level: 7,
@@ -492,28 +494,29 @@ const SHADOWGRAVE_ARMOR: GeneralArtifactDefinition = {
       range: 'Self',
       duration: 'Instant',
       effect:
-        'Shadowgrave Armor now pre-fills Tier 4 of the Temporary HP Stone Power. You must still pay Tier 1, Tier 2, and Tier 3 yourself. If the lower tiers are not paid, the pre-filled Tier 4 has no effect.',
+        'Shadowgrave Armor pre-fills Tier 4 of the Temporary HP Stone Power. You must still pay Tier 1, Tier 2, and Tier 3 yourself. If the lower tiers are not paid, the pre-filled Tier 4 has no effect.',
       special: 'Temporary HP Stone Power',
     },
     {
       level: 8,
-      name: 'Grave Call III',
-      type: 'Defensive Active',
-      range: 'Melee Reach',
-      duration: 'Instant',
-      effect:
-        'Make a melee control attack. On hit, the target takes no damage, is pushed 28 m, and falls Prone.',
-      special: 'Push + Prone',
-    },
-    {
-      level: 9,
       name: 'Deathly Reprisal III',
       type: 'Reaction',
       range: 'Self',
-      duration: 'Triggering attack only',
+      duration: 'Triggering melee attack only',
       effect:
         'When a creature hits you with a melee attack, deal 12d8 damage to the triggering creature and push it 8 m. The triggering creature applies Armor, Damage Reduction, resistance, immunity, and other legal mitigation normally.',
       special: 'Counter Damage + Push',
+    },
+    {
+      level: 9,
+      name: 'Hands of the Grave III',
+      type: 'Active',
+      range: '68 m',
+      aoe: 'Radius 7 m',
+      duration: 'Instant',
+      effect:
+        'Spectral hands claw out of the ground at a target point within range. Affected creatures take no damage and suffer Root(5). Hands of the Grave does not push, knock Prone, or create difficult terrain.',
+      special: 'Root(5)',
     },
     {
       level: 10,

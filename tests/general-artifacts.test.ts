@@ -212,6 +212,37 @@ describe('Shadowgrave Armor', () => {
     expect(sys.artifactKind).toBe('armor');
     expect(sys.stoneFunction.stonePowerId).toBe('vitality.tempHp');
   });
+
+  it('Deathly Reprisal is a Reaction (L2/5/8)', () => {
+    const def = getGeneralArtifact('shadowgraveArmor')!;
+    for (const lvl of [2, 5, 8]) {
+      const row = def.levelProgression[lvl - 1];
+      expect(row.name).toMatch(/Deathly Reprisal/);
+      expect(row.type).toBe('Reaction');
+    }
+    const reprisal = sysAt(tree, 5).powers.find((p: any) => /Deathly Reprisal/.test(p.name));
+    expect(reprisal.category).toBe('reaction');
+  });
+
+  it('Hands of the Grave is a ranged AoE control Active (L3/6/9)', () => {
+    const def = getGeneralArtifact('shadowgraveArmor')!;
+    const ranges = { 3: '20 m', 6: '44 m', 9: '68 m' } as Record<number, string>;
+    const radii = { 3: 'Radius 3 m', 6: 'Radius 5 m', 9: 'Radius 7 m' } as Record<number, string>;
+    for (const lvl of [3, 6, 9]) {
+      const row = def.levelProgression[lvl - 1];
+      expect(row.name).toMatch(/Hands of the Grave/);
+      expect(row.type).toBe('Active');
+      expect(row.range).toBe(ranges[lvl]);
+      expect(row.aoe).toBe(radii[lvl]);
+    }
+    const hands = sysAt(tree, 6).powers.find((p: any) => /Hands of the Grave/.test(p.name));
+    expect(hands.category).toBe('active');
+  });
+
+  it('no longer defines the old "Grave Call" melee active', () => {
+    const def = getGeneralArtifact('shadowgraveArmor')!;
+    expect(def.levelProgression.some((r) => /Grave Call/.test(r.name))).toBe(false);
+  });
 });
 
 describe('Staff of the Dark', () => {

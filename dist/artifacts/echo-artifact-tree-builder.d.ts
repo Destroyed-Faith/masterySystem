@@ -20,7 +20,7 @@ import type { EchoArtifactDefinition } from '../utils/echo-artifacts.js';
  * output (base values, powers, slot/profile, etc.) changes so the world seeder
  * can detect stale library copies and refresh them in place.
  */
-export declare const ECHO_ARTIFACT_SEED_VERSION = 11;
+export declare const ECHO_ARTIFACT_SEED_VERSION = 12;
 /** One generated node (artifact item data minus its folder, which is set at seed time). */
 export interface GeneratedArtifactNode {
     nodeId: string;
