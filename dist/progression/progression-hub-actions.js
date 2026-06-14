@@ -5,6 +5,7 @@ import { buildArtifactEvolutionCards } from '../artifacts/artifact-evolution-act
 import { ARTIFACT_CAPACITY_DEFAULT, countBoundArtifacts, } from '../utils/artifact-actor-rules.js';
 import { actorHasProgressionArtifacts, listUnwiredEmbeddedArtifacts, } from '../utils/artifact-tree-grant.js';
 import { attributeBandCost, powerLevelCost } from '../utils/constants.js';
+import { getPowerMinLevel as resolvePowerMinLevel } from '../utils/power-xp-refund.js';
 import { calculateMaxPowerLevel, calculateMaxSkillRank } from '../utils/calculations.js';
 import { SKILLS } from '../utils/skills.js';
 import * as stepRule from '../utils/xp-step-rule.js';
@@ -128,11 +129,9 @@ export function calculateSkillPendingNetCost(actor, pendingMap) {
     return net;
 }
 export function getPowerMinLevel(item) {
-    const lvl = item.system.level ?? 1;
-    const min = item.system.minLevel;
-    if (typeof min === 'number' && !Number.isNaN(min))
-        return min;
-    return lvl;
+    // Delegate to the shared baseline (floored at the category creation rank) so
+    // downgrade limits and refunds stay consistent even with corrupt minLevel.
+    return resolvePowerMinLevel(item);
 }
 export function getMaxPurchasablePowerLevel(actor) {
     const mr = Math.max(1, Math.floor(Number(actor.system?.mastery?.rank) || 1));

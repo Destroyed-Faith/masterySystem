@@ -56,10 +56,15 @@
       </div>
       
       {{#if creationComplete}}
-      <div class="points-box" title="Experience Points">
+      <div class="points-box{{#if (userIsGM)}} points-box-gm-editable{{/if}}" title="Experience Points{{#if (userIsGM)}} — GM: zum Bearbeiten klicken{{/if}}">
         <label>XP</label>
         <div class="points-display">
           <span class="points-value" id="sheet-xp-display">{{default system.points.xp 0}}</span>
+          {{#if (userIsGM)}}
+          <button type="button" class="gm-edit-xp" title="GM: XP setzen / anpassen" aria-label="XP bearbeiten">
+            <i class="fas fa-pen"></i>
+          </button>
+          {{/if}}
         </div>
       </div>
       <div class="points-box points-box-faith" title="Reroll Points: für Chat-Rerolls (je 1 pro Reroll)">

@@ -1,37 +1,71 @@
-import { describe, expect, it } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import {
     calculatePowerUpgradeRefund,
     calculatePowersUpgradeRefund,
+    creationBaselineRank,
     getPowerMinLevel,
 } from '../src/utils/power-xp-refund.js';
 
-describe('power-xp-refund', () => {
-    it('returns 0 when power is at minLevel', () => {
-        expect(
-            calculatePowerUpgradeRefund({ system: { level: 4, minLevel: 4 } }),
-        ).toBe(0);
+function power(category: string, level: number, minLevel?: number) {
+    return { type: 'power', system: { category, level, minLevel } };
+}
+
+describe('power XP refund — creation-baseline flooring', () => {
+    it('creation baseline is R2 for actives and R4 for defensive powers', () => {
+        expect(creationBaselineRank(power('active', 2))).toBe(2);
+        expect(creationBaselineRank(power('passive', 4))).toBe(4);
+        expect(creationBaselineRank(power('activeBuff', 4))).toBe(4);
+        expect(creationBaselineRank(power('reaction', 4))).toBe(4);
     });
 
-    it('refunds cost for each level above minLevel', () => {
-        // min 2, current 4 → cost(3) + cost(4) = 6 + 8 = 14
-        expect(
-            calculatePowerUpgradeRefund({ system: { level: 4, minLevel: 2 } }),
-        ).toBe(14);
+    it('refunds only the XP spent above the baseline for a clean upgrade', () => {
+        // Active raised from creation R2 to level 3 → cost(3) = 3.
+        expect(calculatePowerUpgradeRefund(power('active', 3, 2))).toBe(3);
     });
 
-    it('uses current level as min when minLevel missing', () => {
-        expect(calculatePowerUpgradeRefund({ system: { level: 3 } })).toBe(0);
+    it('ignores a corrupt minLevel below the creation rank (no phantom refund)', () => {
+        // Defensive power sitting at its creation rank R4 but with minLevel 1.
+        // Must refund 0, not the 4→…→1 phantom levels.
+        expect(calculatePowerUpgradeRefund(power('passive', 4, 1))).toBe(0);
+        expect(calculatePowerUpgradeRefund(power('passive', 4, 0))).toBe(0);
+        expect(calculatePowerUpgradeRefund(power('passive', 4, undefined))).toBe(0);
     });
 
-    it('getPowerMinLevel falls back to current level', () => {
-        expect(getPowerMinLevel({ system: { level: 5 } })).toBe(5);
+    it('still recovers the baseline for actives when minLevel is missing/low', () => {
+        expect(calculatePowerUpgradeRefund(power('active', 3, undefined))).toBe(3);
+        expect(calculatePowerUpgradeRefund(power('active', 3, 1))).toBe(3);
     });
 
-    it('sums refunds across multiple powers', () => {
-        const total = calculatePowersUpgradeRefund([
-            { system: { level: 3, minLevel: 2 } }, // cost(3)=6
-            { system: { level: 5, minLevel: 4 } }, // cost(5)=10
-        ]);
-        expect(total).toBe(16);
+    it('preserves a legitimate large refund for a genuinely upgraded power', () => {
+        // Passive raised from R4 to level 8 → cost(5..8) = 5+6+7+8 = 26.
+        expect(calculatePowerUpgradeRefund(power('passive', 8, 4))).toBe(26);
+    });
+
+    it('getPowerMinLevel never exceeds current level', () => {
+        expect(getPowerMinLevel(power('passive', 3, 9))).toBe(3);
+    });
+
+    it('sums refunds across a fresh combat package as zero', () => {
+        const powers = [
+            power('passive', 4, 4),
+            power('passive', 4, 4),
+            power('activeBuff', 4, 4),
+            power('reaction', 4, 4),
+            power('active', 2, 2),
+            power('active', 2, 2),
+        ];
+        expect(calculatePowersUpgradeRefund(powers)).toBe(0);
+    });
+
+    it('reproduces the reported bug fix: one active 2→3 refunds only its level', () => {
+        const powers = [
+            power('passive', 4, 1), // corrupt minLevel — must not refund
+            power('passive', 4, 1),
+            power('activeBuff', 4, 0),
+            power('reaction', 4, undefined),
+            power('active', 2, 2),
+            power('active', 3, 2), // the one actually upgraded → cost(3) = 3
+        ];
+        expect(calculatePowersUpgradeRefund(powers)).toBe(3);
     });
 });

@@ -139,6 +139,40 @@
   width: 100%;
 }
 
+/* GM-editable XP box (header) */
+.mastery-system.sheet.actor.character .points-box.points-box-gm-editable {
+  cursor: default;
+}
+
+.mastery-system.sheet.actor.character .points-box .points-display .gm-edit-xp {
+  flex: 0 0 auto;
+  width: 16px;
+  height: 16px;
+  min-width: 0;
+  margin-left: 5px;
+  padding: 0;
+  line-height: 1;
+  border: 1px solid var(--df-border-primary, #3a3f44);
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--df-text-secondary, #a0a0a0);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+
+.mastery-system.sheet.actor.character .points-box .points-display .gm-edit-xp i {
+  font-size: 9px;
+}
+
+.mastery-system.sheet.actor.character .points-box .points-display .gm-edit-xp:hover {
+  color: var(--df-text-primary, #f0f0f0);
+  border-color: var(--df-accent, #8b0000);
+  background: rgba(139, 0, 0, 0.18);
+}
+
 .mastery-system.sheet.actor.character .mastery-rank-box label,
 .mastery-system.sheet.actor.character .points-box label {
   font-size: 8px;

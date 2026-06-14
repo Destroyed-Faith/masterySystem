@@ -41,6 +41,7 @@ import { getNormalizedEquipSlots, normalizeSlotKey } from '../utils/equip-slots.
 import { XP_COSTS, attributeBandCost, powerLevelCost } from '../utils/constants';
 import { calculateMaxPowerLevel, calculateMaxSkillRank } from '../utils/calculations.js';
 import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
+import { getPowerMinLevel as resolvePowerMinLevel } from '../utils/power-xp-refund.js';
 import { matchesMasteryWeaponCatalog } from '../utils/weapons';
 import { buildRadialManeuverPrefsContext } from '../utils/radial-maneuver-prefs.js';
 import { buildArtifactEvolutionCards } from '../artifacts/artifact-evolution-actions.js';
@@ -1776,6 +1777,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     // Safe Haven Rest button
     html.find('.safe-haven-rest').on('click', this.#onSafeHavenRest.bind(this));
     html.find('.gm-award-faith-fracture').on('click', this.#onGmAwardFaithFracture.bind(this));
+    html.find('.gm-edit-xp').on('click', this.#onGmEditXp.bind(this));
     
     // Point spending buttons (JavaScript will check permissions)
     // Note: legacy `.attribute-spend-point` immediate-spend handler removed —
@@ -2755,7 +2757,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
 
   /**
    * Calculate cost to raise a power to a specific level.
-   * New spec: `cost = 2 × newLevel` for levels 1–16 (2, 4, 6, …, 32 XP).
+   * New spec: `cost = newLevel` for levels 1–16 (1, 2, 3, …, 16 XP).
    */
   #calculatePowerLevelCost(targetLevel: number): number {
     return powerLevelCost(targetLevel);
@@ -2765,11 +2767,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
    * Get a power's minimum level (baseline from character creation)
    */
   #getPowerMinLevel(item: any): number {
-    const lvl = (item.system as any).level ?? 1;
-    const min = (item.system as any).minLevel;
-    if (typeof min === 'number' && !Number.isNaN(min)) return min;
-    // fallback: treat current level as baseline if missing
-    return lvl;
+    // Shared baseline (floored at the category creation rank) so a corrupt or
+    // missing minLevel cannot let a Power be downgraded below its creation rank.
+    return resolvePowerMinLevel(item);
   }
 
   /**
@@ -4584,6 +4584,92 @@ export class MasteryCharacterSheet extends BaseActorSheet {
 
     await this.actor.update({ 'system.faithFractures.current': cur + 1 });
     (ui as any).notifications?.info(`${this.actor.name}: +1 Reroll Point (${cur + 1}/${max}).`);
+    this.render();
+  }
+
+  /**
+   * GM: directly edit the character's available XP from the header bar.
+   * Sets `system.points.xp` and keeps the accounting invariant
+   * (available = totalEarned − totalSpent) by adjusting `totalEarned`.
+   */
+  async #onGmEditXp(event: JQuery.ClickEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    if (!(game as any).user?.isGM) {
+      (ui as any).notifications?.warn('Only a GM can edit XP.');
+      return;
+    }
+
+    const system = (this.actor as any).system ?? {};
+    const points = system.points ?? {};
+    const xp = system.xp ?? {};
+    const current = Math.max(0, Math.floor(Number(points.xp) || 0));
+    const totalSpent = Math.max(0, Math.floor(Number(xp.totalSpent) || 0));
+    const totalEarned = Math.max(0, Math.floor(Number(xp.totalEarned) || 0));
+
+    const content = `
+      <form class="gm-edit-xp-form">
+        <p>Verfügbare XP für <strong>${this.actor.name}</strong> setzen.</p>
+        <div class="form-group">
+          <label style="display:block;margin-bottom:4px;">Verfügbare XP</label>
+          <input type="number" name="xp" value="${current}" step="1" min="0" style="width:100%;" autofocus />
+        </div>
+        <p style="opacity:0.75;font-size:0.85rem;margin:6px 0 0;">Aktuell: ${current} verfügbar · ${totalEarned} verdient · ${totalSpent} ausgegeben.</p>
+      </form>`;
+
+    const newAvail = await new Promise<number | null>((resolve) => {
+      let settled = false;
+      const finish = (v: number | null) => { if (!settled) { settled = true; resolve(v); } };
+      new Dialog({
+        title: `XP bearbeiten (GM): ${this.actor.name}`,
+        content,
+        buttons: {
+          save: {
+            icon: '<i class="fas fa-check"></i>',
+            label: 'Speichern',
+            callback: (html: any) => {
+              const raw = $(html).find('input[name="xp"]').val();
+              const val = parseInt(String(raw), 10);
+              finish(Number.isFinite(val) ? Math.max(0, val) : null);
+            },
+          },
+          cancel: {
+            icon: '<i class="fas fa-times"></i>',
+            label: 'Abbrechen',
+            callback: () => finish(null),
+          },
+        },
+        default: 'save',
+        close: () => finish(null),
+      }).render(true);
+    });
+
+    if (newAvail === null || newAvail === current) return;
+
+    const delta = newAvail - current;
+    const newTotalEarned = totalSpent + newAvail;
+    const user = (game as any).user;
+    const history = Array.isArray(xp.history) ? [...xp.history] : [];
+    history.push({
+      ts: Date.now(),
+      userId: user?.id || '',
+      userName: user?.name || 'GM',
+      kind: 'adjust',
+      category: 'xp',
+      amount: delta,
+      note: 'GM manual XP edit (sheet header)',
+      before: { available: current, totalEarned, totalSpent },
+      after: { available: newAvail, totalEarned: newTotalEarned, totalSpent },
+    });
+
+    await this.actor.update({
+      'system.points.xp': newAvail,
+      'system.xp.totalEarned': newTotalEarned,
+      'system.xp.history': history.slice(-200),
+    });
+    (ui as any).notifications?.info(
+      `${this.actor.name}: XP auf ${newAvail} gesetzt (${delta >= 0 ? '+' : ''}${delta}).`,
+    );
     this.render();
   }
 
