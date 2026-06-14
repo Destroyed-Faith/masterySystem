@@ -127,22 +127,38 @@ export function buildArtifactRadialOptions(actor: any): RadialCombatOption[] {
             ? sys.levelProgression
             : [];
 
-        // Natural / artifact weapon (e.g. Dragon Head's Bite) → a usable attack
-        // that always rolls this weapon's damage (forcedWeaponItemId).
+        // Artifact / natural weapon → a usable attack that always rolls this
+        // weapon's damage (forcedWeaponItemId). Two flavours:
+        //   • weapon-kind artifact (Dragon Claws): this IS the actor's weapon, so
+        //     it REPLACES the generic "Weapon Attack" (tagged weapon-artifact-attack).
+        //   • naturalWeapon on a non-weapon slot (Dragon Head Bite): an EXTRA
+        //     natural attack alongside the normal weapon.
         const aw = sys.artifactWeapon;
         if (aw && aw.damage) {
             const isRangedWeapon = aw.weaponType === 'ranged';
-            const wName = (typeof aw.name === 'string' && aw.name.trim()) || item.name || 'Natural Weapon';
-            const wRange = parseRowRange(aw.range) ?? (isRangedWeapon ? 12 : 2);
+            const isWeaponKind = sys.artifactKind === 'weapon';
+            // Strip the generated " - Level N-M" suffix so the radial shows a
+            // clean weapon name (e.g. "Dragon Claws" instead of "… - Level 5-1").
+            const cleanItemName = String(item.name || '').replace(/\s*-\s*Level\s+\d+-\d+\s*$/i, '').trim();
+            const wName =
+                (typeof aw.name === 'string' && aw.name.trim()) ||
+                cleanItemName ||
+                (isWeaponKind ? 'Artifact Weapon' : 'Natural Weapon');
+            const parsed = parseRowRange(aw.range);
+            const wRange = parsed != null && parsed > 0 ? parsed : isRangedWeapon ? 12 : 2;
             out.push({
                 id: `artifact-weapon:${item.id}`,
                 name: wName,
-                description: `${isRangedWeapon ? 'Ranged' : 'Melee'} natural weapon · Damage ${aw.damage}`,
+                description: `${isRangedWeapon ? 'Ranged' : 'Melee'} ${isWeaponKind ? 'artifact weapon' : 'natural weapon'} · Damage ${aw.damage}`,
                 slot: 'attack',
                 source: 'power',
                 range: isRangedWeapon ? Math.max(6, wRange) : wRange,
                 forcedWeaponItemId: item.id,
-                tags: ['artifact', 'attack', 'natural-weapon'],
+                tags: [
+                    'artifact',
+                    'attack',
+                    isWeaponKind ? 'weapon-artifact-attack' : 'natural-weapon',
+                ],
                 costsMovement: false,
                 costsAction: true,
                 defaultTargetGroup: 'enemy',

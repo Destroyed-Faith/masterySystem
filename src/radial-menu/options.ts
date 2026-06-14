@@ -270,6 +270,30 @@ function calculateRange(
 }
 
 /**
+ * True when the actor has an equipped/bound weapon-kind artifact (e.g. Dragon
+ * Claws). Such artifacts ARE the weapon and provide their own attack option, so
+ * the generic "Weapon Attack" maneuver is suppressed to avoid a duplicate.
+ */
+function actorHasEquippedWeaponArtifact(actor: any): boolean {
+  const items: any[] = actor?.items ? Array.from(actor.items) : [];
+  return items.some((item: any) => {
+    if (item?.type !== 'artifact') return false;
+    const sys = (item.system as any) || {};
+    if (sys.artifactKind !== 'weapon' || !sys.artifactWeapon) return false;
+    const binding = String(sys.binding || '').toLowerCase();
+    if (binding === 'bound' || binding === 'echo') return true;
+    if (sys.equipped === true) return true;
+    try {
+      const flagSlot = item.getFlag?.('mastery-system', 'equipment')?.slot;
+      if (typeof flagSlot === 'string' && flagSlot.length > 0) return true;
+    } catch {
+      /* ignore */
+    }
+    return false;
+  });
+}
+
+/**
  * Map power type to combat slot
  */
 function mapPowerTypeToSlot(powerType: string): CombatSlot {
@@ -821,7 +845,17 @@ export async function getAllCombatOptionsForActor(actor: any): Promise<RadialCom
   );
   const skipWeaponForNpc = actor.type === 'npc' && npcAttackOptions.length > 0;
 
-  if (!hasWeaponAttack && !skipWeaponForNpc && !isManeuverHiddenFromActorRadial(actor, 'weapon-attack')) {
+  // A weapon-kind artifact (e.g. Dragon Claws) IS the actor's weapon and
+  // surfaces its own attack via buildArtifactRadialOptions, so it replaces the
+  // generic "Weapon Attack" instead of duplicating it.
+  const hasEquippedWeaponArtifact = actorHasEquippedWeaponArtifact(actor);
+
+  if (
+    !hasWeaponAttack &&
+    !skipWeaponForNpc &&
+    !hasEquippedWeaponArtifact &&
+    !isManeuverHiddenFromActorRadial(actor, 'weapon-attack')
+  ) {
     allManeuvers.push({
       id: 'weapon-attack',
       name: 'Weapon Attack',
