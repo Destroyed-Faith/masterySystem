@@ -383,6 +383,12 @@ export function getSegmentIdForOption(option) {
         const powerType = option.powerType || option.item.system?.powerType;
         const cost = option.item.system?.cost;
         const range = option.range || option.item.system?.range;
+        // Artifact Active Buffs (e.g. Titan Scars' Growth Form) carry no
+        // `system.cost` on the artifact item; route them by option metadata.
+        if ((option.tags || []).includes('artifact') &&
+            (powerType === 'active-buff' || powerType === 'activeBuff')) {
+            return 'active-buff';
+        }
         // Canonical active-buff templates use category `activeBuff` and mechanics
         // `applyWhen: 'activeBuff-active'`. Those must never be routed through the
         // enemy-targeting attack pipeline.

@@ -113,11 +113,56 @@ describe('Echo Artifact tree builder — exact Base Values', () => {
   });
 
   it('stamps the current seed version on every node (for in-place refresh)', () => {
-    expect(ECHO_ARTIFACT_SEED_VERSION).toBe(12);
+    expect(ECHO_ARTIFACT_SEED_VERSION).toBe(16);
     const tree = buildEchoArtifactTree(getEchoArtifact('titanScars')!);
     for (const node of tree.nodes) {
       expect(flag(node, 'seedVersion')).toBe(ECHO_ARTIFACT_SEED_VERSION);
     }
+  });
+});
+
+describe('Echo Artifact tree builder — Sentinel frames keep authored rulebook rows', () => {
+  // The three frames intentionally carry NO generic catalog picks: their stone
+  // abilities (cross-attribute Stone Pool / Stone Power Support) are authored
+  // Level Progression rows and must survive verbatim.
+  it('Sentinel/Judicator/Oracle picks are all authored (no generic ab-*/passive-* picks)', () => {
+    for (const key of ['sentinelFrame', 'judicatorFrame', 'oracleFrame']) {
+      const tree = buildEchoArtifactTree(getEchoArtifact(key)!);
+      const picks = (tree.nodes[0].itemData.system as any).progressionPicks as any[];
+      for (const lvl of [1, 2, 3]) {
+        const p = picks.find((x) => x.level === lvl);
+        expect(p, `${key} L${lvl}`).toBeTruthy();
+        expect(p.kind, `${key} L${lvl} kind`).toBe('authored');
+        expect(p.powerTemplateId, `${key} L${lvl} has no catalog templateId`).toBeUndefined();
+      }
+    }
+  });
+
+  it('renders the verbatim Stone Pool / Stone Power Support rows (Judicator)', () => {
+    const tree = buildEchoArtifactTree(getEchoArtifact('judicatorFrame')!);
+    const full = resolveFullLevelProgression(
+      getEchoArtifact('judicatorFrame')!.levelProgression,
+      (tree.nodes[0].itemData.system as any).progressionPicks,
+    );
+    const l2 = full.find((r: any) => r.level === 2);
+    const l3 = full.find((r: any) => r.level === 3);
+    expect(l2?.name).toBe('Wits Core I');
+    expect(l2?.type).toBe('Stone Pool');
+    expect(l3?.name).toBe('Regeneration Support I');
+    expect(l3?.type).toBe('Stone Power Support');
+  });
+
+  it('renders the verbatim Influence Stone Pool / Aid Roll Support rows (Oracle)', () => {
+    const tree = buildEchoArtifactTree(getEchoArtifact('oracleFrame')!);
+    const full = resolveFullLevelProgression(
+      getEchoArtifact('oracleFrame')!.levelProgression,
+      (tree.nodes[0].itemData.system as any).progressionPicks,
+    );
+    const l2 = full.find((r: any) => r.level === 2);
+    const l3 = full.find((r: any) => r.level === 3);
+    expect(l2?.special).toBe('Aid Roll Stone Power');
+    expect(l3?.type).toBe('Stone Pool');
+    expect(l3?.special).toBe('Influence Stones');
   });
 });
 
@@ -157,6 +202,75 @@ describe('Echo Artifact tree builder — Stone Function auto-fill', () => {
     for (const node of tree.nodes) {
       expect((node.itemData.system as any).stoneFunction).toBeNull();
     }
+  });
+
+  it('Elven Stride renders its authored rows verbatim (Reflex / Cling / Lineage)', () => {
+    const tree = buildEchoArtifactTree(getEchoArtifact('elvenStrideFire')!);
+    // L3 shows all three staged lines (slot 0/1/2 unlocked).
+    const l3 = (tree.nodes[2].itemData.system as any).levelProgression.map((r: any) => r.name);
+    expect(l3).toEqual(['Otherworld Reflex I', 'Elven Cling I', 'Ember Surge I']);
+
+    // Picks are authored (not recompiled from catalog templates).
+    const picks = (tree.nodes[0].itemData.system as any).progressionPicks as any[];
+    for (const lvl of [1, 2, 3]) {
+      expect(picks.find((p) => p.level === lvl).kind).toBe('authored');
+    }
+
+    // Water lineage keeps its own flavor.
+    const water = buildEchoArtifactTree(getEchoArtifact('elvenStrideWater')!);
+    const w3 = (water.nodes[2].itemData.system as any).levelProgression.map((r: any) => r.name);
+    expect(w3).toEqual(['Otherworld Reflex I', 'Elven Cling I', 'Tidal Slip I']);
+  });
+
+  it('Elven Stride Evade (+2..+12) and Clinging (L4+) base values scale per spec', () => {
+    const tree = buildEchoArtifactTree(getEchoArtifact('elvenStrideFire')!);
+    const bvAt = (lvl: number, label: string) =>
+      (tree.nodes[lvl - 1].itemData.system as any).baseValues.find((b: any) => b.label === label);
+    expect(bvAt(1, 'Evade').value).toBe(2);
+    expect(bvAt(9, 'Evade').value).toBe(10);
+    expect(bvAt(10, 'Evade').value).toBe(12);
+    expect(bvAt(3, 'Clinging')).toBeUndefined();
+    expect(bvAt(4, 'Clinging').value).toBe(1);
+    expect(bvAt(6, 'Clinging').value).toBe(2);
+    expect(bvAt(8, 'Clinging').value).toBe(3);
+    expect(bvAt(10, 'Clinging').value).toBe(4);
+  });
+});
+
+describe('Echo Artifact tree builder — Titan Scars', () => {
+  it('Medium Echo Armor scales +12 (L1) .. +22 (L10)', () => {
+    const tree = buildEchoArtifactTree(getEchoArtifact('titanScars')!);
+    expect((tree.nodes[0].itemData.system as any).baseValues[0].value).toBe(12);
+    expect((tree.nodes[9].itemData.system as any).baseValues[0].value).toBe(22);
+  });
+
+  it('renders Titan Growth (Active Buff) / Titan Might (Stone) / Titan Healing verbatim', () => {
+    const tree = buildEchoArtifactTree(getEchoArtifact('titanScars')!);
+    const l3rows = (tree.nodes[2].itemData.system as any).levelProgression as any[];
+    expect(l3rows.map((r) => r.name)).toEqual(['Titan Growth I', 'Titan Might I', 'Titan Healing I']);
+
+    // Titan Growth must stay an Active Buff so it routes to the Buff segment.
+    const growth = l3rows.find((r) => r.name === 'Titan Growth I');
+    expect(String(growth.type)).toBe('Active Buff');
+    expect(String(growth.special)).toBe('Growth Form');
+    expect(String(growth.effect)).toContain('Power Level 4');
+
+    // Slot 2 stays the Melee Damage Stone Power Support.
+    const picks = (tree.nodes[0].itemData.system as any).progressionPicks as any[];
+    expect(picks.find((p) => p.level === 2).kind).toBe('stoneFunction');
+    expect(picks.find((p) => p.level === 1).kind).toBe('authored');
+    expect(picks.find((p) => p.level === 3).kind).toBe('authored');
+  });
+
+  it('Growth Form upgrades to PL 16 by L7 and keeps the True capstone', () => {
+    const tree = buildEchoArtifactTree(getEchoArtifact('titanScars')!);
+    const l7 = (tree.nodes[6].itemData.system as any).levelProgression as any[];
+    const growth7 = l7.find((r) => String(r.special) === 'Growth Form');
+    expect(growth7.name).toBe('Titan Growth III');
+    expect(String(growth7.effect)).toContain('Power Level 16');
+
+    const l10 = (tree.nodes[9].itemData.system as any).levelProgression.map((r: any) => r.name);
+    expect(l10).toContain('True Titan Scars');
   });
 });
 

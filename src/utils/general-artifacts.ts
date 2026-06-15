@@ -72,7 +72,7 @@ const MOONLIGHT_GREATSWORD: GeneralArtifactDefinition = {
       aoe: '2 m radius',
       duration: 'Mastery Rank Rounds',
       effect:
-        'At the end of each of your turns, enemies in the aura take 3d8 Smite. Uses per Safe Haven Rest: half the wielder\u2019s Mastery Rank, rounded up.',
+        'At the end of each of your turns, enemies in the aura take 3d8 Smite. Uses per Safe Haven Rest: half the wielder\u2019s Mastery Rank, rounded up in the player\u2019s favor (MR2 = 1, MR3 = 2, MR4 = 2, MR5 = 3).',
       special: 'Smite Aura',
     },
     {
@@ -103,7 +103,7 @@ const MOONLIGHT_GREATSWORD: GeneralArtifactDefinition = {
       aoe: '3 m radius',
       duration: 'Mastery Rank Rounds',
       effect:
-        'At the end of each of your turns, enemies in the aura take 8d8 Smite. Uses per Safe Haven Rest: half the wielder\u2019s Mastery Rank, rounded up.',
+        'At the end of each of your turns, enemies in the aura take 8d8 Smite. Uses per Safe Haven Rest: half the wielder\u2019s Mastery Rank, rounded up in the player\u2019s favor (MR2 = 1, MR3 = 2, MR4 = 2, MR5 = 3).',
       special: 'Smite Aura',
     },
     {
@@ -134,7 +134,7 @@ const MOONLIGHT_GREATSWORD: GeneralArtifactDefinition = {
       aoe: '4 m radius',
       duration: 'Mastery Rank Rounds',
       effect:
-        'At the end of each of your turns, enemies in the aura take 13d8 Smite. Uses per Safe Haven Rest: half the wielder\u2019s Mastery Rank, rounded up.',
+        'At the end of each of your turns, enemies in the aura take 13d8 Smite. Uses per Safe Haven Rest: half the wielder\u2019s Mastery Rank, rounded up in the player\u2019s favor (MR2 = 1, MR3 = 2, MR4 = 2, MR5 = 3).',
       special: 'Smite Aura',
     },
     {
@@ -935,11 +935,14 @@ const LOR_KETHS_STAFF: GeneralArtifactDefinition = {
     "Lor-Keth's Staff is a two-handed Rod of the Storm Ancestors. It was forged for giants, shaped from smooth blue-gray stone, and awakened by old runes of storm and bloodline.\n\nThe Staff changes with its bearer.\n\nIt is not a wand. It is a giant's weapon.",
   restriction:
     "Lor-Keth's Staff requires both hands.\n\nWhile wielding it, the character cannot wield another weapon, shield, or Hand Artifact.",
+  // The Ignore Armor Stone Power Support unlocks at L3 (L1/L2 are the Giant
+  // Shock Strike Active and Ancestor Guard Reaction), so the mechanical stone
+  // function gates at level 3 to match the authored Level Progression.
   stoneFunction: {
     kind: 'stonePowerSupport',
     attribute: 'might',
     stonePowerId: 'might.ignoreArmor',
-    level: 1,
+    level: 3,
   },
   baseValues: [
     { slot: 'a', label: 'Staff Damage', note: '1d8 to 10d8 across levels.' },

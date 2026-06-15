@@ -157,12 +157,13 @@ function buildElvenStrideDefinition(opts) {
         slot: 'feet',
         baseProfile: 'feet',
         description: `Elven Stride (${opts.lineageLabel}): otherworldly balance, reflex, clinging movement, and ${opts.lineageLabel} lineage empowerment.`,
-        restriction: 'An elf with Elven Stride cannot wear another Feet Artifact, magical boots, hooves, talons, or similar Feet-based Artifact.',
-        progressionPickIds: {
-            1: 'reaction-evade',
-            2: 'movement-wall-walk',
-            3: 'ab-evade',
-        },
+        restriction: 'An elf with Elven Stride cannot wear another Feet Artifact, magical boots, hooves, talons, or similar Feet-based Artifact. Elven Stride is Echo-bound and cannot normally be removed, replaced, sold, stolen, or unbound.',
+        // No `progressionPickIds`: the three lines (Otherworld Reflex / Elven Cling /
+        // Elemental Lineage) are authored verbatim below. Leaving the picks empty
+        // lets `buildEchoProgressionPicks` capture them as `authored` stages so the
+        // generated tree shows the exact rulebook rows (including the lineage-
+        // specific Support effects) instead of recompiling them from catalog
+        // templates (which replaced the lineage line with a generic Evade buff).
         baseValues: [
             { slot: 'a', label: 'Evade', note: '+2 to +12 Evade across levels.' },
             { slot: 'b', label: 'Clinging', note: '+1 to +4 m Clinging at higher levels.' },
@@ -360,16 +361,17 @@ const TITAN_SCARS = {
     slot: 'body',
     baseProfile: 'bodyArmor',
     description: 'Ancient scars, stone-like tissue, Titan blood, and broken divine bindings grown into the body.',
-    restriction: 'A Titanborn with Titan Scars cannot wear mundane armor or bind another Body Artifact.',
+    restriction: 'A Titanborn with Titan Scars cannot wear mundane armor or bind another Body Artifact. Titan Scars are Echo-bound and cannot normally be removed, replaced, sold, stolen, unequipped, or unbound.',
+    // Slot 2 is the Melee Damage Stone Power Support (Titan Might). Slots 1 and 3
+    // (Titan Growth / Titan Healing) carry no `progressionPickIds` so the authored
+    // rows below survive verbatim via `buildEchoProgressionPicks`' authored
+    // fallback instead of being recompiled into a generic damage buff / heal.
     stoneFunction: {
         kind: 'stonePowerSupport',
         attribute: 'might',
         stonePowerId: 'might.meleeDamage',
         level: 2,
-    },
-    progressionPickIds: {
-        1: 'ab-damage',
-        3: 'active-ranged-single-heal',
+        name: 'Titan Might',
     },
     baseValues: [
         {
@@ -385,7 +387,7 @@ const TITAN_SCARS = {
             type: 'Active Buff',
             range: 'Self',
             duration: 'Mastery Rank Rounds',
-            effect: 'You may activate Growth Form at Power Level 4. Uses your maintained Active Buff slot.',
+            effect: 'You may activate Growth Form at Power Level 4. Growth Form uses your maintained Active Buff slot.',
             special: 'Growth Form',
         },
         {
@@ -394,7 +396,7 @@ const TITAN_SCARS = {
             type: 'Stone Power Support',
             range: 'Self',
             duration: 'Instant',
-            effect: 'Titan Scars support the Might Ability: Melee Damage Stone Power and pre-fill Tier 2. You must still pay Tier 1.',
+            effect: 'Titan Scars support the Might Ability: Melee Damage Stone Power and pre-fill Tier 2. You must still pay Tier 1 yourself. If Tier 1 is not paid, the pre-filled Tier 2 has no effect.',
             special: 'Melee Damage Stone Power',
         },
         {
@@ -403,7 +405,7 @@ const TITAN_SCARS = {
             type: 'Stone Power Support',
             range: 'Self',
             duration: 'Instant',
-            effect: 'Titan Scars support the Vitality Ability: Remove Scar Stone Power. You pay the normal cost.',
+            effect: 'Titan Scars support the Vitality Ability: Remove Scar Stone Power. You must pay the normal Stone cost yourself.',
             special: 'Remove Scar Stone Power',
         },
         {
@@ -412,7 +414,7 @@ const TITAN_SCARS = {
             type: 'Active Buff',
             range: 'Self',
             duration: 'Mastery Rank Rounds',
-            effect: 'Growth Form improves to Power Level 10.',
+            effect: 'Growth Form improves to Power Level 10. Growth Form uses your maintained Active Buff slot.',
             special: 'Growth Form',
         },
         {
@@ -421,7 +423,7 @@ const TITAN_SCARS = {
             type: 'Stone Power Support',
             range: 'Self',
             duration: 'Instant',
-            effect: 'Pre-fills Tier 3 of Might Ability: Melee Damage.',
+            effect: 'Titan Scars pre-fill Tier 3 of the Might Ability: Melee Damage Stone Power. You must still pay Tier 1 and Tier 2 yourself. If Tier 1 and Tier 2 are not paid, the pre-filled Tier 3 has no effect.',
             special: 'Melee Damage Stone Power',
         },
         {
@@ -430,7 +432,7 @@ const TITAN_SCARS = {
             type: 'Stone Power Support',
             range: 'Self',
             duration: 'Instant',
-            effect: 'Remove Scar through Titan Scars may recover 1 Scarred Health Bar (as the Stone Power describes).',
+            effect: 'Titan Scars support the Vitality Ability: Remove Scar Stone Power. When Remove Scar is used through Titan Scars, it may recover 1 Scarred Health Bar as written by the Stone Power. You must pay the normal Stone cost yourself.',
             special: 'Remove Scar Stone Power',
         },
         {
@@ -439,7 +441,7 @@ const TITAN_SCARS = {
             type: 'Active Buff',
             range: 'Self',
             duration: 'Mastery Rank Rounds',
-            effect: 'Growth Form improves to Power Level 16.',
+            effect: 'Growth Form improves to Power Level 16. Growth Form uses your maintained Active Buff slot.',
             special: 'Growth Form',
         },
         {
@@ -448,7 +450,7 @@ const TITAN_SCARS = {
             type: 'Stone Power Support',
             range: 'Self',
             duration: 'Instant',
-            effect: 'Pre-fills Tier 4 of Might Ability: Melee Damage.',
+            effect: 'Titan Scars pre-fill Tier 4 of the Might Ability: Melee Damage Stone Power. You must still pay Tier 1, Tier 2, and Tier 3 yourself. If Tier 1, Tier 2, and Tier 3 are not paid, the pre-filled Tier 4 has no effect.',
             special: 'Melee Damage Stone Power',
         },
         {
@@ -457,7 +459,7 @@ const TITAN_SCARS = {
             type: 'Stone Power Support',
             range: 'Self / Touch',
             duration: 'Instant',
-            effect: 'Remove Scar through Titan Scars may target yourself or one touched willing creature.',
+            effect: 'Titan Scars support the Vitality Ability: Remove Scar Stone Power on yourself or one touched willing creature. You must pay the normal Stone cost yourself.',
             special: 'Remove Scar Stone Power',
         },
         {
@@ -466,7 +468,7 @@ const TITAN_SCARS = {
             type: 'Ultimate',
             range: 'Self / Touch',
             duration: 'Instant',
-            effect: 'Once per Safe Haven Rest, use Remove Scar through Titan Scars without paying its Stone cost.',
+            effect: 'Once per Safe Haven Rest, you may use the Vitality Ability: Remove Scar Stone Power through Titan Scars without paying its Stone cost. This free use can recover 1 Scarred Health Bar and follows all normal Remove Scar limits.',
             special: 'True Titan Scars',
         },
     ],
@@ -524,8 +526,8 @@ const WYRM_SCALES = {
             type: 'Stone Power Support',
             range: 'Self',
             duration: 'Instant',
-            effect: 'Wyrm Scales support the Vitality Ability ARMOR Stone Power and pre-fill Tier 2.',
-            special: 'ARMOR Stone Power',
+            effect: 'Wyrm Scales support the Might Ability Armor Stone Power and pre-fill Tier 2.',
+            special: 'Armor Stone Power',
         },
         {
             level: 4,
@@ -551,8 +553,8 @@ const WYRM_SCALES = {
             type: 'Stone Power Support',
             range: 'Self',
             duration: 'Instant',
-            effect: 'Pre-fills Tier 3 of the Vitality Ability ARMOR Stone Power.',
-            special: 'ARMOR Stone Power',
+            effect: 'Pre-fills Tier 3 of the Might Ability Armor Stone Power.',
+            special: 'Armor Stone Power',
         },
         {
             level: 7,
@@ -578,8 +580,8 @@ const WYRM_SCALES = {
             type: 'Stone Power Support',
             range: 'Self',
             duration: 'Instant',
-            effect: 'Pre-fills Tier 4 of the Vitality Ability ARMOR Stone Power.',
-            special: 'ARMOR Stone Power',
+            effect: 'Pre-fills Tier 4 of the Might Ability Armor Stone Power.',
+            special: 'Armor Stone Power',
         },
         {
             level: 10,
@@ -761,7 +763,7 @@ const DRAGON_CLAWS = {
             type: 'Stone Power Support',
             range: 'Self',
             duration: 'Instant',
-            effect: 'Dragon Claws support the Extra Might Damage Stone Power. They pre-fill Tier 2. You must still pay Tier 1 yourself.',
+            effect: 'Dragon Claws support the Might Ability Melee Damage Stone Power. They pre-fill Tier 2. You must still pay Tier 1 yourself.',
             special: '',
         },
         {
@@ -790,7 +792,7 @@ const DRAGON_CLAWS = {
             type: 'Stone Power Support',
             range: 'Self',
             duration: 'Instant',
-            effect: 'Dragon Claws support the Extra Might Damage Stone Power. They pre-fill Tier 3. You must still pay Tier 1 and 2 yourself.',
+            effect: 'Dragon Claws support the Might Ability Melee Damage Stone Power. They pre-fill Tier 3. You must still pay Tier 1 and 2 yourself.',
             special: '',
         },
         {
@@ -819,7 +821,7 @@ const DRAGON_CLAWS = {
             type: 'Stone Power Support',
             range: 'Self',
             duration: 'Instant',
-            effect: 'Dragon Claws support the Extra Might Damage Stone Power. They pre-fill Tier 4. You must still pay Tier 1, 2 and 3 yourself.',
+            effect: 'Dragon Claws support the Might Ability Melee Damage Stone Power. They pre-fill Tier 4. You must still pay Tier 1, 2 and 3 yourself.',
             special: '',
         },
         {
@@ -1000,11 +1002,13 @@ const SENTINEL_FRAME = {
     description: 'The armored enforcer frame — an iron wall of heavenly order.',
     requiresSubChoice: 'sentinel',
     restriction: 'A character with a Sentinel Body Artifact cannot wear mundane armor or bind another Body Artifact.',
-    progressionPickIds: {
-        1: 'active-ranged-single-heal',
-        2: 'ab-temp-hp',
-        3: 'passive-regeneration',
-    },
+    // No `progressionPickIds`: this frame's lines are a bespoke 1-9 progression
+    // (Single Heal Active + cross-attribute Resolve Stone Pool / Stone Power
+    // Support) that does not fit the generic 3-slot catalog mapping. Per the
+    // `stoneFunction` design note, body frames supporting an off-slot attribute
+    // keep their stone supports as authored Level Progression abilities. Leaving
+    // the picks empty lets `buildEchoProgressionPicks` capture every row as an
+    // `authored` stage so the seeded tree shows the exact rulebook rows.
     baseValues: [
         {
             slot: 'a',
@@ -1114,11 +1118,10 @@ const JUDICATOR_FRAME = {
     description: 'A judge, inquisitor, and divine executioner frame.',
     requiresSubChoice: 'judicator',
     restriction: 'A character with a Sentinel Body Artifact cannot wear mundane armor or bind another Body Artifact.',
-    progressionPickIds: {
-        1: 'ab-armor',
-        2: 'passive-regeneration',
-        3: 'reaction-damage-reduction',
-    },
+    // No `progressionPickIds`: Armor Hasten is an Active-Buff *empowerment* (not an
+    // Armor buff), and the Wits Stone Pool / Regeneration Stone Power Support are
+    // cross-attribute stone abilities. None map to a generic catalog Power, so the
+    // authored rulebook rows are kept verbatim via the authored fallback.
     baseValues: [
         {
             slot: 'a',
@@ -1228,11 +1231,10 @@ const ORACLE_FRAME = {
     description: 'An arcane vessel of command, prophecy, and divine will.',
     requiresSubChoice: 'oracle',
     restriction: 'A character with a Sentinel Body Artifact cannot wear mundane armor or bind another Body Artifact.',
-    progressionPickIds: {
-        1: 'ab-armor',
-        2: 'ab-special-overdrive',
-        3: 'passive-temp-hp',
-    },
+    // No `progressionPickIds`: Oracle Armor is permanent Base Armor (not an Active
+    // Buff), and the Aid Roll Stone Power Support / Influence Stone Pool are
+    // cross-attribute stone abilities. None map to a generic catalog Power, so the
+    // authored rulebook rows are kept verbatim via the authored fallback.
     baseValues: [
         {
             slot: 'a',

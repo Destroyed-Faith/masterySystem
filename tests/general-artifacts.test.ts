@@ -136,6 +136,26 @@ describe('Moonlight Greatsword', () => {
     expect(baseValue(tree, 7, 'Expose').value).toBe(4);
     expect(baseValue(tree, 10, 'Expose').value).toBe(8);
   });
+
+  it('has the three signature ability lines with correct categories', () => {
+    const def = getGeneralArtifact('moonlightGreatsword')!;
+    for (const lvl of [1, 4, 7]) expect(def.levelProgression[lvl - 1].name).toMatch(/Moonlight Mending/);
+    for (const lvl of [2, 5, 8]) expect(def.levelProgression[lvl - 1].name).toMatch(/Moonlight Judgment/);
+    for (const lvl of [3, 6, 9]) expect(def.levelProgression[lvl - 1].name).toMatch(/Moonlight Shadow/);
+    expect(def.levelProgression[9].name).toBe('True Moonlight');
+
+    const mending = sysAt(tree, 7).powers.find((p: any) => /Moonlight Mending/.test(p.name));
+    expect(mending.category).toBe('active');
+    const shadow = sysAt(tree, 6).powers.find((p: any) => /Moonlight Shadow/.test(p.name));
+    expect(shadow.category).toBe('activeBuff');
+  });
+
+  it('Moonlight Judgment Smite damage scales +7/+29/+53 d8', () => {
+    const def = getGeneralArtifact('moonlightGreatsword')!;
+    expect(def.levelProgression[1].effect).toContain('+7d8 Smite');
+    expect(def.levelProgression[4].effect).toContain('+29d8 Smite');
+    expect(def.levelProgression[7].effect).toContain('+53d8 Smite');
+  });
 });
 
 describe('Soul Sigil', () => {
@@ -377,8 +397,11 @@ describe("Lor-Keth's Staff", () => {
     expect(baseValue(tree, 10, 'Giant Weight').value).toBe('True Giant Weight');
   });
 
-  it('supports the Might Ignore Armor Stone Power from L1', () => {
-    expect(sysAt(tree, 1).stoneFunction).toEqual({
+  it('supports the Might Ignore Armor Stone Power from L3 (matching the authored Support row)', () => {
+    // L1 = Giant Shock Strike, L2 = Ancestor Guard; the stone support gates at L3.
+    expect(sysAt(tree, 1).stoneFunction).toBeNull();
+    expect(sysAt(tree, 2).stoneFunction).toBeNull();
+    expect(sysAt(tree, 3).stoneFunction).toEqual({
       kind: 'stonePowerSupport',
       attribute: 'might',
       stonePowerId: 'might.ignoreArmor',

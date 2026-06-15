@@ -672,6 +672,32 @@ export async function handleChosenCombatOption(token, option) {
             console.log('Mastery System | [ACTION ECONOMY] Consumed attack action for active buff. Remaining:', getAvailableAttackActions(actor, combat));
         }
         closeRadialMenu();
+        // Artifact Active Buffs (e.g. Titan Scars → Growth Form) have no backing
+        // power item, so they use a dedicated activation path that can also grow
+        // the token. Detected via the 'artifact' tag.
+        if ((option.tags || []).includes('artifact')) {
+            // @ts-ignore - .js extension in dynamic import
+            const { activateArtifactActiveBuff } = await import('./utils/artifact-active-buffs.js');
+            const ok = await activateArtifactActiveBuff(actor, option.item, option);
+            if (!ok && option.costsAction) {
+                await refundAttackAction(actor, combat);
+            }
+            if (ok) {
+                // NOTE: deliberately not marking the artifact item "used this round" —
+                // a single artifact item carries several rows, and the per-item guard
+                // would otherwise block the actor's other artifact abilities (Bite,
+                // Stone supports, etc.) for the rest of the round.
+                if (token.hud)
+                    token.hud.render();
+                const sheet0 = actor.sheet;
+                if (sheet0 && sheet0.rendered)
+                    sheet0.render();
+                const carousel0 = window.masteryCombatCarousel;
+                if (carousel0 && carousel0.rendered)
+                    carousel0.render();
+            }
+            return;
+        }
         // Dynamic import for active buffs utilities
         // @ts-ignore - TypeScript doesn't recognize the .js extension in dynamic imports
         const activeBuffsModule = await import('./utils/active-buffs.js');

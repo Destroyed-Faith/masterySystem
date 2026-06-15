@@ -20,6 +20,7 @@
  * attached so downstream consumers can identify the row.
  */
 import { getArtifactBindingKind } from '../utils/artifact-actor-rules.js';
+import { visibleAbilityRows } from '../utils/artifact-visible-abilities.js';
 const REACTION_TYPES = new Set(['Reaction']);
 /**
  * Classify a Level Progression row `type` into a radial category. The Type
@@ -169,7 +170,11 @@ export function buildArtifactRadialOptions(actor) {
                 defaultTargetGroup: 'enemy',
             });
         }
-        for (const row of progression) {
+        // Collapse staged lines to the single best stage per slot (matches the
+        // sheet): Titan Growth I/II/III surfaces as just the current stage, not
+        // three separate radial entries.
+        const rows = visibleAbilityRows(progression, currentLevel);
+        for (const row of rows) {
             const lvl = Number(row.level) || 1;
             if (lvl > currentLevel)
                 continue;
@@ -212,6 +217,9 @@ export function buildArtifactRadialOptions(actor) {
                     tags: ['artifact', 'active-buff', typeTag],
                     costsMovement: false,
                     costsAction: true,
+                    defaultTargetGroup: 'self',
+                    artifactRowSpecial: row.special || '',
+                    artifactRowLevel: lvl,
                 });
                 continue;
             }

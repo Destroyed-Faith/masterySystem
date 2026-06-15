@@ -430,6 +430,47 @@ export interface PowerMechanics {
     | 'targetHexed'
     | 'self-hp-below-50'
     | null;
+
+  /**
+   * Active Buff Aura payload (Damage / Healing / Smite / Special auras). Carries
+   * the per-level payload so the runtime can resolve "at the end of each of your
+   * turns" effects. Geometry (radius/shape) also lives on the row's `aoe`; this
+   * block restates the radius for convenience. NOTE: payload *resolution* is not
+   * yet wired — these are authored as catalog data for a follow-up step.
+   */
+  auraPayload?: {
+    kind: 'damage' | 'healing' | 'smite' | 'special';
+    /** Damage / Healing / Smite dice (e.g. "5d8"). */
+    dice?: string;
+    /** Chosen Special key for special auras (e.g. "ignite"). */
+    special?: string;
+    /** Special(X) magnitude for special auras. */
+    x?: number;
+    /** Who the aura affects when it triggers. */
+    targets: 'enemies' | 'allies';
+    radiusM: number;
+  };
+
+  /**
+   * Growth Form package (Titan-style size buff). Damage/Armor are carried via
+   * the normal `damageRider`/`armor`/`evade`/`initiativeD8` fields; this block
+   * holds the size/footprint/reach/stability rider. NOTE: the visible token
+   * resize, reach, and forced-movement reduction are wired in a follow-up step.
+   */
+  growthForm?: {
+    /** Size stage label (e.g. "Large Form"). */
+    sizeStage: string;
+    /** Number of connected hexes the form occupies. */
+    footprintHexes: number;
+    /** Melee/touch reach bonus in metres (0 = none). */
+    reachBonusM: number;
+    /** Push / Pull / forced-movement reduction in metres (0 = none). */
+    pushReductionM: number;
+    /** Prone resistance band granted by the current stage. */
+    proneImmunity: 'none' | 'smaller' | 'standard';
+    /** Physical-skill d8 penalty (except Strength/Body), 0 = none. */
+    physicalSkillPenaltyD8?: number;
+  };
 }
 
 export interface PowerCostLimit {

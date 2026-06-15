@@ -826,6 +826,11 @@ Hooks.once('init', async function() {
       await clearTempHPSourcesForBuffEffect(actor, effectId);
       // Phasing augments (Ghost Mantle) vanish with the buff they rode on.
       await removeAugmentCharges(actor, effectId);
+      // Growth Form (Titan Scars): restore the token's original size.
+      if (flags.growthForm === true) {
+        const { restoreGrowthFromEffect } = await import('./utils/artifact-active-buffs.js');
+        await restoreGrowthFromEffect(effect);
+      }
     } catch (err) {
       console.error('Mastery System | passive-triggers deleteActiveEffect cleanup failed', err);
     }

@@ -45,6 +45,9 @@ export interface RadialCombatOption {
   maneuver?: CombatManeuver;  // The maneuver definition if source is 'maneuver'
   powerType?: string; // e.g. "active" | "active-buff" | "movement" | "utility" | "reaction"
   tags?: string[];  // Tags for additional filtering (e.g. ["buff", "stance"])
+  /** Artifact level-progression metadata (set for artifact-derived options). */
+  artifactRowSpecial?: string; // The row's `special` column (e.g. "Growth Form").
+  artifactRowLevel?: number;   // The row's artifact level (1..10).
   costsMovement?: boolean; // Whether this option consumes Movement resource
   costsAction?: boolean; // Whether this option consumes Attack Action resource
   /** Melee attack power with a radius AoE: one pick applies the attack to every hostile in reach. */

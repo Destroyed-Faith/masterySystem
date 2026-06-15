@@ -40,6 +40,9 @@ export interface RadialCombatOption {
     maneuver?: CombatManeuver;
     powerType?: string;
     tags?: string[];
+    /** Artifact level-progression metadata (set for artifact-derived options). */
+    artifactRowSpecial?: string;
+    artifactRowLevel?: number;
     costsMovement?: boolean;
     costsAction?: boolean;
     /** Melee attack power with a radius AoE: one pick applies the attack to every hostile in reach. */
