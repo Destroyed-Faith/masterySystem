@@ -123,7 +123,7 @@ export const DIMINISHING_EFFECTS: SpecialEffect[] = [
     name: 'Freeze(X)',
     category: 'diminishing',
     description:
-      'Your Speed is reduced by X m. At Tick, take ceil(X/2) cold damage.',
+      'Your Speed is reduced by X m. At Tick, take ceil(X/2) damage. The name is flavour only — the effect need not be cold/ice.',
     duration: 'Diminishing (X→0)',
     stacking: 'Yes',
     removal: 'Body Save (end of turn), Athletics Remove Action, or Cleanse.',
@@ -138,7 +138,7 @@ export const DIMINISHING_EFFECTS: SpecialEffect[] = [
     id: 'ignite',
     name: 'Ignite(X)',
     category: 'diminishing',
-    description: 'At Tick, take X fire damage.',
+    description: 'At Tick, take X damage. The name is flavour only — the effect need not be fire.',
     duration: 'Diminishing (X→0)',
     stacking: 'Yes',
     removal: 'Body Save (end of turn), Medicine Remove Action, or Cleanse.',
@@ -277,7 +277,7 @@ export const DIMINISHING_EFFECTS: SpecialEffect[] = [
     name: 'Root(X)',
     category: 'diminishing',
     description:
-      'Your Speed becomes 0 m. You may spend an Attack Action on your turn to make a Break Strength check (TN = 8 × X) — on a success, Root ends; otherwise, Root persists. Diminishing: at the end of each round, X decreases by 1.',
+      'Your Speed becomes 0 m. You may spend an Attack Action on your turn to make a Break Strength check (TN = 8 × X) — on a success, Root ends; otherwise, Root persists. Diminishing: at the end of each round, X decreases by 1. The name is flavour only — the restraint may be vines, webbing, grasping hands, tentacles, etc.',
     duration: 'Diminishing (X→0)',
     stacking: 'No',
     removal:

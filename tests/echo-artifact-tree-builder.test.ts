@@ -113,7 +113,7 @@ describe('Echo Artifact tree builder — exact Base Values', () => {
   });
 
   it('stamps the current seed version on every node (for in-place refresh)', () => {
-    expect(ECHO_ARTIFACT_SEED_VERSION).toBe(18);
+    expect(ECHO_ARTIFACT_SEED_VERSION).toBe(19);
     const tree = buildEchoArtifactTree(getEchoArtifact('titanScars')!);
     for (const node of tree.nodes) {
       expect(flag(node, 'seedVersion')).toBe(ECHO_ARTIFACT_SEED_VERSION);
@@ -302,9 +302,11 @@ describe('Echo Artifact tree builder — Titan Scars', () => {
     expect(String(growth.special)).toBe('Growth Form');
     expect(String(growth.effect)).toContain('Power Level 4');
 
-    // Slot 2 stays the Melee Damage Stone Power Support.
+    // Slot 2 is now a Might Stone Pool (gifts Might Stones per Safe Haven Rest).
     const picks = (tree.nodes[0].itemData.system as any).progressionPicks as any[];
-    expect(picks.find((p) => p.level === 2).kind).toBe('stoneFunction');
+    const l2pick = picks.find((p) => p.level === 2);
+    expect(l2pick.kind).toBe('stoneFunction');
+    expect(l2pick.stoneFunction).toEqual({ kind: 'stonePool', attribute: 'might' });
     expect(picks.find((p) => p.level === 1).kind).toBe('authored');
     expect(picks.find((p) => p.level === 3).kind).toBe('authored');
   });

@@ -375,14 +375,14 @@ const TITAN_SCARS = {
     baseProfile: 'bodyArmor',
     description: 'Ancient scars, stone-like tissue, Titan blood, and broken divine bindings grown into the body.',
     restriction: 'A Titanborn with Titan Scars cannot wear mundane armor or bind another Body Artifact. Titan Scars are Echo-bound and cannot normally be removed, replaced, sold, stolen, unequipped, or unbound.',
-    // Slot 2 is the Melee Damage Stone Power Support (Titan Might). Slots 1 and 3
-    // (Titan Growth / Titan Healing) carry no `progressionPickIds` so the authored
-    // rows below survive verbatim via `buildEchoProgressionPicks`' authored
-    // fallback instead of being recompiled into a generic damage buff / heal.
+    // Slot 2 is a Might Stone Pool (Titan Might): after each Safe Haven Rest the
+    // Titanborn is gifted Might Stones (the pool lifts the Might stone maximum by
+    // 2 / 4 / 8 at stages I / II / III). Slots 1 and 3 (Titan Growth / Titan
+    // Healing) carry no `progressionPickIds` so the authored rows below survive
+    // verbatim via `buildEchoProgressionPicks`' authored fallback.
     stoneFunction: {
-        kind: 'stonePowerSupport',
+        kind: 'stonePool',
         attribute: 'might',
-        stonePowerId: 'might.meleeDamage',
         level: 2,
         name: 'Titan Might',
     },
@@ -406,11 +406,11 @@ const TITAN_SCARS = {
         {
             level: 2,
             name: 'Titan Might I',
-            type: 'Stone Power Support',
+            type: 'Stone Pool',
             range: 'Self',
-            duration: 'Instant',
-            effect: 'Titan Scars support the Might Ability: Melee Damage Stone Power and pre-fill Tier 2. You must still pay Tier 1 yourself. If Tier 1 is not paid, the pre-filled Tier 2 has no effect.',
-            special: 'Melee Damage Stone Power',
+            duration: 'Passive',
+            effect: 'After each Safe Haven Rest, Titan Scars gift you 2 Might Stones.',
+            special: 'Might Stones',
         },
         {
             level: 3,
@@ -433,11 +433,11 @@ const TITAN_SCARS = {
         {
             level: 5,
             name: 'Titan Might II',
-            type: 'Stone Power Support',
+            type: 'Stone Pool',
             range: 'Self',
-            duration: 'Instant',
-            effect: 'Titan Scars pre-fill Tier 3 of the Might Ability: Melee Damage Stone Power. You must still pay Tier 1 and Tier 2 yourself. If Tier 1 and Tier 2 are not paid, the pre-filled Tier 3 has no effect.',
-            special: 'Melee Damage Stone Power',
+            duration: 'Passive',
+            effect: 'After each Safe Haven Rest, Titan Scars gift you 4 Might Stones.',
+            special: 'Might Stones',
         },
         {
             level: 6,
@@ -460,11 +460,11 @@ const TITAN_SCARS = {
         {
             level: 8,
             name: 'Titan Might III',
-            type: 'Stone Power Support',
+            type: 'Stone Pool',
             range: 'Self',
-            duration: 'Instant',
-            effect: 'Titan Scars pre-fill Tier 4 of the Might Ability: Melee Damage Stone Power. You must still pay Tier 1, Tier 2, and Tier 3 yourself. If Tier 1, Tier 2, and Tier 3 are not paid, the pre-filled Tier 4 has no effect.',
-            special: 'Melee Damage Stone Power',
+            duration: 'Passive',
+            effect: 'After each Safe Haven Rest, Titan Scars gift you 8 Might Stones.',
+            special: 'Might Stones',
         },
         {
             level: 9,

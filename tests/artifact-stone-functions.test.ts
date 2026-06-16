@@ -3,6 +3,7 @@ import {
   getArtifactStoneFunctions,
   getArtifactStoneSupportPrefill,
   getArtifactStoneBatteryCapacityByAttribute,
+  getArtifactStonePoolExtraByAttribute,
 } from '../src/utils/artifact-stone-functions.js';
 import { buildEchoArtifactTree } from '../src/artifacts/echo-artifact-tree-builder.js';
 import { getEchoArtifact } from '../src/utils/echo-artifacts.js';
@@ -64,6 +65,16 @@ describe('Artifact Stone Function aggregator — multiple functions per artifact
     expect(support?.stonePowerId).toBe('influence.regeneration');
     // Regeneration support pre-fills Tier 3 at level 6.
     expect(getArtifactStoneSupportPrefill(actor, 'influence.regeneration', 'influence')).toBe(3);
+  });
+
+  it('Titan Scars gift Might Stones via a Might Stone Pool (2/4/8 per stage)', () => {
+    const tree = buildEchoArtifactTree(getEchoArtifact('titanScars')!);
+    // Below L2 the pool is not yet unlocked.
+    expect(getArtifactStonePoolExtraByAttribute(actorWith(activeItemFromNode(tree.nodes[0], 'Titan Scars'))).might || 0).toBe(0);
+    // L2 → 2, L5 → 4, L8 → 8 Might Stones.
+    expect(getArtifactStonePoolExtraByAttribute(actorWith(activeItemFromNode(tree.nodes[1], 'Titan Scars'))).might).toBe(2);
+    expect(getArtifactStonePoolExtraByAttribute(actorWith(activeItemFromNode(tree.nodes[4], 'Titan Scars'))).might).toBe(4);
+    expect(getArtifactStonePoolExtraByAttribute(actorWith(activeItemFromNode(tree.nodes[7], 'Titan Scars'))).might).toBe(8);
   });
 
   it('falls back to the single legacy sys.stoneFunction when there are no picks', () => {

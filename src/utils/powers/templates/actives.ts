@@ -78,8 +78,8 @@ function damageSingleTemplate(def: {
         specialSlot: slot,
         spellHints,
         fluff: isRanged
-            ? `A focused ranged strike that applies a Tier ${def.tier} Special.`
-            : `A close-range martial strike that applies a Tier ${def.tier} Special.`,
+            ? `A focused ranged attack that applies a Tier ${def.tier} Special. Element/visuals are flavour — choose your own.`
+            : `A close-range attack that applies a Tier ${def.tier} Special. Element/visuals are flavour — choose your own.`,
         cost: { action: 'attack' },
         roll: { kind: 'attack', attribute: isRanged ? 'agility' : 'might' },
         levels: buildLevels((lvl) => {
@@ -118,7 +118,7 @@ function damageAoeTemplate(def: {
         tags: ['spell'],
         specialSlot: slot,
         spellHints,
-        fluff: `A ${isRanged ? 'ranged' : 'melee'} area strike that applies a Tier ${def.tier} Special to everything in the blast.`,
+        fluff: `A ${isRanged ? 'ranged' : 'close-range'} area attack that applies a Tier ${def.tier} Special to everything in the area. Element/visuals are flavour — choose your own.`,
         cost: { action: 'attack' },
         roll: { kind: 'attack', attribute: isRanged ? 'agility' : 'might' },
         levels: buildLevels((lvl) => {
@@ -748,7 +748,7 @@ function autofireWeaponAttackTemplate(): PowerTemplate {
         category: 'active',
         tags: [],
         spellHints: { defaultResolution: 'spellAttack' },
-        fluff: 'A ranged weapon attack that sprays fire across several targets without creating separate attacks.',
+        fluff: 'A ranged weapon attack that sweeps across several targets without creating separate attacks.',
         cost: { action: 'attack' },
         roll: { kind: 'attack', attribute: 'agility' },
         levels: buildLevels((lvl) => {
