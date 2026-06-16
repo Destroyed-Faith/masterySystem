@@ -2,8 +2,9 @@
  * Artifact Stone Function aggregator
  *
  * Walks an actor's equipped (or echo-bound) artifacts and resolves their
- * Stone Function (the unique "engine" slot on every artifact). One Stone
- * Function per artifact, attribute-gated by the artifact slot.
+ * Stone Functions. Most artifacts carry a single Stone Function, but an
+ * artifact may define up to three (one per Basic-level progression pick) —
+ * e.g. the Sentinel frames pair a Stone Battery with a Stone Power Support.
  *
  * Surfaces:
  *   - `getArtifactStoneSupportPrefill(actor, powerId, poolAttribute?)`
@@ -56,6 +57,34 @@ function resolveStoneFunction(item: any): ArtifactStoneFunction | null {
     return fn as ArtifactStoneFunction;
 }
 
+/**
+ * Collect every Stone Function active on a single artifact item at its current
+ * level. An artifact can carry up to three Stone Functions — one per Basic-level
+ * progression pick (e.g. the Sentinel frames: a Resolve Stone Battery on one
+ * slot and a Resolve Healing Support on another). Each pick is gated by the
+ * Basic level it is introduced at (`pick.level <= currentLevel`).
+ *
+ * Falls back to the single legacy `sys.stoneFunction` only when the item carries
+ * no Stone Function picks (older seeds / hand-built items), so artifacts using
+ * the `def.stoneFunction` shortcut keep working without double-counting.
+ */
+function collectStoneFunctionsForItem(item: any, currentLevel: number): ArtifactStoneFunction[] {
+    const sys = (item?.system as any) || {};
+    const picks = Array.isArray(sys.progressionPicks) ? sys.progressionPicks : [];
+    const fromPicks: ArtifactStoneFunction[] = [];
+    for (const pick of picks) {
+        if (!pick || pick.kind !== 'stoneFunction') continue;
+        const fn = pick.stoneFunction;
+        if (!fn || typeof fn !== 'object' || !fn.kind || !fn.attribute) continue;
+        const baseLevel = Math.max(1, Number(pick.level) || 1);
+        if (currentLevel < baseLevel) continue;
+        fromPicks.push(fn as ArtifactStoneFunction);
+    }
+    if (fromPicks.length > 0) return fromPicks;
+    const legacy = resolveStoneFunction(item);
+    return legacy ? [legacy] : [];
+}
+
 function valueForFunction(kind: ArtifactStoneFunctionKind, level: number): number {
     switch (kind) {
         case 'stonePowerSupport':
@@ -82,25 +111,25 @@ export function getArtifactStoneFunctions(actor: any): ArtifactStoneFunctionReco
     for (const item of items) {
         if (item?.type !== 'artifact') continue;
         if (!isArtifactMechanicallyActive(actor, item)) continue;
-        const fn = resolveStoneFunction(item);
-        if (!fn) continue;
         const sys = (item.system as any) || {};
         const level = Math.max(1, Math.min(10, Number(sys.currentLevel) || Number(sys.level) || 1));
-        const value = valueForFunction(fn.kind, level);
-        if (value <= 0 && fn.kind !== 'stonePowerSupport') continue;
+        for (const fn of collectStoneFunctionsForItem(item, level)) {
+            const value = valueForFunction(fn.kind, level);
+            if (value <= 0 && fn.kind !== 'stonePowerSupport') continue;
 
-        const rec: ArtifactStoneFunctionRecord = {
-            kind: fn.kind,
-            attribute: String(fn.attribute || ''),
-            level,
-            value,
-            source: item.name || 'Artifact',
-            artifactItemId: item.id,
-        };
-        if (fn.kind === 'stonePowerSupport' && fn.stonePowerId) {
-            rec.stonePowerId = String(fn.stonePowerId);
+            const rec: ArtifactStoneFunctionRecord = {
+                kind: fn.kind,
+                attribute: String(fn.attribute || ''),
+                level,
+                value,
+                source: item.name || 'Artifact',
+                artifactItemId: item.id,
+            };
+            if (fn.kind === 'stonePowerSupport' && fn.stonePowerId) {
+                rec.stonePowerId = String(fn.stonePowerId);
+            }
+            out.push(rec);
         }
-        out.push(rec);
     }
     return out;
 }

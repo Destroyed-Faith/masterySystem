@@ -68,6 +68,19 @@ export interface EchoArtifactProgressionPickSpec {
     delivery?: 'melee-single' | 'melee-aoe' | 'ranged-single' | 'ranged-aoe';
     /** Martial damage Special key — the damage tier is derived from it. */
     special?: string;
+    /**
+     * Stone Function for this slot (alternative to a catalog Power). Lets a
+     * single artifact carry up to three independent Stone Functions — one per
+     * Basic level — instead of the single `def.stoneFunction` shortcut. Used by
+     * the Sentinel body frames, whose Stone Pool / Battery / Support lines live
+     * on different slots. The actor-side aggregator reads every Stone Function
+     * pick, so all of them apply mechanically.
+     */
+    stoneFunction?: {
+        kind: ArtifactStoneFunctionKind;
+        attribute: string;
+        stonePowerId?: string;
+    };
 }
 export interface EchoArtifactBaseValueHint {
     /** Label as it appears in the Player's Guide (Base Value A / B / C). */

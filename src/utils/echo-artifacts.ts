@@ -76,6 +76,19 @@ export interface EchoArtifactProgressionPickSpec {
   delivery?: 'melee-single' | 'melee-aoe' | 'ranged-single' | 'ranged-aoe';
   /** Martial damage Special key — the damage tier is derived from it. */
   special?: string;
+  /**
+   * Stone Function for this slot (alternative to a catalog Power). Lets a
+   * single artifact carry up to three independent Stone Functions — one per
+   * Basic level — instead of the single `def.stoneFunction` shortcut. Used by
+   * the Sentinel body frames, whose Stone Pool / Battery / Support lines live
+   * on different slots. The actor-side aggregator reads every Stone Function
+   * pick, so all of them apply mechanically.
+   */
+  stoneFunction?: {
+    kind: ArtifactStoneFunctionKind;
+    attribute: string;
+    stonePowerId?: string;
+  };
 }
 
 export interface EchoArtifactBaseValueHint {
@@ -278,6 +291,10 @@ function buildElvenStrideDefinition(opts: {
   key: string;
   name: string;
   lineageLabel: string;
+  /** Catalog Buff-Empowerment template the lineage L3 line maps to. */
+  lineageTemplateId: string;
+  /** Flavor name for the lineage line (e.g. "Ember Surge"). */
+  lineageDisplayName: string;
   lineageRows: [
     { name: string; effect: string; special: string },
     { name: string; effect: string; special: string },
@@ -294,12 +311,17 @@ function buildElvenStrideDefinition(opts: {
     description: `Elven Stride (${opts.lineageLabel}): otherworldly balance, reflex, clinging movement, and ${opts.lineageLabel} lineage empowerment.`,
     restriction:
       'An elf with Elven Stride cannot wear another Feet Artifact, magical boots, hooves, talons, or similar Feet-based Artifact. Elven Stride is Echo-bound and cannot normally be removed, replaced, sold, stolen, or unbound.',
-    // No `progressionPickIds`: the three lines (Otherworld Reflex / Elven Cling /
-    // Elemental Lineage) are authored verbatim below. Leaving the picks empty
-    // lets `buildEchoProgressionPicks` capture them as `authored` stages so the
-    // generated tree shows the exact rulebook rows (including the lineage-
-    // specific Support effects) instead of recompiling them from catalog
-    // templates (which replaced the lineage line with a generic Evade buff).
+    // All three lines are real, editable catalog Powers (no authored fallback):
+    //   L1 Otherworld Reflex → `reaction-evade` (catalog Evade scaling),
+    //   L2 Elven Cling       → `movement-wall-walk` (10/25/28 m, exact match),
+    //   L3 lineage line       → the matching Buff-Empowerment passive.
+    // Flavor names are preserved via the pick `name` so the rows still read as
+    // Otherworld Reflex / Elven Cling / <lineage>.
+    progressionPickSpecs: {
+      1: { templateId: 'reaction-evade', name: 'Otherworld Reflex' },
+      2: { templateId: 'movement-wall-walk', name: 'Elven Cling' },
+      3: { templateId: opts.lineageTemplateId, name: opts.lineageDisplayName },
+    },
     baseValues: [
       { slot: 'a', label: 'Evade', note: '+2 to +12 Evade across levels.' },
       { slot: 'b', label: 'Clinging', note: '+1 to +4 m Clinging at higher levels.' },
@@ -407,6 +429,8 @@ const ELVEN_STRIDE_FIRE = buildElvenStrideDefinition({
   key: 'elvenStrideFire',
   name: 'Elven Stride (Fire)',
   lineageLabel: 'Fire',
+  lineageTemplateId: 'empower-buff-damage',
+  lineageDisplayName: 'Ember Surge',
   lineageRows: [
     {
       name: 'Ember Surge I',
@@ -430,6 +454,8 @@ const ELVEN_STRIDE_EARTH = buildElvenStrideDefinition({
   key: 'elvenStrideEarth',
   name: 'Elven Stride (Earth)',
   lineageLabel: 'Earth',
+  lineageTemplateId: 'empower-buff-armor',
+  lineageDisplayName: 'Stoneweave Guard',
   lineageRows: [
     {
       name: 'Stoneweave Guard I',
@@ -453,6 +479,8 @@ const ELVEN_STRIDE_WATER = buildElvenStrideDefinition({
   key: 'elvenStrideWater',
   name: 'Elven Stride (Water)',
   lineageLabel: 'Water',
+  lineageTemplateId: 'empower-buff-evade',
+  lineageDisplayName: 'Tidal Slip',
   lineageRows: [
     {
       name: 'Tidal Slip I',
@@ -476,6 +504,8 @@ const ELVEN_STRIDE_AIR = buildElvenStrideDefinition({
   key: 'elvenStrideAir',
   name: 'Elven Stride (Air)',
   lineageLabel: 'Air',
+  lineageTemplateId: 'empower-buff-wind',
+  lineageDisplayName: 'Wind-First',
   lineageRows: [
     {
       name: 'Wind-First I',
@@ -1179,13 +1209,23 @@ const SENTINEL_FRAME: EchoArtifactDefinition = {
   requiresSubChoice: 'sentinel',
   restriction:
     'A character with a Sentinel Body Artifact cannot wear mundane armor or bind another Body Artifact.',
-  // No `progressionPickIds`: this frame's lines are a bespoke 1-9 progression
-  // (Single Heal Active + cross-attribute Resolve Stone Pool / Stone Power
-  // Support) that does not fit the generic 3-slot catalog mapping. Per the
-  // `stoneFunction` design note, body frames supporting an off-slot attribute
-  // keep their stone supports as authored Level Progression abilities. Leaving
-  // the picks empty lets `buildEchoProgressionPicks` capture every row as an
-  // `authored` stage so the seeded tree shows the exact rulebook rows.
+  // Three clean tracks mapped to real, editable Powers / Stone Functions:
+  //   L1 Single Heal  → `active-ranged-single-heal` (catalog heal Active),
+  //   L2 Resolve Core → Stone Battery (Resolve),
+  //   L3 Healing Support → Stone Power Support (Resolve: Healing).
+  // The two Stone Functions live on their own picks and both apply mechanically.
+  progressionPickSpecs: {
+    1: { templateId: 'active-ranged-single-heal', name: 'Single Heal' },
+    2: { name: 'Resolve Core', stoneFunction: { kind: 'stoneBattery', attribute: 'resolve' } },
+    3: {
+      name: 'Healing Support',
+      stoneFunction: {
+        kind: 'stonePowerSupport',
+        attribute: 'resolve',
+        stonePowerId: 'resolve.healing',
+      },
+    },
+  },
   baseValues: [
     {
       slot: 'a',
@@ -1206,10 +1246,10 @@ const SENTINEL_FRAME: EchoArtifactDefinition = {
     {
       level: 2,
       name: 'Resolve Core I',
-      type: 'Stone Pool',
+      type: 'Stone Battery',
       range: 'Self',
       duration: 'Passive',
-      effect: 'After each Safe Haven Rest, Sentinel Frame stores 2 Resolve Stones.',
+      effect: 'Sentinel Frame gains a Resolve Stone Battery (capacity 10).',
       special: 'Resolve Stones',
     },
     {
@@ -1233,22 +1273,21 @@ const SENTINEL_FRAME: EchoArtifactDefinition = {
     },
     {
       level: 5,
-      name: 'Special Reduction Support I',
-      type: 'Stone Power Support',
+      name: 'Resolve Core II',
+      type: 'Stone Battery',
       range: 'Self',
-      duration: 'Instant',
-      effect:
-        'Sentinel Frame supports the Resolve Ability: Special Reduction Stone Power and pre-fills Tier 3.',
-      special: 'Special Reduction Stone Power',
+      duration: 'Passive',
+      effect: 'Resolve Stone Battery capacity increases to 20.',
+      special: 'Resolve Stones',
     },
     {
       level: 6,
-      name: 'Resolve Core II',
-      type: 'Stone Pool',
+      name: 'Healing Support II',
+      type: 'Stone Power Support',
       range: 'Self',
-      duration: 'Passive',
-      effect: 'After each Safe Haven Rest, Sentinel Frame stores 4 Resolve Stones.',
-      special: 'Resolve Stones',
+      duration: 'Instant',
+      effect: 'Sentinel Frame pre-fills Tier 3 of the Resolve Ability: Healing Stone Power.',
+      special: 'Healing Stone Power',
     },
     {
       level: 7,
@@ -1261,22 +1300,21 @@ const SENTINEL_FRAME: EchoArtifactDefinition = {
     },
     {
       level: 8,
-      name: 'Healing Support II',
+      name: 'Resolve Core III',
+      type: 'Stone Battery',
+      range: 'Self',
+      duration: 'Passive',
+      effect: 'Resolve Stone Battery capacity increases to 40.',
+      special: 'Resolve Stones',
+    },
+    {
+      level: 9,
+      name: 'Healing Support III',
       type: 'Stone Power Support',
       range: 'Self',
       duration: 'Instant',
       effect: 'Sentinel Frame pre-fills Tier 4 of the Resolve Ability: Healing Stone Power.',
       special: 'Healing Stone Power',
-    },
-    {
-      level: 9,
-      name: 'Special Reduction Support II',
-      type: 'Stone Power Support',
-      range: 'Self',
-      duration: 'Instant',
-      effect:
-        'Sentinel Frame pre-fills Tier 4 of the Resolve Ability: Special Reduction Stone Power.',
-      special: 'Special Reduction Stone Power',
     },
     {
       level: 10,
@@ -1285,7 +1323,7 @@ const SENTINEL_FRAME: EchoArtifactDefinition = {
       range: 'Self',
       duration: 'Special',
       effect:
-        'Once per Safe Haven Rest, when you use Healing or Special Reduction through Sentinel Frame, treat one required lower Tier as already paid.',
+        'Once per Safe Haven Rest, when you use Healing through Sentinel Frame, treat one required lower Tier as already paid.',
       special: 'Resolve Stone Power',
     },
   ],
@@ -1301,10 +1339,23 @@ const JUDICATOR_FRAME: EchoArtifactDefinition = {
   requiresSubChoice: 'judicator',
   restriction:
     'A character with a Sentinel Body Artifact cannot wear mundane armor or bind another Body Artifact.',
-  // No `progressionPickIds`: Armor Hasten is an Active-Buff *empowerment* (not an
-  // Armor buff), and the Wits Stone Pool / Regeneration Stone Power Support are
-  // cross-attribute stone abilities. None map to a generic catalog Power, so the
-  // authored rulebook rows are kept verbatim via the authored fallback.
+  // Three clean tracks mapped to real, editable Powers / Stone Functions:
+  //   L1 Armor Hasten → `empower-buff-armor` (Armor Buff Empowerment passive),
+  //   L2 Wits Core    → Stone Pool (Wits),
+  //   L3 Regeneration → Stone Power Support (Influence: Regeneration).
+  // The Stone Functions live on their own picks, so both apply mechanically.
+  progressionPickSpecs: {
+    1: { templateId: 'empower-buff-armor', name: 'Armor Hasten' },
+    2: { name: 'Wits Core', stoneFunction: { kind: 'stonePool', attribute: 'wits' } },
+    3: {
+      name: 'Regeneration Support',
+      stoneFunction: {
+        kind: 'stonePowerSupport',
+        attribute: 'influence',
+        stonePowerId: 'influence.regeneration',
+      },
+    },
+  },
   baseValues: [
     {
       slot: 'a',
@@ -1419,10 +1470,21 @@ const ORACLE_FRAME: EchoArtifactDefinition = {
   requiresSubChoice: 'oracle',
   restriction:
     'A character with a Sentinel Body Artifact cannot wear mundane armor or bind another Body Artifact.',
-  // No `progressionPickIds`: Oracle Armor is permanent Base Armor (not an Active
-  // Buff), and the Aid Roll Stone Power Support / Influence Stone Pool are
-  // cross-attribute stone abilities. None map to a generic catalog Power, so the
-  // authored rulebook rows are kept verbatim via the authored fallback.
+  // L1 Oracle Armor stays authored (permanent Base Armor — the shared armor
+  // value, not a catalog Power). L2 + L3 are real Stone Functions:
+  //   L2 Oracle Aid    → Stone Power Support (Influence: Aid Roll),
+  //   L3 Influence Core → Stone Battery (Influence).
+  progressionPickSpecs: {
+    2: {
+      name: 'Oracle Aid',
+      stoneFunction: {
+        kind: 'stonePowerSupport',
+        attribute: 'influence',
+        stonePowerId: 'influence.aidRoll',
+      },
+    },
+    3: { name: 'Influence Core', stoneFunction: { kind: 'stoneBattery', attribute: 'influence' } },
+  },
   baseValues: [
     {
       slot: 'a',
@@ -1727,7 +1789,17 @@ export function buildEchoProgressionPicks(
     const spec = specs[lvl];
     if (!spec) continue;
     const displayName = spec.name?.trim() || undefined;
-    if (spec.delivery && spec.special) {
+    if (spec.stoneFunction) {
+      const sfSpec = spec.stoneFunction;
+      const stoneFunction: { kind: ArtifactStoneFunctionKind; attribute: string; stonePowerId?: string } = {
+        kind: sfSpec.kind,
+        attribute: sfSpec.attribute,
+      };
+      if (sfSpec.kind === 'stonePowerSupport' && sfSpec.stonePowerId) {
+        stoneFunction.stonePowerId = sfSpec.stonePowerId;
+      }
+      picks[lvl - 1] = { level: lvl, kind: 'stoneFunction', stoneFunction, displayName };
+    } else if (spec.delivery && spec.special) {
       const resolved = resolvePickFromUi(spec.delivery, spec.special);
       picks[lvl - 1] = {
         level: lvl,

@@ -2,8 +2,9 @@
  * Artifact Stone Function aggregator
  *
  * Walks an actor's equipped (or echo-bound) artifacts and resolves their
- * Stone Function (the unique "engine" slot on every artifact). One Stone
- * Function per artifact, attribute-gated by the artifact slot.
+ * Stone Functions. Most artifacts carry a single Stone Function, but an
+ * artifact may define up to three (one per Basic-level progression pick) —
+ * e.g. the Sentinel frames pair a Stone Battery with a Stone Power Support.
  *
  * Surfaces:
  *   - `getArtifactStoneSupportPrefill(actor, powerId, poolAttribute?)`

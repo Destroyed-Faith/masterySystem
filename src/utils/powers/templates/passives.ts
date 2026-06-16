@@ -258,6 +258,53 @@ function senseText(info: { count: number; presence: boolean }): string {
     return `Choose **${info.count} Combat Sense${plural}**.${presence}`;
 }
 
+// ─── Buff Empowerment (artifact lineage meta-passives) ───────────────────
+/**
+ * Empower amount per Power Level. Banded so an artifact's Stage I / II / III
+ * (which read PL 4 / 10 / 16) resolve to +1 / +2 / +3 — matching the authored
+ * Elven Stride lineage lines (Ember Surge / Stoneweave Guard / Tidal Slip /
+ * Wind-First). These are artifact-only meta-passives with no stat delta of
+ * their own; they raise the Power Level + duration of a matching Active Buff.
+ */
+const BUFF_EMPOWER = [1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3];
+
+function empowermentPassive(def: { id: string; name: string; axisLabel: string }): PowerTemplate {
+    return {
+        templateId: def.id,
+        templateName: def.name,
+        name: `Passive: ${def.name}`,
+        subfamily: 'buff-empowerment',
+        category: 'passive',
+        tags: ['artifact-only'],
+        fluff: 'A lineage gift that pushes one kind of Active Buff past its normal limits.',
+        cost: { action: 'none' },
+        roll: { kind: 'none' },
+        levels: buildLevels((lvl) => {
+            const amt = BUFF_EMPOWER[lvl - 1]!;
+            const rounds = amt === 1 ? '1 round' : `${amt} rounds`;
+            return passiveRow({
+                type: 'Support',
+                effectText:
+                    `When you activate an Active Buff that grants ${def.axisLabel} as one of its effects, ` +
+                    `you may increase that Buff's effective Power Level by +${amt} and its duration by +${rounds}. ` +
+                    `Uses per Safe Haven Rest: half Mastery Rank, rounded up. The Active Buff cannot exceed Power Level 16.`,
+            });
+        }),
+    };
+}
+
+/** Damage / Armor / Evade / Wind buff-empowerment lineage passives. */
+const EMPOWER_BUFF_TEMPLATES: PowerTemplate[] = [
+    empowermentPassive({ id: 'empower-buff-damage', name: 'Damage Buff Empowerment', axisLabel: 'Damage' }),
+    empowermentPassive({ id: 'empower-buff-armor', name: 'Armor Buff Empowerment', axisLabel: 'Armor' }),
+    empowermentPassive({ id: 'empower-buff-evade', name: 'Evade Buff Empowerment', axisLabel: 'Evade' }),
+    empowermentPassive({
+        id: 'empower-buff-wind',
+        name: 'Wind Buff Empowerment',
+        axisLabel: 'Evade or movement-related positioning',
+    }),
+];
+
 // ─── Templates ───────────────────────────────────────────────────────────
 
 export const PASSIVE_TEMPLATES: PowerTemplate[] = [
@@ -801,4 +848,10 @@ export const PASSIVE_TEMPLATES: PowerTemplate[] = [
             };
         },
     }),
+
+    // ─── Buff Empowerment (artifact lineage meta-passives) ───────────────
+    EMPOWER_BUFF_TEMPLATES[0]!,
+    EMPOWER_BUFF_TEMPLATES[1]!,
+    EMPOWER_BUFF_TEMPLATES[2]!,
+    EMPOWER_BUFF_TEMPLATES[3]!,
 ];

@@ -113,7 +113,7 @@ describe('Echo Artifact tree builder — exact Base Values', () => {
   });
 
   it('stamps the current seed version on every node (for in-place refresh)', () => {
-    expect(ECHO_ARTIFACT_SEED_VERSION).toBe(16);
+    expect(ECHO_ARTIFACT_SEED_VERSION).toBe(18);
     const tree = buildEchoArtifactTree(getEchoArtifact('titanScars')!);
     for (const node of tree.nodes) {
       expect(flag(node, 'seedVersion')).toBe(ECHO_ARTIFACT_SEED_VERSION);
@@ -121,48 +121,71 @@ describe('Echo Artifact tree builder — exact Base Values', () => {
   });
 });
 
-describe('Echo Artifact tree builder — Sentinel frames keep authored rulebook rows', () => {
-  // The three frames intentionally carry NO generic catalog picks: their stone
-  // abilities (cross-attribute Stone Pool / Stone Power Support) are authored
-  // Level Progression rows and must survive verbatim.
-  it('Sentinel/Judicator/Oracle picks are all authored (no generic ab-*/passive-* picks)', () => {
-    for (const key of ['sentinelFrame', 'judicatorFrame', 'oracleFrame']) {
-      const tree = buildEchoArtifactTree(getEchoArtifact(key)!);
-      const picks = (tree.nodes[0].itemData.system as any).progressionPicks as any[];
-      for (const lvl of [1, 2, 3]) {
-        const p = picks.find((x) => x.level === lvl);
-        expect(p, `${key} L${lvl}`).toBeTruthy();
-        expect(p.kind, `${key} L${lvl} kind`).toBe('authored');
-        expect(p.powerTemplateId, `${key} L${lvl} has no catalog templateId`).toBeUndefined();
-      }
+describe('Echo Artifact tree builder — Sentinel frames map to catalog Powers + Stone Functions', () => {
+  // The frames now carry real, editable picks: catalog Powers/empowerments on
+  // their ability track, and one Stone Function per stone slot. An artifact may
+  // hold up to three Stone Functions (one per Basic-level pick).
+  const pick = (key: string, lvl: number) =>
+    ((buildEchoArtifactTree(getEchoArtifact(key)!).nodes[0].itemData.system as any)
+      .progressionPicks as any[]).find((p) => p.level === lvl);
+
+  it('Judicator: Armor empowerment + Wits Stone Pool + Influence Regeneration Support', () => {
+    expect(pick('judicatorFrame', 1).kind).toBe('power');
+    expect(pick('judicatorFrame', 1).powerTemplateId).toBe('empower-buff-armor');
+
+    const l2 = pick('judicatorFrame', 2);
+    expect(l2.kind).toBe('stoneFunction');
+    expect(l2.stoneFunction).toEqual({ kind: 'stonePool', attribute: 'wits' });
+
+    const l3 = pick('judicatorFrame', 3);
+    expect(l3.kind).toBe('stoneFunction');
+    expect(l3.stoneFunction).toEqual({
+      kind: 'stonePowerSupport',
+      attribute: 'influence',
+      stonePowerId: 'influence.regeneration',
+    });
+  });
+
+  it('Oracle: L1 Base Armor stays authored, Aid Roll Support + Influence Stone Battery', () => {
+    expect(pick('oracleFrame', 1).kind).toBe('authored');
+
+    const l2 = pick('oracleFrame', 2);
+    expect(l2.kind).toBe('stoneFunction');
+    expect(l2.stoneFunction).toEqual({
+      kind: 'stonePowerSupport',
+      attribute: 'influence',
+      stonePowerId: 'influence.aidRoll',
+    });
+
+    const l3 = pick('oracleFrame', 3);
+    expect(l3.kind).toBe('stoneFunction');
+    expect(l3.stoneFunction).toEqual({ kind: 'stoneBattery', attribute: 'influence' });
+  });
+
+  it('Sentinel: Single Heal Active + Resolve Stone Battery + Resolve Healing Support', () => {
+    expect(pick('sentinelFrame', 1).kind).toBe('power');
+    expect(pick('sentinelFrame', 1).powerTemplateId).toBe('active-ranged-single-heal');
+
+    const l2 = pick('sentinelFrame', 2);
+    expect(l2.kind).toBe('stoneFunction');
+    expect(l2.stoneFunction).toEqual({ kind: 'stoneBattery', attribute: 'resolve' });
+
+    const l3 = pick('sentinelFrame', 3);
+    expect(l3.kind).toBe('stoneFunction');
+    expect(l3.stoneFunction).toEqual({
+      kind: 'stonePowerSupport',
+      attribute: 'resolve',
+      stonePowerId: 'resolve.healing',
+    });
+  });
+
+  it('exposes all three Stone Functions as level-gated picks on every node', () => {
+    const tree = buildEchoArtifactTree(getEchoArtifact('sentinelFrame')!);
+    for (const node of tree.nodes) {
+      const picks = (node.itemData.system as any).progressionPicks as any[];
+      const stoneFns = picks.filter((p) => p.kind === 'stoneFunction');
+      expect(stoneFns).toHaveLength(2);
     }
-  });
-
-  it('renders the verbatim Stone Pool / Stone Power Support rows (Judicator)', () => {
-    const tree = buildEchoArtifactTree(getEchoArtifact('judicatorFrame')!);
-    const full = resolveFullLevelProgression(
-      getEchoArtifact('judicatorFrame')!.levelProgression,
-      (tree.nodes[0].itemData.system as any).progressionPicks,
-    );
-    const l2 = full.find((r: any) => r.level === 2);
-    const l3 = full.find((r: any) => r.level === 3);
-    expect(l2?.name).toBe('Wits Core I');
-    expect(l2?.type).toBe('Stone Pool');
-    expect(l3?.name).toBe('Regeneration Support I');
-    expect(l3?.type).toBe('Stone Power Support');
-  });
-
-  it('renders the verbatim Influence Stone Pool / Aid Roll Support rows (Oracle)', () => {
-    const tree = buildEchoArtifactTree(getEchoArtifact('oracleFrame')!);
-    const full = resolveFullLevelProgression(
-      getEchoArtifact('oracleFrame')!.levelProgression,
-      (tree.nodes[0].itemData.system as any).progressionPicks,
-    );
-    const l2 = full.find((r: any) => r.level === 2);
-    const l3 = full.find((r: any) => r.level === 3);
-    expect(l2?.special).toBe('Aid Roll Stone Power');
-    expect(l3?.type).toBe('Stone Pool');
-    expect(l3?.special).toBe('Influence Stones');
   });
 });
 
@@ -204,22 +227,46 @@ describe('Echo Artifact tree builder — Stone Function auto-fill', () => {
     }
   });
 
-  it('Elven Stride renders its authored rows verbatim (Reflex / Cling / Lineage)', () => {
+  it('Elven Stride maps all three lines to editable catalog Powers (flavor names kept)', () => {
     const tree = buildEchoArtifactTree(getEchoArtifact('elvenStrideFire')!);
-    // L3 shows all three staged lines (slot 0/1/2 unlocked).
+    // L3 shows all three staged lines (slot 0/1/2 unlocked); display names keep
+    // the Elven flavor via the pick `name` even though they are catalog Powers.
     const l3 = (tree.nodes[2].itemData.system as any).levelProgression.map((r: any) => r.name);
     expect(l3).toEqual(['Otherworld Reflex I', 'Elven Cling I', 'Ember Surge I']);
 
-    // Picks are authored (not recompiled from catalog templates).
+    // Picks are now real catalog Powers (no authored fallback).
     const picks = (tree.nodes[0].itemData.system as any).progressionPicks as any[];
-    for (const lvl of [1, 2, 3]) {
-      expect(picks.find((p) => p.level === lvl).kind).toBe('authored');
-    }
+    const byLevel = (lvl: number) => picks.find((p) => p.level === lvl);
+    for (const lvl of [1, 2, 3]) expect(byLevel(lvl).kind).toBe('power');
+    expect(byLevel(1).powerTemplateId).toBe('reaction-evade');
+    expect(byLevel(2).powerTemplateId).toBe('movement-wall-walk');
+    expect(byLevel(3).powerTemplateId).toBe('empower-buff-damage');
 
-    // Water lineage keeps its own flavor.
-    const water = buildEchoArtifactTree(getEchoArtifact('elvenStrideWater')!);
-    const w3 = (water.nodes[2].itemData.system as any).levelProgression.map((r: any) => r.name);
-    expect(w3).toEqual(['Otherworld Reflex I', 'Elven Cling I', 'Tidal Slip I']);
+    // L2 Elven Cling uses the exact Wall Walk catalog distances (10 / 25 / 28 m
+    // at stages I / II / III, unlocked at node levels 2 / 5 / 8).
+    const clingEffectAt = (nodeLevel: number) =>
+      ((tree.nodes[nodeLevel - 1].itemData.system as any).levelProgression.find((r: any) =>
+        /Elven Cling/.test(r.name),
+      )?.effect as string) || '';
+    expect(clingEffectAt(2)).toContain('10 m');
+    expect(clingEffectAt(5)).toContain('25 m');
+    expect(clingEffectAt(8)).toContain('28 m');
+
+    // Each lineage maps to its own Buff-Empowerment template + flavor name.
+    const lineage: Record<string, [string, string]> = {
+      elvenStrideEarth: ['empower-buff-armor', 'Stoneweave Guard I'],
+      elvenStrideWater: ['empower-buff-evade', 'Tidal Slip I'],
+      elvenStrideAir: ['empower-buff-wind', 'Wind-First I'],
+    };
+    for (const [key, [tplId, rowName]] of Object.entries(lineage)) {
+      const lt = buildEchoArtifactTree(getEchoArtifact(key)!);
+      const l3pick = (lt.nodes[0].itemData.system as any).progressionPicks.find(
+        (p: any) => p.level === 3,
+      );
+      expect(l3pick.powerTemplateId).toBe(tplId);
+      const names = (lt.nodes[2].itemData.system as any).levelProgression.map((r: any) => r.name);
+      expect(names[2]).toBe(rowName);
+    }
   });
 
   it('Elven Stride Evade (+2..+12) and Clinging (L4+) base values scale per spec', () => {
