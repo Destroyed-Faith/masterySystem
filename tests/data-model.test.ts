@@ -95,8 +95,8 @@ describe('Actor Data Model - template.json', () => {
   describe('Character Health Bars', () => {
     const health = template.Actor.character.health;
 
-    it('has 4 health bars', () => {
-      expect(health.bars).toHaveLength(4);
+    it('has 6 health bars', () => {
+      expect(health.bars).toHaveLength(6);
     });
 
     it('has correct bar names and penalties', () => {
@@ -108,6 +108,10 @@ describe('Actor Data Model - template.json', () => {
       expect(health.bars[2].penalty).toBe(-2);
       expect(health.bars[3].name).toBe('Wounded');
       expect(health.bars[3].penalty).toBe(-4);
+      expect(health.bars[4].name).toBe('Broken');
+      expect(health.bars[4].penalty).toBe(-5);
+      expect(health.bars[5].name).toBe('Incapacitated');
+      expect(health.bars[5].penalty).toBe(-6);
     });
 
     it('has currentBar and tempHP', () => {

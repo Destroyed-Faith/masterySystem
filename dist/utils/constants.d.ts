@@ -16,12 +16,13 @@ export declare const MAX_ATTRIBUTE = 80;
 export declare const ATTACK_ACTIONS_PER_TURN = 1;
 export declare const REACTIONS_PER_ROUND = 1;
 export declare const MOVEMENT_PER_TURN = 1;
-export declare const HEALTH_BARS_COUNT = 5;
+export declare const HEALTH_BARS_COUNT = 6;
 export declare const HEALTH_PENALTIES: number[];
 /**
- * Percentage-of-pool dice penalties per broken health bar (Players Guide
- * ~6518–6544). Index = bar index (0 = Healthy ⇒ 0 penalty). Each value is
- * the *fraction* of the rolled pool to subtract (floored, never below 0).
+ * Percentage-of-pool dice penalties per broken health bar. Index = bar index
+ * (0 = Healthy ⇒ 0 penalty). Each value is the *fraction* of the rolled pool
+ * to subtract (floored, never below 0). Incapacitated (index 5) zeroes the
+ * pool — the character is down and effectively cannot act.
  */
 export declare const HEALTH_PENALTY_FRACTIONS: number[];
 export declare const MAX_MASTERY_RANK = 8;

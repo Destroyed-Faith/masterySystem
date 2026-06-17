@@ -407,6 +407,55 @@
   font-weight: 600;
 }
 
+/* Six-level health track (printable wound boxes) */
+.cp-health-track {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cp-health-level {
+  border: 1px solid #bbb;
+  border-radius: 2px;
+  padding: 2px 4px;
+}
+
+.cp-health-level-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.cp-health-level-name {
+  font-size: 8px;
+  font-weight: 600;
+}
+
+.cp-health-level-penalty {
+  font-size: 7px;
+  color: #555;
+}
+
+.cp-health-boxes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  margin-top: 2px;
+}
+
+.cp-health-box {
+  width: 8px;
+  height: 8px;
+  border: 1px solid #333;
+  border-radius: 1px;
+  background: #fff;
+}
+
+.cp-health-box.is-filled {
+  background: #c9c9c9;
+}
+
 .cp-stress-scalar {
   text-align: center;
   border: 1px solid #999;

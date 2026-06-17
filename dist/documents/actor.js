@@ -116,9 +116,9 @@ export class MasteryActor extends Actor {
             // New spec — MR 8 Divine Scale (Lesser/True/High/Apex God) for display.
             // `null` when total Stones < 50 (i.e. the actor is below Godlevel).
             system.mastery.divineScale = getDivineScale(system.stones.total);
-            // Initialize health bars — 5 bars per Players Guide 6499–6513:
-            // Healthy → Bruised → Injured → Wounded → Incapacitated. Bars 0–3
-            // each hold `Vitality × 2` boxes; the fifth bar (Incapacitated)
+            // Initialize health bars — 6 levels:
+            // Healthy → Bruised → Injured → Wounded → Broken → Incapacitated.
+            // Bars 0–4 each hold `Vitality × 2` boxes; the final bar (Incapacitated)
             // is a fixed single box ("you go down at 0").
             if (this.type === 'character') {
                 // Normalize player/GM-authored manual adjustments so the rest of
@@ -161,19 +161,29 @@ export class MasteryActor extends Actor {
                         system.health.bars = initializeHealthBars(vitality);
                     }
                     else {
-                        // Migrate legacy 4-bar actors: append the Incapacitated bar.
+                        // Canonical six-level track:
+                        //   Healthy → Bruised → Injured → Wounded → Broken → Incapacitated.
+                        const allBarNames = ['Healthy', 'Bruised', 'Injured', 'Wounded', 'Broken', 'Incapacitated'];
+                        const penalties = [0, -1, -2, -4, -5, -6];
+                        // Migrate legacy 4-bar actors (Healthy…Wounded): append Broken +
+                        // Incapacitated.
                         if (system.health.bars.length === 4) {
+                            system.health.bars.push({ name: 'Broken', max: maxHP, current: maxHP, penalty: -5 });
                             system.health.bars.push({ name: 'Incapacitated', max: 1, current: 1, penalty: -6 });
                         }
-                        // Trim accidental >5-bar histories.
-                        if (system.health.bars.length > 5) {
-                            system.health.bars = system.health.bars.slice(0, 5);
+                        else if (system.health.bars.length === 5 &&
+                            system.health.bars[4]?.name === 'Incapacitated') {
+                            // Legacy 5-bar actors (…Wounded → Incapacitated): splice the new
+                            // Broken level in before Incapacitated.
+                            system.health.bars.splice(4, 0, { name: 'Broken', max: maxHP, current: maxHP, penalty: -5 });
                         }
-                        // Add missing bars if less than 5
-                        const allBarNames = ['Healthy', 'Bruised', 'Injured', 'Wounded', 'Incapacitated'];
-                        const penalties = [0, -1, -2, -4, -6];
-                        for (let i = system.health.bars.length; i < 5; i++) {
-                            const isIncap = i === 4;
+                        // Trim accidental >6-bar histories.
+                        if (system.health.bars.length > 6) {
+                            system.health.bars = system.health.bars.slice(0, 6);
+                        }
+                        // Add missing bars if less than 6.
+                        for (let i = system.health.bars.length; i < 6; i++) {
+                            const isIncap = i === 5;
                             system.health.bars.push({
                                 name: allBarNames[i],
                                 max: isIncap ? 1 : maxHP,
@@ -181,13 +191,14 @@ export class MasteryActor extends Actor {
                                 penalty: penalties[i]
                             });
                         }
-                        // Refresh max HP / penalties. Bars 0–3 scale with Vitality;
-                        // bar 4 (Incapacitated) is a fixed single box.
-                        for (let i = 0; i < system.health.bars.length && i < 5; i++) {
+                        // Refresh names / max HP / penalties. Bars 0–4 scale with Vitality;
+                        // bar 5 (Incapacitated) is a fixed single box.
+                        for (let i = 0; i < system.health.bars.length && i < 6; i++) {
                             const bar = system.health.bars[i];
-                            const isIncap = i === 4 || bar.name === 'Incapacitated';
+                            const isIncap = i === 5 || bar.name === 'Incapacitated';
                             const targetMax = isIncap ? 1 : maxHP;
                             const ratio = bar.max > 0 ? bar.current / bar.max : 1;
+                            bar.name = allBarNames[i];
                             bar.max = targetMax;
                             bar.current = Math.min(Math.floor(targetMax * ratio), targetMax);
                             bar.penalty = penalties[i];
@@ -197,7 +208,7 @@ export class MasteryActor extends Actor {
                     if (Array.isArray(system.health.bars)) {
                         for (let i = 0; i < system.health.bars.length; i++) {
                             const bar = system.health.bars[i];
-                            const isIncap = i === 4 || bar.name === 'Incapacitated';
+                            const isIncap = i === 5 || bar.name === 'Incapacitated';
                             if (isIncap) {
                                 bar.max = 1;
                                 bar.current = Math.min(bar.current ?? 1, 1);

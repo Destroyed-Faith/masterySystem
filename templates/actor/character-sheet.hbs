@@ -1005,13 +1005,17 @@
                 <div class="health-bar-info">
                   <span class="health-bar-name">
                     {{#if (eq bar.penalty 0)}}
-                      Healthy (0 penalty)
+                      Healthy (no penalty)
                     {{else if (eq bar.penalty -1)}}
-                      Bruised (-1 penalty)
+                      Bruised (−10% pool)
                     {{else if (eq bar.penalty -2)}}
-                      Injured (-2 penalty)
+                      Injured (−20% pool)
                     {{else if (eq bar.penalty -4)}}
-                      Wounded (-4 penalty)
+                      Wounded (−40% pool)
+                    {{else if (eq bar.penalty -5)}}
+                      Broken (−50% pool)
+                    {{else if (eq bar.penalty -6)}}
+                      Incapacitated (out)
                     {{else}}
                       {{bar.name}}{{#if bar.penalty}} ({{bar.penalty}} penalty){{/if}}
                     {{/if}}

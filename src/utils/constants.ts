@@ -25,23 +25,26 @@ export const REACTIONS_PER_ROUND = 1;
 export const MOVEMENT_PER_TURN = 1;
 
 // Health bars
-// Players Guide ~6499–6513 — five health levels:
-//   Healthy → Bruised → Injured → Wounded → Incapacitated.
-// Healthy / Bruised carry no innate penalty (penalty applies once the bar
-// breaks); Injured / Wounded / Incapacitated trigger pool penalties that
-// scale as a percentage of the original pool (Doc ~6518–6544):
-//   −10% (Bruised), −20% (Injured), −30% (Wounded), −40% (Incapacitated).
+// Six health levels:
+//   Healthy → Bruised → Injured → Wounded → Broken → Incapacitated.
+// Each non-Incapacitated bar holds `Vitality × 2` boxes; Incapacitated is a
+// single-box "you go down at 0" state. Healthy carries no penalty; the other
+// broken levels apply a dice-pool penalty that scales as a percentage of the
+// active (already-reduced) pool, floored and never below a 1-die minimum:
+//   −10% (Bruised), −20% (Injured), −40% (Wounded), −50% (Broken),
+//   out cold (Incapacitated).
 // `getCurrentPenalty` resolves the percentage against the active pool;
 // HEALTH_PENALTIES is kept as a legacy fallback for code paths that need a
 // flat per-bar dice penalty (the new percentage helper supersedes it).
-export const HEALTH_BARS_COUNT = 5;
-export const HEALTH_PENALTIES = [0, -1, -2, -4, -6];
+export const HEALTH_BARS_COUNT = 6;
+export const HEALTH_PENALTIES = [0, -1, -2, -4, -5, -6];
 /**
- * Percentage-of-pool dice penalties per broken health bar (Players Guide
- * ~6518–6544). Index = bar index (0 = Healthy ⇒ 0 penalty). Each value is
- * the *fraction* of the rolled pool to subtract (floored, never below 0).
+ * Percentage-of-pool dice penalties per broken health bar. Index = bar index
+ * (0 = Healthy ⇒ 0 penalty). Each value is the *fraction* of the rolled pool
+ * to subtract (floored, never below 0). Incapacitated (index 5) zeroes the
+ * pool — the character is down and effectively cannot act.
  */
-export const HEALTH_PENALTY_FRACTIONS = [0, 0.1, 0.2, 0.3, 0.4];
+export const HEALTH_PENALTY_FRACTIONS = [0, 0.1, 0.2, 0.4, 0.5, 1];
 
 // Mastery ranks
 export const MAX_MASTERY_RANK = 8;

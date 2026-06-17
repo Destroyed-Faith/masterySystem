@@ -50,12 +50,12 @@ describe('Combat Constants', () => {
     expect(MAX_MASTERY_RANK).toBe(8);
   });
 
-  it('5 health bars (Healthy, Bruised, Injured, Wounded, Incapacitated)', () => {
-    expect(HEALTH_BARS_COUNT).toBe(5);
+  it('6 health bars (Healthy, Bruised, Injured, Wounded, Broken, Incapacitated)', () => {
+    expect(HEALTH_BARS_COUNT).toBe(6);
   });
 
-  it('health penalties array has 5 entries', () => {
-    expect(HEALTH_PENALTIES).toEqual([0, -1, -2, -4, -6]);
+  it('health penalties array has 6 entries', () => {
+    expect(HEALTH_PENALTIES).toEqual([0, -1, -2, -4, -5, -6]);
   });
 });
 

@@ -278,13 +278,36 @@ export function buildCharacterPrintContext(actor: any): Record<string, unknown> 
   };
 
   // ── Health ────────────────────────────────────────────────────────────
+  // Six-level wound track. Penalties scale as a percentage of the active dice
+  // pool: Bruised −10%, Injured −20%, Wounded −40%, Broken −50%, and
+  // Incapacitated (the character is down). The penalty label is derived from
+  // the stored flat `penalty` value so legacy actors render correctly.
+  const healthPenaltyLabel = (penalty: number): string => {
+    switch (penalty) {
+      case 0: return 'No penalty';
+      case -1: return '−10% pool';
+      case -2: return '−20% pool';
+      case -4: return '−40% pool';
+      case -5: return '−50% pool';
+      case -6: return 'Out';
+      default: return penalty ? `${penalty} dice` : 'No penalty';
+    }
+  };
   const healthBars = Array.isArray(system?.health?.bars)
-    ? system.health.bars.map((b: any) => ({
-        name: String(b?.name ?? ''),
-        max: num(b?.max),
-        current: num(b?.current),
-        penalty: num(b?.penalty)
-      }))
+    ? system.health.bars.map((b: any) => {
+        const max = num(b?.max);
+        const current = num(b?.current);
+        return {
+          name: String(b?.name ?? ''),
+          max,
+          current,
+          penalty: num(b?.penalty),
+          penaltyLabel: healthPenaltyLabel(num(b?.penalty)),
+          // Physical checkboxes for the printout — one per box, pre-filled to
+          // mirror the actor's current HP in that level.
+          boxes: Array.from({ length: Math.max(0, max) }, (_unused, i) => ({ filled: i < current }))
+        };
+      })
     : [];
   const tempHP = num(system?.health?.tempHP);
 
@@ -520,7 +543,9 @@ export function buildCharacterPrintContext(actor: any): Record<string, unknown> 
           { label: 'T3', tier: 3, count: 4 },
         ].map((g) => ({
           label: g.label,
-          boxes: Array.from({ length: g.count }, () => ({ filled: !!sup && g.tier <= supportTier })),
+          // Only the supported tier is pre-filled — the player still pays the
+          // lower tiers themselves.
+          boxes: Array.from({ length: g.count }, () => ({ filled: !!sup && g.tier === supportTier })),
         }));
         return {
           name: String(p?.name ?? ''),

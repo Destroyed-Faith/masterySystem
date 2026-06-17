@@ -65,14 +65,15 @@ describe('Health Bar Calculations', () => {
     expect(calculateHealthBarMax(16)).toBe(32);
   });
 
-  it('initializes 5 health bars with correct penalties', () => {
+  it('initializes 6 health bars with correct penalties', () => {
     const bars = initializeHealthBars(8);
-    expect(bars).toHaveLength(5);
+    expect(bars).toHaveLength(6);
     expect(bars[0]).toEqual({ name: 'Healthy', max: 16, current: 16, penalty: 0 });
     expect(bars[1]).toEqual({ name: 'Bruised', max: 16, current: 16, penalty: -1 });
     expect(bars[2]).toEqual({ name: 'Injured', max: 16, current: 16, penalty: -2 });
     expect(bars[3]).toEqual({ name: 'Wounded', max: 16, current: 16, penalty: -4 });
-    expect(bars[4]).toEqual({ name: 'Incapacitated', max: 1, current: 1, penalty: -6 });
+    expect(bars[4]).toEqual({ name: 'Broken', max: 16, current: 16, penalty: -5 });
+    expect(bars[5]).toEqual({ name: 'Incapacitated', max: 1, current: 1, penalty: -6 });
   });
 
   it('returns 0 penalty when no bars are broken', () => {
@@ -144,6 +145,40 @@ describe('Health Bar Calculations', () => {
     healDamage(bars, 1, 100);
     expect(bars[1].current).toBe(16); // Capped at max
     expect(bars[0].current).toBe(16); // Healthy unchanged
+  });
+
+  describe('percentage-of-pool penalty (with pool argument)', () => {
+    const brokenAt = (index: number) => {
+      const bars = initializeHealthBars(8);
+      for (let i = 0; i < index; i++) bars[i].current = bars[i].max; // keep full
+      bars[index].current = bars[index].max - 1; // first broken bar
+      return bars;
+    };
+
+    it('Injured (−20%) on a pool of 8 → −1 die (floor 1.6)', () => {
+      // Matches the worked example: Agility 16 halved to 8, Injured = −1.
+      expect(getCurrentPenalty(brokenAt(2), 0, 8)).toBe(-1);
+    });
+
+    it('Wounded (−40%) on a pool of 8 → −3 dice (floor 3.2)', () => {
+      expect(getCurrentPenalty(brokenAt(3), 0, 8)).toBe(-3);
+    });
+
+    it('Broken (−50%) on a pool of 8 → −4 dice', () => {
+      expect(getCurrentPenalty(brokenAt(4), 0, 8)).toBe(-4);
+    });
+
+    it('Bruised (−10%) on a small pool of 8 floors to 0', () => {
+      expect(getCurrentPenalty(brokenAt(1), 0, 8)).toBe(0);
+    });
+
+    it('Bruised (−10%) on a pool of 20 → −2 dice', () => {
+      expect(getCurrentPenalty(brokenAt(1), 0, 20)).toBe(-2);
+    });
+
+    it('Healthy bar broken → no penalty regardless of pool', () => {
+      expect(getCurrentPenalty(brokenAt(0), 0, 20)).toBe(0);
+    });
   });
 });
 

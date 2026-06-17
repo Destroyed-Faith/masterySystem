@@ -2307,7 +2307,7 @@ Hooks.on('preCreateActor', async (actor: any, data: any, _options: any, _userId:
     console.log('Mastery System | New character created - setting creationComplete=false');
   }
   
-  // Initialize NPCs with health bars (4 bars for characters, 1 for NPCs)
+  // Initialize health bars (6 levels for characters, 1 for NPCs)
   if (actor.type === 'npc' || actor.type === 'character') {
     if (!data.system) {
       data.system = {};
@@ -2316,7 +2316,8 @@ Hooks.on('preCreateActor', async (actor: any, data: any, _options: any, _userId:
     // Initialize health bars
     if (!data.system.health) {
       if (actor.type === 'character') {
-        // Characters: 4 bars (Healthy, Bruised, Injured, Wounded)
+        // Characters: 6 levels (Healthy → Bruised → Injured → Wounded →
+        // Broken → Incapacitated). Bars 0–4 = Vitality × 2; Incapacitated = 1.
         const vitality = data.system.attributes?.vitality?.value || 2;
         const maxHP = vitality * 2;
         data.system.health = {
@@ -2324,7 +2325,9 @@ Hooks.on('preCreateActor', async (actor: any, data: any, _options: any, _userId:
             { name: 'Healthy', max: maxHP, current: maxHP, penalty: 0 },
             { name: 'Bruised', max: maxHP, current: maxHP, penalty: -1 },
             { name: 'Injured', max: maxHP, current: maxHP, penalty: -2 },
-            { name: 'Wounded', max: maxHP, current: maxHP, penalty: -4 }
+            { name: 'Wounded', max: maxHP, current: maxHP, penalty: -4 },
+            { name: 'Broken', max: maxHP, current: maxHP, penalty: -5 },
+            { name: 'Incapacitated', max: 1, current: 1, penalty: -6 }
           ],
           currentBar: 0,
           tempHP: 0
@@ -2349,7 +2352,9 @@ Hooks.on('preCreateActor', async (actor: any, data: any, _options: any, _userId:
             { name: 'Healthy', max: maxHP, current: maxHP, penalty: 0 },
             { name: 'Bruised', max: maxHP, current: maxHP, penalty: -1 },
             { name: 'Injured', max: maxHP, current: maxHP, penalty: -2 },
-            { name: 'Wounded', max: maxHP, current: maxHP, penalty: -4 }
+            { name: 'Wounded', max: maxHP, current: maxHP, penalty: -4 },
+            { name: 'Broken', max: maxHP, current: maxHP, penalty: -5 },
+            { name: 'Incapacitated', max: 1, current: 1, penalty: -6 }
           ];
         } else {
           data.system.health.bars = [
@@ -2357,33 +2362,39 @@ Hooks.on('preCreateActor', async (actor: any, data: any, _options: any, _userId:
           ];
         }
       } else if (actor.type === 'character') {
-        // Ensure exactly 4 bars for characters (remove any extra bars)
+        // Ensure the six-level track for characters. The authoritative
+        // migration runs in actor.ts prepareBaseData; here we just seed a
+        // sane shape so preCreate data is never malformed.
         const vitality = data.system.attributes?.vitality?.value || 2;
         const maxHP = vitality * 2;
-        const allBarNames = ['Healthy', 'Bruised', 'Injured', 'Wounded'];
-        const penalties = [0, -1, -2, -4];
-        
-        // Limit to 4 bars maximum
-        if (data.system.health.bars.length > 4) {
-          data.system.health.bars = data.system.health.bars.slice(0, 4);
+        const allBarNames = ['Healthy', 'Bruised', 'Injured', 'Wounded', 'Broken', 'Incapacitated'];
+        const penalties = [0, -1, -2, -4, -5, -6];
+
+        // Limit to 6 bars maximum.
+        if (data.system.health.bars.length > 6) {
+          data.system.health.bars = data.system.health.bars.slice(0, 6);
         }
-        
-        // Add missing bars if less than 4
-        for (let i = data.system.health.bars.length; i < 4; i++) {
+
+        // Add missing bars if less than 6.
+        for (let i = data.system.health.bars.length; i < 6; i++) {
+          const isIncap = i === 5;
           data.system.health.bars.push({
             name: allBarNames[i],
-            max: maxHP,
-            current: maxHP,
+            max: isIncap ? 1 : maxHP,
+            current: isIncap ? 1 : maxHP,
             penalty: penalties[i]
           });
         }
-        
-        // Update max HP for all bars if vitality changed
+
+        // Update max HP for all bars if vitality changed.
         for (let i = 0; i < data.system.health.bars.length; i++) {
           const bar = data.system.health.bars[i];
+          const isIncap = i === 5 || bar.name === 'Incapacitated';
+          const targetMax = isIncap ? 1 : maxHP;
           const ratio = bar.max > 0 ? bar.current / bar.max : 1;
-          bar.max = maxHP;
-          bar.current = Math.min(Math.floor(maxHP * ratio), maxHP);
+          bar.name = allBarNames[i] ?? bar.name;
+          bar.max = targetMax;
+          bar.current = Math.min(Math.floor(targetMax * ratio), targetMax);
           bar.penalty = penalties[i];
         }
       }

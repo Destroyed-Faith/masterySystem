@@ -154,6 +154,12 @@
             "penalty": -4
           },
           {
+            "name": "Broken",
+            "max": 0,
+            "current": 0,
+            "penalty": -5
+          },
+          {
             "name": "Incapacitated",
             "max": 1,
             "current": 1,

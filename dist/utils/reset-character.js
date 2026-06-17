@@ -283,6 +283,8 @@ export async function resetCharacterForRecreation(actor, options) {
         { name: 'Bruised', max: 4, current: 4, penalty: -1 },
         { name: 'Injured', max: 4, current: 4, penalty: -2 },
         { name: 'Wounded', max: 4, current: 4, penalty: -4 },
+        { name: 'Broken', max: 4, current: 4, penalty: -5 },
+        { name: 'Incapacitated', max: 1, current: 1, penalty: -6 },
     ];
     updates['system.health.currentBar'] = 0;
     updates['system.health.tempHP'] = 0;

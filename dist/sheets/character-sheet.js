@@ -3620,6 +3620,17 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 equipPenaltyFlavor = ` Equipped armor/shield physical penalty: −${penDice}d8 (rolling ${numDice} dice).`;
             }
         }
+        // Health penalty — applied last, after the half-pool / armor reductions,
+        // so the percentage scales off the already-reduced pool.
+        const { getCurrentPenalty } = await import('../utils/calculations.js');
+        const healthBars = system.health?.bars || [];
+        const currentBar = system.health?.currentBar ?? 0;
+        const healthPenalty = getCurrentPenalty(healthBars, currentBar, numDice);
+        let healthPenaltyFlavor = '';
+        if (healthPenalty < 0) {
+            numDice = Math.max(1, numDice + healthPenalty);
+            healthPenaltyFlavor = ` Health penalty: ${healthPenalty}d8 (rolling ${numDice} dice).`;
+        }
         const { masteryRoll } = await import('../dice/roll-handler.js');
         await masteryRoll({
             numDice,
@@ -3627,7 +3638,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             skill: 0, // No auto skill bonus
             tn: rollOptions.finalTN,
             label: `${skillDef.name} Check`,
-            flavor: `Attribute: ${rollOptions.attributeKey.charAt(0).toUpperCase() + rollOptions.attributeKey.slice(1)}, Base TN: ${rollOptions.baseTN}, Raises: ${rollOptions.raises}.${equipPenaltyFlavor}${halfPoolFlavor}`,
+            flavor: `Attribute: ${rollOptions.attributeKey.charAt(0).toUpperCase() + rollOptions.attributeKey.slice(1)}, Base TN: ${rollOptions.baseTN}, Raises: ${rollOptions.raises}.${equipPenaltyFlavor}${healthPenaltyFlavor}${halfPoolFlavor}`,
             actorId: this.actor.id,
             // Half-pool mode: the rule says no points may be spent, so we hide
             // the spend buttons entirely by suppressing the skill-roll flag.

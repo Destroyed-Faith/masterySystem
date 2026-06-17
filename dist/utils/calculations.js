@@ -36,8 +36,8 @@ export function calculateHealthBarMax(vitality) {
 /**
  * Initialize health bars with proper max HP values.
  *
- * Players Guide ~6499–6513 — five health levels:
- *   Healthy → Bruised → Injured → Wounded → Incapacitated.
+ * Six health levels:
+ *   Healthy → Bruised → Injured → Wounded → Broken → Incapacitated.
  * Each non-Incapacitated bar holds `Vitality × 2` boxes; Incapacitated is a
  * single-box "you go down at 0" state. The legacy `penalty` field stores the
  * flat dice penalty for the rare callers that still want a per-step value;
@@ -50,22 +50,23 @@ export function initializeHealthBars(vitality) {
         { name: 'Bruised', max: maxHP, current: maxHP, penalty: -1 },
         { name: 'Injured', max: maxHP, current: maxHP, penalty: -2 },
         { name: 'Wounded', max: maxHP, current: maxHP, penalty: -4 },
+        { name: 'Broken', max: maxHP, current: maxHP, penalty: -5 },
         { name: 'Incapacitated', max: 1, current: 1, penalty: -6 },
     ];
 }
 /**
  * Update health bars when vitality changes.
  *
- * Bars 0–3 carry `Vitality × 2` boxes; the fifth bar (Incapacitated) is a
- * single box and never scales with Vitality (Players Guide ~6510). Older
- * actors created before the 5-bar migration may still have only four bars
- * — in that case we append the Incapacitated bar in place.
+ * Bars 0–4 carry `Vitality × 2` boxes; the final bar (Incapacitated) is a
+ * single box and never scales with Vitality. Older actors created before the
+ * 6-bar migration may still have four or five bars — in that case we insert
+ * the missing levels (Broken before Incapacitated, then Incapacitated).
  */
 export function updateHealthBars(bars, vitality) {
     const maxHP = calculateHealthBarMax(vitality);
     for (let i = 0; i < bars.length; i++) {
         const bar = bars[i];
-        const isIncap = bar.name === 'Incapacitated' || i === 4;
+        const isIncap = bar.name === 'Incapacitated' || (i === bars.length - 1 && bars.length >= 6);
         if (isIncap) {
             bar.max = 1;
             bar.current = Math.min(bar.current, 1);
@@ -75,18 +76,25 @@ export function updateHealthBars(bars, vitality) {
         bar.max = maxHP;
         bar.current = Math.min(Math.floor(maxHP * ratio), maxHP);
     }
-    // Migrate legacy 4-bar actors so the Incapacitated bar exists.
+    // Migrate legacy 4-bar actors (Healthy…Wounded) so Broken + Incapacitated
+    // exist.
     if (bars.length === 4) {
+        bars.push({ name: 'Broken', max: maxHP, current: maxHP, penalty: -5 });
         bars.push({ name: 'Incapacitated', max: 1, current: 1, penalty: -6 });
+    }
+    else if (bars.length === 5 && bars[4]?.name === 'Incapacitated') {
+        // Legacy 5-bar actors (…Wounded → Incapacitated): splice Broken before
+        // the Incapacitated bar.
+        bars.splice(4, 0, { name: 'Broken', max: maxHP, current: maxHP, penalty: -5 });
     }
 }
 /**
  * Get the current active health bar penalty.
  *
- * Players Guide ~6518–6544: the dice penalty is **a fraction of the rolled
- * pool**, applied late in the stack and floored (never below 0). The
- * fractions per broken bar live in `HEALTH_PENALTY_FRACTIONS` (0%, 10%,
- * 20%, 30%, 40%). Pre-migration callers without a `pool` argument get the
+ * The dice penalty is **a fraction of the rolled pool**, applied late in the
+ * stack and floored (never below 0). The fractions per broken bar live in
+ * `HEALTH_PENALTY_FRACTIONS` (0%, 10%, 20%, 40%, 50%, and Incapacitated which
+ * zeroes the pool). Pre-migration callers without a `pool` argument get the
  * legacy flat dice penalty so existing code paths keep working until they
  * are switched over to the percentage-aware variant.
  *
@@ -112,7 +120,8 @@ export function getCurrentPenalty(bars, _currentBar, pool) {
         const fraction = HEALTH_PENALTY_FRACTIONS[brokenIndex] ?? 0;
         if (fraction <= 0)
             return 0;
-        const penalty = -Math.floor(pool * fraction);
+        // `|| 0` normalises -0 (e.g. -⌊0.8⌋) to a clean +0.
+        const penalty = -Math.floor(pool * fraction) || 0;
         return penalty;
     }
     // Legacy fallback: flat per-bar dice penalty (kept until all callers
