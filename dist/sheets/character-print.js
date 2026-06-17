@@ -560,13 +560,16 @@ export function buildCharacterPrintContext(actor) {
             powers: list.map((p) => {
                 const sup = supportByPowerId.get(String(p.id));
                 const supportTier = sup?.tier ?? 0;
+                // Ramp powers (e.g. Extra Attack) have a no-op Tier 1 step — their
+                // first usable effect starts at Tier 2 (2 stones), so hide the T1 box.
+                const isRamp = Array.isArray(p?.tiers) && p.tiers.length > 0 && p.tiers[0]?.label == null;
                 // Tier placement areas (T1=1, T2=2, T3=4). When an artifact Support
                 // pre-fills a tier, those boxes are shown already filled.
                 const tiers = [
                     { label: 'T1', tier: 1, count: 1 },
                     { label: 'T2', tier: 2, count: 2 },
                     { label: 'T3', tier: 3, count: 4 },
-                ].map((g) => ({
+                ].filter((g) => !(isRamp && g.tier === 1)).map((g) => ({
                     label: g.label,
                     // Only the supported tier is pre-filled — the player still pays the
                     // lower tiers themselves.
