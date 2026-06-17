@@ -15,6 +15,7 @@
 import { SKILLS } from '../utils/skills.js';
 import { resolvePowerCategoryFromItem } from '../utils/power-catalog.js';
 import { getArtifactStoneFunctionStatus } from '../utils/artifact-stone-functions.js';
+import { countArtifactActivationStones } from '../utils/artifact-stone-bound.js';
 import { STONE_POWERS_BY_ATTRIBUTE } from '../stones/stone-powers.js';
 /** Human-readable label per Stone Function kind (technical summary). */
 const STONE_FN_KIND_LABEL = {
@@ -346,11 +347,24 @@ export function buildCharacterPrintContext(actor) {
             boostsByAttr.set(attr, arr);
         }
     }
-    const stonePowerGroups = STONE_GROUPS.map(({ key, label }) => {
+    // Free stones a pool can actually hold = capacity (max) − stones bound into
+    // artifacts. A pool reads 0 when the attribute is below 8 (max 0) and/or all
+    // its stones are locked into artifacts.
+    const freeStonesForAttr = (attr) => {
+        const poolMax = num(system?.stonePools?.[attr]?.max, Math.floor(attrVal(attr) / 8));
+        const bound = countArtifactActivationStones(actor, attr);
+        return Math.max(0, poolMax - bound);
+    };
+    const allStoneGroups = STONE_GROUPS.map(({ key, label }) => {
         const list = STONE_POWERS_BY_ATTRIBUTE[key] ?? [];
+        const isGeneral = key === 'generic';
+        const freeStones = isGeneral ? 0 : freeStonesForAttr(key);
         return {
             key,
             label,
+            isGeneral,
+            freeStones,
+            slots: Array.from({ length: freeStones }, (_, i) => i + 1),
             boosts: boostsByAttr.get(key) ?? [],
             powers: list.map((p) => {
                 const sup = supportByPowerId.get(String(p.id));
@@ -365,8 +379,15 @@ export function buildCharacterPrintContext(actor) {
             }),
         };
     });
+    // Total spendable capacity across attribute pools — used to decide whether the
+    // (pool-less) General group is worth printing at all.
+    const totalFreeStones = allStoneGroups.reduce((s, g) => s + g.freeStones, 0);
+    // Hide attribute pools with 0 free stones; keep General only if some pool has
+    // stones to pay generic powers with.
+    const stonePowerGroups = allStoneGroups.filter((g) => g.isGeneral ? totalFreeStones > 0 : g.freeStones > 0);
     const technical = {
         stonePowerGroups,
+        hasStonePowers: stonePowerGroups.length > 0,
     };
     return {
         name: String(actor?.name ?? ''),

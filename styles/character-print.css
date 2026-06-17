@@ -867,6 +867,17 @@
   text-transform: uppercase;
 }
 
+.cp-stone-count {
+  font-size: 7px;
+  font-weight: 800;
+  background: #333;
+  color: #fff;
+  border-radius: 6px;
+  padding: 0 5px;
+  min-width: 12px;
+  text-align: center;
+}
+
 .cp-stone-boost {
   font-size: 7px;
   font-weight: 700;
@@ -874,6 +885,29 @@
   color: #fff;
   border-radius: 6px;
   padding: 0 5px;
+}
+
+/* Placeable stone slots — physically drop / mark a stone per pool */
+.cp-stone-slots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  margin: 2px 0 3px;
+}
+
+.cp-stone-slot {
+  width: 9px;
+  height: 9px;
+  border: 1px solid #333;
+  border-radius: 50%;
+  background: #fff;
+}
+
+.cp-stone-anypool {
+  font-size: 7px;
+  font-style: italic;
+  color: #666;
+  margin: 1px 0 3px;
 }
 
 .cp-stone-boost em {

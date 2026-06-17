@@ -224,7 +224,53 @@
   <div class="cp-page-footer">-- 2 of 4 --</div>
 </section>
 
-{{!-- ============================ PAGE 3 ============================ --}}
+{{!-- ===================== PAGE 3 — STONE POWERS ==================== --}}
+<section class="print-page print-page-technical">
+
+  <h2 class="cp-section-title">Stone Powers <span class="cp-subtle">available — General + attribute pools</span></h2>
+
+  {{!-- Stone Powers — available pools only (0-stone pools hidden) --}}
+  <div class="cp-block cp-tech-stone">
+    <h3 class="cp-block-title">Available Stone Powers</h3>
+    {{#if technical.hasStonePowers}}
+    <div class="cp-stone-groups">
+      {{#each technical.stonePowerGroups}}
+      <div class="cp-stone-group">
+        <div class="cp-stone-group-head">
+          <span class="cp-stone-group-name">{{label}}</span>
+          {{#unless isGeneral}}<span class="cp-stone-count">{{freeStones}}</span>{{/unless}}
+          {{#each boosts}}<span class="cp-stone-boost">{{kind}} +{{value}} <em>{{source}}</em></span>{{/each}}
+        </div>
+        {{#if slots.length}}
+        <div class="cp-stone-slots">
+          {{#each slots}}<span class="cp-stone-slot"></span>{{/each}}
+        </div>
+        {{else}}
+        {{#if isGeneral}}<div class="cp-stone-anypool">Pay from any pool</div>{{/if}}
+        {{/if}}
+        <table class="cp-tech-table cp-stone-table">
+          <tbody>
+            {{#each powers}}
+            <tr{{#if supported}} class="is-supported"{{/if}}>
+              <td class="cp-stone-cat">{{category}}</td>
+              <td class="cp-stone-name">{{name}}{{#if supported}} <span class="cp-tech-tier">Support T{{tier}}</span>{{/if}}</td>
+              <td class="cp-stone-eff">{{effect}}{{#if supported}} <span class="cp-stone-src">— {{source}}</span>{{/if}}</td>
+            </tr>
+            {{/each}}
+          </tbody>
+        </table>
+      </div>
+      {{/each}}
+    </div>
+    {{else}}
+    <div class="cp-tech-empty">No stones available — all pools are 0 (attributes below 8 or stones bound into artifacts).</div>
+    {{/if}}
+  </div>
+
+  <div class="cp-page-footer">-- 3 of 4 --</div>
+</section>
+
+{{!-- ============================ PAGE 4 ============================ --}}
 <section class="print-page print-page-3">
 
   <div class="cp-block cp-social-combat">
@@ -287,40 +333,6 @@
     {{else}}
     <div class="cp-equipment-grid"></div>
     {{/if}}
-  </div>
-
-  <div class="cp-page-footer">-- 3 of 4 --</div>
-</section>
-
-{{!-- ===================== PAGE 4 — TECHNICAL ====================== --}}
-<section class="print-page print-page-technical">
-
-  <h2 class="cp-section-title">Stone Powers <span class="cp-subtle">available — General + attribute pools</span></h2>
-
-  {{!-- Stone Powers — full available catalog (General + attribute pools) --}}
-  <div class="cp-block cp-tech-stone">
-    <h3 class="cp-block-title">Available Stone Powers</h3>
-    <div class="cp-stone-groups">
-      {{#each technical.stonePowerGroups}}
-      <div class="cp-stone-group">
-        <div class="cp-stone-group-head">
-          <span class="cp-stone-group-name">{{label}}</span>
-          {{#each boosts}}<span class="cp-stone-boost">{{kind}} +{{value}} <em>{{source}}</em></span>{{/each}}
-        </div>
-        <table class="cp-tech-table cp-stone-table">
-          <tbody>
-            {{#each powers}}
-            <tr{{#if supported}} class="is-supported"{{/if}}>
-              <td class="cp-stone-cat">{{category}}</td>
-              <td class="cp-stone-name">{{name}}{{#if supported}} <span class="cp-tech-tier">Support T{{tier}}</span>{{/if}}</td>
-              <td class="cp-stone-eff">{{effect}}{{#if supported}} <span class="cp-stone-src">— {{source}}</span>{{/if}}</td>
-            </tr>
-            {{/each}}
-          </tbody>
-        </table>
-      </div>
-      {{/each}}
-    </div>
   </div>
 
   <div class="cp-page-footer">-- 4 of 4 --</div>
