@@ -258,15 +258,23 @@ export class MasteryActor extends Actor {
 
         // Enforce the bonus-adjusted max HP on every bar regardless of
         // which init/migration branch ran above. This makes the manual
-        // Health bar bonus apply even to freshly-initialized actors.
+        // Health bar bonus apply even to freshly-initialized actors. The
+        // Incapacitated bar is exempt — it is always a single box.
         if (Array.isArray(system.health?.bars)) {
-          for (const bar of system.health.bars) {
+          const lastIdx = system.health.bars.length - 1;
+          system.health.bars.forEach((bar: any, i: number) => {
+            const isIncap = bar.name === 'Incapacitated' || i === lastIdx;
+            if (isIncap) {
+              bar.max = 1;
+              bar.current = Math.min(bar.current ?? 1, 1);
+              return;
+            }
             if (bar.max !== maxHP) {
               const ratio = bar.max > 0 ? bar.current / bar.max : 1;
               bar.max = maxHP;
               bar.current = Math.min(Math.floor(maxHP * ratio), maxHP);
             }
-          }
+          });
         }
 
         // Initialize stress bars (4 bars: Healthy, Stressed, Not Well, Breaking)
