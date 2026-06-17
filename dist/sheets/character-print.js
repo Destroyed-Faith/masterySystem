@@ -2,7 +2,9 @@
  * Character Print / Export
  *
  * Builds a flat, print-friendly context from a `character` actor and renders it
- * into the 3-page printable sheet (`templates/actor/character-print.hbs`). The
+ * into the 4-page printable sheet (`templates/actor/character-print.hbs`); page
+ * 4 is a purely technical, fluff-free summary of powers + weapon attacks +
+ * artifacts and the Stone Powers that active artifacts support / discount. The
  * rendered HTML is opened in a new window that links the print stylesheet and
  * triggers `window.print()` so the user can save it as a PDF.
  *
@@ -12,6 +14,17 @@
  */
 import { SKILLS } from '../utils/skills.js';
 import { resolvePowerCategoryFromItem } from '../utils/power-catalog.js';
+import { isArtifactMechanicallyActive } from '../utils/artifact-actor-rules.js';
+import { visibleAbilityRows } from '../utils/artifact-visible-abilities.js';
+import { getArtifactStoneFunctionStatus } from '../utils/artifact-stone-functions.js';
+import { STONE_POWERS } from '../stones/stone-powers.js';
+/** Human-readable label per Stone Function kind (technical summary). */
+const STONE_FN_KIND_LABEL = {
+    stonePool: 'Stone Pool',
+    stoneBattery: 'Stone Battery',
+    stoneRefresh: 'Stone Refresh',
+    stonePowerSupport: 'Power Support',
+};
 const PRINT_TEMPLATE = 'systems/mastery-system/templates/actor/character-print.hbs';
 const PRINT_CSS = 'systems/mastery-system/styles/character-print.css';
 const ATTR_ORDER = [
@@ -283,6 +296,92 @@ export function buildCharacterPrintContext(actor) {
         name: String(g?.name ?? ''),
         quantity: num(g?.system?.quantity, 1)
     }));
+    // ── Technical summary (no fluff): powers + weapon attacks + artifacts ──
+    // and the Stone Powers that an active artifact supports / discounts.
+    // Powers the character owns (active + passive), purely technical.
+    const technicalPowers = [...activePowers, ...passivePowers].map((p) => ({
+        name: p.name,
+        phase: p.phase || 'Power',
+        effect: p.effect,
+        stones: p.stones,
+    }));
+    // Weapon-granted "powers" appended to the list (the attack each weapon gives).
+    for (const w of weaponItems) {
+        const sys = w?.system ?? {};
+        const dmg = String(sys?.damage ?? sys?.baseDamage ?? '').trim();
+        const rangeRaw = sys?.range;
+        const rangeM = rangeRaw != null && rangeRaw !== '' ? `${num(rangeRaw)} m` : '';
+        const innate = Array.isArray(sys?.innateAbilities)
+            ? sys.innateAbilities.map((a) => String(a)).filter(Boolean)
+            : [];
+        const specials = Array.isArray(sys?.specials)
+            ? sys.specials.map((s) => (typeof s === 'string' ? s : s?.key ?? '')).filter(Boolean)
+            : [];
+        const parts = [
+            dmg ? `Damage ${dmg}` : '',
+            rangeM ? `Range ${rangeM}` : '',
+            innate.length ? innate.join(', ') : '',
+            specials.length ? `Specials: ${specials.join(', ')}` : '',
+        ].filter(Boolean);
+        technicalPowers.push({
+            name: String(w?.name ?? ''),
+            phase: 'Weapon',
+            effect: parts.join(' · '),
+            stones: 0,
+        });
+    }
+    // Artifacts: what each one currently does (base values + active abilities).
+    const artifactItems = allItems.filter((i) => i?.type === 'artifact');
+    const technicalArtifacts = artifactItems.map((a) => {
+        const sys = a?.system ?? {};
+        const level = Math.max(1, Math.min(10, num(sys?.currentLevel) || num(sys?.level) || 1));
+        const active = isArtifactMechanicallyActive(actor, a);
+        const baseValues = (Array.isArray(sys?.baseValues) ? sys.baseValues : []).map((bv) => ({
+            label: String(bv?.label ?? ''),
+            value: bv?.value != null && bv?.value !== '' ? String(bv.value) : String(bv?.note ?? ''),
+        }));
+        const abilities = visibleAbilityRows(Array.isArray(sys?.levelProgression) ? sys.levelProgression : [], level).map((row) => ({
+            name: String(row?.name ?? ''),
+            type: String(row?.type ?? ''),
+            effect: stripHtml(row?.effect),
+            special: String(row?.special ?? ''),
+        }));
+        return {
+            name: String(a?.name ?? ''),
+            level,
+            active,
+            baseValues,
+            abilities,
+        };
+    });
+    // Stone Powers that an artifact supports / discounts (supported-only).
+    const stoneStatus = getArtifactStoneFunctionStatus(actor);
+    const stoneSupports = (stoneStatus.supports ?? []).map((r) => {
+        const sp = r.stonePowerId ? STONE_POWERS[r.stonePowerId] : null;
+        return {
+            power: String(sp?.name ?? r.stonePowerId ?? ''),
+            attribute: cap(String(r.attribute ?? '')),
+            tier: num(r.value),
+            source: String(r.source ?? ''),
+        };
+    });
+    const stoneBoosts = (stoneStatus.records ?? [])
+        .filter((r) => r.kind === 'stonePool' || r.kind === 'stoneBattery' || r.kind === 'stoneRefresh')
+        .map((r) => ({
+        kind: STONE_FN_KIND_LABEL[r.kind] || r.kind,
+        attribute: cap(String(r.attribute ?? '')),
+        value: num(r.value),
+        source: String(r.source ?? ''),
+    }));
+    const technical = {
+        powers: technicalPowers,
+        hasPowers: technicalPowers.length > 0,
+        artifacts: technicalArtifacts,
+        hasArtifacts: technicalArtifacts.length > 0,
+        stoneSupports,
+        stoneBoosts,
+        hasStone: stoneSupports.length > 0 || stoneBoosts.length > 0,
+    };
     return {
         name: String(actor?.name ?? ''),
         player: resolvePlayerName(actor),
@@ -308,7 +407,8 @@ export function buildCharacterPrintContext(actor) {
         disadvantages,
         disadvantagePoints,
         familiars,
-        gear
+        gear,
+        technical
     };
 }
 /** Resolve a Foundry-routed URL (respects a configured route prefix). */

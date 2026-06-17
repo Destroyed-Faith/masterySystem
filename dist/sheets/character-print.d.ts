@@ -2,7 +2,9 @@
  * Character Print / Export
  *
  * Builds a flat, print-friendly context from a `character` actor and renders it
- * into the 3-page printable sheet (`templates/actor/character-print.hbs`). The
+ * into the 4-page printable sheet (`templates/actor/character-print.hbs`); page
+ * 4 is a purely technical, fluff-free summary of powers + weapon attacks +
+ * artifacts and the Stone Powers that active artifacts support / discount. The
  * rendered HTML is opened in a new window that links the print stylesheet and
  * triggers `window.print()` so the user can save it as a PDF.
  *

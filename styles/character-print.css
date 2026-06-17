@@ -1,4 +1,4 @@
-/* Printable / exportable character sheet (3 pages).
+/* Printable / exportable character sheet (4 pages; page 4 = technical summary).
    Scoped under .mastery-print so it never leaks into the Foundry UI. */
 
 @page {
@@ -690,4 +690,125 @@
   background:
     repeating-linear-gradient(0deg, transparent, transparent 7mm, #ddd 7mm, #ddd 7.2mm),
     repeating-linear-gradient(90deg, transparent, transparent 7mm, #ddd 7mm, #ddd 7.2mm);
+}
+
+/* ── Technical summary page ───────────────────────────────────────────── */
+.cp-phase-Power { background: #455a64; }
+.cp-phase-Weapon { background: #5d4037; }
+
+.cp-tech-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 2px;
+}
+
+.cp-tech-table th,
+.cp-tech-table td {
+  border: 1px solid #bbb;
+  padding: 2px 4px;
+  font-size: 8px;
+  text-align: left;
+  vertical-align: top;
+}
+
+.cp-tech-table th {
+  background: #eee;
+  text-transform: uppercase;
+  font-size: 7px;
+}
+
+.cp-tech-name,
+.cp-tech-ab-name {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.cp-tech-effect,
+.cp-tech-ab-effect {
+  color: #333;
+}
+
+.cp-tech-phase,
+.cp-tech-stones,
+.cp-tech-tier {
+  white-space: nowrap;
+}
+
+.cp-tech-stones { text-align: center; }
+
+.cp-tech-tier {
+  font-weight: 700;
+  font-size: 7px;
+  background: #1565c0;
+  color: #fff;
+  border-radius: 6px;
+  padding: 1px 5px;
+}
+
+.cp-tech-ab-special {
+  color: #6a1b9a;
+  font-weight: 600;
+}
+
+.cp-tech-source {
+  color: #555;
+  font-size: 7.5px;
+}
+
+/* Artifact cards on the technical page */
+.cp-tech-artifact {
+  border: 1px solid #888;
+  border-radius: 3px;
+  padding: 3px 5px;
+  margin-bottom: 4px;
+}
+
+.cp-tech-artifact.is-inactive {
+  opacity: 0.6;
+}
+
+.cp-tech-artifact-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 2px;
+  margin-bottom: 2px;
+}
+
+.cp-tech-artifact-name {
+  font-weight: 800;
+  font-size: 9px;
+}
+
+.cp-tech-artifact-meta {
+  font-size: 7px;
+  text-transform: uppercase;
+  color: #666;
+}
+
+.cp-tech-bv {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: 7.5px;
+  margin-bottom: 2px;
+}
+
+.cp-tech-abilities td {
+  border: none;
+  border-bottom: 1px solid #eee;
+}
+
+.cp-tech-ab-type {
+  font-size: 7px;
+  text-transform: uppercase;
+  color: #555;
+  white-space: nowrap;
+}
+
+.cp-tech-empty {
+  font-size: 8px;
+  color: #777;
+  font-style: italic;
 }

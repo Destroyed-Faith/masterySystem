@@ -149,7 +149,7 @@
     </div>
   </div>
 
-  <div class="cp-page-footer">-- 1 of 3 --</div>
+  <div class="cp-page-footer">-- 1 of 4 --</div>
 </section>
 
 {{!-- ============================ PAGE 2 ============================ --}}
@@ -216,7 +216,7 @@
     <div class="cp-rerolls"><span class="cp-defense-label">Total Rerolls / Used</span><span class="cp-use-box"></span></div>
   </div>
 
-  <div class="cp-page-footer">-- 2 of 3 --</div>
+  <div class="cp-page-footer">-- 2 of 4 --</div>
 </section>
 
 {{!-- ============================ PAGE 3 ============================ --}}
@@ -284,5 +284,107 @@
     {{/if}}
   </div>
 
-  <div class="cp-page-footer">-- 3 of 3 --</div>
+  <div class="cp-page-footer">-- 3 of 4 --</div>
+</section>
+
+{{!-- ===================== PAGE 4 — TECHNICAL ====================== --}}
+<section class="print-page print-page-technical">
+
+  <h2 class="cp-section-title">Technical Summary <span class="cp-subtle">effects only — no fluff</span></h2>
+
+  {{!-- Powers (owned + weapon-granted) --}}
+  <div class="cp-block cp-tech-powers">
+    <h3 class="cp-block-title">Powers <span class="cp-subtle">incl. weapon attacks</span></h3>
+    {{#if technical.hasPowers}}
+    <table class="cp-tech-table">
+      <thead><tr><th>Phase</th><th>Name</th><th>Effect</th><th>Stones</th></tr></thead>
+      <tbody>
+        {{#each technical.powers}}
+        <tr>
+          <td class="cp-tech-phase"><span class="cp-phase cp-phase-{{phase}}">{{phase}}</span></td>
+          <td class="cp-tech-name">{{name}}</td>
+          <td class="cp-tech-effect">{{effect}}</td>
+          <td class="cp-tech-stones">{{#if stones}}{{stones}}{{else}}—{{/if}}</td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+    {{else}}
+    <div class="cp-tech-empty">No powers.</div>
+    {{/if}}
+  </div>
+
+  {{!-- Artifacts: what each currently does --}}
+  <div class="cp-block cp-tech-artifacts">
+    <h3 class="cp-block-title">Artifacts</h3>
+    {{#if technical.hasArtifacts}}
+    {{#each technical.artifacts}}
+    <div class="cp-tech-artifact{{#unless active}} is-inactive{{/unless}}">
+      <div class="cp-tech-artifact-head">
+        <span class="cp-tech-artifact-name">{{name}}</span>
+        <span class="cp-tech-artifact-meta">Lvl {{level}}{{#unless active}} · inactive{{/unless}}</span>
+      </div>
+      {{#if baseValues.length}}
+      <div class="cp-tech-bv">
+        {{#each baseValues}}<span class="cp-tech-bv-item"><strong>{{label}}:</strong> {{value}}</span>{{/each}}
+      </div>
+      {{/if}}
+      {{#if abilities.length}}
+      <table class="cp-tech-table cp-tech-abilities">
+        <tbody>
+          {{#each abilities}}
+          <tr>
+            <td class="cp-tech-ab-type">{{type}}</td>
+            <td class="cp-tech-ab-name">{{name}}</td>
+            <td class="cp-tech-ab-effect">{{effect}}{{#if special}} <span class="cp-tech-ab-special">[{{special}}]</span>{{/if}}</td>
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
+      {{/if}}
+    </div>
+    {{/each}}
+    {{else}}
+    <div class="cp-tech-empty">No artifacts.</div>
+    {{/if}}
+  </div>
+
+  {{!-- Stone Powers supported / discounted by artifacts --}}
+  {{#if technical.hasStone}}
+  <div class="cp-block cp-tech-stone">
+    <h3 class="cp-block-title">Stone Powers <span class="cp-subtle">artifact supports &amp; discounts</span></h3>
+    {{#if technical.stoneSupports.length}}
+    <table class="cp-tech-table">
+      <thead><tr><th>Stone Power</th><th>Attribute</th><th>Pre-fill</th><th>Source</th></tr></thead>
+      <tbody>
+        {{#each technical.stoneSupports}}
+        <tr>
+          <td class="cp-tech-name">{{power}}</td>
+          <td>{{attribute}}</td>
+          <td><span class="cp-tech-tier">Tier {{tier}}</span></td>
+          <td class="cp-tech-source">{{source}}</td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+    {{/if}}
+    {{#if technical.stoneBoosts.length}}
+    <table class="cp-tech-table">
+      <thead><tr><th>Boost</th><th>Attribute</th><th>Value</th><th>Source</th></tr></thead>
+      <tbody>
+        {{#each technical.stoneBoosts}}
+        <tr>
+          <td class="cp-tech-name">{{kind}}</td>
+          <td>{{attribute}}</td>
+          <td>+{{value}}</td>
+          <td class="cp-tech-source">{{source}}</td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+    {{/if}}
+  </div>
+  {{/if}}
+
+  <div class="cp-page-footer">-- 4 of 4 --</div>
 </section>
