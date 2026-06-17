@@ -463,9 +463,11 @@ export function buildCharacterPrintContext(actor) {
         active: battleActive,
         activeBuffs: battleBuffs,
         reactions: battleReactions,
+        passives: passivePowers,
         hasActive: battleActive.length > 0,
         hasBuffs: battleBuffs.length > 0,
         hasReactions: battleReactions.length > 0,
+        hasPassives: passivePowers.length > 0,
     };
     // ── Skills ────────────────────────────────────────────────────────────
     const skillsByGroup = SKILL_GROUPS.map((group) => ({

@@ -144,27 +144,6 @@
     </table>
   </div>
 
-  <div class="cp-block cp-powers">
-    <h3 class="cp-block-title">Martial / Spell / Form Powers</h3>
-    <div class="cp-power-grid">
-      {{#each martialPowers}}
-      <div class="cp-power-card{{#if empty}} is-empty{{/if}}">
-        {{#unless empty}}
-        <div class="cp-power-card-head">
-          <span class="cp-power-name">{{name}}{{#if fromArtifact}} <span class="cp-power-artifact" title="From artifact: {{source}}">★ {{source}}</span>{{/if}}</span>
-          <span class="cp-power-tile">
-            {{#if phase}}<span class="cp-phase cp-phase-{{phase}}">{{phase}}</span>{{/if}}
-            <span class="cp-use-box" title="einmal pro Runde"></span>
-          </span>
-        </div>
-        <div class="cp-power-effect">{{effect}}</div>
-        {{#if stones}}<div class="cp-power-cost">Stones: {{stones}}</div>{{/if}}
-        {{/unless}}
-      </div>
-      {{/each}}
-    </div>
-  </div>
-
   <div class="cp-page-footer">-- 1 of 5 --</div>
 </section>
 
@@ -196,25 +175,6 @@
       {{/each}}
     </div>
   </div>
-  {{#if (eq key "martial")}}
-
-  <div class="cp-block cp-powers cp-passives">
-    <h3 class="cp-block-title">Passive Powers</h3>
-    <div class="cp-power-grid">
-      {{#each ../passivePowerCards}}
-      <div class="cp-power-card{{#if empty}} is-empty{{/if}}">
-        {{#unless empty}}
-        <div class="cp-power-card-head">
-          <span class="cp-power-name">{{name}}</span>
-          <span class="cp-power-tile"><span class="cp-phase cp-phase-Passive">Passive</span><span class="cp-use-box"></span></span>
-        </div>
-        <div class="cp-power-effect">{{effect}}</div>
-        {{/unless}}
-      </div>
-      {{/each}}
-    </div>
-  </div>
-  {{/if}}
   {{/unless}}
   {{/each}}
 
@@ -441,6 +401,25 @@
       {{/if}}
     </div>
 
+  </div>
+
+  {{!-- Passives — own area below the rotation flow, always-on (no tick box) --}}
+  <div class="cp-battle-passives">
+    <div class="cp-battle-group-title">Passives</div>
+    {{#if battle.hasPassives}}
+    <div class="cp-battle-passive-cards">
+      {{#each battle.passives}}
+      <div class="cp-battle-card cp-battle-card-passive">
+        <span class="cp-battle-card-body">
+          <span class="cp-battle-card-name">{{name}}{{#if fromArtifact}} <span class="cp-power-artifact" title="From artifact: {{source}}">&#9733; {{source}}</span>{{/if}}</span>
+          {{#if effect}}<span class="cp-battle-card-eff">{{effect}}</span>{{/if}}
+        </span>
+      </div>
+      {{/each}}
+    </div>
+    {{else}}
+    <div class="cp-battle-empty">No passive powers.</div>
+    {{/if}}
   </div>
 
   <div class="cp-page-footer">-- 5 of 5 --</div>

@@ -477,9 +477,11 @@ export function buildCharacterPrintContext(actor: any): Record<string, unknown> 
     active: battleActive,
     activeBuffs: battleBuffs,
     reactions: battleReactions,
+    passives: passivePowers,
     hasActive: battleActive.length > 0,
     hasBuffs: battleBuffs.length > 0,
     hasReactions: battleReactions.length > 0,
+    hasPassives: passivePowers.length > 0,
   };
 
   // ── Skills ────────────────────────────────────────────────────────────

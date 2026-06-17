@@ -607,7 +607,7 @@
   align-items: center;
   justify-content: center;
   gap: 6mm;
-  min-height: 100mm;
+  min-height: 78mm;
 }
 
 .cp-battle-col {
@@ -729,6 +729,29 @@
   font-size: 8px;
   color: #999;
   font-style: italic;
+}
+
+/* Passives — own area below the rotation flow, with an "Attack Action"-style
+   boxed heading. Always-on, so the cards carry no tick box. */
+.cp-battle-passives {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 8mm;
+}
+
+.cp-battle-passive-cards {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 5px;
+}
+
+.cp-battle-card-passive {
+  width: 62mm;
+  background: #f1ecf6;
+  border-color: #6a1b9a;
 }
 
 /* ── Initiative ───────────────────────────────────────────────────────── */
