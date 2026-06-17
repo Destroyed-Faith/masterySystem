@@ -51,8 +51,6 @@ const ATTR_ORDER = [
 ];
 /** Stone-threshold ladder printed next to every ability (one cell per 8 points). */
 const ABILITY_LADDER = [8, 16, 24, 32, 40, 48, 56, 64, 72, 80];
-/** Pip boxes drawn per skill row. */
-const SKILL_PIP_COUNT = 6;
 /** Skill groups in the order they appear on the printed sheet. */
 const SKILL_GROUPS = [
     {
@@ -105,20 +103,14 @@ function formatAttrs(attrs) {
         return '';
     return attrs.map((a) => cap(a)).join(' / ');
 }
-function makePips(rank) {
-    const r = Math.max(0, Math.floor(rank));
-    const out = [];
-    for (let i = 0; i < SKILL_PIP_COUNT; i++)
-        out.push({ filled: i < r });
-    return out;
-}
 function powerPhaseLabel(category) {
     switch (category) {
         case 'movement':
             return 'Movement';
         case 'active':
-        case 'activeBuff':
             return 'Active';
+        case 'activeBuff':
+            return 'Active Buff';
         case 'reaction':
             return 'Reaction';
         case 'passive':
@@ -126,6 +118,19 @@ function powerPhaseLabel(category) {
         default:
             return '';
     }
+}
+/** Sort order for the Martial/Spell/Form list: Active, Active Buff, Reaction, … */
+function powerSortRank(label) {
+    const c = String(label || '').toLowerCase();
+    if (c.includes('buff'))
+        return 1;
+    if (c.includes('reaction'))
+        return 2;
+    if (c.includes('movement'))
+        return 3;
+    if (c.includes('ultimate'))
+        return 4;
+    return 0; // active / everything else first
 }
 function stripHtml(value) {
     const s = String(value ?? '');
@@ -139,6 +144,41 @@ function stripHtml(value) {
         .replace(/&gt;/g, '>')
         .replace(/\s+/g, ' ')
         .trim();
+}
+/**
+ * Player-facing power name: drop the internal "— Tier N" tag and, for damage
+ * actives with a chosen Special, render it as "Base — Special(X)" where X is
+ * the Special's value resolved from the power's level table / catalog.
+ */
+function prettyPowerName(item, rank) {
+    const sys = item?.system ?? {};
+    const raw = String(item?.name ?? '').trim();
+    const key = sys?.chosenSpecial?.key ? String(sys.chosenSpecial.key) : '';
+    if (!key) {
+        return raw.replace(/\s*[—-]\s*Tier\s*\d+.*$/i, '').trim() || raw;
+    }
+    const base = raw.split(/\s*[—-]\s*Tier\b/i)[0].trim() || raw;
+    const levels = (sys?.levels ?? {});
+    const findRank = (rw) => {
+        const sp = Array.isArray(rw?.specials)
+            ? rw.specials.find((s) => String(s?.key) === key)
+            : null;
+        return sp && typeof sp.rank === 'number' ? sp.rank : undefined;
+    };
+    let value = findRank(levels[String(rank)]);
+    for (let i = rank; value === undefined && i >= 1; i--)
+        value = findRank(levels[String(i)]);
+    if (value === undefined) {
+        for (const k of Object.keys(levels)) {
+            const v = findRank(levels[k]);
+            if (v !== undefined) {
+                value = v;
+                break;
+            }
+        }
+    }
+    const special = formatEffectReference({ specialId: key, value });
+    return `${base} — ${special}`;
 }
 /** Pad an array of card entries with empty placeholders up to `min` slots. */
 function padCards(cards, min) {
@@ -307,12 +347,15 @@ export function buildCharacterPrintContext(actor) {
     for (const p of powerItems) {
         const sys = p?.system ?? {};
         const category = resolvePowerCategoryFromItem(p);
+        const rank = num(sys?.level ?? sys?.rank, 1);
+        const phase = powerPhaseLabel(category);
         const entry = {
-            name: String(p?.name ?? ''),
+            name: prettyPowerName(p, rank),
             effect: stripHtml(sys?.effect || sys?.description || ''),
-            phase: powerPhaseLabel(category),
+            phase,
             stones: num(sys?.cost?.stones),
-            rank: num(sys?.level ?? sys?.rank, 1)
+            rank,
+            sortKey: powerSortRank(category || phase)
         };
         if (category === 'passive')
             passivePowers.push(entry);
@@ -334,17 +377,20 @@ export function buildCharacterPrintContext(actor) {
             const t = type.toLowerCase();
             if (t === 'passive' || /stone|support/.test(t))
                 continue;
+            const name = String(row?.name ?? '').replace(/\s*[—-]\s*Tier\s*\d+\s*[—-]\s*/i, ' — ').trim();
             activePowers.push({
-                name: String(row?.name ?? ''),
+                name,
                 effect: stripHtml(row?.effect),
                 phase: type || 'Active',
                 stones: 0,
                 rank: 1,
                 fromArtifact: true,
                 source: String(a?.name ?? ''),
+                sortKey: powerSortRank(type)
             });
         }
     }
+    activePowers.sort((a, b) => a.sortKey - b.sortKey);
     const martialPowers = padCards(activePowers, 6);
     const passivePowerCards = padCards(passivePowers, 6);
     // ── Skills ────────────────────────────────────────────────────────────
@@ -361,7 +407,10 @@ export function buildCharacterPrintContext(actor) {
                 name: def.name,
                 attrs: formatAttrs(def.attributes),
                 rank,
-                pips: makePips(rank)
+                // Skills are used in Mastery-Rank jumps: max 4 uses per Safe Haven
+                // Rest, each worth the character's MR. One box per use, pre-printed
+                // with the MR value.
+                uses: Array.from({ length: 4 }, () => masteryRank)
             };
         })
     }));
@@ -428,13 +477,25 @@ export function buildCharacterPrintContext(actor) {
             boosts: boostsByAttr.get(key) ?? [],
             powers: list.map((p) => {
                 const sup = supportByPowerId.get(String(p.id));
+                const supportTier = sup?.tier ?? 0;
+                // Tier placement areas (T1=1, T2=2, T3=4). When an artifact Support
+                // pre-fills a tier, those boxes are shown already filled.
+                const tiers = [
+                    { label: 'T1', tier: 1, count: 1 },
+                    { label: 'T2', tier: 2, count: 2 },
+                    { label: 'T3', tier: 3, count: 4 },
+                ].map((g) => ({
+                    label: g.label,
+                    boxes: Array.from({ length: g.count }, () => ({ filled: !!sup && g.tier <= supportTier })),
+                }));
                 return {
                     name: String(p?.name ?? ''),
                     category: cap(String(p?.category ?? '')),
                     effect: String(p?.description ?? ''),
                     supported: !!sup,
-                    tier: sup?.tier ?? 0,
+                    tier: supportTier,
                     source: sup?.source ?? '',
+                    tiers,
                 };
             }),
         };

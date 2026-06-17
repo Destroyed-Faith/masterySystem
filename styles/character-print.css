@@ -586,31 +586,25 @@
   font-weight: 400;
 }
 
-.cp-skill-pips {
+/* 4 use boxes per skill (max uses per Safe Haven Rest), each pre-printed with MR */
+.cp-skill-uses {
   display: inline-flex;
   align-items: center;
-  gap: 2px;
+  gap: 3px;
   flex: 0 0 auto;
 }
 
-.cp-skill-pip {
-  width: 8px;
-  height: 8px;
+.cp-skill-use {
+  width: 13px;
+  height: 13px;
   border: 1px solid #555;
   border-radius: 2px;
   background: #fff;
-}
-
-.cp-skill-pip.is-filled {
-  background: #333;
-}
-
-.cp-skill-rank {
   font-size: 8px;
   font-weight: 700;
-  margin-left: 2px;
-  min-width: 10px;
-  text-align: right;
+  line-height: 13px;
+  text-align: center;
+  color: #333;
 }
 
 /* ── Disadvantages ────────────────────────────────────────────────────── */
@@ -1002,4 +996,20 @@
   border: 1px solid #bbb;
   border-radius: 2px;
   background: #fff;
+}
+
+/* Pre-filled by an artifact Support — show a stone already placed */
+.cp-tier-box.is-filled {
+  background: #1565c0;
+  border-color: #1565c0;
+  position: relative;
+}
+
+.cp-tier-box.is-filled::after {
+  content: '✕';
+  color: #fff;
+  font-size: 10px;
+  line-height: 13px;
+  display: block;
+  text-align: center;
 }

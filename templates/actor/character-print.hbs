@@ -182,9 +182,8 @@
       {{#each skills}}
       <div class="cp-skill-row">
         <div class="cp-skill-name">{{name}} <span class="cp-skill-attr">({{attrs}})</span></div>
-        <div class="cp-skill-pips">
-          {{#each pips}}<span class="cp-skill-pip{{#if filled}} is-filled{{/if}}"></span>{{/each}}
-          <span class="cp-skill-rank">{{rank}}</span>
+        <div class="cp-skill-uses" title="4 uses per Safe Haven Rest — each use applies MR">
+          {{#each uses}}<span class="cp-skill-use">{{this}}</span>{{/each}}
         </div>
       </div>
       {{/each}}
@@ -245,13 +244,7 @@
           {{#unless isGeneral}}<span class="cp-stone-count">{{freeStones}}</span>{{/unless}}
           {{#each boosts}}<span class="cp-stone-boost">{{kind}} +{{value}} <em>{{source}}</em></span>{{/each}}
         </div>
-        {{#if slots.length}}
-        <div class="cp-stone-slots">
-          {{#each slots}}<span class="cp-stone-slot"></span>{{/each}}
-        </div>
-        {{else}}
         {{#if isGeneral}}<div class="cp-stone-anypool">Pay from any pool</div>{{/if}}
-        {{/if}}
         <div class="cp-stone-list">
           {{#each powers}}
           <div class="cp-stone-power{{#if supported}} is-supported{{/if}}">
@@ -260,9 +253,12 @@
               <span class="cp-stone-eff">{{effect}}{{#if supported}} <span class="cp-stone-src">— {{source}}</span>{{/if}}</span>
             </div>
             <div class="cp-stone-tiers">
-              <span class="cp-tier-group"><span class="cp-tier-lbl">T1</span><span class="cp-tier-box"></span></span>
-              <span class="cp-tier-group"><span class="cp-tier-lbl">T2</span><span class="cp-tier-box"></span><span class="cp-tier-box"></span></span>
-              <span class="cp-tier-group"><span class="cp-tier-lbl">T3</span><span class="cp-tier-box"></span><span class="cp-tier-box"></span><span class="cp-tier-box"></span><span class="cp-tier-box"></span></span>
+              {{#each tiers}}
+              <span class="cp-tier-group">
+                <span class="cp-tier-lbl">{{label}}</span>
+                {{#each boxes}}<span class="cp-tier-box{{#if filled}} is-filled{{/if}}"></span>{{/each}}
+              </span>
+              {{/each}}
             </div>
           </div>
           {{/each}}
@@ -297,9 +293,8 @@
       {{#each skills}}
       <div class="cp-skill-row">
         <div class="cp-skill-name">{{name}} <span class="cp-skill-attr">({{attrs}})</span></div>
-        <div class="cp-skill-pips">
-          {{#each pips}}<span class="cp-skill-pip{{#if filled}} is-filled{{/if}}"></span>{{/each}}
-          <span class="cp-skill-rank">{{rank}}</span>
+        <div class="cp-skill-uses" title="4 uses per Safe Haven Rest — each use applies MR">
+          {{#each uses}}<span class="cp-skill-use">{{this}}</span>{{/each}}
         </div>
       </div>
       {{/each}}
