@@ -15,10 +15,8 @@
 
 import { SKILLS } from '../utils/skills.js';
 import { resolvePowerCategoryFromItem } from '../utils/power-catalog.js';
-import { isArtifactMechanicallyActive } from '../utils/artifact-actor-rules.js';
-import { visibleAbilityRows } from '../utils/artifact-visible-abilities.js';
 import { getArtifactStoneFunctionStatus } from '../utils/artifact-stone-functions.js';
-import { STONE_POWERS } from '../stones/stone-powers.js';
+import { STONE_POWERS_BY_ATTRIBUTE } from '../stones/stone-powers.js';
 
 /** Human-readable label per Stone Function kind (technical summary). */
 const STONE_FN_KIND_LABEL: Record<string, string> = {
@@ -27,6 +25,18 @@ const STONE_FN_KIND_LABEL: Record<string, string> = {
   stoneRefresh: 'Stone Refresh',
   stonePowerSupport: 'Power Support',
 };
+
+/** Stone Power groups in print order (General first, then attribute pools). */
+const STONE_GROUPS: { key: string; label: string }[] = [
+  { key: 'generic', label: 'General' },
+  { key: 'might', label: 'Might' },
+  { key: 'agility', label: 'Agility' },
+  { key: 'vitality', label: 'Vitality' },
+  { key: 'intellect', label: 'Intellect' },
+  { key: 'resolve', label: 'Resolve' },
+  { key: 'influence', label: 'Influence' },
+  { key: 'wits', label: 'Wits' },
+];
 
 const PRINT_TEMPLATE = 'systems/mastery-system/templates/actor/character-print.hbs';
 const PRINT_CSS = 'systems/mastery-system/styles/character-print.css';
@@ -193,13 +203,18 @@ export function buildCharacterPrintContext(actor: any): Record<string, unknown> 
   });
 
   // ── Saving throws ─────────────────────────────────────────────────────
-  const saves = system?.savingThrows ?? {};
+  // Saves are Roll & Keep pools built from attribute pairs (kept at Mastery
+  // Rank): Body = max(Might, Agility), Mind = max(Intellect, Wits),
+  // Spirit = max(Resolve, Influence). We print both attribute values plus the
+  // resolved pool (higher of the pair) "k" Mastery Rank.
+  const attrVal = (k: string) => num(system?.attributes?.[k]?.value, 0);
+  const savePool = (a: string, b: string) => `${Math.max(attrVal(a), attrVal(b))}d8 k ${masteryRank}`;
   const savingThrows = [
-    { label: 'MIND', sub: 'Intellect / Wits', values: [num(saves?.intellect), num(saves?.wits)] },
-    { label: 'BODY', sub: 'Might / Agility', values: [num(saves?.might), num(saves?.agility)] },
-    { label: 'SPIRIT', sub: 'Resolve / Influence', values: [num(saves?.resolve), num(saves?.influence)] }
+    { label: 'MIND', sub: 'Intellect / Wits', values: [attrVal('intellect'), attrVal('wits')], pool: savePool('intellect', 'wits') },
+    { label: 'BODY', sub: 'Might / Agility', values: [attrVal('might'), attrVal('agility')], pool: savePool('might', 'agility') },
+    { label: 'SPIRIT', sub: 'Resolve / Influence', values: [attrVal('resolve'), attrVal('influence')], pool: savePool('resolve', 'influence') }
   ];
-  const vitalitySave = num(saves?.vitality);
+  const vitalitySave = attrVal('vitality');
 
   // ── Combat / defenses ─────────────────────────────────────────────────
   const combat = system?.combat ?? {};
@@ -239,26 +254,41 @@ export function buildCharacterPrintContext(actor: any): Record<string, unknown> 
     maximum: num(system?.stress?.maximum)
   };
 
-  // ── Weapons ───────────────────────────────────────────────────────────
+  // ── Artifact Weapons ──────────────────────────────────────────────────
+  // Plain weapons are intentionally omitted; artifact weapons show directly
+  // what they do (damage, range, innate abilities, specials).
   const allItems: any[] = actor?.items ? Array.from(actor.items.values?.() ?? actor.items) : [];
-  const weaponItems = allItems.filter((i: any) => i?.type === 'weapon');
-  const weapons = padCards(
-    weaponItems.map((w: any) => {
-      const sys = w?.system ?? {};
-      const specials = Array.isArray(sys?.specials)
-        ? sys.specials
-            .map((s: any) => (typeof s === 'string' ? s : s?.key ?? ''))
-            .filter(Boolean)
-            .join(', ')
-        : '';
+  const artifactItems = allItems.filter((i: any) => i?.type === 'artifact');
+
+  function formatWeaponProfile(prof: any): { damage: string; range: string; tags: string } {
+    const damage = String(prof?.damage ?? '').trim();
+    const range = String(prof?.range ?? '').trim();
+    const innate = Array.isArray(prof?.innateAbilities)
+      ? prof.innateAbilities.map((a: any) => String(a)).filter(Boolean)
+      : [];
+    const specials = Array.isArray(prof?.specials)
+      ? prof.specials
+          .map((s: any) =>
+            typeof s === 'string'
+              ? s
+              : `${cap(String(s?.specialId ?? ''))}${s?.value != null ? `(${s.value})` : ''}`,
+          )
+          .filter(Boolean)
+      : [];
+    return { damage, range, tags: [...innate, ...specials].filter(Boolean).join(', ') };
+  }
+
+  const artifactWeapons = artifactItems
+    .filter((a: any) => a?.system?.artifactWeapon)
+    .map((a: any) => {
+      const prof = formatWeaponProfile(a.system.artifactWeapon);
       return {
-        name: String(w?.name ?? ''),
-        damage: String(sys?.damage ?? sys?.baseDamage ?? ''),
-        specials
+        name: String(a?.name ?? ''),
+        damage: prof.damage,
+        range: prof.range,
+        tags: prof.tags,
       };
-    }),
-    4
-  );
+    });
 
   // ── Powers (split into active tiles and passive tiles) ────────────────
   const powerItems = allItems.filter((i: any) => i?.type === 'power');
@@ -322,99 +352,50 @@ export function buildCharacterPrintContext(actor: any): Record<string, unknown> 
     quantity: num(g?.system?.quantity, 1)
   }));
 
-  // ── Technical summary (no fluff): powers + weapon attacks + artifacts ──
-  // and the Stone Powers that an active artifact supports / discounts.
-
-  // Powers the character owns (active + passive), purely technical.
-  const technicalPowers = [...activePowers, ...passivePowers].map((p: any) => ({
-    name: p.name,
-    phase: p.phase || 'Power',
-    effect: p.effect,
-    stones: p.stones,
-  }));
-
-  // Weapon-granted "powers" appended to the list (the attack each weapon gives).
-  for (const w of weaponItems) {
-    const sys = w?.system ?? {};
-    const dmg = String(sys?.damage ?? sys?.baseDamage ?? '').trim();
-    const rangeRaw = sys?.range;
-    const rangeM =
-      rangeRaw != null && rangeRaw !== '' ? `${num(rangeRaw)} m` : '';
-    const innate = Array.isArray(sys?.innateAbilities)
-      ? sys.innateAbilities.map((a: any) => String(a)).filter(Boolean)
-      : [];
-    const specials = Array.isArray(sys?.specials)
-      ? sys.specials.map((s: any) => (typeof s === 'string' ? s : s?.key ?? '')).filter(Boolean)
-      : [];
-    const parts = [
-      dmg ? `Damage ${dmg}` : '',
-      rangeM ? `Range ${rangeM}` : '',
-      innate.length ? innate.join(', ') : '',
-      specials.length ? `Specials: ${specials.join(', ')}` : '',
-    ].filter(Boolean);
-    technicalPowers.push({
-      name: String(w?.name ?? ''),
-      phase: 'Weapon',
-      effect: parts.join(' · '),
-      stones: 0,
-    });
-  }
-
-  // Artifacts: what each one currently does (base values + active abilities).
-  const artifactItems = allItems.filter((i: any) => i?.type === 'artifact');
-  const technicalArtifacts = artifactItems.map((a: any) => {
-    const sys = a?.system ?? {};
-    const level = Math.max(1, Math.min(10, num(sys?.currentLevel) || num(sys?.level) || 1));
-    const active = isArtifactMechanicallyActive(actor, a);
-    const baseValues = (Array.isArray(sys?.baseValues) ? sys.baseValues : []).map((bv: any) => ({
-      label: String(bv?.label ?? ''),
-      value: bv?.value != null && bv?.value !== '' ? String(bv.value) : String(bv?.note ?? ''),
-    }));
-    const abilities = visibleAbilityRows(
-      Array.isArray(sys?.levelProgression) ? sys.levelProgression : [],
-      level,
-    ).map((row: any) => ({
-      name: String(row?.name ?? ''),
-      type: String(row?.type ?? ''),
-      effect: stripHtml(row?.effect),
-      special: String(row?.special ?? ''),
-    }));
-    return {
-      name: String(a?.name ?? ''),
-      level,
-      active,
-      baseValues,
-      abilities,
-    };
-  });
-
-  // Stone Powers that an artifact supports / discounts (supported-only).
+  // ── Stone Powers reference (replaces the old "technical summary") ──────
+  // Full available catalog (General + per-attribute pools), marked with any
+  // artifact support / pool / battery / refresh boosts.
   const stoneStatus = getArtifactStoneFunctionStatus(actor);
-  const stoneSupports = (stoneStatus.supports ?? []).map((r: any) => {
-    const sp = r.stonePowerId ? (STONE_POWERS as Record<string, any>)[r.stonePowerId] : null;
+  const supportByPowerId = new Map<string, { tier: number; source: string }>();
+  for (const s of stoneStatus.supports ?? []) {
+    if (s?.stonePowerId) {
+      supportByPowerId.set(String(s.stonePowerId), {
+        tier: num(s.value),
+        source: String(s.source ?? ''),
+      });
+    }
+  }
+  const boostsByAttr = new Map<string, { kind: string; value: number; source: string }[]>();
+  for (const r of stoneStatus.records ?? []) {
+    if (r.kind === 'stonePool' || r.kind === 'stoneBattery' || r.kind === 'stoneRefresh') {
+      const attr = String(r.attribute ?? '');
+      const arr = boostsByAttr.get(attr) ?? [];
+      arr.push({ kind: STONE_FN_KIND_LABEL[r.kind] || r.kind, value: num(r.value), source: String(r.source ?? '') });
+      boostsByAttr.set(attr, arr);
+    }
+  }
+  const stonePowerGroups = STONE_GROUPS.map(({ key, label }) => {
+    const list = (STONE_POWERS_BY_ATTRIBUTE as Record<string, any[]>)[key] ?? [];
     return {
-      power: String(sp?.name ?? r.stonePowerId ?? ''),
-      attribute: cap(String(r.attribute ?? '')),
-      tier: num(r.value),
-      source: String(r.source ?? ''),
+      key,
+      label,
+      boosts: boostsByAttr.get(key) ?? [],
+      powers: list.map((p: any) => {
+        const sup = supportByPowerId.get(String(p.id));
+        return {
+          name: String(p?.name ?? ''),
+          category: cap(String(p?.category ?? '')),
+          effect: String(p?.description ?? ''),
+          supported: !!sup,
+          tier: sup?.tier ?? 0,
+          source: sup?.source ?? '',
+        };
+      }),
     };
   });
-  const stoneBoosts = (stoneStatus.records ?? [])
-    .filter((r: any) => r.kind === 'stonePool' || r.kind === 'stoneBattery' || r.kind === 'stoneRefresh')
-    .map((r: any) => ({
-      kind: STONE_FN_KIND_LABEL[r.kind] || r.kind,
-      attribute: cap(String(r.attribute ?? '')),
-      value: num(r.value),
-      source: String(r.source ?? ''),
-    }));
+
   const technical = {
-    powers: technicalPowers,
-    hasPowers: technicalPowers.length > 0,
-    artifacts: technicalArtifacts,
-    hasArtifacts: technicalArtifacts.length > 0,
-    stoneSupports,
-    stoneBoosts,
-    hasStone: stoneSupports.length > 0 || stoneBoosts.length > 0,
+    stonePowerGroups,
   };
 
   return {
@@ -435,7 +416,8 @@ export function buildCharacterPrintContext(actor: any): Record<string, unknown> 
     tempHP,
     stressBars,
     stress,
-    weapons,
+    artifactWeapons,
+    hasArtifactWeapons: artifactWeapons.length > 0,
     martialPowers,
     passivePowerCards,
     skillsByGroup,

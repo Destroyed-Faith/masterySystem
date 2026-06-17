@@ -308,6 +308,14 @@
   border-bottom: 1px solid #333;
 }
 
+.cp-save-pool {
+  margin-top: 2px;
+  text-align: center;
+  font-size: 7.5px;
+  font-weight: 700;
+  color: #444;
+}
+
 .cp-vitality {
   margin-top: 3px;
   text-align: center;
@@ -811,4 +819,97 @@
   font-size: 8px;
   color: #777;
   font-style: italic;
+}
+
+/* Artifact weapon profile line on the technical page */
+.cp-tech-weapon {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 8px;
+  margin-bottom: 2px;
+}
+
+.cp-tech-weapon-tag {
+  font-size: 7px;
+  font-weight: 800;
+  text-transform: uppercase;
+  background: #5d4037;
+  color: #fff;
+  border-radius: 3px;
+  padding: 1px 5px;
+}
+
+/* Stone Powers — available catalog grouped by attribute */
+.cp-stone-groups {
+  column-count: 2;
+  column-gap: 10px;
+}
+
+.cp-stone-group {
+  break-inside: avoid;
+  margin-bottom: 5px;
+}
+
+.cp-stone-group-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 5px;
+  border-bottom: 1.5px solid #333;
+  margin-bottom: 2px;
+}
+
+.cp-stone-group-name {
+  font-weight: 800;
+  font-size: 8.5px;
+  text-transform: uppercase;
+}
+
+.cp-stone-boost {
+  font-size: 7px;
+  font-weight: 700;
+  background: #2e7d32;
+  color: #fff;
+  border-radius: 6px;
+  padding: 0 5px;
+}
+
+.cp-stone-boost em {
+  font-style: normal;
+  opacity: 0.85;
+}
+
+.cp-stone-table td {
+  border: none;
+  border-bottom: 1px solid #eee;
+  vertical-align: top;
+  padding: 1px 3px;
+  font-size: 7.5px;
+}
+
+.cp-stone-table tr.is-supported {
+  background: #e3f2fd;
+}
+
+.cp-stone-cat {
+  font-size: 6.5px;
+  text-transform: uppercase;
+  color: #666;
+  white-space: nowrap;
+}
+
+.cp-stone-name {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.cp-stone-eff {
+  color: #333;
+}
+
+.cp-stone-src {
+  color: #1565c0;
+  font-weight: 600;
 }
