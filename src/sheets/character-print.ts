@@ -687,7 +687,10 @@ export async function openCharacterPrintSheet(actor: any): Promise<void> {
     return;
   }
 
-  const cssHref = routed(PRINT_CSS);
+  // Cache-bust the stylesheet with the system version so CSS changes (e.g. the
+  // landscape Battle Cheat page) are never served stale from the print window.
+  const cssVersion = String((game as any)?.system?.version ?? Date.now());
+  const cssHref = `${routed(PRINT_CSS)}?v=${encodeURIComponent(cssVersion)}`;
   const title = String(actor?.name ?? 'Character');
   const doc = `<!DOCTYPE html>
 <html lang="de">

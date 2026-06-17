@@ -2,9 +2,20 @@
    page 5 = Battle Cheat in landscape).
    Scoped under .mastery-print so it never leaks into the Foundry UI. */
 
+/* Per-page orientation: portrait pages explicitly request portrait, the Battle
+   Cheat page requests landscape. Giving *every* page an explicit named page
+   (instead of a bare `@page { size }`) is what makes Chromium honor a single
+   landscape page in an otherwise-portrait document. */
 @page {
-  size: A4;
   margin: 10mm;
+}
+
+@page cp-portrait {
+  size: A4 portrait;
+}
+
+@page cp-landscape {
+  size: A4 landscape;
 }
 
 .mastery-print {
@@ -40,6 +51,7 @@
   width: 190mm;
   margin: 0 auto 6mm;
   padding: 4mm 0 8mm;
+  page: cp-portrait;
 }
 
 .print-page + .print-page {
@@ -578,14 +590,9 @@
 .cp-phase-Buff { background: #00838f; }
 
 /* ── Battle Cheat (landscape rotation planner) ────────────────────────── */
-@page battle {
-  size: A4 landscape;
-  margin: 10mm;
-}
-
 .print-page-battle {
   width: 277mm; /* A4 landscape content width (297mm − 2×10mm) */
-  page: battle;
+  page: cp-landscape;
 }
 
 .cp-battle-title {
