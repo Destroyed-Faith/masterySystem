@@ -19,6 +19,7 @@ import { getArtifactStoneFunctionStatus } from '../utils/artifact-stone-function
 import { countArtifactActivationStones, artifactBindingNamesByAttr } from '../utils/artifact-stone-bound.js';
 import { isArtifactMechanicallyActive } from '../utils/artifact-actor-rules.js';
 import { visibleAbilityRows } from '../utils/artifact-visible-abilities.js';
+import { formatEffectReference } from '../utils/special-effects.js';
 import { STONE_POWERS_BY_ATTRIBUTE } from '../stones/stone-powers.js';
 
 /** Human-readable label per Stone Function kind (technical summary). */
@@ -273,36 +274,50 @@ export function buildCharacterPrintContext(actor: any): Record<string, unknown> 
   const allItems: any[] = actor?.items ? Array.from(actor.items.values?.() ?? actor.items) : [];
   const artifactItems = allItems.filter((i: any) => i?.type === 'artifact');
 
-  function formatWeaponProfile(prof: any): { type: string; damage: string; range: string; tags: string } {
+  function formatWeaponProfile(prof: any, level: number): { type: string; damage: string; range: string; tags: string } {
     const isRanged = prof?.weaponType === 'ranged';
     const type = isRanged ? 'Ranged' : 'Melee';
     const damage = String(prof?.damage ?? '').trim();
     const innate = Array.isArray(prof?.innateAbilities)
       ? prof.innateAbilities.map((a: any) => String(a)).filter(Boolean)
       : [];
+    // Use the canonical effect formatter so each special shows its proper name
+    // and (X) value (e.g. "Ignite(3)"), matching the item info dialog.
     const specials = Array.isArray(prof?.specials)
       ? prof.specials
           .map((s: any) =>
             typeof s === 'string'
               ? s
-              : `${cap(String(s?.specialId ?? ''))}${s?.value != null ? `(${s.value})` : ''}`,
+              : formatEffectReference({ specialId: String(s?.specialId ?? ''), value: s?.value }),
           )
           .filter(Boolean)
       : [];
-    // Melee range is always 1 m unless the weapon has a Reach ability; ranged
-    // weapons show their real range (blank/0 → dash).
+    // Melee range is always 1 m unless the weapon has a Reach ability. Ranged
+    // weapons show their real range; a comma list (a stale per-level scaling
+    // table) collapses to the value for the current artifact level.
     const hasReach = [...innate, ...specials].some((t) => /reach/i.test(String(t)));
-    const rawRange = String(prof?.range ?? '').trim();
-    const range = isRanged
-      ? (!rawRange || rawRange === '0m' ? '—' : rawRange)
-      : (hasReach ? 'Reach' : '1 m');
+    let range: string;
+    if (!isRanged) {
+      range = hasReach ? 'Reach' : '1 m';
+    } else {
+      let raw = String(prof?.range ?? '').trim();
+      if (raw.includes(',')) {
+        const parts = raw.split(',').map((s) => s.trim()).filter(Boolean);
+        const idx = Math.min(parts.length - 1, Math.max(0, level - 1));
+        raw = parts[idx] ?? parts[parts.length - 1] ?? '';
+      }
+      range = !raw || raw === '0m' || raw === '0' ? '—' : /m$/i.test(raw) ? raw : `${raw} m`;
+    }
     return { type, damage, range, tags: [...innate, ...specials].filter(Boolean).join(', ') };
   }
+
+  const artifactLevel = (a: any): number =>
+    Math.max(1, Math.min(10, num(a?.system?.currentLevel) || num(a?.system?.level) || 1));
 
   const artifactWeapons = artifactItems
     .filter((a: any) => a?.system?.artifactWeapon)
     .map((a: any) => {
-      const prof = formatWeaponProfile(a.system.artifactWeapon);
+      const prof = formatWeaponProfile(a.system.artifactWeapon, artifactLevel(a));
       return {
         name: String(a?.name ?? ''),
         type: prof.type,
