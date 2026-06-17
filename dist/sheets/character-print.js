@@ -416,6 +416,57 @@ export function buildCharacterPrintContext(actor) {
     activePowers.sort((a, b) => a.sortKey - b.sortKey);
     const martialPowers = padCards(activePowers, 6);
     const passivePowerCards = padCards(passivePowers, 6);
+    // ── Battle Cheat (rotation planner) ───────────────────────────────────
+    // Split the active power list into the four combat "slots" so the dedicated
+    // landscape page can lay them out as a plannable rotation:
+    //   Movement → Active(s) → Active Buffs → Reactions.
+    const classifyBattleSlot = (phase) => {
+        const c = String(phase || '').toLowerCase();
+        if (c.includes('movement'))
+            return 'movement';
+        if (c.includes('buff'))
+            return 'activeBuff';
+        if (c.includes('reaction'))
+            return 'reaction';
+        return 'active';
+    };
+    const speedMeters = num(combat?.speed);
+    const battleMovement = [
+        // Every character always has the standard Movement action — seed it so the
+        // rotation always begins with a checkable movement step.
+        {
+            name: 'Move',
+            effect: speedMeters ? `Standard movement — ${speedMeters} m.` : 'Standard movement action.',
+            phase: 'Movement',
+            baseline: true,
+        },
+    ];
+    const battleActive = [];
+    const battleBuffs = [];
+    const battleReactions = [];
+    for (const p of activePowers) {
+        switch (classifyBattleSlot(p.phase)) {
+            case 'movement':
+                battleMovement.push(p);
+                break;
+            case 'activeBuff':
+                battleBuffs.push(p);
+                break;
+            case 'reaction':
+                battleReactions.push(p);
+                break;
+            default: battleActive.push(p);
+        }
+    }
+    const battle = {
+        movement: battleMovement,
+        active: battleActive,
+        activeBuffs: battleBuffs,
+        reactions: battleReactions,
+        hasActive: battleActive.length > 0,
+        hasBuffs: battleBuffs.length > 0,
+        hasReactions: battleReactions.length > 0,
+    };
     // ── Skills ────────────────────────────────────────────────────────────
     const skillsByGroup = SKILL_GROUPS.map((group) => ({
         key: group.key,
@@ -563,6 +614,7 @@ export function buildCharacterPrintContext(actor) {
         hasArtifactWeapons: artifactWeapons.length > 0,
         martialPowers,
         passivePowerCards,
+        battle,
         skillsByGroup,
         disadvantages,
         disadvantagePoints,

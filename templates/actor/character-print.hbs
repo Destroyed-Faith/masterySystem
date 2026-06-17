@@ -1,4 +1,4 @@
-{{!-- Printable character sheet (3 pages). Populated by buildCharacterPrintContext(). --}}
+{{!-- Printable character sheet (5 pages; page 5 = Battle Cheat, landscape). Populated by buildCharacterPrintContext(). --}}
 
 {{!-- ============================ PAGE 1 ============================ --}}
 <section class="print-page print-page-1">
@@ -165,7 +165,7 @@
     </div>
   </div>
 
-  <div class="cp-page-footer">-- 1 of 4 --</div>
+  <div class="cp-page-footer">-- 1 of 5 --</div>
 </section>
 
 {{!-- ============================ PAGE 2 ============================ --}}
@@ -231,7 +231,7 @@
     <div class="cp-rerolls"><span class="cp-defense-label">Total Rerolls / Used</span><span class="cp-use-box"></span></div>
   </div>
 
-  <div class="cp-page-footer">-- 2 of 4 --</div>
+  <div class="cp-page-footer">-- 2 of 5 --</div>
 </section>
 
 {{!-- ===================== PAGE 3 — STONE POWERS ==================== --}}
@@ -278,7 +278,7 @@
     {{/if}}
   </div>
 
-  <div class="cp-page-footer">-- 3 of 4 --</div>
+  <div class="cp-page-footer">-- 3 of 5 --</div>
 </section>
 
 {{!-- ============================ PAGE 4 ============================ --}}
@@ -345,5 +345,102 @@
     {{/if}}
   </div>
 
-  <div class="cp-page-footer">-- 4 of 4 --</div>
+  <div class="cp-page-footer">-- 4 of 5 --</div>
+</section>
+
+{{!-- ================ PAGE 5 — BATTLE CHEAT (landscape) ============== --}}
+<section class="print-page print-page-battle">
+
+  <h2 class="cp-section-title cp-battle-title">Battle Cheat <span class="cp-subtle">plan your rotation — tick each step as you spend it</span></h2>
+
+  {{!-- Rotation flow: Movement → Active(s), vertically centered --}}
+  <div class="cp-battle-flow">
+
+    <div class="cp-battle-col cp-battle-col-movement">
+      <div class="cp-battle-col-title">Movement</div>
+      <div class="cp-battle-cards cp-battle-cards-stack">
+        {{#each battle.movement}}
+        <div class="cp-battle-card{{#if baseline}} is-baseline{{/if}}">
+          <span class="cp-use-box"></span>
+          <span class="cp-battle-card-body">
+            <span class="cp-battle-card-name">{{name}}</span>
+            {{#if effect}}<span class="cp-battle-card-eff">{{effect}}</span>{{/if}}
+          </span>
+        </div>
+        {{/each}}
+      </div>
+    </div>
+
+    <div class="cp-battle-arrow">&#10142;</div>
+
+    <div class="cp-battle-col cp-battle-col-active">
+      <div class="cp-battle-col-title">Active</div>
+      {{#if battle.hasActive}}
+      <div class="cp-battle-cards cp-battle-cards-active">
+        {{#each battle.active}}
+        <div class="cp-battle-card">
+          <span class="cp-use-box"></span>
+          <span class="cp-battle-card-body">
+            <span class="cp-battle-card-name">{{name}}{{#if fromArtifact}} <span class="cp-power-artifact" title="From artifact: {{source}}">&#9733; {{source}}</span>{{/if}}</span>
+            {{#if effect}}<span class="cp-battle-card-eff">{{effect}}</span>{{/if}}
+          </span>
+        </div>
+        {{/each}}
+      </div>
+      {{else}}
+      <div class="cp-battle-empty">No active powers.</div>
+      {{/if}}
+    </div>
+
+  </div>
+
+  {{!-- Active Buffs --}}
+  <div class="cp-battle-section">
+    <h2 class="cp-section-title cp-battle-heading">Active Buffs</h2>
+    {{#if battle.hasBuffs}}
+    <div class="cp-battle-cardrow">
+      {{#each battle.activeBuffs}}
+      <div class="cp-power-card">
+        <div class="cp-power-card-head">
+          <span class="cp-power-name">{{name}}{{#if fromArtifact}} <span class="cp-power-artifact" title="From artifact: {{source}}">&#9733; {{source}}</span>{{/if}}</span>
+          <span class="cp-power-tile">
+            <span class="cp-phase cp-phase-Buff">Buff</span>
+            <span class="cp-use-box" title="activate"></span>
+          </span>
+        </div>
+        {{#if effect}}<div class="cp-power-effect">{{effect}}</div>{{/if}}
+        {{#if stones}}<div class="cp-power-cost">Stones: {{stones}}</div>{{/if}}
+      </div>
+      {{/each}}
+    </div>
+    {{else}}
+    <div class="cp-battle-empty">No active buffs.</div>
+    {{/if}}
+  </div>
+
+  {{!-- Reactions --}}
+  <div class="cp-battle-section">
+    <h2 class="cp-section-title cp-battle-heading">Reactions</h2>
+    {{#if battle.hasReactions}}
+    <div class="cp-battle-cardrow">
+      {{#each battle.reactions}}
+      <div class="cp-power-card">
+        <div class="cp-power-card-head">
+          <span class="cp-power-name">{{name}}{{#if fromArtifact}} <span class="cp-power-artifact" title="From artifact: {{source}}">&#9733; {{source}}</span>{{/if}}</span>
+          <span class="cp-power-tile">
+            <span class="cp-phase cp-phase-Reaction">Reaction</span>
+            <span class="cp-use-box" title="once per round"></span>
+          </span>
+        </div>
+        {{#if effect}}<div class="cp-power-effect">{{effect}}</div>{{/if}}
+        {{#if stones}}<div class="cp-power-cost">Stones: {{stones}}</div>{{/if}}
+      </div>
+      {{/each}}
+    </div>
+    {{else}}
+    <div class="cp-battle-empty">No reactions.</div>
+    {{/if}}
+  </div>
+
+  <div class="cp-page-footer">-- 5 of 5 --</div>
 </section>
