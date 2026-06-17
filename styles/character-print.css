@@ -600,13 +600,14 @@
   margin-bottom: 6mm;
 }
 
-/* Rotation flow band — vertically centred so cards grow out from the middle */
+/* One rotation line — vertically centred so cards grow out from the middle:
+   Movement → [Attack Action: Active | Active Buffs] → Reactions */
 .cp-battle-flow {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 16mm;
-  min-height: 92mm;
+  gap: 6mm;
+  min-height: 100mm;
 }
 
 .cp-battle-col {
@@ -617,14 +618,40 @@
 }
 
 .cp-battle-col-title {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
   color: #444;
   border-bottom: 2px solid #444;
   padding-bottom: 2px;
   margin-bottom: 4px;
+}
+
+/* "Attack Action" — one heading spanning the Active + Active Buffs columns */
+.cp-battle-attack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.cp-battle-group-title {
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #1a1a1a;
+  border: 2px solid #1a1a1a;
+  border-radius: 4px;
+  padding: 2px 10px;
+  margin-bottom: 5px;
+}
+
+.cp-battle-attack-cols {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 6mm;
 }
 
 .cp-battle-cards-stack {
@@ -639,7 +666,7 @@
   display: grid;
   grid-template-rows: repeat(4, auto);
   grid-auto-flow: column;
-  grid-column-gap: 8px;
+  grid-column-gap: 6px;
   grid-row-gap: 6px;
   align-content: center;
 }
@@ -652,12 +679,22 @@
   border-radius: 4px;
   background: #f4f4f4;
   padding: 4px 6px;
-  width: 62mm;
+  width: 46mm;
 }
 
 .cp-battle-card.is-baseline {
   background: #eef3ee;
   border-color: #2e7d32;
+}
+
+.cp-battle-card-buff {
+  background: #e6f3f4;
+  border-color: #00838f;
+}
+
+.cp-battle-card-reaction {
+  background: #fdf0e6;
+  border-color: #ef6c00;
 }
 
 .cp-battle-card .cp-use-box {
@@ -670,43 +707,21 @@
 }
 
 .cp-battle-card-name {
-  font-size: 9px;
+  font-size: 8.5px;
   font-weight: 700;
 }
 
 .cp-battle-card-eff {
-  font-size: 7px;
+  font-size: 6.5px;
   color: #444;
   line-height: 1.2;
 }
 
 .cp-battle-arrow {
-  font-size: 30px;
+  font-size: 24px;
   line-height: 1;
   color: #555;
   flex: 0 0 auto;
-}
-
-.cp-battle-section {
-  margin-top: 6mm;
-}
-
-.cp-battle-heading {
-  text-align: center;
-  font-size: 13px;
-  margin-bottom: 4px;
-}
-
-/* Buffs / reactions — gray power cards, centred (start from the middle) */
-.cp-battle-cardrow {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 6px;
-}
-
-.cp-battle-cardrow .cp-power-card {
-  width: 86mm;
 }
 
 .cp-battle-empty {
