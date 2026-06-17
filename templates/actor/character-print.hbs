@@ -191,6 +191,44 @@
   {{/unless}}
   {{/each}}
 
+  <div class="cp-block cp-social-combat">
+    <h3 class="cp-block-title">Social Combat <span class="cp-subtle">Phase Support Used? <span class="cp-use-box"></span></span></h3>
+    <div class="cp-success-counter">
+      {{#each (range -4 10)}}<span class="cp-success-cell">{{this}}</span>{{/each}}
+      <span class="cp-success-cell">11+</span>
+    </div>
+  </div>
+
+  {{#each skillsByGroup}}
+  {{#if (eq key "social")}}
+  <div class="cp-block cp-skills cp-skills-social">
+    <h3 class="cp-block-title">Social Skills</h3>
+    <div class="cp-skill-list cp-skill-list-2col">
+      {{#each skills}}
+      <div class="cp-skill-row">
+        <div class="cp-skill-name">{{name}} <span class="cp-skill-attr">({{attrs}})</span></div>
+        <div class="cp-skill-uses" title="4 uses per Safe Haven Rest — each use applies MR">
+          {{#each uses}}<span class="cp-skill-use">{{this}}</span>{{/each}}
+        </div>
+      </div>
+      {{/each}}
+    </div>
+  </div>
+  {{/if}}
+  {{/each}}
+
+  <div class="cp-block cp-equipment">
+    <h3 class="cp-block-title">Equipment</h3>
+    <div class="cp-encumbrance-head"><span>Not Encumbered</span><span>Encumbered</span><span>Heavily Encumbered</span></div>
+    {{#if gear.length}}
+    <ul class="cp-gear-list">
+      {{#each gear}}<li>{{name}}{{#if quantity}} <span class="cp-gear-qty">x{{quantity}}</span>{{/if}}</li>{{/each}}
+    </ul>
+    {{else}}
+    <div class="cp-equipment-grid"></div>
+    {{/if}}
+  </div>
+
   <div class="cp-page-footer">-- 2 of 5 --</div>
 </section>
 
@@ -241,34 +279,8 @@
   <div class="cp-page-footer">-- 3 of 5 --</div>
 </section>
 
-{{!-- ============================ PAGE 4 ============================ --}}
-<section class="print-page print-page-3">
-
-  <div class="cp-block cp-social-combat">
-    <h3 class="cp-block-title">Social Combat <span class="cp-subtle">Phase Support Used? <span class="cp-use-box"></span></span></h3>
-    <div class="cp-success-counter">
-      {{#each (range -4 10)}}<span class="cp-success-cell">{{this}}</span>{{/each}}
-      <span class="cp-success-cell">11+</span>
-    </div>
-  </div>
-
-  {{#each skillsByGroup}}
-  {{#if (eq key "social")}}
-  <div class="cp-block cp-skills cp-skills-social">
-    <h3 class="cp-block-title">Social Skills</h3>
-    <div class="cp-skill-list cp-skill-list-2col">
-      {{#each skills}}
-      <div class="cp-skill-row">
-        <div class="cp-skill-name">{{name}} <span class="cp-skill-attr">({{attrs}})</span></div>
-        <div class="cp-skill-uses" title="4 uses per Safe Haven Rest — each use applies MR">
-          {{#each uses}}<span class="cp-skill-use">{{this}}</span>{{/each}}
-        </div>
-      </div>
-      {{/each}}
-    </div>
-  </div>
-  {{/if}}
-  {{/each}}
+{{!-- ===================== PAGE 4 — SUMMONS ======================== --}}
+<section class="print-page print-page-summons">
 
   <div class="cp-block cp-summons">
     <h3 class="cp-block-title">Summons &amp; Familiars</h3>
@@ -291,18 +303,6 @@
         <tr><td>Movement (Fly)</td><td>4</td><td>4</td><td>5-7</td><td>8-10</td><td>11-12</td></tr>
       </tbody>
     </table>
-  </div>
-
-  <div class="cp-block cp-equipment">
-    <h3 class="cp-block-title">Equipment</h3>
-    <div class="cp-encumbrance-head"><span>Not Encumbered</span><span>Encumbered</span><span>Heavily Encumbered</span></div>
-    {{#if gear.length}}
-    <ul class="cp-gear-list">
-      {{#each gear}}<li>{{name}}{{#if quantity}} <span class="cp-gear-qty">x{{quantity}}</span>{{/if}}</li>{{/each}}
-    </ul>
-    {{else}}
-    <div class="cp-equipment-grid"></div>
-    {{/if}}
   </div>
 
   <div class="cp-page-footer">-- 4 of 5 --</div>
