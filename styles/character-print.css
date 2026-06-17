@@ -774,10 +774,28 @@
 .cp-init-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 4px;
   font-size: 7px;
   color: #555;
   text-transform: uppercase;
+}
+
+.cp-init-actions > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 1px solid #bbb;
+  border-radius: 8px;
+  padding: 1px 6px;
+}
+
+.cp-init-actions > span b {
+  font-size: 8px;
+  color: #fff;
+  background: #455a64;
+  border-radius: 7px;
+  padding: 0 5px;
+  line-height: 1.4;
 }
 
 /* ── Skills ───────────────────────────────────────────────────────────── */

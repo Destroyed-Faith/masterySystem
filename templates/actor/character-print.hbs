@@ -123,6 +123,19 @@
     </div>
   </div>
 
+  <div class="cp-block cp-disadvantages">
+    <h3 class="cp-block-title">Disadvantages <span class="cp-subtle">Points: {{disadvantagePoints}}</span></h3>
+    <table class="cp-disadv-table">
+      <thead><tr><th>Disadvantage</th><th>Points</th></tr></thead>
+      <tbody>
+        {{#each disadvantages}}
+        <tr><td>{{label}}</td><td>{{points}}</td></tr>
+        {{/each}}
+      </tbody>
+    </table>
+    <div class="cp-rerolls"><span class="cp-defense-label">Total Rerolls / Used</span><span class="cp-use-box"></span></div>
+  </div>
+
   <div class="cp-block cp-weapons">
     <h3 class="cp-block-title">Artifact Weapons</h3>
     <table class="cp-weapons-table">
@@ -156,7 +169,7 @@
       <span class="cp-init-cell">4</span><span class="cp-init-cell">8</span><span class="cp-init-cell">12</span><span class="cp-init-cell">16</span><span class="cp-init-cell">20</span><span class="cp-init-cell">24</span><span class="cp-init-cell">28</span><span class="cp-init-cell">32</span><span class="cp-init-cell">36</span><span class="cp-init-cell">40</span><span class="cp-init-cell">44</span><span class="cp-init-cell">48</span><span class="cp-init-cell">52</span><span class="cp-init-cell">56</span><span class="cp-init-cell">60</span><span class="cp-init-cell">64</span><span class="cp-init-cell">68</span><span class="cp-init-cell">72</span>
     </div>
     <div class="cp-init-actions">
-      <span>+2 Move</span><span>Ini Swap</span><span>Extra Reaction</span><span>Remove 2d8 Stress</span><span>Extra Attack</span>
+      <span>+2 Move <b>4</b></span><span>Ini Swap <b>8</b></span><span>Extra Reaction <b>12</b></span><span>Remove 2d8 Stress <b>16</b></span><span>Extra Attack <b>20</b></span>
     </div>
   </div>
 
@@ -177,19 +190,6 @@
   </div>
   {{/unless}}
   {{/each}}
-
-  <div class="cp-block cp-disadvantages">
-    <h3 class="cp-block-title">Disadvantages <span class="cp-subtle">Points: {{disadvantagePoints}}</span></h3>
-    <table class="cp-disadv-table">
-      <thead><tr><th>Disadvantage</th><th>Points</th></tr></thead>
-      <tbody>
-        {{#each disadvantages}}
-        <tr><td>{{label}}</td><td>{{points}}</td></tr>
-        {{/each}}
-      </tbody>
-    </table>
-    <div class="cp-rerolls"><span class="cp-defense-label">Total Rerolls / Used</span><span class="cp-use-box"></span></div>
-  </div>
 
   <div class="cp-page-footer">-- 2 of 5 --</div>
 </section>
