@@ -17,6 +17,8 @@ import { SKILLS } from '../utils/skills.js';
 import { resolvePowerCategoryFromItem } from '../utils/power-catalog.js';
 import { getArtifactStoneFunctionStatus } from '../utils/artifact-stone-functions.js';
 import { countArtifactActivationStones, artifactBindingNamesByAttr } from '../utils/artifact-stone-bound.js';
+import { isArtifactMechanicallyActive } from '../utils/artifact-actor-rules.js';
+import { visibleAbilityRows } from '../utils/artifact-visible-abilities.js';
 import { STONE_POWERS_BY_ATTRIBUTE } from '../stones/stone-powers.js';
 
 /** Human-readable label per Stone Function kind (technical summary). */
@@ -275,12 +277,6 @@ export function buildCharacterPrintContext(actor: any): Record<string, unknown> 
     const isRanged = prof?.weaponType === 'ranged';
     const type = isRanged ? 'Ranged' : 'Melee';
     const damage = String(prof?.damage ?? '').trim();
-    // Melee weapons store range '0m' which reads as nonsense — show "Melee".
-    // Ranged weapons show their actual range; blank/0 falls back to a dash.
-    const rawRange = String(prof?.range ?? '').trim();
-    const range = isRanged
-      ? (!rawRange || rawRange === '0m' ? '—' : rawRange)
-      : 'Melee';
     const innate = Array.isArray(prof?.innateAbilities)
       ? prof.innateAbilities.map((a: any) => String(a)).filter(Boolean)
       : [];
@@ -293,6 +289,13 @@ export function buildCharacterPrintContext(actor: any): Record<string, unknown> 
           )
           .filter(Boolean)
       : [];
+    // Melee range is always 1 m unless the weapon has a Reach ability; ranged
+    // weapons show their real range (blank/0 → dash).
+    const hasReach = [...innate, ...specials].some((t) => /reach/i.test(String(t)));
+    const rawRange = String(prof?.range ?? '').trim();
+    const range = isRanged
+      ? (!rawRange || rawRange === '0m' ? '—' : rawRange)
+      : (hasReach ? 'Reach' : '1 m');
     return { type, damage, range, tags: [...innate, ...specials].filter(Boolean).join(', ') };
   }
 
@@ -326,6 +329,35 @@ export function buildCharacterPrintContext(actor: any): Record<string, unknown> 
     if (category === 'passive') passivePowers.push(entry);
     else activePowers.push(entry);
   }
+
+  // Artifact-granted active powers — merged into the Martial/Spell/Form list and
+  // flagged as coming from the artifact. Stone-function rows (Support / Stone
+  // Pool / Battery / Refresh) belong to the Stone Powers page and passives stay
+  // out of the active list.
+  for (const a of artifactItems) {
+    if (!isArtifactMechanicallyActive(actor, a)) continue;
+    const sys = a?.system ?? {};
+    const level = Math.max(1, Math.min(10, num(sys?.currentLevel) || num(sys?.level) || 1));
+    const rows = visibleAbilityRows(
+      Array.isArray(sys?.levelProgression) ? sys.levelProgression : [],
+      level,
+    );
+    for (const row of rows) {
+      const type = String(row?.type ?? '').trim();
+      const t = type.toLowerCase();
+      if (t === 'passive' || /stone|support/.test(t)) continue;
+      activePowers.push({
+        name: String(row?.name ?? ''),
+        effect: stripHtml(row?.effect),
+        phase: type || 'Active',
+        stones: 0,
+        rank: 1,
+        fromArtifact: true,
+        source: String(a?.name ?? ''),
+      });
+    }
+  }
+
   const martialPowers = padCards(activePowers, 6);
   const passivePowerCards = padCards(passivePowers, 6);
 

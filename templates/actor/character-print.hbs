@@ -144,7 +144,7 @@
       <div class="cp-power-card{{#if empty}} is-empty{{/if}}">
         {{#unless empty}}
         <div class="cp-power-card-head">
-          <span class="cp-power-name">{{name}}</span>
+          <span class="cp-power-name">{{name}}{{#if fromArtifact}} <span class="cp-power-artifact" title="From artifact: {{source}}">★ {{source}}</span>{{/if}}</span>
           <span class="cp-power-tile">
             {{#if phase}}<span class="cp-phase cp-phase-{{phase}}">{{phase}}</span>{{/if}}
             <span class="cp-use-box" title="einmal pro Runde"></span>
@@ -252,17 +252,21 @@
         {{else}}
         {{#if isGeneral}}<div class="cp-stone-anypool">Pay from any pool</div>{{/if}}
         {{/if}}
-        <table class="cp-tech-table cp-stone-table">
-          <tbody>
-            {{#each powers}}
-            <tr{{#if supported}} class="is-supported"{{/if}}>
-              <td class="cp-stone-cat">{{category}}</td>
-              <td class="cp-stone-name">{{name}}{{#if supported}} <span class="cp-tech-tier">Support T{{tier}}</span>{{/if}}</td>
-              <td class="cp-stone-eff">{{effect}}{{#if supported}} <span class="cp-stone-src">— {{source}}</span>{{/if}}</td>
-            </tr>
-            {{/each}}
-          </tbody>
-        </table>
+        <div class="cp-stone-list">
+          {{#each powers}}
+          <div class="cp-stone-power{{#if supported}} is-supported{{/if}}">
+            <div class="cp-stone-power-info">
+              <span class="cp-stone-name">{{name}} <span class="cp-stone-cat">({{category}})</span>{{#if supported}} <span class="cp-tech-tier">Support T{{tier}}</span>{{/if}}</span>
+              <span class="cp-stone-eff">{{effect}}{{#if supported}} <span class="cp-stone-src">— {{source}}</span>{{/if}}</span>
+            </div>
+            <div class="cp-stone-tiers">
+              <span class="cp-tier-group"><span class="cp-tier-lbl">T1</span><span class="cp-tier-box"></span></span>
+              <span class="cp-tier-group"><span class="cp-tier-lbl">T2</span><span class="cp-tier-box"></span><span class="cp-tier-box"></span></span>
+              <span class="cp-tier-group"><span class="cp-tier-lbl">T3</span><span class="cp-tier-box"></span><span class="cp-tier-box"></span><span class="cp-tier-box"></span><span class="cp-tier-box"></span></span>
+            </div>
+          </div>
+          {{/each}}
+        </div>
       </div>
       {{/each}}
     </div>
