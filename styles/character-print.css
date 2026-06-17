@@ -269,6 +269,13 @@
   font-weight: 700;
 }
 
+.cp-stone-blocked {
+  font-size: 6.5px;
+  font-style: italic;
+  color: #b71c1c;
+  margin-top: 1px;
+}
+
 /* ── Saving throws ────────────────────────────────────────────────────── */
 .cp-saves-grid {
   display: flex;

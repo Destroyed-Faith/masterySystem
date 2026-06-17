@@ -53,10 +53,19 @@ export function collectArtifactActivationBindings(actor) {
         const rootKey = item.getFlag?.('mastery-system', 'evolutionRootItemId') ||
             item.getFlag?.('mastery-system', 'echoArtifactKey') ||
             String(item.id);
-        if (!byRoot.has(rootKey))
-            byRoot.set(rootKey, { rootKey, stoneAttr });
+        if (!byRoot.has(rootKey)) {
+            byRoot.set(rootKey, { rootKey, stoneAttr, artifactName: String(item.name ?? '') });
+        }
     }
     return Array.from(byRoot.values());
+}
+/** Artifact names binding a stone, grouped by attribute pool. */
+export function artifactBindingNamesByAttr(actor) {
+    const out = {};
+    for (const b of collectArtifactActivationBindings(actor)) {
+        (out[b.stoneAttr] ??= []).push(b.artifactName);
+    }
+    return out;
 }
 /** Count activation stones locked to artifacts, optionally filtered by pool attribute. */
 export function countArtifactActivationStones(actor, attr) {

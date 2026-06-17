@@ -34,10 +34,13 @@
           <div class="cp-stone-overview">
             <span class="cp-stone-label">Stones</span>
             <span class="cp-stone-pips">
-              {{#each (range 1 stoneCapacity)}}<span class="cp-stone-pip"></span>{{/each}}
+              {{#each slots}}<span class="cp-stone-pip"></span>{{/each}}
             </span>
-            <span class="cp-stone-count">{{stoneCapacity}}</span>
+            <span class="cp-stone-count">{{stoneAvailable}} / {{stoneCapacity}}</span>
           </div>
+          {{#if blocked}}
+          <div class="cp-stone-blocked">Blocked by Artifact: {{blockedBy}}</div>
+          {{/if}}
         </div>
         {{/each}}
       </div>
@@ -116,18 +119,19 @@
   <div class="cp-block cp-weapons">
     <h3 class="cp-block-title">Artifact Weapons</h3>
     <table class="cp-weapons-table">
-      <thead><tr><th>Weapon</th><th>Damage Dice</th><th>Range</th><th>Innate / Specials</th></tr></thead>
+      <thead><tr><th>Weapon</th><th>Type</th><th>Damage Dice</th><th>Range</th><th>Innate / Specials</th></tr></thead>
       <tbody>
         {{#each artifactWeapons}}
         <tr>
           <td>{{name}}</td>
+          <td>{{type}}</td>
           <td>{{damage}}</td>
           <td>{{#if range}}{{range}}{{else}}—{{/if}}</td>
           <td>{{#if tags}}{{tags}}{{else}}—{{/if}}</td>
         </tr>
         {{/each}}
         {{#unless hasArtifactWeapons}}
-        <tr><td colspan="4" class="cp-tech-empty">No artifact weapons.</td></tr>
+        <tr><td colspan="5" class="cp-tech-empty">No artifact weapons.</td></tr>
         {{/unless}}
       </tbody>
     </table>

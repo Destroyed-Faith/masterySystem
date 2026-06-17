@@ -7,6 +7,8 @@ export interface ArtifactActivationBinding {
     rootKey: string;
     /** Attribute pool the activation stone is bound to. */
     stoneAttr: string;
+    /** Display name of the artifact that binds the stone. */
+    artifactName: string;
 }
 /**
  * Collect the actor's currently-binding artifact activations, deduplicated per
@@ -16,6 +18,8 @@ export interface ArtifactActivationBinding {
  * same artifact tree only ever bind a single stone.
  */
 export declare function collectArtifactActivationBindings(actor: any): ArtifactActivationBinding[];
+/** Artifact names binding a stone, grouped by attribute pool. */
+export declare function artifactBindingNamesByAttr(actor: any): Record<string, string[]>;
 /** Count activation stones locked to artifacts, optionally filtered by pool attribute. */
 export declare function countArtifactActivationStones(actor: any, attr?: string): number;
 /** Pool capacity minus sustained and artifact-bound stones (round-1 refill target). */

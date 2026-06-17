@@ -15,7 +15,7 @@
 import { SKILLS } from '../utils/skills.js';
 import { resolvePowerCategoryFromItem } from '../utils/power-catalog.js';
 import { getArtifactStoneFunctionStatus } from '../utils/artifact-stone-functions.js';
-import { countArtifactActivationStones } from '../utils/artifact-stone-bound.js';
+import { countArtifactActivationStones, artifactBindingNamesByAttr } from '../utils/artifact-stone-bound.js';
 import { STONE_POWERS_BY_ATTRIBUTE } from '../stones/stone-powers.js';
 /** Human-readable label per Stone Function kind (technical summary). */
 const STONE_FN_KIND_LABEL = {
@@ -169,23 +169,32 @@ function resolveEchoName(actor, system) {
 export function buildCharacterPrintContext(actor) {
     const system = actor?.system ?? {};
     const masteryRank = num(system?.mastery?.rank, 2);
+    // Stones bound into artifacts (blocked) — used to show real availability.
+    const bindingNamesByAttr = artifactBindingNamesByAttr(actor);
     // ── Abilities ─────────────────────────────────────────────────────────
     const abilities = ATTR_ORDER.map((key) => {
         const value = num(system?.attributes?.[key]?.value, 0);
-        const stoneCapacity = Math.floor(value / 8);
+        const stoneCapacity = num(system?.stonePools?.[key]?.max, Math.floor(value / 8));
+        const bound = countArtifactActivationStones(actor, key);
+        const stoneAvailable = Math.max(0, stoneCapacity - bound);
+        const blockedBy = bindingNamesByAttr[key] ?? [];
         return {
             key,
             label: cap(key).toUpperCase(),
             value,
             stoneCapacity,
+            stoneAvailable,
+            blocked: blockedBy.length > 0,
+            blockedBy: blockedBy.join(', '),
+            slots: Array.from({ length: stoneAvailable }, (_, i) => i + 1),
             ladder: ABILITY_LADDER.map((n) => ({ n, filled: value >= n }))
         };
     });
     // ── Stone Powers (per-attribute capacity overview) ────────────────────
     const stonePools = ATTR_ORDER.map((key) => {
-        const pool = system?.stonePools?.[key] ?? {};
-        const max = num(pool?.max, Math.floor(num(system?.attributes?.[key]?.value, 0) / 8));
-        return { key, label: cap(key).toUpperCase(), max };
+        const max = num(system?.stonePools?.[key]?.max, Math.floor(num(system?.attributes?.[key]?.value, 0) / 8));
+        const bound = countArtifactActivationStones(actor, key);
+        return { key, label: cap(key).toUpperCase(), max, available: Math.max(0, max - bound) };
     });
     // ── Saving throws ─────────────────────────────────────────────────────
     // Saves are Roll & Keep pools built from attribute pairs (kept at Mastery
@@ -241,8 +250,15 @@ export function buildCharacterPrintContext(actor) {
     const allItems = actor?.items ? Array.from(actor.items.values?.() ?? actor.items) : [];
     const artifactItems = allItems.filter((i) => i?.type === 'artifact');
     function formatWeaponProfile(prof) {
+        const isRanged = prof?.weaponType === 'ranged';
+        const type = isRanged ? 'Ranged' : 'Melee';
         const damage = String(prof?.damage ?? '').trim();
-        const range = String(prof?.range ?? '').trim();
+        // Melee weapons store range '0m' which reads as nonsense — show "Melee".
+        // Ranged weapons show their actual range; blank/0 falls back to a dash.
+        const rawRange = String(prof?.range ?? '').trim();
+        const range = isRanged
+            ? (!rawRange || rawRange === '0m' ? '—' : rawRange)
+            : 'Melee';
         const innate = Array.isArray(prof?.innateAbilities)
             ? prof.innateAbilities.map((a) => String(a)).filter(Boolean)
             : [];
@@ -253,7 +269,7 @@ export function buildCharacterPrintContext(actor) {
                 : `${cap(String(s?.specialId ?? ''))}${s?.value != null ? `(${s.value})` : ''}`)
                 .filter(Boolean)
             : [];
-        return { damage, range, tags: [...innate, ...specials].filter(Boolean).join(', ') };
+        return { type, damage, range, tags: [...innate, ...specials].filter(Boolean).join(', ') };
     }
     const artifactWeapons = artifactItems
         .filter((a) => a?.system?.artifactWeapon)
@@ -261,6 +277,7 @@ export function buildCharacterPrintContext(actor) {
         const prof = formatWeaponProfile(a.system.artifactWeapon);
         return {
             name: String(a?.name ?? ''),
+            type: prof.type,
             damage: prof.damage,
             range: prof.range,
             tags: prof.tags,

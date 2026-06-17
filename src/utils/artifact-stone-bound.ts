@@ -31,6 +31,8 @@ export interface ArtifactActivationBinding {
   rootKey: string;
   /** Attribute pool the activation stone is bound to. */
   stoneAttr: string;
+  /** Display name of the artifact that binds the stone. */
+  artifactName: string;
 }
 
 /**
@@ -55,9 +57,20 @@ export function collectArtifactActivationBindings(actor: any): ArtifactActivatio
       (item.getFlag?.('mastery-system', 'evolutionRootItemId') as string | undefined) ||
       (item.getFlag?.('mastery-system', 'echoArtifactKey') as string | undefined) ||
       String(item.id);
-    if (!byRoot.has(rootKey)) byRoot.set(rootKey, { rootKey, stoneAttr });
+    if (!byRoot.has(rootKey)) {
+      byRoot.set(rootKey, { rootKey, stoneAttr, artifactName: String(item.name ?? '') });
+    }
   }
   return Array.from(byRoot.values());
+}
+
+/** Artifact names binding a stone, grouped by attribute pool. */
+export function artifactBindingNamesByAttr(actor: any): Record<string, string[]> {
+  const out: Record<string, string[]> = {};
+  for (const b of collectArtifactActivationBindings(actor)) {
+    (out[b.stoneAttr] ??= []).push(b.artifactName);
+  }
+  return out;
 }
 
 /** Count activation stones locked to artifacts, optionally filtered by pool attribute. */
