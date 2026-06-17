@@ -157,7 +157,7 @@
     </table>
   </div>
 
-  <div class="cp-page-footer">-- 1 of 5 --</div>
+  <div class="cp-page-footer">-- 1 of {{pageTotal}} --</div>
 </section>
 
 {{!-- ============================ PAGE 2 ============================ --}}
@@ -229,7 +229,7 @@
     {{/if}}
   </div>
 
-  <div class="cp-page-footer">-- 2 of 5 --</div>
+  <div class="cp-page-footer">-- 2 of {{pageTotal}} --</div>
 </section>
 
 {{!-- ===================== PAGE 3 — STONE POWERS ==================== --}}
@@ -276,10 +276,11 @@
     {{/if}}
   </div>
 
-  <div class="cp-page-footer">-- 3 of 5 --</div>
+  <div class="cp-page-footer">-- 3 of {{pageTotal}} --</div>
 </section>
 
-{{!-- ===================== PAGE 4 — SUMMONS ======================== --}}
+{{!-- ============ PAGE 4 — SUMMONS (only if a summon was bought) ===== --}}
+{{#if hasFamiliars}}
 <section class="print-page print-page-summons">
 
   <div class="cp-block cp-summons">
@@ -305,8 +306,9 @@
     </table>
   </div>
 
-  <div class="cp-page-footer">-- 4 of 5 --</div>
+  <div class="cp-page-footer">-- 4 of {{pageTotal}} --</div>
 </section>
+{{/if}}
 
 {{!-- ================ PAGE 5 — BATTLE CHEAT (landscape) ============== --}}
 <section class="print-page print-page-battle">
@@ -422,5 +424,5 @@
     {{/if}}
   </div>
 
-  <div class="cp-page-footer">-- 5 of 5 --</div>
+  <div class="cp-page-footer">-- {{pageTotal}} of {{pageTotal}} --</div>
 </section>

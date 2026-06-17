@@ -504,12 +504,15 @@ export function buildCharacterPrintContext(actor) {
         }))
         : [];
     const disadvantagePoints = disadvantages.reduce((sum, d) => sum + num(d.points), 0);
-    // ── Familiars ─────────────────────────────────────────────────────────
+    // ── Familiars / Summons ───────────────────────────────────────────────
+    // The Summons page is only printed when at least one familiar/summon has
+    // actually been bound (bought) — `system.familiars` holds those bindings.
     const familiars = Array.isArray(system?.familiars)
         ? system.familiars
             .map((f) => String(f?.name ?? f?.bio?.name ?? ''))
             .filter(Boolean)
         : [];
+    const hasFamiliars = familiars.length > 0;
     // ── Equipment (gear names; the grid itself stays blank for table play) ─
     const gearItems = allItems.filter((i) => i?.type === 'gear');
     const gear = gearItems.map((g) => ({
@@ -624,6 +627,9 @@ export function buildCharacterPrintContext(actor) {
         disadvantages,
         disadvantagePoints,
         familiars,
+        hasFamiliars,
+        // 5 pages with a summon, 4 without (the Summons page drops out).
+        pageTotal: hasFamiliars ? 5 : 4,
         gear,
         technical
     };
