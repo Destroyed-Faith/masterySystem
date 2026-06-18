@@ -53,7 +53,7 @@ import {
  * output (base values, powers, slot/profile, etc.) changes so the world seeder
  * can detect stale library copies and refresh them in place.
  */
-export const ECHO_ARTIFACT_SEED_VERSION = 19;
+export const ECHO_ARTIFACT_SEED_VERSION = 20;
 
 const ARTIFACT_LEVELS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] as const;
 const ALL_POWER_LEVEL_KEYS: PowerLevelKey[] = [
@@ -466,7 +466,9 @@ function buildEmbeddedPower(
 function deriveArtifactKind(baseProfile: string): 'weapon' | 'shield' | 'armor' | 'gear' {
   switch (baseProfile) {
     case 'oneHandedWeapon':
+    case 'oneHandedWeaponRanged':
     case 'twoHandedWeapon':
+    case 'twoHandedWeaponRanged':
       return 'weapon';
     case 'shield':
       return 'shield';
@@ -514,8 +516,18 @@ function baseValuesAtLevel(echoArtifactKey: string, level: number): ArtifactBase
 function weaponProfileAtLevel(def: EchoArtifactDefinition, level: number): Record<string, unknown> {
   const dmgBv = (BASE_VALUE_TABLES[def.key] || []).find((b) => b.type === 'weaponDamage');
   const damage = dmgBv ? String(dmgBv.valueAt(level)) : weaponDamageForLevel(level);
-  const hands = def.baseProfile === 'twoHandedWeapon' ? 2 : 1;
-  return { weaponType: 'melee', damage, range: '0m', hands, innateAbilities: [], specials: [] };
+  const isRanged =
+    def.baseProfile === 'oneHandedWeaponRanged' || def.baseProfile === 'twoHandedWeaponRanged';
+  const hands =
+    def.baseProfile === 'twoHandedWeapon' || def.baseProfile === 'twoHandedWeaponRanged' ? 2 : 1;
+  return {
+    weaponType: isRanged ? 'ranged' : 'melee',
+    damage,
+    range: '0m',
+    hands,
+    innateAbilities: [],
+    specials: [],
+  };
 }
 
 /**
@@ -591,9 +603,15 @@ export function buildEchoArtifactTree(def: EchoArtifactDefinition): GeneratedArt
       : getPaperdollSlotsForArtifact(def.slot as any, def.baseProfile as any);
 
   const picks = buildEchoProgressionPicks(def) as ArtifactProgressionPick[];
-  const fullProgression = isGeneral
-    ? [...def.levelProgression]
-    : resolveFullLevelProgression(def.levelProgression, picks);
+  // General artifacts normally use their authored table verbatim. When a general
+  // artifact opts into standard catalog Powers via `progressionPickSpecs` (e.g.
+  // the Moonlight Greatsword), derive its 1–9 rows from those picks and keep only
+  // the authored L10 Ultimate — so the rows are real Powers, not "authored" text.
+  const generalUsesPicks = isGeneral && !!def.progressionPickSpecs;
+  const fullProgression =
+    isGeneral && !generalUsesPicks
+      ? [...def.levelProgression]
+      : resolveFullLevelProgression(def.levelProgression, picks);
 
   const nodeId = (level: number) => `${def.key}-l${level}`;
 

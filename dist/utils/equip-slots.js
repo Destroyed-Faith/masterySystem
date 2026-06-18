@@ -107,7 +107,7 @@ export function inferArtifactEquipSlots(system) {
     const newSlot = String(system.slot || '').trim();
     const baseProfile = String(system.baseProfile || '').trim();
     if (newSlot) {
-        if (baseProfile === 'twoHandedWeapon' || newSlot === 'bothHands')
+        if (baseProfile === 'twoHandedWeapon' || baseProfile === 'twoHandedWeaponRanged' || newSlot === 'bothHands')
             return ['mainhand', 'offhand'];
         const map = {
             mainHand: ['mainhand'],

@@ -1609,7 +1609,10 @@ export function buildArtifactSystemFromEchoDef(def) {
         currentLevel: 1,
         equipped: true,
         effects: [],
-        artifactKind: def.baseProfile === 'twoHandedWeapon' || def.baseProfile === 'oneHandedWeapon'
+        artifactKind: def.baseProfile === 'twoHandedWeapon' ||
+            def.baseProfile === 'twoHandedWeaponRanged' ||
+            def.baseProfile === 'oneHandedWeapon' ||
+            def.baseProfile === 'oneHandedWeaponRanged'
             ? 'weapon'
             : def.baseProfile === 'shield'
                 ? 'shield'

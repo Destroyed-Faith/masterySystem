@@ -5,7 +5,23 @@ import {
   ECHO_ARTIFACT_SEED_VERSION,
 } from '../src/artifacts/echo-artifact-tree-builder.js';
 import { GENERAL_ARTIFACTS, getGeneralArtifact } from '../src/utils/general-artifacts.js';
-import { visibleAbilityRows } from '../src/utils/artifact-visible-abilities.js';
+import {
+  visibleAbilityRows,
+  resolveFullLevelProgression,
+} from '../src/utils/artifact-visible-abilities.js';
+import { buildEchoProgressionPicks } from '../src/utils/echo-artifacts.js';
+
+/**
+ * The Level Progression the tree builder actually emits for a general artifact:
+ * the authored table verbatim, unless the definition opts into standard catalog
+ * Powers via `progressionPickSpecs` (then 1–9 are derived and only the L10
+ * Ultimate is authored).
+ */
+function resolvedProgression(def: any) {
+  return def.progressionPickSpecs
+    ? resolveFullLevelProgression(def.levelProgression, buildEchoProgressionPicks(def) as any)
+    : def.levelProgression;
+}
 
 function flag(node: any, key: string) {
   return node.itemData.flags['mastery-system'][key];
@@ -33,13 +49,14 @@ describe('General Artifact catalog', () => {
     ]);
   });
 
-  it('every definition has an empty echoKey and a full 10-row progression', () => {
+  it('every definition has an empty echoKey and a complete 10-row progression', () => {
     for (const def of Object.values(GENERAL_ARTIFACTS)) {
       expect(def.echoKey).toBe('');
-      expect(def.levelProgression).toHaveLength(10);
-      expect(def.levelProgression.map((r) => r.level)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
-      expect(def.levelProgression[9].type).toBe('Ultimate');
-      expect(def.levelProgression[9].name.length).toBeGreaterThan(0);
+      const full = resolvedProgression(def);
+      expect(full).toHaveLength(10);
+      expect(full.map((r: any) => r.level)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+      expect(full[9].type).toBe('Ultimate');
+      expect(full[9].name.length).toBeGreaterThan(0);
     }
   });
 });
@@ -76,12 +93,13 @@ describe('General Artifact trees — structure and binding', () => {
     expect(flag(tree.nodes[9], 'childIds')).toEqual([]);
   });
 
-  it('exposes only the abilities visible at each node level (authored table)', () => {
+  it('exposes only the abilities visible at each node level', () => {
     for (const tree of buildAllGeneralArtifactTrees()) {
       const def = getGeneralArtifact(tree.echoArtifactKey)!;
+      const full = resolvedProgression(def);
       for (const node of tree.nodes) {
         const sys = node.itemData.system as any;
-        expect(sys.levelProgression).toEqual(visibleAbilityRows(def.levelProgression, node.level));
+        expect(sys.levelProgression).toEqual(visibleAbilityRows(full, node.level));
         if (node.level === 1) expect(sys.levelProgression).toHaveLength(1);
         if (node.level === 2) expect(sys.levelProgression).toHaveLength(2);
         if (node.level >= 3 && node.level <= 9) expect(sys.levelProgression).toHaveLength(3);
@@ -137,12 +155,22 @@ describe('Moonlight Greatsword', () => {
     expect(baseValue(tree, 10, 'Expose').value).toBe(8);
   });
 
-  it('has the three signature ability lines with correct categories', () => {
+  it('builds its three signature lines from standard catalog Powers (only renamed)', () => {
     const def = getGeneralArtifact('moonlightGreatsword')!;
-    for (const lvl of [1, 4, 7]) expect(def.levelProgression[lvl - 1].name).toMatch(/Moonlight Mending/);
-    for (const lvl of [2, 5, 8]) expect(def.levelProgression[lvl - 1].name).toMatch(/Moonlight Judgment/);
-    for (const lvl of [3, 6, 9]) expect(def.levelProgression[lvl - 1].name).toMatch(/Moonlight Shadow/);
-    expect(def.levelProgression[9].name).toBe('True Moonlight');
+    // The 1–9 rows are standard Powers, not authored text: only the names differ.
+    const picks = buildEchoProgressionPicks(def) as any[];
+    expect(picks.map((p) => p.kind)).toEqual(['power', 'power', 'power']);
+    expect(picks.map((p) => p.powerTemplateId)).toEqual([
+      'active-ranged-single-heal',
+      'active-ranged-weapon-aoe',
+      'ab-damage-aura',
+    ]);
+
+    const byLevel = new Map(resolvedProgression(def).map((r: any) => [r.level, r]));
+    for (const lvl of [1, 4, 7]) expect((byLevel.get(lvl) as any).name).toMatch(/Moonlight Mending/);
+    for (const lvl of [2, 5, 8]) expect((byLevel.get(lvl) as any).name).toMatch(/Moonlight Judgment/);
+    for (const lvl of [3, 6, 9]) expect((byLevel.get(lvl) as any).name).toMatch(/Moonlight Shadow/);
+    expect((byLevel.get(10) as any).name).toBe('True Moonlight');
 
     const mending = sysAt(tree, 7).powers.find((p: any) => /Moonlight Mending/.test(p.name));
     expect(mending.category).toBe('active');
@@ -150,11 +178,13 @@ describe('Moonlight Greatsword', () => {
     expect(shadow.category).toBe('activeBuff');
   });
 
-  it('Moonlight Judgment Smite damage scales +7/+29/+53 d8', () => {
-    const def = getGeneralArtifact('moonlightGreatsword')!;
-    expect(def.levelProgression[1].effect).toContain('+7d8 Smite');
-    expect(def.levelProgression[4].effect).toContain('+29d8 Smite');
-    expect(def.levelProgression[7].effect).toContain('+53d8 Smite');
+  it('Moonlight Judgment is a ranged AoE weapon attack; Smite rides from the weapon Base Value', () => {
+    const judgment = sysAt(tree, 8).powers.find((p: any) => /Moonlight Judgment/.test(p.name));
+    expect(judgment).toBeTruthy();
+    expect(judgment.category).toBe('active');
+    // Smite is delivered by the weapon Base Value (Smite(4) from L4, Smite(8) from L7),
+    // not authored into the Power's effect text.
+    expect(baseValue(tree, 8, 'Smite').value).toBe(8);
   });
 });
 

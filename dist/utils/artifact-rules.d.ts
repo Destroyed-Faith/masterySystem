@@ -47,13 +47,23 @@ export declare const PAPERDOLL_TO_ARTIFACT_SLOT: Record<string, ArtifactSlot>;
  * Hand Artifacts have only three legal profiles per spec; other slots
  * use a single profile that matches the slot.
  */
-export type ArtifactBaseProfile = 'oneHandedWeapon' | 'twoHandedWeapon' | 'shield' | 'bodyArmor' | 'noArmorBody' | 'robe' | 'headArmor' | 'feet' | 'amulet' | 'ring' | 'lantern' | 'custom';
+export type ArtifactBaseProfile = 'oneHandedWeapon' | 'oneHandedWeaponRanged' | 'twoHandedWeapon' | 'twoHandedWeaponRanged' | 'shield' | 'bodyArmor' | 'noArmorBody' | 'robe' | 'headArmor' | 'feet' | 'amulet' | 'ring' | 'lantern' | 'custom';
 /** Display label for each Base Profile. */
 export declare const BASE_PROFILE_LABELS: Record<ArtifactBaseProfile, string>;
 /** Profiles allowed for each canonical slot. */
 export declare const BASE_PROFILES_BY_SLOT: Record<ArtifactSlot, ArtifactBaseProfile[]>;
 /** Does this Base Profile occupy two hand slots (i.e. Main + Off)? */
 export declare function isTwoHandedProfile(profile: ArtifactBaseProfile): boolean;
+/**
+ * Weapon basics (melee/ranged + hand count) implied by a weapon Base Profile.
+ * Returns null for non-weapon profiles. The Base Profile is the single source
+ * of truth that drives the weapon's `weaponType`/`hands` (and, downstream, the
+ * range shown on the printable sheet and in the combat radial menu).
+ */
+export declare function weaponBasicsForProfile(profile: ArtifactBaseProfile | string): {
+    weaponType: 'melee' | 'ranged';
+    hands: number;
+} | null;
 /**
  * Max number of Base Values per slot per spec:
  *   Main Hand / Off Hand: 2

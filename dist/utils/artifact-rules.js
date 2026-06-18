@@ -87,8 +87,10 @@ export const PAPERDOLL_TO_ARTIFACT_SLOT = {
 };
 /** Display label for each Base Profile. */
 export const BASE_PROFILE_LABELS = {
-    oneHandedWeapon: 'One-Handed Weapon',
-    twoHandedWeapon: 'Two-Handed Weapon',
+    oneHandedWeapon: 'One-Handed Melee Weapon',
+    oneHandedWeaponRanged: 'One-Handed Ranged Weapon',
+    twoHandedWeapon: 'Two-Handed Melee Weapon',
+    twoHandedWeaponRanged: 'Two-Handed Ranged Weapon',
     shield: 'Shield',
     bodyArmor: 'Body Armor',
     noArmorBody: 'No-Armor Body (Evade)',
@@ -102,9 +104,9 @@ export const BASE_PROFILE_LABELS = {
 };
 /** Profiles allowed for each canonical slot. */
 export const BASE_PROFILES_BY_SLOT = {
-    mainHand: ['oneHandedWeapon', 'shield'],
-    offHand: ['oneHandedWeapon', 'shield'],
-    bothHands: ['twoHandedWeapon'],
+    mainHand: ['oneHandedWeapon', 'oneHandedWeaponRanged', 'shield'],
+    offHand: ['oneHandedWeapon', 'oneHandedWeaponRanged', 'shield'],
+    bothHands: ['twoHandedWeapon', 'twoHandedWeaponRanged'],
     body: ['bodyArmor', 'noArmorBody', 'robe'],
     head: ['headArmor'],
     feet: ['feet'],
@@ -113,7 +115,27 @@ export const BASE_PROFILES_BY_SLOT = {
 };
 /** Does this Base Profile occupy two hand slots (i.e. Main + Off)? */
 export function isTwoHandedProfile(profile) {
-    return profile === 'twoHandedWeapon';
+    return profile === 'twoHandedWeapon' || profile === 'twoHandedWeaponRanged';
+}
+/**
+ * Weapon basics (melee/ranged + hand count) implied by a weapon Base Profile.
+ * Returns null for non-weapon profiles. The Base Profile is the single source
+ * of truth that drives the weapon's `weaponType`/`hands` (and, downstream, the
+ * range shown on the printable sheet and in the combat radial menu).
+ */
+export function weaponBasicsForProfile(profile) {
+    switch (profile) {
+        case 'oneHandedWeapon':
+            return { weaponType: 'melee', hands: 1 };
+        case 'oneHandedWeaponRanged':
+            return { weaponType: 'ranged', hands: 1 };
+        case 'twoHandedWeapon':
+            return { weaponType: 'melee', hands: 2 };
+        case 'twoHandedWeaponRanged':
+            return { weaponType: 'ranged', hands: 2 };
+        default:
+            return null;
+    }
 }
 // ----------------------------------------------------------------------
 // Base Value Limits per Slot

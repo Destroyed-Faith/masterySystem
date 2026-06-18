@@ -43,6 +43,7 @@ import {
   BASE_VALUE_TYPE_LABELS,
   isAttributeAllowedForStoneFunctionInSlot,
   isBaseValueTypeAllowedForSlot,
+  weaponBasicsForProfile,
   SLOT_POWER_ACCESS,
   type ArtifactBaseValueType as SpecBaseValueType,
 } from '../utils/artifact-rules.js';
@@ -330,7 +331,9 @@ function coerceTreeDamage(damageStr: string): string {
 function deriveArtifactKindFromProfile(baseProfile: string): ArtifactKind {
   switch (baseProfile) {
     case 'oneHandedWeapon':
+    case 'oneHandedWeaponRanged':
     case 'twoHandedWeapon':
+    case 'twoHandedWeaponRanged':
       return 'weapon';
     case 'shield':
       return 'shield';
@@ -671,6 +674,8 @@ export class NodeEditor extends BaseDialog {
   activateListeners(html: JQuery): void {
     super.activateListeners(html);
 
+    const { isLineageRoot } = resolveLineageForItem(this.item);
+
     const syncKindUi = () => {
       const profile = String(html.find('#node-spec-base-profile').val() || '');
       const kind = deriveArtifactKindFromProfile(profile);
@@ -680,6 +685,16 @@ export class NodeEditor extends BaseDialog {
         const p = String($el.data('profile') || '');
         $el.toggleClass('hidden', p !== kind);
       });
+
+      // The Base Profile dictates melee/ranged + hands for weapon profiles, so
+      // mirror it into the (now read-only) Type / Hands controls and refresh the
+      // Reach/Range label. Non-root nodes keep their lineage-locked basics.
+      const basics = weaponBasicsForProfile(profile);
+      if (basics && isLineageRoot) {
+        html.find('#node-weapon-type').val(basics.weaponType).prop('disabled', true);
+        html.find('#node-weapon-hands').val(String(basics.hands)).prop('disabled', true);
+        syncWeaponRangeLabel(html);
+      }
     };
     syncKindUi();
 
@@ -1203,6 +1218,15 @@ export class NodeEditor extends BaseDialog {
     let gearSlot = kind === 'gear' ? deriveGearSlotFromSlot(slotVal) : '';
     let weaponType = (html.find('#node-weapon-type').val() as 'melee' | 'ranged') || 'melee';
     let hands = Math.min(2, Math.max(1, parseInt(html.find('#node-weapon-hands').val() as string, 10) || 1));
+
+    // The Base Profile is the source of truth for weapon basics: a
+    // *Ranged*/*Melee*, One-/Two-Handed profile fixes both weaponType and the
+    // hand count (which then drives the printable sheet's range rule).
+    const profileBasics = weaponBasicsForProfile(baseProfileVal);
+    if (profileBasics) {
+      weaponType = profileBasics.weaponType;
+      hands = profileBasics.hands;
+    }
 
     if (!lineage.isLineageRoot) {
       kind = lineage.lockedBasics.artifactKind;

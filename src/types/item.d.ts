@@ -702,7 +702,9 @@ export type ArtifactSlotKey =
 /** Base Profile (physical/inherent kind) per the new Artifacts spec. */
 export type ArtifactBaseProfileKey =
   | 'oneHandedWeapon'
+  | 'oneHandedWeaponRanged'
   | 'twoHandedWeapon'
+  | 'twoHandedWeaponRanged'
   | 'shield'
   | 'bodyArmor'
   | 'noArmorBody'
