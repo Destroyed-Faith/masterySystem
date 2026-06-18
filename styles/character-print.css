@@ -1133,7 +1133,7 @@
   font-size: 7px;
   text-transform: uppercase;
   color: #555;
-  margin-bottom: 3px;
+  margin: 4px 0 2px;
 }
 
 .cp-gear-qty {
@@ -1141,13 +1141,130 @@
   font-size: 7px;
 }
 
-.cp-equipment-grid {
-  height: 60mm;
+/* Equipped paperdoll slots as token cells. */
+.cp-equipped-row {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 3px;
+  margin-bottom: 4px;
+}
+
+.cp-equip-slot {
+  border: 1px solid #bbb;
+  border-radius: 3px;
+  background: #fafafa;
+  display: flex;
+  flex-direction: column;
+  min-height: 16mm;
+}
+
+.cp-equip-slot--filled {
+  border-color: #888;
+  background: #fff;
+}
+
+.cp-equip-slot-label {
+  font-size: 6.5px;
+  text-transform: uppercase;
+  color: #555;
+  text-align: center;
+  padding: 1px 0;
+  border-bottom: 1px solid #ddd;
+  background: #eee;
+}
+
+.cp-equip-token {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  padding: 1px;
+  overflow: hidden;
+}
+
+.cp-equip-img {
+  width: 9mm;
+  height: 9mm;
+  object-fit: contain;
+}
+
+.cp-equip-name {
+  font-size: 6px;
+  line-height: 1.05;
+  text-align: center;
+  color: #222;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Carry inventory token grid (24 × 9, mirrors the live sheet). */
+.cp-equip-grid {
+  display: grid;
+  grid-auto-rows: 6.6mm;
   border: 1px solid #999;
   border-radius: 3px;
-  background:
-    repeating-linear-gradient(0deg, transparent, transparent 7mm, #ddd 7mm, #ddd 7.2mm),
-    repeating-linear-gradient(90deg, transparent, transparent 7mm, #ddd 7mm, #ddd 7.2mm);
+  overflow: hidden;
+}
+
+.cp-grid-cell {
+  border-right: 0.4px solid #ddd;
+  border-bottom: 0.4px solid #ddd;
+  position: relative;
+  min-height: 6.6mm;
+}
+
+.cp-grid-cell--occupied {
+  visibility: hidden;
+}
+
+.cp-grid-cell--item {
+  background: #fff;
+}
+
+.cp-grid-tile {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5px;
+  padding: 0.5px;
+  overflow: hidden;
+}
+
+.cp-grid-img {
+  max-width: 86%;
+  max-height: 60%;
+  object-fit: contain;
+}
+
+.cp-grid-name {
+  font-size: 5.5px;
+  line-height: 1;
+  text-align: center;
+  color: #222;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.cp-grid-qty {
+  position: absolute;
+  right: 0.5px;
+  bottom: 0.5px;
+  font-size: 5.5px;
+  font-weight: 700;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.65);
+  border-radius: 2px;
+  padding: 0 1px;
+  line-height: 1.2;
 }
 
 /* ── Technical summary page ───────────────────────────────────────────── */

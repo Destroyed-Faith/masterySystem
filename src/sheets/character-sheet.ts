@@ -28,6 +28,7 @@ import {
 import { CATEGORY_LABELS, CATEGORY_ORDER, CREATION_OFFENSIVE_RANK, CREATION_POWER_REQUIREMENTS, CREATION_POWER_TOTAL, countPowersByCategory, findDuplicatePowerLabel, resolvePowerCategoryFromItem } from '../utils/power-catalog.js';
 import { hasTowerWizardPackage } from '../creation/tower-wizard/tower-wizard-apply.js';
 import { showTowerWizardDialog } from '../creation/tower-wizard/tower-wizard-dialog.js';
+import { showPowerCreationDialog } from './character-sheet-power-dialog.js';
 import { validateTowerWizardCreation } from '../creation/tower-wizard/tower-wizard-validation.js';
 import { getLanguage as getLanguageDef, normalizeKnownLanguages } from '../utils/languages.js';
 import { showLanguagesDialog } from './languages-dialog.js';
@@ -175,6 +176,27 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     } catch (error) {
       console.error('Mastery System | Failed to open Tower Wizard', error);
       ui.notifications?.error('Failed to open Combat Package Wizard');
+    }
+  }
+
+  /**
+   * GM-only: add a single normal Power from the full catalog (recovery tool for
+   * an accidentally deleted Power). Opens the catalog picker, which creates the
+   * Power as an embedded Item on this actor without touching the rest of the
+   * combat package.
+   */
+  async #onGmAddPower(event: JQuery.ClickEvent) {
+    event.preventDefault();
+    if (!(game as any).user?.isGM) {
+      ui.notifications?.warn('Only the GM can add a Power directly.');
+      return;
+    }
+    try {
+      await showPowerCreationDialog(this.actor);
+      this.render();
+    } catch (error) {
+      console.error('Mastery System | Failed to open Add Power dialog', error);
+      ui.notifications?.error('Failed to open the Add Power dialog');
     }
   }
 
@@ -2165,6 +2187,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     // Power/Spell creation buttons (always visible)
     html.find('.open-tower-wizard-btn').on('click', this.#onOpenTowerWizard.bind(this));
     html.find('.open-manual-combat-package-btn').on('click', this.#onOpenManualCombatPackage.bind(this));
+    html.find('.gm-add-power-btn').on('click', this.#onGmAddPower.bind(this));
 
     // Echo creation / deck interactions
     html.find('.choose-echo-btn').on('click', this.#onEchoChoose.bind(this));

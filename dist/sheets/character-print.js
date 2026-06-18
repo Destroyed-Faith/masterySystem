@@ -22,6 +22,10 @@ import { formatEffectReference } from '../utils/special-effects.js';
 import { STONE_POWERS_BY_ATTRIBUTE } from '../stones/stone-powers.js';
 import { getMinorExpressionDefinition, tierBodyForExpression } from '../utils/minor-expressions.js';
 import { getEchoCard } from '../utils/echos/index.js';
+import { parseInventorySize, fitsInGrid, rectsOverlap, findFirstFit, } from '../utils/inventory-grid.js';
+import { normalizeSlotKey } from '../utils/equip-slots.js';
+import { isEchoArtifactInventoryHidden } from '../utils/echo-artifact-equip.js';
+import { isLegacyUnarmedItem } from '../utils/unarmed-fallback.js';
 /** Human-readable label per Stone Function kind (technical summary). */
 const STONE_FN_KIND_LABEL = {
     stonePool: 'Stone Pool',
@@ -222,6 +226,154 @@ function resolveEchoName(actor, system) {
         return bioEcho;
     const key = String(system?.echo?.key ?? '').trim();
     return key;
+}
+/** Inventory grid dimensions on the printed sheet (mirrors the live sheet). */
+const PRINT_GRID_COLS = 24;
+const PRINT_GRID_ROWS = 9;
+/**
+ * Resolve an item image path to an absolute URL the standalone print window can
+ * load (the window is a blank `about:` document, so root-relative paths break).
+ */
+function absImg(img) {
+    const s = String(img ?? '').trim();
+    if (!s)
+        return '';
+    if (/^(https?:|data:)/i.test(s))
+        return s;
+    const r = routed(s);
+    if (/^https?:/i.test(r))
+        return r;
+    return `${window.location.origin}/${String(r).replace(/^\//, '')}`;
+}
+/** Read the `mastery-system.equipment` flag from an embedded item. */
+function equipmentFlag(item) {
+    return (item?.getFlag?.('mastery-system', 'equipment') ||
+        item?.flags?.['mastery-system']?.equipment ||
+        {});
+}
+/**
+ * Build the printable equipment layout: the equipped paperdoll slots plus the
+ * carry inventory laid out on a 24×9 token grid. Mirrors the live sheet's
+ * `#prepareEquipmentUi` placement (saved grid flag first, then auto-pack) so the
+ * printed grid matches what the player sees in Foundry.
+ */
+function buildPrintEquipment(allItems) {
+    const cols = PRINT_GRID_COLS;
+    const rows = PRINT_GRID_ROWS;
+    const equipmentItems = allItems.filter((i) => ['weapon', 'armor', 'shield', 'gear', 'artifact'].includes(String(i?.type)) &&
+        !isLegacyUnarmedItem(i));
+    const tile = (item) => ({
+        name: String(item?.name ?? ''),
+        img: absImg(item?.img),
+        qty: num(item?.system?.quantity, 1),
+        isGear: String(item?.type) === 'gear',
+    });
+    // Split into paperdoll slots vs. carried inventory (same rules as live sheet).
+    const slotMap = {};
+    const carry = [];
+    for (const item of equipmentItems) {
+        const flags = equipmentFlag(item);
+        const slot = normalizeSlotKey(flags?.slot);
+        if (!slot && item?.system?.equipped === true) {
+            if (item.type === 'weapon') {
+                if (!slotMap['mainhand'])
+                    slotMap['mainhand'] = item;
+                continue;
+            }
+            if (item.type === 'shield') {
+                if (!slotMap['offhand'])
+                    slotMap['offhand'] = item;
+                continue;
+            }
+            if (item.type === 'armor') {
+                if (!slotMap['body'])
+                    slotMap['body'] = item;
+                continue;
+            }
+        }
+        if (slot) {
+            if (!slotMap[slot])
+                slotMap[slot] = item;
+        }
+        else if (isEchoArtifactInventoryHidden(item)) {
+            continue;
+        }
+        else {
+            carry.push(item);
+        }
+    }
+    // Empty 24×9 cell matrix.
+    const cells = [];
+    for (let row = 1; row <= rows; row++) {
+        for (let col = 1; col <= cols; col++) {
+            cells.push({ row, col, item: null, occupied: false, spanW: 1, spanH: 1 });
+        }
+    }
+    const cellIndex = (col, row) => (row - 1) * cols + (col - 1);
+    const rects = [];
+    const place = (item, x, y, w, h) => {
+        rects.push({ x, y, w, h });
+        const top = cells[cellIndex(x, y)];
+        if (top) {
+            top.item = tile(item);
+            top.spanW = w;
+            top.spanH = h;
+        }
+        for (let dy = 0; dy < h; dy++) {
+            for (let dx = 0; dx < w; dx++) {
+                if (dx === 0 && dy === 0)
+                    continue;
+                const c = cells[cellIndex(x + dx, y + dy)];
+                if (c)
+                    c.occupied = true;
+            }
+        }
+    };
+    // Pass 1: honour saved positions; Pass 2: auto-pack the rest.
+    const unplaced = [];
+    for (const item of carry) {
+        const size = parseInventorySize(item?.system?.inventorySize);
+        const w = Math.min(cols, size.w);
+        const h = Math.min(rows, size.h);
+        const grid = equipmentFlag(item)?.grid;
+        if (grid?.x && grid?.y && fitsInGrid(grid.x, grid.y, w, h, cols, rows)) {
+            const candidate = { x: grid.x, y: grid.y, w, h };
+            if (!rects.some((r) => rectsOverlap(r, candidate))) {
+                place(item, grid.x, grid.y, w, h);
+                continue;
+            }
+        }
+        unplaced.push(item);
+    }
+    for (const item of unplaced) {
+        const size = parseInventorySize(item?.system?.inventorySize);
+        const w = Math.min(cols, size.w);
+        const h = Math.min(rows, size.h);
+        const pos = findFirstFit(rects, w, h, cols, rows);
+        if (!pos)
+            continue;
+        place(item, pos.x, pos.y, w, h);
+    }
+    const slotDefs = [
+        { key: 'mainhand', label: 'Main Hand' },
+        { key: 'offhand', label: 'Off Hand' },
+        { key: 'body', label: 'Body' },
+        { key: 'head', label: 'Head' },
+        { key: 'feet', label: 'Feet' },
+        { key: 'amulet', label: 'Amulet' },
+        { key: 'ring', label: 'Ring' },
+    ];
+    const slots = slotDefs.map((d) => {
+        const item = slotMap[d.key] || null;
+        return { key: d.key, label: d.label, item: item ? tile(item) : null };
+    });
+    return {
+        cols,
+        rows,
+        cells,
+        slots,
+        hasItems: carry.length > 0 || Object.keys(slotMap).length > 0,
+    };
 }
 /**
  * Build the flat data object consumed by `character-print.hbs`.
@@ -585,12 +737,15 @@ export function buildCharacterPrintContext(actor) {
             .filter(Boolean)
         : [];
     const hasFamiliars = familiars.length > 0;
-    // ── Equipment (gear names; the grid itself stays blank for table play) ─
+    // ── Equipment ─────────────────────────────────────────────────────────
+    // Equipped paperdoll slots + carry inventory rendered as a 24×9 token grid
+    // (mirrors the live sheet), so players can print the grid instead of a list.
     const gearItems = allItems.filter((i) => i?.type === 'gear');
     const gear = gearItems.map((g) => ({
         name: String(g?.name ?? ''),
         quantity: num(g?.system?.quantity, 1)
     }));
+    const equipment = buildPrintEquipment(allItems);
     // ── Stone Powers reference (replaces the old "technical summary") ──────
     // Full available catalog (General + per-attribute pools), marked with any
     // artifact support / pool / battery / refresh boosts.
@@ -710,6 +865,7 @@ export function buildCharacterPrintContext(actor) {
         // 5 pages with a summon, 4 without (the Summons page drops out).
         pageTotal: hasFamiliars ? 5 : 4,
         gear,
+        equipment,
         technical
     };
 }

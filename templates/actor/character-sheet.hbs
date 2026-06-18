@@ -1613,6 +1613,11 @@
           <button type="button" class="open-manual-combat-package-btn" title="Pick all six Powers yourself on the review page">
             <i class="fas fa-list-check"></i> Manual Combat Package
           </button>
+          {{#if (userIsGM)}}
+          <button type="button" class="gm-add-power-btn" title="GM: add a single normal Power from the catalog (e.g. to restore a deleted Power)">
+            <i class="fas fa-plus"></i> Add Power (GM)
+          </button>
+          {{/if}}
         </div>
       </div>
       <!-- Powers List (Normal Mode): collapsible + grouped by power type (same UX pattern as Token-Radial Standard-Manöver). -->

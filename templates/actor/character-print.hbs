@@ -288,14 +288,33 @@
 
   <div class="cp-block cp-equipment">
     <h3 class="cp-block-title">Equipment</h3>
+    <div class="cp-equipped-row">
+      {{#each equipment.slots}}
+      <div class="cp-equip-slot{{#if this.item}} cp-equip-slot--filled{{/if}}">
+        <div class="cp-equip-slot-label">{{this.label}}</div>
+        <div class="cp-equip-token">
+          {{#if this.item}}
+            {{#if this.item.img}}<img class="cp-equip-img" src="{{this.item.img}}" alt="" />{{/if}}
+            <span class="cp-equip-name">{{this.item.name}}</span>
+          {{/if}}
+        </div>
+      </div>
+      {{/each}}
+    </div>
     <div class="cp-encumbrance-head"><span>Not Encumbered</span><span>Encumbered</span><span>Heavily Encumbered</span></div>
-    {{#if gear.length}}
-    <ul class="cp-gear-list">
-      {{#each gear}}<li>{{name}}{{#if quantity}} <span class="cp-gear-qty">x{{quantity}}</span>{{/if}}</li>{{/each}}
-    </ul>
-    {{else}}
-    <div class="cp-equipment-grid"></div>
-    {{/if}}
+    <div class="cp-equip-grid" style="grid-template-columns: repeat({{equipment.cols}}, 1fr);">
+      {{#each equipment.cells}}
+      <div class="cp-grid-cell{{#if this.occupied}} cp-grid-cell--occupied{{/if}}{{#if this.item}} cp-grid-cell--item{{/if}}" style="grid-column: {{this.col}} / span {{this.spanW}}; grid-row: {{this.row}} / span {{this.spanH}};">
+        {{#if this.item}}
+        <div class="cp-grid-tile" title="{{this.item.name}}">
+          {{#if this.item.img}}<img class="cp-grid-img" src="{{this.item.img}}" alt="" />{{/if}}
+          <span class="cp-grid-name">{{this.item.name}}</span>
+          {{#if this.item.isGear}}<span class="cp-grid-qty">x{{this.item.qty}}</span>{{/if}}
+        </div>
+        {{/if}}
+      </div>
+      {{/each}}
+    </div>
   </div>
 
   <div class="cp-page-footer">-- 2 of {{pageTotal}} --</div>
