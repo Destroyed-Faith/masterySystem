@@ -21,6 +21,8 @@ import { isArtifactMechanicallyActive } from '../utils/artifact-actor-rules.js';
 import { visibleAbilityRows } from '../utils/artifact-visible-abilities.js';
 import { formatEffectReference } from '../utils/special-effects.js';
 import { STONE_POWERS_BY_ATTRIBUTE } from '../stones/stone-powers.js';
+import { getMinorExpressionDefinition, tierBodyForExpression } from '../utils/minor-expressions.js';
+import { getEchoCard } from '../utils/echos/index.js';
 
 /** Human-readable label per Stone Function kind (technical summary). */
 const STONE_FN_KIND_LABEL: Record<string, string> = {
@@ -274,7 +276,19 @@ export function buildCharacterPrintContext(actor: any): Record<string, unknown> 
     armorName: String(combat?.armorName ?? ''),
     armorValue: num(combat?.armor),
     shieldName: String(combat?.shieldName ?? ''),
-    shieldValue: num(combat?.shield)
+    shieldValue: num(combat?.shield),
+    // Full soak breakdown (Mastery Rank, equipped armor, artifact armor, …)
+    // so the printed sheet shows how Total Armor is reached. Drop rows that
+    // contribute nothing (not equipped / zero) to keep it readable.
+    armorBreakdown: Array.isArray(combat?.armorBreakdownRows)
+      ? combat.armorBreakdownRows
+          .filter((r: any) => r && r.value != null && num(r.value) !== 0)
+          .map((r: any) => ({
+            label: String(r?.label ?? ''),
+            detail: String(r?.detail ?? ''),
+            display: String(r?.display ?? r?.value ?? '')
+          }))
+      : []
   };
 
   // ── Health ────────────────────────────────────────────────────────────
@@ -521,6 +535,42 @@ export function buildCharacterPrintContext(actor: any): Record<string, unknown> 
     : [];
   const disadvantagePoints = disadvantages.reduce((sum: number, d: any) => sum + num(d.points), 0);
 
+  // ── Minor Expressions (cantrips) — only the ones the character owns ────
+  // Printed above the Disadvantages on page 1. Each shows its current-tier
+  // effect text (resolved from the governing attribute value).
+  const minorExpressions = (Array.isArray(system?.minorExpressions) ? system.minorExpressions : [])
+    .map((rawId: any) => {
+      const def = getMinorExpressionDefinition(String(rawId ?? '').trim());
+      if (!def) return null;
+      const attrVal = num(system?.attributes?.[def.attribute]?.value, 0);
+      return {
+        name: def.name,
+        attribute: cap(def.attribute),
+        body: tierBodyForExpression(def, attrVal)
+      };
+    })
+    .filter(Boolean);
+
+  // ── Echo Cards — the deck cards the character has actually unlocked ────
+  // Printed near Social Combat on page 2. Each card lists its trigger and its
+  // four skill-keyed options.
+  const echoKey = String(system?.echo?.key ?? '').trim();
+  const echoCards = (Array.isArray(system?.echo?.selectedCardIds) ? system.echo.selectedCardIds : [])
+    .map((rawId: any) => {
+      const card = getEchoCard(echoKey, String(rawId ?? '').trim());
+      if (!card) return null;
+      return {
+        name: card.name,
+        trigger: card.trigger,
+        options: card.options.map((o: any) => ({
+          label: String(o?.label ?? ''),
+          skill: SKILLS[String(o?.skill ?? '')]?.name ?? cap(String(o?.skill ?? '')),
+          description: String(o?.description ?? '')
+        }))
+      };
+    })
+    .filter(Boolean);
+
   // ── Familiars / Summons ───────────────────────────────────────────────
   // The Summons page is only printed when at least one familiar/summon has
   // actually been bound (bought) — `system.familiars` holds those bindings.
@@ -650,6 +700,12 @@ export function buildCharacterPrintContext(actor: any): Record<string, unknown> 
     skillsByGroup,
     disadvantages,
     disadvantagePoints,
+    // One strike-off square per Disadvantage point (rerolls earned).
+    rerollBoxes: Array.from({ length: Math.max(0, disadvantagePoints) }, () => true),
+    minorExpressions,
+    hasMinorExpressions: minorExpressions.length > 0,
+    echoCards,
+    hasEchoCards: echoCards.length > 0,
     familiars,
     hasFamiliars,
     // 5 pages with a summon, 4 without (the Summons page drops out).

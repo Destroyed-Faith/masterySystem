@@ -79,11 +79,22 @@
           <div class="cp-defense-cell"><span class="cp-defense-label">Shield Value</span><span class="cp-defense-value">{{defense.shieldValue}}</span></div>
           <div class="cp-defense-cell"><span class="cp-defense-label">Total Armor</span><span class="cp-defense-value">{{defense.armorTotal}}</span></div>
         </div>
+        {{#if defense.armorBreakdown.length}}
+        <div class="cp-armor-breakdown">
+          <span class="cp-armor-breakdown-title">Armor sources</span>
+          <ul class="cp-armor-breakdown-list">
+            {{#each defense.armorBreakdown}}
+            <li><span class="cp-armor-src">{{label}}{{#if detail}} <em>{{detail}}</em>{{/if}}</span><span class="cp-armor-amt">{{display}}</span></li>
+            {{/each}}
+            <li class="cp-armor-breakdown-total"><span class="cp-armor-src">Total Armor</span><span class="cp-armor-amt">{{defense.armorTotal}}</span></li>
+          </ul>
+        </div>
+        {{/if}}
       </div>
 
       <div class="cp-block cp-vitals">
         <div class="cp-health">
-          <h3 class="cp-block-title">Health <span class="cp-subtle">Temp HP: {{tempHP}}</span></h3>
+          <h3 class="cp-block-title">Health <span class="cp-temphp">Temp HP <span class="cp-temphp-box"></span></span></h3>
           <div class="cp-health-track">
             {{#each healthBars}}
             <div class="cp-health-level">
@@ -104,10 +115,10 @@
           <h3 class="cp-block-title">Stress</h3>
           {{#if stressBars.length}}
           <table class="cp-bar-table">
-            <thead><tr><th></th><th>Max</th><th>Current</th></tr></thead>
+            <thead><tr><th></th><th>Max</th></tr></thead>
             <tbody>
               {{#each stressBars}}
-              <tr><td class="cp-bar-name">{{name}}</td><td>{{max}}</td><td></td></tr>
+              <tr><td class="cp-bar-name">{{name}}</td><td>{{max}}</td></tr>
               {{/each}}
             </tbody>
           </table>
@@ -123,6 +134,20 @@
     </div>
   </div>
 
+  {{#if hasMinorExpressions}}
+  <div class="cp-block cp-minor-expressions">
+    <h3 class="cp-block-title">Minor Expressions</h3>
+    <ul class="cp-minor-list">
+      {{#each minorExpressions}}
+      <li class="cp-minor-item">
+        <span class="cp-minor-name">{{name}} <em class="cp-minor-attr">{{attribute}}</em></span>
+        <span class="cp-minor-body">{{body}}</span>
+      </li>
+      {{/each}}
+    </ul>
+  </div>
+  {{/if}}
+
   <div class="cp-block cp-disadvantages">
     <h3 class="cp-block-title">Disadvantages <span class="cp-subtle">Points: {{disadvantagePoints}}</span></h3>
     <table class="cp-disadv-table">
@@ -133,11 +158,17 @@
         {{/each}}
       </tbody>
     </table>
-    <div class="cp-rerolls"><span class="cp-defense-label">Total Rerolls / Used</span><span class="cp-use-box"></span></div>
+    <div class="cp-rerolls">
+      <span class="cp-defense-label">Total Rerolls / Used</span>
+      <span class="cp-reroll-boxes">
+        {{#each rerollBoxes}}<span class="cp-use-box"></span>{{/each}}
+        {{#unless rerollBoxes.length}}<span class="cp-reroll-empty">—</span>{{/unless}}
+      </span>
+    </div>
   </div>
 
   <div class="cp-block cp-weapons">
-    <h3 class="cp-block-title">Artifact Weapons</h3>
+    <h3 class="cp-block-title">Weapons</h3>
     <table class="cp-weapons-table">
       <thead><tr><th>Weapon</th><th>Type</th><th>Damage Dice</th><th>Range</th><th>Innate / Specials</th></tr></thead>
       <tbody>
@@ -151,7 +182,7 @@
         </tr>
         {{/each}}
         {{#unless hasArtifactWeapons}}
-        <tr><td colspan="5" class="cp-tech-empty">No artifact weapons.</td></tr>
+        <tr><td colspan="5" class="cp-tech-empty">No weapons.</td></tr>
         {{/unless}}
       </tbody>
     </table>
@@ -198,6 +229,27 @@
       <span class="cp-success-cell">11+</span>
     </div>
   </div>
+
+  {{#if hasEchoCards}}
+  <div class="cp-block cp-echo-cards">
+    <h3 class="cp-block-title">Echo Cards <span class="cp-subtle">once per Safe Haven Rest <span class="cp-use-box"></span></span></h3>
+    <div class="cp-echo-card-grid">
+      {{#each echoCards}}
+      <div class="cp-echo-card">
+        <div class="cp-echo-card-head">
+          <span class="cp-echo-card-name">{{name}}</span>
+          <span class="cp-echo-card-trigger">{{trigger}}</span>
+        </div>
+        <ol class="cp-echo-card-options">
+          {{#each options}}
+          <li><span class="cp-echo-opt-label">{{label}}</span> <em class="cp-echo-opt-skill">{{skill}}</em><span class="cp-echo-opt-desc">{{description}}</span></li>
+          {{/each}}
+        </ol>
+      </div>
+      {{/each}}
+    </div>
+  </div>
+  {{/if}}
 
   {{#each skillsByGroup}}
   {{#if (eq key "social")}}

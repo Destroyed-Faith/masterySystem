@@ -385,6 +385,86 @@
   font-weight: 800;
 }
 
+/* ── Armor breakdown (how Total Armor is reached) ─────────────────────── */
+.cp-armor-breakdown {
+  margin-top: 4px;
+}
+
+.cp-armor-breakdown-title {
+  display: block;
+  font-size: 6.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #666;
+  margin-bottom: 1px;
+}
+
+.cp-armor-breakdown-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.cp-armor-breakdown-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 6px;
+  font-size: 8px;
+  line-height: 1.35;
+  border-bottom: 1px dotted #ccc;
+  padding: 0.5px 0;
+}
+
+.cp-armor-breakdown-list .cp-armor-src {
+  color: #222;
+}
+
+.cp-armor-breakdown-list .cp-armor-src em {
+  font-style: normal;
+  color: #888;
+  font-size: 6.5px;
+}
+
+.cp-armor-breakdown-list .cp-armor-amt {
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.cp-armor-breakdown-total {
+  border-bottom: none !important;
+  border-top: 1px solid #999;
+  margin-top: 1px;
+  font-weight: 800;
+}
+
+.cp-armor-breakdown-total .cp-armor-src {
+  text-transform: uppercase;
+  font-size: 7px;
+  letter-spacing: 0.03em;
+}
+
+/* ── Temp HP — fillable field in the Health header ────────────────────── */
+.cp-temphp {
+  font-weight: 400;
+  font-size: 8px;
+  color: #666;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.cp-temphp-box {
+  display: inline-block;
+  width: 26px;
+  height: 12px;
+  border: 1.5px solid #333;
+  border-radius: 2px;
+  background: #fff;
+}
+
 /* ── Health & stress ──────────────────────────────────────────────────── */
 .cp-vitals {
   display: flex;
@@ -881,6 +961,18 @@
   margin-top: 3px;
 }
 
+.cp-reroll-boxes {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 3px;
+}
+
+.cp-reroll-empty {
+  font-size: 8px;
+  color: #999;
+}
+
 /* ── Social combat ────────────────────────────────────────────────────── */
 .cp-success-counter {
   display: flex;
@@ -895,6 +987,106 @@
   border: 1px solid #999;
   border-radius: 2px;
   padding: 1px 2px;
+}
+
+/* ── Minor Expressions ────────────────────────────────────────────────── */
+.cp-minor-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cp-minor-item {
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  padding: 2px 4px;
+}
+
+.cp-minor-name {
+  font-weight: 700;
+  font-size: 9px;
+}
+
+.cp-minor-attr {
+  font-style: normal;
+  font-weight: 400;
+  font-size: 6.5px;
+  text-transform: uppercase;
+  color: #888;
+  margin-left: 3px;
+}
+
+.cp-minor-body {
+  display: block;
+  font-size: 8px;
+  line-height: 1.3;
+  color: #333;
+}
+
+/* ── Echo Cards ───────────────────────────────────────────────────────── */
+.cp-echo-card-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+}
+
+.cp-echo-card {
+  border: 1px solid #999;
+  border-radius: 3px;
+  padding: 3px 4px;
+  break-inside: avoid;
+}
+
+.cp-echo-card-head {
+  display: flex;
+  flex-direction: column;
+  border-bottom: 1px solid #ddd;
+  margin-bottom: 2px;
+  padding-bottom: 1px;
+}
+
+.cp-echo-card-name {
+  font-weight: 800;
+  font-size: 9px;
+}
+
+.cp-echo-card-trigger {
+  font-size: 7px;
+  color: #777;
+  font-style: italic;
+}
+
+.cp-echo-card-options {
+  margin: 0;
+  padding-left: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5px;
+}
+
+.cp-echo-card-options li {
+  font-size: 7.5px;
+  line-height: 1.3;
+}
+
+.cp-echo-opt-label {
+  font-weight: 700;
+}
+
+.cp-echo-opt-skill {
+  font-style: normal;
+  color: #888;
+  font-size: 6.5px;
+  text-transform: uppercase;
+  margin-left: 3px;
+}
+
+.cp-echo-opt-desc {
+  display: block;
+  color: #333;
 }
 
 /* ── Summons & familiars ──────────────────────────────────────────────── */
