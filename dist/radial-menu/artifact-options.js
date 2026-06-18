@@ -150,15 +150,24 @@ export function buildArtifactRadialOptions(actor) {
             const wName = (typeof aw.name === 'string' && aw.name.trim()) ||
                 cleanItemName ||
                 (isWeaponKind ? 'Artifact Weapon' : 'Natural Weapon');
+            // Range rule (shared with the printable sheet):
+            //   • Melee: 1 m, or 2 m with a Reach ability.
+            //   • Ranged: authored metre value if it parses, else a 24 m base.
             const parsed = parseRowRange(aw.range);
-            const wRange = parsed != null && parsed > 0 ? parsed : isRangedWeapon ? 12 : 2;
+            const weaponReach = [
+                ...(Array.isArray(aw.innateAbilities) ? aw.innateAbilities : []),
+                ...(Array.isArray(aw.specials) ? aw.specials.map((s) => s?.specialId ?? s) : []),
+            ].some((t) => /reach/i.test(String(t)));
+            const wRange = isRangedWeapon
+                ? (parsed != null && parsed > 0 ? parsed : 24)
+                : (weaponReach ? 2 : 1);
             out.push({
                 id: `artifact-weapon:${item.id}`,
                 name: wName,
                 description: `${isRangedWeapon ? 'Ranged' : 'Melee'} ${isWeaponKind ? 'artifact weapon' : 'natural weapon'} · Damage ${aw.damage}`,
                 slot: 'attack',
                 source: 'power',
-                range: isRangedWeapon ? Math.max(6, wRange) : wRange,
+                range: wRange,
                 forcedWeaponItemId: item.id,
                 tags: [
                     'artifact',

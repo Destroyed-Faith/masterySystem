@@ -114,14 +114,31 @@
         <div class="cp-stress">
           <h3 class="cp-block-title">Stress</h3>
           {{#if stressBars.length}}
-          <table class="cp-bar-table">
-            <thead><tr><th></th><th>Max</th></tr></thead>
-            <tbody>
-              {{#each stressBars}}
-              <tr><td class="cp-bar-name">{{name}}</td><td>{{max}}</td></tr>
-              {{/each}}
-            </tbody>
-          </table>
+          <div class="cp-health-track">
+            {{#each stressBars}}
+            <div class="cp-health-level">
+              <div class="cp-health-level-head">
+                <span class="cp-health-level-name">{{name}}</span>
+                <span class="cp-health-level-penalty">{{penaltyLabel}}</span>
+              </div>
+              <div class="cp-health-boxes">
+                {{#each boxes}}
+                <span class="cp-health-box {{#if filled}}is-filled{{/if}}"></span>
+                {{/each}}
+              </div>
+            </div>
+            {{/each}}
+            <div class="cp-health-level">
+              <div class="cp-health-level-head">
+                <span class="cp-health-level-name">{{stressBreakdown.name}}</span>
+              </div>
+              <div class="cp-health-boxes">
+                {{#each stressBreakdown.boxes}}
+                <span class="cp-health-box {{#if filled}}is-filled{{/if}}"></span>
+                {{/each}}
+              </div>
+            </div>
+          </div>
           {{else}}
           <div class="cp-stress-scalar">
             <span class="cp-defense-label">Current / Max</span>

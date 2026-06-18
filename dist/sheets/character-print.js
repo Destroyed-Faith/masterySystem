@@ -201,6 +201,21 @@ function resolvePlayerName(actor) {
         return '';
     }
 }
+/**
+ * Parse a weapon range string ("12m", "8 m", "0m") to metres. Returns null when
+ * there is no real metre value — e.g. an empty string or a junk per-level table
+ * like "1,2,3,4,5,6,7,8" that carries no `m` suffix. Mirrors the combat radial
+ * menu's `parseRowRange` so the printed range matches in-play behaviour.
+ */
+function parseWeaponRangeMeters(raw) {
+    const s = String(raw ?? '').trim().toLowerCase();
+    if (!s)
+        return null;
+    if (s === 'self' || s === 'touch' || s === 'melee')
+        return 0;
+    const m = s.match(/(\d+(?:\.\d+)?)\s*m\b/);
+    return m ? parseFloat(m[1]) : null;
+}
 function resolveEchoName(actor, system) {
     const bioEcho = String(system?.bio?.echo ?? '').trim();
     if (bioEcho)
@@ -312,14 +327,25 @@ export function buildCharacterPrintContext(actor) {
         })
         : [];
     const tempHP = num(system?.health?.tempHP);
-    // ── Stress (supports both bar-based and scalar models) ────────────────
+    // ── Stress (mirrors Health: named levels with box tracks) ────────────
+    // Each stress bar (Healthy / Stressed / Not Well / Breaking) holds
+    // Resolve + Intellect boxes and carries no dice penalty. A terminal
+    // "Breakdown" level — analogous to Health's Incapacitated — adds a single
+    // box that marks mental collapse.
     const stressBars = Array.isArray(system?.stress?.bars)
-        ? system.stress.bars.map((b) => ({
-            name: String(b?.name ?? ''),
-            max: num(b?.max),
-            current: num(b?.current)
-        }))
+        ? system.stress.bars.map((b) => {
+            const max = num(b?.max);
+            const current = num(b?.current);
+            return {
+                name: String(b?.name ?? ''),
+                max,
+                current,
+                penaltyLabel: 'No penalty',
+                boxes: Array.from({ length: Math.max(0, max) }, (_unused, i) => ({ filled: i < current }))
+            };
+        })
         : [];
+    const stressBreakdown = { name: 'Breakdown', boxes: [{ filled: false }] };
     const stress = {
         current: num(system?.stress?.current),
         maximum: num(system?.stress?.maximum)
@@ -329,7 +355,7 @@ export function buildCharacterPrintContext(actor) {
     // what they do (damage, range, innate abilities, specials).
     const allItems = actor?.items ? Array.from(actor.items.values?.() ?? actor.items) : [];
     const artifactItems = allItems.filter((i) => i?.type === 'artifact');
-    function formatWeaponProfile(prof, level) {
+    function formatWeaponProfile(prof) {
         const isRanged = prof?.weaponType === 'ranged';
         const type = isRanged ? 'Ranged' : 'Melee';
         const damage = String(prof?.damage ?? '').trim();
@@ -345,30 +371,26 @@ export function buildCharacterPrintContext(actor) {
                 : formatEffectReference({ specialId: String(s?.specialId ?? ''), value: s?.value }))
                 .filter(Boolean)
             : [];
-        // Melee range is always 1 m unless the weapon has a Reach ability. Ranged
-        // weapons show their real range; a comma list (a stale per-level scaling
-        // table) collapses to the value for the current artifact level.
+        // Weapon range rule (shared with the combat radial menu):
+        //   • Melee: 1 m, or 2 m when the weapon has a Reach ability.
+        //   • Ranged: the weapon's authored range if it parses to a real metre
+        //     value (e.g. "12m"); otherwise a 24 m base. Junk per-level tables like
+        //     "1,2,3,4,5,6,7,8" have no metre suffix, so they fall back to 24 m.
         const hasReach = [...innate, ...specials].some((t) => /reach/i.test(String(t)));
         let range;
         if (!isRanged) {
-            range = hasReach ? 'Reach' : '1 m';
+            range = hasReach ? '2 m' : '1 m';
         }
         else {
-            let raw = String(prof?.range ?? '').trim();
-            if (raw.includes(',')) {
-                const parts = raw.split(',').map((s) => s.trim()).filter(Boolean);
-                const idx = Math.min(parts.length - 1, Math.max(0, level - 1));
-                raw = parts[idx] ?? parts[parts.length - 1] ?? '';
-            }
-            range = !raw || raw === '0m' || raw === '0' ? '—' : /m$/i.test(raw) ? raw : `${raw} m`;
+            const parsed = parseWeaponRangeMeters(prof?.range);
+            range = `${parsed != null && parsed > 0 ? parsed : 24} m`;
         }
         return { type, damage, range, tags: [...innate, ...specials].filter(Boolean).join(', ') };
     }
-    const artifactLevel = (a) => Math.max(1, Math.min(10, num(a?.system?.currentLevel) || num(a?.system?.level) || 1));
     const artifactWeapons = artifactItems
         .filter((a) => a?.system?.artifactWeapon)
         .map((a) => {
-        const prof = formatWeaponProfile(a.system.artifactWeapon, artifactLevel(a));
+        const prof = formatWeaponProfile(a.system.artifactWeapon);
         return {
             name: String(a?.name ?? ''),
             type: prof.type,
@@ -667,6 +689,7 @@ export function buildCharacterPrintContext(actor) {
         healthBars,
         tempHP,
         stressBars,
+        stressBreakdown,
         stress,
         artifactWeapons,
         hasArtifactWeapons: artifactWeapons.length > 0,
