@@ -430,6 +430,15 @@ export function buildCharacterPrintContext(actor) {
                 detail: String(r?.detail ?? ''),
                 display: String(r?.display ?? r?.value ?? '')
             }))
+            : [],
+        evadeBreakdown: Array.isArray(combat?.evadeBreakdownRows)
+            ? combat.evadeBreakdownRows
+                .filter((r) => r && r.value != null && num(r.value) !== 0)
+                .map((r) => ({
+                label: String(r?.label ?? ''),
+                detail: String(r?.detail ?? ''),
+                display: String(r?.display ?? r?.value ?? '')
+            }))
             : []
     };
     // ── Health ────────────────────────────────────────────────────────────

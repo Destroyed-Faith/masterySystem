@@ -90,6 +90,17 @@
           </ul>
         </div>
         {{/if}}
+        {{#if defense.evadeBreakdown.length}}
+        <div class="cp-armor-breakdown cp-evade-breakdown">
+          <span class="cp-armor-breakdown-title">Evade sources</span>
+          <ul class="cp-armor-breakdown-list">
+            {{#each defense.evadeBreakdown}}
+            <li><span class="cp-armor-src">{{label}}{{#if detail}} <em>{{detail}}</em>{{/if}}</span><span class="cp-armor-amt">{{display}}</span></li>
+            {{/each}}
+            <li class="cp-armor-breakdown-total"><span class="cp-armor-src">Total Evade</span><span class="cp-armor-amt">{{defense.evadeTotal}}</span></li>
+          </ul>
+        </div>
+        {{/if}}
       </div>
 
       <div class="cp-block cp-vitals">

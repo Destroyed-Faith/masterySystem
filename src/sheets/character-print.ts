@@ -451,6 +451,15 @@ export function buildCharacterPrintContext(actor: any): Record<string, unknown> 
             detail: String(r?.detail ?? ''),
             display: String(r?.display ?? r?.value ?? '')
           }))
+      : [],
+    evadeBreakdown: Array.isArray(combat?.evadeBreakdownRows)
+      ? combat.evadeBreakdownRows
+          .filter((r: any) => r && r.value != null && num(r.value) !== 0)
+          .map((r: any) => ({
+            label: String(r?.label ?? ''),
+            detail: String(r?.detail ?? ''),
+            display: String(r?.display ?? r?.value ?? '')
+          }))
       : []
   };
 
