@@ -4,6 +4,7 @@
  */
 
 import { getArmorDefinitionForType, getShieldDefinitionForType } from './equipment.js';
+import { getEquippedArtifactBodyArmorClassPenalty } from './artifact-armor-weight.js';
 import { resolveEquippedWeaponForAttackType as resolveEquippedWeaponForAttackTypeWithUnarmed } from './unarmed-fallback.js';
 
 function collectItems(actor: any): any[] {
@@ -80,13 +81,15 @@ export function parsePhysicalSkillPenaltyDiceCount(text: string): number {
   return sum;
 }
 
-/** Total d8 removed from physical skill pool (armor + shield, equipped only). */
+/** Total d8 removed from physical skill pool (armor + shield + artifact body armor, equipped only). */
 export function getEquippedPhysicalSkillPenaltyDice(actor: any): number {
   const armor = getEquippedArmor(actor);
   const shield = getEquippedShield(actor);
+  const artifactPen = getEquippedArtifactBodyArmorClassPenalty(actor)?.skillPenaltyDice ?? 0;
   return (
     parsePhysicalSkillPenaltyDiceCount(resolveArmorSkillPenaltyText(armor)) +
-    parsePhysicalSkillPenaltyDiceCount(resolveShieldSkillPenaltyText(shield))
+    parsePhysicalSkillPenaltyDiceCount(resolveShieldSkillPenaltyText(shield)) +
+    artifactPen
   );
 }
 
@@ -126,12 +129,14 @@ export function getEquippedWeaponInitiativePenalty(weaponItem: any): number {
   return hasBalanced ? -5 : -10;
 }
 
-/** Flat initiative modifier from equipped armor + shield + weapon (Heavy). */
+/** Flat initiative modifier from equipped armor + shield + weapon (Heavy) + artifact body armor class. */
 export function getEquippedEquipmentInitiativeModifier(actor: any): number {
+  const artifactIni = getEquippedArtifactBodyArmorClassPenalty(actor)?.initiative ?? 0;
   return (
     initiativeModifierFromArmor(getEquippedArmor(actor)) +
     initiativeModifierFromShield(getEquippedShield(actor)) +
-    getEquippedWeaponInitiativePenalty(getEquippedWeapon(actor))
+    getEquippedWeaponInitiativePenalty(getEquippedWeapon(actor)) +
+    artifactIni
   );
 }
 

@@ -39,6 +39,7 @@ import {
   minorArmorForLevel,
   weaponDamageForLevel,
 } from '../utils/artifact-base-derive.js';
+import { getArmorDefinitionForType } from '../utils/equipment.js';
 import {
   resolveFullLevelProgression,
   visibleAbilityRows,
@@ -53,7 +54,7 @@ import {
  * output (base values, powers, slot/profile, etc.) changes so the world seeder
  * can detect stale library copies and refresh them in place.
  */
-export const ECHO_ARTIFACT_SEED_VERSION = 21;
+export const ECHO_ARTIFACT_SEED_VERSION = 23;
 
 const ARTIFACT_LEVELS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] as const;
 const ALL_POWER_LEVEL_KEYS: PowerLevelKey[] = [
@@ -64,18 +65,6 @@ const ALL_POWER_LEVEL_KEYS: PowerLevelKey[] = [
 // Per-level Base Value tables (exact, per the Player's Guide / Artefacts.md)
 // ---------------------------------------------------------------------------
 
-/** Light Echo Armor total = Light base (4) + Artifact Armor Bonus. L1=8 … L10=18. */
-function lightEchoArmorForLevel(level: number): number {
-  return 4 + bodyArmorBonusForLevel(level);
-}
-/** Medium Echo Armor total = Medium base (8) + Artifact Armor Bonus. L1=12 … L10=22. */
-function mediumEchoArmorForLevel(level: number): number {
-  return 8 + bodyArmorBonusForLevel(level);
-}
-/** Heavy Echo Armor total = Heavy base (12) + Artifact Armor Bonus. L1=16 … L10=26. */
-function heavyEchoArmorForLevel(level: number): number {
-  return 12 + bodyArmorBonusForLevel(level);
-}
 /** Two-handed Echo weapon damage (Claws/Tail) — the stronger 4d8…16d8 table. */
 const TWO_HANDED_ECHO_DAMAGE = ['4d8', '5d8', '6d8', '8d8', '9d8', '10d8', '12d8', '13d8', '14d8', '16d8'];
 function twoHandedEchoDamageForLevel(level: number): string {
@@ -173,12 +162,14 @@ interface BaseValueSpec {
   /** Exact resolved value at the given artifact level. */
   valueAt: (level: number) => number | string;
   note?: string;
+  /** Light / Medium / Heavy — `valueAt` returns artifact bonus only; mundane base added at runtime. */
+  armorWeightClass?: 'light' | 'medium' | 'heavy';
 }
 
 /**
  * Per-echo-artifact Base Value tables. The numbers are the system's canonical
  * baselines (see `artifact-base-derive.ts` / Artefacts.md). Echo body armor
- * uses the full Echo Armor total (mundane base + Artifact Armor Bonus).
+ * stores the artifact bonus only; mundane Light/Medium/Heavy base is added at runtime.
  */
 const BASE_VALUE_TABLES: Record<string, BaseValueSpec[]> = {
   stoneboundSoles: [
@@ -202,13 +193,48 @@ const BASE_VALUE_TABLES: Record<string, BaseValueSpec[]> = {
     { slot: 'b', type: 'movement', label: 'Clinging', unlock: 4, valueAt: (l) => getMinorMovementBaselineB(l) },
   ],
   titanScars: [
-    { slot: 'a', type: 'bodyArmor', label: 'Medium Echo Armor', unlock: 1, valueAt: (l) => mediumEchoArmorForLevel(l), note: 'Counts as Medium Armor (Evade −2, Initiative −4, −1d8 Physical).' },
+    {
+      slot: 'a',
+      type: 'bodyArmor',
+      label: 'Medium Echo Armor',
+      armorWeightClass: 'medium',
+      unlock: 1,
+      valueAt: (l) => bodyArmorBonusForLevel(l),
+      note: 'Medium Armor: Evade −2, Initiative −4, −1d8 Physical Skills.',
+    },
   ],
-  wyrmScales: [
-    { slot: 'a', type: 'bodyArmor', label: 'Heavy Echo Armor', unlock: 1, valueAt: (l) => heavyEchoArmorForLevel(l), note: 'Heavy drawbacks scale with level.' },
+  wyrmScalesHeavy: [
+    {
+      slot: 'a',
+      type: 'bodyArmor',
+      label: 'Heavy Echo Armor',
+      armorWeightClass: 'heavy',
+      unlock: 1,
+      valueAt: (l) => bodyArmorBonusForLevel(l),
+      note: 'Heavy Armor: Evade −4, Initiative −8, −2d8 Physical Skills.',
+    },
   ],
-  serpentScales: [
-    { slot: 'a', type: 'bodyArmor', label: 'Light Echo Armor', unlock: 1, valueAt: (l) => lightEchoArmorForLevel(l), note: 'No Light Armor drawback.' },
+  wyrmScalesMedium: [
+    {
+      slot: 'a',
+      type: 'bodyArmor',
+      label: 'Medium Echo Armor',
+      armorWeightClass: 'medium',
+      unlock: 1,
+      valueAt: (l) => bodyArmorBonusForLevel(l),
+      note: 'Medium Armor: Evade −2, Initiative −4, −1d8 Physical Skills.',
+    },
+  ],
+  wyrmScalesLight: [
+    {
+      slot: 'a',
+      type: 'bodyArmor',
+      label: 'Light Echo Armor',
+      armorWeightClass: 'light',
+      unlock: 1,
+      valueAt: (l) => bodyArmorBonusForLevel(l),
+      note: 'Light Armor: no class drawbacks.',
+    },
   ],
   dragonClaws: [
     { slot: 'a', type: 'weaponDamage', label: 'Claw / Tail Damage', unlock: 1, valueAt: (l) => twoHandedEchoDamageForLevel(l) },
@@ -216,13 +242,37 @@ const BASE_VALUE_TABLES: Record<string, BaseValueSpec[]> = {
     { slot: 'c', type: 'weaponSpecial', label: 'Brutal Impact', unlock: 7, valueAt: (l) => weaponSpecialRankForLevel([3, 5, 7, 9], l) },
   ],
   sentinelFrame: [
-    { slot: 'a', type: 'bodyArmor', label: 'Light Echo Armor', unlock: 1, valueAt: (l) => lightEchoArmorForLevel(l), note: 'No Light Armor drawback.' },
+    {
+      slot: 'a',
+      type: 'bodyArmor',
+      label: 'Light Echo Armor',
+      armorWeightClass: 'light',
+      unlock: 1,
+      valueAt: (l) => bodyArmorBonusForLevel(l),
+      note: 'Light Armor: no class drawbacks.',
+    },
   ],
   judicatorFrame: [
-    { slot: 'a', type: 'bodyArmor', label: 'Light Echo Armor', unlock: 1, valueAt: (l) => lightEchoArmorForLevel(l), note: 'No Light Armor drawback.' },
+    {
+      slot: 'a',
+      type: 'bodyArmor',
+      label: 'Light Echo Armor',
+      armorWeightClass: 'light',
+      unlock: 1,
+      valueAt: (l) => bodyArmorBonusForLevel(l),
+      note: 'Light Armor: no class drawbacks.',
+    },
   ],
   oracleFrame: [
-    { slot: 'a', type: 'bodyArmor', label: 'Light Echo Armor', unlock: 1, valueAt: (l) => lightEchoArmorForLevel(l), note: 'No Light Armor drawback.' },
+    {
+      slot: 'a',
+      type: 'bodyArmor',
+      label: 'Light Echo Armor',
+      armorWeightClass: 'light',
+      unlock: 1,
+      valueAt: (l) => bodyArmorBonusForLevel(l),
+      note: 'Light Armor: no class drawbacks.',
+    },
   ],
   dragonHead: [
     { slot: 'a', type: 'weaponDamage', label: 'Bite Weapon Damage', unlock: 1, valueAt: (l) => weaponDamageForLevel(l) },
@@ -268,9 +318,10 @@ const BASE_VALUE_TABLES: Record<string, BaseValueSpec[]> = {
       slot: 'a',
       type: 'bodyArmor',
       label: 'Hybrid Defense (Armor)',
+      armorWeightClass: 'light',
       unlock: 1,
-      valueAt: (l) => shadowgraveArmorForLevel(l),
-      note: 'No Damage Reduction, no Phasing.',
+      valueAt: (l) => shadowgraveArmorForLevel(l) - 4,
+      note: 'Light Armor base + hybrid bonus. No Damage Reduction, no Phasing.',
     },
     {
       slot: 'a',
@@ -507,6 +558,7 @@ function baseValuesAtLevel(echoArtifactKey: string, level: number): ArtifactBase
       value: spec.valueAt(level),
       note: spec.note,
       isBaseline: true,
+      ...(spec.armorWeightClass ? { armorWeightClass: spec.armorWeightClass } : {}),
     });
   }
   return out;
@@ -558,6 +610,21 @@ function shieldProfileAtLevel(def: EchoArtifactDefinition, level: number): Recor
   const shieldBv = (BASE_VALUE_TABLES[def.key] || []).find((b) => b.type === 'shieldValue');
   const shieldValue = shieldBv ? Number(shieldBv.valueAt(level)) || 0 : 0;
   return { type: 'medium', shieldValue, evadeBonus: 0, skillPenalty: '-2d8 Physical Skill Checks' };
+}
+
+/** Body armor profile for armor-kind artifacts (weight class + artifact bonus). */
+function armorProfileAtLevel(def: EchoArtifactDefinition, level: number): Record<string, unknown> | null {
+  const bodySpec = (BASE_VALUE_TABLES[def.key] || []).find((b) => b.type === 'bodyArmor');
+  if (!bodySpec?.armorWeightClass) return null;
+  const armorDef = getArmorDefinitionForType(bodySpec.armorWeightClass);
+  if (!armorDef) return null;
+  const bonus = Number(bodySpec.valueAt(level)) || 0;
+  return {
+    type: bodySpec.armorWeightClass,
+    armorValue: bonus,
+    evadeModifier: armorDef.evadeModifier,
+    skillPenalty: armorDef.skillPenalty === '—' ? '' : armorDef.skillPenalty,
+  };
 }
 
 /** One generated node (artifact item data minus its folder, which is set at seed time). */
@@ -657,6 +724,7 @@ export function buildEchoArtifactTree(def: EchoArtifactDefinition): GeneratedArt
           ? { artifactWeapon: naturalWeaponProfileAtLevel(def, level) }
           : {}),
       ...(kind === 'shield' ? { artifactShield: shieldProfileAtLevel(def, level) } : {}),
+      ...(kind === 'armor' ? { artifactArmor: armorProfileAtLevel(def, level) } : {}),
       ...(paperdoll.length ? { equipSlots: paperdoll } : {}),
     };
 

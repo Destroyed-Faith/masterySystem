@@ -18,39 +18,80 @@
         "slot": "a",
         "type": "bodyArmor",
         "label": "Light Echo Armor",
-        "value": 8,
-        "note": "No Light Armor drawback.",
-        "isBaseline": true
+        "value": 4,
+        "note": "Light Armor: no class drawbacks.",
+        "isBaseline": true,
+        "armorWeightClass": "light"
       }
     ],
     "levelProgression": [
       {
         "level": 1,
-        "name": "Armor I",
-        "type": "Active Buff",
+        "name": "Oracle Armor I",
+        "type": "Base Armor",
         "range": "Self",
         "aoe": "",
-        "duration": "MR Rounds",
-        "effect": "Gain **+17 Armor**.",
-        "special": ""
+        "duration": "Permanent",
+        "effect": "Gain the shared Light Echo Armor value for this Artifact Level.",
+        "special": "Armor"
       }
     ],
     "stoneFunction": null,
     "progressionPicks": [
       {
         "level": 1,
-        "kind": "power",
-        "powerTemplateId": "ab-armor"
+        "kind": "authored",
+        "authoredStages": [
+          {
+            "level": 1,
+            "name": "Oracle Armor I",
+            "type": "Base Armor",
+            "range": "Self",
+            "aoe": "",
+            "duration": "Permanent",
+            "effect": "Gain the shared Light Echo Armor value for this Artifact Level.",
+            "special": "Armor"
+          },
+          {
+            "level": 4,
+            "name": "Oracle Armor II",
+            "type": "Base Armor",
+            "range": "Self",
+            "aoe": "",
+            "duration": "Permanent",
+            "effect": "Continue using the shared Light Echo Armor value.",
+            "special": "Armor"
+          },
+          {
+            "level": 7,
+            "name": "Oracle Armor III",
+            "type": "Base Armor",
+            "range": "Self",
+            "aoe": "",
+            "duration": "Permanent",
+            "effect": "Continue using the shared Light Echo Armor value.",
+            "special": "Armor"
+          }
+        ]
       },
       {
         "level": 2,
-        "kind": "power",
-        "powerTemplateId": "ab-special-overdrive"
+        "kind": "stoneFunction",
+        "stoneFunction": {
+          "kind": "stonePowerSupport",
+          "attribute": "influence",
+          "stonePowerId": "influence.aidRoll"
+        },
+        "displayName": "Oracle Aid"
       },
       {
         "level": 3,
-        "kind": "power",
-        "powerTemplateId": "passive-temp-hp"
+        "kind": "stoneFunction",
+        "stoneFunction": {
+          "kind": "stoneBattery",
+          "attribute": "influence"
+        },
+        "displayName": "Influence Core"
       }
     ],
     "lore": "An arcane vessel of command, prophecy, and divine will.",
@@ -68,11 +109,12 @@
     "powers": [
       {
         "id": "oracleFrame-pw-1",
-        "name": "Armor I",
-        "category": "activeBuff",
+        "name": "Oracle Armor I",
+        "fluff": "Special: Armor",
+        "category": "passive",
         "tags": [],
         "cost": {
-          "action": "full"
+          "action": "none"
         },
         "levels": {
           "1": {
@@ -112,17 +154,16 @@
             "specials": []
           },
           "4": {
-            "type": "Active Buff",
+            "type": "Base Armor",
             "range": {
               "kind": "self"
             },
             "aoe": null,
             "duration": {
-              "kind": "rounds",
-              "rounds": 1
+              "kind": "scene"
             },
             "effect": {
-              "text": "Gain **+17 Armor**."
+              "text": "Gain the shared Light Echo Armor value for this Artifact Level."
             },
             "specials": [],
             "lvl": 1
@@ -275,6 +316,12 @@
       }
     ],
     "inventorySize": "1x1",
+    "artifactArmor": {
+      "type": "light",
+      "armorValue": 4,
+      "evadeModifier": 0,
+      "skillPenalty": ""
+    },
     "equipSlots": [
       "body"
     ]
@@ -289,7 +336,7 @@
       "isRoot": true,
       "echoBound": "sentinels",
       "echoArtifactKey": "oracleFrame",
-      "seedVersion": 10
+      "seedVersion": 23
     }
   },
   "_id": "knQEPVQpMQEYdxMz",

@@ -1,5 +1,5 @@
 {
-  "name": "Wyrm Scales - Level 1-1",
+  "name": "Wyrm Scales (Heavy) - Level 1-1",
   "type": "artifact",
   "img": "icons/svg/statue.svg",
   "system": {
@@ -18,9 +18,10 @@
         "slot": "a",
         "type": "bodyArmor",
         "label": "Heavy Echo Armor",
-        "value": 16,
-        "note": "Heavy drawbacks scale with level.",
-        "isBaseline": true
+        "value": 4,
+        "note": "Heavy Armor: Evade −4, Initiative −8, −2d8 Physical Skills.",
+        "isBaseline": true,
+        "armorWeightClass": "heavy"
       }
     ],
     "levelProgression": [
@@ -57,8 +58,8 @@
         }
       }
     ],
-    "lore": "The heaviest form of Dragonborn natural armor — the character’s body itself.",
-    "description": "The heaviest form of Dragonborn natural armor — the character’s body itself.\n\nA Dragonborn with Wyrm Scales cannot wear mundane armor or another Body Artifact.",
+    "lore": "The heaviest Dragonborn scale-form — maximum armor, heavy class drawbacks.",
+    "description": "The heaviest Dragonborn scale-form — maximum armor, heavy class drawbacks.\n\nA Dragonborn with Wyrm Scales cannot wear mundane armor or another Body Artifact.",
     "bonuses": {
       "attack": 0,
       "damage": "",
@@ -71,7 +72,7 @@
     },
     "powers": [
       {
-        "id": "wyrmScales-pw-1",
+        "id": "wyrmScalesHeavy-pw-1",
         "name": "Flight I",
         "category": "movement",
         "tags": [],
@@ -278,24 +279,30 @@
       }
     ],
     "inventorySize": "1x1",
+    "artifactArmor": {
+      "type": "heavy",
+      "armorValue": 4,
+      "evadeModifier": -4,
+      "skillPenalty": "−2d8 to Physical Skill checks"
+    },
     "equipSlots": [
       "body"
     ]
   },
   "flags": {
     "mastery-system": {
-      "nodeId": "wyrmScales-l1",
+      "nodeId": "wyrmScalesHeavy-l1",
       "parentIds": [],
       "childIds": [
-        "wyrmScales-l2"
+        "wyrmScalesHeavy-l2"
       ],
       "isRoot": true,
       "echoBound": "dragonborn",
-      "echoArtifactKey": "wyrmScales",
-      "seedVersion": 10
+      "echoArtifactKey": "wyrmScalesHeavy",
+      "seedVersion": 23
     }
   },
-  "_id": "xUrT2CCsSL1CRF4C",
-  "folder": "QYAoACBBZwBCwnx4",
-  "_key": "!items!xUrT2CCsSL1CRF4C"
+  "_id": "mraqgCXUzyhCI7N7",
+  "folder": "rDA8BE6alzAELyMr",
+  "_key": "!items!mraqgCXUzyhCI7N7"
 }

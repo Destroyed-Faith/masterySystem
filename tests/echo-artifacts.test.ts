@@ -91,6 +91,22 @@ describe('Echo Artifact catalog — lookups', () => {
         expect(rule.maxAtCreation).toBe(1);
         expect(rule.exclusiveGroups?.[0]?.sort()).toEqual(keys);
     });
+
+    it('getEchoArtifact resolves legacy wyrm/serpent keys to current variants', () => {
+        expect(getEchoArtifact('wyrmScales')?.key).toBe('wyrmScalesHeavy');
+        expect(getEchoArtifact('serpentScales')?.key).toBe('wyrmScalesLight');
+    });
+
+    it('Dragonborn pick exactly one of three Wyrm Scales variants', () => {
+        const list = listSelectableEchoArtifacts('dragonborn');
+        const wyrmKeys = list
+            .filter((d) => d.variantGroupKey === 'wyrmScales')
+            .map((d) => d.key)
+            .sort();
+        expect(wyrmKeys).toEqual(['wyrmScalesHeavy', 'wyrmScalesLight', 'wyrmScalesMedium']);
+        const rule = getEchoArtifactRules('dragonborn');
+        expect(rule.exclusiveGroups?.[0]?.sort()).toEqual(wyrmKeys);
+    });
 });
 
 describe('buildArtifactSystemFromEchoDef — artifact item shape', () => {

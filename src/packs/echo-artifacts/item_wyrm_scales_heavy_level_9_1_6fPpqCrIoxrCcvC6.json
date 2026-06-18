@@ -1,10 +1,10 @@
 {
-  "name": "Wyrm Scales - Level 6-1",
+  "name": "Wyrm Scales (Heavy) - Level 9-1",
   "type": "artifact",
   "img": "icons/svg/statue.svg",
   "system": {
-    "level": 6,
-    "currentLevel": 6,
+    "level": 9,
+    "currentLevel": 9,
     "equipped": false,
     "effects": [],
     "artifactKind": "armor",
@@ -18,35 +18,36 @@
         "slot": "a",
         "type": "bodyArmor",
         "label": "Heavy Echo Armor",
-        "value": 21,
-        "note": "Heavy drawbacks scale with level.",
-        "isBaseline": true
+        "value": 12,
+        "note": "Heavy Armor: Evade −4, Initiative −8, −2d8 Physical Skills.",
+        "isBaseline": true,
+        "armorWeightClass": "heavy"
       }
     ],
     "levelProgression": [
       {
-        "level": 4,
-        "name": "Flight II",
+        "level": 7,
+        "name": "Flight III",
         "type": "Movement",
         "range": "Self",
         "aoe": "",
         "duration": "Instant",
-        "effect": "Fly up to **15 m**.",
+        "effect": "Fly up to **24 m**.",
         "special": ""
       },
       {
-        "level": 5,
-        "name": "Armor II",
+        "level": 8,
+        "name": "Armor III",
         "type": "Active Buff",
         "range": "Self",
         "aoe": "",
         "duration": "MR Rounds",
-        "effect": "Gain **+41 Armor**.",
+        "effect": "Gain **+65 Armor**.",
         "special": ""
       },
       {
-        "level": 6,
-        "name": "Stone Support II",
+        "level": 9,
+        "name": "Stone Support III",
         "type": "Support",
         "range": "Self",
         "aoe": "",
@@ -81,8 +82,8 @@
         }
       }
     ],
-    "lore": "The heaviest form of Dragonborn natural armor — the character’s body itself.",
-    "description": "The heaviest form of Dragonborn natural armor — the character’s body itself.\n\nA Dragonborn with Wyrm Scales cannot wear mundane armor or another Body Artifact.",
+    "lore": "The heaviest Dragonborn scale-form — maximum armor, heavy class drawbacks.",
+    "description": "The heaviest Dragonborn scale-form — maximum armor, heavy class drawbacks.\n\nA Dragonborn with Wyrm Scales cannot wear mundane armor or another Body Artifact.",
     "bonuses": {
       "attack": 0,
       "damage": "",
@@ -95,8 +96,8 @@
     },
     "powers": [
       {
-        "id": "wyrmScales-pw-4",
-        "name": "Flight II",
+        "id": "wyrmScalesHeavy-pw-7",
+        "name": "Flight III",
         "category": "movement",
         "tags": [],
         "cost": {
@@ -212,19 +213,16 @@
             "specials": []
           },
           "10": {
-            "type": "Movement",
-            "range": {
-              "kind": "self"
-            },
+            "type": "",
+            "range": null,
             "aoe": null,
             "duration": {
               "kind": "instant"
             },
             "effect": {
-              "text": "Fly up to **15 m**."
+              "text": ""
             },
-            "specials": [],
-            "lvl": 4
+            "specials": []
           },
           "11": {
             "type": "",
@@ -287,22 +285,25 @@
             "specials": []
           },
           "16": {
-            "type": "",
-            "range": null,
+            "type": "Movement",
+            "range": {
+              "kind": "self"
+            },
             "aoe": null,
             "duration": {
               "kind": "instant"
             },
             "effect": {
-              "text": ""
+              "text": "Fly up to **24 m**."
             },
-            "specials": []
+            "specials": [],
+            "lvl": 7
           }
         }
       },
       {
-        "id": "wyrmScales-pw-5",
-        "name": "Armor II",
+        "id": "wyrmScalesHeavy-pw-8",
+        "name": "Armor III",
         "category": "activeBuff",
         "tags": [],
         "cost": {
@@ -418,20 +419,16 @@
             "specials": []
           },
           "10": {
-            "type": "Active Buff",
-            "range": {
-              "kind": "self"
-            },
+            "type": "",
+            "range": null,
             "aoe": null,
             "duration": {
-              "kind": "rounds",
-              "rounds": 1
+              "kind": "instant"
             },
             "effect": {
-              "text": "Gain **+41 Armor**."
+              "text": ""
             },
-            "specials": [],
-            "lvl": 5
+            "specials": []
           },
           "11": {
             "type": "",
@@ -494,22 +491,26 @@
             "specials": []
           },
           "16": {
-            "type": "",
-            "range": null,
+            "type": "Active Buff",
+            "range": {
+              "kind": "self"
+            },
             "aoe": null,
             "duration": {
-              "kind": "instant"
+              "kind": "rounds",
+              "rounds": 1
             },
             "effect": {
-              "text": ""
+              "text": "Gain **+65 Armor**."
             },
-            "specials": []
+            "specials": [],
+            "lvl": 8
           }
         }
       },
       {
-        "id": "wyrmScales-pw-6",
-        "name": "Stone Support II",
+        "id": "wyrmScalesHeavy-pw-9",
+        "name": "Stone Support III",
         "category": "passive",
         "tags": [],
         "cost": {
@@ -625,19 +626,16 @@
             "specials": []
           },
           "10": {
-            "type": "Support",
-            "range": {
-              "kind": "self"
-            },
+            "type": "",
+            "range": null,
             "aoe": null,
             "duration": {
-              "kind": "scene"
+              "kind": "instant"
             },
             "effect": {
-              "text": "Stone Power Support (Might): supports Armor"
+              "text": ""
             },
-            "specials": [],
-            "lvl": 6
+            "specials": []
           },
           "11": {
             "type": "",
@@ -700,40 +698,49 @@
             "specials": []
           },
           "16": {
-            "type": "",
-            "range": null,
+            "type": "Support",
+            "range": {
+              "kind": "self"
+            },
             "aoe": null,
             "duration": {
-              "kind": "instant"
+              "kind": "scene"
             },
             "effect": {
-              "text": ""
+              "text": "Stone Power Support (Might): supports Armor"
             },
-            "specials": []
+            "specials": [],
+            "lvl": 9
           }
         }
       }
     ],
     "inventorySize": "1x1",
+    "artifactArmor": {
+      "type": "heavy",
+      "armorValue": 12,
+      "evadeModifier": -4,
+      "skillPenalty": "−2d8 to Physical Skill checks"
+    },
     "equipSlots": [
       "body"
     ]
   },
   "flags": {
     "mastery-system": {
-      "nodeId": "wyrmScales-l6",
+      "nodeId": "wyrmScalesHeavy-l9",
       "parentIds": [
-        "wyrmScales-l5"
+        "wyrmScalesHeavy-l8"
       ],
       "childIds": [
-        "wyrmScales-l7"
+        "wyrmScalesHeavy-l10"
       ],
       "echoBound": "dragonborn",
-      "echoArtifactKey": "wyrmScales",
-      "seedVersion": 10
+      "echoArtifactKey": "wyrmScalesHeavy",
+      "seedVersion": 23
     }
   },
-  "_id": "yBt7aBjoHGcBURgO",
-  "folder": "QYAoACBBZwBCwnx4",
-  "_key": "!items!yBt7aBjoHGcBURgO"
+  "_id": "6fPpqCrIoxrCcvC6",
+  "folder": "rDA8BE6alzAELyMr",
+  "_key": "!items!6fPpqCrIoxrCcvC6"
 }

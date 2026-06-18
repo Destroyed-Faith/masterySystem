@@ -17,10 +17,16 @@ export function inferArtifactKeyFromName(name) {
         return 'dragonHead';
     if (n.includes('dragon claw'))
         return 'dragonClaws';
+    if (n.includes('wyrm scale') && n.includes('medium'))
+        return 'wyrmScalesMedium';
+    if (n.includes('wyrm scale') && n.includes('light'))
+        return 'wyrmScalesLight';
+    if (n.includes('wyrm scale') && n.includes('heavy'))
+        return 'wyrmScalesHeavy';
     if (n.includes('serpent scale'))
-        return 'serpentScales';
+        return 'wyrmScalesLight';
     if (n.includes('wyrm scale'))
-        return 'wyrmScales';
+        return 'wyrmScalesHeavy';
     if (n.includes('titan scar'))
         return 'titanScars';
     if (n.includes('stonebound sole'))

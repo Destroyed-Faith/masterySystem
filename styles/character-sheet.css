@@ -10043,3 +10043,39 @@
 .mastery-system.sheet.actor.character .df-item-tile {
   position: relative;
 }
+
+/* Echo creation dialog — Wyrm Scales variant comparison table */
+.mastery-system.echo-creation-dialog .echo-artifact-variant-table-wrap {
+  margin-bottom: 0.75rem;
+}
+
+.mastery-system.echo-creation-dialog .echo-artifact-variant-caption {
+  margin: 0 0 0.35rem;
+  font-size: 12px;
+}
+
+.mastery-system.echo-creation-dialog .echo-artifact-variant-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+  margin-bottom: 0.5rem;
+}
+
+.mastery-system.echo-creation-dialog .echo-artifact-variant-table th,
+.mastery-system.echo-creation-dialog .echo-artifact-variant-table td {
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 4px 6px;
+  text-align: left;
+  vertical-align: top;
+}
+
+.mastery-system.echo-creation-dialog .echo-artifact-variant-table th {
+  background: rgba(0, 0, 0, 0.25);
+  font-weight: 600;
+}
+
+.mastery-system.echo-creation-dialog .echo-artifact-variant-focus {
+  margin: 0.35rem 0;
+  font-size: 11px;
+  opacity: 0.9;
+}

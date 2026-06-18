@@ -1,10 +1,10 @@
 {
-  "name": "Serpent Scales - Level 10-1",
+  "name": "Wyrm Scales (Light) - Level 8-1",
   "type": "artifact",
   "img": "icons/svg/statue.svg",
   "system": {
-    "level": 10,
-    "currentLevel": 10,
+    "level": 8,
+    "currentLevel": 8,
     "equipped": false,
     "effects": [],
     "artifactKind": "armor",
@@ -18,9 +18,10 @@
         "slot": "a",
         "type": "bodyArmor",
         "label": "Light Echo Armor",
-        "value": 18,
-        "note": "No Light Armor drawback.",
-        "isBaseline": true
+        "value": 11,
+        "note": "Light Armor: no class drawbacks.",
+        "isBaseline": true,
+        "armorWeightClass": "light"
       }
     ],
     "levelProgression": [
@@ -45,26 +46,21 @@
         "special": ""
       },
       {
-        "level": 9,
-        "name": "Evade III",
-        "type": "Passive",
+        "level": 6,
+        "name": "Stone Support II",
+        "type": "Support",
         "range": "Self",
         "aoe": "",
-        "duration": "",
-        "effect": "Gain **+32 Evade**.",
+        "duration": "Passive",
+        "effect": "Stone Power Support (Agility): supports Evade",
         "special": ""
-      },
-      {
-        "level": 10,
-        "name": "Serpent Transformation",
-        "type": "Ultimate",
-        "range": "Self",
-        "duration": "Special",
-        "effect": "You unlock your Serpent Dragon Form.",
-        "special": "Serpent Dragon Form"
       }
     ],
-    "stoneFunction": null,
+    "stoneFunction": {
+      "kind": "stonePowerSupport",
+      "attribute": "agility",
+      "stonePowerId": "agility.evade"
+    },
     "progressionPicks": [
       {
         "level": 1,
@@ -78,12 +74,16 @@
       },
       {
         "level": 3,
-        "kind": "power",
-        "powerTemplateId": "passive-evade"
+        "kind": "stoneFunction",
+        "stoneFunction": {
+          "kind": "stonePowerSupport",
+          "attribute": "agility",
+          "stonePowerId": "agility.evade"
+        }
       }
     ],
-    "lore": "A lighter form of Dragonborn natural armor — flexible, smooth, built for movement.",
-    "description": "A lighter form of Dragonborn natural armor — flexible, smooth, built for movement.\n\nA Dragonborn with Serpent Scales cannot wear mundane armor or another Body Artifact.",
+    "lore": "Light scale-form — evasion and mobility over raw soak.",
+    "description": "Light scale-form — evasion and mobility over raw soak.\n\nA Dragonborn with Wyrm Scales cannot wear mundane armor or another Body Artifact.",
     "bonuses": {
       "attack": 0,
       "damage": "",
@@ -96,7 +96,7 @@
     },
     "powers": [
       {
-        "id": "serpentScales-pw-7",
+        "id": "wyrmScalesLight-pw-7",
         "name": "Flight III",
         "category": "movement",
         "tags": [],
@@ -302,7 +302,7 @@
         }
       },
       {
-        "id": "serpentScales-pw-8",
+        "id": "wyrmScalesLight-pw-8",
         "name": "Evade III",
         "category": "activeBuff",
         "tags": [],
@@ -509,8 +509,8 @@
         }
       },
       {
-        "id": "serpentScales-pw-9",
-        "name": "Evade III",
+        "id": "wyrmScalesLight-pw-6",
+        "name": "Stone Support II",
         "category": "passive",
         "tags": [],
         "cost": {
@@ -626,16 +626,19 @@
             "specials": []
           },
           "10": {
-            "type": "",
-            "range": null,
+            "type": "Support",
+            "range": {
+              "kind": "self"
+            },
             "aoe": null,
             "duration": {
-              "kind": "instant"
+              "kind": "scene"
             },
             "effect": {
-              "text": ""
+              "text": "Stone Power Support (Agility): supports Evade"
             },
-            "specials": []
+            "specials": [],
+            "lvl": 6
           },
           "11": {
             "type": "",
@@ -698,33 +701,6 @@
             "specials": []
           },
           "16": {
-            "type": "Passive",
-            "range": {
-              "kind": "self"
-            },
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": "Gain **+32 Evade**."
-            },
-            "specials": [],
-            "lvl": 9
-          }
-        }
-      },
-      {
-        "id": "serpentScales-pw-10",
-        "name": "Serpent Transformation",
-        "fluff": "Special: Serpent Dragon Form",
-        "category": "passive",
-        "tags": [],
-        "cost": {
-          "action": "none"
-        },
-        "levels": {
-          "1": {
             "type": "",
             "range": null,
             "aoe": null,
@@ -735,212 +711,36 @@
               "text": ""
             },
             "specials": []
-          },
-          "2": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "3": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "4": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "5": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "6": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "7": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "8": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "9": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "10": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "11": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "12": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "13": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "14": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "15": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "16": {
-            "type": "Ultimate",
-            "range": {
-              "kind": "self"
-            },
-            "aoe": null,
-            "duration": {
-              "kind": "instant",
-              "note": "Special"
-            },
-            "effect": {
-              "text": "You unlock your Serpent Dragon Form."
-            },
-            "specials": [],
-            "lvl": 10
           }
         }
       }
     ],
     "inventorySize": "1x1",
+    "artifactArmor": {
+      "type": "light",
+      "armorValue": 11,
+      "evadeModifier": 0,
+      "skillPenalty": ""
+    },
     "equipSlots": [
       "body"
     ]
   },
   "flags": {
     "mastery-system": {
-      "nodeId": "serpentScales-l10",
+      "nodeId": "wyrmScalesLight-l8",
       "parentIds": [
-        "serpentScales-l9"
+        "wyrmScalesLight-l7"
       ],
-      "childIds": [],
+      "childIds": [
+        "wyrmScalesLight-l9"
+      ],
       "echoBound": "dragonborn",
-      "echoArtifactKey": "serpentScales",
-      "seedVersion": 10
+      "echoArtifactKey": "wyrmScalesLight",
+      "seedVersion": 23
     }
   },
-  "_id": "raSA8C6x316CNqFR",
-  "folder": "ocXK7ZFwS8KsKb95",
-  "_key": "!items!raSA8C6x316CNqFR"
+  "_id": "Ydci4DJG1q5D2NpR",
+  "folder": "eypKDDPbETED8i23",
+  "_key": "!items!Ydci4DJG1q5D2NpR"
 }

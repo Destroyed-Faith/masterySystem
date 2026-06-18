@@ -1,10 +1,10 @@
 {
-  "name": "Wyrm Scales - Level 2-1",
+  "name": "Wyrm Scales (Medium) - Level 4-1",
   "type": "artifact",
   "img": "icons/svg/statue.svg",
   "system": {
-    "level": 2,
-    "currentLevel": 2,
+    "level": 4,
+    "currentLevel": 4,
     "equipped": false,
     "effects": [],
     "artifactKind": "armor",
@@ -17,35 +17,50 @@
       {
         "slot": "a",
         "type": "bodyArmor",
-        "label": "Heavy Echo Armor",
-        "value": 17,
-        "note": "Heavy drawbacks scale with level.",
-        "isBaseline": true
+        "label": "Medium Echo Armor",
+        "value": 7,
+        "note": "Medium Armor: Evade −2, Initiative −4, −1d8 Physical Skills.",
+        "isBaseline": true,
+        "armorWeightClass": "medium"
       }
     ],
     "levelProgression": [
       {
-        "level": 1,
-        "name": "Flight I",
+        "level": 4,
+        "name": "Flight II",
         "type": "Movement",
         "range": "Self",
         "aoe": "",
         "duration": "Instant",
-        "effect": "Fly up to **6 m**.",
+        "effect": "Fly up to **15 m**.",
         "special": ""
       },
       {
         "level": 2,
-        "name": "Armor I",
+        "name": "Damage Reduction I",
         "type": "Active Buff",
         "range": "Self",
         "aoe": "",
         "duration": "MR Rounds",
-        "effect": "Gain **+17 Armor**.",
+        "effect": "If you currently have **Damage Reduction from a Passive**, increase that DR by **+10%** while the buff is active, up to **30% total DR**.",
+        "special": ""
+      },
+      {
+        "level": 3,
+        "name": "Stone Support I",
+        "type": "Support",
+        "range": "Self",
+        "aoe": "",
+        "duration": "Passive",
+        "effect": "Stone Power Support (Might): supports Armor",
         "special": ""
       }
     ],
-    "stoneFunction": null,
+    "stoneFunction": {
+      "kind": "stonePowerSupport",
+      "attribute": "might",
+      "stonePowerId": "might.armor"
+    },
     "progressionPicks": [
       {
         "level": 1,
@@ -55,7 +70,7 @@
       {
         "level": 2,
         "kind": "power",
-        "powerTemplateId": "ab-armor"
+        "powerTemplateId": "ab-damage-reduction"
       },
       {
         "level": 3,
@@ -67,8 +82,8 @@
         }
       }
     ],
-    "lore": "The heaviest form of Dragonborn natural armor — the character’s body itself.",
-    "description": "The heaviest form of Dragonborn natural armor — the character’s body itself.\n\nA Dragonborn with Wyrm Scales cannot wear mundane armor or another Body Artifact.",
+    "lore": "Balanced scale-form — medium armor with Damage Reduction synergy.",
+    "description": "Balanced scale-form — medium armor with Damage Reduction synergy.\n\nA Dragonborn with Wyrm Scales cannot wear mundane armor or another Body Artifact.",
     "bonuses": {
       "attack": 0,
       "damage": "",
@@ -81,8 +96,8 @@
     },
     "powers": [
       {
-        "id": "wyrmScales-pw-1",
-        "name": "Flight I",
+        "id": "wyrmScalesMedium-pw-4",
+        "name": "Flight II",
         "category": "movement",
         "tags": [],
         "cost": {
@@ -126,19 +141,16 @@
             "specials": []
           },
           "4": {
-            "type": "Movement",
-            "range": {
-              "kind": "self"
-            },
+            "type": "",
+            "range": null,
             "aoe": null,
             "duration": {
               "kind": "instant"
             },
             "effect": {
-              "text": "Fly up to **6 m**."
+              "text": ""
             },
-            "specials": [],
-            "lvl": 1
+            "specials": []
           },
           "5": {
             "type": "",
@@ -201,16 +213,19 @@
             "specials": []
           },
           "10": {
-            "type": "",
-            "range": null,
+            "type": "Movement",
+            "range": {
+              "kind": "self"
+            },
             "aoe": null,
             "duration": {
               "kind": "instant"
             },
             "effect": {
-              "text": ""
+              "text": "Fly up to **15 m**."
             },
-            "specials": []
+            "specials": [],
+            "lvl": 4
           },
           "11": {
             "type": "",
@@ -287,8 +302,8 @@
         }
       },
       {
-        "id": "wyrmScales-pw-2",
-        "name": "Armor I",
+        "id": "wyrmScalesMedium-pw-2",
+        "name": "Damage Reduction I",
         "category": "activeBuff",
         "tags": [],
         "cost": {
@@ -342,7 +357,7 @@
               "rounds": 1
             },
             "effect": {
-              "text": "Gain **+17 Armor**."
+              "text": "If you currently have **Damage Reduction from a Passive**, increase that DR by **+10%** while the buff is active, up to **30% total DR**."
             },
             "specials": [],
             "lvl": 2
@@ -492,28 +507,240 @@
             "specials": []
           }
         }
+      },
+      {
+        "id": "wyrmScalesMedium-pw-3",
+        "name": "Stone Support I",
+        "category": "passive",
+        "tags": [],
+        "cost": {
+          "action": "none"
+        },
+        "levels": {
+          "1": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "2": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "3": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "4": {
+            "type": "Support",
+            "range": {
+              "kind": "self"
+            },
+            "aoe": null,
+            "duration": {
+              "kind": "scene"
+            },
+            "effect": {
+              "text": "Stone Power Support (Might): supports Armor"
+            },
+            "specials": [],
+            "lvl": 3
+          },
+          "5": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "6": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "7": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "8": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "9": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "10": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "11": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "12": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "13": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "14": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "15": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "16": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          }
+        }
       }
     ],
     "inventorySize": "1x1",
+    "artifactArmor": {
+      "type": "medium",
+      "armorValue": 7,
+      "evadeModifier": -2,
+      "skillPenalty": "−1d8 to Physical Skill checks"
+    },
     "equipSlots": [
       "body"
     ]
   },
   "flags": {
     "mastery-system": {
-      "nodeId": "wyrmScales-l2",
+      "nodeId": "wyrmScalesMedium-l4",
       "parentIds": [
-        "wyrmScales-l1"
+        "wyrmScalesMedium-l3"
       ],
       "childIds": [
-        "wyrmScales-l3"
+        "wyrmScalesMedium-l5"
       ],
       "echoBound": "dragonborn",
-      "echoArtifactKey": "wyrmScales",
-      "seedVersion": 10
+      "echoArtifactKey": "wyrmScalesMedium",
+      "seedVersion": 23
     }
   },
-  "_id": "ebimqCPE7urCArV3",
-  "folder": "QYAoACBBZwBCwnx4",
-  "_key": "!items!ebimqCPE7urCArV3"
+  "_id": "978PVCOVkHUCfNwg",
+  "folder": "raEC6C6xp34CNq1S",
+  "_key": "!items!978PVCOVkHUCfNwg"
 }

@@ -1,10 +1,10 @@
 {
-  "name": "Wyrm Scales - Level 10-1",
+  "name": "Wyrm Scales (Heavy) - Level 3-1",
   "type": "artifact",
   "img": "icons/svg/statue.svg",
   "system": {
-    "level": 10,
-    "currentLevel": 10,
+    "level": 3,
+    "currentLevel": 3,
     "equipped": false,
     "effects": [],
     "artifactKind": "armor",
@@ -18,50 +18,42 @@
         "slot": "a",
         "type": "bodyArmor",
         "label": "Heavy Echo Armor",
-        "value": 26,
-        "note": "Heavy drawbacks scale with level.",
-        "isBaseline": true
+        "value": 6,
+        "note": "Heavy Armor: Evade −4, Initiative −8, −2d8 Physical Skills.",
+        "isBaseline": true,
+        "armorWeightClass": "heavy"
       }
     ],
     "levelProgression": [
       {
-        "level": 7,
-        "name": "Flight III",
+        "level": 1,
+        "name": "Flight I",
         "type": "Movement",
         "range": "Self",
         "aoe": "",
         "duration": "Instant",
-        "effect": "Fly up to **24 m**.",
+        "effect": "Fly up to **6 m**.",
         "special": ""
       },
       {
-        "level": 8,
-        "name": "Armor III",
+        "level": 2,
+        "name": "Armor I",
         "type": "Active Buff",
         "range": "Self",
         "aoe": "",
         "duration": "MR Rounds",
-        "effect": "Gain **+65 Armor**.",
+        "effect": "Gain **+17 Armor**.",
         "special": ""
       },
       {
-        "level": 9,
-        "name": "Stone Support III",
+        "level": 3,
+        "name": "Stone Support I",
         "type": "Support",
         "range": "Self",
         "aoe": "",
         "duration": "Passive",
         "effect": "Stone Power Support (Might): supports Armor",
         "special": ""
-      },
-      {
-        "level": 10,
-        "name": "Dragon Transformation",
-        "type": "Ultimate",
-        "range": "Self",
-        "duration": "Special",
-        "effect": "You unlock your Wyrm Dragon Form (transformation rules apply).",
-        "special": "Wyrm Dragon Form"
       }
     ],
     "stoneFunction": {
@@ -90,8 +82,8 @@
         }
       }
     ],
-    "lore": "The heaviest form of Dragonborn natural armor — the character’s body itself.",
-    "description": "The heaviest form of Dragonborn natural armor — the character’s body itself.\n\nA Dragonborn with Wyrm Scales cannot wear mundane armor or another Body Artifact.",
+    "lore": "The heaviest Dragonborn scale-form — maximum armor, heavy class drawbacks.",
+    "description": "The heaviest Dragonborn scale-form — maximum armor, heavy class drawbacks.\n\nA Dragonborn with Wyrm Scales cannot wear mundane armor or another Body Artifact.",
     "bonuses": {
       "attack": 0,
       "damage": "",
@@ -104,8 +96,8 @@
     },
     "powers": [
       {
-        "id": "wyrmScales-pw-7",
-        "name": "Flight III",
+        "id": "wyrmScalesHeavy-pw-1",
+        "name": "Flight I",
         "category": "movement",
         "tags": [],
         "cost": {
@@ -149,16 +141,19 @@
             "specials": []
           },
           "4": {
-            "type": "",
-            "range": null,
+            "type": "Movement",
+            "range": {
+              "kind": "self"
+            },
             "aoe": null,
             "duration": {
               "kind": "instant"
             },
             "effect": {
-              "text": ""
+              "text": "Fly up to **6 m**."
             },
-            "specials": []
+            "specials": [],
+            "lvl": 1
           },
           "5": {
             "type": "",
@@ -293,25 +288,22 @@
             "specials": []
           },
           "16": {
-            "type": "Movement",
-            "range": {
-              "kind": "self"
-            },
+            "type": "",
+            "range": null,
             "aoe": null,
             "duration": {
               "kind": "instant"
             },
             "effect": {
-              "text": "Fly up to **24 m**."
+              "text": ""
             },
-            "specials": [],
-            "lvl": 7
+            "specials": []
           }
         }
       },
       {
-        "id": "wyrmScales-pw-8",
-        "name": "Armor III",
+        "id": "wyrmScalesHeavy-pw-2",
+        "name": "Armor I",
         "category": "activeBuff",
         "tags": [],
         "cost": {
@@ -355,16 +347,20 @@
             "specials": []
           },
           "4": {
-            "type": "",
-            "range": null,
+            "type": "Active Buff",
+            "range": {
+              "kind": "self"
+            },
             "aoe": null,
             "duration": {
-              "kind": "instant"
+              "kind": "rounds",
+              "rounds": 1
             },
             "effect": {
-              "text": ""
+              "text": "Gain **+17 Armor**."
             },
-            "specials": []
+            "specials": [],
+            "lvl": 2
           },
           "5": {
             "type": "",
@@ -499,26 +495,22 @@
             "specials": []
           },
           "16": {
-            "type": "Active Buff",
-            "range": {
-              "kind": "self"
-            },
+            "type": "",
+            "range": null,
             "aoe": null,
             "duration": {
-              "kind": "rounds",
-              "rounds": 1
+              "kind": "instant"
             },
             "effect": {
-              "text": "Gain **+65 Armor**."
+              "text": ""
             },
-            "specials": [],
-            "lvl": 8
+            "specials": []
           }
         }
       },
       {
-        "id": "wyrmScales-pw-9",
-        "name": "Stone Support III",
+        "id": "wyrmScalesHeavy-pw-3",
+        "name": "Stone Support I",
         "category": "passive",
         "tags": [],
         "cost": {
@@ -562,150 +554,6 @@
             "specials": []
           },
           "4": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "5": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "6": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "7": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "8": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "9": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "10": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "11": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "12": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "13": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "14": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "15": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "16": {
             "type": "Support",
             "range": {
               "kind": "self"
@@ -718,67 +566,7 @@
               "text": "Stone Power Support (Might): supports Armor"
             },
             "specials": [],
-            "lvl": 9
-          }
-        }
-      },
-      {
-        "id": "wyrmScales-pw-10",
-        "name": "Dragon Transformation",
-        "fluff": "Special: Wyrm Dragon Form",
-        "category": "passive",
-        "tags": [],
-        "cost": {
-          "action": "none"
-        },
-        "levels": {
-          "1": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "2": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "3": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "4": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
+            "lvl": 3
           },
           "5": {
             "type": "",
@@ -913,42 +701,46 @@
             "specials": []
           },
           "16": {
-            "type": "Ultimate",
-            "range": {
-              "kind": "self"
-            },
+            "type": "",
+            "range": null,
             "aoe": null,
             "duration": {
-              "kind": "instant",
-              "note": "Special"
+              "kind": "instant"
             },
             "effect": {
-              "text": "You unlock your Wyrm Dragon Form (transformation rules apply)."
+              "text": ""
             },
-            "specials": [],
-            "lvl": 10
+            "specials": []
           }
         }
       }
     ],
     "inventorySize": "1x1",
+    "artifactArmor": {
+      "type": "heavy",
+      "armorValue": 6,
+      "evadeModifier": -4,
+      "skillPenalty": "−2d8 to Physical Skill checks"
+    },
     "equipSlots": [
       "body"
     ]
   },
   "flags": {
     "mastery-system": {
-      "nodeId": "wyrmScales-l10",
+      "nodeId": "wyrmScalesHeavy-l3",
       "parentIds": [
-        "wyrmScales-l9"
+        "wyrmScalesHeavy-l2"
       ],
-      "childIds": [],
+      "childIds": [
+        "wyrmScalesHeavy-l4"
+      ],
       "echoBound": "dragonborn",
-      "echoArtifactKey": "wyrmScales",
-      "seedVersion": 10
+      "echoArtifactKey": "wyrmScalesHeavy",
+      "seedVersion": 23
     }
   },
-  "_id": "771kCCMVdcBCbsEU",
-  "folder": "QYAoACBBZwBCwnx4",
-  "_key": "!items!771kCCMVdcBCbsEU"
+  "_id": "sdgyuBdG56vBMOth",
+  "folder": "rDA8BE6alzAELyMr",
+  "_key": "!items!sdgyuBdG56vBMOth"
 }

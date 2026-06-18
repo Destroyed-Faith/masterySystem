@@ -1,0 +1,746 @@
+{
+  "name": "Wyrm Scales (Heavy) - Level 8-1",
+  "type": "artifact",
+  "img": "icons/svg/statue.svg",
+  "system": {
+    "level": 8,
+    "currentLevel": 8,
+    "equipped": false,
+    "effects": [],
+    "artifactKind": "armor",
+    "gearSlot": "",
+    "slot": "body",
+    "baseProfile": "bodyArmor",
+    "binding": "echo",
+    "echoKey": "dragonborn",
+    "baseValues": [
+      {
+        "slot": "a",
+        "type": "bodyArmor",
+        "label": "Heavy Echo Armor",
+        "value": 11,
+        "note": "Heavy Armor: Evade −4, Initiative −8, −2d8 Physical Skills.",
+        "isBaseline": true,
+        "armorWeightClass": "heavy"
+      }
+    ],
+    "levelProgression": [
+      {
+        "level": 7,
+        "name": "Flight III",
+        "type": "Movement",
+        "range": "Self",
+        "aoe": "",
+        "duration": "Instant",
+        "effect": "Fly up to **24 m**.",
+        "special": ""
+      },
+      {
+        "level": 8,
+        "name": "Armor III",
+        "type": "Active Buff",
+        "range": "Self",
+        "aoe": "",
+        "duration": "MR Rounds",
+        "effect": "Gain **+65 Armor**.",
+        "special": ""
+      },
+      {
+        "level": 6,
+        "name": "Stone Support II",
+        "type": "Support",
+        "range": "Self",
+        "aoe": "",
+        "duration": "Passive",
+        "effect": "Stone Power Support (Might): supports Armor",
+        "special": ""
+      }
+    ],
+    "stoneFunction": {
+      "kind": "stonePowerSupport",
+      "attribute": "might",
+      "stonePowerId": "might.armor"
+    },
+    "progressionPicks": [
+      {
+        "level": 1,
+        "kind": "power",
+        "powerTemplateId": "movement-flight"
+      },
+      {
+        "level": 2,
+        "kind": "power",
+        "powerTemplateId": "ab-armor"
+      },
+      {
+        "level": 3,
+        "kind": "stoneFunction",
+        "stoneFunction": {
+          "kind": "stonePowerSupport",
+          "attribute": "might",
+          "stonePowerId": "might.armor"
+        }
+      }
+    ],
+    "lore": "The heaviest Dragonborn scale-form — maximum armor, heavy class drawbacks.",
+    "description": "The heaviest Dragonborn scale-form — maximum armor, heavy class drawbacks.\n\nA Dragonborn with Wyrm Scales cannot wear mundane armor or another Body Artifact.",
+    "bonuses": {
+      "attack": 0,
+      "damage": "",
+      "defense": 0,
+      "specials": []
+    },
+    "requirements": {
+      "stones": 0,
+      "masteryRank": 1
+    },
+    "powers": [
+      {
+        "id": "wyrmScalesHeavy-pw-7",
+        "name": "Flight III",
+        "category": "movement",
+        "tags": [],
+        "cost": {
+          "action": "movement"
+        },
+        "levels": {
+          "1": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "2": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "3": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "4": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "5": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "6": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "7": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "8": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "9": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "10": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "11": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "12": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "13": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "14": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "15": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "16": {
+            "type": "Movement",
+            "range": {
+              "kind": "self"
+            },
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": "Fly up to **24 m**."
+            },
+            "specials": [],
+            "lvl": 7
+          }
+        }
+      },
+      {
+        "id": "wyrmScalesHeavy-pw-8",
+        "name": "Armor III",
+        "category": "activeBuff",
+        "tags": [],
+        "cost": {
+          "action": "full"
+        },
+        "levels": {
+          "1": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "2": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "3": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "4": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "5": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "6": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "7": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "8": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "9": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "10": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "11": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "12": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "13": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "14": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "15": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "16": {
+            "type": "Active Buff",
+            "range": {
+              "kind": "self"
+            },
+            "aoe": null,
+            "duration": {
+              "kind": "rounds",
+              "rounds": 1
+            },
+            "effect": {
+              "text": "Gain **+65 Armor**."
+            },
+            "specials": [],
+            "lvl": 8
+          }
+        }
+      },
+      {
+        "id": "wyrmScalesHeavy-pw-6",
+        "name": "Stone Support II",
+        "category": "passive",
+        "tags": [],
+        "cost": {
+          "action": "none"
+        },
+        "levels": {
+          "1": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "2": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "3": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "4": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "5": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "6": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "7": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "8": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "9": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "10": {
+            "type": "Support",
+            "range": {
+              "kind": "self"
+            },
+            "aoe": null,
+            "duration": {
+              "kind": "scene"
+            },
+            "effect": {
+              "text": "Stone Power Support (Might): supports Armor"
+            },
+            "specials": [],
+            "lvl": 6
+          },
+          "11": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "12": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "13": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "14": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "15": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "16": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          }
+        }
+      }
+    ],
+    "inventorySize": "1x1",
+    "artifactArmor": {
+      "type": "heavy",
+      "armorValue": 11,
+      "evadeModifier": -4,
+      "skillPenalty": "−2d8 to Physical Skill checks"
+    },
+    "equipSlots": [
+      "body"
+    ]
+  },
+  "flags": {
+    "mastery-system": {
+      "nodeId": "wyrmScalesHeavy-l8",
+      "parentIds": [
+        "wyrmScalesHeavy-l7"
+      ],
+      "childIds": [
+        "wyrmScalesHeavy-l9"
+      ],
+      "echoBound": "dragonborn",
+      "echoArtifactKey": "wyrmScalesHeavy",
+      "seedVersion": 23
+    }
+  },
+  "_id": "BlhiXDQ8IaWDh0Uz",
+  "folder": "rDA8BE6alzAELyMr",
+  "_key": "!items!BlhiXDQ8IaWDh0Uz"
+}

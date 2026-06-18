@@ -18,40 +18,41 @@
         "slot": "a",
         "type": "bodyArmor",
         "label": "Light Echo Armor",
-        "value": 16,
-        "note": "No Light Armor drawback.",
-        "isBaseline": true
+        "value": 12,
+        "note": "Light Armor: no class drawbacks.",
+        "isBaseline": true,
+        "armorWeightClass": "light"
       }
     ],
     "levelProgression": [
       {
         "level": 7,
-        "name": "Armor III",
-        "type": "Active Buff",
+        "name": "Oracle Armor III",
+        "type": "Base Armor",
         "range": "Self",
         "aoe": "",
-        "duration": "MR Rounds",
-        "effect": "Gain **+65 Armor**.",
-        "special": ""
+        "duration": "Permanent",
+        "effect": "Continue using the shared Light Echo Armor value.",
+        "special": "Armor"
       },
       {
         "level": 8,
-        "name": "Special Overdrive III",
-        "type": "Active Buff",
+        "name": "Oracle Aid III",
+        "type": "Support",
         "range": "Self",
         "aoe": "",
-        "duration": "MR Rounds",
-        "effect": "Choose one eligible Special(X). While the buff is active, any such Special you apply is increased by **+3**.",
+        "duration": "Passive",
+        "effect": "Stone Power Support (Influence): supports Aid Roll",
         "special": ""
       },
       {
         "level": 9,
-        "name": "Temporary Hit Points III",
-        "type": "Passive",
+        "name": "Influence Core III",
+        "type": "Support",
         "range": "Self",
         "aoe": "",
-        "duration": "",
-        "effect": "At the start of combat, gain **160 Temporary HP**.",
+        "duration": "Passive",
+        "effect": "Stone Battery (Influence)",
         "special": ""
       }
     ],
@@ -59,18 +60,58 @@
     "progressionPicks": [
       {
         "level": 1,
-        "kind": "power",
-        "powerTemplateId": "ab-armor"
+        "kind": "authored",
+        "authoredStages": [
+          {
+            "level": 1,
+            "name": "Oracle Armor I",
+            "type": "Base Armor",
+            "range": "Self",
+            "aoe": "",
+            "duration": "Permanent",
+            "effect": "Gain the shared Light Echo Armor value for this Artifact Level.",
+            "special": "Armor"
+          },
+          {
+            "level": 4,
+            "name": "Oracle Armor II",
+            "type": "Base Armor",
+            "range": "Self",
+            "aoe": "",
+            "duration": "Permanent",
+            "effect": "Continue using the shared Light Echo Armor value.",
+            "special": "Armor"
+          },
+          {
+            "level": 7,
+            "name": "Oracle Armor III",
+            "type": "Base Armor",
+            "range": "Self",
+            "aoe": "",
+            "duration": "Permanent",
+            "effect": "Continue using the shared Light Echo Armor value.",
+            "special": "Armor"
+          }
+        ]
       },
       {
         "level": 2,
-        "kind": "power",
-        "powerTemplateId": "ab-special-overdrive"
+        "kind": "stoneFunction",
+        "stoneFunction": {
+          "kind": "stonePowerSupport",
+          "attribute": "influence",
+          "stonePowerId": "influence.aidRoll"
+        },
+        "displayName": "Oracle Aid"
       },
       {
         "level": 3,
-        "kind": "power",
-        "powerTemplateId": "passive-temp-hp"
+        "kind": "stoneFunction",
+        "stoneFunction": {
+          "kind": "stoneBattery",
+          "attribute": "influence"
+        },
+        "displayName": "Influence Core"
       }
     ],
     "lore": "An arcane vessel of command, prophecy, and divine will.",
@@ -88,421 +129,8 @@
     "powers": [
       {
         "id": "oracleFrame-pw-7",
-        "name": "Armor III",
-        "category": "activeBuff",
-        "tags": [],
-        "cost": {
-          "action": "full"
-        },
-        "levels": {
-          "1": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "2": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "3": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "4": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "5": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "6": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "7": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "8": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "9": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "10": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "11": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "12": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "13": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "14": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "15": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "16": {
-            "type": "Active Buff",
-            "range": {
-              "kind": "self"
-            },
-            "aoe": null,
-            "duration": {
-              "kind": "rounds",
-              "rounds": 1
-            },
-            "effect": {
-              "text": "Gain **+65 Armor**."
-            },
-            "specials": [],
-            "lvl": 7
-          }
-        }
-      },
-      {
-        "id": "oracleFrame-pw-8",
-        "name": "Special Overdrive III",
-        "category": "activeBuff",
-        "tags": [],
-        "cost": {
-          "action": "full"
-        },
-        "levels": {
-          "1": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "2": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "3": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "4": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "5": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "6": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "7": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "8": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "9": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "10": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "11": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "12": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "13": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "14": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "15": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "16": {
-            "type": "Active Buff",
-            "range": {
-              "kind": "self"
-            },
-            "aoe": null,
-            "duration": {
-              "kind": "rounds",
-              "rounds": 1
-            },
-            "effect": {
-              "text": "Choose one eligible Special(X). While the buff is active, any such Special you apply is increased by **+3**."
-            },
-            "specials": [],
-            "lvl": 8
-          }
-        }
-      },
-      {
-        "id": "oracleFrame-pw-9",
-        "name": "Temporary Hit Points III",
+        "name": "Oracle Armor III",
+        "fluff": "Special: Armor",
         "category": "passive",
         "tags": [],
         "cost": {
@@ -690,16 +318,428 @@
             "specials": []
           },
           "16": {
-            "type": "Passive",
+            "type": "Base Armor",
             "range": {
               "kind": "self"
             },
             "aoe": null,
             "duration": {
+              "kind": "scene"
+            },
+            "effect": {
+              "text": "Continue using the shared Light Echo Armor value."
+            },
+            "specials": [],
+            "lvl": 7
+          }
+        }
+      },
+      {
+        "id": "oracleFrame-pw-8",
+        "name": "Oracle Aid III",
+        "category": "passive",
+        "tags": [],
+        "cost": {
+          "action": "none"
+        },
+        "levels": {
+          "1": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
               "kind": "instant"
             },
             "effect": {
-              "text": "At the start of combat, gain **160 Temporary HP**."
+              "text": ""
+            },
+            "specials": []
+          },
+          "2": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "3": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "4": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "5": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "6": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "7": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "8": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "9": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "10": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "11": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "12": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "13": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "14": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "15": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "16": {
+            "type": "Support",
+            "range": {
+              "kind": "self"
+            },
+            "aoe": null,
+            "duration": {
+              "kind": "scene"
+            },
+            "effect": {
+              "text": "Stone Power Support (Influence): supports Aid Roll"
+            },
+            "specials": [],
+            "lvl": 8
+          }
+        }
+      },
+      {
+        "id": "oracleFrame-pw-9",
+        "name": "Influence Core III",
+        "category": "passive",
+        "tags": [],
+        "cost": {
+          "action": "none"
+        },
+        "levels": {
+          "1": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "2": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "3": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "4": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "5": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "6": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "7": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "8": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "9": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "10": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "11": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "12": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "13": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "14": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "15": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "16": {
+            "type": "Support",
+            "range": {
+              "kind": "self"
+            },
+            "aoe": null,
+            "duration": {
+              "kind": "scene"
+            },
+            "effect": {
+              "text": "Stone Battery (Influence)"
             },
             "specials": [],
             "lvl": 9
@@ -708,6 +748,12 @@
       }
     ],
     "inventorySize": "1x1",
+    "artifactArmor": {
+      "type": "light",
+      "armorValue": 12,
+      "evadeModifier": 0,
+      "skillPenalty": ""
+    },
     "equipSlots": [
       "body"
     ]
@@ -723,7 +769,7 @@
       ],
       "echoBound": "sentinels",
       "echoArtifactKey": "oracleFrame",
-      "seedVersion": 10
+      "seedVersion": 23
     }
   },
   "_id": "QzbFFBc0NGujoyCf",

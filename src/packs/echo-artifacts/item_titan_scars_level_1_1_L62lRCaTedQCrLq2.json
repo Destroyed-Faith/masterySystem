@@ -18,47 +18,110 @@
         "slot": "a",
         "type": "bodyArmor",
         "label": "Medium Echo Armor",
-        "value": 12,
-        "note": "Counts as Medium Armor (Evade −2, Initiative −4, −1d8 Physical).",
-        "isBaseline": true
+        "value": 4,
+        "note": "Medium Armor: Evade −2, Initiative −4, −1d8 Physical Skills.",
+        "isBaseline": true,
+        "armorWeightClass": "medium"
       }
     ],
     "levelProgression": [
       {
         "level": 1,
-        "name": "Damage I",
+        "name": "Titan Growth I",
         "type": "Active Buff",
         "range": "Self",
         "aoe": "",
-        "duration": "MR Rounds",
-        "effect": "Your attacks deal **+3d8** damage while the buff is active.",
-        "special": ""
+        "duration": "Mastery Rank Rounds",
+        "effect": "You may activate Growth Form at Power Level 4. Growth Form uses your maintained Active Buff slot.",
+        "special": "Growth Form"
       }
     ],
     "stoneFunction": null,
     "progressionPicks": [
       {
         "level": 1,
-        "kind": "power",
-        "powerTemplateId": "ab-damage"
+        "kind": "authored",
+        "authoredStages": [
+          {
+            "level": 1,
+            "name": "Titan Growth I",
+            "type": "Active Buff",
+            "range": "Self",
+            "aoe": "",
+            "duration": "Mastery Rank Rounds",
+            "effect": "You may activate Growth Form at Power Level 4. Growth Form uses your maintained Active Buff slot.",
+            "special": "Growth Form"
+          },
+          {
+            "level": 4,
+            "name": "Titan Growth II",
+            "type": "Active Buff",
+            "range": "Self",
+            "aoe": "",
+            "duration": "Mastery Rank Rounds",
+            "effect": "Growth Form improves to Power Level 10. Growth Form uses your maintained Active Buff slot.",
+            "special": "Growth Form"
+          },
+          {
+            "level": 7,
+            "name": "Titan Growth III",
+            "type": "Active Buff",
+            "range": "Self",
+            "aoe": "",
+            "duration": "Mastery Rank Rounds",
+            "effect": "Growth Form improves to Power Level 16. Growth Form uses your maintained Active Buff slot.",
+            "special": "Growth Form"
+          }
+        ]
       },
       {
         "level": 2,
         "kind": "stoneFunction",
         "stoneFunction": {
-          "kind": "stonePowerSupport",
-          "attribute": "might",
-          "stonePowerId": "might.meleeDamage"
-        }
+          "kind": "stonePool",
+          "attribute": "might"
+        },
+        "displayName": "Titan Might"
       },
       {
         "level": 3,
-        "kind": "power",
-        "powerTemplateId": "active-ranged-single-heal"
+        "kind": "authored",
+        "authoredStages": [
+          {
+            "level": 3,
+            "name": "Titan Healing I",
+            "type": "Stone Power Support",
+            "range": "Self",
+            "aoe": "",
+            "duration": "Instant",
+            "effect": "Titan Scars support the Vitality Ability: Remove Scar Stone Power. You must pay the normal Stone cost yourself.",
+            "special": "Remove Scar Stone Power"
+          },
+          {
+            "level": 6,
+            "name": "Titan Healing II",
+            "type": "Stone Power Support",
+            "range": "Self",
+            "aoe": "",
+            "duration": "Instant",
+            "effect": "Titan Scars support the Vitality Ability: Remove Scar Stone Power. When Remove Scar is used through Titan Scars, it may recover 1 Scarred Health Bar as written by the Stone Power. You must pay the normal Stone cost yourself.",
+            "special": "Remove Scar Stone Power"
+          },
+          {
+            "level": 9,
+            "name": "Titan Healing III",
+            "type": "Stone Power Support",
+            "range": "Self / Touch",
+            "aoe": "",
+            "duration": "Instant",
+            "effect": "Titan Scars support the Vitality Ability: Remove Scar Stone Power on yourself or one touched willing creature. You must pay the normal Stone cost yourself.",
+            "special": "Remove Scar Stone Power"
+          }
+        ]
       }
     ],
     "lore": "Ancient scars, stone-like tissue, Titan blood, and broken divine bindings grown into the body.",
-    "description": "Ancient scars, stone-like tissue, Titan blood, and broken divine bindings grown into the body.\n\nA Titanborn with Titan Scars cannot wear mundane armor or bind another Body Artifact.",
+    "description": "Ancient scars, stone-like tissue, Titan blood, and broken divine bindings grown into the body.\n\nA Titanborn with Titan Scars cannot wear mundane armor or bind another Body Artifact. Titan Scars are Echo-bound and cannot normally be removed, replaced, sold, stolen, unequipped, or unbound.",
     "bonuses": {
       "attack": 0,
       "damage": "",
@@ -72,7 +135,8 @@
     "powers": [
       {
         "id": "titanScars-pw-1",
-        "name": "Damage I",
+        "name": "Titan Growth I",
+        "fluff": "Special: Growth Form",
         "category": "activeBuff",
         "tags": [],
         "cost": {
@@ -122,11 +186,10 @@
             },
             "aoe": null,
             "duration": {
-              "kind": "rounds",
-              "rounds": 1
+              "kind": "masteryRankRounds"
             },
             "effect": {
-              "text": "Your attacks deal **+3d8** damage while the buff is active."
+              "text": "You may activate Growth Form at Power Level 4. Growth Form uses your maintained Active Buff slot."
             },
             "specials": [],
             "lvl": 1
@@ -279,6 +342,12 @@
       }
     ],
     "inventorySize": "1x1",
+    "artifactArmor": {
+      "type": "medium",
+      "armorValue": 4,
+      "evadeModifier": -2,
+      "skillPenalty": "−1d8 to Physical Skill checks"
+    },
     "equipSlots": [
       "body"
     ]
@@ -293,7 +362,7 @@
       "isRoot": true,
       "echoBound": "titanborn",
       "echoArtifactKey": "titanScars",
-      "seedVersion": 10
+      "seedVersion": 23
     }
   },
   "_id": "L62lRCaTedQCrLq2",

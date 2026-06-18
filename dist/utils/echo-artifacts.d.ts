@@ -147,7 +147,23 @@ export interface EchoArtifactDefinition {
         rangeM?: number;
         specials?: string[];
     };
+    /**
+     * When multiple Echo Artifact defs share the same `variantGroupKey`, the Echo
+     * creation dialog renders a comparison table (see `variantRow`).
+     */
+    variantGroupKey?: string;
+    /** One row in the Echo creation variant comparison table. */
+    variantRow?: {
+        armorClass: string;
+        focus: string;
+        flightL1: string;
+        activeBuffL2: string;
+        stonePowerL3: string;
+    };
 }
+export declare const WYRM_SCALES_VARIANT_GROUP = "wyrmScales";
+/** Legacy compendium / character keys → current variant keys. */
+export declare const ECHO_ARTIFACT_KEY_ALIASES: Record<string, string>;
 export declare const ECHO_ARTIFACTS: Record<string, EchoArtifactDefinition>;
 /** Per-Echo character-creation rules. */
 export interface EchoArtifactRules {
@@ -166,8 +182,10 @@ export interface EchoArtifactRules {
     exclusiveGroups?: string[][];
 }
 export declare const ECHO_ARTIFACT_RULES: Record<string, EchoArtifactRules>;
-/** Lookup an Echo Artifact by key. */
+/** Lookup an Echo Artifact by key (legacy aliases resolve to current variant keys). */
 export declare function getEchoArtifact(key: string | null | undefined): EchoArtifactDefinition | null;
+/** Echo Artifact defs that share a variant comparison group, in display order. */
+export declare function listEchoArtifactsInVariantGroup(groupKey: string): EchoArtifactDefinition[];
 /** Rules block for an Echo (returns Human default if unknown). */
 export declare function getEchoArtifactRules(echoKey: string | null | undefined): EchoArtifactRules;
 /**

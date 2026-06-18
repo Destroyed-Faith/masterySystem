@@ -52,7 +52,7 @@ export interface CombatData {
   activeWeaponId?: string;
   armorId?: string;
   shieldId?: string;
-  /** Aggregated bonus from slotted passive powers with a `mechanics` block (excludes active buffs). */
+  /** Reserved; passive armor/evade no longer feeds sheet totals. */
   armorFromMechanics?: number;
   evadeFromMechanics?: number;
   /** Active-buff armor bonus (not in sheet base total; applied at hit resolution). */
@@ -68,6 +68,12 @@ export interface CombatData {
   damageReductionPct?: number;
   /** Per-source rows for the DR breakdown UI. */
   damageReductionRows?: Array<{ label: string; detail: string; value: number; display: string }>;
+  /** Equipped artifact body armor weight class (light / medium / heavy). */
+  artifactBodyArmorClass?: 'light' | 'medium' | 'heavy';
+  artifactBodyArmorTypeLabel?: string;
+  /** Total d8 removed from physical skill pool (mundane + artifact). */
+  physicalSkillPenaltyDice?: number;
+  physicalSkillPenaltyDisplay?: string;
 }
 
 /** One line in a mechanics breakdown (source name + numeric value). */
@@ -140,7 +146,6 @@ export interface MechanicsBreakdown {
 
 export interface DerivedData {
   mechanicsBreakdown?: MechanicsBreakdown;
-  passiveMechanicsBreakdown?: MechanicsBreakdown;
   buffMechanicsBreakdown?: MechanicsBreakdown;
 }
 

@@ -1,10 +1,10 @@
 {
-  "name": "Serpent Scales - Level 2-1",
+  "name": "Wyrm Scales (Medium) - Level 1-1",
   "type": "artifact",
   "img": "icons/svg/statue.svg",
   "system": {
-    "level": 2,
-    "currentLevel": 2,
+    "level": 1,
+    "currentLevel": 1,
     "equipped": false,
     "effects": [],
     "artifactKind": "armor",
@@ -17,10 +17,11 @@
       {
         "slot": "a",
         "type": "bodyArmor",
-        "label": "Light Echo Armor",
-        "value": 9,
-        "note": "No Light Armor drawback.",
-        "isBaseline": true
+        "label": "Medium Echo Armor",
+        "value": 4,
+        "note": "Medium Armor: Evade −2, Initiative −4, −1d8 Physical Skills.",
+        "isBaseline": true,
+        "armorWeightClass": "medium"
       }
     ],
     "levelProgression": [
@@ -32,16 +33,6 @@
         "aoe": "",
         "duration": "Instant",
         "effect": "Fly up to **6 m**.",
-        "special": ""
-      },
-      {
-        "level": 2,
-        "name": "Evade I",
-        "type": "Active Buff",
-        "range": "Self",
-        "aoe": "",
-        "duration": "MR Rounds",
-        "effect": "Gain **+26 Evade**.",
         "special": ""
       }
     ],
@@ -55,16 +46,20 @@
       {
         "level": 2,
         "kind": "power",
-        "powerTemplateId": "ab-evade"
+        "powerTemplateId": "ab-damage-reduction"
       },
       {
         "level": 3,
-        "kind": "power",
-        "powerTemplateId": "passive-evade"
+        "kind": "stoneFunction",
+        "stoneFunction": {
+          "kind": "stonePowerSupport",
+          "attribute": "might",
+          "stonePowerId": "might.armor"
+        }
       }
     ],
-    "lore": "A lighter form of Dragonborn natural armor — flexible, smooth, built for movement.",
-    "description": "A lighter form of Dragonborn natural armor — flexible, smooth, built for movement.\n\nA Dragonborn with Serpent Scales cannot wear mundane armor or another Body Artifact.",
+    "lore": "Balanced scale-form — medium armor with Damage Reduction synergy.",
+    "description": "Balanced scale-form — medium armor with Damage Reduction synergy.\n\nA Dragonborn with Wyrm Scales cannot wear mundane armor or another Body Artifact.",
     "bonuses": {
       "attack": 0,
       "damage": "",
@@ -77,7 +72,7 @@
     },
     "powers": [
       {
-        "id": "serpentScales-pw-1",
+        "id": "wyrmScalesMedium-pw-1",
         "name": "Flight I",
         "category": "movement",
         "tags": [],
@@ -281,235 +276,33 @@
             "specials": []
           }
         }
-      },
-      {
-        "id": "serpentScales-pw-2",
-        "name": "Evade I",
-        "category": "activeBuff",
-        "tags": [],
-        "cost": {
-          "action": "full"
-        },
-        "levels": {
-          "1": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "2": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "3": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "4": {
-            "type": "Active Buff",
-            "range": {
-              "kind": "self"
-            },
-            "aoe": null,
-            "duration": {
-              "kind": "rounds",
-              "rounds": 1
-            },
-            "effect": {
-              "text": "Gain **+26 Evade**."
-            },
-            "specials": [],
-            "lvl": 2
-          },
-          "5": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "6": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "7": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "8": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "9": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "10": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "11": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "12": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "13": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "14": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "15": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "16": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          }
-        }
       }
     ],
     "inventorySize": "1x1",
+    "artifactArmor": {
+      "type": "medium",
+      "armorValue": 4,
+      "evadeModifier": -2,
+      "skillPenalty": "−1d8 to Physical Skill checks"
+    },
     "equipSlots": [
       "body"
     ]
   },
   "flags": {
     "mastery-system": {
-      "nodeId": "serpentScales-l2",
-      "parentIds": [
-        "serpentScales-l1"
-      ],
+      "nodeId": "wyrmScalesMedium-l1",
+      "parentIds": [],
       "childIds": [
-        "serpentScales-l3"
+        "wyrmScalesMedium-l2"
       ],
+      "isRoot": true,
       "echoBound": "dragonborn",
-      "echoArtifactKey": "serpentScales",
-      "seedVersion": 10
+      "echoArtifactKey": "wyrmScalesMedium",
+      "seedVersion": 23
     }
   },
-  "_id": "2cKwYnFj4ZWNXfWH",
-  "folder": "ocXK7ZFwS8KsKb95",
-  "_key": "!items!2cKwYnFj4ZWNXfWH"
+  "_id": "02mDfDlfBMgDWIaU",
+  "folder": "raEC6C6xp34CNq1S",
+  "_key": "!items!02mDfDlfBMgDWIaU"
 }

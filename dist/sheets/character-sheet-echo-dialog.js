@@ -12,7 +12,7 @@
  * All writes land on the Actor under `system.echo.*` \u2014 no Item type involved.
  */
 import { ALL_ECHOS, buildFreshTraitUses, ECHO_KEY_ORDER, getAllEchos, getEcho, getEchoCard, getUnlockedCardSlots } from '../utils/echos/index.js';
-import { getEchoArtifactRules, listSelectableEchoArtifacts, validateEchoArtifactSelection, } from '../utils/echo-artifacts.js';
+import { getEchoArtifactRules, listSelectableEchoArtifacts, listEchoArtifactsInVariantGroup, validateEchoArtifactSelection, WYRM_SCALES_VARIANT_GROUP, } from '../utils/echo-artifacts.js';
 import { grantEchoArtifactTreeToActor, seedArtifactLibrary } from '../utils/seed-artifact-library.js';
 import { buildEchoArtifactTree } from '../artifacts/echo-artifact-tree-builder.js';
 import { dedupeEchoArtifactsOnActor, equipEchoArtifact, getEchoArtifactKey, isEchoBoundArtifact, } from '../utils/echo-artifact-equip.js';
@@ -296,7 +296,43 @@ export async function showEchoCreationDialog(actor) {
                 const $cardGroup = html.find('#ec-card-group');
                 const $card = html.find('#ec-card');
                 const $cardPreview = html.find('#ec-card-preview');
+                const renderWyrmVariantTable = (defs) => {
+                    const variants = listEchoArtifactsInVariantGroup(WYRM_SCALES_VARIANT_GROUP).filter((v) => defs.some((d) => d.key === v.key));
+                    if (variants.length === 0)
+                        return '';
+                    const bodyRows = variants
+                        .map((v) => {
+                        const r = v.variantRow;
+                        return `<tr>
+                <td><strong>${esc(v.name)}</strong></td>
+                <td>${esc(r.armorClass)}</td>
+                <td>${esc(r.focus)}</td>
+                <td>${esc(r.flightL1)}</td>
+                <td>${esc(r.activeBuffL2)}</td>
+                <td>${esc(r.stonePowerL3)}</td>
+              </tr>`;
+                    })
+                        .join('');
+                    return `
+            <div class="echo-artifact-variant-table-wrap">
+              <p class="echo-artifact-variant-caption"><strong>Wyrm Scales</strong> \u2014 choose one variant (mutually exclusive):</p>
+              <table class="echo-artifact-variant-table">
+                <thead>
+                  <tr>
+                    <th>Variant</th>
+                    <th>Armor class</th>
+                    <th>Focus</th>
+                    <th>L1</th>
+                    <th>L2 Active Buff</th>
+                    <th>L3 Stone Power</th>
+                  </tr>
+                </thead>
+                <tbody>${bodyRows}</tbody>
+              </table>
+            </div>`;
+                };
                 const renderArtifactPreview = (defs) => {
+                    const variantTable = renderWyrmVariantTable(defs);
                     const selectedKeys = [];
                     $artifactOptions
                         .find('input[name="echoArtifactKey"]:checked')
@@ -306,7 +342,7 @@ export async function showEchoCreationDialog(actor) {
                             selectedKeys.push(v);
                     });
                     if (selectedKeys.length === 0) {
-                        $artifactPreview.empty();
+                        $artifactPreview.html(variantTable);
                         return;
                     }
                     const blocks = selectedKeys
@@ -316,17 +352,21 @@ export async function showEchoCreationDialog(actor) {
                         const bvHtml = d.baseValues
                             .map((bv) => `<li><strong>Base Value ${bv.slot.toUpperCase()} \u2014 ${esc(bv.label)}:</strong> ${esc(bv.note)}</li>`)
                             .join('');
+                        const vr = d.variantRow
+                            ? `<p class="echo-artifact-variant-focus"><strong>Focus:</strong> ${esc(d.variantRow.focus)} \u00b7 <strong>L2:</strong> ${esc(d.variantRow.activeBuffL2)} \u00b7 <strong>L3:</strong> ${esc(d.variantRow.stonePowerL3)}</p>`
+                            : '';
                         return `
                 <div class="echo-artifact-card">
                   <div class="echo-artifact-name"><strong>${esc(d.name)}</strong> \u2014 ${esc(d.slot)}</div>
                   <div class="echo-artifact-desc">${esc(d.description)}</div>
+                  ${vr}
                   ${d.restriction ? `<div class="echo-artifact-restriction"><em>${esc(d.restriction)}</em></div>` : ''}
                   <ul class="echo-artifact-bv">${bvHtml}</ul>
                 </div>
               `;
                     })
                         .join('');
-                    $artifactPreview.html(blocks);
+                    $artifactPreview.html(`${variantTable}${blocks}`);
                 };
                 const refreshArtifactOptions = () => {
                     const key = String($echo.val() || '');

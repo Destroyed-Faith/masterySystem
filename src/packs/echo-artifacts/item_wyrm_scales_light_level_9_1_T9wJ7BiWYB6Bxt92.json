@@ -1,10 +1,10 @@
 {
-  "name": "Wyrm Scales - Level 4-1",
+  "name": "Wyrm Scales (Light) - Level 9-1",
   "type": "artifact",
   "img": "icons/svg/statue.svg",
   "system": {
-    "level": 4,
-    "currentLevel": 4,
+    "level": 9,
+    "currentLevel": 9,
     "equipped": false,
     "effects": [],
     "artifactKind": "armor",
@@ -17,48 +17,49 @@
       {
         "slot": "a",
         "type": "bodyArmor",
-        "label": "Heavy Echo Armor",
-        "value": 19,
-        "note": "Heavy drawbacks scale with level.",
-        "isBaseline": true
+        "label": "Light Echo Armor",
+        "value": 12,
+        "note": "Light Armor: no class drawbacks.",
+        "isBaseline": true,
+        "armorWeightClass": "light"
       }
     ],
     "levelProgression": [
       {
-        "level": 4,
-        "name": "Flight II",
+        "level": 7,
+        "name": "Flight III",
         "type": "Movement",
         "range": "Self",
         "aoe": "",
         "duration": "Instant",
-        "effect": "Fly up to **15 m**.",
+        "effect": "Fly up to **24 m**.",
         "special": ""
       },
       {
-        "level": 2,
-        "name": "Armor I",
+        "level": 8,
+        "name": "Evade III",
         "type": "Active Buff",
         "range": "Self",
         "aoe": "",
         "duration": "MR Rounds",
-        "effect": "Gain **+17 Armor**.",
+        "effect": "Gain **+98 Evade**.",
         "special": ""
       },
       {
-        "level": 3,
-        "name": "Stone Support I",
+        "level": 9,
+        "name": "Stone Support III",
         "type": "Support",
         "range": "Self",
         "aoe": "",
         "duration": "Passive",
-        "effect": "Stone Power Support (Might): supports Armor",
+        "effect": "Stone Power Support (Agility): supports Evade",
         "special": ""
       }
     ],
     "stoneFunction": {
       "kind": "stonePowerSupport",
-      "attribute": "might",
-      "stonePowerId": "might.armor"
+      "attribute": "agility",
+      "stonePowerId": "agility.evade"
     },
     "progressionPicks": [
       {
@@ -69,20 +70,20 @@
       {
         "level": 2,
         "kind": "power",
-        "powerTemplateId": "ab-armor"
+        "powerTemplateId": "ab-evade"
       },
       {
         "level": 3,
         "kind": "stoneFunction",
         "stoneFunction": {
           "kind": "stonePowerSupport",
-          "attribute": "might",
-          "stonePowerId": "might.armor"
+          "attribute": "agility",
+          "stonePowerId": "agility.evade"
         }
       }
     ],
-    "lore": "The heaviest form of Dragonborn natural armor — the character’s body itself.",
-    "description": "The heaviest form of Dragonborn natural armor — the character’s body itself.\n\nA Dragonborn with Wyrm Scales cannot wear mundane armor or another Body Artifact.",
+    "lore": "Light scale-form — evasion and mobility over raw soak.",
+    "description": "Light scale-form — evasion and mobility over raw soak.\n\nA Dragonborn with Wyrm Scales cannot wear mundane armor or another Body Artifact.",
     "bonuses": {
       "attack": 0,
       "damage": "",
@@ -95,8 +96,8 @@
     },
     "powers": [
       {
-        "id": "wyrmScales-pw-4",
-        "name": "Flight II",
+        "id": "wyrmScalesLight-pw-7",
+        "name": "Flight III",
         "category": "movement",
         "tags": [],
         "cost": {
@@ -212,19 +213,16 @@
             "specials": []
           },
           "10": {
-            "type": "Movement",
-            "range": {
-              "kind": "self"
-            },
+            "type": "",
+            "range": null,
             "aoe": null,
             "duration": {
               "kind": "instant"
             },
             "effect": {
-              "text": "Fly up to **15 m**."
+              "text": ""
             },
-            "specials": [],
-            "lvl": 4
+            "specials": []
           },
           "11": {
             "type": "",
@@ -287,22 +285,25 @@
             "specials": []
           },
           "16": {
-            "type": "",
-            "range": null,
+            "type": "Movement",
+            "range": {
+              "kind": "self"
+            },
             "aoe": null,
             "duration": {
               "kind": "instant"
             },
             "effect": {
-              "text": ""
+              "text": "Fly up to **24 m**."
             },
-            "specials": []
+            "specials": [],
+            "lvl": 7
           }
         }
       },
       {
-        "id": "wyrmScales-pw-2",
-        "name": "Armor I",
+        "id": "wyrmScalesLight-pw-8",
+        "name": "Evade III",
         "category": "activeBuff",
         "tags": [],
         "cost": {
@@ -346,20 +347,16 @@
             "specials": []
           },
           "4": {
-            "type": "Active Buff",
-            "range": {
-              "kind": "self"
-            },
+            "type": "",
+            "range": null,
             "aoe": null,
             "duration": {
-              "kind": "rounds",
-              "rounds": 1
+              "kind": "instant"
             },
             "effect": {
-              "text": "Gain **+17 Armor**."
+              "text": ""
             },
-            "specials": [],
-            "lvl": 2
+            "specials": []
           },
           "5": {
             "type": "",
@@ -494,22 +491,26 @@
             "specials": []
           },
           "16": {
-            "type": "",
-            "range": null,
+            "type": "Active Buff",
+            "range": {
+              "kind": "self"
+            },
             "aoe": null,
             "duration": {
-              "kind": "instant"
+              "kind": "rounds",
+              "rounds": 1
             },
             "effect": {
-              "text": ""
+              "text": "Gain **+98 Evade**."
             },
-            "specials": []
+            "specials": [],
+            "lvl": 8
           }
         }
       },
       {
-        "id": "wyrmScales-pw-3",
-        "name": "Stone Support I",
+        "id": "wyrmScalesLight-pw-9",
+        "name": "Stone Support III",
         "category": "passive",
         "tags": [],
         "cost": {
@@ -553,19 +554,16 @@
             "specials": []
           },
           "4": {
-            "type": "Support",
-            "range": {
-              "kind": "self"
-            },
+            "type": "",
+            "range": null,
             "aoe": null,
             "duration": {
-              "kind": "scene"
+              "kind": "instant"
             },
             "effect": {
-              "text": "Stone Power Support (Might): supports Armor"
+              "text": ""
             },
-            "specials": [],
-            "lvl": 3
+            "specials": []
           },
           "5": {
             "type": "",
@@ -700,40 +698,49 @@
             "specials": []
           },
           "16": {
-            "type": "",
-            "range": null,
+            "type": "Support",
+            "range": {
+              "kind": "self"
+            },
             "aoe": null,
             "duration": {
-              "kind": "instant"
+              "kind": "scene"
             },
             "effect": {
-              "text": ""
+              "text": "Stone Power Support (Agility): supports Evade"
             },
-            "specials": []
+            "specials": [],
+            "lvl": 9
           }
         }
       }
     ],
     "inventorySize": "1x1",
+    "artifactArmor": {
+      "type": "light",
+      "armorValue": 12,
+      "evadeModifier": 0,
+      "skillPenalty": ""
+    },
     "equipSlots": [
       "body"
     ]
   },
   "flags": {
     "mastery-system": {
-      "nodeId": "wyrmScales-l4",
+      "nodeId": "wyrmScalesLight-l9",
       "parentIds": [
-        "wyrmScales-l3"
+        "wyrmScalesLight-l8"
       ],
       "childIds": [
-        "wyrmScales-l5"
+        "wyrmScalesLight-l10"
       ],
       "echoBound": "dragonborn",
-      "echoArtifactKey": "wyrmScales",
-      "seedVersion": 10
+      "echoArtifactKey": "wyrmScalesLight",
+      "seedVersion": 23
     }
   },
-  "_id": "6yoaADrbDjBDaj1J",
-  "folder": "QYAoACBBZwBCwnx4",
-  "_key": "!items!6yoaADrbDjBDaj1J"
+  "_id": "T9wJ7BiWYB6Bxt92",
+  "folder": "eypKDDPbETED8i23",
+  "_key": "!items!T9wJ7BiWYB6Bxt92"
 }

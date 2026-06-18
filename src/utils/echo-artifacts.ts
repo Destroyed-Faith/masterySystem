@@ -157,6 +157,19 @@ export interface EchoArtifactDefinition {
     rangeM?: number;
     specials?: string[];
   };
+  /**
+   * When multiple Echo Artifact defs share the same `variantGroupKey`, the Echo
+   * creation dialog renders a comparison table (see `variantRow`).
+   */
+  variantGroupKey?: string;
+  /** One row in the Echo creation variant comparison table. */
+  variantRow?: {
+    armorClass: string;
+    focus: string;
+    flightL1: string;
+    activeBuffL2: string;
+    stonePowerL3: string;
+  };
 }
 
 // ----------------------------------------------------------------------
@@ -659,247 +672,228 @@ const TITAN_SCARS: EchoArtifactDefinition = {
 };
 
 // ----------------------------------------------------------------------
-// Wyrm Scales (Dragonborn)
+// Wyrm Scales variants (Dragonborn — pick one body armor line)
 // ----------------------------------------------------------------------
 
-const WYRM_SCALES: EchoArtifactDefinition = {
-  key: 'wyrmScales',
-  name: 'Wyrm Scales',
-  echoKey: 'dragonborn',
-  slot: 'body',
-  baseProfile: 'bodyArmor',
-  description: 'The heaviest form of Dragonborn natural armor — the character\u2019s body itself.',
-  restriction:
-    'A Dragonborn with Wyrm Scales cannot wear mundane armor or another Body Artifact.',
+export const WYRM_SCALES_VARIANT_GROUP = 'wyrmScales';
+
+/** Legacy compendium / character keys → current variant keys. */
+export const ECHO_ARTIFACT_KEY_ALIASES: Record<string, string> = {
+  wyrmScales: 'wyrmScalesHeavy',
+  serpentScales: 'wyrmScalesLight',
+};
+
+const WYRM_BODY_RESTRICTION =
+  'A Dragonborn with Wyrm Scales cannot wear mundane armor or another Body Artifact.';
+
+function buildWyrmScalesLevelProgression(cfg: {
+  buffExtensionName: string;
+  buffExtensionSpecial: string;
+  buffExtensionEffect: (tier: 1 | 2 | 3) => string;
+  stoneSupportLabel: string;
+  stoneSupportSpecial: string;
+  stoneSupportEffect: (tier: 1 | 2 | 3) => string;
+  ultimateName: string;
+  ultimateSpecial: string;
+  ultimateEffect: string;
+}): ArtifactLevelProgressionRow[] {
+  const wing = (level: 1 | 2 | 3, meters: number) => ({
+    level: level === 1 ? 1 : level === 2 ? 4 : 7,
+    name: `Dragon Wings ${level === 1 ? 'I' : level === 2 ? 'II' : 'III'}`,
+    type: 'Movement',
+    range: 'Self',
+    duration: 'Instant',
+    effect: `You may fly up to ${meters} m.`,
+    special: 'Flight',
+  });
+  const ext = (tier: 1 | 2 | 3) => ({
+    level: tier === 1 ? 2 : tier === 2 ? 5 : 8,
+    name: `${cfg.buffExtensionName} ${tier === 1 ? 'I' : tier === 2 ? 'II' : 'III'}`,
+    type: 'Support',
+    range: 'Self',
+    duration: 'Passive',
+    effect: cfg.buffExtensionEffect(tier),
+    special: cfg.buffExtensionSpecial,
+  });
+  const stone = (tier: 1 | 2 | 3) => ({
+    level: tier === 1 ? 3 : tier === 2 ? 6 : 9,
+    name: `${cfg.stoneSupportLabel} ${tier === 1 ? 'I' : tier === 2 ? 'II' : 'III'}`,
+    type: 'Stone Power Support',
+    range: 'Self',
+    duration: 'Instant',
+    effect: cfg.stoneSupportEffect(tier),
+    special: cfg.stoneSupportSpecial,
+  });
+  return [
+    wing(1, 6),
+    ext(1),
+    stone(1),
+    wing(2, 15),
+    ext(2),
+    stone(2),
+    wing(3, 24),
+    ext(3),
+    stone(3),
+    {
+      level: 10,
+      name: cfg.ultimateName,
+      type: 'Ultimate',
+      range: 'Self',
+      duration: 'Special',
+      effect: cfg.ultimateEffect,
+      special: cfg.ultimateSpecial,
+    },
+  ];
+}
+
+function buildWyrmScalesVariant(cfg: {
+  key: string;
+  name: string;
+  description: string;
+  armorClassLabel: string;
+  armorWeightClass: 'light' | 'medium' | 'heavy';
+  armorNote: string;
+  focus: string;
+  flightL1: string;
+  activeBuffL2: string;
+  stonePowerL3: string;
+  progressionPickIds: Partial<Record<1 | 2 | 3, string>>;
+  stoneFunction?: EchoArtifactStoneFunctionHint;
+  levelProgression: ArtifactLevelProgressionRow[];
+}): EchoArtifactDefinition {
+  return {
+    key: cfg.key,
+    name: cfg.name,
+    echoKey: 'dragonborn',
+    slot: 'body',
+    baseProfile: 'bodyArmor',
+    description: cfg.description,
+    restriction: WYRM_BODY_RESTRICTION,
+    variantGroupKey: WYRM_SCALES_VARIANT_GROUP,
+    variantRow: {
+      armorClass: cfg.armorClassLabel,
+      focus: cfg.focus,
+      flightL1: cfg.flightL1,
+      activeBuffL2: cfg.activeBuffL2,
+      stonePowerL3: cfg.stonePowerL3,
+    },
+    progressionPickIds: cfg.progressionPickIds,
+    ...(cfg.stoneFunction ? { stoneFunction: cfg.stoneFunction } : {}),
+    baseValues: [
+      {
+        slot: 'a',
+        label: `${cfg.armorClassLabel} Echo Armor`,
+        note: cfg.armorNote,
+      },
+    ],
+    levelProgression: cfg.levelProgression,
+  };
+}
+
+const WYRM_SCALES_HEAVY = buildWyrmScalesVariant({
+  key: 'wyrmScalesHeavy',
+  name: 'Wyrm Scales (Heavy)',
+  description: 'The heaviest Dragonborn scale-form — maximum armor, heavy class drawbacks.',
+  armorClassLabel: 'Heavy',
+  armorWeightClass: 'heavy',
+  armorNote: 'Heavy Armor base + artifact bonus; Evade −4, Initiative −8, −2d8 Physical Skills.',
+  focus: 'Armor',
+  flightL1: 'Dragon Wings (Flight)',
+  activeBuffL2: 'Active Buff: Armor',
+  stonePowerL3: 'Might — Armor Stone Power',
+  progressionPickIds: { 1: 'movement-flight', 2: 'ab-armor' },
   stoneFunction: {
     kind: 'stonePowerSupport',
     attribute: 'might',
     stonePowerId: 'might.armor',
     level: 3,
   },
-  progressionPickIds: {
-    1: 'movement-flight',
-    2: 'ab-armor',
-  },
-  baseValues: [
-    {
-      slot: 'a',
-      label: 'Heavy Echo Armor',
-      note: '+16 to +25 Armor; heavy drawbacks scale with level.',
-    },
-  ],
-  levelProgression: [
-    {
-      level: 1,
-      name: 'Dragon Wings I',
-      type: 'Movement',
-      range: 'Self',
-      duration: 'Instant',
-      effect: 'You may fly up to 6 m.',
-      special: 'Flight',
-    },
-    {
-      level: 2,
-      name: 'Armor Buff Extension I',
-      type: 'Support',
-      range: 'Self',
-      duration: 'Passive',
-      effect: 'Active Buffs that grant Armor gain +1 round duration.',
-      special: 'Armor Buff Extension',
-    },
-    {
-      level: 3,
-      name: 'Armor Stone Support I',
-      type: 'Stone Power Support',
-      range: 'Self',
-      duration: 'Instant',
-      effect: 'Wyrm Scales support the Might Ability Armor Stone Power and pre-fill Tier 2.',
-      special: 'Armor Stone Power',
-    },
-    {
-      level: 4,
-      name: 'Dragon Wings II',
-      type: 'Movement',
-      range: 'Self',
-      duration: 'Instant',
-      effect: 'You may fly up to 15 m.',
-      special: 'Flight',
-    },
-    {
-      level: 5,
-      name: 'Armor Buff Extension II',
-      type: 'Support',
-      range: 'Self',
-      duration: 'Passive',
-      effect: 'Armor Active Buffs gain +2 rounds duration.',
-      special: 'Armor Buff Extension',
-    },
-    {
-      level: 6,
-      name: 'Armor Stone Support II',
-      type: 'Stone Power Support',
-      range: 'Self',
-      duration: 'Instant',
-      effect: 'Pre-fills Tier 3 of the Might Ability Armor Stone Power.',
-      special: 'Armor Stone Power',
-    },
-    {
-      level: 7,
-      name: 'Dragon Wings III',
-      type: 'Movement',
-      range: 'Self',
-      duration: 'Instant',
-      effect: 'You may fly up to 24 m.',
-      special: 'Flight',
-    },
-    {
-      level: 8,
-      name: 'Armor Buff Extension III',
-      type: 'Support',
-      range: 'Self',
-      duration: 'Passive',
-      effect: 'Armor Active Buffs gain +3 rounds duration.',
-      special: 'Armor Buff Extension',
-    },
-    {
-      level: 9,
-      name: 'Armor Stone Support III',
-      type: 'Stone Power Support',
-      range: 'Self',
-      duration: 'Instant',
-      effect: 'Pre-fills Tier 4 of the Might Ability Armor Stone Power.',
-      special: 'Armor Stone Power',
-    },
-    {
-      level: 10,
-      name: 'Dragon Transformation',
-      type: 'Ultimate',
-      range: 'Self',
-      duration: 'Special',
-      effect: 'You unlock your Wyrm Dragon Form (transformation rules apply).',
-      special: 'Wyrm Dragon Form',
-    },
-  ],
-};
+  levelProgression: buildWyrmScalesLevelProgression({
+    buffExtensionName: 'Armor Buff Extension',
+    buffExtensionSpecial: 'Armor Buff Extension',
+    buffExtensionEffect: (tier) =>
+      `Armor Active Buffs gain +${tier} round${tier === 1 ? '' : 's'} duration.`,
+    stoneSupportLabel: 'Armor Stone Support',
+    stoneSupportSpecial: 'Armor Stone Power',
+    stoneSupportEffect: (tier) =>
+      tier === 1
+        ? 'Wyrm Scales support the Might Ability Armor Stone Power and pre-fill Tier 2.'
+        : `Pre-fills Tier ${tier + 1} of the Might Ability Armor Stone Power.`,
+    ultimateName: 'Dragon Transformation',
+    ultimateSpecial: 'Wyrm Dragon Form',
+    ultimateEffect: 'You unlock your Wyrm Dragon Form (transformation rules apply).',
+  }),
+});
 
-// ----------------------------------------------------------------------
-// Serpent Scales (Dragonborn, lighter alternative)
-// ----------------------------------------------------------------------
-
-const SERPENT_SCALES: EchoArtifactDefinition = {
-  key: 'serpentScales',
-  name: 'Serpent Scales',
-  echoKey: 'dragonborn',
-  slot: 'body',
-  baseProfile: 'bodyArmor',
-  description: 'A lighter form of Dragonborn natural armor — flexible, smooth, built for movement.',
-  restriction:
-    'A Dragonborn with Serpent Scales cannot wear mundane armor or another Body Artifact.',
-  progressionPickIds: {
-    1: 'movement-flight',
-    2: 'ab-evade',
-    3: 'passive-evade',
+const WYRM_SCALES_MEDIUM = buildWyrmScalesVariant({
+  key: 'wyrmScalesMedium',
+  name: 'Wyrm Scales (Medium)',
+  description: 'Balanced scale-form — medium armor with Damage Reduction synergy.',
+  armorClassLabel: 'Medium',
+  armorWeightClass: 'medium',
+  armorNote: 'Medium Armor base + artifact bonus; Evade −2, Initiative −4, −1d8 Physical Skills.',
+  focus: 'Damage Reduction',
+  flightL1: 'Dragon Wings (Flight)',
+  activeBuffL2: 'Active Buff: Damage Reduction',
+  stonePowerL3: 'Might — Armor Stone Power',
+  progressionPickIds: { 1: 'movement-flight', 2: 'ab-damage-reduction' },
+  stoneFunction: {
+    kind: 'stonePowerSupport',
+    attribute: 'might',
+    stonePowerId: 'might.armor',
+    level: 3,
   },
-  baseValues: [
-    {
-      slot: 'a',
-      label: 'Light Echo Armor',
-      note: '+8 to +18 Armor; no Light Armor drawback.',
-    },
-  ],
-  levelProgression: [
-    {
-      level: 1,
-      name: 'Dragon Wings I',
-      type: 'Movement',
-      range: 'Self',
-      duration: 'Instant',
-      effect: 'You may fly up to 6 m.',
-      special: 'Flight',
-    },
-    {
-      level: 2,
-      name: 'Mobility Buff Extension I',
-      type: 'Support',
-      range: 'Self',
-      duration: 'Passive',
-      effect: 'Active Buffs that grant Movement or Evade gain +1 round duration.',
-      special: 'Mobility Buff Extension',
-    },
-    {
-      level: 3,
-      name: 'Evasion Stone Support I',
-      type: 'Stone Power Support',
-      range: 'Self',
-      duration: 'Instant',
-      effect: 'Serpent Scales support the Agility Ability: Evade Stone Power and pre-fill Tier 2.',
-      special: 'Evade Stone Power',
-    },
-    {
-      level: 4,
-      name: 'Dragon Wings II',
-      type: 'Movement',
-      range: 'Self',
-      duration: 'Instant',
-      effect: 'You may fly up to 15 m.',
-      special: 'Flight',
-    },
-    {
-      level: 5,
-      name: 'Mobility Buff Extension II',
-      type: 'Support',
-      range: 'Self',
-      duration: 'Passive',
-      effect: 'Mobility Active Buffs gain +2 rounds duration.',
-      special: 'Mobility Buff Extension',
-    },
-    {
-      level: 6,
-      name: 'Evasion Stone Support II',
-      type: 'Stone Power Support',
-      range: 'Self',
-      duration: 'Instant',
-      effect: 'Pre-fills Tier 3 of the Agility Ability: Evade Stone Power.',
-      special: 'Evade Stone Power',
-    },
-    {
-      level: 7,
-      name: 'Dragon Wings III',
-      type: 'Movement',
-      range: 'Self',
-      duration: 'Instant',
-      effect: 'You may fly up to 24 m.',
-      special: 'Flight',
-    },
-    {
-      level: 8,
-      name: 'Mobility Buff Extension III',
-      type: 'Support',
-      range: 'Self',
-      duration: 'Passive',
-      effect: 'Mobility Active Buffs gain +3 rounds duration.',
-      special: 'Mobility Buff Extension',
-    },
-    {
-      level: 9,
-      name: 'Evasion Stone Support III',
-      type: 'Stone Power Support',
-      range: 'Self',
-      duration: 'Instant',
-      effect: 'Pre-fills Tier 4 of the Agility Ability: Evade Stone Power.',
-      special: 'Evade Stone Power',
-    },
-    {
-      level: 10,
-      name: 'Serpent Transformation',
-      type: 'Ultimate',
-      range: 'Self',
-      duration: 'Special',
-      effect: 'You unlock your Serpent Dragon Form.',
-      special: 'Serpent Dragon Form',
-    },
-  ],
-};
+  levelProgression: buildWyrmScalesLevelProgression({
+    buffExtensionName: 'DR Buff Extension',
+    buffExtensionSpecial: 'DR Buff Extension',
+    buffExtensionEffect: (tier) =>
+      `Damage Reduction Active Buffs gain +${tier} round${tier === 1 ? '' : 's'} duration.`,
+    stoneSupportLabel: 'Armor Stone Support',
+    stoneSupportSpecial: 'Armor Stone Power',
+    stoneSupportEffect: (tier) =>
+      tier === 1
+        ? 'Wyrm Scales support the Might Ability Armor Stone Power and pre-fill Tier 2.'
+        : `Pre-fills Tier ${tier + 1} of the Might Ability Armor Stone Power.`,
+    ultimateName: 'Dragon Transformation',
+    ultimateSpecial: 'Wyrm Dragon Form',
+    ultimateEffect: 'You unlock your Wyrm Dragon Form (transformation rules apply).',
+  }),
+});
+
+const WYRM_SCALES_LIGHT = buildWyrmScalesVariant({
+  key: 'wyrmScalesLight',
+  name: 'Wyrm Scales (Light)',
+  description: 'Light scale-form — evasion and mobility over raw soak.',
+  armorClassLabel: 'Light',
+  armorWeightClass: 'light',
+  armorNote: 'Light Armor base + artifact bonus; no armor-class drawbacks.',
+  focus: 'Evade',
+  flightL1: 'Dragon Wings (Flight)',
+  activeBuffL2: 'Active Buff: Evade',
+  stonePowerL3: 'Agility — Evade Stone Power',
+  progressionPickIds: { 1: 'movement-flight', 2: 'ab-evade' },
+  stoneFunction: {
+    kind: 'stonePowerSupport',
+    attribute: 'agility',
+    stonePowerId: 'agility.evade',
+    level: 3,
+  },
+  levelProgression: buildWyrmScalesLevelProgression({
+    buffExtensionName: 'Mobility Buff Extension',
+    buffExtensionSpecial: 'Mobility Buff Extension',
+    buffExtensionEffect: (tier) =>
+      `Evade Active Buffs gain +${tier} round${tier === 1 ? '' : 's'} duration.`,
+    stoneSupportLabel: 'Evade Stone Support',
+    stoneSupportSpecial: 'Evade Stone Power',
+    stoneSupportEffect: (tier) =>
+      tier === 1
+        ? 'Wyrm Scales support the Agility Ability Evade Stone Power and pre-fill Tier 2.'
+        : `Pre-fills Tier ${tier + 1} of the Agility Ability Evade Stone Power.`,
+    ultimateName: 'Serpent Transformation',
+    ultimateSpecial: 'Serpent Dragon Form',
+    ultimateEffect: 'You unlock your Serpent Dragon Form (transformation rules apply).',
+  }),
+});
 
 // ----------------------------------------------------------------------
 // Dragon Claws (Dragonborn — two-handed natural weapon)
@@ -1595,8 +1589,9 @@ export const ECHO_ARTIFACTS: Record<string, EchoArtifactDefinition> = {
   elvenStrideWater: ELVEN_STRIDE_WATER,
   elvenStrideAir: ELVEN_STRIDE_AIR,
   titanScars: TITAN_SCARS,
-  wyrmScales: WYRM_SCALES,
-  serpentScales: SERPENT_SCALES,
+  wyrmScalesHeavy: WYRM_SCALES_HEAVY,
+  wyrmScalesMedium: WYRM_SCALES_MEDIUM,
+  wyrmScalesLight: WYRM_SCALES_LIGHT,
   dragonClaws: DRAGON_CLAWS,
   dragonHead: DRAGON_HEAD,
   sentinelFrame: SENTINEL_FRAME,
@@ -1654,16 +1649,28 @@ export const ECHO_ARTIFACT_RULES: Record<string, EchoArtifactRules> = {
     maxAtCreation: 3,
     // Claws (both hands), Head (head) and one Body armor. Wyrm Scales and
     // Serpent Scales both occupy the Body slot, so they are mutually exclusive.
-    availableKeys: ['dragonClaws', 'dragonHead', 'wyrmScales', 'serpentScales'],
-    exclusiveGroups: [['wyrmScales', 'serpentScales']],
+    availableKeys: ['dragonClaws', 'dragonHead', 'wyrmScalesHeavy', 'wyrmScalesMedium', 'wyrmScalesLight'],
+    exclusiveGroups: [['wyrmScalesHeavy', 'wyrmScalesMedium', 'wyrmScalesLight']],
   },
   unbound: { echoKey: 'unbound', requiredAtCreation: 0, maxAtCreation: 0, availableKeys: [] },
 };
 
-/** Lookup an Echo Artifact by key. */
+/** Lookup an Echo Artifact by key (legacy aliases resolve to current variant keys). */
 export function getEchoArtifact(key: string | null | undefined): EchoArtifactDefinition | null {
   if (!key) return null;
-  return ECHO_ARTIFACTS[key] ?? null;
+  const resolved = ECHO_ARTIFACT_KEY_ALIASES[key] ?? key;
+  return ECHO_ARTIFACTS[resolved] ?? null;
+}
+
+/** Echo Artifact defs that share a variant comparison group, in display order. */
+export function listEchoArtifactsInVariantGroup(groupKey: string): EchoArtifactDefinition[] {
+  const order = ['Heavy', 'Medium', 'Light'];
+  return Object.values(ECHO_ARTIFACTS)
+    .filter((d) => d.variantGroupKey === groupKey && d.variantRow)
+    .sort(
+      (a, b) =>
+        order.indexOf(a.variantRow!.armorClass) - order.indexOf(b.variantRow!.armorClass),
+    );
 }
 
 /** Rules block for an Echo (returns Human default if unknown). */

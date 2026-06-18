@@ -18,71 +18,133 @@
         "slot": "a",
         "type": "bodyArmor",
         "label": "Medium Echo Armor",
-        "value": 18,
-        "note": "Counts as Medium Armor (Evade −2, Initiative −4, −1d8 Physical).",
-        "isBaseline": true
+        "value": 10,
+        "note": "Medium Armor: Evade −2, Initiative −4, −1d8 Physical Skills.",
+        "isBaseline": true,
+        "armorWeightClass": "medium"
       }
     ],
     "levelProgression": [
       {
         "level": 7,
-        "name": "Damage III",
+        "name": "Titan Growth III",
         "type": "Active Buff",
         "range": "Self",
         "aoe": "",
-        "duration": "MR Rounds",
-        "effect": "Your attacks deal **+12d8** damage while the buff is active.",
-        "special": ""
+        "duration": "Mastery Rank Rounds",
+        "effect": "Growth Form improves to Power Level 16. Growth Form uses your maintained Active Buff slot.",
+        "special": "Growth Form"
       },
       {
         "level": 5,
-        "name": "Stone Support II",
+        "name": "Titan Might II",
         "type": "Support",
         "range": "Self",
         "aoe": "",
         "duration": "Passive",
-        "effect": "Stone Power Support (Might): supports Melee Damage",
+        "effect": "Stone Pool (Might)",
         "special": ""
       },
       {
         "level": 6,
-        "name": "Ranged Single-Target Heal II",
-        "type": "Ranged",
-        "range": "44m",
+        "name": "Titan Healing II",
+        "type": "Stone Power Support",
+        "range": "Self",
         "aoe": "",
         "duration": "Instant",
-        "effect": "Restore **10d8 HP** to the target.",
-        "special": ""
+        "effect": "Titan Scars support the Vitality Ability: Remove Scar Stone Power. When Remove Scar is used through Titan Scars, it may recover 1 Scarred Health Bar as written by the Stone Power. You must pay the normal Stone cost yourself.",
+        "special": "Remove Scar Stone Power"
       }
     ],
     "stoneFunction": {
-      "kind": "stonePowerSupport",
-      "attribute": "might",
-      "stonePowerId": "might.meleeDamage"
+      "kind": "stonePool",
+      "attribute": "might"
     },
     "progressionPicks": [
       {
         "level": 1,
-        "kind": "power",
-        "powerTemplateId": "ab-damage"
+        "kind": "authored",
+        "authoredStages": [
+          {
+            "level": 1,
+            "name": "Titan Growth I",
+            "type": "Active Buff",
+            "range": "Self",
+            "aoe": "",
+            "duration": "Mastery Rank Rounds",
+            "effect": "You may activate Growth Form at Power Level 4. Growth Form uses your maintained Active Buff slot.",
+            "special": "Growth Form"
+          },
+          {
+            "level": 4,
+            "name": "Titan Growth II",
+            "type": "Active Buff",
+            "range": "Self",
+            "aoe": "",
+            "duration": "Mastery Rank Rounds",
+            "effect": "Growth Form improves to Power Level 10. Growth Form uses your maintained Active Buff slot.",
+            "special": "Growth Form"
+          },
+          {
+            "level": 7,
+            "name": "Titan Growth III",
+            "type": "Active Buff",
+            "range": "Self",
+            "aoe": "",
+            "duration": "Mastery Rank Rounds",
+            "effect": "Growth Form improves to Power Level 16. Growth Form uses your maintained Active Buff slot.",
+            "special": "Growth Form"
+          }
+        ]
       },
       {
         "level": 2,
         "kind": "stoneFunction",
         "stoneFunction": {
-          "kind": "stonePowerSupport",
-          "attribute": "might",
-          "stonePowerId": "might.meleeDamage"
-        }
+          "kind": "stonePool",
+          "attribute": "might"
+        },
+        "displayName": "Titan Might"
       },
       {
         "level": 3,
-        "kind": "power",
-        "powerTemplateId": "active-ranged-single-heal"
+        "kind": "authored",
+        "authoredStages": [
+          {
+            "level": 3,
+            "name": "Titan Healing I",
+            "type": "Stone Power Support",
+            "range": "Self",
+            "aoe": "",
+            "duration": "Instant",
+            "effect": "Titan Scars support the Vitality Ability: Remove Scar Stone Power. You must pay the normal Stone cost yourself.",
+            "special": "Remove Scar Stone Power"
+          },
+          {
+            "level": 6,
+            "name": "Titan Healing II",
+            "type": "Stone Power Support",
+            "range": "Self",
+            "aoe": "",
+            "duration": "Instant",
+            "effect": "Titan Scars support the Vitality Ability: Remove Scar Stone Power. When Remove Scar is used through Titan Scars, it may recover 1 Scarred Health Bar as written by the Stone Power. You must pay the normal Stone cost yourself.",
+            "special": "Remove Scar Stone Power"
+          },
+          {
+            "level": 9,
+            "name": "Titan Healing III",
+            "type": "Stone Power Support",
+            "range": "Self / Touch",
+            "aoe": "",
+            "duration": "Instant",
+            "effect": "Titan Scars support the Vitality Ability: Remove Scar Stone Power on yourself or one touched willing creature. You must pay the normal Stone cost yourself.",
+            "special": "Remove Scar Stone Power"
+          }
+        ]
       }
     ],
     "lore": "Ancient scars, stone-like tissue, Titan blood, and broken divine bindings grown into the body.",
-    "description": "Ancient scars, stone-like tissue, Titan blood, and broken divine bindings grown into the body.\n\nA Titanborn with Titan Scars cannot wear mundane armor or bind another Body Artifact.",
+    "description": "Ancient scars, stone-like tissue, Titan blood, and broken divine bindings grown into the body.\n\nA Titanborn with Titan Scars cannot wear mundane armor or bind another Body Artifact. Titan Scars are Echo-bound and cannot normally be removed, replaced, sold, stolen, unequipped, or unbound.",
     "bonuses": {
       "attack": 0,
       "damage": "",
@@ -96,7 +158,8 @@
     "powers": [
       {
         "id": "titanScars-pw-7",
-        "name": "Damage III",
+        "name": "Titan Growth III",
+        "fluff": "Special: Growth Form",
         "category": "activeBuff",
         "tags": [],
         "cost": {
@@ -290,11 +353,10 @@
             },
             "aoe": null,
             "duration": {
-              "kind": "rounds",
-              "rounds": 1
+              "kind": "masteryRankRounds"
             },
             "effect": {
-              "text": "Your attacks deal **+12d8** damage while the buff is active."
+              "text": "Growth Form improves to Power Level 16. Growth Form uses your maintained Active Buff slot."
             },
             "specials": [],
             "lvl": 7
@@ -303,7 +365,7 @@
       },
       {
         "id": "titanScars-pw-5",
-        "name": "Stone Support II",
+        "name": "Titan Might II",
         "category": "passive",
         "tags": [],
         "cost": {
@@ -428,7 +490,7 @@
               "kind": "scene"
             },
             "effect": {
-              "text": "Stone Power Support (Might): supports Melee Damage"
+              "text": "Stone Pool (Might)"
             },
             "specials": [],
             "lvl": 5
@@ -509,11 +571,14 @@
       },
       {
         "id": "titanScars-pw-6",
-        "name": "Ranged Single-Target Heal II",
-        "category": "active",
-        "tags": [],
+        "name": "Titan Healing II",
+        "fluff": "Special: Remove Scar Stone Power",
+        "category": "passive",
+        "tags": [
+          "stone-function"
+        ],
         "cost": {
-          "action": "attack"
+          "action": "none"
         },
         "levels": {
           "1": {
@@ -625,17 +690,16 @@
             "specials": []
           },
           "10": {
-            "type": "Ranged",
+            "type": "Stone Power Support",
             "range": {
-              "kind": "distance",
-              "m": 44
+              "kind": "self"
             },
             "aoe": null,
             "duration": {
               "kind": "instant"
             },
             "effect": {
-              "text": "Restore **10d8 HP** to the target."
+              "text": "Titan Scars support the Vitality Ability: Remove Scar Stone Power. When Remove Scar is used through Titan Scars, it may recover 1 Scarred Health Bar as written by the Stone Power. You must pay the normal Stone cost yourself."
             },
             "specials": [],
             "lvl": 6
@@ -716,6 +780,12 @@
       }
     ],
     "inventorySize": "1x1",
+    "artifactArmor": {
+      "type": "medium",
+      "armorValue": 10,
+      "evadeModifier": -2,
+      "skillPenalty": "−1d8 to Physical Skill checks"
+    },
     "equipSlots": [
       "body"
     ]
@@ -731,7 +801,7 @@
       ],
       "echoBound": "titanborn",
       "echoArtifactKey": "titanScars",
-      "seedVersion": 10
+      "seedVersion": 23
     }
   },
   "_id": "FuLLEDUHxCDDjeY4",

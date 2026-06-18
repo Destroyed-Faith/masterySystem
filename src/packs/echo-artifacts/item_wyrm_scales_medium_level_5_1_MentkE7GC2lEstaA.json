@@ -1,0 +1,746 @@
+{
+  "name": "Wyrm Scales (Medium) - Level 5-1",
+  "type": "artifact",
+  "img": "icons/svg/statue.svg",
+  "system": {
+    "level": 5,
+    "currentLevel": 5,
+    "equipped": false,
+    "effects": [],
+    "artifactKind": "armor",
+    "gearSlot": "",
+    "slot": "body",
+    "baseProfile": "bodyArmor",
+    "binding": "echo",
+    "echoKey": "dragonborn",
+    "baseValues": [
+      {
+        "slot": "a",
+        "type": "bodyArmor",
+        "label": "Medium Echo Armor",
+        "value": 8,
+        "note": "Medium Armor: Evade −2, Initiative −4, −1d8 Physical Skills.",
+        "isBaseline": true,
+        "armorWeightClass": "medium"
+      }
+    ],
+    "levelProgression": [
+      {
+        "level": 4,
+        "name": "Flight II",
+        "type": "Movement",
+        "range": "Self",
+        "aoe": "",
+        "duration": "Instant",
+        "effect": "Fly up to **15 m**.",
+        "special": ""
+      },
+      {
+        "level": 5,
+        "name": "Damage Reduction II",
+        "type": "Active Buff",
+        "range": "Self",
+        "aoe": "",
+        "duration": "MR Rounds",
+        "effect": "If you currently have **Damage Reduction from a Passive**, increase that DR by **+10%** while the buff is active, up to **40% total DR**.",
+        "special": ""
+      },
+      {
+        "level": 3,
+        "name": "Stone Support I",
+        "type": "Support",
+        "range": "Self",
+        "aoe": "",
+        "duration": "Passive",
+        "effect": "Stone Power Support (Might): supports Armor",
+        "special": ""
+      }
+    ],
+    "stoneFunction": {
+      "kind": "stonePowerSupport",
+      "attribute": "might",
+      "stonePowerId": "might.armor"
+    },
+    "progressionPicks": [
+      {
+        "level": 1,
+        "kind": "power",
+        "powerTemplateId": "movement-flight"
+      },
+      {
+        "level": 2,
+        "kind": "power",
+        "powerTemplateId": "ab-damage-reduction"
+      },
+      {
+        "level": 3,
+        "kind": "stoneFunction",
+        "stoneFunction": {
+          "kind": "stonePowerSupport",
+          "attribute": "might",
+          "stonePowerId": "might.armor"
+        }
+      }
+    ],
+    "lore": "Balanced scale-form — medium armor with Damage Reduction synergy.",
+    "description": "Balanced scale-form — medium armor with Damage Reduction synergy.\n\nA Dragonborn with Wyrm Scales cannot wear mundane armor or another Body Artifact.",
+    "bonuses": {
+      "attack": 0,
+      "damage": "",
+      "defense": 0,
+      "specials": []
+    },
+    "requirements": {
+      "stones": 0,
+      "masteryRank": 1
+    },
+    "powers": [
+      {
+        "id": "wyrmScalesMedium-pw-4",
+        "name": "Flight II",
+        "category": "movement",
+        "tags": [],
+        "cost": {
+          "action": "movement"
+        },
+        "levels": {
+          "1": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "2": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "3": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "4": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "5": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "6": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "7": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "8": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "9": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "10": {
+            "type": "Movement",
+            "range": {
+              "kind": "self"
+            },
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": "Fly up to **15 m**."
+            },
+            "specials": [],
+            "lvl": 4
+          },
+          "11": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "12": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "13": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "14": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "15": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "16": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          }
+        }
+      },
+      {
+        "id": "wyrmScalesMedium-pw-5",
+        "name": "Damage Reduction II",
+        "category": "activeBuff",
+        "tags": [],
+        "cost": {
+          "action": "full"
+        },
+        "levels": {
+          "1": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "2": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "3": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "4": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "5": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "6": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "7": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "8": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "9": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "10": {
+            "type": "Active Buff",
+            "range": {
+              "kind": "self"
+            },
+            "aoe": null,
+            "duration": {
+              "kind": "rounds",
+              "rounds": 1
+            },
+            "effect": {
+              "text": "If you currently have **Damage Reduction from a Passive**, increase that DR by **+10%** while the buff is active, up to **40% total DR**."
+            },
+            "specials": [],
+            "lvl": 5
+          },
+          "11": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "12": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "13": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "14": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "15": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "16": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          }
+        }
+      },
+      {
+        "id": "wyrmScalesMedium-pw-3",
+        "name": "Stone Support I",
+        "category": "passive",
+        "tags": [],
+        "cost": {
+          "action": "none"
+        },
+        "levels": {
+          "1": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "2": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "3": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "4": {
+            "type": "Support",
+            "range": {
+              "kind": "self"
+            },
+            "aoe": null,
+            "duration": {
+              "kind": "scene"
+            },
+            "effect": {
+              "text": "Stone Power Support (Might): supports Armor"
+            },
+            "specials": [],
+            "lvl": 3
+          },
+          "5": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "6": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "7": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "8": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "9": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "10": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "11": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "12": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "13": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "14": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "15": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "16": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          }
+        }
+      }
+    ],
+    "inventorySize": "1x1",
+    "artifactArmor": {
+      "type": "medium",
+      "armorValue": 8,
+      "evadeModifier": -2,
+      "skillPenalty": "−1d8 to Physical Skill checks"
+    },
+    "equipSlots": [
+      "body"
+    ]
+  },
+  "flags": {
+    "mastery-system": {
+      "nodeId": "wyrmScalesMedium-l5",
+      "parentIds": [
+        "wyrmScalesMedium-l4"
+      ],
+      "childIds": [
+        "wyrmScalesMedium-l6"
+      ],
+      "echoBound": "dragonborn",
+      "echoArtifactKey": "wyrmScalesMedium",
+      "seedVersion": 23
+    }
+  },
+  "_id": "MentkE7GC2lEstaA",
+  "folder": "raEC6C6xp34CNq1S",
+  "_key": "!items!MentkE7GC2lEstaA"
+}

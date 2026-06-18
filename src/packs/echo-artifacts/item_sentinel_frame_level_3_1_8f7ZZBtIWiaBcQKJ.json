@@ -18,15 +18,16 @@
         "slot": "a",
         "type": "bodyArmor",
         "label": "Light Echo Armor",
-        "value": 10,
-        "note": "No Light Armor drawback.",
-        "isBaseline": true
+        "value": 6,
+        "note": "Light Armor: no class drawbacks.",
+        "isBaseline": true,
+        "armorWeightClass": "light"
       }
     ],
     "levelProgression": [
       {
         "level": 1,
-        "name": "Ranged Single-Target Heal I",
+        "name": "Single Heal I",
         "type": "Ranged",
         "range": "20m",
         "aoe": "",
@@ -36,22 +37,22 @@
       },
       {
         "level": 2,
-        "name": "Temporary HP I",
-        "type": "Active Buff",
+        "name": "Resolve Core I",
+        "type": "Support",
         "range": "Self",
         "aoe": "",
-        "duration": "MR Rounds",
-        "effect": "Gain **32 Temporary HP**.",
+        "duration": "Passive",
+        "effect": "Stone Battery (Resolve)",
         "special": ""
       },
       {
         "level": 3,
-        "name": "Regeneration I",
-        "type": "Passive",
+        "name": "Healing Support I",
+        "type": "Support",
         "range": "Self",
         "aoe": "",
-        "duration": "",
-        "effect": "At the start of your turn, heal **10 HP**.",
+        "duration": "Passive",
+        "effect": "Stone Power Support (Resolve): supports Healing",
         "special": ""
       }
     ],
@@ -60,17 +61,27 @@
       {
         "level": 1,
         "kind": "power",
-        "powerTemplateId": "active-ranged-single-heal"
+        "powerTemplateId": "active-ranged-single-heal",
+        "displayName": "Single Heal"
       },
       {
         "level": 2,
-        "kind": "power",
-        "powerTemplateId": "ab-temp-hp"
+        "kind": "stoneFunction",
+        "stoneFunction": {
+          "kind": "stoneBattery",
+          "attribute": "resolve"
+        },
+        "displayName": "Resolve Core"
       },
       {
         "level": 3,
-        "kind": "power",
-        "powerTemplateId": "passive-regeneration"
+        "kind": "stoneFunction",
+        "stoneFunction": {
+          "kind": "stonePowerSupport",
+          "attribute": "resolve",
+          "stonePowerId": "resolve.healing"
+        },
+        "displayName": "Healing Support"
       }
     ],
     "lore": "The armored enforcer frame — an iron wall of heavenly order.",
@@ -88,7 +99,7 @@
     "powers": [
       {
         "id": "sentinelFrame-pw-1",
-        "name": "Ranged Single-Target Heal I",
+        "name": "Single Heal I",
         "category": "active",
         "tags": [],
         "cost": {
@@ -295,11 +306,11 @@
       },
       {
         "id": "sentinelFrame-pw-2",
-        "name": "Temporary HP I",
-        "category": "activeBuff",
+        "name": "Resolve Core I",
+        "category": "passive",
         "tags": [],
         "cost": {
-          "action": "full"
+          "action": "none"
         },
         "levels": {
           "1": {
@@ -339,17 +350,16 @@
             "specials": []
           },
           "4": {
-            "type": "Active Buff",
+            "type": "Support",
             "range": {
               "kind": "self"
             },
             "aoe": null,
             "duration": {
-              "kind": "rounds",
-              "rounds": 1
+              "kind": "scene"
             },
             "effect": {
-              "text": "Gain **32 Temporary HP**."
+              "text": "Stone Battery (Resolve)"
             },
             "specials": [],
             "lvl": 2
@@ -502,7 +512,7 @@
       },
       {
         "id": "sentinelFrame-pw-3",
-        "name": "Regeneration I",
+        "name": "Healing Support I",
         "category": "passive",
         "tags": [],
         "cost": {
@@ -546,16 +556,16 @@
             "specials": []
           },
           "4": {
-            "type": "Passive",
+            "type": "Support",
             "range": {
               "kind": "self"
             },
             "aoe": null,
             "duration": {
-              "kind": "instant"
+              "kind": "scene"
             },
             "effect": {
-              "text": "At the start of your turn, heal **10 HP**."
+              "text": "Stone Power Support (Resolve): supports Healing"
             },
             "specials": [],
             "lvl": 3
@@ -708,6 +718,12 @@
       }
     ],
     "inventorySize": "1x1",
+    "artifactArmor": {
+      "type": "light",
+      "armorValue": 6,
+      "evadeModifier": 0,
+      "skillPenalty": ""
+    },
     "equipSlots": [
       "body"
     ]
@@ -723,7 +739,7 @@
       ],
       "echoBound": "sentinels",
       "echoArtifactKey": "sentinelFrame",
-      "seedVersion": 10
+      "seedVersion": 23
     }
   },
   "_id": "8f7ZZBtIWiaBcQKJ",

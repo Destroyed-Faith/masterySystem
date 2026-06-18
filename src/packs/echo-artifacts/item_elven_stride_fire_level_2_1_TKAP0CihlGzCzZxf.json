@@ -25,7 +25,7 @@
     "levelProgression": [
       {
         "level": 1,
-        "name": "Evade I",
+        "name": "Otherworld Reflex I",
         "type": "Reaction",
         "range": "Self",
         "aoe": "",
@@ -35,7 +35,7 @@
       },
       {
         "level": 2,
-        "name": "Wall Walk I",
+        "name": "Elven Cling I",
         "type": "Movement",
         "range": "Self",
         "aoe": "",
@@ -49,21 +49,24 @@
       {
         "level": 1,
         "kind": "power",
-        "powerTemplateId": "reaction-evade"
+        "powerTemplateId": "reaction-evade",
+        "displayName": "Otherworld Reflex"
       },
       {
         "level": 2,
         "kind": "power",
-        "powerTemplateId": "movement-wall-walk"
+        "powerTemplateId": "movement-wall-walk",
+        "displayName": "Elven Cling"
       },
       {
         "level": 3,
         "kind": "power",
-        "powerTemplateId": "ab-evade"
+        "powerTemplateId": "empower-buff-damage",
+        "displayName": "Ember Surge"
       }
     ],
     "lore": "Elven Stride (Fire): otherworldly balance, reflex, clinging movement, and Fire lineage empowerment.",
-    "description": "Elven Stride (Fire): otherworldly balance, reflex, clinging movement, and Fire lineage empowerment.\n\nAn elf with Elven Stride cannot wear another Feet Artifact, magical boots, hooves, talons, or similar Feet-based Artifact.",
+    "description": "Elven Stride (Fire): otherworldly balance, reflex, clinging movement, and Fire lineage empowerment.\n\nAn elf with Elven Stride cannot wear another Feet Artifact, magical boots, hooves, talons, or similar Feet-based Artifact. Elven Stride is Echo-bound and cannot normally be removed, replaced, sold, stolen, or unbound.",
     "bonuses": {
       "attack": 0,
       "damage": "",
@@ -77,7 +80,7 @@
     "powers": [
       {
         "id": "elvenStrideFire-pw-1",
-        "name": "Evade I",
+        "name": "Otherworld Reflex I",
         "category": "reaction",
         "tags": [],
         "cost": {
@@ -283,7 +286,7 @@
       },
       {
         "id": "elvenStrideFire-pw-2",
-        "name": "Wall Walk I",
+        "name": "Elven Cling I",
         "category": "movement",
         "tags": [],
         "cost": {
@@ -504,7 +507,7 @@
       ],
       "echoBound": "elves",
       "echoArtifactKey": "elvenStrideFire",
-      "seedVersion": 10
+      "seedVersion": 23
     }
   },
   "_id": "TKAP0CihlGzCzZxf",

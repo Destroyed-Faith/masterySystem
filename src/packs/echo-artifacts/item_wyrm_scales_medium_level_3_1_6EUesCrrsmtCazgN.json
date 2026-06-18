@@ -1,5 +1,5 @@
 {
-  "name": "Serpent Scales - Level 3-1",
+  "name": "Wyrm Scales (Medium) - Level 3-1",
   "type": "artifact",
   "img": "icons/svg/statue.svg",
   "system": {
@@ -17,10 +17,11 @@
       {
         "slot": "a",
         "type": "bodyArmor",
-        "label": "Light Echo Armor",
-        "value": 10,
-        "note": "No Light Armor drawback.",
-        "isBaseline": true
+        "label": "Medium Echo Armor",
+        "value": 6,
+        "note": "Medium Armor: Evade −2, Initiative −4, −1d8 Physical Skills.",
+        "isBaseline": true,
+        "armorWeightClass": "medium"
       }
     ],
     "levelProgression": [
@@ -36,26 +37,30 @@
       },
       {
         "level": 2,
-        "name": "Evade I",
+        "name": "Damage Reduction I",
         "type": "Active Buff",
         "range": "Self",
         "aoe": "",
         "duration": "MR Rounds",
-        "effect": "Gain **+26 Evade**.",
+        "effect": "If you currently have **Damage Reduction from a Passive**, increase that DR by **+10%** while the buff is active, up to **30% total DR**.",
         "special": ""
       },
       {
         "level": 3,
-        "name": "Evade I",
-        "type": "Passive",
+        "name": "Stone Support I",
+        "type": "Support",
         "range": "Self",
         "aoe": "",
-        "duration": "",
-        "effect": "Gain **+8 Evade**.",
+        "duration": "Passive",
+        "effect": "Stone Power Support (Might): supports Armor",
         "special": ""
       }
     ],
-    "stoneFunction": null,
+    "stoneFunction": {
+      "kind": "stonePowerSupport",
+      "attribute": "might",
+      "stonePowerId": "might.armor"
+    },
     "progressionPicks": [
       {
         "level": 1,
@@ -65,16 +70,20 @@
       {
         "level": 2,
         "kind": "power",
-        "powerTemplateId": "ab-evade"
+        "powerTemplateId": "ab-damage-reduction"
       },
       {
         "level": 3,
-        "kind": "power",
-        "powerTemplateId": "passive-evade"
+        "kind": "stoneFunction",
+        "stoneFunction": {
+          "kind": "stonePowerSupport",
+          "attribute": "might",
+          "stonePowerId": "might.armor"
+        }
       }
     ],
-    "lore": "A lighter form of Dragonborn natural armor — flexible, smooth, built for movement.",
-    "description": "A lighter form of Dragonborn natural armor — flexible, smooth, built for movement.\n\nA Dragonborn with Serpent Scales cannot wear mundane armor or another Body Artifact.",
+    "lore": "Balanced scale-form — medium armor with Damage Reduction synergy.",
+    "description": "Balanced scale-form — medium armor with Damage Reduction synergy.\n\nA Dragonborn with Wyrm Scales cannot wear mundane armor or another Body Artifact.",
     "bonuses": {
       "attack": 0,
       "damage": "",
@@ -87,7 +96,7 @@
     },
     "powers": [
       {
-        "id": "serpentScales-pw-1",
+        "id": "wyrmScalesMedium-pw-1",
         "name": "Flight I",
         "category": "movement",
         "tags": [],
@@ -293,8 +302,8 @@
         }
       },
       {
-        "id": "serpentScales-pw-2",
-        "name": "Evade I",
+        "id": "wyrmScalesMedium-pw-2",
+        "name": "Damage Reduction I",
         "category": "activeBuff",
         "tags": [],
         "cost": {
@@ -348,7 +357,7 @@
               "rounds": 1
             },
             "effect": {
-              "text": "Gain **+26 Evade**."
+              "text": "If you currently have **Damage Reduction from a Passive**, increase that DR by **+10%** while the buff is active, up to **30% total DR**."
             },
             "specials": [],
             "lvl": 2
@@ -500,8 +509,8 @@
         }
       },
       {
-        "id": "serpentScales-pw-3",
-        "name": "Evade I",
+        "id": "wyrmScalesMedium-pw-3",
+        "name": "Stone Support I",
         "category": "passive",
         "tags": [],
         "cost": {
@@ -545,16 +554,16 @@
             "specials": []
           },
           "4": {
-            "type": "Passive",
+            "type": "Support",
             "range": {
               "kind": "self"
             },
             "aoe": null,
             "duration": {
-              "kind": "instant"
+              "kind": "scene"
             },
             "effect": {
-              "text": "Gain **+8 Evade**."
+              "text": "Stone Power Support (Might): supports Armor"
             },
             "specials": [],
             "lvl": 3
@@ -707,25 +716,31 @@
       }
     ],
     "inventorySize": "1x1",
+    "artifactArmor": {
+      "type": "medium",
+      "armorValue": 6,
+      "evadeModifier": -2,
+      "skillPenalty": "−1d8 to Physical Skill checks"
+    },
     "equipSlots": [
       "body"
     ]
   },
   "flags": {
     "mastery-system": {
-      "nodeId": "serpentScales-l3",
+      "nodeId": "wyrmScalesMedium-l3",
       "parentIds": [
-        "serpentScales-l2"
+        "wyrmScalesMedium-l2"
       ],
       "childIds": [
-        "serpentScales-l4"
+        "wyrmScalesMedium-l4"
       ],
       "echoBound": "dragonborn",
-      "echoArtifactKey": "serpentScales",
-      "seedVersion": 10
+      "echoArtifactKey": "wyrmScalesMedium",
+      "seedVersion": 23
     }
   },
-  "_id": "zjtZxE7URwTU6Ivi",
-  "folder": "ocXK7ZFwS8KsKb95",
-  "_key": "!items!zjtZxE7URwTU6Ivi"
+  "_id": "6EUesCrrsmtCazgN",
+  "folder": "raEC6C6xp34CNq1S",
+  "_key": "!items!6EUesCrrsmtCazgN"
 }

@@ -1,10 +1,10 @@
 {
-  "name": "Wyrm Scales - Level 8-1",
+  "name": "Wyrm Scales (Medium) - Level 9-1",
   "type": "artifact",
   "img": "icons/svg/statue.svg",
   "system": {
-    "level": 8,
-    "currentLevel": 8,
+    "level": 9,
+    "currentLevel": 9,
     "equipped": false,
     "effects": [],
     "artifactKind": "armor",
@@ -17,10 +17,11 @@
       {
         "slot": "a",
         "type": "bodyArmor",
-        "label": "Heavy Echo Armor",
-        "value": 23,
-        "note": "Heavy drawbacks scale with level.",
-        "isBaseline": true
+        "label": "Medium Echo Armor",
+        "value": 12,
+        "note": "Medium Armor: Evade −2, Initiative −4, −1d8 Physical Skills.",
+        "isBaseline": true,
+        "armorWeightClass": "medium"
       }
     ],
     "levelProgression": [
@@ -36,17 +37,17 @@
       },
       {
         "level": 8,
-        "name": "Armor III",
+        "name": "Damage Reduction III",
         "type": "Active Buff",
         "range": "Self",
         "aoe": "",
         "duration": "MR Rounds",
-        "effect": "Gain **+65 Armor**.",
+        "effect": "If you currently have **Damage Reduction from a Passive**, increase that DR by **+10%** while the buff is active, up to **60% total DR**.",
         "special": ""
       },
       {
-        "level": 6,
-        "name": "Stone Support II",
+        "level": 9,
+        "name": "Stone Support III",
         "type": "Support",
         "range": "Self",
         "aoe": "",
@@ -69,7 +70,7 @@
       {
         "level": 2,
         "kind": "power",
-        "powerTemplateId": "ab-armor"
+        "powerTemplateId": "ab-damage-reduction"
       },
       {
         "level": 3,
@@ -81,8 +82,8 @@
         }
       }
     ],
-    "lore": "The heaviest form of Dragonborn natural armor — the character’s body itself.",
-    "description": "The heaviest form of Dragonborn natural armor — the character’s body itself.\n\nA Dragonborn with Wyrm Scales cannot wear mundane armor or another Body Artifact.",
+    "lore": "Balanced scale-form — medium armor with Damage Reduction synergy.",
+    "description": "Balanced scale-form — medium armor with Damage Reduction synergy.\n\nA Dragonborn with Wyrm Scales cannot wear mundane armor or another Body Artifact.",
     "bonuses": {
       "attack": 0,
       "damage": "",
@@ -95,7 +96,7 @@
     },
     "powers": [
       {
-        "id": "wyrmScales-pw-7",
+        "id": "wyrmScalesMedium-pw-7",
         "name": "Flight III",
         "category": "movement",
         "tags": [],
@@ -301,8 +302,8 @@
         }
       },
       {
-        "id": "wyrmScales-pw-8",
-        "name": "Armor III",
+        "id": "wyrmScalesMedium-pw-8",
+        "name": "Damage Reduction III",
         "category": "activeBuff",
         "tags": [],
         "cost": {
@@ -500,7 +501,7 @@
               "rounds": 1
             },
             "effect": {
-              "text": "Gain **+65 Armor**."
+              "text": "If you currently have **Damage Reduction from a Passive**, increase that DR by **+10%** while the buff is active, up to **60% total DR**."
             },
             "specials": [],
             "lvl": 8
@@ -508,8 +509,8 @@
         }
       },
       {
-        "id": "wyrmScales-pw-6",
-        "name": "Stone Support II",
+        "id": "wyrmScalesMedium-pw-9",
+        "name": "Stone Support III",
         "category": "passive",
         "tags": [],
         "cost": {
@@ -625,19 +626,16 @@
             "specials": []
           },
           "10": {
-            "type": "Support",
-            "range": {
-              "kind": "self"
-            },
+            "type": "",
+            "range": null,
             "aoe": null,
             "duration": {
-              "kind": "scene"
+              "kind": "instant"
             },
             "effect": {
-              "text": "Stone Power Support (Might): supports Armor"
+              "text": ""
             },
-            "specials": [],
-            "lvl": 6
+            "specials": []
           },
           "11": {
             "type": "",
@@ -700,40 +698,49 @@
             "specials": []
           },
           "16": {
-            "type": "",
-            "range": null,
+            "type": "Support",
+            "range": {
+              "kind": "self"
+            },
             "aoe": null,
             "duration": {
-              "kind": "instant"
+              "kind": "scene"
             },
             "effect": {
-              "text": ""
+              "text": "Stone Power Support (Might): supports Armor"
             },
-            "specials": []
+            "specials": [],
+            "lvl": 9
           }
         }
       }
     ],
     "inventorySize": "1x1",
+    "artifactArmor": {
+      "type": "medium",
+      "armorValue": 12,
+      "evadeModifier": -2,
+      "skillPenalty": "−1d8 to Physical Skill checks"
+    },
     "equipSlots": [
       "body"
     ]
   },
   "flags": {
     "mastery-system": {
-      "nodeId": "wyrmScales-l8",
+      "nodeId": "wyrmScalesMedium-l9",
       "parentIds": [
-        "wyrmScales-l7"
+        "wyrmScalesMedium-l8"
       ],
       "childIds": [
-        "wyrmScales-l9"
+        "wyrmScalesMedium-l10"
       ],
       "echoBound": "dragonborn",
-      "echoArtifactKey": "wyrmScales",
-      "seedVersion": 10
+      "echoArtifactKey": "wyrmScalesMedium",
+      "seedVersion": 23
     }
   },
-  "_id": "QZzvuBBCO4vBuJCf",
-  "folder": "QYAoACBBZwBCwnx4",
-  "_key": "!items!QZzvuBBCO4vBuJCf"
+  "_id": "IGNATB3slIUBoVAR",
+  "folder": "raEC6C6xp34CNq1S",
+  "_key": "!items!IGNATB3slIUBoVAR"
 }

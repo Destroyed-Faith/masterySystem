@@ -1,5 +1,5 @@
 {
-  "name": "Serpent Scales - Level 1-1",
+  "name": "Wyrm Scales (Light) - Level 1-1",
   "type": "artifact",
   "img": "icons/svg/statue.svg",
   "system": {
@@ -18,9 +18,10 @@
         "slot": "a",
         "type": "bodyArmor",
         "label": "Light Echo Armor",
-        "value": 8,
-        "note": "No Light Armor drawback.",
-        "isBaseline": true
+        "value": 4,
+        "note": "Light Armor: no class drawbacks.",
+        "isBaseline": true,
+        "armorWeightClass": "light"
       }
     ],
     "levelProgression": [
@@ -49,12 +50,16 @@
       },
       {
         "level": 3,
-        "kind": "power",
-        "powerTemplateId": "passive-evade"
+        "kind": "stoneFunction",
+        "stoneFunction": {
+          "kind": "stonePowerSupport",
+          "attribute": "agility",
+          "stonePowerId": "agility.evade"
+        }
       }
     ],
-    "lore": "A lighter form of Dragonborn natural armor — flexible, smooth, built for movement.",
-    "description": "A lighter form of Dragonborn natural armor — flexible, smooth, built for movement.\n\nA Dragonborn with Serpent Scales cannot wear mundane armor or another Body Artifact.",
+    "lore": "Light scale-form — evasion and mobility over raw soak.",
+    "description": "Light scale-form — evasion and mobility over raw soak.\n\nA Dragonborn with Wyrm Scales cannot wear mundane armor or another Body Artifact.",
     "bonuses": {
       "attack": 0,
       "damage": "",
@@ -67,7 +72,7 @@
     },
     "powers": [
       {
-        "id": "serpentScales-pw-1",
+        "id": "wyrmScalesLight-pw-1",
         "name": "Flight I",
         "category": "movement",
         "tags": [],
@@ -274,24 +279,30 @@
       }
     ],
     "inventorySize": "1x1",
+    "artifactArmor": {
+      "type": "light",
+      "armorValue": 4,
+      "evadeModifier": 0,
+      "skillPenalty": ""
+    },
     "equipSlots": [
       "body"
     ]
   },
   "flags": {
     "mastery-system": {
-      "nodeId": "serpentScales-l1",
+      "nodeId": "wyrmScalesLight-l1",
       "parentIds": [],
       "childIds": [
-        "serpentScales-l2"
+        "wyrmScalesLight-l2"
       ],
       "isRoot": true,
       "echoBound": "dragonborn",
-      "echoArtifactKey": "serpentScales",
-      "seedVersion": 10
+      "echoArtifactKey": "wyrmScalesLight",
+      "seedVersion": 23
     }
   },
-  "_id": "3WXKMEIu8BLEZmKb",
-  "folder": "ocXK7ZFwS8KsKb95",
-  "_key": "!items!3WXKMEIu8BLEZmKb"
+  "_id": "pYmvbE4vNnaEJJze",
+  "folder": "eypKDDPbETED8i23",
+  "_key": "!items!pYmvbE4vNnaEJJze"
 }

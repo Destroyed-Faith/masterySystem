@@ -25,7 +25,7 @@
     "levelProgression": [
       {
         "level": 1,
-        "name": "Evade I",
+        "name": "Otherworld Reflex I",
         "type": "Reaction",
         "range": "Self",
         "aoe": "",
@@ -39,21 +39,24 @@
       {
         "level": 1,
         "kind": "power",
-        "powerTemplateId": "reaction-evade"
+        "powerTemplateId": "reaction-evade",
+        "displayName": "Otherworld Reflex"
       },
       {
         "level": 2,
         "kind": "power",
-        "powerTemplateId": "movement-wall-walk"
+        "powerTemplateId": "movement-wall-walk",
+        "displayName": "Elven Cling"
       },
       {
         "level": 3,
         "kind": "power",
-        "powerTemplateId": "ab-evade"
+        "powerTemplateId": "empower-buff-armor",
+        "displayName": "Stoneweave Guard"
       }
     ],
     "lore": "Elven Stride (Earth): otherworldly balance, reflex, clinging movement, and Earth lineage empowerment.",
-    "description": "Elven Stride (Earth): otherworldly balance, reflex, clinging movement, and Earth lineage empowerment.\n\nAn elf with Elven Stride cannot wear another Feet Artifact, magical boots, hooves, talons, or similar Feet-based Artifact.",
+    "description": "Elven Stride (Earth): otherworldly balance, reflex, clinging movement, and Earth lineage empowerment.\n\nAn elf with Elven Stride cannot wear another Feet Artifact, magical boots, hooves, talons, or similar Feet-based Artifact. Elven Stride is Echo-bound and cannot normally be removed, replaced, sold, stolen, or unbound.",
     "bonuses": {
       "attack": 0,
       "damage": "",
@@ -67,7 +70,7 @@
     "powers": [
       {
         "id": "elvenStrideEarth-pw-1",
-        "name": "Evade I",
+        "name": "Otherworld Reflex I",
         "category": "reaction",
         "tags": [],
         "cost": {
@@ -287,7 +290,7 @@
       "isRoot": true,
       "echoBound": "elves",
       "echoArtifactKey": "elvenStrideEarth",
-      "seedVersion": 10
+      "seedVersion": 23
     }
   },
   "_id": "eFSmiBPsqujBAVF3",

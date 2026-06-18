@@ -760,6 +760,8 @@ export interface ArtifactBaseValue {
   note?: string;
   /** True if the value follows the spec baseline, false if GM overrode. */
   isBaseline?: boolean;
+  /** Light / Medium / Heavy — mundane base + class drawbacks apply on top of `value` (artifact bonus). */
+  armorWeightClass?: 'light' | 'medium' | 'heavy';
 }
 
 /** A Stone Function block on an artifact. */

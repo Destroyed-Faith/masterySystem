@@ -32,7 +32,7 @@
     "levelProgression": [
       {
         "level": 4,
-        "name": "Evade II",
+        "name": "Otherworld Reflex II",
         "type": "Reaction",
         "range": "Self",
         "aoe": "",
@@ -42,7 +42,7 @@
       },
       {
         "level": 5,
-        "name": "Wall Walk II",
+        "name": "Elven Cling II",
         "type": "Movement",
         "range": "Self",
         "aoe": "",
@@ -52,12 +52,12 @@
       },
       {
         "level": 3,
-        "name": "Evade I",
-        "type": "Active Buff",
+        "name": "Ember Surge I",
+        "type": "Support",
         "range": "Self",
         "aoe": "",
-        "duration": "MR Rounds",
-        "effect": "Gain **+26 Evade**.",
+        "duration": "",
+        "effect": "When you activate an Active Buff that grants Damage as one of its effects, you may increase that Buff's effective Power Level by +1 and its duration by +1 round. Uses per Safe Haven Rest: half Mastery Rank, rounded up. The Active Buff cannot exceed Power Level 16.",
         "special": ""
       }
     ],
@@ -66,21 +66,24 @@
       {
         "level": 1,
         "kind": "power",
-        "powerTemplateId": "reaction-evade"
+        "powerTemplateId": "reaction-evade",
+        "displayName": "Otherworld Reflex"
       },
       {
         "level": 2,
         "kind": "power",
-        "powerTemplateId": "movement-wall-walk"
+        "powerTemplateId": "movement-wall-walk",
+        "displayName": "Elven Cling"
       },
       {
         "level": 3,
         "kind": "power",
-        "powerTemplateId": "ab-evade"
+        "powerTemplateId": "empower-buff-damage",
+        "displayName": "Ember Surge"
       }
     ],
     "lore": "Elven Stride (Fire): otherworldly balance, reflex, clinging movement, and Fire lineage empowerment.",
-    "description": "Elven Stride (Fire): otherworldly balance, reflex, clinging movement, and Fire lineage empowerment.\n\nAn elf with Elven Stride cannot wear another Feet Artifact, magical boots, hooves, talons, or similar Feet-based Artifact.",
+    "description": "Elven Stride (Fire): otherworldly balance, reflex, clinging movement, and Fire lineage empowerment.\n\nAn elf with Elven Stride cannot wear another Feet Artifact, magical boots, hooves, talons, or similar Feet-based Artifact. Elven Stride is Echo-bound and cannot normally be removed, replaced, sold, stolen, or unbound.",
     "bonuses": {
       "attack": 0,
       "damage": "",
@@ -94,7 +97,7 @@
     "powers": [
       {
         "id": "elvenStrideFire-pw-4",
-        "name": "Evade II",
+        "name": "Otherworld Reflex II",
         "category": "reaction",
         "tags": [],
         "cost": {
@@ -300,7 +303,7 @@
       },
       {
         "id": "elvenStrideFire-pw-5",
-        "name": "Wall Walk II",
+        "name": "Elven Cling II",
         "category": "movement",
         "tags": [],
         "cost": {
@@ -506,11 +509,11 @@
       },
       {
         "id": "elvenStrideFire-pw-3",
-        "name": "Evade I",
-        "category": "activeBuff",
+        "name": "Ember Surge I",
+        "category": "passive",
         "tags": [],
         "cost": {
-          "action": "full"
+          "action": "none"
         },
         "levels": {
           "1": {
@@ -550,17 +553,16 @@
             "specials": []
           },
           "4": {
-            "type": "Active Buff",
+            "type": "Support",
             "range": {
               "kind": "self"
             },
             "aoe": null,
             "duration": {
-              "kind": "rounds",
-              "rounds": 1
+              "kind": "instant"
             },
             "effect": {
-              "text": "Gain **+26 Evade**."
+              "text": "When you activate an Active Buff that grants Damage as one of its effects, you may increase that Buff's effective Power Level by +1 and its duration by +1 round. Uses per Safe Haven Rest: half Mastery Rank, rounded up. The Active Buff cannot exceed Power Level 16."
             },
             "specials": [],
             "lvl": 3
@@ -728,7 +730,7 @@
       ],
       "echoBound": "elves",
       "echoArtifactKey": "elvenStrideFire",
-      "seedVersion": 10
+      "seedVersion": 23
     }
   },
   "_id": "Q1tKODBeITPDul63",

@@ -32,7 +32,7 @@
     "levelProgression": [
       {
         "level": 7,
-        "name": "Evade III",
+        "name": "Otherworld Reflex III",
         "type": "Reaction",
         "range": "Self",
         "aoe": "",
@@ -42,7 +42,7 @@
       },
       {
         "level": 5,
-        "name": "Wall Walk II",
+        "name": "Elven Cling II",
         "type": "Movement",
         "range": "Self",
         "aoe": "",
@@ -52,12 +52,12 @@
       },
       {
         "level": 6,
-        "name": "Evade II",
-        "type": "Active Buff",
+        "name": "Tidal Slip II",
+        "type": "Support",
         "range": "Self",
         "aoe": "",
-        "duration": "MR Rounds",
-        "effect": "Gain **+62 Evade**.",
+        "duration": "",
+        "effect": "When you activate an Active Buff that grants Evade as one of its effects, you may increase that Buff's effective Power Level by +2 and its duration by +2 rounds. Uses per Safe Haven Rest: half Mastery Rank, rounded up. The Active Buff cannot exceed Power Level 16.",
         "special": ""
       }
     ],
@@ -66,21 +66,24 @@
       {
         "level": 1,
         "kind": "power",
-        "powerTemplateId": "reaction-evade"
+        "powerTemplateId": "reaction-evade",
+        "displayName": "Otherworld Reflex"
       },
       {
         "level": 2,
         "kind": "power",
-        "powerTemplateId": "movement-wall-walk"
+        "powerTemplateId": "movement-wall-walk",
+        "displayName": "Elven Cling"
       },
       {
         "level": 3,
         "kind": "power",
-        "powerTemplateId": "ab-evade"
+        "powerTemplateId": "empower-buff-evade",
+        "displayName": "Tidal Slip"
       }
     ],
     "lore": "Elven Stride (Water): otherworldly balance, reflex, clinging movement, and Water lineage empowerment.",
-    "description": "Elven Stride (Water): otherworldly balance, reflex, clinging movement, and Water lineage empowerment.\n\nAn elf with Elven Stride cannot wear another Feet Artifact, magical boots, hooves, talons, or similar Feet-based Artifact.",
+    "description": "Elven Stride (Water): otherworldly balance, reflex, clinging movement, and Water lineage empowerment.\n\nAn elf with Elven Stride cannot wear another Feet Artifact, magical boots, hooves, talons, or similar Feet-based Artifact. Elven Stride is Echo-bound and cannot normally be removed, replaced, sold, stolen, or unbound.",
     "bonuses": {
       "attack": 0,
       "damage": "",
@@ -94,7 +97,7 @@
     "powers": [
       {
         "id": "elvenStrideWater-pw-7",
-        "name": "Evade III",
+        "name": "Otherworld Reflex III",
         "category": "reaction",
         "tags": [],
         "cost": {
@@ -300,7 +303,7 @@
       },
       {
         "id": "elvenStrideWater-pw-5",
-        "name": "Wall Walk II",
+        "name": "Elven Cling II",
         "category": "movement",
         "tags": [],
         "cost": {
@@ -506,11 +509,11 @@
       },
       {
         "id": "elvenStrideWater-pw-6",
-        "name": "Evade II",
-        "category": "activeBuff",
+        "name": "Tidal Slip II",
+        "category": "passive",
         "tags": [],
         "cost": {
-          "action": "full"
+          "action": "none"
         },
         "levels": {
           "1": {
@@ -622,17 +625,16 @@
             "specials": []
           },
           "10": {
-            "type": "Active Buff",
+            "type": "Support",
             "range": {
               "kind": "self"
             },
             "aoe": null,
             "duration": {
-              "kind": "rounds",
-              "rounds": 1
+              "kind": "instant"
             },
             "effect": {
-              "text": "Gain **+62 Evade**."
+              "text": "When you activate an Active Buff that grants Evade as one of its effects, you may increase that Buff's effective Power Level by +2 and its duration by +2 rounds. Uses per Safe Haven Rest: half Mastery Rank, rounded up. The Active Buff cannot exceed Power Level 16."
             },
             "specials": [],
             "lvl": 6
@@ -728,7 +730,7 @@
       ],
       "echoBound": "elves",
       "echoArtifactKey": "elvenStrideWater",
-      "seedVersion": 10
+      "seedVersion": 23
     }
   },
   "_id": "nq7OLE2DjGKEJ6uf",

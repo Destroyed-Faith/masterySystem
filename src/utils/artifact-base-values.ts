@@ -31,6 +31,17 @@
  */
 
 import { getArtifactBindingKind } from './artifact-actor-rules.js';
+import {
+  resolveArtifactBodyArmor,
+  type ArtifactBodyArmorClassPenalty,
+  type ArmorWeightClass,
+} from './artifact-armor-weight.js';
+
+const WEIGHT_RANK: Record<ArmorWeightClass, number> = {
+  light: 0,
+  medium: 1,
+  heavy: 2,
+};
 import type {
   ArtifactBaseValue,
   ArtifactBaseValueType,
@@ -45,6 +56,11 @@ export interface ArtifactStatContribution {
   value: number;
   /** Optional GM-facing label (e.g. "Slot A · Tremorsense"). */
   label?: string;
+  /** Resolved weight class when this row is body armor. */
+  armorWeightClass?: 'light' | 'medium' | 'heavy';
+  baseArmor?: number;
+  bonusArmor?: number;
+  typeLabel?: string;
 }
 
 export interface ArtifactBaseValueBreakdown {
@@ -67,6 +83,10 @@ export interface ArtifactBaseValueBreakdown {
     minorArmor: ArtifactStatContribution[];
     notes: ArtifactStatContribution[];
   };
+  /** Drawbacks from equipped body artifact armor class (Medium / Heavy). */
+  bodyArmorClassPenalty: ArtifactBodyArmorClassPenalty | null;
+  /** Weight class of the primary body artifact armor (includes Light). */
+  bodyArmorClassInfo: { weightClass: ArmorWeightClass; typeLabel: string; source: string } | null;
 }
 
 function emptyBreakdown(): ArtifactBaseValueBreakdown {
@@ -84,6 +104,8 @@ function emptyBreakdown(): ArtifactBaseValueBreakdown {
       minorArmor: [],
       notes: [],
     },
+    bodyArmorClassPenalty: null,
+    bodyArmorClassInfo: null,
   };
 }
 
@@ -167,19 +189,71 @@ export function buildArtifactBaseValueBreakdown(actor: any): ArtifactBaseValueBr
       const contribLabel = rowLabel(bv);
 
       switch (type) {
-        case 'bodyArmor':
-          // Body Armor base value adds to actor Armor Total when the
-          // artifact is in the body slot. On head / feet / accessory
-          // slots it is treated as "Minor Armor" (still adds to total
-          // but shown in a separate row).
+        case 'bodyArmor': {
+          const resolved = resolveArtifactBodyArmor(bv, sys);
+          const armorValue = resolved ? resolved.totalArmor : value;
+          const row: ArtifactStatContribution = {
+            source,
+            type,
+            value: armorValue,
+            label: contribLabel,
+            ...(resolved
+              ? {
+                  armorWeightClass: resolved.weightClass,
+                  baseArmor: resolved.baseArmor,
+                  bonusArmor: resolved.bonusArmor,
+                  typeLabel: resolved.typeLabel,
+                }
+              : {}),
+          };
           if (slot === 'body') {
-            out.armorBonus += value;
-            out.rows.armor.push({ source, type, value, label: contribLabel });
+            out.armorBonus += armorValue;
+            out.rows.armor.push(row);
+            if (resolved) {
+              const rank = WEIGHT_RANK[resolved.weightClass];
+              const curInfo = out.bodyArmorClassInfo;
+              const curRank =
+                curInfo?.weightClass === 'heavy'
+                  ? 2
+                  : curInfo?.weightClass === 'medium'
+                    ? 1
+                    : curInfo
+                      ? 0
+                      : -1;
+              if (rank >= curRank) {
+                out.bodyArmorClassInfo = {
+                  weightClass: resolved.weightClass,
+                  typeLabel: resolved.typeLabel,
+                  source,
+                };
+              }
+              if (
+                resolved.evadeModifier !== 0 ||
+                resolved.initiativeModifier !== 0 ||
+                resolved.skillPenaltyDice > 0
+              ) {
+                const cur = out.bodyArmorClassPenalty;
+                const curPenRank =
+                  cur?.weightClass === 'heavy' ? 2 : cur?.weightClass === 'medium' ? 1 : cur ? 0 : -1;
+                if (rank > curPenRank) {
+                  out.bodyArmorClassPenalty = {
+                    weightClass: resolved.weightClass,
+                    typeLabel: resolved.typeLabel,
+                    source,
+                    evade: resolved.evadeModifier,
+                    initiative: resolved.initiativeModifier,
+                    skillPenalty: resolved.skillPenalty,
+                    skillPenaltyDice: resolved.skillPenaltyDice,
+                  };
+                }
+              }
+            }
           } else {
-            out.minorArmor += value;
-            out.rows.minorArmor.push({ source, type, value, label: contribLabel });
+            out.minorArmor += armorValue;
+            out.rows.minorArmor.push(row);
           }
           break;
+        }
 
         case 'headArmor':
           if (slot === 'head') {

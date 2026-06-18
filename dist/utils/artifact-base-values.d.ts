@@ -29,6 +29,7 @@
  * `sense` and `minorFeature` Base Values are exposed as informational
  * `notes` rows on the breakdown but do not modify combat numbers.
  */
+import { type ArtifactBodyArmorClassPenalty, type ArmorWeightClass } from './artifact-armor-weight.js';
 import type { ArtifactBaseValueType } from '../types/item.js';
 export interface ArtifactStatContribution {
     /** Where the contribution comes from — usually the artifact item name. */
@@ -39,6 +40,11 @@ export interface ArtifactStatContribution {
     value: number;
     /** Optional GM-facing label (e.g. "Slot A · Tremorsense"). */
     label?: string;
+    /** Resolved weight class when this row is body armor. */
+    armorWeightClass?: 'light' | 'medium' | 'heavy';
+    baseArmor?: number;
+    bonusArmor?: number;
+    typeLabel?: string;
 }
 export interface ArtifactBaseValueBreakdown {
     /** Sum into `system.combat.armorTotal`. */
@@ -60,6 +66,14 @@ export interface ArtifactBaseValueBreakdown {
         minorArmor: ArtifactStatContribution[];
         notes: ArtifactStatContribution[];
     };
+    /** Drawbacks from equipped body artifact armor class (Medium / Heavy). */
+    bodyArmorClassPenalty: ArtifactBodyArmorClassPenalty | null;
+    /** Weight class of the primary body artifact armor (includes Light). */
+    bodyArmorClassInfo: {
+        weightClass: ArmorWeightClass;
+        typeLabel: string;
+        source: string;
+    } | null;
 }
 /**
  * Aggregate Base Values from all equipped artifacts on the actor.

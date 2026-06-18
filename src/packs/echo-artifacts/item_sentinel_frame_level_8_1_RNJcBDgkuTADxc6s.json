@@ -18,15 +18,16 @@
         "slot": "a",
         "type": "bodyArmor",
         "label": "Light Echo Armor",
-        "value": 15,
-        "note": "No Light Armor drawback.",
-        "isBaseline": true
+        "value": 11,
+        "note": "Light Armor: no class drawbacks.",
+        "isBaseline": true,
+        "armorWeightClass": "light"
       }
     ],
     "levelProgression": [
       {
         "level": 7,
-        "name": "Ranged Single-Target Heal III",
+        "name": "Single Heal III",
         "type": "Ranged",
         "range": "68m",
         "aoe": "",
@@ -36,22 +37,22 @@
       },
       {
         "level": 8,
-        "name": "Temporary HP III",
-        "type": "Active Buff",
+        "name": "Resolve Core III",
+        "type": "Support",
         "range": "Self",
         "aoe": "",
-        "duration": "MR Rounds",
-        "effect": "Gain **122 Temporary HP**.",
+        "duration": "Passive",
+        "effect": "Stone Battery (Resolve)",
         "special": ""
       },
       {
         "level": 6,
-        "name": "Regeneration II",
-        "type": "Passive",
+        "name": "Healing Support II",
+        "type": "Support",
         "range": "Self",
         "aoe": "",
-        "duration": "",
-        "effect": "At the start of your turn, heal **25 HP**.",
+        "duration": "Passive",
+        "effect": "Stone Power Support (Resolve): supports Healing",
         "special": ""
       }
     ],
@@ -60,17 +61,27 @@
       {
         "level": 1,
         "kind": "power",
-        "powerTemplateId": "active-ranged-single-heal"
+        "powerTemplateId": "active-ranged-single-heal",
+        "displayName": "Single Heal"
       },
       {
         "level": 2,
-        "kind": "power",
-        "powerTemplateId": "ab-temp-hp"
+        "kind": "stoneFunction",
+        "stoneFunction": {
+          "kind": "stoneBattery",
+          "attribute": "resolve"
+        },
+        "displayName": "Resolve Core"
       },
       {
         "level": 3,
-        "kind": "power",
-        "powerTemplateId": "passive-regeneration"
+        "kind": "stoneFunction",
+        "stoneFunction": {
+          "kind": "stonePowerSupport",
+          "attribute": "resolve",
+          "stonePowerId": "resolve.healing"
+        },
+        "displayName": "Healing Support"
       }
     ],
     "lore": "The armored enforcer frame — an iron wall of heavenly order.",
@@ -88,7 +99,7 @@
     "powers": [
       {
         "id": "sentinelFrame-pw-7",
-        "name": "Ranged Single-Target Heal III",
+        "name": "Single Heal III",
         "category": "active",
         "tags": [],
         "cost": {
@@ -295,214 +306,7 @@
       },
       {
         "id": "sentinelFrame-pw-8",
-        "name": "Temporary HP III",
-        "category": "activeBuff",
-        "tags": [],
-        "cost": {
-          "action": "full"
-        },
-        "levels": {
-          "1": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "2": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "3": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "4": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "5": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "6": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "7": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "8": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "9": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "10": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "11": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "12": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "13": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "14": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "15": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "16": {
-            "type": "Active Buff",
-            "range": {
-              "kind": "self"
-            },
-            "aoe": null,
-            "duration": {
-              "kind": "rounds",
-              "rounds": 1
-            },
-            "effect": {
-              "text": "Gain **122 Temporary HP**."
-            },
-            "specials": [],
-            "lvl": 8
-          }
-        }
-      },
-      {
-        "id": "sentinelFrame-pw-6",
-        "name": "Regeneration II",
+        "name": "Resolve Core III",
         "category": "passive",
         "tags": [],
         "cost": {
@@ -618,16 +422,222 @@
             "specials": []
           },
           "10": {
-            "type": "Passive",
-            "range": {
-              "kind": "self"
-            },
+            "type": "",
+            "range": null,
             "aoe": null,
             "duration": {
               "kind": "instant"
             },
             "effect": {
-              "text": "At the start of your turn, heal **25 HP**."
+              "text": ""
+            },
+            "specials": []
+          },
+          "11": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "12": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "13": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "14": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "15": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "16": {
+            "type": "Support",
+            "range": {
+              "kind": "self"
+            },
+            "aoe": null,
+            "duration": {
+              "kind": "scene"
+            },
+            "effect": {
+              "text": "Stone Battery (Resolve)"
+            },
+            "specials": [],
+            "lvl": 8
+          }
+        }
+      },
+      {
+        "id": "sentinelFrame-pw-6",
+        "name": "Healing Support II",
+        "category": "passive",
+        "tags": [],
+        "cost": {
+          "action": "none"
+        },
+        "levels": {
+          "1": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "2": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "3": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "4": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "5": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "6": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "7": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "8": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "9": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "10": {
+            "type": "Support",
+            "range": {
+              "kind": "self"
+            },
+            "aoe": null,
+            "duration": {
+              "kind": "scene"
+            },
+            "effect": {
+              "text": "Stone Power Support (Resolve): supports Healing"
             },
             "specials": [],
             "lvl": 6
@@ -708,6 +718,12 @@
       }
     ],
     "inventorySize": "1x1",
+    "artifactArmor": {
+      "type": "light",
+      "armorValue": 11,
+      "evadeModifier": 0,
+      "skillPenalty": ""
+    },
     "equipSlots": [
       "body"
     ]
@@ -723,7 +739,7 @@
       ],
       "echoBound": "sentinels",
       "echoArtifactKey": "sentinelFrame",
-      "seedVersion": 10
+      "seedVersion": 23
     }
   },
   "_id": "RNJcBDgkuTADxc6s",

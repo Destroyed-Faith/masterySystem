@@ -14,13 +14,13 @@ export declare function resolveShieldSkillPenaltyText(shieldItem: any): string;
  * Sums all matches in one string; caller sums armor + shield.
  */
 export declare function parsePhysicalSkillPenaltyDiceCount(text: string): number;
-/** Total d8 removed from physical skill pool (armor + shield, equipped only). */
+/** Total d8 removed from physical skill pool (armor + shield + artifact body armor, equipped only). */
 export declare function getEquippedPhysicalSkillPenaltyDice(actor: any): number;
 /**
  * Heavy weapon: −10 to initiative; with Balanced, −5 instead.
  */
 export declare function getEquippedWeaponInitiativePenalty(weaponItem: any): number;
-/** Flat initiative modifier from equipped armor + shield + weapon (Heavy). */
+/** Flat initiative modifier from equipped armor + shield + weapon (Heavy) + artifact body armor class. */
 export declare function getEquippedEquipmentInitiativeModifier(actor: any): number;
 /** Rows for character sheet: how armor / shield / weapon affect initiative (equipped only). */
 export declare function getInitiativeEquipmentRows(actor: any): Array<{

@@ -18,30 +18,31 @@
         "slot": "a",
         "type": "bodyArmor",
         "label": "Light Echo Armor",
-        "value": 9,
-        "note": "No Light Armor drawback.",
-        "isBaseline": true
+        "value": 5,
+        "note": "Light Armor: no class drawbacks.",
+        "isBaseline": true,
+        "armorWeightClass": "light"
       }
     ],
     "levelProgression": [
       {
         "level": 1,
-        "name": "Armor I",
-        "type": "Active Buff",
+        "name": "Armor Hasten I",
+        "type": "Support",
         "range": "Self",
         "aoe": "",
-        "duration": "MR Rounds",
-        "effect": "Gain **+17 Armor**.",
+        "duration": "",
+        "effect": "When you activate an Active Buff that grants Armor as one of its effects, you may increase that Buff's effective Power Level by +1 and its duration by +1 round. Uses per Safe Haven Rest: half Mastery Rank, rounded up. The Active Buff cannot exceed Power Level 16.",
         "special": ""
       },
       {
         "level": 2,
-        "name": "Regeneration I",
-        "type": "Passive",
+        "name": "Wits Core I",
+        "type": "Support",
         "range": "Self",
         "aoe": "",
-        "duration": "",
-        "effect": "At the start of your turn, heal **10 HP**.",
+        "duration": "Passive",
+        "effect": "Stone Pool (Wits)",
         "special": ""
       }
     ],
@@ -50,17 +51,27 @@
       {
         "level": 1,
         "kind": "power",
-        "powerTemplateId": "ab-armor"
+        "powerTemplateId": "empower-buff-armor",
+        "displayName": "Armor Hasten"
       },
       {
         "level": 2,
-        "kind": "power",
-        "powerTemplateId": "passive-regeneration"
+        "kind": "stoneFunction",
+        "stoneFunction": {
+          "kind": "stonePool",
+          "attribute": "wits"
+        },
+        "displayName": "Wits Core"
       },
       {
         "level": 3,
-        "kind": "power",
-        "powerTemplateId": "reaction-damage-reduction"
+        "kind": "stoneFunction",
+        "stoneFunction": {
+          "kind": "stonePowerSupport",
+          "attribute": "influence",
+          "stonePowerId": "influence.regeneration"
+        },
+        "displayName": "Regeneration Support"
       }
     ],
     "lore": "A judge, inquisitor, and divine executioner frame.",
@@ -78,11 +89,11 @@
     "powers": [
       {
         "id": "judicatorFrame-pw-1",
-        "name": "Armor I",
-        "category": "activeBuff",
+        "name": "Armor Hasten I",
+        "category": "passive",
         "tags": [],
         "cost": {
-          "action": "full"
+          "action": "none"
         },
         "levels": {
           "1": {
@@ -122,17 +133,16 @@
             "specials": []
           },
           "4": {
-            "type": "Active Buff",
+            "type": "Support",
             "range": {
               "kind": "self"
             },
             "aoe": null,
             "duration": {
-              "kind": "rounds",
-              "rounds": 1
+              "kind": "instant"
             },
             "effect": {
-              "text": "Gain **+17 Armor**."
+              "text": "When you activate an Active Buff that grants Armor as one of its effects, you may increase that Buff's effective Power Level by +1 and its duration by +1 round. Uses per Safe Haven Rest: half Mastery Rank, rounded up. The Active Buff cannot exceed Power Level 16."
             },
             "specials": [],
             "lvl": 1
@@ -285,7 +295,7 @@
       },
       {
         "id": "judicatorFrame-pw-2",
-        "name": "Regeneration I",
+        "name": "Wits Core I",
         "category": "passive",
         "tags": [],
         "cost": {
@@ -329,16 +339,16 @@
             "specials": []
           },
           "4": {
-            "type": "Passive",
+            "type": "Support",
             "range": {
               "kind": "self"
             },
             "aoe": null,
             "duration": {
-              "kind": "instant"
+              "kind": "scene"
             },
             "effect": {
-              "text": "At the start of your turn, heal **10 HP**."
+              "text": "Stone Pool (Wits)"
             },
             "specials": [],
             "lvl": 2
@@ -491,6 +501,12 @@
       }
     ],
     "inventorySize": "1x1",
+    "artifactArmor": {
+      "type": "light",
+      "armorValue": 5,
+      "evadeModifier": 0,
+      "skillPenalty": ""
+    },
     "equipSlots": [
       "body"
     ]
@@ -506,7 +522,7 @@
       ],
       "echoBound": "sentinels",
       "echoArtifactKey": "judicatorFrame",
-      "seedVersion": 10
+      "seedVersion": 23
     }
   },
   "_id": "cdfkTBNG4sUB6NsT",

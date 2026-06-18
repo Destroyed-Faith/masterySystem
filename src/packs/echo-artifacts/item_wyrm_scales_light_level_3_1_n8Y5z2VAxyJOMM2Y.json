@@ -1,10 +1,10 @@
 {
-  "name": "Serpent Scales - Level 6-1",
+  "name": "Wyrm Scales (Light) - Level 3-1",
   "type": "artifact",
   "img": "icons/svg/statue.svg",
   "system": {
-    "level": 6,
-    "currentLevel": 6,
+    "level": 3,
+    "currentLevel": 3,
     "equipped": false,
     "effects": [],
     "artifactKind": "armor",
@@ -18,44 +18,49 @@
         "slot": "a",
         "type": "bodyArmor",
         "label": "Light Echo Armor",
-        "value": 13,
-        "note": "No Light Armor drawback.",
-        "isBaseline": true
+        "value": 6,
+        "note": "Light Armor: no class drawbacks.",
+        "isBaseline": true,
+        "armorWeightClass": "light"
       }
     ],
     "levelProgression": [
       {
-        "level": 4,
-        "name": "Flight II",
+        "level": 1,
+        "name": "Flight I",
         "type": "Movement",
         "range": "Self",
         "aoe": "",
         "duration": "Instant",
-        "effect": "Fly up to **15 m**.",
+        "effect": "Fly up to **6 m**.",
         "special": ""
       },
       {
-        "level": 5,
-        "name": "Evade II",
+        "level": 2,
+        "name": "Evade I",
         "type": "Active Buff",
         "range": "Self",
         "aoe": "",
         "duration": "MR Rounds",
-        "effect": "Gain **+62 Evade**.",
+        "effect": "Gain **+26 Evade**.",
         "special": ""
       },
       {
-        "level": 6,
-        "name": "Evade II",
-        "type": "Passive",
+        "level": 3,
+        "name": "Stone Support I",
+        "type": "Support",
         "range": "Self",
         "aoe": "",
-        "duration": "",
-        "effect": "Gain **+20 Evade**.",
+        "duration": "Passive",
+        "effect": "Stone Power Support (Agility): supports Evade",
         "special": ""
       }
     ],
-    "stoneFunction": null,
+    "stoneFunction": {
+      "kind": "stonePowerSupport",
+      "attribute": "agility",
+      "stonePowerId": "agility.evade"
+    },
     "progressionPicks": [
       {
         "level": 1,
@@ -69,12 +74,16 @@
       },
       {
         "level": 3,
-        "kind": "power",
-        "powerTemplateId": "passive-evade"
+        "kind": "stoneFunction",
+        "stoneFunction": {
+          "kind": "stonePowerSupport",
+          "attribute": "agility",
+          "stonePowerId": "agility.evade"
+        }
       }
     ],
-    "lore": "A lighter form of Dragonborn natural armor — flexible, smooth, built for movement.",
-    "description": "A lighter form of Dragonborn natural armor — flexible, smooth, built for movement.\n\nA Dragonborn with Serpent Scales cannot wear mundane armor or another Body Artifact.",
+    "lore": "Light scale-form — evasion and mobility over raw soak.",
+    "description": "Light scale-form — evasion and mobility over raw soak.\n\nA Dragonborn with Wyrm Scales cannot wear mundane armor or another Body Artifact.",
     "bonuses": {
       "attack": 0,
       "damage": "",
@@ -87,8 +96,8 @@
     },
     "powers": [
       {
-        "id": "serpentScales-pw-4",
-        "name": "Flight II",
+        "id": "wyrmScalesLight-pw-1",
+        "name": "Flight I",
         "category": "movement",
         "tags": [],
         "cost": {
@@ -132,16 +141,19 @@
             "specials": []
           },
           "4": {
-            "type": "",
-            "range": null,
+            "type": "Movement",
+            "range": {
+              "kind": "self"
+            },
             "aoe": null,
             "duration": {
               "kind": "instant"
             },
             "effect": {
-              "text": ""
+              "text": "Fly up to **6 m**."
             },
-            "specials": []
+            "specials": [],
+            "lvl": 1
           },
           "5": {
             "type": "",
@@ -204,19 +216,16 @@
             "specials": []
           },
           "10": {
-            "type": "Movement",
-            "range": {
-              "kind": "self"
-            },
+            "type": "",
+            "range": null,
             "aoe": null,
             "duration": {
               "kind": "instant"
             },
             "effect": {
-              "text": "Fly up to **15 m**."
+              "text": ""
             },
-            "specials": [],
-            "lvl": 4
+            "specials": []
           },
           "11": {
             "type": "",
@@ -293,8 +302,8 @@
         }
       },
       {
-        "id": "serpentScales-pw-5",
-        "name": "Evade II",
+        "id": "wyrmScalesLight-pw-2",
+        "name": "Evade I",
         "category": "activeBuff",
         "tags": [],
         "cost": {
@@ -338,16 +347,20 @@
             "specials": []
           },
           "4": {
-            "type": "",
-            "range": null,
+            "type": "Active Buff",
+            "range": {
+              "kind": "self"
+            },
             "aoe": null,
             "duration": {
-              "kind": "instant"
+              "kind": "rounds",
+              "rounds": 1
             },
             "effect": {
-              "text": ""
+              "text": "Gain **+26 Evade**."
             },
-            "specials": []
+            "specials": [],
+            "lvl": 2
           },
           "5": {
             "type": "",
@@ -410,20 +423,16 @@
             "specials": []
           },
           "10": {
-            "type": "Active Buff",
-            "range": {
-              "kind": "self"
-            },
+            "type": "",
+            "range": null,
             "aoe": null,
             "duration": {
-              "kind": "rounds",
-              "rounds": 1
+              "kind": "instant"
             },
             "effect": {
-              "text": "Gain **+62 Evade**."
+              "text": ""
             },
-            "specials": [],
-            "lvl": 5
+            "specials": []
           },
           "11": {
             "type": "",
@@ -500,8 +509,8 @@
         }
       },
       {
-        "id": "serpentScales-pw-6",
-        "name": "Evade II",
+        "id": "wyrmScalesLight-pw-3",
+        "name": "Stone Support I",
         "category": "passive",
         "tags": [],
         "cost": {
@@ -545,16 +554,19 @@
             "specials": []
           },
           "4": {
-            "type": "",
-            "range": null,
+            "type": "Support",
+            "range": {
+              "kind": "self"
+            },
             "aoe": null,
             "duration": {
-              "kind": "instant"
+              "kind": "scene"
             },
             "effect": {
-              "text": ""
+              "text": "Stone Power Support (Agility): supports Evade"
             },
-            "specials": []
+            "specials": [],
+            "lvl": 3
           },
           "5": {
             "type": "",
@@ -617,19 +629,16 @@
             "specials": []
           },
           "10": {
-            "type": "Passive",
-            "range": {
-              "kind": "self"
-            },
+            "type": "",
+            "range": null,
             "aoe": null,
             "duration": {
               "kind": "instant"
             },
             "effect": {
-              "text": "Gain **+20 Evade**."
+              "text": ""
             },
-            "specials": [],
-            "lvl": 6
+            "specials": []
           },
           "11": {
             "type": "",
@@ -707,25 +716,31 @@
       }
     ],
     "inventorySize": "1x1",
+    "artifactArmor": {
+      "type": "light",
+      "armorValue": 6,
+      "evadeModifier": 0,
+      "skillPenalty": ""
+    },
     "equipSlots": [
       "body"
     ]
   },
   "flags": {
     "mastery-system": {
-      "nodeId": "serpentScales-l6",
+      "nodeId": "wyrmScalesLight-l3",
       "parentIds": [
-        "serpentScales-l5"
+        "wyrmScalesLight-l2"
       ],
       "childIds": [
-        "serpentScales-l7"
+        "wyrmScalesLight-l4"
       ],
       "echoBound": "dragonborn",
-      "echoArtifactKey": "serpentScales",
-      "seedVersion": 10
+      "echoArtifactKey": "wyrmScalesLight",
+      "seedVersion": 23
     }
   },
-  "_id": "0d6xkElGV6lEUOJh",
-  "folder": "ocXK7ZFwS8KsKb95",
-  "_key": "!items!0d6xkElGV6lEUOJh"
+  "_id": "n8Y5z2VAxyJOMM2Y",
+  "folder": "eypKDDPbETED8i23",
+  "_key": "!items!n8Y5z2VAxyJOMM2Y"
 }

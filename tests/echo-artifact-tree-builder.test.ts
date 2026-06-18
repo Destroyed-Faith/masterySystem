@@ -47,11 +47,11 @@ describe('Echo Artifact tree builder — structure', () => {
   });
 
   it('node ids are deterministic and stable across builds', () => {
-    const a = buildEchoArtifactTree(getEchoArtifact('serpentScales')!);
-    const b = buildEchoArtifactTree(getEchoArtifact('serpentScales')!);
+    const a = buildEchoArtifactTree(getEchoArtifact('wyrmScalesLight')!);
+    const b = buildEchoArtifactTree(getEchoArtifact('wyrmScalesLight')!);
     expect(a.nodes.map((n) => n.nodeId)).toEqual(b.nodes.map((n) => n.nodeId));
-    expect(a.nodes[0].nodeId).toBe('serpentScales-l1');
-    expect(a.nodes[9].nodeId).toBe('serpentScales-l10');
+    expect(a.nodes[0].nodeId).toBe('wyrmScalesLight-l1');
+    expect(a.nodes[9].nodeId).toBe('wyrmScalesLight-l10');
   });
 
   it('embeds one power per visible ability row at each level', () => {
@@ -69,12 +69,13 @@ describe('Echo Artifact tree builder — structure', () => {
 });
 
 describe('Echo Artifact tree builder — exact Base Values', () => {
-  it('Light Echo Armor scales 8 → 18 (Serpent Scales)', () => {
-    const tree = buildEchoArtifactTree(getEchoArtifact('serpentScales')!);
+  it('Light Wyrm Scales stores artifact bonus + light weight class', () => {
+    const tree = buildEchoArtifactTree(getEchoArtifact('wyrmScalesLight')!);
     const bv = (lvl: number) =>
       (tree.nodes[lvl - 1].itemData.system as any).baseValues.find((b: any) => b.type === 'bodyArmor');
-    expect(bv(1).value).toBe(8);
-    expect(bv(10).value).toBe(18);
+    expect(bv(1).value).toBe(4);
+    expect(bv(1).armorWeightClass).toBe('light');
+    expect(bv(10).value).toBe(14);
   });
 
   it('Dragon Claws unlock weapon specials at L4 / L7', () => {
@@ -113,7 +114,7 @@ describe('Echo Artifact tree builder — exact Base Values', () => {
   });
 
   it('stamps the current seed version on every node (for in-place refresh)', () => {
-    expect(ECHO_ARTIFACT_SEED_VERSION).toBe(21);
+    expect(ECHO_ARTIFACT_SEED_VERSION).toBe(23);
     const tree = buildEchoArtifactTree(getEchoArtifact('titanScars')!);
     for (const node of tree.nodes) {
       expect(flag(node, 'seedVersion')).toBe(ECHO_ARTIFACT_SEED_VERSION);
@@ -206,8 +207,8 @@ describe('Echo Artifact tree builder — Stone Function auto-fill', () => {
     }
   });
 
-  it('gates the active Stone Function by its unlock level (Wyrm Scales = L3)', () => {
-    const tree = buildEchoArtifactTree(getEchoArtifact('wyrmScales')!);
+  it('gates the active Stone Function by its unlock level (Wyrm Scales Heavy = L3)', () => {
+    const tree = buildEchoArtifactTree(getEchoArtifact('wyrmScalesHeavy')!);
     // Below L3 the active stoneFunction is null; the editable pick is still authored.
     expect((tree.nodes[0].itemData.system as any).stoneFunction).toBeNull();
     expect((tree.nodes[2].itemData.system as any).stoneFunction).toEqual({
@@ -285,10 +286,13 @@ describe('Echo Artifact tree builder — Stone Function auto-fill', () => {
 });
 
 describe('Echo Artifact tree builder — Titan Scars', () => {
-  it('Medium Echo Armor scales +12 (L1) .. +22 (L10)', () => {
+  it('Medium Echo Armor stores artifact bonus + weight class (L1 bonus +4 → total 12 with medium base 8)', () => {
     const tree = buildEchoArtifactTree(getEchoArtifact('titanScars')!);
-    expect((tree.nodes[0].itemData.system as any).baseValues[0].value).toBe(12);
-    expect((tree.nodes[9].itemData.system as any).baseValues[0].value).toBe(22);
+    const bv = (tree.nodes[0].itemData.system as any).baseValues[0];
+    expect(bv.value).toBe(4);
+    expect(bv.armorWeightClass).toBe('medium');
+    expect((tree.nodes[9].itemData.system as any).baseValues[0].value).toBe(14);
+    expect((tree.nodes[0].itemData.system as any).artifactArmor.type).toBe('medium');
   });
 
   it('renders Titan Growth (Active Buff) / Titan Might (Stone) / Titan Healing verbatim', () => {
