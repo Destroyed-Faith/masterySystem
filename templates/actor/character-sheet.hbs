@@ -764,15 +764,8 @@
                 {{/each}}
               </ul>
               {{/if}}
-              {{#if system.derived.mechanicsBreakdown.evade.length}}
-              <p class="stat-summary-hint mechanics-summary-hint">From active passives &amp; buffs</p>
-              <ul class="combat-stat-breakdown mechanics-breakdown-list">
-                {{#each system.derived.mechanicsBreakdown.evade}}
-                <li>
-                  <span class="bd-main"><span class="bd-label">{{this.source}}</span><span class="bd-val">{{#if (gte this.value 0)}}+{{/if}}{{this.value}}</span></span>
-                </li>
-                {{/each}}
-              </ul>
+              {{#if system.combat.evadeFromActiveBuffs}}
+              <p class="stat-summary-hint mechanics-summary-hint">Active buff (combat only): +{{system.combat.evadeFromActiveBuffs}} Evade</p>
               {{/if}}
             </div>
             <div class="stat-icon evade-icon"><i class="fas fa-wind"></i></div>
@@ -796,15 +789,8 @@
                 {{/each}}
               </ul>
               {{/if}}
-              {{#if system.derived.mechanicsBreakdown.armor.length}}
-              <p class="stat-summary-hint mechanics-summary-hint">From active passives &amp; buffs</p>
-              <ul class="combat-stat-breakdown mechanics-breakdown-list">
-                {{#each system.derived.mechanicsBreakdown.armor}}
-                <li>
-                  <span class="bd-main"><span class="bd-label">{{this.source}}</span><span class="bd-val">{{#if (gte this.value 0)}}+{{/if}}{{this.value}}</span></span>
-                </li>
-                {{/each}}
-              </ul>
+              {{#if system.combat.armorFromActiveBuffs}}
+              <p class="stat-summary-hint mechanics-summary-hint">Active buff (combat only): +{{system.combat.armorFromActiveBuffs}} Armor</p>
               {{/if}}
               {{#if system.derived.mechanicsBreakdown.regen.length}}
               <p class="stat-summary-hint mechanics-summary-hint">Regeneration</p>

@@ -76,6 +76,10 @@ export declare function collectMechanicsContributions(actor: any): MechanicsCont
 export declare function aggregateMechanics(contributions: MechanicsContribution[], actor?: any): MechanicsBreakdown;
 /** High-level convenience: contributions + aggregation in one call. */
 export declare function buildActorMechanicsBreakdown(actor: any): MechanicsBreakdown;
+/** Slotted passive powers only (excludes active-buff ActiveEffects). */
+export declare function buildPassiveMechanicsBreakdown(actor: any): MechanicsBreakdown;
+/** Active buff ActiveEffects only (combat-time bonuses, not sheet base totals). */
+export declare function buildBuffMechanicsBreakdown(actor: any): MechanicsBreakdown;
 /**
  * Roll-dice delta for a given roll kind. Consumed by `roll-handler.ts`
  * right before the numDice pool is committed to `masteryRoll`.

@@ -52,9 +52,13 @@ export interface CombatData {
   activeWeaponId?: string;
   armorId?: string;
   shieldId?: string;
-  /** Aggregated bonus from slot-activated passives + active buffs with a `mechanics` block. */
+  /** Aggregated bonus from slotted passive powers with a `mechanics` block (excludes active buffs). */
   armorFromMechanics?: number;
   evadeFromMechanics?: number;
+  /** Active-buff armor bonus (not in sheet base total; applied at hit resolution). */
+  armorFromActiveBuffs?: number;
+  /** Active-buff evade bonus (not in sheet base total; applied at hit resolution). */
+  evadeFromActiveBuffs?: number;
   initiativeD8FromMechanics?: number;
   /**
    * Aggregated percentage-based Damage Reduction, applied AFTER flat Armor
@@ -136,6 +140,8 @@ export interface MechanicsBreakdown {
 
 export interface DerivedData {
   mechanicsBreakdown?: MechanicsBreakdown;
+  passiveMechanicsBreakdown?: MechanicsBreakdown;
+  buffMechanicsBreakdown?: MechanicsBreakdown;
 }
 
 /**

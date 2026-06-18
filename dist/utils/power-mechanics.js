@@ -623,6 +623,16 @@ export function buildActorMechanicsBreakdown(actor) {
     const contributions = collectMechanicsContributions(actor);
     return aggregateMechanics(contributions, actor);
 }
+/** Slotted passive powers only (excludes active-buff ActiveEffects). */
+export function buildPassiveMechanicsBreakdown(actor) {
+    const contributions = collectMechanicsContributions(actor).filter((c) => c.sourceKind === 'passive');
+    return aggregateMechanics(contributions, actor);
+}
+/** Active buff ActiveEffects only (combat-time bonuses, not sheet base totals). */
+export function buildBuffMechanicsBreakdown(actor) {
+    const contributions = collectMechanicsContributions(actor).filter((c) => c.sourceKind === 'buff');
+    return aggregateMechanics(contributions, actor);
+}
 /**
  * Roll-dice delta for a given roll kind. Consumed by `roll-handler.ts`
  * right before the numDice pool is committed to `masteryRoll`.

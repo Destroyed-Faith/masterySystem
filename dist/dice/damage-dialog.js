@@ -1349,7 +1349,7 @@ async function applyDamageToTarget(target, damage, attacker, count8s = 0) {
             damageReductionPctRead: Number(system.combat?.damageReductionPct ?? 0),
             count8s,
         });
-        const baseArmorTotal = Number(system.combat?.armorTotal ?? 0);
+        const baseArmorTotal = Number(system.combat?.armorTotal ?? 0) + Number(system.combat?.armorFromActiveBuffs ?? 0);
         const mitigation = applyDefensiveMitigation({
             rawDamage: damage,
             count8s,

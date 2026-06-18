@@ -3,7 +3,7 @@
  */
 import { calculateStones, calculateTotalStones, updateAttributeStones, initializeHealthBars, initializeStressBars, calculateHealthBarMax, calculateStressBarMax, calculateMightDamageBonus, calculateAgilityEvadeBonus, calculateAgilityRangeBonus, calculateIntellectSaveTNBonus, calculateResolveStressArmor, calculateInfluenceSkillBonus, calculateWitsInitiativeBonus, calculateArmorBreaker, calculateBaseEvade } from '../utils/calculations.js';
 import { getInitiativeEquipmentRows, getEquippedEquipmentInitiativeModifier } from '../utils/equipment-modifiers.js';
-import { buildActorMechanicsBreakdown } from '../utils/power-mechanics.js';
+import { buildActorMechanicsBreakdown, buildPassiveMechanicsBreakdown, buildBuffMechanicsBreakdown } from '../utils/power-mechanics.js';
 import { buildArtifactBaseValueBreakdown } from '../utils/artifact-base-values.js';
 import { getArtifactStoneFunctionStatus } from '../utils/artifact-stone-functions.js';
 import { logDrDebug } from '../utils/dr-debug.js';
@@ -456,19 +456,23 @@ export class MasteryActor extends Actor {
             iniEq === 0 ? '0' : iniEq > 0 ? `+${iniEq}` : String(iniEq);
         system.combat.initiativeMasteryRank = masteryRank;
         // Power Mechanics Engine — Aggregator
-        // Reads slot-activated passives and active buff effects that carry a
-        // structured `mechanics` block and sums numeric bonuses on-top of
-        // equipment-derived totals. Powers without mechanics are unaffected
-        // (remain GM-ruling), so this is strictly additive and backward-safe.
+        // Slotted passives feed sheet/combat base armor & evade; active buffs are
+        // stored separately and applied at hit resolution only.
         const mechBreakdown = buildActorMechanicsBreakdown(this);
+        const passiveMechBreakdown = buildPassiveMechanicsBreakdown(this);
+        const buffMechBreakdown = buildBuffMechanicsBreakdown(this);
         if (!system.derived)
             system.derived = {};
         system.derived.mechanicsBreakdown = mechBreakdown;
-        const armorMechBonus = mechBreakdown.totals.armor;
-        const evadeMechBonus = mechBreakdown.totals.evade;
+        system.derived.passiveMechanicsBreakdown = passiveMechBreakdown;
+        system.derived.buffMechanicsBreakdown = buffMechBreakdown;
+        const armorMechBonus = passiveMechBreakdown.totals.armor;
+        const evadeMechBonus = passiveMechBreakdown.totals.evade;
         const iniD8MechBonus = mechBreakdown.totals.initiativeD8;
         system.combat.armorFromMechanics = armorMechBonus;
         system.combat.evadeFromMechanics = evadeMechBonus;
+        system.combat.armorFromActiveBuffs = buffMechBreakdown.totals.armor;
+        system.combat.evadeFromActiveBuffs = buffMechBreakdown.totals.evade;
         system.combat.initiativeD8FromMechanics = iniD8MechBonus;
         system.combat.armorTotal = (system.combat.armorTotal || 0) + armorMechBonus;
         system.combat.evadeTotal = (system.combat.evadeTotal || 0) + evadeMechBonus;
@@ -494,10 +498,10 @@ export class MasteryActor extends Actor {
             drRowLabels: drRows.map((r) => `${r.label}=${r.value}%`),
         });
         if (armorMechBonus !== 0) {
-            for (const entry of mechBreakdown.armor) {
+            for (const entry of passiveMechBreakdown.armor) {
                 system.combat.armorBreakdownRows.push({
                     label: entry.source,
-                    detail: 'Power Mechanics',
+                    detail: 'Passive (slotted)',
                     value: entry.value,
                     display: entry.value > 0 ? `+${entry.value}` : String(entry.value),
                 });
@@ -505,10 +509,10 @@ export class MasteryActor extends Actor {
         }
         if (evadeMechBonus !== 0) {
             const fmt = (n) => (n > 0 ? `+${n}` : String(n));
-            for (const entry of mechBreakdown.evade) {
+            for (const entry of passiveMechBreakdown.evade) {
                 system.combat.evadeBreakdownRows.push({
                     label: entry.source,
-                    detail: 'Power Mechanics',
+                    detail: 'Passive (slotted)',
                     value: entry.value,
                     display: fmt(entry.value),
                 });

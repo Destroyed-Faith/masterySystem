@@ -3,6 +3,8 @@ import {
   aggregateMechanics,
   collectMechanicsContributions,
   buildActorMechanicsBreakdown,
+  buildPassiveMechanicsBreakdown,
+  buildBuffMechanicsBreakdown,
   resolvePowerMechanics,
   getRollDiceDelta,
   emptyBreakdown,
@@ -570,6 +572,41 @@ describe('buildActorMechanicsBreakdown — integration', () => {
     expect(bd.armor.map((e) => e.source)).toEqual(
       expect.arrayContaining([expect.stringContaining('Dragon Scales'), expect.stringContaining('Warden Stance')]),
     );
+  });
+
+  it('splits slotted passives from active buffs for armor/evade base totals', () => {
+    const passive = makePassivePower('p-dragon', 'Dragon Scales', 2, {
+      armor: 1,
+      evade: 1,
+      applyWhen: 'passive-slotted-active',
+    });
+    const actor = makeActor({
+      items: [passive],
+      slots: {
+        slot0: { active: true, passive: { id: 'p-dragon', name: 'Dragon Scales' } },
+      },
+      effects: [
+        {
+          name: 'Warden Stance',
+          flags: {
+            'mastery-system': {
+              activeBuff: true,
+              powerName: 'Warden Stance',
+              mechanics: { armor: 2, evade: 3, applyWhen: 'activeBuff-active' },
+            },
+          },
+        },
+      ],
+    });
+    const passiveBd = buildPassiveMechanicsBreakdown(actor);
+    const buffBd = buildBuffMechanicsBreakdown(actor);
+    const fullBd = buildActorMechanicsBreakdown(actor);
+    expect(passiveBd.totals.armor).toBe(1);
+    expect(passiveBd.totals.evade).toBe(1);
+    expect(buffBd.totals.armor).toBe(2);
+    expect(buffBd.totals.evade).toBe(3);
+    expect(fullBd.totals.armor).toBe(passiveBd.totals.armor + buffBd.totals.armor);
+    expect(fullBd.totals.evade).toBe(passiveBd.totals.evade + buffBd.totals.evade);
   });
 
   it('returns fully-populated empty breakdown for bare actor', () => {

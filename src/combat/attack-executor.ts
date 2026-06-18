@@ -160,7 +160,9 @@ function getTargetEvade(targetActor: any): number {
   
   const system = targetActor.system as any;
   const combat = system.combat || {};
-  return combat.evadeTotal ?? combat.evade ?? 6;
+  const base = combat.evadeTotal ?? combat.evade ?? 6;
+  const buffBonus = Number(combat.evadeFromActiveBuffs ?? 0);
+  return base + buffBonus;
 }
 
 /**

@@ -125,7 +125,9 @@ function getTargetEvade(targetActor) {
         return 6; // Default
     const system = targetActor.system;
     const combat = system.combat || {};
-    return combat.evadeTotal ?? combat.evade ?? 6;
+    const base = combat.evadeTotal ?? combat.evade ?? 6;
+    const buffBonus = Number(combat.evadeFromActiveBuffs ?? 0);
+    return base + buffBonus;
 }
 /**
  * Determine which attribute to use for attack rolls.
