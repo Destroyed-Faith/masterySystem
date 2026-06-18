@@ -109,17 +109,19 @@ describe('General Artifact trees — structure and binding', () => {
     }
   });
 
-  it('uses the authored rulebook rows 1:1 (no picks-derived recompilation)', () => {
-    const tree = buildEchoArtifactTree(getGeneralArtifact('soulSigil')!);
-    // L1 shows the authored "Soul Shell I" row, not a generic "Stone Support I" row.
-    expect(sysAt(tree, 1).levelProgression[0].name).toBe('Soul Shell I');
-    const l10names = sysAt(tree, 10).levelProgression.map((r: any) => r.name);
-    expect(l10names).toEqual([
-      'Soul Shell III',
-      'Uncanny Soul III',
-      'Resting Soul III',
-      'True Soul Sigil',
-    ]);
+  it('uses the authored rulebook rows 1:1 for artifacts without progressionPickSpecs', () => {
+    const def = getGeneralArtifact('frostboundReturningAxe')!;
+    // No pick specs → authored table is the source of truth (no recompilation).
+    expect(def.progressionPickSpecs).toBeUndefined();
+    expect(def.levelProgression).toHaveLength(10);
+    const tree = buildEchoArtifactTree(def);
+    for (const node of tree.nodes) {
+      expect((node.itemData.system as any).levelProgression).toEqual(
+        visibleAbilityRows(def.levelProgression, node.level),
+      );
+    }
+    // The authored L1 name survives verbatim.
+    expect(sysAt(tree, 1).levelProgression[0].name).toBe(def.levelProgression[0].name);
   });
 });
 
@@ -213,6 +215,26 @@ describe('Soul Sigil', () => {
         stonePowerId: 'vitality.tempHp',
       });
     }
+  });
+
+  it('builds its three lines from standard Powers (Soul Shell support + Phasing reaction + Phasing buff)', () => {
+    const def = getGeneralArtifact('soulSigil')!;
+    const picks = buildEchoProgressionPicks(def) as any[];
+    expect(picks[0].kind).toBe('stoneFunction');
+    expect(picks[1]).toMatchObject({ kind: 'power', powerTemplateId: 'reaction-phasing' });
+    expect(picks[2]).toMatchObject({ kind: 'power', powerTemplateId: 'ab-phasing' });
+
+    const byLevel = new Map(resolvedProgression(def).map((r: any) => [r.level, r]));
+    for (const lvl of [1, 4, 7]) expect((byLevel.get(lvl) as any).name).toMatch(/Soul Shell/);
+    for (const lvl of [2, 5, 8]) expect((byLevel.get(lvl) as any).name).toMatch(/Uncanny Soul/);
+    for (const lvl of [3, 6, 9]) expect((byLevel.get(lvl) as any).name).toMatch(/Resting Soul/);
+    expect((byLevel.get(10) as any).name).toBe('True Soul Sigil');
+
+    // The Phasing lines are real catalog Powers, not authored text.
+    const reaction = sysAt(tree, 8).powers.find((p: any) => /Uncanny Soul/.test(p.name));
+    expect(reaction.category).toBe('reaction');
+    const buff = sysAt(tree, 9).powers.find((p: any) => /Resting Soul/.test(p.name));
+    expect(buff.category).toBe('activeBuff');
   });
 });
 
