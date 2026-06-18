@@ -6,7 +6,7 @@ import { describeInnateAbility, getWeapon, WEAPONS } from '../utils/weapons.js';
 import { getArmorDefinitionForType, getShieldDefinitionForType, normalizeShieldTypeKey } from '../utils/equipment.js';
 import { formatEffectReference } from '../utils/special-effects.js';
 import { ARTIFACT_GEAR_SLOT_OPTIONS } from '../utils/artifact-node-options.js';
-import { ARTIFACT_SLOT_LABELS, BASE_PROFILE_LABELS, BASE_VALUE_TYPE_LABELS, } from '../utils/artifact-rules.js';
+import { ARTIFACT_SLOT_LABELS, BASE_PROFILE_LABELS, BASE_VALUE_TYPE_LABELS, formatArtifactWeaponRangeDisplay, resolveArtifactWeaponKind, } from '../utils/artifact-rules.js';
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const BaseDialog = HandlebarsApplicationMixin(ApplicationV2);
 function typeLabel(t) {
@@ -358,6 +358,7 @@ export class ItemInfoDialog extends BaseDialog {
                 ? kindRaw
                 : 'weapon';
             const aw = sys.artifactWeapon || {};
+            const profileKey = String(sys.baseProfile || '');
             const innates = Array.isArray(aw.innateAbilities)
                 ? aw.innateAbilities.map((x) => String(x))
                 : [];
@@ -366,7 +367,8 @@ export class ItemInfoDialog extends BaseDialog {
                 description: describeInnateAbility(label)
             }));
             const weaponSpecials = formatArtifactWeaponSpecialLines(aw.specials);
-            const wt = aw.weaponType === 'ranged' ? 'Ranged' : 'Melee';
+            const wtKind = resolveArtifactWeaponKind(aw, profileKey);
+            const wt = wtKind === 'ranged' ? 'Ranged' : 'Melee';
             const handsN = aw.hands === 2 ? 2 : 1;
             const aa = sys.artifactArmor || {};
             const armorTypeStr = aa.type ? String(aa.type) : '—';
@@ -386,7 +388,6 @@ export class ItemInfoDialog extends BaseDialog {
             // New spec: slot / profile, Base Values, and the per-level abilities.
             const currentLevel = Math.max(1, Math.min(10, Number(sys.currentLevel) || Number(sys.level) || 1));
             const slotKey = String(sys.slot || '');
-            const profileKey = String(sys.baseProfile || '');
             const baseValueRows = (Array.isArray(sys.baseValues) ? sys.baseValues : []).map((bv) => ({
                 slot: String(bv.slot || '').toUpperCase(),
                 typeLabel: BASE_VALUE_TYPE_LABELS[bv.type] || bv.type || '',
@@ -445,7 +446,7 @@ export class ItemInfoDialog extends BaseDialog {
                         hands: handsN,
                         handsLabel: handsN === 2 ? '2 hands' : '1 hand',
                         weaponType: wt,
-                        rangeOrReach: aw.range != null && String(aw.range).trim() !== '' ? String(aw.range) : '—',
+                        rangeOrReach: formatArtifactWeaponRangeDisplay(aw, profileKey).label,
                         innateRows,
                         specials: weaponSpecials,
                         specialsNote: 'Weapon specials are typically chosen or enhanced using Raises during combat (when rules allow).'

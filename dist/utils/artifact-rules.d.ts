@@ -64,6 +64,28 @@ export declare function weaponBasicsForProfile(profile: ArtifactBaseProfile | st
     weaponType: 'melee' | 'ranged';
     hands: number;
 } | null;
+/** Parse a weapon range string to metres; null when there is no real metre value. */
+export declare function parseArtifactWeaponRangeMeters(raw: unknown): number | null;
+/** Effective melee/ranged kind — `baseProfile` wins over stored `weaponType`. */
+export declare function resolveArtifactWeaponKind(aw: {
+    weaponType?: string;
+} | null | undefined, baseProfile?: string | null): 'melee' | 'ranged';
+/**
+ * Unified weapon range for display (print sheet, item info) and combat.
+ *   • Melee: 1 m, or 2 m with Reach.
+ *   • Ranged: authored metre value if it parses, else 24 m base.
+ * Junk per-level tables like "1,2,3,4,5,6,7,8" have no `m` suffix → 24 m.
+ */
+export declare function formatArtifactWeaponRangeDisplay(aw: {
+    weaponType?: string;
+    range?: unknown;
+    innateAbilities?: unknown;
+    specials?: unknown;
+} | null | undefined, baseProfile?: string | null): {
+    kind: 'melee' | 'ranged';
+    label: string;
+    meters: number;
+};
 /**
  * Max number of Base Values per slot per spec:
  *   Main Hand / Off Hand: 2

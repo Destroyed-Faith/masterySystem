@@ -32,6 +32,10 @@ import {
 import { normalizeSlotKey } from '../utils/equip-slots.js';
 import { isEchoArtifactInventoryHidden } from '../utils/echo-artifact-equip.js';
 import { isLegacyUnarmedItem } from '../utils/unarmed-fallback.js';
+import {
+  formatArtifactWeaponRangeDisplay,
+  resolveArtifactWeaponKind,
+} from '../utils/artifact-rules.js';
 
 /** Human-readable label per Stone Function kind (technical summary). */
 const STONE_FN_KIND_LABEL: Record<string, string> = {
@@ -214,20 +218,6 @@ function resolvePlayerName(actor: any): string {
   } catch {
     return '';
   }
-}
-
-/**
- * Parse a weapon range string ("12m", "8 m", "0m") to metres. Returns null when
- * there is no real metre value — e.g. an empty string or a junk per-level table
- * like "1,2,3,4,5,6,7,8" that carries no `m` suffix. Mirrors the combat radial
- * menu's `parseRowRange` so the printed range matches in-play behaviour.
- */
-function parseWeaponRangeMeters(raw: unknown): number | null {
-  const s = String(raw ?? '').trim().toLowerCase();
-  if (!s) return null;
-  if (s === 'self' || s === 'touch' || s === 'melee') return 0;
-  const m = s.match(/(\d+(?:\.\d+)?)\s*m\b/);
-  return m ? parseFloat(m[1]) : null;
 }
 
 function resolveEchoName(actor: any, system: any): string {
@@ -528,15 +518,16 @@ export function buildCharacterPrintContext(actor: any): Record<string, unknown> 
   const allItems: any[] = actor?.items ? Array.from(actor.items.values?.() ?? actor.items) : [];
   const artifactItems = allItems.filter((i: any) => i?.type === 'artifact');
 
-  function formatWeaponProfile(prof: any): { type: string; damage: string; range: string; tags: string } {
-    const isRanged = prof?.weaponType === 'ranged';
-    const type = isRanged ? 'Ranged' : 'Melee';
+  function formatWeaponProfile(
+    prof: any,
+    baseProfile?: string,
+  ): { type: string; damage: string; range: string; tags: string } {
+    const kind = resolveArtifactWeaponKind(prof, baseProfile);
+    const type = kind === 'ranged' ? 'Ranged' : 'Melee';
     const damage = String(prof?.damage ?? '').trim();
     const innate = Array.isArray(prof?.innateAbilities)
       ? prof.innateAbilities.map((a: any) => String(a)).filter(Boolean)
       : [];
-    // Use the canonical effect formatter so each special shows its proper name
-    // and (X) value (e.g. "Ignite(3)"), matching the item info dialog.
     const specials = Array.isArray(prof?.specials)
       ? prof.specials
           .map((s: any) =>
@@ -546,26 +537,14 @@ export function buildCharacterPrintContext(actor: any): Record<string, unknown> 
           )
           .filter(Boolean)
       : [];
-    // Weapon range rule (shared with the combat radial menu):
-    //   • Melee: 1 m, or 2 m when the weapon has a Reach ability.
-    //   • Ranged: the weapon's authored range if it parses to a real metre
-    //     value (e.g. "12m"); otherwise a 24 m base. Junk per-level tables like
-    //     "1,2,3,4,5,6,7,8" have no metre suffix, so they fall back to 24 m.
-    const hasReach = [...innate, ...specials].some((t) => /reach/i.test(String(t)));
-    let range: string;
-    if (!isRanged) {
-      range = hasReach ? '2 m' : '1 m';
-    } else {
-      const parsed = parseWeaponRangeMeters(prof?.range);
-      range = `${parsed != null && parsed > 0 ? parsed : 24} m`;
-    }
-    return { type, damage, range, tags: [...innate, ...specials].filter(Boolean).join(', ') };
+    const rangeDisplay = formatArtifactWeaponRangeDisplay(prof, baseProfile);
+    return { type, damage, range: rangeDisplay.label, tags: [...innate, ...specials].filter(Boolean).join(', ') };
   }
 
   const artifactWeapons = artifactItems
     .filter((a: any) => a?.system?.artifactWeapon)
     .map((a: any) => {
-      const prof = formatWeaponProfile(a.system.artifactWeapon);
+      const prof = formatWeaponProfile(a.system.artifactWeapon, a.system?.baseProfile);
       return {
         name: String(a?.name ?? ''),
         type: prof.type,
@@ -890,8 +869,8 @@ export function buildCharacterPrintContext(actor: any): Record<string, unknown> 
     hasEchoCards: echoCards.length > 0,
     familiars,
     hasFamiliars,
-    // 5 pages with a summon, 4 without (the Summons page drops out).
-    pageTotal: hasFamiliars ? 5 : 4,
+    // 6 pages with a summon (equip + stone + summons + battle), 5 without.
+    pageTotal: hasFamiliars ? 6 : 5,
     gear,
     equipment,
     technical

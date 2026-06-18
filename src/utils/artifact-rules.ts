@@ -176,6 +176,63 @@ export function weaponBasicsForProfile(
   }
 }
 
+/** Parse a weapon range string to metres; null when there is no real metre value. */
+export function parseArtifactWeaponRangeMeters(raw: unknown): number | null {
+  const s = String(raw ?? '').trim().toLowerCase();
+  if (!s) return null;
+  if (s === 'self' || s === 'touch' || s === 'melee') return 0;
+  const m = s.match(/(\d+(?:\.\d+)?)\s*m\b/);
+  return m ? parseFloat(m[1]) : null;
+}
+
+/** Effective melee/ranged kind — `baseProfile` wins over stored `weaponType`. */
+export function resolveArtifactWeaponKind(
+  aw: { weaponType?: string } | null | undefined,
+  baseProfile?: string | null,
+): 'melee' | 'ranged' {
+  const fromProfile = baseProfile ? weaponBasicsForProfile(baseProfile) : null;
+  if (fromProfile) return fromProfile.weaponType;
+  return aw?.weaponType === 'ranged' ? 'ranged' : 'melee';
+}
+
+function artifactWeaponHasReach(aw: {
+  innateAbilities?: unknown;
+  specials?: unknown;
+} | null | undefined): boolean {
+  const innate = Array.isArray(aw?.innateAbilities) ? aw!.innateAbilities : [];
+  const specials = Array.isArray(aw?.specials) ? aw!.specials : [];
+  const tags = [
+    ...innate.map((t) => String(t)),
+    ...specials.map((s: any) => String(s?.specialId ?? s?.key ?? s)),
+  ];
+  return tags.some((t) => /reach/i.test(t));
+}
+
+/**
+ * Unified weapon range for display (print sheet, item info) and combat.
+ *   • Melee: 1 m, or 2 m with Reach.
+ *   • Ranged: authored metre value if it parses, else 24 m base.
+ * Junk per-level tables like "1,2,3,4,5,6,7,8" have no `m` suffix → 24 m.
+ */
+export function formatArtifactWeaponRangeDisplay(
+  aw: {
+    weaponType?: string;
+    range?: unknown;
+    innateAbilities?: unknown;
+    specials?: unknown;
+  } | null | undefined,
+  baseProfile?: string | null,
+): { kind: 'melee' | 'ranged'; label: string; meters: number } {
+  const kind = resolveArtifactWeaponKind(aw, baseProfile);
+  if (kind === 'melee') {
+    const meters = artifactWeaponHasReach(aw) ? 2 : 1;
+    return { kind, label: `${meters} m`, meters };
+  }
+  const parsed = parseArtifactWeaponRangeMeters(aw?.range);
+  const meters = parsed != null && parsed > 0 ? parsed : 24;
+  return { kind, label: `${meters} m`, meters };
+}
+
 // ----------------------------------------------------------------------
 // Base Value Limits per Slot
 // ----------------------------------------------------------------------

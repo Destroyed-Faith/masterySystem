@@ -27,6 +27,8 @@ import {
     isAttributeAllowedForStoneFunctionInSlot,
     isBaseProfileAllowedForSlot,
     isBaseValueTypeAllowedForSlot,
+    formatArtifactWeaponRangeDisplay,
+    resolveArtifactWeaponKind,
     type ArtifactSlot,
 } from '../src/utils/artifact-rules.js';
 
@@ -199,5 +201,40 @@ describe('Artifact rules — STONE_POWER_COST_CHAIN', () => {
         expect(STONE_POWER_COST_CHAIN[2]).toBe(2);
         expect(STONE_POWER_COST_CHAIN[3]).toBe(4);
         expect(STONE_POWER_COST_CHAIN[4]).toBe(8);
+    });
+});
+
+describe('Artifact rules — weapon range display', () => {
+    it('twoHandedWeapon is melee 1 m even when artifactWeapon.weaponType is stale ranged', () => {
+        const aw = { weaponType: 'ranged', range: '1,2,3,4,5,6,7,8', innateAbilities: [], specials: [] };
+        expect(resolveArtifactWeaponKind(aw, 'twoHandedWeapon')).toBe('melee');
+        expect(formatArtifactWeaponRangeDisplay(aw, 'twoHandedWeapon')).toEqual({
+            kind: 'melee',
+            label: '1 m',
+            meters: 1,
+        });
+    });
+
+    it('twoHandedWeaponRanged uses parsed range or 24 m fallback', () => {
+        const aw = { weaponType: 'melee', range: '12m', innateAbilities: [], specials: [] };
+        expect(formatArtifactWeaponRangeDisplay(aw, 'twoHandedWeaponRanged')).toEqual({
+            kind: 'ranged',
+            label: '12 m',
+            meters: 12,
+        });
+        expect(formatArtifactWeaponRangeDisplay({ ...aw, range: '1,2,3' }, 'twoHandedWeaponRanged')).toEqual({
+            kind: 'ranged',
+            label: '24 m',
+            meters: 24,
+        });
+    });
+
+    it('melee with Reach innate shows 2 m', () => {
+        const aw = { weaponType: 'melee', range: '0m', innateAbilities: ['Reach (+1 m)'], specials: [] };
+        expect(formatArtifactWeaponRangeDisplay(aw, 'twoHandedWeapon')).toEqual({
+            kind: 'melee',
+            label: '2 m',
+            meters: 2,
+        });
     });
 });

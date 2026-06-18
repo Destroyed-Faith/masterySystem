@@ -11,6 +11,8 @@ import {
   ARTIFACT_SLOT_LABELS,
   BASE_PROFILE_LABELS,
   BASE_VALUE_TYPE_LABELS,
+  formatArtifactWeaponRangeDisplay,
+  resolveArtifactWeaponKind,
 } from '../utils/artifact-rules.js';
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
@@ -404,6 +406,7 @@ export class ItemInfoDialog extends BaseDialog {
           : 'weapon';
 
       const aw = sys.artifactWeapon || {};
+      const profileKey = String(sys.baseProfile || '');
       const innates: string[] = Array.isArray(aw.innateAbilities)
         ? aw.innateAbilities.map((x: unknown) => String(x))
         : [];
@@ -412,7 +415,8 @@ export class ItemInfoDialog extends BaseDialog {
         description: describeInnateAbility(label)
       }));
       const weaponSpecials = formatArtifactWeaponSpecialLines(aw.specials);
-      const wt = aw.weaponType === 'ranged' ? 'Ranged' : 'Melee';
+      const wtKind = resolveArtifactWeaponKind(aw, profileKey);
+      const wt = wtKind === 'ranged' ? 'Ranged' : 'Melee';
       const handsN = aw.hands === 2 ? 2 : 1;
 
       const aa = sys.artifactArmor || {};
@@ -440,7 +444,6 @@ export class ItemInfoDialog extends BaseDialog {
         Math.min(10, Number(sys.currentLevel) || Number(sys.level) || 1),
       );
       const slotKey = String(sys.slot || '');
-      const profileKey = String(sys.baseProfile || '');
       const baseValueRows = (Array.isArray(sys.baseValues) ? sys.baseValues : []).map((bv: any) => ({
         slot: String(bv.slot || '').toUpperCase(),
         typeLabel: (BASE_VALUE_TYPE_LABELS as any)[bv.type] || bv.type || '',
@@ -504,7 +507,7 @@ export class ItemInfoDialog extends BaseDialog {
                 hands: handsN,
                 handsLabel: handsN === 2 ? '2 hands' : '1 hand',
                 weaponType: wt,
-                rangeOrReach: aw.range != null && String(aw.range).trim() !== '' ? String(aw.range) : '—',
+                rangeOrReach: formatArtifactWeaponRangeDisplay(aw, profileKey).label,
                 innateRows,
                 specials: weaponSpecials,
                 specialsNote:

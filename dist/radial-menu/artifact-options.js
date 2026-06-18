@@ -20,6 +20,7 @@
  * attached so downstream consumers can identify the row.
  */
 import { getArtifactBindingKind } from '../utils/artifact-actor-rules.js';
+import { formatArtifactWeaponRangeDisplay, resolveArtifactWeaponKind } from '../utils/artifact-rules.js';
 import { visibleAbilityRows } from '../utils/artifact-visible-abilities.js';
 const REACTION_TYPES = new Set(['Reaction']);
 /**
@@ -142,7 +143,7 @@ export function buildArtifactRadialOptions(actor) {
         //     natural attack alongside the normal weapon.
         const aw = sys.artifactWeapon;
         if (aw && aw.damage) {
-            const isRangedWeapon = aw.weaponType === 'ranged';
+            const isRangedWeapon = resolveArtifactWeaponKind(aw, sys.baseProfile) === 'ranged';
             const isWeaponKind = sys.artifactKind === 'weapon';
             // Strip the generated " - Level N-M" suffix so the radial shows a
             // clean weapon name (e.g. "Dragon Claws" instead of "… - Level 5-1").
@@ -150,17 +151,7 @@ export function buildArtifactRadialOptions(actor) {
             const wName = (typeof aw.name === 'string' && aw.name.trim()) ||
                 cleanItemName ||
                 (isWeaponKind ? 'Artifact Weapon' : 'Natural Weapon');
-            // Range rule (shared with the printable sheet):
-            //   • Melee: 1 m, or 2 m with a Reach ability.
-            //   • Ranged: authored metre value if it parses, else a 24 m base.
-            const parsed = parseRowRange(aw.range);
-            const weaponReach = [
-                ...(Array.isArray(aw.innateAbilities) ? aw.innateAbilities : []),
-                ...(Array.isArray(aw.specials) ? aw.specials.map((s) => s?.specialId ?? s) : []),
-            ].some((t) => /reach/i.test(String(t)));
-            const wRange = isRangedWeapon
-                ? (parsed != null && parsed > 0 ? parsed : 24)
-                : (weaponReach ? 2 : 1);
+            const wRange = formatArtifactWeaponRangeDisplay(aw, sys.baseProfile).meters;
             out.push({
                 id: `artifact-weapon:${item.id}`,
                 name: wName,
