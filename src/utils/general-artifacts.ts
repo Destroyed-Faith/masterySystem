@@ -39,7 +39,7 @@ const MOONLIGHT_GREATSWORD: GeneralArtifactDefinition = {
   restriction:
     'The Moonlight Greatsword occupies both hand Slots. A character with the Moonlight Greatsword cannot use another weapon, shield, hand focus, claw Artifact, or hand-based magical item at the same time.',
   baseValues: [
-    { slot: 'a', label: 'Weapon Damage', note: '4d8 to 16d8 across levels.' },
+    { slot: 'a', label: 'Weapon Damage', note: '5d8 to 14d8 across levels (4d8 two-handed base + 1d8/level).' },
     { slot: 'b', label: 'Weapon Special', note: 'Smite(4) from L4, Smite(8) from L7.' },
     { slot: 'c', label: 'Weapon Special', note: 'Expose(4) from L7, Expose(8) + True Moonlight at L10.' },
   ],
@@ -137,7 +137,7 @@ const FROSTBOUND_RETURNING_AXE: GeneralArtifactDefinition = {
     level: 1,
   },
   baseValues: [
-    { slot: 'a', label: 'Weapon Damage', note: '2d8 to 11d8 across levels.' },
+    { slot: 'a', label: 'Weapon Damage', note: '3d8 to 12d8 across levels (2d8 one-handed base + 1d8/level).' },
     { slot: 'b', label: 'Thrown Return', note: 'Thrown 9\u201315 m, Returning, from L4. True Frostbound Return at L10.' },
   ],
   levelProgression: [
@@ -392,7 +392,7 @@ const STAFF_OF_THE_DARK: GeneralArtifactDefinition = {
     {
       slot: 'a',
       label: 'Spell Focus Bonus',
-      note: '+2d8 (L1) to +11d8 (L10) damage to Spells cast through this Staff. Does not apply to weapon attacks.',
+      note: '+3d8 (L1) to +12d8 (L10) damage to Spells cast through this Staff (1:1 one-handed weapon damage). Does not apply to weapon attacks.',
     },
     {
       slot: 'b',
@@ -784,7 +784,7 @@ const LOR_KETHS_STAFF: GeneralArtifactDefinition = {
     level: 3,
   },
   baseValues: [
-    { slot: 'a', label: 'Staff Damage', note: '1d8 to 10d8 across levels.' },
+    { slot: 'a', label: 'Staff Damage', note: '5d8 to 14d8 across levels (4d8 two-handed base + 1d8/level).' },
     {
       slot: 'b',
       label: 'Storm Rune',

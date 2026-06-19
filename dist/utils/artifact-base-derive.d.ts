@@ -34,13 +34,25 @@ export declare function feetEvadeForLevel(level: number): number;
 export declare function minorArmorForLevel(level: number): number;
 /** Feet movement bonus. L1-2=+1, L3-4=+2 … L9-10=+5. */
 export declare function feetMovementForLevel(level: number): number;
-/** Weapon Damage baseline. L1=1d8 … L10=10d8. */
-export declare function weaponDamageForLevel(level: number): string;
 /**
- * Spell Focus baseline. Mirrors Weapon Damage (L1=+1d8 … L10=+10d8) but the
- * value boosts Spell damage instead of dealing weapon damage.
+ * Base weapon dice from the physical Base Profile (before the per-level
+ * artifact bonus):
+ *   • One-handed (melee or ranged) → 2d8
+ *   • Two-handed (melee or ranged) → 4d8
+ *   • anything else (natural weapon / unknown) → 0 (pure per-level scaling)
  */
-export declare function spellFocusForLevel(level: number): string;
+export declare function baseProfileWeaponDice(profile?: string | null): number;
+/**
+ * Weapon Damage. A weapon deals its Base Profile dice (2d8 one-handed / 4d8
+ * two-handed) plus +1d8 per artifact level. So a two-handed artifact at L2 is
+ * 4 + 2 = 6d8; a one-handed at L2 is 2 + 2 = 4d8.
+ */
+export declare function weaponDamageForLevel(level: number, profile?: string | null): string;
+/**
+ * Spell Focus baseline — 1:1 the same value as Weapon Damage for the profile,
+ * but the dice boost Spell damage instead of dealing weapon damage.
+ */
+export declare function spellFocusForLevel(level: number, profile?: string | null): string;
 /** Thrown Range baseline. L1=6 m … L10=15 m. */
 export declare function thrownRangeForLevel(level: number): number;
 /** Sense depth tier word. L1-3 Detect, L4-6 Locate, L7-9 Identify, L10 Target. */

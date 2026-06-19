@@ -30,10 +30,6 @@ function rangedRange(lvl: number, base = 8): RangeSpec {
     return { kind: 'distance', m: base + (lvl - 1) * 4 };
 }
 
-function aoeRadius(lvl: number, step = 1, base = 2): AoeSpec {
-    return { shape: 'radius', radiusM: base + Math.floor((lvl - 1) * step), center: 'targetPoint', targetFilter: 'enemies' };
-}
-
 /**
  * Solve damage rider + special rank for one row using the canonical
  * 30 PP / level budget (see `pp-budget.ts`). The helper applies the
@@ -56,6 +52,49 @@ function rowFromBudget(opts: {
         rangeM: r.rangeM,
     };
 }
+
+// ─── Explicit md progression tables ──────────────────────────────────────
+// The PP-budget solver maxes the Special and leaves damage as the remainder,
+// which does NOT match Actives.md (damage is a small early-frozen anchor and
+// the Special scales with the rest). These tables encode the md spec directly
+// for the player-visible damage / radius / range columns. The Special *rank*
+// is still derived from the budget solver (it is not shown in the md tables).
+
+/** Single-target damage anchor per tier (dice = min(level, anchor)). */
+const SINGLE_DAMAGE_ANCHOR: Record<ActiveSpecialTier, number> = { 3: 1, 4: 1, 5: 3, 6: 2 };
+
+/** AoE damage bonus dice per tier+flavour (mostly 0 — budget funds radius). */
+const MELEE_AOE_DMG_DICE: Record<ActiveSpecialTier, readonly number[]> = {
+    3: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1],
+    4: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1],
+    5: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1],
+    6: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1],
+};
+const RANGED_AOE_DMG_DICE: Record<ActiveSpecialTier, readonly number[]> = {
+    3: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1],
+    4: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    5: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    6: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+};
+const MELEE_AOE_DMG_RADIUS: Record<ActiveSpecialTier, readonly number[]> = {
+    3: [2, 2, 3, 3, 4, 4, 5, 5, 5, 6, 6, 6, 7, 7, 7, 7],
+    4: [2, 2, 3, 3, 4, 4, 5, 5, 5, 6, 6, 6, 7, 7, 7, 7],
+    5: [2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 6, 6, 7, 7, 7, 7],
+    6: [2, 2, 3, 3, 4, 4, 5, 5, 5, 6, 6, 6, 6, 7, 7, 7],
+};
+const RANGED_AOE_DMG_RADIUS: Record<ActiveSpecialTier, readonly number[]> = {
+    3: [2, 2, 2, 3, 3, 4, 4, 4, 5, 5, 5, 6, 6, 6, 6, 6],
+    4: [2, 2, 3, 3, 4, 4, 4, 5, 5, 5, 6, 6, 6, 6, 7, 7],
+    5: [2, 2, 3, 3, 3, 4, 4, 4, 5, 5, 6, 6, 6, 6, 7, 7],
+    6: [2, 2, 3, 3, 4, 4, 4, 5, 5, 5, 5, 6, 6, 6, 6, 7],
+};
+/** Persistent-zone radius per tier (0 = no zone available at that rank). */
+const ZONE_RADIUS_BY_TIER: Record<ActiveSpecialTier, readonly number[]> = {
+    3: [0, 0, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3],
+    4: [0, 0, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4],
+    5: [0, 0, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 4, 4, 4, 4],
+    6: [0, 0, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
+};
 
 // ─── Factory helpers ─────────────────────────────────────────────────────
 
@@ -84,14 +123,15 @@ function damageSingleTemplate(def: {
         roll: { kind: 'attack', attribute: isRanged ? 'agility' : 'might' },
         levels: buildLevels((lvl) => {
             const r = rowFromBudget({ tier: def.tier, lvl, isRanged, aoe: false });
+            const d = Math.min(lvl, SINGLE_DAMAGE_ANCHOR[def.tier]);
             return activeRow({
                 type: isRanged ? 'Ranged' : 'Melee',
                 range: isRanged ? rangedRange(lvl) : MELEE_RANGE,
                 aoe: R_NONE,
-                effectText: `Deal **+${r.dice} damage** on hit.`,
-                dice: r.dice,
+                effectText: `Deal **+${d}d8 damage** on hit.`,
+                dice: `${d}d8`,
                 specials: [{ key: 'SPECIAL', rank: r.rank, note: 'bound at item-create via chosenSpecial' }],
-                mechanics: { damageRider: { flat: `+${r.dice}` }, applyWhen: 'attack-rider' },
+                mechanics: { damageRider: { flat: `+${d}d8` }, applyWhen: 'attack-rider' },
             });
         }),
     };
@@ -123,14 +163,21 @@ function damageAoeTemplate(def: {
         roll: { kind: 'attack', attribute: isRanged ? 'agility' : 'might' },
         levels: buildLevels((lvl) => {
             const r = rowFromBudget({ tier: def.tier, lvl, isRanged, aoe: true });
+            const radius = (isRanged ? RANGED_AOE_DMG_RADIUS : MELEE_AOE_DMG_RADIUS)[def.tier][lvl - 1];
+            const d = (isRanged ? RANGED_AOE_DMG_DICE : MELEE_AOE_DMG_DICE)[def.tier][lvl - 1];
+            const effectText = d === 0
+                ? 'No damage. The chosen Special applies to every affected creature at half value.'
+                : `Deal **+${d}d8 damage** to every affected creature; Special applies at half value.`;
             return activeRow({
                 type: isRanged ? 'Ranged AoE' : 'Melee AoE',
-                range: isRanged ? rangedRange(lvl, 12) : MELEE_RANGE,
-                aoe: aoeRadius(lvl),
-                effectText: `Deal **+${r.dice} damage** to every affected creature; Special applies at half value.`,
-                dice: r.dice,
+                range: isRanged ? rangedRange(lvl, 8) : MELEE_RANGE,
+                aoe: { shape: 'radius', radiusM: radius, center: isRanged ? 'targetPoint' : 'self', targetFilter: 'enemies' },
+                effectText,
+                dice: d === 0 ? undefined : `${d}d8`,
                 specials: [{ key: 'SPECIAL', rank: r.rank, note: 'bound at item-create via chosenSpecial (AoE = half value, T(X+1) cost)' }],
-                mechanics: { damageRider: { flat: `+${r.dice}` }, applyWhen: 'attack-rider' },
+                mechanics: d === 0
+                    ? { applyWhen: 'attack-rider' }
+                    : { damageRider: { flat: `+${d}d8` }, applyWhen: 'attack-rider' },
             });
         }),
     };
@@ -144,12 +191,8 @@ function damageAoeTemplate(def: {
  *   • Fixed duration: 4 Rounds.
  *   • Radius table per Power Level: 1m → 4m (see ZONE_RADIUS_TABLE).
  *   • Special applies once per Round per creature (`usageLimit`).
- *   • Cost uses AoE pricing (T(X+1)).
+ *   • Cost uses AoE pricing (T(X+1)). Radius per tier: ZONE_RADIUS_BY_TIER.
  */
-const ZONE_RADIUS_TABLE: readonly number[] = [
-    1, 1, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4,
-];
-
 function persistentZoneTemplate(tier: ActiveSpecialTier): PowerTemplate {
     const id = `active-ranged-zone-t${tier}`;
     const name = `Ranged Persistent Zone — Tier ${tier}`;
@@ -169,13 +212,24 @@ function persistentZoneTemplate(tier: ActiveSpecialTier): PowerTemplate {
         // No attack roll — placement is automatic.
         roll: { kind: 'none' },
         levels: buildLevels((lvl) => {
-            // Persistent Zone uses AoE pricing (half-value, T(X+1) cost),
-            // but pays no Range step cost — the zone is placed, not thrown.
-            const r = rowFromBudget({ tier, lvl, isRanged: false, aoe: true });
-            const radius = ZONE_RADIUS_TABLE[lvl - 1];
+            // Persistent Zone uses AoE pricing (half-value, T(X+1) cost) and pays
+            // range like any ranged Active. The zone unlocks at L3 (radius 0 below).
+            const r = rowFromBudget({ tier, lvl, isRanged: true, aoe: true });
+            const radius = ZONE_RADIUS_BY_TIER[tier][lvl - 1];
+            if (radius <= 0) {
+                return activeRow({
+                    type: 'Ranged Zone',
+                    range: rangedRange(lvl, 8),
+                    aoe: R_NONE,
+                    duration: { kind: 'rounds', rounds: 4 },
+                    effectText: 'No persistent zone is available at this Power rank.',
+                    specials: [],
+                    mechanics: { applyWhen: 'manual', duration: 'untilNextTurn' },
+                });
+            }
             return activeRow({
                 type: 'Ranged Zone',
-                range: rangedRange(lvl, 12),
+                range: rangedRange(lvl, 8),
                 aoe: { shape: 'zone', radiusM: radius, center: 'targetPoint', targetFilter: 'enemies' },
                 duration: { kind: 'rounds', rounds: 4 },
                 effectText: `Place a **${radius} m** zone for **4 Rounds**. No attack roll. Each creature inside (including those that enter on later turns) suffers the chosen Tier ${tier} Special at **rank ${r.rank}** — applied **once per Round per creature** (refreshed on the caster's turn-start).`,
@@ -195,15 +249,20 @@ function persistentZoneTemplate(tier: ActiveSpecialTier): PowerTemplate {
  *
  * Source: Actives.md ~2611–2900.
  *
- *   • **Push / Pull**: pay-per-meter (`30 PP per 2 m`, i.e. `15 PP / m`).
- *     Melee → `lvl × 2 m` per level. Ranged → range first (5 PP / +4 m
- *     after 8 m), then spend the remainder on push/pull meters.
- *   • **Prone / Disarm**: Diminishing Tier 3 specials, scale with the
- *     standard `T(X) × 3 PP` table.
+ *   • **Push / Pull** (single forced-movement axis): the whole budget funds
+ *     distance at `30 PP / 2 m`. Melee → `lvl × 2 m`. Ranged → range first,
+ *     remainder → distance (rounded down to even metres).
+ *   • **Pull + Disarm / Push + Prone**: a binary `60 PP` add-on
+ *     (Disarm / Prone) unlocks once the post-range budget reaches 60 PP; the
+ *     remaining budget funds the Pull / Push distance.
  *
- * Compound templates (Push+Pull, Push+Prone, Pull+Disarm) split the
- * remaining budget evenly across the involved specials.
+ * Source: Actives.md control tables (Special column).
  */
+/** Forced-movement distance funded by `pp` PP (30 PP / 2 m, even metres). */
+function pushPullMeters(pp: number): number {
+    return Math.max(0, Math.floor(Math.floor(pp / 15) / 2) * 2);
+}
+
 function controlTemplate(def: {
     id: string;
     flavour: 'melee' | 'ranged';
@@ -211,7 +270,9 @@ function controlTemplate(def: {
     specials: string[];
 }): PowerTemplate {
     const isRanged = def.flavour === 'ranged';
-    const PP_PER_METER = 15; // 30 PP / 2 m
+    const hasDisarm = def.specials.includes('disarm');
+    const hasProne = def.specials.includes('prone');
+    const ADDON_COST = 60; // Disarm / Prone are fixed 60 PP add-ons.
     return {
         templateId: def.id,
         templateName: def.name,
@@ -224,52 +285,80 @@ function controlTemplate(def: {
         cost: { action: 'attack' },
         roll: { kind: 'attack', attribute: isRanged ? 'agility' : 'might' },
         levels: buildLevels((lvl) => {
-            // Total PP this level + range cost for ranged variants.
             const totalPP = lvl * 30;
             const rangeM = isRanged ? 8 + (lvl - 1) * 4 : 0;
             const rangeCostPP = isRanged ? Math.max(0, Math.ceil((rangeM - 8) / 4) * 5) : 0;
-            const remaining = Math.max(0, totalPP - rangeCostPP);
+            const budget = Math.max(0, totalPP - rangeCostPP);
+            const range = isRanged ? rangedRange(lvl, 8) : MELEE_RANGE;
+            const type = isRanged ? 'Ranged' : 'Melee';
 
-            // Compound templates split the budget evenly between specials.
-            const slice = Math.floor(remaining / def.specials.length);
-
-            const computedSpecials = def.specials.map((k) => {
-                if (k === 'push' || k === 'pull') {
-                    // Quantize to 2 m (30 PP) granularity.
-                    const meters = Math.max(2, Math.floor(slice / PP_PER_METER / 2) * 2);
-                    return { key: k, rank: meters };
+            if (hasDisarm || hasProne) {
+                // Binary add-on must be affordable before any distance.
+                if (budget < ADDON_COST) {
+                    return activeRow({ type, range, aoe: R_NONE, effectText: '—', specials: [], mechanics: {} });
                 }
-                if (k === 'disarm') {
-                    // Disarm is binary; if budget covers ≥ 12 PP it applies.
-                    return slice >= 12 ? { key: k } : null;
-                }
-                // Diminishing T3 (prone, expose, mark, …): pick max X for slice.
-                let x = 0;
-                while (((x + 1) * (x + 2) / 2) * 3 <= slice) {
-                    x += 1;
-                    if (x > 32) break;
-                }
-                return x > 0 ? { key: k, rank: x } : null;
-            }).filter((s): s is { key: string; rank?: number } => s !== null);
+                const meters = pushPullMeters(budget - ADDON_COST);
+                const moveKey = hasDisarm ? 'pull' : 'push';
+                const moveWord = hasDisarm ? 'Pull' : 'Push';
+                const addonPhrase = hasDisarm ? 'Disarm one held item' : 'target falls Prone';
+                const specials: { key: string; rank?: number }[] = [{ key: hasDisarm ? 'disarm' : 'prone' }];
+                if (meters > 0) specials.unshift({ key: moveKey, rank: meters });
+                const desc = meters > 0
+                    ? `${moveWord} **${meters} m** and ${addonPhrase}.`
+                    : `${hasDisarm ? 'Disarm one held item' : 'Target falls Prone'}.`;
+                return activeRow({
+                    type, range, aoe: R_NONE,
+                    effectText: `No damage. ${desc}`,
+                    specials,
+                    mechanics: { applyWhen: 'attack-rider' },
+                });
+            }
 
-            const desc = computedSpecials.map((s) => {
-                if (s.key === 'push' || s.key === 'pull') return `**${s.key} ${s.rank} m**`;
-                if (s.rank !== undefined) return `**${s.key}(${s.rank})**`;
-                return `**${s.key}**`;
-            }).join(' + ');
-
+            // Push / Pull — single forced-movement axis funded by the full budget.
+            const meters = pushPullMeters(budget);
             return activeRow({
-                type: isRanged ? 'Ranged' : 'Melee',
-                range: isRanged ? rangedRange(lvl, 8) : MELEE_RANGE,
-                aoe: R_NONE,
-                effectText: computedSpecials.length === 0
-                    ? 'No effect at this Power rank — budget too low.'
-                    : `Apply ${desc}.`,
-                specials: computedSpecials,
+                type, range, aoe: R_NONE,
+                effectText: `No damage. **Push ${meters} m** or **Pull ${meters} m**.`,
+                specials: [{ key: 'push', rank: meters }, { key: 'pull', rank: meters }],
                 mechanics: { applyWhen: 'attack-rider' },
             });
         }),
     };
+}
+
+// ─── Support progression tables (per variant) — Source: Actives.md ───────
+// Heal HP dice (the value before "d8"), one curve per flavour/shape.
+const HEAL_DICE_MELEE_SINGLE: readonly number[] = [3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33, 36, 39, 42, 45, 48];
+const HEAL_DICE_RANGED_SINGLE: readonly number[] = [3, 5, 8, 10, 13, 15, 18, 20, 23, 25, 28, 30, 33, 35, 38, 40];
+const HEAL_DICE_MELEE_AOE: readonly number[] = [1, 4, 7, 10, 13, 13, 16, 18, 18, 21, 24, 27, 28, 28, 31, 34];
+const HEAL_DICE_RANGED_AOE: readonly number[] = [1, 3, 6, 8, 11, 13, 15, 15, 18, 20, 21, 21, 24, 24, 24, 26];
+const HEAL_AOE_RADIUS_MELEE: readonly number[] = [2, 2, 2, 2, 2, 3, 3, 3, 4, 4, 4, 4, 4, 5, 5, 5];
+const HEAL_AOE_RADIUS_RANGED: readonly number[] = [2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 5, 5];
+// Cleanse rank (0 = no version available at that Power rank).
+const CLEANSE_MELEE_SINGLE: readonly number[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
+const CLEANSE_RANGED_SINGLE: readonly number[] = [1, 1, 2, 3, 4, 5, 6, 6, 7, 8, 9, 10, 11, 11, 12, 13];
+const CLEANSE_MELEE_AOE: readonly number[] = [0, 1, 2, 3, 4, 4, 5, 6, 6, 7, 8, 9, 10, 11, 12, 13];
+const CLEANSE_RANGED_AOE: readonly number[] = [0, 1, 2, 2, 3, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9];
+const CLEANSE_AOE_RADIUS_MELEE: readonly number[] = [0, 2, 2, 2, 2, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4];
+const CLEANSE_AOE_RADIUS_RANGED: readonly number[] = [0, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 4];
+// Dispel rank (0 = no version available at that Power rank).
+const DISPEL_MELEE_SINGLE: readonly number[] = [0, 1, 2, 3, 3, 4, 5, 6, 6, 7, 8, 9, 9, 10, 11, 12];
+const DISPEL_RANGED_SINGLE: readonly number[] = [0, 1, 2, 2, 3, 3, 4, 5, 5, 6, 7, 7, 8, 8, 9, 10];
+const DISPEL_MELEE_AOE: readonly number[] = [0, 1, 1, 2, 3, 3, 4, 4, 4, 5, 6, 6, 7, 7, 7, 8];
+const DISPEL_RANGED_AOE: readonly number[] = [0, 1, 1, 2, 2, 3, 4, 4, 4, 5, 5, 5, 6, 6, 7, 7];
+const DISPEL_AOE_RADIUS_MELEE: readonly number[] = [0, 2, 2, 2, 2, 3, 3, 3, 4, 4, 4, 4, 4, 5, 5, 5];
+const DISPEL_AOE_RADIUS_RANGED: readonly number[] = [0, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 4, 4, 4, 4, 4];
+
+/** Health Level Recovery band shared by all healing Actives (none below L4). */
+function healthLevelRecovery(lvl: number): number {
+    return lvl >= 15 ? 4 : lvl >= 12 ? 3 : lvl >= 8 ? 2 : lvl >= 4 ? 1 : 0;
+}
+function hlrText(lvl: number, aoe: boolean): string {
+    const hl = healthLevelRecovery(lvl);
+    if (hl <= 0) return '';
+    const noun = hl === 1 ? 'Health Level' : 'Health Levels';
+    const base = ` Restore **${hl} ${noun}** per Safe Haven Rest.`;
+    return aoe ? `${base} Only one affected creature may receive Health Level Recovery per use.` : base;
 }
 
 function supportTemplate(def: {
@@ -279,8 +368,28 @@ function supportTemplate(def: {
     mode: 'heal' | 'cleanse' | 'dispel';
     name: string;
 }): PowerTemplate {
-    const HEAL_DICE = ['1d8', '2d8', '3d8', '4d8', '5d8', '6d8', '7d8', '8d8', '9d8', '10d8', '11d8', '12d8', '13d8', '14d8', '15d8', '16d8'];
+    const isRanged = def.flavour === 'ranged';
     const spellHints: SpellHints = { defaultResolution: 'saveSpell' };
+    const healTable = def.aoe
+        ? (isRanged ? HEAL_DICE_RANGED_AOE : HEAL_DICE_MELEE_AOE)
+        : (isRanged ? HEAL_DICE_RANGED_SINGLE : HEAL_DICE_MELEE_SINGLE);
+    const cleanseTable = def.aoe
+        ? (isRanged ? CLEANSE_RANGED_AOE : CLEANSE_MELEE_AOE)
+        : (isRanged ? CLEANSE_RANGED_SINGLE : CLEANSE_MELEE_SINGLE);
+    const dispelTable = def.aoe
+        ? (isRanged ? DISPEL_RANGED_AOE : DISPEL_MELEE_AOE)
+        : (isRanged ? DISPEL_RANGED_SINGLE : DISPEL_MELEE_SINGLE);
+    const healRadius = isRanged ? HEAL_AOE_RADIUS_RANGED : HEAL_AOE_RADIUS_MELEE;
+    const cleanseRadius = isRanged ? CLEANSE_AOE_RADIUS_RANGED : CLEANSE_AOE_RADIUS_MELEE;
+    const dispelRadius = isRanged ? DISPEL_AOE_RADIUS_RANGED : DISPEL_AOE_RADIUS_MELEE;
+    const radiusTable = def.mode === 'heal' ? healRadius : def.mode === 'cleanse' ? cleanseRadius : dispelRadius;
+
+    function aoeAt(lvl: number): AoeSpec {
+        if (!def.aoe) return R_NONE;
+        const radiusM = radiusTable[lvl - 1];
+        return { shape: 'radius', radiusM: Math.max(0, radiusM), center: isRanged ? 'targetPoint' : 'self', targetFilter: 'allies' };
+    }
+
     return {
         templateId: def.id,
         templateName: def.name,
@@ -293,19 +402,50 @@ function supportTemplate(def: {
         cost: { action: 'attack' },
         roll: { kind: 'none', attribute: 'resolve' },
         levels: buildLevels((lvl) => {
-            const effect =
-                def.mode === 'heal'
-                    ? `Restore **${HEAL_DICE[lvl - 1]} HP** to the ${def.aoe ? 'targets in the area' : 'target'}.`
-                    : def.mode === 'cleanse'
-                    ? `Remove one eligible Special from the ${def.aoe ? 'targets' : 'target'} (at rank ≤ ${lvl + 2}).`
-                    : `Dispel one eligible magical effect on the ${def.aoe ? 'targets' : 'target'} (at level ≤ ${lvl}).`;
+            if (def.mode === 'heal') {
+                const dice = healTable[lvl - 1];
+                const effect = def.aoe
+                    ? `Heal affected creatures for **${dice}d8 HP**.${hlrText(lvl, true)}`
+                    : `Heal one creature for **${dice}d8 HP**.${hlrText(lvl, false)}`;
+                return activeRow({
+                    type: def.aoe ? (isRanged ? 'Ranged AoE' : 'Melee AoE') : isRanged ? 'Ranged' : 'Melee',
+                    range: isRanged ? rangedRange(lvl, 8) : MELEE_RANGE,
+                    aoe: aoeAt(lvl),
+                    effectText: effect,
+                    specials: [],
+                    mechanics: { healing: { flat: `${dice}d8`, target: def.aoe ? 'aoe' : 'target' } },
+                });
+            }
+            if (def.mode === 'cleanse') {
+                const rank = cleanseTable[lvl - 1];
+                const effect = rank <= 0
+                    ? '—'
+                    : def.aoe
+                        ? `Remove one negative effect up to **Cleanse(${rank})** from each affected creature.`
+                        : `Remove one negative effect up to **Cleanse(${rank})** from one creature.`;
+                return activeRow({
+                    type: def.aoe ? (isRanged ? 'Ranged AoE' : 'Melee AoE') : isRanged ? 'Ranged' : 'Melee',
+                    range: isRanged ? rangedRange(lvl, 8) : MELEE_RANGE,
+                    aoe: aoeAt(lvl),
+                    effectText: effect,
+                    specials: rank > 0 ? [{ key: 'cleanse', rank }] : [],
+                    mechanics: {},
+                });
+            }
+            // dispel
+            const rank = dispelTable[lvl - 1];
+            const effect = rank <= 0
+                ? '—'
+                : def.aoe
+                    ? `Remove ongoing effects up to **Dispel(${rank})** in the area.`
+                    : `Remove one ongoing effect up to **Dispel(${rank})**.`;
             return activeRow({
-                type: def.aoe ? `${def.flavour === 'ranged' ? 'Ranged' : 'Melee'} AoE` : def.flavour === 'ranged' ? 'Ranged' : 'Melee',
-                range: def.flavour === 'ranged' ? rangedRange(lvl, 8) : MELEE_RANGE,
-                aoe: def.aoe ? aoeRadius(lvl, 1, 2) : R_NONE,
+                type: def.aoe ? (isRanged ? 'Ranged AoE' : 'Melee AoE') : isRanged ? 'Ranged' : 'Melee',
+                range: isRanged ? rangedRange(lvl, 8) : MELEE_RANGE,
+                aoe: aoeAt(lvl),
                 effectText: effect,
-                specials: def.mode === 'cleanse' ? [{ key: 'cleanse', rank: lvl }] : def.mode === 'dispel' ? [{ key: 'dispel-magic', rank: lvl }] : [],
-                mechanics: def.mode === 'heal' ? { healing: { flat: HEAL_DICE[lvl - 1], target: def.aoe ? 'aoe' : 'target' } } : {},
+                specials: rank > 0 ? [{ key: 'dispel-magic', rank }] : [],
+                mechanics: {},
             });
         }),
     };
@@ -333,23 +473,38 @@ function mixedTemplate(def: {
         roll: { kind: 'attack', attribute: isRanged ? 'agility' : 'might' },
         levels: buildLevels((lvl) => {
             if (def.kind === 'heal-cleanse') {
+                // Heal scales every other level (Melee 3·⌊lvl/2⌋, Ranged 2·⌊lvl/2⌋),
+                // Cleanse rank = ⌈lvl/2⌉. Source: Actives.md heal+cleanse tables.
+                const heal = (isRanged ? 2 : 3) * Math.floor(lvl / 2);
+                const cleanseRank = Math.ceil(lvl / 2);
+                // Melee mixed grants Health Level Recovery (1 from L8, 2 from L15);
+                // ranged mixed grants none.
+                const hl = isRanged ? 0 : lvl >= 15 ? 2 : lvl >= 8 ? 1 : 0;
+                const hlText = hl > 0 ? ` Restore **${hl} ${hl === 1 ? 'Health Level' : 'Health Levels'}** per Safe Haven Rest.` : '';
+                const effect = heal <= 0
+                    ? `Remove one negative effect up to **Cleanse(${cleanseRank})**.`
+                    : `Heal one creature for **${heal}d8 HP** and remove one negative effect up to **Cleanse(${cleanseRank})**.${hlText}`;
                 return activeRow({
                     type: isRanged ? 'Ranged' : 'Melee',
                     range: isRanged ? rangedRange(lvl, 8) : MELEE_RANGE,
                     aoe: R_NONE,
-                    effectText: `Heal **${lvl}d8 HP** and remove one Special at rank ≤ ${lvl}.`,
-                    specials: [{ key: 'cleanse', rank: lvl }],
-                    mechanics: { healing: { flat: `${lvl}d8`, target: 'target' } },
+                    effectText: effect,
+                    specials: [{ key: 'cleanse', rank: cleanseRank }],
+                    mechanics: heal > 0 ? { healing: { flat: `${heal}d8`, target: 'target' } } : {},
                 });
             }
+            // damage-dispel — irregular damage curve per Actives.md.
+            const MELEE_DD_DICE = [1, 1, 3, 3, 4, 6, 6, 7, 8, 9, 11, 13, 15, 15, 15, 16];
+            const RANGED_DD_DICE = [1, 1, 2, 3, 3, 5, 6, 6, 7, 9, 10, 11, 11, 12, 14, 15];
+            const d = (isRanged ? RANGED_DD_DICE : MELEE_DD_DICE)[lvl - 1];
             return activeRow({
                 type: isRanged ? 'Ranged' : 'Melee',
                 range: isRanged ? rangedRange(lvl, 8) : MELEE_RANGE,
                 aoe: R_NONE,
-                effectText: `Deal **+${Math.ceil(lvl / 2)}d8 damage** and dispel one magical effect of level ≤ ${lvl}.`,
-                dice: `${Math.ceil(lvl / 2)}d8`,
+                effectText: `Deal **+${d}d8 damage** on hit and dispel one ongoing magical effect of level ≤ ${lvl}.`,
+                dice: `${d}d8`,
                 specials: [{ key: 'dispel-magic', rank: lvl }],
-                mechanics: { damageRider: { flat: `+${Math.ceil(lvl / 2)}d8` }, applyWhen: 'attack-rider' },
+                mechanics: { damageRider: { flat: `+${d}d8` }, applyWhen: 'attack-rider' },
             });
         }),
     };
@@ -431,14 +586,27 @@ function buildActiveTemplates(): PowerTemplate[] {
         cost: { action: 'attack' },
         roll: { kind: 'none' },
         levels: buildLevels((lvl) => {
-            const hp = lvl * 10;
-            const length = 4 + lvl;
+            // Budget-derived irregular HP (range + radius steps eat into HP).
+            const BARRIER_HP = [0, 10, 22, 35, 42, 42, 42, 55, 65, 65, 65, 65, 77, 90, 102, 115];
+            const BARRIER_RADIUS = [0, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4];
+            const hp = BARRIER_HP[lvl - 1];
+            const radius = BARRIER_RADIUS[lvl - 1];
+            if (hp <= 0) {
+                return activeRow({
+                    type: 'Ranged Barrier',
+                    range: rangedRange(lvl, 8),
+                    aoe: R_NONE,
+                    duration: { kind: 'rounds', rounds: 4 },
+                    effectText: 'No Barrier is available at this Power rank.',
+                    mechanics: {},
+                });
+            }
             return activeRow({
                 type: 'Ranged Barrier',
                 range: rangedRange(lvl, 8),
-                aoe: { shape: 'line', lengthM: length, widthM: 1 },
+                aoe: { shape: 'radius', radiusM: radius, center: 'targetPoint' },
                 duration: { kind: 'rounds', rounds: 4 },
-                effectText: `Create a **${length} m** barrier with **${hp} HP** for **4 rounds**.`,
+                effectText: `Create a **${radius} m radius** Barrier with **${hp} HP** for **4 Rounds**.`,
                 mechanics: {},
             });
         }),
@@ -621,16 +789,16 @@ function singleWeaponAttackTemplate(flavour: 'melee' | 'ranged'): PowerTemplate 
 
 // AoE Weapon Attack progression: (radius in meters, bonus dice).
 const MELEE_AOE_PROG: readonly { radiusM: number; dice: number }[] = [
-    { radiusM: 2, dice: 0 }, { radiusM: 2, dice: 2 }, { radiusM: 3, dice: 2 }, { radiusM: 3, dice: 4 },
-    { radiusM: 4, dice: 4 }, { radiusM: 4, dice: 6 }, { radiusM: 5, dice: 4 }, { radiusM: 5, dice: 6 },
-    { radiusM: 6, dice: 4 }, { radiusM: 6, dice: 6 }, { radiusM: 7, dice: 4 }, { radiusM: 7, dice: 6 },
+    { radiusM: 2, dice: 0 }, { radiusM: 2, dice: 2 }, { radiusM: 3, dice: 2 }, { radiusM: 3, dice: 2 },
+    { radiusM: 4, dice: 2 }, { radiusM: 4, dice: 2 }, { radiusM: 5, dice: 2 }, { radiusM: 5, dice: 2 },
+    { radiusM: 6, dice: 2 }, { radiusM: 6, dice: 2 }, { radiusM: 7, dice: 2 }, { radiusM: 7, dice: 2 },
     { radiusM: 8, dice: 2 }, { radiusM: 8, dice: 4 }, { radiusM: 8, dice: 6 }, { radiusM: 8, dice: 8 },
 ];
 const RANGED_AOE_PROG: readonly { radiusM: number; dice: number }[] = [
-    { radiusM: 2, dice: 0 }, { radiusM: 2, dice: 2 }, { radiusM: 3, dice: 2 }, { radiusM: 3, dice: 3 },
-    { radiusM: 4, dice: 2 }, { radiusM: 4, dice: 4 }, { radiusM: 5, dice: 2 }, { radiusM: 5, dice: 4 },
-    { radiusM: 6, dice: 2 }, { radiusM: 6, dice: 3 }, { radiusM: 7, dice: 0 }, { radiusM: 7, dice: 2 },
-    { radiusM: 8, dice: 0 }, { radiusM: 8, dice: 0 }, { radiusM: 8, dice: 2 }, { radiusM: 8, dice: 3 },
+    { radiusM: 2, dice: 0 }, { radiusM: 2, dice: 0 }, { radiusM: 3, dice: 0 }, { radiusM: 3, dice: 0 },
+    { radiusM: 4, dice: 0 }, { radiusM: 4, dice: 0 }, { radiusM: 5, dice: 0 }, { radiusM: 5, dice: 0 },
+    { radiusM: 6, dice: 0 }, { radiusM: 6, dice: 0 }, { radiusM: 7, dice: 0 }, { radiusM: 7, dice: 0 },
+    { radiusM: 7, dice: 0 }, { radiusM: 8, dice: 0 }, { radiusM: 8, dice: 2 }, { radiusM: 8, dice: 4 },
 ];
 
 function aoeWeaponAttackTemplate(flavour: 'melee' | 'ranged'): PowerTemplate {

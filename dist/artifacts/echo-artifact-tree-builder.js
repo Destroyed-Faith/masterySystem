@@ -16,7 +16,7 @@
  */
 import { ECHO_ARTIFACTS, buildEchoStoneFunction, buildEchoProgressionPicks, } from '../utils/echo-artifacts.js';
 import { GENERAL_ARTIFACTS } from '../utils/general-artifacts.js';
-import { bodyArmorBonusForLevel, feetEvadeForLevel, minorArmorForLevel, weaponDamageForLevel, } from '../utils/artifact-base-derive.js';
+import { bodyArmorBonusForLevel, feetEvadeForLevel, minorArmorForLevel, weaponDamageForLevel, spellFocusForLevel, } from '../utils/artifact-base-derive.js';
 import { getArmorDefinitionForType } from '../utils/equipment.js';
 import { resolveFullLevelProgression, visibleAbilityRows, } from '../utils/artifact-visible-abilities.js';
 import { getMinorMovementBaselineB, getPaperdollSlotsForArtifact, } from '../utils/artifact-rules.js';
@@ -25,7 +25,7 @@ import { getMinorMovementBaselineB, getPaperdollSlotsForArtifact, } from '../uti
  * output (base values, powers, slot/profile, etc.) changes so the world seeder
  * can detect stale library copies and refresh them in place.
  */
-export const ECHO_ARTIFACT_SEED_VERSION = 23;
+export const ECHO_ARTIFACT_SEED_VERSION = 24;
 const ARTIFACT_LEVELS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 const ALL_POWER_LEVEL_KEYS = [
     '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16',
@@ -33,10 +33,9 @@ const ALL_POWER_LEVEL_KEYS = [
 // ---------------------------------------------------------------------------
 // Per-level Base Value tables (exact, per the Player's Guide / Artefacts.md)
 // ---------------------------------------------------------------------------
-/** Two-handed Echo weapon damage (Claws/Tail) — the stronger 4d8…16d8 table. */
-const TWO_HANDED_ECHO_DAMAGE = ['4d8', '5d8', '6d8', '8d8', '9d8', '10d8', '12d8', '13d8', '14d8', '16d8'];
+/** Two-handed weapon damage — 4d8 base + 1d8 per level (5d8 L1 … 14d8 L10). */
 function twoHandedEchoDamageForLevel(level) {
-    return TWO_HANDED_ECHO_DAMAGE[clampLevel(level) - 1];
+    return weaponDamageForLevel(level, 'twoHandedWeapon');
 }
 /** Value-based Weapon Special rank by Artifact level breakpoints (L1/L4/L7/L10). */
 function weaponSpecialRankForLevel(table, level) {
@@ -64,13 +63,13 @@ function scentOfBloodTierForLevel(level) {
     return '';
 }
 // --- General-artifact per-level tables (Artifact Examples, Player's Guide) ---
-/** One-handed general weapon damage — 2d8 (L1) … 11d8 (L10). */
+/** One-handed weapon damage — 2d8 base + 1d8 per level (3d8 L1 … 12d8 L10). */
 function oneHandedGeneralDamageForLevel(level) {
-    return `${clampLevel(level) + 1}d8`;
+    return weaponDamageForLevel(level, 'oneHandedWeapon');
 }
-/** Staff of the Dark Spell Focus Bonus — +2d8 (L1) … +11d8 (L10). */
+/** Staff of the Dark Spell Focus Bonus — one-handed: 1:1 weapon damage (+3d8 L1 … +12d8 L10). */
 function staffSpellFocusBonusForLevel(level) {
-    return `+${clampLevel(level) + 1}d8`;
+    return spellFocusForLevel(level, 'oneHandedWeapon');
 }
 /** Staff of the Dark Hex rank — Hex(2) L4-5, Hex(3) L6-7, Hex(4) L8-9, Hex(5) L10. */
 function hexRankForLevel(level) {
@@ -105,9 +104,9 @@ function starfallenShieldValueForLevel(level) {
 function frostboundThrownRangeForLevel(level) {
     return clampLevel(level) + 5;
 }
-/** Lor-Keth's Staff weapon damage — 1d8 (L1) … 10d8 (L10). */
+/** Lor-Keth's Staff weapon damage — two-handed: 4d8 base + 1d8/level (5d8 … 14d8). */
 function lorKethStaffDamageForLevel(level) {
-    return `${clampLevel(level)}d8`;
+    return weaponDamageForLevel(level, 'twoHandedWeapon');
 }
 /** Lor-Keth's Staff Storm Rune tier — Shock Rune L4-6, Greater L7-9, True L10. */
 function lorKethStormRuneForLevel(level) {
@@ -546,7 +545,7 @@ function weaponProfileAtLevel(def, level) {
         ? '0'
         : dmgBv
             ? String(dmgBv.valueAt(level))
-            : weaponDamageForLevel(level);
+            : weaponDamageForLevel(level, def.baseProfile);
     const isRanged = def.baseProfile === 'oneHandedWeaponRanged' || def.baseProfile === 'twoHandedWeaponRanged';
     const hands = def.baseProfile === 'twoHandedWeapon' || def.baseProfile === 'twoHandedWeaponRanged' ? 2 : 1;
     return {

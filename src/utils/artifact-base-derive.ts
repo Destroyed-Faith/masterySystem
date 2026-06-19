@@ -108,17 +108,35 @@ export function feetMovementForLevel(level: number): number {
   return Math.min(5, Math.ceil(clampLevel(level) / 2));
 }
 
-/** Weapon Damage baseline. L1=1d8 … L10=10d8. */
-export function weaponDamageForLevel(level: number): string {
-  return `${clampLevel(level)}d8`;
+/**
+ * Base weapon dice from the physical Base Profile (before the per-level
+ * artifact bonus):
+ *   • One-handed (melee or ranged) → 2d8
+ *   • Two-handed (melee or ranged) → 4d8
+ *   • anything else (natural weapon / unknown) → 0 (pure per-level scaling)
+ */
+export function baseProfileWeaponDice(profile?: string | null): number {
+  const p = String(profile || '').toLowerCase();
+  if (p.includes('twohanded')) return 4;
+  if (p.includes('onehanded')) return 2;
+  return 0;
 }
 
 /**
- * Spell Focus baseline. Mirrors Weapon Damage (L1=+1d8 … L10=+10d8) but the
- * value boosts Spell damage instead of dealing weapon damage.
+ * Weapon Damage. A weapon deals its Base Profile dice (2d8 one-handed / 4d8
+ * two-handed) plus +1d8 per artifact level. So a two-handed artifact at L2 is
+ * 4 + 2 = 6d8; a one-handed at L2 is 2 + 2 = 4d8.
  */
-export function spellFocusForLevel(level: number): string {
-  return `+${clampLevel(level)}d8`;
+export function weaponDamageForLevel(level: number, profile?: string | null): string {
+  return `${baseProfileWeaponDice(profile) + clampLevel(level)}d8`;
+}
+
+/**
+ * Spell Focus baseline — 1:1 the same value as Weapon Damage for the profile,
+ * but the dice boost Spell damage instead of dealing weapon damage.
+ */
+export function spellFocusForLevel(level: number, profile?: string | null): string {
+  return `+${baseProfileWeaponDice(profile) + clampLevel(level)}d8`;
 }
 
 /** Thrown Range baseline. L1=6 m … L10=15 m. */
@@ -143,9 +161,9 @@ export function deriveBaseValueDisplay(
 ): DerivedBaseValue {
   switch (type) {
     case 'weaponDamage':
-      return { display: weaponDamageForLevel(level), derivable: true };
+      return { display: weaponDamageForLevel(level, profile), derivable: true };
     case 'spellFocus':
-      return { display: `${spellFocusForLevel(level)} to Spells`, derivable: true };
+      return { display: `${spellFocusForLevel(level, profile)} to Spells`, derivable: true };
     case 'thrownRange':
       return { display: `${thrownRangeForLevel(level)} m`, derivable: true };
     case 'bodyArmor':

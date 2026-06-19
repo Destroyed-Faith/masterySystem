@@ -13,11 +13,14 @@ import { buildLevels, activeBuffRow } from './_shared.js';
 const AB_ARMOR = [5, 9, 13, 17, 21, 25, 29, 33, 37, 41, 45, 49, 53, 57, 61, 65];
 const AB_EVADE = [8, 14, 20, 26, 32, 38, 44, 50, 56, 62, 68, 74, 80, 86, 92, 98];
 const AB_TEMP = [10, 17, 25, 32, 40, 47, 55, 62, 70, 77, 85, 92, 100, 107, 115, 122];
-const AB_HEAL = ['1d8', '2d8', '2d8', '3d8', '4d8', '4d8', '5d8', '6d8', '7d8', '7d8', '8d8', '9d8', '10d8', '10d8', '11d8', '12d8'];
-const AB_DAMAGE = ['1d8', '2d8', '2d8', '3d8', '4d8', '4d8', '5d8', '6d8', '7d8', '7d8', '8d8', '9d8', '10d8', '10d8', '11d8', '12d8'];
-const AB_PENETRATION = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32];
+// Active Buff: Healing heals FLAT HP at the start of each turn (4 PP / 1 HP).
+const AB_HEAL = [10, 17, 25, 32, 40, 47, 55, 62, 70, 77, 85, 92, 100, 107, 115, 122];
+// Active Buff: Damage — +1d8 = 15 PP → +3d8 (L1) … +33d8 (L16).
+const AB_DAMAGE = ['3d8', '5d8', '7d8', '9d8', '11d8', '13d8', '15d8', '17d8', '19d8', '21d8', '23d8', '25d8', '27d8', '29d8', '31d8', '33d8'];
+// Active Buff: Penetration — same curve as Armor (Penetration(5) … Penetration(65)).
+const AB_PENETRATION = [5, 9, 13, 17, 21, 25, 29, 33, 37, 41, 45, 49, 53, 57, 61, 65];
 const AURA_RADIUS = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32];
-const AURA_ARMOR = [3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31, 33];
+const AURA_ARMOR = [4, 6, 9, 12, 14, 17, 20, 22, 25, 28, 30, 33, 36, 38, 41, 44];
 
 // --- Active Buff Aura tables (banded radius L1–7=2m, L8–14=3m, L15–16=4m) ---
 const AURA_BAND_RADIUS = [2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 4, 4];
@@ -143,8 +146,8 @@ export const ACTIVE_BUFF_TEMPLATES: PowerTemplate[] = [
         levels: buildLevels((lvl) =>
             activeBuffRow({
                 duration: DURATION_MR_ROUNDS,
-                effectText: `Recover **${AB_HEAL[lvl - 1]} HP** at the start of each of your turns while the buff is active.`,
-                mechanics: { healing: { flat: AB_HEAL[lvl - 1], trigger: 'startOfTurn', target: 'self' }, duration: 'masteryRankRounds' },
+                effectText: `At the start of your turn, heal **${AB_HEAL[lvl - 1]} HP**.`,
+                mechanics: { healing: { flat: String(AB_HEAL[lvl - 1]), trigger: 'startOfTurn', target: 'self' }, duration: 'masteryRankRounds' },
             }),
         ),
     },
@@ -159,12 +162,12 @@ export const ACTIVE_BUFF_TEMPLATES: PowerTemplate[] = [
         cost: { action: 'attack' },
         roll: { kind: 'none' },
         levels: buildLevels((lvl) => {
-            const cap = lvl >= 15 ? 60 : lvl >= 12 ? 50 : lvl >= 8 ? 40 : lvl >= 4 ? 30 : 0;
+            const cap = lvl >= 15 ? 50 : lvl >= 12 ? 40 : lvl >= 8 ? 30 : lvl >= 4 ? 20 : 0;
             return activeBuffRow({
                 duration: DURATION_MR_ROUNDS,
                 effectText: cap === 0
                     ? '—'
-                    : `If you currently have **Damage Reduction from a Passive**, increase that DR by **+10%** while the buff is active, up to **${cap}% total DR**.`,
+                    : `If you currently have **Damage Reduction from a Passive**, increase that DR by **+10%** while the buff is active, up to a maximum of **${cap}% total DR**.`,
                 // +10% is aggregated only when a sanctioned passive DR line exists
                 // (`aggregateMechanics`); mechanics stay on the buff for snapshots / UI.
                 mechanics: { damageReductionPct: 10, duration: 'masteryRankRounds' },
@@ -182,13 +185,14 @@ export const ACTIVE_BUFF_TEMPLATES: PowerTemplate[] = [
         cost: { action: 'attack' },
         roll: { kind: 'none' },
         levels: buildLevels((lvl) => {
-            const add = lvl >= 15 ? 3 : lvl >= 8 ? 2 : lvl >= 4 ? 1 : 0;
+            const cap = lvl >= 15 ? 4 : lvl >= 8 ? 3 : lvl >= 4 ? 2 : 0;
+            const active = cap > 0;
             return activeBuffRow({
                 duration: DURATION_MR_ROUNDS,
-                effectText: add === 0
+                effectText: !active
                     ? '—'
-                    : `If you currently have **Phasing from a Passive**, gain **+${add}** Phasing charge${add === 1 ? '' : 's'} while the buff is active.`,
-                mechanics: add === 0 ? { duration: 'masteryRankRounds' } : { phasing: { augment: { addCharges: add } }, duration: 'masteryRankRounds' },
+                    : `If you currently have **Phasing from a Passive**, gain **1** additional Phasing charge for the duration, up to a maximum of **${cap}** total Phasing charges this combat.`,
+                mechanics: !active ? { duration: 'masteryRankRounds' } : { phasing: { augment: { addCharges: 1 } }, duration: 'masteryRankRounds' },
             });
         }),
     },
@@ -203,8 +207,8 @@ export const ACTIVE_BUFF_TEMPLATES: PowerTemplate[] = [
         cost: { action: 'attack' },
         roll: { kind: 'none' },
         levels: buildLevels((lvl) => {
-            const armor = [3, 5, 8, 10, 13, 16, 18, 21, 24, 26, 29, 32, 34, 37, 40, 42][lvl - 1];
-            const temp = [3, 6, 8, 11, 14, 16, 19, 22, 24, 27, 30, 32, 35, 38, 40, 43][lvl - 1];
+            const armor = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17][lvl - 1];
+            const temp = [7, 12, 17, 23, 29, 34, 40, 46, 51, 57, 62, 68, 74, 79, 85, 91][lvl - 1];
             return activeBuffRow({
                 duration: DURATION_MR_ROUNDS,
                 effectText: `Gain **+${armor} Armor** and **${temp} Temporary HP**.`,
@@ -223,8 +227,8 @@ export const ACTIVE_BUFF_TEMPLATES: PowerTemplate[] = [
         cost: { action: 'attack' },
         roll: { kind: 'none' },
         levels: buildLevels((lvl) => {
-            const ev = [4, 7, 10, 13, 16, 19, 22, 25, 28, 31, 34, 37, 40, 43, 46, 49][lvl - 1];
-            const temp = [5, 9, 13, 16, 20, 24, 28, 31, 35, 39, 43, 46, 50, 54, 58, 61][lvl - 1];
+            const ev = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32][lvl - 1];
+            const temp = [8, 12, 17, 22, 28, 32, 38, 42, 48, 52, 58, 62, 68, 72, 78, 82][lvl - 1];
             return activeBuffRow({
                 duration: DURATION_MR_ROUNDS,
                 effectText: `Gain **+${ev} Evade** and **${temp} Temporary HP**.`,
@@ -243,12 +247,12 @@ export const ACTIVE_BUFF_TEMPLATES: PowerTemplate[] = [
         cost: { action: 'attack' },
         roll: { kind: 'none' },
         levels: buildLevels((lvl) => {
-            const temp = [5, 9, 13, 16, 20, 24, 28, 31, 35, 39, 43, 46, 50, 54, 58, 61][lvl - 1];
-            const heal = AB_HEAL[lvl - 1];
+            const temp = [5, 8, 12, 16, 20, 23, 27, 31, 35, 38, 42, 46, 50, 53, 57, 61][lvl - 1];
+            const heal = [5, 9, 13, 16, 20, 24, 28, 31, 35, 39, 43, 46, 50, 54, 58, 61][lvl - 1];
             return activeBuffRow({
                 duration: DURATION_MR_ROUNDS,
                 effectText: `Gain **${temp} Temporary HP**. Recover **${heal} HP** at the start of each of your turns.`,
-                mechanics: { tempHP: String(temp), healing: { flat: heal, trigger: 'startOfTurn', target: 'self' }, duration: 'masteryRankRounds' },
+                mechanics: { tempHP: String(temp), healing: { flat: String(heal), trigger: 'startOfTurn', target: 'self' }, duration: 'masteryRankRounds' },
             });
         }),
     },
@@ -263,7 +267,7 @@ export const ACTIVE_BUFF_TEMPLATES: PowerTemplate[] = [
         cost: { action: 'attack' },
         roll: { kind: 'none' },
         levels: buildLevels((lvl) => {
-            const armor = [2, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31, 33][lvl - 1];
+            const armor = [3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31, 33][lvl - 1];
             const evade = [4, 7, 10, 13, 16, 19, 22, 25, 28, 31, 34, 37, 40, 43, 46, 49][lvl - 1];
             return activeBuffRow({
                 duration: DURATION_MR_ROUNDS,
@@ -303,7 +307,7 @@ export const ACTIVE_BUFF_TEMPLATES: PowerTemplate[] = [
         levels: buildLevels((lvl) =>
             activeBuffRow({
                 duration: DURATION_MR_ROUNDS,
-                effectText: `Your attacks ignore **${AB_PENETRATION[lvl - 1]} Armor** while the buff is active.`,
+                effectText: `Your attacks gain **Penetration(${AB_PENETRATION[lvl - 1]})** while the buff is active.`,
                 mechanics: { duration: 'masteryRankRounds' },
             }),
         ),
@@ -319,11 +323,11 @@ export const ACTIVE_BUFF_TEMPLATES: PowerTemplate[] = [
         cost: { action: 'attack' },
         roll: { kind: 'none' },
         levels: buildLevels((lvl) => {
-            const dmg = ['1d8', '1d8', '2d8', '2d8', '3d8', '3d8', '4d8', '4d8', '5d8', '5d8', '6d8', '6d8', '7d8', '7d8', '8d8', '8d8'][lvl - 1];
-            const pen = [1, 2, 3, 4, 5, 7, 8, 9, 10, 12, 13, 14, 16, 17, 18, 20][lvl - 1];
+            const dmg = `${lvl}d8`;
+            const pen = 2 * lvl + 1;
             return activeBuffRow({
                 duration: DURATION_MR_ROUNDS,
-                effectText: `Your attacks deal **+${dmg}** damage and ignore **${pen} Armor** while the buff is active.`,
+                effectText: `Your attacks deal **+${dmg}** damage and gain **Penetration(${pen})** while the buff is active.`,
                 mechanics: { damageRider: { flat: `+${dmg}` }, duration: 'masteryRankRounds' },
             });
         }),
@@ -400,7 +404,7 @@ export const ACTIVE_BUFF_TEMPLATES: PowerTemplate[] = [
         cost: { action: 'attack' },
         roll: { kind: 'none' },
         levels: buildLevels((lvl) => {
-            const inc = lvl >= 15 ? 3 : lvl >= 8 ? 2 : lvl >= 4 ? 1 : 0;
+            const inc = lvl >= 15 ? 4 : lvl >= 12 ? 3 : lvl >= 8 ? 2 : lvl >= 4 ? 1 : 0;
             return activeBuffRow({
                 duration: DURATION_MR_ROUNDS,
                 effectText: inc === 0

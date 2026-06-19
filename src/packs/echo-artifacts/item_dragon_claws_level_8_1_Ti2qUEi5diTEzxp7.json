@@ -18,7 +18,7 @@
         "slot": "a",
         "type": "weaponDamage",
         "label": "Claw / Tail Damage",
-        "value": "13d8",
+        "value": "12d8",
         "isBaseline": true
       },
       {
@@ -740,7 +740,7 @@
     "inventorySize": "1x1",
     "artifactWeapon": {
       "weaponType": "melee",
-      "damage": "13d8",
+      "damage": "12d8",
       "range": "0m",
       "hands": 2,
       "innateAbilities": [],
@@ -762,7 +762,7 @@
       ],
       "echoBound": "dragonborn",
       "echoArtifactKey": "dragonClaws",
-      "seedVersion": 23
+      "seedVersion": 24
     }
   },
   "_id": "Ti2qUEi5diTEzxp7",

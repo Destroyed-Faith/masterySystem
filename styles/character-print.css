@@ -1017,6 +1017,40 @@
 }
 
 /* ── Minor Expressions ────────────────────────────────────────────────── */
+.cp-minor-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.cp-minor-header .cp-block-title {
+  flex: 1 1 auto;
+}
+
+.cp-minor-uses {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding-bottom: 2px;
+  white-space: nowrap;
+}
+
+.cp-minor-uses-label {
+  font-size: 7px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  color: #555;
+}
+
+.cp-minor-uses-boxes {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px;
+}
+
 .cp-minor-list {
   list-style: none;
   margin: 0;

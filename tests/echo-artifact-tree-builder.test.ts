@@ -87,7 +87,7 @@ describe('Echo Artifact tree builder — exact Base Values', () => {
     expect(types(4)).toContain('weaponSpecial');
     expect(types(3)).not.toContain('weaponSpecial');
     expect(types(10).filter((t: string) => t === 'weaponSpecial').length).toBe(2);
-    expect((tree.nodes[9].itemData.system as any).baseValues[0].value).toBe('16d8');
+    expect((tree.nodes[9].itemData.system as any).baseValues[0].value).toBe('14d8');
   });
 
   it('Dragon Claws use the two-handed bothHands slot and occupy both hands', () => {
@@ -114,7 +114,7 @@ describe('Echo Artifact tree builder — exact Base Values', () => {
   });
 
   it('stamps the current seed version on every node (for in-place refresh)', () => {
-    expect(ECHO_ARTIFACT_SEED_VERSION).toBe(23);
+    expect(ECHO_ARTIFACT_SEED_VERSION).toBe(24);
     const tree = buildEchoArtifactTree(getEchoArtifact('titanScars')!);
     for (const node of tree.nodes) {
       expect(flag(node, 'seedVersion')).toBe(ECHO_ARTIFACT_SEED_VERSION);

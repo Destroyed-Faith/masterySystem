@@ -703,7 +703,7 @@ const DRAGON_CLAWS = {
         {
             slot: 'a',
             label: 'Claw / Tail Damage',
-            note: '4d8 to 16d8 across levels.',
+            note: '5d8 to 14d8 across levels (4d8 two-handed base + 1d8/level).',
         },
         {
             slot: 'b',

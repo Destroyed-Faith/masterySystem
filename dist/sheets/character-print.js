@@ -873,6 +873,9 @@ export function buildCharacterPrintContext(actor) {
         rerollBoxes: Array.from({ length: Math.max(0, disadvantagePoints) }, () => true),
         minorExpressions,
         hasMinorExpressions: minorExpressions.length > 0,
+        // One strike-off square per Minor Expression use per Safe Haven Rest
+        // (Mastery Rank × 2 uses total).
+        minorExpressionUseBoxes: Array.from({ length: Math.max(0, masteryRank * 2) }, () => true),
         echoCards,
         hasEchoCards: echoCards.length > 0,
         familiars,

@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.131] - 2026-06-19
+
+### Added
+
+- **Printable character sheet — Minor Expressions:** Added strike-off use boxes (Mastery Rank × 2) next to the **Minor Expressions** heading so uses per rest can be ticked off.
+
 ## [0.9.45] - 2026-06-12
 
 ### Fixed

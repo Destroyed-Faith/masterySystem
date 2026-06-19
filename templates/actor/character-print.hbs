@@ -164,7 +164,15 @@
 
   {{#if hasMinorExpressions}}
   <div class="cp-block cp-minor-expressions">
-    <h3 class="cp-block-title">Minor Expressions</h3>
+    <div class="cp-minor-header">
+      <h3 class="cp-block-title">Minor Expressions</h3>
+      <span class="cp-minor-uses">
+        <span class="cp-minor-uses-label">Uses / Rest</span>
+        <span class="cp-minor-uses-boxes">
+          {{#each minorExpressionUseBoxes}}<span class="cp-use-box"></span>{{/each}}
+        </span>
+      </span>
+    </div>
     <ul class="cp-minor-list">
       {{#each minorExpressions}}
       <li class="cp-minor-item">
