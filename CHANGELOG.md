@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.137] - 2026-06-19
+
+### Fixed
+
+- **Power resync now reliably reaches stale powers:** The one-shot resync that updates baked power tables to the audited templates is now re-runnable (new world flag, so it runs once more for every world) and matches templates by `templateId` with a stable `templateName` fallback — so legacy powers without a stored template id (and any power that was missed the first time) are caught. This corrects characters whose power tables still show pre-audit values such as **Active Buff: Damage** printing +1d8/+2d8/+3d8 per level instead of +3d8/+5d8/…/+33d8. Runs on the next full world reload.
+
 ## [0.9.136] - 2026-06-19
 
 ### Fixed

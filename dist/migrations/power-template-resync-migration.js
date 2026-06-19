@@ -1,19 +1,25 @@
 /**
- * One-shot GM migration: re-sync embedded Active / Active-Buff power items to
- * their current templates.
+ * One-shot GM migration: re-sync embedded, template-backed power items to their
+ * current templates.
  *
  * Background: the big Actives.md / Active Buffs.md audit (explicit md-derived
  * damage anchors, special curves, healing, ranges, radii, etc.) only changed
  * the *templates*. Power items bake their `levels` table at creation time, so
  * characters that owned these powers before the audit shipped still carry the
- * old solver-derived values (e.g. Damage Single showing the wrong damage dice
- * per level). This migration refreshes those baked tables from the canonical
- * templates while preserving each item's rank, chosen Special and Spell flags.
+ * old solver-derived values (e.g. Active Buff: Damage showing +1d8/+2d8/+3d8…
+ * instead of +3d8/+5d8/…/+33d8). This migration refreshes those baked tables
+ * from the canonical templates while preserving each item's rank, chosen
+ * Special and Spell flags. Templates are matched by `templateId` with a stable
+ * `templateName` fallback so legacy items without a stored id are still caught.
  */
 import { findTemplateById } from '../utils/power-catalog.js';
+import { ALL_POWER_TEMPLATES } from '../utils/powers/templates/index.js';
 import { renderRange, renderAoe, renderDuration } from '../utils/power-rendering.js';
 const SETTING_NAMESPACE = 'mastery-system';
-const SETTING_KEY = 'powerTemplateResyncV0_9_131Run';
+// Bump this key whenever the templates change again so the resync re-runs once
+// for every world (the previous V0_9_131 key only ran once and may have been
+// set before a template still carried stale values).
+const SETTING_KEY = 'powerTemplateResyncV0_9_136Run';
 export function registerPowerTemplateResyncMigrationSetting() {
     try {
         game.settings.register(SETTING_NAMESPACE, SETTING_KEY, {
@@ -45,15 +51,27 @@ async function markRun() {
         console.warn('Mastery System | power-resync migration: settings.set failed', err);
     }
 }
-/** Only refresh template-backed Active / Active-Buff powers (the audited families). */
-function isResyncablePower(item) {
-    if (item?.type !== 'power')
-        return false;
-    const sys = item.system ?? {};
-    const category = String(sys.category ?? '');
-    if (category !== 'active' && category !== 'activeBuff')
-        return false;
-    return !!String(sys.templateId ?? '').trim();
+/**
+ * Resolve the canonical template for a power item. Matches on `templateId`
+ * first, then falls back to the stable `templateName` (the display name can be
+ * renamed by the player, so it is never used). Returns `null` for powers that
+ * are not template-backed (legacy / bespoke), which are left untouched.
+ */
+function resolveTemplateForItem(item) {
+    const sys = item?.system ?? {};
+    const templateId = String(sys.templateId ?? '').trim();
+    if (templateId) {
+        const byId = findTemplateById(templateId);
+        if (byId?.levels)
+            return byId;
+    }
+    const templateName = String(sys.templateName ?? '').trim();
+    if (templateName) {
+        const byName = ALL_POWER_TEMPLATES.find((t) => String(t.templateName ?? '').trim() === templateName);
+        if (byName?.levels)
+            return byName;
+    }
+    return null;
 }
 /**
  * Rebuild the per-level table from a template, binding the generic `SPECIAL`
@@ -69,7 +87,7 @@ function bindLevels(template, chosenSpecialKey) {
     }
     return next;
 }
-/** Resync every template-backed Active / Active-Buff power from its template. */
+/** Resync every template-backed power item from its current template. */
 export async function runPowerTemplateResyncMigration() {
     if (!game.user?.isGM)
         return;
@@ -79,13 +97,13 @@ export async function runPowerTemplateResyncMigration() {
     let updated = 0;
     let actorsTouched = 0;
     for (const actor of actors) {
-        const items = Array.from(actor.items ?? []).filter(isResyncablePower);
+        const items = Array.from(actor.items ?? []).filter((i) => i?.type === 'power');
         if (items.length === 0)
             continue;
         let touchedThisActor = false;
         for (const item of items) {
             const sys = item.system ?? {};
-            const template = findTemplateById(String(sys.templateId));
+            const template = resolveTemplateForItem(item);
             if (!template?.levels)
                 continue;
             const chosenSpecialKey = sys.chosenSpecial?.key ? String(sys.chosenSpecial.key) : null;
