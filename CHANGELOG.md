@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.135] - 2026-06-19
+
+### Changed
+
+- **Release consolidation:** Rolls up the session's fixes — printable-sheet Minor Expression use boxes (MR × 2), the Actives.md / Active Buffs.md template audit and one-shot power resync, printable-sheet power effects reading the current rank, and live artifact weapon base-damage derivation (2d8/4d8 + 1d8/level). Verified clean rebuild with `dist` in sync.
+
 ## [0.9.134] - 2026-06-19
 
 ### Fixed
