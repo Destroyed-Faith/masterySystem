@@ -207,6 +207,44 @@ export class ArtifactEvolutionDialog extends BaseDialog {
       };
     });
 
+    root.querySelectorAll<HTMLElement>('[data-action="ae-gm-upgrade-selected"]').forEach((btn) => {
+      btn.onclick = async (ev) => {
+        ev.preventDefault();
+        const card = btn.closest('.ae-card');
+        const sel = card?.querySelector<HTMLSelectElement>('.ae-path-select');
+        const opt = sel?.selectedOptions[0];
+        if (!sel?.value || !opt) {
+          ui.notifications?.warn('Wähle einen gültigen Evolution-Pfad.');
+          return;
+        }
+        if (opt.dataset.gmDisabled === '1' || opt.disabled) {
+          ui.notifications?.warn('Dieser Pfad ist für ein GM-Upgrade nicht verfügbar (Artefakt zuerst aktivieren).');
+          return;
+        }
+        const displayName = card?.querySelector('.ae-card-title')?.textContent?.trim() || 'Artifact';
+        const pathLabel = opt.textContent?.trim() || sel.value;
+        const confirmed = await Dialog.confirm({
+          title: 'GM: Artefakt upgraden (ohne XP)',
+          content:
+            `<p><strong>${displayName}</strong> entlang <strong>${pathLabel}</strong> upgraden?</p>` +
+            '<p>Kein XP wird abgezogen; MR-Cap und Upgrade-Step-Regel gelten nicht.</p>',
+          yes: () => true,
+          no: () => false,
+          defaultYes: false,
+        });
+        if (!confirmed) return;
+        const ok = await upgradeArtifactForActor(
+          this.actor,
+          String(btn.dataset.rootId),
+          String(btn.dataset.embId),
+          String(opt.dataset.worldId),
+          String(sel.value),
+          { gmFree: true },
+        );
+        if (ok) await this.render({ force: true });
+      };
+    });
+
     root.querySelectorAll<HTMLElement>('[data-action="ae-wire-artifact"]').forEach((btn) => {
       btn.onclick = async (ev) => {
         ev.preventDefault();

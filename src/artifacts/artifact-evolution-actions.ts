@@ -38,7 +38,15 @@ export interface ArtifactEvolutionPath {
   nodeId: string;
   label: string;
   targetLevel: number;
+  /** Player upgrade blockers (XP, step rule, MR cap, …). */
   disabledReason: string;
+  /** GM free-upgrade blockers (activation + valid tree step only). */
+  gmDisabledReason: string;
+}
+
+export interface UpgradeArtifactOptions {
+  /** GM-only: evolve without spending XP or counting against Upgrade Step. */
+  gmFree?: boolean;
 }
 
 export interface ArtifactEvolutionCard {
@@ -62,6 +70,7 @@ export interface ArtifactEvolutionCard {
   linkDisabledReason: string;
   canActivate: boolean;
   nextUpgrade: ArtifactEvolutionPath | null;
+  nextGmUpgrade: ArtifactEvolutionPath | null;
   baseValues: Array<{ label: string; value: string }>;
   abilities: Array<{ name: string; type: string; effect: string }>;
   hasBaseValues: boolean;
@@ -167,11 +176,19 @@ export function buildArtifactEvolutionCards(actor: Actor): ArtifactEvolutionCard
       const cid = (child as any).getFlag('mastery-system', 'nodeId') as string;
       const tl = (child.system as any)?.level ?? currentSysLevel + 1;
       let disabledReason = '';
-      if (!linked) disabledReason = 'Activate the artifact first.';
-      else if (!canArtifactLink(masteryRank)) disabledReason = 'Mastery Rank 2+ required.';
-      else if (tl > maxSys) disabledReason = `Your MR allows artifact level up to ${maxSys} only.`;
-      else if (actorXpAvailable(actor) < ARTIFACT_UPGRADE_XP_COST) disabledReason = 'Not enough XP.';
-      else if (alreadyBumped) disabledReason = 'Already upgraded this Upgrade Step.';
+      let gmDisabledReason = '';
+      if (!linked) {
+        disabledReason = 'Activate the artifact first.';
+        gmDisabledReason = disabledReason;
+      } else if (!canArtifactLink(masteryRank)) {
+        disabledReason = 'Mastery Rank 2+ required.';
+      } else if (tl > maxSys) {
+        disabledReason = `Your MR allows artifact level up to ${maxSys} only.`;
+      } else if (actorXpAvailable(actor) < ARTIFACT_UPGRADE_XP_COST) {
+        disabledReason = 'Not enough XP.';
+      } else if (alreadyBumped) {
+        disabledReason = 'Already upgraded this Upgrade Step.';
+      }
 
       const ch = child as any;
       return {
@@ -180,10 +197,12 @@ export function buildArtifactEvolutionCards(actor: Actor): ArtifactEvolutionCard
         label: labels.get(cid) || ch.name,
         targetLevel: tl,
         disabledReason,
+        gmDisabledReason,
       };
     });
 
     const nextUpgrade = paths.find((p) => !p.disabledReason) || null;
+    const nextGmUpgrade = paths.find((p) => !p.gmDisabledReason) || null;
 
     const activationStoneAttr =
       (emb.getFlag?.('mastery-system', 'artifactActivationStoneAttr') as string | undefined) || '';
@@ -213,6 +232,7 @@ export function buildArtifactEvolutionCards(actor: Actor): ArtifactEvolutionCard
       linkDisabledReason,
       canActivate: !linked && !linkDisabledReason,
       nextUpgrade: linked ? nextUpgrade : null,
+      nextGmUpgrade: linked ? nextGmUpgrade : null,
       baseValues: display.baseValues,
       abilities: display.abilities,
       hasBaseValues: display.hasBaseValues,
@@ -466,16 +486,23 @@ export async function releaseAllArtifactActivationStones(actor: Actor): Promise<
   return released;
 }
 
-/** Upgrade an artifact one tree step — costs 8 XP. */
+/** Upgrade an artifact one tree step — costs 8 XP (unless `gmFree`). */
 export async function upgradeArtifactForActor(
   actor: Actor,
   rootWorldId: string,
   embeddedId: string,
   targetWorldItemId: string,
   targetNodeId: string,
+  options: UpgradeArtifactOptions = {},
 ): Promise<boolean> {
+  const gmFree = options.gmFree === true;
+  if (gmFree && !game.user?.isGM) {
+    ui.notifications?.warn('Nur der GM kann Artefakte ohne XP upgraden.');
+    return false;
+  }
+
   const A = actor as any;
-  if (!A.isOwner) return false;
+  if (!gmFree && !A.isOwner) return false;
 
   const root = (game as any).items?.get(rootWorldId);
   const targetWorld = (game as any).items?.get(targetWorldItemId);
@@ -494,7 +521,7 @@ export async function upgradeArtifactForActor(
   const prog = readActorArtifactProgress(levels[A.id], rootNodeId);
 
   const tl = (targetWorld.system as any)?.level ?? 1;
-  if (tl > maxSys) {
+  if (!gmFree && tl > maxSys) {
     ui.notifications?.warn(`Your Mastery Rank allows artifact level up to ${maxSys} only.`);
     return false;
   }
@@ -511,32 +538,34 @@ export async function upgradeArtifactForActor(
     return false;
   }
 
-  const stepRaw = (actor.system as any)?.xp?.currentStep ?? {};
-  const stepNow = {
-    attributes: Array.isArray(stepRaw.attributes) ? [...stepRaw.attributes] : [],
-    skills: Array.isArray(stepRaw.skills) ? [...stepRaw.skills] : [],
-    powers: Array.isArray(stepRaw.powers) ? [...stepRaw.powers] : [],
-    artifacts: Array.isArray(stepRaw.artifacts) ? [...stepRaw.artifacts] : [],
-  };
-  if (isBumped(stepNow as any, 'artifact', embeddedId)) {
-    ui.notifications?.warn(
-      'This artifact was already upgraded this Upgrade Step. End the current step first to upgrade it again.',
-    );
-    return false;
-  }
+  if (!gmFree) {
+    const stepRaw = (actor.system as any)?.xp?.currentStep ?? {};
+    const stepNow = {
+      attributes: Array.isArray(stepRaw.attributes) ? [...stepRaw.attributes] : [],
+      skills: Array.isArray(stepRaw.skills) ? [...stepRaw.skills] : [],
+      powers: Array.isArray(stepRaw.powers) ? [...stepRaw.powers] : [],
+      artifacts: Array.isArray(stepRaw.artifacts) ? [...stepRaw.artifacts] : [],
+    };
+    if (isBumped(stepNow as any, 'artifact', embeddedId)) {
+      ui.notifications?.warn(
+        'This artifact was already upgraded this Upgrade Step. End the current step first to upgrade it again.',
+      );
+      return false;
+    }
 
-  if (!(await spendActorXp(actor, ARTIFACT_UPGRADE_XP_COST))) {
-    ui.notifications?.warn(`Not enough XP (need ${ARTIFACT_UPGRADE_XP_COST}).`);
-    return false;
-  }
+    if (!(await spendActorXp(actor, ARTIFACT_UPGRADE_XP_COST))) {
+      ui.notifications?.warn(`Not enough XP (need ${ARTIFACT_UPGRADE_XP_COST}).`);
+      return false;
+    }
 
-  const stepAfter = recordBump(stepNow as any, 'artifact', embeddedId);
-  await actor.update({
-    'system.xp.currentStep.attributes': [...stepAfter.attributes],
-    'system.xp.currentStep.skills': [...stepAfter.skills],
-    'system.xp.currentStep.powers': [...stepAfter.powers],
-    'system.xp.currentStep.artifacts': [...stepAfter.artifacts],
-  });
+    const stepAfter = recordBump(stepNow as any, 'artifact', embeddedId);
+    await actor.update({
+      'system.xp.currentStep.attributes': [...stepAfter.attributes],
+      'system.xp.currentStep.skills': [...stepAfter.skills],
+      'system.xp.currentStep.powers': [...stepAfter.powers],
+      'system.xp.currentStep.artifacts': [...stepAfter.artifacts],
+    });
+  }
 
   const equip = emb.getFlag('mastery-system', 'equipment');
   const sys = foundry.utils.duplicate((targetWorld.system as any) || {});
@@ -557,6 +586,6 @@ export async function upgradeArtifactForActor(
   levels[A.id] = serializeActorArtifactProgress(nextProg);
   await setRootActorLevels(root, levels);
 
-  ui.notifications?.info(`Evolved to ${tw.name}.`);
+  ui.notifications?.info(gmFree ? `GM: Evolved to ${tw.name} (no XP spent).` : `Evolved to ${tw.name}.`);
   return true;
 }

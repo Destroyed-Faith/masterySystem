@@ -165,8 +165,11 @@
               <select id="ae-path-{{embeddedId}}" class="ae-path-select" data-emb-id="{{embeddedId}}">
                 {{#each paths}}
                 <option value="{{nodeId}}" data-world-id="{{worldItemId}}"
-                  {{#if disabledReason}}disabled title="{{disabledReason}}"{{/if}}>
-                  {{label}} (L{{targetLevel}}, {{@root.constants.upXp}} XP){{#if disabledReason}} — {{disabledReason}}{{/if}}
+                  data-gm-disabled="{{#if gmDisabledReason}}1{{/if}}"
+                  {{#if disabledReason}}{{#unless @root.isGM}}disabled{{/unless}}{{/if}}
+                  {{#if gmDisabledReason}}{{#if @root.isGM}}disabled{{/if}}{{/if}}
+                  title="{{#if @root.isGM}}{{#if gmDisabledReason}}{{gmDisabledReason}}{{else}}{{#if disabledReason}}{{disabledReason}}{{/if}}{{/if}}{{else}}{{#if disabledReason}}{{disabledReason}}{{/if}}{{/if}}">
+                  {{label}} (L{{targetLevel}}{{#unless @root.isGM}}, {{@root.constants.upXp}} XP{{/unless}}){{#if disabledReason}}{{#unless @root.isGM}} — {{disabledReason}}{{/unless}}{{/if}}
                 </option>
                 {{/each}}
               </select>
@@ -174,6 +177,13 @@
                 data-root-id="{{rootWorldId}}" data-emb-id="{{embeddedId}}">
                 Upgraden
               </button>
+              {{#if @root.isGM}}
+              <button type="button" class="ae-btn ae-btn-gm" data-action="ae-gm-upgrade-selected"
+                data-root-id="{{rootWorldId}}" data-emb-id="{{embeddedId}}"
+                title="Evolution ohne XP — ignoriert MR-Cap und Upgrade-Step-Regel">
+                GM: Upgraden (ohne XP)
+              </button>
+              {{/if}}
             </div>
             {{else if atMaxTierForMr}}
             <p class="ae-muted">Max level for current Mastery Rank.</p>

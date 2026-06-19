@@ -8,7 +8,14 @@ export interface ArtifactEvolutionPath {
     nodeId: string;
     label: string;
     targetLevel: number;
+    /** Player upgrade blockers (XP, step rule, MR cap, …). */
     disabledReason: string;
+    /** GM free-upgrade blockers (activation + valid tree step only). */
+    gmDisabledReason: string;
+}
+export interface UpgradeArtifactOptions {
+    /** GM-only: evolve without spending XP or counting against Upgrade Step. */
+    gmFree?: boolean;
 }
 export interface ArtifactEvolutionCard {
     embeddedId: string;
@@ -31,6 +38,7 @@ export interface ArtifactEvolutionCard {
     linkDisabledReason: string;
     canActivate: boolean;
     nextUpgrade: ArtifactEvolutionPath | null;
+    nextGmUpgrade: ArtifactEvolutionPath | null;
     baseValues: Array<{
         label: string;
         value: string;
@@ -64,6 +72,6 @@ export declare function resetArtifactActivationForActor(actor: Actor, rootWorldI
  * @returns the number of activation bindings released.
  */
 export declare function releaseAllArtifactActivationStones(actor: Actor): Promise<number>;
-/** Upgrade an artifact one tree step — costs 8 XP. */
-export declare function upgradeArtifactForActor(actor: Actor, rootWorldId: string, embeddedId: string, targetWorldItemId: string, targetNodeId: string): Promise<boolean>;
+/** Upgrade an artifact one tree step — costs 8 XP (unless `gmFree`). */
+export declare function upgradeArtifactForActor(actor: Actor, rootWorldId: string, embeddedId: string, targetWorldItemId: string, targetNodeId: string, options?: UpgradeArtifactOptions): Promise<boolean>;
 //# sourceMappingURL=artifact-evolution-actions.d.ts.map
