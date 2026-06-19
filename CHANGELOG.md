@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.132] - 2026-06-19
+
+### Fixed
+
+- **Active / Active-Buff powers on existing characters:** Power items bake their level table at creation time, so characters who owned Actives/Active-Buffs before the Actives.md / Active Buffs.md audit shipped still showed the old solver-derived values (e.g. Damage Single showing the wrong damage dice — 1d8 instead of 2d8 at higher ranks). A one-shot GM migration now resyncs these power items to the audited templates (damage anchors, special curves, healing, ranges, radii) while preserving each item's rank, chosen Special and Spell settings.
+
 ## [0.9.131] - 2026-06-19
 
 ### Added

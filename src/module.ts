@@ -83,6 +83,10 @@ import {
   runAbCriticalMilestonesMigration,
 } from './migrations/ab-critical-milestones-migration.js';
 import {
+  registerPowerTemplateResyncMigrationSetting,
+  runPowerTemplateResyncMigration,
+} from './migrations/power-template-resync-migration.js';
+import {
   registerArtifactEchoActivationMigrationSetting,
   runArtifactEchoActivationMigration,
 } from './migrations/artifact-echo-activation-migration.js';
@@ -235,6 +239,7 @@ Hooks.once('init', async function() {
   registerEchoArtifactDedupeMigrationSetting();
   registerPaperdollSlotCanonicalSetting();
   registerAbCriticalMilestonesMigrationSetting();
+  registerPowerTemplateResyncMigrationSetting();
   
   // Setup XP Management inline in settings
   setupXpManagementInline();
@@ -2966,6 +2971,16 @@ Hooks.once('ready', async function() {
     await runAbCriticalMilestonesMigration();
   } catch (error) {
     console.warn('Mastery System | Active Buff Critical milestones migration failed', error);
+  }
+
+  // One-shot resync of Active / Active-Buff power items to the audited
+  // Actives.md / Active Buffs.md templates (damage anchors, special curves,
+  // healing, ranges, radii). Fixes characters whose powers were baked before
+  // the audit shipped.
+  try {
+    await runPowerTemplateResyncMigration();
+  } catch (error) {
+    console.warn('Mastery System | Power template resync migration failed', error);
   }
 
   // One-shot Paperdoll Slot canonicalization (GM-only, guarded by world setting).
