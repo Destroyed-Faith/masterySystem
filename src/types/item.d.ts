@@ -719,6 +719,7 @@ export type ArtifactBaseProfileKey =
 /** Type of Base Value (catalog entry from the spec). */
 export type ArtifactBaseValueType =
   | 'weaponDamage'
+  | 'spellFocus'
   | 'thrownRange'
   | 'weaponSpecial'
   | 'bodyArmor'
@@ -751,6 +752,7 @@ export interface ArtifactBaseValue {
   /**
    * Resolved scalar — meaning depends on `type`:
    *   weaponDamage → dice string ("4d8")
+   *   spellFocus → bonus dice string ("+4d8") added to Spell damage, not weapon
    *   thrownRange / movement / armor / evade / shieldValue → numeric meters/points
    *   weaponSpecial → numeric rank
    *   sense / minorFeature → free-form note (kept in `note` field)

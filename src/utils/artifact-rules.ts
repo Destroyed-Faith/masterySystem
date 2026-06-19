@@ -234,6 +234,44 @@ export function formatArtifactWeaponRangeDisplay(
 }
 
 // ----------------------------------------------------------------------
+// Spell Focus (weapon-slot Base Value that boosts Spell damage, not weapon)
+// ----------------------------------------------------------------------
+
+/** Parse the leading d8 dice count from a value like "+5d8", "5d8", 5. */
+export function parseSpellFocusDice(value: unknown): number {
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    return Math.max(0, Math.floor(value));
+  }
+  if (typeof value === 'string') {
+    const m = value.match(/(\d+)\s*d\s*8/i) || value.match(/-?\d+/);
+    if (m) {
+      const n = Number(m[1] ?? m[0]);
+      if (Number.isFinite(n)) return Math.max(0, Math.floor(n));
+    }
+  }
+  return 0;
+}
+
+/**
+ * True when an artifact's `system` carries a Spell Focus Base Value. Such a
+ * weapon adds its dice to Spell damage instead of dealing normal weapon damage.
+ */
+export function artifactSystemHasSpellFocus(system: any): boolean {
+  const bvs = Array.isArray(system?.baseValues) ? system.baseValues : [];
+  return bvs.some((bv: any) => bv?.type === 'spellFocus');
+}
+
+/** Total Spell Focus bonus dice (d8) authored on an artifact `system`. */
+export function spellFocusDiceFromSystem(system: any): number {
+  const bvs = Array.isArray(system?.baseValues) ? system.baseValues : [];
+  let dice = 0;
+  for (const bv of bvs) {
+    if (bv?.type === 'spellFocus') dice += parseSpellFocusDice(bv?.value);
+  }
+  return dice;
+}
+
+// ----------------------------------------------------------------------
 // Base Value Limits per Slot
 // ----------------------------------------------------------------------
 
@@ -267,6 +305,7 @@ export const BASE_VALUE_HARD_CAP = 3;
 
 export type ArtifactBaseValueType =
   | 'weaponDamage'
+  | 'spellFocus'
   | 'thrownRange'
   | 'weaponSpecial'
   | 'bodyArmor'
@@ -279,6 +318,7 @@ export type ArtifactBaseValueType =
 
 export const BASE_VALUE_TYPE_LABELS: Record<ArtifactBaseValueType, string> = {
   weaponDamage: 'Weapon Damage',
+  spellFocus: 'Spell Focus',
   thrownRange: 'Thrown Range',
   weaponSpecial: 'Weapon Special',
   bodyArmor: 'Body Armor',
@@ -594,7 +634,7 @@ export function isBaseValueTypeAllowedForSlot(
     case 'mainHand':
     case 'offHand':
     case 'bothHands':
-      return ['weaponDamage', 'thrownRange', 'weaponSpecial', 'shieldValue', 'minorFeature']
+      return ['weaponDamage', 'spellFocus', 'thrownRange', 'weaponSpecial', 'shieldValue', 'minorFeature']
         .includes(type);
     case 'body':
       return ['bodyArmor', 'evade'].includes(type);

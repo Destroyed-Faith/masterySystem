@@ -90,6 +90,13 @@ export function feetMovementForLevel(level) {
 export function weaponDamageForLevel(level) {
     return `${clampLevel(level)}d8`;
 }
+/**
+ * Spell Focus baseline. Mirrors Weapon Damage (L1=+1d8 … L10=+10d8) but the
+ * value boosts Spell damage instead of dealing weapon damage.
+ */
+export function spellFocusForLevel(level) {
+    return `+${clampLevel(level)}d8`;
+}
 /** Thrown Range baseline. L1=6 m … L10=15 m. */
 export function thrownRangeForLevel(level) {
     return clampLevel(level) + 5;
@@ -107,6 +114,8 @@ export function deriveBaseValueDisplay(type, level, profile) {
     switch (type) {
         case 'weaponDamage':
             return { display: weaponDamageForLevel(level), derivable: true };
+        case 'spellFocus':
+            return { display: `${spellFocusForLevel(level)} to Spells`, derivable: true };
         case 'thrownRange':
             return { display: `${thrownRangeForLevel(level)} m`, derivable: true };
         case 'bodyArmor':

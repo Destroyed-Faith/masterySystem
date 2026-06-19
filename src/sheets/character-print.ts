@@ -35,6 +35,8 @@ import { isLegacyUnarmedItem } from '../utils/unarmed-fallback.js';
 import {
   formatArtifactWeaponRangeDisplay,
   resolveArtifactWeaponKind,
+  artifactSystemHasSpellFocus,
+  spellFocusDiceFromSystem,
 } from '../utils/artifact-rules.js';
 import { getDisadvantageDefinition } from '../system/disadvantages.js';
 
@@ -555,10 +557,14 @@ export function buildCharacterPrintContext(actor: any): Record<string, unknown> 
     .filter((a: any) => a?.system?.artifactWeapon)
     .map((a: any) => {
       const prof = formatWeaponProfile(a.system.artifactWeapon, a.system?.baseProfile);
+      // Spell Focus weapons deal no normal weapon damage — their dice boost
+      // Spell damage instead. Show that clearly in the Damage column.
+      const focusDice = spellFocusDiceFromSystem(a.system);
+      const isSpellFocus = artifactSystemHasSpellFocus(a.system);
       return {
         name: String(a?.name ?? ''),
         type: prof.type,
-        damage: prof.damage,
+        damage: isSpellFocus ? `Spell Focus +${focusDice}d8` : prof.damage,
         range: prof.range,
         tags: prof.tags,
       };

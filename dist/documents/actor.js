@@ -576,6 +576,7 @@ export class MasteryActor extends Actor {
         system.combat.artifactMovementBonus = artifactBv.movementBonus;
         system.combat.headArmor = artifactBv.headArmor;
         system.combat.minorArmor = artifactBv.minorArmor;
+        system.combat.spellFocusBonusDice = artifactBv.spellFocusBonusDice;
         if (artifactBv.armorBonus !== 0 || artifactBv.minorArmor !== 0 || artifactBv.headArmor !== 0) {
             const totalArtifactArmor = artifactBv.armorBonus + artifactBv.minorArmor + artifactBv.headArmor;
             system.combat.armorTotal = (system.combat.armorTotal || 0) + totalArtifactArmor;

@@ -26,7 +26,7 @@ import { parseInventorySize, fitsInGrid, rectsOverlap, findFirstFit, } from '../
 import { normalizeSlotKey } from '../utils/equip-slots.js';
 import { isEchoArtifactInventoryHidden } from '../utils/echo-artifact-equip.js';
 import { isLegacyUnarmedItem } from '../utils/unarmed-fallback.js';
-import { formatArtifactWeaponRangeDisplay, resolveArtifactWeaponKind, } from '../utils/artifact-rules.js';
+import { formatArtifactWeaponRangeDisplay, resolveArtifactWeaponKind, artifactSystemHasSpellFocus, spellFocusDiceFromSystem, } from '../utils/artifact-rules.js';
 import { getDisadvantageDefinition } from '../system/disadvantages.js';
 /** Human-readable label per Stone Function kind (technical summary). */
 const STONE_FN_KIND_LABEL = {
@@ -524,10 +524,14 @@ export function buildCharacterPrintContext(actor) {
         .filter((a) => a?.system?.artifactWeapon)
         .map((a) => {
         const prof = formatWeaponProfile(a.system.artifactWeapon, a.system?.baseProfile);
+        // Spell Focus weapons deal no normal weapon damage — their dice boost
+        // Spell damage instead. Show that clearly in the Damage column.
+        const focusDice = spellFocusDiceFromSystem(a.system);
+        const isSpellFocus = artifactSystemHasSpellFocus(a.system);
         return {
             name: String(a?.name ?? ''),
             type: prof.type,
-            damage: prof.damage,
+            damage: isSpellFocus ? `Spell Focus +${focusDice}d8` : prof.damage,
             range: prof.range,
             tags: prof.tags,
         };

@@ -86,6 +86,15 @@ export declare function formatArtifactWeaponRangeDisplay(aw: {
     label: string;
     meters: number;
 };
+/** Parse the leading d8 dice count from a value like "+5d8", "5d8", 5. */
+export declare function parseSpellFocusDice(value: unknown): number;
+/**
+ * True when an artifact's `system` carries a Spell Focus Base Value. Such a
+ * weapon adds its dice to Spell damage instead of dealing normal weapon damage.
+ */
+export declare function artifactSystemHasSpellFocus(system: any): boolean;
+/** Total Spell Focus bonus dice (d8) authored on an artifact `system`. */
+export declare function spellFocusDiceFromSystem(system: any): number;
 /**
  * Max number of Base Values per slot per spec:
  *   Main Hand / Off Hand: 2
@@ -97,7 +106,7 @@ export declare function formatArtifactWeaponRangeDisplay(aw: {
 export declare const BASE_VALUE_LIMIT_BY_SLOT: Record<ArtifactSlot, number>;
 /** Hard cap on Base Values per artifact regardless of slot. */
 export declare const BASE_VALUE_HARD_CAP = 3;
-export type ArtifactBaseValueType = 'weaponDamage' | 'thrownRange' | 'weaponSpecial' | 'bodyArmor' | 'headArmor' | 'shieldValue' | 'evade' | 'movement' | 'sense' | 'minorFeature';
+export type ArtifactBaseValueType = 'weaponDamage' | 'spellFocus' | 'thrownRange' | 'weaponSpecial' | 'bodyArmor' | 'headArmor' | 'shieldValue' | 'evade' | 'movement' | 'sense' | 'minorFeature';
 export declare const BASE_VALUE_TYPE_LABELS: Record<ArtifactBaseValueType, string>;
 /** Stone Function variants per spec. */
 export type ArtifactStoneFunctionKind = 'stonePowerSupport' | 'stonePool' | 'stoneRefresh' | 'stoneBattery';

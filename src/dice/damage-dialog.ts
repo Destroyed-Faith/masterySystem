@@ -17,6 +17,28 @@ import {
 import { previewTempHPConsumption } from '../combat/passive-triggers.js';
 import { applyDefensiveMitigation, countNaturalEights } from '../combat/damage-mitigation.js';
 import { logDrDebug } from '../utils/dr-debug.js';
+import { artifactSystemHasSpellFocus } from '../utils/artifact-rules.js';
+import { getActorSpellFocusBonusDice } from '../utils/artifact-base-values.js';
+
+/**
+ * Add `bonusDice` d8 to a damage formula. Empty / "0" → "Nd8"; pure "Xd8" →
+ * "(X+N)d8"; anything else gets " + Nd8" appended.
+ */
+function addD8DiceToFormula(formula: string, bonusDice: number): string {
+  if (!bonusDice || bonusDice <= 0) return formula;
+  const f = String(formula ?? '').trim();
+  if (!f || f === '0') return `${bonusDice}d8`;
+  const m = f.match(/^(\d+)d8$/i);
+  if (m) return `${parseInt(m[1], 10) + bonusDice}d8`;
+  return `${f} + ${bonusDice}d8`;
+}
+
+/** True when a power item is a damaging Spell (carries the `spell` tag). */
+function isSpellPowerItem(powerItem: any): boolean {
+  const sys = powerItem?.system ?? {};
+  if (sys.isSpell === true) return true;
+  return Array.isArray(sys.tags) && sys.tags.includes('spell');
+}
 
 /** Embedded item by id (Foundry Collection.get, array, or Map values). */
 function resolveEmbeddedItemOnActor(actor: any, itemId: string): any | undefined {
@@ -221,6 +243,11 @@ function resolveWeaponBaseDamage(weapon: any | null): string {
   }
   
   const weaponSystem = weapon.system as any;
+  // Spell Focus weapons route their value into Spell damage and deal NO normal
+  // weapon damage — even though they keep their melee/ranged base profile.
+  if (weapon.type === 'artifact' && artifactSystemHasSpellFocus(weaponSystem)) {
+    return '0';
+  }
   // Artifact weapons (e.g. Dragon Claws) keep their dice on
   // `system.artifactWeapon.damage` (e.g. "4d8"), NOT on `system.damage`.
   // Prefer it when present so artifacts don't fall back to the 1d8 default.
@@ -627,8 +654,27 @@ export async function showDamageDialog(
       selectedPowerIdType: typeof selectedPowerId
     });
   }
+  // Spell Focus: weapon-slot artifacts that route their value into Spell
+  // damage add their bonus dice whenever a damaging Spell is being resolved.
+  let spellFocusBonusDice = 0;
+  if (selectedPowerId) {
+    try {
+      const spellPower = resolvePowerItemForDamage(actorToUse, selectedPowerId);
+      if (spellPower && isSpellPowerItem(spellPower)) {
+        spellFocusBonusDice = getActorSpellFocusBonusDice(actorToUse as Actor);
+        if (spellFocusBonusDice > 0) {
+          powerDamage = addD8DiceToFormula(powerDamage, spellFocusBonusDice);
+          if (selectedPowerData) selectedPowerData.damage = powerDamage;
+        }
+      }
+    } catch (err) {
+      console.warn('Mastery System | spell focus bonus failed', err);
+    }
+  }
+
   console.log('Mastery System | [DAMAGE DIALOG] Final power damage', {
     powerDamage: powerDamage,
+    spellFocusBonusDice,
     hasSelectedPower: !!selectedPowerData,
     selectedPowerName: selectedPowerData?.name
   });

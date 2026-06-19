@@ -566,8 +566,15 @@ function baseValuesAtLevel(echoArtifactKey: string, level: number): ArtifactBase
 
 /** Weapon profile for weapon-kind echo artifacts at the given level (damage scales). */
 function weaponProfileAtLevel(def: EchoArtifactDefinition, level: number): Record<string, unknown> {
-  const dmgBv = (BASE_VALUE_TABLES[def.key] || []).find((b) => b.type === 'weaponDamage');
-  const damage = dmgBv ? String(dmgBv.valueAt(level)) : weaponDamageForLevel(level);
+  const table = BASE_VALUE_TABLES[def.key] || [];
+  const hasSpellFocus = table.some((b) => b.type === 'spellFocus');
+  const dmgBv = table.find((b) => b.type === 'weaponDamage');
+  // Spell Focus weapons deal no normal weapon damage — their value boosts Spells.
+  const damage = hasSpellFocus
+    ? '0'
+    : dmgBv
+      ? String(dmgBv.valueAt(level))
+      : weaponDamageForLevel(level);
   const isRanged =
     def.baseProfile === 'oneHandedWeaponRanged' || def.baseProfile === 'twoHandedWeaponRanged';
   const hands =

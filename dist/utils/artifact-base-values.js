@@ -30,6 +30,7 @@
  * `notes` rows on the breakdown but do not modify combat numbers.
  */
 import { getArtifactBindingKind } from './artifact-actor-rules.js';
+import { parseSpellFocusDice } from './artifact-rules.js';
 import { resolveArtifactBodyArmor, } from './artifact-armor-weight.js';
 const WEIGHT_RANK = {
     light: 0,
@@ -43,6 +44,7 @@ function emptyBreakdown() {
         movementBonus: 0,
         headArmor: 0,
         minorArmor: 0,
+        spellFocusBonusDice: 0,
         rows: {
             armor: [],
             evade: [],
@@ -238,6 +240,17 @@ export function buildArtifactBaseValueBreakdown(actor) {
                     out.armorBonus += value;
                     out.rows.armor.push({ source, type, value, label: contribLabel });
                     break;
+                case 'spellFocus': {
+                    const dice = parseSpellFocusDice(bv.value);
+                    out.spellFocusBonusDice += dice;
+                    out.rows.notes.push({
+                        source,
+                        type,
+                        value: dice,
+                        label: `${contribLabel} (+${dice}d8 to Spells)`,
+                    });
+                    break;
+                }
                 case 'weaponDamage':
                 case 'thrownRange':
                 case 'weaponSpecial':
@@ -250,5 +263,12 @@ export function buildArtifactBaseValueBreakdown(actor) {
         }
     }
     return out;
+}
+/**
+ * Total Spell Focus bonus dice (d8) the actor's equipped weapon-slot artifacts
+ * add to Spell damage. Cheap convenience wrapper around the full breakdown.
+ */
+export function getActorSpellFocusBonusDice(actor) {
+    return buildArtifactBaseValueBreakdown(actor).spellFocusBonusDice;
 }
 //# sourceMappingURL=artifact-base-values.js.map

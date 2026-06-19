@@ -36,6 +36,11 @@ export declare function minorArmorForLevel(level: number): number;
 export declare function feetMovementForLevel(level: number): number;
 /** Weapon Damage baseline. L1=1d8 … L10=10d8. */
 export declare function weaponDamageForLevel(level: number): string;
+/**
+ * Spell Focus baseline. Mirrors Weapon Damage (L1=+1d8 … L10=+10d8) but the
+ * value boosts Spell damage instead of dealing weapon damage.
+ */
+export declare function spellFocusForLevel(level: number): string;
 /** Thrown Range baseline. L1=6 m … L10=15 m. */
 export declare function thrownRangeForLevel(level: number): number;
 /** Sense depth tier word. L1-3 Detect, L4-6 Locate, L7-9 Identify, L10 Target. */

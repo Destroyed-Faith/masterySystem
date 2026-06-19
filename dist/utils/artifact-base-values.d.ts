@@ -57,6 +57,8 @@ export interface ArtifactBaseValueBreakdown {
     headArmor: number;
     /** Sum into `system.combat.armorTotal` ("Minor Armor"). */
     minorArmor: number;
+    /** Total Spell Focus bonus dice (d8) from equipped weapon-slot artifacts. */
+    spellFocusBonusDice: number;
     /** Per-stat breakdown rows (for the sheet). */
     rows: {
         armor: ArtifactStatContribution[];
@@ -80,4 +82,9 @@ export interface ArtifactBaseValueBreakdown {
  * Pure function — never mutates the actor.
  */
 export declare function buildArtifactBaseValueBreakdown(actor: any): ArtifactBaseValueBreakdown;
+/**
+ * Total Spell Focus bonus dice (d8) the actor's equipped weapon-slot artifacts
+ * add to Spell damage. Cheap convenience wrapper around the full breakdown.
+ */
+export declare function getActorSpellFocusBonusDice(actor: any): number;
 //# sourceMappingURL=artifact-base-values.d.ts.map
