@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.133] - 2026-06-19
+
+### Fixed
+
+- **Printable character sheet — power effects showed the wrong rank:** Power items only refresh `level`/`rank` on level-up; the flat `effect` string stayed frozen at the rank the power was created with. The printable sheet read that stale string, so e.g. **Ranged Split Attack** at Stufe 4 printed `+1d8` instead of `+5d8`. The sheet now reads each power's effect from its per-level table at the current rank, so the printed damage/effect always matches the power's actual Stufe.
+
 ## [0.9.132] - 2026-06-19
 
 ### Fixed

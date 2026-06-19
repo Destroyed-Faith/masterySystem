@@ -39,6 +39,7 @@ import {
   spellFocusDiceFromSystem,
 } from '../utils/artifact-rules.js';
 import { getDisadvantageDefinition } from '../system/disadvantages.js';
+import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
 
 /** Human-readable label per Stone Function kind (technical summary). */
 const STONE_FN_KIND_LABEL: Record<string, string> = {
@@ -201,6 +202,24 @@ function prettyPowerName(item: any, rank: number): string {
   }
   const special = formatEffectReference({ specialId: key, value });
   return `${base} — ${special}`;
+}
+
+/**
+ * Effect text for a power's CURRENT rank.
+ *
+ * Power items only refresh `system.level`/`system.rank` on level-up — the flat
+ * `system.effect` string stays frozen at the rank the item was created with.
+ * Read the live row from the per-level table so the printed effect (and its
+ * damage dice) always reflects the power's current Stufe.
+ */
+function powerEffectForRank(sys: any, level: number): string {
+  const levels = sys?.levels;
+  if (levels && typeof levels === 'object' && !Array.isArray(levels)) {
+    const key = String(getPowerDefinitionRank(level, levels));
+    const text = levels[key]?.effect?.text;
+    if (typeof text === 'string' && text.trim()) return text;
+  }
+  return String(sys?.effect || sys?.description || '');
 }
 
 /** Pad an array of card entries with empty placeholders up to `min` slots. */
@@ -581,7 +600,7 @@ export function buildCharacterPrintContext(actor: any): Record<string, unknown> 
     const phase = powerPhaseLabel(category);
     const entry = {
       name: prettyPowerName(p, rank),
-      effect: stripHtml(sys?.effect || sys?.description || ''),
+      effect: stripHtml(powerEffectForRank(sys, rank)),
       phase,
       stones: num(sys?.cost?.stones),
       rank,
