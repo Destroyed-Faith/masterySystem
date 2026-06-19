@@ -18,6 +18,7 @@ import { previewTempHPConsumption } from '../combat/passive-triggers.js';
 import { applyDefensiveMitigation, countNaturalEights } from '../combat/damage-mitigation.js';
 import { logDrDebug } from '../utils/dr-debug.js';
 import { artifactSystemHasSpellFocus } from '../utils/artifact-rules.js';
+import { deriveArtifactWeaponDamage } from '../utils/artifact-base-derive.js';
 import { getActorSpellFocusBonusDice } from '../utils/artifact-base-values.js';
 
 /**
@@ -251,10 +252,17 @@ function resolveWeaponBaseDamage(weapon: any | null): string {
   // Artifact weapons (e.g. Dragon Claws) keep their dice on
   // `system.artifactWeapon.damage` (e.g. "4d8"), NOT on `system.damage`.
   // Prefer it when present so artifacts don't fall back to the 1d8 default.
+  // For standard one/two-handed profiles, derive the canonical base+level dice
+  // live (2d8/4d8 base + 1d8/level) so existing artifacts always reflect the
+  // current rule even when their baked damage string is stale.
+  const artifactLevel = Math.max(1, Math.min(10, Number(weaponSystem.currentLevel) || Number(weaponSystem.level) || 1));
+  const derivedArtifactDamage =
+    weapon.type === 'artifact' ? deriveArtifactWeaponDamage(weaponSystem.baseProfile, artifactLevel) : null;
   const artifactWeaponDamage =
-    typeof weaponSystem.artifactWeapon?.damage === 'string'
+    derivedArtifactDamage ??
+    (typeof weaponSystem.artifactWeapon?.damage === 'string'
       ? weaponSystem.artifactWeapon.damage.trim()
-      : '';
+      : '');
   const baseDamageRaw: any =
     (artifactWeaponDamage.length > 0 ? artifactWeaponDamage : undefined) ??
     weaponSystem.damage ??

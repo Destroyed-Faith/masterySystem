@@ -13,7 +13,9 @@ import {
   BASE_VALUE_TYPE_LABELS,
   formatArtifactWeaponRangeDisplay,
   resolveArtifactWeaponKind,
+  artifactSystemHasSpellFocus,
 } from '../utils/artifact-rules.js';
+import { deriveArtifactWeaponDamage } from '../utils/artifact-base-derive.js';
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const BaseDialog = HandlebarsApplicationMixin(ApplicationV2) as typeof ApplicationV2;
@@ -501,9 +503,12 @@ export class ItemInfoDialog extends BaseDialog {
           kind === 'weapon'
             ? {
                 damage:
-                  aw.damage != null && String(aw.damage).trim() !== ''
+                  (!artifactSystemHasSpellFocus(sys)
+                    ? deriveArtifactWeaponDamage(profileKey, currentLevel)
+                    : null) ??
+                  (aw.damage != null && String(aw.damage).trim() !== ''
                     ? String(aw.damage)
-                    : '—',
+                    : '—'),
                 hands: handsN,
                 handsLabel: handsN === 2 ? '2 hands' : '1 hand',
                 weaponType: wt,

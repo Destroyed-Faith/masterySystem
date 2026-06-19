@@ -6,7 +6,8 @@ import { describeInnateAbility, getWeapon, WEAPONS } from '../utils/weapons.js';
 import { getArmorDefinitionForType, getShieldDefinitionForType, normalizeShieldTypeKey } from '../utils/equipment.js';
 import { formatEffectReference } from '../utils/special-effects.js';
 import { ARTIFACT_GEAR_SLOT_OPTIONS } from '../utils/artifact-node-options.js';
-import { ARTIFACT_SLOT_LABELS, BASE_PROFILE_LABELS, BASE_VALUE_TYPE_LABELS, formatArtifactWeaponRangeDisplay, resolveArtifactWeaponKind, } from '../utils/artifact-rules.js';
+import { ARTIFACT_SLOT_LABELS, BASE_PROFILE_LABELS, BASE_VALUE_TYPE_LABELS, formatArtifactWeaponRangeDisplay, resolveArtifactWeaponKind, artifactSystemHasSpellFocus, } from '../utils/artifact-rules.js';
+import { deriveArtifactWeaponDamage } from '../utils/artifact-base-derive.js';
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const BaseDialog = HandlebarsApplicationMixin(ApplicationV2);
 function typeLabel(t) {
@@ -440,9 +441,12 @@ export class ItemInfoDialog extends BaseDialog {
                     : { show: false },
                 weapon: kind === 'weapon'
                     ? {
-                        damage: aw.damage != null && String(aw.damage).trim() !== ''
-                            ? String(aw.damage)
-                            : '—',
+                        damage: (!artifactSystemHasSpellFocus(sys)
+                            ? deriveArtifactWeaponDamage(profileKey, currentLevel)
+                            : null) ??
+                            (aw.damage != null && String(aw.damage).trim() !== ''
+                                ? String(aw.damage)
+                                : '—'),
                         hands: handsN,
                         handsLabel: handsN === 2 ? '2 hands' : '1 hand',
                         weaponType: wt,

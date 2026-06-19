@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.134] - 2026-06-19
+
+### Fixed
+
+- **Artifact weapon base damage now reflects the profile + level rule everywhere:** Every weapon deals its Base Profile dice (one-handed **2d8** / two-handed **4d8**) plus **+1d8 per Artifact level** — so a Level 2 two-handed weapon is **6d8**. This value is now derived live from the base profile and current level in the printable sheet, the in-game damage roll, and the item info dialog, so existing artifacts always show the correct dice even when their baked damage string predates the base-profile scaling fix. Spell Focus / custom / natural profiles keep their stored value.
+
 ## [0.9.133] - 2026-06-19
 
 ### Fixed

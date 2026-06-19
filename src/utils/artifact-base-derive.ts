@@ -139,6 +139,22 @@ export function spellFocusForLevel(level: number, profile?: string | null): stri
   return `+${baseProfileWeaponDice(profile) + clampLevel(level)}d8`;
 }
 
+/**
+ * Canonical weapon damage for a standard one/two-handed (melee or ranged)
+ * Artifact Weapon, derived live from its physical Base Profile + Artifact
+ * level: 2d8 (one-handed) / 4d8 (two-handed) base + 1d8 per level.
+ *
+ * Returns `null` for non-weapon / custom / natural / Spell-Focus profiles
+ * (base dice 0) so callers fall back to the value stored on the item. Deriving
+ * live means existing artifacts always reflect the current rule even when their
+ * baked `artifactWeapon.damage` predates the base-profile scaling fix.
+ */
+export function deriveArtifactWeaponDamage(profile: string | null | undefined, level: number): string | null {
+  const base = baseProfileWeaponDice(profile);
+  if (base <= 0) return null;
+  return `${base + clampLevel(level)}d8`;
+}
+
 /** Thrown Range baseline. L1=6 m … L10=15 m. */
 export function thrownRangeForLevel(level: number): number {
   return clampLevel(level) + 5;

@@ -27,6 +27,7 @@ import { normalizeSlotKey } from '../utils/equip-slots.js';
 import { isEchoArtifactInventoryHidden } from '../utils/echo-artifact-equip.js';
 import { isLegacyUnarmedItem } from '../utils/unarmed-fallback.js';
 import { formatArtifactWeaponRangeDisplay, resolveArtifactWeaponKind, artifactSystemHasSpellFocus, spellFocusDiceFromSystem, } from '../utils/artifact-rules.js';
+import { deriveArtifactWeaponDamage } from '../utils/artifact-base-derive.js';
 import { getDisadvantageDefinition } from '../system/disadvantages.js';
 import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
 /** Human-readable label per Stone Function kind (technical summary). */
@@ -547,10 +548,15 @@ export function buildCharacterPrintContext(actor) {
         // Spell damage instead. Show that clearly in the Damage column.
         const focusDice = spellFocusDiceFromSystem(a.system);
         const isSpellFocus = artifactSystemHasSpellFocus(a.system);
+        // Derive the base+level damage live so the printed value always reflects
+        // the current rule (2d8/4d8 base + 1d8/level) even when the item's baked
+        // `artifactWeapon.damage` predates the base-profile scaling fix.
+        const artifactLevel = Math.max(1, Math.min(10, num(a.system?.currentLevel) || num(a.system?.level) || 1));
+        const derivedDamage = deriveArtifactWeaponDamage(a.system?.baseProfile, artifactLevel);
         return {
             name: String(a?.name ?? ''),
             type: prof.type,
-            damage: isSpellFocus ? `Spell Focus +${focusDice}d8` : prof.damage,
+            damage: isSpellFocus ? `Spell Focus +${focusDice}d8` : (derivedDamage ?? prof.damage),
             range: prof.range,
             tags: prof.tags,
         };
