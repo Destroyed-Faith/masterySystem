@@ -795,6 +795,16 @@
   font-weight: 700;
 }
 
+.cp-battle-card-rank {
+  font-size: 6.5px;
+  font-weight: 700;
+  color: #37474f;
+  background: #eceff1;
+  border-radius: 3px;
+  padding: 0 3px;
+  white-space: nowrap;
+}
+
 .cp-battle-card-eff {
   font-size: 6.5px;
   color: #444;

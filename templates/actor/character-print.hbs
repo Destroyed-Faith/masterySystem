@@ -205,7 +205,7 @@
           <td>{{name}}</td>
           <td>{{type}}</td>
           <td>{{damage}}</td>
-          <td>{{#if range}}{{range}}{{else}}—{{/if}}</td>
+          <td>{{#if this.range}}{{this.range}}{{else}}—{{/if}}</td>
           <td>{{#if tags}}{{tags}}{{else}}—{{/if}}</td>
         </tr>
         {{/each}}
@@ -431,7 +431,7 @@
         <div class="cp-battle-card{{#if baseline}} is-baseline{{/if}}">
           <span class="cp-use-box"></span>
           <span class="cp-battle-card-body">
-            <span class="cp-battle-card-name">{{name}}</span>
+            <span class="cp-battle-card-name">{{name}}{{#unless baseline}}{{#if rank}} <span class="cp-battle-card-rank">Stufe {{rank}}</span>{{/if}}{{/unless}}</span>
             {{#if effect}}<span class="cp-battle-card-eff">{{effect}}</span>{{/if}}
           </span>
         </div>
@@ -454,7 +454,7 @@
             <div class="cp-battle-card">
               <span class="cp-use-box"></span>
               <span class="cp-battle-card-body">
-                <span class="cp-battle-card-name">{{name}}{{#if fromArtifact}} <span class="cp-power-artifact" title="From artifact: {{source}}">&#9733; {{source}}</span>{{/if}}</span>
+                <span class="cp-battle-card-name">{{name}}{{#unless fromArtifact}}{{#if rank}} <span class="cp-battle-card-rank">Stufe {{rank}}</span>{{/if}}{{/unless}}{{#if fromArtifact}} <span class="cp-power-artifact" title="From artifact: {{source}}">&#9733; {{source}}</span>{{/if}}</span>
                 {{#if effect}}<span class="cp-battle-card-eff">{{effect}}</span>{{/if}}
               </span>
             </div>
@@ -473,7 +473,7 @@
             <div class="cp-battle-card cp-battle-card-buff">
               <span class="cp-use-box"></span>
               <span class="cp-battle-card-body">
-                <span class="cp-battle-card-name">{{name}}{{#if fromArtifact}} <span class="cp-power-artifact" title="From artifact: {{source}}">&#9733; {{source}}</span>{{/if}}</span>
+                <span class="cp-battle-card-name">{{name}}{{#unless fromArtifact}}{{#if rank}} <span class="cp-battle-card-rank">Stufe {{rank}}</span>{{/if}}{{/unless}}{{#if fromArtifact}} <span class="cp-power-artifact" title="From artifact: {{source}}">&#9733; {{source}}</span>{{/if}}</span>
                 {{#if effect}}<span class="cp-battle-card-eff">{{effect}}</span>{{/if}}
               </span>
             </div>
@@ -497,7 +497,7 @@
         <div class="cp-battle-card cp-battle-card-reaction">
           <span class="cp-use-box"></span>
           <span class="cp-battle-card-body">
-            <span class="cp-battle-card-name">{{name}}{{#if fromArtifact}} <span class="cp-power-artifact" title="From artifact: {{source}}">&#9733; {{source}}</span>{{/if}}</span>
+            <span class="cp-battle-card-name">{{name}}{{#unless fromArtifact}}{{#if rank}} <span class="cp-battle-card-rank">Stufe {{rank}}</span>{{/if}}{{/unless}}{{#if fromArtifact}} <span class="cp-power-artifact" title="From artifact: {{source}}">&#9733; {{source}}</span>{{/if}}</span>
             {{#if effect}}<span class="cp-battle-card-eff">{{effect}}</span>{{/if}}
           </span>
         </div>
@@ -518,7 +518,7 @@
       {{#each battle.passives}}
       <div class="cp-battle-card cp-battle-card-passive">
         <span class="cp-battle-card-body">
-          <span class="cp-battle-card-name">{{name}}{{#if fromArtifact}} <span class="cp-power-artifact" title="From artifact: {{source}}">&#9733; {{source}}</span>{{/if}}</span>
+          <span class="cp-battle-card-name">{{name}}{{#unless fromArtifact}}{{#if rank}} <span class="cp-battle-card-rank">Stufe {{rank}}</span>{{/if}}{{/unless}}{{#if fromArtifact}} <span class="cp-power-artifact" title="From artifact: {{source}}">&#9733; {{source}}</span>{{/if}}</span>
           {{#if effect}}<span class="cp-battle-card-eff">{{effect}}</span>{{/if}}
         </span>
       </div>
