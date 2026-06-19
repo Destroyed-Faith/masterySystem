@@ -295,32 +295,40 @@ describe('Echo Artifact tree builder — Titan Scars', () => {
     expect((tree.nodes[0].itemData.system as any).artifactArmor.type).toBe('medium');
   });
 
-  it('renders Titan Growth (Active Buff) / Titan Might (Stone) / Titan Healing verbatim', () => {
+  it('renders Titan Growth (Active Buff) / Titan <Attr> Pool (Stone) / Titan Regeneration as real Powers', () => {
+    // getEchoArtifact('titanScars') resolves via alias to the Might-affinity variant.
     const tree = buildEchoArtifactTree(getEchoArtifact('titanScars')!);
     const l3rows = (tree.nodes[2].itemData.system as any).levelProgression as any[];
-    expect(l3rows.map((r) => r.name)).toEqual(['Titan Growth I', 'Titan Might I', 'Titan Healing I']);
+    expect(l3rows.map((r) => r.name)).toEqual([
+      'Titan Growth I',
+      'Titan Might Pool I',
+      'Titan Regeneration I',
+    ]);
 
-    // Titan Growth must stay an Active Buff so it routes to the Buff segment.
+    // Titan Growth is now the Active Buff: Armor + Temporary HP catalog Power, so it
+    // stays an Active Buff (routes to the Buff segment) and shows the template effect.
     const growth = l3rows.find((r) => r.name === 'Titan Growth I');
     expect(String(growth.type)).toBe('Active Buff');
-    expect(String(growth.special)).toBe('Growth Form');
-    expect(String(growth.effect)).toContain('Power Level 4');
+    expect(String(growth.effect)).toContain('Armor');
+    expect(String(growth.effect)).toContain('Temporary HP');
 
-    // Slot 2 is now a Might Stone Pool (gifts Might Stones per Safe Haven Rest).
+    // Slot 2 is the chosen-attribute Stone Pool (Might for this variant); Slots 1 & 3
+    // are real catalog Power picks (no longer authored fallback).
     const picks = (tree.nodes[0].itemData.system as any).progressionPicks as any[];
     const l2pick = picks.find((p) => p.level === 2);
     expect(l2pick.kind).toBe('stoneFunction');
     expect(l2pick.stoneFunction).toEqual({ kind: 'stonePool', attribute: 'might' });
-    expect(picks.find((p) => p.level === 1).kind).toBe('authored');
-    expect(picks.find((p) => p.level === 3).kind).toBe('authored');
+    expect(picks.find((p) => p.level === 1).kind).toBe('power');
+    expect(picks.find((p) => p.level === 3).kind).toBe('power');
   });
 
-  it('Growth Form upgrades to PL 16 by L7 and keeps the True capstone', () => {
+  it('Titan Growth upgrades to PL 16 by L7 and keeps the True capstone', () => {
     const tree = buildEchoArtifactTree(getEchoArtifact('titanScars')!);
     const l7 = (tree.nodes[6].itemData.system as any).levelProgression as any[];
-    const growth7 = l7.find((r) => String(r.special) === 'Growth Form');
-    expect(growth7.name).toBe('Titan Growth III');
-    expect(String(growth7.effect)).toContain('Power Level 16');
+    const growth7 = l7.find((r) => r.name === 'Titan Growth III');
+    expect(growth7).toBeTruthy();
+    // PL16 Armor + Temporary HP row: +17 Armor / 91 Temporary HP.
+    expect(String(growth7.effect)).toContain('17 Armor');
 
     const l10 = (tree.nodes[9].itemData.system as any).levelProgression.map((r: any) => r.name);
     expect(l10).toContain('True Titan Scars');

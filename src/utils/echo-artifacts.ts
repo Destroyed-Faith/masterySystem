@@ -542,134 +542,171 @@ const ELVEN_STRIDE_AIR = buildElvenStrideDefinition({
 // Titan Scars (Titanborn)
 // ----------------------------------------------------------------------
 
-const TITAN_SCARS: EchoArtifactDefinition = {
-  key: 'titanScars',
-  name: 'Titan Scars',
-  echoKey: 'titanborn',
-  slot: 'body',
-  baseProfile: 'bodyArmor',
-  description:
-    'Ancient scars, stone-like tissue, Titan blood, and broken divine bindings grown into the body.',
-  restriction:
-    'A Titanborn with Titan Scars cannot wear mundane armor or bind another Body Artifact. Titan Scars are Echo-bound and cannot normally be removed, replaced, sold, stolen, unequipped, or unbound.',
-  // Slot 2 is a Might Stone Pool (Titan Might): after each Safe Haven Rest the
-  // Titanborn is gifted Might Stones (the pool lifts the Might stone maximum by
-  // 2 / 4 / 8 at stages I / II / III). Slots 1 and 3 (Titan Growth / Titan
-  // Healing) carry no `progressionPickIds` so the authored rows below survive
-  // verbatim via `buildEchoProgressionPicks`' authored fallback.
-  stoneFunction: {
-    kind: 'stonePool',
-    attribute: 'might',
-    level: 2,
-    name: 'Titan Might',
-  },
-  baseValues: [
-    {
-      slot: 'a',
-      label: 'Medium Armor',
-      note: '+12 to +22 Armor; counts as Medium Armor (Evade −2, Initiative −4, −1d8 Physical).',
-    },
-  ],
-  levelProgression: [
-    {
-      level: 1,
-      name: 'Titan Growth I',
-      type: 'Active Buff',
-      range: 'Self',
-      duration: 'Mastery Rank Rounds',
-      effect:
-        'You may activate Growth Form at Power Level 4. Growth Form uses your maintained Active Buff slot.',
-      special: 'Growth Form',
-    },
-    {
-      level: 2,
-      name: 'Titan Might I',
-      type: 'Stone Pool',
-      range: 'Self',
-      duration: 'Passive',
-      effect: 'After each Safe Haven Rest, Titan Scars gift you 2 Might Stones.',
-      special: 'Might Stones',
-    },
-    {
-      level: 3,
-      name: 'Titan Healing I',
-      type: 'Stone Power Support',
-      range: 'Self',
-      duration: 'Instant',
-      effect:
-        'Titan Scars support the Vitality Ability: Remove Scar Stone Power. You must pay the normal Stone cost yourself.',
-      special: 'Remove Scar Stone Power',
-    },
-    {
-      level: 4,
-      name: 'Titan Growth II',
-      type: 'Active Buff',
-      range: 'Self',
-      duration: 'Mastery Rank Rounds',
-      effect:
-        'Growth Form improves to Power Level 10. Growth Form uses your maintained Active Buff slot.',
-      special: 'Growth Form',
-    },
-    {
-      level: 5,
-      name: 'Titan Might II',
-      type: 'Stone Pool',
-      range: 'Self',
-      duration: 'Passive',
-      effect: 'After each Safe Haven Rest, Titan Scars gift you 4 Might Stones.',
-      special: 'Might Stones',
-    },
-    {
-      level: 6,
-      name: 'Titan Healing II',
-      type: 'Stone Power Support',
-      range: 'Self',
-      duration: 'Instant',
-      effect:
-        'Titan Scars support the Vitality Ability: Remove Scar Stone Power. When Remove Scar is used through Titan Scars, it may recover 1 Scarred Health Bar as written by the Stone Power. You must pay the normal Stone cost yourself.',
-      special: 'Remove Scar Stone Power',
-    },
-    {
-      level: 7,
-      name: 'Titan Growth III',
-      type: 'Active Buff',
-      range: 'Self',
-      duration: 'Mastery Rank Rounds',
-      effect:
-        'Growth Form improves to Power Level 16. Growth Form uses your maintained Active Buff slot.',
-      special: 'Growth Form',
-    },
-    {
-      level: 8,
-      name: 'Titan Might III',
-      type: 'Stone Pool',
-      range: 'Self',
-      duration: 'Passive',
-      effect: 'After each Safe Haven Rest, Titan Scars gift you 8 Might Stones.',
-      special: 'Might Stones',
-    },
-    {
-      level: 9,
-      name: 'Titan Healing III',
-      type: 'Stone Power Support',
-      range: 'Self / Touch',
-      duration: 'Instant',
-      effect:
-        'Titan Scars support the Vitality Ability: Remove Scar Stone Power on yourself or one touched willing creature. You must pay the normal Stone cost yourself.',
-      special: 'Remove Scar Stone Power',
-    },
-    {
-      level: 10,
-      name: 'True Titan Scars',
-      type: 'Ultimate',
-      range: 'Self / Touch',
-      duration: 'Instant',
-      effect:
-        'Once per Safe Haven Rest, you may use the Vitality Ability: Remove Scar Stone Power through Titan Scars without paying its Stone cost. This free use can recover 1 Scarred Health Bar and follows all normal Remove Scar limits.',
-      special: 'True Titan Scars',
-    },
-  ],
+/** The 7 Attributes a Titanborn may bind their Titan Stone Pool to. */
+const TITAN_ATTRIBUTES = [
+  'might',
+  'agility',
+  'vitality',
+  'intellect',
+  'resolve',
+  'influence',
+  'wits',
+] as const;
+type TitanAttribute = (typeof TITAN_ATTRIBUTES)[number];
+
+const TITAN_ATTR_LABELS: Record<TitanAttribute, string> = {
+  might: 'Might',
+  agility: 'Agility',
+  vitality: 'Vitality',
+  intellect: 'Intellect',
+  resolve: 'Resolve',
+  influence: 'Influence',
+  wits: 'Wits',
 };
+
+/** Echo Artifact key for a Titan Scars variant bound to `attr` (e.g. `titanScarsMight`). */
+function titanScarsKey(attr: TitanAttribute): string {
+  return `titanScars${attr.charAt(0).toUpperCase()}${attr.slice(1)}`;
+}
+
+/**
+ * Titan Scars (Titanborn body armor) — one variant per Attribute affinity.
+ *
+ * All variants are identical except the Stone Pool's Attribute, which the player
+ * chooses at creation via the Titanborn `subChoices` (the matching variant is
+ * gated by `requiresSubChoice`). Slot 1 (Titan Growth) and Slot 3 (Titan
+ * Regeneration) are now real, editable catalog Powers via `progressionPickSpecs`
+ * (Active Buff: Armor + Temporary HP / Active Buff: Healing) instead of authored
+ * text. Slot 2 carries the Stone Pool as a pick (like the Sentinel / Judicator
+ * frames), so any of the 7 Attributes works even though the Body slot's default
+ * stone-access is Vitality / Might — the actor-side aggregator reads the pick's
+ * attribute directly and does not enforce slot-legality.
+ */
+function makeTitanScars(attr: TitanAttribute): EchoArtifactDefinition {
+  const label = TITAN_ATTR_LABELS[attr];
+  return {
+    key: titanScarsKey(attr),
+    name: 'Titan Scars',
+    echoKey: 'titanborn',
+    slot: 'body',
+    baseProfile: 'bodyArmor',
+    requiresSubChoice: attr,
+    description:
+      'Ancient scars, stone-like tissue, Titan blood, and broken divine bindings grown into the body.',
+    restriction:
+      'A Titanborn with Titan Scars cannot wear mundane armor or bind another Body Artifact. Titan Scars are Echo-bound and cannot normally be removed, replaced, sold, stolen, unequipped, or unbound.',
+    progressionPickSpecs: {
+      1: { templateId: 'ab-armor-temp-hp', name: 'Titan Growth' },
+      2: { name: `Titan ${label} Pool`, stoneFunction: { kind: 'stonePool', attribute: attr } },
+      3: { templateId: 'ab-healing', name: 'Titan Regeneration' },
+    },
+    baseValues: [
+      {
+        slot: 'a',
+        label: 'Medium Armor',
+        note: '+12 to +22 Armor; counts as Medium Armor (Evade −2, Initiative −4, −1d8 Physical).',
+      },
+    ],
+    levelProgression: [
+      {
+        level: 1,
+        name: 'Titan Growth I',
+        type: 'Active Buff',
+        range: 'Self',
+        duration: 'Mastery Rank Rounds',
+        effect:
+          'Activate Titan Growth (Active Buff: Armor + Temporary HP) at Power Level 4. Uses your maintained Active Buff slot.',
+        special: 'Titan Growth',
+      },
+      {
+        level: 2,
+        name: `Titan ${label} Pool I`,
+        type: 'Stone Pool',
+        range: 'Self',
+        duration: 'Passive',
+        effect: `After each Safe Haven Rest, Titan Scars gift you 2 ${label} Stones.`,
+        special: `${label} Stones`,
+      },
+      {
+        level: 3,
+        name: 'Titan Regeneration I',
+        type: 'Active Buff',
+        range: 'Self',
+        duration: 'Mastery Rank Rounds',
+        effect:
+          'Activate Titan Regeneration (Active Buff: Healing) at Power Level 4. Uses your maintained Active Buff slot.',
+        special: 'Titan Regeneration',
+      },
+      {
+        level: 4,
+        name: 'Titan Growth II',
+        type: 'Active Buff',
+        range: 'Self',
+        duration: 'Mastery Rank Rounds',
+        effect: 'Titan Growth improves to Power Level 10.',
+        special: 'Titan Growth',
+      },
+      {
+        level: 5,
+        name: `Titan ${label} Pool II`,
+        type: 'Stone Pool',
+        range: 'Self',
+        duration: 'Passive',
+        effect: `After each Safe Haven Rest, Titan Scars gift you 4 ${label} Stones.`,
+        special: `${label} Stones`,
+      },
+      {
+        level: 6,
+        name: 'Titan Regeneration II',
+        type: 'Active Buff',
+        range: 'Self',
+        duration: 'Mastery Rank Rounds',
+        effect: 'Titan Regeneration improves to Power Level 10.',
+        special: 'Titan Regeneration',
+      },
+      {
+        level: 7,
+        name: 'Titan Growth III',
+        type: 'Active Buff',
+        range: 'Self',
+        duration: 'Mastery Rank Rounds',
+        effect: 'Titan Growth improves to Power Level 16.',
+        special: 'Titan Growth',
+      },
+      {
+        level: 8,
+        name: `Titan ${label} Pool III`,
+        type: 'Stone Pool',
+        range: 'Self',
+        duration: 'Passive',
+        effect: `After each Safe Haven Rest, Titan Scars gift you 8 ${label} Stones.`,
+        special: `${label} Stones`,
+      },
+      {
+        level: 9,
+        name: 'Titan Regeneration III',
+        type: 'Active Buff',
+        range: 'Self',
+        duration: 'Mastery Rank Rounds',
+        effect: 'Titan Regeneration improves to Power Level 16.',
+        special: 'Titan Regeneration',
+      },
+      {
+        level: 10,
+        name: 'True Titan Scars',
+        type: 'Ultimate',
+        range: 'Self',
+        duration: 'Special',
+        effect:
+          'Once per Safe Haven Rest, you may have both Titan Growth and Titan Regeneration active at once without either occupying your maintained Active Buff slot, until the end of your next turn.',
+        special: 'True Titan Scars',
+      },
+    ],
+  };
+}
+
+/** All 7 Titan Scars variants (one per Attribute affinity). */
+const TITAN_SCARS_VARIANTS: EchoArtifactDefinition[] = TITAN_ATTRIBUTES.map(makeTitanScars);
 
 // ----------------------------------------------------------------------
 // Wyrm Scales variants (Dragonborn — pick one body armor line)
@@ -681,6 +718,9 @@ export const WYRM_SCALES_VARIANT_GROUP = 'wyrmScales';
 export const ECHO_ARTIFACT_KEY_ALIASES: Record<string, string> = {
   wyrmScales: 'wyrmScalesHeavy',
   serpentScales: 'wyrmScalesLight',
+  // Legacy single Titanborn body artifact → Might-affinity variant (its old
+  // fixed Stone Pool was Might). Existing characters keep working unchanged.
+  titanScars: 'titanScarsMight',
 };
 
 const WYRM_BODY_RESTRICTION =
@@ -1588,7 +1628,7 @@ export const ECHO_ARTIFACTS: Record<string, EchoArtifactDefinition> = {
   elvenStrideEarth: ELVEN_STRIDE_EARTH,
   elvenStrideWater: ELVEN_STRIDE_WATER,
   elvenStrideAir: ELVEN_STRIDE_AIR,
-  titanScars: TITAN_SCARS,
+  ...Object.fromEntries(TITAN_SCARS_VARIANTS.map((def) => [def.key, def])),
   wyrmScalesHeavy: WYRM_SCALES_HEAVY,
   wyrmScalesMedium: WYRM_SCALES_MEDIUM,
   wyrmScalesLight: WYRM_SCALES_LIGHT,
@@ -1641,7 +1681,11 @@ export const ECHO_ARTIFACT_RULES: Record<string, EchoArtifactRules> = {
     echoKey: 'titanborn',
     requiredAtCreation: 1,
     maxAtCreation: 1,
-    availableKeys: ['titanScars'],
+    // One Titan Scars variant per Attribute affinity. The chosen sub-choice
+    // (`actor.system.echo.subChoiceKey`) gates which variant is offered via
+    // `requiresSubChoice`, and the exclusive group enforces "pick exactly one".
+    availableKeys: TITAN_ATTRIBUTES.map(titanScarsKey),
+    exclusiveGroups: [TITAN_ATTRIBUTES.map(titanScarsKey)],
   },
   dragonborn: {
     echoKey: 'dragonborn',

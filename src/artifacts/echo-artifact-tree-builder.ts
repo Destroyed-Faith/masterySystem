@@ -192,17 +192,25 @@ const BASE_VALUE_TABLES: Record<string, BaseValueSpec[]> = {
     { slot: 'a', type: 'evade', label: 'Evade', unlock: 1, valueAt: (l) => feetEvadeForLevel(l) },
     { slot: 'b', type: 'movement', label: 'Clinging', unlock: 4, valueAt: (l) => getMinorMovementBaselineB(l) },
   ],
-  titanScars: [
-    {
-      slot: 'a',
-      type: 'bodyArmor',
-      label: 'Medium Echo Armor',
-      armorWeightClass: 'medium',
-      unlock: 1,
-      valueAt: (l) => bodyArmorBonusForLevel(l),
-      note: 'Medium Armor: Evade −2, Initiative −4, −1d8 Physical Skills.',
-    },
-  ],
+  // Titan Scars (Titanborn) has one variant per Attribute affinity
+  // (titanScarsMight, titanScarsAgility, …). All share the same Medium Echo Armor
+  // base value, so generate the identical table for every variant key.
+  ...Object.fromEntries(
+    ['Might', 'Agility', 'Vitality', 'Intellect', 'Resolve', 'Influence', 'Wits'].map((attr) => [
+      `titanScars${attr}`,
+      [
+        {
+          slot: 'a',
+          type: 'bodyArmor',
+          label: 'Medium Echo Armor',
+          armorWeightClass: 'medium',
+          unlock: 1,
+          valueAt: (l: number) => bodyArmorBonusForLevel(l),
+          note: 'Medium Armor: Evade −2, Initiative −4, −1d8 Physical Skills.',
+        },
+      ] as BaseValueSpec[],
+    ]),
+  ),
   wyrmScalesHeavy: [
     {
       slot: 'a',

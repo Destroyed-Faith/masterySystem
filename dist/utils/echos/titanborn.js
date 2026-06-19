@@ -8,6 +8,83 @@ export const TITANBORN_ECHO = {
     size: 'medium',
     speed: 12,
     coreTraits: [],
+    subChoiceLabel: 'Titan Stone Affinity',
+    // The Titan Scars body artifact carries a Stone Pool. The player chooses at
+    // creation which Attribute that pool feeds (2 / 4 / 8 Stones at Stages
+    // I / II / III). Each affinity maps to one of the 7 Titan Scars variants via
+    // `requiresSubChoice` (see ECHO_ARTIFACT_RULES.titanborn).
+    subChoices: [
+        {
+            key: 'might',
+            name: 'Might Affinity',
+            trait: {
+                id: 'titan-stone-might',
+                name: 'Titan Stone: Might',
+                effect: 'Your Titan Stone Pool feeds Might: after each Safe Haven Rest, Titan Scars gift you 2 / 4 / 8 Might Stones at Stages I / II / III (Artifact Levels 2 / 5 / 8).',
+                usage: 'passive'
+            }
+        },
+        {
+            key: 'agility',
+            name: 'Agility Affinity',
+            trait: {
+                id: 'titan-stone-agility',
+                name: 'Titan Stone: Agility',
+                effect: 'Your Titan Stone Pool feeds Agility: after each Safe Haven Rest, Titan Scars gift you 2 / 4 / 8 Agility Stones at Stages I / II / III (Artifact Levels 2 / 5 / 8).',
+                usage: 'passive'
+            }
+        },
+        {
+            key: 'vitality',
+            name: 'Vitality Affinity',
+            trait: {
+                id: 'titan-stone-vitality',
+                name: 'Titan Stone: Vitality',
+                effect: 'Your Titan Stone Pool feeds Vitality: after each Safe Haven Rest, Titan Scars gift you 2 / 4 / 8 Vitality Stones at Stages I / II / III (Artifact Levels 2 / 5 / 8).',
+                usage: 'passive'
+            }
+        },
+        {
+            key: 'intellect',
+            name: 'Intellect Affinity',
+            trait: {
+                id: 'titan-stone-intellect',
+                name: 'Titan Stone: Intellect',
+                effect: 'Your Titan Stone Pool feeds Intellect: after each Safe Haven Rest, Titan Scars gift you 2 / 4 / 8 Intellect Stones at Stages I / II / III (Artifact Levels 2 / 5 / 8).',
+                usage: 'passive'
+            }
+        },
+        {
+            key: 'resolve',
+            name: 'Resolve Affinity',
+            trait: {
+                id: 'titan-stone-resolve',
+                name: 'Titan Stone: Resolve',
+                effect: 'Your Titan Stone Pool feeds Resolve: after each Safe Haven Rest, Titan Scars gift you 2 / 4 / 8 Resolve Stones at Stages I / II / III (Artifact Levels 2 / 5 / 8).',
+                usage: 'passive'
+            }
+        },
+        {
+            key: 'influence',
+            name: 'Influence Affinity',
+            trait: {
+                id: 'titan-stone-influence',
+                name: 'Titan Stone: Influence',
+                effect: 'Your Titan Stone Pool feeds Influence: after each Safe Haven Rest, Titan Scars gift you 2 / 4 / 8 Influence Stones at Stages I / II / III (Artifact Levels 2 / 5 / 8).',
+                usage: 'passive'
+            }
+        },
+        {
+            key: 'wits',
+            name: 'Wits Affinity',
+            trait: {
+                id: 'titan-stone-wits',
+                name: 'Titan Stone: Wits',
+                effect: 'Your Titan Stone Pool feeds Wits: after each Safe Haven Rest, Titan Scars gift you 2 / 4 / 8 Wits Stones at Stages I / II / III (Artifact Levels 2 / 5 / 8).',
+                usage: 'passive'
+            }
+        }
+    ],
     deck: [
         {
             id: 'giantblood-portent',

@@ -46,6 +46,7 @@ import { registerArtifactSpecBackfillSetting, runArtifactSpecBackfill, } from '.
 import { registerEchoArtifactTreeMigrationSetting, runEchoArtifactTreeMigration, } from './migrations/echo-artifact-tree-migration.js';
 import { registerEchoArtifactDedupeMigrationSetting, runEchoArtifactDedupeMigration, } from './migrations/echo-artifact-dedupe-migration.js';
 import { runElvenStrideLineageMigration } from './migrations/elven-stride-lineage-migration.js';
+import { runTitanScarsAffinityMigration } from './migrations/titan-scars-affinity-migration.js';
 import { registerPaperdollSlotCanonicalSetting, runPaperdollSlotCanonical, } from './migrations/paperdoll-slot-canonical.js';
 import { registerArtifactEchoLinkMigrationSetting, runArtifactEchoLinkMigration, } from './migrations/artifact-echo-link-migration.js';
 import { registerAbCriticalMilestonesMigrationSetting, runAbCriticalMilestonesMigration, } from './migrations/ab-critical-milestones-migration.js';
@@ -2843,6 +2844,13 @@ Hooks.once('ready', async function () {
     }
     catch (error) {
         console.warn('Mastery System | Elven Stride lineage migration failed', error);
+    }
+    // Migration: legacy single-key Titan Scars → Attribute-affinity echo artifact trees.
+    try {
+        await runTitanScarsAffinityMigration(migrationActors);
+    }
+    catch (error) {
+        console.warn('Mastery System | Titan Scars affinity migration failed', error);
     }
     // Migration: Backfill inventory sizes for existing items (GM only)
     if (game.user?.isGM) {

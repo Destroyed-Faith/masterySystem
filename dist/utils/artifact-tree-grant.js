@@ -27,8 +27,10 @@ export function inferArtifactKeyFromName(name) {
         return 'wyrmScalesLight';
     if (n.includes('wyrm scale'))
         return 'wyrmScalesHeavy';
+    // Titan Scars variants are all named "Titan Scars"; the affinity isn't in the
+    // name, so default name-based wiring to the Might variant (legacy default).
     if (n.includes('titan scar'))
-        return 'titanScars';
+        return 'titanScarsMight';
     if (n.includes('stonebound sole'))
         return 'stoneboundSoles';
     if (n.includes('elven stride') && n.includes('fire'))

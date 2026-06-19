@@ -70,6 +70,7 @@ import {
   runEchoArtifactDedupeMigration,
 } from './migrations/echo-artifact-dedupe-migration.js';
 import { runElvenStrideLineageMigration } from './migrations/elven-stride-lineage-migration.js';
+import { runTitanScarsAffinityMigration } from './migrations/titan-scars-affinity-migration.js';
 import {
   registerPaperdollSlotCanonicalSetting,
   runPaperdollSlotCanonical,
@@ -3103,6 +3104,13 @@ Hooks.once('ready', async function() {
     await runElvenStrideLineageMigration(migrationActors);
   } catch (error) {
     console.warn('Mastery System | Elven Stride lineage migration failed', error);
+  }
+
+  // Migration: legacy single-key Titan Scars → Attribute-affinity echo artifact trees.
+  try {
+    await runTitanScarsAffinityMigration(migrationActors);
+  } catch (error) {
+    console.warn('Mastery System | Titan Scars affinity migration failed', error);
   }
 
   // Migration: Backfill inventory sizes for existing items (GM only)

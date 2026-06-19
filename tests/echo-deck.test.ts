@@ -150,11 +150,20 @@ describe('Echo Sub-Choice Validation', () => {
     expect(def.subChoices!.length).toBe(3);
   });
 
-  it('Humans / Dwarfs / Titanborn / Dragonborn / Unbound have no sub-choices', () => {
-    for (const key of ['humans', 'dwarfs', 'titanborn', 'dragonborn', 'unbound']) {
+  it('Humans / Dwarfs / Dragonborn / Unbound have no sub-choices', () => {
+    for (const key of ['humans', 'dwarfs', 'dragonborn', 'unbound']) {
       const def = getEcho(key)!;
       expect(def.subChoices === undefined || def.subChoices.length === 0).toBe(true);
     }
+  });
+
+  it('Titanborn offer a Titan Stone Affinity sub-choice per Attribute (7)', () => {
+    const def = getEcho('titanborn')!;
+    expect(def.subChoices).toBeDefined();
+    expect(def.subChoices!.length).toBe(7);
+    expect(def.subChoices!.map((s) => s.key).sort()).toEqual(
+      ['agility', 'influence', 'intellect', 'might', 'resolve', 'vitality', 'wits'],
+    );
   });
 
   it('Dragonborn require a Veiled Form, others do not', () => {
