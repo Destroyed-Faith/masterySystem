@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.136] - 2026-06-19
+
+### Fixed
+
+- **Power effect text printed literal `**` asterisks:** Power effect text is authored with Markdown emphasis (e.g. `**+9d8**`), but the character sheet rendered it raw, so cards/tables showed the literal asterisks. Added an `mdInline` Handlebars helper that renders `**bold**` / `*italic*` as HTML on the character sheet, and the printable sheet now strips the emphasis markers (plain-text layout).
+
+### Note
+
+- Existing Active / Active-Buff power items created before the templates audit still carry stale baked values (e.g. **Active Buff: Damage** showing `+3d8` at Level 4 instead of `+9d8`). A full world reload runs the one-shot power resync migration (added in 0.9.132) that updates them to the current values.
+
 ## [0.9.135] - 2026-06-19
 
 ### Changed

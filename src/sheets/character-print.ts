@@ -169,6 +169,10 @@ function stripHtml(value: unknown): string {
     .replace(/&amp;/g, '&')
     .replace(/&lt;/g, '<')
     .replace(/&gt;/g, '>')
+    // Strip inline Markdown emphasis markers (effect text is authored with
+    // **bold** / *italic*); the print layout is plain text.
+    .replace(/\*\*([^*]+)\*\*/g, '$1')
+    .replace(/\*([^*]+)\*/g, '$1')
     .replace(/\s+/g, ' ')
     .trim();
 }

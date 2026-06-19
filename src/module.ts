@@ -958,6 +958,22 @@ function registerHandlebarsHelpersImmediate() {
     return String(value ?? '');
   });
 
+  // Render inline Markdown emphasis (**bold** / *italic*) as HTML. Power effect
+  // text is authored with Markdown (matching the rules .md tables); without this
+  // the sheet would print the literal `**` asterisks. HTML-escapes first, so it
+  // is safe to emit with a normal `{{mdInline ...}}` stache.
+  Handlebars.registerHelper('mdInline', function (value: unknown) {
+    const escaped = String(value ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+    const html = escaped
+      .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+      .replace(/(^|[^*])\*([^*\s][^*]*?)\*(?!\*)/g, '$1<em>$2</em>');
+    return new Handlebars.SafeString(html);
+  });
+
   Handlebars.registerHelper('isNil', function (value: unknown) {
     return value == null;
   });

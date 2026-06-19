@@ -1488,7 +1488,7 @@
                     </span>
                     {{#if this.system.effect}}
                     <span class="power-effect-compact" title="Effect">
-                      <i class="fas fa-magic"></i> {{this.system.effect}}
+                      <i class="fas fa-magic"></i> {{mdInline this.system.effect}}
                     </span>
                     {{/if}}
                   </div>
@@ -1551,7 +1551,7 @@
                             <td class="power-range-cell">{{renderRange this.range}}</td>
                             <td class="power-aoe-cell">{{renderAoe this.aoe}}</td>
                             <td class="power-duration-cell">{{renderDuration this.duration}}</td>
-                            <td class="power-effect-cell">{{this.effect.text}}</td>
+                            <td class="power-effect-cell">{{mdInline this.effect.text}}</td>
                             <td class="power-specials-cell">{{powerSpecials this.specials}}</td>
                             {{#if (or (eq ../../this.system.category 'reaction') ../../this.system.trigger)}}
                             <td class="power-trigger-cell">{{default this.trigger ../../this.system.trigger '—'}}</td>
@@ -1570,7 +1570,7 @@
                       {{#if this.system.range}}Range: {{this.system.range}}<br>{{/if}}
                       {{#if this.system.aoe}}AoE: {{this.system.aoe}}<br>{{/if}}
                       {{#if this.system.duration}}Duration: {{this.system.duration}}<br>{{/if}}
-                      {{#if this.system.effect}}Effect: {{this.system.effect}}<br>{{/if}}
+                      {{#if this.system.effect}}Effect: {{mdInline this.system.effect}}<br>{{/if}}
                       {{#if this.system.specials}}
                       {{#if (isArray this.system.specials)}}
                       {{#each this.system.specials}}
@@ -1666,7 +1666,7 @@
                   </span>
                   {{#if this.system.effect}}
                   <span class="power-effect-compact" title="Effect">
-                    <i class="fas fa-magic"></i> {{this.system.effect}}
+                    <i class="fas fa-magic"></i> {{mdInline this.system.effect}}
                   </span>
                   {{/if}}
                 </div>
@@ -1747,7 +1747,7 @@
                           <td class="power-range-cell">{{renderRange this.range}}</td>
                           <td class="power-aoe-cell">{{renderAoe this.aoe}}</td>
                           <td class="power-duration-cell">{{renderDuration this.duration}}</td>
-                          <td class="power-effect-cell">{{this.effect.text}}</td>
+                          <td class="power-effect-cell">{{mdInline this.effect.text}}</td>
                           <td class="power-specials-cell">{{powerSpecials this.specials}}</td>
                           {{#if (or (eq ../../this.system.category 'reaction') ../../this.system.trigger)}}
                           <td class="power-trigger-cell">{{default this.trigger ../../this.system.trigger '—'}}</td>
@@ -1767,7 +1767,7 @@
                     {{#if this.system.range}}Range: {{this.system.range}}<br>{{/if}}
                     {{#if this.system.aoe}}AoE: {{this.system.aoe}}<br>{{/if}}
                     {{#if this.system.duration}}Duration: {{this.system.duration}}<br>{{/if}}
-                    {{#if this.system.effect}}Effect: {{this.system.effect}}<br>{{/if}}
+                    {{#if this.system.effect}}Effect: {{mdInline this.system.effect}}<br>{{/if}}
                     {{#if this.system.specials}}
                     {{#if (isArray this.system.specials)}}
                     {{#each this.system.specials}}
