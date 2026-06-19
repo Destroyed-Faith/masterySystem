@@ -27,6 +27,7 @@ import { normalizeSlotKey } from '../utils/equip-slots.js';
 import { isEchoArtifactInventoryHidden } from '../utils/echo-artifact-equip.js';
 import { isLegacyUnarmedItem } from '../utils/unarmed-fallback.js';
 import { formatArtifactWeaponRangeDisplay, resolveArtifactWeaponKind, } from '../utils/artifact-rules.js';
+import { getDisadvantageDefinition } from '../system/disadvantages.js';
 /** Human-readable label per Stone Function kind (technical summary). */
 const STONE_FN_KIND_LABEL = {
     stonePool: 'Stone Pool',
@@ -665,11 +666,41 @@ export function buildCharacterPrintContext(actor) {
         })
     }));
     // ── Disadvantages ─────────────────────────────────────────────────────
+    // Show more than just the name: a player-specific line (who hunts you, the
+    // substance, the oath/limitation title + note) plus the concise mechanical
+    // effect from the definition, so a reader understands what the disadvantage
+    // actually does at the table.
     const disadvantages = Array.isArray(system?.disadvantages)
-        ? system.disadvantages.map((d) => ({
-            label: String(d?.label ?? d?.name ?? ''),
-            points: num(d?.points)
-        }))
+        ? system.disadvantages.map((d) => {
+            const def = getDisadvantageDefinition(String(d?.id ?? ''));
+            const details = (d?.details ?? {});
+            const detailParts = [];
+            const title = String(details?.sheetTitle ?? '').trim();
+            const context = stripHtml(details?.context ?? '').trim();
+            const hunter = String(details?.hunter ?? '').trim();
+            const substance = String(details?.substance ?? '').trim();
+            const vulnerability = String(details?.vulnerability ?? '').trim();
+            if (title)
+                detailParts.push(title);
+            if (hunter)
+                detailParts.push(`Hunter: ${hunter}`);
+            if (substance)
+                detailParts.push(`Substance: ${substance}`);
+            if (vulnerability)
+                detailParts.push(`Type: ${vulnerability}`);
+            if (context)
+                detailParts.push(context);
+            const detail = detailParts.join(' — ');
+            const effect = stripHtml(def?.effect ?? def?.description ?? '').trim();
+            const description = [detail, effect].filter(Boolean).join(' · ');
+            return {
+                label: String(d?.label ?? d?.name ?? def?.name ?? ''),
+                points: num(d?.points),
+                detail,
+                effect,
+                description,
+            };
+        })
         : [];
     const disadvantagePoints = disadvantages.reduce((sum, d) => sum + num(d.points), 0);
     // ── Minor Expressions (cantrips) — only the ones the character owns ────

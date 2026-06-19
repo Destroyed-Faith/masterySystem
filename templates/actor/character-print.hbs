@@ -182,7 +182,13 @@
       <thead><tr><th>Disadvantage</th><th>Points</th></tr></thead>
       <tbody>
         {{#each disadvantages}}
-        <tr><td>{{label}}</td><td>{{points}}</td></tr>
+        <tr>
+          <td>
+            <span class="cp-disadv-name">{{label}}</span>
+            {{#if description}}<span class="cp-disadv-desc">{{description}}</span>{{/if}}
+          </td>
+          <td>{{points}}</td>
+        </tr>
         {{/each}}
       </tbody>
     </table>
