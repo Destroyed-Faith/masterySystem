@@ -1,30 +1,38 @@
 /**
- * One-shot GM migration: re-sync embedded, template-backed power items to their
- * current templates.
+ * Self-healing GM migration: re-sync embedded, template-backed power items to
+ * their current catalog templates.
  *
- * Background: the big Actives.md / Active Buffs.md audit (explicit md-derived
- * damage anchors, special curves, healing, ranges, radii, etc.) only changed
- * the *templates*. Power items bake their `levels` table at creation time, so
- * characters that owned these powers before the audit shipped still carry the
- * old solver-derived values (e.g. Active Buff: Damage showing +1d8/+2d8/+3d8…
- * instead of +3d8/+5d8/…/+33d8). This migration refreshes those baked tables
- * from the canonical templates while preserving each item's rank, chosen
- * Special and Spell flags. Templates are matched by `templateId` with a stable
- * `templateName` fallback so legacy items without a stored id are still caught.
+ * Background: the Actives.md / Active Buffs.md audit (explicit md-derived damage
+ * anchors, special curves, healing, ranges, radii, etc.) only changed the
+ * *templates*. Power items bake their `levels` table at creation time, so any
+ * character that owned a power before a template change still carries the old
+ * baked values (e.g. Active Buff: Damage showing +1d8/+2d8/+3d8… instead of
+ * +3d8/+5d8/…/+33d8).
+ *
+ * This migration refreshes those baked tables from the canonical templates while
+ * preserving each item's rank, chosen Special and Spell flags. It is:
+ *   - gate-free: it runs on every world load (GM only) so a later template tweak
+ *     always reaches existing characters — no one-shot setting to get stuck on;
+ *   - idempotent: an item is only written when its rebuilt `levels` differ from
+ *     what is already stored, so steady-state loads do no writes;
+ *   - resilient: templates are matched by `templateId`, then by `templateName`,
+ *     then by the catalog display `name` (e.g. "Active Buff: Damage"), so legacy
+ *     items created before id/name stamping are still caught.
+ *
+ * A manual trigger is exposed as `game.masterySystem.resyncPowers()`.
  */
 import { findTemplateById } from '../utils/power-catalog.js';
 import { ALL_POWER_TEMPLATES } from '../utils/powers/templates/index.js';
 import { renderRange, renderAoe, renderDuration } from '../utils/power-rendering.js';
 const SETTING_NAMESPACE = 'mastery-system';
-// Bump this key whenever the templates change again so the resync re-runs once
-// for every world (the previous V0_9_131 key only ran once and may have been
-// set before a template still carried stale values).
-const SETTING_KEY = 'powerTemplateResyncV0_9_136Run';
+// Retained only so old worlds that registered this world-setting don't error on
+// `settings.get`. The flag is no longer used to gate the migration.
+const LEGACY_SETTING_KEY = 'powerTemplateResyncV0_9_136Run';
 export function registerPowerTemplateResyncMigrationSetting() {
     try {
-        game.settings.register(SETTING_NAMESPACE, SETTING_KEY, {
+        game.settings.register(SETTING_NAMESPACE, LEGACY_SETTING_KEY, {
             name: 'Power Template Resync (Actives audit) Ran',
-            hint: 'Internal flag: true after Active / Active-Buff power items were resynced to the audited templates.',
+            hint: 'Deprecated internal flag (the resync now runs every load and is idempotent).',
             scope: 'world',
             config: false,
             type: Boolean,
@@ -35,27 +43,12 @@ export function registerPowerTemplateResyncMigrationSetting() {
         console.warn('Mastery System | power-resync migration: settings.register failed', err);
     }
 }
-function hasAlreadyRun() {
-    try {
-        return game.settings.get(SETTING_NAMESPACE, SETTING_KEY) === true;
-    }
-    catch {
-        return false;
-    }
-}
-async function markRun() {
-    try {
-        await game.settings.set(SETTING_NAMESPACE, SETTING_KEY, true);
-    }
-    catch (err) {
-        console.warn('Mastery System | power-resync migration: settings.set failed', err);
-    }
-}
 /**
  * Resolve the canonical template for a power item. Matches on `templateId`
- * first, then falls back to the stable `templateName` (the display name can be
- * renamed by the player, so it is never used). Returns `null` for powers that
- * are not template-backed (legacy / bespoke), which are left untouched.
+ * first, then the stable `templateName`, then the catalog display `name`. The
+ * player-facing item name can be renamed, so the catalog `name` is only used
+ * when it still matches a template verbatim. Returns `null` for powers that are
+ * not template-backed (bespoke / custom), which are left untouched.
  */
 function resolveTemplateForItem(item) {
     const sys = item?.system ?? {};
@@ -70,6 +63,12 @@ function resolveTemplateForItem(item) {
         const byName = ALL_POWER_TEMPLATES.find((t) => String(t.templateName ?? '').trim() === templateName);
         if (byName?.levels)
             return byName;
+    }
+    const itemName = String(item?.name ?? '').trim();
+    if (itemName) {
+        const byDisplay = ALL_POWER_TEMPLATES.find((t) => String(t.name ?? '').trim() === itemName);
+        if (byDisplay?.levels)
+            return byDisplay;
     }
     return null;
 }
@@ -87,12 +86,23 @@ function bindLevels(template, chosenSpecialKey) {
     }
     return next;
 }
-/** Resync every template-backed power item from its current template. */
-export async function runPowerTemplateResyncMigration() {
+/** Stable comparison key for a `levels` table (order-independent on level keys). */
+function levelsSignature(levels) {
+    if (!levels || typeof levels !== 'object')
+        return '';
+    const obj = levels;
+    const keys = Object.keys(obj).sort((a, b) => Number(a) - Number(b));
+    return JSON.stringify(keys.map((k) => [k, obj[k]]));
+}
+/**
+ * Resync every template-backed power item from its current template.
+ * @param options.force ignore the diff check and rewrite every matched item.
+ * @returns number of power items updated.
+ */
+export async function runPowerTemplateResyncMigration(options = {}) {
     if (!game.user?.isGM)
-        return;
-    if (hasAlreadyRun())
-        return;
+        return 0;
+    const force = options.force === true;
     const actors = game.actors?.contents ?? [];
     let updated = 0;
     let actorsTouched = 0;
@@ -111,6 +121,9 @@ export async function runPowerTemplateResyncMigration() {
             const rank = Math.max(1, Math.min(16, Number(sys.rank ?? sys.level ?? 1)));
             const levelRow = levels[String(rank)];
             if (!levelRow)
+                continue;
+            // Idempotent: skip when the baked table already matches the template.
+            if (!force && levelsSignature(sys.levels) === levelsSignature(levels))
                 continue;
             try {
                 await item.update({
@@ -133,10 +146,13 @@ export async function runPowerTemplateResyncMigration() {
         if (touchedThisActor)
             actorsTouched++;
     }
-    await markRun();
     if (updated > 0) {
-        console.log(`Mastery System | power-resync migration: resynced ${updated} power item(s) on ${actorsTouched} actor(s)`);
+        console.log(`Mastery System | power-resync: resynced ${updated} power item(s) on ${actorsTouched} actor(s)`);
         ui.notifications?.info(`Updated ${updated} Active/Active-Buff power(s) to the latest values.`);
     }
+    else if (options.notify) {
+        ui.notifications?.info('All Powers are already up to date.');
+    }
+    return updated;
 }
 //# sourceMappingURL=power-template-resync-migration.js.map

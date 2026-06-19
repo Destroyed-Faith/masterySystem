@@ -2934,6 +2934,9 @@ Hooks.once('ready', async function() {
     refreshEchoArtifacts: forceRefreshEchoArtifactLibrary,
     openTowerWizard: showTowerWizardDialog,
     openEncounterGenerator: showEncounterGeneratorDialog,
+    // Force-rebuild every template-backed Power's baked level table from the
+    // current catalog templates (use after editing/auditing power templates).
+    resyncPowers: () => runPowerTemplateResyncMigration({ force: true, notify: true }),
   });
 
   // One-shot Trees → Templates power cutover (GM-only, guarded by world setting).
