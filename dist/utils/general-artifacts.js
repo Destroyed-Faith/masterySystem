@@ -70,7 +70,7 @@ const SOUL_SIGIL = {
         name: 'Soul Shell',
     },
     baseValues: [
-        { slot: 'a', label: 'Evade (Silver Veil)', note: '+8 to +26 Evade across levels; Armor stays 0.' },
+        { slot: 'a', label: 'Evade (Silver Veil)', note: '+7 to +16 Evade across levels; Armor stays 0.' },
     ],
     // The three Level Progression lines are standard, not authored:
     //   L1 Soul Shell    → Temporary HP Stone Power Support (from `stoneFunction`),

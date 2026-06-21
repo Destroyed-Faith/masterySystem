@@ -27,34 +27,31 @@ import type { PowerMechanics } from '../../../types/item.js';
 
 // ─── Per-spec progression tables ─────────────────────────────────────────
 
-/** Fortified Frame — unconditional Armor (15 PP per +1 Armor). */
-const ARMOR_UNCOND      = [1, 3, 4, 5, 7, 8, 9, 11, 12, 13, 15, 16, 17, 19, 20, 21];
+/** Fortified Frame — unconditional Armor (+2 per level). */
+const ARMOR_UNCOND      = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32];
 
-/** Conditional Armor curve (Stone Stance, Surrounded Bulwark; 7.5 PP / +1). */
-const ARMOR_COND        = [3, 5, 8, 10, 13, 16, 19, 21, 24, 27, 29, 32, 35, 37, 40, 43];
+/** Conditional Armor / Evade curve (Stone Stance, Flowing Step, …; 7.5 PP / +1). */
+const ARMOR_COND        = [2, 5, 8, 10, 13, 16, 18, 21, 24, 26, 29, 32, 34, 37, 40, 42];
+const EVADE_COND        = ARMOR_COND;
 
 /** Unconditional Evade curve (10 PP / +1). */
 const EVADE_UNCOND      = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32];
 
-/** Conditional Evade curve (Flowing Step, Duelist Footwork; 5 PP / +1). */
-const EVADE_COND        = [4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48, 52, 56, 60, 64];
-
 /** Temporary HP curve (2 PP / 1 THP). */
 const TEMP_HP_UNCOND    = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160];
 
-/** Regeneration / unconditional Healing curve (8 PP / 1 HP). */
-const HEAL_UNCOND       = [2, 5, 7, 10, 12, 15, 17, 20, 22, 25, 27, 30, 32, 35, 37, 40];
+/** Regeneration / unconditional Healing curve (4 PP / 1 HP). */
+const HEAL_UNCOND       = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80];
 
-/** Conditional Healing curve (Blood Feast / Battle Trance / Stillness Recovery; 4 PP / 1 HP). */
-const HEAL_COND         = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80];
+/** Conditional Healing curve (Blood Feast / Battle Trance / Stillness Recovery; 3 PP / 1 HP). */
+const HEAL_COND         = [6, 13, 20, 26, 33, 40, 46, 53, 60, 66, 73, 80, 86, 93, 100, 106];
 
-/** Killing Intent — unconditional Damage dice per level (40 PP / +1d6). */
-const DMG_KILLING_INTENT = ['', '+1d6', '+1d6', '+2d6', '+2d6', '+3d6', '+3d6', '+4d6',
-                            '+4d6', '+5d6', '+5d6', '+6d6', '+6d6', '+7d6', '+7d6', '+8d6'];
+/** Killing Intent — unconditional Damage (+1d6 per level). */
+const DMG_KILLING_INTENT = ['+1d6', '+2d6', '+3d6', '+4d6', '+5d6', '+6d6', '+7d6', '+8d6',
+                            '+9d6', '+10d6', '+11d6', '+12d6', '+13d6', '+14d6', '+15d6', '+16d6'];
 
-/** Conditional Damage dice (Momentum, Ambusher, Bloodlust, Executioner; +1d6 per level). */
-const DMG_COND          = ['+1d6', '+2d6', '+3d6', '+4d6', '+5d6', '+6d6', '+7d6', '+8d6',
-                           '+9d6', '+10d6', '+11d6', '+12d6', '+13d6', '+14d6', '+15d6', '+16d6'];
+/** Conditional Damage dice (Momentum, Ambusher, …; +1d6 per level). */
+const DMG_COND          = DMG_KILLING_INTENT;
 
 // Health Bar progression shared by Deep Vitality & all Health combined passives.
 // Deep Vitality gets the Healthy bar at L12+; combined Health lines never do.
@@ -96,6 +93,10 @@ function combinedSenseCount(lvl: number): { count: number; presence: boolean } {
     if (lvl <= 3)  return { count: 0, presence: false };
     if (lvl <= 11) return { count: 1, presence: false };
     return              { count: 2, presence: true };
+}
+/** Conditional Awareness combined passives (L4+ sense milestones). */
+function conditionalSenseCount(lvl: number): { count: number; presence: boolean } {
+    return combinedSenseCount(lvl);
 }
 
 /** Damage Reduction step by level per spec (closed subsystem). */
@@ -152,103 +153,40 @@ function basePassive(def: {
 
 // ─── Combined Passive per-level tables (spec) ────────────────────────────
 
-const COMB_ARMOR_THP = {
-    armor: [1, 1, 2, 3, 3, 4, 5, 5, 6, 7, 7, 8, 9, 9, 10, 11],
-    thp:   [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80],
-};
-const COMB_ARMOR_HEAL = {
-    armor: [1, 1, 2, 3, 3, 4, 5, 5, 6, 7, 7, 8, 9, 9, 10, 11],
-    heal:  [1, 2, 3, 5, 6, 7, 8, 10, 11, 12, 13, 15, 16, 17, 18, 20],
-};
-const COMB_ARMOR_HEALTH = {
-    armor: [1, 1, 2, 3, 3, 4, 5, 5, 6, 7, 7, 8, 9, 9, 10, 11],
-};
-const COMB_EVADE_THP = {
-    evade: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
-    thp:   [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80],
-};
-const COMB_EVADE_HEAL = {
-    evade: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
-    heal:  [1, 2, 3, 5, 6, 7, 8, 10, 11, 12, 13, 15, 16, 17, 18, 20],
-};
-const COMB_EVADE_DMG = {
-    evade: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
-    dmg:   ['', '', '', '+1d6', '+1d6', '+1d6', '+1d6', '+2d6',
-            '+2d6', '+2d6', '+2d6', '+3d6', '+3d6', '+3d6', '+3d6', '+4d6'],
-};
-const COMB_DMG_HEAL = {
-    dmg:  ['', '', '', '+1d6', '+1d6', '+1d6', '+1d6', '+2d6',
-           '+2d6', '+2d6', '+2d6', '+3d6', '+3d6', '+3d6', '+3d6', '+4d6'],
-    heal: [1, 2, 3, 5, 6, 7, 8, 10, 11, 12, 13, 15, 16, 17, 18, 20],
-};
-const COMB_DMG_THP = {
-    dmg: ['', '', '', '+1d6', '+1d6', '+1d6', '+1d6', '+2d6',
-          '+2d6', '+2d6', '+2d6', '+3d6', '+3d6', '+3d6', '+3d6', '+4d6'],
-    thp: [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80],
-};
-const COMB_AWARE_EVADE = {
-    evade: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
-};
-const COMB_AWARE_DMG = {
-    dmg: ['', '', '', '+1d6', '+1d6', '+1d6', '+1d6', '+2d6',
-          '+2d6', '+2d6', '+2d6', '+3d6', '+3d6', '+3d6', '+3d6', '+4d6'],
-};
-const COMB_HEALTH_HEAL = {
-    heal: [1, 2, 3, 5, 6, 7, 8, 10, 11, 12, 13, 15, 16, 17, 18, 20],
-};
-const COMB_HEALTH_THP = {
-    thp: [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80],
-};
+// Combined passive half-axis tables (L1 often single-axis only; see Passives.md).
+const COMB_AXIS         = [0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
+const THP_5             = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80];
+const COMB_HEAL         = [2, 5, 7, 10, 12, 15, 17, 20, 22, 25, 27, 30, 32, 35, 37, 40];
+const COMB_DMG_BANDED   = ['', '', '', '+2d6', '+2d6', '+3d6', '+3d6', '+4d6', '+4d6', '+5d6', '+5d6', '+6d6', '+6d6', '+7d6', '+7d6', '+8d6'];
+const CC_HALF           = [1, 2, 4, 5, 6, 8, 9, 10, 12, 13, 14, 16, 17, 18, 20, 21];
+const CC_HEAL           = [3, 6, 10, 13, 16, 20, 23, 26, 30, 33, 36, 40, 43, 46, 50, 53];
+const CC_DMG_BANDED     = ['', '+1d6', '+2d6', '+2d6', '+3d6', '+4d6', '+4d6', '+5d6', '+6d6', '+6d6', '+7d6', '+8d6', '+8d6', '+9d6', '+10d6', '+10d6'];
 
-// ─── Conditional Combined Passive per-level tables (spec) ────────────────
+const COMB_ARMOR_THP = { armor: COMB_AXIS, thp: THP_5 };
+const COMB_ARMOR_HEAL = { armor: COMB_AXIS, heal: COMB_HEAL };
+const COMB_ARMOR_HEALTH = { armor: COMB_AXIS };
+const COMB_EVADE_THP = { evade: COMB_AXIS, thp: THP_5 };
+const COMB_EVADE_HEAL = { evade: COMB_AXIS, heal: COMB_HEAL };
+const COMB_EVADE_DMG = { evade: COMB_AXIS, dmg: COMB_DMG_BANDED };
+const COMB_DMG_HEAL = { dmg: COMB_DMG_BANDED, heal: COMB_HEAL };
+const COMB_DMG_THP = { dmg: COMB_DMG_BANDED, thp: THP_5 };
+const COMB_AWARE_EVADE = { evade: COMB_AXIS };
+const COMB_AWARE_DMG = { dmg: COMB_DMG_BANDED };
+const COMB_HEALTH_HEAL = { heal: COMB_HEAL };
+const COMB_HEALTH_THP = { thp: THP_5 };
 
-const CC_ARMOR_THP = {
-    armor: [1, 3, 4, 5, 7, 8, 9, 11, 12, 13, 15, 16, 17, 19, 20, 21],
-    thp:   [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80],
-};
-const CC_ARMOR_HEAL = {
-    armor: [1, 3, 4, 5, 7, 8, 9, 11, 12, 13, 15, 16, 17, 19, 20, 21],
-    heal:  [2, 5, 7, 10, 12, 15, 17, 20, 22, 25, 27, 30, 32, 35, 37, 40],
-};
-const CC_ARMOR_HEALTH = {
-    armor: [1, 3, 4, 5, 7, 8, 9, 11, 12, 13, 15, 16, 17, 19, 20, 21],
-};
-const CC_EVADE_THP = {
-    evade: [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32],
-    thp:   [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80],
-};
-const CC_EVADE_HEAL = {
-    evade: [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32],
-    heal:  [2, 5, 7, 10, 12, 15, 17, 20, 22, 25, 27, 30, 32, 35, 37, 40],
-};
-const CC_EVADE_DMG = {
-    evade: [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32],
-    dmg:   ['', '+1d6', '+1d6', '+2d6', '+2d6', '+3d6', '+3d6', '+4d6',
-            '+4d6', '+5d6', '+5d6', '+6d6', '+6d6', '+7d6', '+7d6', '+8d6'],
-};
-const CC_DMG_HEAL = {
-    dmg:  ['', '+1d6', '+1d6', '+2d6', '+2d6', '+3d6', '+3d6', '+4d6',
-           '+4d6', '+5d6', '+5d6', '+6d6', '+6d6', '+7d6', '+7d6', '+8d6'],
-    heal: [2, 5, 7, 10, 12, 15, 17, 20, 22, 25, 27, 30, 32, 35, 37, 40],
-};
-const CC_DMG_THP = {
-    dmg: ['', '+1d6', '+1d6', '+2d6', '+2d6', '+3d6', '+3d6', '+4d6',
-          '+4d6', '+5d6', '+5d6', '+6d6', '+6d6', '+7d6', '+7d6', '+8d6'],
-    thp: [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80],
-};
-const CC_AWARE_EVADE = {
-    evade: [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32],
-};
-const CC_AWARE_DMG = {
-    dmg: ['', '+1d6', '+1d6', '+2d6', '+2d6', '+3d6', '+3d6', '+4d6',
-          '+4d6', '+5d6', '+5d6', '+6d6', '+6d6', '+7d6', '+7d6', '+8d6'],
-};
-const CC_HEALTH_HEAL = {
-    heal: [2, 5, 7, 10, 12, 15, 17, 20, 22, 25, 27, 30, 32, 35, 37, 40],
-};
-const CC_HEALTH_THP = {
-    thp: [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80],
-};
+const CC_ARMOR_THP = { armor: CC_HALF, thp: THP_5 };
+const CC_ARMOR_HEAL = { armor: CC_HALF, heal: CC_HEAL };
+const CC_ARMOR_HEALTH = { armor: CC_HALF };
+const CC_EVADE_THP = { evade: CC_HALF, thp: THP_5 };
+const CC_EVADE_HEAL = { evade: CC_HALF, heal: CC_HEAL };
+const CC_EVADE_DMG = { evade: CC_HALF, dmg: CC_DMG_BANDED };
+const CC_DMG_HEAL = { dmg: CC_DMG_BANDED, heal: CC_HEAL };
+const CC_DMG_THP = { dmg: CC_DMG_BANDED, thp: THP_5 };
+const CC_AWARE_EVADE = { evade: CC_HALF };
+const CC_AWARE_DMG = { dmg: CC_DMG_BANDED };
+const CC_HEALTH_HEAL = { heal: CC_HEAL };
+const CC_HEALTH_THP = { thp: THP_5 };
 
 // ─── Helpers for sense-milestone text ────────────────────────────────────
 function senseText(info: { count: number; presence: boolean }): string {
@@ -488,68 +426,100 @@ export const PASSIVE_TEMPLATES: PowerTemplate[] = [
     basePassive({
         id: 'passive-armor-temp-hp', name: 'Armor / Temporary HP', subfamily: 'combined',
         fluff: 'Hardened frame plus a renewing buffer.',
-        perLevel: (lvl) => ({
-            text: `Gain **+${COMB_ARMOR_THP.armor[lvl - 1]} Armor**. At the start of combat, gain **${COMB_ARMOR_THP.thp[lvl - 1]} Temporary HP**.`,
-            mechanics: {
-                armor: COMB_ARMOR_THP.armor[lvl - 1],
-                triggers: { combatStart: { tempHP: String(COMB_ARMOR_THP.thp[lvl - 1]) } },
-            },
-        }),
+        perLevel: (lvl) => {
+            const thp = COMB_ARMOR_THP.thp[lvl - 1];
+            const arm = COMB_ARMOR_THP.armor[lvl - 1]!;
+            const text = arm > 0
+                ? `Gain **+${arm} Armor**. At the start of combat, gain **${thp} Temporary HP**.`
+                : `At the start of combat, gain **${thp} Temporary HP**.`;
+            return {
+                text,
+                mechanics: {
+                    ...(arm > 0 ? { armor: arm } : {}),
+                    triggers: { combatStart: { tempHP: String(thp) } },
+                },
+            };
+        },
     }),
     basePassive({
         id: 'passive-armor-healing', name: 'Armor / Healing', subfamily: 'combined',
         fluff: 'You are hard to hurt, and you mend what still lands.',
-        perLevel: (lvl) => ({
-            text: `Gain **+${COMB_ARMOR_HEAL.armor[lvl - 1]} Armor**. At the start of your turn, heal **${COMB_ARMOR_HEAL.heal[lvl - 1]} HP**.`,
-            mechanics: {
-                armor: COMB_ARMOR_HEAL.armor[lvl - 1],
-                regen: COMB_ARMOR_HEAL.heal[lvl - 1],
-            },
-        }),
+        perLevel: (lvl) => {
+            const heal = COMB_ARMOR_HEAL.heal[lvl - 1];
+            const arm = COMB_ARMOR_HEAL.armor[lvl - 1]!;
+            const text = arm > 0
+                ? `Gain **+${arm} Armor**. At the start of your turn, heal **${heal} HP**.`
+                : `At the start of your turn, heal **${heal} HP**.`;
+            return {
+                text,
+                mechanics: {
+                    ...(arm > 0 ? { armor: arm } : {}),
+                    regen: heal,
+                },
+            };
+        },
     }),
     basePassive({
         id: 'passive-armor-health', name: 'Armor / Health', subfamily: 'combined',
         fluff: 'Tough skin, deep reserves.',
         perLevel: (lvl) => {
+            const arm = COMB_ARMOR_HEALTH.armor[lvl - 1]!;
+            if (arm <= 0) return { text: '—', mechanics: {} };
             const bars = combinedHealthBars(lvl);
             const barStr = healthBarText(bars);
-            const armorStr = `**+${COMB_ARMOR_HEALTH.armor[lvl - 1]} Armor**`;
+            const armorStr = `**+${arm} Armor**`;
             const text = barStr ? `Gain ${armorStr} and ${barStr}.` : `Gain ${armorStr}.`;
-            return { text, mechanics: { armor: COMB_ARMOR_HEALTH.armor[lvl - 1] } };
+            return { text, mechanics: { armor: arm } };
         },
     }),
     basePassive({
         id: 'passive-evade-temp-hp', name: 'Evade / Temporary HP', subfamily: 'combined',
         fluff: 'Slip what you can; buffer what you can’t.',
-        perLevel: (lvl) => ({
-            text: `Gain **+${COMB_EVADE_THP.evade[lvl - 1]} Evade**. At the start of combat, gain **${COMB_EVADE_THP.thp[lvl - 1]} Temporary HP**.`,
-            mechanics: {
-                evade: COMB_EVADE_THP.evade[lvl - 1],
-                triggers: { combatStart: { tempHP: String(COMB_EVADE_THP.thp[lvl - 1]) } },
-            },
-        }),
+        perLevel: (lvl) => {
+            const thp = COMB_EVADE_THP.thp[lvl - 1];
+            const ev = COMB_EVADE_THP.evade[lvl - 1]!;
+            const text = ev > 0
+                ? `Gain **+${ev} Evade**. At the start of combat, gain **${thp} Temporary HP**.`
+                : `At the start of combat, gain **${thp} Temporary HP**.`;
+            return {
+                text,
+                mechanics: {
+                    ...(ev > 0 ? { evade: ev } : {}),
+                    triggers: { combatStart: { tempHP: String(thp) } },
+                },
+            };
+        },
     }),
     basePassive({
         id: 'passive-evade-healing', name: 'Evade / Healing', subfamily: 'combined',
         fluff: 'Hard to hit, quick to mend.',
-        perLevel: (lvl) => ({
-            text: `Gain **+${COMB_EVADE_HEAL.evade[lvl - 1]} Evade**. At the start of your turn, heal **${COMB_EVADE_HEAL.heal[lvl - 1]} HP**.`,
-            mechanics: {
-                evade: COMB_EVADE_HEAL.evade[lvl - 1],
-                regen: COMB_EVADE_HEAL.heal[lvl - 1],
-            },
-        }),
+        perLevel: (lvl) => {
+            const heal = COMB_EVADE_HEAL.heal[lvl - 1];
+            const ev = COMB_EVADE_HEAL.evade[lvl - 1]!;
+            const text = ev > 0
+                ? `Gain **+${ev} Evade**. At the start of your turn, heal **${heal} HP**.`
+                : `At the start of your turn, heal **${heal} HP**.`;
+            return {
+                text,
+                mechanics: {
+                    ...(ev > 0 ? { evade: ev } : {}),
+                    regen: heal,
+                },
+            };
+        },
     }),
     basePassive({
         id: 'passive-evade-damage', name: 'Evade / Damage', subfamily: 'combined',
         fluff: 'Nimble fighter, dangerous strikes.',
         perLevel: (lvl) => {
+            const ev = COMB_EVADE_DMG.evade[lvl - 1]!;
             const dmg = COMB_EVADE_DMG.dmg[lvl - 1]!;
+            if (ev <= 0) return { text: '—', mechanics: {} };
             const tailText = dmg ? ` and **${dmg} Damage** on all damage rolls you make` : '';
             return {
-                text: `Gain **+${COMB_EVADE_DMG.evade[lvl - 1]} Evade**${tailText}.`,
+                text: `Gain **+${ev} Evade**${tailText}.`,
                 mechanics: {
-                    evade: COMB_EVADE_DMG.evade[lvl - 1],
+                    evade: ev,
                     ...(dmg ? { damageRider: { flat: dmg } } : {}),
                 },
             };
@@ -591,11 +561,13 @@ export const PASSIVE_TEMPLATES: PowerTemplate[] = [
         id: 'passive-awareness-evade', name: 'Awareness / Evade', subfamily: 'combined',
         fluff: 'You see it coming and you’re already gone.',
         perLevel: (lvl) => {
+            const ev = COMB_AWARE_EVADE.evade[lvl - 1]!;
+            if (ev <= 0) return { text: '—', mechanics: {} };
             const sense = combinedSenseCount(lvl);
             const tail = sense.count > 0 ? ` ${senseText(sense)}` : '';
             return {
-                text: `Gain **+${COMB_AWARE_EVADE.evade[lvl - 1]} Evade**.${tail}`,
-                mechanics: { evade: COMB_AWARE_EVADE.evade[lvl - 1] },
+                text: `Gain **+${ev} Evade**.${tail}`,
+                mechanics: { evade: ev },
             };
         },
     }),
@@ -768,7 +740,7 @@ export const PASSIVE_TEMPLATES: PowerTemplate[] = [
         id: 'conditional-passive-awareness-evade', name: 'Awareness / Evade (Conditional)', subfamily: 'conditional-combined',
         fluff: 'Your extra senses bend your body out of the blow.',
         perLevel: (lvl) => {
-            const sense = combinedSenseCount(lvl);
+            const sense = conditionalSenseCount(lvl);
             const senseStr = sense.count > 0 ? `${senseText(sense)} ` : '';
             return {
                 text: `${senseStr}Against creatures you perceive through a Combat Sense other than sight, gain **+${CC_AWARE_EVADE.evade[lvl - 1]} Evade**.`,
@@ -784,7 +756,7 @@ export const PASSIVE_TEMPLATES: PowerTemplate[] = [
         fluff: 'You hear, smell, feel the target — and the blow lands clean.',
         perLevel: (lvl) => {
             const dmg = CC_AWARE_DMG.dmg[lvl - 1]!;
-            const sense = combinedSenseCount(lvl);
+            const sense = conditionalSenseCount(lvl);
             const senseStr = sense.count > 0 ? `${senseText(sense)} ` : '';
             if (!dmg) {
                 return {

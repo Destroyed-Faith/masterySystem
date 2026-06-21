@@ -39,9 +39,7 @@ export declare function escalationFactor(phaseIndex: number): number;
 /** Split a HP total across N phases (equal-ish; remainder on the last phase). */
 export declare function splitHpAcrossPhases(totalHp: number, phases: number): number[];
 /**
- * Choose MR + Agility so that MR*4 + floor(agility/8) ≈ targetEvade, keeping MR
- * at least `minMr`. Agility tops out at +10 evade (attribute 80); MR is bumped
- * only if the target cannot be reached with agility alone.
+ * Choose MR so that MR×4 meets or exceeds targetEvade, keeping MR at least `minMr`.
  */
 export declare function evadeToMrAgility(targetEvade: number, minMr: number): {
     mr: number;

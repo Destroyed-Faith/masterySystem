@@ -86,16 +86,14 @@ export function bodyArmorBonusForLevel(level: number): number {
   return l <= 9 ? l + 3 : 14;
 }
 
-/** No-Armor Body Evade. L1=+8 … L9=+24, L10=+26. */
+/** No-Armor Body Evade (Soul Sigil Silver Veil). L1=+7 … L10=+16 (+6 base, +1/level). */
 export function noArmorEvadeForLevel(level: number): number {
-  const l = clampLevel(level);
-  return l <= 9 ? 6 + 2 * l : 26;
+  return 6 + clampLevel(level);
 }
 
-/** Feet Evade (Base Value A). L1=+2 … L9=+10, L10=+12. */
+/** Feet Evade (Elven Stride). L1–2=+1 … L9–10=+5 (+1 every 2 levels, cap +5). */
 export function feetEvadeForLevel(level: number): number {
-  const l = clampLevel(level);
-  return l <= 9 ? l + 1 : 12;
+  return Math.min(5, Math.ceil(clampLevel(level) / 2));
 }
 
 /** Minor Armor (Head / Feet). L1-2=+1, L3-4=+2 … L9-10=+5. */

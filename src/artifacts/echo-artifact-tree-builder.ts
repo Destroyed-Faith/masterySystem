@@ -37,6 +37,7 @@ import {
   bodyArmorBonusForLevel,
   feetEvadeForLevel,
   minorArmorForLevel,
+  noArmorEvadeForLevel,
   weaponDamageForLevel,
   spellFocusForLevel,
 } from '../utils/artifact-base-derive.js';
@@ -55,7 +56,7 @@ import {
  * output (base values, powers, slot/profile, etc.) changes so the world seeder
  * can detect stale library copies and refresh them in place.
  */
-export const ECHO_ARTIFACT_SEED_VERSION = 24;
+export const ECHO_ARTIFACT_SEED_VERSION = 25;
 
 const ARTIFACT_LEVELS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] as const;
 const ALL_POWER_LEVEL_KEYS: PowerLevelKey[] = [
@@ -110,9 +111,9 @@ function hexRankForLevel(level: number): number {
   if (l >= 6) return 3;
   return 2;
 }
-/** Soul Sigil Silver Veil Evade — +8 (L1) … +26 (L10), +2 per level. */
+/** Soul Sigil Silver Veil Evade — +7 (L1) … +16 (L10), +6 base +1/level. */
 function soulSigilEvadeForLevel(level: number): number {
-  return 6 + 2 * clampLevel(level);
+  return noArmorEvadeForLevel(level);
 }
 /** Shadowgrave Armor hybrid Armor — 4,4,5,5,6,6,7,7,8,9. */
 const SHADOWGRAVE_ARMOR_TABLE = [4, 4, 5, 5, 6, 6, 7, 7, 8, 9];

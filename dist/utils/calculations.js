@@ -342,10 +342,10 @@ export function calculateMightDamageBonus(might) {
     return 2 * Math.floor(might / 8);
 }
 /**
- * Agility Scaling: Evade bonus = floor(Agility / 8)
+ * Agility no longer grants an Evade bonus (kept for API compatibility).
  */
-export function calculateAgilityEvadeBonus(agility) {
-    return Math.floor(agility / 8);
+export function calculateAgilityEvadeBonus(_agility) {
+    return 0;
 }
 /**
  * Agility Scaling: Range band extensions

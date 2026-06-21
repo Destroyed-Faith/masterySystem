@@ -336,7 +336,7 @@ function buildElvenStrideDefinition(opts: {
       3: { templateId: opts.lineageTemplateId, name: opts.lineageDisplayName },
     },
     baseValues: [
-      { slot: 'a', label: 'Evade', note: '+2 to +12 Evade across levels.' },
+      { slot: 'a', label: 'Evade', note: '+1 to +5 Evade across levels.' },
       { slot: 'b', label: 'Clinging', note: '+1 to +4 m Clinging at higher levels.' },
     ],
     levelProgression: [

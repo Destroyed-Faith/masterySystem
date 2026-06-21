@@ -385,10 +385,10 @@ export function calculateMightDamageBonus(might: number): number {
 }
 
 /**
- * Agility Scaling: Evade bonus = floor(Agility / 8)
+ * Agility no longer grants an Evade bonus (kept for API compatibility).
  */
-export function calculateAgilityEvadeBonus(agility: number): number {
-  return Math.floor(agility / 8);
+export function calculateAgilityEvadeBonus(_agility: number): number {
+  return 0;
 }
 
 /**

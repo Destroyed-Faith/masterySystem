@@ -432,13 +432,11 @@ export class MasteryActor extends Actor {
     const shieldValue = (equippedShield?.system as any)?.shieldValue || 0;
     system.combat.armorTotal = masteryRank + armorValue + shieldValue;
     
-    // Calculate evadeTotal = MR×4 + shield evadeBonus + armor evadeModifier + Agility scaling
+    // Calculate evadeTotal = MR×4 + shield evadeBonus + armor evadeModifier
     const baseEvade = calculateBaseEvade(masteryRank);
     const shieldEvadeBonus = (equippedShield?.system as any)?.evadeBonus || 0;
     const armorEvadeModifier = (equippedArmor?.system as any)?.evadeModifier || 0;
-    const agilityValue = system.attributes?.agility?.value || 0;
-    const agilityEvadeBonus = calculateAgilityEvadeBonus(agilityValue);
-    system.combat.evadeTotal = baseEvade + shieldEvadeBonus + armorEvadeModifier + agilityEvadeBonus;
+    system.combat.evadeTotal = baseEvade + shieldEvadeBonus + armorEvadeModifier;
 
     const fmtEvadeContrib = (n: number): string => {
       if (n === 0) return '0';
@@ -450,12 +448,6 @@ export class MasteryActor extends Actor {
         detail: `Mastery Rank ${masteryRank}`,
         value: baseEvade,
         display: String(baseEvade)
-      },
-      {
-        label: 'Agility',
-        detail: `${agilityValue} / 8`,
-        value: agilityEvadeBonus,
-        display: fmtEvadeContrib(agilityEvadeBonus)
       },
       {
         label: 'Shield',
@@ -815,6 +807,7 @@ export class MasteryActor extends Actor {
     // Attribute Scaling Passives
     if (system.attributes) {
       const might = system.attributes.might?.value || 0;
+      const agility = system.attributes.agility?.value || 0;
       const intellect = system.attributes.intellect?.value || 0;
       const resolve = system.attributes.resolve?.value || 0;
       const influence = system.attributes.influence?.value || 0;
@@ -822,8 +815,8 @@ export class MasteryActor extends Actor {
       
       if (!system.scaling) system.scaling = {};
       system.scaling.mightDamageBonus = calculateMightDamageBonus(might);
-      system.scaling.agilityEvadeBonus = agilityEvadeBonus;
-      system.scaling.agilityRangeBonus = calculateAgilityRangeBonus(agilityValue);
+      system.scaling.agilityEvadeBonus = calculateAgilityEvadeBonus(agility);
+      system.scaling.agilityRangeBonus = calculateAgilityRangeBonus(agility);
       system.scaling.intellectSaveTNBonus = calculateIntellectSaveTNBonus(intellect);
       system.scaling.resolveStressArmor = calculateResolveStressArmor(resolve);
       system.scaling.influenceSkillBonus = calculateInfluenceSkillBonus(influence);

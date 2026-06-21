@@ -25,12 +25,10 @@ describe('Attribute Scaling Passives (Player\'s Guide)', () => {
   });
 
   describe('Agility - Evade Scaling', () => {
-    it('bonus = floor(Agility/8)', () => {
+    it('no longer grants Evade (always 0)', () => {
       expect(calculateAgilityEvadeBonus(0)).toBe(0);
-      expect(calculateAgilityEvadeBonus(7)).toBe(0);
-      expect(calculateAgilityEvadeBonus(8)).toBe(1);
-      expect(calculateAgilityEvadeBonus(16)).toBe(2);
-      expect(calculateAgilityEvadeBonus(24)).toBe(3);
+      expect(calculateAgilityEvadeBonus(8)).toBe(0);
+      expect(calculateAgilityEvadeBonus(80)).toBe(0);
     });
   });
 

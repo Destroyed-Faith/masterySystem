@@ -124,9 +124,9 @@ export declare function calculateMaxPowerLevel(masteryRank: number): number;
  */
 export declare function calculateMightDamageBonus(might: number): number;
 /**
- * Agility Scaling: Evade bonus = floor(Agility / 8)
+ * Agility no longer grants an Evade bonus (kept for API compatibility).
  */
-export declare function calculateAgilityEvadeBonus(agility: number): number;
+export declare function calculateAgilityEvadeBonus(_agility: number): number;
 /**
  * Agility Scaling: Range band extensions
  * Short: +floor(Agility/8) m

@@ -78,19 +78,19 @@ describe('splitHpAcrossPhases', () => {
 });
 
 describe('evadeToMrAgility', () => {
-  it('uses agility within a single MR when reachable', () => {
-    const r = evadeToMrAgility(18, 4); // base 16, +2 from agility
-    expect(r.mr).toBe(4);
-    expect(r.realizedEvade).toBe(18);
-    expect(r.agility).toBe(16); // 2 * 8
+  it('uses MR×4 only (no agility contribution)', () => {
+    const r = evadeToMrAgility(18, 4);
+    expect(r.mr).toBe(5);
+    expect(r.realizedEvade).toBe(20);
+    expect(r.agility).toBe(2);
   });
-  it('bumps MR when agility alone cannot bridge the gap', () => {
-    const r = evadeToMrAgility(30, 4); // 30-16=14 > 10 -> bump MR
-    expect(r.mr).toBeGreaterThan(4);
-    expect(r.realizedEvade).toBe(30);
+  it('bumps MR to reach high target evade', () => {
+    const r = evadeToMrAgility(30, 4);
+    expect(r.mr).toBe(8);
+    expect(r.realizedEvade).toBe(32);
   });
-  it('never drops evade below MR*4', () => {
-    const r = evadeToMrAgility(4, 4); // base 16 already exceeds 4
+  it('never drops evade below MR×4', () => {
+    const r = evadeToMrAgility(4, 4);
     expect(r.realizedEvade).toBe(16);
   });
 });

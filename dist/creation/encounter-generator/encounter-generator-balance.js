@@ -67,20 +67,13 @@ export function splitHpAcrossPhases(totalHp, phases) {
     return out;
 }
 /**
- * Choose MR + Agility so that MR*4 + floor(agility/8) ≈ targetEvade, keeping MR
- * at least `minMr`. Agility tops out at +10 evade (attribute 80); MR is bumped
- * only if the target cannot be reached with agility alone.
+ * Choose MR so that MR×4 meets or exceeds targetEvade, keeping MR at least `minMr`.
  */
 export function evadeToMrAgility(targetEvade, minMr) {
-    let mr = clamp(Math.floor(minMr), 1, 8);
     const target = Math.max(0, Math.round(targetEvade));
-    // Bump MR while agility (capped at +10 evade) cannot bridge the gap.
-    while (mr < 8 && target - mr * 4 > 10)
-        mr++;
-    const evadeFromAgility = clamp(target - mr * 4, 0, 10);
-    const agility = evadeFromAgility > 0 ? evadeFromAgility * 8 : 2;
-    const realizedEvade = mr * 4 + Math.floor(agility / 8);
-    return { mr, agility, realizedEvade };
+    const mr = clamp(Math.max(Math.floor(minMr), Math.ceil(target / 4)), 1, 8);
+    const realizedEvade = mr * 4;
+    return { mr, agility: 2, realizedEvade };
 }
 /** Number of d8 whose exploding mean is closest to `targetRawDamage`. */
 export function damageDiceForTarget(targetRawDamage, lo = 1, hi = 16) {
