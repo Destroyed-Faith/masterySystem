@@ -3,7 +3,6 @@
  */
 
 import { buildCombatTurnSnapshot, logCombatTrace } from '../utils/combat-trace-debug.js';
-import { postSaveEndsPromptForActor } from './save-ends.js';
 
 let requestEndTurnInFlight = false;
 
@@ -44,17 +43,6 @@ export async function requestEndTurn(): Promise<void> {
     fromName: currentCombatant.name,
     snapshot: buildCombatTurnSnapshot(combat),
   });
-
-  // Players Guide ~6052–6067: each creature gets one free save against an
-  // active diminishing effect at the *end* of their turn. Post the prompt
-  // before `nextTurn()` so the active actor still owns the chat-card click.
-  try {
-    if (actor) {
-      await postSaveEndsPromptForActor(actor, combat);
-    }
-  } catch (err) {
-    console.warn('Mastery System | save-ends prompt failed', err);
-  }
 
   requestEndTurnInFlight = true;
   try {

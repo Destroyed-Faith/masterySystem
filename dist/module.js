@@ -2814,9 +2814,6 @@ Hooks.once('ready', async function () {
     registerFaithFractureRerollHandlers();
     const { registerWorldArtifactFlagSyncSocket } = await import('./utils/world-artifact-flag-sync.js');
     registerWorldArtifactFlagSyncSocket();
-    // Players Guide ~6052–6067 — End-of-turn Save Ends prompt buttons.
-    const { registerSaveEndsChatHandlers } = await import('./combat/save-ends.js');
-    registerSaveEndsChatHandlers();
     const migrationActors = game.actors?.filter((a) => a.type === 'character' || a.type === 'npc') || [];
     // Migration: remove legacy auto-seeded "Unarmed" weapon items (virtual unarmed replaces them).
     if (game.user?.isGM) {
