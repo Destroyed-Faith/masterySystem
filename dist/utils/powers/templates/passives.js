@@ -40,6 +40,10 @@ const DMG_KILLING_INTENT = ['+1d6', '+2d6', '+3d6', '+4d6', '+5d6', '+6d6', '+7d
     '+9d6', '+10d6', '+11d6', '+12d6', '+13d6', '+14d6', '+15d6', '+16d6'];
 /** Conditional Damage dice (Momentum, Ambusher, …; +1d6 per level). */
 const DMG_COND = DMG_KILLING_INTENT;
+/** Ward: Spell Resistance passive curve (15 PP / +1). */
+const WARD_SPELL_RESISTANCE = [1, 2, 4, 5, 6, 8, 9, 10, 12, 13, 14, 16, 17, 18, 20, 21];
+/** Ward: Mini-Cleanse (40 PP / Cleanse(1); L1 = no effect). */
+const WARD_MINI_CLEANSE = [0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8];
 function deepVitalityBars(lvl) {
     if (lvl <= 3)
         return { wounded: 1, injured: 0, bruised: 0, healthy: 0 };
@@ -140,6 +144,7 @@ function basePassive(def) {
         levels: buildLevels((lvl) => {
             const row = def.perLevel(lvl);
             return passiveRow({
+                type: def.passiveType,
                 effectText: row.text,
                 mechanics: row.mechanics,
             });
@@ -315,6 +320,30 @@ export const PASSIVE_TEMPLATES = [
             return info.count === 0
                 ? { text: '—', mechanics: {} }
                 : { text: senseText(info), mechanics: {} };
+        },
+    }),
+    // ─── Ward passives (Spell Resistance / Mini-Cleanse) ───────────────────
+    basePassive({
+        id: 'passive-spell-resistance', name: 'Spell Resistance', subfamily: 'ward',
+        passiveType: 'Passive, Ward',
+        fluff: 'Your body, mind, soul, or warding pattern rejects hostile spell structure.',
+        perLevel: (lvl) => ({
+            text: `Gain **+${WARD_SPELL_RESISTANCE[lvl - 1]} Spell Resistance**.`,
+            mechanics: { spellResistance: WARD_SPELL_RESISTANCE[lvl - 1] },
+        }),
+    }),
+    basePassive({
+        id: 'passive-mini-cleanse', name: 'Mini-Cleanse', subfamily: 'ward',
+        passiveType: 'Passive, Ward',
+        fluff: 'Your body, blood, mind, or spirit slowly rejects hostile conditions.',
+        perLevel: (lvl) => {
+            const amt = WARD_MINI_CLEANSE[lvl - 1];
+            if (amt <= 0)
+                return { text: '—', mechanics: {} };
+            return {
+                text: `At the start of your turn, reduce **one** eligible negative ongoing creature effect affecting you by **${amt}**.`,
+                mechanics: { cleanseMaintenance: amt },
+            };
         },
     }),
     // ─── Conditional base passives (Armor / Evade / Damage / Healing) ───

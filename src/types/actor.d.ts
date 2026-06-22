@@ -59,6 +59,10 @@ export interface CombatData {
   armorFromActiveBuffs?: number;
   /** Active-buff evade bonus (not in sheet base total; applied at hit resolution). */
   evadeFromActiveBuffs?: number;
+  /** Passive + slotted Ward spell resistance (applied vs Spell-tagged attacks). */
+  spellResistanceTotal?: number;
+  /** Active-buff spell resistance (stacks with spellResistanceTotal at resolution). */
+  spellResistanceFromActiveBuffs?: number;
   initiativeD8FromMechanics?: number;
   /**
    * Aggregated percentage-based Damage Reduction, applied AFTER flat Armor
@@ -105,6 +109,8 @@ export interface MechanicsBreakdown {
   initiativeD8: MechanicsBreakdownEntry[];
   movementBonus: MechanicsBreakdownEntry[];
   regen: MechanicsBreakdownEntry[];
+  spellResistance: MechanicsBreakdownEntry[];
+  cleanseMaintenance: MechanicsBreakdownEntry[];
   tempHP: Array<{ source: string; value: string }>;
   /** Heal dice or flat strings from `PowerMechanics.healing` (not summed numerically). */
   healing: MechanicsBreakdownDiceStringEntry[];
@@ -137,6 +143,8 @@ export interface MechanicsBreakdown {
     initiativeD8: number;
     movementBonus: number;
     regen: number;
+    spellResistance: number;
+    cleanseMaintenance: number;
     /** Final DR % after gating and clamping (0–100). */
     damageReductionPct: number;
     saveDice: { body: number; mind: number; spirit: number };

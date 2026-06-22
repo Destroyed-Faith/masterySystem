@@ -1,5 +1,5 @@
 /**
- * Active Buff Power Templates (16)
+ * Active Buff Power Templates (18)
  *
  * Source: d:\DestroyedFaith\Powers\Active Buffs.md — Levels 1..16.
  * Duration: Mastery Rank Rounds unless noted.

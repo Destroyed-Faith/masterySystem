@@ -1,5 +1,5 @@
 /**
- * Active Buff Power Templates (16)
+ * Active Buff Power Templates (18)
  *
  * Source: d:\DestroyedFaith\Powers\Active Buffs.md — Levels 1..16.
  * Duration: Mastery Rank Rounds unless noted.
@@ -16,6 +16,10 @@ const AB_HEAL = [10, 17, 25, 32, 40, 47, 55, 62, 70, 77, 85, 92, 100, 107, 115, 
 const AB_DAMAGE = ['3d8', '5d8', '7d8', '9d8', '11d8', '13d8', '15d8', '17d8', '19d8', '21d8', '23d8', '25d8', '27d8', '29d8', '31d8', '33d8'];
 // Active Buff: Penetration — same curve as Armor (Penetration(5) … Penetration(65)).
 const AB_PENETRATION = [5, 9, 13, 17, 21, 25, 29, 33, 37, 41, 45, 49, 53, 57, 61, 65];
+/** Active Buff: Spell Resistance (+2 per level). */
+const AB_SPELL_RESISTANCE = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32];
+/** Active Buff: Cleanse Maintenance (+1 per level). */
+const AB_CLEANSE_MAINTENANCE = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
 const AURA_RADIUS = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32];
 const AURA_ARMOR = [4, 6, 9, 12, 14, 17, 20, 22, 25, 28, 30, 33, 36, 38, 41, 44];
 // --- Active Buff Aura tables (banded radius L1–7=2m, L8–14=3m, L15–16=4m) ---
@@ -80,6 +84,44 @@ export const ACTIVE_BUFF_TEMPLATES = [
             effectText: `Gain **+${AB_EVADE[lvl - 1]} Evade**.`,
             mechanics: { evade: AB_EVADE[lvl - 1], duration: 'masteryRankRounds' },
         })),
+    },
+    {
+        templateId: 'ab-spell-resistance',
+        templateName: 'Spell Resistance',
+        name: 'Active Buff: Spell Resistance',
+        subfamily: 'ward',
+        category: 'activeBuff',
+        tags: [],
+        fluff: 'You raise a temporary ward that makes hostile spell structure harder to force through you.',
+        cost: { action: 'attack' },
+        roll: { kind: 'none' },
+        levels: buildLevels((lvl) => activeBuffRow({
+            duration: DURATION_MR_ROUNDS,
+            effectText: `Gain **+${AB_SPELL_RESISTANCE[lvl - 1]} Spell Resistance**.`,
+            mechanics: {
+                spellResistance: AB_SPELL_RESISTANCE[lvl - 1],
+                duration: 'masteryRankRounds',
+            },
+        })),
+    },
+    {
+        templateId: 'ab-cleanse-maintenance',
+        templateName: 'Cleanse Maintenance',
+        name: 'Active Buff: Cleanse Maintenance',
+        subfamily: 'ward',
+        category: 'activeBuff',
+        tags: [],
+        fluff: 'You enter a cleansing state that steadily pushes hostile conditions out of you.',
+        cost: { action: 'attack' },
+        roll: { kind: 'none' },
+        levels: buildLevels((lvl) => {
+            const amt = AB_CLEANSE_MAINTENANCE[lvl - 1];
+            return activeBuffRow({
+                duration: DURATION_MR_ROUNDS,
+                effectText: `At the start of your turn, reduce **one** eligible negative ongoing creature effect affecting you by **${amt}**.`,
+                mechanics: { cleanseMaintenance: amt, duration: 'masteryRankRounds' },
+            });
+        }),
     },
     {
         templateId: 'ab-armor-aura',

@@ -36,6 +36,8 @@ export function emptyBreakdown(): MechanicsBreakdown {
     initiativeD8: [],
     movementBonus: [],
     regen: [],
+    spellResistance: [],
+    cleanseMaintenance: [],
     tempHP: [],
     healing: [],
     modifySpecialDeclared: [],
@@ -49,6 +51,8 @@ export function emptyBreakdown(): MechanicsBreakdown {
       initiativeD8: 0,
       movementBonus: 0,
       regen: 0,
+      spellResistance: 0,
+      cleanseMaintenance: 0,
       damageReductionPct: 0,
       saveDice: { body: 0, mind: 0, spirit: 0 },
       rollDice: { attack: 0, skill: 0, damage: 0 },
@@ -381,6 +385,8 @@ export function collectMechanicsContributions(actor: any): MechanicsContribution
       typeof mech.evade === 'number' ||
       typeof mech.damageReductionPct === 'number' ||
       typeof mech.regen === 'number' ||
+      typeof mech.spellResistance === 'number' ||
+      typeof mech.cleanseMaintenance === 'number' ||
       typeof mech.initiativeD8 === 'number' ||
       !!mech.phasing?.combatStart;
     const allowSlottedPassive =
@@ -554,6 +560,8 @@ export function aggregateMechanics(
     pushNum(bd.initiativeD8, source, mechanics.initiativeD8);
     pushNum(bd.movementBonus, source, mechanics.movementBonus);
     pushNum(bd.regen, source, mechanics.regen);
+    pushNum(bd.spellResistance, source, mechanics.spellResistance);
+    pushNum(bd.cleanseMaintenance, source, mechanics.cleanseMaintenance);
 
     // Damage Reduction — closed subsystem, whitelisted by power name.
     const drPctRaw = mechanics.damageReductionPct as unknown;
@@ -611,6 +619,8 @@ export function aggregateMechanics(
   bd.totals.initiativeD8 = sum(bd.initiativeD8);
   bd.totals.movementBonus = sum(bd.movementBonus);
   bd.totals.regen = sum(bd.regen);
+  bd.totals.spellResistance = sum(bd.spellResistance);
+  bd.totals.cleanseMaintenance = sum(bd.cleanseMaintenance);
   bd.totals.saveDice.body = sum(bd.saveDice.body);
   bd.totals.saveDice.mind = sum(bd.saveDice.mind);
   bd.totals.saveDice.spirit = sum(bd.saveDice.spirit);

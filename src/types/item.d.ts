@@ -258,6 +258,18 @@ export interface PowerMechanics {
   regen?: number;
 
   /**
+   * Spell Resistance — increases the Base TN of Spell-tagged Powers against
+   * this actor. Ward passives / Spell Resistance active buffs only.
+   */
+  spellResistance?: number;
+
+  /**
+   * Recurring self-Cleanse at the start of each turn (one eligible effect,
+   * not split). Ward passives / Cleanse Maintenance active buffs only.
+   */
+  cleanseMaintenance?: number;
+
+  /**
    * Percentage-based Damage Reduction applied to incoming damage AFTER flat
    * Armor mitigation. Closed subsystem: may only originate from the three
    * sanctioned power lines (`Damage Reduction` passive, `Unyielding Shell`

@@ -129,6 +129,14 @@ function getTargetEvade(targetActor) {
     const buffBonus = Number(combat.evadeFromActiveBuffs ?? 0);
     return base + buffBonus;
 }
+/** Spell Resistance from Ward passives + active buffs (vs Spell-tagged Powers). */
+function getTargetSpellResistance(targetActor) {
+    if (!targetActor?.system)
+        return 0;
+    const combat = targetActor.system.combat ?? {};
+    return Math.max(0, Math.floor(Number(combat.spellResistanceTotal ?? 0) || 0)
+        + Math.floor(Number(combat.spellResistanceFromActiveBuffs ?? 0) || 0));
+}
 /**
  * Determine which attribute to use for attack rolls.
  * - Powers: attribute from mastery tree / spell school (`system.tree`) via fixed list; if unknown tree, fall back to `roll.attribute`.
@@ -308,7 +316,7 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
         if (powerSystem.isSpell === true) {
             tnKind = 'casting';
             const lvl = Math.max(1, Math.floor(Number(selectedPowerLevel) || 1));
-            castingBaseTn = calculateBaseTN(lvl);
+            castingBaseTn = calculateBaseTN(lvl) + getTargetSpellResistance(target);
         }
     }
     /** Base TN before declared raises (+4 each). Stored in flags.targetEvade for roll-handler compat. */

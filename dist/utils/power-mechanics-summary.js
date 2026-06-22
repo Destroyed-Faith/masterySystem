@@ -79,6 +79,12 @@ export function summarizePowerMechanics(mech) {
         const sign = mech.regen > 0 ? '' : '';
         push(`Regen ${sign}${mech.regen} HP/turn`);
     }
+    const spellRes = fmtSigned(mech.spellResistance ?? 0);
+    if (spellRes)
+        push(`${spellRes} Spell Resistance`);
+    if (typeof mech.cleanseMaintenance === 'number' && mech.cleanseMaintenance > 0) {
+        push(`Cleanse(${mech.cleanseMaintenance}) / turn`);
+    }
     const move = fmtSigned(mech.movementBonus ?? 0);
     if (move)
         push(`${move} Movement`);

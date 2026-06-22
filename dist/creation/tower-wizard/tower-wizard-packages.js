@@ -128,6 +128,7 @@ const PASSIVE_SUBFAMILY_LABELS = {
     recovery: 'Recovery',
     damage: 'Damage & Offense',
     awareness: 'Awareness',
+    ward: 'Ward',
     combined: 'Combined Passives',
     'conditional-combined': 'Conditional Combined Passives',
     'special-aura': 'Special Aura',
@@ -143,12 +144,14 @@ const PASSIVE_GROUP_ORDER = [
     'recovery',
     'damage',
     'awareness',
+    'ward',
     'combined',
     'conditional-combined',
     'special-aura',
 ];
 const ACTIVE_BUFF_SUBFAMILY_LABELS = {
     'defensive-single': 'Defensive Buffs',
+    ward: 'Ward',
     aura: 'Auras',
     recovery: 'Recovery',
     'damage-reduction': 'Damage Reduction',
@@ -160,6 +163,7 @@ const ACTIVE_BUFF_SUBFAMILY_LABELS = {
 };
 const ACTIVE_BUFF_GROUP_ORDER = [
     'defensive-single',
+    'ward',
     'aura',
     'damage-reduction',
     'phasing',

@@ -304,6 +304,8 @@ function collectEffectTypesFromTemplate(t: PowerTemplate): string[] {
         if (m.evade) types.add('evade');
         if (m.initiativeD8) types.add('initiativeD8');
         if (m.regen) types.add('regen');
+        if (m.spellResistance) types.add('spellResistance');
+        if (m.cleanseMaintenance) types.add('cleanseMaintenance');
         if (m.tempHP) types.add('tempHP');
         if (m.saveDice && typeof m.saveDice === 'object') {
             const sd = m.saveDice;

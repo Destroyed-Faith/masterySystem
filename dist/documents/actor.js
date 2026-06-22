@@ -461,6 +461,8 @@ export class MasteryActor extends Actor {
         system.combat.evadeFromMechanics = 0;
         system.combat.armorFromActiveBuffs = buffMechBreakdown.totals.armor;
         system.combat.evadeFromActiveBuffs = buffMechBreakdown.totals.evade;
+        system.combat.spellResistanceTotal = mechBreakdown.totals.spellResistance;
+        system.combat.spellResistanceFromActiveBuffs = buffMechBreakdown.totals.spellResistance;
         system.combat.initiativeD8FromMechanics = iniD8MechBonus;
         // Damage Reduction % (passive + buff in aggregateMechanics; reaction rows
         // are per-hit only). Sheet rows mirror aggregated contributions.

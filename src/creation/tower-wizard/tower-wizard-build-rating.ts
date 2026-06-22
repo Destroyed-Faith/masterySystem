@@ -86,7 +86,7 @@ const CONTROL_SPECIALS = new Set([
 
 const DEFENSE_SPECIALS = new Set(['brace', 'bulwark', 'immovable']);
 
-const DEFENSE_SUBFAMILIES = new Set(['armor', 'evade', 'damage-reduction', 'phasing', 'awareness']);
+const DEFENSE_SUBFAMILIES = new Set(['armor', 'evade', 'damage-reduction', 'phasing', 'awareness', 'ward']);
 const OFFENSE_SUBFAMILIES = new Set(['damage-single', 'damage-aoe', 'weapon-attack', 'damage']);
 const CONTROL_SUBFAMILIES = new Set(['control', 'hard-control', 'persistent-zone', 'illusion', 'barrier']);
 const SUSTAIN_SUBFAMILIES = new Set(['temp-hp', 'regen', 'health', 'recovery']);
@@ -143,7 +143,8 @@ function accumulate(scores: RawScores, f: RowFeatures): void {
     if (has(mech, 'armor')) scores.defense += 2;
     if (has(mech, 'evade')) scores.defense += 2;
     if (has(mech, 'damageReductionPct')) scores.defense += 3;
-    if (has(mech, 'phasing')) scores.defense += 3;
+    if (has(mech, 'spellResistance')) scores.defense += 2;
+    if (has(mech, 'cleanseMaintenance')) scores.defense += 2;
     if (has(mech, 'initiativeD8')) scores.defense += 1.5;
     if (DEFENSE_SUBFAMILIES.has(f.subfamily)) scores.defense += 2;
     for (const k of DEFENSE_SPECIALS) if (specials.has(k)) scores.defense += 2;

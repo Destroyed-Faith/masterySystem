@@ -220,6 +220,10 @@ function collectEffectTypesFromTemplate(t) {
             types.add('initiativeD8');
         if (m.regen)
             types.add('regen');
+        if (m.spellResistance)
+            types.add('spellResistance');
+        if (m.cleanseMaintenance)
+            types.add('cleanseMaintenance');
         if (m.tempHP)
             types.add('tempHP');
         if (m.saveDice && typeof m.saveDice === 'object') {
