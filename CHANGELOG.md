@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.151] - 2026-06-23
+
+### Changed
+
+- **Artifact Node Editor:** Martial Special Damage delivery forms (Melee/Ranged Single/AoE) are now entries in the **Active** Power dropdown; choosing one shows the Special picker. The separate “Martial Special Damage” mode is removed.
+
 ## [0.9.150] - 2026-06-23
 
 ### Fixed

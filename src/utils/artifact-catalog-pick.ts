@@ -7,6 +7,11 @@ import type { ActiveSpecialTier } from '../types/item.js';
 import { getTemplate } from './powers/index.js';
 import { getEffect, getEffectBaseName } from './special-effects.js';
 import { getEligibleSpecialsForTier } from './powers/templates/_specials.js';
+import {
+  isMartialDeliveryPickId,
+  listMartialDamageSpecialOptions,
+  parseMartialDeliveryPickId,
+} from './artifact-power-pick.js';
 
 export interface CatalogSpecialOption {
   key: string;
@@ -42,6 +47,7 @@ function templateHasSpecialPlaceholder(templateId: string): boolean {
 export function catalogTemplateRequiresSpecial(templateId: string): boolean {
   const id = String(templateId || '').trim();
   if (!id) return false;
+  if (isMartialDeliveryPickId(id)) return true;
   if (SPECIAL_AURA_OPTIONS[id]) return true;
   const tpl = getTemplate(id);
   if (tpl?.specialSlot) return true;
@@ -52,6 +58,9 @@ export function catalogTemplateRequiresSpecial(templateId: string): boolean {
 export function catalogSpecialKeysForTemplate(templateId: string): string[] {
   const id = String(templateId || '').trim();
   if (!id) return [];
+  if (isMartialDeliveryPickId(id)) {
+    return listMartialDamageSpecialOptions().map((o) => o.key);
+  }
   if (SPECIAL_AURA_OPTIONS[id]) return [...SPECIAL_AURA_OPTIONS[id]];
   const tpl = getTemplate(id);
   if (tpl?.specialSlot?.eligibleSpecialKeys?.length) {
@@ -76,6 +85,16 @@ export function catalogSpecialTierForTemplate(templateId: string): ActiveSpecial
 }
 
 export function listCatalogSpecialOptions(templateId: string): CatalogSpecialOption[] {
+  const delivery = parseMartialDeliveryPickId(templateId);
+  if (delivery) {
+    return listMartialDamageSpecialOptions().map((o) => ({
+      key: o.key,
+      tier: o.tier,
+      label: o.label,
+      description: o.description,
+    }));
+  }
+
   const tier = catalogSpecialTierForTemplate(templateId);
   return catalogSpecialKeysForTemplate(templateId).map((key) => {
     const ef = getEffect(key);

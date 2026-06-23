@@ -3,7 +3,7 @@
  * Edit a single artifact node's data (kind + type-specific profile).
  */
 import { ARTIFACT_GEAR_SLOT_OPTIONS, getArtifactSpecialSelectOptions, getArtifactTreeWeaponDamagePresets, getArtifactWeaponInnateOptions } from '../utils/artifact-node-options.js';
-import { isMartialDamageTemplateId, listMartialDamageSpecialOptions, MARTIAL_DELIVERY_OPTIONS, parseLegacyPick, resolvePickFromUi, } from '../utils/artifact-power-pick.js';
+import { isMartialDamageTemplateId, martialDeliveryCatalogOptions, martialDeliveryPickId, parseMartialDeliveryPickId, parseMartialDamageTemplateId, resolvePickFromUi, } from '../utils/artifact-power-pick.js';
 import { ARTIFACT_SLOT_KEYS, ARTIFACT_SLOT_LABELS, ATTRIBUTE_ACCESS_BY_SLOT, BASE_PROFILE_LABELS, BASE_PROFILES_BY_SLOT, BASE_VALUE_HARD_CAP, BASE_VALUE_LIMIT_BY_SLOT, BASE_VALUE_TYPE_LABELS, isAttributeAllowedForStoneFunctionInSlot, isBaseValueTypeAllowedForSlot, weaponBasicsForProfile, SLOT_POWER_ACCESS, } from '../utils/artifact-rules.js';
 import { syncArtifactInheritedFromParent } from '../utils/artifact-folder-sync.js';
 import { pushWorldArtifactNodeToEmbeddedActors } from '../utils/artifact-embedded-sync.js';
@@ -22,13 +22,10 @@ const TREE_DAMAGE_PRESETS = getArtifactTreeWeaponDamagePresets();
 const TREE_PRESET_VALUES = new Set(TREE_DAMAGE_PRESETS.map((p) => p.value));
 /**
  * Catalog Power templates the GM can assign to a progression pick, grouped by
- * power-mode. `martial` is handled separately (delivery + Special); the other
- * modes expose every catalog template of that category so the GM is never
- * limited. Martial damage tier templates are filtered out of `active` because
- * they belong to the `martial` mode.
+ * category. Martial Special Damage delivery forms live in the Active list
+ * (`martial:melee-single`, etc.) with a Special picker — no separate mode.
  */
 const POWER_PICK_MODE_OPTIONS = [
-    { value: 'martial', label: 'Martial Special Damage' },
     { value: 'active', label: 'Active' },
     { value: 'activeBuff', label: 'Active Buff' },
     { value: 'reaction', label: 'Reaction' },
@@ -41,8 +38,12 @@ function tplOpts(list) {
         .sort((a, b) => a.name.localeCompare(b.name));
 }
 function buildPowerCatalogOptions() {
+    const actives = [
+        ...martialDeliveryCatalogOptions(),
+        ...tplOpts(ACTIVE_TEMPLATES.filter((t) => !isMartialDamageTemplateId(t.templateId))),
+    ].sort((a, b) => a.name.localeCompare(b.name));
     return {
-        active: tplOpts(ACTIVE_TEMPLATES.filter((t) => !isMartialDamageTemplateId(t.templateId))),
+        active: actives,
         activeBuff: tplOpts(ACTIVE_BUFF_TEMPLATES),
         reaction: tplOpts(REACTION_TEMPLATES),
         movement: tplOpts(MOVEMENT_TEMPLATES),
@@ -52,42 +53,51 @@ function buildPowerCatalogOptions() {
 /** Power-mode + selected template/name for an existing pick (render helper). */
 function resolvePowerPickMode(pick) {
     const tid = String(pick.powerTemplateId || '').trim();
-    if (pick.delivery || (tid && isMartialDamageTemplateId(tid))) {
-        return { powerMode: 'martial', templateId: '', displayName: pick.displayName || '' };
+    if (pick.delivery) {
+        return {
+            powerMode: 'active',
+            templateId: martialDeliveryPickId(pick.delivery),
+            displayName: pick.displayName || '',
+        };
+    }
+    const parsedMartial = tid ? parseMartialDamageTemplateId(tid) : undefined;
+    if (parsedMartial) {
+        return {
+            powerMode: 'active',
+            templateId: martialDeliveryPickId(parsedMartial.delivery),
+            displayName: pick.displayName || '',
+        };
     }
     if (tid) {
         const tpl = getPowerTemplate(tid);
         const cat = String(tpl?.category || 'active');
         return { powerMode: cat, templateId: tid, displayName: pick.displayName || '' };
     }
-    return { powerMode: 'martial', templateId: '', displayName: pick.displayName || '' };
+    return { powerMode: 'active', templateId: '', displayName: pick.displayName || '' };
 }
 /**
- * Read a Power pick from a progression-pick row. Supports two modes:
- *  - `martial`: delivery + Special → a Martial Special Damage template.
- *  - any other category: a freely chosen catalog template (`node-pick-template`).
+ * Read a Power pick from a progression-pick row. Active catalog entries include
+ * martial delivery forms (`martial:ranged-aoe`, …) plus regular templates.
  * An optional flavor display name (`node-pick-name`) is carried along so the GM
  * can rename a power (e.g. "Breath Weapon") without touching its mechanics.
  */
 function readPowerPickFieldsFromRow($row) {
     const displayName = String($row.find('.node-pick-name').val() || '').trim() || undefined;
-    const mode = String($row.find('.node-pick-power-mode').val() || 'martial').trim() || 'martial';
-    if (mode === 'martial') {
-        const delivery = String($row.find('.node-pick-delivery').val() || '').trim();
-        const specialKey = String($row.find('.node-pick-special').val() || '').trim();
-        if (delivery && specialKey) {
-            try {
-                return { ...resolvePickFromUi(delivery, specialKey), displayName };
-            }
-            catch {
-                return null;
-            }
-        }
-        return null;
-    }
     const templateId = String($row.find('.node-pick-template').val() || '').trim();
     if (!templateId)
         return null;
+    const martialDelivery = parseMartialDeliveryPickId(templateId);
+    if (martialDelivery) {
+        const specialKey = String($row.find('.node-pick-catalog-special').val() || '').trim();
+        if (!specialKey)
+            return null;
+        try {
+            return { ...resolvePickFromUi(martialDelivery, specialKey), displayName };
+        }
+        catch {
+            return null;
+        }
+    }
     if (catalogTemplateRequiresSpecial(templateId)) {
         const specialKey = String($row.find('.node-pick-catalog-special').val() || '').trim();
         if (!specialKey)
@@ -489,8 +499,6 @@ export class NodeEditor extends BaseDialog {
             label: isScalingWeaponSpecial(o.label) ? o.label : `${o.label} (qualitative)`,
         }));
         // ---- Level Progression picks (3 lines @ Basic Level 1/2/3) ----
-        data.martialDeliveryOptions = MARTIAL_DELIVERY_OPTIONS;
-        data.martialSpecialOptions = listMartialDamageSpecialOptions();
         data.powerModeOptions = POWER_PICK_MODE_OPTIONS;
         data.powerCatalogOptions = buildPowerCatalogOptions();
         const stonePowerOptionsByAttr = {};
@@ -515,7 +523,6 @@ export class NodeEditor extends BaseDialog {
         data.progressionPickRows = [1, 2, 3].map((lvl) => {
             const p = pickByLevel.get(lvl);
             const sf = p?.stoneFunction || null;
-            const legacy = p?.kind === 'power' ? parseLegacyPick(p) : null;
             const isAuthored = p?.kind === 'authored';
             const authoredSummary = isAuthored
                 ? (p?.authoredStages || [])
@@ -523,10 +530,10 @@ export class NodeEditor extends BaseDialog {
                     .filter((n) => n.length > 0)
                     .join(' → ')
                 : '';
-            const mode = p?.kind === 'power' ? resolvePowerPickMode(p) : { powerMode: 'martial', templateId: '', displayName: '' };
-            const catalogSpecialKey = p?.kind === 'power' && p.chosenSpecial?.key && !p.delivery ? p.chosenSpecial.key : '';
+            const mode = p?.kind === 'power' ? resolvePowerPickMode(p) : { powerMode: 'active', templateId: '', displayName: '' };
+            const catalogSpecialKey = p?.kind === 'power' && p.chosenSpecial?.key ? p.chosenSpecial.key : '';
             const needsCatalogSpecial = p?.kind === 'power' &&
-                mode.powerMode !== 'martial' &&
+                mode.powerMode === 'active' &&
                 !!mode.templateId &&
                 catalogTemplateRequiresSpecial(mode.templateId);
             return {
@@ -537,12 +544,9 @@ export class NodeEditor extends BaseDialog {
                 isAuthored,
                 authoredSummary,
                 powerMode: mode.powerMode,
-                isMartialMode: mode.powerMode === 'martial',
                 selectedTemplateId: mode.templateId,
                 displayName: mode.displayName,
-                delivery: legacy?.delivery || '',
-                specialKey: legacy?.specialKey || catalogSpecialKey,
-                needsSpecial: legacy?.needsSpecial || false,
+                specialKey: catalogSpecialKey,
                 needsCatalogSpecial,
                 catalogSpecialOptions: needsCatalogSpecial && mode.templateId
                     ? listCatalogSpecialOptions(mode.templateId)
@@ -823,9 +827,6 @@ export class NodeEditor extends BaseDialog {
             const kind = String($row.find('.node-pick-kind').val() || 'none');
             $row.find('.node-pick-power-wrap').toggleClass('hidden', kind !== 'power');
             $row.find('.node-pick-stonefn').toggleClass('hidden', kind !== 'stoneFunction');
-            const mode = String($row.find('.node-pick-power-mode').val() || 'martial');
-            $row.find('.node-pick-martial').toggleClass('hidden', mode !== 'martial');
-            $row.find('.node-pick-template-wrap').toggleClass('hidden', mode === 'martial');
             const templateId = String($row.find('.node-pick-template').val() || '');
             populateCatalogSpecialSelect($row, templateId, String($row.find('.node-pick-catalog-special').val() || ''));
             const stoneKind = String($row.find('.node-pick-stone-kind').val() || '');
@@ -908,12 +909,6 @@ export class NodeEditor extends BaseDialog {
         };
         html.find('.node-progression-pick').each((_i, el) => {
             const $row = $(el);
-            const $delivery = $row.find('.node-pick-delivery');
-            if ($delivery.length)
-                $delivery.val(String($delivery.attr('data-current') || ''));
-            const $special = $row.find('.node-pick-special');
-            if ($special.length)
-                $special.val(String($special.attr('data-current') || ''));
             const $tpl = $row.find('.node-pick-template');
             if ($tpl.length)
                 $tpl.val(String($tpl.attr('data-current') || ''));
@@ -932,14 +927,10 @@ export class NodeEditor extends BaseDialog {
             refreshStoneFnWarning();
             rebuildLevelProgressionPreview();
         });
-        html.on('change', '.node-pick-delivery, .node-pick-special', () => {
-            rebuildLevelProgressionPreview();
-        });
         html.on('change', '.node-pick-power-mode', (e) => {
             const $row = $(e.currentTarget).closest('.node-progression-pick');
-            const mode = String($(e.currentTarget).val() || 'martial');
-            if (mode !== 'martial')
-                populatePowerTemplateSelect($row, mode, '');
+            const mode = String($(e.currentTarget).val() || 'active');
+            populatePowerTemplateSelect($row, mode, '');
             populateCatalogSpecialSelect($row, '', '');
             syncProgressionRow($row);
             rebuildLevelProgressionPreview();

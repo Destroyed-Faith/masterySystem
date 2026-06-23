@@ -61,7 +61,7 @@
     <!-- Level Progression: 3 picks introduced at Basic Level 1/2/3 (Power or Stone Function) -->
     <div class="node-editor-span2 node-progression-row" style="border-top:1px dashed var(--color-border-light-primary,#888);padding-top:8px;">
       <h4 class="node-profile-title">Level Progression (Level 1–3 picks)</h4>
-      <p class="node-editor-hint">Pick up to three lines, introduced at Basic <strong>Level 1, 2 and 3</strong>. Each pick is a <strong>Power</strong> (from the catalog) or a <strong>Stone Function</strong>. <strong>Martial Special Damage</strong> = delivery + Special (e.g. Ranged AoE + Ignite). <strong>Active</strong> catalog includes weapon attacks (<em>Ranged AoE Attack</em> = weapon only, no Special) and templates that need a Special after you pick them (e.g. <em>Ranged Persistent Zone</em>). The system scales picks across stages (PL 4 → 10 → 16). At most one Stone Function per artifact.</p>
+      <p class="node-editor-hint">Pick up to three lines, introduced at Basic <strong>Level 1, 2 and 3</strong>. Each pick is a <strong>Power</strong> (from the catalog) or a <strong>Stone Function</strong>. Under <strong>Active</strong>, choose a template — including <em>Special Damage</em> rows (e.g. Ranged AoE + Ignite) or weapon attacks (<em>Ranged AoE Attack</em> = weapon only). Templates that need a Special show a second dropdown. The system scales picks across stages (PL 4 → 10 → 16). At most one Stone Function per artifact.</p>
       <div id="node-progression-picks" class="node-multi-select">
         {{#each progressionPickRows as |row|}}
         <div class="node-select-row node-progression-pick" data-level="{{row.level}}">
@@ -83,31 +83,14 @@
               <option value="{{opt.value}}" {{#if (eq row.powerMode opt.value)}}selected{{/if}}>{{opt.label}}</option>
               {{/each}}
             </select>
-            <span class="node-pick-martial {{#unless row.isMartialMode}}hidden{{/unless}}">
-              <select class="node-pick-delivery" data-current="{{row.delivery}}" title="Martial damage delivery form">
-                <option value="">— Delivery —</option>
-                {{#each ../martialDeliveryOptions as |opt|}}
-                <option value="{{opt.value}}" {{#if (eq row.delivery opt.value)}}selected{{/if}}>{{opt.label}}</option>
-                {{/each}}
-              </select>
-              <select class="node-pick-special" data-current="{{row.specialKey}}" title="Special applied by this power">
-                <option value="">— Choose Special —</option>
-                {{#each ../martialSpecialOptions as |opt|}}
-                <option value="{{opt.key}}" title="{{opt.description}}" {{#if (eq row.specialKey opt.key)}}selected{{/if}}>{{opt.label}}</option>
-                {{/each}}
-              </select>
-              {{#if row.needsSpecial}}
-              <span class="node-pick-special-hint" title="Tier templates require a Special">Please choose a Special.</span>
-              {{/if}}
-            </span>
-            <span class="node-pick-template-wrap {{#if row.isMartialMode}}hidden{{/if}}" title="Catalog Power for this slot">
+            <span class="node-pick-template-wrap" title="Catalog Power for this slot">
               <select class="node-pick-template" data-current="{{row.selectedTemplateId}}">
                 <option value="">— Choose Power —</option>
                 {{#each (lookup ../powerCatalogOptions row.powerMode) as |opt|}}
                 <option value="{{opt.id}}" {{#if (eq row.selectedTemplateId opt.id)}}selected{{/if}}>{{opt.name}}</option>
                 {{/each}}
               </select>
-              <span class="node-pick-catalog-special-wrap {{#unless row.needsCatalogSpecial}}hidden{{/unless}}" title="Special applied by this catalog Power">
+              <span class="node-pick-catalog-special-wrap {{#unless row.needsCatalogSpecial}}hidden{{/unless}}" title="Special applied by this Power">
                 <select class="node-pick-catalog-special" data-current="{{row.specialKey}}">
                   <option value="">— Choose Special —</option>
                   {{#each row.catalogSpecialOptions as |opt|}}
@@ -115,7 +98,7 @@
                   {{/each}}
                 </select>
                 {{#if row.needsCatalogSpecial}}{{#unless row.specialKey}}
-                <span class="node-pick-special-hint" title="This template requires a Special">Please choose a Special.</span>
+                <span class="node-pick-special-hint" title="This Power requires a Special">Please choose a Special.</span>
                 {{/unless}}{{/if}}
               </span>
             </span>

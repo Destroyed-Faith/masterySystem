@@ -20,6 +20,13 @@ describe('artifact-catalog-pick', () => {
     );
   });
 
+  it('requires a Special for martial delivery picks in the Active list', () => {
+    expect(catalogTemplateRequiresSpecial('martial:ranged-aoe')).toBe(true);
+    const keys = catalogSpecialKeysForTemplate('martial:ranged-aoe');
+    expect(keys).toContain('ignite');
+    expect(listCatalogSpecialOptions('martial:ranged-aoe').length).toBeGreaterThan(0);
+  });
+
   it('does not require a Special for pure weapon attacks or damage aura', () => {
     expect(catalogTemplateRequiresSpecial('active-ranged-weapon-aoe')).toBe(false);
     expect(catalogTemplateRequiresSpecial('ab-damage-aura')).toBe(false);

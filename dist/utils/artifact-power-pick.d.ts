@@ -11,6 +11,16 @@ export declare const MARTIAL_DELIVERY_OPTIONS: {
     value: MartialDelivery;
     label: string;
 }[];
+/** Prefix for martial delivery rows in the Active catalog dropdown. */
+export declare const MARTIAL_PICK_PREFIX = "martial:";
+export declare function martialDeliveryPickId(delivery: MartialDelivery): string;
+export declare function isMartialDeliveryPickId(id: string): boolean;
+export declare function parseMartialDeliveryPickId(id: string): MartialDelivery | undefined;
+/** Martial delivery forms as Active-dropdown entries (delivery + Special picker). */
+export declare function martialDeliveryCatalogOptions(): {
+    id: string;
+    name: string;
+}[];
 /** Derive damage tier from Special eligibility lists (T3–T6). */
 export declare function tierFromSpecialKey(key: string): ActiveSpecialTier | undefined;
 export declare function isMartialDamageTemplateId(templateId: string): boolean;

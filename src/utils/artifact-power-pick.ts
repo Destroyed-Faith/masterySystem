@@ -23,6 +23,30 @@ export const MARTIAL_DELIVERY_OPTIONS: { value: MartialDelivery; label: string }
   { value: 'ranged-aoe', label: 'Ranged — AoE Special Damage' },
 ];
 
+/** Prefix for martial delivery rows in the Active catalog dropdown. */
+export const MARTIAL_PICK_PREFIX = 'martial:';
+
+export function martialDeliveryPickId(delivery: MartialDelivery): string {
+  return `${MARTIAL_PICK_PREFIX}${delivery}`;
+}
+
+export function isMartialDeliveryPickId(id: string): boolean {
+  return String(id || '').startsWith(MARTIAL_PICK_PREFIX);
+}
+
+export function parseMartialDeliveryPickId(id: string): MartialDelivery | undefined {
+  const v = String(id || '').slice(MARTIAL_PICK_PREFIX.length) as MartialDelivery;
+  return MARTIAL_DELIVERY_OPTIONS.some((o) => o.value === v) ? v : undefined;
+}
+
+/** Martial delivery forms as Active-dropdown entries (delivery + Special picker). */
+export function martialDeliveryCatalogOptions(): { id: string; name: string }[] {
+  return MARTIAL_DELIVERY_OPTIONS.map((o) => ({
+    id: martialDeliveryPickId(o.value),
+    name: o.label,
+  }));
+}
+
 const DELIVERY_SHORT_LABEL: Record<MartialDelivery, string> = {
   'melee-single': 'Melee Special Damage',
   'melee-aoe': 'Melee AoE Special Damage',

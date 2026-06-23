@@ -3,6 +3,7 @@ import { getAllCatalogEntries } from '../src/utils/power-catalog.js';
 import {
   artifactPowerRowLabel,
   listMartialDamageSpecialOptions,
+  martialDeliveryCatalogOptions,
   parseLegacyPick,
   resolvePickFromUi,
   tierFromSpecialKey,
@@ -17,6 +18,12 @@ describe('artifact-power-pick', () => {
   it('maps delivery + tier to existing martial damage template ids', () => {
     expect(templateIdForDeliveryAndTier('melee-aoe', 4)).toBe('active-melee-aoe-damage-t4');
     expect(templateIdForDeliveryAndTier('ranged-single', 3)).toBe('active-ranged-damage-t3');
+  });
+
+  it('exposes martial delivery forms as Active catalog ids', () => {
+    const opts = martialDeliveryCatalogOptions();
+    expect(opts.some((o) => o.id === 'martial:ranged-aoe')).toBe(true);
+    expect(opts.find((o) => o.id === 'martial:ranged-aoe')?.name).toContain('Ranged');
   });
 
   it('resolvePickFromUi binds delivery, template id, and chosenSpecial', () => {

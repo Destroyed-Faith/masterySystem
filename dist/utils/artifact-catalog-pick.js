@@ -5,6 +5,7 @@
 import { getTemplate } from './powers/index.js';
 import { getEffect, getEffectBaseName } from './special-effects.js';
 import { getEligibleSpecialsForTier } from './powers/templates/_specials.js';
+import { isMartialDeliveryPickId, listMartialDamageSpecialOptions, parseMartialDeliveryPickId, } from './artifact-power-pick.js';
 /** Fixed Special choices for Active Buff aura templates (no SPECIAL placeholder row). */
 const SPECIAL_AURA_OPTIONS = {
     'ab-special-aura-start-3': ['poisoned', 'regeneration'],
@@ -33,6 +34,8 @@ export function catalogTemplateRequiresSpecial(templateId) {
     const id = String(templateId || '').trim();
     if (!id)
         return false;
+    if (isMartialDeliveryPickId(id))
+        return true;
     if (SPECIAL_AURA_OPTIONS[id])
         return true;
     const tpl = getTemplate(id);
@@ -70,6 +73,15 @@ export function catalogSpecialTierForTemplate(templateId) {
     return tierFromTemplateId(id);
 }
 export function listCatalogSpecialOptions(templateId) {
+    const delivery = parseMartialDeliveryPickId(templateId);
+    if (delivery) {
+        return listMartialDamageSpecialOptions().map((o) => ({
+            key: o.key,
+            tier: o.tier,
+            label: o.label,
+            description: o.description,
+        }));
+    }
     const tier = catalogSpecialTierForTemplate(templateId);
     return catalogSpecialKeysForTemplate(templateId).map((key) => {
         const ef = getEffect(key);
