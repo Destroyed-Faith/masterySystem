@@ -189,6 +189,31 @@
   </div>
   {{/if}}
 
+  <div class="cp-block cp-disadvantages">
+    <h3 class="cp-block-title">Disadvantages <span class="cp-subtle">Points: {{disadvantagePoints}}</span></h3>
+    <table class="cp-disadv-table">
+      <thead><tr><th>Disadvantage</th><th>Points</th></tr></thead>
+      <tbody>
+        {{#each disadvantages}}
+        <tr>
+          <td>
+            <span class="cp-disadv-name">{{label}}</span>
+            {{#if description}}<span class="cp-disadv-desc">{{description}}</span>{{/if}}
+          </td>
+          <td>{{points}}</td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+    <div class="cp-rerolls">
+      <span class="cp-defense-label">Total Rerolls / Used</span>
+      <span class="cp-reroll-boxes">
+        {{#each rerollBoxes}}<span class="cp-use-box"></span>{{/each}}
+        {{#unless rerollBoxes.length}}<span class="cp-reroll-empty">—</span>{{/unless}}
+      </span>
+    </div>
+  </div>
+
   <div class="cp-page-footer">-- 1 of {{pageTotal}} --</div>
 </section>
 
@@ -304,31 +329,6 @@
         {{/if}}
       </div>
       {{/each}}
-    </div>
-  </div>
-
-  <div class="cp-block cp-disadvantages">
-    <h3 class="cp-block-title">Disadvantages <span class="cp-subtle">Points: {{disadvantagePoints}}</span></h3>
-    <table class="cp-disadv-table">
-      <thead><tr><th>Disadvantage</th><th>Points</th></tr></thead>
-      <tbody>
-        {{#each disadvantages}}
-        <tr>
-          <td>
-            <span class="cp-disadv-name">{{label}}</span>
-            {{#if description}}<span class="cp-disadv-desc">{{description}}</span>{{/if}}
-          </td>
-          <td>{{points}}</td>
-        </tr>
-        {{/each}}
-      </tbody>
-    </table>
-    <div class="cp-rerolls">
-      <span class="cp-defense-label">Total Rerolls / Used</span>
-      <span class="cp-reroll-boxes">
-        {{#each rerollBoxes}}<span class="cp-use-box"></span>{{/each}}
-        {{#unless rerollBoxes.length}}<span class="cp-reroll-empty">—</span>{{/unless}}
-      </span>
     </div>
   </div>
 
