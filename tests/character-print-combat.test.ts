@@ -66,7 +66,95 @@ function meleeArtifact(level: number, withSpellFocus = false) {
   };
 }
 
+function moonlightGreatsword(level: number, opts: { artifactWeapon?: boolean } = {}) {
+  return {
+    id: 'moonlight',
+    type: 'artifact',
+    name: 'Moonlight Greatsword',
+    system: {
+      binding: 'bound',
+      baseProfile: 'twoHandedWeapon',
+      currentLevel: level,
+      level,
+      description: 'Moonlight Greatsword attacks may use Might or Agility.',
+      ...(opts.artifactWeapon
+        ? { artifactWeapon: { weaponType: 'melee', damage: '8d8' } }
+        : {}),
+    },
+  };
+}
+
+function meleeWeaponSinglePower(overrides: Record<string, unknown> = {}) {
+  return {
+    type: 'power',
+    system: {
+      slot: 'attack',
+      cost: { action: 'attack' },
+      subfamily: 'weapon-attack',
+      templateId: 'active-melee-weapon-single',
+      level: 4,
+      levels: {
+        '4': {
+          type: 'Melee',
+          effect: { dice: '+8d8', text: 'Weapon attack +8d8.' },
+          mechanics: { damageRider: { flat: '+8d8' }, applyWhen: 'attack-rider' },
+        },
+      },
+      ...overrides,
+    },
+  };
+}
+
 describe('buildPrintCombatPreview', () => {
+  it('adds two-handed bound artifact weapon damage without baked artifactWeapon profile', () => {
+    const weapon = moonlightGreatsword(4);
+    const actor = mockActor({ might: 14, agility: 14 }, [weapon]);
+    const preview = buildPrintCombatPreview(actor, meleeWeaponSinglePower(), [weapon]);
+    expect(preview?.attackLabel).toBe('Might / Agility');
+    expect(preview?.damage).toBe('WD 8d8 + 8d8');
+  });
+
+  it('prefers bound artifact weapon over legacy equipped Unarmed item', () => {
+    const weapon = moonlightGreatsword(4);
+    const legacyUnarmed = {
+      id: 'u1',
+      type: 'weapon',
+      name: 'Unarmed',
+      system: { weaponType: 'melee', damage: '1d8', equipped: true },
+    };
+    const actor = mockActor({ might: 14, agility: 14 }, [weapon, legacyUnarmed]);
+    const ignite = {
+      type: 'power',
+      system: {
+        slot: 'attack',
+        cost: { action: 'attack' },
+        templateId: 'active-melee-damage-t4',
+        level: 4,
+        levels: {
+          '4': {
+            type: 'Melee',
+            effect: { dice: '+1d8' },
+            mechanics: { damageRider: { flat: '+1d8' } },
+            specials: [{ key: 'ignite', rank: 7 }],
+          },
+        },
+      },
+    };
+    const preview = buildPrintCombatPreview(actor, ignite, [weapon, legacyUnarmed]);
+    expect(preview?.damage).toBe('WD 8d8 + 1d8 + Ignite(7)');
+  });
+
+  it('includes weapon damage on weapon-attack powers even when mis-flagged as spell', () => {
+    const weapon = moonlightGreatsword(4);
+    const actor = mockActor({ intellect: 18, might: 14 }, [weapon]);
+    const preview = buildPrintCombatPreview(
+      actor,
+      meleeWeaponSinglePower({ isSpell: true, castingAttribute: 'intellect' }),
+      [weapon],
+    );
+    expect(preview?.damage).toBe('WD 8d8 + 8d8');
+  });
+
   it('shows attribute pool for melee martial power (unarmed when no weapon)', () => {
     const actor = mockActor({ agility: 16, might: 12 });
     const preview = buildPrintCombatPreview(actor, meleePower({ tree: 'Grim Hunter' }), []);

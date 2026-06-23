@@ -170,9 +170,22 @@ function isAttackPower(sys: any): boolean {
   return slot === 'attack';
 }
 
+function powerTemplateKey(sys: any): string {
+  return `${sys?.subfamily ?? ''} ${sys?.templateId ?? ''}`.trim();
+}
+
+/** Martial weapon-attack templates always stack weapon damage (even if mis-tagged as Spell). */
+function isWeaponAttackPower(sys: any): boolean {
+  return /weapon-attack|weapon-aoe|weapon-single|weapon-smite|active-(melee|ranged)-weapon-/i.test(
+    powerTemplateKey(sys),
+  );
+}
+
 function usesWeaponDamage(sys: any, rank: number): boolean {
-  const sub = String(sys?.subfamily ?? sys?.templateId ?? '');
-  if (/weapon-attack|weapon-aoe/i.test(sub)) return true;
+  const sub = powerTemplateKey(sys);
+  if (/weapon-attack|weapon-aoe|weapon-single|weapon-smite|active-(melee|ranged)-weapon-/i.test(sub)) {
+    return true;
+  }
   if (isAttackPower(sys) && !isSpellPowerSys(sys) && !isHealPower(sys, rank)) return true;
   const row = levelRow(sys, rank);
   if (row?.mechanics?.damageRider && !isHealPower(sys, rank)) return true;
@@ -326,7 +339,8 @@ function shouldIncludeWeapon(
   sys: any,
   rank: number,
 ): boolean {
-  if (spell || !weapon || !usesWeaponDamage(sys, rank)) return false;
+  if (!weapon || !usesWeaponDamage(sys, rank)) return false;
+  if (spell && !isWeaponAttackPower(sys)) return false;
   if (artifactSystemHasSpellFocus(weapon.system)) return false;
   if (weaponKind(weapon) !== attackType) return false;
   return slot === 'active' || slot === 'reaction';

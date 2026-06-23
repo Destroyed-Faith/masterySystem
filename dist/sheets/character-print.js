@@ -598,7 +598,13 @@ export function buildCharacterPrintContext(actor) {
         return { type, damage, range: rangeDisplay.label, tags: [...innate, ...specials].filter(Boolean).join(', ') };
     }
     const artifactWeapons = artifactItems
-        .filter((a) => a?.system?.artifactWeapon)
+        .filter((a) => {
+        const sys = a?.system ?? {};
+        if (sys.artifactWeapon)
+            return true;
+        const artifactLevel = Math.max(1, Math.min(10, num(sys.currentLevel) || num(sys.level) || 1));
+        return deriveArtifactWeaponDamage(sys.baseProfile, artifactLevel) != null;
+    })
         .map((a) => {
         const prof = formatWeaponProfile(a.system.artifactWeapon, a.system?.baseProfile);
         // Spell Focus weapons deal no normal weapon damage — their dice boost

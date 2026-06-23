@@ -27,10 +27,13 @@ export declare function createVirtualUnarmedWeapon(): {
 export declare function isVirtualUnarmedWeapon(item: any | null | undefined): boolean;
 /** True for embedded items named "Unarmed" that were auto-seeded (legacy). */
 export declare function isLegacyUnarmedItem(item: any): boolean;
+/** True when a wieldable artifact contributes weapon damage (profile or derived). */
+export declare function artifactCarriesWeaponProfile(artifact: any): boolean;
 /**
- * Convert an equipped artifact that carries an `artifactWeapon` profile (e.g.
- * the Dragon Head's bite) into a weapon-shaped object the attack/damage
- * pipeline understands. Returns `null` when the artifact has no weapon profile.
+ * Convert an equipped artifact that carries weapon damage into a weapon-shaped
+ * object the attack/damage pipeline understands. Falls back to `baseProfile`
+ * derivation when the baked `artifactWeapon` blob is absent (common on bound
+ * general artifacts such as the Moonlight Greatsword).
  */
 export declare function artifactToVirtualWeapon(artifact: any): any | null;
 /**

@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.153] - 2026-06-23
+
+### Fixed
+
+- **Printable battle sheet — weapon damage:** Bound artifact weapons (e.g. Moonlight Greatsword) now contribute `WD` on melee cheat lines even when the item lacks a baked `artifactWeapon` blob — damage is derived from `baseProfile` + level. Legacy equipped Unarmed no longer blocks bound artifact weapons. Weapon-attack templates always stack weapon damage even if mis-flagged as Spell.
+
 ## [0.9.152] - 2026-06-23
 
 ### Added
