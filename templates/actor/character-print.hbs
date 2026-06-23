@@ -497,6 +497,12 @@
                 <span class="cp-battle-card-name">{{name}}{{#unless fromArtifact}}{{#if rank}} <span class="cp-battle-card-rank">Stufe {{rank}}</span>{{/if}}{{/unless}}{{#if fromArtifact}} <span class="cp-power-artifact" title="From artifact: {{source}}">&#9733; {{source}}</span>{{/if}}</span>
                 {{#if effect}}<span class="cp-battle-card-eff"><strong>Effect:</strong> {{effect}}</span>{{/if}}
                 {{#if damageRoll}}<span class="cp-battle-card-roll"><strong>Damage:</strong> {{damageRoll}}</span>{{/if}}
+              </span>
+            </div>
+            {{/each}}
+          </div>
+          {{else}}
+          <div class="cp-battle-empty">No active buffs.</div>
           {{/if}}
         </div>
 
