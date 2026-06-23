@@ -17,6 +17,8 @@ import { getTemplate } from '../utils/powers/index.js';
 import { renderRange, renderAoe, renderDuration, renderSpecials } from '../utils/power-rendering.js';
 import { STONE_POWERS } from '../stones/stone-powers.js';
 import { artifactPowerRowLabel, } from '../utils/artifact-power-pick.js';
+import { catalogPowerRowLabel, catalogTemplateRequiresSpecial, } from '../utils/artifact-catalog-pick.js';
+import { getEffect, getEffectBaseName } from '../utils/special-effects.js';
 /** Roman numeral per stage index (0-based). */
 const STAGE_NUMERALS = ['I', 'II', 'III'];
 /** Power Level consulted for each stage (Basic / Improved / Greater). */
@@ -50,9 +52,31 @@ function bindChosenSpecialRow(lr, chosenKey) {
     const specials = (lr.specials || []).map((s) => s.key === 'SPECIAL' ? { ...s, key: chosenKey } : s);
     return { ...lr, specials };
 }
+/** Resolve the Special column for a level row (placeholder bind or aura-style). */
+function specialTextForRow(lr, chosenKey) {
+    if (!chosenKey)
+        return clean(renderSpecials(lr.specials || []));
+    const hasPlaceholder = (lr.specials || []).some((s) => s.key === 'SPECIAL');
+    if (hasPlaceholder) {
+        return clean(renderSpecials(bindChosenSpecialRow(lr, chosenKey).specials || []));
+    }
+    const placeholder = (lr.specials || []).find((s) => s.key === 'SPECIAL');
+    const rank = placeholder?.rank ??
+        lr.mechanics?.auraPayload?.x ??
+        lr.mechanics?.modifySpecial?.amount;
+    if (rank != null && Number.isFinite(Number(rank))) {
+        return clean(renderSpecials([{ key: chosenKey, rank: Number(rank) }]));
+    }
+    const ef = getEffect(chosenKey);
+    const label = ef ? getEffectBaseName(ef.name) : chosenKey;
+    return label;
+}
 function powerPickDisplayName(pick, tpl) {
     if (pick.delivery && pick.chosenSpecial?.key) {
         return artifactPowerRowLabel(pick.delivery, pick.chosenSpecial.key);
+    }
+    if (pick.chosenSpecial?.key) {
+        return catalogPowerRowLabel(tpl.templateName, pick.chosenSpecial.key);
     }
     return tpl.templateName;
 }
@@ -96,6 +120,9 @@ export function deriveLevelProgressionFromPicks(picks) {
                 if (!lrRaw)
                     continue;
                 const lr = chosenKey ? bindChosenSpecialRow(lrRaw, chosenKey) : lrRaw;
+                const effectText = chosenKey && catalogTemplateRequiresSpecial(pick.powerTemplateId || '')
+                    ? (lr.effect?.text || '').replace(/\bSPECIAL\b/g, chosenKey)
+                    : (lr.effect?.text || '');
                 rows.push({
                     level,
                     name: `${displayBase} ${STAGE_NUMERALS[s]}`,
@@ -103,8 +130,8 @@ export function deriveLevelProgressionFromPicks(picks) {
                     range: clean(renderRange(lr.range ?? null)),
                     aoe: clean(renderAoe(lr.aoe ?? null)),
                     duration: clean(renderDuration(lr.duration)),
-                    effect: lr.effect?.text || '',
-                    special: clean(renderSpecials(lr.specials || [])),
+                    effect: effectText,
+                    special: specialTextForRow(lrRaw, chosenKey),
                 });
             }
         }

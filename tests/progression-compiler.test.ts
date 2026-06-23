@@ -78,4 +78,18 @@ describe('deriveLevelProgressionFromPicks', () => {
     expect(rows[0].special.toLowerCase()).toContain('mark');
     expect(rows[0].special).not.toBe('SPECIAL');
   });
+
+  it('binds chosenSpecial for catalog persistent zone picks', () => {
+    const picks: ArtifactProgressionPick[] = [
+      {
+        level: 1,
+        kind: 'power',
+        powerTemplateId: 'active-ranged-zone-t3',
+        chosenSpecial: { key: 'poisoned', tier: 3 },
+      },
+    ];
+    const rows = deriveLevelProgressionFromPicks(picks);
+    expect(rows[0].name).toContain('Poisoned');
+    expect(rows[0].special.toLowerCase()).toContain('poison');
+  });
 });

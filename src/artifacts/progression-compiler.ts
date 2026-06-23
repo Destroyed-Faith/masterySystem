@@ -29,6 +29,11 @@ import {
   artifactPowerRowLabel,
   type MartialDelivery,
 } from '../utils/artifact-power-pick.js';
+import {
+  catalogPowerRowLabel,
+  catalogTemplateRequiresSpecial,
+} from '../utils/artifact-catalog-pick.js';
+import { getEffect, getEffectBaseName } from '../utils/special-effects.js';
 
 /** Roman numeral per stage index (0-based). */
 const STAGE_NUMERALS = ['I', 'II', 'III'] as const;
@@ -69,12 +74,35 @@ function bindChosenSpecialRow(lr: PowerLevelRow, chosenKey: string): PowerLevelR
   return { ...lr, specials };
 }
 
+/** Resolve the Special column for a level row (placeholder bind or aura-style). */
+function specialTextForRow(lr: PowerLevelRow, chosenKey: string | undefined): string {
+  if (!chosenKey) return clean(renderSpecials(lr.specials || []));
+  const hasPlaceholder = (lr.specials || []).some((s) => s.key === 'SPECIAL');
+  if (hasPlaceholder) {
+    return clean(renderSpecials(bindChosenSpecialRow(lr, chosenKey).specials || []));
+  }
+  const placeholder = (lr.specials || []).find((s) => s.key === 'SPECIAL');
+  const rank =
+    placeholder?.rank ??
+    (lr.mechanics as any)?.auraPayload?.x ??
+    (lr.mechanics as any)?.modifySpecial?.amount;
+  if (rank != null && Number.isFinite(Number(rank))) {
+    return clean(renderSpecials([{ key: chosenKey, rank: Number(rank) }]));
+  }
+  const ef = getEffect(chosenKey);
+  const label = ef ? getEffectBaseName(ef.name) : chosenKey;
+  return label;
+}
+
 function powerPickDisplayName(
   pick: ArtifactProgressionPick,
   tpl: { templateName: string },
 ): string {
   if (pick.delivery && pick.chosenSpecial?.key) {
     return artifactPowerRowLabel(pick.delivery as MartialDelivery, pick.chosenSpecial.key);
+  }
+  if (pick.chosenSpecial?.key) {
+    return catalogPowerRowLabel(tpl.templateName, pick.chosenSpecial.key);
   }
   return tpl.templateName;
 }
@@ -120,6 +148,9 @@ export function deriveLevelProgressionFromPicks(
         const lrRaw = (tpl.levels as Record<string, PowerLevelRow>)[pl];
         if (!lrRaw) continue;
         const lr = chosenKey ? bindChosenSpecialRow(lrRaw, chosenKey) : lrRaw;
+        const effectText = chosenKey && catalogTemplateRequiresSpecial(pick.powerTemplateId || '')
+          ? (lr.effect?.text || '').replace(/\bSPECIAL\b/g, chosenKey)
+          : (lr.effect?.text || '');
         rows.push({
           level,
           name: `${displayBase} ${STAGE_NUMERALS[s]}`,
@@ -127,8 +158,8 @@ export function deriveLevelProgressionFromPicks(
           range: clean(renderRange(lr.range ?? null)),
           aoe: clean(renderAoe(lr.aoe ?? null)),
           duration: clean(renderDuration(lr.duration)),
-          effect: lr.effect?.text || '',
-          special: clean(renderSpecials(lr.specials || [])),
+          effect: effectText,
+          special: specialTextForRow(lrRaw, chosenKey),
         });
       }
     } else if (pick.kind === 'authored' && Array.isArray(pick.authoredStages)) {

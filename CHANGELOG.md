@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.150] - 2026-06-23
+
+### Fixed
+
+- **Artifact Node Editor — Base Values unlock levels:** Auto-calculated values only appear once the artifact has reached that slot's unlock level (A = L1, B = L4, C = L7). Locked slots show `— (unlocks L4)` instead of a misleading auto value.
+- **Artifact Node Editor — catalog Special picker:** Templates that need a chosen Special (Ranged Persistent Zone, Special Auras, etc.) now show a Special dropdown after you pick the template. The progression preview binds the chosen Special into the table.
+
 ## [0.9.149] - 2026-06-23
 
 ### Changed

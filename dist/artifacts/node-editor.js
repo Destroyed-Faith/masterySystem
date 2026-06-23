@@ -15,6 +15,7 @@ import { buildArtifactNodeIdMap, findRootItem, getAncestorChainRootFirst, getLoc
 import { getEffectById, parseEffectStrings } from '../utils/special-effects.js';
 import { STONE_POWERS_BY_ATTRIBUTE } from '../stones/stone-powers.js';
 import { deriveBaseValueDisplay, scaleWeaponSpecial, isScalingWeaponSpecial, } from '../utils/artifact-base-derive.js';
+import { catalogSpecialTierForTemplate, catalogTemplateRequiresSpecial, listCatalogSpecialOptions, } from '../utils/artifact-catalog-pick.js';
 // Use V1 Application for reliable template rendering in v13
 const BaseDialog = foundry?.appv1?.Application || Application;
 const TREE_DAMAGE_PRESETS = getArtifactTreeWeaponDamagePresets();
@@ -85,9 +86,22 @@ function readPowerPickFieldsFromRow($row) {
         return null;
     }
     const templateId = String($row.find('.node-pick-template').val() || '').trim();
-    if (templateId)
-        return { powerTemplateId: templateId, displayName };
-    return null;
+    if (!templateId)
+        return null;
+    if (catalogTemplateRequiresSpecial(templateId)) {
+        const specialKey = String($row.find('.node-pick-catalog-special').val() || '').trim();
+        if (!specialKey)
+            return null;
+        const tier = catalogSpecialTierForTemplate(templateId);
+        if (!tier)
+            return null;
+        return {
+            powerTemplateId: templateId,
+            displayName,
+            chosenSpecial: { key: specialKey, tier },
+        };
+    }
+    return { powerTemplateId: templateId, displayName };
 }
 /** Base Value slot letters → label (letter + the Artifact Level it unlocks at). */
 const BV_LETTER_LABELS = {
@@ -95,7 +109,11 @@ const BV_LETTER_LABELS = {
     b: 'B · Level 4',
     c: 'C · Level 7',
 };
+const BV_UNLOCK_LEVEL = { a: 1, b: 4, c: 7 };
 const BV_LETTERS = ['a', 'b', 'c'];
+function isBaseValueSlotUnlocked(slot, artifactLevel) {
+    return artifactLevel >= (BV_UNLOCK_LEVEL[slot] ?? 1);
+}
 /** Inventory grid presets (aligned with item-info-dialog gear sizes). */
 const INVENTORY_SIZE_PRESETS = [
     '1x1',
@@ -403,7 +421,9 @@ export class NodeEditor extends BaseDialog {
         this._typeDerivedMap = typeDerivedMap;
         this._specialValueMap = specialValueMap;
         this._nodeLevel = nodeLevel;
-        const deriveRowDisplay = (type, specialId) => {
+        const deriveRowDisplay = (slot, type, specialId) => {
+            if (!isBaseValueSlotUnlocked(slot, nodeLevel))
+                return '';
             if (type === 'weaponSpecial')
                 return specialValueMap[specialId] || '';
             return typeDerivedMap[type] || '';
@@ -423,11 +443,14 @@ export class NodeEditor extends BaseDialog {
         }
         data.specBaseValueRows = bvLetters.map((letter) => {
             const slotLabel = BV_LETTER_LABELS[letter];
+            const unlocked = isBaseValueSlotUnlocked(letter, nodeLevel);
             const bv = bvByLetter.get(letter);
             if (!bv) {
                 return {
                     slot: letter,
                     slotLabel,
+                    unlocked,
+                    unlockLevel: BV_UNLOCK_LEVEL[letter],
                     type: 'none',
                     isNone: true,
                     isSpecial: false,
@@ -444,13 +467,15 @@ export class NodeEditor extends BaseDialog {
                 ? specialOptions.find((o) => o.id === storedLabel || o.label === storedLabel)
                 : undefined;
             const specialId = matched?.id || '';
-            const derivedDisplay = deriveRowDisplay(type, specialId);
+            const derivedDisplay = deriveRowDisplay(letter, type, specialId);
             const storedValue = bv.value != null ? String(bv.value) : '';
             // Treat a stored value that differs from the derived one as a manual override.
             const overrideStr = storedValue && storedValue !== derivedDisplay ? storedValue : '';
             return {
                 slot: letter,
                 slotLabel,
+                unlocked,
+                unlockLevel: BV_UNLOCK_LEVEL[letter],
                 type,
                 isNone: false,
                 isSpecial,
@@ -499,6 +524,11 @@ export class NodeEditor extends BaseDialog {
                     .join(' → ')
                 : '';
             const mode = p?.kind === 'power' ? resolvePowerPickMode(p) : { powerMode: 'martial', templateId: '', displayName: '' };
+            const catalogSpecialKey = p?.kind === 'power' && p.chosenSpecial?.key && !p.delivery ? p.chosenSpecial.key : '';
+            const needsCatalogSpecial = p?.kind === 'power' &&
+                mode.powerMode !== 'martial' &&
+                !!mode.templateId &&
+                catalogTemplateRequiresSpecial(mode.templateId);
             return {
                 level: lvl,
                 kind: p?.kind || 'none',
@@ -511,8 +541,12 @@ export class NodeEditor extends BaseDialog {
                 selectedTemplateId: mode.templateId,
                 displayName: mode.displayName,
                 delivery: legacy?.delivery || '',
-                specialKey: legacy?.specialKey || '',
+                specialKey: legacy?.specialKey || catalogSpecialKey,
                 needsSpecial: legacy?.needsSpecial || false,
+                needsCatalogSpecial,
+                catalogSpecialOptions: needsCatalogSpecial && mode.templateId
+                    ? listCatalogSpecialOptions(mode.templateId)
+                    : [],
                 stoneKind: sf?.kind || '',
                 stoneAttr: sf?.attribute || '',
                 stonePowerId: sf?.stonePowerId || '',
@@ -585,12 +619,23 @@ export class NodeEditor extends BaseDialog {
         const typeDerivedMap = (this._typeDerivedMap || {});
         const specialValueMap = (this._specialValueMap || {});
         const syncBvRow = ($row) => {
+            const slotLetter = (String($row.attr('data-bv-slot') || 'a').toLowerCase() || 'a');
+            const nodeLevel = Math.max(1, Math.min(10, Number(this._nodeLevel) || 1));
+            const unlocked = isBaseValueSlotUnlocked(slotLetter, nodeLevel);
             const type = String($row.find('.node-spec-bv-type').val() || '');
             const isSpecial = type === 'weaponSpecial';
             $row.find('.node-spec-bv-special').toggleClass('hidden', !isSpecial);
             const isNone = type === 'none' || type === '';
-            // A "None" slot has nothing to derive or override.
-            $row.find('.node-spec-bv-override').prop('disabled', isNone);
+            $row.find('.node-spec-bv-override').prop('disabled', isNone || !unlocked);
+            if (!unlocked) {
+                $row
+                    .find('.node-spec-bv-derived')
+                    .text(`— (unlocks L${BV_UNLOCK_LEVEL[slotLetter]})`)
+                    .attr('data-derived', '');
+                $row.find('.node-spec-bv-override').attr('placeholder', `Unlocks at L${BV_UNLOCK_LEVEL[slotLetter]}`);
+                return;
+            }
+            $row.find('.node-spec-bv-override').attr('placeholder', 'Value');
             let derived = '';
             if (isSpecial) {
                 const sid = String($row.find('.node-spec-bv-special').val() || '');
@@ -757,6 +802,23 @@ export class NodeEditor extends BaseDialog {
                 $sel.append(`<option value="${escHtml(o.id)}"${sel}>${escHtml(o.name)}</option>`);
             }
         };
+        const populateCatalogSpecialSelect = ($row, templateId, desired) => {
+            const $wrap = $row.find('.node-pick-catalog-special-wrap');
+            const $sel = $row.find('.node-pick-catalog-special');
+            const needs = catalogTemplateRequiresSpecial(templateId);
+            $wrap.toggleClass('hidden', !needs);
+            if (!needs) {
+                $sel.empty();
+                return;
+            }
+            const opts = listCatalogSpecialOptions(templateId);
+            $sel.empty();
+            $sel.append('<option value="">— Choose Special —</option>');
+            for (const o of opts) {
+                const sel = o.key === desired ? ' selected' : '';
+                $sel.append(`<option value="${escHtml(o.key)}" title="${escHtml(o.description)}"${sel}>${escHtml(o.label)}</option>`);
+            }
+        };
         const syncProgressionRow = ($row) => {
             const kind = String($row.find('.node-pick-kind').val() || 'none');
             $row.find('.node-pick-power-wrap').toggleClass('hidden', kind !== 'power');
@@ -764,6 +826,8 @@ export class NodeEditor extends BaseDialog {
             const mode = String($row.find('.node-pick-power-mode').val() || 'martial');
             $row.find('.node-pick-martial').toggleClass('hidden', mode !== 'martial');
             $row.find('.node-pick-template-wrap').toggleClass('hidden', mode === 'martial');
+            const templateId = String($row.find('.node-pick-template').val() || '');
+            populateCatalogSpecialSelect($row, templateId, String($row.find('.node-pick-catalog-special').val() || ''));
             const stoneKind = String($row.find('.node-pick-stone-kind').val() || '');
             $row.find('.node-pick-stone-power-wrap').toggleClass('hidden', stoneKind !== 'stonePowerSupport');
         };
@@ -853,6 +917,11 @@ export class NodeEditor extends BaseDialog {
             const $tpl = $row.find('.node-pick-template');
             if ($tpl.length)
                 $tpl.val(String($tpl.attr('data-current') || ''));
+            const $catalogSpecial = $row.find('.node-pick-catalog-special');
+            if ($catalogSpecial.length) {
+                $catalogSpecial.val(String($catalogSpecial.attr('data-current') || ''));
+            }
+            populateCatalogSpecialSelect($row, String($tpl.val() || $tpl.attr('data-current') || ''), String($catalogSpecial.attr('data-current') || ''));
             populateStonePowerSelect($row, String($row.find('.node-pick-stone-power').attr('data-current') || ''));
             syncProgressionRow($row);
         });
@@ -871,10 +940,16 @@ export class NodeEditor extends BaseDialog {
             const mode = String($(e.currentTarget).val() || 'martial');
             if (mode !== 'martial')
                 populatePowerTemplateSelect($row, mode, '');
+            populateCatalogSpecialSelect($row, '', '');
             syncProgressionRow($row);
             rebuildLevelProgressionPreview();
         });
-        html.on('change', '.node-pick-template, .node-pick-name', () => {
+        html.on('change', '.node-pick-template, .node-pick-name, .node-pick-catalog-special', (e) => {
+            const $row = $(e.currentTarget).closest('.node-progression-pick');
+            if ($(e.currentTarget).hasClass('node-pick-template')) {
+                populateCatalogSpecialSelect($row, String($(e.currentTarget).val() || ''), '');
+            }
+            syncProgressionRow($row);
             rebuildLevelProgressionPreview();
         });
         html.on('change', '.node-pick-stone-kind', (e) => {
@@ -1152,9 +1227,13 @@ export class NodeEditor extends BaseDialog {
                 usedTypes.add(typeRaw);
             }
             usedLetters.add(slotLetter);
-            // Value: manual override wins, else the auto-derived value.
+            const nodeLevel = Math.max(1, Math.min(10, Number(this.item.system.level) || 1));
+            const bvUnlocked = isBaseValueSlotUnlocked(slotLetter, nodeLevel);
+            // Value: manual override wins, else the auto-derived value (only when unlocked).
             const overrideStr = String($row.find('.node-spec-bv-override').val() || '').trim();
-            const derivedStr = String($row.find('.node-spec-bv-derived').attr('data-derived') || '').trim();
+            const derivedStr = bvUnlocked
+                ? String($row.find('.node-spec-bv-derived').attr('data-derived') || '').trim()
+                : '';
             const valueStr = overrideStr || derivedStr;
             const valueNum = Number(valueStr);
             baseValues.push({
