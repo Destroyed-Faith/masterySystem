@@ -25,9 +25,13 @@
           <div class="cp-ability-head">
             <span class="cp-ability-name">{{label}}</span>
             <span class="cp-ability-value-row">
-              <span class="cp-ability-value cp-ability-value-full">{{value}}</span>
+              <span class="cp-ability-value cp-ability-value-full">
+                <span class="cp-pool-pct">0%</span> {{value}}
+              </span>
               {{#each poolTiers}}
-              <span class="cp-ability-value cp-ability-value-wound">{{pool}}</span>
+              <span class="cp-ability-value cp-ability-value-wound">
+                <span class="cp-pool-pct">{{label}}</span> {{pool}}
+              </span>
               {{/each}}
             </span>
           </div>
@@ -458,7 +462,7 @@
       </div>
     </div>
 
-    <div class="cp-battle-arrow">&#10142;</div>
+    <div class="cp-battle-arrow">&#8596;</div>
 
     {{!-- Attack Action: heading spans both Active and Active Buffs columns --}}
     <div class="cp-battle-attack">
@@ -474,9 +478,11 @@
               <span class="cp-use-box"></span>
               <span class="cp-battle-card-body">
                 <span class="cp-battle-card-name">{{name}}{{#unless fromArtifact}}{{#if rank}} <span class="cp-battle-card-rank">Stufe {{rank}}</span>{{/if}}{{/unless}}{{#if fromArtifact}} <span class="cp-power-artifact" title="From artifact: {{source}}">&#9733; {{source}}</span>{{/if}}</span>
-                {{#if effect}}<span class="cp-battle-card-eff">{{effect}}</span>{{/if}}
+                {{#if attackKind}}<span class="cp-battle-card-kind">{{attackKind}}</span>{{/if}}
+                {{#unless battleCompact}}{{#if effect}}<span class="cp-battle-card-eff">{{effect}}</span>{{/if}}{{/unless}}
                 {{#if attackRoll}}<span class="cp-battle-card-roll"><strong>Attack:</strong> {{attackRoll}}</span>{{/if}}
-                {{#if damageRoll}}<span class="cp-battle-card-roll"><strong>Damage:</strong> {{damageRoll}}</span>{{/if}}
+                {{#if damageRoll}}{{#if (eq rollKind "heal")}}<span class="cp-battle-card-roll"><strong>Heal:</strong> {{damageRoll}}</span>{{else}}<span class="cp-battle-card-roll"><strong>Damage:</strong> {{damageRoll}}</span>{{/if}}{{/if}}
+                {{#if battleFootnote}}<span class="cp-battle-card-footnote">{{battleFootnote}}</span>{{/if}}
               </span>
             </div>
             {{/each}}
@@ -509,7 +515,7 @@
       </div>
     </div>
 
-    <div class="cp-battle-arrow">&#10142;</div>
+    <div class="cp-battle-arrow">&#8596;</div>
 
     <div class="cp-battle-col cp-battle-col-reactions">
       <div class="cp-battle-col-title">Reactions</div>
@@ -520,9 +526,11 @@
           <span class="cp-use-box"></span>
           <span class="cp-battle-card-body">
             <span class="cp-battle-card-name">{{name}}{{#unless fromArtifact}}{{#if rank}} <span class="cp-battle-card-rank">Stufe {{rank}}</span>{{/if}}{{/unless}}{{#if fromArtifact}} <span class="cp-power-artifact" title="From artifact: {{source}}">&#9733; {{source}}</span>{{/if}}</span>
-            {{#if effect}}<span class="cp-battle-card-eff">{{effect}}</span>{{/if}}
+            {{#if attackKind}}<span class="cp-battle-card-kind">{{attackKind}}</span>{{/if}}
+            {{#unless battleCompact}}{{#if effect}}<span class="cp-battle-card-eff">{{effect}}</span>{{/if}}{{/unless}}
             {{#if attackRoll}}<span class="cp-battle-card-roll"><strong>Attack:</strong> {{attackRoll}}</span>{{/if}}
-            {{#if damageRoll}}<span class="cp-battle-card-roll"><strong>Damage:</strong> {{damageRoll}}</span>{{/if}}
+            {{#if damageRoll}}{{#if (eq rollKind "heal")}}<span class="cp-battle-card-roll"><strong>Heal:</strong> {{damageRoll}}</span>{{else}}<span class="cp-battle-card-roll"><strong>Damage:</strong> {{damageRoll}}</span>{{/if}}{{/if}}
+            {{#if battleFootnote}}<span class="cp-battle-card-footnote">{{battleFootnote}}</span>{{/if}}
           </span>
         </div>
         {{/each}}

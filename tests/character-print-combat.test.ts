@@ -66,15 +66,14 @@ describe('buildPrintCombatPreview', () => {
     const actor = mockActor({ agility: 16, might: 12 });
     const preview = buildPrintCombatPreview(actor, meleePower({ tree: 'Grim Hunter' }), []);
     expect(preview?.attackLabel).toBe('Agility');
-    expect(preview?.attackValue).toBe(16);
-    expect(preview?.damage).toBe('1d8 + 6d8');
+    expect(preview?.damage).toBe('WD 1d8 + 6d8');
   });
 
   it('adds melee weapon damage for matching martial power', () => {
     const weapon = meleeArtifact(4);
     const actor = mockActor({ might: 14 }, [weapon]);
     const preview = buildPrintCombatPreview(actor, meleePower(), [weapon]);
-    expect(preview?.damage).toBe('6d8 + 6d8');
+    expect(preview?.damage).toBe('WD 6d8 + 6d8');
   });
 
   it('excludes weapon damage for ranged spells', () => {
@@ -82,7 +81,6 @@ describe('buildPrintCombatPreview', () => {
     const actor = mockActor({ intellect: 18 }, [weapon]);
     const preview = buildPrintCombatPreview(actor, rangedSpellPower(), [weapon]);
     expect(preview?.attackLabel).toBe('Intellect');
-    expect(preview?.attackValue).toBe(18);
     expect(preview?.damage).toBe('8d8');
     expect(preview?.damage).not.toContain('4d8');
   });
@@ -107,7 +105,7 @@ describe('buildPrintCombatPreview', () => {
     });
     const actor = mockActor({ might: 14 });
     const preview = buildPrintCombatPreview(actor, power, []);
-    expect(preview?.damage).toContain('1d8 + 6d8');
+    expect(preview?.damage).toContain('WD 1d8 + 6d8');
     expect(preview?.damage).toContain('Penetration(3)');
   });
 
@@ -149,5 +147,73 @@ describe('buildPrintCombatPreview', () => {
     expect(preview?.attackLabel).toBe('');
     expect(preview?.damage).toBe('2d8 + Bulwark(2)');
     expect(preview?.damage).not.toContain('6d8');
+  });
+
+  it('shows heal dice and footnote without attack line', () => {
+    const heal = {
+      type: 'power',
+      system: {
+        slot: 'attack',
+        cost: { action: 'attack' },
+        subfamily: 'heal',
+        level: 4,
+        levels: {
+          '4': {
+            type: 'Self',
+            mechanics: { healing: { flat: '10d8' } },
+          },
+        },
+      },
+    };
+    const actor = mockActor({ resolve: 16 });
+    const preview = buildPrintCombatPreview(actor, heal, []);
+    expect(preview?.showAttack).toBe(false);
+    expect(preview?.rollKind).toBe('heal');
+    expect(preview?.damage).toBe('10d8');
+    expect(preview?.footnote).toMatch(/Safe Haven Rest/i);
+  });
+
+  it('labels melee attacks and includes weapon damage on reactions', () => {
+    const weapon = meleeArtifact(4);
+    const reaction = {
+      type: 'power',
+      system: {
+        slot: 'reaction',
+        level: 4,
+        levels: {
+          '4': {
+            type: 'Melee',
+            mechanics: { damageRider: { flat: '4d8' } },
+          },
+        },
+      },
+    };
+    const actor = mockActor({ might: 14 }, [weapon]);
+    const preview = buildPrintCombatPreview(actor, reaction, [weapon], 'reaction');
+    expect(preview?.attackKind).toBeUndefined();
+    expect(preview?.showAttack).toBe(false);
+    expect(preview?.damage).toBe('WD 6d8 + 4d8');
+  });
+
+  it('labels ranged AoE attacks', () => {
+    const aoe = {
+      type: 'power',
+      system: {
+        slot: 'attack',
+        cost: { action: 'attack' },
+        level: 4,
+        levels: {
+          '4': {
+            type: 'Ranged AoE',
+            effect: { dice: '6d8' },
+            aoe: { shape: 'burst', radiusM: 3 },
+          },
+        },
+      },
+    };
+    const actor = mockActor({ agility: 16 });
+    const preview = buildPrintCombatPreview(actor, aoe, []);
+    expect(preview?.attackKind).toBe('Ranged AoE Attack');
+    expect(preview?.attackLabel).toBe('Agility');
   });
 });

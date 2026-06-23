@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.149] - 2026-06-23
+
+### Changed
+
+- **Printable character sheet — battle cheat & readability:** Attribute rows now label wound-track dice pools (`0%`, `10%`, `20%`, `40%`, `50%`). Page 2 skills and Stone Power list fonts slightly larger. Battle sheet uses compact cheat lines (Melee/Ranged/AoE Attack, Attack attribute, Damage with `WD` weapon prefix, Heal + Safe Haven footnote) instead of long effect fluff; reactions include weapon damage; flow arrows are bidirectional (`↔`).
+
 ## [0.9.137] - 2026-06-19
 
 ### Fixed

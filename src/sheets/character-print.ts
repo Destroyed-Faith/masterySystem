@@ -79,12 +79,12 @@ const ATTR_ORDER = [
 /** Stone-threshold ladder printed next to every ability (one cell per 8 points). */
 const ABILITY_LADDER = [8, 16, 24, 32, 40, 48, 56, 64, 72, 80];
 
-/** Health wound-track pool penalties (not the health bar UI — dice pool at each tier). */
+/** Health wound-track pool penalties (dice pool at each penalty tier). */
 const HEALTH_POOL_TIERS = [
-  { label: '−10%', fraction: 0.1 },
-  { label: '−20%', fraction: 0.2 },
-  { label: '−40%', fraction: 0.4 },
-  { label: '−50%', fraction: 0.5 },
+  { label: '10%', fraction: 0.1 },
+  { label: '20%', fraction: 0.2 },
+  { label: '40%', fraction: 0.4 },
+  { label: '50%', fraction: 0.5 },
 ] as const;
 
 function poolAtHealthFraction(pool: number, fraction: number): number {
@@ -585,8 +585,14 @@ export function buildCharacterPrintContext(actor: any): Record<string, unknown> 
     if (!powerItem) return;
     const preview = buildPrintCombatPreview(actor, powerItem, allItems, slot);
     if (!preview) return;
-    if (preview.showAttack) entry.attackRoll = preview.attackLabel;
-    if (preview.showDamage) entry.damageRoll = preview.damage;
+    entry.battleCompact = true;
+    if (preview.attackKind) entry.attackKind = preview.attackKind;
+    if (preview.showAttack && preview.attackLabel) entry.attackRoll = preview.attackLabel;
+    if (preview.showDamage && preview.damage) {
+      entry.rollKind = preview.rollKind ?? 'damage';
+      entry.damageRoll = preview.damage;
+    }
+    if (preview.footnote) entry.battleFootnote = preview.footnote;
   }
 
   function formatWeaponProfile(
