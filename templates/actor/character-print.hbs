@@ -299,6 +299,27 @@
   {{/if}}
   {{/each}}
 
+  <div class="cp-block cp-powers">
+    <h3 class="cp-block-title">Martial / Spell / Form Powers</h3>
+    <div class="cp-power-grid">
+      {{#each martialPowers}}
+      <div class="cp-power-card{{#unless name}} is-empty{{/unless}}">
+        {{#if name}}
+        <div class="cp-power-card-head">
+          <span class="cp-power-name">{{name}}{{#unless hideRank}}{{#if rank}} <span class="cp-battle-card-rank">Stufe {{rank}}</span>{{/if}}{{/unless}}</span>
+          <span class="cp-power-tile">
+            {{#if isSpell}}<span class="cp-power-spell" title="{{spellLabel}}">Spell</span>{{/if}}
+            {{#if fromArtifact}}<span class="cp-power-artifact" title="From artifact: {{source}}">&#9733;</span>{{/if}}
+            {{#if phase}}<span class="cp-phase cp-phase-{{phaseClass}}">{{phase}}</span>{{/if}}
+          </span>
+        </div>
+        {{#if effect}}<div class="cp-power-effect">{{effect}}</div>{{/if}}
+        {{/if}}
+      </div>
+      {{/each}}
+    </div>
+  </div>
+
   <div class="cp-page-footer">-- 2 of {{pageTotal}} --</div>
 </section>
 
@@ -477,7 +498,7 @@
             <div class="cp-battle-card">
               <span class="cp-use-box"></span>
               <span class="cp-battle-card-body">
-                <span class="cp-battle-card-name">{{name}}{{#unless fromArtifact}}{{#if rank}} <span class="cp-battle-card-rank">Stufe {{rank}}</span>{{/if}}{{/unless}}{{#if fromArtifact}} <span class="cp-power-artifact" title="From artifact: {{source}}">&#9733; {{source}}</span>{{/if}}</span>
+                <span class="cp-battle-card-name">{{name}}{{#unless fromArtifact}}{{#unless hideRank}}{{#if rank}} <span class="cp-battle-card-rank">Stufe {{rank}}</span>{{/if}}{{/unless}}{{/unless}}{{#if isSpell}} <span class="cp-power-spell" title="{{spellLabel}}">Spell</span>{{/if}}{{#if fromArtifact}} <span class="cp-power-artifact" title="From artifact: {{source}}">&#9733; {{source}}</span>{{/if}}</span>
                 {{#if attackKind}}<span class="cp-battle-card-kind">{{attackKind}}</span>{{/if}}
                 {{#unless battleCompact}}{{#if effect}}<span class="cp-battle-card-eff">{{effect}}</span>{{/if}}{{/unless}}
                 {{#if attackRoll}}<span class="cp-battle-card-roll"><strong>Attack:</strong> {{attackRoll}}</span>{{/if}}
@@ -500,7 +521,7 @@
             <div class="cp-battle-card cp-battle-card-buff">
               <span class="cp-use-box"></span>
               <span class="cp-battle-card-body">
-                <span class="cp-battle-card-name">{{name}}{{#unless fromArtifact}}{{#if rank}} <span class="cp-battle-card-rank">Stufe {{rank}}</span>{{/if}}{{/unless}}{{#if fromArtifact}} <span class="cp-power-artifact" title="From artifact: {{source}}">&#9733; {{source}}</span>{{/if}}</span>
+                <span class="cp-battle-card-name">{{name}}{{#unless fromArtifact}}{{#unless hideRank}}{{#if rank}} <span class="cp-battle-card-rank">Stufe {{rank}}</span>{{/if}}{{/unless}}{{/unless}}{{#if isSpell}} <span class="cp-power-spell" title="{{spellLabel}}">Spell</span>{{/if}}{{#if fromArtifact}} <span class="cp-power-artifact" title="From artifact: {{source}}">&#9733; {{source}}</span>{{/if}}</span>
                 {{#if effect}}<span class="cp-battle-card-eff"><strong>Effect:</strong> {{effect}}</span>{{/if}}
                 {{#if damageRoll}}<span class="cp-battle-card-roll"><strong>Damage:</strong> {{damageRoll}}</span>{{/if}}
               </span>
@@ -525,7 +546,7 @@
         <div class="cp-battle-card cp-battle-card-reaction">
           <span class="cp-use-box"></span>
           <span class="cp-battle-card-body">
-            <span class="cp-battle-card-name">{{name}}{{#unless fromArtifact}}{{#if rank}} <span class="cp-battle-card-rank">Stufe {{rank}}</span>{{/if}}{{/unless}}{{#if fromArtifact}} <span class="cp-power-artifact" title="From artifact: {{source}}">&#9733; {{source}}</span>{{/if}}</span>
+            <span class="cp-battle-card-name">{{name}}{{#unless fromArtifact}}{{#unless hideRank}}{{#if rank}} <span class="cp-battle-card-rank">Stufe {{rank}}</span>{{/if}}{{/unless}}{{/unless}}{{#if isSpell}} <span class="cp-power-spell" title="{{spellLabel}}">Spell</span>{{/if}}{{#if fromArtifact}} <span class="cp-power-artifact" title="From artifact: {{source}}">&#9733; {{source}}</span>{{/if}}</span>
             {{#if attackKind}}<span class="cp-battle-card-kind">{{attackKind}}</span>{{/if}}
             {{#unless battleCompact}}{{#if effect}}<span class="cp-battle-card-eff">{{effect}}</span>{{/if}}{{/unless}}
             {{#if attackRoll}}<span class="cp-battle-card-roll"><strong>Attack:</strong> {{attackRoll}}</span>{{/if}}
@@ -550,7 +571,7 @@
       {{#each battle.passives}}
       <div class="cp-battle-card cp-battle-card-passive">
         <span class="cp-battle-card-body">
-          <span class="cp-battle-card-name">{{name}}{{#unless fromArtifact}}{{#if rank}} <span class="cp-battle-card-rank">Stufe {{rank}}</span>{{/if}}{{/unless}}{{#if fromArtifact}} <span class="cp-power-artifact" title="From artifact: {{source}}">&#9733; {{source}}</span>{{/if}}</span>
+          <span class="cp-battle-card-name">{{name}}{{#unless fromArtifact}}{{#unless hideRank}}{{#if rank}} <span class="cp-battle-card-rank">Stufe {{rank}}</span>{{/if}}{{/unless}}{{/unless}}{{#if isSpell}} <span class="cp-power-spell" title="{{spellLabel}}">Spell</span>{{/if}}{{#if fromArtifact}} <span class="cp-power-artifact" title="From artifact: {{source}}">&#9733; {{source}}</span>{{/if}}</span>
           {{#if effect}}<span class="cp-battle-card-eff">{{effect}}</span>{{/if}}
         </span>
       </div>

@@ -16,7 +16,9 @@ import type {
   ArtifactStoneFunction,
   ArtifactStoneFunctionKind,
   ArtifactWeaponProfile,
-  ArtifactWeaponSpecialRef
+  ArtifactWeaponSpecialRef,
+  CastingAttribute,
+  SpellResolution,
 } from '../types/item.js';
 import {
   ARTIFACT_GEAR_SLOT_OPTIONS,
@@ -84,6 +86,7 @@ import {
   catalogTemplateRequiresSpecial,
   listCatalogSpecialOptions,
 } from '../utils/artifact-catalog-pick.js';
+import { artifactPickCanBeSpell, uiTemplateIdCanBeSpell } from '../utils/artifact-spell-pick.js';
 
 // Use V1 Application for reliable template rendering in v13
 const BaseDialog: any = (foundry as any)?.appv1?.Application || (Application as any);
@@ -162,34 +165,94 @@ function resolvePowerPickMode(pick: ArtifactProgressionPick): {
  */
 function readPowerPickFieldsFromRow(
   $row: JQuery,
-): Pick<ArtifactProgressionPick, 'powerTemplateId' | 'delivery' | 'chosenSpecial' | 'displayName'> | null {
+): Pick<
+  ArtifactProgressionPick,
+  | 'powerTemplateId'
+  | 'delivery'
+  | 'chosenSpecial'
+  | 'displayName'
+  | 'isSpell'
+  | 'castingAttribute'
+  | 'spellResolution'
+> | null {
   const displayName = String($row.find('.node-pick-name').val() || '').trim() || undefined;
   const templateId = String($row.find('.node-pick-template').val() || '').trim();
   if (!templateId) return null;
 
   const martialDelivery = parseMartialDeliveryPickId(templateId);
+  let resolved: Pick<
+    ArtifactProgressionPick,
+    'powerTemplateId' | 'delivery' | 'chosenSpecial' | 'displayName'
+  > | null = null;
+
   if (martialDelivery) {
     const specialKey = String($row.find('.node-pick-catalog-special').val() || '').trim();
     if (!specialKey) return null;
     try {
-      return { ...resolvePickFromUi(martialDelivery, specialKey), displayName };
+      resolved = { ...resolvePickFromUi(martialDelivery, specialKey), displayName };
     } catch {
       return null;
     }
-  }
-
-  if (catalogTemplateRequiresSpecial(templateId)) {
+  } else if (catalogTemplateRequiresSpecial(templateId)) {
     const specialKey = String($row.find('.node-pick-catalog-special').val() || '').trim();
     if (!specialKey) return null;
     const tier = catalogSpecialTierForTemplate(templateId);
     if (!tier) return null;
-    return {
+    resolved = {
       powerTemplateId: templateId,
       displayName,
       chosenSpecial: { key: specialKey, tier },
     };
+  } else {
+    resolved = { powerTemplateId: templateId, displayName };
   }
-  return { powerTemplateId: templateId, displayName };
+
+  const spellFields = readSpellFieldsFromRow($row, resolved);
+  return { ...resolved, ...spellFields };
+}
+
+function readSpellFieldsFromRow(
+  $row: JQuery,
+  pick: Pick<ArtifactProgressionPick, 'powerTemplateId' | 'delivery'>,
+): Pick<ArtifactProgressionPick, 'isSpell' | 'castingAttribute' | 'spellResolution'> {
+  const uiTemplateId = String($row.find('.node-pick-template').val() || '').trim();
+  if (!artifactPickCanBeSpell(pick, uiTemplateId)) {
+    return { isSpell: false };
+  }
+  const isSpell = $row.find('.node-pick-is-spell').prop('checked') === true;
+  if (!isSpell) return { isSpell: false };
+  return {
+    isSpell: true,
+    castingAttribute:
+      (String($row.find('.node-pick-casting-attr').val() || 'intellect') as CastingAttribute) ||
+      'intellect',
+    spellResolution:
+      (String($row.find('.node-pick-spell-resolution').val() || 'spellAttack') as SpellResolution) ||
+      'spellAttack',
+  };
+}
+
+function syncSpellPanel($row: JQuery): void {
+  const kind = String($row.find('.node-pick-kind').val() || 'none');
+  const mode = String($row.find('.node-pick-power-mode').val() || '');
+  const $wrap = $row.find('.node-pick-spell-wrap');
+  const $fields = $row.find('.node-pick-spell-fields');
+  if (kind !== 'power' || mode !== 'active') {
+    $wrap.addClass('hidden');
+    return;
+  }
+  const uiTemplateId = String($row.find('.node-pick-template').val() || '').trim();
+  const resolved = readPowerPickFieldsFromRow($row);
+  const canSpell = resolved
+    ? artifactPickCanBeSpell(resolved, uiTemplateId)
+    : uiTemplateIdCanBeSpell(uiTemplateId);
+  $wrap.toggleClass('hidden', !canSpell);
+  if (!canSpell) {
+    $row.find('.node-pick-is-spell').prop('checked', false);
+    $fields.addClass('hidden');
+    return;
+  }
+  $fields.toggleClass('hidden', $row.find('.node-pick-is-spell').prop('checked') !== true);
 }
 
 /** Base Value slot letters → label (letter + the Artifact Level it unlocks at). */
@@ -667,6 +730,16 @@ export class NodeEditor extends BaseDialog {
         mode.powerMode === 'active' &&
         !!mode.templateId &&
         catalogTemplateRequiresSpecial(mode.templateId);
+      const showSpellConfig =
+        p?.kind === 'power' &&
+        mode.powerMode === 'active' &&
+        artifactPickCanBeSpell(
+          {
+            powerTemplateId: p?.powerTemplateId,
+            delivery: p?.delivery,
+          },
+          mode.templateId,
+        );
       return {
         level: lvl,
         kind: p?.kind || 'none',
@@ -679,6 +752,10 @@ export class NodeEditor extends BaseDialog {
         displayName: mode.displayName,
         specialKey: catalogSpecialKey,
         needsCatalogSpecial,
+        showSpellConfig,
+        isSpell: !!p?.isSpell,
+        castingAttribute: p?.castingAttribute || 'intellect',
+        spellResolution: p?.spellResolution || 'spellAttack',
         catalogSpecialOptions:
           needsCatalogSpecial && mode.templateId
             ? listCatalogSpecialOptions(mode.templateId)
@@ -1009,6 +1086,7 @@ export class NodeEditor extends BaseDialog {
       );
       const stoneKind = String($row.find('.node-pick-stone-kind').val() || '');
       $row.find('.node-pick-stone-power-wrap').toggleClass('hidden', stoneKind !== 'stonePowerSupport');
+      syncSpellPanel($row);
     };
 
     const refreshStoneFnWarning = () => {
@@ -1125,6 +1203,13 @@ export class NodeEditor extends BaseDialog {
         populateCatalogSpecialSelect($row, String($(e.currentTarget).val() || ''), '');
       }
       syncProgressionRow($row);
+      rebuildLevelProgressionPreview();
+    });
+    html.on('change', '.node-pick-is-spell', (e: JQuery.ChangeEvent) => {
+      syncSpellPanel($(e.currentTarget).closest('.node-progression-pick'));
+      rebuildLevelProgressionPreview();
+    });
+    html.on('change', '.node-pick-casting-attr, .node-pick-spell-resolution', () => {
       rebuildLevelProgressionPreview();
     });
     html.on('change', '.node-pick-stone-kind', (e: JQuery.ChangeEvent) => {

@@ -103,6 +103,22 @@
               </span>
             </span>
             <input type="text" class="node-pick-name" value="{{row.displayName}}" placeholder="Flavor name (optional)" title="Optional display name shown to players (e.g. 'Breath Weapon'). The mechanics stay editable." />
+            <span class="node-pick-spell-wrap {{#unless row.showSpellConfig}}hidden{{/unless}}" title="Cast this ranged Active as a Spell">
+              <label class="node-pick-spell-label">
+                <input type="checkbox" class="node-pick-is-spell" {{#if row.isSpell}}checked{{/if}} />
+                Cast as Spell
+              </label>
+              <span class="node-pick-spell-fields {{#unless row.isSpell}}hidden{{/unless}}">
+                <select class="node-pick-casting-attr" title="Casting attribute">
+                  <option value="intellect" {{#if (eq row.castingAttribute "intellect")}}selected{{/if}}>Intellect</option>
+                  <option value="resolve" {{#if (eq row.castingAttribute "resolve")}}selected{{/if}}>Resolve</option>
+                </select>
+                <select class="node-pick-spell-resolution" title="Spell resolution">
+                  <option value="spellAttack" {{#if (eq row.spellResolution "spellAttack")}}selected{{/if}}>Spell Attack</option>
+                  <option value="saveSpell" {{#if (eq row.spellResolution "saveSpell")}}selected{{/if}}>Save Spell</option>
+                </select>
+              </span>
+            </span>
           </span>
           <span class="node-pick-stonefn {{#unless row.isStoneFn}}hidden{{/unless}}">
             <select class="node-pick-stone-kind">

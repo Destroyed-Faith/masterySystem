@@ -8,6 +8,8 @@
 import { RAISE_INCREMENT } from '../utils/constants.js';
 import { clampAtZero, formatD8Count, parseD8Count } from '../utils/dice-formula.js';
 import type { AoeSpec, DurationSpec, PowerSpecial, RangeSpec } from '../types/item.js';
+import type { RadialCombatOption } from '../radial-menu/types.js';
+import { artifactLevelToTemplateRank } from '../utils/artifact-spell-pick.js';
 
 export type RaiseEffectKind =
   | 'damage'
@@ -451,6 +453,40 @@ export function snapshotToSpecialStrings(snapshot: PowerSnapshot): string[] {
     const name = sp.key.charAt(0).toUpperCase() + sp.key.slice(1);
     return `${name}(${sp.rank})`;
   });
+}
+
+/** Load template level data for an artifact radial option flagged as a Spell. */
+export async function loadPowerSnapshotForArtifactOption(
+  option: RadialCombatOption,
+): Promise<{ snapshot: PowerSnapshot; isSpell: boolean; levelData: any | null } | null> {
+  if (!option.artifactIsSpell || !option.artifactPowerTemplateId) return null;
+  const templateId = option.artifactPowerTemplateId;
+  const pl = artifactLevelToTemplateRank(option.artifactRowLevel || 1);
+  const chosenKey = option.artifactChosenSpecialKey;
+
+  let levelData: any = null;
+  try {
+    const powersModule = await import('../utils/powers/index.js' as any);
+    const templates = powersModule.ALL_POWER_TEMPLATES || [];
+    const powerDef = templates.find((t: any) => t?.templateId === templateId);
+    if (powerDef?.levels) {
+      levelData = powerDef.levels[pl] ?? null;
+      if (levelData && chosenKey) {
+        const specials = (levelData.specials || []).map((s: PowerSpecial) =>
+          s.key === 'SPECIAL' ? { ...s, key: chosenKey } : s,
+        );
+        levelData = { ...levelData, specials };
+      }
+    }
+  } catch {
+    /* template optional */
+  }
+
+  const fallbackSpecials: string[] = (levelData?.specials || []).map((s: PowerSpecial) =>
+    s.rank != null ? `${s.key}(${s.rank})` : s.key,
+  );
+  const snapshot = buildPowerSnapshotFromLevelData(levelData, '0', fallbackSpecials);
+  return { snapshot, isSpell: true, levelData };
 }
 
 /** Load template level data for a power item (attack card / damage dialog). */

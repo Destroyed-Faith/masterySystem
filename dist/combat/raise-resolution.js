@@ -6,6 +6,7 @@
  */
 import { RAISE_INCREMENT } from '../utils/constants.js';
 import { clampAtZero, formatD8Count, parseD8Count } from '../utils/dice-formula.js';
+import { artifactLevelToTemplateRank } from '../utils/artifact-spell-pick.js';
 function cloneSnapshot(s) {
     return {
         ...s,
@@ -313,6 +314,33 @@ export function snapshotToSpecialStrings(snapshot) {
         const name = sp.key.charAt(0).toUpperCase() + sp.key.slice(1);
         return `${name}(${sp.rank})`;
     });
+}
+/** Load template level data for an artifact radial option flagged as a Spell. */
+export async function loadPowerSnapshotForArtifactOption(option) {
+    if (!option.artifactIsSpell || !option.artifactPowerTemplateId)
+        return null;
+    const templateId = option.artifactPowerTemplateId;
+    const pl = artifactLevelToTemplateRank(option.artifactRowLevel || 1);
+    const chosenKey = option.artifactChosenSpecialKey;
+    let levelData = null;
+    try {
+        const powersModule = await import('../utils/powers/index.js');
+        const templates = powersModule.ALL_POWER_TEMPLATES || [];
+        const powerDef = templates.find((t) => t?.templateId === templateId);
+        if (powerDef?.levels) {
+            levelData = powerDef.levels[pl] ?? null;
+            if (levelData && chosenKey) {
+                const specials = (levelData.specials || []).map((s) => s.key === 'SPECIAL' ? { ...s, key: chosenKey } : s);
+                levelData = { ...levelData, specials };
+            }
+        }
+    }
+    catch {
+        /* template optional */
+    }
+    const fallbackSpecials = (levelData?.specials || []).map((s) => s.rank != null ? `${s.key}(${s.rank})` : s.key);
+    const snapshot = buildPowerSnapshotFromLevelData(levelData, '0', fallbackSpecials);
+    return { snapshot, isSpell: true, levelData };
 }
 /** Load template level data for a power item (attack card / damage dialog). */
 export async function loadPowerSnapshotForItem(powerItem) {

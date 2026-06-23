@@ -827,6 +827,10 @@ export interface ArtifactProgressionPick {
    * underlying catalog template/mechanics are unchanged and still editable.
    */
   displayName?: string;
+  /** Ranged Active picks only: cast this line as a Spell (Intellect / Resolve). */
+  isSpell?: boolean;
+  castingAttribute?: CastingAttribute;
+  spellResolution?: SpellResolution;
 }
 
 /**
@@ -844,6 +848,14 @@ export interface ArtifactLevelProgressionRow {
   duration?: string;
   effect?: string;
   special?: string;
+  /** Catalog template backing this row (power picks only). */
+  powerTemplateId?: string;
+  /** Bound Special key when the pick uses a catalog Special slot. */
+  chosenSpecialKey?: string;
+  /** Propagated from the pick when this Active is cast as a Spell. */
+  isSpell?: boolean;
+  castingAttribute?: CastingAttribute;
+  spellResolution?: SpellResolution;
   /** Optional structured power if this row also grants a usable Active/Reaction. */
   embeddedPowerId?: string;
 }

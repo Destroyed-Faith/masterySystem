@@ -43,6 +43,12 @@ export interface RadialCombatOption {
     /** Artifact level-progression metadata (set for artifact-derived options). */
     artifactRowSpecial?: string;
     artifactRowLevel?: number;
+    /** Active-as-Spell metadata propagated from artifact progression picks. */
+    artifactIsSpell?: boolean;
+    artifactCastingAttribute?: string;
+    artifactSpellResolution?: 'spellAttack' | 'saveSpell';
+    artifactPowerTemplateId?: string;
+    artifactChosenSpecialKey?: string;
     costsMovement?: boolean;
     costsAction?: boolean;
     /** Melee attack power with a radius AoE: one pick applies the attack to every hostile in reach. */

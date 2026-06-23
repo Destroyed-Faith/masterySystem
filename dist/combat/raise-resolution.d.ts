@@ -5,6 +5,7 @@
  * Raise Cost is paid before the roll; restored only on full Raise success.
  */
 import type { AoeSpec, DurationSpec, PowerSpecial, RangeSpec } from '../types/item.js';
+import type { RadialCombatOption } from '../radial-menu/types.js';
 export type RaiseEffectKind = 'damage' | 'specialPlus' | 'rangePlus' | 'aoeRadiusPlus' | 'durationPlus';
 export type RaiseOutcome = 'fail' | 'partial' | 'full';
 export interface PowerSpecialEntry {
@@ -98,6 +99,12 @@ export declare function buildPowerSnapshotFromLevelData(levelData: {
 export declare function parseDeclaredRaises(raw: string | null | undefined): DeclaredRaise[];
 export declare function snapshotToDamageFormula(snapshot: PowerSnapshot): string;
 export declare function snapshotToSpecialStrings(snapshot: PowerSnapshot): string[];
+/** Load template level data for an artifact radial option flagged as a Spell. */
+export declare function loadPowerSnapshotForArtifactOption(option: RadialCombatOption): Promise<{
+    snapshot: PowerSnapshot;
+    isSpell: boolean;
+    levelData: any | null;
+} | null>;
 /** Load template level data for a power item (attack card / damage dialog). */
 export declare function loadPowerSnapshotForItem(powerItem: any): Promise<{
     snapshot: PowerSnapshot;

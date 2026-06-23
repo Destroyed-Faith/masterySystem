@@ -14,6 +14,7 @@
  */
 
 import { SKILLS } from '../utils/skills.js';
+import type { ArtifactLevelProgressionRow } from '../types/item.js';
 import { resolvePowerCategoryFromItem } from '../utils/power-catalog.js';
 import { getArtifactStoneFunctionStatus } from '../utils/artifact-stone-functions.js';
 import { countArtifactActivationStones, artifactBindingNamesByAttr } from '../utils/artifact-stone-bound.js';
@@ -41,7 +42,7 @@ import {
 import { deriveArtifactWeaponDamage } from '../utils/artifact-base-derive.js';
 import { getDisadvantageDefinition } from '../system/disadvantages.js';
 import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
-import { buildPrintCombatPreview, type BattlePrintSlot } from './character-print-combat.js';
+import { buildPrintCombatPreview, type BattlePrintSlot, buildPrintCombatPreviewForArtifactRow, buildArtifactRowSpellPrintMeta, buildSpellPrintMeta } from './character-print-combat.js';
 
 /** Human-readable label per Stone Function kind (technical summary). */
 const STONE_FN_KIND_LABEL: Record<string, string> = {
@@ -177,6 +178,15 @@ function powerSortRank(label: string): number {
   if (c.includes('movement')) return 3;
   if (c.includes('ultimate')) return 4;
   return 0; // active / everything else first
+}
+
+function phaseCssClass(phase: string): string {
+  const p = String(phase || '').toLowerCase();
+  if (p.includes('buff')) return 'Buff';
+  if (p.includes('reaction')) return 'Reaction';
+  if (p.includes('movement')) return 'Movement';
+  if (p.includes('passive')) return 'Passive';
+  return 'Active';
 }
 
 function stripHtml(value: unknown): string {
@@ -581,9 +591,12 @@ export function buildCharacterPrintContext(actor: any): Record<string, unknown> 
     entry: Record<string, unknown>,
     powerItem: any | null,
     slot: BattlePrintSlot,
+    artifactRow?: ArtifactLevelProgressionRow | null,
   ): void {
-    if (!powerItem) return;
-    const preview = buildPrintCombatPreview(actor, powerItem, allItems, slot);
+    let preview = powerItem ? buildPrintCombatPreview(actor, powerItem, allItems, slot) : null;
+    if (!preview && artifactRow) {
+      preview = buildPrintCombatPreviewForArtifactRow(actor, artifactRow, allItems, slot);
+    }
     if (!preview) return;
     entry.battleCompact = true;
     if (preview.attackKind) entry.attackKind = preview.attackKind;
@@ -649,14 +662,17 @@ export function buildCharacterPrintContext(actor: any): Record<string, unknown> 
     const category = resolvePowerCategoryFromItem(p);
     const rank = num(sys?.level ?? sys?.rank, 1);
     const phase = powerPhaseLabel(category);
+    const spellMeta = buildSpellPrintMeta(sys);
     const entry: Record<string, unknown> = {
       name: prettyPowerName(p, rank),
       effect: stripHtml(powerEffectForRank(sys, rank)),
       phase,
+      phaseClass: phaseCssClass(phase),
       stones: num(sys?.cost?.stones),
       rank,
       sortKey: powerSortRank(category || phase),
       powerItemId: p.id,
+      ...spellMeta,
     };
     if (category === 'passive') passivePowers.push(entry);
     else activePowers.push(entry);
@@ -679,15 +695,21 @@ export function buildCharacterPrintContext(actor: any): Record<string, unknown> 
       const t = type.toLowerCase();
       if (t === 'passive' || /stone|support/.test(t)) continue;
       const name = String(row?.name ?? '').replace(/\s*[—-]\s*Tier\s*\d+\s*[—-]\s*/i, ' — ').trim();
+      const phase = type || 'Active';
+      const spellMeta = buildArtifactRowSpellPrintMeta(row);
       activePowers.push({
         name,
         effect: stripHtml(row?.effect),
-        phase: type || 'Active',
+        phase,
+        phaseClass: phaseCssClass(phase),
         stones: 0,
         rank: 1,
         fromArtifact: true,
         source: String(a?.name ?? ''),
-        sortKey: powerSortRank(type)
+        sortKey: powerSortRank(type),
+        artifactRow: row,
+        hideRank: true,
+        ...spellMeta,
       });
     }
   }
@@ -726,20 +748,21 @@ export function buildCharacterPrintContext(actor: any): Record<string, unknown> 
   for (const p of activePowers) {
     const slot = classifyBattleSlot(p.phase);
     const powerItem = p.powerItemId ? powerItemById.get(p.powerItemId) ?? null : null;
+    const artifactRow = (p.artifactRow as ArtifactLevelProgressionRow | undefined) ?? null;
     switch (slot) {
       case 'movement':
         battleMovement.push(p);
         break;
       case 'activeBuff':
-        attachBattlePreview(p, powerItem, 'activeBuff');
+        attachBattlePreview(p, powerItem, 'activeBuff', artifactRow);
         battleBuffs.push(p);
         break;
       case 'reaction':
-        attachBattlePreview(p, powerItem, 'reaction');
+        attachBattlePreview(p, powerItem, 'reaction', artifactRow);
         battleReactions.push(p);
         break;
       default:
-        attachBattlePreview(p, powerItem, 'active');
+        attachBattlePreview(p, powerItem, 'active', artifactRow);
         battleActive.push(p);
     }
   }

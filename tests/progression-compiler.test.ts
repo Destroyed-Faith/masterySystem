@@ -92,4 +92,26 @@ describe('deriveLevelProgressionFromPicks', () => {
     expect(rows[0].name).toContain('Poisoned');
     expect(rows[0].special.toLowerCase()).toContain('poison');
   });
+
+  it('propagates Active-as-Spell flags from a ranged pick into staged rows', () => {
+    const picks: ArtifactProgressionPick[] = [
+      {
+        level: 2,
+        kind: 'power',
+        powerTemplateId: 'active-ranged-aoe-smite-attack',
+        isSpell: true,
+        castingAttribute: 'resolve',
+        spellResolution: 'spellAttack',
+      },
+    ];
+    const rows = deriveLevelProgressionFromPicks(picks);
+    expect(rows).toHaveLength(3);
+    for (const r of rows) {
+      expect(r.isSpell).toBe(true);
+      expect(r.castingAttribute).toBe('resolve');
+      expect(r.spellResolution).toBe('spellAttack');
+      expect(r.powerTemplateId).toBe('active-ranged-aoe-smite-attack');
+      expect(r.special).toContain('Spell');
+    }
+  });
 });

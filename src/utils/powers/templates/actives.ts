@@ -627,7 +627,116 @@ function buildActiveTemplates(): PowerTemplate[] {
     splitWeaponAttackTemplate('melee'),
     splitWeaponAttackTemplate('ranged'),
     autofireWeaponAttackTemplate(),
+
+    // Smite Attacks — not in the free Special-damage catalogue (Actives.md §Smite Actives)
+    smiteMeleeAttackTemplate(),
+    smiteRangedAttackTemplate(),
+    smiteRangedAoeAttackTemplate(),
     ];
+}
+
+// ─── Smite Attack Templates (Actives.md §Smite Actives) ───────────────────
+//
+// Smite is baked into the template — no Special picker. Valid targets: Undead,
+// Fiends, etc. (GM-defined). Not part of the diminishing-Special tier catalogue.
+
+const MELEE_SMITE_RANK: readonly number[] = [
+    4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48, 52, 56, 60, 64,
+];
+const RANGED_SMITE_RANK: readonly number[] = [
+    4, 7, 10, 14, 17, 20, 24, 27, 30, 34, 37, 40, 44, 47, 50, 54,
+];
+const RANGED_AOE_SMITE_RANGE_M: readonly number[] = [
+    8, 12, 16, 20, 24, 28, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32,
+];
+const RANGED_AOE_SMITE_RADIUS_M: readonly number[] = [
+    2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+];
+const RANGED_AOE_SMITE_DICE: readonly number[] = [
+    1, 4, 8, 7, 10, 14, 17, 21, 25, 29, 33, 37, 41, 45, 49, 53,
+];
+
+function smiteMeleeAttackTemplate(): PowerTemplate {
+    return {
+        templateId: 'active-melee-smite-attack',
+        templateName: 'Melee Smite Attack',
+        name: 'Melee Smite Attack',
+        subfamily: 'smite-attack',
+        category: 'active',
+        tags: [],
+        spellHints: { defaultResolution: 'spellAttack' },
+        fluff: 'A melee weapon attack that burns enemies marked by death, corruption, or divine opposition. Smite only affects valid tagged enemies.',
+        cost: { action: 'attack' },
+        roll: { kind: 'attack', attribute: 'might' },
+        levels: buildLevels((lvl) => {
+            const rank = MELEE_SMITE_RANK[lvl - 1];
+            return activeRow({
+                type: 'Melee',
+                range: MELEE_RANGE,
+                aoe: R_NONE,
+                effectText: 'Make one melee attack. On hit, deal weapon damage.',
+                specials: [{ key: 'smite', rank }],
+                mechanics: { applyWhen: 'attack-rider' },
+            });
+        }),
+    };
+}
+
+function smiteRangedAttackTemplate(): PowerTemplate {
+    return {
+        templateId: 'active-ranged-smite-attack',
+        templateName: 'Ranged Smite Attack',
+        name: 'Ranged Smite Attack',
+        subfamily: 'smite-attack',
+        category: 'active',
+        tags: [],
+        spellHints: { defaultResolution: 'spellAttack' },
+        fluff: 'A ranged weapon attack that carries judgment into distant unholy targets. Smite only affects valid tagged enemies.',
+        cost: { action: 'attack' },
+        roll: { kind: 'attack', attribute: 'agility' },
+        levels: buildLevels((lvl) => {
+            const rank = RANGED_SMITE_RANK[lvl - 1];
+            return activeRow({
+                type: 'Ranged',
+                range: rangedRange(lvl),
+                aoe: R_NONE,
+                effectText: 'Make one ranged attack. On hit, deal weapon damage.',
+                specials: [{ key: 'smite', rank }],
+                mechanics: { applyWhen: 'attack-rider' },
+            });
+        }),
+    };
+}
+
+function smiteRangedAoeAttackTemplate(): PowerTemplate {
+    return {
+        templateId: 'active-ranged-aoe-smite-attack',
+        templateName: 'Ranged AoE Smite Attack',
+        name: 'Ranged AoE Smite Attack',
+        subfamily: 'smite-attack',
+        category: 'active',
+        tags: [],
+        spellHints: { defaultResolution: 'saveSpell', defaultSaveType: 'body' },
+        fluff: 'A compact ranged area Smite attack that burns supernatural enemies inside a small blast. Max range 32 m, max radius 3 m.',
+        cost: { action: 'attack' },
+        roll: { kind: 'attack', attribute: 'agility' },
+        levels: buildLevels((lvl) => {
+            const smiteDice = RANGED_AOE_SMITE_DICE[lvl - 1];
+            const rangeM = RANGED_AOE_SMITE_RANGE_M[lvl - 1];
+            const radiusM = RANGED_AOE_SMITE_RADIUS_M[lvl - 1];
+            const smiteText = `+${smiteDice}d8 Smite Damage`;
+            return activeRow({
+                type: 'Ranged AoE',
+                range: { kind: 'distance', m: rangeM },
+                aoe: { shape: 'radius', radiusM, center: 'targetPoint', targetFilter: 'enemies' },
+                effectText:
+                    `Make one ranged attack against the Primary Target. On hit, the Primary Target takes Weapon Damage plus **${smiteText}**. ` +
+                    `Secondary Targets with a valid Smite tag take **${smiteText}**.`,
+                specials: [{ key: 'smite', rank: smiteDice }],
+                mechanics: { applyWhen: 'attack-rider' },
+            });
+        }),
+    };
 }
 
 // ─── Stunning Strike (Damage + fixed Stunned) ────────────────────────────

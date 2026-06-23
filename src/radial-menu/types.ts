@@ -48,6 +48,12 @@ export interface RadialCombatOption {
   /** Artifact level-progression metadata (set for artifact-derived options). */
   artifactRowSpecial?: string; // The row's `special` column (e.g. "Growth Form").
   artifactRowLevel?: number;   // The row's artifact level (1..10).
+  /** Active-as-Spell metadata propagated from artifact progression picks. */
+  artifactIsSpell?: boolean;
+  artifactCastingAttribute?: string;
+  artifactSpellResolution?: 'spellAttack' | 'saveSpell';
+  artifactPowerTemplateId?: string;
+  artifactChosenSpecialKey?: string;
   costsMovement?: boolean; // Whether this option consumes Movement resource
   costsAction?: boolean; // Whether this option consumes Attack Action resource
   /** Melee attack power with a radius AoE: one pick applies the attack to every hostile in reach. */

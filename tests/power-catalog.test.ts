@@ -94,6 +94,27 @@ describe('Power Catalog (Templates refactor)', () => {
         }
     });
 
+    it('exposes the Smite attack templates (baked-in Smite, no Special picker)', () => {
+        const entries = getAllCatalogEntries();
+        const smiteIds = [
+            'active-melee-smite-attack',
+            'active-ranged-smite-attack',
+            'active-ranged-aoe-smite-attack',
+        ];
+        for (const id of smiteIds) {
+            const hit = entries.find((e) => e.templateId === id);
+            expect(hit, `missing smite template: ${id}`).toBeDefined();
+            expect(hit!.subfamily).toBe('smite-attack');
+            expect(hit!.chosenSpecial).toBeUndefined();
+        }
+        const aoe = entries.find((e) => e.templateId === 'active-ranged-aoe-smite-attack')!;
+        expect((aoe.raw as any).levels['1'].specials).toEqual([{ key: 'smite', rank: 1 }]);
+        expect((aoe.raw as any).levels['4'].specials).toEqual([{ key: 'smite', rank: 7 }]);
+        expect((aoe.raw as any).levels['16'].specials).toEqual([{ key: 'smite', rank: 53 }]);
+        expect((aoe.raw as any).levels['7'].range).toEqual({ kind: 'distance', m: 32 });
+        expect((aoe.raw as any).levels['7'].aoe).toMatchObject({ shape: 'radius', radiusM: 3 });
+    });
+
     it('exposes the Ranged Images illusion template', () => {
         const entries = getAllCatalogEntries();
         const hit = entries.find((e) => e.templateId === 'active-ranged-illusion-image');

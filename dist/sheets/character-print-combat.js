@@ -4,16 +4,41 @@
  */
 import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
 import { getAttackAttributeForPowerTreeOrSchool } from '../utils/power-roll-attribute.js';
+import { artifactLevelToTemplateRank } from '../utils/artifact-spell-pick.js';
+import { getTemplate } from '../utils/powers/index.js';
 import { artifactSystemHasSpellFocus, resolveArtifactWeaponKind, } from '../utils/artifact-rules.js';
 import { deriveArtifactWeaponDamage } from '../utils/artifact-base-derive.js';
 import { getActorSpellFocusBonusDice } from '../utils/artifact-base-values.js';
 import { resolveEquippedWeaponForAttackType } from '../utils/unarmed-fallback.js';
 import { addD8Formulas, parseD8Count } from '../utils/dice-formula.js';
 import { formatEffectReference } from '../utils/special-effects.js';
-function isSpellPower(sys) {
+export function isSpellPowerSys(sys) {
     if (sys?.isSpell === true)
         return true;
     return Array.isArray(sys?.tags) && sys.tags.includes('spell');
+}
+/** Short label for printable sheets (Spell badge tooltip). */
+export function buildSpellPrintMeta(sys) {
+    if (!isSpellPowerSys(sys))
+        return { isSpell: false };
+    const attrRaw = String(sys?.castingAttribute ?? 'intellect').trim();
+    const attr = attrRaw ? attrRaw.charAt(0).toUpperCase() + attrRaw.slice(1) : '';
+    const res = sys?.spellResolution === 'saveSpell' ? 'Save Spell' : 'Spell Attack';
+    return {
+        isSpell: true,
+        spellLabel: attr ? `${res} (${attr})` : res,
+    };
+}
+export function buildArtifactRowSpellPrintMeta(row) {
+    if (!row?.isSpell)
+        return { isSpell: false };
+    const attrRaw = String(row.castingAttribute ?? 'intellect').trim();
+    const attr = attrRaw ? attrRaw.charAt(0).toUpperCase() + attrRaw.slice(1) : '';
+    const res = row.spellResolution === 'saveSpell' ? 'Save Spell' : 'Spell Attack';
+    return {
+        isSpell: true,
+        spellLabel: attr ? `${res} (${attr})` : res,
+    };
 }
 function cleanPowerDamage(raw) {
     if (raw === null || raw === undefined || raw === '')
@@ -130,7 +155,7 @@ function usesWeaponDamage(sys, rank) {
     const sub = String(sys?.subfamily ?? sys?.templateId ?? '');
     if (/weapon-attack|weapon-aoe/i.test(sub))
         return true;
-    if (isAttackPower(sys) && !isSpellPower(sys) && !isHealPower(sys, rank))
+    if (isAttackPower(sys) && !isSpellPowerSys(sys) && !isHealPower(sys, rank))
         return true;
     const row = levelRow(sys, rank);
     if (row?.mechanics?.damageRider && !isHealPower(sys, rank))
@@ -277,7 +302,7 @@ function shouldIncludeWeapon(slot, spell, weapon, attackType, sys, rank) {
 export function buildPrintCombatPreview(actor, powerItem, items, slot = 'active') {
     const sys = powerItem?.system ?? {};
     const rank = Math.max(1, Math.floor(Number(sys.level ?? sys.rank) || 1));
-    const spell = isSpellPower(sys);
+    const spell = isSpellPowerSys(sys);
     const heal = isHealPower(sys, rank);
     const weaponSpecials = equippedWeaponSpecialsLabels(items);
     if (slot === 'activeBuff') {
@@ -341,5 +366,33 @@ export function buildPrintCombatPreview(actor, powerItem, items, slot = 'active'
         showDamage: show,
         showAttack,
     };
+}
+/** Battle preview for artifact level-progression rows flagged as Spells. */
+export function buildPrintCombatPreviewForArtifactRow(actor, row, items, slot = 'active') {
+    if (!row.isSpell || !row.powerTemplateId)
+        return null;
+    const tpl = getTemplate(row.powerTemplateId);
+    if (!tpl?.levels)
+        return null;
+    const pl = artifactLevelToTemplateRank(row.level);
+    let levelRow = tpl.levels[pl];
+    if (!levelRow)
+        return null;
+    if (row.chosenSpecialKey) {
+        const specials = (levelRow.specials || []).map((s) => s.key === 'SPECIAL' ? { ...s, key: row.chosenSpecialKey } : s);
+        levelRow = { ...levelRow, specials };
+    }
+    const sys = {
+        isSpell: true,
+        castingAttribute: row.castingAttribute || 'intellect',
+        spellResolution: row.spellResolution,
+        level: Number(pl),
+        rank: Number(pl),
+        cost: tpl.cost,
+        subfamily: tpl.subfamily,
+        templateId: row.powerTemplateId,
+        levels: { [pl]: levelRow },
+    };
+    return buildPrintCombatPreview(actor, { type: 'power', system: sys }, items, slot);
 }
 //# sourceMappingURL=character-print-combat.js.map

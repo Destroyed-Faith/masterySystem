@@ -36,7 +36,7 @@ const MOONLIGHT_GREATSWORD = {
     // ("True Moonlight") is authored verbatim below.
     progressionPickSpecs: {
         1: { templateId: 'active-ranged-single-heal', name: 'Moonlight Mending' },
-        2: { templateId: 'active-ranged-weapon-aoe', name: 'Moonlight Judgment' },
+        2: { templateId: 'active-ranged-aoe-smite-attack', name: 'Moonlight Judgment' },
         3: { templateId: 'ab-damage-aura', name: 'Moonlight Shadow' },
     },
     levelProgression: [

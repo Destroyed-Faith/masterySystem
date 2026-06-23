@@ -48,6 +48,9 @@ export function catalogSpecialKeysForTemplate(templateId) {
     const id = String(templateId || '').trim();
     if (!id)
         return [];
+    if (isMartialDeliveryPickId(id)) {
+        return listMartialDamageSpecialOptions().map((o) => o.key);
+    }
     if (SPECIAL_AURA_OPTIONS[id])
         return [...SPECIAL_AURA_OPTIONS[id]];
     const tpl = getTemplate(id);

@@ -16,6 +16,7 @@ import { getEffectById, parseEffectStrings } from '../utils/special-effects.js';
 import { STONE_POWERS_BY_ATTRIBUTE } from '../stones/stone-powers.js';
 import { deriveBaseValueDisplay, scaleWeaponSpecial, isScalingWeaponSpecial, } from '../utils/artifact-base-derive.js';
 import { catalogSpecialTierForTemplate, catalogTemplateRequiresSpecial, listCatalogSpecialOptions, } from '../utils/artifact-catalog-pick.js';
+import { artifactPickCanBeSpell, uiTemplateIdCanBeSpell } from '../utils/artifact-spell-pick.js';
 // Use V1 Application for reliable template rendering in v13
 const BaseDialog = foundry?.appv1?.Application || Application;
 const TREE_DAMAGE_PRESETS = getArtifactTreeWeaponDamagePresets();
@@ -87,31 +88,74 @@ function readPowerPickFieldsFromRow($row) {
     if (!templateId)
         return null;
     const martialDelivery = parseMartialDeliveryPickId(templateId);
+    let resolved = null;
     if (martialDelivery) {
         const specialKey = String($row.find('.node-pick-catalog-special').val() || '').trim();
         if (!specialKey)
             return null;
         try {
-            return { ...resolvePickFromUi(martialDelivery, specialKey), displayName };
+            resolved = { ...resolvePickFromUi(martialDelivery, specialKey), displayName };
         }
         catch {
             return null;
         }
     }
-    if (catalogTemplateRequiresSpecial(templateId)) {
+    else if (catalogTemplateRequiresSpecial(templateId)) {
         const specialKey = String($row.find('.node-pick-catalog-special').val() || '').trim();
         if (!specialKey)
             return null;
         const tier = catalogSpecialTierForTemplate(templateId);
         if (!tier)
             return null;
-        return {
+        resolved = {
             powerTemplateId: templateId,
             displayName,
             chosenSpecial: { key: specialKey, tier },
         };
     }
-    return { powerTemplateId: templateId, displayName };
+    else {
+        resolved = { powerTemplateId: templateId, displayName };
+    }
+    const spellFields = readSpellFieldsFromRow($row, resolved);
+    return { ...resolved, ...spellFields };
+}
+function readSpellFieldsFromRow($row, pick) {
+    const uiTemplateId = String($row.find('.node-pick-template').val() || '').trim();
+    if (!artifactPickCanBeSpell(pick, uiTemplateId)) {
+        return { isSpell: false };
+    }
+    const isSpell = $row.find('.node-pick-is-spell').prop('checked') === true;
+    if (!isSpell)
+        return { isSpell: false };
+    return {
+        isSpell: true,
+        castingAttribute: String($row.find('.node-pick-casting-attr').val() || 'intellect') ||
+            'intellect',
+        spellResolution: String($row.find('.node-pick-spell-resolution').val() || 'spellAttack') ||
+            'spellAttack',
+    };
+}
+function syncSpellPanel($row) {
+    const kind = String($row.find('.node-pick-kind').val() || 'none');
+    const mode = String($row.find('.node-pick-power-mode').val() || '');
+    const $wrap = $row.find('.node-pick-spell-wrap');
+    const $fields = $row.find('.node-pick-spell-fields');
+    if (kind !== 'power' || mode !== 'active') {
+        $wrap.addClass('hidden');
+        return;
+    }
+    const uiTemplateId = String($row.find('.node-pick-template').val() || '').trim();
+    const resolved = readPowerPickFieldsFromRow($row);
+    const canSpell = resolved
+        ? artifactPickCanBeSpell(resolved, uiTemplateId)
+        : uiTemplateIdCanBeSpell(uiTemplateId);
+    $wrap.toggleClass('hidden', !canSpell);
+    if (!canSpell) {
+        $row.find('.node-pick-is-spell').prop('checked', false);
+        $fields.addClass('hidden');
+        return;
+    }
+    $fields.toggleClass('hidden', $row.find('.node-pick-is-spell').prop('checked') !== true);
 }
 /** Base Value slot letters → label (letter + the Artifact Level it unlocks at). */
 const BV_LETTER_LABELS = {
@@ -536,6 +580,12 @@ export class NodeEditor extends BaseDialog {
                 mode.powerMode === 'active' &&
                 !!mode.templateId &&
                 catalogTemplateRequiresSpecial(mode.templateId);
+            const showSpellConfig = p?.kind === 'power' &&
+                mode.powerMode === 'active' &&
+                artifactPickCanBeSpell({
+                    powerTemplateId: p?.powerTemplateId,
+                    delivery: p?.delivery,
+                }, mode.templateId);
             return {
                 level: lvl,
                 kind: p?.kind || 'none',
@@ -548,6 +598,10 @@ export class NodeEditor extends BaseDialog {
                 displayName: mode.displayName,
                 specialKey: catalogSpecialKey,
                 needsCatalogSpecial,
+                showSpellConfig,
+                isSpell: !!p?.isSpell,
+                castingAttribute: p?.castingAttribute || 'intellect',
+                spellResolution: p?.spellResolution || 'spellAttack',
                 catalogSpecialOptions: needsCatalogSpecial && mode.templateId
                     ? listCatalogSpecialOptions(mode.templateId)
                     : [],
@@ -831,6 +885,7 @@ export class NodeEditor extends BaseDialog {
             populateCatalogSpecialSelect($row, templateId, String($row.find('.node-pick-catalog-special').val() || ''));
             const stoneKind = String($row.find('.node-pick-stone-kind').val() || '');
             $row.find('.node-pick-stone-power-wrap').toggleClass('hidden', stoneKind !== 'stonePowerSupport');
+            syncSpellPanel($row);
         };
         const refreshStoneFnWarning = () => {
             const count = html
@@ -941,6 +996,13 @@ export class NodeEditor extends BaseDialog {
                 populateCatalogSpecialSelect($row, String($(e.currentTarget).val() || ''), '');
             }
             syncProgressionRow($row);
+            rebuildLevelProgressionPreview();
+        });
+        html.on('change', '.node-pick-is-spell', (e) => {
+            syncSpellPanel($(e.currentTarget).closest('.node-progression-pick'));
+            rebuildLevelProgressionPreview();
+        });
+        html.on('change', '.node-pick-casting-attr, .node-pick-spell-resolution', () => {
             rebuildLevelProgressionPreview();
         });
         html.on('change', '.node-pick-stone-kind', (e) => {

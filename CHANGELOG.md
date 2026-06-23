@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.152] - 2026-06-23
+
+### Added
+
+- **Smite Attack templates:** Melee Smite, Ranged Smite, and Ranged AoE Smite Actives in the catalog (Smite baked in, no Special picker). Moonlight Judgment uses Ranged AoE Smite.
+- **Artifact Node Editor — Cast as Spell:** Checkbox on ranged Active progression picks (Intellect/Resolve, Spell Attack vs Save Spell); flags flow into level progression and combat.
+- **Printable sheet — Spell visibility:** Blue **Spell** badge on page 2 power tiles and the Battle Sheet; artifact spell rows get attack/damage cheat lines.
+
 ## [0.9.151] - 2026-06-23
 
 ### Changed

@@ -259,7 +259,15 @@ export function buildArtifactRadialOptions(actor: any): RadialCombatOption[] {
                 tags: ['artifact', 'attack', typeTag],
                 costsMovement: false,
                 costsAction: true,
+                artifactRowLevel: lvl,
             };
+            if (row.isSpell && row.powerTemplateId) {
+                option.artifactIsSpell = true;
+                option.artifactCastingAttribute = row.castingAttribute || 'intellect';
+                option.artifactSpellResolution = row.spellResolution || 'spellAttack';
+                option.artifactPowerTemplateId = row.powerTemplateId;
+                option.artifactChosenSpecialKey = row.chosenSpecialKey;
+            }
             if (aoe.shape !== 'none') {
                 option.aoeShape = aoe.shape;
                 option.aoeRadiusMeters = aoe.radiusM;

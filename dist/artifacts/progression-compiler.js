@@ -131,7 +131,18 @@ export function deriveLevelProgressionFromPicks(picks) {
                     aoe: clean(renderAoe(lr.aoe ?? null)),
                     duration: clean(renderDuration(lr.duration)),
                     effect: effectText,
-                    special: specialTextForRow(lrRaw, chosenKey),
+                    special: pick.isSpell
+                        ? [specialTextForRow(lrRaw, chosenKey), 'Spell'].filter(Boolean).join(', ')
+                        : specialTextForRow(lrRaw, chosenKey),
+                    powerTemplateId: pick.powerTemplateId,
+                    chosenSpecialKey: chosenKey,
+                    ...(pick.isSpell
+                        ? {
+                            isSpell: true,
+                            castingAttribute: pick.castingAttribute || 'intellect',
+                            spellResolution: pick.spellResolution || tpl.spellHints?.defaultResolution || 'spellAttack',
+                        }
+                        : {}),
                 });
             }
         }

@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { buildPrintCombatPreview } from '../src/sheets/character-print-combat.js';
+import {
+  buildArtifactRowSpellPrintMeta,
+  buildPrintCombatPreview,
+  buildPrintCombatPreviewForArtifactRow,
+  buildSpellPrintMeta,
+} from '../src/sheets/character-print-combat.js';
 
 function mockActor(attrs: Record<string, number>, items: any[] = []) {
   return {
@@ -215,5 +220,45 @@ describe('buildPrintCombatPreview', () => {
     const preview = buildPrintCombatPreview(actor, aoe, []);
     expect(preview?.attackKind).toBe('Ranged AoE Attack');
     expect(preview?.attackLabel).toBe('Agility');
+  });
+
+  it('buildSpellPrintMeta marks character powers flagged as spells', () => {
+    expect(buildSpellPrintMeta({ isSpell: true, castingAttribute: 'resolve', spellResolution: 'saveSpell' })).toEqual({
+      isSpell: true,
+      spellLabel: 'Save Spell (Resolve)',
+    });
+    expect(buildSpellPrintMeta({ isSpell: false })).toEqual({ isSpell: false });
+  });
+
+  it('buildArtifactRowSpellPrintMeta marks artifact progression rows', () => {
+    expect(
+      buildArtifactRowSpellPrintMeta({
+        isSpell: true,
+        castingAttribute: 'intellect',
+        spellResolution: 'spellAttack',
+      }),
+    ).toEqual({
+      isSpell: true,
+      spellLabel: 'Spell Attack (Intellect)',
+    });
+  });
+
+  it('builds battle preview for artifact spell rows', () => {
+    const actor = mockActor({ intellect: 18 });
+    const preview = buildPrintCombatPreviewForArtifactRow(
+      actor,
+      {
+        level: 2,
+        name: 'Moonlight Judgment I',
+        type: 'Ranged AoE',
+        isSpell: true,
+        castingAttribute: 'resolve',
+        spellResolution: 'spellAttack',
+        powerTemplateId: 'active-ranged-aoe-smite-attack',
+      },
+      [],
+    );
+    expect(preview?.attackLabel).toBe('Resolve');
+    expect(preview?.showAttack).toBe(true);
   });
 });

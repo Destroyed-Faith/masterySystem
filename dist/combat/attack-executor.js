@@ -11,7 +11,8 @@ import { formatNpcAttackSpecialsLine, getNpcAttackByIndex, npcAttackDiceCount, n
 import { resolvePowerMechanics } from "../utils/power-mechanics.js";
 import { RAISE_INCREMENT } from "../utils/constants.js";
 import { calculateBaseTN } from "./spell-roll-handler.js";
-import { buildAvailableRaiseOptions, computeRaiseTns, countRaiseSlots, declaredRaiseFromOptionId, formatSnapshotSummary, loadPowerSnapshotForItem, previewAfterRaiseCost, } from "./raise-resolution.js";
+import { artifactLevelToTemplateRank } from "../utils/artifact-spell-pick.js";
+import { buildAvailableRaiseOptions, computeRaiseTns, countRaiseSlots, declaredRaiseFromOptionId, formatSnapshotSummary, loadPowerSnapshotForArtifactOption, loadPowerSnapshotForItem, previewAfterRaiseCost, } from "./raise-resolution.js";
 function newSplitPairId() {
     try {
         if (typeof foundry !== 'undefined' && foundry.utils?.randomID) {
@@ -147,7 +148,11 @@ function getTargetSpellResistance(targetActor) {
 function getAttackAttribute(_actor, weapon, option, attackType) {
     if (option.source === "power" && option.item) {
         const powerSystem = option.item.system || {};
+        const artifactIsSpell = option.artifactIsSpell === true;
         // Active-as-Spell: casting attribute on the item beats every other signal.
+        if (artifactIsSpell && option.artifactCastingAttribute) {
+            return String(option.artifactCastingAttribute).toLowerCase();
+        }
         if (powerSystem.isSpell && powerSystem.castingAttribute) {
             return String(powerSystem.castingAttribute).toLowerCase();
         }
@@ -299,7 +304,10 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
     if (option.source === 'power' && option.item) {
         selectedPowerId = option.item.id;
         const powerSystem = option.item.system || {};
-        selectedPowerLevel = powerSystem.level || null;
+        const artifactIsSpell = option.artifactIsSpell === true;
+        selectedPowerLevel = artifactIsSpell
+            ? Number(artifactLevelToTemplateRank(option.artifactRowLevel || 1))
+            : (powerSystem.level || null);
         // Extract specials and damage from option.powerData or embedded item system (damage-card fallback).
         if (option.item.name) {
             const powerData = option.powerData;
@@ -314,9 +322,10 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
         if (!selectedPowerDamage && powerSystem.roll?.damage != null) {
             selectedPowerDamage = String(powerSystem.roll.damage);
         }
-        if (powerSystem.isSpell === true) {
+        if (powerSystem.isSpell === true || artifactIsSpell) {
             tnKind = 'casting';
-            const lvl = Math.max(1, Math.floor(Number(selectedPowerLevel) || 1));
+            const lvl = Math.max(1, Math.floor(Number(selectedPowerLevel) ||
+                Number(artifactLevelToTemplateRank(option.artifactRowLevel || 1))));
             castingBaseTn = calculateBaseTN(lvl) + getTargetSpellResistance(target);
         }
     }
@@ -326,15 +335,31 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
     let raiseContext = null;
     if (option.source === 'power' && option.item && !isNpcAttack) {
         try {
-            const loaded = await loadPowerSnapshotForItem(option.item);
-            const opts = buildAvailableRaiseOptions(loaded.snapshot, loaded.isSpell);
-            if (opts.length > 0) {
-                raiseContext = {
-                    masteryRank,
-                    isSpell: loaded.isSpell,
-                    baseSnapshot: loaded.snapshot,
-                    raiseOptions: opts,
-                };
+            let loaded = null;
+            if (option.artifactIsSpell && option.artifactPowerTemplateId) {
+                loaded = await loadPowerSnapshotForArtifactOption(option);
+            }
+            else if (option.item.type === 'power') {
+                loaded = await loadPowerSnapshotForItem(option.item);
+            }
+            if (loaded) {
+                const opts = buildAvailableRaiseOptions(loaded.snapshot, loaded.isSpell);
+                if (opts.length > 0) {
+                    raiseContext = {
+                        masteryRank,
+                        isSpell: loaded.isSpell,
+                        baseSnapshot: loaded.snapshot,
+                        raiseOptions: opts,
+                    };
+                }
+                else if (loaded.isSpell) {
+                    raiseContext = {
+                        masteryRank,
+                        isSpell: true,
+                        baseSnapshot: loaded.snapshot,
+                        raiseOptions: [],
+                    };
+                }
             }
         }
         catch (err) {
