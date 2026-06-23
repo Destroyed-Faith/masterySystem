@@ -24,8 +24,8 @@
   background: #ffffff;
   color: #1a1a1a;
   font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
-  font-size: 9px;
-  line-height: 1.3;
+  font-size: 10.5px;
+  line-height: 1.35;
   -webkit-print-color-adjust: exact;
   print-color-adjust: exact;
 }
@@ -76,7 +76,7 @@
   left: 0;
   right: 0;
   text-align: center;
-  font-size: 8px;
+  font-size: 9px;
   color: #777;
   letter-spacing: 0.1em;
 }
@@ -92,21 +92,21 @@
 .cp-section-title,
 .cp-block-title {
   margin: 0 0 4px;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 
 .cp-block-title {
-  font-size: 10px;
+  font-size: 11px;
   border-bottom: 1px solid #999;
   padding-bottom: 2px;
 }
 
 .cp-subtle {
   font-weight: 400;
-  font-size: 8px;
+  font-size: 9px;
   color: #666;
   letter-spacing: 0.02em;
   text-transform: none;
@@ -132,14 +132,14 @@
 }
 
 .cp-field-label {
-  font-size: 8px;
+  font-size: 9px;
   font-weight: 700;
   text-transform: uppercase;
   color: #555;
 }
 
 .cp-field-value {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
 }
 
@@ -219,7 +219,7 @@
 }
 
 .cp-ability-value {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 800;
   min-width: 18px;
   text-align: center;
@@ -236,7 +236,7 @@
 }
 
 .cp-ladder-cell {
-  font-size: 7px;
+  font-size: 8px;
   width: 15px;
   text-align: center;
   border: 1px solid #bbb;
@@ -248,6 +248,24 @@
   background: var(--attr-color, #1a1a1a);
   color: #fff;
   border-color: var(--attr-color, #1a1a1a);
+}
+
+.cp-ability-pools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px 6px;
+  margin: 2px 0 3px;
+  font-size: 8px;
+  color: #555;
+}
+
+.cp-pool-tier {
+  white-space: nowrap;
+}
+
+.cp-pool-tier-label {
+  font-weight: 700;
+  color: #777;
 }
 
 .cp-stone-overview {
@@ -806,9 +824,22 @@
 }
 
 .cp-battle-card-eff {
-  font-size: 6.5px;
+  font-size: 7.5px;
   color: #444;
-  line-height: 1.2;
+  line-height: 1.25;
+}
+
+.cp-battle-card-roll {
+  display: block;
+  font-size: 7.5px;
+  color: #1a237e;
+  line-height: 1.25;
+  margin-top: 1px;
+}
+
+.cp-battle-card-roll strong {
+  font-weight: 700;
+  color: #333;
 }
 
 .cp-battle-arrow {

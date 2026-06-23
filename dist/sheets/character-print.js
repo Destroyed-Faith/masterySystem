@@ -30,6 +30,7 @@ import { formatArtifactWeaponRangeDisplay, resolveArtifactWeaponKind, artifactSy
 import { deriveArtifactWeaponDamage } from '../utils/artifact-base-derive.js';
 import { getDisadvantageDefinition } from '../system/disadvantages.js';
 import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
+import { buildPrintCombatPreview } from './character-print-combat.js';
 /** Human-readable label per Stone Function kind (technical summary). */
 const STONE_FN_KIND_LABEL = {
     stonePool: 'Stone Pool',
@@ -61,6 +62,18 @@ const ATTR_ORDER = [
 ];
 /** Stone-threshold ladder printed next to every ability (one cell per 8 points). */
 const ABILITY_LADDER = [8, 16, 24, 32, 40, 48, 56, 64, 72, 80];
+/** Health wound-track pool penalties (not the health bar UI — dice pool at each tier). */
+const HEALTH_POOL_TIERS = [
+    { label: '−10%', fraction: 0.1 },
+    { label: '−20%', fraction: 0.2 },
+    { label: '−40%', fraction: 0.4 },
+    { label: '−50%', fraction: 0.5 },
+];
+function poolAtHealthFraction(pool, fraction) {
+    if (pool <= 0)
+        return 0;
+    return Math.max(1, pool - Math.floor(pool * fraction));
+}
 /** Skill groups in the order they appear on the printed sheet. */
 const SKILL_GROUPS = [
     {
@@ -410,7 +423,11 @@ export function buildCharacterPrintContext(actor) {
             blocked: blockedBy.length > 0,
             blockedBy: blockedBy.join(', '),
             slots: Array.from({ length: stoneAvailable }, (_, i) => i + 1),
-            ladder: ABILITY_LADDER.map((n) => ({ n, filled: value >= n }))
+            ladder: ABILITY_LADDER.map((n) => ({ n, filled: value >= n })),
+            poolTiers: HEALTH_POOL_TIERS.map((t) => ({
+                label: t.label,
+                pool: poolAtHealthFraction(value, t.fraction),
+            })),
         };
     });
     // ── Stone Powers (per-attribute capacity overview) ────────────────────
@@ -527,6 +544,14 @@ export function buildCharacterPrintContext(actor) {
     // what they do (damage, range, innate abilities, specials).
     const allItems = actor?.items ? Array.from(actor.items.values?.() ?? actor.items) : [];
     const artifactItems = allItems.filter((i) => i?.type === 'artifact');
+    function attachCombatPreview(entry, powerItem) {
+        const preview = buildPrintCombatPreview(actor, powerItem, allItems);
+        if (preview) {
+            entry.attackRoll = preview.attackLabel;
+            if (preview.showDamage)
+                entry.damageRoll = preview.damage;
+        }
+    }
     function formatWeaponProfile(prof, baseProfile) {
         const kind = resolveArtifactWeaponKind(prof, baseProfile);
         const type = kind === 'ranged' ? 'Ranged' : 'Melee';
@@ -580,8 +605,9 @@ export function buildCharacterPrintContext(actor) {
             phase,
             stones: num(sys?.cost?.stones),
             rank,
-            sortKey: powerSortRank(category || phase)
+            sortKey: powerSortRank(category || phase),
         };
+        attachCombatPreview(entry, p);
         if (category === 'passive')
             passivePowers.push(entry);
         else

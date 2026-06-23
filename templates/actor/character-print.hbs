@@ -31,6 +31,11 @@
             <span class="cp-ladder-cell{{#if filled}} is-filled{{/if}}">{{n}}</span>
             {{/each}}
           </div>
+          <div class="cp-ability-pools">
+            {{#each poolTiers}}
+            <span class="cp-pool-tier"><span class="cp-pool-tier-label">{{label}}</span> {{pool}}</span>
+            {{/each}}
+          </div>
           <div class="cp-stone-overview">
             <span class="cp-stone-label">Stones</span>
             <span class="cp-stone-pips">
@@ -470,6 +475,8 @@
               <span class="cp-battle-card-body">
                 <span class="cp-battle-card-name">{{name}}{{#unless fromArtifact}}{{#if rank}} <span class="cp-battle-card-rank">Stufe {{rank}}</span>{{/if}}{{/unless}}{{#if fromArtifact}} <span class="cp-power-artifact" title="From artifact: {{source}}">&#9733; {{source}}</span>{{/if}}</span>
                 {{#if effect}}<span class="cp-battle-card-eff">{{effect}}</span>{{/if}}
+                {{#if attackRoll}}<span class="cp-battle-card-roll"><strong>Attack:</strong> {{attackRoll}}</span>{{/if}}
+                {{#if damageRoll}}<span class="cp-battle-card-roll"><strong>Damage:</strong> {{damageRoll}}</span>{{/if}}
               </span>
             </div>
             {{/each}}
@@ -489,6 +496,8 @@
               <span class="cp-battle-card-body">
                 <span class="cp-battle-card-name">{{name}}{{#unless fromArtifact}}{{#if rank}} <span class="cp-battle-card-rank">Stufe {{rank}}</span>{{/if}}{{/unless}}{{#if fromArtifact}} <span class="cp-power-artifact" title="From artifact: {{source}}">&#9733; {{source}}</span>{{/if}}</span>
                 {{#if effect}}<span class="cp-battle-card-eff">{{effect}}</span>{{/if}}
+                {{#if attackRoll}}<span class="cp-battle-card-roll"><strong>Attack:</strong> {{attackRoll}}</span>{{/if}}
+                {{#if damageRoll}}<span class="cp-battle-card-roll"><strong>Damage:</strong> {{damageRoll}}</span>{{/if}}
               </span>
             </div>
             {{/each}}
@@ -513,6 +522,8 @@
           <span class="cp-battle-card-body">
             <span class="cp-battle-card-name">{{name}}{{#unless fromArtifact}}{{#if rank}} <span class="cp-battle-card-rank">Stufe {{rank}}</span>{{/if}}{{/unless}}{{#if fromArtifact}} <span class="cp-power-artifact" title="From artifact: {{source}}">&#9733; {{source}}</span>{{/if}}</span>
             {{#if effect}}<span class="cp-battle-card-eff">{{effect}}</span>{{/if}}
+            {{#if attackRoll}}<span class="cp-battle-card-roll"><strong>Attack:</strong> {{attackRoll}}</span>{{/if}}
+            {{#if damageRoll}}<span class="cp-battle-card-roll"><strong>Damage:</strong> {{damageRoll}}</span>{{/if}}
           </span>
         </div>
         {{/each}}
