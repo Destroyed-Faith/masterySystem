@@ -331,8 +331,13 @@ describe('Vitality — Temporary HP scales 20/40/80/160', () => {
   });
 });
 
-describe('Intellect — Spell Raises scales +1/+2/+3/+4', () => {
-  it.each([[1, 1], [2, 2], [3, 3], [4, 4]])('T%i adds +%i auto raises', async (tier, expected) => {
+describe('Intellect — Spell Raises scales +4/+8/+12/+16 Raise-TN bonus', () => {
+  it.each([
+    [1, 4],
+    [2, 8],
+    [3, 12],
+    [4, 16],
+  ])('T%i adds +%i to Raise TN check only', async (tier, expected) => {
     const actor = makeMockActor();
     await STONE_POWERS['intellect.spellRaises'].apply({
       actor: actor as any,
@@ -340,9 +345,7 @@ describe('Intellect — Spell Raises scales +1/+2/+3/+4', () => {
       tier,
       cost: 2 ** (tier - 1),
     });
-    expect(actor._roundState.stoneBonuses.spellAutoRaises).toBe(expected);
-    // Legacy mirror for free-raises consumer (saves / skills) until split.
-    expect(actor._roundState.stoneBonuses.freeRaises).toBe(expected);
+    expect(actor._roundState.stoneBonuses.spellRaiseTnBonus).toBe(expected);
   });
 });
 

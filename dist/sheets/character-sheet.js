@@ -1664,6 +1664,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         html.find('.save-roll-btn').on('click', this.#onSavingThrowRoll.bind(this));
         // Safe Haven Rest button
         html.find('.safe-haven-rest').on('click', this.#onSafeHavenRest.bind(this));
+        html.find('.perform-ritual-btn').on('click', this.#onPerformRitual.bind(this));
+        html.find('.social-combat-btn').on('click', this.#onSocialCombat.bind(this));
         html.find('.gm-award-faith-fracture').on('click', this.#onGmAwardFaithFracture.bind(this));
         html.find('.gm-edit-xp').on('click', this.#onGmEditXp.bind(this));
         // Point spending buttons (JavaScript will check permissions)
@@ -3442,18 +3444,35 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         if (healthPenalty < 0) {
             flavor += ` (Health penalty: ${healthPenalty} dice)`;
         }
+        const raiseTn = rollOptions.baseTN + rollOptions.raises * 4;
+        let stoneBonusRaises = 0;
+        try {
+            const { getRoundState } = await import('../combat/action-economy.js');
+            const combat = game.combat;
+            if (combat) {
+                const rs = getRoundState(this.actor, combat);
+                stoneBonusRaises = Math.max(0, Number(rs?.stoneBonuses?.freeRaises) || 0);
+            }
+        }
+        catch {
+            /* ignore */
+        }
         const { masteryRoll } = await import('../dice/roll-handler.js');
         await masteryRoll({
             numDice,
             keepDice,
             skill: 0,
-            tn: rollOptions.finalTN,
+            tn: rollOptions.baseTN,
+            normalTn: rollOptions.baseTN,
+            raiseTn,
+            declaredRaiseSlots: rollOptions.raises,
+            stoneBonusRaises,
+            raiseModel: 'skill',
             label: `${attrLabel} Check`,
             flavor,
             actorId: this.actor.id,
             isSkillRoll: false,
             baseModifier: 0,
-            autoRaises: rollOptions.autoRaises
         });
     }
     /**
@@ -3503,18 +3522,11 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         </div>
 
         <div class="md-group">
-          <label class="md-label">Raises <span class="md-sublabel">(+4 TN each)</span></label>
+          <label class="md-label">Raises <span class="md-sublabel">(+4 Raise TN each; Normal TN unchanged)</span></label>
           <input type="number" name="raises" id="attr-roll-raises" value="0" min="0" step="1" class="md-input" />
           <div class="md-final-tn">
-            Final TN: <strong><span id="attr-final-tn-display">${difficulties.standard}</span></strong>
-          </div>
-        </div>
-
-        <div class="md-group">
-          <label class="md-label">Auto-Raises <span class="md-sublabel">(−4 dice each, +1 raise on success)</span></label>
-          <input type="number" name="autoRaises" id="attr-roll-auto-raises" value="0" min="0" step="1" class="md-input" />
-          <div class="md-final-tn">
-            Dice Pool: <strong><span id="attr-auto-raise-pool-display">${attrDice}d8</span></strong>
+            Normal TN: <strong><span id="attr-normal-tn-display">${difficulties.standard}</span></strong>
+            · Raise TN: <strong><span id="attr-final-tn-display">${difficulties.standard}</span></strong>
           </div>
         </div>
       </form>
@@ -3537,8 +3549,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                             }
                             const raises = parseInt(html.find('[name="raises"]').val()) || 0;
                             const finalTN = baseTN + raises * 4;
-                            const autoRaises = Math.max(0, parseInt(html.find('[name="autoRaises"]').val()) || 0);
-                            resolve({ baseTN, raises, finalTN, autoRaises });
+                            resolve({ baseTN, raises, finalTN });
                         }
                     },
                     cancel: {
@@ -3566,22 +3577,12 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                             baseTN = parseInt(baseTNSelect) || difficulties.standard;
                         }
                         const raises = parseInt($html.find('[name="raises"]').val()) || 0;
-                        const finalTN = baseTN + raises * 4;
-                        $html.find('#attr-final-tn-display').text(String(finalTN));
-                    };
-                    const updateAutoRaisePool = () => {
-                        const autoRaises = Math.max(0, parseInt($html.find('[name="autoRaises"]').val()) || 0);
-                        const cost = autoRaises * 4;
-                        const finalPool = Math.max(1, attrDice - cost);
-                        const text = autoRaises > 0
-                            ? `${attrDice} − ${cost} = ${finalPool}d8 (+${autoRaises} auto raise${autoRaises > 1 ? 's' : ''})`
-                            : `${attrDice}d8`;
-                        $html.find('#attr-auto-raise-pool-display').text(text);
+                        const raiseTn = baseTN + raises * 4;
+                        $html.find('#attr-normal-tn-display').text(String(baseTN));
+                        $html.find('#attr-final-tn-display').text(String(raiseTn));
                     };
                     $html.find('[name="baseTN"], [name="customTN"], [name="raises"]').on('change input', updateFinalTN);
-                    $html.find('[name="autoRaises"]').on('change input', updateAutoRaisePool);
                     updateFinalTN();
-                    updateAutoRaisePool();
                 }
             }, {
                 width: 600,
@@ -3654,24 +3655,39 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             numDice = Math.max(1, numDice + healthPenalty);
             healthPenaltyFlavor = ` Health penalty: ${healthPenalty}d8 (rolling ${numDice} dice).`;
         }
+        const raiseTn = rollOptions.baseTN + rollOptions.raises * 4;
+        let stoneBonusRaises = 0;
+        try {
+            const { getRoundState } = await import('../combat/action-economy.js');
+            const combat = game.combat;
+            if (combat) {
+                const rs = getRoundState(this.actor, combat);
+                stoneBonusRaises = Math.max(0, Number(rs?.stoneBonuses?.freeRaises) || 0);
+            }
+        }
+        catch {
+            /* ignore */
+        }
         const { masteryRoll } = await import('../dice/roll-handler.js');
         await masteryRoll({
             numDice,
             keepDice: masteryRank,
-            skill: 0, // No auto skill bonus
-            tn: rollOptions.finalTN,
+            skill: 0,
+            tn: rollOptions.baseTN,
+            normalTn: rollOptions.baseTN,
+            raiseTn,
+            declaredRaiseSlots: rollOptions.raises,
+            stoneBonusRaises,
+            raiseModel: 'skill',
             label: `${skillDef.name} Check`,
             flavor: `Attribute: ${rollOptions.attributeKey.charAt(0).toUpperCase() + rollOptions.attributeKey.slice(1)}, Base TN: ${rollOptions.baseTN}, Raises: ${rollOptions.raises}.${equipPenaltyFlavor}${healthPenaltyFlavor}${halfPoolFlavor}`,
             actorId: this.actor.id,
-            // Half-pool mode: the rule says no points may be spent, so we hide
-            // the spend buttons entirely by suppressing the skill-roll flag.
             skillKey: fullPoolReady ? skillKey : undefined,
             isSkillRoll: fullPoolReady,
             baseModifier: 0,
             rollKind: 'skill',
             autoFailIntent: 'skill',
             checkContext: { skillKey },
-            autoRaises: rollOptions.autoRaises
         });
         // Skill point spending is now handled via chat buttons (no modal dialog)
     }
@@ -3682,7 +3698,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
      * directly after resolving the card's skill (so the dialog picks the right
      * attribute list).
      */
-    async #promptForSkillRollOptions(_skillKey, skillDef, forcedAttribute) {
+    async #promptForSkillRollOptions(_skillKey, skillDef, forcedAttribute, opts) {
         const system = this.actor.system;
         const masteryRank = system.mastery?.rank || 2;
         // Players Guide skill-difficulty chapter (~1860–1879): Standard TN = 8 ×
@@ -3726,6 +3742,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             return { attrValue, usableAttr, floored };
         };
         const initialPreview = buildPoolPreview(defaultAttribute);
+        const marginOnly = !!opts?.marginOnly;
         const content = `
       <form class="mastery-dialog-form">
         ${hasMultipleAttributes ? `
@@ -3786,21 +3803,17 @@ export class MasteryCharacterSheet extends BaseActorSheet {
           <input type="number" name="customTN" id="skill-roll-customTN" value="${difficulties.standard}" min="0" step="1" class="md-input" />
         </div>
         
+        ${marginOnly
+            ? `<div class="md-group"><p class="md-sublabel">Raises are counted after the roll (+4 over TN each).</p></div>`
+            : `
         <div class="md-group">
-          <label class="md-label">Raises <span class="md-sublabel">(+4 TN each)</span></label>
+          <label class="md-label">Raises <span class="md-sublabel">(+4 Raise TN each; Normal TN unchanged)</span></label>
           <input type="number" name="raises" id="skill-roll-raises" value="0" min="0" step="1" class="md-input" />
           <div class="md-final-tn">
-            Final TN: <strong><span id="final-tn-display">${difficulties.standard}</span></strong>
+            Normal TN: <strong><span id="normal-tn-display">${difficulties.standard}</span></strong>
+            · Raise TN: <strong><span id="final-tn-display">${difficulties.standard}</span></strong>
           </div>
-        </div>
-
-        <div class="md-group">
-          <label class="md-label">Auto-Raises <span class="md-sublabel">(−4 dice each, +1 raise on success)</span></label>
-          <input type="number" name="autoRaises" id="skill-roll-auto-raises" value="0" min="0" step="1" class="md-input" />
-          <div class="md-final-tn">
-            Dice Pool: <strong><span id="auto-raise-pool-display">—</span></strong>
-          </div>
-        </div>
+        </div>`}
       </form>
     `;
         return new Promise((resolve) => {
@@ -3823,15 +3836,15 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                                 baseTN =
                                     challengeBuckets[bucket] ?? challengeBuckets.standard;
                             }
-                            const raises = parseInt(html.find('[name="raises"]').val()) || 0;
-                            const finalTN = baseTN + (raises * 4);
-                            const autoRaises = Math.max(0, parseInt(html.find('[name="autoRaises"]').val()) || 0);
+                            const raises = marginOnly
+                                ? 0
+                                : parseInt(html.find('[name="raises"]').val()) || 0;
+                            const finalTN = baseTN + raises * 4;
                             resolve({
                                 attributeKey,
                                 baseTN,
                                 raises,
                                 finalTN,
-                                autoRaises
                             });
                         }
                     },
@@ -3875,32 +3888,31 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                             baseTN = buckets[bucket] ?? buckets.standard;
                         }
                         const raises = parseInt($html.find('[name="raises"]').val()) || 0;
-                        const finalTN = baseTN + (raises * 4);
-                        $html.find('#final-tn-display').text(finalTN);
+                        const raiseTn = baseTN + raises * 4;
+                        $html.find('#normal-tn-display').text(String(baseTN));
+                        $html.find('#final-tn-display').text(String(raiseTn));
                     };
-                    const updateAutoRaisePool = () => {
+                    const updatePoolStatus = () => {
                         const attr = $html.find('[name="attribute"]').val() || defaultAttribute;
                         const preview = buildPoolPreview(attr);
-                        const autoRaises = Math.max(0, parseInt($html.find('[name="autoRaises"]').val()) || 0);
-                        const cost = autoRaises * 4;
-                        const baseAfterFloor = preview.floored;
-                        const finalPool = Math.max(1, baseAfterFloor - cost);
-                        const text = autoRaises > 0
-                            ? `${baseAfterFloor} − ${cost} = ${finalPool}d8 (+${autoRaises} auto raise${autoRaises > 1 ? 's' : ''})`
-                            : `${baseAfterFloor}d8`;
-                        $html.find('#auto-raise-pool-display').text(text);
                         $html.find('#skill-pool-status').text(fullPoolReady
                             ? `Full pool — rolling ${preview.floored}d8 (attribute ${preview.attrValue}, MR floor ${masteryRank}).`
                             : `Half pool only — skill rating ${skillRating} < MR ${masteryRank}; rolling ${preview.floored}d8 (⌊${preview.attrValue}/2⌋ = ${preview.usableAttr}, MR floor ${masteryRank}). No skill points may be spent.`);
                     };
                     $html
-                        .find('[name="baseTN"], [name="customTN"], [name="raises"], [name="challengeMR"]')
-                        .on('change input', updateFinalTN);
-                    $html.find('[name="challengeMR"]').on('change input', refreshDifficultyLabels);
-                    $html.find('[name="attribute"], [name="autoRaises"]').on('change input', updateAutoRaisePool);
+                        .find('[name="baseTN"], [name="customTN"], [name="challengeMR"]')
+                        .on('change input', () => {
+                        refreshDifficultyLabels();
+                        if (!marginOnly)
+                            updateFinalTN();
+                    });
+                    if (!marginOnly) {
+                        $html.find('[name="raises"]').on('change input', updateFinalTN);
+                        updateFinalTN();
+                    }
+                    $html.find('[name="attribute"]').on('change input', updatePoolStatus);
                     refreshDifficultyLabels();
-                    updateFinalTN();
-                    updateAutoRaisePool();
+                    updatePoolStatus();
                 }
             }, {
                 width: 600,
@@ -3968,7 +3980,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         </div>
       `
         });
-        const rollOptions = await this.#promptForSkillRollOptions(option.skill, skillDef);
+        const rollOptions = await this.#promptForSkillRollOptions(option.skill, skillDef, undefined, {
+            marginOnly: true,
+        });
         if (!rollOptions)
             return;
         const attributeValue = system.attributes?.[rollOptions.attributeKey]?.value || 0;
@@ -3987,22 +4001,34 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             numDice,
             keepDice: masteryRank,
             skill: 0,
-            tn: rollOptions.finalTN,
+            tn: rollOptions.baseTN,
+            normalTn: rollOptions.baseTN,
             label: `Echo: ${card.name} \u2014 ${option.label}`,
-            flavor: `Attribute: ${rollOptions.attributeKey.charAt(0).toUpperCase() + rollOptions.attributeKey.slice(1)}, Base TN: ${rollOptions.baseTN}, Raises: ${rollOptions.raises}. Skill: ${skillDef.name}.${equipPenaltyFlavor}`,
+            flavor: `Attribute: ${rollOptions.attributeKey.charAt(0).toUpperCase() + rollOptions.attributeKey.slice(1)}, Base TN: ${rollOptions.baseTN}. Skill: ${skillDef.name}. Raises counted after roll (+4 over TN).${equipPenaltyFlavor}`,
             actorId: this.actor.id,
             skillKey: option.skill,
             isSkillRoll: true,
             baseModifier: 0,
             rollKind: 'skill',
+            raiseModel: 'margin',
             autoFailIntent: 'skill',
             checkContext: { skillKey: option.skill },
-            autoRaises: rollOptions.autoRaises
         });
         await this.actor.update({
             [`system.echo.cardUses.${cardId}`]: true
         });
         this.render();
+    }
+    async #onPerformRitual(event) {
+        event.preventDefault();
+        const { showRitualRollDialog } = await import('../combat/ritual-roll-handler.js');
+        await showRitualRollDialog(this.actor);
+    }
+    async #onSocialCombat(event) {
+        event.preventDefault();
+        const party = [this.actor];
+        const { showSocialCombatDialog } = await import('../ui/social-combat-dialog.js');
+        await showSocialCombatDialog(party);
     }
     /**
      * Handle Safe Haven Rest - reset all skillsSpent to 0
@@ -4101,6 +4127,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         // Blood Raise HP loss flag — combat-specific; clear so future healing
         // is not blocked by the leftover marker.
         try {
+            if (this.actor.getFlag?.('mastery-system', 'bloodRaiseHpLostThisCombat') != null) {
+                await this.actor.unsetFlag?.('mastery-system', 'bloodRaiseHpLostThisCombat');
+            }
             if (this.actor.getFlag?.('mastery-system', 'bloodRaiseHpLost') != null) {
                 await this.actor.unsetFlag?.('mastery-system', 'bloodRaiseHpLost');
             }
@@ -4279,9 +4308,11 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         const currentBar = actorData.health?.currentBar ?? 0;
         const healthPenalty = getCurrentPenalty(healthBars, currentBar, numDice);
         numDice = Math.max(1, numDice + healthPenalty);
-        const tn = await this.#promptForTN();
-        if (tn === null)
+        const rollOptions = await this.#promptForTN();
+        if (rollOptions === null)
             return;
+        const { tn: baseTn, raises } = rollOptions;
+        const raiseTn = baseTn + raises * 4;
         const saveName = saveType.charAt(0).toUpperCase() + saveType.slice(1);
         let flavorText = `Using ${chosenAttr} (${usedAttr1} / ${usedAttr2})`;
         if (healthPenalty < 0) {
@@ -4294,7 +4325,11 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             numDice,
             keepDice,
             skill: 0,
-            tn,
+            tn: baseTn,
+            normalTn: baseTn,
+            raiseTn,
+            declaredRaiseSlots: raises,
+            raiseModel: 'skill',
             label: `${saveName} Save`,
             flavor: flavorText,
             actorId: this.actor.id,
@@ -4633,6 +4668,14 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             ${presets.map(p => `<button type="button" class="md-tn-btn${p.value === standardTN ? ' active' : ''}" data-tn="${p.value}">${p.label} (${p.value})</button>`).join('')}
           </div>
         </div>
+        <div class="md-group">
+          <label class="md-label">Raises <span class="md-sublabel">(+4 Raise TN each; Normal TN unchanged)</span></label>
+          <input type="number" name="raises" value="0" min="0" step="1" class="md-input" />
+          <div class="md-final-tn">
+            Normal TN: <strong><span id="save-normal-tn-display">${standardTN}</span></strong>
+            · Raise TN: <strong><span id="save-raise-tn-display">${standardTN}</span></strong>
+          </div>
+        </div>
       </form>
     `;
         return new Promise((resolve) => {
@@ -4645,7 +4688,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                         callback: (html) => {
                             const $html = (html instanceof HTMLElement) ? $(html) : $(html);
                             const tn = parseInt($html.find('[name="tn"]').val());
-                            resolve(tn);
+                            const raises = parseInt($html.find('[name="raises"]').val()) || 0;
+                            resolve({ tn, raises });
                         }
                     },
                     cancel: {
@@ -4659,16 +4703,24 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                     setTimeout(() => {
                         $html.closest('.window-app.dialog').addClass('mastery-system mastery-roll-dialog');
                     }, 0);
+                    const updateRaiseTn = () => {
+                        const tn = parseInt($html.find('[name="tn"]').val()) || 0;
+                        const raises = parseInt($html.find('[name="raises"]').val()) || 0;
+                        $html.find('#save-normal-tn-display').text(String(tn));
+                        $html.find('#save-raise-tn-display').text(String(tn + raises * 4));
+                    };
                     $html.find('.md-tn-btn').on('click', (event) => {
                         const tn = event.currentTarget.dataset.tn;
                         if (tn) {
                             $html.find('[name="tn"]').val(tn);
                             $html.find('.md-tn-btn').removeClass('active');
                             $(event.currentTarget).addClass('active');
+                            updateRaiseTn();
                         }
                     });
-                    $html.find('[name="tn"]').on('input', () => {
+                    $html.find('[name="tn"], [name="raises"]').on('input change', () => {
                         $html.find('.md-tn-btn').removeClass('active');
+                        updateRaiseTn();
                     });
                 }
             }).render(true);

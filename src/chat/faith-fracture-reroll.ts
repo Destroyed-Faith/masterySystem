@@ -155,7 +155,10 @@ export async function executeFaithFractureReroll(
         isSkillRoll: recipe.isSkillRoll,
         isSaveRoll: recipe.isSaveRoll,
         baseModifier: recipe.baseModifier,
-        autoRaises: recipe.autoRaises ?? 0,
+        normalTn: recipe.normalTn ?? recipe.tn,
+        raiseTn: recipe.raiseTn ?? recipe.tn,
+        declaredRaiseSlots: recipe.declaredRaiseSlots ?? 0,
+        stoneBonusRaises: recipe.stoneBonusRaises ?? 0,
         ...(typeof (recipe as any).attackDiceCap === 'number' &&
         Number.isFinite((recipe as any).attackDiceCap) &&
         (recipe as any).attackDiceCap > 0

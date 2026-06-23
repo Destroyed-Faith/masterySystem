@@ -29,6 +29,7 @@
  * UI integration (chat cards / dialogs) can build on top of these
  * primitives without re-deriving any thresholds.
  */
+import { resolveRaiseOutcome } from '../combat/raise-resolution.js';
 export const SOCIAL_COMBAT_DEFAULT_BASE_TN = 16;
 export const SOCIAL_COMBAT_RAISE_TN_INCREMENT = 4;
 /** Players Guide 5096–5100. */
@@ -65,9 +66,20 @@ export function setupGainForRaises(raises) {
     const r = Math.max(0, Math.floor(raises));
     return r - 1;
 }
-/** Phase TN after declaring `raises` Raises. */
-export function phaseTnWithRaises(baseTn, raises) {
+/** Raise TN after declaring `raises` Raises (Normal TN unchanged). */
+export function phaseRaiseTn(baseTn, raises) {
     return Math.max(0, baseTn) + Math.max(0, raises) * SOCIAL_COMBAT_RAISE_TN_INCREMENT;
+}
+/** @deprecated Alias for {@link phaseRaiseTn}. */
+export function phaseTnWithRaises(baseTn, raises) {
+    return phaseRaiseTn(baseTn, raises);
+}
+/** Resolve a Lead roll under the dual-TN Raise rules. */
+export function resolveLeadRollOutcome(total, normalTn, declaredRaises) {
+    const raiseOutcome = resolveRaiseOutcome(total, normalTn, declaredRaises);
+    const success = raiseOutcome !== 'fail';
+    const raises = raiseOutcome === 'full' ? Math.max(0, Math.floor(declaredRaises)) : 0;
+    return { success, raises, raiseOutcome };
 }
 /** Total Mastery-Rank bonus contributed by all successful Supports. */
 export function supportBonusTotal(results) {

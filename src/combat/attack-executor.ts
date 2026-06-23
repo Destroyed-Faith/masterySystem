@@ -18,6 +18,19 @@ import {
 import { resolvePowerMechanics } from "../utils/power-mechanics.js";
 import { RAISE_INCREMENT } from "../utils/constants.js";
 import { calculateBaseTN } from "./spell-roll-handler.js";
+import {
+  buildAvailableRaiseOptions,
+  computeRaiseTns,
+  countRaiseSlots,
+  declaredRaiseFromOptionId,
+  formatSnapshotSummary,
+  loadPowerSnapshotForItem,
+  previewAfterRaiseCost,
+  type DeclaredRaise,
+  type PowerSnapshot,
+  type RaiseCostAllocation,
+  type RaiseOption,
+} from "./raise-resolution.js";
 
 /** Bookkeeping for a single strike of a split-attack pair. */
 interface SplitContext {
@@ -400,11 +413,34 @@ export async function createAttackCard(
     }
   }
 
-  /** Base TN before declared raises (+4 each). Stored in flags.targetEvade for roll-handler compat. */
-  const baseTnBeforeRaises =
+  /** Normal TN (Evade or Casting) — unchanged by declared raises. */
+  const normalTn =
     tnKind === 'casting' && castingBaseTn != null ? castingBaseTn : targetEvadeFromActor;
-  const targetEvade = baseTnBeforeRaises;
-  const baseEvade = baseTnBeforeRaises;
+  const baseEvade = normalTn;
+
+  let raiseContext: {
+    masteryRank: number;
+    isSpell: boolean;
+    baseSnapshot: PowerSnapshot;
+    raiseOptions: RaiseOption[];
+  } | null = null;
+
+  if (option.source === 'power' && option.item && !isNpcAttack) {
+    try {
+      const loaded = await loadPowerSnapshotForItem(option.item);
+      const opts = buildAvailableRaiseOptions(loaded.snapshot, loaded.isSpell);
+      if (opts.length > 0) {
+        raiseContext = {
+          masteryRank,
+          isSpell: loaded.isSpell,
+          baseSnapshot: loaded.snapshot,
+          raiseOptions: opts,
+        };
+      }
+    } catch (err) {
+      console.warn('Mastery System | raise context load failed', err);
+    }
+  }
   
   const tr =
     attackType === "ranged"
@@ -435,8 +471,9 @@ export async function createAttackCard(
     attribute: attribute,
     attributeValue: attributeValue,
     masteryRank: masteryRank,
-    targetEvade: targetEvade,
-    baseEvade: baseEvade,
+    targetEvade: normalTn,
+    baseEvade: normalTn,
+    normalTn,
     weaponId: weaponId,
     selectedPowerId: selectedPowerId,
     selectedPowerLevel: selectedPowerLevel,
@@ -468,9 +505,16 @@ export async function createAttackCard(
     npcAttackName: isNpcAttack
       ? (npcAttackRow?.name?.trim() || option.name || "NSC-Angriff")
       : undefined,
+    ...(raiseContext
+      ? {
+          powerIsSpell: raiseContext.isSpell,
+          basePowerSnapshot: raiseContext.baseSnapshot,
+          raiseOptions: raiseContext.raiseOptions,
+        }
+      : {}),
     tnKind,
     ...(castingBaseTn != null ? { castingBaseTn } : {}),
-    targetEvadeFromActor: tnKind === 'casting' ? targetEvadeFromActor : undefined
+    targetEvadeFromActor: tnKind === 'casting' ? targetEvadeFromActor : undefined,
   };
   
   // Debug log before creating message
@@ -564,55 +608,53 @@ export async function createAttackCard(
             data-attribute="${attribute}"
             data-attribute-value="${attributeValue}"
             data-mastery-rank="${masteryRank}"
-            data-target-evade="${targetEvade}"
-            data-base-evade="${baseEvade}"
-            data-raises="0"
-            data-auto-raises="0"
+            data-normal-tn="${normalTn}"
+            data-target-evade="${normalTn}"
+            data-base-evade="${normalTn}"
+            data-raise-tn="${normalTn}"
+            data-raise-slots="0"
+            data-raise-plan="[]"
             data-aoe-melee="${aoeMeleeAttr}"
             data-aoe-secondary-ids="${aoeIdsAttr}"
             data-aoe-power-dice="${aoeDiceAttr}">
       <i class="fas fa-dice-d20"></i> Roll
     </button>
   `;
-  
-  // Build raises dropdown (1-8)
-  const raisesOptions = Array.from({ length: 8 }, (_, i) => {
-    const value = i + 1;
-    return `<option value="${value}">${value}</option>`;
-  }).join('');
+
+  const raisePlanHtml = raiseContext
+    ? `
+    <div class="raise-plan-panel">
+      <div class="raise-tn-row">
+        <span>Normal TN: <strong>${normalTn}</strong></span>
+        <span>Raise TN: <strong class="raise-tn-display">${normalTn}</strong></span>
+      </div>
+      <div class="raise-preview-row">Before roll: <strong class="raise-cost-display">${attackCardEsc(formatSnapshotSummary(raiseContext.baseSnapshot))}</strong></div>
+      ${
+        raiseContext.isSpell
+          ? `<div class="spell-cost-split-row md-sublabel">
+          Spell cost split (total MR value per raise):
+          <label>d8 <input type="number" class="spell-cost-d8" min="0" value="0" style="width:3em" /></label>
+          <label>Special <input type="number" class="spell-cost-special" min="0" value="0" style="width:3em" /></label>
+        </div>`
+          : ''
+      }
+      ${
+        tnKind === 'casting'
+          ? `<div class="blood-raises-row md-sublabel">
+          Blood Raises (+4 roll each, −4 HP each):
+          <input type="number" class="blood-raises-input" min="0" max="8" value="0" style="width:3em" />
+        </div>`
+          : ''
+      }
+      <div class="raise-plan-rows"></div>
+      <button type="button" class="add-raise-btn"><i class="fas fa-plus"></i> Add Raise</button>
+    </div>`
+    : '';
   
   const raisesTitle =
     tnKind === 'casting'
-      ? `Each step adds +${RAISE_INCREMENT} to the Casting TN before the roll (Power Level → Base TN). The same value caps how many Raises may be spent on damage (0 = no cap).`
-      : `Each step adds +${RAISE_INCREMENT} to the target Evade TN before the roll. The same value caps how many Raises may be spent on damage (0 = no cap).`;
-
-  const raisesDropdown = `
-    <div class="raises-input-group" title="${attackCardEsc(raisesTitle)}">
-      <label for="raises-select-${attacker.id}-${target.id}">Raises:</label>
-      <select id="raises-select-${attacker.id}-${target.id}" class="raises-select" data-message-id="">
-        <option value="0" selected>0</option>
-        ${raisesOptions}
-      </select>
-    </div>
-  `;
-
-  // Build auto-raises dropdown (0 to floor(attribute/4)) — each auto-raise
-  // removes 4 dice from the pool for a guaranteed +1 raise on success.
-  const maxAutoRaises = Math.max(0, Math.floor((attributeValue || 0) / 4));
-  const autoRaiseOptions = Array.from({ length: maxAutoRaises }, (_, i) => {
-    const value = i + 1;
-    return `<option value="${value}">${value} (−${value * 4} dice)</option>`;
-  }).join('');
-
-  const autoRaisesDropdown = `
-    <div class="raises-input-group auto-raises-input-group" title="Voluntarily shrink your pool by 4 dice per Auto-Raise to get a guaranteed +1 Raise on success.">
-      <label for="auto-raises-select-${attacker.id}-${target.id}">Auto-Raises:</label>
-      <select id="auto-raises-select-${attacker.id}-${target.id}" class="auto-raises-select" data-message-id="">
-        <option value="0" selected>0</option>
-        ${autoRaiseOptions}
-      </select>
-    </div>
-  `;
+      ? `Declare Raises before rolling. Each Raise adds +${RAISE_INCREMENT} to the Raise TN (Normal TN stays ${normalTn}). Pay Raise Cost from the Power first.`
+      : `Declare Raises before rolling. Each Raise adds +${RAISE_INCREMENT} to the Raise TN (Normal TN / Evade stays ${normalTn}). Pay Raise Cost from the Power first.`;
   
   const content = `
     <div class="mastery-attack-card">
@@ -647,7 +689,7 @@ export async function createAttackCard(
         </div>`
             : `<div class="detail-row">
           <span class="detail-label">Target Evade:</span>
-          <span class="detail-value">${targetEvade}</span>
+          <span class="detail-value">${normalTn}</span>
         </div>`
         }
         ${weapon ? `<div class="detail-row"><span class="detail-label">Weapon:</span><span class="detail-value">${attackCardEsc(weapon.name)}</span></div>` : ""}
@@ -657,8 +699,7 @@ export async function createAttackCard(
         ${selectedPowerId ? `<div class="detail-row"><span class="detail-label">Power:</span><span class="detail-value">${attackCardEsc(option.name)}</span></div>` : ""}
       </div>
       <div class="attack-controls">
-        ${raisesDropdown}
-        ${autoRaisesDropdown}
+        ${raisePlanHtml ? `<div class="raises-input-group" title="${attackCardEsc(raisesTitle)}">${raisePlanHtml}</div>` : ''}
         ${buttonHtml}
       </div>
     </div>
@@ -709,10 +750,10 @@ export async function createAttackCard(
           // Try alternative selector
           const altElement = $(`[data-message-id="${messageId}"]`);
           if (altElement.length) {
-            setupRaisesHandler(altElement, messageId, baseEvade);
+            setupRaisesHandler(messageElement, messageId, normalTn, raiseContext);
           }
         } else {
-          setupRaisesHandler(messageElement, messageId, baseEvade);
+          setupRaisesHandler(messageElement, messageId, normalTn, raiseContext);
         }
       }, 100);
     }
@@ -725,7 +766,7 @@ export async function createAttackCard(
       attribute,
       attributeValue,
       masteryRank,
-      targetEvade,
+      targetEvade: normalTn,
       threatenedRanged: tr.threatened
     });
   } catch (error) {
@@ -753,46 +794,137 @@ export async function createRangedAttackCard(
 }
 
 /**
- * Setup raises dropdown change handler
+ * Setup raise-plan editor on attack cards (new Raise rules).
  */
-function setupRaisesHandler(messageElement: JQuery, messageId: string, baseEvade: number): void {
-  const raisesSelect = messageElement.find('.raises-select');
-  if (raisesSelect.length) {
-    raisesSelect.attr('data-message-id', messageId);
-    
-    // Add change handler to update button data-raises
-    raisesSelect.off('change').on('change', function() {
-      const raises = parseInt($(this).val() as string) || 0;
-      const button = messageElement.find('.roll-attack-btn');
-      button.attr('data-raises', raises.toString());
-      
-      // Each declared raise increases the attack TN by +RAISE_INCREMENT (same
-      // step the roll engine uses for margin Raises — was +2, which was wrong).
-      const adjustedEvade = baseEvade + raises * RAISE_INCREMENT;
-      button.attr('data-target-evade', adjustedEvade.toString());
-      
-      console.log('Mastery System | [ATTACK CARD] Raises updated', {
-        raises,
-        baseEvade,
-        adjustedEvade
-      });
-    });
-  }
+function setupRaisesHandler(
+  messageElement: JQuery,
+  messageId: string,
+  normalTn: number,
+  raiseContext: {
+    masteryRank: number;
+    isSpell: boolean;
+    baseSnapshot: PowerSnapshot;
+    raiseOptions: RaiseOption[];
+  } | null,
+): void {
+  const button = messageElement.find('.roll-attack-btn');
+  button.attr('data-normal-tn', String(normalTn));
+  button.attr('data-target-evade', String(normalTn));
+  button.attr('data-base-evade', String(normalTn));
+  button.attr('data-raise-tn', String(normalTn));
+  button.attr('data-raise-slots', '0');
+  button.attr('data-raise-plan', '[]');
 
-  // Auto-Raises dropdown — each auto-raise shrinks the pool by 4 dice and
-  // grants +1 raise on success. Stored on the roll button as `data-auto-raises`.
-  const autoRaisesSelect = messageElement.find('.auto-raises-select');
-  if (autoRaisesSelect.length) {
-    autoRaisesSelect.attr('data-message-id', messageId);
-    autoRaisesSelect.off('change').on('change', function() {
-      const autoRaises = Math.max(0, parseInt($(this).val() as string) || 0);
-      const button = messageElement.find('.roll-attack-btn');
-      button.attr('data-auto-raises', autoRaises.toString());
-      console.log('Mastery System | [ATTACK CARD] Auto-Raises updated', {
-        autoRaises,
-        diceCost: autoRaises * 4
-      });
+  if (!raiseContext) return;
+
+  const panel = messageElement.find('.raise-plan-panel');
+  const maxSlots = 8;
+
+  const buildOptionHtml = (): string => {
+    const opts = raiseContext!.raiseOptions
+      .map(
+        (o) =>
+          `<option value="${o.id}">${o.label} (${o.slots} slot${o.slots > 1 ? 's' : ''})</option>`,
+      )
+      .join('');
+    return `<option value="">— Raise effect —</option>${opts}`;
+  };
+
+  const collectPlan = (): DeclaredRaise[] => {
+    const plan: DeclaredRaise[] = [];
+    panel.find('.raise-plan-row').each((_i, row) => {
+      const id = $(row).find('.raise-effect-select').val() as string;
+      if (!id) return;
+      const dr = declaredRaiseFromOptionId(id, raiseContext!.raiseOptions);
+      if (dr) plan.push(dr);
     });
-  }
+    return plan;
+  };
+
+  const updatePreview = (): void => {
+    const plan = collectPlan();
+    const slots = countRaiseSlots(plan);
+    const { raiseTn } = computeRaiseTns(normalTn, slots);
+    let spellCostOverride: RaiseCostAllocation | undefined;
+    if (raiseContext!.isSpell && slots > 0) {
+      const costTotal = raiseContext!.masteryRank * slots;
+      const d8Paid = Math.max(0, parseInt(panel.find('.spell-cost-d8').val() as string, 10) || 0);
+      const spPaid = Math.max(0, parseInt(panel.find('.spell-cost-special').val() as string, 10) || 0);
+      if (d8Paid + spPaid === costTotal && (d8Paid > 0 || spPaid > 0)) {
+        spellCostOverride = { damageDice: d8Paid, specialByKey: {} };
+        if (spPaid > 0) {
+          const sorted = [...raiseContext!.baseSnapshot.specials].sort((a, b) => b.rank - a.rank);
+          let rem = spPaid;
+          for (const sp of sorted) {
+            if (rem <= 0) break;
+            const take = Math.min(sp.rank, rem);
+            if (take > 0) {
+              spellCostOverride.specialByKey[sp.key] = take;
+              rem -= take;
+            }
+          }
+        }
+        button.attr('data-spell-cost', JSON.stringify(spellCostOverride));
+      } else {
+        button.removeAttr('data-spell-cost');
+      }
+    }
+    const preview = previewAfterRaiseCost(
+      raiseContext!.baseSnapshot,
+      plan,
+      raiseContext!.masteryRank,
+      raiseContext!.isSpell,
+      spellCostOverride,
+    );
+    panel.find('.raise-tn-display').text(String(raiseTn));
+    panel.find('.raise-cost-display').text(formatSnapshotSummary(preview));
+    button.attr('data-raise-tn', String(raiseTn));
+    button.attr('data-raise-slots', String(slots));
+    button.attr('data-raise-plan', JSON.stringify(plan));
+    button.attr('data-raises', String(slots));
+    const blood = Math.max(0, parseInt(panel.find('.blood-raises-input').val() as string, 10) || 0);
+    button.attr('data-blood-raises', String(blood));
+  };
+
+  const addRow = (): void => {
+    const currentSlots = countRaiseSlots(collectPlan());
+    if (currentSlots >= maxSlots) {
+      ui.notifications?.warn?.(`Maximum ${maxSlots} Raise slots.`);
+      return;
+    }
+    const row = $(`
+      <div class="raise-plan-row">
+        <select class="raise-effect-select">${buildOptionHtml()}</select>
+        <button type="button" class="remove-raise-btn" title="Remove"><i class="fas fa-times"></i></button>
+      </div>
+    `);
+    panel.find('.raise-plan-rows').append(row);
+    row.find('.raise-effect-select').on('change', () => {
+      const slots = countRaiseSlots(collectPlan());
+      if (slots > maxSlots) {
+        ui.notifications?.warn?.(`Maximum ${maxSlots} Raise slots.`);
+        row.find('.raise-effect-select').val('');
+      }
+      updatePreview();
+    });
+    row.find('.remove-raise-btn').on('click', (ev) => {
+      ev.preventDefault();
+      row.remove();
+      updatePreview();
+    });
+    updatePreview();
+  };
+
+  panel.find('.add-raise-btn').off('click.masteryRaisePlan').on('click.masteryRaisePlan', (ev) => {
+    ev.preventDefault();
+    addRow();
+  });
+
+  panel.find('.spell-cost-d8, .spell-cost-special, .blood-raises-input')
+    .off('input.masteryRaisePlan change.masteryRaisePlan')
+    .on('input.masteryRaisePlan change.masteryRaisePlan', () => updatePreview());
+
+  void messageId;
+  updatePreview();
 }
 

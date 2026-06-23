@@ -28,6 +28,8 @@ import type {
 } from '../types/item.js';
 import type { MasteryRollResult } from '../types/index';
 import { masteryRoll } from '../dice/roll-handler.js';
+import { computeRaiseTns, resolveRaiseOutcome, type RaiseOutcome } from './raise-resolution.js';
+import { RAISE_INCREMENT } from '../utils/constants.js';
 import { applyStress, applyDamage } from '../utils/calculations.js';
 import type { HealthBar } from '../types/actor.js';
 
@@ -253,7 +255,9 @@ export interface SpellRollParams {
   resolution: SpellResolution;
   /** Save type for Save Spells; ignored for `spellAttack`. */
   saveType?: SpellSaveType;
-  /** Declared Raises (each +4 TN against the relevant target number). */
+  /** Declared raise slots (each +4 to Raise TN; Normal TN unchanged). */
+  declaredRaiseSlots?: number;
+  /** @deprecated Use declaredRaiseSlots */
   declaredRaises?: number;
   /** Blood Raises bought with 4 HP each (each adds +4 to the final total). */
   bloodRaises?: number;
@@ -272,12 +276,14 @@ export interface SpellRollParams {
 export interface SpellRollResult {
   /** Casting / spell-attack roll result. */
   castingRoll: MasteryRollResult;
-  /** Base TN used (before raises / modifiers). */
+  /** Normal casting TN (before raise tier). */
   baseTn: number;
-  /** Final TN actually compared against (after raises + modifiers). */
+  /** Raise TN when raises declared. */
+  raiseTn: number;
+  /** @deprecated Final TN — same as raiseTn when raises declared, else baseTn. */
   finalTn: number;
-  /** Raises declared by the caster (non-blood). */
   declaredRaises: number;
+  raiseOutcome: RaiseOutcome;
   /** Blood Raises applied (each worth +4 total and −4 HP). */
   bloodRaises: number;
   /** HP actually removed for Blood Raises (clamped to what was available). */
@@ -311,6 +317,7 @@ export async function rollSpell(params: SpellRollParams): Promise<SpellRollResul
     resolution,
     saveType,
     declaredRaises = 0,
+    declaredRaiseSlots,
     bloodRaises = 0,
     gmModifier = 0,
     masteryRankOverride,
@@ -330,11 +337,13 @@ export async function rollSpell(params: SpellRollParams): Promise<SpellRollResul
   const keepDice = Math.max(1, masteryRank);
 
   const bloodApplied = Math.max(0, Math.floor(bloodRaises));
-  const rawRaises = Math.max(0, Math.floor(declaredRaises));
-  const totalRaises = bloodApplied + rawRaises;
+  const raiseSlots = Math.max(
+    0,
+    Math.floor(declaredRaiseSlots ?? declaredRaises ?? 0),
+  );
 
-  const baseTn = calculateBaseTN(spellLevel);
-  const finalTn = baseTn + totalRaises * 4 + (Number(gmModifier) || 0);
+  const baseTn = calculateBaseTN(spellLevel) + (Number(gmModifier) || 0);
+  const { raiseTn } = computeRaiseTns(baseTn, raiseSlots);
 
   // HP cost for Blood Raises fires *before* the roll per the SRD wording.
   let bloodHpLost = 0;
@@ -348,7 +357,7 @@ export async function rollSpell(params: SpellRollParams): Promise<SpellRollResul
     resolution === 'spellAttack'
       ? `Spell Attack — Casting TN ${baseTn}`
       : `Save Spell — Base TN ${baseTn}${supportMode ? ' (support)' : ''}`,
-    totalRaises > 0 ? `+${totalRaises} Raise${totalRaises === 1 ? '' : 's'} (+${totalRaises * 4} TN)` : undefined,
+    raiseSlots > 0 ? `+${raiseSlots} Raise${raiseSlots === 1 ? '' : 's'} (Raise TN ${raiseTn})` : undefined,
     bloodApplied > 0 ? `Blood Raises: ${bloodApplied} (−${bloodHpLost} HP)` : undefined,
     gmModifier ? `GM ${gmModifier > 0 ? '+' : ''}${gmModifier}` : undefined,
   ]
@@ -359,7 +368,10 @@ export async function rollSpell(params: SpellRollParams): Promise<SpellRollResul
     numDice,
     keepDice,
     skill: 0,
-    tn: finalTn,
+    tn: baseTn,
+    normalTn: baseTn,
+    raiseTn,
+    declaredRaiseSlots: raiseSlots,
     label,
     flavor: autoFlavor,
     actorId: actor?.id,
@@ -367,13 +379,21 @@ export async function rollSpell(params: SpellRollParams): Promise<SpellRollResul
     rollKind: resolution === 'spellAttack' ? 'attack' : 'generic',
   });
 
-  // `masteryRoll` already records success/raises against the final TN.
-  // Blood Raises are added on top of the rolled total for the success check.
-  const adjustedTotal = castingRoll.total + bloodApplied * 4;
-  const success = adjustedTotal >= finalTn;
-  const raises = success
-    ? Math.floor((adjustedTotal - finalTn) / 4) + totalRaises
-    : 0;
+  const adjustedTotal = castingRoll.total + bloodApplied * RAISE_INCREMENT;
+  let raiseTnRollBonus = 0;
+  try {
+    const { getRoundState } = await import('./action-economy.js');
+    const combat = (game as any).combat;
+    if (actor && combat) {
+      const rs = getRoundState(actor, combat);
+      raiseTnRollBonus = Math.max(0, Number(rs?.stoneBonuses?.spellRaiseTnBonus) || 0);
+    }
+  } catch {
+    /* ignore */
+  }
+  const raiseOutcome = resolveRaiseOutcome(adjustedTotal, baseTn, raiseSlots, raiseTnRollBonus);
+  const success = raiseOutcome !== 'fail';
+  const raises = raiseOutcome === 'full' ? raiseSlots : 0;
 
   let stressTaken = 0;
   if (!success) {
@@ -383,8 +403,10 @@ export async function rollSpell(params: SpellRollParams): Promise<SpellRollResul
   return {
     castingRoll,
     baseTn,
-    finalTn,
-    declaredRaises: rawRaises,
+    raiseTn,
+    finalTn: raiseSlots > 0 ? raiseTn : baseTn,
+    declaredRaises: raiseSlots,
+    raiseOutcome,
     bloodRaises: bloodApplied,
     bloodHpLost,
     success,

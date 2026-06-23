@@ -20,6 +20,15 @@ import { logDrDebug } from '../utils/dr-debug.js';
 import { artifactSystemHasSpellFocus } from '../utils/artifact-rules.js';
 import { deriveArtifactWeaponDamage } from '../utils/artifact-base-derive.js';
 import { getActorSpellFocusBonusDice } from '../utils/artifact-base-values.js';
+import {
+  resolvePowerSnapshot,
+  snapshotToDamageFormula,
+  snapshotToSpecialStrings,
+  formatSnapshotSummary,
+  type PowerSnapshot,
+  type RaiseCostAllocation,
+  type RaiseOutcome,
+} from '../combat/raise-resolution.js';
 
 /**
  * Add `bonusDice` d8 to a damage formula. Empty / "0" → "Nd8"; pure "Xd8" →
@@ -687,6 +696,41 @@ export async function showDamageDialog(
     selectedPowerName: selectedPowerData?.name
   });
 
+  let raiseOutcomeLine = '';
+  let resolvedPowerSnapshot: PowerSnapshot | null = null;
+  if (flags?.basePowerSnapshot && flags?.raiseOutcome) {
+    const masteryRank = Math.max(
+      1,
+      Math.floor(Number((actorToUse as any).system?.mastery?.rank) || flags.masteryRank || 2),
+    );
+    const isSpell = !!flags.powerIsSpell;
+    const declaredRaises = Array.isArray(flags.declaredRaises) ? flags.declaredRaises : [];
+    const outcome = flags.raiseOutcome as RaiseOutcome;
+    resolvedPowerSnapshot = resolvePowerSnapshot({
+      base: flags.basePowerSnapshot as PowerSnapshot,
+      declaredRaises,
+      outcome,
+      masteryRank,
+      isSpell,
+      stoneBonusRaises: Math.max(0, Number(flags.stoneBonusRaises) || 0),
+      spellCostOverride: flags.spellCostOverride as RaiseCostAllocation | undefined,
+    });
+    powerDamage = snapshotToDamageFormula(resolvedPowerSnapshot);
+    const resolvedSpecials = snapshotToSpecialStrings(resolvedPowerSnapshot);
+    if (selectedPowerData) {
+      selectedPowerData.damage = powerDamage;
+      selectedPowerData.specials = resolvedSpecials;
+    }
+    powerSpecials.length = 0;
+    powerSpecials.push(...resolvedSpecials);
+    raiseOutcomeLine =
+      outcome === 'partial'
+        ? `Raise failed — applying ${formatSnapshotSummary(resolvedPowerSnapshot)} (cost lost)`
+        : outcome === 'full'
+          ? `Raise succeeded — ${formatSnapshotSummary(resolvedPowerSnapshot)}`
+          : '';
+  }
+
   let npcAutoDamageDice = 0;
   const npcAutoSpecialStrings: string[] = [];
   const npcLists = buildNpcSpecialOptionsFromActor(actorToUse as Actor);
@@ -695,7 +739,7 @@ export async function showDamageDialog(
   if (isNpcAttackFlow) {
     const atk = getNpcAttackByIndex((actorToUse as any).system, flags?.npcAttackIndex, flags?.npcPhaseIndex);
     powerDamage = npcDamageDiceFormula(atk);
-    npcAutoDamageDice += Math.max(0, Math.floor(Number(atk?.autoRaises) || 0));
+    npcAutoDamageDice += 0; // legacy npc autoRaises removed with new Raise rules
     const atkName = String(flags?.npcAttackName || atk?.name || 'NSC-Angriff');
     const inlineSpecials: string[] = [];
     if (atk?.special) {
@@ -750,13 +794,13 @@ export async function showDamageDialog(
       baseDamage,
       powerDamage,
       passiveDamage,
-      raises,
       availableSpecials,
       weaponSpecials,
       resolve,
       selectedPowerData,
       weaponInnateLines,
-      npcAutoNoteLines
+      npcAutoNoteLines,
+      raiseOutcomeLine,
     );
     
     // Get targetTokenId if target is a token actor (for unlinked tokens)
@@ -791,7 +835,10 @@ export async function showDamageDialog(
           baseDamage,
           powerDamage,
           passiveDamage,
-          raises,
+          raises: 0,
+          raiseOutcome: flags?.raiseOutcome ?? null,
+          raiseOutcomeLine,
+          resolvedPowerSnapshot,
           stoneDamageBonusDice,
           availableSpecials,
           weaponSpecials,
@@ -839,60 +886,23 @@ function createDamageCardContent(
   baseDamage: string,
   powerDamage: string,
   passiveDamage: string,
-  raises: number,
   availableSpecials: SpecialOption[],
   _weaponSpecials: string[],
   _resolve: (result: DamageResult | null) => void,
   selectedPower?: any,
   weaponInnateLines: string[] = [],
-  npcAutoNoteLines: string[] = []
+  npcAutoNoteLines: string[] = [],
+  raiseOutcomeLine: string = '',
 ): string {
-  let raisesSection = '';
-  if (raises > 0) {
-    // Create raise items with all specials directly in the dropdown
-    const raiseItems = Array.from({ length: raises }, (_, i) => {
-      const raiseIndex = i;
-      // Include all available specials directly in the main dropdown
-      let specialOptions = '';
-      if (availableSpecials.length > 0) {
-        specialOptions = availableSpecials.map(special => 
-          `<option value="special:${special.id}">${special.name}</option>`
-        ).join('');
-      }
-      
-      return `
-        <div class="raise-item" data-raise-index="${raiseIndex}">
-          <label>Raise ${raiseIndex + 1}:</label>
-          <select class="raise-selection" data-raise-index="${raiseIndex}">
-            <option value="">-- Select --</option>
-            <option value="damage">+1d8 Damage</option>
-            ${specialOptions}
-          </select>
-        </div>
-      `;
-    }).join('');
-    
-    raisesSection = `
-      <div class="raises-section">
-        <h4><i class="fas fa-star"></i> Raises (${raises} available)</h4>
-        <p class="raises-description">Each raise can be used for a Special (once per raise) or 1d8 additional damage.</p>
-        <div class="raises-list">
-          ${raiseItems}
-        </div>
-      </div>
-    `;
-  }
+  const raisesSection = raiseOutcomeLine
+    ? `<div class="raises-section raise-outcome-line"><p>${damageCardHtmlEsc(raiseOutcomeLine)}</p></div>`
+    : '';
   
   console.log('Mastery System | [DAMAGE CARD HTML] createDamageCardContent - values', {
     baseDamage: baseDamage,
     powerDamage: powerDamage,
     passiveDamage: passiveDamage,
-    raises: raises,
-    raisesType: typeof raises,
-    raisesIsNumber: typeof raises === 'number',
-    raisesIsGreaterThanZero: raises > 0,
-    hasRaisesSection: !!raisesSection,
-    raisesSectionLength: raisesSection.length,
+    raiseOutcomeLine,
     selectedPower: selectedPower ? {
       id: selectedPower.id,
       name: selectedPower.name,
@@ -972,7 +982,7 @@ function createDamageCardContent(
     htmlPreview: html.substring(0, 500),
     containsBaseDamage: html.includes(baseDamage),
     containsPowerDamage: html.includes(powerDamage),
-    containsRaises: html.includes(`Raises (${raises} available)`),
+    containsRaiseOutcome: !!raiseOutcomeLine && html.includes(raiseOutcomeLine),
     containsSelectedPower: selectedPower ? html.includes(selectedPower.name) : false,
     containsPowerSpecials: selectedPower && selectedPower.specials.length > 0 ? 
       selectedPower.specials.some((s: string) => html.includes(s)) : false
@@ -982,38 +992,7 @@ function createDamageCardContent(
 }
 
 /**
- * Each raise can spend a given Special at most once across all raise dropdowns.
- */
-function refreshRaiseSpecialExclusivity(messageElement: JQuery): void {
-  const $selects = messageElement.find(".raise-selection");
-  $selects.each(function () {
-    const $sel = $(this);
-    const myVal = ($sel.val() as string) || "";
-    const takenElsewhere = new Set<string>();
-    $selects.each(function () {
-      if (this === $sel[0]) return;
-      const v = ($(this).val() as string) || "";
-      if (v.startsWith("special:")) takenElsewhere.add(v);
-    });
-    $sel.find("option").each(function () {
-      const $opt = $(this);
-      const val = $opt.attr("value") || "";
-      if (!val.startsWith("special:")) {
-        $opt.prop("disabled", false);
-        return;
-      }
-      const blocked = takenElsewhere.has(val) && val !== myVal;
-      $opt.prop("disabled", blocked);
-    });
-    const $chosen = $sel.find("option:selected");
-    if ($chosen.length && $chosen.prop("disabled")) {
-      $sel.val("");
-    }
-  });
-}
-
-/**
- * Bind damage-card UI (raises, roll, cancel). Safe to call again after chat HTML refresh.
+ * Bind damage-card UI (roll, cancel). Safe to call again after chat HTML refresh.
  */
 export function attachDamageCardHandlers(messageId: string): void {
   if (damageCardSettledMessageIds.has(messageId)) return;
@@ -1024,25 +1003,6 @@ export function attachDamageCardHandlers(messageId: string): void {
     console.warn('Mastery System | Could not find damage card message element', messageId);
     return;
   }
-
-  messageElement
-    .find('.raise-selection')
-    .off('change.msDmgRaise')
-    .on('change.msDmgRaise', function () {
-      const raiseIndex = parseInt($(this).data('raise-index'));
-      const selectionType = $(this).val() as string;
-      const specialSelect = messageElement.find(`.special-select[data-raise-index="${raiseIndex}"]`);
-
-      if (selectionType === 'damage') {
-        specialSelect.hide();
-      } else if (selectionType === 'special') {
-        specialSelect.show();
-      } else {
-        specialSelect.hide();
-      }
-      refreshRaiseSpecialExclusivity(messageElement);
-    });
-  refreshRaiseSpecialExclusivity(messageElement);
 
   messageElement.find('.roll-damage-btn').off('click.msRollDamage').on('click.msRollDamage', async function () {
     const $btn = $(this);
@@ -1139,42 +1099,14 @@ export function attachDamageCardHandlers(messageId: string): void {
       return;
     }
     
-    // Collect raise selections
+    // Raise effects are pre-declared on the attack card — no post-roll picker.
     const raiseSelections: Map<number, { type: 'special' | 'damage'; value: string }> = new Map();
-    messageElement.find('.raise-selection').each(function() {
-      const raiseIndex = parseInt($(this).data('raise-index'));
-      const selectionValue = $(this).val() as string;
-      if (selectionValue === 'damage') {
-        raiseSelections.set(raiseIndex, { type: 'damage', value: '1d8' });
-      } else if (selectionValue && selectionValue.startsWith('special:')) {
-        const specialId = selectionValue.replace('special:', '');
-        raiseSelections.set(raiseIndex, { type: 'special', value: specialId });
-      }
-    });
-    
-    console.log('Mastery System | [ROLL DAMAGE BUTTON] Raise selections collected', {
-      messageId,
-      raiseSelectionsSize: raiseSelections.size,
-      raiseSelections: Array.from(raiseSelections.entries())
-    });
-    
-    // Calculate damage
-    console.log('Mastery System | [ROLL DAMAGE BUTTON] Calling calculateDamageResult', {
-      messageId,
-      baseDamage: flags.baseDamage,
-      powerDamage: flags.powerDamage,
-      passiveDamage: flags.passiveDamage,
-      raises: flags.raises,
-      raisesType: typeof flags.raises,
-      availableSpecialsCount: flags.availableSpecials?.length || 0,
-      raiseSelectionsSize: raiseSelections.size
-    });
     
     const result = await calculateDamageResult(
       flags.baseDamage,
       flags.powerDamage,
       flags.passiveDamage,
-      flags.raises,
+      0,
       raiseSelections,
       flags.availableSpecials,
       attacker,
@@ -1799,6 +1731,13 @@ async function calculateDamageResult(
   let raiseDamage = 0;
   const specialsUsed: string[] = [];
   let raiseDiceCount = 0;
+
+  // Base power specials from the resolved snapshot apply on every successful hit.
+  for (const special of availableSpecials) {
+    if (special.type === 'power-special' && special.effect) {
+      specialsUsed.push(special.effect);
+    }
+  }
   
   for (let i = 0; i < raises; i++) {
     const selection = raiseSelections.get(i);

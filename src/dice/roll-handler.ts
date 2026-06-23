@@ -4,7 +4,8 @@
  */
 
 import { MasteryRollResult } from '../types';
-import { EXPLODE_VALUE, RAISE_INCREMENT, AUTO_RAISE_DICE_COST } from '../utils/constants';
+import { EXPLODE_VALUE, RAISE_INCREMENT } from '../utils/constants';
+import { resolveRaiseOutcome, type RaiseOutcome } from '../combat/raise-resolution.js';
 import { evaluateAutoFail, type CheckContext } from '../system/auto-fail.js';
 import {
   manualKindFromRollKind,
@@ -58,15 +59,9 @@ export interface RollOptions {
    * of forcing a full failure.
    */
   autoFailIntent?: 'skill' | 'attack';
-  /**
-   * Auto-Raises — the roller voluntarily removes dice from their pool to
-   * convert them into guaranteed Raises. Each Auto-Raise shrinks the pool
-   * by `AUTO_RAISE_DICE_COST` dice and adds +1 Raise on success. Ignored
-   * when `isSaveRoll` is true; Saves cannot buy Auto-Raises.
-   */
+  /** @deprecated Auto-Raises removed — ignored if passed. */
   autoRaises?: number;
-  /**
-   * Hard cap on the final attack dice pool after mechanics / manual / auto-fail
+  /** Hard cap on the final attack dice pool after mechanics / manual / auto-fail
    * adjustments. Used for Split-Attack strikes so bonus dice from passives
    * cannot balloon the pool back above the halved strike pool.
    */
@@ -88,6 +83,25 @@ export interface RollOptions {
    * Pool size and Keep are unchanged.
    */
   rollDisadvantage?: boolean;
+  /** Normal TN — roll succeeds when total meets this (Raise rules). Defaults to `tn`. */
+  normalTn?: number;
+  /** Raise TN — declared raise effects only when total meets this. */
+  raiseTn?: number;
+  /** Number of declared raise slots (each +4 to Raise TN). */
+  declaredRaiseSlots?: number;
+  /** Stone-granted bonus raises applied on full raise success. */
+  stoneBonusRaises?: number;
+  /**
+   * Raise resolution model:
+   * - `power`: dual-TN for declared raises (combat powers)
+   * - `skill`: margin raises after roll + optional dual-TN pre-declare (no cost)
+   * - `margin`: margin raises only (echo cards, rituals)
+   */
+  raiseModel?: 'power' | 'skill' | 'margin';
+  /** Blood Raises: each adds +4 to the roll total (HP cost handled by caller). */
+  bloodRaises?: number;
+  /** Bonus added only when checking Raise TN (Intellect Spell Raises stone). */
+  raiseTnRollBonus?: number;
 }
 
 /** Stored on chat messages so a Faith Fracture reroll can repeat the same roll setup. */
@@ -103,8 +117,15 @@ export interface MasteryRollRecipe {
   isSkillRoll: boolean;
   isSaveRoll: boolean;
   baseModifier: number;
-  /** Voluntary Auto-Raises bought on this roll (0 when not used / for saves). */
-  autoRaises: number;
+  normalTn?: number;
+  raiseTn?: number;
+  declaredRaiseSlots?: number;
+  stoneBonusRaises?: number;
+  raiseModel?: 'power' | 'skill' | 'margin';
+  bloodRaises?: number;
+  raiseTnRollBonus?: number;
+  /** @deprecated */
+  autoRaises?: number;
   /** Optional Split-Attack strike pool cap (mirrors `RollOptions.attackDiceCap`). */
   attackDiceCap?: number;
   /** Mirrors `RollOptions.attackExplodeDiceOn78` for Faith Fracture rerolls. */
@@ -253,11 +274,8 @@ function calculateTotal(dice: number[], keptIndices: number[]): number {
   return keptIndices.reduce((sum, index) => sum + dice[index], 0);
 }
 
-/**
- * Calculate number of raises achieved
- * Each +4 above TN = 1 Raise
- */
-function calculateRaises(total: number, tn: number): number {
+/** Margin raises: each full +4 over TN = 1 Raise (echo, ritual, skill checks). */
+export function countMarginRaises(total: number, tn: number): number {
   if (total < tn) return 0;
   return Math.floor((total - tn) / RAISE_INCREMENT);
 }
@@ -274,18 +292,21 @@ export async function masteryRoll(options: RollOptions): Promise<MasteryRollResu
   // same Auto-Raise deduction on reroll without double-counting the cost.
   const originalNumDice = numDice;
 
-  // Auto-Raise — voluntary pool shrink for guaranteed raises. Never for saves.
-  const autoRaises = options.isSaveRoll ? 0 : Math.max(0, Math.floor(options.autoRaises ?? 0));
-  if (autoRaises > 0) {
-    const cost = autoRaises * AUTO_RAISE_DICE_COST;
-    const before = numDice;
-    numDice = Math.max(1, numDice - cost);
-    const actualCost = before - numDice;
-    const note =
-      `Auto-Raise: −${actualCost} dice → +${autoRaises} raise${autoRaises > 1 ? 's' : ''} on success` +
-      (actualCost < cost ? ` (pool floored at 1)` : '');
-    flavor = flavor ? `${flavor} | ${note}` : note;
-  }
+  // Auto-Raises removed under new Raise rules.
+  void originalNumDice;
+
+  const normalTnVal = Math.max(0, Math.floor(options.normalTn ?? tn ?? 0));
+  const declaredRaiseSlots = Math.max(0, Math.floor(options.declaredRaiseSlots ?? 0));
+  const raiseTnVal =
+    options.raiseTn != null
+      ? Math.max(0, Math.floor(options.raiseTn))
+      : declaredRaiseSlots > 0
+        ? normalTnVal + declaredRaiseSlots * RAISE_INCREMENT
+        : normalTnVal;
+  const stoneBonusRaises = Math.max(0, Math.floor(options.stoneBonusRaises ?? 0));
+  const raiseModel = options.raiseModel ?? 'power';
+  const bloodRaises = Math.max(0, Math.floor(options.bloodRaises ?? 0));
+  const raiseTnRollBonus = Math.max(0, Math.floor(options.raiseTnRollBonus ?? 0));
 
   // Power Mechanics Engine — consult the actor's aggregated dice-pool deltas
   // for this roll kind and adjust the pool before rolling. The delta is
@@ -457,21 +478,51 @@ export async function masteryRoll(options: RollOptions): Promise<MasteryRollResu
   
   // Add skill bonus (deprecated: now handled via skill spending, but kept for compatibility)
   // `manualFlatBonus` is layered on top — it was already announced in `flavor`.
-  const total = diceTotal + skill + manualFlatBonus;
-  
-  // Calculate success and raises — an auto-fail reason overrides both.
-  const rawSuccess = tn > 0 ? total >= tn : true;
-  const rawRaises = tn > 0 ? calculateRaises(total, tn) : 0;
-  const success = autoFailReason ? false : rawSuccess;
-  // Voluntary Auto-Raises only pay out when the roll actually succeeds (and
-  // wasn't forced to fail). A TN of 0 means "no target" — still grant them so
-  // free-form rolls (generic Might checks etc.) can use the mechanic.
-  const grantAutoRaises = !autoFailReason && (tn === 0 || success);
-  const raises = autoFailReason ? 0 : rawRaises + (grantAutoRaises ? autoRaises : 0);
+  const totalBeforeBlood = diceTotal + skill + manualFlatBonus;
+  const total = totalBeforeBlood + bloodRaises * RAISE_INCREMENT;
+
+  let raiseOutcome: RaiseOutcome;
+  let success: boolean;
+  let raises: number;
+
+  if (autoFailReason) {
+    raiseOutcome = 'fail';
+    success = false;
+    raises = 0;
+  } else if (raiseModel === 'margin') {
+    success = total >= normalTnVal;
+    raises = success ? countMarginRaises(total, normalTnVal) : 0;
+    raiseOutcome = success ? 'full' : 'fail';
+  } else if (raiseModel === 'skill') {
+    success = total >= normalTnVal;
+    const marginRaises = success ? countMarginRaises(total, normalTnVal) : 0;
+    if (declaredRaiseSlots > 0) {
+      raiseOutcome = resolveRaiseOutcome(total, normalTnVal, declaredRaiseSlots, raiseTnRollBonus);
+      const declaredCredit =
+        raiseOutcome === 'full' ? declaredRaiseSlots + stoneBonusRaises : 0;
+      raises = marginRaises + declaredCredit;
+      success = raiseOutcome !== 'fail';
+    } else {
+      raiseOutcome = success ? 'full' : 'fail';
+      raises = marginRaises + (success ? stoneBonusRaises : 0);
+    }
+  } else {
+    raiseOutcome = resolveRaiseOutcome(
+      total,
+      normalTnVal,
+      declaredRaiseSlots,
+      raiseTnRollBonus,
+    );
+    success = raiseOutcome !== 'fail';
+    raises =
+      raiseOutcome === 'full' ? declaredRaiseSlots + stoneBonusRaises : 0;
+  }
   
   console.log('Mastery System | DEBUG: Roll result calculated', {
     total,
-    tn,
+    normalTn: normalTnVal,
+    raiseTn: raiseTnVal,
+    raiseOutcome,
     success,
     raises,
     diceTotal,
@@ -479,21 +530,31 @@ export async function masteryRoll(options: RollOptions): Promise<MasteryRollResu
   });
   
   // Create result object
-  const result: MasteryRollResult & { keptIndices?: number[]; label?: string; flavor?: string } = {
+  const result: MasteryRollResult & {
+    keptIndices?: number[];
+    label?: string;
+    flavor?: string;
+    raiseOutcome?: RaiseOutcome;
+    normalTn?: number;
+    raiseTn?: number;
+  } = {
     total,
     dice,
     kept: keptValues,
-    keptIndices: keptIndices,  // Store indices for proper dice display
+    keptIndices: keptIndices,
     skill,
-    tn,
+    tn: normalTnVal,
     raises,
     success,
     exploded,
     dieChains,
     label,
     flavor,
+    raiseOutcome,
+    normalTn: normalTnVal,
+    raiseTn: raiseTnVal,
+    stoneBonusRaises,
     ...(autoFailReason ? { autoFailReason } : {}),
-    ...(autoRaises > 0 ? { autoRaises } : {})
   };
   
   console.log('Mastery System | DEBUG: Sending roll to chat', {
@@ -503,12 +564,10 @@ export async function masteryRoll(options: RollOptions): Promise<MasteryRollResu
   });
 
   const rollRecipe: MasteryRollRecipe = {
-    // Persist the pre-Auto-Raise pool: the reroll path calls masteryRoll() again
-    // with the same `autoRaises`, which will re-deduct the dice cost itself.
-    numDice: originalNumDice,
+    numDice: options.numDice,
     keepDice,
     skill,
-    tn,
+    tn: normalTnVal,
     label,
     flavor,
     actorId: options.actorId ?? null,
@@ -516,7 +575,13 @@ export async function masteryRoll(options: RollOptions): Promise<MasteryRollResu
     isSkillRoll: !!options.isSkillRoll,
     isSaveRoll: !!options.isSaveRoll,
     baseModifier: options.baseModifier ?? 0,
-    autoRaises,
+    normalTn: normalTnVal,
+    raiseTn: raiseTnVal,
+    declaredRaiseSlots,
+    stoneBonusRaises,
+    raiseModel,
+    ...(bloodRaises > 0 ? { bloodRaises } : {}),
+    ...(raiseTnRollBonus > 0 ? { raiseTnRollBonus } : {}),
     ...(typeof options.attackDiceCap === 'number' &&
     Number.isFinite(options.attackDiceCap) &&
     options.attackDiceCap > 0
@@ -659,9 +724,9 @@ async function sendRollToChat(
       remainingPool = Math.max(0, skillRating - skillsSpent);
       const MR = actorData.mastery?.rank || 2;
       const diceTotal = result.kept.reduce((sum: number, d: number) => sum + d, 0) + (baseModifier || 0);
-      // Auto-Raises already baked into result.raises; we re-apply them to any
-      // hypothetical spend-previews so the buttons show the full post-spend tally.
-      const autoRaisesBonus = Math.max(0, (result as MasteryRollResult).autoRaises ?? 0);
+      // Stone bonus raises count only on full raise success; include in spend previews when applicable.
+      const stoneBonusRaises = Math.max(0, (result as MasteryRollResult).stoneBonusRaises ?? 0);
+      const fullRaiseSuccess = (result as MasteryRollResult).raiseOutcome === 'full';
 
       // Players Guide ~1836–1838: spend either 0, an MR-step (MR / 2MR / 3MR …)
       // *or* the entire remaining pool (the all-in option, only valid when the
@@ -672,17 +737,31 @@ async function sendRollToChat(
         for (let amount = MR; amount <= remainingPool; amount += MR) {
           const newTotal = diceTotal + amount;
           const success = result.tn > 0 ? newTotal >= result.tn : true;
-          const baseRaises = result.tn > 0 && success ? Math.floor((newTotal - result.tn) / RAISE_INCREMENT) : 0;
-          const raises = baseRaises + (success ? autoRaisesBonus : 0);
-          skillSpendOptions.push({ amount, newTotal, success, raises, label: `${amount}` });
+          const raises = result.tn > 0 && success ? countMarginRaises(newTotal, result.tn) : 0;
+          const stoneExtra =
+            fullRaiseSuccess && stoneBonusRaises > 0 ? stoneBonusRaises : 0;
+          skillSpendOptions.push({
+            amount,
+            newTotal,
+            success,
+            raises: raises + stoneExtra,
+            label: `${amount}`,
+          });
           added.add(amount);
         }
         if (!added.has(remainingPool)) {
           const newTotal = diceTotal + remainingPool;
           const success = result.tn > 0 ? newTotal >= result.tn : true;
-          const baseRaises = result.tn > 0 && success ? Math.floor((newTotal - result.tn) / RAISE_INCREMENT) : 0;
-          const raises = baseRaises + (success ? autoRaisesBonus : 0);
-          skillSpendOptions.push({ amount: remainingPool, newTotal, success, raises, label: `All-in (${remainingPool})` });
+          const raises = result.tn > 0 && success ? countMarginRaises(newTotal, result.tn) : 0;
+          const stoneExtra =
+            fullRaiseSuccess && stoneBonusRaises > 0 ? stoneBonusRaises : 0;
+          skillSpendOptions.push({
+            amount: remainingPool,
+            newTotal,
+            success,
+            raises: raises + stoneExtra,
+            label: `All-in (${remainingPool})`,
+          });
         }
       }
     }
@@ -750,24 +829,31 @@ async function sendRollToChat(
             </div>
           </div>
           
-          ${result.tn > 0 ? `
+          ${result.tn > 0 || (result as any).raiseTn > result.tn ? `
             <div class="roll-result ${successClass}">
               <div class="result-line">
-                <span>Target Number:</span>
+                <span>Normal TN:</span>
                 <span class="value">${result.tn}</span>
               </div>
+              ${(result as any).raiseTn > result.tn ? `
+              <div class="result-line">
+                <span>Raise TN:</span>
+                <span class="value">${(result as any).raiseTn}</span>
+              </div>` : ''}
               <div class="result-line">
                 <span><strong>Result:</strong></span>
-                <span class="value"><strong>${result.success ? 'SUCCESS' : 'FAILURE'}</strong></span>
+                <span class="value"><strong>${
+                  (result as any).raiseOutcome === 'partial'
+                    ? 'SUCCESS (Raise failed)'
+                    : result.success
+                      ? 'SUCCESS'
+                      : 'FAILURE'
+                }</strong></span>
               </div>
               ${result.raises > 0 ? `
                 <div class="result-line">
                   <span><strong>Raises:</strong></span>
-                  <span class="value"><strong>${result.raises}</strong>${
-                    (result.autoRaises ?? 0) > 0
-                      ? ` <span class="auto-raises-note">(incl. ${result.autoRaises} auto)</span>`
-                      : ''
-                  }</span>
+                  <span class="value"><strong>${result.raises}</strong></span>
                 </div>
               ` : ''}
             </div>

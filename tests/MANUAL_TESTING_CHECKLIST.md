@@ -131,10 +131,14 @@ Bei Saves steht 2d8 K2 +2 <- wo kommen die +2 her>
 - [ ] Roll and verify dice pool reduced by 1 (penalty -1)
 - [ ] Further damage until Injured: dice pool reduced by 2
 
-### 4.5 Raises
-- [ ] Make a roll with TN set
-- [ ] Verify raises calculated as **(total - TN) / 4** (not /5)
-- [ ] E.g., TN 16, total 24 = 2 Raises
+### 4.5 Raises (Dual-TN)
+- [ ] Skill/attribute dialog shows **Normal TN** (unchanged) and **Raise TN** (+4 per declared raise)
+- [ ] Roll vs Normal TN only — no TN inflation from declared raises
+- [ ] **Fail** (below Normal TN): no success, no raise effects
+- [ ] **Partial success** (Normal TN ≤ total < Raise TN): success without raise effects; martial/spell raise cost is lost
+- [ ] **Full success** (total ≥ Raise TN): raise cost restored + chosen raise effects apply
+- [ ] Stone `freeRaises` / `spellAutoRaises`: bonus raise effects only on **full** success (no extra TN/cost)
+- [ ] Auto-Raises (pool −4) and margin raises removed
 
 ---
 
@@ -155,13 +159,18 @@ Bei Saves steht 2d8 K2 +2 <- wo kommen die +2 her>
 ### 5.3 Attack Execution
 - [ ] Attack a target
 - [ ] Verify pool = attribute dice, keep = MR
-- [ ] Declare raises (each +4 to TN/Evade)
-- [ ] Hit: damage dialog opens
-- [ ] Miss: no damage
+- [ ] When Raises > 0: pick raise **effects before roll** (damage, special +MR, range, AoE, duration)
+- [ ] Cost preview shows pre-roll payment (martial: MR d8 per raise; spell: MR total value)
+- [ ] Normal TN vs Raise TN displayed separately
+- [ ] **Fail**: no damage dialog
+- [ ] **Partial / Full success**: damage dialog opens (no post-roll raise picker)
 
 ### 5.4 Damage Resolution
 - [ ] Roll damage dice (do NOT explode)
-- [ ] Each raise = +1d8 damage (for melee/weapon)
+- [ ] Martial damage raise = **+MR d8** (not +1d8); spell damage raise = +1d8
+- [ ] Special raise adds **+MR** to existing special rank (e.g. Ignite(3) + MR3 → Ignite(6))
+- [ ] Partial success: reduced snapshot after cost; no raise effects
+- [ ] Full success: final snapshot with raise effects (+ stone bonus raises if active)
 - [ ] Armor subtraction: Total Armor = MR + Armor + Shield
 - [ ] Minimum 1 damage per rolled 8 (even if armor blocks all)
 - [ ] Damage applies to health bars with overflow

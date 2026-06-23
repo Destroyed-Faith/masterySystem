@@ -52,7 +52,7 @@ export interface DamageResult {
 }
 export declare function showDamageDialog(attacker: Actor, target: Actor, weaponId: string | null, selectedPowerId: string | null, raises: number, flags?: any): Promise<DamageResult | null>;
 /**
- * Bind damage-card UI (raises, roll, cancel). Safe to call again after chat HTML refresh.
+ * Bind damage-card UI (roll, cancel). Safe to call again after chat HTML refresh.
  */
 export declare function attachDamageCardHandlers(messageId: string): void;
 /**

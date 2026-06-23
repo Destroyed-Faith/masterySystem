@@ -42,15 +42,9 @@ export interface RollOptions {
      * of forcing a full failure.
      */
     autoFailIntent?: 'skill' | 'attack';
-    /**
-     * Auto-Raises — the roller voluntarily removes dice from their pool to
-     * convert them into guaranteed Raises. Each Auto-Raise shrinks the pool
-     * by `AUTO_RAISE_DICE_COST` dice and adds +1 Raise on success. Ignored
-     * when `isSaveRoll` is true; Saves cannot buy Auto-Raises.
-     */
+    /** @deprecated Auto-Raises removed — ignored if passed. */
     autoRaises?: number;
-    /**
-     * Hard cap on the final attack dice pool after mechanics / manual / auto-fail
+    /** Hard cap on the final attack dice pool after mechanics / manual / auto-fail
      * adjustments. Used for Split-Attack strikes so bonus dice from passives
      * cannot balloon the pool back above the halved strike pool.
      */
@@ -72,6 +66,25 @@ export interface RollOptions {
      * Pool size and Keep are unchanged.
      */
     rollDisadvantage?: boolean;
+    /** Normal TN — roll succeeds when total meets this (Raise rules). Defaults to `tn`. */
+    normalTn?: number;
+    /** Raise TN — declared raise effects only when total meets this. */
+    raiseTn?: number;
+    /** Number of declared raise slots (each +4 to Raise TN). */
+    declaredRaiseSlots?: number;
+    /** Stone-granted bonus raises applied on full raise success. */
+    stoneBonusRaises?: number;
+    /**
+     * Raise resolution model:
+     * - `power`: dual-TN for declared raises (combat powers)
+     * - `skill`: margin raises after roll + optional dual-TN pre-declare (no cost)
+     * - `margin`: margin raises only (echo cards, rituals)
+     */
+    raiseModel?: 'power' | 'skill' | 'margin';
+    /** Blood Raises: each adds +4 to the roll total (HP cost handled by caller). */
+    bloodRaises?: number;
+    /** Bonus added only when checking Raise TN (Intellect Spell Raises stone). */
+    raiseTnRollBonus?: number;
 }
 /** Stored on chat messages so a Faith Fracture reroll can repeat the same roll setup. */
 export interface MasteryRollRecipe {
@@ -86,8 +99,15 @@ export interface MasteryRollRecipe {
     isSkillRoll: boolean;
     isSaveRoll: boolean;
     baseModifier: number;
-    /** Voluntary Auto-Raises bought on this roll (0 when not used / for saves). */
-    autoRaises: number;
+    normalTn?: number;
+    raiseTn?: number;
+    declaredRaiseSlots?: number;
+    stoneBonusRaises?: number;
+    raiseModel?: 'power' | 'skill' | 'margin';
+    bloodRaises?: number;
+    raiseTnRollBonus?: number;
+    /** @deprecated */
+    autoRaises?: number;
     /** Optional Split-Attack strike pool cap (mirrors `RollOptions.attackDiceCap`). */
     attackDiceCap?: number;
     /** Mirrors `RollOptions.attackExplodeDiceOn78` for Faith Fracture rerolls. */
@@ -97,6 +117,8 @@ export interface MasteryRollRecipe {
     /** Mirrors `RollOptions.rollDisadvantage` for Faith Fracture rerolls. */
     rollDisadvantage?: boolean;
 }
+/** Margin raises: each full +4 over TN = 1 Raise (echo, ritual, skill checks). */
+export declare function countMarginRaises(total: number, tn: number): number;
 /**
  * Perform a Mastery System roll
  * Roll N d8, keep K highest, add skill bonus

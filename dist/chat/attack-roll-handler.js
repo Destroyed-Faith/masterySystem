@@ -3,6 +3,7 @@
  * Handles clicks on .roll-attack-btn buttons in chat messages
  * Moved from module.ts to avoid circular dependencies
  */
+import { countRaiseSlots, parseDeclaredRaises, resolvePowerSnapshot, resolveRaiseOutcome, } from '../combat/raise-resolution.js';
 /** jQuery `.data()` caches parsed `data-*` on first read; dynamic `.attr()` updates won't match. */
 function readAttackButtonDataInt(button, kebab, fallback) {
     const raw = button.attr(`data-${kebab}`);
@@ -193,12 +194,12 @@ export function registerAttackRollClickHandler() {
                 itemsTypes: attackerItems.map((i) => ({ id: i.id, name: i.name, type: i.type })),
                 weaponItemsCount: attackerItems.filter((i) => i.type === 'weapon').length
             });
-            // TN / declared raises: read from DOM attrs (dropdown updates .attr, not jQuery .data cache)
-            const currentTargetEvade = readAttackButtonDataInt(button, 'target-evade', flags.targetEvade ?? 0);
-            const declaredRaisesForTn = readAttackButtonDataInt(button, 'raises', 0);
-            // Voluntary Auto-Raises: each one removes 4 dice from the pool and grants
-            // +1 guaranteed raise on a successful attack.
-            const autoRaises = Math.max(0, readAttackButtonDataInt(button, 'auto-raises', 0));
+            // Normal TN vs Raise TN (new Raise rules)
+            const normalTn = readAttackButtonDataInt(button, 'normal-tn', readAttackButtonDataInt(button, 'target-evade', flags.normalTn ?? flags.baseEvade ?? 0));
+            const raiseTn = readAttackButtonDataInt(button, 'raise-tn', normalTn);
+            const raisePlanRaw = button.attr('data-raise-plan') || '[]';
+            const declaredRaises = parseDeclaredRaises(raisePlanRaw);
+            const declaredRaiseSlots = countRaiseSlots(declaredRaises);
             // Compute numDice from ACTOR at click time (not from stale flags)
             // This ensures we always use the current attribute value.
             //
@@ -322,11 +323,11 @@ export function registerAttackRollClickHandler() {
                 baseKeepDice,
                 rollDisadvantage: !!flags.rollDisadvantage,
                 skill: 0,
-                tn: currentTargetEvade,
-                tnKind,
-                raises: declaredRaisesForTn,
-                baseEvade: flags.targetEvade,
-                adjustedEvade: currentTargetEvade,
+                tn: normalTn,
+                normalTn,
+                raiseTn,
+                declaredRaiseSlots,
+                baseEvade: flags.baseEvade,
                 attributeFromFlags: flags.attribute,
                 attributeValueFromFlags: flags.attributeValue,
                 liveAttributeValue: liveAttr,
@@ -356,12 +357,8 @@ export function registerAttackRollClickHandler() {
             const attackKind = flags.attackType === 'ranged' ? 'Ranged' : 'Melee';
             const targetActorForFlavor = game.actors?.get(flags.targetId);
             const rollFlavor = tnKind === 'casting'
-                ? `Roll ${numDice}d8 keep ${keepDice} vs Casting TN ${currentTargetEvade}${declaredRaisesForTn > 0
-                    ? ` (${declaredRaisesForTn} declared raise${declaredRaisesForTn > 1 ? 's' : ''} included)`
-                    : ''}${advantageNote}${disadvantageNote}${rangeBandNote}`
-                : `Roll ${numDice}d8 keep ${keepDice} vs ${targetActorForFlavor?.name || 'Target'}'s Evade (${currentTargetEvade}${declaredRaisesForTn > 0
-                    ? `, ${declaredRaisesForTn} raise${declaredRaisesForTn > 1 ? 's' : ''}`
-                    : ''})${advantageNote}${disadvantageNote}${rangeBandNote}`;
+                ? `Roll ${numDice}d8 keep ${keepDice} vs Casting TN ${normalTn}${declaredRaiseSlots > 0 ? ` (Raise TN ${raiseTn})` : ''}${advantageNote}${disadvantageNote}${rangeBandNote}`
+                : `Roll ${numDice}d8 keep ${keepDice} vs ${targetActorForFlavor?.name || 'Target'}'s Evade (${normalTn}${declaredRaiseSlots > 0 ? `, Raise TN ${raiseTn}` : ''})${advantageNote}${disadvantageNote}${rangeBandNote}`;
             const rollLabel = tnKind === 'casting'
                 ? `Spell Attack (${flags.attribute.charAt(0).toUpperCase() + flags.attribute.slice(1)})`
                 : `${attackKind} Attack (${flags.attribute.charAt(0).toUpperCase() + flags.attribute.slice(1)})`;
@@ -371,11 +368,20 @@ export function registerAttackRollClickHandler() {
             const rsCrit = actionEco.getRoundState(economyForStones, combatRef);
             const critBank = Math.max(0, Math.floor(Number(rsCrit?.stoneBonuses?.critRaises ?? 0) || 0));
             const attackExplodeDiceOn78 = critBank > 0;
+            const bloodRaises = Math.max(0, parseInt(button.attr('data-blood-raises') || '0', 10) || 0);
+            let raiseTnRollBonus = 0;
+            if (tnKind === 'casting' && freshAttacker && combatRef) {
+                raiseTnRollBonus = Math.max(0, Number(rsCrit?.stoneBonuses?.spellRaiseTnBonus ?? 0) || 0);
+            }
+            if (bloodRaises > 0 && tnKind === 'casting' && freshAttacker) {
+                const { applyBloodRaiseHpLoss } = await import('../combat/spell-roll-handler.js');
+                await applyBloodRaiseHpLoss(freshAttacker, bloodRaises * 4);
+            }
             const result = await masteryRoll({
                 numDice: numDice,
                 keepDice: keepDice,
                 skill: 0,
-                tn: currentTargetEvade,
+                tn: normalTn,
                 label: rollLabel,
                 flavor: rollFlavor,
                 actorId: flags.attackerId,
@@ -383,7 +389,12 @@ export function registerAttackRollClickHandler() {
                 targetActorId: flags.targetId,
                 autoFailIntent: 'attack',
                 checkContext: { tags: ['sight'] },
-                autoRaises,
+                normalTn,
+                raiseTn,
+                declaredRaiseSlots,
+                raiseModel: 'power',
+                ...(bloodRaises > 0 && tnKind === 'casting' ? { bloodRaises } : {}),
+                ...(raiseTnRollBonus > 0 && tnKind === 'casting' ? { raiseTnRollBonus } : {}),
                 ...(typeof splitAttackDiceCap === 'number' && splitAttackDiceCap > 0
                     ? { attackDiceCap: splitAttackDiceCap }
                     : {}),
@@ -400,19 +411,19 @@ export function registerAttackRollClickHandler() {
                 rs2.stoneBonuses.critRaises = Math.max(0, curCrit - 1);
                 await actionEco.setRoundState(economyForStones, rs2);
             }
+            const raiseOutcome = result.raiseOutcome ??
+                resolveRaiseOutcome(result.total, normalTn, declaredRaiseSlots);
             console.log('Mastery System | DEBUG: Roll completed!', {
                 total: result.total,
-                dice: result.dice,
-                kept: result.kept,
-                targetEvade: currentTargetEvade,
-                baseEvade: flags.targetEvade,
-                raises: result.raises,
-                success: result.success
+                normalTn,
+                raiseTn,
+                raiseOutcome,
+                success: result.success,
             });
             // Update button to show it was rolled
             button.html('<i class="fas fa-check"></i> Rolled').addClass('rolled');
-            // If attack was successful, show damage dialog
-            if (result.success && result.raises >= 0) {
+            // Partial or full success → damage dialog; fail → stop.
+            if (raiseOutcome !== 'fail') {
                 // Always get fresh actors to ensure latest items. Reuse the
                 // speaker-resolved `freshAttacker` (token actor for unlinked tokens) so
                 // the damage dialog sees the right attributes AND equipped items; do
@@ -655,34 +666,83 @@ export function registerAttackRollClickHandler() {
                         hasEquippedWeapon: !!equippedWeaponForLog,
                         equippedWeaponName: equippedWeaponForLog ? equippedWeaponForLog.name : null
                     });
-                    // Margin raises (every +4 over TN) count for damage **only** if the player
-                    // pre-declared TN raises on the attack card (dropdown > 0). Auto-Raises and
-                    // stone-granted free raises always apply when present.
-                    const autoR = Math.max(0, Number(result.autoRaises) || 0);
-                    const marginRaises = Math.max(0, result.raises - autoR);
-                    const marginForDamage = declaredRaisesForTn > 0 ? marginRaises : 0;
-                    let damageRaises = marginForDamage + autoR;
-                    let freeRaisesFromStones = 0;
-                    try {
-                        const { getRoundState } = await import('../combat/action-economy.js');
-                        const combatNow = game.combat;
-                        if (freshAttackerForDialog && combatNow) {
-                            const rs = getRoundState(freshAttackerForDialog, combatNow);
-                            freeRaisesFromStones = Math.max(0, Number(rs?.stoneBonuses?.freeRaises) || 0);
-                            damageRaises += freeRaisesFromStones;
+                    let stoneBonusRaises = 0;
+                    const isSpellPower = !!updatedFlags.powerIsSpell;
+                    if (raiseOutcome === 'full' && !isSpellPower) {
+                        try {
+                            const { getRoundState } = await import('../combat/action-economy.js');
+                            const combatNow = game.combat;
+                            if (freshAttackerForDialog && combatNow) {
+                                const rs = getRoundState(freshAttackerForDialog, combatNow);
+                                stoneBonusRaises = Math.max(0, Number(rs?.stoneBonuses?.freeRaises) || 0);
+                            }
+                        }
+                        catch (e) {
+                            console.warn('Mastery System | [BEFORE DAMAGE DIALOG] Could not read stone raise bonus', e);
                         }
                     }
-                    catch (e) {
-                        console.warn('Mastery System | [BEFORE DAMAGE DIALOG] Could not read roundState for free raises', e);
+                    let resolvedPowerSnapshot = null;
+                    if (updatedFlags.basePowerSnapshot) {
+                        const mr = Math.max(1, Math.floor(Number(freshAttackerForDialog?.system?.mastery?.rank) ||
+                            updatedFlags.masteryRank ||
+                            2));
+                        let spellCostOverride;
+                        const spellCostRaw = button.attr('data-spell-cost');
+                        if (spellCostRaw) {
+                            try {
+                                spellCostOverride = JSON.parse(spellCostRaw);
+                            }
+                            catch {
+                                /* ignore */
+                            }
+                        }
+                        resolvedPowerSnapshot = resolvePowerSnapshot({
+                            base: updatedFlags.basePowerSnapshot,
+                            declaredRaises,
+                            outcome: raiseOutcome,
+                            masteryRank: mr,
+                            isSpell: isSpellPower,
+                            stoneBonusRaises,
+                            spellCostOverride,
+                        });
                     }
-                    const combinedRaises = damageRaises;
-                    const totalRaises = declaredRaisesForTn > 0 ? Math.min(combinedRaises, declaredRaisesForTn) : combinedRaises;
-                    console.log('Mastery System | [BEFORE DAMAGE DIALOG] Raises calculation', {
-                        messageId: messageId,
-                        resultRaises: result.raises,
-                        freeRaisesFromStones,
-                        totalRaisesForDamage: totalRaises,
-                        declaredRaisesForTn: readAttackButtonDataInt(button, 'raises', 0)
+                    if (resolvedPowerSnapshot) {
+                        updatedFlags.resolvedPowerSnapshot = resolvedPowerSnapshot;
+                        if (resolvedPowerSnapshot.rangeM != null) {
+                            updatedFlags.resolvedRangeM = resolvedPowerSnapshot.rangeM;
+                        }
+                        if (resolvedPowerSnapshot.aoeRadiusM != null) {
+                            updatedFlags.resolvedAoeRadiusM = resolvedPowerSnapshot.aoeRadiusM;
+                        }
+                        if (resolvedPowerSnapshot.durationSteps > 0) {
+                            updatedFlags.resolvedDurationSteps = resolvedPowerSnapshot.durationSteps;
+                        }
+                    }
+                    const spellCostRaw2 = button.attr('data-spell-cost');
+                    let spellCostOverride;
+                    if (spellCostRaw2) {
+                        try {
+                            spellCostOverride = JSON.parse(spellCostRaw2);
+                        }
+                        catch {
+                            /* ignore */
+                        }
+                    }
+                    updatedFlags = {
+                        ...updatedFlags,
+                        raiseOutcome,
+                        declaredRaises,
+                        declaredRaiseSlots,
+                        stoneBonusRaises,
+                        normalTn,
+                        raiseTn,
+                        ...(spellCostOverride ? { spellCostOverride } : {}),
+                    };
+                    console.log('Mastery System | [BEFORE DAMAGE DIALOG] Raise resolution', {
+                        messageId,
+                        raiseOutcome,
+                        declaredRaiseSlots,
+                        stoneBonusRaises,
                     });
                     console.log('Mastery System | [BEFORE DAMAGE DIALOG] Calling showDamageDialog with', {
                         messageId: messageId,
@@ -692,7 +752,7 @@ export function registerAttackRollClickHandler() {
                         targetName: target.name,
                         weaponId: weaponId,
                         selectedPowerId: updatedFlags.selectedPowerId || null,
-                        totalRaises: totalRaises,
+                        totalRaises: 0,
                         flagsKeys: Object.keys(updatedFlags || {})
                     });
                     // Import and show damage dialog - pass only IDs, not full objects
@@ -703,8 +763,8 @@ export function registerAttackRollClickHandler() {
                         selectedPowerId: updatedFlags.selectedPowerId,
                         selectedPowerIdType: typeof updatedFlags.selectedPowerId,
                         selectedPowerIdValue: updatedFlags.selectedPowerId,
-                        totalRaises: totalRaises,
-                        totalRaisesType: typeof totalRaises,
+                        totalRaises: 0,
+                        totalRaisesType: 'number',
                         hasFlags: !!updatedFlags,
                         allFlagKeys: Object.keys(updatedFlags || {}),
                         flagsSelectedPowerId: updatedFlags?.selectedPowerId,
@@ -719,12 +779,10 @@ export function registerAttackRollClickHandler() {
                         weaponIdFromFlags: updatedFlags.weaponId,
                         weaponIdMatch: weaponId === updatedFlags.weaponId,
                         selectedPowerIdArg: updatedFlags.selectedPowerId || null,
-                        raisesArg: totalRaises
+                        raisesArg: 0
                     });
                     const { showDamageDialog } = await import('../dice/damage-dialog.js');
-                    // Use the resolved target (token actor if available, otherwise base actor)
-                    // Do NOT replace with game.actors.get() as that would lose the token actor reference
-                    const damageResult = await showDamageDialog(freshAttackerForDialog, target, weaponId, updatedFlags.selectedPowerId || null, totalRaises, updatedFlags);
+                    const damageResult = await showDamageDialog(freshAttackerForDialog, target, weaponId, updatedFlags.selectedPowerId || null, 0, updatedFlags);
                     console.log('Mastery System | [AFTER DAMAGE DIALOG] showDamageDialog returned', {
                         hasResult: !!damageResult,
                         resultType: damageResult ? typeof damageResult : 'null',

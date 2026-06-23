@@ -30,6 +30,8 @@
  * primitives without re-deriving any thresholds.
  */
 
+import { resolveRaiseOutcome, type RaiseOutcome } from '../combat/raise-resolution.js';
+
 export const SOCIAL_COMBAT_DEFAULT_BASE_TN = 16;
 export const SOCIAL_COMBAT_RAISE_TN_INCREMENT = 4;
 
@@ -107,12 +109,16 @@ export interface PhaseLeadRollResult {
     leadActorId: string;
     skill: SocialCombatSkill;
     declaredRaises: number;
-    /** Final TN after Raises and any GM modifier. */
+    /** Normal TN (unchanged by declared raises). */
+    normalTn: number;
+    /** Raise TN = normalTn + declaredRaises × 4. */
+    raiseTn: number;
+    /** @deprecated Use normalTn — kept for callers comparing against normal TN. */
     tn: number;
-    /** Roll total to compare against the TN. */
     total: number;
     success: boolean;
-    /** Raises actually gained (≥ declaredRaises if cleared with extra). */
+    raiseOutcome: RaiseOutcome;
+    /** Raises credited only on full Raise success. */
     raises: number;
 }
 
@@ -139,9 +145,26 @@ export function setupGainForRaises(raises: number): number {
     return r - 1;
 }
 
-/** Phase TN after declaring `raises` Raises. */
-export function phaseTnWithRaises(baseTn: number, raises: number): number {
+/** Raise TN after declaring `raises` Raises (Normal TN unchanged). */
+export function phaseRaiseTn(baseTn: number, raises: number): number {
     return Math.max(0, baseTn) + Math.max(0, raises) * SOCIAL_COMBAT_RAISE_TN_INCREMENT;
+}
+
+/** @deprecated Alias for {@link phaseRaiseTn}. */
+export function phaseTnWithRaises(baseTn: number, raises: number): number {
+    return phaseRaiseTn(baseTn, raises);
+}
+
+/** Resolve a Lead roll under the dual-TN Raise rules. */
+export function resolveLeadRollOutcome(
+    total: number,
+    normalTn: number,
+    declaredRaises: number,
+): Pick<PhaseLeadRollResult, 'success' | 'raises' | 'raiseOutcome'> {
+    const raiseOutcome = resolveRaiseOutcome(total, normalTn, declaredRaises);
+    const success = raiseOutcome !== 'fail';
+    const raises = raiseOutcome === 'full' ? Math.max(0, Math.floor(declaredRaises)) : 0;
+    return { success, raises, raiseOutcome };
 }
 
 /** Total Mastery-Rank bonus contributed by all successful Supports. */

@@ -22,6 +22,7 @@
  */
 import type { CastingAttribute, SpellResolution, SpellSaveType } from '../types/item.js';
 import type { MasteryRollResult } from '../types/index';
+import { type RaiseOutcome } from './raise-resolution.js';
 /** Maximum Spell Level a character can learn/cast: `Mastery Rank × 2`. */
 export declare function getMaxSpellLevel(masteryRank: number): number;
 /** Whether an actor of `masteryRank` can cast/learn a spell at `spellLevel`. */
@@ -96,7 +97,9 @@ export interface SpellRollParams {
     resolution: SpellResolution;
     /** Save type for Save Spells; ignored for `spellAttack`. */
     saveType?: SpellSaveType;
-    /** Declared Raises (each +4 TN against the relevant target number). */
+    /** Declared raise slots (each +4 to Raise TN; Normal TN unchanged). */
+    declaredRaiseSlots?: number;
+    /** @deprecated Use declaredRaiseSlots */
     declaredRaises?: number;
     /** Blood Raises bought with 4 HP each (each adds +4 to the final total). */
     bloodRaises?: number;
@@ -114,12 +117,14 @@ export interface SpellRollParams {
 export interface SpellRollResult {
     /** Casting / spell-attack roll result. */
     castingRoll: MasteryRollResult;
-    /** Base TN used (before raises / modifiers). */
+    /** Normal casting TN (before raise tier). */
     baseTn: number;
-    /** Final TN actually compared against (after raises + modifiers). */
+    /** Raise TN when raises declared. */
+    raiseTn: number;
+    /** @deprecated Final TN — same as raiseTn when raises declared, else baseTn. */
     finalTn: number;
-    /** Raises declared by the caster (non-blood). */
     declaredRaises: number;
+    raiseOutcome: RaiseOutcome;
     /** Blood Raises applied (each worth +4 total and −4 HP). */
     bloodRaises: number;
     /** HP actually removed for Blood Raises (clamped to what was available). */

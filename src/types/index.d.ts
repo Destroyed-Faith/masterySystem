@@ -24,10 +24,16 @@ export interface MasteryRollResult {
    * `success` and `raises` reflect the forced failure.
    */
   autoFailReason?: string;
+  /** Normal TN used for the roll (Raise rules). Defaults to `tn` when omitted. */
+  normalTn?: number;
+  /** Raise TN — declared raise effects only when total meets this. */
+  raiseTn?: number;
+  /** Outcome of the dual-TN raise check. */
+  raiseOutcome?: 'fail' | 'partial' | 'full';
+  /** Stone-granted bonus raises applied on full raise success only. */
+  stoneBonusRaises?: number;
   /**
-   * Number of voluntary Auto-Raises the roller bought by shrinking their
-   * pool (each costs AUTO_RAISE_DICE_COST dice and grants +1 raise on
-   * success). Already folded into `raises`; exposed for display/audit.
+   * @deprecated Auto-Raises removed — ignored if present on stored flags.
    */
   autoRaises?: number;
 }

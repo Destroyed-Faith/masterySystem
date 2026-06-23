@@ -29,6 +29,7 @@
  * UI integration (chat cards / dialogs) can build on top of these
  * primitives without re-deriving any thresholds.
  */
+import { type RaiseOutcome } from '../combat/raise-resolution.js';
 export declare const SOCIAL_COMBAT_DEFAULT_BASE_TN = 16;
 export declare const SOCIAL_COMBAT_RAISE_TN_INCREMENT = 4;
 /** Players Guide 5096–5100. */
@@ -81,12 +82,16 @@ export interface PhaseLeadRollResult {
     leadActorId: string;
     skill: SocialCombatSkill;
     declaredRaises: number;
-    /** Final TN after Raises and any GM modifier. */
+    /** Normal TN (unchanged by declared raises). */
+    normalTn: number;
+    /** Raise TN = normalTn + declaredRaises × 4. */
+    raiseTn: number;
+    /** @deprecated Use normalTn — kept for callers comparing against normal TN. */
     tn: number;
-    /** Roll total to compare against the TN. */
     total: number;
     success: boolean;
-    /** Raises actually gained (≥ declaredRaises if cleared with extra). */
+    raiseOutcome: RaiseOutcome;
+    /** Raises credited only on full Raise success. */
     raises: number;
 }
 /** Aggregate result of one resolved phase. */
@@ -107,8 +112,12 @@ export interface PhaseOutcome {
 }
 /** Setup Gain table (Players Guide 5070–5080). */
 export declare function setupGainForRaises(raises: number): number;
-/** Phase TN after declaring `raises` Raises. */
+/** Raise TN after declaring `raises` Raises (Normal TN unchanged). */
+export declare function phaseRaiseTn(baseTn: number, raises: number): number;
+/** @deprecated Alias for {@link phaseRaiseTn}. */
 export declare function phaseTnWithRaises(baseTn: number, raises: number): number;
+/** Resolve a Lead roll under the dual-TN Raise rules. */
+export declare function resolveLeadRollOutcome(total: number, normalTn: number, declaredRaises: number): Pick<PhaseLeadRollResult, 'success' | 'raises' | 'raiseOutcome'>;
 /** Total Mastery-Rank bonus contributed by all successful Supports. */
 export declare function supportBonusTotal(results: SupportRollResult[]): number;
 /** Resolve a single phase end-to-end: build the outcome record. */

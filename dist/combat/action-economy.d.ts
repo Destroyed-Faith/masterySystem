@@ -78,7 +78,9 @@ export interface RoundState {
         ignoreWoundPenalties?: number;
         /** Vitality.SecondChance — free boxes left in Wounded when downing-blow is converted (1..4). */
         secondChanceFreeBoxes?: number;
-        /** Intellect.SpellRaises — automatic raises added to every spell this turn. */
+        /** Intellect.SpellRaises — +4 per tier to meet Raise TN only (not Normal TN). */
+        spellRaiseTnBonus?: number;
+        /** @deprecated Use spellRaiseTnBonus — legacy bonus-d8 path removed. */
         spellAutoRaises?: number;
         /** Intellect.SpellDefense — bonus to Saves vs. Spells until next turn. */
         spellSaveBonus?: number;

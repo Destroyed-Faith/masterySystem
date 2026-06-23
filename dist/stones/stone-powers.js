@@ -445,12 +445,10 @@ const INTELLECT_POWERS_RAW = [
         ],
         apply: async ({ actor, tier }) => {
             const combat = game.combat;
-            const raises = [1, 2, 3, 4][tier - 1] ?? 0;
+            const bonus = [4, 8, 12, 16][tier - 1] ?? 0;
             const roundState = getRoundState(actor, combat);
             const sb = ensureStoneBonuses(roundState);
-            sb.spellAutoRaises = (sb.spellAutoRaises ?? 0) + raises;
-            // Mirror to legacy freeRaises so existing damage-side consumer still sees the bonus.
-            sb.freeRaises = (sb.freeRaises ?? 0) + raises;
+            sb.spellRaiseTnBonus = (sb.spellRaiseTnBonus ?? 0) + bonus;
             await setRoundState(actor, roundState);
         },
     },
