@@ -167,34 +167,48 @@ function formatDamageDisplay(weaponDmg, powerDmg, spellFocusDice, specialsLabel)
 }
 /**
  * Build attack + damage preview for a power item on the printable Battle Sheet.
- * Returns null when the power does not use an attack roll.
+ * `slot` controls whether Attack / weapon damage apply (buffs = effect + power dice only).
  */
-export function buildPrintCombatPreview(actor, powerItem, items) {
+export function buildPrintCombatPreview(actor, powerItem, items, slot = 'active') {
     const sys = powerItem?.system ?? {};
+    const rank = Math.max(1, Math.floor(Number(sys.level ?? sys.rank) || 1));
+    const spell = isSpellPower(sys);
+    const powerDmg = powerDamageForRank(sys, rank);
+    const specialsLabel = resolvePowerSpecialsLabel(sys, rank);
+    const spellFocusDice = spell ? getActorSpellFocusBonusDice(actor) : 0;
+    if (slot === 'activeBuff') {
+        const { damage, showDamage } = formatDamageDisplay('0', powerDmg, spellFocusDice, specialsLabel);
+        if (!showDamage)
+            return null;
+        return {
+            attackLabel: '',
+            attackValue: 0,
+            damage,
+            showDamage,
+            showAttack: false,
+        };
+    }
     if (!isAttackPower(sys))
         return null;
-    const rank = Math.max(1, Math.floor(Number(sys.level ?? sys.rank) || 1));
     const attackType = powerAttackTypeForRank(sys, rank);
-    const spell = isSpellPower(sys);
     const weapon = resolveWeaponForPrint(items, attackType);
     const attrKey = resolveAttackAttribute(actor, weapon, sys, attackType);
     const attrValue = Math.max(0, Math.floor(Number(actor?.system?.attributes?.[attrKey]?.value) || 0));
-    const powerDmg = powerDamageForRank(sys, rank);
     let weaponDmg = '0';
-    const spellFocusDice = spell ? getActorSpellFocusBonusDice(actor) : 0;
-    if (!spell &&
+    if (slot === 'active' &&
+        !spell &&
         weapon &&
         weaponKind(weapon) === attackType &&
         !artifactSystemHasSpellFocus(weapon.system)) {
         weaponDmg = resolveWeaponBaseDamageString(weapon);
     }
-    const specialsLabel = resolvePowerSpecialsLabel(sys, rank);
     const { damage, showDamage } = formatDamageDisplay(weaponDmg, powerDmg, spellFocusDice, specialsLabel);
     return {
         attackLabel: capAttr(attrKey),
         attackValue: attrValue,
         damage,
         showDamage,
+        showAttack: true,
     };
 }
 //# sourceMappingURL=character-print-combat.js.map

@@ -41,7 +41,7 @@ import {
 import { deriveArtifactWeaponDamage } from '../utils/artifact-base-derive.js';
 import { getDisadvantageDefinition } from '../system/disadvantages.js';
 import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
-import { buildPrintCombatPreview } from './character-print-combat.js';
+import { buildPrintCombatPreview, type BattlePrintSlot } from './character-print-combat.js';
 
 /** Human-readable label per Stone Function kind (technical summary). */
 const STONE_FN_KIND_LABEL: Record<string, string> = {
@@ -89,7 +89,12 @@ const HEALTH_POOL_TIERS = [
 
 function poolAtHealthFraction(pool: number, fraction: number): number {
   if (pool <= 0) return 0;
-  return Math.max(1, pool - Math.floor(pool * fraction));
+  // −40% matches the engine's flat penalty (pool − floor(pool×f)); other tiers
+  // use the remaining-pool display the player expects (16 → 14, 12, …).
+  if (fraction === 0.4) {
+    return Math.max(1, pool - Math.floor(pool * fraction));
+  }
+  return Math.max(1, Math.floor(pool * (1 - fraction)));
 }
 
 /** Skill groups in the order they appear on the printed sheet. */
@@ -572,12 +577,16 @@ export function buildCharacterPrintContext(actor: any): Record<string, unknown> 
   const allItems: any[] = actor?.items ? Array.from(actor.items.values?.() ?? actor.items) : [];
   const artifactItems = allItems.filter((i: any) => i?.type === 'artifact');
 
-  function attachCombatPreview(entry: Record<string, unknown>, powerItem: any): void {
-    const preview = buildPrintCombatPreview(actor, powerItem, allItems);
-    if (preview) {
-      entry.attackRoll = preview.attackLabel;
-      if (preview.showDamage) entry.damageRoll = preview.damage;
-    }
+  function attachBattlePreview(
+    entry: Record<string, unknown>,
+    powerItem: any | null,
+    slot: BattlePrintSlot,
+  ): void {
+    if (!powerItem) return;
+    const preview = buildPrintCombatPreview(actor, powerItem, allItems, slot);
+    if (!preview) return;
+    if (preview.showAttack) entry.attackRoll = preview.attackLabel;
+    if (preview.showDamage) entry.damageRoll = preview.damage;
   }
 
   function formatWeaponProfile(
@@ -641,8 +650,8 @@ export function buildCharacterPrintContext(actor: any): Record<string, unknown> 
       stones: num(sys?.cost?.stones),
       rank,
       sortKey: powerSortRank(category || phase),
+      powerItemId: p.id,
     };
-    attachCombatPreview(entry, p);
     if (category === 'passive') passivePowers.push(entry);
     else activePowers.push(entry);
   }
@@ -707,12 +716,25 @@ export function buildCharacterPrintContext(actor: any): Record<string, unknown> 
   const battleActive: any[] = [];
   const battleBuffs: any[] = [];
   const battleReactions: any[] = [];
+  const powerItemById = new Map(powerItems.map((p: any) => [p.id, p]));
   for (const p of activePowers) {
-    switch (classifyBattleSlot(p.phase)) {
-      case 'movement': battleMovement.push(p); break;
-      case 'activeBuff': battleBuffs.push(p); break;
-      case 'reaction': battleReactions.push(p); break;
-      default: battleActive.push(p);
+    const slot = classifyBattleSlot(p.phase);
+    const powerItem = p.powerItemId ? powerItemById.get(p.powerItemId) ?? null : null;
+    switch (slot) {
+      case 'movement':
+        battleMovement.push(p);
+        break;
+      case 'activeBuff':
+        attachBattlePreview(p, powerItem, 'activeBuff');
+        battleBuffs.push(p);
+        break;
+      case 'reaction':
+        attachBattlePreview(p, powerItem, 'reaction');
+        battleReactions.push(p);
+        break;
+      default:
+        attachBattlePreview(p, powerItem, 'active');
+        battleActive.push(p);
     }
   }
   const battle = {

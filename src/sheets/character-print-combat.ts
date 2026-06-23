@@ -20,7 +20,10 @@ export interface PrintCombatPreview {
   attackValue: number;
   damage: string;
   showDamage: boolean;
+  showAttack: boolean;
 }
+
+export type BattlePrintSlot = 'active' | 'activeBuff' | 'reaction';
 
 function isSpellPower(sys: any): boolean {
   if (sys?.isSpell === true) return true;
@@ -197,19 +200,36 @@ function formatDamageDisplay(
 
 /**
  * Build attack + damage preview for a power item on the printable Battle Sheet.
- * Returns null when the power does not use an attack roll.
+ * `slot` controls whether Attack / weapon damage apply (buffs = effect + power dice only).
  */
 export function buildPrintCombatPreview(
   actor: any,
   powerItem: any,
   items: any[],
+  slot: BattlePrintSlot = 'active',
 ): PrintCombatPreview | null {
   const sys = powerItem?.system ?? {};
+  const rank = Math.max(1, Math.floor(Number(sys.level ?? sys.rank) || 1));
+  const spell = isSpellPower(sys);
+  const powerDmg = powerDamageForRank(sys, rank);
+  const specialsLabel = resolvePowerSpecialsLabel(sys, rank);
+  const spellFocusDice = spell ? getActorSpellFocusBonusDice(actor) : 0;
+
+  if (slot === 'activeBuff') {
+    const { damage, showDamage } = formatDamageDisplay('0', powerDmg, spellFocusDice, specialsLabel);
+    if (!showDamage) return null;
+    return {
+      attackLabel: '',
+      attackValue: 0,
+      damage,
+      showDamage,
+      showAttack: false,
+    };
+  }
+
   if (!isAttackPower(sys)) return null;
 
-  const rank = Math.max(1, Math.floor(Number(sys.level ?? sys.rank) || 1));
   const attackType = powerAttackTypeForRank(sys, rank);
-  const spell = isSpellPower(sys);
   const weapon = resolveWeaponForPrint(items, attackType);
 
   const attrKey = resolveAttackAttribute(actor, weapon, sys, attackType);
@@ -218,11 +238,9 @@ export function buildPrintCombatPreview(
     Math.floor(Number(actor?.system?.attributes?.[attrKey]?.value) || 0),
   );
 
-  const powerDmg = powerDamageForRank(sys, rank);
   let weaponDmg = '0';
-  const spellFocusDice = spell ? getActorSpellFocusBonusDice(actor) : 0;
-
   if (
+    slot === 'active' &&
     !spell &&
     weapon &&
     weaponKind(weapon) === attackType &&
@@ -231,7 +249,6 @@ export function buildPrintCombatPreview(
     weaponDmg = resolveWeaponBaseDamageString(weapon);
   }
 
-  const specialsLabel = resolvePowerSpecialsLabel(sys, rank);
   const { damage, showDamage } = formatDamageDisplay(
     weaponDmg,
     powerDmg,
@@ -244,5 +261,6 @@ export function buildPrintCombatPreview(
     attackValue: attrValue,
     damage,
     showDamage,
+    showAttack: true,
   };
 }

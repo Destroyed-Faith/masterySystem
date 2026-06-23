@@ -125,4 +125,29 @@ describe('buildPrintCombatPreview', () => {
     const preview = buildPrintCombatPreview(actor, power, []);
     expect(preview?.damage).not.toContain('SPECIAL');
   });
+
+  it('activeBuff slot shows power damage only without attack or weapon', () => {
+    const weapon = meleeArtifact(4);
+    const actor = mockActor({ resolve: 16 }, [weapon]);
+    const buff = {
+      type: 'power',
+      system: {
+        slot: 'utility',
+        cost: { action: 'utility' },
+        level: 4,
+        levels: {
+          '4': {
+            type: 'Self Buff',
+            effect: { dice: '2d8', text: 'Gain armor aura.' },
+            specials: [{ key: 'bulwark', rank: 2 }],
+          },
+        },
+      },
+    };
+    const preview = buildPrintCombatPreview(actor, buff, [weapon], 'activeBuff');
+    expect(preview?.showAttack).toBe(false);
+    expect(preview?.attackLabel).toBe('');
+    expect(preview?.damage).toBe('2d8 + Bulwark(2)');
+    expect(preview?.damage).not.toContain('6d8');
+  });
 });

@@ -72,7 +72,12 @@ const HEALTH_POOL_TIERS = [
 function poolAtHealthFraction(pool, fraction) {
     if (pool <= 0)
         return 0;
-    return Math.max(1, pool - Math.floor(pool * fraction));
+    // −40% matches the engine's flat penalty (pool − floor(pool×f)); other tiers
+    // use the remaining-pool display the player expects (16 → 14, 12, …).
+    if (fraction === 0.4) {
+        return Math.max(1, pool - Math.floor(pool * fraction));
+    }
+    return Math.max(1, Math.floor(pool * (1 - fraction)));
 }
 /** Skill groups in the order they appear on the printed sheet. */
 const SKILL_GROUPS = [
@@ -544,13 +549,16 @@ export function buildCharacterPrintContext(actor) {
     // what they do (damage, range, innate abilities, specials).
     const allItems = actor?.items ? Array.from(actor.items.values?.() ?? actor.items) : [];
     const artifactItems = allItems.filter((i) => i?.type === 'artifact');
-    function attachCombatPreview(entry, powerItem) {
-        const preview = buildPrintCombatPreview(actor, powerItem, allItems);
-        if (preview) {
+    function attachBattlePreview(entry, powerItem, slot) {
+        if (!powerItem)
+            return;
+        const preview = buildPrintCombatPreview(actor, powerItem, allItems, slot);
+        if (!preview)
+            return;
+        if (preview.showAttack)
             entry.attackRoll = preview.attackLabel;
-            if (preview.showDamage)
-                entry.damageRoll = preview.damage;
-        }
+        if (preview.showDamage)
+            entry.damageRoll = preview.damage;
     }
     function formatWeaponProfile(prof, baseProfile) {
         const kind = resolveArtifactWeaponKind(prof, baseProfile);
@@ -606,8 +614,8 @@ export function buildCharacterPrintContext(actor) {
             stones: num(sys?.cost?.stones),
             rank,
             sortKey: powerSortRank(category || phase),
+            powerItemId: p.id,
         };
-        attachCombatPreview(entry, p);
         if (category === 'passive')
             passivePowers.push(entry);
         else
@@ -672,18 +680,25 @@ export function buildCharacterPrintContext(actor) {
     const battleActive = [];
     const battleBuffs = [];
     const battleReactions = [];
+    const powerItemById = new Map(powerItems.map((p) => [p.id, p]));
     for (const p of activePowers) {
-        switch (classifyBattleSlot(p.phase)) {
+        const slot = classifyBattleSlot(p.phase);
+        const powerItem = p.powerItemId ? powerItemById.get(p.powerItemId) ?? null : null;
+        switch (slot) {
             case 'movement':
                 battleMovement.push(p);
                 break;
             case 'activeBuff':
+                attachBattlePreview(p, powerItem, 'activeBuff');
                 battleBuffs.push(p);
                 break;
             case 'reaction':
+                attachBattlePreview(p, powerItem, 'reaction');
                 battleReactions.push(p);
                 break;
-            default: battleActive.push(p);
+            default:
+                attachBattlePreview(p, powerItem, 'active');
+                battleActive.push(p);
         }
     }
     const battle = {

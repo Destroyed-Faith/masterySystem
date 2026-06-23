@@ -24,16 +24,16 @@
         <div class="cp-ability" data-attr="{{key}}">
           <div class="cp-ability-head">
             <span class="cp-ability-name">{{label}}</span>
-            <span class="cp-ability-value">{{value}}</span>
+            <span class="cp-ability-value-row">
+              <span class="cp-ability-value cp-ability-value-full">{{value}}</span>
+              {{#each poolTiers}}
+              <span class="cp-ability-value cp-ability-value-wound">{{pool}}</span>
+              {{/each}}
+            </span>
           </div>
           <div class="cp-ability-ladder">
             {{#each ladder}}
             <span class="cp-ladder-cell{{#if filled}} is-filled{{/if}}">{{n}}</span>
-            {{/each}}
-          </div>
-          <div class="cp-ability-pools">
-            {{#each poolTiers}}
-            <span class="cp-pool-tier"><span class="cp-pool-tier-label">{{label}}</span> {{pool}}</span>
             {{/each}}
           </div>
           <div class="cp-stone-overview">
@@ -189,52 +189,6 @@
   </div>
   {{/if}}
 
-  <div class="cp-block cp-disadvantages">
-    <h3 class="cp-block-title">Disadvantages <span class="cp-subtle">Points: {{disadvantagePoints}}</span></h3>
-    <table class="cp-disadv-table">
-      <thead><tr><th>Disadvantage</th><th>Points</th></tr></thead>
-      <tbody>
-        {{#each disadvantages}}
-        <tr>
-          <td>
-            <span class="cp-disadv-name">{{label}}</span>
-            {{#if description}}<span class="cp-disadv-desc">{{description}}</span>{{/if}}
-          </td>
-          <td>{{points}}</td>
-        </tr>
-        {{/each}}
-      </tbody>
-    </table>
-    <div class="cp-rerolls">
-      <span class="cp-defense-label">Total Rerolls / Used</span>
-      <span class="cp-reroll-boxes">
-        {{#each rerollBoxes}}<span class="cp-use-box"></span>{{/each}}
-        {{#unless rerollBoxes.length}}<span class="cp-reroll-empty">—</span>{{/unless}}
-      </span>
-    </div>
-  </div>
-
-  <div class="cp-block cp-weapons">
-    <h3 class="cp-block-title">Weapons</h3>
-    <table class="cp-weapons-table">
-      <thead><tr><th>Weapon</th><th>Type</th><th>Damage Dice</th><th>Range</th><th>Innate / Specials</th></tr></thead>
-      <tbody>
-        {{#each artifactWeapons}}
-        <tr>
-          <td>{{name}}</td>
-          <td>{{type}}</td>
-          <td>{{damage}}</td>
-          <td>{{#if this.range}}{{this.range}}{{else}}—{{/if}}</td>
-          <td>{{#if tags}}{{tags}}{{else}}—{{/if}}</td>
-        </tr>
-        {{/each}}
-        {{#unless hasArtifactWeapons}}
-        <tr><td colspan="5" class="cp-tech-empty">No weapons.</td></tr>
-        {{/unless}}
-      </tbody>
-    </table>
-  </div>
-
   <div class="cp-page-footer">-- 1 of {{pageTotal}} --</div>
 </section>
 
@@ -351,6 +305,52 @@
       </div>
       {{/each}}
     </div>
+  </div>
+
+  <div class="cp-block cp-disadvantages">
+    <h3 class="cp-block-title">Disadvantages <span class="cp-subtle">Points: {{disadvantagePoints}}</span></h3>
+    <table class="cp-disadv-table">
+      <thead><tr><th>Disadvantage</th><th>Points</th></tr></thead>
+      <tbody>
+        {{#each disadvantages}}
+        <tr>
+          <td>
+            <span class="cp-disadv-name">{{label}}</span>
+            {{#if description}}<span class="cp-disadv-desc">{{description}}</span>{{/if}}
+          </td>
+          <td>{{points}}</td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+    <div class="cp-rerolls">
+      <span class="cp-defense-label">Total Rerolls / Used</span>
+      <span class="cp-reroll-boxes">
+        {{#each rerollBoxes}}<span class="cp-use-box"></span>{{/each}}
+        {{#unless rerollBoxes.length}}<span class="cp-reroll-empty">—</span>{{/unless}}
+      </span>
+    </div>
+  </div>
+
+  <div class="cp-block cp-weapons">
+    <h3 class="cp-block-title">Weapons</h3>
+    <table class="cp-weapons-table">
+      <thead><tr><th>Weapon</th><th>Type</th><th>Damage Dice</th><th>Range</th><th>Innate / Specials</th></tr></thead>
+      <tbody>
+        {{#each artifactWeapons}}
+        <tr>
+          <td>{{name}}</td>
+          <td>{{type}}</td>
+          <td>{{damage}}</td>
+          <td>{{#if this.range}}{{this.range}}{{else}}—{{/if}}</td>
+          <td>{{#if tags}}{{tags}}{{else}}—{{/if}}</td>
+        </tr>
+        {{/each}}
+        {{#unless hasArtifactWeapons}}
+        <tr><td colspan="5" class="cp-tech-empty">No weapons.</td></tr>
+        {{/unless}}
+      </tbody>
+    </table>
   </div>
 
   <div class="cp-page-footer">-- 3 of {{pageTotal}} --</div>
@@ -495,15 +495,8 @@
               <span class="cp-use-box"></span>
               <span class="cp-battle-card-body">
                 <span class="cp-battle-card-name">{{name}}{{#unless fromArtifact}}{{#if rank}} <span class="cp-battle-card-rank">Stufe {{rank}}</span>{{/if}}{{/unless}}{{#if fromArtifact}} <span class="cp-power-artifact" title="From artifact: {{source}}">&#9733; {{source}}</span>{{/if}}</span>
-                {{#if effect}}<span class="cp-battle-card-eff">{{effect}}</span>{{/if}}
-                {{#if attackRoll}}<span class="cp-battle-card-roll"><strong>Attack:</strong> {{attackRoll}}</span>{{/if}}
+                {{#if effect}}<span class="cp-battle-card-eff"><strong>Effect:</strong> {{effect}}</span>{{/if}}
                 {{#if damageRoll}}<span class="cp-battle-card-roll"><strong>Damage:</strong> {{damageRoll}}</span>{{/if}}
-              </span>
-            </div>
-            {{/each}}
-          </div>
-          {{else}}
-          <div class="cp-battle-empty">No active buffs.</div>
           {{/if}}
         </div>
 
