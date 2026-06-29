@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.156] - 2026-06-23
+
+### Fixed
+
+- **Epic Mastery Roll — chat button (Foundry v13):** The **Epic Roll** GM button now injects via `renderChatInput` and sidebar hooks. In v13, `renderChatLog` no longer includes `#chat-controls`, so the button was missing from the chat sidebar.
+
 ## [0.9.155] - 2026-06-23
 
 ### Added
