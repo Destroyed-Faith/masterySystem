@@ -7,6 +7,7 @@ import {
   buildAttributeRollContext,
   buildSaveRollContext,
   buildSkillRollContext,
+  getSkillRollDicePool,
 } from '../dice/roll-context-build.js';
 import { SKILLS } from '../utils/skills.js';
 import type {
@@ -37,20 +38,19 @@ export async function pickSkillAttribute(
   if (!def?.attributes?.length) return null;
   if (def.attributes.length === 1) return def.attributes[0]!;
 
-  const system = (actor as any).system;
   const options = def.attributes
     .map((attr) => {
-      const val = Number(system.attributes?.[attr]?.value ?? 0);
+      const pool = getSkillRollDicePool(actor, skillKey, attr);
       const label = attr.charAt(0).toUpperCase() + attr.slice(1);
-      return { attr, label, val };
+      return { attr, label, pool };
     })
-    .sort((a, b) => b.val - a.val);
+    .sort((a, b) => b.pool.numDice - a.pool.numDice);
 
   return new Promise((resolve) => {
     const buttons: Record<string, { label: string; callback?: () => void }> = {};
     for (const opt of options) {
       buttons[opt.attr] = {
-        label: `${opt.label} (${opt.val}d8)`,
+        label: `${opt.label} (${opt.pool.numDice}d8, keep ${opt.pool.keepDice})`,
         callback: () => resolve(opt.attr),
       };
     }

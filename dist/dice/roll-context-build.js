@@ -20,6 +20,38 @@ export function buildDifficultyPresets(challengeMR) {
 function capAttr(key) {
     return key.charAt(0).toUpperCase() + key.slice(1);
 }
+/** Skill rolls: attribute dice pool, keep highest equal to the actor's Mastery Rank. */
+export function getSkillRollDicePool(actor, skillKey, attributeKey) {
+    const skillDef = SKILLS[skillKey];
+    const system = actor.system;
+    const masteryRank = Number(system.mastery?.rank ?? 2);
+    if (!skillDef) {
+        return { numDice: masteryRank, keepDice: masteryRank, halfPool: false, equipPenalty: 0, healthPenalty: 0 };
+    }
+    const attributeValue = Number(system.attributes?.[attributeKey]?.value ?? 0);
+    const skillRating = Number(system.skills?.[skillKey] ?? 0);
+    const fullPoolReady = skillRating >= masteryRank;
+    let baseAttrPool = attributeValue;
+    let halfPool = false;
+    if (!fullPoolReady) {
+        baseAttrPool = Math.max(1, Math.floor(attributeValue / 2));
+        halfPool = true;
+    }
+    let numDice = Math.max(baseAttrPool, masteryRank);
+    let equipPenalty = 0;
+    if (skillDef.category === SKILL_CATEGORIES.PHYSICAL) {
+        const penDice = getEquippedPhysicalSkillPenaltyDice(actor);
+        if (penDice > 0) {
+            equipPenalty = penDice;
+            numDice = Math.max(1, numDice - penDice);
+        }
+    }
+    const beforeHealth = numDice;
+    const health = applyHealthPenalty(system, numDice);
+    numDice = health.numDice;
+    const healthPenalty = beforeHealth - numDice;
+    return { numDice, keepDice: masteryRank, halfPool, equipPenalty, healthPenalty };
+}
 function applyHealthPenalty(system, numDice) {
     const healthBars = system.health?.bars || [];
     const currentBar = system.health?.currentBar ?? 0;
@@ -53,25 +85,17 @@ export function buildSkillRollContext(actor, skillKey, attributeKey, tnSpec, sto
     const attributeValue = Number(system.attributes?.[attributeKey]?.value) || 0;
     const skillRating = Number(system?.skills?.[skillKey] ?? 0);
     const fullPoolReady = skillRating >= masteryRank;
-    let baseAttrPool = attributeValue;
+    const pool = getSkillRollDicePool(actor, skillKey, attributeKey);
+    const numDice = pool.numDice;
     let halfPoolFlavor = '';
-    if (!fullPoolReady) {
-        const halved = Math.max(1, Math.floor(attributeValue / 2));
-        halfPoolFlavor = ` Half-pool: skill rating ${skillRating} < MR ${masteryRank} → ⌊${attributeValue}/2⌋ = ${halved}d8.`;
-        baseAttrPool = halved;
+    if (pool.halfPool) {
+        halfPoolFlavor = ` Half-pool: skill rating ${skillRating} < MR ${masteryRank} → ⌊${attributeValue}/2⌋ attribute dice.`;
     }
-    let numDice = Math.max(baseAttrPool, masteryRank);
-    let equipPenaltyFlavor = '';
-    if (skillDef.category === SKILL_CATEGORIES.PHYSICAL) {
-        const penDice = getEquippedPhysicalSkillPenaltyDice(actor);
-        if (penDice > 0) {
-            numDice = Math.max(1, numDice - penDice);
-            equipPenaltyFlavor = ` Equipped armor/shield physical penalty: −${penDice}d8.`;
-        }
-    }
-    const health = applyHealthPenalty(system, numDice);
-    numDice = health.numDice;
-    const flavor = `Attribute: ${capAttr(attributeKey)}, Base TN: ${tnSpec.baseTN}, Raises: ${tnSpec.raises}.${equipPenaltyFlavor}${health.flavorSuffix}${halfPoolFlavor}`;
+    const equipPenaltyFlavor = pool.equipPenalty > 0
+        ? ` Equipped armor/shield physical penalty: −${pool.equipPenalty}d8.`
+        : '';
+    const healthFlavor = pool.healthPenalty > 0 ? ` Health penalty: −${pool.healthPenalty}d8.` : '';
+    const flavor = `Attribute pool: ${numDice}d8, keep highest ${masteryRank} (MR). Base TN: ${tnSpec.baseTN}, Raises: ${tnSpec.raises}.${equipPenaltyFlavor}${healthFlavor}${halfPoolFlavor}`;
     return {
         label: `${skillDef.name} Check`,
         attributeKey,
@@ -101,7 +125,7 @@ export function buildAttributeRollContext(actor, attributeKey, tnSpec, stoneBonu
     const health = applyHealthPenalty(system, numDice);
     numDice = health.numDice;
     const attrLabel = capAttr(attributeKey);
-    const flavor = `Attribute: ${attrLabel}, Base TN: ${tnSpec.baseTN}, Raises: ${tnSpec.raises}.${health.flavorSuffix}`;
+    const flavor = `Attribute pool: ${numDice}d8, keep highest ${masteryRank} (MR). Base TN: ${tnSpec.baseTN}, Raises: ${tnSpec.raises}.${health.flavorSuffix}`;
     return {
         label: `${attrLabel} Check`,
         attributeKey,

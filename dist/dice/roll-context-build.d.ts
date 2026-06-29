@@ -15,6 +15,14 @@ export interface BuiltRollContext {
     skillKey?: string;
 }
 export declare function buildDifficultyPresets(challengeMR: number): Record<string, number>;
+/** Skill rolls: attribute dice pool, keep highest equal to the actor's Mastery Rank. */
+export declare function getSkillRollDicePool(actor: Actor, skillKey: string, attributeKey: string): {
+    numDice: number;
+    keepDice: number;
+    halfPool: boolean;
+    equipPenalty: number;
+    healthPenalty: number;
+};
 export declare function buildSkillRollContext(actor: Actor, skillKey: string, attributeKey: string, tnSpec: TnSpec, stoneBonusRaises?: number): BuiltRollContext | null;
 export declare function buildAttributeRollContext(actor: Actor, attributeKey: string, tnSpec: TnSpec, stoneBonusRaises?: number): BuiltRollContext | null;
 export declare function buildSaveRollContext(actor: Actor, saveType: SaveCategory, tnSpec: TnSpec, stoneBonusRaises?: number): BuiltRollContext | null;

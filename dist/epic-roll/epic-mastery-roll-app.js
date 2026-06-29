@@ -2,6 +2,7 @@
  * Epic Mastery Roll — full-screen cinematic overlay.
  */
 import { SKILLS } from '../utils/skills.js';
+import { getSkillRollDicePool } from '../dice/roll-context-build.js';
 import { countResolvedParticipants, rollLabelForConfig, } from './epic-mastery-roll-types.js';
 import { applyEpicSkillSpendAndFinalize, confirmEpicRollWithoutSpend, performEpicParticipantRoll, } from './epic-mastery-roll-roll.js';
 import { buildSkillSpendPackets, getSkillSpendOptions, sumSelectedPacketSpend, totalsAfterSkillSpend, } from './epic-mastery-roll-skill-spend.js';
@@ -88,13 +89,18 @@ class EpicMasteryRollOverlay {
                     selectedAttribute = undefined;
                 }
             }
-            const attributeOptions = multiAttribute && p.status === 'pending' && isOwner
-                ? skillAttrs.map((attr) => ({
-                    key: attr,
-                    label: capAttr(attr),
-                    dice: Number(actor?.system?.attributes?.[attr]?.value ?? 0),
-                    selected: selectedAttribute === attr,
-                }))
+            const attributeOptions = multiAttribute && p.status === 'pending' && isOwner && skillKey
+                ? skillAttrs.map((attr) => {
+                    const pool = getSkillRollDicePool(actor, skillKey, attr);
+                    return {
+                        key: attr,
+                        label: capAttr(attr),
+                        numDice: pool.numDice,
+                        keepDice: pool.keepDice,
+                        halfPool: pool.halfPool,
+                        selected: selectedAttribute === attr,
+                    };
+                })
                 : [];
             const showAttributePick = attributeOptions.length > 0;
             const rollReady = !multiAttribute || !!selectedAttribute;

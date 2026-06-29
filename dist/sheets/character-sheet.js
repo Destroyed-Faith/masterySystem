@@ -744,6 +744,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             willShowCreationUI: !context.creationComplete
         });
         context.isGM = !!game.user?.isGM;
+        context.canEditMasteryRank =
+            context.isGM || (!context.creationComplete && this.actor.isOwner);
         context.defaultMasteryRank = game.settings.get('mastery-system', 'defaultMasteryRank') || 2;
         // Add configuration data
         context.config = CONFIG.MASTERY;
@@ -1549,11 +1551,12 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         return groupedSkills;
     }
     /**
-     * GM-only MR dropdown. Injects the control when an older template still renders
-     * a read-only span (e.g. before 0.9.29 was installed on the world).
+     * MR dropdown for GM (any time) and actor owner during character creation.
      */
-    #bindGmMasteryRankSelect(html) {
-        if (!game.user?.isGM)
+    #bindMasteryRankSelect(html) {
+        const creationComplete = this.actor.system?.creation?.complete !== false;
+        const canEdit = !!game.user?.isGM || (!creationComplete && this.actor.isOwner);
+        if (!canEdit)
             return;
         const box = html.find('.mastery-rank-box');
         if (!box.length)
@@ -1564,13 +1567,14 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             const options = [1, 2, 3, 4, 5, 6, 7, 8]
                 .map((n) => `<option value="${n}"${n === rank ? ' selected' : ''}>${n}</option>`)
                 .join('');
-            box.find('.rank-value').replaceWith(`<select class="mastery-rank-select" data-dtype="Number" title="GM: Mastery Rank für diesen Charakter" aria-label="Mastery Rank">${options}</select>`);
+            box.find('.rank-value').replaceWith(`<select class="mastery-rank-select" data-dtype="Number" title="Mastery Rank" aria-label="Mastery Rank">${options}</select>`);
             select = box.find('.mastery-rank-select');
             const suggested = Math.floor(Number(this.actor.system?.mastery?.suggestedRank) || 0);
             if (suggested >= 1 && suggested <= 8 && !box.find('.rank-stone-hint').length) {
                 box.append(`<span class="rank-stone-hint" title="Empfehlung aus Total Stones (nur Hinweis, kein Auto-Rank-Up)">↗${suggested}</span>`);
             }
         }
+        select.prop('disabled', false);
         select.off('change.masteryRank').on('change.masteryRank', async (ev) => {
             const newRank = Math.max(1, Math.min(8, Math.floor(Number($(ev.currentTarget).val()) || 2)));
             const oldRank = Math.max(1, Math.floor(Number(this.actor.system?.mastery?.rank) || 2));
@@ -1599,7 +1603,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             htmlContent: html[0]?.tagName
         });
         super.activateListeners(html);
-        this.#bindGmMasteryRankSelect(html);
         console.log('Mastery System | activateListeners called AFTER super', {
             htmlLength: html.length,
             actorName: this.actor?.name
@@ -1630,6 +1633,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         if (!creationComplete) {
             this.#lockSheetForCreation(html);
         }
+        this.#bindMasteryRankSelect(html);
         html.find('.minor-expressions-open').on('click', async (ev) => {
             ev.preventDefault();
             if (!this.actor.isOwner) {
@@ -5456,7 +5460,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     #lockSheetForCreation(html) {
         console.log('Mastery System | #lockSheetForCreation called');
         html.find('input[name="name"], textarea').prop('disabled', true);
-        html.find('select:not(.power-rank-select):not(.attr-creation-select)').prop('disabled', true);
+        html.find('select:not(.power-rank-select):not(.attr-creation-select):not(.mastery-rank-select)').prop('disabled', true);
         // Disable buttons except creation controls
         const buttonsToDisable = html.find('button:not(.attr-increase):not(.attr-decrease):not(.skill-increase):not(.skill-decrease):not(.finalize-creation):not(.reset-creation-attributes):not(.force-unlock-creation):not(.reset-character):not(.add-disadvantage-btn):not(.disadvantage-edit-btn):not(.disadvantage-remove-btn):not(.open-tower-wizard-btn):not(.open-manual-combat-package-btn):not(.add-spell-creation-btn):not(.power-rank-select):not(.item-delete):not(.power-toggle-details):not(.power-edit-mechanics):not(.general-items-btn):not(.choose-echo-btn):not(.add-echo-card-btn):not(.echo-card-use-btn):not(.open-languages-btn)');
         console.log('Mastery System | Disabling buttons:', buttonsToDisable.length);
@@ -5475,6 +5479,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         creationButtons.prop('disabled', false);
         // Also enable power rank selects (they're select elements, not buttons)
         html.find('.power-rank-select').prop('disabled', false);
+        html.find('.mastery-rank-select').prop('disabled', false);
         html.find('.power-radial-checkbox').prop('disabled', false);
         html.find('.power-display-name-input').prop('disabled', false);
         // Double-check all creation buttons are enabled

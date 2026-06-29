@@ -4,6 +4,7 @@ import {
   buildDifficultyPresets,
   buildSaveRollContext,
   buildSkillRollContext,
+  getSkillRollDicePool,
 } from '../src/dice/roll-context-build.js';
 import {
   formatDiceSummary,
@@ -83,7 +84,26 @@ describe('buildRollContext', () => {
     const actor = mockActor();
     const ctx = buildAttributeRollContext(actor, 'might', { baseTN: 24, raises: 0 });
     expect(ctx!.rollOptions.numDice).toBe(10);
+    expect(ctx!.rollOptions.keepDice).toBe(4);
     expect(ctx!.label).toBe('Might Check');
+  });
+
+  it('skill rolls use attribute pool dice and keep MR highest', () => {
+    const actor = mockActor({
+      system: {
+        mastery: { rank: 4 },
+        attributes: { might: { value: 10 }, agility: { value: 8 } },
+        skills: { athletics: 4 },
+        health: { bars: [{ current: 10, max: 10 }], currentBar: 0 },
+      },
+    });
+    const pool = getSkillRollDicePool(actor, 'athletics', 'might');
+    expect(pool.numDice).toBe(10);
+    expect(pool.keepDice).toBe(4);
+
+    const ctx = buildSkillRollContext(actor, 'athletics', 'might', { baseTN: 32, raises: 0 });
+    expect(ctx!.rollOptions.numDice).toBe(10);
+    expect(ctx!.rollOptions.keepDice).toBe(4);
   });
 
   it('builds body save using higher attribute', () => {

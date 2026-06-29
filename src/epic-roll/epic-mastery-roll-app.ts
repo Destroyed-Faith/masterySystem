@@ -3,6 +3,7 @@
  */
 
 import { SKILLS } from '../utils/skills.js';
+import { getSkillRollDicePool } from '../dice/roll-context-build.js';
 import type { EpicMasteryRollSession } from './epic-mastery-roll-types.js';
 import {
   countResolvedParticipants,
@@ -132,13 +133,18 @@ class EpicMasteryRollOverlay {
       }
 
       const attributeOptions =
-        multiAttribute && p.status === 'pending' && isOwner
-          ? skillAttrs.map((attr) => ({
-              key: attr,
-              label: capAttr(attr),
-              dice: Number((actor as any)?.system?.attributes?.[attr]?.value ?? 0),
-              selected: selectedAttribute === attr,
-            }))
+        multiAttribute && p.status === 'pending' && isOwner && skillKey
+          ? skillAttrs.map((attr) => {
+              const pool = getSkillRollDicePool(actor, skillKey, attr);
+              return {
+                key: attr,
+                label: capAttr(attr),
+                numDice: pool.numDice,
+                keepDice: pool.keepDice,
+                halfPool: pool.halfPool,
+                selected: selectedAttribute === attr,
+              };
+            })
           : [];
 
       const showAttributePick = attributeOptions.length > 0;

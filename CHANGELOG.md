@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.163] - 2026-06-23
+
+### Changed
+
+- **Epic Mastery Roll — skill dice:** Attribute pick shows roll pool and keep count (e.g. `8d8 keep 4`); skill rolls use attribute pool with highest MR dice kept.
+
+### Fixed
+
+- **Character sheet — Mastery Rank:** MR dropdown stays editable during character creation and can be changed anytime by the GM (owner during creation).
+
 ## [0.9.162] - 2026-06-23
 
 ### Changed

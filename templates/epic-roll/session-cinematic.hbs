@@ -34,8 +34,8 @@
           {{#if p.showAttributePick}}
           <div class="emr-attr-pick-row">
             {{#each p.attributeOptions as |opt|}}
-            <button type="button" class="emr-attr-btn {{#if opt.selected}}is-selected{{/if}}" data-action="emr-pick-attr" data-actor-id="{{../actorId}}" data-emr-attr="{{opt.key}}">
-              {{opt.label}} ({{opt.dice}}d8)
+            <button type="button" class="emr-attr-btn {{#if opt.selected}}is-selected{{/if}}" data-action="emr-pick-attr" data-actor-id="{{../actorId}}" data-emr-attr="{{opt.key}}" title="Roll {{opt.numDice}}d8, keep highest {{opt.keepDice}}{{#if opt.halfPool}} (half attribute pool){{/if}}">
+              {{opt.label}} · {{opt.numDice}}d8 keep {{opt.keepDice}}
             </button>
             {{/each}}
           </div>

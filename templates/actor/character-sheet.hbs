@@ -36,8 +36,8 @@
     <div class="header-info">
       <div class="mastery-rank-box" title="Mastery Rank">
         <label>MR</label>
-        {{#if isGM}}
-        <select class="mastery-rank-select" data-dtype="Number" title="GM: Mastery Rank für diesen Charakter" aria-label="Mastery Rank">
+        {{#if canEditMasteryRank}}
+        <select class="mastery-rank-select" data-dtype="Number" title="Mastery Rank" aria-label="Mastery Rank">
           <option value="1" {{#if (eqNum system.mastery.rank 1)}}selected{{/if}}>1</option>
           <option value="2" {{#if (eqNum system.mastery.rank 2)}}selected{{/if}}>2</option>
           <option value="3" {{#if (eqNum system.mastery.rank 3)}}selected{{/if}}>3</option>
