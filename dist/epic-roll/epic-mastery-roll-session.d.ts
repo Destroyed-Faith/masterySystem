@@ -9,6 +9,7 @@ export declare function ingestEpicMasteryRollResult(sessionId: string, result: E
     staged?: boolean;
 }): Promise<void>;
 export declare function skipEpicMasteryRollParticipant(actorId: string): Promise<void>;
+/** GM closes the cinematic overlay for everyone (X button). Rolls stay recorded; summary posts when all are done. */
 export declare function cancelEpicMasteryRollSession(): Promise<void>;
 export declare function clearEpicMasteryRollSessionLocal(sessionId?: string): void;
 //# sourceMappingURL=epic-mastery-roll-session.d.ts.map

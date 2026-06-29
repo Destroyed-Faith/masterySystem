@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.161] - 2026-06-23
+
+### Changed
+
+- **Epic Mastery Roll — dismiss:** Cinematic overlay stays open after all rolls and player actions (Roll, Keep Roll, skill spend). Only the GM closes it with **X**; chat summary still posts when everyone is done.
+
 ## [0.9.160] - 2026-06-23
 
 ### Changed

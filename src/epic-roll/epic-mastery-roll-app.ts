@@ -155,7 +155,7 @@ class EpicMasteryRollOverlay {
   }
 
   async render(): Promise<void> {
-    if (this.session.status === 'complete' || this.session.status === 'cancelled') {
+    if (this.session.status !== 'active') {
       this.close();
       return;
     }
@@ -276,8 +276,7 @@ class EpicMasteryRollOverlay {
 let activeOverlay: EpicMasteryRollOverlay | null = null;
 
 export async function openEpicMasteryRollApp(session: EpicMasteryRollSession): Promise<void> {
-  if (session.status === 'complete' || session.status === 'cancelled') {
-    closeEpicMasteryRollApp();
+  if (session.status !== 'active') {
     return;
   }
 

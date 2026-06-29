@@ -2,12 +2,13 @@
  * Epic Mastery Roll — GM-authoritative session manager.
  */
 import { isSessionReadyToComplete, mergeParticipantResult, skipParticipantInSession, } from './epic-mastery-roll-types.js';
-import { broadcastEpicMasteryRollCancel, broadcastEpicMasteryRollComplete, broadcastEpicMasteryRollStart, broadcastEpicMasteryRollState, } from './epic-mastery-roll-socket.js';
+import { broadcastEpicMasteryRollCancel, broadcastEpicMasteryRollStart, broadcastEpicMasteryRollState, } from './epic-mastery-roll-socket.js';
 import { postEpicMasteryRollSummary } from './epic-mastery-roll-chat.js';
 import { closeEpicMasteryRollApp, openEpicMasteryRollApp } from './epic-mastery-roll-app.js';
 let activeSession = null;
-/** Sessions closed locally — ignore late state broadcasts that would reopen the overlay. */
+/** Sessions closed by GM — ignore late state broadcasts that would reopen the overlay. */
 const dismissedEpicRollSessionIds = new Set();
+let summaryPostedForSessionId = null;
 function markEpicRollSessionDismissed(sessionId) {
     dismissedEpicRollSessionIds.add(sessionId);
 }
@@ -31,6 +32,14 @@ function buildParticipants(actorIds) {
         });
     }
     return participants;
+}
+async function syncEpicMasteryRollSession(session) {
+    if (isSessionReadyToComplete(session) && summaryPostedForSessionId !== session.id) {
+        summaryPostedForSessionId = session.id;
+        await postEpicMasteryRollSummary({ ...session, status: 'complete' });
+    }
+    broadcastEpicMasteryRollState(session);
+    await openEpicMasteryRollApp(session);
 }
 export function getActiveEpicMasteryRollSession() {
     return activeSession;
@@ -62,6 +71,7 @@ export async function startEpicMasteryRollSession(config) {
         bandHue: 350,
     };
     activeSession = session;
+    summaryPostedForSessionId = null;
     dismissedEpicRollSessionIds.delete(session.id);
     broadcastEpicMasteryRollStart(session);
     await openEpicMasteryRollApp(session);
@@ -90,42 +100,25 @@ export async function ingestEpicMasteryRollResult(sessionId, result, opts) {
     }
     const staged = opts?.staged ?? result.awaitingConfirm === true;
     activeSession = mergeParticipantResult(activeSession, result, { staged });
-    if (isSessionReadyToComplete(activeSession)) {
-        await completeEpicMasteryRollSession(activeSession);
-    }
-    else {
-        broadcastEpicMasteryRollState(activeSession);
-        await openEpicMasteryRollApp(activeSession);
-    }
+    await syncEpicMasteryRollSession(activeSession);
 }
 export async function skipEpicMasteryRollParticipant(actorId) {
     if (!game.user?.isGM || !activeSession || activeSession.status !== 'active')
         return;
     activeSession = skipParticipantInSession(activeSession, actorId);
-    if (isSessionReadyToComplete(activeSession)) {
-        await completeEpicMasteryRollSession(activeSession);
-    }
-    else {
-        broadcastEpicMasteryRollState(activeSession);
-        await openEpicMasteryRollApp(activeSession);
-    }
+    await syncEpicMasteryRollSession(activeSession);
 }
+/** GM closes the cinematic overlay for everyone (X button). Rolls stay recorded; summary posts when all are done. */
 export async function cancelEpicMasteryRollSession() {
     if (!game.user?.isGM || !activeSession)
         return;
     const sessionId = activeSession.id;
     markEpicRollSessionDismissed(sessionId);
-    activeSession = { ...activeSession, status: 'cancelled' };
+    activeSession = null;
+    if (summaryPostedForSessionId === sessionId) {
+        summaryPostedForSessionId = null;
+    }
     broadcastEpicMasteryRollCancel(sessionId);
-    closeEpicMasteryRollApp();
-    activeSession = null;
-}
-async function completeEpicMasteryRollSession(session) {
-    const completed = { ...session, status: 'complete' };
-    markEpicRollSessionDismissed(session.id);
-    activeSession = null;
-    await postEpicMasteryRollSummary(completed);
-    broadcastEpicMasteryRollComplete(completed.id);
     closeEpicMasteryRollApp();
 }
 export function clearEpicMasteryRollSessionLocal(sessionId) {

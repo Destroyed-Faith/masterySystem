@@ -118,7 +118,7 @@ class EpicMasteryRollOverlay {
         };
     }
     async render() {
-        if (this.session.status === 'complete' || this.session.status === 'cancelled') {
+        if (this.session.status !== 'active') {
             this.close();
             return;
         }
@@ -234,8 +234,7 @@ class EpicMasteryRollOverlay {
 }
 let activeOverlay = null;
 export async function openEpicMasteryRollApp(session) {
-    if (session.status === 'complete' || session.status === 'cancelled') {
-        closeEpicMasteryRollApp();
+    if (session.status !== 'active') {
         return;
     }
     if (activeOverlay) {

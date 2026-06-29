@@ -13,7 +13,6 @@ import {
 } from './epic-mastery-roll-types.js';
 import {
   broadcastEpicMasteryRollCancel,
-  broadcastEpicMasteryRollComplete,
   broadcastEpicMasteryRollStart,
   broadcastEpicMasteryRollState,
 } from './epic-mastery-roll-socket.js';
@@ -21,8 +20,9 @@ import { postEpicMasteryRollSummary } from './epic-mastery-roll-chat.js';
 import { closeEpicMasteryRollApp, openEpicMasteryRollApp } from './epic-mastery-roll-app.js';
 
 let activeSession: EpicMasteryRollSession | null = null;
-/** Sessions closed locally — ignore late state broadcasts that would reopen the overlay. */
+/** Sessions closed by GM — ignore late state broadcasts that would reopen the overlay. */
 const dismissedEpicRollSessionIds = new Set<string>();
+let summaryPostedForSessionId: string | null = null;
 
 function markEpicRollSessionDismissed(sessionId: string): void {
   dismissedEpicRollSessionIds.add(sessionId);
@@ -49,6 +49,16 @@ function buildParticipants(actorIds: string[]): EpicParticipant[] {
     });
   }
   return participants;
+}
+
+async function syncEpicMasteryRollSession(session: EpicMasteryRollSession): Promise<void> {
+  if (isSessionReadyToComplete(session) && summaryPostedForSessionId !== session.id) {
+    summaryPostedForSessionId = session.id;
+    await postEpicMasteryRollSummary({ ...session, status: 'complete' });
+  }
+
+  broadcastEpicMasteryRollState(session);
+  await openEpicMasteryRollApp(session);
 }
 
 export function getActiveEpicMasteryRollSession(): EpicMasteryRollSession | null {
@@ -88,6 +98,7 @@ export async function startEpicMasteryRollSession(
   };
 
   activeSession = session;
+  summaryPostedForSessionId = null;
   dismissedEpicRollSessionIds.delete(session.id);
   broadcastEpicMasteryRollStart(session);
   await openEpicMasteryRollApp(session);
@@ -125,45 +136,27 @@ export async function ingestEpicMasteryRollResult(
 
   const staged = opts?.staged ?? result.awaitingConfirm === true;
   activeSession = mergeParticipantResult(activeSession, result, { staged });
-
-  if (isSessionReadyToComplete(activeSession)) {
-    await completeEpicMasteryRollSession(activeSession);
-  } else {
-    broadcastEpicMasteryRollState(activeSession);
-    await openEpicMasteryRollApp(activeSession);
-  }
+  await syncEpicMasteryRollSession(activeSession);
 }
 
 export async function skipEpicMasteryRollParticipant(actorId: string): Promise<void> {
   if (!game.user?.isGM || !activeSession || activeSession.status !== 'active') return;
 
   activeSession = skipParticipantInSession(activeSession, actorId);
-
-  if (isSessionReadyToComplete(activeSession)) {
-    await completeEpicMasteryRollSession(activeSession);
-  } else {
-    broadcastEpicMasteryRollState(activeSession);
-    await openEpicMasteryRollApp(activeSession);
-  }
+  await syncEpicMasteryRollSession(activeSession);
 }
 
+/** GM closes the cinematic overlay for everyone (X button). Rolls stay recorded; summary posts when all are done. */
 export async function cancelEpicMasteryRollSession(): Promise<void> {
   if (!game.user?.isGM || !activeSession) return;
 
   const sessionId = activeSession.id;
   markEpicRollSessionDismissed(sessionId);
-  activeSession = { ...activeSession, status: 'cancelled' };
+  activeSession = null;
+  if (summaryPostedForSessionId === sessionId) {
+    summaryPostedForSessionId = null;
+  }
   broadcastEpicMasteryRollCancel(sessionId);
-  closeEpicMasteryRollApp();
-  activeSession = null;
-}
-
-async function completeEpicMasteryRollSession(session: EpicMasteryRollSession): Promise<void> {
-  const completed: EpicMasteryRollSession = { ...session, status: 'complete' };
-  markEpicRollSessionDismissed(session.id);
-  activeSession = null;
-  await postEpicMasteryRollSummary(completed);
-  broadcastEpicMasteryRollComplete(completed.id);
   closeEpicMasteryRollApp();
 }
 
