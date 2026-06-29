@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.162] - 2026-06-23
+
+### Changed
+
+- **Epic Mastery Roll — skill spend:** On success, no skill spend UI. On failure, spend via up to four MR-sized packets (skill sheet style); live preview turns the result green when TN is met; **Add Skill Points** applies the selection. Skip button removed.
+
 ## [0.9.161] - 2026-06-23
 
 ### Changed

@@ -9,6 +9,14 @@ export interface SkillSpendOption {
     raises: number;
     label: string;
 }
+export interface SkillSpendPacket {
+    index: number;
+    amount: number;
+    clickable: boolean;
+}
+/** Distribute remaining skill pool across four MR-sized packets (skill sheet style). */
+export declare function buildSkillSpendPackets(remainingPool: number, masteryRank: number): SkillSpendPacket[];
+export declare function sumSelectedPacketSpend(packets: SkillSpendPacket[], selected: boolean[]): number;
 export declare function getSkillSpendOptions(actor: Actor, skillKey: string, rollResult: MasteryRollResult & {
     raiseOutcome?: string;
     stoneBonusRaises?: number;

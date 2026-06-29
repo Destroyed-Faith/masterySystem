@@ -2,6 +2,25 @@
  * Skill spend helpers for Epic Mastery Roll overlay (mirrors chat skill-spend flow).
  */
 import { countMarginRaises } from '../dice/roll-handler.js';
+/** Distribute remaining skill pool across four MR-sized packets (skill sheet style). */
+export function buildSkillSpendPackets(remainingPool, masteryRank) {
+    const MR = Math.max(1, Math.floor(masteryRank) || 1);
+    let left = Math.max(0, remainingPool);
+    const packets = [];
+    for (let index = 0; index < 4; index++) {
+        const amount = Math.min(MR, left);
+        left -= amount;
+        packets.push({
+            index,
+            amount,
+            clickable: amount > 0,
+        });
+    }
+    return packets;
+}
+export function sumSelectedPacketSpend(packets, selected) {
+    return packets.reduce((sum, pkt, i) => sum + (selected[i] && pkt.clickable ? pkt.amount : 0), 0);
+}
 export function getSkillSpendOptions(actor, skillKey, rollResult, baseModifier = 0) {
     const system = actor.system;
     const skillRating = Number(system.skills?.[skillKey] ?? 0);

@@ -12,7 +12,7 @@ import {
   skipParticipantInSession,
 } from '../src/epic-roll/epic-mastery-roll-types.js';
 import { buildEpicMasteryRollSummaryHtml } from '../src/epic-roll/epic-mastery-roll-chat.js';
-import { getSkillSpendOptions } from '../src/epic-roll/epic-mastery-roll-skill-spend.js';
+import { getSkillSpendOptions, buildSkillSpendPackets, sumSelectedPacketSpend } from '../src/epic-roll/epic-mastery-roll-skill-spend.js';
 import type { EpicMasteryRollSession } from '../src/epic-roll/epic-mastery-roll-types.js';
 
 function mockActor(overrides: Record<string, unknown> = {}): Actor {
@@ -198,6 +198,19 @@ describe('Epic skill spend helpers', () => {
     expect(remainingPool).toBe(4);
     expect(options.length).toBeGreaterThan(0);
     expect(options[0]!.amount).toBe(4);
+  });
+
+  it('builds MR packets like the skill sheet (max four, MR-sized chunks)', () => {
+    expect(buildSkillSpendPackets(8, 2).map((p) => p.amount)).toEqual([2, 2, 2, 2]);
+    expect(buildSkillSpendPackets(3, 2).map((p) => p.amount)).toEqual([2, 1, 0, 0]);
+    expect(buildSkillSpendPackets(12, 3).map((p) => p.amount)).toEqual([3, 3, 3, 3]);
+    expect(buildSkillSpendPackets(8, 4).map((p) => p.amount)).toEqual([4, 4, 0, 0]);
+  });
+
+  it('sums only selected clickable packets', () => {
+    const packets = buildSkillSpendPackets(8, 2);
+    expect(sumSelectedPacketSpend(packets, [true, true, false, false])).toBe(4);
+    expect(sumSelectedPacketSpend(packets, [true, true, true, true])).toBe(8);
   });
 });
 

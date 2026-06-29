@@ -47,26 +47,34 @@
           </button>
           {{else if p.showRollResult}}
           <div class="emr-roll-result {{#if p.success}}emr-roll-result-success{{else}}emr-roll-result-fail{{/if}}" aria-label="Roll result">
-            <span class="emr-roll-result-value">{{p.result.total}}</span>
+            <span class="emr-roll-result-value">{{p.displayTotal}}</span>
           </div>
           {{else if p.skipped}}
           <div class="emr-roll-result emr-roll-result-skipped">Skipped</div>
           {{/if}}
 
-          {{#if p.awaitingSpend}}
-            {{#if p.canSpend}}
-            <div class="emr-skill-spend">
-              <div class="emr-skill-spend-label">Spend Skill Points ({{p.skillPoolRemaining}}/{{p.skillRating}})</div>
-              <div class="emr-skill-spend-btns">
-                {{#each p.skillSpendOptions as |opt|}}
-                <button type="button" class="emr-spend-btn {{#if opt.wouldSucceed}}emr-spend-success{{/if}}" data-action="emr-spend" data-actor-id="{{../actorId}}" data-amount="{{opt.amount}}">
-                  +{{opt.label}} → {{opt.newTotal}}{{#if ../showTn}}{{#if opt.wouldSucceed}} ✓{{else}} ✗{{/if}}{{/if}}
-                </button>
-                {{/each}}
-                <button type="button" class="emr-confirm-btn" data-action="emr-confirm" data-actor-id="{{p.actorId}}">Keep Roll</button>
-              </div>
+          {{#if p.showSkillSpend}}
+          <div class="emr-skill-spend">
+            <div class="emr-skill-packets" role="group" aria-label="Spend skill points by Mastery Rank packet">
+              {{#each p.skillPackets as |pkt|}}
+              <button
+                type="button"
+                class="emr-skill-packet {{#if pkt.locked}}is-locked{{else if pkt.selected}}is-selected{{else}}is-available{{/if}}"
+                data-action="emr-toggle-packet"
+                data-actor-id="{{../actorId}}"
+                data-packet-index="{{pkt.index}}"
+                title="{{#if pkt.locked}}No points{{else}}Spend {{pkt.amount}} skill point(s){{/if}}"
+                {{#if pkt.locked}}disabled{{/if}}
+              >
+                {{pkt.amount}}
+              </button>
+              {{/each}}
             </div>
-            {{/if}}
+            <button type="button" class="emr-add-skill-btn" data-action="emr-add-skill" data-actor-id="{{p.actorId}}" {{#unless p.canAddSkillPoints}}disabled{{/unless}}>
+              Add Skill Points
+            </button>
+            <button type="button" class="emr-keep-roll-btn" data-action="emr-confirm" data-actor-id="{{p.actorId}}">Keep Roll</button>
+          </div>
           {{/if}}
 
           {{#if p.showFinalMeta}}
@@ -79,10 +87,6 @@
         </div>
 
         <div class="emr-portrait-name">{{p.actorName}}</div>
-
-        {{#if p.canSkip}}
-        <button type="button" class="emr-skip-link" data-action="emr-skip" data-actor-id="{{p.actorId}}">Skip</button>
-        {{/if}}
       </div>
       {{/each}}
     </div>

@@ -126,7 +126,7 @@ export async function executeEpicParticipantRoll(session, actorId, attributeKeyO
         raiseTn: ctx.raiseTn,
     };
     let awaitingConfirm = false;
-    if (ctx.isSkillRoll && ctx.skillKey) {
+    if (ctx.isSkillRoll && ctx.skillKey && !rollResult.success) {
         const { options } = getSkillSpendOptions(actor, ctx.skillKey, rollResult, ctx.baseModifier);
         awaitingConfirm = options.length > 0;
     }

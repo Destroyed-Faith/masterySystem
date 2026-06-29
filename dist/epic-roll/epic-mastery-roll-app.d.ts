@@ -3,13 +3,17 @@
  */
 import type { EpicMasteryRollSession } from './epic-mastery-roll-types.js';
 declare class EpicMasteryRollOverlay {
+    #private;
     private session;
     private root;
     private rolling;
     private renderSeq;
     /** Per-actor attribute choice before rolling (multi-attribute skills). */
     private selectedAttributes;
+    /** Per-actor MR packet toggles while choosing skill spend after a failed roll. */
+    private selectedSpendPackets;
     constructor(session: EpicMasteryRollSession);
+    private spendSelectionFor;
     private buildContext;
     render(): Promise<void>;
     private bind;

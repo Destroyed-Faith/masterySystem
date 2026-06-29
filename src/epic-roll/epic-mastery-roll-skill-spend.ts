@@ -13,6 +13,38 @@ export interface SkillSpendOption {
   label: string;
 }
 
+export interface SkillSpendPacket {
+  index: number;
+  amount: number;
+  clickable: boolean;
+}
+
+/** Distribute remaining skill pool across four MR-sized packets (skill sheet style). */
+export function buildSkillSpendPackets(remainingPool: number, masteryRank: number): SkillSpendPacket[] {
+  const MR = Math.max(1, Math.floor(masteryRank) || 1);
+  let left = Math.max(0, remainingPool);
+  const packets: SkillSpendPacket[] = [];
+
+  for (let index = 0; index < 4; index++) {
+    const amount = Math.min(MR, left);
+    left -= amount;
+    packets.push({
+      index,
+      amount,
+      clickable: amount > 0,
+    });
+  }
+
+  return packets;
+}
+
+export function sumSelectedPacketSpend(packets: SkillSpendPacket[], selected: boolean[]): number {
+  return packets.reduce(
+    (sum, pkt, i) => sum + (selected[i] && pkt.clickable ? pkt.amount : 0),
+    0,
+  );
+}
+
 export function getSkillSpendOptions(
   actor: Actor,
   skillKey: string,

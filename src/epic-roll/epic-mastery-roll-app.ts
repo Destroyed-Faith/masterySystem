@@ -13,13 +13,23 @@ import {
   confirmEpicRollWithoutSpend,
   performEpicParticipantRoll,
 } from './epic-mastery-roll-roll.js';
-import { getSkillSpendOptions } from './epic-mastery-roll-skill-spend.js';
+import {
+  buildSkillSpendPackets,
+  getSkillSpendOptions,
+  sumSelectedPacketSpend,
+  totalsAfterSkillSpend,
+} from './epic-mastery-roll-skill-spend.js';
 import { portraitFallbackSrc, resolveActorPortraitSrc } from './epic-mastery-roll-portraits.js';
 
 const TEMPLATE = 'systems/mastery-system/templates/epic-roll/session-cinematic.hbs';
+const PACKET_COUNT = 4;
 
 function capAttr(key: string): string {
   return key.charAt(0).toUpperCase() + key.slice(1);
+}
+
+function emptyPacketSelection(): boolean[] {
+  return Array.from({ length: PACKET_COUNT }, () => false);
 }
 
 class EpicMasteryRollOverlay {
@@ -29,9 +39,18 @@ class EpicMasteryRollOverlay {
   private renderSeq = 0;
   /** Per-actor attribute choice before rolling (multi-attribute skills). */
   private selectedAttributes: Record<string, string> = {};
+  /** Per-actor MR packet toggles while choosing skill spend after a failed roll. */
+  private selectedSpendPackets: Record<string, boolean[]> = {};
 
   constructor(session: EpicMasteryRollSession) {
     this.session = session;
+  }
+
+  private spendSelectionFor(actorId: string): boolean[] {
+    if (!this.selectedSpendPackets[actorId]) {
+      this.selectedSpendPackets[actorId] = emptyPacketSelection();
+    }
+    return this.selectedSpendPackets[actorId]!;
   }
 
   private async buildContext(): Promise<Record<string, unknown>> {
@@ -52,32 +71,50 @@ class EpicMasteryRollOverlay {
       const rolled = p.status === 'rolled' && !!result && !result.skipped;
       const skipped = p.status === 'skipped' || result?.skipped;
 
-      let skillSpendOptions: Array<{
+      let skillPackets: Array<{
+        index: number;
         amount: number;
-        label: string;
-        newTotal: number;
-        wouldSucceed: boolean;
+        clickable: boolean;
+        selected: boolean;
+        locked: boolean;
       }> = [];
-      let skillPoolRemaining = 0;
-      let skillRating = 0;
-      let canSpend = false;
+      let selectedSpendAmount = 0;
+      let canAddSkillPoints = false;
+      let showSkillSpend = false;
+      let displayTotal = result?.total ?? 0;
+      let displaySuccess = !!result?.success;
 
-      if (awaitingSpend && result?.rollPayload && result.skillKey && actor && isOwner) {
+      if (awaitingSpend && result?.rollPayload && result.skillKey && actor && isOwner && !result.success) {
         const spend = getSkillSpendOptions(
           actor,
           result.skillKey,
           result.rollPayload.rollResult,
           result.rollPayload.baseModifier,
         );
-        skillPoolRemaining = spend.remainingPool;
-        skillRating = spend.skillRating;
-        skillSpendOptions = spend.options.map((opt) => ({
-          amount: opt.amount,
-          label: opt.label,
-          newTotal: opt.newTotal,
-          wouldSucceed: opt.success,
-        }));
-        canSpend = skillSpendOptions.length > 0;
+
+        if (spend.options.length > 0) {
+          const masteryRank = Number((actor as any).system?.mastery?.rank ?? 2);
+          const packets = buildSkillSpendPackets(spend.remainingPool, masteryRank);
+          const selected = this.spendSelectionFor(p.actorId);
+          selectedSpendAmount = sumSelectedPacketSpend(packets, selected);
+          const preview = totalsAfterSkillSpend(
+            result.rollPayload.rollResult,
+            selectedSpendAmount,
+            result.rollPayload.baseModifier,
+          );
+
+          skillPackets = packets.map((pkt, index) => ({
+            index: pkt.index,
+            amount: pkt.amount,
+            clickable: pkt.clickable,
+            selected: !!selected[index],
+            locked: !pkt.clickable,
+          }));
+          showSkillSpend = true;
+          displayTotal = preview.total;
+          displaySuccess = preview.success;
+          canAddSkillPoints = selectedSpendAmount > 0;
+        }
       }
 
       const skillAttrs = skillDef?.attributes ?? [];
@@ -116,26 +153,23 @@ class EpicMasteryRollOverlay {
         portrait: resolveActorPortraitSrc(actor, p.img),
         isOwner,
         result,
-        success: result?.success,
+        success: displaySuccess,
+        displayTotal,
         skipped,
         canRoll,
         rollReady,
         showAttributePick,
         attributeOptions,
         selectedAttribute: selectedAttribute ?? '',
-        canSkip:
-          isGM &&
-          (p.status === 'pending' || p.status === 'awaiting_spend') &&
-          this.session.status === 'active',
         awaitingSpend,
         showRollResult,
         showResultFrame: showRollResult,
         showFinalMeta: rolled && !!result?.skillSpent,
         waiting: p.status === 'pending' && !isOwner,
-        canSpend,
-        skillSpendOptions,
-        skillPoolRemaining,
-        skillRating,
+        showSkillSpend,
+        skillPackets,
+        selectedSpendAmount,
+        canAddSkillPoints,
       };
     });
 
@@ -209,20 +243,43 @@ class EpicMasteryRollOverlay {
         try {
           await performEpicParticipantRoll(this.session, actorId, attributeKey);
           delete this.selectedAttributes[actorId];
+          delete this.selectedSpendPackets[actorId];
         } finally {
           this.rolling = false;
         }
       };
     });
 
-    root.querySelectorAll<HTMLElement>('[data-action="emr-spend"]').forEach((btn) => {
+    root.querySelectorAll<HTMLElement>('[data-action="emr-toggle-packet"]').forEach((btn) => {
+      btn.onclick = (ev) => {
+        ev.preventDefault();
+        if (btn.hasAttribute('disabled')) return;
+        const actorId = btn.getAttribute('data-actor-id') ?? btn.dataset.actorId;
+        const packetIndex = parseInt(btn.getAttribute('data-packet-index') ?? '-1', 10);
+        if (!actorId || packetIndex < 0) return;
+        const selected = this.spendSelectionFor(actorId);
+        selected[packetIndex] = !selected[packetIndex];
+        void this.render();
+      };
+    });
+
+    root.querySelectorAll<HTMLElement>('[data-action="emr-add-skill"]').forEach((btn) => {
       btn.onclick = async (ev) => {
         ev.preventDefault();
-        const actorId = btn.dataset.actorId;
-        const amount = parseInt(btn.dataset.amount ?? '0', 10);
-        if (!actorId || amount <= 0) return;
+        if (btn.hasAttribute('disabled')) return;
+        const actorId = btn.getAttribute('data-actor-id') ?? btn.dataset.actorId;
+        if (!actorId) return;
+        const amount = sumSelectedPacketSpend(
+          buildSkillSpendPackets(
+            this.#remainingPoolForActor(actorId),
+            this.#masteryRankForActor(actorId),
+          ),
+          this.spendSelectionFor(actorId),
+        );
+        if (amount <= 0) return;
         btn.setAttribute('disabled', 'true');
         await applyEpicSkillSpendAndFinalize(this.session, actorId, amount);
+        delete this.selectedSpendPackets[actorId];
       };
     });
 
@@ -233,16 +290,7 @@ class EpicMasteryRollOverlay {
         if (!actorId) return;
         btn.setAttribute('disabled', 'true');
         await confirmEpicRollWithoutSpend(this.session, actorId);
-      };
-    });
-
-    root.querySelectorAll<HTMLElement>('[data-action="emr-skip"]').forEach((btn) => {
-      btn.onclick = async (ev) => {
-        ev.preventDefault();
-        const actorId = btn.dataset.actorId;
-        if (!actorId) return;
-        const { skipEpicMasteryRollParticipant } = await import('./epic-mastery-roll-session.js');
-        await skipEpicMasteryRollParticipant(actorId);
+        delete this.selectedSpendPackets[actorId];
       };
     });
 
@@ -256,11 +304,29 @@ class EpicMasteryRollOverlay {
     }
   }
 
+  #remainingPoolForActor(actorId: string): number {
+    const result = this.session.results[actorId];
+    const actor = game.actors?.get(actorId);
+    if (!result?.skillKey || !actor) return 0;
+    const system = (actor as any).system;
+    const skillRating = Number(system.skills?.[result.skillKey] ?? 0);
+    const skillsSpent = Number(system.skillsSpent?.[result.skillKey] ?? 0);
+    return Math.max(0, skillRating - skillsSpent);
+  }
+
+  #masteryRankForActor(actorId: string): number {
+    const actor = game.actors?.get(actorId);
+    return Number((actor as any)?.system?.mastery?.rank ?? 2);
+  }
+
   updateSession(session: EpicMasteryRollSession): void {
     this.session = session;
     for (const p of session.participants) {
       if (p.status !== 'pending') {
         delete this.selectedAttributes[p.actorId];
+      }
+      if (p.status !== 'awaiting_spend') {
+        delete this.selectedSpendPackets[p.actorId];
       }
     }
     void this.render();
@@ -270,6 +336,7 @@ class EpicMasteryRollOverlay {
     this.root?.remove();
     this.root = null;
     this.selectedAttributes = {};
+    this.selectedSpendPackets = {};
   }
 }
 
