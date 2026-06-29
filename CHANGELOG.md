@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.158] - 2026-06-23
+
+### Changed
+
+- **Epic Mastery Roll — config:** Challenge MR is a dropdown (MR 2–8, default MR 2). Participants start unselected; only manually added actors join the roll.
+
+### Fixed
+
+- **Epic Mastery Roll — portraits:** Actor portraits resolve correctly in config and overlay (dark frame background, mystery-man fallback on error).
+- **Epic Mastery Roll — roll UI:** D8 button replaced with **Roll**. Multi-attribute skills show inline attribute buttons above Roll; Roll stays disabled until an attribute is chosen.
+
 ## [0.9.157] - 2026-06-23
 
 ### Changed

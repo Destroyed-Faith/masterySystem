@@ -28,12 +28,22 @@
       <div class="emr-portrait-column {{p.status}}">
         <div class="emr-portrait-stack {{#if p.showResultFrame}}emr-has-result{{/if}}">
           <div class="emr-portrait-frame">
-            <img class="emr-portrait-img" src="{{p.portrait}}" alt="{{p.actorName}}" />
+            <img class="emr-portrait-img" src="{{p.portrait}}" alt="{{p.actorName}}" crossorigin="anonymous" />
           </div>
 
+          {{#if p.showAttributePick}}
+          <div class="emr-attr-pick-row">
+            {{#each p.attributeOptions as |opt|}}
+            <button type="button" class="emr-attr-btn {{#if opt.selected}}is-selected{{/if}}" data-action="emr-pick-attr" data-actor-id="{{../p.actorId}}" data-attribute="{{opt.key}}">
+              {{opt.label}} ({{opt.dice}}d8)
+            </button>
+            {{/each}}
+          </div>
+          {{/if}}
+
           {{#if p.canRoll}}
-          <button type="button" class="emr-d8-roll-btn" data-action="emr-roll" data-actor-id="{{p.actorId}}" title="Roll d8" {{#if ../rolling}}disabled{{/if}}>
-            <span class="emr-d8-icon" aria-hidden="true">d8</span>
+          <button type="button" class="emr-roll-btn" data-action="emr-roll" data-actor-id="{{p.actorId}}" title="Roll" {{#unless p.rollReady}}disabled{{/unless}} {{#if ../rolling}}disabled{{/if}}>
+            Roll
           </button>
           {{/if}}
 

@@ -97,7 +97,10 @@
   height: 24px;
   border-radius: 4px;
   object-fit: cover;
+  object-position: top center;
   flex-shrink: 0;
+  background: #1a1a1a;
+  display: block;
 }
 
 .emr-actor-name {
@@ -478,7 +481,7 @@
   border: 2px solid rgba(255, 255, 255, 0.25);
   border-radius: 4px;
   overflow: hidden;
-  background: rgba(0, 0, 0, 0.35);
+  background: #121212;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
   transition: border-color 0.2s, box-shadow 0.2s;
 }
@@ -496,6 +499,7 @@
   object-fit: cover;
   object-position: top center;
   display: block;
+  background: #121212;
 }
 
 .emr-portrait-name {
@@ -510,36 +514,62 @@
   white-space: nowrap;
 }
 
-.emr-d8-roll-btn {
-  width: 52px;
-  height: 52px;
-  border-radius: 50%;
+.emr-attr-pick-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+}
+
+.emr-attr-btn {
+  width: 100%;
+  padding: 5px 8px;
+  font-size: 11px;
+  border-radius: 3px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(0, 0, 0, 0.35);
+  color: rgba(255, 255, 255, 0.9);
+  cursor: pointer;
+  text-align: center;
+}
+
+.emr-attr-btn:hover {
+  border-color: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.emr-attr-btn.is-selected {
+  border-color: #ffd54f;
+  background: rgba(255, 213, 79, 0.2);
+  color: #fff;
+  font-weight: 600;
+}
+
+.emr-roll-btn {
+  min-width: 72px;
+  padding: 8px 16px;
+  border-radius: 4px;
   border: 2px solid hsla(var(--emr-band-hue), 60%, 55%, 0.9);
   background: radial-gradient(circle at 35% 30%, hsla(var(--emr-band-hue), 50%, 35%, 1), hsla(var(--emr-band-hue), 55%, 18%, 1));
   color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-  transition: transform 0.12s, box-shadow 0.12s;
+  transition: transform 0.12s, box-shadow 0.12s, opacity 0.12s;
 }
 
-.emr-d8-roll-btn:hover:not(:disabled) {
-  transform: scale(1.06);
+.emr-roll-btn:hover:not(:disabled) {
+  transform: scale(1.04);
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
 }
 
-.emr-d8-roll-btn:disabled {
-  opacity: 0.45;
+.emr-roll-btn:disabled {
+  opacity: 0.4;
   cursor: not-allowed;
-}
-
-.emr-d8-icon {
-  font-family: var(--ms-font-head, 'Modesto Condensed', serif);
-  font-size: 18px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
+  transform: none;
 }
 
 .emr-result-zone {

@@ -96,7 +96,11 @@
       </div>
       <div class="emr-field">
         <label class="emr-label">Challenge MR</label>
-        <input type="number" name="emr-challenge-mr" class="emr-input" value="{{tn.challengeMR}}" min="1" max="16" step="1" />
+        <select name="emr-challenge-mr" class="emr-select">
+          {{#each challengeMROptions as |mr|}}
+          <option value="{{mr}}" {{#if (eq ../tn.challengeMR mr)}}selected{{/if}}>MR {{mr}} (TN {{multiply mr 8}})</option>
+          {{/each}}
+        </select>
       </div>
       <div class="emr-field">
         <label class="emr-label">Difficulty (Normal TN)</label>

@@ -15,15 +15,20 @@ import {
   listEpicRollCandidateActors,
   saveEpicRollRecentPreset,
 } from './epic-mastery-roll-settings.js';
+import { resolveActorPortraitSrc, portraitFallbackSrc } from './epic-mastery-roll-portraits.js';
 
 const ATTRIBUTES = ['might', 'agility', 'vitality', 'intellect', 'resolve', 'influence', 'wits'];
 const SAVE_TYPES = ['body', 'mind', 'spirit'] as const;
+const CHALLENGE_MR_MIN = 2;
+const CHALLENGE_MR_MAX = 8;
+const CHALLENGE_MR_OPTIONS = [2, 3, 4, 5, 6, 7, 8];
 
-const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
-const BaseDialog = HandlebarsApplicationMixin(ApplicationV2) as typeof ApplicationV2;
+function clampChallengeMR(value: number): number {
+  return Math.max(CHALLENGE_MR_MIN, Math.min(CHALLENGE_MR_MAX, Math.floor(value) || CHALLENGE_MR_MIN));
+}
 
 function defaultTnConfig(): EpicMasteryRollStartConfig['tn'] {
-  const challengeMR = 4;
+  const challengeMR = CHALLENGE_MR_MIN;
   const presets = buildDifficultyPresets(challengeMR);
   return {
     challengeMR,
@@ -31,6 +36,9 @@ function defaultTnConfig(): EpicMasteryRollStartConfig['tn'] {
     raises: 0,
   };
 }
+
+const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
+const BaseDialog = HandlebarsApplicationMixin(ApplicationV2) as typeof ApplicationV2;
 
 export class EpicMasteryRollConfigDialog extends BaseDialog {
   private sceneTitle = '';
@@ -65,9 +73,7 @@ export class EpicMasteryRollConfigDialog extends BaseDialog {
     if (preset) {
       this.applyPreset(preset);
     } else {
-      this.selectedIds = listEpicRollCandidateActors()
-        .filter((a) => a.type === 'character')
-        .map((a) => a.id);
+      this.selectedIds = [];
     }
   }
 
@@ -76,7 +82,7 @@ export class EpicMasteryRollConfigDialog extends BaseDialog {
     this.sceneTitle = preset.title;
     this.flavor = preset.flavor;
     this.showTn = preset.showTn;
-    this.tn = { ...preset.tn };
+    this.tn = { ...preset.tn, challengeMR: clampChallengeMR(preset.tn.challengeMR) };
     this.rollKind = preset.roll.kind;
     if (preset.roll.kind === 'skill') this.skillKey = preset.roll.skillKey;
     if (preset.roll.kind === 'attribute') this.attributeKey = preset.roll.attributeKey;
@@ -94,6 +100,11 @@ export class EpicMasteryRollConfigDialog extends BaseDialog {
       .map(([key, def]) => ({ key, name: def.name, category: def.category }))
       .sort((a, b) => a.name.localeCompare(b.name));
 
+    const mapActorRow = (a: { id: string; name: string; type: string; img: string }) => ({
+      ...a,
+      img: resolveActorPortraitSrc(game.actors?.get(a.id), a.img),
+    });
+
     return {
       title: this.sceneTitle,
       flavor: this.flavor,
@@ -101,6 +112,7 @@ export class EpicMasteryRollConfigDialog extends BaseDialog {
       tn: this.tn,
       raiseTn,
       presets,
+      challengeMROptions: CHALLENGE_MR_OPTIONS,
       rollKind: this.rollKind,
       skillKey: this.skillKey,
       attributeKey: this.attributeKey,
@@ -108,14 +120,20 @@ export class EpicMasteryRollConfigDialog extends BaseDialog {
       attributes: ATTRIBUTES,
       saveTypes: SAVE_TYPES,
       skills,
-      availableActors: allActors.filter((a) => !selectedSet.has(a.id)),
-      selectedActors: allActors.filter((a) => selectedSet.has(a.id)),
+      availableActors: allActors.filter((a) => !selectedSet.has(a.id)).map(mapActorRow),
+      selectedActors: allActors.filter((a) => selectedSet.has(a.id)).map(mapActorRow),
     };
   }
 
   protected async _onRender(context: unknown, options: unknown): Promise<void> {
     await super._onRender(context, options);
     const root = this.element as HTMLElement;
+    const fallback = portraitFallbackSrc();
+    root.querySelectorAll<HTMLImageElement>('.emr-actor-thumb').forEach((img) => {
+      img.onerror = () => {
+        if (img.src !== fallback) img.src = fallback;
+      };
+    });
 
     const bindInput = (selector: string, handler: (el: HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement) => void) => {
       root.querySelectorAll<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>(selector).forEach((el) => {
@@ -134,7 +152,7 @@ export class EpicMasteryRollConfigDialog extends BaseDialog {
       this.showTn = (el as HTMLInputElement).checked;
     });
     bindInput('[name="emr-challenge-mr"]', (el) => {
-      this.tn.challengeMR = Math.max(1, Math.min(16, parseInt((el as HTMLInputElement).value) || 4));
+      this.tn.challengeMR = clampChallengeMR(parseInt((el as HTMLSelectElement).value) || CHALLENGE_MR_MIN);
       const p = buildDifficultyPresets(this.tn.challengeMR);
       this.tn.baseTN = p.standard;
       this.render(false);

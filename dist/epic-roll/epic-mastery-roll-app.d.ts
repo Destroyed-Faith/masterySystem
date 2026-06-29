@@ -6,6 +6,8 @@ declare class EpicMasteryRollOverlay {
     private session;
     private root;
     private rolling;
+    /** Per-actor attribute choice before rolling (multi-attribute skills). */
+    private selectedAttributes;
     constructor(session: EpicMasteryRollSession);
     private buildContext;
     render(): Promise<void>;

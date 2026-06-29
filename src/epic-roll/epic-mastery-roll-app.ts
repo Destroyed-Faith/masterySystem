@@ -2,6 +2,7 @@
  * Epic Mastery Roll — full-screen cinematic overlay.
  */
 
+import { SKILLS } from '../utils/skills.js';
 import type { EpicMasteryRollSession } from './epic-mastery-roll-types.js';
 import {
   countResolvedParticipants,
@@ -13,22 +14,20 @@ import {
   performEpicParticipantRoll,
 } from './epic-mastery-roll-roll.js';
 import { getSkillSpendOptions } from './epic-mastery-roll-skill-spend.js';
+import { portraitFallbackSrc, resolveActorPortraitSrc } from './epic-mastery-roll-portraits.js';
 
 const TEMPLATE = 'systems/mastery-system/templates/epic-roll/session-cinematic.hbs';
 
-function portraitSrc(actor: Actor | undefined, fallback?: string): string {
-  const raw = (actor as any)?.img || fallback || 'icons/svg/mystery-man.svg';
-  try {
-    return (foundry as any).utils?.getRoute?.(raw) ?? raw;
-  } catch {
-    return raw;
-  }
+function capAttr(key: string): string {
+  return key.charAt(0).toUpperCase() + key.slice(1);
 }
 
 class EpicMasteryRollOverlay {
   private session: EpicMasteryRollSession;
   private root: HTMLElement | null = null;
   private rolling = false;
+  /** Per-actor attribute choice before rolling (multi-attribute skills). */
+  private selectedAttributes: Record<string, string> = {};
 
   constructor(session: EpicMasteryRollSession) {
     this.session = session;
@@ -40,6 +39,9 @@ class EpicMasteryRollOverlay {
     const total = this.session.participants.length;
     const isGM = !!game.user?.isGM;
     const bandHue = this.session.bandHue ?? 350;
+    const isSkillRoll = this.session.roll.kind === 'skill';
+    const skillKey = this.session.roll.kind === 'skill' ? this.session.roll.skillKey : undefined;
+    const skillDef = skillKey ? SKILLS[skillKey] : undefined;
 
     const participants = this.session.participants.map((p) => {
       const actor = game.actors?.get(p.actorId);
@@ -59,9 +61,9 @@ class EpicMasteryRollOverlay {
       let skillRating = 0;
       let canSpend = false;
 
-      if (awaitingSpend && result?.rollPayload && result.skillKey && isOwner) {
+      if (awaitingSpend && result?.rollPayload && result.skillKey && actor && isOwner) {
         const spend = getSkillSpendOptions(
-          actor!,
+          actor,
           result.skillKey,
           result.rollPayload.rollResult,
           result.rollPayload.baseModifier,
@@ -77,15 +79,51 @@ class EpicMasteryRollOverlay {
         canSpend = skillSpendOptions.length > 0;
       }
 
+      const skillAttrs = skillDef?.attributes ?? [];
+      const multiAttribute = isSkillRoll && skillAttrs.length > 1;
+      let selectedAttribute: string | undefined = this.selectedAttributes[p.actorId];
+
+      if (p.status === 'pending' && isOwner && isSkillRoll) {
+        if (skillAttrs.length === 1) {
+          selectedAttribute = skillAttrs[0];
+          this.selectedAttributes[p.actorId] = selectedAttribute;
+        } else if (multiAttribute && selectedAttribute && !skillAttrs.includes(selectedAttribute)) {
+          delete this.selectedAttributes[p.actorId];
+          selectedAttribute = undefined;
+        }
+      }
+
+      const attributeOptions =
+        multiAttribute && p.status === 'pending' && isOwner
+          ? skillAttrs.map((attr) => ({
+              key: attr,
+              label: capAttr(attr),
+              dice: Number((actor as any)?.system?.attributes?.[attr]?.value ?? 0),
+              selected: selectedAttribute === attr,
+            }))
+          : [];
+
+      const showAttributePick = attributeOptions.length > 0;
+      const rollReady = !multiAttribute || !!selectedAttribute;
+      const canRoll =
+        p.status === 'pending' && isOwner && this.session.status === 'active';
+
       return {
         ...p,
-        portrait: portraitSrc(actor, p.img),
+        portrait: resolveActorPortraitSrc(actor, p.img),
         isOwner,
         result,
         success: result?.success,
         skipped,
-        canRoll: p.status === 'pending' && isOwner && this.session.status === 'active',
-        canSkip: isGM && (p.status === 'pending' || p.status === 'awaiting_spend') && this.session.status === 'active',
+        canRoll,
+        rollReady,
+        showAttributePick,
+        attributeOptions,
+        selectedAttribute: selectedAttribute ?? '',
+        canSkip:
+          isGM &&
+          (p.status === 'pending' || p.status === 'awaiting_spend') &&
+          this.session.status === 'active',
         awaitingSpend,
         showResultFrame: awaitingSpend || rolled,
         showFinalResult: rolled,
@@ -134,17 +172,37 @@ class EpicMasteryRollOverlay {
   private bind(): void {
     const root = this.root;
     if (!root) return;
+    const fallback = portraitFallbackSrc();
+
+    root.querySelectorAll<HTMLImageElement>('.emr-portrait-img, .emr-actor-thumb').forEach((img) => {
+      img.onerror = () => {
+        if (img.src !== fallback) img.src = fallback;
+      };
+    });
+
+    root.querySelectorAll<HTMLElement>('[data-action="emr-pick-attr"]').forEach((btn) => {
+      btn.onclick = (ev) => {
+        ev.preventDefault();
+        const actorId = btn.dataset.actorId;
+        const attribute = btn.dataset.attribute;
+        if (!actorId || !attribute) return;
+        this.selectedAttributes[actorId] = attribute;
+        void this.render();
+      };
+    });
 
     root.querySelectorAll<HTMLElement>('[data-action="emr-roll"]').forEach((btn) => {
       btn.onclick = async (ev) => {
         ev.preventDefault();
-        if (this.rolling || this.session.status !== 'active') return;
+        if (this.rolling || this.session.status !== 'active' || btn.hasAttribute('disabled')) return;
         const actorId = btn.dataset.actorId;
         if (!actorId) return;
+        const attributeKey = this.selectedAttributes[actorId];
         this.rolling = true;
         btn.setAttribute('disabled', 'true');
         try {
-          await performEpicParticipantRoll(this.session, actorId);
+          await performEpicParticipantRoll(this.session, actorId, attributeKey);
+          delete this.selectedAttributes[actorId];
         } finally {
           this.rolling = false;
         }
@@ -194,12 +252,18 @@ class EpicMasteryRollOverlay {
 
   updateSession(session: EpicMasteryRollSession): void {
     this.session = session;
+    for (const p of session.participants) {
+      if (p.status !== 'pending') {
+        delete this.selectedAttributes[p.actorId];
+      }
+    }
     void this.render();
   }
 
   close(): void {
     this.root?.remove();
     this.root = null;
+    this.selectedAttributes = {};
   }
 }
 

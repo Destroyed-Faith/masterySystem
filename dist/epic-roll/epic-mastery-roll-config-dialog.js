@@ -5,12 +5,17 @@ import { SKILLS } from '../utils/skills.js';
 import { buildDifficultyPresets } from '../dice/roll-context-build.js';
 import { startEpicMasteryRollSession } from './epic-mastery-roll-session.js';
 import { listEpicRollCandidateActors, saveEpicRollRecentPreset, } from './epic-mastery-roll-settings.js';
+import { resolveActorPortraitSrc } from './epic-mastery-roll-portraits.js';
 const ATTRIBUTES = ['might', 'agility', 'vitality', 'intellect', 'resolve', 'influence', 'wits'];
 const SAVE_TYPES = ['body', 'mind', 'spirit'];
-const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
-const BaseDialog = HandlebarsApplicationMixin(ApplicationV2);
+const CHALLENGE_MR_MIN = 2;
+const CHALLENGE_MR_MAX = 8;
+const CHALLENGE_MR_OPTIONS = [2, 3, 4, 5, 6, 7, 8];
+function clampChallengeMR(value) {
+    return Math.max(CHALLENGE_MR_MIN, Math.min(CHALLENGE_MR_MAX, Math.floor(value) || CHALLENGE_MR_MIN));
+}
 function defaultTnConfig() {
-    const challengeMR = 4;
+    const challengeMR = CHALLENGE_MR_MIN;
     const presets = buildDifficultyPresets(challengeMR);
     return {
         challengeMR,
@@ -18,6 +23,8 @@ function defaultTnConfig() {
         raises: 0,
     };
 }
+const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
+const BaseDialog = HandlebarsApplicationMixin(ApplicationV2);
 export class EpicMasteryRollConfigDialog extends BaseDialog {
     sceneTitle = '';
     flavor = '';
@@ -49,9 +56,7 @@ export class EpicMasteryRollConfigDialog extends BaseDialog {
             this.applyPreset(preset);
         }
         else {
-            this.selectedIds = listEpicRollCandidateActors()
-                .filter((a) => a.type === 'character')
-                .map((a) => a.id);
+            this.selectedIds = [];
         }
     }
     applyPreset(preset) {
@@ -59,7 +64,7 @@ export class EpicMasteryRollConfigDialog extends BaseDialog {
         this.sceneTitle = preset.title;
         this.flavor = preset.flavor;
         this.showTn = preset.showTn;
-        this.tn = { ...preset.tn };
+        this.tn = { ...preset.tn, challengeMR: clampChallengeMR(preset.tn.challengeMR) };
         this.rollKind = preset.roll.kind;
         if (preset.roll.kind === 'skill')
             this.skillKey = preset.roll.skillKey;
@@ -77,6 +82,10 @@ export class EpicMasteryRollConfigDialog extends BaseDialog {
         const skills = Object.entries(SKILLS)
             .map(([key, def]) => ({ key, name: def.name, category: def.category }))
             .sort((a, b) => a.name.localeCompare(b.name));
+        const mapActorRow = (a) => ({
+            ...a,
+            img: resolveActorPortraitSrc(game.actors?.get(a.id), a.img),
+        });
         return {
             title: this.sceneTitle,
             flavor: this.flavor,
@@ -84,6 +93,7 @@ export class EpicMasteryRollConfigDialog extends BaseDialog {
             tn: this.tn,
             raiseTn,
             presets,
+            challengeMROptions: CHALLENGE_MR_OPTIONS,
             rollKind: this.rollKind,
             skillKey: this.skillKey,
             attributeKey: this.attributeKey,
@@ -91,8 +101,8 @@ export class EpicMasteryRollConfigDialog extends BaseDialog {
             attributes: ATTRIBUTES,
             saveTypes: SAVE_TYPES,
             skills,
-            availableActors: allActors.filter((a) => !selectedSet.has(a.id)),
-            selectedActors: allActors.filter((a) => selectedSet.has(a.id)),
+            availableActors: allActors.filter((a) => !selectedSet.has(a.id)).map(mapActorRow),
+            selectedActors: allActors.filter((a) => selectedSet.has(a.id)).map(mapActorRow),
         };
     }
     async _onRender(context, options) {
@@ -114,7 +124,7 @@ export class EpicMasteryRollConfigDialog extends BaseDialog {
             this.showTn = el.checked;
         });
         bindInput('[name="emr-challenge-mr"]', (el) => {
-            this.tn.challengeMR = Math.max(1, Math.min(16, parseInt(el.value) || 4));
+            this.tn.challengeMR = clampChallengeMR(parseInt(el.value) || CHALLENGE_MR_MIN);
             const p = buildDifficultyPresets(this.tn.challengeMR);
             this.tn.baseTN = p.standard;
             this.render(false);
