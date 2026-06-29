@@ -76,6 +76,7 @@ class EpicMasteryRollOverlay {
             const showAttributePick = attributeOptions.length > 0;
             const rollReady = !multiAttribute || !!selectedAttribute;
             const canRoll = p.status === 'pending' && isOwner && this.session.status === 'active';
+            const showRollResult = (awaitingSpend || rolled) && !!result && !skipped;
             return {
                 ...p,
                 portrait: resolveActorPortraitSrc(actor, p.img),
@@ -92,8 +93,9 @@ class EpicMasteryRollOverlay {
                     (p.status === 'pending' || p.status === 'awaiting_spend') &&
                     this.session.status === 'active',
                 awaitingSpend,
-                showResultFrame: awaitingSpend || rolled,
-                showFinalResult: rolled,
+                showRollResult,
+                showResultFrame: showRollResult,
+                showFinalMeta: rolled && !!result?.skillSpent,
                 waiting: p.status === 'pending' && !isOwner,
                 canSpend,
                 skillSpendOptions,

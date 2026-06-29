@@ -45,15 +45,15 @@
           <button type="button" class="emr-roll-btn" data-action="emr-roll" data-actor-id="{{p.actorId}}" title="Roll" {{#unless p.rollReady}}disabled{{/unless}} {{#if ../rolling}}disabled{{/if}}>
             Roll
           </button>
+          {{else if p.showRollResult}}
+          <div class="emr-roll-result {{#if p.success}}emr-roll-result-success{{else}}emr-roll-result-fail{{/if}}" aria-label="Roll result">
+            <span class="emr-roll-result-value">{{p.result.total}}</span>
+          </div>
+          {{else if p.skipped}}
+          <div class="emr-roll-result emr-roll-result-skipped">Skipped</div>
           {{/if}}
 
           {{#if p.awaitingSpend}}
-          <div class="emr-result-zone">
-            <div class="emr-result-total {{#if p.success}}emr-success{{else}}emr-fail{{/if}}">{{p.result.total}}</div>
-            <div class="emr-result-meta">
-              {{#if p.success}}Success{{else}}Failure{{/if}}
-              · kept {{p.result.diceSummary}}
-            </div>
             {{#if p.canSpend}}
             <div class="emr-skill-spend">
               <div class="emr-skill-spend-label">Spend Skill Points ({{p.skillPoolRemaining}}/{{p.skillRating}})</div>
@@ -67,21 +67,10 @@
               </div>
             </div>
             {{/if}}
-          </div>
           {{/if}}
 
-          {{#if p.showFinalResult}}
-          <div class="emr-result-zone emr-finalized">
-            <div class="emr-result-total {{#if p.success}}emr-success{{else}}emr-fail{{/if}}">{{p.result.total}}</div>
-            <div class="emr-result-meta">
-              {{#if p.success}}Success{{else}}Failure{{/if}}
-              {{#if p.result.skillSpent}} · +{{p.result.skillSpent}} skill{{/if}}
-            </div>
-          </div>
-          {{/if}}
-
-          {{#if p.skipped}}
-          <div class="emr-result-zone emr-skipped-zone">Skipped</div>
+          {{#if p.showFinalMeta}}
+          <div class="emr-roll-final-meta">+{{p.result.skillSpent}} skill spent</div>
           {{/if}}
 
           {{#if p.waiting}}

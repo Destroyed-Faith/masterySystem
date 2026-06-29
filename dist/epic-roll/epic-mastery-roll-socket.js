@@ -2,7 +2,7 @@
  * Epic Mastery Roll — socket transport.
  */
 import { applyEpicMasteryRollSessionState, clearEpicMasteryRollSessionLocal, ingestEpicMasteryRollResult, } from './epic-mastery-roll-session.js';
-import { closeEpicMasteryRollApp, openEpicMasteryRollApp } from './epic-mastery-roll-app.js';
+import { openEpicMasteryRollApp } from './epic-mastery-roll-app.js';
 export const EPIC_ROLL_SOCKET = 'system.mastery-system';
 let socketRegistered = false;
 export function broadcastEpicMasteryRollStart(session) {
@@ -65,8 +65,7 @@ async function handleEpicRollSocket(payload) {
         }
         case 'epicMasteryRollComplete':
         case 'epicMasteryRollCancel': {
-            clearEpicMasteryRollSessionLocal();
-            closeEpicMasteryRollApp();
+            clearEpicMasteryRollSessionLocal(payload.sessionId);
             break;
         }
         default:

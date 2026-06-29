@@ -6,6 +6,14 @@ import { broadcastEpicMasteryRollCancel, broadcastEpicMasteryRollComplete, broad
 import { postEpicMasteryRollSummary } from './epic-mastery-roll-chat.js';
 import { closeEpicMasteryRollApp, openEpicMasteryRollApp } from './epic-mastery-roll-app.js';
 let activeSession = null;
+/** Sessions closed locally — ignore late state broadcasts that would reopen the overlay. */
+const dismissedEpicRollSessionIds = new Set();
+function markEpicRollSessionDismissed(sessionId) {
+    dismissedEpicRollSessionIds.add(sessionId);
+}
+function isEpicRollSessionDismissed(sessionId) {
+    return dismissedEpicRollSessionIds.has(sessionId);
+}
 function randomId() {
     return foundry.utils?.randomID?.() ?? `emr${Date.now()}`;
 }
@@ -54,12 +62,21 @@ export async function startEpicMasteryRollSession(config) {
         bandHue: 350,
     };
     activeSession = session;
+    dismissedEpicRollSessionIds.delete(session.id);
     broadcastEpicMasteryRollStart(session);
     await openEpicMasteryRollApp(session);
     return session;
 }
 export function applyEpicMasteryRollSessionState(session) {
-    activeSession = session.status === 'active' ? session : null;
+    if (isEpicRollSessionDismissed(session.id)) {
+        return;
+    }
+    if (session.status !== 'active') {
+        activeSession = null;
+        closeEpicMasteryRollApp();
+        return;
+    }
+    activeSession = session;
     void openEpicMasteryRollApp(session);
 }
 export async function ingestEpicMasteryRollResult(sessionId, result, opts) {
@@ -73,11 +90,11 @@ export async function ingestEpicMasteryRollResult(sessionId, result, opts) {
     }
     const staged = opts?.staged ?? result.awaitingConfirm === true;
     activeSession = mergeParticipantResult(activeSession, result, { staged });
-    broadcastEpicMasteryRollState(activeSession);
     if (isSessionReadyToComplete(activeSession)) {
         await completeEpicMasteryRollSession(activeSession);
     }
     else {
+        broadcastEpicMasteryRollState(activeSession);
         await openEpicMasteryRollApp(activeSession);
     }
 }
@@ -85,31 +102,39 @@ export async function skipEpicMasteryRollParticipant(actorId) {
     if (!game.user?.isGM || !activeSession || activeSession.status !== 'active')
         return;
     activeSession = skipParticipantInSession(activeSession, actorId);
-    broadcastEpicMasteryRollState(activeSession);
     if (isSessionReadyToComplete(activeSession)) {
         await completeEpicMasteryRollSession(activeSession);
     }
     else {
+        broadcastEpicMasteryRollState(activeSession);
         await openEpicMasteryRollApp(activeSession);
     }
 }
 export async function cancelEpicMasteryRollSession() {
     if (!game.user?.isGM || !activeSession)
         return;
+    const sessionId = activeSession.id;
+    markEpicRollSessionDismissed(sessionId);
     activeSession = { ...activeSession, status: 'cancelled' };
-    broadcastEpicMasteryRollCancel(activeSession.id);
+    broadcastEpicMasteryRollCancel(sessionId);
     closeEpicMasteryRollApp();
     activeSession = null;
 }
 async function completeEpicMasteryRollSession(session) {
     const completed = { ...session, status: 'complete' };
-    activeSession = completed;
+    markEpicRollSessionDismissed(session.id);
+    activeSession = null;
     await postEpicMasteryRollSummary(completed);
     broadcastEpicMasteryRollComplete(completed.id);
     closeEpicMasteryRollApp();
-    activeSession = null;
 }
-export function clearEpicMasteryRollSessionLocal() {
+export function clearEpicMasteryRollSessionLocal(sessionId) {
+    if (sessionId) {
+        markEpicRollSessionDismissed(sessionId);
+    }
+    else if (activeSession?.id) {
+        markEpicRollSessionDismissed(activeSession.id);
+    }
     activeSession = null;
     closeEpicMasteryRollApp();
 }

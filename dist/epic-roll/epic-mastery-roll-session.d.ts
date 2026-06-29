@@ -10,5 +10,5 @@ export declare function ingestEpicMasteryRollResult(sessionId: string, result: E
 }): Promise<void>;
 export declare function skipEpicMasteryRollParticipant(actorId: string): Promise<void>;
 export declare function cancelEpicMasteryRollSession(): Promise<void>;
-export declare function clearEpicMasteryRollSessionLocal(): void;
+export declare function clearEpicMasteryRollSessionLocal(sessionId?: string): void;
 //# sourceMappingURL=epic-mastery-roll-session.d.ts.map

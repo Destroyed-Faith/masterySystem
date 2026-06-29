@@ -581,6 +581,53 @@
   transform: none;
 }
 
+.emr-roll-result {
+  min-width: 72px;
+  min-height: 36px;
+  padding: 8px 16px;
+  border-radius: 4px;
+  border: 2px solid;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  text-align: center;
+}
+
+.emr-roll-result-value {
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1;
+  font-family: var(--ms-font-head, 'Modesto Condensed', serif);
+  color: #fff;
+}
+
+.emr-roll-result-success {
+  border-color: #43a047;
+  background: radial-gradient(circle at 35% 30%, #388e3c, #1b5e20);
+}
+
+.emr-roll-result-fail {
+  border-color: #c62828;
+  background: radial-gradient(circle at 35% 30%, #c62828, #7f1d1d);
+}
+
+.emr-roll-result-skipped {
+  border-color: rgba(255, 255, 255, 0.25);
+  background: rgba(0, 0, 0, 0.35);
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.emr-roll-final-meta {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.65);
+  text-align: center;
+}
+
 .emr-result-zone {
   width: 100%;
   padding: 8px;

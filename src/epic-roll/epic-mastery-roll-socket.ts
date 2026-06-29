@@ -8,7 +8,7 @@ import {
   clearEpicMasteryRollSessionLocal,
   ingestEpicMasteryRollResult,
 } from './epic-mastery-roll-session.js';
-import { closeEpicMasteryRollApp, openEpicMasteryRollApp } from './epic-mastery-roll-app.js';
+import { openEpicMasteryRollApp } from './epic-mastery-roll-app.js';
 
 export const EPIC_ROLL_SOCKET = 'system.mastery-system';
 
@@ -86,8 +86,7 @@ async function handleEpicRollSocket(payload: any): Promise<void> {
 
     case 'epicMasteryRollComplete':
     case 'epicMasteryRollCancel': {
-      clearEpicMasteryRollSessionLocal();
-      closeEpicMasteryRollApp();
+      clearEpicMasteryRollSessionLocal(payload.sessionId);
       break;
     }
 

@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.160] - 2026-06-23
+
+### Changed
+
+- **Epic Mastery Roll — result display:** Roll total replaces the **Roll** button in place (green on success, red on failure).
+
+### Fixed
+
+- **Epic Mastery Roll — auto-close:** Overlay closes for all clients when the last participant finishes; late socket state updates no longer reopen the cinematic after completion.
+
 ## [0.9.159] - 2026-06-23
 
 ### Fixed
