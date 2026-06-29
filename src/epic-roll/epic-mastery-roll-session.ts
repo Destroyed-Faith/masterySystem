@@ -74,6 +74,7 @@ export async function startEpicMasteryRollSession(
     participants,
     results: {},
     status: 'active',
+    bandHue: 350,
   };
 
   activeSession = session;
@@ -90,6 +91,7 @@ export function applyEpicMasteryRollSessionState(session: EpicMasteryRollSession
 export async function ingestEpicMasteryRollResult(
   sessionId: string,
   result: EpicParticipantResult,
+  opts?: { staged?: boolean },
 ): Promise<void> {
   if (!game.user?.isGM) return;
   if (!activeSession || activeSession.id !== sessionId || activeSession.status !== 'active') {
@@ -100,7 +102,8 @@ export async function ingestEpicMasteryRollResult(
     return;
   }
 
-  activeSession = mergeParticipantResult(activeSession, result);
+  const staged = opts?.staged ?? result.awaitingConfirm === true;
+  activeSession = mergeParticipantResult(activeSession, result, { staged });
   broadcastEpicMasteryRollState(activeSession);
 
   if (isSessionReadyToComplete(activeSession)) {

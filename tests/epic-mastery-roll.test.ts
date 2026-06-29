@@ -12,6 +12,7 @@ import {
   skipParticipantInSession,
 } from '../src/epic-roll/epic-mastery-roll-types.js';
 import { buildEpicMasteryRollSummaryHtml } from '../src/epic-roll/epic-mastery-roll-chat.js';
+import { getSkillSpendOptions } from '../src/epic-roll/epic-mastery-roll-skill-spend.js';
 import type { EpicMasteryRollSession } from '../src/epic-roll/epic-mastery-roll-types.js';
 
 function mockActor(overrides: Record<string, unknown> = {}): Actor {
@@ -110,6 +111,27 @@ describe('Epic Mastery Roll session helpers', () => {
     status: 'active',
   });
 
+  it('marks staged participants as awaiting_spend', () => {
+    let session = baseSession();
+    session = mergeParticipantResult(
+      session,
+      {
+        actorId: 'a1',
+        actorName: 'Hero',
+        label: 'Athletics Check',
+        total: 28,
+        normalTn: 32,
+        success: false,
+        raises: 0,
+        diceSummary: '6,5,4,3',
+        awaitingConfirm: true,
+      },
+      { staged: true },
+    );
+    expect(session.participants.find((p) => p.actorId === 'a1')?.status).toBe('awaiting_spend');
+    expect(isSessionReadyToComplete(session)).toBe(false);
+  });
+
   it('detects session ready when all participants resolved', () => {
     let session = baseSession();
     expect(isSessionReadyToComplete(session)).toBe(false);
@@ -148,6 +170,34 @@ describe('Epic Mastery Roll session helpers', () => {
   it('formats dice summary', () => {
     expect(formatDiceSummary([8, 7, 6])).toBe('8, 7, 6');
     expect(formatDiceSummary([])).toBe('—');
+  });
+});
+
+describe('Epic skill spend helpers', () => {
+  it('offers MR-step spend options when pool allows', () => {
+    const actor = mockActor({
+      system: {
+        mastery: { rank: 4 },
+        attributes: { might: { value: 10 } },
+        skills: { athletics: 4 },
+        skillsSpent: { athletics: 0 },
+        health: { bars: [{ current: 10, max: 10 }], currentBar: 0 },
+      },
+    }) as any;
+    const rollResult = {
+      total: 20,
+      dice: [6, 5, 4, 3],
+      kept: [6, 5, 4, 3],
+      skill: 0,
+      tn: 32,
+      raises: 0,
+      success: false,
+      exploded: [],
+    };
+    const { options, remainingPool } = getSkillSpendOptions(actor, 'athletics', rollResult);
+    expect(remainingPool).toBe(4);
+    expect(options.length).toBeGreaterThan(0);
+    expect(options[0]!.amount).toBe(4);
   });
 });
 

@@ -2,6 +2,7 @@
  * Epic Mastery Roll — shared types.
  */
 import type { SaveCategory } from '../utils/saving-throws.js';
+import type { MasteryRollResult } from '../types/index.js';
 export type EpicRollKind = 'skill' | 'attribute' | 'save';
 export interface EpicTnConfig {
     challengeMR: number;
@@ -21,12 +22,20 @@ export interface EpicSaveRollConfig {
     saveType: SaveCategory;
 }
 export type EpicRollConfig = EpicSkillRollConfig | EpicAttributeRollConfig | EpicSaveRollConfig;
-export type EpicParticipantStatus = 'pending' | 'rolled' | 'skipped';
+export type EpicParticipantStatus = 'pending' | 'awaiting_spend' | 'rolled' | 'skipped';
 export interface EpicParticipant {
     actorId: string;
     actorName: string;
     status: EpicParticipantStatus;
     img?: string;
+}
+/** Serializable roll payload kept while the player chooses skill spend. */
+export interface EpicRollPayload {
+    rollResult: MasteryRollResult;
+    skillKey?: string;
+    isSkillRoll: boolean;
+    baseModifier: number;
+    raiseTn?: number;
 }
 export interface EpicParticipantResult {
     actorId: string;
@@ -38,6 +47,12 @@ export interface EpicParticipantResult {
     raises: number;
     diceSummary: string;
     skipped?: boolean;
+    /** True while the owner may still spend skill points before locking in. */
+    awaitingConfirm?: boolean;
+    skillKey?: string;
+    skillSpent?: number;
+    raiseTn?: number;
+    rollPayload?: EpicRollPayload;
 }
 export interface EpicMasteryRollSession {
     id: string;
@@ -49,6 +64,8 @@ export interface EpicMasteryRollSession {
     participants: EpicParticipant[];
     results: Record<string, EpicParticipantResult>;
     status: 'active' | 'complete' | 'cancelled';
+    /** Band tint hue (0–360). */
+    bandHue?: number;
 }
 export interface EpicMasteryRollPreset {
     title: string;
@@ -69,7 +86,14 @@ export interface EpicMasteryRollStartConfig {
 export declare function formatDiceSummary(kept: number[]): string;
 export declare function countResolvedParticipants(session: EpicMasteryRollSession): number;
 export declare function isSessionReadyToComplete(session: EpicMasteryRollSession): boolean;
-export declare function mergeParticipantResult(session: EpicMasteryRollSession, result: EpicParticipantResult): EpicMasteryRollSession;
+export declare function mergeParticipantResult(session: EpicMasteryRollSession, result: EpicParticipantResult, opts?: {
+    staged?: boolean;
+}): EpicMasteryRollSession;
 export declare function skipParticipantInSession(session: EpicMasteryRollSession, actorId: string): EpicMasteryRollSession;
 export declare function rollLabelForConfig(roll: EpicRollConfig): string;
+export declare function participantResultFromRoll(actorId: string, actorName: string, label: string, rollResult: MasteryRollResult, payload: EpicRollPayload, opts?: {
+    skillKey?: string;
+    awaitingConfirm?: boolean;
+    skillSpent?: number;
+}): EpicParticipantResult;
 //# sourceMappingURL=epic-mastery-roll-types.d.ts.map

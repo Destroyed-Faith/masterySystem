@@ -4,6 +4,7 @@
 
 import { SKILLS } from '../utils/skills.js';
 import type { SaveCategory } from '../utils/saving-throws.js';
+import type { MasteryRollResult } from '../types/index.js';
 
 export type EpicRollKind = 'skill' | 'attribute' | 'save';
 
@@ -30,13 +31,22 @@ export interface EpicSaveRollConfig {
 
 export type EpicRollConfig = EpicSkillRollConfig | EpicAttributeRollConfig | EpicSaveRollConfig;
 
-export type EpicParticipantStatus = 'pending' | 'rolled' | 'skipped';
+export type EpicParticipantStatus = 'pending' | 'awaiting_spend' | 'rolled' | 'skipped';
 
 export interface EpicParticipant {
   actorId: string;
   actorName: string;
   status: EpicParticipantStatus;
   img?: string;
+}
+
+/** Serializable roll payload kept while the player chooses skill spend. */
+export interface EpicRollPayload {
+  rollResult: MasteryRollResult;
+  skillKey?: string;
+  isSkillRoll: boolean;
+  baseModifier: number;
+  raiseTn?: number;
 }
 
 export interface EpicParticipantResult {
@@ -49,6 +59,12 @@ export interface EpicParticipantResult {
   raises: number;
   diceSummary: string;
   skipped?: boolean;
+  /** True while the owner may still spend skill points before locking in. */
+  awaitingConfirm?: boolean;
+  skillKey?: string;
+  skillSpent?: number;
+  raiseTn?: number;
+  rollPayload?: EpicRollPayload;
 }
 
 export interface EpicMasteryRollSession {
@@ -61,6 +77,8 @@ export interface EpicMasteryRollSession {
   participants: EpicParticipant[];
   results: Record<string, EpicParticipantResult>;
   status: 'active' | 'complete' | 'cancelled';
+  /** Band tint hue (0–360). */
+  bandHue?: number;
 }
 
 export interface EpicMasteryRollPreset {
@@ -98,10 +116,19 @@ export function isSessionReadyToComplete(session: EpicMasteryRollSession): boole
 export function mergeParticipantResult(
   session: EpicMasteryRollSession,
   result: EpicParticipantResult,
+  opts?: { staged?: boolean },
 ): EpicMasteryRollSession {
+  const staged = opts?.staged ?? result.awaitingConfirm === true;
   const participants = session.participants.map((p) =>
     p.actorId === result.actorId
-      ? { ...p, status: result.skipped ? ('skipped' as const) : ('rolled' as const) }
+      ? {
+          ...p,
+          status: result.skipped
+            ? ('skipped' as const)
+            : staged
+              ? ('awaiting_spend' as const)
+              : ('rolled' as const),
+        }
       : p,
   );
   return {
@@ -144,4 +171,33 @@ export function rollLabelForConfig(roll: EpicRollConfig): string {
     default:
       return 'Roll';
   }
+}
+
+export function participantResultFromRoll(
+  actorId: string,
+  actorName: string,
+  label: string,
+  rollResult: MasteryRollResult,
+  payload: EpicRollPayload,
+  opts: {
+    skillKey?: string;
+    awaitingConfirm?: boolean;
+    skillSpent?: number;
+  } = {},
+): EpicParticipantResult {
+  return {
+    actorId,
+    actorName,
+    label,
+    total: rollResult.total,
+    normalTn: rollResult.tn ?? rollResult.normalTn ?? 0,
+    success: rollResult.success,
+    raises: rollResult.raises ?? 0,
+    diceSummary: formatDiceSummary(rollResult.kept),
+    awaitingConfirm: opts.awaitingConfirm,
+    skillKey: opts.skillKey,
+    skillSpent: opts.skillSpent ?? 0,
+    raiseTn: payload.raiseTn,
+    rollPayload: payload,
+  };
 }

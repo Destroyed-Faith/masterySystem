@@ -1,0 +1,91 @@
+<div class="emr-cinematic-overlay" style="--emr-band-hue: {{bandHue}};">
+  <div class="emr-cinematic-scrim"></div>
+  <div class="emr-cinematic-band">
+    {{#if isGM}}
+    <button type="button" class="emr-cinematic-close" data-action="emr-cancel" title="Cancel Epic Roll">
+      <i class="fas fa-times"></i>
+    </button>
+    {{/if}}
+
+    <header class="emr-cinematic-header">
+      <h2 class="emr-cinematic-title">{{session.title}}</h2>
+      <p class="emr-cinematic-meta">{{rollLabel}} · {{resolved}}/{{total}} complete</p>
+      {{#if session.flavor}}
+      <p class="emr-cinematic-flavor">{{session.flavor}}</p>
+      {{/if}}
+      {{#if showTn}}
+      <p class="emr-cinematic-tn">
+        TN <strong>{{tn.baseTN}}</strong>
+        {{#if (gt tn.raises 0)}}
+        · Raise TN <strong>{{add tn.baseTN (multiply tn.raises 4)}}</strong>
+        {{/if}}
+      </p>
+      {{/if}}
+    </header>
+
+    <div class="emr-cinematic-portraits">
+      {{#each participants as |p|}}
+      <div class="emr-portrait-column {{p.status}}">
+        <div class="emr-portrait-stack {{#if p.showResultFrame}}emr-has-result{{/if}}">
+          <div class="emr-portrait-frame">
+            <img class="emr-portrait-img" src="{{p.portrait}}" alt="{{p.actorName}}" />
+          </div>
+
+          {{#if p.canRoll}}
+          <button type="button" class="emr-d8-roll-btn" data-action="emr-roll" data-actor-id="{{p.actorId}}" title="Roll d8" {{#if ../rolling}}disabled{{/if}}>
+            <span class="emr-d8-icon" aria-hidden="true">d8</span>
+          </button>
+          {{/if}}
+
+          {{#if p.awaitingSpend}}
+          <div class="emr-result-zone">
+            <div class="emr-result-total {{#if p.success}}emr-success{{else}}emr-fail{{/if}}">{{p.result.total}}</div>
+            <div class="emr-result-meta">
+              {{#if p.success}}Success{{else}}Failure{{/if}}
+              · kept {{p.result.diceSummary}}
+            </div>
+            {{#if p.canSpend}}
+            <div class="emr-skill-spend">
+              <div class="emr-skill-spend-label">Spend Skill Points ({{p.skillPoolRemaining}}/{{p.skillRating}})</div>
+              <div class="emr-skill-spend-btns">
+                {{#each p.skillSpendOptions as |opt|}}
+                <button type="button" class="emr-spend-btn {{#if opt.wouldSucceed}}emr-spend-success{{/if}}" data-action="emr-spend" data-actor-id="{{../p.actorId}}" data-amount="{{opt.amount}}">
+                  +{{opt.label}} → {{opt.newTotal}}{{#if ../p.showTn}}{{#if opt.wouldSucceed}} ✓{{else}} ✗{{/if}}{{/if}}
+                </button>
+                {{/each}}
+                <button type="button" class="emr-confirm-btn" data-action="emr-confirm" data-actor-id="{{p.actorId}}">Keep Roll</button>
+              </div>
+            </div>
+            {{/if}}
+          </div>
+          {{/if}}
+
+          {{#if p.showFinalResult}}
+          <div class="emr-result-zone emr-finalized">
+            <div class="emr-result-total {{#if p.success}}emr-success{{else}}emr-fail{{/if}}">{{p.result.total}}</div>
+            <div class="emr-result-meta">
+              {{#if p.success}}Success{{else}}Failure{{/if}}
+              {{#if p.result.skillSpent}} · +{{p.result.skillSpent}} skill{{/if}}
+            </div>
+          </div>
+          {{/if}}
+
+          {{#if p.skipped}}
+          <div class="emr-result-zone emr-skipped-zone">Skipped</div>
+          {{/if}}
+
+          {{#if p.waiting}}
+          <div class="emr-waiting-label">Waiting…</div>
+          {{/if}}
+        </div>
+
+        <div class="emr-portrait-name">{{p.actorName}}</div>
+
+        {{#if p.canSkip}}
+        <button type="button" class="emr-skip-link" data-action="emr-skip" data-actor-id="{{p.actorId}}">Skip</button>
+        {{/if}}
+      </div>
+      {{/each}}
+    </div>
+  </div>
+</div>

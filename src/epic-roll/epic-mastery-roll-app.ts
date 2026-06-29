@@ -1,5 +1,5 @@
 /**
- * Epic Mastery Roll — live session overlay.
+ * Epic Mastery Roll — full-screen cinematic overlay.
  */
 
 import type { EpicMasteryRollSession } from './epic-mastery-roll-types.js';
@@ -7,56 +7,93 @@ import {
   countResolvedParticipants,
   rollLabelForConfig,
 } from './epic-mastery-roll-types.js';
-import { performEpicParticipantRoll } from './epic-mastery-roll-roll.js';
+import {
+  applyEpicSkillSpendAndFinalize,
+  confirmEpicRollWithoutSpend,
+  performEpicParticipantRoll,
+} from './epic-mastery-roll-roll.js';
+import { getSkillSpendOptions } from './epic-mastery-roll-skill-spend.js';
 
-const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
-const BaseApp = HandlebarsApplicationMixin(ApplicationV2) as typeof ApplicationV2;
+const TEMPLATE = 'systems/mastery-system/templates/epic-roll/session-cinematic.hbs';
 
-export class EpicMasteryRollApp extends BaseApp {
+function portraitSrc(actor: Actor | undefined, fallback?: string): string {
+  const raw = (actor as any)?.img || fallback || 'icons/svg/mystery-man.svg';
+  try {
+    return (foundry as any).utils?.getRoute?.(raw) ?? raw;
+  } catch {
+    return raw;
+  }
+}
+
+class EpicMasteryRollOverlay {
   private session: EpicMasteryRollSession;
+  private root: HTMLElement | null = null;
   private rolling = false;
 
-  static DEFAULT_OPTIONS = {
-    id: 'mastery-epic-roll-session',
-    classes: ['mastery-system', 'epic-mastery-roll-app'],
-    position: { width: 520, height: 'auto' as const },
-    window: {
-      title: 'Epic Mastery Roll',
-      resizable: true,
-      minimizable: false,
-    },
-  };
-
-  static PARTS = {
-    content: {
-      template: 'systems/mastery-system/templates/epic-roll/session-app.hbs',
-    },
-  };
-
   constructor(session: EpicMasteryRollSession) {
-    super();
     this.session = session;
   }
 
-  protected async _prepareContext(_options: unknown): Promise<Record<string, unknown>> {
+  private async buildContext(): Promise<Record<string, unknown>> {
     const rollLabel = rollLabelForConfig(this.session.roll);
     const resolved = countResolvedParticipants(this.session);
     const total = this.session.participants.length;
     const isGM = !!game.user?.isGM;
-    const userId = game.user?.id;
+    const bandHue = this.session.bandHue ?? 350;
 
     const participants = this.session.participants.map((p) => {
       const actor = game.actors?.get(p.actorId);
       const isOwner = isGM || !!actor?.isOwner;
       const result = this.session.results[p.actorId];
+      const awaitingSpend = p.status === 'awaiting_spend' && !!result?.awaitingConfirm;
+      const rolled = p.status === 'rolled' && !!result && !result.skipped;
+      const skipped = p.status === 'skipped' || result?.skipped;
+
+      let skillSpendOptions: Array<{
+        amount: number;
+        label: string;
+        newTotal: number;
+        wouldSucceed: boolean;
+      }> = [];
+      let skillPoolRemaining = 0;
+      let skillRating = 0;
+      let canSpend = false;
+
+      if (awaitingSpend && result?.rollPayload && result.skillKey && isOwner) {
+        const spend = getSkillSpendOptions(
+          actor!,
+          result.skillKey,
+          result.rollPayload.rollResult,
+          result.rollPayload.baseModifier,
+        );
+        skillPoolRemaining = spend.remainingPool;
+        skillRating = spend.skillRating;
+        skillSpendOptions = spend.options.map((opt) => ({
+          amount: opt.amount,
+          label: opt.label,
+          newTotal: opt.newTotal,
+          wouldSucceed: opt.success,
+        }));
+        canSpend = skillSpendOptions.length > 0;
+      }
+
       return {
         ...p,
+        portrait: portraitSrc(actor, p.img),
         isOwner,
-        canRoll: p.status === 'pending' && isOwner && this.session.status === 'active',
-        canSkip: isGM && p.status === 'pending' && this.session.status === 'active',
         result,
         success: result?.success,
-        skipped: result?.skipped,
+        skipped,
+        canRoll: p.status === 'pending' && isOwner && this.session.status === 'active',
+        canSkip: isGM && (p.status === 'pending' || p.status === 'awaiting_spend') && this.session.status === 'active',
+        awaitingSpend,
+        showResultFrame: awaitingSpend || rolled,
+        showFinalResult: rolled,
+        waiting: p.status === 'pending' && !isOwner,
+        canSpend,
+        skillSpendOptions,
+        skillPoolRemaining,
+        skillRating,
       };
     });
 
@@ -71,13 +108,32 @@ export class EpicMasteryRollApp extends BaseApp {
       tn: this.session.tn,
       participants,
       rolling: this.rolling,
-      userId,
+      bandHue,
     };
   }
 
-  protected async _onRender(context: unknown, options: unknown): Promise<void> {
-    await super._onRender(context, options);
-    const root = this.element as HTMLElement;
+  async render(): Promise<void> {
+    if (this.session.status === 'complete' || this.session.status === 'cancelled') {
+      this.close();
+      return;
+    }
+
+    const context = await this.buildContext();
+    const html = await foundry.applications.handlebars.renderTemplate(TEMPLATE, context);
+
+    if (!this.root) {
+      this.root = document.createElement('div');
+      this.root.id = 'mastery-epic-roll-cinematic-root';
+      document.body.appendChild(this.root);
+    }
+
+    this.root.innerHTML = html;
+    this.bind();
+  }
+
+  private bind(): void {
+    const root = this.root;
+    if (!root) return;
 
     root.querySelectorAll<HTMLElement>('[data-action="emr-roll"]').forEach((btn) => {
       btn.onclick = async (ev) => {
@@ -91,8 +147,28 @@ export class EpicMasteryRollApp extends BaseApp {
           await performEpicParticipantRoll(this.session, actorId);
         } finally {
           this.rolling = false;
-          this.render(false);
         }
+      };
+    });
+
+    root.querySelectorAll<HTMLElement>('[data-action="emr-spend"]').forEach((btn) => {
+      btn.onclick = async (ev) => {
+        ev.preventDefault();
+        const actorId = btn.dataset.actorId;
+        const amount = parseInt(btn.dataset.amount ?? '0', 10);
+        if (!actorId || amount <= 0) return;
+        btn.setAttribute('disabled', 'true');
+        await applyEpicSkillSpendAndFinalize(this.session, actorId, amount);
+      };
+    });
+
+    root.querySelectorAll<HTMLElement>('[data-action="emr-confirm"]').forEach((btn) => {
+      btn.onclick = async (ev) => {
+        ev.preventDefault();
+        const actorId = btn.dataset.actorId;
+        if (!actorId) return;
+        btn.setAttribute('disabled', 'true');
+        await confirmEpicRollWithoutSpend(this.session, actorId);
       };
     });
 
@@ -118,11 +194,16 @@ export class EpicMasteryRollApp extends BaseApp {
 
   updateSession(session: EpicMasteryRollSession): void {
     this.session = session;
-    this.render(false);
+    void this.render();
+  }
+
+  close(): void {
+    this.root?.remove();
+    this.root = null;
   }
 }
 
-let activeApp: EpicMasteryRollApp | null = null;
+let activeOverlay: EpicMasteryRollOverlay | null = null;
 
 export async function openEpicMasteryRollApp(session: EpicMasteryRollSession): Promise<void> {
   if (session.status === 'complete' || session.status === 'cancelled') {
@@ -130,23 +211,20 @@ export async function openEpicMasteryRollApp(session: EpicMasteryRollSession): P
     return;
   }
 
-  if (activeApp) {
-    activeApp.updateSession(session);
-    activeApp.bringToFront();
+  if (activeOverlay) {
+    activeOverlay.updateSession(session);
     return;
   }
 
-  activeApp = new EpicMasteryRollApp(session);
-  await activeApp.render(true);
+  activeOverlay = new EpicMasteryRollOverlay(session);
+  await activeOverlay.render();
 }
 
 export function closeEpicMasteryRollApp(): void {
-  if (activeApp) {
-    activeApp.close();
-    activeApp = null;
-  }
+  activeOverlay?.close();
+  activeOverlay = null;
 }
 
-export function getEpicMasteryRollApp(): EpicMasteryRollApp | null {
-  return activeApp;
+export function getEpicMasteryRollApp(): EpicMasteryRollOverlay | null {
+  return activeOverlay;
 }

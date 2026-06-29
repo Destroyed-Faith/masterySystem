@@ -51,6 +51,7 @@ export async function startEpicMasteryRollSession(config) {
         participants,
         results: {},
         status: 'active',
+        bandHue: 350,
     };
     activeSession = session;
     broadcastEpicMasteryRollStart(session);
@@ -61,7 +62,7 @@ export function applyEpicMasteryRollSessionState(session) {
     activeSession = session.status === 'active' ? session : null;
     void openEpicMasteryRollApp(session);
 }
-export async function ingestEpicMasteryRollResult(sessionId, result) {
+export async function ingestEpicMasteryRollResult(sessionId, result, opts) {
     if (!game.user?.isGM)
         return;
     if (!activeSession || activeSession.id !== sessionId || activeSession.status !== 'active') {
@@ -70,7 +71,8 @@ export async function ingestEpicMasteryRollResult(sessionId, result) {
     if (!activeSession.participants.some((p) => p.actorId === result.actorId)) {
         return;
     }
-    activeSession = mergeParticipantResult(activeSession, result);
+    const staged = opts?.staged ?? result.awaitingConfirm === true;
+    activeSession = mergeParticipantResult(activeSession, result, { staged });
     broadcastEpicMasteryRollState(activeSession);
     if (isSessionReadyToComplete(activeSession)) {
         await completeEpicMasteryRollSession(activeSession);

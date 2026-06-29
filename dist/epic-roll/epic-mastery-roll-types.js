@@ -15,9 +15,17 @@ export function isSessionReadyToComplete(session) {
         return false;
     return session.participants.every((p) => p.status === 'rolled' || p.status === 'skipped');
 }
-export function mergeParticipantResult(session, result) {
+export function mergeParticipantResult(session, result, opts) {
+    const staged = opts?.staged ?? result.awaitingConfirm === true;
     const participants = session.participants.map((p) => p.actorId === result.actorId
-        ? { ...p, status: result.skipped ? 'skipped' : 'rolled' }
+        ? {
+            ...p,
+            status: result.skipped
+                ? 'skipped'
+                : staged
+                    ? 'awaiting_spend'
+                    : 'rolled',
+        }
         : p);
     return {
         ...session,
@@ -53,5 +61,22 @@ export function rollLabelForConfig(roll) {
         default:
             return 'Roll';
     }
+}
+export function participantResultFromRoll(actorId, actorName, label, rollResult, payload, opts = {}) {
+    return {
+        actorId,
+        actorName,
+        label,
+        total: rollResult.total,
+        normalTn: rollResult.tn ?? rollResult.normalTn ?? 0,
+        success: rollResult.success,
+        raises: rollResult.raises ?? 0,
+        diceSummary: formatDiceSummary(rollResult.kept),
+        awaitingConfirm: opts.awaitingConfirm,
+        skillKey: opts.skillKey,
+        skillSpent: opts.skillSpent ?? 0,
+        raiseTn: payload.raiseTn,
+        rollPayload: payload,
+    };
 }
 //# sourceMappingURL=epic-mastery-roll-types.js.map

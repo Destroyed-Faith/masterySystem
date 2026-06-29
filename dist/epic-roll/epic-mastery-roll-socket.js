@@ -29,11 +29,12 @@ export function broadcastEpicMasteryRollCancel(sessionId) {
         sessionId,
     });
 }
-export function emitEpicMasteryRollResult(sessionId, result) {
+export function emitEpicMasteryRollResult(sessionId, result, opts) {
     game.socket?.emit(EPIC_ROLL_SOCKET, {
         type: 'epicMasteryRollResult',
         sessionId,
         result,
+        staged: opts?.staged ?? result.awaitingConfirm === true,
         userId: game.user?.id,
     });
 }
@@ -56,7 +57,9 @@ async function handleEpicRollSocket(payload) {
         }
         case 'epicMasteryRollResult': {
             if (game.user?.isGM) {
-                await ingestEpicMasteryRollResult(payload.sessionId, payload.result);
+                await ingestEpicMasteryRollResult(payload.sessionId, payload.result, {
+                    staged: payload.staged,
+                });
             }
             break;
         }

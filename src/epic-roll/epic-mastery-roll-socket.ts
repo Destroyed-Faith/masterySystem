@@ -45,11 +45,13 @@ export function broadcastEpicMasteryRollCancel(sessionId: string): void {
 export function emitEpicMasteryRollResult(
   sessionId: string,
   result: EpicParticipantResult,
+  opts?: { staged?: boolean },
 ): void {
   game.socket?.emit(EPIC_ROLL_SOCKET, {
     type: 'epicMasteryRollResult',
     sessionId,
     result,
+    staged: opts?.staged ?? result.awaitingConfirm === true,
     userId: game.user?.id,
   });
 }
@@ -75,7 +77,9 @@ async function handleEpicRollSocket(payload: any): Promise<void> {
 
     case 'epicMasteryRollResult': {
       if (game.user?.isGM) {
-        await ingestEpicMasteryRollResult(payload.sessionId, payload.result);
+        await ingestEpicMasteryRollResult(payload.sessionId, payload.result, {
+          staged: payload.staged,
+        });
       }
       break;
     }

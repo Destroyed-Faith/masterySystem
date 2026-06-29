@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.157] - 2026-06-23
+
+### Changed
+
+- **Epic Mastery Roll — cinematic overlay:** Full-screen tinted band with character portraits, d8 roll buttons, red result frames, and in-overlay skill point spending (MR steps / all-in / keep roll) before results lock in.
+
 ## [0.9.156] - 2026-06-23
 
 ### Fixed
