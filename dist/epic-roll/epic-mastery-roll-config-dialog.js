@@ -5,7 +5,7 @@ import { SKILLS } from '../utils/skills.js';
 import { buildDifficultyPresets } from '../dice/roll-context-build.js';
 import { startEpicMasteryRollSession } from './epic-mastery-roll-session.js';
 import { listEpicRollCandidateActors, saveEpicRollRecentPreset, } from './epic-mastery-roll-settings.js';
-import { resolveActorPortraitSrc } from './epic-mastery-roll-portraits.js';
+import { resolveActorPortraitSrc, portraitFallbackSrc } from './epic-mastery-roll-portraits.js';
 const ATTRIBUTES = ['might', 'agility', 'vitality', 'intellect', 'resolve', 'influence', 'wits'];
 const SAVE_TYPES = ['body', 'mind', 'spirit'];
 const CHALLENGE_MR_MIN = 2;
@@ -108,6 +108,13 @@ export class EpicMasteryRollConfigDialog extends BaseDialog {
     async _onRender(context, options) {
         await super._onRender(context, options);
         const root = this.element;
+        const fallback = portraitFallbackSrc();
+        root.querySelectorAll('.emr-actor-thumb').forEach((img) => {
+            img.onerror = () => {
+                if (img.src !== fallback)
+                    img.src = fallback;
+            };
+        });
         const bindInput = (selector, handler) => {
             root.querySelectorAll(selector).forEach((el) => {
                 el.addEventListener('input', () => handler(el));

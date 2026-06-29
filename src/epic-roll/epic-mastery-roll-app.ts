@@ -26,6 +26,7 @@ class EpicMasteryRollOverlay {
   private session: EpicMasteryRollSession;
   private root: HTMLElement | null = null;
   private rolling = false;
+  private renderSeq = 0;
   /** Per-actor attribute choice before rolling (multi-attribute skills). */
   private selectedAttributes: Record<string, string> = {};
 
@@ -156,8 +157,10 @@ class EpicMasteryRollOverlay {
       return;
     }
 
+    const seq = ++this.renderSeq;
     const context = await this.buildContext();
     const html = await foundry.applications.handlebars.renderTemplate(TEMPLATE, context);
+    if (seq !== this.renderSeq) return;
 
     if (!this.root) {
       this.root = document.createElement('div');
@@ -183,8 +186,8 @@ class EpicMasteryRollOverlay {
     root.querySelectorAll<HTMLElement>('[data-action="emr-pick-attr"]').forEach((btn) => {
       btn.onclick = (ev) => {
         ev.preventDefault();
-        const actorId = btn.dataset.actorId;
-        const attribute = btn.dataset.attribute;
+        const actorId = btn.getAttribute('data-actor-id') ?? btn.dataset.actorId;
+        const attribute = btn.getAttribute('data-emr-attr') ?? btn.dataset.emrAttr;
         if (!actorId || !attribute) return;
         this.selectedAttributes[actorId] = attribute;
         void this.render();

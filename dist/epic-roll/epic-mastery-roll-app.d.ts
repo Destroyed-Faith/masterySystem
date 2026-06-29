@@ -6,6 +6,7 @@ declare class EpicMasteryRollOverlay {
     private session;
     private root;
     private rolling;
+    private renderSeq;
     /** Per-actor attribute choice before rolling (multi-attribute skills). */
     private selectedAttributes;
     constructor(session: EpicMasteryRollSession);

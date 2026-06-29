@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.159] - 2026-06-23
+
+### Fixed
+
+- **Epic Mastery Roll — attribute pick:** Inline attribute buttons now pass the correct actor id in nested Handlebars loops, so selection persists (visible border) and **Roll** enables after choosing an attribute.
+
 ## [0.9.158] - 2026-06-23
 
 ### Changed

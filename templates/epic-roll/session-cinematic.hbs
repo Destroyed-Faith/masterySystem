@@ -34,7 +34,7 @@
           {{#if p.showAttributePick}}
           <div class="emr-attr-pick-row">
             {{#each p.attributeOptions as |opt|}}
-            <button type="button" class="emr-attr-btn {{#if opt.selected}}is-selected{{/if}}" data-action="emr-pick-attr" data-actor-id="{{../p.actorId}}" data-attribute="{{opt.key}}">
+            <button type="button" class="emr-attr-btn {{#if opt.selected}}is-selected{{/if}}" data-action="emr-pick-attr" data-actor-id="{{../actorId}}" data-emr-attr="{{opt.key}}">
               {{opt.label}} ({{opt.dice}}d8)
             </button>
             {{/each}}
@@ -59,8 +59,8 @@
               <div class="emr-skill-spend-label">Spend Skill Points ({{p.skillPoolRemaining}}/{{p.skillRating}})</div>
               <div class="emr-skill-spend-btns">
                 {{#each p.skillSpendOptions as |opt|}}
-                <button type="button" class="emr-spend-btn {{#if opt.wouldSucceed}}emr-spend-success{{/if}}" data-action="emr-spend" data-actor-id="{{../p.actorId}}" data-amount="{{opt.amount}}">
-                  +{{opt.label}} → {{opt.newTotal}}{{#if ../p.showTn}}{{#if opt.wouldSucceed}} ✓{{else}} ✗{{/if}}{{/if}}
+                <button type="button" class="emr-spend-btn {{#if opt.wouldSucceed}}emr-spend-success{{/if}}" data-action="emr-spend" data-actor-id="{{../actorId}}" data-amount="{{opt.amount}}">
+                  +{{opt.label}} → {{opt.newTotal}}{{#if ../showTn}}{{#if opt.wouldSucceed}} ✓{{else}} ✗{{/if}}{{/if}}
                 </button>
                 {{/each}}
                 <button type="button" class="emr-confirm-btn" data-action="emr-confirm" data-actor-id="{{p.actorId}}">Keep Roll</button>

@@ -540,9 +540,13 @@
 
 .emr-attr-btn.is-selected {
   border-color: #ffd54f;
-  background: rgba(255, 213, 79, 0.2);
+  border-width: 2px;
+  background: rgba(255, 213, 79, 0.28);
   color: #fff;
-  font-weight: 600;
+  font-weight: 700;
+  box-shadow:
+    0 0 0 1px rgba(255, 213, 79, 0.55),
+    inset 0 0 0 1px rgba(255, 213, 79, 0.35);
 }
 
 .emr-roll-btn {
@@ -564,6 +568,11 @@
 .emr-roll-btn:hover:not(:disabled) {
   transform: scale(1.04);
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
+}
+
+.emr-roll-btn:not(:disabled) {
+  opacity: 1;
+  cursor: pointer;
 }
 
 .emr-roll-btn:disabled {
