@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.155] - 2026-06-23
+
+### Added
+
+- **Epic Mastery Roll:** GM chat button (**Epic Roll**) for group skill / attribute / save checks with configurable TN. Players roll from a live overlay; only a summary card is posted to chat (no individual roll spam). Supports recent presets (right-click), participant skip/cancel, and module API `requestEpicMasteryRoll()` / `getActiveEpicMasteryRollSession()`.
+
+## [0.9.154] - 2026-06-23
+
+### Added
+
+- **Homepage character import:** GM can import JSON from the Actors directory (**Import Character**). Supports `mastery-character-import` (compact build + power template expansion) and `mastery-foundry-actor` (full actor dump). Schema: `docs/character-import-schema.md`, example: `docs/examples/alaris-import.example.json`. Module API: `game.modules.get('mastery-system').api.importCharacterFromJson(text)`.
+
 ## [0.9.153] - 2026-06-23
 
 ### Fixed

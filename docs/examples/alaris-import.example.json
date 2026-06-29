@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 1,
+  "exportKind": "mastery-character-import",
+  "systemId": "mastery-system",
+  "systemVersion": "0.9.153",
+  "exportedAt": "2026-06-23T12:00:00.000Z",
+  "character": {
+    "name": "Alaris",
+    "bio": {
+      "concept": "Moonlit duelist",
+      "appearance": "Pale armor, lunar greatsword",
+      "notes": "Created on homepage"
+    },
+    "echo": {
+      "key": "elves",
+      "subChoiceKey": "highElves",
+      "selectedCardIds": []
+    },
+    "attributes": {
+      "might": 16,
+      "agility": 16,
+      "vitality": 14,
+      "intellect": 10,
+      "resolve": 12,
+      "influence": 8,
+      "wits": 10
+    },
+    "masteryRank": 4,
+    "skills": {
+      "meleeWeapons": 2,
+      "athletics": 1
+    },
+    "disadvantages": [
+      {
+        "id": "hunted",
+        "points": 2,
+        "details": {
+          "hunter": "The Pale Court",
+          "context": "They want the greatsword back."
+        }
+      }
+    ],
+    "minorExpressions": [
+      "might-set-your-feet",
+      "agility-soft-step"
+    ],
+    "powers": [
+      { "templateId": "passive-evade", "rank": 4 },
+      { "templateId": "passive-temp-hp", "rank": 4 },
+      { "templateId": "ab-evade", "rank": 4 },
+      { "templateId": "reaction-evade", "rank": 4 },
+      { "templateId": "active-melee-weapon-single", "rank": 2 },
+      { "templateId": "active-melee-damage-t4", "special": "ignite", "rank": 2 }
+    ],
+    "artifacts": [
+      {
+        "key": "moonlightGreatsword",
+        "level": 4,
+        "activated": true,
+        "activationStoneAttribute": "might",
+        "equipped": true
+      }
+    ],
+    "creationComplete": true
+  }
+}

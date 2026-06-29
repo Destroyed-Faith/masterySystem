@@ -1,0 +1,32 @@
+<div class="ci-root">
+  <p class="ci-hint">
+    Import a character built on the homepage. JSON must use
+    <code>exportKind: "mastery-character-import"</code> (compact build) or
+    <code>"mastery-foundry-actor"</code> (full actor dump).
+    See <code>docs/character-import-schema.md</code> in the module.
+  </p>
+
+  <div class="ci-file-row">
+    <label class="ci-file-label">
+      <span>JSON file</span>
+      <input type="file" class="js-ci-file" accept="application/json,.json" />
+    </label>
+  </div>
+
+  <label class="ci-json-label">
+    <span>JSON content</span>
+    <textarea class="js-ci-json" rows="14" spellcheck="false" placeholder='{ "schemaVersion": 1, "exportKind": "mastery-character-import", ... }'>{{jsonText}}</textarea>
+  </label>
+
+  <div class="ci-validation {{#if validationOk}}ci-validation-ok{{else}}ci-validation-pending{{/if}}">
+    <strong>Validation</strong>
+    <pre class="ci-validation-text">{{validationMessage}}</pre>
+  </div>
+
+  <footer class="ci-actions">
+    <button type="button" class="js-ci-validate"><i class="fas fa-check"></i> Validate</button>
+    <button type="button" class="js-ci-import" {{#unless validationOk}}disabled{{/unless}}>
+      <i class="fas fa-file-import"></i> Import Character
+    </button>
+  </footer>
+</div>

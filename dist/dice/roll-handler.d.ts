@@ -85,6 +85,8 @@ export interface RollOptions {
     bloodRaises?: number;
     /** Bonus added only when checking Raise TN (Intellect Spell Raises stone). */
     raiseTnRollBonus?: number;
+    /** When true, evaluate the roll but do not post a chat message. */
+    skipChat?: boolean;
 }
 /** Stored on chat messages so a Faith Fracture reroll can repeat the same roll setup. */
 export interface MasteryRollRecipe {

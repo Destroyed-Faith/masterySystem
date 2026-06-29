@@ -1,0 +1,367 @@
+/* Epic Mastery Roll — chat button, config dialog, session overlay, summary card */
+
+.emr-chat-launch {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  margin-bottom: 6px;
+  padding: 6px 10px;
+  border: 1px solid var(--ms-border, #3a3f44);
+  border-radius: var(--ms-radius, 6px);
+  background: var(--ms-panel2, #1b2124);
+  color: var(--ms-accent, #c9a227);
+  font-family: var(--ms-font-head, inherit);
+  font-size: 12px;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.emr-chat-launch:hover {
+  background: var(--ms-panel, #2a3136);
+  border-color: var(--ms-accent, #c9a227);
+}
+
+.emr-chat-launch i {
+  font-size: 14px;
+}
+
+/* Config dialog */
+.epic-mastery-roll-config .window-content {
+  padding: 0;
+}
+
+.emr-config {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.emr-config-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+  padding: 12px;
+  flex: 1;
+  min-height: 0;
+}
+
+.emr-config-col {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.emr-config-col h3 {
+  margin: 0 0 4px;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--ms-muted, #a0a0a0);
+}
+
+.emr-actor-lists {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow: auto;
+  max-height: 420px;
+}
+
+.emr-actor-list h4 {
+  margin: 0 0 4px;
+  font-size: 11px;
+  color: var(--ms-muted, #a0a0a0);
+}
+
+.emr-actor-ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.emr-actor-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 6px;
+  border-bottom: 1px solid var(--ms-border, #3a3f44);
+}
+
+.emr-actor-thumb {
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.emr-actor-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+}
+
+.emr-actor-type {
+  font-size: 10px;
+  color: var(--ms-muted, #888);
+  text-transform: uppercase;
+}
+
+.emr-icon-btn {
+  background: transparent;
+  border: 1px solid var(--ms-border, #3a3f44);
+  border-radius: 4px;
+  color: var(--ms-text, #d0d0d0);
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.emr-icon-btn:hover {
+  border-color: var(--ms-accent, #c9a227);
+  color: var(--ms-accent, #c9a227);
+}
+
+.emr-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.emr-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: var(--ms-muted, #a0a0a0);
+}
+
+.emr-input,
+.emr-select,
+.emr-textarea {
+  width: 100%;
+  background: var(--ms-panel2, #1b2124);
+  border: 1px solid var(--ms-border, #3a3f44);
+  border-radius: 4px;
+  color: var(--ms-text, #d0d0d0);
+  padding: 6px 8px;
+  font-size: 13px;
+}
+
+.emr-tn-preview {
+  font-size: 12px;
+  padding: 8px;
+  background: var(--ms-panel2, #1b2124);
+  border-radius: 4px;
+  border: 1px solid var(--ms-border, #3a3f44);
+}
+
+.emr-checkbox-field label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.emr-config-footer {
+  padding: 10px 12px;
+  border-top: 1px solid var(--ms-border, #3a3f44);
+  display: flex;
+  justify-content: flex-end;
+}
+
+.emr-btn {
+  border: 1px solid var(--ms-border, #3a3f44);
+  border-radius: 4px;
+  padding: 6px 12px;
+  font-size: 12px;
+  cursor: pointer;
+  background: var(--ms-panel2, #1b2124);
+  color: var(--ms-text, #d0d0d0);
+}
+
+.emr-btn-primary {
+  background: var(--ms-accent, #c9a227);
+  border-color: var(--ms-accent, #c9a227);
+  color: #111;
+  font-weight: 600;
+}
+
+.emr-btn-primary:hover {
+  filter: brightness(1.08);
+}
+
+.emr-btn-roll {
+  background: var(--ms-accent, #c9a227);
+  border-color: var(--ms-accent, #c9a227);
+  color: #111;
+  font-weight: 600;
+}
+
+.emr-btn-ghost {
+  background: transparent;
+}
+
+.emr-empty {
+  font-size: 12px;
+  color: var(--ms-muted, #888);
+  padding: 8px;
+}
+
+/* Session overlay */
+.epic-mastery-roll-app .window-content {
+  padding: 0;
+}
+
+.emr-session-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 12px;
+  border-bottom: 1px solid var(--ms-border, #3a3f44);
+  background: var(--ms-panel2, #1b2124);
+}
+
+.emr-session-title h2 {
+  margin: 0 0 4px;
+  font-size: 16px;
+}
+
+.emr-session-meta,
+.emr-session-flavor,
+.emr-session-tn {
+  margin: 2px 0;
+  font-size: 12px;
+  color: var(--ms-muted, #a0a0a0);
+}
+
+.emr-close-btn {
+  background: transparent;
+  border: none;
+  color: var(--ms-muted, #888);
+  font-size: 18px;
+  cursor: pointer;
+  padding: 4px;
+}
+
+.emr-close-btn:hover {
+  color: #e55;
+}
+
+.emr-participant-list {
+  list-style: none;
+  margin: 0;
+  padding: 8px;
+}
+
+.emr-participant {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  border: 1px solid var(--ms-border, #3a3f44);
+  border-radius: 6px;
+  margin-bottom: 6px;
+}
+
+.emr-participant.rolled {
+  border-color: rgba(76, 175, 80, 0.4);
+}
+
+.emr-participant-thumb {
+  width: 36px;
+  height: 36px;
+  border-radius: 4px;
+  object-fit: cover;
+}
+
+.emr-participant-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.emr-participant-name {
+  display: block;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.emr-participant-result,
+.emr-participant-pending {
+  font-size: 12px;
+}
+
+.emr-participant-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.emr-success {
+  color: #6fcf6f;
+}
+
+.emr-fail {
+  color: #e07070;
+}
+
+.emr-skipped-label {
+  color: var(--ms-muted, #888);
+  font-style: italic;
+}
+
+/* Chat summary */
+.mastery-epic-roll-summary {
+  font-family: var(--ms-font-body, inherit);
+}
+
+.mr-summary-title,
+.emr-summary-title {
+  margin: 0 0 6px;
+  font-size: 14px;
+}
+
+.emr-summary-meta,
+.emr-summary-flavor,
+.emr-summary-tn {
+  margin: 4px 0;
+  font-size: 12px;
+  color: var(--ms-muted, #a0a0a0);
+}
+
+.emr-summary-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 8px;
+  font-size: 12px;
+}
+
+.emr-summary-table th,
+.emr-summary-table td {
+  border: 1px solid var(--ms-border, #3a3f44);
+  padding: 4px 8px;
+  text-align: left;
+}
+
+.emr-summary-table th {
+  background: var(--ms-panel2, #1b2124);
+  font-size: 11px;
+  text-transform: uppercase;
+}
+
+.emr-dice {
+  color: var(--ms-muted, #888);
+  font-size: 11px;
+}
+
+.emr-skipped td {
+  color: var(--ms-muted, #888);
+}

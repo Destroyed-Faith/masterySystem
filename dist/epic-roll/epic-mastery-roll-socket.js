@@ -1,0 +1,89 @@
+/**
+ * Epic Mastery Roll — socket transport.
+ */
+import { applyEpicMasteryRollSessionState, clearEpicMasteryRollSessionLocal, ingestEpicMasteryRollResult, } from './epic-mastery-roll-session.js';
+import { closeEpicMasteryRollApp, openEpicMasteryRollApp } from './epic-mastery-roll-app.js';
+export const EPIC_ROLL_SOCKET = 'system.mastery-system';
+let socketRegistered = false;
+export function broadcastEpicMasteryRollStart(session) {
+    game.socket?.emit(EPIC_ROLL_SOCKET, {
+        type: 'epicMasteryRollStart',
+        session,
+    });
+}
+export function broadcastEpicMasteryRollState(session) {
+    game.socket?.emit(EPIC_ROLL_SOCKET, {
+        type: 'epicMasteryRollState',
+        session,
+    });
+}
+export function broadcastEpicMasteryRollComplete(sessionId) {
+    game.socket?.emit(EPIC_ROLL_SOCKET, {
+        type: 'epicMasteryRollComplete',
+        sessionId,
+    });
+}
+export function broadcastEpicMasteryRollCancel(sessionId) {
+    game.socket?.emit(EPIC_ROLL_SOCKET, {
+        type: 'epicMasteryRollCancel',
+        sessionId,
+    });
+}
+export function emitEpicMasteryRollResult(sessionId, result) {
+    game.socket?.emit(EPIC_ROLL_SOCKET, {
+        type: 'epicMasteryRollResult',
+        sessionId,
+        result,
+        userId: game.user?.id,
+    });
+}
+async function handleEpicRollSocket(payload) {
+    const { type } = payload ?? {};
+    if (!type?.startsWith?.('epicMasteryRoll'))
+        return;
+    switch (type) {
+        case 'epicMasteryRollStart': {
+            if (payload.session) {
+                applyEpicMasteryRollSessionState(payload.session);
+            }
+            break;
+        }
+        case 'epicMasteryRollState': {
+            if (payload.session) {
+                applyEpicMasteryRollSessionState(payload.session);
+            }
+            break;
+        }
+        case 'epicMasteryRollResult': {
+            if (game.user?.isGM) {
+                await ingestEpicMasteryRollResult(payload.sessionId, payload.result);
+            }
+            break;
+        }
+        case 'epicMasteryRollComplete':
+        case 'epicMasteryRollCancel': {
+            clearEpicMasteryRollSessionLocal();
+            closeEpicMasteryRollApp();
+            break;
+        }
+        default:
+            break;
+    }
+}
+export function registerEpicMasteryRollSocket() {
+    if (socketRegistered)
+        return;
+    socketRegistered = true;
+    game.socket?.on(EPIC_ROLL_SOCKET, async (payload) => {
+        try {
+            await handleEpicRollSocket(payload);
+        }
+        catch (err) {
+            console.error('Mastery System | Epic Mastery Roll socket error', err);
+        }
+    });
+}
+export async function syncEpicMasteryRollApp(session) {
+    await openEpicMasteryRollApp(session);
+}
+//# sourceMappingURL=epic-mastery-roll-socket.js.map

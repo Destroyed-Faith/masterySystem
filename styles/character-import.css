@@ -1,0 +1,51 @@
+/* Homepage character import dialog */
+.character-import-app .ci-root {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 0.5rem;
+}
+
+.character-import-app .ci-hint {
+  margin: 0;
+  font-size: 0.9rem;
+  opacity: 0.9;
+}
+
+.character-import-app .ci-json-label,
+.character-import-app .ci-file-label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.character-import-app .ci-json-label textarea {
+  width: 100%;
+  font-family: var(--font-monospace, monospace);
+  font-size: 0.8rem;
+  resize: vertical;
+}
+
+.character-import-app .ci-validation {
+  border: 1px solid var(--color-border-light-2, #888);
+  border-radius: 4px;
+  padding: 0.5rem 0.65rem;
+}
+
+.character-import-app .ci-validation-ok {
+  border-color: #3a7;
+}
+
+.character-import-app .ci-validation-text {
+  margin: 0.35rem 0 0;
+  white-space: pre-wrap;
+  font-size: 0.85rem;
+  max-height: 8rem;
+  overflow: auto;
+}
+
+.character-import-app .ci-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}

@@ -1,0 +1,59 @@
+<div class="emr-session">
+  <header class="emr-session-header">
+    <div class="emr-session-title">
+      <h2>{{session.title}}</h2>
+      <p class="emr-session-meta">{{rollLabel}} · {{resolved}}/{{total}} rolled</p>
+      {{#if session.flavor}}
+      <p class="emr-session-flavor">{{session.flavor}}</p>
+      {{/if}}
+      {{#if showTn}}
+      <p class="emr-session-tn">
+        Normal TN: <strong>{{tn.baseTN}}</strong>
+        {{#if (gt tn.raises 0)}}
+        · Raise TN: <strong>{{add tn.baseTN (multiply tn.raises 4)}}</strong>
+        {{/if}}
+      </p>
+      {{/if}}
+    </div>
+    {{#if isGM}}
+    <button type="button" class="emr-close-btn" data-action="emr-cancel" title="Cancel roll">
+      <i class="fas fa-times"></i>
+    </button>
+    {{/if}}
+  </header>
+
+  <ul class="emr-participant-list">
+    {{#each participants as |p|}}
+    <li class="emr-participant {{p.status}}">
+      <img src="{{p.img}}" alt="" class="emr-participant-thumb" />
+      <div class="emr-participant-info">
+        <span class="emr-participant-name">{{p.actorName}}</span>
+        {{#if p.result}}
+          {{#if p.skipped}}
+          <span class="emr-participant-result emr-skipped-label">Skipped</span>
+          {{else}}
+          <span class="emr-participant-result {{#if p.success}}emr-success{{else}}emr-fail{{/if}}">
+            {{p.result.total}} — {{#if p.success}}Success{{else}}Failure{{/if}}
+            ({{p.result.diceSummary}})
+          </span>
+          {{/if}}
+        {{else if (eq p.status "pending")}}
+          <span class="emr-participant-pending">Waiting…</span>
+        {{/if}}
+      </div>
+      <div class="emr-participant-actions">
+        {{#if p.canRoll}}
+        <button type="button" class="emr-btn emr-btn-roll" data-action="emr-roll" data-actor-id="{{p.actorId}}" {{#if ../rolling}}disabled{{/if}}>
+          <i class="fas fa-dice-d20"></i> Roll
+        </button>
+        {{/if}}
+        {{#if p.canSkip}}
+        <button type="button" class="emr-btn emr-btn-ghost" data-action="emr-skip" data-actor-id="{{p.actorId}}">
+          Skip
+        </button>
+        {{/if}}
+      </div>
+    </li>
+    {{/each}}
+  </ul>
+</div>

@@ -102,6 +102,8 @@ export interface RollOptions {
   bloodRaises?: number;
   /** Bonus added only when checking Raise TN (Intellect Spell Raises stone). */
   raiseTnRollBonus?: number;
+  /** When true, evaluate the roll but do not post a chat message. */
+  skipChat?: boolean;
 }
 
 /** Stored on chat messages so a Faith Fracture reroll can repeat the same roll setup. */
@@ -592,18 +594,19 @@ export async function masteryRoll(options: RollOptions): Promise<MasteryRollResu
     ...(rollDisadvantage ? { rollDisadvantage: true } : {}),
   };
 
-  // Send to chat
-  await sendRollToChat(
-    result,
-    label,
-    flavor,
-    options.actorId,
-    options.skillKey,
-    options.isSkillRoll,
-    options.baseModifier,
-    options.isSaveRoll,
-    rollRecipe
-  );
+  if (!options.skipChat) {
+    await sendRollToChat(
+      result,
+      label,
+      flavor,
+      options.actorId,
+      options.skillKey,
+      options.isSkillRoll,
+      options.baseModifier,
+      options.isSaveRoll,
+      rollRecipe
+    );
+  }
   
   console.log('Mastery System | DEBUG: Roll complete, returning result', result);
   

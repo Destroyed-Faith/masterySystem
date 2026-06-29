@@ -1,0 +1,831 @@
+{
+  "schemaVersion": 1,
+  "exportKind": "mastery-character-import",
+  "systemId": "mastery-system",
+  "systemVersion": "0.9.154",
+  "exportedAt": null,
+  "_template": {
+    "purpose": "Homepage character builder — blank export template. Fill selected:true / ranks / then copy the import subset to a clean file OR strip _template and *Catalog keys before Foundry import.",
+    "importSubset": "For Foundry import use only: character.name, attributes, skills (>0 optional), skillsSpent, minorExpressions (selected ids only), disadvantages (selected entries only), powers, artifacts (selected only), echo, bio, etc. Omit catalog blocks and _template.",
+    "creationRules": {
+      "skillPointBudget": 40,
+      "disadvantagePointsMin": 2,
+      "disadvantagePointsMax": 8,
+      "powerCount": 6,
+      "powerRanks": {
+        "passive": 4,
+        "activeBuff": 4,
+        "reaction": 4,
+        "active": 2
+      },
+      "minorExpressionsMax": "masteryRank",
+      "minorExpressionMinAttribute": 8
+    }
+  },
+  "character": {
+    "name": "",
+    "img": "",
+    "folder": null,
+    "bio": {
+      "concept": "",
+      "appearance": "",
+      "notes": ""
+    },
+    "echo": {
+      "key": "",
+      "subChoiceKey": "",
+      "veiledFormKey": "",
+      "selectedCardIds": []
+    },
+    "echoOptions": [
+      {
+        "key": "humans",
+        "label": "Humans"
+      },
+      {
+        "key": "dwarfs",
+        "label": "Dwarfs"
+      },
+      {
+        "key": "elves",
+        "label": "Elves",
+        "subChoices": [
+          "elvenStrideFire",
+          "elvenStrideEarth",
+          "elvenStrideWater",
+          "elvenStrideAir"
+        ]
+      },
+      {
+        "key": "sentinels",
+        "label": "Sentinels",
+        "subChoices": [
+          "judicators",
+          "sentinels",
+          "oracles"
+        ]
+      },
+      {
+        "key": "titanborn",
+        "label": "Titanborn",
+        "subChoices": [
+          "titanScarsMight",
+          "titanScarsAgility",
+          "titanScarsVitality",
+          "titanScarsIntellect",
+          "titanScarsResolve",
+          "titanScarsInfluence",
+          "titanScarsWits"
+        ]
+      },
+      {
+        "key": "dragonborn",
+        "label": "Dragonborn"
+      },
+      {
+        "key": "unbound",
+        "label": "Unbound"
+      }
+    ],
+    "attributes": {
+      "might": 2,
+      "agility": 2,
+      "vitality": 2,
+      "intellect": 2,
+      "resolve": 2,
+      "influence": 2,
+      "wits": 2
+    },
+    "masteryRank": 4,
+    "languages": {
+      "known": [
+        "common"
+      ]
+    },
+    "skills": {
+      "acrobatics": 0,
+      "alchemy": 0,
+      "animalHandling": 0,
+      "artisanry": 0,
+      "athletics": 0,
+      "combatReflexes": 0,
+      "concealment": 0,
+      "crafting": 0,
+      "deception": 0,
+      "defensiveCombat": 0,
+      "empathy": 0,
+      "engineering": 0,
+      "etiquette": 0,
+      "handToHand": 0,
+      "herbalism": 0,
+      "intimidation": 0,
+      "investigation": 0,
+      "leadership": 0,
+      "lore": 0,
+      "medicine": 0,
+      "meleeWeapons": 0,
+      "navigation": 0,
+      "negotiation": 0,
+      "occultism": 0,
+      "perception": 0,
+      "performance": 0,
+      "persuasion": 0,
+      "rangedWeapons": 0,
+      "ride": 0,
+      "seduction": 0,
+      "sleightOfHand": 0,
+      "stealth": 0,
+      "streetwise": 0,
+      "survival": 0,
+      "tracking": 0,
+      "weatherSense": 0
+    },
+    "skillsSpent": {
+      "acrobatics": 0,
+      "alchemy": 0,
+      "animalHandling": 0,
+      "artisanry": 0,
+      "athletics": 0,
+      "combatReflexes": 0,
+      "concealment": 0,
+      "crafting": 0,
+      "deception": 0,
+      "defensiveCombat": 0,
+      "empathy": 0,
+      "engineering": 0,
+      "etiquette": 0,
+      "handToHand": 0,
+      "herbalism": 0,
+      "intimidation": 0,
+      "investigation": 0,
+      "leadership": 0,
+      "lore": 0,
+      "medicine": 0,
+      "meleeWeapons": 0,
+      "navigation": 0,
+      "negotiation": 0,
+      "occultism": 0,
+      "perception": 0,
+      "performance": 0,
+      "persuasion": 0,
+      "rangedWeapons": 0,
+      "ride": 0,
+      "seduction": 0,
+      "sleightOfHand": 0,
+      "stealth": 0,
+      "streetwise": 0,
+      "survival": 0,
+      "tracking": 0,
+      "weatherSense": 0
+    },
+    "minorExpressions": [],
+    "minorExpressionsCatalog": [
+      {
+        "id": "might-hold-fast",
+        "attribute": "might",
+        "name": "Hold the Door",
+        "selected": false
+      },
+      {
+        "id": "might-force-open",
+        "attribute": "might",
+        "name": "Iron Grip",
+        "selected": false
+      },
+      {
+        "id": "might-clear-path",
+        "attribute": "might",
+        "name": "Break Through",
+        "selected": false
+      },
+      {
+        "id": "might-shoulder-the-burden",
+        "attribute": "might",
+        "name": "Titan Carry",
+        "selected": false
+      },
+      {
+        "id": "might-menace-of-flesh",
+        "attribute": "might",
+        "name": "Tyrant's Aura",
+        "selected": false
+      },
+      {
+        "id": "might-set-your-feet",
+        "attribute": "might",
+        "name": "Immovable",
+        "selected": false
+      },
+      {
+        "id": "agility-soft-step",
+        "attribute": "agility",
+        "name": "Feather Step",
+        "selected": false
+      },
+      {
+        "id": "agility-light-fingers",
+        "attribute": "agility",
+        "name": "Bounding Leap",
+        "selected": false
+      },
+      {
+        "id": "agility-catch-yourself",
+        "attribute": "agility",
+        "name": "Catfall",
+        "selected": false
+      },
+      {
+        "id": "agility-fine-hands",
+        "attribute": "agility",
+        "name": "Wall Spring",
+        "selected": false
+      },
+      {
+        "id": "agility-perfect-balance",
+        "attribute": "agility",
+        "name": "Reed on the Wind",
+        "selected": false
+      },
+      {
+        "id": "agility-slip-through",
+        "attribute": "agility",
+        "name": "Flow Through",
+        "selected": false
+      },
+      {
+        "id": "intellect-mage-hand",
+        "attribute": "intellect",
+        "name": "Mage Hand",
+        "selected": false
+      },
+      {
+        "id": "intellect-message",
+        "attribute": "intellect",
+        "name": "Message",
+        "selected": false
+      },
+      {
+        "id": "intellect-arcane-spark",
+        "attribute": "intellect",
+        "name": "Arcane Spark",
+        "selected": false
+      },
+      {
+        "id": "intellect-detect-trace",
+        "attribute": "intellect",
+        "name": "Detect Trace",
+        "selected": false
+      },
+      {
+        "id": "intellect-script-whisper",
+        "attribute": "intellect",
+        "name": "Script Whisper",
+        "selected": false
+      },
+      {
+        "id": "intellect-minor-conjuration",
+        "attribute": "intellect",
+        "name": "Minor Conjuration",
+        "selected": false
+      },
+      {
+        "id": "resolve-alarm",
+        "attribute": "resolve",
+        "name": "Alarm",
+        "selected": false
+      },
+      {
+        "id": "resolve-still-mind",
+        "attribute": "resolve",
+        "name": "Still Mind",
+        "selected": false
+      },
+      {
+        "id": "resolve-read-omen",
+        "attribute": "resolve",
+        "name": "Read Omen",
+        "selected": false
+      },
+      {
+        "id": "resolve-cold-comfort",
+        "attribute": "resolve",
+        "name": "Cold Comfort",
+        "selected": false
+      },
+      {
+        "id": "resolve-sense-taint",
+        "attribute": "resolve",
+        "name": "Sense Taint",
+        "selected": false
+      },
+      {
+        "id": "resolve-keep-watch",
+        "attribute": "resolve",
+        "name": "Keep Watch",
+        "selected": false
+      },
+      {
+        "id": "influence-carry-voice",
+        "attribute": "influence",
+        "name": "Mirror Shade",
+        "selected": false
+      },
+      {
+        "id": "influence-read-the-room",
+        "attribute": "influence",
+        "name": "Read the Room",
+        "selected": false
+      },
+      {
+        "id": "influence-ease-tension",
+        "attribute": "influence",
+        "name": "Glamour",
+        "selected": false
+      },
+      {
+        "id": "influence-command-presence",
+        "attribute": "influence",
+        "name": "Vanish",
+        "selected": false
+      },
+      {
+        "id": "influence-silver-tongue",
+        "attribute": "influence",
+        "name": "Silver Tongue",
+        "selected": false
+      },
+      {
+        "id": "influence-silken-barb",
+        "attribute": "influence",
+        "name": "Silken Barb",
+        "selected": false
+      },
+      {
+        "id": "wits-nose-for-trouble",
+        "attribute": "wits",
+        "name": "Nose for Trouble",
+        "selected": false
+      },
+      {
+        "id": "wits-quick-read",
+        "attribute": "wits",
+        "name": "Quick Read",
+        "selected": false
+      },
+      {
+        "id": "wits-find-the-angle",
+        "attribute": "wits",
+        "name": "Find the Angle",
+        "selected": false
+      },
+      {
+        "id": "wits-keep-the-thread",
+        "attribute": "wits",
+        "name": "Keep the Thread",
+        "selected": false
+      },
+      {
+        "id": "wits-improvised-solution",
+        "attribute": "wits",
+        "name": "Improvised Solution",
+        "selected": false
+      },
+      {
+        "id": "wits-street-sense",
+        "attribute": "wits",
+        "name": "Street Sense",
+        "selected": false
+      }
+    ],
+    "disadvantages": [],
+    "disadvantagesCatalog": [
+      {
+        "id": "addiction",
+        "name": "Addiction",
+        "basePoints": 2,
+        "selected": false,
+        "points": 0,
+        "details": {
+          "substance": ""
+        }
+      },
+      {
+        "id": "berserkers-curse",
+        "name": "Berserker's Curse",
+        "basePoints": 2,
+        "selected": false,
+        "points": 0,
+        "details": {}
+      },
+      {
+        "id": "hunted",
+        "name": "Hunted",
+        "basePoints": [
+          1,
+          2,
+          3
+        ],
+        "selected": false,
+        "points": 0,
+        "details": {
+          "rank": "1",
+          "hunter": "",
+          "context": ""
+        }
+      },
+      {
+        "id": "physical-scars",
+        "name": "Physical Limitations",
+        "basePoints": [
+          1,
+          2,
+          3
+        ],
+        "selected": false,
+        "points": 0,
+        "details": {
+          "sheetTitle": "",
+          "context": "",
+          "tier": "1"
+        }
+      },
+      {
+        "id": "mental-restrictions",
+        "name": "Mental Restrictions",
+        "basePoints": [
+          1,
+          2,
+          3
+        ],
+        "selected": false,
+        "points": 0,
+        "details": {
+          "sheetTitle": "",
+          "context": "",
+          "severity": "easy"
+        }
+      },
+      {
+        "id": "unluck",
+        "name": "Unluck",
+        "basePoints": [
+          1,
+          2,
+          3
+        ],
+        "selected": false,
+        "points": 0,
+        "details": {
+          "rank": "1"
+        }
+      },
+      {
+        "id": "vulnerability",
+        "name": "Vulnerability",
+        "basePoints": 3,
+        "selected": false,
+        "points": 0,
+        "details": {
+          "vulnerability": ""
+        }
+      }
+    ],
+    "artifacts": [],
+    "artifactsCatalog": [
+      {
+        "key": "moonlightGreatsword",
+        "name": "Moonlight Greatsword",
+        "binding": "bound",
+        "selected": false,
+        "level": 1,
+        "activated": false,
+        "activationStoneAttribute": "",
+        "equipped": false
+      },
+      {
+        "key": "soulSigil",
+        "name": "Soul Sigil",
+        "binding": "bound",
+        "selected": false,
+        "level": 1,
+        "activated": false,
+        "activationStoneAttribute": "",
+        "equipped": false
+      },
+      {
+        "key": "frostboundReturningAxe",
+        "name": "Frostbound Returning Axe",
+        "binding": "bound",
+        "selected": false,
+        "level": 1,
+        "activated": false,
+        "activationStoneAttribute": "",
+        "equipped": false
+      },
+      {
+        "key": "shadowgraveArmor",
+        "name": "Shadowgrave Armor",
+        "binding": "bound",
+        "selected": false,
+        "level": 1,
+        "activated": false,
+        "activationStoneAttribute": "",
+        "equipped": false
+      },
+      {
+        "key": "staffOfTheDark",
+        "name": "Staff of the Dark",
+        "binding": "bound",
+        "selected": false,
+        "level": 1,
+        "activated": false,
+        "activationStoneAttribute": "",
+        "equipped": false
+      },
+      {
+        "key": "starfallenForceshield",
+        "name": "Starfallen Forceshield",
+        "binding": "bound",
+        "selected": false,
+        "level": 1,
+        "activated": false,
+        "activationStoneAttribute": "",
+        "equipped": false
+      },
+      {
+        "key": "lanternOfTheHollowStar",
+        "name": "Lantern of the Hollow Star",
+        "binding": "bound",
+        "selected": false,
+        "level": 1,
+        "activated": false,
+        "activationStoneAttribute": "",
+        "equipped": false
+      },
+      {
+        "key": "lorKethsStaff",
+        "name": "Lor-Keth's Staff",
+        "binding": "bound",
+        "selected": false,
+        "level": 1,
+        "activated": false,
+        "activationStoneAttribute": "",
+        "equipped": false
+      },
+      {
+        "key": "stoneboundSoles",
+        "name": "Stonebound Soles",
+        "binding": "echo",
+        "selected": false,
+        "level": 1,
+        "activated": false,
+        "activationStoneAttribute": "",
+        "equipped": false
+      },
+      {
+        "key": "elvenStrideFire",
+        "name": "Elven Stride (Fire)",
+        "binding": "echo",
+        "selected": false,
+        "level": 1,
+        "activated": false,
+        "activationStoneAttribute": "",
+        "equipped": false
+      },
+      {
+        "key": "elvenStrideEarth",
+        "name": "Elven Stride (Earth)",
+        "binding": "echo",
+        "selected": false,
+        "level": 1,
+        "activated": false,
+        "activationStoneAttribute": "",
+        "equipped": false
+      },
+      {
+        "key": "elvenStrideWater",
+        "name": "Elven Stride (Water)",
+        "binding": "echo",
+        "selected": false,
+        "level": 1,
+        "activated": false,
+        "activationStoneAttribute": "",
+        "equipped": false
+      },
+      {
+        "key": "elvenStrideAir",
+        "name": "Elven Stride (Air)",
+        "binding": "echo",
+        "selected": false,
+        "level": 1,
+        "activated": false,
+        "activationStoneAttribute": "",
+        "equipped": false
+      },
+      {
+        "key": "titanScarsMight",
+        "name": "Titan Scars",
+        "binding": "echo",
+        "selected": false,
+        "level": 1,
+        "activated": false,
+        "activationStoneAttribute": "",
+        "equipped": false
+      },
+      {
+        "key": "titanScarsAgility",
+        "name": "Titan Scars",
+        "binding": "echo",
+        "selected": false,
+        "level": 1,
+        "activated": false,
+        "activationStoneAttribute": "",
+        "equipped": false
+      },
+      {
+        "key": "titanScarsVitality",
+        "name": "Titan Scars",
+        "binding": "echo",
+        "selected": false,
+        "level": 1,
+        "activated": false,
+        "activationStoneAttribute": "",
+        "equipped": false
+      },
+      {
+        "key": "titanScarsIntellect",
+        "name": "Titan Scars",
+        "binding": "echo",
+        "selected": false,
+        "level": 1,
+        "activated": false,
+        "activationStoneAttribute": "",
+        "equipped": false
+      },
+      {
+        "key": "titanScarsResolve",
+        "name": "Titan Scars",
+        "binding": "echo",
+        "selected": false,
+        "level": 1,
+        "activated": false,
+        "activationStoneAttribute": "",
+        "equipped": false
+      },
+      {
+        "key": "titanScarsInfluence",
+        "name": "Titan Scars",
+        "binding": "echo",
+        "selected": false,
+        "level": 1,
+        "activated": false,
+        "activationStoneAttribute": "",
+        "equipped": false
+      },
+      {
+        "key": "titanScarsWits",
+        "name": "Titan Scars",
+        "binding": "echo",
+        "selected": false,
+        "level": 1,
+        "activated": false,
+        "activationStoneAttribute": "",
+        "equipped": false
+      },
+      {
+        "key": "wyrmScalesHeavy",
+        "name": "Wyrm Scales (Heavy)",
+        "binding": "echo",
+        "selected": false,
+        "level": 1,
+        "activated": false,
+        "activationStoneAttribute": "",
+        "equipped": false
+      },
+      {
+        "key": "wyrmScalesMedium",
+        "name": "Wyrm Scales (Medium)",
+        "binding": "echo",
+        "selected": false,
+        "level": 1,
+        "activated": false,
+        "activationStoneAttribute": "",
+        "equipped": false
+      },
+      {
+        "key": "wyrmScalesLight",
+        "name": "Wyrm Scales (Light)",
+        "binding": "echo",
+        "selected": false,
+        "level": 1,
+        "activated": false,
+        "activationStoneAttribute": "",
+        "equipped": false
+      },
+      {
+        "key": "dragonClaws",
+        "name": "Dragon Claws",
+        "binding": "echo",
+        "selected": false,
+        "level": 1,
+        "activated": false,
+        "activationStoneAttribute": "",
+        "equipped": false
+      },
+      {
+        "key": "dragonHead",
+        "name": "Dragon Head",
+        "binding": "echo",
+        "selected": false,
+        "level": 1,
+        "activated": false,
+        "activationStoneAttribute": "",
+        "equipped": false
+      },
+      {
+        "key": "sentinelFrame",
+        "name": "Sentinel Frame",
+        "binding": "echo",
+        "selected": false,
+        "level": 1,
+        "activated": false,
+        "activationStoneAttribute": "",
+        "equipped": false
+      },
+      {
+        "key": "judicatorFrame",
+        "name": "Judicator Frame",
+        "binding": "echo",
+        "selected": false,
+        "level": 1,
+        "activated": false,
+        "activationStoneAttribute": "",
+        "equipped": false
+      },
+      {
+        "key": "oracleFrame",
+        "name": "Oracle Frame",
+        "binding": "echo",
+        "selected": false,
+        "level": 1,
+        "activated": false,
+        "activationStoneAttribute": "",
+        "equipped": false
+      }
+    ],
+    "equipment": {
+      "gear": []
+    },
+    "powers": [
+      {
+        "_slot": "passive-1",
+        "templateId": "",
+        "special": null,
+        "rank": 4,
+        "isSpell": false
+      },
+      {
+        "_slot": "passive-2",
+        "templateId": "",
+        "special": null,
+        "rank": 4,
+        "isSpell": false
+      },
+      {
+        "_slot": "active-buff",
+        "templateId": "",
+        "special": null,
+        "rank": 4,
+        "isSpell": false
+      },
+      {
+        "_slot": "reaction",
+        "templateId": "",
+        "special": null,
+        "rank": 4,
+        "isSpell": false
+      },
+      {
+        "_slot": "offense-0",
+        "templateId": "",
+        "special": null,
+        "rank": 2,
+        "isSpell": false,
+        "castingAttribute": "intellect",
+        "spellResolution": "spellAttack"
+      },
+      {
+        "_slot": "offense-1",
+        "templateId": "",
+        "special": null,
+        "rank": 2,
+        "isSpell": false,
+        "castingAttribute": "intellect",
+        "spellResolution": "spellAttack"
+      }
+    ],
+    "combatPackage": null,
+    "creationComplete": false,
+    "systemOverrides": {}
+  }
+}

@@ -425,8 +425,9 @@ export async function masteryRoll(options) {
         ...(rollAdvantage ? { rollAdvantage: true } : {}),
         ...(rollDisadvantage ? { rollDisadvantage: true } : {}),
     };
-    // Send to chat
-    await sendRollToChat(result, label, flavor, options.actorId, options.skillKey, options.isSkillRoll, options.baseModifier, options.isSaveRoll, rollRecipe);
+    if (!options.skipChat) {
+        await sendRollToChat(result, label, flavor, options.actorId, options.skillKey, options.isSkillRoll, options.baseModifier, options.isSaveRoll, rollRecipe);
+    }
     console.log('Mastery System | DEBUG: Roll complete, returning result', result);
     return result;
 }

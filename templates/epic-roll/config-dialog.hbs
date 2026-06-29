@@ -1,0 +1,139 @@
+<div class="emr-config">
+  <div class="emr-config-columns">
+    <section class="emr-config-col emr-config-participants">
+      <h3><i class="fas fa-users"></i> Participants</h3>
+      <div class="emr-actor-lists">
+        <div class="emr-actor-list">
+          <h4>Available</h4>
+          <ul class="emr-actor-ul">
+            {{#each availableActors as |actor|}}
+            <li class="emr-actor-row">
+              <img src="{{actor.img}}" alt="" class="emr-actor-thumb" />
+              <span class="emr-actor-name">{{actor.name}}</span>
+              <span class="emr-actor-type">{{actor.type}}</span>
+              <button type="button" class="emr-icon-btn" data-action="emr-add-actor" data-actor-id="{{actor.id}}" title="Add">
+                <i class="fas fa-plus"></i>
+              </button>
+            </li>
+            {{else}}
+            <li class="emr-empty">No actors available.</li>
+            {{/each}}
+          </ul>
+        </div>
+        <div class="emr-actor-list">
+          <h4>Selected</h4>
+          <ul class="emr-actor-ul">
+            {{#each selectedActors as |actor|}}
+            <li class="emr-actor-row">
+              <img src="{{actor.img}}" alt="" class="emr-actor-thumb" />
+              <span class="emr-actor-name">{{actor.name}}</span>
+              <button type="button" class="emr-icon-btn" data-action="emr-remove-actor" data-actor-id="{{actor.id}}" title="Remove">
+                <i class="fas fa-minus"></i>
+              </button>
+            </li>
+            {{else}}
+            <li class="emr-empty">Add at least one actor.</li>
+            {{/each}}
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="emr-config-col emr-config-roll-type">
+      <h3><i class="fas fa-list"></i> Roll Type</h3>
+      <div class="emr-field">
+        <label class="emr-label">Type</label>
+        <select name="emr-roll-kind" class="emr-select">
+          <option value="skill" {{#if (eq rollKind "skill")}}selected{{/if}}>Skill Check</option>
+          <option value="attribute" {{#if (eq rollKind "attribute")}}selected{{/if}}>Attribute Check</option>
+          <option value="save" {{#if (eq rollKind "save")}}selected{{/if}}>Saving Throw</option>
+        </select>
+      </div>
+
+      {{#if (eq rollKind "skill")}}
+      <div class="emr-field">
+        <label class="emr-label">Skill</label>
+        <select name="emr-skill-key" class="emr-select">
+          {{#each skills as |sk|}}
+          <option value="{{sk.key}}" {{#if (eq ../skillKey sk.key)}}selected{{/if}}>{{sk.name}}</option>
+          {{/each}}
+        </select>
+      </div>
+      {{/if}}
+
+      {{#if (eq rollKind "attribute")}}
+      <div class="emr-field">
+        <label class="emr-label">Attribute</label>
+        <select name="emr-attribute-key" class="emr-select">
+          {{#each attributes as |attr|}}
+          <option value="{{attr}}" {{#if (eq ../attributeKey attr)}}selected{{/if}}>{{attr}}</option>
+          {{/each}}
+        </select>
+      </div>
+      {{/if}}
+
+      {{#if (eq rollKind "save")}}
+      <div class="emr-field">
+        <label class="emr-label">Save</label>
+        <select name="emr-save-type" class="emr-select">
+          {{#each saveTypes as |st|}}
+          <option value="{{st}}" {{#if (eq ../saveType st)}}selected{{/if}}>{{st}}</option>
+          {{/each}}
+        </select>
+      </div>
+      {{/if}}
+    </section>
+
+    <section class="emr-config-col emr-config-settings">
+      <h3><i class="fas fa-sliders-h"></i> Configuration</h3>
+      <div class="emr-field">
+        <label class="emr-label">Scene Title</label>
+        <input type="text" name="emr-title" class="emr-input" value="{{title}}" placeholder="Epic Mastery Roll" />
+      </div>
+      <div class="emr-field">
+        <label class="emr-label">Flavor / Notes</label>
+        <textarea name="emr-flavor" class="emr-textarea" rows="2">{{flavor}}</textarea>
+      </div>
+      <div class="emr-field">
+        <label class="emr-label">Challenge MR</label>
+        <input type="number" name="emr-challenge-mr" class="emr-input" value="{{tn.challengeMR}}" min="1" max="16" step="1" />
+      </div>
+      <div class="emr-field">
+        <label class="emr-label">Difficulty (Normal TN)</label>
+        <select name="emr-base-tn-preset" class="emr-select">
+          <option value="{{presets.trivial}}" {{#if (eq tn.baseTN presets.trivial)}}selected{{/if}}>Trivial ({{presets.trivial}})</option>
+          <option value="{{presets.easy}}" {{#if (eq tn.baseTN presets.easy)}}selected{{/if}}>Easy ({{presets.easy}})</option>
+          <option value="{{presets.standard}}" {{#if (eq tn.baseTN presets.standard)}}selected{{/if}}>Standard ({{presets.standard}})</option>
+          <option value="{{presets.challenging}}" {{#if (eq tn.baseTN presets.challenging)}}selected{{/if}}>Challenging ({{presets.challenging}})</option>
+          <option value="{{presets.hard}}" {{#if (eq tn.baseTN presets.hard)}}selected{{/if}}>Hard ({{presets.hard}})</option>
+          <option value="{{presets.veryHard}}" {{#if (eq tn.baseTN presets.veryHard)}}selected{{/if}}>Very Hard ({{presets.veryHard}})</option>
+          <option value="{{presets.heroic}}" {{#if (eq tn.baseTN presets.heroic)}}selected{{/if}}>Heroic ({{presets.heroic}})</option>
+          <option value="custom">Custom…</option>
+        </select>
+      </div>
+      <div class="emr-field">
+        <label class="emr-label">Custom TN</label>
+        <input type="number" name="emr-custom-tn" class="emr-input" value="{{tn.baseTN}}" min="0" step="1" />
+      </div>
+      <div class="emr-field">
+        <label class="emr-label">Raises (+4 Raise TN each)</label>
+        <input type="number" name="emr-raises" class="emr-input" value="{{tn.raises}}" min="0" step="1" />
+      </div>
+      <div class="emr-tn-preview">
+        Normal TN: <strong>{{tn.baseTN}}</strong> · Raise TN: <strong>{{raiseTn}}</strong>
+      </div>
+      <div class="emr-field emr-checkbox-field">
+        <label>
+          <input type="checkbox" name="emr-show-tn" {{#if showTn}}checked{{/if}} />
+          Show TN to players during the roll
+        </label>
+      </div>
+    </section>
+  </div>
+
+  <footer class="emr-config-footer">
+    <button type="button" class="emr-btn emr-btn-primary" data-action="emr-start">
+      <i class="fas fa-dice-d20"></i> Start Epic Roll
+    </button>
+  </footer>
+</div>

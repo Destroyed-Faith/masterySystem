@@ -26,6 +26,15 @@ import { registerDamageCardChatHooks } from './dice/damage-dialog.js';
 import { PassiveSelectionDialog } from './sheets/passive-selection-dialog.js';
 import { showTowerWizardDialog } from './creation/tower-wizard/tower-wizard-dialog.js';
 import { showEncounterGeneratorDialog } from './creation/encounter-generator/encounter-generator-dialog.js';
+import { showCharacterImportDialog } from './import/character-import-dialog.js';
+import {
+  importMasteryCharacter,
+  importMasteryCharacterFromJson,
+  validateCharacterImportDocument,
+  validateCharacterImportJson,
+  parseCharacterImportJson,
+} from './import/character-import.js';
+import { CHARACTER_IMPORT_SCHEMA_VERSION } from './import/character-import-types.js';
 import { CombatCarouselApp } from './ui/combat-carousel.js';
 import { initializeStoneHooks } from './stones/stone-hooks.js';
 import {
@@ -44,6 +53,10 @@ import { initializeEncounterStart, beginEncounter } from './combat/encounter-sta
 import { initializeSceneControls, initializeTokenHUDButton } from './ui/scene-controls-mastery.js';
 import { openStonePowersForAllCombatants, initializeStonePowersFlow } from './combat/stone-powers-flow.js';
 import { registerDivineClashSettings } from './divine-clash/divine-clash-settings.js';
+import { registerEpicMasteryRollSettings } from './epic-roll/epic-mastery-roll-settings.js';
+import { initializeEpicMasteryRoll } from './epic-roll/register-epic-mastery-roll.js';
+import { requestEpicMasteryRoll } from './epic-roll/epic-mastery-roll-config-dialog.js';
+import { getActiveEpicMasteryRollSession } from './epic-roll/epic-mastery-roll-session.js';
 import { initializeDivineClashHooks } from './divine-clash/divine-clash-hooks.js';
 import { initializeArtifactAwakening } from './artifacts/artifact-awakening.js';
 import { seedGeneralItemsStorage } from './utils/seed-general-items.js';
@@ -225,6 +238,9 @@ Hooks.once('init', async function() {
   // Register Divine Clash settings
   registerDivineClashSettings();
 
+  // Epic Mastery Roll settings
+  registerEpicMasteryRollSettings();
+
   // Phasing (Ignore-Hit) — client-side prompt behaviour.
   registerPhasingSettings();
 
@@ -270,23 +286,38 @@ Hooks.once('init', async function() {
     if (!game.user?.isGM) return;
     const root: HTMLElement | null = html instanceof HTMLElement ? html : html?.[0] ?? null;
     if (!root) return;
-    if (root.querySelector('.eg-open-encounter-generator')) return;
     const host =
       root.querySelector('.directory-header .header-actions') ||
       root.querySelector('.directory-header .action-buttons') ||
       root.querySelector('.directory-header') ||
       root.querySelector('.header-actions');
     if (!host) return;
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'eg-open-encounter-generator';
-    btn.innerHTML = '<i class="fas fa-dragon"></i> Encounter';
-    btn.title = 'Encounter-Generator';
-    btn.addEventListener('click', (ev) => {
-      ev.preventDefault();
-      showEncounterGeneratorDialog();
-    });
-    host.appendChild(btn);
+
+    if (!root.querySelector('.eg-open-encounter-generator')) {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'eg-open-encounter-generator';
+      btn.innerHTML = '<i class="fas fa-dragon"></i> Encounter';
+      btn.title = 'Encounter-Generator';
+      btn.addEventListener('click', (ev) => {
+        ev.preventDefault();
+        showEncounterGeneratorDialog();
+      });
+      host.appendChild(btn);
+    }
+
+    if (!root.querySelector('.ms-open-character-import')) {
+      const importBtn = document.createElement('button');
+      importBtn.type = 'button';
+      importBtn.className = 'ms-open-character-import';
+      importBtn.innerHTML = '<i class="fas fa-file-import"></i> Import Character';
+      importBtn.title = 'Homepage character JSON importieren';
+      importBtn.addEventListener('click', (ev) => {
+        ev.preventDefault();
+        showCharacterImportDialog();
+      });
+      host.appendChild(importBtn);
+    }
   });
   
   // Initialize stone powers flow system
@@ -849,6 +880,7 @@ Hooks.once('init', async function() {
 
   // Initialize encounter start system
   initializeEncounterStart();
+  initializeEpicMasteryRoll();
   console.log('Mastery System | Encounter start system initialized');
 
   // Initialize token action selector
@@ -884,6 +916,23 @@ Hooks.once('init', async function() {
 
   // Preload Handlebars templates
   await preloadTemplates();
+
+  // Public API for homepage / external tools
+  const mod = (game as any).modules?.get('mastery-system');
+  if (mod) {
+    mod.api = {
+      ...(mod.api ?? {}),
+      CHARACTER_IMPORT_SCHEMA_VERSION,
+      parseCharacterImport: parseCharacterImportJson,
+      validateCharacterImport: validateCharacterImportDocument,
+      validateCharacterImportJson,
+      importCharacter: importMasteryCharacter,
+      importCharacterFromJson: importMasteryCharacterFromJson,
+      showCharacterImportDialog,
+      requestEpicMasteryRoll,
+      getActiveEpicMasteryRollSession,
+    };
+  }
 
   console.log('Mastery System | System initialized');
 });
@@ -2214,6 +2263,9 @@ async function preloadTemplates() {
     // Progression / artifact dialogs
     'systems/mastery-system/templates/artifacts/artifact-evolution-dialog.hbs',
     'systems/mastery-system/templates/artifacts/progression-hub-dialog.hbs',
+
+    // Homepage character import
+    'systems/mastery-system/templates/import/character-import-dialog.hbs',
   ];
   
   try {
