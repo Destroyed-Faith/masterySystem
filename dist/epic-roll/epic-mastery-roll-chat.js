@@ -34,7 +34,7 @@ function buildSummaryHtml(session) {
         <td><strong>${result.total}</strong></td>
         <td>${session.showTn ? result.normalTn : '—'}</td>
         <td>${outcome}</td>
-        <td>${result.raises}${result.diceSummary ? ` <span class="emr-dice">(${escapeHtml(result.diceSummary)})</span>` : ''}</td>
+        <td>${result.raises}${result.echoCardUsed ? ` <span class="emr-echo-tag">Echo</span>` : ''}${result.diceSummary ? ` <span class="emr-dice">(${escapeHtml(result.diceSummary)})</span>` : ''}</td>
       </tr>`;
     })
         .join('');

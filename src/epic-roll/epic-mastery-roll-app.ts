@@ -20,6 +20,10 @@ import {
   sumSelectedPacketSpend,
   totalsAfterSkillSpend,
 } from './epic-mastery-roll-skill-spend.js';
+import {
+  applyEpicEchoCardToResult,
+  getEpicEchoCardOffers,
+} from './epic-mastery-roll-echo.js';
 import { portraitFallbackSrc, resolveActorPortraitSrc } from './epic-mastery-roll-portraits.js';
 
 const TEMPLATE = 'systems/mastery-system/templates/epic-roll/session-cinematic.hbs';
@@ -154,6 +158,24 @@ class EpicMasteryRollOverlay {
 
       const showRollResult = (awaitingSpend || rolled) && !!result && !skipped;
 
+      let echoOffers: ReturnType<typeof getEpicEchoCardOffers> = [];
+      let showEchoCards = false;
+      const displayRaises = result?.raises ?? 0;
+
+      if (
+        isSkillRoll &&
+        skillKey &&
+        actor &&
+        isOwner &&
+        result?.success &&
+        showRollResult &&
+        !result.echoCardUsed &&
+        !showSkillSpend
+      ) {
+        echoOffers = getEpicEchoCardOffers(actor, skillKey);
+        showEchoCards = echoOffers.length > 0;
+      }
+
       return {
         ...p,
         portrait: resolveActorPortraitSrc(actor, p.img),
@@ -161,6 +183,7 @@ class EpicMasteryRollOverlay {
         result,
         success: displaySuccess,
         displayTotal,
+        displayRaises,
         skipped,
         canRoll,
         rollReady,
@@ -170,12 +193,15 @@ class EpicMasteryRollOverlay {
         awaitingSpend,
         showRollResult,
         showResultFrame: showRollResult,
-        showFinalMeta: rolled && !!result?.skillSpent,
+        showFinalMeta: rolled && (!!result?.skillSpent || !!result?.echoCardUsed),
+        echoCardUsed: result?.echoCardUsed,
         waiting: p.status === 'pending' && !isOwner,
         showSkillSpend,
         skillPackets,
         selectedSpendAmount,
         canAddSkillPoints,
+        showEchoCards,
+        echoOffers,
       };
     });
 
@@ -266,6 +292,19 @@ class EpicMasteryRollOverlay {
         const selected = this.spendSelectionFor(actorId);
         selected[packetIndex] = !selected[packetIndex];
         void this.render();
+      };
+    });
+
+    root.querySelectorAll<HTMLElement>('[data-action="emr-use-echo"]').forEach((btn) => {
+      btn.onclick = async (ev) => {
+        ev.preventDefault();
+        if (btn.hasAttribute('disabled')) return;
+        const actorId = btn.getAttribute('data-actor-id') ?? btn.dataset.actorId;
+        const cardId = btn.getAttribute('data-card-id') ?? btn.dataset.cardId;
+        const optionId = btn.getAttribute('data-option-id') ?? btn.dataset.optionId;
+        if (!actorId || !cardId || !optionId) return;
+        btn.setAttribute('disabled', 'true');
+        await applyEpicEchoCardToResult(this.session, actorId, cardId, optionId);
       };
     });
 

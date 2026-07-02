@@ -65,6 +65,12 @@ export interface EpicParticipantResult {
   skillSpent?: number;
   raiseTn?: number;
   rollPayload?: EpicRollPayload;
+  echoCardUsed?: {
+    cardId: string;
+    optionId: string;
+    cardName: string;
+    optionLabel: string;
+  };
 }
 
 export interface EpicMasteryRollSession {

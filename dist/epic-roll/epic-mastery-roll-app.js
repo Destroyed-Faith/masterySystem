@@ -6,6 +6,7 @@ import { getSkillRollDicePool } from '../dice/roll-context-build.js';
 import { countResolvedParticipants, rollLabelForConfig, } from './epic-mastery-roll-types.js';
 import { applyEpicSkillSpendAndFinalize, confirmEpicRollWithoutSpend, performEpicParticipantRoll, } from './epic-mastery-roll-roll.js';
 import { buildSkillSpendPackets, getSkillSpendOptions, sumSelectedPacketSpend, totalsAfterSkillSpend, } from './epic-mastery-roll-skill-spend.js';
+import { applyEpicEchoCardToResult, getEpicEchoCardOffers, } from './epic-mastery-roll-echo.js';
 import { portraitFallbackSrc, resolveActorPortraitSrc } from './epic-mastery-roll-portraits.js';
 const TEMPLATE = 'systems/mastery-system/templates/epic-roll/session-cinematic.hbs';
 const PACKET_COUNT = 4;
@@ -106,6 +107,20 @@ class EpicMasteryRollOverlay {
             const rollReady = !multiAttribute || !!selectedAttribute;
             const canRoll = p.status === 'pending' && isOwner && this.session.status === 'active';
             const showRollResult = (awaitingSpend || rolled) && !!result && !skipped;
+            let echoOffers = [];
+            let showEchoCards = false;
+            const displayRaises = result?.raises ?? 0;
+            if (isSkillRoll &&
+                skillKey &&
+                actor &&
+                isOwner &&
+                result?.success &&
+                showRollResult &&
+                !result.echoCardUsed &&
+                !showSkillSpend) {
+                echoOffers = getEpicEchoCardOffers(actor, skillKey);
+                showEchoCards = echoOffers.length > 0;
+            }
             return {
                 ...p,
                 portrait: resolveActorPortraitSrc(actor, p.img),
@@ -113,6 +128,7 @@ class EpicMasteryRollOverlay {
                 result,
                 success: displaySuccess,
                 displayTotal,
+                displayRaises,
                 skipped,
                 canRoll,
                 rollReady,
@@ -122,12 +138,15 @@ class EpicMasteryRollOverlay {
                 awaitingSpend,
                 showRollResult,
                 showResultFrame: showRollResult,
-                showFinalMeta: rolled && !!result?.skillSpent,
+                showFinalMeta: rolled && (!!result?.skillSpent || !!result?.echoCardUsed),
+                echoCardUsed: result?.echoCardUsed,
                 waiting: p.status === 'pending' && !isOwner,
                 showSkillSpend,
                 skillPackets,
                 selectedSpendAmount,
                 canAddSkillPoints,
+                showEchoCards,
+                echoOffers,
             };
         });
         return {
@@ -217,6 +236,20 @@ class EpicMasteryRollOverlay {
                 const selected = this.spendSelectionFor(actorId);
                 selected[packetIndex] = !selected[packetIndex];
                 void this.render();
+            };
+        });
+        root.querySelectorAll('[data-action="emr-use-echo"]').forEach((btn) => {
+            btn.onclick = async (ev) => {
+                ev.preventDefault();
+                if (btn.hasAttribute('disabled'))
+                    return;
+                const actorId = btn.getAttribute('data-actor-id') ?? btn.dataset.actorId;
+                const cardId = btn.getAttribute('data-card-id') ?? btn.dataset.cardId;
+                const optionId = btn.getAttribute('data-option-id') ?? btn.dataset.optionId;
+                if (!actorId || !cardId || !optionId)
+                    return;
+                btn.setAttribute('disabled', 'true');
+                await applyEpicEchoCardToResult(this.session, actorId, cardId, optionId);
             };
         });
         root.querySelectorAll('[data-action="emr-add-skill"]').forEach((btn) => {

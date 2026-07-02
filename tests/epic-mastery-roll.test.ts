@@ -13,6 +13,10 @@ import {
   skipParticipantInSession,
 } from '../src/epic-roll/epic-mastery-roll-types.js';
 import { buildEpicMasteryRollSummaryHtml } from '../src/epic-roll/epic-mastery-roll-chat.js';
+import {
+  applyEchoCardToParticipantResult,
+  getEpicEchoCardOffers,
+} from '../src/epic-roll/epic-mastery-roll-echo.js';
 import { getSkillSpendOptions, buildSkillSpendPackets, sumSelectedPacketSpend } from '../src/epic-roll/epic-mastery-roll-skill-spend.js';
 import type { EpicMasteryRollSession } from '../src/epic-roll/epic-mastery-roll-types.js';
 
@@ -231,6 +235,47 @@ describe('Epic skill spend helpers', () => {
     const packets = buildSkillSpendPackets(8, 2);
     expect(sumSelectedPacketSpend(packets, [true, true, false, false])).toBe(4);
     expect(sumSelectedPacketSpend(packets, [true, true, true, true])).toBe(8);
+  });
+
+  it('lists unused echo cards matching a skill key', () => {
+    const actor = mockActor({
+      system: {
+        mastery: { rank: 4 },
+        echo: {
+          key: 'humans',
+          selectedCardIds: ['desperate-bargain', 'refuse-to-give-up'],
+          cardUses: { 'refuse-to-give-up': true },
+        },
+        skills: { negotiation: 4 },
+        health: { bars: [{ current: 10, max: 10 }], currentBar: 0 },
+      },
+    }) as any;
+
+    const offers = getEpicEchoCardOffers(actor, 'negotiation');
+    expect(offers).toHaveLength(1);
+    expect(offers[0]!.cardId).toBe('desperate-bargain');
+    expect(offers[0]!.optionLabel).toMatch(/Name Your Price/i);
+  });
+
+  it('recalculates margin raises when an echo card is applied', () => {
+    const result = {
+      actorId: 'a1',
+      actorName: 'Hero',
+      label: 'Negotiation Check',
+      total: 40,
+      normalTn: 32,
+      success: true,
+      raises: 0,
+      diceSummary: '8,8,7,6',
+    };
+    const updated = applyEchoCardToParticipantResult(
+      result,
+      'humans',
+      'desperate-bargain',
+      'name-your-price',
+    );
+    expect(updated?.raises).toBe(2);
+    expect(updated?.echoCardUsed?.cardName).toBe('Desperate Bargain');
   });
 });
 

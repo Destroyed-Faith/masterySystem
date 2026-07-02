@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.164] - 2026-06-23
+
+### Added
+
+- **Epic Mastery Roll — Echo Cards:** After a successful skill check, matching unused Echo deck cards can be played from the overlay; margin Raises are counted automatically and the card is marked used (with chat flashback).
+
 ## [0.9.163] - 2026-06-23
 
 ### Changed

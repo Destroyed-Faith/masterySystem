@@ -49,6 +49,9 @@
           <div class="emr-roll-result {{#if p.success}}emr-roll-result-success{{else}}emr-roll-result-fail{{/if}}" aria-label="Roll result">
             <span class="emr-roll-result-value">{{p.displayTotal}}</span>
           </div>
+          {{#if p.success}}
+          <div class="emr-roll-raises-meta">{{p.displayRaises}} Raise{{#unless (eq p.displayRaises 1)}}s{{/unless}}</div>
+          {{/if}}
           {{else if p.skipped}}
           <div class="emr-roll-result emr-roll-result-skipped">Skipped</div>
           {{/if}}
@@ -77,8 +80,33 @@
           </div>
           {{/if}}
 
+          {{#if p.showEchoCards}}
+          <div class="emr-echo-cards">
+            <div class="emr-echo-cards-label">Echo Cards</div>
+            {{#each p.echoOffers as |echo|}}
+            <button
+              type="button"
+              class="emr-echo-card-btn"
+              data-action="emr-use-echo"
+              data-actor-id="{{../actorId}}"
+              data-card-id="{{echo.cardId}}"
+              data-option-id="{{echo.optionId}}"
+              title="{{echo.trigger}}"
+            >
+              <span class="emr-echo-card-name">{{echo.cardName}}</span>
+              <span class="emr-echo-card-option">{{echo.optionLabel}}</span>
+            </button>
+            {{/each}}
+          </div>
+          {{/if}}
+
           {{#if p.showFinalMeta}}
-          <div class="emr-roll-final-meta">+{{p.result.skillSpent}} skill spent</div>
+          <div class="emr-roll-final-meta">
+            {{#if p.result.skillSpent}}+{{p.result.skillSpent}} skill spent{{/if}}
+            {{#if p.echoCardUsed}}
+            {{#if p.result.skillSpent}} · {{/if}}Echo: {{p.echoCardUsed.cardName}}
+            {{/if}}
+          </div>
           {{/if}}
 
           {{#if p.waiting}}
