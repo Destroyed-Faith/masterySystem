@@ -617,7 +617,7 @@ export async function masteryRoll(options: RollOptions): Promise<MasteryRollResu
  * Build a Foundry Roll matching the already-evaluated mastery result (no second RNG).
  * One `1d8`-equivalent Die per pool die so explosion faces appear as separate results (core + Dice So Nice).
  */
-function buildMasteryDisplayRoll(
+export function buildMasteryDisplayRoll(
   result: MasteryRollResult & { keptIndices?: number[] },
   skillBonus: number
 ): Roll {
@@ -661,6 +661,21 @@ function buildMasteryDisplayRoll(
   (roll as unknown as { _evaluated: boolean; _total: number })._evaluated = true;
   (roll as unknown as { _total: number })._total = result.total;
   return roll;
+}
+
+/** Optional Dice So Nice animation for an already-resolved mastery roll. */
+export async function showMasteryRollDice3d(
+  result: MasteryRollResult & { keptIndices?: number[] },
+  skillBonus = 0,
+): Promise<void> {
+  try {
+    const dice3d = (game as any)?.dice3d;
+    if (!dice3d?.showForRoll) return;
+    const roll = buildMasteryDisplayRoll(result, skillBonus);
+    await dice3d.showForRoll(roll, game.user, true);
+  } catch {
+    /* optional module */
+  }
 }
 
 /**

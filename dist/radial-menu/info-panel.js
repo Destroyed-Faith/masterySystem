@@ -122,7 +122,7 @@ export function showRadialInfoPanel(token, option) {
         infoHTML += `<div class="ms-info-range">Range: ${rangeText}</div>`;
     }
     if (specialText) {
-        infoHTML += `<div class="ms-info-special"><strong>Special:</strong> ${specialText}</div>`;
+        infoHTML += `<div class="ms-info-special"><strong>Special Effect:</strong> ${specialText}</div>`;
     }
     infoHTML += `<div class="ms-info-desc">${option.description || 'No description available'}</div>`;
     info.innerHTML = infoHTML;

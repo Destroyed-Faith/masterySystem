@@ -160,7 +160,7 @@ export function renderPowerLevelTable(levels, showTrigger = false) {
     html += '<th>AoE</th>';
     html += '<th>Duration</th>';
     html += '<th>Effect</th>';
-    html += '<th>Specials</th>';
+    html += '<th>Special Effects</th>';
     if (showTrigger) {
         html += '<th>Trigger</th>';
     }

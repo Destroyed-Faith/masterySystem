@@ -7,7 +7,9 @@ import {
   getSkillRollDicePool,
 } from '../src/dice/roll-context-build.js';
 import {
+  buildEpicDiceFaces,
   formatDiceSummary,
+  formatEpicRollDiceSummary,
   isSessionReadyToComplete,
   mergeParticipantResult,
   skipParticipantInSession,
@@ -53,7 +55,7 @@ describe('buildDifficultyPresets', () => {
 });
 
 describe('buildRollContext', () => {
-  it('builds skill roll with half-pool when rating below MR', () => {
+  it('builds skill roll with half-pool when rating below 2×MR', () => {
     const actor = mockActor({
       system: {
         mastery: { rank: 4 },
@@ -65,16 +67,17 @@ describe('buildRollContext', () => {
     const ctx = buildSkillRollContext(actor, 'athletics', 'might', { baseTN: 32, raises: 0 });
     expect(ctx).not.toBeNull();
     expect(ctx!.rollOptions.numDice).toBe(5);
-    expect(ctx!.rollOptions.isSkillRoll).toBe(false);
+    expect(ctx!.rollOptions.isSkillRoll).toBe(true);
+    expect(ctx!.rollOptions.skillKey).toBe('athletics');
     expect(ctx!.rollOptions.flavor).toMatch(/Half-pool/i);
   });
 
-  it('builds full skill pool when rating meets MR', () => {
+  it('builds full skill pool when rating meets 2×MR', () => {
     const actor = mockActor({
       system: {
         mastery: { rank: 4 },
         attributes: { might: { value: 10 }, agility: { value: 8 } },
-        skills: { athletics: 4 },
+        skills: { athletics: 8 },
         health: { bars: [{ current: 10, max: 10 }], currentBar: 0 },
       },
     });
@@ -97,7 +100,7 @@ describe('buildRollContext', () => {
       system: {
         mastery: { rank: 4 },
         attributes: { might: { value: 10 }, agility: { value: 8 } },
-        skills: { athletics: 4 },
+        skills: { athletics: 8 },
         health: { bars: [{ current: 10, max: 10 }], currentBar: 0 },
       },
     });
@@ -194,6 +197,36 @@ describe('Epic Mastery Roll session helpers', () => {
   it('formats dice summary', () => {
     expect(formatDiceSummary([8, 7, 6])).toBe('8, 7, 6');
     expect(formatDiceSummary([])).toBe('—');
+  });
+
+  it('formats full epic dice summary with kept dice', () => {
+    const summary = formatEpicRollDiceSummary({
+      total: 21,
+      dice: [4, 15, 6, 3],
+      kept: [15, 6],
+      keptIndices: [1, 2],
+      dieChains: [[4], [8, 7], [6], [3]],
+      skill: 0,
+      tn: 16,
+      raises: 1,
+      success: true,
+      exploded: [1],
+    });
+    expect(summary).toMatch(/Rolled:/);
+    expect(summary).toMatch(/Kept: 15, 6/);
+    const faces = buildEpicDiceFaces({
+      total: 21,
+      dice: [4, 15, 6, 3],
+      kept: [15, 6],
+      keptIndices: [1, 2],
+      dieChains: [[4], [8, 7], [6], [3]],
+      skill: 0,
+      tn: 16,
+      raises: 1,
+      success: true,
+      exploded: [1],
+    });
+    expect(faces.filter((f) => f.kept).map((f) => f.value)).toEqual([15, 6]);
   });
 });
 

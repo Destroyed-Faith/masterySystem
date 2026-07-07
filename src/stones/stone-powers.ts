@@ -561,7 +561,7 @@ const INTELLECT_POWERS_RAW: Array<Omit<StonePower, 'effect'>> = [
     category: 'action',
     description:
       'Increase one eligible Special on your Spells this turn by +1 / +2 / +3 / +4. ' +
-      'Eligible Specials: Freeze, Ignite, Bleeding, Mark, Poisoned, Regeneration, Weaken.',
+      'Eligible Special Effects: Freeze, Ignite, Bleeding, Mark, Poisoned, Regeneration, Weaken.',
     tiers: [
       { label: '+1 Special (eligible)', description: 'Increase one eligible Special on your Spells this turn by +1.', value: 1 },
       { label: '+2 Special (eligible)', description: 'Increase one eligible Special on your Spells this turn by +2.', value: 2 },

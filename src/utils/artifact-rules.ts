@@ -440,7 +440,7 @@ export const SLOT_POWER_ACCESS: Record<ArtifactSlot, SlotPowerAccess> = {
   feet: {
     primary: ['Movement'],
     secondary: ['Tremor Sense', 'Terrain Senses', 'Special Movement Modes'],
-    notAllowed: ['Damage', 'Specials', 'Armor', 'Active Buffs', 'Reactions'],
+    notAllowed: ['Damage', 'Special Effects', 'Armor', 'Active Buffs', 'Reactions'],
   },
   amulet: {
     primary: ['Passive Reinforcement', 'Save/Ward Support'],

@@ -59,6 +59,8 @@ export interface EpicParticipantResult {
         cardName: string;
         optionLabel: string;
     };
+    /** Persisted dice breakdown for overlay / summary after rollPayload is cleared. */
+    diceFaces?: EpicDiceFace[];
 }
 export interface EpicMasteryRollSession {
     id: string;
@@ -90,6 +92,19 @@ export interface EpicMasteryRollStartConfig {
     actorIds: string[];
 }
 export declare function formatDiceSummary(kept: number[]): string;
+export interface EpicDiceFace {
+    value: number;
+    label: string;
+    kept: boolean;
+    exploded: boolean;
+}
+export declare function buildEpicDiceFaces(rollResult: MasteryRollResult & {
+    keptIndices?: number[];
+}): EpicDiceFace[];
+/** Full pool display: all dice with kept totals for chat / overlay. */
+export declare function formatEpicRollDiceSummary(rollResult: MasteryRollResult & {
+    keptIndices?: number[];
+}): string;
 export declare function countResolvedParticipants(session: EpicMasteryRollSession): number;
 export declare function isSessionReadyToComplete(session: EpicMasteryRollSession): boolean;
 export declare function mergeParticipantResult(session: EpicMasteryRollSession, result: EpicParticipantResult, opts?: {

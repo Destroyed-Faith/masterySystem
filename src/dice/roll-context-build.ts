@@ -21,6 +21,16 @@ export interface BuiltRollContext {
   skillKey?: string;
 }
 
+/** Players Guide: full attribute pool when skill rating ≥ 2 × Mastery Rank. */
+export function skillFullPoolThreshold(masteryRank: number): number {
+  const mr = Math.max(1, Math.floor(Number(masteryRank) || 1));
+  return mr * 2;
+}
+
+export function isSkillFullPoolReady(skillRating: number, masteryRank: number): boolean {
+  return Number(skillRating) >= skillFullPoolThreshold(masteryRank);
+}
+
 export function buildDifficultyPresets(challengeMR: number): Record<string, number> {
   const std = Math.max(1, Math.floor(challengeMR)) * 8;
   return {
@@ -54,7 +64,8 @@ export function getSkillRollDicePool(
 
   const attributeValue = Number(system.attributes?.[attributeKey]?.value ?? 0);
   const skillRating = Number(system.skills?.[skillKey] ?? 0);
-  const fullPoolReady = skillRating >= masteryRank;
+  const fullPoolReady = isSkillFullPoolReady(skillRating, masteryRank);
+  const poolThreshold = skillFullPoolThreshold(masteryRank);
 
   let baseAttrPool = attributeValue;
   let halfPool = false;
@@ -130,13 +141,13 @@ export function buildSkillRollContext(
   const masteryRank = system.mastery?.rank || 2;
   const attributeValue = Number(system.attributes?.[attributeKey]?.value) || 0;
   const skillRating = Number(system?.skills?.[skillKey] ?? 0);
-  const fullPoolReady = skillRating >= masteryRank;
+  const poolThreshold = skillFullPoolThreshold(masteryRank);
 
   const pool = getSkillRollDicePool(actor, skillKey, attributeKey);
   const numDice = pool.numDice;
   let halfPoolFlavor = '';
   if (pool.halfPool) {
-    halfPoolFlavor = ` Half-pool: skill rating ${skillRating} < MR ${masteryRank} → ⌊${attributeValue}/2⌋ attribute dice.`;
+    halfPoolFlavor = ` Half-pool: skill rating ${skillRating} < ${poolThreshold} (2×MR) → ⌊${attributeValue}/2⌋ attribute dice.`;
   }
 
   const equipPenaltyFlavor =
@@ -160,8 +171,8 @@ export function buildSkillRollContext(
       label: `${skillDef.name} Check`,
       flavor,
       actorId: (actor as any).id,
-      skillKey: fullPoolReady ? skillKey : undefined,
-      isSkillRoll: fullPoolReady,
+      skillKey,
+      isSkillRoll: true,
       baseModifier: 0,
       rollKind: 'skill',
       autoFailIntent: 'skill',

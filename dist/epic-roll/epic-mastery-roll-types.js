@@ -7,6 +7,29 @@ export function formatDiceSummary(kept) {
         return '—';
     return kept.join(', ');
 }
+export function buildEpicDiceFaces(rollResult) {
+    const keptIdx = new Set(rollResult.keptIndices ?? []);
+    const chains = rollResult.dieChains;
+    return (rollResult.dice ?? []).map((total, i) => {
+        const chain = chains?.[i];
+        const label = chain && chain.length > 1 ? `${chain.join('+')}=${total}` : String(total);
+        return {
+            value: total,
+            label,
+            kept: keptIdx.has(i),
+            exploded: (chain?.length ?? 1) > 1,
+        };
+    });
+}
+/** Full pool display: all dice with kept totals for chat / overlay. */
+export function formatEpicRollDiceSummary(rollResult) {
+    const faces = buildEpicDiceFaces(rollResult);
+    if (!faces.length)
+        return '—';
+    const rolled = faces.map((f) => f.label).join(', ');
+    const kept = rollResult.kept?.length ? rollResult.kept.join(', ') : '—';
+    return `Rolled: ${rolled} · Kept: ${kept}`;
+}
 export function countResolvedParticipants(session) {
     return session.participants.filter((p) => p.status === 'rolled' || p.status === 'skipped').length;
 }
@@ -71,7 +94,8 @@ export function participantResultFromRoll(actorId, actorName, label, rollResult,
         normalTn: rollResult.tn ?? rollResult.normalTn ?? 0,
         success: rollResult.success,
         raises: rollResult.raises ?? 0,
-        diceSummary: formatDiceSummary(rollResult.kept),
+        diceSummary: formatEpicRollDiceSummary(rollResult),
+        diceFaces: buildEpicDiceFaces(rollResult),
         awaitingConfirm: opts.awaitingConfirm,
         skillKey: opts.skillKey,
         skillSpent: opts.skillSpent ?? 0,

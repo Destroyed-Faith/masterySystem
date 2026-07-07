@@ -14,6 +14,9 @@ export interface BuiltRollContext {
     attributeKey: string;
     skillKey?: string;
 }
+/** Players Guide: full attribute pool when skill rating ≥ 2 × Mastery Rank. */
+export declare function skillFullPoolThreshold(masteryRank: number): number;
+export declare function isSkillFullPoolReady(skillRating: number, masteryRank: number): boolean;
 export declare function buildDifficultyPresets(challengeMR: number): Record<string, number>;
 /** Skill rolls: attribute dice pool, keep highest equal to the actor's Mastery Rank. */
 export declare function getSkillRollDicePool(actor: Actor, skillKey: string, attributeKey: string): {

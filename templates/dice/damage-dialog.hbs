@@ -26,7 +26,7 @@
     {{#if (gt raises 0)}}
     <div class="raises-section">
       <h3><i class="fas fa-star"></i> Raises ({{raises}} available)</h3>
-      <p class="raises-description">Each raise can be used for a Special (once per raise) or 1d8 additional damage.</p>
+      <p class="raises-description">Each raise can be used for a Special Effect (once per raise) or 1d8 additional damage.</p>
       
       <div class="raises-list">
         {{#times raises}}
@@ -37,7 +37,7 @@
             <option value="damage">+1d8 Damage</option>
             {{#if availableSpecials}}
             {{#if availableSpecials.length}}
-            <option value="special">Use Special</option>
+            <option value="special">Use Special Effect</option>
             {{/if}}
             {{/if}}
           </select>
@@ -45,7 +45,7 @@
           {{#if availableSpecials}}
           {{#if availableSpecials.length}}
           <select class="special-select" data-raise-index="{{this}}" style="display: none;">
-            <option value="">-- Select Special --</option>
+            <option value="">-- Select Special Effect --</option>
             {{#each availableSpecials}}
             <option value="{{this.id}}">{{this.name}} ({{this.type}})</option>
             {{/each}}
@@ -69,7 +69,7 @@
     
     {{#if weaponSpecials}}
     <div class="weapon-specials">
-      <h4>Weapon Specials Available:</h4>
+      <h4>Weapon Special Effects Available:</h4>
       <ul>
         {{#each weaponSpecials}}
         <li>{{this}}</li>

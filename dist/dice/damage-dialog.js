@@ -816,7 +816,7 @@ function createDamageCardContent(attacker, target, baseDamage, powerDamage, pass
           </div>
           ${selectedPower.specials && selectedPower.specials.length > 0 ? `
             <div class="damage-row">
-              <span class="damage-label">Power Specials:</span>
+              <span class="damage-label">Power Special Effects:</span>
               <span class="damage-value">${selectedPower.specials.join(', ')}</span>
             </div>
           ` : ''}

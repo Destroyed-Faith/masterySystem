@@ -5,6 +5,14 @@
 import { SKILLS, SKILL_CATEGORIES } from '../utils/skills.js';
 import { getEquippedPhysicalSkillPenaltyDice } from '../utils/equipment-modifiers.js';
 import { getCurrentPenalty } from '../utils/calculations.js';
+/** Players Guide: full attribute pool when skill rating ≥ 2 × Mastery Rank. */
+export function skillFullPoolThreshold(masteryRank) {
+    const mr = Math.max(1, Math.floor(Number(masteryRank) || 1));
+    return mr * 2;
+}
+export function isSkillFullPoolReady(skillRating, masteryRank) {
+    return Number(skillRating) >= skillFullPoolThreshold(masteryRank);
+}
 export function buildDifficultyPresets(challengeMR) {
     const std = Math.max(1, Math.floor(challengeMR)) * 8;
     return {
@@ -30,7 +38,8 @@ export function getSkillRollDicePool(actor, skillKey, attributeKey) {
     }
     const attributeValue = Number(system.attributes?.[attributeKey]?.value ?? 0);
     const skillRating = Number(system.skills?.[skillKey] ?? 0);
-    const fullPoolReady = skillRating >= masteryRank;
+    const fullPoolReady = isSkillFullPoolReady(skillRating, masteryRank);
+    const poolThreshold = skillFullPoolThreshold(masteryRank);
     let baseAttrPool = attributeValue;
     let halfPool = false;
     if (!fullPoolReady) {
@@ -84,12 +93,12 @@ export function buildSkillRollContext(actor, skillKey, attributeKey, tnSpec, sto
     const masteryRank = system.mastery?.rank || 2;
     const attributeValue = Number(system.attributes?.[attributeKey]?.value) || 0;
     const skillRating = Number(system?.skills?.[skillKey] ?? 0);
-    const fullPoolReady = skillRating >= masteryRank;
+    const poolThreshold = skillFullPoolThreshold(masteryRank);
     const pool = getSkillRollDicePool(actor, skillKey, attributeKey);
     const numDice = pool.numDice;
     let halfPoolFlavor = '';
     if (pool.halfPool) {
-        halfPoolFlavor = ` Half-pool: skill rating ${skillRating} < MR ${masteryRank} → ⌊${attributeValue}/2⌋ attribute dice.`;
+        halfPoolFlavor = ` Half-pool: skill rating ${skillRating} < ${poolThreshold} (2×MR) → ⌊${attributeValue}/2⌋ attribute dice.`;
     }
     const equipPenaltyFlavor = pool.equipPenalty > 0
         ? ` Equipped armor/shield physical penalty: −${pool.equipPenalty}d8.`
@@ -108,8 +117,8 @@ export function buildSkillRollContext(actor, skillKey, attributeKey, tnSpec, sto
             label: `${skillDef.name} Check`,
             flavor,
             actorId: actor.id,
-            skillKey: fullPoolReady ? skillKey : undefined,
-            isSkillRoll: fullPoolReady,
+            skillKey,
+            isSkillRoll: true,
             baseModifier: 0,
             rollKind: 'skill',
             autoFailIntent: 'skill',

@@ -6,6 +6,7 @@ import { SKILLS } from '../utils/skills.js';
 import { getSkillRollDicePool } from '../dice/roll-context-build.js';
 import type { EpicMasteryRollSession } from './epic-mastery-roll-types.js';
 import {
+  buildEpicDiceFaces,
   countResolvedParticipants,
   rollLabelForConfig,
 } from './epic-mastery-roll-types.js';
@@ -157,6 +158,11 @@ class EpicMasteryRollOverlay {
         p.status === 'pending' && isOwner && this.session.status === 'active';
 
       const showRollResult = (awaitingSpend || rolled) && !!result && !skipped;
+      const diceFaces = showRollResult && result?.diceFaces?.length
+        ? result.diceFaces
+        : showRollResult && result?.rollPayload?.rollResult
+          ? buildEpicDiceFaces(result.rollPayload.rollResult)
+          : [];
 
       let echoOffers: ReturnType<typeof getEpicEchoCardOffers> = [];
       let showEchoCards = false;
@@ -193,6 +199,8 @@ class EpicMasteryRollOverlay {
         awaitingSpend,
         showRollResult,
         showResultFrame: showRollResult,
+        diceFaces,
+        showDiceFaces: diceFaces.length > 0,
         showFinalMeta: rolled && (!!result?.skillSpent || !!result?.echoCardUsed),
         echoCardUsed: result?.echoCardUsed,
         waiting: p.status === 'pending' && !isOwner,

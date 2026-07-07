@@ -1537,7 +1537,7 @@
                             <th>AoE</th>
                             <th>Duration</th>
                             <th>Effect</th>
-                            <th>Specials</th>
+                            <th>Special Effects</th>
                             {{#if (or (eq this.system.category 'reaction') this.system.trigger)}}
                             <th>Trigger</th>
                             {{/if}}
@@ -1581,7 +1581,7 @@
                       {{#if (isArray this.system.specials)}}
                       {{#each this.system.specials}}
                       {{#if @first}}
-                      Special: {{powerSpecials ../this.system.specials}}<br>
+                      Special Effect: {{powerSpecials ../this.system.specials}}<br>
                       {{/if}}
                       {{/each}}
                       {{/if}}
@@ -1733,7 +1733,7 @@
                           <th>AoE</th>
                           <th>Duration</th>
                           <th>Effect</th>
-                          <th>Specials</th>
+                          <th>Special Effects</th>
                           {{#if (or (eq this.system.category 'reaction') this.system.trigger)}}
                           <th>Trigger</th>
                           {{/if}}
@@ -1778,7 +1778,7 @@
                     {{#if (isArray this.system.specials)}}
                     {{#each this.system.specials}}
                     {{#if @first}}
-                    Special: {{powerSpecials ../this.system.specials}}<br>
+                    Special Effect: {{powerSpecials ../this.system.specials}}<br>
                     {{/if}}
                     {{/each}}
                     {{/if}}

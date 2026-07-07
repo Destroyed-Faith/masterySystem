@@ -2,7 +2,7 @@
  * Epic Mastery Roll — participant roll execution.
  */
 
-import { masteryRoll } from '../dice/roll-handler.js';
+import { masteryRoll, showMasteryRollDice3d } from '../dice/roll-handler.js';
 import {
   buildAttributeRollContext,
   buildSaveRollContext,
@@ -160,6 +160,8 @@ export async function executeEpicParticipantRoll(
     ...ctx.rollOptions,
     skipChat: true,
   });
+
+  await showMasteryRollDice3d(rollResult, ctx.rollOptions.skill ?? 0);
 
   const payload: EpicRollPayload = {
     rollResult,

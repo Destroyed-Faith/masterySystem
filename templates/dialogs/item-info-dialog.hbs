@@ -29,7 +29,7 @@
     </ul>
     {{/if}}
     {{#if weaponBlock.specials.length}}
-    <h4 class="item-info-subtitle">Specials</h4>
+    <h4 class="item-info-subtitle">Special Effects</h4>
     <ul class="item-info-special-list">
       {{#each weaponBlock.specials}}
       <li>{{this}}</li>
@@ -119,7 +119,7 @@
       <li class="{{#unless unlocked}}item-info-muted{{/unless}}">
         <span class="item-info-ability-name">L{{level}} · {{name}}{{#if type}} <span class="item-info-muted">({{type}})</span>{{/if}}</span>
         {{#if effect}}<span class="item-info-ability-desc">{{effect}}</span>{{/if}}
-        {{#if special}}<span class="item-info-ability-desc">Special: {{special}}</span>{{/if}}
+        {{#if special}}<span class="item-info-ability-desc">Special Effect: {{special}}</span>{{/if}}
       </li>
       {{/each}}
     </ul>
@@ -156,7 +156,7 @@
     </ul>
     {{/if}}
     {{#if artifactProfile.weapon.specials.length}}
-    <h4 class="item-info-subtitle">Specials</h4>
+    <h4 class="item-info-subtitle">Special Effects</h4>
     <ul class="item-info-special-list">
       {{#each artifactProfile.weapon.specials}}
       <li>{{this}}</li>

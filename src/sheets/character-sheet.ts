@@ -6,6 +6,7 @@
 import { MasteryActor } from '../documents/actor';
 import { SKILLS, SKILL_CATEGORIES } from '../utils/skills';
 import { getEquippedPhysicalSkillPenaltyDice } from '../utils/equipment-modifiers.js';
+import { isSkillFullPoolReady, skillFullPoolThreshold } from '../dice/roll-context-build.js';
 import {
   DISADVANTAGES,
   getDisadvantageDefinition,
@@ -4027,19 +4028,18 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     const attributeValue = system.attributes?.[rollOptions.attributeKey]?.value || 0;
     const masteryRank = system.mastery?.rank || 2;
 
-    // Players Guide skill rules (~1880–1893): the skill is "active" only
-    // when its rating ≥ MR. Below that threshold the player rolls **half
-    // the attribute** (rounded down, never < 1) and may not spend skill
-    // points after the roll. The minimum-pool floor (max(attribute, MR))
-    // applies in both modes.
+    // Players Guide skill pool (~1964–1999): full attribute pool when skill ≥
+    // 2×MR; otherwise half pool (minimum MR dice). Skill points may still be
+    // spent after the roll in either mode.
     const skillRating = Number(system?.skills?.[skillKey] ?? 0);
-    const fullPoolReady = skillRating >= masteryRank;
+    const fullPoolReady = isSkillFullPoolReady(skillRating, masteryRank);
+    const poolThreshold = skillFullPoolThreshold(masteryRank);
 
     let baseAttrPool = attributeValue;
     let halfPoolFlavor = '';
     if (!fullPoolReady) {
       const halved = Math.max(1, Math.floor(attributeValue / 2));
-      halfPoolFlavor = ` Half-pool: skill rating ${skillRating} < MR ${masteryRank} → ⌊${attributeValue}/2⌋ = ${halved}d8, no skill points may be spent.`;
+      halfPoolFlavor = ` Half-pool: skill rating ${skillRating} < ${poolThreshold} (2×MR) → ⌊${attributeValue}/2⌋ = ${halved}d8.`;
       baseAttrPool = halved;
     }
     let numDice = Math.max(baseAttrPool, masteryRank);
@@ -4091,8 +4091,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       label: `${skillDef.name} Check`,
       flavor: `Attribute: ${rollOptions.attributeKey.charAt(0).toUpperCase() + rollOptions.attributeKey.slice(1)}, Base TN: ${rollOptions.baseTN}, Raises: ${rollOptions.raises}.${equipPenaltyFlavor}${healthPenaltyFlavor}${halfPoolFlavor}`,
       actorId: (this.actor as any).id,
-      skillKey: fullPoolReady ? skillKey : undefined,
-      isSkillRoll: fullPoolReady,
+      skillKey,
+      isSkillRoll: true,
       baseModifier: 0,
       rollKind: 'skill',
       autoFailIntent: 'skill',
@@ -4151,15 +4151,12 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     const hasMultipleAttributes = attrList.length > 1 && !lockedAttr;
     const defaultAttribute = lockedAttr || attrList[0];
 
-    // Players Guide full-pool / minimum-pool rules (~1880–1893):
-    //   - The skill is only "on" if the rating is ≥ MR; with a smaller
-    //     rating only **half the attribute** can roll (rounded down,
-    //     never below 1) and the skill is unusable for spending.
-    //   - The minimum pool floor is `max(attribute, MR)`.
+    // Players Guide full-pool / minimum-pool rules (~1964–1999).
     const skillRating = Number(system?.skills?.[_skillKey] ?? 0);
     const skillsSpent = Number(system?.skillsSpent?.[_skillKey] ?? 0);
     const remainingPool = Math.max(0, skillRating - skillsSpent);
-    const fullPoolReady = skillRating >= masteryRank;
+    const fullPoolReady = isSkillFullPoolReady(skillRating, masteryRank);
+    const poolThreshold = skillFullPoolThreshold(masteryRank);
     const buildPoolPreview = (attr: string) => {
       const attrValue = Number(system?.attributes?.[attr]?.value ?? 0);
       const usableAttr = fullPoolReady ? attrValue : Math.max(1, Math.floor(attrValue / 2));
@@ -4193,11 +4190,11 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         `}
 
         <div class="md-group">
-          <label class="md-label">Skill Pool <span class="md-sublabel">(rating ${skillRating} / pool left ${remainingPool}; ≥ MR ${masteryRank} for full effect)</span></label>
+          <label class="md-label">Skill Pool <span class="md-sublabel">(rating ${skillRating} / pool left ${remainingPool}; ≥ ${poolThreshold} for full pool)</span></label>
           <div class="md-attr-display" id="skill-pool-status">
             ${fullPoolReady
               ? `Full pool — rolling ${initialPreview.floored}d8 (attribute ${initialPreview.attrValue}, MR floor ${masteryRank}).`
-              : `Half pool only — skill rating ${skillRating} &lt; MR ${masteryRank}; rolling ${initialPreview.floored}d8 (⌊${initialPreview.attrValue}/2⌋ = ${initialPreview.usableAttr}, MR floor ${masteryRank}). No skill points may be spent.`}
+              : `Half pool — skill rating ${skillRating} &lt; ${poolThreshold} (2×MR); rolling ${initialPreview.floored}d8 (⌊${initialPreview.attrValue}/2⌋ = ${initialPreview.usableAttr}, MR floor ${masteryRank}).`}
           </div>
         </div>
 
@@ -4352,7 +4349,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             $html.find('#skill-pool-status').text(
               fullPoolReady
                 ? `Full pool — rolling ${preview.floored}d8 (attribute ${preview.attrValue}, MR floor ${masteryRank}).`
-                : `Half pool only — skill rating ${skillRating} < MR ${masteryRank}; rolling ${preview.floored}d8 (⌊${preview.attrValue}/2⌋ = ${preview.usableAttr}, MR floor ${masteryRank}). No skill points may be spent.`,
+                : `Half pool — skill rating ${skillRating} < ${poolThreshold} (2×MR); rolling ${preview.floored}d8 (⌊${preview.attrValue}/2⌋ = ${preview.usableAttr}, MR floor ${masteryRank}).`,
             );
           };
 

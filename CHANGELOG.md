@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.165] - 2026-07-07
+
+### Changed
+
+- **Skill checks (rulebook):** Full attribute pool requires skill rating ≥ 2×MR; half pool still allows skill-point spend after the roll.
+- **UI — Special Effects:** User-facing “Specials” labels renamed to “Special Effects” across sheets, damage dialog, and item views.
+
+### Added
+
+- **Epic Mastery Roll — dice display:** Rolled dice shown in the overlay (kept dice highlighted, explosions chained); Dice So Nice animation when installed; richer dice summary in chat.
+
 ## [0.9.164] - 2026-06-23
 
 ### Added

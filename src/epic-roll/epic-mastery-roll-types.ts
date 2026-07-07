@@ -71,6 +71,8 @@ export interface EpicParticipantResult {
     cardName: string;
     optionLabel: string;
   };
+  /** Persisted dice breakdown for overlay / summary after rollPayload is cleared. */
+  diceFaces?: EpicDiceFace[];
 }
 
 export interface EpicMasteryRollSession {
@@ -108,6 +110,42 @@ export interface EpicMasteryRollStartConfig {
 export function formatDiceSummary(kept: number[]): string {
   if (!kept?.length) return '—';
   return kept.join(', ');
+}
+
+export interface EpicDiceFace {
+  value: number;
+  label: string;
+  kept: boolean;
+  exploded: boolean;
+}
+
+export function buildEpicDiceFaces(
+  rollResult: MasteryRollResult & { keptIndices?: number[] },
+): EpicDiceFace[] {
+  const keptIdx = new Set(rollResult.keptIndices ?? []);
+  const chains = rollResult.dieChains;
+  return (rollResult.dice ?? []).map((total, i) => {
+    const chain = chains?.[i];
+    const label =
+      chain && chain.length > 1 ? `${chain.join('+')}=${total}` : String(total);
+    return {
+      value: total,
+      label,
+      kept: keptIdx.has(i),
+      exploded: (chain?.length ?? 1) > 1,
+    };
+  });
+}
+
+/** Full pool display: all dice with kept totals for chat / overlay. */
+export function formatEpicRollDiceSummary(
+  rollResult: MasteryRollResult & { keptIndices?: number[] },
+): string {
+  const faces = buildEpicDiceFaces(rollResult);
+  if (!faces.length) return '—';
+  const rolled = faces.map((f) => f.label).join(', ');
+  const kept = rollResult.kept?.length ? rollResult.kept.join(', ') : '—';
+  return `Rolled: ${rolled} · Kept: ${kept}`;
 }
 
 export function countResolvedParticipants(session: EpicMasteryRollSession): number {
@@ -199,7 +237,8 @@ export function participantResultFromRoll(
     normalTn: rollResult.tn ?? rollResult.normalTn ?? 0,
     success: rollResult.success,
     raises: rollResult.raises ?? 0,
-    diceSummary: formatDiceSummary(rollResult.kept),
+    diceSummary: formatEpicRollDiceSummary(rollResult),
+    diceFaces: buildEpicDiceFaces(rollResult),
     awaitingConfirm: opts.awaitingConfirm,
     skillKey: opts.skillKey,
     skillSpent: opts.skillSpent ?? 0,

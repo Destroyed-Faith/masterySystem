@@ -1,7 +1,7 @@
 /**
  * Epic Mastery Roll — participant roll execution.
  */
-import { masteryRoll } from '../dice/roll-handler.js';
+import { masteryRoll, showMasteryRollDice3d } from '../dice/roll-handler.js';
 import { buildAttributeRollContext, buildSaveRollContext, buildSkillRollContext, getSkillRollDicePool, } from '../dice/roll-context-build.js';
 import { SKILLS } from '../utils/skills.js';
 import { participantResultFromRoll } from './epic-mastery-roll-types.js';
@@ -117,6 +117,7 @@ export async function executeEpicParticipantRoll(session, actorId, attributeKeyO
         ...ctx.rollOptions,
         skipChat: true,
     });
+    await showMasteryRollDice3d(rollResult, ctx.rollOptions.skill ?? 0);
     const payload = {
         rollResult,
         skillKey: ctx.skillKey,

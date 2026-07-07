@@ -139,7 +139,7 @@ export function showRadialInfoPanel(token: any, option: RadialCombatOption): voi
   }
   
   if (specialText) {
-    infoHTML += `<div class="ms-info-special"><strong>Special:</strong> ${specialText}</div>`;
+    infoHTML += `<div class="ms-info-special"><strong>Special Effect:</strong> ${specialText}</div>`;
   }
   
   infoHTML += `<div class="ms-info-desc">${option.description || 'No description available'}</div>`;

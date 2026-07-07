@@ -3,7 +3,7 @@
  */
 import { SKILLS } from '../utils/skills.js';
 import { getSkillRollDicePool } from '../dice/roll-context-build.js';
-import { countResolvedParticipants, rollLabelForConfig, } from './epic-mastery-roll-types.js';
+import { buildEpicDiceFaces, countResolvedParticipants, rollLabelForConfig, } from './epic-mastery-roll-types.js';
 import { applyEpicSkillSpendAndFinalize, confirmEpicRollWithoutSpend, performEpicParticipantRoll, } from './epic-mastery-roll-roll.js';
 import { buildSkillSpendPackets, getSkillSpendOptions, sumSelectedPacketSpend, totalsAfterSkillSpend, } from './epic-mastery-roll-skill-spend.js';
 import { applyEpicEchoCardToResult, getEpicEchoCardOffers, } from './epic-mastery-roll-echo.js';
@@ -107,6 +107,11 @@ class EpicMasteryRollOverlay {
             const rollReady = !multiAttribute || !!selectedAttribute;
             const canRoll = p.status === 'pending' && isOwner && this.session.status === 'active';
             const showRollResult = (awaitingSpend || rolled) && !!result && !skipped;
+            const diceFaces = showRollResult && result?.diceFaces?.length
+                ? result.diceFaces
+                : showRollResult && result?.rollPayload?.rollResult
+                    ? buildEpicDiceFaces(result.rollPayload.rollResult)
+                    : [];
             let echoOffers = [];
             let showEchoCards = false;
             const displayRaises = result?.raises ?? 0;
@@ -138,6 +143,8 @@ class EpicMasteryRollOverlay {
                 awaitingSpend,
                 showRollResult,
                 showResultFrame: showRollResult,
+                diceFaces,
+                showDiceFaces: diceFaces.length > 0,
                 showFinalMeta: rolled && (!!result?.skillSpent || !!result?.echoCardUsed),
                 echoCardUsed: result?.echoCardUsed,
                 waiting: p.status === 'pending' && !isOwner,

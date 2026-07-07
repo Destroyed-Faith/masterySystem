@@ -128,6 +128,17 @@ export declare function countMarginRaises(total: number, tn: number): number;
  */
 export declare function masteryRoll(options: RollOptions): Promise<MasteryRollResult>;
 /**
+ * Build a Foundry Roll matching the already-evaluated mastery result (no second RNG).
+ * One `1d8`-equivalent Die per pool die so explosion faces appear as separate results (core + Dice So Nice).
+ */
+export declare function buildMasteryDisplayRoll(result: MasteryRollResult & {
+    keptIndices?: number[];
+}, skillBonus: number): Roll;
+/** Optional Dice So Nice animation for an already-resolved mastery roll. */
+export declare function showMasteryRollDice3d(result: MasteryRollResult & {
+    keptIndices?: number[];
+}, skillBonus?: number): Promise<void>;
+/**
  * Quick roll from actor
  * Helper function to make rolling easier
  */

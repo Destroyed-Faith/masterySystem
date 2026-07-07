@@ -52,6 +52,13 @@
           {{#if p.success}}
           <div class="emr-roll-raises-meta">{{p.displayRaises}} Raise{{#unless (eq p.displayRaises 1)}}s{{/unless}}</div>
           {{/if}}
+          {{#if p.showDiceFaces}}
+          <div class="emr-dice-row" aria-label="Dice rolled">
+            {{#each p.diceFaces as |die|}}
+            <span class="emr-die {{#if die.kept}}emr-die-kept{{/if}}{{#if die.exploded}} emr-die-exploded{{/if}}" title="{{die.label}}">{{die.label}}</span>
+            {{/each}}
+          </div>
+          {{/if}}
           {{else if p.skipped}}
           <div class="emr-roll-result emr-roll-result-skipped">Skipped</div>
           {{/if}}
