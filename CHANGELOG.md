@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.169] - 2026-07-07
+
+### Fixed
+
+- **Combat Package Wizard — Passive 2 step:** Second Passive options are filtered by real mechanical category overlap with Passive 1 (including combined passives), not UI subfamily labels. Choosing Armor no longer shows Armor passives or hybrids; choosing Evade hides Evade options but still allows Armor, DR, Phasing, sustain, offense, and other legal categories. Awareness passives are hidden from guided Step 3; the illegal “Reinforce your Main Defense” group is removed. Apply is blocked when Passive 1 and Passive 2 share any category.
+
 ## [0.9.168] - 2026-07-07
 
 ### Fixed

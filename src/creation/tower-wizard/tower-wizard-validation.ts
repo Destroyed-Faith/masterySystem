@@ -22,6 +22,7 @@ import {
     buildPackageReview,
     catalogEntryMatchesGrantKey,
     getDefensePackage,
+    getDefaultPassive1TemplateId,
     getOffensePackage,
     grantKeyCategory,
     isManualBuildMode,
@@ -33,6 +34,10 @@ import {
     resolvePassive1TemplateId,
     selectionUsesCatalogOffense,
 } from './tower-wizard-packages.js';
+import {
+    getPassiveCategoryConflictMessage,
+    isAllowedSecondPassive,
+} from './tower-wizard-passive-categories.js';
 import type { PackagePowerOverride, TowerWizardSelection } from './tower-wizard-types.js';
 
 export function isValidSecondPassiveForDefense(
@@ -42,10 +47,11 @@ export function isValidSecondPassiveForDefense(
 ): boolean {
     const defense = getDefensePackage(defenseId as TowerWizardSelection['defenseId']);
     if (!defense) return false;
-    const passive1 = passive1TemplateId ?? defense.grants.passive1.templateId;
-    if (templateId === passive1) return false;
+    const passive1 = passive1TemplateId ?? getDefaultPassive1TemplateId(defense.id);
+    if (!passive1) return false;
     const entry = findCatalogEntry(templateId);
-    return entry?.category === 'passive';
+    if (entry?.category !== 'passive') return false;
+    return isAllowedSecondPassive(templateId, passive1);
 }
 
 export function validatePowerOverrideForGrantKey(
@@ -60,18 +66,11 @@ export function validatePowerOverrideForGrantKey(
     }
     if (override.grantKey === 'passive-2') {
         const passive1Override = selection.powerOverrides?.find((o) => o.grantKey === 'passive-1');
-        if (passive1Override) {
-            if (passive1Override.templateId === override.templateId
-                && (passive1Override.special ?? null) === (override.special ?? null)) {
-                return 'Passive 2 cannot be the same as Passive 1.';
-            }
-        } else {
-            const defense = getDefensePackage(selection.defenseId);
-            const passive1 = resolvePassive1TemplateId(selection);
-            if (defense && override.templateId === passive1) {
-                return 'Passive 2 cannot be the same template as Passive 1.';
-            }
-        }
+        const passive1Id = passive1Override?.templateId
+            ?? resolvePassive1TemplateId(selection)
+            ?? getDefaultPassive1TemplateId(selection.defenseId);
+        const conflict = getPassiveCategoryConflictMessage(passive1Id, override.templateId);
+        if (conflict) return conflict;
     }
     if (override.isSpell && !activeTemplateCanBeSpell(override.templateId)) {
         return 'Only Ranged Actives can be cast as Spells.';
@@ -144,7 +143,8 @@ export function validateTowerWizardSelection(selection: Partial<TowerWizardSelec
         selection.secondPassiveTemplateId,
         passive1Id,
     )) {
-        return 'That second Passive is not available for your package.';
+        const conflict = getPassiveCategoryConflictMessage(passive1Id, selection.secondPassiveTemplateId);
+        return conflict ?? 'That second Passive is not available for your package.';
     }
     if (selection.activeBuffMode === 'offensive' && !selection.offensiveActiveBuffId) {
         return 'Choose an offensive Active Buff.';

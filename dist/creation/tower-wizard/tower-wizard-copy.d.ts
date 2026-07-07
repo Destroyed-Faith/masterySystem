@@ -18,8 +18,9 @@ export declare const TOWER_WIZARD_COPY: {
     readonly passive2: {
         readonly heading: "Choose your second Passive";
         readonly body: "Your first Passive is already selected from your Main Defense. Now choose an additional Passive.";
+        readonly subtitleForCategory: (categoryLabel: string) => string;
         readonly alreadySelected: "Already selected";
-        readonly nowChoose: "Now choose Passive 2.";
+        readonly nowChoose: "Now choose Passive 2 from a different category.";
     };
     readonly activeBuffChoice: {
         readonly heading: "What should your Active Buff slot do?";

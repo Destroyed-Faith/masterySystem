@@ -56,7 +56,7 @@
     {{#if isPassive2}}
     <section class="tower-wizard-step">
       <h3>{{copy.passive2.heading}}</h3>
-      <p class="tower-wizard-prose">{{copy.passive2.body}}</p>
+      <p class="tower-wizard-prose">{{passive2Subtitle}}</p>
       {{#if defensePackagePreview}}
       <div class="tower-wizard-package-preview">
         <h4>{{copy.passive2.alreadySelected}}</h4>
@@ -74,12 +74,14 @@
       {{#each secondPassiveIntentGroups}}
       <div class="tower-wizard-passive-intent-group">
         <h4>{{this.intentLabel}}</h4>
+        {{#if this.intentHint}}<p class="tower-wizard-prose tower-wizard-intent-hint">{{this.intentHint}}</p>{{/if}}
         {{#if this.warning}}<p class="tower-wizard-warn">{{this.warning}}</p>{{/if}}
         <div class="tower-wizard-passive-grid">
           {{#each this.passives}}
           <button type="button" class="tower-wizard-passive-card js-tw-select-passive2{{#if (eq ../../../selection.secondPassiveTemplateId this.id)}} is-selected{{/if}}" data-passive-id="{{this.id}}">
             <span class="chip-label">{{this.label}}</span>
             <span class="chip-mechanical">{{this.hint}}</span>
+            {{#if this.warning}}<span class="tower-wizard-warn">{{this.warning}}</span>{{/if}}
           </button>
           {{/each}}
         </div>

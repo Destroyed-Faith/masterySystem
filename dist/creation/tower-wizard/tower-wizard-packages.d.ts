@@ -49,7 +49,7 @@ export declare function resolvePassive1TemplateId(selection: Partial<TowerWizard
 export declare function isValidPassive1Variant(defenseId: DefensePackageId, templateId: string): boolean;
 export declare function getPassive1VariantOptions(defenseId: DefensePackageId): Passive1VariantOption[];
 export declare function buildDefensePackagePreview(selection: Partial<TowerWizardSelection>): DefensePackagePreview | null;
-export declare function getSecondPassiveIntentGroups(defenseId: DefensePackageId, passive1TemplateId?: string): SecondPassiveIntentGroup[];
+export declare function getSecondPassiveIntentGroups(defenseId: DefensePackageId, passive1TemplateId?: string, actorEchoKey?: string | null): SecondPassiveIntentGroup[];
 export declare const WIZARD_STEP_ORDER: TowerWizardStep[];
 export declare function packageNeedsReplacementBuffStep(selection: Partial<TowerWizardSelection>): boolean;
 export declare function getVisibleWizardSteps(selection: Partial<TowerWizardSelection>): TowerWizardStep[];
@@ -57,7 +57,7 @@ export declare const TOWER_WIZARD_OFFENSE_PACKAGES: TowerWizardOffensePackage[];
 export declare function getDefensePackage(id: DefensePackageId): TowerWizardDefensePackage | undefined;
 export declare function getOffensePackage(id: OffensePackageId): TowerWizardOffensePackage | undefined;
 export declare function getAvailableOffensePackages(): TowerWizardOffensePackage[];
-export declare function getSecondPassiveGroups(defenseId: DefensePackageId, passive1TemplateId?: string): SecondPassiveGroup[];
+export declare function getSecondPassiveGroups(defenseId: DefensePackageId, passive1TemplateId?: string, actorEchoKey?: string | null): SecondPassiveGroup[];
 export declare function resolveActiveBuffSpec(selection: TowerWizardSelection): PowerGrantSpec;
 export declare function packageNeedsOffensiveBuffStep(selection: Partial<TowerWizardSelection>): boolean;
 export declare function playerFacingPowerName(spec: PowerGrantSpec, resolved?: ResolvedGrant): string;

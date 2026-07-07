@@ -18,8 +18,9 @@ export const TOWER_WIZARD_COPY = {
     passive2: {
         heading: 'Choose your second Passive',
         body: 'Your first Passive is already selected from your Main Defense. Now choose an additional Passive.',
+        subtitleForCategory: (categoryLabel) => `Your first Passive already uses the ${categoryLabel} category. Your second Passive must use a different category.`,
         alreadySelected: 'Already selected',
-        nowChoose: 'Now choose Passive 2.',
+        nowChoose: 'Now choose Passive 2 from a different category.',
     },
     activeBuffChoice: {
         heading: 'What should your Active Buff slot do?',

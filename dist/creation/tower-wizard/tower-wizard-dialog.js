@@ -4,6 +4,7 @@
 import { applyTowerWizardPackage } from './tower-wizard-apply.js';
 import { TOWER_WIZARD_COPY } from './tower-wizard-copy.js';
 import { buildPackageGrantSpecs, buildPackageGrantSpecsFromOverrides, buildManualPackageReview, buildDefensePackagePreview, collectOverrideIdentityKeys, collectPackageIdentityKeys, getDefensePackage, getDefaultPassive1TemplateId, TOWER_WIZARD_DEFENSE_PACKAGES, buildPackageReview, getCatalogSubfamily, getSecondPassiveIntentGroups, getPassive1VariantOptions, getOffenseActiveSpecialGroups, getDefaultActiveBuffPreview, getOffensiveActiveBuffGroups, getSupportActiveBuffGroups, getVisibleWizardSteps, initializeOffenseOverrides, isManualBuildMode, packageNeedsDeliveryStep, packageNeedsReplacementBuffStep, packageNeedsWeakenSaveStep, resolvePassive1TemplateId, selectionUsesCatalogOffense, WIZARD_STEP_ORDER, } from './tower-wizard-packages.js';
+import { formatPassiveCategoryList } from './tower-wizard-passive-categories.js';
 import { showTowerWizardPowerPicker } from './tower-wizard-power-picker.js';
 import { computeBuildRoleRating } from './tower-wizard-build-rating.js';
 import { collectRelevantWarnings, validateTowerWizardSelection } from './tower-wizard-validation.js';
@@ -100,14 +101,19 @@ export class TowerWizardDialog extends BaseDialog {
         const stepIndex = Math.max(1, visibleSteps.indexOf(this.step) + 1);
         const copy = TOWER_WIZARD_COPY;
         const defense = this.selection.defenseId ? getDefensePackage(this.selection.defenseId) : undefined;
-        const passiveIntentGroups = this.selection.defenseId
-            ? getSecondPassiveIntentGroups(this.selection.defenseId, this.selection.passive1TemplateId ?? getDefaultPassive1TemplateId(this.selection.defenseId))
+        const echoKey = this.actor.system?.echo?.key ?? null;
+        const passive1Id = this.selection.passive1TemplateId
+            ?? (this.selection.defenseId ? getDefaultPassive1TemplateId(this.selection.defenseId) : undefined);
+        const passiveIntentGroups = this.selection.defenseId && passive1Id
+            ? getSecondPassiveIntentGroups(this.selection.defenseId, passive1Id, echoKey)
             : [];
         const passive1Variants = this.selection.defenseId
             ? getPassive1VariantOptions(this.selection.defenseId)
             : [];
         const defensePackagePreview = buildDefensePackagePreview(this.selection);
-        const echoKey = this.actor.system?.echo?.key ?? null;
+        const passive2Subtitle = passive1Id
+            ? copy.passive2.subtitleForCategory(formatPassiveCategoryList(passive1Id))
+            : copy.passive2.body;
         const selectedPickIds = new Set((this.selection.offenseActivePicks ?? []).map((p) => p.pickId));
         const offenseSpecialGroups = getOffenseActiveSpecialGroups(echoKey, selectedPickIds);
         const offensePickCount = this.selection.offenseActivePicks?.length ?? 0;
@@ -142,6 +148,7 @@ export class TowerWizardDialog extends BaseDialog {
             passive1Variants,
             defensePackagePreview,
             secondPassiveIntentGroups: passiveIntentGroups,
+            passive2Subtitle,
             offenseSpecialGroups,
             offensePickCount,
             offensePickLabel: copy.offense.pickCount(offensePickCount),

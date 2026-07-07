@@ -14,6 +14,13 @@ import {
     activeTemplateCanBeSpell,
 } from '../../utils/power-catalog.js';
 import type { PowerGrantSpec } from '../../utils/power-item-builder.js';
+import {
+    formatPassiveCategoryList,
+    isAllowedSecondPassive,
+    secondPassiveBucketFor,
+    secondPassiveCardWarning,
+    type SecondPassiveBucket,
+} from './tower-wizard-passive-categories.js';
 import type { CatalogEntry } from '../../utils/power-catalog.js';
 import type {
     DefensePackageId,
@@ -1146,31 +1153,41 @@ const DEFENSE_MAIN_LABEL: Record<DefensePackageId, string> = {
     phasing: 'Phasing',
 };
 
-const PREMIUM_PASSIVE2_WARNING =
-    'This is a closed premium defensive subsystem. It is normally chosen as your Main Defense, not as a casual secondary passive.';
+const PREMIUM_PASSIVE2_GROUP_WARNING =
+    'These are specialized defensive subsystems. Use them deliberately as your second Passive.';
 
-const PASSIVE2_INTENT_LABELS: Record<string, { label: string; hint?: string; warning?: string }> = {
-    reinforce: { label: 'Reinforce your main defense' },
-    layer: { label: 'Add another defensive layer' },
-    sustain: { label: 'Add sustain' },
-    offense: { label: 'Add offense' },
-    utility: { label: 'Add awareness / utility' },
-    advanced: { label: 'Advanced / premium', warning: PREMIUM_PASSIVE2_WARNING },
+const PASSIVE2_INTENT_LABELS: Record<SecondPassiveBucket, { label: string; intentHint?: string; warning?: string }> = {
+    evade: {
+        label: 'Add Evade',
+        intentHint: 'Add avoidance as your second defensive layer.',
+    },
+    premium: {
+        label: 'Add Premium Defense',
+        intentHint: 'Add a specialized defensive subsystem as your second Passive. These options are stronger identity choices and should be used deliberately.',
+        warning: PREMIUM_PASSIVE2_GROUP_WARNING,
+    },
+    'health-temp-hp': {
+        label: 'Add Health and Temporary HP',
+    },
+    sustain: {
+        label: 'Add Sustain',
+    },
+    offense: {
+        label: 'Add Offense',
+    },
+    advanced: {
+        label: 'Advanced / Other',
+    },
 };
 
-function passive2IntentForSubfamily(subfamily: string, defenseId: DefensePackageId): string {
-    if (subfamily === 'damage-reduction' || subfamily === 'phasing') return 'advanced';
-    if (subfamily === defenseId || (defenseId === 'armor' && subfamily === 'armor') || (defenseId === 'evade' && subfamily === 'evade')) {
-        return 'reinforce';
-    }
-    if (subfamily === 'temp-hp' || subfamily === 'health' || subfamily === 'ward' || subfamily === 'combined' || subfamily === 'conditional-combined') {
-        return 'layer';
-    }
-    if (subfamily === 'regen' || subfamily === 'recovery') return 'sustain';
-    if (subfamily === 'damage') return 'offense';
-    if (subfamily === 'awareness' || subfamily === 'special-aura') return 'utility';
-    return 'layer';
-}
+const PASSIVE2_BUCKET_ORDER: readonly SecondPassiveBucket[] = [
+    'evade',
+    'premium',
+    'health-temp-hp',
+    'sustain',
+    'offense',
+    'advanced',
+];
 
 export function getDefaultPassive1TemplateId(defenseId: DefensePackageId): string {
     return getDefensePackage(defenseId)?.grants.passive1.templateId ?? '';
@@ -1228,6 +1245,7 @@ export function buildDefensePackagePreview(selection: Partial<TowerWizardSelecti
         rows: [
             { label: 'Main Defense', value: DEFENSE_MAIN_LABEL[defenseId] },
             { label: 'Passive 1', value: passive1?.displayName ?? passive1Id ?? '—' },
+            { label: 'Passive Category', value: passive1Id ? formatPassiveCategoryList(passive1Id) : '—' },
             { label: 'Active Buff', value: buffResolved.displayName },
             { label: 'Reaction', value: reactionResolved.displayName },
         ],
@@ -1237,36 +1255,38 @@ export function buildDefensePackagePreview(selection: Partial<TowerWizardSelecti
 export function getSecondPassiveIntentGroups(
     defenseId: DefensePackageId,
     passive1TemplateId?: string,
+    actorEchoKey?: string | null,
 ): SecondPassiveIntentGroup[] {
-    const excluded = passive1TemplateId ?? getDefaultPassive1TemplateId(defenseId);
-    const byIntent = new Map<string, SecondPassiveIntentGroup['passives']>();
+    const passive1 = passive1TemplateId ?? getDefaultPassive1TemplateId(defenseId);
+    if (!passive1) return [];
+
+    const byBucket = new Map<SecondPassiveBucket, SecondPassiveIntentGroup['passives']>();
 
     for (const entry of getAllCatalogEntries()) {
         if (entry.category !== 'passive') continue;
-        if (entry.templateId === excluded) continue;
         if (!findCatalogEntry(entry.templateId)) continue;
+        if (!isAllowedSecondPassive(entry.templateId, passive1, actorEchoKey)) continue;
 
-        const subfamily = entry.subfamily ?? 'other';
-        const intent = passive2IntentForSubfamily(subfamily, defenseId);
-        const list = byIntent.get(intent) ?? [];
+        const bucket = secondPassiveBucketFor(entry.templateId);
+        const list = byBucket.get(bucket) ?? [];
         if (list.some((p) => p.id === entry.templateId)) continue;
         list.push({
             id: entry.templateId,
             label: secondPassiveLabel(entry.templateId),
             hint: secondPassiveHint(entry.templateId, entry.description),
+            warning: secondPassiveCardWarning(entry.templateId),
         });
-        byIntent.set(intent, list);
+        byBucket.set(bucket, list);
     }
 
-    const intentOrder = ['reinforce', 'layer', 'sustain', 'offense', 'utility', 'advanced'] as const;
     const groups: SecondPassiveIntentGroup[] = [];
-    for (const intent of intentOrder) {
-        const passives = byIntent.get(intent);
+    for (const bucket of PASSIVE2_BUCKET_ORDER) {
+        const passives = byBucket.get(bucket);
         if (!passives?.length) continue;
-        const meta = PASSIVE2_INTENT_LABELS[intent]!;
+        const meta = PASSIVE2_INTENT_LABELS[bucket];
         groups.push({
             intentLabel: meta.label,
-            intentHint: meta.hint,
+            intentHint: meta.intentHint,
             warning: meta.warning,
             passives: passives.sort((a, b) => a.label.localeCompare(b.label)),
         });
@@ -1409,49 +1429,12 @@ export function getAvailableOffensePackages(): TowerWizardOffensePackage[] {
 export function getSecondPassiveGroups(
     defenseId: DefensePackageId,
     passive1TemplateId?: string,
+    actorEchoKey?: string | null,
 ): SecondPassiveGroup[] {
-    const defense = getDefensePackage(defenseId);
-    if (!defense) return [];
-
-    const excluded = passive1TemplateId ?? getDefaultPassive1TemplateId(defenseId);
-    const bySubfamily = new Map<string, SecondPassiveGroup['passives']>();
-
-    for (const entry of getAllCatalogEntries()) {
-        if (entry.category !== 'passive') continue;
-        if (entry.templateId === excluded) continue;
-        if (!findCatalogEntry(entry.templateId)) continue;
-
-        const subfamily = entry.subfamily ?? 'other';
-        const list = bySubfamily.get(subfamily) ?? [];
-        if (list.some((p) => p.id === entry.templateId)) continue;
-
-        list.push({
-            id: entry.templateId,
-            label: secondPassiveLabel(entry.templateId),
-            hint: secondPassiveHint(entry.templateId, entry.description),
-        });
-        bySubfamily.set(subfamily, list);
-    }
-
-    const groups: SecondPassiveGroup[] = [];
-    for (const subfamily of PASSIVE_GROUP_ORDER) {
-        const passives = bySubfamily.get(subfamily);
-        if (!passives?.length) continue;
-        groups.push({
-            groupLabel: PASSIVE_SUBFAMILY_LABELS[subfamily] ?? subfamily,
-            passives: passives.sort((a, b) => a.label.localeCompare(b.label)),
-        });
-    }
-
-    for (const [subfamily, passives] of bySubfamily.entries()) {
-        if (PASSIVE_GROUP_ORDER.includes(subfamily as typeof PASSIVE_GROUP_ORDER[number])) continue;
-        groups.push({
-            groupLabel: PASSIVE_SUBFAMILY_LABELS[subfamily] ?? subfamily,
-            passives: passives.sort((a, b) => a.label.localeCompare(b.label)),
-        });
-    }
-
-    return groups;
+    return getSecondPassiveIntentGroups(defenseId, passive1TemplateId, actorEchoKey).map((g) => ({
+        groupLabel: g.intentLabel,
+        passives: g.passives,
+    }));
 }
 
 export function resolveActiveBuffSpec(selection: TowerWizardSelection): PowerGrantSpec {

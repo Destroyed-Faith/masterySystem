@@ -30,11 +30,22 @@ function mockPowerItem(category: string, level: number, templateId: string, spec
 }
 
 describe('tower-wizard-validation', () => {
-    it('rejects duplicate first passive as second passive', () => {
-        expect(isValidSecondPassiveForDefense('armor', 'passive-fortified-frame')).toBe(false);
-        expect(isValidSecondPassiveForDefense('armor', 'passive-evade')).toBe(true);
-        expect(isValidSecondPassiveForDefense('armor', 'passive-temp-hp')).toBe(true);
-        expect(isValidSecondPassiveForDefense('armor', 'passive-deep-vitality')).toBe(true);
+    it('rejects duplicate first passive and same-category second passive', () => {
+        expect(isValidSecondPassiveForDefense('armor', 'passive-fortified-frame', 'passive-fortified-frame')).toBe(false);
+        expect(isValidSecondPassiveForDefense('armor', 'passive-stone-stance', 'passive-fortified-frame')).toBe(false);
+        expect(isValidSecondPassiveForDefense('armor', 'passive-armor-healing', 'passive-fortified-frame')).toBe(false);
+        expect(isValidSecondPassiveForDefense('armor', 'passive-evade', 'passive-fortified-frame')).toBe(true);
+        expect(isValidSecondPassiveForDefense('armor', 'passive-temp-hp', 'passive-fortified-frame')).toBe(true);
+        expect(isValidSecondPassiveForDefense('armor', 'passive-deep-vitality', 'passive-fortified-frame')).toBe(true);
+    });
+
+    it('blocks apply when Passive 2 shares a category with Passive 1', () => {
+        const err = validateTowerWizardSelection({
+            ...baseSelection,
+            passive1TemplateId: 'passive-fortified-frame',
+            secondPassiveTemplateId: 'passive-armor-healing',
+        });
+        expect(err).toMatch(/Passive category conflict: both Passives use Armor/i);
     });
 
     it('accepts a complete valid selection', () => {

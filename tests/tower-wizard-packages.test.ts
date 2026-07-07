@@ -44,11 +44,24 @@ describe('tower-wizard-packages', () => {
         }
     });
 
-    it('second passive groups exclude the selected Passive 1 variant', () => {
-        const armor = getSecondPassiveGroups('armor', 'passive-stone-stance');
-        const allIds = armor.flatMap((g) => g.passives.map((p) => p.id));
+    it('second passive groups exclude Passive 1 and every same-category passive', () => {
+        const groups = getSecondPassiveIntentGroups('armor', 'passive-stone-stance');
+        const allIds = groups.flatMap((g) => g.passives.map((p) => p.id));
+        const labels = groups.map((g) => g.intentLabel);
+
         expect(allIds).not.toContain('passive-stone-stance');
-        expect(allIds).toContain('passive-fortified-frame');
+        expect(allIds).not.toContain('passive-fortified-frame');
+        expect(allIds).not.toContain('passive-surrounded-bulwark');
+        expect(allIds).not.toContain('passive-armor-temp-hp');
+        expect(allIds).not.toContain('conditional-passive-armor-healing');
+        expect(allIds).not.toContain('passive-heightened-senses');
+        expect(labels).not.toContain('Reinforce your Main Defense');
+        expect(labels).not.toContain('Add Awareness / Utility');
+        expect(labels).toContain('Add Evade');
+        expect(labels).toContain('Add Premium Defense');
+        expect(allIds).toContain('passive-evade');
+        expect(allIds).toContain('passive-damage-reduction');
+        expect(allIds).toContain('passive-temp-hp');
     });
 
     it('armor Passive 1 variants include fortified frame and conditional options', () => {
@@ -64,11 +77,15 @@ describe('tower-wizard-packages', () => {
         expect(variants[0]?.isLocked).toBe(true);
     });
 
-    it('second passive intent groups warn on premium advanced options', () => {
+    it('second passive intent groups show premium defense with card warnings for armor builds', () => {
         const groups = getSecondPassiveIntentGroups('armor', 'passive-fortified-frame');
-        const advanced = groups.find((g) => g.intentLabel === 'Advanced / premium');
-        expect(advanced?.warning).toMatch(/closed premium/i);
-        expect(advanced?.passives.some((p) => p.id === 'passive-damage-reduction')).toBe(true);
+        const premium = groups.find((g) => g.intentLabel === 'Add Premium Defense');
+        expect(premium).toBeDefined();
+        expect(premium?.intentHint).toMatch(/specialized defensive subsystem/i);
+        const dr = premium?.passives.find((p) => p.id === 'passive-damage-reduction');
+        const ghost = premium?.passives.find((p) => p.id === 'passive-ghostform');
+        expect(dr?.warning).toMatch(/Premium subsystem/i);
+        expect(ghost?.warning).toMatch(/Premium subsystem/i);
     });
 
     it('guided step order includes Passive 1 variant after defense', () => {
@@ -84,22 +101,29 @@ describe('tower-wizard-packages', () => {
         expect(specs[0]?.templateId).toBe('passive-stone-stance');
     });
 
-    it('second passive groups include all catalog passives except the defense passive', () => {
-        const armor = getSecondPassiveGroups('armor');
+    it('second passive groups exclude armor-category passives when Passive 1 is armor', () => {
+        const armor = getSecondPassiveGroups('armor', 'passive-fortified-frame');
         const allIds = armor.flatMap((g) => g.passives.map((p) => p.id));
         expect(allIds).toContain('passive-temp-hp');
         expect(allIds).toContain('passive-deep-vitality');
-        expect(allIds).toContain('passive-armor-temp-hp');
-        expect(allIds).toContain('conditional-passive-armor-temp-hp');
         expect(allIds).not.toContain('passive-fortified-frame');
-        expect(allIds.length).toBeGreaterThan(20);
+        expect(allIds).not.toContain('passive-armor-temp-hp');
+        expect(allIds).not.toContain('conditional-passive-armor-temp-hp');
+        expect(allIds.length).toBeGreaterThan(10);
     });
 
-    it('second passive groups include combined and conditional passives for evade defense', () => {
-        const evade = getSecondPassiveGroups('evade');
+    it('second passive groups include evade hybrids when Passive 1 is not evade', () => {
+        const groups = getSecondPassiveGroups('armor', 'passive-fortified-frame');
+        const allIds = groups.flatMap((g) => g.passives.map((p) => p.id));
+        expect(allIds).toContain('passive-evade-damage');
+    });
+
+    it('second passive groups exclude evade hybrids when Passive 1 is evade', () => {
+        const evade = getSecondPassiveGroups('evade', 'passive-evade');
         const allIds = evade.flatMap((g) => g.passives.map((p) => p.id));
         expect(allIds).not.toContain('passive-evade');
-        expect(allIds).toContain('passive-evade-damage');
+        expect(allIds).not.toContain('passive-flowing-step');
+        expect(allIds).not.toContain('passive-evade-damage');
     });
 
     it('ruin and weaken-save are hidden from wizard offense list', () => {

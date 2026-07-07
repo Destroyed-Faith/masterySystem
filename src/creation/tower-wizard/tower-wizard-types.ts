@@ -147,6 +147,7 @@ export interface SecondPassiveOption {
     id: string;
     label: string;
     hint: string;
+    warning?: string;
 }
 
 export interface SecondPassiveGroup {
