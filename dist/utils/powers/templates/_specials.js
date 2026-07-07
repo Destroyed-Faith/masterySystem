@@ -8,30 +8,30 @@
  * The catalog (see `power-catalog.ts`) uses these lists to expand every
  * damage Active template × eligible Special into one CatalogEntry per
  * variant, so the user can search directly by the target Special
- * (e.g. "Ignite", "Bleeding", "Sundered", …).
+ * (e.g. "Ruin", "Lacerate", "Sundered", …).
  */
-/** Start PP 3 — Poison Group only (agent.md §10.15). */
+/** Start PP 3 — Blight Group only (agent.md §10.15). */
 export const TIER_3_SPECIALS = [
-    'poisoned',
+    'blight',
 ];
-/** Tier 4 eligibility per Actives.md ~374–407. */
+/** Tier 4 eligibility per Actives.md ~374–407 (Blinded folded into Disoriented). */
 export const TIER_4_SPECIALS = [
-    'bleeding',
+    'lacerate',
     'expose',
-    'freeze',
-    'ignite',
+    'slow',
+    'ruin',
     'mark',
-    'blinded',
+    'disoriented',
 ];
-/** Tier 5 eligibility per Actives.md ~623–629. */
+/** Tier 5 eligibility per Actives.md ~623–629 (Frightened folded into Dread). */
 export const TIER_5_SPECIALS = [
     'weaken',
-    'frightened',
+    'dread',
 ];
-/** Tier 6 eligibility per Actives.md ~800–807; includes Root(X). */
+/** Tier 6 eligibility per Actives.md ~800–807; includes Root(X) (Shock folded into Disrupt). */
 export const TIER_6_SPECIALS = [
     'corrode',
-    'shock',
+    'disrupt',
     'soulburn',
     'hex',
     'sundered',

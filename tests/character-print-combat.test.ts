@@ -123,7 +123,7 @@ describe('buildPrintCombatPreview', () => {
       system: { weaponType: 'melee', damage: '1d8', equipped: true },
     };
     const actor = mockActor({ might: 14, agility: 14 }, [weapon, legacyUnarmed]);
-    const ignite = {
+    const ruin = {
       type: 'power',
       system: {
         slot: 'attack',
@@ -135,13 +135,13 @@ describe('buildPrintCombatPreview', () => {
             type: 'Melee',
             effect: { dice: '+1d8' },
             mechanics: { damageRider: { flat: '+1d8' } },
-            specials: [{ key: 'ignite', rank: 7 }],
+            specials: [{ key: 'ruin', rank: 7 }],
           },
         },
       },
     };
-    const preview = buildPrintCombatPreview(actor, ignite, [weapon, legacyUnarmed]);
-    expect(preview?.damage).toBe('WD 8d8 + 1d8 + Ignite(7)');
+    const preview = buildPrintCombatPreview(actor, ruin, [weapon, legacyUnarmed]);
+    expect(preview?.damage).toBe('WD 8d8 + 1d8 + Ruin(7)');
   });
 
   it('includes weapon damage on weapon-attack powers even when mis-flagged as spell', () => {

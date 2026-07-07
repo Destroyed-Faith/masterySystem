@@ -244,7 +244,7 @@ export function collectRelevantWarnings(selection) {
     if (selection.offenseId === 'weaken-save') {
         out.push('Weaken needs follow-up Powers that target the weakened Save.');
     }
-    if (selection.offenseId === 'bleeding-push') {
+    if (selection.offenseId === 'lacerate-push') {
         out.push('This package works best when you understand positioning.');
     }
     if (selection.activeBuffMode === 'offensive') {

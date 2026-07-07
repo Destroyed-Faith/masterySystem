@@ -148,7 +148,7 @@ export declare function getMinorMovementBaselineB(level: number): number;
 export declare function getMinorFlightBaselineB(level: number): number;
 /** Weapon Special baseline value at a given level for high-value scaling specials. */
 export interface WeaponSpecialBaseline {
-    /** Penetration / Expose / Corrode / Push / Freeze / Shock / Mark. */
+    /** Penetration / Expose / Corrode / Push / Slow / Disrupt / Mark. */
     standard: number;
     /** Precision / Prone. */
     precision: number;

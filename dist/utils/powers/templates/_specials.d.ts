@@ -8,16 +8,16 @@
  * The catalog (see `power-catalog.ts`) uses these lists to expand every
  * damage Active template × eligible Special into one CatalogEntry per
  * variant, so the user can search directly by the target Special
- * (e.g. "Ignite", "Bleeding", "Sundered", …).
+ * (e.g. "Ruin", "Lacerate", "Sundered", …).
  */
 import type { ActiveSpecialTier } from '../../../types/item.js';
-/** Start PP 3 — Poison Group only (agent.md §10.15). */
+/** Start PP 3 — Blight Group only (agent.md §10.15). */
 export declare const TIER_3_SPECIALS: readonly string[];
-/** Tier 4 eligibility per Actives.md ~374–407. */
+/** Tier 4 eligibility per Actives.md ~374–407 (Blinded folded into Disoriented). */
 export declare const TIER_4_SPECIALS: readonly string[];
-/** Tier 5 eligibility per Actives.md ~623–629. */
+/** Tier 5 eligibility per Actives.md ~623–629 (Frightened folded into Dread). */
 export declare const TIER_5_SPECIALS: readonly string[];
-/** Tier 6 eligibility per Actives.md ~800–807; includes Root(X). */
+/** Tier 6 eligibility per Actives.md ~800–807; includes Root(X) (Shock folded into Disrupt). */
 export declare const TIER_6_SPECIALS: readonly string[];
 /** Return the eligible special keys for a given damage tier. */
 export declare function getEligibleSpecialsForTier(tier: ActiveSpecialTier): readonly string[];

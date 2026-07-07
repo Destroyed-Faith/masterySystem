@@ -362,6 +362,24 @@ export function registerAttackRollClickHandler() {
             const rollLabel = tnKind === 'casting'
                 ? `Spell Attack (${flags.attribute.charAt(0).toUpperCase() + flags.attribute.slice(1)})`
                 : `${attackKind} Attack (${flags.attribute.charAt(0).toUpperCase() + flags.attribute.slice(1)})`;
+            // Dread: pre-attack Save gate. On failure the attack is lost (action
+            // stays spent). Disrupt: using a Power reduces/clears Disrupt.
+            try {
+                const { resolveDreadPreAttack, consumePowerDisrupt } = await import('../combat/dread-gate.js');
+                const dread = await resolveDreadPreAttack(freshAttacker);
+                if (dread.blocked) {
+                    ui.notifications?.warn(dread.note || 'Dread — attack lost.');
+                    button.html('<i class="fas fa-ban"></i> Dread').addClass('rolled');
+                    rollAttackMessageLocks.delete(lockId);
+                    return;
+                }
+                if (flags.selectedPowerId) {
+                    await consumePowerDisrupt(freshAttacker);
+                }
+            }
+            catch (err) {
+                console.warn('Mastery System | Dread/Disrupt gate failed', err);
+            }
             const actionEco = await import('../combat/action-economy.js');
             const economyForStones = actionEco.getActionEconomyActor(freshAttacker) ?? freshAttacker;
             const combatRef = game.combat;

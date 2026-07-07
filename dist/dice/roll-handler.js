@@ -5,6 +5,7 @@
 import { EXPLODE_VALUE, RAISE_INCREMENT } from '../utils/constants.js';
 import { resolveRaiseOutcome } from '../combat/raise-resolution.js';
 import { evaluateAutoFail } from '../system/auto-fail.js';
+import { getActiveSpecialValue } from '../system/active-specials.js';
 import { manualKindFromRollKind, manualRollBonusForKind, readManualAdjustments, } from '../utils/manual-adjustments.js';
 /**
  * Roll one pool die: each face of **8** explodes (Players Guide ~5850–5854 —
@@ -231,7 +232,11 @@ export async function masteryRoll(options) {
             if (actor) {
                 const decision = evaluateAutoFail(actor, options.checkContext, autoFailIntent);
                 if (decision.dicePenalty && decision.dicePenalty > 0) {
-                    const adjusted = Math.max(1, numDice - decision.dicePenalty);
+                    // Disoriented clamps to Mastery Rank (keepDice); other penalties to 1.
+                    const floor = decision.reason === 'disoriented'
+                        ? Math.max(1, Math.floor(keepDice))
+                        : Math.max(1, decision.minFloor ?? 1);
+                    const adjusted = Math.max(floor, numDice - decision.dicePenalty);
                     if (adjusted !== numDice) {
                         const note = decision.note ?? `Auto-Fail: −${decision.dicePenalty} dice`;
                         flavor = flavor ? `${flavor} | ${note}` : note;
@@ -247,6 +252,35 @@ export async function masteryRoll(options) {
         }
         catch (err) {
             console.warn('Mastery System | auto-fail lookup failed', err);
+        }
+    }
+    // Diminishing save maluses: Soulburn (Body/Mind/Spirit) and Weaken reduce
+    // Save Dice by X, to a minimum of the roller's Mastery Rank.
+    if (options.actorId && (kind === 'saveBody' || kind === 'saveMind' || kind === 'saveSpirit')) {
+        try {
+            const actor = game?.actors?.get?.(options.actorId);
+            if (actor) {
+                const soulburn = getActiveSpecialValue(actor, 'soulburn');
+                const weaken = getActiveSpecialValue(actor, 'weaken');
+                const penalty = soulburn + weaken;
+                if (penalty > 0) {
+                    const floor = Math.max(1, Math.floor(keepDice));
+                    const adjusted = Math.max(floor, numDice - penalty);
+                    if (adjusted !== numDice) {
+                        const parts = [];
+                        if (soulburn > 0)
+                            parts.push(`Soulburn ${soulburn}`);
+                        if (weaken > 0)
+                            parts.push(`Weaken ${weaken}`);
+                        const note = `${parts.join(' + ')} — −${numDice - adjusted} Save Dice (min MR)`;
+                        flavor = flavor ? `${flavor} | ${note}` : note;
+                        numDice = adjusted;
+                    }
+                }
+            }
+        }
+        catch (err) {
+            console.warn('Mastery System | save malus lookup failed', err);
         }
     }
     // Split-Attack (and similar): enforce a hard ceiling on the pool *after* all

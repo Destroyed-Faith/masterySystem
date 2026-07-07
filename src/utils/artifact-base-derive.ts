@@ -30,7 +30,7 @@ function stageIndex(level: number): number {
 // ---------------------------------------------------------------------------
 // Weapon Special baseline (value-based Specials). Breakpoints: L1 / L4 / L7 / L10.
 // Qualitative Specials (Finesse, Light, Reach, Thrown, Returning, Spell Focus,
-// Ignite, …) do not scale by number and are intentionally absent here.
+// Ruin, …) do not scale by number and are intentionally absent here.
 // ---------------------------------------------------------------------------
 
 const WEAPON_SPECIAL_BASELINE: Record<string, [number, number, number, number]> = {
@@ -38,8 +38,8 @@ const WEAPON_SPECIAL_BASELINE: Record<string, [number, number, number, number]> 
   expose: [2, 4, 6, 8],
   corrode: [2, 4, 6, 8],
   push: [2, 4, 6, 8],
-  freeze: [2, 4, 6, 8],
-  shock: [2, 4, 6, 8],
+  slow: [2, 4, 6, 8],
+  disrupt: [2, 4, 6, 8],
   mark: [2, 4, 6, 8],
   precision: [1, 2, 3, 4],
   prone: [1, 2, 3, 4],

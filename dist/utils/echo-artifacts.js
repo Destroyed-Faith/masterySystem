@@ -733,7 +733,7 @@ const DRAGON_CLAWS = {
     // Rending Spiral and Tail Sweep are real, editable catalog Powers — both are
     // self-centered Melee AoE weapon attacks that deal the current Claw / Tail
     // Weapon Damage in a radius. Only the names are overridden; the GM can add the
-    // Bleeding / Push Specials and tune them freely in the Node Editor.
+    // Lacerate / Push Specials and tune them freely in the Node Editor.
     progressionPickSpecs: {
         2: { name: 'Rending Spiral', templateId: 'active-melee-weapon-aoe' },
         3: { name: 'Tail Sweep', templateId: 'active-melee-weapon-aoe' },
@@ -773,7 +773,7 @@ const DRAGON_CLAWS = {
             aoe: 'Radius 3 m',
             duration: 'Instant',
             effect: 'Affected creatures take your current Claw / Tail Weapon Damage.',
-            special: 'Bleeding(3)',
+            special: 'Lacerate(3)',
         },
         {
             level: 3,
@@ -802,7 +802,7 @@ const DRAGON_CLAWS = {
             aoe: 'Radius 6 m',
             duration: 'Instant',
             effect: 'Affected creatures take Claw / Tail Damage.',
-            special: 'Bleeding(5)',
+            special: 'Lacerate(5)',
         },
         {
             level: 6,
@@ -831,7 +831,7 @@ const DRAGON_CLAWS = {
             aoe: 'Radius 7 m',
             duration: 'Instant',
             effect: 'Affected creatures take Claw / Tail Damage.',
-            special: 'Bleeding(7)',
+            special: 'Lacerate(7)',
         },
         {
             level: 9,
@@ -870,11 +870,11 @@ const DRAGON_HEAD = {
     naturalWeapon: { name: 'Bite', weaponType: 'melee', hands: 0 },
     // The three Level Progression lines are real, editable catalog Powers, just
     // flavored with the Dragon Head names. Breath Weapon = a Ranged AoE Special
-    // Damage active (Tier 4, default Ignite); Draconic Roar = the Armor Aura
+    // Damage active (Tier 4, default Ruin); Draconic Roar = the Armor Aura
     // Active Buff; Draconic Recovery = a Stone Refresh (Might). All editable in
     // the Node Editor; only the names are overridden.
     progressionPickSpecs: {
-        1: { name: 'Breath Weapon', delivery: 'ranged-aoe', special: 'ignite' },
+        1: { name: 'Breath Weapon', delivery: 'ranged-aoe', special: 'ruin' },
         2: { name: 'Draconic Roar', templateId: 'ab-armor-aura' },
     },
     stoneFunction: { level: 3, kind: 'stoneRefresh', attribute: 'might', name: 'Draconic Recovery' },

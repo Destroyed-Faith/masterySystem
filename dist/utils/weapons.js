@@ -60,7 +60,7 @@ export const WEAPONS = [
         weaponDamage: '2d8',
         hands: 1,
         innateAbilities: [],
-        special: 'Push(2), Freeze(2)',
+        special: 'Push(2), Slow(2)',
         description: 'A heavy hammer for impact and control.'
     },
     {
@@ -68,7 +68,7 @@ export const WEAPONS = [
         weaponDamage: '2d8',
         hands: 1,
         innateAbilities: [],
-        special: 'Prone(1), Shock(2)',
+        special: 'Prone(1), Disrupt(2)',
         description: 'A chained head that unbalances foes.'
     },
     {

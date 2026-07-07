@@ -4,10 +4,10 @@
 import { ALL_SPECIAL_EFFECTS, getEffectBaseName } from './special-effects.js';
 /** Legacy sheet values (capitalized) → display label */
 const LEGACY_NPC_SPECIAL_LABEL = {
-    Bleed: 'Bleeding',
-    Ignite: 'Ignite',
-    Freeze: 'Freeze',
-    Poison: 'Poisoned',
+    Bleed: 'Lacerate',
+    Ignite: 'Ruin',
+    Freeze: 'Slow',
+    Poison: 'Blight',
     Stun: 'Stun',
     Knockdown: 'Knockdown'
 };

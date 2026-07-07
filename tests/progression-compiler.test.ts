@@ -85,12 +85,12 @@ describe('deriveLevelProgressionFromPicks', () => {
         level: 1,
         kind: 'power',
         powerTemplateId: 'active-ranged-zone-t3',
-        chosenSpecial: { key: 'poisoned', tier: 3 },
+        chosenSpecial: { key: 'blight', tier: 3 },
       },
     ];
     const rows = deriveLevelProgressionFromPicks(picks);
-    expect(rows[0].name).toContain('Poisoned');
-    expect(rows[0].special.toLowerCase()).toContain('poison');
+    expect(rows[0].name).toContain('Blight');
+    expect(rows[0].special.toLowerCase()).toContain('blight');
   });
 
   it('propagates Active-as-Spell flags from a ranged pick into staged rows', () => {

@@ -72,10 +72,10 @@ function normalizeNpcAttackRowForContext(row) {
 }
 function buildNpcSpecialDropdownOptions() {
     const legacy = [
-        { value: 'Bleed', label: 'Bleed (Legacy)' },
-        { value: 'Ignite', label: 'Ignite (Legacy)' },
-        { value: 'Freeze', label: 'Freeze (Legacy)' },
-        { value: 'Poison', label: 'Poison (Legacy)' },
+        { value: 'Bleed', label: 'Lacerate (Legacy)' },
+        { value: 'Ignite', label: 'Ruin (Legacy)' },
+        { value: 'Freeze', label: 'Slow (Legacy)' },
+        { value: 'Poison', label: 'Blight (Legacy)' },
         { value: 'Stun', label: 'Stun (Legacy)' },
         { value: 'Knockdown', label: 'Knockdown (Legacy)' }
     ];

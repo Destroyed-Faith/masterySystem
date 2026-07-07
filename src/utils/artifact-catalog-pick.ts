@@ -22,10 +22,10 @@ export interface CatalogSpecialOption {
 
 /** Fixed Special choices for Active Buff aura templates (no SPECIAL placeholder row). */
 const SPECIAL_AURA_OPTIONS: Record<string, readonly string[]> = {
-  'ab-special-aura-start-3': ['poisoned', 'regeneration'],
-  'ab-special-aura-start-4': ['bleeding', 'freeze', 'ignite', 'mark'],
+  'ab-special-aura-start-3': ['blight', 'regeneration'],
+  'ab-special-aura-start-4': ['lacerate', 'slow', 'ruin', 'mark'],
   'ab-special-aura-start-5': ['weaken'],
-  'ab-special-aura-start-6': ['corrode', 'shock', 'soulburn', 'hex', 'sundered'],
+  'ab-special-aura-start-6': ['corrode', 'disrupt', 'soulburn', 'hex', 'sundered'],
 };
 
 function tierFromTemplateId(templateId: string): ActiveSpecialTier | undefined {

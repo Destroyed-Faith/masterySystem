@@ -511,7 +511,7 @@ export const ACTIVE_BUFF_TEMPLATES: PowerTemplate[] = [
         subfamily: 'aura',
         category: 'activeBuff',
         tags: [],
-        fluff: 'You radiate one low-cost diminishing effect, such as poison, sickness, corruption, spores, renewal, growth, or life force. Choose Poisoned(X) (enemies) or Regeneration(X) (allies).',
+        fluff: 'You radiate one low-cost diminishing effect, such as blight, sickness, corruption, spores, renewal, growth, or life force. Choose Blight(X) (enemies) or Regeneration(X) (allies).',
         cost: { action: 'attack' },
         roll: { kind: 'none' },
         levels: buildLevels((lvl) => {
@@ -520,7 +520,7 @@ export const ACTIVE_BUFF_TEMPLATES: PowerTemplate[] = [
             return activeBuffRow({
                 aoe: { shape: 'aura', radiusM: r, targetFilter: 'enemies', center: 'self' },
                 duration: DURATION_MR_ROUNDS,
-                effectText: `At the end of each of your turns, valid targets within **${r} m** gain **Poisoned(${x})** or **Regeneration(${x})**, depending on the chosen Special.`,
+                effectText: `At the end of each of your turns, valid targets within **${r} m** gain **Blight(${x})** or **Regeneration(${x})**, depending on the chosen Special.`,
                 mechanics: { auraPayload: { kind: 'special', x, targets: 'enemies', radiusM: r }, duration: 'masteryRankRounds' },
             });
         }),
@@ -532,7 +532,7 @@ export const ACTIVE_BUFF_TEMPLATES: PowerTemplate[] = [
         subfamily: 'aura',
         category: 'activeBuff',
         tags: [],
-        fluff: 'You radiate one standard diminishing effect, such as bleeding pressure, frost, fire, or marked threat. Choose Bleeding(X) / Freeze(X) / Ignite(X) / Mark(X).',
+        fluff: 'You radiate one standard diminishing effect, such as laceration, frost, decay, or marked threat. Choose Lacerate(X) / Slow(X) / Ruin(X) / Mark(X).',
         cost: { action: 'attack' },
         roll: { kind: 'none' },
         levels: buildLevels((lvl) => {
@@ -541,7 +541,7 @@ export const ACTIVE_BUFF_TEMPLATES: PowerTemplate[] = [
             return activeBuffRow({
                 aoe: { shape: 'aura', radiusM: r, targetFilter: 'enemies', center: 'self' },
                 duration: DURATION_MR_ROUNDS,
-                effectText: `At the end of each of your turns, enemies within **${r} m** gain **Bleeding(${x})** / **Freeze(${x})** / **Ignite(${x})** / **Mark(${x})**, depending on the chosen Special.`,
+                effectText: `At the end of each of your turns, enemies within **${r} m** gain **Lacerate(${x})** / **Slow(${x})** / **Ruin(${x})** / **Mark(${x})**, depending on the chosen Special.`,
                 mechanics: { auraPayload: { kind: 'special', x, targets: 'enemies', radiusM: r }, duration: 'masteryRankRounds' },
             });
         }),
@@ -574,7 +574,7 @@ export const ACTIVE_BUFF_TEMPLATES: PowerTemplate[] = [
         subfamily: 'aura',
         category: 'activeBuff',
         tags: [],
-        fluff: 'You radiate one high-pressure diminishing effect, such as corrosion, shock, soul pressure, spell vulnerability, or physical vulnerability. Choose Corrode(X) / Shock(X) / Soulburn(X) / Hex(X) / Sundered(X).',
+        fluff: 'You radiate one high-pressure diminishing effect, such as corrosion, disruption, soul pressure, spell vulnerability, or physical vulnerability. Choose Corrode(X) / Disrupt(X) / Soulburn(X) / Hex(X) / Sundered(X).',
         cost: { action: 'attack' },
         roll: { kind: 'none' },
         levels: buildLevels((lvl) => {
@@ -583,7 +583,7 @@ export const ACTIVE_BUFF_TEMPLATES: PowerTemplate[] = [
             return activeBuffRow({
                 aoe: { shape: 'aura', radiusM: r, targetFilter: 'enemies', center: 'self' },
                 duration: DURATION_MR_ROUNDS,
-                effectText: `At the end of each of your turns, enemies within **${r} m** gain **Corrode(${x})** / **Shock(${x})** / **Soulburn(${x})** / **Hex(${x})** / **Sundered(${x})**, depending on the chosen Special.`,
+                effectText: `At the end of each of your turns, enemies within **${r} m** gain **Corrode(${x})** / **Disrupt(${x})** / **Soulburn(${x})** / **Hex(${x})** / **Sundered(${x})**, depending on the chosen Special.`,
                 mechanics: { auraPayload: { kind: 'special', x, targets: 'enemies', radiusM: r }, duration: 'masteryRankRounds' },
             });
         }),

@@ -37,7 +37,7 @@ describe('artifact-power-pick', () => {
     const keys = listMartialDamageSpecialOptions().map((o) => o.key);
     expect(new Set(keys).size).toBe(keys.length);
     expect(keys).toContain('mark');
-    expect(keys).toContain('poisoned');
+    expect(keys).toContain('blight');
   });
 
   it('formats artifact row labels with delivery + Special', () => {

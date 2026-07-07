@@ -7,6 +7,7 @@ import { MasteryRollResult } from '../types';
 import { EXPLODE_VALUE, RAISE_INCREMENT } from '../utils/constants';
 import { resolveRaiseOutcome, type RaiseOutcome } from '../combat/raise-resolution.js';
 import { evaluateAutoFail, type CheckContext } from '../system/auto-fail.js';
+import { getActiveSpecialValue } from '../system/active-specials.js';
 import {
   manualKindFromRollKind,
   manualRollBonusForKind,
@@ -48,15 +49,14 @@ export interface RollOptions {
    */
   targetActorId?: string;
   /**
-   * Semantic check tags used by the Auto-Fail engine. When `tags`
-   * includes `'sight'` and the rolling actor is Blinded(X), the roll
-   * is either auto-failed (skill check) or penalised −X dice (attack).
+   * Semantic check tags used by the Auto-Fail engine. When the rolling
+   * actor is Disoriented(X), attacks and `'sight'`-tagged perception checks
+   * are penalised −X dice (to a minimum of Mastery Rank).
    */
   checkContext?: CheckContext;
   /**
    * Intent classifier for the auto-fail engine. Defaults to `'skill'`.
-   * Attacks use `'attack'` so that Blinded only subtracts dice instead
-   * of forcing a full failure.
+   * Attacks use `'attack'` so Disoriented always subtracts Attack Dice.
    */
   autoFailIntent?: 'skill' | 'attack';
   /** @deprecated Auto-Raises removed — ignored if passed. */
@@ -378,7 +378,11 @@ export async function masteryRoll(options: RollOptions): Promise<MasteryRollResu
       if (actor) {
         const decision = evaluateAutoFail(actor, options.checkContext, autoFailIntent);
         if (decision.dicePenalty && decision.dicePenalty > 0) {
-          const adjusted = Math.max(1, numDice - decision.dicePenalty);
+          // Disoriented clamps to Mastery Rank (keepDice); other penalties to 1.
+          const floor = decision.reason === 'disoriented'
+            ? Math.max(1, Math.floor(keepDice))
+            : Math.max(1, decision.minFloor ?? 1);
+          const adjusted = Math.max(floor, numDice - decision.dicePenalty);
           if (adjusted !== numDice) {
             const note = decision.note ?? `Auto-Fail: −${decision.dicePenalty} dice`;
             flavor = flavor ? `${flavor} | ${note}` : note;
@@ -393,6 +397,33 @@ export async function masteryRoll(options: RollOptions): Promise<MasteryRollResu
       }
     } catch (err) {
       console.warn('Mastery System | auto-fail lookup failed', err);
+    }
+  }
+
+  // Diminishing save maluses: Soulburn (Body/Mind/Spirit) and Weaken reduce
+  // Save Dice by X, to a minimum of the roller's Mastery Rank.
+  if (options.actorId && (kind === 'saveBody' || kind === 'saveMind' || kind === 'saveSpirit')) {
+    try {
+      const actor: any = (game as any)?.actors?.get?.(options.actorId);
+      if (actor) {
+        const soulburn = getActiveSpecialValue(actor, 'soulburn');
+        const weaken = getActiveSpecialValue(actor, 'weaken');
+        const penalty = soulburn + weaken;
+        if (penalty > 0) {
+          const floor = Math.max(1, Math.floor(keepDice));
+          const adjusted = Math.max(floor, numDice - penalty);
+          if (adjusted !== numDice) {
+            const parts: string[] = [];
+            if (soulburn > 0) parts.push(`Soulburn ${soulburn}`);
+            if (weaken > 0) parts.push(`Weaken ${weaken}`);
+            const note = `${parts.join(' + ')} — −${numDice - adjusted} Save Dice (min MR)`;
+            flavor = flavor ? `${flavor} | ${note}` : note;
+            numDice = adjusted;
+          }
+        }
+      }
+    } catch (err) {
+      console.warn('Mastery System | save malus lookup failed', err);
     }
   }
 

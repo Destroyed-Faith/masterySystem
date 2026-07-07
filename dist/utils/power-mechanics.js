@@ -708,8 +708,8 @@ export function getRollDiceDelta(actor, kind, target) {
 // ---------------------------------------------------------------------------
 /**
  * Normalize a condition key or name to a canonical lowercase keyword the
- * checker understands (e.g. "Bleeding(3)" -> "bleeding"; "Target Hexed" ->
- * "hexed"; "targetIgnited" -> "ignited").
+ * checker understands (e.g. "Lacerate(3)" -> "lacerate"; "Target Hexed" ->
+ * "hex"; "targetRuin" -> "ruin").
  */
 function canonicalConditionName(raw) {
     return String(raw || '')
@@ -719,24 +719,40 @@ function canonicalConditionName(raw) {
         .replace(/[^a-z]/g, '')
         .trim();
 }
-/** Known condition synonym -> canonical key. */
+/** Known condition synonym -> canonical key (post-reconciliation ids). */
 const CONDITION_SYNONYMS = {
-    marked: 'marked',
-    ignited: 'ignited',
-    ignite: 'ignited',
-    burning: 'ignited',
-    onfire: 'ignited',
-    shocked: 'shocked',
-    shock: 'shocked',
-    frozen: 'frozen',
-    freeze: 'frozen',
-    hexed: 'hexed',
-    hex: 'hexed',
-    bleeding: 'bleeding',
-    bleed: 'bleeding',
+    mark: 'mark',
+    marked: 'mark',
+    ruin: 'ruin',
+    ignited: 'ruin',
+    ignite: 'ruin',
+    burning: 'ruin',
+    onfire: 'ruin',
+    disrupt: 'disrupt',
+    disrupted: 'disrupt',
+    shocked: 'disrupt',
+    shock: 'disrupt',
+    slow: 'slow',
+    slowed: 'slow',
+    frozen: 'slow',
+    freeze: 'slow',
+    hexed: 'hex',
+    hex: 'hex',
+    lacerate: 'lacerate',
+    lacerated: 'lacerate',
+    bleeding: 'lacerate',
+    bleed: 'lacerate',
+    blight: 'blight',
+    blighted: 'blight',
+    poisoned: 'blight',
+    poison: 'blight',
+    sundered: 'sundered',
     prone: 'prone',
     stunned: 'stunned',
     disoriented: 'disoriented',
+    blinded: 'disoriented',
+    dread: 'dread',
+    frightened: 'dread',
 };
 function toCanonicalCondition(raw) {
     const k = canonicalConditionName(raw);
@@ -748,7 +764,7 @@ function toCanonicalCondition(raw) {
  *   2. actor.effects (ActiveEffect collection) – name/label match
  *   3. actor.flags['mastery-system'].conditions
  *   4. actor.system.conditions
- *   5. actor.system.specials (array of strings like "Bleeding(3)")
+ *   5. actor.system.specials (array of strings like "Lacerate(3)")
  *
  * This is defensive and works whether the GM tags conditions as Foundry
  * status tokens, applies ActiveEffects via our buff system, or stores them
@@ -797,17 +813,26 @@ export function hasCondition(actor, condition) {
         }
     }
     catch { /* ignore */ }
-    // 3. Flags
+    // 3. Flags (canonicalize each stored key so legacy names like "hexed" resolve)
     const masteryFlags = actor?.flags?.['mastery-system'] || {};
     const fc = masteryFlags.conditions;
-    if (fc && typeof fc === 'object' && fc[want] === true)
-        return true;
+    if (fc && typeof fc === 'object') {
+        for (const [key, val] of Object.entries(fc)) {
+            if (val && toCanonicalCondition(key) === want)
+                return true;
+        }
+    }
     if (masteryFlags[want] === true)
         return true;
     // 4. system.conditions
     const sys = actor?.system || {};
-    if (sys?.conditions && typeof sys.conditions === 'object' && sys.conditions[want] === true)
-        return true;
+    const sysCond = sys?.conditions;
+    if (sysCond && typeof sysCond === 'object') {
+        for (const [key, val] of Object.entries(sysCond)) {
+            if (val === true && toCanonicalCondition(key) === want)
+                return true;
+        }
+    }
     if (sys?.status && typeof sys.status === 'object' && sys.status[want] === true)
         return true;
     // 5. system.specials array (power-applied specials)

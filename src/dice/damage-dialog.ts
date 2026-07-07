@@ -140,7 +140,7 @@ export interface SpecialOption {
   type: 'power' | 'passive' | 'weapon' | 'power-special' | 'npc-combat' | 'npc-raise';
   description: string;
   effect?: string;
-  value?: number; // For power specials like "Bleeding(3)" where 3 is the value
+  value?: number; // For power specials like "Lacerate(3)" where 3 is the value
 }
 
 export interface DamageResult {
@@ -1218,13 +1218,13 @@ async function calculatePassiveDamage(actor: Actor): Promise<string> {
 
 /**
  * Collect all available specials (powers, passives, weapon specials)
- * Now includes power specials (e.g., "Bleeding(3)") as individual options
+ * Now includes power specials (e.g., "Lacerate(3)") as individual options
  */
 async function collectAvailableSpecials(actor: Actor, weapon: any | null, selectedPower?: any): Promise<SpecialOption[]> {
   const specials: SpecialOption[] = [];
   const items = (actor as any).items || [];
   
-  // Get power specials from selected power (e.g., "Bleeding(3)")
+  // Get power specials from selected power (e.g., "Lacerate(3)")
   if (selectedPower && selectedPower.specials && selectedPower.specials.length > 0) {
     for (const specialName of selectedPower.specials) {
       // Defense-in-depth: Split-Attack and Autofire are attack *modes*, not
@@ -1239,14 +1239,14 @@ async function collectAvailableSpecials(actor: Actor, weapon: any | null, select
       ) {
         continue;
       }
-      // Parse special name like "Bleeding(3)" to extract name and value
+      // Parse special name like "Lacerate(3)" to extract name and value
       const match = specialName.match(/^([^(]+)(?:\((\d+)\))?$/);
       if (match) {
         const specialNameOnly = match[1].trim();
         const specialValue = match[2] ? parseInt(match[2]) : null;
         specials.push({
           id: `power-special-${specialNameOnly.toLowerCase().replace(/\s+/g, '-')}`,
-          name: specialName, // Keep full name like "Bleeding(3)"
+          name: specialName, // Keep full name like "Lacerate(3)"
           type: 'power-special',
           description: `Power special: ${specialName}`,
           effect: specialName,
@@ -1323,6 +1323,36 @@ async function collectAvailableSpecials(actor: Actor, weapon: any | null, select
 }
 
 /**
+ * Reduce a target's Mark by the spent amount (removing it at 0). Mark is a
+ * global counter on the target; spending it applies the Damage Floor.
+ */
+async function consumeTargetMark(target: Actor, spend: number): Promise<void> {
+  if (!spend || spend <= 0) return;
+  try {
+    const system = (target as any).system;
+    const list: any[] = Array.isArray(system?.statusEffects) ? system.statusEffects : [];
+    let changed = false;
+    const next = list
+      .map((e) => {
+        const id = e?.id ?? '';
+        const name = String(e?.name ?? '').toLowerCase();
+        if (id === 'mark' || name === 'mark') {
+          const remaining = Math.max(0, Math.floor(Number(e.value ?? 0)) - spend);
+          changed = true;
+          return { ...e, value: remaining };
+        }
+        return e;
+      })
+      .filter((e) => !((e?.id === 'mark' || String(e?.name ?? '').toLowerCase() === 'mark') && Math.floor(Number(e.value ?? 0)) <= 0));
+    if (changed) {
+      await (target as any).update({ 'system.statusEffects': next });
+    }
+  } catch (err) {
+    console.warn('Mastery System | consumeTargetMark failed', err);
+  }
+}
+
+/**
  * Apply status effects from specials to target actor
  */
 async function applyStatusEffectsToTarget(target: Actor, specialsUsed: string[]): Promise<void> {
@@ -1341,22 +1371,28 @@ async function applyStatusEffectsToTarget(target: Actor, specialsUsed: string[])
     
     // Add new status effects from specials
     for (const specialName of specialsUsed) {
-      // Parse special name like "Bleeding(3)" to extract name and value
+      // Parse special name like "Lacerate(3)" to extract name and value
       const match = specialName.match(/^([^(]+)(?:\((\d+)\))?$/);
       if (match) {
         const effectName = match[1].trim();
         const effectValue = match[2] ? parseInt(match[2]) : null;
-        
-        // Check if effect already exists
-        const existingEffect = system.statusEffects.find((e: any) => e.name === effectName);
+        const { getEffect } = await import('../utils/special-effects.js');
+        const effectId = getEffect(effectName)?.id;
+
+        // Check if effect already exists (match by canonical id when known).
+        const existingEffect = system.statusEffects.find((e: any) =>
+          (effectId && e.id === effectId) || e.name === effectName,
+        );
         if (existingEffect) {
           // Update existing effect (e.g., increase stack)
           if (effectValue !== null) {
             existingEffect.value = (existingEffect.value || 0) + effectValue;
           }
+          if (effectId && !existingEffect.id) existingEffect.id = effectId;
         } else {
           // Add new effect
           system.statusEffects.push({
+            id: effectId,
             name: effectName,
             value: effectValue,
             source: 'combat',
@@ -1822,6 +1858,61 @@ async function calculateDamageResult(
     console.warn('Mastery System | [CALCULATE DAMAGE] manual damage bonus failed', e);
   }
 
+  // Diminishing vulnerability riders on the defender:
+  //   Hex(X)      → +1d8 per 2 Hex (rounded up) when hit by a Spell.
+  //   Sundered(X) → +1d8 per 2 Sundered (rounded up) when hit by a non-Spell.
+  // Mark(X) sets a Damage Floor: each damage die below the spent Mark value is
+  // treated as that value; Mark is then reduced by the amount spent.
+  let vulnerabilityBonusRolled = 0;
+  let markFloorBonus = 0;
+  try {
+    if (target) {
+      const { getActiveSpecialValue } = await import('../system/active-specials.js');
+      const selectedPower = selectedPowerId
+        ? resolvePowerItemForDamage(attacker as any, selectedPowerId)
+        : null;
+      const isSpell = selectedPower ? isSpellPowerItem(selectedPower) : false;
+
+      const hex = getActiveSpecialValue(target, 'hex');
+      const sundered = getActiveSpecialValue(target, 'sundered');
+      const vulnValue = isSpell ? hex : sundered;
+      if (vulnValue > 0) {
+        const bonusDice = Math.ceil(vulnValue / 2);
+        const label = isSpell ? `Hex(${hex})` : `Sundered(${sundered})`;
+        const r = await rollDiceWithDetail(`${bonusDice}d8`, `${label} vulnerability`);
+        vulnerabilityBonusRolled += r.total;
+        if (r.line) rollDetails.push(r.line);
+        if (r.roll) damageChatRolls.push(r.roll);
+        specialsUsed.push(`${label} → +${bonusDice}d8`);
+      }
+
+      const mark = getActiveSpecialValue(target, 'mark');
+      if (mark > 0) {
+        const spend = Math.min(mark, 8);
+        for (const roll of damageChatRolls) {
+          for (const term of (roll?.terms || [])) {
+            const results = term?.results;
+            if (!Array.isArray(results)) continue;
+            for (const res of results) {
+              if (res?.active === false) continue;
+              const face = Number(res?.result);
+              if (Number.isFinite(face) && face < spend) {
+                markFloorBonus += spend - face;
+              }
+            }
+          }
+        }
+        if (markFloorBonus > 0 || spend > 0) {
+          rollDetails.push(`Mark(${mark}) floor → dice raised to ${spend} (+${markFloorBonus})`);
+          specialsUsed.push(`Mark spent ${spend} (floor ${spend})`);
+        }
+        await consumeTargetMark(target, spend);
+      }
+    }
+  } catch (e) {
+    console.warn('Mastery System | [CALCULATE DAMAGE] vulnerability/mark riders failed', e);
+  }
+
   // Players Guide attribute scaling (~5957–5965): Might/8 = +2 melee damage
   // per successful melee/unarmed strike. Applies as a flat bonus, never on
   // ranged/spell strikes. Read directly from the actor's pre-derived
@@ -1849,7 +1940,9 @@ async function calculateDamageResult(
     + raiseDamage
     + conditionalDamageRolled
     + manualDamageRolled
-    + manualDamageFlat;
+    + manualDamageFlat
+    + vulnerabilityBonusRolled
+    + markFloorBonus;
   
   console.log('Mastery System | [CALCULATE DAMAGE] Final calculation', {
     baseDamageRolled,

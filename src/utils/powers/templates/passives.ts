@@ -417,8 +417,8 @@ export const PASSIVE_TEMPLATES: PowerTemplate[] = [
         id: 'passive-bloodlust', name: 'Bloodlust', subfamily: 'damage',
         fluff: 'Your own blood teaches your hands to stop hesitating.',
         perLevel: (lvl) => ({
-            text: `While you are affected by **Bleeding**, gain **${DMG_COND[lvl - 1]} Damage** on all damage rolls you make.`,
-            mechanics: { damageRider: { flat: DMG_COND[lvl - 1]! }, conditionExpr: 'self.hasSpecial.bleeding' },
+            text: `While you are affected by **Lacerate**, gain **${DMG_COND[lvl - 1]} Damage** on all damage rolls you make.`,
+            mechanics: { damageRider: { flat: DMG_COND[lvl - 1]! }, conditionExpr: 'self.hasSpecial.lacerate' },
         }),
     }),
     basePassive({
@@ -740,11 +740,11 @@ export const PASSIVE_TEMPLATES: PowerTemplate[] = [
             const heal = CC_DMG_HEAL.heal[lvl - 1];
             const dmgStr = dmg ? `gain **${dmg} Damage** on all damage rolls you make and ` : '';
             return {
-                text: `While you are affected by **Bleeding**, ${dmgStr}heal **${heal} HP** at the start of your turn.`,
+                text: `While you are affected by **Lacerate**, ${dmgStr}heal **${heal} HP** at the start of your turn.`,
                 mechanics: {
                     ...(dmg ? { damageRider: { flat: dmg } } : {}),
                     regen: heal,
-                    conditionExpr: 'self.hasSpecial.bleeding',
+                    conditionExpr: 'self.hasSpecial.lacerate',
                 },
             };
         },

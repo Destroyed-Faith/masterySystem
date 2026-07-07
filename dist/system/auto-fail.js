@@ -2,8 +2,9 @@
  * Auto-Fail Engine — declarative mapping from conditions to forced outcomes.
  *
  * Current consumers:
- *   - `Blinded(X)` forces failure on `sight`-tagged checks AND subtracts
- *     `X` dice from any `sight`-tagged attack.
+ *   - `Disoriented(X)` subtracts `X` Attack Dice (and `X` dice from sight /
+ *     perception checks used to notice, locate, track, or identify), down to
+ *     a minimum of the roller's Mastery Rank.
  *   - `Stunned(X)` locks `X` attack actions for the current round (enforced
  *     in `src/combat/action-economy.ts`, not here).
  *
@@ -11,9 +12,10 @@
  * and attack-roll-handler can call it without pulling in Foundry globals.
  */
 import { getSkillTags } from './skill-tags.js';
+import { getActiveSpecialValue } from './active-specials.js';
 /**
- * Extract the rank from a status-effect label like `"Blinded(2)"` or a
- * status id like `"blinded-2"`. Returns 1 when no rank is encoded.
+ * Extract the rank from a status-effect label like `"Disoriented(2)"` or a
+ * status id like `"disoriented-2"`. Returns 1 when no rank is encoded.
  */
 function extractRank(label) {
     const m = String(label).match(/(\d+)/);
@@ -23,22 +25,25 @@ function extractRank(label) {
     return Number.isFinite(n) && n > 0 ? n : 1;
 }
 /**
- * Return the actor's Blinded rank (0 when not blinded). Reads Foundry's
- * `actor.statuses` set first, then the mastery-flag `conditions`, then
- * effect names — covers the three ways the system tracks conditions.
+ * Return the actor's Disoriented rank (0 when not disoriented). Reads the
+ * `system.statusEffects` view first, then Foundry's `actor.statuses` set, the
+ * mastery-flag `conditions`, then effect names.
  */
-export function getBlindedRank(actor) {
+export function getDisorientedRank(actor) {
     if (!actor)
         return 0;
+    const fromStatus = getActiveSpecialValue(actor, 'disoriented');
+    if (fromStatus > 0)
+        return fromStatus;
     // Foundry v13 `actor.statuses` is a Set of status ids.
     const statuses = actor?.statuses;
     if (statuses && typeof statuses.has === 'function') {
-        if (statuses.has('blinded'))
+        if (statuses.has('disoriented'))
             return 1;
     }
-    // mastery-system flag bag: { conditions: { blinded: { rank } } }
+    // mastery-system flag bag: { conditions: { disoriented: { rank } } }
     const conds = actor?.flags?.['mastery-system']?.conditions;
-    const flagRank = conds?.blinded?.rank ?? conds?.blinded?.value;
+    const flagRank = conds?.disoriented?.rank ?? conds?.disoriented?.value;
     if (Number.isFinite(Number(flagRank)) && Number(flagRank) > 0) {
         return Math.floor(Number(flagRank));
     }
@@ -52,13 +57,13 @@ export function getBlindedRank(actor) {
                 : [];
         for (const e of iter) {
             const name = String(e?.name ?? e?.label ?? '');
-            if (/^blinded/i.test(name))
+            if (/^disoriented/i.test(name))
                 return extractRank(name);
         }
     }
     return 0;
 }
-/** Stunned rank (0 when not stunned). Same lookup as Blinded. */
+/** Stunned rank (0 when not stunned). Same lookup as Disoriented. */
 export function getStunnedRank(actor) {
     if (!actor)
         return 0;
@@ -114,24 +119,27 @@ export function resolveCheckTags(context) {
  * sight-based skill checks).
  */
 export function evaluateAutoFail(actor, context, intent) {
-    const tags = resolveCheckTags(context);
-    if (tags.length === 0)
+    const disorientedRank = getDisorientedRank(actor);
+    if (disorientedRank <= 0)
         return { failed: false };
-    const blindedRank = getBlindedRank(actor);
-    if (blindedRank > 0 && tags.includes('sight')) {
-        if (intent === 'skill') {
-            return {
-                failed: true,
-                reason: 'blinded-sight',
-                note: `Blinded (${blindedRank}) — sight-based check auto-fails.`,
-            };
-        }
-        // Attack: do not fail outright but subtract ranks from the pool.
+    // Attacks are always affected; skill checks only when sight/perception-tagged.
+    if (intent === 'attack') {
         return {
             failed: false,
-            dicePenalty: blindedRank,
-            reason: 'blinded-sight',
-            note: `Blinded (${blindedRank}) — −${blindedRank} dice on sight-based attack.`,
+            dicePenalty: disorientedRank,
+            minFloor: 0, // roll-handler substitutes the Mastery-Rank floor
+            reason: 'disoriented',
+            note: `Disoriented (${disorientedRank}) — −${disorientedRank} Attack Dice (min MR).`,
+        };
+    }
+    const tags = resolveCheckTags(context);
+    if (tags.includes('sight')) {
+        return {
+            failed: false,
+            dicePenalty: disorientedRank,
+            minFloor: 0,
+            reason: 'disoriented',
+            note: `Disoriented (${disorientedRank}) — −${disorientedRank} dice on perception check (min MR).`,
         };
     }
     return { failed: false };

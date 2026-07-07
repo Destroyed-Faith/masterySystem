@@ -113,7 +113,7 @@ const VARIANT_LABELS = {
     'damage-t4-spell': 'Spell attack',
 };
 /** Offense packages hidden from the wizard UI (still in type union for saved data). */
-export const WIZARD_HIDDEN_OFFENSE_IDS = ['ignite', 'weaken-save'];
+export const WIZARD_HIDDEN_OFFENSE_IDS = ['ruin', 'weaken-save'];
 const SECOND_PASSIVE_LABELS = {
     'passive-killing-intent': 'Attack Support',
 };
@@ -625,7 +625,7 @@ const OFFENSIVE_ACTIVE_BUFF_META = {
     'ab-special-overdrive': {
         groupLabel: 'Special effects',
         label: 'Boost a Special on your attacks',
-        explanation: 'Pick a Special you already use (Mark, Bleeding, Freeze, …) and make it hit harder while the buff lasts.',
+        explanation: 'Pick a Special you already use (Mark, Lacerate, Slow, …) and make it hit harder while the buff lasts.',
     },
 };
 const OFFENSIVE_ACTIVE_BUFF_ORDER = [
@@ -751,26 +751,26 @@ export const TOWER_WIZARD_DEFENSE_PACKAGES = [
 function offensePackages() {
     return [
         {
-            id: 'bleeding-push',
+            id: 'lacerate-push',
             label: 'I want to move enemies around and punish movement.',
-            explanation: 'Bleeding punishes enemies for moving. Push forces enemies into bad positions. Together they create a simple control plan.',
+            explanation: 'Lacerate punishes enemies for moving. Push forces enemies into bad positions. Together they create a simple control plan.',
             warning: 'This package works best when you understand positioning.',
             catalogAvailable: true,
-            resolveGrants: ({ delivery }) => [dmg(delivery, 4, 'bleeding'), controlPushPull(delivery)],
+            resolveGrants: ({ delivery }) => [dmg(delivery, 4, 'lacerate'), controlPushPull(delivery)],
         },
         {
-            id: 'ignite',
-            label: 'I want enemies to burn over time.',
-            explanation: 'Ignite is simple and self-contained. You hit the enemy, the enemy burns, and the effect keeps applying pressure.',
+            id: 'ruin',
+            label: 'I want enemies to take damage over time.',
+            explanation: 'Ruin is simple and self-contained. You hit the enemy, the enemy takes ongoing damage, and the effect keeps applying pressure.',
             catalogAvailable: false,
-            resolveGrants: ({ delivery }) => [dmg(delivery, 4, 'ignite'), weapon(delivery)],
+            resolveGrants: ({ delivery }) => [dmg(delivery, 4, 'ruin'), weapon(delivery)],
         },
         {
-            id: 'freeze',
+            id: 'slow',
             label: 'I want to slow enemies down.',
-            explanation: 'Freeze makes enemies slower and keeps pressure on them.',
+            explanation: 'Slow makes enemies slower and punishes standing still.',
             catalogAvailable: true,
-            resolveGrants: ({ delivery }) => [dmg(delivery, 4, 'freeze'), weapon(delivery)],
+            resolveGrants: ({ delivery }) => [dmg(delivery, 4, 'slow'), weapon(delivery)],
         },
         {
             id: 'expose',

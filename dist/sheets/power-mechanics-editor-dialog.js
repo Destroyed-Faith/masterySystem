@@ -75,11 +75,11 @@ function renderForm(m) {
         .join('');
     const conditionOptions = [
         ['', '(none — always applies)'],
-        ['targetMarked', 'targetMarked'],
-        ['targetIgnited', 'targetIgnited'],
-        ['targetShocked', 'targetShocked'],
-        ['targetFrozen', 'targetFrozen'],
-        ['targetHexed', 'targetHexed'],
+        ['targetMark', 'targetMark'],
+        ['targetRuin', 'targetRuin'],
+        ['targetDisrupt', 'targetDisrupt'],
+        ['targetSlow', 'targetSlow'],
+        ['targetHex', 'targetHex'],
         ['self-hp-below-50', 'self-hp-below-50'],
     ];
     const conditionHtml = conditionOptions
@@ -87,11 +87,11 @@ function renderForm(m) {
         .join('');
     const vsCondOptions = [
         ['', '(none)'],
-        ['marked', 'marked'],
-        ['ignited', 'ignited'],
-        ['shocked', 'shocked'],
-        ['frozen', 'frozen'],
-        ['hexed', 'hexed'],
+        ['mark', 'mark'],
+        ['ruin', 'ruin'],
+        ['disrupt', 'disrupt'],
+        ['slow', 'slow'],
+        ['hex', 'hex'],
     ];
     const vsCondHtml = vsCondOptions
         .map(([v, l]) => `<option value="${v}" ${(dr.vsCondition ?? '') === v ? 'selected' : ''}>${esc(l)}</option>`)
@@ -165,7 +165,7 @@ function renderForm(m) {
     <fieldset class="pme-section">
       <legend>modifySpecial</legend>
       <div class="pme-grid">
-        <label>type <input type="text" data-mech="modifySpecial.type" value="${esc(ms.type ?? '')}" placeholder="ignite"/></label>
+        <label>type <input type="text" data-mech="modifySpecial.type" value="${esc(ms.type ?? '')}" placeholder="ruin"/></label>
         <label>mode <select data-mech="modifySpecial.mode">${modifyModeHtml}</select></label>
         <label>amount <input type="number" data-mech="modifySpecial.amount" value="${numAttr(ms.amount)}" step="1"/></label>
         <label>minExisting <input type="number" data-mech="modifySpecial.minExisting" value="${numAttr(ms.minExisting)}" step="1" min="0"/></label>
@@ -204,7 +204,7 @@ function renderForm(m) {
           <select data-mech="condition">${conditionHtml}</select>
         </label>
         <label class="pme-span-2">conditionExpr (free text)
-          <input type="text" data-mech="conditionExpr" value="${esc(mech.conditionExpr ?? '')}" placeholder="targetIgnited / custom"/>
+          <input type="text" data-mech="conditionExpr" value="${esc(mech.conditionExpr ?? '')}" placeholder="targetRuin / custom"/>
         </label>
       </div>
     </fieldset>

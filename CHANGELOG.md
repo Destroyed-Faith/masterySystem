@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.166] - 2026-07-07
+
+### Changed
+
+- **Special Effects reconciliation (rulebook):** Renamed `Bleeding → Lacerate`, `Ignite → Ruin`, `Freeze → Slow`, `Poisoned → Blight` across effects, powers, weapons, artifacts, wizard packages, and NPC models. Existing worlds are migrated automatically on load (old status entries, power specials, `vsCondition`/`conditionExpr` gates, weapon/artifact strings).
+- **Slow / Mark / Hex / Sundered:** Aligned to the current reference — Slow reduces Speed and only deals end-of-turn damage when the target did not voluntarily move; Mark enforces a minimum die result on the next damage roll; Hex (spells) and Sundered (non-spells) grant the defender +1d8 bonus damage per 2 stacks.
+
+### Added
+
+- **New Special Effects:** `Disoriented` (dice penalty on attacks and sight checks, floored at Mastery Rank), `Disrupt` (reduces on power use), and `Dread` (pre-attack Spirit save). These replace the removed legacy `Blinded`, `Shock`, and `Frightened`.
+- **Runtime status engine:** Start-of-turn Tick + decay for diminishing effects (Ruin damage, Blight stress, Regeneration healing), derived-stat maluses (Slow→Speed, Corrode→Armor, Expose→Evade, Soulburn/Weaken→save dice), and movement-based Lacerate/Slow enforcement via token tracking.
+
 ## [0.9.165] - 2026-07-07
 
 ### Changed

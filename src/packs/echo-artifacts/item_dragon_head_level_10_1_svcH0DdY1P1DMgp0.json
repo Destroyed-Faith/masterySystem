@@ -39,7 +39,7 @@
         "aoe": "Radius 17m",
         "duration": "Instant",
         "effect": "Deal **+4d8 damage** to every affected creature; Special applies at half value.",
-        "special": "ignite(6) bound at item-create via chosenSpecial (AoE = half value, T(X+1) cost)"
+        "special": "ruin(6) bound at item-create via chosenSpecial (AoE = half value, T(X+1) cost)"
       },
       {
         "level": 8,
@@ -82,7 +82,7 @@
         "powerTemplateId": "active-ranged-aoe-damage-t4",
         "delivery": "ranged-aoe",
         "chosenSpecial": {
-          "key": "ignite",
+          "key": "ruin",
           "tier": 4
         },
         "displayName": "Breath Weapon"
@@ -119,7 +119,7 @@
       {
         "id": "dragonHead-pw-7",
         "name": "Breath Weapon III",
-        "fluff": "Special: ignite(6) bound at item-create via chosenSpecial (AoE = half value, T(X+1) cost)",
+        "fluff": "Special: ruin(6) bound at item-create via chosenSpecial (AoE = half value, T(X+1) cost)",
         "category": "active",
         "tags": [],
         "cost": {

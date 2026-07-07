@@ -19,9 +19,9 @@ export interface MasteryRollResult {
   dieChains?: number[][];
   /**
    * When set, the roll was forced to `success: false` by an auto-fail
-   * condition (e.g. `'blinded-sight'` when a Blinded actor tried a
-   * sight-tagged check). The dice are still rolled and displayed, but
-   * `success` and `raises` reflect the forced failure.
+   * condition. The dice are still rolled and displayed, but `success` and
+   * `raises` reflect the forced failure. (Disoriented no longer forces a
+   * failure — it only reduces dice — so this is currently unused.)
    */
   autoFailReason?: string;
   /** Normal TN used for the roll (Raise rules). Defaults to `tn` when omitted. */

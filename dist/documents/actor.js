@@ -8,6 +8,7 @@ import { buildArtifactBaseValueBreakdown } from '../utils/artifact-base-values.j
 import { getArtifactStoneFunctionStatus } from '../utils/artifact-stone-functions.js';
 import { logDrDebug } from '../utils/dr-debug.js';
 import { normalizeManualAdjustments } from '../utils/manual-adjustments.js';
+import { getActiveSpecialValue } from '../system/active-specials.js';
 import { getRoundState } from '../combat/action-economy.js';
 import { deriveMasteryRankFromStones, getWorldDefaultMasteryRank, } from '../utils/mastery-rank-sync.js';
 import { getDivineScale } from '../utils/constants.js';
@@ -763,6 +764,31 @@ export class MasteryActor extends Actor {
             system.scaling.witsInitiativeBonus = calculateWitsInitiativeBonus(wits);
             system.scaling.armorBreaker = calculateArmorBreaker(might);
             system.scaling.baseEvade = calculateBaseEvade(masteryRank);
+        }
+        // Diminishing Special-Effect maluses: Corrode −Armor, Expose −Evade,
+        // Slow −Speed. Applied last so they subtract from the fully-computed totals.
+        try {
+            const corrode = getActiveSpecialValue(this, 'corrode');
+            const expose = getActiveSpecialValue(this, 'expose');
+            const slow = getActiveSpecialValue(this, 'slow');
+            if (corrode > 0) {
+                system.combat.armorTotal = Math.max(0, (system.combat.armorTotal || 0) - corrode);
+                system.combat.armorBreakdownRows?.push({
+                    label: 'Corrode', detail: 'Special Effect', value: -corrode, display: `-${corrode}`,
+                });
+            }
+            if (expose > 0) {
+                system.combat.evadeTotal = Math.max(0, (system.combat.evadeTotal || 0) - expose);
+                system.combat.evadeBreakdownRows?.push({
+                    label: 'Expose', detail: 'Special Effect', value: -expose, display: `-${expose}`,
+                });
+            }
+            if (slow > 0) {
+                system.combat.speed = Math.max(0, Number(system.combat.speed ?? 6) - slow);
+            }
+        }
+        catch (err) {
+            console.debug?.('Mastery System | special-effect malus skipped', err);
         }
         // Prepare tracked resources for Combat Carousel module
         // These are derived fields that update automatically when actor data changes

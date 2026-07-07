@@ -54,6 +54,7 @@ import { registerEchoArtifactTreeMigrationSetting, runEchoArtifactTreeMigration,
 import { registerEchoArtifactDedupeMigrationSetting, runEchoArtifactDedupeMigration, } from './migrations/echo-artifact-dedupe-migration.js';
 import { runElvenStrideLineageMigration } from './migrations/elven-stride-lineage-migration.js';
 import { runTitanScarsAffinityMigration } from './migrations/titan-scars-affinity-migration.js';
+import { runSpecialEffectRenameMigration } from './migrations/special-effect-rename-migration.js';
 import { registerPaperdollSlotCanonicalSetting, runPaperdollSlotCanonical, } from './migrations/paperdoll-slot-canonical.js';
 import { registerArtifactEchoLinkMigrationSetting, runArtifactEchoLinkMigration, } from './migrations/artifact-echo-link-migration.js';
 import { registerAbCriticalMilestonesMigrationSetting, runAbCriticalMilestonesMigration, } from './migrations/ab-critical-milestones-migration.js';
@@ -673,6 +674,18 @@ Hooks.once('init', async function () {
     Hooks.on('updateCombat', async (combat, changes) => {
         if (changes?.turn === undefined)
             return;
+        // End-of-turn resolution for the creature whose turn just ended (Slow).
+        try {
+            const prevId = combat?.previous?.combatantId;
+            const endingActor = prevId ? combat?.combatants?.get?.(prevId)?.actor : null;
+            if (endingActor) {
+                const { processTurnEndMovement } = await import('./combat/movement-tracker.js');
+                await processTurnEndMovement(endingActor);
+            }
+        }
+        catch (err) {
+            console.error('Mastery System | turn-end movement resolution failed', err);
+        }
         const currentCombatant = combat?.combatant;
         const turnActor = currentCombatant?.actor;
         if (!turnActor)
@@ -682,6 +695,30 @@ Hooks.once('init', async function () {
         }
         catch (err) {
             console.error('Mastery System | passive-triggers turnStartSelf failed', err);
+        }
+        try {
+            const { processTurnStartStatusTick, announceStatusTick } = await import('./combat/status-tick.js');
+            const summary = await processTurnStartStatusTick(turnActor);
+            await announceStatusTick(turnActor, summary);
+        }
+        catch (err) {
+            console.error('Mastery System | status-tick turnStart failed', err);
+        }
+        try {
+            const { resetMovementForTurn } = await import('./combat/movement-tracker.js');
+            await resetMovementForTurn(turnActor);
+        }
+        catch (err) {
+            console.error('Mastery System | movement reset failed', err);
+        }
+    });
+    Hooks.on('updateToken', async (tokenDoc, changes) => {
+        try {
+            const { handleTokenMovement } = await import('./combat/movement-tracker.js');
+            await handleTokenMovement(tokenDoc, changes);
+        }
+        catch (err) {
+            console.error('Mastery System | token movement tracking failed', err);
         }
     });
     Hooks.on('combatEnd', async (combat) => {
@@ -2891,6 +2928,15 @@ Hooks.once('ready', async function () {
     }
     catch (error) {
         console.warn('Mastery System | Titan Scars affinity migration failed', error);
+    }
+    // Migration: reconcile legacy Special-Effect ids/names (Bleeding->Lacerate,
+    // Ignite->Ruin, Freeze->Slow, Poisoned->Blight, Shock->Disrupt,
+    // Blinded->Disoriented, Frightened->Dread) across actors and world items.
+    try {
+        await runSpecialEffectRenameMigration(migrationActors);
+    }
+    catch (error) {
+        console.warn('Mastery System | Special-Effect rename migration failed', error);
     }
     // Migration: Backfill inventory sizes for existing items (GM only)
     if (game.user?.isGM) {

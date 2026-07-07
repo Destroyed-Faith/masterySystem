@@ -96,7 +96,7 @@ export declare function getRollDiceDelta(actor: any, kind: 'attack' | 'skill' | 
  *   2. actor.effects (ActiveEffect collection) – name/label match
  *   3. actor.flags['mastery-system'].conditions
  *   4. actor.system.conditions
- *   5. actor.system.specials (array of strings like "Bleeding(3)")
+ *   5. actor.system.specials (array of strings like "Lacerate(3)")
  *
  * This is defensive and works whether the GM tags conditions as Foundry
  * status tokens, applies ActiveEffects via our buff system, or stores them

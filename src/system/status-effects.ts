@@ -11,8 +11,8 @@
  * (label, icon, statuses) for the Foundry token HUD radial.
  *
  * Synonym notes (for future normalization passes, not handled here):
- *   - `poison` / `poisoned`          -> canonical `poisoned`
- *   - `bleed` / `bleeding`           -> canonical `bleeding`
+ *   - `poison` / `poisoned` / `blight` -> canonical `blight`
+ *   - `bleed` / `bleeding` / `lacerate` -> canonical `lacerate`
  *   - `entangle` / `entangled`       -> canonical `entangled`
  *   - `disorient` / `disoriented`    -> canonical `disoriented`
  * Data in `src/stones/stone-powers.ts` that still uses the short forms is
@@ -39,16 +39,15 @@ const ICON = (name: string) => `systems/mastery-system/assets/icons/status/${nam
  * then buffs, then rider-style effects) for a predictable radial layout.
  */
 export const MASTERY_STATUS_EFFECTS: MasteryStatusEffect[] = [
-  { id: 'bleeding',     name: 'Bleeding',     img: ICON('blood') },
-  { id: 'ignite',       name: 'Ignite',       img: ICON('fire') },
-  { id: 'freeze',       name: 'Freeze',       img: ICON('frozen') },
-  { id: 'shock',        name: 'Shock',        img: ICON('lightning-bolt') },
+  { id: 'lacerate',     name: 'Lacerate',     img: ICON('blood') },
+  { id: 'ruin',         name: 'Ruin',         img: ICON('fire') },
+  { id: 'slow',         name: 'Slow',         img: ICON('frozen') },
+  { id: 'disrupt',      name: 'Disrupt',      img: ICON('lightning-bolt') },
   { id: 'corrode',      name: 'Corrode',      img: ICON('acid') },
-  { id: 'poisoned',     name: 'Poisoned',     img: ICON('poison') },
+  { id: 'blight',       name: 'Blight',       img: ICON('poison') },
   { id: 'soulburn',     name: 'Soulburn',     img: ICON('aura') },
 
-  { id: 'blinded',      name: 'Blinded',      img: ICON('blind') },
-  { id: 'frightened',   name: 'Frightened',   img: ICON('terror') },
+  { id: 'dread',        name: 'Dread',        img: ICON('terror') },
   { id: 'stunned',      name: 'Stunned',      img: ICON('daze') },
   { id: 'prone',        name: 'Prone',        img: ICON('falling') },
   { id: 'entangled',    name: 'Entangled',    img: ICON('net') },
@@ -61,6 +60,7 @@ export const MASTERY_STATUS_EFFECTS: MasteryStatusEffect[] = [
   { id: 'weaken',       name: 'Weakened',     img: ICON('down') },
   { id: 'sundered',     name: 'Sundered',     img: ICON('sword-broken') },
   { id: 'hex',          name: 'Hex',          img: ICON('hazard') },
+  { id: 'root',         name: 'Root',         img: ICON('net') },
   { id: 'curse',        name: 'Cursed',       img: ICON('skull') },
   { id: 'suppress',     name: 'Suppressed',   img: ICON('silenced') },
 

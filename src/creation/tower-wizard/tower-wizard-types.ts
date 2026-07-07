@@ -8,9 +8,9 @@ import type { PowerGrantSpec } from '../../utils/power-item-builder.js';
 export type DefensePackageId = 'armor' | 'evade' | 'damage-reduction' | 'phasing';
 
 export type OffensePackageId =
-    | 'bleeding-push'
-    | 'ignite'
-    | 'freeze'
+    | 'lacerate-push'
+    | 'ruin'
+    | 'slow'
     | 'expose'
     | 'corrode-damage'
     | 'mark'

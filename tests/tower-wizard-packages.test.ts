@@ -58,8 +58,8 @@ describe('tower-wizard-packages', () => {
         expect(allIds).toContain('passive-evade-damage');
     });
 
-    it('ignite and weaken-save are hidden from wizard offense list', () => {
-        expect(WIZARD_HIDDEN_OFFENSE_IDS).toContain('ignite');
+    it('ruin and weaken-save are hidden from wizard offense list', () => {
+        expect(WIZARD_HIDDEN_OFFENSE_IDS).toContain('ruin');
         expect(WIZARD_HIDDEN_OFFENSE_IDS).toContain('weaken-save');
         const expose = TOWER_WIZARD_OFFENSE_PACKAGES.find((p) => p.id === 'expose');
         expect(expose?.catalogAvailable).toBe(true);
@@ -119,14 +119,14 @@ describe('tower-wizard-packages', () => {
     it('offense special groups dedupe melee/ranged into pattern rows', () => {
         const groups = getOffenseActiveSpecialGroups(null);
         expect(groups.length).toBeGreaterThan(0);
-        const bleeding = groups.find((g) => g.specialKey === 'bleeding');
-        expect(bleeding).toBeDefined();
-        const singleT4 = bleeding!.patterns.find((p) => p.patternId === 'damage-t4');
+        const lacerate = groups.find((g) => g.specialKey === 'lacerate');
+        expect(lacerate).toBeDefined();
+        const singleT4 = lacerate!.patterns.find((p) => p.patternId === 'damage-t4');
         expect(singleT4).toBeDefined();
         expect(singleT4!.label).toBe('Damage');
         expect(singleT4!.label).not.toMatch(/tier\s*\d/i);
         expect(singleT4!.variants.map((v) => v.delivery).sort()).toEqual(['melee', 'ranged']);
-        expect(bleeding!.groupTooltip).toMatch(/move more than 0/i);
+        expect(lacerate!.groupTooltip).toMatch(/move more than 0/i);
         expect(singleT4!.variants).toHaveLength(2);
         const totalVariants = groups.reduce(
             (n, g) => n + g.patterns.reduce((m, p) => m + p.variants.length, 0),
@@ -151,7 +151,7 @@ describe('tower-wizard-packages', () => {
         expect(patternIds.some((id) => id.includes('damage-stunned'))).toBe(true);
         expect(patternIds.some((id) => id.includes('control-'))).toBe(true);
         expect(groups.indexOf(control!)).toBeLessThan(
-            groups.findIndex((g) => g.specialKey === 'bleeding'),
+            groups.findIndex((g) => g.specialKey === 'lacerate'),
         );
     });
 
@@ -236,7 +236,7 @@ describe('tower-wizard-packages', () => {
             .flatMap((g) => g.cards)
             .find((c) => c.templateId === 'passive-bloodlust');
         expect(bloodlust).toBeDefined();
-        expect(bloodlust!.mechanics).toMatch(/bleeding/i);
+        expect(bloodlust!.mechanics).toMatch(/lacerate/i);
         expect(bloodlust!.mechanics).toMatch(/d6/i);
         expect(bloodlust!.mechanics).not.toContain('**');
     });

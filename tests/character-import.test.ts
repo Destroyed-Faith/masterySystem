@@ -32,7 +32,7 @@ const alarisPayload = {
     { templateId: 'ab-evade', rank: 4 },
     { templateId: 'reaction-evade', rank: 4 },
     { templateId: 'active-melee-weapon-single', rank: 2 },
-    { templateId: 'active-melee-damage-t4', special: 'ignite', rank: 2 },
+    { templateId: 'active-melee-damage-t4', special: 'ruin', rank: 2 },
   ],
   artifacts: [{ key: 'moonlightGreatsword', level: 4, activated: true }],
 };

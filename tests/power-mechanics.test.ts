@@ -759,7 +759,7 @@ describe('collectConditionalDamageRiders', () => {
     const target: any = { statuses: new Set(['hexed']) };
     const riders = collectConditionalDamageRiders(actor, target);
     expect(riders).toHaveLength(1);
-    expect(riders[0].condition).toBe('hexed');
+    expect(riders[0].condition).toBe('hex');
     expect(riders[0].dice).toBe('2d8');
     expect(riders[0].source).toContain('Pact Brand');
   });
@@ -790,7 +790,7 @@ describe('collectConditionalDamageRiders', () => {
     const target: any = { statuses: new Set(['marked']) };
     const riders = collectConditionalDamageRiders(actor, target);
     expect(riders).toHaveLength(1);
-    expect(riders[0].condition).toBe('marked');
+    expect(riders[0].condition).toBe('mark');
     expect(riders[0].dice).toBe('1d8');
   });
 

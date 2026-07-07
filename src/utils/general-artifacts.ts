@@ -159,7 +159,7 @@ const FROSTBOUND_RETURNING_AXE: GeneralArtifactDefinition = {
       duration: 'Instant',
       effect:
         'Throw the Axe at one target using the normal thrown weapon Active rules. The Axe returns after the attack resolves.',
-      special: 'Freeze',
+      special: 'Slow',
     },
     {
       level: 3,
@@ -188,7 +188,7 @@ const FROSTBOUND_RETURNING_AXE: GeneralArtifactDefinition = {
       range: 'Thrown Range',
       duration: 'Instant',
       effect: 'Frost Throw improves to Power Level 10. The Axe returns after the attack resolves.',
-      special: 'Freeze',
+      special: 'Slow',
     },
     {
       level: 6,
@@ -216,7 +216,7 @@ const FROSTBOUND_RETURNING_AXE: GeneralArtifactDefinition = {
       range: 'Thrown Range',
       duration: 'Instant',
       effect: 'Frost Throw improves to Power Level 16. The Axe returns after the attack resolves.',
-      special: 'Freeze',
+      special: 'Slow',
     },
     {
       level: 9,
@@ -438,8 +438,8 @@ const STAFF_OF_THE_DARK: GeneralArtifactDefinition = {
       aoe: '3 m radius',
       duration: 'Mastery Rank Rounds',
       effect:
-        'Enemies in the aura gain Frightened(2) while they remain in the aura. When an enemy leaves the aura, this Frightened value ends immediately. Aura of the End deals no damage and does not stack with itself.',
-      special: 'Frightened(2)',
+        'Enemies in the aura gain Dread(2) while they remain in the aura. When an enemy leaves the aura, this Dread value ends immediately. Aura of the End deals no damage and does not stack with itself.',
+      special: 'Dread(2)',
     },
     {
       level: 4,
@@ -468,8 +468,8 @@ const STAFF_OF_THE_DARK: GeneralArtifactDefinition = {
       aoe: '5 m radius',
       duration: 'Mastery Rank Rounds',
       effect:
-        'Enemies in the aura gain Frightened(4) while they remain in the aura. When an enemy leaves the aura, this Frightened value ends immediately. Aura of the End deals no damage and does not stack with itself.',
-      special: 'Frightened(4)',
+        'Enemies in the aura gain Dread(4) while they remain in the aura. When an enemy leaves the aura, this Dread value ends immediately. Aura of the End deals no damage and does not stack with itself.',
+      special: 'Dread(4)',
     },
     {
       level: 7,
@@ -498,8 +498,8 @@ const STAFF_OF_THE_DARK: GeneralArtifactDefinition = {
       aoe: '7 m radius',
       duration: 'Mastery Rank Rounds',
       effect:
-        'Enemies in the aura gain Frightened(6) while they remain in the aura. When an enemy leaves the aura, this Frightened value ends immediately. Aura of the End deals no damage and does not stack with itself.',
-      special: 'Frightened(6)',
+        'Enemies in the aura gain Dread(6) while they remain in the aura. When an enemy leaves the aura, this Dread value ends immediately. Aura of the End deals no damage and does not stack with itself.',
+      special: 'Dread(6)',
     },
     {
       level: 10,
@@ -805,7 +805,7 @@ const LOR_KETHS_STAFF: GeneralArtifactDefinition = {
       duration: 'Instant',
       effect:
         "Use Melee — Damage + Start PP 6 Special at Power Level 4. Make a melee attack with Lor-Keth's Staff. On hit, deal Staff Weapon Damage + 2d8 damage.",
-      special: 'Shock(5)',
+      special: 'Disrupt(5)',
     },
     {
       level: 2,
@@ -835,7 +835,7 @@ const LOR_KETHS_STAFF: GeneralArtifactDefinition = {
       duration: 'Instant',
       effect:
         "Use Melee — Damage + Start PP 6 Special at Power Level 10. Make a melee attack with Lor-Keth's Staff. On hit, deal Staff Weapon Damage + 2d8 damage.",
-      special: 'Shock(9)',
+      special: 'Disrupt(9)',
     },
     {
       level: 5,
@@ -865,7 +865,7 @@ const LOR_KETHS_STAFF: GeneralArtifactDefinition = {
       duration: 'Instant',
       effect:
         "Use Melee — Damage + Start PP 6 Special at Power Level 16. Make a melee attack with Lor-Keth's Staff. On hit, deal Staff Weapon Damage + 2d8 damage.",
-      special: 'Shock(11)',
+      special: 'Disrupt(11)',
     },
     {
       level: 8,

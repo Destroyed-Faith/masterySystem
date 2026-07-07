@@ -48,11 +48,11 @@ function conditionLabel(mech: PowerMechanics): string {
     const cond = mech.condition;
     if (cond) {
         const map: Record<string, string> = {
-            targetMarked: 'vs Marked',
-            targetIgnited: 'vs Ignited',
-            targetShocked: 'vs Shocked',
-            targetFrozen: 'vs Frozen',
-            targetHexed: 'vs Hexed',
+            targetMark: 'vs Mark',
+            targetRuin: 'vs Ruin',
+            targetDisrupt: 'vs Disrupt',
+            targetSlow: 'vs Slow',
+            targetHex: 'vs Hex',
             'self-hp-below-50': 'wenn HP <= 50%',
         };
         return map[cond] ?? `vs ${cond}`;

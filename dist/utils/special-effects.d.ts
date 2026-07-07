@@ -11,7 +11,7 @@
  *   - multiAttack   : structural multi-strike riders (Charged)
  *
  * Powers should store only the specialId and value, not the full name string.
- * Example: { specialId: "bleeding", value: 3 } instead of "Bleeding(3)"
+ * Example: { specialId: "lacerate", value: 3 } instead of "Lacerate(3)"
  */
 export type EffectCategory = 'diminishing' | 'timed' | 'untilUsed' | 'instant' | 'support' | 'multiAttack';
 export interface SpecialEffect {
@@ -44,7 +44,7 @@ export interface SpecialEffectReference {
     value?: number;
 }
 /**
- * Display label without (X) suffix (e.g. "Bleeding(X)" → "Bleeding")
+ * Display label without (X) suffix (e.g. "Lacerate(X)" → "Lacerate")
  */
 export declare function getEffectBaseName(name: string): string;
 /**
@@ -85,7 +85,15 @@ export declare const SPECIAL_EFFECTS_BY_ID: Map<string, SpecialEffect>;
  */
 export declare function getEffectsByCategory(category: EffectCategory): SpecialEffect[];
 /**
- * Get an effect by ID (preferred method)
+ * Legacy special-effect id aliases (pre-reconciliation → canonical).
+ * Kept so un-migrated actor/item data still resolves to the correct effect.
+ * The data migration rewrites stored ids to the canonical form.
+ */
+export declare const LEGACY_SPECIAL_ID_ALIASES: Readonly<Record<string, string>>;
+/** Resolve a possibly-legacy special id to its canonical id. */
+export declare function canonicalSpecialId(id: string): string;
+/**
+ * Get an effect by ID (preferred method). Resolves legacy aliases.
  */
 export declare function getEffectById(id: string): SpecialEffect | undefined;
 /**
@@ -93,19 +101,19 @@ export declare function getEffectById(id: string): SpecialEffect | undefined;
  */
 export declare function getEffect(name: string): SpecialEffect | undefined;
 /**
- * Format a SpecialEffectReference to display string (e.g., { specialId: "bleeding", value: 3 } -> "Bleeding(3)")
+ * Format a SpecialEffectReference to display string (e.g., { specialId: "lacerate", value: 3 } -> "Lacerate(3)")
  */
 export declare function formatEffectReference(ref: SpecialEffectReference): string;
 /**
- * Parse effect string to SpecialEffectReference (e.g., "Bleeding(3)" -> { specialId: "bleeding", value: 3 })
+ * Parse effect string to SpecialEffectReference (e.g., "Lacerate(3)" -> { specialId: "lacerate", value: 3 })
  */
 export declare function parseEffectString(effectString: string): SpecialEffectReference | null;
 /**
- * Parse effect value from effect string (e.g., "Bleeding(3)" -> 3) - legacy function
+ * Parse effect value from effect string (e.g., "Lacerate(3)" -> 3) - legacy function
  */
 export declare function parseEffectValue(effectString: string): number | null;
 /**
- * Format effect with value (e.g., "Bleeding", 3 -> "Bleeding(3)") - legacy function
+ * Format effect with value (e.g., "Lacerate", 3 -> "Lacerate(3)") - legacy function
  */
 export declare function formatEffectWithValue(effectName: string, value: number): string;
 /**

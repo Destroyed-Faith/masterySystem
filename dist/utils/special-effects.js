@@ -11,10 +11,10 @@
  *   - multiAttack   : structural multi-strike riders (Charged)
  *
  * Powers should store only the specialId and value, not the full name string.
- * Example: { specialId: "bleeding", value: 3 } instead of "Bleeding(3)"
+ * Example: { specialId: "lacerate", value: 3 } instead of "Lacerate(3)"
  */
 /**
- * Display label without (X) suffix (e.g. "Bleeding(X)" → "Bleeding")
+ * Display label without (X) suffix (e.g. "Lacerate(X)" → "Lacerate")
  */
 export function getEffectBaseName(name) {
     return name.replace(/\(X\)/gi, '').trim();
@@ -31,75 +31,120 @@ function generateId(name) {
  */
 export const DIMINISHING_EFFECTS = [
     {
-        id: 'bleeding',
-        name: 'Bleeding(X)',
+        id: 'blight',
+        name: 'Blight(X)',
         category: 'diminishing',
-        description: 'The first time each turn you move more than 0 m, take X damage. If you move more than half your Speed that turn, take +X damage again. If you Sprint / Dash / otherwise exceed your normal Speed, take +X damage again.',
+        description: 'While affected by Blight, all healing you receive is reduced by X. At Tick, take X Stress. At the start of your turn, after the Tick, Blight decays by 1.',
         duration: 'Diminishing (X→0)',
         stacking: 'Yes',
-        removal: 'Body Save (end of turn), Medicine Remove Action, or Cleanse.',
+        removal: 'Medicine Remove Action, or Cleanse.',
         hasValue: true,
-        save: 'Body',
+        save: '—',
         removeAction: 'Medicine',
         dispellable: true,
-        pricing: '4 × T(X)',
-        startPP: 4
+        pricing: '3 × T(X)',
+        startPP: 3
     },
     {
         id: 'corrode',
         name: 'Corrode(X)',
         category: 'diminishing',
-        description: 'Your Armor is reduced by X.',
+        description: 'Your Armor is reduced by X. At the start of your turn, Corrode decays by 1.',
         duration: 'Diminishing (X→0)',
         stacking: 'Yes',
-        removal: 'Body Save (end of turn), Crafting Remove Action, or Cleanse.',
+        removal: 'Crafting Remove Action, or Cleanse.',
         hasValue: true,
-        save: 'Body',
+        save: '—',
         removeAction: 'Crafting',
         dispellable: true,
         pricing: '6 × T(X)',
         startPP: 6
     },
     {
+        id: 'disoriented',
+        name: 'Disoriented(X)',
+        category: 'diminishing',
+        description: 'Your Attack Dice are reduced by X, to a minimum of your Mastery Rank. All dice pools used to notice, locate, track, or identify something are also reduced by X, to a minimum of your Mastery Rank. At the start of your turn, Disoriented decays by 1.',
+        duration: 'Diminishing (X→0)',
+        stacking: 'Yes',
+        removal: 'Meditation Remove Action, or Cleanse.',
+        hasValue: true,
+        save: '—',
+        removeAction: 'Meditation',
+        dispellable: true,
+        pricing: '4 × T(X)',
+        startPP: 4
+    },
+    {
+        id: 'disrupt',
+        name: 'Disrupt(X)',
+        category: 'diminishing',
+        description: 'When you use a Power, reduce Disrupt by X. If you cannot reduce Disrupt by the required amount, the Power fails and the action is lost. At the start of your turn, Disrupt decays by 1.',
+        duration: 'Diminishing (X→0)',
+        stacking: 'Yes',
+        removal: 'Meditation Remove Action, or Cleanse.',
+        hasValue: true,
+        save: '—',
+        removeAction: 'Meditation',
+        dispellable: true,
+        pricing: '6 × T(X)',
+        startPP: 6
+    },
+    {
+        id: 'dread',
+        name: 'Dread(X)',
+        category: 'diminishing',
+        description: 'When Dread is applied, the Power states which Save is used: Body, Mind, or Spirit. Before you make an attack, make the listed Save with its DC increased by X. On a failure, the attack is lost. At the start of your turn, Dread decays by 1.',
+        duration: 'Diminishing (X→0)',
+        stacking: 'Yes',
+        removal: 'Leadership Remove Action, or Cleanse.',
+        hasValue: true,
+        save: 'Body / Mind / Spirit',
+        removeAction: 'Leadership',
+        dispellable: true,
+        pricing: '5 × T(X)',
+        startPP: 5
+    },
+    {
         id: 'expose',
         name: 'Expose(X)',
         category: 'diminishing',
-        description: 'Suffer −X Evade.',
+        description: 'Your Evade is reduced by X. At the start of your turn, Expose decays by 1.',
         duration: 'Diminishing (X→0)',
         stacking: 'Yes',
-        removal: 'Body Save (end of turn), Athletics Remove Action, or Cleanse.',
+        removal: 'Athletics Remove Action, or Cleanse.',
         hasValue: true,
-        save: 'Body',
+        save: '—',
         removeAction: 'Athletics',
         dispellable: true,
         pricing: '8 × T(X)',
         startPP: 8
     },
     {
-        id: 'freeze',
-        name: 'Freeze(X)',
+        id: 'hex',
+        name: 'Hex(X)',
         category: 'diminishing',
-        description: 'Your Speed is reduced by X m. At Tick, take ceil(X/2) damage. The name is flavour only — the effect need not be cold/ice.',
+        description: 'When you are hit by a Spell, take +1d8 bonus damage for every 2 Hex, rounded up. At the start of your turn, Hex decays by 1.',
         duration: 'Diminishing (X→0)',
         stacking: 'Yes',
-        removal: 'Body Save (end of turn), Athletics Remove Action, or Cleanse.',
+        removal: 'Meditation Remove Action, or Cleanse.',
         hasValue: true,
-        save: 'Body',
-        removeAction: 'Athletics',
+        save: '—',
+        removeAction: 'Meditation',
         dispellable: true,
-        pricing: '4 × T(X)',
-        startPP: 4
+        pricing: '6 × T(X)',
+        startPP: 6
     },
     {
-        id: 'ignite',
-        name: 'Ignite(X)',
+        id: 'lacerate',
+        name: 'Lacerate(X)',
         category: 'diminishing',
-        description: 'At Tick, take X damage. The name is flavour only — the effect need not be fire.',
+        description: 'Lacerate punishes movement. The first time each turn you voluntarily move more than 0 m, take X damage. If you voluntarily move more than half your Speed that turn, take +X damage again. If you Dash / Sprint / otherwise voluntarily exceed your normal Speed, take +X damage again. Forced movement does not trigger Lacerate unless a Power explicitly says otherwise.',
         duration: 'Diminishing (X→0)',
         stacking: 'Yes',
-        removal: 'Body Save (end of turn), Medicine Remove Action, or Cleanse.',
+        removal: 'Medicine Remove Action, or Cleanse.',
         hasValue: true,
-        save: 'Body',
+        save: '—',
         removeAction: 'Medicine',
         dispellable: true,
         pricing: '4 × T(X)',
@@ -109,102 +154,87 @@ export const DIMINISHING_EFFECTS = [
         id: 'mark',
         name: 'Mark(X)',
         category: 'diminishing',
-        description: 'Suffer −X dice on attacks unless attacking the creature that applied the Mark. The effect ends immediately after you make an attack against that creature.',
-        duration: 'Diminishing (X→0); ends on attack vs. marker',
+        description: 'When a creature hits a target affected by Mark, it may spend any amount of Mark from that target before final damage is applied. The amount spent becomes the Damage Floor for that damage roll: each damage die that rolled lower than the spent value is treated as if it had rolled that value. After the roll is adjusted, reduce Mark by the amount spent. At the start of your turn, Mark decays by 1.',
+        duration: 'Diminishing (X→0)',
         stacking: 'Yes',
-        removal: 'Mind Save (end of turn), Concealment Remove Action, or Cleanse.',
+        removal: 'Concealment Remove Action, or Cleanse.',
         hasValue: true,
-        save: 'Mind',
+        save: '—',
         removeAction: 'Concealment',
         dispellable: true,
         pricing: '4 × T(X)',
         startPP: 4
     },
     {
-        id: 'poisoned',
-        name: 'Poisoned(X)',
-        category: 'diminishing',
-        description: 'Healing you receive is reduced by X. At Tick, take X stress (this stress ignores Stress Armor).',
-        duration: 'Diminishing (X→0)',
-        stacking: 'Yes',
-        removal: 'Body Save (end of turn), Medicine Remove Action, or Cleanse.',
-        hasValue: true,
-        save: 'Body',
-        removeAction: 'Medicine',
-        dispellable: true,
-        pricing: '3 × T(X)',
-        startPP: 3
-    },
-    {
         id: 'regeneration',
         name: 'Regeneration(X)',
         category: 'diminishing',
-        description: 'At Tick, heal X HP.',
+        description: 'At Tick, heal X HP. Regeneration cannot restore lost Health Levels unless a rule says otherwise. At the start of your turn, after the Tick, Regeneration decays by 1. Regeneration is a positive effect and cannot be removed by Cleanse.',
         duration: 'Diminishing (X→0)',
         stacking: 'Yes',
         removal: '—',
         hasValue: true,
         save: '—',
-        dispellable: true,
+        dispellable: false,
         pricing: '3 × T(X)',
         startPP: 3
     },
     {
-        id: 'shock',
-        name: 'Shock(X)',
+        id: 'root',
+        name: 'Root(X)',
         category: 'diminishing',
-        description: 'Lose X dice from your next attack pool. After that attack is resolved, Shock ends immediately.',
-        duration: 'Diminishing (X→0); ends after next attack',
+        description: 'Root can only be applied with a minimum value of Root(2). While Rooted, your Speed is reduced to 0 m and you cannot move voluntarily. Root does not prevent attacking, casting, using Reactions, other non-movement actions, or being moved by forced movement. At the start of your turn, Root decays by 1.',
+        duration: 'Diminishing (X→0)',
         stacking: 'Yes',
-        removal: 'Body Save (end of turn), Athletics Remove Action, or Cleanse.',
+        removal: 'Athletics Remove Action, or Cleanse.',
         hasValue: true,
-        save: 'Body',
+        save: '—',
         removeAction: 'Athletics',
         dispellable: true,
         pricing: '6 × T(X)',
         startPP: 6
     },
     {
+        id: 'ruin',
+        name: 'Ruin(X)',
+        category: 'diminishing',
+        description: 'At Tick, take X damage. Ruin damage ignores Armor unless a rule says otherwise. At the start of your turn, after the Tick, Ruin decays by 1.',
+        duration: 'Diminishing (X→0)',
+        stacking: 'Yes',
+        removal: 'Medicine Remove Action, or Cleanse.',
+        hasValue: true,
+        save: '—',
+        removeAction: 'Medicine',
+        dispellable: true,
+        pricing: '4 × T(X)',
+        startPP: 4
+    },
+    {
+        id: 'slow',
+        name: 'Slow(X)',
+        category: 'diminishing',
+        description: 'Your Speed is reduced by X m. If you do not voluntarily move at least 1 m during your turn, take X damage at the end of your turn. At the start of your turn, Slow decays by 1.',
+        duration: 'Diminishing (X→0)',
+        stacking: 'Yes',
+        removal: 'Athletics Remove Action, or Cleanse.',
+        hasValue: true,
+        save: '—',
+        removeAction: 'Athletics',
+        dispellable: true,
+        pricing: '4 × T(X)',
+        startPP: 4
+    },
+    {
         id: 'soulburn',
         name: 'Soulburn(X)',
         category: 'diminishing',
-        description: 'Suffer −X dice to Body, Mind, and Spirit Saves.',
+        description: 'Suffer −X dice to Body, Mind, and Spirit Saves, to a minimum of your Mastery Rank. At the start of your turn, Soulburn decays by 1.',
         duration: 'Diminishing (X→0)',
         stacking: 'Yes',
-        removal: 'Spirit Save (end of turn), Occultism Remove Action, or Cleanse.',
+        removal: 'Occultism Remove Action, or Cleanse.',
         hasValue: true,
-        save: 'Spirit',
+        save: '—',
         removeAction: 'Occultism',
-        dispellable: true,
-        pricing: '6 × T(X)',
-        startPP: 6
-    },
-    {
-        id: 'weaken',
-        name: 'Weaken(X)',
-        category: 'diminishing',
-        description: 'Choose one when applied: Body, Mind, or Spirit. Suffer −X dice to that Save type.',
-        duration: 'Diminishing (X→0)',
-        stacking: 'Yes',
-        removal: 'Spirit Save (end of turn), Medicine Remove Action, or Cleanse.',
-        hasValue: true,
-        save: 'Spirit',
-        removeAction: 'Medicine',
-        dispellable: true,
-        pricing: '5 × T(X)',
-        startPP: 5
-    },
-    {
-        id: 'hex',
-        name: 'Hex(X)',
-        category: 'diminishing',
-        description: 'When hit by a Spell, take +Xd8 bonus damage.',
-        duration: 'Diminishing (X→0)',
-        stacking: 'Yes',
-        removal: 'Mind Save (end of turn), Meditation Remove Action, or Cleanse.',
-        hasValue: true,
-        save: 'Mind',
-        removeAction: 'Meditation',
         dispellable: true,
         pricing: '6 × T(X)',
         startPP: 6
@@ -213,65 +243,37 @@ export const DIMINISHING_EFFECTS = [
         id: 'sundered',
         name: 'Sundered(X)',
         category: 'diminishing',
-        description: 'When hit by a non-Spell attack, take +Xd8 bonus damage.',
+        description: 'When you are hit by a non-Spell attack, take +1d8 bonus damage for every 2 Sundered, rounded up. At the start of your turn, Sundered decays by 1.',
         duration: 'Diminishing (X→0)',
         stacking: 'Yes',
-        removal: 'Body Save (end of turn), Athletics Remove Action, or Cleanse.',
+        removal: 'Athletics Remove Action, or Cleanse.',
         hasValue: true,
-        save: 'Body',
+        save: '—',
         removeAction: 'Athletics',
         dispellable: true,
         pricing: '6 × T(X)',
         startPP: 6
     },
     {
-        id: 'root',
-        name: 'Root(X)',
+        id: 'weaken',
+        name: 'Weaken(X)',
         category: 'diminishing',
-        description: 'Your Speed becomes 0 m. You may spend an Attack Action on your turn to make a Break Strength check (TN = 8 × X) — on a success, Root ends; otherwise, Root persists. Diminishing: at the end of each round, X decreases by 1. The name is flavour only — the restraint may be vines, webbing, grasping hands, tentacles, etc.',
+        description: 'Choose one when applied: Body, Mind, or Spirit. Suffer −X dice to that Save type, to a minimum of your Mastery Rank. At the start of your turn, Weaken decays by 1.',
         duration: 'Diminishing (X→0)',
-        stacking: 'No',
-        removal: 'Body Save (end of turn), Break Strength check (TN = 8 × X) on your turn, Athletics Remove Action, or Cleanse.',
+        stacking: 'Yes',
+        removal: 'Medicine Remove Action, or Cleanse.',
         hasValue: true,
-        save: 'Body',
-        removeAction: 'Athletics',
+        save: '—',
+        removeAction: 'Medicine',
         dispellable: true,
-        pricing: '6 × T(X)',
-        startPP: 6
+        pricing: '5 × T(X)',
+        startPP: 5
     }
 ];
 /**
  * Timed Effects — fixed duration, refresh on reapply, keep higher X.
  */
 export const TIMED_EFFECTS = [
-    {
-        id: 'blinded',
-        name: 'Blinded(X)',
-        category: 'timed',
-        description: 'You cannot see. You automatically fail sight-based checks, and suffer −X Attack Dice on sight-based attacks.',
-        duration: 'Mastery Rank Rounds + X',
-        stacking: 'No',
-        removal: 'Body or Spirit Save, Medicine Remove Action, or Cleanse.',
-        hasValue: true,
-        save: 'Body / Spirit',
-        removeAction: 'Medicine',
-        dispellable: true,
-        pricing: '15 × X'
-    },
-    {
-        id: 'frightened',
-        name: 'Frightened(X)',
-        category: 'timed',
-        description: 'You cannot willingly move closer to the source of your fear. If already adjacent, you must move away, hold position, or spend your Attack Action to steady yourself. While Frightened, suffer −X dice on attacks against the source.',
-        duration: 'Mastery Rank Rounds',
-        stacking: 'No',
-        removal: 'Mind Save, Leadership Remove Action, or Cleanse.',
-        hasValue: true,
-        save: 'Mind',
-        removeAction: 'Leadership',
-        dispellable: true,
-        pricing: '15 × X'
-    },
     {
         id: 'brace',
         name: 'Brace(X)',
@@ -554,10 +556,32 @@ export function getEffectsByCategory(category) {
     return ALL_SPECIAL_EFFECTS.filter(effect => effect.category === category);
 }
 /**
- * Get an effect by ID (preferred method)
+ * Legacy special-effect id aliases (pre-reconciliation → canonical).
+ * Kept so un-migrated actor/item data still resolves to the correct effect.
+ * The data migration rewrites stored ids to the canonical form.
+ */
+export const LEGACY_SPECIAL_ID_ALIASES = {
+    bleeding: 'lacerate',
+    ignite: 'ruin',
+    freeze: 'slow',
+    poisoned: 'blight',
+    blinded: 'disoriented',
+    frightened: 'dread',
+    shock: 'disrupt'
+};
+/** Resolve a possibly-legacy special id to its canonical id. */
+export function canonicalSpecialId(id) {
+    return LEGACY_SPECIAL_ID_ALIASES[id] ?? id;
+}
+/**
+ * Get an effect by ID (preferred method). Resolves legacy aliases.
  */
 export function getEffectById(id) {
-    return SPECIAL_EFFECTS_BY_ID.get(id);
+    const direct = SPECIAL_EFFECTS_BY_ID.get(id);
+    if (direct)
+        return direct;
+    const alias = LEGACY_SPECIAL_ID_ALIASES[id];
+    return alias ? SPECIAL_EFFECTS_BY_ID.get(alias) : undefined;
 }
 /**
  * Get an effect by name (legacy support)
@@ -571,7 +595,7 @@ export function getEffect(name) {
         name.toLowerCase().replace(/\(x\)/gi, '').trim());
 }
 /**
- * Format a SpecialEffectReference to display string (e.g., { specialId: "bleeding", value: 3 } -> "Bleeding(3)")
+ * Format a SpecialEffectReference to display string (e.g., { specialId: "lacerate", value: 3 } -> "Lacerate(3)")
  */
 export function formatEffectReference(ref) {
     const effect = getEffectById(ref.specialId);
@@ -584,7 +608,7 @@ export function formatEffectReference(ref) {
     return getEffectBaseName(effect.name);
 }
 /**
- * Parse effect string to SpecialEffectReference (e.g., "Bleeding(3)" -> { specialId: "bleeding", value: 3 })
+ * Parse effect string to SpecialEffectReference (e.g., "Lacerate(3)" -> { specialId: "lacerate", value: 3 })
  */
 export function parseEffectString(effectString) {
     const match = effectString.match(/^([^(]+)(?:\((\d+)\))?$/);
@@ -601,14 +625,14 @@ export function parseEffectString(effectString) {
     };
 }
 /**
- * Parse effect value from effect string (e.g., "Bleeding(3)" -> 3) - legacy function
+ * Parse effect value from effect string (e.g., "Lacerate(3)" -> 3) - legacy function
  */
 export function parseEffectValue(effectString) {
     const match = effectString.match(/\((\d+)\)/);
     return match ? parseInt(match[1], 10) : null;
 }
 /**
- * Format effect with value (e.g., "Bleeding", 3 -> "Bleeding(3)") - legacy function
+ * Format effect with value (e.g., "Lacerate", 3 -> "Lacerate(3)") - legacy function
  */
 export function formatEffectWithValue(effectName, value) {
     const baseName = effectName.replace(/\(.*?\)/g, '').trim();

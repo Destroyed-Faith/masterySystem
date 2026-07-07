@@ -2,7 +2,7 @@
  * Skill / Check Tag Registry
  *
  * Maps canonical skill names to semantic tags used by the Auto-Fail engine.
- * Currently the only consumer is Blinded, which forces `success: false` on
+ * Currently the only consumer is Disoriented, which subtracts dice on
  * any check that carries the `sight` tag.
  *
  * This list is deliberately conservative: only skills whose core mechanic
@@ -32,7 +32,7 @@ const DEFAULT_SKILL_TAGS: Record<string, SkillTag[]> = {
   archery: ['sight'],
   marksmanship: ['sight'],
 
-  // Non-sight senses (present for future extensions; unused by Blinded).
+  // Non-sight senses (present for future extensions; unused by Disoriented).
   listen: ['hearing'],
   eavesdrop: ['hearing'],
   smell: ['smell'],

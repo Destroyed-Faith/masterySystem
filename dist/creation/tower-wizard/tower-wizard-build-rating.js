@@ -31,11 +31,11 @@ const OFFENSIVE_ACTIVE_BUFFS = new Set([
     'ab-damage-penetration',
 ]);
 const OFFENSIVE_SPECIALS = new Set([
-    'bleeding', 'ignite', 'shock', 'poisoned', 'corrode', 'expose',
+    'lacerate', 'ruin', 'disrupt', 'blight', 'corrode', 'expose',
     'sundered', 'penetration', 'precision', 'smite', 'crit', 'soulburn',
 ]);
 const CONTROL_SPECIALS = new Set([
-    'stunned', 'stun', 'prone', 'frightened', 'root', 'freeze', 'blinded',
+    'stunned', 'stun', 'prone', 'dread', 'root', 'slow', 'disoriented',
     'disarm', 'knockback', 'push', 'pull', 'hex', 'mark', 'weaken',
 ]);
 const DEFENSE_SPECIALS = new Set(['brace', 'bulwark', 'immovable']);

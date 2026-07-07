@@ -6,7 +6,7 @@
  *   Stage 2: Subfamily (teleport / flight / damage-aoe / weapon-attack / …)
  *   Stage 3: Special + free-text search
  *     - Special dropdown lists every Special the current filter can resolve
- *       (poisoned, hex, prone, frightened, blinded, regeneration, shock, …)
+ *       (blight, hex, prone, dread, disoriented, regeneration, disrupt, …)
  *       — Tier is NOT a player-facing search axis (Tier is an internal
  *       pricing bucket only).
  *     - Pure weapon/illusion Actives (no Special slot) surface via

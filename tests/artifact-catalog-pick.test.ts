@@ -9,21 +9,21 @@ describe('artifact-catalog-pick', () => {
   it('requires a Special for persistent zone templates', () => {
     expect(catalogTemplateRequiresSpecial('active-ranged-zone-t3')).toBe(true);
     const keys = catalogSpecialKeysForTemplate('active-ranged-zone-t3');
-    expect(keys).toContain('poisoned');
+    expect(keys).toContain('blight');
     expect(listCatalogSpecialOptions('active-ranged-zone-t3').length).toBeGreaterThan(0);
   });
 
   it('requires a Special for special aura buffs', () => {
     expect(catalogTemplateRequiresSpecial('ab-special-aura-start-4')).toBe(true);
     expect(catalogSpecialKeysForTemplate('ab-special-aura-start-4')).toEqual(
-      expect.arrayContaining(['ignite', 'bleeding']),
+      expect.arrayContaining(['ruin', 'lacerate']),
     );
   });
 
   it('requires a Special for martial delivery picks in the Active list', () => {
     expect(catalogTemplateRequiresSpecial('martial:ranged-aoe')).toBe(true);
     const keys = catalogSpecialKeysForTemplate('martial:ranged-aoe');
-    expect(keys).toContain('ignite');
+    expect(keys).toContain('ruin');
     expect(listCatalogSpecialOptions('martial:ranged-aoe').length).toBeGreaterThan(0);
   });
 

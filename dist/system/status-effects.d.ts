@@ -11,8 +11,8 @@
  * (label, icon, statuses) for the Foundry token HUD radial.
  *
  * Synonym notes (for future normalization passes, not handled here):
- *   - `poison` / `poisoned`          -> canonical `poisoned`
- *   - `bleed` / `bleeding`           -> canonical `bleeding`
+ *   - `poison` / `poisoned` / `blight` -> canonical `blight`
+ *   - `bleed` / `bleeding` / `lacerate` -> canonical `lacerate`
  *   - `entangle` / `entangled`       -> canonical `entangled`
  *   - `disorient` / `disoriented`    -> canonical `disoriented`
  * Data in `src/stones/stone-powers.ts` that still uses the short forms is

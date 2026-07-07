@@ -171,7 +171,7 @@ export class MasteryItemSheet extends foundry.appv1.sheets.ItemSheet {
           <form>
             <div class="form-group">
               <label>Special Effect:</label>
-              <input type="text" name="specialName" placeholder="e.g., Bleeding(2), Ignite(3)"/>
+              <input type="text" name="specialName" placeholder="e.g., Lacerate(2), Ruin(3)"/>
             </div>
           </form>
         `,

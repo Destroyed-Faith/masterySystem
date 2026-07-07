@@ -2,8 +2,9 @@
  * Auto-Fail Engine — declarative mapping from conditions to forced outcomes.
  *
  * Current consumers:
- *   - `Blinded(X)` forces failure on `sight`-tagged checks AND subtracts
- *     `X` dice from any `sight`-tagged attack.
+ *   - `Disoriented(X)` subtracts `X` Attack Dice (and `X` dice from sight /
+ *     perception checks used to notice, locate, track, or identify), down to
+ *     a minimum of the roller's Mastery Rank.
  *   - `Stunned(X)` locks `X` attack actions for the current round (enforced
  *     in `src/combat/action-economy.ts`, not here).
  *
@@ -25,19 +26,21 @@ export interface AutoFailDecision {
     reason?: string;
     /**
      * Dice pool penalty applied before the roll (subtracted from numDice).
-     * Pools never go below 1 — the caller is responsible for clamping.
+     * The caller clamps the pool to `minFloor` (default 1).
      */
     dicePenalty?: number;
+    /** Minimum pool size after applying `dicePenalty` (e.g. Mastery Rank for Disoriented). */
+    minFloor?: number;
     /** Human-readable note that gets appended to the roll flavor. */
     note?: string;
 }
 /**
- * Return the actor's Blinded rank (0 when not blinded). Reads Foundry's
- * `actor.statuses` set first, then the mastery-flag `conditions`, then
- * effect names — covers the three ways the system tracks conditions.
+ * Return the actor's Disoriented rank (0 when not disoriented). Reads the
+ * `system.statusEffects` view first, then Foundry's `actor.statuses` set, the
+ * mastery-flag `conditions`, then effect names.
  */
-export declare function getBlindedRank(actor: any): number;
-/** Stunned rank (0 when not stunned). Same lookup as Blinded. */
+export declare function getDisorientedRank(actor: any): number;
+/** Stunned rank (0 when not stunned). Same lookup as Disoriented. */
 export declare function getStunnedRank(actor: any): number;
 /**
  * Resolve the effective tag list for a check. When `context.tags` is non-

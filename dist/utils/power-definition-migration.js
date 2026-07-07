@@ -12,7 +12,7 @@ function parseSpecial(specialStr) {
     // Split by comma if multiple specials
     const parts = specialStr.split(',').map(s => s.trim());
     for (const part of parts) {
-        // Try to parse "Bleeding(3)" format
+        // Try to parse "Lacerate(3)" format
         const match = part.match(/(\w+)\((\d+)\)/);
         if (match) {
             const key = match[1];

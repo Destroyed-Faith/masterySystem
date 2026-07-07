@@ -4,7 +4,7 @@
 import type { CastingAttribute, SpellResolution } from '../../types/item.js';
 import type { PowerGrantSpec } from '../../utils/power-item-builder.js';
 export type DefensePackageId = 'armor' | 'evade' | 'damage-reduction' | 'phasing';
-export type OffensePackageId = 'bleeding-push' | 'ignite' | 'freeze' | 'expose' | 'corrode-damage' | 'mark' | 'hex-spell' | 'weaken-save' | 'direct-damage';
+export type OffensePackageId = 'lacerate-push' | 'ruin' | 'slow' | 'expose' | 'corrode-damage' | 'mark' | 'hex-spell' | 'weaken-save' | 'direct-damage';
 export type DeliveryMode = 'melee' | 'ranged';
 export type WeakenSaveChoice = 'body' | 'mind' | 'spirit';
 export type TowerWizardStep = 'defense' | 'passive2' | 'activeBuffChoice' | 'offensiveBuff' | 'offense' | 'weakenSave' | 'delivery' | 'review';

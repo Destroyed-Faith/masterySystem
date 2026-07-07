@@ -317,7 +317,7 @@ export interface PowerMechanics {
   /**
    * Auto-fail condition metadata — declarative mapping from this condition
    * (when present on an actor) to forced skill/attack fails. Currently only
-   * `Blinded` (sight) consumes this at runtime via `autoFail.checkTags`; the
+   * `Disoriented` consumes this at runtime via `autoFail.checkTags`; the
    * `attackDicePenalty` is applied to any attack whose weapon/power carries
    * a matching tag, and the penalty scales with condition rank.
    * Status-effect keyed; not a power-level mechanic.
@@ -384,7 +384,7 @@ export interface PowerMechanics {
    */
   damageRider?: {
     flat?: string;                                                        // "+1d8"
-    vsCondition?: 'marked' | 'ignited' | 'shocked' | 'frozen' | 'hexed';  // only when target has condition
+    vsCondition?: 'mark' | 'ruin' | 'disrupt' | 'slow' | 'hex';  // only when target has condition
     vsConditionDamage?: string;                                           // "+2d8" extra under condition
   };
 
@@ -435,11 +435,11 @@ export interface PowerMechanics {
 
   /** Gate the whole mechanics block behind a condition on the target/self. */
   condition?:
-    | 'targetMarked'
-    | 'targetIgnited'
-    | 'targetShocked'
-    | 'targetFrozen'
-    | 'targetHexed'
+    | 'targetMark'
+    | 'targetRuin'
+    | 'targetDisrupt'
+    | 'targetSlow'
+    | 'targetHex'
     | 'self-hp-below-50'
     | null;
 
@@ -454,7 +454,7 @@ export interface PowerMechanics {
     kind: 'damage' | 'healing' | 'smite' | 'special';
     /** Damage / Healing / Smite dice (e.g. "5d8"). */
     dice?: string;
-    /** Chosen Special key for special auras (e.g. "ignite"). */
+    /** Chosen Special key for special auras (e.g. "ruin"). */
     special?: string;
     /** Special(X) magnitude for special auras. */
     x?: number;

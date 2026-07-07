@@ -31,15 +31,14 @@ export interface RollOptions {
      */
     targetActorId?: string;
     /**
-     * Semantic check tags used by the Auto-Fail engine. When `tags`
-     * includes `'sight'` and the rolling actor is Blinded(X), the roll
-     * is either auto-failed (skill check) or penalised −X dice (attack).
+     * Semantic check tags used by the Auto-Fail engine. When the rolling
+     * actor is Disoriented(X), attacks and `'sight'`-tagged perception checks
+     * are penalised −X dice (to a minimum of Mastery Rank).
      */
     checkContext?: CheckContext;
     /**
      * Intent classifier for the auto-fail engine. Defaults to `'skill'`.
-     * Attacks use `'attack'` so that Blinded only subtracts dice instead
-     * of forcing a full failure.
+     * Attacks use `'attack'` so Disoriented always subtracts Attack Dice.
      */
     autoFailIntent?: 'skill' | 'attack';
     /** @deprecated Auto-Raises removed — ignored if passed. */
