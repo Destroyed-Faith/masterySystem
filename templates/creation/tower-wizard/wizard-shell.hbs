@@ -28,7 +28,10 @@
         <h4>{{copy.defensePassiveVariant.previewHeading}}</h4>
         <ul class="tower-wizard-package-preview-list">
           {{#each defensePackagePreview.rows}}
-          <li><strong>{{this.label}}:</strong> {{this.value}}</li>
+          <li class="tower-wizard-package-preview-row">
+            <span class="tower-wizard-package-preview-key">{{this.label}}</span>
+            <span class="tower-wizard-package-preview-value">{{this.value}}</span>
+          </li>
           {{/each}}
         </ul>
       </div>
@@ -36,12 +39,14 @@
       <div class="tower-wizard-cards tower-wizard-passive1-variant-cards">
         {{#each passive1Variants}}
         <button type="button" class="tower-wizard-card js-tw-select-passive1-variant{{#if (eq ../../selection.passive1TemplateId this.templateId)}} is-selected{{/if}}{{#if this.isLocked}} is-locked{{/if}}" data-passive-id="{{this.templateId}}">
-          <span class="tower-wizard-card-title">{{this.label}}</span>
-          {{#if this.isRecommended}}
-          <span class="tower-wizard-chip">{{#if this.isLocked}}{{../../copy.defensePassiveVariant.locked}}{{else}}{{../../copy.defensePassiveVariant.recommended}}{{/if}}</span>
-          {{/if}}
+          <div class="tower-wizard-card-head">
+            <span class="tower-wizard-card-title">{{this.label}}</span>
+            {{#if this.isRecommended}}
+            <span class="tower-wizard-chip">{{#if this.isLocked}}{{../../copy.defensePassiveVariant.locked}}{{else}}{{../../copy.defensePassiveVariant.recommended}}{{/if}}</span>
+            {{/if}}
+          </div>
           <span class="tower-wizard-card-text">{{this.description}}</span>
-          <span class="tower-wizard-card-meta"><strong>{{../../copy.defensePassiveVariant.mechanics}}:</strong> {{this.mechanicsPreview}}</span>
+          <span class="tower-wizard-card-meta">{{this.mechanicsPreview}}</span>
         </button>
         {{/each}}
       </div>
@@ -57,7 +62,10 @@
         <h4>{{copy.passive2.alreadySelected}}</h4>
         <ul class="tower-wizard-package-preview-list">
           {{#each defensePackagePreview.rows}}
-          <li><strong>{{this.label}}:</strong> {{this.value}}</li>
+          <li class="tower-wizard-package-preview-row">
+            <span class="tower-wizard-package-preview-key">{{this.label}}</span>
+            <span class="tower-wizard-package-preview-value">{{this.value}}</span>
+          </li>
           {{/each}}
         </ul>
       </div>

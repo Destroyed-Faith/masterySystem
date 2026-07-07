@@ -160,6 +160,24 @@
   font-size: 0.95rem;
 }
 
+.tower-wizard-card-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.tower-wizard-card-head .tower-wizard-card-title {
+  flex: 1 1 auto;
+  margin: 0;
+}
+
+.tower-wizard-card-head .tower-wizard-chip {
+  margin-left: 0;
+  flex: 0 0 auto;
+}
+
 .tower-wizard-card-text {
   display: block;
   width: 100%;
@@ -592,6 +610,9 @@
   position: sticky;
   top: 0;
   z-index: 2;
+  margin-bottom: 16px;
+  background: var(--df-bg-primary, #20272b);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
 }
 
 .tower-wizard-package-preview h4 {
@@ -601,14 +622,43 @@
 
 .tower-wizard-package-preview-list {
   margin: 0;
-  padding-left: 1.1rem;
+  padding: 0;
+  list-style: none;
   line-height: 1.5;
+}
+
+.tower-wizard-package-preview-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  margin: 0 0 4px;
+}
+
+.tower-wizard-package-preview-row:last-child {
+  margin-bottom: 0;
+}
+
+.tower-wizard-package-preview-key {
+  flex: 0 0 auto;
+  font-weight: 600;
+}
+
+.tower-wizard-package-preview-key::after {
+  content: ':';
+}
+
+.tower-wizard-package-preview-value {
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .tower-wizard-passive1-variant-cards .tower-wizard-card-meta {
   display: block;
-  margin-top: 8px;
+  margin-top: 4px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
   font-size: 0.86rem;
+  line-height: 1.45;
   opacity: 0.9;
 }
 

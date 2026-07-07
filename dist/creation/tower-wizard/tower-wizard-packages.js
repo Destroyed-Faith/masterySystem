@@ -929,75 +929,75 @@ const PASSIVE1_VARIANT_IDS = {
 const PASSIVE1_VARIANT_COPY = {
     'passive-fortified-frame': {
         description: 'Simple, reliable Armor. You always gain flat Armor. Best default choice for most Armor characters.',
-        mechanicsPreview: 'Passive 1: Gain permanent Armor.',
+        mechanicsPreview: 'Gain permanent Armor.',
     },
     'passive-armor-temp-hp': {
         description: 'Less pure Armor, but adds a frontloaded buffer. Good if you want to survive the opening of combat better.',
-        mechanicsPreview: 'Passive 1: Gain Armor plus Temporary HP.',
+        mechanicsPreview: 'Gain Armor plus Temporary HP.',
     },
     'passive-stone-stance': {
         description: 'Stronger Armor when you hold your ground. Better for players who want tactical play instead of a pure always-on bonus.',
-        mechanicsPreview: 'Passive 1: Gain Armor only while the listed condition is true.',
+        mechanicsPreview: 'Gain Armor only while the listed condition is true.',
     },
     'passive-surrounded-bulwark': {
         description: 'Armor that spikes when enemies crowd you. Rewards staying in the thick of melee.',
-        mechanicsPreview: 'Passive 1: Gain Armor only while the listed condition is true.',
+        mechanicsPreview: 'Gain Armor only while the listed condition is true.',
     },
     'conditional-passive-armor-temp-hp': {
         description: 'Armor and Temporary HP when allies are nearby. Tactical, team-aware defense.',
-        mechanicsPreview: 'Passive 1: Gain Armor plus Temporary HP only while the listed condition is true.',
+        mechanicsPreview: 'Gain Armor plus Temporary HP only while the listed condition is true.',
     },
     'conditional-passive-armor-healing': {
         description: 'Armor and healing when you stand still. Rewards holding a position.',
-        mechanicsPreview: 'Passive 1: Gain Armor and healing only while the listed condition is true.',
+        mechanicsPreview: 'Gain Armor and healing only while the listed condition is true.',
     },
     'conditional-passive-armor-health': {
         description: 'Armor and extra health when allies are nearby. A durable anchor for the party.',
-        mechanicsPreview: 'Passive 1: Gain Armor and health only while the listed condition is true.',
+        mechanicsPreview: 'Gain Armor and health only while the listed condition is true.',
     },
     'passive-evade': {
         description: 'Simple, reliable Evade. You are always harder to hit. Best default choice for most Evade characters.',
-        mechanicsPreview: 'Passive 1: Gain permanent Evade.',
+        mechanicsPreview: 'Gain permanent Evade.',
     },
     'passive-flowing-step': {
         description: 'More tactical Evade that depends on movement. Rewards staying mobile.',
-        mechanicsPreview: 'Passive 1: Gain Evade only while the listed condition is true.',
+        mechanicsPreview: 'Gain Evade only while the listed condition is true.',
     },
     'passive-duelist-footwork': {
         description: 'Evade that shines in one-on-one fights. Better when you duel a single foe.',
-        mechanicsPreview: 'Passive 1: Gain Evade only while the listed condition is true.',
+        mechanicsPreview: 'Gain Evade only while the listed condition is true.',
     },
     'passive-evade-temp-hp': {
         description: 'Adds another small defensive layer with Temporary HP, but is less focused than pure Evade.',
-        mechanicsPreview: 'Passive 1: Gain Evade plus Temporary HP.',
+        mechanicsPreview: 'Gain Evade plus Temporary HP.',
     },
     'passive-evade-healing': {
         description: 'Evade plus sustain. Hard to hit and quick to mend.',
-        mechanicsPreview: 'Passive 1: Gain Evade plus healing.',
+        mechanicsPreview: 'Gain Evade plus healing.',
     },
     'passive-evade-damage': {
         description: 'Evade plus damage. A hybrid skirmisher profile.',
-        mechanicsPreview: 'Passive 1: Gain Evade plus bonus damage.',
+        mechanicsPreview: 'Gain Evade plus bonus damage.',
     },
     'conditional-passive-evade-temp-hp': {
         description: 'Evade and Temporary HP when you move enough. Rewards aggressive repositioning.',
-        mechanicsPreview: 'Passive 1: Gain Evade plus Temporary HP only while the listed condition is true.',
+        mechanicsPreview: 'Gain Evade plus Temporary HP only while the listed condition is true.',
     },
     'conditional-passive-evade-healing': {
         description: 'Evade and healing after heavy movement. A mobile sustain build.',
-        mechanicsPreview: 'Passive 1: Gain Evade plus healing only while the listed condition is true.',
+        mechanicsPreview: 'Gain Evade plus healing only while the listed condition is true.',
     },
     'conditional-passive-evade-damage': {
         description: 'Evade and damage after movement. Hit-and-run tactics.',
-        mechanicsPreview: 'Passive 1: Gain Evade plus damage only while the listed condition is true.',
+        mechanicsPreview: 'Gain Evade plus damage only while the listed condition is true.',
     },
     'passive-damage-reduction': {
         description: 'Damage Reduction is a closed premium defensive subsystem. It is normally taken as a full package and should not be mixed casually with Armor, Evade, Temporary HP or Phasing.',
-        mechanicsPreview: 'Passive 1: Gain Damage Reduction.',
+        mechanicsPreview: 'Gain Damage Reduction.',
     },
     'passive-ghostform': {
         description: 'Phasing is a closed premium defensive subsystem. It lets you ignore a limited number of hits and is normally taken as a full package.',
-        mechanicsPreview: 'Passive 1: Gain Phasing charges at combat start.',
+        mechanicsPreview: 'Gain Phasing charges at combat start.',
     },
 };
 const DEFENSE_MAIN_LABEL = {

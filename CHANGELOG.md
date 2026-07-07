@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.168] - 2026-07-07
+
+### Fixed
+
+- **Combat Package Wizard — Passive 1 variant step:** Defense package preview and variant cards no longer break layout (sticky preview stays aligned; mechanic text no longer shows a stray colon mid-button).
+
 ## [0.9.167] - 2026-07-07
 
 ### Changed
