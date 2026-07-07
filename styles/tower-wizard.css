@@ -606,15 +606,6 @@
   background: rgba(0, 0, 0, 0.18);
 }
 
-.tower-wizard-sticky-preview {
-  position: sticky;
-  top: 0;
-  z-index: 2;
-  margin-bottom: 16px;
-  background: var(--df-bg-primary, #20272b);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
-}
-
 .tower-wizard-package-preview h4 {
   margin: 0 0 8px;
   font-size: 0.95rem;

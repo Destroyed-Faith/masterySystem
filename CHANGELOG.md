@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.170] - 2026-07-07
+
+### Fixed
+
+- **Combat Package Wizard — Passive 1 variant step:** Removed sticky positioning from the defense package preview so it scrolls away with the step content instead of covering half the dialog while browsing variants.
+
 ## [0.9.169] - 2026-07-07
 
 ### Fixed
