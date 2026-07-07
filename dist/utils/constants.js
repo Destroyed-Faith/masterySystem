@@ -177,6 +177,8 @@ export const ECHO_SPEEDS = {
     dwarf: 9,
     halfling: 8,
     elf: 12,
+    elorian: 12,
+    elorians: 12,
     sentinel: 10,
     titanborn: 12,
     centaur: 14,

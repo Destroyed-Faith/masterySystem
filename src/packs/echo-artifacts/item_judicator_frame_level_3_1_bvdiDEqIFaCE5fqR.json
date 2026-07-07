@@ -33,7 +33,8 @@
         "aoe": "",
         "duration": "",
         "effect": "When you activate an Active Buff that grants Armor as one of its effects, you may increase that Buff's effective Power Level by +1 and its duration by +1 round. Uses per Safe Haven Rest: half Mastery Rank, rounded up. The Active Buff cannot exceed Power Level 16.",
-        "special": ""
+        "special": "",
+        "powerTemplateId": "empower-buff-armor"
       },
       {
         "level": 2,
@@ -738,7 +739,7 @@
       ],
       "echoBound": "sentinels",
       "echoArtifactKey": "judicatorFrame",
-      "seedVersion": 24
+      "seedVersion": 26
     }
   },
   "_id": "bvdiDEqIFaCE5fqR",

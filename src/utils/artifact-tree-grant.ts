@@ -41,10 +41,8 @@ export function inferArtifactKeyFromName(name: string): string | null {
   // name, so default name-based wiring to the Might variant (legacy default).
   if (n.includes('titan scar')) return 'titanScarsMight';
   if (n.includes('stonebound sole')) return 'stoneboundSoles';
-  if (n.includes('elven stride') && n.includes('fire')) return 'elvenStrideFire';
-  if (n.includes('elven stride') && n.includes('earth')) return 'elvenStrideEarth';
-  if (n.includes('elven stride') && n.includes('water')) return 'elvenStrideWater';
-  if (n.includes('elven stride') && n.includes('air')) return 'elvenStrideAir';
+  if (n.includes('elorian stride')) return 'elorianStride';
+  if (n.includes('elven stride')) return 'elorianStride';
   if (n.includes('sentinel frame')) return 'sentinelFrame';
   if (n.includes('judicator frame')) return 'judicatorFrame';
   if (n.includes('oracle frame')) return 'oracleFrame';

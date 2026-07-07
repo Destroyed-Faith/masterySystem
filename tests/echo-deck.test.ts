@@ -30,7 +30,7 @@ describe('Echo Catalog', () => {
     expect(ECHO_KEY_ORDER).toEqual([
       'humans',
       'dwarfs',
-      'elves',
+      'elorians',
       'sentinels',
       'titanborn',
       'dragonborn',
@@ -134,13 +134,13 @@ describe('Echo Card Usage + Safe-Haven Reset Simulation', () => {
 
   it('buildFreshTraitUses returns empty when no active traits', () => {
     expect(buildFreshTraitUses('humans', null, 3)).toEqual({});
-    expect(buildFreshTraitUses('elves', null, 3)).toEqual({});
+    expect(buildFreshTraitUses('elorians', null, 3)).toEqual({});
   });
 });
 
 describe('Echo Sub-Choice Validation', () => {
   it('Elves choose Elemental Lineage via echo artifact, not racial sub-choice', () => {
-    const def = getEcho('elves')!;
+    const def = getEcho('elorians')!;
     expect(def.subChoices === undefined || def.subChoices.length === 0).toBe(true);
   });
 
@@ -169,13 +169,13 @@ describe('Echo Sub-Choice Validation', () => {
   it('Dragonborn require a Veiled Form, others do not', () => {
     expect(getEcho('dragonborn')!.veiledForm).toBe(true);
     expect(getEcho('humans')!.veiledForm).toBeFalsy();
-    expect(getEcho('elves')!.veiledForm).toBeFalsy();
+    expect(getEcho('elorians')!.veiledForm).toBeFalsy();
   });
 
   it('racial core traits are empty (mechanics live on Echo artifacts)', () => {
-    expect(getActiveEchoTraits('elves', null)).toHaveLength(0);
+    expect(getActiveEchoTraits('elorians', null)).toHaveLength(0);
     expect(getActiveEchoTraits('humans', null)).toHaveLength(0);
-    expect(getActiveEchoTraits('elves', 'fire')).toHaveLength(0);
+    expect(getActiveEchoTraits('elorians', 'fire')).toHaveLength(0);
   });
 
   it('getActiveEchoTraits includes sub-choice trait when chosen', () => {

@@ -33,7 +33,8 @@
         "aoe": "",
         "duration": "Instant",
         "effect": "Fly up to **6 m**.",
-        "special": ""
+        "special": "",
+        "powerTemplateId": "movement-flight"
       },
       {
         "level": 2,
@@ -42,8 +43,9 @@
         "range": "Self",
         "aoe": "",
         "duration": "MR Rounds",
-        "effect": "Gain **+26 Evade**.",
-        "special": ""
+        "effect": "Gain **+13 Evade**.",
+        "special": "",
+        "powerTemplateId": "ab-evade"
       }
     ],
     "stoneFunction": null,
@@ -343,7 +345,7 @@
               "rounds": 1
             },
             "effect": {
-              "text": "Gain **+26 Evade**."
+              "text": "Gain **+13 Evade**."
             },
             "specials": [],
             "lvl": 2
@@ -517,7 +519,7 @@
       ],
       "echoBound": "dragonborn",
       "echoArtifactKey": "wyrmScalesLight",
-      "seedVersion": 24
+      "seedVersion": 26
     }
   },
   "_id": "keVEfCVHuMgCGuIV",

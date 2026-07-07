@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.171] - 2026-07-07
+
+### Changed
+
+- **Elorians Echo rename:** The playable Echo formerly listed as Elves is now **Elorians** (`elorians` key). Legacy `elves` actors resolve automatically and are migrated on world load.
+- **Elorian Stride artifact:** Replaced the four elemental Elven Stride lineage artifacts with a single **Elorian Stride** feet artifact — Otherworld Reflex, Elorian Cling, Elorian Focus (Crit Stone Support), and True Elorian Stride. Base values now scale Evade (+2…+12) and Movement (+1…+4 m from Level 4). Echo Artifact compendium and seed version bumped.
+
 ## [0.9.170] - 2026-07-07
 
 ### Fixed

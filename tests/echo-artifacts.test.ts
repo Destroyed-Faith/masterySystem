@@ -8,7 +8,7 @@ import {
     listSelectableEchoArtifacts,
 } from '../src/utils/echo-artifacts.js';
 
-const KNOWN_ECHOES = ['dwarfs', 'elves', 'titanborn', 'dragonborn', 'sentinels'];
+const KNOWN_ECHOES = ['dwarfs', 'elorians', 'titanborn', 'dragonborn', 'sentinels'];
 
 describe('Echo Artifact catalog — shape & coverage', () => {
     it('contains a non-empty registry', () => {
@@ -77,19 +77,22 @@ describe('Echo Artifact catalog — lookups', () => {
         }
     });
 
-    it('Elves pick exactly one of four lineage-specific Elven Stride artifacts', () => {
-        const elfList = listSelectableEchoArtifacts('elves');
-        const keys = elfList.map((d) => d.key).sort();
-        expect(keys).toEqual([
-            'elvenStrideAir',
-            'elvenStrideEarth',
-            'elvenStrideFire',
-            'elvenStrideWater',
-        ]);
-        const rule = getEchoArtifactRules('elves');
+    it('Elorians pick Elorian Stride as their echo-bound feet artifact', () => {
+        const list = listSelectableEchoArtifacts('elorians');
+        expect(list.map((d) => d.key)).toEqual(['elorianStride']);
+        const rule = getEchoArtifactRules('elorians');
         expect(rule.requiredAtCreation).toBe(1);
         expect(rule.maxAtCreation).toBe(1);
-        expect(rule.exclusiveGroups?.[0]?.sort()).toEqual(keys);
+        expect(rule.exclusiveGroups).toBeUndefined();
+    });
+
+    it('getEchoArtifactRules resolves legacy elves echo key', () => {
+        expect(getEchoArtifactRules('elves').availableKeys).toEqual(['elorianStride']);
+    });
+
+    it('getEchoArtifact resolves legacy Elven Stride keys to Elorian Stride', () => {
+        expect(getEchoArtifact('elvenStrideFire')?.key).toBe('elorianStride');
+        expect(getEchoArtifact('elvenStrideEarth')?.key).toBe('elorianStride');
     });
 
     it('getEchoArtifact resolves legacy wyrm/serpent keys to current variants', () => {

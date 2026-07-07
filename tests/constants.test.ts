@@ -257,6 +257,6 @@ describe('Echo Speeds', () => {
   it('human speed is 10m', () => expect(ECHO_SPEEDS.human).toBe(10));
   it('dwarf speed is 9m', () => expect(ECHO_SPEEDS.dwarf).toBe(9));
   it('halfling speed is 8m', () => expect(ECHO_SPEEDS.halfling).toBe(8));
-  it('elf speed is 12m', () => expect(ECHO_SPEEDS.elf).toBe(12));
+  it('elorian speed is 12m', () => expect(ECHO_SPEEDS.elorian).toBe(12));
   it('titanborn speed is 12m', () => expect(ECHO_SPEEDS.titanborn).toBe(12));
 });

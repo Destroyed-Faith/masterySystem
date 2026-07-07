@@ -35,11 +35,13 @@
         "level": 7,
         "name": "Breath Weapon III",
         "type": "Ranged AoE",
-        "range": "72m",
-        "aoe": "Radius 17m",
+        "range": "68m",
+        "aoe": "Radius 7m",
         "duration": "Instant",
-        "effect": "Deal **+4d8 damage** to every affected creature; Special applies at half value.",
-        "special": "ruin(6) bound at item-create via chosenSpecial (AoE = half value, T(X+1) cost)"
+        "effect": "Deal **+1d8 damage** to every affected creature; Special applies at half value.",
+        "special": "ruin(6) bound at item-create via chosenSpecial (AoE = half value, T(X+1) cost)",
+        "powerTemplateId": "active-ranged-aoe-damage-t4",
+        "chosenSpecialKey": "ruin"
       },
       {
         "level": 5,
@@ -48,8 +50,9 @@
         "range": "Self",
         "aoe": "Aura 20m",
         "duration": "MR Rounds",
-        "effect": "You and allies within **20 m** gain **+21 Armor**.",
-        "special": ""
+        "effect": "You and allies within **20 m** gain **+28 Armor**.",
+        "special": "",
+        "powerTemplateId": "ab-armor-aura"
       },
       {
         "level": 6,
@@ -301,18 +304,18 @@
             "type": "Ranged AoE",
             "range": {
               "kind": "distance",
-              "m": 72
+              "m": 68
             },
             "aoe": {
               "shape": "radius",
-              "m": 17,
-              "radiusM": 17
+              "m": 7,
+              "radiusM": 7
             },
             "duration": {
               "kind": "instant"
             },
             "effect": {
-              "text": "Deal **+4d8 damage** to every affected creature; Special applies at half value."
+              "text": "Deal **+1d8 damage** to every affected creature; Special applies at half value."
             },
             "specials": [],
             "lvl": 7
@@ -451,7 +454,7 @@
               "rounds": 1
             },
             "effect": {
-              "text": "You and allies within **20 m** gain **+21 Armor**."
+              "text": "You and allies within **20 m** gain **+28 Armor**."
             },
             "specials": [],
             "lvl": 5
@@ -762,7 +765,7 @@
       ],
       "echoBound": "dragonborn",
       "echoArtifactKey": "dragonHead",
-      "seedVersion": 24
+      "seedVersion": 26
     }
   },
   "_id": "EjVSrBzLuasBiTiB",

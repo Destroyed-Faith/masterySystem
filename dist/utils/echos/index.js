@@ -6,7 +6,7 @@
  */
 import { HUMANS_ECHO } from './humans.js';
 import { DWARFS_ECHO } from './dwarfs.js';
-import { ELVES_ECHO } from './elves.js';
+import { ELORIANS_ECHO } from './elorians.js';
 import { SENTINELS_ECHO } from './sentinels.js';
 import { TITANBORN_ECHO } from './titanborn.js';
 import { DRAGONBORN_ECHO } from './dragonborn.js';
@@ -15,7 +15,7 @@ import { UNBOUND_ECHO } from './unbound.js';
 export const ECHO_KEY_ORDER = [
     'humans',
     'dwarfs',
-    'elves',
+    'elorians',
     'sentinels',
     'titanborn',
     'dragonborn',
@@ -25,7 +25,7 @@ export const ECHO_KEY_ORDER = [
 export const ALL_ECHOS = {
     humans: HUMANS_ECHO,
     dwarfs: DWARFS_ECHO,
-    elves: ELVES_ECHO,
+    elorians: ELORIANS_ECHO,
     sentinels: SENTINELS_ECHO,
     titanborn: TITANBORN_ECHO,
     dragonborn: DRAGONBORN_ECHO,
@@ -35,11 +35,12 @@ export const ALL_ECHOS = {
 export function getAllEchos() {
     return ECHO_KEY_ORDER.map(k => ALL_ECHOS[k]).filter(Boolean);
 }
-/** Lookup a single Echo by its key. */
+/** Lookup a single Echo by its key (legacy `elves` resolves to `elorians`). */
 export function getEcho(key) {
     if (!key)
         return undefined;
-    return ALL_ECHOS[key];
+    const resolved = key === 'elves' ? 'elorians' : key;
+    return ALL_ECHOS[resolved];
 }
 /** Lookup a sub-choice on an Echo by key (lineage / order). */
 export function getEchoSubChoice(echoKey, subChoiceKey) {

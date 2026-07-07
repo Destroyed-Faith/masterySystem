@@ -6,7 +6,7 @@
  *
  *   • Human:      0 required, 0 maximum.
  *   • Dwarf:      1 required, 1 maximum.   (Stonebound Soles — Feet)
- *   • Elf:        1 required, 1 maximum.   (One Elven Stride per Elemental Lineage)
+ *   • Elorian:    1 required, 1 maximum.   (Elorian Stride — Feet)
  *   • Sentinel:   1 required, 1 maximum.   (One frame per Order)
  *   • Titanborn:  1 required, 1 maximum.   (Titan Scars — Body)
  *   • Dragonborn: 1 required, 3 maximum.   (Dragon Claws, Dragon Head, and one
@@ -145,225 +145,125 @@ const STONEBOUND_SOLES = {
     ],
 };
 // ----------------------------------------------------------------------
-// Elven Stride (Elf)
+// Elorian Stride (Elorian)
 // ----------------------------------------------------------------------
-/** Shared Elven Stride shell; lineage-specific L3/L6/L9 rows are injected. */
-function buildElvenStrideDefinition(opts) {
-    const [l3, l6, l9] = opts.lineageRows;
-    return {
-        key: opts.key,
-        name: opts.name,
-        echoKey: 'elves',
-        slot: 'feet',
-        baseProfile: 'feet',
-        description: `Elven Stride (${opts.lineageLabel}): otherworldly balance, reflex, clinging movement, and ${opts.lineageLabel} lineage empowerment.`,
-        restriction: 'An elf with Elven Stride cannot wear another Feet Artifact, magical boots, hooves, talons, or similar Feet-based Artifact. Elven Stride is Echo-bound and cannot normally be removed, replaced, sold, stolen, or unbound.',
-        // All three lines are real, editable catalog Powers (no authored fallback):
-        //   L1 Otherworld Reflex → `reaction-evade` (catalog Evade scaling),
-        //   L2 Elven Cling       → `movement-wall-walk` (10/25/28 m, exact match),
-        //   L3 lineage line       → the matching Buff-Empowerment passive.
-        // Flavor names are preserved via the pick `name` so the rows still read as
-        // Otherworld Reflex / Elven Cling / <lineage>.
-        progressionPickSpecs: {
-            1: { templateId: 'reaction-evade', name: 'Otherworld Reflex' },
-            2: { templateId: 'movement-wall-walk', name: 'Elven Cling' },
-            3: { templateId: opts.lineageTemplateId, name: opts.lineageDisplayName },
+const ELORIAN_STRIDE = {
+    key: 'elorianStride',
+    name: 'Elorian Stride',
+    echoKey: 'elorians',
+    slot: 'feet',
+    baseProfile: 'feet',
+    description: 'Elorian Stride is an Elorian Echo Artifact representing otherworldly balance, reflex, clinging movement and focus in combat.',
+    restriction: 'An Elorian with Elorian Stride cannot wear another Feet Artifact, magical boots, hooves, talons, or similar Feet-based Artifact. Elorian Stride is Echo-bound and cannot normally be removed, replaced, sold, stolen, or unbound.',
+    progressionPickSpecs: {
+        1: { templateId: 'reaction-evade', name: 'Otherworld Reflex' },
+        2: { templateId: 'movement-wall-walk', name: 'Elorian Cling' },
+        3: {
+            name: 'Elorian Focus',
+            stoneFunction: {
+                kind: 'stonePowerSupport',
+                attribute: 'agility',
+                stonePowerId: 'agility.crit',
+            },
         },
-        baseValues: [
-            { slot: 'a', label: 'Evade', note: '+1 to +5 Evade across levels.' },
-            { slot: 'b', label: 'Clinging', note: '+1 to +4 m Clinging at higher levels.' },
-        ],
-        levelProgression: [
-            {
-                level: 1,
-                name: 'Otherworld Reflex I',
-                type: 'Reaction',
-                range: 'Self',
-                duration: 'Triggering attack only',
-                effect: 'Gain +4 Evade against the triggering attack.',
-                special: 'Otherworld Reflex',
-            },
-            {
-                level: 2,
-                name: 'Elven Cling I',
-                type: 'Movement',
-                range: 'Self',
-                duration: 'Instant',
-                effect: 'Move up to 10 m along walls, ceilings, or similar solid surfaces.',
-                special: 'Wall Walk',
-            },
-            {
-                level: 3,
-                name: l3.name,
-                type: 'Support',
-                range: 'Self',
-                duration: 'Special',
-                effect: l3.effect,
-                special: l3.special,
-            },
-            {
-                level: 4,
-                name: 'Otherworld Reflex II',
-                type: 'Reaction',
-                range: 'Self',
-                duration: 'Triggering attack only',
-                effect: 'Gain +8 Evade against the triggering attack.',
-                special: 'Otherworld Reflex',
-            },
-            {
-                level: 5,
-                name: 'Elven Cling II',
-                type: 'Movement',
-                range: 'Self',
-                duration: 'Instant',
-                effect: 'Move up to 25 m along walls, ceilings, or similar solid surfaces.',
-                special: 'Wall Walk',
-            },
-            {
-                level: 6,
-                name: l6.name,
-                type: 'Support',
-                range: 'Self',
-                duration: 'Special',
-                effect: l6.effect,
-                special: l6.special,
-            },
-            {
-                level: 7,
-                name: 'Otherworld Reflex III',
-                type: 'Reaction',
-                range: 'Self',
-                duration: 'Triggering attack only',
-                effect: 'Gain +12 Evade against the triggering attack.',
-                special: 'Otherworld Reflex',
-            },
-            {
-                level: 8,
-                name: 'Elven Cling III',
-                type: 'Movement',
-                range: 'Self',
-                duration: 'Instant',
-                effect: 'Move up to 28 m along walls, ceilings, or similar solid surfaces.',
-                special: 'Wall Walk',
-            },
-            {
-                level: 9,
-                name: l9.name,
-                type: 'Support',
-                range: 'Self',
-                duration: 'Special',
-                effect: l9.effect,
-                special: l9.special,
-            },
-            {
-                level: 10,
-                name: 'True Elven Stride',
-                type: 'Ultimate',
-                range: 'Self',
-                duration: 'Special',
-                effect: 'Elven Stride fully awakens. Choose or define one final movement, reflex, clinging, lineage, or agility effect with GM approval.',
-                special: 'True Elven Stride',
-            },
-        ],
-    };
-}
-const lineageUsesNote = 'Uses per Safe Haven Rest: half Mastery Rank, rounded up. The Active Buff cannot exceed Power Level 16.';
-const ELVEN_STRIDE_FIRE = buildElvenStrideDefinition({
-    key: 'elvenStrideFire',
-    name: 'Elven Stride (Fire)',
-    lineageLabel: 'Fire',
-    lineageTemplateId: 'empower-buff-damage',
-    lineageDisplayName: 'Ember Surge',
-    lineageRows: [
+    },
+    baseValues: [
+        { slot: 'a', label: 'Evade', note: '+2 to +12 Evade across levels; Level 10 grants True Elorian Stride.' },
+        { slot: 'b', label: 'Movement', note: '+1 to +4 m Movement from Level 4 onward.' },
+    ],
+    levelProgression: [
         {
-            name: 'Ember Surge I',
-            effect: `When you activate an Active Buff that grants Damage as one of its effects, you may increase that Buff's effective Power Level by +1 and its duration by +1 round. ${lineageUsesNote}`,
-            special: 'Damage Buff Empowerment',
+            level: 1,
+            name: 'Otherworld Reflex I',
+            type: 'Reaction',
+            range: 'Self',
+            duration: 'Triggering attack only',
+            effect: 'Gain +4 Evade against the triggering attack.',
+            special: 'Otherworld Reflex',
         },
         {
-            name: 'Ember Surge II',
-            effect: `When you activate an Active Buff that grants Damage as one of its effects, you may increase that Buff's effective Power Level by +2 and its duration by +2 rounds. ${lineageUsesNote}`,
-            special: 'Damage Buff Empowerment',
+            level: 2,
+            name: 'Elorian Cling I',
+            type: 'Movement',
+            range: 'Self',
+            duration: 'Instant',
+            effect: 'Move up to 10 m along walls, ceilings, or similar solid surfaces.',
+            special: 'Wall Walk',
         },
         {
-            name: 'Ember Surge III',
-            effect: `When you activate an Active Buff that grants Damage as one of its effects, you may increase that Buff's effective Power Level by +3 and its duration by +3 rounds. ${lineageUsesNote}`,
-            special: 'Damage Buff Empowerment',
+            level: 3,
+            name: 'Elorian Focus I',
+            type: 'Support Stone Power',
+            range: 'Self',
+            duration: 'Until used',
+            effect: 'Spend 1 Ready Stone to gain Crit(2).',
+            special: 'Crit',
+        },
+        {
+            level: 4,
+            name: 'Otherworld Reflex II',
+            type: 'Reaction',
+            range: 'Self',
+            duration: 'Triggering attack only',
+            effect: 'Gain +8 Evade against the triggering attack.',
+            special: 'Otherworld Reflex',
+        },
+        {
+            level: 5,
+            name: 'Elorian Cling II',
+            type: 'Movement',
+            range: 'Self',
+            duration: 'Instant',
+            effect: 'Move up to 25 m along walls, ceilings, or similar solid surfaces.',
+            special: 'Wall Walk',
+        },
+        {
+            level: 6,
+            name: 'Elorian Focus II',
+            type: 'Support Stone Power',
+            range: 'Self',
+            duration: 'Until used',
+            effect: 'Spend 1 Ready Stone to gain Crit(3).',
+            special: 'Crit',
+        },
+        {
+            level: 7,
+            name: 'Otherworld Reflex III',
+            type: 'Reaction',
+            range: 'Self',
+            duration: 'Triggering attack only',
+            effect: 'Gain +12 Evade against the triggering attack.',
+            special: 'Otherworld Reflex',
+        },
+        {
+            level: 8,
+            name: 'Elorian Cling III',
+            type: 'Movement',
+            range: 'Self',
+            duration: 'Instant',
+            effect: 'Move up to 28 m along walls, ceilings, or similar solid surfaces.',
+            special: 'Wall Walk',
+        },
+        {
+            level: 9,
+            name: 'Elorian Focus III',
+            type: 'Support Stone Power',
+            range: 'Self',
+            duration: 'Until used',
+            effect: 'Spend 1 Ready Stone to gain Crit(4).',
+            special: 'Crit',
+        },
+        {
+            level: 10,
+            name: 'True Elorian Stride',
+            type: 'Ultimate',
+            range: 'Self',
+            duration: 'Special',
+            effect: 'Elorian Stride fully awakens. Choose or define one final movement, reflex, clinging, focus, or agility effect with GM approval.',
+            special: 'True Elorian Stride',
         },
     ],
-});
-const ELVEN_STRIDE_EARTH = buildElvenStrideDefinition({
-    key: 'elvenStrideEarth',
-    name: 'Elven Stride (Earth)',
-    lineageLabel: 'Earth',
-    lineageTemplateId: 'empower-buff-armor',
-    lineageDisplayName: 'Stoneweave Guard',
-    lineageRows: [
-        {
-            name: 'Stoneweave Guard I',
-            effect: `When you activate an Active Buff that grants Armor as one of its effects, you may increase that Buff's effective Power Level by +1 and its duration by +1 round. ${lineageUsesNote}`,
-            special: 'Armor Buff Empowerment',
-        },
-        {
-            name: 'Stoneweave Guard II',
-            effect: `When you activate an Active Buff that grants Armor as one of its effects, you may increase that Buff's effective Power Level by +2 and its duration by +2 rounds. ${lineageUsesNote}`,
-            special: 'Armor Buff Empowerment',
-        },
-        {
-            name: 'Stoneweave Guard III',
-            effect: `When you activate an Active Buff that grants Armor as one of its effects, you may increase that Buff's effective Power Level by +3 and its duration by +3 rounds. ${lineageUsesNote}`,
-            special: 'Armor Buff Empowerment',
-        },
-    ],
-});
-const ELVEN_STRIDE_WATER = buildElvenStrideDefinition({
-    key: 'elvenStrideWater',
-    name: 'Elven Stride (Water)',
-    lineageLabel: 'Water',
-    lineageTemplateId: 'empower-buff-evade',
-    lineageDisplayName: 'Tidal Slip',
-    lineageRows: [
-        {
-            name: 'Tidal Slip I',
-            effect: `When you activate an Active Buff that grants Evade as one of its effects, you may increase that Buff's effective Power Level by +1 and its duration by +1 round. ${lineageUsesNote}`,
-            special: 'Evade Buff Empowerment',
-        },
-        {
-            name: 'Tidal Slip II',
-            effect: `When you activate an Active Buff that grants Evade as one of its effects, you may increase that Buff's effective Power Level by +2 and its duration by +2 rounds. ${lineageUsesNote}`,
-            special: 'Evade Buff Empowerment',
-        },
-        {
-            name: 'Tidal Slip III',
-            effect: `When you activate an Active Buff that grants Evade as one of its effects, you may increase that Buff's effective Power Level by +3 and its duration by +3 rounds. ${lineageUsesNote}`,
-            special: 'Evade Buff Empowerment',
-        },
-    ],
-});
-const ELVEN_STRIDE_AIR = buildElvenStrideDefinition({
-    key: 'elvenStrideAir',
-    name: 'Elven Stride (Air)',
-    lineageLabel: 'Air',
-    lineageTemplateId: 'empower-buff-wind',
-    lineageDisplayName: 'Wind-First',
-    lineageRows: [
-        {
-            name: 'Wind-First I',
-            effect: `When you activate an Active Buff that grants Evade or movement-related positioning as one of its effects, you may increase that Buff's effective Power Level by +1 and its duration by +1 round. ${lineageUsesNote}`,
-            special: 'Wind Buff Empowerment',
-        },
-        {
-            name: 'Wind-First II',
-            effect: `When you activate an Active Buff that grants Evade or movement-related positioning as one of its effects, you may increase that Buff's effective Power Level by +2 and its duration by +2 rounds. ${lineageUsesNote}`,
-            special: 'Wind Buff Empowerment',
-        },
-        {
-            name: 'Wind-First III',
-            effect: `When you activate an Active Buff that grants Evade or movement-related positioning as one of its effects, you may increase that Buff's effective Power Level by +3 and its duration by +3 rounds. ${lineageUsesNote}`,
-            special: 'Wind Buff Empowerment',
-        },
-    ],
-});
+};
 // ----------------------------------------------------------------------
 // Titan Scars (Titanborn)
 // ----------------------------------------------------------------------
@@ -530,9 +430,12 @@ export const WYRM_SCALES_VARIANT_GROUP = 'wyrmScales';
 export const ECHO_ARTIFACT_KEY_ALIASES = {
     wyrmScales: 'wyrmScalesHeavy',
     serpentScales: 'wyrmScalesLight',
-    // Legacy single Titanborn body artifact → Might-affinity variant (its old
-    // fixed Stone Pool was Might). Existing characters keep working unchanged.
     titanScars: 'titanScarsMight',
+    elvenStride: 'elorianStride',
+    elvenStrideFire: 'elorianStride',
+    elvenStrideEarth: 'elorianStride',
+    elvenStrideWater: 'elorianStride',
+    elvenStrideAir: 'elorianStride',
 };
 const WYRM_BODY_RESTRICTION = 'A Dragonborn with Wyrm Scales cannot wear mundane armor or another Body Artifact.';
 function buildWyrmScalesLevelProgression(cfg) {
@@ -1373,10 +1276,7 @@ const ORACLE_FRAME = {
 // ----------------------------------------------------------------------
 export const ECHO_ARTIFACTS = {
     stoneboundSoles: STONEBOUND_SOLES,
-    elvenStrideFire: ELVEN_STRIDE_FIRE,
-    elvenStrideEarth: ELVEN_STRIDE_EARTH,
-    elvenStrideWater: ELVEN_STRIDE_WATER,
-    elvenStrideAir: ELVEN_STRIDE_AIR,
+    elorianStride: ELORIAN_STRIDE,
     ...Object.fromEntries(TITAN_SCARS_VARIANTS.map((def) => [def.key, def])),
     wyrmScalesHeavy: WYRM_SCALES_HEAVY,
     wyrmScalesMedium: WYRM_SCALES_MEDIUM,
@@ -1395,12 +1295,11 @@ export const ECHO_ARTIFACT_RULES = {
         maxAtCreation: 1,
         availableKeys: ['stoneboundSoles'],
     },
-    elves: {
-        echoKey: 'elves',
+    elorians: {
+        echoKey: 'elorians',
         requiredAtCreation: 1,
         maxAtCreation: 1,
-        availableKeys: ['elvenStrideFire', 'elvenStrideEarth', 'elvenStrideWater', 'elvenStrideAir'],
-        exclusiveGroups: [['elvenStrideFire', 'elvenStrideEarth', 'elvenStrideWater', 'elvenStrideAir']],
+        availableKeys: ['elorianStride'],
     },
     sentinels: {
         echoKey: 'sentinels',
@@ -1443,11 +1342,20 @@ export function listEchoArtifactsInVariantGroup(groupKey) {
         .filter((d) => d.variantGroupKey === groupKey && d.variantRow)
         .sort((a, b) => order.indexOf(a.variantRow.armorClass) - order.indexOf(b.variantRow.armorClass));
 }
+/** Resolve legacy echo keys (e.g. elves → elorians). */
+function resolveEchoKey(echoKey) {
+    if (!echoKey)
+        return null;
+    if (echoKey === 'elves')
+        return 'elorians';
+    return echoKey;
+}
 /** Rules block for an Echo (returns Human default if unknown). */
 export function getEchoArtifactRules(echoKey) {
-    if (!echoKey)
+    const resolved = resolveEchoKey(echoKey);
+    if (!resolved)
         return ECHO_ARTIFACT_RULES.humans;
-    return ECHO_ARTIFACT_RULES[echoKey] ?? ECHO_ARTIFACT_RULES.humans;
+    return ECHO_ARTIFACT_RULES[resolved] ?? ECHO_ARTIFACT_RULES.humans;
 }
 /**
  * Build the list of Echo Artifacts a character may pick at creation,

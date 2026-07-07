@@ -28,7 +28,7 @@ export interface DerivedBaseValue {
 export declare function bodyArmorBonusForLevel(level: number): number;
 /** No-Armor Body Evade (Soul Sigil Silver Veil). L1=+7 … L10=+16 (+6 base, +1/level). */
 export declare function noArmorEvadeForLevel(level: number): number;
-/** Feet Evade (Elven Stride). L1–2=+1 … L9–10=+5 (+1 every 2 levels, cap +5). */
+/** Feet Evade (Elorian Stride). L1=+2 … L9=+10, L10=+12. */
 export declare function feetEvadeForLevel(level: number): number;
 /** Minor Armor (Head / Feet). L1-2=+1, L3-4=+2 … L9-10=+5. */
 export declare function minorArmorForLevel(level: number): number;

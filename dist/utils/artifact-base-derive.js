@@ -72,9 +72,12 @@ export function bodyArmorBonusForLevel(level) {
 export function noArmorEvadeForLevel(level) {
     return 6 + clampLevel(level);
 }
-/** Feet Evade (Elven Stride). L1–2=+1 … L9–10=+5 (+1 every 2 levels, cap +5). */
+/** Feet Evade (Elorian Stride). L1=+2 … L9=+10, L10=+12. */
 export function feetEvadeForLevel(level) {
-    return Math.min(5, Math.ceil(clampLevel(level) / 2));
+    const l = clampLevel(level);
+    if (l >= 10)
+        return 12;
+    return l + 1;
 }
 /** Minor Armor (Head / Feet). L1-2=+1, L3-4=+2 … L9-10=+5. */
 export function minorArmorForLevel(level) {

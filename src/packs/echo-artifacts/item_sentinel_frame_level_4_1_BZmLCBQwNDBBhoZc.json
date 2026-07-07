@@ -32,8 +32,9 @@
         "range": "44m",
         "aoe": "",
         "duration": "Instant",
-        "effect": "Restore **10d8 HP** to the target.",
-        "special": ""
+        "effect": "Heal one creature for **25d8 HP**. Restore **2 Health Levels** per Safe Haven Rest.",
+        "special": "",
+        "powerTemplateId": "active-ranged-single-heal"
       },
       {
         "level": 2,
@@ -225,7 +226,7 @@
               "kind": "instant"
             },
             "effect": {
-              "text": "Restore **10d8 HP** to the target."
+              "text": "Heal one creature for **25d8 HP**. Restore **2 Health Levels** per Safe Haven Rest."
             },
             "specials": [],
             "lvl": 4
@@ -739,7 +740,7 @@
       ],
       "echoBound": "sentinels",
       "echoArtifactKey": "sentinelFrame",
-      "seedVersion": 24
+      "seedVersion": 26
     }
   },
   "_id": "BZmLCBQwNDBBhoZc",

@@ -6,7 +6,7 @@
  *
  *   • Human:      0 required, 0 maximum.
  *   • Dwarf:      1 required, 1 maximum.   (Stonebound Soles — Feet)
- *   • Elf:        1 required, 1 maximum.   (One Elven Stride per Elemental Lineage)
+ *   • Elorian:    1 required, 1 maximum.   (Elorian Stride — Feet)
  *   • Sentinel:   1 required, 1 maximum.   (One frame per Order)
  *   • Titanborn:  1 required, 1 maximum.   (Titan Scars — Body)
  *   • Dragonborn: 1 required, 3 maximum.   (Dragon Claws, Dragon Head, and one

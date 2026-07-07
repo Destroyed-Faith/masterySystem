@@ -33,7 +33,8 @@
         "aoe": "",
         "duration": "Instant",
         "effect": "Fly up to **15 m**.",
-        "special": ""
+        "special": "",
+        "powerTemplateId": "movement-flight"
       },
       {
         "level": 5,
@@ -42,8 +43,9 @@
         "range": "Self",
         "aoe": "",
         "duration": "MR Rounds",
-        "effect": "If you currently have **Damage Reduction from a Passive**, increase that DR by **+10%** while the buff is active, up to **40% total DR**.",
-        "special": ""
+        "effect": "If you currently have **Damage Reduction from a Passive**, increase that DR by **+10%** while the buff is active, up to a maximum of **30% total DR**.",
+        "special": "",
+        "powerTemplateId": "ab-damage-reduction"
       },
       {
         "level": 3,
@@ -429,7 +431,7 @@
               "rounds": 1
             },
             "effect": {
-              "text": "If you currently have **Damage Reduction from a Passive**, increase that DR by **+10%** while the buff is active, up to **40% total DR**."
+              "text": "If you currently have **Damage Reduction from a Passive**, increase that DR by **+10%** while the buff is active, up to a maximum of **30% total DR**."
             },
             "specials": [],
             "lvl": 5
@@ -737,7 +739,7 @@
       ],
       "echoBound": "dragonborn",
       "echoArtifactKey": "wyrmScalesMedium",
-      "seedVersion": 24
+      "seedVersion": 26
     }
   },
   "_id": "MentkE7GC2lEstaA",

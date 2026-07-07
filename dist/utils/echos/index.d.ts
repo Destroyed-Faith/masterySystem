@@ -12,7 +12,7 @@ export declare const ECHO_KEY_ORDER: string[];
 export declare const ALL_ECHOS: Record<string, EchoDefinition>;
 /** All Echos as an array, in canonical display order. */
 export declare function getAllEchos(): EchoDefinition[];
-/** Lookup a single Echo by its key. */
+/** Lookup a single Echo by its key (legacy `elves` resolves to `elorians`). */
 export declare function getEcho(key: string | undefined | null): EchoDefinition | undefined;
 /** Lookup a sub-choice on an Echo by key (lineage / order). */
 export declare function getEchoSubChoice(echoKey: string | undefined | null, subChoiceKey: string | undefined | null): EchoSubChoice | undefined;

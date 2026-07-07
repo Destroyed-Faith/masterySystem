@@ -55,7 +55,8 @@
         "aoe": "Radius 8m",
         "duration": "Instant",
         "effect": "Make a melee AoE attack. Affected creatures take weapon damage + **8d8 damage**.",
-        "special": ""
+        "special": "",
+        "powerTemplateId": "active-melee-weapon-aoe"
       },
       {
         "level": 9,
@@ -65,7 +66,8 @@
         "aoe": "Radius 8m",
         "duration": "Instant",
         "effect": "Make a melee AoE attack. Affected creatures take weapon damage + **8d8 damage**.",
-        "special": ""
+        "special": "",
+        "powerTemplateId": "active-melee-weapon-aoe"
       },
       {
         "level": 10,
@@ -977,7 +979,7 @@
       "childIds": [],
       "echoBound": "dragonborn",
       "echoArtifactKey": "dragonClaws",
-      "seedVersion": 24
+      "seedVersion": 26
     }
   },
   "_id": "GsYR4D1UxZ5DkclA",

@@ -33,14 +33,10 @@ export function inferArtifactKeyFromName(name) {
         return 'titanScarsMight';
     if (n.includes('stonebound sole'))
         return 'stoneboundSoles';
-    if (n.includes('elven stride') && n.includes('fire'))
-        return 'elvenStrideFire';
-    if (n.includes('elven stride') && n.includes('earth'))
-        return 'elvenStrideEarth';
-    if (n.includes('elven stride') && n.includes('water'))
-        return 'elvenStrideWater';
-    if (n.includes('elven stride') && n.includes('air'))
-        return 'elvenStrideAir';
+    if (n.includes('elorian stride'))
+        return 'elorianStride';
+    if (n.includes('elven stride'))
+        return 'elorianStride';
     if (n.includes('sentinel frame'))
         return 'sentinelFrame';
     if (n.includes('judicator frame'))

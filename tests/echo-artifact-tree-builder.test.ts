@@ -114,7 +114,7 @@ describe('Echo Artifact tree builder — exact Base Values', () => {
   });
 
   it('stamps the current seed version on every node (for in-place refresh)', () => {
-    expect(ECHO_ARTIFACT_SEED_VERSION).toBe(24);
+    expect(ECHO_ARTIFACT_SEED_VERSION).toBe(26);
     const tree = buildEchoArtifactTree(getEchoArtifact('titanScars')!);
     for (const node of tree.nodes) {
       expect(flag(node, 'seedVersion')).toBe(ECHO_ARTIFACT_SEED_VERSION);
@@ -221,67 +221,47 @@ describe('Echo Artifact tree builder — Stone Function auto-fill', () => {
     expect(l3.kind).toBe('stoneFunction');
   });
 
-  it('omits a Stone Function for artifacts without a slot-legal one (Elven Stride)', () => {
-    const tree = buildEchoArtifactTree(getEchoArtifact('elvenStrideFire')!);
+  it('omits a Stone Function for artifacts without a slot-legal one (Elorian Stride)', () => {
+    const tree = buildEchoArtifactTree(getEchoArtifact('elorianStride')!);
     for (const node of tree.nodes) {
       expect((node.itemData.system as any).stoneFunction).toBeNull();
     }
   });
 
-  it('Elven Stride maps all three lines to editable catalog Powers (flavor names kept)', () => {
-    const tree = buildEchoArtifactTree(getEchoArtifact('elvenStrideFire')!);
-    // L3 shows all three staged lines (slot 0/1/2 unlocked); display names keep
-    // the Elven flavor via the pick `name` even though they are catalog Powers.
+  it('Elorian Stride maps reflex, cling, and focus lines to editable picks', () => {
+    const tree = buildEchoArtifactTree(getEchoArtifact('elorianStride')!);
     const l3 = (tree.nodes[2].itemData.system as any).levelProgression.map((r: any) => r.name);
-    expect(l3).toEqual(['Otherworld Reflex I', 'Elven Cling I', 'Ember Surge I']);
+    expect(l3).toEqual(['Otherworld Reflex I', 'Elorian Cling I', 'Elorian Focus I']);
 
-    // Picks are now real catalog Powers (no authored fallback).
     const picks = (tree.nodes[0].itemData.system as any).progressionPicks as any[];
     const byLevel = (lvl: number) => picks.find((p) => p.level === lvl);
-    for (const lvl of [1, 2, 3]) expect(byLevel(lvl).kind).toBe('power');
+    expect(byLevel(1).kind).toBe('power');
     expect(byLevel(1).powerTemplateId).toBe('reaction-evade');
     expect(byLevel(2).powerTemplateId).toBe('movement-wall-walk');
-    expect(byLevel(3).powerTemplateId).toBe('empower-buff-damage');
+    expect(byLevel(3).kind).toBe('stoneFunction');
+    expect(byLevel(3).stoneFunction.stonePowerId).toBe('agility.crit');
 
-    // L2 Elven Cling uses the exact Wall Walk catalog distances (10 / 25 / 28 m
-    // at stages I / II / III, unlocked at node levels 2 / 5 / 8).
     const clingEffectAt = (nodeLevel: number) =>
       ((tree.nodes[nodeLevel - 1].itemData.system as any).levelProgression.find((r: any) =>
-        /Elven Cling/.test(r.name),
+        /Elorian Cling/.test(r.name),
       )?.effect as string) || '';
     expect(clingEffectAt(2)).toContain('10 m');
     expect(clingEffectAt(5)).toContain('25 m');
     expect(clingEffectAt(8)).toContain('28 m');
-
-    // Each lineage maps to its own Buff-Empowerment template + flavor name.
-    const lineage: Record<string, [string, string]> = {
-      elvenStrideEarth: ['empower-buff-armor', 'Stoneweave Guard I'],
-      elvenStrideWater: ['empower-buff-evade', 'Tidal Slip I'],
-      elvenStrideAir: ['empower-buff-wind', 'Wind-First I'],
-    };
-    for (const [key, [tplId, rowName]] of Object.entries(lineage)) {
-      const lt = buildEchoArtifactTree(getEchoArtifact(key)!);
-      const l3pick = (lt.nodes[0].itemData.system as any).progressionPicks.find(
-        (p: any) => p.level === 3,
-      );
-      expect(l3pick.powerTemplateId).toBe(tplId);
-      const names = (lt.nodes[2].itemData.system as any).levelProgression.map((r: any) => r.name);
-      expect(names[2]).toBe(rowName);
-    }
   });
 
-  it('Elven Stride Evade (+2..+12) and Clinging (L4+) base values scale per spec', () => {
-    const tree = buildEchoArtifactTree(getEchoArtifact('elvenStrideFire')!);
+  it('Elorian Stride Evade (+2..+12) and Movement (L4+) base values scale per spec', () => {
+    const tree = buildEchoArtifactTree(getEchoArtifact('elorianStride')!);
     const bvAt = (lvl: number, label: string) =>
       (tree.nodes[lvl - 1].itemData.system as any).baseValues.find((b: any) => b.label === label);
     expect(bvAt(1, 'Evade').value).toBe(2);
     expect(bvAt(9, 'Evade').value).toBe(10);
     expect(bvAt(10, 'Evade').value).toBe(12);
-    expect(bvAt(3, 'Clinging')).toBeUndefined();
-    expect(bvAt(4, 'Clinging').value).toBe(1);
-    expect(bvAt(6, 'Clinging').value).toBe(2);
-    expect(bvAt(8, 'Clinging').value).toBe(3);
-    expect(bvAt(10, 'Clinging').value).toBe(4);
+    expect(bvAt(3, 'Movement')).toBeUndefined();
+    expect(bvAt(4, 'Movement').value).toBe(1);
+    expect(bvAt(6, 'Movement').value).toBe(2);
+    expect(bvAt(8, 'Movement').value).toBe(3);
+    expect(bvAt(10, 'Movement').value).toBe(4);
   });
 });
 

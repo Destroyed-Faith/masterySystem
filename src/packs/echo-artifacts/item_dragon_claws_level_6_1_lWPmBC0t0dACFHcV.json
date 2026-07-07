@@ -47,8 +47,9 @@
         "range": "Self",
         "aoe": "Radius 6m",
         "duration": "Instant",
-        "effect": "Make a melee AoE attack. Affected creatures take weapon damage + **6d8 damage**.",
-        "special": ""
+        "effect": "Make a melee AoE attack. Affected creatures take weapon damage + **2d8 damage**.",
+        "special": "",
+        "powerTemplateId": "active-melee-weapon-aoe"
       },
       {
         "level": 6,
@@ -57,8 +58,9 @@
         "range": "Self",
         "aoe": "Radius 6m",
         "duration": "Instant",
-        "effect": "Make a melee AoE attack. Affected creatures take weapon damage + **6d8 damage**.",
-        "special": ""
+        "effect": "Make a melee AoE attack. Affected creatures take weapon damage + **2d8 damage**.",
+        "special": "",
+        "powerTemplateId": "active-melee-weapon-aoe"
       }
     ],
     "stoneFunction": {
@@ -440,7 +442,7 @@
               "kind": "instant"
             },
             "effect": {
-              "text": "Make a melee AoE attack. Affected creatures take weapon damage + **6d8 damage**."
+              "text": "Make a melee AoE attack. Affected creatures take weapon damage + **2d8 damage**."
             },
             "specials": [],
             "lvl": 5
@@ -650,7 +652,7 @@
               "kind": "instant"
             },
             "effect": {
-              "text": "Make a melee AoE attack. Affected creatures take weapon damage + **6d8 damage**."
+              "text": "Make a melee AoE attack. Affected creatures take weapon damage + **2d8 damage**."
             },
             "specials": [],
             "lvl": 6
@@ -755,7 +757,7 @@
       ],
       "echoBound": "dragonborn",
       "echoArtifactKey": "dragonClaws",
-      "seedVersion": 24
+      "seedVersion": 26
     }
   },
   "_id": "lWPmBC0t0dACFHcV",

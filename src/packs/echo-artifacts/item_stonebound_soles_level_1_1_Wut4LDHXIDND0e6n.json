@@ -32,7 +32,8 @@
         "aoe": "",
         "duration": "2 Rounds",
         "effect": "For **2 Rounds** you become **Immovable** and gain **40 Temporary HP**. While Immovable you ignore Push, Pull, Prone, forced movement, and grapple-based forced moves.",
-        "special": "immovable"
+        "special": "immovable",
+        "powerTemplateId": "ab-immovable-temp-hp"
       }
     ],
     "stoneFunction": null,
@@ -290,7 +291,7 @@
       "isRoot": true,
       "echoBound": "dwarfs",
       "echoArtifactKey": "stoneboundSoles",
-      "seedVersion": 24
+      "seedVersion": 26
     }
   },
   "_id": "Wut4LDHXIDND0e6n",

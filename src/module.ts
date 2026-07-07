@@ -82,7 +82,7 @@ import {
   registerEchoArtifactDedupeMigrationSetting,
   runEchoArtifactDedupeMigration,
 } from './migrations/echo-artifact-dedupe-migration.js';
-import { runElvenStrideLineageMigration } from './migrations/elven-stride-lineage-migration.js';
+import { runElorianStrideMigration } from './migrations/elorian-stride-migration.js';
 import { runTitanScarsAffinityMigration } from './migrations/titan-scars-affinity-migration.js';
 import { runSpecialEffectRenameMigration } from './migrations/special-effect-rename-migration.js';
 import {
@@ -3185,11 +3185,11 @@ Hooks.once('ready', async function() {
     }
   }
 
-  // Migration: legacy single-key Elven Stride → lineage-specific echo artifact trees.
+  // Migration: legacy Elven Stride / Elves → Elorian Stride / Elorians.
   try {
-    await runElvenStrideLineageMigration(migrationActors);
+    await runElorianStrideMigration(migrationActors);
   } catch (error) {
-    console.warn('Mastery System | Elven Stride lineage migration failed', error);
+    console.warn('Mastery System | Elorian Stride migration failed', error);
   }
 
   // Migration: legacy single-key Titan Scars → Attribute-affinity echo artifact trees.

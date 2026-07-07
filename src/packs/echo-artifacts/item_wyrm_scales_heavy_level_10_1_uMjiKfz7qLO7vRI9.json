@@ -33,7 +33,8 @@
         "aoe": "",
         "duration": "Instant",
         "effect": "Fly up to **24 m**.",
-        "special": ""
+        "special": "",
+        "powerTemplateId": "movement-flight"
       },
       {
         "level": 8,
@@ -42,8 +43,9 @@
         "range": "Self",
         "aoe": "",
         "duration": "MR Rounds",
-        "effect": "Gain **+65 Armor**.",
-        "special": ""
+        "effect": "Gain **+49 Armor**.",
+        "special": "",
+        "powerTemplateId": "ab-armor"
       },
       {
         "level": 9,
@@ -510,7 +512,7 @@
               "rounds": 1
             },
             "effect": {
-              "text": "Gain **+65 Armor**."
+              "text": "Gain **+49 Armor**."
             },
             "specials": [],
             "lvl": 8
@@ -952,7 +954,7 @@
       "childIds": [],
       "echoBound": "dragonborn",
       "echoArtifactKey": "wyrmScalesHeavy",
-      "seedVersion": 24
+      "seedVersion": 26
     }
   },
   "_id": "uMjiKfz7qLO7vRI9",

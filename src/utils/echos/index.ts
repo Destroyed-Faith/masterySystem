@@ -16,7 +16,7 @@ import type {
 
 import { HUMANS_ECHO } from './humans.js';
 import { DWARFS_ECHO } from './dwarfs.js';
-import { ELVES_ECHO } from './elves.js';
+import { ELORIANS_ECHO } from './elorians.js';
 import { SENTINELS_ECHO } from './sentinels.js';
 import { TITANBORN_ECHO } from './titanborn.js';
 import { DRAGONBORN_ECHO } from './dragonborn.js';
@@ -37,7 +37,7 @@ export type {
 export const ECHO_KEY_ORDER: string[] = [
   'humans',
   'dwarfs',
-  'elves',
+  'elorians',
   'sentinels',
   'titanborn',
   'dragonborn',
@@ -48,7 +48,7 @@ export const ECHO_KEY_ORDER: string[] = [
 export const ALL_ECHOS: Record<string, EchoDefinition> = {
   humans: HUMANS_ECHO,
   dwarfs: DWARFS_ECHO,
-  elves: ELVES_ECHO,
+  elorians: ELORIANS_ECHO,
   sentinels: SENTINELS_ECHO,
   titanborn: TITANBORN_ECHO,
   dragonborn: DRAGONBORN_ECHO,
@@ -60,10 +60,11 @@ export function getAllEchos(): EchoDefinition[] {
   return ECHO_KEY_ORDER.map(k => ALL_ECHOS[k]).filter(Boolean);
 }
 
-/** Lookup a single Echo by its key. */
+/** Lookup a single Echo by its key (legacy `elves` resolves to `elorians`). */
 export function getEcho(key: string | undefined | null): EchoDefinition | undefined {
   if (!key) return undefined;
-  return ALL_ECHOS[key];
+  const resolved = key === 'elves' ? 'elorians' : key;
+  return ALL_ECHOS[resolved];
 }
 
 /** Lookup a sub-choice on an Echo by key (lineage / order). */

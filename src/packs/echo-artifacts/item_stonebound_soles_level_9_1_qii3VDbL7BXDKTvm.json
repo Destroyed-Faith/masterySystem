@@ -39,7 +39,8 @@
         "aoe": "",
         "duration": "2 Rounds",
         "effect": "For **2 Rounds** you become **Immovable** and gain **400 Temporary HP**. While Immovable you ignore Push, Pull, Prone, forced movement, and grapple-based forced moves.",
-        "special": "immovable"
+        "special": "immovable",
+        "powerTemplateId": "ab-immovable-temp-hp"
       },
       {
         "level": 8,
@@ -49,7 +50,8 @@
         "aoe": "",
         "duration": "Instant",
         "effect": "Move up to **20 m** along a legal ground path. This movement does not provoke movement-triggered Reactions.",
-        "special": ""
+        "special": "",
+        "powerTemplateId": "movement-safe-movement"
       },
       {
         "level": 9,
@@ -58,8 +60,9 @@
         "range": "Self",
         "aoe": "",
         "duration": "MR Rounds",
-        "effect": "Gain **+65 Armor**.",
-        "special": ""
+        "effect": "Gain **+49 Armor**.",
+        "special": "",
+        "powerTemplateId": "ab-armor"
       }
     ],
     "stoneFunction": null,
@@ -707,7 +710,7 @@
               "rounds": 1
             },
             "effect": {
-              "text": "Gain **+65 Armor**."
+              "text": "Gain **+49 Armor**."
             },
             "specials": [],
             "lvl": 9
@@ -731,7 +734,7 @@
       ],
       "echoBound": "dwarfs",
       "echoArtifactKey": "stoneboundSoles",
-      "seedVersion": 24
+      "seedVersion": 26
     }
   },
   "_id": "qii3VDbL7BXDKTvm",
