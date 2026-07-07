@@ -2,12 +2,13 @@
  * Tower Wizard — validation for selections and finalize.
  */
 import { CATEGORY_LABELS, CATEGORY_ORDER, activeTemplateCanBeSpell, findCatalogEntry, TOWER_WIZARD_DEFENSIVE_RANK, TOWER_WIZARD_MASTERY_RANK, TOWER_WIZARD_OFFENSIVE_RANK, TOWER_WIZARD_POWER_REQUIREMENTS, TOWER_WIZARD_POWER_TOTAL, countPowersByCategory, findDuplicatePowerLabel, resolvePowerCategoryFromItem, } from '../../utils/power-catalog.js';
-import { buildPackageGrantSpecs, buildPackageGrantSpecsFromOverrides, buildPackageReview, catalogEntryMatchesGrantKey, getDefensePackage, getOffensePackage, grantKeyCategory, isManualBuildMode, isValidOffensiveActiveBuffId, resolveGrant, selectionUsesCatalogOffense, } from './tower-wizard-packages.js';
-export function isValidSecondPassiveForDefense(defenseId, templateId) {
+import { buildPackageGrantSpecs, buildPackageGrantSpecsFromOverrides, buildPackageReview, catalogEntryMatchesGrantKey, getDefensePackage, getOffensePackage, grantKeyCategory, isManualBuildMode, isValidPassive1Variant, isValidReplacementActiveBuffId, resolveGrant, resolvePassive1TemplateId, selectionUsesCatalogOffense, } from './tower-wizard-packages.js';
+export function isValidSecondPassiveForDefense(defenseId, templateId, passive1TemplateId) {
     const defense = getDefensePackage(defenseId);
     if (!defense)
         return false;
-    if (templateId === defense.grants.passive1.templateId)
+    const passive1 = passive1TemplateId ?? defense.grants.passive1.templateId;
+    if (templateId === passive1)
         return false;
     const entry = findCatalogEntry(templateId);
     return entry?.category === 'passive';
@@ -30,7 +31,8 @@ export function validatePowerOverrideForGrantKey(selection, override) {
         }
         else {
             const defense = getDefensePackage(selection.defenseId);
-            if (defense && override.templateId === defense.grants.passive1.templateId) {
+            const passive1 = resolvePassive1TemplateId(selection);
+            if (defense && override.templateId === passive1) {
                 return 'Passive 2 cannot be the same template as Passive 1.';
             }
         }
@@ -102,18 +104,24 @@ export function validateTowerWizardSelection(selection) {
     }
     if (!selection.defenseId)
         return 'Choose a defensive style.';
+    const passive1Id = resolvePassive1TemplateId(selection);
+    if (!passive1Id || !isValidPassive1Variant(selection.defenseId, passive1Id)) {
+        return 'Choose a Passive 1 variant for your defense package.';
+    }
     if (!selection.secondPassiveTemplateId)
         return 'Choose a second Passive.';
-    if (!isValidSecondPassiveForDefense(selection.defenseId, selection.secondPassiveTemplateId)) {
+    if (!isValidSecondPassiveForDefense(selection.defenseId, selection.secondPassiveTemplateId, passive1Id)) {
         return 'That second Passive is not available for your package.';
     }
     if (selection.activeBuffMode === 'offensive' && !selection.offensiveActiveBuffId) {
         return 'Choose an offensive Active Buff.';
     }
-    if (selection.activeBuffMode === 'offensive'
-        && selection.offensiveActiveBuffId
-        && !isValidOffensiveActiveBuffId(selection.offensiveActiveBuffId)) {
-        return 'That offensive Active Buff is not available.';
+    if (selection.activeBuffMode === 'support' && !selection.offensiveActiveBuffId) {
+        return 'Choose a support Active Buff.';
+    }
+    if (selection.offensiveActiveBuffId
+        && !isValidReplacementActiveBuffId(selection.offensiveActiveBuffId, selection.activeBuffMode ?? 'defensive', selection.defenseId)) {
+        return 'That Active Buff replacement is not available.';
     }
     if (!selection.offenseId && !selectionUsesCatalogOffense(selection)) {
         return 'Choose exactly two Actives.';
@@ -249,6 +257,9 @@ export function collectRelevantWarnings(selection) {
     }
     if (selection.activeBuffMode === 'offensive') {
         out.push('An offensive Active Buff replaces your defensive buff. You will be easier to hit or less protected while it is active.');
+    }
+    if (selection.activeBuffMode === 'support') {
+        out.push('A support Active Buff replaces your package defensive buff. Your Passive 1 and Reaction stay defensive.');
     }
     return [...new Set(out)];
 }

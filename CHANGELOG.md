@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.167] - 2026-07-07
+
+### Changed
+
+- **Combat Package Wizard — defense flow:** After choosing Main Defense (Armor, Evade, Damage Reduction, or Phasing), a new **Passive 1 Variant** step lets players pick which passive defines their core defense before choosing Passive 2. The wizard preselects the recommended default, shows a sticky defense-package preview, and excludes the chosen Passive 1 from the second-passive list.
+- **Passive 2 step:** Clearer copy and grouping so Passive 2 is presented as an additional choice, not a second defense package; Damage Reduction and Phasing are flagged as closed premium subsystems when they appear outside Main Defense.
+- **Active Buff choice:** Renamed and expanded — keep the package buff, replace with an offensive buff, or replace with a support/utility buff without changing Passive 1, Passive 2, or Reaction.
+- **Review page:** Powers are grouped by Main Defense Package, Second Passive, and Offense, with variant-change and buff-replacement notes when defaults were customized.
+
 ## [0.9.166] - 2026-07-07
 
 ### Changed

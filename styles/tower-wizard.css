@@ -580,13 +580,60 @@
   font-size: 0.9rem;
 }
 
+.tower-wizard-package-preview {
+  margin: 0 0 18px;
+  padding: 12px 14px;
+  border: 1px solid var(--df-border-primary, #3a3f44);
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.18);
+}
+
+.tower-wizard-sticky-preview {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+.tower-wizard-package-preview h4 {
+  margin: 0 0 8px;
+  font-size: 0.95rem;
+}
+
+.tower-wizard-package-preview-list {
+  margin: 0;
+  padding-left: 1.1rem;
+  line-height: 1.5;
+}
+
+.tower-wizard-passive1-variant-cards .tower-wizard-card-meta {
+  display: block;
+  margin-top: 8px;
+  font-size: 0.86rem;
+  opacity: 0.9;
+}
+
+.tower-wizard-passive-intent-group {
+  margin-bottom: 18px;
+}
+
+.tower-wizard-passive-intent-group > h4 {
+  margin: 0 0 8px;
+  font-size: 0.98rem;
+}
+
+.tower-wizard-customization-notes {
+  margin: 0 0 16px;
+  padding-left: 1.2rem;
+  color: var(--df-text-secondary, #b8c0c8);
+}
+
 .tower-wizard-buff-mode-cards {
   grid-template-columns: 1fr;
 }
 
 @media (min-width: 640px) {
   .tower-wizard-buff-mode-cards {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 

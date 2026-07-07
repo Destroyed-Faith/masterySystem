@@ -24,6 +24,7 @@ export type WeakenSaveChoice = 'body' | 'mind' | 'spirit';
 
 export type TowerWizardStep =
     | 'defense'
+    | 'defensePassiveVariant'
     | 'passive2'
     | 'activeBuffChoice'
     | 'offensiveBuff'
@@ -76,7 +77,33 @@ export interface ResolvedGrant {
     status: CatalogStatus;
 }
 
-export type ActiveBuffMode = 'defensive' | 'offensive';
+export type ActiveBuffMode = 'defensive' | 'offensive' | 'support';
+
+export interface DefensePackageCustomizedSlots {
+    passive1?: boolean;
+    activeBuff?: boolean;
+    reaction?: boolean;
+}
+
+export interface DefensePackagePreviewRow {
+    label: string;
+    value: string;
+}
+
+export interface DefensePackagePreview {
+    mainDefenseLabel: string;
+    rows: DefensePackagePreviewRow[];
+}
+
+export interface Passive1VariantOption {
+    templateId: string;
+    label: string;
+    description: string;
+    mechanicsPreview: string;
+    isDefault: boolean;
+    isLocked: boolean;
+    isRecommended: boolean;
+}
 
 export interface OffenseActivePick {
     /** Stable catalog identity (`templateId` or `templateId::special`). */
@@ -87,9 +114,12 @@ export interface OffenseActivePick {
 
 export interface TowerWizardSelection {
     defenseId: DefensePackageId;
+    /** Passive 1 variant; defaults to the defense package recommendation when unset. */
+    passive1TemplateId?: string;
     secondPassiveTemplateId: string;
     activeBuffMode: ActiveBuffMode;
     offensiveActiveBuffId?: string;
+    customizedSlots?: DefensePackageCustomizedSlots;
     /** @deprecated Legacy package flow — prefer `offenseActivePicks`. */
     offenseId?: OffensePackageId;
     offenseActivePicks?: OffenseActivePick[];
@@ -121,6 +151,13 @@ export interface SecondPassiveOption {
 
 export interface SecondPassiveGroup {
     groupLabel: string;
+    passives: SecondPassiveOption[];
+}
+
+export interface SecondPassiveIntentGroup {
+    intentLabel: string;
+    intentHint?: string;
+    warning?: string;
     passives: SecondPassiveOption[];
 }
 
@@ -203,6 +240,12 @@ export interface OffenseResolveContext {
     weakenSave: WeakenSaveChoice | null;
 }
 
+export interface PackageCustomizationNote {
+    kind: 'passive1-variant' | 'active-buff-replaced';
+    recommended: string;
+    current: string;
+}
+
 export interface ReviewPowerRow {
     grantKey: PackageGrantKey;
     role: string;
@@ -210,6 +253,7 @@ export interface ReviewPowerRow {
     rank: number;
     category: string;
     hasCatalogOverride: boolean;
+    showResetToDefault?: boolean;
     spec: PowerGrantSpec;
     variantOptions?: Array<{ id: OffenseActiveVariant; label: string }>;
     override?: OffenseActiveOverride;

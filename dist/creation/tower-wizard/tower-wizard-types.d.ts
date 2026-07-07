@@ -7,7 +7,7 @@ export type DefensePackageId = 'armor' | 'evade' | 'damage-reduction' | 'phasing
 export type OffensePackageId = 'lacerate-push' | 'ruin' | 'slow' | 'expose' | 'corrode-damage' | 'mark' | 'hex-spell' | 'weaken-save' | 'direct-damage';
 export type DeliveryMode = 'melee' | 'ranged';
 export type WeakenSaveChoice = 'body' | 'mind' | 'spirit';
-export type TowerWizardStep = 'defense' | 'passive2' | 'activeBuffChoice' | 'offensiveBuff' | 'offense' | 'weakenSave' | 'delivery' | 'review';
+export type TowerWizardStep = 'defense' | 'defensePassiveVariant' | 'passive2' | 'activeBuffChoice' | 'offensiveBuff' | 'offense' | 'weakenSave' | 'delivery' | 'review';
 export type OffenseActiveVariant = 'weapon-single' | 'weapon-aoe' | 'weapon-split' | 'damage-t3' | 'damage-t4' | 'damage-t4-spell';
 export type PackageGrantKey = 'passive-1' | 'passive-2' | 'active-buff' | 'reaction' | 'offense-0' | 'offense-1';
 export interface PackagePowerOverride {
@@ -34,7 +34,29 @@ export interface ResolvedGrant {
     category: string;
     status: CatalogStatus;
 }
-export type ActiveBuffMode = 'defensive' | 'offensive';
+export type ActiveBuffMode = 'defensive' | 'offensive' | 'support';
+export interface DefensePackageCustomizedSlots {
+    passive1?: boolean;
+    activeBuff?: boolean;
+    reaction?: boolean;
+}
+export interface DefensePackagePreviewRow {
+    label: string;
+    value: string;
+}
+export interface DefensePackagePreview {
+    mainDefenseLabel: string;
+    rows: DefensePackagePreviewRow[];
+}
+export interface Passive1VariantOption {
+    templateId: string;
+    label: string;
+    description: string;
+    mechanicsPreview: string;
+    isDefault: boolean;
+    isLocked: boolean;
+    isRecommended: boolean;
+}
 export interface OffenseActivePick {
     /** Stable catalog identity (`templateId` or `templateId::special`). */
     pickId: string;
@@ -43,9 +65,12 @@ export interface OffenseActivePick {
 }
 export interface TowerWizardSelection {
     defenseId: DefensePackageId;
+    /** Passive 1 variant; defaults to the defense package recommendation when unset. */
+    passive1TemplateId?: string;
     secondPassiveTemplateId: string;
     activeBuffMode: ActiveBuffMode;
     offensiveActiveBuffId?: string;
+    customizedSlots?: DefensePackageCustomizedSlots;
     /** @deprecated Legacy package flow — prefer `offenseActivePicks`. */
     offenseId?: OffensePackageId;
     offenseActivePicks?: OffenseActivePick[];
@@ -74,6 +99,12 @@ export interface SecondPassiveOption {
 }
 export interface SecondPassiveGroup {
     groupLabel: string;
+    passives: SecondPassiveOption[];
+}
+export interface SecondPassiveIntentGroup {
+    intentLabel: string;
+    intentHint?: string;
+    warning?: string;
     passives: SecondPassiveOption[];
 }
 export interface OffenseActiveOption {
@@ -146,6 +177,11 @@ export interface OffenseResolveContext {
     delivery: DeliveryMode;
     weakenSave: WeakenSaveChoice | null;
 }
+export interface PackageCustomizationNote {
+    kind: 'passive1-variant' | 'active-buff-replaced';
+    recommended: string;
+    current: string;
+}
 export interface ReviewPowerRow {
     grantKey: PackageGrantKey;
     role: string;
@@ -153,6 +189,7 @@ export interface ReviewPowerRow {
     rank: number;
     category: string;
     hasCatalogOverride: boolean;
+    showResetToDefault?: boolean;
     spec: PowerGrantSpec;
     variantOptions?: Array<{
         id: OffenseActiveVariant;

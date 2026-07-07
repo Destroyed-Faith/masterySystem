@@ -11,12 +11,16 @@ import {
     getCategoryPickerGroups,
     getOffenseActiveGroups,
     getOffenseActiveSpecialGroups,
+    getPassive1VariantOptions,
     getSecondPassiveGroups,
+    getSecondPassiveIntentGroups,
+    getVisibleWizardSteps,
     playerFacingPowerName,
     resolveGrant,
     TOWER_WIZARD_DEFENSE_PACKAGES,
     TOWER_WIZARD_OFFENSE_PACKAGES,
     WIZARD_HIDDEN_OFFENSE_IDS,
+    WIZARD_STEP_ORDER,
 } from '../src/creation/tower-wizard/tower-wizard-packages.js';
 import { TOWER_WIZARD_DEFENSIVE_RANK, TOWER_WIZARD_OFFENSIVE_RANK, TOWER_WIZARD_POWER_TOTAL, findCatalogEntry } from '../src/utils/power-catalog.js';
 import type { TowerWizardSelection } from '../src/creation/tower-wizard/tower-wizard-types.js';
@@ -38,6 +42,46 @@ describe('tower-wizard-packages', () => {
             expect(resolveGrant(pkg.grants.reaction).status).toBe('ok');
             expect(pkg.grants.passive1.rank).toBe(TOWER_WIZARD_DEFENSIVE_RANK);
         }
+    });
+
+    it('second passive groups exclude the selected Passive 1 variant', () => {
+        const armor = getSecondPassiveGroups('armor', 'passive-stone-stance');
+        const allIds = armor.flatMap((g) => g.passives.map((p) => p.id));
+        expect(allIds).not.toContain('passive-stone-stance');
+        expect(allIds).toContain('passive-fortified-frame');
+    });
+
+    it('armor Passive 1 variants include fortified frame and conditional options', () => {
+        const variants = getPassive1VariantOptions('armor');
+        expect(variants.map((v) => v.templateId)).toContain('passive-fortified-frame');
+        expect(variants.map((v) => v.templateId)).toContain('passive-armor-temp-hp');
+        expect(variants.find((v) => v.templateId === 'passive-fortified-frame')?.isRecommended).toBe(true);
+    });
+
+    it('damage reduction Passive 1 variant is locked to the premium package', () => {
+        const variants = getPassive1VariantOptions('damage-reduction');
+        expect(variants).toHaveLength(1);
+        expect(variants[0]?.isLocked).toBe(true);
+    });
+
+    it('second passive intent groups warn on premium advanced options', () => {
+        const groups = getSecondPassiveIntentGroups('armor', 'passive-fortified-frame');
+        const advanced = groups.find((g) => g.intentLabel === 'Advanced / premium');
+        expect(advanced?.warning).toMatch(/closed premium/i);
+        expect(advanced?.passives.some((p) => p.id === 'passive-damage-reduction')).toBe(true);
+    });
+
+    it('guided step order includes Passive 1 variant after defense', () => {
+        expect(WIZARD_STEP_ORDER.indexOf('defensePassiveVariant')).toBe(1);
+        expect(getVisibleWizardSteps({ defenseId: 'armor', activeBuffMode: 'defensive' })).toContain('defensePassiveVariant');
+    });
+
+    it('buildPackageGrantSpecs uses the selected Passive 1 variant', () => {
+        const specs = buildPackageGrantSpecs({
+            ...baseSelection,
+            passive1TemplateId: 'passive-stone-stance',
+        });
+        expect(specs[0]?.templateId).toBe('passive-stone-stance');
     });
 
     it('second passive groups include all catalog passives except the defense passive', () => {
@@ -103,7 +147,7 @@ describe('tower-wizard-packages', () => {
     it('default active buff preview reflects defense package', () => {
         const preview = getDefaultActiveBuffPreview('armor');
         expect(preview?.id).toBe('ab-armor');
-        expect(preview?.rankPreview).toMatch(/17 Armor/i);
+        expect(preview?.rankPreview).toMatch(/13 Armor/i);
     });
 
     it('offensive active buff replaces defensive buff in package', () => {

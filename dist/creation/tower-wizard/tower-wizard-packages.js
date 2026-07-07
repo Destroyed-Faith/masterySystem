@@ -702,6 +702,159 @@ export function getOffensiveActiveBuffGroups() {
 export function isValidOffensiveActiveBuffId(templateId) {
     return getOffensiveActiveBuffOptions().some((b) => b.id === templateId);
 }
+const SUPPORT_ACTIVE_BUFF_ORDER = [
+    'ab-healing',
+    'ab-temp-hp',
+    'ab-spell-resistance',
+    'ab-cleanse-maintenance',
+    'ab-armor-aura',
+    'ab-healing-aura',
+    'ab-immovable-temp-hp',
+    'ab-armor-temp-hp',
+    'ab-evade-temp-hp',
+    'ab-temp-hp-healing',
+    'ab-armor-evade',
+    'ab-growth-form',
+];
+const SUPPORT_BUFF_GROUP_ORDER = ['Recovery', 'Ward', 'Auras', 'Combined utility', 'Form'];
+const SUPPORT_BUFF_META = {
+    'ab-healing': {
+        groupLabel: 'Recovery',
+        label: 'Turn-start healing',
+        explanation: 'Sustain yourself or allies with steady healing while the buff lasts.',
+    },
+    'ab-temp-hp': {
+        groupLabel: 'Recovery',
+        label: 'Temporary HP buffer',
+        explanation: 'Frontload protection for the opening of a fight.',
+    },
+    'ab-spell-resistance': {
+        groupLabel: 'Ward',
+        label: 'Spell Resistance',
+        explanation: 'Reject hostile spell structure for the duration.',
+    },
+    'ab-cleanse-maintenance': {
+        groupLabel: 'Ward',
+        label: 'Cleanse Maintenance',
+        explanation: 'Steadily reduce one negative ongoing effect on you each turn.',
+    },
+    'ab-armor-aura': {
+        groupLabel: 'Auras',
+        label: 'Armor Aura',
+        explanation: 'Share Armor with nearby allies.',
+    },
+    'ab-healing-aura': {
+        groupLabel: 'Auras',
+        label: 'Healing Aura',
+        explanation: 'Support allies with shared healing pressure.',
+    },
+    'ab-immovable-temp-hp': {
+        groupLabel: 'Auras',
+        label: 'Immovable + Temporary HP',
+        explanation: 'Anchor yourself and allies with layered protection.',
+    },
+    'ab-armor-temp-hp': {
+        groupLabel: 'Combined utility',
+        label: 'Armor + Temporary HP',
+        explanation: 'Layer Armor and a protective buffer.',
+    },
+    'ab-evade-temp-hp': {
+        groupLabel: 'Combined utility',
+        label: 'Evade + Temporary HP',
+        explanation: 'Slip hits and buffer what gets through.',
+    },
+    'ab-temp-hp-healing': {
+        groupLabel: 'Combined utility',
+        label: 'Temporary HP + Healing',
+        explanation: 'Buffer plus sustain for longer fights.',
+    },
+    'ab-armor-evade': {
+        groupLabel: 'Combined utility',
+        label: 'Armor + Evade',
+        explanation: 'Hybrid defensive profile for unpredictable threats.',
+    },
+    'ab-growth-form': {
+        groupLabel: 'Form',
+        label: 'Growth Form',
+        explanation: 'Utility form shift with defensive reach and presence.',
+    },
+};
+export function getSupportActiveBuffOptions(defenseId) {
+    const packageBuffId = defenseId ? getDefensePackage(defenseId)?.grants.activeBuff.templateId : undefined;
+    return SUPPORT_ACTIVE_BUFF_ORDER.filter((id) => {
+        if (id === packageBuffId)
+            return false;
+        const meta = SUPPORT_BUFF_META[id];
+        return meta && resolveGrant(def(id, DEF_RANK)).status === 'ok';
+    }).map((id) => {
+        const meta = SUPPORT_BUFF_META[id];
+        return {
+            id,
+            label: meta.label,
+            explanation: meta.explanation,
+            groupLabel: meta.groupLabel,
+            rankPreview: activeBuffEffectAtRank(id, DEF_RANK),
+            durationNote: ACTIVE_BUFF_DURATION_NOTE,
+        };
+    });
+}
+export function getSupportActiveBuffGroups(defenseId) {
+    const byGroup = new Map();
+    for (const buff of getSupportActiveBuffOptions(defenseId)) {
+        const list = byGroup.get(buff.groupLabel) ?? [];
+        list.push(buff);
+        byGroup.set(buff.groupLabel, list);
+    }
+    const groups = [];
+    for (const label of SUPPORT_BUFF_GROUP_ORDER) {
+        const buffs = byGroup.get(label);
+        if (buffs?.length)
+            groups.push({ groupLabel: label, buffs });
+    }
+    for (const [groupLabel, buffs] of byGroup.entries()) {
+        if (SUPPORT_BUFF_GROUP_ORDER.includes(groupLabel))
+            continue;
+        groups.push({ groupLabel, buffs });
+    }
+    return groups;
+}
+export function isValidSupportActiveBuffId(templateId, defenseId) {
+    return getSupportActiveBuffOptions(defenseId).some((b) => b.id === templateId);
+}
+export function isValidReplacementActiveBuffId(templateId, mode, defenseId) {
+    if (mode === 'offensive')
+        return isValidOffensiveActiveBuffId(templateId);
+    if (mode === 'support')
+        return isValidSupportActiveBuffId(templateId, defenseId);
+    return false;
+}
+function buildCustomizationNotes(selection) {
+    const notes = [];
+    const defense = getDefensePackage(selection.defenseId);
+    if (!defense)
+        return notes;
+    const defaultPassive1 = getDefaultPassive1TemplateId(selection.defenseId);
+    const currentPassive1 = resolvePassive1TemplateId(selection);
+    if (currentPassive1 && currentPassive1 !== defaultPassive1) {
+        notes.push({
+            kind: 'passive1-variant',
+            recommended: secondPassiveLabel(defaultPassive1),
+            current: secondPassiveLabel(currentPassive1),
+        });
+    }
+    if (selection.activeBuffMode !== 'defensive') {
+        const recommended = resolveGrant(defense.grants.activeBuff).displayName;
+        const current = resolveGrant(resolveActiveBuffSpec(selection)).displayName;
+        if (current !== recommended) {
+            notes.push({
+                kind: 'active-buff-replaced',
+                recommended,
+                current,
+            });
+        }
+    }
+    return notes;
+}
 /** @deprecated use getOffensiveActiveBuffOptions() */
 export const WIZARD_OFFENSIVE_ACTIVE_BUFFS = getOffensiveActiveBuffOptions();
 export const TOWER_WIZARD_DEFENSE_PACKAGES = [
@@ -748,6 +901,263 @@ export const TOWER_WIZARD_DEFENSE_PACKAGES = [
         },
     },
 ];
+/** Passive 1 variants offered per main defense (catalog template ids). */
+const PASSIVE1_VARIANT_IDS = {
+    armor: [
+        'passive-fortified-frame',
+        'passive-armor-temp-hp',
+        'passive-stone-stance',
+        'passive-surrounded-bulwark',
+        'conditional-passive-armor-temp-hp',
+        'conditional-passive-armor-healing',
+        'conditional-passive-armor-health',
+    ],
+    evade: [
+        'passive-evade',
+        'passive-flowing-step',
+        'passive-duelist-footwork',
+        'passive-evade-temp-hp',
+        'passive-evade-healing',
+        'passive-evade-damage',
+        'conditional-passive-evade-temp-hp',
+        'conditional-passive-evade-healing',
+        'conditional-passive-evade-damage',
+    ],
+    'damage-reduction': ['passive-damage-reduction'],
+    phasing: ['passive-ghostform'],
+};
+const PASSIVE1_VARIANT_COPY = {
+    'passive-fortified-frame': {
+        description: 'Simple, reliable Armor. You always gain flat Armor. Best default choice for most Armor characters.',
+        mechanicsPreview: 'Passive 1: Gain permanent Armor.',
+    },
+    'passive-armor-temp-hp': {
+        description: 'Less pure Armor, but adds a frontloaded buffer. Good if you want to survive the opening of combat better.',
+        mechanicsPreview: 'Passive 1: Gain Armor plus Temporary HP.',
+    },
+    'passive-stone-stance': {
+        description: 'Stronger Armor when you hold your ground. Better for players who want tactical play instead of a pure always-on bonus.',
+        mechanicsPreview: 'Passive 1: Gain Armor only while the listed condition is true.',
+    },
+    'passive-surrounded-bulwark': {
+        description: 'Armor that spikes when enemies crowd you. Rewards staying in the thick of melee.',
+        mechanicsPreview: 'Passive 1: Gain Armor only while the listed condition is true.',
+    },
+    'conditional-passive-armor-temp-hp': {
+        description: 'Armor and Temporary HP when allies are nearby. Tactical, team-aware defense.',
+        mechanicsPreview: 'Passive 1: Gain Armor plus Temporary HP only while the listed condition is true.',
+    },
+    'conditional-passive-armor-healing': {
+        description: 'Armor and healing when you stand still. Rewards holding a position.',
+        mechanicsPreview: 'Passive 1: Gain Armor and healing only while the listed condition is true.',
+    },
+    'conditional-passive-armor-health': {
+        description: 'Armor and extra health when allies are nearby. A durable anchor for the party.',
+        mechanicsPreview: 'Passive 1: Gain Armor and health only while the listed condition is true.',
+    },
+    'passive-evade': {
+        description: 'Simple, reliable Evade. You are always harder to hit. Best default choice for most Evade characters.',
+        mechanicsPreview: 'Passive 1: Gain permanent Evade.',
+    },
+    'passive-flowing-step': {
+        description: 'More tactical Evade that depends on movement. Rewards staying mobile.',
+        mechanicsPreview: 'Passive 1: Gain Evade only while the listed condition is true.',
+    },
+    'passive-duelist-footwork': {
+        description: 'Evade that shines in one-on-one fights. Better when you duel a single foe.',
+        mechanicsPreview: 'Passive 1: Gain Evade only while the listed condition is true.',
+    },
+    'passive-evade-temp-hp': {
+        description: 'Adds another small defensive layer with Temporary HP, but is less focused than pure Evade.',
+        mechanicsPreview: 'Passive 1: Gain Evade plus Temporary HP.',
+    },
+    'passive-evade-healing': {
+        description: 'Evade plus sustain. Hard to hit and quick to mend.',
+        mechanicsPreview: 'Passive 1: Gain Evade plus healing.',
+    },
+    'passive-evade-damage': {
+        description: 'Evade plus damage. A hybrid skirmisher profile.',
+        mechanicsPreview: 'Passive 1: Gain Evade plus bonus damage.',
+    },
+    'conditional-passive-evade-temp-hp': {
+        description: 'Evade and Temporary HP when you move enough. Rewards aggressive repositioning.',
+        mechanicsPreview: 'Passive 1: Gain Evade plus Temporary HP only while the listed condition is true.',
+    },
+    'conditional-passive-evade-healing': {
+        description: 'Evade and healing after heavy movement. A mobile sustain build.',
+        mechanicsPreview: 'Passive 1: Gain Evade plus healing only while the listed condition is true.',
+    },
+    'conditional-passive-evade-damage': {
+        description: 'Evade and damage after movement. Hit-and-run tactics.',
+        mechanicsPreview: 'Passive 1: Gain Evade plus damage only while the listed condition is true.',
+    },
+    'passive-damage-reduction': {
+        description: 'Damage Reduction is a closed premium defensive subsystem. It is normally taken as a full package and should not be mixed casually with Armor, Evade, Temporary HP or Phasing.',
+        mechanicsPreview: 'Passive 1: Gain Damage Reduction.',
+    },
+    'passive-ghostform': {
+        description: 'Phasing is a closed premium defensive subsystem. It lets you ignore a limited number of hits and is normally taken as a full package.',
+        mechanicsPreview: 'Passive 1: Gain Phasing charges at combat start.',
+    },
+};
+const DEFENSE_MAIN_LABEL = {
+    armor: 'Armor',
+    evade: 'Evade',
+    'damage-reduction': 'Damage Reduction',
+    phasing: 'Phasing',
+};
+const PREMIUM_PASSIVE2_WARNING = 'This is a closed premium defensive subsystem. It is normally chosen as your Main Defense, not as a casual secondary passive.';
+const PASSIVE2_INTENT_LABELS = {
+    reinforce: { label: 'Reinforce your main defense' },
+    layer: { label: 'Add another defensive layer' },
+    sustain: { label: 'Add sustain' },
+    offense: { label: 'Add offense' },
+    utility: { label: 'Add awareness / utility' },
+    advanced: { label: 'Advanced / premium', warning: PREMIUM_PASSIVE2_WARNING },
+};
+function passive2IntentForSubfamily(subfamily, defenseId) {
+    if (subfamily === 'damage-reduction' || subfamily === 'phasing')
+        return 'advanced';
+    if (subfamily === defenseId || (defenseId === 'armor' && subfamily === 'armor') || (defenseId === 'evade' && subfamily === 'evade')) {
+        return 'reinforce';
+    }
+    if (subfamily === 'temp-hp' || subfamily === 'health' || subfamily === 'ward' || subfamily === 'combined' || subfamily === 'conditional-combined') {
+        return 'layer';
+    }
+    if (subfamily === 'regen' || subfamily === 'recovery')
+        return 'sustain';
+    if (subfamily === 'damage')
+        return 'offense';
+    if (subfamily === 'awareness' || subfamily === 'special-aura')
+        return 'utility';
+    return 'layer';
+}
+export function getDefaultPassive1TemplateId(defenseId) {
+    return getDefensePackage(defenseId)?.grants.passive1.templateId ?? '';
+}
+export function resolvePassive1TemplateId(selection) {
+    if (selection.passive1TemplateId)
+        return selection.passive1TemplateId;
+    if (selection.defenseId)
+        return getDefaultPassive1TemplateId(selection.defenseId);
+    return undefined;
+}
+export function isValidPassive1Variant(defenseId, templateId) {
+    return PASSIVE1_VARIANT_IDS[defenseId]?.includes(templateId) ?? false;
+}
+export function getPassive1VariantOptions(defenseId) {
+    const defaultId = getDefaultPassive1TemplateId(defenseId);
+    const locked = defenseId === 'damage-reduction' || defenseId === 'phasing';
+    const ids = PASSIVE1_VARIANT_IDS[defenseId] ?? [];
+    return ids
+        .filter((id) => findCatalogEntry(id))
+        .map((templateId) => {
+        const entry = findCatalogEntry(templateId);
+        const copy = PASSIVE1_VARIANT_COPY[templateId];
+        const mechanicsPreview = copy?.mechanicsPreview
+            ?? stripMarkdown(catalogMechanicsText(entry, DEF_RANK));
+        return {
+            templateId,
+            label: entry.templateName ?? entry.name ?? templateId,
+            description: copy?.description ?? (entry.description?.trim() || ''),
+            mechanicsPreview,
+            isDefault: templateId === defaultId,
+            isLocked: locked,
+            isRecommended: templateId === defaultId,
+        };
+    });
+}
+export function buildDefensePackagePreview(selection) {
+    const defenseId = selection.defenseId;
+    if (!defenseId)
+        return null;
+    const defense = getDefensePackage(defenseId);
+    if (!defense)
+        return null;
+    const passive1Id = resolvePassive1TemplateId(selection);
+    const passive1 = passive1Id ? resolveGrant(def(passive1Id, DEF_RANK)) : null;
+    const buffSpec = selection.activeBuffMode === 'defensive'
+        ? defense.grants.activeBuff
+        : selection.offensiveActiveBuffId
+            ? def(selection.offensiveActiveBuffId, DEF_RANK)
+            : defense.grants.activeBuff;
+    const buffResolved = resolveGrant(buffSpec);
+    const reactionResolved = resolveGrant(defense.grants.reaction);
+    return {
+        mainDefenseLabel: DEFENSE_MAIN_LABEL[defenseId],
+        rows: [
+            { label: 'Main Defense', value: DEFENSE_MAIN_LABEL[defenseId] },
+            { label: 'Passive 1', value: passive1?.displayName ?? passive1Id ?? '—' },
+            { label: 'Active Buff', value: buffResolved.displayName },
+            { label: 'Reaction', value: reactionResolved.displayName },
+        ],
+    };
+}
+export function getSecondPassiveIntentGroups(defenseId, passive1TemplateId) {
+    const excluded = passive1TemplateId ?? getDefaultPassive1TemplateId(defenseId);
+    const byIntent = new Map();
+    for (const entry of getAllCatalogEntries()) {
+        if (entry.category !== 'passive')
+            continue;
+        if (entry.templateId === excluded)
+            continue;
+        if (!findCatalogEntry(entry.templateId))
+            continue;
+        const subfamily = entry.subfamily ?? 'other';
+        const intent = passive2IntentForSubfamily(subfamily, defenseId);
+        const list = byIntent.get(intent) ?? [];
+        if (list.some((p) => p.id === entry.templateId))
+            continue;
+        list.push({
+            id: entry.templateId,
+            label: secondPassiveLabel(entry.templateId),
+            hint: secondPassiveHint(entry.templateId, entry.description),
+        });
+        byIntent.set(intent, list);
+    }
+    const intentOrder = ['reinforce', 'layer', 'sustain', 'offense', 'utility', 'advanced'];
+    const groups = [];
+    for (const intent of intentOrder) {
+        const passives = byIntent.get(intent);
+        if (!passives?.length)
+            continue;
+        const meta = PASSIVE2_INTENT_LABELS[intent];
+        groups.push({
+            intentLabel: meta.label,
+            intentHint: meta.hint,
+            warning: meta.warning,
+            passives: passives.sort((a, b) => a.label.localeCompare(b.label)),
+        });
+    }
+    return groups;
+}
+export const WIZARD_STEP_ORDER = [
+    'defense',
+    'defensePassiveVariant',
+    'passive2',
+    'activeBuffChoice',
+    'offensiveBuff',
+    'offense',
+    'weakenSave',
+    'delivery',
+    'review',
+];
+export function packageNeedsReplacementBuffStep(selection) {
+    return selection.activeBuffMode === 'offensive' || selection.activeBuffMode === 'support';
+}
+export function getVisibleWizardSteps(selection) {
+    if (isManualBuildMode(selection))
+        return ['review'];
+    return WIZARD_STEP_ORDER.filter((step) => {
+        if (step === 'offensiveBuff' && !packageNeedsReplacementBuffStep(selection))
+            return false;
+        if (step === 'weakenSave' && !packageNeedsWeakenSaveStep(selection))
+            return false;
+        if (step === 'delivery' && !packageNeedsDeliveryStep(selection))
+            return false;
+        return true;
+    });
+}
 function offensePackages() {
     return [
         {
@@ -843,11 +1253,11 @@ export function getOffensePackage(id) {
 export function getAvailableOffensePackages() {
     return TOWER_WIZARD_OFFENSE_PACKAGES.filter((p) => p.catalogAvailable && !WIZARD_HIDDEN_OFFENSE_IDS.includes(p.id));
 }
-export function getSecondPassiveGroups(defenseId) {
+export function getSecondPassiveGroups(defenseId, passive1TemplateId) {
     const defense = getDefensePackage(defenseId);
     if (!defense)
         return [];
-    const excluded = defense.grants.passive1.templateId;
+    const excluded = passive1TemplateId ?? getDefaultPassive1TemplateId(defenseId);
     const bySubfamily = new Map();
     for (const entry of getAllCatalogEntries()) {
         if (entry.category !== 'passive')
@@ -891,10 +1301,14 @@ export function resolveActiveBuffSpec(selection) {
     const defense = getDefensePackage(selection.defenseId);
     if (!defense)
         return def('ab-armor', DEF_RANK);
-    if (selection.activeBuffMode === 'offensive' && selection.offensiveActiveBuffId) {
+    if ((selection.activeBuffMode === 'offensive' || selection.activeBuffMode === 'support')
+        && selection.offensiveActiveBuffId) {
         return def(selection.offensiveActiveBuffId, DEF_RANK);
     }
     return defense.grants.activeBuff;
+}
+export function packageNeedsOffensiveBuffStep(selection) {
+    return packageNeedsReplacementBuffStep(selection);
 }
 function capitalizeSpecial(key) {
     if (!key)
@@ -925,9 +1339,6 @@ export function playerFacingVariantLabel(variant, baseSpec) {
         return capitalizeSpecial(baseSpec.special);
     }
     return VARIANT_LABELS[variant];
-}
-export function packageNeedsOffensiveBuffStep(selection) {
-    return selection.activeBuffMode === 'offensive';
 }
 export function sortOffensePackagesForDefense(_defenseId) {
     return [...getAvailableOffensePackages()].sort((a, b) => a.label.localeCompare(b.label));
@@ -1103,8 +1514,9 @@ export function buildPackageGrantSpecs(selection) {
             return applyOverrideToSpec(spec, override, selection.delivery);
         });
     }
+    const passive1Id = resolvePassive1TemplateId(selection) ?? defense.grants.passive1.templateId;
     const defaults = [
-        { key: 'passive-1', spec: defense.grants.passive1 },
+        { key: 'passive-1', spec: def(passive1Id, DEF_RANK) },
         { key: 'passive-2', spec: def(selection.secondPassiveTemplateId, DEF_RANK) },
         { key: 'active-buff', spec: resolveActiveBuffSpec(selection) },
         { key: 'reaction', spec: defense.grants.reaction },
@@ -1112,6 +1524,16 @@ export function buildPackageGrantSpecs(selection) {
         { key: 'offense-1', spec: offenseSpecs[1] },
     ];
     return defaults.map(({ key, spec }) => applyPackagePowerOverride(spec, findPowerOverride(selection, key)));
+}
+function canResetReviewRow(selection, key, catalogOverride) {
+    if (catalogOverride)
+        return true;
+    if (key === 'passive-1')
+        return !!selection.customizedSlots?.passive1;
+    if (key === 'active-buff') {
+        return !!selection.customizedSlots?.activeBuff || selection.activeBuffMode !== 'defensive';
+    }
+    return false;
 }
 export function buildReviewPowerRows(selection) {
     const specs = buildPackageGrantSpecs(selection);
@@ -1154,6 +1576,7 @@ export function buildReviewPowerRows(selection) {
             rank: spec.rank,
             category: resolved.category,
             hasCatalogOverride: catalogOverride,
+            showResetToDefault: canResetReviewRow(selection, key, catalogOverride),
             spec,
             variantOptions: variantOpts.map((id) => ({
                 id,
@@ -1168,11 +1591,24 @@ export function buildPackageReview(selection) {
     const defense = getDefensePackage(selection.defenseId);
     const catalogOffense = resolveOffenseActiveSpecs(selection);
     const offense = catalogOffense ? null : getOffensePackage(selection.offenseId);
+    const empty = {
+        defenseRows: [],
+        offenseRows: [],
+        reviewPowerRows: [],
+        mainDefensePackageRows: [],
+        offenseReviewRows: [],
+        customizationNotes: [],
+        packageId: '',
+        allOk: false,
+    };
     if (!defense || (!catalogOffense && !offense)) {
-        return { defenseRows: [], offenseRows: [], reviewPowerRows: [], packageId: '', allOk: false };
+        return empty;
     }
     const specs = buildPackageGrantSpecs(selection);
     const reviewPowerRows = buildReviewPowerRows(selection);
+    const mainDefensePackageRows = reviewPowerRows.filter((row) => row.grantKey === 'passive-1' || row.grantKey === 'active-buff' || row.grantKey === 'reaction');
+    const secondPassiveRow = reviewPowerRows.find((row) => row.grantKey === 'passive-2');
+    const offenseReviewRows = reviewPowerRows.filter((row) => row.grantKey === 'offense-0' || row.grantKey === 'offense-1');
     const defenseRows = reviewPowerRows.slice(0, 4).map((row) => ({
         ...resolveGrant(row.spec),
         role: row.role,
@@ -1198,6 +1634,11 @@ export function buildPackageReview(selection) {
         defenseRows,
         offenseRows,
         reviewPowerRows,
+        mainDefensePackageRows,
+        secondPassiveRow,
+        offenseReviewRows,
+        defensePackagePreview: buildDefensePackagePreview(selection) ?? undefined,
+        customizationNotes: buildCustomizationNotes(selection),
         packageId: buildPackageId(selection),
         allOk: allRows.every((r) => r.status === 'ok'),
     };
@@ -1322,6 +1763,11 @@ export function buildManualPackageReview(selection) {
         defenseRows,
         offenseRows,
         reviewPowerRows,
+        mainDefensePackageRows: reviewPowerRows.filter((row) => row.grantKey === 'passive-1' || row.grantKey === 'active-buff' || row.grantKey === 'reaction'),
+        secondPassiveRow: reviewPowerRows.find((row) => row.grantKey === 'passive-2'),
+        offenseReviewRows: reviewPowerRows.filter((row) => row.grantKey === 'offense-0' || row.grantKey === 'offense-1'),
+        defensePackagePreview: selection.defenseId ? buildDefensePackagePreview(selection) ?? undefined : undefined,
+        customizationNotes: [],
         packageId,
         allOk: !!specs && allRows.every((r) => r.status === 'ok'),
     };

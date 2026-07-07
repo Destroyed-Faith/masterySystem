@@ -7,22 +7,35 @@ export declare const TOWER_WIZARD_COPY: {
     readonly defense: {
         readonly question: "How do you want to survive combat?";
     };
+    readonly defensePassiveVariant: {
+        readonly heading: "Which version of your main defense do you want?";
+        readonly body: "Your Main Defense automatically suggests a Passive, Active Buff, and Reaction. Here you choose which Passive should define your core defense. The wizard has preselected the recommended option.";
+        readonly previewHeading: "Your current Defense Package";
+        readonly recommended: "Recommended / Default";
+        readonly locked: "Recommended / Locked";
+        readonly mechanics: "Mechanical preview";
+    };
     readonly passive2: {
         readonly heading: "Choose your second Passive";
-        readonly body: "Your first Passive comes from your defense package.\nPick any other Passive from the catalog below.";
+        readonly body: "Your first Passive is already selected from your Main Defense. Now choose an additional Passive.";
+        readonly alreadySelected: "Already selected";
+        readonly nowChoose: "Now choose Passive 2.";
     };
     readonly activeBuffChoice: {
-        readonly heading: "How should your Active Buff work?";
-        readonly body: "Your defense package includes a matched defensive Active Buff (shown below at Rank 4).\nYou can keep that safety, or replace it with an offensive buff on the next step.";
-        readonly defaultHeading: "Your default defensive Active Buff";
+        readonly heading: "What should your Active Buff slot do?";
+        readonly body: "Your Main Defense Package suggests a defensive Active Buff. You can keep it or replace only this slot.";
+        readonly defaultHeading: "Your package Active Buff";
         readonly rankNote: "At Rank 4";
-        readonly defensiveTitle: "Keep my defensive Active Buff";
-        readonly defensiveBody: "Stay with the buff that matches your defense package. Best if you want to survive first.";
-        readonly offensiveTitle: "Switch to an offensive Active Buff";
-        readonly offensiveBody: "Trade defensive safety for damage, armor break, crits, or stronger Specials. You pick the replacement next.";
+        readonly defensiveTitle: "Keep my package Active Buff";
+        readonly defensiveBody: "Recommended. Your Active Buff stays aligned with your Main Defense.";
+        readonly offensiveTitle: "Replace with an offensive Active Buff";
+        readonly offensiveBody: "Your Passive 1 and Reaction stay defensive, but your Active Buff becomes offensive.";
+        readonly supportTitle: "Replace with a support or utility Active Buff";
+        readonly supportBody: "Your Passive 1 and Reaction stay defensive, but your Active Buff becomes support or utility.";
     };
     readonly offensiveBuff: {
         readonly heading: "Choose your offensive Active Buff";
+        readonly supportHeading: "Choose your support Active Buff";
         readonly body: "This replaces your defensive Active Buff for the whole package. You only run one Active Buff at a time.";
         readonly replacing: "Replacing";
         readonly rankPreview: "At Rank 4";
@@ -53,12 +66,18 @@ export declare const TOWER_WIZARD_COPY: {
         readonly heading: "Your Combat Package";
         readonly manualIntro: "Choose each Power below from the catalog. You need all six before you can apply.";
         readonly powers: "Package Powers";
+        readonly mainDefensePackage: "Main Defense Package";
+        readonly secondPassive: "Second Passive";
         readonly defense: "Defense";
         readonly offense: "Offense";
         readonly configureActives: "Configure your Actives";
         readonly changePower: "Change power";
-        readonly resetPower: "Reset to default";
+        readonly resetPower: "Reset to recommended default";
         readonly customPower: "Custom";
+        readonly passive1VariantChanged: "Passive 1 variant changed";
+        readonly activeBuffReplaced: "Package Active Buff replaced";
+        readonly recommendedLabel: "Recommended";
+        readonly currentLabel: "Current";
         readonly apply: "Apply this package";
         readonly back: "Go back and choose another style";
         readonly manualBack: "Back to character sheet";
