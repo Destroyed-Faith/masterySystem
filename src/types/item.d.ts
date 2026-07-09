@@ -923,6 +923,12 @@ export interface ArtifactData extends BaseItemData {
   slot?: ArtifactSlotKey | '';
   /** Base Profile (physical kind) — drives which Base Values are allowed. */
   baseProfile?: ArtifactBaseProfileKey | '';
+  /**
+   * Optional standard rulebook base the artifact was built on (e.g.
+   * `weapon:light-crossbow`, `armor:heavy`). Remembered so the Node Editor's
+   * "Base Type" dropdown can round-trip the choice; empty = Custom / hand-built.
+   */
+  baseTypeKey?: string;
   /** Base Values that define what the artifact physically is (max per slot). */
   baseValues?: ArtifactBaseValue[];
   /** Optional Stone Function — at most one per artifact. */

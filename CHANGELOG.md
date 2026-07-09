@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.172] - 2026-07-09
+
+### Added
+
+- **Artifact Node Editor — Base Type selector:** A new **Base Type** dropdown at the top of the "Edit Artifact Node" dialog lets the GM build an artifact on a standard rulebook base. Picking a weapon (e.g. Light Crossbow, Greatsword), armor (Light/Medium/Heavy) or shield auto-fills the Slot, Base Profile, damage/armor/shield values, range, innate abilities, specials and the matching Base Value rows from the Players Guide catalog — then everything stays editable, or choose **Custom** to author by hand. The choice is remembered (`baseTypeKey`) and is root-node only, like Slot/Base Profile.
+
 ## [0.9.171] - 2026-07-07
 
 ### Changed

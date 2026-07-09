@@ -87,6 +87,10 @@ import {
   listCatalogSpecialOptions,
 } from '../utils/artifact-catalog-pick.js';
 import { artifactPickCanBeSpell, uiTemplateIdCanBeSpell } from '../utils/artifact-spell-pick.js';
+import {
+  getArtifactBaseTypeGroups,
+  resolveArtifactBaseType,
+} from '../utils/artifact-base-type-catalog.js';
 
 // Use V1 Application for reliable template rendering in v13
 const BaseDialog: any = (foundry as any)?.appv1?.Application || (Application as any);
@@ -558,6 +562,8 @@ export class NodeEditor extends BaseDialog {
     data.specSlot = specSlot;
     data.specBaseProfile = specBaseProfile;
     data.specBinding = specBinding;
+    data.baseTypeKey = String(system.baseTypeKey || '');
+    data.baseTypeGroups = getArtifactBaseTypeGroups();
     data.specStoneFnKind = stoneFn?.kind || '';
     data.specStoneFnAttr = stoneFn?.attribute || '';
     data.specStoneFnPowerId = stoneFn?.stonePowerId || '';
@@ -1015,6 +1021,100 @@ export class NodeEditor extends BaseDialog {
     $specSlot.on('change', refreshSpecForSlot);
     $specBaseProfile.on('change', syncKindUi);
     refreshSpecForSlot();
+
+    // --- Base Type: pick a standard rulebook weapon/armor/shield to auto-fill ---
+    const $baseType = html.find('#node-spec-base-type');
+
+    // Rebuild a repeatable row container (innates / specials) from a value list,
+    // cloning the first row as a fresh (unlocked) template. Root-only, so there
+    // are never inherited/locked rows to preserve here.
+    const rebuildRowsFromTemplate = (
+      $container: JQuery,
+      rowSelector: string,
+      applyRow: ($row: JQuery, value: any) => void,
+      values: any[],
+    ) => {
+      const $tpl = $container.find(rowSelector).first().clone();
+      if (!$tpl.length) return;
+      $container.empty();
+      const list = values.length ? values : [null];
+      for (const v of list) {
+        const $row = $tpl.clone();
+        $row.removeClass('node-row-locked');
+        $row.find('select, input').prop('disabled', false);
+        $row.find('.node-row-remove').removeClass('hidden');
+        applyRow($row, v);
+        $container.append($row);
+      }
+    };
+
+    const applyBaseTypePrefill = (id: string) => {
+      if (!isLineageRoot) return;
+      const res = resolveArtifactBaseType(id);
+      if (!res) return; // Custom / unknown → keep whatever is already configured.
+
+      // Slot + Base Profile drive weapon basics + base value scaling.
+      $specSlot.val(res.slot);
+      refreshSpecForSlot(); // rebuilds profile options + base value rows for the slot
+      $specBaseProfile.val(res.baseProfile);
+      syncKindUi(); // shows the right profile block; mirrors type/hands from profile
+
+      if (res.kind === 'weapon') {
+        html.find('#node-weapon-damage-preset').val(coerceTreeDamage(res.damage));
+        html.find('#node-weapon-range').val(res.range);
+        syncWeaponRangeLabel(html);
+        rebuildRowsFromTemplate(
+          html.find('#node-weapon-innates'),
+          '.node-select-row',
+          ($row, val) => $row.find('.node-weapon-innate').val(String(val || '')),
+          res.innateAbilities,
+        );
+        rebuildRowsFromTemplate(
+          html.find('#node-weapon-specials'),
+          '.node-special-row',
+          ($row, ref) => {
+            $row.find('.node-weapon-special-id').val(ref?.specialId || '');
+            $row
+              .find('.node-weapon-special-val')
+              .val(ref && ref.value != null ? String(ref.value) : '');
+            syncSpecialRowValueVisibility($row);
+          },
+          res.specials,
+        );
+      } else if (res.kind === 'armor') {
+        html.find('#node-armor-type').val(res.armorType);
+        html.find('#node-armor-value').val(String(res.armorValue));
+        html.find('#node-armor-evade').val(String(res.evadeModifier));
+        html.find('#node-armor-skill-penalty').val(res.skillPenalty);
+      } else if (res.kind === 'shield') {
+        html.find('#node-shield-type').val(res.shieldType);
+        html.find('#node-shield-value').val(String(res.shieldValue));
+        html.find('#node-shield-evade').val(String(res.evadeBonus));
+        html.find('#node-shield-skill-penalty').val(res.skillPenalty);
+      }
+
+      // Prefill the Base Value rows this slot grants (Weapon Damage / Special,
+      // Body Armor, Shield Value…). Extra base values beyond the slot limit are
+      // simply not shown, matching the fixed A/B/C row model.
+      $specBvContainer.find('.node-spec-bv-row').each((i, el) => {
+        const $row = $(el);
+        const spec = res.baseValues[i];
+        if (!spec) {
+          $row.find('.node-spec-bv-type').val('none');
+        } else {
+          $row.find('.node-spec-bv-type').val(spec.type);
+          if (spec.type === 'weaponSpecial' && spec.specialId) {
+            $row.find('.node-spec-bv-special').val(spec.specialId);
+          }
+        }
+        syncBvRow($row);
+      });
+      syncBaseValueExclusivity();
+    };
+
+    $baseType.on('change', (e: JQuery.ChangeEvent) => {
+      applyBaseTypePrefill(String($(e.currentTarget).val() || ''));
+    });
 
     // --- Level Progression picks: Power (catalog, filtered by category) or Stone Function ---
     const stonePowerOptionsByAttr = ((this as any)._stonePowerOptionsByAttr || {}) as Record<
@@ -1611,6 +1711,7 @@ export class NodeEditor extends BaseDialog {
       'system.inventorySize': inventorySize,
       'system.slot': specSlot,
       'system.baseProfile': specBaseProfile,
+      'system.baseTypeKey': String(html.find('#node-spec-base-type').val() || '').trim(),
       'system.baseValues': baseValues,
       'system.stoneFunction': stoneFunction,
       'system.progressionPicks': progressionPicks,

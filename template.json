@@ -415,6 +415,7 @@
       "equipSlots": ["mainhand", "offhand"],
       "slot": "",
       "baseProfile": "",
+      "baseTypeKey": "",
       "baseValues": [],
       "stoneFunction": null,
       "binding": "unbound",

@@ -8,6 +8,20 @@
     <div class="node-editor-span2 node-spec-row" style="border-top:1px dashed var(--color-border-light-primary,#888);padding-top:8px;">
       <h4 class="node-profile-title">Artifact Spec (Slot, Base Profile, Base Values, Stone Function)</h4>
       <p class="node-editor-hint">From <em>Artefacts.md</em>. The Slot drives which Base Profiles and Base Values are legal, and which Attributes may host the Stone Function.</p>
+      <div class="form-group node-editor-span2 node-base-type-row">
+        <label>Base Type <span class="node-editor-hint-inline">(standard weapon / armor from the rulebook)</span></label>
+        <select id="node-spec-base-type" {{#unless isLineageRoot}}disabled{{/unless}}>
+          <option value="" {{#unless baseTypeKey}}selected{{/unless}}>— Custom / Define your own —</option>
+          {{#each baseTypeGroups as |grp|}}
+          <optgroup label="{{grp.group}}">
+            {{#each grp.options as |opt|}}
+            <option value="{{opt.id}}" {{#if (eq ../../baseTypeKey opt.id)}}selected{{/if}}>{{opt.label}}</option>
+            {{/each}}
+          </optgroup>
+          {{/each}}
+        </select>
+        <p class="node-editor-hint">Pick a standard base to auto-fill Slot, Base Profile, damage/armor values, innate abilities and specials from the rulebook — then fine-tune below. Choose <strong>Custom</strong> to build everything by hand. Only editable on the root (Level 1-1) node.</p>
+      </div>
       <div class="node-editor-grid">
         <div class="form-group">
           <label>Slot</label>
