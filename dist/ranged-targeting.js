@@ -4,6 +4,7 @@
  */
 import { highlightHexesInRange, clearHexHighlight } from "./utils/hex-highlighting.js";
 import { gridStepsFromMeters, isWithinRangeMeters } from "./utils/grid-range.js";
+import { filterPerceivableTargetIds } from "./combat/perception-gate.js";
 let active = null;
 let confirming = false;
 function getRangedMaxMeters(option) {
@@ -12,11 +13,11 @@ function getRangedMaxMeters(option) {
     return 30;
 }
 function computeValidTargets(attackerToken, rangeMeters) {
-    const out = new Set();
+    const inRange = new Set();
     const tokens = canvas.tokens?.placeables ?? [];
     const attackerCenter = attackerToken?.center;
     if (!attackerCenter)
-        return out;
+        return inRange;
     for (const token of tokens) {
         if (!token?.id || token.id === attackerToken.id)
             continue;
@@ -24,10 +25,13 @@ function computeValidTargets(attackerToken, rangeMeters) {
             continue;
         const targetCenter = token.center;
         if (isWithinRangeMeters(attackerCenter, targetCenter, rangeMeters)) {
-            out.add(token.id);
+            inRange.add(token.id);
         }
     }
-    return out;
+    const attackerActor = attackerToken.actor;
+    if (!attackerActor)
+        return inRange;
+    return filterPerceivableTargetIds(attackerActor, inRange, attackerToken);
 }
 function drawRangeArea(state) {
     const grid = canvas.grid;

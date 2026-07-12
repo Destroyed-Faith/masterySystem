@@ -10,6 +10,7 @@ import type { RadialCombatOption } from "./token-radial-menu";
 import { highlightHexesInRange, clearHexHighlight } from "./utils/hex-highlighting";
 import { gridStepsFromMeters, isWithinRangeMeters } from "./utils/grid-range";
 import { tokenIsHostileTo } from "./combat/threatened-ranged.js";
+import { filterPerceivableTargetIds } from "./combat/perception-gate.js";
 
 interface MeleeTargetingState {
   attackerToken: any;
@@ -85,17 +86,21 @@ function computeValidTargets(attackerToken: any, reachMeters: number): Set<strin
   const attackerCenter = attackerToken?.center;
   if (!attackerCenter) return out;
 
+  const inRange = new Set<string>();
   for (const token of tokens) {
     if (!token?.id || token.id === attackerToken.id) continue;
     if (!token.actor) continue;
 
     const targetCenter = token.center;
     if (isWithinRangeMeters(attackerCenter, targetCenter, reachMeters)) {
-      out.add(token.id);
+      inRange.add(token.id);
     }
   }
 
-  return out;
+  const attackerActor = attackerToken.actor;
+  if (!attackerActor) return inRange;
+
+  return filterPerceivableTargetIds(attackerActor, inRange, attackerToken);
 }
 
 /* -------------------------------------------- */

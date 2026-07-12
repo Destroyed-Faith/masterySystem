@@ -381,7 +381,20 @@ export async function createAttackCard(
   });
   
   // Base TN: Evade (weapon / martial) or Casting TN from Power Level (Active-as-Spell attack)
-  const targetEvadeFromActor = getTargetEvade(target);
+  let targetEvadeFromActor = getTargetEvade(target);
+
+  const {
+    resolveEvadeVsInvisibleAttacker,
+  } = await import('./perception-gate.js');
+  const { applyAttackCloakDisruption } = await import('./perception-combat-hooks.js');
+  const evadeVsInvisible = await resolveEvadeVsInvisibleAttacker(target, attacker, {
+    defenderToken: targetToken,
+    attackerToken: attackerToken,
+  });
+  if (evadeVsInvisible.evadeMultiplier < 1) {
+    targetEvadeFromActor = Math.max(0, Math.floor(targetEvadeFromActor * evadeVsInvisible.evadeMultiplier));
+  }
+  await applyAttackCloakDisruption(attacker);
 
   // Get power info if applicable
   let selectedPowerId: string | null = null;
@@ -544,6 +557,7 @@ export async function createAttackCard(
     tnKind,
     ...(castingBaseTn != null ? { castingBaseTn } : {}),
     targetEvadeFromActor: tnKind === 'casting' ? targetEvadeFromActor : undefined,
+    halfEvadeVsInvisible: evadeVsInvisible.evadeMultiplier < 1,
   };
   
   // Debug log before creating message
@@ -718,7 +732,7 @@ export async function createAttackCard(
         </div>`
             : `<div class="detail-row">
           <span class="detail-label">Target Evade:</span>
-          <span class="detail-value">${normalTn}</span>
+          <span class="detail-value">${normalTn}${evadeVsInvisible.evadeMultiplier < 1 ? ' (half — failed Perception vs invisible attacker)' : ''}</span>
         </div>`
         }
         ${weapon ? `<div class="detail-row"><span class="detail-label">Weapon:</span><span class="detail-value">${attackCardEsc(weapon.name)}</span></div>` : ""}

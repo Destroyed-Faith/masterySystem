@@ -61,6 +61,12 @@
           "shieldName": "",
           "speed": 6
         },
+        "combatSenses": {
+          "activeSenseId": "normalCombatAwareness",
+          "grantedSenseIds": [],
+          "passiveSenseIds": [],
+          "hasDarkvision": false
+        },
         "faithFractures": {
           "current": 0,
           "maximum": 8

@@ -6,6 +6,7 @@
 import type { RadialCombatOption } from "./token-radial-menu";
 import { highlightHexesInRange, clearHexHighlight } from "./utils/hex-highlighting";
 import { gridStepsFromMeters, isWithinRangeMeters } from "./utils/grid-range";
+import { filterPerceivableTargetIds } from "./combat/perception-gate.js";
 
 interface RangedTargetingState {
   attackerToken: any;
@@ -30,10 +31,10 @@ function getRangedMaxMeters(option: RadialCombatOption): number {
 }
 
 function computeValidTargets(attackerToken: any, rangeMeters: number): Set<string> {
-  const out = new Set<string>();
+  const inRange = new Set<string>();
   const tokens = canvas.tokens?.placeables ?? [];
   const attackerCenter = attackerToken?.center;
-  if (!attackerCenter) return out;
+  if (!attackerCenter) return inRange;
 
   for (const token of tokens) {
     if (!token?.id || token.id === attackerToken.id) continue;
@@ -41,11 +42,13 @@ function computeValidTargets(attackerToken: any, rangeMeters: number): Set<strin
 
     const targetCenter = token.center;
     if (isWithinRangeMeters(attackerCenter, targetCenter, rangeMeters)) {
-      out.add(token.id);
+      inRange.add(token.id);
     }
   }
 
-  return out;
+  const attackerActor = attackerToken.actor;
+  if (!attackerActor) return inRange;
+  return filterPerceivableTargetIds(attackerActor, inRange, attackerToken);
 }
 
 function drawRangeArea(state: RangedTargetingState): void {

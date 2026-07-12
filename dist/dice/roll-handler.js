@@ -462,6 +462,21 @@ export async function masteryRoll(options) {
     if (!options.skipChat) {
         await sendRollToChat(result, label, flavor, options.actorId, options.skillKey, options.isSkillRoll, options.baseModifier, options.isSaveRoll, rollRecipe);
     }
+    if (options.skillKey === 'stealth' && options.actorId && result.success !== undefined) {
+        try {
+            const actor = globalThis.game?.actors?.get?.(options.actorId);
+            if (actor) {
+                const { applyStealthRollResult } = await import('../combat/perception-combat-hooks.js');
+                await applyStealthRollResult(actor, {
+                    success: !!result.success,
+                    raises: result.raises ?? 0,
+                });
+            }
+        }
+        catch (stealthErr) {
+            console.warn('Mastery System | stealth perception state update failed', stealthErr);
+        }
+    }
     console.log('Mastery System | DEBUG: Roll complete, returning result', result);
     return result;
 }

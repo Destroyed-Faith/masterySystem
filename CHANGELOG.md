@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.180] - 2026-07-12
+
+### Added
+
+- **Combat Senses runtime:** Registry (Normal Awareness, Darkvision, Life/Mage/Tremor/Sonar/Predator Sense), Sense Slot (`system.combatSenses`), Perception-State auf Actor-Flags.
+- **Perception gating:** TN-Berechnung, Targeting-Filter (Melee/Ranged), interaktiver Perception-Check vor Angriffen, Half-Evade vs. unsichtbare Angreifer.
+- **Stealth / Invisibility:** Stealth-Roll setzt Hidden + Stealth-Raise-Bonus; Cloak Disruption bei Angriff und Bewegung > 3 m; Round/Turn-Hooks.
+- **Character Sheet:** Combat-Senses-Panel (Sense Slot, Darkvision, Granted Senses).
+- **Tests:** `tests/combat-senses.test.ts` (15 Tests).
+
 ## [0.9.179] - 2026-07-12
 
 ### Added

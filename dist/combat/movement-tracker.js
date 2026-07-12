@@ -76,6 +76,13 @@ export async function handleTokenMovement(tokenDoc, changes) {
     const prevMoved = Number(actor.getFlag(FLAG_SCOPE, FLAG_MOVED) ?? 0);
     const totalMoved = prevMoved + moved;
     await actor.setFlag(FLAG_SCOPE, FLAG_MOVED, totalMoved);
+    try {
+        const { applyMovementCloakDisruption } = await import('./perception-combat-hooks.js');
+        await applyMovementCloakDisruption(actor, totalMoved);
+    }
+    catch (err) {
+        console.debug?.('Mastery System | cloak disruption on move failed', err);
+    }
     const lacerate = getActiveSpecialValue(actor, 'lacerate');
     if (lacerate <= 0)
         return;

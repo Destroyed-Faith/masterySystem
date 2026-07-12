@@ -22,6 +22,10 @@ import type {
 } from '../types/actor';
 import { ALL_POWER_TEMPLATES } from './powers/index.js';
 import {
+  targetPerceivedByNonSightSense,
+  targetUnseenByObserver,
+} from '../combat/perception-gate.js';
+import {
   countAdjacentHostileTokenCount,
   countAdjacentAllyTokenCount,
   getPrimaryTokenForActor,
@@ -992,6 +996,13 @@ export function evaluateMechanicsConditionExpr(self: any, target: any, expr: str
 
   if (/^target\./i.test(raw)) {
     if (!target) return false;
+    const expr = raw.trim();
+    if (/^target\.perceivedByNonSightSense$/i.test(expr)) {
+      return targetPerceivedByNonSightSense(self, target);
+    }
+    if (/^target\.unseenBySelf$/i.test(expr)) {
+      return targetUnseenByObserver(self, target);
+    }
     return false;
   }
 

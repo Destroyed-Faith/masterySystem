@@ -8,6 +8,7 @@
 import { highlightHexesInRange, clearHexHighlight } from "./utils/hex-highlighting.js";
 import { gridStepsFromMeters, isWithinRangeMeters } from "./utils/grid-range.js";
 import { tokenIsHostileTo } from "./combat/threatened-ranged.js";
+import { filterPerceivableTargetIds } from "./combat/perception-gate.js";
 let active = null;
 let confirming = false;
 /* -------------------------------------------- */
@@ -58,6 +59,7 @@ function computeValidTargets(attackerToken, reachMeters) {
     const attackerCenter = attackerToken?.center;
     if (!attackerCenter)
         return out;
+    const inRange = new Set();
     for (const token of tokens) {
         if (!token?.id || token.id === attackerToken.id)
             continue;
@@ -65,10 +67,13 @@ function computeValidTargets(attackerToken, reachMeters) {
             continue;
         const targetCenter = token.center;
         if (isWithinRangeMeters(attackerCenter, targetCenter, reachMeters)) {
-            out.add(token.id);
+            inRange.add(token.id);
         }
     }
-    return out;
+    const attackerActor = attackerToken.actor;
+    if (!attackerActor)
+        return inRange;
+    return filterPerceivableTargetIds(attackerActor, inRange, attackerToken);
 }
 /* -------------------------------------------- */
 /*  Visuals                                     */

@@ -145,7 +145,13 @@ export function initializeTokenActionSelector() {
                 return;
             }
             const { createMeleeAttackCard } = await import("./combat/attack-executor.js");
+            const { ensureCanTargetWithPerception } = await import("./combat/perception-gate.js");
             const aoeMelee = payload.aoeMelee ?? null;
+            if (attackerToken.actor && targetToken.actor) {
+                const ok = await ensureCanTargetWithPerception(attackerToken.actor, targetToken.actor, { observerToken: attackerToken, targetToken });
+                if (!ok)
+                    return;
+            }
             await createMeleeAttackCard(attackerToken, targetToken, option, null, aoeMelee);
         }
         catch (e) {
@@ -166,6 +172,12 @@ export function initializeTokenActionSelector() {
                 return;
             }
             const { createRangedAttackCard } = await import("./combat/attack-executor.js");
+            const { ensureCanTargetWithPerception } = await import("./combat/perception-gate.js");
+            if (attackerToken.actor && targetToken.actor) {
+                const ok = await ensureCanTargetWithPerception(attackerToken.actor, targetToken.actor, { observerToken: attackerToken, targetToken });
+                if (!ok)
+                    return;
+            }
             await createRangedAttackCard(attackerToken, targetToken, option);
         }
         catch (e) {

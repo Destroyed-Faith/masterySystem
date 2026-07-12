@@ -15,6 +15,7 @@
  * existing `system.combat.*` values computed earlier in `prepareDerivedData`.
  */
 import { ALL_POWER_TEMPLATES } from './powers/index.js';
+import { targetPerceivedByNonSightSense, targetUnseenByObserver, } from '../combat/perception-gate.js';
 import { countAdjacentHostileTokenCount, countAdjacentAllyTokenCount, getPrimaryTokenForActor, } from './mechanics-adjacency.js';
 import { logDrDebug } from './dr-debug.js';
 /** Empty breakdown skeleton (all arrays/objects present, all totals zero). */
@@ -982,6 +983,13 @@ export function evaluateMechanicsConditionExpr(self, target, expr) {
     if (/^target\./i.test(raw)) {
         if (!target)
             return false;
+        const expr = raw.trim();
+        if (/^target\.perceivedByNonSightSense$/i.test(expr)) {
+            return targetPerceivedByNonSightSense(self, target);
+        }
+        if (/^target\.unseenBySelf$/i.test(expr)) {
+            return targetUnseenByObserver(self, target);
+        }
         return false;
     }
     return evaluateConditionGate(self, target, raw);

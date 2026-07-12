@@ -30,6 +30,7 @@ import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
 import { getPowerMinLevel as resolvePowerMinLevel } from '../utils/power-xp-refund.js';
 import { matchesMasteryWeaponCatalog } from '../utils/weapons.js';
 import { buildRadialManeuverPrefsContext } from '../utils/radial-maneuver-prefs.js';
+import { buildCombatSensesPanelContext } from '../combat/combat-sense-collection.js';
 import { buildArtifactEvolutionCards } from '../artifacts/artifact-evolution-actions.js';
 import { actorHasProgressionArtifacts } from '../utils/artifact-tree-grant.js';
 import { applyAttributePendingChanges, calculateAttributePendingNetCost, calculatePowerPendingNetCost, calculateSingleSkillPendingXpNet, calculateSkillPendingNetCost, } from '../progression/progression-hub-actions.js';
@@ -812,6 +813,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             ((Number(spendablePts.xp) || 0) + (Number(spendablePts.xpFree) || 0)) > 0;
         context.radialManeuverPrefsPanel = buildRadialManeuverPrefsContext(context.system);
         context.radialManeuverPrefsDetailsOpen = this._radialManeuverPrefsDetailsOpen === true;
+        context.combatSensesPanel = buildCombatSensesPanelContext(this.actor);
         if (context.creationComplete) {
             context.powersByTypeGroups = this.#buildPowersByTypeGroups(context.items?.powers || []);
             /* Default: collapsed; open after finalize or when user expanded in this session. */

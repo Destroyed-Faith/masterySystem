@@ -82,6 +82,14 @@ export interface CombatData {
   physicalSkillPenaltyDisplay?: string;
 }
 
+/** Sense Slot + granted special Combat Senses (Players Guide). */
+export interface CombatSensesData {
+  activeSenseId: string;
+  grantedSenseIds: string[];
+  passiveSenseIds: string[];
+  hasDarkvision?: boolean;
+}
+
 /** One line in a mechanics breakdown (source name + numeric value). */
 export interface MechanicsBreakdownEntry {
   source: string;
@@ -276,6 +284,7 @@ export interface CharacterData {
     currentBar: number;
   };
   combat: CombatData;
+  combatSenses?: CombatSensesData;
   resources: ResourcesData;
   skills: Record<string, number>;
   skillsSpent: Record<string, number>;
@@ -479,6 +488,7 @@ export interface NpcData {
     tempHP: number;
   };
   combat: CombatData;
+  combatSenses?: CombatSensesData;
   resources: ResourcesData;
   skills: Record<string, number>;
   savingThrows?: {

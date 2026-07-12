@@ -3178,6 +3178,9 @@ Hooks.once('ready', async function() {
   registerAttackRollClickHandler();
   registerDamageCardChatHooks();
 
+  const { registerPerceptionCombatHooks } = await import('./combat/perception-combat-hooks.js');
+  registerPerceptionCombatHooks();
+
   // Register skill spend click handler
   const { registerSkillSpendClickHandler } = await import('./chat/skill-spend-handler.js');
   registerSkillSpendClickHandler();
