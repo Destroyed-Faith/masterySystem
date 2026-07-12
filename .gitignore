@@ -32,9 +32,9 @@ packs/*/*.db
 packs/*/*.db-shm
 packs/*/*.db-wal
 
-# Compiled compendium packs (LevelDB) — build artifacts produced by
-# `npm run build:packs`. The reviewable source lives in `src/packs/**`.
-packs/echo-artifacts/
+# Compiled compendium packs (LevelDB) — build via `npm run build:packs`.
+# Echo Artifacts is shipped in-repo so Foundry installs include the compendium.
+# Other packs remain build-time only until explicitly added here.
 
 # Temporary files
 *.tmp

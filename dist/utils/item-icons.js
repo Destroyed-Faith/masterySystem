@@ -180,6 +180,22 @@ export function getEchoArtifactIcon(echoArtifactKey) {
     }
     return null;
 }
+/** Build an icon lookup hint from a live or pending Item document. */
+export function getItemIconHintFromItem(item) {
+    const echoArtifactKey = String(item.getFlag?.('mastery-system', 'echoArtifactKey') ?? item.system?.echoArtifactKey ?? '').trim();
+    return {
+        type: item.system?.type,
+        ...(echoArtifactKey ? { echoArtifactKey } : {}),
+    };
+}
+/** Build an icon lookup hint from preCreateItem data (flags may not be on `system`). */
+export function getItemIconHintFromCreateData(data) {
+    const echoArtifactKey = String(data.flags?.['mastery-system']?.echoArtifactKey ?? data.system?.echoArtifactKey ?? '').trim();
+    return {
+        type: data.system?.type,
+        ...(echoArtifactKey ? { echoArtifactKey } : {}),
+    };
+}
 /**
  * Resolve the best icon path for an item by name and type.
  * For armor and shields, pass `system` (with `type` tier) so renamed items still match the correct art.

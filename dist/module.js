@@ -43,7 +43,7 @@ import { initializeDivineClashHooks } from './divine-clash/divine-clash-hooks.js
 import { initializeArtifactAwakening } from './artifacts/artifact-awakening.js';
 import { seedGeneralItemsStorage } from './utils/seed-general-items.js';
 import { seedArtifactLibrary, forceRefreshEchoArtifactLibrary } from './utils/seed-artifact-library.js';
-import { getItemIcon, normalizeWeaponNameKey } from './utils/item-icons.js';
+import { getEchoArtifactIcon, getItemIcon, getItemIconHintFromCreateData, getItemIconHintFromItem, normalizeWeaponNameKey, } from './utils/item-icons.js';
 import { actorHasPostCreationSnapshot, resetActorProgressToPostCreation } from './utils/xp-post-creation.js';
 import { getPowerDefinitionRank } from './utils/power-definition-rank.js';
 import { buildMasteryStatusEffects } from './system/status-effects.js';
@@ -174,6 +174,7 @@ Hooks.once('init', async function () {
     console.log('Mastery System | Registered Artifact Sheet');
     // Register system settings
     registerSystemSettings();
+    exposeMasterySystemApi();
     // Register Divine Clash settings
     registerDivineClashSettings();
     // Epic Mastery Roll settings
@@ -1228,6 +1229,17 @@ function applyThemeClass(theme) {
 /**
  * Register system settings
  */
+/** GM/macro helpers — registered on init so console macros work as soon as the world loads. */
+function exposeMasterySystemApi() {
+    game.masterySystem = Object.assign(game.masterySystem || {}, {
+        refreshEchoArtifacts: forceRefreshEchoArtifactLibrary,
+        openTowerWizard: showTowerWizardDialog,
+        openEncounterGenerator: showEncounterGeneratorDialog,
+        // Force-rebuild every template-backed Power's baked level table from the
+        // current catalog templates (use after editing/auditing power templates).
+        resyncPowers: () => runPowerTemplateResyncMigration({ force: true, notify: true }),
+    });
+}
 function registerSystemSettings() {
     // Example setting: auto-calculate derived values
     game.settings.register('mastery-system', 'autoCalculate', {
@@ -2169,7 +2181,7 @@ Hooks.on('preUpdateActor', (actor, updateData, _options, _userId) => {
 Hooks.on('preCreateItem', (item, data, _options, _userId) => {
     const isDefaultImg = !data.img || data.img === 'icons/svg/item-bag.svg' || data.img === 'icons/svg/mystery-man.svg';
     if (isDefaultImg) {
-        const icon = getItemIcon(data.name || '', item.type || data.type || '', data.system);
+        const icon = getItemIcon(data.name || '', item.type || data.type || '', getItemIconHintFromCreateData(data));
         if (icon) {
             item.updateSource({ img: icon });
         }
@@ -2654,9 +2666,25 @@ Hooks.once('ready', async function () {
         await item.update({ img: icon });
         return true;
     };
+    const fixEchoArtifactIcon = async (item) => {
+        if (item.type !== 'artifact')
+            return false;
+        const echoKey = String(item.getFlag?.('mastery-system', 'echoArtifactKey') || '').trim();
+        if (!echoKey)
+            return false;
+        const icon = getEchoArtifactIcon(echoKey);
+        if (!icon)
+            return false;
+        const cur = String(item.img || '').replace(/\\/g, '/');
+        const exp = icon.replace(/\\/g, '/');
+        if (cur === exp)
+            return false;
+        await item.update({ img: icon });
+        return true;
+    };
     for (const item of allWorldItems) {
         if (FOUNDRY_DEFAULT_ICONS.has(item.img)) {
-            const icon = getItemIcon(item.name, item.type, item.system);
+            const icon = getItemIcon(item.name, item.type, getItemIconHintFromItem(item));
             if (icon && icon !== item.img) {
                 await item.update({ img: icon });
                 migratedIcons++;
@@ -2668,11 +2696,13 @@ Hooks.once('ready', async function () {
             migratedIcons++;
         if (await fixRapierShortSwordSpearIcon(item))
             migratedIcons++;
+        if (await fixEchoArtifactIcon(item))
+            migratedIcons++;
     }
     for (const actor of game.actors || []) {
         for (const item of actor.items || []) {
             if (FOUNDRY_DEFAULT_ICONS.has(item.img)) {
-                const icon = getItemIcon(item.name, item.type, item.system);
+                const icon = getItemIcon(item.name, item.type, getItemIconHintFromItem(item));
                 if (icon && icon !== item.img) {
                     await item.update({ img: icon });
                     migratedIcons++;
@@ -2683,6 +2713,8 @@ Hooks.once('ready', async function () {
             if (await fixLegacyShieldIcon(item))
                 migratedIcons++;
             if (await fixRapierShortSwordSpearIcon(item))
+                migratedIcons++;
+            if (await fixEchoArtifactIcon(item))
                 migratedIcons++;
         }
     }
@@ -2758,15 +2790,7 @@ Hooks.once('ready', async function () {
             console.warn('Mastery System | Failed to seed Echo Artifact library on ready', error);
         }
     }
-    // Expose a small GM/macro API: game.masterySystem.refreshEchoArtifacts().
-    game.masterySystem = Object.assign(game.masterySystem || {}, {
-        refreshEchoArtifacts: forceRefreshEchoArtifactLibrary,
-        openTowerWizard: showTowerWizardDialog,
-        openEncounterGenerator: showEncounterGeneratorDialog,
-        // Force-rebuild every template-backed Power's baked level table from the
-        // current catalog templates (use after editing/auditing power templates).
-        resyncPowers: () => runPowerTemplateResyncMigration({ force: true, notify: true }),
-    });
+    exposeMasterySystemApi();
     // One-shot Trees → Templates power cutover (GM-only, guarded by world setting).
     try {
         await runTemplatesCutover();

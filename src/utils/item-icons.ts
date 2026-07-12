@@ -207,6 +207,34 @@ export function getEchoArtifactIcon(echoArtifactKey: string): string | null {
 
 export type ItemIconSystemHint = { type?: string; echoArtifactKey?: string };
 
+/** Build an icon lookup hint from a live or pending Item document. */
+export function getItemIconHintFromItem(item: {
+  system?: ItemIconSystemHint | null;
+  getFlag?: (scope: string, key: string) => unknown;
+}): ItemIconSystemHint {
+  const echoArtifactKey = String(
+    item.getFlag?.('mastery-system', 'echoArtifactKey') ?? item.system?.echoArtifactKey ?? '',
+  ).trim();
+  return {
+    type: item.system?.type,
+    ...(echoArtifactKey ? { echoArtifactKey } : {}),
+  };
+}
+
+/** Build an icon lookup hint from preCreateItem data (flags may not be on `system`). */
+export function getItemIconHintFromCreateData(data: {
+  system?: ItemIconSystemHint | null;
+  flags?: Record<string, Record<string, unknown>>;
+}): ItemIconSystemHint {
+  const echoArtifactKey = String(
+    data.flags?.['mastery-system']?.echoArtifactKey ?? data.system?.echoArtifactKey ?? '',
+  ).trim();
+  return {
+    type: data.system?.type,
+    ...(echoArtifactKey ? { echoArtifactKey } : {}),
+  };
+}
+
 /**
  * Resolve the best icon path for an item by name and type.
  * For armor and shields, pass `system` (with `type` tier) so renamed items still match the correct art.

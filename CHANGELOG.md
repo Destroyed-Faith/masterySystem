@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.174] - 2026-07-12
+
+### Fixed
+
+- **Echo artifact icons on install:** Icon migration now resolves `echoArtifactKey` from item flags (not only `system`), so seeded Echo Artifacts upgrade from the chest placeholder to custom PNGs on world load.
+- **`game.masterySystem` console API:** Registered on `init` so `refreshEchoArtifacts()` is available as soon as the world loads.
+- **Echo Artifacts compendium:** Shipped the compiled `packs/echo-artifacts` LevelDB pack with Foundry installs (was gitignored and missing on Setup download).
+
 ## [0.9.173] - 2026-07-12
 
 ### Added
