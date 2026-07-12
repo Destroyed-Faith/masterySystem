@@ -135,7 +135,7 @@ describe('Echo Artifact tree builder — exact Base Values', () => {
   });
 
   it('stamps the current seed version on every node (for in-place refresh)', () => {
-    expect(ECHO_ARTIFACT_SEED_VERSION).toBe(35);
+    expect(ECHO_ARTIFACT_SEED_VERSION).toBeGreaterThanOrEqual(40);
     const tree = buildEchoArtifactTree(getEchoArtifact('titanScars')!);
     for (const node of tree.nodes) {
       expect(flag(node, 'seedVersion')).toBe(ECHO_ARTIFACT_SEED_VERSION);

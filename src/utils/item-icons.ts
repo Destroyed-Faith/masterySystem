@@ -193,6 +193,10 @@ const ECHO_ARTIFACT_ICONS: Record<string, string> = {
 
 /** General (bound) Artifact key → custom icon under `assets/icons/items/general-artifacts/`. */
 const GENERAL_ARTIFACT_ICONS: Record<string, string> = {
+  moonlightGreatsword: `${GENERAL_ARTIFACT_ICON_BASE}/Sword of the Moon.png`,
+  soulSigil: `${GENERAL_ARTIFACT_ICON_BASE}/Soul Sigil.jpg`,
+  frostboundReturningAxe: `${GENERAL_ARTIFACT_ICON_BASE}/Frostbite.png`,
+  lorKethsStaff: `${GENERAL_ARTIFACT_ICON_BASE}/Sword of Destiny.png`,
   heartOfWinter: `${GENERAL_ARTIFACT_ICON_BASE}/HeartofIce.png`,
   heartseeker: `${GENERAL_ARTIFACT_ICON_BASE}/Heartseeker.png`,
   falconWideBrim: `${GENERAL_ARTIFACT_ICON_BASE}/Falcon Wide Brim.png`,

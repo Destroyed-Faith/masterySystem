@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.181] - 2026-07-12
+
+### Added
+
+- **General Artifact icons:** Frostbound Returning Axe (`Frostbite.png`), Moonlight Greatsword, Soul Sigil, and Lor Keth's Staff mapped in the icon registry.
+
+### Changed
+
+- **Artifact library seed (v40):** Clearer notifications when new General Artifact trees are created; refresh setting renamed to **Refresh Artifact Library** and documents missing artifacts (Heartseeker, Falcon Wide Brim).
+
 ## [0.9.180] - 2026-07-12
 
 ### Added

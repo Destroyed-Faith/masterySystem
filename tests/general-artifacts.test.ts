@@ -262,6 +262,13 @@ describe('Frostbound Returning Axe', () => {
     expect(baseValue(tree, 10, 'Thrown Return').value).toBe('15 m');
   });
 
+  it('uses the Frostbite icon from general-artifacts', () => {
+    expect(getEchoArtifactIcon('frostboundReturningAxe')).toBe(
+      'systems/mastery-system/assets/icons/items/general-artifacts/Frostbite.png',
+    );
+    expect(tree.nodes[0].itemData.img).toBe(getEchoArtifactIcon('frostboundReturningAxe'));
+  });
+
   it('supports the Ignore Armor Stone Power from L1', () => {
     expect(sysAt(tree, 1).stoneFunction).toEqual({
       kind: 'stonePowerSupport',

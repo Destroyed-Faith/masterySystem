@@ -1397,8 +1397,8 @@ function registerSystemSettings() {
   // (rebuilds every seeded tree from the current generator and pushes the
   // refresh to embedded actor copies), then resets itself to off.
   (game as any).settings.register('mastery-system', 'refreshEchoArtifacts', {
-    name: 'Refresh Echo Artifact Library',
-    hint: 'Enable and Save to rebuild all Echo Artifact trees in the world from the latest data (fixes empty/stale Base Values, Stone Functions, and abilities). Resets automatically.',
+    name: 'Refresh Artifact Library',
+    hint: 'Enable and Save to rebuild all Echo Artifact and General Artifact trees in the world from the latest data (icons, base values, abilities). Also creates any missing General Artifacts (e.g. Heartseeker, Falcon Wide Brim). Resets automatically.',
     scope: 'world',
     config: true,
     type: Boolean,

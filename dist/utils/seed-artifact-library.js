@@ -130,6 +130,7 @@ export async function seedArtifactLibrary(options = {}) {
     ];
     const toCreate = [];
     let upgraded = 0;
+    const newTreeNames = [];
     for (const library of libraries) {
         if (library.trees.length === 0)
             continue;
@@ -154,6 +155,7 @@ export async function seedArtifactLibrary(options = {}) {
             }
             const subFolder = await ensureItemFolder(tree.folderName, parentId ?? null);
             const subId = subFolder?.id ?? null;
+            newTreeNames.push(`${tree.folderName} (${library.folderName})`);
             for (const node of tree.nodes) {
                 const data = foundry.utils.duplicate(node.itemData);
                 data.folder = subId;
@@ -167,12 +169,15 @@ export async function seedArtifactLibrary(options = {}) {
         count = Array.isArray(created) ? created.length : 0;
     }
     if (count > 0) {
-        console.log(`Mastery System | Seeded ${count} Echo Artifact node items`);
-        ui.notifications?.info(`Seeded ${count} Echo Artifact items (${ECHO_ARTIFACT_LIBRARY_FOLDER_NAME}).`);
+        console.log(`Mastery System | Seeded ${count} artifact node items`, newTreeNames);
+        const folderHint = newTreeNames.length
+            ? ` — new trees: ${newTreeNames.join(', ')}`
+            : '';
+        ui.notifications?.info(`Seeded ${count} artifact items.${folderHint} Look under Items → Echo Artifacts / General Artifacts.`);
     }
     if (upgraded > 0) {
-        console.log(`Mastery System | Refreshed ${upgraded} Echo Artifact node items to v${ECHO_ARTIFACT_SEED_VERSION}`);
-        ui.notifications?.info(`Refreshed ${upgraded} Echo Artifact items to the latest data.`);
+        console.log(`Mastery System | Refreshed ${upgraded} artifact node items to v${ECHO_ARTIFACT_SEED_VERSION}`);
+        ui.notifications?.info(`Refreshed ${upgraded} artifact items to v${ECHO_ARTIFACT_SEED_VERSION} (icons, base values, abilities).`);
     }
     return count + upgraded;
 }
