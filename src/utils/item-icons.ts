@@ -195,6 +195,7 @@ const ECHO_ARTIFACT_ICONS: Record<string, string> = {
 const GENERAL_ARTIFACT_ICONS: Record<string, string> = {
   heartOfWinter: `${GENERAL_ARTIFACT_ICON_BASE}/HeartofIce.png`,
   heartseeker: `${GENERAL_ARTIFACT_ICON_BASE}/Heartseeker.png`,
+  falconWideBrim: `${GENERAL_ARTIFACT_ICON_BASE}/Falcon Wide Brim.png`,
 };
 
 /**

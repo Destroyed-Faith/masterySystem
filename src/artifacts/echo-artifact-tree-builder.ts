@@ -57,7 +57,7 @@ import { getEchoArtifactIcon } from '../utils/item-icons.js';
  * output (base values, powers, slot/profile, etc.) changes so the world seeder
  * can detect stale library copies and refresh them in place.
  */
-export const ECHO_ARTIFACT_SEED_VERSION = 38;
+export const ECHO_ARTIFACT_SEED_VERSION = 39;
 
 const ARTIFACT_LEVELS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] as const;
 const ALL_POWER_LEVEL_KEYS: PowerLevelKey[] = [
@@ -137,6 +137,14 @@ function heartOfWinterShieldArmorForLevel(level: number): number {
 /** Heartseeker artifact Precision bonus — 0 (L1–3), 2/3/4 from L4/L7/L10 (stacks on crossbow Precision(4)). */
 function heartseekerPrecisionBonusForLevel(level: number): number {
   return weaponSpecialRankForLevel([0, 2, 3, 4], level);
+}
+/** Falcon Wide Brim Evade — +1 (L1–2), +2 (L3–4), … +5 (L9–10). */
+function falconWideBrimEvadeForLevel(level: number): number {
+  return Math.ceil(clampLevel(level) / 2);
+}
+/** Predator Sense label unlocks at L4. */
+function falconPredatorSenseForLevel(level: number): string {
+  return clampLevel(level) >= 4 ? 'Predator Sense' : '';
 }
 /** Frostbound Returning Axe thrown range — 9 m (L4) … 15 m (L10). */
 function frostboundThrownRangeForLevel(level: number): number {
@@ -380,6 +388,24 @@ const BASE_VALUE_TABLES: Record<string, BaseValueSpec[]> = {
       unlock: 4,
       valueAt: (l) => heartseekerPrecisionBonusForLevel(l),
       note: 'Added to Heavy Crossbow Precision(4). True Heartseeker at L10.',
+    },
+  ],
+  falconWideBrim: [
+    {
+      slot: 'a',
+      type: 'evade',
+      label: 'Evade',
+      unlock: 1,
+      valueAt: (l) => falconWideBrimEvadeForLevel(l),
+      note: 'Wide brim conceals intent; final +5 Evade at L9–10.',
+    },
+    {
+      slot: 'b',
+      type: 'sense',
+      label: 'Combat Sense',
+      unlock: 4,
+      valueAt: (l) => falconPredatorSenseForLevel(l),
+      note: 'Predator Sense from L4.',
     },
   ],
   lanternOfTheHollowStar: [],

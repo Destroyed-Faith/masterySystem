@@ -822,6 +822,47 @@ const HEARTSEEKER = {
     ],
 };
 // ----------------------------------------------------------------------
+// Falcon Wide Brim (Head, Tailored Wide-Brimmed Hat)
+// ----------------------------------------------------------------------
+const FALCON_WIDE_BRIM = {
+    key: 'falconWideBrim',
+    name: 'Falcon Wide Brim',
+    echoKey: '',
+    slot: 'head',
+    baseProfile: 'headArmor',
+    description: 'A carefully tailored, wide-brimmed Artifact Hat made for hunters, marksmen, scouts, and combatants who control the rhythm of battle through awareness, positioning, and initiative. Its broad brim hides the wearer\u2019s eyes and movements.',
+    restriction: 'Falcon Wide Brim occupies the Head Slot. A character with Falcon Wide Brim cannot wear another Head Artifact, helmet, mask, crown, or magical headgear at the same time.',
+    stoneFunction: {
+        kind: 'stonePowerSupport',
+        attribute: 'wits',
+        stonePowerId: 'wits.initiativeBoost',
+        level: 1,
+        name: 'Falcon Initiative',
+    },
+    baseValues: [
+        { slot: 'a', label: 'Evade', note: '+1 to +5 Evade across levels.' },
+        { slot: 'b', label: 'Combat Sense', note: 'Predator Sense from L4.' },
+    ],
+    // Slot 1 — Falcon Initiative (Wits Initiative Boost stone support) from `stoneFunction`.
+    // Slot 2 — Falcon Step: catalog `reaction-reposition`.
+    // Slot 3 — Falcon Momentum: catalog `reaction-initiative-gain`.
+    progressionPickSpecs: {
+        2: { templateId: 'reaction-reposition', name: 'Falcon Step' },
+        3: { templateId: 'reaction-initiative-gain', name: 'Falcon Momentum' },
+    },
+    levelProgression: [
+        {
+            level: 10,
+            name: 'True Falcon Wide Brim',
+            type: 'Base Completion',
+            range: 'Self',
+            duration: 'Permanent',
+            effect: 'Falcon Wide Brim reaches its final Base Values. It grants **+5 Evade** and **Predator Sense**. It gains no additional Power.',
+            special: '—',
+        },
+    ],
+};
+// ----------------------------------------------------------------------
 // Registry
 // ----------------------------------------------------------------------
 export const GENERAL_ARTIFACTS = {
@@ -833,6 +874,7 @@ export const GENERAL_ARTIFACTS = {
     starfallenForceshield: STARFALLEN_FORCESHIELD,
     heartOfWinter: HEART_OF_WINTER,
     heartseeker: HEARTSEEKER,
+    falconWideBrim: FALCON_WIDE_BRIM,
     lanternOfTheHollowStar: LANTERN_OF_THE_HOLLOW_STAR,
     lorKethsStaff: LOR_KETHS_STAFF,
 };

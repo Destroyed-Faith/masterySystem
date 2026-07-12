@@ -181,6 +181,16 @@ describe('Power Catalog (Templates refactor)', () => {
         expect(template!.levels['1'].mechanics?.applyWhen).toBe('reaction-once-per-round');
     });
 
+    it('Reaction: Reposition unlocks at L4 with 2/4/8 m at PL 4/10/16', () => {
+        const template = findTemplateById('reaction-reposition');
+        expect(template).toBeDefined();
+        expect(template!.levels['3'].effect?.text).toBe('—');
+        expect(template!.levels['4'].effect?.text).toContain('2 m');
+        expect(template!.levels['10'].effect?.text).toContain('4 m');
+        expect(template!.levels['16'].effect?.text).toContain('8 m');
+        expect((template!.levels['4'].mechanics as any)?.movementBonus).toBe(2);
+    });
+
     it('Active Buff: Critical uses milestone bands with no effect at L1–3', () => {
         const template = findTemplateById('ab-critical');
         expect(template).toBeDefined();

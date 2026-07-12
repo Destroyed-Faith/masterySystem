@@ -169,6 +169,7 @@ const ECHO_ARTIFACT_ICONS = {
 const GENERAL_ARTIFACT_ICONS = {
     heartOfWinter: `${GENERAL_ARTIFACT_ICON_BASE}/HeartofIce.png`,
     heartseeker: `${GENERAL_ARTIFACT_ICON_BASE}/Heartseeker.png`,
+    falconWideBrim: `${GENERAL_ARTIFACT_ICON_BASE}/Falcon Wide Brim.png`,
 };
 /**
  * Custom icon for a seeded Echo or General Artifact tree (all levels share the same art).

@@ -37,7 +37,7 @@ function baseValue(tree: any, level: number, label: string) {
 }
 
 describe('General Artifact catalog', () => {
-  it('contains exactly the 10 Artifact Examples', () => {
+  it('contains exactly the 11 Artifact Examples', () => {
     expect(Object.keys(GENERAL_ARTIFACTS)).toEqual([
       'moonlightGreatsword',
       'soulSigil',
@@ -47,6 +47,7 @@ describe('General Artifact catalog', () => {
       'starfallenForceshield',
       'heartOfWinter',
       'heartseeker',
+      'falconWideBrim',
       'lanternOfTheHollowStar',
       'lorKethsStaff',
     ]);
@@ -58,7 +59,7 @@ describe('General Artifact catalog', () => {
       const full = resolvedProgression(def);
       expect(full).toHaveLength(10);
       expect(full.map((r: any) => r.level)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
-      expect(full[9].type).toBe('Ultimate');
+      expect(full[9].type === 'Ultimate' || full[9].type === 'Base Completion').toBe(true);
       expect(full[9].name.length).toBeGreaterThan(0);
     }
   });
@@ -67,7 +68,7 @@ describe('General Artifact catalog', () => {
 describe('General Artifact trees — structure and binding', () => {
   it('builds one 10-node tree per catalog entry', () => {
     const trees = buildAllGeneralArtifactTrees();
-    expect(trees.length).toBe(10);
+    expect(trees.length).toBe(11);
     for (const tree of trees) {
       expect(tree.nodes).toHaveLength(10);
       expect(tree.echoKey).toBe('');
@@ -453,6 +454,75 @@ describe('Heartseeker', () => {
       attribute: 'agility',
       stonePowerId: 'agility.crit',
     });
+  });
+});
+
+describe('Falcon Wide Brim', () => {
+  const tree = buildEchoArtifactTree(getGeneralArtifact('falconWideBrim')!);
+
+  it('is a head-slot hat with +1 → +5 Evade and Predator Sense from L4', () => {
+    const sys = sysAt(tree, 1);
+    expect(sys.slot).toBe('head');
+    expect(sys.gearSlot).toBe('head');
+    expect(sys.baseProfile).toBe('headArmor');
+    expect(sys.artifactKind).toBe('gear');
+    expect(sys.equipSlots).toEqual(['head']);
+    for (let lvl = 1; lvl <= 10; lvl++) {
+      expect(baseValue(tree, lvl, 'Evade').value).toBe(Math.ceil(lvl / 2));
+    }
+    expect(baseValue(tree, 3, 'Combat Sense')).toBeUndefined();
+    expect(baseValue(tree, 4, 'Combat Sense').value).toBe('Predator Sense');
+    expect(baseValue(tree, 10, 'Combat Sense').value).toBe('Predator Sense');
+  });
+
+  it('supports Wits Initiative Boost from L1 as Falcon Initiative', () => {
+    expect(sysAt(tree, 1).stoneFunction).toEqual({
+      kind: 'stonePowerSupport',
+      attribute: 'wits',
+      stonePowerId: 'wits.initiativeBoost',
+    });
+  });
+
+  it('uses the Falcon Wide Brim icon from general-artifacts', () => {
+    expect(getEchoArtifactIcon('falconWideBrim')).toBe(
+      'systems/mastery-system/assets/icons/items/general-artifacts/Falcon Wide Brim.png',
+    );
+    expect(tree.nodes[0].itemData.img).toBe(getEchoArtifactIcon('falconWideBrim'));
+  });
+
+  it('builds all three lines from catalog picks (Initiative Boost + Reposition + Initiative Gain)', () => {
+    const def = getGeneralArtifact('falconWideBrim')!;
+    const picks = buildEchoProgressionPicks(def) as any[];
+    expect(picks[0].kind).toBe('stoneFunction');
+    expect(picks[1]).toMatchObject({
+      kind: 'power',
+      powerTemplateId: 'reaction-reposition',
+    });
+    expect(picks[2]).toMatchObject({
+      kind: 'power',
+      powerTemplateId: 'reaction-initiative-gain',
+    });
+
+    const byLevel = new Map(resolvedProgression(def).map((r: any) => [r.level, r]));
+    for (const lvl of [1, 4, 7]) expect((byLevel.get(lvl) as any).name).toMatch(/Falcon Initiative/);
+    for (const lvl of [2, 5, 8]) {
+      const row = byLevel.get(lvl) as any;
+      expect(row.name).toMatch(/Falcon Step/);
+      expect(row.type).toBe('Reaction');
+      expect(row.effect).toMatch(/2 m|4 m|8 m/);
+    }
+    for (const lvl of [3, 6, 9]) {
+      const row = byLevel.get(lvl) as any;
+      expect(row.name).toMatch(/Falcon Momentum/);
+      expect(row.type).toBe('Reaction');
+      expect(row.effect).toMatch(/\+8 Initiative|\+20 Initiative|\+32 Initiative/);
+    }
+    expect((byLevel.get(10) as any).name).toBe('True Falcon Wide Brim');
+
+    const step = sysAt(tree, 5).powers.find((p: any) => /Falcon Step/.test(p.name));
+    expect(step.category).toBe('reaction');
+    const momentum = sysAt(tree, 6).powers.find((p: any) => /Falcon Momentum/.test(p.name));
+    expect(momentum.category).toBe('reaction');
   });
 });
 

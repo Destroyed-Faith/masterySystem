@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.179] - 2026-07-12
+
+### Added
+
+- **Falcon Wide Brim:** General Artifact (Head) — Evade + Predator Sense base values; Falcon Initiative (`wits.initiativeBoost` stone support), Falcon Step (`reaction-reposition`), Falcon Momentum (`reaction-initiative-gain`); custom icon.
+- **Reaction: Reposition:** Catalog template for post-trigger legal movement (2 / 4 / 8 m at PL 4 / 10 / 16).
+
 ## [0.9.178] - 2026-07-12
 
 ### Added

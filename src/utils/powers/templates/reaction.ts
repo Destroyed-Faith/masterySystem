@@ -1,10 +1,10 @@
 /**
- * Reaction Power Templates (14)
+ * Reaction Power Templates (15)
  *
  * Source: d:\DestroyedFaith\Powers\Reaction.md — Levels 1..16.
  * Single-axis defensive answers (Armor / Evade / Temp HP), two-axis combos,
  * Ally Protection variants, closed premium subsystems (DR, Phasing),
- * retaliatory Counter Damage / Special Increase, and Initiative Gain.
+ * retaliatory Counter Damage / Special Increase, Initiative Gain, and Reposition.
  */
 
 import type { PowerTemplate } from './_shared.js';
@@ -31,6 +31,8 @@ const COUNTER_DMG = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
 const COUNTER_DMG_PUSH_D = [1, 1, 2, 2, 3, 3, 4, 4, 5, 6, 7, 8, 9, 10, 11, 12];
 const COUNTER_DMG_PUSH_M = [0, 2, 2, 4, 4, 6, 6, 8, 8, 8, 8, 8, 8, 8, 8, 8];
 const INITIATIVE_GAIN = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32];
+/** Reposition distance (m) — L4=2, L10=4, L16=8 (10 PP / m milestone curve). */
+const REPOSITION_M = [0, 0, 0, 2, 2, 3, 3, 4, 4, 4, 5, 5, 6, 6, 7, 8];
 
 export const REACTION_TEMPLATES: PowerTemplate[] = [
     {
@@ -311,5 +313,27 @@ export const REACTION_TEMPLATES: PowerTemplate[] = [
                 mechanics: { initiativeGain: INITIATIVE_GAIN[lvl - 1] },
             }),
         ),
+    },
+    {
+        templateId: 'reaction-reposition',
+        templateName: 'Reposition',
+        name: 'Reaction: Reposition',
+        subfamily: 'reposition',
+        category: 'reaction',
+        tags: [],
+        fluff: 'You slip out of the line of danger the instant the threat passes, claiming a better angle before the fight settles again.',
+        trigger: 'When you are targeted by an attack or would take damage',
+        cost: { action: 'reaction' },
+        roll: { kind: 'none' },
+        levels: buildLevels((lvl) => {
+            const m = REPOSITION_M[lvl - 1];
+            const empty = m === 0;
+            return reactionRow({
+                effectText: empty
+                    ? '—'
+                    : `After the triggering event fully resolves, move up to **${m} m** using normal legal movement.`,
+                mechanics: empty ? {} : { movementBonus: m },
+            });
+        }),
     },
 ];
