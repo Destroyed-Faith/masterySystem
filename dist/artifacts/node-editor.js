@@ -4,7 +4,7 @@
  */
 import { ARTIFACT_GEAR_SLOT_OPTIONS, getArtifactSpecialSelectOptions, getArtifactTreeWeaponDamagePresets, getArtifactWeaponInnateOptions } from '../utils/artifact-node-options.js';
 import { isMartialDamageTemplateId, martialDeliveryCatalogOptions, martialDeliveryPickId, parseMartialDeliveryPickId, parseMartialDamageTemplateId, resolvePickFromUi, } from '../utils/artifact-power-pick.js';
-import { ARTIFACT_SLOT_KEYS, ARTIFACT_SLOT_LABELS, ATTRIBUTE_ACCESS_BY_SLOT, BASE_PROFILE_LABELS, BASE_PROFILES_BY_SLOT, BASE_VALUE_HARD_CAP, BASE_VALUE_LIMIT_BY_SLOT, BASE_VALUE_TYPE_LABELS, isAttributeAllowedForStoneFunctionInSlot, isBaseValueTypeAllowedForSlot, weaponBasicsForProfile, SLOT_POWER_ACCESS, } from '../utils/artifact-rules.js';
+import { ARTIFACT_SLOT_KEYS, ARTIFACT_SLOT_LABELS, BASE_PROFILE_LABELS, BASE_PROFILES_BY_SLOT, BASE_VALUE_HARD_CAP, BASE_VALUE_LIMIT_BY_SLOT, BASE_VALUE_TYPE_LABELS, isBaseValueTypeAllowedForSlot, weaponBasicsForProfile, SLOT_POWER_ACCESS, } from '../utils/artifact-rules.js';
 import { syncArtifactInheritedFromParent } from '../utils/artifact-folder-sync.js';
 import { pushWorldArtifactNodeToEmbeddedActors } from '../utils/artifact-embedded-sync.js';
 import { deriveLevelProgressionFromPicks } from './progression-compiler.js';
@@ -22,6 +22,25 @@ import { getArtifactBaseTypeGroups, resolveArtifactBaseType, } from '../utils/ar
 const BaseDialog = foundry?.appv1?.Application || Application;
 const TREE_DAMAGE_PRESETS = getArtifactTreeWeaponDamagePresets();
 const TREE_PRESET_VALUES = new Set(TREE_DAMAGE_PRESETS.map((p) => p.value));
+/** GM node editor: all attributes + full stone-power lists (not runtime slot-gated). */
+const GM_STONE_FN_ATTRIBUTE_KEYS = [
+    'might',
+    'agility',
+    'vitality',
+    'intellect',
+    'resolve',
+    'influence',
+    'wits',
+];
+const STONE_FN_ATTR_LABELS = {
+    might: 'Might',
+    agility: 'Agility',
+    vitality: 'Vitality',
+    intellect: 'Intellect',
+    resolve: 'Resolve',
+    influence: 'Influence',
+    wits: 'Wits',
+};
 /**
  * Catalog Power templates the GM can assign to a progression pick, grouped by
  * category. Martial Special Damage delivery forms live in the Active list
@@ -441,19 +460,21 @@ export class NodeEditor extends BaseDialog {
         data.specBaseValueTypeOptions = Object.entries(BASE_VALUE_TYPE_LABELS)
             .filter(([type]) => specSlot ? isBaseValueTypeAllowedForSlot(specSlot, type) : true)
             .map(([key, label]) => ({ key, label }));
-        const attrCatalog = {
-            might: 'Might',
-            agility: 'Agility',
-            vitality: 'Vitality',
-            intellect: 'Intellect',
-            resolve: 'Resolve',
-            influence: 'Influence',
-            wits: 'Wits',
-        };
-        const allowedAttrs = specSlot ? ATTRIBUTE_ACCESS_BY_SLOT[specSlot] || [] : Object.keys(attrCatalog);
-        data.specStoneFnAttrOptions = allowedAttrs.map((k) => ({
+        for (const bv of baseValues) {
+            const legacyType = String(bv.type || '').trim();
+            if (!legacyType ||
+                legacyType === 'none' ||
+                data.specBaseValueTypeOptions.some((o) => o.key === legacyType)) {
+                continue;
+            }
+            data.specBaseValueTypeOptions.push({
+                key: legacyType,
+                label: `${BASE_VALUE_TYPE_LABELS[legacyType] || legacyType} (legacy)`,
+            });
+        }
+        data.specStoneFnAttrOptions = GM_STONE_FN_ATTRIBUTE_KEYS.map((k) => ({
             key: k,
-            label: attrCatalog[k] || k,
+            label: STONE_FN_ATTR_LABELS[k] || k,
         }));
         const slotAccess = specSlot ? SLOT_POWER_ACCESS[specSlot] : null;
         data.specSlotAccessHint = slotAccess
@@ -667,15 +688,6 @@ export class NodeEditor extends BaseDialog {
         const $specBvContainer = html.find('#node-spec-base-values');
         const $specBvLimitHint = html.find('#node-spec-bv-limit-hint');
         const $specSlotHint = html.find('#node-spec-slot-power-hint');
-        const ATTR_LABELS = {
-            might: 'Might',
-            agility: 'Agility',
-            vitality: 'Vitality',
-            intellect: 'Intellect',
-            resolve: 'Resolve',
-            influence: 'Influence',
-            wits: 'Wits',
-        };
         // --- Base Values: auto-derived value + Special picker (no free-text math) ---
         const typeDerivedMap = (this._typeDerivedMap || {});
         const specialValueMap = (this._specialValueMap || {});
@@ -716,6 +728,12 @@ export class NodeEditor extends BaseDialog {
             const limit = slot ? BASE_VALUE_LIMIT_BY_SLOT[slot] : BASE_VALUE_HARD_CAP;
             const count = Math.max(1, limit);
             const allowedTypes = Object.keys(BASE_VALUE_TYPE_LABELS).filter((t) => (slot ? isBaseValueTypeAllowedForSlot(slot, t) : true));
+            $specBvContainer.find('.node-spec-bv-row').each((_i, el) => {
+                const cur = String($(el).find('.node-spec-bv-type').val() || '').trim();
+                if (cur && cur !== 'none' && !allowedTypes.includes(cur)) {
+                    allowedTypes.push(cur);
+                }
+            });
             // Add or remove whole rows so we have exactly `count`.
             while ($specBvContainer.find('.node-spec-bv-row').length < count) {
                 const $clone = $specBvContainer.find('.node-spec-bv-row').first().clone();
@@ -740,7 +758,11 @@ export class NodeEditor extends BaseDialog {
                 $type.append('<option value="none">— None —</option>');
                 for (const t of allowedTypes) {
                     const sel = t === prev ? ' selected' : '';
-                    $type.append(`<option value="${t}"${sel}>${BASE_VALUE_TYPE_LABELS[t]}</option>`);
+                    const legacy = slot && !isBaseValueTypeAllowedForSlot(slot, t);
+                    const label = legacy
+                        ? `${BASE_VALUE_TYPE_LABELS[t] || t} (legacy)`
+                        : BASE_VALUE_TYPE_LABELS[t] || t;
+                    $type.append(`<option value="${t}"${sel}>${label}</option>`);
                 }
                 if (prev !== 'none' && !allowedTypes.includes(prev)) {
                     $type.val('none');
@@ -803,18 +825,15 @@ export class NodeEditor extends BaseDialog {
             }
             // Base Value rows: fixed slots (A/B/C up to the slot limit), fixed letters.
             rebuildBaseValueRows(slot);
-            // Stone Function attribute options (per Level Progression pick, slot-gated)
-            const allowedAttrs = slot
-                ? ATTRIBUTE_ACCESS_BY_SLOT[slot] || []
-                : Object.keys(ATTR_LABELS);
+            // Stone Function attribute options (GM editor: all attributes)
             html.find('.node-pick-stone-attr').each((_i, el) => {
                 const $sel = $(el);
                 const curAttr = String($sel.val() || '');
                 $sel.empty();
-                $sel.append('<option value="">— Attribute (slot-gated) —</option>');
-                for (const a of allowedAttrs) {
+                $sel.append('<option value="">— Attribute —</option>');
+                for (const a of GM_STONE_FN_ATTRIBUTE_KEYS) {
                     const sel = a === curAttr ? ' selected' : '';
-                    $sel.append(`<option value="${a}"${sel}>${ATTR_LABELS[a] || a}</option>`);
+                    $sel.append(`<option value="${a}"${sel}>${STONE_FN_ATTR_LABELS[a] || a}</option>`);
                 }
             });
             // Limit hint
@@ -1416,8 +1435,7 @@ export class NodeEditor extends BaseDialog {
                 const sfPower = String($row.find('.node-pick-stone-power').val() || '').trim();
                 if (sfKind &&
                     sfAttr &&
-                    stoneFnKinds.includes(sfKind) &&
-                    (!specSlot || isAttributeAllowedForStoneFunctionInSlot(specSlot, sfAttr))) {
+                    stoneFnKinds.includes(sfKind)) {
                     const sf = {
                         kind: sfKind,
                         attribute: sfAttr,

@@ -1255,7 +1255,7 @@ function registerSystemSettings() {
     // refresh to embedded actor copies), then resets itself to off.
     game.settings.register('mastery-system', 'refreshEchoArtifacts', {
         name: 'Refresh Artifact Library',
-        hint: 'Enable and Save to rebuild all Echo Artifact and General Artifact trees in the world from the latest data (icons, base values, abilities). Also creates any missing General Artifacts (e.g. Heartseeker, Falcon Wide Brim). Resets automatically.',
+        hint: 'Enable and Save to rebuild all Echo Artifact and General Artifact trees in the world from the latest data (icons, base values, abilities). Also repairs incomplete trees (e.g. 1/10 nodes) and creates any missing General Artifacts. Resets automatically.',
         scope: 'world',
         config: true,
         type: Boolean,

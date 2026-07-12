@@ -246,7 +246,7 @@ export const BASE_VALUE_TYPE_LABELS = {
     thrownRange: 'Thrown Range',
     weaponSpecial: 'Weapon Special',
     bodyArmor: 'Body Armor',
-    headArmor: 'Head / Feet Minor Armor',
+    headArmor: 'Armor',
     shieldValue: 'Shield Value',
     evade: 'Evade',
     movement: 'Movement',
@@ -519,10 +519,9 @@ export function isBaseValueTypeAllowedForSlot(slot, type) {
         case 'body':
             return ['bodyArmor', 'evade'].includes(type);
         case 'head':
-            return ['headArmor', 'sense', 'minorFeature'].includes(type);
+            return ['headArmor', 'evade', 'sense'].includes(type);
         case 'feet':
-            return ['evade', 'movement', 'headArmor' /* minor armor */, 'sense', 'minorFeature']
-                .includes(type);
+            return ['evade', 'movement', 'headArmor', 'sense'].includes(type);
         case 'amulet':
         case 'ring':
             return ['minorFeature'].includes(type);

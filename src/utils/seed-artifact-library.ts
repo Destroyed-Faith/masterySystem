@@ -157,6 +157,7 @@ export async function seedArtifactLibrary(options: { force?: boolean } = {}): Pr
   const toCreate: any[] = [];
   let upgraded = 0;
   const newTreeNames: string[] = [];
+  const repairedTrees: string[] = [];
 
   for (const library of libraries) {
     if (library.trees.length === 0) continue;
@@ -164,20 +165,24 @@ export async function seedArtifactLibrary(options: { force?: boolean } = {}): Pr
 
     for (const tree of library.trees) {
       const existing = findAllEchoArtifactWorldItems(tree.echoArtifactKey);
+      const expected = tree.nodes.length;
 
       if (existing.length > 0) {
-        // Already seeded — refresh in place when forced or when the content
-        // version changed, so per-actor progress (`actorLevels`) and evolution
-        // links are kept.
+        const isIncomplete = existing.length < expected;
         const isStale =
           force ||
+          isIncomplete ||
           existing.some(
             (it) =>
               Number(it.getFlag?.('mastery-system', 'seedVersion') || 0) !==
               ECHO_ARTIFACT_SEED_VERSION,
           );
         if (isStale) {
+          const before = existing.length;
           upgraded += await upgradeEchoArtifactTreeInPlace(tree, existing);
+          if (isIncomplete) {
+            repairedTrees.push(`${tree.folderName} (${before}/${expected} → ${expected})`);
+          }
         }
         continue;
       }
@@ -215,11 +220,43 @@ export async function seedArtifactLibrary(options: { force?: boolean } = {}): Pr
   }
   if (upgraded > 0) {
     console.log(`Mastery System | Refreshed ${upgraded} artifact node items to v${ECHO_ARTIFACT_SEED_VERSION}`);
+    const repairHint =
+      repairedTrees.length > 0 ? ` Repaired incomplete trees: ${repairedTrees.join(', ')}.` : '';
     ui.notifications?.info(
-      `Refreshed ${upgraded} artifact items to v${ECHO_ARTIFACT_SEED_VERSION} (icons, base values, abilities).`,
+      `Refreshed ${upgraded} artifact items to v${ECHO_ARTIFACT_SEED_VERSION} (icons, base values, abilities).${repairHint}`,
     );
   }
   return count + upgraded;
+}
+
+/**
+ * Repair a single catalog tree in the world (missing nodes + refresh stale data).
+ */
+export async function repairArtifactTreeByKey(echoArtifactKey: string): Promise<number> {
+  if (!game.user?.isGM) return 0;
+  const key = String(echoArtifactKey || '').trim();
+  if (!key) return 0;
+
+  const allTrees = [...buildAllEchoArtifactTrees(), ...buildAllGeneralArtifactTrees()];
+  const tree = allTrees.find((t) => t.echoArtifactKey === key);
+  if (!tree) {
+    ui.notifications?.warn(`Unknown artifact key: ${key}`);
+    return 0;
+  }
+
+  const existing = findAllEchoArtifactWorldItems(key);
+  if (existing.length === 0) {
+    return seedArtifactLibrary();
+  }
+
+  const n = await upgradeEchoArtifactTreeInPlace(tree, existing);
+  if (n > 0) {
+    const expected = tree.nodes.length;
+    ui.notifications?.info(
+      `Repaired ${tree.folderName}: ${existing.length}/${expected} → ${expected} nodes (v${ECHO_ARTIFACT_SEED_VERSION}).`,
+    );
+  }
+  return n;
 }
 
 /**

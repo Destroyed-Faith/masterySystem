@@ -191,8 +191,13 @@ export function deriveBaseValueDisplay(
       // generic level scaling in the spec. Default to Medium; override allowed.
       return { display: '+4 Armor', derivable: true };
     case 'evade': {
-      const feet = profile === 'feet';
-      const val = feet ? feetEvadeForLevel(level) : noArmorEvadeForLevel(level);
+      if (profile === 'feet') {
+        return { display: `+${feetEvadeForLevel(level)} Evade`, derivable: true };
+      }
+      if (profile === 'headArmor') {
+        return { display: `+${minorArmorForLevel(level)} Evade`, derivable: true };
+      }
+      const val = noArmorEvadeForLevel(level);
       return { display: `+${val} Evade`, derivable: true };
     }
     case 'movement':

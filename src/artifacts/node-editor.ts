@@ -38,13 +38,11 @@ import {
 import {
   ARTIFACT_SLOT_KEYS,
   ARTIFACT_SLOT_LABELS,
-  ATTRIBUTE_ACCESS_BY_SLOT,
   BASE_PROFILE_LABELS,
   BASE_PROFILES_BY_SLOT,
   BASE_VALUE_HARD_CAP,
   BASE_VALUE_LIMIT_BY_SLOT,
   BASE_VALUE_TYPE_LABELS,
-  isAttributeAllowedForStoneFunctionInSlot,
   isBaseValueTypeAllowedForSlot,
   weaponBasicsForProfile,
   SLOT_POWER_ACCESS,
@@ -97,6 +95,27 @@ const BaseDialog: any = (foundry as any)?.appv1?.Application || (Application as 
 
 const TREE_DAMAGE_PRESETS = getArtifactTreeWeaponDamagePresets();
 const TREE_PRESET_VALUES = new Set(TREE_DAMAGE_PRESETS.map((p) => p.value));
+
+/** GM node editor: all attributes + full stone-power lists (not runtime slot-gated). */
+const GM_STONE_FN_ATTRIBUTE_KEYS = [
+  'might',
+  'agility',
+  'vitality',
+  'intellect',
+  'resolve',
+  'influence',
+  'wits',
+] as const;
+
+const STONE_FN_ATTR_LABELS: Record<string, string> = {
+  might: 'Might',
+  agility: 'Agility',
+  vitality: 'Vitality',
+  intellect: 'Intellect',
+  resolve: 'Resolve',
+  influence: 'Influence',
+  wits: 'Wits',
+};
 
 /**
  * Catalog Power templates the GM can assign to a progression pick, grouped by
@@ -582,20 +601,24 @@ export class NodeEditor extends BaseDialog {
         specSlot ? isBaseValueTypeAllowedForSlot(specSlot, type as SpecBaseValueType) : true,
       )
       .map(([key, label]) => ({ key, label }));
+    for (const bv of baseValues) {
+      const legacyType = String(bv.type || '').trim();
+      if (
+        !legacyType ||
+        legacyType === 'none' ||
+        data.specBaseValueTypeOptions.some((o: { key: string }) => o.key === legacyType)
+      ) {
+        continue;
+      }
+      data.specBaseValueTypeOptions.push({
+        key: legacyType,
+        label: `${BASE_VALUE_TYPE_LABELS[legacyType as ArtifactBaseValueType] || legacyType} (legacy)`,
+      });
+    }
 
-    const attrCatalog: Record<string, string> = {
-      might: 'Might',
-      agility: 'Agility',
-      vitality: 'Vitality',
-      intellect: 'Intellect',
-      resolve: 'Resolve',
-      influence: 'Influence',
-      wits: 'Wits',
-    };
-    const allowedAttrs = specSlot ? ATTRIBUTE_ACCESS_BY_SLOT[specSlot] || [] : Object.keys(attrCatalog);
-    data.specStoneFnAttrOptions = allowedAttrs.map((k) => ({
+    data.specStoneFnAttrOptions = GM_STONE_FN_ATTRIBUTE_KEYS.map((k) => ({
       key: k,
-      label: attrCatalog[k] || k,
+      label: STONE_FN_ATTR_LABELS[k] || k,
     }));
 
     const slotAccess = specSlot ? SLOT_POWER_ACCESS[specSlot] : null;
@@ -834,16 +857,6 @@ export class NodeEditor extends BaseDialog {
     const $specBvLimitHint = html.find('#node-spec-bv-limit-hint');
     const $specSlotHint = html.find('#node-spec-slot-power-hint');
 
-    const ATTR_LABELS: Record<string, string> = {
-      might: 'Might',
-      agility: 'Agility',
-      vitality: 'Vitality',
-      intellect: 'Intellect',
-      resolve: 'Resolve',
-      influence: 'Influence',
-      wits: 'Wits',
-    };
-
     // --- Base Values: auto-derived value + Special picker (no free-text math) ---
     const typeDerivedMap = ((this as any)._typeDerivedMap || {}) as Record<string, string>;
     const specialValueMap = ((this as any)._specialValueMap || {}) as Record<string, string>;
@@ -886,6 +899,12 @@ export class NodeEditor extends BaseDialog {
       const allowedTypes = (Object.keys(BASE_VALUE_TYPE_LABELS) as SpecBaseValueType[]).filter(
         (t) => (slot ? isBaseValueTypeAllowedForSlot(slot, t) : true),
       );
+      $specBvContainer.find('.node-spec-bv-row').each((_i, el) => {
+        const cur = String($(el).find('.node-spec-bv-type').val() || '').trim();
+        if (cur && cur !== 'none' && !allowedTypes.includes(cur as SpecBaseValueType)) {
+          allowedTypes.push(cur as SpecBaseValueType);
+        }
+      });
 
       // Add or remove whole rows so we have exactly `count`.
       while ($specBvContainer.find('.node-spec-bv-row').length < count) {
@@ -913,7 +932,12 @@ export class NodeEditor extends BaseDialog {
         $type.append('<option value="none">— None —</option>');
         for (const t of allowedTypes) {
           const sel = t === prev ? ' selected' : '';
-          $type.append(`<option value="${t}"${sel}>${BASE_VALUE_TYPE_LABELS[t]}</option>`);
+          const legacy =
+            slot && !isBaseValueTypeAllowedForSlot(slot, t as SpecBaseValueType);
+          const label = legacy
+            ? `${BASE_VALUE_TYPE_LABELS[t as SpecBaseValueType] || t} (legacy)`
+            : BASE_VALUE_TYPE_LABELS[t as SpecBaseValueType] || t;
+          $type.append(`<option value="${t}"${sel}>${label}</option>`);
         }
         if (prev !== 'none' && !allowedTypes.includes(prev as SpecBaseValueType)) {
           $type.val('none');
@@ -981,18 +1005,15 @@ export class NodeEditor extends BaseDialog {
       // Base Value rows: fixed slots (A/B/C up to the slot limit), fixed letters.
       rebuildBaseValueRows(slot);
 
-      // Stone Function attribute options (per Level Progression pick, slot-gated)
-      const allowedAttrs = slot
-        ? ATTRIBUTE_ACCESS_BY_SLOT[slot] || []
-        : (Object.keys(ATTR_LABELS) as (keyof typeof ATTR_LABELS)[]);
+      // Stone Function attribute options (GM editor: all attributes)
       html.find('.node-pick-stone-attr').each((_i, el) => {
         const $sel = $(el);
         const curAttr = String($sel.val() || '');
         $sel.empty();
-        $sel.append('<option value="">— Attribute (slot-gated) —</option>');
-        for (const a of allowedAttrs) {
+        $sel.append('<option value="">— Attribute —</option>');
+        for (const a of GM_STONE_FN_ATTRIBUTE_KEYS) {
           const sel = a === curAttr ? ' selected' : '';
-          $sel.append(`<option value="${a}"${sel}>${ATTR_LABELS[a as string] || a}</option>`);
+          $sel.append(`<option value="${a}"${sel}>${STONE_FN_ATTR_LABELS[a] || a}</option>`);
         }
       });
 
@@ -1661,8 +1682,7 @@ export class NodeEditor extends BaseDialog {
         if (
           sfKind &&
           sfAttr &&
-          (stoneFnKinds as string[]).includes(sfKind) &&
-          (!specSlot || isAttributeAllowedForStoneFunctionInSlot(specSlot, sfAttr as any))
+          (stoneFnKinds as string[]).includes(sfKind)
         ) {
           const sf: ArtifactStoneFunction = {
             kind: sfKind as ArtifactStoneFunctionKind,

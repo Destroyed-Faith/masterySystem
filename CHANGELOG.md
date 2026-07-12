@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.182] - 2026-07-12
+
+### Fixed
+
+- **Incomplete artifact trees:** World seed now detects and repairs trees with fewer than 10 nodes (e.g. Heart of Winter, Heartseeker, Falcon Wide Brim stuck at 1/10). Seed version **41**.
+- **Falcon Wide Brim Evade:** Head slot allows `evade` base values; `headArmor` label is **Armor** (+1…+5). `minorFeature` removed from head/feet slot options.
+- **Stone Power editor:** Node Editor offers all 7 attributes and full stone-power lists (not limited to Might/Agility per slot).
+
+### Added
+
+- **Artifact Builder:** Incomplete-tree warning + **Repair tree from catalog** button for seeded artifacts.
+- **Tests:** Incomplete-tree seed repair, head evade rules, stone-power attribute coverage.
+
 ## [0.9.181] - 2026-07-12
 
 ### Added

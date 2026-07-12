@@ -415,3 +415,16 @@ describe('Influence powers are GM-manual (flag-driven)', () => {
     },
   );
 });
+
+describe('STONE_POWERS_BY_ATTRIBUTE — GM editor coverage', () => {
+  const ATTRS = ['might', 'agility', 'vitality', 'intellect', 'resolve', 'influence', 'wits'] as const;
+
+  it('every attribute has stone powers (including wits/vitality for any slot)', () => {
+    for (const attr of ATTRS) {
+      expect(STONE_POWERS_BY_ATTRIBUTE[attr]?.length).toBeGreaterThan(0);
+    }
+    expect(STONE_POWERS_BY_ATTRIBUTE.wits.some((p) => p.id === 'wits.initiativeBoost')).toBe(true);
+    expect(STONE_POWERS_BY_ATTRIBUTE.vitality.some((p) => p.id === 'vitality.tempHp')).toBe(true);
+    expect(STONE_POWERS_BY_ATTRIBUTE.might.some((p) => p.id === 'might.ignoreArmor')).toBe(true);
+  });
+});

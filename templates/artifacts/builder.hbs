@@ -18,6 +18,19 @@
 
   <div class="artifact-tree">
     <h3>Artifact Evolution Tree</h3>
+    {{#if treeIncomplete}}
+    <div class="artifact-tree-repair-notice">
+      <p class="artifact-tree-incomplete-hint">
+        <i class="fas fa-exclamation-triangle"></i>
+        Incomplete tree: only <strong>{{nodeCount}}/{{expectedNodeCount}}</strong> nodes in this folder.
+        Use <strong>Repair tree from catalog</strong> to add missing levels, or enable
+        <strong>Settings → Refresh Artifact Library</strong> and save to repair all artifacts.
+      </p>
+      <button type="button" class="repair-artifact-tree" title="Add missing nodes from the catalog and refresh base values">
+        <i class="fas fa-wrench"></i> Repair tree from catalog
+      </button>
+    </div>
+    {{/if}}
     <p class="artifact-tree-hint">Klicke einen Knoten zum Bearbeiten — <strong>Speichern</strong> unten im Fenster. Plus = Kindknoten; Minus = diesen Ast löschen. Pfeil zeigt den Elternknoten. / Click a node to edit — use <strong>Save</strong> at the bottom of the dialog. Plus adds a child; minus removes that branch. The arrow shows the parent node.</p>
     <div class="tree-container">
       {{{treeHTML}}}

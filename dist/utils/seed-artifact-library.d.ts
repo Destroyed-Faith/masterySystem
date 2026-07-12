@@ -31,6 +31,10 @@ export declare function seedArtifactLibrary(options?: {
     force?: boolean;
 }): Promise<number>;
 /**
+ * Repair a single catalog tree in the world (missing nodes + refresh stale data).
+ */
+export declare function repairArtifactTreeByKey(echoArtifactKey: string): Promise<number>;
+/**
  * GM-triggered hard refresh of the whole Echo Artifact library. Re-runs the
  * seeder in upgrade mode (force = true) so every existing tree is rebuilt in
  * place from the current generator output and pushed to embedded actor copies —

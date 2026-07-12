@@ -15,6 +15,11 @@ import {
   readActorArtifactProgress,
   serializeActorArtifactProgress
 } from '../utils/artifact-actor-rules.js';
+import {
+  buildAllEchoArtifactTrees,
+  buildAllGeneralArtifactTrees,
+} from '../artifacts/echo-artifact-tree-builder.js';
+import { repairArtifactTreeByKey } from '../utils/seed-artifact-library.js';
 
 interface ArtifactNodeData {
   nodeId: string;
@@ -123,6 +128,17 @@ export class ArtifactBuilder extends BaseApplication {
 
     const artifactName = this.getBaseArtifactName((this.rootItem as any).name);
 
+    const echoArtifactKey = String(
+      (this.rootItem as any).getFlag?.('mastery-system', 'echoArtifactKey') || '',
+    ).trim();
+    const catalogTrees = [...buildAllEchoArtifactTrees(), ...buildAllGeneralArtifactTrees()];
+    const catalogTree = echoArtifactKey
+      ? catalogTrees.find((t) => t.echoArtifactKey === echoArtifactKey)
+      : undefined;
+    const expectedNodeCount = catalogTree?.nodes.length ?? 10;
+    const nodeCount = artifactItems.length;
+    const treeIncomplete = Boolean(echoArtifactKey && nodeCount < expectedNodeCount);
+
     data.rootItem = this.rootItem;
     data.nodes = Array.from(this.nodes.values());
     data.artifactItems = itemMap;
@@ -131,6 +147,10 @@ export class ArtifactBuilder extends BaseApplication {
     data.artifactName = artifactName;
     data.artifactImage = (this.rootItem as any).img || 'icons/svg/mystery-man.svg';
     data.treeHTML = this.buildTreeHtml();
+    data.echoArtifactKey = echoArtifactKey;
+    data.nodeCount = nodeCount;
+    data.expectedNodeCount = expectedNodeCount;
+    data.treeIncomplete = treeIncomplete;
     
     return data;
   }
@@ -160,6 +180,18 @@ export class ArtifactBuilder extends BaseApplication {
 
     html.find('.resync-artifact-actors').on('click', async () => {
       await this.resyncToAllActors();
+    });
+
+    html.find('.repair-artifact-tree').on('click', async () => {
+      const key = String(
+        (this.rootItem as any).getFlag?.('mastery-system', 'echoArtifactKey') || '',
+      ).trim();
+      if (!key) {
+        ui.notifications?.warn('This tree has no catalog key — repair is only for seeded Echo/General artifacts.');
+        return;
+      }
+      await repairArtifactTreeByKey(key);
+      this.render(false);
     });
 
     // Open node editor on node click

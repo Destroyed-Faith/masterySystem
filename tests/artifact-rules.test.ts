@@ -27,6 +27,7 @@ import {
     isAttributeAllowedForStoneFunctionInSlot,
     isBaseProfileAllowedForSlot,
     isBaseValueTypeAllowedForSlot,
+    BASE_VALUE_TYPE_LABELS,
     formatArtifactWeaponRangeDisplay,
     resolveArtifactWeaponKind,
     type ArtifactSlot,
@@ -85,6 +86,25 @@ describe('Artifact rules — attribute & profile access by slot', () => {
         expect(isBaseValueTypeAllowedForSlot('body', 'thrownRange')).toBe(false);
         // Main hand allows weapon damage
         expect(isBaseValueTypeAllowedForSlot('mainHand', 'weaponDamage')).toBe(true);
+    });
+
+    it('head slot allows evade, armor, and sense — not minorFeature', () => {
+        expect(isBaseValueTypeAllowedForSlot('head', 'evade')).toBe(true);
+        expect(isBaseValueTypeAllowedForSlot('head', 'headArmor')).toBe(true);
+        expect(isBaseValueTypeAllowedForSlot('head', 'sense')).toBe(true);
+        expect(isBaseValueTypeAllowedForSlot('head', 'minorFeature')).toBe(false);
+    });
+
+    it('headArmor base value label is Armor', () => {
+        expect(BASE_VALUE_TYPE_LABELS.headArmor).toBe('Armor');
+    });
+});
+
+describe('Artifact rules — head evade derive', () => {
+    it('headArmor profile evade uses +1…+5 scale (Falcon Wide Brim)', async () => {
+        const { deriveBaseValueDisplay } = await import('../src/utils/artifact-base-derive.js');
+        expect(deriveBaseValueDisplay('evade', 1, 'headArmor').display).toBe('+1 Evade');
+        expect(deriveBaseValueDisplay('evade', 10, 'headArmor').display).toBe('+5 Evade');
     });
 });
 

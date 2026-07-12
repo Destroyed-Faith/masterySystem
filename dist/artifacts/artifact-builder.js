@@ -8,6 +8,8 @@ import { syncArtifactInheritedFromParent } from '../utils/artifact-folder-sync.j
 import { pushWorldArtifactNodeToEmbeddedActors, resyncArtifactTreeToAllActors, } from '../utils/artifact-embedded-sync.js';
 import { inferArtifactEquipSlots } from '../utils/equip-slots.js';
 import { readActorArtifactProgress, serializeActorArtifactProgress } from '../utils/artifact-actor-rules.js';
+import { buildAllEchoArtifactTrees, buildAllGeneralArtifactTrees, } from '../artifacts/echo-artifact-tree-builder.js';
+import { repairArtifactTreeByKey } from '../utils/seed-artifact-library.js';
 // Use V1 Application for reliable template rendering in v13
 const BaseApplication = foundry?.appv1?.Application || Application;
 export class ArtifactBuilder extends BaseApplication {
@@ -89,6 +91,14 @@ export class ArtifactBuilder extends BaseApplication {
         const assignedIds = new Set(Object.keys(actorLevels));
         const availableActors = (game.actors?.contents || []).filter((a) => a.type === 'character' && !assignedIds.has(a.id));
         const artifactName = this.getBaseArtifactName(this.rootItem.name);
+        const echoArtifactKey = String(this.rootItem.getFlag?.('mastery-system', 'echoArtifactKey') || '').trim();
+        const catalogTrees = [...buildAllEchoArtifactTrees(), ...buildAllGeneralArtifactTrees()];
+        const catalogTree = echoArtifactKey
+            ? catalogTrees.find((t) => t.echoArtifactKey === echoArtifactKey)
+            : undefined;
+        const expectedNodeCount = catalogTree?.nodes.length ?? 10;
+        const nodeCount = artifactItems.length;
+        const treeIncomplete = Boolean(echoArtifactKey && nodeCount < expectedNodeCount);
         data.rootItem = this.rootItem;
         data.nodes = Array.from(this.nodes.values());
         data.artifactItems = itemMap;
@@ -97,6 +107,10 @@ export class ArtifactBuilder extends BaseApplication {
         data.artifactName = artifactName;
         data.artifactImage = this.rootItem.img || 'icons/svg/mystery-man.svg';
         data.treeHTML = this.buildTreeHtml();
+        data.echoArtifactKey = echoArtifactKey;
+        data.nodeCount = nodeCount;
+        data.expectedNodeCount = expectedNodeCount;
+        data.treeIncomplete = treeIncomplete;
         return data;
     }
     activateListeners(html) {
@@ -121,6 +135,15 @@ export class ArtifactBuilder extends BaseApplication {
         });
         html.find('.resync-artifact-actors').on('click', async () => {
             await this.resyncToAllActors();
+        });
+        html.find('.repair-artifact-tree').on('click', async () => {
+            const key = String(this.rootItem.getFlag?.('mastery-system', 'echoArtifactKey') || '').trim();
+            if (!key) {
+                ui.notifications?.warn('This tree has no catalog key — repair is only for seeded Echo/General artifacts.');
+                return;
+            }
+            await repairArtifactTreeByKey(key);
+            this.render(false);
         });
         // Open node editor on node click
         html.on('click', '.node-content', async (e) => {
