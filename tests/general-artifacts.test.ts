@@ -110,7 +110,7 @@ describe('General Artifact trees — structure and binding', () => {
   });
 
   it('uses the authored rulebook rows 1:1 for artifacts without progressionPickSpecs', () => {
-    const def = getGeneralArtifact('frostboundReturningAxe')!;
+    const def = getGeneralArtifact('lorKethsStaff')!;
     // No pick specs → authored table is the source of truth (no recompilation).
     expect(def.progressionPickSpecs).toBeUndefined();
     expect(def.levelProgression).toHaveLength(10);
@@ -264,6 +264,41 @@ describe('Frostbound Returning Axe', () => {
       attribute: 'might',
       stonePowerId: 'might.ignoreArmor',
     });
+  });
+
+  it('builds all three lines from catalog picks (Stormpower stone + Ranged Slow + Rainshield)', () => {
+    const def = getGeneralArtifact('frostboundReturningAxe')!;
+    const picks = buildEchoProgressionPicks(def) as any[];
+    expect(picks[0].kind).toBe('stoneFunction');
+    expect(picks[1]).toMatchObject({
+      kind: 'power',
+      powerTemplateId: 'active-ranged-damage-t4',
+      delivery: 'ranged-single',
+      chosenSpecial: { key: 'slow', tier: 4 },
+    });
+    expect(picks[2]).toMatchObject({
+      kind: 'power',
+      powerTemplateId: 'reaction-special-increase',
+    });
+
+    const byLevel = new Map(resolvedProgression(def).map((r: any) => [r.level, r]));
+    for (const lvl of [1, 4, 7]) expect((byLevel.get(lvl) as any).name).toMatch(/Stormpower/);
+    for (const lvl of [2, 5, 8]) {
+      const row = byLevel.get(lvl) as any;
+      expect(row.name).toMatch(/Frost Throw/);
+      expect(row.type).toBe('Ranged');
+      expect(row.special).toMatch(/slow/i);
+    }
+    for (const lvl of [3, 6, 9]) {
+      const row = byLevel.get(lvl) as any;
+      expect(row.name).toMatch(/Rainshield/);
+      expect(row.type).toBe('Reaction');
+    }
+
+    const frostThrow = sysAt(tree, 5).powers.find((p: any) => /Frost Throw/.test(p.name));
+    expect(frostThrow.category).toBe('active');
+    const rainshield = sysAt(tree, 6).powers.find((p: any) => /Rainshield/.test(p.name));
+    expect(rainshield.category).toBe('reaction');
   });
 });
 

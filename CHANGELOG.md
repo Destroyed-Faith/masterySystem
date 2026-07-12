@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.175] - 2026-07-12
+
+### Changed
+
+- **Frostbound Returning Axe:** Level Progression mapped to catalog picks — Stormpower (`might.ignoreArmor` stone support), Frost Throw (Ranged Single + Slow), Rainshield (`reaction-special-increase`); seed version 36.
+
 ## [0.9.174] - 2026-07-12
 
 ### Fixed

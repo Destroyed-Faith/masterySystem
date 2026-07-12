@@ -135,98 +135,20 @@ const FROSTBOUND_RETURNING_AXE: GeneralArtifactDefinition = {
     attribute: 'might',
     stonePowerId: 'might.ignoreArmor',
     level: 1,
+    name: 'Stormpower',
   },
   baseValues: [
     { slot: 'a', label: 'Weapon Damage', note: '3d8 to 12d8 across levels (2d8 one-handed base + 1d8/level).' },
     { slot: 'b', label: 'Thrown Return', note: 'Thrown 9\u201315 m, Returning, from L4. True Frostbound Return at L10.' },
   ],
+  // Slot 1 — Stormpower (Ignore Armor stone support) from `stoneFunction`.
+  // Slot 2 — Frost Throw: catalog Ranged Single Damage (Tier 4) with Slow.
+  // Slot 3 — Rainshield: catalog `reaction-special-increase`.
+  progressionPickSpecs: {
+    2: { delivery: 'ranged-single', special: 'slow', name: 'Frost Throw' },
+    3: { templateId: 'reaction-special-increase', name: 'Rainshield' },
+  },
   levelProgression: [
-    {
-      level: 1,
-      name: 'Stormpower I',
-      type: 'Stone Power Support',
-      range: 'Self',
-      duration: 'Instant',
-      effect:
-        'This Artifact supports the Ignore Armor Stone Power and pre-fills Tier 2. You must still pay Tier 1 yourself. If Tier 1 is not paid, the pre-filled Tier 2 has no effect.',
-      special: 'Ignore Armor',
-    },
-    {
-      level: 2,
-      name: 'Frost Throw I',
-      type: 'Active',
-      range: 'Thrown Range',
-      duration: 'Instant',
-      effect:
-        'Throw the Axe at one target using the normal thrown weapon Active rules. The Axe returns after the attack resolves.',
-      special: 'Slow',
-    },
-    {
-      level: 3,
-      name: 'Rainshield I',
-      type: 'Reaction',
-      range: 'Self',
-      duration: 'Triggering attack only',
-      effect:
-        'When a creature hits you with an attack within the legal Reaction range, use Reaction: Counter Damage + Push at Power Level 4.',
-      special: 'Counter Damage + Push',
-    },
-    {
-      level: 4,
-      name: 'Stormpower II',
-      type: 'Stone Power Support',
-      range: 'Self',
-      duration: 'Instant',
-      effect:
-        'This Artifact now pre-fills Tier 3 of the Ignore Armor Stone Power. You must still pay Tier 1 and Tier 2 yourself. If Tier 1 and Tier 2 are not paid, the pre-filled Tier 3 has no effect.',
-      special: 'Ignore Armor',
-    },
-    {
-      level: 5,
-      name: 'Frost Throw II',
-      type: 'Active',
-      range: 'Thrown Range',
-      duration: 'Instant',
-      effect: 'Frost Throw improves to Power Level 10. The Axe returns after the attack resolves.',
-      special: 'Slow',
-    },
-    {
-      level: 6,
-      name: 'Rainshield II',
-      type: 'Reaction',
-      range: 'Self',
-      duration: 'Triggering attack only',
-      effect: 'Use Reaction: Counter Damage + Push at Power Level 10.',
-      special: 'Counter Damage + Push',
-    },
-    {
-      level: 7,
-      name: 'Stormpower III',
-      type: 'Stone Power Support',
-      range: 'Self',
-      duration: 'Instant',
-      effect:
-        'This Artifact now pre-fills Tier 4 of the Ignore Armor Stone Power. You must still pay Tier 1, Tier 2, and Tier 3 yourself. If the lower tiers are not paid, the pre-filled Tier 4 has no effect.',
-      special: 'Ignore Armor',
-    },
-    {
-      level: 8,
-      name: 'Frost Throw III',
-      type: 'Active',
-      range: 'Thrown Range',
-      duration: 'Instant',
-      effect: 'Frost Throw improves to Power Level 16. The Axe returns after the attack resolves.',
-      special: 'Slow',
-    },
-    {
-      level: 9,
-      name: 'Rainshield III',
-      type: 'Reaction',
-      range: 'Self',
-      duration: 'Triggering attack only',
-      effect: 'Use Reaction: Counter Damage + Push at Power Level 16.',
-      special: 'Counter Damage + Push',
-    },
     {
       level: 10,
       name: 'True Frostbound Return',
