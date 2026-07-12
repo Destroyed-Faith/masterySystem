@@ -10,6 +10,7 @@ import {
   resolveFullLevelProgression,
 } from '../src/utils/artifact-visible-abilities.js';
 import { buildEchoProgressionPicks } from '../src/utils/echo-artifacts.js';
+import { getEchoArtifactIcon } from '../src/utils/item-icons.js';
 
 /**
  * The Level Progression the tree builder actually emits for a general artifact:
@@ -36,7 +37,7 @@ function baseValue(tree: any, level: number, label: string) {
 }
 
 describe('General Artifact catalog', () => {
-  it('contains exactly the 8 Artifact Examples', () => {
+  it('contains exactly the 10 Artifact Examples', () => {
     expect(Object.keys(GENERAL_ARTIFACTS)).toEqual([
       'moonlightGreatsword',
       'soulSigil',
@@ -44,6 +45,8 @@ describe('General Artifact catalog', () => {
       'shadowgraveArmor',
       'staffOfTheDark',
       'starfallenForceshield',
+      'heartOfWinter',
+      'heartseeker',
       'lanternOfTheHollowStar',
       'lorKethsStaff',
     ]);
@@ -64,7 +67,7 @@ describe('General Artifact catalog', () => {
 describe('General Artifact trees — structure and binding', () => {
   it('builds one 10-node tree per catalog entry', () => {
     const trees = buildAllGeneralArtifactTrees();
-    expect(trees.length).toBe(8);
+    expect(trees.length).toBe(10);
     for (const tree of trees) {
       expect(tree.nodes).toHaveLength(10);
       expect(tree.echoKey).toBe('');
@@ -299,6 +302,157 @@ describe('Frostbound Returning Axe', () => {
     expect(frostThrow.category).toBe('active');
     const rainshield = sysAt(tree, 6).powers.find((p: any) => /Rainshield/.test(p.name));
     expect(rainshield.category).toBe('reaction');
+  });
+});
+
+describe('Heart of Winter', () => {
+  const tree = buildEchoArtifactTree(getGeneralArtifact('heartOfWinter')!);
+
+  it('is a medium shield usable in main hand or off hand with +5 → +14 Shield Armor', () => {
+    const sys = sysAt(tree, 1);
+    expect(sys.baseProfile).toBe('shield');
+    expect(sys.artifactKind).toBe('shield');
+    expect(sys.slot).toBe('offHand');
+    expect(sys.equipSlots).toEqual(['mainhand', 'offhand']);
+    expect(sys.artifactShield).toMatchObject({
+      type: 'medium',
+      evadeBonus: 0,
+      skillPenalty: '-2d8 Physical Skill Checks',
+    });
+    for (let lvl = 1; lvl <= 10; lvl++) {
+      expect(baseValue(tree, lvl, 'Shield Armor').value).toBe(lvl + 4);
+      expect(sysAt(tree, lvl).artifactShield.shieldValue).toBe(lvl + 4);
+    }
+  });
+
+  it('supports the Temporary HP Stone Power from L1 as Frozen Reserve', () => {
+    expect(sysAt(tree, 1).stoneFunction).toEqual({
+      kind: 'stonePowerSupport',
+      attribute: 'vitality',
+      stonePowerId: 'vitality.tempHp',
+    });
+  });
+
+  it('uses the Heart of Winter icon from general-artifacts', () => {
+    expect(getEchoArtifactIcon('heartOfWinter')).toBe(
+      'systems/mastery-system/assets/icons/items/general-artifacts/HeartofIce.png',
+    );
+    expect(tree.nodes[0].itemData.img).toBe(getEchoArtifactIcon('heartOfWinter'));
+  });
+
+  it('builds all three lines from catalog picks (Frozen Reserve + Ally Armor reaction + Melee AoE Slow)', () => {
+    const def = getGeneralArtifact('heartOfWinter')!;
+    const picks = buildEchoProgressionPicks(def) as any[];
+    expect(picks[0].kind).toBe('stoneFunction');
+    expect(picks[1]).toMatchObject({
+      kind: 'power',
+      powerTemplateId: 'reaction-ally-armor',
+    });
+    expect(picks[2]).toMatchObject({
+      kind: 'power',
+      powerTemplateId: 'active-melee-aoe-damage-t4',
+      delivery: 'melee-aoe',
+      chosenSpecial: { key: 'slow', tier: 4 },
+    });
+
+    const byLevel = new Map(resolvedProgression(def).map((r: any) => [r.level, r]));
+    for (const lvl of [1, 4, 7]) expect((byLevel.get(lvl) as any).name).toMatch(/Frozen Reserve/);
+    for (const lvl of [2, 5, 8]) {
+      const row = byLevel.get(lvl) as any;
+      expect(row.name).toMatch(/Glacial Intercept/);
+      expect(row.type).toBe('Reaction');
+      expect(row.effect).toMatch(/\+(7|19|31) Armor/);
+    }
+    for (const lvl of [3, 6, 9]) {
+      const row = byLevel.get(lvl) as any;
+      expect(row.name).toMatch(/Frostwave/);
+      expect(row.type).toMatch(/Melee AoE/);
+      expect(row.special).toMatch(/slow/i);
+    }
+    expect((byLevel.get(10) as any).name).toBe('Heart of Winter');
+
+    const intercept = sysAt(tree, 5).powers.find((p: any) => /Glacial Intercept/.test(p.name));
+    expect(intercept.category).toBe('reaction');
+    const frostwave = sysAt(tree, 6).powers.find((p: any) => /Frostwave/.test(p.name));
+    expect(frostwave.category).toBe('active');
+  });
+});
+
+describe('Heartseeker', () => {
+  const tree = buildEchoArtifactTree(getGeneralArtifact('heartseeker')!);
+
+  it('is a two-handed ranged weapon (Heavy Crossbow) occupying both hands', () => {
+    const sys = sysAt(tree, 1);
+    expect(sys.slot).toBe('bothHands');
+    expect(sys.baseProfile).toBe('twoHandedWeaponRanged');
+    expect(sys.artifactKind).toBe('weapon');
+    expect(sys.equipSlots).toEqual(['mainhand', 'offhand']);
+    expect(sys.artifactWeapon).toMatchObject({
+      weaponType: 'ranged',
+      hands: 2,
+      innateAbilities: ['Ranged (8/16/32m)', 'Load'],
+    });
+    expect(sys.artifactWeapon.specials).toEqual([
+      { specialId: 'penetration', value: 4 },
+      { specialId: 'precision', value: 4 },
+    ]);
+  });
+
+  it('damage scales 5d8 → 14d8 and Precision bonus unlocks at L4', () => {
+    const expected = ['5d8', '6d8', '7d8', '8d8', '9d8', '10d8', '11d8', '12d8', '13d8', '14d8'];
+    for (let lvl = 1; lvl <= 10; lvl++) {
+      expect(baseValue(tree, lvl, 'Weapon Damage').value).toBe(expected[lvl - 1]);
+      expect(sysAt(tree, lvl).artifactWeapon.damage).toBe(expected[lvl - 1]);
+    }
+    expect(baseValue(tree, 3, 'Precision')).toBeUndefined();
+    expect(baseValue(tree, 4, 'Precision').value).toBe(2);
+    expect(baseValue(tree, 7, 'Precision').value).toBe(3);
+    expect(baseValue(tree, 10, 'Precision').value).toBe(4);
+    expect(sysAt(tree, 7).artifactWeapon.specials).toEqual([
+      { specialId: 'penetration', value: 4 },
+      { specialId: 'precision', value: 7 },
+    ]);
+  });
+
+  it('uses the Heartseeker icon from general-artifacts', () => {
+    expect(getEchoArtifactIcon('heartseeker')).toBe(
+      'systems/mastery-system/assets/icons/items/general-artifacts/Heartseeker.png',
+    );
+    expect(tree.nodes[0].itemData.img).toBe(getEchoArtifactIcon('heartseeker'));
+  });
+
+  it('builds all three lines from catalog picks (Split Attack + Critical stone + Damage/Penetration buff)', () => {
+    const def = getGeneralArtifact('heartseeker')!;
+    const picks = buildEchoProgressionPicks(def) as any[];
+    expect(picks[0]).toMatchObject({
+      kind: 'power',
+      powerTemplateId: 'active-ranged-weapon-split',
+    });
+    expect(picks[1].kind).toBe('stoneFunction');
+    expect(picks[2]).toMatchObject({
+      kind: 'power',
+      powerTemplateId: 'ab-damage-penetration',
+    });
+
+    const byLevel = new Map(resolvedProgression(def).map((r: any) => [r.level, r]));
+    for (const lvl of [1, 4, 7]) {
+      const row = byLevel.get(lvl) as any;
+      expect(row.name).toMatch(/Divided Execution/);
+      expect(row.type).toBe('Ranged');
+    }
+    for (const lvl of [2, 5, 8]) expect((byLevel.get(lvl) as any).name).toMatch(/Killing Focus/);
+    for (const lvl of [3, 6, 9]) {
+      const row = byLevel.get(lvl) as any;
+      expect(row.name).toMatch(/Armorbreaker/);
+      expect(row.type).toBe('Active Buff');
+    }
+    expect((byLevel.get(10) as any).name).toBe('True Heartseeker');
+
+    expect(sysAt(tree, 2).stoneFunction).toEqual({
+      kind: 'stonePowerSupport',
+      attribute: 'agility',
+      stonePowerId: 'agility.crit',
+    });
   });
 });
 

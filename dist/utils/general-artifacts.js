@@ -732,6 +732,96 @@ const LOR_KETHS_STAFF = {
     ],
 };
 // ----------------------------------------------------------------------
+// Heart of Winter (Medium Shield, Main Hand or Off Hand)
+// ----------------------------------------------------------------------
+const HEART_OF_WINTER = {
+    key: 'heartOfWinter',
+    name: 'Heart of Winter',
+    echoKey: '',
+    slot: 'offHand',
+    baseProfile: 'shield',
+    paperdollSlots: ['mainhand', 'offhand'],
+    description: 'A bound Shield Artifact formed from supernatural ice, frozen crystal, or condensed protective force. In battle, the shield awakens and surrounds its bearer and nearby allies with layers of freezing protection.',
+    restriction: 'The Frostshield occupies one hand Slot. A character with the Frostshield cannot use another weapon, shield, hand focus, claw Artifact, or hand-based magical item in the same hand. Shield Armor stacks with other Armor as normal.',
+    stoneFunction: {
+        kind: 'stonePowerSupport',
+        attribute: 'vitality',
+        stonePowerId: 'vitality.tempHp',
+        level: 1,
+        name: 'Frozen Reserve',
+    },
+    baseValues: [
+        {
+            slot: 'a',
+            label: 'Shield Armor',
+            note: '+5 to +14 Armor across levels (includes Medium Shield +4). Drawback: -2d8 Physical Skills.',
+        },
+    ],
+    // Slot 1 — Frozen Reserve (Temporary HP stone support) from `stoneFunction`.
+    // Slot 2 — Glacial Intercept: catalog `reaction-ally-armor`.
+    // Slot 3 — Frostwave: catalog Melee AoE Special Damage with Slow.
+    progressionPickSpecs: {
+        2: { templateId: 'reaction-ally-armor', name: 'Glacial Intercept' },
+        3: { delivery: 'melee-aoe', special: 'slow', name: 'Frostwave' },
+    },
+    levelProgression: [
+        {
+            level: 10,
+            name: 'Heart of Winter',
+            type: 'Ultimate',
+            range: 'Self',
+            duration: 'Permanent',
+            effect: 'The Frostshield fully awakens. Its Shield Armor increases to **+14 Armor**. Once per Combat, when you use **Glacial Intercept**, the protected ally also gains **Temporary HP equal to your Mastery Rank × 10** after the triggering damage is resolved.',
+            special: 'Heart of Winter',
+        },
+    ],
+};
+// ----------------------------------------------------------------------
+// Heartseeker (Heavy Crossbow, Main Hand + Off Hand)
+// ----------------------------------------------------------------------
+const HEARTSEEKER = {
+    key: 'heartseeker',
+    name: 'Heartseeker',
+    echoKey: '',
+    slot: 'bothHands',
+    baseProfile: 'twoHandedWeaponRanged',
+    description: 'A massive two-handed Artifact Crossbow built for calculated volleys, armor-breaking shots, and decisive kills. Its mechanism draws with supernatural force, aligning every bolt along invisible lines of weakness.',
+    restriction: 'Heartseeker occupies both the Main Hand and Off Hand Slots. A character wielding Heartseeker cannot use another weapon, shield, hand focus, claw Artifact, or hand-based magical item at the same time. Penetration and Precision on Base Value B apply only to attacks made with Heartseeker.',
+    stoneFunction: {
+        kind: 'stonePowerSupport',
+        attribute: 'agility',
+        stonePowerId: 'agility.crit',
+        level: 2,
+        name: 'Killing Focus',
+    },
+    baseValues: [
+        { slot: 'a', label: 'Weapon Damage', note: '5d8 to 14d8 (Heavy Crossbow 4d8 base + 1d8/level).' },
+        {
+            slot: 'b',
+            label: 'Precision',
+            note: 'Precision(2) from L4, Precision(3) from L7, Precision(4) + True Heartseeker at L10 — added to crossbow Precision(4).',
+        },
+    ],
+    // Slot 1 — Divided Execution: catalog Ranged Split Attack.
+    // Slot 2 — Killing Focus: Agility Critical stone support (`stoneFunction`).
+    // Slot 3 — Armorbreaker: catalog Active Buff Damage + Penetration.
+    progressionPickSpecs: {
+        1: { templateId: 'active-ranged-weapon-split', name: 'Divided Execution' },
+        3: { templateId: 'ab-damage-penetration', name: 'Armorbreaker' },
+    },
+    levelProgression: [
+        {
+            level: 10,
+            name: 'True Heartseeker',
+            type: 'Ultimate',
+            range: 'Self',
+            duration: 'Special',
+            effect: 'Heartseeker fully awakens. Its additional Precision increases to **Precision(4)**. Choose or define one final Split Attack, Critical, Precision, Damage, Penetration, or execution-themed effect with GM approval.',
+            special: 'True Heartseeker',
+        },
+    ],
+};
+// ----------------------------------------------------------------------
 // Registry
 // ----------------------------------------------------------------------
 export const GENERAL_ARTIFACTS = {
@@ -741,6 +831,8 @@ export const GENERAL_ARTIFACTS = {
     shadowgraveArmor: SHADOWGRAVE_ARMOR,
     staffOfTheDark: STAFF_OF_THE_DARK,
     starfallenForceshield: STARFALLEN_FORCESHIELD,
+    heartOfWinter: HEART_OF_WINTER,
+    heartseeker: HEARTSEEKER,
     lanternOfTheHollowStar: LANTERN_OF_THE_HOLLOW_STAR,
     lorKethsStaff: LOR_KETHS_STAFF,
 };

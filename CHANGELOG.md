@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.177] - 2026-07-12
+
+### Added
+
+- **Heart of Winter:** General Artifact (Medium Shield) — Frozen Reserve (`vitality.tempHp`), Glacial Intercept (`reaction-ally-armor`), Frostwave (Melee AoE + Slow); custom icon.
+- **Heartseeker:** General Artifact (Heavy Crossbow) — Divided Execution (`active-ranged-weapon-split`), Killing Focus (`agility.crit`), Armorbreaker (`ab-damage-penetration`); Heavy Crossbow weapon profile with stacked Precision; custom icon.
+- **General Artifact icons:** Ship `assets/icons/items/general-artifacts/` with Foundry installs.
+
 ## [0.9.176] - 2026-07-12
 
 ### Added

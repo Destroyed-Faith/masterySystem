@@ -57,7 +57,7 @@ import { getEchoArtifactIcon } from '../utils/item-icons.js';
  * output (base values, powers, slot/profile, etc.) changes so the world seeder
  * can detect stale library copies and refresh them in place.
  */
-export const ECHO_ARTIFACT_SEED_VERSION = 36;
+export const ECHO_ARTIFACT_SEED_VERSION = 38;
 
 const ARTIFACT_LEVELS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] as const;
 const ALL_POWER_LEVEL_KEYS: PowerLevelKey[] = [
@@ -129,6 +129,14 @@ function shadowgraveEvadeForLevel(level: number): number {
 const STARFALLEN_SHIELD_TABLE = [4, 4, 4, 5, 5, 5, 6, 6, 6, 8];
 function starfallenShieldValueForLevel(level: number): number {
   return STARFALLEN_SHIELD_TABLE[clampLevel(level) - 1];
+}
+/** Heart of Winter Shield Armor — +5 (L1) … +14 (L10); includes Medium Shield +4. */
+function heartOfWinterShieldArmorForLevel(level: number): number {
+  return clampLevel(level) + 4;
+}
+/** Heartseeker artifact Precision bonus — 0 (L1–3), 2/3/4 from L4/L7/L10 (stacks on crossbow Precision(4)). */
+function heartseekerPrecisionBonusForLevel(level: number): number {
+  return weaponSpecialRankForLevel([0, 2, 3, 4], level);
 }
 /** Frostbound Returning Axe thrown range — 9 m (L4) … 15 m (L10). */
 function frostboundThrownRangeForLevel(level: number): number {
@@ -344,6 +352,34 @@ const BASE_VALUE_TABLES: Record<string, BaseValueSpec[]> = {
       unlock: 1,
       valueAt: (l) => starfallenShieldValueForLevel(l),
       note: 'Drawback: -2d8 Physical Skill Checks. Stacks with Armor Value as normal Armor resolution.',
+    },
+  ],
+  heartOfWinter: [
+    {
+      slot: 'a',
+      type: 'shieldValue',
+      label: 'Shield Armor',
+      unlock: 1,
+      valueAt: (l) => heartOfWinterShieldArmorForLevel(l),
+      note: 'Includes Medium Shield +4. Drawback: -2d8 Physical Skill Checks.',
+    },
+  ],
+  heartseeker: [
+    {
+      slot: 'a',
+      type: 'weaponDamage',
+      label: 'Weapon Damage',
+      unlock: 1,
+      valueAt: (l) => weaponDamageForLevel(l, 'twoHandedWeaponRanged'),
+      note: 'Includes Heavy Crossbow 4d8 base + 1d8/level.',
+    },
+    {
+      slot: 'b',
+      type: 'weaponSpecial',
+      label: 'Precision',
+      unlock: 4,
+      valueAt: (l) => heartseekerPrecisionBonusForLevel(l),
+      note: 'Added to Heavy Crossbow Precision(4). True Heartseeker at L10.',
     },
   ],
   lanternOfTheHollowStar: [],
@@ -566,14 +602,31 @@ function weaponProfileAtLevel(def: EchoArtifactDefinition, level: number): Recor
     def.baseProfile === 'oneHandedWeaponRanged' || def.baseProfile === 'twoHandedWeaponRanged';
   const hands =
     def.baseProfile === 'twoHandedWeapon' || def.baseProfile === 'twoHandedWeaponRanged' ? 2 : 1;
-  return {
+  const base: Record<string, unknown> = {
     weaponType: isRanged ? 'ranged' : 'melee',
     damage,
     range: '0m',
     hands,
-    innateAbilities: [],
-    specials: [],
+    innateAbilities: [] as string[],
+    specials: [] as Array<{ specialId: string; value?: number }>,
   };
+  if (def.key === 'heartseeker') {
+    const precBv = table.find((b) => b.type === 'weaponSpecial' && b.label === 'Precision');
+    const artifactPrec =
+      precBv && level >= precBv.unlock ? Number(precBv.valueAt(level)) || 0 : 0;
+    return {
+      ...base,
+      weaponType: 'ranged',
+      range: '32m',
+      hands: 2,
+      innateAbilities: ['Ranged (8/16/32m)', 'Load'],
+      specials: [
+        { specialId: 'penetration', value: 4 },
+        { specialId: 'precision', value: 4 + artifactPrec },
+      ],
+    };
+  }
+  return base;
 }
 
 /**

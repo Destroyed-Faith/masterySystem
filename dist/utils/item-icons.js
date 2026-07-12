@@ -151,6 +151,7 @@ const DEFAULT_TYPE_ICONS = {
     echo: 'icons/svg/sound.svg',
 };
 const ECHO_ARTIFACT_ICON_BASE = `${ICON_BASE}/echo-artifacts`;
+const GENERAL_ARTIFACT_ICON_BASE = `${ICON_BASE}/general-artifacts`;
 /** Echo Artifact key → custom icon under `assets/icons/items/echo-artifacts/`. */
 const ECHO_ARTIFACT_ICONS = {
     stoneboundSoles: `${ECHO_ARTIFACT_ICON_BASE}/Stonebound Soles.png`,
@@ -164,8 +165,13 @@ const ECHO_ARTIFACT_ICONS = {
     judicatorFrame: `${ECHO_ARTIFACT_ICON_BASE}/Judicator Frame.png`,
     oracleFrame: `${ECHO_ARTIFACT_ICON_BASE}/Oracle Frame.png`,
 };
+/** General (bound) Artifact key → custom icon under `assets/icons/items/general-artifacts/`. */
+const GENERAL_ARTIFACT_ICONS = {
+    heartOfWinter: `${GENERAL_ARTIFACT_ICON_BASE}/HeartofIce.png`,
+    heartseeker: `${GENERAL_ARTIFACT_ICON_BASE}/Heartseeker.png`,
+};
 /**
- * Custom icon for a seeded Echo Artifact tree (all levels share the same art).
+ * Custom icon for a seeded Echo or General Artifact tree (all levels share the same art).
  * Returns null when no dedicated PNG exists for the key.
  */
 export function getEchoArtifactIcon(echoArtifactKey) {
@@ -174,6 +180,8 @@ export function getEchoArtifactIcon(echoArtifactKey) {
         return null;
     if (ECHO_ARTIFACT_ICONS[key])
         return ECHO_ARTIFACT_ICONS[key];
+    if (GENERAL_ARTIFACT_ICONS[key])
+        return GENERAL_ARTIFACT_ICONS[key];
     // All Titan Scars attribute variants share one icon.
     if (key.startsWith('titanScars')) {
         return `${ECHO_ARTIFACT_ICON_BASE}/Titan Scars.png`;
