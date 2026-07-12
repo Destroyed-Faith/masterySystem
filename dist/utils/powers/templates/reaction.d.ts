@@ -1,10 +1,10 @@
 /**
- * Reaction Power Templates (13)
+ * Reaction Power Templates (14)
  *
  * Source: d:\DestroyedFaith\Powers\Reaction.md — Levels 1..16.
  * Single-axis defensive answers (Armor / Evade / Temp HP), two-axis combos,
- * Ally Protection variants, closed premium subsystems (DR, Phasing), and
- * retaliatory Counter Damage / Special Increase.
+ * Ally Protection variants, closed premium subsystems (DR, Phasing),
+ * retaliatory Counter Damage / Special Increase, and Initiative Gain.
  */
 import type { PowerTemplate } from './_shared.js';
 export declare const REACTION_TEMPLATES: PowerTemplate[];

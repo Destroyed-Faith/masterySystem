@@ -505,6 +505,7 @@ export class MasteryActor extends Actor {
     system.derived.buffMechanicsBreakdown = buffMechBreakdown;
 
     const iniD8MechBonus = mechBreakdown.totals.initiativeD8;
+    const iniFlatMechBonus = mechBreakdown.totals.initiative;
     system.combat.armorFromMechanics = 0;
     system.combat.evadeFromMechanics = 0;
     system.combat.armorFromActiveBuffs = buffMechBreakdown.totals.armor;
@@ -512,6 +513,7 @@ export class MasteryActor extends Actor {
     system.combat.spellResistanceTotal = mechBreakdown.totals.spellResistance;
     system.combat.spellResistanceFromActiveBuffs = buffMechBreakdown.totals.spellResistance;
     system.combat.initiativeD8FromMechanics = iniD8MechBonus;
+    system.combat.initiativeFromMechanics = iniFlatMechBonus;
 
     // Damage Reduction % (passive + buff in aggregateMechanics; reaction rows
     // are per-hit only). Sheet rows mirror aggregated contributions.
@@ -547,6 +549,26 @@ export class MasteryActor extends Actor {
       }
       system.combat.initiativeEquipmentTotal =
         (system.combat.initiativeEquipmentTotal || 0) + iniD8MechBonus;
+      system.combat.initiativeEquipmentTotalDisplay =
+        system.combat.initiativeEquipmentTotal === 0
+          ? '0'
+          : system.combat.initiativeEquipmentTotal > 0
+            ? `+${system.combat.initiativeEquipmentTotal}`
+            : String(system.combat.initiativeEquipmentTotal);
+    }
+
+    if (iniFlatMechBonus !== 0) {
+      const fmt = (n: number): string => (n > 0 ? `+${n}` : String(n));
+      for (const entry of mechBreakdown.initiative) {
+        (system.combat.initiativeEquipmentRows as any[]).push({
+          label: entry.source,
+          detail: 'Power Mechanics (Initiative)',
+          value: entry.value,
+          display: fmt(entry.value),
+        });
+      }
+      system.combat.initiativeEquipmentTotal =
+        (system.combat.initiativeEquipmentTotal || 0) + iniFlatMechBonus;
       system.combat.initiativeEquipmentTotalDisplay =
         system.combat.initiativeEquipmentTotal === 0
           ? '0'

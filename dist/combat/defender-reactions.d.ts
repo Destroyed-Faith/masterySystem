@@ -11,6 +11,8 @@ export interface DefenderReactionMitigation {
     reactionArmorFlat: number;
     /** Extra DR% for this hit (stacked in mitigation with base DR). */
     reactionDrPct: number;
+    /** Initiative gained after the attack fully resolves (Reaction: Initiative Gain). */
+    initiativeGain?: number;
     /** Power display name if one was used. */
     powerName?: string;
 }

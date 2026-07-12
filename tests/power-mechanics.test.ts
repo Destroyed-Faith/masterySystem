@@ -244,6 +244,17 @@ describe('aggregateMechanics — pure summing', () => {
     expect(bd.totals.regen).toBe(3);
   });
 
+  it('sums flat initiative from passive mechanics', () => {
+    const bd = aggregateMechanics([
+      {
+        source: 'Initiative',
+        mechanics: { initiative: 12, applyWhen: 'passive-slotted-active' },
+      },
+    ]);
+    expect(bd.totals.initiative).toBe(12);
+    expect(bd.initiative).toEqual([{ source: 'Initiative', value: 12 }]);
+  });
+
   it('collects healing dice strings into breakdown.healing', () => {
     const bd = aggregateMechanics([
       {

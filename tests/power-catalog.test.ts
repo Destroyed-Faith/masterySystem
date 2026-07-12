@@ -161,6 +161,26 @@ describe('Power Catalog (Templates refactor)', () => {
         expect(activeTemplateCanBeSpell('active-melee-weapon-single')).toBe(false);
     });
 
+    it('Initiative passive scales +2 per level (10 PP / +1 Initiative)', () => {
+        const template = findTemplateById('passive-initiative');
+        expect(template).toBeDefined();
+        expect(template!.levels['1'].effect?.text).toContain('+2 Initiative');
+        expect(template!.levels['16'].effect?.text).toContain('+32 Initiative');
+        expect((template!.levels['4'].mechanics as any)?.initiative).toBe(8);
+        expect((template!.levels['10'].mechanics as any)?.initiative).toBe(20);
+    });
+
+    it('Reaction: Initiative Gain scales +2 per level after attack resolves', () => {
+        const template = findTemplateById('reaction-initiative-gain');
+        expect(template).toBeDefined();
+        expect(template!.trigger).toContain('targeted by an attack');
+        expect(template!.levels['1'].effect?.text).toContain('+2 Initiative');
+        expect(template!.levels['16'].effect?.text).toContain('+32 Initiative');
+        expect((template!.levels['4'].mechanics as any)?.initiativeGain).toBe(8);
+        expect((template!.levels['10'].mechanics as any)?.initiativeGain).toBe(20);
+        expect(template!.levels['1'].mechanics?.applyWhen).toBe('reaction-once-per-round');
+    });
+
     it('Active Buff: Critical uses milestone bands with no effect at L1–3', () => {
         const template = findTemplateById('ab-critical');
         expect(template).toBeDefined();

@@ -33,6 +33,7 @@ export function emptyBreakdown(): MechanicsBreakdown {
   return {
     armor: [],
     evade: [],
+    initiative: [],
     initiativeD8: [],
     movementBonus: [],
     regen: [],
@@ -48,6 +49,7 @@ export function emptyBreakdown(): MechanicsBreakdown {
     totals: {
       armor: 0,
       evade: 0,
+      initiative: 0,
       initiativeD8: 0,
       movementBonus: 0,
       regen: 0,
@@ -387,6 +389,7 @@ export function collectMechanicsContributions(actor: any): MechanicsContribution
       typeof mech.regen === 'number' ||
       typeof mech.spellResistance === 'number' ||
       typeof mech.cleanseMaintenance === 'number' ||
+      typeof mech.initiative === 'number' ||
       typeof mech.initiativeD8 === 'number' ||
       !!mech.phasing?.combatStart;
     const allowSlottedPassive =
@@ -557,6 +560,7 @@ export function aggregateMechanics(
     if (gate && !evaluateMechanicsGateForActorTotals(actor, gate)) continue;
     pushNum(bd.armor, source, mechanics.armor);
     pushNum(bd.evade, source, mechanics.evade);
+    pushNum(bd.initiative, source, mechanics.initiative);
     pushNum(bd.initiativeD8, source, mechanics.initiativeD8);
     pushNum(bd.movementBonus, source, mechanics.movementBonus);
     pushNum(bd.regen, source, mechanics.regen);
@@ -616,6 +620,7 @@ export function aggregateMechanics(
     arr.reduce((s, e) => s + (e.value || 0), 0);
   bd.totals.armor = sum(bd.armor);
   bd.totals.evade = sum(bd.evade);
+  bd.totals.initiative = sum(bd.initiative);
   bd.totals.initiativeD8 = sum(bd.initiativeD8);
   bd.totals.movementBonus = sum(bd.movementBonus);
   bd.totals.regen = sum(bd.regen);

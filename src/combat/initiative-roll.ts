@@ -103,6 +103,12 @@ export async function rollInitiativeForCombatant(
   // `masteryRoll` pipeline, so we apply the bonus directly here.
   const manualAdj = actor.type === 'character' ? readManualAdjustments(actor) : null;
   const manualInitiativeFlat = manualAdj?.combat.initiative ?? 0;
+  const passiveInitiativeBonus = Math.max(
+    0,
+    Math.floor(Number((actor.system as any)?.combat?.initiativeFromMechanics ?? 0) || 0),
+  );
+  const passiveInitFlavor =
+    passiveInitiativeBonus > 0 ? ` · Passive Initiative +${passiveInitiativeBonus}` : '';
   const manualInitiativeDice = Math.max(0, manualAdj?.rolls?.any?.dice ?? 0);
   const initiativeNumDice = Math.max(1, masteryRank + manualInitiativeDice);
   const manualFlavorParts: string[] = [];
@@ -119,7 +125,7 @@ export async function rollInitiativeForCombatant(
     keepDice: initiativeNumDice,
     skill: 0,
     label: 'Initiative Roll',
-    flavor: `${actor.name}${equipFlavor}${witsFlavor}${manualFlavor}`,
+    flavor: `${actor.name}${equipFlavor}${witsFlavor}${passiveInitFlavor}${manualFlavor}`,
     actorId: actor.id
   });
 
@@ -172,6 +178,7 @@ export async function rollInitiativeForCombatant(
     combatReflexesSpent +
     equipmentInitiativeModifier +
     manualInitiativeFlat +
+    passiveInitiativeBonus +
     witsInitBonus;
   await combatant.update({ initiative: totalInitiative });
 

@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.178] - 2026-07-12
+
+### Added
+
+- **Initiative passive:** Catalog template `passive-initiative` (+2…+32 flat Initiative at combat start, before the Initiative Shop); mechanics aggregation and initiative roll integration.
+- **Reaction: Initiative Gain:** Catalog template `reaction-initiative-gain` (+2…+32 Initiative after the triggering attack resolves); mid-combat initiative update with turn-order resort for remaining turns.
+
 ## [0.9.177] - 2026-07-12
 
 ### Added

@@ -37,6 +37,9 @@ const EVADE_COND        = ARMOR_COND;
 /** Unconditional Evade curve (10 PP / +1). */
 const EVADE_UNCOND      = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32];
 
+/** Initiative curve (10 PP / +1 Initiative). */
+const INITIATIVE_UNCOND = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32];
+
 /** Temporary HP curve (2 PP / 1 THP). */
 const TEMP_HP_UNCOND    = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160];
 
@@ -362,6 +365,15 @@ export const PASSIVE_TEMPLATES: PowerTemplate[] = [
         perLevel: (lvl) => ({
             text: `Gain **+${EVADE_UNCOND[lvl - 1]} Evade**.`,
             mechanics: { evade: EVADE_UNCOND[lvl - 1] },
+        }),
+    }),
+    basePassive({
+        id: 'passive-initiative', name: 'Initiative', subfamily: 'initiative',
+        passiveType: 'Initiative',
+        fluff: 'You enter combat already moving through possibilities that others have not yet recognized.',
+        perLevel: (lvl) => ({
+            text: `Gain **+${INITIATIVE_UNCOND[lvl - 1]} Initiative**.`,
+            mechanics: { initiative: INITIATIVE_UNCOND[lvl - 1] },
         }),
     }),
     basePassive({

@@ -23,6 +23,8 @@ export interface DefenderReactionMitigation {
   reactionArmorFlat: number;
   /** Extra DR% for this hit (stacked in mitigation with base DR). */
   reactionDrPct: number;
+  /** Initiative gained after the attack fully resolves (Reaction: Initiative Gain). */
+  initiativeGain?: number;
   /** Power display name if one was used. */
   powerName?: string;
 }
@@ -110,7 +112,38 @@ function extractMitigationFromMechanics(mech: ReturnType<typeof resolvePowerMech
   if (!mech) return { reactionArmorFlat: 0, reactionDrPct: 0 };
   const reactionArmorFlat = Math.max(0, Math.floor(Number(mech.armor) || 0));
   const reactionDrPct = Math.max(0, Math.min(100, Math.floor(Number(mech.damageReductionPct) || 0)));
-  return { reactionArmorFlat, reactionDrPct };
+  const initiativeGain = Math.max(0, Math.floor(Number(mech.initiativeGain) || 0));
+  return { reactionArmorFlat, reactionDrPct, initiativeGain: initiativeGain || undefined };
+}
+
+const INITIATIVE_GAIN_TEMPLATE = 'reaction-initiative-gain';
+
+/** Duplicate Initiative Gain sources do not stack — keep only the highest version. */
+function dedupeInitiativeGainReactions(powers: any[]): any[] {
+  const gainers = powers.filter((item) => {
+    const mech = resolvePowerMechanics(item);
+    const tid = String(item?.system?.templateId ?? '');
+    return (mech?.initiativeGain ?? 0) > 0 || tid === INITIATIVE_GAIN_TEMPLATE;
+  });
+  if (gainers.length <= 1) return powers;
+
+  let best = gainers[0];
+  let bestVal = Math.max(0, Math.floor(Number(resolvePowerMechanics(best)?.initiativeGain) || 0));
+  for (let i = 1; i < gainers.length; i++) {
+    const val = Math.max(0, Math.floor(Number(resolvePowerMechanics(gainers[i])?.initiativeGain) || 0));
+    if (val > bestVal) {
+      best = gainers[i];
+      bestVal = val;
+    }
+  }
+  const bestId = (best as any).id;
+  return powers.filter((item) => {
+    const mech = resolvePowerMechanics(item);
+    const tid = String(item?.system?.templateId ?? '');
+    const isGain = (mech?.initiativeGain ?? 0) > 0 || tid === INITIATIVE_GAIN_TEMPLATE;
+    if (!isGain) return true;
+    return (item as any).id === bestId;
+  });
 }
 
 /**
@@ -141,7 +174,7 @@ export async function promptDefenderReactionsBeforeMitigation(params: {
     return empty;
   }
 
-  const powers = getEligibleReactionPowers(economyDef, combat);
+  const powers = dedupeInitiativeGainReactions(getEligibleReactionPowers(economyDef, combat));
   if (!powers.length) {
     await postReactionChat(
       `<strong>${defName}</strong> has <strong>${summary.remaining}</strong> Reaction(s) left but <strong>no eligible reaction powers</strong> (equipped, not yet used this round).`,
@@ -239,6 +272,7 @@ export async function promptDefenderReactionsBeforeMitigation(params: {
   const mech = resolvePowerMechanics(chosen.item);
   let mit = extractMitigationFromMechanics(mech);
   const ev = Math.max(0, Math.floor(Number(mech?.evade) || 0));
+  const iniGain = mit.initiativeGain ?? 0;
 
   // Reaction DR% only applies when this defender already has continuous DR% on
   // the sheet. Use the same actor document that receives damage (token / linked
@@ -278,6 +312,9 @@ export async function promptDefenderReactionsBeforeMitigation(params: {
   if (mech?.tempHP) {
     note += ` <em>(Temp HP from this reaction: apply manually or extend pipeline — declared: ${mech.tempHP})</em>`;
   }
+  if (iniGain > 0) {
+    note += ` <em>(+${iniGain} Initiative applies after this attack fully resolves.)</em>`;
+  }
 
   await postReactionChat(
     `<strong>${defName}</strong> uses <strong>${chosen.item.name}</strong> (1 Reaction spent).${note || ' (No numeric mitigation on this power.)'}`,
@@ -287,6 +324,7 @@ export async function promptDefenderReactionsBeforeMitigation(params: {
   return {
     reactionArmorFlat: mit.reactionArmorFlat,
     reactionDrPct: mit.reactionDrPct,
+    initiativeGain: iniGain > 0 ? iniGain : undefined,
     powerName: chosen.item.name,
   };
 }

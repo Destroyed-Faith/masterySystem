@@ -1,10 +1,10 @@
 /**
- * Reaction Power Templates (13)
+ * Reaction Power Templates (14)
  *
  * Source: d:\DestroyedFaith\Powers\Reaction.md — Levels 1..16.
  * Single-axis defensive answers (Armor / Evade / Temp HP), two-axis combos,
- * Ally Protection variants, closed premium subsystems (DR, Phasing), and
- * retaliatory Counter Damage / Special Increase.
+ * Ally Protection variants, closed premium subsystems (DR, Phasing),
+ * retaliatory Counter Damage / Special Increase, and Initiative Gain.
  */
 
 import type { PowerTemplate } from './_shared.js';
@@ -30,6 +30,7 @@ const ALLY_TEMP = [2, 7, 12, 17, 22, 27, 32, 37, 42, 47, 52, 57, 62, 67, 72, 77]
 const COUNTER_DMG = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
 const COUNTER_DMG_PUSH_D = [1, 1, 2, 2, 3, 3, 4, 4, 5, 6, 7, 8, 9, 10, 11, 12];
 const COUNTER_DMG_PUSH_M = [0, 2, 2, 4, 4, 6, 6, 8, 8, 8, 8, 8, 8, 8, 8, 8];
+const INITIATIVE_GAIN = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32];
 
 export const REACTION_TEMPLATES: PowerTemplate[] = [
     {
@@ -292,5 +293,23 @@ export const REACTION_TEMPLATES: PowerTemplate[] = [
                     : { modifySpecial: { type: 'chosen', mode: 'increaseExisting', amount: inc } },
             });
         }),
+    },
+    {
+        templateId: 'reaction-initiative-gain',
+        templateName: 'Initiative Gain',
+        name: 'Reaction: Initiative Gain',
+        subfamily: 'initiative',
+        category: 'reaction',
+        tags: [],
+        fluff: 'You seize the pressure of an incoming attack and turn it into immediate combat momentum.',
+        trigger: 'When you are targeted by an attack',
+        cost: { action: 'reaction' },
+        roll: { kind: 'none' },
+        levels: buildLevels((lvl) =>
+            reactionRow({
+                effectText: `After the triggering attack fully resolves, gain **+${INITIATIVE_GAIN[lvl - 1]} Initiative**.`,
+                mechanics: { initiativeGain: INITIATIVE_GAIN[lvl - 1] },
+            }),
+        ),
     },
 ];

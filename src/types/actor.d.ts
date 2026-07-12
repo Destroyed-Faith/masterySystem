@@ -63,6 +63,8 @@ export interface CombatData {
   spellResistanceTotal?: number;
   /** Active-buff spell resistance (stacks with spellResistanceTotal at resolution). */
   spellResistanceFromActiveBuffs?: number;
+  /** Flat Initiative from slotted passives (added to initial Initiative Score). */
+  initiativeFromMechanics?: number;
   initiativeD8FromMechanics?: number;
   /**
    * Aggregated percentage-based Damage Reduction, applied AFTER flat Armor
@@ -106,6 +108,7 @@ export interface MechanicsBreakdownNoteEntry {
 export interface MechanicsBreakdown {
   armor: MechanicsBreakdownEntry[];
   evade: MechanicsBreakdownEntry[];
+  initiative: MechanicsBreakdownEntry[];
   initiativeD8: MechanicsBreakdownEntry[];
   movementBonus: MechanicsBreakdownEntry[];
   regen: MechanicsBreakdownEntry[];
@@ -140,6 +143,7 @@ export interface MechanicsBreakdown {
   totals: {
     armor: number;
     evade: number;
+    initiative: number;
     initiativeD8: number;
     movementBonus: number;
     regen: number;

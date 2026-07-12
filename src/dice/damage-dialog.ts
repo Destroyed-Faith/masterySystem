@@ -1513,6 +1513,7 @@ async function applyDamageToTarget(
 
     let reactionArmorFlat = 0;
     let reactionDrPct = 0;
+    let reactionInitiativeGain = 0;
     try {
       const combat = (globalThis as any).game?.combat ?? null;
       const { promptDefenderReactionsBeforeMitigation } = await import('../combat/defender-reactions.js');
@@ -1524,6 +1525,7 @@ async function applyDamageToTarget(
       });
       reactionArmorFlat = reactMit.reactionArmorFlat;
       reactionDrPct = reactMit.reactionDrPct;
+      reactionInitiativeGain = Math.max(0, Math.floor(Number(reactMit.initiativeGain) || 0));
     } catch (err) {
       console.debug?.('Mastery System | [APPLY DAMAGE] defender reactions skipped', err);
     }
@@ -1682,6 +1684,26 @@ async function applyDamageToTarget(
     const sheet = (target as any).sheet;
     if (sheet && sheet.rendered) {
       sheet.render(false);
+    }
+
+    if (reactionInitiativeGain > 0) {
+      try {
+        const combat = (globalThis as any).game?.combat ?? null;
+        if (combat) {
+          const { applyMidCombatInitiativeGain } = await import('../combat/initiative-gain.js');
+          const iniResult = await applyMidCombatInitiativeGain(combat, target as any, reactionInitiativeGain);
+          if (iniResult.applied) {
+            const defName = String((target as any).name ?? 'Defender');
+            await (globalThis as any).ChatMessage?.create?.({
+              user: (globalThis as any).game?.user?.id,
+              speaker: (globalThis as any).ChatMessage?.getSpeaker?.({ actor: target }),
+              content: `<p class="mastery-reaction-msg"><strong>${defName}</strong> gains <strong>+${reactionInitiativeGain} Initiative</strong> after the attack resolves. ${iniResult.note}</p>`,
+            });
+          }
+        }
+      } catch (iniErr) {
+        console.warn('Mastery System | [APPLY DAMAGE] initiative gain after attack failed', iniErr);
+      }
     }
 
     const tail: string[] = [];

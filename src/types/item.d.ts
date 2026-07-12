@@ -250,6 +250,13 @@ export interface PowerMechanics {
   armor?: number;
   /** Flat Evade bonus/malus. */
   evade?: number;
+  /** Flat Initiative bonus added to the initial Initiative Score (before the Initiative Shop). */
+  initiative?: number;
+  /**
+   * Reaction: flat Initiative added to the current Initiative Score after the
+   * triggering attack fully resolves. Does not open the Initiative Shop.
+   */
+  initiativeGain?: number;
   /** Bonus d8 dice on the initiative roll. */
   initiativeD8?: number;
   /** Temp HP gained when the effect applies, as a dice string (e.g. "1d8") or flat ("3"). */

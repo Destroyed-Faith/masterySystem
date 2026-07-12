@@ -15,6 +15,7 @@ const GUIDED_SECOND_PASSIVE_HIDDEN_CATEGORIES = new Set([
 const CATEGORY_DISPLAY_LABEL = {
     armor: 'Armor',
     evade: 'Evade',
+    initiative: 'Initiative',
     'damage-reduction': 'Damage Reduction',
     phasing: 'Phasing',
     'temporary-hp': 'Temporary HP',
@@ -34,6 +35,7 @@ const PASSIVE_TEMPLATE_CATEGORIES = {
     'passive-surrounded-bulwark': ['armor'],
     'passive-damage-reduction': ['damage-reduction'],
     'passive-evade': ['evade'],
+    'passive-initiative': ['initiative'],
     'passive-flowing-step': ['evade'],
     'passive-duelist-footwork': ['evade'],
     'passive-temp-hp': ['temporary-hp'],
@@ -111,6 +113,8 @@ export function inferPassiveCategoriesFromTemplateId(templateId) {
     if (id.includes('passive-evade') || id.includes('-evade-') || id.includes('flowing-step') || id.includes('duelist-footwork') || id.includes('conditional-passive-evade')) {
         cats.add('evade');
     }
+    if (id.includes('passive-initiative'))
+        cats.add('initiative');
     if (id.includes('temp-hp'))
         cats.add('temporary-hp');
     if (id.includes('deep-vitality') || id.includes('-health-') || id.includes('passive-health') || id.includes('conditional-passive-health')) {
