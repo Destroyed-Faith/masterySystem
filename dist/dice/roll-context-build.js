@@ -4,7 +4,7 @@
  */
 import { SKILLS, SKILL_CATEGORIES } from '../utils/skills.js';
 import { getEquippedPhysicalSkillPenaltyDice } from '../utils/equipment-modifiers.js';
-import { getCurrentPenalty } from '../utils/calculations.js';
+import { applyHealthAndEncumbrancePenalties, LOAD_ZONE_LABEL } from '../utils/encumbrance.js';
 /** Players Guide: full attribute pool when skill rating ≥ 2 × Mastery Rank. */
 export function skillFullPoolThreshold(masteryRank) {
     const mr = Math.max(1, Math.floor(Number(masteryRank) || 1));
@@ -34,7 +34,7 @@ export function getSkillRollDicePool(actor, skillKey, attributeKey) {
     const system = actor.system;
     const masteryRank = Number(system.mastery?.rank ?? 2);
     if (!skillDef) {
-        return { numDice: masteryRank, keepDice: masteryRank, halfPool: false, equipPenalty: 0, healthPenalty: 0 };
+        return { numDice: masteryRank, keepDice: masteryRank, halfPool: false, equipPenalty: 0, healthPenalty: 0, encumbrancePenalty: 0 };
     }
     const attributeValue = Number(system.attributes?.[attributeKey]?.value ?? 0);
     const skillRating = Number(system.skills?.[skillKey] ?? 0);
@@ -55,23 +55,25 @@ export function getSkillRollDicePool(actor, skillKey, attributeKey) {
             numDice = Math.max(1, numDice - penDice);
         }
     }
-    const beforeHealth = numDice;
-    const health = applyHealthPenalty(system, numDice);
-    numDice = health.numDice;
-    const healthPenalty = beforeHealth - numDice;
-    return { numDice, keepDice: masteryRank, halfPool, equipPenalty, healthPenalty };
+    const penalties = applyHealthAndEncumbrancePenalties(numDice, actor);
+    numDice = penalties.numDice;
+    return {
+        numDice,
+        keepDice: masteryRank,
+        halfPool,
+        equipPenalty,
+        healthPenalty: penalties.healthPenaltyDice,
+        encumbrancePenalty: penalties.encumbrancePenaltyDice,
+    };
 }
-function applyHealthPenalty(system, numDice) {
-    const healthBars = system.health?.bars || [];
-    const currentBar = system.health?.currentBar ?? 0;
-    const healthPenalty = getCurrentPenalty(healthBars, currentBar, numDice);
-    if (healthPenalty < 0) {
-        return {
-            numDice: Math.max(1, numDice + healthPenalty),
-            flavorSuffix: ` Health penalty: ${healthPenalty}d8.`,
-        };
+function poolPenaltyFlavorSuffix(healthPenalty, encumbrancePenalty, loadZoneLabel) {
+    let suffix = '';
+    if (healthPenalty > 0)
+        suffix += ` Health penalty: −${healthPenalty}d8.`;
+    if (encumbrancePenalty > 0) {
+        suffix += ` Encumbrance (${loadZoneLabel ?? 'Heavy Load'}): −${encumbrancePenalty}d8.`;
     }
-    return { numDice, flavorSuffix: '' };
+    return suffix;
 }
 function buildTnRollFields(tnSpec, stoneBonusRaises) {
     const baseTN = tnSpec.baseTN;
@@ -103,8 +105,9 @@ export function buildSkillRollContext(actor, skillKey, attributeKey, tnSpec, sto
     const equipPenaltyFlavor = pool.equipPenalty > 0
         ? ` Equipped armor/shield physical penalty: −${pool.equipPenalty}d8.`
         : '';
+    const encumbranceFlavor = pool.encumbrancePenalty > 0 ? ` Encumbrance: −${pool.encumbrancePenalty}d8.` : '';
     const healthFlavor = pool.healthPenalty > 0 ? ` Health penalty: −${pool.healthPenalty}d8.` : '';
-    const flavor = `Attribute pool: ${numDice}d8, keep highest ${masteryRank} (MR). Base TN: ${tnSpec.baseTN}, Raises: ${tnSpec.raises}.${equipPenaltyFlavor}${healthFlavor}${halfPoolFlavor}`;
+    const flavor = `Attribute pool: ${numDice}d8, keep highest ${masteryRank} (MR). Base TN: ${tnSpec.baseTN}, Raises: ${tnSpec.raises}.${equipPenaltyFlavor}${healthFlavor}${encumbranceFlavor}${halfPoolFlavor}`;
     return {
         label: `${skillDef.name} Check`,
         attributeKey,
@@ -131,10 +134,11 @@ export function buildAttributeRollContext(actor, attributeKey, tnSpec, stoneBonu
     const masteryRank = system.mastery?.rank || 2;
     let numDice = Number(system.attributes?.[attributeKey]?.value) || 0;
     numDice = Math.max(numDice, masteryRank);
-    const health = applyHealthPenalty(system, numDice);
-    numDice = health.numDice;
+    const penalties = applyHealthAndEncumbrancePenalties(numDice, actor);
+    numDice = penalties.numDice;
     const attrLabel = capAttr(attributeKey);
-    const flavor = `Attribute pool: ${numDice}d8, keep highest ${masteryRank} (MR). Base TN: ${tnSpec.baseTN}, Raises: ${tnSpec.raises}.${health.flavorSuffix}`;
+    const penaltyFlavor = poolPenaltyFlavorSuffix(penalties.healthPenaltyDice, penalties.encumbrancePenaltyDice, LOAD_ZONE_LABEL[penalties.loadZone]);
+    const flavor = `Attribute pool: ${numDice}d8, keep highest ${masteryRank} (MR). Base TN: ${tnSpec.baseTN}, Raises: ${tnSpec.raises}.${penaltyFlavor}`;
     return {
         label: `${attrLabel} Check`,
         attributeKey,
@@ -187,13 +191,14 @@ export function buildSaveRollContext(actor, saveType, tnSpec, stoneBonusRaises =
         return null;
     }
     numDice = Math.max(numDice, masteryRank);
-    const health = applyHealthPenalty(system, numDice);
-    numDice = health.numDice;
+    const penalties = applyHealthAndEncumbrancePenalties(numDice, actor);
+    numDice = penalties.numDice;
     const saveName = saveType.charAt(0).toUpperCase() + saveType.slice(1);
     const saveRollKind = saveType === 'body' ? 'saveBody' : saveType === 'mind' ? 'saveMind' : 'saveSpirit';
+    const penaltyFlavor = poolPenaltyFlavorSuffix(penalties.healthPenaltyDice, penalties.encumbrancePenaltyDice, LOAD_ZONE_LABEL[penalties.loadZone]);
     let flavorText = `Using ${chosenAttr} (${usedAttr1} / ${usedAttr2})`;
-    if (health.flavorSuffix) {
-        flavorText += ` |${health.flavorSuffix.trim()}`;
+    if (penaltyFlavor) {
+        flavorText += ` |${penaltyFlavor.trim()}`;
     }
     return {
         label: `${saveName} Save`,

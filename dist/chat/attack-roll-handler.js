@@ -300,13 +300,9 @@ export function registerAttackRollClickHandler() {
             }
             // Players Guide ~6518–6544: health penalty is a *percentage of the
             // rolled pool* (10/20/30/40 % per broken bar, floored).
-            const { getCurrentPenalty } = await import('../utils/calculations.js');
-            const healthBars = attackerForRoll?.system?.health?.bars || [];
-            const currentBar = attackerForRoll?.system?.health?.currentBar ?? 0;
-            const healthPenalty = getCurrentPenalty(healthBars, currentBar, numDice);
-            // Health penalty reduces the dice pool (numDice)
-            // Penalty is negative (e.g., -1, -2, -4), so we add it to reduce numDice
-            numDice = Math.max(1, numDice + healthPenalty); // Minimum 1 die
+            const { applyHealthAndEncumbrancePenalties } = await import('../utils/encumbrance.js');
+            const poolPenalties = applyHealthAndEncumbrancePenalties(numDice, attackerForRoll);
+            numDice = poolPenalties.numDice;
             // Split-Attack: hard-cap the final pool inside `masteryRoll` so attack-rider
             // / manual bonus dice cannot inflate the strike back to the full attribute pool.
             const splitAttackDiceCap = flags.splitAttack === true ? numDice : undefined;

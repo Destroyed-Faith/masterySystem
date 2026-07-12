@@ -6,16 +6,17 @@
  *   • Inventory Grid is **24 × 9 squares**, divided into 3 zones of 8
  *     columns each:
  *       Zone 1 (cols 1..8)   = Normal Load
- *       Zone 2 (cols 9..16)  = Encumbered  (Movement −4 m)
- *       Zone 3 (cols 17..24) = Overloaded  (Movement −6 m)
+ *       Zone 2 (cols 9..16)  = Encumbered  (Movement −4 m, dice pool −20 %)
+ *       Zone 3 (cols 17..24) = Heavy Load  (Movement −6 m, dice pool −50 %)
  *   • Only the *highest occupied* zone matters.
  *   • Items spanning multiple zones inherit the highest zone they touch.
  *
- * The character-sheet UI currently splits the 24 × 9 grid into three
- * 24 × 9 visual bands (one per zone). The functions here treat any of
- * the two representations uniformly and return the canonical load zone +
- * movement penalty for use elsewhere in the system.
+ * The character-sheet UI renders three equal 8 × 9 bands (Normal /
+ * Encumbered / Heavy Load). Dice-pool penalties apply to **all rolls**
+ * and stack additively with health penalties (both as % of the same base
+ * pool); the final pool may reach 0.
  */
+import { getCurrentPenalty } from './calculations.js';
 /** Total inventory grid columns / rows / per-zone width. */
 export const INVENTORY_GRID_COLS = 24;
 export const INVENTORY_GRID_ROWS = 9;
@@ -25,6 +26,17 @@ export const MOVEMENT_PENALTY_BY_ZONE = {
     normal: 0,
     encumbered: -4,
     overloaded: -6,
+};
+/** Dice-pool penalty (% of base pool, floored) per load zone. */
+export const DICE_POOL_PENALTY_PERCENT_BY_ZONE = {
+    normal: 0,
+    encumbered: 20,
+    overloaded: 50,
+};
+export const LOAD_ZONE_LABEL = {
+    normal: 'Normal Load',
+    encumbered: 'Encumbered',
+    overloaded: 'Heavy Load',
 };
 /** Highest column an item rect occupies (1-based, inclusive). */
 function maxColumnOf(rect) {
@@ -72,6 +84,51 @@ export function loadZoneFromBands(opts) {
 /** Return the movement penalty (in meters, ≤ 0) for a load zone. */
 export function movementPenaltyForLoad(zone) {
     return MOVEMENT_PENALTY_BY_ZONE[zone];
+}
+/** Floored dice removed from a pool due to encumbrance (0 when zone is normal). */
+export function dicePoolPenaltyFromLoadZone(zone, pool) {
+    const pct = DICE_POOL_PENALTY_PERCENT_BY_ZONE[zone] ?? 0;
+    const base = Math.max(0, Math.floor(Number(pool) || 0));
+    if (pct <= 0 || base <= 0)
+        return 0;
+    return Math.floor(base * pct / 100);
+}
+/**
+ * Highest load zone from inventory-band flags on an actor's items.
+ * Only items in the carry grid (`container: 'inventory'`) count.
+ */
+export function getActorInventoryLoadZone(actor) {
+    let encumberedCount = 0;
+    let overloadedCount = 0;
+    for (const item of actor.items) {
+        const flags = item.getFlag?.('mastery-system', 'equipment')
+            ?? item.flags?.['mastery-system']?.equipment
+            ?? {};
+        if (flags.container !== 'inventory')
+            continue;
+        const band = flags.band ?? 'not';
+        if (band === 'heavy')
+            overloadedCount++;
+        else if (band === 'enc')
+            encumberedCount++;
+    }
+    return loadZoneFromBands({ normalCount: 0, encumberedCount, overloadedCount });
+}
+/**
+ * Apply health and encumbrance penalties to a dice pool. Both are computed as
+ * percentages of the same `basePool` and subtracted additively; result floors
+ * at 0 (encumbrance can zero the pool when stacked with wounds).
+ */
+export function applyHealthAndEncumbrancePenalties(basePool, actor) {
+    const pool = Math.max(0, Math.floor(Number(basePool) || 0));
+    const loadZone = getActorInventoryLoadZone(actor);
+    const healthBars = actor.system?.health?.bars || [];
+    const currentBar = actor.system?.health?.currentBar ?? 0;
+    const healthPenalty = getCurrentPenalty(healthBars, currentBar, pool);
+    const healthPenaltyDice = healthPenalty < 0 ? -healthPenalty : 0;
+    const encumbrancePenaltyDice = dicePoolPenaltyFromLoadZone(loadZone, pool);
+    const numDice = Math.max(0, pool - healthPenaltyDice - encumbrancePenaltyDice);
+    return { numDice, healthPenaltyDice, encumbrancePenaltyDice, loadZone };
 }
 /**
  * Compute the effective base movement after applying the load penalty.

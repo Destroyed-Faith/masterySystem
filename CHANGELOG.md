@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.176] - 2026-07-12
+
+### Added
+
+- **Equipment encumbrance:** Inventory split into three equal 8×9 bands (Normal Load, Encumbered, Heavy Load). Items in Encumbered reduce all roll dice pools by 20%; Heavy Load by 50%. Penalties stack additively with wound penalties and can reduce the pool to zero.
+
 ## [0.9.175] - 2026-07-12
 
 ### Changed

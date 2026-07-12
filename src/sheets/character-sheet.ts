@@ -36,7 +36,7 @@ import { showLanguagesDialog } from './languages-dialog.js';
 import type { PowerCategory } from '../types/item.js';
 import { findFirstFit, fitsInGrid, parseInventorySize, rectsOverlap } from '../utils/inventory-grid';
 import { isLegacyUnarmedItem } from '../utils/unarmed-fallback.js';
-import { loadZoneFromBands, movementPenaltyForLoad } from '../utils/encumbrance.js';
+import { loadZoneFromBands, movementPenaltyForLoad, LOAD_ZONE_LABEL, ZONE_WIDTH_COLS } from '../utils/encumbrance.js';
 import { buildPostCreationSnapshot } from '../utils/xp-post-creation.js';
 import { resetCharacterForRecreation, listEquippedGeneralArtifacts } from '../utils/reset-character.js';
 import { getDefaultInventorySizeForItemData } from '../utils/seed-general-items';
@@ -1248,7 +1248,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
    * Prepare Equipment UI Context
    */
   #prepareEquipmentUi(items: any) {
-    const BAND_COLS = 24;
+    const BAND_COLS = ZONE_WIDTH_COLS;
     const BAND_ROWS = 9;
     const BAND_SIZE = BAND_COLS * BAND_ROWS;
 
@@ -1383,9 +1383,14 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         // Echo-bound artifacts belong on the paperdoll only — skip inventory clutter.
         continue;
       } else {
-        // Legacy stash flags: show in carry inventory (stash panel removed from sheet).
         inventoryItems.push(item);
-        notItems.push(item);
+        if (band === 'enc') {
+          encItems.push(item);
+        } else if (band === 'heavy') {
+          heavyItems.push(item);
+        } else {
+          notItems.push(item);
+        }
       }
     }
 
@@ -1471,10 +1476,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         encOverflow: encCellsData.overflow,
         heavyOverflow: heavyCellsData.overflow,
         loadZone,
-        loadZoneLabel:
-          loadZone === 'overloaded' ? 'Overloaded'
-            : loadZone === 'encumbered' ? 'Encumbered'
-              : 'Normal Load',
+        loadZoneLabel: LOAD_ZONE_LABEL[loadZone],
         movementPenaltyM,
       },
       equipSlots: slotDefs.map((def) => {
@@ -3823,16 +3825,17 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     // Players Guide minimum-pool rule (~5888–5899) — apply *before* the
     // health penalty so the percentage scales with the post-floor pool.
     numDice = Math.max(numDice, keepDice);
-    const { getCurrentPenalty } = await import('../utils/calculations.js');
-    const healthBars = actorData.health?.bars || [];
-    const currentBar = actorData.health?.currentBar ?? 0;
-    const healthPenalty = getCurrentPenalty(healthBars, currentBar, numDice);
-    numDice = Math.max(1, numDice + healthPenalty);
+    const { applyHealthAndEncumbrancePenalties, LOAD_ZONE_LABEL } = await import('../utils/encumbrance.js');
+    const poolPenalties = applyHealthAndEncumbrancePenalties(numDice, this.actor as any);
+    numDice = poolPenalties.numDice;
 
     const attrLabel = attribute.charAt(0).toUpperCase() + attribute.slice(1);
     let flavor = `Attribute: ${attrLabel}, Base TN: ${rollOptions.baseTN}, Raises: ${rollOptions.raises}`;
-    if (healthPenalty < 0) {
-      flavor += ` (Health penalty: ${healthPenalty} dice)`;
+    if (poolPenalties.healthPenaltyDice > 0) {
+      flavor += ` (Health penalty: −${poolPenalties.healthPenaltyDice} dice)`;
+    }
+    if (poolPenalties.encumbrancePenaltyDice > 0) {
+      flavor += ` (Encumbrance (${LOAD_ZONE_LABEL[poolPenalties.loadZone]}): −${poolPenalties.encumbrancePenaltyDice} dice)`;
     }
 
     const raiseTn = rollOptions.baseTN + rollOptions.raises * 4;
@@ -4052,16 +4055,16 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       }
     }
 
-    // Health penalty — applied last, after the half-pool / armor reductions,
-    // so the percentage scales off the already-reduced pool.
-    const { getCurrentPenalty } = await import('../utils/calculations.js');
-    const healthBars = system.health?.bars || [];
-    const currentBar = system.health?.currentBar ?? 0;
-    const healthPenalty = getCurrentPenalty(healthBars, currentBar, numDice);
+    const { applyHealthAndEncumbrancePenalties, LOAD_ZONE_LABEL } = await import('../utils/encumbrance.js');
+    const poolPenalties = applyHealthAndEncumbrancePenalties(numDice, this.actor as any);
+    numDice = poolPenalties.numDice;
     let healthPenaltyFlavor = '';
-    if (healthPenalty < 0) {
-      numDice = Math.max(1, numDice + healthPenalty);
-      healthPenaltyFlavor = ` Health penalty: ${healthPenalty}d8 (rolling ${numDice} dice).`;
+    if (poolPenalties.healthPenaltyDice > 0) {
+      healthPenaltyFlavor = ` Health penalty: −${poolPenalties.healthPenaltyDice}d8 (rolling ${numDice} dice).`;
+    }
+    let encumbrancePenaltyFlavor = '';
+    if (poolPenalties.encumbrancePenaltyDice > 0) {
+      encumbrancePenaltyFlavor = ` Encumbrance (${LOAD_ZONE_LABEL[poolPenalties.loadZone]}): −${poolPenalties.encumbrancePenaltyDice}d8 (rolling ${numDice} dice).`;
     }
 
     const raiseTn = rollOptions.baseTN + rollOptions.raises * 4;
@@ -4089,7 +4092,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       stoneBonusRaises,
       raiseModel: 'skill',
       label: `${skillDef.name} Check`,
-      flavor: `Attribute: ${rollOptions.attributeKey.charAt(0).toUpperCase() + rollOptions.attributeKey.slice(1)}, Base TN: ${rollOptions.baseTN}, Raises: ${rollOptions.raises}.${equipPenaltyFlavor}${healthPenaltyFlavor}${halfPoolFlavor}`,
+      flavor: `Attribute: ${rollOptions.attributeKey.charAt(0).toUpperCase() + rollOptions.attributeKey.slice(1)}, Base TN: ${rollOptions.baseTN}, Raises: ${rollOptions.raises}.${equipPenaltyFlavor}${healthPenaltyFlavor}${encumbrancePenaltyFlavor}${halfPoolFlavor}`,
       actorId: (this.actor as any).id,
       skillKey,
       isSkillRoll: true,
@@ -4804,12 +4807,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     // Players Guide minimum-pool rule (~5888–5899).
     numDice = Math.max(numDice, keepDice);
 
-    const { getCurrentPenalty } = await import('../utils/calculations.js');
-    const healthBars = actorData.health?.bars || [];
-    const currentBar = actorData.health?.currentBar ?? 0;
-    const healthPenalty = getCurrentPenalty(healthBars, currentBar, numDice);
-    
-    numDice = Math.max(1, numDice + healthPenalty);
+    const { applyHealthAndEncumbrancePenalties, LOAD_ZONE_LABEL } = await import('../utils/encumbrance.js');
+    const poolPenalties = applyHealthAndEncumbrancePenalties(numDice, this.actor as any);
+    numDice = poolPenalties.numDice;
     
     const rollOptions = await this.#promptForTN();
     if (rollOptions === null) return;
@@ -4819,8 +4819,11 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     const saveName = saveType.charAt(0).toUpperCase() + saveType.slice(1);
     let flavorText = `Using ${chosenAttr} (${usedAttr1} / ${usedAttr2})`;
     
-    if (healthPenalty < 0) {
-      flavorText += ` | Health penalty: ${healthPenalty} dice`;
+    if (poolPenalties.healthPenaltyDice > 0) {
+      flavorText += ` | Health penalty: −${poolPenalties.healthPenaltyDice} dice`;
+    }
+    if (poolPenalties.encumbrancePenaltyDice > 0) {
+      flavorText += ` | Encumbrance (${LOAD_ZONE_LABEL[poolPenalties.loadZone]}): −${poolPenalties.encumbrancePenaltyDice} dice`;
     }
     
     const saveRollKind =
@@ -7493,7 +7496,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
 
   /** Collect occupied inventory rects for a band (excluding one item id). */
   #inventoryBandRects(band: string, excludeItemId?: string): Array<{ x: number; y: number; w: number; h: number }> {
-    const BAND_COLS = 24;
+    const BAND_COLS = ZONE_WIDTH_COLS;
     const BAND_ROWS = 9;
     return (Array.from(this.actor.items.values()) as any[])
       .filter((it: any) => it.id !== excludeItemId)
@@ -7551,7 +7554,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         newFlags.container = 'inventory';
         newFlags.band = band;
         newFlags.slot = null;
-        const BAND_COLS = 24;
+        const BAND_COLS = ZONE_WIDTH_COLS;
         const BAND_ROWS = 9;
         const size = parseInventorySize(item?.system?.inventorySize);
         const w = Math.min(BAND_COLS, size.w);

@@ -25,6 +25,7 @@ export declare function getSkillRollDicePool(actor: Actor, skillKey: string, att
     halfPool: boolean;
     equipPenalty: number;
     healthPenalty: number;
+    encumbrancePenalty: number;
 };
 export declare function buildSkillRollContext(actor: Actor, skillKey: string, attributeKey: string, tnSpec: TnSpec, stoneBonusRaises?: number): BuiltRollContext | null;
 export declare function buildAttributeRollContext(actor: Actor, attributeKey: string, tnSpec: TnSpec, stoneBonusRaises?: number): BuiltRollContext | null;

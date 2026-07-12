@@ -784,13 +784,11 @@ export async function quickRoll(actor, attributeName, skillName, tn, label, modi
     // Players Guide ~6518–6544: health penalty is a *percentage of the rolled
     // pool* (10/20/30/40 % per broken bar, floored). Resolve it against the
     // post-floor pool so the percentage scales with the actual dice rolled.
-    const { getCurrentPenalty } = await import('../utils/calculations.js');
-    const healthBars = actorData.health?.bars || [];
-    const currentBar = actorData.health?.currentBar ?? 0;
-    const healthPenalty = getCurrentPenalty(healthBars, currentBar, numDice);
-    // Health penalty reduces the dice pool (numDice)
-    // Penalty is negative (e.g., -1, -2, -4), so we add it to reduce numDice
-    numDice = Math.max(1, numDice + healthPenalty); // Minimum 1 die
+    const { applyHealthAndEncumbrancePenalties, LOAD_ZONE_LABEL } = await import('../utils/encumbrance.js');
+    const poolPenalties = applyHealthAndEncumbrancePenalties(numDice, actor);
+    numDice = poolPenalties.numDice;
+    const healthPenalty = poolPenalties.healthPenaltyDice > 0 ? -poolPenalties.healthPenaltyDice : 0;
+    const encumbrancePenalty = poolPenalties.encumbrancePenaltyDice;
     // Build label
     const rollLabel = label || `${attributeName.charAt(0).toUpperCase() + attributeName.slice(1)} Roll`;
     let flavorText = flavor || '';
@@ -812,14 +810,27 @@ export async function quickRoll(actor, attributeName, skillName, tn, label, modi
         const penaltyText = healthPenalty === -1 ? '1' : healthPenalty === -2 ? '2' : healthPenalty === -4 ? '4' : String(Math.abs(healthPenalty));
         flavorText = flavorText ? `${flavorText} (Health penalty: -${penaltyText} dice)` : `Health penalty: -${penaltyText} dice`;
     }
-    console.log('Mastery System | quickRoll with health penalty', {
+    if (encumbrancePenalty > 0) {
+        const encLabel = LOAD_ZONE_LABEL[poolPenalties.loadZone];
+        const encText = `Encumbrance (${encLabel}): -${encumbrancePenalty} dice`;
+        flavorText = flavorText ? `${flavorText} (${encText})` : encText;
+    }
+    console.log('Mastery System | quickRoll with pool penalties', {
         attributeName,
         skillName,
         baseNumDice: actorData.attributes?.[attributeName]?.value || 0,
         healthPenalty,
+        encumbrancePenalty,
+        loadZone: poolPenalties.loadZone,
         adjustedNumDice: numDice,
-        currentBar,
-        healthBars: healthBars.map((b, i) => ({ index: i, name: b.name, current: b.current, max: b.max, penalty: b.penalty }))
+        currentBar: actorData.health?.currentBar ?? 0,
+        healthBars: (actorData.health?.bars || []).map((b, i) => ({
+            index: i,
+            name: b.name,
+            current: b.current,
+            max: b.max,
+            penalty: b.penalty,
+        })),
     });
     return await masteryRoll({
         numDice,
