@@ -1,7 +1,7 @@
 {
   "name": "Titan Scars - Level 10-1",
   "type": "artifact",
-  "img": "icons/svg/statue.svg",
+  "img": "systems/mastery-system/assets/icons/items/echo-artifacts/Titan Scars.png",
   "system": {
     "level": 10,
     "currentLevel": 10,
@@ -39,12 +39,12 @@
       {
         "level": 8,
         "name": "Titan Wits Pool III",
-        "type": "Support",
+        "type": "Stone Pool",
         "range": "Self",
         "aoe": "",
         "duration": "Passive",
-        "effect": "Stone Pool (Wits)",
-        "special": ""
+        "effect": "After each Safe Haven Rest, store 8 Wits Stones. These Stones may only be used for this Artifact's listed Wits Stone functions.",
+        "special": "stonePool"
       },
       {
         "level": 9,
@@ -314,8 +314,11 @@
       {
         "id": "titanScarsWits-pw-8",
         "name": "Titan Wits Pool III",
+        "fluff": "Special: stonePool",
         "category": "passive",
-        "tags": [],
+        "tags": [
+          "stone-function"
+        ],
         "cost": {
           "action": "none"
         },
@@ -501,7 +504,7 @@
             "specials": []
           },
           "16": {
-            "type": "Support",
+            "type": "Stone Pool",
             "range": {
               "kind": "self"
             },
@@ -510,7 +513,7 @@
               "kind": "scene"
             },
             "effect": {
-              "text": "Stone Pool (Wits)"
+              "text": "After each Safe Haven Rest, store 8 Wits Stones. These Stones may only be used for this Artifact's listed Wits Stone functions."
             },
             "specials": [],
             "lvl": 8
@@ -953,7 +956,7 @@
       "childIds": [],
       "echoBound": "titanborn",
       "echoArtifactKey": "titanScarsWits",
-      "seedVersion": 26
+      "seedVersion": 35
     }
   },
   "_id": "sTMh2Cd6kp3CMEZQ",

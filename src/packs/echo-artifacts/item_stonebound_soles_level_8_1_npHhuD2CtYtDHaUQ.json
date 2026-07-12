@@ -1,7 +1,7 @@
 {
   "name": "Stonebound Soles - Level 8-1",
   "type": "artifact",
-  "img": "icons/svg/upgrade.svg",
+  "img": "systems/mastery-system/assets/icons/items/echo-artifacts/Stonebound Soles.png",
   "system": {
     "level": 8,
     "currentLevel": 8,
@@ -33,7 +33,7 @@
     "levelProgression": [
       {
         "level": 7,
-        "name": "Immovable + Temporary HP III",
+        "name": "Anchoring Stance III",
         "type": "Active Buff",
         "range": "Self",
         "aoe": "",
@@ -44,7 +44,7 @@
       },
       {
         "level": 8,
-        "name": "Safe Movement III",
+        "name": "Stone-Sure Step III",
         "type": "Movement",
         "range": "Self",
         "aoe": "",
@@ -55,14 +55,14 @@
       },
       {
         "level": 6,
-        "name": "Armor II",
-        "type": "Active Buff",
+        "name": "Stoneweave Guard II",
+        "type": "Support",
         "range": "Self",
         "aoe": "",
-        "duration": "MR Rounds",
-        "effect": "Gain **+31 Armor**.",
+        "duration": "",
+        "effect": "When you activate an Active Buff that grants Armor as one of its effects, you may increase that Buff's effective Power Level by +2 and its duration by +2 rounds. Uses per Safe Haven Rest: half Mastery Rank, rounded up. The Active Buff cannot exceed Power Level 16.",
         "special": "",
-        "powerTemplateId": "ab-armor"
+        "powerTemplateId": "empower-buff-armor"
       }
     ],
     "stoneFunction": null,
@@ -70,17 +70,20 @@
       {
         "level": 1,
         "kind": "power",
-        "powerTemplateId": "ab-immovable-temp-hp"
+        "powerTemplateId": "ab-immovable-temp-hp",
+        "displayName": "Anchoring Stance"
       },
       {
         "level": 2,
         "kind": "power",
-        "powerTemplateId": "movement-safe-movement"
+        "powerTemplateId": "movement-safe-movement",
+        "displayName": "Stone-Sure Step"
       },
       {
         "level": 3,
         "kind": "power",
-        "powerTemplateId": "ab-armor"
+        "powerTemplateId": "empower-buff-armor",
+        "displayName": "Stoneweave Guard"
       }
     ],
     "lore": "Ancestral weight, deep-road memory, and the old bond between dwarven bodies and stone.",
@@ -98,7 +101,7 @@
     "powers": [
       {
         "id": "stoneboundSoles-pw-7",
-        "name": "Immovable + Temporary HP III",
+        "name": "Anchoring Stance III",
         "fluff": "Special: immovable",
         "category": "activeBuff",
         "tags": [],
@@ -306,7 +309,7 @@
       },
       {
         "id": "stoneboundSoles-pw-8",
-        "name": "Safe Movement III",
+        "name": "Stone-Sure Step III",
         "category": "movement",
         "tags": [],
         "cost": {
@@ -512,11 +515,11 @@
       },
       {
         "id": "stoneboundSoles-pw-6",
-        "name": "Armor II",
-        "category": "activeBuff",
+        "name": "Stoneweave Guard II",
+        "category": "passive",
         "tags": [],
         "cost": {
-          "action": "full"
+          "action": "none"
         },
         "levels": {
           "1": {
@@ -628,17 +631,16 @@
             "specials": []
           },
           "10": {
-            "type": "Active Buff",
+            "type": "Support",
             "range": {
               "kind": "self"
             },
             "aoe": null,
             "duration": {
-              "kind": "rounds",
-              "rounds": 1
+              "kind": "instant"
             },
             "effect": {
-              "text": "Gain **+31 Armor**."
+              "text": "When you activate an Active Buff that grants Armor as one of its effects, you may increase that Buff's effective Power Level by +2 and its duration by +2 rounds. Uses per Safe Haven Rest: half Mastery Rank, rounded up. The Active Buff cannot exceed Power Level 16."
             },
             "specials": [],
             "lvl": 6
@@ -734,7 +736,7 @@
       ],
       "echoBound": "dwarfs",
       "echoArtifactKey": "stoneboundSoles",
-      "seedVersion": 26
+      "seedVersion": 35
     }
   },
   "_id": "npHhuD2CtYtDHaUQ",

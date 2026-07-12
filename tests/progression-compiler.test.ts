@@ -46,9 +46,12 @@ describe('deriveLevelProgressionFromPicks', () => {
     const rows = deriveLevelProgressionFromPicks(picks);
     expect(rows.map((r) => r.level)).toEqual([1, 4, 7]);
     for (const r of rows) {
-      expect(r.type).toBe('Support');
-      expect(r.effect).toContain('Stone Power Support');
+      expect(r.type).toBe('Stone Power Support');
+      expect(r.duration).toBe('Instant');
+      expect(r.effect).toContain('Supports the');
       expect(r.effect).toContain('Might');
+      expect(r.effect).toContain('pre-fills Tier');
+      expect(r.effect).toContain('has no effect');
     }
     expect(rows.map((r) => r.name)).toEqual(['Stone Support I', 'Stone Support II', 'Stone Support III']);
   });
@@ -113,5 +116,67 @@ describe('deriveLevelProgressionFromPicks', () => {
       expect(r.powerTemplateId).toBe('active-ranged-aoe-smite-attack');
       expect(r.special).toContain('Spell');
     }
+  });
+
+  it('binds optional Specials on weapon AoE picks with staged ranks', () => {
+    const picks: ArtifactProgressionPick[] = [
+      {
+        level: 2,
+        kind: 'power',
+        powerTemplateId: 'active-melee-weapon-aoe',
+        chosenSpecial: { key: 'lacerate', tier: 4 },
+        displayName: 'Rending Spiral',
+      },
+    ];
+    const rows = deriveLevelProgressionFromPicks(picks);
+    expect(rows.map((r) => r.level)).toEqual([2, 5, 8]);
+    expect(rows[0].special).toBe('Lacerate(3)');
+    expect(rows[1].special).toBe('Lacerate(5)');
+    expect(rows[2].special).toBe('Lacerate(7)');
+  });
+
+  it('honors custom stage power levels and numerals (Oracle Field I / III / V)', () => {
+    const picks: ArtifactProgressionPick[] = [
+      {
+        level: 1,
+        kind: 'power',
+        powerTemplateId: 'ab-armor-aura',
+        displayName: 'Oracle Field',
+        stagePowerLevels: ['1', '3', '5'],
+        stageNumerals: ['I', 'III', 'V'],
+      },
+    ];
+    const rows = deriveLevelProgressionFromPicks(picks);
+    const tpl = getTemplate('ab-armor-aura')!;
+    expect(rows.map((r) => r.name)).toEqual(['Oracle Field I', 'Oracle Field III', 'Oracle Field V']);
+    expect(rows[0].effect).toBe(tpl.levels['1'].effect.text);
+    expect(rows[1].effect).toBe(tpl.levels['3'].effect.text);
+    expect(rows[2].effect).toBe(tpl.levels['5'].effect.text);
+    expect(rows[0].aoe).toContain('2');
+    expect(rows[1].aoe).toContain('6');
+    expect(rows[2].aoe).toContain('10');
+  });
+
+  it('supports per-stage template ids on one pick (Serpent Evasion + Mobility Extension)', () => {
+    const picks: ArtifactProgressionPick[] = [
+      {
+        level: 2,
+        kind: 'power',
+        powerTemplateId: 'ab-evade',
+        displayName: 'Serpent Evasion',
+        stageTemplateIds: ['ab-evade', 'extend-buff-mobility', 'extend-buff-mobility'],
+        stageNames: ['Serpent Evasion I', 'Mobility Buff Extension II', 'Mobility Buff Extension III'],
+      },
+    ];
+    const rows = deriveLevelProgressionFromPicks(picks);
+    expect(rows.map((r) => r.name)).toEqual([
+      'Serpent Evasion I',
+      'Mobility Buff Extension II',
+      'Mobility Buff Extension III',
+    ]);
+    expect(rows[0].powerTemplateId).toBe('ab-evade');
+    expect(rows[1].powerTemplateId).toBe('extend-buff-mobility');
+    expect(rows[0].effect).toContain('Evade');
+    expect(rows[1].effect).toContain('Evade or Movement');
   });
 });

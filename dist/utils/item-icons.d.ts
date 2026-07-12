@@ -2,8 +2,14 @@
 export declare function normalizeWeaponNameKey(name: string): string;
 /** Normalize gear keys so curly apostrophes match GEAR_ICONS (ASCII '). */
 export declare function normalizeGearIconKey(name: string): string;
+/**
+ * Custom icon for a seeded Echo Artifact tree (all levels share the same art).
+ * Returns null when no dedicated PNG exists for the key.
+ */
+export declare function getEchoArtifactIcon(echoArtifactKey: string): string | null;
 export type ItemIconSystemHint = {
     type?: string;
+    echoArtifactKey?: string;
 };
 /**
  * Resolve the best icon path for an item by name and type.

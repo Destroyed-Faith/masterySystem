@@ -4,6 +4,7 @@
 import { CATEGORY_LABELS, CATEGORY_ORDER, activeTemplateCanBeSpell, findCatalogEntry, TOWER_WIZARD_DEFENSIVE_RANK, TOWER_WIZARD_MASTERY_RANK, TOWER_WIZARD_OFFENSIVE_RANK, TOWER_WIZARD_POWER_REQUIREMENTS, TOWER_WIZARD_POWER_TOTAL, countPowersByCategory, findDuplicatePowerLabel, resolvePowerCategoryFromItem, } from '../../utils/power-catalog.js';
 import { buildPackageGrantSpecs, buildPackageGrantSpecsFromOverrides, buildPackageReview, catalogEntryMatchesGrantKey, getDefensePackage, getDefaultPassive1TemplateId, getOffensePackage, grantKeyCategory, isManualBuildMode, isValidPassive1Variant, isValidReplacementActiveBuffId, resolveGrant, resolvePassive1TemplateId, selectionUsesCatalogOffense, } from './tower-wizard-packages.js';
 import { getPassiveCategoryConflictMessage, isAllowedSecondPassive, } from './tower-wizard-passive-categories.js';
+import { collectEchoAdvisorWarnings, } from './tower-wizard-echo-advisor.js';
 export function isValidSecondPassiveForDefense(defenseId, templateId, passive1TemplateId) {
     const defense = getDefensePackage(defenseId);
     if (!defense)
@@ -222,10 +223,13 @@ export function validatePackageSpecs(selection) {
     }
     return validateTowerWizardSelection(selection);
 }
-export function collectRelevantWarnings(selection) {
-    if (isManualBuildMode(selection))
-        return [];
+export function collectRelevantWarnings(selection, echoContext) {
     const out = [];
+    if (echoContext) {
+        out.push(...collectEchoAdvisorWarnings(selection, echoContext));
+    }
+    if (isManualBuildMode(selection))
+        return [...new Set(out)];
     const defense = getDefensePackage(selection.defenseId);
     const offense = selection.offenseId ? getOffensePackage(selection.offenseId) : undefined;
     if (defense?.warning)

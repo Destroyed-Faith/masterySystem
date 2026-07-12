@@ -1,7 +1,7 @@
 {
   "name": "Elorian Stride - Level 5-1",
   "type": "artifact",
-  "img": "icons/svg/upgrade.svg",
+  "img": "systems/mastery-system/assets/icons/items/echo-artifacts/Elven Stride.png",
   "system": {
     "level": 5,
     "currentLevel": 5,
@@ -55,12 +55,12 @@
       {
         "level": 3,
         "name": "Elorian Focus I",
-        "type": "Support",
+        "type": "Stone Power Support",
         "range": "Self",
         "aoe": "",
-        "duration": "Passive",
-        "effect": "Stone Power Support (Agility): supports Crit",
-        "special": ""
+        "duration": "Instant",
+        "effect": "Supports the Agility Ability: Crit Stone Power and pre-fills Tier 2. You must still pay Tier 1 yourself. If Tier 1 is not paid, the pre-filled Tier 2 has no effect.",
+        "special": "agility.crit"
       }
     ],
     "stoneFunction": null,
@@ -516,8 +516,11 @@
       {
         "id": "elorianStride-pw-3",
         "name": "Elorian Focus I",
+        "fluff": "Special: agility.crit",
         "category": "passive",
-        "tags": [],
+        "tags": [
+          "stone-function"
+        ],
         "cost": {
           "action": "none"
         },
@@ -559,16 +562,16 @@
             "specials": []
           },
           "4": {
-            "type": "Support",
+            "type": "Stone Power Support",
             "range": {
               "kind": "self"
             },
             "aoe": null,
             "duration": {
-              "kind": "scene"
+              "kind": "instant"
             },
             "effect": {
-              "text": "Stone Power Support (Agility): supports Crit"
+              "text": "Supports the Agility Ability: Crit Stone Power and pre-fills Tier 2. You must still pay Tier 1 yourself. If Tier 1 is not paid, the pre-filled Tier 2 has no effect."
             },
             "specials": [],
             "lvl": 3
@@ -736,7 +739,7 @@
       ],
       "echoBound": "elorians",
       "echoArtifactKey": "elorianStride",
-      "seedVersion": 26
+      "seedVersion": 35
     }
   },
   "_id": "cqR8ZNTqGb85EPct",

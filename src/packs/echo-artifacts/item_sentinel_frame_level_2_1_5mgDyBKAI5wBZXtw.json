@@ -1,7 +1,7 @@
 {
   "name": "Sentinel Frame - Level 2-1",
   "type": "artifact",
-  "img": "icons/svg/statue.svg",
+  "img": "systems/mastery-system/assets/icons/items/echo-artifacts/Sentinel Frame.png",
   "system": {
     "level": 2,
     "currentLevel": 2,
@@ -39,12 +39,12 @@
       {
         "level": 2,
         "name": "Resolve Core I",
-        "type": "Support",
+        "type": "Stone Battery",
         "range": "Self",
         "aoe": "",
         "duration": "Passive",
-        "effect": "Stone Battery (Resolve)",
-        "special": ""
+        "effect": "Gain a Resolve Stone Battery (capacity 10).",
+        "special": "stoneBattery"
       }
     ],
     "stoneFunction": null,
@@ -298,8 +298,11 @@
       {
         "id": "sentinelFrame-pw-2",
         "name": "Resolve Core I",
+        "fluff": "Special: stoneBattery",
         "category": "passive",
-        "tags": [],
+        "tags": [
+          "stone-function"
+        ],
         "cost": {
           "action": "none"
         },
@@ -341,7 +344,7 @@
             "specials": []
           },
           "4": {
-            "type": "Support",
+            "type": "Stone Battery",
             "range": {
               "kind": "self"
             },
@@ -350,7 +353,7 @@
               "kind": "scene"
             },
             "effect": {
-              "text": "Stone Battery (Resolve)"
+              "text": "Gain a Resolve Stone Battery (capacity 10)."
             },
             "specials": [],
             "lvl": 2
@@ -524,7 +527,7 @@
       ],
       "echoBound": "sentinels",
       "echoArtifactKey": "sentinelFrame",
-      "seedVersion": 26
+      "seedVersion": 35
     }
   },
   "_id": "5mgDyBKAI5wBZXtw",

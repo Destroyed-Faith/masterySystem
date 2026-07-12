@@ -160,6 +160,7 @@ export async function showTowerWizardPowerPicker(options: {
     excludeIdentityKeys: Set<string>;
     excludeSubfamilies?: Set<string>;
     actorEchoKey?: string | null;
+    echoPickerNote?: string;
     currentTemplateId?: string;
     currentSpecial?: string | null;
 }): Promise<TowerWizardPowerPickerResult | null> {
@@ -193,6 +194,7 @@ export async function showTowerWizardPowerPicker(options: {
     const content = `
     <div class="tower-wizard-dialog tower-wizard-picker-body">
       <p class="tower-wizard-picker-intro">Choose a replacement <strong>${escapeHtml(CATEGORY_LABELS[category])}</strong> for <strong>${escapeHtml(options.roleLabel)}</strong> (Rank ${fixedRank}). Click an option to use it.</p>
+      ${options.echoPickerNote ? `<p class="tower-wizard-warn">${escapeHtml(options.echoPickerNote)}</p>` : ''}
       <div class="tower-wizard-picker-groups">${groupsHtml}</div>
     </div>`;
 

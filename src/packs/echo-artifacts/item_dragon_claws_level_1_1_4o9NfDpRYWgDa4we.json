@@ -1,7 +1,7 @@
 {
   "name": "Dragon Claws - Level 1-1",
   "type": "artifact",
-  "img": "icons/svg/sword.svg",
+  "img": "systems/mastery-system/assets/icons/items/echo-artifacts/Dragon Claws.png",
   "system": {
     "level": 1,
     "currentLevel": 1,
@@ -26,12 +26,12 @@
       {
         "level": 1,
         "name": "Extra Damage Support I",
-        "type": "Support",
+        "type": "Stone Power Support",
         "range": "Self",
         "aoe": "",
-        "duration": "Passive",
-        "effect": "Stone Power Support (Might): supports Melee Damage",
-        "special": ""
+        "duration": "Instant",
+        "effect": "Supports the Might Ability: Melee Damage Stone Power and pre-fills Tier 2. You must still pay Tier 1 yourself. If Tier 1 is not paid, the pre-filled Tier 2 has no effect.",
+        "special": "might.meleeDamage"
       }
     ],
     "stoneFunction": {
@@ -54,13 +54,21 @@
         "level": 2,
         "kind": "power",
         "powerTemplateId": "active-melee-weapon-aoe",
-        "displayName": "Rending Spiral"
+        "displayName": "Rending Spiral",
+        "chosenSpecial": {
+          "key": "lacerate",
+          "tier": 4
+        }
       },
       {
         "level": 3,
         "kind": "power",
         "powerTemplateId": "active-melee-weapon-aoe",
-        "displayName": "Tail Sweep"
+        "displayName": "Tail Sweep",
+        "chosenSpecial": {
+          "key": "push",
+          "tier": 4
+        }
       }
     ],
     "lore": "Both hands become natural weapons: claws, scales, and tail.",
@@ -79,8 +87,11 @@
       {
         "id": "dragonClaws-pw-1",
         "name": "Extra Damage Support I",
+        "fluff": "Special: might.meleeDamage",
         "category": "passive",
-        "tags": [],
+        "tags": [
+          "stone-function"
+        ],
         "cost": {
           "action": "none"
         },
@@ -122,16 +133,16 @@
             "specials": []
           },
           "4": {
-            "type": "Support",
+            "type": "Stone Power Support",
             "range": {
               "kind": "self"
             },
             "aoe": null,
             "duration": {
-              "kind": "scene"
+              "kind": "instant"
             },
             "effect": {
-              "text": "Stone Power Support (Might): supports Melee Damage"
+              "text": "Supports the Might Ability: Melee Damage Stone Power and pre-fills Tier 2. You must still pay Tier 1 yourself. If Tier 1 is not paid, the pre-filled Tier 2 has no effect."
             },
             "specials": [],
             "lvl": 1
@@ -307,7 +318,7 @@
       "isRoot": true,
       "echoBound": "dragonborn",
       "echoArtifactKey": "dragonClaws",
-      "seedVersion": 26
+      "seedVersion": 35
     }
   },
   "_id": "4o9NfDpRYWgDa4we",

@@ -1,7 +1,7 @@
 {
   "name": "Titan Scars - Level 7-1",
   "type": "artifact",
-  "img": "icons/svg/statue.svg",
+  "img": "systems/mastery-system/assets/icons/items/echo-artifacts/Titan Scars.png",
   "system": {
     "level": 7,
     "currentLevel": 7,
@@ -39,12 +39,12 @@
       {
         "level": 5,
         "name": "Titan Agility Pool II",
-        "type": "Support",
+        "type": "Stone Pool",
         "range": "Self",
         "aoe": "",
         "duration": "Passive",
-        "effect": "Stone Pool (Agility)",
-        "special": ""
+        "effect": "After each Safe Haven Rest, store 4 Agility Stones. These Stones may only be used for this Artifact's listed Agility Stone functions.",
+        "special": "stonePool"
       },
       {
         "level": 6,
@@ -305,8 +305,11 @@
       {
         "id": "titanScarsAgility-pw-5",
         "name": "Titan Agility Pool II",
+        "fluff": "Special: stonePool",
         "category": "passive",
-        "tags": [],
+        "tags": [
+          "stone-function"
+        ],
         "cost": {
           "action": "none"
         },
@@ -420,7 +423,7 @@
             "specials": []
           },
           "10": {
-            "type": "Support",
+            "type": "Stone Pool",
             "range": {
               "kind": "self"
             },
@@ -429,7 +432,7 @@
               "kind": "scene"
             },
             "effect": {
-              "text": "Stone Pool (Agility)"
+              "text": "After each Safe Haven Rest, store 4 Agility Stones. These Stones may only be used for this Artifact's listed Agility Stone functions."
             },
             "specials": [],
             "lvl": 5
@@ -738,7 +741,7 @@
       ],
       "echoBound": "titanborn",
       "echoArtifactKey": "titanScarsAgility",
-      "seedVersion": 26
+      "seedVersion": 35
     }
   },
   "_id": "uFA9ECfsYHGCQVxP",

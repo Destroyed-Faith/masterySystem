@@ -1,7 +1,7 @@
 {
   "name": "Elorian Stride - Level 8-1",
   "type": "artifact",
-  "img": "icons/svg/upgrade.svg",
+  "img": "systems/mastery-system/assets/icons/items/echo-artifacts/Elven Stride.png",
   "system": {
     "level": 8,
     "currentLevel": 8,
@@ -55,12 +55,12 @@
       {
         "level": 6,
         "name": "Elorian Focus II",
-        "type": "Support",
+        "type": "Stone Power Support",
         "range": "Self",
         "aoe": "",
-        "duration": "Passive",
-        "effect": "Stone Power Support (Agility): supports Crit",
-        "special": ""
+        "duration": "Instant",
+        "effect": "Supports the Agility Ability: Crit Stone Power and pre-fills Tier 3. You must still pay Tiers 1, 2 yourself. If Tiers 1, 2 are not paid, the pre-filled Tier 3 has no effect.",
+        "special": "agility.crit"
       }
     ],
     "stoneFunction": null,
@@ -516,8 +516,11 @@
       {
         "id": "elorianStride-pw-6",
         "name": "Elorian Focus II",
+        "fluff": "Special: agility.crit",
         "category": "passive",
-        "tags": [],
+        "tags": [
+          "stone-function"
+        ],
         "cost": {
           "action": "none"
         },
@@ -631,16 +634,16 @@
             "specials": []
           },
           "10": {
-            "type": "Support",
+            "type": "Stone Power Support",
             "range": {
               "kind": "self"
             },
             "aoe": null,
             "duration": {
-              "kind": "scene"
+              "kind": "instant"
             },
             "effect": {
-              "text": "Stone Power Support (Agility): supports Crit"
+              "text": "Supports the Agility Ability: Crit Stone Power and pre-fills Tier 3. You must still pay Tiers 1, 2 yourself. If Tiers 1, 2 are not paid, the pre-filled Tier 3 has no effect."
             },
             "specials": [],
             "lvl": 6
@@ -736,7 +739,7 @@
       ],
       "echoBound": "elorians",
       "echoArtifactKey": "elorianStride",
-      "seedVersion": 26
+      "seedVersion": 35
     }
   },
   "_id": "p72z6D4Uer5DLNqG",

@@ -1,7 +1,7 @@
 {
   "name": "Sentinel Frame - Level 3-1",
   "type": "artifact",
-  "img": "icons/svg/statue.svg",
+  "img": "systems/mastery-system/assets/icons/items/echo-artifacts/Sentinel Frame.png",
   "system": {
     "level": 3,
     "currentLevel": 3,
@@ -39,22 +39,22 @@
       {
         "level": 2,
         "name": "Resolve Core I",
-        "type": "Support",
+        "type": "Stone Battery",
         "range": "Self",
         "aoe": "",
         "duration": "Passive",
-        "effect": "Stone Battery (Resolve)",
-        "special": ""
+        "effect": "Gain a Resolve Stone Battery (capacity 10).",
+        "special": "stoneBattery"
       },
       {
         "level": 3,
         "name": "Healing Support I",
-        "type": "Support",
+        "type": "Stone Power Support",
         "range": "Self",
         "aoe": "",
-        "duration": "Passive",
-        "effect": "Stone Power Support (Resolve): supports Healing",
-        "special": ""
+        "duration": "Instant",
+        "effect": "Supports the Resolve Ability: Healing Stone Power and pre-fills Tier 2. You must still pay Tier 1 yourself. If Tier 1 is not paid, the pre-filled Tier 2 has no effect.",
+        "special": "resolve.healing"
       }
     ],
     "stoneFunction": null,
@@ -308,8 +308,11 @@
       {
         "id": "sentinelFrame-pw-2",
         "name": "Resolve Core I",
+        "fluff": "Special: stoneBattery",
         "category": "passive",
-        "tags": [],
+        "tags": [
+          "stone-function"
+        ],
         "cost": {
           "action": "none"
         },
@@ -351,7 +354,7 @@
             "specials": []
           },
           "4": {
-            "type": "Support",
+            "type": "Stone Battery",
             "range": {
               "kind": "self"
             },
@@ -360,7 +363,7 @@
               "kind": "scene"
             },
             "effect": {
-              "text": "Stone Battery (Resolve)"
+              "text": "Gain a Resolve Stone Battery (capacity 10)."
             },
             "specials": [],
             "lvl": 2
@@ -514,8 +517,11 @@
       {
         "id": "sentinelFrame-pw-3",
         "name": "Healing Support I",
+        "fluff": "Special: resolve.healing",
         "category": "passive",
-        "tags": [],
+        "tags": [
+          "stone-function"
+        ],
         "cost": {
           "action": "none"
         },
@@ -557,16 +563,16 @@
             "specials": []
           },
           "4": {
-            "type": "Support",
+            "type": "Stone Power Support",
             "range": {
               "kind": "self"
             },
             "aoe": null,
             "duration": {
-              "kind": "scene"
+              "kind": "instant"
             },
             "effect": {
-              "text": "Stone Power Support (Resolve): supports Healing"
+              "text": "Supports the Resolve Ability: Healing Stone Power and pre-fills Tier 2. You must still pay Tier 1 yourself. If Tier 1 is not paid, the pre-filled Tier 2 has no effect."
             },
             "specials": [],
             "lvl": 3
@@ -740,7 +746,7 @@
       ],
       "echoBound": "sentinels",
       "echoArtifactKey": "sentinelFrame",
-      "seedVersion": 26
+      "seedVersion": 35
     }
   },
   "_id": "8f7ZZBtIWiaBcQKJ",

@@ -1,7 +1,7 @@
 {
-  "name": "Wyrm Scales (Medium) - Level 1-1",
+  "name": "Serpent Scales - Level 1-1",
   "type": "artifact",
-  "img": "icons/svg/statue.svg",
+  "img": "systems/mastery-system/assets/icons/items/echo-artifacts/Serpent Scales.png",
   "system": {
     "level": 1,
     "currentLevel": 1,
@@ -17,17 +17,17 @@
       {
         "slot": "a",
         "type": "bodyArmor",
-        "label": "Medium Echo Armor",
+        "label": "Light Echo Armor",
         "value": 4,
-        "note": "Medium Armor: Evade −2, Initiative −4, −1d8 Physical Skills.",
+        "note": "Light Armor: no class drawbacks.",
         "isBaseline": true,
-        "armorWeightClass": "medium"
+        "armorWeightClass": "light"
       }
     ],
     "levelProgression": [
       {
         "level": 1,
-        "name": "Flight I",
+        "name": "Dragon Wings I",
         "type": "Movement",
         "range": "Self",
         "aoe": "",
@@ -42,25 +42,38 @@
       {
         "level": 1,
         "kind": "power",
-        "powerTemplateId": "movement-flight"
+        "powerTemplateId": "movement-flight",
+        "displayName": "Dragon Wings"
       },
       {
         "level": 2,
         "kind": "power",
-        "powerTemplateId": "ab-damage-reduction"
+        "powerTemplateId": "ab-evade",
+        "displayName": "Serpent Evasion",
+        "stageTemplateIds": [
+          "ab-evade",
+          "extend-buff-mobility",
+          "extend-buff-mobility"
+        ],
+        "stageNames": [
+          "Serpent Evasion I",
+          "Mobility Buff Extension II",
+          "Mobility Buff Extension III"
+        ]
       },
       {
         "level": 3,
         "kind": "stoneFunction",
         "stoneFunction": {
           "kind": "stonePowerSupport",
-          "attribute": "might",
-          "stonePowerId": "might.armor"
-        }
+          "attribute": "agility",
+          "stonePowerId": "agility.evade"
+        },
+        "displayName": "Evasion Stone Support"
       }
     ],
-    "lore": "Balanced scale-form — medium armor with Damage Reduction synergy.",
-    "description": "Balanced scale-form — medium armor with Damage Reduction synergy.\n\nA Dragonborn with Wyrm Scales cannot wear mundane armor or another Body Artifact.",
+    "lore": "Light serpent scale-form — evasion, mobility, and aerial grace over raw soak.",
+    "description": "Light serpent scale-form — evasion, mobility, and aerial grace over raw soak.\n\nA Dragonborn with Wyrm Scales cannot wear mundane armor or another Body Artifact.",
     "bonuses": {
       "attack": 0,
       "damage": "",
@@ -73,8 +86,8 @@
     },
     "powers": [
       {
-        "id": "wyrmScalesMedium-pw-1",
-        "name": "Flight I",
+        "id": "wyrmScalesLight-pw-1",
+        "name": "Dragon Wings I",
         "category": "movement",
         "tags": [],
         "cost": {
@@ -281,10 +294,10 @@
     ],
     "inventorySize": "1x1",
     "artifactArmor": {
-      "type": "medium",
+      "type": "light",
       "armorValue": 4,
-      "evadeModifier": -2,
-      "skillPenalty": "−1d8 to Physical Skill checks"
+      "evadeModifier": 0,
+      "skillPenalty": ""
     },
     "equipSlots": [
       "body"
@@ -292,18 +305,18 @@
   },
   "flags": {
     "mastery-system": {
-      "nodeId": "wyrmScalesMedium-l1",
+      "nodeId": "wyrmScalesLight-l1",
       "parentIds": [],
       "childIds": [
-        "wyrmScalesMedium-l2"
+        "wyrmScalesLight-l2"
       ],
       "isRoot": true,
       "echoBound": "dragonborn",
-      "echoArtifactKey": "wyrmScalesMedium",
-      "seedVersion": 26
+      "echoArtifactKey": "wyrmScalesLight",
+      "seedVersion": 35
     }
   },
-  "_id": "02mDfDlfBMgDWIaU",
-  "folder": "raEC6C6xp34CNq1S",
-  "_key": "!items!02mDfDlfBMgDWIaU"
+  "_id": "pYmvbE4vNnaEJJze",
+  "folder": "eypKDDPbETED8i23",
+  "_key": "!items!pYmvbE4vNnaEJJze"
 }

@@ -1,7 +1,7 @@
 {
   "name": "Oracle Frame - Level 3-1",
   "type": "artifact",
-  "img": "icons/svg/statue.svg",
+  "img": "systems/mastery-system/assets/icons/items/echo-artifacts/Oracle Frame.png",
   "system": {
     "level": 3,
     "currentLevel": 3,
@@ -27,71 +27,52 @@
     "levelProgression": [
       {
         "level": 1,
-        "name": "Oracle Armor I",
-        "type": "Base Armor",
+        "name": "Oracle Field I",
+        "type": "Active Buff",
         "range": "Self",
-        "aoe": "",
-        "duration": "Permanent",
-        "effect": "Gain the shared Light Echo Armor value for this Artifact Level.",
-        "special": "Armor"
+        "aoe": "Aura 2m",
+        "duration": "MR Rounds",
+        "effect": "You and allies within **2 m** gain **+4 Armor**.",
+        "special": "",
+        "powerTemplateId": "ab-armor-aura"
       },
       {
         "level": 2,
         "name": "Oracle Aid I",
-        "type": "Support",
+        "type": "Stone Power Support",
         "range": "Self",
         "aoe": "",
-        "duration": "Passive",
-        "effect": "Stone Power Support (Influence): supports Aid Roll",
-        "special": ""
+        "duration": "Instant",
+        "effect": "Supports the Influence Ability: Aid Roll Stone Power and pre-fills Tier 2. You must still pay Tier 1 yourself. If Tier 1 is not paid, the pre-filled Tier 2 has no effect.",
+        "special": "influence.aidRoll"
       },
       {
         "level": 3,
         "name": "Influence Core I",
-        "type": "Support",
+        "type": "Stone Pool",
         "range": "Self",
         "aoe": "",
         "duration": "Passive",
-        "effect": "Stone Battery (Influence)",
-        "special": ""
+        "effect": "After each Safe Haven Rest, store 2 Influence Stones. These Stones may only be used for this Artifact's listed Influence Stone functions.",
+        "special": "stonePool"
       }
     ],
     "stoneFunction": null,
     "progressionPicks": [
       {
         "level": 1,
-        "kind": "authored",
-        "authoredStages": [
-          {
-            "level": 1,
-            "name": "Oracle Armor I",
-            "type": "Base Armor",
-            "range": "Self",
-            "aoe": "",
-            "duration": "Permanent",
-            "effect": "Gain the shared Light Echo Armor value for this Artifact Level.",
-            "special": "Armor"
-          },
-          {
-            "level": 4,
-            "name": "Oracle Armor II",
-            "type": "Base Armor",
-            "range": "Self",
-            "aoe": "",
-            "duration": "Permanent",
-            "effect": "Continue using the shared Light Echo Armor value.",
-            "special": "Armor"
-          },
-          {
-            "level": 7,
-            "name": "Oracle Armor III",
-            "type": "Base Armor",
-            "range": "Self",
-            "aoe": "",
-            "duration": "Permanent",
-            "effect": "Continue using the shared Light Echo Armor value.",
-            "special": "Armor"
-          }
+        "kind": "power",
+        "powerTemplateId": "ab-armor-aura",
+        "displayName": "Oracle Field",
+        "stagePowerLevels": [
+          "1",
+          "3",
+          "5"
+        ],
+        "stageNumerals": [
+          "I",
+          "III",
+          "V"
         ]
       },
       {
@@ -108,7 +89,7 @@
         "level": 3,
         "kind": "stoneFunction",
         "stoneFunction": {
-          "kind": "stoneBattery",
+          "kind": "stonePool",
           "attribute": "influence"
         },
         "displayName": "Influence Core"
@@ -129,12 +110,11 @@
     "powers": [
       {
         "id": "oracleFrame-pw-1",
-        "name": "Oracle Armor I",
-        "fluff": "Special: Armor",
-        "category": "passive",
+        "name": "Oracle Field I",
+        "category": "activeBuff",
         "tags": [],
         "cost": {
-          "action": "none"
+          "action": "full"
         },
         "levels": {
           "1": {
@@ -174,16 +154,21 @@
             "specials": []
           },
           "4": {
-            "type": "Base Armor",
+            "type": "Active Buff",
             "range": {
               "kind": "self"
             },
-            "aoe": null,
+            "aoe": {
+              "shape": "aura",
+              "m": 2,
+              "radiusM": 2
+            },
             "duration": {
-              "kind": "scene"
+              "kind": "rounds",
+              "rounds": 1
             },
             "effect": {
-              "text": "Gain the shared Light Echo Armor value for this Artifact Level."
+              "text": "You and allies within **2 m** gain **+4 Armor**."
             },
             "specials": [],
             "lvl": 1
@@ -337,8 +322,11 @@
       {
         "id": "oracleFrame-pw-2",
         "name": "Oracle Aid I",
+        "fluff": "Special: influence.aidRoll",
         "category": "passive",
-        "tags": [],
+        "tags": [
+          "stone-function"
+        ],
         "cost": {
           "action": "none"
         },
@@ -380,16 +368,16 @@
             "specials": []
           },
           "4": {
-            "type": "Support",
+            "type": "Stone Power Support",
             "range": {
               "kind": "self"
             },
             "aoe": null,
             "duration": {
-              "kind": "scene"
+              "kind": "instant"
             },
             "effect": {
-              "text": "Stone Power Support (Influence): supports Aid Roll"
+              "text": "Supports the Influence Ability: Aid Roll Stone Power and pre-fills Tier 2. You must still pay Tier 1 yourself. If Tier 1 is not paid, the pre-filled Tier 2 has no effect."
             },
             "specials": [],
             "lvl": 2
@@ -543,8 +531,11 @@
       {
         "id": "oracleFrame-pw-3",
         "name": "Influence Core I",
+        "fluff": "Special: stonePool",
         "category": "passive",
-        "tags": [],
+        "tags": [
+          "stone-function"
+        ],
         "cost": {
           "action": "none"
         },
@@ -586,7 +577,7 @@
             "specials": []
           },
           "4": {
-            "type": "Support",
+            "type": "Stone Pool",
             "range": {
               "kind": "self"
             },
@@ -595,7 +586,7 @@
               "kind": "scene"
             },
             "effect": {
-              "text": "Stone Battery (Influence)"
+              "text": "After each Safe Haven Rest, store 2 Influence Stones. These Stones may only be used for this Artifact's listed Influence Stone functions."
             },
             "specials": [],
             "lvl": 3
@@ -769,7 +760,7 @@
       ],
       "echoBound": "sentinels",
       "echoArtifactKey": "oracleFrame",
-      "seedVersion": 26
+      "seedVersion": 35
     }
   },
   "_id": "e1K6ABPejECBAH8M",

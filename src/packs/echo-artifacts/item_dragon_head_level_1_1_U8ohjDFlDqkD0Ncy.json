@@ -1,7 +1,7 @@
 {
   "name": "Dragon Head - Level 1-1",
   "type": "artifact",
-  "img": "icons/svg/upgrade.svg",
+  "img": "systems/mastery-system/assets/icons/items/echo-artifacts/Dragon Head.png",
   "system": {
     "level": 1,
     "currentLevel": 1,
@@ -315,7 +315,7 @@
       "isRoot": true,
       "echoBound": "dragonborn",
       "echoArtifactKey": "dragonHead",
-      "seedVersion": 26
+      "seedVersion": 35
     }
   },
   "_id": "U8ohjDFlDqkD0Ncy",

@@ -63,6 +63,15 @@ export const TOWER_WIZARD_COPY = {
         melee: 'Melee — close combat',
         ranged: 'Ranged — at a distance',
     },
+    echo: {
+        missingBanner: 'Select your Echo in the Echo dialog first. Your Echo Artifacts (shown on your character) determine which Active Buffs you already have — you only maintain one at a time.',
+        summaryHeading: 'Your Echo',
+        artifactBuffsHeading: 'Active Buffs from Echo Artifacts',
+        artifactBuffNote: 'These use your single maintained Active Buff slot when activated. Do not pick the same defensive Active Buff again in this package.',
+        defenseConflict: 'Already covered by your Echo',
+        defenseRecommended: 'Complements your Echo',
+        activeBuffPickerNote: 'Options that duplicate your Echo Artifact Active Buff are hidden. Consider an offensive or support Active Buff, or a different defensive path (Phasing, Damage Reduction, Conditional Passives).',
+    },
     review: {
         heading: 'Your Combat Package',
         manualIntro: 'Choose each Power below from the catalog. You need all six before you can apply.',

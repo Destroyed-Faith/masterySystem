@@ -407,6 +407,27 @@ const VITALITY_POWERS_RAW: Array<Omit<StonePower, 'effect'>> = [
     },
   },
   {
+    id: 'vitality.armor',
+    name: 'Armor',
+    attribute: 'vitality',
+    category: 'passive',
+    description: 'Gain flat temporary Armor until the start of your next turn (+4/+8/+16/+32).',
+    tiers: [
+      { label: '+4 Armor', description: 'Gain +4 Armor until the start of your next turn.', value: 4 },
+      { label: '+8 Armor', description: 'Gain +8 Armor until the start of your next turn.', value: 8 },
+      { label: '+16 Armor', description: 'Gain +16 Armor until the start of your next turn.', value: 16 },
+      { label: '+32 Armor', description: 'Gain +32 Armor until the start of your next turn.', value: 32 },
+    ],
+    apply: async ({ actor, tier }) => {
+      const combat = (game as any).combat;
+      const bonus = [4, 8, 16, 32][tier - 1] ?? 0;
+      const roundState = getRoundState(actor, combat);
+      const sb = ensureStoneBonuses(roundState);
+      sb.tempArmor = bonus;
+      await setRoundState(actor, roundState);
+    },
+  },
+  {
     id: 'vitality.endureInjury',
     name: 'Endure Injury',
     attribute: 'vitality',

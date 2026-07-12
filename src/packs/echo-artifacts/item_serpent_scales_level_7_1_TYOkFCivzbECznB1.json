@@ -1,10 +1,10 @@
 {
-  "name": "Wyrm Scales (Light) - Level 10-1",
+  "name": "Serpent Scales - Level 7-1",
   "type": "artifact",
-  "img": "icons/svg/statue.svg",
+  "img": "systems/mastery-system/assets/icons/items/echo-artifacts/Serpent Scales.png",
   "system": {
-    "level": 10,
-    "currentLevel": 10,
+    "level": 7,
+    "currentLevel": 7,
     "equipped": false,
     "effects": [],
     "artifactKind": "armor",
@@ -18,7 +18,7 @@
         "slot": "a",
         "type": "bodyArmor",
         "label": "Light Echo Armor",
-        "value": 14,
+        "value": 10,
         "note": "Light Armor: no class drawbacks.",
         "isBaseline": true,
         "armorWeightClass": "light"
@@ -27,7 +27,7 @@
     "levelProgression": [
       {
         "level": 7,
-        "name": "Flight III",
+        "name": "Dragon Wings III",
         "type": "Movement",
         "range": "Self",
         "aoe": "",
@@ -37,51 +37,50 @@
         "powerTemplateId": "movement-flight"
       },
       {
-        "level": 8,
-        "name": "Evade III",
-        "type": "Active Buff",
-        "range": "Self",
-        "aoe": "",
-        "duration": "MR Rounds",
-        "effect": "Gain **+49 Evade**.",
-        "special": "",
-        "powerTemplateId": "ab-evade"
-      },
-      {
-        "level": 9,
-        "name": "Stone Support III",
+        "level": 5,
+        "name": "Mobility Buff Extension II",
         "type": "Support",
         "range": "Self",
         "aoe": "",
-        "duration": "Passive",
-        "effect": "Stone Power Support (Agility): supports Evade",
-        "special": ""
+        "duration": "",
+        "effect": "Whenever you activate an Active Buff that grants Evade or Movement as one of its effects, increase that Buff's duration by **+2 rounds**. This does not increase the Buff's value. This does not allow you to maintain a second Active Buff.",
+        "special": "",
+        "powerTemplateId": "extend-buff-mobility"
       },
       {
-        "level": 10,
-        "name": "Serpent Transformation",
-        "type": "Ultimate",
+        "level": 6,
+        "name": "Evasion Stone Support II",
+        "type": "Stone Power Support",
         "range": "Self",
-        "duration": "Special",
-        "effect": "You unlock your Serpent Dragon Form (transformation rules apply).",
-        "special": "Serpent Dragon Form"
+        "aoe": "",
+        "duration": "Instant",
+        "effect": "Supports the Agility Ability: Evade Stone Power and pre-fills Tier 3. You must still pay Tiers 1, 2 yourself. If Tiers 1, 2 are not paid, the pre-filled Tier 3 has no effect.",
+        "special": "agility.evade"
       }
     ],
-    "stoneFunction": {
-      "kind": "stonePowerSupport",
-      "attribute": "agility",
-      "stonePowerId": "agility.evade"
-    },
+    "stoneFunction": null,
     "progressionPicks": [
       {
         "level": 1,
         "kind": "power",
-        "powerTemplateId": "movement-flight"
+        "powerTemplateId": "movement-flight",
+        "displayName": "Dragon Wings"
       },
       {
         "level": 2,
         "kind": "power",
-        "powerTemplateId": "ab-evade"
+        "powerTemplateId": "ab-evade",
+        "displayName": "Serpent Evasion",
+        "stageTemplateIds": [
+          "ab-evade",
+          "extend-buff-mobility",
+          "extend-buff-mobility"
+        ],
+        "stageNames": [
+          "Serpent Evasion I",
+          "Mobility Buff Extension II",
+          "Mobility Buff Extension III"
+        ]
       },
       {
         "level": 3,
@@ -90,11 +89,12 @@
           "kind": "stonePowerSupport",
           "attribute": "agility",
           "stonePowerId": "agility.evade"
-        }
+        },
+        "displayName": "Evasion Stone Support"
       }
     ],
-    "lore": "Light scale-form — evasion and mobility over raw soak.",
-    "description": "Light scale-form — evasion and mobility over raw soak.\n\nA Dragonborn with Wyrm Scales cannot wear mundane armor or another Body Artifact.",
+    "lore": "Light serpent scale-form — evasion, mobility, and aerial grace over raw soak.",
+    "description": "Light serpent scale-form — evasion, mobility, and aerial grace over raw soak.\n\nA Dragonborn with Wyrm Scales cannot wear mundane armor or another Body Artifact.",
     "bonuses": {
       "attack": 0,
       "damage": "",
@@ -108,7 +108,7 @@
     "powers": [
       {
         "id": "wyrmScalesLight-pw-7",
-        "name": "Flight III",
+        "name": "Dragon Wings III",
         "category": "movement",
         "tags": [],
         "cost": {
@@ -313,215 +313,8 @@
         }
       },
       {
-        "id": "wyrmScalesLight-pw-8",
-        "name": "Evade III",
-        "category": "activeBuff",
-        "tags": [],
-        "cost": {
-          "action": "full"
-        },
-        "levels": {
-          "1": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "2": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "3": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "4": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "5": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "6": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "7": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "8": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "9": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "10": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "11": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "12": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "13": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "14": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "15": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "16": {
-            "type": "Active Buff",
-            "range": {
-              "kind": "self"
-            },
-            "aoe": null,
-            "duration": {
-              "kind": "rounds",
-              "rounds": 1
-            },
-            "effect": {
-              "text": "Gain **+49 Evade**."
-            },
-            "specials": [],
-            "lvl": 8
-          }
-        }
-      },
-      {
-        "id": "wyrmScalesLight-pw-9",
-        "name": "Stone Support III",
+        "id": "wyrmScalesLight-pw-5",
+        "name": "Mobility Buff Extension II",
         "category": "passive",
         "tags": [],
         "cost": {
@@ -637,100 +430,102 @@
             "specials": []
           },
           "10": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "11": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "12": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "13": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "14": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "15": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "16": {
             "type": "Support",
             "range": {
               "kind": "self"
             },
             "aoe": null,
             "duration": {
-              "kind": "scene"
+              "kind": "instant"
             },
             "effect": {
-              "text": "Stone Power Support (Agility): supports Evade"
+              "text": "Whenever you activate an Active Buff that grants Evade or Movement as one of its effects, increase that Buff's duration by **+2 rounds**. This does not increase the Buff's value. This does not allow you to maintain a second Active Buff."
             },
             "specials": [],
-            "lvl": 9
+            "lvl": 5
+          },
+          "11": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "12": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "13": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "14": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "15": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "16": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
           }
         }
       },
       {
-        "id": "wyrmScalesLight-pw-10",
-        "name": "Serpent Transformation",
-        "fluff": "Special: Serpent Dragon Form",
+        "id": "wyrmScalesLight-pw-6",
+        "name": "Evasion Stone Support II",
+        "fluff": "Special: agility.evade",
         "category": "passive",
-        "tags": [],
+        "tags": [
+          "stone-function"
+        ],
         "cost": {
           "action": "none"
         },
@@ -844,16 +639,19 @@
             "specials": []
           },
           "10": {
-            "type": "",
-            "range": null,
+            "type": "Stone Power Support",
+            "range": {
+              "kind": "self"
+            },
             "aoe": null,
             "duration": {
               "kind": "instant"
             },
             "effect": {
-              "text": ""
+              "text": "Supports the Agility Ability: Evade Stone Power and pre-fills Tier 3. You must still pay Tiers 1, 2 yourself. If Tiers 1, 2 are not paid, the pre-filled Tier 3 has no effect."
             },
-            "specials": []
+            "specials": [],
+            "lvl": 6
           },
           "11": {
             "type": "",
@@ -916,20 +714,16 @@
             "specials": []
           },
           "16": {
-            "type": "Ultimate",
-            "range": {
-              "kind": "self"
-            },
+            "type": "",
+            "range": null,
             "aoe": null,
             "duration": {
-              "kind": "instant",
-              "note": "Special"
+              "kind": "instant"
             },
             "effect": {
-              "text": "You unlock your Serpent Dragon Form (transformation rules apply)."
+              "text": ""
             },
-            "specials": [],
-            "lvl": 10
+            "specials": []
           }
         }
       }
@@ -937,7 +731,7 @@
     "inventorySize": "1x1",
     "artifactArmor": {
       "type": "light",
-      "armorValue": 14,
+      "armorValue": 10,
       "evadeModifier": 0,
       "skillPenalty": ""
     },
@@ -947,17 +741,19 @@
   },
   "flags": {
     "mastery-system": {
-      "nodeId": "wyrmScalesLight-l10",
+      "nodeId": "wyrmScalesLight-l7",
       "parentIds": [
-        "wyrmScalesLight-l9"
+        "wyrmScalesLight-l6"
       ],
-      "childIds": [],
+      "childIds": [
+        "wyrmScalesLight-l8"
+      ],
       "echoBound": "dragonborn",
       "echoArtifactKey": "wyrmScalesLight",
-      "seedVersion": 26
+      "seedVersion": 35
     }
   },
-  "_id": "JoNIlEYBz9jEnYa1",
+  "_id": "TYOkFCivzbECznB1",
   "folder": "eypKDDPbETED8i23",
-  "_key": "!items!JoNIlEYBz9jEnYa1"
+  "_key": "!items!TYOkFCivzbECznB1"
 }

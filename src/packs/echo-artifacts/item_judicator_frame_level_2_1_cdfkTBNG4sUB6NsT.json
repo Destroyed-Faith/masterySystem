@@ -1,7 +1,7 @@
 {
   "name": "Judicator Frame - Level 2-1",
   "type": "artifact",
-  "img": "icons/svg/statue.svg",
+  "img": "systems/mastery-system/assets/icons/items/echo-artifacts/Judicator Frame.png",
   "system": {
     "level": 2,
     "currentLevel": 2,
@@ -39,12 +39,12 @@
       {
         "level": 2,
         "name": "Wits Core I",
-        "type": "Support",
+        "type": "Stone Pool",
         "range": "Self",
         "aoe": "",
         "duration": "Passive",
-        "effect": "Stone Pool (Wits)",
-        "special": ""
+        "effect": "After each Safe Haven Rest, store 2 Wits Stones. These Stones may only be used for this Artifact's listed Wits Stone functions.",
+        "special": "stonePool"
       }
     ],
     "stoneFunction": null,
@@ -297,8 +297,11 @@
       {
         "id": "judicatorFrame-pw-2",
         "name": "Wits Core I",
+        "fluff": "Special: stonePool",
         "category": "passive",
-        "tags": [],
+        "tags": [
+          "stone-function"
+        ],
         "cost": {
           "action": "none"
         },
@@ -340,7 +343,7 @@
             "specials": []
           },
           "4": {
-            "type": "Support",
+            "type": "Stone Pool",
             "range": {
               "kind": "self"
             },
@@ -349,7 +352,7 @@
               "kind": "scene"
             },
             "effect": {
-              "text": "Stone Pool (Wits)"
+              "text": "After each Safe Haven Rest, store 2 Wits Stones. These Stones may only be used for this Artifact's listed Wits Stone functions."
             },
             "specials": [],
             "lvl": 2
@@ -523,7 +526,7 @@
       ],
       "echoBound": "sentinels",
       "echoArtifactKey": "judicatorFrame",
-      "seedVersion": 26
+      "seedVersion": 35
     }
   },
   "_id": "cdfkTBNG4sUB6NsT",

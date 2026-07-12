@@ -1,7 +1,7 @@
 {
   "name": "Wyrm Scales (Heavy) - Level 10-1",
   "type": "artifact",
-  "img": "icons/svg/statue.svg",
+  "img": "systems/mastery-system/assets/icons/items/echo-artifacts/Wyrm Scales.png",
   "system": {
     "level": 10,
     "currentLevel": 10,
@@ -27,7 +27,7 @@
     "levelProgression": [
       {
         "level": 7,
-        "name": "Flight III",
+        "name": "Dragon Wings III",
         "type": "Movement",
         "range": "Self",
         "aoe": "",
@@ -38,7 +38,7 @@
       },
       {
         "level": 8,
-        "name": "Armor III",
+        "name": "Wyrm Scales III",
         "type": "Active Buff",
         "range": "Self",
         "aoe": "",
@@ -49,13 +49,13 @@
       },
       {
         "level": 9,
-        "name": "Stone Support III",
-        "type": "Support",
+        "name": "Armor Stone Support III",
+        "type": "Stone Power Support",
         "range": "Self",
         "aoe": "",
-        "duration": "Passive",
-        "effect": "Stone Power Support (Might): supports Armor",
-        "special": ""
+        "duration": "Instant",
+        "effect": "Supports the Vitality Ability: Armor Stone Power and pre-fills Tier 4. You must still pay Tiers 1, 2, 3 yourself. If Tiers 1, 2, 3 are not paid, the pre-filled Tier 4 has no effect.",
+        "special": "vitality.armor"
       },
       {
         "level": 10,
@@ -63,34 +63,33 @@
         "type": "Ultimate",
         "range": "Self",
         "duration": "Special",
-        "effect": "You unlock your Wyrm Dragon Form (transformation rules apply).",
+        "effect": "You unlock your Wyrm Dragon Form. Choose the shape of this form when this Artifact reaches Level 10. The form occupies a large space, uses the transformation rules below, and grants the listed Dragon Form benefits.",
         "special": "Wyrm Dragon Form"
       }
     ],
-    "stoneFunction": {
-      "kind": "stonePowerSupport",
-      "attribute": "might",
-      "stonePowerId": "might.armor"
-    },
+    "stoneFunction": null,
     "progressionPicks": [
       {
         "level": 1,
         "kind": "power",
-        "powerTemplateId": "movement-flight"
+        "powerTemplateId": "movement-flight",
+        "displayName": "Dragon Wings"
       },
       {
         "level": 2,
         "kind": "power",
-        "powerTemplateId": "ab-armor"
+        "powerTemplateId": "ab-armor",
+        "displayName": "Wyrm Scales"
       },
       {
         "level": 3,
         "kind": "stoneFunction",
         "stoneFunction": {
           "kind": "stonePowerSupport",
-          "attribute": "might",
-          "stonePowerId": "might.armor"
-        }
+          "attribute": "vitality",
+          "stonePowerId": "vitality.armor"
+        },
+        "displayName": "Armor Stone Support"
       }
     ],
     "lore": "The heaviest Dragonborn scale-form — maximum armor, heavy class drawbacks.",
@@ -108,7 +107,7 @@
     "powers": [
       {
         "id": "wyrmScalesHeavy-pw-7",
-        "name": "Flight III",
+        "name": "Dragon Wings III",
         "category": "movement",
         "tags": [],
         "cost": {
@@ -314,7 +313,7 @@
       },
       {
         "id": "wyrmScalesHeavy-pw-8",
-        "name": "Armor III",
+        "name": "Wyrm Scales III",
         "category": "activeBuff",
         "tags": [],
         "cost": {
@@ -521,9 +520,12 @@
       },
       {
         "id": "wyrmScalesHeavy-pw-9",
-        "name": "Stone Support III",
+        "name": "Armor Stone Support III",
+        "fluff": "Special: vitality.armor",
         "category": "passive",
-        "tags": [],
+        "tags": [
+          "stone-function"
+        ],
         "cost": {
           "action": "none"
         },
@@ -709,16 +711,16 @@
             "specials": []
           },
           "16": {
-            "type": "Support",
+            "type": "Stone Power Support",
             "range": {
               "kind": "self"
             },
             "aoe": null,
             "duration": {
-              "kind": "scene"
+              "kind": "instant"
             },
             "effect": {
-              "text": "Stone Power Support (Might): supports Armor"
+              "text": "Supports the Vitality Ability: Armor Stone Power and pre-fills Tier 4. You must still pay Tiers 1, 2, 3 yourself. If Tiers 1, 2, 3 are not paid, the pre-filled Tier 4 has no effect."
             },
             "specials": [],
             "lvl": 9
@@ -926,7 +928,7 @@
               "note": "Special"
             },
             "effect": {
-              "text": "You unlock your Wyrm Dragon Form (transformation rules apply)."
+              "text": "You unlock your Wyrm Dragon Form. Choose the shape of this form when this Artifact reaches Level 10. The form occupies a large space, uses the transformation rules below, and grants the listed Dragon Form benefits."
             },
             "specials": [],
             "lvl": 10
@@ -954,7 +956,7 @@
       "childIds": [],
       "echoBound": "dragonborn",
       "echoArtifactKey": "wyrmScalesHeavy",
-      "seedVersion": 26
+      "seedVersion": 35
     }
   },
   "_id": "uMjiKfz7qLO7vRI9",

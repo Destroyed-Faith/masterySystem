@@ -827,6 +827,21 @@ export interface ArtifactProgressionPick {
    * underlying catalog template/mechanics are unchanged and still editable.
    */
   displayName?: string;
+  /**
+   * Override the catalog Power Levels used for the three staged rows (default
+   * PL 4 / 10 / 16). Oracle Field uses PL 1 / 3 / 5 for its I / III / V tiers.
+   */
+  stagePowerLevels?: PowerLevelKey[];
+  /** Override stage suffixes in row names (default I / II / III). */
+  stageNumerals?: string[];
+  /**
+   * Per-stage catalog template ids (length 3). When set, each staged row pulls
+   * from a different template at PL 4 / 10 / 16 (or `stagePowerLevels`).
+   * Used when one pick slot mixes abilities (e.g. Serpent Evasion + Mobility Extension).
+   */
+  stageTemplateIds?: [string, string, string];
+  /** Full row names per stage when `stageTemplateIds` is set (length 3). */
+  stageNames?: [string, string, string];
   /** Ranged Active picks only: cast this line as a Spell (Intellect / Resolve). */
   isSpell?: boolean;
   castingAttribute?: CastingAttribute;

@@ -1,7 +1,7 @@
 {
   "name": "Titan Scars - Level 8-1",
   "type": "artifact",
-  "img": "icons/svg/statue.svg",
+  "img": "systems/mastery-system/assets/icons/items/echo-artifacts/Titan Scars.png",
   "system": {
     "level": 8,
     "currentLevel": 8,
@@ -39,12 +39,12 @@
       {
         "level": 8,
         "name": "Titan Vitality Pool III",
-        "type": "Support",
+        "type": "Stone Pool",
         "range": "Self",
         "aoe": "",
         "duration": "Passive",
-        "effect": "Stone Pool (Vitality)",
-        "special": ""
+        "effect": "After each Safe Haven Rest, store 8 Vitality Stones. These Stones may only be used for this Artifact's listed Vitality Stone functions.",
+        "special": "stonePool"
       },
       {
         "level": 6,
@@ -305,8 +305,11 @@
       {
         "id": "titanScarsVitality-pw-8",
         "name": "Titan Vitality Pool III",
+        "fluff": "Special: stonePool",
         "category": "passive",
-        "tags": [],
+        "tags": [
+          "stone-function"
+        ],
         "cost": {
           "action": "none"
         },
@@ -492,7 +495,7 @@
             "specials": []
           },
           "16": {
-            "type": "Support",
+            "type": "Stone Pool",
             "range": {
               "kind": "self"
             },
@@ -501,7 +504,7 @@
               "kind": "scene"
             },
             "effect": {
-              "text": "Stone Pool (Vitality)"
+              "text": "After each Safe Haven Rest, store 8 Vitality Stones. These Stones may only be used for this Artifact's listed Vitality Stone functions."
             },
             "specials": [],
             "lvl": 8
@@ -738,7 +741,7 @@
       ],
       "echoBound": "titanborn",
       "echoArtifactKey": "titanScarsVitality",
-      "seedVersion": 26
+      "seedVersion": 35
     }
   },
   "_id": "MlrYeB7NGhfBqV4H",

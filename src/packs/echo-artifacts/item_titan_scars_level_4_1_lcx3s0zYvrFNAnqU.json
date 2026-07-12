@@ -1,7 +1,7 @@
 {
   "name": "Titan Scars - Level 4-1",
   "type": "artifact",
-  "img": "icons/svg/statue.svg",
+  "img": "systems/mastery-system/assets/icons/items/echo-artifacts/Titan Scars.png",
   "system": {
     "level": 4,
     "currentLevel": 4,
@@ -39,12 +39,12 @@
       {
         "level": 2,
         "name": "Titan Influence Pool I",
-        "type": "Support",
+        "type": "Stone Pool",
         "range": "Self",
         "aoe": "",
         "duration": "Passive",
-        "effect": "Stone Pool (Influence)",
-        "special": ""
+        "effect": "After each Safe Haven Rest, store 2 Influence Stones. These Stones may only be used for this Artifact's listed Influence Stone functions.",
+        "special": "stonePool"
       },
       {
         "level": 3,
@@ -305,8 +305,11 @@
       {
         "id": "titanScarsInfluence-pw-2",
         "name": "Titan Influence Pool I",
+        "fluff": "Special: stonePool",
         "category": "passive",
-        "tags": [],
+        "tags": [
+          "stone-function"
+        ],
         "cost": {
           "action": "none"
         },
@@ -348,7 +351,7 @@
             "specials": []
           },
           "4": {
-            "type": "Support",
+            "type": "Stone Pool",
             "range": {
               "kind": "self"
             },
@@ -357,7 +360,7 @@
               "kind": "scene"
             },
             "effect": {
-              "text": "Stone Pool (Influence)"
+              "text": "After each Safe Haven Rest, store 2 Influence Stones. These Stones may only be used for this Artifact's listed Influence Stone functions."
             },
             "specials": [],
             "lvl": 2
@@ -738,7 +741,7 @@
       ],
       "echoBound": "titanborn",
       "echoArtifactKey": "titanScarsInfluence",
-      "seedVersion": 26
+      "seedVersion": 35
     }
   },
   "_id": "lcx3s0zYvrFNAnqU",

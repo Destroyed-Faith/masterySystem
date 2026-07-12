@@ -30,7 +30,8 @@
  * The catalog is pure data; it is consumed by `character-sheet-echo-dialog.ts`
  * during creation, and by `artifact-actor-rules.ts` for echo-bound checks.
  */
-import { resolvePickFromUi } from './artifact-power-pick.js';
+import { resolvePickFromUi, tierFromSpecialKey } from './artifact-power-pick.js';
+import { catalogSpecialTierForTemplate } from './artifact-catalog-pick.js';
 // ----------------------------------------------------------------------
 // Stonebound Soles (Dwarf)
 // ----------------------------------------------------------------------
@@ -42,10 +43,10 @@ const STONEBOUND_SOLES = {
     baseProfile: 'feet',
     description: 'Ancestral weight, deep-road memory, and the old bond between dwarven bodies and stone.',
     restriction: 'A dwarf with Stonebound Soles cannot wear another Feet Artifact, magical boots, hooves, talons, or similar Feet-based Artifact.',
-    progressionPickIds: {
-        1: 'ab-immovable-temp-hp',
-        2: 'movement-safe-movement',
-        3: 'ab-armor',
+    progressionPickSpecs: {
+        1: { name: 'Anchoring Stance', templateId: 'ab-immovable-temp-hp' },
+        2: { name: 'Stone-Sure Step', templateId: 'movement-safe-movement' },
+        3: { name: 'Stoneweave Guard', templateId: 'empower-buff-armor' },
     },
     baseValues: [
         { slot: 'a', label: 'Tremorsense', note: 'Ground-contact detection within 4–16 m.' },
@@ -121,7 +122,7 @@ const STONEBOUND_SOLES = {
             type: 'Movement',
             range: 'Self',
             duration: 'Instant',
-            effect: 'Move up to 20 m along a legal ground path (Safe Movement).',
+            effect: 'Move up to 20 m along a legal ground path. This movement does not provoke movement-triggered Reactions.',
             special: 'Safe Movement',
         },
         {
@@ -429,6 +430,7 @@ export const WYRM_SCALES_VARIANT_GROUP = 'wyrmScales';
 /** Legacy compendium / character keys → current variant keys. */
 export const ECHO_ARTIFACT_KEY_ALIASES = {
     wyrmScales: 'wyrmScalesHeavy',
+    wyrmScalesMedium: 'wyrmScalesHeavy',
     serpentScales: 'wyrmScalesLight',
     titanScars: 'titanScarsMight',
     elvenStride: 'elorianStride',
@@ -438,180 +440,274 @@ export const ECHO_ARTIFACT_KEY_ALIASES = {
     elvenStrideAir: 'elorianStride',
 };
 const WYRM_BODY_RESTRICTION = 'A Dragonborn with Wyrm Scales cannot wear mundane armor or another Body Artifact.';
-function buildWyrmScalesLevelProgression(cfg) {
-    const wing = (level, meters) => ({
-        level: level === 1 ? 1 : level === 2 ? 4 : 7,
-        name: `Dragon Wings ${level === 1 ? 'I' : level === 2 ? 'II' : 'III'}`,
-        type: 'Movement',
-        range: 'Self',
-        duration: 'Instant',
-        effect: `You may fly up to ${meters} m.`,
-        special: 'Flight',
-    });
-    const ext = (tier) => ({
-        level: tier === 1 ? 2 : tier === 2 ? 5 : 8,
-        name: `${cfg.buffExtensionName} ${tier === 1 ? 'I' : tier === 2 ? 'II' : 'III'}`,
-        type: 'Support',
-        range: 'Self',
-        duration: 'Passive',
-        effect: cfg.buffExtensionEffect(tier),
-        special: cfg.buffExtensionSpecial,
-    });
-    const stone = (tier) => ({
-        level: tier === 1 ? 3 : tier === 2 ? 6 : 9,
-        name: `${cfg.stoneSupportLabel} ${tier === 1 ? 'I' : tier === 2 ? 'II' : 'III'}`,
-        type: 'Stone Power Support',
-        range: 'Self',
-        duration: 'Instant',
-        effect: cfg.stoneSupportEffect(tier),
-        special: cfg.stoneSupportSpecial,
-    });
-    return [
-        wing(1, 6),
-        ext(1),
-        stone(1),
-        wing(2, 15),
-        ext(2),
-        stone(2),
-        wing(3, 24),
-        ext(3),
-        stone(3),
+const WYRM_SCALES_HEAVY = {
+    key: 'wyrmScalesHeavy',
+    name: 'Wyrm Scales (Heavy)',
+    echoKey: 'dragonborn',
+    slot: 'body',
+    baseProfile: 'bodyArmor',
+    description: 'The heaviest Dragonborn scale-form — maximum armor, heavy class drawbacks.',
+    restriction: WYRM_BODY_RESTRICTION,
+    variantGroupKey: WYRM_SCALES_VARIANT_GROUP,
+    variantRow: {
+        armorClass: 'Heavy',
+        focus: 'Armor',
+        flightL1: 'Dragon Wings (Flight)',
+        activeBuffL2: 'Active Buff: Armor (Wyrm Scales)',
+        stonePowerL3: 'Vitality — ARMOR Stone Power',
+    },
+    // L1 Dragon Wings → movement-flight; L2 Wyrm Scales → ab-armor;
+    // L3 Armor Stone Support → vitality.armor.
+    progressionPickSpecs: {
+        1: { name: 'Dragon Wings', templateId: 'movement-flight' },
+        2: { name: 'Wyrm Scales', templateId: 'ab-armor' },
+        3: {
+            name: 'Armor Stone Support',
+            stoneFunction: {
+                kind: 'stonePowerSupport',
+                attribute: 'vitality',
+                stonePowerId: 'vitality.armor',
+            },
+        },
+    },
+    baseValues: [
+        {
+            slot: 'a',
+            label: 'Heavy Echo Armor',
+            note: 'Heavy Armor base + artifact bonus; Evade −4, Initiative −8, −2d8 Physical Skills.',
+        },
+    ],
+    levelProgression: [
+        {
+            level: 1,
+            name: 'Dragon Wings I',
+            type: 'Movement',
+            range: 'Self',
+            duration: 'Instant',
+            effect: 'You may fly up to 6 m.',
+            special: 'Flight',
+        },
+        {
+            level: 2,
+            name: 'Wyrm Scales I',
+            type: 'Active Buff',
+            range: 'Self',
+            duration: 'Mastery Rank Rounds',
+            effect: 'You gain +13 Armor.',
+            special: 'Armor',
+        },
+        {
+            level: 3,
+            name: 'Armor Stone Support I',
+            type: 'Stone Power Support',
+            range: 'Self',
+            duration: 'Instant',
+            effect: 'Wyrm Scales support the Vitality Ability ARMOR Stone Power and pre-fill Tier 2. You must still pay Tier 1 yourself. If Tier 1 is not paid, the pre-filled Tier 2 has no effect.',
+            special: 'ARMOR Stone Power',
+        },
+        {
+            level: 4,
+            name: 'Dragon Wings II',
+            type: 'Movement',
+            range: 'Self',
+            duration: 'Instant',
+            effect: 'You may fly up to 15 m.',
+            special: 'Flight',
+        },
+        {
+            level: 5,
+            name: 'Wyrm Scales II',
+            type: 'Active Buff',
+            range: 'Self',
+            duration: 'Mastery Rank Rounds',
+            effect: 'You gain +31 Armor.',
+            special: 'Armor',
+        },
+        {
+            level: 6,
+            name: 'Armor Stone Support II',
+            type: 'Stone Power Support',
+            range: 'Self',
+            duration: 'Instant',
+            effect: 'Wyrm Scales pre-fill Tier 3 of the Vitality Ability ARMOR Stone Power. You must still pay Tier 1 and Tier 2 yourself. If Tier 1 and Tier 2 are not paid, the pre-filled Tier 3 has no effect.',
+            special: 'ARMOR Stone Power',
+        },
+        {
+            level: 7,
+            name: 'Dragon Wings III',
+            type: 'Movement',
+            range: 'Self',
+            duration: 'Instant',
+            effect: 'You may fly up to 24 m.',
+            special: 'Flight',
+        },
+        {
+            level: 8,
+            name: 'Wyrm Scales III',
+            type: 'Active Buff',
+            range: 'Self',
+            duration: 'Mastery Rank Rounds',
+            effect: 'You gain +49 Armor.',
+            special: 'Armor',
+        },
+        {
+            level: 9,
+            name: 'Armor Stone Support III',
+            type: 'Stone Power Support',
+            range: 'Self',
+            duration: 'Instant',
+            effect: 'Wyrm Scales pre-fill Tier 4 of the Vitality Ability ARMOR Stone Power. You must still pay Tier 1, Tier 2, and Tier 3 yourself. If Tier 1, Tier 2, and Tier 3 are not paid, the pre-filled Tier 4 has no effect.',
+            special: 'ARMOR Stone Power',
+        },
         {
             level: 10,
-            name: cfg.ultimateName,
+            name: 'Dragon Transformation',
             type: 'Ultimate',
             range: 'Self',
             duration: 'Special',
-            effect: cfg.ultimateEffect,
-            special: cfg.ultimateSpecial,
+            effect: 'You unlock your Wyrm Dragon Form. Choose the shape of this form when this Artifact reaches Level 10. The form occupies a large space, uses the transformation rules below, and grants the listed Dragon Form benefits.',
+            special: 'Wyrm Dragon Form',
         },
-    ];
-}
-function buildWyrmScalesVariant(cfg) {
-    return {
-        key: cfg.key,
-        name: cfg.name,
-        echoKey: 'dragonborn',
-        slot: 'body',
-        baseProfile: 'bodyArmor',
-        description: cfg.description,
-        restriction: WYRM_BODY_RESTRICTION,
-        variantGroupKey: WYRM_SCALES_VARIANT_GROUP,
-        variantRow: {
-            armorClass: cfg.armorClassLabel,
-            focus: cfg.focus,
-            flightL1: cfg.flightL1,
-            activeBuffL2: cfg.activeBuffL2,
-            stonePowerL3: cfg.stonePowerL3,
-        },
-        progressionPickIds: cfg.progressionPickIds,
-        ...(cfg.stoneFunction ? { stoneFunction: cfg.stoneFunction } : {}),
-        baseValues: [
-            {
-                slot: 'a',
-                label: `${cfg.armorClassLabel} Echo Armor`,
-                note: cfg.armorNote,
-            },
-        ],
-        levelProgression: cfg.levelProgression,
-    };
-}
-const WYRM_SCALES_HEAVY = buildWyrmScalesVariant({
-    key: 'wyrmScalesHeavy',
-    name: 'Wyrm Scales (Heavy)',
-    description: 'The heaviest Dragonborn scale-form — maximum armor, heavy class drawbacks.',
-    armorClassLabel: 'Heavy',
-    armorWeightClass: 'heavy',
-    armorNote: 'Heavy Armor base + artifact bonus; Evade −4, Initiative −8, −2d8 Physical Skills.',
-    focus: 'Armor',
-    flightL1: 'Dragon Wings (Flight)',
-    activeBuffL2: 'Active Buff: Armor',
-    stonePowerL3: 'Might — Armor Stone Power',
-    progressionPickIds: { 1: 'movement-flight', 2: 'ab-armor' },
-    stoneFunction: {
-        kind: 'stonePowerSupport',
-        attribute: 'might',
-        stonePowerId: 'might.armor',
-        level: 3,
-    },
-    levelProgression: buildWyrmScalesLevelProgression({
-        buffExtensionName: 'Armor Buff Extension',
-        buffExtensionSpecial: 'Armor Buff Extension',
-        buffExtensionEffect: (tier) => `Armor Active Buffs gain +${tier} round${tier === 1 ? '' : 's'} duration.`,
-        stoneSupportLabel: 'Armor Stone Support',
-        stoneSupportSpecial: 'Armor Stone Power',
-        stoneSupportEffect: (tier) => tier === 1
-            ? 'Wyrm Scales support the Might Ability Armor Stone Power and pre-fill Tier 2.'
-            : `Pre-fills Tier ${tier + 1} of the Might Ability Armor Stone Power.`,
-        ultimateName: 'Dragon Transformation',
-        ultimateSpecial: 'Wyrm Dragon Form',
-        ultimateEffect: 'You unlock your Wyrm Dragon Form (transformation rules apply).',
-    }),
-});
-const WYRM_SCALES_MEDIUM = buildWyrmScalesVariant({
-    key: 'wyrmScalesMedium',
-    name: 'Wyrm Scales (Medium)',
-    description: 'Balanced scale-form — medium armor with Damage Reduction synergy.',
-    armorClassLabel: 'Medium',
-    armorWeightClass: 'medium',
-    armorNote: 'Medium Armor base + artifact bonus; Evade −2, Initiative −4, −1d8 Physical Skills.',
-    focus: 'Damage Reduction',
-    flightL1: 'Dragon Wings (Flight)',
-    activeBuffL2: 'Active Buff: Damage Reduction',
-    stonePowerL3: 'Might — Armor Stone Power',
-    progressionPickIds: { 1: 'movement-flight', 2: 'ab-damage-reduction' },
-    stoneFunction: {
-        kind: 'stonePowerSupport',
-        attribute: 'might',
-        stonePowerId: 'might.armor',
-        level: 3,
-    },
-    levelProgression: buildWyrmScalesLevelProgression({
-        buffExtensionName: 'DR Buff Extension',
-        buffExtensionSpecial: 'DR Buff Extension',
-        buffExtensionEffect: (tier) => `Damage Reduction Active Buffs gain +${tier} round${tier === 1 ? '' : 's'} duration.`,
-        stoneSupportLabel: 'Armor Stone Support',
-        stoneSupportSpecial: 'Armor Stone Power',
-        stoneSupportEffect: (tier) => tier === 1
-            ? 'Wyrm Scales support the Might Ability Armor Stone Power and pre-fill Tier 2.'
-            : `Pre-fills Tier ${tier + 1} of the Might Ability Armor Stone Power.`,
-        ultimateName: 'Dragon Transformation',
-        ultimateSpecial: 'Wyrm Dragon Form',
-        ultimateEffect: 'You unlock your Wyrm Dragon Form (transformation rules apply).',
-    }),
-});
-const WYRM_SCALES_LIGHT = buildWyrmScalesVariant({
+    ],
+};
+const WYRM_SCALES_LIGHT = {
     key: 'wyrmScalesLight',
-    name: 'Wyrm Scales (Light)',
-    description: 'Light scale-form — evasion and mobility over raw soak.',
-    armorClassLabel: 'Light',
-    armorWeightClass: 'light',
-    armorNote: 'Light Armor base + artifact bonus; no armor-class drawbacks.',
-    focus: 'Evade',
-    flightL1: 'Dragon Wings (Flight)',
-    activeBuffL2: 'Active Buff: Evade',
-    stonePowerL3: 'Agility — Evade Stone Power',
-    progressionPickIds: { 1: 'movement-flight', 2: 'ab-evade' },
-    stoneFunction: {
-        kind: 'stonePowerSupport',
-        attribute: 'agility',
-        stonePowerId: 'agility.evade',
-        level: 3,
+    name: 'Serpent Scales',
+    echoKey: 'dragonborn',
+    slot: 'body',
+    baseProfile: 'bodyArmor',
+    description: 'Light serpent scale-form — evasion, mobility, and aerial grace over raw soak.',
+    restriction: WYRM_BODY_RESTRICTION,
+    variantGroupKey: WYRM_SCALES_VARIANT_GROUP,
+    variantRow: {
+        armorClass: 'Light',
+        focus: 'Evade',
+        flightL1: 'Dragon Wings (Flight)',
+        activeBuffL2: 'Active Buff: Evade (Serpent Evasion)',
+        stonePowerL3: 'Agility — EVADE Stone Power',
     },
-    levelProgression: buildWyrmScalesLevelProgression({
-        buffExtensionName: 'Mobility Buff Extension',
-        buffExtensionSpecial: 'Mobility Buff Extension',
-        buffExtensionEffect: (tier) => `Evade Active Buffs gain +${tier} round${tier === 1 ? '' : 's'} duration.`,
-        stoneSupportLabel: 'Evade Stone Support',
-        stoneSupportSpecial: 'Evade Stone Power',
-        stoneSupportEffect: (tier) => tier === 1
-            ? 'Wyrm Scales support the Agility Ability Evade Stone Power and pre-fill Tier 2.'
-            : `Pre-fills Tier ${tier + 1} of the Agility Ability Evade Stone Power.`,
-        ultimateName: 'Serpent Transformation',
-        ultimateSpecial: 'Serpent Dragon Form',
-        ultimateEffect: 'You unlock your Serpent Dragon Form (transformation rules apply).',
-    }),
-});
+    // L1 Dragon Wings → movement-flight; L2 Serpent Evasion (ab-evade) +
+    // Mobility Extension (extend-buff-mobility) at L5/L8; L3 → agility.evade.
+    progressionPickSpecs: {
+        1: { name: 'Dragon Wings', templateId: 'movement-flight' },
+        2: {
+            name: 'Serpent Evasion',
+            templateId: 'ab-evade',
+            stageTemplateIds: ['ab-evade', 'extend-buff-mobility', 'extend-buff-mobility'],
+            stageNames: ['Serpent Evasion I', 'Mobility Buff Extension II', 'Mobility Buff Extension III'],
+        },
+        3: {
+            name: 'Evasion Stone Support',
+            stoneFunction: {
+                kind: 'stonePowerSupport',
+                attribute: 'agility',
+                stonePowerId: 'agility.evade',
+            },
+        },
+    },
+    baseValues: [
+        {
+            slot: 'a',
+            label: 'Light Echo Armor',
+            note: 'Light Armor base + artifact bonus; no armor-class drawbacks.',
+        },
+    ],
+    levelProgression: [
+        {
+            level: 1,
+            name: 'Dragon Wings I',
+            type: 'Movement',
+            range: 'Self',
+            duration: 'Instant',
+            effect: 'You may fly up to 6 m.',
+            special: 'Flight',
+        },
+        {
+            level: 2,
+            name: 'Serpent Evasion I',
+            type: 'Active Buff',
+            range: 'Self',
+            duration: 'Mastery Rank Rounds',
+            effect: 'You gain +6 Evade.',
+            special: 'Evade',
+            powerTemplateId: 'ab-evade',
+        },
+        {
+            level: 3,
+            name: 'Evasion Stone Support I',
+            type: 'Stone Power Support',
+            range: 'Self',
+            duration: 'Instant',
+            effect: 'Serpent Scales support the Agility Ability EVADE Stone Power and pre-fill Tier 2. You must still pay Tier 1 yourself. If Tier 1 is not paid, the pre-filled Tier 2 has no effect.',
+            special: 'EVADE Stone Power',
+        },
+        {
+            level: 4,
+            name: 'Dragon Wings II',
+            type: 'Movement',
+            range: 'Self',
+            duration: 'Instant',
+            effect: 'You may fly up to 15 m.',
+            special: 'Flight',
+        },
+        {
+            level: 5,
+            name: 'Mobility Buff Extension II',
+            type: 'Support',
+            range: 'Self',
+            duration: 'Passive',
+            effect: "Whenever you activate an Active Buff that grants Evade or Movement as one of its effects, increase that Buff's duration by +2 rounds. This does not increase the Buff's value. This does not allow you to maintain a second Active Buff.",
+            special: 'Mobility Buff Extension',
+            powerTemplateId: 'extend-buff-mobility',
+        },
+        {
+            level: 6,
+            name: 'Evasion Stone Support II',
+            type: 'Stone Power Support',
+            range: 'Self',
+            duration: 'Instant',
+            effect: 'Serpent Scales pre-fill Tier 3 of the Agility Ability EVADE Stone Power. You must still pay Tier 1 and Tier 2 yourself. If Tier 1 and Tier 2 are not paid, the pre-filled Tier 3 has no effect.',
+            special: 'EVADE Stone Power',
+        },
+        {
+            level: 7,
+            name: 'Dragon Wings III',
+            type: 'Movement',
+            range: 'Self',
+            duration: 'Instant',
+            effect: 'You may fly up to 24 m.',
+            special: 'Flight',
+        },
+        {
+            level: 8,
+            name: 'Mobility Buff Extension III',
+            type: 'Support',
+            range: 'Self',
+            duration: 'Passive',
+            effect: "Whenever you activate an Active Buff that grants Evade or Movement as one of its effects, increase that Buff's duration by +3 rounds. This does not increase the Buff's value. This does not allow you to maintain a second Active Buff.",
+            special: 'Mobility Buff Extension',
+            powerTemplateId: 'extend-buff-mobility',
+        },
+        {
+            level: 9,
+            name: 'Evasion Stone Support III',
+            type: 'Stone Power Support',
+            range: 'Self',
+            duration: 'Instant',
+            effect: 'Serpent Scales pre-fill Tier 4 of the Agility Ability EVADE Stone Power. You must still pay Tier 1, Tier 2, and Tier 3 yourself. If Tier 1, Tier 2, and Tier 3 are not paid, the pre-filled Tier 4 has no effect.',
+            special: 'EVADE Stone Power',
+        },
+        {
+            level: 10,
+            name: 'True Serpent Form',
+            type: 'Ultimate',
+            range: 'Self',
+            duration: 'Special',
+            effect: 'Your body becomes perfectly adapted to motion. Choose or define one final mobility, evasion, or light-dragon transformation effect with GM approval.',
+            special: 'True Serpent Form',
+        },
+    ],
+};
 // ----------------------------------------------------------------------
 // Dragon Claws (Dragonborn — two-handed natural weapon)
 // ----------------------------------------------------------------------
@@ -638,8 +734,8 @@ const DRAGON_CLAWS = {
     // Weapon Damage in a radius. Only the names are overridden; the GM can add the
     // Lacerate / Push Specials and tune them freely in the Node Editor.
     progressionPickSpecs: {
-        2: { name: 'Rending Spiral', templateId: 'active-melee-weapon-aoe' },
-        3: { name: 'Tail Sweep', templateId: 'active-melee-weapon-aoe' },
+        2: { name: 'Rending Spiral', templateId: 'active-melee-weapon-aoe', special: 'lacerate' },
+        3: { name: 'Tail Sweep', templateId: 'active-melee-weapon-aoe', special: 'push' },
     },
     baseValues: [
         {
@@ -1156,11 +1252,16 @@ const ORACLE_FRAME = {
     description: 'An arcane vessel of command, prophecy, and divine will.',
     requiresSubChoice: 'oracle',
     restriction: 'A character with a Sentinel Body Artifact cannot wear mundane armor or bind another Body Artifact.',
-    // L1 Oracle Armor stays authored (permanent Base Armor — the shared armor
-    // value, not a catalog Power). L2 + L3 are real Stone Functions:
-    //   L2 Oracle Aid    → Stone Power Support (Influence: Aid Roll),
-    //   L3 Influence Core → Stone Battery (Influence).
+    // L1 Oracle Field → `ab-armor-aura` (PL 1 / 3 / 5 → I / III / V),
+    // L2 Oracle Aid → Stone Power Support (Influence: Aid Roll),
+    // L3 Influence Core → Stone Pool (Influence).
     progressionPickSpecs: {
+        1: {
+            name: 'Oracle Field',
+            templateId: 'ab-armor-aura',
+            stagePowerLevels: ['1', '3', '5'],
+            stageNumerals: ['I', 'III', 'V'],
+        },
         2: {
             name: 'Oracle Aid',
             stoneFunction: {
@@ -1169,7 +1270,7 @@ const ORACLE_FRAME = {
                 stonePowerId: 'influence.aidRoll',
             },
         },
-        3: { name: 'Influence Core', stoneFunction: { kind: 'stoneBattery', attribute: 'influence' } },
+        3: { name: 'Influence Core', stoneFunction: { kind: 'stonePool', attribute: 'influence' } },
     },
     baseValues: [
         {
@@ -1181,12 +1282,13 @@ const ORACLE_FRAME = {
     levelProgression: [
         {
             level: 1,
-            name: 'Oracle Armor I',
-            type: 'Base Armor',
+            name: 'Oracle Field I',
+            type: 'Active Buff',
             range: 'Self',
-            duration: 'Permanent',
-            effect: 'Gain the shared Light Echo Armor value for this Artifact Level.',
-            special: 'Armor',
+            aoe: 'Radius 2 m',
+            duration: 'Mastery Rank Rounds',
+            effect: 'You and allies in the area gain +4 Armor.',
+            special: 'Armor Aura',
         },
         {
             level: 2,
@@ -1194,7 +1296,7 @@ const ORACLE_FRAME = {
             type: 'Stone Power Support',
             range: 'Self',
             duration: 'Instant',
-            effect: 'Oracle Frame supports the Influence Ability: Aid Roll Stone Power and pre-fills Tier 2.',
+            effect: 'Oracle Frame supports the Influence Ability: Aid Roll Stone Power and pre-fills Tier 2. You must still pay Tier 1 yourself. If Tier 1 is not paid, the pre-filled Tier 2 has no effect.',
             special: 'Aid Roll Stone Power',
         },
         {
@@ -1203,17 +1305,18 @@ const ORACLE_FRAME = {
             type: 'Stone Pool',
             range: 'Self',
             duration: 'Passive',
-            effect: 'After each Safe Haven Rest, Oracle Frame stores 2 Influence Stones.',
+            effect: "After each Safe Haven Rest, Oracle Frame stores 2 Influence Stones. These Stones may only be used for Oracle Frame's listed Influence Stone functions.",
             special: 'Influence Stones',
         },
         {
             level: 4,
-            name: 'Oracle Armor II',
-            type: 'Base Armor',
+            name: 'Oracle Field III',
+            type: 'Active Buff Upgrade',
             range: 'Self',
-            duration: 'Permanent',
-            effect: 'Continue using the shared Light Echo Armor value.',
-            special: 'Armor',
+            aoe: 'Radius 6 m',
+            duration: 'Mastery Rank Rounds',
+            effect: 'You and allies in the area gain +9 Armor.',
+            special: 'Armor Aura',
         },
         {
             level: 5,
@@ -1221,7 +1324,7 @@ const ORACLE_FRAME = {
             type: 'Stone Power Support',
             range: 'Self',
             duration: 'Instant',
-            effect: 'Pre-fills Tier 3 of the Influence Ability: Aid Roll Stone Power.',
+            effect: 'Oracle Frame pre-fills Tier 3 of the Influence Ability: Aid Roll Stone Power. You must still pay Tier 1 and Tier 2 yourself. If Tier 1 and Tier 2 are not paid, the pre-filled Tier 3 has no effect.',
             special: 'Aid Roll Stone Power',
         },
         {
@@ -1230,17 +1333,18 @@ const ORACLE_FRAME = {
             type: 'Stone Pool',
             range: 'Self',
             duration: 'Passive',
-            effect: 'After each Safe Haven Rest, Oracle Frame stores 4 Influence Stones.',
+            effect: "After each Safe Haven Rest, Oracle Frame stores 4 Influence Stones. These Stones may only be used for Oracle Frame's listed Influence Stone functions.",
             special: 'Influence Stones',
         },
         {
             level: 7,
-            name: 'Oracle Armor III',
-            type: 'Base Armor',
+            name: 'Oracle Field V',
+            type: 'Active Buff Upgrade',
             range: 'Self',
-            duration: 'Permanent',
-            effect: 'Continue using the shared Light Echo Armor value.',
-            special: 'Armor',
+            aoe: 'Radius 10 m',
+            duration: 'Mastery Rank Rounds',
+            effect: 'You and allies in the area gain +15 Armor.',
+            special: 'Armor Aura',
         },
         {
             level: 8,
@@ -1248,7 +1352,7 @@ const ORACLE_FRAME = {
             type: 'Stone Power Support',
             range: 'Self',
             duration: 'Instant',
-            effect: 'Pre-fills Tier 4 of the Influence Ability: Aid Roll Stone Power.',
+            effect: 'Oracle Frame pre-fills Tier 4 of the Influence Ability: Aid Roll Stone Power. You must still pay Tier 1, Tier 2, and Tier 3 yourself. If Tier 1, Tier 2, and Tier 3 are not paid, the pre-filled Tier 4 has no effect.',
             special: 'Aid Roll Stone Power',
         },
         {
@@ -1257,7 +1361,7 @@ const ORACLE_FRAME = {
             type: 'Stone Pool',
             range: 'Self',
             duration: 'Passive',
-            effect: 'After each Safe Haven Rest, Oracle Frame stores 8 Influence Stones.',
+            effect: "After each Safe Haven Rest, Oracle Frame stores 8 Influence Stones. These Stones may only be used for Oracle Frame's listed Influence Stone functions.",
             special: 'Influence Stones',
         },
         {
@@ -1266,7 +1370,7 @@ const ORACLE_FRAME = {
             type: 'Ultimate',
             range: 'Self',
             duration: 'Special',
-            effect: 'Once per Safe Haven Rest, when you use Aid Roll through Oracle Frame, treat one required lower Tier as already paid.',
+            effect: 'Once per Safe Haven Rest, when you use Aid Roll through Oracle Frame, you may treat one required lower Tier as already paid.',
             special: 'Aid Roll Stone Power',
         },
     ],
@@ -1279,7 +1383,6 @@ export const ECHO_ARTIFACTS = {
     elorianStride: ELORIAN_STRIDE,
     ...Object.fromEntries(TITAN_SCARS_VARIANTS.map((def) => [def.key, def])),
     wyrmScalesHeavy: WYRM_SCALES_HEAVY,
-    wyrmScalesMedium: WYRM_SCALES_MEDIUM,
     wyrmScalesLight: WYRM_SCALES_LIGHT,
     dragonClaws: DRAGON_CLAWS,
     dragonHead: DRAGON_HEAD,
@@ -1323,8 +1426,8 @@ export const ECHO_ARTIFACT_RULES = {
         maxAtCreation: 3,
         // Claws (both hands), Head (head) and one Body armor. Wyrm Scales and
         // Serpent Scales both occupy the Body slot, so they are mutually exclusive.
-        availableKeys: ['dragonClaws', 'dragonHead', 'wyrmScalesHeavy', 'wyrmScalesMedium', 'wyrmScalesLight'],
-        exclusiveGroups: [['wyrmScalesHeavy', 'wyrmScalesMedium', 'wyrmScalesLight']],
+        availableKeys: ['dragonClaws', 'dragonHead', 'wyrmScalesHeavy', 'wyrmScalesLight'],
+        exclusiveGroups: [['wyrmScalesHeavy', 'wyrmScalesLight']],
     },
     unbound: { echoKey: 'unbound', requiredAtCreation: 0, maxAtCreation: 0, availableKeys: [] },
 };
@@ -1337,7 +1440,7 @@ export function getEchoArtifact(key) {
 }
 /** Echo Artifact defs that share a variant comparison group, in display order. */
 export function listEchoArtifactsInVariantGroup(groupKey) {
-    const order = ['Heavy', 'Medium', 'Light'];
+    const order = ['Heavy', 'Light'];
     return Object.values(ECHO_ARTIFACTS)
         .filter((d) => d.variantGroupKey === groupKey && d.variantRow)
         .sort((a, b) => order.indexOf(a.variantRow.armorClass) - order.indexOf(b.variantRow.armorClass));
@@ -1443,6 +1546,12 @@ export function buildEchoProgressionPicks(def) {
         if (!spec)
             continue;
         const displayName = spec.name?.trim() || undefined;
+        const stageOverrides = {
+            ...(spec.stagePowerLevels ? { stagePowerLevels: spec.stagePowerLevels } : {}),
+            ...(spec.stageNumerals ? { stageNumerals: spec.stageNumerals } : {}),
+            ...(spec.stageTemplateIds ? { stageTemplateIds: spec.stageTemplateIds } : {}),
+            ...(spec.stageNames ? { stageNames: spec.stageNames } : {}),
+        };
         if (spec.stoneFunction) {
             const sfSpec = spec.stoneFunction;
             const stoneFunction = {
@@ -1452,7 +1561,7 @@ export function buildEchoProgressionPicks(def) {
             if (sfSpec.kind === 'stonePowerSupport' && sfSpec.stonePowerId) {
                 stoneFunction.stonePowerId = sfSpec.stonePowerId;
             }
-            picks[lvl - 1] = { level: lvl, kind: 'stoneFunction', stoneFunction, displayName };
+            picks[lvl - 1] = { level: lvl, kind: 'stoneFunction', stoneFunction, displayName, ...stageOverrides };
         }
         else if (spec.delivery && spec.special) {
             const resolved = resolvePickFromUi(spec.delivery, spec.special);
@@ -1463,10 +1572,24 @@ export function buildEchoProgressionPicks(def) {
                 delivery: resolved.delivery,
                 chosenSpecial: resolved.chosenSpecial,
                 displayName,
+                ...stageOverrides,
             };
         }
         else if (spec.templateId) {
-            picks[lvl - 1] = { level: lvl, kind: 'power', powerTemplateId: spec.templateId, displayName };
+            const pick = {
+                level: lvl,
+                kind: 'power',
+                powerTemplateId: spec.templateId,
+                displayName,
+                ...stageOverrides,
+            };
+            if (spec.special && !spec.delivery) {
+                const tier = tierFromSpecialKey(spec.special) ??
+                    catalogSpecialTierForTemplate(spec.templateId) ??
+                    4;
+                pick.chosenSpecial = { key: spec.special, tier: tier };
+            }
+            picks[lvl - 1] = pick;
         }
     }
     // Stone Function pick claims its level (overrides any Power pick there).

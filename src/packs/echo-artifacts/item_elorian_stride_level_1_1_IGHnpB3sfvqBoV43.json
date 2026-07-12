@@ -1,7 +1,7 @@
 {
   "name": "Elorian Stride - Level 1-1",
   "type": "artifact",
-  "img": "icons/svg/upgrade.svg",
+  "img": "systems/mastery-system/assets/icons/items/echo-artifacts/Elven Stride.png",
   "system": {
     "level": 1,
     "currentLevel": 1,
@@ -295,7 +295,7 @@
       "isRoot": true,
       "echoBound": "elorians",
       "echoArtifactKey": "elorianStride",
-      "seedVersion": 26
+      "seedVersion": 35
     }
   },
   "_id": "IGHnpB3sfvqBoV43",

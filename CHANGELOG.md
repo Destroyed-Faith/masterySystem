@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.173] - 2026-07-12
+
+### Added
+
+- **Echo Artifact catalog mapping:** Oracle Frame, Stonebound Soles, Serpent Scales, and Wyrm Scales (Heavy) now use catalog progression picks instead of authored rows; per-stage template support (`stageTemplateIds`) for mixed pick tracks (e.g. Serpent Evasion + Mobility Buff Extension).
+- **Echo artifact icons:** PNG assets for all Echo Artifacts under `assets/icons/items/echo-artifacts/`.
+- **Combat Package Wizard — Echo advisor:** Requires Echo selection first; reads Active Buff lines from Echo Artifacts on the character, warns on duplicate defensive Active Buff axes, recommends complementary defenses (Phasing, Damage Reduction), and hides redundant Active Buff options in the picker.
+- **Catalog passives:** `extend-buff-mobility`, `extend-buff-armor`, `extend-buff-evade`, and related buff-extension templates for artifact progression.
+- **Vitality ARMOR stone power** (`vitality.armor`) for Wyrm Scales (Heavy) stone support.
+
+### Changed
+
+- **Serpent Scales:** Display name and compendium folder; L2 uses `ab-evade` with mobility extension at L5/L8; seed version 35.
+- **Wyrm Scales (Heavy):** L2 maps to `ab-armor`; L3 to `vitality.armor` stone support.
+- **Dragon Claws:** Lacerate/Push on weapon AoE picks; stone support for Might Melee Damage.
+- **Removed Wyrm Scales (Medium)** variant; legacy key aliases to Heavy.
+
+### Fixed
+
+- **Special effects reconciliation** and combat tick/gate edge cases from prior artifact work.
+
 ## [0.9.172] - 2026-07-09
 
 ### Added

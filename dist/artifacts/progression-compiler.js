@@ -21,8 +21,22 @@ import { catalogPowerRowLabel, catalogTemplateRequiresSpecial, } from '../utils/
 import { getEffect, getEffectBaseName } from '../utils/special-effects.js';
 /** Roman numeral per stage index (0-based). */
 const STAGE_NUMERALS = ['I', 'II', 'III'];
-/** Power Level consulted for each stage (Basic / Improved / Greater). */
-const STAGE_POWER_LEVELS = ['4', '10', '16'];
+/** Default Power Levels for staged artifact rows (Basic / Improved / Greater). */
+const DEFAULT_STAGE_POWER_LEVELS = ['4', '10', '16'];
+function stagePowerLevelsForPick(pick) {
+    const custom = pick.stagePowerLevels;
+    if (Array.isArray(custom) && custom.length === STAGE_NUMERALS.length) {
+        return custom;
+    }
+    return DEFAULT_STAGE_POWER_LEVELS;
+}
+function stageNumeralsForPick(pick) {
+    const custom = pick.stageNumerals;
+    if (Array.isArray(custom) && custom.length === STAGE_NUMERALS.length) {
+        return custom;
+    }
+    return STAGE_NUMERALS;
+}
 const ATTRIBUTE_LABELS = {
     might: 'Might',
     agility: 'Agility',
@@ -80,15 +94,53 @@ function powerPickDisplayName(pick, tpl) {
     }
     return tpl.templateName;
 }
-/** Human-readable effect text for a Stone Function support row. */
-function stoneFunctionEffect(sf) {
-    const kindLabel = STONE_KIND_LABELS[sf.kind] || sf.kind;
+/** Staged ranks for optional Specials on weapon AoE artifact picks (Dragon Claws). */
+const WEAPON_AOE_PICK_SPECIAL_RANKS = {
+    lacerate: [3, 5, 7],
+    push: [2, 6, 8],
+};
+function optionalWeaponAoeSpecialText(chosenKey, stageIndex) {
+    const ef = getEffect(chosenKey);
+    const label = ef ? getEffectBaseName(ef.name) : chosenKey;
+    const rank = WEAPON_AOE_PICK_SPECIAL_RANKS[chosenKey]?.[stageIndex];
+    if (rank != null)
+        return `${label}(${rank})`;
+    return label;
+}
+/** Human-readable effect text for a Stone Function support row at stage I / II / III. */
+function stoneFunctionEffect(sf, stageIndex) {
     const attr = sf.attribute ? ATTRIBUTE_LABELS[sf.attribute] || sf.attribute : '';
+    const attrLabel = attr ? `${attr} ` : '';
     if (sf.kind === 'stonePowerSupport') {
-        const sp = sf.stonePowerId ? STONE_POWERS[sf.stonePowerId] : undefined;
-        const spName = sp?.name || sf.stonePowerId || '';
-        return `${kindLabel}${attr ? ` (${attr})` : ''}${spName ? `: supports ${spName}` : ''}`;
+        const sp = sf.stonePowerId
+            ? STONE_POWERS[sf.stonePowerId]
+            : undefined;
+        const spName = sp?.name || sf.stonePowerId || 'Stone Power';
+        const prefillTier = stageIndex + 2;
+        const lowerTiers = prefillTier > 1
+            ? Array.from({ length: prefillTier - 1 }, (_, i) => String(i + 1)).join(', ')
+            : '';
+        const payNote = lowerTiers
+            ? ` You must still pay Tier${prefillTier > 2 ? 's' : ''} ${lowerTiers} yourself.`
+            : '';
+        const unpaidNote = lowerTiers
+            ? ` If Tier${prefillTier > 2 ? 's' : ''} ${lowerTiers} ${prefillTier > 2 ? 'are' : 'is'} not paid, the pre-filled Tier ${prefillTier} has no effect.`
+            : '';
+        return `Supports the ${attrLabel}Ability: ${spName} Stone Power and pre-fills Tier ${prefillTier}.${payNote}${unpaidNote}`;
     }
+    if (sf.kind === 'stonePool') {
+        const amount = [2, 4, 8][stageIndex];
+        return `After each Safe Haven Rest, store ${amount} ${attrLabel}Stone${amount === 1 ? '' : 's'}. These Stones may only be used for this Artifact's listed ${attrLabel}Stone functions.`;
+    }
+    if (sf.kind === 'stoneRefresh') {
+        const amount = [1, 2, 4][stageIndex];
+        return `Restore ${amount} spent ${attrLabel}Stone${amount === 1 ? '' : 's'}.`;
+    }
+    if (sf.kind === 'stoneBattery') {
+        const cap = [10, 20, 40][stageIndex];
+        return `Gain a ${attrLabel}Stone Battery (capacity ${cap}).`;
+    }
+    const kindLabel = STONE_KIND_LABELS[sf.kind] || sf.kind;
     return `${kindLabel}${attr ? ` (${attr})` : ''}`;
 }
 /**
@@ -108,33 +160,47 @@ export function deriveLevelProgressionFromPicks(picks) {
         if (!pick || pick.kind === 'none')
             continue;
         if (pick.kind === 'power') {
-            const tpl = pick.powerTemplateId ? getTemplate(pick.powerTemplateId) : undefined;
-            if (!tpl)
-                continue;
-            const displayBase = pick.displayName?.trim() || powerPickDisplayName(pick, tpl);
             const chosenKey = pick.chosenSpecial?.key;
+            const powerLevels = stagePowerLevelsForPick(pick);
+            const numerals = stageNumeralsForPick(pick);
+            const perStageTemplates = Array.isArray(pick.stageTemplateIds) &&
+                pick.stageTemplateIds.length === STAGE_NUMERALS.length
+                ? pick.stageTemplateIds
+                : null;
+            const perStageNames = Array.isArray(pick.stageNames) && pick.stageNames.length === STAGE_NUMERALS.length
+                ? pick.stageNames
+                : null;
             for (let s = 0; s < STAGE_NUMERALS.length; s++) {
                 const level = baseLevel + 3 * s;
-                const pl = STAGE_POWER_LEVELS[s];
+                const pl = powerLevels[s];
+                const templateId = perStageTemplates?.[s] || pick.powerTemplateId || '';
+                const tpl = templateId ? getTemplate(templateId) : undefined;
+                if (!tpl)
+                    continue;
+                const displayBase = pick.displayName?.trim() || powerPickDisplayName(pick, tpl);
+                const isWeaponAoe = /weapon-aoe/.test(templateId);
                 const lrRaw = tpl.levels[pl];
                 if (!lrRaw)
                     continue;
                 const lr = chosenKey ? bindChosenSpecialRow(lrRaw, chosenKey) : lrRaw;
-                const effectText = chosenKey && catalogTemplateRequiresSpecial(pick.powerTemplateId || '')
+                const effectText = chosenKey && catalogTemplateRequiresSpecial(templateId)
                     ? (lr.effect?.text || '').replace(/\bSPECIAL\b/g, chosenKey)
                     : (lr.effect?.text || '');
+                const specialCol = pick.isSpell
+                    ? [specialTextForRow(lrRaw, chosenKey), 'Spell'].filter(Boolean).join(', ')
+                    : chosenKey && isWeaponAoe && !catalogTemplateRequiresSpecial(templateId)
+                        ? optionalWeaponAoeSpecialText(chosenKey, s)
+                        : specialTextForRow(lrRaw, chosenKey);
                 rows.push({
                     level,
-                    name: `${displayBase} ${STAGE_NUMERALS[s]}`,
+                    name: perStageNames?.[s]?.trim() || `${displayBase} ${numerals[s]}`,
                     type: lr.type || tpl.category || 'Active',
                     range: clean(renderRange(lr.range ?? null)),
                     aoe: clean(renderAoe(lr.aoe ?? null)),
                     duration: clean(renderDuration(lr.duration)),
                     effect: effectText,
-                    special: pick.isSpell
-                        ? [specialTextForRow(lrRaw, chosenKey), 'Spell'].filter(Boolean).join(', ')
-                        : specialTextForRow(lrRaw, chosenKey),
-                    powerTemplateId: pick.powerTemplateId,
+                    special: specialCol,
+                    powerTemplateId: templateId,
                     chosenSpecialKey: chosenKey,
                     ...(pick.isSpell
                         ? {
@@ -168,24 +234,23 @@ export function deriveLevelProgressionFromPicks(picks) {
             }
         }
         else if (pick.kind === 'stoneFunction' && pick.stoneFunction) {
-            const effect = stoneFunctionEffect(pick.stoneFunction);
-            // Stone Power Support keeps the established "Stone Support" name (matches the
-            // seeded echo tables); the other stone kinds name the row after their kind.
             const baseName = pick.displayName?.trim() ||
                 (pick.stoneFunction.kind === 'stonePowerSupport'
                     ? 'Stone Support'
                     : STONE_KIND_LABELS[pick.stoneFunction.kind] || 'Stone Function');
+            const numerals = stageNumeralsForPick(pick);
             for (let s = 0; s < STAGE_NUMERALS.length; s++) {
                 const level = baseLevel + 3 * s;
+                const sf = pick.stoneFunction;
                 rows.push({
                     level,
-                    name: `${baseName} ${STAGE_NUMERALS[s]}`,
-                    type: 'Support',
+                    name: `${baseName} ${numerals[s]}`,
+                    type: STONE_KIND_LABELS[sf.kind] || 'Support',
                     range: 'Self',
                     aoe: '',
-                    duration: 'Passive',
-                    effect,
-                    special: '',
+                    duration: sf.kind === 'stonePowerSupport' || sf.kind === 'stoneRefresh' ? 'Instant' : 'Passive',
+                    effect: stoneFunctionEffect(sf, s),
+                    special: sf.stonePowerId || sf.kind,
                 });
             }
         }

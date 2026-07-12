@@ -39,6 +39,11 @@ import {
     isAllowedSecondPassive,
 } from './tower-wizard-passive-categories.js';
 import type { PackagePowerOverride, TowerWizardSelection } from './tower-wizard-types.js';
+import type { TowerWizardEchoContext } from './tower-wizard-echo-advisor.js';
+import {
+    collectEchoAdvisorWarnings,
+    validateEchoRequiredForTowerWizard,
+} from './tower-wizard-echo-advisor.js';
 
 export function isValidSecondPassiveForDefense(
     defenseId: string,
@@ -266,9 +271,16 @@ export function validatePackageSpecs(selection: TowerWizardSelection): string | 
     return validateTowerWizardSelection(selection);
 }
 
-export function collectRelevantWarnings(selection: TowerWizardSelection): string[] {
-    if (isManualBuildMode(selection)) return [];
+export function collectRelevantWarnings(
+    selection: TowerWizardSelection,
+    echoContext?: TowerWizardEchoContext | null,
+): string[] {
     const out: string[] = [];
+    if (echoContext) {
+        out.push(...collectEchoAdvisorWarnings(selection, echoContext));
+    }
+    if (isManualBuildMode(selection)) return [...new Set(out)];
+
     const defense = getDefensePackage(selection.defenseId);
     const offense = selection.offenseId ? getOffensePackage(selection.offenseId) : undefined;
     if (defense?.warning) out.push(defense.warning);

@@ -8,6 +8,7 @@ import { formatPassiveCategoryList } from './tower-wizard-passive-categories.js'
 import { showTowerWizardPowerPicker } from './tower-wizard-power-picker.js';
 import { computeBuildRoleRating } from './tower-wizard-build-rating.js';
 import { collectRelevantWarnings, validateTowerWizardSelection } from './tower-wizard-validation.js';
+import { buildDefensePackagesWithEcho, buildTowerWizardEchoContext, collectArtifactActiveBuffIdentityKeys, buildEchoAdvisorSummary, collectEchoAdvisorWarnings, validateEchoRequiredForTowerWizard, } from './tower-wizard-echo-advisor.js';
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const BaseDialog = HandlebarsApplicationMixin(ApplicationV2);
 const STEP_ORDER = WIZARD_STEP_ORDER;
@@ -102,6 +103,7 @@ export class TowerWizardDialog extends BaseDialog {
         const copy = TOWER_WIZARD_COPY;
         const defense = this.selection.defenseId ? getDefensePackage(this.selection.defenseId) : undefined;
         const echoKey = this.actor.system?.echo?.key ?? null;
+        const echoContext = buildTowerWizardEchoContext(this.actor);
         const passive1Id = this.selection.passive1TemplateId
             ?? (this.selection.defenseId ? getDefaultPassive1TemplateId(this.selection.defenseId) : undefined);
         const passiveIntentGroups = this.selection.defenseId && passive1Id
@@ -133,10 +135,14 @@ export class TowerWizardDialog extends BaseDialog {
                     allOk: false,
                     packageId: '',
                 };
-        const warnings = fullSelection && !manualMode ? collectRelevantWarnings(fullSelection) : [];
-        const validationError = manualMode || fullSelection
-            ? validateTowerWizardSelection(this.selection)
-            : null;
+        const warnings = fullSelection
+            ? collectRelevantWarnings(fullSelection, echoContext)
+            : collectEchoAdvisorWarnings(this.selection, echoContext);
+        const echoRequiredError = validateEchoRequiredForTowerWizard(echoContext);
+        const validationError = echoRequiredError
+            || (manualMode || fullSelection
+                ? validateTowerWizardSelection(this.selection)
+                : null);
         const roleRating = this.step === 'review' && review.allOk
             ? computeBuildRoleRating(review.reviewPowerRows)
             : null;
@@ -156,10 +162,13 @@ export class TowerWizardDialog extends BaseDialog {
             roleRating,
             warnings,
             validationError,
-            canApply: manualMode
+            canApply: echoContext.hasEcho && (manualMode
                 ? review.allOk && !validationError
-                : !!fullSelection && review.allOk && !validationError,
+                : !!fullSelection && review.allOk && !validationError),
             manualBuildMode: manualMode,
+            echoContext,
+            echoAdvisorSummary: buildEchoAdvisorSummary(echoContext),
+            defensePackagesWithEcho: buildDefensePackagesWithEcho(echoContext),
             defaultActiveBuffPreview: this.selection.defenseId
                 ? getDefaultActiveBuffPreview(this.selection.defenseId)
                 : null,
@@ -328,13 +337,23 @@ export class TowerWizardDialog extends BaseDialog {
             if (sub)
                 excludeSubfamilies.add(sub);
         }
+        const echoContext = buildTowerWizardEchoContext(this.actor);
+        if (grantKey === 'active-buff') {
+            for (const key of collectArtifactActiveBuffIdentityKeys(echoContext)) {
+                excludeIdentityKeys.add(key);
+            }
+        }
         const echoKey = this.actor.system?.echo?.key ?? null;
+        const echoPickerNote = grantKey === 'active-buff' && echoContext.artifactActiveBuffs.length > 0
+            ? TOWER_WIZARD_COPY.echo.activeBuffPickerNote
+            : undefined;
         const result = await showTowerWizardPowerPicker({
             grantKey,
             roleLabel: row?.role ?? grantKey,
             excludeIdentityKeys,
             excludeSubfamilies,
             actorEchoKey: echoKey,
+            echoPickerNote,
             currentTemplateId: row?.spec.templateId || undefined,
             currentSpecial: row?.spec.special,
         });
@@ -595,6 +614,10 @@ export class TowerWizardDialog extends BaseDialog {
     }
 }
 export async function showTowerWizardDialog(actor, options) {
+    const echoContext = buildTowerWizardEchoContext(actor);
+    if (!echoContext.hasEcho) {
+        ui.notifications?.warn('Select your Echo in the Echo dialog before building your combat package.');
+    }
     const dialog = options?.manualBuildMode
         ? TowerWizardDialog.startManualBuild(actor)
         : new TowerWizardDialog(actor);

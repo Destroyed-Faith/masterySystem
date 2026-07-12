@@ -150,6 +150,36 @@ const DEFAULT_TYPE_ICONS = {
     condition: 'icons/svg/acid.svg',
     echo: 'icons/svg/sound.svg',
 };
+const ECHO_ARTIFACT_ICON_BASE = `${ICON_BASE}/echo-artifacts`;
+/** Echo Artifact key → custom icon under `assets/icons/items/echo-artifacts/`. */
+const ECHO_ARTIFACT_ICONS = {
+    stoneboundSoles: `${ECHO_ARTIFACT_ICON_BASE}/Stonebound Soles.png`,
+    elorianStride: `${ECHO_ARTIFACT_ICON_BASE}/Elven Stride.png`,
+    elvenStride: `${ECHO_ARTIFACT_ICON_BASE}/Elven Stride.png`,
+    wyrmScalesHeavy: `${ECHO_ARTIFACT_ICON_BASE}/Wyrm Scales.png`,
+    wyrmScalesLight: `${ECHO_ARTIFACT_ICON_BASE}/Serpent Scales.png`,
+    dragonClaws: `${ECHO_ARTIFACT_ICON_BASE}/Dragon Claws.png`,
+    dragonHead: `${ECHO_ARTIFACT_ICON_BASE}/Dragon Head.png`,
+    sentinelFrame: `${ECHO_ARTIFACT_ICON_BASE}/Sentinel Frame.png`,
+    judicatorFrame: `${ECHO_ARTIFACT_ICON_BASE}/Judicator Frame.png`,
+    oracleFrame: `${ECHO_ARTIFACT_ICON_BASE}/Oracle Frame.png`,
+};
+/**
+ * Custom icon for a seeded Echo Artifact tree (all levels share the same art).
+ * Returns null when no dedicated PNG exists for the key.
+ */
+export function getEchoArtifactIcon(echoArtifactKey) {
+    const key = String(echoArtifactKey || '').trim();
+    if (!key)
+        return null;
+    if (ECHO_ARTIFACT_ICONS[key])
+        return ECHO_ARTIFACT_ICONS[key];
+    // All Titan Scars attribute variants share one icon.
+    if (key.startsWith('titanScars')) {
+        return `${ECHO_ARTIFACT_ICON_BASE}/Titan Scars.png`;
+    }
+    return null;
+}
 /**
  * Resolve the best icon path for an item by name and type.
  * For armor and shields, pass `system` (with `type` tier) so renamed items still match the correct art.
@@ -183,6 +213,12 @@ export function getItemIcon(name, type, system) {
         const gkey = normalizeGearIconKey(name);
         if (GEAR_ICONS[gkey])
             return GEAR_ICONS[gkey];
+    }
+    if (type === 'artifact') {
+        const echoKey = String(system?.echoArtifactKey || '').trim();
+        const fromKey = echoKey ? getEchoArtifactIcon(echoKey) : null;
+        if (fromKey)
+            return fromKey;
     }
     return DEFAULT_TYPE_ICONS[type] || null;
 }

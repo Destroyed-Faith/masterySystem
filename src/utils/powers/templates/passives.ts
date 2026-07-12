@@ -251,6 +251,89 @@ const EMPOWER_BUFF_TEMPLATES: PowerTemplate[] = [
     }),
 ];
 
+/** Buff duration extension only (Wyrm / Serpent Scales L2 lines). Uses same PL banding as empowerment. */
+function buffExtensionPassive(def: { id: string; name: string; axisLabel: string }): PowerTemplate {
+    return {
+        templateId: def.id,
+        templateName: def.name,
+        name: `Passive: ${def.name}`,
+        subfamily: 'buff-extension',
+        category: 'passive',
+        tags: ['artifact-only'],
+        fluff: 'Extends how long a matching Active Buff stays active.',
+        cost: { action: 'none' },
+        roll: { kind: 'none' },
+        levels: buildLevels((lvl) => {
+            const rounds = BUFF_EMPOWER[lvl - 1]!;
+            const roundText = rounds === 1 ? '1 round' : `${rounds} rounds`;
+            return passiveRow({
+                type: 'Support',
+                effectText: `${def.axisLabel} Active Buffs gain +${roundText} duration.`,
+            });
+        }),
+    };
+}
+
+const BUFF_EXTENSION_TEMPLATES: PowerTemplate[] = [
+    buffExtensionPassive({
+        id: 'extend-buff-armor',
+        name: 'Armor Buff Extension',
+        axisLabel: 'Armor',
+    }),
+    buffExtensionPassive({
+        id: 'extend-buff-damage-reduction',
+        name: 'DR Buff Extension',
+        axisLabel: 'Damage Reduction',
+    }),
+    buffExtensionPassive({
+        id: 'extend-buff-evade',
+        name: 'Evade Buff Extension',
+        axisLabel: 'Evade',
+    }),
+];
+
+function mobilityBuffExtensionPassive(): PowerTemplate {
+    return {
+        templateId: 'extend-buff-mobility',
+        templateName: 'Mobility Buff Extension',
+        name: 'Passive: Mobility Buff Extension',
+        subfamily: 'buff-extension',
+        category: 'passive',
+        tags: ['artifact-only'],
+        fluff: 'Extends Evade- and Movement-granting Active Buffs without increasing their value.',
+        cost: { action: 'none' },
+        roll: { kind: 'none' },
+        levels: buildLevels((lvl) => {
+            const rounds = BUFF_EMPOWER[lvl - 1]!;
+            const roundText = rounds === 1 ? '1 round' : `${rounds} rounds`;
+            return passiveRow({
+                type: 'Support',
+                effectText: `Whenever you activate an Active Buff that grants Evade or Movement as one of its effects, increase that Buff's duration by **+${roundText}**. This does not increase the Buff's value. This does not allow you to maintain a second Active Buff.`,
+            });
+        }),
+    };
+}
+
+/** Permanent shared Echo Armor value on body frames (Oracle / Sentinel / Judicator). */
+const ECHO_ARMOR_VALUE_PASSIVE: PowerTemplate = {
+    templateId: 'passive-echo-armor-value',
+    templateName: 'Echo Armor Value',
+    name: 'Passive: Echo Armor Value',
+    subfamily: 'armor',
+    category: 'passive',
+    tags: ['artifact-only'],
+    fluff: 'The artifact’s permanent body armor bonus scales with its level.',
+    cost: { action: 'none' },
+    roll: { kind: 'none' },
+    levels: buildLevels(() =>
+        passiveRow({
+            type: 'Support',
+            effectText:
+                'Gain the shared Echo Armor value for this Artifact Level (see Base Values). This is permanent body armor, not an Active Buff.',
+        }),
+    ),
+};
+
 // ─── Templates ───────────────────────────────────────────────────────────
 
 export const PASSIVE_TEMPLATES: PowerTemplate[] = [
@@ -858,4 +941,9 @@ export const PASSIVE_TEMPLATES: PowerTemplate[] = [
     EMPOWER_BUFF_TEMPLATES[1]!,
     EMPOWER_BUFF_TEMPLATES[2]!,
     EMPOWER_BUFF_TEMPLATES[3]!,
+    BUFF_EXTENSION_TEMPLATES[0]!,
+    BUFF_EXTENSION_TEMPLATES[1]!,
+    BUFF_EXTENSION_TEMPLATES[2]!,
+    mobilityBuffExtensionPassive(),
+    ECHO_ARMOR_VALUE_PASSIVE,
 ];

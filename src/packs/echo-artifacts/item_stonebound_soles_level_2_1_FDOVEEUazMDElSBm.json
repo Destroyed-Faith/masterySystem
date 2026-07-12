@@ -1,7 +1,7 @@
 {
   "name": "Stonebound Soles - Level 2-1",
   "type": "artifact",
-  "img": "icons/svg/upgrade.svg",
+  "img": "systems/mastery-system/assets/icons/items/echo-artifacts/Stonebound Soles.png",
   "system": {
     "level": 2,
     "currentLevel": 2,
@@ -26,7 +26,7 @@
     "levelProgression": [
       {
         "level": 1,
-        "name": "Immovable + Temporary HP I",
+        "name": "Anchoring Stance I",
         "type": "Active Buff",
         "range": "Self",
         "aoe": "",
@@ -37,7 +37,7 @@
       },
       {
         "level": 2,
-        "name": "Safe Movement I",
+        "name": "Stone-Sure Step I",
         "type": "Movement",
         "range": "Self",
         "aoe": "",
@@ -52,17 +52,20 @@
       {
         "level": 1,
         "kind": "power",
-        "powerTemplateId": "ab-immovable-temp-hp"
+        "powerTemplateId": "ab-immovable-temp-hp",
+        "displayName": "Anchoring Stance"
       },
       {
         "level": 2,
         "kind": "power",
-        "powerTemplateId": "movement-safe-movement"
+        "powerTemplateId": "movement-safe-movement",
+        "displayName": "Stone-Sure Step"
       },
       {
         "level": 3,
         "kind": "power",
-        "powerTemplateId": "ab-armor"
+        "powerTemplateId": "empower-buff-armor",
+        "displayName": "Stoneweave Guard"
       }
     ],
     "lore": "Ancestral weight, deep-road memory, and the old bond between dwarven bodies and stone.",
@@ -80,7 +83,7 @@
     "powers": [
       {
         "id": "stoneboundSoles-pw-1",
-        "name": "Immovable + Temporary HP I",
+        "name": "Anchoring Stance I",
         "fluff": "Special: immovable",
         "category": "activeBuff",
         "tags": [],
@@ -288,7 +291,7 @@
       },
       {
         "id": "stoneboundSoles-pw-2",
-        "name": "Safe Movement I",
+        "name": "Stone-Sure Step I",
         "category": "movement",
         "tags": [],
         "cost": {
@@ -509,7 +512,7 @@
       ],
       "echoBound": "dwarfs",
       "echoArtifactKey": "stoneboundSoles",
-      "seedVersion": 26
+      "seedVersion": 35
     }
   },
   "_id": "FDOVEEUazMDElSBm",

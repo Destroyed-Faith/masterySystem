@@ -1,7 +1,7 @@
 {
   "name": "Sentinel Frame - Level 1-1",
   "type": "artifact",
-  "img": "icons/svg/statue.svg",
+  "img": "systems/mastery-system/assets/icons/items/echo-artifacts/Sentinel Frame.png",
   "system": {
     "level": 1,
     "currentLevel": 1,
@@ -307,7 +307,7 @@
       "isRoot": true,
       "echoBound": "sentinels",
       "echoArtifactKey": "sentinelFrame",
-      "seedVersion": 26
+      "seedVersion": 35
     }
   },
   "_id": "2TQ9LCn6oHNCYjDQ",

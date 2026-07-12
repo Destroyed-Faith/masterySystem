@@ -20,12 +20,13 @@ import { bodyArmorBonusForLevel, feetEvadeForLevel, minorArmorForLevel, noArmorE
 import { getArmorDefinitionForType } from '../utils/equipment.js';
 import { resolveFullLevelProgression, visibleAbilityRows, } from '../utils/artifact-visible-abilities.js';
 import { getMinorMovementBaselineB, getPaperdollSlotsForArtifact, } from '../utils/artifact-rules.js';
+import { getEchoArtifactIcon } from '../utils/item-icons.js';
 /**
  * Content version of the generated trees. Bump this whenever the generator's
  * output (base values, powers, slot/profile, etc.) changes so the world seeder
  * can detect stale library copies and refresh them in place.
  */
-export const ECHO_ARTIFACT_SEED_VERSION = 26;
+export const ECHO_ARTIFACT_SEED_VERSION = 35;
 const ARTIFACT_LEVELS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 const ALL_POWER_LEVEL_KEYS = [
     '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16',
@@ -168,17 +169,6 @@ const BASE_VALUE_TABLES = {
             unlock: 1,
             valueAt: (l) => bodyArmorBonusForLevel(l),
             note: 'Heavy Armor: Evade −4, Initiative −8, −2d8 Physical Skills.',
-        },
-    ],
-    wyrmScalesMedium: [
-        {
-            slot: 'a',
-            type: 'bodyArmor',
-            label: 'Medium Echo Armor',
-            armorWeightClass: 'medium',
-            unlock: 1,
-            valueAt: (l) => bodyArmorBonusForLevel(l),
-            note: 'Medium Armor: Evade −2, Initiative −4, −1d8 Physical Skills.',
         },
     ],
     wyrmScalesLight: [
@@ -610,7 +600,7 @@ export function buildEchoArtifactTree(def) {
     // picks-derived recompilation).
     const isGeneral = !def.echoKey;
     const kind = deriveArtifactKind(def.baseProfile);
-    const img = iconForKind(kind);
+    const img = getEchoArtifactIcon(def.key) ?? iconForKind(kind);
     const paperdollOverride = def.paperdollSlots;
     const paperdoll = paperdollOverride && paperdollOverride.length > 0
         ? paperdollOverride

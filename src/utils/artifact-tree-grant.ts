@@ -32,7 +32,6 @@ export function inferArtifactKeyFromName(name: string): string | null {
   }
   if (n.includes('dragon head')) return 'dragonHead';
   if (n.includes('dragon claw')) return 'dragonClaws';
-  if (n.includes('wyrm scale') && n.includes('medium')) return 'wyrmScalesMedium';
   if (n.includes('wyrm scale') && n.includes('light')) return 'wyrmScalesLight';
   if (n.includes('wyrm scale') && n.includes('heavy')) return 'wyrmScalesHeavy';
   if (n.includes('serpent scale')) return 'wyrmScalesLight';

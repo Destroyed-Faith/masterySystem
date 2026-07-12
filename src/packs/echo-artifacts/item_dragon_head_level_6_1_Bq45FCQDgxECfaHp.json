@@ -1,7 +1,7 @@
 {
   "name": "Dragon Head - Level 6-1",
   "type": "artifact",
-  "img": "icons/svg/upgrade.svg",
+  "img": "systems/mastery-system/assets/icons/items/echo-artifacts/Dragon Head.png",
   "system": {
     "level": 6,
     "currentLevel": 6,
@@ -57,12 +57,12 @@
       {
         "level": 6,
         "name": "Draconic Recovery II",
-        "type": "Support",
+        "type": "Stone Refresh",
         "range": "Self",
         "aoe": "",
-        "duration": "Passive",
-        "effect": "Stone Refresh (Might)",
-        "special": ""
+        "duration": "Instant",
+        "effect": "Restore 2 spent Might Stones.",
+        "special": "stoneRefresh"
       }
     ],
     "stoneFunction": {
@@ -536,8 +536,11 @@
       {
         "id": "dragonHead-pw-6",
         "name": "Draconic Recovery II",
+        "fluff": "Special: stoneRefresh",
         "category": "passive",
-        "tags": [],
+        "tags": [
+          "stone-function"
+        ],
         "cost": {
           "action": "none"
         },
@@ -651,16 +654,16 @@
             "specials": []
           },
           "10": {
-            "type": "Support",
+            "type": "Stone Refresh",
             "range": {
               "kind": "self"
             },
             "aoe": null,
             "duration": {
-              "kind": "scene"
+              "kind": "instant"
             },
             "effect": {
-              "text": "Stone Refresh (Might)"
+              "text": "Restore 2 spent Might Stones."
             },
             "specials": [],
             "lvl": 6
@@ -765,7 +768,7 @@
       ],
       "echoBound": "dragonborn",
       "echoArtifactKey": "dragonHead",
-      "seedVersion": 26
+      "seedVersion": 35
     }
   },
   "_id": "Bq45FCQDgxECfaHp",

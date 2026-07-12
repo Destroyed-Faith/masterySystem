@@ -1,7 +1,7 @@
 {
   "name": "Titan Scars - Level 1-1",
   "type": "artifact",
-  "img": "icons/svg/statue.svg",
+  "img": "systems/mastery-system/assets/icons/items/echo-artifacts/Titan Scars.png",
   "system": {
     "level": 1,
     "currentLevel": 1,
@@ -303,7 +303,7 @@
       "isRoot": true,
       "echoBound": "titanborn",
       "echoArtifactKey": "titanScarsMight",
-      "seedVersion": 26
+      "seedVersion": 35
     }
   },
   "_id": "ukqapCfNFjqCOV3J",

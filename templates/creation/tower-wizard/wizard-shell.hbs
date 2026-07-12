@@ -4,14 +4,31 @@
   </header>
 
   <div class="tower-wizard-body">
+    {{#unless echoContext.hasEcho}}
+    <div class="tower-wizard-echo-banner tower-wizard-warn">
+      <strong>Echo required.</strong> {{copy.echo.missingBanner}}
+    </div>
+    {{/unless}}
+    {{#if echoAdvisorSummary}}
+    <div class="tower-wizard-echo-summary">
+      <h4>{{copy.echo.summaryHeading}}</h4>
+      <p class="tower-wizard-prose">{{echoAdvisorSummary}}</p>
+      {{#if echoContext.artifactActiveBuffs.length}}
+      <p class="tower-wizard-prose tower-wizard-echo-artifact-note">{{copy.echo.artifactBuffNote}}</p>
+      {{/if}}
+    </div>
+    {{/if}}
+
     {{#if isDefense}}
     <section class="tower-wizard-step">
       <h3>{{copy.defense.question}}</h3>
       <div class="tower-wizard-cards">
-        {{#each defensePackages}}
-        <button type="button" class="tower-wizard-card js-tw-select-defense{{#if (eq ../selection.defenseId this.id)}} is-selected{{/if}}" data-defense-id="{{this.id}}">
+        {{#each defensePackagesWithEcho}}
+        <button type="button" class="tower-wizard-card js-tw-select-defense{{#if (eq ../selection.defenseId this.id)}} is-selected{{/if}}{{#if this.echoConflict}} has-echo-conflict{{/if}}{{#if this.echoRecommended}} is-echo-recommended{{/if}}" data-defense-id="{{this.id}}">
           <span class="tower-wizard-card-title">{{this.label}}</span>
           <span class="tower-wizard-card-text">{{this.explanation}}</span>
+          {{#if this.echoRecommended}}<span class="tower-wizard-chip">{{../copy.echo.defenseRecommended}}</span>{{/if}}
+          {{#if this.echoConflict}}<span class="tower-wizard-warn">{{../copy.echo.defenseConflict}}: {{this.echoConflict.artifactName}} ({{this.echoConflict.displayName}})</span>{{/if}}
           {{#if this.warning}}<span class="tower-wizard-warn">{{this.warning}}</span>{{/if}}
         </button>
         {{/each}}
@@ -94,6 +111,13 @@
     <section class="tower-wizard-step">
       <h3>{{copy.activeBuffChoice.heading}}</h3>
       <p class="tower-wizard-prose">{{copy.activeBuffChoice.body}}</p>
+      {{#if echoContext.artifactActiveBuffs.length}}
+      <ul class="tower-wizard-warnings">
+        {{#each echoContext.artifactActiveBuffs}}
+        <li>{{this.artifactName}} already grants <strong>{{this.displayName}}</strong> — only one maintained Active Buff at a time.</li>
+        {{/each}}
+      </ul>
+      {{/if}}
       {{#if defaultActiveBuffPreview}}
       <div class="tower-wizard-buff-preview">
         <h4>{{copy.activeBuffChoice.defaultHeading}}</h4>

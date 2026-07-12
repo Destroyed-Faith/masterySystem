@@ -97,16 +97,17 @@ describe('Echo Artifact catalog — lookups', () => {
 
     it('getEchoArtifact resolves legacy wyrm/serpent keys to current variants', () => {
         expect(getEchoArtifact('wyrmScales')?.key).toBe('wyrmScalesHeavy');
+        expect(getEchoArtifact('wyrmScalesMedium')?.key).toBe('wyrmScalesHeavy');
         expect(getEchoArtifact('serpentScales')?.key).toBe('wyrmScalesLight');
     });
 
-    it('Dragonborn pick exactly one of three Wyrm Scales variants', () => {
+    it('Dragonborn pick exactly one of two body armor variants', () => {
         const list = listSelectableEchoArtifacts('dragonborn');
         const wyrmKeys = list
             .filter((d) => d.variantGroupKey === 'wyrmScales')
             .map((d) => d.key)
             .sort();
-        expect(wyrmKeys).toEqual(['wyrmScalesHeavy', 'wyrmScalesLight', 'wyrmScalesMedium']);
+        expect(wyrmKeys).toEqual(['wyrmScalesHeavy', 'wyrmScalesLight']);
         const rule = getEchoArtifactRules('dragonborn');
         expect(rule.exclusiveGroups?.[0]?.sort()).toEqual(wyrmKeys);
     });

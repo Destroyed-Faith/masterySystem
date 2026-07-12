@@ -1,7 +1,7 @@
 {
   "name": "Wyrm Scales (Heavy) - Level 4-1",
   "type": "artifact",
-  "img": "icons/svg/statue.svg",
+  "img": "systems/mastery-system/assets/icons/items/echo-artifacts/Wyrm Scales.png",
   "system": {
     "level": 4,
     "currentLevel": 4,
@@ -27,7 +27,7 @@
     "levelProgression": [
       {
         "level": 4,
-        "name": "Flight II",
+        "name": "Dragon Wings II",
         "type": "Movement",
         "range": "Self",
         "aoe": "",
@@ -38,7 +38,7 @@
       },
       {
         "level": 2,
-        "name": "Armor I",
+        "name": "Wyrm Scales I",
         "type": "Active Buff",
         "range": "Self",
         "aoe": "",
@@ -49,39 +49,38 @@
       },
       {
         "level": 3,
-        "name": "Stone Support I",
-        "type": "Support",
+        "name": "Armor Stone Support I",
+        "type": "Stone Power Support",
         "range": "Self",
         "aoe": "",
-        "duration": "Passive",
-        "effect": "Stone Power Support (Might): supports Armor",
-        "special": ""
+        "duration": "Instant",
+        "effect": "Supports the Vitality Ability: Armor Stone Power and pre-fills Tier 2. You must still pay Tier 1 yourself. If Tier 1 is not paid, the pre-filled Tier 2 has no effect.",
+        "special": "vitality.armor"
       }
     ],
-    "stoneFunction": {
-      "kind": "stonePowerSupport",
-      "attribute": "might",
-      "stonePowerId": "might.armor"
-    },
+    "stoneFunction": null,
     "progressionPicks": [
       {
         "level": 1,
         "kind": "power",
-        "powerTemplateId": "movement-flight"
+        "powerTemplateId": "movement-flight",
+        "displayName": "Dragon Wings"
       },
       {
         "level": 2,
         "kind": "power",
-        "powerTemplateId": "ab-armor"
+        "powerTemplateId": "ab-armor",
+        "displayName": "Wyrm Scales"
       },
       {
         "level": 3,
         "kind": "stoneFunction",
         "stoneFunction": {
           "kind": "stonePowerSupport",
-          "attribute": "might",
-          "stonePowerId": "might.armor"
-        }
+          "attribute": "vitality",
+          "stonePowerId": "vitality.armor"
+        },
+        "displayName": "Armor Stone Support"
       }
     ],
     "lore": "The heaviest Dragonborn scale-form — maximum armor, heavy class drawbacks.",
@@ -99,7 +98,7 @@
     "powers": [
       {
         "id": "wyrmScalesHeavy-pw-4",
-        "name": "Flight II",
+        "name": "Dragon Wings II",
         "category": "movement",
         "tags": [],
         "cost": {
@@ -305,7 +304,7 @@
       },
       {
         "id": "wyrmScalesHeavy-pw-2",
-        "name": "Armor I",
+        "name": "Wyrm Scales I",
         "category": "activeBuff",
         "tags": [],
         "cost": {
@@ -512,9 +511,12 @@
       },
       {
         "id": "wyrmScalesHeavy-pw-3",
-        "name": "Stone Support I",
+        "name": "Armor Stone Support I",
+        "fluff": "Special: vitality.armor",
         "category": "passive",
-        "tags": [],
+        "tags": [
+          "stone-function"
+        ],
         "cost": {
           "action": "none"
         },
@@ -556,16 +558,16 @@
             "specials": []
           },
           "4": {
-            "type": "Support",
+            "type": "Stone Power Support",
             "range": {
               "kind": "self"
             },
             "aoe": null,
             "duration": {
-              "kind": "scene"
+              "kind": "instant"
             },
             "effect": {
-              "text": "Stone Power Support (Might): supports Armor"
+              "text": "Supports the Vitality Ability: Armor Stone Power and pre-fills Tier 2. You must still pay Tier 1 yourself. If Tier 1 is not paid, the pre-filled Tier 2 has no effect."
             },
             "specials": [],
             "lvl": 3
@@ -739,7 +741,7 @@
       ],
       "echoBound": "dragonborn",
       "echoArtifactKey": "wyrmScalesHeavy",
-      "seedVersion": 26
+      "seedVersion": 35
     }
   },
   "_id": "x7LNsDCVxErDTN9d",

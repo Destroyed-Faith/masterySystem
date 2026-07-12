@@ -1,7 +1,7 @@
 {
   "name": "Dragon Claws - Level 5-1",
   "type": "artifact",
-  "img": "icons/svg/sword.svg",
+  "img": "systems/mastery-system/assets/icons/items/echo-artifacts/Dragon Claws.png",
   "system": {
     "level": 5,
     "currentLevel": 5,
@@ -33,12 +33,12 @@
       {
         "level": 4,
         "name": "Extra Damage Support II",
-        "type": "Support",
+        "type": "Stone Power Support",
         "range": "Self",
         "aoe": "",
-        "duration": "Passive",
-        "effect": "Stone Power Support (Might): supports Melee Damage",
-        "special": ""
+        "duration": "Instant",
+        "effect": "Supports the Might Ability: Melee Damage Stone Power and pre-fills Tier 3. You must still pay Tiers 1, 2 yourself. If Tiers 1, 2 are not paid, the pre-filled Tier 3 has no effect.",
+        "special": "might.meleeDamage"
       },
       {
         "level": 5,
@@ -48,8 +48,9 @@
         "aoe": "Radius 6m",
         "duration": "Instant",
         "effect": "Make a melee AoE attack. Affected creatures take weapon damage + **2d8 damage**.",
-        "special": "",
-        "powerTemplateId": "active-melee-weapon-aoe"
+        "special": "Lacerate(5)",
+        "powerTemplateId": "active-melee-weapon-aoe",
+        "chosenSpecialKey": "lacerate"
       },
       {
         "level": 3,
@@ -59,8 +60,9 @@
         "aoe": "Radius 3m",
         "duration": "Instant",
         "effect": "Make a melee AoE attack. Affected creatures take weapon damage + **2d8 damage**.",
-        "special": "",
-        "powerTemplateId": "active-melee-weapon-aoe"
+        "special": "Push(2)",
+        "powerTemplateId": "active-melee-weapon-aoe",
+        "chosenSpecialKey": "push"
       }
     ],
     "stoneFunction": {
@@ -83,13 +85,21 @@
         "level": 2,
         "kind": "power",
         "powerTemplateId": "active-melee-weapon-aoe",
-        "displayName": "Rending Spiral"
+        "displayName": "Rending Spiral",
+        "chosenSpecial": {
+          "key": "lacerate",
+          "tier": 4
+        }
       },
       {
         "level": 3,
         "kind": "power",
         "powerTemplateId": "active-melee-weapon-aoe",
-        "displayName": "Tail Sweep"
+        "displayName": "Tail Sweep",
+        "chosenSpecial": {
+          "key": "push",
+          "tier": 4
+        }
       }
     ],
     "lore": "Both hands become natural weapons: claws, scales, and tail.",
@@ -108,8 +118,11 @@
       {
         "id": "dragonClaws-pw-4",
         "name": "Extra Damage Support II",
+        "fluff": "Special: might.meleeDamage",
         "category": "passive",
-        "tags": [],
+        "tags": [
+          "stone-function"
+        ],
         "cost": {
           "action": "none"
         },
@@ -223,16 +236,16 @@
             "specials": []
           },
           "10": {
-            "type": "Support",
+            "type": "Stone Power Support",
             "range": {
               "kind": "self"
             },
             "aoe": null,
             "duration": {
-              "kind": "scene"
+              "kind": "instant"
             },
             "effect": {
-              "text": "Stone Power Support (Might): supports Melee Damage"
+              "text": "Supports the Might Ability: Melee Damage Stone Power and pre-fills Tier 3. You must still pay Tiers 1, 2 yourself. If Tiers 1, 2 are not paid, the pre-filled Tier 3 has no effect."
             },
             "specials": [],
             "lvl": 4
@@ -314,6 +327,7 @@
       {
         "id": "dragonClaws-pw-5",
         "name": "Rending Spiral II",
+        "fluff": "Special: Lacerate(5)",
         "category": "active",
         "tags": [],
         "cost": {
@@ -524,6 +538,7 @@
       {
         "id": "dragonClaws-pw-3",
         "name": "Tail Sweep I",
+        "fluff": "Special: Push(2)",
         "category": "active",
         "tags": [],
         "cost": {
@@ -757,7 +772,7 @@
       ],
       "echoBound": "dragonborn",
       "echoArtifactKey": "dragonClaws",
-      "seedVersion": 26
+      "seedVersion": 35
     }
   },
   "_id": "iD9hZCTqXqaCETwy",

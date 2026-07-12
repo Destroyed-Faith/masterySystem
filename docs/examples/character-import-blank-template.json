@@ -703,16 +703,6 @@
         "equipped": false
       },
       {
-        "key": "wyrmScalesMedium",
-        "name": "Wyrm Scales (Medium)",
-        "binding": "echo",
-        "selected": false,
-        "level": 1,
-        "activated": false,
-        "activationStoneAttribute": "",
-        "equipped": false
-      },
-      {
         "key": "wyrmScalesLight",
         "name": "Wyrm Scales (Light)",
         "binding": "echo",

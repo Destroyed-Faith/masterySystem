@@ -1,7 +1,7 @@
 {
   "name": "Dragon Claws - Level 10-1",
   "type": "artifact",
-  "img": "icons/svg/sword.svg",
+  "img": "systems/mastery-system/assets/icons/items/echo-artifacts/Dragon Claws.png",
   "system": {
     "level": 10,
     "currentLevel": 10,
@@ -40,12 +40,12 @@
       {
         "level": 7,
         "name": "Extra Damage Support III",
-        "type": "Support",
+        "type": "Stone Power Support",
         "range": "Self",
         "aoe": "",
-        "duration": "Passive",
-        "effect": "Stone Power Support (Might): supports Melee Damage",
-        "special": ""
+        "duration": "Instant",
+        "effect": "Supports the Might Ability: Melee Damage Stone Power and pre-fills Tier 4. You must still pay Tiers 1, 2, 3 yourself. If Tiers 1, 2, 3 are not paid, the pre-filled Tier 4 has no effect.",
+        "special": "might.meleeDamage"
       },
       {
         "level": 8,
@@ -55,8 +55,9 @@
         "aoe": "Radius 8m",
         "duration": "Instant",
         "effect": "Make a melee AoE attack. Affected creatures take weapon damage + **8d8 damage**.",
-        "special": "",
-        "powerTemplateId": "active-melee-weapon-aoe"
+        "special": "Lacerate(7)",
+        "powerTemplateId": "active-melee-weapon-aoe",
+        "chosenSpecialKey": "lacerate"
       },
       {
         "level": 9,
@@ -66,8 +67,9 @@
         "aoe": "Radius 8m",
         "duration": "Instant",
         "effect": "Make a melee AoE attack. Affected creatures take weapon damage + **8d8 damage**.",
-        "special": "",
-        "powerTemplateId": "active-melee-weapon-aoe"
+        "special": "Push(8)",
+        "powerTemplateId": "active-melee-weapon-aoe",
+        "chosenSpecialKey": "push"
       },
       {
         "level": 10,
@@ -99,13 +101,21 @@
         "level": 2,
         "kind": "power",
         "powerTemplateId": "active-melee-weapon-aoe",
-        "displayName": "Rending Spiral"
+        "displayName": "Rending Spiral",
+        "chosenSpecial": {
+          "key": "lacerate",
+          "tier": 4
+        }
       },
       {
         "level": 3,
         "kind": "power",
         "powerTemplateId": "active-melee-weapon-aoe",
-        "displayName": "Tail Sweep"
+        "displayName": "Tail Sweep",
+        "chosenSpecial": {
+          "key": "push",
+          "tier": 4
+        }
       }
     ],
     "lore": "Both hands become natural weapons: claws, scales, and tail.",
@@ -124,8 +134,11 @@
       {
         "id": "dragonClaws-pw-7",
         "name": "Extra Damage Support III",
+        "fluff": "Special: might.meleeDamage",
         "category": "passive",
-        "tags": [],
+        "tags": [
+          "stone-function"
+        ],
         "cost": {
           "action": "none"
         },
@@ -311,16 +324,16 @@
             "specials": []
           },
           "16": {
-            "type": "Support",
+            "type": "Stone Power Support",
             "range": {
               "kind": "self"
             },
             "aoe": null,
             "duration": {
-              "kind": "scene"
+              "kind": "instant"
             },
             "effect": {
-              "text": "Stone Power Support (Might): supports Melee Damage"
+              "text": "Supports the Might Ability: Melee Damage Stone Power and pre-fills Tier 4. You must still pay Tiers 1, 2, 3 yourself. If Tiers 1, 2, 3 are not paid, the pre-filled Tier 4 has no effect."
             },
             "specials": [],
             "lvl": 7
@@ -330,6 +343,7 @@
       {
         "id": "dragonClaws-pw-8",
         "name": "Rending Spiral III",
+        "fluff": "Special: Lacerate(7)",
         "category": "active",
         "tags": [],
         "cost": {
@@ -540,6 +554,7 @@
       {
         "id": "dragonClaws-pw-9",
         "name": "Tail Sweep III",
+        "fluff": "Special: Push(8)",
         "category": "active",
         "tags": [],
         "cost": {
@@ -979,7 +994,7 @@
       "childIds": [],
       "echoBound": "dragonborn",
       "echoArtifactKey": "dragonClaws",
-      "seedVersion": 26
+      "seedVersion": 35
     }
   },
   "_id": "GsYR4D1UxZ5DkclA",

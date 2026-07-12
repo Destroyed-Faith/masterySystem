@@ -1,7 +1,7 @@
 {
   "name": "Wyrm Scales (Heavy) - Level 1-1",
   "type": "artifact",
-  "img": "icons/svg/statue.svg",
+  "img": "systems/mastery-system/assets/icons/items/echo-artifacts/Wyrm Scales.png",
   "system": {
     "level": 1,
     "currentLevel": 1,
@@ -27,7 +27,7 @@
     "levelProgression": [
       {
         "level": 1,
-        "name": "Flight I",
+        "name": "Dragon Wings I",
         "type": "Movement",
         "range": "Self",
         "aoe": "",
@@ -42,21 +42,24 @@
       {
         "level": 1,
         "kind": "power",
-        "powerTemplateId": "movement-flight"
+        "powerTemplateId": "movement-flight",
+        "displayName": "Dragon Wings"
       },
       {
         "level": 2,
         "kind": "power",
-        "powerTemplateId": "ab-armor"
+        "powerTemplateId": "ab-armor",
+        "displayName": "Wyrm Scales"
       },
       {
         "level": 3,
         "kind": "stoneFunction",
         "stoneFunction": {
           "kind": "stonePowerSupport",
-          "attribute": "might",
-          "stonePowerId": "might.armor"
-        }
+          "attribute": "vitality",
+          "stonePowerId": "vitality.armor"
+        },
+        "displayName": "Armor Stone Support"
       }
     ],
     "lore": "The heaviest Dragonborn scale-form — maximum armor, heavy class drawbacks.",
@@ -74,7 +77,7 @@
     "powers": [
       {
         "id": "wyrmScalesHeavy-pw-1",
-        "name": "Flight I",
+        "name": "Dragon Wings I",
         "category": "movement",
         "tags": [],
         "cost": {
@@ -300,7 +303,7 @@
       "isRoot": true,
       "echoBound": "dragonborn",
       "echoArtifactKey": "wyrmScalesHeavy",
-      "seedVersion": 26
+      "seedVersion": 35
     }
   },
   "_id": "mraqgCXUzyhCI7N7",

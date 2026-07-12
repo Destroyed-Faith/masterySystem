@@ -1,7 +1,7 @@
 {
   "name": "Judicator Frame - Level 8-1",
   "type": "artifact",
-  "img": "icons/svg/statue.svg",
+  "img": "systems/mastery-system/assets/icons/items/echo-artifacts/Judicator Frame.png",
   "system": {
     "level": 8,
     "currentLevel": 8,
@@ -39,22 +39,22 @@
       {
         "level": 8,
         "name": "Wits Core III",
-        "type": "Support",
+        "type": "Stone Pool",
         "range": "Self",
         "aoe": "",
         "duration": "Passive",
-        "effect": "Stone Pool (Wits)",
-        "special": ""
+        "effect": "After each Safe Haven Rest, store 8 Wits Stones. These Stones may only be used for this Artifact's listed Wits Stone functions.",
+        "special": "stonePool"
       },
       {
         "level": 6,
         "name": "Regeneration Support II",
-        "type": "Support",
+        "type": "Stone Power Support",
         "range": "Self",
         "aoe": "",
-        "duration": "Passive",
-        "effect": "Stone Power Support (Influence): supports Regeneration",
-        "special": ""
+        "duration": "Instant",
+        "effect": "Supports the Influence Ability: Regeneration Stone Power and pre-fills Tier 3. You must still pay Tiers 1, 2 yourself. If Tiers 1, 2 are not paid, the pre-filled Tier 3 has no effect.",
+        "special": "influence.regeneration"
       }
     ],
     "stoneFunction": null,
@@ -307,8 +307,11 @@
       {
         "id": "judicatorFrame-pw-8",
         "name": "Wits Core III",
+        "fluff": "Special: stonePool",
         "category": "passive",
-        "tags": [],
+        "tags": [
+          "stone-function"
+        ],
         "cost": {
           "action": "none"
         },
@@ -494,7 +497,7 @@
             "specials": []
           },
           "16": {
-            "type": "Support",
+            "type": "Stone Pool",
             "range": {
               "kind": "self"
             },
@@ -503,7 +506,7 @@
               "kind": "scene"
             },
             "effect": {
-              "text": "Stone Pool (Wits)"
+              "text": "After each Safe Haven Rest, store 8 Wits Stones. These Stones may only be used for this Artifact's listed Wits Stone functions."
             },
             "specials": [],
             "lvl": 8
@@ -513,8 +516,11 @@
       {
         "id": "judicatorFrame-pw-6",
         "name": "Regeneration Support II",
+        "fluff": "Special: influence.regeneration",
         "category": "passive",
-        "tags": [],
+        "tags": [
+          "stone-function"
+        ],
         "cost": {
           "action": "none"
         },
@@ -628,16 +634,16 @@
             "specials": []
           },
           "10": {
-            "type": "Support",
+            "type": "Stone Power Support",
             "range": {
               "kind": "self"
             },
             "aoe": null,
             "duration": {
-              "kind": "scene"
+              "kind": "instant"
             },
             "effect": {
-              "text": "Stone Power Support (Influence): supports Regeneration"
+              "text": "Supports the Influence Ability: Regeneration Stone Power and pre-fills Tier 3. You must still pay Tiers 1, 2 yourself. If Tiers 1, 2 are not paid, the pre-filled Tier 3 has no effect."
             },
             "specials": [],
             "lvl": 6
@@ -739,7 +745,7 @@
       ],
       "echoBound": "sentinels",
       "echoArtifactKey": "judicatorFrame",
-      "seedVersion": 26
+      "seedVersion": 35
     }
   },
   "_id": "sqnvkEdTC4lEO6aC",

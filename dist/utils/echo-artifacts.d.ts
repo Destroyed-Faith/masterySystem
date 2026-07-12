@@ -30,7 +30,7 @@
  * The catalog is pure data; it is consumed by `character-sheet-echo-dialog.ts`
  * during creation, and by `artifact-actor-rules.ts` for echo-bound checks.
  */
-import type { ArtifactBaseProfileKey, ArtifactSlotKey, ArtifactLevelProgressionRow, ArtifactStoneFunctionKind } from '../types/item.js';
+import type { ArtifactBaseProfileKey, ArtifactSlotKey, ArtifactLevelProgressionRow, ArtifactStoneFunctionKind, PowerLevelKey } from '../types/item.js';
 import { type MartialDelivery } from './artifact-power-pick.js';
 /**
  * Authoring shorthand for an Echo Artifact's single canonical Stone Function.
@@ -81,6 +81,17 @@ export interface EchoArtifactProgressionPickSpec {
         attribute: string;
         stonePowerId?: string;
     };
+    /** Override staged catalog PL rows (default 4 / 10 / 16). */
+    stagePowerLevels?: PowerLevelKey[];
+    /** Override stage name suffixes (default I / II / III). */
+    stageNumerals?: string[];
+    /**
+     * Per-stage catalog template ids (length 3). Each stage uses the matching
+     * template at PL 4 / 10 / 16 instead of staging one `templateId` three times.
+     */
+    stageTemplateIds?: [string, string, string];
+    /** Full row names per stage when `stageTemplateIds` is set (length 3). */
+    stageNames?: [string, string, string];
 }
 export interface EchoArtifactBaseValueHint {
     /** Label as it appears in the Player's Guide (Base Value A / B / C). */
@@ -226,6 +237,10 @@ export declare function buildEchoProgressionPicks(def: EchoArtifactDefinition): 
         tier: 3 | 4 | 5 | 6;
     };
     displayName?: string;
+    stagePowerLevels?: PowerLevelKey[];
+    stageNumerals?: string[];
+    stageTemplateIds?: [string, string, string];
+    stageNames?: [string, string, string];
 }[];
 export declare function buildArtifactSystemFromEchoDef(def: EchoArtifactDefinition): Record<string, unknown>;
 //# sourceMappingURL=echo-artifacts.d.ts.map
