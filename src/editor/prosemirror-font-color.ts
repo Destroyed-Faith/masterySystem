@@ -401,6 +401,37 @@ function escapeAttr(value: string): string {
     .replace(/>/g, '&gt;');
 }
 
+function localizeCancelLabel(): string {
+  const i18n = game.i18n as { cancel?: () => string; localize: (key: string) => string };
+  if (typeof i18n.cancel === 'function') return i18n.cancel();
+  return i18n.localize('Cancel');
+}
+
+function isFoundryV14Plus(): boolean {
+  const release = (game as { release?: { generation?: number } }).release?.generation;
+  if (typeof release === 'number') return release >= 14;
+  const major = Number(String((game as { version?: string }).version ?? '0').split('.')[0]);
+  return Number.isFinite(major) && major >= 14;
+}
+
+async function tryNativeFontColorPrompt(menu: unknown, view?: PMEditorView | null): Promise<boolean> {
+  if (!isFoundryV14Plus()) return false;
+
+  const menuInstance = (menu ?? lastActiveMenu) as { _fontColorPrompt?: () => Promise<void> };
+  if (typeof menuInstance?._fontColorPrompt !== 'function') return false;
+
+  const editorView = resolveActiveEditorView(menu ?? lastActiveMenu, view);
+  if (!editorView) return false;
+
+  try {
+    await menuInstance._fontColorPrompt.call(menuInstance);
+    return true;
+  } catch (error) {
+    console.warn('Mastery System | Native font color prompt failed, using fallback dialog', error);
+    return false;
+  }
+}
+
 export function getMenuView(menu: unknown, view?: PMEditorView | null): PMEditorView | null {
   if (view) return view;
   if (!menu || typeof menu !== 'object') return null;
@@ -651,6 +682,8 @@ export async function promptFontColor(menu: unknown, view?: PMEditorView | null,
   fontColorPromptOpen = true;
 
   try {
+    if (await tryNativeFontColorPrompt(menu, view)) return;
+
     const editorView = resolveActiveEditorView(
       menu ?? lastActiveMenu,
       view,
@@ -699,7 +732,7 @@ export async function promptFontColor(menu: unknown, view?: PMEditorView | null,
           },
           cancel: {
             icon: '<i class="fas fa-times"></i>',
-            label: game.i18n.cancel(),
+            label: localizeCancelLabel(),
             callback: () => resolve(undefined),
           },
         },
@@ -886,30 +919,10 @@ function bindJournalProseMirrorOpenHandlers(root: ParentNode): void {
   });
 }
 
-function patchProseMirrorMenuConstructor(): void {
-  const pm = (foundry as unknown as { prosemirror?: { ProseMirrorMenu?: new (...args: unknown[]) => unknown } }).prosemirror;
-  const Menu = pm?.ProseMirrorMenu;
-  if (!Menu || (Menu as { _masteryFontColorCtorPatched?: boolean })._masteryFontColorCtorPatched) {
-    return;
-  }
-
-  const Original = Menu;
-  const WrappedMenu = function (this: unknown, ...args: unknown[]) {
-    const view = args[1] as PMEditorView;
-    const instance = new Original(...args);
-    registerEditorView(instance, null, view);
-    return instance;
-  } as unknown as typeof Menu;
-  WrappedMenu.prototype = Original.prototype;
-  if (pm) pm.ProseMirrorMenu = WrappedMenu;
-  (Menu as { _masteryFontColorCtorPatched?: boolean })._masteryFontColorCtorPatched = true;
-}
-
 function installProseMirrorMenuPatches(): void {
   patchProseMirrorMenuOnAction();
   patchProseMirrorMenuActivateListeners();
   patchProseMirrorMenuUpdate();
-  patchProseMirrorMenuConstructor();
 }
 function patchProseMirrorMenuActivateListeners(): void {
   const Menu = (foundry as unknown as { prosemirror?: { ProseMirrorMenu?: { prototype?: Record<string, unknown> } } })

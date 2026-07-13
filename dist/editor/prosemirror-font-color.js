@@ -276,6 +276,37 @@ function escapeAttr(value) {
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;');
 }
+function localizeCancelLabel() {
+    const i18n = game.i18n;
+    if (typeof i18n.cancel === 'function')
+        return i18n.cancel();
+    return i18n.localize('Cancel');
+}
+function isFoundryV14Plus() {
+    const release = game.release?.generation;
+    if (typeof release === 'number')
+        return release >= 14;
+    const major = Number(String(game.version ?? '0').split('.')[0]);
+    return Number.isFinite(major) && major >= 14;
+}
+async function tryNativeFontColorPrompt(menu, view) {
+    if (!isFoundryV14Plus())
+        return false;
+    const menuInstance = (menu ?? lastActiveMenu);
+    if (typeof menuInstance?._fontColorPrompt !== 'function')
+        return false;
+    const editorView = resolveActiveEditorView(menu ?? lastActiveMenu, view);
+    if (!editorView)
+        return false;
+    try {
+        await menuInstance._fontColorPrompt.call(menuInstance);
+        return true;
+    }
+    catch (error) {
+        console.warn('Mastery System | Native font color prompt failed, using fallback dialog', error);
+        return false;
+    }
+}
 export function getMenuView(menu, view) {
     if (view)
         return view;
@@ -496,6 +527,8 @@ export async function promptFontColor(menu, view, source) {
         return;
     fontColorPromptOpen = true;
     try {
+        if (await tryNativeFontColorPrompt(menu, view))
+            return;
         const editorView = resolveActiveEditorView(menu ?? lastActiveMenu, view, source instanceof Element ? source : document.activeElement instanceof Element ? document.activeElement : null);
         if (!editorView) {
             ui.notifications?.warn(game.i18n.localize('MASTERY.editor.fontColorUnsupported'));
@@ -534,7 +567,7 @@ export async function promptFontColor(menu, view, source) {
                     },
                     cancel: {
                         icon: '<i class="fas fa-times"></i>',
-                        label: game.i18n.cancel(),
+                        label: localizeCancelLabel(),
                         callback: () => resolve(undefined),
                     },
                 },
@@ -708,29 +741,10 @@ function bindJournalProseMirrorOpenHandlers(root) {
         }, 0);
     });
 }
-function patchProseMirrorMenuConstructor() {
-    const pm = foundry.prosemirror;
-    const Menu = pm?.ProseMirrorMenu;
-    if (!Menu || Menu._masteryFontColorCtorPatched) {
-        return;
-    }
-    const Original = Menu;
-    const WrappedMenu = function (...args) {
-        const view = args[1];
-        const instance = new Original(...args);
-        registerEditorView(instance, null, view);
-        return instance;
-    };
-    WrappedMenu.prototype = Original.prototype;
-    if (pm)
-        pm.ProseMirrorMenu = WrappedMenu;
-    Menu._masteryFontColorCtorPatched = true;
-}
 function installProseMirrorMenuPatches() {
     patchProseMirrorMenuOnAction();
     patchProseMirrorMenuActivateListeners();
     patchProseMirrorMenuUpdate();
-    patchProseMirrorMenuConstructor();
 }
 function patchProseMirrorMenuActivateListeners() {
     const Menu = foundry

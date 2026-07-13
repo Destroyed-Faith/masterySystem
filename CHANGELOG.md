@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.198] - 2026-07-13
+
+### Changed
+
+- **Foundry compatibility:** Raised minimum/verified core version to **14** for native ProseMirror text color support.
+
+### Fixed
+
+- **Journal text color:** Use Foundry v14 `_fontColorPrompt` when available; fixed dialog crash from `game.i18n.cancel()` and restored broken `escapeAttr` helper.
+
+## [0.9.197] - 2026-07-13
+
+### Fixed
+
+- **Journal text color:** Color dialog no longer crashes on open — use Foundry v13-compatible cancel label instead of `game.i18n.cancel()`.
+
 ## [0.9.196] - 2026-07-13
 
 ### Fixed
