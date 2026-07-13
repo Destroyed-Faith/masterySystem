@@ -22,12 +22,16 @@ export type DeliveryMode = 'melee' | 'ranged';
 
 export type WeakenSaveChoice = 'body' | 'mind' | 'spirit';
 
+export type GuidedAttackDelivery = 'melee' | 'ranged' | 'spell' | 'natural';
+
 export type TowerWizardStep =
     | 'defense'
     | 'defensePassiveVariant'
     | 'passive2'
     | 'activeBuffChoice'
     | 'offensiveBuff'
+    | 'offenseDelivery'
+    | 'offenseSpecial'
     | 'offense'
     | 'weakenSave'
     | 'delivery'
@@ -127,8 +131,46 @@ export interface TowerWizardSelection {
     weakenSave: WeakenSaveChoice | null;
     offenseActiveOverrides?: OffenseActiveOverride[];
     powerOverrides?: PackagePowerOverride[];
+    /** How the character mainly attacks (Guided offense flow). */
+    guidedAttackDelivery?: GuidedAttackDelivery;
     /** Skip guided steps; configure all six Powers on the review page. */
     manualBuildMode?: boolean;
+}
+
+export interface GuidedDeliveryOption {
+    id: GuidedAttackDelivery;
+    label: string;
+    explanation: string;
+}
+
+export interface GuidedSpecialFocusCard {
+    pickId: string;
+    templateId: string;
+    special: string | null;
+    playerTitle: string;
+    explanation: string;
+    whenToUse: string;
+    powerName: string;
+    mechanicsPreview: string;
+    isSelected?: boolean;
+}
+
+export interface GuidedSpecialFocusGroup {
+    purposeId: string;
+    label: string;
+    explanation: string;
+    isAdvanced?: boolean;
+    cards: GuidedSpecialFocusCard[];
+}
+
+export interface GuidedBuildSummarySlot {
+    role: string;
+    text: string;
+}
+
+export interface GuidedBuildSummary {
+    slots: GuidedBuildSummarySlot[];
+    rotationSteps: string[];
 }
 
 export interface TowerWizardDefensePackage {
@@ -148,6 +190,10 @@ export interface SecondPassiveOption {
     label: string;
     hint: string;
     warning?: string;
+    /** Catalog / system power name (Guided Mode secondary text). */
+    powerName?: string;
+    whenToUse?: string;
+    mechanicsPreview?: string;
 }
 
 export interface SecondPassiveGroup {

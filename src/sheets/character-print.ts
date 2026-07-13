@@ -43,6 +43,7 @@ import { deriveArtifactWeaponDamage } from '../utils/artifact-base-derive.js';
 import { getDisadvantageDefinition } from '../system/disadvantages.js';
 import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
 import { buildPrintCombatPreview, type BattlePrintSlot, buildPrintCombatPreviewForArtifactRow, buildArtifactRowSpellPrintMeta, buildSpellPrintMeta } from './character-print-combat.js';
+import { buildCombatSensesBattleAreaContext } from '../combat/combat-sense-collection.js';
 
 /** Human-readable label per Stone Function kind (technical summary). */
 const STONE_FN_KIND_LABEL: Record<string, string> = {
@@ -1011,6 +1012,7 @@ export function buildCharacterPrintContext(actor: any): Record<string, unknown> 
     martialPowers,
     passivePowerCards,
     battle,
+    combatSensesBattle: buildCombatSensesBattleAreaContext(actor),
     skillsByGroup,
     disadvantages,
     disadvantagePoints,

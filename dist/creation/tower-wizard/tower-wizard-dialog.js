@@ -3,8 +3,7 @@
  */
 import { applyTowerWizardPackage } from './tower-wizard-apply.js';
 import { TOWER_WIZARD_COPY } from './tower-wizard-copy.js';
-import { buildPackageGrantSpecs, buildPackageGrantSpecsFromOverrides, buildManualPackageReview, buildDefensePackagePreview, collectOverrideIdentityKeys, collectPackageIdentityKeys, getDefensePackage, getDefaultPassive1TemplateId, TOWER_WIZARD_DEFENSE_PACKAGES, buildPackageReview, getCatalogSubfamily, getSecondPassiveIntentGroups, getPassive1VariantOptions, getOffenseActiveSpecialGroups, getDefaultActiveBuffPreview, getOffensiveActiveBuffGroups, getSupportActiveBuffGroups, getVisibleWizardSteps, initializeOffenseOverrides, isManualBuildMode, packageNeedsDeliveryStep, packageNeedsReplacementBuffStep, packageNeedsWeakenSaveStep, resolvePassive1TemplateId, selectionUsesCatalogOffense, WIZARD_STEP_ORDER, } from './tower-wizard-packages.js';
-import { formatPassiveCategoryList } from './tower-wizard-passive-categories.js';
+import { buildPackageGrantSpecs, buildPackageGrantSpecsFromOverrides, buildManualPackageReview, buildDefensePackagePreview, collectOverrideIdentityKeys, collectPackageIdentityKeys, getDefensePackage, getDefaultPassive1TemplateId, TOWER_WIZARD_DEFENSE_PACKAGES, buildPackageReview, getCatalogSubfamily, getSecondPassiveIntentGroups, getPassive1VariantOptions, getOffenseActiveSpecialGroups, getGuidedSpecialFocusGroups, GUIDED_DELIVERY_OPTIONS, resolveGuidedCoreAttackPick, getDefensiveActiveBuffChoiceBody, getDefaultActiveBuffPreview, getOffensiveActiveBuffGroups, getSupportActiveBuffGroups, getVisibleWizardSteps, initializeOffenseOverrides, isManualBuildMode, packageNeedsDeliveryStep, packageNeedsReplacementBuffStep, packageNeedsWeakenSaveStep, resolvePassive1TemplateId, selectionUsesCatalogOffense, WIZARD_STEP_ORDER, } from './tower-wizard-packages.js';
 import { showTowerWizardPowerPicker } from './tower-wizard-power-picker.js';
 import { computeBuildRoleRating } from './tower-wizard-build-rating.js';
 import { collectRelevantWarnings, validateTowerWizardSelection } from './tower-wizard-validation.js';
@@ -22,6 +21,7 @@ function defaultSelection() {
         customizedSlots: undefined,
         offenseId: undefined,
         offenseActivePicks: undefined,
+        guidedAttackDelivery: undefined,
         delivery: 'melee',
         weakenSave: null,
         offenseActiveOverrides: undefined,
@@ -113,12 +113,15 @@ export class TowerWizardDialog extends BaseDialog {
             ? getPassive1VariantOptions(this.selection.defenseId)
             : [];
         const defensePackagePreview = buildDefensePackagePreview(this.selection);
-        const passive2Subtitle = passive1Id
-            ? copy.passive2.subtitleForCategory(formatPassiveCategoryList(passive1Id))
-            : copy.passive2.body;
+        const passive2Subtitle = copy.passive2.subtitleForCategory();
         const selectedPickIds = new Set((this.selection.offenseActivePicks ?? []).map((p) => p.pickId));
         const offenseSpecialGroups = getOffenseActiveSpecialGroups(echoKey, selectedPickIds);
         const offensePickCount = this.selection.offenseActivePicks?.length ?? 0;
+        const selectedSpecialPickId = this.selection.offenseActivePicks?.[1]?.pickId;
+        const guidedSpecialFocusGroups = getGuidedSpecialFocusGroups(this.selection.guidedAttackDelivery, echoKey, selectedSpecialPickId);
+        const guidedCoreAttackPreview = this.selection.guidedAttackDelivery
+            ? resolveGuidedCoreAttackPick(this.selection.guidedAttackDelivery)
+            : null;
         const fullSelection = this.#fullSelection();
         const manualMode = isManualBuildMode(this.selection);
         const review = manualMode
@@ -174,11 +177,19 @@ export class TowerWizardDialog extends BaseDialog {
                 : null,
             offensiveActiveBuffGroups: getOffensiveActiveBuffGroups(),
             supportActiveBuffGroups: getSupportActiveBuffGroups(this.selection.defenseId),
+            guidedDeliveryOptions: GUIDED_DELIVERY_OPTIONS,
+            guidedSpecialFocusGroups,
+            guidedCoreAttackPreview,
+            defensiveActiveBuffChoiceBody: this.selection.defenseId
+                ? getDefensiveActiveBuffChoiceBody(this.selection.defenseId)
+                : '',
             isDefense: this.step === 'defense',
             isDefensePassiveVariant: this.step === 'defensePassiveVariant',
             isPassive2: this.step === 'passive2',
             isActiveBuffChoice: this.step === 'activeBuffChoice',
             isOffensiveBuff: this.step === 'offensiveBuff',
+            isOffenseDelivery: this.step === 'offenseDelivery',
+            isOffenseSpecial: this.step === 'offenseSpecial',
             isOffense: this.step === 'offense',
             isWeakenSave: this.step === 'weakenSave',
             isDelivery: this.step === 'delivery',
@@ -187,6 +198,40 @@ export class TowerWizardDialog extends BaseDialog {
             showNext: this.step === 'offense',
             canAdvance: this.#canAdvance(),
         };
+    }
+    #syncGuidedOffenseOverrides() {
+        if (!this.selection.guidedAttackDelivery)
+            return;
+        const core = resolveGuidedCoreAttackPick(this.selection.guidedAttackDelivery);
+        if (!core)
+            return;
+        const overrides = [...(this.selection.offenseActiveOverrides ?? [])];
+        const coreIdx = overrides.findIndex((o) => o.grantKey === 'offense-0');
+        const coreOverride = {
+            grantKey: 'offense-0',
+            isSpell: core.coreIsSpell,
+            castingAttribute: 'intellect',
+            spellResolution: 'spellAttack',
+        };
+        if (coreIdx >= 0)
+            overrides[coreIdx] = { ...overrides[coreIdx], ...coreOverride };
+        else
+            overrides.push(coreOverride);
+        const specialPick = this.selection.offenseActivePicks?.[1];
+        if (this.selection.guidedAttackDelivery === 'spell' && specialPick) {
+            const specialIdx = overrides.findIndex((o) => o.grantKey === 'offense-1');
+            const specialOverride = {
+                grantKey: 'offense-1',
+                isSpell: true,
+                castingAttribute: 'intellect',
+                spellResolution: (specialPick.special ? 'saveSpell' : 'spellAttack'),
+            };
+            if (specialIdx >= 0)
+                overrides[specialIdx] = { ...overrides[specialIdx], ...specialOverride };
+            else
+                overrides.push(specialOverride);
+        }
+        this.selection.offenseActiveOverrides = overrides;
     }
     #canAdvance() {
         switch (this.step) {
@@ -200,6 +245,11 @@ export class TowerWizardDialog extends BaseDialog {
                 return !!this.selection.activeBuffMode;
             case 'offensiveBuff':
                 return !!this.selection.offensiveActiveBuffId;
+            case 'offenseDelivery':
+                return !!this.selection.guidedAttackDelivery
+                    && !!(this.selection.offenseActivePicks?.[0]);
+            case 'offenseSpecial':
+                return (this.selection.offenseActivePicks?.length ?? 0) === 2;
             case 'offense':
                 return (this.selection.offenseActivePicks?.length ?? 0) === 2;
             case 'weakenSave':
@@ -256,8 +306,10 @@ export class TowerWizardDialog extends BaseDialog {
         this.step = this.#nextStep(this.step);
         if (this.step === 'review') {
             const sel = this.#fullSelection();
-            if (sel)
+            if (sel) {
+                this.#syncGuidedOffenseOverrides();
                 this.selection.offenseActiveOverrides = initializeOffenseOverrides(sel);
+            }
         }
         this.render();
     }
@@ -399,8 +451,46 @@ export class TowerWizardDialog extends BaseDialog {
             this.selection.offensiveActiveBuffId = undefined;
             this.selection.customizedSlots = { passive1: false, activeBuff: false, reaction: false };
             this.selection.offenseId = undefined;
+            this.selection.offenseActivePicks = undefined;
+            this.selection.guidedAttackDelivery = undefined;
             this.selection.offenseActiveOverrides = undefined;
             this.#clearPowerOverrides();
+            window.setTimeout(() => this.#advanceAfterSelection(), 120);
+        });
+        root.find('.js-tw-select-delivery').on('click', (ev) => {
+            $(ev.currentTarget).addClass('is-picked');
+            const mode = String($(ev.currentTarget).data('delivery-mode') || '');
+            const resolved = resolveGuidedCoreAttackPick(mode);
+            if (!resolved) {
+                ui.notifications?.warn('No Core Attack is available for that style in the catalog.');
+                return;
+            }
+            this.selection.guidedAttackDelivery = mode;
+            this.selection.delivery = resolved.delivery;
+            this.selection.offenseActivePicks = [resolved.pick];
+            this.selection.offenseId = undefined;
+            this.selection.offenseActiveOverrides = undefined;
+            this.#removePowerOverride('offense-0');
+            this.#removePowerOverride('offense-1');
+            this.#syncGuidedOffenseOverrides();
+            window.setTimeout(() => this.#advanceAfterSelection(), 120);
+        });
+        root.find('.js-tw-select-special-focus').on('click', (ev) => {
+            $(ev.currentTarget).addClass('is-picked');
+            const pickId = String($(ev.currentTarget).data('pick-id') || '');
+            const templateId = String($(ev.currentTarget).data('template-id') || '');
+            const specialRaw = $(ev.currentTarget).data('special');
+            const special = specialRaw === undefined || specialRaw === null || specialRaw === ''
+                ? null
+                : String(specialRaw);
+            const core = this.selection.offenseActivePicks?.[0];
+            if (!core)
+                return;
+            this.selection.offenseActivePicks = [{ ...core }, { pickId, templateId, special }];
+            this.selection.offenseId = undefined;
+            this.selection.offenseActiveOverrides = undefined;
+            this.#removePowerOverride('offense-1');
+            this.#syncGuidedOffenseOverrides();
             window.setTimeout(() => this.#advanceAfterSelection(), 120);
         });
         root.find('.js-tw-select-passive1-variant').on('click', (ev) => {

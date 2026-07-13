@@ -7,7 +7,8 @@ export type DefensePackageId = 'armor' | 'evade' | 'damage-reduction' | 'phasing
 export type OffensePackageId = 'lacerate-push' | 'ruin' | 'slow' | 'expose' | 'corrode-damage' | 'mark' | 'hex-spell' | 'weaken-save' | 'direct-damage';
 export type DeliveryMode = 'melee' | 'ranged';
 export type WeakenSaveChoice = 'body' | 'mind' | 'spirit';
-export type TowerWizardStep = 'defense' | 'defensePassiveVariant' | 'passive2' | 'activeBuffChoice' | 'offensiveBuff' | 'offense' | 'weakenSave' | 'delivery' | 'review';
+export type GuidedAttackDelivery = 'melee' | 'ranged' | 'spell' | 'natural';
+export type TowerWizardStep = 'defense' | 'defensePassiveVariant' | 'passive2' | 'activeBuffChoice' | 'offensiveBuff' | 'offenseDelivery' | 'offenseSpecial' | 'offense' | 'weakenSave' | 'delivery' | 'review';
 export type OffenseActiveVariant = 'weapon-single' | 'weapon-aoe' | 'weapon-split' | 'damage-t3' | 'damage-t4' | 'damage-t4-spell';
 export type PackageGrantKey = 'passive-1' | 'passive-2' | 'active-buff' | 'reaction' | 'offense-0' | 'offense-1';
 export interface PackagePowerOverride {
@@ -78,8 +79,41 @@ export interface TowerWizardSelection {
     weakenSave: WeakenSaveChoice | null;
     offenseActiveOverrides?: OffenseActiveOverride[];
     powerOverrides?: PackagePowerOverride[];
+    /** How the character mainly attacks (Guided offense flow). */
+    guidedAttackDelivery?: GuidedAttackDelivery;
     /** Skip guided steps; configure all six Powers on the review page. */
     manualBuildMode?: boolean;
+}
+export interface GuidedDeliveryOption {
+    id: GuidedAttackDelivery;
+    label: string;
+    explanation: string;
+}
+export interface GuidedSpecialFocusCard {
+    pickId: string;
+    templateId: string;
+    special: string | null;
+    playerTitle: string;
+    explanation: string;
+    whenToUse: string;
+    powerName: string;
+    mechanicsPreview: string;
+    isSelected?: boolean;
+}
+export interface GuidedSpecialFocusGroup {
+    purposeId: string;
+    label: string;
+    explanation: string;
+    isAdvanced?: boolean;
+    cards: GuidedSpecialFocusCard[];
+}
+export interface GuidedBuildSummarySlot {
+    role: string;
+    text: string;
+}
+export interface GuidedBuildSummary {
+    slots: GuidedBuildSummarySlot[];
+    rotationSteps: string[];
 }
 export interface TowerWizardDefensePackage {
     id: DefensePackageId;
@@ -97,6 +131,10 @@ export interface SecondPassiveOption {
     label: string;
     hint: string;
     warning?: string;
+    /** Catalog / system power name (Guided Mode secondary text). */
+    powerName?: string;
+    whenToUse?: string;
+    mechanicsPreview?: string;
 }
 export interface SecondPassiveGroup {
     groupLabel: string;

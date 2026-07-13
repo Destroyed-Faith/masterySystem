@@ -35,6 +35,34 @@ export interface CombatSensesPanelContext {
     passiveRows: CombatSensesPanelRow[];
     activeSenseLabel: string;
 }
+export interface CombatSenseBattleRow {
+    id: CombatSenseId;
+    label: string;
+    rangeM: number;
+    summary: string;
+    channels: string;
+    isActive: boolean;
+    /** May be placed in the Sense Slot this combat. */
+    isSlotChoice: boolean;
+    /** Character has access (granted via sheet, artifact, or always-on default). */
+    isGranted: boolean;
+    fromArtifact: boolean;
+}
+export interface CombatSensesBattleAreaContext {
+    instruction: string;
+    pickOneHint: string;
+    activeSenseId: CombatSenseId;
+    activeSenseLabel: string;
+    hasDarkvision: boolean;
+    /** Every sense listed with availability; slot-eligible rows are selectable. */
+    senseRows: CombatSenseBattleRow[];
+    /** Subset of senseRows that may be chosen in the Sense Slot. */
+    slotRows: CombatSenseBattleRow[];
+    grantedRows: CombatSensesPanelRow[];
+    darkvisionSummary: string;
+}
+/** Battle sheet + character sheet: full sense list with slot choice emphasis. */
+export declare function buildCombatSensesBattleAreaContext(actor: any): CombatSensesBattleAreaContext;
 /** Character sheet context for Sense Slot + granted sense picks. */
 export declare function buildCombatSensesPanelContext(actor: any): CombatSensesPanelContext;
 /** Primary active sense for sense-based rules (Sense Slot contents). */

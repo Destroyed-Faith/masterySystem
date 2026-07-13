@@ -164,6 +164,89 @@ export interface CombatSensesPanelContext {
   activeSenseLabel: string;
 }
 
+export interface CombatSenseBattleRow {
+  id: CombatSenseId;
+  label: string;
+  rangeM: number;
+  summary: string;
+  channels: string;
+  isActive: boolean;
+  /** May be placed in the Sense Slot this combat. */
+  isSlotChoice: boolean;
+  /** Character has access (granted via sheet, artifact, or always-on default). */
+  isGranted: boolean;
+  fromArtifact: boolean;
+}
+
+export interface CombatSensesBattleAreaContext {
+  instruction: string;
+  pickOneHint: string;
+  activeSenseId: CombatSenseId;
+  activeSenseLabel: string;
+  hasDarkvision: boolean;
+  /** Every sense listed with availability; slot-eligible rows are selectable. */
+  senseRows: CombatSenseBattleRow[];
+  /** Subset of senseRows that may be chosen in the Sense Slot. */
+  slotRows: CombatSenseBattleRow[];
+  grantedRows: CombatSensesPanelRow[];
+  darkvisionSummary: string;
+}
+
+function formatSenseChannels(id: CombatSenseId): string {
+  return COMBAT_SENSES[id].primaryChannels.join(', ');
+}
+
+/** Battle sheet + character sheet: full sense list with slot choice emphasis. */
+export function buildCombatSensesBattleAreaContext(actor: any): CombatSensesBattleAreaContext {
+  const panel = buildCombatSensesPanelContext(actor);
+  const data = normalizeCombatSensesData(actor?.system?.combatSenses);
+  const artifactGranted = collectGrantedCombatSenses(actor);
+  const slotIds = new Set(panel.slotOptions.map((o) => o.id));
+
+  const senseRows: CombatSenseBattleRow[] = [];
+
+  const pushRow = (id: CombatSenseId, isGranted: boolean, fromArtifact: boolean) => {
+    const def = COMBAT_SENSES[id];
+    senseRows.push({
+      id,
+      label: def.label,
+      rangeM: def.rangeM,
+      summary: def.summary,
+      channels: formatSenseChannels(id),
+      isActive: panel.activeSenseId === id,
+      isSlotChoice: slotIds.has(id),
+      isGranted,
+      fromArtifact,
+    });
+  };
+
+  pushRow('normalCombatAwareness', true, false);
+
+  for (const id of SENSE_SLOT_SPECIAL_IDS) {
+    const sheetGranted = data.grantedSenseIds.includes(id);
+    const fromArtifact = artifactGranted.includes(id) && !data.grantedSenseIds.includes(id);
+    const isGranted = sheetGranted || fromArtifact
+      || panel.grantedRows.find((r) => r.id === id)?.selected === true;
+    pushRow(id, isGranted, fromArtifact);
+  }
+
+  const slotRows = senseRows.filter((r) => r.isSlotChoice);
+
+  return {
+    instruction: 'Sense Slot — choose exactly one active Combat Sense for battle.',
+    pickOneHint: slotRows.length > 1
+      ? 'Mark one sense below as your active Sense Slot choice.'
+      : 'Normal Combat Awareness is your default Sense Slot until you grant a special sense.',
+    activeSenseId: panel.activeSenseId,
+    activeSenseLabel: panel.activeSenseLabel,
+    hasDarkvision: panel.hasDarkvision,
+    senseRows,
+    slotRows,
+    grantedRows: panel.grantedRows,
+    darkvisionSummary: COMBAT_SENSES.darkvision.summary,
+  };
+}
+
 /** Character sheet context for Sense Slot + granted sense picks. */
 export function buildCombatSensesPanelContext(actor: any): CombatSensesPanelContext {
   const data = normalizeCombatSensesData(actor?.system?.combatSenses);

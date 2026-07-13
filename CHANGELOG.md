@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.204] - 2026-07-13
+
+### Added
+
+- **Combat Senses on battle sheet:** Prominent sense-slot picker at the bottom of the character sheet Attributes tab and on the printed battle sheet (page 5).
+- **Guided Combat Package Wizard:** Player-facing copy and decision flow — Passive 2 intent groups, attack delivery step, Special Focus step, Active Buff explanations, and a “What you built” review summary with simple rotation.
+
 ## [0.9.203] - 2026-07-13
 
 ### Fixed

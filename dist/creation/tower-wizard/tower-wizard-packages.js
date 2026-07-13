@@ -3,7 +3,8 @@
  */
 import { getEffectById } from '../../utils/special-effects.js';
 import { TOWER_WIZARD_DEFENSIVE_RANK, TOWER_WIZARD_OFFENSIVE_RANK, findCatalogEntry, getAllCatalogEntries, powerIdentityKey, powerIdentityKeyFromEntry, activeTemplateCanBeSpell, } from '../../utils/power-catalog.js';
-import { formatPassiveCategoryList, isAllowedSecondPassive, secondPassiveBucketFor, secondPassiveCardWarning, } from './tower-wizard-passive-categories.js';
+import { formatPassiveCategoryList, } from './tower-wizard-passive-categories.js';
+import { buildGuidedBuildSummary, getGuidedSecondPassiveIntentGroups, } from './tower-wizard-guided.js';
 const DEF_RANK = TOWER_WIZARD_DEFENSIVE_RANK;
 const OFF_RANK = TOWER_WIZARD_OFFENSIVE_RANK;
 export function grantKeyCategory(grantKey) {
@@ -592,6 +593,9 @@ export function resolveOffenseActiveSpecs(selection) {
         special: pick.special ?? null,
     }));
 }
+export function selectionUsesGuidedOffenseFlow(selection) {
+    return !isManualBuildMode(selection);
+}
 export function selectionUsesCatalogOffense(selection) {
     return (selection.offenseActivePicks?.length ?? 0) === 2;
 }
@@ -1105,40 +1109,7 @@ export function getSecondPassiveIntentGroups(defenseId, passive1TemplateId, acto
     const passive1 = passive1TemplateId ?? getDefaultPassive1TemplateId(defenseId);
     if (!passive1)
         return [];
-    const byBucket = new Map();
-    for (const entry of getAllCatalogEntries()) {
-        if (entry.category !== 'passive')
-            continue;
-        if (!findCatalogEntry(entry.templateId))
-            continue;
-        if (!isAllowedSecondPassive(entry.templateId, passive1, actorEchoKey))
-            continue;
-        const bucket = secondPassiveBucketFor(entry.templateId);
-        const list = byBucket.get(bucket) ?? [];
-        if (list.some((p) => p.id === entry.templateId))
-            continue;
-        list.push({
-            id: entry.templateId,
-            label: secondPassiveLabel(entry.templateId),
-            hint: secondPassiveHint(entry.templateId, entry.description),
-            warning: secondPassiveCardWarning(entry.templateId),
-        });
-        byBucket.set(bucket, list);
-    }
-    const groups = [];
-    for (const bucket of PASSIVE2_BUCKET_ORDER) {
-        const passives = byBucket.get(bucket);
-        if (!passives?.length)
-            continue;
-        const meta = PASSIVE2_INTENT_LABELS[bucket];
-        groups.push({
-            intentLabel: meta.label,
-            intentHint: meta.intentHint,
-            warning: meta.warning,
-            passives: passives.sort((a, b) => a.label.localeCompare(b.label)),
-        });
-    }
-    return groups;
+    return getGuidedSecondPassiveIntentGroups(passive1, actorEchoKey);
 }
 export const WIZARD_STEP_ORDER = [
     'defense',
@@ -1146,6 +1117,8 @@ export const WIZARD_STEP_ORDER = [
     'passive2',
     'activeBuffChoice',
     'offensiveBuff',
+    'offenseDelivery',
+    'offenseSpecial',
     'offense',
     'weakenSave',
     'delivery',
@@ -1159,6 +1132,8 @@ export function getVisibleWizardSteps(selection) {
         return ['review'];
     return WIZARD_STEP_ORDER.filter((step) => {
         if (step === 'offensiveBuff' && !packageNeedsReplacementBuffStep(selection))
+            return false;
+        if (step === 'offense' && !isManualBuildMode(selection))
             return false;
         if (step === 'weakenSave' && !packageNeedsWeakenSaveStep(selection))
             return false;
@@ -1514,8 +1489,8 @@ export function buildReviewPowerRows(selection) {
         { key: 'passive-2', role: 'Passive 2' },
         { key: 'active-buff', role: 'Active Buff' },
         { key: 'reaction', role: 'Reaction' },
-        { key: 'offense-0', role: 'Active 1' },
-        { key: 'offense-1', role: 'Active 2' },
+        { key: 'offense-0', role: selectionUsesGuidedOffenseFlow(selection) ? 'Core Attack' : 'Active 1' },
+        { key: 'offense-1', role: selectionUsesGuidedOffenseFlow(selection) ? 'Special Attack' : 'Active 2' },
     ];
     return roles.map(({ key, role }, index) => {
         const spec = specs[index];
@@ -1601,6 +1576,20 @@ export function buildPackageReview(selection) {
         };
     });
     const allRows = specs.map((s) => resolveGrant(s));
+    const guidedBuildSummary = selectionUsesGuidedOffenseFlow(selection)
+        ? buildGuidedBuildSummary(selection, {
+            defenseRows,
+            offenseRows,
+            reviewPowerRows,
+            mainDefensePackageRows,
+            secondPassiveRow,
+            offenseReviewRows,
+            defensePackagePreview: buildDefensePackagePreview(selection) ?? undefined,
+            customizationNotes: buildCustomizationNotes(selection),
+            packageId: buildPackageId(selection),
+            allOk: allRows.every((r) => r.status === 'ok'),
+        })
+        : undefined;
     return {
         defenseRows,
         offenseRows,
@@ -1612,6 +1601,7 @@ export function buildPackageReview(selection) {
         customizationNotes: buildCustomizationNotes(selection),
         packageId: buildPackageId(selection),
         allOk: allRows.every((r) => r.status === 'ok'),
+        guidedBuildSummary,
     };
 }
 const PACKAGE_GRANT_KEYS = [
@@ -1757,4 +1747,5 @@ export function packageNeedsWeakenSaveStep(selection) {
         return false;
     return selection.offenseId === 'weaken-save';
 }
+export { GUIDED_DELIVERY_OPTIONS, getGuidedSpecialFocusGroups, resolveGuidedCoreAttackPick, resolveGuidedSpecialPick, getDefensiveActiveBuffChoiceBody, buildGuidedBuildSummary, } from './tower-wizard-guided.js';
 //# sourceMappingURL=tower-wizard-packages.js.map

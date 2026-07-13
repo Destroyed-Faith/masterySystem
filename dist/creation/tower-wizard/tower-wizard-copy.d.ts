@@ -16,23 +16,25 @@ export declare const TOWER_WIZARD_COPY: {
         readonly mechanics: "Mechanical preview";
     };
     readonly passive2: {
-        readonly heading: "Choose your second Passive";
-        readonly body: "Your first Passive is already selected from your Main Defense. Now choose an additional Passive.";
-        readonly subtitleForCategory: (categoryLabel: string) => string;
+        readonly heading: "What should your second Passive help with?";
+        readonly body: "Your first Passive already defines your main defense. Your second Passive must come from a different category.";
+        readonly subtitleForCategory: () => string;
         readonly alreadySelected: "Already selected";
-        readonly nowChoose: "Now choose Passive 2 from a different category.";
+        readonly nowChoose: "Choose a category, then pick a Passive.";
+        readonly whenToUse: "When to use it";
+        readonly powerLabel: "Power";
     };
     readonly activeBuffChoice: {
-        readonly heading: "What should your Active Buff slot do?";
-        readonly body: "Your Main Defense Package suggests a defensive Active Buff. You can keep it or replace only this slot.";
+        readonly heading: "What should your Active Buff do?";
+        readonly body: "You can maintain only one Active Buff at a time. This is the power you activate to change how you fight for several rounds.";
         readonly defaultHeading: "Your package Active Buff";
         readonly rankNote: "At Rank 4";
-        readonly defensiveTitle: "Keep my package Active Buff";
-        readonly defensiveBody: "Recommended. Your Active Buff stays aligned with your Main Defense.";
-        readonly offensiveTitle: "Replace with an offensive Active Buff";
-        readonly offensiveBody: "Your Passive 1 and Reaction stay defensive, but your Active Buff becomes offensive.";
-        readonly supportTitle: "Replace with a support or utility Active Buff";
-        readonly supportBody: "Your Passive 1 and Reaction stay defensive, but your Active Buff becomes support or utility.";
+        readonly defensiveTitle: "Keep your defensive Buff";
+        readonly defensiveBody: "Keep the Buff that improves your main defense.";
+        readonly offensiveTitle: "Replace it with an offensive Buff";
+        readonly offensiveBody: "Use your Buff slot to make your attacks stronger instead of improving your defense. Examples: more damage, ignore Armor, better critical hits, or improve a Special.";
+        readonly supportTitle: "Replace it with a support Buff";
+        readonly supportBody: "Use your Buff slot to help allies or protect the group. Examples: healing, auras, protection, or cleanse / anti-magic support.";
     };
     readonly offensiveBuff: {
         readonly heading: "Choose your offensive Active Buff";
@@ -41,6 +43,18 @@ export declare const TOWER_WIZARD_COPY: {
         readonly replacing: "Replacing";
         readonly rankPreview: "At Rank 4";
         readonly durationNote: "Duration";
+    };
+    readonly offenseDelivery: {
+        readonly heading: "How do you mainly attack?";
+        readonly body: "This sets your reliable Core Attack. Use it when you simply want to deal damage.";
+        readonly coreNote: "This is your reliable attack. Use it when you simply want to deal damage.";
+    };
+    readonly offenseSpecial: {
+        readonly heading: "What should your Special Attack do?";
+        readonly body: "Your Core Attack is for reliable damage. Your Special Attack changes the fight by adding a tactical effect.";
+        readonly whenToUse: "When to use it";
+        readonly powerLabel: "Power";
+        readonly emptyCatalog: "No Special Attacks are available for this attack style in the catalog.";
     };
     readonly offense: {
         readonly heading: "Choose your two Actives";
@@ -74,6 +88,8 @@ export declare const TOWER_WIZARD_COPY: {
     };
     readonly review: {
         readonly heading: "Your Combat Package";
+        readonly whatYouBuilt: "What you built";
+        readonly simpleRotation: "Simple rotation";
         readonly manualIntro: "Choose each Power below from the catalog. You need all six before you can apply.";
         readonly powers: "Package Powers";
         readonly mainDefensePackage: "Main Defense Package";

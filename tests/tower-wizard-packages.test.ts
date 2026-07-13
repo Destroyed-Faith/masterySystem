@@ -17,6 +17,9 @@ import {
     getVisibleWizardSteps,
     playerFacingPowerName,
     resolveGrant,
+    resolveGuidedCoreAttackPick,
+    getGuidedSpecialFocusGroups,
+    GUIDED_DELIVERY_OPTIONS,
     TOWER_WIZARD_DEFENSE_PACKAGES,
     TOWER_WIZARD_OFFENSE_PACKAGES,
     WIZARD_HIDDEN_OFFENSE_IDS,
@@ -57,11 +60,23 @@ describe('tower-wizard-packages', () => {
         expect(allIds).not.toContain('passive-heightened-senses');
         expect(labels).not.toContain('Reinforce your Main Defense');
         expect(labels).not.toContain('Add Awareness / Utility');
-        expect(labels).toContain('Add Evade');
-        expect(labels).toContain('Add Premium Defense');
+        expect(labels).toContain('Add Avoidance');
+        expect(labels).toContain('Add a Premium Defense');
         expect(allIds).toContain('passive-evade');
         expect(allIds).toContain('passive-damage-reduction');
         expect(allIds).toContain('passive-temp-hp');
+        expect(allIds).not.toContain('passive-special-aura');
+        expect(allIds).not.toContain('passive-ambusher');
+    });
+
+    it('guided passive 2 uses player-facing titles for sustain and offense', () => {
+        const groups = getSecondPassiveIntentGroups('armor', 'passive-fortified-frame');
+        const sustain = groups.find((g) => g.intentLabel === 'Add Healing or Combat Recovery');
+        const offense = groups.find((g) => g.intentLabel === 'Add More Damage');
+        expect(sustain?.passives.find((p) => p.id === 'passive-blood-feast')?.label).toBe('Heal through violence');
+        expect(sustain?.passives.find((p) => p.id === 'passive-battle-trance')?.powerName).toBe('Battle Trance');
+        expect(offense?.passives.find((p) => p.id === 'passive-momentum')?.label).toBe('Build offensive pressure');
+        expect(offense?.passives.find((p) => p.id === 'passive-killing-intent')?.label).toBe('Punish priority targets');
     });
 
     it('armor Passive 1 variants include fortified frame and conditional options', () => {
@@ -79,9 +94,9 @@ describe('tower-wizard-packages', () => {
 
     it('second passive intent groups show premium defense with card warnings for armor builds', () => {
         const groups = getSecondPassiveIntentGroups('armor', 'passive-fortified-frame');
-        const premium = groups.find((g) => g.intentLabel === 'Add Premium Defense');
+        const premium = groups.find((g) => g.intentLabel === 'Add a Premium Defense');
         expect(premium).toBeDefined();
-        expect(premium?.intentHint).toMatch(/specialized defensive subsystem/i);
+        expect(premium?.intentHint).toMatch(/powerful defensive subsystem/i);
         const dr = premium?.passives.find((p) => p.id === 'passive-damage-reduction');
         const ghost = premium?.passives.find((p) => p.id === 'passive-ghostform');
         expect(dr?.warning).toMatch(/Premium subsystem/i);
@@ -91,6 +106,52 @@ describe('tower-wizard-packages', () => {
     it('guided step order includes Passive 1 variant after defense', () => {
         expect(WIZARD_STEP_ORDER.indexOf('defensePassiveVariant')).toBe(1);
         expect(getVisibleWizardSteps({ defenseId: 'armor', activeBuffMode: 'defensive' })).toContain('defensePassiveVariant');
+    });
+
+    it('guided step order includes delivery and special focus before review', () => {
+        expect(WIZARD_STEP_ORDER).toContain('offenseDelivery');
+        expect(WIZARD_STEP_ORDER).toContain('offenseSpecial');
+        const steps = getVisibleWizardSteps({ defenseId: 'armor', activeBuffMode: 'defensive' });
+        expect(steps).toContain('offenseDelivery');
+        expect(steps).toContain('offenseSpecial');
+        expect(steps).not.toContain('offense');
+    });
+
+    it('guided core attack resolves from delivery mode', () => {
+        expect(resolveGuidedCoreAttackPick('melee')?.pick.templateId).toBe('active-melee-weapon-single');
+        expect(resolveGuidedCoreAttackPick('ranged')?.pick.templateId).toBe('active-ranged-weapon-single');
+        expect(resolveGuidedCoreAttackPick('spell')?.coreIsSpell).toBe(true);
+        expect(GUIDED_DELIVERY_OPTIONS).toHaveLength(4);
+    });
+
+    it('guided special focus groups use tactical purpose labels', () => {
+        const groups = getGuidedSpecialFocusGroups('melee');
+        expect(groups.some((g) => g.label === 'Focus one enemy')).toBe(true);
+        expect(groups.some((g) => g.label === 'Apply pressure over time')).toBe(true);
+        const lacerate = groups.flatMap((g) => g.cards).find((c) => c.powerName === 'Lacerate');
+        expect(lacerate?.playerTitle).toMatch(/bleed/i);
+        expect(groups.some((g) => g.label === 'Advanced control')).toBe(true);
+    });
+
+    it('guided package review includes build summary', () => {
+        const core = resolveGuidedCoreAttackPick('melee')!.pick;
+        const groups = getGuidedSpecialFocusGroups('melee');
+        const special = groups.flatMap((g) => g.cards).find((c) => c.powerName === 'Mark');
+        expect(special).toBeDefined();
+        const review = buildPackageReview({
+            ...baseSelection,
+            offenseId: undefined,
+            offenseActivePicks: [core, {
+                pickId: special!.pickId,
+                templateId: special!.templateId,
+                special: special!.special,
+            }],
+            guidedAttackDelivery: 'melee',
+        });
+        expect(review.guidedBuildSummary?.slots.length).toBeGreaterThan(4);
+        expect(review.guidedBuildSummary?.rotationSteps).toHaveLength(5);
+        expect(review.offenseReviewRows[0]?.role).toBe('Core Attack');
+        expect(review.offenseReviewRows[1]?.role).toBe('Special Attack');
     });
 
     it('buildPackageGrantSpecs uses the selected Passive 1 variant', () => {
@@ -115,7 +176,8 @@ describe('tower-wizard-packages', () => {
     it('second passive groups include evade hybrids when Passive 1 is not evade', () => {
         const groups = getSecondPassiveGroups('armor', 'passive-fortified-frame');
         const allIds = groups.flatMap((g) => g.passives.map((p) => p.id));
-        expect(allIds).toContain('passive-evade-damage');
+        expect(allIds).toContain('passive-evade-temp-hp');
+        expect(allIds).not.toContain('passive-evade-damage');
     });
 
     it('second passive groups exclude evade hybrids when Passive 1 is evade', () => {

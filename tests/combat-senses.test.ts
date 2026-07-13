@@ -10,6 +10,7 @@ import {
   collectGrantedCombatSenses,
   listActorCombatSenses,
   getActiveCombatSense,
+  buildCombatSensesBattleAreaContext,
 } from '../src/combat/combat-sense-collection.js';
 import {
   computeStealthRaiseBonus,
@@ -86,6 +87,25 @@ describe('combat-sense-collection', () => {
     expect(senses).toContain('darkvision');
     expect(senses).toContain('lifeSense');
     expect(senses).not.toContain('mageSense');
+  });
+
+  it('buildCombatSensesBattleAreaContext lists all senses and slot choices', () => {
+    const actor = mockActor({
+      system: {
+        combatSenses: {
+          activeSenseId: 'normalCombatAwareness',
+          grantedSenseIds: ['lifeSense'],
+          passiveSenseIds: [],
+          hasDarkvision: false,
+        },
+      },
+    });
+    const ctx = buildCombatSensesBattleAreaContext(actor);
+    expect(ctx.senseRows.length).toBe(6);
+    expect(ctx.slotRows.map((r) => r.id)).toEqual(['normalCombatAwareness', 'lifeSense']);
+    expect(ctx.activeSenseId).toBe('normalCombatAwareness');
+    expect(ctx.senseRows.find((r) => r.id === 'mageSense')?.isGranted).toBe(false);
+    expect(ctx.senseRows.find((r) => r.id === 'lifeSense')?.isGranted).toBe(true);
   });
 
   it('collects senses from equipped artifact base values', () => {

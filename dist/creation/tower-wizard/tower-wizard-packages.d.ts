@@ -3,6 +3,7 @@
  */
 import type { PowerCategory } from '../../types/item.js';
 import type { PowerGrantSpec } from '../../utils/power-item-builder.js';
+import { buildGuidedBuildSummary } from './tower-wizard-guided.js';
 import type { CatalogEntry } from '../../utils/power-catalog.js';
 import type { DefensePackageId, DefensePackagePreview, OffenseActiveOverride, OffenseActiveVariant, OffensePackageId, PackageReviewRow, ResolvedGrant, TowerWizardDefensePackage, TowerWizardOffensePackage, TowerWizardSelection, PackageGrantKey, PackageCustomizationNote, PackagePowerOverride, Passive1VariantOption, ReviewPowerRow, SecondPassiveGroup, SecondPassiveIntentGroup, OffenseActiveGroup, OffenseActivePick, OffenseActiveSpecialGroup, PowerPickerGroup, WizardOffensiveActiveBuff, WizardOffensiveActiveBuffGroup, WizardActiveBuffPreview, TowerWizardStep } from './tower-wizard-types.js';
 export declare function grantKeyCategory(grantKey: PackageGrantKey): PowerCategory;
@@ -32,6 +33,7 @@ export declare function getCategoryPickerGroups(category: PowerCategory, rank: n
     actorEchoKey?: string | null;
 }): PowerPickerGroup[];
 export declare function resolveOffenseActiveSpecs(selection: TowerWizardSelection): PowerGrantSpec[] | null;
+export declare function selectionUsesGuidedOffenseFlow(selection: Partial<TowerWizardSelection>): boolean;
 export declare function selectionUsesCatalogOffense(selection: Partial<TowerWizardSelection>): boolean;
 export declare function getDefaultActiveBuffPreview(defenseId: DefensePackageId): WizardActiveBuffPreview | null;
 export declare function getOffensiveActiveBuffOptions(): WizardOffensiveActiveBuff[];
@@ -86,6 +88,7 @@ export interface PackageReview {
     customizationNotes: PackageCustomizationNote[];
     packageId: string;
     allOk: boolean;
+    guidedBuildSummary?: ReturnType<typeof buildGuidedBuildSummary>;
 }
 export declare function buildReviewPowerRows(selection: TowerWizardSelection): ReviewPowerRow[];
 export declare function buildPackageReview(selection: TowerWizardSelection): PackageReview;
@@ -96,4 +99,5 @@ export declare function buildManualReviewPowerRows(selection: Partial<TowerWizar
 export declare function buildManualPackageReview(selection: Partial<TowerWizardSelection>): PackageReview;
 export declare function packageNeedsDeliveryStep(selection: Partial<TowerWizardSelection>): boolean;
 export declare function packageNeedsWeakenSaveStep(selection: Partial<TowerWizardSelection>): boolean;
+export { GUIDED_DELIVERY_OPTIONS, getGuidedSpecialFocusGroups, resolveGuidedCoreAttackPick, resolveGuidedSpecialPick, getDefensiveActiveBuffChoiceBody, buildGuidedBuildSummary, } from './tower-wizard-guided.js';
 //# sourceMappingURL=tower-wizard-packages.d.ts.map

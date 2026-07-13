@@ -98,6 +98,9 @@
           <button type="button" class="tower-wizard-passive-card js-tw-select-passive2{{#if (eq ../../../selection.secondPassiveTemplateId this.id)}} is-selected{{/if}}" data-passive-id="{{this.id}}">
             <span class="chip-label">{{this.label}}</span>
             <span class="chip-mechanical">{{this.hint}}</span>
+            {{#if this.whenToUse}}<span class="tower-wizard-card-meta">{{../../copy.passive2.whenToUse}}: {{this.whenToUse}}</span>{{/if}}
+            {{#if this.powerName}}<span class="tower-wizard-card-power">{{../../copy.passive2.powerLabel}}: {{this.powerName}}</span>{{/if}}
+            {{#if this.mechanicsPreview}}<span class="tower-wizard-card-meta">{{this.mechanicsPreview}}</span>{{/if}}
             {{#if this.warning}}<span class="tower-wizard-warn">{{this.warning}}</span>{{/if}}
           </button>
           {{/each}}
@@ -131,6 +134,7 @@
         <button type="button" class="tower-wizard-card js-tw-active-buff-mode{{#if (eq selection.activeBuffMode 'defensive')}} is-selected{{/if}}" data-buff-mode="defensive">
           <span class="tower-wizard-card-title">{{copy.activeBuffChoice.defensiveTitle}}</span>
           <span class="tower-wizard-card-text">{{copy.activeBuffChoice.defensiveBody}}</span>
+          {{#if defensiveActiveBuffChoiceBody}}<span class="tower-wizard-card-meta">{{defensiveActiveBuffChoiceBody}}</span>{{/if}}
         </button>
         <button type="button" class="tower-wizard-card js-tw-active-buff-mode{{#if (eq selection.activeBuffMode 'offensive')}} is-selected{{/if}}" data-buff-mode="offensive">
           <span class="tower-wizard-card-title">{{copy.activeBuffChoice.offensiveTitle}}</span>
@@ -183,6 +187,51 @@
       </div>
       {{/each}}
       {{/if}}
+    </section>
+    {{/if}}
+
+    {{#if isOffenseDelivery}}
+    <section class="tower-wizard-step">
+      <h3>{{copy.offenseDelivery.heading}}</h3>
+      <p class="tower-wizard-prose">{{copy.offenseDelivery.body}}</p>
+      <div class="tower-wizard-cards">
+        {{#each guidedDeliveryOptions}}
+        <button type="button" class="tower-wizard-card js-tw-select-delivery{{#if (eq ../selection.guidedAttackDelivery this.id)}} is-selected{{/if}}" data-delivery-mode="{{this.id}}">
+          <span class="tower-wizard-card-title">{{this.label}}</span>
+          <span class="tower-wizard-card-text">{{this.explanation}}</span>
+        </button>
+        {{/each}}
+      </div>
+      {{#if guidedCoreAttackPreview}}
+      <p class="tower-wizard-prose tower-wizard-core-attack-note">{{copy.offenseDelivery.coreNote}}</p>
+      {{/if}}
+    </section>
+    {{/if}}
+
+    {{#if isOffenseSpecial}}
+    <section class="tower-wizard-step tower-wizard-offense-special-step">
+      <h3>{{copy.offenseSpecial.heading}}</h3>
+      <p class="tower-wizard-prose">{{copy.offenseSpecial.body}}</p>
+      {{#unless guidedSpecialFocusGroups.length}}
+      <p class="tower-wizard-warn">{{copy.offenseSpecial.emptyCatalog}}</p>
+      {{/unless}}
+      {{#each guidedSpecialFocusGroups}}
+      <div class="tower-wizard-special-purpose-group{{#if this.isAdvanced}} is-advanced{{/if}}">
+        <h4>{{this.label}}</h4>
+        <p class="tower-wizard-prose tower-wizard-intent-hint">{{this.explanation}}</p>
+        <div class="tower-wizard-passive-grid">
+          {{#each this.cards}}
+          <button type="button" class="tower-wizard-passive-card js-tw-select-special-focus{{#if this.isSelected}} is-selected{{/if}}" data-pick-id="{{this.pickId}}" data-template-id="{{this.templateId}}" data-special="{{this.special}}">
+            <span class="chip-label">{{this.playerTitle}}</span>
+            <span class="chip-mechanical">{{this.explanation}}</span>
+            <span class="tower-wizard-card-meta">{{../../copy.offenseSpecial.whenToUse}}: {{this.whenToUse}}</span>
+            <span class="tower-wizard-card-power">{{../../copy.offenseSpecial.powerLabel}}: {{this.powerName}}</span>
+            {{#if this.mechanicsPreview}}<span class="tower-wizard-card-meta">{{this.mechanicsPreview}}</span>{{/if}}
+          </button>
+          {{/each}}
+        </div>
+      </div>
+      {{/each}}
     </section>
     {{/if}}
 
@@ -276,6 +325,21 @@
         </li>
         {{/each}}
       </ul>
+      {{/if}}
+
+      {{#if review.guidedBuildSummary}}
+      <section class="tower-wizard-guided-summary">
+        <h4>{{copy.review.whatYouBuilt}}</h4>
+        {{#each review.guidedBuildSummary.slots}}
+        <p class="tower-wizard-prose"><strong>{{this.role}}:</strong> {{this.text}}</p>
+        {{/each}}
+        <h4>{{copy.review.simpleRotation}}</h4>
+        <ol class="tower-wizard-rotation-list">
+          {{#each review.guidedBuildSummary.rotationSteps}}
+          <li>{{this}}</li>
+          {{/each}}
+        </ol>
+      </section>
       {{/if}}
 
       <h4>{{copy.review.mainDefensePackage}}</h4>
