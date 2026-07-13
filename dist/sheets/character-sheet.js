@@ -57,6 +57,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
      * `undefined` means first paint: expanded (see getData: `!== false`).
      */
     _powersListDetailsOpen;
+    /** Coalesce overlapping render() calls (Foundry re-renders on actor update during open). */
+    #renderInFlight = null;
+    /** One attribute-baseline migration attempt per sheet instance. */
+    #attributeBaselinesMigrationDone = false;
     /** Last pointer-down on equipment tile (for click vs drag distinction). */
     #itemInfoPointerDown = null;
     _pendingAttributeChanges = {}; // Signed pending attribute deltas (XP mode)
@@ -210,6 +214,22 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     /**
      * Handle power rank change during creation
      */
+    /**
+     * Combat Senses — Sense Slot (explicit update; avoids Foundry form sync loops from radios).
+     */
+    async #onBattleSenseSlotSelect(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        if (!this.isEditable || !this.actor.isOwner)
+            return;
+        const senseId = String($(event.currentTarget).data('sense-id') || '').trim();
+        if (!senseId)
+            return;
+        const current = this.actor.system?.combatSenses?.activeSenseId;
+        if (current === senseId)
+            return;
+        await this.actor.update({ 'system.combatSenses.activeSenseId': senseId });
+    }
     async #onRadialManeuverHideAll(event) {
         event.stopPropagation();
         if (!this.isEditable)
@@ -815,7 +835,23 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         context.radialManeuverPrefsPanel = buildRadialManeuverPrefsContext(context.system);
         context.radialManeuverPrefsDetailsOpen = this._radialManeuverPrefsDetailsOpen === true;
         context.combatSensesPanel = buildCombatSensesPanelContext(this.actor);
-        context.combatSensesBattle = buildCombatSensesBattleAreaContext(this.actor);
+        try {
+            context.combatSensesBattle = buildCombatSensesBattleAreaContext(this.actor);
+        }
+        catch (err) {
+            console.error('Mastery System | Failed to build combatSensesBattle context', err);
+            context.combatSensesBattle = {
+                instruction: 'Sense Slot — choose exactly one active Combat Sense for battle.',
+                pickOneHint: 'Normal Combat Awareness is your default Sense Slot.',
+                activeSenseId: 'normalCombatAwareness',
+                activeSenseLabel: 'Normal Combat Awareness',
+                hasDarkvision: false,
+                senseRows: [],
+                slotRows: [],
+                grantedRows: [],
+                darkvisionSummary: '',
+            };
+        }
         if (context.creationComplete) {
             context.powersByTypeGroups = this.#buildPowersByTypeGroups(context.items?.powers || []);
             /* Default: collapsed; open after finalize or when user expanded in this session. */
@@ -933,6 +969,15 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     }
     /** @override */
     async render(force, options) {
+        if (this.#renderInFlight) {
+            return this.#renderInFlight;
+        }
+        this.#renderInFlight = this.#renderSheet(force, options).finally(() => {
+            this.#renderInFlight = null;
+        });
+        return this.#renderInFlight;
+    }
+    async #renderSheet(force, options) {
         console.log('Mastery System | Character Sheet render called', { force, options });
         if (this.element && this.element.length > 0) {
             const det = this.element.find('.radial-maneuver-prefs-details')[0];
@@ -967,7 +1012,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             }
         }
         const result = await super.render(force, options);
-        void this.#migrateAttributeBaselinesIfNeeded();
+        if (!this.#attributeBaselinesMigrationDone) {
+            this.#attributeBaselinesMigrationDone = true;
+            void this.#migrateAttributeBaselinesIfNeeded();
+        }
         // Restore scroll positions after rendering
         if (this.element && this.element.length > 0 && Object.keys(scrollPositions).length > 0) {
             // Use requestAnimationFrame to ensure DOM is fully updated
@@ -1990,6 +2038,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 this.#onProfileShow(e, String(imgType));
             });
         }, 100);
+        html
+            .off('click', '.js-battle-sense-slot')
+            .on('click', '.js-battle-sense-slot', this.#onBattleSenseSlotSelect.bind(this));
         // Everything below here is only needed if the sheet is editable
         if (!this.isEditable)
             return;

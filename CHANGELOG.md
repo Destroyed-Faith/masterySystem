@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.205] - 2026-07-14
+
+### Fixed
+
+- **Character sheet open loop:** Combat Senses Sense Slot no longer uses form-bound radio inputs (which caused infinite re-renders on sheet open in Foundry). Selection uses explicit button clicks; overlapping renders are coalesced.
+
+### Added
+
+- **Regression test:** `character-sheet-combat-senses-regression.test.ts` blocks reintroducing `activeSenseId` form radios in the battle-senses slot grid.
+
 ## [0.9.204] - 2026-07-13
 
 ### Added

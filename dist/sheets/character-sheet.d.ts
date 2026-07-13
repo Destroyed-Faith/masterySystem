@@ -33,7 +33,7 @@ export declare class MasteryCharacterSheet extends BaseActorSheet {
     /** @override */
     getData(options?: any): Promise<any>;
     /** @override */
-    render(force?: boolean, options?: any): Promise<any>;
+    render(force?: boolean, options?: any): Promise<unknown>;
     /** @override */
     activateListeners(html: JQuery): void;
     /** @override */

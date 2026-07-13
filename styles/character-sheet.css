@@ -8980,6 +8980,15 @@
   background: rgba(255, 255, 255, 0.04);
   cursor: pointer;
   transition: border-color 0.15s ease, background 0.15s ease;
+  width: 100%;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+}
+
+.mastery-system.sheet.actor.character .battle-sense-slot-card:disabled {
+  cursor: default;
+  opacity: 0.85;
 }
 
 .mastery-system.sheet.actor.character .battle-sense-slot-card:hover {

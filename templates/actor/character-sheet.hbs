@@ -1209,22 +1209,21 @@
 
         <div class="battle-senses-slot-grid" role="radiogroup" aria-label="Sense Slot">
           {{#each combatSensesBattle.slotRows}}
-          <label class="battle-sense-slot-card{{#if this.isActive}} is-active{{/if}}">
-            <input
-              type="radio"
-              class="battle-sense-slot-radio-input"
-              name="system.combatSenses.activeSenseId"
-              value="{{this.id}}"
-              {{#if this.isActive}}checked{{/if}}
-              {{#unless @root.editable}}disabled{{/unless}}
-            />
+          <button
+            type="button"
+            class="battle-sense-slot-card js-battle-sense-slot{{#if this.isActive}} is-active{{/if}}"
+            data-sense-id="{{this.id}}"
+            role="radio"
+            aria-checked="{{#if this.isActive}}true{{else}}false{{/if}}"
+            {{#unless @root.editable}}disabled{{/unless}}
+          >
             <span class="battle-sense-slot-radio-mark" aria-hidden="true"></span>
             <span class="battle-sense-slot-body">
               <span class="battle-sense-slot-title">{{this.label}} <span class="battle-sense-range">{{this.rangeM}} m</span></span>
               <span class="battle-sense-slot-summary">{{this.summary}}</span>
               <span class="battle-sense-slot-channels">{{this.channels}}</span>
             </span>
-          </label>
+          </button>
           {{/each}}
         </div>
 
