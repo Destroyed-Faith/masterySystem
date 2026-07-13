@@ -72,7 +72,7 @@ import {
 } from './utils/item-icons.js';
 import { actorHasPostCreationSnapshot, resetActorProgressToPostCreation } from './utils/xp-post-creation.js';
 import { getPowerDefinitionRank } from './utils/power-definition-rank.js';
-import { buildMasteryStatusEffects } from './system/status-effects.js';
+import { applyMasteryStatusEffects } from './system/status-effects.js';
 import { registerTemplatesCutoverSetting, runTemplatesCutover } from './migrations/templates-cutover.js';
 import {
   registerXpCurrentStepCutoverSetting,
@@ -151,11 +151,6 @@ Hooks.once('init', async function() {
 ╚═══════════════════════════════════════════════════════════╝
 `);
 
-  // Shim deprecated globals to the namespaced versions to suppress warnings (Foundry v13+)
-  if (!(globalThis as any).FilePicker && (foundry as any)?.applications?.apps?.FilePicker?.implementation) {
-    (globalThis as any).FilePicker = (foundry as any).applications.apps.FilePicker.implementation;
-  }
-
   // Shim Application to V2 if available to silence V1 deprecation (non-breaking)
   if ((foundry as any)?.applications?.api?.ApplicationV2 && !(globalThis as any)._masteryAppPatched) {
     (globalThis as any).Application = (foundry as any).applications.api.ApplicationV2;
@@ -169,7 +164,7 @@ Hooks.once('init', async function() {
 
   // Replace Foundry's default status-effects list with the Mastery-System
   // specials catalog so the token HUD radial shows only system conditions.
-  (CONFIG as any).statusEffects = buildMasteryStatusEffects();
+  applyMasteryStatusEffects();
   
   // Register custom sheet application classes
   const coreActorSheet = (foundry as any).appv1?.sheets?.ActorSheet;

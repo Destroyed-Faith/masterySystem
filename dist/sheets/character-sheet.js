@@ -20,6 +20,7 @@ import { showLanguagesDialog } from './languages-dialog.js';
 import { findFirstFit, fitsInGrid, parseInventorySize, rectsOverlap } from '../utils/inventory-grid.js';
 import { isLegacyUnarmedItem } from '../utils/unarmed-fallback.js';
 import { loadZoneFromBands, movementPenaltyForLoad, LOAD_ZONE_LABEL, ZONE_WIDTH_COLS } from '../utils/encumbrance.js';
+import { getFilePickerClass } from '../utils/foundry-v14.js';
 import { buildPostCreationSnapshot } from '../utils/xp-post-creation.js';
 import { resetCharacterForRecreation, listEquippedGeneralArtifacts } from '../utils/reset-character.js';
 import { getDefaultInventorySizeForItemData } from '../utils/seed-general-items.js';
@@ -5297,12 +5298,12 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 globalFilePicker: typeof globalThis.FilePicker !== 'undefined',
                 foundryFilePicker: typeof foundry?.applications?.apps?.FilePicker?.implementation !== 'undefined'
             });
-            // Use Foundry's built-in image editing functionality
-            // Try to use the shimmed FilePicker first, then fallback to foundry's implementation
-            const FilePickerClass = globalThis.FilePicker ||
-                foundry?.applications?.apps?.FilePicker?.implementation ||
-                FilePicker;
+            const FilePickerClass = getFilePickerClass();
             console.log('Mastery System | FilePickerClass resolved', { FilePickerClass: FilePickerClass?.name || 'unknown' });
+            if (!FilePickerClass) {
+                ui.notifications?.error('File picker is not available in this Foundry version.');
+                return;
+            }
             // Get current image based on imgType - use strict comparison
             const isTokenEdit = (imgType === 'token'); // Store in const to ensure it's captured correctly in closure
             let currentImage;

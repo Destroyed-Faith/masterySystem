@@ -48,7 +48,7 @@ import { seedArtifactLibrary, forceRefreshEchoArtifactLibrary } from './utils/se
 import { getEchoArtifactIcon, getItemIcon, getItemIconHintFromCreateData, getItemIconHintFromItem, normalizeWeaponNameKey, } from './utils/item-icons.js';
 import { actorHasPostCreationSnapshot, resetActorProgressToPostCreation } from './utils/xp-post-creation.js';
 import { getPowerDefinitionRank } from './utils/power-definition-rank.js';
-import { buildMasteryStatusEffects } from './system/status-effects.js';
+import { applyMasteryStatusEffects } from './system/status-effects.js';
 import { registerTemplatesCutoverSetting, runTemplatesCutover } from './migrations/templates-cutover.js';
 import { registerXpCurrentStepCutoverSetting, runXpCurrentStepCutover, } from './migrations/xp-currentstep-cutover.js';
 import { registerArtifactSpecBackfillSetting, runArtifactSpecBackfill, } from './migrations/artifact-spec-backfill.js';
@@ -93,10 +93,6 @@ Hooks.once('init', async function () {
 ║                                                           ║
 ╚═══════════════════════════════════════════════════════════╝
 `);
-    // Shim deprecated globals to the namespaced versions to suppress warnings (Foundry v13+)
-    if (!globalThis.FilePicker && foundry?.applications?.apps?.FilePicker?.implementation) {
-        globalThis.FilePicker = foundry.applications.apps.FilePicker.implementation;
-    }
     // Shim Application to V2 if available to silence V1 deprecation (non-breaking)
     if (foundry?.applications?.api?.ApplicationV2 && !globalThis._masteryAppPatched) {
         globalThis.Application = foundry.applications.api.ApplicationV2;
@@ -107,7 +103,7 @@ Hooks.once('init', async function () {
     CONFIG.Item.documentClass = MasteryItem;
     // Replace Foundry's default status-effects list with the Mastery-System
     // specials catalog so the token HUD radial shows only system conditions.
-    CONFIG.statusEffects = buildMasteryStatusEffects();
+    applyMasteryStatusEffects();
     // Register custom sheet application classes
     const coreActorSheet = foundry.appv1?.sheets?.ActorSheet;
     if (coreActorSheet) {

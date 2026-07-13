@@ -12,6 +12,8 @@
  * See plan §7.
  */
 
+import { getForcedDeletion } from '../utils/foundry-v14.js';
+
 const SETTING_NAMESPACE = 'mastery-system';
 const SETTING_KEY = 'templatesCutoverRun';
 
@@ -76,10 +78,14 @@ export async function runTemplatesCutover(): Promise<void> {
     for (const item of worldItems) {
         if (item?.type !== 'artifact') continue;
         try {
-            await item.update({
-                'system.tree': '',
-                'flags.mastery-system.-=treeFlags': null,
-            });
+            const forcedDeletion = getForcedDeletion();
+            const updateData: Record<string, unknown> = { 'system.tree': '' };
+            if (forcedDeletion != null) {
+                updateData.flags = { 'mastery-system': { treeFlags: forcedDeletion } };
+            } else {
+                updateData['flags.mastery-system.-=treeFlags'] = null;
+            }
+            await item.update(updateData);
         } catch {
             // Ignore — the fields may not exist.
         }

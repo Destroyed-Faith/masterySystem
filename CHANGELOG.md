@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.199] - 2026-07-13
+
+### Fixed
+
+- **Foundry v14 init:** Register status effects as a keyed record instead of an array so module init no longer crashes with `statusEffects.push is not a function`.
+- **Foundry v14 migrations:** Use `foundry.data.operators.ForcedDeletion` for flag/XP field cleanup instead of legacy `-=` syntax.
+- **Foundry v14 FilePicker:** Resolve the v14 application FilePicker implementation in artifact builder and character sheet.
+
 ## [0.9.198] - 2026-07-13
 
 ### Changed

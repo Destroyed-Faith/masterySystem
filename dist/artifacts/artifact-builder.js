@@ -10,6 +10,7 @@ import { inferArtifactEquipSlots } from '../utils/equip-slots.js';
 import { readActorArtifactProgress, serializeActorArtifactProgress } from '../utils/artifact-actor-rules.js';
 import { buildAllEchoArtifactTrees, buildAllGeneralArtifactTrees, } from '../artifacts/echo-artifact-tree-builder.js';
 import { repairArtifactTreeByKey } from '../utils/seed-artifact-library.js';
+import { getFilePickerClass } from '../utils/foundry-v14.js';
 // Use V1 Application for reliable template rendering in v13
 const BaseApplication = foundry?.appv1?.Application || Application;
 export class ArtifactBuilder extends BaseApplication {
@@ -116,7 +117,12 @@ export class ArtifactBuilder extends BaseApplication {
     activateListeners(html) {
         super.activateListeners(html);
         html.find('.artifact-image').on('click', () => {
-            const fp = new FilePicker({
+            const FilePickerClass = getFilePickerClass();
+            if (!FilePickerClass) {
+                ui.notifications?.error('File picker is not available in this Foundry version.');
+                return;
+            }
+            const fp = new FilePickerClass({
                 type: 'image',
                 current: this.rootItem.img || 'icons/svg/mystery-man.svg',
                 callback: async (path) => {

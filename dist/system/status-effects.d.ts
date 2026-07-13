@@ -39,4 +39,9 @@ export declare const MASTERY_STATUS_EFFECTS: MasteryStatusEffect[];
  * matching `statuses` array so Foundry's `statuses` set lookups work both ways.
  */
 export declare function buildMasteryStatusEffects(): Required<MasteryStatusEffect>[];
+/**
+ * Register mastery conditions on `CONFIG.statusEffects`.
+ * Foundry v12/v13 use an array; v14+ uses a record keyed by effect id.
+ */
+export declare function applyMasteryStatusEffects(): void;
 //# sourceMappingURL=status-effects.d.ts.map

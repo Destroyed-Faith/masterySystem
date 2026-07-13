@@ -19,6 +19,8 @@
  *   `game.settings.get('mastery-system', 'xpCurrentStepCutoverRun') === true`
  */
 
+import { getForcedDeletion } from '../utils/foundry-v14.js';
+
 const SETTING_NAMESPACE = 'mastery-system';
 const SETTING_KEY = 'xpCurrentStepCutoverRun';
 
@@ -101,10 +103,18 @@ export async function runXpCurrentStepCutover(): Promise<void> {
 
         if (!isLegacyShape && !needsSpentAttrsRemoval) continue;
 
-        const updates: Record<string, any> = {
-            'system.xp.currentStep': nextStep,
+        const forcedDeletion = getForcedDeletion();
+        const updates: Record<string, unknown> = {
+            system: {
+                xp: {
+                    currentStep: nextStep,
+                    ...(needsSpentAttrsRemoval && forcedDeletion != null
+                        ? { spentAttributes: forcedDeletion }
+                        : {}),
+                },
+            },
         };
-        if (needsSpentAttrsRemoval) {
+        if (needsSpentAttrsRemoval && forcedDeletion == null) {
             updates['system.xp.-=spentAttributes'] = null;
         }
 

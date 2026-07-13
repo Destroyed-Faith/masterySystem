@@ -89,3 +89,30 @@ export function buildMasteryStatusEffects(): Required<MasteryStatusEffect>[] {
     statuses: e.statuses && e.statuses.length > 0 ? e.statuses : [e.id],
   }));
 }
+
+/**
+ * Register mastery conditions on `CONFIG.statusEffects`.
+ * Foundry v12/v13 use an array; v14+ uses a record keyed by effect id.
+ */
+export function applyMasteryStatusEffects(): void {
+  const effects = buildMasteryStatusEffects();
+  const current = (CONFIG as any).statusEffects;
+
+  if (Array.isArray(current)) {
+    (CONFIG as any).statusEffects = effects;
+    return;
+  }
+
+  const next: Record<string, unknown> = {};
+  let order = 0;
+  for (const e of effects) {
+    next[e.id] = {
+      id: e.id,
+      name: e.name,
+      img: e.img,
+      statuses: e.statuses,
+      order: order++,
+    };
+  }
+  (CONFIG as any).statusEffects = next;
+}

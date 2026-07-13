@@ -1,0 +1,1 @@
+{"version":3,"file":"foundry-v14.js","sourceRoot":"","sources":["../../src/utils/foundry-v14.ts"],"names":[],"mappings":"AAAA;;;GAGG;AAEH,+DAA+D;AAC/D,MAAM,UAAU,iBAAiB;IAC/B,OAAQ,OAAe,EAAE,IAAI,EAAE,SAAS,EAAE,cAAc,IAAI,IAAI,CAAC;AACnE,CAAC;AAED,gFAAgF;AAChF,MAAM,UAAU,kBAAkB;IAChC,OAAQ,OAAe,EAAE,YAAY,EAAE,IAAI,EAAE,UAAU,EAAE,cAAc,CAAC;AAC1E,CAAC"}
