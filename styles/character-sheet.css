@@ -6166,7 +6166,8 @@
   overflow-y: auto;
 }
 
-.mastery-system.sheet.actor.character .skill-roll-perception-group {
+.mastery-system.sheet.actor.character .skill-roll-perception-group,
+.mastery-system.sheet.actor.character .skill-roll-multi-attr-group {
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -6174,7 +6175,8 @@
   flex-shrink: 0;
 }
 
-.mastery-system.sheet.actor.character .skill-roll-perception-group .skill-roll-compact {
+.mastery-system.sheet.actor.character .skill-roll-perception-group .skill-roll-compact,
+.mastery-system.sheet.actor.character .skill-roll-multi-attr-group .skill-roll-compact {
   min-width: 34px;
   padding: 4px 6px;
 }

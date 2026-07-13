@@ -14,7 +14,7 @@ export const SKILLS = {
     // Physical Skills
     athletics: {
         name: 'Athletics',
-        attributes: ['might', 'agility'],
+        attributes: ['might'],
         category: SKILL_CATEGORIES.PHYSICAL
     },
     acrobatics: {
@@ -174,7 +174,7 @@ export const SKILLS = {
     // Martial Skills
     handToHand: {
         name: 'Hand-to-Hand',
-        attributes: ['might'],
+        attributes: ['might', 'agility'],
         category: SKILL_CATEGORIES.MARTIAL
     },
     meleeWeapons: {
@@ -189,7 +189,7 @@ export const SKILLS = {
     },
     defensiveCombat: {
         name: 'Defensive Combat',
-        attributes: ['vitality'],
+        attributes: ['agility', 'vitality'],
         category: SKILL_CATEGORIES.MARTIAL
     },
     combatReflexes: {

@@ -50,6 +50,59 @@
     "reactionDialogTitle": "Reaktion — {defender}",
     "reactionDecline": "Ablehnen (keine Reaktion)",
     "combatStripDrSustained": "DR {pct}% (Dauer, ohne pro-Treffer-Reaktion)",
-    "combatStripReactionDrNote": "Reaktions-DR% pro Treffer im Schadens-Dialog, nicht in dieser ständigen Anzeige."
+    "combatStripReactionDrNote": "Reaktions-DR% pro Treffer im Schadens-Dialog, nicht in dieser ständigen Anzeige.",
+    "calendar": {
+      "title": "Tyhra-Kalender",
+      "openCalendar": "Tyhra-Kalender öffnen",
+      "today": "Heute",
+      "previousMonth": "Vorheriger Monat",
+      "nextMonth": "Nächster Monat",
+      "previousYear": "Vorheriges Jahr",
+      "nextYear": "Nächstes Jahr",
+      "previousDay": "Vorheriger Tag",
+      "nextDay": "Nächster Tag",
+      "previousHour": "Vorherige Stunde",
+      "nextHour": "Nächste Stunde",
+      "openJournal": "Tagesjournal öffnen",
+      "createJournal": "Tagesjournal erstellen",
+      "noJournalExists": "Für diesen Tag existiert noch kein Journal. Ein SL muss es zuerst anlegen.",
+      "createJournalFailed": "Tagesjournal konnte nicht erstellt werden. Details in der Konsole.",
+      "currentDay": "Aktueller Tag",
+      "veilDay": "Schleiertag",
+      "season": "Jahreszeit",
+      "year": "Jahr",
+      "disabled": "Der Tyhra-Kalender ist in den Welteinstellungen deaktiviert.",
+      "noPermission": "Keine Berechtigung, den Kalender zu öffnen.",
+      "actionFailed": "Kalenderaktion fehlgeschlagen. Details in der Konsole.",
+      "settings": {
+        "enabled": {
+          "name": "Tyhra-Kalender aktivieren",
+          "hint": "Kalender-UI und Journal-Integration anzeigen."
+        },
+        "currentDayIndex": {
+          "name": "Aktueller Tagesindex",
+          "hint": "Interner Tagesindex für das aktuelle Weltdatum."
+        },
+        "currentHour": { "name": "Aktuelle Stunde" },
+        "currentMinute": { "name": "Aktuelle Minute" },
+        "journalFolderId": { "name": "Kalender-Journalordner-ID" },
+        "defaultYear": {
+          "name": "Standard-Kalenderjahr",
+          "hint": "Jahr beim ersten Öffnen des Kalenders."
+        },
+        "playersCanOpen": {
+          "name": "Spieler dürfen Kalender öffnen",
+          "hint": "Nicht-SL-Nutzer dürfen das Kalenderfenster öffnen."
+        },
+        "playersCanCreate": {
+          "name": "Spieler dürfen Tagesjournale erstellen",
+          "hint": "Nicht-SL-Nutzer dürfen fehlende Tagesjournale per Klick anlegen."
+        },
+        "journalDefaultOwnership": {
+          "name": "Standard-Spielerrechte für Tagesjournale",
+          "hint": "Standard-Berechtigung für Spieler auf neu erstellten Tagesjournalen."
+        }
+      }
+    }
   }
 }

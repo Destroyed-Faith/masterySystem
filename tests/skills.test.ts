@@ -4,7 +4,7 @@ import { SKILLS, SKILL_CATEGORIES, getSkillsByCategory, getSkill } from '../src/
 describe('Skill Definitions (Player\'s Guide compliance)', () => {
   describe('Physical Skills', () => {
     it('Athletics primary attribute is Might', () => {
-      expect(SKILLS.athletics.attributes[0]).toBe('might');
+      expect(SKILLS.athletics.attributes).toEqual(['might']);
     });
 
     it('Acrobatics primary attribute is Agility', () => {

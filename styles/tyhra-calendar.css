@@ -1,0 +1,267 @@
+/* Tyhra Calendar — Destroyed Faith / Mastery System */
+
+.mastery-system.df-calendar.application .window-content {
+  padding: 0;
+  overflow: auto;
+}
+
+.df-calendar {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem 1rem;
+  color: var(--color-text-primary, #e8e0d4);
+  font-family: var(--font-primary, 'Signika', sans-serif);
+}
+
+.df-calendar__header {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr 1.2fr;
+  gap: 0.75rem;
+  align-items: start;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 0.75rem;
+}
+
+.df-calendar__nav {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.df-calendar__nav button {
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: inherit;
+  border-radius: 4px;
+  padding: 0.35rem 0.5rem;
+  cursor: pointer;
+}
+
+.df-calendar__nav button:hover {
+  background: rgba(120, 80, 40, 0.35);
+  border-color: rgba(200, 160, 90, 0.45);
+}
+
+.df-calendar__year {
+  font-weight: 700;
+  font-size: 1.1rem;
+  min-width: 3rem;
+  text-align: center;
+}
+
+.df-calendar__month-title {
+  text-align: center;
+  flex: 1;
+}
+
+.df-calendar__month-name {
+  margin: 0;
+  font-size: 1.25rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.df-calendar__season {
+  margin: 0.15rem 0 0;
+  font-size: 0.85rem;
+  opacity: 0.75;
+}
+
+.df-calendar__current-label {
+  margin: 0;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  opacity: 0.65;
+}
+
+.df-calendar__current-date {
+  margin: 0.2rem 0;
+  font-weight: 600;
+}
+
+.df-calendar__current-meta,
+.df-calendar__current-veil {
+  margin: 0;
+  font-size: 0.85rem;
+  opacity: 0.8;
+}
+
+.df-calendar__gm-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.df-calendar__gm-controls button {
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: inherit;
+  border-radius: 4px;
+  padding: 0.35rem 0.65rem;
+  cursor: pointer;
+}
+
+.df-calendar__gm-controls button:hover {
+  background: rgba(80, 60, 120, 0.35);
+}
+
+.df-calendar__time {
+  margin-left: 0.5rem;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.85;
+}
+
+.df-calendar__weekdays {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 4px;
+}
+
+.df-calendar__weekday {
+  text-align: center;
+  font-size: 0.72rem;
+  padding: 0.25rem 0.1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.df-calendar__weekday-name {
+  display: block;
+  font-weight: 600;
+}
+
+.df-calendar__weekday-deity {
+  display: block;
+  opacity: 0.55;
+  font-size: 0.65rem;
+}
+
+.df-calendar__grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 4px;
+}
+
+.df-calendar__cell--blank {
+  min-height: 2.6rem;
+}
+
+.df-calendar__day {
+  position: relative;
+  min-height: 2.6rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.25);
+  color: inherit;
+  border-radius: 4px;
+  cursor: pointer;
+  padding: 0.25rem;
+}
+
+.df-calendar__day:hover {
+  border-color: rgba(200, 160, 90, 0.55);
+  background: rgba(80, 60, 40, 0.25);
+}
+
+.df-calendar__day--current {
+  border-color: #c9a227;
+  box-shadow: 0 0 0 1px rgba(201, 162, 39, 0.55), inset 0 0 12px rgba(201, 162, 39, 0.15);
+}
+
+.df-calendar__day--has-journal {
+  background: rgba(40, 70, 50, 0.35);
+}
+
+.df-calendar__day--busy {
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.df-calendar__day-number {
+  font-weight: 600;
+}
+
+.df-calendar__journal-icon {
+  position: absolute;
+  right: 4px;
+  bottom: 4px;
+  font-size: 0.65rem;
+  opacity: 0.85;
+}
+
+.df-calendar__veil {
+  margin-top: 0.35rem;
+  border-top: 1px dashed rgba(255, 255, 255, 0.15);
+  padding-top: 0.65rem;
+}
+
+.df-calendar__veil-button {
+  width: 100%;
+  text-align: left;
+  border: 1px solid rgba(140, 100, 180, 0.45);
+  background: linear-gradient(90deg, rgba(50, 30, 70, 0.55), rgba(20, 20, 30, 0.65));
+  color: inherit;
+  border-radius: 6px;
+  padding: 0.65rem 0.85rem;
+  cursor: pointer;
+  display: grid;
+  gap: 0.2rem;
+}
+
+.df-calendar__veil-button:hover {
+  border-color: rgba(180, 140, 220, 0.7);
+}
+
+.df-calendar__veil--current .df-calendar__veil-button {
+  box-shadow: 0 0 0 1px rgba(180, 140, 220, 0.55);
+}
+
+.df-calendar__veil--has-journal .df-calendar__veil-button {
+  background: linear-gradient(90deg, rgba(40, 60, 50, 0.55), rgba(50, 30, 70, 0.45));
+}
+
+.df-calendar__veil-name {
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.df-calendar__veil-omen {
+  font-style: italic;
+  opacity: 0.85;
+}
+
+.df-calendar__veil-weekday {
+  font-size: 0.8rem;
+  opacity: 0.7;
+}
+
+/* Journal sidebar launch button */
+.df-calendar-launch {
+  width: 28px;
+  height: 28px;
+  line-height: 28px;
+  text-align: center;
+  background: transparent;
+  border: none;
+  color: var(--color-text-light-highlight, #f0f0e0);
+  opacity: 0.75;
+  cursor: pointer;
+}
+
+.df-calendar-launch:hover {
+  opacity: 1;
+  color: #c9a227;
+}
+
+@media (max-width: 760px) {
+  .df-calendar__header {
+    grid-template-columns: 1fr;
+  }
+
+  .df-calendar__weekday-deity {
+    display: none;
+  }
+}

@@ -22,7 +22,7 @@ export const SKILLS: Record<string, SkillDefinition> = {
   // Physical Skills
   athletics: {
     name: 'Athletics',
-    attributes: ['might', 'agility'],
+    attributes: ['might'],
     category: SKILL_CATEGORIES.PHYSICAL
   },
   acrobatics: {
@@ -187,7 +187,7 @@ export const SKILLS: Record<string, SkillDefinition> = {
   // Martial Skills
   handToHand: {
     name: 'Hand-to-Hand',
-    attributes: ['might'],
+    attributes: ['might', 'agility'],
     category: SKILL_CATEGORIES.MARTIAL
   },
   meleeWeapons: {
@@ -202,7 +202,7 @@ export const SKILLS: Record<string, SkillDefinition> = {
   },
   defensiveCombat: {
     name: 'Defensive Combat',
-    attributes: ['vitality'],
+    attributes: ['agility', 'vitality'],
     category: SKILL_CATEGORIES.MARTIAL
   },
   combatReflexes: {

@@ -1344,6 +1344,14 @@
                     <i class="fas fa-shield-alt"></i>
                   </button>
                 </div>
+                {{else if this.multiAttributeRoll}}
+                <div class="skill-roll-multi-attr-group" title="{{this.name}} — choose attribute">
+                  {{#each this.attributes}}
+                  <button type="button" class="skill-roll-compact skill-roll-with-attr" data-skill="{{../key}}" data-attribute="{{this}}" title="{{../name}} ({{capitalize this}})">
+                    {{#if (eq this "might")}}<i class="fas fa-dumbbell"></i>{{else}}{{#if (eq this "agility")}}<i class="fas fa-running"></i>{{else}}<span class="skill-roll-attr-label">{{capitalize this}}</span>{{/if}}{{/if}}
+                  </button>
+                  {{/each}}
+                </div>
                 {{else}}
                 <button type="button" class="skill-roll-compact" data-skill="{{this.key}}" title="Roll {{this.name}}">
                   <i class="fas fa-dice-d20"></i>

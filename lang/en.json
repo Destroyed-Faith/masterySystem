@@ -50,7 +50,60 @@
     "reactionDialogTitle": "Reaction — {defender}",
     "reactionDecline": "Decline (no reaction)",
     "combatStripDrSustained": "DR {pct}% (sustained, excludes per-hit reaction bonus)",
-    "combatStripReactionDrNote": "Per-hit reaction DR% is added in the damage dialog, not in this sustained value."
+    "combatStripReactionDrNote": "Per-hit reaction DR% is added in the damage dialog, not in this sustained value.",
+    "calendar": {
+      "title": "Tyhra Calendar",
+      "openCalendar": "Open Tyhra Calendar",
+      "today": "Today",
+      "previousMonth": "Previous Month",
+      "nextMonth": "Next Month",
+      "previousYear": "Previous Year",
+      "nextYear": "Next Year",
+      "previousDay": "Previous Day",
+      "nextDay": "Next Day",
+      "previousHour": "Previous Hour",
+      "nextHour": "Next Hour",
+      "openJournal": "Open day journal",
+      "createJournal": "Create day journal",
+      "noJournalExists": "No journal exists for this day. A GM must create it first.",
+      "createJournalFailed": "Failed to create the day journal. See the console for details.",
+      "currentDay": "Current Day",
+      "veilDay": "Veil Day",
+      "season": "Season",
+      "year": "Year",
+      "disabled": "The Tyhra calendar is disabled in world settings.",
+      "noPermission": "You do not have permission to open the calendar.",
+      "actionFailed": "Calendar action failed. See the console for details.",
+      "settings": {
+        "enabled": {
+          "name": "Enable Tyhra Calendar",
+          "hint": "Show the Tyhra calendar UI and journal integration."
+        },
+        "currentDayIndex": {
+          "name": "Current Day Index",
+          "hint": "Internal day index for the current world date."
+        },
+        "currentHour": { "name": "Current Hour" },
+        "currentMinute": { "name": "Current Minute" },
+        "journalFolderId": { "name": "Calendar Journal Folder ID" },
+        "defaultYear": {
+          "name": "Default Calendar Year",
+          "hint": "Initial year shown when opening the calendar."
+        },
+        "playersCanOpen": {
+          "name": "Players Can Open Calendar",
+          "hint": "Allow non-GM users to open the Tyhra calendar window."
+        },
+        "playersCanCreate": {
+          "name": "Players Can Create Day Journals",
+          "hint": "Allow non-GM users to create missing day journals when clicking a day."
+        },
+        "journalDefaultOwnership": {
+          "name": "Day Journal Default Player Ownership",
+          "hint": "Default permission level for players on newly created day journals."
+        }
+      }
+    }
   }
 }
 

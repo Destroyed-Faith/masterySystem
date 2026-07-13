@@ -1,0 +1,103 @@
+<section class="df-calendar">
+<header class="df-calendar__header">
+  <div class="df-calendar__nav df-calendar__nav--year">
+    <button type="button" data-action="prev-year" title="{{localize 'MASTERY.calendar.previousYear'}}">
+      <i class="fas fa-angle-double-left"></i>
+    </button>
+    <span class="df-calendar__year">{{view.year}}</span>
+    <button type="button" data-action="next-year" title="{{localize 'MASTERY.calendar.nextYear'}}">
+      <i class="fas fa-angle-double-right"></i>
+    </button>
+  </div>
+
+  <div class="df-calendar__nav df-calendar__nav--month">
+    <button type="button" data-action="prev-month" title="{{localize 'MASTERY.calendar.previousMonth'}}">
+      <i class="fas fa-angle-left"></i>
+    </button>
+    <div class="df-calendar__month-title">
+      <h2 class="df-calendar__month-name">{{view.monthName}}</h2>
+      <p class="df-calendar__season">{{localize 'MASTERY.calendar.season'}}: {{view.seasonName}}</p>
+    </div>
+    <button type="button" data-action="next-month" title="{{localize 'MASTERY.calendar.nextMonth'}}">
+      <i class="fas fa-angle-right"></i>
+    </button>
+  </div>
+
+  <div class="df-calendar__current">
+    <p class="df-calendar__current-label">{{localize 'MASTERY.calendar.currentDay'}}</p>
+    <p class="df-calendar__current-date">{{current.displayName}}</p>
+    <p class="df-calendar__current-meta">{{current.weekdayName}} · {{current.seasonName}} · {{localize 'MASTERY.calendar.year'}} {{current.year}}</p>
+    {{#if current.isVeil}}
+    <p class="df-calendar__current-veil">{{localize 'MASTERY.calendar.veilDay'}}: {{current.veilDayName}}</p>
+    {{/if}}
+  </div>
+</header>
+
+{{#if isGM}}
+<div class="df-calendar__gm-controls">
+  <button type="button" data-action="prev-day" title="{{localize 'MASTERY.calendar.previousDay'}}">
+    <i class="fas fa-chevron-left"></i>
+  </button>
+  <button type="button" data-action="today" title="{{localize 'MASTERY.calendar.today'}}">
+    {{localize 'MASTERY.calendar.today'}}
+  </button>
+  <button type="button" data-action="next-day" title="{{localize 'MASTERY.calendar.nextDay'}}">
+    <i class="fas fa-chevron-right"></i>
+  </button>
+  <button type="button" data-action="prev-hour" title="{{localize 'MASTERY.calendar.previousHour'}}">
+    −1h
+  </button>
+  <button type="button" data-action="next-hour" title="{{localize 'MASTERY.calendar.nextHour'}}">
+    +1h
+  </button>
+  <span class="df-calendar__time">{{timeLabel}}</span>
+</div>
+{{/if}}
+
+<div class="df-calendar__weekdays">
+  {{#each weekdays}}
+  <div class="df-calendar__weekday" title="{{this.deity}}">
+    <span class="df-calendar__weekday-name">{{this.name}}</span>
+    <span class="df-calendar__weekday-deity">{{this.deity}}</span>
+  </div>
+  {{/each}}
+</div>
+
+<div class="df-calendar__grid">
+  {{#each leadingCells}}
+  <div class="df-calendar__cell df-calendar__cell--blank"></div>
+  {{/each}}
+
+  {{#each view.days}}
+  <button
+    type="button"
+    class="df-calendar__day df-calendar__cell{{#if this.isCurrent}} df-calendar__day--current{{/if}}{{#if this.hasJournal}} df-calendar__day--has-journal{{/if}}"
+    data-action="open-day"
+    data-day-index="{{this.dayIndex}}"
+    title="{{this.tooltip}}"
+  >
+    <span class="df-calendar__day-number">{{this.dayOfMonth}}</span>
+    {{#if this.hasJournal}}
+    <i class="fas fa-book df-calendar__journal-icon" aria-hidden="true"></i>
+    {{/if}}
+  </button>
+  {{/each}}
+</div>
+
+<div class="df-calendar__veil{{#if view.veil.isCurrent}} df-calendar__veil--current{{/if}}{{#if view.veil.hasJournal}} df-calendar__veil--has-journal{{/if}}">
+  <button
+    type="button"
+    class="df-calendar__veil-button"
+    data-action="open-veil"
+    data-day-index="{{view.veil.dayIndex}}"
+    title="{{view.veil.tooltip}}"
+  >
+    <span class="df-calendar__veil-name">{{view.veil.veilDayName}}</span>
+    <span class="df-calendar__veil-omen">{{view.veil.veilOmen}}</span>
+    <span class="df-calendar__veil-weekday">{{view.veil.weekdayName}}</span>
+    {{#if view.veil.hasJournal}}
+    <i class="fas fa-book df-calendar__journal-icon" aria-hidden="true"></i>
+    {{/if}}
+  </button>
+</div>
+</section>

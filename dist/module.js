@@ -37,6 +37,7 @@ import { openStonePowersForAllCombatants, initializeStonePowersFlow } from './co
 import { registerDivineClashSettings } from './divine-clash/divine-clash-settings.js';
 import { registerEpicMasteryRollSettings } from './epic-roll/epic-mastery-roll-settings.js';
 import { initializeEpicMasteryRoll } from './epic-roll/register-epic-mastery-roll.js';
+import { initializeTyhraCalendar } from './calendar/tyhra-calendar-hooks.js';
 import { requestEpicMasteryRoll } from './epic-roll/epic-mastery-roll-config-dialog.js';
 import { getActiveEpicMasteryRollSession } from './epic-roll/epic-mastery-roll-session.js';
 import { initializeDivineClashHooks } from './divine-clash/divine-clash-hooks.js';
@@ -814,6 +815,7 @@ Hooks.once('init', async function () {
     // Initialize encounter start system
     initializeEncounterStart();
     initializeEpicMasteryRoll();
+    initializeTyhraCalendar();
     console.log('Mastery System | Encounter start system initialized');
     // Initialize token action selector
     initializeTokenActionSelector();

@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.183] - 2026-07-13
+
+### Added
+
+- **Tyhra Calendar:** Full in-system calendar (360-day year, 8 months, Veil Days, seasons) with ApplicationV2 window, journal sidebar button, day journals with stable flags, GM date controls, and `game.masterySystem.calendar` / `game.destroyedFaith.calendar` API.
+- **Tests:** `tests/tyhra-calendar.test.ts` (14 cases for date math and year structure).
+- **i18n:** Calendar UI strings in English and German (`MASTERY.calendar`).
+
+### Fixed
+
+- **Athletics:** Skill uses Might only (Players Guide).
+- **Hand-to-Hand / Defensive Combat:** Primary attributes aligned with skill definitions (Might+Agility / Agility+Vitality).
+- **Multi-attribute skill rolls:** Dedicated attribute buttons for skills with multiple primaries (e.g. Hand-to-Hand).
+
 ## [0.9.182] - 2026-07-12
 
 ### Fixed
