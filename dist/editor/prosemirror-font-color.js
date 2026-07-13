@@ -4,8 +4,17 @@
 
  * Foundry v13 ships without a font-color toolbar button; v14 adds it in core.
 
+ *
+
+ * Journal text pages only render core dropdowns + a fixed set of icon buttons.
+
+ * Custom getProseMirrorMenuItems entries are not placed in the DOM there, so we
+
+ * inject the palette button when ProseMirrorMenu activates listeners.
+
  */
 const FONT_COLOR_ACTION = 'mastery-font-color';
+const FONT_COLOR_DROPDOWN_KEY = 'masteryColor';
 /** Find the schema mark used for inline text color (Foundry uses `textStyle.color`). */
 export function resolveColorMark(schema) {
     const preferred = ['textStyle', 'fontColor', 'text_color', 'color'];
@@ -29,6 +38,13 @@ export function resolveColorMark(schema) {
             return { markType: markType, colorAttr: 'fontColor' };
     }
     return null;
+}
+function escapeAttr(value) {
+    return value
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
 }
 function getMenuView(menu, view) {
     if (view)
@@ -176,7 +192,7 @@ function buildFontColorMenuItem(menu) {
     return {
         action: FONT_COLOR_ACTION,
         title: game.i18n.localize('MASTERY.editor.fontColor'),
-        icon: '<i class="fas fa-palette fa-fw"></i>',
+        icon: '<i class="fa-solid fa-palette fa-fw"></i>',
         group: 0,
         priority: 1,
         weight: 500,
@@ -186,15 +202,104 @@ function buildFontColorMenuItem(menu) {
         },
     };
 }
-/** Insert the palette button at the start of the ProseMirror toolbar. */
+/** Register the palette action so Foundry's menu click handler can dispatch it. */
 export function prependFontColorMenuItem(menu, items) {
     if (items.some((item) => item.action === FONT_COLOR_ACTION))
         return;
     items.unshift(buildFontColorMenuItem(menu));
 }
+/** Prepend a palette dropdown for editors that only render dropdown toolbars. */
+export function prependFontColorDropDown(config) {
+    if (config[FONT_COLOR_DROPDOWN_KEY])
+        return;
+    const title = game.i18n.localize('MASTERY.editor.fontColor');
+    const existing = { ...config };
+    for (const key of Object.keys(config))
+        delete config[key];
+    config[FONT_COLOR_DROPDOWN_KEY] = {
+        cssClass: 'mastery-color',
+        title,
+        icon: '<i class="fa-solid fa-palette fa-fw"></i>',
+        entries: [
+            {
+                action: FONT_COLOR_ACTION,
+                title: game.i18n.localize('MASTERY.editor.fontColorPrompt'),
+                style: 'color: #c9a227',
+            },
+        ],
+    };
+    for (const [key, value] of Object.entries(existing)) {
+        config[key] = value;
+    }
+}
+/** Inject a palette icon button at the start of the ProseMirror toolbar DOM. */
+export function injectFontColorToolbarButton(menuEl, menu) {
+    if (menuEl.querySelector(`[data-action="${FONT_COLOR_ACTION}"]`))
+        return;
+    const title = game.i18n.localize('MASTERY.editor.fontColor');
+    const li = document.createElement('li');
+    li.className = 'text mastery-font-color-item';
+    li.innerHTML = `
+    <button type="button" class="mastery-font-color-btn" data-tooltip="${escapeAttr(title)}"
+      data-action="${FONT_COLOR_ACTION}" aria-label="${escapeAttr(title)}">
+      <i class="fa-solid fa-palette fa-fw"></i>
+    </button>`;
+    const firstTool = menuEl.querySelector(':scope > li.text');
+    if (firstTool)
+        menuEl.insertBefore(li, firstTool);
+    else
+        menuEl.prepend(li);
+    const button = li.querySelector('button');
+    if (!button)
+        return;
+    button.addEventListener('click', (event) => {
+        const menuInstance = menu;
+        if (typeof menuInstance._onAction === 'function') {
+            menuInstance._onAction(event);
+            return;
+        }
+        event.preventDefault();
+        void promptFontColor(menu, getMenuView(menu));
+    });
+}
+function patchProseMirrorMenuActivateListeners() {
+    const Menu = foundry
+        .prosemirror?.ProseMirrorMenu;
+    const prototype = Menu?.prototype;
+    if (!prototype || typeof prototype.activateListeners !== 'function' || prototype._masteryFontColorPatched) {
+        return;
+    }
+    const original = prototype.activateListeners;
+    prototype.activateListeners = function (html) {
+        original.call(this, html);
+        injectFontColorToolbarButton(html, this);
+    };
+    prototype._masteryFontColorPatched = true;
+}
+function scheduleToolbarInjection(root) {
+    const tryInject = () => {
+        const menuEl = root.querySelector('menu.editor-menu');
+        if (!menuEl)
+            return;
+        const proseMirror = root.querySelector('prose-mirror');
+        const menuPlugin = proseMirror?.menu;
+        injectFontColorToolbarButton(menuEl, menuPlugin ?? {});
+    };
+    tryInject();
+    window.setTimeout(tryInject, 0);
+    window.setTimeout(tryInject, 250);
+}
 export function initializeProseMirrorFontColor() {
     Hooks.on('getProseMirrorMenuItems', (menu, items) => {
         prependFontColorMenuItem(menu, items);
+    });
+    Hooks.on('getProseMirrorMenuDropDowns', (_menu, config) => {
+        prependFontColorDropDown(config);
+    });
+    patchProseMirrorMenuActivateListeners();
+    Hooks.once('ready', () => patchProseMirrorMenuActivateListeners());
+    Hooks.on('renderJournalEntryPageProseMirrorSheet', (_app, element) => {
+        scheduleToolbarInjection(element);
     });
 }
 //# sourceMappingURL=prosemirror-font-color.js.map

@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.190] - 2026-07-13
+
+### Fixed
+
+- **Journal text color:** Palette button is now injected into the ProseMirror toolbar DOM (journal editors ignore custom `getProseMirrorMenuItems` buttons). Also adds a palette dropdown as fallback.
+
 ## [0.9.189] - 2026-07-13
 
 ### Fixed
