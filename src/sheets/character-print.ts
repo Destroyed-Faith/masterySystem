@@ -1061,7 +1061,8 @@ export async function openCharacterPrintSheet(actor: any): Promise<void> {
     const context = buildCharacterPrintContext(actor);
     body = await (foundry as any).applications.handlebars.renderTemplate(PRINT_TEMPLATE, context);
   } catch (error) {
-    console.error('Mastery System | Failed to build character print sheet', error);
+    const message = error instanceof Error ? error.message : String(error);
+    console.error('Mastery System | Failed to build character print sheet', message, error);
     (ui as any)?.notifications?.error('Charakterbogen konnte nicht erstellt werden.');
     return;
   }

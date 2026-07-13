@@ -1022,7 +1022,8 @@ export async function openCharacterPrintSheet(actor) {
         body = await foundry.applications.handlebars.renderTemplate(PRINT_TEMPLATE, context);
     }
     catch (error) {
-        console.error('Mastery System | Failed to build character print sheet', error);
+        const message = error instanceof Error ? error.message : String(error);
+        console.error('Mastery System | Failed to build character print sheet', message, error);
         ui?.notifications?.error('Charakterbogen konnte nicht erstellt werden.');
         return;
     }

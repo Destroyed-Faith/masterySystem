@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.208] - 2026-07-14
+
+### Fixed
+
+- **Combat Senses templates:** Corrected mismatched Handlebars block tags (`{{#unless}}…{{/if}}`) in the battle-senses partial and character print sheet, which prevented mounting Combat Senses and blocked “Bogen drucken”.
+
 ## [0.9.207] - 2026-07-14
 
 ### Fixed

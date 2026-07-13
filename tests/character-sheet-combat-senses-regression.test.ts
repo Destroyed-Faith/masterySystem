@@ -6,9 +6,11 @@
  */
 
 import { readFileSync } from 'node:fs';
+import Handlebars from 'handlebars';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
+import { buildCombatSensesBattleAreaContext } from '../src/combat/combat-sense-collection.js';
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -16,14 +18,34 @@ function readRepoFile(relativePath: string): string {
   return readFileSync(join(repoRoot, relativePath), 'utf8');
 }
 
+function expectTemplateCompiles(relativePath: string, context: Record<string, unknown>): void {
+  const source = readRepoFile(relativePath);
+  expect(() => Handlebars.compile(source)(context)).not.toThrow();
+}
+
 describe('character sheet combat senses regression', () => {
   const template = readRepoFile('templates/actor/character-sheet.hbs');
   const partial = readRepoFile('templates/actor/partials/battle-senses-area.hbs');
+  const printTemplate = readRepoFile('templates/actor/character-print.hbs');
   const sheetSource = readRepoFile('src/sheets/character-sheet.ts');
   const slotGridMarkup = partial.slice(
     partial.indexOf('class="battle-senses-slot-grid"'),
     partial.indexOf('</div>', partial.indexOf('class="battle-senses-slot-grid"')),
   );
+  const combatSensesBattle = buildCombatSensesBattleAreaContext({
+    system: { combatSenses: {} },
+    items: [],
+    getFlag: () => undefined,
+  });
+
+  it('compiles battle-senses partial without mismatched Handlebars block tags', () => {
+    expectTemplateCompiles('templates/actor/partials/battle-senses-area.hbs', {
+      editable: true,
+      combatSensesBattle,
+    });
+    expect(partial).not.toMatch(/\{\{#unless[^}]+\}\}[^{]*\{\{\/if\}\}/);
+    expect(printTemplate).not.toMatch(/cp-battle-sense-row[\s\S]*?\{\{#unless[^}]+\}\}[^{]*\{\{\/if\}\}/);
+  });
 
   it('defers battle senses to a post-mount partial (not in the main form template)', () => {
     expect(template).toMatch(/data-battle-senses-mount/);

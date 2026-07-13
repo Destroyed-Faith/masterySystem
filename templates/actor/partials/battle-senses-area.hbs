@@ -60,11 +60,11 @@
     <h4>All Combat Senses</h4>
     <ul class="battle-senses-catalog-list">
       {{#each combatSensesBattle.senseRows}}
-      <li class="battle-senses-catalog-item{{#unless this.isGranted}} is-unavailable{{/if}}{{#if this.isActive}} is-active{{/if}}">
+      <li class="battle-senses-catalog-item{{#unless this.isGranted}} is-unavailable{{/unless}}{{#if this.isActive}} is-active{{/if}}">
         <span class="battle-senses-catalog-name">{{this.label}}</span>
         <span class="battle-senses-catalog-meta">{{this.rangeM}} m · {{this.channels}}</span>
         {{#if this.isActive}}<span class="battle-senses-catalog-badge">Active slot</span>{{/if}}
-        {{#unless this.isGranted}}<span class="battle-senses-catalog-badge is-muted">Not granted</span>{{/if}}
+        {{#unless this.isGranted}}<span class="battle-senses-catalog-badge is-muted">Not granted</span>{{/unless}}
         {{#if this.fromArtifact}}<span class="battle-senses-catalog-badge is-artifact">From artifact</span>{{/if}}
       </li>
       {{/each}}

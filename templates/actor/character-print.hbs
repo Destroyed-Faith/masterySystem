@@ -588,7 +588,7 @@
     <p class="cp-battle-senses-active">Active: <strong>{{combatSensesBattle.activeSenseLabel}}</strong></p>
     <div class="cp-battle-senses-grid">
       {{#each combatSensesBattle.senseRows}}
-      <div class="cp-battle-sense-row{{#if this.isActive}} is-active{{/if}}{{#unless this.isSlotChoice}} is-not-slot-choice{{/if}}{{#unless this.isGranted}} is-unavailable{{/if}}">
+      <div class="cp-battle-sense-row{{#if this.isActive}} is-active{{/if}}{{#unless this.isSlotChoice}} is-not-slot-choice{{/unless}}{{#unless this.isGranted}} is-unavailable{{/unless}}">
         <span class="cp-battle-sense-radio{{#if this.isActive}} is-checked{{/if}}" aria-hidden="true"></span>
         <span class="cp-battle-sense-body">
           <span class="cp-battle-sense-name">{{this.label}} <span class="cp-battle-sense-range">({{this.rangeM}} m)</span></span>
@@ -596,7 +596,7 @@
           <span class="cp-battle-sense-channels">{{this.channels}}</span>
         </span>
         {{#if this.isActive}}<span class="cp-battle-sense-badge">Active</span>{{/if}}
-        {{#unless this.isGranted}}<span class="cp-battle-sense-badge is-muted">Not granted</span>{{/if}}
+        {{#unless this.isGranted}}<span class="cp-battle-sense-badge is-muted">Not granted</span>{{/unless}}
         {{#if this.fromArtifact}}<span class="cp-battle-sense-badge is-artifact">Artifact</span>{{/if}}
       </div>
       {{/each}}

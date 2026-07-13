@@ -1855,7 +1855,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       mount.html(markup).attr('aria-busy', 'false');
       this.#bindBattleSensesHandlers(mount);
     } catch (err) {
-      console.error('Mastery System | Failed to mount battle senses area', err);
+      const message = err instanceof Error ? err.message : String(err);
+      console.error('Mastery System | Failed to mount battle senses area', message, err);
       mount.html(
         '<p class="stat-summary-hint battle-senses-error">Combat Senses could not be loaded.</p>',
       ).attr('aria-busy', 'false');
