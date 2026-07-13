@@ -119,6 +119,15 @@ describe('resolveColorMark', () => {
     const resolved = resolveColorMark(schema);
     expect(resolved?.colorAttr).toBe('color');
   });
+
+  it('falls back to class-based font marks in Foundry v13', () => {
+    const schema = mockSchema({
+      font: { attrs: { fontFamily: { default: null }, class: { default: null } } },
+    });
+    const resolved = resolveColorMark(schema);
+    expect(resolved?.markType).toBe(schema.marks.font);
+    expect(resolved?.colorAttr).toBe('class');
+  });
 });
 
 describe('extendSchemaWithTextStyle', () => {

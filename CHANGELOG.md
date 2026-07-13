@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.195] - 2026-07-13
+
+### Fixed
+
+- **Journal text color:** Use Foundry v13 mark `class` attributes for colors instead of fragile schema extension; improve editor view registration and prevent duplicate unsupported warnings.
+
 ## [0.9.194] - 2026-07-13
 
 ### Fixed

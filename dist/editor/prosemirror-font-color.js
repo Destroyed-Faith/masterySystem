@@ -13,7 +13,11 @@ const menuByView = new WeakMap();
 const viewsByProseMirrorRoot = new WeakMap();
 let globalClickHandlerInstalled = false;
 const COLOR_ATTR_CANDIDATES = ['color', 'fontColor', 'textColor'];
-const COLOR_MARK_PREFERENCE = ['textStyle', 'font', 'fontColor', 'text_color', 'color', 'span'];
+const CLASS_COLOR_MARK_PREFERENCE = ['font', 'span', 'textStyle'];
+const COLOR_MARK_PREFERENCE = ['textStyle', 'masteryTextColor', 'fontColor', 'text_color', 'color', 'font', 'span'];
+const MASTERY_COLOR_CLASS_PREFIX = 'mastery-color-';
+const COLOR_STYLESHEET_ID = 'mastery-prosemirror-colors';
+let fontColorPromptOpen = false;
 function readMarkAttrNames(markType) {
     if (!markType || typeof markType !== 'object')
         return [];
@@ -34,29 +38,90 @@ function probeMarkColorAttr(markType) {
     }
     return null;
 }
-function resolveColorMarkType(markType) {
+function resolveColorMarkType(markType, attrCandidates = COLOR_ATTR_CANDIDATES) {
     if (!markType)
         return null;
-    for (const attr of COLOR_ATTR_CANDIDATES) {
+    for (const attr of attrCandidates) {
         if (readMarkAttrNames(markType).includes(attr)) {
             return { markType, colorAttr: attr };
         }
     }
-    const probed = probeMarkColorAttr(markType);
-    return probed ? { markType, colorAttr: probed } : null;
+    if (attrCandidates === COLOR_ATTR_CANDIDATES) {
+        const probed = probeMarkColorAttr(markType);
+        if (probed)
+            return { markType, colorAttr: probed };
+    }
+    return null;
+}
+function colorToClass(color) {
+    return `${MASTERY_COLOR_CLASS_PREFIX}${color.slice(1).toLowerCase()}`;
+}
+function classToColor(classValue) {
+    const raw = String(classValue ?? '').trim();
+    if (!raw)
+        return null;
+    const match = raw.split(/\s+/).find((part) => part.startsWith(MASTERY_COLOR_CLASS_PREFIX));
+    if (!match)
+        return null;
+    return normalizeHexColor(match.slice(MASTERY_COLOR_CLASS_PREFIX.length));
+}
+function ensureColorStylesheet() {
+    let style = document.getElementById(COLOR_STYLESHEET_ID);
+    if (!style) {
+        style = document.createElement('style');
+        style.id = COLOR_STYLESHEET_ID;
+        document.head.appendChild(style);
+    }
+    return style;
+}
+function registerColorClass(color) {
+    const className = colorToClass(color);
+    const style = ensureColorStylesheet();
+    if (style.textContent?.includes(`.${className}`))
+        return;
+    style.append(`${className}{color:${color};}`);
+}
+function mergeClassColor(existingClass, color) {
+    const preserved = String(existingClass ?? '')
+        .split(/\s+/)
+        .filter((part) => part && !part.startsWith(MASTERY_COLOR_CLASS_PREFIX));
+    if (!color)
+        return preserved.length ? preserved.join(' ') : null;
+    registerColorClass(color);
+    preserved.push(colorToClass(color));
+    return preserved.join(' ');
+}
+function readClassColor(classValue) {
+    return classToColor(classValue);
 }
 /** Find the schema mark used for inline text color (Foundry v14 uses `textStyle.color`). */
 export function resolveColorMark(schema) {
     const marks = schema.marks ?? {};
     for (const name of COLOR_MARK_PREFERENCE) {
-        const resolved = resolveColorMarkType(marks[name]);
+        const markType = marks[name];
+        if (!markType)
+            continue;
+        const resolved = resolveColorMarkType(markType, COLOR_ATTR_CANDIDATES) ??
+            (readMarkAttrNames(markType).includes('class') ? { markType, colorAttr: 'class' } : null);
         if (resolved)
             return resolved;
     }
     for (const name of Object.keys(marks)) {
-        const resolved = resolveColorMarkType(marks[name]);
+        const resolved = resolveColorMarkType(marks[name], COLOR_ATTR_CANDIDATES);
         if (resolved)
             return resolved;
+    }
+    for (const name of CLASS_COLOR_MARK_PREFERENCE) {
+        const markType = marks[name];
+        if (markType && readMarkAttrNames(markType).includes('class')) {
+            return { markType, colorAttr: 'class' };
+        }
+    }
+    for (const name of Object.keys(marks)) {
+        const markType = marks[name];
+        if (readMarkAttrNames(markType).includes('class')) {
+            return { markType, colorAttr: 'class' };
+        }
     }
     return null;
 }
@@ -146,14 +211,16 @@ export function reconfigureEditorStateWithSchema(state, schema) {
         return state;
     }
 }
-function registerEditorView(menu, menuEl) {
-    const view = getMenuView(menu);
-    if (!view)
+function registerEditorView(menu, menuEl, view) {
+    const editorView = view ?? getMenuView(menu);
+    if (!editorView)
         return;
-    menuByView.set(view, menu);
-    const root = menuEl?.closest('prose-mirror') ?? null;
+    menuByView.set(editorView, menu);
+    const root = menuEl?.closest('prose-mirror') ??
+        editorView.dom?.closest?.('prose-mirror') ??
+        null;
     if (root)
-        viewsByProseMirrorRoot.set(root, view);
+        viewsByProseMirrorRoot.set(root, editorView);
 }
 function escapeAttr(value) {
     return value
@@ -184,7 +251,7 @@ export function findEditorViewFromElement(root) {
     const cachedView = viewsByProseMirrorRoot.get(proseMirrorRoot);
     if (cachedView?.state?.schema)
         return cachedView;
-    const hostView = getMenuView(host.menu) ?? host.view ?? host.editor?.view ?? null;
+    const hostView = getMenuView(host.menu) ?? host.view ?? host.editor?.view ?? host._editor?.view ?? null;
     if (hostView?.state?.schema) {
         viewsByProseMirrorRoot.set(proseMirrorRoot, hostView);
         return hostView;
@@ -216,10 +283,17 @@ function normalizeHexColor(value) {
 }
 function readActiveColor(state, markType, colorAttr) {
     const { empty, from, to, $from } = state.selection;
+    const readMarkColor = (mark) => {
+        if (!mark?.attrs)
+            return null;
+        if (colorAttr === 'class')
+            return readClassColor(mark.attrs.class);
+        return normalizeHexColor(mark.attrs[colorAttr]);
+    };
     if (empty) {
         const marks = state.storedMarks ?? $from.marks();
         const mark = markType.isInSet(marks);
-        return normalizeHexColor(mark?.attrs?.[colorAttr]);
+        return readMarkColor(mark);
     }
     let color = null;
     let stop = false;
@@ -229,7 +303,7 @@ function readActiveColor(state, markType, colorAttr) {
         for (const mark of node.marks ?? []) {
             if (mark.type !== markType)
                 continue;
-            const next = normalizeHexColor(mark.attrs?.[colorAttr]);
+            const next = readMarkColor(mark);
             if (!next)
                 continue;
             if (color && color !== next) {
@@ -242,24 +316,54 @@ function readActiveColor(state, markType, colorAttr) {
     });
     return color;
 }
+function buildColorMarkAttrs(resolved, color, existingMark) {
+    if (resolved.colorAttr === 'class') {
+        const attrs = { ...(existingMark?.attrs ?? {}) };
+        attrs.class = mergeClassColor(attrs.class, color);
+        if (!('fontFamily' in attrs))
+            attrs.fontFamily = null;
+        return attrs;
+    }
+    return { [resolved.colorAttr]: color };
+}
 function applyColorMark(menu, view, resolved, color) {
+    const { state, dispatch } = view;
+    const { from, to, empty, $from } = state.selection;
+    const existingMark = resolved.markType.isInSet(state.storedMarks ?? $from.marks());
+    const markAttrs = buildColorMarkAttrs(resolved, color, existingMark);
     const toggleMark = menu._toggleMark;
-    if (typeof toggleMark === 'function' && color) {
-        toggleMark.call(menu, resolved.markType, { [resolved.colorAttr]: color });
+    if (typeof toggleMark === 'function' && color && resolved.colorAttr !== 'class') {
+        toggleMark.call(menu, resolved.markType, markAttrs);
         view.focus?.();
         return;
     }
-    const { state, dispatch } = view;
     let tr = state.tr;
-    const { from, to, empty } = state.selection;
     if (!color) {
-        if (empty)
+        if (resolved.colorAttr === 'class') {
+            const cleared = buildColorMarkAttrs(resolved, null, existingMark);
+            if (!cleared.class) {
+                if (empty)
+                    tr = tr.removeStoredMark(resolved.markType);
+                else
+                    tr = tr.removeMark(from, to, resolved.markType);
+            }
+            else {
+                const mark = resolved.markType.create(cleared);
+                if (empty)
+                    tr = tr.addStoredMark(mark);
+                else
+                    tr = tr.addMark(from, to, mark);
+            }
+        }
+        else if (empty) {
             tr = tr.removeStoredMark(resolved.markType);
-        else
+        }
+        else {
             tr = tr.removeMark(from, to, resolved.markType);
+        }
     }
     else {
-        const mark = resolved.markType.create({ [resolved.colorAttr]: color });
+        const mark = resolved.markType.create(markAttrs);
         if (empty)
             tr = tr.addStoredMark(mark);
         else
@@ -269,19 +373,27 @@ function applyColorMark(menu, view, resolved, color) {
     view.focus?.();
 }
 export async function promptFontColor(menu, view) {
-    const editorView = getMenuView(menu, view) ?? findEditorViewFromElement(document.activeElement ?? document.body);
-    if (!editorView) {
-        ui.notifications?.warn(game.i18n.localize('MASTERY.editor.fontColorUnsupported'));
+    if (fontColorPromptOpen)
         return;
-    }
-    const resolved = resolveColorMark(editorView.state.schema);
-    if (!resolved) {
-        ui.notifications?.warn(game.i18n.localize('MASTERY.editor.fontColorUnsupported'));
-        return;
-    }
-    const current = readActiveColor(editorView.state, resolved.markType, resolved.colorAttr) ?? '#d0d0d0';
-    const choice = await new Promise((resolve) => {
-        const content = `
+    fontColorPromptOpen = true;
+    try {
+        const editorView = getMenuView(menu, view) ??
+            findEditorViewFromElement(document.activeElement) ??
+            findEditorViewFromElement(document.querySelector('prose-mirror[open]')) ??
+            findEditorViewFromElement(document.body);
+        if (!editorView) {
+            ui.notifications?.warn(game.i18n.localize('MASTERY.editor.fontColorUnsupported'));
+            return;
+        }
+        registerEditorView(menu, null, editorView);
+        const resolved = resolveColorMark(editorView.state.schema);
+        if (!resolved) {
+            ui.notifications?.warn(game.i18n.localize('MASTERY.editor.fontColorUnsupported'));
+            return;
+        }
+        const current = readActiveColor(editorView.state, resolved.markType, resolved.colorAttr) ?? '#d0d0d0';
+        const choice = await new Promise((resolve) => {
+            const content = `
       <form class="mastery-font-color-form">
         <div class="form-group">
           <label>${game.i18n.localize('MASTERY.editor.fontColor')}</label>
@@ -290,56 +402,60 @@ export async function promptFontColor(menu, view) {
             style="margin-top:8px;width:100%;box-sizing:border-box;" />
         </div>
       </form>`;
-        const dialog = new Dialog({
-            title: game.i18n.localize('MASTERY.editor.fontColorPrompt'),
-            content,
-            buttons: {
-                apply: {
-                    icon: '<i class="fas fa-check"></i>',
-                    label: game.i18n.localize('MASTERY.editor.fontColorApply'),
-                    callback: (html) => {
-                        const picker = normalizeHexColor(String(html.find('[name="color"]').val() ?? ''));
-                        const typed = normalizeHexColor(String(html.find('[name="hex"]').val() ?? ''));
-                        resolve(picker ?? typed ?? null);
+            const dialog = new Dialog({
+                title: game.i18n.localize('MASTERY.editor.fontColorPrompt'),
+                content,
+                buttons: {
+                    apply: {
+                        icon: '<i class="fas fa-check"></i>',
+                        label: game.i18n.localize('MASTERY.editor.fontColorApply'),
+                        callback: (html) => {
+                            const picker = normalizeHexColor(String(html.find('[name="color"]').val() ?? ''));
+                            const typed = normalizeHexColor(String(html.find('[name="hex"]').val() ?? ''));
+                            resolve(picker ?? typed ?? null);
+                        },
+                    },
+                    clear: {
+                        icon: '<i class="fas fa-eraser"></i>',
+                        label: game.i18n.localize('MASTERY.editor.fontColorClear'),
+                        callback: () => resolve(''),
+                    },
+                    cancel: {
+                        icon: '<i class="fas fa-times"></i>',
+                        label: game.i18n.cancel(),
+                        callback: () => resolve(undefined),
                     },
                 },
-                clear: {
-                    icon: '<i class="fas fa-eraser"></i>',
-                    label: game.i18n.localize('MASTERY.editor.fontColorClear'),
-                    callback: () => resolve(''),
+                default: 'apply',
+                close: () => resolve(undefined),
+                render: (html) => {
+                    const colorInput = html.find('[name="color"]');
+                    const hexInput = html.find('[name="hex"]');
+                    colorInput.on('input', () => hexInput.val(String(colorInput.val() ?? '')));
+                    hexInput.on('change', () => {
+                        const normalized = normalizeHexColor(String(hexInput.val() ?? ''));
+                        if (normalized)
+                            colorInput.val(normalized);
+                    });
                 },
-                cancel: {
-                    icon: '<i class="fas fa-times"></i>',
-                    label: game.i18n.cancel(),
-                    callback: () => resolve(undefined),
-                },
-            },
-            default: 'apply',
-            close: () => resolve(undefined),
-            render: (html) => {
-                const colorInput = html.find('[name="color"]');
-                const hexInput = html.find('[name="hex"]');
-                colorInput.on('input', () => hexInput.val(String(colorInput.val() ?? '')));
-                hexInput.on('change', () => {
-                    const normalized = normalizeHexColor(String(hexInput.val() ?? ''));
-                    if (normalized)
-                        colorInput.val(normalized);
-                });
-            },
-        }, { width: 320 });
-        dialog.render(true);
-    });
-    if (choice === undefined)
-        return;
-    if (choice === '') {
-        applyColorMark(menu, editorView, resolved, null);
-        return;
+            }, { width: 320 });
+            dialog.render(true);
+        });
+        if (choice === undefined)
+            return;
+        if (choice === '') {
+            applyColorMark(menu, editorView, resolved, null);
+            return;
+        }
+        if (!choice) {
+            ui.notifications?.warn(game.i18n.localize('MASTERY.editor.fontColorInvalid'));
+            return;
+        }
+        applyColorMark(menu, editorView, resolved, choice);
     }
-    if (!choice) {
-        ui.notifications?.warn(game.i18n.localize('MASTERY.editor.fontColorInvalid'));
-        return;
+    finally {
+        fontColorPromptOpen = false;
     }
-    applyColorMark(menu, editorView, resolved, choice);
 }
 function buildFontColorMenuItem(menu) {
     return {
@@ -443,6 +559,40 @@ function patchProseMirrorMenuOnAction() {
     };
     prototype._masteryFontColorActionPatched = true;
 }
+function patchProseMirrorMenuUpdate() {
+    const Menu = foundry
+        .prosemirror?.ProseMirrorMenu;
+    const prototype = Menu?.prototype;
+    if (!prototype || typeof prototype.update !== 'function' || prototype._masteryFontColorUpdatePatched) {
+        return;
+    }
+    const original = prototype.update;
+    prototype.update = function (view, prevState) {
+        original.call(this, view, prevState);
+        registerEditorView(this, null, view);
+    };
+    prototype._masteryFontColorUpdatePatched = true;
+}
+function bindJournalProseMirrorOpenHandlers(root) {
+    const proseMirror = root.querySelector('prose-mirror');
+    if (!proseMirror || proseMirror._masteryFontColorOpenBound) {
+        return;
+    }
+    proseMirror._masteryFontColorOpenBound = true;
+    proseMirror.addEventListener('open', () => {
+        scheduleToolbarInjection(root);
+        window.setTimeout(() => {
+            const view = findEditorViewFromElement(proseMirror);
+            if (view)
+                registerEditorView({}, proseMirror, view);
+        }, 0);
+    });
+}
+function installProseMirrorMenuPatches() {
+    patchProseMirrorMenuOnAction();
+    patchProseMirrorMenuActivateListeners();
+    patchProseMirrorMenuUpdate();
+}
 function patchProseMirrorMenuActivateListeners() {
     const Menu = foundry
         .prosemirror?.ProseMirrorMenu;
@@ -473,19 +623,7 @@ function scheduleToolbarInjection(root) {
     window.setTimeout(tryInject, 0);
     window.setTimeout(tryInject, 250);
 }
-function installColorSchemaExtension() {
-    Hooks.on('createProseMirrorEditor', (_uuid, _plugins, options) => {
-        const state = options?.state;
-        if (!state?.schema)
-            return;
-        const extendedSchema = extendSchemaWithTextStyle(state.schema);
-        if (extendedSchema !== state.schema) {
-            options.state = reconfigureEditorStateWithSchema(state, extendedSchema);
-        }
-    });
-}
 export function initializeProseMirrorFontColor() {
-    installColorSchemaExtension();
     Hooks.on('getProseMirrorMenuItems', (menu, items) => {
         registerProseMirrorMenu(menu);
         prependFontColorMenuItem(menu, items);
@@ -495,15 +633,14 @@ export function initializeProseMirrorFontColor() {
         prependFontColorDropDown(config);
     });
     installGlobalFontColorClickHandler();
-    patchProseMirrorMenuOnAction();
-    patchProseMirrorMenuActivateListeners();
+    installProseMirrorMenuPatches();
     Hooks.once('ready', () => {
         installGlobalFontColorClickHandler();
-        patchProseMirrorMenuOnAction();
-        patchProseMirrorMenuActivateListeners();
+        installProseMirrorMenuPatches();
     });
     Hooks.on('renderJournalEntryPageProseMirrorSheet', (_app, element) => {
         scheduleToolbarInjection(element);
+        bindJournalProseMirrorOpenHandlers(element);
     });
 }
 //# sourceMappingURL=prosemirror-font-color.js.map
