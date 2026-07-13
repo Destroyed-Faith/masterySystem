@@ -1,6 +1,9 @@
 /**
+
  * Adds a text-color control to Foundry's ProseMirror editor (journals, sheets, etc.).
+
  * Foundry v13 ships without a font-color toolbar button; v14 adds it in core.
+
  */
 const FONT_COLOR_ACTION = 'mastery-font-color';
 /** Find the schema mark used for inline text color (Foundry uses `textStyle.color`). */
@@ -27,7 +30,9 @@ export function resolveColorMark(schema) {
     }
     return null;
 }
-function getMenuView(menu) {
+function getMenuView(menu, view) {
+    if (view)
+        return view;
     const candidate = menu;
     return candidate.view ?? candidate.options?.view ?? null;
 }
@@ -90,30 +95,32 @@ function applyColorMark(menu, view, resolved, color) {
     }
     dispatch(tr);
 }
-async function promptFontColor(menu) {
+async function promptFontColor(menu, view) {
     const nativePrompt = menu._fontColorPrompt;
     if (typeof nativePrompt === 'function') {
         await nativePrompt.call(menu);
         return;
     }
-    const view = getMenuView(menu);
-    if (!view)
+    const editorView = getMenuView(menu, view);
+    if (!editorView) {
+        ui.notifications?.warn(game.i18n.localize('MASTERY.editor.fontColorUnsupported'));
         return;
-    const resolved = resolveColorMark(view.state.schema);
+    }
+    const resolved = resolveColorMark(editorView.state.schema);
     if (!resolved) {
         ui.notifications?.warn(game.i18n.localize('MASTERY.editor.fontColorUnsupported'));
         return;
     }
-    const current = readActiveColor(view.state, resolved.markType, resolved.colorAttr) ?? '#d0d0d0';
+    const current = readActiveColor(editorView.state, resolved.markType, resolved.colorAttr) ?? '#d0d0d0';
     const choice = await new Promise((resolve) => {
-        const content = `
-      <form class="mastery-font-color-form">
-        <div class="form-group">
-          <label>${game.i18n.localize('MASTERY.editor.fontColor')}</label>
-          <input type="color" name="color" value="${current}" />
-          <input type="text" name="hex" value="${current}" maxlength="7" placeholder="#rrggbb"
-            style="margin-top:8px;width:100%;box-sizing:border-box;" />
-        </div>
+        const content = `
+      <form class="mastery-font-color-form">
+        <div class="form-group">
+          <label>${game.i18n.localize('MASTERY.editor.fontColor')}</label>
+          <input type="color" name="color" value="${current}" />
+          <input type="text" name="hex" value="${current}" maxlength="7" placeholder="#rrggbb"
+            style="margin-top:8px;width:100%;box-sizing:border-box;" />
+        </div>
       </form>`;
         const dialog = new Dialog({
             title: game.i18n.localize('MASTERY.editor.fontColorPrompt'),
@@ -156,77 +163,38 @@ async function promptFontColor(menu) {
     if (choice === undefined)
         return;
     if (choice === '') {
-        applyColorMark(menu, view, resolved, null);
+        applyColorMark(menu, editorView, resolved, null);
         return;
     }
     if (!choice) {
         ui.notifications?.warn(game.i18n.localize('MASTERY.editor.fontColorInvalid'));
         return;
     }
-    applyColorMark(menu, view, resolved, choice);
+    applyColorMark(menu, editorView, resolved, choice);
 }
 function buildFontColorMenuItem(menu) {
-    const view = getMenuView(menu);
-    const resolved = view ? resolveColorMark(view.state.schema) : null;
     return {
         action: FONT_COLOR_ACTION,
         title: game.i18n.localize('MASTERY.editor.fontColor'),
         icon: '<i class="fas fa-palette fa-fw"></i>',
-        group: 1,
-        priority: 46,
-        mark: resolved?.markType,
-        cmd: () => {
-            void promptFontColor(menu);
+        group: 0,
+        priority: 1,
+        weight: 500,
+        cmd: (_state, _dispatch, view) => {
+            void promptFontColor(menu, view);
             return true;
         },
     };
 }
-function buildFontColorDropdownEntry() {
-    return {
-        action: FONT_COLOR_ACTION,
-        title: game.i18n.localize('MASTERY.editor.fontColor'),
-        style: 'color: #c9a227',
-    };
-}
-function nestedEntries(entry) {
-    if (Array.isArray(entry.entries))
-        return entry.entries;
-    if (Array.isArray(entry.children))
-        return entry.children;
-    return null;
-}
-/** Journal editors in v13 use dropdown menus — add Text Color under Format → Inline. */
-export function appendFontColorDropdownEntries(config) {
-    const format = config.format;
-    if (!format)
-        return;
-    const entries = format.entries ?? format.children;
-    if (!Array.isArray(entries))
-        return;
-    for (const entry of entries) {
-        const inlineEntries = entry.action === 'inline' ? nestedEntries(entry) : null;
-        if (!inlineEntries)
-            continue;
-        if (inlineEntries.some((child) => child.action === FONT_COLOR_ACTION))
-            return;
-        inlineEntries.push(buildFontColorDropdownEntry());
-        return;
-    }
-    if (!entries.some((entry) => entry.action === FONT_COLOR_ACTION)) {
-        entries.push(buildFontColorDropdownEntry());
-    }
-}
-function appendFontColorMenuItem(menu, items) {
+/** Insert the palette button at the start of the ProseMirror toolbar. */
+export function prependFontColorMenuItem(menu, items) {
     if (items.some((item) => item.action === FONT_COLOR_ACTION))
         return;
-    items.push(buildFontColorMenuItem(menu));
+    items.unshift(buildFontColorMenuItem(menu));
 }
 export function initializeProseMirrorFontColor() {
     Hooks.on('getProseMirrorMenuItems', (menu, items) => {
-        appendFontColorMenuItem(menu, items);
-    });
-    Hooks.on('getProseMirrorMenuDropDowns', (menu, config) => {
-        appendFontColorDropdownEntries(config);
+        prependFontColorMenuItem(menu, items);
     });
 }
 //# sourceMappingURL=prosemirror-font-color.js.map

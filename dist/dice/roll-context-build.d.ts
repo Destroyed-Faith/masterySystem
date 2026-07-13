@@ -20,7 +20,7 @@ export declare function isSkillFullPoolReady(skillRating: number, masteryRank: n
 export declare function buildDifficultyPresets(challengeMR: number): Record<string, number>;
 export interface SkillRollPoolPreview {
     attributeKey: string;
-    /** Compact sheet label, e.g. `8k2` or `4k2½`. */
+    /** Compact sheet label, e.g. `8k2`. */
     rollLabel: string;
     diceLabel: string;
     tooltip: string;
@@ -33,6 +33,8 @@ export interface SkillRollPoolPreview {
     attributeValue: number;
     iconClass: string | null;
 }
+/** Skill rating below 2×MR: attribute dice = round(attr/2), minimum 1. */
+export declare function reducedSkillAttributePool(attributeValue: number): number;
 /** Sheet + dialog helper: dice pool label and tooltip for a skill attribute roll. */
 export declare function buildSkillRollPoolPreview(actor: Actor, skillKey: string, attributeKey: string, skillRatingOverride?: number): SkillRollPoolPreview;
 /** Skill rolls: attribute dice pool, keep highest equal to the actor's Mastery Rank. */

@@ -41,7 +41,7 @@ function mockActor(overrides: Record<string, unknown> = {}): Actor {
       skills: { athletics: 2 },
       health: { bars: [{ current: 10, max: 10 }], currentBar: 0 },
     },
-    items: { contents: [] },
+    items: [],
   };
   return { ...base, ...overrides } as unknown as Actor;
 }
@@ -69,7 +69,7 @@ describe('buildRollContext', () => {
     expect(ctx!.rollOptions.numDice).toBe(5);
     expect(ctx!.rollOptions.isSkillRoll).toBe(true);
     expect(ctx!.rollOptions.skillKey).toBe('athletics');
-    expect(ctx!.rollOptions.flavor).toMatch(/Half-pool/i);
+    expect(ctx!.rollOptions.flavor).toMatch(/Reduced pool/i);
   });
 
   it('builds full skill pool when rating meets 2×MR', () => {

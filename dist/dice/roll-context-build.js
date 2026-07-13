@@ -28,6 +28,10 @@ export function buildDifficultyPresets(challengeMR) {
 function capAttr(key) {
     return key.charAt(0).toUpperCase() + key.slice(1);
 }
+/** Skill rating below 2×MR: attribute dice = round(attr/2), minimum 1. */
+export function reducedSkillAttributePool(attributeValue) {
+    return Math.max(1, Math.round(Number(attributeValue) / 2));
+}
 function skillRollIconClass(skillKey, attributeKey) {
     if (skillKey === 'perception') {
         if (attributeKey === 'wits')
@@ -53,16 +57,15 @@ export function buildSkillRollPoolPreview(actor, skillKey, attributeKey, skillRa
     const fullPoolReady = isSkillFullPoolReady(skillRating, masteryRank);
     const pool = getSkillRollDicePool(actor, skillKey, attributeKey, skillRatingOverride);
     const attrLabel = capAttr(attributeKey);
-    const halfTag = pool.halfPool ? '½' : '';
-    const rollLabel = `${pool.numDice}k${pool.keepDice}${halfTag}`;
-    const diceLabel = `${pool.numDice}d8 k${pool.keepDice}${pool.halfPool ? ' ½' : ''}`;
+    const rollLabel = `${pool.numDice}k${pool.keepDice}`;
+    const diceLabel = `${pool.numDice}d8 k${pool.keepDice}`;
     let tooltip;
     if (fullPoolReady) {
         tooltip = `${attrLabel} ${attributeValue} → full pool ${pool.numDice}d8, keep ${pool.keepDice} (skill ${skillRating} ≥ ${poolThreshold}, 2×MR)`;
     }
     else {
-        const halved = Math.max(1, Math.floor(attributeValue / 2));
-        tooltip = `${attrLabel} ${attributeValue} → half pool ${pool.numDice}d8, keep ${pool.keepDice} (skill ${skillRating} < ${poolThreshold}; ⌊attr/2⌋ = ${halved}, MR floor ${masteryRank})`;
+        const reduced = reducedSkillAttributePool(attributeValue);
+        tooltip = `${attrLabel} ${attributeValue} → ${pool.numDice}d8, keep ${pool.keepDice} (skill ${skillRating} < ${poolThreshold}; round(${attributeValue}/2) = ${reduced}, MR floor ${masteryRank})`;
     }
     const penaltyParts = [];
     if (pool.equipPenalty > 0)
@@ -104,7 +107,7 @@ export function getSkillRollDicePool(actor, skillKey, attributeKey, skillRatingO
     let baseAttrPool = attributeValue;
     let halfPool = false;
     if (!fullPoolReady) {
-        baseAttrPool = Math.max(1, Math.floor(attributeValue / 2));
+        baseAttrPool = reducedSkillAttributePool(attributeValue);
         halfPool = true;
     }
     let numDice = Math.max(baseAttrPool, masteryRank);
@@ -161,7 +164,8 @@ export function buildSkillRollContext(actor, skillKey, attributeKey, tnSpec, sto
     const numDice = pool.numDice;
     let halfPoolFlavor = '';
     if (pool.halfPool) {
-        halfPoolFlavor = ` Half-pool: skill rating ${skillRating} < ${poolThreshold} (2×MR) → ⌊${attributeValue}/2⌋ attribute dice.`;
+        const reduced = reducedSkillAttributePool(attributeValue);
+        halfPoolFlavor = ` Reduced pool: skill rating ${skillRating} < ${poolThreshold} (2×MR) → round(${attributeValue}/2) = ${reduced} attribute dice.`;
     }
     const equipPenaltyFlavor = pool.equipPenalty > 0
         ? ` Equipped armor/shield physical penalty: −${pool.equipPenalty}d8.`

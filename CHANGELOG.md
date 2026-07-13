@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.189] - 2026-07-13
+
+### Fixed
+
+- **Journal text color:** Palette button now opens the color dialog (removed erroneous mark binding) and sits at the start of the ProseMirror toolbar.
+- **Skill roll labels:** Removed confusing `½` suffix from pool buttons (e.g. `4k2` instead of `4k2½`); reduced pools now use `round(attr/2)` instead of floor.
+
+### Changed
+
+- **Skill rolls:** Character sheet skill roll execution reuses shared dice-pool helper (consistent penalties and reduced-pool math).
+
 ## [0.9.188] - 2026-07-13
 
 ### Fixed

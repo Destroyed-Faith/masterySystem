@@ -8,7 +8,9 @@ import { SKILLS, SKILL_CATEGORIES } from '../utils/skills';
 import { getEquippedPhysicalSkillPenaltyDice } from '../utils/equipment-modifiers.js';
 import {
   buildSkillRollPoolPreview,
+  getSkillRollDicePool,
   isSkillFullPoolReady,
+  reducedSkillAttributePool,
   skillFullPoolThreshold,
 } from '../dice/roll-context-build.js';
 import {
@@ -4044,39 +4046,31 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     const masteryRank = system.mastery?.rank || 2;
 
     // Players Guide skill pool (~1964–1999): full attribute pool when skill ≥
-    // 2×MR; otherwise half pool (minimum MR dice). Skill points may still be
+    // 2×MR; otherwise round(attr/2) (minimum MR dice). Skill points may still be
     // spent after the roll in either mode.
     const skillRating = Number(system?.skills?.[skillKey] ?? 0);
-    const fullPoolReady = isSkillFullPoolReady(skillRating, masteryRank);
     const poolThreshold = skillFullPoolThreshold(masteryRank);
+    const pool = getSkillRollDicePool(this.actor as Actor, skillKey, rollOptions.attributeKey);
 
-    let baseAttrPool = attributeValue;
-    let halfPoolFlavor = '';
-    if (!fullPoolReady) {
-      const halved = Math.max(1, Math.floor(attributeValue / 2));
-      halfPoolFlavor = ` Half-pool: skill rating ${skillRating} < ${poolThreshold} (2×MR) → ⌊${attributeValue}/2⌋ = ${halved}d8.`;
-      baseAttrPool = halved;
+    let reducedPoolFlavor = '';
+    if (pool.halfPool) {
+      const reduced = reducedSkillAttributePool(attributeValue);
+      reducedPoolFlavor = ` Reduced pool: skill rating ${skillRating} < ${poolThreshold} (2×MR) → round(${attributeValue}/2) = ${reduced}d8.`;
     }
-    let numDice = Math.max(baseAttrPool, masteryRank);
+    const numDice = pool.numDice;
     let equipPenaltyFlavor = '';
-    if (skillDef.category === SKILL_CATEGORIES.PHYSICAL) {
-      const penDice = getEquippedPhysicalSkillPenaltyDice(this.actor);
-      if (penDice > 0) {
-        numDice = Math.max(1, numDice - penDice);
-        equipPenaltyFlavor = ` Equipped armor/shield physical penalty: −${penDice}d8 (rolling ${numDice} dice).`;
-      }
+    if (pool.equipPenalty > 0) {
+      equipPenaltyFlavor = ` Equipped armor/shield physical penalty: −${pool.equipPenalty}d8 (rolling ${numDice} dice).`;
     }
-
-    const { applyHealthAndEncumbrancePenalties, LOAD_ZONE_LABEL } = await import('../utils/encumbrance.js');
-    const poolPenalties = applyHealthAndEncumbrancePenalties(numDice, this.actor as any);
-    numDice = poolPenalties.numDice;
     let healthPenaltyFlavor = '';
-    if (poolPenalties.healthPenaltyDice > 0) {
-      healthPenaltyFlavor = ` Health penalty: −${poolPenalties.healthPenaltyDice}d8 (rolling ${numDice} dice).`;
+    if (pool.healthPenalty > 0) {
+      healthPenaltyFlavor = ` Health penalty: −${pool.healthPenalty}d8 (rolling ${numDice} dice).`;
     }
     let encumbrancePenaltyFlavor = '';
-    if (poolPenalties.encumbrancePenaltyDice > 0) {
-      encumbrancePenaltyFlavor = ` Encumbrance (${LOAD_ZONE_LABEL[poolPenalties.loadZone]}): −${poolPenalties.encumbrancePenaltyDice}d8 (rolling ${numDice} dice).`;
+    if (pool.encumbrancePenalty > 0) {
+      const { LOAD_ZONE_LABEL } = await import('../utils/encumbrance.js');
+      const loadZone = (this.actor as any).system?.encumbrance?.loadZone ?? 'normal';
+      encumbrancePenaltyFlavor = ` Encumbrance (${LOAD_ZONE_LABEL[loadZone as keyof typeof LOAD_ZONE_LABEL] ?? loadZone}): −${pool.encumbrancePenalty}d8 (rolling ${numDice} dice).`;
     }
 
     const raiseTn = rollOptions.baseTN + rollOptions.raises * 4;
@@ -4104,7 +4098,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       stoneBonusRaises,
       raiseModel: 'skill',
       label: `${skillDef.name} Check`,
-      flavor: `Attribute: ${rollOptions.attributeKey.charAt(0).toUpperCase() + rollOptions.attributeKey.slice(1)}, Base TN: ${rollOptions.baseTN}, Raises: ${rollOptions.raises}.${equipPenaltyFlavor}${healthPenaltyFlavor}${encumbrancePenaltyFlavor}${halfPoolFlavor}`,
+      flavor: `Attribute: ${rollOptions.attributeKey.charAt(0).toUpperCase() + rollOptions.attributeKey.slice(1)}, Base TN: ${rollOptions.baseTN}, Raises: ${rollOptions.raises}.${equipPenaltyFlavor}${healthPenaltyFlavor}${encumbrancePenaltyFlavor}${reducedPoolFlavor}`,
       actorId: (this.actor as any).id,
       skillKey,
       isSkillRoll: true,

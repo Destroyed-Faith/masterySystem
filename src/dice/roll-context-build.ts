@@ -50,7 +50,7 @@ function capAttr(key: string): string {
 
 export interface SkillRollPoolPreview {
   attributeKey: string;
-  /** Compact sheet label, e.g. `8k2` or `4k2½`. */
+  /** Compact sheet label, e.g. `8k2`. */
   rollLabel: string;
   diceLabel: string;
   tooltip: string;
@@ -62,6 +62,11 @@ export interface SkillRollPoolPreview {
   poolThreshold: number;
   attributeValue: number;
   iconClass: string | null;
+}
+
+/** Skill rating below 2×MR: attribute dice = round(attr/2), minimum 1. */
+export function reducedSkillAttributePool(attributeValue: number): number {
+  return Math.max(1, Math.round(Number(attributeValue) / 2));
 }
 
 function skillRollIconClass(skillKey: string, attributeKey: string): string | null {
@@ -90,16 +95,15 @@ export function buildSkillRollPoolPreview(
   const fullPoolReady = isSkillFullPoolReady(skillRating, masteryRank);
   const pool = getSkillRollDicePool(actor, skillKey, attributeKey, skillRatingOverride);
   const attrLabel = capAttr(attributeKey);
-  const halfTag = pool.halfPool ? '½' : '';
-  const rollLabel = `${pool.numDice}k${pool.keepDice}${halfTag}`;
-  const diceLabel = `${pool.numDice}d8 k${pool.keepDice}${pool.halfPool ? ' ½' : ''}`;
+  const rollLabel = `${pool.numDice}k${pool.keepDice}`;
+  const diceLabel = `${pool.numDice}d8 k${pool.keepDice}`;
 
   let tooltip: string;
   if (fullPoolReady) {
     tooltip = `${attrLabel} ${attributeValue} → full pool ${pool.numDice}d8, keep ${pool.keepDice} (skill ${skillRating} ≥ ${poolThreshold}, 2×MR)`;
   } else {
-    const halved = Math.max(1, Math.floor(attributeValue / 2));
-    tooltip = `${attrLabel} ${attributeValue} → half pool ${pool.numDice}d8, keep ${pool.keepDice} (skill ${skillRating} < ${poolThreshold}; ⌊attr/2⌋ = ${halved}, MR floor ${masteryRank})`;
+    const reduced = reducedSkillAttributePool(attributeValue);
+    tooltip = `${attrLabel} ${attributeValue} → ${pool.numDice}d8, keep ${pool.keepDice} (skill ${skillRating} < ${poolThreshold}; round(${attributeValue}/2) = ${reduced}, MR floor ${masteryRank})`;
   }
   const penaltyParts: string[] = [];
   if (pool.equipPenalty > 0) penaltyParts.push(`−${pool.equipPenalty} equip`);
@@ -148,7 +152,7 @@ export function getSkillRollDicePool(
   let baseAttrPool = attributeValue;
   let halfPool = false;
   if (!fullPoolReady) {
-    baseAttrPool = Math.max(1, Math.floor(attributeValue / 2));
+    baseAttrPool = reducedSkillAttributePool(attributeValue);
     halfPool = true;
   }
 
@@ -227,7 +231,8 @@ export function buildSkillRollContext(
   const numDice = pool.numDice;
   let halfPoolFlavor = '';
   if (pool.halfPool) {
-    halfPoolFlavor = ` Half-pool: skill rating ${skillRating} < ${poolThreshold} (2×MR) → ⌊${attributeValue}/2⌋ attribute dice.`;
+    const reduced = reducedSkillAttributePool(attributeValue);
+    halfPoolFlavor = ` Reduced pool: skill rating ${skillRating} < ${poolThreshold} (2×MR) → round(${attributeValue}/2) = ${reduced} attribute dice.`;
   }
 
   const equipPenaltyFlavor =
