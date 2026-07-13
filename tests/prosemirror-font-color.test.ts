@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import {
+  getMenuView,
   prependFontColorDropDown,
   prependFontColorMenuItem,
   resolveColorMark,
@@ -58,6 +59,13 @@ describe('prependFontColorDropDown', () => {
     expect(Object.keys(config)[0]).toBe('masteryColor');
     expect(config.masteryColor?.icon).toContain('fa-palette');
     expect(config.masteryColor?.entries?.[0]?.action).toBe('mastery-font-color');
+  });
+});
+
+describe('getMenuView', () => {
+  it('reads the editor view from a ProseMirror menu instance', () => {
+    const view = { state: { schema: { marks: {} } } };
+    expect(getMenuView({ view })).toBe(view);
   });
 });
 

@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.191] - 2026-07-13
+
+### Fixed
+
+- **Journal text color:** "Choose Text Color" now opens the color dialog — intercepts dropdown/toolbar clicks directly instead of relying on Foundry's action dispatch (and skips broken native `_fontColorPrompt` stubs).
+
 ## [0.9.190] - 2026-07-13
 
 ### Fixed

@@ -8,9 +8,9 @@
 
  * Journal text pages only render core dropdowns + a fixed set of icon buttons.
 
- * Custom getProseMirrorMenuItems entries are not placed in the DOM there, so we
+ * Dropdown submenu clicks are handled by Foundry globals and ignore unknown actions
 
- * inject the palette button when ProseMirrorMenu activates listeners.
+ * unless we intercept them, so we register handlers on ProseMirrorMenu and document.
 
  */
 type PMSchema = {
@@ -26,6 +26,33 @@ type PMMarkType = {
     spec?: {
         attrs?: Record<string, unknown>;
     };
+};
+type PMEditorView = {
+    state: PMEditorState;
+    dispatch: (tr: unknown) => void;
+    focus?: () => void;
+};
+type PMEditorState = {
+    schema: PMSchema;
+    selection: {
+        empty: boolean;
+        from: number;
+        to: number;
+        $from: {
+            marks: () => unknown[];
+        };
+    };
+    storedMarks?: unknown[] | null;
+    doc: {
+        nodesBetween: (from: number, to: number, f: (node: {
+            isText?: boolean;
+            marks?: Array<{
+                type: unknown;
+                attrs?: Record<string, unknown>;
+            }>;
+        }) => void) => void;
+    };
+    tr: unknown;
 };
 type DropdownConfig = {
     cssClass?: string;
@@ -48,6 +75,10 @@ export interface ResolvedColorMark {
 }
 /** Find the schema mark used for inline text color (Foundry uses `textStyle.color`). */
 export declare function resolveColorMark(schema: PMSchema): ResolvedColorMark | null;
+export declare function getMenuView(menu: unknown, view?: PMEditorView | null): PMEditorView | null;
+/** Resolve the live ProseMirror view from the surrounding editor DOM. */
+export declare function findEditorViewFromElement(root: Element | ParentNode | null): PMEditorView | null;
+export declare function promptFontColor(menu: unknown, view?: PMEditorView | null): Promise<void>;
 /** Register the palette action so Foundry's menu click handler can dispatch it. */
 export declare function prependFontColorMenuItem(menu: unknown, items: Array<Record<string, unknown>>): void;
 /** Prepend a palette dropdown for editors that only render dropdown toolbars. */

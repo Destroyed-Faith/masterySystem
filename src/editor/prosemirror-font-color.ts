@@ -3,8 +3,8 @@
  * Foundry v13 ships without a font-color toolbar button; v14 adds it in core.
  *
  * Journal text pages only render core dropdowns + a fixed set of icon buttons.
- * Custom getProseMirrorMenuItems entries are not placed in the DOM there, so we
- * inject the palette button when ProseMirrorMenu activates listeners.
+ * Dropdown submenu clicks are handled by Foundry globals and ignore unknown actions
+ * unless we intercept them, so we register handlers on ProseMirrorMenu and document.
  */
 
 const FONT_COLOR_ACTION = 'mastery-font-color';
@@ -19,6 +19,7 @@ type PMMarkType = {
 type PMEditorView = {
   state: PMEditorState;
   dispatch: (tr: unknown) => void;
+  focus?: () => void;
 };
 type PMEditorState = {
   schema: PMSchema;
@@ -61,6 +62,9 @@ export interface ResolvedColorMark {
   colorAttr: string;
 }
 
+const menuRegistry = new WeakMap<HTMLElement, unknown>();
+let globalClickHandlerInstalled = false;
+
 /** Find the schema mark used for inline text color (Foundry uses `textStyle.color`). */
 export function resolveColorMark(schema: PMSchema): ResolvedColorMark | null {
   const preferred = ['textStyle', 'fontColor', 'text_color', 'color'];
@@ -90,10 +94,30 @@ function escapeAttr(value: string): string {
     .replace(/>/g, '&gt;');
 }
 
-function getMenuView(menu: unknown, view?: PMEditorView | null): PMEditorView | null {
+export function getMenuView(menu: unknown, view?: PMEditorView | null): PMEditorView | null {
   if (view) return view;
   const candidate = menu as { view?: PMEditorView; options?: { view?: PMEditorView } };
   return candidate.view ?? candidate.options?.view ?? null;
+}
+
+/** Resolve the live ProseMirror view from the surrounding editor DOM. */
+export function findEditorViewFromElement(root: Element | ParentNode | null): PMEditorView | null {
+  if (!root) return null;
+  const host = root instanceof Element ? root : null;
+  const proseMirrorRoot = host?.closest?.('prose-mirror') ?? (root as ParentNode).querySelector?.('prose-mirror');
+  if (!proseMirrorRoot) return null;
+
+  const editorEl = proseMirrorRoot.querySelector('.ProseMirror') as
+    | (HTMLElement & { pmViewDesc?: { view?: PMEditorView } })
+    | null;
+  return editorEl?.pmViewDesc?.view ?? null;
+}
+
+function resolveMenuContext(source: Element): { menu: unknown; view: PMEditorView | null } {
+  const menuEl = source.closest('menu.editor-menu') as HTMLElement | null;
+  const menu = menuEl ? menuRegistry.get(menuEl) : null;
+  const view = getMenuView(menu) ?? findEditorViewFromElement(source);
+  return { menu: menu ?? {}, view };
 }
 
 function normalizeHexColor(value: string | null | undefined): string | null {
@@ -143,6 +167,7 @@ function applyColorMark(
   const toggleMark = (menu as { _toggleMark?: (mark: PMMarkType, attrs?: object) => void })._toggleMark;
   if (typeof toggleMark === 'function' && color) {
     toggleMark.call(menu, resolved.markType, { [resolved.colorAttr]: color });
+    view.focus?.();
     return;
   }
 
@@ -165,16 +190,11 @@ function applyColorMark(
   }
 
   dispatch(tr);
+  view.focus?.();
 }
 
-async function promptFontColor(menu: unknown, view?: PMEditorView | null): Promise<void> {
-  const nativePrompt = (menu as { _fontColorPrompt?: () => Promise<void> })._fontColorPrompt;
-  if (typeof nativePrompt === 'function') {
-    await nativePrompt.call(menu);
-    return;
-  }
-
-  const editorView = getMenuView(menu, view);
+export async function promptFontColor(menu: unknown, view?: PMEditorView | null): Promise<void> {
+  const editorView = getMenuView(menu, view) ?? findEditorViewFromElement(document.activeElement ?? document.body);
   if (!editorView) {
     ui.notifications?.warn(game.i18n.localize('MASTERY.editor.fontColorUnsupported'));
     return;
@@ -225,6 +245,7 @@ async function promptFontColor(menu: unknown, view?: PMEditorView | null): Promi
           },
         },
         default: 'apply',
+        close: () => resolve(undefined),
         render: (html: JQuery) => {
           const colorInput = html.find('[name="color"]');
           const hexInput = html.find('[name="hex"]');
@@ -299,8 +320,24 @@ export function prependFontColorDropDown(config: Record<string, DropdownConfig>)
   }
 }
 
+function handleFontColorActionClick(event: Event): void {
+  const target = event.target;
+  if (!(target instanceof Element)) return;
+
+  const actionEl = target.closest(`[data-action="${FONT_COLOR_ACTION}"]`);
+  if (!actionEl) return;
+
+  event.preventDefault();
+  event.stopPropagation();
+
+  const { menu, view } = resolveMenuContext(actionEl);
+  void promptFontColor(menu, view);
+}
+
 /** Inject a palette icon button at the start of the ProseMirror toolbar DOM. */
 export function injectFontColorToolbarButton(menuEl: HTMLElement, menu: unknown): void {
+  menuRegistry.set(menuEl, menu);
+
   if (menuEl.querySelector(`[data-action="${FONT_COLOR_ACTION}"]`)) return;
 
   const title = game.i18n.localize('MASTERY.editor.fontColor');
@@ -315,19 +352,35 @@ export function injectFontColorToolbarButton(menuEl: HTMLElement, menu: unknown)
   const firstTool = menuEl.querySelector(':scope > li.text');
   if (firstTool) menuEl.insertBefore(li, firstTool);
   else menuEl.prepend(li);
+}
 
-  const button = li.querySelector('button');
-  if (!button) return;
+function installGlobalFontColorClickHandler(): void {
+  if (globalClickHandlerInstalled) return;
+  document.addEventListener('click', handleFontColorActionClick, true);
+  globalClickHandlerInstalled = true;
+}
 
-  button.addEventListener('click', (event) => {
-    const menuInstance = menu as { _onAction?: (ev: MouseEvent) => void };
-    if (typeof menuInstance._onAction === 'function') {
-      menuInstance._onAction(event);
+function patchProseMirrorMenuOnAction(): void {
+  const Menu = (foundry as unknown as { prosemirror?: { ProseMirrorMenu?: { prototype?: Record<string, unknown> } } })
+    .prosemirror?.ProseMirrorMenu;
+  const prototype = Menu?.prototype;
+  if (!prototype || typeof prototype._onAction !== 'function' || prototype._masteryFontColorActionPatched) {
+    return;
+  }
+
+  const original = prototype._onAction as (event: MouseEvent) => void;
+  prototype._onAction = function (this: unknown, event: MouseEvent) {
+    const actionEl = (event.target as Element | null)?.closest?.('[data-action]');
+    if (actionEl?.getAttribute('data-action') === FONT_COLOR_ACTION) {
+      event.preventDefault();
+      event.stopPropagation();
+      const { menu, view } = resolveMenuContext(actionEl);
+      void promptFontColor(menu ?? this, view ?? getMenuView(this));
       return;
     }
-    event.preventDefault();
-    void promptFontColor(menu, getMenuView(menu));
-  });
+    original.call(this, event);
+  };
+  prototype._masteryFontColorActionPatched = true;
 }
 
 function patchProseMirrorMenuActivateListeners(): void {
@@ -341,6 +394,7 @@ function patchProseMirrorMenuActivateListeners(): void {
   const original = prototype.activateListeners as (html: HTMLMenuElement) => void;
   prototype.activateListeners = function (this: unknown, html: HTMLMenuElement) {
     original.call(this, html);
+    menuRegistry.set(html, this);
     injectFontColorToolbarButton(html, this);
   };
   prototype._masteryFontColorPatched = true;
@@ -348,11 +402,12 @@ function patchProseMirrorMenuActivateListeners(): void {
 
 function scheduleToolbarInjection(root: ParentNode): void {
   const tryInject = (): void => {
-    const menuEl = root.querySelector('menu.editor-menu');
+    const menuEl = root.querySelector('menu.editor-menu') as HTMLElement | null;
     if (!menuEl) return;
     const proseMirror = root.querySelector('prose-mirror');
-    const menuPlugin = (proseMirror as { menu?: unknown } | null)?.menu;
-    injectFontColorToolbarButton(menuEl as HTMLElement, menuPlugin ?? {});
+    const menuFromElement = (proseMirror as { menu?: unknown } | null)?.menu;
+    const menu = menuRegistry.get(menuEl) ?? menuFromElement ?? {};
+    injectFontColorToolbarButton(menuEl, menu);
   };
 
   tryInject();
@@ -369,8 +424,15 @@ export function initializeProseMirrorFontColor(): void {
     prependFontColorDropDown(config);
   });
 
+  installGlobalFontColorClickHandler();
+  patchProseMirrorMenuOnAction();
   patchProseMirrorMenuActivateListeners();
-  Hooks.once('ready', () => patchProseMirrorMenuActivateListeners());
+
+  Hooks.once('ready', () => {
+    installGlobalFontColorClickHandler();
+    patchProseMirrorMenuOnAction();
+    patchProseMirrorMenuActivateListeners();
+  });
 
   Hooks.on('renderJournalEntryPageProseMirrorSheet', (_app: unknown, element: HTMLElement) => {
     scheduleToolbarInjection(element);
