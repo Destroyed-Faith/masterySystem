@@ -1,5 +1,14 @@
-import { describe, expect, it } from 'vitest';
-import { resolveColorMark } from '../src/editor/prosemirror-font-color';
+import { describe, expect, it, vi } from 'vitest';
+import {
+  appendFontColorDropdownEntries,
+  resolveColorMark,
+} from '../src/editor/prosemirror-font-color';
+
+vi.stubGlobal('game', {
+  i18n: {
+    localize: (key: string) => key,
+  },
+});
 
 function mockSchema(marks: Record<string, { attrs?: Record<string, unknown> }>) {
   return {
@@ -13,6 +22,28 @@ function mockSchema(marks: Record<string, { attrs?: Record<string, unknown> }>) 
     ),
   };
 }
+
+describe('appendFontColorDropdownEntries', () => {
+  it('adds text color under Format → Inline', () => {
+    const config = {
+      format: {
+        cssClass: 'format',
+        title: 'Bold',
+        entries: [
+          {
+            action: 'inline',
+            title: 'Inline',
+            entries: [{ action: 'bold', title: 'Bold' }],
+          },
+        ],
+      },
+    };
+
+    appendFontColorDropdownEntries(config);
+    const inline = config.format.entries[0]!.entries!;
+    expect(inline.some((entry) => entry.action === 'mastery-font-color')).toBe(true);
+  });
+});
 
 describe('resolveColorMark', () => {
   it('prefers textStyle mark with color attribute', () => {

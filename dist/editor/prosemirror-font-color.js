@@ -171,7 +171,7 @@ function buildFontColorMenuItem(menu) {
     return {
         action: FONT_COLOR_ACTION,
         title: game.i18n.localize('MASTERY.editor.fontColor'),
-        icon: '<i class="fas fa-palette"></i>',
+        icon: '<i class="fas fa-palette fa-fw"></i>',
         group: 1,
         priority: 46,
         mark: resolved?.markType,
@@ -180,6 +180,41 @@ function buildFontColorMenuItem(menu) {
             return true;
         },
     };
+}
+function buildFontColorDropdownEntry() {
+    return {
+        action: FONT_COLOR_ACTION,
+        title: game.i18n.localize('MASTERY.editor.fontColor'),
+        style: 'color: #c9a227',
+    };
+}
+function nestedEntries(entry) {
+    if (Array.isArray(entry.entries))
+        return entry.entries;
+    if (Array.isArray(entry.children))
+        return entry.children;
+    return null;
+}
+/** Journal editors in v13 use dropdown menus — add Text Color under Format → Inline. */
+export function appendFontColorDropdownEntries(config) {
+    const format = config.format;
+    if (!format)
+        return;
+    const entries = format.entries ?? format.children;
+    if (!Array.isArray(entries))
+        return;
+    for (const entry of entries) {
+        const inlineEntries = entry.action === 'inline' ? nestedEntries(entry) : null;
+        if (!inlineEntries)
+            continue;
+        if (inlineEntries.some((child) => child.action === FONT_COLOR_ACTION))
+            return;
+        inlineEntries.push(buildFontColorDropdownEntry());
+        return;
+    }
+    if (!entries.some((entry) => entry.action === FONT_COLOR_ACTION)) {
+        entries.push(buildFontColorDropdownEntry());
+    }
 }
 function appendFontColorMenuItem(menu, items) {
     if (items.some((item) => item.action === FONT_COLOR_ACTION))
@@ -191,10 +226,7 @@ export function initializeProseMirrorFontColor() {
         appendFontColorMenuItem(menu, items);
     });
     Hooks.on('getProseMirrorMenuDropDowns', (menu, config) => {
-        const children = config.format?.children;
-        if (!children || children.some((item) => item.action === FONT_COLOR_ACTION))
-            return;
-        children.push(buildFontColorMenuItem(menu));
+        appendFontColorDropdownEntries(config);
     });
 }
 //# sourceMappingURL=prosemirror-font-color.js.map

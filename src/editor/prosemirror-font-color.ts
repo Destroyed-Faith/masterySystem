@@ -6,7 +6,11 @@
 const FONT_COLOR_ACTION = 'mastery-font-color';
 
 type PMSchema = { marks: Record<string, { spec?: { attrs?: Record<string, unknown> } }> };
-type PMMarkType = { create: (attrs: Record<string, unknown>) => unknown; isInSet: (marks: unknown) => unknown; spec?: { attrs?: Record<string, unknown> } };
+type PMMarkType = {
+  create: (attrs: Record<string, unknown>) => unknown;
+  isInSet: (marks: unknown) => unknown;
+  spec?: { attrs?: Record<string, unknown> };
+};
 type PMEditorView = {
   state: PMEditorState;
   dispatch: (tr: unknown) => void;
@@ -28,6 +32,15 @@ type PMEditorState = {
     ) => void;
   };
   tr: unknown;
+};
+
+type DropdownEntry = {
+  action?: string;
+  title?: string;
+  style?: string;
+  icon?: string;
+  entries?: DropdownEntry[];
+  children?: DropdownEntry[];
 };
 
 export interface ResolvedColorMark {
@@ -221,7 +234,7 @@ function buildFontColorMenuItem(menu: unknown): Record<string, unknown> {
   return {
     action: FONT_COLOR_ACTION,
     title: game.i18n.localize('MASTERY.editor.fontColor'),
-    icon: '<i class="fas fa-palette"></i>',
+    icon: '<i class="fas fa-palette fa-fw"></i>',
     group: 1,
     priority: 46,
     mark: resolved?.markType,
@@ -230,6 +243,43 @@ function buildFontColorMenuItem(menu: unknown): Record<string, unknown> {
       return true;
     },
   };
+}
+
+function buildFontColorDropdownEntry(): DropdownEntry {
+  return {
+    action: FONT_COLOR_ACTION,
+    title: game.i18n.localize('MASTERY.editor.fontColor'),
+    style: 'color: #c9a227',
+  };
+}
+
+function nestedEntries(entry: DropdownEntry): DropdownEntry[] | null {
+  if (Array.isArray(entry.entries)) return entry.entries;
+  if (Array.isArray(entry.children)) return entry.children;
+  return null;
+}
+
+/** Journal editors in v13 use dropdown menus — add Text Color under Format → Inline. */
+export function appendFontColorDropdownEntries(
+  config: { format?: DropdownEntry; fonts?: DropdownEntry; [key: string]: DropdownEntry | undefined },
+): void {
+  const format = config.format;
+  if (!format) return;
+
+  const entries = format.entries ?? (format as { children?: DropdownEntry[] }).children;
+  if (!Array.isArray(entries)) return;
+
+  for (const entry of entries) {
+    const inlineEntries = entry.action === 'inline' ? nestedEntries(entry) : null;
+    if (!inlineEntries) continue;
+    if (inlineEntries.some((child) => child.action === FONT_COLOR_ACTION)) return;
+    inlineEntries.push(buildFontColorDropdownEntry());
+    return;
+  }
+
+  if (!entries.some((entry) => entry.action === FONT_COLOR_ACTION)) {
+    entries.push(buildFontColorDropdownEntry());
+  }
 }
 
 function appendFontColorMenuItem(menu: unknown, items: Array<Record<string, unknown>>): void {
@@ -244,10 +294,8 @@ export function initializeProseMirrorFontColor(): void {
 
   Hooks.on(
     'getProseMirrorMenuDropDowns',
-    (menu: unknown, config: { format?: { children?: Array<Record<string, unknown>> } }) => {
-      const children = config.format?.children;
-      if (!children || children.some((item) => item.action === FONT_COLOR_ACTION)) return;
-      children.push(buildFontColorMenuItem(menu));
+    (menu: unknown, config: { format?: DropdownEntry; fonts?: DropdownEntry; [key: string]: DropdownEntry | undefined }) => {
+      appendFontColorDropdownEntries(config);
     },
   );
 }

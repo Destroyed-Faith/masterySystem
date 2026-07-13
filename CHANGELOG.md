@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.188] - 2026-07-13
+
+### Fixed
+
+- **Journal / ProseMirror text color:** Text Color now appears under **Format → Inline** in Foundry v13 journal dropdown menus (v0.9.187 only registered a flat toolbar button).
+
+### Added
+
+- **Tests:** Dropdown menu wiring for journal text color (`appendFontColorDropdownEntries`).
+
 ## [0.9.187] - 2026-07-13
 
 ### Added
