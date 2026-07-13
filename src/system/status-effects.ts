@@ -1,3 +1,5 @@
+import { isFoundryV14OrNewer } from '../utils/foundry-v14.js';
+
 /**
  * Mastery System status effects registry.
  *
@@ -96,23 +98,26 @@ export function buildMasteryStatusEffects(): Required<MasteryStatusEffect>[] {
  */
 export function applyMasteryStatusEffects(): void {
   const effects = buildMasteryStatusEffects();
-  const current = (CONFIG as any).statusEffects;
 
-  if (Array.isArray(current)) {
-    (CONFIG as any).statusEffects = effects;
+  // v14 exposes array-like backwards compat on read, but assigning an array
+  // hits a setter that calls .push on the underlying record — mutate in place.
+  if (isFoundryV14OrNewer()) {
+    const store = (CONFIG as any).statusEffects as Record<string, unknown>;
+    for (const key of Object.keys(store)) {
+      delete store[key];
+    }
+    let order = 0;
+    for (const e of effects) {
+      store[e.id] = {
+        id: e.id,
+        name: e.name,
+        img: e.img,
+        statuses: e.statuses,
+        order: order++,
+      };
+    }
     return;
   }
 
-  const next: Record<string, unknown> = {};
-  let order = 0;
-  for (const e of effects) {
-    next[e.id] = {
-      id: e.id,
-      name: e.name,
-      img: e.img,
-      statuses: e.statuses,
-      order: order++,
-    };
-  }
-  (CONFIG as any).statusEffects = next;
+  (CONFIG as any).statusEffects = effects;
 }

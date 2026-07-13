@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.200] - 2026-07-13
+
+### Fixed
+
+- **Foundry v14 status effects:** Do not assign an array to `CONFIG.statusEffects` — v14's array-like getter is backwards-compat only; mutate the underlying record in place instead.
+
 ## [0.9.199] - 2026-07-13
 
 ### Fixed

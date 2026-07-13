@@ -1,23 +1,4 @@
-/**
- * Mastery System status effects registry.
- *
- * Registers the system's canonical conditions / specials as `CONFIG.statusEffects`,
- * replacing Foundry's core defaults (which include unrelated entries like
- * Ice/Fire/Magic/Holy Shield or Diseased that we do not model).
- *
- * Keys follow the lowercase canonical form established by `power-spec-normalize`
- * and the tree-power audit. Source of truth for the effect catalog is
- * `src/utils/special-effects.ts`; this file only adds UI registration metadata
- * (label, icon, statuses) for the Foundry token HUD radial.
- *
- * Synonym notes (for future normalization passes, not handled here):
- *   - `poison` / `poisoned` / `blight` -> canonical `blight`
- *   - `bleed` / `bleeding` / `lacerate` -> canonical `lacerate`
- *   - `entangle` / `entangled`       -> canonical `entangled`
- *   - `disorient` / `disoriented`    -> canonical `disoriented`
- * Data in `src/stones/stone-powers.ts` that still uses the short forms is
- * intentionally left unchanged here.
- */
+import { isFoundryV14OrNewer } from '../utils/foundry-v14.js';
 /** Core `icons/svg/*` paths are not guaranteed; ship minimal SVGs with the system. */
 const ICON = (name) => `systems/mastery-system/assets/icons/status/${name}.svg`;
 /**
@@ -77,22 +58,25 @@ export function buildMasteryStatusEffects() {
  */
 export function applyMasteryStatusEffects() {
     const effects = buildMasteryStatusEffects();
-    const current = CONFIG.statusEffects;
-    if (Array.isArray(current)) {
-        CONFIG.statusEffects = effects;
+    // v14 exposes array-like backwards compat on read, but assigning an array
+    // hits a setter that calls .push on the underlying record — mutate in place.
+    if (isFoundryV14OrNewer()) {
+        const store = CONFIG.statusEffects;
+        for (const key of Object.keys(store)) {
+            delete store[key];
+        }
+        let order = 0;
+        for (const e of effects) {
+            store[e.id] = {
+                id: e.id,
+                name: e.name,
+                img: e.img,
+                statuses: e.statuses,
+                order: order++,
+            };
+        }
         return;
     }
-    const next = {};
-    let order = 0;
-    for (const e of effects) {
-        next[e.id] = {
-            id: e.id,
-            name: e.name,
-            img: e.img,
-            statuses: e.statuses,
-            order: order++,
-        };
-    }
-    CONFIG.statusEffects = next;
+    CONFIG.statusEffects = effects;
 }
 //# sourceMappingURL=status-effects.js.map

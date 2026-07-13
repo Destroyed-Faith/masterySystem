@@ -3,6 +3,15 @@
  * forced field deletion, namespaced FilePicker).
  */
 
+/** True on Foundry v14+ (`CONFIG.statusEffects` is a record, not an array). */
+export function isFoundryV14OrNewer(): boolean {
+  if (typeof game === 'undefined') return false;
+  const generation = (game as any).release?.generation;
+  if (typeof generation === 'number') return generation >= 14;
+  const major = Number(String((game as any).version ?? '0').split('.')[0]);
+  return Number.isFinite(major) && major >= 14;
+}
+
 /** V14 document update operator for deleting nested fields. */
 export function getForcedDeletion(): unknown {
   return (foundry as any)?.data?.operators?.ForcedDeletion ?? null;
