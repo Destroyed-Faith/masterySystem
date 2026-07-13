@@ -37,6 +37,7 @@ type PMEditorState = {
     };
     storedMarks?: unknown[] | null;
     doc: {
+        textBetween?: (from: number, to: number, blockSeparator?: string) => string;
         nodesBetween: (from: number, to: number, f: (node: {
             isText?: boolean;
             marks?: Array<{
@@ -106,10 +107,16 @@ export declare function buildTextStyleColorMarkSpec(): Record<string, unknown>;
 export declare function extendSchemaWithTextStyle(schema: SchemaWithSpec): PMSchema;
 /** Rebuild editor state with an extended schema while preserving Foundry's plugin wiring. */
 export declare function reconfigureEditorStateWithSchema(state: EditorStateWithCtor, schema: PMSchema): PMEditorState;
+/** Find a live ProseMirror view from rendered editor DOM (works when dropdowns render outside prose-mirror). */
+export declare function findViewOnProseMirrorDom(scope?: ParentNode): PMEditorView | null;
+/** Resolve the active editor view from menu context, cached state, or live DOM. */
+export declare function resolveActiveEditorView(menu?: unknown, view?: PMEditorView | null, source?: Element | null): PMEditorView | null;
 export declare function getMenuView(menu: unknown, view?: PMEditorView | null): PMEditorView | null;
 /** Resolve the live ProseMirror view from the surrounding editor DOM. */
 export declare function findEditorViewFromElement(root: Element | ParentNode | null): PMEditorView | null;
-export declare function promptFontColor(menu: unknown, view?: PMEditorView | null): Promise<void>;
+/** Fallback for schemas where no color mark can be toggled: wrap the selection in a colored span via HTML. */
+export declare function applyColorViaHtmlSlice(view: PMEditorView, color: string | null): boolean;
+export declare function promptFontColor(menu: unknown, view?: PMEditorView | null, source?: Element | null): Promise<void>;
 /** Register the palette action so Foundry's menu click handler can dispatch it. */
 export declare function prependFontColorMenuItem(menu: unknown, items: Array<Record<string, unknown>>): void;
 /** Prepend a palette dropdown for editors that only render dropdown toolbars. */

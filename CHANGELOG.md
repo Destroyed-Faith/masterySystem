@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.196] - 2026-07-13
+
+### Fixed
+
+- **Journal text color:** Resolve the ProseMirror editor from live `.ProseMirror` DOM (dropdown menus render outside `prose-mirror`), probe all marks for color support, and fall back to HTML span insertion when no color mark is available.
+
 ## [0.9.195] - 2026-07-13
 
 ### Fixed

@@ -128,6 +128,19 @@ describe('resolveColorMark', () => {
     expect(resolved?.markType).toBe(schema.marks.font);
     expect(resolved?.colorAttr).toBe('class');
   });
+
+  it('probes mark.create when spec attrs are unavailable', () => {
+    const schema = mockSchema({
+      font: {
+        create: (attrs) => {
+          if (!('class' in attrs)) throw new Error('missing class');
+          return { attrs };
+        },
+      },
+    });
+    const resolved = resolveColorMark(schema);
+    expect(resolved?.colorAttr).toBe('class');
+  });
 });
 
 describe('extendSchemaWithTextStyle', () => {
