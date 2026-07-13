@@ -6167,12 +6167,46 @@
 }
 
 .mastery-system.sheet.actor.character .skill-roll-perception-group,
-.mastery-system.sheet.actor.character .skill-roll-multi-attr-group {
+.mastery-system.sheet.actor.character .skill-roll-multi-attr-group,
+.mastery-system.sheet.actor.character .skill-roll-single-group {
   display: flex;
   flex-direction: row;
-  align-items: center;
-  gap: 4px;
+  align-items: flex-start;
+  gap: 6px;
   flex-shrink: 0;
+}
+
+.mastery-system.sheet.actor.character .skill-roll-slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
+}
+
+.mastery-system.sheet.actor.character .skill-dice-pool-preview {
+  font-size: 9px;
+  line-height: 1.15;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  color: var(--df-text-secondary, #9a9a9a);
+  text-align: center;
+  white-space: nowrap;
+  font-family: 'Cormorant Garamond', serif;
+  cursor: help;
+}
+
+.mastery-system.sheet.actor.character .skill-dice-pool-preview.full-pool {
+  color: #8fd4a8;
+}
+
+.mastery-system.sheet.actor.character .skill-dice-pool-preview.half-pool {
+  color: #d4a574;
+}
+
+.mastery-system.sheet.actor.character .skill-dice-pool-preview.pending-pool {
+  text-decoration: underline dotted;
+  text-underline-offset: 2px;
 }
 
 .mastery-system.sheet.actor.character .skill-roll-perception-group .skill-roll-compact,

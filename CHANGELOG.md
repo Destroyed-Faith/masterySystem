@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.184] - 2026-07-13
+
+### Added
+
+- **Skill dice pool preview:** Character sheet shows roll dice pool (e.g. `8d8 k2` or `4d8 k2 ½`) directly beside each skill roll button, with full vs half-pool coloring and tooltips (2×MR threshold).
+- **Live pool updates:** Pending skill rank changes (+/− before Confirm) update the dice preview immediately when crossing the full-pool threshold.
+- **Tests:** `tests/skill-roll-pool-display.test.ts` for half/full pool math and MR floor.
+
 ## [0.9.183] - 2026-07-13
 
 ### Added

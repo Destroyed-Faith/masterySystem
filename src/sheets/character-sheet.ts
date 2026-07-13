@@ -6,7 +6,11 @@
 import { MasteryActor } from '../documents/actor';
 import { SKILLS, SKILL_CATEGORIES } from '../utils/skills';
 import { getEquippedPhysicalSkillPenaltyDice } from '../utils/equipment-modifiers.js';
-import { isSkillFullPoolReady, skillFullPoolThreshold } from '../dice/roll-context-build.js';
+import {
+  buildSkillRollPoolPreview,
+  isSkillFullPoolReady,
+  skillFullPoolThreshold,
+} from '../dice/roll-context-build.js';
 import {
   DISADVANTAGES,
   getDisadvantageDefinition,
@@ -1657,12 +1661,17 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       const spent = skillsSpent[key] || 0;
       const remaining = Math.max(0, value - spent);
       
+      const rollPools = definition.attributes.map((attributeKey: string) =>
+        buildSkillRollPoolPreview(this.actor as Actor, key, attributeKey, value),
+      );
+
       skillsByCategory[category].push({
         key,
         name: definition.name,
         category: definition.category,
         attributes: definition.attributes,
         multiAttributeRoll: definition.attributes.length > 1 && key !== 'perception',
+        rollPools,
         value,
         spent,
         remaining
@@ -5058,6 +5067,32 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         pendingLine.text(`${rankLabel}${xpLabel}`).addClass('has-pending');
         rankBadge.text(`→${effective}`);
       }
+
+      this.#applySkillDicePoolPreview(skillKey, effective, pending !== 0);
+    }
+  }
+
+  /** Update dice-pool labels beside skill roll buttons (respects pending rank changes). */
+  #applySkillDicePoolPreview(skillKey: string, skillRating: number, pending = false): void {
+    const definition = SKILLS[skillKey];
+    if (!definition) return;
+
+    for (const attributeKey of definition.attributes) {
+      const preview = buildSkillRollPoolPreview(
+        this.actor as Actor,
+        skillKey,
+        attributeKey,
+        skillRating,
+      );
+      const el = this.element.find(
+        `.skill-dice-pool-preview[data-skill="${skillKey}"][data-attribute="${attributeKey}"]`,
+      );
+      if (!el.length) continue;
+      el.text(preview.diceLabel);
+      el.attr('title', preview.tooltip);
+      el.toggleClass('half-pool', preview.halfPool);
+      el.toggleClass('full-pool', preview.fullPoolReady);
+      el.toggleClass('pending-pool', pending);
     }
   }
 
