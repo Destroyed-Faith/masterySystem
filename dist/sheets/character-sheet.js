@@ -58,8 +58,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
      * `undefined` means first paint: expanded (see getData: `!== false`).
      */
     _powersListDetailsOpen;
-    /** Coalesce overlapping render() calls (Foundry re-renders on actor update during open). */
-    #renderInFlight = null;
+    /** Block nested render() while a paint is in flight. */
+    #isRendering = false;
     /** One attribute-baseline migration attempt per sheet instance. */
     #attributeBaselinesMigrationDone = false;
     /** Last pointer-down on equipment tile (for click vs drag distinction). */
@@ -497,9 +497,16 @@ export class MasteryCharacterSheet extends BaseActorSheet {
      * Refresh XP distribution controls when the GM ends an Upgrade Step or
      * grants XP from world settings while this sheet is open.
      */
-    _onUpdate(changed, _options, _userId) {
+    _onUpdate(changed, options, _userId) {
+        const opts = (options ?? {});
+        if (opts.render === false)
+            return;
+        // Never re-render mid–initial mount — actor migrations / form sync otherwise
+        // interrupt super.render() before activateListeners runs.
+        if (!this.rendered || this.#isRendering)
+            return;
         if (typeof super._onUpdate === 'function') {
-            super._onUpdate(changed, _options, _userId);
+            super._onUpdate(changed, options, _userId);
         }
         const keys = Object.keys(changed ?? {});
         const xpTouched = keys.some((k) => k.startsWith('system.points') ||
@@ -814,8 +821,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         // Enrich biography info for display
         const TextEditorImpl = foundry.applications?.ux?.TextEditor?.implementation || TextEditor;
         context.enrichedBio = {
-            notes: TextEditorImpl.enrichHTML(context.system.bio?.notes || ''),
-            background: TextEditorImpl.enrichHTML(context.system.notes?.background || '')
+            notes: await TextEditorImpl.enrichHTML(context.system.bio?.notes || ''),
+            background: await TextEditorImpl.enrichHTML(context.system.notes?.background || '')
         };
         // Prepare items by type
         context.items = this.#prepareItems();
@@ -874,23 +881,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         context.radialManeuverPrefsPanel = buildRadialManeuverPrefsContext(context.system);
         context.radialManeuverPrefsDetailsOpen = this._radialManeuverPrefsDetailsOpen === true;
         context.combatSensesPanel = buildCombatSensesPanelContext(this.actor);
-        try {
-            context.combatSensesBattle = buildCombatSensesBattleAreaContext(this.actor);
-        }
-        catch (err) {
-            console.error('Mastery System | Failed to build combatSensesBattle context', err);
-            context.combatSensesBattle = {
-                instruction: 'Sense Slot — choose exactly one active Combat Sense for battle.',
-                pickOneHint: 'Normal Combat Awareness is your default Sense Slot.',
-                activeSenseId: 'normalCombatAwareness',
-                activeSenseLabel: 'Normal Combat Awareness',
-                hasDarkvision: false,
-                senseRows: [],
-                slotRows: [],
-                grantedRows: [],
-                darkvisionSummary: '',
-            };
-        }
         if (context.creationComplete) {
             context.powersByTypeGroups = this.#buildPowersByTypeGroups(context.items?.powers || []);
             /* Default: collapsed; open after finalize or when user expanded in this session. */
@@ -1007,20 +997,19 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     }
     /** @override */
     async render(force, options) {
-        if (this.#renderInFlight) {
-            return this.#renderInFlight;
+        if (this.#isRendering) {
+            return this;
         }
-        this.#renderInFlight = this.#renderSheet(force, options).finally(() => {
-            this.#renderInFlight = null;
-        });
-        return this.#renderInFlight;
+        this.#isRendering = true;
+        try {
+            return await this.#renderSheet(force, options);
+        }
+        finally {
+            this.#isRendering = false;
+        }
     }
     async #renderSheet(force, options) {
         console.log('Mastery System | Character Sheet render called', { force, options });
-        if (!this.#attributeBaselinesMigrationDone) {
-            this.#attributeBaselinesMigrationDone = true;
-            await this.#migrateAttributeBaselinesIfNeeded();
-        }
         if (this.element && this.element.length > 0) {
             const det = this.element.find('.radial-maneuver-prefs-details')[0];
             if (det instanceof HTMLDetailsElement) {
@@ -1693,6 +1682,32 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             }
         });
     }
+    #bindBattleSensesHandlers(root) {
+        root
+            .off('click', '.js-battle-sense-slot')
+            .on('click', '.js-battle-sense-slot', this.#onBattleSenseSlotSelect.bind(this));
+        root
+            .off('change', '.js-combat-sense-grant')
+            .on('change', '.js-combat-sense-grant', this.#onCombatSenseGrantToggle.bind(this));
+        root
+            .off('change', '.js-combat-sense-darkvision')
+            .on('change', '.js-combat-sense-darkvision', this.#onCombatSenseDarkvisionToggle.bind(this));
+    }
+    async #mountBattleSensesArea(html) {
+        const mount = html.find('[data-battle-senses-mount]');
+        if (!mount.length)
+            return;
+        try {
+            const combatSensesBattle = buildCombatSensesBattleAreaContext(this.actor);
+            const markup = await foundry.applications.handlebars.renderTemplate('systems/mastery-system/templates/actor/partials/battle-senses-area.hbs', { editable: this.isEditable, combatSensesBattle });
+            mount.html(markup).attr('aria-busy', 'false');
+            this.#bindBattleSensesHandlers(mount);
+        }
+        catch (err) {
+            console.error('Mastery System | Failed to mount battle senses area', err);
+            mount.html('<p class="stat-summary-hint battle-senses-error">Combat Senses could not be loaded.</p>').attr('aria-busy', 'false');
+        }
+    }
     /** @override */
     activateListeners(html) {
         console.log('Mastery System | activateListeners START', {
@@ -1706,6 +1721,11 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             htmlLength: html.length,
             actorName: this.actor?.name
         });
+        void this.#mountBattleSensesArea(html);
+        if (!this.#attributeBaselinesMigrationDone) {
+            this.#attributeBaselinesMigrationDone = true;
+            void this.#migrateAttributeBaselinesIfNeeded();
+        }
         // Character Creation buttons
         const unlockButton = html.find('.force-unlock-creation');
         if (unlockButton.length > 0) {
@@ -2076,15 +2096,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 this.#onProfileShow(e, String(imgType));
             });
         }, 100);
-        html
-            .off('click', '.js-battle-sense-slot')
-            .on('click', '.js-battle-sense-slot', this.#onBattleSenseSlotSelect.bind(this));
-        html
-            .off('change', '.js-combat-sense-grant')
-            .on('change', '.js-combat-sense-grant', this.#onCombatSenseGrantToggle.bind(this));
-        html
-            .off('change', '.js-combat-sense-darkvision')
-            .on('change', '.js-combat-sense-darkvision', this.#onCombatSenseDarkvisionToggle.bind(this));
         // Everything below here is only needed if the sheet is editable
         if (!this.isEditable)
             return;

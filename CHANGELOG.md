@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.207] - 2026-07-14
+
+### Fixed
+
+- **Character sheet open loop (root cause):** `_onUpdate` no longer calls `super._onUpdate` while the sheet is still mounting (`!rendered` or mid-render). World migrations / actor updates during open were interrupting `super.render()` before `activateListeners` ran.
+- **Combat Senses deferred mount:** Battle-senses UI renders from a partial *after* `activateListeners`, outside the initial form paint.
+- **Removed render coalescing** that could confuse Foundry v14's Application lifecycle; nested renders are blocked with `#isRendering` instead.
+
 ## [0.9.206] - 2026-07-14
 
 ### Fixed

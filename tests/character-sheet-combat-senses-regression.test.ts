@@ -1,12 +1,8 @@
 /**
  * Regression guards for Combat Senses UI on the character sheet.
  *
- * v0.9.204 used form-bound inputs for Combat Senses inside the ActorSheet
- * `<form>`. Foundry's form sync re-rendered the sheet in a loop on open, so
- * the window never finished mounting (activateListeners never ran).
- *
- * All Combat Senses controls must use explicit handlers + actor.update(), not
- * `name="system.combatSenses.*"` form fields.
+ * Combat Senses must never participate in the ActorSheet `<form>` on initial
+ * paint — the block is mounted after activateListeners via a partial template.
  */
 
 import { readFileSync } from 'node:fs';
@@ -20,53 +16,48 @@ function readRepoFile(relativePath: string): string {
   return readFileSync(join(repoRoot, relativePath), 'utf8');
 }
 
-function extractBattleSensesAreaMarkup(template: string): string {
-  const start = template.indexOf('class="battle-senses-area"');
-  expect(start, 'battle-senses-area section missing from character sheet template').toBeGreaterThanOrEqual(0);
-  const end = template.indexOf('</section>', start);
-  expect(end, 'battle-senses-area section not closed').toBeGreaterThan(start);
-  return template.slice(start, end);
-}
-
 describe('character sheet combat senses regression', () => {
   const template = readRepoFile('templates/actor/character-sheet.hbs');
+  const partial = readRepoFile('templates/actor/partials/battle-senses-area.hbs');
   const sheetSource = readRepoFile('src/sheets/character-sheet.ts');
-  const battleSensesMarkup = extractBattleSensesAreaMarkup(template);
-  const slotGridMarkup = battleSensesMarkup.slice(
-    battleSensesMarkup.indexOf('class="battle-senses-slot-grid"'),
-    battleSensesMarkup.indexOf('</div>', battleSensesMarkup.indexOf('class="battle-senses-slot-grid"')),
+  const slotGridMarkup = partial.slice(
+    partial.indexOf('class="battle-senses-slot-grid"'),
+    partial.indexOf('</div>', partial.indexOf('class="battle-senses-slot-grid"')),
   );
 
-  it('does not bind any combatSenses fields to the ActorSheet form', () => {
-    expect(battleSensesMarkup).not.toMatch(/name="system\.combatSenses\./);
+  it('defers battle senses to a post-mount partial (not in the main form template)', () => {
+    expect(template).toMatch(/data-battle-senses-mount/);
+    expect(template).not.toMatch(/class="battle-senses-area"/);
+    expect(template).not.toMatch(/name="system\.combatSenses\./);
   });
 
-  it('does not bind activeSenseId to the ActorSheet form via radio inputs', () => {
-    expect(template).not.toMatch(/name="system\.combatSenses\.activeSenseId"/);
+  it('does not bind any combatSenses fields in the partial template', () => {
+    expect(partial).not.toMatch(/name="system\.combatSenses\./);
+  });
+
+  it('does not bind activeSenseId via radio inputs in the partial', () => {
+    expect(partial).not.toMatch(/name="system\.combatSenses\.activeSenseId"/);
     expect(slotGridMarkup).not.toMatch(/type="radio"/i);
     expect(slotGridMarkup).not.toMatch(/<input[^>]*battle-sense-slot/i);
   });
 
-  it('uses explicit Sense Slot buttons with data-sense-id', () => {
+  it('uses explicit Sense Slot buttons with data-sense-id in the partial', () => {
     expect(slotGridMarkup).toMatch(/class="[^"]*js-battle-sense-slot/);
     expect(slotGridMarkup).toMatch(/data-sense-id="\{\{this\.id\}\}"/);
     expect(slotGridMarkup).toMatch(/type="button"/);
   });
 
-  it('uses explicit grant + darkvision handlers instead of form autosubmit', () => {
-    expect(battleSensesMarkup).toMatch(/class="[^"]*js-combat-sense-grant/);
-    expect(battleSensesMarkup).toMatch(/class="[^"]*js-combat-sense-darkvision/);
+  it('mounts battle senses after activateListeners with explicit handlers', () => {
+    expect(sheetSource).toMatch(/#mountBattleSensesArea/);
+    expect(sheetSource).toMatch(/#bindBattleSensesHandlers/);
     expect(sheetSource).toMatch(/#onBattleSenseSlotSelect/);
     expect(sheetSource).toMatch(/#onCombatSenseGrantToggle/);
     expect(sheetSource).toMatch(/#onCombatSenseDarkvisionToggle/);
-    expect(sheetSource).toMatch(/\.js-battle-sense-slot/);
-    expect(sheetSource).toMatch(/system\.combatSenses\.activeSenseId/);
-    expect(sheetSource).toMatch(/system\.combatSenses\.grantedSenseIds/);
-    expect(sheetSource).toMatch(/system\.combatSenses\.hasDarkvision/);
+    expect(sheetSource).toMatch(/battle-senses-area\.hbs/);
   });
 
-  it('coalesces overlapping render() calls to survive actor updates during sheet open', () => {
-    expect(sheetSource).toMatch(/#renderInFlight/);
-    expect(sheetSource).toMatch(/async #renderSheet\(/);
+  it('blocks document re-renders during initial sheet mount', () => {
+    expect(sheetSource).toMatch(/if \(!this\.rendered \|\| this\.#isRendering\) return;/);
+    expect(sheetSource).toMatch(/#isRendering/);
   });
 });

@@ -29,11 +29,11 @@ export declare class MasteryCharacterSheet extends BaseActorSheet {
      * Refresh XP distribution controls when the GM ends an Upgrade Step or
      * grants XP from world settings while this sheet is open.
      */
-    _onUpdate(changed: Record<string, unknown>, _options: unknown, _userId: string): void;
+    _onUpdate(changed: Record<string, unknown>, options: unknown, _userId: string): void;
     /** @override */
     getData(options?: any): Promise<any>;
     /** @override */
-    render(force?: boolean, options?: any): Promise<unknown>;
+    render(force?: boolean, options?: any): Promise<any>;
     /** @override */
     activateListeners(html: JQuery): void;
     /** @override */

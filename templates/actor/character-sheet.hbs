@@ -1198,84 +1198,9 @@
         </div>
       </div>
 
-      <section class="battle-senses-area" aria-labelledby="battle-senses-heading">
-        <div class="battle-senses-area-header">
-          <h3 id="battle-senses-heading"><i class="fas fa-eye"></i> Combat Senses</h3>
-          <span class="battle-senses-required-badge">Pick one Sense Slot</span>
-        </div>
-        <p class="battle-senses-instruction">{{combatSensesBattle.instruction}}</p>
-        <p class="stat-summary-hint battle-senses-hint">{{combatSensesBattle.pickOneHint}}</p>
-        <p class="battle-senses-active-line">Active: <strong>{{combatSensesBattle.activeSenseLabel}}</strong></p>
-
-        <div class="battle-senses-slot-grid" role="radiogroup" aria-label="Sense Slot">
-          {{#each combatSensesBattle.slotRows}}
-          <button
-            type="button"
-            class="battle-sense-slot-card js-battle-sense-slot{{#if this.isActive}} is-active{{/if}}"
-            data-sense-id="{{this.id}}"
-            role="radio"
-            aria-checked="{{#if this.isActive}}true{{else}}false{{/if}}"
-            {{#unless @root.editable}}disabled{{/unless}}
-          >
-            <span class="battle-sense-slot-radio-mark" aria-hidden="true"></span>
-            <span class="battle-sense-slot-body">
-              <span class="battle-sense-slot-title">{{this.label}} <span class="battle-sense-range">{{this.rangeM}} m</span></span>
-              <span class="battle-sense-slot-summary">{{this.summary}}</span>
-              <span class="battle-sense-slot-channels">{{this.channels}}</span>
-            </span>
-          </button>
-          {{/each}}
-        </div>
-
-        <details class="battle-senses-granted-details">
-          <summary><i class="fas fa-unlock"></i> Grant special senses &amp; Darkvision</summary>
-          <p class="stat-summary-hint">Special senses from Echo, Artifacts, or Heightened Senses must be granted here before they appear in the Sense Slot above.</p>
-          <div class="combat-senses-granted-grid">
-            {{#each combatSensesBattle.grantedRows}}
-            <label class="combat-sense-grant">
-              <input
-                type="checkbox"
-                class="js-combat-sense-grant"
-                data-sense-id="{{this.id}}"
-                {{#if this.selected}}checked{{/if}}
-                {{#if this.fromArtifact}}disabled{{/if}}
-                {{#unless @root.editable}}disabled{{/unless}}
-              />
-              {{this.label}} ({{this.rangeM}} m){{#if this.fromArtifact}} <span class="battle-senses-catalog-badge is-artifact">From artifact</span>{{/if}}
-            </label>
-            {{/each}}
-          </div>
-          <label class="battle-sense-darkvision">
-            <input
-              type="checkbox"
-              class="js-combat-sense-darkvision"
-              {{#if combatSensesBattle.hasDarkvision}}checked{{/if}}
-              {{#unless @root.editable}}disabled{{/unless}}
-            />
-            Darkvision — minor upgrade ({{combatSensesBattle.darkvisionSummary}})
-          </label>
-        </details>
-
-        <div class="battle-senses-catalog">
-          <h4>All Combat Senses</h4>
-          <ul class="battle-senses-catalog-list">
-            {{#each combatSensesBattle.senseRows}}
-            <li class="battle-senses-catalog-item{{#unless this.isGranted}} is-unavailable{{/if}}{{#if this.isActive}} is-active{{/if}}">
-              <span class="battle-senses-catalog-name">{{this.label}}</span>
-              <span class="battle-senses-catalog-meta">{{this.rangeM}} m · {{this.channels}}</span>
-              {{#if this.isActive}}<span class="battle-senses-catalog-badge">Active slot</span>{{/if}}
-              {{#unless this.isGranted}}<span class="battle-senses-catalog-badge is-muted">Not granted</span>{{/if}}
-              {{#if this.fromArtifact}}<span class="battle-senses-catalog-badge is-artifact">From artifact</span>{{/if}}
-            </li>
-            {{/each}}
-            <li class="battle-senses-catalog-item battle-senses-catalog-darkvision{{#if combatSensesBattle.hasDarkvision}} is-active{{/if}}">
-              <span class="battle-senses-catalog-name">Darkvision</span>
-              <span class="battle-senses-catalog-meta">30 m · sight (minor upgrade)</span>
-              {{#if combatSensesBattle.hasDarkvision}}<span class="battle-senses-catalog-badge">Enabled</span>{{/if}}
-            </li>
-          </ul>
-        </div>
-      </section>
+      <div class="battle-senses-mount" data-battle-senses-mount aria-busy="true">
+        <p class="stat-summary-hint battle-senses-loading"><i class="fas fa-eye"></i> Loading combat senses…</p>
+      </div>
 
     </div>
     
