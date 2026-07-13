@@ -50,6 +50,8 @@ function capAttr(key: string): string {
 
 export interface SkillRollPoolPreview {
   attributeKey: string;
+  /** Compact sheet label, e.g. `8k2` or `4k2½`. */
+  rollLabel: string;
   diceLabel: string;
   tooltip: string;
   halfPool: boolean;
@@ -88,8 +90,9 @@ export function buildSkillRollPoolPreview(
   const fullPoolReady = isSkillFullPoolReady(skillRating, masteryRank);
   const pool = getSkillRollDicePool(actor, skillKey, attributeKey, skillRatingOverride);
   const attrLabel = capAttr(attributeKey);
-  const halfTag = pool.halfPool ? ' ½' : '';
-  const diceLabel = `${pool.numDice}d8 k${pool.keepDice}${halfTag}`;
+  const halfTag = pool.halfPool ? '½' : '';
+  const rollLabel = `${pool.numDice}k${pool.keepDice}${halfTag}`;
+  const diceLabel = `${pool.numDice}d8 k${pool.keepDice}${pool.halfPool ? ' ½' : ''}`;
 
   let tooltip: string;
   if (fullPoolReady) {
@@ -108,6 +111,7 @@ export function buildSkillRollPoolPreview(
 
   return {
     attributeKey,
+    rollLabel,
     diceLabel,
     tooltip,
     halfPool: pool.halfPool,

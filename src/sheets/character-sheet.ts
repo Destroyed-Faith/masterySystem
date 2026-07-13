@@ -5085,10 +5085,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         skillRating,
       );
       const el = this.element.find(
-        `.skill-dice-pool-preview[data-skill="${skillKey}"][data-attribute="${attributeKey}"]`,
+        `.skill-roll-pool-btn[data-skill="${skillKey}"][data-attribute="${attributeKey}"]`,
       );
       if (!el.length) continue;
-      el.text(preview.diceLabel);
+      el.text(preview.rollLabel);
       el.attr('title', preview.tooltip);
       el.toggleClass('half-pool', preview.halfPool);
       el.toggleClass('full-pool', preview.fullPoolReady);

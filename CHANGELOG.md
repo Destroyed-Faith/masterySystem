@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.186] - 2026-07-13
+
+### Changed
+
+- **Skill roll buttons:** Pool buttons moved before the skill name with compact labels (e.g. `8k2`, `4k2½` for half pool); live updates on pending rank changes preserved.
+- **Tyhra Calendar:** Opening now reliably jumps to the latest day journal even when flags omit `calendarId`/`dayIndex` or Foundry timestamps are missing.
+
+### Added
+
+- **Tests:** Expanded calendar latest-journal detection cases (legacy flags, missing timestamps).
+
 ## [0.9.185] - 2026-07-13
 
 ### Changed

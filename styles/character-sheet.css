@@ -3462,12 +3462,52 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 22px;
-  min-width: 22px;
-  max-width: 22px;
   box-sizing: border-box;
   font-size: 11px;
   font-family: 'Cormorant Garamond', serif;
+}
+
+.mastery-system.sheet.actor.character .skill-roll-pool-btn {
+  flex-shrink: 0;
+  min-width: 2.75rem;
+  padding: 4px 7px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  line-height: 1.1;
+}
+
+.mastery-system.sheet.actor.character .skill-roll-pool-btn.full-pool {
+  color: #8fd4a8;
+  border-color: rgba(143, 212, 168, 0.45);
+}
+
+.mastery-system.sheet.actor.character .skill-roll-pool-btn.half-pool {
+  color: #d4a574;
+  border-color: rgba(212, 165, 116, 0.45);
+}
+
+.mastery-system.sheet.actor.character .skill-roll-pool-btn.pending-pool {
+  text-decoration: underline dotted;
+  text-underline-offset: 2px;
+}
+
+.mastery-system.sheet.actor.character .skill-roll-lead-group {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.mastery-system.sheet.actor.character .skill-roll-lead-group--multi {
+  gap: 3px;
+}
+
+.mastery-system.sheet.actor.character .skill-roll-lead-group--multi .skill-roll-pool-btn {
+  min-width: 2.35rem;
+  padding: 3px 5px;
+  font-size: 11px;
 }
 
 .mastery-system.sheet.actor.character .skill-roll-compact:hover {
@@ -6168,11 +6208,12 @@
 
 .mastery-system.sheet.actor.character .skill-roll-perception-group,
 .mastery-system.sheet.actor.character .skill-roll-multi-attr-group,
-.mastery-system.sheet.actor.character .skill-roll-single-group {
+.mastery-system.sheet.actor.character .skill-roll-single-group,
+.mastery-system.sheet.actor.character .skill-roll-lead-group {
   display: flex;
   flex-direction: row;
-  align-items: flex-start;
-  gap: 6px;
+  align-items: center;
+  gap: 4px;
   flex-shrink: 0;
 }
 
@@ -6185,28 +6226,7 @@
 }
 
 .mastery-system.sheet.actor.character .skill-dice-pool-preview {
-  font-size: 9px;
-  line-height: 1.15;
-  font-weight: 600;
-  letter-spacing: 0.2px;
-  color: var(--df-text-secondary, #9a9a9a);
-  text-align: center;
-  white-space: nowrap;
-  font-family: 'Cormorant Garamond', serif;
-  cursor: help;
-}
-
-.mastery-system.sheet.actor.character .skill-dice-pool-preview.full-pool {
-  color: #8fd4a8;
-}
-
-.mastery-system.sheet.actor.character .skill-dice-pool-preview.half-pool {
-  color: #d4a574;
-}
-
-.mastery-system.sheet.actor.character .skill-dice-pool-preview.pending-pool {
-  text-decoration: underline dotted;
-  text-underline-offset: 2px;
+  display: none;
 }
 
 .mastery-system.sheet.actor.character .skill-roll-perception-group .skill-roll-compact,

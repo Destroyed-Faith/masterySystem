@@ -36,6 +36,7 @@ describe('skill roll pool preview', () => {
     expect(preview.fullPoolReady).toBe(false);
     expect(preview.numDice).toBe(4);
     expect(preview.keepDice).toBe(2);
+    expect(preview.rollLabel).toBe('4k2½');
     expect(preview.diceLabel).toBe('4d8 k2 ½');
   });
 

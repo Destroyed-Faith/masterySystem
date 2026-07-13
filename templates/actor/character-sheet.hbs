@@ -1289,6 +1289,19 @@
           <div class="skills-list-compact">
             {{#each this.skills}}
               <div class="skill-row-compact">
+                <div class="skill-roll-lead-group{{#if (gt this.rollPools.length 1)}} skill-roll-lead-group--multi{{/if}}">
+                  {{#each this.rollPools}}
+                  <button
+                    type="button"
+                    class="skill-roll-compact skill-roll-pool-btn {{#if halfPool}}half-pool{{else}}full-pool{{/if}}"
+                    data-skill="{{../key}}"
+                    data-attribute="{{attributeKey}}"
+                    title="{{tooltip}}{{#if (gt ../rollPools.length 1)}} · {{capitalize attributeKey}}{{/if}}"
+                  >
+                    {{rollLabel}}
+                  </button>
+                  {{/each}}
+                </div>
                 <span class="skill-name-compact">{{this.name}}</span>
                 <div class="skill-attrs-compact">
                   {{#each this.attributes}}
@@ -1332,20 +1345,6 @@
                   <span class="skill-use-box {{#if (gte this.value 4)}}{{#if (gte this.remaining 4)}}available{{else}}spent{{/if}}{{else}}locked{{/if}}"></span>
                 </div>
                 {{/if}}
-                <div class="{{#if (gt this.rollPools.length 1)}}skill-roll-multi-attr-group{{else}}skill-roll-single-group{{/if}}" title="{{this.name}} — Würfelpool (Voll ab Skill ≥ 2×MR)">
-                  {{#each this.rollPools}}
-                  <div class="skill-roll-slot">
-                    <button type="button" class="skill-roll-compact {{#if (gt ../rollPools.length 1)}}skill-roll-with-attr{{/if}}" data-skill="{{../key}}" data-attribute="{{attributeKey}}" title="{{../name}}{{#if attributeKey}} ({{capitalize attributeKey}}){{/if}} — {{diceLabel}}">
-                      {{#if (gt ../rollPools.length 1)}}
-                        {{#if iconClass}}<i class="fas {{iconClass}}"></i>{{else}}<span class="skill-roll-attr-label">{{capitalize attributeKey}}</span>{{/if}}
-                      {{else}}
-                        <i class="fas fa-dice-d20"></i>
-                      {{/if}}
-                    </button>
-                    <span class="skill-dice-pool-preview {{#if halfPool}}half-pool{{else}}full-pool{{/if}}" data-skill="{{../key}}" data-attribute="{{attributeKey}}" title="{{tooltip}}">{{diceLabel}}</span>
-                  </div>
-                  {{/each}}
-                </div>
               </div>
             {{/each}}
           </div>

@@ -5,6 +5,7 @@
 import {
   TYHRA_CALENDAR_FLAG_SCOPE,
   TYHRA_CALENDAR_FOLDER_NAME,
+  TYHRA_CALENDAR_ID,
   TYHRA_CALENDAR_LOG_PREFIX,
 } from './tyhra-calendar-config.js';
 import {
@@ -42,12 +43,43 @@ function logError(message: string, error?: unknown): void {
   console.error(`${TYHRA_CALENDAR_LOG_PREFIX} ${message}`, error);
 }
 
+/** Resolve day index from flag fields even when `dayIndex` was not persisted. */
+export function resolveCalendarFlagDayIndex(
+  data: Partial<TyhraCalendarJournalFlagData> & { journalKey?: string },
+): number | null {
+  const direct = Number(data.dayIndex);
+  if (Number.isFinite(direct)) return Math.floor(direct);
+
+  const year = Number(data.year);
+  const dayOfYear = Number(data.dayOfYear);
+  if (Number.isFinite(year) && Number.isFinite(dayOfYear) && dayOfYear >= 1) {
+    return dayIndexFromParts(Math.floor(year), Math.floor(dayOfYear));
+  }
+
+  const journalKey = String(data.journalKey ?? '').trim();
+  const suffixMatch = journalKey.match(/:(-?\d+)$/);
+  if (suffixMatch) {
+    const parsed = Number(suffixMatch[1]);
+    if (Number.isFinite(parsed)) return Math.floor(parsed);
+  }
+
+  return null;
+}
+
 export function readCalendarFlag(entry: JournalEntry): TyhraCalendarJournalFlagData | null {
   const raw = entry.getFlag(TYHRA_CALENDAR_FLAG_SCOPE, 'calendar');
   if (!raw || typeof raw !== 'object') return null;
   const data = raw as TyhraCalendarJournalFlagData;
-  if (!data.journalKey || data.calendarId == null) return null;
-  return data;
+  if (!data.journalKey) return null;
+
+  const dayIndex = resolveCalendarFlagDayIndex(data);
+  if (dayIndex === null) return null;
+
+  return {
+    ...data,
+    calendarId: data.calendarId ?? TYHRA_CALENDAR_ID,
+    dayIndex,
+  };
 }
 
 export function invalidateJournalIndexCache(): void {
@@ -240,27 +272,44 @@ export function getJournalKeyForDayIndex(dayIndex: number): string {
   return getJournalKeyFromDayIndex(dayIndex);
 }
 
-function journalEntryCreatedTime(entry: JournalEntry): number {
-  const stats = (entry as { _stats?: { createdTime?: number }; stats?: { createdTime?: number } })._stats
-    ?? (entry as { stats?: { createdTime?: number } }).stats;
-  return Number(stats?.createdTime) || 0;
+function journalEntrySortTime(entry: JournalEntry): number {
+  const stats =
+    (entry as { _stats?: { createdTime?: number | null; modifiedTime?: number | null } })._stats
+    ?? (entry as { stats?: { createdTime?: number | null; modifiedTime?: number | null } }).stats;
+  const created = Number(stats?.createdTime);
+  if (Number.isFinite(created) && created > 0) return created;
+  const modified = Number(stats?.modifiedTime);
+  if (Number.isFinite(modified) && modified > 0) return modified;
+  return 0;
+}
+
+function isLatestJournalCandidate(
+  candidate: { dayIndex: number; sortTime: number },
+  current: { dayIndex: number; sortTime: number },
+): boolean {
+  if (candidate.sortTime > current.sortTime) return true;
+  if (candidate.sortTime < current.sortTime) return false;
+  // Missing Foundry timestamps: prefer the furthest in-game date with a journal.
+  return candidate.dayIndex > current.dayIndex;
 }
 
 /** Day index of the most recently created calendar day journal, or null if none exist. */
 export function getLatestCalendarJournalDayIndex(): number | null {
-  let latestTime = -1;
-  let latestDayIndex: number | null = null;
+  let latest: { dayIndex: number; sortTime: number } | null = null;
 
   for (const entry of (game as any).journal?.contents ?? []) {
     const flag = readCalendarFlag(entry as JournalEntry);
-    if (!flag || !Number.isFinite(flag.dayIndex)) continue;
+    if (!flag) continue;
 
-    const createdTime = journalEntryCreatedTime(entry as JournalEntry);
-    if (createdTime > latestTime) {
-      latestTime = createdTime;
-      latestDayIndex = Math.floor(flag.dayIndex);
+    const candidate = {
+      dayIndex: flag.dayIndex,
+      sortTime: journalEntrySortTime(entry as JournalEntry),
+    };
+
+    if (!latest || isLatestJournalCandidate(candidate, latest)) {
+      latest = candidate;
     }
   }
 
-  return latestDayIndex;
+  return latest?.dayIndex ?? null;
 }
