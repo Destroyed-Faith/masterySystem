@@ -3,7 +3,7 @@
  */
 
 import { TYHRA_CALENDAR } from './tyhra-calendar-config.js';
-import { createTyhraCalendarApi } from './tyhra-calendar-api.js';
+import { createTyhraCalendarApi, syncCurrentDayToLatestJournalEntry } from './tyhra-calendar-api.js';
 import { buildJournalIndex, openDayJournal } from './tyhra-calendar-journal-service.js';
 import {
   canUserCreateDayJournals,
@@ -61,13 +61,34 @@ export class TyhraCalendarApplication extends BaseDialog {
       return;
     }
 
+    void TyhraCalendarApplication.#open(options);
+  }
+
+  static async #open(options: { year?: number; monthIndex?: number } = {}): Promise<void> {
+    const viewOptions = { ...options };
+
+    if (viewOptions.year === undefined && viewOptions.monthIndex === undefined) {
+      await syncCurrentDayToLatestJournalEntry();
+      const current = getDateFromDayIndex(getCurrentDayIndex());
+      viewOptions.year = current.year;
+      viewOptions.monthIndex = getMonthIndexForDate(current);
+    }
+
     if (TyhraCalendarApplication.instance?.rendered) {
+      TyhraCalendarApplication.instance.#setViewFromOptions(viewOptions);
       TyhraCalendarApplication.instance.bringToFront();
+      await TyhraCalendarApplication.instance.render(false);
       return;
     }
 
-    TyhraCalendarApplication.instance = new TyhraCalendarApplication(options);
+    TyhraCalendarApplication.instance = new TyhraCalendarApplication(viewOptions);
     TyhraCalendarApplication.instance.render(true);
+  }
+
+  #setViewFromOptions(options: { year?: number; monthIndex?: number }): void {
+    const current = getDateFromDayIndex(getCurrentDayIndex());
+    this.viewYear = options.year ?? current.year;
+    this.viewMonthIndex = options.monthIndex ?? getMonthIndexForDate(current);
   }
 
   static requestRefresh(): void {

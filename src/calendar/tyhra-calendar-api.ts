@@ -3,7 +3,7 @@
  */
 
 import { TyhraCalendarApplication } from './tyhra-calendar-application.js';
-import { openDayJournal } from './tyhra-calendar-journal-service.js';
+import { openDayJournal, getLatestCalendarJournalDayIndex } from './tyhra-calendar-journal-service.js';
 import {
   getDateFromDayIndex,
   getDayIndexFromDate,
@@ -30,6 +30,19 @@ function notifyDateChanged(previousDayIndex: number, currentDayIndex: number): v
   };
   Hooks.callAll(CALENDAR_DATE_CHANGED_HOOK, payload);
   TyhraCalendarApplication.requestRefresh();
+}
+
+/** When opening the calendar, jump world date to the latest created day journal. */
+export async function syncCurrentDayToLatestJournalEntry(): Promise<number> {
+  const latestDayIndex = getLatestCalendarJournalDayIndex();
+  if (latestDayIndex === null) return getCurrentDayIndex();
+
+  const previousDayIndex = getCurrentDayIndex();
+  if (latestDayIndex === previousDayIndex) return previousDayIndex;
+
+  await setCurrentDayIndex(latestDayIndex);
+  notifyDateChanged(previousDayIndex, latestDayIndex);
+  return latestDayIndex;
 }
 
 export interface TyhraCalendarApi {

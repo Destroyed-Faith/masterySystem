@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.185] - 2026-07-13
+
+### Changed
+
+- **Tyhra Calendar:** Opening the calendar now sets the current world date to the most recently created day journal and navigates the view to that month.
+
+### Added
+
+- **Tests:** `tests/tyhra-calendar-latest-journal.test.ts` for latest-journal day lookup.
+
 ## [0.9.184] - 2026-07-13
 
 ### Added

@@ -239,3 +239,28 @@ export async function openDayJournal(
 export function getJournalKeyForDayIndex(dayIndex: number): string {
   return getJournalKeyFromDayIndex(dayIndex);
 }
+
+function journalEntryCreatedTime(entry: JournalEntry): number {
+  const stats = (entry as { _stats?: { createdTime?: number }; stats?: { createdTime?: number } })._stats
+    ?? (entry as { stats?: { createdTime?: number } }).stats;
+  return Number(stats?.createdTime) || 0;
+}
+
+/** Day index of the most recently created calendar day journal, or null if none exist. */
+export function getLatestCalendarJournalDayIndex(): number | null {
+  let latestTime = -1;
+  let latestDayIndex: number | null = null;
+
+  for (const entry of (game as any).journal?.contents ?? []) {
+    const flag = readCalendarFlag(entry as JournalEntry);
+    if (!flag || !Number.isFinite(flag.dayIndex)) continue;
+
+    const createdTime = journalEntryCreatedTime(entry as JournalEntry);
+    if (createdTime > latestTime) {
+      latestTime = createdTime;
+      latestDayIndex = Math.floor(flag.dayIndex);
+    }
+  }
+
+  return latestDayIndex;
+}
