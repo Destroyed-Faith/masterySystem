@@ -76,7 +76,6 @@ export const MASTERY_STATUS_EFFECTS: MasteryStatusEffect[] = [
   { id: 'knockback',    name: 'Knockback',    img: ICON('direction') },
   { id: 'pull',         name: 'Pull',         img: ICON('pawprint') },
   { id: 'push',         name: 'Push',         img: ICON('direction') },
-  { id: 'autofire',     name: 'Autofire',     img: ICON('arrow-thin') },
 ];
 
 /**

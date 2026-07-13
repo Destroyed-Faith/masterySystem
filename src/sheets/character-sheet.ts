@@ -2286,7 +2286,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       '.tab.equipment .df-enc-band .df-draggable-item';
     const ContextMenuCls = (foundry as any).applications?.ux?.ContextMenu;
     if (ContextMenuCls) {
-      new ContextMenuCls(html, invEquipSelector, this.#inventoryEquipContextMenuEntries(), {
+      const rootEl = (html as any)?.[0] ?? (this.element as any)?.[0] ?? document.body;
+      new ContextMenuCls(rootEl, invEquipSelector, this.#inventoryEquipContextMenuEntries(), {
         eventName: 'contextmenu',
         jQuery: false
       } as any);
