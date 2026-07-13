@@ -152,7 +152,10 @@ export interface CombatSensesPanelRow {
   id: CombatSenseId;
   label: string;
   rangeM: number;
+  /** Checked in UI (manual grant and/or equipped artifact). */
   selected: boolean;
+  /** Granted by equipped artifact — display only, not stored on actor.combatSenses.grantedSenseIds. */
+  fromArtifact: boolean;
 }
 
 export interface CombatSensesPanelContext {
@@ -262,12 +265,17 @@ export function buildCombatSensesPanelContext(actor: any): CombatSensesPanelCont
     }
   }
 
-  const grantedRows: CombatSensesPanelRow[] = SENSE_SLOT_SPECIAL_IDS.map((id) => ({
-    id,
-    label: COMBAT_SENSES[id].label,
-    rangeM: COMBAT_SENSES[id].rangeM,
-    selected: allGranted.includes(id),
-  }));
+  const grantedRows: CombatSensesPanelRow[] = SENSE_SLOT_SPECIAL_IDS.map((id) => {
+    const manual = data.grantedSenseIds.includes(id);
+    const fromArtifact = artifactGranted.includes(id) && !manual;
+    return {
+      id,
+      label: COMBAT_SENSES[id].label,
+      rangeM: COMBAT_SENSES[id].rangeM,
+      selected: manual || fromArtifact,
+      fromArtifact,
+    };
+  });
 
   const passiveRows = grantedRows.filter((r) => data.passiveSenseIds.includes(r.id));
 

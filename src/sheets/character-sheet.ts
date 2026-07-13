@@ -54,7 +54,9 @@ import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
 import { getPowerMinLevel as resolvePowerMinLevel } from '../utils/power-xp-refund.js';
 import { matchesMasteryWeaponCatalog } from '../utils/weapons';
 import { buildRadialManeuverPrefsContext } from '../utils/radial-maneuver-prefs.js';
-import { buildCombatSensesPanelContext, buildCombatSensesBattleAreaContext } from '../combat/combat-sense-collection.js';
+import { buildCombatSensesPanelContext, buildCombatSensesBattleAreaContext, normalizeCombatSensesData } from '../combat/combat-sense-collection.js';
+import type { CombatSenseId } from '../combat/combat-senses.js';
+import { getActiveBuffs } from '../utils/active-buffs.js';
 import { buildArtifactEvolutionCards } from '../artifacts/artifact-evolution-actions.js';
 import { actorHasProgressionArtifacts } from '../utils/artifact-tree-grant.js';
 import {
@@ -267,7 +269,39 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     if (!senseId) return;
     const current = (this.actor.system as any)?.combatSenses?.activeSenseId;
     if (current === senseId) return;
-    await this.actor.update({ 'system.combatSenses.activeSenseId': senseId });
+    await this.actor.update({ 'system.combatSenses.activeSenseId': senseId }, { render: false });
+    await this.render(false);
+  }
+
+  async #onCombatSenseGrantToggle(event: JQuery.ChangeEvent) {
+    event.stopPropagation();
+    if (!this.isEditable || !this.actor.isOwner) return;
+    const el = event.currentTarget as HTMLInputElement;
+    if (el.disabled) return;
+    const senseId = String($(el).data('sense-id') || '').trim() as CombatSenseId;
+    if (!senseId) return;
+    const data = normalizeCombatSensesData((this.actor.system as any)?.combatSenses);
+    const next = [...data.grantedSenseIds];
+    const idx = next.indexOf(senseId);
+    if (el.checked) {
+      if (idx >= 0) return;
+      next.push(senseId);
+    } else {
+      if (idx < 0) return;
+      next.splice(idx, 1);
+    }
+    await this.actor.update({ 'system.combatSenses.grantedSenseIds': next }, { render: false });
+    await this.render(false);
+  }
+
+  async #onCombatSenseDarkvisionToggle(event: JQuery.ChangeEvent) {
+    event.stopPropagation();
+    if (!this.isEditable || !this.actor.isOwner) return;
+    const el = event.currentTarget as HTMLInputElement;
+    const current = !!normalizeCombatSensesData((this.actor.system as any)?.combatSenses).hasDarkvision;
+    if (el.checked === current) return;
+    await this.actor.update({ 'system.combatSenses.hasDarkvision': el.checked }, { render: false });
+    await this.render(false);
   }
 
   async #onRadialManeuverHideAll(event: JQuery.ChangeEvent) {
@@ -957,7 +991,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     // Add active buffs data - ALWAYS set as array, even if empty
     context.activeBuffs = [];
     try {
-      const { getActiveBuffs } = await import('../utils/active-buffs.js');
       const activeBuffs = getActiveBuffs(this.actor);
       console.log('Mastery System | [CHARACTER SHEET] Found active buffs:', activeBuffs.length, activeBuffs);
       
@@ -1083,6 +1116,11 @@ export class MasteryCharacterSheet extends BaseActorSheet {
   async #renderSheet(force?: boolean, options?: any) {
     console.log('Mastery System | Character Sheet render called', { force, options });
 
+    if (!this.#attributeBaselinesMigrationDone) {
+      this.#attributeBaselinesMigrationDone = true;
+      await this.#migrateAttributeBaselinesIfNeeded();
+    }
+
     if (this.element && this.element.length > 0) {
       const det = this.element.find('.radial-maneuver-prefs-details')[0];
       if (det instanceof HTMLDetailsElement) {
@@ -1119,11 +1157,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     }
     
     const result = await super.render(force, options);
-
-    if (!this.#attributeBaselinesMigrationDone) {
-      this.#attributeBaselinesMigrationDone = true;
-      void this.#migrateAttributeBaselinesIfNeeded();
-    }
     
     // Restore scroll positions after rendering
     if (this.element && this.element.length > 0 && Object.keys(scrollPositions).length > 0) {
@@ -2254,6 +2287,12 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     html
       .off('click', '.js-battle-sense-slot')
       .on('click', '.js-battle-sense-slot', this.#onBattleSenseSlotSelect.bind(this));
+    html
+      .off('change', '.js-combat-sense-grant')
+      .on('change', '.js-combat-sense-grant', this.#onCombatSenseGrantToggle.bind(this));
+    html
+      .off('change', '.js-combat-sense-darkvision')
+      .on('change', '.js-combat-sense-darkvision', this.#onCombatSenseDarkvisionToggle.bind(this));
 
     // Everything below here is only needed if the sheet is editable
     if (!this.isEditable) return;
@@ -2869,7 +2908,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     const baselines: Record<string, number> = {};
     for (const k of keys) baselines[k] = system.attributes?.[k]?.value ?? 2;
     try {
-      await this.actor.update({ 'system.xp.attributeBaselines': baselines });
+      await this.actor.update({ 'system.xp.attributeBaselines': baselines }, { render: false });
     } catch (e) {
       console.warn('Mastery System | attributeBaselines migration failed', e);
     }

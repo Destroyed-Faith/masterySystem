@@ -1233,13 +1233,25 @@
           <div class="combat-senses-granted-grid">
             {{#each combatSensesBattle.grantedRows}}
             <label class="combat-sense-grant">
-              <input type="checkbox" name="system.combatSenses.grantedSenseIds" value="{{this.id}}" {{#if this.selected}}checked{{/if}} {{#unless @root.editable}}disabled{{/unless}} />
-              {{this.label}} ({{this.rangeM}} m)
+              <input
+                type="checkbox"
+                class="js-combat-sense-grant"
+                data-sense-id="{{this.id}}"
+                {{#if this.selected}}checked{{/if}}
+                {{#if this.fromArtifact}}disabled{{/if}}
+                {{#unless @root.editable}}disabled{{/unless}}
+              />
+              {{this.label}} ({{this.rangeM}} m){{#if this.fromArtifact}} <span class="battle-senses-catalog-badge is-artifact">From artifact</span>{{/if}}
             </label>
             {{/each}}
           </div>
           <label class="battle-sense-darkvision">
-            <input type="checkbox" name="system.combatSenses.hasDarkvision" {{#if combatSensesBattle.hasDarkvision}}checked{{/if}} {{#unless @root.editable}}disabled{{/unless}} />
+            <input
+              type="checkbox"
+              class="js-combat-sense-darkvision"
+              {{#if combatSensesBattle.hasDarkvision}}checked{{/if}}
+              {{#unless @root.editable}}disabled{{/unless}}
+            />
             Darkvision — minor upgrade ({{combatSensesBattle.darkvisionSummary}})
           </label>
         </details>

@@ -22,7 +22,10 @@ export interface CombatSensesPanelRow {
     id: CombatSenseId;
     label: string;
     rangeM: number;
+    /** Checked in UI (manual grant and/or equipped artifact). */
     selected: boolean;
+    /** Granted by equipped artifact — display only, not stored on actor.combatSenses.grantedSenseIds. */
+    fromArtifact: boolean;
 }
 export interface CombatSensesPanelContext {
     activeSenseId: CombatSenseId;

@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.206] - 2026-07-14
+
+### Fixed
+
+- **Character sheet open loop (continued):** Combat Senses granted-sense checkboxes and Darkvision no longer use form-bound `name="system.combatSenses.*"` fields (artifact-granted senses showed checked while actor data differed, re-triggering Foundry form sync). All battle-senses controls now use explicit change/click handlers with `{ render: false }` updates. Attribute-baseline migration runs before the first paint and no longer auto-re-renders the sheet.
+
+### Added
+
+- **Regression test:** Battle-senses block must not contain any `name="system.combatSenses.*"` form bindings.
+
 ## [0.9.205] - 2026-07-14
 
 ### Fixed

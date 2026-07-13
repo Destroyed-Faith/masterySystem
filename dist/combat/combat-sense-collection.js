@@ -175,12 +175,17 @@ export function buildCombatSensesPanelContext(actor) {
             slotOptions.push({ id, label: COMBAT_SENSES[id].label });
         }
     }
-    const grantedRows = SENSE_SLOT_SPECIAL_IDS.map((id) => ({
-        id,
-        label: COMBAT_SENSES[id].label,
-        rangeM: COMBAT_SENSES[id].rangeM,
-        selected: allGranted.includes(id),
-    }));
+    const grantedRows = SENSE_SLOT_SPECIAL_IDS.map((id) => {
+        const manual = data.grantedSenseIds.includes(id);
+        const fromArtifact = artifactGranted.includes(id) && !manual;
+        return {
+            id,
+            label: COMBAT_SENSES[id].label,
+            rangeM: COMBAT_SENSES[id].rangeM,
+            selected: manual || fromArtifact,
+            fromArtifact,
+        };
+    });
     const passiveRows = grantedRows.filter((r) => data.passiveSenseIds.includes(r.id));
     return {
         activeSenseId: getActiveCombatSense(actor),
