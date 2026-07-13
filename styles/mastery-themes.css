@@ -147,7 +147,7 @@
 }
 
 /* Buttons */
-.ms-theme-rulebook .mastery-system button {
+.ms-theme-rulebook .mastery-system button:not(.header-control) {
   background-color: #2a3136;
   border: 1px solid var(--ms-border);
   color: var(--ms-text);
@@ -159,38 +159,38 @@
   box-shadow: 0 2px 4px var(--ms-shadow);
 }
 
-.ms-theme-rulebook .mastery-system button:hover:not(:disabled) {
+.ms-theme-rulebook .mastery-system button:not(.header-control):hover:not(:disabled) {
   border-color: var(--ms-accent);
   box-shadow: 0 0 8px var(--ms-accent2), 0 2px 4px var(--ms-shadow);
   color: var(--ms-accent);
 }
 
-.ms-theme-rulebook .mastery-system button:disabled {
+.ms-theme-rulebook .mastery-system button:not(.header-control):disabled {
   opacity: 0.55;
   cursor: not-allowed;
   box-shadow: none;
 }
 
-.ms-theme-rulebook .mastery-system button.danger,
-.ms-theme-rulebook .mastery-system button[type="button"].danger {
+.ms-theme-rulebook .mastery-system button:not(.header-control).danger,
+.ms-theme-rulebook .mastery-system button[type="button"]:not(.header-control).danger {
   background-color: var(--ms-danger);
   border-color: var(--ms-danger);
   color: #fff;
 }
 
-.ms-theme-rulebook .mastery-system button.danger:hover:not(:disabled) {
+.ms-theme-rulebook .mastery-system button:not(.header-control).danger:hover:not(:disabled) {
   background-color: #8b4444;
   border-color: #8b4444;
   box-shadow: 0 0 8px rgba(123, 58, 58, 0.5), 0 2px 4px var(--ms-shadow);
 }
 
-.ms-theme-rulebook .mastery-system button.success {
+.ms-theme-rulebook .mastery-system button:not(.header-control).success {
   background-color: var(--ms-success);
   border-color: var(--ms-success);
   color: #fff;
 }
 
-.ms-theme-rulebook .mastery-system button.success:hover:not(:disabled) {
+.ms-theme-rulebook .mastery-system button:not(.header-control).success:hover:not(:disabled) {
   background-color: #4a7a65;
   border-color: #4a7a65;
   box-shadow: 0 0 8px rgba(63, 107, 84, 0.5), 0 2px 4px var(--ms-shadow);
@@ -297,13 +297,13 @@
 }
 
 /* Override Foundry default button colors */
-.ms-theme-rulebook .mastery-system button[type="submit"] {
+.ms-theme-rulebook .mastery-system button[type="submit"]:not(.header-control) {
   background-color: #2a3136;
   border-color: var(--ms-border);
   color: var(--ms-text);
 }
 
-.ms-theme-rulebook .mastery-system button[type="submit"]:hover:not(:disabled) {
+.ms-theme-rulebook .mastery-system button[type="submit"]:not(.header-control):hover:not(:disabled) {
   border-color: var(--ms-accent);
   box-shadow: 0 0 8px var(--ms-accent2), 0 2px 4px var(--ms-shadow);
   color: var(--ms-accent);

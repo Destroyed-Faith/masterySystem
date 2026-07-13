@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.203] - 2026-07-13
+
+### Fixed
+
+- **Dialog header icons:** Scope Laviossa/uppercase styling to `.window-title` only; exclude `.header-control` from generic button theme rules; restore Font Awesome rendering on close/menu icons and window icons.
+
 ## [0.9.202] - 2026-07-13
 
 ### Fixed

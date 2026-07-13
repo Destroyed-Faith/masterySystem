@@ -13,7 +13,6 @@
    CSS Variables - Rulebook Palette
    ======================================== */
 :root {
-  --df-font-head: 'Laviossa', var(--df-font-head);
   --df-bg-primary: #20272B;
   --df-bg-panel: #2a3136;
   --df-bg-header: #1b2124;
@@ -45,16 +44,15 @@
   background: var(--df-bg-header);
   border-bottom: 1px solid var(--df-border-primary);
   padding: 0.5rem 1rem;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  font-family: var(--df-font-head);
-  font-size: 0.9rem;
-  font-weight: 400;
 }
 
 .application.mastery-system:not(.sheet) .window-header .window-title {
   color: var(--df-text-primary);
+  font-family: var(--df-font-head);
+  font-size: 0.9rem;
   font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
 }
 
 .application.mastery-system:not(.sheet) .window-header .header-button {
@@ -85,16 +83,30 @@
   color: var(--df-text-primary);
 }
 
+.application.mastery-system:not(.sheet) .window-header .header-control.icon,
+.application.mastery-system:not(.sheet) .window-header .header-control.icon::before,
+.application.mastery-system:not(.sheet) .window-header .window-icon,
+.application.mastery-system:not(.sheet) .window-header .window-icon::before {
+  font-family: var(--font-awesome, "Font Awesome 6 Pro", "Font Awesome 6 Free") !important;
+  font-weight: 900 !important;
+  font-style: normal !important;
+  font-variant: normal !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+}
+
 .application.mastery-system:not(.sheet) .window-header .header-control.icon {
-  font-size: 1rem;
+  font-size: var(--font-size-14, 14px);
   width: auto;
   height: auto;
-  display: flex;
+  min-width: 1.75rem;
+  min-height: 1.75rem;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  /* The window header uses the DF title font; ensure FontAwesome glyphs render. */
-  font-family: "Font Awesome 6 Pro", "Font Awesome 6 Free", "Font Awesome 6 Brands";
-  font-weight: 900;
+  padding: 4px 8px;
 }
 
 .application.mastery-system:not(.sheet) .window-header .header-control[data-action="close"]:hover {
@@ -156,7 +168,7 @@
 /* ========================================
    Buttons
    ======================================== */
-.application.mastery-system:not(.sheet) button {
+.application.mastery-system:not(.sheet) button:not(.header-control) {
   background: var(--df-bg-panel);
   color: var(--df-text-primary);
   border: 1px solid var(--df-border-primary);
@@ -170,14 +182,14 @@
   letter-spacing: 0.02em;
 }
 
-.application.mastery-system:not(.sheet) button:hover:not(:disabled) {
+.application.mastery-system:not(.sheet) button:not(.header-control):hover:not(:disabled) {
   background: var(--df-bg-header);
   border-color: var(--df-border-highlight);
   color: var(--df-text-primary);
   box-shadow: 0 2px 4px var(--df-shadow);
 }
 
-.application.mastery-system:not(.sheet) button:disabled {
+.application.mastery-system:not(.sheet) button:not(.header-control):disabled {
   background: var(--df-bg-panel);
   color: var(--df-text-muted);
   border-color: var(--df-border-primary);
@@ -185,26 +197,26 @@
   cursor: not-allowed;
 }
 
-.application.mastery-system:not(.sheet) button.danger,
-.application.mastery-system:not(.sheet) button[type="button"].danger {
+.application.mastery-system:not(.sheet) button:not(.header-control).danger,
+.application.mastery-system:not(.sheet) button[type="button"]:not(.header-control).danger {
   background: var(--df-bg-panel);
   border-color: var(--df-border-primary);
   color: var(--df-text-secondary);
 }
 
-.application.mastery-system:not(.sheet) button.danger:hover:not(:disabled) {
+.application.mastery-system:not(.sheet) button:not(.header-control).danger:hover:not(:disabled) {
   background: var(--df-bg-header);
   border-color: var(--df-border-highlight);
   color: var(--df-text-primary);
 }
 
-.application.mastery-system:not(.sheet) button.success {
+.application.mastery-system:not(.sheet) button:not(.header-control).success {
   background: var(--df-bg-panel);
   border-color: var(--df-border-primary);
   color: var(--df-text-primary);
 }
 
-.application.mastery-system:not(.sheet) button.success:hover:not(:disabled) {
+.application.mastery-system:not(.sheet) button:not(.header-control).success:hover:not(:disabled) {
   background: var(--df-bg-header);
   border-color: var(--df-border-highlight);
 }

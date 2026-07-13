@@ -512,7 +512,7 @@
    Buttons
    ======================================== */
 
-.mastery-system button {
+.mastery-system button:not(.header-control) {
   padding: 0.5rem 1rem;
   border: none;
   border-radius: 6px;
@@ -526,7 +526,7 @@
   justify-content: center;
 }
 
-.mastery-system button:disabled {
+.mastery-system button:not(.header-control):disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
