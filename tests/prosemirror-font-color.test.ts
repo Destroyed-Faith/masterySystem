@@ -5,6 +5,7 @@ import {
   getMenuView,
   prependFontColorDropDown,
   prependFontColorMenuItem,
+  reconfigureEditorStateWithSchema,
   resolveColorMark,
 } from '../src/editor/prosemirror-font-color';
 
@@ -179,5 +180,53 @@ describe('buildTextStyleColorMarkSpec', () => {
     expect(spec.attrs).toEqual({ color: { default: null } });
     expect(spec.parseDOM).toHaveLength(2);
     expect(typeof spec.toDOM).toBe('function');
+  });
+});
+
+describe('reconfigureEditorStateWithSchema', () => {
+  it('preserves plugins when rebuilding editor state with an extended schema', () => {
+    const plugins = [{ key: 'menu' }];
+    const oldSchema = mockSchema({ bold: { attrs: {} } });
+    const newSchema = {
+      ...mockSchema({
+        bold: { attrs: {} },
+        textStyle: { attrs: { color: { default: null } } },
+      }),
+      nodeFromJSON: vi.fn((json: unknown) => json),
+    };
+
+    const state = {
+      schema: oldSchema,
+      plugins,
+      storedMarks: null,
+      selection: { empty: true, from: 1, to: 1, $from: { marks: () => [] } },
+      doc: {
+        toJSON: () => ({ type: 'doc', content: [] }),
+      },
+      constructor: {
+        create: vi.fn((config: Record<string, unknown>) => ({ ...config, tr: {} })),
+      },
+    };
+
+    const rebuilt = reconfigureEditorStateWithSchema(state as never, newSchema);
+    expect(state.constructor.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        schema: newSchema,
+        plugins,
+      }),
+    );
+    expect(rebuilt.schema).toBe(newSchema);
+  });
+
+  it('returns the original state when schema extension is unchanged', () => {
+    const schema = mockSchema({ textStyle: { attrs: { color: { default: null } } } });
+    const state = {
+      schema,
+      plugins: [],
+      doc: { toJSON: () => ({}) },
+      selection: { empty: true, from: 0, to: 0, $from: { marks: () => [] } },
+    };
+
+    expect(reconfigureEditorStateWithSchema(state as never, schema)).toBe(state);
   });
 });

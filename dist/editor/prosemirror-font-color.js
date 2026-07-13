@@ -107,18 +107,37 @@ export function extendSchemaWithTextStyle(schema) {
         return schema;
     }
 }
-function reconfigureEditorStateWithSchema(state, schema) {
+function getEditorStateCreate() {
+    const globalFoundry = globalThis
+        .foundry;
+    return globalFoundry?.prosemirror?.EditorState?.create ?? null;
+}
+function recreateSelection(state, doc) {
+    const TextSelection = globalThis.foundry?.prosemirror?.TextSelection;
+    const docWithSize = doc;
+    const from = Math.min(state.selection.from, docWithSize.content.size);
+    const to = Math.min(state.selection.to, docWithSize.content.size);
+    if (TextSelection?.create) {
+        return state.selection.empty ? TextSelection.create(doc, from) : TextSelection.create(doc, from, to);
+    }
+    return state.selection;
+}
+/** Rebuild editor state with an extended schema while preserving Foundry's plugin wiring. */
+export function reconfigureEditorStateWithSchema(state, schema) {
     if (state.schema === schema)
         return state;
-    const EditorState = state.constructor;
+    const create = getEditorStateCreate() ?? state.constructor?.create;
     const schemaWithJson = schema;
-    if (!EditorState || typeof schemaWithJson.nodeFromJSON !== 'function')
+    if (typeof create !== 'function' || typeof schemaWithJson.nodeFromJSON !== 'function')
         return state;
     try {
-        return new EditorState({
+        const doc = schemaWithJson.nodeFromJSON(state.doc.toJSON());
+        const selection = recreateSelection(state, doc);
+        return create({
             schema,
-            doc: schemaWithJson.nodeFromJSON(state.doc.toJSON()),
-            selection: state.selection,
+            doc,
+            plugins: state.plugins,
+            selection,
             storedMarks: state.storedMarks,
         });
     }

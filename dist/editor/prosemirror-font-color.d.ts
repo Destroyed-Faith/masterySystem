@@ -80,12 +80,32 @@ type SchemaWithSpec = PMSchema & {
     };
     nodeFromJSON?: (json: unknown) => unknown;
 };
+type EditorStateWithCtor = PMEditorState & {
+    constructor?: {
+        create?: (config: {
+            schema: PMSchema;
+            doc: unknown;
+            plugins?: unknown;
+            selection?: unknown;
+            storedMarks?: unknown[] | null;
+        }) => PMEditorState;
+    };
+    doc: {
+        toJSON: () => unknown;
+    };
+    plugins?: unknown;
+    selection: PMEditorState['selection'] & {
+        map?: (doc: unknown, mapping: unknown) => unknown;
+    };
+};
 /** Find the schema mark used for inline text color (Foundry v14 uses `textStyle.color`). */
 export declare function resolveColorMark(schema: PMSchema): ResolvedColorMark | null;
 /** Mark spec for inline text color. Foundry v13 omits this; v14 adds it in core. */
 export declare function buildTextStyleColorMarkSpec(): Record<string, unknown>;
 /** Extend a ProseMirror schema with a textStyle color mark when core does not provide one. */
 export declare function extendSchemaWithTextStyle(schema: SchemaWithSpec): PMSchema;
+/** Rebuild editor state with an extended schema while preserving Foundry's plugin wiring. */
+export declare function reconfigureEditorStateWithSchema(state: EditorStateWithCtor, schema: PMSchema): PMEditorState;
 export declare function getMenuView(menu: unknown, view?: PMEditorView | null): PMEditorView | null;
 /** Resolve the live ProseMirror view from the surrounding editor DOM. */
 export declare function findEditorViewFromElement(root: Element | ParentNode | null): PMEditorView | null;

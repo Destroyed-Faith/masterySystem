@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.194] - 2026-07-13
+
+### Fixed
+
+- **Journal text color:** ProseMirror editor no longer crashes on open — schema extension now preserves Foundry's editor plugins when rebuilding `EditorState`.
+
 ## [0.9.193] - 2026-07-13
 
 ### Fixed

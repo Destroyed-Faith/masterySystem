@@ -83,13 +83,20 @@ type SchemaWithSpec = PMSchema & {
 };
 
 type EditorStateWithCtor = PMEditorState & {
-  constructor?: new (config: {
-    schema: PMSchema;
-    doc: unknown;
-    selection?: unknown;
-    storedMarks?: unknown[] | null;
-  }) => PMEditorState;
+  constructor?: {
+    create?: (config: {
+      schema: PMSchema;
+      doc: unknown;
+      plugins?: unknown;
+      selection?: unknown;
+      storedMarks?: unknown[] | null;
+    }) => PMEditorState;
+  };
   doc: { toJSON: () => unknown };
+  plugins?: unknown;
+  selection: PMEditorState['selection'] & {
+    map?: (doc: unknown, mapping: unknown) => unknown;
+  };
 };
 
 function readMarkAttrNames(markType: unknown): string[] {
@@ -191,18 +198,53 @@ export function extendSchemaWithTextStyle(schema: SchemaWithSpec): PMSchema {
   }
 }
 
-function reconfigureEditorStateWithSchema(state: EditorStateWithCtor, schema: PMSchema): PMEditorState {
+function getEditorStateCreate():
+  | ((config: {
+      schema: PMSchema;
+      doc: unknown;
+      plugins?: unknown;
+      selection?: unknown;
+      storedMarks?: unknown[] | null;
+    }) => PMEditorState)
+  | null {
+  const globalFoundry = (globalThis as { foundry?: { prosemirror?: { EditorState?: EditorStateWithCtor['constructor'] } } })
+    .foundry;
+  return globalFoundry?.prosemirror?.EditorState?.create ?? null;
+}
+
+function recreateSelection(state: EditorStateWithCtor, doc: unknown): unknown {
+  const TextSelection = (
+    globalThis as { foundry?: { prosemirror?: { TextSelection?: { create: (doc: unknown, from: number, to?: number) => unknown } } } }
+  ).foundry?.prosemirror?.TextSelection;
+
+  const docWithSize = doc as { content: { size: number } };
+  const from = Math.min(state.selection.from, docWithSize.content.size);
+  const to = Math.min(state.selection.to, docWithSize.content.size);
+
+  if (TextSelection?.create) {
+    return state.selection.empty ? TextSelection.create(doc, from) : TextSelection.create(doc, from, to);
+  }
+
+  return state.selection;
+}
+
+/** Rebuild editor state with an extended schema while preserving Foundry's plugin wiring. */
+export function reconfigureEditorStateWithSchema(state: EditorStateWithCtor, schema: PMSchema): PMEditorState {
   if (state.schema === schema) return state;
 
-  const EditorState = state.constructor;
+  const create = getEditorStateCreate() ?? state.constructor?.create;
   const schemaWithJson = schema as SchemaWithSpec;
-  if (!EditorState || typeof schemaWithJson.nodeFromJSON !== 'function') return state;
+  if (typeof create !== 'function' || typeof schemaWithJson.nodeFromJSON !== 'function') return state;
 
   try {
-    return new EditorState({
+    const doc = schemaWithJson.nodeFromJSON(state.doc.toJSON());
+    const selection = recreateSelection(state, doc);
+
+    return create({
       schema,
-      doc: schemaWithJson.nodeFromJSON(state.doc.toJSON()),
-      selection: state.selection,
+      doc,
+      plugins: state.plugins,
+      selection,
       storedMarks: state.storedMarks,
     });
   } catch (error) {
