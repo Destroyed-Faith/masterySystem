@@ -5,11 +5,15 @@
 
 /** True on Foundry v14+ (`CONFIG.statusEffects` is a record, not an array). */
 export function isFoundryV14OrNewer(): boolean {
-  if (typeof game === 'undefined') return false;
+  if (typeof game === 'undefined') {
+    // v14-only system — never assign CONFIG.statusEffects as an array when unsure.
+    return true;
+  }
   const generation = (game as any).release?.generation;
   if (typeof generation === 'number') return generation >= 14;
-  const major = Number(String((game as any).version ?? '0').split('.')[0]);
-  return Number.isFinite(major) && major >= 14;
+  const major = Number(String((game as any).version ?? '').split('.')[0]);
+  if (Number.isFinite(major) && major > 0) return major >= 14;
+  return true;
 }
 
 /** V14 document update operator for deleting nested fields. */

@@ -38,8 +38,8 @@ import { applyAttributePendingChanges, calculateAttributePendingNetCost, calcula
 import { isEchoBoundArtifact, isEchoArtifactInventoryHidden } from '../utils/echo-artifact-equip.js';
 // Removed: showWeaponCreationDialog, showArmorCreationDialog, showShieldCreationDialog
 // Replaced with General Items Storage and Store dialogs
-// Use namespaced ActorSheet when available to avoid deprecation warnings
-const BaseActorSheet = foundry?.appv1?.sheets?.ActorSheet || ActorSheet;
+// Foundry v14 document sheets still extend the appv1 ActorSheet base class.
+const BaseActorSheet = foundry.appv1.sheets.ActorSheet;
 /**
  * True when an item is an Echo-bound artifact that is locked into its slot
  * (Elven Stride, Wyrm/Serpent Scales, Dragon Claws, Dragon Head, etc.). Such

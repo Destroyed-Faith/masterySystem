@@ -52,32 +52,65 @@ export function buildMasteryStatusEffects() {
         statuses: e.statuses && e.statuses.length > 0 ? e.statuses : [e.id],
     }));
 }
+function upsertV14StatusEffect(store, effect, order) {
+    const existing = store[effect.id];
+    if (existing && typeof existing === 'object') {
+        existing.id = effect.id;
+        existing.name = effect.name;
+        existing.img = effect.img;
+        existing.order = order;
+        return true;
+    }
+    const attempts = [
+        { id: effect.id, name: effect.name, img: effect.img, order },
+        { id: effect.id, name: effect.name, img: effect.img, order, statuses: new Set([effect.id]) },
+        { id: effect.id, name: effect.name, img: effect.img, order },
+    ];
+    for (const data of attempts) {
+        try {
+            store[effect.id] = data;
+            return true;
+        }
+        catch {
+            // try next shape
+        }
+    }
+    try {
+        store[effect.id] = { id: effect.id };
+        const cfg = store[effect.id];
+        if (!cfg)
+            return false;
+        cfg.name = effect.name;
+        cfg.img = effect.img;
+        cfg.order = order;
+        return true;
+    }
+    catch {
+        return false;
+    }
+}
+function applyMasteryStatusEffectsAsRecord(store) {
+    const keepIds = new Set(MASTERY_STATUS_EFFECTS.map(e => e.id));
+    let order = 0;
+    for (const effect of MASTERY_STATUS_EFFECTS) {
+        if (!upsertV14StatusEffect(store, effect, order++)) {
+            console.warn(`Mastery System | Could not register status effect "${effect.id}" on v14`);
+        }
+    }
+    for (const key of Object.keys(store)) {
+        if (!keepIds.has(key))
+            delete store[key];
+    }
+}
 /**
  * Register mastery conditions on `CONFIG.statusEffects`.
  * Foundry v12/v13 use an array; v14+ uses a record keyed by effect id.
  */
 export function applyMasteryStatusEffects() {
-    const effects = buildMasteryStatusEffects();
-    // v14 exposes array-like backwards compat on read, but assigning an array
-    // hits a setter that calls .push on the underlying record — mutate in place.
     if (isFoundryV14OrNewer()) {
-        const store = CONFIG.statusEffects;
-        for (const key of Object.keys(store)) {
-            delete store[key];
-        }
-        let order = 0;
-        for (const e of effects) {
-            // v14 StatusEffectConfig has no `statuses` array — assigning one hits a
-            // Set-backed setter and throws `statuses.push is not a function`.
-            store[e.id] = {
-                id: e.id,
-                name: e.name,
-                img: e.img,
-                order: order++,
-            };
-        }
+        applyMasteryStatusEffectsAsRecord(CONFIG.statusEffects);
         return;
     }
-    CONFIG.statusEffects = effects;
+    CONFIG.statusEffects = buildMasteryStatusEffects();
 }
 //# sourceMappingURL=status-effects.js.map

@@ -114,18 +114,11 @@ Hooks.once('init', async function () {
 ╚═══════════════════════════════════════════════════════════╝
 `);
     registerAllMasteryInitSettings();
-    // Shim Application to V2 if available to silence V1 deprecation (non-breaking)
-    if (foundry?.applications?.api?.ApplicationV2 && !globalThis._masteryAppPatched) {
-        globalThis.Application = foundry.applications.api.ApplicationV2;
-        globalThis._masteryAppPatched = true;
-    }
     // Register custom Document classes
     CONFIG.Actor.documentClass = MasteryActor;
     CONFIG.Item.documentClass = MasteryItem;
-    // Replace Foundry's default status-effects list with the Mastery-System
-    // specials catalog so the token HUD radial shows only system conditions.
-    applyMasteryStatusEffects();
-    // Register custom sheet application classes
+    // Register custom sheet application classes before optional init steps that
+    // may throw on v14 (status effects, legacy shims, etc.).
     const coreActorSheet = foundry.appv1?.sheets?.ActorSheet;
     if (coreActorSheet) {
         try {
@@ -191,6 +184,14 @@ Hooks.once('init', async function () {
         label: 'Artifact Sheet'
     });
     console.log('Mastery System | Registered Artifact Sheet');
+    // Replace Foundry's default status-effects list with the Mastery-System
+    // specials catalog so the token HUD radial shows only system conditions.
+    try {
+        applyMasteryStatusEffects();
+    }
+    catch (err) {
+        console.warn('Mastery System | Could not apply mastery status effects', err);
+    }
     exposeMasterySystemApi();
     // Setup XP Management inline in settings
     setupXpManagementInline();
@@ -2734,6 +2735,12 @@ Hooks.once('ready', async function () {
     console.log(`║  MASTERY SYSTEM / DESTROYED FAITH - VERSION ${system.version.padEnd(10)} ║`);
     console.log(`╚═══════════════════════════════════════════════════════════╝`);
     console.log(`Mastery System | Version ${system.version}`);
+    try {
+        applyMasteryStatusEffects();
+    }
+    catch (err) {
+        console.warn('Mastery System | Status effects apply on ready failed', err);
+    }
     // Seed General Items Storage once per world load (GM only)
     if (game.user?.isGM) {
         // Drop legacy sheet selections so defaults apply after sheet registration changes.

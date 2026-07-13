@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.202] - 2026-07-13
+
+### Fixed
+
+- **Foundry v14 init / character sheets:** Register actor/item sheets before status-effect setup; wrap status-effect registration in try/catch so init cannot abort before sheets exist.
+- **Foundry v14 status effects:** Upsert record entries in place (never assign `statuses` arrays); retry registration on `ready`.
+
 ## [0.9.201] - 2026-07-13
 
 ### Fixed

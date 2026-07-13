@@ -71,8 +71,8 @@ import { isEchoBoundArtifact, isEchoArtifactInventoryHidden } from '../utils/ech
 // Removed: showWeaponCreationDialog, showArmorCreationDialog, showShieldCreationDialog
 // Replaced with General Items Storage and Store dialogs
 
-// Use namespaced ActorSheet when available to avoid deprecation warnings
-const BaseActorSheet: any = (foundry as any)?.appv1?.sheets?.ActorSheet || (ActorSheet as any);
+// Foundry v14 document sheets still extend the appv1 ActorSheet base class.
+const BaseActorSheet: any = foundry.appv1.sheets.ActorSheet;
 
 /**
  * True when an item is an Echo-bound artifact that is locked into its slot
