@@ -67,11 +67,12 @@ export function applyMasteryStatusEffects() {
         }
         let order = 0;
         for (const e of effects) {
+            // v14 StatusEffectConfig has no `statuses` array — assigning one hits a
+            // Set-backed setter and throws `statuses.push is not a function`.
             store[e.id] = {
                 id: e.id,
                 name: e.name,
                 img: e.img,
-                statuses: e.statuses,
                 order: order++,
             };
         }

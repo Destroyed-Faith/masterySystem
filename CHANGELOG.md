@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.201] - 2026-07-13
+
+### Fixed
+
+- **Foundry v14 status effects:** Do not assign a `statuses` array on v14 configs — the field is Set-backed and crashes on assignment.
+- **Migration settings:** Register all game settings at the start of `init` so cutover flags exist even when later init steps fail.
+- **FilePicker:** Removed debug logging that accessed the deprecated global `FilePicker` getter.
+
 ## [0.9.200] - 2026-07-13
 
 ### Fixed

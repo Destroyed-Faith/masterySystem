@@ -5292,14 +5292,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             return;
         }
         try {
-            console.log('Mastery System | Attempting to open FilePicker', {
-                currentImg: this.actor.img,
-                FilePickerAvailable: typeof FilePicker !== 'undefined',
-                globalFilePicker: typeof globalThis.FilePicker !== 'undefined',
-                foundryFilePicker: typeof foundry?.applications?.apps?.FilePicker?.implementation !== 'undefined'
-            });
             const FilePickerClass = getFilePickerClass();
-            console.log('Mastery System | FilePickerClass resolved', { FilePickerClass: FilePickerClass?.name || 'unknown' });
             if (!FilePickerClass) {
                 ui.notifications?.error('File picker is not available in this Foundry version.');
                 return;

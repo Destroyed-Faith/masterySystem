@@ -123,6 +123,27 @@ console.log('Mastery System | All imports completed');
 registerHandlebarsHelpersImmediate();
 
 /**
+ * Register all world/client settings as early as possible in `init` so
+ * migrations in `ready` still work when a later init step throws.
+ */
+function registerAllMasteryInitSettings(): void {
+  registerSystemSettings();
+  registerDivineClashSettings();
+  registerEpicMasteryRollSettings();
+  registerPhasingSettings();
+  registerTemplatesCutoverSetting();
+  registerXpCurrentStepCutoverSetting();
+  registerArtifactSpecBackfillSetting();
+  registerArtifactEchoLinkMigrationSetting();
+  registerArtifactEchoActivationMigrationSetting();
+  registerEchoArtifactTreeMigrationSetting();
+  registerEchoArtifactDedupeMigrationSetting();
+  registerPaperdollSlotCanonicalSetting();
+  registerAbCriticalMilestonesMigrationSetting();
+  registerPowerTemplateResyncMigrationSetting();
+}
+
+/**
  * Initialize the Mastery System
  * This hook is called once when Foundry first starts up
  */
@@ -150,6 +171,8 @@ Hooks.once('init', async function() {
 ║                                                           ║
 ╚═══════════════════════════════════════════════════════════╝
 `);
+
+  registerAllMasteryInitSettings();
 
   // Shim Application to V2 if available to silence V1 deprecation (non-breaking)
   if ((foundry as any)?.applications?.api?.ApplicationV2 && !(globalThis as any)._masteryAppPatched) {
@@ -235,33 +258,8 @@ Hooks.once('init', async function() {
     label: 'Artifact Sheet'
   });
   console.log('Mastery System | Registered Artifact Sheet');
-  
-  // Register system settings
-  registerSystemSettings();
+
   exposeMasterySystemApi();
-  
-  // Register Divine Clash settings
-  registerDivineClashSettings();
-
-  // Epic Mastery Roll settings
-  registerEpicMasteryRollSettings();
-
-  // Phasing (Ignore-Hit) — client-side prompt behaviour.
-  registerPhasingSettings();
-
-  // Trees → Templates cutover: one-time Hard-Reset of Power items.
-  registerTemplatesCutoverSetting();
-  // New-spec XP Upgrade-Step cutover: normalize `system.xp.currentStep` and
-  // drop the retired `system.xp.spentAttributes` field.
-  registerXpCurrentStepCutoverSetting();
-  registerArtifactSpecBackfillSetting();
-  registerArtifactEchoLinkMigrationSetting();
-  registerArtifactEchoActivationMigrationSetting();
-  registerEchoArtifactTreeMigrationSetting();
-  registerEchoArtifactDedupeMigrationSetting();
-  registerPaperdollSlotCanonicalSetting();
-  registerAbCriticalMilestonesMigrationSetting();
-  registerPowerTemplateResyncMigrationSetting();
   
   // Setup XP Management inline in settings
   setupXpManagementInline();
