@@ -28,8 +28,69 @@ export function buildDifficultyPresets(challengeMR) {
 function capAttr(key) {
     return key.charAt(0).toUpperCase() + key.slice(1);
 }
+function skillRollIconClass(skillKey, attributeKey) {
+    if (skillKey === 'perception') {
+        if (attributeKey === 'wits')
+            return 'fa-brain';
+        if (attributeKey === 'intellect')
+            return 'fa-lightbulb';
+        if (attributeKey === 'resolve')
+            return 'fa-shield-alt';
+    }
+    if (attributeKey === 'might')
+        return 'fa-dumbbell';
+    if (attributeKey === 'agility')
+        return 'fa-running';
+    return null;
+}
+/** Sheet + dialog helper: dice pool label and tooltip for a skill attribute roll. */
+export function buildSkillRollPoolPreview(actor, skillKey, attributeKey, skillRatingOverride) {
+    const system = actor.system;
+    const masteryRank = Number(system.mastery?.rank ?? 2);
+    const skillRating = skillRatingOverride ?? Number(system.skills?.[skillKey] ?? 0);
+    const attributeValue = Number(system.attributes?.[attributeKey]?.value ?? 0);
+    const poolThreshold = skillFullPoolThreshold(masteryRank);
+    const fullPoolReady = isSkillFullPoolReady(skillRating, masteryRank);
+    const pool = getSkillRollDicePool(actor, skillKey, attributeKey, skillRatingOverride);
+    const attrLabel = capAttr(attributeKey);
+    const halfTag = pool.halfPool ? '½' : '';
+    const rollLabel = `${pool.numDice}k${pool.keepDice}${halfTag}`;
+    const diceLabel = `${pool.numDice}d8 k${pool.keepDice}${pool.halfPool ? ' ½' : ''}`;
+    let tooltip;
+    if (fullPoolReady) {
+        tooltip = `${attrLabel} ${attributeValue} → full pool ${pool.numDice}d8, keep ${pool.keepDice} (skill ${skillRating} ≥ ${poolThreshold}, 2×MR)`;
+    }
+    else {
+        const halved = Math.max(1, Math.floor(attributeValue / 2));
+        tooltip = `${attrLabel} ${attributeValue} → half pool ${pool.numDice}d8, keep ${pool.keepDice} (skill ${skillRating} < ${poolThreshold}; ⌊attr/2⌋ = ${halved}, MR floor ${masteryRank})`;
+    }
+    const penaltyParts = [];
+    if (pool.equipPenalty > 0)
+        penaltyParts.push(`−${pool.equipPenalty} equip`);
+    if (pool.healthPenalty > 0)
+        penaltyParts.push(`−${pool.healthPenalty} health`);
+    if (pool.encumbrancePenalty > 0)
+        penaltyParts.push(`−${pool.encumbrancePenalty} load`);
+    if (penaltyParts.length > 0) {
+        tooltip += ` [${penaltyParts.join(', ')}]`;
+    }
+    return {
+        attributeKey,
+        rollLabel,
+        diceLabel,
+        tooltip,
+        halfPool: pool.halfPool,
+        fullPoolReady,
+        numDice: pool.numDice,
+        keepDice: pool.keepDice,
+        skillRating,
+        poolThreshold,
+        attributeValue,
+        iconClass: skillRollIconClass(skillKey, attributeKey),
+    };
+}
 /** Skill rolls: attribute dice pool, keep highest equal to the actor's Mastery Rank. */
-export function getSkillRollDicePool(actor, skillKey, attributeKey) {
+export function getSkillRollDicePool(actor, skillKey, attributeKey, skillRatingOverride) {
     const skillDef = SKILLS[skillKey];
     const system = actor.system;
     const masteryRank = Number(system.mastery?.rank ?? 2);
@@ -37,7 +98,7 @@ export function getSkillRollDicePool(actor, skillKey, attributeKey) {
         return { numDice: masteryRank, keepDice: masteryRank, halfPool: false, equipPenalty: 0, healthPenalty: 0, encumbrancePenalty: 0 };
     }
     const attributeValue = Number(system.attributes?.[attributeKey]?.value ?? 0);
-    const skillRating = Number(system.skills?.[skillKey] ?? 0);
+    const skillRating = skillRatingOverride ?? Number(system.skills?.[skillKey] ?? 0);
     const fullPoolReady = isSkillFullPoolReady(skillRating, masteryRank);
     const poolThreshold = skillFullPoolThreshold(masteryRank);
     let baseAttrPool = attributeValue;

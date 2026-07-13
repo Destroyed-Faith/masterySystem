@@ -18,8 +18,25 @@ export interface BuiltRollContext {
 export declare function skillFullPoolThreshold(masteryRank: number): number;
 export declare function isSkillFullPoolReady(skillRating: number, masteryRank: number): boolean;
 export declare function buildDifficultyPresets(challengeMR: number): Record<string, number>;
+export interface SkillRollPoolPreview {
+    attributeKey: string;
+    /** Compact sheet label, e.g. `8k2` or `4k2½`. */
+    rollLabel: string;
+    diceLabel: string;
+    tooltip: string;
+    halfPool: boolean;
+    fullPoolReady: boolean;
+    numDice: number;
+    keepDice: number;
+    skillRating: number;
+    poolThreshold: number;
+    attributeValue: number;
+    iconClass: string | null;
+}
+/** Sheet + dialog helper: dice pool label and tooltip for a skill attribute roll. */
+export declare function buildSkillRollPoolPreview(actor: Actor, skillKey: string, attributeKey: string, skillRatingOverride?: number): SkillRollPoolPreview;
 /** Skill rolls: attribute dice pool, keep highest equal to the actor's Mastery Rank. */
-export declare function getSkillRollDicePool(actor: Actor, skillKey: string, attributeKey: string): {
+export declare function getSkillRollDicePool(actor: Actor, skillKey: string, attributeKey: string, skillRatingOverride?: number): {
     numDice: number;
     keepDice: number;
     halfPool: boolean;

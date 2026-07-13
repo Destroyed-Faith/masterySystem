@@ -38,6 +38,7 @@ import { registerDivineClashSettings } from './divine-clash/divine-clash-setting
 import { registerEpicMasteryRollSettings } from './epic-roll/epic-mastery-roll-settings.js';
 import { initializeEpicMasteryRoll } from './epic-roll/register-epic-mastery-roll.js';
 import { initializeTyhraCalendar } from './calendar/tyhra-calendar-hooks.js';
+import { initializeProseMirrorFontColor } from './editor/prosemirror-font-color.js';
 import { requestEpicMasteryRoll } from './epic-roll/epic-mastery-roll-config-dialog.js';
 import { getActiveEpicMasteryRollSession } from './epic-roll/epic-mastery-roll-session.js';
 import { initializeDivineClashHooks } from './divine-clash/divine-clash-hooks.js';
@@ -816,6 +817,7 @@ Hooks.once('init', async function () {
     initializeEncounterStart();
     initializeEpicMasteryRoll();
     initializeTyhraCalendar();
+    initializeProseMirrorFontColor();
     console.log('Mastery System | Encounter start system initialized');
     // Initialize token action selector
     initializeTokenActionSelector();

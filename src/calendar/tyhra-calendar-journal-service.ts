@@ -11,6 +11,7 @@ import {
 import {
   buildDayJournalPageContent,
   dateToJournalFlagData,
+  dayIndexFromParts,
   getDateFromDayIndex,
   getDayIndexFromDate,
   getDayJournalName,

@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.187] - 2026-07-13
+
+### Added
+
+- **Journal / ProseMirror text color:** Palette toolbar button and format-menu entry for choosing text color in Foundry v13 editors (journals, sheets, etc.).
+- **Tests:** `tests/prosemirror-font-color.test.ts` for color-mark schema detection.
+
+### Fixed
+
+- **Tyhra Calendar:** Missing `dayIndexFromParts` import in journal flag resolution (build fix for latest-journal sync).
+
 ## [0.9.186] - 2026-07-13
 
 ### Changed

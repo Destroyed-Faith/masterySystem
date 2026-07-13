@@ -1,8 +1,8 @@
 /**
  * Tyhra calendar — journal lookup, creation, and folder management.
  */
-import { TYHRA_CALENDAR_FLAG_SCOPE, TYHRA_CALENDAR_FOLDER_NAME, TYHRA_CALENDAR_LOG_PREFIX, } from './tyhra-calendar-config.js';
-import { buildDayJournalPageContent, dateToJournalFlagData, getDateFromDayIndex, getDayIndexFromDate, getDayJournalName, getJournalKey, getJournalKeyFromDayIndex, } from './tyhra-calendar-service.js';
+import { TYHRA_CALENDAR_FLAG_SCOPE, TYHRA_CALENDAR_FOLDER_NAME, TYHRA_CALENDAR_ID, TYHRA_CALENDAR_LOG_PREFIX, } from './tyhra-calendar-config.js';
+import { buildDayJournalPageContent, dateToJournalFlagData, dayIndexFromParts, getDateFromDayIndex, getDayIndexFromDate, getDayJournalName, getJournalKey, getJournalKeyFromDayIndex, } from './tyhra-calendar-service.js';
 import { canUserCreateDayJournals, getStoredJournalFolderId, setStoredJournalFolderId, } from './tyhra-calendar-settings.js';
 const journalCreationLocks = new Map();
 let journalIndexCache = null;
@@ -22,14 +22,40 @@ function logWarn(message, data) {
 function logError(message, error) {
     console.error(`${TYHRA_CALENDAR_LOG_PREFIX} ${message}`, error);
 }
+/** Resolve day index from flag fields even when `dayIndex` was not persisted. */
+export function resolveCalendarFlagDayIndex(data) {
+    const direct = Number(data.dayIndex);
+    if (Number.isFinite(direct))
+        return Math.floor(direct);
+    const year = Number(data.year);
+    const dayOfYear = Number(data.dayOfYear);
+    if (Number.isFinite(year) && Number.isFinite(dayOfYear) && dayOfYear >= 1) {
+        return dayIndexFromParts(Math.floor(year), Math.floor(dayOfYear));
+    }
+    const journalKey = String(data.journalKey ?? '').trim();
+    const suffixMatch = journalKey.match(/:(-?\d+)$/);
+    if (suffixMatch) {
+        const parsed = Number(suffixMatch[1]);
+        if (Number.isFinite(parsed))
+            return Math.floor(parsed);
+    }
+    return null;
+}
 export function readCalendarFlag(entry) {
     const raw = entry.getFlag(TYHRA_CALENDAR_FLAG_SCOPE, 'calendar');
     if (!raw || typeof raw !== 'object')
         return null;
     const data = raw;
-    if (!data.journalKey || data.calendarId == null)
+    if (!data.journalKey)
         return null;
-    return data;
+    const dayIndex = resolveCalendarFlagDayIndex(data);
+    if (dayIndex === null)
+        return null;
+    return {
+        ...data,
+        calendarId: data.calendarId ?? TYHRA_CALENDAR_ID,
+        dayIndex,
+    };
 }
 export function invalidateJournalIndexCache() {
     journalIndexCache = null;
@@ -194,5 +220,41 @@ export async function openDayJournal(input) {
 }
 export function getJournalKeyForDayIndex(dayIndex) {
     return getJournalKeyFromDayIndex(dayIndex);
+}
+function journalEntrySortTime(entry) {
+    const stats = entry._stats
+        ?? entry.stats;
+    const created = Number(stats?.createdTime);
+    if (Number.isFinite(created) && created > 0)
+        return created;
+    const modified = Number(stats?.modifiedTime);
+    if (Number.isFinite(modified) && modified > 0)
+        return modified;
+    return 0;
+}
+function isLatestJournalCandidate(candidate, current) {
+    if (candidate.sortTime > current.sortTime)
+        return true;
+    if (candidate.sortTime < current.sortTime)
+        return false;
+    // Missing Foundry timestamps: prefer the furthest in-game date with a journal.
+    return candidate.dayIndex > current.dayIndex;
+}
+/** Day index of the most recently created calendar day journal, or null if none exist. */
+export function getLatestCalendarJournalDayIndex() {
+    let latest = null;
+    for (const entry of game.journal?.contents ?? []) {
+        const flag = readCalendarFlag(entry);
+        if (!flag)
+            continue;
+        const candidate = {
+            dayIndex: flag.dayIndex,
+            sortTime: journalEntrySortTime(entry),
+        };
+        if (!latest || isLatestJournalCandidate(candidate, latest)) {
+            latest = candidate;
+        }
+    }
+    return latest?.dayIndex ?? null;
 }
 //# sourceMappingURL=tyhra-calendar-journal-service.js.map

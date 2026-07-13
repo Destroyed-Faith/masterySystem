@@ -103,6 +103,14 @@
           "hint": "Default permission level for players on newly created day journals."
         }
       }
+    },
+    "editor": {
+      "fontColor": "Text Color",
+      "fontColorPrompt": "Choose Text Color",
+      "fontColorApply": "Apply",
+      "fontColorClear": "Remove Color",
+      "fontColorInvalid": "Enter a valid hex color (e.g. #ff8800).",
+      "fontColorUnsupported": "This editor does not support colored text."
     }
   }
 }

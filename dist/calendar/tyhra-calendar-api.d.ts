@@ -3,6 +3,8 @@
  */
 import type { TyhraDate } from './tyhra-calendar-types.js';
 export declare const CALENDAR_DATE_CHANGED_HOOK = "masterySystem.calendarDateChanged";
+/** When opening the calendar, jump world date to the latest created day journal. */
+export declare function syncCurrentDayToLatestJournalEntry(): Promise<number>;
 export interface TyhraCalendarApi {
     open: (options?: {
         year?: number;

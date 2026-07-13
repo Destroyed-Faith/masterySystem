@@ -103,6 +103,14 @@
           "hint": "Standard-Berechtigung für Spieler auf neu erstellten Tagesjournalen."
         }
       }
+    },
+    "editor": {
+      "fontColor": "Textfarbe",
+      "fontColorPrompt": "Textfarbe wählen",
+      "fontColorApply": "Übernehmen",
+      "fontColorClear": "Farbe entfernen",
+      "fontColorInvalid": "Bitte eine gültige Hex-Farbe eingeben (z. B. #ff8800).",
+      "fontColorUnsupported": "Dieser Editor unterstützt keine Textfarbe."
     }
   }
 }

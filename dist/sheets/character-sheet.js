@@ -4,7 +4,7 @@
  */
 import { SKILLS, SKILL_CATEGORIES } from '../utils/skills.js';
 import { getEquippedPhysicalSkillPenaltyDice } from '../utils/equipment-modifiers.js';
-import { isSkillFullPoolReady, skillFullPoolThreshold } from '../dice/roll-context-build.js';
+import { buildSkillRollPoolPreview, isSkillFullPoolReady, skillFullPoolThreshold, } from '../dice/roll-context-build.js';
 import { DISADVANTAGES, getDisadvantageDefinition, calculateDisadvantagePoints, validateDisadvantageSelection, detailsForMentalRestrictionsDialog, detailsForPhysicalScarsDialog } from '../system/disadvantages.js';
 import { getAllSchticks } from '../utils/schticks.js';
 import { showEchoCardPickDialog, showEchoCreationDialog } from './character-sheet-echo-dialog.js';
@@ -1524,12 +1524,14 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             const value = skillValues[key] || 0;
             const spent = skillsSpent[key] || 0;
             const remaining = Math.max(0, value - spent);
+            const rollPools = definition.attributes.map((attributeKey) => buildSkillRollPoolPreview(this.actor, key, attributeKey, value));
             skillsByCategory[category].push({
                 key,
                 name: definition.name,
                 category: definition.category,
                 attributes: definition.attributes,
                 multiAttributeRoll: definition.attributes.length > 1 && key !== 'perception',
+                rollPools,
                 value,
                 spent,
                 remaining
@@ -4529,6 +4531,24 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 pendingLine.text(`${rankLabel}${xpLabel}`).addClass('has-pending');
                 rankBadge.text(`→${effective}`);
             }
+            this.#applySkillDicePoolPreview(skillKey, effective, pending !== 0);
+        }
+    }
+    /** Update dice-pool labels beside skill roll buttons (respects pending rank changes). */
+    #applySkillDicePoolPreview(skillKey, skillRating, pending = false) {
+        const definition = SKILLS[skillKey];
+        if (!definition)
+            return;
+        for (const attributeKey of definition.attributes) {
+            const preview = buildSkillRollPoolPreview(this.actor, skillKey, attributeKey, skillRating);
+            const el = this.element.find(`.skill-roll-pool-btn[data-skill="${skillKey}"][data-attribute="${attributeKey}"]`);
+            if (!el.length)
+                continue;
+            el.text(preview.rollLabel);
+            el.attr('title', preview.tooltip);
+            el.toggleClass('half-pool', preview.halfPool);
+            el.toggleClass('full-pool', preview.fullPoolReady);
+            el.toggleClass('pending-pool', pending);
         }
     }
     /**

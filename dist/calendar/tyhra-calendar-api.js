@@ -2,7 +2,7 @@
  * Tyhra calendar — public API (`game.masterySystem.calendar` / `game.destroyedFaith.calendar`).
  */
 import { TyhraCalendarApplication } from './tyhra-calendar-application.js';
-import { openDayJournal } from './tyhra-calendar-journal-service.js';
+import { openDayJournal, getLatestCalendarJournalDayIndex } from './tyhra-calendar-journal-service.js';
 import { getDateFromDayIndex, getDayIndexFromDate, } from './tyhra-calendar-service.js';
 import { getCurrentDayIndex, getCurrentHour, getCurrentMinute, isCalendarEnabled, setCurrentDayIndex, setCurrentHour, setCurrentMinute, } from './tyhra-calendar-settings.js';
 export const CALENDAR_DATE_CHANGED_HOOK = 'masterySystem.calendarDateChanged';
@@ -15,6 +15,18 @@ function notifyDateChanged(previousDayIndex, currentDayIndex) {
     };
     Hooks.callAll(CALENDAR_DATE_CHANGED_HOOK, payload);
     TyhraCalendarApplication.requestRefresh();
+}
+/** When opening the calendar, jump world date to the latest created day journal. */
+export async function syncCurrentDayToLatestJournalEntry() {
+    const latestDayIndex = getLatestCalendarJournalDayIndex();
+    if (latestDayIndex === null)
+        return getCurrentDayIndex();
+    const previousDayIndex = getCurrentDayIndex();
+    if (latestDayIndex === previousDayIndex)
+        return previousDayIndex;
+    await setCurrentDayIndex(latestDayIndex);
+    notifyDateChanged(previousDayIndex, latestDayIndex);
+    return latestDayIndex;
 }
 export function createTyhraCalendarApi() {
     return {
