@@ -10,30 +10,131 @@ const FONT_COLOR_ACTION = 'mastery-font-color';
 const FONT_COLOR_DROPDOWN_KEY = 'masteryColor';
 const menuRegistry = new WeakMap();
 const menuByView = new WeakMap();
+const viewsByProseMirrorRoot = new WeakMap();
 let globalClickHandlerInstalled = false;
-/** Find the schema mark used for inline text color (Foundry uses `textStyle.color`). */
-export function resolveColorMark(schema) {
-    const preferred = ['textStyle', 'fontColor', 'text_color', 'color'];
-    for (const name of preferred) {
-        const markType = schema.marks[name];
-        if (!markType?.spec?.attrs)
-            continue;
-        if ('color' in markType.spec.attrs)
-            return { markType: markType, colorAttr: 'color' };
-        if ('fontColor' in markType.spec.attrs)
-            return { markType: markType, colorAttr: 'fontColor' };
-    }
-    for (const name of Object.keys(schema.marks)) {
-        const markType = schema.marks[name];
-        const attrs = markType.spec?.attrs;
-        if (!attrs)
-            continue;
-        if ('color' in attrs)
-            return { markType: markType, colorAttr: 'color' };
-        if ('fontColor' in attrs)
-            return { markType: markType, colorAttr: 'fontColor' };
+const COLOR_ATTR_CANDIDATES = ['color', 'fontColor', 'textColor'];
+const COLOR_MARK_PREFERENCE = ['textStyle', 'font', 'fontColor', 'text_color', 'color', 'span'];
+function readMarkAttrNames(markType) {
+    if (!markType || typeof markType !== 'object')
+        return [];
+    const candidate = markType;
+    const attrs = candidate.spec?.attrs ?? candidate.attrs;
+    return attrs ? Object.keys(attrs) : [];
+}
+function probeMarkColorAttr(markType) {
+    for (const attr of COLOR_ATTR_CANDIDATES) {
+        try {
+            const mark = markType.create({ [attr]: '#ffffff' });
+            if (mark?.attrs?.[attr])
+                return attr;
+        }
+        catch {
+            // Mark does not accept this attribute.
+        }
     }
     return null;
+}
+function resolveColorMarkType(markType) {
+    if (!markType)
+        return null;
+    for (const attr of COLOR_ATTR_CANDIDATES) {
+        if (readMarkAttrNames(markType).includes(attr)) {
+            return { markType, colorAttr: attr };
+        }
+    }
+    const probed = probeMarkColorAttr(markType);
+    return probed ? { markType, colorAttr: probed } : null;
+}
+/** Find the schema mark used for inline text color (Foundry v14 uses `textStyle.color`). */
+export function resolveColorMark(schema) {
+    const marks = schema.marks ?? {};
+    for (const name of COLOR_MARK_PREFERENCE) {
+        const resolved = resolveColorMarkType(marks[name]);
+        if (resolved)
+            return resolved;
+    }
+    for (const name of Object.keys(marks)) {
+        const resolved = resolveColorMarkType(marks[name]);
+        if (resolved)
+            return resolved;
+    }
+    return null;
+}
+/** Mark spec for inline text color. Foundry v13 omits this; v14 adds it in core. */
+export function buildTextStyleColorMarkSpec() {
+    return {
+        attrs: {
+            color: { default: null },
+        },
+        parseDOM: [
+            {
+                style: 'color',
+                getAttrs: (value) => (value ? { color: value } : false),
+            },
+            {
+                tag: 'span[style*="color"]',
+                getAttrs: (dom) => {
+                    const color = dom.style?.color;
+                    return color ? { color } : false;
+                },
+            },
+        ],
+        toDOM(mark) {
+            const color = mark.attrs.color;
+            return color ? ['span', { style: `color: ${color}` }, 0] : ['span', {}, 0];
+        },
+    };
+}
+/** Extend a ProseMirror schema with a textStyle color mark when core does not provide one. */
+export function extendSchemaWithTextStyle(schema) {
+    if (resolveColorMark(schema))
+        return schema;
+    const marksSpec = schema.spec?.marks;
+    const SchemaCtor = schema.constructor;
+    if (!SchemaCtor || typeof marksSpec?.addToEnd !== 'function')
+        return schema;
+    if (marksSpec.get?.('textStyle') || schema.marks.textStyle)
+        return schema;
+    try {
+        const extendedMarks = marksSpec.addToEnd('textStyle', buildTextStyleColorMarkSpec());
+        return new SchemaCtor({
+            nodes: schema.spec.nodes,
+            marks: extendedMarks,
+        });
+    }
+    catch (error) {
+        console.warn('Mastery System | Could not extend ProseMirror schema with textStyle mark', error);
+        return schema;
+    }
+}
+function reconfigureEditorStateWithSchema(state, schema) {
+    if (state.schema === schema)
+        return state;
+    const EditorState = state.constructor;
+    const schemaWithJson = schema;
+    if (!EditorState || typeof schemaWithJson.nodeFromJSON !== 'function')
+        return state;
+    try {
+        return new EditorState({
+            schema,
+            doc: schemaWithJson.nodeFromJSON(state.doc.toJSON()),
+            selection: state.selection,
+            storedMarks: state.storedMarks,
+        });
+    }
+    catch (error) {
+        console.warn('Mastery System | Could not reconfigure ProseMirror editor for text color', error);
+        return state;
+    }
+}
+function registerEditorView(menu, menuEl) {
+    const view = getMenuView(menu);
+    if (!view)
+        return;
+    menuByView.set(view, menu);
+    const root = menuEl?.closest('prose-mirror') ?? null;
+    if (root)
+        viewsByProseMirrorRoot.set(root, view);
 }
 function escapeAttr(value) {
     return value
@@ -61,13 +162,20 @@ export function findEditorViewFromElement(root) {
     if (!proseMirrorRoot)
         return null;
     const host = proseMirrorRoot;
+    const cachedView = viewsByProseMirrorRoot.get(proseMirrorRoot);
+    if (cachedView?.state?.schema)
+        return cachedView;
     const hostView = getMenuView(host.menu) ?? host.view ?? host.editor?.view ?? null;
-    if (hostView?.state?.schema)
+    if (hostView?.state?.schema) {
+        viewsByProseMirrorRoot.set(proseMirrorRoot, hostView);
         return hostView;
+    }
     const editorEl = proseMirrorRoot.querySelector('.editor-content.ProseMirror, .ProseMirror');
     const domView = editorEl?.pmViewDesc?.view ?? editorEl?.editorView ?? null;
-    if (domView?.state?.schema)
+    if (domView?.state?.schema) {
+        viewsByProseMirrorRoot.set(proseMirrorRoot, domView);
         return domView;
+    }
     return null;
 }
 function resolveMenuContext(source) {
@@ -77,10 +185,8 @@ function resolveMenuContext(source) {
     const menu = (view ? menuByView.get(view) : undefined) ?? registeredMenu ?? {};
     return { menu, view };
 }
-function registerProseMirrorMenu(menu) {
-    const view = getMenuView(menu);
-    if (view)
-        menuByView.set(view, menu);
+function registerProseMirrorMenu(menu, menuEl) {
+    registerEditorView(menu, menuEl);
 }
 function normalizeHexColor(value) {
     const raw = String(value ?? '').trim();
@@ -328,7 +434,7 @@ function patchProseMirrorMenuActivateListeners() {
     const original = prototype.activateListeners;
     prototype.activateListeners = function (html) {
         original.call(this, html);
-        registerProseMirrorMenu(this);
+        registerProseMirrorMenu(this, html);
         menuRegistry.set(html, this);
         injectFontColorToolbarButton(html, this);
     };
@@ -348,7 +454,19 @@ function scheduleToolbarInjection(root) {
     window.setTimeout(tryInject, 0);
     window.setTimeout(tryInject, 250);
 }
+function installColorSchemaExtension() {
+    Hooks.on('createProseMirrorEditor', (_uuid, _plugins, options) => {
+        const state = options?.state;
+        if (!state?.schema)
+            return;
+        const extendedSchema = extendSchemaWithTextStyle(state.schema);
+        if (extendedSchema !== state.schema) {
+            options.state = reconfigureEditorStateWithSchema(state, extendedSchema);
+        }
+    });
+}
 export function initializeProseMirrorFontColor() {
+    installColorSchemaExtension();
     Hooks.on('getProseMirrorMenuItems', (menu, items) => {
         registerProseMirrorMenu(menu);
         prependFontColorMenuItem(menu, items);

@@ -1,5 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import {
+  buildTextStyleColorMarkSpec,
+  extendSchemaWithTextStyle,
   getMenuView,
   prependFontColorDropDown,
   prependFontColorMenuItem,
@@ -12,13 +14,22 @@ vi.stubGlobal('game', {
   },
 });
 
-function mockSchema(marks: Record<string, { attrs?: Record<string, unknown> }>) {
+function mockSchema(marks: Record<string, { attrs?: Record<string, unknown>; create?: (attrs: Record<string, unknown>) => unknown }>) {
   return {
     marks: Object.fromEntries(
       Object.entries(marks).map(([name, spec]) => [
         name,
         {
           spec: { attrs: spec.attrs ?? {} },
+          create:
+            spec.create ??
+            ((attrs: Record<string, unknown>) => {
+              const allowed = Object.keys(spec.attrs ?? {});
+              for (const key of Object.keys(attrs)) {
+                if (!allowed.includes(key)) throw new Error(`invalid attr: ${key}`);
+              }
+              return { attrs };
+            }),
         },
       ]),
     ),
@@ -96,5 +107,77 @@ describe('resolveColorMark', () => {
   it('returns null when no color mark exists', () => {
     const schema = mockSchema({ bold: { attrs: {} }, link: { attrs: { href: {} } } });
     expect(resolveColorMark(schema)).toBeNull();
+  });
+
+  it('detects color marks via runtime create probe when spec attrs are missing', () => {
+    const schema = mockSchema({
+      customColor: {
+        create: (attrs) => ({ attrs }),
+      },
+    });
+    const resolved = resolveColorMark(schema);
+    expect(resolved?.colorAttr).toBe('color');
+  });
+});
+
+describe('extendSchemaWithTextStyle', () => {
+  it('adds a textStyle mark when the schema has no color support', () => {
+    const baseMarks = {
+      bold: { attrs: {} },
+    };
+    const schema = {
+      marks: baseMarks,
+      spec: {
+        nodes: {},
+        marks: {
+          get: (name: string) => baseMarks[name as keyof typeof baseMarks],
+          addToEnd: (name: string, spec: unknown) => ({ ...baseMarks, [name]: spec }),
+        },
+      },
+      constructor: class MockSchema {
+        marks: Record<string, unknown>;
+        spec: { nodes: unknown; marks: unknown };
+        nodeFromJSON = vi.fn((json: unknown) => json);
+
+        constructor(spec: { nodes: unknown; marks: Record<string, unknown> }) {
+          this.spec = spec;
+          this.marks = Object.fromEntries(
+            Object.entries(spec.marks).map(([markName, markSpec]) => [
+              markName,
+              {
+                spec: { attrs: (markSpec as { attrs?: Record<string, unknown> }).attrs ?? {} },
+                create: (attrs: Record<string, unknown>) => {
+                  const allowed = Object.keys((markSpec as { attrs?: Record<string, unknown> }).attrs ?? {});
+                  for (const key of Object.keys(attrs)) {
+                    if (!allowed.includes(key)) throw new Error(`invalid attr: ${key}`);
+                  }
+                  return { attrs };
+                },
+              },
+            ]),
+          );
+        }
+      },
+    };
+
+    const extended = extendSchemaWithTextStyle(schema);
+    expect(extended.marks.textStyle).toBeDefined();
+    expect(resolveColorMark(extended)?.colorAttr).toBe('color');
+  });
+
+  it('leaves schemas that already expose a color mark unchanged', () => {
+    const schema = mockSchema({
+      textStyle: { attrs: { color: { default: null } } },
+    });
+    expect(extendSchemaWithTextStyle(schema as never)).toBe(schema);
+  });
+});
+
+describe('buildTextStyleColorMarkSpec', () => {
+  it('defines a color attribute and span serialization', () => {
+    const spec = buildTextStyleColorMarkSpec();
+    expect(spec.attrs).toEqual({ color: { default: null } });
+    expect(spec.parseDOM).toHaveLength(2);
+    expect(typeof spec.toDOM).toBe('function');
   });
 });

@@ -66,8 +66,26 @@ export interface ResolvedColorMark {
     markType: PMMarkType;
     colorAttr: string;
 }
-/** Find the schema mark used for inline text color (Foundry uses `textStyle.color`). */
+type SchemaWithSpec = PMSchema & {
+    constructor?: new (spec: {
+        nodes: unknown;
+        marks: unknown;
+    }) => PMSchema;
+    spec?: {
+        nodes?: unknown;
+        marks?: {
+            addToEnd?: (name: string, spec: unknown) => unknown;
+            get?: (name: string) => unknown;
+        };
+    };
+    nodeFromJSON?: (json: unknown) => unknown;
+};
+/** Find the schema mark used for inline text color (Foundry v14 uses `textStyle.color`). */
 export declare function resolveColorMark(schema: PMSchema): ResolvedColorMark | null;
+/** Mark spec for inline text color. Foundry v13 omits this; v14 adds it in core. */
+export declare function buildTextStyleColorMarkSpec(): Record<string, unknown>;
+/** Extend a ProseMirror schema with a textStyle color mark when core does not provide one. */
+export declare function extendSchemaWithTextStyle(schema: SchemaWithSpec): PMSchema;
 export declare function getMenuView(menu: unknown, view?: PMEditorView | null): PMEditorView | null;
 /** Resolve the live ProseMirror view from the surrounding editor DOM. */
 export declare function findEditorViewFromElement(root: Element | ParentNode | null): PMEditorView | null;

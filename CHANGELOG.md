@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.193] - 2026-07-13
+
+### Fixed
+
+- **Journal text color:** Foundry v13 lacks a core color mark — the system now extends the ProseMirror schema with a `textStyle` mark on editor creation, and improves color-mark detection and view resolution.
+
 ## [0.9.192] - 2026-07-13
 
 ### Fixed

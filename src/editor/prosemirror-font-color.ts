@@ -64,27 +64,160 @@ export interface ResolvedColorMark {
 
 const menuRegistry = new WeakMap<HTMLElement, unknown>();
 const menuByView = new WeakMap<PMEditorView, unknown>();
+const viewsByProseMirrorRoot = new WeakMap<Element, PMEditorView>();
 let globalClickHandlerInstalled = false;
 
-/** Find the schema mark used for inline text color (Foundry uses `textStyle.color`). */
-export function resolveColorMark(schema: PMSchema): ResolvedColorMark | null {
-  const preferred = ['textStyle', 'fontColor', 'text_color', 'color'];
-  for (const name of preferred) {
-    const markType = schema.marks[name];
-    if (!markType?.spec?.attrs) continue;
-    if ('color' in markType.spec.attrs) return { markType: markType as PMMarkType, colorAttr: 'color' };
-    if ('fontColor' in markType.spec.attrs) return { markType: markType as PMMarkType, colorAttr: 'fontColor' };
+const COLOR_ATTR_CANDIDATES = ['color', 'fontColor', 'textColor'] as const;
+const COLOR_MARK_PREFERENCE = ['textStyle', 'font', 'fontColor', 'text_color', 'color', 'span'] as const;
+
+type SchemaWithSpec = PMSchema & {
+  constructor?: new (spec: { nodes: unknown; marks: unknown }) => PMSchema;
+  spec?: {
+    nodes?: unknown;
+    marks?: {
+      addToEnd?: (name: string, spec: unknown) => unknown;
+      get?: (name: string) => unknown;
+    };
+  };
+  nodeFromJSON?: (json: unknown) => unknown;
+};
+
+type EditorStateWithCtor = PMEditorState & {
+  constructor?: new (config: {
+    schema: PMSchema;
+    doc: unknown;
+    selection?: unknown;
+    storedMarks?: unknown[] | null;
+  }) => PMEditorState;
+  doc: { toJSON: () => unknown };
+};
+
+function readMarkAttrNames(markType: unknown): string[] {
+  if (!markType || typeof markType !== 'object') return [];
+  const candidate = markType as {
+    spec?: { attrs?: Record<string, unknown> };
+    attrs?: Record<string, unknown>;
+  };
+  const attrs = candidate.spec?.attrs ?? candidate.attrs;
+  return attrs ? Object.keys(attrs) : [];
+}
+
+function probeMarkColorAttr(markType: PMMarkType): (typeof COLOR_ATTR_CANDIDATES)[number] | null {
+  for (const attr of COLOR_ATTR_CANDIDATES) {
+    try {
+      const mark = markType.create({ [attr]: '#ffffff' }) as { attrs?: Record<string, unknown> } | null;
+      if (mark?.attrs?.[attr]) return attr;
+    } catch {
+      // Mark does not accept this attribute.
+    }
+  }
+  return null;
+}
+
+function resolveColorMarkType(markType: PMMarkType | undefined): ResolvedColorMark | null {
+  if (!markType) return null;
+
+  for (const attr of COLOR_ATTR_CANDIDATES) {
+    if (readMarkAttrNames(markType).includes(attr)) {
+      return { markType, colorAttr: attr };
+    }
   }
 
-  for (const name of Object.keys(schema.marks)) {
-    const markType = schema.marks[name]!;
-    const attrs = markType.spec?.attrs;
-    if (!attrs) continue;
-    if ('color' in attrs) return { markType: markType as PMMarkType, colorAttr: 'color' };
-    if ('fontColor' in attrs) return { markType: markType as PMMarkType, colorAttr: 'fontColor' };
+  const probed = probeMarkColorAttr(markType);
+  return probed ? { markType, colorAttr: probed } : null;
+}
+
+/** Find the schema mark used for inline text color (Foundry v14 uses `textStyle.color`). */
+export function resolveColorMark(schema: PMSchema): ResolvedColorMark | null {
+  const marks = schema.marks ?? {};
+
+  for (const name of COLOR_MARK_PREFERENCE) {
+    const resolved = resolveColorMarkType(marks[name] as PMMarkType | undefined);
+    if (resolved) return resolved;
+  }
+
+  for (const name of Object.keys(marks)) {
+    const resolved = resolveColorMarkType(marks[name] as PMMarkType);
+    if (resolved) return resolved;
   }
 
   return null;
+}
+
+/** Mark spec for inline text color. Foundry v13 omits this; v14 adds it in core. */
+export function buildTextStyleColorMarkSpec(): Record<string, unknown> {
+  return {
+    attrs: {
+      color: { default: null },
+    },
+    parseDOM: [
+      {
+        style: 'color',
+        getAttrs: (value: string) => (value ? { color: value } : false),
+      },
+      {
+        tag: 'span[style*="color"]',
+        getAttrs: (dom: unknown) => {
+          const color = (dom as HTMLElement).style?.color;
+          return color ? { color } : false;
+        },
+      },
+    ],
+    toDOM(mark: { attrs: { color?: string | null } }) {
+      const color = mark.attrs.color;
+      return color ? ['span', { style: `color: ${color}` }, 0] : ['span', {}, 0];
+    },
+  };
+}
+
+/** Extend a ProseMirror schema with a textStyle color mark when core does not provide one. */
+export function extendSchemaWithTextStyle(schema: SchemaWithSpec): PMSchema {
+  if (resolveColorMark(schema)) return schema;
+
+  const marksSpec = schema.spec?.marks;
+  const SchemaCtor = schema.constructor;
+  if (!SchemaCtor || typeof marksSpec?.addToEnd !== 'function') return schema;
+  if (marksSpec.get?.('textStyle') || schema.marks.textStyle) return schema;
+
+  try {
+    const extendedMarks = marksSpec.addToEnd('textStyle', buildTextStyleColorMarkSpec());
+    return new SchemaCtor({
+      nodes: schema.spec!.nodes,
+      marks: extendedMarks,
+    });
+  } catch (error) {
+    console.warn('Mastery System | Could not extend ProseMirror schema with textStyle mark', error);
+    return schema;
+  }
+}
+
+function reconfigureEditorStateWithSchema(state: EditorStateWithCtor, schema: PMSchema): PMEditorState {
+  if (state.schema === schema) return state;
+
+  const EditorState = state.constructor;
+  const schemaWithJson = schema as SchemaWithSpec;
+  if (!EditorState || typeof schemaWithJson.nodeFromJSON !== 'function') return state;
+
+  try {
+    return new EditorState({
+      schema,
+      doc: schemaWithJson.nodeFromJSON(state.doc.toJSON()),
+      selection: state.selection,
+      storedMarks: state.storedMarks,
+    });
+  } catch (error) {
+    console.warn('Mastery System | Could not reconfigure ProseMirror editor for text color', error);
+    return state;
+  }
+}
+
+function registerEditorView(menu: unknown, menuEl?: HTMLElement | null): void {
+  const view = getMenuView(menu);
+  if (!view) return;
+
+  menuByView.set(view, menu);
+  const root = menuEl?.closest('prose-mirror') ?? null;
+  if (root) viewsByProseMirrorRoot.set(root, view);
 }
 
 function escapeAttr(value: string): string {
@@ -116,14 +249,23 @@ export function findEditorViewFromElement(root: Element | ParentNode | null): PM
     editor?: { view?: PMEditorView };
     menu?: unknown;
   };
+  const cachedView = viewsByProseMirrorRoot.get(proseMirrorRoot);
+  if (cachedView?.state?.schema) return cachedView;
+
   const hostView = getMenuView(host.menu) ?? host.view ?? host.editor?.view ?? null;
-  if (hostView?.state?.schema) return hostView;
+  if (hostView?.state?.schema) {
+    viewsByProseMirrorRoot.set(proseMirrorRoot, hostView);
+    return hostView;
+  }
 
   const editorEl = proseMirrorRoot.querySelector('.editor-content.ProseMirror, .ProseMirror') as
     | (HTMLElement & { pmViewDesc?: { view?: PMEditorView }; editorView?: PMEditorView })
     | null;
   const domView = editorEl?.pmViewDesc?.view ?? editorEl?.editorView ?? null;
-  if (domView?.state?.schema) return domView;
+  if (domView?.state?.schema) {
+    viewsByProseMirrorRoot.set(proseMirrorRoot, domView);
+    return domView;
+  }
 
   return null;
 }
@@ -136,9 +278,8 @@ function resolveMenuContext(source: Element): { menu: unknown; view: PMEditorVie
   return { menu, view };
 }
 
-function registerProseMirrorMenu(menu: unknown): void {
-  const view = getMenuView(menu);
-  if (view) menuByView.set(view, menu);
+function registerProseMirrorMenu(menu: unknown, menuEl?: HTMLElement | null): void {
+  registerEditorView(menu, menuEl);
 }
 
 function normalizeHexColor(value: string | null | undefined): string | null {
@@ -415,7 +556,7 @@ function patchProseMirrorMenuActivateListeners(): void {
   const original = prototype.activateListeners as (html: HTMLMenuElement) => void;
   prototype.activateListeners = function (this: unknown, html: HTMLMenuElement) {
     original.call(this, html);
-    registerProseMirrorMenu(this);
+    registerProseMirrorMenu(this, html);
     menuRegistry.set(html, this);
     injectFontColorToolbarButton(html, this);
   };
@@ -437,7 +578,21 @@ function scheduleToolbarInjection(root: ParentNode): void {
   window.setTimeout(tryInject, 250);
 }
 
+function installColorSchemaExtension(): void {
+  Hooks.on('createProseMirrorEditor', (_uuid: string, _plugins: unknown, options: { state?: PMEditorState }) => {
+    const state = options?.state as EditorStateWithCtor | undefined;
+    if (!state?.schema) return;
+
+    const extendedSchema = extendSchemaWithTextStyle(state.schema as SchemaWithSpec);
+    if (extendedSchema !== state.schema) {
+      options.state = reconfigureEditorStateWithSchema(state, extendedSchema);
+    }
+  });
+}
+
 export function initializeProseMirrorFontColor(): void {
+  installColorSchemaExtension();
+
   Hooks.on('getProseMirrorMenuItems', (menu: unknown, items: Array<Record<string, unknown>>) => {
     registerProseMirrorMenu(menu);
     prependFontColorMenuItem(menu, items);
