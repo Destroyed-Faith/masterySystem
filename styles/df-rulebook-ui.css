@@ -92,6 +92,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  /* The window header uses the DF title font; ensure FontAwesome glyphs render. */
+  font-family: "Font Awesome 6 Pro", "Font Awesome 6 Free", "Font Awesome 6 Brands";
+  font-weight: 900;
 }
 
 .application.mastery-system:not(.sheet) .window-header .header-control[data-action="close"]:hover {
