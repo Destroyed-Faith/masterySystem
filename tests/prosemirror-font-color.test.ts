@@ -67,6 +67,11 @@ describe('getMenuView', () => {
     const view = { state: { schema: { marks: {} } } };
     expect(getMenuView({ view })).toBe(view);
   });
+
+  it('returns null for missing menu instances', () => {
+    expect(getMenuView(null)).toBeNull();
+    expect(getMenuView(undefined)).toBeNull();
+  });
 });
 
 describe('resolveColorMark', () => {

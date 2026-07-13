@@ -1,17 +1,10 @@
 /**
-
  * Adds a text-color control to Foundry's ProseMirror editor (journals, sheets, etc.).
-
  * Foundry v13 ships without a font-color toolbar button; v14 adds it in core.
-
  *
-
  * Journal text pages only render core dropdowns + a fixed set of icon buttons.
-
  * Dropdown submenu clicks are handled by Foundry globals and ignore unknown actions
-
  * unless we intercept them, so we register handlers on ProseMirrorMenu and document.
-
  */
 type PMSchema = {
     marks: Record<string, {

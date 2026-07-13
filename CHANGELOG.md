@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.192] - 2026-07-13
+
+### Fixed
+
+- **Journal text color:** Fixed crash on click (`Cannot read properties of null (reading 'view')`) when resolving the ProseMirror editor from the journal toolbar.
+
 ## [0.9.191] - 2026-07-13
 
 ### Fixed
