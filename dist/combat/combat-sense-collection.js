@@ -196,14 +196,34 @@ export function buildCombatSensesPanelContext(actor) {
         activeSenseLabel: COMBAT_SENSES[getActiveCombatSense(actor)].label,
     };
 }
+function senseToDisplayRow(id) {
+    const def = COMBAT_SENSES[id];
+    return {
+        id,
+        label: def.label,
+        rangeM: def.rangeM,
+        summary: def.summary,
+        channels: formatSenseChannels(id),
+    };
+}
+/** Battle sheet / print: only what the character actually uses in combat. */
+export function buildCombatSensesDisplayContext(actor) {
+    const data = normalizeCombatSensesData(actor?.system?.combatSenses);
+    const primary = senseToDisplayRow(getActiveCombatSense(actor));
+    const darkvision = data.hasDarkvision ? senseToDisplayRow('darkvision') : null;
+    return { primary, darkvision };
+}
 /** Primary active sense for sense-based rules (Sense Slot contents). */
 export function getActiveCombatSense(actor) {
     const data = normalizeCombatSensesData(actor?.system?.combatSenses);
     const granted = collectGrantedCombatSenses(actor);
+    const available = SENSE_SLOT_SPECIAL_IDS.filter((id) => senseIsAvailableToActor(id, granted, data));
     if (SENSE_SLOT_SPECIAL_IDS.includes(data.activeSenseId) &&
         senseIsAvailableToActor(data.activeSenseId, granted, data)) {
         return data.activeSenseId;
     }
+    if (available.length > 0)
+        return available[0];
     return 'normalCombatAwareness';
 }
 export function isNonSightCombatSense(senseId) {

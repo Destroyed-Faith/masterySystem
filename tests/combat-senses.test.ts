@@ -11,6 +11,7 @@ import {
   listActorCombatSenses,
   getActiveCombatSense,
   buildCombatSensesBattleAreaContext,
+  buildCombatSensesDisplayContext,
 } from '../src/combat/combat-sense-collection.js';
 import {
   computeStealthRaiseBonus,
@@ -89,6 +90,38 @@ describe('combat-sense-collection', () => {
     expect(senses).not.toContain('mageSense');
   });
 
+  it('buildCombatSensesDisplayContext shows only active sense and optional darkvision', () => {
+    const actorDefault = mockActor({ system: { combatSenses: {} } });
+    const defaultCtx = buildCombatSensesDisplayContext(actorDefault);
+    expect(defaultCtx.primary.id).toBe('normalCombatAwareness');
+    expect(defaultCtx.darkvision).toBeNull();
+
+    const actorSpecial = mockActor({
+      system: {
+        combatSenses: {
+          activeSenseId: 'normalCombatAwareness',
+          grantedSenseIds: ['lifeSense'],
+          hasDarkvision: true,
+        },
+      },
+    });
+    const specialCtx = buildCombatSensesDisplayContext(actorSpecial);
+    expect(specialCtx.primary.id).toBe('lifeSense');
+    expect(specialCtx.darkvision?.id).toBe('darkvision');
+  });
+
+  it('getActiveCombatSense auto-uses granted special sense when slot not set', () => {
+    const actor = mockActor({
+      system: {
+        combatSenses: {
+          activeSenseId: 'normalCombatAwareness',
+          grantedSenseIds: ['lifeSense'],
+        },
+      },
+    });
+    expect(getActiveCombatSense(actor)).toBe('lifeSense');
+  });
+
   it('buildCombatSensesBattleAreaContext lists all senses and slot choices', () => {
     const actor = mockActor({
       system: {
@@ -103,7 +136,7 @@ describe('combat-sense-collection', () => {
     const ctx = buildCombatSensesBattleAreaContext(actor);
     expect(ctx.senseRows.length).toBe(6);
     expect(ctx.slotRows.map((r) => r.id)).toEqual(['normalCombatAwareness', 'lifeSense']);
-    expect(ctx.activeSenseId).toBe('normalCombatAwareness');
+    expect(ctx.activeSenseId).toBe('lifeSense');
     expect(ctx.senseRows.find((r) => r.id === 'mageSense')?.isGranted).toBe(false);
     expect(ctx.senseRows.find((r) => r.id === 'lifeSense')?.isGranted).toBe(true);
   });

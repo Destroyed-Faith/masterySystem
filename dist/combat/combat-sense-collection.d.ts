@@ -64,10 +64,24 @@ export interface CombatSensesBattleAreaContext {
     grantedRows: CombatSensesPanelRow[];
     darkvisionSummary: string;
 }
+export interface CombatSenseDisplayRow {
+    id: CombatSenseId;
+    label: string;
+    rangeM: number;
+    summary: string;
+    channels: string;
+}
+/** Compact battle-sheet display — active sense only (+ darkvision when enabled). */
+export interface CombatSensesDisplayContext {
+    primary: CombatSenseDisplayRow;
+    darkvision: CombatSenseDisplayRow | null;
+}
 /** Battle sheet + character sheet: full sense list with slot choice emphasis. */
 export declare function buildCombatSensesBattleAreaContext(actor: any): CombatSensesBattleAreaContext;
 /** Character sheet context for Sense Slot + granted sense picks. */
 export declare function buildCombatSensesPanelContext(actor: any): CombatSensesPanelContext;
+/** Battle sheet / print: only what the character actually uses in combat. */
+export declare function buildCombatSensesDisplayContext(actor: any): CombatSensesDisplayContext;
 /** Primary active sense for sense-based rules (Sense Slot contents). */
 export declare function getActiveCombatSense(actor: any): CombatSenseId;
 export declare function isNonSightCombatSense(senseId: CombatSenseId): boolean;

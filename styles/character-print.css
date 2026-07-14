@@ -909,13 +909,54 @@
   font-style: italic;
 }
 
-/* Passives — own area below the rotation flow, with an "Attack Action"-style
-   boxed heading. Always-on, so the cards carry no tick box. */
+/* Passives + Combat Senses — same row below the rotation flow. */
+.cp-battle-secondary {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 10mm;
+  margin-top: 8mm;
+}
+
+.cp-battle-col-senses {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 0 0 auto;
+}
+
+.cp-battle-sense-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 5px;
+}
+
+.cp-battle-card-sense {
+  width: 58mm;
+  background: #eef4fb;
+  border-color: #1565c0;
+  padding: 7px 10px;
+}
+
+.cp-battle-card-sense-darkvision {
+  background: #f3eef8;
+  border-color: #5e35b1;
+}
+
+.cp-battle-card-meta {
+  font-size: 9px;
+  color: #555;
+  line-height: 1.3;
+}
+
+/* Passives — always-on, so the cards carry no tick box. */
 .cp-battle-passives {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: 8mm;
+  margin-top: 0;
+  flex: 0 1 auto;
 }
 
 .cp-battle-passive-cards {
@@ -931,108 +972,6 @@
   background: #f1ecf6;
   border-color: #6a1b9a;
   padding: 7px 10px;
-}
-
-/* ── Battle sheet: Combat Senses ───────────────────────────────────────── */
-.cp-battle-senses {
-  margin-top: 8px;
-  padding-top: 6px;
-  border-top: 1px solid #bbb;
-}
-
-.cp-battle-senses-instruction,
-.cp-battle-senses-active {
-  font-size: 8.5px;
-  margin: 0 0 4px;
-  color: #333;
-}
-
-.cp-battle-senses-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 4px 8px;
-}
-
-.cp-battle-sense-row {
-  display: flex;
-  align-items: flex-start;
-  gap: 6px;
-  padding: 4px 6px;
-  border: 1px solid #ccc;
-  border-radius: 3px;
-  background: #fafafa;
-  font-size: 8px;
-  min-height: 28px;
-}
-
-.cp-battle-sense-row.is-active {
-  border-color: #2e7d32;
-  background: #eef7ee;
-}
-
-.cp-battle-sense-row.is-unavailable {
-  opacity: 0.55;
-  background: #f3f3f3;
-}
-
-.cp-battle-sense-radio {
-  flex: 0 0 10px;
-  width: 10px;
-  height: 10px;
-  margin-top: 2px;
-  border: 1.5px solid #444;
-  border-radius: 50%;
-  background: #fff;
-}
-
-.cp-battle-sense-radio.is-checked {
-  background: radial-gradient(circle at center, #2e7d32 0 45%, transparent 50%);
-  border-color: #2e7d32;
-}
-
-.cp-battle-sense-body {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-  flex: 1;
-  min-width: 0;
-}
-
-.cp-battle-sense-name {
-  font-weight: 700;
-  font-size: 8.5px;
-}
-
-.cp-battle-sense-range {
-  font-weight: 400;
-  color: #555;
-}
-
-.cp-battle-sense-summary,
-.cp-battle-sense-channels {
-  color: #444;
-  line-height: 1.25;
-}
-
-.cp-battle-sense-badge {
-  flex: 0 0 auto;
-  align-self: flex-start;
-  font-size: 7px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  padding: 1px 4px;
-  border-radius: 2px;
-  background: #2e7d32;
-  color: #fff;
-}
-
-.cp-battle-sense-badge.is-muted {
-  background: #888;
-}
-
-.cp-battle-sense-badge.is-artifact {
-  background: #5c6bc0;
 }
 
 /* ── Initiative ───────────────────────────────────────────────────────── */

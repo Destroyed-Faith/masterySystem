@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.209] - 2026-07-14
+
+### Changed
+
+- **Combat Senses (Battle Sheet):** Compact display under Movement, aligned with Passives — only the active sense (special sense replaces Normal Combat Awareness when granted) plus optional Darkvision. Removed Sense Slot picker grid and “pick exactly one” copy from print and character sheet.
+- **Combat Senses (logic):** Granted special sense auto-replaces Normal Combat Awareness when no explicit slot is set.
+
 ## [0.9.208] - 2026-07-14
 
 ### Fixed

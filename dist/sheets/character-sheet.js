@@ -31,7 +31,7 @@ import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
 import { getPowerMinLevel as resolvePowerMinLevel } from '../utils/power-xp-refund.js';
 import { matchesMasteryWeaponCatalog } from '../utils/weapons.js';
 import { buildRadialManeuverPrefsContext } from '../utils/radial-maneuver-prefs.js';
-import { buildCombatSensesPanelContext, buildCombatSensesBattleAreaContext, normalizeCombatSensesData } from '../combat/combat-sense-collection.js';
+import { buildCombatSensesPanelContext, normalizeCombatSensesData } from '../combat/combat-sense-collection.js';
 import { getActiveBuffs } from '../utils/active-buffs.js';
 import { buildArtifactEvolutionCards } from '../artifacts/artifact-evolution-actions.js';
 import { actorHasProgressionArtifacts } from '../utils/artifact-tree-grant.js';
@@ -213,25 +213,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         }
     }
     /**
-     * Handle power rank change during creation
+     * Combat Senses — manual grants and darkvision (explicit update; avoids form sync loops).
      */
-    /**
-     * Combat Senses — Sense Slot (explicit update; avoids Foundry form sync loops from radios).
-     */
-    async #onBattleSenseSlotSelect(event) {
-        event.preventDefault();
-        event.stopPropagation();
-        if (!this.isEditable || !this.actor.isOwner)
-            return;
-        const senseId = String($(event.currentTarget).data('sense-id') || '').trim();
-        if (!senseId)
-            return;
-        const current = this.actor.system?.combatSenses?.activeSenseId;
-        if (current === senseId)
-            return;
-        await this.actor.update({ 'system.combatSenses.activeSenseId': senseId }, { render: false });
-        await this.render(false);
-    }
     async #onCombatSenseGrantToggle(event) {
         event.stopPropagation();
         if (!this.isEditable || !this.actor.isOwner)
@@ -1684,9 +1667,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     }
     #bindBattleSensesHandlers(root) {
         root
-            .off('click', '.js-battle-sense-slot')
-            .on('click', '.js-battle-sense-slot', this.#onBattleSenseSlotSelect.bind(this));
-        root
             .off('change', '.js-combat-sense-grant')
             .on('change', '.js-combat-sense-grant', this.#onCombatSenseGrantToggle.bind(this));
         root
@@ -1698,14 +1678,14 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         if (!mount.length)
             return;
         try {
-            const combatSensesBattle = buildCombatSensesBattleAreaContext(this.actor);
-            const markup = await foundry.applications.handlebars.renderTemplate('systems/mastery-system/templates/actor/partials/battle-senses-area.hbs', { editable: this.isEditable, combatSensesBattle });
+            const combatSensesPanel = buildCombatSensesPanelContext(this.actor);
+            const markup = await foundry.applications.handlebars.renderTemplate('systems/mastery-system/templates/actor/partials/combat-senses-config.hbs', { editable: this.isEditable, combatSensesPanel });
             mount.html(markup).attr('aria-busy', 'false');
             this.#bindBattleSensesHandlers(mount);
         }
         catch (err) {
             const message = err instanceof Error ? err.message : String(err);
-            console.error('Mastery System | Failed to mount battle senses area', message, err);
+            console.error('Mastery System | Failed to mount combat senses config', message, err);
             mount.html('<p class="stat-summary-hint battle-senses-error">Combat Senses could not be loaded.</p>').attr('aria-busy', 'false');
         }
     }

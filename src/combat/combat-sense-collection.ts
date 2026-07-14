@@ -195,6 +195,20 @@ export interface CombatSensesBattleAreaContext {
   darkvisionSummary: string;
 }
 
+export interface CombatSenseDisplayRow {
+  id: CombatSenseId;
+  label: string;
+  rangeM: number;
+  summary: string;
+  channels: string;
+}
+
+/** Compact battle-sheet display — active sense only (+ darkvision when enabled). */
+export interface CombatSensesDisplayContext {
+  primary: CombatSenseDisplayRow;
+  darkvision: CombatSenseDisplayRow | null;
+}
+
 function formatSenseChannels(id: CombatSenseId): string {
   return COMBAT_SENSES[id].primaryChannels.join(', ');
 }
@@ -289,16 +303,39 @@ export function buildCombatSensesPanelContext(actor: any): CombatSensesPanelCont
   };
 }
 
+function senseToDisplayRow(id: CombatSenseId): CombatSenseDisplayRow {
+  const def = COMBAT_SENSES[id];
+  return {
+    id,
+    label: def.label,
+    rangeM: def.rangeM,
+    summary: def.summary,
+    channels: formatSenseChannels(id),
+  };
+}
+
+/** Battle sheet / print: only what the character actually uses in combat. */
+export function buildCombatSensesDisplayContext(actor: any): CombatSensesDisplayContext {
+  const data = normalizeCombatSensesData(actor?.system?.combatSenses);
+  const primary = senseToDisplayRow(getActiveCombatSense(actor));
+  const darkvision = data.hasDarkvision ? senseToDisplayRow('darkvision') : null;
+  return { primary, darkvision };
+}
+
 /** Primary active sense for sense-based rules (Sense Slot contents). */
 export function getActiveCombatSense(actor: any): CombatSenseId {
   const data = normalizeCombatSensesData(actor?.system?.combatSenses);
   const granted = collectGrantedCombatSenses(actor);
+  const available = SENSE_SLOT_SPECIAL_IDS.filter((id) =>
+    senseIsAvailableToActor(id, granted, data),
+  );
   if (
     SENSE_SLOT_SPECIAL_IDS.includes(data.activeSenseId) &&
     senseIsAvailableToActor(data.activeSenseId, granted, data)
   ) {
     return data.activeSenseId;
   }
+  if (available.length > 0) return available[0];
   return 'normalCombatAwareness';
 }
 

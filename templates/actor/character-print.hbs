@@ -563,52 +563,46 @@
 
   </div>
 
-  {{!-- Passives — own area below the rotation flow, always-on (no tick box) --}}
-  <div class="cp-battle-passives">
-    <div class="cp-battle-group-title">Passives</div>
-    {{#if battle.hasPassives}}
-    <div class="cp-battle-passive-cards">
-      {{#each battle.passives}}
-      <div class="cp-battle-card cp-battle-card-passive">
-        <span class="cp-battle-card-body">
-          <span class="cp-battle-card-name">{{name}}{{#unless fromArtifact}}{{#unless hideRank}}{{#if rank}} <span class="cp-battle-card-rank">Stufe {{rank}}</span>{{/if}}{{/unless}}{{/unless}}{{#if isSpell}} <span class="cp-power-spell" title="{{spellLabel}}">Spell</span>{{/if}}{{#if fromArtifact}} <span class="cp-power-artifact" title="From artifact: {{source}}">&#9733; {{source}}</span>{{/if}}</span>
-          {{#if effect}}<span class="cp-battle-card-eff">{{effect}}</span>{{/if}}
-        </span>
+  {{!-- Combat Senses (under Movement) + Passives — same row, compact battle cards --}}
+  <div class="cp-battle-secondary">
+    <div class="cp-battle-col-senses">
+      <div class="cp-battle-group-title">Combat Senses</div>
+      <div class="cp-battle-sense-cards">
+        <div class="cp-battle-card cp-battle-card-sense">
+          <span class="cp-battle-card-body">
+            <span class="cp-battle-card-name">{{combatSensesDisplay.primary.label}} <span class="cp-battle-card-rank">{{combatSensesDisplay.primary.rangeM}} m</span></span>
+            <span class="cp-battle-card-eff">{{combatSensesDisplay.primary.summary}}</span>
+            <span class="cp-battle-card-meta">{{combatSensesDisplay.primary.channels}}</span>
+          </span>
+        </div>
+        {{#if combatSensesDisplay.darkvision}}
+        <div class="cp-battle-card cp-battle-card-sense cp-battle-card-sense-darkvision">
+          <span class="cp-battle-card-body">
+            <span class="cp-battle-card-name">{{combatSensesDisplay.darkvision.label}} <span class="cp-battle-card-rank">{{combatSensesDisplay.darkvision.rangeM}} m</span></span>
+            <span class="cp-battle-card-eff">{{combatSensesDisplay.darkvision.summary}}</span>
+            <span class="cp-battle-card-meta">{{combatSensesDisplay.darkvision.channels}}</span>
+          </span>
+        </div>
+        {{/if}}
       </div>
-      {{/each}}
     </div>
-    {{else}}
-    <div class="cp-battle-empty">No passive powers.</div>
-    {{/if}}
-  </div>
 
-  <div class="cp-battle-senses">
-    <div class="cp-battle-group-title">Combat Senses — Sense Slot <span class="cp-subtle">(pick exactly one)</span></div>
-    <p class="cp-battle-senses-instruction">{{combatSensesBattle.instruction}}</p>
-    <p class="cp-battle-senses-active">Active: <strong>{{combatSensesBattle.activeSenseLabel}}</strong></p>
-    <div class="cp-battle-senses-grid">
-      {{#each combatSensesBattle.senseRows}}
-      <div class="cp-battle-sense-row{{#if this.isActive}} is-active{{/if}}{{#unless this.isSlotChoice}} is-not-slot-choice{{/unless}}{{#unless this.isGranted}} is-unavailable{{/unless}}">
-        <span class="cp-battle-sense-radio{{#if this.isActive}} is-checked{{/if}}" aria-hidden="true"></span>
-        <span class="cp-battle-sense-body">
-          <span class="cp-battle-sense-name">{{this.label}} <span class="cp-battle-sense-range">({{this.rangeM}} m)</span></span>
-          <span class="cp-battle-sense-summary">{{this.summary}}</span>
-          <span class="cp-battle-sense-channels">{{this.channels}}</span>
-        </span>
-        {{#if this.isActive}}<span class="cp-battle-sense-badge">Active</span>{{/if}}
-        {{#unless this.isGranted}}<span class="cp-battle-sense-badge is-muted">Not granted</span>{{/unless}}
-        {{#if this.fromArtifact}}<span class="cp-battle-sense-badge is-artifact">Artifact</span>{{/if}}
+    <div class="cp-battle-passives">
+      <div class="cp-battle-group-title">Passives</div>
+      {{#if battle.hasPassives}}
+      <div class="cp-battle-passive-cards">
+        {{#each battle.passives}}
+        <div class="cp-battle-card cp-battle-card-passive">
+          <span class="cp-battle-card-body">
+            <span class="cp-battle-card-name">{{name}}{{#unless fromArtifact}}{{#unless hideRank}}{{#if rank}} <span class="cp-battle-card-rank">Stufe {{rank}}</span>{{/if}}{{/unless}}{{/unless}}{{#if isSpell}} <span class="cp-power-spell" title="{{spellLabel}}">Spell</span>{{/if}}{{#if fromArtifact}} <span class="cp-power-artifact" title="From artifact: {{source}}">&#9733; {{source}}</span>{{/if}}</span>
+            {{#if effect}}<span class="cp-battle-card-eff">{{effect}}</span>{{/if}}
+          </span>
+        </div>
+        {{/each}}
       </div>
-      {{/each}}
-      <div class="cp-battle-sense-row cp-battle-sense-darkvision{{#if combatSensesBattle.hasDarkvision}} is-active{{/if}}">
-        <span class="cp-battle-sense-radio{{#if combatSensesBattle.hasDarkvision}} is-checked{{/if}}" aria-hidden="true"></span>
-        <span class="cp-battle-sense-body">
-          <span class="cp-battle-sense-name">Darkvision <span class="cp-battle-sense-range">(30 m)</span></span>
-          <span class="cp-battle-sense-summary">{{combatSensesBattle.darkvisionSummary}}</span>
-          <span class="cp-battle-sense-channels">Minor upgrade — augments Normal Combat Awareness in darkness</span>
-        </span>
-        {{#if combatSensesBattle.hasDarkvision}}<span class="cp-battle-sense-badge">Enabled</span>{{/if}}
-      </div>
+      {{else}}
+      <div class="cp-battle-empty">No passive powers.</div>
+      {{/if}}
     </div>
   </div>
 
