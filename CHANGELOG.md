@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.210] - 2026-07-15
+
+### Added
+
+- **Power Catalog:** ~25 missing templates from the updated Rules books — Health Level Heal, Cleanse Absorption, Mental Attack / Mind Illusion; Ward, Telepathy / Mind Link, Bound Host, Thornhide, Invisibility, Parry, Absorption, Damage Negation; Summon Damage/Armor Auras, Thorns, Reinforced Parry / Intensified Absorption / Reinforced Damage Negation; Repositioning Intercept, Reactive Cleanse, Riposte, Reflection, Reactive Overload.
+- **Rules source MDs** under `Rules/` (actives, active-buffs, passives, reactions, movement, artefacts, player-guide).
+
+### Changed
+
+- **Ward Passive** replaces Mini-Cleanse in the catalog and Tower Wizard; Mini-Cleanse is no longer offered as a pickable template.
+
 ## [0.9.209] - 2026-07-14
 
 ### Changed

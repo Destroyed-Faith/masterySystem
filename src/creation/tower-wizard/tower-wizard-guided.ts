@@ -99,7 +99,7 @@ const GUIDED_HIDDEN_PASSIVE2 = new Set([
     'passive-special-aura',
     'passive-heightened-senses',
     'passive-spell-resistance',
-    'passive-mini-cleanse',
+    'passive-ward',
     'passive-awareness-evade',
     'passive-awareness-damage',
     'passive-ambusher',

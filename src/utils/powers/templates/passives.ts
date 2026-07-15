@@ -59,8 +59,63 @@ const DMG_COND          = DMG_KILLING_INTENT;
 /** Ward: Spell Resistance passive curve (15 PP / +1). */
 const WARD_SPELL_RESISTANCE = [1, 2, 4, 5, 6, 8, 9, 10, 12, 13, 14, 16, 17, 18, 20, 21];
 
-/** Ward: Mini-Cleanse (40 PP / Cleanse(1); L1 = no effect). */
-const WARD_MINI_CLEANSE = [0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8];
+/** Ward: incoming Special reduction (plateaus per Rules/passive.md). */
+const WARD_INCOMING = [1, 2, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10];
+
+/** Thornhide — Thorns Nd8 when you take final HP damage (L1 empty). */
+const THORNHIDE_DICE = [0, 1, 2, 2, 3, 4, 4, 5, 6, 6, 7, 8, 8, 9, 10, 10];
+
+/** Passive Invisibility bonus (+1…+10 with plateaus). */
+const INVIS_PASSIVE = [1, 2, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10];
+
+/** Passive Invisibility: Special Combat Senses blocked (0 below L4). */
+const INVIS_PASSIVE_SENSES = [0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 4, 4];
+
+/** Parry — Maximum Parry Pool = 5 × Level. */
+const PARRY_POOL = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80];
+
+/** Absorption — +4 HP per Health Bar per level. */
+const ABSORPTION_HP_PER_BAR = [4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48, 52, 56, 60, 64];
+
+/** Damage Negation — combat reserve Damage Dice = 4 × Level. */
+const DAMAGE_NEGATION_RESERVE = [4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48, 52, 56, 60, 64];
+
+/** Bound Host — Summon Tokens (+2 per level). */
+const BOUND_HOST_TOKENS = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32];
+
+/** Telepathy / Mind Link — range label per level. */
+const TELEPATHY_RANGE = [
+    '8 m', '16 m', '24 m', '32 m', '48 m', '64 m', '80 m', '100 m',
+    '120 m', '160 m', '200 m', '300 m', '500 m', '1 km', '5 km', 'Same region, GM permission',
+];
+
+/** Telepathy / Mind Link — linked willing creatures label per level. */
+const TELEPATHY_LINKS = [
+    '1 willing creature', '1 willing creature', '2 willing creatures', '2 willing creatures',
+    '3 willing creatures', '3 willing creatures', '4 willing creatures', '4 willing creatures',
+    '5 willing creatures', '5 willing creatures', '6 willing creatures', '6 willing creatures',
+    'MR + 2 willing creatures', 'MR + 2 willing creatures', 'MR + 3 willing creatures', 'MR + 4 willing creatures',
+];
+
+/** Telepathy / Mind Link — feature text per level (Rules/passive.md). */
+const TELEPATHY_FEATURE = [
+    'You can send simple silent words to one willing creature within range.',
+    'You and the linked creature can communicate silently in both directions.',
+    'You may maintain a small Mind Link between yourself and up to two willing creatures.',
+    'Mind Link no longer requires a shared spoken language for simple meaning, emotion, direction, and intent.',
+    'You may sense the surface emotion of an unwilling creature within range on a failed Mind Save.',
+    'You may maintain silent group communication between all linked willing creatures.',
+    'A willing linked creature may share one simple sense impression with you, such as a sound, image, smell, pain, or direction.',
+    'You may detect the presence of thinking minds within range. This reveals presence, not identity, exact thoughts, or creature type.',
+    'You may read one surface thought from an unwilling creature within range on a failed Mind Save.',
+    'A willing linked creature may share one active sense with you, such as sight or hearing, while the link is maintained.',
+    'Mind Link may pass through normal walls or obstacles if you know the linked creature and it remains within range.',
+    'You may share sight and hearing with one willing linked creature while the link is maintained.',
+    'Your Mind Link becomes a mental conference. All linked willing creatures may communicate silently with each other.',
+    'You may maintain a link to a known willing creature at long range if the link was willingly established.',
+    'You may read a clear surface thought from an unwilling creature on a failed Mind Save. This still does not reveal memories or force obedience.',
+    'You may maintain a wide Mind Link with known willing creatures across a large area. The GM may limit this by wards, distance, planes, divine interference, or narrative barriers.',
+];
 
 // Health Bar progression shared by Deep Vitality & all Health combined passives.
 // Deep Vitality gets the Healthy bar at L12+; combined Health lines never do.
@@ -435,7 +490,7 @@ export const PASSIVE_TEMPLATES: PowerTemplate[] = [
         },
     }),
 
-    // ─── Ward passives (Spell Resistance / Mini-Cleanse) ───────────────────
+    // ─── Ward passives (Spell Resistance / Ward) ───────────────────────────
     basePassive({
         id: 'passive-spell-resistance', name: 'Spell Resistance', subfamily: 'ward',
         passiveType: 'Passive, Ward',
@@ -446,15 +501,14 @@ export const PASSIVE_TEMPLATES: PowerTemplate[] = [
         }),
     }),
     basePassive({
-        id: 'passive-mini-cleanse', name: 'Mini-Cleanse', subfamily: 'ward',
+        id: 'passive-ward', name: 'Ward', subfamily: 'ward',
         passiveType: 'Passive, Ward',
-        fluff: 'Your body, blood, mind, or spirit slowly rejects hostile conditions.',
+        fluff: 'Eligible hostile Specials strike a prepared ward and arrive already reduced.',
         perLevel: (lvl) => {
-            const amt = WARD_MINI_CLEANSE[lvl - 1]!;
-            if (amt <= 0) return { text: '—', mechanics: {} };
+            const amt = WARD_INCOMING[lvl - 1]!;
             return {
-                text: `At the start of your turn, reduce **one** eligible negative ongoing creature effect affecting you by **${amt}**.`,
-                mechanics: { cleanseMaintenance: amt },
+                text: `Reduce every incoming eligible hostile Special by **${amt}**.`,
+                mechanics: {},
             };
         },
     }),
@@ -944,6 +998,101 @@ export const PASSIVE_TEMPLATES: PowerTemplate[] = [
             return {
                 text: `While a creature inside your **${radius} m** aura is already affected by your chosen eligible **Special(X)**, increase that Special by **+1 step**. This aura never applies, refreshes, extends, spreads, or triggers the Special.`,
                 mechanics: { modifySpecial: { type: 'chosen', mode: 'increaseExisting', amount: 1 } },
+            };
+        },
+    }),
+
+    // ─── New catalog lines from Rules/ (2026-07) ─────────────────────────
+    basePassive({
+        id: 'passive-telepathy-mind-link', name: 'Telepathy / Mind Link', subfamily: 'telepathy',
+        passiveType: 'Passive',
+        fluff: 'You open silent Mind Links and grant Telepathic Access for Mental Powers.',
+        perLevel: (lvl) => ({
+            text:
+                `**Range:** ${TELEPATHY_RANGE[lvl - 1]}. **Links:** ${TELEPATHY_LINKS[lvl - 1]}. ` +
+                `${TELEPATHY_FEATURE[lvl - 1]} Grants Telepathic Access; Mental Active level is capped by this Passive.`,
+            mechanics: {},
+        }),
+    }),
+    basePassive({
+        id: 'passive-bound-host', name: 'Bound Host', subfamily: 'summon',
+        passiveType: 'Passive, Summon',
+        fluff: 'Extra Summon Tokens for bonds you already unlocked — never new summons from nothing.',
+        perLevel: (lvl) => ({
+            text: `Gain **+${BOUND_HOST_TOKENS[lvl - 1]} Summon Tokens** for existing bonds only.`,
+            mechanics: {},
+        }),
+    }),
+    basePassive({
+        id: 'passive-thornhide', name: 'Thornhide', subfamily: 'damage',
+        passiveType: 'Passive',
+        fluff: 'When final HP damage lands on you, thorns bite back — capped by that loss.',
+        perLevel: (lvl) => {
+            const d = THORNHIDE_DICE[lvl - 1]!;
+            if (d <= 0) return { text: '—', mechanics: {} };
+            return {
+                text: `Gain **Thorns ${d}d8**. When you take final HP damage, deal that much (capped by the loss) to the source.`,
+                mechanics: {},
+            };
+        },
+    }),
+    basePassive({
+        id: 'passive-invisibility', name: 'Invisibility', subfamily: 'invisibility',
+        passiveType: 'Passive',
+        fluff: 'A lasting cloak that blocks Normal Combat Awareness and, at higher ranks, chosen Special Combat Senses.',
+        perLevel: (lvl) => {
+            const bonus = INVIS_PASSIVE[lvl - 1]!;
+            const senses = INVIS_PASSIVE_SENSES[lvl - 1]!;
+            const sensePart = senses <= 0
+                ? 'Blocks Normal Combat Awareness.'
+                : senses === 1
+                    ? 'Blocks Normal Combat Awareness and **1** chosen Special Combat Sense.'
+                    : `Blocks Normal Combat Awareness and **${senses}** chosen Special Combat Senses.`;
+            return {
+                text: `Gain **+${bonus} Invisibility Bonus**. ${sensePart}`,
+                mechanics: {},
+            };
+        },
+    }),
+    basePassive({
+        id: 'passive-parry', name: 'Parry', subfamily: 'parry',
+        passiveType: 'Passive, Parry',
+        fluff: 'Enter Parry instead of attacking — spend pool 1:1 to strip Attack Dice before the roll.',
+        perLevel: (lvl) => {
+            const pool = PARRY_POOL[lvl - 1]!;
+            return {
+                text:
+                    `While in Parry (no Attack Action), Maximum Parry Pool **${pool}** ` +
+                    `(Parry Attribute Might or Agility, capped at 5 × Level). Spend 1:1 to remove Attack Dice before the roll; 0 dice = Fully Parried.`,
+                mechanics: {},
+            };
+        },
+    }),
+    basePassive({
+        id: 'passive-absorption', name: 'Absorption', subfamily: 'absorption',
+        passiveType: 'Passive, Absorption',
+        fluff: 'Extra HP per bar and Temporary Colorless Stones from Vitality HP lost.',
+        perLevel: (lvl) => {
+            const hp = ABSORPTION_HP_PER_BAR[lvl - 1]!;
+            return {
+                text:
+                    `Gain **+${hp} HP** per Health Bar. Track Absorbed Damage; each Vitality actual HP lost yields ` +
+                    `**1 Temporary Colorless Stone** (Ready; until the end of your next turn).`,
+                mechanics: {},
+            };
+        },
+    }),
+    basePassive({
+        id: 'passive-damage-negation', name: 'Damage Negation', subfamily: 'damage-negation',
+        passiveType: 'Passive, Damage Negation',
+        fluff: 'A closed combat reserve of Damage Dice you spend before damage is rolled.',
+        perLevel: (lvl) => {
+            const dice = DAMAGE_NEGATION_RESERVE[lvl - 1]!;
+            return {
+                text:
+                    `Combat reserve **${dice} Damage Dice**. Spend before the damage roll; at most half the pool (floor). ` +
+                    `No mid-combat refresh.`,
+                mechanics: {},
             };
         },
     }),
