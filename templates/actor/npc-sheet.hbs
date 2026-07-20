@@ -54,6 +54,19 @@
           <h1>{{actor.name}}</h1>
         {{/if}}
       </div>
+      <div class="npc-creature-type-box" title="Creature type (Smite vs Undead / Fiend)">
+        <label>Typ</label>
+        <select name="system.creatureType" class="npc-creature-type-select">
+          <option value="" {{#unless system.creatureType}}selected{{/unless}}>— Creature Type —</option>
+          <option value="humanoid" {{#if (eq system.creatureType "humanoid")}}selected{{/if}}>Humanoid</option>
+          <option value="undead" {{#if (eq system.creatureType "undead")}}selected{{/if}}>Undead</option>
+          <option value="fiend" {{#if (eq system.creatureType "fiend")}}selected{{/if}}>Dämon / Fiend</option>
+          <option value="beast" {{#if (eq system.creatureType "beast")}}selected{{/if}}>Beast</option>
+          <option value="construct" {{#if (eq system.creatureType "construct")}}selected{{/if}}>Construct</option>
+          <option value="elemental" {{#if (eq system.creatureType "elemental")}}selected{{/if}}>Elemental</option>
+          <option value="other" {{#if (eq system.creatureType "other")}}selected{{/if}}>Other</option>
+        </select>
+      </div>
     </div>
   </header>
 

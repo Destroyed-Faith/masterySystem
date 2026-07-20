@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.211] - 2026-07-20
+
+### Added
+
+- **Mark spend choice:** Damage card lets the attacker optionally spend 0..Mark for a Damage Floor (no longer auto-spends).
+- **Smite runtime:** `Smite(X)` adds +Xd8 vs Undead/Fiend only; never stored as a lasting status.
+- **NPC creature type:** Sheet dropdown (`system.creatureType`) including Undead and Dämon/Fiend for Smite validity.
+
+### Changed
+
+- Mark floor helpers live in `src/dice/mark-floor.ts`; creature-type helpers in `src/utils/creature-type.ts`.
+
 ## [0.9.210] - 2026-07-15
 
 ### Added

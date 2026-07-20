@@ -29,6 +29,14 @@ import {
   type RaiseCostAllocation,
   type RaiseOutcome,
 } from '../combat/raise-resolution.js';
+import { computeMarkFloorBonus, clampMarkSpend } from './mark-floor.js';
+import {
+  extractSmiteDice,
+  isSmiteValidTarget,
+  stripSmiteSpecials,
+} from '../utils/creature-type.js';
+
+export { computeMarkFloorBonus, clampMarkSpend } from './mark-floor.js';
 
 /**
  * Add `bonusDice` d8 to a damage formula. Empty / "0" → "Nd8"; pure "Xd8" →
@@ -786,6 +794,9 @@ export async function showDamageDialog(
         .map((x) => String(x))
     : [];
 
+  const { getActiveSpecialValue } = await import('../system/active-specials.js');
+  const targetMarkValue = Math.max(0, getActiveSpecialValue(target, 'mark'));
+
   // Create damage card as chat message instead of dialog
   return new Promise((resolve) => {
     const damageCardContent = createDamageCardContent(
@@ -801,6 +812,7 @@ export async function showDamageDialog(
       weaponInnateLines,
       npcAutoNoteLines,
       raiseOutcomeLine,
+      targetMarkValue,
     );
     
     // Get targetTokenId if target is a token actor (for unlinked tokens)
@@ -847,7 +859,8 @@ export async function showDamageDialog(
           npcAttackSource: !!flags?.npcAttackSource,
           splitAttack: !!flags?.splitAttack,
           splitIndex: flags?.splitIndex ?? null,
-          splitPairId: flags?.splitPairId ?? null
+          splitPairId: flags?.splitPairId ?? null,
+          targetMarkValue,
         }
       }
     };
@@ -893,16 +906,40 @@ function createDamageCardContent(
   weaponInnateLines: string[] = [],
   npcAutoNoteLines: string[] = [],
   raiseOutcomeLine: string = '',
+  targetMarkValue: number = 0,
 ): string {
   const raisesSection = raiseOutcomeLine
     ? `<div class="raises-section raise-outcome-line"><p>${damageCardHtmlEsc(raiseOutcomeLine)}</p></div>`
     : '';
+
+  const markMax = Math.max(0, Math.floor(Number(targetMarkValue) || 0));
+  let markSpendSection = '';
+  if (markMax > 0) {
+    const options: string[] = [
+      `<option value="0" selected>0 — do not spend Mark</option>`,
+    ];
+    for (let n = 1; n <= markMax; n++) {
+      options.push(`<option value="${n}">${n} — Damage Floor ${n}</option>`);
+    }
+    markSpendSection = `
+      <div class="raises-section mark-spend-section">
+        <h4><i class="fas fa-bullseye"></i> Mark(${markMax}) on target</h4>
+        <p class="raises-description">You may spend any amount of Mark before damage is applied. Spent Mark becomes the Damage Floor for this roll (dice below that value are raised). Anyone who hits this target may spend Mark.</p>
+        <div class="raise-item mark-spend-row">
+          <label for="ms-mark-spend">Spend Mark:</label>
+          <select class="raise-selection mark-spend-select" id="ms-mark-spend" name="markSpend">
+            ${options.join('\n            ')}
+          </select>
+        </div>
+      </div>`;
+  }
   
   console.log('Mastery System | [DAMAGE CARD HTML] createDamageCardContent - values', {
     baseDamage: baseDamage,
     powerDamage: powerDamage,
     passiveDamage: passiveDamage,
     raiseOutcomeLine,
+    targetMarkValue: markMax,
     selectedPower: selectedPower ? {
       id: selectedPower.id,
       name: selectedPower.name,
@@ -966,6 +1003,7 @@ function createDamageCardContent(
         </div>
       </div>
       ${raisesSection}
+      ${markSpendSection}
       <div class="damage-actions">
         <button class="roll-damage-btn" data-attacker-id="${(attacker as any).id}" data-target-id="${(target as any).id}">
           <i class="fas fa-dice"></i> Roll
@@ -1101,6 +1139,19 @@ export function attachDamageCardHandlers(messageId: string): void {
     
     // Raise effects are pre-declared on the attack card — no post-roll picker.
     const raiseSelections: Map<number, { type: 'special' | 'damage'; value: string }> = new Map();
+
+    // Mark spend is optional: attacker may spend 0..Mark on the target (Damage Floor).
+    // Prefer live Mark on the target (may have changed since the card was posted).
+    let markOnTarget = 0;
+    try {
+      const { getActiveSpecialValue } = await import('../system/active-specials.js');
+      markOnTarget = Math.max(0, getActiveSpecialValue(target, 'mark'));
+    } catch {
+      markOnTarget = Math.max(0, Math.floor(Number(flags.targetMarkValue) || 0));
+    }
+    const markSpend = markOnTarget > 0
+      ? clampMarkSpend(markOnTarget, Number(messageElement.find('.mark-spend-select').val()))
+      : 0;
     
     const result = await calculateDamageResult(
       flags.baseDamage,
@@ -1116,7 +1167,8 @@ export function attachDamageCardHandlers(messageId: string): void {
       Array.isArray(flags.npcAutoSpecialStrings) ? flags.npcAutoSpecialStrings : [],
       flags.selectedPowerId || null,
       !!flags.splitAttack,
-      flags.attackType === 'ranged' ? 'ranged' : 'melee'
+      flags.attackType === 'ranged' ? 'ranged' : 'melee',
+      markSpend,
     );
     
     console.log('Mastery System | [ROLL DAMAGE BUTTON] calculateDamageResult returned', {
@@ -1751,7 +1803,9 @@ async function calculateDamageResult(
   npcAutoSpecialStrings: string[] = [],
   selectedPowerId: string | null = null,
   splitAttack: boolean = false,
-  attackType: 'melee' | 'ranged' = 'melee'
+  attackType: 'melee' | 'ranged' = 'melee',
+  /** Optional Mark spend chosen by the attacker (0 = do not use Mark). */
+  markSpendChosen: number = 0,
 ): Promise<DamageResult> {
   // Roll base damage
   // Sanitize dice notations before rolling
@@ -1795,6 +1849,14 @@ async function calculateDamageResult(
     if (special.type === 'power-special' && special.effect) {
       specialsUsed.push(special.effect);
     }
+    // Weapon Smite(X) is an instant on-hit rider (not a Raise pick / lasting status).
+    if (
+      special.type === 'weapon' &&
+      special.effect &&
+      /^smite\s*\(/i.test(String(special.effect).trim())
+    ) {
+      specialsUsed.push(special.effect);
+    }
   }
   
   for (let i = 0; i < raises; i++) {
@@ -1825,6 +1887,21 @@ async function calculateDamageResult(
     raiseDamage += r.total;
     if (r.line) rollDetails.push(r.line);
     if (r.roll) damageChatRolls.push(r.roll);
+  }
+
+  // Smite(X): instant +Xd8 vs Undead / Fiend only — never a lasting status.
+  let smiteBonusRolled = 0;
+  const smiteDice = extractSmiteDice(specialsUsed);
+  if (smiteDice > 0) {
+    if (isSmiteValidTarget(target)) {
+      const r = await rollDiceWithDetail(`${smiteDice}d8`, `Smite(${smiteDice})`);
+      smiteBonusRolled = r.total;
+      if (r.line) rollDetails.push(r.line);
+      if (r.roll) damageChatRolls.push(r.roll);
+      specialsUsed.push(`Smite(${smiteDice}) → +${smiteDice}d8`);
+    } else {
+      rollDetails.push(`Smite(${smiteDice}) — target is not Undead/Fiend (no bonus)`);
+    }
   }
   
   // Conditional damage riders (fires only when the target carries the gated condition).
@@ -1883,8 +1960,8 @@ async function calculateDamageResult(
   // Diminishing vulnerability riders on the defender:
   //   Hex(X)      → +1d8 per 2 Hex (rounded up) when hit by a Spell.
   //   Sundered(X) → +1d8 per 2 Sundered (rounded up) when hit by a non-Spell.
-  // Mark(X) sets a Damage Floor: each damage die below the spent Mark value is
-  // treated as that value; Mark is then reduced by the amount spent.
+  // Mark(X) Damage Floor is optional: the attacker may spend 0..Mark before
+  // final damage; only then are dice raised and Mark reduced.
   let vulnerabilityBonusRolled = 0;
   let markFloorBonus = 0;
   try {
@@ -1909,26 +1986,14 @@ async function calculateDamageResult(
       }
 
       const mark = getActiveSpecialValue(target, 'mark');
-      if (mark > 0) {
-        const spend = Math.min(mark, 8);
-        for (const roll of damageChatRolls) {
-          for (const term of (roll?.terms || [])) {
-            const results = term?.results;
-            if (!Array.isArray(results)) continue;
-            for (const res of results) {
-              if (res?.active === false) continue;
-              const face = Number(res?.result);
-              if (Number.isFinite(face) && face < spend) {
-                markFloorBonus += spend - face;
-              }
-            }
-          }
-        }
-        if (markFloorBonus > 0 || spend > 0) {
-          rollDetails.push(`Mark(${mark}) floor → dice raised to ${spend} (+${markFloorBonus})`);
-          specialsUsed.push(`Mark spent ${spend} (floor ${spend})`);
-        }
+      const spend = clampMarkSpend(mark, markSpendChosen);
+      if (mark > 0 && spend > 0) {
+        markFloorBonus = computeMarkFloorBonus(damageChatRolls, spend);
+        rollDetails.push(`Mark(${mark}) spend ${spend} → floor ${spend} (+${markFloorBonus})`);
+        specialsUsed.push(`Mark spent ${spend} (floor ${spend})`);
         await consumeTargetMark(target, spend);
+      } else if (mark > 0 && spend <= 0) {
+        rollDetails.push(`Mark(${mark}) available — not spent`);
       }
     }
   } catch (e) {
@@ -1953,7 +2018,7 @@ async function calculateDamageResult(
     }
   }
 
-  // Total damage = Base Weapon + Might stone bonus + Might/8 melee bonus + Power Damage + Raises + Conditional + Manual (Passives separate)
+  // Total damage = Base Weapon + Might stone bonus + Might/8 melee bonus + Power Damage + Raises + Conditional + Manual + Smite (Passives separate)
   const totalDamage =
     baseDamageRolled
     + stoneMightDamageRolled
@@ -1964,6 +2029,7 @@ async function calculateDamageResult(
     + manualDamageRolled
     + manualDamageFlat
     + vulnerabilityBonusRolled
+    + smiteBonusRolled
     + markFloorBonus;
   
   console.log('Mastery System | [CALCULATE DAMAGE] Final calculation', {
@@ -1979,9 +2045,16 @@ async function calculateDamageResult(
     calculation: `Base (${baseDamageRolled}) + Might stones (${stoneMightDamageRolled}) + Power (${powerDamageRolled}) + Raises (${raiseDamage}) = ${totalDamage}`
   });
   
-  // Apply status effects from specials to target
-  if (specialsUsed.length > 0 && target) {
-    await applyStatusEffectsToTarget(target, specialsUsed);
+  // Apply status effects from specials to target (Smite is instant — never persisted).
+  const statusSpecials = stripSmiteSpecials(specialsUsed).filter((s) => {
+    // Drop narrative smite result lines and similar non-status notes.
+    if (/^smite\(/i.test(s) && /→/.test(s)) return false;
+    if (/^mark spent /i.test(s)) return false;
+    if (/vulnerability/i.test(s) && /→/.test(s)) return false;
+    return true;
+  });
+  if (statusSpecials.length > 0 && target) {
+    await applyStatusEffectsToTarget(target, statusSpecials);
   }
 
   for (const note of conditionalSpecialsUsed) specialsUsed.push(note);
