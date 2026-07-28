@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.221] - 2026-07-28
+
+### Fixed
+
+- **Failed Raise now actually subtracts the Raise Cost from damage:** A failed Raise (hit Normal TN, missed Raise TN) rolled the power's full damage — e.g. 2d8 instead of 0d8 for an MR 2 character who paid 2d8 for the Raise. The declared raise plan lives in a fragile DOM attribute on the Roll button (`data-raise-plan`) that a chat re-render silently resets to `[]`, while the Raise TN survived into the roll. The Raise TN actually rolled against is now the ground truth: if it implies more Raise slots than the transported plan carries, the missing slots are rebuilt as default damage Raises — so the cost (MR d8 per Raise, Players Guide "Martial Raise Cost") is always paid on a partial outcome and the effects land on a full success. Applied in both the roll handler and the damage dialog.
+- **Damage card names the lost cost:** The partial-outcome line now reads e.g. `Raise failed — applying — (Raise cost of 2d8 lost)` instead of the ambiguous `(cost lost)`.
+- **`Maximum call stack size exceeded` on scene load for character tokens:** `prepareBaseData` checked combat membership via `combatant.actor` — that getter lazily builds the synthetic token actor, which was itself mid-construction, recursing through `prepareData` until the stack overflowed (the `_deepClone`/`_safePrepareData` error cascades at startup). The check now compares the stored `combatant.actorId`, which touches no actor construction.
+
 ## [0.9.220] - 2026-07-28
 
 ### Fixed

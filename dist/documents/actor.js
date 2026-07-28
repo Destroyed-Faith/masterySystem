@@ -64,8 +64,12 @@ export class MasteryActor extends Actor {
                         // - is 0 and maxStones > 0 and sustained === 0 -> refill to effectiveMax (character creation or reset case)
                         // - otherwise clamp to valid range
                         const current = system.stonePools[attrKey].current;
+                        // Compare against the STORED combatant actorId — touching
+                        // `c.actor` here would lazily build synthetic token actors while
+                        // THIS actor is itself mid-construction (ActorDelta), recursing
+                        // into prepareData until the call stack overflows on scene load.
                         const inActiveCombat = !!game.combat?.active &&
-                            game.combat.combatants?.some((c) => c.actor?.id === this.id);
+                            game.combat.combatants?.some((c) => c.actorId === this.id);
                         if (current === undefined || current === null) {
                             system.stonePools[attrKey].current = effectiveMax;
                         }

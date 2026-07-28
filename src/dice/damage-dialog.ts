@@ -22,14 +22,18 @@ import { deriveArtifactWeaponDamage } from '../utils/artifact-base-derive.js';
 import { getActorSpellFocusBonusDice } from '../utils/artifact-base-values.js';
 import {
   bindChosenSpecialIntoLevelData,
+  countRaiseSlots,
+  computeTotalRaiseCost,
   resolvePowerSnapshot,
   snapshotToDamageFormula,
   snapshotToSpecialStrings,
   formatSnapshotSummary,
+  type DeclaredRaise,
   type PowerSnapshot,
   type RaiseCostAllocation,
   type RaiseOutcome,
 } from '../combat/raise-resolution.js';
+import { RAISE_INCREMENT } from '../utils/constants.js';
 import { computeMarkFloorBonus, clampMarkSpend } from './mark-floor.js';
 import {
   extractSmiteDice,
@@ -744,7 +748,22 @@ export async function showDamageDialog(
       Math.floor(Number((actorToUse as any).system?.mastery?.rank) || flags.masteryRank || 2),
     );
     const isSpell = !!flags.powerIsSpell;
-    const declaredRaises = Array.isArray(flags.declaredRaises) ? flags.declaredRaises : [];
+    const declaredRaises: DeclaredRaise[] = Array.isArray(flags.declaredRaises)
+      ? [...flags.declaredRaises]
+      : [];
+    // Same safety net as the roll handler: the Raise TN actually rolled
+    // against implies how many Raise slots were declared. If the transported
+    // plan lost entries (fragile DOM attr), pad with default damage Raises so
+    // the Raise Cost is subtracted on a partial outcome.
+    const normalTnFromFlags = Math.max(0, Math.floor(Number(flags.normalTn) || 0));
+    const raiseTnFromFlags = Math.max(0, Math.floor(Number(flags.raiseTn) || 0));
+    const tnImpliedSlots =
+      normalTnFromFlags > 0 && raiseTnFromFlags > normalTnFromFlags
+        ? Math.round((raiseTnFromFlags - normalTnFromFlags) / RAISE_INCREMENT)
+        : 0;
+    for (let i = countRaiseSlots(declaredRaises); i < tnImpliedSlots; i++) {
+      declaredRaises.push({ effect: 'damage', slots: 1 });
+    }
     const outcome = flags.raiseOutcome as RaiseOutcome;
     resolvedPowerSnapshot = resolvePowerSnapshot({
       base: flags.basePowerSnapshot as PowerSnapshot,
@@ -763,9 +782,11 @@ export async function showDamageDialog(
     }
     powerSpecials.length = 0;
     powerSpecials.push(...resolvedSpecials);
+    const lostCost = computeTotalRaiseCost(countRaiseSlots(declaredRaises), masteryRank);
+    const lostCostLabel = isSpell ? `${lostCost} value` : `${lostCost}d8`;
     raiseOutcomeLine =
       outcome === 'partial'
-        ? `Raise failed — applying ${formatSnapshotSummary(resolvedPowerSnapshot)} (cost lost)`
+        ? `Raise failed — applying ${formatSnapshotSummary(resolvedPowerSnapshot)} (Raise cost of ${lostCostLabel} lost)`
         : outcome === 'full'
           ? `Raise succeeded — ${formatSnapshotSummary(resolvedPowerSnapshot)}`
           : '';

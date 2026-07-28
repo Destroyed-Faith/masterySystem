@@ -14,6 +14,7 @@ import {
   type RaiseCostAllocation,
   type RaiseOutcome,
 } from '../combat/raise-resolution.js';
+import { RAISE_INCREMENT } from '../utils/constants.js';
 
 /** jQuery `.data()` caches parsed `data-*` on first read; dynamic `.attr()` updates won't match. */
 function readAttackButtonDataInt(button: JQuery, kebab: string, fallback: number): number {
@@ -262,7 +263,28 @@ export async function executeAttackRollFromCard(
       const raiseTn = readAttackButtonDataInt(button, 'raise-tn', normalTn);
       const raisePlanRaw = button.attr('data-raise-plan') || '[]';
       const declaredRaises: DeclaredRaise[] = parseDeclaredRaises(raisePlanRaw);
-      const declaredRaiseSlots = countRaiseSlots(declaredRaises);
+      let declaredRaiseSlots = countRaiseSlots(declaredRaises);
+
+      // The Raise TN we actually roll against is the ground truth for how many
+      // Raise slots were declared (Normal TN + 4 per slot). The JSON plan attr
+      // is more fragile — a chat re-render resets the button to its static
+      // `data-raise-plan="[]"`. If the plan carries fewer slots than the TN
+      // implies, rebuild the missing ones as default damage Raises so the
+      // Raise Cost is still paid on a partial and the effects land on a full.
+      const tnImpliedSlots = Math.max(0, Math.round((raiseTn - normalTn) / RAISE_INCREMENT));
+      if (tnImpliedSlots > declaredRaiseSlots) {
+        console.warn('Mastery System | [ROLL ATTACK] Raise plan lost — rebuilding from Raise TN', {
+          messageId,
+          raiseTn,
+          normalTn,
+          tnImpliedSlots,
+          parsedPlanSlots: declaredRaiseSlots,
+        });
+        for (let i = declaredRaiseSlots; i < tnImpliedSlots; i++) {
+          declaredRaises.push({ effect: 'damage', slots: 1 });
+        }
+        declaredRaiseSlots = tnImpliedSlots;
+      }
       
       // Compute numDice from ACTOR at click time (not from stale flags)
       // This ensures we always use the current attribute value.

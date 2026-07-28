@@ -14,7 +14,8 @@ import { logDrDebug } from '../utils/dr-debug.js';
 import { artifactSystemHasSpellFocus } from '../utils/artifact-rules.js';
 import { deriveArtifactWeaponDamage } from '../utils/artifact-base-derive.js';
 import { getActorSpellFocusBonusDice } from '../utils/artifact-base-values.js';
-import { bindChosenSpecialIntoLevelData, resolvePowerSnapshot, snapshotToDamageFormula, snapshotToSpecialStrings, formatSnapshotSummary, } from '../combat/raise-resolution.js';
+import { bindChosenSpecialIntoLevelData, countRaiseSlots, computeTotalRaiseCost, resolvePowerSnapshot, snapshotToDamageFormula, snapshotToSpecialStrings, formatSnapshotSummary, } from '../combat/raise-resolution.js';
+import { RAISE_INCREMENT } from '../utils/constants.js';
 import { computeMarkFloorBonus, clampMarkSpend } from './mark-floor.js';
 import { extractSmiteDice, isSmiteValidTarget, stripSmiteSpecials, } from '../utils/creature-type.js';
 import { formatEffectReference } from '../utils/special-effects.js';
@@ -645,7 +646,21 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
     if (flags?.basePowerSnapshot && flags?.raiseOutcome) {
         const masteryRank = Math.max(1, Math.floor(Number(actorToUse.system?.mastery?.rank) || flags.masteryRank || 2));
         const isSpell = !!flags.powerIsSpell;
-        const declaredRaises = Array.isArray(flags.declaredRaises) ? flags.declaredRaises : [];
+        const declaredRaises = Array.isArray(flags.declaredRaises)
+            ? [...flags.declaredRaises]
+            : [];
+        // Same safety net as the roll handler: the Raise TN actually rolled
+        // against implies how many Raise slots were declared. If the transported
+        // plan lost entries (fragile DOM attr), pad with default damage Raises so
+        // the Raise Cost is subtracted on a partial outcome.
+        const normalTnFromFlags = Math.max(0, Math.floor(Number(flags.normalTn) || 0));
+        const raiseTnFromFlags = Math.max(0, Math.floor(Number(flags.raiseTn) || 0));
+        const tnImpliedSlots = normalTnFromFlags > 0 && raiseTnFromFlags > normalTnFromFlags
+            ? Math.round((raiseTnFromFlags - normalTnFromFlags) / RAISE_INCREMENT)
+            : 0;
+        for (let i = countRaiseSlots(declaredRaises); i < tnImpliedSlots; i++) {
+            declaredRaises.push({ effect: 'damage', slots: 1 });
+        }
         const outcome = flags.raiseOutcome;
         resolvedPowerSnapshot = resolvePowerSnapshot({
             base: flags.basePowerSnapshot,
@@ -664,9 +679,11 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
         }
         powerSpecials.length = 0;
         powerSpecials.push(...resolvedSpecials);
+        const lostCost = computeTotalRaiseCost(countRaiseSlots(declaredRaises), masteryRank);
+        const lostCostLabel = isSpell ? `${lostCost} value` : `${lostCost}d8`;
         raiseOutcomeLine =
             outcome === 'partial'
-                ? `Raise failed — applying ${formatSnapshotSummary(resolvedPowerSnapshot)} (cost lost)`
+                ? `Raise failed — applying ${formatSnapshotSummary(resolvedPowerSnapshot)} (Raise cost of ${lostCostLabel} lost)`
                 : outcome === 'full'
                     ? `Raise succeeded — ${formatSnapshotSummary(resolvedPowerSnapshot)}`
                     : '';
