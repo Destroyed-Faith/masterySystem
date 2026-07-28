@@ -84,6 +84,8 @@ interface UtilityTargetingState {
   onPointerDown: (ev: PIXI.FederatedPointerEvent) => void;
   onKeyDown: (ev: KeyboardEvent) => void;
   manualMode: boolean;
+  /** Hard filter: allies/players can never be (pre-)selected while active. */
+  excludeAllies: boolean;
 }
 
 // Global utility targeting state
@@ -276,6 +278,12 @@ function createTargetSelectionPanel(state: UtilityTargetingState): any {
         <button class="panel-btn" data-action="none">None</button>
       </div>
       <div class="panel-toggle">
+        <label title="Verbündete und Spieler-Charaktere können nicht als Ziel gewählt werden, solange aktiv.">
+          <input type="checkbox" id="exclude-allies" ${state.excludeAllies ? 'checked' : ''}>
+          Verbündete/Spieler ausnehmen
+        </label>
+      </div>
+      <div class="panel-toggle">
         <label>
           <input type="checkbox" id="manual-mode" ${state.manualMode ? 'checked' : ''}>
           Manual Selection Mode
@@ -305,6 +313,11 @@ function createTargetSelectionPanel(state: UtilityTargetingState): any {
     
     // Button handlers
     html.find('[data-action="allies"]').on('click', () => {
+      // Explicitly targeting allies overrides the exclusion filter.
+      if (state.excludeAllies) {
+        state.excludeAllies = false;
+        html.find('#exclude-allies').prop('checked', false);
+      }
       for (const [tokenId, candidate] of state.candidates.entries()) {
         candidate.selected = candidate.isAlly;
         if (candidate.selected) {
@@ -332,6 +345,11 @@ function createTargetSelectionPanel(state: UtilityTargetingState): any {
     
     html.find('[data-action="all"]').on('click', () => {
       for (const [tokenId, candidate] of state.candidates.entries()) {
+        if (state.excludeAllies && candidate.isAlly) {
+          candidate.selected = false;
+          state.selectedTargets.delete(tokenId);
+          continue;
+        }
         candidate.selected = true;
         state.selectedTargets.add(tokenId);
       }
@@ -346,6 +364,21 @@ function createTargetSelectionPanel(state: UtilityTargetingState): any {
       }
       updateCandidateVisuals(state);
       updateCount();
+    });
+    
+    html.find('#exclude-allies').on('change', (ev: JQuery.ChangeEvent) => {
+      state.excludeAllies = (ev.target as HTMLInputElement).checked;
+      if (state.excludeAllies) {
+        // Drop any allies that are currently selected.
+        for (const [tokenId, candidate] of state.candidates.entries()) {
+          if (candidate.isAlly && candidate.selected) {
+            candidate.selected = false;
+            state.selectedTargets.delete(tokenId);
+          }
+        }
+        updateCandidateVisuals(state);
+        updateCount();
+      }
     });
     
     html.find('#manual-mode').on('change', (ev: JQuery.ChangeEvent) => {
@@ -518,7 +551,8 @@ export function startUtilitySingleTargetMode(token: any, option: RadialCombatOpt
             onPointerMove,
             onPointerDown,
             onKeyDown: () => {},
-            manualMode: false
+            manualMode: false,
+            excludeAllies: false
           });
           return;
         }
@@ -551,9 +585,10 @@ export function startUtilitySingleTargetMode(token: any, option: RadialCombatOpt
     onPointerMove,
     onPointerDown,
     onKeyDown,
-    manualMode: false
+    manualMode: false,
+    excludeAllies: false
   };
-
+  
   activeUtilityTargeting = state;
 
   // Store original alphas
@@ -639,7 +674,9 @@ export function startUtilityRadiusMode(token: any, option: RadialCombatOption): 
     onPointerMove: () => {},
     onPointerDown: () => {},
     onKeyDown: () => {},
-    manualMode: option.allowManualTargetSelection !== false
+    manualMode: option.allowManualTargetSelection !== false,
+    // Attack zones default to sparing allies/players; utilities keep them selectable.
+    excludeAllies: option.aoePlacementProfile === 'hostile-zone' || option.slot === 'attack'
   };
   
   activeUtilityTargeting = state;
@@ -722,6 +759,10 @@ export function startUtilityRadiusMode(token: any, option: RadialCombatOption): 
           
           if (clickedToken && state.candidates.has(clickedToken.id)) {
             const candidate = state.candidates.get(clickedToken.id)!;
+            if (state.excludeAllies && candidate.isAlly && !candidate.selected) {
+              ui.notifications?.info('Verbündete/Spieler sind ausgenommen (Häkchen im Panel entfernen, um sie zu treffen).');
+              return;
+            }
             candidate.selected = !candidate.selected;
             if (candidate.selected) {
               state.selectedTargets.add(clickedToken.id);
@@ -752,8 +793,12 @@ export function startUtilityRadiusMode(token: any, option: RadialCombatOption): 
             state.candidates = findCandidatesInRadius(token, state.center, radiusMeters, targetGroup);
           }
           
-          // Default selection
+          // Default selection (allies never pre-selected while excluded)
           for (const [tokenId, candidate] of state.candidates.entries()) {
+            if (state.excludeAllies && candidate.isAlly) {
+              candidate.selected = false;
+              continue;
+            }
             if (candidate.selected) {
               state.selectedTargets.add(tokenId);
             }
@@ -790,6 +835,10 @@ export function startUtilityRadiusMode(token: any, option: RadialCombatOption): 
           
           if (clickedToken && state.candidates.has(clickedToken.id)) {
             const candidate = state.candidates.get(clickedToken.id)!;
+            if (state.excludeAllies && candidate.isAlly && !candidate.selected) {
+              ui.notifications?.info('Verbündete/Spieler sind ausgenommen (Häkchen im Panel entfernen, um sie zu treffen).');
+              return;
+            }
             candidate.selected = !candidate.selected;
             if (candidate.selected) {
               state.selectedTargets.add(clickedToken.id);
@@ -818,8 +867,12 @@ export function startUtilityRadiusMode(token: any, option: RadialCombatOption): 
     state.center = { x: token.center.x, y: token.center.y };
     state.candidates = findCandidatesInRadius(token, state.center, radiusMeters, targetGroup);
     
-    // Default selection based on target group
+    // Default selection based on target group (allies never pre-selected while excluded)
     for (const [tokenId, candidate] of state.candidates.entries()) {
+      if (state.excludeAllies && candidate.isAlly) {
+        candidate.selected = false;
+        continue;
+      }
       if (candidate.selected) {
         state.selectedTargets.add(tokenId);
       }

@@ -690,10 +690,30 @@
 .control-icon.ms-action-selector {
   background: rgba(15, 52, 96, 0.8);
   border: 2px solid #0f3460;
-  border-radius: 4px;
+  border-radius: 50%;
   color: #a8dadc;
   transition: all 0.3s ease;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  flex: 0 0 auto;
+  pointer-events: all;
+}
+
+/* Middle-column placement: center horizontally, keep clear of the bars. */
+.placeable-hud .col.middle .control-icon.ms-action-selector {
+  margin: 6px auto 0;
+}
+
+.control-icon.ms-action-selector img {
+  width: 26px;
+  height: 26px;
+  border: none;
+  background: none;
+  filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.8));
 }
 
 .control-icon.ms-action-selector:hover {

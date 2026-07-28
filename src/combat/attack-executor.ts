@@ -722,9 +722,10 @@ export async function createAttackCard(
       ${
         raiseContext.isSpell
           ? `<div class="spell-cost-split-row md-sublabel">
-          Spell cost split (total MR value per raise):
-          <label>d8 <input type="number" class="spell-cost-d8" min="0" value="0" style="width:3em" /></label>
-          <label>Special <input type="number" class="spell-cost-special" min="0" value="0" style="width:3em" /></label>
+          Pay Raise cost with:
+          <select class="spell-cost-select" disabled>
+            <option value="">— declare a Raise first —</option>
+          </select>
         </div>`
           : ''
       }
@@ -932,29 +933,84 @@ function setupRaisesHandler(
     return plan;
   };
 
+  const totalSpecialRank = raiseContext.baseSnapshot.specials.reduce(
+    (sum, sp) => sum + Math.max(0, sp.rank),
+    0,
+  );
+
+  /** Distribute a special-value payment over the power's specials (largest rank first). */
+  const spellAllocFromParts = (d8Paid: number, spPaid: number): RaiseCostAllocation => {
+    const alloc: RaiseCostAllocation = { damageDice: d8Paid, specialByKey: {} };
+    if (spPaid > 0) {
+      const sorted = [...raiseContext!.baseSnapshot.specials].sort((a, b) => b.rank - a.rank);
+      let rem = spPaid;
+      for (const sp of sorted) {
+        if (rem <= 0) break;
+        const take = Math.min(sp.rank, rem);
+        if (take > 0) {
+          alloc.specialByKey[sp.key] = take;
+          rem -= take;
+        }
+      }
+    }
+    return alloc;
+  };
+
+  /**
+   * Rebuild the spell-cost dropdown: every option is a complete, valid split
+   * (d8 + special value = total cost), so nothing has to be typed and the
+   * numbers can never disagree with the cost.
+   */
+  const rebuildSpellCostSelect = (costTotal: number): void => {
+    const sel = panel.find('.spell-cost-select');
+    if (!sel.length) return;
+    if (costTotal <= 0) {
+      sel.prop('disabled', true).html('<option value="">— declare a Raise first —</option>');
+      return;
+    }
+    const prev = String(sel.val() || '');
+    const maxD8 = Math.min(costTotal, raiseContext!.baseSnapshot.damageDice);
+    const minD8 = Math.max(0, costTotal - totalSpecialRank);
+    const optionHtml: string[] = [];
+    for (let d8 = maxD8; d8 >= minD8; d8--) {
+      const sp = costTotal - d8;
+      const parts: string[] = [];
+      if (d8 > 0) parts.push(`${d8}d8 damage`);
+      if (sp > 0) parts.push(`${sp} Special value`);
+      optionHtml.push(`<option value="${d8}|${sp}">${parts.join(' + ')}</option>`);
+    }
+    if (!optionHtml.length) {
+      sel.prop('disabled', true).html(`<option value="">Not enough damage/Special to pay ${costTotal}</option>`);
+      return;
+    }
+    sel.prop('disabled', false).html(optionHtml.join(''));
+    if (prev && sel.find(`option[value="${prev}"]`).length) {
+      sel.val(prev);
+    }
+  };
+
+  const readSpellCostSelection = (costTotal: number): RaiseCostAllocation | undefined => {
+    const raw = String(panel.find('.spell-cost-select').val() || '');
+    const m = raw.match(/^(\d+)\|(\d+)$/);
+    if (!m) return undefined;
+    const d8Paid = parseInt(m[1], 10);
+    const spPaid = parseInt(m[2], 10);
+    if (d8Paid + spPaid !== costTotal) return undefined;
+    return spellAllocFromParts(d8Paid, spPaid);
+  };
+
   const updatePreview = (): void => {
     const plan = collectPlan();
     const slots = countRaiseSlots(plan);
     const { raiseTn } = computeRaiseTns(normalTn, slots);
     let spellCostOverride: RaiseCostAllocation | undefined;
-    if (raiseContext!.isSpell && slots > 0) {
-      const costTotal = raiseContext!.masteryRank * slots;
-      const d8Paid = Math.max(0, parseInt(panel.find('.spell-cost-d8').val() as string, 10) || 0);
-      const spPaid = Math.max(0, parseInt(panel.find('.spell-cost-special').val() as string, 10) || 0);
-      if (d8Paid + spPaid === costTotal && (d8Paid > 0 || spPaid > 0)) {
-        spellCostOverride = { damageDice: d8Paid, specialByKey: {} };
-        if (spPaid > 0) {
-          const sorted = [...raiseContext!.baseSnapshot.specials].sort((a, b) => b.rank - a.rank);
-          let rem = spPaid;
-          for (const sp of sorted) {
-            if (rem <= 0) break;
-            const take = Math.min(sp.rank, rem);
-            if (take > 0) {
-              spellCostOverride.specialByKey[sp.key] = take;
-              rem -= take;
-            }
-          }
-        }
+    if (raiseContext!.isSpell) {
+      const costTotal = slots > 0 ? raiseContext!.masteryRank * slots : 0;
+      rebuildSpellCostSelect(costTotal);
+      if (slots > 0) {
+        spellCostOverride = readSpellCostSelection(costTotal);
+      }
+      if (spellCostOverride) {
         button.attr('data-spell-cost', JSON.stringify(spellCostOverride));
       } else {
         button.removeAttr('data-spell-cost');
@@ -1011,7 +1067,7 @@ function setupRaisesHandler(
     addRow();
   });
 
-  panel.find('.spell-cost-d8, .spell-cost-special, .blood-raises-input')
+  panel.find('.spell-cost-select, .blood-raises-input')
     .off('input.masteryRaisePlan change.masteryRaisePlan')
     .on('input.masteryRaisePlan change.masteryRaisePlan', () => updatePreview());
 

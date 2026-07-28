@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.222] - 2026-07-28
+
+### Added
+
+- **AoE target panel: "Verbündete/Spieler ausnehmen" checkbox:** The radius target-selection panel (zone placement) now carries a hard ally filter — allies/player characters are never pre-selected, the "All" button skips them, and manual clicks on ally tokens are rejected with a hint. Defaults to ON for attack zones (hostile-zone AoE / attack-slot powers) and OFF for utilities (healing, buffs). Unchecking re-allows friendly fire; the "Allies" quick-select button unchecks it automatically.
+- **Spell Raise cost dropdown:** The free-text "Spell cost split" number inputs on attack cards are replaced by a single dropdown listing only complete, valid splits (e.g. `2d8 damage`, `1d8 damage + 1 Special value`, `2 Special value`) — always summing to the exact Raise cost. Options rebuild live as Raises are added/removed; paying purely with Special value no longer requires touching a dice field.
+
+### Changed
+
+- **Radial menu button: new icon and position:** The Token HUD button that opens the radial menu now shows a concentric target glyph (red/yellow/blue rings, `assets/icons/radial-target.svg`) and sits centered in the HUD's middle column — between the left (Start/Exit Combat) and right (configuration) button stacks instead of directly below them.
+
+### Fixed
+
+- **Combat carousel survives page reloads:** The carousel only opened on the `combatStart` hook, so reloading mid-encounter lost it until the next combat. On canvas ready, an active started encounter now reopens the carousel automatically with current values.
+
 ## [0.9.221] - 2026-07-28
 
 ### Fixed

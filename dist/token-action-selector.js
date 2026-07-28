@@ -37,25 +37,31 @@ export function initializeTokenActionSelector() {
         }
         // Convert html to jQuery if it's not already (Foundry v13 compatibility)
         const $html = (html instanceof jQuery ? html : $(html));
-        // Find the right column of the Token HUD
-        const rightCol = $html.find('.col.right');
-        if (rightCol.length === 0) {
-            console.warn('Mastery System | Could not find .col.right in Token HUD');
+        // Place the radial-menu button in the MIDDLE column of the Token HUD —
+        // centered between the left (combat toggle) and right (config) button
+        // stacks, as far from Start/Exit Combat as possible. Fall back to the
+        // right column on layouts without a middle column.
+        let targetCol = $html.find('.col.middle');
+        if (targetCol.length === 0) {
+            targetCol = $html.find('.col.right');
+        }
+        if (targetCol.length === 0) {
+            console.warn('Mastery System | Could not find a Token HUD column for the action selector');
             return;
         }
         // Check if the icon already exists to avoid duplicates
-        if (rightCol.find('.ms-action-selector').length > 0) {
+        if ($html.find('.ms-action-selector').length > 0) {
             return;
         }
         // Get current action flag to show status
         const currentAction = token.document.getFlag('mastery-system', 'currentAction') || {};
         const hasAction = currentAction.category && currentAction.optionId;
-        // Create the action selector icon
+        // Create the action selector icon (concentric target rings: red/yellow/blue)
         const actionIcon = $(`
       <div class="control-icon ms-action-selector" 
            title="${hasAction ? `Current: ${currentAction.category} - ${currentAction.optionId}` : 'Select Action'}"
            data-token-id="${token.id}">
-        <i class="fas fa-swords"></i>
+        <img src="systems/mastery-system/assets/icons/radial-target.svg" alt="Actions" />
       </div>
     `);
         // Add visual indicator if action is set
@@ -68,8 +74,7 @@ export function initializeTokenActionSelector() {
             event.stopPropagation();
             await openMasteryActionRadialMenu(token);
         });
-        // Append to right column
-        rightCol.append(actionIcon);
+        targetCol.append(actionIcon);
     });
     // Hook into token updates to intercept movement
     Hooks.on('preUpdateToken', async (tokenDoc, change, _options, userId) => {

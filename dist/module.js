@@ -306,10 +306,20 @@ Hooks.once('init', async function () {
         closeMasteryCombatCarouselUI();
     });
     // Recovery: carousel left open when no active encounter (reload, scene swap, etc.)
+    // — and the reverse: after a page reload during a running encounter,
+    // combatStart won't re-fire, so reopen the carousel from the combat state.
     Hooks.on('canvasReady', () => {
         try {
-            if (!game.combat && CombatCarouselApp.instance) {
+            const combat = game.combat;
+            if (!combat && CombatCarouselApp.instance) {
                 closeMasteryCombatCarouselUI();
+            }
+            else if (combat?.started) {
+                const carousel = CombatCarouselApp.instance;
+                if (!carousel || !carousel.rendered) {
+                    console.log('Mastery System | [CAROUSEL] Active encounter found on canvas ready — reopening carousel');
+                    CombatCarouselApp.open();
+                }
             }
         }
         catch {
