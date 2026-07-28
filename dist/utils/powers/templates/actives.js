@@ -573,6 +573,12 @@ function buildActiveTemplates() {
         smiteMeleeAttackTemplate(),
         smiteRangedAttackTemplate(),
         smiteRangedAoeAttackTemplate(),
+        // Support leftovers + Mental Powers (Rules/actives.md 2026-07)
+        healthLevelHealTemplate('melee'),
+        healthLevelHealTemplate('ranged'),
+        cleanseAbsorptionTemplate(),
+        mentalAttackTemplate(),
+        mindIllusionTemplate(),
     ];
 }
 // ─── Smite Attack Templates (Actives.md §Smite Actives) ───────────────────
@@ -965,6 +971,165 @@ function autofireWeaponAttackTemplate() {
                 mechanics: p.dice === 0
                     ? { applyWhen: 'attack-rider', autofire: { extraTargets: p.extra } }
                     : { damageRider: { flat: diceText }, applyWhen: 'attack-rider', autofire: { extraTargets: p.extra } },
+            });
+        }),
+    };
+}
+// ─── Health Level Heal / Cleanse Absorption / Mental (Rules/actives.md) ───
+const HL_HEAL_MELEE_POOL = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
+const HL_HEAL_RANGED_POOL = [1, 1, 2, 3, 4, 5, 6, 6, 7, 8, 9, 10, 11, 11, 12, 13];
+const CLEANSE_ABSORPTION_RANK = [0, 0, 3, 4, 5, 6, 6, 6, 7, 8, 8, 8, 8, 8, 8, 8];
+const CLEANSE_ABSORPTION_BONUS = [
+    '', '', 'I', 'I', 'I', 'I', 'II', 'III', 'III', 'III', 'III', 'IV', 'V', 'V', 'VI', 'VII',
+];
+const MIND_ILLUSION_TARGETS = [
+    '1 creature', '1 creature', '1 creature', '1 creature',
+    '2 creatures', '2 creatures', '2 creatures', '3 creatures',
+    '3 creatures', '3 creatures', '4 creatures', '4 creatures',
+    '5 creatures', '5 creatures', 'MR + 2 creatures', 'MR + 3 creatures',
+];
+const MIND_ILLUSION_COMPLEXITY = [
+    '1 simple sense', '1 clear sense', '2 simple senses', '2 clear senses',
+    '2 clear senses', '3 senses', '3 senses, moving illusion', '3 senses, reactive illusion',
+    '4 senses', '4 senses, detailed illusion', '4 senses, reactive illusion', '5 senses',
+    '5 senses, detailed moving illusion', '5 senses, reactive false scene',
+    'all normal senses', 'all normal senses, complex reactive illusion',
+];
+const MIND_ILLUSION_EFFECT = [
+    'Create a minor false perception, such as a whisper, flicker, smell, touch, or brief image.',
+    'Create a clear false sensory detail in one sense.',
+    'Combine two simple sensory details, such as image and sound.',
+    'Create a believable personal illusion affecting two senses.',
+    'Affect two creatures with the same personal illusion.',
+    'Create a more complete false perception affecting three senses.',
+    "The illusion may move naturally inside the target's perception.",
+    "The illusion may react in simple ways to the target's movement or attention.",
+    'Create a strong false perception affecting four senses.',
+    'The illusion may contain detailed features, such as a creature, object, voice, or false threat.',
+    'Affect up to four creatures with a shared but personal mental illusion.',
+    "Create a nearly complete sensory illusion inside each target's mind.",
+    'The illusion may appear complex, moving, and emotionally convincing.',
+    "Create a false scene inside the targets' perception. It still has no real battlefield presence.",
+    'Affect all normal senses with a convincing personal illusion.',
+    'Create a complex shared mental illusion for affected creatures. It remains mental only and cannot control actions directly.',
+];
+function healthLevelHealTemplate(flavour) {
+    const isRanged = flavour === 'ranged';
+    const pool = isRanged ? HL_HEAL_RANGED_POOL : HL_HEAL_MELEE_POOL;
+    return {
+        templateId: isRanged ? 'active-ranged-health-level-heal' : 'active-melee-health-level-heal',
+        templateName: isRanged ? 'Ranged Health Level Heal' : 'Melee Health Level Heal',
+        name: isRanged ? 'Ranged Health Level Heal' : 'Melee Health Level Heal',
+        subfamily: 'support-heal',
+        category: 'active',
+        tags: ['spell'],
+        spellHints: { defaultResolution: 'saveSpell' },
+        fluff: 'Spend this Power\'s Health Level Recovery pool to restore lost Health Levels. It restores no HP by itself.',
+        cost: { action: 'attack' },
+        roll: { kind: 'none', attribute: 'resolve' },
+        levels: buildLevels((lvl) => {
+            const hl = pool[lvl - 1];
+            const noun = hl === 1 ? 'Health Level' : 'Health Levels';
+            const reach = isRanged
+                ? 'on one creature within range'
+                : 'on one creature you can touch or reach';
+            return activeRow({
+                type: 'Active, Support',
+                range: isRanged ? rangedRange(lvl, 8) : MELEE_RANGE,
+                aoe: R_NONE,
+                effectText: `You may spend this Power's Health Level Recovery pool to restore lost Health Levels ${reach}. ` +
+                    `This Power restores no HP. **Pool:** restore up to **${hl} ${noun}** per Safe Haven Rest.`,
+                specials: [],
+                mechanics: {},
+            });
+        }),
+    };
+}
+function cleanseAbsorptionTemplate() {
+    return {
+        templateId: 'active-cleanse-absorption',
+        templateName: 'Cleanse Absorption',
+        name: 'Cleanse Absorption',
+        subfamily: 'support-cleanse',
+        category: 'active',
+        tags: ['spell'],
+        spellHints: { defaultResolution: 'saveSpell' },
+        fluff: 'Strip eligible negative Specials from a target; if the full Cleanse value is spent, grant a chosen Absorption Bonus until end of combat.',
+        cost: { action: 'attack' },
+        roll: { kind: 'none', attribute: 'resolve' },
+        levels: buildLevels((lvl) => {
+            const rank = CLEANSE_ABSORPTION_RANK[lvl - 1];
+            const bonus = CLEANSE_ABSORPTION_BONUS[lvl - 1];
+            if (rank <= 0) {
+                return activeRow({
+                    type: 'Active, Support',
+                    range: { kind: 'distance', m: 24 },
+                    aoe: R_NONE,
+                    effectText: 'No version.',
+                    specials: [],
+                    mechanics: {},
+                });
+            }
+            return activeRow({
+                type: 'Active, Support',
+                range: { kind: 'distance', m: 24 },
+                aoe: R_NONE,
+                effectText: `Remove up to **Cleanse(${rank})** total negative Special value from the target (may split). ` +
+                    `If the full Cleanse value is spent, the target gains **Absorption Bonus ${bonus}** until end of combat. ` +
+                    `Choose one Absorption type when this Power is learned: Damage, Speed, Armor, or Evade. Stackable.`,
+                specials: [{ key: 'cleanse', rank }],
+                mechanics: {},
+            });
+        }),
+    };
+}
+function mentalAttackTemplate() {
+    return {
+        templateId: 'active-mental-attack',
+        templateName: 'Mental Attack',
+        name: 'Mental Attack',
+        subfamily: 'mental',
+        category: 'active',
+        tags: ['spell', 'mental'],
+        spellHints: { defaultResolution: 'saveSpell', defaultSaveType: 'mind' },
+        fluff: 'Requires Telepathic Access. Psychic assault vs Mind Save; Mental Damage ignores Armor and does not target Evade.',
+        cost: { action: 'attack' },
+        roll: { kind: 'none', attribute: 'resolve' },
+        levels: buildLevels((lvl) => activeRow({
+            type: 'Active, Mental',
+            range: { kind: 'distance', m: 0, note: 'Telepathic Access' },
+            aoe: R_NONE,
+            effectText: `Deal **${lvl}d8 Mental Damage**. On a successful Mind Save, the target takes half damage.`,
+            dice: `${lvl}d8`,
+            specials: [],
+            mechanics: { damageRider: { flat: `+${lvl}d8` } },
+        })),
+    };
+}
+function mindIllusionTemplate() {
+    return {
+        templateId: 'active-mind-illusion',
+        templateName: 'Mind Illusion',
+        name: 'Mind Illusion',
+        subfamily: 'mental',
+        category: 'active',
+        tags: ['spell', 'mental'],
+        spellHints: { defaultResolution: 'saveSpell', defaultSaveType: 'mind' },
+        fluff: 'Requires Telepathic Access. Personal false perceptions only — no real battlefield objects or direct control.',
+        cost: { action: 'attack' },
+        roll: { kind: 'none', attribute: 'resolve' },
+        levels: buildLevels((lvl) => {
+            const targets = MIND_ILLUSION_TARGETS[lvl - 1];
+            const complexity = MIND_ILLUSION_COMPLEXITY[lvl - 1];
+            const effect = MIND_ILLUSION_EFFECT[lvl - 1];
+            return activeRow({
+                type: 'Active, Mental',
+                range: { kind: 'distance', m: 0, note: 'Telepathic Access' },
+                aoe: { shape: 'none', targets: undefined, note: targets },
+                duration: { kind: 'masteryRankRounds' },
+                effectText: `${effect} **Targets:** ${targets}. **Senses / Complexity:** ${complexity}. **Duration:** Mastery Rank rounds.`,
+                specials: [],
+                mechanics: { duration: 'masteryRankRounds' },
             });
         }),
     };

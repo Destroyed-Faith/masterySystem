@@ -1,7 +1,7 @@
 /**
- * Active Buff Power Templates (18)
+ * Active Buff Power Templates
  *
- * Source: d:\DestroyedFaith\Powers\Active Buffs.md — Levels 1..16.
+ * Source: Rules/active-buffs.md — Levels 1..16.
  * Duration: Mastery Rank Rounds unless noted.
  * Active Buff PP curve = 40 / 70 / 100 / 130 PP, then +30 per level (cap L16 = 490 PP).
  */
@@ -38,6 +38,14 @@ const GF_ARMOR = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32];
 const GF_EVADE_PEN = [1, 1, 2, 4, 4, 5, 5, 6, 6, 7, 7, 10, 10, 11, 11, 12];
 const GF_INIT_PEN = [0, 0, 0, 4, 4, 4, 4, 8, 8, 8, 8, 12, 12, 12, 12, 16];
 const GF_PHYS_PEN = [0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 2];
+/** Summon Damage / Armor Aura — radius (m). */
+const SUMMON_AURA_RADIUS = [8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 40];
+const SUMMON_DMG_AURA = [1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8];
+const SUMMON_ARMOR_AURA = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32];
+/** Reinforced Parry regain cap per Round (2 × Level). */
+const REINFORCED_PARRY = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32];
+/** Intensified Absorption — extra Temporary Colorless Stones on first harvest. */
+const INTENSIFIED_ABSORPTION = [1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4];
 /** Size-stage package per Growth Form level (footprint / reach / stability / prone band). */
 function growthStageForLevel(lvl) {
     const pushReductionM = lvl >= 4 ? lvl : 0;
@@ -651,6 +659,142 @@ export const ACTIVE_BUFF_TEMPLATES = [
                 },
             });
         }),
+    },
+    // ─── New catalog lines from Rules/ (2026-07) ─────────────────────────
+    {
+        templateId: 'ab-summon-damage-aura',
+        templateName: 'Summon Damage Aura',
+        name: 'Active Buff: Summon Damage Aura',
+        subfamily: 'summon-aura',
+        category: 'activeBuff',
+        tags: [],
+        fluff: 'Your summons strike harder while they fight inside your bonded aura.',
+        cost: { action: 'attack' },
+        roll: { kind: 'none' },
+        levels: buildLevels((lvl) => {
+            const dice = SUMMON_DMG_AURA[lvl - 1];
+            const r = SUMMON_AURA_RADIUS[lvl - 1];
+            return activeBuffRow({
+                type: 'Active Buff',
+                aoe: { shape: 'aura', radiusM: r, targetFilter: 'allies', center: 'self', note: 'own summons only' },
+                duration: DURATION_MR_ROUNDS,
+                effectText: `Own Summons within **${r} m** gain **+${dice}d8 Damage** on their attacks.`,
+                mechanics: { duration: 'masteryRankRounds' },
+            });
+        }),
+    },
+    {
+        templateId: 'ab-summon-armor-aura',
+        templateName: 'Summon Armor Aura',
+        name: 'Active Buff: Summon Armor Aura',
+        subfamily: 'summon-aura',
+        category: 'activeBuff',
+        tags: [],
+        fluff: 'Your summons harden while they fight inside your bonded aura.',
+        cost: { action: 'attack' },
+        roll: { kind: 'none' },
+        levels: buildLevels((lvl) => {
+            const armor = SUMMON_ARMOR_AURA[lvl - 1];
+            const r = SUMMON_AURA_RADIUS[lvl - 1];
+            return activeBuffRow({
+                type: 'Active Buff',
+                aoe: { shape: 'aura', radiusM: r, targetFilter: 'allies', center: 'self', note: 'own summons only' },
+                duration: DURATION_MR_ROUNDS,
+                effectText: `Own Summons within **${r} m** gain **+${armor} Armor**.`,
+                mechanics: { duration: 'masteryRankRounds' },
+            });
+        }),
+    },
+    {
+        templateId: 'ab-thorns',
+        templateName: 'Thorns',
+        name: 'Active Buff: Thorns',
+        subfamily: 'thorns',
+        category: 'activeBuff',
+        tags: [],
+        fluff: 'For a short fight you answer every final wound with sharp retaliation.',
+        cost: { action: 'attack' },
+        roll: { kind: 'none' },
+        levels: buildLevels((lvl) => activeBuffRow({
+            duration: DURATION_MR_ROUNDS,
+            effectText: `Gain **Thorns ${lvl}d8**. When you take final HP damage, deal that much (capped by the loss) to the source.`,
+            mechanics: { duration: 'masteryRankRounds' },
+        })),
+    },
+    {
+        templateId: 'ab-invisibility',
+        templateName: 'Invisibility',
+        name: 'Active Buff: Invisibility',
+        subfamily: 'invisibility',
+        category: 'activeBuff',
+        tags: [],
+        fluff: 'A short cloak that blocks Normal Combat Awareness. Stacks with Passive Invisibility.',
+        cost: { action: 'attack' },
+        roll: { kind: 'none' },
+        levels: buildLevels((lvl) => activeBuffRow({
+            duration: DURATION_MR_ROUNDS,
+            effectText: `Gain **+${lvl} Invisibility Bonus**. Blocks Normal Combat Awareness.`,
+            mechanics: { duration: 'masteryRankRounds' },
+        })),
+    },
+    {
+        templateId: 'ab-reinforced-parry',
+        templateName: 'Reinforced Parry',
+        name: 'Active Buff: Reinforced Parry',
+        subfamily: 'parry',
+        category: 'activeBuff',
+        tags: [],
+        fluff: 'Requires Parry Passive. Spent Parry returns after resolve, up to a per-round cap.',
+        cost: { action: 'attack' },
+        roll: { kind: 'none' },
+        levels: buildLevels((lvl) => {
+            const regain = REINFORCED_PARRY[lvl - 1];
+            return activeBuffRow({
+                type: 'Active Buff, Parry',
+                duration: DURATION_MR_ROUNDS,
+                effectText: `Requires **Parry** Passive. After Parry resolves, regain spent Parry up to **${regain}** total per Round; cannot exceed the entered Pool.`,
+                mechanics: { duration: 'masteryRankRounds' },
+            });
+        }),
+    },
+    {
+        templateId: 'ab-intensified-absorption',
+        templateName: 'Intensified Absorption',
+        name: 'Active Buff: Intensified Absorption',
+        subfamily: 'absorption',
+        category: 'activeBuff',
+        tags: [],
+        fluff: 'Requires Absorption Passive. The first harvest each Round yields extra Temporary Colorless Stones.',
+        cost: { action: 'attack' },
+        roll: { kind: 'none' },
+        levels: buildLevels((lvl) => {
+            const extra = INTENSIFIED_ABSORPTION[lvl - 1];
+            const noun = extra === 1 ? 'Stone' : 'Stones';
+            return activeBuffRow({
+                type: 'Active Buff, Absorption',
+                duration: DURATION_MR_ROUNDS,
+                effectText: `Requires **Absorption** Passive. The first Absorption harvest each Round generates **+${extra} Temporary Colorless ${noun}**.`,
+                mechanics: { duration: 'masteryRankRounds' },
+            });
+        }),
+    },
+    {
+        templateId: 'ab-reinforced-damage-negation',
+        templateName: 'Reinforced Damage Negation',
+        name: 'Active Buff: Reinforced Damage Negation',
+        subfamily: 'damage-negation',
+        category: 'activeBuff',
+        tags: [],
+        fluff: 'Requires Damage Negation Passive. A separate per-Round pool spent before the combat reserve.',
+        cost: { action: 'attack' },
+        roll: { kind: 'none' },
+        levels: buildLevels((lvl) => activeBuffRow({
+            type: 'Active Buff, Damage Negation',
+            duration: DURATION_MR_ROUNDS,
+            effectText: `Requires **Damage Negation** Passive. Each Round gain **${lvl} Reinforced Negation Die` +
+                `${lvl === 1 ? '' : 'ce'}** (spend before the reserve). Shared half-pool cap with the Passive reserve.`,
+            mechanics: { duration: 'masteryRankRounds' },
+        })),
     },
 ];
 //# sourceMappingURL=activeBuffs.js.map

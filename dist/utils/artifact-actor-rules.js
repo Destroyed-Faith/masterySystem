@@ -265,6 +265,29 @@ export function isArtifactMechanicallyActive(actor, item) {
     return isArtifactEquippedOnActor(item) && isArtifactLinkedOnActor(actor, item);
 }
 /**
+ * True when the artifact's POWERS (level-progression actives, movement,
+ * reactions, its own attack entry) are available to the actor.
+ *
+ * An inactive (not yet activated / linked) artifact keeps its passive weapon
+ * damage — an inactive artifact greatsword still swings for its derived dice —
+ * but grants none of its powers. Ad-hoc artifacts without activation tracking
+ * (no `artifactActivated` flag and not wired to an evolution tree) stay fully
+ * enabled for backwards compatibility.
+ */
+export function artifactPowersUnlocked(actor, item) {
+    if (!item || item.type !== 'artifact')
+        return false;
+    const activated = item.getFlag?.('mastery-system', 'artifactActivated');
+    if (activated === true)
+        return true;
+    if (activated === false)
+        return false;
+    if (item.getFlag?.('mastery-system', 'evolutionRootItemId')) {
+        return isArtifactLinkedOnActor(actor, item);
+    }
+    return true;
+}
+/**
  * Count how many of the actor's embedded artifact items currently count
  * against Artifact Capacity. An item counts when its binding is `bound`
  * or `echo`. Unbound items in inventory do not count.

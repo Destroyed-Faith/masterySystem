@@ -74,7 +74,9 @@ describe('Actor Data Model - template.json', () => {
 
     it('has faith fractures', () => {
       expect(combatant.faithFractures.current).toBe(0);
-      expect(combatant.faithFractures.maximum).toBe(10);
+      // Default maximum is 8 since the v0.6.0 doc-code audit; the real
+      // maximum is dynamic (equal to the character's Disadvantage Points).
+      expect(combatant.faithFractures.maximum).toBe(8);
     });
   });
 

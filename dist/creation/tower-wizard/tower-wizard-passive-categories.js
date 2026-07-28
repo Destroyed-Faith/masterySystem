@@ -45,7 +45,7 @@ const PASSIVE_TEMPLATE_CATEGORIES = {
     'passive-deep-vitality': ['health'],
     'passive-heightened-senses': ['awareness'],
     'passive-spell-resistance': ['ward'],
-    'passive-mini-cleanse': ['ward'],
+    'passive-ward': ['ward'],
     'passive-momentum': ['damage'],
     'passive-ambusher': ['damage'],
     'passive-bloodlust': ['damage'],
@@ -129,7 +129,7 @@ export function inferPassiveCategoriesFromTemplateId(templateId) {
     }
     if (id.includes('heightened-senses') || id.includes('awareness'))
         cats.add('awareness');
-    if (id.includes('spell-resistance') || id.includes('mini-cleanse') || id.includes('ward'))
+    if (id.includes('spell-resistance') || id.includes('ward'))
         cats.add('ward');
     if (id.includes('special-aura'))
         cats.add('special-aura');

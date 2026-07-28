@@ -22,9 +22,10 @@
 
 import type { RadialCombatOption } from './types.js';
 import type { ArtifactLevelProgressionRow } from '../types/item.js';
-import { getArtifactBindingKind } from '../utils/artifact-actor-rules.js';
+import { artifactPowersUnlocked, getArtifactBindingKind } from '../utils/artifact-actor-rules.js';
 import { formatArtifactWeaponRangeDisplay, resolveArtifactWeaponKind } from '../utils/artifact-rules.js';
 import { visibleAbilityRows } from '../utils/artifact-visible-abilities.js';
+import { artifactCarriesWeaponProfile } from '../utils/unarmed-fallback.js';
 
 const REACTION_TYPES = new Set(['Reaction']);
 
@@ -122,6 +123,10 @@ export function buildArtifactRadialOptions(actor: any): RadialCombatOption[] {
     for (const item of items) {
         if (item?.type !== 'artifact') continue;
         if (!isArtifactEquipped(item)) continue;
+        // Inactive (not yet activated) artifacts grant NO powers and no own
+        // attack entry. Their weapon damage still applies via the normal
+        // weapon-resolution pipeline (generic "Weapon Attack" / weapon powers).
+        if (!artifactPowersUnlocked(actor, item)) continue;
 
         const sys = (item.system as any) || {};
         const currentLevel = Number(sys.currentLevel) || Number(sys.level) || 1;
@@ -261,6 +266,13 @@ export function buildArtifactRadialOptions(actor: any): RadialCombatOption[] {
                 costsAction: true,
                 artifactRowLevel: lvl,
             };
+            // The artifact's own (non-spell) attacks are always delivered
+            // through its weapon (melee OR ranged) — force it so a melee
+            // artifact weapon's dice also back the artifact's own ranged
+            // attack rows. Spell rows keep their own damage instead.
+            if (!(row.isSpell && row.powerTemplateId) && artifactCarriesWeaponProfile(item)) {
+                option.forcedWeaponItemId = item.id;
+            }
             if (row.isSpell && row.powerTemplateId) {
                 option.artifactIsSpell = true;
                 option.artifactCastingAttribute = row.castingAttribute || 'intellect';
@@ -299,6 +311,8 @@ export function buildArtifactReactionOptions(actor: any): RadialCombatOption[] {
     for (const item of items) {
         if (item?.type !== 'artifact') continue;
         if (!isArtifactEquipped(item)) continue;
+        // Inactive artifacts grant no reactions either.
+        if (!artifactPowersUnlocked(actor, item)) continue;
 
         const sys = (item.system as any) || {};
         const currentLevel = Number(sys.currentLevel) || Number(sys.level) || 1;

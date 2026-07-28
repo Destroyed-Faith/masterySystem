@@ -9,6 +9,7 @@ import { formatNpcAttackSpecialsLine, npcAttackDiceCount, npcDamageDiceFormula, 
 import { resolvePowerMechanics } from '../utils/power-mechanics.js';
 import { formatRadialPowerDisplayName } from './power-radial-label.js';
 import { buildArtifactRadialOptions } from './artifact-options.js';
+import { artifactPowersUnlocked } from '../utils/artifact-actor-rules.js';
 /**
  * True when activating spends an action: legacy `cost.action === true` or
  * string `attack` / `full` / `utility` (e.g. catalog active buffs).
@@ -231,9 +232,11 @@ function calculateRange(actor, optionId, slot, rangeStr, levelData) {
     return range;
 }
 /**
- * True when the actor has an equipped/bound weapon-kind artifact (e.g. Dragon
- * Claws). Such artifacts ARE the weapon and provide their own attack option, so
- * the generic "Weapon Attack" maneuver is suppressed to avoid a duplicate.
+ * True when the actor has an equipped/bound AND activated weapon-kind artifact
+ * (e.g. Dragon Claws). Such artifacts ARE the weapon and provide their own
+ * attack option, so the generic "Weapon Attack" maneuver is suppressed to
+ * avoid a duplicate. An inactive artifact surfaces no own attack entry, so
+ * the generic "Weapon Attack" must stay (it still rolls the artifact's dice).
  */
 function actorHasEquippedWeaponArtifact(actor) {
     const items = actor?.items ? Array.from(actor.items) : [];
@@ -242,6 +245,8 @@ function actorHasEquippedWeaponArtifact(actor) {
             return false;
         const sys = item.system || {};
         if (sys.artifactKind !== 'weapon' || !sys.artifactWeapon)
+            return false;
+        if (!artifactPowersUnlocked(actor, item))
             return false;
         const binding = String(sys.binding || '').toLowerCase();
         if (binding === 'bound' || binding === 'echo')

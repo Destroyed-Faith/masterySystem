@@ -4,6 +4,7 @@ import {
   ARTIFACT_MAX_SYSTEM_LEVEL,
   ARTIFACT_UPGRADE_XP_COST,
   actorStonesCurrent,
+  artifactPowersUnlocked,
   canArtifactLink,
   canSpendArtifactLinkStone,
   canSpendArtifactLinkStoneFromPool,
@@ -131,8 +132,13 @@ function mockActorWithArtifacts(
     items: {
       filter: (fn: (i: any) => boolean) =>
         artifacts
-          .map((a) => ({
+          .map((a, index) => ({
+            // Distinct ids: bindings are deduplicated per artifact tree/id.
+            id: `artifact-${index}`,
             type: 'artifact',
+            // A stone is only bound by an artifact that is actually WORN —
+            // unequipped/stale copies must release it (self-healing).
+            system: { equipped: true },
             getFlag: (_ns: string, key: string) => {
               if (key === 'artifactActivated') return a.activated;
               if (key === 'artifactActivationStoneAttr') return a.stoneAttr;
@@ -181,6 +187,34 @@ describe('isArtifactMechanicallyActive', () => {
       },
     };
     expect(isArtifactMechanicallyActive(actor, item)).toBe(false);
+  });
+});
+
+describe('artifactPowersUnlocked', () => {
+  const actor = { id: 'a1' };
+  const makeArtifact = (flags: Record<string, unknown>) => ({
+    type: 'artifact',
+    system: {},
+    getFlag: (_ns: string, key: string) => flags[key],
+  });
+
+  it('explicit artifactActivated flag wins', () => {
+    expect(artifactPowersUnlocked(actor, makeArtifact({ artifactActivated: true }))).toBe(true);
+    expect(artifactPowersUnlocked(actor, makeArtifact({ artifactActivated: false }))).toBe(false);
+  });
+
+  it('inactive wired artifact grants no powers (no game.items → unlinked)', () => {
+    expect(
+      artifactPowersUnlocked(actor, makeArtifact({ evolutionRootItemId: 'root-1' })),
+    ).toBe(false);
+  });
+
+  it('ad-hoc artifact without activation tracking stays enabled', () => {
+    expect(artifactPowersUnlocked(actor, makeArtifact({}))).toBe(true);
+  });
+
+  it('non-artifact items are never power sources', () => {
+    expect(artifactPowersUnlocked(actor, { type: 'weapon', getFlag: () => true })).toBe(false);
   });
 });
 

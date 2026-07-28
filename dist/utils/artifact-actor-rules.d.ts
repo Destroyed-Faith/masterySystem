@@ -94,6 +94,17 @@ export declare function isArtifactLinkedOnActor(actor: any, item: any): boolean;
 /** Equipped and activated — required for mechanical artifact benefits. */
 export declare function isArtifactMechanicallyActive(actor: any, item: any): boolean;
 /**
+ * True when the artifact's POWERS (level-progression actives, movement,
+ * reactions, its own attack entry) are available to the actor.
+ *
+ * An inactive (not yet activated / linked) artifact keeps its passive weapon
+ * damage — an inactive artifact greatsword still swings for its derived dice —
+ * but grants none of its powers. Ad-hoc artifacts without activation tracking
+ * (no `artifactActivated` flag and not wired to an evolution tree) stay fully
+ * enabled for backwards compatibility.
+ */
+export declare function artifactPowersUnlocked(actor: any, item: any): boolean;
+/**
  * Count how many of the actor's embedded artifact items currently count
  * against Artifact Capacity. An item counts when its binding is `bound`
  * or `echo`. Unbound items in inventory do not count.

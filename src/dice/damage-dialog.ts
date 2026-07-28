@@ -7,7 +7,7 @@ import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
 import { collectMechanicsContributions } from '../utils/power-mechanics.js';
 import { getPassiveSlots } from '../powers/passives.js';
 import { resolveEquippedWeaponForAttackType } from '../utils/equipment-modifiers.js';
-import { applyMeleeUnarmedFallback } from '../utils/unarmed-fallback.js';
+import { applyMeleeUnarmedFallback, artifactToVirtualWeapon } from '../utils/unarmed-fallback.js';
 import {
   formatNpcSpecialLabel,
   getNpcAttackByIndex,
@@ -395,11 +395,25 @@ export async function showDamageDialog(
   
   const isNpcAttackFlow = !!(flags?.npcAttackSource === true && (actorToUse as any).type === 'npc');
 
-  // Resolve weapon with priority: equipped melee weapon > equipped weapon > weaponId match > any weapon
+  // Resolve weapon with priority: forced weapon > equipped melee weapon > equipped weapon > weaponId match > any weapon
   let weaponForDamage: any = null;
-  
+
+  // Method 0: Forced weapon (artifact / natural weapon attack) — this attack
+  // always rolls that weapon's dice, regardless of what else is equipped and
+  // regardless of attack type (a melee artifact weapon also backs the
+  // artifact's own ranged attack rows).
+  if (!isNpcAttackFlow && flags?.forcedWeaponItemId) {
+    const forced = items.find((item: any) => item.id === flags.forcedWeaponItemId);
+    if (forced?.type === 'artifact') {
+      const vw = artifactToVirtualWeapon(forced);
+      if (vw) weaponForDamage = vw;
+    } else if (forced?.type === 'weapon') {
+      weaponForDamage = forced;
+    }
+  }
+
   // Method 1: If weaponId is provided, try to find it first (but verify it's still valid)
-  if (!isNpcAttackFlow && weaponId && actorToUse) {
+  if (!isNpcAttackFlow && !weaponForDamage && weaponId && actorToUse) {
     if (actorToUse.items?.get) {
       weaponForDamage = actorToUse.items.get(weaponId);
     } else if (Array.isArray(actorToUse.items)) {

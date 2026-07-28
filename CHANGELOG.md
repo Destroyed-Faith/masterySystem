@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.212] - 2026-07-28
+
+### Fixed
+
+- **Radial info panel weapon damage:** Attack options now show the damage of the weapon that will actually roll — equipped weapon, artifact weapon (live-derived dice, e.g. 5d8 two-handed L1) or unarmed — instead of a hardcoded `1d8` fallback that ignored artifact weapons.
+- **Inactive artifacts grant no powers:** Equipped but not-yet-activated artifacts no longer surface their level-progression actives, movement, reactions or their own attack entry in the radial menu. Their weapon damage still applies (an inactive artifact greatsword keeps its derived dice); the generic "Weapon Attack" reappears so it stays usable.
+- **Artifact attacks always use the artifact weapon:** The artifact's own (non-spell) attack rows force its weapon into the attack/damage pipeline via `forcedWeaponItemId` — including the artifact's own ranged rows — carried through chat-card flags into the damage dialog.
+
+### Changed
+
+- New helper `artifactPowersUnlocked(actor, item)` in `artifact-actor-rules.ts` (activation flag → evolution-tree link → legacy ad-hoc artifacts stay enabled).
+- **Test suite green again (1156/1156):** Repaired 12 stale tests that asserted outdated specs — worn+dedup requirements for artifact-bound stones, Faith Fractures default 8, Vitality's 5th Stone Power (Remove Scar, 33 total), canonical `tempHP` field, Moonlight Judgment's Smite AoE template, Shadowgrave armor-weight-class bonus split.
+
 ## [0.9.211] - 2026-07-20
 
 ### Added

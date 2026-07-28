@@ -1,10 +1,11 @@
 /**
- * Reaction Power Templates (15)
+ * Reaction Power Templates
  *
- * Source: d:\DestroyedFaith\Powers\Reaction.md — Levels 1..16.
+ * Source: Rules/reactions.md — Levels 1..16.
  * Single-axis defensive answers (Armor / Evade / Temp HP), two-axis combos,
  * Ally Protection variants, closed premium subsystems (DR, Phasing),
- * retaliatory Counter Damage / Special Increase, Initiative Gain, and Reposition.
+ * retaliatory Counter Damage / Special Increase, Initiative Gain, Reposition,
+ * plus Parry/Absorption/Cleanse utility lines.
  */
 import { buildLevels, reactionRow } from './_shared.js';
 const SELF = { kind: 'self' };
@@ -25,6 +26,12 @@ const COUNTER_DMG_PUSH_M = [0, 2, 2, 4, 4, 6, 6, 8, 8, 8, 8, 8, 8, 8, 8, 8];
 const INITIATIVE_GAIN = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32];
 /** Reposition distance (m) — L4=2, L10=4, L16=8 (10 PP / m milestone curve). */
 const REPOSITION_M = [0, 0, 0, 2, 2, 3, 3, 4, 4, 4, 5, 5, 6, 6, 7, 8];
+/** Repositioning Intercept — pre-resolve movement (m). */
+const INTERCEPT_M = [0, 0, 0, 2, 2, 2, 2, 4, 4, 4, 4, 6, 6, 6, 8, 8];
+/** Reactive Cleanse — reduce triggering ongoing effect by N. */
+const REACTIVE_CLEANSE = [4, 8, 16, 20, 24, 32, 36, 40, 48, 52, 56, 64, 68, 72, 80, 84];
+/** Reactive Overload — Absorbed Damage multiplier. */
+const OVERLOAD_MULT = [2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5];
 export const REACTION_TEMPLATES = [
     {
         templateId: 'reaction-armor',
@@ -304,6 +311,108 @@ export const REACTION_TEMPLATES = [
                     ? '—'
                     : `After the triggering event fully resolves, move up to **${m} m** using normal legal movement.`,
                 mechanics: empty ? {} : { movementBonus: m },
+            });
+        }),
+    },
+    // ─── New catalog lines from Rules/ (2026-07) ─────────────────────────
+    {
+        templateId: 'reaction-repositioning-intercept',
+        templateName: 'Repositioning Intercept',
+        name: 'Reaction: Repositioning Intercept',
+        subfamily: 'reposition-intercept',
+        category: 'reaction',
+        tags: [],
+        fluff: 'Move before the attack lands — leave its legal line, or step in and take it for an ally.',
+        trigger: 'When you or an ally within movement range is targeted by an attack',
+        cost: { action: 'reaction' },
+        roll: { kind: 'none' },
+        levels: buildLevels((lvl) => {
+            const m = INTERCEPT_M[lvl - 1];
+            if (m <= 0) {
+                return reactionRow({ effectText: '—', mechanics: {} });
+            }
+            return reactionRow({
+                effectText: `Move up to **${m} m** before the triggering attack resolves. ` +
+                    `If you leave its legal targeting position, the attack loses you as a target. ` +
+                    `If an ally triggered this and you enter a legal targeting position, you become the target instead.`,
+                mechanics: { movementBonus: m },
+            });
+        }),
+    },
+    {
+        templateId: 'reaction-reactive-cleanse',
+        templateName: 'Reactive Cleanse',
+        name: 'Reaction: Reactive Cleanse',
+        subfamily: 'cleanse',
+        category: 'reaction',
+        tags: [],
+        fluff: 'Self only. Strip value from one triggering eligible ongoing effect.',
+        trigger: 'When an eligible ongoing effect would apply to you or is already affecting you',
+        cost: { action: 'reaction' },
+        roll: { kind: 'none' },
+        levels: buildLevels((lvl) => {
+            const amt = REACTIVE_CLEANSE[lvl - 1];
+            return reactionRow({
+                effectText: `Reduce the triggering eligible ongoing effect by **${amt}**.`,
+                specials: [{ key: 'cleanse', rank: amt }],
+                mechanics: { modifySpecial: { type: 'triggering', mode: 'decreaseExisting', amount: amt } },
+            });
+        }),
+    },
+    {
+        templateId: 'reaction-riposte',
+        templateName: 'Riposte',
+        name: 'Reaction: Riposte',
+        subfamily: 'parry',
+        category: 'reaction',
+        tags: [],
+        fluff: 'Requires Parry Passive and a melee implement. After a Full Parry of a melee Attack, strike back without a new attack roll.',
+        trigger: 'When you Fully Parry a melee Attack',
+        cost: { action: 'reaction' },
+        roll: { kind: 'none' },
+        levels: buildLevels((lvl) => reactionRow({
+            type: 'Reaction, Parry',
+            range: { kind: 'melee', note: 'Melee Reach' },
+            effectText: `Deal **Weapon Damage + ${lvl}d8 damage**. No attack roll, Raises, or Critical. Once per Reaction spend.`,
+            mechanics: { damageRider: { flat: `+${lvl}d8` } },
+        })),
+    },
+    {
+        templateId: 'reaction-parry-reflection',
+        templateName: 'Reflection',
+        name: 'Reaction: Reflection',
+        subfamily: 'parry',
+        category: 'reaction',
+        tags: [],
+        fluff: 'Requires Parry Passive. After Fully Parrying a single-target Attack, send the damage back at its source.',
+        trigger: 'When you Fully Parry a single-target Attack and would take its damage',
+        cost: { action: 'reaction' },
+        roll: { kind: 'none' },
+        levels: buildLevels((lvl) => reactionRow({
+            type: 'Reaction, Reflection',
+            range: { kind: 'distance', m: 0, note: 'source of triggering Attack' },
+            effectText: `Prevent the triggering damage and deal that damage **+${lvl}d8** to its source. No new attack roll.`,
+            mechanics: { damageRider: { flat: `+${lvl}d8` } },
+        })),
+    },
+    {
+        templateId: 'reaction-reactive-overload',
+        templateName: 'Reactive Overload',
+        name: 'Reaction: Reactive Overload',
+        subfamily: 'absorption',
+        category: 'reaction',
+        tags: [],
+        fluff: 'Requires Absorption Passive. Multiply how much of the HP loss counts as Absorbed Damage — real HP lost is unchanged.',
+        trigger: 'When you lose actual HP from an eligible damage instance',
+        cost: { action: 'reaction' },
+        roll: { kind: 'none' },
+        levels: buildLevels((lvl) => {
+            const mult = OVERLOAD_MULT[lvl - 1];
+            const word = { 2: 'twice', 3: 'three times', 4: 'four times', 5: 'five times' }[mult];
+            return reactionRow({
+                type: 'Reaction, Absorption',
+                effectText: `The actual HP lost from the triggering damage instance counts **${word}** as Absorbed Damage.`,
+                mechanics: {},
             });
         }),
     },

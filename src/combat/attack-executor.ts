@@ -319,7 +319,9 @@ export async function createAttackCard(
   if (forcedWeaponItemId) {
     const forcedItem = items.find((i: any) => i.id === forcedWeaponItemId);
     if (forcedItem) {
-      if (forcedItem.type === 'artifact' && (forcedItem.system as any)?.artifactWeapon) {
+      if (forcedItem.type === 'artifact') {
+        // Handles both baked `artifactWeapon` blobs and damage derived live
+        // from the base profile (e.g. bound general artifact weapons).
         const vw = artifactToVirtualWeapon(forcedItem);
         if (vw) weapon = vw;
       } else if (forcedItem.type === 'weapon') {
@@ -517,6 +519,9 @@ export async function createAttackCard(
     baseEvade: normalTn,
     normalTn,
     weaponId: weaponId,
+    // Artifact / natural-weapon attacks always roll this weapon's dice —
+    // the damage dialog must not swap it for another equipped weapon.
+    forcedWeaponItemId: forcedWeaponItemId ?? null,
     selectedPowerId: selectedPowerId,
     selectedPowerLevel: selectedPowerLevel,
     selectedPowerSpecials: selectedPowerSpecials,

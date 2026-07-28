@@ -2,7 +2,8 @@
  * Tests for the new tier-based Stone Powers (`src/stones/stone-powers.ts`).
  *
  * Coverage:
- *   - Registry shape: 8 pools (generic + 7 attributes), exactly 4 powers each.
+ *   - Registry shape: 8 pools (generic + 7 attributes), 4 powers each —
+ *     except Vitality, which additionally carries Remove Scar (5).
  *   - Each power has exactly 4 tiers; cost-per-tier = 1 / 2 / 4 / 8.
  *   - tierForUseIndex returns the right 1..4 tier (clamped).
  *   - apply() for every power × every tier runs without throwing on a
@@ -43,7 +44,9 @@ function makeMockActor(): MockActor {
   const actor: MockActor = {
     name: 'Test Hero',
     system: {
-      health: { tempHp: 0, scarred: 1 },
+      // Canonical Temp-HP field is `tempHP` (capital P) — the damage pipeline
+      // and stone powers read/write that spelling.
+      health: { tempHP: 0, scarred: 1 },
     },
     _flags: {},
     // Pretend we are a linked token actor so `getActionEconomyActor` short-circuits
@@ -155,13 +158,15 @@ describe('Stone Powers — pool layout (new spec)', () => {
     expect(actualKeys).toEqual([...POOL_KEYS].sort());
   });
 
-  it.each(POOL_KEYS)('pool "%s" has exactly 4 powers', (poolKey) => {
+  // Vitality carries the 5th power "Remove Scar" (Players Guide: Vitality
+  // Stone Abilities + Titan Scars Stone Power Support reference it).
+  it.each(POOL_KEYS)('pool "%s" has the expected power count', (poolKey) => {
     const powers = (STONE_POWERS_BY_ATTRIBUTE as any)[poolKey] as StonePower[];
-    expect(powers).toHaveLength(4);
+    expect(powers).toHaveLength(poolKey === 'vitality' ? 5 : 4);
   });
 
-  it('total registry has 32 powers (8 pools × 4)', () => {
-    expect(Object.keys(STONE_POWERS)).toHaveLength(32);
+  it('total registry has 33 powers (8 pools × 4, plus Vitality Remove Scar)', () => {
+    expect(Object.keys(STONE_POWERS)).toHaveLength(33);
   });
 
   it('every registry key matches its power.id', () => {
@@ -245,7 +250,7 @@ describe('apply() — runs cleanly across every power and tier', () => {
             (actor._roundState.moveBonusMeters ?? 0) !== 0;
           const removedScar = (actor.system.health?.scarred ?? 1) !== 1;
           const grantedHp = (actor.system.health?.current ?? 0) > 0;
-          const tempHpRaised = (actor.system.health?.tempHp ?? 0) > 0;
+          const tempHpRaised = (actor.system.health?.tempHP ?? 0) > 0;
           // For "ramp" tiers (Extra Attack T1/T2, Spell Action T1, Damage Reduction Boost T1, Phasing T1)
           // the spec says nothing happens — that's expected.
           const isRampTier = power.tiers[tier - 1].label === null;
@@ -326,7 +331,7 @@ describe('Vitality — Temporary HP scales 20/40/80/160', () => {
       tier,
       cost: 2 ** (tier - 1),
     });
-    expect(actor.system.health.tempHp).toBe(expected);
+    expect(actor.system.health.tempHP).toBe(expected);
     expect(actor._roundState.stoneBonuses.tempHpGrantedThisTurn).toBe(expected);
   });
 });

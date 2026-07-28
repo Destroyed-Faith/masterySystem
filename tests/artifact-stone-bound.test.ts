@@ -13,8 +13,13 @@ function mockActorWithArtifacts(
     system: { stonePools: pools },
     items: {
       filter: (fn: (i: any) => boolean) =>
-        artifacts.map((a) => ({
+        artifacts.map((a, index) => ({
+          // Distinct ids: bindings are deduplicated per artifact tree/id.
+          id: `artifact-${index}`,
           type: 'artifact',
+          // A stone is only bound by an artifact that is actually WORN —
+          // unequipped/stale copies must release it (self-healing).
+          system: { equipped: true },
           getFlag: (_ns: string, key: string) => {
             if (key === 'artifactActivated') return a.activated;
             if (key === 'artifactActivationStoneAttr') return a.stoneAttr;

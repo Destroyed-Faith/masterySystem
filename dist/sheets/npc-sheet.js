@@ -146,6 +146,10 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
             if (!Array.isArray(context.system.npcRaiseSpecials)) {
                 context.system.npcRaiseSpecials = [];
             }
+            if (context.system.creatureType == null || context.system.creatureType === undefined) {
+                // Legacy: bio.type may already hold a free-text creature label.
+                context.system.creatureType = String(context.system.bio?.type ?? '');
+            }
             context.system.npcBaseAttack = ensureNpcBaseShape(context.system.npcBaseAttack);
             if (Array.isArray(context.system.phases) &&
                 context.system.phases.length > 0 &&

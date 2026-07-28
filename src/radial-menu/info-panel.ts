@@ -4,6 +4,11 @@
 
 import type { RadialCombatOption } from './types';
 import { getSegmentIdForOption } from './options';
+import {
+  artifactToVirtualWeapon,
+  isVirtualUnarmedWeapon,
+  resolveEquippedWeaponForAttackType,
+} from '../utils/unarmed-fallback.js';
 
 /**
  * Convert world coordinates to screen coordinates
@@ -81,15 +86,41 @@ export function showRadialInfoPanel(token: any, option: RadialCombatOption): voi
   let specialText = '';
   
   if (option.slot === 'attack' && token.actor) {
-    // Try to get equipped weapon
     const actor = token.actor;
-    const items = (actor as any).items || [];
-    const equippedWeapon = items.find((item: any) => 
-      item.type === 'weapon' && (item.system as any)?.equipped === true
-    );
-    
-    if (equippedWeapon) {
-      const weaponSystem = equippedWeapon.system as any;
+    const items: any[] = (actor as any).items ? Array.from((actor as any).items) : [];
+
+    // Forced weapon (artifact / natural weapon attack option) wins: show the
+    // derived artifact weapon damage, not a generic fallback.
+    let weapon: any = null;
+    const forcedWeaponItemId = (option as any).forcedWeaponItemId;
+    if (forcedWeaponItemId) {
+      const forced = items.find((i: any) => i.id === forcedWeaponItemId);
+      if (forced?.type === 'artifact') {
+        weapon = artifactToVirtualWeapon(forced);
+      } else if (forced?.type === 'weapon') {
+        weapon = forced;
+      }
+    }
+
+    if (!weapon) {
+      // Same resolution the attack/damage pipeline uses: equipped weapon OR
+      // equipped/bound artifact weapon (derived dice) OR virtual unarmed (1d8).
+      const isRanged =
+        (option.tags || []).some((t) => /ranged/i.test(String(t))) ||
+        /\branged\b/i.test(`${option.name} ${option.description || ''}`);
+      weapon = resolveEquippedWeaponForAttackType(items, isRanged ? 'ranged' : 'melee');
+      // Legacy behavior: an attack option with only a ranged weapon equipped
+      // still showed that weapon — keep any equipped weapon as last resort.
+      if (!weapon || isVirtualUnarmedWeapon(weapon)) {
+        const anyEquipped = items.find(
+          (i: any) => i.type === 'weapon' && (i.system as any)?.equipped === true,
+        );
+        if (anyEquipped) weapon = anyEquipped;
+      }
+    }
+
+    if (weapon) {
+      const weaponSystem = weapon.system as any;
       damageText = weaponSystem.damage || weaponSystem.weaponDamage || '';
 
       // Get reach from weapon
@@ -115,8 +146,6 @@ export function showRadialInfoPanel(token: any, option: RadialCombatOption): voi
       if (weaponSystem.special && weaponSystem.special !== '—') {
         specialText = weaponSystem.special;
       }
-    } else {
-      damageText = '1d8';
     }
   }
   
