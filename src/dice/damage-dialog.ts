@@ -36,6 +36,17 @@ import {
   isSmiteValidTarget,
   stripSmiteSpecials,
 } from '../utils/creature-type.js';
+import { formatEffectReference } from '../utils/special-effects.js';
+
+/**
+ * Weapon specials come in two shapes: plain strings ("Penetration(4)") on
+ * conventional weapons, and `{ specialId, value }` refs on artifact virtual
+ * weapons. Normalize both to the display/parse string form.
+ */
+function normalizeWeaponSpecial(s: any): string {
+  if (s && typeof s === 'object') return formatEffectReference(s);
+  return String(s ?? '').trim();
+}
 
 export { computeMarkFloorBonus, clampMarkSpend } from './mark-floor.js';
 
@@ -512,7 +523,9 @@ export async function showDamageDialog(
   // Weapon specials should come from the same resolved weapon (only once)
   const weaponSpecials: string[] = isNpcAttackFlow
     ? []
-    : (weaponForDamage?.system?.specials ?? []);
+    : ((weaponForDamage?.system?.specials ?? []) as any[])
+        .map(normalizeWeaponSpecial)
+        .filter(Boolean);
   
   // Debug log after weapon resolve
   console.log('Mastery System | [WEAPON-ID DEBUG]', {
@@ -1378,8 +1391,10 @@ async function collectAvailableSpecials(actor: Actor, weapon: any | null, select
   // Get weapon specials (use the weaponSpecials already resolved above, not duplicate)
   // Note: weaponSpecials is already set from weaponForDamage earlier in the function
   if (weapon && (weapon.system as any)?.specials) {
-    const weaponSpecialsFromWeapon = (weapon.system as any).specials as string[];
-    for (const special of weaponSpecialsFromWeapon) {
+    const weaponSpecialsFromWeapon = ((weapon.system as any).specials as any[]) || [];
+    for (const raw of weaponSpecialsFromWeapon) {
+      const special = normalizeWeaponSpecial(raw);
+      if (!special) continue;
       specials.push({
         id: `weapon-${special}`,
         name: special,

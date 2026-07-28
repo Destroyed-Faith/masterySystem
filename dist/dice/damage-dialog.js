@@ -17,6 +17,17 @@ import { getActorSpellFocusBonusDice } from '../utils/artifact-base-values.js';
 import { bindChosenSpecialIntoLevelData, resolvePowerSnapshot, snapshotToDamageFormula, snapshotToSpecialStrings, formatSnapshotSummary, } from '../combat/raise-resolution.js';
 import { computeMarkFloorBonus, clampMarkSpend } from './mark-floor.js';
 import { extractSmiteDice, isSmiteValidTarget, stripSmiteSpecials, } from '../utils/creature-type.js';
+import { formatEffectReference } from '../utils/special-effects.js';
+/**
+ * Weapon specials come in two shapes: plain strings ("Penetration(4)") on
+ * conventional weapons, and `{ specialId, value }` refs on artifact virtual
+ * weapons. Normalize both to the display/parse string form.
+ */
+function normalizeWeaponSpecial(s) {
+    if (s && typeof s === 'object')
+        return formatEffectReference(s);
+    return String(s ?? '').trim();
+}
 export { computeMarkFloorBonus, clampMarkSpend } from './mark-floor.js';
 /**
  * Add `bonusDice` d8 to a damage formula. Empty / "0" → "Nd8"; pure "Xd8" →
@@ -427,7 +438,9 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
     // Weapon specials should come from the same resolved weapon (only once)
     const weaponSpecials = isNpcAttackFlow
         ? []
-        : (weaponForDamage?.system?.specials ?? []);
+        : (weaponForDamage?.system?.specials ?? [])
+            .map(normalizeWeaponSpecial)
+            .filter(Boolean);
     // Debug log after weapon resolve
     console.log('Mastery System | [WEAPON-ID DEBUG]', {
         messageType: 'damage-dialog:weapon-resolve',
@@ -1198,8 +1211,11 @@ async function collectAvailableSpecials(actor, weapon, selectedPower) {
     // Get weapon specials (use the weaponSpecials already resolved above, not duplicate)
     // Note: weaponSpecials is already set from weaponForDamage earlier in the function
     if (weapon && weapon.system?.specials) {
-        const weaponSpecialsFromWeapon = weapon.system.specials;
-        for (const special of weaponSpecialsFromWeapon) {
+        const weaponSpecialsFromWeapon = weapon.system.specials || [];
+        for (const raw of weaponSpecialsFromWeapon) {
+            const special = normalizeWeaponSpecial(raw);
+            if (!special)
+                continue;
             specials.push({
                 id: `weapon-${special}`,
                 name: special,

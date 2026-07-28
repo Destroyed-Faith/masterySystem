@@ -16,6 +16,8 @@ import {
   npcDamageDiceFormula
 } from "../utils/npc-attack-model.js";
 import { resolvePowerMechanics } from "../utils/power-mechanics.js";
+import { formatEffectReference } from "../utils/special-effects.js";
+import { parseD8Count } from "../utils/dice-formula.js";
 import { RAISE_INCREMENT } from "../utils/constants.js";
 import { calculateBaseTN } from "./spell-roll-handler.js";
 import { artifactLevelToTemplateRank } from "../utils/artifact-spell-pick.js";
@@ -117,6 +119,24 @@ function attackCardEsc(text: string): string {
 
 function resolveWeaponForAttack(items: any[], attackType: "melee" | "ranged"): any | null {
   return resolveEquippedWeaponForAttackType(items, attackType);
+}
+
+/**
+ * On-hit preview for the raise panel: weapon dice + power dice as a total
+ * (e.g. "9d8 total (5d8 weapon + 4d8 power), Sundered(2)"). With no weapon
+ * dice (spells, unarmed flat damage) this is the plain power snapshot summary.
+ */
+function formatOnHitSummary(snapshot: PowerSnapshot, weaponDice: number | undefined): string {
+  const summary = formatSnapshotSummary(snapshot);
+  const w = Math.max(0, Math.floor(weaponDice ?? 0));
+  if (w <= 0) return summary;
+  const p = Math.max(0, Math.floor(snapshot.damageDice));
+  const totalPart = `${w + p}d8 total (${w}d8 weapon${p > 0 ? ` + ${p}d8 power` : ''})`;
+  let rest = summary === '—' ? '' : summary;
+  if (p > 0 && rest.startsWith(`${p}d8`)) {
+    rest = rest.slice(`${p}d8`.length).replace(/^,\s*/, '');
+  }
+  return rest ? `${totalPart}, ${rest}` : totalPart;
 }
 
 /**
@@ -462,6 +482,8 @@ export async function createAttackCard(
     isSpell: boolean;
     baseSnapshot: PowerSnapshot;
     raiseOptions: RaiseOption[];
+    /** Wielded weapon's d8 count — shown as part of the on-hit total preview. */
+    weaponDamageDice?: number;
   } | null = null;
 
   if (option.source === 'power' && option.item && !isNpcAttack) {
@@ -494,7 +516,13 @@ export async function createAttackCard(
       console.warn('Mastery System | raise context load failed', err);
     }
   }
-  
+
+  // Non-spell attack powers are weapon-carried: the wielded weapon's dice roll
+  // on top of the power's bonus dice, so the preview can show the real total.
+  if (raiseContext && !raiseContext.isSpell) {
+    raiseContext.weaponDamageDice = parseD8Count((weapon?.system as any)?.damage);
+  }
+
   const tr =
     attackType === "ranged"
       ? evaluateThreatenedRanged(attackerToken, option)
@@ -607,8 +635,13 @@ export async function createAttackCard(
   const innateLines: string[] = weapon
     ? ([] as unknown[]).concat((weapon.system as any)?.innateAbilities || []).map((x) => String(x))
     : [];
+  // Artifact virtual weapons carry specials as `{ specialId, value }` refs;
+  // conventional weapons as plain strings. Format both readably.
   const weaponSpecialLines: string[] = weapon
-    ? ([] as unknown[]).concat((weapon.system as any)?.specials || []).map((x) => String(x))
+    ? ([] as unknown[])
+        .concat((weapon.system as any)?.specials || [])
+        .map((x: any) => (x && typeof x === 'object' ? formatEffectReference(x) : String(x ?? '').trim()))
+        .filter(Boolean)
     : [];
   const innatesHtml =
     innateLines.length > 0
@@ -685,7 +718,7 @@ export async function createAttackCard(
         <span>Normal TN: <strong>${normalTn}</strong></span>
         <span>Raise TN: <strong class="raise-tn-display">${normalTn}</strong></span>
       </div>
-      <div class="raise-preview-row">Before roll: <strong class="raise-cost-display">${attackCardEsc(formatSnapshotSummary(raiseContext.baseSnapshot))}</strong></div>
+      <div class="raise-preview-row">On hit (before raises): <strong class="raise-cost-display">${attackCardEsc(formatOnHitSummary(raiseContext.baseSnapshot, raiseContext.weaponDamageDice))}</strong></div>
       ${
         raiseContext.isSpell
           ? `<div class="spell-cost-split-row md-sublabel">
@@ -862,6 +895,7 @@ function setupRaisesHandler(
     isSpell: boolean;
     baseSnapshot: PowerSnapshot;
     raiseOptions: RaiseOption[];
+    weaponDamageDice?: number;
   } | null,
 ): void {
   const button = messageElement.find('.roll-attack-btn');
@@ -934,7 +968,7 @@ function setupRaisesHandler(
       spellCostOverride,
     );
     panel.find('.raise-tn-display').text(String(raiseTn));
-    panel.find('.raise-cost-display').text(formatSnapshotSummary(preview));
+    panel.find('.raise-cost-display').text(formatOnHitSummary(preview, raiseContext!.weaponDamageDice));
     button.attr('data-raise-tn', String(raiseTn));
     button.attr('data-raise-slots', String(slots));
     button.attr('data-raise-plan', JSON.stringify(plan));

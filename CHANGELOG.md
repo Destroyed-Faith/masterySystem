@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.218] - 2026-07-28
+
+### Added
+
+- **Attack card shows the on-hit damage total:** The raise panel preview now sums weapon dice + power dice, e.g. `On hit (before raises): 9d8 total (5d8 weapon + 4d8 power), Precision(2)` — and updates live while planning raises, so the raise decision can be made against the real total. Spells and flat unarmed damage keep the plain power summary. The former label "Before roll" was misleading (it was never the attack pool — the To-Hit dice come from the attribute shown above).
+
+### Fixed
+
+- **Weapon specials no longer render as `[object Object]`:** Artifact virtual weapons carry specials as `{ specialId, value }` refs (conventional weapons carry strings). Attack card and damage dialog now format both shapes readably (e.g. `Precision(2)`) and drop empty entries — the "Weapon specials" row disappears entirely when the weapon has none.
+
 ## [0.9.217] - 2026-07-28
 
 ### Fixed
