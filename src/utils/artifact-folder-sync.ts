@@ -73,6 +73,16 @@ export async function syncArtifactInheritedFromParent(parentItem: Item): Promise
     const childSystem = childItem.system as any;
     const childWeapon = foundry.utils.duplicate(childSystem.artifactWeapon || defaultWeapon);
 
+    // Free Trait: the root's free pick reaches children via the locked innate
+    // list. When the root swaps the pick, the child's previously synced trait
+    // must not survive as an "own extra" — drop the stored freeTrait first.
+    const childFreeTrait = String(childSystem.freeTrait || '').trim();
+    if (childFreeTrait && !lockedInnateSet.has(childFreeTrait)) {
+      childWeapon.innateAbilities = (childWeapon.innateAbilities || []).filter(
+        (s: string) => String(s).trim() !== childFreeTrait
+      );
+    }
+
     const mergedWeapon = mergeArtifactWeaponForChildSync(
       parentWeapon,
       childWeapon,
@@ -103,6 +113,7 @@ export async function syncArtifactInheritedFromParent(parentItem: Item): Promise
       'system.bonuses.defense': parentBonuses.defense || 0,
       'system.bonuses.specials': [...(parentBonuses.specials || [])],
       'system.stoneFunction': parentSystem.stoneFunction ?? null,
+      'system.freeTrait': String(parentSystem.freeTrait || '').trim(),
       'system.progressionPicks': inheritedPicks,
       'system.levelProgression': inheritedProgression,
       'system.powers': []

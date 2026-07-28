@@ -23,6 +23,13 @@ export type ArtifactPowerCatalogGroup = {
  * `templateId`; the label is the human-readable template name.
  */
 export declare function getArtifactPowerCatalogOptions(): ArtifactPowerCatalogGroup[];
+/**
+ * Free Trait: every weapon artifact may pick exactly ONE of these weapon
+ * properties for free, on top of the base type's innate abilities. The list is
+ * rules-vetted: Spell Focus is excluded (too strong), pure drawbacks (Heavy,
+ * Load) and delivery modes (Ranged, Thrown, Set) are not pickable here.
+ */
+export declare const ARTIFACT_FREE_TRAIT_OPTIONS: readonly string[];
 /** Innate lines: catalog table + all keys from WEAPON_PROPERTIES. */
 export declare function getArtifactWeaponInnateOptions(): string[];
 /** Damage dice presets (matches former artifact builder). */

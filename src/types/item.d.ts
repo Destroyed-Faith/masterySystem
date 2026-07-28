@@ -951,6 +951,14 @@ export interface ArtifactData extends BaseItemData {
    * "Base Type" dropdown can round-trip the choice; empty = Custom / hand-built.
    */
   baseTypeKey?: string;
+  /**
+   * Free Trait: one free weapon property (Finesse, Light, Versatile,
+   * Reach (+1 m), Balanced or Defensive) granted on top of the base type's
+   * innate abilities. Stored redundantly inside
+   * `artifactWeapon.innateAbilities` for the combat pipeline; this field
+   * remembers which innate is the free pick so the editor can swap it.
+   */
+  freeTrait?: string;
   /** Base Values that define what the artifact physically is (max per slot). */
   baseValues?: ArtifactBaseValue[];
   /** Optional Stone Function — at most one per artifact. */

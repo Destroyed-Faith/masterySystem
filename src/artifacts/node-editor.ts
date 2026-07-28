@@ -24,7 +24,8 @@ import {
   ARTIFACT_GEAR_SLOT_OPTIONS,
   getArtifactSpecialSelectOptions,
   getArtifactTreeWeaponDamagePresets,
-  getArtifactWeaponInnateOptions
+  getArtifactWeaponInnateOptions,
+  ARTIFACT_FREE_TRAIT_OPTIONS
 } from '../utils/artifact-node-options.js';
 import {
   isMartialDamageTemplateId,
@@ -554,7 +555,17 @@ export class NodeEditor extends BaseDialog {
     data.weaponDamagePreset = weaponDamagePreset;
     data.innateOptions = getArtifactWeaponInnateOptions();
     data.specialSelectOptions = getArtifactSpecialSelectOptions();
-    data.weaponInnateRows = buildInnateRows(weapon.innateAbilities || [], lineage.lockedInnateSet);
+
+    // Free Trait: one free weapon property picked next to Base Type. It lives
+    // inside artifactWeapon.innateAbilities on save, but is edited via its own
+    // dropdown — so hide it from the regular innate rows to avoid doubling.
+    const freeTrait = String(system.freeTrait || '').trim();
+    data.freeTrait = freeTrait;
+    data.freeTraitOptions = [...ARTIFACT_FREE_TRAIT_OPTIONS];
+    const innatesForRows = (weapon.innateAbilities || []).filter(
+      (a: string) => String(a).trim() !== freeTrait || lineage.lockedInnateSet.has(String(a).trim()),
+    );
+    data.weaponInnateRows = buildInnateRows(innatesForRows, lineage.lockedInnateSet);
     data.weaponSpecialRows = buildSpecialRows(weapon.specials || [], lineage.lockedSpecialKeySet);
     data.requirements = system.requirements || { stones: 0, masteryRank: 1 };
 
@@ -1532,6 +1543,16 @@ export class NodeEditor extends BaseDialog {
     const innateAbilities = this.mergeInnatesForSave(html, lineage);
     const specials = this.mergeSpecialsForSave(html, lineage);
 
+    // Free Trait: one free weapon property, chosen on the root node only.
+    // Because the dropdown is the only editor for it (it never renders as an
+    // innate row), switching the pick automatically drops the previous trait.
+    const prevFreeTrait = String((this.item.system as any).freeTrait || '').trim();
+    let freeTrait = lineage.isLineageRoot
+      ? String(html.find('#node-spec-free-trait').val() || '').trim()
+      : prevFreeTrait;
+    if (!ARTIFACT_FREE_TRAIT_OPTIONS.includes(freeTrait)) freeTrait = '';
+    if (freeTrait && !innateAbilities.includes(freeTrait)) innateAbilities.push(freeTrait);
+
     const artifactWeapon: ArtifactWeaponProfile = {
       weaponType,
       damage,
@@ -1732,6 +1753,7 @@ export class NodeEditor extends BaseDialog {
       'system.slot': specSlot,
       'system.baseProfile': specBaseProfile,
       'system.baseTypeKey': String(html.find('#node-spec-base-type').val() || '').trim(),
+      'system.freeTrait': freeTrait,
       'system.baseValues': baseValues,
       'system.stoneFunction': stoneFunction,
       'system.progressionPicks': progressionPicks,

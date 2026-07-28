@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import {
+    ARTIFACT_FREE_TRAIT_OPTIONS,
+    getArtifactWeaponInnateOptions,
+} from '../src/utils/artifact-node-options';
+import {
     ARTIFACT_SLOT_KEYS,
     ATTRIBUTE_ACCESS_BY_SLOT,
     BASE_PROFILES_BY_SLOT,
@@ -258,5 +262,25 @@ describe('Artifact rules — weapon range display', () => {
             label: '2 m',
             meters: 2,
         });
+    });
+});
+
+describe('Free Trait options', () => {
+    it('offers exactly the six rules-vetted weapon properties', () => {
+        expect([...ARTIFACT_FREE_TRAIT_OPTIONS]).toEqual([
+            'Finesse',
+            'Light',
+            'Versatile',
+            'Reach (+1 m)',
+            'Balanced',
+            'Defensive',
+        ]);
+    });
+
+    it('every free trait matches a catalog innate spelling exactly (dedup + regex rely on it)', () => {
+        const catalog = getArtifactWeaponInnateOptions();
+        for (const trait of ARTIFACT_FREE_TRAIT_OPTIONS) {
+            expect(catalog).toContain(trait);
+        }
     });
 });

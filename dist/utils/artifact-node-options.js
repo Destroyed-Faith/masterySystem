@@ -129,6 +129,20 @@ export function getArtifactPowerCatalogOptions() {
     groups.sort((a, b) => a.category.localeCompare(b.category, undefined, { sensitivity: 'base' }));
     return groups;
 }
+/**
+ * Free Trait: every weapon artifact may pick exactly ONE of these weapon
+ * properties for free, on top of the base type's innate abilities. The list is
+ * rules-vetted: Spell Focus is excluded (too strong), pure drawbacks (Heavy,
+ * Load) and delivery modes (Ranged, Thrown, Set) are not pickable here.
+ */
+export const ARTIFACT_FREE_TRAIT_OPTIONS = [
+    'Finesse',
+    'Light',
+    'Versatile',
+    'Reach (+1 m)',
+    'Balanced',
+    'Defensive',
+];
 /** Innate lines: catalog table + all keys from WEAPON_PROPERTIES. */
 export function getArtifactWeaponInnateOptions() {
     const set = new Set();

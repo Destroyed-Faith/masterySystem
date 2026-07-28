@@ -10,6 +10,7 @@ import { resolvePowerMechanics } from '../utils/power-mechanics.js';
 import { formatRadialPowerDisplayName } from './power-radial-label.js';
 import { buildArtifactRadialOptions } from './artifact-options.js';
 import { artifactPowersUnlocked } from '../utils/artifact-actor-rules.js';
+import { resolveEquippedWeaponForAttackType } from '../utils/unarmed-fallback.js';
 /**
  * True when activating spends an action: legacy `cost.action === true` or
  * string `attack` / `full` / `utility` (e.g. catalog active buffs).
@@ -109,12 +110,14 @@ function getEquippedWeapon(actor) {
     return items.find((item) => item.type === 'weapon' && item.system?.equipped === true) || null;
 }
 /**
- * Get reach bonus from equipped weapon
+ * Get reach bonus from equipped weapon (real weapon item or equipped artifact
+ * weapon, e.g. an artifact with the Reach free trait).
  * @param actor - The actor to check for equipped weapon
  * @returns Reach bonus in meters (0, 1, or 2)
  */
 function getReachBonus(actor) {
-    const equippedWeapon = getEquippedWeapon(actor);
+    const equippedWeapon = getEquippedWeapon(actor) ||
+        resolveEquippedWeaponForAttackType(actor?.items || [], 'melee');
     if (!equippedWeapon)
         return 0;
     const weaponSystem = equippedWeapon.system;

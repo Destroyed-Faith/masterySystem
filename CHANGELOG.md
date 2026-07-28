@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.216] - 2026-07-28
+
+### Added
+
+- **Free Trait for weapon artifacts (Node Editor):** New dropdown below Base Type in the Edit Artifact Node dialog. Every weapon artifact may pick exactly ONE weapon property for free on top of its base type's innate abilities — eligible: Finesse, Light, Versatile, Reach (+1 m), Balanced, Defensive (Spell Focus, drawbacks and delivery modes excluded). Root-node only; child levels inherit the pick, and swapping it cleanly replaces the old trait across the whole tree (`system.freeTrait` + folder sync). The trait is stored inside `artifactWeapon.innateAbilities`, so info panel, damage dialog, print sheet and combat pipeline pick it up automatically.
+
+### Fixed
+
+- **Reach works on artifact weapons:** The melee reach bonus in the radial menu only read real equipped weapon items; an equipped artifact weapon with `Reach (+1 m/+2 m)` now extends reach too.
+
 ## [0.9.215] - 2026-07-28
 
 ### Fixed

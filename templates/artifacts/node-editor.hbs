@@ -22,6 +22,16 @@
         </select>
         <p class="node-editor-hint">Pick a standard base to auto-fill Slot, Base Profile, damage/armor values, innate abilities and specials from the rulebook — then fine-tune below. Choose <strong>Custom</strong> to build everything by hand. Only editable on the root (Level 1-1) node.</p>
       </div>
+      <div class="form-group node-editor-span2 node-free-trait-row" data-profile="weapon">
+        <label>Free Trait <span class="node-editor-hint-inline">(one free innate ability)</span></label>
+        <select id="node-spec-free-trait" {{#unless isLineageRoot}}disabled{{/unless}}>
+          <option value="" {{#unless freeTrait}}selected{{/unless}}>— None —</option>
+          {{#each freeTraitOptions as |trait|}}
+          <option value="{{trait}}" {{#if (eq ../freeTrait trait)}}selected{{/if}}>{{trait}}</option>
+          {{/each}}
+        </select>
+        <p class="node-editor-hint">Every weapon artifact may pick <strong>one</strong> weapon property for free on top of its base type's innate abilities — e.g. a Greatsword artifact with <em>Finesse</em>. Only Finesse, Light, Versatile, Reach, Balanced and Defensive are eligible (Spell Focus is too strong; drawbacks and delivery modes are set via the Innate Abilities rows below). Only editable on the root (Level 1-1) node; child levels inherit it.</p>
+      </div>
       <div class="node-editor-grid">
         <div class="form-group">
           <label>Slot</label>
