@@ -438,7 +438,7 @@ export class NodeEditor extends BaseDialog {
         data.isLineageRoot = lineage.isLineageRoot;
         data.lineageHint = lineage.isLineageRoot
             ? ''
-            : 'Tree child: item type, weapon type, hands, gear slot, and armor/shield type match the root node. Inherited innates/specials cannot be removed; you can add more.';
+            : 'Tree child: item type, weapon type, hands, gear slot, and armor/shield type match the root node. Inherited innates/specials are locked — the base kit (and the Free Trait) is defined on the root node.';
         // ---- New Artifact spec block ----
         const specSlot = String(system.slot || '');
         const specBaseProfile = String(system.baseProfile || '');
@@ -867,7 +867,9 @@ export class NodeEditor extends BaseDialog {
         const $baseType = html.find('#node-spec-base-type');
         // Rebuild a repeatable row container (innates / specials) from a value list,
         // cloning the first row as a fresh (unlocked) template. Root-only, so there
-        // are never inherited/locked rows to preserve here.
+        // are never inherited/locked rows to preserve here. The identity selects
+        // stay disabled: the Base Type dictates the kit, the GM may only remove
+        // rows (plus the one Free Trait) — never swap or add entries by hand.
         const rebuildRowsFromTemplate = ($container, rowSelector, applyRow, values) => {
             const $tpl = $container.find(rowSelector).first().clone();
             if (!$tpl.length)
@@ -877,7 +879,8 @@ export class NodeEditor extends BaseDialog {
             for (const v of list) {
                 const $row = $tpl.clone();
                 $row.removeClass('node-row-locked');
-                $row.find('select, input').prop('disabled', false);
+                $row.find('input').prop('disabled', false);
+                $row.find('select').prop('disabled', true);
                 $row.find('.node-row-remove').removeClass('hidden');
                 applyRow($row, v);
                 $container.append($row);
@@ -1142,34 +1145,10 @@ export class NodeEditor extends BaseDialog {
             syncBvRow($(e.currentTarget).closest('.node-spec-bv-row'));
             syncBaseValueExclusivity();
         });
-        const cloneInnateRow = () => {
-            const $c = html.find('#node-weapon-innates');
-            const $first = $c.find('.node-select-row').not('.node-row-locked').first();
-            const $use = $first.length ? $first : $c.find('.node-select-row').first();
-            const $clone = $use.clone();
-            $clone.removeClass('node-row-locked');
-            $clone.find('.node-weapon-innate').prop('disabled', false).val('');
-            $clone.find('.node-row-remove').removeClass('hidden');
-            $c.append($clone);
-        };
-        const cloneSpecialRow = () => {
-            const $c = html.find('#node-weapon-specials');
-            const $first = $c.find('.node-special-row').not('.node-row-locked').first();
-            const $use = $first.length ? $first : $c.find('.node-special-row').first();
-            const $clone = $use.clone();
-            $clone.removeClass('node-row-locked');
-            $clone.find('.node-weapon-special-id').prop('disabled', false).val('');
-            $clone.find('.node-weapon-special-val').val('');
-            $clone.find('.node-weapon-special-val-wrap').addClass('hidden');
-            $clone.find('.node-row-remove').removeClass('hidden');
-            $c.append($clone);
-        };
-        html.find('.node-add-row[data-target="innates"]').on('click', () => {
-            cloneInnateRow();
-        });
-        html.find('.node-add-row[data-target="specials"]').on('click', () => {
-            cloneSpecialRow();
-        });
+        // No "+ Add" for innates/specials anymore: the Base Type prefill is the
+        // full kit, the GM may only remove rows. The one Free Trait dropdown next
+        // to Base Type is the single allowed addition; new Specials come from the
+        // artifact's Powers.
         html.on('change', '.node-weapon-special-id', (e) => {
             const $row = $(e.currentTarget).closest('.node-special-row');
             syncSpecialRowValueVisibility($row);

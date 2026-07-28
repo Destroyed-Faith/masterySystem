@@ -30,7 +30,7 @@
           <option value="{{trait}}" {{#if (eq ../freeTrait trait)}}selected{{/if}}>{{trait}}</option>
           {{/each}}
         </select>
-        <p class="node-editor-hint">Every weapon artifact may pick <strong>one</strong> weapon property for free on top of its base type's innate abilities — e.g. a Greatsword artifact with <em>Finesse</em>. Only Finesse, Light, Versatile, Reach, Balanced and Defensive are eligible (Spell Focus is too strong; drawbacks and delivery modes are set via the Innate Abilities rows below). Only editable on the root (Level 1-1) node; child levels inherit it.</p>
+        <p class="node-editor-hint">Every weapon artifact may pick <strong>one</strong> weapon property for free on top of its base type's innate abilities — e.g. a Greatsword artifact with <em>Finesse</em>. Only Finesse, Light, Versatile, Reach, Balanced and Defensive are eligible (Spell Focus is too strong). This is the only way to add an innate ability; everything else the artifact has comes from its Base Type. Only editable on the root (Level 1-1) node; child levels inherit it.</p>
       </div>
       <div class="node-editor-grid">
         <div class="form-group">
@@ -246,10 +246,11 @@
       </div>
       <div class="form-group">
         <label>Innate abilities</label>
+        <p class="node-editor-hint">Prefilled from the Base Type — the weapon brings its full kit. You may only <strong>remove</strong> entries that don't fit the artifact's story (×). The single allowed addition is the <strong>Free Trait</strong> above.</p>
         <div id="node-weapon-innates" class="node-multi-select">
           {{#each weaponInnateRows as |row|}}
           <div class="node-select-row {{#if row.locked}}node-row-locked{{/if}}">
-            <select class="node-weapon-innate" {{#if row.locked}}disabled{{/if}}>
+            <select class="node-weapon-innate" disabled>
               <option value="">—</option>
               {{#each ../innateOptions as |opt|}}
               <option value="{{opt}}" {{#if (eq row.value opt)}}selected{{/if}}>{{opt}}</option>
@@ -259,15 +260,14 @@
           </div>
           {{/each}}
         </div>
-        <button type="button" class="node-add-row" data-target="innates">+ Add innate</button>
       </div>
       <div class="form-group">
         <label>Special Effects</label>
-        <p class="node-editor-hint">Pick an effect. If the rules use a variable number (often written as “X”), set <strong>Strength</strong> in the small field next to it.</p>
+        <p class="node-editor-hint">Prefilled from the Base Type. <strong>Remove-only</strong> (×) — new Specials come from the artifact's Powers, not from this list. If the rules use a variable number (often written as “X”), adjust <strong>Strength</strong> in the small field.</p>
         <div id="node-weapon-specials" class="node-multi-select">
           {{#each weaponSpecialRows as |row|}}
           <div class="node-select-row node-special-row {{#if row.locked}}node-row-locked{{/if}}">
-            <select class="node-weapon-special-id" {{#if row.locked}}disabled{{/if}}>
+            <select class="node-weapon-special-id" disabled>
               <option value="">—</option>
               {{#each ../specialSelectOptions as |opt|}}
               <option value="{{opt.id}}" data-has-value="{{#if opt.hasValue}}true{{else}}false{{/if}}" {{#if (eq row.specialId opt.id)}}selected{{/if}}>{{opt.label}}</option>
@@ -281,7 +281,6 @@
           </div>
           {{/each}}
         </div>
-        <button type="button" class="node-add-row" data-target="specials">+ Add special</button>
       </div>
     </div>
 

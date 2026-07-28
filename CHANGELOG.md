@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.217] - 2026-07-28
+
+### Fixed
+
+- **Finesse applies to weapon-carried attack powers:** Attack powers like Melee Single Attack resolved their To-Hit attribute from the mastery tree (e.g. Crusader → Might) before the wielded weapon was ever considered — a Finesse artifact still rolled Might. Non-spell attack powers roll the equipped weapon's dice, so a Finesse weapon (innate or artifact Free Trait) now swaps the To-Hit to Agility, beating the tree default. Spells keep their casting attribute; damage is unaffected. Works regardless of artifact activation (the weapon profile counts even while powers are still locked).
+
+### Changed
+
+- **Node Editor: Base Type kit is remove-only.** Picking a Base Type takes over the weapon's full kit (innates + specials). Innate/Special rows are now read-only: the GM may remove entries (×) that don't fit the artifact — but can no longer swap or hand-add them (both "+ Add" buttons removed). Special Strength (the X value) stays editable. The single Free Trait dropdown is the only allowed innate addition; new Specials come from the artifact's Powers. Existing hand-added entries survive and remain removable.
+
 ## [0.9.216] - 2026-07-28
 
 ### Added

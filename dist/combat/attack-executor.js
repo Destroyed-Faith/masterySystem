@@ -139,10 +139,20 @@ function getTargetSpellResistance(targetActor) {
     return Math.max(0, Math.floor(Number(combat.spellResistanceTotal ?? 0) || 0)
         + Math.floor(Number(combat.spellResistanceFromActiveBuffs ?? 0) || 0));
 }
+/** True when the wielded weapon (real or artifact-virtual) has the Finesse innate. */
+function weaponHasFinesse(weapon) {
+    if (!weapon)
+        return false;
+    const innateAbilities = weapon.system?.innateAbilities || [];
+    return innateAbilities.some((a) => String(a).toLowerCase().includes("finesse"));
+}
 /**
  * Determine which attribute to use for attack rolls.
+ * - Spells: casting attribute on the item / option.
+ * - Weapons with Finesse (incl. artifact Free Trait): Agility for To-Hit —
+ *   also for weapon-carried attack powers (Melee Single Attack, Smite, …),
+ *   where it beats the mastery-tree default (rules: "Attack Roll uses Agility").
  * - Powers: attribute from mastery tree / spell school (`system.tree`) via fixed list; if unknown tree, fall back to `roll.attribute`.
- * - Weapons with Finesse: Agility (melee or ranged).
  * - Otherwise: Might for melee, Agility for ranged (weapon or maneuver).
  */
 function getAttackAttribute(_actor, weapon, option, attackType) {
@@ -156,6 +166,12 @@ function getAttackAttribute(_actor, weapon, option, attackType) {
         if (powerSystem.isSpell && powerSystem.castingAttribute) {
             return String(powerSystem.castingAttribute).toLowerCase();
         }
+        // Non-spell attack powers are weapon-carried (they roll the equipped
+        // weapon's dice), so a Finesse weapon swaps the To-Hit to Agility even
+        // when the mastery tree would default to Might.
+        if (!artifactIsSpell && powerSystem.isSpell !== true && weaponHasFinesse(weapon)) {
+            return "agility";
+        }
         const fromTreeOrSchool = getAttackAttributeForPowerTreeOrSchool(powerSystem.tree);
         if (fromTreeOrSchool) {
             return fromTreeOrSchool;
@@ -168,13 +184,8 @@ function getAttackAttribute(_actor, weapon, option, attackType) {
     if (option.source === "npc-attack") {
         return attackType === "ranged" ? "agility" : "might";
     }
-    if (weapon) {
-        const weaponSystem = weapon.system;
-        const innateAbilities = weaponSystem.innateAbilities || [];
-        const hasFinesse = innateAbilities.some((a) => String(a).toLowerCase().includes("finesse"));
-        if (hasFinesse) {
-            return "agility";
-        }
+    if (weaponHasFinesse(weapon)) {
+        return "agility";
     }
     return attackType === "ranged" ? "agility" : "might";
 }
