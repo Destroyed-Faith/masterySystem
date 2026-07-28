@@ -15,29 +15,49 @@ export declare class MasteryCharacterSheet extends BaseActorSheet {
     private _pendingAttributeChanges;
     private _pendingPowerLevelChanges;
     private _pendingSkillRankChanges;
+    /** Active tab, preserved across re-renders (see sheet-v2-compat tabs helper). */
+    activeTab?: string;
+    /** Initial tab when the sheet is first opened; subclasses override. */
+    protected get _initialTab(): string;
     /** @override */
-    static get defaultOptions(): any;
+    static DEFAULT_OPTIONS: any;
+    /** @override */
+    static PARTS: {
+        body: {
+            template: string;
+        };
+    };
     /**
-     * Add a "Print / Export" button to the sheet window header that opens the
-     * printable 3-page character sheet with all values filled in.
+     * The "Print" header control only makes sense for player characters —
+     * NPC / Summon subclasses inherit the control via DEFAULT_OPTIONS merging.
      * @override
      */
-    _getHeaderButtons(): any[];
-    /** @override */
-    get template(): string;
+    _getHeaderControls(): any[];
     /**
      * Refresh XP distribution controls when the GM ends an Upgrade Step or
      * grants XP from world settings while this sheet is open.
      */
     _onUpdate(changed: Record<string, unknown>, options: unknown, _userId: string): void;
+    /**
+     * Rebuild the context shape the V1 `ActorSheet.getData()` used to provide,
+     * since the whole sheet (and its templates) were written against it.
+     */
+    protected _buildV1BaseContext(_options?: any): any;
     /** @override */
-    getData(options?: any): Promise<any>;
+    _prepareContext(options?: any): Promise<any>;
     /** @override */
-    render(force?: boolean, options?: any): Promise<any>;
+    render(options?: any, _options?: any): Promise<any>;
+    /**
+     * ApplicationV2 render bridge: re-wire the classic V1 behaviors (tabs,
+     * drag & drop, portrait editing, jQuery listeners) after every render,
+     * because the part's DOM is replaced each time.
+     * @override
+     */
+    _onRender(context: any, options: any): Promise<void>;
     /** @override */
     activateListeners(html: JQuery): void;
     /** @override */
-    _onSubmit(event: Event, options?: any): Promise<any>;
+    _onSubmitForm(formConfig: any, event: Event): Promise<any>;
     /**
      * Handle drag and drop for equipment
      */

@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.226] - 2026-07-28
+
+### Added
+
+- **Damage rolls can be rerolled with a Faith Fracture:** After all damage dice are rolled — but before Mark spend, status effects, or damage application touch the target — the attacker sees the total and may spend 1 Faith Fracture to reroll ALL damage dice once (the new result is final, per the one-reroll-per-roll rule). Only offered to player characters with a Fracture available; the prompt lists the full dice breakdown so the decision is informed.
+
+### Changed
+
+- **Document sheets migrated to ApplicationV2:** Character, NPC, Summon, Item, and Artifact sheets no longer extend the deprecated V1 `ActorSheet`/`ItemSheet` (the "V1 Application framework is deprecated" console error on sheet open is gone). Templates and behavior are preserved: tabs remember their active state across re-renders, the equipment grid and item lists remain drag & drop sources, fields still auto-save on change, and the rich-text bio/description editors now use Foundry's native `<prose-mirror>` element. The "Bogen drucken" button moved into the sheet window's control menu (V2 has no free-form header buttons). Note: classic `Dialog` prompts (damage confirmations etc.) are still V1 — support runs until Foundry v16; DialogV2 migration is a separate follow-up.
+
 ## [0.9.225] - 2026-07-28
 
 ### Fixed

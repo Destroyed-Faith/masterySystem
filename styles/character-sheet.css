@@ -10213,3 +10213,11 @@
   font-size: 11px;
   opacity: 0.9;
 }
+
+/* --- ApplicationV2 migration: manual tab visibility ------------------------
+   The V1 Tabs controller (and core V1 CSS) used to hide inactive `.tab`
+   sections. Under ApplicationV2 we manage tabs ourselves (sheet-v2-compat),
+   so hide inactive tab sections explicitly for all mastery sheets. */
+.mastery-system.sheet .tab[data-tab]:not(.active) {
+  display: none;
+}

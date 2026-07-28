@@ -91,30 +91,37 @@ function buildNpcSpecialDropdownOptions(): { value: string; label: string }[] {
 
 export class MasteryNpcSheet extends MasteryCharacterSheet {
   /** @override */
-  static get defaultOptions() {
-    return foundry.utils.mergeObject(super.defaultOptions as any, {
-      classes: ['mastery-system', 'sheet', 'actor', 'npc'],
+  static DEFAULT_OPTIONS = {
+    classes: ['npc'],
+    position: { width: 720, height: 820 },
+  };
+
+  /** @override */
+  static PARTS = {
+    body: {
       template: 'systems/mastery-system/templates/actor/npc-sheet.hbs',
-      width: 720,
-      height: 820,
-      tabs: [
-        {
-          navSelector: '.sheet-tabs',
-          contentSelector: '.sheet-body',
-          initial: 'phase-0'
-        }
-      ]
-    });
+    },
+  };
+
+  /** @override */
+  protected get _initialTab(): string {
+    return 'phase-0';
+  }
+
+  /**
+   * ApplicationV2 unions `classes` across the inheritance chain; strip the
+   * parent's `character` class so character-sheet CSS never applies here.
+   * @override
+   */
+  _initializeApplicationOptions(options: any) {
+    const opts = super._initializeApplicationOptions(options);
+    opts.classes = (opts.classes || []).filter((c: string) => c !== 'character');
+    return opts;
   }
 
   /** @override */
-  get template() {
-    return 'systems/mastery-system/templates/actor/npc-sheet.hbs';
-  }
-
-  /** @override */
-  getData(options?: any) {
-    const context: any = super.getData(options);
+  async _prepareContext(options?: any) {
+    const context: any = await super._prepareContext(options);
 
     // Normalize health.bars: convert object to array if needed
     if (context.system?.health?.bars) {

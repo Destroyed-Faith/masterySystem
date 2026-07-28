@@ -6,11 +6,29 @@ import { MasteryCharacterSheet } from './character-sheet';
 export declare class MasteryNpcSheet extends MasteryCharacterSheet {
     #private;
     /** @override */
-    static get defaultOptions(): any;
+    static DEFAULT_OPTIONS: {
+        classes: string[];
+        position: {
+            width: number;
+            height: number;
+        };
+    };
     /** @override */
-    get template(): string;
+    static PARTS: {
+        body: {
+            template: string;
+        };
+    };
     /** @override */
-    getData(options?: any): any;
+    protected get _initialTab(): string;
+    /**
+     * ApplicationV2 unions `classes` across the inheritance chain; strip the
+     * parent's `character` class so character-sheet CSS never applies here.
+     * @override
+     */
+    _initializeApplicationOptions(options: any): any;
+    /** @override */
+    _prepareContext(options?: any): Promise<any>;
     /** @override */
     activateListeners(html: JQuery): void;
 }

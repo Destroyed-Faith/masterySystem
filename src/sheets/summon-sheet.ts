@@ -7,22 +7,32 @@ import { getSharedSenseLabel } from '../stones/familiar-bind.js';
 import type { SharedSenseGroup } from '../stones/familiar-rules.js';
 
 export class MasterySummonSheet extends MasteryCharacterSheet {
-  static override get defaultOptions() {
-    return foundry.utils.mergeObject(super.defaultOptions, {
-      classes: ['mastery-system', 'sheet', 'actor', 'summon'],
+  /** @override */
+  static DEFAULT_OPTIONS = {
+    classes: ['summon'],
+    position: { width: 520, height: 640 },
+  };
+
+  /** @override */
+  static PARTS = {
+    body: {
       template: 'systems/mastery-system/templates/actor/summon-sheet.hbs',
-      width: 520,
-      height: 640,
-      resizable: true,
-    });
+    },
+  };
+
+  /**
+   * ApplicationV2 unions `classes` across the inheritance chain; strip the
+   * parent's `character` class so character-sheet CSS never applies here.
+   * @override
+   */
+  _initializeApplicationOptions(options: any) {
+    const opts = super._initializeApplicationOptions(options);
+    opts.classes = (opts.classes || []).filter((c: string) => c !== 'character');
+    return opts;
   }
 
-  override get template(): string {
-    return 'systems/mastery-system/templates/actor/summon-sheet.hbs';
-  }
-
-  override async getData(options?: any): Promise<any> {
-    const context = await super.getData(options);
+  override async _prepareContext(options?: any): Promise<any> {
+    const context = await super._prepareContext(options);
     const system = (this.actor as any).system ?? {};
     const familiar = system.familiar ?? {};
     const stats = {

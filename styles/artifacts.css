@@ -1629,13 +1629,14 @@
 /* Force a consistent dark theme with light text (the default ItemSheet frame
    is light, which made dark section text unreadable). */
 .app.artifact-sheet-v2 .window-content,
-.artifact-sheet-v2.window-app .window-content {
+.artifact-sheet-v2.window-app .window-content,
+.application.artifact-sheet-v2 .window-content {
   background: #14181b;
   color: #e6ebef;
   padding: 0;
 }
 
-form.artifact-sheet-v2 {
+div.artifact-sheet-v2 {
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -1643,15 +1644,15 @@ form.artifact-sheet-v2 {
   background: #14181b;
   color: #e6ebef;
 }
-form.artifact-sheet-v2 h1,
-form.artifact-sheet-v2 h2,
-form.artifact-sheet-v2 h3,
-form.artifact-sheet-v2 h4,
-form.artifact-sheet-v2 .artifact-bv-slot,
-form.artifact-sheet-v2 .artifact-bv-label,
-form.artifact-sheet-v2 .artifact-ability-name,
-form.artifact-sheet-v2 .artifact-ability-effect,
-form.artifact-sheet-v2 .artifact-ability-special {
+div.artifact-sheet-v2 h1,
+div.artifact-sheet-v2 h2,
+div.artifact-sheet-v2 h3,
+div.artifact-sheet-v2 h4,
+div.artifact-sheet-v2 .artifact-bv-slot,
+div.artifact-sheet-v2 .artifact-bv-label,
+div.artifact-sheet-v2 .artifact-ability-name,
+div.artifact-sheet-v2 .artifact-ability-effect,
+div.artifact-sheet-v2 .artifact-ability-special {
   color: #e6ebef;
 }
 

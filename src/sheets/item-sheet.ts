@@ -4,32 +4,50 @@
  */
 
 import { normalizeShieldTypeKey } from '../utils/equipment.js';
+import { bindManualSheetTabs, bindEditImage } from './sheet-v2-compat.js';
 
-export class MasteryItemSheet extends foundry.appv1.sheets.ItemSheet {
+const BaseItemSheet: any = foundry.applications.api.HandlebarsApplicationMixin(
+  foundry.applications.sheets.ItemSheetV2,
+);
+
+export class MasteryItemSheet extends BaseItemSheet {
+  /** Active tab, preserved across re-renders. */
+  activeTab?: string;
+
   /** @override */
-  static get defaultOptions() {
-    return foundry.utils.mergeObject(super.defaultOptions as any, {
-      classes: ['mastery-system', 'sheet', 'item'],
-      width: 520,
-      height: 480,
-      tabs: [
-        {
-          navSelector: '.sheet-tabs',
-          contentSelector: '.sheet-body',
-          initial: 'description'
-        }
-      ]
-    });
+  static DEFAULT_OPTIONS = {
+    classes: ['mastery-system', 'sheet', 'item'],
+    position: { width: 520, height: 480 },
+    window: { resizable: true },
+    form: { submitOnChange: true, closeOnSubmit: false },
+  };
+
+  /** @override */
+  static PARTS = {
+    // Template is resolved per item type in _configureRenderParts.
+    body: { template: 'systems/mastery-system/templates/item/gear-sheet.hbs' },
+  };
+
+  /** Resolve the per-type template (V1 `get template()` equivalent). @override */
+  _configureRenderParts(options: any) {
+    const parts = super._configureRenderParts(options);
+    parts.body.template = `systems/mastery-system/templates/item/${this.item.type}-sheet.hbs`;
+    return parts;
   }
 
   /** @override */
-  get template() {
-    return `systems/mastery-system/templates/item/${this.item.type}-sheet.hbs`;
-  }
-
-  /** @override */
-  getData(options?: any) {
-    const context: any = super.getData(options);
+  async _prepareContext(options?: any) {
+    const item: any = this.item;
+    const context: any = {
+      item,
+      document: item,
+      editable: this.isEditable,
+      owner: item.isOwner,
+      limited: item.limited,
+      cssClass: item.isOwner ? 'editable' : 'locked',
+      options: this.options,
+      title: this.title,
+    };
     const itemData = context.item;
     
     // Add system data
@@ -40,8 +58,9 @@ export class MasteryItemSheet extends foundry.appv1.sheets.ItemSheet {
     context.config = (CONFIG as any).MASTERY;
     
     // Enrich description for display
-    context.enrichedDescription = foundry.applications.ux.TextEditor.implementation.enrichHTML(
-      context.system.description || ''
+    context.enrichedDescription = await foundry.applications.ux.TextEditor.implementation.enrichHTML(
+      context.system.description || '',
+      { secrets: item.isOwner, relativeTo: item } as any,
     );
     
     // Add type-specific data
@@ -78,10 +97,17 @@ export class MasteryItemSheet extends foundry.appv1.sheets.ItemSheet {
     return context;
   }
 
-  /** @override */
+  /** ApplicationV2 render bridge: tabs, portrait editing, jQuery listeners. @override */
+  async _onRender(context: any, options: any) {
+    await super._onRender?.(context, options);
+    const root = this.element as HTMLElement;
+    if (!root) return;
+    bindManualSheetTabs(root, this, 'description');
+    bindEditImage(root, this.item);
+    this.activateListeners($(root));
+  }
+
   activateListeners(html: JQuery) {
-    super.activateListeners(html);
-    
     // Everything below here is only needed if the sheet is editable
     if (!this.isEditable) return;
     

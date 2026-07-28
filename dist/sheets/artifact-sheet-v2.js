@@ -15,25 +15,22 @@
 import { ARTIFACT_SLOT_LABELS, BASE_PROFILE_LABELS, } from '../utils/artifact-rules.js';
 import { isArtifactLinkedOnActor } from '../utils/artifact-actor-rules.js';
 import { visibleAbilityRows } from '../utils/artifact-visible-abilities.js';
-export class ArtifactSheetV2 extends foundry.appv1.sheets.ItemSheet {
+const BaseArtifactSheet = foundry.applications.api.HandlebarsApplicationMixin(foundry.applications.sheets.ItemSheetV2);
+export class ArtifactSheetV2 extends BaseArtifactSheet {
     /** @override */
-    static get defaultOptions() {
-        return foundry.utils.mergeObject(super.defaultOptions, {
-            classes: ['mastery-system', 'sheet', 'item', 'artifact-sheet-v2'],
-            width: 460,
-            height: 'auto',
-            resizable: true,
-            submitOnChange: false,
-            closeOnSubmit: false,
-        });
-    }
+    static DEFAULT_OPTIONS = {
+        classes: ['mastery-system', 'sheet', 'item', 'artifact-sheet-v2'],
+        position: { width: 460, height: 'auto' },
+        window: { resizable: true },
+        form: { submitOnChange: false, closeOnSubmit: false },
+    };
     /** @override */
-    get template() {
-        return 'systems/mastery-system/templates/item/artifact-sheet-v2.hbs';
-    }
+    static PARTS = {
+        body: { template: 'systems/mastery-system/templates/item/artifact-sheet-v2.hbs' },
+    };
     /** @override */
-    getData(options) {
-        const context = super.getData(options);
+    async _prepareContext(_options) {
+        const context = {};
         const item = this.item;
         const system = item.system;
         // ---- Read-friendly summary (what the artifact is + what it does) ----
@@ -64,6 +61,7 @@ export class ArtifactSheetV2 extends foundry.appv1.sheets.ItemSheet {
         }));
         context.item = item;
         context.system = system;
+        context.cssClass = item.isOwner ? 'editable' : 'locked';
         context.isEditable = this.isEditable;
         context.isGM = !!game.user?.isGM;
         context.mechanicallyActive = mechanicallyActive;
@@ -79,9 +77,9 @@ export class ArtifactSheetV2 extends foundry.appv1.sheets.ItemSheet {
         return context;
     }
     /** @override */
-    activateListeners(html) {
-        super.activateListeners(html);
-        const root = html?.[0] ?? html;
+    async _onRender(context, options) {
+        await super._onRender?.(context, options);
+        const root = this.element;
         if (!root || !game.user?.isGM)
             return;
         const btn = root.querySelector?.('[data-action="open-node-editor"]');

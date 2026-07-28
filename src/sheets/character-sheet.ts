@@ -73,8 +73,13 @@ import { isEchoBoundArtifact, isEchoArtifactInventoryHidden } from '../utils/ech
 // Removed: showWeaponCreationDialog, showArmorCreationDialog, showShieldCreationDialog
 // Replaced with General Items Storage and Store dialogs
 
-// Foundry v14 document sheets still extend the appv1 ActorSheet base class.
-const BaseActorSheet: any = foundry.appv1.sheets.ActorSheet;
+import { bindManualSheetTabs, bindEditImage } from './sheet-v2-compat.js';
+
+// ApplicationV2 actor sheet base (Foundry v13+): DocumentSheetV2 form handling
+// + Handlebars part rendering.
+const BaseActorSheet: any = foundry.applications.api.HandlebarsApplicationMixin(
+  foundry.applications.sheets.ActorSheetV2,
+);
 
 /**
  * True when an item is an Echo-bound artifact that is locked into its slot
@@ -107,7 +112,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
   private _pendingSkillRankChanges: Record<string, number> = {}; // Track pending skill rank changes (signed)
 
   #setHeaderXpDisplay(value: number) {
-    const html = this.element;
+    const html = $(this.element);
     const el = html.find('#sheet-xp-display');
     if (!el.length) return;
     const n = Number(value);
@@ -117,56 +122,52 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     el.attr('title', free > 0 ? `${total} XP gesamt, davon ${free} Free XP (frei verteilbar)` : 'Verfügbare XP');
   }
 
-  /** @override */
-  static get defaultOptions() {
-    const baseOptions = super.defaultOptions || {};
-    const options = foundry.utils.mergeObject(baseOptions, {
-      classes: ['mastery-system', 'sheet', 'actor', 'character'],
-      template: 'systems/mastery-system/templates/actor/character-sheet.hbs',
-      width: 720,
-      height: 800,
-      tabs: [
-        {
-          navSelector: '.sheet-tabs',
-          contentSelector: '.sheet-body',
-          initial: 'attributes'
-        }
-      ],
-      dragDrop: [
-        { dragSelector: '.item-list .item', dropSelector: null },
-        // Equipment grid/slots/trash use custom `[data-df-drop]` handlers — Foundry's
-        // default `.df-dropzone` drop would duplicate items and break placement.
-        { dragSelector: '.df-draggable-item', dropSelector: null }
-      ],
-      // `.sheet-body` is the actual overflow-y:auto container (see
-      // character-sheet.css). The per-tab selectors stay for safety in case
-      // Foundry internally iterates them, but without `.sheet-body` the
-      // scroll position was lost on every re-render (e.g. after clicking
-      // the Skill/Attribute/Power "+" buttons in creation mode).
-      scrollY: ['.sheet-body', '.echo', '.attributes', '.skills', '.powers', '.equipment']
-    });
-    console.log('Mastery System | Character Sheet defaultOptions:', options);
-    return options;
+  /** Active tab, preserved across re-renders (see sheet-v2-compat tabs helper). */
+  activeTab?: string;
+
+  /** Initial tab when the sheet is first opened; subclasses override. */
+  protected get _initialTab(): string {
+    return 'attributes';
   }
 
+  /** @override */
+  static DEFAULT_OPTIONS: any = {
+    classes: ['mastery-system', 'sheet', 'actor', 'character'],
+    position: { width: 720, height: 800 },
+    window: {
+      resizable: true,
+      controls: [
+        {
+          icon: 'fas fa-print',
+          label: 'Bogen drucken',
+          action: 'msPrintSheet',
+        },
+      ],
+    },
+    form: { submitOnChange: true, closeOnSubmit: false },
+    actions: {
+      msPrintSheet: function (this: any) {
+        void openCharacterPrintSheet(this.actor);
+      },
+    },
+  };
+
+  /** @override */
+  static PARTS = {
+    body: {
+      template: 'systems/mastery-system/templates/actor/character-sheet.hbs',
+    },
+  };
+
   /**
-   * Add a "Print / Export" button to the sheet window header that opens the
-   * printable 3-page character sheet with all values filled in.
+   * The "Print" header control only makes sense for player characters —
+   * NPC / Summon subclasses inherit the control via DEFAULT_OPTIONS merging.
    * @override
    */
-  _getHeaderButtons(): any[] {
-    const buttons = super._getHeaderButtons?.() ?? [];
-    if (this.actor?.type === 'character') {
-      buttons.unshift({
-        label: 'Bogen drucken',
-        class: 'mastery-print-sheet',
-        icon: 'fas fa-print',
-        onclick: () => {
-          void openCharacterPrintSheet(this.actor);
-        }
-      });
-    }
-    return buttons;
+  _getHeaderControls(): any[] {
+    const controls = super._getHeaderControls?.() ?? [];
+    if (this.actor?.type === 'character') return controls;
+    return controls.filter((c: any) => c?.action !== 'msPrintSheet');
   }
 
   /**
@@ -524,13 +525,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     }
   }
 
-  /** @override */
-  get template() {
-    const templatePath = 'systems/mastery-system/templates/actor/character-sheet.hbs';
-    console.log('Mastery System | Character Sheet template path:', templatePath);
-    return templatePath;
-  }
-
   /**
    * Refresh XP distribution controls when the GM ends an Upgrade Step or
    * grants XP from world settings while this sheet is open.
@@ -563,14 +557,54 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     }
   }
 
+  /**
+   * Rebuild the context shape the V1 `ActorSheet.getData()` used to provide,
+   * since the whole sheet (and its templates) were written against it.
+   */
+  protected _buildV1BaseContext(_options?: any): any {
+    const actor: any = this.actor;
+    const items = actor.items.contents.slice().sort((a: any, b: any) => (a.sort || 0) - (b.sort || 0));
+    return {
+      actor,
+      document: actor,
+      items,
+      limited: actor.limited,
+      owner: actor.isOwner,
+      editable: this.isEditable,
+      cssClass: actor.isOwner ? 'editable' : 'locked',
+      options: this.options,
+      title: this.title,
+    };
+  }
+
   /** @override */
-  async getData(options?: any) {
-    const context: any = await super.getData(options);
+  async _prepareContext(options?: any) {
+    const context: any = this._buildV1BaseContext(options);
     const actorData = context.actor;
     
     // Add system data
     context.system = actorData.system;
     context.flags = actorData.flags;
+
+    // Rich-text bio fields are rendered via <prose-mirror> (ApplicationV2);
+    // enrich the stored HTML for the read-only display state.
+    try {
+      const enrich = (v: unknown) =>
+        foundry.applications.ux.TextEditor.implementation.enrichHTML(String(v ?? ''), {
+          secrets: actorData.isOwner,
+          relativeTo: actorData,
+        } as any);
+      const bio = (actorData.system as any)?.bio ?? {};
+      context.enrichedBio = {
+        echo: await enrich(bio.echo),
+        concept: await enrich(bio.concept),
+        appearance: await enrich(bio.appearance),
+        notes: await enrich(bio.notes),
+        description: await enrich(bio.description),
+      };
+    } catch {
+      context.enrichedBio = {};
+    }
     if (this.actor.type === 'character') {
       context.maxPurchasablePowerLevel = this.#getMaxPurchasablePowerLevel();
     }
@@ -1078,27 +1112,27 @@ export class MasteryCharacterSheet extends BaseActorSheet {
   }
 
   /** @override */
-  async render(force?: boolean, options?: any) {
+  async render(options?: any, _options?: any) {
     if (this.#isRendering) {
       return this;
     }
     this.#isRendering = true;
     try {
-      return await this.#renderSheet(force, options);
+      return await this.#renderSheet(options, _options);
     } finally {
       this.#isRendering = false;
     }
   }
 
-  async #renderSheet(force?: boolean, options?: any) {
-    console.log('Mastery System | Character Sheet render called', { force, options });
+  async #renderSheet(options?: any, _options?: any) {
+    const $el = this.rendered && this.element ? $(this.element) : null;
 
-    if (this.element && this.element.length > 0) {
-      const det = this.element.find('.radial-maneuver-prefs-details')[0];
+    if ($el && $el.length > 0) {
+      const det = $el.find('.radial-maneuver-prefs-details')[0];
       if (det instanceof HTMLDetailsElement) {
         this._radialManeuverPrefsDetailsOpen = det.open;
       }
-      const pld = this.element.find('.powers-list-details')[0];
+      const pld = $el.find('.powers-list-details')[0];
       if (pld instanceof HTMLDetailsElement) {
         this._powersListDetailsOpen = pld.open;
       }
@@ -1106,9 +1140,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
 
     // Save scroll positions for all tabs and the main window before rendering
     const scrollPositions: Record<string, number> = {};
-    if (this.element && this.element.length > 0) {
+    if ($el && $el.length > 0) {
       // Save scroll position for each tab
-      const tabs = this.element.find('.tab');
+      const tabs = $el.find('.tab');
       tabs.each((index: number, tab: HTMLElement) => {
         const $tab = $(tab);
         const tabName = $tab.attr('data-tab') || `tab-${index}`;
@@ -1119,7 +1153,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       });
       
       // Also save scroll position for the main sheet body (in case tabs don't have their own scroll)
-      const sheetBody = this.element.find('.sheet-body');
+      const sheetBody = $el.find('.sheet-body');
       if (sheetBody.length > 0) {
         const bodyScrollTop = sheetBody.scrollTop();
         if (bodyScrollTop !== undefined && bodyScrollTop > 0) {
@@ -1128,14 +1162,16 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       }
     }
     
-    const result = await super.render(force, options);
+    const result = await super.render(options, _options);
     
     // Restore scroll positions after rendering
-    if (this.element && this.element.length > 0 && Object.keys(scrollPositions).length > 0) {
+    if (this.element && Object.keys(scrollPositions).length > 0) {
       // Use requestAnimationFrame to ensure DOM is fully updated
       requestAnimationFrame(() => {
+        if (!this.element) return;
+        const $now = $(this.element);
         // Restore tab scroll positions
-        const tabs = this.element.find('.tab');
+        const tabs = $now.find('.tab');
         tabs.each((index: number, tab: HTMLElement) => {
           const $tab = $(tab);
           const tabName = $tab.attr('data-tab') || `tab-${index}`;
@@ -1146,7 +1182,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         
         // Restore sheet body scroll position
         if (scrollPositions['sheet-body'] !== undefined) {
-          const sheetBody = this.element.find('.sheet-body');
+          const sheetBody = $now.find('.sheet-body');
           if (sheetBody.length > 0) {
             sheetBody.scrollTop(scrollPositions['sheet-body']);
           }
@@ -1154,8 +1190,49 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       });
     }
     
-    console.log('Mastery System | Character Sheet render completed');
     return result;
+  }
+
+  /**
+   * ApplicationV2 render bridge: re-wire the classic V1 behaviors (tabs,
+   * drag & drop, portrait editing, jQuery listeners) after every render,
+   * because the part's DOM is replaced each time.
+   * @override
+   */
+  async _onRender(context: any, options: any) {
+    await super._onRender?.(context, options);
+    const root = this.element as HTMLElement;
+    if (!root) return;
+
+    bindManualSheetTabs(root, this, this._initialTab);
+    bindEditImage(root, this.actor);
+
+    // V1 `dragDrop` option replacement: the equipment grid uses `.df-draggable-item`,
+    // item rows use `.item-list .item`. ActorSheetV2 only auto-binds `.draggable`.
+    try {
+      const DragDropImpl: any =
+        (foundry.applications as any)?.ux?.DragDrop?.implementation ??
+        (foundry.applications as any)?.ux?.DragDrop;
+      for (const dragSelector of ['.item-list .item', '.df-draggable-item']) {
+        new DragDropImpl({
+          dragSelector,
+          dropSelector: null,
+          permissions: {
+            dragstart: () => this.isEditable,
+            drop: () => this.isEditable,
+          },
+          callbacks: {
+            dragstart: (this as any)._onDragStart?.bind(this),
+            dragover: (this as any)._onDragOver?.bind(this),
+            drop: (this as any)._onDrop?.bind(this),
+          },
+        }).bind(root);
+      }
+    } catch (e) {
+      console.warn('Mastery System | Failed to bind sheet drag & drop', e);
+    }
+
+    this.activateListeners($(root));
   }
 
   /**
@@ -1854,12 +1931,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       htmlContent: html[0]?.tagName
     });
     
-    super.activateListeners(html);
-    
-    console.log('Mastery System | activateListeners called AFTER super', {
-      htmlLength: html.length,
-      actorName: this.actor?.name
-    });
+    // (ApplicationV2: no super.activateListeners — form change/submit handling
+    // is wired by DocumentSheetV2 via DEFAULT_OPTIONS.form.)
 
     void this.#mountBattleSensesArea(html);
 
@@ -2375,7 +2448,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       '.tab.equipment .df-enc-band .df-draggable-item';
     const ContextMenuCls = (foundry as any).applications?.ux?.ContextMenu;
     if (ContextMenuCls) {
-      const rootEl = (html as any)?.[0] ?? (this.element as any)?.[0] ?? document.body;
+      const rootEl = (html as any)?.[0] ?? (this.element as any) ?? document.body;
       new ContextMenuCls(rootEl, invEquipSelector, this.#inventoryEquipContextMenuEntries(), {
         eventName: 'contextmenu',
         jQuery: false
@@ -3250,7 +3323,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
    * Update the attribute XP distribution UI
    */
   #updateAttributeXPUI() {
-    const html = this.element;
+    const html = $(this.element);
     const netPendingCost = this.#calculateAttributePendingNetCost(this._pendingAttributeChanges);
     const xpState = this.#getXpState(this.actor);
     const remainingPoints = xpState.available - netPendingCost;
@@ -3629,7 +3702,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
    * Update the power level distribution UI
    */
   #updatePowerLevelUI() {
-    const html = this.element;
+    const html = $(this.element);
     
     // Calculate net pending cost (signed)
     const netPendingCost = this.#calculatePowerPendingNetCost(this._pendingPowerLevelChanges);
@@ -5061,7 +5134,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
    * Update the skill XP distribution UI (pending/remaining + enable/disable buttons)
    */
   #updateSkillXPUI() {
-    const html = this.element;
+    const html = $(this.element);
     // Combined spendable XP (Free pool is spent first, then regular).
     const availableXP = (this.actor.system.points?.xp || 0) + (this.actor.system.points?.xpFree || 0);
     const netPendingCost = this.#calculateSkillPendingNetCost(this._pendingSkillRankChanges);
@@ -5169,7 +5242,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         attributeKey,
         skillRating,
       );
-      const el = this.element.find(
+      const el = $(this.element).find(
         `.skill-roll-pool-btn[data-skill="${skillKey}"][data-attribute="${attributeKey}"]`,
       );
       if (!el.length) continue;
@@ -5656,14 +5729,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       return;
     }
     
-    // Ensure this.element is a jQuery object
-    if (!this.element || typeof this.element.find !== 'function') {
-      console.error('Mastery System | [TOGGLE DETAILS] this.element is not a jQuery object', {
-        element: this.element,
-        elementType: typeof this.element,
-        hasFind: this.element && typeof this.element.find === 'function'
-      });
-      // Try to get element from the button's closest sheet
+    if (!this.element) {
+      // Sheet root missing (mid-teardown) — try the button's closest sheet.
       const $sheet = $button.closest('.sheet');
       if ($sheet.length > 0) {
         const powerCard = $sheet.find(`.power-card[data-item-id="${itemId}"]`);
@@ -5675,12 +5742,12 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       return;
     }
     
-    const powerCard = this.element.find(`.power-card[data-item-id="${itemId}"]`);
+    const powerCard = $(this.element).find(`.power-card[data-item-id="${itemId}"]`);
     
     if (powerCard.length === 0) {
       console.error('Mastery System | [TOGGLE DETAILS] Power card not found', {
         itemId,
-        allPowerCards: this.element.find('.power-card').map((_i: number, el: HTMLElement) => $(el).attr('data-item-id')).get()
+        allPowerCards: $(this.element).find('.power-card').map((_i: number, el: HTMLElement) => $(el).attr('data-item-id')).get()
       });
       return;
     }
@@ -6513,7 +6580,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     if (!skill) return;
     
     // Save scroll position
-    const skillsTab = this.element.find('.tab.skills');
+    const skillsTab = $(this.element).find('.tab.skills');
     const scrollTop = skillsTab.scrollTop();
     
     const system = (this.actor as any).system;
@@ -6544,9 +6611,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     await this.render();
     
     // Restore scroll position
-    const newSkillsTab = this.element.find('.tab.skills');
+    const newSkillsTab = $(this.element).find('.tab.skills');
     if (newSkillsTab.length) {
-      newSkillsTab.scrollTop(scrollTop);
+      newSkillsTab.scrollTop(scrollTop ?? 0);
     }
   }
 
@@ -6559,7 +6626,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     if (!skill) return;
     
     // Save scroll position
-    const skillsTab = this.element.find('.tab.skills');
+    const skillsTab = $(this.element).find('.tab.skills');
     const scrollTop = skillsTab.scrollTop();
     
     const system = (this.actor as any).system;
@@ -6579,9 +6646,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     await this.render();
     
     // Restore scroll position
-    const newSkillsTab = this.element.find('.tab.skills');
+    const newSkillsTab = $(this.element).find('.tab.skills');
     if (newSkillsTab.length) {
-      newSkillsTab.scrollTop(scrollTop);
+      newSkillsTab.scrollTop(scrollTop ?? 0);
     }
   }
 
@@ -7199,16 +7266,16 @@ export class MasteryCharacterSheet extends BaseActorSheet {
   }
 
   /** @override */
-  async _onSubmit(event: Event, options?: any) {
+  async _onSubmitForm(formConfig: any, event: Event) {
     // Block updates if creation is incomplete
     const creationComplete = (this.actor as any).system?.creation?.complete !== false;
     if (!creationComplete && !(game as any).user?.isGM) {
-      event.preventDefault();
+      event?.preventDefault?.();
       ui.notifications?.warn('Character creation is incomplete. Please complete character creation first.');
-      return false;
+      return;
     }
     
-    return super._onSubmit(event, options);
+    return super._onSubmitForm(formConfig, event);
   }
 
   /**
@@ -7259,7 +7326,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       hasOverrideTarget: !!(event as any).__msDropTarget
     });
     if (!target) {
-      return super._onDrop(event);
+      // No equipment drop zone — delegate to ActorSheetV2 (item creation / sorting).
+      await super._onDrop(event);
+      return true;
     }
 
     // Get dropped item
@@ -7292,10 +7361,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         }
       }
 
-      // External item - let parent handle creation first
+      // External item - let parent handle creation first.
+      // (ActorSheetV2._onDrop returns void — detect success via item count.)
       const itemCountBefore = this.actor.items.size;
-      const result = await super._onDrop(event);
-      if (!result) return false;
+      await super._onDrop(event);
       
       // Wait a bit for item to be created, then find it
       await new Promise(resolve => setTimeout(resolve, 100));

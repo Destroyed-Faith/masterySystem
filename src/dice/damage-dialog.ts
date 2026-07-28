@@ -1842,6 +1842,64 @@ async function applyDamageToTarget(
 }
 
 /**
+ * Offer a one-time Faith Fracture reroll of the just-rolled damage dice.
+ * Shown only when the attacker is a player character with a Faith Fracture
+ * left and the current user may act for them (owner or GM). Resolves `false`
+ * on decline/close so the damage simply applies.
+ */
+async function promptDamageFaithReroll(
+  attacker: Actor,
+  totalDamage: number,
+  rollDetails: string[],
+): Promise<boolean> {
+  try {
+    if ((attacker as any)?.type !== 'character') return false;
+    const cur = Number((attacker as any)?.system?.faithFractures?.current ?? 0) || 0;
+    if (cur < 1) return false;
+    const user = (game as any).user;
+    if (!user?.isGM && !(attacker as any).isOwner) return false;
+
+    const esc = (s: string) =>
+      String(s)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    const detailsHtml = rollDetails.length
+      ? `<ul style="margin:0.35em 0;font-size:0.85em;opacity:0.9">${rollDetails
+          .map((line) => `<li>${esc(line)}</li>`)
+          .join('')}</ul>`
+      : '';
+
+    return await new Promise<boolean>((resolve) => {
+      new Dialog({
+        title: 'Damage rolled — keep or reroll?',
+        content: `<p style="margin-bottom:0.35em"><strong>Total damage: ${totalDamage}</strong></p>
+          ${detailsHtml}
+          <p style="margin:0.35em 0 0">Spend <strong>1 Faith Fracture</strong> (${cur} left) to reroll <em>all</em> damage dice once? One reroll per roll — the new result is final.</p>`,
+        buttons: {
+          apply: {
+            icon: '<i class="fas fa-check"></i>',
+            label: 'Keep & apply',
+            callback: () => resolve(false),
+          },
+          reroll: {
+            icon: '<i class="fas fa-sync-alt"></i>',
+            label: 'Reroll (1 Faith Fracture)',
+            callback: () => resolve(true),
+          },
+        },
+        default: 'apply',
+        close: () => resolve(false),
+      } as any).render(true);
+    });
+  } catch (e) {
+    console.warn('Mastery System | [DAMAGE REROLL] prompt failed — applying without reroll', e);
+    return false;
+  }
+}
+
+/**
  * Calculate damage result from selections
  */
 async function calculateDamageResult(
@@ -1861,6 +1919,11 @@ async function calculateDamageResult(
   attackType: 'melee' | 'ranged' = 'melee',
   /** Optional Mark spend chosen by the attacker (0 = do not use Mark). */
   markSpendChosen: number = 0,
+  /**
+   * Offer a Faith Fracture damage reroll after rolling, before applying.
+   * The reroll recursion passes `false` — any roll may be rerolled at most once.
+   */
+  allowFaithReroll: boolean = true,
 ): Promise<DamageResult> {
   // Roll base damage
   // Sanitize dice notations before rolling
@@ -2019,6 +2082,9 @@ async function calculateDamageResult(
   // final damage; only then are dice raised and Mark reduced.
   let vulnerabilityBonusRolled = 0;
   let markFloorBonus = 0;
+  // Deferred until after the Faith-Fracture reroll gate — a reroll must not
+  // consume the target's Mark twice.
+  let markSpendToConsume = 0;
   try {
     if (target) {
       const { getActiveSpecialValue } = await import('../system/active-specials.js');
@@ -2046,7 +2112,7 @@ async function calculateDamageResult(
         markFloorBonus = computeMarkFloorBonus(damageChatRolls, spend);
         rollDetails.push(`Mark(${mark}) spend ${spend} → floor ${spend} (+${markFloorBonus})`);
         specialsUsed.push(`Mark spent ${spend} (floor ${spend})`);
-        await consumeTargetMark(target, spend);
+        markSpendToConsume = spend;
       } else if (mark > 0 && spend <= 0) {
         rollDetails.push(`Mark(${mark}) available — not spent`);
       }
@@ -2099,7 +2165,54 @@ async function calculateDamageResult(
     rollDetails,
     calculation: `Base (${baseDamageRolled}) + Might stones (${stoneMightDamageRolled}) + Power (${powerDamageRolled}) + Raises (${raiseDamage}) = ${totalDamage}`
   });
-  
+
+  // Faith Fracture damage reroll — offered once, AFTER seeing the result but
+  // BEFORE anything touches the target (no status effects, no Mark spend, no
+  // damage application yet, so the reroll can simply re-run the dice phase).
+  if (allowFaithReroll) {
+    const wantsReroll = await promptDamageFaithReroll(attacker, totalDamage, rollDetails);
+    if (wantsReroll) {
+      const prevTotal = totalDamage;
+      const cur = Number((attacker as any)?.system?.faithFractures?.current ?? 0) || 0;
+      await (attacker as any).update({ 'system.faithFractures.current': Math.max(0, cur - 1) });
+      ui.notifications?.info(
+        `${(attacker as any).name} spent 1 Faith Fracture — rerolling damage (was ${prevTotal}).`,
+      );
+      const rerolled = await calculateDamageResult(
+        baseDamage,
+        powerDamage,
+        passiveDamage,
+        raises,
+        raiseSelections,
+        availableSpecials,
+        attacker,
+        target,
+        stoneDamageBonusDice,
+        npcAutoDamageDice,
+        npcAutoSpecialStrings,
+        selectedPowerId,
+        splitAttack,
+        attackType,
+        markSpendChosen,
+        false,
+      );
+      rerolled.rollDetails = [
+        `Reroll — 1 Faith Fracture spent (previous total: ${prevTotal})`,
+        ...(rerolled.rollDetails ?? []),
+      ];
+      return rerolled;
+    }
+  }
+
+  // Mark spend deferred from the dice phase (see markSpendToConsume above).
+  if (markSpendToConsume > 0 && target) {
+    try {
+      await consumeTargetMark(target, markSpendToConsume);
+    } catch (e) {
+      console.warn('Mastery System | [CALCULATE DAMAGE] Mark consumption failed', e);
+    }
+  }
+
   // Apply status effects from specials to target (Smite is instant — never persisted).
   const statusSpecials = stripSmiteSpecials(specialsUsed).filter((s) => {
     // Drop narrative smite result lines and similar non-status notes.

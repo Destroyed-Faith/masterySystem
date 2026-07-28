@@ -12,14 +12,33 @@
  * editable fields. GMs get an "Edit in Node Editor" link; all authoring still
  * happens in the Artifact Builder / Node Editor, never on this sheet.
  */
-export declare class ArtifactSheetV2 extends foundry.appv1.sheets.ItemSheet {
+declare const BaseArtifactSheet: any;
+export declare class ArtifactSheetV2 extends BaseArtifactSheet {
     /** @override */
-    static get defaultOptions(): any;
+    static DEFAULT_OPTIONS: {
+        classes: string[];
+        position: {
+            width: number;
+            height: string;
+        };
+        window: {
+            resizable: boolean;
+        };
+        form: {
+            submitOnChange: boolean;
+            closeOnSubmit: boolean;
+        };
+    };
     /** @override */
-    get template(): string;
+    static PARTS: {
+        body: {
+            template: string;
+        };
+    };
     /** @override */
-    getData(options?: any): any;
+    _prepareContext(_options?: any): Promise<any>;
     /** @override */
-    activateListeners(html: any): void;
+    _onRender(context: any, options: any): Promise<void>;
 }
+export {};
 //# sourceMappingURL=artifact-sheet-v2.d.ts.map

@@ -1,4 +1,4 @@
-<form class="{{cssClass}}" autocomplete="off">
+<div class="{{cssClass}}">
   {{!-- Sheet Header --}}
   <header class="sheet-header">
     <div class="portrait-section">
@@ -747,14 +747,18 @@
       </div>
       
       <label>Description:</label>
-      {{editor system.bio.description target="system.bio.description" button=true owner=owner editable=editable}}
+      {{#if editable}}
+          <prose-mirror name="system.bio.description" value="{{system.bio.description}}" toggled document-uuid="{{actor.uuid}}">{{{enrichedBio.description}}}</prose-mirror>
+          {{else}}
+          {{{enrichedBio.description}}}
+          {{/if}}
       
       <label>Notes:</label>
       <textarea name="system.notes">{{system.notes}}</textarea>
     </div>
 
   </section>
-</form>
+</div>
 
 
 
