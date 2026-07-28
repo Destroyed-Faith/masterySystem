@@ -879,6 +879,8 @@ export async function handleChosenCombatOption(token, option) {
             if (choice === 'cancelled') {
                 return;
             }
+            // Ally filter from the dialog: secondaries come from the effective pool.
+            const effectiveBurstIds = choice.effectiveBurstTokenIds;
             if (choice.primaryTokenId === null) {
                 if (powerBonus <= 0) {
                     ui.notifications?.warn?.('Melee AoE (no primary): power must declare +Nd8 splash damage.');
@@ -899,13 +901,13 @@ export async function handleChosenCombatOption(token, option) {
                 await resolveAoeMeleeSecondaries({
                     attacker: actor,
                     attackerMasteryRank: mr,
-                    secondaryTokenIds: burstIds.slice(),
+                    secondaryTokenIds: effectiveBurstIds.slice(),
                     powerBonusDice: powerBonus,
                 });
                 return;
             }
             const primaryId = choice.primaryTokenId;
-            const secondaries = burstIds.filter((id) => id !== primaryId);
+            const secondaries = effectiveBurstIds.filter((id) => id !== primaryId);
             const primaryTok = canvas.tokens?.get(primaryId);
             if (!primaryTok) {
                 ui.notifications?.warn?.('Melee AoE: primary token not found.');

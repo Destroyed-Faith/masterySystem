@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.224] - 2026-07-28
+
+### Added
+
+- **Melee AoE primary dialog: pre-checked ally filter:** The "Melee AoE — Primary target" dialog now carries an "Exclude allies/players (Verbündete ausnehmen)" checkbox, checked by default. Allied tokens (same disposition side, same actor, or shared player owner) disappear from the primary dropdown AND from the secondary splash pool; unchecking re-allows friendly fire (allies are marked "(ally)" in the list). If only a single ally stands in the burst, the dialog now opens instead of silently auto-targeting them; if the filter leaves no valid target, Confirm aborts with a hint.
+
 ## [0.9.223] - 2026-07-28
 
 ### Added
