@@ -6,9 +6,12 @@
  * `runMasteryCombatRoundAdvancePipeline` (ein Hook-Pfad, keine Race mit zweitem updateCombat).
  */
 /**
- * After stone powers for a round: full initiative phase (dice + CR + Initiative Shop for PCs,
- * `setupTurns`, Mastery first-actor sync) for **every** round. Idempotent per round via
- * `initiativePhaseDoneByRound`. Carousel alignment uses Foundry `combat.turns` + existing sync.
+ * After stone powers: Round 1 runs the full initiative phase (dice + CR + Initiative Shop
+ * for PCs, `setupTurns`, Mastery first-actor sync). Rounds 2+ keep the existing Initiative —
+ * per the Players Guide, Initiative is NOT rolled again each round and the Initiative Shop
+ * does not reopen automatically (only effects like Wits Stone Powers may allow it). We only
+ * re-sync the turn pointer to the highest remaining Initiative. Idempotent per round via
+ * `initiativePhaseDoneByRound`.
  */
 export declare function runInitiativePhaseAfterStones(combat: Combat, round: number): Promise<void>;
 /**

@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.223] - 2026-07-28
+
+### Added
+
+- **New Wits Stone Power "Seize the Moment" (`wits.initiativeShop`):** The rules-sanctioned "Additional Initiative Shops" access — assign it in the Stone Powers dialog to roll Initiative again and reopen the Initiative Shop; the new roll replaces the current score. Repeated uses simply cost more Stones via the tier ladder. The Wits pool now carries 5 powers; the Stone Powers dialog renders every pool power instead of a fixed four.
+
+### Fixed
+
+- **Initiative no longer rerolls every round:** The round-advance pipeline ran the full initiative phase (fresh rolls + Initiative Shop for everyone) after Stone Powers in every round. Per the Players Guide ("Initiative is not rolled again at the start of each Round"; the Shop "is normally available only immediately after the initial Initiative roll"), rounds 2+ now keep the existing Initiative and only re-sync the turn pointer to the highest remaining score.
+- **Wits "Initiative Boost" was a no-op:** The power wrote `stoneBonuses.initiativeBonus` into the round state, but nothing ever read it. Now: in round 1 (stones are assigned before the initiative roll) the roll folds the bonus into the score; in rounds 2+ the bonus is applied directly to the persisted Initiative and the turn order updates. Since the boost lasts "this round", it is recorded (`msInitiativeBoostThisRound`) and reverted when the next round starts.
+- **A roll can now really only be rerolled once:** The original message was marked as consumed after a Faith Fracture reroll, but the reroll's own result message was created with `canReroll: true` — rerolls could be chained indefinitely. Reroll results (both the bare roll replay and the full attack-pipeline reroll) are now flagged `isRerollResult`: no reroll button is rendered on them and the GM-side executor rejects them outright. Single-die abilities (Advantage's "reroll each 1 once", Sentinel "Oracular Overclock") are unaffected and already enforce once-per-die.
+
 ## [0.9.222] - 2026-07-28
 
 ### Added

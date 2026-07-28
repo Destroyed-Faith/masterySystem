@@ -92,6 +92,9 @@ export async function executeFaithFractureReroll(messageId, spenderActorId, requ
         if (ms.faithRerollConsumed === true) {
             return { ok: false, error: 'This roll was already rerolled once.' };
         }
+        if (ms.isRerollResult === true) {
+            return { ok: false, error: 'This roll is itself a reroll result — a roll can be rerolled at most once.' };
+        }
         if (ms.canReroll !== true) {
             return { ok: false, error: 'This message cannot be rerolled.' };
         }
@@ -177,6 +180,9 @@ export async function executeFaithFractureReroll(messageId, spenderActorId, requ
                     ? { attackDiceCap: Math.floor(recipe.attackDiceCap) }
                     : {}),
                 ...(recipe.attackExplodeDiceOn78 ? { attackExplodeDiceOn78: true } : {}),
+                // Max one reroll per roll: the reroll result itself must not offer
+                // another Faith Fracture reroll.
+                isRerollResult: true,
             });
         }
         catch (rollErr) {
@@ -242,6 +248,9 @@ function onRenderChatMessageFaithReroll(message, htmlRaw) {
         const flags = message.flags?.['mastery-system'] || {};
         if (flags.canReroll !== true || flags.faithRerollConsumed === true)
             return;
+        // A reroll result can never be rerolled again (max one reroll per roll).
+        if (flags.isRerollResult === true)
+            return;
         if (!flags.rollRecipe)
             return;
         if (root.find('.faith-fracture-reroll-btn').length)
@@ -263,7 +272,7 @@ function onRenderChatMessageFaithReroll(message, htmlRaw) {
     <button type="button" class="faith-fracture-reroll-btn" title="${btnTitle}">
       <i class="fas fa-sync-alt"></i> ${btnLabel}
     </button>
-    <span class="faith-fracture-reroll-hint">One reroll per roll, shared by the whole table.</span>
+    <span class="faith-fracture-reroll-hint">One reroll per roll, shared by the whole table. Single-die abilities may still reroll individual dice afterwards (each die once).</span>
   </div>`);
         root.append(bar);
         bar.find('.faith-fracture-reroll-btn').on('click.faith-reroll', async (ev) => {

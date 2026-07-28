@@ -37,8 +37,10 @@ interface MockActor {
 
 interface MockCombatant {
   _flags: Record<string, any>;
+  initiative: number | null;
   getFlag: (ns: string, k: string) => any;
   setFlag: (ns: string, k: string, v: any) => Promise<void>;
+  update: (data: Record<string, any>) => Promise<void>;
 }
 
 function makeMockActor(): MockActor {
@@ -102,6 +104,7 @@ function makeMockActor(): MockActor {
 function makeMockCombatant(): MockCombatant {
   const c: MockCombatant = {
     _flags: {},
+    initiative: 10,
     getFlag(ns, k) {
       if (ns !== 'mastery-system') return undefined;
       return this._flags[k];
@@ -109,6 +112,9 @@ function makeMockCombatant(): MockCombatant {
     async setFlag(ns, k, v) {
       if (ns !== 'mastery-system') return;
       this._flags[k] = v;
+    },
+    async update(data) {
+      if ('initiative' in data) this.initiative = data.initiative as number;
     },
   };
   return c;
@@ -162,13 +168,16 @@ describe('Stone Powers — pool layout (new spec)', () => {
     expect(actualKeys).toEqual([...POOL_KEYS].sort());
   });
 
-  it.each(POOL_KEYS)('pool "%s" has exactly 4 powers', (poolKey) => {
+  // Wits carries a 5th power ("Seize the Moment") — the rules-sanctioned
+  // "Additional Initiative Shops" access (Players Guide: Wits Stone Powers
+  // may allow rerolling Initiative and reopening the Initiative Shop).
+  it.each(POOL_KEYS)('pool "%s" has the expected number of powers', (poolKey) => {
     const powers = (STONE_POWERS_BY_ATTRIBUTE as any)[poolKey] as StonePower[];
-    expect(powers).toHaveLength(4);
+    expect(powers).toHaveLength(poolKey === 'wits' ? 5 : 4);
   });
 
-  it('total registry has 32 powers (8 pools × 4)', () => {
-    expect(Object.keys(STONE_POWERS)).toHaveLength(32);
+  it('total registry has 33 powers (7 pools × 4 + wits × 5)', () => {
+    expect(Object.keys(STONE_POWERS)).toHaveLength(33);
   });
 
   // Rules table: Vitality Stone Abilities are exactly these four.
@@ -470,13 +479,50 @@ describe('Resolve — Damage Reduction Boost ramps at T2', () => {
 describe('Wits — Initiative Boost scales +4/+8/+16/+32', () => {
   it.each([[1, 4], [2, 8], [3, 16], [4, 32]])('T%i adds +%i initiative', async (tier, expected) => {
     const actor = makeMockActor();
+    const combatant = makeMockCombatant();
     await STONE_POWERS['wits.initiativeBoost'].apply({
       actor: actor as any,
-      combatant: makeMockCombatant() as any,
+      combatant: combatant as any,
       tier,
       cost: 2 ** (tier - 1),
     });
     expect(actor._roundState.stoneBonuses.initiativeBonus).toBe(expected);
+    // The boost must actually change the persisted Initiative (turn order),
+    // and record itself for the end-of-round revert.
+    expect(combatant.initiative).toBe(10 + expected);
+    expect(combatant._flags['msInitiativeValue']).toBe(10 + expected);
+    expect(combatant._flags['msInitiativeBoostThisRound']).toBe(expected);
+  });
+
+  it('stacking two boosts accumulates the revert bookkeeping', async () => {
+    const actor = makeMockActor();
+    const combatant = makeMockCombatant();
+    const power = STONE_POWERS['wits.initiativeBoost'];
+    await power.apply({ actor: actor as any, combatant: combatant as any, tier: 1, cost: 1 });
+    await power.apply({ actor: actor as any, combatant: combatant as any, tier: 2, cost: 2 });
+    expect(combatant.initiative).toBe(10 + 4 + 8);
+    expect(combatant._flags['msInitiativeBoostThisRound']).toBe(12);
+  });
+});
+
+describe('Wits — Seize the Moment (Additional Initiative Shop)', () => {
+  it('is registered as the 5th Wits power', () => {
+    expect(STONE_POWERS['wits.initiativeShop']).toBeDefined();
+    expect(STONE_POWERS_BY_ATTRIBUTE.wits.some((p) => p.id === 'wits.initiativeShop')).toBe(true);
+  });
+
+  it('records the reroll audit flag and bails out safely without a combatant actor', async () => {
+    const actor = makeMockActor();
+    const combatant = makeMockCombatant();
+    // Mock combatant has no `.actor`, so apply() bails out after the audit flag —
+    // exactly the safe path we want outside a real encounter.
+    await STONE_POWERS['wits.initiativeShop'].apply({
+      actor: actor as any,
+      combatant: combatant as any,
+      tier: 1,
+      cost: 1,
+    });
+    expect(combatant._flags['msInitiativeRerollUsed']).toBeGreaterThan(0);
   });
 });
 

@@ -461,7 +461,7 @@ export async function masteryRoll(options) {
         ...(options.attackCardMessageId ? { attackCardMessageId: options.attackCardMessageId } : {}),
     };
     if (!options.skipChat) {
-        await sendRollToChat(result, label, flavor, options.actorId, options.skillKey, options.isSkillRoll, options.baseModifier, options.isSaveRoll, rollRecipe);
+        await sendRollToChat(result, label, flavor, options.actorId, options.skillKey, options.isSkillRoll, options.baseModifier, options.isSaveRoll, rollRecipe, !!options.isRerollResult);
     }
     if (options.skillKey === 'stealth' && options.actorId && result.success !== undefined) {
         try {
@@ -542,7 +542,7 @@ export async function showMasteryRollDice3d(result, skillBonus = 0) {
 /**
  * Send roll result to chat
  */
-async function sendRollToChat(result, label, flavor, actorId, skillKey, isSkillRoll, baseModifier, isSaveRoll, rollRecipe) {
+async function sendRollToChat(result, label, flavor, actorId, skillKey, isSkillRoll, baseModifier, isSaveRoll, rollRecipe, isRerollResult) {
     try {
         // Get actor if available
         let actor = null;
@@ -758,7 +758,10 @@ async function sendRollToChat(result, label, flavor, actorId, skillKey, isSkillR
             flags: {
                 'mastery-system': {
                     rollResult: rollResultForFlags,
-                    canReroll: true,
+                    // Any roll may be rerolled at most once — a message that already IS
+                    // a reroll result can never be rerolled again (no chaining).
+                    canReroll: !isRerollResult,
+                    isRerollResult: !!isRerollResult,
                     rollRecipe: rollRecipe || null,
                     isSkillRoll: isSkillRoll || false,
                     isSaveRoll: isSaveRoll || false,

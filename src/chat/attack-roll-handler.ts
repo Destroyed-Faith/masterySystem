@@ -535,6 +535,9 @@ export async function executeAttackRollFromCard(
         ...(flags.rollAdvantage ? { rollAdvantage: true } : {}),
         ...(flags.rollDisadvantage ? { rollDisadvantage: true } : {}),
         attackCardMessageId: messageId,
+        // Max one reroll per roll: a faith-reroll result must not offer
+        // another reroll button.
+        ...(isFaithReroll ? { isRerollResult: true } : {}),
       });
 
       if (attackExplodeDiceOn78 && !isFaithReroll) {

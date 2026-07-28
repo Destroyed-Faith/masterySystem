@@ -462,6 +462,9 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
                 ...(flags.rollAdvantage ? { rollAdvantage: true } : {}),
                 ...(flags.rollDisadvantage ? { rollDisadvantage: true } : {}),
                 attackCardMessageId: messageId,
+                // Max one reroll per roll: a faith-reroll result must not offer
+                // another reroll button.
+                ...(isFaithReroll ? { isRerollResult: true } : {}),
             });
             if (attackExplodeDiceOn78 && !isFaithReroll) {
                 const rs2 = actionEco.getRoundState(economyForStones, combatRef);

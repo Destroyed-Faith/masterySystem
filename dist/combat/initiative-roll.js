@@ -1,9 +1,12 @@
 /**
  * Initiative Rolling System
- * Each round: Mastery Rank d8 (keep all, 8s explode) + optional Combat Reflexes spend (≤ MR×4, pool-limited).
- * Final score before the Initiative Shop = dice total + CR spent.
+ * Rolled ONCE at combat start: Mastery Rank d8 (keep all, 8s explode) + optional Combat
+ * Reflexes spend (≤ MR×4, pool-limited). Final score before the Initiative Shop = dice + CR.
+ * Initiative persists across rounds; only explicit effects (e.g. Wits Stone Powers) may
+ * reroll it and reopen the Initiative Shop.
  */
 import { masteryRoll } from '../dice/roll-handler.js';
+import { getRoundState } from './action-economy.js';
 import { calculateMaxSkillRank } from '../utils/calculations.js';
 import { getEquippedEquipmentInitiativeModifier } from '../utils/equipment-modifiers.js';
 import { readManualAdjustments } from '../utils/manual-adjustments.js';
@@ -119,14 +122,28 @@ export async function rollInitiativeForCombatant(combatant, options = {}) {
             });
         }
     }
+    // Wits "Initiative Boost" stone power chosen BEFORE this roll (stone phase
+    // precedes the initiative phase): fold it into the score here. The boost is
+    // temporary ("this round") — record it so the round-advance pipeline can
+    // revert it. A reroll replaces the score, so the flag is replaced (not added).
+    let stoneInitiativeBonus = 0;
+    try {
+        const roundState = getRoundState(actor, game.combat);
+        stoneInitiativeBonus = Math.max(0, Math.floor(Number(roundState?.stoneBonuses?.initiativeBonus ?? 0) || 0));
+    }
+    catch {
+        /* no round state outside combat */
+    }
     const totalInitiative = diceTotal +
         combatReflexesSpent +
         equipmentInitiativeModifier +
         manualInitiativeFlat +
         passiveInitiativeBonus +
-        witsInitBonus;
+        witsInitBonus +
+        stoneInitiativeBonus;
     await combatant.update({ initiative: totalInitiative });
     await combatant.setFlag('mastery-system', 'msInitiativeValue', totalInitiative);
+    await combatant.setFlag('mastery-system', 'msInitiativeBoostThisRound', stoneInitiativeBonus);
     if (isPc) {
         await combatant.setFlag('mastery-system', 'pendingInitiativeShop', {
             diceTotal,
@@ -141,6 +158,7 @@ export async function rollInitiativeForCombatant(combatant, options = {}) {
         diceTotal,
         combatReflexesSpent,
         equipmentInitiativeModifier,
+        stoneInitiativeBonus,
         totalInitiative,
         masteryRank
     });

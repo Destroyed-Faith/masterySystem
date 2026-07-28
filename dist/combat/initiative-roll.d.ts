@@ -1,7 +1,9 @@
 /**
  * Initiative Rolling System
- * Each round: Mastery Rank d8 (keep all, 8s explode) + optional Combat Reflexes spend (≤ MR×4, pool-limited).
- * Final score before the Initiative Shop = dice total + CR spent.
+ * Rolled ONCE at combat start: Mastery Rank d8 (keep all, 8s explode) + optional Combat
+ * Reflexes spend (≤ MR×4, pool-limited). Final score before the Initiative Shop = dice + CR.
+ * Initiative persists across rounds; only explicit effects (e.g. Wits Stone Powers) may
+ * reroll it and reopen the Initiative Shop.
  */
 export interface InitiativeRollOptions {
     /** If false, no dialog; CR spend is 0 (e.g. non-owner client). */

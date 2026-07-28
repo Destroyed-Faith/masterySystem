@@ -782,13 +782,84 @@ const WITS_POWERS_RAW = [
             { label: '+16 Initiative', description: 'Gain +16 Initiative this round.', value: 16 },
             { label: '+32 Initiative', description: 'Gain +32 Initiative this round.', value: 32 },
         ],
-        apply: async ({ actor, tier }) => {
+        apply: async ({ actor, combatant, tier }) => {
             const combat = game.combat;
             const bonus = [4, 8, 16, 32][tier - 1] ?? 0;
             const roundState = getRoundState(actor, combat);
             const sb = ensureStoneBonuses(roundState);
             sb.initiativeBonus = (sb.initiativeBonus ?? 0) + bonus;
             await setRoundState(actor, roundState);
+            // If Initiative has already been rolled (rounds 2+ — Initiative persists
+            // across rounds), apply the flat bonus directly to the persisted score so
+            // the turn order actually changes this round. The round-advance pipeline
+            // reverts it via the `msInitiativeBoostThisRound` flag. In round 1 the
+            // stone phase runs BEFORE the roll — `rollInitiativeForCombatant` folds
+            // `stoneBonuses.initiativeBonus` into the score itself.
+            const c = combatant ?? combat?.combatants?.find((x) => x.actor?.id === actor.id);
+            if (c && c.initiative !== null && c.initiative !== undefined) {
+                const cur = Number(c.initiative) || 0;
+                await c.update({ initiative: cur + bonus });
+                await c.setFlag('mastery-system', 'msInitiativeValue', cur + bonus);
+                const applied = Number(c.getFlag('mastery-system', 'msInitiativeBoostThisRound') ?? 0) || 0;
+                await c.setFlag('mastery-system', 'msInitiativeBoostThisRound', applied + bonus);
+                ui.notifications?.info(`${actor.name}: +${bonus} Initiative this round (${cur} → ${cur + bonus}).`);
+            }
+        },
+    },
+    {
+        id: 'wits.initiativeShop',
+        name: 'Seize the Moment',
+        attribute: 'wits',
+        category: 'action',
+        description: 'Roll Initiative again and reopen the Initiative Shop (Players Guide "Additional Initiative Shops"). ' +
+            'The new roll replaces your current Initiative.',
+        tiers: [
+            {
+                label: 'Reroll Initiative + Initiative Shop',
+                description: 'Roll Initiative again and reopen the Initiative Shop. The new score replaces your current Initiative.',
+                value: 1,
+            },
+            {
+                label: 'Reroll Initiative + Initiative Shop',
+                description: 'Same effect — repeated uses in the same round simply cost more Stones.',
+                value: 1,
+            },
+            {
+                label: 'Reroll Initiative + Initiative Shop',
+                description: 'Same effect — repeated uses in the same round simply cost more Stones.',
+                value: 1,
+            },
+            {
+                label: 'Reroll Initiative + Initiative Shop',
+                description: 'Same effect — repeated uses in the same round simply cost more Stones.',
+                value: 1,
+            },
+        ],
+        apply: async ({ actor, combatant }) => {
+            const combat = game.combat;
+            const c = combatant ?? combat?.combatants?.find((x) => x.actor?.id === actor.id);
+            if (!c) {
+                ui.notifications?.warn('Seize the Moment: no active encounter / combatant found.');
+                return;
+            }
+            // Audit flag first — visible even if the reroll fails midway.
+            await c.setFlag('mastery-system', 'msInitiativeRerollUsed', Date.now());
+            if (!c.actor || !combat) {
+                ui.notifications?.warn('Seize the Moment: combatant has no actor / no active encounter.');
+                return;
+            }
+            // Fresh roll replaces the old score — clear pending boost bookkeeping so
+            // the round-advance revert cannot corrupt the new value.
+            await c.setFlag('mastery-system', 'msInitiativeBoostThisRound', 0);
+            const { rollInitiativeForCombatant } = await import('../combat/initiative-roll.js');
+            const breakdown = await rollInitiativeForCombatant(c, { promptCombatReflexes: false });
+            try {
+                const { InitiativeShopDialog } = await import('../combat/initiative-shop-dialog.js');
+                await InitiativeShopDialog.showForCombatant(c, breakdown, combat);
+            }
+            catch (e) {
+                console.error('Mastery System | Seize the Moment: Initiative Shop failed', e);
+            }
         },
     },
     {

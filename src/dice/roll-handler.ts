@@ -106,6 +106,12 @@ export interface RollOptions {
   raiseTnRollBonus?: number;
   /** When true, evaluate the roll but do not post a chat message. */
   skipChat?: boolean;
+  /**
+   * This roll IS the result of a Faith Fracture reroll. Any roll may be
+   * rerolled at most once, so the resulting chat message is created with
+   * `canReroll: false` (no reroll button, executor rejects it).
+   */
+  isRerollResult?: boolean;
 }
 
 /** Stored on chat messages so a Faith Fracture reroll can repeat the same roll setup. */
@@ -645,7 +651,8 @@ export async function masteryRoll(options: RollOptions): Promise<MasteryRollResu
       options.isSkillRoll,
       options.baseModifier,
       options.isSaveRoll,
-      rollRecipe
+      rollRecipe,
+      !!options.isRerollResult
     );
   }
 
@@ -746,7 +753,8 @@ async function sendRollToChat(
   isSkillRoll?: boolean,
   baseModifier?: number,
   isSaveRoll?: boolean,
-  rollRecipe?: MasteryRollRecipe
+  rollRecipe?: MasteryRollRecipe,
+  isRerollResult?: boolean
 ): Promise<void> {
   try {
     // Get actor if available
@@ -985,7 +993,10 @@ async function sendRollToChat(
       flags: {
         'mastery-system': {
           rollResult: rollResultForFlags,
-          canReroll: true,
+          // Any roll may be rerolled at most once — a message that already IS
+          // a reroll result can never be rerolled again (no chaining).
+          canReroll: !isRerollResult,
+          isRerollResult: !!isRerollResult,
           rollRecipe: rollRecipe || null,
           isSkillRoll: isSkillRoll || false,
           isSaveRoll: isSaveRoll || false,

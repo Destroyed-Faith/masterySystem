@@ -1155,7 +1155,10 @@ export class StonePowersDialog extends BaseDialog {
 
         const preparedMap = new Map((powersByAttribute[attr] || []).map((p: any) => [p.id, p]));
         const cells: any[] = [];
-        for (let i = 0; i < ATTR_MATRIX_COLS; i++) {
+        // Wits carries a 5th power (Seize the Moment) — render every pool power,
+        // padding shorter pools to the base column count for grid alignment.
+        const cols = Math.max(ATTR_MATRIX_COLS, defs.length);
+        for (let i = 0; i < cols; i++) {
           const def = defs[i];
           if (!def) {
             cells.push(null);

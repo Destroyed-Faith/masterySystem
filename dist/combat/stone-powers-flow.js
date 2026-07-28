@@ -7,7 +7,7 @@
  */
 import { StonePowersDialog } from '../stones/stone-powers-dialog.js';
 import { buildCombatTurnSnapshot, buildCombatantsIteratorOrder, logInitiativeOrderDebug, } from '../utils/combat-trace-debug.js';
-import { executeInitiativePhase } from './initiative-roll.js';
+import { executeInitiativePhase, syncCombatTurnToHighestInitiativeFirst, } from './initiative-roll.js';
 import { clearStonePowersConfigurationLocksInCombat, regenStonesEndOfRound, refillStonePoolsFromAttributes, resetRoundState, syncStonePoolCapsFromAttributes } from './action-economy.js';
 const SOCKET_NAME = 'system.mastery-system';
 function getStonePowersState(combat) {
@@ -41,9 +41,12 @@ function areAllCombatantsDone(combat, round) {
     return allCombatants.every((combatant) => state.stonesDone[combatant.id] === round);
 }
 /**
- * After stone powers for a round: full initiative phase (dice + CR + Initiative Shop for PCs,
- * `setupTurns`, Mastery first-actor sync) for **every** round. Idempotent per round via
- * `initiativePhaseDoneByRound`. Carousel alignment uses Foundry `combat.turns` + existing sync.
+ * After stone powers: Round 1 runs the full initiative phase (dice + CR + Initiative Shop
+ * for PCs, `setupTurns`, Mastery first-actor sync). Rounds 2+ keep the existing Initiative —
+ * per the Players Guide, Initiative is NOT rolled again each round and the Initiative Shop
+ * does not reopen automatically (only effects like Wits Stone Powers may allow it). We only
+ * re-sync the turn pointer to the highest remaining Initiative. Idempotent per round via
+ * `initiativePhaseDoneByRound`.
  */
 export async function runInitiativePhaseAfterStones(combat, round) {
     const state = getStonePowersState(combat);
@@ -58,11 +61,20 @@ export async function runInitiativePhaseAfterStones(combat, round) {
         return;
     }
     try {
-        logInitiativeOrderDebug('runInitiativePhaseAfterStones.runningExecuteInitiativePhase', {
-            round,
-            snapshot: buildCombatTurnSnapshot(combat),
-        });
-        await executeInitiativePhase(combat);
+        if (round <= 1) {
+            logInitiativeOrderDebug('runInitiativePhaseAfterStones.runningExecuteInitiativePhase', {
+                round,
+                snapshot: buildCombatTurnSnapshot(combat),
+            });
+            await executeInitiativePhase(combat);
+        }
+        else {
+            console.log('Mastery System | Round', round, '— Initiative persists (no reroll / no shop); syncing turn pointer only');
+            if (typeof combat.setupTurns === 'function') {
+                await combat.setupTurns();
+            }
+            await syncCombatTurnToHighestInitiativeFirst(combat);
+        }
     }
     catch (e) {
         console.error('Mastery System | Initiative phase failed', e);
@@ -118,6 +130,30 @@ async function openStonePowersForCombatant(combat, combatant, round) {
  */
 export async function runMasteryCombatRoundAdvancePipeline(combat, newRound) {
     await clearStonePowersConfigurationLocksInCombat(combat);
+    // Wits "Initiative Boost" lasts "this round": remove last round's temporary
+    // boost from the persisted Initiative before the new round is set up.
+    for (const combatant of combat.combatants) {
+        try {
+            const boost = Number(combatant.getFlag('mastery-system', 'msInitiativeBoostThisRound') ?? 0) || 0;
+            if (boost > 0) {
+                const cur = Number(combatant.initiative ?? 0) || 0;
+                const restored = Math.max(0, cur - boost);
+                await combatant.update({ initiative: restored });
+                await combatant.setFlag('mastery-system', 'msInitiativeValue', restored);
+                console.log('Mastery System | Initiative Boost expired', {
+                    combatant: combatant.name,
+                    boost,
+                    restored,
+                });
+            }
+            if (boost !== 0) {
+                await combatant.unsetFlag('mastery-system', 'msInitiativeBoostThisRound');
+            }
+        }
+        catch (e) {
+            console.warn('Mastery System | Failed to revert Initiative Boost', e);
+        }
+    }
     for (const combatant of combat.combatants) {
         const actor = combatant.actor;
         if (actor)

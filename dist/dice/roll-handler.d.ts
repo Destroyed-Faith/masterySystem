@@ -88,6 +88,12 @@ export interface RollOptions {
     raiseTnRollBonus?: number;
     /** When true, evaluate the roll but do not post a chat message. */
     skipChat?: boolean;
+    /**
+     * This roll IS the result of a Faith Fracture reroll. Any roll may be
+     * rerolled at most once, so the resulting chat message is created with
+     * `canReroll: false` (no reroll button, executor rejects it).
+     */
+    isRerollResult?: boolean;
 }
 /** Stored on chat messages so a Faith Fracture reroll can repeat the same roll setup. */
 export interface MasteryRollRecipe {
