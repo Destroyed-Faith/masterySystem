@@ -56,8 +56,8 @@
         "kind": "stoneFunction",
         "stoneFunction": {
           "kind": "stonePowerSupport",
-          "attribute": "vitality",
-          "stonePowerId": "vitality.armor"
+          "attribute": "might",
+          "stonePowerId": "might.armor"
         },
         "displayName": "Armor Stone Support"
       }
@@ -303,7 +303,7 @@
       "isRoot": true,
       "echoBound": "dragonborn",
       "echoArtifactKey": "wyrmScalesHeavy",
-      "seedVersion": 35
+      "seedVersion": 41
     }
   },
   "_id": "mraqgCXUzyhCI7N7",

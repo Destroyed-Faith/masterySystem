@@ -946,7 +946,8 @@ export async function clearCombatStoneTurnBonusesForActor(actor, combat) {
         (sb.spellSaveBonus ?? 0) !== 0 ||
         (sb.spellSpecialBoost ?? 0) !== 0 ||
         (sb.damageReductionBoostPct ?? 0) !== 0 ||
-        (sb.phasingChargesFromStones ?? 0) !== 0;
+        (sb.phasingChargesFromStones ?? 0) !== 0 ||
+        (sb.extendActiveBuffRounds ?? 0) !== 0;
     if (!changed)
         return;
     // Expire Temp HP granted by the Vitality "Temporary HP" stone power. It is a
@@ -985,6 +986,8 @@ export async function clearCombatStoneTurnBonusesForActor(actor, combat) {
         spellKeepDice: 0,
         tempHpGrantedThisTurn: 0,
         ignoreWoundPenalties: 0,
+        // "one Active Buff you activate this turn" — an unconsumed extension dies with the turn.
+        extendActiveBuffRounds: 0,
         secondChanceFreeBoxes: sb.secondChanceFreeBoxes ?? 0,
         spellAutoRaises: 0,
         spellSaveBonus: 0,

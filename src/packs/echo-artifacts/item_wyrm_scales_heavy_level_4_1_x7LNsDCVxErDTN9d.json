@@ -54,8 +54,8 @@
         "range": "Self",
         "aoe": "",
         "duration": "Instant",
-        "effect": "Supports the Vitality Ability: Armor Stone Power and pre-fills Tier 2. You must still pay Tier 1 yourself. If Tier 1 is not paid, the pre-filled Tier 2 has no effect.",
-        "special": "vitality.armor"
+        "effect": "Supports the Might Ability: Armor Stone Power and pre-fills Tier 2. You must still pay Tier 1 yourself. If Tier 1 is not paid, the pre-filled Tier 2 has no effect.",
+        "special": "might.armor"
       }
     ],
     "stoneFunction": null,
@@ -77,8 +77,8 @@
         "kind": "stoneFunction",
         "stoneFunction": {
           "kind": "stonePowerSupport",
-          "attribute": "vitality",
-          "stonePowerId": "vitality.armor"
+          "attribute": "might",
+          "stonePowerId": "might.armor"
         },
         "displayName": "Armor Stone Support"
       }
@@ -512,7 +512,7 @@
       {
         "id": "wyrmScalesHeavy-pw-3",
         "name": "Armor Stone Support I",
-        "fluff": "Special: vitality.armor",
+        "fluff": "Special: might.armor",
         "category": "passive",
         "tags": [
           "stone-function"
@@ -567,7 +567,7 @@
               "kind": "instant"
             },
             "effect": {
-              "text": "Supports the Vitality Ability: Armor Stone Power and pre-fills Tier 2. You must still pay Tier 1 yourself. If Tier 1 is not paid, the pre-filled Tier 2 has no effect."
+              "text": "Supports the Might Ability: Armor Stone Power and pre-fills Tier 2. You must still pay Tier 1 yourself. If Tier 1 is not paid, the pre-filled Tier 2 has no effect."
             },
             "specials": [],
             "lvl": 3
@@ -741,7 +741,7 @@
       ],
       "echoBound": "dragonborn",
       "echoArtifactKey": "wyrmScalesHeavy",
-      "seedVersion": 35
+      "seedVersion": 41
     }
   },
   "_id": "x7LNsDCVxErDTN9d",

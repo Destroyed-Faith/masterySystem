@@ -131,6 +131,8 @@ export interface RoundState {
     ignoreWoundPenalties?: number;
     /** Vitality.SecondChance — free boxes left in Wounded when downing-blow is converted (1..4). */
     secondChanceFreeBoxes?: number;
+    /** Vitality.ExtendActiveBuff — +rounds for the next Active Buff activated this turn (consumed on activation). */
+    extendActiveBuffRounds?: number;
     /** Intellect.SpellRaises — +4 per tier to meet Raise TN only (not Normal TN). */
     spellRaiseTnBonus?: number;
     /** @deprecated Use spellRaiseTnBonus — legacy bonus-d8 path removed. */
@@ -1218,7 +1220,8 @@ export async function clearCombatStoneTurnBonusesForActor(actor: Actor, combat: 
     (sb.spellSaveBonus ?? 0) !== 0 ||
     (sb.spellSpecialBoost ?? 0) !== 0 ||
     (sb.damageReductionBoostPct ?? 0) !== 0 ||
-    (sb.phasingChargesFromStones ?? 0) !== 0;
+    (sb.phasingChargesFromStones ?? 0) !== 0 ||
+    (sb.extendActiveBuffRounds ?? 0) !== 0;
   if (!changed) return;
   // Expire Temp HP granted by the Vitality "Temporary HP" stone power. It is a
   // per-turn buff ("until your next turn"): decrement the scalar mirror by the
@@ -1255,6 +1258,8 @@ export async function clearCombatStoneTurnBonusesForActor(actor: Actor, combat: 
     spellKeepDice: 0,
     tempHpGrantedThisTurn: 0,
     ignoreWoundPenalties: 0,
+    // "one Active Buff you activate this turn" — an unconsumed extension dies with the turn.
+    extendActiveBuffRounds: 0,
     secondChanceFreeBoxes: sb.secondChanceFreeBoxes ?? 0,
     spellAutoRaises: 0,
     spellSaveBonus: 0,

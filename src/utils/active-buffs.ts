@@ -7,6 +7,28 @@ import { powerCostPaysAction } from '../radial-menu/options.js';
 import { resolvePowerMechanics } from './power-mechanics.js';
 import { ALL_POWER_TEMPLATES } from './powers/index.js';
 import { logDrDebug } from './dr-debug.js';
+import { getRoundState, setRoundState } from '../combat/action-economy.js';
+
+/**
+ * Consume a pending Vitality "Extend Active Buff" stone-power extension.
+ * Returns the extra rounds for the buff being activated right now (0 if none)
+ * and clears the pending marker so only ONE Active Buff per turn benefits.
+ */
+async function consumePendingBuffExtension(actor: Actor): Promise<number> {
+  try {
+    const combat = (game as any).combat ?? null;
+    const roundState = getRoundState(actor, combat);
+    const sb: any = roundState?.stoneBonuses;
+    const pending = Math.max(0, Math.floor(Number(sb?.extendActiveBuffRounds ?? 0) || 0));
+    if (pending <= 0) return 0;
+    sb.extendActiveBuffRounds = 0;
+    await setRoundState(actor, roundState);
+    return pending;
+  } catch (err) {
+    console.warn('Mastery System | Extend Active Buff lookup failed', err);
+    return 0;
+  }
+}
 
 function paysActionCost(power: any): boolean {
   return powerCostPaysAction(power?.system?.cost);
@@ -197,14 +219,20 @@ export async function activateActiveBuff(actor: Actor, power: any): Promise<bool
   
   const masteryRank = getMasteryRank(actor);
   const currentRound = getCurrentRound();
-  
+
+  // Vitality Stone Power "Extend Active Buff": +1..+4 rounds on ONE Active
+  // Buff activated this turn. Consumed here so a second activation this turn
+  // doesn't benefit again.
+  const extendRounds = await consumePendingBuffExtension(actor);
+  const durationRounds = masteryRank + extendRounds;
+
   // Calculate duration in rounds
-  // Duration is "Mastery Rank rounds"
+  // Duration is "Mastery Rank rounds" (+ Extend Active Buff, if pending)
   // Foundry's ActiveEffect duration uses rounds/turns/seconds
   const duration = {
     startRound: currentRound,
     startTurn: game.combat?.turn || 0,
-    rounds: masteryRank,
+    rounds: durationRounds,
     turns: 0,
     seconds: null,
     combat: game.combat?.id || null
@@ -285,6 +313,8 @@ export async function activateActiveBuff(actor: Actor, power: any): Promise<bool
         /** Closed-subsystem DR whitelist (see `power-mechanics.ts` / `isSanctionedDR`). */
         powerTemplateId: powerSys?.templateId ? String(powerSys.templateId) : null,
         masteryRank: masteryRank,
+        durationRounds: durationRounds,
+        extendedRounds: extendRounds,
         activatedRound: currentRound,
         isUtility: isUtility(power), // Store whether this is a utility
         mechanics: rankMechanics
@@ -302,7 +332,7 @@ export async function activateActiveBuff(actor: Actor, power: any): Promise<bool
     effectData.duration = {
       startRound: null,
       startTurn: null,
-      rounds: masteryRank,
+      rounds: durationRounds,
       turns: null,
       seconds: null,
       combat: null
@@ -315,7 +345,9 @@ export async function activateActiveBuff(actor: Actor, power: any): Promise<bool
     const created = await (actor as any).createEmbeddedDocuments('ActiveEffect', [effectData]);
     console.log('Mastery System | ActiveEffect created:', created);
     
-    ui.notifications?.info(`Activated ${power.name} (Duration: ${masteryRank} rounds)`);
+    ui.notifications?.info(
+      `Activated ${power.name} (Duration: ${durationRounds} rounds${extendRounds > 0 ? `, incl. +${extendRounds} from Extend Active Buff` : ''})`,
+    );
 
     try {
       const ChatCls = (globalThis as any).ChatMessage;
@@ -323,8 +355,11 @@ export async function activateActiveBuff(actor: Actor, power: any): Promise<bool
         (globalThis as any).foundry?.utils?.escapeHTML?.bind((globalThis as any).foundry.utils) ??
         ((s: string) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'));
       const lines: string[] = [
-        `<p><strong>${esc(String(power.name))}</strong> — active <strong>${masteryRank}</strong> round${masteryRank === 1 ? '' : 's'}.</p>`,
+        `<p><strong>${esc(String(power.name))}</strong> — active <strong>${durationRounds}</strong> round${durationRounds === 1 ? '' : 's'}.</p>`,
       ];
+      if (extendRounds > 0) {
+        lines.push(`<p>Extend Active Buff (Vitality Stone): <strong>+${extendRounds}</strong> round${extendRounds === 1 ? '' : 's'}.</p>`);
+      }
       const rm: any = rankMechanics ?? {};
       if (typeof rm.damageReductionPct === 'number' && rm.damageReductionPct > 0) {
         lines.push(

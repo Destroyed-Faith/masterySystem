@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.213] - 2026-07-28
+
+### Changed
+
+- **Vitality Stone Powers aligned with the rules table:** The Vitality pool is now exactly Temporary HP / Endure Special / Remove Scar / Extend Active Buff. Removed the off-rules `vitality.armor`, `vitality.endureInjury` and `vitality.secondChance`.
+- **New: Endure Special (Vitality):** Reduce one negative diminishing Special on yourself by 2/4/8/12 (picker dialog when several apply; Regeneration is never reducible).
+- **New: Extend Active Buff (Vitality):** The next Active Buff you activate this turn lasts +1/+2/+3/+4 rounds. Stored as a per-turn stone bonus (`extendActiveBuffRounds`), consumed on activation in `activateActiveBuff`, highest value wins (totals, no stacking), unconsumed extensions expire with the turn.
+- **Wyrm Scales (Heavy) L3:** Armor Stone Support now targets `might.armor` (the ARMOR Stone Power lives in the Might pool; Might is slot-legal for Body artifacts). Echo Artifacts pack regenerated — no `vitality.armor` references remain.
+- **Tests:** Vitality pool asserted against the rules table; dedicated specs for Endure Special and Extend Active Buff; tree-builder expectations updated (1162/1162 green).
+
 ## [0.9.212] - 2026-07-28
 
 ### Fixed

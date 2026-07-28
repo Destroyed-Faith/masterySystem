@@ -454,10 +454,12 @@ const WYRM_SCALES_HEAVY = {
         focus: 'Armor',
         flightL1: 'Dragon Wings (Flight)',
         activeBuffL2: 'Active Buff: Armor (Wyrm Scales)',
-        stonePowerL3: 'Vitality — ARMOR Stone Power',
+        stonePowerL3: 'Might — ARMOR Stone Power',
     },
     // L1 Dragon Wings → movement-flight; L2 Wyrm Scales → ab-armor;
-    // L3 Armor Stone Support → vitality.armor.
+    // L3 Armor Stone Support → might.armor (the ARMOR stone power lives in the
+    // Might pool; the old vitality.armor was removed when Vitality was aligned
+    // with the rules table: TempHP / Endure Special / Remove Scar / Extend Active Buff).
     progressionPickSpecs: {
         1: { name: 'Dragon Wings', templateId: 'movement-flight' },
         2: { name: 'Wyrm Scales', templateId: 'ab-armor' },
@@ -465,8 +467,8 @@ const WYRM_SCALES_HEAVY = {
             name: 'Armor Stone Support',
             stoneFunction: {
                 kind: 'stonePowerSupport',
-                attribute: 'vitality',
-                stonePowerId: 'vitality.armor',
+                attribute: 'might',
+                stonePowerId: 'might.armor',
             },
         },
     },

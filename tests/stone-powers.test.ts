@@ -2,8 +2,9 @@
  * Tests for the new tier-based Stone Powers (`src/stones/stone-powers.ts`).
  *
  * Coverage:
- *   - Registry shape: 8 pools (generic + 7 attributes), 4 powers each —
- *     except Vitality, which additionally carries Remove Scar (5).
+ *   - Registry shape: 8 pools (generic + 7 attributes), 4 powers each.
+ *     Vitality (per rules table): Temporary HP / Endure Special /
+ *     Remove Scar / Extend Active Buff.
  *   - Each power has exactly 4 tiers; cost-per-tier = 1 / 2 / 4 / 8.
  *   - tierForUseIndex returns the right 1..4 tier (clamped).
  *   - apply() for every power × every tier runs without throwing on a
@@ -47,6 +48,9 @@ function makeMockActor(): MockActor {
       // Canonical Temp-HP field is `tempHP` (capital P) — the damage pipeline
       // and stone powers read/write that spelling.
       health: { tempHP: 0, scarred: 1 },
+      // A negative diminishing Special so `vitality.endureSpecial` has a
+      // candidate to reduce in the generic apply() smoke test.
+      statusEffects: [{ id: 'ruin', name: 'Ruin (X)', value: 6 }],
     },
     _flags: {},
     // Pretend we are a linked token actor so `getActionEconomyActor` short-circuits
@@ -158,15 +162,24 @@ describe('Stone Powers — pool layout (new spec)', () => {
     expect(actualKeys).toEqual([...POOL_KEYS].sort());
   });
 
-  // Vitality carries the 5th power "Remove Scar" (Players Guide: Vitality
-  // Stone Abilities + Titan Scars Stone Power Support reference it).
-  it.each(POOL_KEYS)('pool "%s" has the expected power count', (poolKey) => {
+  it.each(POOL_KEYS)('pool "%s" has exactly 4 powers', (poolKey) => {
     const powers = (STONE_POWERS_BY_ATTRIBUTE as any)[poolKey] as StonePower[];
-    expect(powers).toHaveLength(poolKey === 'vitality' ? 5 : 4);
+    expect(powers).toHaveLength(4);
   });
 
-  it('total registry has 33 powers (8 pools × 4, plus Vitality Remove Scar)', () => {
-    expect(Object.keys(STONE_POWERS)).toHaveLength(33);
+  it('total registry has 32 powers (8 pools × 4)', () => {
+    expect(Object.keys(STONE_POWERS)).toHaveLength(32);
+  });
+
+  // Rules table: Vitality Stone Abilities are exactly these four.
+  it('Vitality pool matches the rules table', () => {
+    const ids = STONE_POWERS_BY_ATTRIBUTE.vitality.map((p) => p.id);
+    expect(ids).toEqual([
+      'vitality.tempHp',
+      'vitality.endureSpecial',
+      'vitality.removeScar',
+      'vitality.extendActiveBuff',
+    ]);
   });
 
   it('every registry key matches its power.id', () => {
@@ -251,6 +264,11 @@ describe('apply() — runs cleanly across every power and tier', () => {
           const removedScar = (actor.system.health?.scarred ?? 1) !== 1;
           const grantedHp = (actor.system.health?.current ?? 0) > 0;
           const tempHpRaised = (actor.system.health?.tempHP ?? 0) > 0;
+          // Endure Special rewrites system.statusEffects (mock starts with Ruin(6)).
+          const specialsTouched =
+            !Array.isArray(actor.system.statusEffects) ||
+            actor.system.statusEffects.length !== 1 ||
+            (actor.system.statusEffects[0]?.value ?? 6) !== 6;
           // For "ramp" tiers (Extra Attack T1/T2, Spell Action T1, Damage Reduction Boost T1, Phasing T1)
           // the spec says nothing happens — that's expected.
           const isRampTier = power.tiers[tier - 1].label === null;
@@ -260,7 +278,8 @@ describe('apply() — runs cleanly across every power and tier', () => {
             flagsTouched ||
             removedScar ||
             grantedHp ||
-            tempHpRaised;
+            tempHpRaised ||
+            specialsTouched;
           if (!isRampTier) {
             expect(
               touched,
@@ -333,6 +352,63 @@ describe('Vitality — Temporary HP scales 20/40/80/160', () => {
     });
     expect(actor.system.health.tempHP).toBe(expected);
     expect(actor._roundState.stoneBonuses.tempHpGrantedThisTurn).toBe(expected);
+  });
+});
+
+describe('Vitality — Endure Special reduces one negative Special by 2/4/8/12', () => {
+  it.each([[1, 2, 4], [2, 4, 2], [3, 8, 0], [4, 12, 0]])(
+    'T%i reduces Ruin(6) by %i → %i',
+    async (tier, _reduce, remaining) => {
+      const actor = makeMockActor();
+      await STONE_POWERS['vitality.endureSpecial'].apply({
+        actor: actor as any,
+        combatant: makeMockCombatant() as any,
+        tier,
+        cost: 2 ** (tier - 1),
+      });
+      const list = actor.system.statusEffects as any[];
+      if (remaining > 0) {
+        expect(list).toHaveLength(1);
+        expect(list[0].value).toBe(remaining);
+      } else {
+        // Reduced to 0 ⇒ the Special is removed entirely.
+        expect(list).toHaveLength(0);
+      }
+    },
+  );
+
+  it('never reduces Regeneration (positive Special)', async () => {
+    const actor = makeMockActor();
+    actor.system.statusEffects = [{ id: 'regeneration', name: 'Regeneration (X)', value: 4 }];
+    await STONE_POWERS['vitality.endureSpecial'].apply({
+      actor: actor as any,
+      combatant: makeMockCombatant() as any,
+      tier: 4,
+      cost: 8,
+    });
+    expect(actor.system.statusEffects).toEqual([{ id: 'regeneration', name: 'Regeneration (X)', value: 4 }]);
+    expect((globalThis as any).ui.notifications.warn).toHaveBeenCalled();
+  });
+});
+
+describe('Vitality — Extend Active Buff stores +1/+2/+3/+4 pending rounds', () => {
+  it.each([[1, 1], [2, 2], [3, 3], [4, 4]])('T%i stores +%i rounds', async (tier, expected) => {
+    const actor = makeMockActor();
+    await STONE_POWERS['vitality.extendActiveBuff'].apply({
+      actor: actor as any,
+      combatant: makeMockCombatant() as any,
+      tier,
+      cost: 2 ** (tier - 1),
+    });
+    expect(actor._roundState.stoneBonuses.extendActiveBuffRounds).toBe(expected);
+  });
+
+  it('keeps the highest pending extension (totals, no stacking)', async () => {
+    const actor = makeMockActor();
+    const power = STONE_POWERS['vitality.extendActiveBuff'];
+    await power.apply({ actor: actor as any, combatant: makeMockCombatant() as any, tier: 3, cost: 4 });
+    await power.apply({ actor: actor as any, combatant: makeMockCombatant() as any, tier: 1, cost: 1 });
+    expect(actor._roundState.stoneBonuses.extendActiveBuffRounds).toBe(3);
   });
 });
 

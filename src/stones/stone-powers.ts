@@ -28,6 +28,8 @@ import {
   setRoundState,
   type AttributeKey,
 } from '../combat/action-economy.js';
+import { getEffectById } from '../utils/special-effects.js';
+import { statusEntryId } from '../system/active-specials.js';
 
 export type StonePowerAttribute = AttributeKey | 'generic';
 
@@ -407,73 +409,86 @@ const VITALITY_POWERS_RAW: Array<Omit<StonePower, 'effect'>> = [
     },
   },
   {
-    id: 'vitality.armor',
-    name: 'Armor',
+    id: 'vitality.endureSpecial',
+    name: 'Endure Special',
     attribute: 'vitality',
-    category: 'passive',
-    description: 'Gain flat temporary Armor until the start of your next turn (+4/+8/+16/+32).',
+    category: 'action',
+    description: 'Reduce one negative Special currently affecting you (−2 / −4 / −8 / −12).',
     tiers: [
-      { label: '+4 Armor', description: 'Gain +4 Armor until the start of your next turn.', value: 4 },
-      { label: '+8 Armor', description: 'Gain +8 Armor until the start of your next turn.', value: 8 },
-      { label: '+16 Armor', description: 'Gain +16 Armor until the start of your next turn.', value: 16 },
-      { label: '+32 Armor', description: 'Gain +32 Armor until the start of your next turn.', value: 32 },
+      { label: 'Reduce Special by 2', description: 'Reduce one negative Special currently affecting you by 2.', value: 2 },
+      { label: 'Reduce Special by 4', description: 'Reduce one negative Special currently affecting you by 4.', value: 4 },
+      { label: 'Reduce Special by 8', description: 'Reduce one negative Special currently affecting you by 8.', value: 8 },
+      { label: 'Reduce Special by 12', description: 'Reduce one negative Special currently affecting you by 12.', value: 12 },
     ],
     apply: async ({ actor, tier }) => {
-      const combat = (game as any).combat;
-      const bonus = [4, 8, 16, 32][tier - 1] ?? 0;
-      const roundState = getRoundState(actor, combat);
-      const sb = ensureStoneBonuses(roundState);
-      sb.tempArmor = bonus;
-      await setRoundState(actor, roundState);
-    },
-  },
-  {
-    id: 'vitality.endureInjury',
-    name: 'Endure Injury',
-    attribute: 'vitality',
-    category: 'passive',
-    description: 'Ignore wound/injury penalties until the start of your next turn (1 / 2 / 3 / all).',
-    tiers: [
-      { label: 'Ignore 1 penalty', description: 'Ignore 1 wound or injury penalty until the start of your next turn.', value: 1 },
-      { label: 'Ignore 2 penalties', description: 'Ignore 2 wound or injury penalties until the start of your next turn.', value: 2 },
-      { label: 'Ignore 3 penalties', description: 'Ignore 3 wound or injury penalties until the start of your next turn.', value: 3 },
-      { label: 'Ignore all penalties', description: 'Ignore all wound and injury penalties until the start of your next turn.', value: -1 },
-    ],
-    apply: async ({ actor, tier }) => {
-      const combat = (game as any).combat;
-      const ignored = [1, 2, 3, -1][tier - 1] ?? 0;
-      const roundState = getRoundState(actor, combat);
-      const sb = ensureStoneBonuses(roundState);
-      // -1 sentinel = "ignore all" — last writer wins (don't accumulate).
-      if (ignored === -1) {
-        sb.ignoreWoundPenalties = -1;
-      } else if ((sb.ignoreWoundPenalties ?? 0) !== -1) {
-        sb.ignoreWoundPenalties = (sb.ignoreWoundPenalties ?? 0) + ignored;
+      const reduceBy = [2, 4, 8, 12][tier - 1] ?? 0;
+      const system: any = (actor as any).system ?? {};
+      const list: Array<{ id?: string; name?: string; value?: number | null }> = Array.isArray(system.statusEffects)
+        ? system.statusEffects
+        : [];
+      // Only negative diminishing Specials qualify — Regeneration is the lone
+      // positive one and must never be reduced by the wielder's own power.
+      const candidates = list
+        .map((entry, index) => {
+          const id = statusEntryId(entry);
+          const effect = id ? getEffectById(id) : undefined;
+          const value = Math.max(0, Math.floor(Number(entry?.value ?? 0)));
+          return { index, id, effect, value };
+        })
+        .filter((c) => c.effect?.category === 'diminishing' && c.id !== 'regeneration' && c.value > 0);
+      if (candidates.length === 0) {
+        ui.notifications?.warn(`${(actor as any).name}: Endure Special — no negative Special to reduce.`);
+        return;
       }
-      await setRoundState(actor, roundState);
-    },
-  },
-  {
-    id: 'vitality.secondChance',
-    name: 'Second Chance',
-    attribute: 'vitality',
-    category: 'passive',
-    description: 'When you would drop to Incapacitated, burn 1 Vitality Stone. You remain conscious with free boxes in your Wounded bar (1 / 2 / 3 / 4).',
-    tiers: [
-      { label: '1 free box', description: 'When you would drop to Incapacitated, burn 1 Vitality Stone. You remain conscious with 1 free box in your Wounded Health Bar.', value: 1 },
-      { label: '2 free boxes', description: 'Burn 1 Vitality Stone. You remain conscious with 2 free boxes in your Wounded Health Bar.', value: 2 },
-      { label: '3 free boxes', description: 'Burn 1 Vitality Stone. You remain conscious with 3 free boxes in your Wounded Health Bar.', value: 3 },
-      { label: '4 free boxes', description: 'Burn 1 Vitality Stone. You remain conscious with 4 free boxes in your Wounded Health Bar.', value: 4 },
-    ],
-    apply: async ({ actor, tier }) => {
-      const combat = (game as any).combat;
-      const boxes = [1, 2, 3, 4][tier - 1] ?? 0;
-      await (actor as any).setFlag?.('mastery-system', 'secondChanceActive', true);
-      await (actor as any).setFlag?.('mastery-system', 'secondChanceFreeBoxes', boxes);
-      const roundState = getRoundState(actor, combat);
-      const sb = ensureStoneBonuses(roundState);
-      sb.secondChanceFreeBoxes = Math.max(sb.secondChanceFreeBoxes ?? 0, boxes);
-      await setRoundState(actor, roundState);
+
+      const applyReduction = async (choice: (typeof candidates)[number]) => {
+        const nextValue = Math.max(0, choice.value - reduceBy);
+        const next = list
+          .map((entry, index) => (index === choice.index ? { ...entry, value: nextValue } : entry))
+          .filter((entry, index) => !(index === choice.index && nextValue <= 0));
+        await (actor as any).update?.({ 'system.statusEffects': next });
+        const label = choice.effect?.name?.replace(/\(X\)/i, '').trim() || choice.id;
+        ui.notifications?.info(
+          nextValue > 0
+            ? `${(actor as any).name}: Endure Special — ${label} ${choice.value} → ${nextValue}.`
+            : `${(actor as any).name}: Endure Special — ${label} removed.`,
+        );
+      };
+
+      const DialogCls = (globalThis as any).Dialog;
+      if (candidates.length === 1 || typeof DialogCls !== 'function') {
+        // No choice needed (or headless environment): reduce the strongest one.
+        const strongest = [...candidates].sort((a, b) => b.value - a.value)[0];
+        await applyReduction(strongest);
+        return;
+      }
+
+      const options = candidates
+        .map((c, i) => {
+          const label = c.effect?.name?.replace(/\(X\)/i, '').trim() || c.id;
+          return `<option value="${i}">${label} (${c.value})</option>`;
+        })
+        .join('');
+      await new Promise<void>((resolve) => {
+        new DialogCls({
+          title: 'Endure Special',
+          content: `<p>Reduce one negative Special by <strong>${reduceBy}</strong>:</p><select name="endure-special" style="width:100%">${options}</select>`,
+          buttons: {
+            ok: {
+              label: 'Reduce',
+              callback: async (html: any) => {
+                const raw = html?.find?.('select[name="endure-special"]')?.val?.();
+                const idx = Math.max(0, Math.min(candidates.length - 1, Number(raw ?? 0) || 0));
+                await applyReduction(candidates[idx]);
+                resolve();
+              },
+            },
+            cancel: { label: 'Cancel', callback: () => resolve() },
+          },
+          default: 'ok',
+          close: () => resolve(),
+        }).render(true);
+      });
     },
   },
   {
@@ -497,6 +512,33 @@ const VITALITY_POWERS_RAW: Array<Omit<StonePower, 'effect'>> = [
       }
       await (actor as any).update?.({ 'system.health.scarred': scar - 1 });
       ui.notifications?.info(`${(actor as any).name} removed a Scar (${scar} → ${scar - 1}).`);
+    },
+  },
+  {
+    id: 'vitality.extendActiveBuff',
+    name: 'Extend Active Buff',
+    attribute: 'vitality',
+    category: 'action',
+    description: 'Increase the duration of one Active Buff you activate this turn (+1 / +2 / +3 / +4 rounds).',
+    tiers: [
+      { label: '+1 round', description: 'Increase the duration of one Active Buff you activate this turn by +1 round.', value: 1 },
+      { label: '+2 rounds', description: 'Increase the duration of one Active Buff you activate this turn by +2 rounds.', value: 2 },
+      { label: '+3 rounds', description: 'Increase the duration of one Active Buff you activate this turn by +3 rounds.', value: 3 },
+      { label: '+4 rounds', description: 'Increase the duration of one Active Buff you activate this turn by +4 rounds.', value: 4 },
+    ],
+    apply: async ({ actor, tier }) => {
+      const combat = (game as any).combat;
+      const rounds = [1, 2, 3, 4][tier - 1] ?? 0;
+      const roundState = getRoundState(actor, combat);
+      const sb = ensureStoneBonuses(roundState);
+      // Tiers are TOTALS (+1/+2/+3/+4) — keep the highest, don't stack. The
+      // pending extension is consumed by the next Active Buff activation
+      // (see activateActiveBuff) and cleared at end of turn.
+      sb.extendActiveBuffRounds = Math.max(sb.extendActiveBuffRounds ?? 0, rounds);
+      await setRoundState(actor, roundState);
+      ui.notifications?.info(
+        `${(actor as any).name}: Extend Active Buff — the next Active Buff activated this turn lasts +${rounds} round${rounds === 1 ? '' : 's'}.`,
+      );
     },
   },
 ];

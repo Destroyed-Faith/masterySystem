@@ -185,7 +185,7 @@ describe('Echo Artifact tree builder — Sentinel frames map to catalog Powers +
     expect(stance?.effect).toContain('220 Temporary HP');
   });
 
-  it('Wyrm Scales Heavy: Dragon Wings + Wyrm Scales armor buff + Vitality ARMOR Support', () => {
+  it('Wyrm Scales Heavy: Dragon Wings + Wyrm Scales armor buff + Might ARMOR Support', () => {
     expect(pick('wyrmScalesHeavy', 1).powerTemplateId).toBe('movement-flight');
     expect(pick('wyrmScalesHeavy', 1).displayName).toBe('Dragon Wings');
 
@@ -194,12 +194,15 @@ describe('Echo Artifact tree builder — Sentinel frames map to catalog Powers +
     expect(l2Pick.powerTemplateId).toBe('ab-armor');
     expect(l2Pick.displayName).toBe('Wyrm Scales');
 
+    // ARMOR Stone Power lives in the Might pool since the Vitality pool was
+    // aligned with the rules table (TempHP / Endure Special / Remove Scar /
+    // Extend Active Buff). Might is slot-legal for Body artifacts.
     const l3 = pick('wyrmScalesHeavy', 3);
     expect(l3.kind).toBe('stoneFunction');
     expect(l3.stoneFunction).toEqual({
       kind: 'stonePowerSupport',
-      attribute: 'vitality',
-      stonePowerId: 'vitality.armor',
+      attribute: 'might',
+      stonePowerId: 'might.armor',
     });
 
     const tree = buildEchoArtifactTree(getEchoArtifact('wyrmScalesHeavy')!);
@@ -329,7 +332,7 @@ describe('Echo Artifact tree builder — Stone Function auto-fill', () => {
     }
   });
 
-  it('gates Vitality ARMOR Stone Support by pick level on Wyrm Scales Heavy', () => {
+  it('gates the ARMOR Stone Support by pick level on Wyrm Scales Heavy', () => {
     const tree = buildEchoArtifactTree(getEchoArtifact('wyrmScalesHeavy')!);
     expect((tree.nodes[0].itemData.system as any).stoneFunction).toBeNull();
     const picks = (tree.nodes[0].itemData.system as any).progressionPicks as any[];
@@ -337,8 +340,8 @@ describe('Echo Artifact tree builder — Stone Function auto-fill', () => {
     expect(l3.kind).toBe('stoneFunction');
     expect(l3.stoneFunction).toEqual({
       kind: 'stonePowerSupport',
-      attribute: 'vitality',
-      stonePowerId: 'vitality.armor',
+      attribute: 'might',
+      stonePowerId: 'might.armor',
     });
   });
 
