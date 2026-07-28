@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.220] - 2026-07-28
+
+### Fixed
+
+- **Status icon hover no longer shows a "question mark":** The carousel status icons used `cursor: help` (arrow with a question mark) and the effect name only appeared via the browser's native `title` tooltip after a 1–2 s delay. Icons now use Foundry's styled tooltip (`data-tooltip`) — hovering shows e.g. `Sundered (4)` promptly — and a normal pointer cursor.
+
+### Changed
+
+- **Real status effect icons:** All 30 status icon SVGs (`assets/icons/status/`) were identical placeholder graphics (dark square with a gray dot). Each effect now has a distinct, recognizable glyph — blood drop (Lacerate), flame (Ruin), snowflake (Slow), broken sword (Sundered), crosshair (Mark), holy shield (Smite), etc. These feed `CONFIG.statusEffects`, so the token HUD radial benefits too. Intended as readable interims until artist icons land.
+
 ## [0.9.219] - 2026-07-28
 
 ### Fixed

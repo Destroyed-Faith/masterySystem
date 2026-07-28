@@ -115,7 +115,7 @@
                     alt="{{statusIcon.name}}"
                     class="{{#if statusIcon.cssClass}}{{statusIcon.cssClass}}{{else}}status-icon{{/if}}"
                     data-icon-kind="{{statusIcon.kind}}"
-                    title="{{#if statusIcon.tooltip}}{{statusIcon.tooltip}}{{else}}{{statusIcon.name}}{{/if}}" />
+                    data-tooltip="{{#if statusIcon.tooltip}}{{statusIcon.tooltip}}{{else}}{{statusIcon.name}}{{/if}}" />
                 {{else}}
                 <img src="{{statusIcon}}" alt="Status" class="status-icon" />
                 {{/if}}

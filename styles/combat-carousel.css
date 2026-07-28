@@ -332,7 +332,7 @@
   height: 20px;
   border-radius: 3px;
   border: 1px solid rgba(255, 255, 255, 0.3);
-  cursor: help;
+  cursor: pointer;
   transition: all 0.2s;
   position: relative;
 }
@@ -411,7 +411,7 @@
   width: 20px;
   height: 20px;
   border-radius: 3px;
-  cursor: help;
+  cursor: pointer;
   transition: all 0.2s;
 }
 
