@@ -95,6 +95,15 @@ export declare function buildPowerSnapshotFromLevelData(levelData: {
     aoe?: AoeSpec | null;
     duration?: DurationSpec | null;
 } | null, fallbackDamage: string, fallbackSpecials: string[]): PowerSnapshot;
+/**
+ * Bind the `SPECIAL` picker placeholder in a level row to the item's chosen
+ * Special. Catalog Martial/support templates carry `{ key: 'SPECIAL' }` rows;
+ * item creation binds them into `system.levels`, but whenever level data is
+ * (re-)read from the raw template the placeholder must be bound again —
+ * otherwise the damage pipeline emits a meaningless "Special(X)" instead of
+ * e.g. "Sundered(X)" and no status effect lands on the target.
+ */
+export declare function bindChosenSpecialIntoLevelData(levelData: any | null, chosenSpecialKey: string | null | undefined): any | null;
 /** Parse raise plan JSON from attack card data attribute. */
 export declare function parseDeclaredRaises(raw: string | null | undefined): DeclaredRaise[];
 export declare function snapshotToDamageFormula(snapshot: PowerSnapshot): string;

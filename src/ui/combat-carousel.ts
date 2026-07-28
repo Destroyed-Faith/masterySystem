@@ -22,6 +22,7 @@ import {
 } from '../combat/action-economy.js';
 import { requestEndTurn } from '../combat/end-turn.js';
 import { StonePowersDialog } from '../stones/stone-powers-dialog.js';
+import { MASTERY_STATUS_EFFECTS } from '../system/status-effects.js';
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
 // Type workaround for Mixin
@@ -153,8 +154,36 @@ export class CombatCarouselApp extends BaseCarousel {
       const resource1 = this.getResourceValue(actor, resource1Path);
       const resource2 = this.getResourceValue(actor, resource2Path);
 
-      // Portrait status icons removed — combat strip + HP already convey state; icons duplicated buffs/passives and confused players.
+      // Active Specials / conditions from `system.statusEffects` — ONLY entries
+      // that are actually present (value > 0, or valueless conditions like
+      // Prone). Buffs/passives are intentionally NOT mirrored here (they used
+      // to duplicate the combat strip and confused players). Hover shows
+      // "Name (X)" so the table sees each combatant's Specials at a glance.
       const statusIcons: Array<{ icon: string; name?: string; tooltip?: string; kind?: string; cssClass?: string }> = [];
+      try {
+        const effectList: any[] = Array.isArray((actor.system as any)?.statusEffects)
+          ? (actor.system as any).statusEffects
+          : [];
+        for (const entry of effectList) {
+          const rawId = String(entry?.id ?? '').trim().toLowerCase();
+          const rawName = String(entry?.name ?? '').replace(/\(x\)/gi, '').trim();
+          if (!rawId && !rawName) continue;
+          const value = entry?.value == null ? null : Math.floor(Number(entry.value) || 0);
+          if (value !== null && value <= 0) continue;
+          const reg =
+            MASTERY_STATUS_EFFECTS.find((e) => e.id === rawId) ??
+            MASTERY_STATUS_EFFECTS.find((e) => e.name.toLowerCase() === rawName.toLowerCase());
+          const label = reg?.name ?? rawName ?? rawId;
+          statusIcons.push({
+            icon: reg?.img ?? 'systems/mastery-system/assets/icons/status/hazard.svg',
+            name: label,
+            tooltip: value !== null ? `${label} (${value})` : label,
+            kind: 'special',
+          });
+        }
+      } catch (err) {
+        console.warn('Mastery System | [CAROUSEL] Failed to build status icons:', err);
+      }
 
       // Build the segmented HP bar: one segment per health-bar (wound level).
       // Dynamically includes extra bars from passives/equipment. Each segment

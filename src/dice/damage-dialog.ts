@@ -21,6 +21,7 @@ import { artifactSystemHasSpellFocus } from '../utils/artifact-rules.js';
 import { deriveArtifactWeaponDamage } from '../utils/artifact-base-derive.js';
 import { getActorSpellFocusBonusDice } from '../utils/artifact-base-values.js';
 import {
+  bindChosenSpecialIntoLevelData,
   resolvePowerSnapshot,
   snapshotToDamageFormula,
   snapshotToSpecialStrings,
@@ -594,11 +595,15 @@ export async function showDamageDialog(
             rawLevel,
             powerSystem.levels || powerDef.levels
           );
-          if (Array.isArray(powerDef.levels)) {
-            levelData = powerDef.levels.find((l: any) => l.level === definitionRank);
+          // Prefer the item's own bound levels (SPECIAL placeholder already
+          // replaced by chosenSpecial at item creation) over the raw template.
+          const levelsSource = powerSystem.levels || powerDef.levels;
+          if (Array.isArray(levelsSource)) {
+            levelData = levelsSource.find((l: any) => l.level === definitionRank);
           } else {
-            levelData = powerDef.levels[String(definitionRank)];
+            levelData = levelsSource[String(definitionRank)];
           }
+          levelData = bindChosenSpecialIntoLevelData(levelData, powerSystem.chosenSpecial?.key);
         }
       } catch (e) {
         console.warn('Mastery System | Could not load power definitions for level data', e);

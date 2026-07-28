@@ -384,64 +384,93 @@ export class MasteryActor extends Actor {
         system.combat.armorId = equippedArmor?.id || null;
         system.combat.shieldName = equippedShield?.name || null;
         system.combat.shieldId = equippedShield?.id || null;
-        // Calculate armorTotal = Mastery Rank + Armor Value + Shield Value
         const masteryRank = system.mastery?.rank || 2;
-        const armorValue = equippedArmor?.system?.armorValue || 0;
-        const shieldValue = equippedShield?.system?.shieldValue || 0;
-        system.combat.armorTotal = masteryRank + armorValue + shieldValue;
-        // Calculate evadeTotal = MR×4 + shield evadeBonus + armor evadeModifier
-        const baseEvade = calculateBaseEvade(masteryRank);
-        const shieldEvadeBonus = equippedShield?.system?.evadeBonus || 0;
-        const armorEvadeModifier = equippedArmor?.system?.evadeModifier || 0;
-        system.combat.evadeTotal = baseEvade + shieldEvadeBonus + armorEvadeModifier;
-        const fmtEvadeContrib = (n) => {
-            if (n === 0)
-                return '0';
-            return n > 0 ? `+${n}` : `${n}`;
-        };
-        system.combat.evadeBreakdownRows = [
-            {
-                label: 'MR×4 base',
-                detail: `Mastery Rank ${masteryRank}`,
-                value: baseEvade,
-                display: String(baseEvade)
-            },
-            {
-                label: 'Shield',
-                detail: equippedShield?.name ?? 'Not equipped',
-                value: shieldEvadeBonus,
-                display: equippedShield ? fmtEvadeContrib(shieldEvadeBonus) : '—'
-            },
-            {
-                label: 'Armor',
-                detail: equippedArmor?.name ?? 'Not equipped',
-                value: armorEvadeModifier,
-                display: equippedArmor ? fmtEvadeContrib(armorEvadeModifier) : '—'
+        const actorType = this.type;
+        if (actorType === 'npc' || actorType === 'summon') {
+            // NPC / Summon defenses come from the editable stat block (Armor / Evade
+            // fields on the sheet — per-phase for phased bosses), NOT from
+            // MR + equipment items. Derived here on every data-prep so mid-combat
+            // edits and phase switches reach the hit/damage pipeline immediately.
+            const phases = Array.isArray(system.phases) ? system.phases : [];
+            const phaseIndex = phases.length > 0
+                ? Math.max(0, Math.min(phases.length - 1, Math.floor(Number(system.npcActivePhaseIndex) || 0)))
+                : null;
+            const block = (phaseIndex != null ? phases[phaseIndex]?.combat : system.combat) ?? {};
+            const blockArmor = Math.max(0, Number(block.armor) || 0);
+            const blockEvade = Math.max(0, Number(block.evade) || 0);
+            system.combat.armorTotal = blockArmor;
+            system.combat.evadeTotal = blockEvade;
+            if (phaseIndex != null && block.speed != null) {
+                system.combat.speed = Number(block.speed) || system.combat.speed;
             }
-        ];
-        system.combat.evadeBreakdownHint = system.combat.evadeBreakdownRows
-            .map((r) => `${r.label} ${r.display}`)
-            .join(' · ');
-        system.combat.armorBreakdownRows = [
-            {
-                label: 'Mastery Rank',
-                detail: 'Always in soak total',
-                value: masteryRank,
-                display: String(masteryRank)
-            },
-            {
-                label: 'Armor',
-                detail: equippedArmor?.name ?? 'Not equipped',
-                value: equippedArmor != null ? armorValue : null,
-                display: equippedArmor != null ? String(armorValue) : '—'
-            },
-            {
-                label: 'Shield',
-                detail: equippedShield?.name ?? 'Not equipped',
-                value: equippedShield != null ? shieldValue : null,
-                display: equippedShield != null ? String(shieldValue) : '—'
-            }
-        ];
+            const detail = phaseIndex != null ? `Stat block · Phase ${phaseIndex + 1}` : 'Stat block';
+            system.combat.armorBreakdownRows = [
+                { label: 'Armor', detail, value: blockArmor, display: String(blockArmor) },
+            ];
+            system.combat.evadeBreakdownRows = [
+                { label: 'Evade', detail, value: blockEvade, display: String(blockEvade) },
+            ];
+            system.combat.evadeBreakdownHint = `${detail}: ${blockEvade}`;
+        }
+        else {
+            // Character: armorTotal = Mastery Rank + Armor Value + Shield Value
+            const armorValue = equippedArmor?.system?.armorValue || 0;
+            const shieldValue = equippedShield?.system?.shieldValue || 0;
+            system.combat.armorTotal = masteryRank + armorValue + shieldValue;
+            // evadeTotal = MR×4 + shield evadeBonus + armor evadeModifier
+            const baseEvade = calculateBaseEvade(masteryRank);
+            const shieldEvadeBonus = equippedShield?.system?.evadeBonus || 0;
+            const armorEvadeModifier = equippedArmor?.system?.evadeModifier || 0;
+            system.combat.evadeTotal = baseEvade + shieldEvadeBonus + armorEvadeModifier;
+            const fmtEvadeContrib = (n) => {
+                if (n === 0)
+                    return '0';
+                return n > 0 ? `+${n}` : `${n}`;
+            };
+            system.combat.evadeBreakdownRows = [
+                {
+                    label: 'MR×4 base',
+                    detail: `Mastery Rank ${masteryRank}`,
+                    value: baseEvade,
+                    display: String(baseEvade)
+                },
+                {
+                    label: 'Shield',
+                    detail: equippedShield?.name ?? 'Not equipped',
+                    value: shieldEvadeBonus,
+                    display: equippedShield ? fmtEvadeContrib(shieldEvadeBonus) : '—'
+                },
+                {
+                    label: 'Armor',
+                    detail: equippedArmor?.name ?? 'Not equipped',
+                    value: armorEvadeModifier,
+                    display: equippedArmor ? fmtEvadeContrib(armorEvadeModifier) : '—'
+                }
+            ];
+            system.combat.evadeBreakdownHint = system.combat.evadeBreakdownRows
+                .map((r) => `${r.label} ${r.display}`)
+                .join(' · ');
+            system.combat.armorBreakdownRows = [
+                {
+                    label: 'Mastery Rank',
+                    detail: 'Always in soak total',
+                    value: masteryRank,
+                    display: String(masteryRank)
+                },
+                {
+                    label: 'Armor',
+                    detail: equippedArmor?.name ?? 'Not equipped',
+                    value: equippedArmor != null ? armorValue : null,
+                    display: equippedArmor != null ? String(armorValue) : '—'
+                },
+                {
+                    label: 'Shield',
+                    detail: equippedShield?.name ?? 'Not equipped',
+                    value: equippedShield != null ? shieldValue : null,
+                    display: equippedShield != null ? String(shieldValue) : '—'
+                }
+            ];
+        }
         const iniEq = getEquippedEquipmentInitiativeModifier(this);
         system.combat.initiativeEquipmentRows = getInitiativeEquipmentRows(this);
         system.combat.initiativeEquipmentTotal = iniEq;

@@ -247,6 +247,10 @@ export function buildPowerSnapshotFromLevelData(levelData, fallbackDamage, fallb
                 }
                 else if (s && typeof s === 'object') {
                     const key = String(s.key ?? s.type ?? '').toLowerCase();
+                    // An unbound `SPECIAL` picker placeholder is not a real Special —
+                    // never let it reach the damage/status pipeline as "Special(X)".
+                    if (key === 'special')
+                        continue;
                     const rank = Number(s.rank ?? s.value ?? 1);
                     if (key)
                         specials.push({ key, rank: Math.max(0, rank) });
@@ -290,6 +294,24 @@ export function buildPowerSnapshotFromLevelData(levelData, fallbackDamage, fallb
         hasRange,
         hasAoe,
         hasDuration,
+    };
+}
+/**
+ * Bind the `SPECIAL` picker placeholder in a level row to the item's chosen
+ * Special. Catalog Martial/support templates carry `{ key: 'SPECIAL' }` rows;
+ * item creation binds them into `system.levels`, but whenever level data is
+ * (re-)read from the raw template the placeholder must be bound again —
+ * otherwise the damage pipeline emits a meaningless "Special(X)" instead of
+ * e.g. "Sundered(X)" and no status effect lands on the target.
+ */
+export function bindChosenSpecialIntoLevelData(levelData, chosenSpecialKey) {
+    if (!levelData || !chosenSpecialKey || !Array.isArray(levelData.specials))
+        return levelData;
+    if (!levelData.specials.some((s) => s?.key === 'SPECIAL'))
+        return levelData;
+    return {
+        ...levelData,
+        specials: levelData.specials.map((s) => s?.key === 'SPECIAL' ? { ...s, key: chosenSpecialKey } : s),
     };
 }
 /** Parse raise plan JSON from attack card data attribute. */
@@ -367,17 +389,21 @@ export async function loadPowerSnapshotForItem(powerItem) {
         if (powerDef?.levels) {
             const { getPowerDefinitionRank } = await import('../utils/power-definition-rank.js');
             const definitionRank = getPowerDefinitionRank(rawLevel, powerSystem.levels || powerDef.levels);
-            if (Array.isArray(powerDef.levels)) {
-                levelData = powerDef.levels.find((l) => l.level === definitionRank);
+            // Prefer the item's own bound levels (SPECIAL placeholder already
+            // replaced by chosenSpecial at item creation) over the raw template.
+            const levelsSource = powerSystem.levels || powerDef.levels;
+            if (Array.isArray(levelsSource)) {
+                levelData = levelsSource.find((l) => l.level === definitionRank);
             }
             else {
-                levelData = powerDef.levels[String(definitionRank)];
+                levelData = levelsSource[String(definitionRank)];
             }
         }
     }
     catch {
         /* template optional */
     }
+    levelData = bindChosenSpecialIntoLevelData(levelData, powerSystem.chosenSpecial?.key);
     const snapshot = buildPowerSnapshotFromLevelData(levelData, fallbackDamage, fallbackSpecials);
     return { snapshot, isSpell, levelData };
 }

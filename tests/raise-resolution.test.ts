@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   applyRaiseCost,
+  bindChosenSpecialIntoLevelData,
   buildPowerSnapshotFromLevelData,
   computeRaiseTns,
   computeTotalRaiseCost,
@@ -10,6 +11,7 @@ import {
   resolvePowerSnapshot,
   resolveRaiseOutcome,
   snapshotToDamageFormula,
+  snapshotToSpecialStrings,
   type DeclaredRaise,
   type PowerSnapshot,
 } from '../src/combat/raise-resolution';
@@ -175,6 +177,40 @@ describe('applyRaiseCost removes special at 0', () => {
     };
     const next = applyRaiseCost(base, { damageDice: 0, specialByKey: { ignite: 2 } });
     expect(next.specials).toHaveLength(0);
+  });
+});
+
+describe('SPECIAL picker placeholder binding', () => {
+  const martialLevelRow = {
+    effect: { dice: '2d8' },
+    specials: [{ key: 'SPECIAL', rank: 4, note: 'bound at item-create via chosenSpecial' }],
+  };
+
+  it('bindChosenSpecialIntoLevelData replaces SPECIAL with the chosen key', () => {
+    const bound = bindChosenSpecialIntoLevelData(martialLevelRow, 'sundered');
+    expect(bound.specials).toEqual([
+      { key: 'sundered', rank: 4, note: 'bound at item-create via chosenSpecial' },
+    ]);
+    // Original row stays untouched (copy-on-write).
+    expect(martialLevelRow.specials[0].key).toBe('SPECIAL');
+  });
+
+  it('bound level data yields the real Special string for the damage pipeline', () => {
+    const bound = bindChosenSpecialIntoLevelData(martialLevelRow, 'sundered');
+    const snap = buildPowerSnapshotFromLevelData(bound, '0', []);
+    expect(snapshotToSpecialStrings(snap)).toEqual(['Sundered(4)']);
+  });
+
+  it('passes through when there is nothing to bind', () => {
+    expect(bindChosenSpecialIntoLevelData(null, 'sundered')).toBeNull();
+    expect(bindChosenSpecialIntoLevelData(martialLevelRow, null)).toBe(martialLevelRow);
+    const noPlaceholder = { specials: [{ key: 'ruin', rank: 2 }] };
+    expect(bindChosenSpecialIntoLevelData(noPlaceholder, 'sundered')).toBe(noPlaceholder);
+  });
+
+  it('an unbound SPECIAL placeholder never reaches the snapshot as "Special(X)"', () => {
+    const snap = buildPowerSnapshotFromLevelData(martialLevelRow, '0', []);
+    expect(snap.specials).toHaveLength(0);
   });
 });
 

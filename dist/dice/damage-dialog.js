@@ -14,7 +14,7 @@ import { logDrDebug } from '../utils/dr-debug.js';
 import { artifactSystemHasSpellFocus } from '../utils/artifact-rules.js';
 import { deriveArtifactWeaponDamage } from '../utils/artifact-base-derive.js';
 import { getActorSpellFocusBonusDice } from '../utils/artifact-base-values.js';
-import { resolvePowerSnapshot, snapshotToDamageFormula, snapshotToSpecialStrings, formatSnapshotSummary, } from '../combat/raise-resolution.js';
+import { bindChosenSpecialIntoLevelData, resolvePowerSnapshot, snapshotToDamageFormula, snapshotToSpecialStrings, formatSnapshotSummary, } from '../combat/raise-resolution.js';
 import { computeMarkFloorBonus, clampMarkSpend } from './mark-floor.js';
 import { extractSmiteDice, isSmiteValidTarget, stripSmiteSpecials, } from '../utils/creature-type.js';
 export { computeMarkFloorBonus, clampMarkSpend } from './mark-floor.js';
@@ -495,12 +495,16 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
                 }
                 if (powerDef && powerDef.levels) {
                     const definitionRank = getPowerDefinitionRank(rawLevel, powerSystem.levels || powerDef.levels);
-                    if (Array.isArray(powerDef.levels)) {
-                        levelData = powerDef.levels.find((l) => l.level === definitionRank);
+                    // Prefer the item's own bound levels (SPECIAL placeholder already
+                    // replaced by chosenSpecial at item creation) over the raw template.
+                    const levelsSource = powerSystem.levels || powerDef.levels;
+                    if (Array.isArray(levelsSource)) {
+                        levelData = levelsSource.find((l) => l.level === definitionRank);
                     }
                     else {
-                        levelData = powerDef.levels[String(definitionRank)];
+                        levelData = levelsSource[String(definitionRank)];
                     }
+                    levelData = bindChosenSpecialIntoLevelData(levelData, powerSystem.chosenSpecial?.key);
                 }
             }
             catch (e) {

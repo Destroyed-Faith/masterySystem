@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.215] - 2026-07-28
+
+### Fixed
+
+- **NPC / Summon defenses read live from the stat block:** Armor, Evade and Speed now come from the editable NPC sheet fields (per-phase for phased bosses) instead of `Mastery Rank + equipment items` — an NPC with Armor 12 no longer soaks with just its MR (2). Mid-combat edits and phase switches reach the hit/damage pipeline immediately; Corrode/Expose maluses and buffs still apply on top.
+- **Attack Specials land on the target again:** Catalog Martial powers (Melee/Ranged Single & AoE) carry a `SPECIAL` picker placeholder in their template levels. The attack card / damage dialog re-read level data from the raw template, so the placeholder was never bound to the chosen Special — the pipeline emitted a meaningless "Special(X)" and no status effect was applied. Both loaders now prefer the item's bound levels and re-bind `chosenSpecial`; an unbound placeholder can no longer reach the damage/status pipeline.
+
+### Added
+
+- **Combat Carousel status icons:** Each combatant card shows small icons for the Specials actually affecting it (from `system.statusEffects`), with "Name (X)" hover tooltips. Only present effects are listed (value > 0 or valueless conditions like Prone) — no buff/passive noise; updates live when effects change.
+
 ## [0.9.214] - 2026-07-28
 
 ### Changed
