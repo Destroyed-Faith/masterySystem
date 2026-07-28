@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.219] - 2026-07-28
+
+### Fixed
+
+- **Faith Fracture reroll of an attack now continues into the damage flow:** Rerolling a missed attack that then hit was a dead end — the reroll only replayed a bare roll message from the stored recipe, disconnected from the attack card, so the damage dialog never opened. Attack rolls now remember their attack card (`attackCardMessageId` in the roll recipe), and a Faith reroll re-runs the full attack pipeline from that card: fresh dice with the same parameters (incl. the planned raises), and on a hit the damage dialog + follow-ups (AoE secondaries, specials) as usual. Nothing is double-paid — action cost, Dread gate, Disrupt consumption, and Blood-Raise HP are skipped on the reroll since the original roll already settled them. Player rerolls run on the player's client (where their raise plan lives); GM-forced NPC rerolls run on the GM's client.
+- **`ActiveEffect application phase … has already completed` error cascades:** `MasteryActor` overrode `prepareData()` and re-ran `prepareBaseData()`/`prepareDerivedData()` after `super.prepareData()` — in Foundry v13 that corrupts the ActiveEffect phase tracking on synthetic (unlinked token) actors, making every subsequent update on the token log error cascades and silently overwriting ActiveEffect changes to derived values. The override is gone; core's v13 preparation order (base → embedded/effects "initial" → derived → effects "final") now runs exactly once per cycle.
+
 ## [0.9.218] - 2026-07-28
 
 ### Added

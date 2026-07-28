@@ -3,10 +3,6 @@
  */
 export declare class MasteryActor extends Actor {
     /**
-     * Augment the basic actor data with additional dynamic data
-     */
-    prepareData(): void;
-    /**
      * Prepare base data for the actor (attributes, stones, etc.)
      */
     prepareBaseData(): void;

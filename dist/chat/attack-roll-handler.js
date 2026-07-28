@@ -59,6 +59,20 @@ export function registerAttackRollClickHandler() {
             });
             return;
         }
+        await executeAttackRollFromCard(button, String(messageId));
+    });
+}
+/**
+ * Run the attack roll pipeline for an attack card (fresh roll → on success the
+ * damage dialog and follow-ups). Invoked by the Roll button click, and by the
+ * Faith Fracture reroll flow (`faithReroll` set): the reroll re-runs the whole
+ * pipeline so a rerolled hit can proceed to damage — but must NOT re-spend the
+ * attack action or re-trigger one-time side effects (Dread gate, Disrupt
+ * consumption, Blood Raise HP loss) that the original roll already paid.
+ */
+export async function executeAttackRollFromCard(button, messageId, opts = {}) {
+    {
+        const isFaithReroll = !!opts.faithReroll;
         const message = game.messages?.get(messageId);
         if (!message) {
             const allMessageIds = game.messages ? Array.from(game.messages.keys()) : [];
@@ -115,7 +129,10 @@ export function registerAttackRollClickHandler() {
             return;
         }
         const lockId = String(messageId);
-        if (rollAttackMessageLocks.has(lockId)) {
+        // The lock stays set after a successful roll (re-click guard). A faith
+        // reroll legitimately re-runs the card, so it may pass; concurrent reroll
+        // requests are already serialized per roll message in faith-fracture-reroll.
+        if (rollAttackMessageLocks.has(lockId) && !isFaithReroll) {
             return;
         }
         rollAttackMessageLocks.add(lockId);
@@ -146,7 +163,8 @@ export function registerAttackRollClickHandler() {
             const freshAttacker = ChatMessage.getSpeakerActor?.(message.speaker) ??
                 game.actors?.get(attacker.id) ??
                 attacker;
-            const costsAction = flags.costsAction !== false;
+            // Faith reroll: the original roll already spent the action.
+            const costsAction = !isFaithReroll && flags.costsAction !== false;
             if (costsAction) {
                 const combat = game.combat;
                 if (!combat) {
@@ -352,29 +370,35 @@ export function registerAttackRollClickHandler() {
             void baseKeepDice;
             const attackKind = flags.attackType === 'ranged' ? 'Ranged' : 'Melee';
             const targetActorForFlavor = game.actors?.get(flags.targetId);
-            const rollFlavor = tnKind === 'casting'
+            const rollFlavorBase = tnKind === 'casting'
                 ? `Roll ${numDice}d8 keep ${keepDice} vs Casting TN ${normalTn}${declaredRaiseSlots > 0 ? ` (Raise TN ${raiseTn})` : ''}${advantageNote}${disadvantageNote}${rangeBandNote}`
                 : `Roll ${numDice}d8 keep ${keepDice} vs ${targetActorForFlavor?.name || 'Target'}'s Evade (${normalTn}${declaredRaiseSlots > 0 ? `, Raise TN ${raiseTn}` : ''})${advantageNote}${disadvantageNote}${rangeBandNote}`;
+            const rollFlavor = opts.faithReroll
+                ? `${rollFlavorBase}\n\n<i class="fas fa-sync-alt"></i> Reroll — ${opts.faithReroll.spenderName} spent 1 Faith Fracture.`
+                : rollFlavorBase;
             const rollLabel = tnKind === 'casting'
                 ? `Spell Attack (${flags.attribute.charAt(0).toUpperCase() + flags.attribute.slice(1)})`
                 : `${attackKind} Attack (${flags.attribute.charAt(0).toUpperCase() + flags.attribute.slice(1)})`;
             // Dread: pre-attack Save gate. On failure the attack is lost (action
             // stays spent). Disrupt: using a Power reduces/clears Disrupt.
-            try {
-                const { resolveDreadPreAttack, consumePowerDisrupt } = await import('../combat/dread-gate.js');
-                const dread = await resolveDreadPreAttack(freshAttacker);
-                if (dread.blocked) {
-                    ui.notifications?.warn(dread.note || 'Dread — attack lost.');
-                    button.html('<i class="fas fa-ban"></i> Dread').addClass('rolled');
-                    rollAttackMessageLocks.delete(lockId);
-                    return;
+            // Faith reroll: both already resolved on the original roll — skip.
+            if (!isFaithReroll) {
+                try {
+                    const { resolveDreadPreAttack, consumePowerDisrupt } = await import('../combat/dread-gate.js');
+                    const dread = await resolveDreadPreAttack(freshAttacker);
+                    if (dread.blocked) {
+                        ui.notifications?.warn(dread.note || 'Dread — attack lost.');
+                        button.html('<i class="fas fa-ban"></i> Dread').addClass('rolled');
+                        rollAttackMessageLocks.delete(lockId);
+                        return;
+                    }
+                    if (flags.selectedPowerId) {
+                        await consumePowerDisrupt(freshAttacker);
+                    }
                 }
-                if (flags.selectedPowerId) {
-                    await consumePowerDisrupt(freshAttacker);
+                catch (err) {
+                    console.warn('Mastery System | Dread/Disrupt gate failed', err);
                 }
-            }
-            catch (err) {
-                console.warn('Mastery System | Dread/Disrupt gate failed', err);
             }
             const actionEco = await import('../combat/action-economy.js');
             const economyForStones = actionEco.getActionEconomyActor(freshAttacker) ?? freshAttacker;
@@ -387,7 +411,8 @@ export function registerAttackRollClickHandler() {
             if (tnKind === 'casting' && freshAttacker && combatRef) {
                 raiseTnRollBonus = Math.max(0, Number(rsCrit?.stoneBonuses?.spellRaiseTnBonus ?? 0) || 0);
             }
-            if (bloodRaises > 0 && tnKind === 'casting' && freshAttacker) {
+            // Faith reroll: Blood Raise HP was already paid on the original roll.
+            if (bloodRaises > 0 && tnKind === 'casting' && freshAttacker && !isFaithReroll) {
                 const { applyBloodRaiseHpLoss } = await import('../combat/spell-roll-handler.js');
                 await applyBloodRaiseHpLoss(freshAttacker, bloodRaises * 4);
             }
@@ -415,8 +440,9 @@ export function registerAttackRollClickHandler() {
                 ...(attackExplodeDiceOn78 ? { attackExplodeDiceOn78: true } : {}),
                 ...(flags.rollAdvantage ? { rollAdvantage: true } : {}),
                 ...(flags.rollDisadvantage ? { rollDisadvantage: true } : {}),
+                attackCardMessageId: messageId,
             });
-            if (attackExplodeDiceOn78) {
+            if (attackExplodeDiceOn78 && !isFaithReroll) {
                 const rs2 = actionEco.getRoundState(economyForStones, combatRef);
                 if (!rs2.stoneBonuses) {
                     rs2.stoneBonuses = { extraAttacks: 0, extraReactions: 0, extraMoveMeters: 0 };
@@ -863,7 +889,7 @@ export function registerAttackRollClickHandler() {
             ui.notifications?.error('Failed to roll attack');
             resetRollButton();
         }
-    });
+    }
 }
 /**
  * Roll and display damage in chat

@@ -53,6 +53,8 @@ export interface RollOptions {
      * adds another d8) instead of the default face-equals-8 chain.
      */
     attackExplodeDiceOn78?: boolean;
+    /** See `MasteryRollRecipe.attackCardMessageId` — links attack rolls to their attack card. */
+    attackCardMessageId?: string;
     /**
      * Combat Advantage (Players Guide ~6457–6467): once, after the initial pool
      * is rolled, every die showing **1** is rerolled (replacement value is kept).
@@ -117,6 +119,13 @@ export interface MasteryRollRecipe {
     rollAdvantage?: boolean;
     /** Mirrors `RollOptions.rollDisadvantage` for Faith Fracture rerolls. */
     rollDisadvantage?: boolean;
+    /**
+     * For attack rolls: id of the attack card chat message this roll belongs to.
+     * A Faith Fracture reroll then re-runs the full attack pipeline from that
+     * card (fresh roll → damage dialog on success) instead of posting a bare,
+     * disconnected roll message.
+     */
+    attackCardMessageId?: string;
 }
 /** Margin raises: each full +4 over TN = 1 Raise (echo, ritual, skill checks). */
 export declare function countMarginRaises(total: number, tn: number): number;

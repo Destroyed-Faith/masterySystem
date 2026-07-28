@@ -458,6 +458,7 @@ export async function masteryRoll(options) {
         ...(options.attackExplodeDiceOn78 ? { attackExplodeDiceOn78: true } : {}),
         ...(rollAdvantage ? { rollAdvantage: true } : {}),
         ...(rollDisadvantage ? { rollDisadvantage: true } : {}),
+        ...(options.attackCardMessageId ? { attackCardMessageId: options.attackCardMessageId } : {}),
     };
     if (!options.skipChat) {
         await sendRollToChat(result, label, flavor, options.actorId, options.skillKey, options.isSkillRoll, options.baseModifier, options.isSaveRoll, rollRecipe);

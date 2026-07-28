@@ -13,18 +13,18 @@ import { getRoundState } from '../combat/action-economy.js';
 import { deriveMasteryRankFromStones, getWorldDefaultMasteryRank, } from '../utils/mastery-rank-sync.js';
 import { getDivineScale } from '../utils/constants.js';
 export class MasteryActor extends Actor {
-    /**
-     * Augment the basic actor data with additional dynamic data
-     */
-    prepareData() {
-        super.prepareData();
-        this.prepareBaseData();
-        this.prepareDerivedData();
-    }
+    // NOTE: Do NOT override prepareData() here. Core v13 already runs
+    // prepareBaseData → prepareEmbeddedDocuments (ActiveEffects phase "initial")
+    // → prepareDerivedData → ActiveEffects phase "final". The old override
+    // re-ran prepareBaseData/prepareDerivedData after super.prepareData(),
+    // which corrupted the v13 effect-phase tracking on synthetic (unlinked
+    // token) actors — "ActiveEffect application phase … has already completed"
+    // — and silently overwrote any ActiveEffect changes to derived values.
     /**
      * Prepare base data for the actor (attributes, stones, etc.)
      */
     prepareBaseData() {
+        super.prepareBaseData();
         const system = this.system;
         // Calculate derived values if needed
         if (system.attributes) {
@@ -353,6 +353,7 @@ export class MasteryActor extends Actor {
      * Prepare derived equipment data (armorTotal, evadeTotal, etc.)
      */
     prepareDerivedData() {
+        super.prepareDerivedData();
         const system = this.system;
         const items = this.items || [];
         // Ensure combat object exists

@@ -117,6 +117,40 @@ export async function executeFaithFractureReroll(messageId, spenderActorId, requ
         }
         const newCur = cur - 1;
         await spender.update({ 'system.faithFractures.current': newCur });
+        // Attack rolls: re-run the full attack pipeline from the attack card so a
+        // rerolled hit can continue into the damage dialog. A bare roll replay
+        // (below) would post a disconnected roll message with no damage flow.
+        const attackCardMessageId = String(recipe.attackCardMessageId || '').trim();
+        if (attackCardMessageId) {
+            const recipeActor = recipe.actorId ? game.actors?.get(recipe.actorId) : null;
+            const requesterOwnsAttacker = recipeActor
+                ? userIsOwnerOfActorForFaith(requester, recipeActor)
+                : false;
+            try {
+                await message.setFlag('mastery-system', 'faithRerollConsumed', true);
+                if (!requesterOwnsAttacker || requesterUserId === game.user?.id) {
+                    // GM-forced reroll of an NPC attack, or the GM rerolled their own
+                    // roll — the attack flow (incl. damage dialog) runs on this client.
+                    await triggerAttackFaithReroll(attackCardMessageId, String(spender.name));
+                }
+                else {
+                    // Player reroll: run the attack flow on the player's client, where
+                    // the raise plan on the card's Roll button is still in the DOM.
+                    game.socket?.emit(SOCKET_NAME, {
+                        type: 'faithFractureAttackReroll',
+                        userId: requesterUserId,
+                        attackCardMessageId,
+                        spenderName: String(spender.name)
+                    });
+                }
+            }
+            catch (rollErr) {
+                await spender.update({ 'system.faithFractures.current': cur });
+                await message.unsetFlag('mastery-system', 'faithRerollConsumed');
+                throw rollErr;
+            }
+            return { ok: true };
+        }
         const { masteryRoll } = await import('../dice/roll-handler.js');
         const extra = `\n\n<i class="fas fa-sync-alt"></i> Reroll — ${String(spender.name)} spent 1 Faith Fracture.`;
         try {
@@ -160,6 +194,20 @@ export async function executeFaithFractureReroll(messageId, spenderActorId, requ
     finally {
         faithRerollLocks.delete(messageId);
     }
+}
+/**
+ * Re-run the attack pipeline from the original attack card: fresh roll, and on
+ * success the damage dialog + follow-ups. Action costs and one-time side
+ * effects are skipped inside `executeAttackRollFromCard` (faithReroll mode).
+ */
+async function triggerAttackFaithReroll(attackCardMessageId, spenderName) {
+    const button = $(`.message[data-message-id="${attackCardMessageId}"] .roll-attack-btn`).first();
+    if (!button.length) {
+        ui.notifications?.warn('Attack card not found in the chat log — cannot rerun the attack roll.');
+        return;
+    }
+    const { executeAttackRollFromCard } = await import('./attack-roll-handler.js');
+    await executeAttackRollFromCard(button, attackCardMessageId, { faithReroll: { spenderName } });
 }
 async function onFaithFractureRerollClick(message) {
     const spenderId = await pickSpendingActor(game.user);
@@ -241,6 +289,12 @@ function onRenderChatMessageFaithReroll(message, htmlRaw) {
     }
 }
 async function onFaithFractureSocket(payload) {
+    if (payload?.type === 'faithFractureAttackReroll') {
+        if (payload.userId === game.user?.id) {
+            await triggerAttackFaithReroll(String(payload.attackCardMessageId || ''), String(payload.spenderName || ''));
+        }
+        return;
+    }
     if (payload?.type === 'faithFractureRerollResult') {
         if (payload.userId === game.user?.id) {
             if (payload.ok) {
