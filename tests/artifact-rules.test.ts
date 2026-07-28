@@ -58,19 +58,21 @@ describe('Artifact rules — slot vocabulary', () => {
 });
 
 describe('Artifact rules — attribute & profile access by slot', () => {
-    it('exposes attribute access for every slot', () => {
+    it('every slot accepts all 7 attributes (per-slot restriction dropped)', () => {
+        const allAttributes = ['might', 'agility', 'vitality', 'intellect', 'resolve', 'influence', 'wits'];
         for (const k of ARTIFACT_SLOT_KEYS) {
             expect(Array.isArray(ATTRIBUTE_ACCESS_BY_SLOT[k])).toBe(true);
-            expect(ATTRIBUTE_ACCESS_BY_SLOT[k].length).toBeGreaterThan(0);
+            expect([...ATTRIBUTE_ACCESS_BY_SLOT[k]].sort()).toEqual([...allAttributes].sort());
         }
     });
 
     it('isAttributeAllowedForStoneFunctionInSlot mirrors ATTRIBUTE_ACCESS_BY_SLOT', () => {
-        const slot: ArtifactSlot = 'mainHand';
-        for (const a of ATTRIBUTE_ACCESS_BY_SLOT[slot]) {
-            expect(isAttributeAllowedForStoneFunctionInSlot(slot, a as any)).toBe(true);
+        for (const slot of ARTIFACT_SLOT_KEYS) {
+            for (const a of ATTRIBUTE_ACCESS_BY_SLOT[slot]) {
+                expect(isAttributeAllowedForStoneFunctionInSlot(slot as ArtifactSlot, a as any)).toBe(true);
+            }
+            expect(isAttributeAllowedForStoneFunctionInSlot(slot as ArtifactSlot, 'definitely-not-an-attribute' as any)).toBe(false);
         }
-        expect(isAttributeAllowedForStoneFunctionInSlot(slot, 'definitely-not-an-attribute' as any)).toBe(false);
     });
 
     it('isBaseProfileAllowedForSlot mirrors BASE_PROFILES_BY_SLOT', () => {

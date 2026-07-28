@@ -7,7 +7,7 @@
  * This module is the single source of truth for:
  *   • The 7 canonical Equipment Slots.
  *   • Per-Slot Base Value limits (1–2 depending on slot).
- *   • Per-Slot allowed Attributes for Stone Functions.
+ *   • Attributes allowed for Stone Functions (all 7, on every slot).
  *   • Per-Slot Power Access restrictions (what slot may grant).
  *   • Artifact Level Stage mapping (Basic / Improved / Greater / Ultimate).
  *   • Default Power Level per Stage (PL 4 / 10 / 16).
@@ -111,7 +111,12 @@ export declare const BASE_VALUE_TYPE_LABELS: Record<ArtifactBaseValueType, strin
 /** Stone Function variants per spec. */
 export type ArtifactStoneFunctionKind = 'stonePowerSupport' | 'stonePool' | 'stoneRefresh' | 'stoneBattery';
 export declare const STONE_FUNCTION_LABELS: Record<ArtifactStoneFunctionKind, string>;
-/** Attributes allowed for an Artifact's Stone Function, keyed by slot. */
+/**
+ * Attributes allowed for an Artifact's Stone Function, keyed by slot.
+ *
+ * Rules update: the old per-slot restriction (e.g. Body = Vitality/Might only)
+ * is obsolete — every slot accepts every Attribute.
+ */
 export declare const ATTRIBUTE_ACCESS_BY_SLOT: Record<ArtifactSlot, string[]>;
 /** Stage of an artifact level (Basic / Improved / Greater / Ultimate). */
 export type ArtifactStage = 'basic' | 'improved' | 'greater' | 'ultimate';
@@ -174,7 +179,11 @@ export declare const STONE_POWER_COST_CHAIN: Record<1 | 2 | 3 | 4, number>;
 export declare function isBaseProfileAllowedForSlot(slot: ArtifactSlot, profile: ArtifactBaseProfile): boolean;
 /** True if the given Base Value type is generally allowed in the given slot. */
 export declare function isBaseValueTypeAllowedForSlot(slot: ArtifactSlot, type: ArtifactBaseValueType): boolean;
-/** True if the given Attribute (`might`, `agility`, …) is legal for this slot's Stone Function. */
+/**
+ * True if the given Attribute (`might`, `agility`, …) is legal for this slot's
+ * Stone Function. Since the slot-restriction rule was dropped this only
+ * rejects unknown slots / non-attribute strings.
+ */
 export declare function isAttributeAllowedForStoneFunctionInSlot(slot: ArtifactSlot, attr: string): boolean;
 /** Map an Artifact's canonical slot to the paperdoll slot keys it should occupy. */
 export declare function getPaperdollSlotsForArtifact(slot: ArtifactSlot, baseProfile: ArtifactBaseProfile): string[];

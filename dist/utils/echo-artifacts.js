@@ -300,9 +300,8 @@ function titanScarsKey(attr) {
  * Regeneration) are now real, editable catalog Powers via `progressionPickSpecs`
  * (Active Buff: Armor + Temporary HP / Active Buff: Healing) instead of authored
  * text. Slot 2 carries the Stone Pool as a pick (like the Sentinel / Judicator
- * frames), so any of the 7 Attributes works even though the Body slot's default
- * stone-access is Vitality / Might — the actor-side aggregator reads the pick's
- * attribute directly and does not enforce slot-legality.
+ * frames), so any of the 7 Attributes works — the actor-side aggregator reads
+ * the pick's attribute directly.
  */
 function makeTitanScars(attr) {
     const label = TITAN_ATTR_LABELS[attr];
@@ -722,7 +721,7 @@ const DRAGON_CLAWS = {
     description: 'Both hands become natural weapons: claws, scales, and tail.',
     restriction: 'A Dragonborn with Dragon Claws cannot wield another weapon, shield, or hand-based Artifact while using them. Occupies both hand slots.',
     // Stone Power Support targets an Attribute's Stone Power. The generic Extra
-    // Attack power is not attribute-bound, so it cannot be a slot-gated support;
+    // Attack power is not attribute-bound, so it cannot be a support target;
     // Dragon Claws instead support the Might: Melee Damage Stone Power.
     stoneFunction: {
         kind: 'stonePowerSupport',

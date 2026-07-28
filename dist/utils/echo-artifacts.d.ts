@@ -36,13 +36,13 @@ import { type MartialDelivery } from './artifact-power-pick.js';
  * Authoring shorthand for an Echo Artifact's single canonical Stone Function.
  * The generator copies this onto `system.stoneFunction` (so the actor-side
  * aggregator applies it) and emits a matching `progressionPicks` entry at
- * `level` (so the Node Editor's editable picks reflect it). Only authored for
- * artifacts whose primary Stone Function uses a slot-legal Attribute
- * (`ATTRIBUTE_ACCESS_BY_SLOT`) and an existing Stone Power id.
+ * `level` (so the Node Editor's editable picks reflect it). Any of the 7
+ * Attributes may be authored — the old per-slot attribute restriction
+ * (`ATTRIBUTE_ACCESS_BY_SLOT`) was dropped; every slot accepts every Attribute.
  */
 export interface EchoArtifactStoneFunctionHint {
     kind: ArtifactStoneFunctionKind;
-    /** Attribute pool (must be legal for the artifact's slot). */
+    /** Attribute pool (any of the 7 Attributes). */
     attribute: string;
     /** For Stone Power Support: the supported Stone Power id. */
     stonePowerId?: string;
@@ -118,11 +118,9 @@ export interface EchoArtifactDefinition {
     /** Free-text restriction note (e.g. "occupies both hand slots"). */
     restriction?: string;
     /**
-     * Optional canonical Stone Function. Authored only when slot-legal (see
-     * `EchoArtifactStoneFunctionHint`). Artifacts whose stone supports use an
-     * attribute outside their slot's access (e.g. body frames supporting
-     * Resolve/Wits/Influence) intentionally omit this and keep their stone
-     * supports purely as Level Progression abilities.
+     * Optional canonical Stone Function (see `EchoArtifactStoneFunctionHint`).
+     * Any Attribute is legal on any slot; some frames still omit this and keep
+     * their stone supports purely as Level Progression abilities.
      */
     stoneFunction?: EchoArtifactStoneFunctionHint;
     /**

@@ -45,13 +45,13 @@ import { catalogSpecialTierForTemplate } from './artifact-catalog-pick.js';
  * Authoring shorthand for an Echo Artifact's single canonical Stone Function.
  * The generator copies this onto `system.stoneFunction` (so the actor-side
  * aggregator applies it) and emits a matching `progressionPicks` entry at
- * `level` (so the Node Editor's editable picks reflect it). Only authored for
- * artifacts whose primary Stone Function uses a slot-legal Attribute
- * (`ATTRIBUTE_ACCESS_BY_SLOT`) and an existing Stone Power id.
+ * `level` (so the Node Editor's editable picks reflect it). Any of the 7
+ * Attributes may be authored — the old per-slot attribute restriction
+ * (`ATTRIBUTE_ACCESS_BY_SLOT`) was dropped; every slot accepts every Attribute.
  */
 export interface EchoArtifactStoneFunctionHint {
   kind: ArtifactStoneFunctionKind;
-  /** Attribute pool (must be legal for the artifact's slot). */
+  /** Attribute pool (any of the 7 Attributes). */
   attribute: string;
   /** For Stone Power Support: the supported Stone Power id. */
   stonePowerId?: string;
@@ -130,11 +130,9 @@ export interface EchoArtifactDefinition {
   /** Free-text restriction note (e.g. "occupies both hand slots"). */
   restriction?: string;
   /**
-   * Optional canonical Stone Function. Authored only when slot-legal (see
-   * `EchoArtifactStoneFunctionHint`). Artifacts whose stone supports use an
-   * attribute outside their slot's access (e.g. body frames supporting
-   * Resolve/Wits/Influence) intentionally omit this and keep their stone
-   * supports purely as Level Progression abilities.
+   * Optional canonical Stone Function (see `EchoArtifactStoneFunctionHint`).
+   * Any Attribute is legal on any slot; some frames still omit this and keep
+   * their stone supports purely as Level Progression abilities.
    */
   stoneFunction?: EchoArtifactStoneFunctionHint;
   /**
@@ -473,9 +471,8 @@ function titanScarsKey(attr: TitanAttribute): string {
  * Regeneration) are now real, editable catalog Powers via `progressionPickSpecs`
  * (Active Buff: Armor + Temporary HP / Active Buff: Healing) instead of authored
  * text. Slot 2 carries the Stone Pool as a pick (like the Sentinel / Judicator
- * frames), so any of the 7 Attributes works even though the Body slot's default
- * stone-access is Vitality / Might — the actor-side aggregator reads the pick's
- * attribute directly and does not enforce slot-legality.
+ * frames), so any of the 7 Attributes works — the actor-side aggregator reads
+ * the pick's attribute directly.
  */
 function makeTitanScars(attr: TitanAttribute): EchoArtifactDefinition {
   const label = TITAN_ATTR_LABELS[attr];
@@ -921,7 +918,7 @@ const DRAGON_CLAWS: EchoArtifactDefinition = {
   restriction:
     'A Dragonborn with Dragon Claws cannot wield another weapon, shield, or hand-based Artifact while using them. Occupies both hand slots.',
   // Stone Power Support targets an Attribute's Stone Power. The generic Extra
-  // Attack power is not attribute-bound, so it cannot be a slot-gated support;
+  // Attack power is not attribute-bound, so it cannot be a support target;
   // Dragon Claws instead support the Might: Melee Damage Stone Power.
   stoneFunction: {
     kind: 'stonePowerSupport',

@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.214] - 2026-07-28
+
+### Changed
+
+- **All artifact slots accept all attributes:** The per-slot attribute restriction for Stone Functions (e.g. Body = Vitality/Might only, Head = Wits/Intellect only) is obsolete per the updated rulebook. `ATTRIBUTE_ACCESS_BY_SLOT` now lists all 7 Attributes (Might, Agility, Vitality, Intellect, Resolve, Influence, Wits) for every slot; `isAttributeAllowedForStoneFunctionInSlot` accepts any valid Attribute on any slot. No migration needed — the GM Node Editor already offered all attributes and the actor-side aggregator reads the pick's attribute directly.
+
 ## [0.9.213] - 2026-07-28
 
 ### Changed

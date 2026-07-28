@@ -7,7 +7,7 @@
  * This module is the single source of truth for:
  *   • The 7 canonical Equipment Slots.
  *   • Per-Slot Base Value limits (1–2 depending on slot).
- *   • Per-Slot allowed Attributes for Stone Functions.
+ *   • Attributes allowed for Stone Functions (all 7, on every slot).
  *   • Per-Slot Power Access restrictions (what slot may grant).
  *   • Artifact Level Stage mapping (Basic / Improved / Greater / Ultimate).
  *   • Default Power Level per Stage (PL 4 / 10 / 16).
@@ -348,16 +348,32 @@ export const STONE_FUNCTION_LABELS: Record<ArtifactStoneFunctionKind, string> = 
   stoneBattery: 'Stone Battery',
 };
 
-/** Attributes allowed for an Artifact's Stone Function, keyed by slot. */
+/** The 7 canonical Attribute keys usable by Stone Functions. */
+const ALL_STONE_FUNCTION_ATTRIBUTES = [
+  'might',
+  'agility',
+  'vitality',
+  'intellect',
+  'resolve',
+  'influence',
+  'wits',
+] as const;
+
+/**
+ * Attributes allowed for an Artifact's Stone Function, keyed by slot.
+ *
+ * Rules update: the old per-slot restriction (e.g. Body = Vitality/Might only)
+ * is obsolete — every slot accepts every Attribute.
+ */
 export const ATTRIBUTE_ACCESS_BY_SLOT: Record<ArtifactSlot, string[]> = {
-  mainHand: ['might', 'agility'],
-  offHand: ['might', 'agility'],
-  bothHands: ['might', 'agility'],
-  body: ['vitality', 'might'],
-  head: ['wits', 'intellect'],
-  feet: ['agility', 'vitality'],
-  amulet: ['resolve', 'intellect'],
-  ring: ['resolve', 'intellect'],
+  mainHand: [...ALL_STONE_FUNCTION_ATTRIBUTES],
+  offHand: [...ALL_STONE_FUNCTION_ATTRIBUTES],
+  bothHands: [...ALL_STONE_FUNCTION_ATTRIBUTES],
+  body: [...ALL_STONE_FUNCTION_ATTRIBUTES],
+  head: [...ALL_STONE_FUNCTION_ATTRIBUTES],
+  feet: [...ALL_STONE_FUNCTION_ATTRIBUTES],
+  amulet: [...ALL_STONE_FUNCTION_ATTRIBUTES],
+  ring: [...ALL_STONE_FUNCTION_ATTRIBUTES],
 };
 
 // ----------------------------------------------------------------------
@@ -650,7 +666,11 @@ export function isBaseValueTypeAllowedForSlot(
   }
 }
 
-/** True if the given Attribute (`might`, `agility`, …) is legal for this slot's Stone Function. */
+/**
+ * True if the given Attribute (`might`, `agility`, …) is legal for this slot's
+ * Stone Function. Since the slot-restriction rule was dropped this only
+ * rejects unknown slots / non-attribute strings.
+ */
 export function isAttributeAllowedForStoneFunctionInSlot(
   slot: ArtifactSlot,
   attr: string,
