@@ -2,9 +2,25 @@
  * Melee weapon AoE — pick the primary target (full payload) vs secondary targets (power AoE only).
  */
 /**
- * True when `token` counts as allied with the attacker for the AoE ally filter:
- * same actor, matching disposition side (FRIENDLY↔FRIENDLY or HOSTILE↔HOSTILE),
- * or both actors sharing a player owner.
+ * "Player side" for the ally filter: player characters always count (regardless
+ * of the token's disposition — scenes often have misconfigured dispositions),
+ * plus FRIENDLY-disposition tokens (companions, friendly NPCs, summons).
+ */
+function isPlayerSide(token) {
+    const actor = token?.actor;
+    if (!actor)
+        return false;
+    if (actor.type === 'character')
+        return true;
+    const d = token?.document?.disposition ?? token?.disposition;
+    return d === CONST.TOKEN_DISPOSITIONS.FRIENDLY;
+}
+/**
+ * True when `token` counts as allied with the attacker for the AoE ally filter.
+ * Deliberately NOT disposition-symmetric ("both hostile ⇒ allies" wrongly nuked
+ * every target when all scene tokens carried the HOSTILE default): allies are
+ * the attacker itself and — for a player-side attacker — everything else on
+ * the player side. NPCs like a combat dummy are never filtered out.
  */
 function isAlliedWithAttacker(attackerToken, token) {
     const attackerActor = attackerToken?.actor;
@@ -13,23 +29,7 @@ function isAlliedWithAttacker(attackerToken, token) {
         return false;
     if (attackerActor.id === targetActor.id)
         return true;
-    const ad = attackerToken?.document?.disposition ?? attackerToken?.disposition;
-    const od = token?.document?.disposition ?? token?.disposition;
-    const F = CONST.TOKEN_DISPOSITIONS.FRIENDLY;
-    const H = CONST.TOKEN_DISPOSITIONS.HOSTILE;
-    if (ad === F && od === F)
-        return true;
-    if (ad === H && od === H)
-        return true;
-    if (attackerActor.hasPlayerOwner && targetActor.hasPlayerOwner) {
-        const a = attackerActor.ownership || {};
-        const b = targetActor.ownership || {};
-        for (const userId in a) {
-            if (userId !== 'default' && a[userId] > 0 && b[userId] > 0)
-                return true;
-        }
-    }
-    return false;
+    return isPlayerSide(attackerToken) && isPlayerSide(token);
 }
 /**
  * Prompt for primary token when multiple hostiles are in the burst.

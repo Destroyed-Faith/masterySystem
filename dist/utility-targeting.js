@@ -44,6 +44,10 @@ function isAlly(casterToken, targetToken) {
     // Same actor
     if (casterActor.id === targetActor.id)
         return true;
+    // Player characters are one party — regardless of token disposition
+    // (scenes often carry misconfigured/default dispositions).
+    if (casterActor.type === 'character' && targetActor.type === 'character')
+        return true;
     // Check disposition
     const casterDisposition = casterToken.document.disposition;
     const targetDisposition = targetToken.document.disposition;

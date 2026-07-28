@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.225] - 2026-07-28
+
+### Fixed
+
+- **Melee AoE ally filter no longer swallows NPCs:** The v0.9.224 ally heuristic treated "both tokens Hostile" as allied (meant for GM/NPC attackers) — in scenes where every token carries the HOSTILE default disposition this flagged ALL burst candidates as allies and left the primary dropdown empty. Allies are now strictly the player side: player characters (actor type `character`, regardless of token disposition) and FRIENDLY-disposition tokens. NPCs (e.g. a combat dummy) are never filtered out. The same PC↔PC rule was added to the AoE zone panel's ally detection for consistency.
+
 ## [0.9.224] - 2026-07-28
 
 ### Added
