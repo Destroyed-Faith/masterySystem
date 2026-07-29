@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.229] - 2026-07-29
+
+### Fixed
+
+- **Primary AoE targets can Dive for Cover too:** The rules grant the Reaction to every creature inside the area, but v0.9.228 only offered it to secondary targets. After a successful Area-TN roll the primary target is now asked first — spending its Reaction and moving fully outside the area skips its damage dialog entirely. Secondary targets still resolve normally (with their own Dive-for-Cover prompts and Hex/Sundered splash dice) even when the primary escaped, since the single Area-TN roll hit them all.
+
 ## [0.9.228] - 2026-07-29
 
 ### Changed

@@ -64,6 +64,51 @@ export function diveForCoverDistanceM(actor: any): number {
 }
 
 /**
+ * Offer Dive for Cover to a creature inside a successful AoE (primary or
+ * secondary target alike). Spends the Reaction, lets the table move the
+ * token, and asks whether it ended up fully outside the area.
+ *
+ * @returns true when the creature escaped (→ not affected by the AoE).
+ */
+export async function promptDiveForCoverEscape(defender: any, tok: any | null): Promise<boolean> {
+  const combat = (game as any).combat as Combat | null;
+  const economyDef = getActionEconomyActor(defender) ?? defender;
+  const rsReact = getRoundState(economyDef, combat);
+  const reactions = Math.max(
+    0,
+    (rsReact.reactionActions?.total ?? 0) - (rsReact.reactionActions?.used ?? 0),
+  );
+  if (reactions <= 0) return false;
+
+  const moveM = diveForCoverDistanceM(defender);
+  const spend = await confirmSpendReaction(
+    `Dive for Cover — ${defender.name}`,
+    `<p><strong>Dive for Cover:</strong> Spend <strong>1 Reaction</strong> to immediately move up to <strong>${moveM} m</strong> (2 × Mastery Rank)?</p>` +
+      `<p>If the movement takes you completely outside the AoE, you are not affected. This does not provoke Reactions.</p>`,
+  );
+  if (!spend) return false;
+
+  const consumed = await spendReactionAction(economyDef, combat);
+  if (!consumed) return false;
+
+  const outside = await confirmSpendReaction(
+    `Dive for Cover — ${defender.name}`,
+    `<p>Move the token up to <strong>${moveM} m</strong> now.</p>` +
+      `<p>Is <strong>${defender.name}</strong> completely <strong>outside</strong> the AoE after the move?</p>`,
+  );
+  await ChatMessage.create({
+    user: (game as any).user?.id,
+    speaker: ChatMessage.getSpeaker({ actor: defender, token: tok?.document }),
+    content: `<p><strong>${defender.name}</strong> — Dive for Cover (${moveM} m): ${
+      outside
+        ? '<strong>outside the area</strong> — not affected.'
+        : '<strong>still inside</strong> — affected normally.'
+    }</p>`,
+  } as any);
+  return outside;
+}
+
+/**
  * After the AoE roll reached the Area TN and primary damage is resolved:
  * every secondary is hit. Before the payload lands, each may spend a Reaction
  * on Dive for Cover (move up to 2 × own MR meters; fully outside = not
@@ -81,7 +126,6 @@ export async function resolveAoeMeleeSecondaries(params: {
   const isSpell = params.isSpell === true;
   if (!secondaryTokenIds.length || powerBonusDice <= 0) return;
 
-  const combat = (game as any).combat as Combat | null;
   const { getActiveSpecialValue } = await import('../system/active-specials.js');
 
   for (const tid of secondaryTokenIds) {
@@ -94,44 +138,9 @@ export async function resolveAoeMeleeSecondaries(params: {
       continue;
     }
     const { defender, tok } = resolved;
-    const economyDef = getActionEconomyActor(defender) ?? defender;
 
     // ── Dive for Cover (Reaction) ────────────────────────────────────────
-    let escaped = false;
-    const rsReact = getRoundState(economyDef, combat);
-    const reactions = Math.max(
-      0,
-      (rsReact.reactionActions?.total ?? 0) - (rsReact.reactionActions?.used ?? 0),
-    );
-    if (reactions > 0) {
-      const moveM = diveForCoverDistanceM(defender);
-      const spend = await confirmSpendReaction(
-        `Dive for Cover — ${defender.name}`,
-        `<p><strong>Dive for Cover:</strong> Spend <strong>1 Reaction</strong> to immediately move up to <strong>${moveM} m</strong> (2 × Mastery Rank)?</p>` +
-          `<p>If the movement takes you completely outside the AoE, you are not affected. This does not provoke Reactions.</p>`,
-      );
-      if (spend) {
-        const consumed = await spendReactionAction(economyDef, combat);
-        if (consumed) {
-          const outside = await confirmSpendReaction(
-            `Dive for Cover — ${defender.name}`,
-            `<p>Move the token up to <strong>${moveM} m</strong> now.</p>` +
-              `<p>Is <strong>${defender.name}</strong> completely <strong>outside</strong> the AoE after the move?</p>`,
-          );
-          escaped = outside;
-          await ChatMessage.create({
-            user: (game as any).user?.id,
-            speaker: ChatMessage.getSpeaker({ actor: defender, token: tok?.document }),
-            content: `<p><strong>${defender.name}</strong> — Dive for Cover (${moveM} m): ${
-              escaped
-                ? '<strong>outside the area</strong> — not affected.'
-                : '<strong>still inside</strong> — affected normally.'
-            }</p>`,
-          } as any);
-        }
-      }
-    }
-
+    const escaped = await promptDiveForCoverEscape(defender, tok);
     if (escaped) continue;
 
     if (typeof defender.prepareDerivedData === 'function') {

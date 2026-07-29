@@ -963,69 +963,95 @@ export async function executeAttackRollFromCard(
             raisesArg: 0
           });
           
-          const { showDamageDialog } = await import('../dice/damage-dialog.js');
-          const damageResult = await showDamageDialog(
-            freshAttackerForDialog,
-            target,
-            weaponId,
-            updatedFlags.selectedPowerId || null,
-            0,
-            updatedFlags
-          );
-          
-          console.log('Mastery System | [AFTER DAMAGE DIALOG] showDamageDialog returned', {
-            hasResult: !!damageResult,
-            resultType: damageResult ? typeof damageResult : 'null',
-            resultKeys: damageResult ? Object.keys(damageResult) : [],
-            resultTotalDamage: damageResult?.totalDamage,
-            resultBaseDamage: damageResult?.baseDamage,
-            resultPowerDamage: damageResult?.powerDamage
-          });
-          
+          // Prefer AoE metadata from the roll button — chat-message flags can be
+          // pruned or merged inconsistently across Foundry versions.
+          const aoeIdsFromBtn = String(button.attr('data-aoe-secondary-ids') || '')
+            .split('|')
+            .map((s: string) => s.trim())
+            .filter(Boolean);
+          const aoeDiceFromBtn = Math.max(0, Math.floor(Number(button.attr('data-aoe-power-dice')) || 0));
+          const aoeFromBtn = button.attr('data-aoe-melee') === '1';
+
+          const aoeSecondaries =
+            aoeIdsFromBtn.length > 0
+              ? aoeIdsFromBtn
+              : String(updatedFlags.aoeMeleeSecondaryTokenIds || '')
+                  .split(',')
+                  .map((s: string) => s.trim())
+                  .filter(Boolean);
+          const aoeDice =
+            aoeDiceFromBtn > 0
+              ? aoeDiceFromBtn
+              : Math.max(0, Math.floor(Number(updatedFlags.aoeMeleePowerBonusDice) || 0));
+          const aoeWeapon =
+            aoeFromBtn ||
+            updatedFlags.aoeMeleeWeapon === true ||
+            String(updatedFlags.aoeMeleeWeapon) === 'true';
+          const isAreaAttack = aoeWeapon || (updatedFlags as any).tnKind === 'area';
+
+          // Dive for Cover applies to EVERY creature in the area — the primary
+          // target may spend its Reaction to escape before damage is rolled.
+          let primaryEscaped = false;
+          if (isAreaAttack) {
+            const { promptDiveForCoverEscape } = await import('../combat/aoe-melee-resolution.js');
+            const primaryTok =
+              (canvas as any)?.tokens?.placeables?.find(
+                (t: any) => t?.id === updatedFlags.targetTokenId,
+              ) ?? null;
+            primaryEscaped = await promptDiveForCoverEscape(target, primaryTok);
+          }
+
+          let damageResult: any = null;
+          if (!primaryEscaped) {
+            const { showDamageDialog } = await import('../dice/damage-dialog.js');
+            damageResult = await showDamageDialog(
+              freshAttackerForDialog,
+              target,
+              weaponId,
+              updatedFlags.selectedPowerId || null,
+              0,
+              updatedFlags
+            );
+
+            console.log('Mastery System | [AFTER DAMAGE DIALOG] showDamageDialog returned', {
+              hasResult: !!damageResult,
+              resultType: damageResult ? typeof damageResult : 'null',
+              resultKeys: damageResult ? Object.keys(damageResult) : [],
+              resultTotalDamage: damageResult?.totalDamage,
+              resultBaseDamage: damageResult?.baseDamage,
+              resultPowerDamage: damageResult?.powerDamage
+            });
+          }
+
           if (damageResult) {
             // Roll and display damage
             await rollAndDisplayDamage(damageResult, attacker as any, target, flags);
+          }
 
-            // Prefer AoE metadata from the roll button — chat-message flags can be
-            // pruned or merged inconsistently across Foundry versions.
-            const aoeIdsFromBtn = String(button.attr('data-aoe-secondary-ids') || '')
-              .split('|')
-              .map((s: string) => s.trim())
-              .filter(Boolean);
-            const aoeDiceFromBtn = Math.max(0, Math.floor(Number(button.attr('data-aoe-power-dice')) || 0));
-            const aoeFromBtn = button.attr('data-aoe-melee') === '1';
+          // Secondaries are hit by the same Area-TN roll — resolve them even
+          // when the primary dove out of the area. Only a cancelled damage
+          // dialog (GM abort) skips them.
+          if (
+            (damageResult || primaryEscaped) &&
+            aoeWeapon &&
+            aoeSecondaries.length > 0 &&
+            aoeDice > 0
+          ) {
+            const { resolveAoeMeleeSecondaries } = await import('../combat/aoe-melee-resolution.js');
+            const atkMr = Math.max(
+              1,
+              Math.min(6, Math.floor(Number(updatedFlags.masteryRank) || 2)),
+            );
+            await resolveAoeMeleeSecondaries({
+              attacker: freshAttackerForDialog as any,
+              attackerMasteryRank: atkMr,
+              secondaryTokenIds: aoeSecondaries,
+              powerBonusDice: aoeDice,
+              isSpell: (updatedFlags as any).powerIsSpell === true,
+            });
+          }
 
-            const aoeSecondaries =
-              aoeIdsFromBtn.length > 0
-                ? aoeIdsFromBtn
-                : String(updatedFlags.aoeMeleeSecondaryTokenIds || '')
-                    .split(',')
-                    .map((s: string) => s.trim())
-                    .filter(Boolean);
-            const aoeDice =
-              aoeDiceFromBtn > 0
-                ? aoeDiceFromBtn
-                : Math.max(0, Math.floor(Number(updatedFlags.aoeMeleePowerBonusDice) || 0));
-            const aoeWeapon =
-              aoeFromBtn ||
-              updatedFlags.aoeMeleeWeapon === true ||
-              String(updatedFlags.aoeMeleeWeapon) === 'true';
-
-            if (aoeWeapon && aoeSecondaries.length > 0 && aoeDice > 0) {
-              const { resolveAoeMeleeSecondaries } = await import('../combat/aoe-melee-resolution.js');
-              const atkMr = Math.max(
-                1,
-                Math.min(6, Math.floor(Number(updatedFlags.masteryRank) || 2)),
-              );
-              await resolveAoeMeleeSecondaries({
-                attacker: freshAttackerForDialog as any,
-                attackerMasteryRank: atkMr,
-                secondaryTokenIds: aoeSecondaries,
-                powerBonusDice: aoeDice,
-                isSpell: (updatedFlags as any).powerIsSpell === true,
-              });
-            }
-          } else {
+          if (!damageResult && !primaryEscaped) {
             console.warn('Mastery System | [AFTER DAMAGE DIALOG] No damage result returned from showDamageDialog');
           }
         }

@@ -14,6 +14,14 @@ export declare function aoeSecondaryBodySaveDc(masteryRank: number): number;
 /** Dive-for-Cover movement allowance of the diving creature (2 × own MR). */
 export declare function diveForCoverDistanceM(actor: any): number;
 /**
+ * Offer Dive for Cover to a creature inside a successful AoE (primary or
+ * secondary target alike). Spends the Reaction, lets the table move the
+ * token, and asks whether it ended up fully outside the area.
+ *
+ * @returns true when the creature escaped (→ not affected by the AoE).
+ */
+export declare function promptDiveForCoverEscape(defender: any, tok: any | null): Promise<boolean>;
+/**
  * After the AoE roll reached the Area TN and primary damage is resolved:
  * every secondary is hit. Before the payload lands, each may spend a Reaction
  * on Dive for Cover (move up to 2 × own MR meters; fully outside = not
