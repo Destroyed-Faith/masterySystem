@@ -1,18 +1,21 @@
 /**
- * Encounter Generator — guided 5-step dialog.
+ * Encounter Generator — guided 5-step dialog (concept-driven).
  *
- * Steps: party -> difficulty -> composition -> review (editable) -> name.
- * On generation it writes a new Actor folder + NPC actors (see apply module).
+ * Steps: party -> concept (Kampfidee) -> adds -> review (Threat Report,
+ * editierbar) -> name. On generation it writes an Encounter-Projekt:
+ * folder tree + NPC actors + summary journal (see apply module).
  */
 declare const BaseDialog: any;
 export declare class EncounterGeneratorDialog extends BaseDialog {
     #private;
     private step;
     private selectedActorIds;
-    private difficulty;
-    private composition;
+    private concept;
+    private presetId;
     private folderName;
+    private party;
     private plan;
+    private report;
     static DEFAULT_OPTIONS: {
         id: string;
         classes: string[];

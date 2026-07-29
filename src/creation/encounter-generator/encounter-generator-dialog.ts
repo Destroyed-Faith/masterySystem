@@ -1,21 +1,34 @@
 /**
- * Encounter Generator — guided 5-step dialog.
+ * Encounter Generator — guided 5-step dialog (concept-driven).
  *
- * Steps: party -> difficulty -> composition -> review (editable) -> name.
- * On generation it writes a new Actor folder + NPC actors (see apply module).
+ * Steps: party -> concept (Kampfidee) -> adds -> review (Threat Report,
+ * editierbar) -> name. On generation it writes an Encounter-Projekt:
+ * folder tree + NPC actors + summary journal (see apply module).
  */
 
 import { ENCOUNTER_GENERATOR_COPY } from './encounter-generator-copy.js';
 import { analyzeParty } from './encounter-generator-analysis.js';
-import { deriveEncounterPlan } from './encounter-generator-balance.js';
-import { applyEncounter } from './encounter-generator-apply.js';
-import { normalizeComposition, validateEncounterSelection } from './encounter-generator-validation.js';
+import { applyEncounterProject } from './encounter-generator-apply.js';
+import {
+  ARCHETYPE_PRESETS,
+  CYCLE_STYLE_OPTIONS,
+  RANK_OPTIONS,
+  SECONDARY_STYLE_OPTIONS,
+  STYLE_OPTIONS,
+  TARGETING_OPTIONS,
+  defaultConcept,
+  deriveConceptPlan,
+  primarySpecialOptions,
+  specialLabel,
+} from './encounter-generator-concept.js';
+import { buildThreatReport } from './encounter-generator-threat.js';
 import {
   ENCOUNTER_STEP_ORDER,
-  type CompositionSelection,
-  type Difficulty,
-  type EncounterPlan,
+  type EncounterConcept,
+  type EncounterProjectPlan,
   type EncounterStep,
+  type PartyMetrics,
+  type ThreatReport,
 } from './encounter-generator-types.js';
 
 const { ApplicationV2, HandlebarsApplicationMixin } = (foundry as any).applications.api;
@@ -23,10 +36,6 @@ const BaseDialog = HandlebarsApplicationMixin(ApplicationV2) as any;
 
 declare const game: any;
 declare const ui: any;
-
-function defaultComposition(): CompositionSelection {
-  return { bossCount: 1, phasesPerBoss: 3, minionCount: 0, respawnCadence: 0 };
-}
 
 interface QuickPc {
   id: string;
@@ -61,18 +70,27 @@ function quickMetrics(pcs: QuickPc[]) {
   };
 }
 
+function selectOptions<T extends string | number>(
+  options: Array<{ value: T; label: string }>,
+  current: T,
+) {
+  return options.map((o) => ({ ...o, selected: String(o.value) === String(current) }));
+}
+
 export class EncounterGeneratorDialog extends BaseDialog {
   private step: EncounterStep = 'party';
   private selectedActorIds = new Set<string>();
-  private difficulty: Difficulty = 'hard';
-  private composition: CompositionSelection = defaultComposition();
+  private concept: EncounterConcept = defaultConcept();
+  private presetId = '';
   private folderName = '';
-  private plan: EncounterPlan | null = null;
+  private party: PartyMetrics | null = null;
+  private plan: EncounterProjectPlan | null = null;
+  private report: ThreatReport | null = null;
 
   static DEFAULT_OPTIONS = {
     id: 'encounter-generator-dialog',
     classes: ['mastery-system', 'encounter-gen-app'],
-    position: { width: 760, height: 680 },
+    position: { width: 860, height: 720 },
     window: {
       title: ENCOUNTER_GENERATOR_COPY.title,
       resizable: true,
@@ -110,15 +128,19 @@ export class EncounterGeneratorDialog extends BaseDialog {
   #recomputePlan(): void {
     const actors = this.#selectedActors();
     if (actors.length === 0) {
+      this.party = null;
       this.plan = null;
+      this.report = null;
       return;
     }
-    this.composition = normalizeComposition(this.composition);
-    const party = analyzeParty(actors);
-    this.plan = deriveEncounterPlan(party, this.difficulty, this.composition);
-    if (!this.folderName.trim() && this.plan.bosses.length > 0) {
-      // leave empty; user names it on the last step
-    }
+    this.party = analyzeParty(actors);
+    this.plan = deriveConceptPlan(this.party, this.concept);
+    this.report = buildThreatReport(this.party, this.plan);
+  }
+
+  #recomputeReport(): void {
+    if (!this.party || !this.plan) return;
+    this.report = buildThreatReport(this.party, this.plan);
   }
 
   #nextStep(): void {
@@ -137,6 +159,60 @@ export class EncounterGeneratorDialog extends BaseDialog {
     this.render();
   }
 
+  #applyPreset(id: string): void {
+    this.presetId = id;
+    const preset = ARCHETYPE_PRESETS.find((p) => p.id === id);
+    if (preset) {
+      // Deep copy so edits never mutate the preset definition.
+      this.concept = JSON.parse(JSON.stringify(preset.concept));
+      if (!this.folderName.trim()) this.folderName = preset.label;
+    }
+  }
+
+  #reviewContext(): Record<string, unknown> | null {
+    const plan = this.plan;
+    const report = this.report;
+    if (!plan || !report) return null;
+    const phases = plan.phasePlans.map((p, pi) => ({
+      index: pi,
+      name: p.name,
+      changes: p.changes.join(' · '),
+      actionsPerRound: p.actionsPerRound,
+      addsActive: p.addsActive,
+      stat: p.stat,
+      cycle: p.cycle.map((c, ci) => ({
+        ...c,
+        cycleIndex: ci,
+        specialText: c.special ? `${specialLabel(c.special)}(${c.specialValue})` : '',
+        rangeText: c.aoe
+          ? `${c.rangeKind === 'melee' ? 'Nah' : `${c.rangeMeters} m`} · AoE ${c.aoe.radiusM} m`
+          : c.rangeKind === 'melee'
+            ? 'Nahkampf'
+            : `${c.rangeMeters} m`,
+        extraText: plan.concept.cycleStyle === 'weighted' && c.weight != null
+          ? `${c.weight}%`
+          : plan.concept.cycleStyle === 'conditional' && c.condition
+            ? c.condition
+            : c.note,
+      })),
+    }));
+    return {
+      phases,
+      adds: plan.adds,
+      addsProjection: plan.adds
+        ? {
+            active: plan.adds.projectedActive.join(' → '),
+            attacks: plan.adds.projectedAttacks.join(' → '),
+          }
+        : null,
+      environment: plan.environment,
+      report,
+      hasWarnings: report.warnings.length > 0,
+      notes: plan.notes,
+      tactics: plan.tactics,
+    };
+  }
+
   protected async _prepareContext(): Promise<Record<string, unknown>> {
     const copy = ENCOUNTER_GENERATOR_COPY;
     const stepIndex = ENCOUNTER_STEP_ORDER.indexOf(this.step) + 1;
@@ -144,16 +220,17 @@ export class EncounterGeneratorDialog extends BaseDialog {
     const partyActors = pcs.map((p) => ({ ...p, selected: this.selectedActorIds.has(p.id) }));
     const selectedPcs = pcs.filter((p) => this.selectedActorIds.has(p.id));
     const metrics = quickMetrics(selectedPcs);
+    const c = this.concept;
 
-    const cadenceOptions = [0, 1, 2, 3].map((value) => ({
-      value,
-      label: value === 0 ? copy.composition.cadenceNone : copy.composition.cadenceEvery(value),
-      selected: this.composition.respawnCadence === value,
-    }));
-
-    const respawnRecommendLabel = this.plan
-      ? copy.review.recommend(this.plan.respawn.recommendedPerWave, this.plan.respawn.recommendedCadence)
-      : '';
+    const presetOptions = [
+      { value: '', label: copy.concept.presetNone, selected: this.presetId === '' },
+      ...ARCHETYPE_PRESETS.map((p) => ({
+        value: p.id,
+        label: p.label,
+        selected: this.presetId === p.id,
+      })),
+    ];
+    const presetDescription = ARCHETYPE_PRESETS.find((p) => p.id === this.presetId)?.description ?? '';
 
     return {
       progressLabel: copy.progress(stepIndex, ENCOUNTER_STEP_ORDER.length),
@@ -161,17 +238,34 @@ export class EncounterGeneratorDialog extends BaseDialog {
       partyActors,
       metrics,
       selectedLabel: metrics ? copy.party.selected(metrics.size) : '',
-      cadenceOptions,
-      respawnRecommendLabel,
-      selection: {
-        difficulty: this.difficulty,
-        composition: this.composition,
-        folderName: this.folderName,
-      },
-      plan: this.plan,
+      concept: c,
+      presetOptions,
+      presetDescription,
+      rankOptions: selectOptions(RANK_OPTIONS, c.rank),
+      styleOptions: selectOptions(STYLE_OPTIONS, c.style),
+      specialOptions: selectOptions(primarySpecialOptions(), c.primarySpecial),
+      secondaryOptions: selectOptions(SECONDARY_STYLE_OPTIONS, c.secondaryStyle),
+      targetingOptions: selectOptions(TARGETING_OPTIONS, c.targeting),
+      cycleStyleOptions: selectOptions(CYCLE_STYLE_OPTIONS, c.cycleStyle),
+      isEnvironmental: c.style === 'environmental',
+      adds: c.adds,
+      durabilityOptions: selectOptions(
+        Object.entries(copy.adds.durabilityOptions).map(([value, label]) => ({ value, label })),
+        c.adds.durability,
+      ),
+      pressureOptions: selectOptions(
+        Object.entries(copy.adds.pressureOptions).map(([value, label]) => ({ value, label })),
+        c.adds.pressure,
+      ),
+      spawnPatternOptions: selectOptions(
+        Object.entries(copy.adds.spawnPatternOptions).map(([value, label]) => ({ value, label })),
+        c.adds.spawnPattern,
+      ),
+      review: this.step === 'review' ? this.#reviewContext() : null,
+      selection: { folderName: this.folderName },
       isParty: this.step === 'party',
-      isDifficulty: this.step === 'difficulty',
-      isComposition: this.step === 'composition',
+      isConcept: this.step === 'concept',
+      isAdds: this.step === 'adds',
       isReview: this.step === 'review',
       isName: this.step === 'name',
       showBack: this.step !== 'party',
@@ -192,38 +286,80 @@ export class EncounterGeneratorDialog extends BaseDialog {
       this.render();
     });
 
-    root.find('.js-eg-difficulty').on('click', (ev) => {
-      this.difficulty = String($(ev.currentTarget).data('difficulty') || 'hard') as Difficulty;
+    root.find('.js-eg-preset').on('change', (ev) => {
+      this.#applyPreset(String($(ev.currentTarget).val() || ''));
       this.render();
     });
 
-    root.find('.js-eg-comp').on('change', (ev) => {
-      const field = String($(ev.currentTarget).data('field') || '');
-      const value = Math.floor(Number($(ev.currentTarget).val()) || 0);
-      if (field in this.composition) {
-        (this.composition as any)[field] = value;
-        this.composition = normalizeComposition(this.composition);
-      }
+    root.find('.js-eg-concept').on('change', (ev) => {
+      const el = $(ev.currentTarget);
+      const field = String(el.data('field') || '');
+      if (!(field in this.concept)) return;
+      const raw = el.val();
+      const current = (this.concept as any)[field];
+      (this.concept as any)[field] = typeof current === 'number' ? Math.floor(Number(raw) || 0) : String(raw);
+      this.presetId = '';
+      // Style switch changes which fields are visible (environment actions).
+      if (field === 'style') this.render();
     });
 
-    root.find('.js-eg-stat').on('change', (ev) => {
+    root.find('.js-eg-adds').on('change', (ev) => {
+      const el = $(ev.currentTarget);
+      const field = String(el.data('field') || '');
+      const adds = this.concept.adds as any;
+      if (!(field in adds)) return;
+      if (el.attr('type') === 'checkbox') {
+        adds[field] = el.prop('checked');
+        this.render();
+        return;
+      }
+      const raw = el.val();
+      adds[field] = typeof adds[field] === 'number' ? Math.floor(Number(raw) || 0) : String(raw);
+      this.presetId = '';
+    });
+
+    // Review: edit phase defensive stats.
+    root.find('.js-eg-phase-stat').on('change', (ev) => {
       if (!this.plan) return;
       const el = $(ev.currentTarget);
-      const kind = String(el.data('kind') || '');
-      const block = Math.floor(Number(el.data('block')) || 0);
       const phase = Math.floor(Number(el.data('phase')) || 0);
       const field = String(el.data('field') || '');
       const value = Math.max(0, Math.floor(Number(el.val()) || 0));
-      const list = kind === 'boss' ? this.plan.bosses : this.plan.minions;
-      const target = list[block]?.phases[phase];
-      if (target && field in target) {
-        (target as any)[field] = value;
+      const stat = this.plan.phasePlans[phase]?.stat;
+      if (stat && field in stat) {
+        (stat as any)[field] = value;
+        this.#recomputeReport();
+        this.render();
       }
+    });
+
+    // Review: edit individual cycle rows (dice, special value).
+    root.find('.js-eg-cycle').on('change', (ev) => {
+      if (!this.plan) return;
+      const el = $(ev.currentTarget);
+      const phase = Math.floor(Number(el.data('phase')) || 0);
+      const slot = Math.floor(Number(el.data('slot')) || 0);
+      const field = String(el.data('field') || '');
+      const entry = this.plan.phasePlans[phase]?.cycle[slot];
+      if (!entry || !(field in entry)) return;
+      if (field === 'name') {
+        (entry as any)[field] = String(el.val() || '');
+      } else {
+        (entry as any)[field] = Math.max(0, Math.floor(Number(el.val()) || 0));
+      }
+      // Keep the phase display row in sync with the first damage power.
+      const stat = this.plan.phasePlans[phase]?.stat;
+      const firstDamage = this.plan.phasePlans[phase]?.cycle.find((cEntry) => !cEntry.isSummon);
+      if (stat && firstDamage) {
+        stat.attackDiceCount = firstDamage.attackDiceCount;
+        stat.damageDiceCount = firstDamage.damageDiceCount;
+      }
+      this.#recomputeReport();
+      this.render();
     });
 
     root.find('.js-eg-name').on('input change', (ev) => {
       this.folderName = String($(ev.currentTarget).val() || '');
-      // toggle generate button without a full re-render
       root.find('.js-eg-generate').prop('disabled', !this.#canGenerate());
     });
 
@@ -238,24 +374,17 @@ export class EncounterGeneratorDialog extends BaseDialog {
     });
 
     root.find('.js-eg-generate').on('click', async () => {
-      const selection = {
-        selectedActorIds: [...this.selectedActorIds],
-        difficulty: this.difficulty,
-        composition: this.composition,
-        folderName: this.folderName,
-      };
-      const validation = validateEncounterSelection(selection);
-      if (!validation.ok) {
-        ui?.notifications?.warn(validation.error);
+      if (!this.#canGenerate()) {
+        ui?.notifications?.warn(ENCOUNTER_GENERATOR_COPY.notify.noName);
         return;
       }
-      if (!this.plan) this.#recomputePlan();
-      if (!this.plan) return;
+      if (!this.plan || !this.party || !this.report) this.#recomputePlan();
+      if (!this.plan || !this.party || !this.report) return;
       try {
-        const result = await applyEncounter(selection, this.plan);
+        const result = await applyEncounterProject(this.folderName, this.party, this.plan, this.report);
         if (result) {
           ui?.notifications?.info(
-            ENCOUNTER_GENERATOR_COPY.notify.done(selection.folderName.trim(), result.actorCount),
+            ENCOUNTER_GENERATOR_COPY.notify.done(this.folderName.trim(), result.actorCount),
           );
           this.close();
         }

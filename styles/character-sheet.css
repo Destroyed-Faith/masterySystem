@@ -10221,3 +10221,61 @@
 .mastery-system.sheet .tab[data-tab]:not(.active) {
   display: none;
 }
+
+/* --- Languages picker ------------------------------------------------------
+   The opener used to render as an unstyled default button and looked
+   inactive — make it a clearly clickable control, and pulse it while the
+   character-creation language pick is still missing. */
+.mastery-system.sheet .languages-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.mastery-system.sheet .language-tag {
+  display: inline-block;
+  padding: 1px 8px;
+  margin: 1px 2px 1px 0;
+  border-radius: 10px;
+  background: rgba(120, 46, 34, 0.15);
+  border: 1px solid rgba(120, 46, 34, 0.45);
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.mastery-system.sheet .open-languages-btn {
+  flex: 0 0 auto;
+  width: auto;
+  padding: 2px 10px;
+  border: 1px solid #782e22;
+  border-radius: 4px;
+  background: rgba(120, 46, 34, 0.12);
+  color: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease, box-shadow 0.15s ease;
+}
+
+.mastery-system.sheet .open-languages-btn:hover {
+  background: rgba(120, 46, 34, 0.28);
+  box-shadow: 0 0 6px rgba(120, 46, 34, 0.6);
+}
+
+.mastery-system.sheet .open-languages-btn i {
+  margin-right: 4px;
+}
+
+/* Pick still missing during character creation: make the button impossible
+   to overlook. */
+.mastery-system.sheet .open-languages-btn.needs-pick {
+  background: #782e22;
+  color: #fff;
+  border-color: #a8442f;
+  animation: ms-languages-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes ms-languages-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(168, 68, 47, 0.7); }
+  50% { box-shadow: 0 0 0 6px rgba(168, 68, 47, 0); }
+}

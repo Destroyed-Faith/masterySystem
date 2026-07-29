@@ -98,7 +98,7 @@ function formatOnHitSummary(snapshot, weaponDice) {
 /**
  * Get attribute value from actor
  */
-function getAttributeValue(actor, attributeName) {
+export function getAttributeValue(actor, attributeName) {
     if (!actor || !actor.system) {
         console.warn('Mastery System | [ATTACK EXECUTOR] getAttributeValue: No actor or system', {
             hasActor: !!actor,
@@ -128,7 +128,7 @@ function getAttributeValue(actor, attributeName) {
 /**
  * Get mastery rank from actor
  */
-function getMasteryRank(actor) {
+export function getMasteryRank(actor) {
     if (!actor || !actor.system)
         return 2; // Default
     const system = actor.system;
@@ -175,7 +175,7 @@ function weaponHasFinesse(weapon) {
  * - Powers: attribute from mastery tree / spell school (`system.tree`) via fixed list; if unknown tree, fall back to `roll.attribute`.
  * - Otherwise: Might for melee, Agility for ranged (weapon or maneuver).
  */
-function getAttackAttribute(_actor, weapon, option, attackType) {
+export function getAttackAttribute(_actor, weapon, option, attackType) {
     if (option.source === "power" && option.item) {
         const powerSystem = option.item.system || {};
         const artifactIsSpell = option.artifactIsSpell === true;
@@ -344,6 +344,11 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
     let selectedPowerDamage = null;
     let tnKind = 'evade';
     let castingBaseTn = null;
+    // AoE Attacks roll once against the fixed Area TN = 8 × Source Mastery Rank
+    // and ignore individual Evade / Spell Resistance (Players Guide, Attack
+    // Sequence step 2). Detect bursts even before secondaries are confirmed.
+    const isAoeAttack = !!aoeMelee || option.burstMeleeAoE === true;
+    const areaTn = 8 * Math.max(1, masteryRank);
     if (option.source === 'power' && option.item) {
         selectedPowerId = option.item.id;
         const powerSystem = option.item.system || {};
@@ -372,8 +377,18 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
             castingBaseTn = calculateBaseTN(lvl) + getTargetSpellResistance(target);
         }
     }
-    /** Normal TN (Evade or Casting) — unchanged by declared raises. */
-    const normalTn = tnKind === 'casting' && castingBaseTn != null ? castingBaseTn : targetEvadeFromActor;
+    /** Whether the underlying power is a spell (kept for damage riders / raises). */
+    const powerWasSpell = tnKind === 'casting';
+    // Area TN overrides Evade AND Casting TN for AoE attacks.
+    if (isAoeAttack) {
+        tnKind = 'area';
+    }
+    /** Normal TN (Area, Casting or Evade) — unchanged by declared raises. */
+    const normalTn = tnKind === 'area'
+        ? areaTn
+        : tnKind === 'casting' && castingBaseTn != null
+            ? castingBaseTn
+            : targetEvadeFromActor;
     const baseEvade = normalTn;
     let raiseContext = null;
     if (option.source === 'power' && option.item && !isNpcAttack) {
@@ -485,7 +500,8 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
             : {}),
         tnKind,
         ...(castingBaseTn != null ? { castingBaseTn } : {}),
-        targetEvadeFromActor: tnKind === 'casting' ? targetEvadeFromActor : undefined,
+        ...(tnKind === 'area' ? { areaTn } : {}),
+        targetEvadeFromActor: tnKind !== 'evade' ? targetEvadeFromActor : undefined,
         halfEvadeVsInvisible: evadeVsInvisible.evadeMultiplier < 1,
     };
     // Debug log before creating message
@@ -595,7 +611,7 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
           </select>
         </div>`
             : ''}
-      ${tnKind === 'casting'
+      ${tnKind === 'casting' || (tnKind === 'area' && powerWasSpell)
             ? `<div class="blood-raises-row md-sublabel">
           Blood Raises (+4 roll each, −4 HP each):
           <input type="number" class="blood-raises-input" min="0" max="8" value="0" style="width:3em" />
@@ -605,9 +621,11 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
       <button type="button" class="add-raise-btn"><i class="fas fa-plus"></i> Add Raise</button>
     </div>`
         : '';
-    const raisesTitle = tnKind === 'casting'
-        ? `Declare Raises before rolling. Each Raise adds +${RAISE_INCREMENT} to the Raise TN (Normal TN stays ${normalTn}). Pay Raise Cost from the Power first.`
-        : `Declare Raises before rolling. Each Raise adds +${RAISE_INCREMENT} to the Raise TN (Normal TN / Evade stays ${normalTn}). Pay Raise Cost from the Power first.`;
+    const raisesTitle = tnKind === 'area'
+        ? `Declare Raises before rolling. Each Raise adds +${RAISE_INCREMENT} to the Raise TN (Area TN stays ${normalTn}). Pay Raise Cost from the Power first.`
+        : tnKind === 'casting'
+            ? `Declare Raises before rolling. Each Raise adds +${RAISE_INCREMENT} to the Raise TN (Normal TN stays ${normalTn}). Pay Raise Cost from the Power first.`
+            : `Declare Raises before rolling. Each Raise adds +${RAISE_INCREMENT} to the Raise TN (Normal TN / Evade stays ${normalTn}). Pay Raise Cost from the Power first.`;
     const content = `
     <div class="mastery-attack-card">
       <div class="attack-header">
@@ -631,12 +649,17 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
         ${tr.rollDisadvantage
         ? `<div class="detail-row"><span class="detail-label">Disadvantage:</span><span class="detail-value">Yes (Threatened Ranged)</span></div>`
         : ""}
-        ${tnKind === 'casting' && castingBaseTn != null
+        ${tnKind === 'area'
         ? `<div class="detail-row">
+          <span class="detail-label">Area TN:</span>
+          <span class="detail-value">${normalTn} (8 × Mastery Rank ${masteryRank}) — one roll, hits every target in the area</span>
+        </div>`
+        : tnKind === 'casting' && castingBaseTn != null
+            ? `<div class="detail-row">
           <span class="detail-label">Casting TN:</span>
           <span class="detail-value">${castingBaseTn} (Power Level ${Math.max(1, Math.floor(Number(selectedPowerLevel) || 1))})</span>
         </div>`
-        : `<div class="detail-row">
+            : `<div class="detail-row">
           <span class="detail-label">Target Evade:</span>
           <span class="detail-value">${normalTn}${evadeVsInvisible.evadeMultiplier < 1 ? ' (half — failed Perception vs invisible attacker)' : ''}</span>
         </div>`}

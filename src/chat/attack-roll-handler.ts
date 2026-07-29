@@ -406,7 +406,15 @@ export async function executeAttackRollFromCard(
       // dice engine can apply the correct rule.
 
       const tnKind =
-        (flags as any).tnKind === 'casting' ? 'casting' : 'evade';
+        (flags as any).tnKind === 'casting'
+          ? 'casting'
+          : (flags as any).tnKind === 'area'
+            ? 'area'
+            : 'evade';
+      // AoE spells roll vs the fixed Area TN but keep spell mechanics
+      // (Blood Raises, spell raise bonuses).
+      const isSpellcasting =
+        tnKind === 'casting' || (tnKind === 'area' && (flags as any).powerIsSpell === true);
 
       console.log('Mastery System | DEBUG: Roll parameters', {
         numDice: numDice,
@@ -450,20 +458,26 @@ export async function executeAttackRollFromCard(
       const attackKind = flags.attackType === 'ranged' ? 'Ranged' : 'Melee';
       const targetActorForFlavor = (game as any).actors?.get(flags.targetId);
       const rollFlavorBase =
-        tnKind === 'casting'
-          ? `Roll ${numDice}d8 keep ${keepDice} vs Casting TN ${normalTn}${
+        tnKind === 'area'
+          ? `Roll ${numDice}d8 keep ${keepDice} vs Area TN ${normalTn}${
               declaredRaiseSlots > 0 ? ` (Raise TN ${raiseTn})` : ''
-            }${advantageNote}${disadvantageNote}${rangeBandNote}`
-          : `Roll ${numDice}d8 keep ${keepDice} vs ${targetActorForFlavor?.name || 'Target'}'s Evade (${normalTn}${
-              declaredRaiseSlots > 0 ? `, Raise TN ${raiseTn}` : ''
-            })${advantageNote}${disadvantageNote}${rangeBandNote}`;
+            } — one roll, hits every target in the area${advantageNote}${disadvantageNote}${rangeBandNote}`
+          : tnKind === 'casting'
+            ? `Roll ${numDice}d8 keep ${keepDice} vs Casting TN ${normalTn}${
+                declaredRaiseSlots > 0 ? ` (Raise TN ${raiseTn})` : ''
+              }${advantageNote}${disadvantageNote}${rangeBandNote}`
+            : `Roll ${numDice}d8 keep ${keepDice} vs ${targetActorForFlavor?.name || 'Target'}'s Evade (${normalTn}${
+                declaredRaiseSlots > 0 ? `, Raise TN ${raiseTn}` : ''
+              })${advantageNote}${disadvantageNote}${rangeBandNote}`;
       const rollFlavor = opts.faithReroll
         ? `${rollFlavorBase}\n\n<i class="fas fa-sync-alt"></i> Reroll — ${opts.faithReroll.spenderName} spent 1 Faith Fracture.`
         : rollFlavorBase;
       const rollLabel =
-        tnKind === 'casting'
-          ? `Spell Attack (${flags.attribute.charAt(0).toUpperCase() + flags.attribute.slice(1)})`
-          : `${attackKind} Attack (${flags.attribute.charAt(0).toUpperCase() + flags.attribute.slice(1)})`;
+        tnKind === 'area'
+          ? `AoE Attack (${flags.attribute.charAt(0).toUpperCase() + flags.attribute.slice(1)})`
+          : tnKind === 'casting'
+            ? `Spell Attack (${flags.attribute.charAt(0).toUpperCase() + flags.attribute.slice(1)})`
+            : `${attackKind} Attack (${flags.attribute.charAt(0).toUpperCase() + flags.attribute.slice(1)})`;
 
       // Dread: pre-attack Save gate. On failure the attack is lost (action
       // stays spent). Disrupt: using a Power reduces/clears Disrupt.
@@ -498,14 +512,14 @@ export async function executeAttackRollFromCard(
         parseInt(button.attr('data-blood-raises') || '0', 10) || 0,
       );
       let raiseTnRollBonus = 0;
-      if (tnKind === 'casting' && freshAttacker && combatRef) {
+      if (isSpellcasting && freshAttacker && combatRef) {
         raiseTnRollBonus = Math.max(
           0,
           Number(rsCrit?.stoneBonuses?.spellRaiseTnBonus ?? 0) || 0,
         );
       }
       // Faith reroll: Blood Raise HP was already paid on the original roll.
-      if (bloodRaises > 0 && tnKind === 'casting' && freshAttacker && !isFaithReroll) {
+      if (bloodRaises > 0 && isSpellcasting && freshAttacker && !isFaithReroll) {
         const { applyBloodRaiseHpLoss } = await import('../combat/spell-roll-handler.js');
         await applyBloodRaiseHpLoss(freshAttacker, bloodRaises * 4);
       }
@@ -526,8 +540,8 @@ export async function executeAttackRollFromCard(
         raiseTn,
         declaredRaiseSlots,
         raiseModel: 'power',
-        ...(bloodRaises > 0 && tnKind === 'casting' ? { bloodRaises } : {}),
-        ...(raiseTnRollBonus > 0 && tnKind === 'casting' ? { raiseTnRollBonus } : {}),
+        ...(bloodRaises > 0 && isSpellcasting ? { bloodRaises } : {}),
+        ...(raiseTnRollBonus > 0 && isSpellcasting ? { raiseTnRollBonus } : {}),
         ...(typeof splitAttackDiceCap === 'number' && splitAttackDiceCap > 0
           ? { attackDiceCap: splitAttackDiceCap }
           : {}),
@@ -1008,6 +1022,7 @@ export async function executeAttackRollFromCard(
                 attackerMasteryRank: atkMr,
                 secondaryTokenIds: aoeSecondaries,
                 powerBonusDice: aoeDice,
+                isSpell: (updatedFlags as any).powerIsSpell === true,
               });
             }
           } else {

@@ -28,7 +28,6 @@
           <li>Ø HP: <strong>{{metrics.avgHP}}</strong></li>
           <li>Ø Ausweichen: <strong>{{metrics.avgEvade}}</strong></li>
           <li>Ø Ruestung: <strong>{{metrics.avgArmor}}</strong></li>
-          <li>Ø DR: <strong>{{metrics.avgDrPct}}%</strong></li>
         </ul>
       </div>
       {{/if}}
@@ -38,87 +37,218 @@
     </section>
     {{/if}}
 
-    {{!-- Step 2: Difficulty --}}
-    {{#if isDifficulty}}
+    {{!-- Step 2: Kampfidee (Konzept) --}}
+    {{#if isConcept}}
     <section class="encounter-gen-step">
-      <h3>{{copy.difficulty.heading}}</h3>
-      <p class="encounter-gen-prose">{{copy.difficulty.body}}</p>
-      <div class="encounter-gen-cards">
-        <button type="button" class="encounter-gen-card js-eg-difficulty{{#if (eq selection.difficulty 'moderate')}} is-selected{{/if}}" data-difficulty="moderate">
-          <span class="encounter-gen-card-title">{{copy.difficulty.moderate.title}}</span>
-          <span class="encounter-gen-card-text">{{copy.difficulty.moderate.body}}</span>
-        </button>
-        <button type="button" class="encounter-gen-card js-eg-difficulty{{#if (eq selection.difficulty 'hard')}} is-selected{{/if}}" data-difficulty="hard">
-          <span class="encounter-gen-card-title">{{copy.difficulty.hard.title}}</span>
-          <span class="encounter-gen-card-text">{{copy.difficulty.hard.body}}</span>
-        </button>
-        <button type="button" class="encounter-gen-card js-eg-difficulty{{#if (eq selection.difficulty 'brutal')}} is-selected{{/if}}" data-difficulty="brutal">
-          <span class="encounter-gen-card-title">{{copy.difficulty.brutal.title}}</span>
-          <span class="encounter-gen-card-text">{{copy.difficulty.brutal.body}}</span>
-        </button>
-      </div>
-    </section>
-    {{/if}}
+      <h3>{{copy.concept.heading}}</h3>
+      <p class="encounter-gen-prose">{{copy.concept.body}}</p>
 
-    {{!-- Step 3: Composition --}}
-    {{#if isComposition}}
-    <section class="encounter-gen-step">
-      <h3>{{copy.composition.heading}}</h3>
-      <p class="encounter-gen-prose">{{copy.composition.body}}</p>
+      <label class="encounter-gen-field encounter-gen-field--wide">
+        <span>{{copy.concept.preset}}</span>
+        <select class="js-eg-preset">
+          {{#each presetOptions}}
+          <option value="{{this.value}}"{{#if this.selected}} selected{{/if}}>{{this.label}}</option>
+          {{/each}}
+        </select>
+      </label>
+      {{#if presetDescription}}
+      <p class="encounter-gen-note">{{presetDescription}}</p>
+      {{/if}}
+
       <div class="encounter-gen-form">
         <label class="encounter-gen-field">
-          <span>{{copy.composition.bossCount}}</span>
-          <input type="number" class="js-eg-comp" data-field="bossCount" min="1" max="6" value="{{selection.composition.bossCount}}"/>
-        </label>
-        <label class="encounter-gen-field">
-          <span>{{copy.composition.phasesPerBoss}}</span>
-          <input type="number" class="js-eg-comp" data-field="phasesPerBoss" min="2" max="5" value="{{selection.composition.phasesPerBoss}}"/>
-        </label>
-        <label class="encounter-gen-field">
-          <span>{{copy.composition.minionCount}}</span>
-          <input type="number" class="js-eg-comp" data-field="minionCount" min="0" max="20" value="{{selection.composition.minionCount}}"/>
-        </label>
-        <label class="encounter-gen-field">
-          <span>{{copy.composition.respawnCadence}}</span>
-          <select class="js-eg-comp" data-field="respawnCadence">
-            {{#each cadenceOptions}}
+          <span>{{copy.concept.rank}}</span>
+          <select class="js-eg-concept" data-field="rank">
+            {{#each rankOptions}}
             <option value="{{this.value}}"{{#if this.selected}} selected{{/if}}>{{this.label}}</option>
             {{/each}}
           </select>
         </label>
+        <label class="encounter-gen-field">
+          <span>{{copy.concept.style}}</span>
+          <select class="js-eg-concept" data-field="style">
+            {{#each styleOptions}}
+            <option value="{{this.value}}"{{#if this.selected}} selected{{/if}}>{{this.label}}</option>
+            {{/each}}
+          </select>
+        </label>
+        <label class="encounter-gen-field">
+          <span>{{copy.concept.primarySpecial}}</span>
+          <select class="js-eg-concept" data-field="primarySpecial">
+            {{#each specialOptions}}
+            <option value="{{this.value}}"{{#if this.selected}} selected{{/if}}>{{this.label}}</option>
+            {{/each}}
+          </select>
+        </label>
+        <label class="encounter-gen-field">
+          <span>{{copy.concept.secondaryStyle}}</span>
+          <select class="js-eg-concept" data-field="secondaryStyle">
+            {{#each secondaryOptions}}
+            <option value="{{this.value}}"{{#if this.selected}} selected{{/if}}>{{this.label}}</option>
+            {{/each}}
+          </select>
+        </label>
+        <label class="encounter-gen-field">
+          <span>{{copy.concept.actions}}</span>
+          <input type="number" class="js-eg-concept" data-field="actionsPerRound" min="1" max="6" value="{{concept.actionsPerRound}}"/>
+        </label>
+        <label class="encounter-gen-field">
+          <span>{{copy.concept.targeting}}</span>
+          <select class="js-eg-concept" data-field="targeting">
+            {{#each targetingOptions}}
+            <option value="{{this.value}}"{{#if this.selected}} selected{{/if}}>{{this.label}}</option>
+            {{/each}}
+          </select>
+        </label>
+        <label class="encounter-gen-field">
+          <span>{{copy.concept.phases}}</span>
+          <input type="number" class="js-eg-concept" data-field="phaseCount" min="1" max="5" value="{{concept.phaseCount}}"/>
+        </label>
+        <label class="encounter-gen-field">
+          <span>{{copy.concept.cycleLength}}</span>
+          <input type="number" class="js-eg-concept" data-field="cycleLength" min="2" max="6" value="{{concept.cycleLength}}"/>
+        </label>
+        <label class="encounter-gen-field">
+          <span>{{copy.concept.cycleStyle}}</span>
+          <select class="js-eg-concept" data-field="cycleStyle">
+            {{#each cycleStyleOptions}}
+            <option value="{{this.value}}"{{#if this.selected}} selected{{/if}}>{{this.label}}</option>
+            {{/each}}
+          </select>
+        </label>
+        {{#if isEnvironmental}}
+        <label class="encounter-gen-field">
+          <span>{{copy.concept.envActions}}</span>
+          <input type="number" class="js-eg-concept" data-field="environmentActionsPerRound" min="1" max="4" value="{{concept.environmentActionsPerRound}}"/>
+        </label>
+        {{/if}}
       </div>
-      <p class="encounter-gen-note">{{copy.composition.respawnNote}}</p>
     </section>
     {{/if}}
 
-    {{!-- Step 4: Review + edit --}}
+    {{!-- Step 3: Adds --}}
+    {{#if isAdds}}
+    <section class="encounter-gen-step">
+      <h3>{{copy.adds.heading}}</h3>
+      <p class="encounter-gen-prose">{{copy.adds.body}}</p>
+
+      <label class="encounter-gen-field encounter-gen-field--checkbox">
+        <input type="checkbox" class="js-eg-adds" data-field="enabled"{{#if adds.enabled}} checked{{/if}}/>
+        <span>{{copy.adds.enabled}}</span>
+      </label>
+
+      {{#if adds.enabled}}
+      <div class="encounter-gen-form">
+        <label class="encounter-gen-field">
+          <span>{{copy.adds.durability}}</span>
+          <select class="js-eg-adds" data-field="durability">
+            {{#each durabilityOptions}}
+            <option value="{{this.value}}"{{#if this.selected}} selected{{/if}}>{{this.label}}</option>
+            {{/each}}
+          </select>
+        </label>
+        <label class="encounter-gen-field">
+          <span>{{copy.adds.pressure}}</span>
+          <select class="js-eg-adds" data-field="pressure">
+            {{#each pressureOptions}}
+            <option value="{{this.value}}"{{#if this.selected}} selected{{/if}}>{{this.label}}</option>
+            {{/each}}
+          </select>
+        </label>
+        <label class="encounter-gen-field">
+          <span>{{copy.adds.targetActive}}</span>
+          <input type="number" class="js-eg-adds" data-field="targetActive" min="1" max="12" value="{{adds.targetActive}}"/>
+        </label>
+        <label class="encounter-gen-field">
+          <span>{{copy.adds.maxActive}}</span>
+          <input type="number" class="js-eg-adds" data-field="maxActive" min="0" max="16" value="{{adds.maxActive}}"/>
+        </label>
+        <label class="encounter-gen-field">
+          <span>{{copy.adds.spawnPerRound}}</span>
+          <input type="number" class="js-eg-adds" data-field="spawnPerRound" min="1" max="6" value="{{adds.spawnPerRound}}"/>
+        </label>
+        <label class="encounter-gen-field">
+          <span>{{copy.adds.spawnPattern}}</span>
+          <select class="js-eg-adds" data-field="spawnPattern">
+            {{#each spawnPatternOptions}}
+            <option value="{{this.value}}"{{#if this.selected}} selected{{/if}}>{{this.label}}</option>
+            {{/each}}
+          </select>
+        </label>
+        <label class="encounter-gen-field encounter-gen-field--checkbox">
+          <input type="checkbox" class="js-eg-adds" data-field="summonCostsBossAction"{{#if adds.summonCostsBossAction}} checked{{/if}}/>
+          <span>{{copy.adds.summonCost}}</span>
+        </label>
+      </div>
+      {{else}}
+      <p class="encounter-gen-note">{{copy.adds.disabledNote}}</p>
+      {{/if}}
+    </section>
+    {{/if}}
+
+    {{!-- Step 4: Review — Threat Report + editierbare Werte --}}
     {{#if isReview}}
+    {{#if review}}
     <section class="encounter-gen-step">
       <h3>{{copy.review.heading}}</h3>
       <p class="encounter-gen-prose">{{copy.review.body}}</p>
 
-      <h4>{{copy.review.bossesHeading}}</h4>
-      {{#each plan.bosses}}
+      {{#each review.phases}}
       <div class="encounter-gen-statblock">
-        <div class="encounter-gen-statblock-head">{{this.name}} · MR {{this.mr}} · {{copy.review.col.slots}}: {{this.attackSlots}}</div>
+        <div class="encounter-gen-statblock-head">
+          {{this.name}} · {{this.actionsPerRound}} Aktionen/Runde
+          {{#unless this.addsActive}}<span class="encounter-gen-tag">keine neuen Adds</span>{{/unless}}
+        </div>
+        {{#if this.changes}}
+        <p class="encounter-gen-note">{{../copy.threat.phaseChangesLabel}}: {{this.changes}}</p>
+        {{/if}}
+        <div class="encounter-gen-form encounter-gen-form--inline">
+          <label class="encounter-gen-field">
+            <span>{{../copy.review.col.hp}}</span>
+            <input type="number" class="js-eg-phase-stat" data-phase="{{this.index}}" data-field="hp" value="{{this.stat.hp}}" min="1"/>
+          </label>
+          <label class="encounter-gen-field">
+            <span>{{../copy.review.col.evade}}</span>
+            <input type="number" class="js-eg-phase-stat" data-phase="{{this.index}}" data-field="evade" value="{{this.stat.evade}}" min="1"/>
+          </label>
+          <label class="encounter-gen-field">
+            <span>{{../copy.review.col.armor}}</span>
+            <input type="number" class="js-eg-phase-stat" data-phase="{{this.index}}" data-field="armor" value="{{this.stat.armor}}" min="0"/>
+          </label>
+        </div>
         <table class="encounter-gen-table">
           <thead>
             <tr>
-              <th>{{../copy.review.col.phase}}</th>
-              <th>{{../copy.review.col.hp}}</th>
-              <th>{{../copy.review.col.evade}}</th>
+              <th>#</th>
+              <th>Power</th>
               <th>{{../copy.review.col.attackDice}}</th>
               <th>{{../copy.review.col.damageDice}}</th>
+              <th>Special</th>
+              <th>Reichweite</th>
+              <th>Hinweis</th>
             </tr>
           </thead>
           <tbody>
-            {{#each this.phases}}
+            {{#each this.cycle}}
             <tr>
+              <td>{{this.slot}}</td>
               <td>{{this.name}}</td>
-              <td><input type="number" class="js-eg-stat" data-kind="boss" data-block="{{@../index}}" data-phase="{{@index}}" data-field="hp" value="{{this.hp}}" min="1"/></td>
-              <td><input type="number" class="js-eg-stat" data-kind="boss" data-block="{{@../index}}" data-phase="{{@index}}" data-field="evade" value="{{this.evade}}" min="1"/></td>
-              <td><input type="number" class="js-eg-stat" data-kind="boss" data-block="{{@../index}}" data-phase="{{@index}}" data-field="attackDiceCount" value="{{this.attackDiceCount}}" min="2" max="16"/></td>
-              <td><input type="number" class="js-eg-stat" data-kind="boss" data-block="{{@../index}}" data-phase="{{@index}}" data-field="damageDiceCount" value="{{this.damageDiceCount}}" min="1" max="16"/></td>
+              {{#if this.isSummon}}
+              <td>—</td>
+              <td>—</td>
+              <td>—</td>
+              {{else}}
+              <td><input type="number" class="js-eg-cycle" data-phase="{{@../index}}" data-slot="{{this.cycleIndex}}" data-field="attackDiceCount" value="{{this.attackDiceCount}}" min="2" max="16"/></td>
+              <td><input type="number" class="js-eg-cycle" data-phase="{{@../index}}" data-slot="{{this.cycleIndex}}" data-field="damageDiceCount" value="{{this.damageDiceCount}}" min="0" max="16"/></td>
+              <td>
+                {{#if this.special}}
+                <input type="number" class="js-eg-cycle encounter-gen-input--small" data-phase="{{@../index}}" data-slot="{{this.cycleIndex}}" data-field="specialValue" value="{{this.specialValue}}" min="0" max="16"/>
+                {{this.specialText}}
+                {{else}}—{{/if}}
+              </td>
+              {{/if}}
+              <td>{{this.rangeText}}</td>
+              <td>{{this.extraText}}</td>
             </tr>
             {{/each}}
           </tbody>
@@ -126,39 +256,68 @@
       </div>
       {{/each}}
 
-      {{#if plan.minions.length}}
-      <h4>{{copy.review.minionsHeading}}</h4>
+      {{#if review.adds}}
+      <h4>{{copy.threat.addsHeading}}</h4>
       <table class="encounter-gen-table">
-        <thead>
-          <tr>
-            <th>{{copy.review.col.name}}</th>
-            <th>{{copy.review.col.hp}}</th>
-            <th>{{copy.review.col.evade}}</th>
-            <th>{{copy.review.col.attackDice}}</th>
-            <th>{{copy.review.col.damageDice}}</th>
-          </tr>
-        </thead>
         <tbody>
-          {{#each plan.minions}}
-          <tr>
-            <td>{{this.name}}</td>
-            <td><input type="number" class="js-eg-stat" data-kind="minion" data-block="{{@index}}" data-phase="0" data-field="hp" value="{{this.phases.0.hp}}" min="1"/></td>
-            <td><input type="number" class="js-eg-stat" data-kind="minion" data-block="{{@index}}" data-phase="0" data-field="evade" value="{{this.phases.0.evade}}" min="1"/></td>
-            <td><input type="number" class="js-eg-stat" data-kind="minion" data-block="{{@index}}" data-phase="0" data-field="attackDiceCount" value="{{this.phases.0.attackDiceCount}}" min="2" max="12"/></td>
-            <td><input type="number" class="js-eg-stat" data-kind="minion" data-block="{{@index}}" data-phase="0" data-field="damageDiceCount" value="{{this.phases.0.damageDiceCount}}" min="1" max="12"/></td>
-          </tr>
-          {{/each}}
+          <tr><td>Add-Werte</td><td>HP {{review.adds.design.hp}} · Rüstung {{review.adds.design.armor}} · Ausweichen {{review.adds.design.evade}} · {{review.adds.design.attackDiceCount}} Angriffs-W8 / {{review.adds.design.damageDiceCount}} Schadens-W8</td></tr>
+          <tr><td>Spawn</td><td>{{review.adds.spawnPerRound}}/Runde · max. {{review.adds.maxActive}} aktiv{{#if review.adds.summonCostsBossAction}} · kostet je 1 Boss-Aktion{{/if}}</td></tr>
+          <tr><td>Aktive Adds (R1→R5)</td><td>{{review.addsProjection.active}}</td></tr>
+          <tr><td>Add-Angriffe (R1→R5)</td><td>{{review.addsProjection.attacks}}</td></tr>
+          <tr><td>Add Threat</td><td>{{review.adds.design.expectedLifetimeRounds}} Runden × {{review.adds.design.threatPerAction}} Schaden ≈ <strong>{{review.adds.design.addThreat}}</strong></td></tr>
+          <tr><td>Gruppenschaden bei voller Population</td><td>{{review.adds.groupDamageAtFullPop}} pro Runde</td></tr>
+          <tr><td>Spieler-Aktionen zum Räumen</td><td>{{review.adds.playerActionsToClear.min}}–{{review.adds.playerActionsToClear.max}}</td></tr>
         </tbody>
       </table>
       {{/if}}
 
-      <div class="encounter-gen-respawn">
-        <h4>{{copy.review.respawnHeading}}</h4>
-        <p>{{respawnRecommendLabel}}</p>
-      </div>
+      {{#if review.environment}}
+      <h4>{{copy.threat.envHeading}}</h4>
+      <p class="encounter-gen-prose">{{review.environment.description}}</p>
+      {{/if}}
 
-      <p class="encounter-gen-note">{{copy.review.note}}</p>
+      <h4>{{copy.threat.heading}}</h4>
+      <table class="encounter-gen-table">
+        <tbody>
+          <tr><td>{{copy.threat.hitChances}}</td><td>{{review.report.hitChanceLowEvade}}% / {{review.report.hitChanceAvgEvade}}% / {{review.report.hitChanceHighEvade}}%</td></tr>
+          {{#if review.report.areaTn}}
+          <tr><td>{{copy.threat.aoeHitChance}}</td><td>{{review.report.hitChanceAreaTn}}% (Area TN {{review.report.areaTn}})</td></tr>
+          {{/if}}
+          <tr><td>{{copy.threat.rawDamage}}</td><td>{{review.report.expectedHitDamageRaw}}</td></tr>
+          <tr><td>{{copy.threat.afterArmor}}</td><td>{{review.report.expectedHitDamageAfterArmor}}</td></tr>
+          <tr><td>{{copy.threat.persistent}}</td><td>{{review.report.persistentDamagePerRound}}</td></tr>
+          <tr><td>{{copy.threat.burst}}</td><td>{{review.report.firstRoundBurstOneTarget}} (≈ {{review.report.firstRoundBurstHealthLevels}} Health Levels)</td></tr>
+          <tr><td>{{copy.threat.groupDamage}}</td><td>{{review.report.expectedGroupDamagePerRound}} (≈ {{review.report.expectedGroupDamageHealthLevels}} Health Levels)</td></tr>
+          {{#if review.environment}}
+          <tr><td>{{copy.threat.envDamage}}</td><td>{{review.report.environmentDamagePerRound}}</td></tr>
+          {{/if}}
+          <tr><td>{{copy.threat.actions}}</td><td>{{#each review.report.enemyActionsByRound}}{{#if @index}} → {{/if}}{{this}}{{/each}}</td></tr>
+          <tr><td>{{copy.threat.duration}}</td><td>~{{review.report.expectedDurationRounds}} Runden</td></tr>
+          <tr><td>{{copy.threat.hlSize}}</td><td>{{review.report.avgHealthLevelSize}} HP</td></tr>
+          <tr><td>{{copy.threat.round1Lowest}}</td><td>≈ {{review.report.round1HealthLevelsLowestPc}} Health Levels</td></tr>
+        </tbody>
+      </table>
+
+      <h4>{{copy.threat.warningsHeading}}</h4>
+      {{#if review.hasWarnings}}
+      <ul class="encounter-gen-warnings">
+        {{#each review.report.warnings}}
+        <li>⚠ {{this}}</li>
+        {{/each}}
+      </ul>
+      {{else}}
+      <p class="encounter-gen-note">{{copy.threat.noWarnings}}</p>
+      {{/if}}
+
+      {{#if review.notes.length}}
+      <ul class="encounter-gen-notes">
+        {{#each review.notes}}
+        <li>{{this}}</li>
+        {{/each}}
+      </ul>
+      {{/if}}
     </section>
+    {{/if}}
     {{/if}}
 
     {{!-- Step 5: Name + generate --}}

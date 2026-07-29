@@ -313,8 +313,8 @@
                 <span class="language-empty">Common Tongue</span>
               {{/if}}
             </span>
-            <button type="button" class="open-languages-btn" title="Pick the languages your character speaks">
-              <i class="fas fa-language"></i> Languages
+            <button type="button" class="open-languages-btn{{#unless languagesView.creationValid}} needs-pick{{/unless}}" title="Pick the languages your character speaks">
+              <i class="fas fa-language"></i> Pick Languages
             </button>
           </div>
           {{#unless languagesView.creationValid}}

@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.228] - 2026-07-29
+
+### Changed
+
+- **AoE attacks roll once vs the fixed Area TN (8 × Source Mastery Rank):** Per the updated Players Guide, AoE attacks no longer roll against the primary target's Evade or a Casting TN + Spell Resistance — the attack card shows "Area TN: X (8 × Mastery Rank Y)" and a single roll decides the whole area: on a success every valid non-excluded target is hit. Raises still add +4 each to the Raise TN, and AoE spells keep their spell mechanics (Blood Raises, spell cost split). The "no primary target" splash path now also makes this Area TN roll (previously it applied splash with no to-hit at all) — a miss affects nobody.
+- **Secondary AoE targets: Dive for Cover replaces the Body save:** Instead of rolling Body vs MR×8, a creature in the area may now spend its Reaction on Dive for Cover — move up to 2 × its own Mastery Rank meters; fully outside the area = not affected (movement does not provoke Reactions). The prompt walks through spending the Reaction and confirming whether the token ended up outside.
+- **Hex/Sundered now apply to AoE splash damage:** Secondary targets that already carry Hex (when the AoE power is a spell) or Sundered (when it is martial) take +1d8 bonus splash damage per 2 points (rounded up), matching the primary-target damage pipeline. The chat line breaks the bonus out, e.g. "3d8 power + 2d8 Sundered(4)".
+- **Encounter generator prices AoE rows against the Area TN:** AoE cycle rows solve their attack dice against the fixed Area TN instead of the party's average Evade, and the Threat Report gains an "AoE-Trefferchance (Area TN X, ignoriert Ausweichen)" line — AoE hit chances are now predictable and party-independent, which is exactly why enemies should carry a few AoE attacks alongside their direct ones.
+- **Languages button in character creation is now impossible to miss:** The "Pick Languages" button on the character sheet was completely unstyled and looked inactive. It is now a clearly clickable accented button, and while the character-creation language pick is still missing it renders filled and pulsing; known languages show as tag chips next to it.
+
 ## [0.9.227] - 2026-07-29
 
 ### Changed

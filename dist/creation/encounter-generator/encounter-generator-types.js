@@ -15,8 +15,8 @@
  */
 export const ENCOUNTER_STEP_ORDER = [
     'party',
-    'difficulty',
-    'composition',
+    'concept',
+    'adds',
     'review',
     'name',
 ];

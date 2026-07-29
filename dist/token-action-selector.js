@@ -896,13 +896,47 @@ export async function handleChosenCombatOption(token, option) {
                 if (option.source === 'power' && option.item?.id) {
                     await markPowerUsedThisRound(actor, combat, option.item.id);
                 }
+                // AoE attacks roll once vs the fixed Area TN = 8 × Source MR — even
+                // without a primary target. On a miss nobody in the area is affected.
+                const { getAttackAttribute, getAttributeValue, getMasteryRank } = await import('./combat/attack-executor.js');
+                const mr = getMasteryRank(actor);
+                const areaTn = 8 * Math.max(1, mr);
+                const attribute = getAttackAttribute(actor, null, option, 'melee');
+                let numDice = Math.max(1, getAttributeValue(actor, attribute));
+                if (option.source === 'npc-attack') {
+                    const { getNpcAttackByIndex, npcAttackDiceCount } = await import('./utils/npc-attack-model.js');
+                    const row = getNpcAttackByIndex(actor.system, option.npcAttackIndex ?? 0, option.npcPhaseIndex);
+                    const pool = npcAttackDiceCount(row);
+                    if (pool > 0)
+                        numDice = pool;
+                }
+                const { masteryRoll } = await import('./dice/roll-handler.js');
+                const areaRoll = await masteryRoll({
+                    numDice,
+                    keepDice: mr,
+                    skill: 0,
+                    tn: areaTn,
+                    label: `AoE Attack (${attribute.charAt(0).toUpperCase() + attribute.slice(1)})`,
+                    flavor: `Roll ${numDice}d8 keep ${mr} vs Area TN ${areaTn} — one roll, hits every target in the area`,
+                    actorId: actor.id,
+                    rollKind: 'attack',
+                    autoFailIntent: 'attack',
+                    checkContext: { tags: ['sight'] },
+                    normalTn: areaTn,
+                });
+                if (!areaRoll?.success) {
+                    ui.notifications?.info?.(`AoE verfehlt (Area TN ${areaTn}) — keine Ziele betroffen.`);
+                    return;
+                }
                 const { resolveAoeMeleeSecondaries } = await import('./combat/aoe-melee-resolution.js');
-                const mr = Math.max(1, Math.min(6, Math.floor(Number(actor.system?.mastery?.rank) || 2)));
+                const isSpellAoe = option.artifactIsSpell === true ||
+                    (option.item?.system?.isSpell === true);
                 await resolveAoeMeleeSecondaries({
                     attacker: actor,
                     attackerMasteryRank: mr,
                     secondaryTokenIds: effectiveBurstIds.slice(),
                     powerBonusDice: powerBonus,
+                    isSpell: isSpellAoe,
                 });
                 return;
             }

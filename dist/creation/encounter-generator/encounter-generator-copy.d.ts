@@ -59,10 +59,79 @@ export declare const ENCOUNTER_GENERATOR_COPY: {
         readonly note: "Hinweis: Ausweichen wird in-engine aus MR und Beweglichkeit erzeugt; Ruestung entspricht der MR. Phasen-Wechsel steuerst du im NSC-Bogen (aktive Phase).";
     };
     readonly name: {
-        readonly heading: "Encounter benennen & erzeugen";
-        readonly body: "Es wird ein neuer Actor-Ordner mit diesem Namen angelegt. Die erzeugten NSC-Actors landen darin und koennen aufs Feld gezogen werden (nur noch Bilder ergaenzen).";
-        readonly label: "Ordner-/Bossname";
-        readonly placeholder: "z.B. Der Aschekoenig";
+        readonly heading: "Encounter-Projekt benennen & erzeugen";
+        readonly body: "Es entsteht ein Encounter-Projekt: ein Ordner mit Unterordnern (Boss, ggf. Adds und Encounter Mechanics), die fertigen NSC-Actors sowie ein Journal mit Encounter Summary, Threat Report und druckbarem NPC-Sheet.";
+        readonly label: "Encounter-Name";
+        readonly placeholder: "z.B. The Red Priest";
+    };
+    readonly concept: {
+        readonly heading: "Kampfidee definieren";
+        readonly body: "Du legst fest, was der Gegner tun soll — der Generator entscheidet, welche Werte dafür nötig sind. Adds und Umgebungsmechanik teilen sich das Encounter-Budget mit dem Boss.";
+        readonly preset: "Archetyp-Vorlage";
+        readonly presetNone: "Eigenes Konzept";
+        readonly rank: "Enemy Rank / Importance";
+        readonly style: "Primary Combat Style";
+        readonly primarySpecial: "Primary Special";
+        readonly secondaryStyle: "Secondary Style (optional)";
+        readonly actions: "Aktionen pro Runde";
+        readonly targeting: "Zielmuster";
+        readonly phases: "Anzahl Phasen";
+        readonly cycleLength: "Power-Cycle Länge";
+        readonly cycleStyle: "Cycle-Stil";
+        readonly envActions: "Umgebungs-Aktionen pro Runde";
+    };
+    readonly adds: {
+        readonly heading: "Adds (Verstärkung)";
+        readonly body: "Adds sind keine „bisschen Health“ — jeder Add erzeugt jede weitere Runde neue Aktionen. Der Generator rechnet: Add Threat = erwartete Aktionen bis zum Tod × Bedrohung pro Aktion.";
+        readonly enabled: "Adds verwenden";
+        readonly durability: "Add Durability";
+        readonly durabilityOptions: {
+            readonly minion: "Minion — stirbt an einem erfolgreichen Angriff";
+            readonly light: "Light — überlebt einen schwachen Treffer";
+            readonly standard: "Standard — überlebt ca. zwei Angriffe";
+            readonly elite: "Elite — braucht gezielten Fokus";
+        };
+        readonly pressure: "Add Pressure";
+        readonly pressureOptions: {
+            readonly harassment: "Harassment — einzeln nahezu irrelevant";
+            readonly noticeable: "Noticeable — ~½ Health Level pro Runde";
+            readonly dangerous: "Dangerous in Groups — ~1 Health Level pro Runde";
+            readonly lethal: "Lethal if Ignored — volle Population schaltet einen Charakter in 2 Runden aus";
+        };
+        readonly targetActive: "Ziel-Population (gleichzeitig aktiv)";
+        readonly maxActive: "Maximum aktiv (0 = automatisch)";
+        readonly spawnPerRound: "Spawn-Rate (pro Runde)";
+        readonly spawnPattern: "Spawn-Muster";
+        readonly spawnPatternOptions: {
+            readonly continuous: "Continuous — jede Runde";
+            readonly burst: "Burst — alle zu Beginn";
+            readonly 'phase-start': "Phase Start — bei Phasenwechsel";
+            readonly triggered: "Triggered — durch Ereignis";
+        };
+        readonly summonCost: "Beschwören kostet den Boss eine Aktion";
+        readonly disabledNote: "Ohne Adds bekommt der Boss das volle Encounter-Budget.";
+    };
+    readonly threat: {
+        readonly heading: "Threat Report";
+        readonly hitChances: "Trefferchance (niedrig / Ø / hoch Ausweichen)";
+        readonly aoeHitChance: "AoE-Trefferchance (fixe Area TN, ignoriert Ausweichen)";
+        readonly rawDamage: "Erwarteter Schaden pro Treffer (vor Rüstung)";
+        readonly afterArmor: "Nach Ø Rüstung/DR";
+        readonly persistent: "Persistenter Schaden pro Runde (ignoriert Rüstung)";
+        readonly burst: "Max. Runde-1-Burst auf ein Ziel";
+        readonly groupDamage: "Erwarteter Gruppenschaden pro Runde";
+        readonly envDamage: "Umgebungs-/Zonenschaden pro Runde";
+        readonly actions: "Gegnerische Aktionen R1→R5 (inkl. Adds)";
+        readonly duration: "Erwartete Kampfdauer";
+        readonly healthLevels: (n: number) => string;
+        readonly hlSize: "Ø Health-Level-Größe der Gruppe";
+        readonly round1Lowest: "Runde-1-Verlust des zerbrechlichsten Charakters";
+        readonly warningsHeading: "Balancing-Warnungen";
+        readonly noWarnings: "Keine Warnungen — das Konzept sieht spielbar aus.";
+        readonly cycleHeading: "Power Cycle";
+        readonly addsHeading: "Adds";
+        readonly envHeading: "Umgebungsmechanik";
+        readonly phaseChangesLabel: "Änderungen";
     };
     readonly nav: {
         readonly back: "Zurueck";

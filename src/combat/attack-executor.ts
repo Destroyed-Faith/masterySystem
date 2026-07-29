@@ -142,7 +142,7 @@ function formatOnHitSummary(snapshot: PowerSnapshot, weaponDice: number | undefi
 /**
  * Get attribute value from actor
  */
-function getAttributeValue(actor: any, attributeName: string): number {
+export function getAttributeValue(actor: any, attributeName: string): number {
   if (!actor || !actor.system) {
     console.warn('Mastery System | [ATTACK EXECUTOR] getAttributeValue: No actor or system', {
       hasActor: !!actor,
@@ -175,7 +175,7 @@ function getAttributeValue(actor: any, attributeName: string): number {
 /**
  * Get mastery rank from actor
  */
-function getMasteryRank(actor: any): number {
+export function getMasteryRank(actor: any): number {
   if (!actor || !actor.system) return 2; // Default
   
   const system = actor.system as any;
@@ -227,7 +227,7 @@ function weaponHasFinesse(weapon: any | null): boolean {
  * - Powers: attribute from mastery tree / spell school (`system.tree`) via fixed list; if unknown tree, fall back to `roll.attribute`.
  * - Otherwise: Might for melee, Agility for ranged (weapon or maneuver).
  */
-function getAttackAttribute(
+export function getAttackAttribute(
   _actor: any,
   weapon: any | null,
   option: RadialCombatOption,
@@ -433,8 +433,14 @@ export async function createAttackCard(
   let selectedPowerSpecials: string[] = [];
   let selectedPowerDamage: string | null = null;
 
-  let tnKind: 'evade' | 'casting' = 'evade';
+  let tnKind: 'evade' | 'casting' | 'area' = 'evade';
   let castingBaseTn: number | null = null;
+
+  // AoE Attacks roll once against the fixed Area TN = 8 × Source Mastery Rank
+  // and ignore individual Evade / Spell Resistance (Players Guide, Attack
+  // Sequence step 2). Detect bursts even before secondaries are confirmed.
+  const isAoeAttack = !!aoeMelee || (option as any).burstMeleeAoE === true;
+  const areaTn = 8 * Math.max(1, masteryRank);
 
   if (option.source === 'power' && option.item) {
     selectedPowerId = option.item.id;
@@ -472,9 +478,21 @@ export async function createAttackCard(
     }
   }
 
-  /** Normal TN (Evade or Casting) — unchanged by declared raises. */
+  /** Whether the underlying power is a spell (kept for damage riders / raises). */
+  const powerWasSpell = tnKind === 'casting';
+
+  // Area TN overrides Evade AND Casting TN for AoE attacks.
+  if (isAoeAttack) {
+    tnKind = 'area';
+  }
+
+  /** Normal TN (Area, Casting or Evade) — unchanged by declared raises. */
   const normalTn =
-    tnKind === 'casting' && castingBaseTn != null ? castingBaseTn : targetEvadeFromActor;
+    tnKind === 'area'
+      ? areaTn
+      : tnKind === 'casting' && castingBaseTn != null
+        ? castingBaseTn
+        : targetEvadeFromActor;
   const baseEvade = normalTn;
 
   let raiseContext: {
@@ -598,7 +616,8 @@ export async function createAttackCard(
       : {}),
     tnKind,
     ...(castingBaseTn != null ? { castingBaseTn } : {}),
-    targetEvadeFromActor: tnKind === 'casting' ? targetEvadeFromActor : undefined,
+    ...(tnKind === 'area' ? { areaTn } : {}),
+    targetEvadeFromActor: tnKind !== 'evade' ? targetEvadeFromActor : undefined,
     halfEvadeVsInvisible: evadeVsInvisible.evadeMultiplier < 1,
   };
   
@@ -730,7 +749,7 @@ export async function createAttackCard(
           : ''
       }
       ${
-        tnKind === 'casting'
+        tnKind === 'casting' || (tnKind === 'area' && powerWasSpell)
           ? `<div class="blood-raises-row md-sublabel">
           Blood Raises (+4 roll each, −4 HP each):
           <input type="number" class="blood-raises-input" min="0" max="8" value="0" style="width:3em" />
@@ -743,9 +762,11 @@ export async function createAttackCard(
     : '';
   
   const raisesTitle =
-    tnKind === 'casting'
-      ? `Declare Raises before rolling. Each Raise adds +${RAISE_INCREMENT} to the Raise TN (Normal TN stays ${normalTn}). Pay Raise Cost from the Power first.`
-      : `Declare Raises before rolling. Each Raise adds +${RAISE_INCREMENT} to the Raise TN (Normal TN / Evade stays ${normalTn}). Pay Raise Cost from the Power first.`;
+    tnKind === 'area'
+      ? `Declare Raises before rolling. Each Raise adds +${RAISE_INCREMENT} to the Raise TN (Area TN stays ${normalTn}). Pay Raise Cost from the Power first.`
+      : tnKind === 'casting'
+        ? `Declare Raises before rolling. Each Raise adds +${RAISE_INCREMENT} to the Raise TN (Normal TN stays ${normalTn}). Pay Raise Cost from the Power first.`
+        : `Declare Raises before rolling. Each Raise adds +${RAISE_INCREMENT} to the Raise TN (Normal TN / Evade stays ${normalTn}). Pay Raise Cost from the Power first.`;
   
   const content = `
     <div class="mastery-attack-card">
@@ -773,12 +794,17 @@ export async function createAttackCard(
             : ""
         }
         ${
-          tnKind === 'casting' && castingBaseTn != null
+          tnKind === 'area'
             ? `<div class="detail-row">
+          <span class="detail-label">Area TN:</span>
+          <span class="detail-value">${normalTn} (8 × Mastery Rank ${masteryRank}) — one roll, hits every target in the area</span>
+        </div>`
+            : tnKind === 'casting' && castingBaseTn != null
+              ? `<div class="detail-row">
           <span class="detail-label">Casting TN:</span>
           <span class="detail-value">${castingBaseTn} (Power Level ${Math.max(1, Math.floor(Number(selectedPowerLevel) || 1))})</span>
         </div>`
-            : `<div class="detail-row">
+              : `<div class="detail-row">
           <span class="detail-label">Target Evade:</span>
           <span class="detail-value">${normalTn}${evadeVsInvisible.evadeMultiplier < 1 ? ' (half — failed Perception vs invisible attacker)' : ''}</span>
         </div>`

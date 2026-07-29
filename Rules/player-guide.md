@@ -1360,47 +1360,86 @@ when the gods may yet walk the earth once more.
 
 ---
 :
-Over the past decades, the demon lords have carved their realms across the lands of men. Each city below bears the mark of its infernal master.
+
+Over the past decades, the Demon Lords have carved their realms across the lands of mortals. Cities, kingdoms, and hidden dominions now bear the Marks of their infernal masters.
 
 ---
 :
+
+<img
+  src="https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/Demons/Marks/Agraorn.png"
+  class="df-realm-mark"
+  alt="The Mark of Agravorn"
+/>
+
 #### **Equilara — The Throne of Shadows**
-Once the beating heart of the empire of the gods, **Equilara** now serves as the seat of the **Throne** itself and of **Agravorn**, the self proclaimed King of Demons.   Agravorn is the mightiest of the demon lords, holding the others in check through sheer force and ancient right. The Throne is seldom spoken of directly a power beyond even the Nine, hovering above all like a dark sun.
+
+Once the beating heart of the empire of the gods, **Equilara** now serves as the seat of the **Throne** itself and of **Agravorn**, the self-proclaimed King of Demons.
+
+Agravorn is the mightiest of the Demon Lords, holding the others in check through sheer force and ancient right.
+
+The Throne is seldom spoken of directly — a power beyond even the Nine, hovering above them all like a dark sun.
+
+<div class="df-realm-clear"></div>
 
 ---
 :
+
+<img
+  src="https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/Demons/Marks/Kasbeel.png"
+  class="df-realm-mark"
+  alt="The Mark of Kasbeel"
+/>
+
 #### **Astralan (Velenor) — The Rotting Jewel of Kasbeel**
-**Kasbeel, the Plaguebringer**, rules from the once-radiant city of **Astralan**, now shrouded in sickly mists. Poisonous vapors drift through its streets, causing feverish hallucinations that twist beauty into decay. Merchants still flock there, believing it a free city, unaware that the haze itself compels them to stay.  
+
+**Kasbeel, the Plaguebringer**, rules from the once-radiant city of **Astralan**, now shrouded in sickly mists.
+
+Poisonous vapors drift through its streets, causing feverish hallucinations that twist beauty into decay. Merchants still flock there, believing Astralan to be a free city, unaware that the haze itself compels them to stay.
+
 The city has become a living organism, pulsing to feed its master’s hunger.
 
+<div class="df-realm-clear"></div>
+
 ---
+:
 
 #### **Athera — The War of Two Lords**
 
-**Silverspring** lies half-drowned beneath the waters of a vast, unnatural reservoir. Here reigns **Dagon**, the Abyssal King, whose colossal serpentine body coils through the depths. Those marked by Dagon mutate slowly gills, scales, and eyes that glimmer in the dark waters. They live in precarious stilt-villages above the flooded ruins, whispering prayers to their silent god.
+<img
+  src="https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/Demons/Marks/Dagon.png"
+  class="df-realm-mark df-realm-mark-small"
+  alt="The Mark of Dagon"
+/>
+
+##### **Silverspring — Dagon**
+
+**Silverspring** lies half-drowned beneath the waters of a vast, unnatural reservoir.
+
+Here reigns **Dagon, the Abyssal King**, whose colossal serpentine body coils through the depths. Those marked by Dagon mutate slowly: gills open along their throats, scales spread across their flesh, and their eyes begin to glimmer in the dark waters.
+
+They live in precarious stilt-villages above the flooded ruins, whispering prayers to their silent god.
+
+<div class="df-realm-clear"></div>
 
 ---
 
-To the south rises **Emberstone**, claimed by **Azzael, the Burning Judge**. Since his arrival, the volcano at the city’s heart has never ceased to erupt. Monthly blood-rites feed his endless hunger for purification, and his fanatics wage holy war upon Silverspring. Azzael’s zeal burns brighter than reason where he rules, only ash and screams remain.
+<img
+  src="https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/Demons/Marks/Azzael.png"
+  class="df-realm-mark df-realm-mark-small"
+  alt="The Mark of Azzael"
+/>
 
----
-:
-#### **Illumara (Astravar) — The Temple of Silence**
-Once the city of healing, meditation, and light, **Illumara** has fallen to **Usiel, the Butcher of Hope**. The sacred hush that once inspired peace now suffocates the soul. Despair clings to every wall; even angels would weep here. Pilgrims who seek solace find only the Echoes of their own hopeless prayers.
+##### **Emberstone — Azzael**
 
----
-:
-#### **Aerithar (Zehrion) — The Web of Ravens**
-In **Aerithar**, a place of forgotten wisdom and broken academies, rules **Malphas, the Crow-King**. His spies and shadow-priests weave a network that stretches across nations. The libraries that once taught truth now trade secrets and lies, each whisper another thread in his vast conspiracy. No ruler speaks without his ravens listening.
+To the south rises **Emberstone**, claimed by **Azzael, the Burning Judge**.
 
----
-:
-#### **Morrdrak — The Hidden Voice**
-The dead lands of **Morrdrak** know no open ruler, yet whispers speak of **Flauros, the Corrupter of Truth**. He moves unseen among lich-kings and necromancers, spreading doubt and false memory. Where others conquer with armies, Flauros conquers with questions and the living rot faster than the dead. Few have heard his name aloud, and fewer still remember it correctly.
+Since his arrival, the volcano at the city’s heart has never ceased to erupt. Monthly blood rites feed his endless hunger for purification, and his fanatics wage holy war upon Silverspring.
 
+Azzael’s zeal burns brighter than reason. Where he rules, only ash and screams remain.
 
----
-:
+<div class="df-realm-clear"></div>
+
 }}
 
 
@@ -1408,11 +1447,138 @@ The dead lands of **Morrdrak** know no open ruler, yet whispers speak of **Flaur
 {{pageNumber,auto}}
 {{wide
 
+<img
+  src="https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/Demons/Marks/Caim.png"
+  class="df-realm-mark"
+  alt="The Mark of Caim"
+/>
+
+#### **The Northern Deep Kingdoms — The Iron Rule of Caim**
+
+Far beneath the frozen mountains of the north lie the remnants of the ancient dwarven kingdoms: halls, mines, forge-cities, and deep roads older than most mortal realms.
+
+Here rules **Caim, the Iron Lord**.
+
+Dwarven flesh resists ordinary demonic binding, and so Caim found other ways to make them obedient. He controls the deep roads, seals the ancient forge-fires, holds clan against clan, and turns ancestral oaths into chains. Entire bloodlines are made responsible for the obedience of a single dwarf.
+
+Caim rules with an iron hand, not through constant slaughter, but by ensuring that every act of resistance threatens something older and more precious than the rebel’s own life.
+
+The undead dominions claim the frozen plains, fortresses, and mountain passes above. Caim and the Lich-Kings are rivals for the north, yet neither has chosen open war.
+
+For now, the dead leave the Deep Kingdoms untouched, and Caim leaves their black fortresses alone.
+
+Their peace is not trust.
+
+It is the pause between two predators deciding which one can afford to strike first.
+
+<div class="df-realm-clear"></div>
+
 ---
+:
+
+<img
+  src="https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/Demons/Marks/Usiel.png"
+  class="df-realm-mark"
+  alt="The Mark of Usiel"
+/>
+
+#### **Illumara (Astravar) — The Temple of Silence**
+
+Once the city of healing, meditation, and light, **Illumara** has fallen to **Usiel, the Butcher of Hope**.
+
+The sacred hush that once inspired peace now suffocates the soul. Despair clings to every wall; even angels would weep here.
+
+Pilgrims who seek solace find only the echoes of their own hopeless prayers.
+
+<div class="df-realm-clear"></div>
+
+---
+:
+
+<img
+  src="https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/Demons/Marks/Malphag.png"
+  class="df-realm-mark"
+  alt="The Mark of Malphas"
+/>
+
+#### **Aerithar (Zehrion) — The Web of Ravens**
+
+In **Aerithar**, a place of forgotten wisdom and broken academies, rules **Malphas, the Crow-King**.
+
+His spies and shadow-priests weave a network that stretches across nations. The libraries that once taught truth now trade in secrets and lies, each whisper becoming another thread in his vast conspiracy.
+
+No ruler speaks without his ravens listening.
+
+<div class="df-realm-clear"></div>
+
+---
+:
+
+<img
+  src="https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/Demons/Marks/Flauros.png"
+  class="df-realm-mark"
+  alt="The Mark of Flauros"
+/>
+
+#### **Morrdrak — The Hidden Voice**
+
+The dead lands of **Morrdrak** know no open ruler, yet whispers speak of **Flauros, the Corrupter of Truth**.
+
+He moves unseen among lich-kings and necromancers, spreading doubt and false memory. Where others conquer with armies, Flauros conquers with questions — and beneath his influence, the living rot faster than the dead.
+
+Few have heard his name spoken aloud, and fewer still remember it correctly.
+
+<div class="df-realm-clear"></div>
+
+}}
+
+
+\page
+{{pageNumber,auto}}
+{{wide
+
+<img
+  src="https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/Demons/Marks/Beleth.png"
+  class="df-realm-mark"
+  alt="The Mark of Beleth"
+/>
+
+#### **Beleth — The Realm That Cannot Be Found**
+
+Of **Beleth, the Hidden Demon**, almost nothing is known.
+
+He is considered the weakest of the Nine. No visible kingdom bears his banner. No city openly carries his Mark. No army marches beneath his name, and no reliable map records the location of his throne.
+
+That silence frightens even the servants of the other Demon Lords.
+
+Some believe Beleth is merely hiding from his stronger kin. Others fear that weakness has forced him to become patient. Rumors speak of unseen houses, secret pacts, and alliances formed beyond the recognized demonic order.
+
+If those rumors are true, what Beleth is building in the dark may prove even worse than the empire that currently rules the world.
+
+It is never comforting when nothing is heard from a demon.
+
+It means only that no one has yet discovered what he is doing.
+
+<div class="df-realm-clear"></div>
+
+---
+:
+
+<img
+  src="https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/Demons/Marks/Samael.png"
+  class="df-realm-mark"
+  alt="The Mark of Sammael"
+/>
 
 #### **Sammael — The Fallen Warlord**
-Of **Sammael, the Lord of Battles**, little remains but rumor. He was struck down years ago in a cataclysmic fight, yet soldiers still dream of his horn and awaken to bloodied hands. It is said his essence lingers in the marches beyond Zehrion, gathering the restless dead to prepare for his return.  
+
+Of **Sammael, the Lord of Battles**, little remains but rumor.
+
+He was struck down years ago in a cataclysmic battle, yet soldiers still dream of his horn and awaken with bloodied hands. It is said that his essence lingers in the marches beyond Zehrion, gathering the restless dead and preparing for his return.
+
 Even slain, war itself cannot die.
+
+<div class="df-realm-clear"></div>
 
 }}
 
@@ -1679,7 +1845,8 @@ Your victories will be small, your sacrifices great yet even the smallest triump
 > **Pool & Keep:** Roll your Pool (X dice), keep the best Y.  
 > **Exploding Dice:** On an **8**, **reroll that die** and **add** the new result. Repeat on further 8s.
 > **Target Number (TN):** The value you must reach to hit or succeed.  
-> **Evade:** The TN to hit a creature.  
+> **Evade:**The TN a direct Attack must reach to hit a creature. AoE Attacks use the fixed Area TN and ignore individual Evade.
+>**Area TN:** The fixed TN for an AoE Attack, equal to 8 × Source Mastery Rank
 > **Raises:** In combat, Raises are usually declared before rolling and increase TN by +4 each. Some systems, such as Rituals and Echo Cards, count Raises after the roll: every full +4 over TN equals 1 Raise. 
 > **Penetration(X):** Ignores X points of the target’s Armor.  
 >**Armor (AR):** Reduces the rolled damage of a successful hit. Armor does not reduce Specials, conditions, ongoing damage, or other effect damage unless a rule explicitly says so. 
@@ -5179,7 +5346,7 @@ Choose one Breath Special when this Artifact is created:
 
 **Ruin, Slow, Disrupt, Corrode, Blight, or Soulburn.**
 
-Resolve Breath Weapon as a Martial AoE attack. If the attack hits the Primary Target, valid Secondary Targets inside the area are affected. If the attack misses, the Breath Weapon fails.
+Resolve Breath Weapon as a Martial AoE attack. Resolve Breath Weapon as a Martial AoE Attack. Make one Attack Roll against the Area TN based on the user’s Mastery Rank. On a success, every valid non-excluded target inside the Breath Shape receives the full Breath Weapon payload. Individual Evade values do not modify the Area TN.
 
 ---
 
@@ -6506,6 +6673,12 @@ The call belongs to the **Hollow King**. Nothing more is certain.
 
 Some Deathless resist the call. Some follow it. Some fear it. Some believe it is the only thing keeping them from becoming truly empty. No Deathless begins with certainty about what waits at the end.
 
+}}
+
+\page
+{{pageNumber,auto}}
+{{wide
+
 
 }}
 \page
@@ -7286,7 +7459,7 @@ If a Stone Power states “cumulative per combat”, the doubling cost persists 
 | **Stone Ability** | **Tier 1** | **Tier 2** | **Tier 3** | **Tier 4** |
 |:--|:--|:--|:--|:--|
 | **Spell Raises** | Your **Spells** this turn gain **+4** to their roll for the purpose of meeting the **Raise TN** only. | Your **Spells** this turn gain **+8** to their roll for the purpose of meeting the **Raise TN** only. | Your **Spells** this turn gain **+12** to their roll for the purpose of meeting the **Raise TN** only. | Your **Spells** this turn gain **+16** to their roll for the purpose of meeting the **Raise TN** only. |
-| **Spell Resistance** | Until the start of your next turn, Spells targeting you or including you in their area increase their TN against you by **+4**. | Until the start of your next turn, Spells targeting you or including you in their area increase their TN against you by **+8**. | Until the start of your next turn, Spells targeting you or including you in their area increase their TN against you by **+12**. | Until the start of your next turn, Spells targeting you or including you in their area increase their TN against you by **+16**. |
+| **Spell Resistance** | Until the start of your next turn, Spells that directly target you increase their TN against you by **+4**. Spell Resistance does not increase the TN of AoE Spells that include you in their area. | Until the start of your next turn, Spells that directly target you increase their TN against you by **+8**. Spell Resistance does not increase the TN of AoE Spells that include you in their area. | Until the start of your next turn, Spells that directly target you increase their TN against you by **+12**. Spell Resistance does not increase the TN of AoE Spells that include you in their area. | Until the start of your next turn, Spells that directly target you increase their TN against you by **+16**. Spell Resistance does not increase the TN of AoE Spells that include you in their area. |
 | **Spell Action** | — | Gain **1 additional Attack Action** this round. It may only be used to cast a **Spell**. | Gain **2 additional Attack Actions** this round. They may only be used to cast **Spells**. | Gain **3 additional Attack Actions** this round. They may only be used to cast **Spells**. |
 | **Special Boost** | Increase one eligible Special on your **Spells** this turn by **+2**. | Increase one eligible Special on your **Spells** this turn by **+4**. | Increase one eligible Special on your **Spells** this turn by **+8**. | Increase one eligible Special on your **Spells** this turn by **+12**. |
 
@@ -8297,7 +8470,7 @@ The Primary Defense Pillars are complete defensive foundations around which a ch
 | **Primary Defense Pillar** | **Stage** | **Function** |
 |:--|:--|:--|
 | **Parry** | Before the Attack Roll | Removes Attack Dice from an eligible direct Attack. If the entire Attack Pool is reduced to 0, the Attack is Fully Parried and does not resolve. |
-| **Evade** | During the Attack Roll | Determines the Target Number an Attack must reach to hit the character. |
+| **Evade** | During the Attack Roll | Determines the Target Number a direct Attack must reach to hit the character. Evade does not modify the TN of an AoE Attack.|
 | **Armor** | After the Damage Roll | Reduces the rolled damage result before it is applied to the character. |
 | **Absorption** | After actual HP loss | Provides additional real HP and converts actual HP lost into Temporary Colorless Stones. |
 
@@ -8347,7 +8520,14 @@ Choose the target and the Attack, Spell, Power, weapon, or other hostile effect 
 
 #### 2. Determine the Target Number
 
-Determine the Target Number the roll must reach. A normal Attack rolls against the target's Evade. A Spell uses `Final Spell TN = Spell Base TN + Target Spell Resistance`. If an effect defines another Target Number, use that rule instead.
+Determine whether the effect is a direct Attack or an AoE Attack.
+
+---
+ - A direct normal Attack rolls against the target’s Evade.
+ - A direct Spell uses Final Spell TN = Spell Base TN + Target Spell Resistance.
+ - An AoE Attack uses Area TN = 8 × Source Mastery Rank.
+---
+AoE Attacks ignore the Evade and Spell Resistance of creature
 
 #### 3. Declare Raises and Pay Costs
 
@@ -8363,7 +8543,7 @@ Before an eligible direct Attack is rolled, a character currently using Parry ma
 
 #### 6. Make the Roll
 
-Roll the remaining Attack or Spell Pool, resolve exploding dice, keep the appropriate number of dice, and compare the final result to the applicable Target Number. If the result does not reach the Target Number, the effect misses or fails against that target and its resolution ends there.
+Roll the remaining Attack or Spell Pool, resolve exploding dice, keep the appropriate number of dice, and compare the final result to the applicable Target Number. If the result does not reach the Target Number, the effect misses or fails against that target and its resolution ends there.For an AoE Attack, compare the result once against the Area TN. On a success, every valid non-excluded target inside the area is hit. Do not compare the result separately against individual targets.
 
 #### 7. Resolve Phasing
 
@@ -8373,14 +8553,16 @@ After an Attack successfully hits, but before its damage, Specials, or other hit
 
 Resolve any Saving Throws required by the successful hit, followed by forced movement, control effects, conditions, and other hit effects according to their individual rules. If a successful Save prevents an effect entirely, Ward and Cleanse are not required against that effect.
 
-#### 9. Apply Ward to Incoming Specials
 
-Before an eligible hostile **Special(X)** is applied, reduce its value by the target's Ward. Ward applies separately to every eligible Special delivered by the same Attack or effect. If a Special is reduced to **0 or less**, it is not applied. Ward does not reduce Specials already affecting the target; existing Specials may instead be reduced or removed through Cleanse.
 }}
 
 \page
 {{pageNumber,auto}}
 {{wide
+
+#### 9. Apply Ward to Incoming Specials
+
+Before an eligible hostile **Special(X)** is applied, reduce its value by the target's Ward. Ward applies separately to every eligible Special delivered by the same Attack or effect. If a Special is reduced to **0 or less**, it is not applied. Ward does not reduce Specials already affecting the target; existing Specials may instead be reduced or removed through Cleanse.
 #### 10. Build the Damage Pool
 
 Determine the complete Damage Pool assigned to the target, including weapon damage, Power damage, successful Raise damage, bonus Damage Dice, and all other legal damage modifiers.
@@ -9007,10 +9189,13 @@ Your <strong>Movement</strong> represents your tactical positioning during your 
 ---
 :
 #### Defensive Reactions
-  <strong>Dive for Cover</strong> – When an AoE is placed and you are inside its area, you may spend your Reaction to immediately move up to <strong>2 × your Mastery Rank meters</strong>. 
-  If this movement takes you completely outside the AoE, you are not affected by that AoE’s damage or payload. 
-  If you remain inside the AoE after this movement, the AoE affects you normally. This doesnt provoke Reactions.
-This is a Reaction every character gets for free.
+  <strong>Dive for Cover</strong> – After an AoE Attack successfully reaches its Area TN, but before its damage or payload is applied, a creature inside the area may spend its Reaction to immediately move up to 2 × Mastery Rank meters.
+
+If this movement takes the creature completely outside the AoE, it is not affected by that AoE.
+
+If it remains inside the area, it is affected normally.
+
+This movement does not provoke Reactions.
 </li>
 </ul>
 
@@ -10010,52 +10195,85 @@ Once chosen, the Casting Attribute is fixed for that Spell.
 
 When casting a Spell, roll:
 
+---
+
 `Casting Attribute k Mastery`
+
+---
 
 The Casting Attribute is the Attribute chosen when the Spell was designed:
 **Intellect**, **Resolve**, or **Influence**.
 
+---
+
 Spells do **not** roll against the target’s Evade.
-
-A Spell is cast against its own **Casting TN**.  
-This TN represents how difficult it is to shape, stabilize, and release the Spell.
-
-The Spell’s Casting TN is determined by the Spell’s **Spell Tier**.
-
-| Spell Tier | Casting TN |
-|:--:|:--:|
-| I | 8 |
-| II | 16 |
-| III | 24 |
-| IV | 32 |
-| V | 40 |
-| VI | 48 |
-| VII | 56 |
-| VIII | 64 |
-
-If the casting roll equals or exceeds the Casting TN, the Spell is successfully cast and its effects resolve.
-
-If the casting roll fails, the Spell fizzles and the caster takes **1d8 Stress**.
 
 ---
 
+Every Spell uses a **Base Casting TN** determined by the caster’s Mastery Rank.
+
+This TN represents how difficult it is to shape, stabilize, and release the Spell.
+
+| Mastery Rank | Base Casting TN |
+| :----------: | :-------------: |
+|       I      |        8        |
+|      II      |        16       |
+|      III     |        24       |
+|      IV      |        32       |
+|       V      |        40       |
+|      VI      |        48       |
+|      VII     |        56       |
+|     VIII     |        64       |
+
+---
+
+For a Spell that directly targets a creature, add the target’s **Spell Resistance**:
+
+---
+
+`Final Casting TN = Base Casting TN + Target Spell Resistance`
+
+---
+
+For a Spell with the **AoE** tag, use the **Base Casting TN without adding Spell Resistance**.
+
+---
+AoE Spells ignore the individual **Evade** and **Spell Resistance** of all creatures inside their area.
+
+---
+
+If the casting roll equals or exceeds the applicable Casting TN, the Spell is successfully cast and its effects resolve.
+
+---
+
+If the casting roll fails, the Spell fizzles and the caster takes **1d8 Stress**.
+
+:::
 ### Spell Conversion Summary
 
 To make a Spell, choose a valid **Ranged Active Power** and convert its delivery to magical casting.
 
+---
 The Power must already have Range and at least one Special.
 
+---
 The converted Spell keeps the Power’s existing structure and uses **Influence**, **Intellect** or **Resolve** instead of a weapon or physical delivery.
 
+---
 A Spell is therefore:
 
 > **A Ranged Active Power with a mandatory Special, cast through Influence, Intellect or Resolve.**
+
+
+---
+
 
 
 }}
 \page
 {{pageNumber,auto}}
 {{wide
+
 
 ### Mental Power Difficulty
 
@@ -12433,12 +12651,22 @@ Attack sequence:
 9. Apply Damage Reduction.
 10. Apply remaining damage.
 
-Attack TN:
+---
+**Direct Attack TN:** Target Evade + declared Raises × 4
 
-`Target Evade + declared Raises × 4`
+---
+**Direct Spell TN:** Spell Base TN + Target Spell Resistance + declared Raises×4
 
+---
+**AoE Attack TN:** 8 × Source MR + declared Raises × 4
+
+---
+AoE Attacks ignore individual Evade and Spell Resistance.
+
+---
 If your result is equal or higher, the attack hits.
 
+---
 A declared Raise succeeds only if the result also reaches the raised TN.
 
 ---

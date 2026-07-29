@@ -23,6 +23,24 @@ export interface AoeMeleeWeaponContext {
     powerBonusDice: number;
 }
 /**
+ * Get attribute value from actor
+ */
+export declare function getAttributeValue(actor: any, attributeName: string): number;
+/**
+ * Get mastery rank from actor
+ */
+export declare function getMasteryRank(actor: any): number;
+/**
+ * Determine which attribute to use for attack rolls.
+ * - Spells: casting attribute on the item / option.
+ * - Weapons with Finesse (incl. artifact Free Trait): Agility for To-Hit —
+ *   also for weapon-carried attack powers (Melee Single Attack, Smite, …),
+ *   where it beats the mastery-tree default (rules: "Attack Roll uses Agility").
+ * - Powers: attribute from mastery tree / spell school (`system.tree`) via fixed list; if unknown tree, fall back to `roll.attribute`.
+ * - Otherwise: Might for melee, Agility for ranged (weapon or maneuver).
+ */
+export declare function getAttackAttribute(_actor: any, weapon: any | null, option: RadialCombatOption, attackType: "melee" | "ranged"): string;
+/**
  * Create a melee or ranged attack chat card with roll button (Threatened Ranged for qualifying ranged attacks).
  */
 export declare function createAttackCard(attackerToken: any, targetToken: any, option: RadialCombatOption, attackType: "melee" | "ranged", split?: SplitContext | null, burstVolley?: MeleeBurstVolleyContext | null, aoeMelee?: AoeMeleeWeaponContext | null): Promise<void>;

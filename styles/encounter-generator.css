@@ -195,6 +195,54 @@
   margin-top: 12px;
 }
 
+/* Concept / adds / review (v2 flow) */
+.encounter-gen-field--checkbox {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 0;
+}
+
+.encounter-gen-field--checkbox input[type='checkbox'] {
+  width: auto;
+}
+
+.encounter-gen-form--inline {
+  grid-template-columns: repeat(auto-fit, minmax(110px, 140px));
+  margin-bottom: 8px;
+}
+
+.encounter-gen-tag {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 1px 8px;
+  border-radius: 10px;
+  font-size: 0.72rem;
+  font-weight: 500;
+  background: var(--df-bg-elevated, #24242c);
+  border: 1px solid var(--df-border, #3a3a42);
+  opacity: 0.85;
+}
+
+.encounter-gen-input--small {
+  max-width: 56px;
+  display: inline-block;
+}
+
+.encounter-gen-warnings {
+  margin: 4px 0 0;
+  padding-left: 18px;
+  color: var(--df-warning, #e0a94a);
+  font-size: 0.85rem;
+}
+
+.encounter-gen-notes {
+  margin: 8px 0 0;
+  padding-left: 18px;
+  font-size: 0.8rem;
+  opacity: 0.8;
+}
+
 /* Footer */
 .encounter-gen-footer {
   display: flex;

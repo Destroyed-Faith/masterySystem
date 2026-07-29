@@ -77,7 +77,7 @@ export function promptMeleeAoePrimaryChoice(burstTokenIds, attackerTokenId, _opt
     return new Promise((resolve) => {
         const dlg = new Dialog({
             title: 'Melee AoE — Primary target',
-            content: `<p style="margin-bottom:0.5em">One attack roll is made against the <strong>primary</strong> target (full hit). Other enemies in the burst take only the power’s AoE damage after optional Body saves.</p>
+            content: `<p style="margin-bottom:0.5em">One attack roll is made vs the fixed <strong>Area TN (8 × Mastery Rank)</strong> — on a success every target in the area is hit. The <strong>primary</strong> takes the full hit; other enemies take the power’s AoE damage unless they Dive for Cover (Reaction).</p>
         <label for="ms-aoe-exclude-allies" style="display:flex;align-items:center;gap:0.35em;margin:0.35em 0" title="Verbündete und Spieler-Charaktere werden weder Primärziel noch Sekundärziel, solange aktiv.">
           <input type="checkbox" id="ms-aoe-exclude-allies" checked />
           <span>Exclude allies/players (Verbündete ausnehmen)</span>

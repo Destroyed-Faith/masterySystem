@@ -133,14 +133,16 @@ export function extractPartyMember(actor: any, samples = 3000, rng: Rng = Math.r
 
   const bars: any[] = Array.isArray(system.health?.bars) ? system.health.bars : [];
   const effectiveHP = bars.reduce((acc, b) => acc + Math.max(0, num(b?.max, 0)), 0) || 1;
+  const barCount = Math.max(1, bars.length);
 
   const might = num(attributes.might?.value, 2);
   const agility = num(attributes.agility?.value, 2);
   const bestAttr = Math.max(might, agility);
   const attackPool = Math.max(mr, Math.floor(bestAttr));
 
-  // Equipped weapon (best-effort).
+  // Equipped weapon (best-effort) + Cleanse detection over owned powers.
   let weaponSystem: any = null;
+  let canCleanse = false;
   try {
     const items: any[] = Array.isArray(actor?.items?.contents)
       ? actor.items.contents
@@ -150,6 +152,14 @@ export function extractPartyMember(actor: any, samples = 3000, rng: Rng = Math.r
     weaponSystem = items.find((i) => i?.type === 'weapon' && i?.system?.equipped === true)?.system
       ?? items.find((i) => i?.type === 'weapon')?.system
       ?? null;
+    canCleanse = items.some((i) => {
+      if (i?.type !== 'power') return false;
+      const sys = i?.system ?? {};
+      const chosen = String(sys.chosenSpecial?.key ?? '').toLowerCase();
+      const name = String(i?.name ?? '').toLowerCase();
+      const subfamily = String(sys.subfamily ?? '').toLowerCase();
+      return chosen === 'cleanse' || subfamily === 'support-cleanse' || name.includes('cleanse');
+    });
   } catch {
     weaponSystem = null;
   }
@@ -172,6 +182,8 @@ export function extractPartyMember(actor: any, samples = 3000, rng: Rng = Math.r
     mightMeleeBonus,
     attacksPerRound: 1,
     attackTotals,
+    barCount,
+    canCleanse,
   };
 }
 
