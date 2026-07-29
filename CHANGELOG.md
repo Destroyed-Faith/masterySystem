@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.227] - 2026-07-29
+
+### Changed
+
+- **Mark is now spent AFTER the damage roll:** Instead of a blind pre-roll dropdown on the damage card, hitting a Marked target now pops a post-roll prompt once the dice are known. The dropdown shows the exact outcome of every option — e.g. "Mark 4: 30 → 45 damage (+15)" — so the attacker only spends Mark when it actually gains something. If no damage die lies below the possible floor, no prompt appears at all (the roll details note "nothing to gain") and the Mark stays on the target. Runs after the Faith-Fracture reroll decision so the floor applies to the final dice; Mark is still consumed only by the amount actually spent, never twice on a reroll.
+
 ## [0.9.226] - 2026-07-28
 
 ### Added

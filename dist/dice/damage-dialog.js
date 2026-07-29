@@ -826,22 +826,12 @@ function createDamageCardContent(attacker, target, baseDamage, powerDamage, pass
     const markMax = Math.max(0, Math.floor(Number(targetMarkValue) || 0));
     let markSpendSection = '';
     if (markMax > 0) {
-        const options = [
-            `<option value="0" selected>0 — do not spend Mark</option>`,
-        ];
-        for (let n = 1; n <= markMax; n++) {
-            options.push(`<option value="${n}">${n} — Damage Floor ${n}</option>`);
-        }
+        // Mark spend is chosen AFTER the damage roll (post-roll prompt with exact
+        // "total → new total" options) — the card only announces it.
         markSpendSection = `
       <div class="raises-section mark-spend-section">
         <h4><i class="fas fa-bullseye"></i> Mark(${markMax}) on target</h4>
-        <p class="raises-description">You may spend any amount of Mark before damage is applied. Spent Mark becomes the Damage Floor for this roll (dice below that value are raised). Anyone who hits this target may spend Mark.</p>
-        <div class="raise-item mark-spend-row">
-          <label for="ms-mark-spend">Spend Mark:</label>
-          <select class="raise-selection mark-spend-select" id="ms-mark-spend" name="markSpend">
-            ${options.join('\n            ')}
-          </select>
-        </div>
+        <p class="raises-description">After the damage roll you may spend any amount of Mark. Spent Mark becomes the Damage Floor for this roll (dice below that value are raised) — the prompt shows exactly how much each option gains. Anyone who hits this target may spend Mark.</p>
       </div>`;
     }
     console.log('Mastery System | [DAMAGE CARD HTML] createDamageCardContent - values', {
@@ -1032,20 +1022,9 @@ export function attachDamageCardHandlers(messageId) {
             }
             // Raise effects are pre-declared on the attack card — no post-roll picker.
             const raiseSelections = new Map();
-            // Mark spend is optional: attacker may spend 0..Mark on the target (Damage Floor).
-            // Prefer live Mark on the target (may have changed since the card was posted).
-            let markOnTarget = 0;
-            try {
-                const { getActiveSpecialValue } = await import('../system/active-specials.js');
-                markOnTarget = Math.max(0, getActiveSpecialValue(target, 'mark'));
-            }
-            catch {
-                markOnTarget = Math.max(0, Math.floor(Number(flags.targetMarkValue) || 0));
-            }
-            const markSpend = markOnTarget > 0
-                ? clampMarkSpend(markOnTarget, Number(messageElement.find('.mark-spend-select').val()))
-                : 0;
-            const result = await calculateDamageResult(flags.baseDamage, flags.powerDamage, flags.passiveDamage, 0, raiseSelections, flags.availableSpecials, attacker, target, Math.max(0, Number(flags.stoneDamageBonusDice) || 0), Math.max(0, Number(flags.npcAutoDamageDice) || 0), Array.isArray(flags.npcAutoSpecialStrings) ? flags.npcAutoSpecialStrings : [], flags.selectedPowerId || null, !!flags.splitAttack, flags.attackType === 'ranged' ? 'ranged' : 'melee', markSpend);
+            // Mark spend is chosen AFTER the roll via a post-roll prompt inside
+            // calculateDamageResult (exact "total → new total" options per spend).
+            const result = await calculateDamageResult(flags.baseDamage, flags.powerDamage, flags.passiveDamage, 0, raiseSelections, flags.availableSpecials, attacker, target, Math.max(0, Number(flags.stoneDamageBonusDice) || 0), Math.max(0, Number(flags.npcAutoDamageDice) || 0), Array.isArray(flags.npcAutoSpecialStrings) ? flags.npcAutoSpecialStrings : [], flags.selectedPowerId || null, !!flags.splitAttack, flags.attackType === 'ranged' ? 'ranged' : 'melee');
             console.log('Mastery System | [ROLL DAMAGE BUTTON] calculateDamageResult returned', {
                 messageId,
                 hasResult: !!result,
@@ -1668,11 +1647,66 @@ async function promptDamageFaithReroll(attacker, totalDamage, rollDetails) {
     }
 }
 /**
+ * Post-roll Mark spend prompt: the attacker sees the rolled total and picks
+ * how much Mark to spend from a dropdown that shows the exact outcome of
+ * every option ("Mark 4: 30 → 45 damage (+15)"). Returns the chosen spend
+ * (0 = keep the Mark on the target).
+ */
+async function promptMarkSpend(target, markOnTarget, totalDamage, damageChatRolls) {
+    const mark = Math.max(0, Math.floor(Number(markOnTarget) || 0));
+    if (mark <= 0)
+        return 0;
+    try {
+        const options = [
+            `<option value="0" selected>0 — do not spend Mark (keep ${mark} on target)</option>`,
+        ];
+        for (let n = 1; n <= mark; n++) {
+            const bonus = computeMarkFloorBonus(damageChatRolls, n);
+            const label = bonus > 0
+                ? `Mark ${n}: ${totalDamage} → ${totalDamage + bonus} damage (+${bonus})`
+                : `Mark ${n}: ${totalDamage} → ${totalDamage} damage (no gain)`;
+            options.push(`<option value="${n}">${label}</option>`);
+        }
+        return await new Promise((resolve) => {
+            new Dialog({
+                title: `Mark(${mark}) on ${target.name} — spend?`,
+                content: `<p style="margin-bottom:0.35em"><strong>Damage rolled: ${totalDamage}</strong></p>
+          <p style="margin:0 0 0.5em">Spent Mark becomes the Damage Floor for this roll — every damage die below the spent value is raised to it. The target's Mark is reduced by the amount spent.</p>
+          <div class="form-group">
+            <label for="ms-mark-spend-post">Spend Mark:</label>
+            <select id="ms-mark-spend-post" name="markSpendPost" style="width:100%">
+              ${options.join('\n              ')}
+            </select>
+          </div>`,
+                buttons: {
+                    apply: {
+                        icon: '<i class="fas fa-bullseye"></i>',
+                        label: 'Apply',
+                        callback: (html) => {
+                            const chosen = Number($(html).find('#ms-mark-spend-post').val());
+                            resolve(clampMarkSpend(mark, chosen));
+                        },
+                    },
+                    skip: {
+                        icon: '<i class="fas fa-times"></i>',
+                        label: 'Do not spend',
+                        callback: () => resolve(0),
+                    },
+                },
+                default: 'apply',
+                close: () => resolve(0),
+            }).render(true);
+        });
+    }
+    catch (e) {
+        console.warn('Mastery System | [MARK SPEND] prompt failed — Mark not spent', e);
+        return 0;
+    }
+}
+/**
  * Calculate damage result from selections
  */
 async function calculateDamageResult(baseDamage, powerDamage, passiveDamage, raises, raiseSelections, availableSpecials, attacker, target, stoneDamageBonusDice = 0, npcAutoDamageDice = 0, npcAutoSpecialStrings = [], selectedPowerId = null, splitAttack = false, attackType = 'melee', 
-/** Optional Mark spend chosen by the attacker (0 = do not use Mark). */
-markSpendChosen = 0, 
 /**
  * Offer a Faith Fracture damage reroll after rolling, before applying.
  * The reroll recursion passes `false` — any roll may be rerolled at most once.
@@ -1837,10 +1871,8 @@ allowFaithReroll = true) {
     // Diminishing vulnerability riders on the defender:
     //   Hex(X)      → +1d8 per 2 Hex (rounded up) when hit by a Spell.
     //   Sundered(X) → +1d8 per 2 Sundered (rounded up) when hit by a non-Spell.
-    // Mark(X) Damage Floor is optional: the attacker may spend 0..Mark before
-    // final damage; only then are dice raised and Mark reduced.
+    // Mark(X) Damage Floor is chosen AFTER the roll (post-roll prompt below).
     let vulnerabilityBonusRolled = 0;
-    let markFloorBonus = 0;
     // Deferred until after the Faith-Fracture reroll gate — a reroll must not
     // consume the target's Mark twice.
     let markSpendToConsume = 0;
@@ -1865,21 +1897,10 @@ allowFaithReroll = true) {
                     damageChatRolls.push(r.roll);
                 specialsUsed.push(`${label} → +${bonusDice}d8`);
             }
-            const mark = getActiveSpecialValue(target, 'mark');
-            const spend = clampMarkSpend(mark, markSpendChosen);
-            if (mark > 0 && spend > 0) {
-                markFloorBonus = computeMarkFloorBonus(damageChatRolls, spend);
-                rollDetails.push(`Mark(${mark}) spend ${spend} → floor ${spend} (+${markFloorBonus})`);
-                specialsUsed.push(`Mark spent ${spend} (floor ${spend})`);
-                markSpendToConsume = spend;
-            }
-            else if (mark > 0 && spend <= 0) {
-                rollDetails.push(`Mark(${mark}) available — not spent`);
-            }
         }
     }
     catch (e) {
-        console.warn('Mastery System | [CALCULATE DAMAGE] vulnerability/mark riders failed', e);
+        console.warn('Mastery System | [CALCULATE DAMAGE] vulnerability riders failed', e);
     }
     // Players Guide attribute scaling (~5957–5965): Might/8 = +2 melee damage
     // per successful melee/unarmed strike. Applies as a flat bonus, never on
@@ -1900,7 +1921,8 @@ allowFaithReroll = true) {
         }
     }
     // Total damage = Base Weapon + Might stone bonus + Might/8 melee bonus + Power Damage + Raises + Conditional + Manual + Smite (Passives separate)
-    const totalDamage = baseDamageRolled
+    // (Mark floor bonus is added after the post-roll Mark prompt below.)
+    let totalDamage = baseDamageRolled
         + stoneMightDamageRolled
         + mightMeleeBonus
         + powerDamageRolled
@@ -1909,8 +1931,7 @@ allowFaithReroll = true) {
         + manualDamageRolled
         + manualDamageFlat
         + vulnerabilityBonusRolled
-        + smiteBonusRolled
-        + markFloorBonus;
+        + smiteBonusRolled;
     console.log('Mastery System | [CALCULATE DAMAGE] Final calculation', {
         baseDamageRolled,
         stoneMightDamageRolled,
@@ -1933,13 +1954,45 @@ allowFaithReroll = true) {
             const cur = Number(attacker?.system?.faithFractures?.current ?? 0) || 0;
             await attacker.update({ 'system.faithFractures.current': Math.max(0, cur - 1) });
             ui.notifications?.info(`${attacker.name} spent 1 Faith Fracture — rerolling damage (was ${prevTotal}).`);
-            const rerolled = await calculateDamageResult(baseDamage, powerDamage, passiveDamage, raises, raiseSelections, availableSpecials, attacker, target, stoneDamageBonusDice, npcAutoDamageDice, npcAutoSpecialStrings, selectedPowerId, splitAttack, attackType, markSpendChosen, false);
+            const rerolled = await calculateDamageResult(baseDamage, powerDamage, passiveDamage, raises, raiseSelections, availableSpecials, attacker, target, stoneDamageBonusDice, npcAutoDamageDice, npcAutoSpecialStrings, selectedPowerId, splitAttack, attackType, false);
             rerolled.rollDetails = [
                 `Reroll — 1 Faith Fracture spent (previous total: ${prevTotal})`,
                 ...(rerolled.rollDetails ?? []),
             ];
             return rerolled;
         }
+    }
+    // Mark(X) Damage Floor — chosen AFTER the roll so the attacker sees exactly
+    // what each spend gains ("Mark 4: 30 → 45 damage"). Runs after the reroll
+    // gate: the floor applies to the final dice, and a reroll never consumes
+    // Mark twice.
+    try {
+        if (target) {
+            const { getActiveSpecialValue } = await import('../system/active-specials.js');
+            const mark = Math.max(0, getActiveSpecialValue(target, 'mark'));
+            if (mark > 0) {
+                const maxBonus = computeMarkFloorBonus(damageChatRolls, mark);
+                if (maxBonus <= 0) {
+                    rollDetails.push(`Mark(${mark}) available — all damage dice already ≥ ${mark}, nothing to gain`);
+                }
+                else {
+                    const spend = await promptMarkSpend(target, mark, totalDamage, damageChatRolls);
+                    if (spend > 0) {
+                        const markFloorBonus = computeMarkFloorBonus(damageChatRolls, spend);
+                        totalDamage += markFloorBonus;
+                        rollDetails.push(`Mark(${mark}) spend ${spend} → floor ${spend} (+${markFloorBonus})`);
+                        specialsUsed.push(`Mark spent ${spend} (floor ${spend})`);
+                        markSpendToConsume = spend;
+                    }
+                    else {
+                        rollDetails.push(`Mark(${mark}) available — not spent`);
+                    }
+                }
+            }
+        }
+    }
+    catch (e) {
+        console.warn('Mastery System | [CALCULATE DAMAGE] Mark prompt failed', e);
     }
     // Mark spend deferred from the dice phase (see markSpendToConsume above).
     if (markSpendToConsume > 0 && target) {
