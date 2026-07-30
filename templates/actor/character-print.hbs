@@ -55,25 +55,8 @@
       </div>
     </div>
 
-    {{!-- Right column: Saves, defenses, health, stress --}}
+    {{!-- Right column: defenses, health, stress --}}
     <div class="cp-col cp-col-right">
-
-      <div class="cp-block cp-saves">
-        <h3 class="cp-block-title">Saving Throws</h3>
-        <div class="cp-saves-grid">
-          {{#each savingThrows}}
-          <div class="cp-save-box">
-            <div class="cp-save-label">{{label}}</div>
-            <div class="cp-save-sub">{{sub}}</div>
-            <div class="cp-save-values">
-              {{#each values}}<span class="cp-save-value">{{this}}</span>{{/each}}
-            </div>
-            <div class="cp-save-pool">{{pool}}</div>
-          </div>
-          {{/each}}
-        </div>
-        <div class="cp-vitality">Vitality <span class="cp-vitality-value">{{vitalitySave}}</span></div>
-      </div>
 
       <div class="cp-block cp-defense">
         <div class="cp-defense-names">
