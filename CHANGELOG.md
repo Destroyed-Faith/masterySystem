@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.231] - 2026-07-30
+
+### Added
+
+- **NPC attacks can deal Stress damage (`npcStressD8`):** New "Stress Nd8" dropdown (1–4d8) on every NPC attack row (base + extra attacks, with and without phases). On a hit, the dice are rolled plain (non-exploding, like Social Combat stress) and applied via the stress pipeline — the target's Stress Armor (floor(Resolve/8)) mitigates automatically. The chat shows a dedicated stress line and the roll appears in the damage-card details; the radial attack description lists "Stress: Nd8".
+- **Generated bosses carry a signature stress attack:** Every encounter-generator boss gets exactly ONE attack per phase cycle with a stress rider — preferably the first direct single-target damage row. Minor/standard bosses inflict 1d8, major/mythic 2d8. Adds and environment zones never deal stress. The journal cycle table shows it as e.g. "6d8 + 2d8 Stress". Re-generate existing encounters (or set the dropdown manually) to pick it up.
+
 ## [0.9.230] - 2026-07-30
 
 ### Fixed

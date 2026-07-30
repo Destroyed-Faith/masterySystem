@@ -209,6 +209,9 @@ function cycleEntryToAttackRow(entry: CyclePowerEntry): Record<string, unknown> 
     row.npcAoeShape = entry.aoe.shape;
     row.npcAoeRadiusM = Math.max(2, Math.round(entry.aoe.radiusM));
   }
+  if (entry.stressD8 && entry.stressD8 > 0) {
+    row.npcStressD8 = Math.max(1, Math.round(entry.stressD8));
+  }
   return row;
 }
 
@@ -392,7 +395,9 @@ function cycleTableHtml(cycle: CyclePowerEntry[], cycleStyle: string): string {
         ? c.condition
         : '';
     const pool = c.isSummon ? '—' : `${c.attackDiceCount}k?`;
-    const dmg = c.isSummon ? '—' : `${c.damageDiceCount}d8`;
+    const dmg = c.isSummon
+      ? '—'
+      : `${c.damageDiceCount}d8${c.stressD8 ? ` + ${c.stressD8}d8 Stress` : ''}`;
     return `<tr><td>${c.slot}</td><td><strong>${c.name}</strong></td><td>${pool}</td><td>${dmg}</td><td>${fmtSpecial(c.special, c.specialValue)}</td><td>${range}</td><td>${extra || c.note || ''}</td></tr>`;
   });
   return (

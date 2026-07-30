@@ -406,6 +406,8 @@ export interface AttackValue {
   npcSplitAttack?: boolean;
   /** Bonus-W8 nur für Melee-AoE-Sekundärziele (wenn Radius-AoE aktiv). */
   npcMeleeAoeBonusD8?: number;
+  /** Stress-Schaden bei Treffer (Nd8, plain — Stress-Armor mindert). */
+  npcStressD8?: number;
   /** Multiple specials on this attack */
   specials?: NpcAttackSpecialEntry[];
   /** @deprecated Single special — migrated to specials[] in UI; still read for old data */

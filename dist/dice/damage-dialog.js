@@ -689,12 +689,14 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
                     : '';
     }
     let npcAutoDamageDice = 0;
+    let npcStressD8 = 0;
     const npcAutoSpecialStrings = [];
     const npcLists = buildNpcSpecialOptionsFromActor(actorToUse);
     npcAutoSpecialStrings.push(...npcLists.autoEffectStrings);
     if (isNpcAttackFlow) {
         const atk = getNpcAttackByIndex(actorToUse.system, flags?.npcAttackIndex, flags?.npcPhaseIndex);
         powerDamage = npcDamageDiceFormula(atk);
+        npcStressD8 = Math.max(0, Math.floor(Number(atk?.npcStressD8) || 0));
         npcAutoDamageDice += 0; // legacy npc autoRaises removed with new Raise rules
         const atkName = String(flags?.npcAttackName || atk?.name || 'NSC-Angriff');
         const inlineSpecials = [];
@@ -786,6 +788,7 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
                     npcAutoDamageDice,
                     npcAutoSpecialStrings,
                     npcAttackSource: !!flags?.npcAttackSource,
+                    npcStressD8,
                     splitAttack: !!flags?.splitAttack,
                     splitIndex: flags?.splitIndex ?? null,
                     splitPairId: flags?.splitPairId ?? null,
@@ -1034,6 +1037,29 @@ export function attachDamageCardHandlers(messageId) {
                 powerDamage: result?.powerDamage,
                 passiveDamage: result?.passiveDamage
             });
+            // NSC signature attacks: Nd8 Stress on hit (plain dice; Stress Armor
+            // mitigates inside applyStressToActor). Applies alongside the HP damage.
+            const stressDice = Math.max(0, Math.floor(Number(flags.npcStressD8) || 0));
+            if (stressDice > 0 && target) {
+                try {
+                    const stressRoll = await new globalThis.Roll(`${stressDice}d8`).evaluate({ async: true });
+                    const stressTotal = Math.max(0, Math.floor(Number(stressRoll?.total) || 0));
+                    const { applyStressToActor } = await import('../combat/spell-roll-handler.js');
+                    await applyStressToActor(target, stressTotal);
+                    result.rollDetails = [
+                        ...(result.rollDetails ?? []),
+                        `Stress: ${stressDice}d8 → ${stressTotal}`,
+                    ];
+                    await ChatMessage.create({
+                        user: game.user?.id,
+                        speaker: ChatMessage.getSpeaker({ actor: attacker }),
+                        content: `<p><i class="fas fa-brain"></i> <strong>${target.name}</strong> erleidet <strong>${stressTotal} Stress</strong> (${stressDice}d8).</p>`,
+                    });
+                }
+                catch (err) {
+                    console.warn('Mastery System | NPC stress damage failed', err);
+                }
+            }
             completeDamageCard(messageId, result);
             rollDamageCompleted = true;
         }

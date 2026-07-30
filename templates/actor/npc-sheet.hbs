@@ -269,6 +269,15 @@
                   {{/each}}
                 </select>
               </div>
+              <div class="npc-attack-field">
+                <label>Stress Nd8</label>
+                <select name="system.phases.{{phaseIndex}}.npcBaseAttack.npcStressD8" data-dtype="Number" data-tooltip="Stress-Schaden bei Treffer (Stress-Rüstung mindert)">
+                  <option value="" {{#unless phase.npcBaseAttack.npcStressD8}}selected{{/unless}}>—</option>
+                  {{#each (range 1 4)}}
+                  <option value="{{this}}" {{#if (eqNum ../phase.npcBaseAttack.npcStressD8 this)}}selected{{/if}}>{{this}}d8</option>
+                  {{/each}}
+                </select>
+              </div>
             </div>
             <div class="npc-attack-specials-block">
               <div class="npc-attack-specials-header">
@@ -368,6 +377,15 @@
                       <option value="" {{#unless attack.npcMeleeAoeBonusD8}}selected{{/unless}}>—</option>
                       {{#each (range 1 16)}}
                       <option value="{{this}}" {{#if (eqNum ../attack.npcMeleeAoeBonusD8 this)}}selected{{/if}}>{{this}}d8</option>
+                      {{/each}}
+                    </select>
+                  </div>
+                  <div class="npc-attack-field">
+                    <label>Stress Nd8</label>
+                    <select name="system.phases.{{../phaseIndex}}.attackValues.{{index}}.npcStressD8" data-dtype="Number" data-tooltip="Stress-Schaden bei Treffer (Stress-Rüstung mindert)">
+                      <option value="" {{#unless attack.npcStressD8}}selected{{/unless}}>—</option>
+                      {{#each (range 1 4)}}
+                      <option value="{{this}}" {{#if (eqNum ../attack.npcStressD8 this)}}selected{{/if}}>{{this}}d8</option>
                       {{/each}}
                     </select>
                   </div>
@@ -559,6 +577,15 @@
                 {{/each}}
               </select>
             </div>
+            <div class="npc-attack-field">
+              <label>Stress Nd8</label>
+              <select name="system.npcBaseAttack.npcStressD8" data-dtype="Number" data-tooltip="Stress-Schaden bei Treffer (Stress-Rüstung mindert)">
+                <option value="" {{#unless system.npcBaseAttack.npcStressD8}}selected{{/unless}}>—</option>
+                {{#each (range 1 4)}}
+                <option value="{{this}}" {{#if (eqNum ../system.npcBaseAttack.npcStressD8 this)}}selected{{/if}}>{{this}}d8</option>
+                {{/each}}
+              </select>
+            </div>
           </div>
           <div class="npc-attack-specials-block">
             <div class="npc-attack-specials-header">
@@ -658,6 +685,15 @@
                     <option value="" {{#unless attack.npcMeleeAoeBonusD8}}selected{{/unless}}>—</option>
                     {{#each (range 1 16)}}
                     <option value="{{this}}" {{#if (eqNum ../attack.npcMeleeAoeBonusD8 this)}}selected{{/if}}>{{this}}d8</option>
+                    {{/each}}
+                  </select>
+                </div>
+                <div class="npc-attack-field">
+                  <label>Stress Nd8</label>
+                  <select name="system.attackValues.{{index}}.npcStressD8" data-dtype="Number" data-tooltip="Stress-Schaden bei Treffer (Stress-Rüstung mindert)">
+                    <option value="" {{#unless attack.npcStressD8}}selected{{/unless}}>—</option>
+                    {{#each (range 1 4)}}
+                    <option value="{{this}}" {{#if (eqNum ../attack.npcStressD8 this)}}selected{{/if}}>{{this}}d8</option>
                     {{/each}}
                   </select>
                 </div>

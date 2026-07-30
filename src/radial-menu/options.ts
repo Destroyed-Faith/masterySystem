@@ -42,6 +42,8 @@ function buildNpcAttackDescription(atk: any): string {
   const parts: string[] = [];
   parts.push(pool > 0 ? `Angriff: ${pool}d8` : `Angriff: ${String(atk?.attackDice || '—').trim() || '—'}`);
   parts.push(`Schaden: ${dmg}`);
+  const stress = Math.max(0, Math.floor(Number(atk?.npcStressD8) || 0));
+  if (stress > 0) parts.push(`Stress: ${stress}d8`);
   if (atk?.armor) parts.push(`Rüstung: ${atk.armor}`);
   const sp = formatNpcAttackSpecialsLine(atk);
   if (sp) parts.push(`Spezial: ${sp}`);

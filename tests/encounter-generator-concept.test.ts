@@ -251,6 +251,23 @@ describe('buildThreatReport', () => {
     expect(report.enemyActionsByRound[2]).toBeGreaterThan(report.enemyActionsByRound[0]);
   });
 
+  it('exactly one boss cycle attack per phase carries stress damage (1–2d8)', () => {
+    const party = testParty();
+    for (const preset of ARCHETYPE_PRESETS) {
+      const plan = deriveConceptPlan(party, preset.concept, seededRng(47));
+      for (const phase of plan.phasePlans) {
+        const stressRows = phase.cycle.filter((c) => (c.stressD8 ?? 0) > 0);
+        expect(stressRows.length).toBe(1);
+        expect(stressRows[0].stressD8!).toBeGreaterThanOrEqual(1);
+        expect(stressRows[0].stressD8!).toBeLessThanOrEqual(2);
+        // major/mythic bosses hit the mind harder
+        if (preset.concept.rank === 'major' || preset.concept.rank === 'mythic') {
+          expect(stressRows[0].stressD8).toBe(2);
+        }
+      }
+    }
+  });
+
   it('AoE rows report a fixed Area TN (8 × MR) hit chance, independent of evade', () => {
     const party = testParty();
     // Ruin spellcaster uses mixed targeting → the cycle contains AoE rows.

@@ -186,6 +186,8 @@ export interface CyclePowerEntry {
         shape: 'radius' | 'cone' | 'line';
         radiusM: number;
     } | null;
+    /** Stress damage on hit (Nd8) — the boss's signature attack carries 1–2d8. */
+    stressD8?: number;
     note: string;
     /** weighted cycles: relative weight in %. */
     weight?: number;

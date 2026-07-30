@@ -516,6 +516,20 @@ export function buildPowerCycle(
       condition,
     });
   });
+
+  // Signature attack: the boss's main strike additionally inflicts Stress
+  // (1d8, major/mythic 2d8). Only ONE attack in the cycle carries it —
+  // prefer the first direct single-target damage row.
+  const stressD8 = concept.rank === 'major' || concept.rank === 'mythic' ? 2 : 1;
+  const signature =
+    entries.find((e) => !e.isSummon && !e.aoe && e.damageDiceCount > 0 && e.special !== 'root') ??
+    entries.find((e) => !e.isSummon && e.damageDiceCount > 0);
+  if (signature) {
+    signature.stressD8 = stressD8;
+    signature.note = [signature.note, `Verursacht zusätzlich ${stressD8}d8 Stress bei Treffer.`]
+      .filter(Boolean)
+      .join(' ');
+  }
   return entries;
 }
 
