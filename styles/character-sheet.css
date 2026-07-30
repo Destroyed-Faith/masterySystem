@@ -10222,6 +10222,15 @@
   display: none;
 }
 
+/* --- ApplicationV2 migration: window content scrolling ---------------------
+   V1 core CSS gave `.window-app .window-content` an `overflow-y: auto`;
+   ApplicationV2 windows clip instead, and our sheet root is now a <div>
+   (not the old flex <form>), so long sheets — e.g. generated NPCs with many
+   attack rows — became unscrollable. Restore the V1 behavior. */
+.application.mastery-system.sheet .window-content {
+  overflow-y: auto;
+}
+
 /* --- Languages picker ------------------------------------------------------
    The opener used to render as an unstyled default button and looked
    inactive — make it a clearly clickable control, and pulse it while the

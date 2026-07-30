@@ -132,6 +132,42 @@ describe('extractPartyMember', () => {
     expect(m.armor).toBe(2); // MR
     expect(m.effectiveHP).toBe(1); // no bars -> floored to 1
   });
+
+  it('counts artifact weapons AND attack-power bonus dice into per-hit damage', () => {
+    // Monarch-Greatsword-style setup: artifact weapon 5d8 + attack power +4d8
+    // → 9d8 per hit. Ignoring these made generated bosses paper-thin.
+    const withArtifact = {
+      id: 'aw',
+      name: 'Artifact Hero',
+      system: { mastery: { rank: 2 }, attributes: { might: { value: 8 } } },
+      items: [
+        {
+          type: 'artifact',
+          system: { equipped: true, artifactWeapon: { damage: '5d8' } },
+        },
+        {
+          type: 'power',
+          system: { isSpell: false, roll: { damage: '4d8' } },
+        },
+      ],
+    };
+    const m = extractPartyMember(withArtifact, 100, seededRng(11));
+    expect(m.weaponDamageMean).toBeCloseTo(9 * EXPLODING_D8_MEAN, 3);
+  });
+
+  it('uses a standalone spell when it out-damages weapon + power', () => {
+    const caster = {
+      id: 'sp',
+      name: 'Caster',
+      system: { mastery: { rank: 3 }, attributes: { might: { value: 4 } } },
+      items: [
+        { type: 'weapon', system: { equipped: true, damage: '1d8' } },
+        { type: 'power', system: { isSpell: true, roll: { damage: '10d8' } } },
+      ],
+    };
+    const m = extractPartyMember(caster, 100, seededRng(13));
+    expect(m.weaponDamageMean).toBeCloseTo(10 * EXPLODING_D8_MEAN, 3);
+  });
 });
 
 describe('buildPartyMetrics', () => {

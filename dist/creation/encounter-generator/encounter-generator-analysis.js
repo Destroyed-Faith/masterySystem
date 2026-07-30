@@ -5,6 +5,8 @@
  * reads from a Foundry actor's prepared `system` but is tolerant of partial
  * data and never throws.
  */
+import { isArtifactEquippedOnActor } from '../../utils/artifact-actor-rules.js';
+import { artifactToVirtualWeapon } from '../../utils/unarmed-fallback.js';
 /** Mean of an exploding d8 (each natural 8 rerolls and adds): 36/7 ≈ 5.1429. */
 export const EXPLODING_D8_MEAN = 36 / 7;
 /** One exploding d8 result (face + chained explosions on natural 8s). */
@@ -131,8 +133,13 @@ export function extractPartyMember(actor, samples = 3000, rng = Math.random) {
     const agility = num(attributes.agility?.value, 2);
     const bestAttr = Math.max(might, agility);
     const attackPool = Math.max(mr, Math.floor(bestAttr));
-    // Equipped weapon (best-effort) + Cleanse detection over owned powers.
-    let weaponSystem = null;
+    // Realistic per-hit damage: best weapon (real OR artifact weapon like the
+    // Monarch Greatsword) + the best attack power's bonus dice. Attack powers
+    // are weapon-carried in this system (weapon 5d8 + power 4d8 = 9d8 per hit),
+    // so ignoring them made generated bosses paper-thin.
+    let weaponMean = 0;
+    let bestPowerBonusMean = 0;
+    let bestSpellMean = 0;
     let canCleanse = false;
     try {
         const items = Array.isArray(actor?.items?.contents)
@@ -140,23 +147,60 @@ export function extractPartyMember(actor, samples = 3000, rng = Math.random) {
             : Array.isArray(actor?.items)
                 ? actor.items
                 : [];
-        weaponSystem = items.find((i) => i?.type === 'weapon' && i?.system?.equipped === true)?.system
-            ?? items.find((i) => i?.type === 'weapon')?.system
+        const equippedWeapon = items.find((i) => i?.type === 'weapon' && i?.system?.equipped === true)
+            ?? items.find((i) => i?.type === 'weapon')
             ?? null;
-        canCleanse = items.some((i) => {
+        if (equippedWeapon?.system) {
+            weaponMean = estimateWeaponDamageMean(equippedWeapon.system);
+        }
+        // Artifact weapons: derive the virtual weapon profile (equipped artifacts
+        // keep their weapon damage even before activation).
+        for (const it of items) {
+            if (it?.type !== 'artifact')
+                continue;
+            try {
+                if (!isArtifactEquippedOnActor(it))
+                    continue;
+                const vw = artifactToVirtualWeapon(it);
+                if (vw?.system) {
+                    weaponMean = Math.max(weaponMean, estimateWeaponDamageMean(vw.system));
+                }
+            }
+            catch {
+                /* ignore malformed artifacts */
+            }
+        }
+        for (const i of items) {
             if (i?.type !== 'power')
-                return false;
+                continue;
             const sys = i?.system ?? {};
             const chosen = String(sys.chosenSpecial?.key ?? '').toLowerCase();
             const name = String(i?.name ?? '').toLowerCase();
             const subfamily = String(sys.subfamily ?? '').toLowerCase();
-            return chosen === 'cleanse' || subfamily === 'support-cleanse' || name.includes('cleanse');
-        });
+            if (chosen === 'cleanse' || subfamily === 'support-cleanse' || name.includes('cleanse')) {
+                canCleanse = true;
+            }
+            // Damage dice of attack powers ("4d8"): non-spell powers ride on the
+            // weapon; spells stand alone.
+            const dmgRaw = String(sys.roll?.damage ?? '').trim();
+            const diceMatch = dmgRaw.match(/(\d+)\s*d\s*8/i);
+            const d8 = diceMatch ? parseInt(diceMatch[1], 10) : 0;
+            if (d8 > 0) {
+                if (sys.isSpell === true) {
+                    bestSpellMean = Math.max(bestSpellMean, d8 * EXPLODING_D8_MEAN);
+                }
+                else {
+                    bestPowerBonusMean = Math.max(bestPowerBonusMean, d8 * EXPLODING_D8_MEAN);
+                }
+            }
+        }
     }
     catch {
-        weaponSystem = null;
+        /* keep defaults */
     }
-    const weaponDamageMean = estimateWeaponDamageMean(weaponSystem);
+    if (weaponMean <= 0)
+        weaponMean = estimateWeaponDamageMean(null);
+    const weaponDamageMean = Math.max(weaponMean + bestPowerBonusMean, bestSpellMean);
     const mightMeleeBonus = 2 * Math.floor(might / 8);
     const attackTotals = simulateAttackTotals(attackPool, mr, samples, rng);
     return {

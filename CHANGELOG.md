@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.230] - 2026-07-30
+
+### Fixed
+
+- **Generated bosses are no longer paper-thin (49 HP vs a MR 2 party):** The encounter generator sizes boss HP from party DPS × target time-to-kill, but the party damage estimate missed artifact weapons entirely (only `weapon`-type items were scanned — a Monarch Greatsword wielder fell back to 2d8) and ignored attack-power bonus dice (+2–4d8 riding on the weapon). Player hit damage is now estimated from the best weapon (real OR equipped artifact weapon) plus the strongest attack power — or the strongest spell when it out-damages that combo. A 4-player MR 2 party with 5d8 artifact weapons + 3d8 powers now yields ~600 boss HP across phases instead of 49. Threat Report duration and add durability (minion HP) use the same metric and are fixed along with it. Re-generate existing encounters to pick up the new math.
+- **NPC sheets can scroll again:** An ApplicationV2 migration regression — V1 core CSS gave sheet windows `overflow-y: auto`, V2 windows clip instead, and the sheet root is now a `<div>` the old flex-`<form>` rules never match. Long sheets (e.g. generated NPCs with many attack rows) were cut off with no scrollbar. The V1 scrolling behavior is restored for all mastery sheets (NPC, Summon, Character, Item).
+
 ## [0.9.229] - 2026-07-29
 
 ### Fixed

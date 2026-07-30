@@ -43,7 +43,11 @@ export interface PartyMemberMetrics {
   attackPool: number;
   /** Kept dice (Mastery Rank). */
   keep: number;
-  /** Expected weapon dice damage per hit (pre-raise, pre-Might). */
+  /**
+   * Expected damage dice per hit (pre-raise, pre-Might): best weapon (real or
+   * artifact weapon) + best attack power's bonus dice — or the best spell if
+   * it hits harder standalone.
+   */
   weaponDamageMean: number;
   /** Flat melee damage bonus = 2 * floor(Might / 8). */
   mightMeleeBonus: number;
