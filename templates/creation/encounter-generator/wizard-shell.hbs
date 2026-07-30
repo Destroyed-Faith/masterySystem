@@ -44,10 +44,10 @@
       <p class="encounter-gen-prose">{{copy.concept.body}}</p>
 
       <label class="encounter-gen-field encounter-gen-field--wide">
-        <span>{{copy.concept.preset}}</span>
+        <span class="encounter-gen-label-tip" tabindex="0">{{copy.concept.preset}}<span class="encounter-gen-tooltip" role="tooltip">{{copy.concept.presetHint}}</span></span>
         <select class="js-eg-preset">
           {{#each presetOptions}}
-          <option value="{{this.value}}"{{#if this.selected}} selected{{/if}}>{{this.label}}</option>
+          <option value="{{this.value}}"{{#if this.selected}} selected{{/if}} title="{{this.description}}">{{this.label}}</option>
           {{/each}}
         </select>
       </label>
@@ -57,68 +57,68 @@
 
       <div class="encounter-gen-form">
         <label class="encounter-gen-field">
-          <span>{{copy.concept.rank}}</span>
+          <span class="encounter-gen-label-tip" tabindex="0">{{copy.concept.rank}}<span class="encounter-gen-tooltip" role="tooltip">{{copy.concept.rankHint}}</span></span>
           <select class="js-eg-concept" data-field="rank">
             {{#each rankOptions}}
-            <option value="{{this.value}}"{{#if this.selected}} selected{{/if}}>{{this.label}}</option>
+            <option value="{{this.value}}"{{#if this.selected}} selected{{/if}} title="{{this.description}}">{{this.label}}</option>
             {{/each}}
           </select>
         </label>
         <label class="encounter-gen-field">
-          <span>{{copy.concept.style}}</span>
+          <span class="encounter-gen-label-tip" tabindex="0">{{copy.concept.style}}<span class="encounter-gen-tooltip" role="tooltip">{{copy.concept.styleHint}}</span></span>
           <select class="js-eg-concept" data-field="style">
             {{#each styleOptions}}
-            <option value="{{this.value}}"{{#if this.selected}} selected{{/if}}>{{this.label}}</option>
+            <option value="{{this.value}}"{{#if this.selected}} selected{{/if}} title="{{this.description}}">{{this.label}}</option>
             {{/each}}
           </select>
         </label>
         <label class="encounter-gen-field">
-          <span>{{copy.concept.primarySpecial}}</span>
+          <span class="encounter-gen-label-tip" tabindex="0">{{copy.concept.primarySpecial}}<span class="encounter-gen-tooltip" role="tooltip">{{copy.concept.primarySpecialHint}}</span></span>
           <select class="js-eg-concept" data-field="primarySpecial">
             {{#each specialOptions}}
-            <option value="{{this.value}}"{{#if this.selected}} selected{{/if}}>{{this.label}}</option>
+            <option value="{{this.value}}"{{#if this.selected}} selected{{/if}} title="{{this.description}}">{{this.label}}</option>
             {{/each}}
           </select>
         </label>
         <label class="encounter-gen-field">
-          <span>{{copy.concept.secondaryStyle}}</span>
+          <span class="encounter-gen-label-tip" tabindex="0">{{copy.concept.secondaryStyle}}<span class="encounter-gen-tooltip" role="tooltip">{{copy.concept.secondaryStyleHint}}</span></span>
           <select class="js-eg-concept" data-field="secondaryStyle">
             {{#each secondaryOptions}}
-            <option value="{{this.value}}"{{#if this.selected}} selected{{/if}}>{{this.label}}</option>
+            <option value="{{this.value}}"{{#if this.selected}} selected{{/if}} title="{{this.description}}">{{this.label}}</option>
             {{/each}}
           </select>
         </label>
         <label class="encounter-gen-field">
-          <span>{{copy.concept.actions}}</span>
+          <span class="encounter-gen-label-tip" tabindex="0">{{copy.concept.actions}}<span class="encounter-gen-tooltip" role="tooltip">{{copy.concept.actionsHint}}</span></span>
           <input type="number" class="js-eg-concept" data-field="actionsPerRound" min="1" max="6" value="{{concept.actionsPerRound}}"/>
         </label>
         <label class="encounter-gen-field">
-          <span>{{copy.concept.targeting}}</span>
+          <span class="encounter-gen-label-tip" tabindex="0">{{copy.concept.targeting}}<span class="encounter-gen-tooltip" role="tooltip">{{copy.concept.targetingHint}}</span></span>
           <select class="js-eg-concept" data-field="targeting">
             {{#each targetingOptions}}
-            <option value="{{this.value}}"{{#if this.selected}} selected{{/if}}>{{this.label}}</option>
+            <option value="{{this.value}}"{{#if this.selected}} selected{{/if}} title="{{this.description}}">{{this.label}}</option>
             {{/each}}
           </select>
         </label>
         <label class="encounter-gen-field">
-          <span>{{copy.concept.phases}}</span>
+          <span class="encounter-gen-label-tip" tabindex="0">{{copy.concept.phases}}<span class="encounter-gen-tooltip" role="tooltip">{{copy.concept.phasesHint}}</span></span>
           <input type="number" class="js-eg-concept" data-field="phaseCount" min="1" max="5" value="{{concept.phaseCount}}"/>
         </label>
         <label class="encounter-gen-field">
-          <span>{{copy.concept.cycleLength}}</span>
+          <span class="encounter-gen-label-tip" tabindex="0">{{copy.concept.cycleLength}}<span class="encounter-gen-tooltip" role="tooltip">{{copy.concept.cycleLengthHint}}</span></span>
           <input type="number" class="js-eg-concept" data-field="cycleLength" min="2" max="6" value="{{concept.cycleLength}}"/>
         </label>
         <label class="encounter-gen-field">
-          <span>{{copy.concept.cycleStyle}}</span>
+          <span class="encounter-gen-label-tip" tabindex="0">{{copy.concept.cycleStyle}}<span class="encounter-gen-tooltip" role="tooltip">{{copy.concept.cycleStyleHint}}</span></span>
           <select class="js-eg-concept" data-field="cycleStyle">
             {{#each cycleStyleOptions}}
-            <option value="{{this.value}}"{{#if this.selected}} selected{{/if}}>{{this.label}}</option>
+            <option value="{{this.value}}"{{#if this.selected}} selected{{/if}} title="{{this.description}}">{{this.label}}</option>
             {{/each}}
           </select>
         </label>
         {{#if isEnvironmental}}
         <label class="encounter-gen-field">
-          <span>{{copy.concept.envActions}}</span>
+          <span class="encounter-gen-label-tip" tabindex="0">{{copy.concept.envActions}}<span class="encounter-gen-tooltip" role="tooltip">{{copy.concept.envActionsHint}}</span></span>
           <input type="number" class="js-eg-concept" data-field="environmentActionsPerRound" min="1" max="4" value="{{concept.environmentActionsPerRound}}"/>
         </label>
         {{/if}}
@@ -134,50 +134,50 @@
 
       <label class="encounter-gen-field encounter-gen-field--checkbox">
         <input type="checkbox" class="js-eg-adds" data-field="enabled"{{#if adds.enabled}} checked{{/if}}/>
-        <span>{{copy.adds.enabled}}</span>
+        <span class="encounter-gen-label-tip" tabindex="0">{{copy.adds.enabled}}<span class="encounter-gen-tooltip" role="tooltip">{{copy.adds.enabledHint}}</span></span>
       </label>
 
       {{#if adds.enabled}}
       <div class="encounter-gen-form">
         <label class="encounter-gen-field">
-          <span>{{copy.adds.durability}}</span>
+          <span class="encounter-gen-label-tip" tabindex="0">{{copy.adds.durability}}<span class="encounter-gen-tooltip" role="tooltip">{{copy.adds.durabilityHint}}</span></span>
           <select class="js-eg-adds" data-field="durability">
             {{#each durabilityOptions}}
-            <option value="{{this.value}}"{{#if this.selected}} selected{{/if}}>{{this.label}}</option>
+            <option value="{{this.value}}"{{#if this.selected}} selected{{/if}} title="{{this.description}}">{{this.label}}</option>
             {{/each}}
           </select>
         </label>
         <label class="encounter-gen-field">
-          <span>{{copy.adds.pressure}}</span>
+          <span class="encounter-gen-label-tip" tabindex="0">{{copy.adds.pressure}}<span class="encounter-gen-tooltip" role="tooltip">{{copy.adds.pressureHint}}</span></span>
           <select class="js-eg-adds" data-field="pressure">
             {{#each pressureOptions}}
-            <option value="{{this.value}}"{{#if this.selected}} selected{{/if}}>{{this.label}}</option>
+            <option value="{{this.value}}"{{#if this.selected}} selected{{/if}} title="{{this.description}}">{{this.label}}</option>
             {{/each}}
           </select>
         </label>
         <label class="encounter-gen-field">
-          <span>{{copy.adds.targetActive}}</span>
+          <span class="encounter-gen-label-tip" tabindex="0">{{copy.adds.targetActive}}<span class="encounter-gen-tooltip" role="tooltip">{{copy.adds.targetActiveHint}}</span></span>
           <input type="number" class="js-eg-adds" data-field="targetActive" min="1" max="12" value="{{adds.targetActive}}"/>
         </label>
         <label class="encounter-gen-field">
-          <span>{{copy.adds.maxActive}}</span>
+          <span class="encounter-gen-label-tip" tabindex="0">{{copy.adds.maxActive}}<span class="encounter-gen-tooltip" role="tooltip">{{copy.adds.maxActiveHint}}</span></span>
           <input type="number" class="js-eg-adds" data-field="maxActive" min="0" max="16" value="{{adds.maxActive}}"/>
         </label>
         <label class="encounter-gen-field">
-          <span>{{copy.adds.spawnPerRound}}</span>
+          <span class="encounter-gen-label-tip" tabindex="0">{{copy.adds.spawnPerRound}}<span class="encounter-gen-tooltip" role="tooltip">{{copy.adds.spawnPerRoundHint}}</span></span>
           <input type="number" class="js-eg-adds" data-field="spawnPerRound" min="1" max="6" value="{{adds.spawnPerRound}}"/>
         </label>
         <label class="encounter-gen-field">
-          <span>{{copy.adds.spawnPattern}}</span>
+          <span class="encounter-gen-label-tip" tabindex="0">{{copy.adds.spawnPattern}}<span class="encounter-gen-tooltip" role="tooltip">{{copy.adds.spawnPatternHint}}</span></span>
           <select class="js-eg-adds" data-field="spawnPattern">
             {{#each spawnPatternOptions}}
-            <option value="{{this.value}}"{{#if this.selected}} selected{{/if}}>{{this.label}}</option>
+            <option value="{{this.value}}"{{#if this.selected}} selected{{/if}} title="{{this.description}}">{{this.label}}</option>
             {{/each}}
           </select>
         </label>
         <label class="encounter-gen-field encounter-gen-field--checkbox">
           <input type="checkbox" class="js-eg-adds" data-field="summonCostsBossAction"{{#if adds.summonCostsBossAction}} checked{{/if}}/>
-          <span>{{copy.adds.summonCost}}</span>
+          <span class="encounter-gen-label-tip" tabindex="0">{{copy.adds.summonCost}}<span class="encounter-gen-tooltip" role="tooltip">{{copy.adds.summonCostHint}}</span></span>
         </label>
       </div>
       {{else}}

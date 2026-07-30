@@ -777,49 +777,122 @@ export const ARCHETYPE_PRESETS = [
         },
     },
 ];
-// ─── Option lists for the UI ─────────────────────────────────────────────
 export const STYLE_OPTIONS = [
-    { value: 'spell', label: 'Spell' },
-    { value: 'martial', label: 'Martial' },
-    { value: 'hybrid', label: 'Hybrid' },
-    { value: 'summoner', label: 'Summoner' },
-    { value: 'environmental', label: 'Environmental' },
+    {
+        value: 'spell',
+        label: 'Spell',
+        description: 'Primär Zauberdruck — Casting-TNs, Spell-Specials und Spell-Aktionen tragen den Kampf.',
+    },
+    {
+        value: 'martial',
+        label: 'Martial',
+        description: 'Primär Waffen-/Körperkampf — Angriffswürfel, Waffenschaden und körperliche Specials.',
+    },
+    {
+        value: 'hybrid',
+        label: 'Hybrid',
+        description: 'Mischt Martial und Spell — der Boss wechselt zwischen Nahkampf und Zaubern.',
+    },
+    {
+        value: 'summoner',
+        label: 'Summoner',
+        description: 'Boss bringt Verstärkung / Beschwörungen — Adds und Spawn-Druck sind zentral.',
+    },
+    {
+        value: 'environmental',
+        label: 'Environmental',
+        description: 'Die Umgebung ist die Bedrohung — Zonen, Hazards und Umgebungsaktionen statt klassischem Boss-Körper.',
+    },
 ];
 export const SECONDARY_STYLE_OPTIONS = [
-    { value: 'none', label: 'Keiner' },
-    { value: 'martial', label: 'Martial Attacks' },
-    { value: 'direct-spells', label: 'Direct Spells' },
-    { value: 'aoe-spells', label: 'AoE Spells' },
-    { value: 'control', label: 'Control' },
-    { value: 'mobility', label: 'Mobility' },
-    { value: 'defense', label: 'Defense' },
-    { value: 'summoning', label: 'Summoning' },
+    { value: 'none', label: 'Keiner', description: 'Kein zweiter Kampfstil — der Primary Style trägt allein.' },
+    { value: 'martial', label: 'Martial Attacks', description: 'Zusätzliche Waffen-/Nahkampf-Angriffe im Power-Cycle.' },
+    { value: 'direct-spells', label: 'Direct Spells', description: 'Einzelziel-Zauber als Ergänzung zum Hauptstil.' },
+    { value: 'aoe-spells', label: 'AoE Spells', description: 'Flächenzauber — Druck auf die ganze Gruppe.' },
+    { value: 'control', label: 'Control', description: 'Kontroll-Effekte (Push, Prone, Root, Position) statt reinem Schaden.' },
+    { value: 'mobility', label: 'Mobility', description: 'Bewegung, Repositionierung und schwer greifbare Positionierung.' },
+    { value: 'defense', label: 'Defense', description: 'Rüstung, Ausweichen, Damage Reduction oder defensive Reaktionen.' },
+    { value: 'summoning', label: 'Summoning', description: 'Beschwört oder spawnt Adds zusätzlich zum Primary Style.' },
 ];
 export const TARGETING_OPTIONS = [
-    { value: 'single', label: 'Single Target' },
-    { value: 'aoe', label: 'AoE' },
-    { value: 'mixed', label: 'Mixed' },
+    {
+        value: 'single',
+        label: 'Single Target',
+        description: 'Fokussiert ein Ziel — hohe Einzelziel-Bedrohung, wenig Flächenabdeckung.',
+    },
+    {
+        value: 'aoe',
+        label: 'AoE',
+        description: 'Flächenangriffe gegen mehrere Ziele — trifft oft gegen fixe Area TN statt Ausweichen.',
+    },
+    {
+        value: 'mixed',
+        label: 'Mixed',
+        description: 'Wechselt zwischen Einzelziel- und Flächenangriffen im Cycle.',
+    },
 ];
 export const RANK_OPTIONS = [
-    { value: 'minor', label: 'Minor' },
-    { value: 'standard', label: 'Standard' },
-    { value: 'major', label: 'Major Encounter' },
-    { value: 'mythic', label: 'Mythic' },
+    {
+        value: 'minor',
+        label: 'Minor',
+        description: 'Leichter Gegner / Nebenencounter — kürzer, weniger Phasen und Druck.',
+    },
+    {
+        value: 'standard',
+        label: 'Standard',
+        description: 'Normaler Boss-Encounter — ausgewogene Dauer und Treffergefahr für die Gruppe.',
+    },
+    {
+        value: 'major',
+        label: 'Major Encounter',
+        description: 'Schwerer Setpiece-Boss — mehr HP/Phasen, härtere Treffer, längerer Kampf.',
+    },
+    {
+        value: 'mythic',
+        label: 'Mythic',
+        description: 'Höchste Stufe — sehr langer, unnachgiebiger Kampf mit maximalem Encounter-Budget.',
+    },
 ];
 export const CYCLE_STYLE_OPTIONS = [
-    { value: 'fixed', label: 'Fixed — feste Reihenfolge' },
-    { value: 'weighted', label: 'Weighted — nach Gewichtung' },
-    { value: 'conditional', label: 'Conditional — reagiert auf den Kampf' },
-    { value: 'phase-based', label: 'Phase-Based — eigener Cycle pro Phase' },
+    {
+        value: 'fixed',
+        label: 'Fixed — feste Reihenfolge',
+        description: 'Powers laufen in fester Reihenfolge ab — vorhersehbar und planbar.',
+    },
+    {
+        value: 'weighted',
+        label: 'Weighted — nach Gewichtung',
+        description: 'Powers werden nach Gewichtung gewählt — häufigere Signature-Moves, seltener Specials.',
+    },
+    {
+        value: 'conditional',
+        label: 'Conditional — reagiert auf den Kampf',
+        description: 'Cycle reagiert auf Kampfzustand (HP, Phasen, Adds) statt starrer Liste.',
+    },
+    {
+        value: 'phase-based',
+        label: 'Phase-Based — eigener Cycle pro Phase',
+        description: 'Jede Boss-Phase hat einen eigenen Power-Cycle.',
+    },
 ];
 export function primarySpecialOptions() {
-    const out = [{ value: 'none', label: 'Kein Special' }];
+    const out = [
+        {
+            value: 'none',
+            label: 'Kein Special',
+            description: 'Kein primäres Diminishing Special — Druck kommt aus Schaden, Kontrolle oder Adds.',
+        },
+    ];
     for (const e of ALL_SPECIAL_EFFECTS) {
         if (e.category !== 'diminishing')
             continue;
         if (e.id === 'regeneration')
             continue;
-        out.push({ value: e.id, label: getEffectBaseName(e.name) });
+        out.push({
+            value: e.id,
+            label: getEffectBaseName(e.name),
+            description: e.description,
+        });
     }
     return out;
 }

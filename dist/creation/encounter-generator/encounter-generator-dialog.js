@@ -175,10 +175,16 @@ export class EncounterGeneratorDialog extends BaseDialog {
         const metrics = quickMetrics(selectedPcs);
         const c = this.concept;
         const presetOptions = [
-            { value: '', label: copy.concept.presetNone, selected: this.presetId === '' },
+            {
+                value: '',
+                label: copy.concept.presetNone,
+                description: copy.concept.presetHint,
+                selected: this.presetId === '',
+            },
             ...ARCHETYPE_PRESETS.map((p) => ({
                 value: p.id,
                 label: p.label,
+                description: p.description,
                 selected: this.presetId === p.id,
             })),
         ];
@@ -200,9 +206,21 @@ export class EncounterGeneratorDialog extends BaseDialog {
             cycleStyleOptions: selectOptions(CYCLE_STYLE_OPTIONS, c.cycleStyle),
             isEnvironmental: c.style === 'environmental',
             adds: c.adds,
-            durabilityOptions: selectOptions(Object.entries(copy.adds.durabilityOptions).map(([value, label]) => ({ value, label })), c.adds.durability),
-            pressureOptions: selectOptions(Object.entries(copy.adds.pressureOptions).map(([value, label]) => ({ value, label })), c.adds.pressure),
-            spawnPatternOptions: selectOptions(Object.entries(copy.adds.spawnPatternOptions).map(([value, label]) => ({ value, label })), c.adds.spawnPattern),
+            durabilityOptions: selectOptions(Object.entries(copy.adds.durabilityOptions).map(([value, label]) => ({
+                value,
+                label,
+                description: copy.adds.durabilityHints[value] ?? label,
+            })), c.adds.durability),
+            pressureOptions: selectOptions(Object.entries(copy.adds.pressureOptions).map(([value, label]) => ({
+                value,
+                label,
+                description: copy.adds.pressureHints[value] ?? label,
+            })), c.adds.pressure),
+            spawnPatternOptions: selectOptions(Object.entries(copy.adds.spawnPatternOptions).map(([value, label]) => ({
+                value,
+                label,
+                description: copy.adds.spawnPatternHints[value] ?? label,
+            })), c.adds.spawnPattern),
             review: this.step === 'review' ? this.#reviewContext() : null,
             selection: { folderName: this.folderName },
             isParty: this.step === 'party',

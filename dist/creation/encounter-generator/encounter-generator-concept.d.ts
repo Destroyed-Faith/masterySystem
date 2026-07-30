@@ -48,28 +48,16 @@ export interface ArchetypePreset {
 }
 export declare function defaultConcept(): EncounterConcept;
 export declare const ARCHETYPE_PRESETS: ArchetypePreset[];
-export declare const STYLE_OPTIONS: Array<{
-    value: CombatStyle;
+export type LabeledOption<T extends string = string> = {
+    value: T;
     label: string;
-}>;
-export declare const SECONDARY_STYLE_OPTIONS: Array<{
-    value: SecondaryStyle;
-    label: string;
-}>;
-export declare const TARGETING_OPTIONS: Array<{
-    value: TargetingMode;
-    label: string;
-}>;
-export declare const RANK_OPTIONS: Array<{
-    value: EnemyRank;
-    label: string;
-}>;
-export declare const CYCLE_STYLE_OPTIONS: Array<{
-    value: EncounterConcept['cycleStyle'];
-    label: string;
-}>;
-export declare function primarySpecialOptions(): Array<{
-    value: string;
-    label: string;
-}>;
+    /** Hover explanation for the option. */
+    description?: string;
+};
+export declare const STYLE_OPTIONS: Array<LabeledOption<CombatStyle>>;
+export declare const SECONDARY_STYLE_OPTIONS: Array<LabeledOption<SecondaryStyle>>;
+export declare const TARGETING_OPTIONS: Array<LabeledOption<TargetingMode>>;
+export declare const RANK_OPTIONS: Array<LabeledOption<EnemyRank>>;
+export declare const CYCLE_STYLE_OPTIONS: Array<LabeledOption<EncounterConcept['cycleStyle']>>;
+export declare function primarySpecialOptions(): Array<LabeledOption>;
 //# sourceMappingURL=encounter-generator-concept.d.ts.map

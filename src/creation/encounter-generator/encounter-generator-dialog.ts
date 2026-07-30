@@ -71,7 +71,7 @@ function quickMetrics(pcs: QuickPc[]) {
 }
 
 function selectOptions<T extends string | number>(
-  options: Array<{ value: T; label: string }>,
+  options: Array<{ value: T; label: string; description?: string }>,
   current: T,
 ) {
   return options.map((o) => ({ ...o, selected: String(o.value) === String(current) }));
@@ -223,10 +223,16 @@ export class EncounterGeneratorDialog extends BaseDialog {
     const c = this.concept;
 
     const presetOptions = [
-      { value: '', label: copy.concept.presetNone, selected: this.presetId === '' },
+      {
+        value: '',
+        label: copy.concept.presetNone,
+        description: copy.concept.presetHint,
+        selected: this.presetId === '',
+      },
       ...ARCHETYPE_PRESETS.map((p) => ({
         value: p.id,
         label: p.label,
+        description: p.description,
         selected: this.presetId === p.id,
       })),
     ];
@@ -250,15 +256,27 @@ export class EncounterGeneratorDialog extends BaseDialog {
       isEnvironmental: c.style === 'environmental',
       adds: c.adds,
       durabilityOptions: selectOptions(
-        Object.entries(copy.adds.durabilityOptions).map(([value, label]) => ({ value, label })),
+        Object.entries(copy.adds.durabilityOptions).map(([value, label]) => ({
+          value,
+          label,
+          description: (copy.adds.durabilityHints as Record<string, string>)[value] ?? label,
+        })),
         c.adds.durability,
       ),
       pressureOptions: selectOptions(
-        Object.entries(copy.adds.pressureOptions).map(([value, label]) => ({ value, label })),
+        Object.entries(copy.adds.pressureOptions).map(([value, label]) => ({
+          value,
+          label,
+          description: (copy.adds.pressureHints as Record<string, string>)[value] ?? label,
+        })),
         c.adds.pressure,
       ),
       spawnPatternOptions: selectOptions(
-        Object.entries(copy.adds.spawnPatternOptions).map(([value, label]) => ({ value, label })),
+        Object.entries(copy.adds.spawnPatternOptions).map(([value, label]) => ({
+          value,
+          label,
+          description: (copy.adds.spawnPatternHints as Record<string, string>)[value] ?? label,
+        })),
         c.adds.spawnPattern,
       ),
       review: this.step === 'review' ? this.#reviewContext() : null,

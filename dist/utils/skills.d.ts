@@ -6,6 +6,8 @@ export interface SkillDefinition {
     name: string;
     attributes: string[];
     category: string;
+    /** Player's Guide summary for hover tooltips. */
+    description: string;
 }
 export declare const SKILL_CATEGORIES: {
     readonly AWARENESS: "Awareness";
@@ -24,4 +26,6 @@ export declare function getSkillsByCategory(): Record<string, SkillDefinition[]>
  * Get skill definition by key
  */
 export declare function getSkill(key: string): SkillDefinition | undefined;
+/** Hover tooltip text for a skill key (Player's Guide summary). */
+export declare function getSkillDescription(key: string): string;
 //# sourceMappingURL=skills.d.ts.map

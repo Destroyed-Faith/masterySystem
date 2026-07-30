@@ -1803,6 +1803,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         name: definition.name,
         category: definition.category,
         attributes: definition.attributes,
+        description: definition.description ?? '',
         multiAttributeRoll: definition.attributes.length > 1 && key !== 'perception',
         rollPools,
         value,

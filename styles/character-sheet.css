@@ -3275,6 +3275,38 @@
   font-family: 'Cormorant Garamond', serif;
 }
 
+.mastery-system.sheet.actor.character .skill-name-tooltip-wrap {
+  position: relative;
+  cursor: help;
+  border-bottom: 1px dotted rgba(200, 180, 140, 0.35);
+}
+
+.mastery-system.sheet.actor.character .skill-name-tooltip {
+  display: none;
+  position: absolute;
+  left: 0;
+  top: calc(100% + 6px);
+  z-index: 40;
+  width: min(360px, 70vw);
+  padding: 10px 12px;
+  border: 1px solid var(--df-border-primary, #3a3f44);
+  border-radius: 6px;
+  background: var(--df-bg-primary, #1a1f22);
+  color: var(--df-text-primary, #e8e8ea);
+  font-family: 'Source Sans 3', 'Segoe UI', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 400;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
+  pointer-events: none;
+}
+
+.mastery-system.sheet.actor.character .skill-name-tooltip-wrap:hover .skill-name-tooltip,
+.mastery-system.sheet.actor.character .skill-name-tooltip-wrap:focus-within .skill-name-tooltip {
+  display: block;
+}
+
 .mastery-system.sheet.actor.character .skill-attrs-compact {
   display: flex;
   gap: 6px;

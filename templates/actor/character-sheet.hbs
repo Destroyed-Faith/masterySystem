@@ -1191,7 +1191,12 @@
                   </button>
                   {{/each}}
                 </div>
-                <span class="skill-name-compact">{{this.name}}</span>
+                <span class="skill-name-compact skill-name-tooltip-wrap" tabindex="0">
+                  {{this.name}}
+                  {{#if this.description}}
+                  <span class="skill-name-tooltip" role="tooltip">{{this.description}}</span>
+                  {{/if}}
+                </span>
                 <div class="skill-attrs-compact">
                   {{#each this.attributes}}
                     <span class="attr-badge">{{capitalize this}}</span>
