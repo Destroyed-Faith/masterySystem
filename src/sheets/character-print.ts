@@ -475,19 +475,7 @@ export function buildCharacterPrintContext(actor: any): Record<string, unknown> 
     return { key, label: cap(key).toUpperCase(), max, available: Math.max(0, max - bound) };
   });
 
-  // ── Saving throws ─────────────────────────────────────────────────────
-  // Saves are Roll & Keep pools built from attribute pairs (kept at Mastery
-  // Rank): Body = max(Might, Agility), Mind = max(Intellect, Wits),
-  // Spirit = max(Resolve, Influence). We print both attribute values plus the
-  // resolved pool (higher of the pair) "k" Mastery Rank.
   const attrVal = (k: string) => num(system?.attributes?.[k]?.value, 0);
-  const savePool = (a: string, b: string) => `${Math.max(attrVal(a), attrVal(b))}d8 k ${masteryRank}`;
-  const savingThrows = [
-    { label: 'MIND', sub: 'Intellect / Wits', values: [attrVal('intellect'), attrVal('wits')], pool: savePool('intellect', 'wits') },
-    { label: 'BODY', sub: 'Might / Agility', values: [attrVal('might'), attrVal('agility')], pool: savePool('might', 'agility') },
-    { label: 'SPIRIT', sub: 'Resolve / Influence', values: [attrVal('resolve'), attrVal('influence')], pool: savePool('resolve', 'influence') }
-  ];
-  const vitalitySave = attrVal('vitality');
 
   // ── Combat / defenses ─────────────────────────────────────────────────
   const combat = system?.combat ?? {};
@@ -999,8 +987,6 @@ export function buildCharacterPrintContext(actor: any): Record<string, unknown> 
     },
     abilities,
     stonePools,
-    savingThrows,
-    vitalitySave,
     defense,
     healthBars,
     tempHP,

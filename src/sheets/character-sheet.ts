@@ -2005,7 +2005,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     html.find('.attribute-roll').on('click', this.#onAttributeRoll.bind(this));
     html.find('.skill-roll').on('click', this.#onSkillRoll.bind(this));
     html.find('.skill-roll-compact').on('click', this.#onSkillRoll.bind(this));
-    html.find('.save-roll-btn').on('click', this.#onSavingThrowRoll.bind(this));
     
     // Safe Haven Rest button
     html.find('.safe-haven-rest').on('click', this.#onSafeHavenRest.bind(this));
@@ -4926,96 +4925,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       `${this.actor.name}: XP auf ${newAvail} gesetzt (${delta >= 0 ? '+' : ''}${delta}).`,
     );
     this.render();
-  }
-
-  /**
-   * Handle saving throw roll
-   * Per Player's Guide: Roll higher of two attributes in category, keep MR.
-   * Body = max(Might, Agility), Mind = max(Intellect, Wits), Spirit = max(Resolve, Influence)
-   * DC = source MR × 8 (prompted from user)
-   */
-  async #onSavingThrowRoll(event: JQuery.ClickEvent) {
-    event.preventDefault();
-    const element = event.currentTarget;
-    const saveType = element.dataset.saveType; // 'body', 'mind', or 'spirit'
-    
-    if (!saveType) return;
-    
-    const actorData = this.actor.system as any;
-    
-    let numDice: number;
-    let usedAttr1: string;
-    let usedAttr2: string;
-    let chosenAttr: string;
-    
-    if (saveType === 'body') {
-      const might = actorData.attributes?.might?.value || 2;
-      const agility = actorData.attributes?.agility?.value || 2;
-      numDice = Math.max(might, agility);
-      usedAttr1 = `Might ${might}`;
-      usedAttr2 = `Agility ${agility}`;
-      chosenAttr = might >= agility ? 'Might' : 'Agility';
-    } else if (saveType === 'mind') {
-      const intellect = actorData.attributes?.intellect?.value || 2;
-      const wits = actorData.attributes?.wits?.value || 2;
-      numDice = Math.max(intellect, wits);
-      usedAttr1 = `Intellect ${intellect}`;
-      usedAttr2 = `Wits ${wits}`;
-      chosenAttr = intellect >= wits ? 'Intellect' : 'Wits';
-    } else if (saveType === 'spirit') {
-      const resolve = actorData.attributes?.resolve?.value || 2;
-      const influence = actorData.attributes?.influence?.value || 2;
-      numDice = Math.max(resolve, influence);
-      usedAttr1 = `Resolve ${resolve}`;
-      usedAttr2 = `Influence ${influence}`;
-      chosenAttr = resolve >= influence ? 'Resolve' : 'Influence';
-    } else {
-      return;
-    }
-    
-    const keepDice = actorData.mastery?.rank || 2;
-    // Players Guide minimum-pool rule (~5888–5899).
-    numDice = Math.max(numDice, keepDice);
-
-    const { applyHealthAndEncumbrancePenalties, LOAD_ZONE_LABEL } = await import('../utils/encumbrance.js');
-    const poolPenalties = applyHealthAndEncumbrancePenalties(numDice, this.actor as any);
-    numDice = poolPenalties.numDice;
-    
-    const rollOptions = await this.#promptForTN();
-    if (rollOptions === null) return;
-    const { tn: baseTn, raises } = rollOptions;
-    const raiseTn = baseTn + raises * 4;
-    
-    const saveName = saveType.charAt(0).toUpperCase() + saveType.slice(1);
-    let flavorText = `Using ${chosenAttr} (${usedAttr1} / ${usedAttr2})`;
-    
-    if (poolPenalties.healthPenaltyDice > 0) {
-      flavorText += ` | Health penalty: −${poolPenalties.healthPenaltyDice} dice`;
-    }
-    if (poolPenalties.encumbrancePenaltyDice > 0) {
-      flavorText += ` | Encumbrance (${LOAD_ZONE_LABEL[poolPenalties.loadZone]}): −${poolPenalties.encumbrancePenaltyDice} dice`;
-    }
-    
-    const saveRollKind =
-      saveType === 'body' ? 'saveBody' :
-      saveType === 'mind' ? 'saveMind' : 'saveSpirit';
-
-    const { masteryRoll } = await import('../dice/roll-handler.js');
-    await masteryRoll({
-      numDice,
-      keepDice,
-      skill: 0,
-      tn: baseTn,
-      normalTn: baseTn,
-      raiseTn,
-      declaredRaiseSlots: raises,
-      raiseModel: 'skill',
-      label: `${saveName} Save`,
-      flavor: flavorText,
-      actorId: (this.actor as any).id,
-      isSaveRoll: true,
-      rollKind: saveRollKind
-    });
   }
 
   /**
