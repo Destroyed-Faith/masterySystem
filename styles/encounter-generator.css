@@ -70,6 +70,11 @@
   gap: 10px;
 }
 
+.encounter-gen-party-grid {
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 12px;
+}
+
 .encounter-gen-card,
 .encounter-gen-pc {
   display: flex;
@@ -82,7 +87,18 @@
   background: var(--df-bg-elevated, #24242c);
   color: inherit;
   cursor: pointer;
-  transition: border-color 0.12s, background 0.12s;
+  transition: border-color 0.12s, background 0.12s, box-shadow 0.12s;
+}
+
+.encounter-gen-pc {
+  position: relative;
+  min-height: 74px;
+  height: auto;
+  width: 100%;
+  justify-content: center;
+  gap: 6px;
+  padding: 14px 44px 14px 16px;
+  line-height: 1.3;
 }
 
 .encounter-gen-card:hover,
@@ -90,10 +106,38 @@
   border-color: var(--df-accent, #b8863b);
 }
 
-.encounter-gen-card.is-selected,
-.encounter-gen-pc.is-selected {
+.encounter-gen-card.is-selected {
   border-color: var(--df-accent, #b8863b);
   background: var(--df-accent-bg, rgba(184, 134, 59, 0.18));
+}
+
+.encounter-gen-pc.is-selected {
+  border-color: var(--df-success, #3f9d4e);
+  background: rgba(63, 157, 78, 0.28);
+  box-shadow: inset 0 0 0 1px var(--df-success, #3f9d4e);
+}
+
+.encounter-gen-pc.is-selected:hover {
+  border-color: var(--df-success, #3f9d4e);
+}
+
+.encounter-gen-pc.is-selected::after {
+  content: '\2713';
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  transform: translateY(-50%);
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--df-success, #3f9d4e);
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 700;
+  line-height: 1;
 }
 
 .encounter-gen-card-title,
@@ -101,10 +145,21 @@
   font-weight: 600;
 }
 
+.encounter-gen-pc-name {
+  font-size: 1rem;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
 .encounter-gen-card-text,
 .encounter-gen-pc-meta {
   font-size: 0.82rem;
   opacity: 0.8;
+}
+
+.encounter-gen-pc-meta {
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 /* Metrics summary */
