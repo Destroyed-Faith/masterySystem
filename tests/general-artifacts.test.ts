@@ -625,18 +625,18 @@ describe('Staff of the Dark', () => {
     expect(lifeTaken.category).toBe('active');
   });
 
-  it('Aura of the End is an Artifact Only Active Buff', () => {
-    const aura = sysAt(tree, 6).powers.find((p: any) => /Aura of the End/.test(p.name));
-    expect(aura).toBeTruthy();
-    expect(aura.category).toBe('activeBuff');
+  it('Vision of the End is an Active Spell with Soulburn', () => {
+    const vision = sysAt(tree, 6).powers.find((p: any) => /Vision of the End/.test(p.name));
+    expect(vision).toBeTruthy();
+    expect(vision.category).toBe('active');
+    expect(vision.tags).toContain('spell');
   });
 
-  it('Special Boost Support is its Stone Function (pre-fills intellect.specialBoost)', () => {
-    const sf = sysAt(tree, 1).stoneFunction;
-    expect(sf).toBeTruthy();
-    expect(sf.kind).toBe('stonePowerSupport');
-    expect(sf.attribute).toBe('intellect');
-    expect(sf.stonePowerId).toBe('intellect.specialBoost');
+  it('Might of the Dark is the Level 1 Active Spell (Hex)', () => {
+    const might = sysAt(tree, 1).powers.find((p: any) => /Might of the Dark/.test(p.name));
+    expect(might).toBeTruthy();
+    expect(might.category).toBe('active');
+    expect(might.tags).toContain('spell');
   });
 });
 

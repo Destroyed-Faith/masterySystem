@@ -23,8 +23,6 @@ export interface SpecialEffect {
     stacking: 'Yes' | 'No' | 'Additive';
     removal: string;
     hasValue: boolean;
-    /** Optional saving throw type: 'Body' | 'Mind' | 'Spirit' | combinations, or '—' */
-    save?: string;
     /** Optional dedicated Remove Action skill (e.g. 'Medicine', 'Athletics', 'Meditation', 'Crafting') */
     removeAction?: string;
     /** Whether Cleanse / Dispel Magic can remove/reduce this effect */
@@ -90,6 +88,12 @@ export declare function getEffectsByCategory(category: EffectCategory): SpecialE
  * The data migration rewrites stored ids to the canonical form.
  */
 export declare const LEGACY_SPECIAL_ID_ALIASES: Readonly<Record<string, string>>;
+/**
+ * Special ids removed from the rules entirely (no canonical replacement).
+ * The data migration deletes stored entries with these ids and logs them;
+ * runtime code must never resolve them to an effect.
+ */
+export declare const REMOVED_SPECIAL_IDS: readonly string[];
 /** Resolve a possibly-legacy special id to its canonical id. */
 export declare function canonicalSpecialId(id: string): string;
 /**

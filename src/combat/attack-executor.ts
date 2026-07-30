@@ -200,14 +200,22 @@ function getTargetEvade(targetActor: any): number {
   return base + buffBonus;
 }
 
-/** Spell Resistance from Ward passives + active buffs (vs Spell-tagged Powers). */
+/** Spell Resistance from Ward passives + active buffs + Intellect stone (vs Spell-tagged Powers). */
 function getTargetSpellResistance(targetActor: any): number {
   if (!targetActor?.system) return 0;
   const combat = targetActor.system.combat ?? {};
+  let stoneBonus = 0;
+  try {
+    const rs = targetActor.getFlag?.('mastery-system', 'roundState');
+    stoneBonus = Math.max(0, Math.floor(Number(rs?.stoneBonuses?.spellResistanceBonus ?? 0) || 0));
+  } catch {
+    /* ignore */
+  }
   return Math.max(
     0,
     Math.floor(Number(combat.spellResistanceTotal ?? 0) || 0)
-      + Math.floor(Number(combat.spellResistanceFromActiveBuffs ?? 0) || 0),
+      + Math.floor(Number(combat.spellResistanceFromActiveBuffs ?? 0) || 0)
+      + stoneBonus,
   );
 }
 

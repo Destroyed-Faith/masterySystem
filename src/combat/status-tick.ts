@@ -10,8 +10,9 @@
  *
  * Movement-based ticks (Lacerate, Slow end-of-turn damage) are resolved from
  * movement tracking, not here. Value-based maluses (Corrode, Expose, Slow speed,
- * Soulburn, Weaken, Disoriented) are applied in `prepareDerivedData` / roll
- * builders and only decay here.
+ * Soulburn, Weaken, Disoriented, Challenge) are applied in `prepareDerivedData`
+ * / roll builders and only decay here. Cleanse Maintenance (Ward / Active Buff)
+ * reduces exactly one eligible Special after Tick + Decay.
  *
  * Runs GM-side only so a single client mutates the actor.
  */
@@ -19,6 +20,8 @@
 import { applyDamage, healDamage, applyStress } from '../utils/calculations.js';
 import { getEffectById } from '../utils/special-effects.js';
 import { statusEntryId } from '../system/active-specials.js';
+import { applyCleanseToList } from '../system/pool-reduction.js';
+import { buildActorMechanicsBreakdown } from '../utils/power-mechanics.js';
 
 interface StatusEffectEntry {
   id?: string;
@@ -84,6 +87,32 @@ export async function processTurnStartStatusTick(actor: any): Promise<string> {
     } else {
       notes.push(`${effect.name.replace(/\(X\)/, '')} ended`);
     }
+  }
+
+  // Cleanse Maintenance — reduce exactly one eligible Special (no split).
+  // Auto-picks the highest-value cleansable Special when several exist.
+  try {
+    const bd = buildActorMechanicsBreakdown(actor);
+    const cleanseX = Math.max(0, Math.floor(Number(bd?.totals?.cleanseMaintenance ?? 0) || 0));
+    if (cleanseX > 0) {
+      const eligible = next
+        .map((e) => ({ entry: e, id: statusEntryId(e), value: Math.max(0, Math.floor(Number(e.value ?? 0))) }))
+        .filter((x) => x.id && x.value > 0 && getEffectById(x.id!)?.dispellable);
+      if (eligible.length > 0) {
+        eligible.sort((a, b) => b.value - a.value);
+        const pick = eligible[0].id!;
+        const cleansed = applyCleanseToList(next, cleanseX, pick);
+        if (cleansed.applied) {
+          next.length = 0;
+          next.push(...cleansed.statusEffects);
+          notes.push(
+            `Cleanse(${cleanseX}) → ${pick}${cleansed.remaining > 0 ? `(${cleansed.remaining})` : ' ended'}`,
+          );
+        }
+      }
+    }
+  } catch (err) {
+    console.debug?.('Mastery System | Cleanse Maintenance skipped', err);
   }
 
   const update: Record<string, unknown> = { 'system.statusEffects': next };

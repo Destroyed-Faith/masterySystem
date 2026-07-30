@@ -2,7 +2,7 @@
  * Epic Mastery Roll — participant roll execution.
  */
 import { masteryRoll, showMasteryRollDice3d } from '../dice/roll-handler.js';
-import { buildAttributeRollContext, buildSaveRollContext, buildSkillRollContext, getSkillRollDicePool, } from '../dice/roll-context-build.js';
+import { buildAttributeRollContext, buildSkillRollContext, getSkillRollDicePool, } from '../dice/roll-context-build.js';
 import { SKILLS } from '../utils/skills.js';
 import { participantResultFromRoll } from './epic-mastery-roll-types.js';
 import { getSkillSpendOptions } from './epic-mastery-roll-skill-spend.js';
@@ -80,9 +80,6 @@ export async function buildEpicRollContext(session, actor, attributeKeyOverride)
     }
     if (session.roll.kind === 'attribute') {
         built = buildAttributeRollContext(actor, session.roll.attributeKey, tnSpec, stoneBonusRaises);
-    }
-    else if (session.roll.kind === 'save') {
-        built = buildSaveRollContext(actor, session.roll.saveType, tnSpec, stoneBonusRaises);
     }
     if (!built)
         return null;

@@ -2,16 +2,10 @@
  * Shared utilities for building embedded power Items from catalog entries.
  */
 import { renderRange, renderAoe, renderDuration } from './power-rendering.js';
-import { actorAlreadyHasPower, activeTemplateCanBeSpell, findCatalogEntry, findTemplateById, } from './power-catalog.js';
-import { resolveSpellSaveTypeForEntry } from './spell-save-type.js';
+import { actorAlreadyHasPower, activeTemplateCanBeSpell, findCatalogEntry, } from './power-catalog.js';
 /** Build the full item data object for `actor.createEmbeddedDocuments`. */
 export function buildPowerItemFromCatalogEntry(entry, rank, spell = { isSpell: false }) {
     const template = entry.raw;
-    const templateDoc = findTemplateById(entry.templateId);
-    let spellSaveType;
-    if (spell.isSpell && spell.spellResolution === 'saveSpell') {
-        spellSaveType = resolveSpellSaveTypeForEntry(entry, templateDoc);
-    }
     const chosenSpecial = entry.chosenSpecial
         ? { key: entry.chosenSpecial.key, tier: entry.chosenSpecial.tier }
         : undefined;
@@ -58,8 +52,7 @@ export function buildPowerItemFromCatalogEntry(entry, rank, spell = { isSpell: f
             chosenSpecial,
             isSpell: spell.isSpell,
             castingAttribute: spell.castingAttribute,
-            spellResolution: spell.spellResolution,
-            spellSaveType,
+            spellResolution: spell.isSpell ? 'spellAttack' : spell.spellResolution,
             powerType: template.category === 'activeBuff' ? 'buff' : template.category,
             range: renderRange(levelRow.range),
             aoe: renderAoe(levelRow.aoe),

@@ -3,10 +3,9 @@
  */
 
 import { SKILLS } from '../utils/skills.js';
-import type { SaveCategory } from '../utils/saving-throws.js';
 import type { MasteryRollResult } from '../types/index.js';
 
-export type EpicRollKind = 'skill' | 'attribute' | 'save';
+export type EpicRollKind = 'skill' | 'attribute';
 
 export interface EpicTnConfig {
   challengeMR: number;
@@ -24,12 +23,7 @@ export interface EpicAttributeRollConfig {
   attributeKey: string;
 }
 
-export interface EpicSaveRollConfig {
-  kind: 'save';
-  saveType: SaveCategory;
-}
-
-export type EpicRollConfig = EpicSkillRollConfig | EpicAttributeRollConfig | EpicSaveRollConfig;
+export type EpicRollConfig = EpicSkillRollConfig | EpicAttributeRollConfig;
 
 export type EpicParticipantStatus = 'pending' | 'awaiting_spend' | 'rolled' | 'skipped';
 
@@ -210,8 +204,6 @@ export function rollLabelForConfig(roll: EpicRollConfig): string {
       return SKILLS[roll.skillKey]?.name ?? roll.skillKey;
     case 'attribute':
       return roll.attributeKey.charAt(0).toUpperCase() + roll.attributeKey.slice(1);
-    case 'save':
-      return `${roll.saveType.charAt(0).toUpperCase()}${roll.saveType.slice(1)} Save`;
     default:
       return 'Roll';
   }

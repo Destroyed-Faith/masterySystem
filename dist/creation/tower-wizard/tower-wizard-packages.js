@@ -103,7 +103,7 @@ function spellDamage(flavour, tier, special) {
         ...base,
         isSpell: true,
         castingAttribute: 'intellect',
-        spellResolution: special ? 'saveSpell' : 'spellAttack',
+        spellResolution: 'spellAttack',
     };
 }
 const VARIANT_LABELS = {
@@ -1171,7 +1171,7 @@ function offensePackages() {
             label: 'I want enemies to be easier to hit.',
             explanation: 'Expose reduces enemy Evade. This helps you and your allies hit fast, slippery, or hard-to-hit enemies.',
             catalogAvailable: true,
-            resolveGrants: ({ delivery }) => [dmg(delivery, 4, 'expose'), weapon(delivery)],
+            resolveGrants: ({ delivery }) => [dmg(delivery, 6, 'expose'), weapon(delivery)],
         },
         {
             id: 'corrode-damage',
@@ -1201,22 +1201,18 @@ function offensePackages() {
         },
         {
             id: 'weaken-save',
-            label: 'I want enemies to fail important Saves.',
-            explanation: 'Weaken lowers one Save type. It is strongest when your next Power targets that same Save.',
-            warning: 'Weaken needs a follow-up. It is weaker if nobody attacks the Save you weakened.',
+            label: 'I want to cut enemy dice pools (Weaken).',
+            explanation: 'Weaken removes dice from Might / Agility / Intellect pools. Pair it with follow-up attacks that use those Attributes.',
+            warning: 'Weaken does not reduce Attributes, Keep, or Damage Pools — only rolled pools.',
             catalogAvailable: false,
-            resolveGrants: ({ delivery, weakenSave }) => {
-                const save = weakenSave ?? 'body';
-                void save;
-                return [
-                    dmg(delivery, 5, 'weaken'),
-                    {
-                        ...spellDamage(delivery, 4),
-                        spellResolution: 'saveSpell',
-                        castingAttribute: 'intellect',
-                    },
-                ];
-            },
+            resolveGrants: ({ delivery }) => [
+                dmg(delivery, 6, 'weaken'),
+                {
+                    ...spellDamage(delivery, 4),
+                    spellResolution: 'spellAttack',
+                    castingAttribute: 'intellect',
+                },
+            ],
         },
         {
             id: 'direct-damage',
@@ -1381,7 +1377,7 @@ function applyOverrideToSpec(base, override, delivery) {
     if (spec.isSpell && !spec.castingAttribute)
         spec.castingAttribute = 'intellect';
     if (spec.isSpell && !spec.spellResolution) {
-        spec.spellResolution = base.special ? 'saveSpell' : 'spellAttack';
+        spec.spellResolution = 'spellAttack';
     }
     return sanitizeActiveSpellSpec(spec);
 }

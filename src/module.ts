@@ -94,6 +94,10 @@ import { runElorianStrideMigration } from './migrations/elorian-stride-migration
 import { runTitanScarsAffinityMigration } from './migrations/titan-scars-affinity-migration.js';
 import { runSpecialEffectRenameMigration } from './migrations/special-effect-rename-migration.js';
 import {
+  registerRulesV2AlignmentMigrationSetting,
+  runRulesV2AlignmentMigration,
+} from './migrations/rules-v2-alignment-migration.js';
+import {
   registerPaperdollSlotCanonicalSetting,
   runPaperdollSlotCanonical,
 } from './migrations/paperdoll-slot-canonical.js';
@@ -141,6 +145,7 @@ function registerAllMasteryInitSettings(): void {
   registerPaperdollSlotCanonicalSetting();
   registerAbCriticalMilestonesMigrationSetting();
   registerPowerTemplateResyncMigrationSetting();
+  registerRulesV2AlignmentMigrationSetting();
 }
 
 /**
@@ -2711,15 +2716,6 @@ Hooks.once('ready', async function() {
       }
     }
 
-    // Migration: Initialize saves tracking for Vitality spending on saves
-    if (!system?.saves || system.saves.vitalityUsesRemaining === undefined) {
-      await actor.update({
-        'system.saves.vitalitySpent': 0,
-        'system.saves.vitalityUsesRemaining': 4
-      });
-      console.log(`Mastery System | Saves migration: Initialized Vitality save tracking for ${actor.name}`);
-    }
-
     // Migration: skillsSpent initialization
     if (!system?.skillsSpent || typeof system.skillsSpent !== 'object') {
       console.log(`Mastery System | SkillsSpent migration: Initializing for ${actor.name}`);
@@ -3244,12 +3240,20 @@ Hooks.once('ready', async function() {
   }
 
   // Migration: reconcile legacy Special-Effect ids/names (Bleeding->Lacerate,
-  // Ignite->Ruin, Freeze->Slow, Poisoned->Blight, Shock->Disrupt,
-  // Blinded->Disoriented, Frightened->Dread) across actors and world items.
+  // Ignite->Ruin, Freeze->Slow, Poisoned->Blight, Shock->Disoriented,
+  // Disrupt->Challenge, Blinded->Disoriented; Dread/Frightened deleted).
   try {
     await runSpecialEffectRenameMigration(migrationActors);
   } catch (error) {
     console.warn('Mastery System | Special-Effect rename migration failed', error);
+  }
+
+  // Migration: Rules v2 — strip Saving Throws, saveSpell→spellAttack, retire
+  // Active Buff Special Application auras, clear removed Special statuses.
+  try {
+    await runRulesV2AlignmentMigration(migrationActors);
+  } catch (error) {
+    console.warn('Mastery System | Rules v2 alignment migration failed', error);
   }
 
   // Migration: Backfill inventory sizes for existing items (GM only)

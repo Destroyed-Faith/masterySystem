@@ -5,7 +5,6 @@ export const DEFAULT_MANUAL_ADJUSTMENTS = {
         any: { flat: 0, dice: 0 },
         attack: { flat: 0, dice: 0 },
         skill: { flat: 0, dice: 0 },
-        save: { flat: 0, dice: 0 },
         damage: { flat: 0, dice: 0 },
     },
     health: { barMaxBonus: 0 },
@@ -38,7 +37,6 @@ export function normalizeManualAdjustments(raw) {
             any: normalizeRollBonus(raw?.rolls?.any),
             attack: normalizeRollBonus(raw?.rolls?.attack),
             skill: normalizeRollBonus(raw?.rolls?.skill),
-            save: normalizeRollBonus(raw?.rolls?.save),
             damage: normalizeRollBonus(raw?.rolls?.damage),
         },
         health: { barMaxBonus: intOrZero(raw?.health?.barMaxBonus) },
@@ -69,8 +67,8 @@ export function manualRollBonusForKind(adj, kind) {
 }
 /**
  * Normalize the roll-handler's `rollKind` strings
- * (`'attack' | 'skill' | 'saveBody' | 'saveMind' | 'saveSpirit' | ...`)
- * into the manual-adjustments bucket key.
+ * (`'attack' | 'skill' | 'damage' | 'generic'`) into the
+ * manual-adjustments bucket key.
  */
 export function manualKindFromRollKind(rollKind) {
     if (!rollKind)
@@ -81,8 +79,6 @@ export function manualKindFromRollKind(rollKind) {
         return 'skill';
     if (rollKind === 'damage')
         return 'damage';
-    if (rollKind.startsWith('save'))
-        return 'save';
     return null;
 }
 //# sourceMappingURL=manual-adjustments.js.map

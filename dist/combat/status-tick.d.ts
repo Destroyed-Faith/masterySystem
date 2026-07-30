@@ -10,8 +10,9 @@
  *
  * Movement-based ticks (Lacerate, Slow end-of-turn damage) are resolved from
  * movement tracking, not here. Value-based maluses (Corrode, Expose, Slow speed,
- * Soulburn, Weaken, Disoriented) are applied in `prepareDerivedData` / roll
- * builders and only decay here.
+ * Soulburn, Weaken, Disoriented, Challenge) are applied in `prepareDerivedData`
+ * / roll builders and only decay here. Cleanse Maintenance (Ward / Active Buff)
+ * reduces exactly one eligible Special after Tick + Decay.
  *
  * Runs GM-side only so a single client mutates the actor.
  */

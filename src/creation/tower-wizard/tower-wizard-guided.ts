@@ -90,7 +90,7 @@ interface GuidedSpecialWrapper {
     explanation: string;
     whenToUse: string;
     powerName: string;
-    /** Catalog special key (e.g. dread for Frightened). */
+    /** Catalog special key (e.g. challenge, weaken). */
     specialKey: string;
 }
 
@@ -396,11 +396,11 @@ const SPECIAL_FOCUS_PURPOSE_GROUPS: Array<{
                 whenToUse: 'Best when you need to blunt an enemy\'s offense.',
             },
             {
-                specialKey: 'dread',
-                playerTitle: 'Break enemy courage',
-                powerName: 'Frightened',
-                explanation: 'Use Frightened when you want fear to limit the enemy.',
-                whenToUse: 'Best when you want enemies to hesitate or fail saves before acting.',
+                specialKey: 'challenge',
+                playerTitle: 'Force them to face you',
+                powerName: 'Challenge',
+                explanation: 'Use Challenge when you want enemies to lose Attack Dice unless they include you as a target.',
+                whenToUse: 'Best when you want to punish attacks aimed at your allies.',
             },
         ],
     },
@@ -715,7 +715,6 @@ function plainLanguageBuff(selection: TowerWizardSelection, buffName: string): s
 
 function specialDisplayName(specialKey: string | null | undefined): string {
     if (!specialKey) return 'a tactical effect';
-    if (specialKey === 'dread') return 'Frightened';
     const effect = getEffectById(specialKey);
     return effect?.name ?? capitalizeSpecial(specialKey);
 }

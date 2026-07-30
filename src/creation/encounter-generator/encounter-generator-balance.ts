@@ -236,7 +236,6 @@ function buildBoss(
     speed: 6,
     attackSlots,
     movementSlots: 1,
-    saves: { body: mr * 2, mind: mr * 2, spirit: mr * 2 },
     phases: phaseStats,
   };
 }
@@ -278,7 +277,6 @@ function buildMinion(
     speed: 6,
     attackSlots: 1,
     movementSlots: 1,
-    saves: { body: mr, mind: mr, spirit: mr },
     phases: [
       {
         name: 'Phase 1',

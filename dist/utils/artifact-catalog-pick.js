@@ -6,12 +6,24 @@ import { getTemplate } from './powers/index.js';
 import { getEffect, getEffectBaseName } from './special-effects.js';
 import { getEligibleSpecialsForTier } from './powers/templates/_specials.js';
 import { isMartialDeliveryPickId, listMartialDamageSpecialOptions, parseMartialDeliveryPickId, } from './artifact-power-pick.js';
-/** Fixed Special choices for Active Buff aura templates (no SPECIAL placeholder row). */
+/** Fixed Special choices for templates that need a pick but have no SPECIAL placeholder. */
 const SPECIAL_AURA_OPTIONS = {
-    'ab-special-aura-start-3': ['blight', 'regeneration'],
-    'ab-special-aura-start-4': ['lacerate', 'slow', 'ruin', 'mark'],
-    'ab-special-aura-start-5': ['weaken'],
-    'ab-special-aura-start-6': ['corrode', 'disrupt', 'soulburn', 'hex', 'sundered'],
+    // Passive Special Aura (not Active Buff — Active Buff auras never apply Specials).
+    'passive-special-aura': [
+        'blight',
+        'lacerate',
+        'slow',
+        'ruin',
+        'mark',
+        'challenge',
+        'corrode',
+        'hex',
+        'sundered',
+        'disoriented',
+        'expose',
+        'soulburn',
+        'weaken',
+    ],
 };
 function tierFromTemplateId(templateId) {
     const m = /-t([3456])$/.exec(templateId);

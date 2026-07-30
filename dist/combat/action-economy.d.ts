@@ -61,9 +61,8 @@ export interface RoundState {
         critRaises?: number;
         /** Might.Armor — flat temp armor until start of next turn. */
         tempArmor?: number;
-        /** Legacy: +keep raises on next spell/skill roll (saves/skills). */
+        /** Legacy: +keep raises on next spell/skill roll. */
         freeRaises?: number;
-        saveKeepBonus?: number;
         spellPoolDice?: number;
         spellKeepDice?: number;
         /**
@@ -84,16 +83,14 @@ export interface RoundState {
         spellRaiseTnBonus?: number;
         /** @deprecated Use spellRaiseTnBonus — legacy bonus-d8 path removed. */
         spellAutoRaises?: number;
-        /** Intellect.SpellDefense — bonus to Saves vs. Spells until next turn. */
-        spellSaveBonus?: number;
+        /** Intellect.SpellResistance — +TN vs Spells that directly target you until next turn. */
+        spellResistanceBonus?: number;
         /** Intellect.SpellAction — extra attack actions this round, restricted to Spells. */
         extraSpellActions?: number;
         /** Intellect.SpecialBoost — +X to one eligible Special on each spell this turn. */
         spellSpecialBoost?: number;
         /** Resolve.DamageReductionBoost — additional %DR until next turn (0.10/0.20/0.30). */
         damageReductionBoostPct?: number;
-        /** Resolve.SaveBoost — flat bonus to all Saves this round. */
-        saveAllBonus?: number;
         /** Resolve.SpecialReduction — minus to incoming Special values against you this round (floored at 0). */
         incomingSpecialReduction?: number;
         /** Wits.Phasing — phasing charges granted by stone power (consumed by phasing system). */

@@ -79,8 +79,6 @@ export function rollLabelForConfig(roll) {
             return SKILLS[roll.skillKey]?.name ?? roll.skillKey;
         case 'attribute':
             return roll.attributeKey.charAt(0).toUpperCase() + roll.attributeKey.slice(1);
-        case 'save':
-            return `${roll.saveType.charAt(0).toUpperCase()}${roll.saveType.slice(1)} Save`;
         default:
             return 'Roll';
     }

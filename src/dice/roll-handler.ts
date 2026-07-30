@@ -6,8 +6,8 @@
 import { MasteryRollResult } from '../types';
 import { EXPLODE_VALUE, RAISE_INCREMENT } from '../utils/constants';
 import { resolveRaiseOutcome, type RaiseOutcome } from '../combat/raise-resolution.js';
-import { evaluateAutoFail, type CheckContext } from '../system/auto-fail.js';
-import { getActiveSpecialValue } from '../system/active-specials.js';
+import { type CheckContext } from '../system/auto-fail.js';
+import { finalizeRolledPool } from './pool-finalize.js';
 import {
   manualKindFromRollKind,
   manualRollBonusForKind,
@@ -19,9 +19,6 @@ export type MasteryRollKind =
   | 'attack'
   | 'skill'
   | 'damage'
-  | 'saveBody'
-  | 'saveMind'
-  | 'saveSpirit'
   | 'generic';
 
 export interface RollOptions {
@@ -34,8 +31,34 @@ export interface RollOptions {
   actorId?: string;         // Actor making the roll
   skillKey?: string;        // Skill key for skill rolls (enables post-roll spending)
   isSkillRoll?: boolean;    // Flag indicating this is a skill roll
-  isSaveRoll?: boolean;     // Flag indicating this is a saving throw roll
   baseModifier?: number;    // Base modifier (situational, not skill-based)
+  /**
+   * Attribute key the dice pool is built from (`might`, `agility`, …).
+   * Drives the Weaken / Soulburn flat pool reductions: Weaken hits
+   * Might / Agility / Intellect pools, Soulburn hits Wits / Influence /
+   * Resolve pools. Omit for pools not built from an attribute (e.g. NPC
+   * flat pools, initiative).
+   */
+  poolAttribute?: string;
+  /**
+   * Actor / token references of every target the attack includes (primary +
+   * AoE targets). Used by Challenge(X): the Attack Pool is only reduced when
+   * the challenger is NOT among these refs.
+   */
+  targetRefs?: string[];
+  /**
+   * When true, `masteryRoll` applies the percentage-based Health /
+   * Encumbrance penalty and the final Minimum Pool (= Mastery Rank) itself —
+   * in canonical order AFTER all flat pool reductions. Callers that set this
+   * must NOT pre-apply those penalties.
+   */
+  applyPoolPenalties?: boolean;
+  /**
+   * Resolved actor instance for the pool-finalize stage. Needed for
+   * unlinked-token (synthetic) actors whose id is not in `game.actors`.
+   * Falls back to `game.actors.get(actorId)`.
+   */
+  actorRef?: any;
   /**
    * Roll kind used by the Power Mechanics Engine to consult the actor's
    * aggregated dice-pool deltas (attack / skill / damage / saveBody / ...).
@@ -125,8 +148,13 @@ export interface MasteryRollRecipe {
   actorId: string | null;
   skillKey: string | null;
   isSkillRoll: boolean;
-  isSaveRoll: boolean;
   baseModifier: number;
+  /** Mirrors `RollOptions.poolAttribute` for Faith Fracture rerolls. */
+  poolAttribute?: string;
+  /** Mirrors `RollOptions.targetRefs` for Faith Fracture rerolls. */
+  targetRefs?: string[];
+  /** Mirrors `RollOptions.applyPoolPenalties` for Faith Fracture rerolls. */
+  applyPoolPenalties?: boolean;
   normalTn?: number;
   raiseTn?: number;
   declaredRaiseSlots?: number;
@@ -382,63 +410,36 @@ export async function masteryRoll(options: RollOptions): Promise<MasteryRollResu
     }
   }
 
-  // Auto-Fail engine: pool penalty + forced failure reason. Runs after the
-  // Power Mechanics Engine so penalties stack on top of the adjusted pool.
+  // ── Canonical Order of Pool Reduction ─────────────────────────────────
+  // At this point `numDice` = base pool (+ skill rule + situational caller
+  // modifiers) + mechanics/manual flat modifiers. `finalizeRolledPool` then
+  // applies, in canonical order: flat Special reductions (Disoriented /
+  // Weaken / Soulburn / Challenge) → percentage Health & Encumbrance penalty
+  // (only when `applyPoolPenalties` is set) → Minimum Pool = Mastery Rank.
   let autoFailReason: string | undefined;
-  const autoFailIntent: 'skill' | 'attack' =
-    options.autoFailIntent ?? (kind === 'attack' ? 'attack' : 'skill');
-  if (options.actorId && options.checkContext) {
+  if (options.actorId || options.actorRef) {
     try {
-      const actor: any = (game as any)?.actors?.get?.(options.actorId);
+      const actor: any = options.actorRef ?? (game as any)?.actors?.get?.(options.actorId);
       if (actor) {
-        const decision = evaluateAutoFail(actor, options.checkContext, autoFailIntent);
-        if (decision.dicePenalty && decision.dicePenalty > 0) {
-          // Disoriented clamps to Mastery Rank (keepDice); other penalties to 1.
-          const floor = decision.reason === 'disoriented'
-            ? Math.max(1, Math.floor(keepDice))
-            : Math.max(1, decision.minFloor ?? 1);
-          const adjusted = Math.max(floor, numDice - decision.dicePenalty);
-          if (adjusted !== numDice) {
-            const note = decision.note ?? `Auto-Fail: −${decision.dicePenalty} dice`;
-            flavor = flavor ? `${flavor} | ${note}` : note;
-            numDice = adjusted;
-          }
-        }
-        if (decision.failed) {
-          autoFailReason = decision.reason ?? 'auto-fail';
-          const note = decision.note ?? `Auto-Fail (${autoFailReason})`;
+        const finalized = finalizeRolledPool(actor, numDice, keepDice, {
+          rollKind: kind,
+          poolAttribute: options.poolAttribute,
+          targetRefs: [
+            ...(options.targetRefs ?? []),
+            ...(options.targetActorId ? [options.targetActorId] : []),
+          ],
+          checkContext: options.checkContext,
+          autoFailIntent: options.autoFailIntent,
+          applyPoolPenalties: !!options.applyPoolPenalties,
+        });
+        numDice = finalized.numDice;
+        autoFailReason = finalized.autoFailReason;
+        for (const note of finalized.notes) {
           flavor = flavor ? `${flavor} | ${note}` : note;
         }
       }
     } catch (err) {
-      console.warn('Mastery System | auto-fail lookup failed', err);
-    }
-  }
-
-  // Diminishing save maluses: Soulburn (Body/Mind/Spirit) and Weaken reduce
-  // Save Dice by X, to a minimum of the roller's Mastery Rank.
-  if (options.actorId && (kind === 'saveBody' || kind === 'saveMind' || kind === 'saveSpirit')) {
-    try {
-      const actor: any = (game as any)?.actors?.get?.(options.actorId);
-      if (actor) {
-        const soulburn = getActiveSpecialValue(actor, 'soulburn');
-        const weaken = getActiveSpecialValue(actor, 'weaken');
-        const penalty = soulburn + weaken;
-        if (penalty > 0) {
-          const floor = Math.max(1, Math.floor(keepDice));
-          const adjusted = Math.max(floor, numDice - penalty);
-          if (adjusted !== numDice) {
-            const parts: string[] = [];
-            if (soulburn > 0) parts.push(`Soulburn ${soulburn}`);
-            if (weaken > 0) parts.push(`Weaken ${weaken}`);
-            const note = `${parts.join(' + ')} — −${numDice - adjusted} Save Dice (min MR)`;
-            flavor = flavor ? `${flavor} | ${note}` : note;
-            numDice = adjusted;
-          }
-        }
-      }
-    } catch (err) {
-      console.warn('Mastery System | save malus lookup failed', err);
+      console.warn('Mastery System | pool reduction stage failed', err);
     }
   }
 
@@ -621,8 +622,10 @@ export async function masteryRoll(options: RollOptions): Promise<MasteryRollResu
     actorId: options.actorId ?? null,
     skillKey: options.skillKey ?? null,
     isSkillRoll: !!options.isSkillRoll,
-    isSaveRoll: !!options.isSaveRoll,
     baseModifier: options.baseModifier ?? 0,
+    ...(options.poolAttribute ? { poolAttribute: options.poolAttribute } : {}),
+    ...(options.targetRefs?.length ? { targetRefs: options.targetRefs } : {}),
+    ...(options.applyPoolPenalties ? { applyPoolPenalties: true } : {}),
     normalTn: normalTnVal,
     raiseTn: raiseTnVal,
     declaredRaiseSlots,
@@ -650,7 +653,6 @@ export async function masteryRoll(options: RollOptions): Promise<MasteryRollResu
       options.skillKey,
       options.isSkillRoll,
       options.baseModifier,
-      options.isSaveRoll,
       rollRecipe,
       !!options.isRerollResult
     );
@@ -752,7 +754,6 @@ async function sendRollToChat(
   skillKey?: string,
   isSkillRoll?: boolean,
   baseModifier?: number,
-  isSaveRoll?: boolean,
   rollRecipe?: MasteryRollRecipe,
   isRerollResult?: boolean
 ): Promise<void> {
@@ -761,39 +762,6 @@ async function sendRollToChat(
     let actor = null;
     if (actorId && (game as any).actors) {
       actor = (game as any).actors.get(actorId);
-    }
-    
-    // For save rolls, calculate Vitality spending options
-    let saveVitalityPool = 0;
-    let saveVitalityUsesRemaining = 0;
-    let vitalitySpendOptions: Array<{amount: number, newTotal: number, success: boolean, raises: number, label: string}> = [];
-    if (isSaveRoll && actor) {
-      const actorData = (actor as any).system;
-      const vitality = actorData.attributes?.vitality?.value || 0;
-      const vitalitySpent = actorData.saves?.vitalitySpent || 0;
-      saveVitalityPool = Math.max(0, vitality - vitalitySpent);
-      saveVitalityUsesRemaining = actorData.saves?.vitalityUsesRemaining ?? 4;
-      const MR = actorData.mastery?.rank || 2;
-      const diceTotal = result.kept.reduce((sum: number, d: number) => sum + d, 0) + (baseModifier || 0);
-
-      // Same MR-step / all-in rule as skill spending — exposed only when the
-      // pool is at least one MR-step.
-      if (saveVitalityUsesRemaining > 0 && saveVitalityPool >= MR) {
-        const added = new Set<number>();
-        for (let amount = MR; amount <= saveVitalityPool; amount += MR) {
-          const newTotal = diceTotal + amount;
-          const success = result.tn > 0 ? newTotal >= result.tn : true;
-          const raises = result.tn > 0 && success ? Math.floor((newTotal - result.tn) / RAISE_INCREMENT) : 0;
-          vitalitySpendOptions.push({ amount, newTotal, success, raises, label: `${amount}` });
-          added.add(amount);
-        }
-        if (!added.has(saveVitalityPool)) {
-          const newTotal = diceTotal + saveVitalityPool;
-          const success = result.tn > 0 ? newTotal >= result.tn : true;
-          const raises = result.tn > 0 && success ? Math.floor((newTotal - result.tn) / RAISE_INCREMENT) : 0;
-          vitalitySpendOptions.push({ amount: saveVitalityPool, newTotal, success, raises, label: `All-in (${saveVitalityPool})` });
-        }
-      }
     }
 
     // For skill rolls, calculate spending options (MR increments)
@@ -957,21 +925,6 @@ async function sendRollToChat(
             </div>
           </div>
         ` : ''}
-        ${isSaveRoll && actorId && vitalitySpendOptions.length > 0 ? `
-          <div class="skill-spend-panel">
-            <div class="skill-spend-header">
-              <h4>Spend Vitality</h4>
-              <span class="skill-pool-info">Pool: ${saveVitalityPool}/${(actor as any).system?.attributes?.vitality?.value || 0} (${saveVitalityUsesRemaining} use${saveVitalityUsesRemaining !== 1 ? 's' : ''} left)</span>
-            </div>
-            <div class="skill-spend-buttons">
-              ${vitalitySpendOptions.map(opt => `
-                <button type="button" class="skill-spend-btn ${opt.success && !result.success ? 'skill-spend-success' : ''}" data-action="spend-vitality-save" data-spend="${opt.amount}" data-actor-id="${actorId}">
-                  +${opt.label} → ${opt.newTotal}${result.tn > 0 ? (opt.success ? ` ✓${opt.raises > 0 ? ` (${opt.raises} raise${opt.raises > 1 ? 's' : ''})` : ''}` : ' ✗') : ''}
-                </button>
-              `).join('')}
-            </div>
-          </div>
-        ` : ''}
       </div>
     `;
     
@@ -999,12 +952,10 @@ async function sendRollToChat(
           isRerollResult: !!isRerollResult,
           rollRecipe: rollRecipe || null,
           isSkillRoll: isSkillRoll || false,
-          isSaveRoll: isSaveRoll || false,
           skillKey: skillKey || null,
           actorId: actorId || null,
           baseModifier: baseModifier || 0,
           skillSpentApplied: false,
-          vitalitySpentApplied: false,
           faithRerollConsumed: false
         }
       }
@@ -1033,35 +984,23 @@ export async function quickRoll(
   flavor?: string
 ): Promise<MasteryRollResult> {
   const actorData = actor.system as any;
-  
-  // Get attribute value (number of dice)
-  let numDice = actorData.attributes?.[attributeName]?.value || 0;
-  
+
+  // Base pool = attribute value. Specials, Health/Encumbrance penalties and
+  // the final Minimum Pool (= Mastery Rank) are applied centrally inside
+  // `masteryRoll` in canonical order (`applyPoolPenalties: true`).
+  const numDice = actorData.attributes?.[attributeName]?.value || 0;
+
   // Get mastery rank (number to keep)
   const keepDice = actorData.mastery?.rank || 1;
 
-  // Players Guide minimum-pool rule (~5888–5899): you can never roll fewer
-  // dice than your Mastery Rank. Apply *before* health penalties so the
-  // penalty subtracts from the floor as well.
-  numDice = Math.max(numDice, keepDice);
-  
   // For skill rolls, do NOT auto-add skill bonus - it's now a consumable resource spent after the roll
   // Only use provided modifier if explicitly given (for non-skill rolls or situational modifiers)
   const skillBonus = modifier !== undefined ? modifier : 0;
-  
-  // Players Guide ~6518–6544: health penalty is a *percentage of the rolled
-  // pool* (10/20/30/40 % per broken bar, floored). Resolve it against the
-  // post-floor pool so the percentage scales with the actual dice rolled.
-  const { applyHealthAndEncumbrancePenalties, LOAD_ZONE_LABEL } = await import('../utils/encumbrance.js');
-  const poolPenalties = applyHealthAndEncumbrancePenalties(numDice, actor as any);
-  numDice = poolPenalties.numDice;
-  const healthPenalty = poolPenalties.healthPenaltyDice > 0 ? -poolPenalties.healthPenaltyDice : 0;
-  const encumbrancePenalty = poolPenalties.encumbrancePenaltyDice;
-  
+
   // Build label
   const rollLabel = label || `${attributeName.charAt(0).toUpperCase() + attributeName.slice(1)} Roll`;
   let flavorText = flavor || '';
-  
+
   // If no flavor provided, build default
   if (!flavorText) {
     if (skillName) {
@@ -1074,36 +1013,7 @@ export async function quickRoll(
       flavorText = `modifier: ${modifier >= 0 ? '+' : ''}${modifier}`;
     }
   }
-  
-  // Add health penalty to flavor if applicable
-  if (healthPenalty < 0) {
-    const penaltyText = healthPenalty === -1 ? '1' : healthPenalty === -2 ? '2' : healthPenalty === -4 ? '4' : String(Math.abs(healthPenalty));
-    flavorText = flavorText ? `${flavorText} (Health penalty: -${penaltyText} dice)` : `Health penalty: -${penaltyText} dice`;
-  }
-  if (encumbrancePenalty > 0) {
-    const encLabel = LOAD_ZONE_LABEL[poolPenalties.loadZone];
-    const encText = `Encumbrance (${encLabel}): -${encumbrancePenalty} dice`;
-    flavorText = flavorText ? `${flavorText} (${encText})` : encText;
-  }
-  
-  console.log('Mastery System | quickRoll with pool penalties', {
-    attributeName,
-    skillName,
-    baseNumDice: actorData.attributes?.[attributeName]?.value || 0,
-    healthPenalty,
-    encumbrancePenalty,
-    loadZone: poolPenalties.loadZone,
-    adjustedNumDice: numDice,
-    currentBar: actorData.health?.currentBar ?? 0,
-    healthBars: (actorData.health?.bars || []).map((b: any, i: number) => ({
-      index: i,
-      name: b.name,
-      current: b.current,
-      max: b.max,
-      penalty: b.penalty,
-    })),
-  });
-  
+
   return await masteryRoll({
     numDice,
     keepDice,
@@ -1115,7 +1025,9 @@ export async function quickRoll(
     skillKey: skillName,
     isSkillRoll: !!skillName,
     baseModifier: modifier,
-    rollKind: skillName ? 'skill' : 'generic'
+    rollKind: skillName ? 'skill' : 'generic',
+    poolAttribute: attributeName,
+    applyPoolPenalties: true
   });
 }
 

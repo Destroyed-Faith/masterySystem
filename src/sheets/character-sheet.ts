@@ -4225,16 +4225,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     if (pool.equipPenalty > 0) {
       equipPenaltyFlavor = ` Equipped armor/shield physical penalty: −${pool.equipPenalty}d8 (rolling ${numDice} dice).`;
     }
-    let healthPenaltyFlavor = '';
-    if (pool.healthPenalty > 0) {
-      healthPenaltyFlavor = ` Health penalty: −${pool.healthPenalty}d8 (rolling ${numDice} dice).`;
-    }
-    let encumbrancePenaltyFlavor = '';
-    if (pool.encumbrancePenalty > 0) {
-      const { LOAD_ZONE_LABEL } = await import('../utils/encumbrance.js');
-      const loadZone = (this.actor as any).system?.encumbrance?.loadZone ?? 'normal';
-      encumbrancePenaltyFlavor = ` Encumbrance (${LOAD_ZONE_LABEL[loadZone as keyof typeof LOAD_ZONE_LABEL] ?? loadZone}): −${pool.encumbrancePenalty}d8 (rolling ${numDice} dice).`;
-    }
+    const finalizeFlavor = (pool.finalizeNotes ?? [])
+      .map((n) => ` ${n}.`)
+      .join('');
 
     const raiseTn = rollOptions.baseTN + rollOptions.raises * 4;
     let stoneBonusRaises = 0;
@@ -4261,7 +4254,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       stoneBonusRaises,
       raiseModel: 'skill',
       label: `${skillDef.name} Check`,
-      flavor: `Attribute: ${rollOptions.attributeKey.charAt(0).toUpperCase() + rollOptions.attributeKey.slice(1)}, Base TN: ${rollOptions.baseTN}, Raises: ${rollOptions.raises}.${equipPenaltyFlavor}${healthPenaltyFlavor}${encumbrancePenaltyFlavor}${reducedPoolFlavor}`,
+      flavor: `Attribute: ${rollOptions.attributeKey.charAt(0).toUpperCase() + rollOptions.attributeKey.slice(1)}, Base TN: ${rollOptions.baseTN}, Raises: ${rollOptions.raises}.${equipPenaltyFlavor}${finalizeFlavor}${reducedPoolFlavor}`,
       actorId: (this.actor as any).id,
       skillKey,
       isSkillRoll: true,
@@ -4724,11 +4717,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     //  • Mastery Charges reset to MR.
     //  • Sealed / Lost / Bound stones release back to the Stone pool.
     //  • Stone-Bound forms revert.
-    //  • Skills, Vitality save uses, Faith Fractures and Echo uses refresh.
+    //  • Skills, Faith Fractures and Echo uses refresh.
     const updates: Record<string, unknown> = {
       'system.skillsSpent': skillsSpent,
-      'system.saves.vitalitySpent': 0,
-      'system.saves.vitalityUsesRemaining': 4,
       ...(faithMax > 0 ? { 'system.faithFractures.current': faithMax } : {}),
       ...echoUpdates,
     };
@@ -4808,7 +4799,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     });
 
     (ui as any).notifications?.info(
-      'Safe Haven Rest: HP, Stress, Scars, Stones, Mastery Charges, Skills, Vitality saves, Reroll Points and Echo uses fully restored.',
+      'Safe Haven Rest: HP, Stress, Scars, Stones, Mastery Charges, Skills, Reroll Points and Echo uses fully restored.',
     );
     this.render();
   }

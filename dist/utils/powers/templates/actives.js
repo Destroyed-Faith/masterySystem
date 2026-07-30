@@ -12,9 +12,10 @@
  * template into one entry per eligible Special (see _specials.ts and
  * power-catalog.ts buildEntries()).
  *
- * `spellHints` pre-fills Active-as-Spell resolution defaults per subfamily
- * (plan §6.2): damage-single → spellAttack, AoE/zone → saveSpell(Body),
- * hard-control → saveSpell(Mind), support → saveSpell(no save).
+ * `spellHints` pre-fills Active-as-Spell resolution defaults. Saving throws
+ * were removed from the rules — every spell resolves as `spellAttack`
+ * (caster roll vs Casting TN / Evade); a successful cast resolves its full
+ * listed payload.
  */
 import { buildLevels, activeRow } from './_shared.js';
 import { getEligibleSpecialsForTier } from './_specials.js';
@@ -122,7 +123,7 @@ function damageAoeTemplate(def) {
     const id = `active-${isRanged ? 'ranged' : 'melee'}-aoe-damage-t${def.tier}`;
     const name = `${isRanged ? 'Ranged' : 'Melee'} AoE Damage — Tier ${def.tier}`;
     const slot = { tier: def.tier, eligibleSpecialKeys: [...getEligibleSpecialsForTier(def.tier)] };
-    const spellHints = { defaultResolution: 'saveSpell', defaultSaveType: 'body' };
+    const spellHints = { defaultResolution: 'spellAttack' };
     return {
         templateId: id,
         templateName: name,
@@ -173,7 +174,7 @@ function persistentZoneTemplate(tier) {
     const id = `active-ranged-zone-t${tier}`;
     const name = `Ranged Persistent Zone — Tier ${tier}`;
     const slot = { tier, eligibleSpecialKeys: [...getEligibleSpecialsForTier(tier)] };
-    const spellHints = { defaultResolution: 'saveSpell', defaultSaveType: 'body' };
+    const spellHints = { defaultResolution: 'spellAttack' };
     return {
         templateId: id,
         templateName: name,
@@ -249,7 +250,7 @@ function controlTemplate(def) {
         subfamily: 'control',
         category: 'active',
         tags: [],
-        spellHints: { defaultResolution: 'saveSpell', defaultSaveType: 'body' },
+        spellHints: { defaultResolution: 'spellAttack' },
         fluff: 'Forceful positioning — push, pull, trip, or disarm.',
         cost: { action: 'attack' },
         roll: { kind: 'attack', attribute: isRanged ? 'agility' : 'might' },
@@ -329,7 +330,7 @@ function hlrText(lvl, aoe) {
 }
 function supportTemplate(def) {
     const isRanged = def.flavour === 'ranged';
-    const spellHints = { defaultResolution: 'saveSpell' };
+    const spellHints = { defaultResolution: 'spellAttack' };
     const healTable = def.aoe
         ? (isRanged ? HEAL_DICE_RANGED_AOE : HEAL_DICE_MELEE_AOE)
         : (isRanged ? HEAL_DICE_RANGED_SINGLE : HEAL_DICE_MELEE_SINGLE);
@@ -418,7 +419,7 @@ function mixedTemplate(def) {
         subfamily: 'mixed',
         category: 'active',
         tags: ['spell'],
-        spellHints: { defaultResolution: 'saveSpell' },
+        spellHints: { defaultResolution: 'spellAttack' },
         fluff: def.kind === 'heal-cleanse'
             ? 'A single act of restoration that both heals and clears a lingering affliction.'
             : 'A blow that both damages and strips a magical effect.',
@@ -526,7 +527,7 @@ function buildActiveTemplates() {
             subfamily: 'barrier',
             category: 'active',
             tags: ['spell'],
-            spellHints: { defaultResolution: 'saveSpell', defaultSaveType: 'body' },
+            spellHints: { defaultResolution: 'spellAttack' },
             fluff: 'A summoned wall of force, stone, wood, or ice that lasts for several rounds.',
             cost: { action: 'attack' },
             roll: { kind: 'none' },
@@ -658,7 +659,7 @@ function smiteRangedAoeAttackTemplate() {
         subfamily: 'smite-attack',
         category: 'active',
         tags: [],
-        spellHints: { defaultResolution: 'saveSpell', defaultSaveType: 'body' },
+        spellHints: { defaultResolution: 'spellAttack' },
         fluff: 'A compact ranged area Smite attack that burns supernatural enemies inside a small blast. Max range 32 m, max radius 3 m.',
         cost: { action: 'attack' },
         roll: { kind: 'attack', attribute: 'agility' },
@@ -702,7 +703,7 @@ function stunningStrikeTemplate(flavour) {
         subfamily: 'hard-control',
         category: 'active',
         tags: [],
-        spellHints: { defaultResolution: 'saveSpell', defaultSaveType: 'body' },
+        spellHints: { defaultResolution: 'spellAttack' },
         fluff: isRanged
             ? 'A precise ranged strike that staggers the target and briefly denies its ability to attack.'
             : 'A close-range martial blow that staggers the target and briefly denies its ability to attack.',
@@ -767,7 +768,7 @@ function rangedImagesTemplate() {
         subfamily: 'illusion',
         category: 'active',
         tags: ['spell'],
-        spellHints: { defaultResolution: 'saveSpell', defaultSaveType: 'mind' },
+        spellHints: { defaultResolution: 'spellAttack' },
         fluff: 'A ranged illusion Active that creates false sensory information for 4 Rounds. Images do not deal damage, block movement, or apply Specials — they only make creatures believe things are present.',
         cost: { action: 'attack' },
         roll: { kind: 'none' },
@@ -849,7 +850,7 @@ function aoeWeaponAttackTemplate(flavour) {
         subfamily: 'weapon-attack',
         category: 'active',
         tags: [],
-        spellHints: { defaultResolution: 'saveSpell', defaultSaveType: 'body' },
+        spellHints: { defaultResolution: 'spellAttack' },
         fluff: isRanged
             ? 'A ranged weapon attack that bursts around a target point.'
             : 'A self-centered weapon sweep or burst around the attacker.',
@@ -1023,7 +1024,7 @@ function healthLevelHealTemplate(flavour) {
         subfamily: 'support-heal',
         category: 'active',
         tags: ['spell'],
-        spellHints: { defaultResolution: 'saveSpell' },
+        spellHints: { defaultResolution: 'spellAttack' },
         fluff: 'Spend this Power\'s Health Level Recovery pool to restore lost Health Levels. It restores no HP by itself.',
         cost: { action: 'attack' },
         roll: { kind: 'none', attribute: 'resolve' },
@@ -1053,7 +1054,7 @@ function cleanseAbsorptionTemplate() {
         subfamily: 'support-cleanse',
         category: 'active',
         tags: ['spell'],
-        spellHints: { defaultResolution: 'saveSpell' },
+        spellHints: { defaultResolution: 'spellAttack' },
         fluff: 'Strip eligible negative Specials from a target; if the full Cleanse value is spent, grant a chosen Absorption Bonus until end of combat.',
         cost: { action: 'attack' },
         roll: { kind: 'none', attribute: 'resolve' },
@@ -1074,7 +1075,8 @@ function cleanseAbsorptionTemplate() {
                 type: 'Active, Support',
                 range: { kind: 'distance', m: 24 },
                 aoe: R_NONE,
-                effectText: `Remove up to **Cleanse(${rank})** total negative Special value from the target (may split). ` +
+                effectText: `Reduce one eligible negative Special on the target by **${rank}**. ` +
+                    `The Cleanse value cannot be split across several Specials. ` +
                     `If the full Cleanse value is spent, the target gains **Absorption Bonus ${bonus}** until end of combat. ` +
                     `Choose one Absorption type when this Power is learned: Damage, Speed, Armor, or Evade. Stackable.`,
                 specials: [{ key: 'cleanse', rank }],
@@ -1091,7 +1093,7 @@ function mentalAttackTemplate() {
         subfamily: 'mental',
         category: 'active',
         tags: ['spell', 'mental'],
-        spellHints: { defaultResolution: 'saveSpell', defaultSaveType: 'mind' },
+        spellHints: { defaultResolution: 'spellAttack' },
         fluff: 'Requires Telepathic Access. Psychic assault vs Mind Save; Mental Damage ignores Armor and does not target Evade.',
         cost: { action: 'attack' },
         roll: { kind: 'none', attribute: 'resolve' },
@@ -1114,7 +1116,7 @@ function mindIllusionTemplate() {
         subfamily: 'mental',
         category: 'active',
         tags: ['spell', 'mental'],
-        spellHints: { defaultResolution: 'saveSpell', defaultSaveType: 'mind' },
+        spellHints: { defaultResolution: 'spellAttack' },
         fluff: 'Requires Telepathic Access. Personal false perceptions only — no real battlefield objects or direct control.',
         cost: { action: 'attack' },
         roll: { kind: 'none', attribute: 'resolve' },

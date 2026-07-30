@@ -89,7 +89,7 @@ export declare function buildBuffMechanicsBreakdown(actor: any): MechanicsBreakd
  * contributions are *not* part of the pre-aggregated breakdown totals, which
  * only contain unconditional bonuses).
  */
-export declare function getRollDiceDelta(actor: any, kind: 'attack' | 'skill' | 'damage' | 'saveBody' | 'saveMind' | 'saveSpirit', target?: any): number;
+export declare function getRollDiceDelta(actor: any, kind: 'attack' | 'skill' | 'damage', target?: any): number;
 /**
  * Check whether an actor carries a given condition. Checks (in order):
  *   1. actor.statuses (Foundry v13 Set of status ids)

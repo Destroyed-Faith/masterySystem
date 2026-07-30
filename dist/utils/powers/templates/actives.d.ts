@@ -12,9 +12,10 @@
  * template into one entry per eligible Special (see _specials.ts and
  * power-catalog.ts buildEntries()).
  *
- * `spellHints` pre-fills Active-as-Spell resolution defaults per subfamily
- * (plan §6.2): damage-single → spellAttack, AoE/zone → saveSpell(Body),
- * hard-control → saveSpell(Mind), support → saveSpell(no save).
+ * `spellHints` pre-fills Active-as-Spell resolution defaults. Saving throws
+ * were removed from the rules — every spell resolves as `spellAttack`
+ * (caster roll vs Casting TN / Evade); a successful cast resolves its full
+ * listed payload.
  */
 import type { PowerTemplate } from './_shared.js';
 export declare const ACTIVE_TEMPLATES: PowerTemplate[];

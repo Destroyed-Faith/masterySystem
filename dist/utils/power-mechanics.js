@@ -33,7 +33,6 @@ export function emptyBreakdown() {
         healing: [],
         modifySpecialDeclared: [],
         grantNextHitDeclared: [],
-        saveDice: { body: [], mind: [], spirit: [] },
         rollDice: { attack: [], skill: [], damage: [] },
         damageReductionPct: { passive: [], buff: [], reaction: [] },
         totals: {
@@ -46,7 +45,6 @@ export function emptyBreakdown() {
             spellResistance: 0,
             cleanseMaintenance: 0,
             damageReductionPct: 0,
-            saveDice: { body: 0, mind: 0, spirit: 0 },
             rollDice: { attack: 0, skill: 0, damage: 0 },
         },
     };
@@ -588,10 +586,6 @@ export function aggregateMechanics(contributions, actor) {
         const gnSummary = formatGrantNextHitSummary(mechanics.grantNextHitEffect);
         if (gnSummary)
             bd.grantNextHitDeclared.push({ source, text: gnSummary });
-        const sd = mechanics.saveDice ?? {};
-        pushNum(bd.saveDice.body, source, sd.body);
-        pushNum(bd.saveDice.mind, source, sd.mind);
-        pushNum(bd.saveDice.spirit, source, sd.spirit);
         const rd = mechanics.rollDice ?? {};
         pushNum(bd.rollDice.attack, source, rd.attack);
         pushNum(bd.rollDice.skill, source, rd.skill);
@@ -606,9 +600,6 @@ export function aggregateMechanics(contributions, actor) {
     bd.totals.regen = sum(bd.regen);
     bd.totals.spellResistance = sum(bd.spellResistance);
     bd.totals.cleanseMaintenance = sum(bd.cleanseMaintenance);
-    bd.totals.saveDice.body = sum(bd.saveDice.body);
-    bd.totals.saveDice.mind = sum(bd.saveDice.mind);
-    bd.totals.saveDice.spirit = sum(bd.saveDice.spirit);
     bd.totals.rollDice.attack = sum(bd.rollDice.attack);
     bd.totals.rollDice.skill = sum(bd.rollDice.skill);
     bd.totals.rollDice.damage = sum(bd.rollDice.damage);
@@ -672,15 +663,6 @@ export function getRollDiceDelta(actor, kind, target) {
             case 'damage':
                 base = bd.totals.rollDice.damage;
                 break;
-            case 'saveBody':
-                base = bd.totals.saveDice.body;
-                break;
-            case 'saveMind':
-                base = bd.totals.saveDice.mind;
-                break;
-            case 'saveSpirit':
-                base = bd.totals.saveDice.spirit;
-                break;
         }
     }
     if (!target)
@@ -700,12 +682,6 @@ export function getRollDiceDelta(actor, kind, target) {
             extra += mechanics.rollDice?.skill ?? 0;
         else if (kind === 'damage')
             extra += mechanics.rollDice?.damage ?? 0;
-        else if (kind === 'saveBody')
-            extra += mechanics.saveDice?.body ?? 0;
-        else if (kind === 'saveMind')
-            extra += mechanics.saveDice?.mind ?? 0;
-        else if (kind === 'saveSpirit')
-            extra += mechanics.saveDice?.spirit ?? 0;
     }
     return base + extra;
 }
@@ -734,10 +710,8 @@ const CONDITION_SYNONYMS = {
     ignite: 'ruin',
     burning: 'ruin',
     onfire: 'ruin',
-    disrupt: 'disrupt',
-    disrupted: 'disrupt',
-    shocked: 'disrupt',
-    shock: 'disrupt',
+    challenge: 'challenge',
+    challenged: 'challenge',
     slow: 'slow',
     slowed: 'slow',
     frozen: 'slow',
@@ -757,8 +731,12 @@ const CONDITION_SYNONYMS = {
     stunned: 'stunned',
     disoriented: 'disoriented',
     blinded: 'disoriented',
-    dread: 'dread',
-    frightened: 'dread',
+    // Removed Specials — map legacy tokens to the closest live Special where
+    // condition checks still need a resolvable id (shock/disrupt → disoriented).
+    disrupt: 'disoriented',
+    disrupted: 'disoriented',
+    shocked: 'disoriented',
+    shock: 'disoriented',
 };
 function toCanonicalCondition(raw) {
     const k = canonicalConditionName(raw);

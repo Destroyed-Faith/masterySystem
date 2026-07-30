@@ -175,7 +175,6 @@ export const EFFECT_TYPE_KEYS = [
     'initiativeD8',
     'regen',
     'tempHP',
-    'saveDice',
     'damageRider',
     'movementBonus',
 ];
@@ -185,7 +184,6 @@ export const EFFECT_TYPE_LABELS = {
     initiativeD8: 'Initiative',
     regen: 'Regen',
     tempHP: 'Temp HP',
-    saveDice: 'Save Dice',
     damageRider: 'Damage Rider',
     movementBonus: 'Movement',
 };
@@ -226,11 +224,6 @@ function collectEffectTypesFromTemplate(t) {
             types.add('cleanseMaintenance');
         if (m.tempHP)
             types.add('tempHP');
-        if (m.saveDice && typeof m.saveDice === 'object') {
-            const sd = m.saveDice;
-            if ((sd.body ?? 0) !== 0 || (sd.mind ?? 0) !== 0 || (sd.spirit ?? 0) !== 0)
-                types.add('saveDice');
-        }
         if (m.damageRider)
             types.add('damageRider');
         if (m.movementBonus)

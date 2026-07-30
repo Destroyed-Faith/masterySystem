@@ -245,13 +245,6 @@ export async function resetCharacterForRecreation(actor, options) {
     // Faith Fractures reset to 0 / 0 — finalize repopulates from disadvantage points.
     updates['system.faithFractures.current'] = 0;
     updates['system.faithFractures.maximum'] = 0;
-    // Saving throws / save pool reset.
-    updates['system.savingThrows'] = {
-        might: 0, agility: 0, vitality: 0, intellect: 0,
-        resolve: 0, influence: 0, wits: 0,
-    };
-    updates['system.saves.vitalitySpent'] = 0;
-    updates['system.saves.vitalityUsesRemaining'] = 4;
     // Stone pools zeroed (prepareBaseData re-derives max from attributes).
     for (const k of ATTRIBUTE_KEYS) {
         updates[`system.stonePools.${k}.current`] = 0;

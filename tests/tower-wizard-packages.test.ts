@@ -425,7 +425,7 @@ describe('tower-wizard-packages', () => {
                     grantKey: 'offense-0',
                     isSpell: true,
                     castingAttribute: 'intellect',
-                    spellResolution: 'saveSpell',
+                    spellResolution: 'spellAttack',
                 },
                 {
                     grantKey: 'offense-1',

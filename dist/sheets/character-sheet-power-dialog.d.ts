@@ -13,12 +13,11 @@
  *       Category + Subfamily alone and ignore the Special filter.
  *
  * For Actives (category === 'active'), a Step 4 panel exposes the
- * "Make this a Spell?" toggle, the casting attribute (Intellect/Resolve),
- * and resolution (attack vs save). Save family for save spells is taken from
- * the chosen Special's data in `special-effects.ts`, then `spellHints.defaultSaveType`.
+ * "Make this a Spell?" toggle and the casting attribute (Intellect/Resolve).
+ * Every Spell resolves as a Spell Attack (caster roll vs Casting TN / Evade);
+ * saving throws were removed from the rules.
  */
 import type { PowerCategory } from '../types/item.js';
-export { resolveSpellSaveTypeForEntry } from '../utils/spell-save-type.js';
 /**
  * Show the template-based Power picker.
  */

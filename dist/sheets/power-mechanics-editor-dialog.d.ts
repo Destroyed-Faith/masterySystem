@@ -8,7 +8,7 @@
  *   - Per-rank override (`system.levels.<rank>.mechanics`) — per-rank data.
  *
  * Intentionally dual-mode: a guided form for the common fields (armor,
- * evade, saveDice, rollDice, damageRider, healing, modifySpecial,
+ * evade, rollDice, damageRider, healing, modifySpecial,
  * grantNextHitEffect, applyWhen, duration, usageLimit,
  * condition, conditionExpr, trigger, tempHP, regen, initiativeD8, movementBonus, ignoreTerrain) plus
  * a JSON textarea for everything the form does not cover (manual override).

@@ -129,11 +129,6 @@ export interface MechanicsBreakdown {
   modifySpecialDeclared: MechanicsBreakdownNoteEntry[];
   /** Declared `grantNextHitEffect` summaries. */
   grantNextHitDeclared: MechanicsBreakdownNoteEntry[];
-  saveDice: {
-    body: MechanicsBreakdownEntry[];
-    mind: MechanicsBreakdownEntry[];
-    spirit: MechanicsBreakdownEntry[];
-  };
   rollDice: {
     attack: MechanicsBreakdownEntry[];
     skill: MechanicsBreakdownEntry[];
@@ -159,7 +154,6 @@ export interface MechanicsBreakdown {
     cleanseMaintenance: number;
     /** Final DR % after gating and clamping (0–100). */
     damageReductionPct: number;
-    saveDice: { body: number; mind: number; spirit: number };
     rollDice: { attack: number; skill: number; damage: number };
   };
 }
@@ -179,8 +173,8 @@ export interface DerivedData {
  *
  * Roll bonuses:
  *  - `rolls.any`    applies to every `masteryRoll` that has a non-generic
- *                   `rollKind` (attack / skill / save-*).
- *  - `rolls.attack` / `rolls.skill` / `rolls.save` stack on top of `rolls.any`.
+ *                   `rollKind` (attack / skill).
+ *  - `rolls.attack` / `rolls.skill` stack on top of `rolls.any`.
  *  - `rolls.damage` only affects damage dice (resolved via `damage-dialog`).
  *
  * Health / stress:
@@ -208,7 +202,6 @@ export interface ManualAdjustments {
     any: ManualRollBonus;
     attack: ManualRollBonus;
     skill: ManualRollBonus;
-    save: ManualRollBonus;
     damage: ManualRollBonus;
   };
   health: {
@@ -294,10 +287,6 @@ export interface CharacterData {
   stonePowersPrefs?: {
     useDefaultsEachRound?: boolean;
     defaultAttributesByPowerId?: Record<string, string>;
-  };
-  saves: {
-    vitalitySpent: number;
-    vitalityUsesRemaining: number;
   };
   conditions: any[];
   notes: {
@@ -445,11 +434,6 @@ export interface BossPhase {
     tempHP: number;
   };
   combat: CombatData;
-  savingThrows?: {
-    body: number;
-    mind: number;
-    spirit: number;
-  };
   attackValues?: AttackValue[];
   /** Basis-Waffenangriff (immer verfügbar); attackValues = weitere Powers. */
   npcBaseAttack?: NpcBaseAttack;
@@ -493,11 +477,6 @@ export interface NpcData {
   combatSenses?: CombatSensesData;
   resources: ResourcesData;
   skills: Record<string, number>;
-  savingThrows?: {
-    body: number;
-    mind: number;
-    spirit: number;
-  };
   attackValues?: AttackValue[];
   /** Basis-Waffenangriff; attackValues = weitere Powers. */
   npcBaseAttack?: NpcBaseAttack;

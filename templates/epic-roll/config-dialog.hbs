@@ -46,7 +46,6 @@
         <select name="emr-roll-kind" class="emr-select">
           <option value="skill" {{#if (eq rollKind "skill")}}selected{{/if}}>Skill Check</option>
           <option value="attribute" {{#if (eq rollKind "attribute")}}selected{{/if}}>Attribute Check</option>
-          <option value="save" {{#if (eq rollKind "save")}}selected{{/if}}>Saving Throw</option>
         </select>
       </div>
 
@@ -72,16 +71,6 @@
       </div>
       {{/if}}
 
-      {{#if (eq rollKind "save")}}
-      <div class="emr-field">
-        <label class="emr-label">Save</label>
-        <select name="emr-save-type" class="emr-select">
-          {{#each saveTypes as |st|}}
-          <option value="{{st}}" {{#if (eq ../saveType st)}}selected{{/if}}>{{st}}</option>
-          {{/each}}
-        </select>
-      </div>
-      {{/if}}
     </section>
 
     <section class="emr-config-col emr-config-settings">

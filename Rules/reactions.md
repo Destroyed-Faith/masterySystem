@@ -80,7 +80,7 @@ Version: v0.8.5 (2026-06-21)
 - #### [{{ Ally Evade}}{{ 13}}](#p13)
 - #### [{{ Ally Temporary HP}}{{ 14}}](#p14)
 - #### [{{  Restricted Utility}}{{ 15}}](#p15)
-- #### [{{  Repositioning Intercept}}{{ 16}}](#p16)
+- #### [{{  Reposition}}{{ 16}}](#p16)
 - #### [{{ Reactive Cleanse}}{{ 17}}](#p17)
 - #### [{{  Closed Premium}}{{ 18}}](#p18)
 - #### [{{  Damage Reduction}}{{ 18}}](#p18)
@@ -138,7 +138,6 @@ If a Reaction grants Armor, Evade, Temporary HP, Damage Reduction, or Phasing, t
 Reactions do not grant:
 
 - Attack Dice,
-- Save Dice,
 - Critical,
 - Extra Attacks,
 - free Attack Actions,
@@ -223,7 +222,7 @@ This Trigger also covers attacks that include you as one of several targets.
 
 Use this Trigger for Reactions that answer the damage instance itself, such as Temporary HP, Damage Reduction, or damage-instance Armor.
 
-This Trigger may occur after a hit is confirmed, after a failed save, after an area effect is resolved, or whenever a legal effect would deal damage.
+This Trigger may occur after a hit is confirmed, after an area effect is resolved, or whenever a legal effect would deal damage.
 }}
 \page
 {{pageNumber,auto}}
@@ -380,7 +379,7 @@ Each Pure Defensive Reaction lists its Allowed Triggers. Choose one of those Tri
       L16 target 320 PP → +32 Armor = 320 PP, exactly on target.<br>
       <br>
       NOTES<br>
-      This Reaction grants no Evade, no Temporary HP, no Damage Reduction, no Phasing, no Save Dice, no Attack Dice, and no offensive rider.<br>
+      This Reaction grants no Evade, no Temporary HP, no Damage Reduction, no Phasing, no Attack Dice, and no offensive rider.<br>
       Use it for parries, shields, hardened skin, bracing, guard techniques, magic barriers that last only for one hit, and similar defensive answers.
     </span>
   </span>
@@ -450,7 +449,7 @@ Choose one of these Triggers when you learn this Reaction Effect.
       L16 target 320 PP → +32 Evade = 320 PP, exactly on target.<br>
       <br>
       NOTES<br>
-      This Reaction grants no Armor, no Temporary HP, no Damage Reduction, no Phasing, no Save Dice, no Attack Dice, and no offensive rider.<br>
+      This Reaction grants no Armor, no Temporary HP, no Damage Reduction, no Phasing, no Attack Dice, and no offensive rider.<br>
       Use it for dodges, slips, feints, blur effects, instinctive sidesteps, brief illusions, or one-hit avoidance techniques.
     </span>
   </span>
@@ -518,7 +517,7 @@ You slip, twist, blur, or move just enough to make one attack fail to find you c
       NOTES<br>
       This Reaction does not heal real HP.<br>
       It does not restore Health Levels.<br>
-      It grants no Armor, no Evade, no Damage Reduction, no Phasing, no Save Dice, no Attack Dice, and no offensive rider.
+      It grants no Armor, no Evade, no Damage Reduction, no Phasing, no Attack Dice, and no offensive rider.
     </span>
   </span>
 </h3>
@@ -562,7 +561,7 @@ They are still narrow, immediate answers to a specific trigger.
 
 A Defensive Combination Reaction may not include:
 
-- Save Dice, Attack Dice, Critical, Specials, Counter Damage, hard control, movement or offensive riders.
+- Attack Dice, Critical, Specials, Counter Damage, hard control, movement or offensive riders.
 
 Damage Reduction and Phasing remain closed premium Reaction entries and may not be combined with any other axis.
 
@@ -604,7 +603,7 @@ Damage Reduction and Phasing remain closed premium Reaction entries and may not 
       <br>
       NOTES<br>
       The Temporary HP applies only to the triggering damage instance. Any remaining Temporary HP from this Reaction disappears at the end of your next turn.<br>
-      This Reaction grants no Evade, no Damage Reduction, no Phasing, no Save Dice, no Attack Dice, and no offensive rider.
+      This Reaction grants no Evade, no Damage Reduction, no Phasing, no Attack Dice, and no offensive rider.
     </span>
   </span>
 </h3>
@@ -676,7 +675,7 @@ Choose one of these Triggers when you learn this Reaction Effect.
       NOTES<br>
       The Evade applies only against the triggering attack. The Temporary HP applies only to the triggering damage instance.<br>
       Any remaining Temporary HP from this Reaction disappears at the end of your next turn.<br>
-      This Reaction grants no Armor, no Damage Reduction, no Phasing, no Save Dice, no Attack Dice, and no offensive rider.
+      This Reaction grants no Armor, no Damage Reduction, no Phasing, no Attack Dice, and no offensive rider.
     </span>
   </span>
 </h3>
@@ -764,7 +763,7 @@ Each Ally Protection Reaction lists its Allowed Trigger. This Trigger is part of
       <br>
       NOTES<br>
       This Reaction protects one ally only.<br>
-      It grants no Evade, no Temporary HP, no Damage Reduction, no Phasing, no Save Dice, no Attack Dice, and no offensive rider.
+      It grants no Evade, no Temporary HP, no Damage Reduction, no Phasing, no Attack Dice, and no offensive rider.
     </span>
   </span>
 </h3>
@@ -834,7 +833,7 @@ You interpose protection, force, shieldwork, magic, or a guarding stance between
       <br>
       NOTES<br>
       This Reaction protects one ally only.<br>
-      It grants no Armor, no Temporary HP, no Damage Reduction, no Phasing, no Save Dice, no Attack Dice, and no offensive rider.
+      It grants no Armor, no Temporary HP, no Damage Reduction, no Phasing, no Attack Dice, and no offensive rider.
     </span>
   </span>
 </h3>
@@ -905,7 +904,7 @@ You pull an ally out of the clean line of attack, distort the angle, warn them, 
       NOTES<br>
       This Reaction protects one ally only.<br>
       Any remaining Temporary HP from this Reaction disappears at the end of that ally's next turn.<br>
-      It grants no Armor, no Evade, no Damage Reduction, no Phasing, no Save Dice, no Attack Dice, and no offensive rider.
+      It grants no Armor, no Evade, no Damage Reduction, no Phasing, no Attack Dice, and no offensive rider.
     </span>
   </span>
 </h3>
@@ -944,7 +943,7 @@ You throw a ward, shield, blessing, barrier, or protective impulse over an ally 
 ## Reactions — Restricted Utility
 
 Restricted Utility Reactions are narrow tactical answers that are allowed to break the normal purely defensive shape of Reactions.
-They are still not Active Powers. They do not grant Attack Dice, Save Dice, Critical, Extra Attacks, Special Application, hard control, or hidden full actions.
+They are still not Active Powers. They do not grant Attack Dice, Critical, Extra Attacks, Special Application, hard control, or hidden full actions.
 Each Restricted Utility Reaction lists exactly what it may do.
 
 ---
@@ -953,80 +952,61 @@ Each Restricted Utility Reaction lists exactly what it may do.
 {{pageNumber,auto}}
 {{wide
 
-<h3 id="reaction-repositioning-intercept">
-  Reaction: Repositioning Intercept
+<h3 id="reaction-reposition">
+  Reaction: Reposition
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
       Reaction curve = 20 PP at Level 1, +20 PP per level after that.<br>
-      Repositioning Intercept is a restricted mobility Reaction and uses hard milestone scaling instead of smooth meter-by-meter pricing.<br><br>
+      Reposition is a hard-capped mobility Reaction and uses milestone scaling.<br><br>
 
       DESIGN STRUCTURE<br>
-      This Reaction lets you move at the moment an attack is declared.<br>
-      If you use it for yourself, you may move out of the line, reach, path, or legal targeting position of the triggering attack.<br>
-      If the attack can no longer legally target you after this movement, the attack loses you as a target.<br>
-      If you use it for an ally, you may move into the line, reach, path, or legal targeting position of the triggering attack and become the target instead, if you are a legal target.<br><br>
+      The triggering attack, hit, or damage instance resolves first.<br>
+      After it resolves, move using normal legal movement up to the listed distance.<br>
+      Reposition is not a dodge, not Evade, not teleportation, not damage prevention, and not an Ally Reposition effect.<br>
+      It does not cancel, redirect, or replace the triggering attack.<br><br>
 
       MOVEMENT RULES<br>
-      This movement is normal legal movement, not teleportation.<br>
-      It does not ignore terrain, walls, creatures, hazards, zones, engagement, or movement restrictions.<br>
-      It does not grant Safe Movement by default.<br>
-      It does not cancel an attack unless the final position makes the original target illegal.<br>
-      It does not protect against an AoE unless the original target is no longer legally affected and the GM agrees that the movement actually leaves the area or line.<br><br>
+      This movement does not ignore terrain, walls, creatures, hazards, zones, engagement, or movement restrictions.<br>
+      It does not grant Safe Movement or Disengage by default.<br><br>
 
       LEVEL-BY-LEVEL CALCULATION<br>
-      L1 target 20 PP → no effect; the first mobility milestone has not been reached.<br>
-      L2 target 40 PP → no effect; the first mobility milestone has not been reached.<br>
-      L3 target 60 PP → no effect; the first mobility milestone has not been reached.<br>
-      L4 target 80 PP → move up to 2 m before the triggering attack resolves.<br>
-      L5 target 100 PP → same mobility band as L4; no filler is added.<br>
-      L6 target 120 PP → same mobility band as L4; no filler is added.<br>
-      L7 target 140 PP → same mobility band as L4; no filler is added.<br>
-      L8 target 160 PP → move up to 4 m before the triggering attack resolves.<br>
-      L9 target 180 PP → same mobility band as L8; no filler is added.<br>
-      L10 target 200 PP → same mobility band as L8; no filler is added.<br>
-      L11 target 220 PP → same mobility band as L8; no filler is added.<br>
-      L12 target 240 PP → move up to 6 m before the triggering attack resolves.<br>
-      L13 target 260 PP → same mobility band as L12; no filler is added.<br>
-      L14 target 280 PP → same mobility band as L12; no filler is added.<br>
-      L15 target 300 PP → move up to 8 m before the triggering attack resolves.<br>
-      L16 target 320 PP → same mobility band as L15; no filler is added.<br><br>
+      L1 target 20 PP → no effect; first milestone not reached.<br>
+      L2 target 40 PP → no effect; first milestone not reached.<br>
+      L3 target 60 PP → no effect; first milestone not reached.<br>
+      L4–7 → move up to 2 m after the triggering event resolves.<br>
+      L8–11 → move up to 4 m after the triggering event resolves.<br>
+      L12–14 → move up to 6 m after the triggering event resolves.<br>
+      L15–16 → move up to 8 m after the triggering event resolves.<br><br>
 
       NOTES<br>
-      This Reaction grants no Armor, Evade, Temporary HP, Damage Reduction, Phasing, Damage, Push, Attack Dice, Save Dice, Critical, Special Application, Special Increase, or hard control.<br>
-      Its value is entirely positional: either you leave the attack's legal targeting position, or you step into that position and take the attack for an ally.
+      Unused PP remains unused. Do not add Evade, Armor, Temporary HP, Push, Damage, interception, target replacement, or any other rider.
     </span>
   </span>
 </h3>
 
-You move at the last possible moment, either slipping out of the attack line or stepping into it for someone else.
+You recover position only after the immediate danger has resolved.
+
+**Allowed Triggers:** Hit Trigger or Damage Trigger.
 
 | **Level** | **Type** | **Allowed Triggers** | **Range** | **AoE** | **Effect** |
 |:--:|:--|:--|:--:|:--:|:--|
-| **1** | Reaction | Attack Trigger / Ally Attack Trigger | Self / Ally within movement | — | — |
-| **2** | Reaction | Attack Trigger / Ally Attack Trigger | Self / Ally within movement | — | — |
-| **3** | Reaction | Attack Trigger / Ally Attack Trigger | Self / Ally within movement | — | — |
-| **4** | Reaction | Attack Trigger / Ally Attack Trigger | Self / Ally within movement | — | Move up to **2 m** before the triggering attack resolves. If you move out of the attack's legal targeting position, the attack loses you as a target. If an ally triggered this Reaction and you move into a legal targeting position, you become the target instead. |
-| **5** | Reaction | Attack Trigger / Ally Attack Trigger | Self / Ally within movement | — | Move up to **2 m** before the triggering attack resolves. If you move out of the attack's legal targeting position, the attack loses you as a target. If an ally triggered this Reaction and you move into a legal targeting position, you become the target instead. |
-| **6** | Reaction | Attack Trigger / Ally Attack Trigger | Self / Ally within movement | — | Move up to **2 m** before the triggering attack resolves. If you move out of the attack's legal targeting position, the attack loses you as a target. If an ally triggered this Reaction and you move into a legal targeting position, you become the target instead. |
-| **7** | Reaction | Attack Trigger / Ally Attack Trigger | Self / Ally within movement | — | Move up to **2 m** before the triggering attack resolves. If you move out of the attack's legal targeting position, the attack loses you as a target. If an ally triggered this Reaction and you move into a legal targeting position, you become the target instead. |
-| **8** | Reaction | Attack Trigger / Ally Attack Trigger | Self / Ally within movement | — | Move up to **4 m** before the triggering attack resolves. If you move out of the attack's legal targeting position, the attack loses you as a target. If an ally triggered this Reaction and you move into a legal targeting position, you become the target instead. |
-| **9** | Reaction | Attack Trigger / Ally Attack Trigger | Self / Ally within movement | — | Move up to **4 m** before the triggering attack resolves. If you move out of the attack's legal targeting position, the attack loses you as a target. If an ally triggered this Reaction and you move into a legal targeting position, you become the target instead. |
-| **10** | Reaction | Attack Trigger / Ally Attack Trigger | Self / Ally within movement | — | Move up to **4 m** before the triggering attack resolves. If you move out of the attack's legal targeting position, the attack loses you as a target. If an ally triggered this Reaction and you move into a legal targeting position, you become the target instead. |
-| **11** | Reaction | Attack Trigger / Ally Attack Trigger | Self / Ally within movement | — | Move up to **4 m** before the triggering attack resolves. If you move out of the attack's legal targeting position, the attack loses you as a target. If an ally triggered this Reaction and you move into a legal targeting position, you become the target instead. |
-| **12** | Reaction | Attack Trigger / Ally Attack Trigger | Self / Ally within movement | — | Move up to **6 m** before the triggering attack resolves. If you move out of the attack's legal targeting position, the attack loses you as a target. If an ally triggered this Reaction and you move into a legal targeting position, you become the target instead. |
-| **13** | Reaction | Attack Trigger / Ally Attack Trigger | Self / Ally within movement | — | Move up to **6 m** before the triggering attack resolves. If you move out of the attack's legal targeting position, the attack loses you as a target. If an ally triggered this Reaction and you move into a legal targeting position, you become the target instead. |
-
-
-}}
-\page
-{{pageNumber,auto}}
-{{wide
-| **Level** | **Type** | **Allowed Triggers** | **Range** | **AoE** | **Effect** |
-|:--:|:--|:--|:--:|:--:|:--|
-| **14** | Reaction | Attack Trigger / Ally Attack Trigger | Self / Ally within movement | — | Move up to **6 m** before the triggering attack resolves. If you move out of the attack's legal targeting position, the attack loses you as a target. If an ally triggered this Reaction and you move into a legal targeting position, you become the target instead. |
-| **15** | Reaction | Attack Trigger / Ally Attack Trigger | Self / Ally within movement | — | Move up to **8 m** before the triggering attack resolves. If you move out of the attack's legal targeting position, the attack loses you as a target. If an ally triggered this Reaction and you move into a legal targeting position, you become the target instead. |
-| **16** | Reaction | Attack Trigger / Ally Attack Trigger | Self / Ally within movement | — | Move up to **8 m** before the triggering attack resolves. If you move out of the attack's legal targeting position, the attack loses you as a target. If an ally triggered this Reaction and you move into a legal targeting position, you become the target instead. |
+| **1** | Reaction | Hit Trigger or Damage Trigger | Self | — | — |
+| **2** | Reaction | Hit Trigger or Damage Trigger | Self | — | — |
+| **3** | Reaction | Hit Trigger or Damage Trigger | Self | — | — |
+| **4** | Reaction | Hit Trigger or Damage Trigger | Self | — | After the triggering event resolves, move up to **2 m**. |
+| **5** | Reaction | Hit Trigger or Damage Trigger | Self | — | After the triggering event resolves, move up to **2 m**. |
+| **6** | Reaction | Hit Trigger or Damage Trigger | Self | — | After the triggering event resolves, move up to **2 m**. |
+| **7** | Reaction | Hit Trigger or Damage Trigger | Self | — | After the triggering event resolves, move up to **2 m**. |
+| **8** | Reaction | Hit Trigger or Damage Trigger | Self | — | After the triggering event resolves, move up to **4 m**. |
+| **9** | Reaction | Hit Trigger or Damage Trigger | Self | — | After the triggering event resolves, move up to **4 m**. |
+| **10** | Reaction | Hit Trigger or Damage Trigger | Self | — | After the triggering event resolves, move up to **4 m**. |
+| **11** | Reaction | Hit Trigger or Damage Trigger | Self | — | After the triggering event resolves, move up to **4 m**. |
+| **12** | Reaction | Hit Trigger or Damage Trigger | Self | — | After the triggering event resolves, move up to **6 m**. |
+| **13** | Reaction | Hit Trigger or Damage Trigger | Self | — | After the triggering event resolves, move up to **6 m**. |
+| **14** | Reaction | Hit Trigger or Damage Trigger | Self | — | After the triggering event resolves, move up to **6 m**. |
+| **15** | Reaction | Hit Trigger or Damage Trigger | Self | — | After the triggering event resolves, move up to **8 m**. |
+| **16** | Reaction | Hit Trigger or Damage Trigger | Self | — | After the triggering event resolves, move up to **8 m**. |
 
 ---
 
@@ -1037,64 +1017,57 @@ You move at the last possible moment, either slipping out of the attack line or 
     <span class="tooltiptext">
       BASELINES<br>
       Reaction curve = 20 PP at Level 1, +20 PP per level after that.<br>
-      Cleanse(1) = 15 PP.<br>
-      Each Cleanse application reduces one eligible ongoing effect by 4.<br><br>
+      Cleanse(X) = 4 × T(X) PP.<br>
+      A single Cleanse(X) reduces exactly one eligible Special by X and cannot be split.<br><br>
 
       DESIGN STRUCTURE<br>
       This is a restricted self-cleansing Reaction.<br>
-      It may only affect one eligible ongoing effect on yourself: either the triggering incoming effect or the triggering effect that would Tick, deal damage, or apply its listed ongoing penalty.<br>
-      Unlike normal multi-Cleanse Powers, this Reaction is allowed to spend multiple Cleanse applications on the same triggering effect.<br>
-      This exception exists because the Reaction answers one specific condition spike instead of cleansing a whole spread of different effects.<br><br>
-
-      ELIGIBLE EFFECTS<br>
-      This Reaction may reduce eligible Diminishing Specials, Timed Specials, or similar ongoing creature effects that are Cleanse: Yes.<br>
-      It may not remove battlefield objects, Barriers, Walls, Images, Summons, Illusion Fields, Persistent Zones, non-creature effects, Damage Reduction, Phasing, Stunned, Prone, Immovable, or effects that are not normally affected by Cleanse.<br><br>
+      It may affect only the triggering incoming Special or the triggering Special already affecting you.<br>
+      If the Special has less than X remaining, it ends and unused Cleanse points are lost.<br><br>
 
       LEVEL-BY-LEVEL CALCULATION<br>
-      L1 target 20 PP → Cleanse(1) = 15 PP; reduce the triggering effect by 4.<br>
-      L2 target 40 PP → Cleanse(2) = 30 PP; reduce the triggering effect by 8.<br>
-      L3 target 60 PP → Cleanse(4) = 60 PP; reduce the triggering effect by 16.<br>
-      L4 target 80 PP → Cleanse(5) = 75 PP; reduce the triggering effect by 20.<br>
-      L5 target 100 PP → Cleanse(6) = 90 PP; reduce the triggering effect by 24.<br>
-      L6 target 120 PP → Cleanse(8) = 120 PP; reduce the triggering effect by 32.<br>
-      L7 target 140 PP → Cleanse(9) = 135 PP; reduce the triggering effect by 36.<br>
-      L8 target 160 PP → Cleanse(10) = 150 PP; reduce the triggering effect by 40.<br>
-      L9 target 180 PP → Cleanse(12) = 180 PP; reduce the triggering effect by 48.<br>
-      L10 target 200 PP → Cleanse(13) = 195 PP; reduce the triggering effect by 52.<br>
-      L11 target 220 PP → Cleanse(14) = 210 PP; reduce the triggering effect by 56.<br>
-      L12 target 240 PP → Cleanse(16) = 240 PP; reduce the triggering effect by 64.<br>
-      L13 target 260 PP → Cleanse(17) = 255 PP; reduce the triggering effect by 68.<br>
-      L14 target 280 PP → Cleanse(18) = 270 PP; reduce the triggering effect by 72.<br>
-      L15 target 300 PP → Cleanse(20) = 300 PP; reduce the triggering effect by 80.<br>
-      L16 target 320 PP → Cleanse(21) = 315 PP; reduce the triggering effect by 84.<br><br>
-
+      L1 target 20 PP → Cleanse(2) = 12 PP.<br>
+      L2 target 40 PP → Cleanse(4) = 40 PP.<br>
+      L3 target 60 PP → Cleanse(5) = 60 PP.<br>
+      L4 target 80 PP → Cleanse(5) = 60 PP.<br>
+      L5 target 100 PP → Cleanse(6) = 84 PP.<br>
+      L6 target 120 PP → Cleanse(7) = 112 PP.<br>
+      L7 target 140 PP → Cleanse(7) = 112 PP.<br>
+      L8 target 160 PP → Cleanse(8) = 144 PP.<br>
+      L9 target 180 PP → Cleanse(9) = 180 PP.<br>
+      L10 target 200 PP → Cleanse(9) = 180 PP.<br>
+      L11 target 220 PP → Cleanse(10) = 220 PP.<br>
+      L12 target 240 PP → Cleanse(10) = 220 PP.<br>
+      L13 target 260 PP → Cleanse(10) = 220 PP.<br>
+      L14 target 280 PP → Cleanse(11) = 264 PP.<br>
+      L15 target 300 PP → Cleanse(11) = 264 PP.<br>
+      L16 target 320 PP → Cleanse(12) = 312 PP.<br><br>
       NOTES<br>
-      This Reaction grants no Armor, Evade, Temporary HP, Damage Reduction, Phasing, Healing, Damage, Push, Attack Dice, Save Dice, Critical, Special Application, Special Increase, or Dispel.<br>
-      It is intentionally strong against one triggering condition, but it does not cleanse multiple different effects at once.
+      This Reaction never removes several Specials at once and grants no defensive or offensive rider.
     </span>
   </span>
 </h3>
 
-You force one hostile condition out of your body, blood, mind, or spirit at the moment it tries to bite.
+You force one hostile Special out of your body, blood, mind, or spirit when it is applied or becomes dangerous.
 
 | **Level** | **Type** | **Allowed Triggers** | **Range** | **AoE** | **Effect** |
 |:--:|:--|:--|:--:|:--:|:--|
-| **1** | Reaction | Incoming Effect Trigger / Ongoing Effect Trigger | Self | — | Reduce the triggering eligible ongoing effect by **4**. |
-| **2** | Reaction | Incoming Effect Trigger / Ongoing Effect Trigger | Self | — | Reduce the triggering eligible ongoing effect by **8**. |
-| **3** | Reaction | Incoming Effect Trigger / Ongoing Effect Trigger | Self | — | Reduce the triggering eligible ongoing effect by **16**. |
-| **4** | Reaction | Incoming Effect Trigger / Ongoing Effect Trigger | Self | — | Reduce the triggering eligible ongoing effect by **20**. |
-| **5** | Reaction | Incoming Effect Trigger / Ongoing Effect Trigger | Self | — | Reduce the triggering eligible ongoing effect by **24**. |
-| **6** | Reaction | Incoming Effect Trigger / Ongoing Effect Trigger | Self | — | Reduce the triggering eligible ongoing effect by **32**. |
-| **7** | Reaction | Incoming Effect Trigger / Ongoing Effect Trigger | Self | — | Reduce the triggering eligible ongoing effect by **36**. |
-| **8** | Reaction | Incoming Effect Trigger / Ongoing Effect Trigger | Self | — | Reduce the triggering eligible ongoing effect by **40**. |
-| **9** | Reaction | Incoming Effect Trigger / Ongoing Effect Trigger | Self | — | Reduce the triggering eligible ongoing effect by **48**. |
-| **10** | Reaction | Incoming Effect Trigger / Ongoing Effect Trigger | Self | — | Reduce the triggering eligible ongoing effect by **52**. |
-| **11** | Reaction | Incoming Effect Trigger / Ongoing Effect Trigger | Self | — | Reduce the triggering eligible ongoing effect by **56**. |
-| **12** | Reaction | Incoming Effect Trigger / Ongoing Effect Trigger | Self | — | Reduce the triggering eligible ongoing effect by **64**. |
-| **13** | Reaction | Incoming Effect Trigger / Ongoing Effect Trigger | Self | — | Reduce the triggering eligible ongoing effect by **68**. |
-| **14** | Reaction | Incoming Effect Trigger / Ongoing Effect Trigger | Self | — | Reduce the triggering eligible ongoing effect by **72**. |
-| **15** | Reaction | Incoming Effect Trigger / Ongoing Effect Trigger | Self | — | Reduce the triggering eligible ongoing effect by **80**. |
-| **16** | Reaction | Incoming Effect Trigger / Ongoing Effect Trigger | Self | — | Reduce the triggering eligible ongoing effect by **84**. |
+| **1** | Reaction | Incoming Effect Trigger / Ongoing Effect Trigger | Self | — | Reduce the triggering eligible Special by **2**. |
+| **2** | Reaction | Incoming Effect Trigger / Ongoing Effect Trigger | Self | — | Reduce the triggering eligible Special by **4**. |
+| **3** | Reaction | Incoming Effect Trigger / Ongoing Effect Trigger | Self | — | Reduce the triggering eligible Special by **5**. |
+| **4** | Reaction | Incoming Effect Trigger / Ongoing Effect Trigger | Self | — | Reduce the triggering eligible Special by **5**. |
+| **5** | Reaction | Incoming Effect Trigger / Ongoing Effect Trigger | Self | — | Reduce the triggering eligible Special by **6**. |
+| **6** | Reaction | Incoming Effect Trigger / Ongoing Effect Trigger | Self | — | Reduce the triggering eligible Special by **7**. |
+| **7** | Reaction | Incoming Effect Trigger / Ongoing Effect Trigger | Self | — | Reduce the triggering eligible Special by **7**. |
+| **8** | Reaction | Incoming Effect Trigger / Ongoing Effect Trigger | Self | — | Reduce the triggering eligible Special by **8**. |
+| **9** | Reaction | Incoming Effect Trigger / Ongoing Effect Trigger | Self | — | Reduce the triggering eligible Special by **9**. |
+| **10** | Reaction | Incoming Effect Trigger / Ongoing Effect Trigger | Self | — | Reduce the triggering eligible Special by **9**. |
+| **11** | Reaction | Incoming Effect Trigger / Ongoing Effect Trigger | Self | — | Reduce the triggering eligible Special by **10**. |
+| **12** | Reaction | Incoming Effect Trigger / Ongoing Effect Trigger | Self | — | Reduce the triggering eligible Special by **10**. |
+| **13** | Reaction | Incoming Effect Trigger / Ongoing Effect Trigger | Self | — | Reduce the triggering eligible Special by **10**. |
+| **14** | Reaction | Incoming Effect Trigger / Ongoing Effect Trigger | Self | — | Reduce the triggering eligible Special by **11**. |
+| **15** | Reaction | Incoming Effect Trigger / Ongoing Effect Trigger | Self | — | Reduce the triggering eligible Special by **11**. |
+| **16** | Reaction | Incoming Effect Trigger / Ongoing Effect Trigger | Self | — | Reduce the triggering eligible Special by **12**. |
 
 ---
 }}
@@ -1135,7 +1108,7 @@ If a character wants these premium defensive answers, the dedicated Reaction is 
       This Reaction may never add more than +10% DR.<br>
       This Reaction applies only against the triggering attack or damage instance.<br>
       This Reaction may never exceed the total DR cap allowed by its level band.<br>
-      This Reaction may not include Armor, Evade, Temporary HP, Phasing, Save Dice, Attack Dice, Specials, movement, or any other rider.<br><br>
+      This Reaction may not include Armor, Evade, Temporary HP, Phasing, Attack Dice, Specials, movement, or any other rider.<br><br>
 
       REACTION DR MILESTONES<br>
       L1–3 → no effect.<br>
@@ -1215,7 +1188,7 @@ Your existing damage resistance spikes for one decisive hit.
       This Reaction may only reinforce an existing Passive Phasing path.<br>
       This Reaction may ignore only the triggering hit.<br>
       This Reaction may never exceed the total Phasing cap allowed by its level band.<br>
-      This Reaction may not include Armor, Evade, Temporary HP, Damage Reduction, Save Dice, Attack Dice, Specials, movement, or any other rider.<br><br>
+      This Reaction may not include Armor, Evade, Temporary HP, Damage Reduction, Attack Dice, Specials, movement, or any other rider.<br><br>
 
       REACTION PHASING MILESTONES<br>
       L1–3 → no effect.<br>
@@ -1350,7 +1323,7 @@ Unless an entry says otherwise, a Counter Effect using the Hit Trigger requires 
       It cannot generate Raises.<br>
       It does not use weapon damage.<br>
       It does not apply or increase Specials.<br>
-      It grants no Armor, Evade, Temporary HP, Damage Reduction, Phasing, Attack Dice, Save Dice, Critical, or other rider.
+      It grants no Armor, Evade, Temporary HP, Damage Reduction, Phasing, Attack Dice, Critical, or other rider.
     </span>
   </span>
 </h3>
@@ -1367,22 +1340,22 @@ If you choose Threat Zone Movement Trigger, the triggering creature must be with
 
 | **Level** | **Type** | **Allowed Triggers**                        |     **Range**     | **AoE** | **Effect**                                                       |
 | :-------: | :------- | :------------------------------------------ | :---------------: | :-----: | :--------------------------------------------------------------- |
-|   **1**   | Reaction | Hit Trigger or Threat Zone Movement Trigger | 2 m / Threat Zone |    —    | Deal **Weapon Damage + 1d8 damage** to the triggering creature.  |
-|   **2**   | Reaction | Hit Trigger or Threat Zone Movement Trigger | 2 m / Threat Zone |    —    | Deal **Weapon Damage + 2d8 damage** to the triggering creature.  |
-|   **3**   | Reaction | Hit Trigger or Threat Zone Movement Trigger | 2 m / Threat Zone |    —    | Deal **Weapon Damage + 3d8 damage** to the triggering creature.  |
-|   **4**   | Reaction | Hit Trigger or Threat Zone Movement Trigger | 2 m / Threat Zone |    —    | Deal **Weapon Damage + 4d8 damage** to the triggering creature.  |
-|   **5**   | Reaction | Hit Trigger or Threat Zone Movement Trigger | 2 m / Threat Zone |    —    | Deal **Weapon Damage + 5d8 damage** to the triggering creature.  |
-|   **6**   | Reaction | Hit Trigger or Threat Zone Movement Trigger | 2 m / Threat Zone |    —    | Deal **Weapon Damage + 6d8 damage** to the triggering creature.  |
-|   **7**   | Reaction | Hit Trigger or Threat Zone Movement Trigger | 2 m / Threat Zone |    —    | Deal **Weapon Damage + 7d8 damage** to the triggering creature.  |
-|   **8**   | Reaction | Hit Trigger or Threat Zone Movement Trigger | 2 m / Threat Zone |    —    | Deal **Weapon Damage + 8d8 damage** to the triggering creature.  |
-|   **9**   | Reaction | Hit Trigger or Threat Zone Movement Trigger | 2 m / Threat Zone |    —    | Deal **Weapon Damage + 9d8 damage** to the triggering creature.  |
-|   **10**  | Reaction | Hit Trigger or Threat Zone Movement Trigger | 2 m / Threat Zone |    —    | Deal **Weapon Damage + 10d8 damage** to the triggering creature. |
-|   **11**  | Reaction | Hit Trigger or Threat Zone Movement Trigger | 2 m / Threat Zone |    —    | Deal **Weapon Damage + 11d8 damage** to the triggering creature. |
-|   **12**  | Reaction | Hit Trigger or Threat Zone Movement Trigger | 2 m / Threat Zone |    —    | Deal **Weapon Damage + 12d8 damage** to the triggering creature. |
-|   **13**  | Reaction | Hit Trigger or Threat Zone Movement Trigger | 2 m / Threat Zone |    —    | Deal **Weapon Damage + 13d8 damage** to the triggering creature. |
-|   **14**  | Reaction | Hit Trigger or Threat Zone Movement Trigger | 2 m / Threat Zone |    —    | Deal **Weapon Damage + 14d8 damage** to the triggering creature. |
-|   **15**  | Reaction | Hit Trigger or Threat Zone Movement Trigger | 2 m / Threat Zone |    —    | Deal **Weapon Damage + 15d8 damage** to the triggering creature. |
-|   **16**  | Reaction | Hit Trigger or Threat Zone Movement Trigger | 2 m / Threat Zone |    —    | Deal **Weapon Damage + 16d8 damage** to the triggering creature. |
+|   **1**   | Reaction | Hit Trigger or Threat Zone Movement Trigger | 2 m / Threat Zone |    —    | Deal **1d8 damage** to the triggering creature.  |
+|   **2**   | Reaction | Hit Trigger or Threat Zone Movement Trigger | 2 m / Threat Zone |    —    | Deal **2d8 damage** to the triggering creature.  |
+|   **3**   | Reaction | Hit Trigger or Threat Zone Movement Trigger | 2 m / Threat Zone |    —    | Deal **3d8 damage** to the triggering creature.  |
+|   **4**   | Reaction | Hit Trigger or Threat Zone Movement Trigger | 2 m / Threat Zone |    —    | Deal **4d8 damage** to the triggering creature.  |
+|   **5**   | Reaction | Hit Trigger or Threat Zone Movement Trigger | 2 m / Threat Zone |    —    | Deal **5d8 damage** to the triggering creature.  |
+|   **6**   | Reaction | Hit Trigger or Threat Zone Movement Trigger | 2 m / Threat Zone |    —    | Deal **6d8 damage** to the triggering creature.  |
+|   **7**   | Reaction | Hit Trigger or Threat Zone Movement Trigger | 2 m / Threat Zone |    —    | Deal **7d8 damage** to the triggering creature.  |
+|   **8**   | Reaction | Hit Trigger or Threat Zone Movement Trigger | 2 m / Threat Zone |    —    | Deal **8d8 damage** to the triggering creature.  |
+|   **9**   | Reaction | Hit Trigger or Threat Zone Movement Trigger | 2 m / Threat Zone |    —    | Deal **9d8 damage** to the triggering creature.  |
+|   **10**  | Reaction | Hit Trigger or Threat Zone Movement Trigger | 2 m / Threat Zone |    —    | Deal **10d8 damage** to the triggering creature. |
+|   **11**  | Reaction | Hit Trigger or Threat Zone Movement Trigger | 2 m / Threat Zone |    —    | Deal **11d8 damage** to the triggering creature. |
+|   **12**  | Reaction | Hit Trigger or Threat Zone Movement Trigger | 2 m / Threat Zone |    —    | Deal **12d8 damage** to the triggering creature. |
+|   **13**  | Reaction | Hit Trigger or Threat Zone Movement Trigger | 2 m / Threat Zone |    —    | Deal **13d8 damage** to the triggering creature. |
+|   **14**  | Reaction | Hit Trigger or Threat Zone Movement Trigger | 2 m / Threat Zone |    —    | Deal **14d8 damage** to the triggering creature. |
+|   **15**  | Reaction | Hit Trigger or Threat Zone Movement Trigger | 2 m / Threat Zone |    —    | Deal **15d8 damage** to the triggering creature. |
+|   **16**  | Reaction | Hit Trigger or Threat Zone Movement Trigger | 2 m / Threat Zone |    —    | Deal **16d8 damage** to the triggering creature. |
 
 
 ---
@@ -1445,7 +1418,7 @@ If you choose Threat Zone Movement Trigger, the triggering creature must be with
       It does not knock Prone, Stun, Immobilize, or apply hard control.<br>
       Push moves the triggering creature directly away from you if movement is possible.<br>
       If the creature cannot be pushed, the damage still applies.<br>
-      It grants no Armor, Evade, Temporary HP, Damage Reduction, Phasing, Attack Dice, Save Dice, Critical, or other rider.
+      It grants no Armor, Evade, Temporary HP, Damage Reduction, Phasing, Attack Dice, Critical, or other rider.
     </span>
   </span>
 </h3>
@@ -1462,22 +1435,22 @@ If you choose Threat Zone Movement Trigger, the triggering creature must be with
 
 | **Level** | **Type** | **Allowed Triggers** | **Range** | **AoE** | **Effect** |
 |:--:|:--|:--|:--:|:--:|:--|
-| **1** | Reaction | Hit Trigger or Threat Zone Movement Trigger | 2 m / Threat Zone | — | Deal **1d8 damage + Weapon Damage** to the triggering creature. |
-| **2** | Reaction | Hit Trigger or Threat Zone Movement Trigger | 2 m / Threat Zone | — | Deal **1d8 damage + Weapon Damage** to the triggering creature and push it **2 m** directly away from you. |
-| **3** | Reaction | Hit Trigger or Threat Zone Movement Trigger | 2 m / Threat Zone | — | Deal **2d8 damage + Weapon Damage** to the triggering creature and push it **2 m** directly away from you. |
-| **4** | Reaction | Hit Trigger or Threat Zone Movement Trigger | 2 m / Threat Zone | — | Deal **2d8 damage + Weapon Damage** to the triggering creature and push it **4 m** directly away from you. |
-| **5** | Reaction | Hit Trigger or Threat Zone Movement Trigger | 2 m / Threat Zone | — | Deal **3d8 damage + Weapon Damage** to the triggering creature and push it **4 m** directly away from you. |
-| **6** | Reaction | Hit Trigger or Threat Zone Movement Trigger | 2 m / Threat Zone | — | Deal **3d8 damage+ Weapon Damage** to the triggering creature and push it **6 m** directly away from you. |
-| **7** | Reaction | Hit Trigger or Threat Zone Movement Trigger | 2 m / Threat Zone | — | Deal **4d8 damage+ Weapon Damage** to the triggering creature and push it **6 m** directly away from you. |
-| **8** | Reaction | Hit Trigger or Threat Zone Movement Trigger | 2 m / Threat Zone | — | Deal **4d8 damage+ Weapon Damage** to the triggering creature and push it **8 m** directly away from you. |
-| **9** | Reaction | Hit Trigger or Threat Zone Movement Trigger | 2 m / Threat Zone | — | Deal **5d8 damage+ Weapon Damage** to the triggering creature and push it **8 m** directly away from you. |
-| **10** | Reaction | Hit Trigger or Threat Zone Movement Trigger | 2 m / Threat Zone | — | Deal **6d8 damage + Weapon Damage** to the triggering creature and push it **8 m** directly away from you. |
-| **11** | Reaction | Hit Trigger or Threat Zone Movement Trigger | 2 m / Threat Zone | — | Deal **7d8 damage + Weapon Damage** to the triggering creature and push it **8 m** directly away from you. |
-| **12** | Reaction | Hit Trigger or Threat Zone Movement Trigger | 2 m / Threat Zone | — | Deal **8d8 damage + Weapon Damage** to the triggering creature and push it **8 m** directly away from you. |
-| **13** | Reaction | Hit Trigger or Threat Zone Movement Trigger | 2 m / Threat Zone | — | Deal **9d8 damage + Weapon Damage** to the triggering creature and push it **8 m** directly away from you. |
-| **14** | Reaction | Hit Trigger or Threat Zone Movement Trigger | 2 m / Threat Zone | — | Deal **10d8 damage + Weapon Damage** to the triggering creature and push it **8 m** directly away from you. |
-| **15** | Reaction | Hit Trigger or Threat Zone Movement Trigger | 2 m / Threat Zone | — | Deal **11d8 damage + Weapon Damage** to the triggering creature and push it **8 m** directly away from you. |
-| **16** | Reaction | Hit Trigger or Threat Zone Movement Trigger | 2 m / Threat Zone | — | Deal **12d8 damage + Weapon Damage** to the triggering creature and push it **8 m** directly away from you. |
+| **1** | Reaction | Hit Trigger or Threat Zone Movement Trigger | 2 m / Threat Zone | — | Deal **1d8 damage** to the triggering creature. |
+| **2** | Reaction | Hit Trigger or Threat Zone Movement Trigger | 2 m / Threat Zone | — | Deal **1d8 damage** to the triggering creature and push it **2 m** directly away from you. |
+| **3** | Reaction | Hit Trigger or Threat Zone Movement Trigger | 2 m / Threat Zone | — | Deal **2d8 damage** to the triggering creature and push it **2 m** directly away from you. |
+| **4** | Reaction | Hit Trigger or Threat Zone Movement Trigger | 2 m / Threat Zone | — | Deal **2d8 damage** to the triggering creature and push it **4 m** directly away from you. |
+| **5** | Reaction | Hit Trigger or Threat Zone Movement Trigger | 2 m / Threat Zone | — | Deal **3d8 damage** to the triggering creature and push it **4 m** directly away from you. |
+| **6** | Reaction | Hit Trigger or Threat Zone Movement Trigger | 2 m / Threat Zone | — | Deal **3d8 damage** to the triggering creature and push it **6 m** directly away from you. |
+| **7** | Reaction | Hit Trigger or Threat Zone Movement Trigger | 2 m / Threat Zone | — | Deal **4d8 damage** to the triggering creature and push it **6 m** directly away from you. |
+| **8** | Reaction | Hit Trigger or Threat Zone Movement Trigger | 2 m / Threat Zone | — | Deal **4d8 damage** to the triggering creature and push it **8 m** directly away from you. |
+| **9** | Reaction | Hit Trigger or Threat Zone Movement Trigger | 2 m / Threat Zone | — | Deal **5d8 damage** to the triggering creature and push it **8 m** directly away from you. |
+| **10** | Reaction | Hit Trigger or Threat Zone Movement Trigger | 2 m / Threat Zone | — | Deal **6d8 damage** to the triggering creature and push it **8 m** directly away from you. |
+| **11** | Reaction | Hit Trigger or Threat Zone Movement Trigger | 2 m / Threat Zone | — | Deal **7d8 damage** to the triggering creature and push it **8 m** directly away from you. |
+| **12** | Reaction | Hit Trigger or Threat Zone Movement Trigger | 2 m / Threat Zone | — | Deal **8d8 damage** to the triggering creature and push it **8 m** directly away from you. |
+| **13** | Reaction | Hit Trigger or Threat Zone Movement Trigger | 2 m / Threat Zone | — | Deal **9d8 damage** to the triggering creature and push it **8 m** directly away from you. |
+| **14** | Reaction | Hit Trigger or Threat Zone Movement Trigger | 2 m / Threat Zone | — | Deal **10d8 damage** to the triggering creature and push it **8 m** directly away from you. |
+| **15** | Reaction | Hit Trigger or Threat Zone Movement Trigger | 2 m / Threat Zone | — | Deal **11d8 damage** to the triggering creature and push it **8 m** directly away from you. |
+| **16** | Reaction | Hit Trigger or Threat Zone Movement Trigger | 2 m / Threat Zone | — | Deal **12d8 damage** to the triggering creature and push it **8 m** directly away from you. |
 
 ---
 }}
@@ -1503,10 +1476,10 @@ If you choose Threat Zone Movement Trigger, the triggering creature must be with
       This Reaction affects only the triggering creature.<br><br>
 
       ELIGIBLE SPECIALS<br>
-      Common eligible examples include Bleeding(X), Ignite(X), Poisoned(X), Shock(X), Freeze(X), Corrode(X), Expose(X), Mark(X), Weaken(X), Soulburn(X), Hex(X), and Sundered(X), if the Special is written as Special(X) and increasing X is meaningful.<br><br>
+      Common eligible examples include **Blight(X)**, **Challenge(X)**, **Corrode(X)**, **Disoriented(X)**, **Expose(X)**, **Hex(X)**, **Lacerate(X)**, **Mark(X)**, **Ruin(X)**, **Slow(X)**, **Soulburn(X)**, **Sundered(X)**, and **Weaken(X)**.<br><br>
 
       INELIGIBLE SPECIALS<br>
-      This Reaction may not affect binary Specials, hard control, Stunned, Prone, Immovable, Charm, Dominate, Blinded if binary, Silenced if binary, Immobilized if binary, Damage Reduction, Phasing, Barriers, Walls, Images, Summons, Illusion Fields, or Persistent Zones.<br><br>
+      This Reaction may not affect binary Specials, hard control, forced behavior, Stunned, Prone, Immovable, full-turn or full-reaction denial, Damage Reduction, Phasing, Barriers, Walls, Images, Summons, Illusion Fields, or Persistent Zones.<br><br>
 
       REACTION SPECIAL INCREASE MILESTONES<br>
       L1–3 → no effect.<br>
@@ -1541,7 +1514,8 @@ If you choose Threat Zone Movement Trigger, the triggering creature must be with
       NOTES<br>
       This is not Special Application.<br>
       This Reaction never starts a Special by itself.<br>
-      It only escalates an existing numeric pressure effect on the creature that hit you.
+      It only escalates an existing numeric pressure effect on the creature that hit you.<br>
+      Weaken and Soulburn may be chosen, but only when the triggering creature is already affected by the chosen Special.
     </span>
   </span>
 </h3>
@@ -1830,7 +1804,6 @@ Reflection does not affect:
 * Attacks that target multiple creatures
 * environmental damage
 * ongoing damage
-* damage caused by failed Saves
 * Persistent Zones
 * self-inflicted damage
 * damage without an identifiable source
@@ -1900,7 +1873,7 @@ Reflection and Riposte cannot both be used against the same triggering Attack.
   RESTRICTIONS<br>
   Reflection and Riposte cannot both be used against the same Attack.<br>
   Additional Reactions do not bypass the per-Combat use limit.<br>
-  Reflection does not work against Area Effects, multi-target Attacks, ongoing damage, failed Saves, Persistent Zones, environmental damage, or damage without an identifiable source.
+  Reflection does not work against Area Effects, multi-target Attacks, ongoing damage, Persistent Zones, environmental damage, or damage without an identifiable source.
 </span>
 
   </span>

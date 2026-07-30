@@ -37,12 +37,12 @@ export const RANGE_FREE_BASELINE_M = 8;
 export const RANGE_STEP_M = 4;
 /** PP per additional `+4 m` of ranged distance. */
 export const PP_PER_RANGE_STEP = 5;
-/** Default Diminishing Special start-PP per Tier. */
+/** Default Diminishing Special start-PP per Tier (Rules/actives.md groups). */
 export const TIER_START_PP = {
     3: 3,
     4: 4,
-    5: 5,
-    6: 6,
+    5: 6,
+    6: 8,
 };
 /** Compute the *available* PP for a Power at level `lvl`. */
 export function ppBudgetForLevel(lvl) {

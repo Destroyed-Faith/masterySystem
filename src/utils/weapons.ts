@@ -81,7 +81,7 @@ export const WEAPONS: WeaponDefinition[] = [
     weaponDamage: '2d8',
     hands: 1,
     innateAbilities: [],
-    special: 'Prone(1), Disrupt(2)',
+    special: 'Prone(1), Challenge(2)',
     description: 'A chained head that unbalances foes.'
   },
   {

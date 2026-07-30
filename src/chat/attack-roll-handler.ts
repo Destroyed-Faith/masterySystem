@@ -321,12 +321,10 @@ export async function executeAttackRollFromCard(
         numDice = flags.attributeValue ?? 2;
       }
       
-      // Players Guide minimum-pool rule (~5888–5899): an attacker with an
-      // attribute below their Mastery Rank still rolls dice equal to MR
-      // (Keep stays MR). Apply *before* the health penalty so the floor
-      // and the health hit interact correctly.
-      const masteryRankForFloor = flags.masteryRank ?? (attackerForRoll?.system?.mastery?.rank ?? 2);
-      numDice = Math.max(numDice, masteryRankForFloor);
+      // Note: Minimum Pool (= Mastery Rank), Specials (Weaken / Soulburn /
+      // Challenge / Disoriented) and the Health / Encumbrance percentage
+      // penalty are applied centrally inside `masteryRoll` in canonical
+      // order (`applyPoolPenalties: true`).
 
       // Players Guide 7497–7521: Range Bands.
       // For ranged attacks the dice pool is multiplied by the band:
@@ -387,12 +385,6 @@ export async function executeAttackRollFromCard(
           console.warn('Mastery System | Range Band evaluation failed:', err);
         }
       }
-
-      // Players Guide ~6518–6544: health penalty is a *percentage of the
-      // rolled pool* (10/20/30/40 % per broken bar, floored).
-      const { applyHealthAndEncumbrancePenalties } = await import('../utils/encumbrance.js');
-      const poolPenalties = applyHealthAndEncumbrancePenalties(numDice, attackerForRoll as any);
-      numDice = poolPenalties.numDice;
 
       // Split-Attack: hard-cap the final pool inside `masteryRoll` so attack-rider
       // / manual bonus dice cannot inflate the strike back to the full attribute pool.
@@ -479,27 +471,6 @@ export async function executeAttackRollFromCard(
             ? `Spell Attack (${flags.attribute.charAt(0).toUpperCase() + flags.attribute.slice(1)})`
             : `${attackKind} Attack (${flags.attribute.charAt(0).toUpperCase() + flags.attribute.slice(1)})`;
 
-      // Dread: pre-attack Save gate. On failure the attack is lost (action
-      // stays spent). Disrupt: using a Power reduces/clears Disrupt.
-      // Faith reroll: both already resolved on the original roll — skip.
-      if (!isFaithReroll) {
-        try {
-          const { resolveDreadPreAttack, consumePowerDisrupt } = await import('../combat/dread-gate.js');
-          const dread = await resolveDreadPreAttack(freshAttacker);
-          if (dread.blocked) {
-            ui.notifications?.warn(dread.note || 'Dread — attack lost.');
-            button.html('<i class="fas fa-ban"></i> Dread').addClass('rolled');
-            rollAttackMessageLocks.delete(lockId);
-            return;
-          }
-          if (flags.selectedPowerId) {
-            await consumePowerDisrupt(freshAttacker);
-          }
-        } catch (err) {
-          console.warn('Mastery System | Dread/Disrupt gate failed', err);
-        }
-      }
-
       const actionEco = await import('../combat/action-economy.js');
       const economyForStones = actionEco.getActionEconomyActor(freshAttacker) ?? freshAttacker;
       const combatRef = (game as any).combat;
@@ -524,6 +495,17 @@ export async function executeAttackRollFromCard(
         await applyBloodRaiseHpLoss(freshAttacker, bloodRaises * 4);
       }
 
+      // All targets of this attack (primary + AoE secondaries) — used by the
+      // Challenge(X) pool reduction (no reduction when the challenger is hit).
+      const challengeTargetRefs: string[] = [
+        ...(flags.targetId ? [String(flags.targetId)] : []),
+        ...(flags.targetTokenId ? [String(flags.targetTokenId)] : []),
+        ...String(button.attr('data-aoe-secondary-ids') || '')
+          .split('|')
+          .map((s: string) => s.trim())
+          .filter(Boolean),
+      ];
+
       const result = await masteryRoll({
         numDice: numDice,
         keepDice: keepDice,
@@ -536,6 +518,10 @@ export async function executeAttackRollFromCard(
         targetActorId: flags.targetId,
         autoFailIntent: 'attack',
         checkContext: { tags: ['sight'] },
+        poolAttribute: attributeKey,
+        targetRefs: challengeTargetRefs,
+        applyPoolPenalties: true,
+        actorRef: attackerForRoll,
         normalTn,
         raiseTn,
         declaredRaiseSlots,

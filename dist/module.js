@@ -57,6 +57,7 @@ import { registerEchoArtifactDedupeMigrationSetting, runEchoArtifactDedupeMigrat
 import { runElorianStrideMigration } from './migrations/elorian-stride-migration.js';
 import { runTitanScarsAffinityMigration } from './migrations/titan-scars-affinity-migration.js';
 import { runSpecialEffectRenameMigration } from './migrations/special-effect-rename-migration.js';
+import { registerRulesV2AlignmentMigrationSetting, runRulesV2AlignmentMigration, } from './migrations/rules-v2-alignment-migration.js';
 import { registerPaperdollSlotCanonicalSetting, runPaperdollSlotCanonical, } from './migrations/paperdoll-slot-canonical.js';
 import { registerArtifactEchoLinkMigrationSetting, runArtifactEchoLinkMigration, } from './migrations/artifact-echo-link-migration.js';
 import { registerAbCriticalMilestonesMigrationSetting, runAbCriticalMilestonesMigration, } from './migrations/ab-critical-milestones-migration.js';
@@ -86,6 +87,7 @@ function registerAllMasteryInitSettings() {
     registerPaperdollSlotCanonicalSetting();
     registerAbCriticalMilestonesMigrationSetting();
     registerPowerTemplateResyncMigrationSetting();
+    registerRulesV2AlignmentMigrationSetting();
 }
 /**
  * Initialize the Mastery System
@@ -2467,14 +2469,6 @@ Hooks.once('ready', async function () {
                 console.log(`Mastery System | Skill key migration: Updated skill keys for ${actor.name}`);
             }
         }
-        // Migration: Initialize saves tracking for Vitality spending on saves
-        if (!system?.saves || system.saves.vitalityUsesRemaining === undefined) {
-            await actor.update({
-                'system.saves.vitalitySpent': 0,
-                'system.saves.vitalityUsesRemaining': 4
-            });
-            console.log(`Mastery System | Saves migration: Initialized Vitality save tracking for ${actor.name}`);
-        }
         // Migration: skillsSpent initialization
         if (!system?.skillsSpent || typeof system.skillsSpent !== 'object') {
             console.log(`Mastery System | SkillsSpent migration: Initializing for ${actor.name}`);
@@ -2974,13 +2968,21 @@ Hooks.once('ready', async function () {
         console.warn('Mastery System | Titan Scars affinity migration failed', error);
     }
     // Migration: reconcile legacy Special-Effect ids/names (Bleeding->Lacerate,
-    // Ignite->Ruin, Freeze->Slow, Poisoned->Blight, Shock->Disrupt,
-    // Blinded->Disoriented, Frightened->Dread) across actors and world items.
+    // Ignite->Ruin, Freeze->Slow, Poisoned->Blight, Shock->Disoriented,
+    // Disrupt->Challenge, Blinded->Disoriented; Dread/Frightened deleted).
     try {
         await runSpecialEffectRenameMigration(migrationActors);
     }
     catch (error) {
         console.warn('Mastery System | Special-Effect rename migration failed', error);
+    }
+    // Migration: Rules v2 — strip Saving Throws, saveSpell→spellAttack, retire
+    // Active Buff Special Application auras, clear removed Special statuses.
+    try {
+        await runRulesV2AlignmentMigration(migrationActors);
+    }
+    catch (error) {
+        console.warn('Mastery System | Rules v2 alignment migration failed', error);
     }
     // Migration: Backfill inventory sizes for existing items (GM only)
     if (game.user?.isGM) {

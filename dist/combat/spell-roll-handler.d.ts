@@ -5,13 +5,12 @@
  * time. Spells reuse the Raise engine, but their resolution differs from a
  * standard attack:
  *
- *   1. Spell Attack  → pool = casting attribute, keep = mastery rank,
- *                      TN = calculateBaseTN(spellLevel) + 4 × raises (same as casting-table rules).
- *   2. Save Spell    → caster rolls Casting Roll vs Base TN (+ 4 × raises).
- *                      On success, each target rolls Save vs Save DC
- *                      (= 8 × caster mastery rank).
- *   3. Support Spell → Save Spell without a target save — only the Casting
- *                      Roll needs to succeed for the effect to land.
+ *   Spell Attack → pool = casting attribute, keep = mastery rank,
+ *                  TN = calculateBaseTN(spellLevel) + 4 × raises (casting-table rules).
+ *
+ *   Saving Throws were removed from the rules: a successful cast resolves the
+ *   spell's full listed payload. Resistance only happens through explicitly
+ *   named Attribute Checks created by individual rules.
  *
  * Raises (`+4` per Raise) are declared before the roll. **Blood Raises** cost
  * `4 HP` each (ignoring armor) and add `+4` to the final total *and* stamp the
@@ -20,7 +19,7 @@
  * This module owns the maths & side-effects; the UI layer just calls
  * `rollSpell` and `canCastSpellAtLevel`.
  */
-import type { CastingAttribute, SpellResolution, SpellSaveType } from '../types/item.js';
+import type { CastingAttribute, SpellResolution } from '../types/item.js';
 import type { MasteryRollResult } from '../types/index';
 import { type RaiseOutcome } from './raise-resolution.js';
 /** Maximum Spell Level a character can learn/cast: `Mastery Rank × 2`. */
@@ -50,16 +49,6 @@ export declare function castingTNForTier(tier: SpellTier): number;
  */
 export declare function calculateBaseTN(spellLevel: number): number;
 /**
- * Save DC a target must beat for a Save Spell.
- *
- * Players Guide saving-throw chapter (~6840–6864) defines the DC as
- * `8 × caster Mastery Rank` *plus* the caster's Intellect scaling
- * (`floor(Intellect/8)`). The optional `intellect` argument keeps the
- * legacy single-arg signature working for callers that have not been
- * updated to the attribute-aware version yet.
- */
-export declare function calculateSaveDC(masteryRank: number, intellect?: number): number;
-/**
  * Deduct `amount` HP from the actor, bypassing armor (blood magic). Records
  * the amount lost so it cannot be healed until combat ends.
  * Returns the actual HP actually removed (clamped to what was available).
@@ -87,7 +76,7 @@ export declare function clearBloodRaiseHpFlagForCombat(combat: any): Promise<voi
 export interface SpellRollParams {
     /** The caster actor. */
     actor: any;
-    /** Target actor (required for `spellAttack`; optional for save/support). */
+    /** Target actor (required for `spellAttack`; optional for support). */
     target?: any | null;
     /** Spell level (1–16) — typically equals the chosen Power rank. */
     spellLevel: number;
@@ -95,8 +84,6 @@ export interface SpellRollParams {
     castingAttribute: CastingAttribute;
     /** Resolution type pulled from the power item. */
     resolution: SpellResolution;
-    /** Save type for Save Spells; ignored for `spellAttack`. */
-    saveType?: SpellSaveType;
     /** Declared raise slots (each +4 to Raise TN; Normal TN unchanged). */
     declaredRaiseSlots?: number;
     /** @deprecated Use declaredRaiseSlots */
@@ -111,7 +98,7 @@ export interface SpellRollParams {
     spellName?: string;
     /** Flavor string forwarded to the chat card. */
     flavor?: string;
-    /** Support spell: skip the target-save step even if resolution === 'saveSpell'. */
+    /** Support spell: no target required — only the Casting Roll must succeed. */
     supportMode?: boolean;
 }
 export interface SpellRollResult {
@@ -133,8 +120,6 @@ export interface SpellRollResult {
     success: boolean;
     /** Raises achieved (includes declared/blood when successful). */
     raises: number;
-    /** Save DC (Save Spell only). `null` for Spell Attack. */
-    saveDc: number | null;
     /** Stress inflicted on the caster when the spell fizzled. */
     stressTaken: number;
     /** Resolution used. */
@@ -144,15 +129,14 @@ export interface SpellRollResult {
  * Execute the full Active-as-Spell roll pipeline:
  *   1. Blood Raises (HP loss) → added to the pool's total as +4 each.
  *   2. Casting Roll via `masteryRoll` (Pool = attribute, Keep = MR).
- *   3. Resolve against the correct TN (Evade vs spell, Base TN vs save).
+ *   3. Resolve against the Casting TN.
  *   4. On failure: `1d8` stress; on success: return result for the caller to
- *      apply damage/effects (targets' saves are rolled in the UI layer).
+ *      apply damage/effects.
  */
 export declare function rollSpell(params: SpellRollParams): Promise<SpellRollResult>;
 /**
- * Quick helper the UI uses to surface "this would need a Save Spell"/"Spell
- * Attack" to the player. Pulls the declared resolution from the power item,
- * falling back to `saveSpell` when the item is missing the hint.
+ * Resolution mode for a spell power item. Saving throws were removed —
+ * every spell resolves as `spellAttack` (caster roll vs TN).
  */
-export declare function inferResolutionFromItem(powerItem: any): SpellResolution;
+export declare function inferResolutionFromItem(_powerItem: any): SpellResolution;
 //# sourceMappingURL=spell-roll-handler.d.ts.map

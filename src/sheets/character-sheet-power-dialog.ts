@@ -13,9 +13,9 @@
  *       Category + Subfamily alone and ignore the Special filter.
  *
  * For Actives (category === 'active'), a Step 4 panel exposes the
- * "Make this a Spell?" toggle, the casting attribute (Intellect/Resolve),
- * and resolution (attack vs save). Save family for save spells is taken from
- * the chosen Special's data in `special-effects.ts`, then `spellHints.defaultSaveType`.
+ * "Make this a Spell?" toggle and the casting attribute (Intellect/Resolve).
+ * Every Spell resolves as a Spell Attack (caster roll vs Casting TN / Evade);
+ * saving throws were removed from the rules.
  */
 
 import type {
@@ -23,13 +23,12 @@ import type {
     PowerCategory,
     SpellResolution,
 } from '../types/item.js';
-import { calculateBaseTN, calculateSaveDC } from '../combat/spell-roll-handler.js';
+import { calculateBaseTN } from '../combat/spell-roll-handler.js';
 import { renderPowerLevelTable } from '../utils/power-rendering.js';
 import { setupPowerCatalogDialogChrome } from '../utils/legacy-dialog-resize.js';
 import {
     buildPowerItemFromCatalogEntry,
 } from '../utils/power-item-builder.js';
-import { resolveSpellSaveTypeForEntry } from '../utils/spell-save-type.js';
 import {
     CATEGORY_LABELS,
     CATEGORY_ORDER,
@@ -48,8 +47,6 @@ import {
     type CatalogEntry,
 } from '../utils/power-catalog.js';
 import type { PowerTemplate } from '../utils/powers/templates/index.js';
-
-export { resolveSpellSaveTypeForEntry } from '../utils/spell-save-type.js';
 
 /** Friendly label for a subfamily key. */
 function labelSubfamily(key: string): string {
@@ -141,8 +138,7 @@ export async function showPowerCreationDialog(
           <div class="form-group">
             <label class="power-form-label">Resolution:</label>
             <select id="pc-resolution" class="power-form-select">
-              <option value="spellAttack">Spell Attack (vs Evade)</option>
-              <option value="saveSpell">Save Spell (vs Save DC)</option>
+              <option value="spellAttack">Spell Attack (caster roll vs TN)</option>
             </select>
           </div>
           <div class="form-group pc-spell-rules-wrap">
@@ -413,31 +409,12 @@ export async function showPowerCreationDialog(
                     ? Math.max(1, Math.min(16, parseInt(String($rankSelect.val() || '1'), 10) || 1))
                     : 2;
                 const castingTn = calculateBaseTN(rankVal);
-                const intellectVal = Number(system?.attributes?.intellect?.value ?? 0);
-                const saveDc = calculateSaveDC(masteryRank, intellectVal);
-                const res = ($resolution.val() as SpellResolution) || 'spellAttack';
-                const tmpl = ent ? findTemplateById(ent.templateId) : undefined;
-                const inferredSave =
-                    res === 'saveSpell' && ent ? resolveSpellSaveTypeForEntry(ent, tmpl) : null;
-
-                if (res === 'spellAttack') {
-                    $spellHint.html(
-                        `<strong>Spell attack:</strong> Roll your casting attribute (keep = Mastery Rank) vs <strong>Casting TN ${castingTn}</strong> ` +
-                            `(8×⌈Spell Level÷2⌉ at Spell Level <strong>${rankVal}</strong>). ` +
-                            `<strong>Declared Raises</strong> before the roll add +4 each to that TN. ` +
-                            `<strong>Raises</strong> after a successful hit can improve damage, special potency, Range, AoE, and other riders (per spell rules).`,
-                    );
-                } else {
-                    const saveLine = inferredSave
-                        ? `Targets roll a <strong>${inferredSave.charAt(0).toUpperCase() + inferredSave.slice(1)}</strong> save (from this power’s Special); no separate picker needed.`
-                        : '';
-                    $spellHint.html(
-                        `<strong>Casting roll TN</strong> for your pool vs success is <strong>${castingTn}</strong> ` +
-                            `(8×⌈Spell Level÷2⌉ at Spell Level <strong>${rankVal}</strong> — in steps of 8 every two levels: 8, 16, 24, …). ` +
-                            `<strong>Save DC</strong> targets must beat is <strong>${saveDc}</strong> (8× MR <strong>${masteryRank}</strong> + ⌊Intellect/8⌋ = <strong>${Math.floor(intellectVal / 8)}</strong>). ` +
-                            `Raises after the casting roll can improve damage, the special, Range, AoE, etc. ${saveLine}`,
-                    );
-                }
+                $spellHint.html(
+                    `<strong>Spell attack:</strong> Roll your casting attribute (keep = Mastery Rank) vs <strong>Casting TN ${castingTn}</strong> ` +
+                        `(8×⌈Spell Level÷2⌉ at Spell Level <strong>${rankVal}</strong>). ` +
+                        `<strong>Declared Raises</strong> before the roll add +4 each to that TN. ` +
+                        `<strong>Raises</strong> after a successful hit can improve damage, special potency, Range, AoE, and other riders (per spell rules).`,
+                );
             };
 
             $categorySelect.on('change', () => {

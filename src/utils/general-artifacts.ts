@@ -313,35 +313,24 @@ const STAFF_OF_THE_DARK: GeneralArtifactDefinition = {
   baseValues: [
     {
       slot: 'a',
-      label: 'Spell Focus Bonus',
-      note: '+3d8 (L1) to +12d8 (L10) damage to Spells cast through this Staff (1:1 one-handed weapon damage). Does not apply to weapon attacks.',
+      label: 'Weapon Damage',
+      note: '2d8 (L1) to 11d8 (L10) Staff Weapon Damage for Spells cast through this Staff.',
     },
     {
       slot: 'b',
-      label: 'Focus Special',
+      label: 'Weapon Special',
       note: 'Hex(2) from L4, Hex(3) from L6, Hex(4) from L8, Hex(5) at L10. Applies only if the Spell can legally carry it.',
     },
   ],
-  // Special Boost Support: pre-fills the Intellect Ability "Special Boost"
-  // Stone Power (Tier 2 at L1, Tier 3 at L4, Tier 4 at L7). The character must
-  // always pay the lower tiers themselves.
-  stoneFunction: {
-    kind: 'stonePowerSupport',
-    attribute: 'intellect',
-    stonePowerId: 'intellect.specialBoost',
-    level: 1,
-    name: 'Special Boost Support',
-  },
   levelProgression: [
     {
       level: 1,
-      name: 'Special Boost Support I',
-      type: 'Stone Power Support',
-      range: 'Self',
+      name: 'Might of the Dark I',
+      type: 'Active, Spell',
+      range: '20 m',
       duration: 'Instant',
-      effect:
-        'The Staff of the Dark supports the Intellect Ability Special Boost Stone Power and pre-fills Tier 2. You must still pay Tier 1 yourself. If Tier 1 is not paid, the pre-filled Tier 2 has no effect.',
-      special: 'Special Boost',
+      effect: 'Deal Staff Weapon Damage + 2d8 damage on hit.',
+      special: 'Hex(4)',
     },
     {
       level: 2,
@@ -350,28 +339,25 @@ const STAFF_OF_THE_DARK: GeneralArtifactDefinition = {
       range: '20 m',
       duration: 'Instant',
       effect:
-        'Roll Spell Focus Bonus + 7d8 damage on hit. Split the total in half, rounded down. One half is dealt as damage. One willing creature within 20 m heals HP equal to the other half.',
+        'Roll Staff Weapon Damage + 7d8 damage on hit. Split the total in half, rounded down. One half is dealt as damage. One willing creature within 20 m heals HP equal to the other half.',
     },
     {
       level: 3,
-      name: 'Aura of the End I',
-      type: 'Artifact Only Active Buff, Spell',
-      range: 'Self',
-      aoe: '3 m radius',
-      duration: 'Mastery Rank Rounds',
-      effect:
-        'Enemies in the aura gain Dread(2) while they remain in the aura. When an enemy leaves the aura, this Dread value ends immediately. Aura of the End deals no damage and does not stack with itself.',
-      special: 'Dread(2)',
+      name: 'Vision of the End I',
+      type: 'Active, Spell',
+      range: '20 m',
+      duration: 'Instant',
+      effect: 'Deal Staff Weapon Damage + 3d8 damage on hit.',
+      special: 'Soulburn(3)',
     },
     {
       level: 4,
-      name: 'Special Boost Support II',
-      type: 'Stone Power Support',
-      range: 'Self',
+      name: 'Might of the Dark II',
+      type: 'Active, Spell',
+      range: '44 m',
       duration: 'Instant',
-      effect:
-        'The Staff of the Dark pre-fills Tier 3 of the Intellect Ability Special Boost Stone Power. You must still pay Tier 1 and Tier 2 yourself. If Tier 1 and Tier 2 are not paid, the pre-filled Tier 3 has no effect.',
-      special: 'Special Boost',
+      effect: 'Deal Staff Weapon Damage + 2d8 damage on hit.',
+      special: 'Hex(8)',
     },
     {
       level: 5,
@@ -380,28 +366,25 @@ const STAFF_OF_THE_DARK: GeneralArtifactDefinition = {
       range: '44 m',
       duration: 'Instant',
       effect:
-        'Roll Spell Focus Bonus + 17d8 damage on hit. Split the total in half, rounded down. One half is dealt as damage. One willing creature within 44 m heals HP equal to the other half.',
+        'Roll Staff Weapon Damage + 17d8 damage on hit. Split the total in half, rounded down. One half is dealt as damage. One willing creature within 44 m heals HP equal to the other half.',
     },
     {
       level: 6,
-      name: 'Aura of the End II',
-      type: 'Artifact Only Active Buff, Spell',
-      range: 'Self',
-      aoe: '5 m radius',
-      duration: 'Mastery Rank Rounds',
-      effect:
-        'Enemies in the aura gain Dread(4) while they remain in the aura. When an enemy leaves the aura, this Dread value ends immediately. Aura of the End deals no damage and does not stack with itself.',
-      special: 'Dread(4)',
+      name: 'Vision of the End II',
+      type: 'Active, Spell',
+      range: '44 m',
+      duration: 'Instant',
+      effect: 'Deal Staff Weapon Damage + 3d8 damage on hit.',
+      special: 'Soulburn(7)',
     },
     {
       level: 7,
-      name: 'Special Boost Support III',
-      type: 'Stone Power Support',
-      range: 'Self',
+      name: 'Might of the Dark III',
+      type: 'Active, Spell',
+      range: '68 m',
       duration: 'Instant',
-      effect:
-        'The Staff of the Dark pre-fills Tier 4 of the Intellect Ability Special Boost Stone Power. You must still pay Tier 1, Tier 2, and Tier 3 yourself. If the lower tiers are not paid, the pre-filled Tier 4 has no effect.',
-      special: 'Special Boost',
+      effect: 'Deal Staff Weapon Damage + 2d8 damage on hit.',
+      special: 'Hex(10)',
     },
     {
       level: 8,
@@ -410,18 +393,16 @@ const STAFF_OF_THE_DARK: GeneralArtifactDefinition = {
       range: '68 m',
       duration: 'Instant',
       effect:
-        'Roll Spell Focus Bonus + 27d8 damage on hit. Split the total in half, rounded down. One half is dealt as damage. One willing creature within 68 m heals HP equal to the other half.',
+        'Roll Staff Weapon Damage + 27d8 damage on hit. Split the total in half, rounded down. One half is dealt as damage. One willing creature within 68 m heals HP equal to the other half.',
     },
     {
       level: 9,
-      name: 'Aura of the End III',
-      type: 'Artifact Only Active Buff, Spell',
-      range: 'Self',
-      aoe: '7 m radius',
-      duration: 'Mastery Rank Rounds',
-      effect:
-        'Enemies in the aura gain Dread(6) while they remain in the aura. When an enemy leaves the aura, this Dread value ends immediately. Aura of the End deals no damage and does not stack with itself.',
-      special: 'Dread(6)',
+      name: 'Vision of the End III',
+      type: 'Active, Spell',
+      range: '68 m',
+      duration: 'Instant',
+      effect: 'Deal Staff Weapon Damage + 3d8 damage on hit.',
+      special: 'Soulburn(9)',
     },
     {
       level: 10,
@@ -727,7 +708,7 @@ const LOR_KETHS_STAFF: GeneralArtifactDefinition = {
       duration: 'Instant',
       effect:
         "Use Melee — Damage + Start PP 6 Special at Power Level 4. Make a melee attack with Lor-Keth's Staff. On hit, deal Staff Weapon Damage + 2d8 damage.",
-      special: 'Disrupt(5)',
+      special: 'Challenge(5)',
     },
     {
       level: 2,
@@ -757,7 +738,7 @@ const LOR_KETHS_STAFF: GeneralArtifactDefinition = {
       duration: 'Instant',
       effect:
         "Use Melee — Damage + Start PP 6 Special at Power Level 10. Make a melee attack with Lor-Keth's Staff. On hit, deal Staff Weapon Damage + 2d8 damage.",
-      special: 'Disrupt(9)',
+      special: 'Challenge(9)',
     },
     {
       level: 5,
@@ -787,7 +768,7 @@ const LOR_KETHS_STAFF: GeneralArtifactDefinition = {
       duration: 'Instant',
       effect:
         "Use Melee — Damage + Start PP 6 Special at Power Level 16. Make a melee attack with Lor-Keth's Staff. On hit, deal Staff Weapon Damage + 2d8 damage.",
-      special: 'Disrupt(11)',
+      special: 'Challenge(11)',
     },
     {
       level: 8,

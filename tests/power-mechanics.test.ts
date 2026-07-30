@@ -152,7 +152,7 @@ describe('aggregateMechanics — pure summing', () => {
     expect(bd.totals.armor).toBe(0);
     expect(bd.totals.evade).toBe(0);
     expect(bd.armor).toEqual([]);
-    expect(bd.saveDice.body).toEqual([]);
+    expect(bd.rollDice.attack).toEqual([]);
   });
 
   it('sums armor + evade across multiple contributions with source labels', () => {
@@ -172,23 +172,21 @@ describe('aggregateMechanics — pure summing', () => {
     expect(bd.evade.find((e) => e.source === 'Dragon Scales')?.value).toBe(-1);
   });
 
-  it('aggregates saveDice per family', () => {
+  it('aggregates spellResistance', () => {
     const bd = aggregateMechanics([
       {
-        source: 'Warden Stance',
+        source: 'Ward',
         mechanics: {
-          saveDice: { body: 2, mind: 1 },
+          spellResistance: 2,
           applyWhen: 'activeBuff-active',
         },
       },
       {
-        source: 'Mental Fortress',
-        mechanics: { saveDice: { mind: 2, spirit: 1 }, applyWhen: 'passive-slotted-active' },
+        source: 'Barrier',
+        mechanics: { spellResistance: 3, applyWhen: 'passive-slotted-active' },
       },
     ]);
-    expect(bd.totals.saveDice.body).toBe(2);
-    expect(bd.totals.saveDice.mind).toBe(3);
-    expect(bd.totals.saveDice.spirit).toBe(1);
+    expect(bd.totals.spellResistance).toBe(5);
   });
 
   it('aggregates rollDice per kind', () => {
@@ -414,7 +412,7 @@ describe('collectMechanicsContributions — active buff effects', () => {
               activeBuff: true,
               powerName: 'Warden Stance',
               mechanics: {
-                saveDice: { body: 2 },
+                spellResistance: 2,
                 applyWhen: 'activeBuff-active',
               },
             },
@@ -424,7 +422,7 @@ describe('collectMechanicsContributions — active buff effects', () => {
     });
     const contribs = collectMechanicsContributions(actor);
     expect(contribs.length).toBe(1);
-    expect(contribs[0].mechanics.saveDice?.body).toBe(2);
+    expect(contribs[0].mechanics.spellResistance).toBe(2);
     expect(contribs[0].source).toContain('Warden Stance');
   });
 
@@ -623,7 +621,7 @@ describe('buildActorMechanicsBreakdown — integration', () => {
   it('returns fully-populated empty breakdown for bare actor', () => {
     const bd = buildActorMechanicsBreakdown({ system: {}, items: { get: () => null }, effects: [] });
     expect(bd.totals.armor).toBe(0);
-    expect(bd.saveDice.body).toEqual([]);
+    expect(bd.rollDice.attack).toEqual([]);
     expect(bd.rollDice.skill).toEqual([]);
   });
 });
@@ -644,7 +642,7 @@ describe('getRollDiceDelta', () => {
     expect(getRollDiceDelta(actor, 'attack')).toBe(0);
   });
 
-  it('reads save deltas', () => {
+  it('reads damage deltas', () => {
     const actor: any = {
       system: {
         derived: {
@@ -652,15 +650,13 @@ describe('getRollDiceDelta', () => {
             ...emptyBreakdown(),
             totals: {
               ...emptyBreakdown().totals,
-              saveDice: { body: 1, mind: 2, spirit: 3 },
+              rollDice: { attack: 0, skill: 0, damage: 3 },
             },
           },
         },
       },
     };
-    expect(getRollDiceDelta(actor, 'saveBody')).toBe(1);
-    expect(getRollDiceDelta(actor, 'saveMind')).toBe(2);
-    expect(getRollDiceDelta(actor, 'saveSpirit')).toBe(3);
+    expect(getRollDiceDelta(actor, 'damage')).toBe(3);
   });
 
   it('returns 0 when breakdown missing', () => {

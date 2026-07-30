@@ -23,7 +23,7 @@ export function buildSpellPrintMeta(sys) {
         return { isSpell: false };
     const attrRaw = String(sys?.castingAttribute ?? 'intellect').trim();
     const attr = attrRaw ? attrRaw.charAt(0).toUpperCase() + attrRaw.slice(1) : '';
-    const res = sys?.spellResolution === 'saveSpell' ? 'Save Spell' : 'Spell Attack';
+    const res = 'Spell Attack';
     return {
         isSpell: true,
         spellLabel: attr ? `${res} (${attr})` : res,
@@ -34,7 +34,7 @@ export function buildArtifactRowSpellPrintMeta(row) {
         return { isSpell: false };
     const attrRaw = String(row.castingAttribute ?? 'intellect').trim();
     const attr = attrRaw ? attrRaw.charAt(0).toUpperCase() + attrRaw.slice(1) : '';
-    const res = row.spellResolution === 'saveSpell' ? 'Save Spell' : 'Spell Attack';
+    const res = 'Spell Attack';
     return {
         isSpell: true,
         spellLabel: attr ? `${res} (${attr})` : res,

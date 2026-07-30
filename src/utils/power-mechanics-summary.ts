@@ -50,7 +50,8 @@ function conditionLabel(mech: PowerMechanics): string {
         const map: Record<string, string> = {
             targetMark: 'vs Mark',
             targetRuin: 'vs Ruin',
-            targetDisrupt: 'vs Disrupt',
+            targetChallenge: 'vs Challenge',
+            targetDisrupt: 'vs Challenge',
             targetSlow: 'vs Slow',
             targetHex: 'vs Hex',
             'self-hp-below-50': 'wenn HP <= 50%',
@@ -113,7 +114,7 @@ export function summarizePowerMechanics(mech: PowerMechanics | null | undefined)
     const heal = fmtHealing(mech.healing);
     if (heal) push(heal);
 
-    // Roll / save dice bonuses
+    // Roll dice bonuses
     if (mech.rollDice) {
         const rd = mech.rollDice;
         const at = fmtSigned(rd.attack ?? 0);
@@ -122,15 +123,6 @@ export function summarizePowerMechanics(mech: PowerMechanics | null | undefined)
         if (sk) push(`${sk}d8 Skill`);
         const dm = fmtSigned(rd.damage ?? 0);
         if (dm) push(`${dm}d8 Damage`);
-    }
-    if (mech.saveDice) {
-        const sd = mech.saveDice;
-        const b = fmtSigned(sd.body ?? 0);
-        if (b) push(`${b}d8 Body-Save`);
-        const m = fmtSigned(sd.mind ?? 0);
-        if (m) push(`${m}d8 Mind-Save`);
-        const sp = fmtSigned(sd.spirit ?? 0);
-        if (sp) push(`${sp}d8 Spirit-Save`);
     }
 
     // Damage rider

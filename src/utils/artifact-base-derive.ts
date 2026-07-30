@@ -34,16 +34,28 @@ function stageIndex(level: number): number {
 // ---------------------------------------------------------------------------
 
 const WEAPON_SPECIAL_BASELINE: Record<string, [number, number, number, number]> = {
+  // Instant / qualitative-value Specials
   penetration: [2, 4, 6, 8],
-  expose: [2, 4, 6, 8],
-  corrode: [2, 4, 6, 8],
   push: [2, 4, 6, 8],
-  slow: [2, 4, 6, 8],
-  disrupt: [2, 4, 6, 8],
-  mark: [2, 4, 6, 8],
   precision: [1, 2, 3, 4],
   prone: [1, 2, 3, 4],
   brutalimpact: [3, 5, 7, 9],
+  // Start PP 4
+  lacerate: [2, 4, 6, 8],
+  mark: [2, 4, 6, 8],
+  ruin: [2, 4, 6, 8],
+  slow: [2, 4, 6, 8],
+  // Start PP 6
+  challenge: [1, 3, 4, 6],
+  corrode: [1, 3, 4, 6],
+  hex: [1, 3, 4, 6],
+  sundered: [1, 3, 4, 6],
+  // Start PP 8
+  disoriented: [1, 2, 4, 5],
+  expose: [1, 2, 4, 5],
+  soulburn: [1, 2, 4, 5],
+  weaken: [1, 2, 4, 5],
+  blight: [2, 4, 7, 9],
 };
 
 /** Normalize a Special label/id so "Brutal Impact" / "brutal-impact" all match. */

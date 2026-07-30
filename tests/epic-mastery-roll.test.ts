@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest';
 import {
   buildAttributeRollContext,
   buildDifficultyPresets,
-  buildSaveRollContext,
   buildSkillRollContext,
   getSkillRollDicePool,
 } from '../src/dice/roll-context-build.js';
@@ -113,13 +112,6 @@ describe('buildRollContext', () => {
     expect(ctx!.rollOptions.keepDice).toBe(4);
   });
 
-  it('builds body save using higher attribute', () => {
-    const actor = mockActor();
-    const ctx = buildSaveRollContext(actor, 'body', { baseTN: 32, raises: 0 });
-    expect(ctx!.rollOptions.numDice).toBe(10);
-    expect(ctx!.rollOptions.rollKind).toBe('saveBody');
-    expect(ctx!.rollOptions.isSaveRoll).toBe(true);
-  });
 });
 
 describe('Epic Mastery Roll session helpers', () => {

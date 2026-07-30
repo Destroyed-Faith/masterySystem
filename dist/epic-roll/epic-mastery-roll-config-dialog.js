@@ -7,7 +7,6 @@ import { startEpicMasteryRollSession } from './epic-mastery-roll-session.js';
 import { listEpicRollCandidateActors, saveEpicRollRecentPreset, } from './epic-mastery-roll-settings.js';
 import { resolveActorPortraitSrc, portraitFallbackSrc } from './epic-mastery-roll-portraits.js';
 const ATTRIBUTES = ['might', 'agility', 'vitality', 'intellect', 'resolve', 'influence', 'wits'];
-const SAVE_TYPES = ['body', 'mind', 'spirit'];
 const CHALLENGE_MR_MIN = 2;
 const CHALLENGE_MR_MAX = 8;
 const CHALLENGE_MR_OPTIONS = [2, 3, 4, 5, 6, 7, 8];
@@ -33,7 +32,6 @@ export class EpicMasteryRollConfigDialog extends BaseDialog {
     rollKind = 'skill';
     skillKey = 'athletics';
     attributeKey = 'might';
-    saveType = 'body';
     selectedIds = [];
     preset = null;
     static DEFAULT_OPTIONS = {
@@ -70,8 +68,6 @@ export class EpicMasteryRollConfigDialog extends BaseDialog {
             this.skillKey = preset.roll.skillKey;
         if (preset.roll.kind === 'attribute')
             this.attributeKey = preset.roll.attributeKey;
-        if (preset.roll.kind === 'save')
-            this.saveType = preset.roll.saveType;
         this.selectedIds = [...preset.actorIds];
     }
     async _prepareContext(_options) {
@@ -97,9 +93,7 @@ export class EpicMasteryRollConfigDialog extends BaseDialog {
             rollKind: this.rollKind,
             skillKey: this.skillKey,
             attributeKey: this.attributeKey,
-            saveType: this.saveType,
             attributes: ATTRIBUTES,
-            saveTypes: SAVE_TYPES,
             skills,
             availableActors: allActors.filter((a) => !selectedSet.has(a.id)).map(mapActorRow),
             selectedActors: allActors.filter((a) => selectedSet.has(a.id)).map(mapActorRow),
@@ -161,9 +155,6 @@ export class EpicMasteryRollConfigDialog extends BaseDialog {
         bindInput('[name="emr-attribute-key"]', (el) => {
             this.attributeKey = el.value;
         });
-        bindInput('[name="emr-save-type"]', (el) => {
-            this.saveType = el.value;
-        });
         root.querySelectorAll('[data-action="emr-add-actor"]').forEach((btn) => {
             btn.onclick = (ev) => {
                 ev.preventDefault();
@@ -195,9 +186,6 @@ export class EpicMasteryRollConfigDialog extends BaseDialog {
     buildRollConfig() {
         if (this.rollKind === 'attribute') {
             return { kind: 'attribute', attributeKey: this.attributeKey };
-        }
-        if (this.rollKind === 'save') {
-            return { kind: 'save', saveType: this.saveType };
         }
         return { kind: 'skill', skillKey: this.skillKey };
     }

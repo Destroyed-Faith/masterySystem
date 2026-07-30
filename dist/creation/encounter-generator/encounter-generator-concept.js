@@ -627,7 +627,6 @@ export function deriveConceptPlan(party, concept, rng = Math.random) {
         speed: concept.style === 'environmental' ? 0 : 6,
         attackSlots: actionsPerRound,
         movementSlots: concept.style === 'environmental' ? 0 : 1,
-        saves: { body: mr * 2, mind: mr * 2, spirit: mr * 2 },
         phases: phaseStats,
     };
     const environment = deriveEnvironmentPlan(party, concept, roundBudget);

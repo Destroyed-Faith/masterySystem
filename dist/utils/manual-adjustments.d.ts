@@ -29,11 +29,11 @@ export declare function readManualAdjustments(actor: any): ManualAdjustments;
  * Total bonus for a specific roll kind = `rolls.any` + `rolls[kind]`.
  * Returns zeros when the kind is unknown (e.g. generic rolls).
  */
-export declare function manualRollBonusForKind(adj: ManualAdjustments, kind: 'attack' | 'skill' | 'save' | 'damage' | null | undefined): ManualRollBonus;
+export declare function manualRollBonusForKind(adj: ManualAdjustments, kind: 'attack' | 'skill' | 'damage' | null | undefined): ManualRollBonus;
 /**
  * Normalize the roll-handler's `rollKind` strings
- * (`'attack' | 'skill' | 'saveBody' | 'saveMind' | 'saveSpirit' | ...`)
- * into the manual-adjustments bucket key.
+ * (`'attack' | 'skill' | 'damage' | 'generic'`) into the
+ * manual-adjustments bucket key.
  */
-export declare function manualKindFromRollKind(rollKind: string | null | undefined): 'attack' | 'skill' | 'save' | 'damage' | null;
+export declare function manualKindFromRollKind(rollKind: string | null | undefined): 'attack' | 'skill' | 'damage' | null;
 //# sourceMappingURL=manual-adjustments.d.ts.map

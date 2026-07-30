@@ -8,7 +8,7 @@ export declare const RAISE_INCREMENT = 4;
  * Auto-Raise: the roller may voluntarily shrink their dice pool in exchange
  * for guaranteed Raises. Each Auto-Raise removes this many dice from the pool
  * and grants +1 Raise on success. Applies to skill rolls, attack rolls, and
- * other generic rolls; never to Saving Throws.
+ * other generic rolls.
  */
 export declare const AUTO_RAISE_DICE_COST = 4;
 export declare const MIN_ATTRIBUTE = 0;
@@ -111,11 +111,12 @@ export declare const MR_ADVANCEMENT: {
  * Stone total below 50 (i.e. MR 7 or lower).
  */
 export declare function getDivineScale(totalStones: number): 'Lesser God' | 'True God' | 'High God' | 'Apex God' | null;
-export declare const SAVING_THROWS: {
-    body: string[];
-    mind: string[];
-    spirit: string[];
-};
-export declare const SAVE_DC_BY_MR: Record<number, number>;
+/**
+ * Attribute Check TN by source Mastery Rank (Player's Guide "Attribute Checks
+ * Against Effects"): `TN = 8 × Source Mastery Rank`.
+ */
+export declare const ATTRIBUTE_CHECK_TN_BY_MR: Record<number, number>;
+/** Attribute Check TN = 8 × Source Mastery Rank. */
+export declare function attributeCheckTn(sourceMasteryRank: number): number;
 export declare const ECHO_SPEEDS: Record<string, number>;
 //# sourceMappingURL=constants.d.ts.map

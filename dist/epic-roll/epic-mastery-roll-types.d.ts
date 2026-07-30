@@ -1,9 +1,8 @@
 /**
  * Epic Mastery Roll — shared types.
  */
-import type { SaveCategory } from '../utils/saving-throws.js';
 import type { MasteryRollResult } from '../types/index.js';
-export type EpicRollKind = 'skill' | 'attribute' | 'save';
+export type EpicRollKind = 'skill' | 'attribute';
 export interface EpicTnConfig {
     challengeMR: number;
     baseTN: number;
@@ -17,11 +16,7 @@ export interface EpicAttributeRollConfig {
     kind: 'attribute';
     attributeKey: string;
 }
-export interface EpicSaveRollConfig {
-    kind: 'save';
-    saveType: SaveCategory;
-}
-export type EpicRollConfig = EpicSkillRollConfig | EpicAttributeRollConfig | EpicSaveRollConfig;
+export type EpicRollConfig = EpicSkillRollConfig | EpicAttributeRollConfig;
 export type EpicParticipantStatus = 'pending' | 'awaiting_spend' | 'rolled' | 'skipped';
 export interface EpicParticipant {
     actorId: string;

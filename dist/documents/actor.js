@@ -342,16 +342,6 @@ export class MasteryActor extends Actor {
                 }
             }
         }
-        // Initialize saves tracking for Vitality spending
-        if (!system.saves) {
-            system.saves = { vitalitySpent: 0, vitalityUsesRemaining: 4 };
-        }
-        if (system.saves.vitalityUsesRemaining === undefined) {
-            system.saves.vitalityUsesRemaining = 4;
-        }
-        if (system.saves.vitalitySpent === undefined) {
-            system.saves.vitalitySpent = 0;
-        }
     }
     /**
      * Prepare derived equipment data (armorTotal, evadeTotal, etc.)

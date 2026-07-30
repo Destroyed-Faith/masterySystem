@@ -513,11 +513,6 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
         armor: 0,
         speed: 6
       },
-      savingThrows: {
-        body: 0,
-        mind: 0,
-        spirit: 0
-      },
       npcBaseAttack: {
         name: 'Waffenangriff',
         attackDiceCount: 6,

@@ -14,8 +14,8 @@ describe('artifact-catalog-pick', () => {
   });
 
   it('requires a Special for special aura buffs', () => {
-    expect(catalogTemplateRequiresSpecial('ab-special-aura-start-4')).toBe(true);
-    expect(catalogSpecialKeysForTemplate('ab-special-aura-start-4')).toEqual(
+    expect(catalogTemplateRequiresSpecial('passive-special-aura')).toBe(true);
+    expect(catalogSpecialKeysForTemplate('passive-special-aura')).toEqual(
       expect.arrayContaining(['ruin', 'lacerate']),
     );
   });

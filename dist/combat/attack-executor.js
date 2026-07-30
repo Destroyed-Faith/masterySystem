@@ -151,13 +151,22 @@ function getTargetEvade(targetActor) {
     const buffBonus = Number(combat.evadeFromActiveBuffs ?? 0);
     return base + buffBonus;
 }
-/** Spell Resistance from Ward passives + active buffs (vs Spell-tagged Powers). */
+/** Spell Resistance from Ward passives + active buffs + Intellect stone (vs Spell-tagged Powers). */
 function getTargetSpellResistance(targetActor) {
     if (!targetActor?.system)
         return 0;
     const combat = targetActor.system.combat ?? {};
+    let stoneBonus = 0;
+    try {
+        const rs = targetActor.getFlag?.('mastery-system', 'roundState');
+        stoneBonus = Math.max(0, Math.floor(Number(rs?.stoneBonuses?.spellResistanceBonus ?? 0) || 0));
+    }
+    catch {
+        /* ignore */
+    }
     return Math.max(0, Math.floor(Number(combat.spellResistanceTotal ?? 0) || 0)
-        + Math.floor(Number(combat.spellResistanceFromActiveBuffs ?? 0) || 0));
+        + Math.floor(Number(combat.spellResistanceFromActiveBuffs ?? 0) || 0)
+        + stoneBonus);
 }
 /** True when the wielded weapon (real or artifact-virtual) has the Finesse innate. */
 function weaponHasFinesse(weapon) {

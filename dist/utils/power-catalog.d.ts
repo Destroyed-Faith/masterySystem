@@ -116,7 +116,7 @@ export declare function countPowersByCategory(powers: Iterable<{
     };
 }>): Record<PowerCategory, number>;
 /** Structural mechanics axes used by the secondary "Effect Type" filter. */
-export declare const EFFECT_TYPE_KEYS: readonly ["armor", "evade", "initiativeD8", "regen", "tempHP", "saveDice", "damageRider", "movementBonus"];
+export declare const EFFECT_TYPE_KEYS: readonly ["armor", "evade", "initiativeD8", "regen", "tempHP", "damageRider", "movementBonus"];
 export type EffectTypeKey = typeof EFFECT_TYPE_KEYS[number];
 export declare const EFFECT_TYPE_LABELS: Record<EffectTypeKey, string>;
 /** @deprecated legacy PowerSourceKind retained only for compile compatibility. */

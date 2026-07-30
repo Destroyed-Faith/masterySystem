@@ -508,23 +508,23 @@ const INTELLECT_POWERS_RAW = [
         },
     },
     {
-        id: 'intellect.spellDefense',
-        name: 'Spell Defense',
+        id: 'intellect.spellResistance',
+        name: 'Spell Resistance',
         attribute: 'intellect',
         category: 'passive',
-        description: 'Gain a bonus to Saves against Spells until the start of your next turn (+4 / +8 / +12 / +16).',
+        description: 'Until the start of your next turn, Spells that directly target you increase their TN against you by +4 / +8 / +12 / +16. Does not increase the TN of AoE Spells that include you.',
         tiers: [
-            { label: '+4 Saves vs Spells', description: 'Gain +4 to Saves against Spells until the start of your next turn.', value: 4 },
-            { label: '+8 Saves vs Spells', description: 'Gain +8 to Saves against Spells until the start of your next turn.', value: 8 },
-            { label: '+12 Saves vs Spells', description: 'Gain +12 to Saves against Spells until the start of your next turn.', value: 12 },
-            { label: '+16 Saves vs Spells', description: 'Gain +16 to Saves against Spells until the start of your next turn.', value: 16 },
+            { label: '+4 Spell TN', description: 'Spells that directly target you increase their TN against you by +4 until the start of your next turn.', value: 4 },
+            { label: '+8 Spell TN', description: 'Spells that directly target you increase their TN against you by +8 until the start of your next turn.', value: 8 },
+            { label: '+12 Spell TN', description: 'Spells that directly target you increase their TN against you by +12 until the start of your next turn.', value: 12 },
+            { label: '+16 Spell TN', description: 'Spells that directly target you increase their TN against you by +16 until the start of your next turn.', value: 16 },
         ],
         apply: async ({ actor, tier }) => {
             const combat = game.combat;
             const bonus = [4, 8, 12, 16][tier - 1] ?? 0;
             const roundState = getRoundState(actor, combat);
             const sb = ensureStoneBonuses(roundState);
-            sb.spellSaveBonus = (sb.spellSaveBonus ?? 0) + bonus;
+            sb.spellResistanceBonus = (sb.spellResistanceBonus ?? 0) + bonus;
             await setRoundState(actor, roundState);
         },
     },
@@ -561,17 +561,17 @@ const INTELLECT_POWERS_RAW = [
         name: 'Special Boost',
         attribute: 'intellect',
         category: 'action',
-        description: 'Increase one eligible Special on your Spells this turn by +1 / +2 / +3 / +4. ' +
-            'Eligible Special Effects: Slow, Ruin, Lacerate, Mark, Blight, Regeneration, Weaken.',
+        description: 'Increase one eligible Special on your Spells this turn by +2 / +4 / +8 / +12. ' +
+            'Eligible Special Effects: Slow, Ruin, Lacerate, Mark, Blight, Regeneration, Challenge, Weaken, Soulburn.',
         tiers: [
-            { label: '+1 Special (eligible)', description: 'Increase one eligible Special on your Spells this turn by +1.', value: 1 },
             { label: '+2 Special (eligible)', description: 'Increase one eligible Special on your Spells this turn by +2.', value: 2 },
-            { label: '+3 Special (eligible)', description: 'Increase one eligible Special on your Spells this turn by +3.', value: 3 },
             { label: '+4 Special (eligible)', description: 'Increase one eligible Special on your Spells this turn by +4.', value: 4 },
+            { label: '+8 Special (eligible)', description: 'Increase one eligible Special on your Spells this turn by +8.', value: 8 },
+            { label: '+12 Special (eligible)', description: 'Increase one eligible Special on your Spells this turn by +12.', value: 12 },
         ],
         apply: async ({ actor, tier }) => {
             const combat = game.combat;
-            const bonus = [1, 2, 3, 4][tier - 1] ?? 0;
+            const bonus = [2, 4, 8, 12][tier - 1] ?? 0;
             const roundState = getRoundState(actor, combat);
             const sb = ensureStoneBonuses(roundState);
             sb.spellSpecialBoost = (sb.spellSpecialBoost ?? 0) + bonus;
@@ -638,41 +638,20 @@ const RESOLVE_POWERS_RAW = [
         },
     },
     {
-        id: 'resolve.saveBoost',
-        name: 'Save Boost',
-        attribute: 'resolve',
-        category: 'passive',
-        description: 'Gain a flat bonus to all Saves this round (+2 / +4 / +8 / +12).',
-        tiers: [
-            { label: '+2 Saves', description: 'Gain +2 to all Saves this round.', value: 2 },
-            { label: '+4 Saves', description: 'Gain +4 to all Saves this round.', value: 4 },
-            { label: '+8 Saves', description: 'Gain +8 to all Saves this round.', value: 8 },
-            { label: '+12 Saves', description: 'Gain +12 to all Saves this round.', value: 12 },
-        ],
-        apply: async ({ actor, tier }) => {
-            const combat = game.combat;
-            const bonus = [2, 4, 8, 12][tier - 1] ?? 0;
-            const roundState = getRoundState(actor, combat);
-            const sb = ensureStoneBonuses(roundState);
-            sb.saveAllBonus = (sb.saveAllBonus ?? 0) + bonus;
-            await setRoundState(actor, roundState);
-        },
-    },
-    {
         id: 'resolve.specialReduction',
         name: 'Special Reduction',
         attribute: 'resolve',
         category: 'passive',
-        description: 'Reduce all incoming Special values against you this round (−1 / −2 / −4 / −8). Cannot reduce a Special below 0.',
+        description: 'Reduce all incoming Special values against you this round (−2 / −4 / −8 / −12). Cannot reduce a Special below 0.',
         tiers: [
-            { label: '−1 Specials', description: 'Reduce all incoming Special values against you this round by 1.', value: 1 },
             { label: '−2 Specials', description: 'Reduce all incoming Special values against you this round by 2.', value: 2 },
             { label: '−4 Specials', description: 'Reduce all incoming Special values against you this round by 4.', value: 4 },
             { label: '−8 Specials', description: 'Reduce all incoming Special values against you this round by 8.', value: 8 },
+            { label: '−12 Specials', description: 'Reduce all incoming Special values against you this round by 12.', value: 12 },
         ],
         apply: async ({ actor, tier }) => {
             const combat = game.combat;
-            const bonus = [1, 2, 4, 8][tier - 1] ?? 0;
+            const bonus = [2, 4, 8, 12][tier - 1] ?? 0;
             const roundState = getRoundState(actor, combat);
             const sb = ensureStoneBonuses(roundState);
             sb.incomingSpecialReduction = (sb.incomingSpecialReduction ?? 0) + bonus;

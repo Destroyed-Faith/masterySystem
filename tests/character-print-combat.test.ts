@@ -311,9 +311,9 @@ describe('buildPrintCombatPreview', () => {
   });
 
   it('buildSpellPrintMeta marks character powers flagged as spells', () => {
-    expect(buildSpellPrintMeta({ isSpell: true, castingAttribute: 'resolve', spellResolution: 'saveSpell' })).toEqual({
+    expect(buildSpellPrintMeta({ isSpell: true, castingAttribute: 'resolve', spellResolution: 'spellAttack' })).toEqual({
       isSpell: true,
-      spellLabel: 'Save Spell (Resolve)',
+      spellLabel: 'Spell Attack (Resolve)',
     });
     expect(buildSpellPrintMeta({ isSpell: false })).toEqual({ isSpell: false });
   });

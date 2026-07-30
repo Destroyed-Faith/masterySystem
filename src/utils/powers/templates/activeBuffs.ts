@@ -32,13 +32,6 @@ const AURA_DAMAGE = ['1d8', '1d8', '2d8', '3d8', '4d8', '4d8', '5d8', '5d8', '6d
 const AURA_HEALING = ['1d8', '1d8', '2d8', '3d8', '4d8', '4d8', '5d8', '5d8', '6d8', '7d8', '8d8', '9d8', '10d8', '10d8', '10d8', '11d8'];
 const AURA_SMITE = ['1d8', '1d8', '2d8', '3d8', '4d8', '5d8', '6d8', '6d8', '7d8', '8d8', '9d8', '10d8', '11d8', '12d8', '12d8', '13d8'];
 
-// Special Aura highest-X-that-fits, by Start PP tier (from the SRD cost tables).
-const SA_X_START3 = [3, 5, 6, 8, 9, 10, 11, 11, 11, 12, 13, 14, 14, 15, 15, 15];
-const SA_X_START4 = [2, 4, 5, 6, 7, 8, 9, 9, 10, 10, 11, 12, 12, 13, 13, 13];
-const SA_X_START5 = [2, 4, 5, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11, 11, 12];
-const SA_X_START6 = [2, 3, 4, 5, 6, 7, 7, 7, 8, 8, 9, 9, 10, 10, 10, 11];
-const SA_X_START8 = [1, 3, 4, 4, 5, 6, 6, 6, 7, 7, 8, 8, 8, 9, 9, 9];
-
 // --- Growth Form tables ---
 const GF_ARMOR = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32];
 const GF_EVADE_PEN = [1, 1, 2, 4, 4, 5, 5, 6, 6, 7, 7, 10, 10, 11, 11, 12];
@@ -515,111 +508,8 @@ export const ACTIVE_BUFF_TEMPLATES: PowerTemplate[] = [
             });
         }),
     },
-    {
-        templateId: 'ab-special-aura-start-3',
-        templateName: 'Special Aura (Start PP 3)',
-        name: 'Active Buff: Special Aura, Start PP 3',
-        subfamily: 'aura',
-        category: 'activeBuff',
-        tags: [],
-        fluff: 'You radiate one low-cost diminishing effect, such as blight, sickness, corruption, spores, renewal, growth, or life force. Choose Blight(X) (enemies) or Regeneration(X) (allies).',
-        cost: { action: 'attack' },
-        roll: { kind: 'none' },
-        levels: buildLevels((lvl) => {
-            const r = AURA_BAND_RADIUS[lvl - 1];
-            const x = SA_X_START3[lvl - 1];
-            return activeBuffRow({
-                aoe: { shape: 'aura', radiusM: r, targetFilter: 'enemies', center: 'self' },
-                duration: DURATION_MR_ROUNDS,
-                effectText: `At the end of each of your turns, valid targets within **${r} m** gain **Blight(${x})** or **Regeneration(${x})**, depending on the chosen Special.`,
-                mechanics: { auraPayload: { kind: 'special', x, targets: 'enemies', radiusM: r }, duration: 'masteryRankRounds' },
-            });
-        }),
-    },
-    {
-        templateId: 'ab-special-aura-start-4',
-        templateName: 'Special Aura (Start PP 4)',
-        name: 'Active Buff: Special Aura, Start PP 4',
-        subfamily: 'aura',
-        category: 'activeBuff',
-        tags: [],
-        fluff: 'You radiate one standard diminishing effect, such as laceration, frost, decay, or marked threat. Choose Lacerate(X) / Slow(X) / Ruin(X) / Mark(X).',
-        cost: { action: 'attack' },
-        roll: { kind: 'none' },
-        levels: buildLevels((lvl) => {
-            const r = AURA_BAND_RADIUS[lvl - 1];
-            const x = SA_X_START4[lvl - 1];
-            return activeBuffRow({
-                aoe: { shape: 'aura', radiusM: r, targetFilter: 'enemies', center: 'self' },
-                duration: DURATION_MR_ROUNDS,
-                effectText: `At the end of each of your turns, enemies within **${r} m** gain **Lacerate(${x})** / **Slow(${x})** / **Ruin(${x})** / **Mark(${x})**, depending on the chosen Special.`,
-                mechanics: { auraPayload: { kind: 'special', x, targets: 'enemies', radiusM: r }, duration: 'masteryRankRounds' },
-            });
-        }),
-    },
-    {
-        templateId: 'ab-special-aura-start-5',
-        templateName: 'Special Aura (Start PP 5)',
-        name: 'Active Buff: Special Aura, Start PP 5',
-        subfamily: 'aura',
-        category: 'activeBuff',
-        tags: [],
-        fluff: 'You radiate doubt, sickness, exhaustion, spiritual pressure, crushing presence, or destabilizing magic. Applies Weaken(X) to the chosen Save type.',
-        cost: { action: 'attack' },
-        roll: { kind: 'none' },
-        levels: buildLevels((lvl) => {
-            const r = AURA_BAND_RADIUS[lvl - 1];
-            const x = SA_X_START5[lvl - 1];
-            return activeBuffRow({
-                aoe: { shape: 'aura', radiusM: r, targetFilter: 'enemies', center: 'self' },
-                duration: DURATION_MR_ROUNDS,
-                effectText: `At the end of each of your turns, enemies within **${r} m** gain **Weaken(${x})** to the chosen Save type.`,
-                mechanics: { auraPayload: { kind: 'special', special: 'weaken', x, targets: 'enemies', radiusM: r }, duration: 'masteryRankRounds' },
-            });
-        }),
-    },
-    {
-        templateId: 'ab-special-aura-start-6',
-        templateName: 'Special Aura (Start PP 6)',
-        name: 'Active Buff: Special Aura, Start PP 6',
-        subfamily: 'aura',
-        category: 'activeBuff',
-        tags: [],
-        fluff: 'You radiate one high-pressure diminishing effect, such as corrosion, disruption, soul pressure, spell vulnerability, or physical vulnerability. Choose Corrode(X) / Disrupt(X) / Soulburn(X) / Hex(X) / Sundered(X).',
-        cost: { action: 'attack' },
-        roll: { kind: 'none' },
-        levels: buildLevels((lvl) => {
-            const r = AURA_BAND_RADIUS[lvl - 1];
-            const x = SA_X_START6[lvl - 1];
-            return activeBuffRow({
-                aoe: { shape: 'aura', radiusM: r, targetFilter: 'enemies', center: 'self' },
-                duration: DURATION_MR_ROUNDS,
-                effectText: `At the end of each of your turns, enemies within **${r} m** gain **Corrode(${x})** / **Disrupt(${x})** / **Soulburn(${x})** / **Hex(${x})** / **Sundered(${x})**, depending on the chosen Special.`,
-                mechanics: { auraPayload: { kind: 'special', x, targets: 'enemies', radiusM: r }, duration: 'masteryRankRounds' },
-            });
-        }),
-    },
-    {
-        templateId: 'ab-special-aura-start-8',
-        templateName: 'Special Aura (Start PP 8)',
-        name: 'Active Buff: Special Aura, Start PP 8',
-        subfamily: 'aura',
-        category: 'activeBuff',
-        tags: [],
-        fluff: 'You radiate revealing light, tactical pressure, sensory distortion, vulnerability, or opening force. Applies Expose(X).',
-        cost: { action: 'attack' },
-        roll: { kind: 'none' },
-        levels: buildLevels((lvl) => {
-            const r = AURA_BAND_RADIUS[lvl - 1];
-            const x = SA_X_START8[lvl - 1];
-            return activeBuffRow({
-                aoe: { shape: 'aura', radiusM: r, targetFilter: 'enemies', center: 'self' },
-                duration: DURATION_MR_ROUNDS,
-                effectText: `At the end of each of your turns, enemies within **${r} m** gain **Expose(${x})**.`,
-                mechanics: { auraPayload: { kind: 'special', special: 'expose', x, targets: 'enemies', radiusM: r }, duration: 'masteryRankRounds' },
-            });
-        }),
-    },
+    // Active Buff Auras never apply or increase Specials (Rules/active-buffs.md).
+    // Special interaction is Active Buff: Special Overdrive only; Passive Special Aura lives in passives.
     {
         templateId: 'ab-smite-aura',
         templateName: 'Smite Aura (Artifact Only)',

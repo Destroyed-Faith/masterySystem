@@ -20,7 +20,6 @@
 {{toc,wide
 # Contents
 
-
 ### World & Setting
 
 ---
@@ -42,81 +41,59 @@
 ### Character Creation
 
 ---
-- #### [{{ Mastery System}}{{ 29}}](#p29)
+- #### [{{ Mastery System}}{{ 34}}](#p34)
 ---
-- #### [{{ Character Creation}}{{ 31}}](#p31)
+- #### [{{ Character Creation}}{{ 36}}](#p36)
 ---
-- #### [{{ Attributes}}{{ 32}}](#p32)
+- #### [{{ Attributes}}{{ 37}}](#p37)
 ---
-- #### [{{ Skills}}{{ 35}}](#p35)
+- #### [{{ Skills}}{{ 40}}](#p40)
 ---
-- #### [{{ Choose your Powers}}{{ 52}}](#p52)
+- #### [{{ Choose your Powers}}{{ 60}}](#p60)
 ---
-- #### [{{ Languages}}{{ 54}}](#p54)
+- #### [{{ Languages}}{{ 63}}](#p63)
 ---
-- #### [{{ Schticks}}{{ 55}}](#p55)
+- #### [{{ Schticks}}{{ 64}}](#p64)
 ---
-- #### [{{ Playable Echoes}}{{ 57}}](#p57)
+- #### [{{ Playable Echoes}}{{ 67}}](#p67)
 ---
-- #### [{{ Social Combat}}{{ 76}}](#p76)
+- #### [{{ Social Combat}}{{ 119}}](#p119)
 ---
-- #### [{{ Disadvantages}}{{ 77}}](#p77)
+- #### [{{ Disadvantages}}{{ 122}}](#p122)
+---
+- #### [{{ Finished Character: Alaris}}{{ 131}}](#p131)
 ---
 
 ### Core Rules & Combat
 
 ---
-- #### [{{ Stone Abilities}}{{ 84}}](#p84)
+- #### [{{ Stone Abilities}}{{ 132}}](#p132)
 ---
-- #### [{{ Types of Powers}}{{ 87}}](#p87)
+- #### [{{ Types of Powers}}{{ 136}}](#p136)
 ---
-- #### [{{ Power Tags}}{{ 87}}](#p87)
+- #### [{{ Power Tags}}{{ 136}}](#p136)
 ---
-- #### [{{ Combat Core}}{{ 88}}](#p88)
+- #### [{{ Combat Core}}{{ 137}}](#p137)
 ---
-- #### [{{ Initiative}}{{ 92}}](#p92)
+- #### [{{ Initiative}}{{ 153}}](#p153)
 ---
-- #### [{{ Attacks}}{{ 93}}](#p93)
+- #### [{{ Attacks}}{{ 154}}](#p154)
 ---
-- #### [{{ Evade}}{{ 95}}](#p95)
+- #### [{{ Armor and Shields}}{{ 157}}](#p157)
 ---
-- #### [{{ Armor and Shields}}{{ 96}}](#p96)
+- #### [{{ Attribute Checks Against Effects}}{{ 158}}](#p158)
 ---
-- #### [{{ Saving Throws}}{{ 96}}](#p96)
+- #### [{{ Advantage and Disadvantage}}{{ 159}}](#p159)
 ---
-- #### [{{ Advantage and Disadvantage}}{{ 98}}](#p98)
+- #### [{{ Health & Stress}}{{ 160}}](#p160)
 ---
-- #### [{{ Health & Stress}}{{ 99}}](#p99)
+- #### [{{ Combat Maneuvers}}{{ 165}}](#p165)
 ---
-- #### [{{ Combat Maneuvers}}{{ 104}}](#p104)
+- #### [{{ Rest & Recovery}}{{ 167}}](#p167)
 ---
-- #### [{{ Rest & Recovery}}{{ 107}}](#p107)
+- #### [{{ Progression}}{{ 169}}](#p169)
 ---
-- #### [{{ Progression}}{{ 109}}](#p109)
----
-- #### [{{ Mastery Rank Progression}}{{ 111}}](#p111)
----
-
-### Powers & Magic
-
----
-- #### [{{ Special Effects Reference}}{{ 112}}](#p112)
----
-- #### [{{ Multi-Target Powers}}{{ 115}}](#p115)
----
-- #### [{{ Range Bands}}{{ 116}}](#p116)
----
-- #### [{{ Equipment}}{{ 117}}](#p117)
----
-- #### [{{ Weapons}}{{ 120}}](#p120)
----
-- #### [{{ Magic}}{{ 121}}](#p121)
----
-- #### [{{ Powers}}{{ 123}}](#p123)
----
-- #### [{{ Minor Expressions}}{{ 128}}](#p128)
----
-- #### [{{ Minor Expressions Catalogue}}{{ 130}}](#p130)
+- #### [{{ Mastery Rank Progression}}{{ 172}}](#p172)
 ---
 
 }}
@@ -124,6 +101,24 @@
 \page
 {{pageNumber,auto}}
 {{toc,wide
+
+### Powers & Magic
+
+---
+- #### [{{ Special Effects Reference}}{{ 175}}](#p175)
+---
+- #### [{{ Equipment}}{{ 178}}](#p178)
+---
+- #### [{{ Weapons}}{{ 181}}](#p181)
+---
+- #### [{{ Magic}}{{ 182}}](#p182)
+---
+- #### [{{ Powers}}{{ 185}}](#p185)
+---
+- #### [{{ Minor Expressions}}{{ 191}}](#p191)
+---
+- #### [{{ Minor Expressions Catalogue}}{{ 193}}](#p193)
+---
 
 ### Power Catalogues
 
@@ -142,33 +137,25 @@
 ### Rituals, Summons & Artifacts
 
 ---
-- #### [{{ Rituals}}{{ 142}}](#p142)
+- #### [{{ Rituals}}{{ 205}}](#p205)
 ---
-- #### [{{ Summons & Familiars}}{{ 153}}](#p153)
+- #### [{{ Summons}}{{ 216}}](#p216)
 ---
-- #### [{{ Artifacts}}{{ 156}}](#p156)
----
-- #### [{{ Moonlight Greatsword}}{{ 159}}](#p159)
+- #### [{{ Artifacts}}{{ 220}}](#p220)
 ---
 
 ### Advanced & Optional Systems
 
 ---
-- #### [{{ How to Create your own Mastery Tree - WIP}}{{ 162}}](#p162)
+- #### [{{ Player Cheat Sheet}}{{ 223}}](#p223)
 ---
-- #### [{{ Divine Clash}}{{ 164}}](#p164)
----
-- #### [{{ Player Cheat Sheet}}{{ 167}}](#p167)
----
-- #### [{{ How to Build a Power Rotation}}{{ 169}}](#p169)
----
-- #### [{{ Game System Details}}{{ 173}}](#p173)
+- #### [{{ Game System Details}}{{ 225}}](#p225)
 ---
 
 ### Appendix
 
 ---
-- #### [{{ Appendix — Special Descriptions}}{{ 174}}](#p174)
+- #### [{{ Appendix — Special Descriptions}}{{ 226}}](#p226)
 
 }}
 
@@ -1050,7 +1037,7 @@ Kings claimed to dream of them, priests swore to have seen their wings pass over
 | **Orrondar** | **Pyriel** | *The Judge of Light* | Law, Purity, Fire, Revelation |
 | **Athera** | **Ignariel** | *The Flame of Renewal* | Creation, Change, Wrath, Rebirth |
 | **Velenor** | **Ambriel** | *The Weaver of Stars* | Mind, Dream, Prophecy, Memory |
-| **Astravar** | **Zadkiel** | *The Seraph of Mercy* | Water, Healing , Compassion, Sorrow |
+| **Astravar** | **Zadkiel** | *The Seraph of Mercy* | Water, Healing, Compassion, Sorrow |
 | **Zehrion** | **Korruniel** | *The Voice of the Wind* | Air, Freedom, Storms, Defiance |
 | **Karaveth** | **Uraliel** | *The Keeper of Masks* | Earth, Memory, Secrets, Bargains |
 | **Morrdrak** | **Ezrael** | *The Silent Watcher* | Shadow, Death, Stillness, Passage |
@@ -1946,7 +1933,6 @@ Each decision defines **who you are**, **what drives you**, and **how you face t
 
 }}
 
-
 \page
 {{pageNumber,auto}}
 {{wide
@@ -1975,11 +1961,11 @@ Later progression can push values beyond 8, where raw capacity transcends mortal
 |---|---|---|---|
 | **Might** | Strength and presence of the body | How fully you can turn your will into force and motion. | **Melee Damage** |
 | **Agility** | Reflex, balance, and flow | How purely you move with instinct and momentum. | **Range & Evade** |
-| **Vitality** | Endurance and survival | How strongly your body can hold the spark of life. | — |
-| **Intellect** | Knowledge and arcane structure | How far your mind can reach into the patterns of creation. | **Saving Throw** |
-| **Resolve** | Willpower and inner stability | How fiercely your soul resists corruption and bends reality instead of breaking. | **Stress Armor** |
+| **Vitality** | Endurance and survival | How strongly your body can hold the spark of life. | **Health & Physical Resistance** |
+| **Intellect** | Knowledge and arcane structure | How far your mind can reach into the patterns of creation. | **Mental Analysis & Resistance** |
+| **Resolve** | Willpower and inner stability | How fiercely your soul resists corruption and bends reality instead of breaking. | **Stress Armor & Soul Resistance** |
 | **Influence** | Charisma and presence | How brightly your essence resonates with others and commands the world through emotion. | **Social Skills** |
-| **Wits** | Awareness and reaction | How swiftly your consciousness adapts and shapes events before they unfold. | **Initiative** |
+| **Wits** | Awareness and reaction | How swiftly your consciousness adapts and shapes events before they unfold. | **Initiative & Instinctive Mental Resistance** |
 
 
 ---
@@ -2048,6 +2034,35 @@ They rely on speed, positioning, reactions, and tempo rather than standing still
 This character gains an **Intellect Stone** and a **Resolve Stone**.  
 They are built around spell pressure, resistance, rituals, and Stone options that support casting.
 
+
+}}
+
+\page
+{{pageNumber,auto}}
+{{wide
+
+## Example: Alaris Chooses Her Attributes
+
+Alaris is built as a **mobile melee skirmisher**. She survives through movement, Evade, and Phasing rather than heavy armor, so her highest values support that identity.
+
+| **Attribute** | **Value** | **Why Alaris chooses it** |
+|:--|:--:|:--|
+| **Agility** | **8** | Her primary combat Attribute. It supports Finesse attacks, Evade, and movement-based Skills. |
+| **Vitality** | **8** | Gives her enough Health to remain in melee when an attack does connect. |
+| **Might** | **6** | Keeps her dangerous with a greatsword and supports physical actions. |
+| **Wits** | **6** | Supports awareness, tracking, and fast battlefield decisions. |
+| **Resolve** | **4** | Gives her basic inner stability and supports several social and occult approaches. |
+| **Influence** | **4** | Lets her participate meaningfully in social scenes. |
+| **Intellect** | **2** | Structured analysis and academic spellcasting are not central to this concept. |
+
+Because **Agility** and **Vitality** begin at 8, Alaris gains one **Agility Stone** and one **Vitality Stone**.
+
+<img src="https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/Rulebook/Alaris-Example-Attributes.png" style="display:block; width:365px; margin:10px auto 0 auto;" />
+
+{{note
+##### What this example shows
+Start with the character's intended playstyle, then place the fixed values where they support that playstyle. The lowest Attribute is not a punishment; it identifies what the character is not trying to specialize in.
+}}
 
 }}
 
@@ -2429,7 +2444,7 @@ You sense intent under strain: deception tells, predatory attention, hostile aur
 
 **Focus-Gated Clues:**  
 The GM may rule that certain clues are only available through a specific Focus.  
-Perception answers *“what do you notice?”* , it does not automatically solve *“what does it mean?”* unless your chosen Focus supports that kind of insight.
+Perception answers *“what do you notice?”*, it does not automatically solve *“what does it mean?”* unless your chosen Focus supports that kind of insight.
 
 
 
@@ -3322,6 +3337,31 @@ They are built to understand magic, read people and situations, support the part
 \page
 {{pageNumber,auto}}
 {{wide
+
+## Example: Alaris Selects Her Skills
+
+Alaris chooses Skills that reinforce the Attributes and role she already selected.
+
+- **Melee pressure:** Melee Weapons, Defensive Combat, Combat Reflexes, and Acrobatics.
+- **Travel and scouting:** Perception, Survival, Tracking, Navigation, and Streetwise.
+- **Broader usefulness:** Crafting, Herbalism, Investigation, Persuasion, Etiquette, and Occultism.
+
+Her high Agility and Wits make movement, awareness, and positioning natural strengths. Her smaller investments in social and knowledge Skills ensure that she still has options outside combat.
+
+<img src="https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/Rulebook/Alaris-Example-Skills.png" style="display:block; width:680px; margin:10px auto 0 auto;" />
+
+{{note
+##### What this example shows
+Skills should support the character's existing strengths and provide a few deliberate secondary options. They should not be chosen as an unrelated list of individually useful entries.
+}}
+
+<!-- TODO before public release: confirm Alaris's final 40-point Skill allocation in Foundry. -->
+
+}}
+
+\page
+{{pageNumber,auto}}
+{{wide
 ## Choose your Powers
 
 Powers are the abilities that define how your character acts in play.
@@ -3437,6 +3477,29 @@ For examples, templates, and detailed build guidance, use the external Power Cat
 
 
 }}
+\page
+{{pageNumber,auto}}
+{{wide
+
+## Example: Alaris Chooses Her Powers
+
+Alaris uses the standard starting package: **two Actives at Rank 2**, plus **two Passives**, **one Active Buff**, and **one Reaction** at Rank 4.
+
+| **Power** | **Rank** | **Role in the build** |
+|:--|:--:|:--|
+| **Melee Single Attack** | **2** | Reliable direct weapon damage. |
+| **Melee Damage - Sundered(4)** | **2** | Damages a target and prepares it for later non-Spell attacks. |
+| **Passive: Evade** | **4** | Raises her everyday defense against direct attacks. |
+| **Passive: Ghostform** | **4** | Establishes Phasing at the start of combat. |
+| **Active Buff: Phasing** | **4** | Reinforces that Phasing defense during difficult fights. |
+| **Reaction: Phasing** | **4** | Provides an immediate answer to a decisive hit. |
+
+<img src="https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/Rulebook/Alaris-Example-Powers.png" style="display:block; width:680px; margin:10px auto 0 auto;" />
+
+The two Actives give Alaris a choice between immediate damage and preparing a target for the group. Her defensive Powers then commit to one clear identity: **Evade handles ordinary pressure, while Phasing protects her from the hits that matter most.**
+
+}}
+
 \page
 {{pageNumber,auto}}
 {{wide
@@ -3594,6 +3657,35 @@ They show the expected scale of Schticks at each Rank.
 {{pageNumber,auto}}
 {{wide
 
+## Example: Alaris Chooses Languages and Schticks
+
+Every character speaks the **Common Tongue** and chooses one additional language. Alaris chooses **Elvish**, connecting her directly to Elorian history, communities, and surviving traditions.
+
+Alaris is Mastery Rank 2 and therefore chooses two Schticks. Both are purely descriptive and grant no concealment, teleportation, movement, or defensive benefit.
+
+### Between the Steps
+
+Sometimes Alaris appears to vanish for the smallest part of a movement. An observer sees where the step begins and where it ends, but a fragment between those moments seems to be missing from reality.
+
+### The Six Within
+
+When Alaris channels one of her Powers, her eyes become completely black. Anyone looking closely can see the **Six Constants** burning faintly inside them like distant stars.
+
+<img src="https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/Rulebook/Alaris-Example-Identity.png" style="display:block; width:680px; margin:14px auto 0 auto;" />
+
+{{note
+##### What this example shows
+A Schtick should make a character recognizable without duplicating a Power as a free mechanical benefit.
+}}
+
+<!-- TODO before public release: confirm Alaris's second language with Leafy. -->
+
+}}
+
+\page
+{{pageNumber,auto}}
+{{wide
+
 
 ## Playable Echoes
 :
@@ -3628,6 +3720,25 @@ You can choose from the following Echoes:
 ---
 }}
 
+
+\page
+{{pageNumber,auto}}
+{{wide
+
+## Example: Alaris Chooses Her Echo
+
+Alaris chooses the **Elorian (Elf) Echo**. It supports the same identity already established by her Attributes and Powers: grace, difficult movement, and remaining hard to pin down.
+
+Her Echo Card is **Unseen Grace**. Depending on her approach, it may interact with Acrobatics, Stealth, Concealment, or Sleight of Hand. Her **Bounding Leap** Minor Expression reinforces the same theme by helping her cross small gaps, wall edges, and changes in height.
+
+<img src="https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/Rulebook/Alaris-Example-Echo.png" style="display:block; width:680px; margin:10px auto 0 auto;" />
+
+{{note
+##### Echo choice in practice
+An Echo should support both the fiction and the ways a character approaches scenes. Alaris is a greatsword fighter, but her Echo also makes her distinctive during infiltration, travel, and exploration.
+}}
+
+}}
 
 \page
 {{pageNumber,auto}}
@@ -4275,7 +4386,7 @@ Elorian Stride is an Elf Echo Artifact representing otherworldly balance, reflex
 
 | Slot | Base Type | Artifact Functions | Binding |
 |---|---|---|---|
-| Feet | Elorian Feet | Evade / Clinging / Otherworld Reflex / Elorian Cling /  Focus | Echo-bound |
+| Feet | Elorian Feet | Evade / Clinging / Otherworld Reflex / Elorian Cling / Focus | Echo-bound |
 
 ---
 
@@ -4536,8 +4647,8 @@ Now you must decide what justice means without the gods.
 
 ---
 :
-| **Creature Type** | **Size** | **Speed** |
-|:--|:--:|:--:|
+| **Echo** | **Creature Type** | **Size** | **Speed** | **Required Echo Artifacts at Character Creation** | **Maximum Echo Artifacts at Character Creation** | **Free Artifact Capacity Left** |
+|:--|:--|:--:|:--:|:--:|:--:|:--:|
 | **Sentinel** | Humanoid | Medium | 8 m | 1 | 1 | 3 |
 
 ---
@@ -4614,7 +4725,7 @@ Sentinels endure through structure, plating, protocols, and stored Stones.
 | **4** | **Oracle Field III** | Active Buff Upgrade | Self | Radius 6 m | Mastery Rank Rounds | You and allies in the area gain **+9 Armor**. | Armor Aura |
 | **5** | **Oracle Aid II** | Stone Power Support | Self | — | Instant | Oracle Frame pre-fills **Tier 3** of the **Influence Ability: Aid Roll** Stone Power. You must still pay Tier 1 and Tier 2 yourself. If Tier 1 and Tier 2 are not paid, the pre-filled Tier 3 has no effect. | Aid Roll Stone Power |
 | **6** | **Influence Core II** | Stone Pool | Self | — | Passive | After each Safe Haven Rest, Oracle Frame stores **4 Influence Stones**. These Stones may only be used for Oracle Frame's listed Influence Stone functions. | Influence Stones |
-|| **7** | **Oracle Field V** | Active Buff Upgrade | Self | Radius 10 m | Mastery Rank Rounds | You and allies in the area gain **+15 Armor**. | Armor Aura |
+| **7** | **Oracle Field V** | Active Buff Upgrade | Self | Radius 10 m | Mastery Rank Rounds | You and allies in the area gain **+15 Armor**. | Armor Aura |
 | **8** | **Oracle Aid III** | Stone Power Support | Self | — | Instant | Oracle Frame pre-fills **Tier 4** of the **Influence Ability: Aid Roll** Stone Power. You must still pay Tier 1, Tier 2, and Tier 3 yourself. If Tier 1, Tier 2, and Tier 3 are not paid, the pre-filled Tier 4 has no effect. | Aid Roll Stone Power |
 | **9** | **Influence Core III** | Stone Pool | Self | — | Passive | After each Safe Haven Rest, Oracle Frame stores **8 Influence Stones**. These Stones may only be used for Oracle Frame's listed Influence Stone functions. | Influence Stones |
 | **10** | **True Oracle Frame** | Ultimate | Self | — | Special | Once per Safe Haven Rest, when you use **Aid Roll** through Oracle Frame, you may treat one required lower Tier as already paid. | Aid Roll Stone Power |
@@ -5344,7 +5455,7 @@ Choose one Breath Shape when this Artifact is created.
 
 Choose one Breath Special when this Artifact is created:
 
-**Ruin, Slow, Disrupt, Corrode, Blight, or Soulburn.**
+**Ruin, Slow, Corrode, or Blight.**
 
 Resolve Breath Weapon as a Martial AoE attack. Resolve Breath Weapon as a Martial AoE Attack. Make one Attack Roll against the Area TN based on the user’s Mastery Rank. On a success, every valid non-excluded target inside the Breath Shape receives the full Breath Weapon payload. Individual Evade values do not modify the Area TN.
 
@@ -6093,7 +6204,7 @@ They stand between the living world and the things that would harvest it.
 
 | Slot | Base Type | Artifact Functions | Binding |
 |---|---|---|---|
-| Body | Medium Armor | Armor / Thorns Active Buff / Ally Armor Reaction / Save Boost Stone Power Support | Echo-bound |
+| Body | Medium Armor | Armor / Thorns Active Buff / Ally Armor Reaction / Special Reduction Stone Power Support | Echo-bound |
 
 Green Warden Mantle occupies the Body Slot.
 
@@ -6171,7 +6282,7 @@ It is not an Active Buff.
 
 ### Green Warden Stone
 
-Green Warden Mantle supports the **Resolve Ability: Save Boost** Stone Power.
+Green Warden Mantle supports the **Resolve Ability: Special Reduction** Stone Power.
 
 The Mantle pre-fills higher tiers of that Stone Power through its Level Progression.
 
@@ -6188,14 +6299,14 @@ The character must still pay all required lower tiers normally.
 |:--:|:--|:--|:--:|:--:|:--:|:--|:--|
 | **1** | **Thorns I** | Active Buff | Self | Special | Mastery Rank Rounds | Use the normal **Thorns Active Buff** at **Power Level 4**. | Thorns |
 | **2** | **Warden's Guard I** | Reaction | Ally Range | — | Triggering hit or damage instance only | Use the normal **Reaction: Ally Armor** at **Power Level 4**. | Ally Armor |
-| **3** | **Green Warden Stone I** | Stone Power Support | Self | — | Instant | Green Warden Mantle supports the **Resolve Ability: Save Boost** Stone Power and pre-fills **Tier 2**. You must still pay Tier 1 yourself. If Tier 1 is not paid, the pre-filled Tier 2 has no effect. | Save Boost |
+| **3** | **Green Warden Stone I** | Stone Power Support | Self | — | Instant | Green Warden Mantle supports the **Resolve Ability: Special Reduction** Stone Power and pre-fills **Tier 2**. You must still pay Tier 1 yourself. If Tier 1 is not paid, the pre-filled Tier 2 has no effect. | Special Reduction |
 | **4** | **Thorns II** | Active Buff | Self | Special | Mastery Rank Rounds | Use the normal **Thorns Active Buff** at **Power Level 10**. | Thorns |
 | **5** | **Warden's Guard II** | Reaction | Ally Range | — | Triggering hit or damage instance only | Use the normal **Reaction: Ally Armor** at **Power Level 10**. | Ally Armor |
-| **6** | **Green Warden Stone II** | Stone Power Support | Self | — | Instant | Green Warden Mantle now pre-fills **Tier 3** of the **Resolve Ability: Save Boost** Stone Power. You must still pay Tier 1 and Tier 2 yourself. If the lower tiers are not paid, the pre-filled Tier 3 has no effect. | Save Boost |
+| **6** | **Green Warden Stone II** | Stone Power Support | Self | — | Instant | Green Warden Mantle now pre-fills **Tier 3** of the **Resolve Ability: Special Reduction** Stone Power. You must still pay Tier 1 and Tier 2 yourself. If the lower tiers are not paid, the pre-filled Tier 3 has no effect. | Special Reduction |
 | **7** | **Thorns III** | Active Buff | Self | Special | Mastery Rank Rounds | Use the normal **Thorns Active Buff** at **Power Level 16**. | Thorns |
 | **8** | **Warden's Guard III** | Reaction | Ally Range | — | Triggering hit or damage instance only | Use the normal **Reaction: Ally Armor** at **Power Level 16**. | Ally Armor |
-| **9** | **Green Warden Stone III** | Stone Power Support | Self | — | Instant | Green Warden Mantle now pre-fills **Tier 4** of the **Resolve Ability: Save Boost** Stone Power. You must still pay Tier 1, Tier 2, and Tier 3 yourself. If the lower tiers are not paid, the pre-filled Tier 4 has no effect. | Save Boost |
-| **10** | **True Green Warden Mantle** | Ultimate | Self | — | Special | Green Warden Mantle fully awakens. Choose or define one final Armor, Thorns, Ally Armor, Save Boost, forest protection, root, bark, beast, or Green Warden effect with GM approval. | True Green Warden Mantle |
+| **9** | **Green Warden Stone III** | Stone Power Support | Self | — | Instant | Green Warden Mantle now pre-fills **Tier 4** of the **Resolve Ability: Special Reduction** Stone Power. You must still pay Tier 1, Tier 2, and Tier 3 yourself. If the lower tiers are not paid, the pre-filled Tier 4 has no effect. | Special Reduction |
+| **10** | **True Green Warden Mantle** | Ultimate | Self | — | Special | Green Warden Mantle fully awakens. Choose or define one final Armor, Thorns, Ally Armor, Special Reduction, forest protection, root, bark, beast, or Green Warden effect with GM approval. | True Green Warden Mantle |
 
 ---
 
@@ -6273,11 +6384,11 @@ It keeps **Finesse** and **Reach (+1 m)** from the Base Weapon.
 
 ### Hunter's Scourge Damage
 
-| Artifact Level | Base Value A: Scourge Damage |Base Value B: Reach |
+| Artifact Level | Base Value A: Scourge Damage | Base Value B: Reach |
 |---:|---:|---:|
-| Level 1 | 4d8 |
-| Level 2 | 5d8 |
-| Level 3 | 6d8 |
+| Level 1 | 4d8 | — |
+| Level 2 | 5d8 | — |
+| Level 3 | 6d8 | — |
 | Level 4 | 7d8 |+1 m |
 | Level 5 | 8d8 |+1 m |
 | Level 6 | 9d8 | +2 m |
@@ -7240,7 +7351,6 @@ If you have **Vulnerability: Ruin(2)** and an enemy applies **Ruin(3)** to you, 
 | **Ruin(X)** | When Ruin is applied to you, increase its value by your Vulnerability value. |
 | **Slow(X)** | When Slow is applied to you, increase its value by your Vulnerability value. |
 | **Hex(X)** | When Hex is applied to you, increase its value by your Vulnerability value. |
-| **Disrupt(X)** | When Disrupt is applied to you, increase its value by your Vulnerability value. |
 
 ---
 
@@ -7330,6 +7440,66 @@ They only show how Disadvantages can create pressure, story hooks, and Reroll Po
 
 **Total:** **8 Points**
 
+
+}}
+
+\page
+{{pageNumber,auto}}
+{{wide
+
+## Example: Alaris Chooses Disadvantages
+
+Alaris takes the full **8 Disadvantage Points**. Those points become her maximum Reroll Points, but every choice also creates a real complication.
+
+| **Disadvantage** | **Points** | **How it matters** |
+|:--|:--:|:--|
+| **Lost Love: Liora** | **3** | Her connection to Liora can override caution or immediate priorities. |
+| **Light Sleeper** | **2** | Rest becomes fragile in unsafe or unfamiliar places. |
+| **Nightmares** | **1** | Sleep may return her to memories, omens, or images she cannot control. |
+| **Vegetarian** | **2** | Scarcity can turn a personal conviction into a survival problem. |
+
+<img src="https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/Rulebook/Alaris-Example-Disadvantages.png" style="display:block; width:680px; margin:10px auto 0 auto;" />
+
+{{note
+##### What this example shows
+A useful Disadvantage creates decisions and story pressure. It should not exist only to generate Reroll Points.
+}}
+
+}}
+
+\page
+{{pageNumber,auto}}
+{{wide
+
+## The Finished Character: Alaris
+
+The final character should read as one connected plan rather than a collection of unrelated high values.
+
+| **Final element** | **Alaris** |
+|:--|:--|
+| **Mastery Rank** | 2 |
+| **Core role** | Mobile melee skirmisher |
+| **Total Evade** | 17 from the MR baseline and her artifacts |
+| **Armor** | 2 from Mastery Rank soak |
+| **Health per Bar** | 16 from Vitality 8 x 2 |
+| **Stress capacity** | 6 from Resolve 4 + Intellect 2 |
+| **Main weapon** | Moonlight Greatsword: 5d8, Finesse, Precision(2) |
+| **Awakened Stones** | Agility 1 and Vitality 1 |
+
+### Her combat rhythm
+
+1. Reach a useful melee position through normal movement, Bounding Leap, or an Agility Stone option.
+2. Choose between direct damage and applying Sundered for the group.
+3. Let high Evade answer ordinary direct attacks.
+4. Reserve Phasing for the most dangerous hits.
+5. Spend Stones when movement, survival, or Special removal cannot wait.
+
+<img src="https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/Rulebook/Alaris-Example-Finished.png" style="display:block; width:680px; margin:10px auto 0 auto;" />
+
+{{note
+##### What the complete example teaches
+A strong Mastery character does not need to cover every role. Alaris has a clear offensive purpose, a clear defensive plan, and several supporting choices that express the same identity.
+}}
 
 }}
 
@@ -7465,7 +7635,7 @@ If a Stone Power states “cumulative per combat”, the doubling cost persists 
 
 ---
 **Eligible Specials for Special Boost:**  
-**Slow, Ruin, Lacerate, Mark, Blight, Regeneration, Weaken.**
+**Slow, Ruin, Lacerate, Mark, Blight, Regeneration, Challenge, Weaken, Soulburn.**
 Special Boost cannot increase any other Special.
 
 ---
@@ -7476,7 +7646,6 @@ Special Boost cannot increase any other Special.
 |:--|:--|:--|:--|:--|
 | **Healing** | You or one ally within **2m** heals **4d8 HP** in their current Health Bar. | You or one ally within **4m** heals **8d8 HP** in their current Health Bar. | You or one ally within **8m** heals **12d8 HP** in their current Health Bar.  | You or one ally within **16m** heals **16d8 HP** in their current Health Bar.  |
 | **Damage Reduction Boost** | — | Increase your existing **Damage Reduction** by **+10%** until the start of your next turn. | Increase it by **+20%** until the start of your next turn. | Increase it by **+30%** until the start of your next turn. |
-| **Save Boost** | Gain **+2** to all Saves this round. | Gain **+4** to all Saves this round. | Gain **+8** to all Saves this round. | Gain **+12** to all Saves this round. |
 | **Special Reduction** | Reduce all incoming Special values against you this round by **2**. | Reduce them by **4**. | Reduce them by **8**. | Reduce them by **12**. |
 
 ---
@@ -8549,9 +8718,11 @@ Roll the remaining Attack or Spell Pool, resolve exploding dice, keep the approp
 
 After an Attack successfully hits, but before its damage, Specials, or other hit effects are applied, the target may use an eligible Phasing effect. If the hit is ignored through Phasing, no damage is rolled, no Specials are applied, and no other effect requiring the hit is resolved against that target.
 
-#### 8. Resolve Saves and Hit Effects
+#### 8. Resolve Hit Effects
 
-Resolve any Saving Throws required by the successful hit, followed by forced movement, control effects, conditions, and other hit effects according to their individual rules. If a successful Save prevents an effect entirely, Ward and Cleanse are not required against that effect.
+Resolve forced movement, control effects, conditions, and other hit effects according to their individual rules.
+
+A successful Attack, Spell, or AoE does not automatically trigger a second defensive roll. A later Attribute Check occurs only if the effect explicitly grants a break attempt, disbelief attempt, or another separately timed response.
 
 
 }}
@@ -8648,111 +8819,61 @@ Ongoing Special damage usually ignores Armor.
 \page
 {{pageNumber,auto}}
 {{wide
-## Saving Throws
+## Attribute Checks Against Effects
 
-Saving Throws are defensive rolls against specific Power effects.
+Resistance is resolved through explicitly named Attribute Checks. There is no separate universal defensive roll category.
 
-The following effects require a Saving Throw:
-
-- **Push**
-- **Pull**
-- **Knockback**
-- **Prone**
-- **Root**
-- **Disarm**
-- **Stunned**
-
-When one of these effects is added to a Power, the Power must choose one Saving Throw:
-
-- **Body Save**
-- **Mind Save**
-- **Spirit Save**
-
-The chosen Save is part of the Power's rules text and cannot be changed during play.
-
-The player must explain why the Power uses that Save.
-
-The GM may reject a Save choice if the explanation does not fit the Power.
-
-Examples:
-
-A shockwave that throws a creature back may use **Body Save**.
-
-A hallucination that makes a creature stumble backward may use **Mind Save**.
-
-A divine command that forces a creature to its knees may use **Spirit Save**.
+When a rule gives a creature a chance to resist, endure, disbelieve, or break an effect, that rule names the exact Attribute to roll.
 
 ---
 
-### Fixed Save Effects
+### Resistance Attributes
 
-Some Powers always use a specific Save.
+| **What is being resisted** | **Attribute** |
+|:--|:--|
+| Bodily endurance, poison, disease, pain, physical collapse, or effects that test whether the body holds together | **Vitality** |
+| Corruption, possession, divine or demonic pressure, soul binding, or effects directed at the soul | **Resolve** |
+| Structured thought, memory, logic, mental analysis, or recognizing a constructed contradiction | **Intellect** |
+| Immediate awareness, instinct, sensory doubt, mental intrusion, or noticing that perception has been manipulated | **Wits** |
 
-| **Power Type** | **Save** |
-|---|---|
-| **Mental Attack** | Mind Save |
-| **Mind Illusion** | Mind Save |
-| **Demon Power** | Spirit Save |
-| **Divine Power** | Spirit Save |
+**Might, Agility, and Influence are not resistance Attributes.** They are not used to resist hostile effects unless a rule is clearly resolving a different kind of action rather than resistance.
 
-Mental Attack and Mind Illusion Powers always use **Mind Save**.
-
-Demon Powers and Divine Powers always use **Spirit Save**.
+A Power must name **Vitality**, **Resolve**, **Intellect**, or **Wits** directly. It never lists Body, Mind, or Spirit as a roll category.
 
 ---
 
-### Save Results and Repeated Saves
+### Attribute Check Resolution
 
-If a Power calls for a Saving Throw, the target makes the listed Save.
+When an effect calls for an Attribute Check:
 
-On a success, the target ignores the effect that required the Save.
+1. Roll dice equal to the named Attribute.
+2. Keep dice equal to your Mastery Rank.
+3. Apply normal Pool modifiers unless the effect says otherwise.
+4. Compare the result to the TN stated by the effect.
 
-On a failure, the target suffers the full effect.
+Skill Points do not apply unless the rule explicitly names a Skill Check.
 
-Ongoing effects repeat the Saving Throw at the end of each affected creature's turn until the effect ends.
+There is no Vitality Reserve expenditure, and no universal reroll or automatic-success mechanic for these checks.
 
+If a hostile effect calls for an Attribute Check but does not state a TN, use:
 
----
-}}
-
-\page
-{{pageNumber,auto}}
-{{wide
-### Spending Vitality on Saves
-
-Vitality is a limited resource that can be spent after rolling a Save.
-
-You may spend Vitality up to **four times** between Safe Haven Rests.
-
-When you spend Vitality:
-
-- you may spend 0 Vitality,
-- if you spend Vitality, you must spend at least your Mastery Rank,
-- you may spend more in Mastery Rank steps,
-- or you may spend your entire remaining Vitality as an all-in option.
-
-The final Save result is:
-
-`Save Roll + Spent Vitality`
-
-Spent Vitality returns after a Safe Haven Rest.
+`Attribute Check TN = 8 × Source Mastery Rank`
 
 ---
 
-### Save DC
+### No Automatic Second Roll
 
-The Save DC is based on the source’s Mastery Rank.
+A successful Attack, Spell, or AoE normally resolves its full listed payload.
 
-| **Source Mastery** | **Save DC** |
-|:--:|:--:|
-| MR 1 | 8 |
-| MR 2 | 16 |
-| MR 3 | 24 |
-| MR 4 | 32 |
-| MR 5 | 40 |
-| MR 6 | 48 |
-| MR 7 | 56 |
-| MR 8 | 64 |
+Push, Pull, Knockback, Prone, Root, Disarm, and Stunned do not automatically grant an Attribute Check. Ongoing effects do not automatically grant repeated checks.
+
+An Attribute Check is used only when a rule explicitly creates a separately timed response, such as:
+
+- spending an Action to inspect an illusion,
+- attempting to break a mental or spiritual binding,
+- resisting unwilling telepathic contact,
+- making a Death Check,
+- or resolving a Stress Breakdown Check.
 
 
 ---
@@ -8813,13 +8934,13 @@ Each Health Bar represents a deeper stage of injury.
 
 #### Determining Health Bars
 
-Everyone has five Health Levels.
+Everyone has five Health Bars.
 
 Each Health Bar has:
 
 <strong>Vitality × 2</strong> boxes.
 
-The final level is **Incapacitated** and has only one box.
+After all five Health Bars are depleted, the character enters the **Incapacitated** state, which is represented by one final box.
 
 <ul style="margin-top:0; padding-left: 1.2em;">
   <li><strong>Active Health Bar:</strong> the highest Health Bar that is not Scarred.</li>
@@ -8841,7 +8962,7 @@ Health penalties reduce the number of dice you roll.
 
 Round dice loss down, minimum 0.
 
-Applies to attacks, skills, saves, spells, rituals, and initiative.  
+Applies to attacks, Attribute Checks, Skill Checks, spells, rituals, and initiative.  
 Does not reduce damage dice unless a rule explicitly says so.
 
 ---
@@ -8853,14 +8974,14 @@ When multiple rules modify a dice pool, apply them in this order:
 1. Start with the relevant Attribute.
 2. Apply Skill training rules.
    - If the Skill is trained enough, use the full Attribute pool.
-   - If the Skill is too low, use half the Attribute pool.
-   - Apply the Minimum Pool Rule if needed.
-3. Apply range, armor, environmental, or situational pool reductions.
-4. Apply Health Penalty as a percentage of the remaining usable pool.
-5. Apply temporary bonuses or penalties from Powers, Stones, Buffs, Specials, or other effects.
-6. Roll the final pool and keep dice equal to Mastery Rank, unless a rule modifies Keep.
+   - If the Skill is too low, use half the Attribute pool, rounded down.
+3. Apply all flat pool changes from range, environment, Powers, Stones, Buffs, Specials, or other effects. This includes **Weaken** and **Soulburn**.
+4. Apply the current percentage-based **Health Penalty** to the remaining pool.
+5. Round the number of dice lost to the Health Penalty down.
+6. Apply the final **Minimum Pool Rule**: the pool cannot be reduced below your **Mastery Rank**.
+7. Roll the final pool and keep dice equal to Mastery Rank, unless a rule explicitly modifies Keep.
 
-Health Penalty is applied late because injury weakens what the character can actually bring into the moment.
+Flat pool reductions are applied before the percentage-based Health Penalty. If multiple flat reductions apply to the same roll, add them together before calculating the Health Penalty.
 
 ---
 }}
@@ -8904,19 +9025,17 @@ Each normal Health Bar has:
 
 #### Pool Reduction Example
 
-A character has **Agility 16**, **Mastery Rank 3**, and is making a **Stealth** check.
-
-Their Stealth Skill is too low for full pool use.
+A character has **Agility 16**, **Mastery Rank 3**, and is making a **Stealth** check. Their Stealth Skill is high enough to use the full Attribute Pool, but they are affected by **Weaken(4)** and are currently **Injured**.
 
 1. Attribute Pool = 16  
-2. Skill too low → half pool = 8  
-3. No other reductions apply  
-4. The character is **Injured** → −20% of 8 = −1 die  
-5. Final Pool = **7k3**
+2. Skill trained enough → full pool = 16  
+3. Weaken(4) removes 4 dice → 12 dice remain  
+4. Injured Health Penalty removes 20% of 12 → lose 2 dice  
+5. Final Pool = **10k3**
 
-If the same character were **Wounded**, the penalty would be −40% of 8 = −3 dice.
+If the same character were **Wounded**, the 40% Health Penalty would remove 4 dice from the post-Weaken pool of 12.
 
-Final Pool = **5k3**
+Final Pool = **8k3**
 
 ---
 
@@ -8945,7 +9064,7 @@ You are now **Incapacitated**.
 - You fall **Prone**.
 - You cannot take **Actions, Reactions, or Movement**.
 - You begin with **0 Death Marks**.
-- At the end of each of your turns, the GM rolls your **Death Save**.
+- At the end of each of your turns, the GM rolls your **Death Check**.
   *(The roll may be kept secret for dramatic effect.)*
 
 }}
@@ -8956,12 +9075,23 @@ You are now **Incapacitated**.
 {{wide
 
 
-### Death Saves
-Roll **Vitality**, keep dice equal to your **Mastery Rank**.
+### Death Check
+Use the higher of your **Vitality** or **Resolve**.
+
+Roll dice equal to that Attribute and keep dice equal to your **Mastery Rank**.
+
+`Death Check TN = 8 × your Mastery Rank`
+
+A Death Check is a special Attribute Check.
+
+- Skill Points cannot be spent on it.
+- Vitality cannot be spent after the roll.
+- Health penalties do not reduce the Death Check Pool.
+- Only an effect that explicitly modifies Death Checks can change the result.
 
 | Result | Effect |
 |:--|:--|
-| **Success** | You remain stable mark **1 Success**. |
+| **Success** | You remain Incapacitated and mark **1 Success**. |
 | **Failure** | You gain **1 Death Mark** (Failure). |
 
 Track both <strong>Successes</strong> and <strong>Death Marks</strong> separately:
@@ -8974,8 +9104,8 @@ Track both <strong>Successes</strong> and <strong>Death Marks</strong> separatel
 Once <strong>4 Successes</strong> are reached or an ally stabilizes you, you are <strong>Stable</strong>.
 <ul style="margin-top:0; padding-left: 1.2em;">
   <li>You remain <strong>Unconscious</strong> at <strong>0 Health Bars</strong>.</li>
-  <li>You no longer roll Death Saves.</li>
-  <li>You awaken at <strong>0 boxes</strong> but become conscious and stable; only healing/rest restores boxes.</li>
+  <li>You no longer roll Death Checks.</li>
+  <li>You remain at <strong>0 boxes</strong> and do not awaken until healing or recovery restores you.</li>
   <li>If you receive <strong>any healing</strong>, you wake <strong>immediately</strong> with that amount restored.</li>
 </ul>
 
@@ -9005,7 +9135,7 @@ Stress mirrors Health, but breaking the mind doesn’t kill you, it imposes ment
 
 #### Example
 
-Someone with a 3 Resolve and 5 Intellect would have the following health levels
+Someone with **Resolve 3** and **Intellect 5** has the following Stress Levels.
 
 ---
 :
@@ -9042,9 +9172,13 @@ Some Stone Powers or Mastery Tree allow you to heal Stress instead of HP.
 - Stress Healing cannot “reset” a full bar, but it can reduce Stress within the current bar.
 
 
-### Stress & Mind Saves
+### Stress Breakdown Check
 
-Whenever your Stress Track fills up all bars, you must make a **Mind Saving Throw**. The TN is the same then every Saving Throw and is defined by you mastery rank.
+Whenever your Stress Track fills all bars, make a **Wits Attribute Check** and keep dice equal to your Mastery Rank.
+
+`Stress Breakdown TN = 8 × your Mastery Rank`
+
+Skill Points and Vitality expenditure do not apply.
 
 #### Results
 - **Success (Virtue)** → You reset your Stress Track back to *Clear* and gain a short burst of clarity or courage. For the next action you gain another die to keep to your roll. 
@@ -9689,7 +9823,7 @@ Because of this, reaching MR6 or higher should require a very long campaign, maj
 This section summarizes all **Special Effects** by **how they work mechanically**.
 
 ---
-Specials do not allow an automatic Saving Throw when applied.
+Specials do not grant an automatic Attribute Check when applied.
 
 ---
 If a Power hits or a Spell is successfully cast, its Specials apply.
@@ -9726,8 +9860,9 @@ Most entries fall into one of these types:
 
 #### Cleanse(X)
 
-Choose one ongoing effect on a creature and reduce it by **X**. If the effect reaches **0**, it ends. 
-Cleanse can only reduce effects that list **Cleanse: Yes**.
+Choose one ongoing Special on a creature and reduce that Special by **X**. If the Special reaches **0**, it ends.
+
+Cleanse can only reduce Specials that list **Cleanse: Yes**. The value of one Cleanse(X) cannot be divided between multiple Specials.
 
 ---
 }}
@@ -9745,36 +9880,34 @@ Cleanse can only reduce effects that list **Cleanse: Yes**.
 | **Effect** | **What It Does** | **Stacking** | **Cleanse** |
 |:--|:--|:--:|:--:|
 | **Blight(X)** | While affected, healing you receive is reduced by **X**. At Tick, take **X Stress**. | Yes | Yes |
+| **Challenge(X)** | Challenge is bound to the creature that applied it. Attack Pools for attacks that do **not** include that creature as a target are reduced by **X**, to a minimum of your **Mastery Rank**. | Same source only | Yes |
 | **Corrode(X)** | Your **Armor** is reduced by **X**. | Yes | Yes |
 | **Disoriented(X)** | Your **Attack Dice** and all dice pools used to notice, locate, track, or identify something are reduced by **X**, to a minimum of your **Mastery Rank**. | Yes | Yes |
-| **Disrupt(X)** | When you use a Power, reduce **Disrupt** by **X**. If you cannot reduce Disrupt by the required amount, the Power fails and the action is lost. | Yes | Yes |
-| **Dread(X)** | Before you make an attack, make the listed Save. The Save DC is increased by **X**. On a failure, the attack is lost. The Save type is chosen when the Power is created. | Yes | Yes |
 | **Expose(X)** | Your **Evade** is reduced by **X**. | Yes | Yes |
 | **Hex(X)** | When hit by a **Spell**, take **+1d8 bonus damage for every 2 Hex**, rounded up. | Yes | Yes |
 | **Lacerate(X)** | You suffer damage from movement. The first time each turn you move **more than 0 m**, take **X** damage. If you move **more than half your Speed** that turn, take **+X** damage again. If you **Sprint / Dash / otherwise exceed your normal Speed**, take **+X** damage again. | Yes | Yes |
 | **Mark(X)** | After a hit, spend any amount of Mark from the target to set the minimum result of each damage die to the spent Mark value for that damage roll. Then reduce Mark by the amount spent. | Yes | Yes |
 | **Regeneration(X)** | At Tick, heal **X HP**. | Yes | No |
-| **Root(X)** | Your Speed is reduced to **0 m**. You cannot move voluntarily. Forced movement still affects you unless a rule says otherwise. | Yes | Yes |
 | **Ruin(X)** | At Tick, take **X** damage. | Yes | Yes |
 | **Slow(X)** | Your **Speed** is reduced by **X m**. If you do not voluntarily move at least **1 m** during your turn, take **X damage** at the end of your turn. | Yes | Yes |
-| **Soulburn(X)** | Suffer **−X dice** to **Body, Mind, and Spirit Saves**, to a minimum of your **Mastery Rank**. | Yes | Yes |
+| **Soulburn(X)** | All dice pools based on **Wits**, **Influence**, or **Resolve** are reduced by **X**, to a minimum of your **Mastery Rank**. | Yes | Yes |
 | **Sundered(X)** | When hit by a **non-Spell attack**, take **+1d8 bonus damage for every 2 Sundered**, rounded up. | Yes | Yes |
-| **Weaken(X)** | Choose one when applied: **Body**, **Mind**, or **Spirit**. Suffer **−X dice** to that Save type, to a minimum of your **Mastery Rank**. | Yes | Yes |
+| **Weaken(X)** | All dice pools based on **Might**, **Agility**, or **Intellect** are reduced by **X**, to a minimum of your **Mastery Rank**. | Yes | Yes |
 
 ---
 ::
 
-#### Timed Effects
+#### Timed and Fixed Control Effects
 
-> **Timed:**  
 > Timed effects do **not stack** unless explicitly stated otherwise.  
-> Reapplying them refreshes duration and keeps the **higher X**.
+> Reapplying a Timed effect refreshes its duration. If it has a numeric value, keep the **higher X**.  
+> Fixed Control effects are binary and never gain an X-value.
 
 | **Effect** | **What It Does** | **Duration** | **Stacking** | **Cleanse** |
 |:--|:--|:--:|:--:|:--:|
 | **Brace(X)** | Your **Speed becomes 0 m**. While Braced, your **Shield value is doubled** for Armor calculation. At the end of each of your turns, reduce **Brace by 1**. | Until X reaches 0 | No | No |
-| **Prone(X)** | You are knocked down. Attacks against you gain **+X Attack Dice**. Standing up ends the effect. | 1 Round | No | No |
-| **Stunned(X)** | Lose **X Attack Actions** this turn. | 1 Round | No | No |
+| **Prone** | You are knocked down. Standing up requires the normal Movement Action or Action cost. | Until you stand | No | No |
+| **Stunned** | Lose your next **Attack Action** and cannot use **Reactions** until the start of your next turn. | Until the start of your next turn | No | No |
 
 ---
 ::
@@ -9787,35 +9920,31 @@ Cleanse can only reduce effects that list **Cleanse: Yes**.
 
 #### Until Broken / Until Used Effects
 
+**Critical is not a general Special.** It is available only through the dedicated **Active Buff: Critical** entry.
+
 | **Effect** | **What It Does** | **Duration** | **Stacking** | **Cleanse** |
 |:--|:--|:--:|:--:|:--:|
 | **Bulwark(X)** | As a **Reaction** when hit by an attack you can perceive, reduce the attack’s **final damage by 50%** and consume **1** Bulwark. | Until used | Yes | No |
-| **Crit(X)** | For your next **X** attack rolls, all dice explode on **7–8**. | Until used | No | No |
-| **Immovable** | You are immune to **Push** and **Prone** while the effect lasts. | Buff Duration | No | No |
-| **Root(X)** | You cannot voluntarily leave your current space. You may spend an **Action**, **Movement Action**, or **Reaction** to make a Breaking Attempt and reduce Root. Root can only be applied with a minimum value of **Root(2)**. | Until broken | Yes | Yes |
+| **Immovable** | You are immune to **Push**, **Pull**, **Prone**, and forced movement while the effect lasts. | Buff Duration | No | No |
+| **Root(X)** | You cannot voluntarily leave your current space. Spend an **Action**, **Movement Action**, or **Reaction** to make a **Vitality Attribute Check** against **TN 8 × source Mastery Rank**. On success, reduce Root by **1**; each Raise reduces it by **1 additional point**. | Until broken | Yes | Yes |
 
 ---
 ::
 
 #### Instant Effects
-Some Instant Specials allow the target to resist the effect with a Saving Throw.
+Instant Specials resolve as part of the successful hit that delivered them.
 
----
-When a character buys or creates an Active Power with such a Special, the Power must define which Saving Throw applies: Body, Mind or Spirit Save
+They do not grant an automatic Attribute Check.
 
----
-The chosen Save is part of the Power's rules text and cannot be changed during play.
-
----
-The player must explain why the Power uses that Save. The GM may reject a Save choice if the explanation does not fit the Power.
-| **Effect** | **What It Does** | **Stacking** | **Cleanse** | Saving Throw |
-|:--|:--|:--:|:--:|:--:|
-| **Brutal Impact(X)** | Each damage die rolled counts as **at least X**. | No | No |No |
-| **Penetration(X)** | The attack ignores **X Armor**. | No | No |No |
-| **Precision(X)** | On hit, add **+Xd8** bonus damage. | No | No |No |
-| **Push(X)** | Push the target **X m** immediately. | No | No |Yes |
+| **Effect** | **What It Does** | **Stacking** | **Cleanse** |
+|:--|:--|:--:|:--:|
+| **Brutal Impact(X)** | Each damage die rolled counts as **at least X**. | No | No |
+| **Penetration(X)** | The attack ignores **X Armor**. | No | No |
+| **Precision(X)** | On hit, add **+Xd8** bonus damage. | No | No |
+| **Push(X)** | Push the target **X m** immediately. | No | No |
+| **Pull(X)** | Pull the target **X m** immediately. | No | No |
 | **Smite(X)** | Add **+Xd8** bonus damage vs **Undead / Fiends**. | Yes | No |
-| **Disarm** | On hit, the target makes a **Body Saving Throw**. On a failed save, the target loses grip on one visible held item; the item falls to the ground. Recovering it requires a **Movement Action** or an **Action**. | No | No |Yes |
+| **Disarm** | On hit, the target loses grip on one visible held item; the item falls to the ground. Recovering it requires a **Movement Action** or an **Action**. | No | No |
 
 ---
 ::
@@ -9824,7 +9953,7 @@ The player must explain why the Power uses that Save. The GM may reject a Save c
 
 | **Effect** | **What It Does** | **Duration** | **Stacking** |
 |:--|:--|:--:|:--:|
-| **Cleanse** | Reduce one ongoing effect by **4** (**X → X−4**, minimum 0). If **X reaches 0**, it ends. | Instant | No |
+| **Cleanse(X)** | Reduce one eligible ongoing Special by **X**. The value cannot be split between multiple Specials. If the Special reaches **0**, it ends. | Instant | No |
 
 ---
 :::::::
@@ -10083,7 +10212,7 @@ This makes heavy preparation a tactical risk without adding extra math.
 | **Longsword**     | 2d8               | 1         | **Versatile**                                | **Expose(2)**                        |
 | **Battleaxe**     | 2d8               | 1         | **Versatile**                                | **Brutal Impact(3), Corrode(2)**     |
 | **Warhammer**     | 2d8               | 1         | —                                            | **Push(2), Slow(2)**               |
-| **Flail**         | 2d8               | 1         | —                                            | **Prone(1), Disrupt(2)**               |
+| **Flail**         | 2d8               | 1         | —                                            | **Prone(1)**                           |
 | **Spear**         | 2d8               | 1         | **Reach (+1 m), Set**                        | **Push(1)**                          |
 | **Glaive**        | 4d8               | 2         | **Reach (+2 m), Heavy**                      | **Brutal Impact(4)**                 |
 | **Greataxe**      | 4d8               | 2         | **Heavy**                                    | **Brutal Impact(4), Corrode(2)**     |
@@ -10283,9 +10412,7 @@ Mental Attack and Mind Illusion Powers are resolved like Spells against a fixed 
 
 This represents the difficulty of reaching, piercing, shaping, or deceiving another creature's mind.
 
-Mental Powers do not count as one level higher.
-
-They use their normal Power Level for scaling, requirements, limits, and Power construction.
+Mental Powers do not count as one level higher. They use their normal Power Level for scaling, requirements, limits, and Power construction.
 
 Only the fixed TN is increased.
 
@@ -10293,9 +10420,7 @@ Only the fixed TN is increased.
 
 ### Mental Power TN
 
-When using a Mental Attack or Mind Illusion Power, determine the normal fixed TN for a Power of that level.
-
-Then increase that TN by **+4**.
+When using a Mental Attack or Mind Illusion Power, determine the normal fixed TN for a Power of that level, then increase that TN by **+4**.
 
 Example:
 
@@ -10303,7 +10428,7 @@ If a normal Spell of the same level would use **TN 24**, the Mental Power uses *
 
 If the Mental Power roll fails, the Power fizzles and has no effect.
 
-If the Mental Power roll succeeds, the target makes the listed Save, usually a **Mind Save**.
+If the Mental Power roll succeeds, its listed effect resolves. The target does not make an automatic second roll.
 
 ---
 
@@ -10321,16 +10446,11 @@ Mental Attack damage ignores Armor.
 
 Mental Attack damage costs **30 PP per +1d8 Mental Damage**.
 
-Mental Attack does not count as one Power level higher.
+Mental Attack does not count as one Power level higher. The Power uses its normal level for damage scaling and requirements.
 
-The Power uses its normal level for damage scaling and requirements.
+On a successful Mental Power roll, the target takes the full listed Mental Damage and suffers any paid Special or rider.
 
-If a Mental Attack deals damage:
-
-- on a successful Mind Save, the target takes half damage and suffers no listed Special,
-- on a failed Mind Save, the target takes full damage and suffers the listed failure effect.
-
-If a Mental Attack also applies a Special, the Special must be paid normally.
+Mental Attack does not grant an automatic Intellect or Wits Check after the Power succeeds.
 
 ---
 
@@ -10350,31 +10470,30 @@ Mind Illusion is resolved like a Spell against a fixed TN increased by **+4**.
 
 If the Power roll fails, the illusion fizzles and has no effect.
 
-If the Power roll succeeds, the target makes a **Mind Save**.
+If the Power roll succeeds, the illusion applies. There is no automatic resistance roll for every affected creature.
 
-On a successful Save, the target resists the illusion.
+A creature may attempt to disbelieve a Mind Illusion only when:
 
-On a failed Save, the listed illusion effect applies.
+- it spends an Action to inspect or test the illusion,
+- it physically interacts with something the illusion cannot support,
+- it receives clear contradictory evidence,
+- or the Power explicitly grants another attempt.
+
+The generic Mind Illusion uses **Wits** as its Disbelief Attribute. A specifically analytical, memory-based, or logically constructed Mental Power may state **Intellect** instead.
+
+Roll the named Attribute and keep dice equal to Mastery Rank against the Mental Power TN used by the caster.
+
+On a success, the illusion ends for that creature. On a failure, the creature continues to perceive it.
 
 Mind Illusions do not create real objects, creatures, walls, sounds, terrain, light, darkness, or battlefield effects.
 
 Mind Illusions do not deal damage unless a Power explicitly includes and pays for Mental Attack damage.
 
-Mind Illusions do not control a creature's actions.
+Mind Illusions do not control a creature's actions. They may cause the affected creature to perceive something false, but the creature still chooses its own actions based on that perception.
 
-They may cause the affected creature to perceive something false, but the creature still chooses its own actions based on that perception.
-
-Mind Illusions cannot directly force self-harm.
-
-Mind Illusions cannot force a creature to spend limited resources.
-
-Mind Illusions cannot create real cover, real line-of-sight blockers, real barriers, or real terrain.
+Mind Illusions cannot directly force self-harm, spend a creature's limited resources, create real cover, block real line of sight, create real barriers, or change actual terrain.
 
 
-}}
-\page
-{{pageNumber,auto}}
-{{wide
 ## Powers
 
 Powers are the mechanical building blocks of character abilities.
@@ -12728,6 +12847,15 @@ Evade may be modified by:
 
 You may spend Defensive Combat Skill Points to increase Evade against one visible attack.
 
+**Attribute Checks Against Effects**
+
+- They occur only when a rule explicitly calls for one.
+- A successful Attack, Spell, or AoE does not create an automatic second roll.
+- Physical endurance uses **Vitality**.
+- Soul pressure and corruption use **Resolve**.
+- Mental analysis uses **Intellect**.
+- Mental intrusion and sensory doubt use **Wits**.
+
 ---
 
 #### **11) Health & Stress**
@@ -12738,11 +12866,13 @@ You may spend Defensive Combat Skill Points to increase Evade against one visibl
 - Filled Health Bars become **Scarred**.
 - Healing restores damage only inside your current active Health Bar.
 - Scarred Bars are not restored by normal healing.
+- While Incapacitated, make a **Death Check** at the end of your turn.
+- Use the higher of **Vitality** or **Resolve** against `TN 8 × MR`.
 
 **Stress**
 
 - Each Stress Bar has `Resolve + Intellect` boxes.
-- When Stress breaks, make a **Mind Save**.
+- When Stress breaks, make a **Wits Attribute Check** against `TN 8 × MR`.
 - Success: clarity.
 - Failure: Affliction, panic, restriction, or GM pressure.
 
@@ -12925,6 +13055,29 @@ If Blight reaches **0**, it ends.
 
 ---
 
+#### Challenge(X)
+
+**Type:** Diminishing (X→0)
+
+---
+**Stacking:** Same source only
+
+---
+**Cleanse:** Yes
+
+---
+**Effect:** Challenge represents pressure, provocation, pursuit, protective positioning, or a threat that is difficult to ignore. When Challenge is applied, record the creature that applied it as the **challenger**.
+
+Whenever you build an **Attack Pool** for an attack that does **not** include the challenger as a target, remove **X dice** from that pool. If the attack includes the challenger as one of its targets, Challenge does not reduce that Attack Pool. Challenge never forces you to attack, move toward, or remain near the challenger.
+
+Challenge reduces Attack Pools only. It does not reduce Attributes, Keep, Damage Pools, Evade, non-attack Attribute Checks, or other derived values. Apply Challenge with other flat pool changes before the percentage-based Health Penalty. The final Attack Pool cannot be reduced below your **Mastery Rank**.
+
+A creature can have only one challenger at a time. Reapplying Challenge from the same challenger adds stacks normally. Challenge from a different source does not add to the existing value; it replaces the current Challenge only if the newly applied value is higher.
+
+At the start of your turn, Challenge decays by **1**. If Challenge reaches **0**, it ends.
+
+---
+
 #### Corrode(X)
 
 **Type:** Diminishing (X→0)
@@ -12953,47 +13106,6 @@ If Blight reaches **0**, it ends.
 ---
 **Effect:** Disoriented represents confusion, blindness, sensory disruption, unstable footing, shock, smoke, noise, or broken focus. Your **Attack Dice** are reduced by **X**, to a minimum of your **Mastery Rank**. All dice pools used to notice, locate, track, or identify something are also reduced by **X**, to a minimum of your **Mastery Rank**. At the start of your turn, Disoriented decays by **1**.
 If Disoriented reaches **0**, it ends.
-
----
-
-#### Disrupt(X)
-
-**Type:** Diminishing (X→0)
-
----
-**Stacking:** Yes
-
----
-**Cleanse:** Yes
-
----
-**Effect:** Disrupt interferes with Powers, casting, focus, rhythm, and supernatural flow.
-When you use a Power, reduce Disrupt by **X**.
-If you cannot reduce Disrupt by the required amount, the Power fails and the action is lost.
-At the start of your turn, Disrupt decays by **1**.
-If Disrupt reaches **0**, it ends.
-
----
-
-#### Dread(X)
-
-**Type:** Diminishing (X→0)
-
----
-**Stacking:** Yes
-
-
----
-**Cleanse:** Yes
-
-
----
-**Effect:** Dread represents fear, hesitation, spiritual pressure, overwhelming presence, divine command, demonic terror, or mental collapse. When a Power applies Dread, the Power states which Save is used: **Body**, **Mind**, or **Spirit**. Before you make an attack, make the listed Save.
-The Save DC is increased by **X**.
-On a success, you may attack normally.
-On a failure, the attack is lost.
-At the start of your turn, Dread decays by **1**.
-If Dread reaches **0**, it ends.
 
 ---
 
@@ -13059,7 +13171,7 @@ If Lacerate reaches **0**, it ends.
 
 ---
 
-## Mark(X)
+#### Mark(X)
 
 **Type:** Diminishing (X→0)
 
@@ -13123,7 +13235,7 @@ Regeneration is a positive effect and cannot be removed by Cleanse.
 
 #### Root(X)
 
-**Type:** Diminishing (X→0)
+**Type:** Until Broken
 
 ---
 **Stacking:** Yes
@@ -13132,8 +13244,13 @@ Regeneration is a positive effect and cannot be removed by Cleanse.
 **Cleanse:** Yes
 
 ---
-**Effect:** Root is a movement-lock Special. Root can only be applied with a minimum value of **Root(2)**.
-**Root(1)** cannot be applied as a valid Root effect. While Rooted, your Speed is reduced to **0 m** and you cannot move voluntarily. Root does not prevent attacking, casting, using Reactions, using non-movement actions, or being moved by forced movement. Root does prevent voluntary movement, leaving the current space by normal movement, and using Movement Powers to leave the current space unless Root is removed first. At the start of your turn, Root decays by **1**. If Root reaches **0**, it ends.
+**Effect:** Root is a movement-lock Special. **X** is the Root's Break Strength.
+
+While Root is above **0**, your Speed is reduced to **0 m** and you cannot move voluntarily. Root does not prevent attacking, casting, using Reactions, using non-movement actions, or being moved by forced movement.
+
+You may spend an **Action**, **Movement Action**, or **Reaction** to make a **Vitality Attribute Check** against **TN 8 × source Mastery Rank**. On a success, reduce Root by **1**. Each Raise reduces Root by **1 additional point**.
+
+Root does not decay automatically. Cleanse and successful Breaking Attempts reduce it. When Root reaches **0**, it ends.
 
 ---
 
@@ -13178,13 +13295,14 @@ Regeneration is a positive effect and cannot be removed by Cleanse.
 **Cleanse:** Yes
 
 ---
-**Effect:** Soulburn weakens resistance against all major Saving Throws. You suffer **−X dice** to **Body**, **Mind**, and **Spirit** Saves, to a minimum of your **Mastery Rank**. At the start of your turn, Soulburn decays by **1**. If Soulburn reaches **0**, it ends.
+**Effect:** Soulburn erodes instinct, presence, will, and spiritual stability. Whenever you build a dice pool based on **Wits**, **Influence**, or **Resolve**, remove **X dice** from that pool.
+
+Soulburn reduces dice pools, not the Attributes themselves. It does not reduce **Keep**, Damage Pools, derived values, resource maximums, Health Bars, or other fixed values created from those Attributes.
+
+Apply Soulburn before percentage-based Health Penalties. The final pool cannot be reduced below your **Mastery Rank**. At the start of your turn, Soulburn decays by **1**. If Soulburn reaches **0**, it ends.
 
 ---
-}}
-\page
-{{pageNumber,auto}}
-{{wide
+
 #### Sundered(X)
 
 **Type:** Diminishing (X→0)
@@ -13211,15 +13329,20 @@ Regeneration is a positive effect and cannot be removed by Cleanse.
 **Cleanse:** Yes
 
 ---
-**Effect:** Weaken reduces one chosen Save type. When Weaken is applied, choose one Save type: **Body**, **Mind**, or **Spirit**. You suffer **−X dice** to that Save type, to a minimum of your **Mastery Rank**.
-At the start of your turn, Weaken decays by **1**. If Weaken reaches **0**, it ends.
+**Effect:** Weaken suppresses physical force, coordination, and structured thought. Whenever you build a dice pool based on **Might**, **Agility**, or **Intellect**, remove **X dice** from that pool.
+
+Weaken reduces dice pools, not the Attributes themselves. It does not reduce **Keep**, Damage Pools, derived values, resource maximums, Health Bars, or other fixed values created from those Attributes.
+
+Apply Weaken before percentage-based Health Penalties. The final pool cannot be reduced below your **Mastery Rank**. At the start of your turn, Weaken decays by **1**. If Weaken reaches **0**, it ends.
+
+---
 
 ---
 }}
 \page
 {{pageNumber,auto}}
 {{wide
-### Timed Special Descriptions
+### Timed and Fixed Control Special Descriptions
 
 #### Brace(X)
 
@@ -13236,30 +13359,12 @@ At the start of your turn, Weaken decays by **1**. If Weaken reaches **0**, it e
 
 ---
 
-#### Prone(X)
+#### Prone
 
-**Type:** Timed
-
----
-**Duration:** 1 Round
+**Type:** Until Ended
 
 ---
-**Stacking:** No
-
----
-**Cleanse:** No
-
----
-**Effect:** You are knocked down. Attacks against you gain **+X Attack Dice**. Standing up ends Prone.
-
----
-
-#### Stunned(X)
-
-**Type:** Timed
-
----
-**Duration:** 1 Round
+**Duration:** Until you stand
 
 ---
 **Stacking:** No
@@ -13268,7 +13373,25 @@ At the start of your turn, Weaken decays by **1**. If Weaken reaches **0**, it e
 **Cleanse:** No
 
 ---
-**Effect:** You lose **X Attack Actions** this turn. Stunned does not remove Movement unless a rule says otherwise. Stunned does not remove Reactions unless a rule says otherwise.
+**Effect:** You are knocked down. Standing up requires the normal Movement Action or Action cost. Prone is fixed and does not scale with a numeric value.
+
+---
+
+#### Stunned
+
+**Type:** Hard Control
+
+---
+**Duration:** Until the start of your next turn
+
+---
+**Stacking:** No
+
+---
+**Cleanse:** No
+
+---
+**Effect:** You lose your next **Attack Action** and cannot use **Reactions** until the start of your next turn. You may still use Movement unless another effect prevents it. Stunned is fixed and does not scale with a numeric value.
 
 ---
 }}
@@ -13292,21 +13415,6 @@ At the start of your turn, Weaken decays by **1**. If Weaken reaches **0**, it e
 
 ---
 
-#### Crit(X)
-
-**Type:** Until Used
-
----
-**Stacking:** No
-
----
-**Cleanse:** No
-
----
-**Effect:** Crit improves attack roll quality. For your next **X** attack rolls, all Attack Dice explode on **7-8**. Crit must be assigned before the attack roll is made. If all uses are spent, Crit ends.
-
----
-
 #### Immovable
 
 **Type:** Until Duration Ends
@@ -13318,7 +13426,7 @@ At the start of your turn, Weaken decays by **1**. If Weaken reaches **0**, it e
 **Cleanse:** No
 
 ---
-**Effect:** You are immune to **Push** and **Prone** while the effect lasts.
+**Effect:** You are immune to **Push**, **Pull**, **Prone**, and forced movement while the effect lasts.
 
 ---
 }}
@@ -13359,11 +13467,7 @@ Each damage die rolled counts as at least **X**. A die that rolls lower than **X
 
 **Effect:** Disarm forces the target to lose grip on one held item.
 
-If an attack with Disarm hits, the target makes a **Saving Throw**.
-
-On a successful Saving Throw, the target keeps hold of the item.
-
-On a failed Saving Throw, the target loses grip on one visible held item. The item falls to the ground.
+If an attack with Disarm hits, the target loses grip on one visible held item. The item falls to the ground.
 
 The attacker chooses the affected item. Disarm can affect a weapon, shield, focus, wand, staff, tool, or other object currently held in the target's hand or grip.
 
@@ -13454,7 +13558,30 @@ Forced movement does not trigger Lacerate unless a Power explicitly says otherwi
 ---
 **Effect:** Smite adds damage against specific creature types. On hit, add **+Xd8** bonus damage against **Undead** or **Fiends**. Smite only applies if the target matches the listed creature type.
 
+---
+}}
+
+\page
+{{pageNumber,auto}}
+{{wide
+### Support Special Descriptions
+
+#### Cleanse(X)
+
+**Type:** Instant Support
+
+---
+**Stacking:** No
+
+---
+**Cleanse:** No
+
+---
+**Effect:** Choose one ongoing Special on one creature that lists **Cleanse: Yes** and reduce that Special by **X**. If the Special reaches **0**, it ends.
+
+The value of one Cleanse(X) can never be divided between multiple Specials, multiple creatures, or multiple instances. If Cleanse removes more points than the chosen Special currently has, the excess value is lost.
+
+Cleanse does not affect a Special that lists **Cleanse: No**, and it does not remove a Power, Spell, Barrier, Wall, Summon, or other effect unless that effect explicitly says that Cleanse can remove it.
 
 
 }}
-

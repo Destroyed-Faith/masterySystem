@@ -305,7 +305,7 @@ export class TowerWizardDialog extends BaseDialog {
                 grantKey: 'offense-1',
                 isSpell: true,
                 castingAttribute: 'intellect' as CastingAttribute,
-                spellResolution: (specialPick.special ? 'saveSpell' : 'spellAttack') as SpellResolution,
+                spellResolution: 'spellAttack' as SpellResolution,
             };
             if (specialIdx >= 0) overrides[specialIdx] = { ...overrides[specialIdx], ...specialOverride };
             else overrides.push(specialOverride);

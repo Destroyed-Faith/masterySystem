@@ -1,7 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import {
     calculateBaseTN,
-    calculateSaveDC,
     canCastSpellAtLevel,
     getMaxSpellLevel,
     inferResolutionFromItem,
@@ -33,12 +32,6 @@ describe('Spell maths (Active-as-Spell)', () => {
         expect(calculateBaseTN(100)).toBe(64);
     });
 
-    it('computes Save DC as 8 × Mastery Rank', () => {
-        expect(calculateSaveDC(1)).toBe(8);
-        expect(calculateSaveDC(4)).toBe(32);
-        expect(calculateSaveDC(8)).toBe(64);
-    });
-
     it('enforces the MR × 2 Max Spell Level cap', () => {
         expect(getMaxSpellLevel(1)).toBe(2);
         expect(getMaxSpellLevel(2)).toBe(4);
@@ -50,14 +43,10 @@ describe('Spell maths (Active-as-Spell)', () => {
         expect(canCastSpellAtLevel(4, 0)).toBe(false);
     });
 
-    it('infers resolution from the power item, defaulting to saveSpell', () => {
-        expect(inferResolutionFromItem({ system: { spellResolution: 'spellAttack' } })).toBe(
-            'spellAttack',
-        );
-        expect(inferResolutionFromItem({ system: { spellResolution: 'saveSpell' } })).toBe(
-            'saveSpell',
-        );
-        expect(inferResolutionFromItem({ system: {} })).toBe('saveSpell');
-        expect(inferResolutionFromItem(null)).toBe('saveSpell');
+    it('infers resolution from the power item, always spellAttack', () => {
+        expect(inferResolutionFromItem({ system: { spellResolution: 'spellAttack' } })).toBe('spellAttack');
+        expect(inferResolutionFromItem({ system: { spellResolution: 'spellAttack' } })).toBe('spellAttack');
+        expect(inferResolutionFromItem({ system: {} })).toBe('spellAttack');
+        expect(inferResolutionFromItem(null)).toBe('spellAttack');
     });
 });

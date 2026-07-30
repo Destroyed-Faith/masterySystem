@@ -23,20 +23,26 @@ describe('special-effects rename + aliases', () => {
     }
   });
 
-  it('adds the new diminishing effects', () => {
-    for (const id of ['disoriented', 'disrupt', 'dread']) {
+  it('adds Challenge and Disoriented as diminishing effects', () => {
+    for (const id of ['disoriented', 'challenge', 'weaken', 'soulburn']) {
       const ef = getEffectById(id);
       expect(ef?.id).toBe(id);
       expect(ef?.category).toBe('diminishing');
     }
   });
 
+  it('does not expose removed Specials as canonical effects', () => {
+    for (const id of ['dread', 'frightened', 'disrupt', 'shock']) {
+      // Direct lookup must not return a live effect keyed by the removed id.
+      // shock/disrupt may still resolve via legacy aliases to a live Special.
+      expect(getEffectById(id)?.id === id).toBe(false);
+    }
+  });
+
   it('removes the legacy effects as canonical ids', () => {
-    for (const legacy of ['bleeding', 'ignite', 'freeze', 'poisoned', 'shock', 'blinded', 'frightened']) {
-      // No direct effect keyed by the legacy id anymore …
+    for (const legacy of ['bleeding', 'ignite', 'freeze', 'poisoned', 'shock', 'blinded', 'disrupt']) {
       const canonical = LEGACY_SPECIAL_ID_ALIASES[legacy];
       expect(canonical).toBeTruthy();
-      // … but the alias resolves to the new one.
       expect(getEffectById(legacy)?.id).toBe(canonical);
     }
   });
@@ -47,8 +53,8 @@ describe('special-effects rename + aliases', () => {
     expect(canonicalSpecialId('freeze')).toBe('slow');
     expect(canonicalSpecialId('poisoned')).toBe('blight');
     expect(canonicalSpecialId('blinded')).toBe('disoriented');
-    expect(canonicalSpecialId('frightened')).toBe('dread');
-    expect(canonicalSpecialId('shock')).toBe('disrupt');
+    expect(canonicalSpecialId('shock')).toBe('disoriented');
+    expect(canonicalSpecialId('disrupt')).toBe('challenge');
     expect(canonicalSpecialId('ruin')).toBe('ruin');
     expect(canonicalSpecialId('whatever')).toBe('whatever');
   });

@@ -131,23 +131,9 @@ describe('Actor Data Model - template.json', () => {
   });
 
   describe('Saving Throws', () => {
-    const saves = template.Actor.character.savingThrows;
-
-    it('has saving throw fields for all attributes', () => {
-      const required = ['might', 'agility', 'vitality', 'intellect', 'resolve', 'influence', 'wits'];
-      for (const attr of required) {
-        expect(saves[attr]).toBeDefined();
-      }
-    });
-  });
-
-  describe('NPC Saving Throws', () => {
-    const npcSaves = template.Actor.npc.savingThrows;
-
-    it('uses Body/Mind/Spirit categories', () => {
-      expect(npcSaves.body).toBeDefined();
-      expect(npcSaves.mind).toBeDefined();
-      expect(npcSaves.spirit).toBeDefined();
+    it('are removed from character and NPC templates', () => {
+      expect(template.Actor.character.savingThrows).toBeUndefined();
+      expect(template.Actor.npc.savingThrows).toBeUndefined();
     });
   });
 
@@ -241,8 +227,8 @@ describe('Item Data Model - template.json', () => {
       expect(condition.diminishing).toBe(true);
     });
 
-    it('has save type', () => {
-      expect(condition.save).toBeDefined();
+    it('does not use obsolete save type', () => {
+      expect(condition.save).toBeUndefined();
     });
   });
 

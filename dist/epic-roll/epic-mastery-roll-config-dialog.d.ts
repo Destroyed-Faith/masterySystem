@@ -12,7 +12,6 @@ export declare class EpicMasteryRollConfigDialog extends BaseDialog {
     private rollKind;
     private skillKey;
     private attributeKey;
-    private saveType;
     private selectedIds;
     private preset;
     static DEFAULT_OPTIONS: {

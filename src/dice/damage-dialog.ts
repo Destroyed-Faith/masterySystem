@@ -1464,9 +1464,14 @@ async function consumeTargetMark(target: Actor, spend: number): Promise<void> {
 }
 
 /**
- * Apply status effects from specials to target actor
+ * Apply status effects from specials to target actor.
+ * Challenge uses challenger-bound merge rules (sourceUuid + stack/replace).
  */
-async function applyStatusEffectsToTarget(target: Actor, specialsUsed: string[]): Promise<void> {
+async function applyStatusEffectsToTarget(
+  target: Actor,
+  specialsUsed: string[],
+  attacker?: Actor | null,
+): Promise<void> {
   try {
     console.log('Mastery System | [APPLY STATUS EFFECTS] Applying to target', {
       targetId: (target as any).id,
@@ -1479,6 +1484,11 @@ async function applyStatusEffectsToTarget(target: Actor, specialsUsed: string[])
     if (!system.statusEffects) {
       system.statusEffects = [];
     }
+    let list: any[] = Array.isArray(system.statusEffects) ? [...system.statusEffects] : [];
+    const { getEffect } = await import('../utils/special-effects.js');
+    const { mergeChallengeEntry } = await import('../system/pool-reduction.js');
+    const sourceName = String((attacker as any)?.name ?? 'combat');
+    const sourceUuid = attacker ? String((attacker as any).uuid ?? (attacker as any).id ?? '') || null : null;
     
     // Add new status effects from specials
     for (const specialName of specialsUsed) {
@@ -1487,11 +1497,17 @@ async function applyStatusEffectsToTarget(target: Actor, specialsUsed: string[])
       if (match) {
         const effectName = match[1].trim();
         const effectValue = match[2] ? parseInt(match[2]) : null;
-        const { getEffect } = await import('../utils/special-effects.js');
         const effectId = getEffect(effectName)?.id;
+        const isChallenge =
+          effectId === 'challenge' || effectName.toLowerCase() === 'challenge';
+
+        if (isChallenge && effectValue !== null && effectValue > 0) {
+          list = mergeChallengeEntry(list, effectValue, sourceName, sourceUuid);
+          continue;
+        }
 
         // Check if effect already exists (match by canonical id when known).
-        const existingEffect = system.statusEffects.find((e: any) =>
+        const existingEffect = list.find((e: any) =>
           (effectId && e.id === effectId) || e.name === effectName,
         );
         if (existingEffect) {
@@ -1502,11 +1518,12 @@ async function applyStatusEffectsToTarget(target: Actor, specialsUsed: string[])
           if (effectId && !existingEffect.id) existingEffect.id = effectId;
         } else {
           // Add new effect
-          system.statusEffects.push({
+          list.push({
             id: effectId,
             name: effectName,
             value: effectValue,
-            source: 'combat',
+            source: sourceName,
+            ...(sourceUuid ? { sourceUuid } : {}),
             timestamp: Date.now()
           });
         }
@@ -1514,11 +1531,11 @@ async function applyStatusEffectsToTarget(target: Actor, specialsUsed: string[])
     }
     
     // Update target actor
-    await (target as any).update({ 'system.statusEffects': system.statusEffects });
+    await (target as any).update({ 'system.statusEffects': list });
     
     console.log('Mastery System | [APPLY STATUS EFFECTS] Status effects applied', {
       targetId: (target as any).id,
-      statusEffects: system.statusEffects
+      statusEffects: list
     });
   } catch (error) {
     console.error('Mastery System | [APPLY STATUS EFFECTS] Error applying status effects', error);
@@ -2303,7 +2320,7 @@ async function calculateDamageResult(
     return true;
   });
   if (statusSpecials.length > 0 && target) {
-    await applyStatusEffectsToTarget(target, statusSpecials);
+    await applyStatusEffectsToTarget(target, statusSpecials, attacker);
   }
 
   for (const note of conditionalSpecialsUsed) specialsUsed.push(note);

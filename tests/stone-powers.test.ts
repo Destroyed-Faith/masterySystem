@@ -173,11 +173,11 @@ describe('Stone Powers — pool layout (new spec)', () => {
   // may allow rerolling Initiative and reopening the Initiative Shop).
   it.each(POOL_KEYS)('pool "%s" has the expected number of powers', (poolKey) => {
     const powers = (STONE_POWERS_BY_ATTRIBUTE as any)[poolKey] as StonePower[];
-    expect(powers).toHaveLength(poolKey === 'wits' ? 5 : 4);
+    expect(powers).toHaveLength(poolKey === 'wits' ? 5 : poolKey === 'resolve' ? 3 : 4);
   });
 
-  it('total registry has 33 powers (7 pools × 4 + wits × 5)', () => {
-    expect(Object.keys(STONE_POWERS)).toHaveLength(33);
+  it('total registry has 32 powers (resolve × 3, wits × 5, others × 4)', () => {
+    expect(Object.keys(STONE_POWERS)).toHaveLength(32);
   });
 
   // Rules table: Vitality Stone Abilities are exactly these four.
@@ -439,16 +439,16 @@ describe('Intellect — Spell Raises scales +4/+8/+12/+16 Raise-TN bonus', () =>
   });
 });
 
-describe('Resolve — Save Boost scales +2/+4/+8/+12', () => {
-  it.each([[1, 2], [2, 4], [3, 8], [4, 12]])('T%i adds +%i to all saves', async (tier, expected) => {
+describe('Intellect — Spell Resistance scales +4/+8/+12/+16', () => {
+  it.each([[1, 4], [2, 8], [3, 12], [4, 16]])('T%i adds +%i Spell Resistance TN', async (tier, expected) => {
     const actor = makeMockActor();
-    await STONE_POWERS['resolve.saveBoost'].apply({
+    await STONE_POWERS['intellect.spellResistance'].apply({
       actor: actor as any,
       combatant: makeMockCombatant() as any,
       tier,
       cost: 2 ** (tier - 1),
     });
-    expect(actor._roundState.stoneBonuses.saveAllBonus).toBe(expected);
+    expect(actor._roundState.stoneBonuses.spellResistanceBonus).toBe(expected);
   });
 });
 

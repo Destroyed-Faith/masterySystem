@@ -247,10 +247,6 @@ export function buildActorSystemFromPayload(payload: CharacterImportPayload): Re
       faithFractures: '',
       background: '',
     },
-    saves: {
-      vitalitySpent: 0,
-      vitalityUsesRemaining: 4,
-    },
     faithFractures: { current: faithPts, maximum: faithPts },
     schticks: { ranks: [] },
     familiars: [],

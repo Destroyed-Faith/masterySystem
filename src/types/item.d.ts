@@ -27,10 +27,11 @@ export type PowerRollKind = string;
 
 /** Casting attribute available when an Active is turned into a Spell. */
 export type CastingAttribute = 'intellect' | 'resolve';
-/** How a Spell resolves: attack roll vs Evade, or casting roll + target Save. */
-export type SpellResolution = 'spellAttack' | 'saveSpell';
-/** Save family used when `spellResolution === 'saveSpell'`. */
-export type SpellSaveType = 'body' | 'mind' | 'spirit';
+/**
+ * How a Spell resolves. Saving throws were removed from the rules — every
+ * Spell now resolves through the caster's roll (attack vs Evade / Casting TN).
+ */
+export type SpellResolution = 'spellAttack';
 /** Tier of the Special slot on an Active damage template (cf. Actives.md). */
 export type ActiveSpecialTier = 3 | 4 | 5 | 6;
 
@@ -112,7 +113,7 @@ export interface PowerSpecial {
   /** Machine or narrative condition for this special only. */
   condition?: string;
   duration?: string;
-  /** When this special applies, e.g. onHit, onSaveFail. */
+  /** When this special applies, e.g. onHit. */
   applyOn?: string;
 }
 
@@ -133,8 +134,6 @@ export type PowerMechanicsTrigger =
   | 'endOfTurn'
   | 'startOfTurn'
   | 'afterAttack'
-  | 'onSaveFail'
-  | 'onIgniteTickByYou'
   | (string & {});
 
 export interface PowerLevelRow {
@@ -379,8 +378,6 @@ export interface PowerMechanics {
    */
   triggerLimit?: { per: 'round' | 'combat' | 'day'; max: number };
 
-  /** Dice-pool bonus/malus for saving throws, keyed by save family. */
-  saveDice?: { body?: number; mind?: number; spirit?: number };
   /** Dice-pool bonus/malus for specific roll kinds (attack, skill, damage). */
   rollDice?: { attack?: number; skill?: number; damage?: number };
 
@@ -391,7 +388,7 @@ export interface PowerMechanics {
    */
   damageRider?: {
     flat?: string;                                                        // "+1d8"
-    vsCondition?: 'mark' | 'ruin' | 'disrupt' | 'slow' | 'hex';  // only when target has condition
+    vsCondition?: 'mark' | 'ruin' | 'challenge' | 'slow' | 'hex';  // only when target has condition
     vsConditionDamage?: string;                                           // "+2d8" extra under condition
   };
 
@@ -444,7 +441,7 @@ export interface PowerMechanics {
   condition?:
     | 'targetMark'
     | 'targetRuin'
-    | 'targetDisrupt'
+    | 'targetChallenge'
     | 'targetSlow'
     | 'targetHex'
     | 'self-hp-below-50'
@@ -520,7 +517,6 @@ export interface ChosenSpecial {
  *  turned into a Spell. Never persisted on the Item, lives only on the template. */
 export interface SpellHints {
   defaultResolution: SpellResolution;
-  defaultSaveType?: SpellSaveType;
   /** Future: map a chosenSpecial.key → casting attribute. */
   attributeBySpecial?: Record<string, CastingAttribute>;
 }
@@ -555,8 +551,6 @@ export interface EmbeddedPowerData {
   castingAttribute?: CastingAttribute;
   /** Item-only: chosen resolution mode for the Spell. */
   spellResolution?: SpellResolution;
-  /** Item-only: save family when `spellResolution === 'saveSpell'`. */
-  spellSaveType?: SpellSaveType;
   /** Item-only reserved: future Overcast stacks (rules pending). */
   overcast?: number;
 
@@ -679,7 +673,6 @@ export interface PowerData extends BaseItemData {
   isSpell?: boolean;
   castingAttribute?: CastingAttribute;
   spellResolution?: SpellResolution;
-  spellSaveType?: SpellSaveType;
   overcast?: number;
 }
 

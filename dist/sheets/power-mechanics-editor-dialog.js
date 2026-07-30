@@ -8,7 +8,7 @@
  *   - Per-rank override (`system.levels.<rank>.mechanics`) — per-rank data.
  *
  * Intentionally dual-mode: a guided form for the common fields (armor,
- * evade, saveDice, rollDice, damageRider, healing, modifySpecial,
+ * evade, rollDice, damageRider, healing, modifySpecial,
  * grantNextHitEffect, applyWhen, duration, usageLimit,
  * condition, conditionExpr, trigger, tempHP, regen, initiativeD8, movementBonus, ignoreTerrain) plus
  * a JSON textarea for everything the form does not cover (manual override).
@@ -35,7 +35,6 @@ function numAttr(n) {
 function renderForm(m) {
     const mech = m ?? {};
     const dr = mech.damageRider ?? {};
-    const sd = mech.saveDice ?? {};
     const rd = mech.rollDice ?? {};
     const ul = mech.usageLimit ?? mech.triggerLimit ?? {};
     const heal = mech.healing ?? {};
@@ -77,7 +76,7 @@ function renderForm(m) {
         ['', '(none — always applies)'],
         ['targetMark', 'targetMark'],
         ['targetRuin', 'targetRuin'],
-        ['targetDisrupt', 'targetDisrupt'],
+        ['targetChallenge', 'targetChallenge'],
         ['targetSlow', 'targetSlow'],
         ['targetHex', 'targetHex'],
         ['self-hp-below-50', 'self-hp-below-50'],
@@ -89,7 +88,7 @@ function renderForm(m) {
         ['', '(none)'],
         ['mark', 'mark'],
         ['ruin', 'ruin'],
-        ['disrupt', 'disrupt'],
+        ['challenge', 'challenge'],
         ['slow', 'slow'],
         ['hex', 'hex'],
     ];
@@ -128,15 +127,6 @@ function renderForm(m) {
         <label>Attack <input type="number" data-mech="rollDice.attack" value="${numAttr(rd.attack)}" step="1"/></label>
         <label>Skill <input type="number" data-mech="rollDice.skill" value="${numAttr(rd.skill)}" step="1"/></label>
         <label>Damage <input type="number" data-mech="rollDice.damage" value="${numAttr(rd.damage)}" step="1"/></label>
-      </div>
-    </fieldset>
-
-    <fieldset class="pme-section">
-      <legend>Save-dice bonuses</legend>
-      <div class="pme-grid">
-        <label>Body <input type="number" data-mech="saveDice.body" value="${numAttr(sd.body)}" step="1"/></label>
-        <label>Mind <input type="number" data-mech="saveDice.mind" value="${numAttr(sd.mind)}" step="1"/></label>
-        <label>Spirit <input type="number" data-mech="saveDice.spirit" value="${numAttr(sd.spirit)}" step="1"/></label>
       </div>
     </fieldset>
 
@@ -253,7 +243,6 @@ function readFormValues(root) {
         k !== 'triggerLimit');
     const hasNested = (obj) => obj && typeof obj === 'object' && Object.keys(obj).length > 0;
     const meaningful = keys.length > 0 ||
-        hasNested(persisted.saveDice) ||
         hasNested(persisted.rollDice) ||
         hasNested(persisted.damageRider) ||
         hasNested(persisted.healing) ||

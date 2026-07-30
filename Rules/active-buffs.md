@@ -74,15 +74,13 @@ Version: v0.9.1 (2026-07-06)
 - #### [{{ Artwork Credits}}{{ 2}}](#p2)
 - #### [{{ Active Buffs}}{{ 4}}](#p4)
 - #### [{{ Active Buff Rules}}{{ 4}}](#p4)
-- #### [{{ Pure Defensive}}{{ 5}}](#p5)
-- #### [{{ Defensive Combinations}}{{ 13}}](#p13)
-- #### [{{ Pure Offensive}}{{ 18}}](#p18)
-- #### [{{ Offensive Combinations}}{{ 21}}](#p21)
-- #### [{{ Auras}}{{ 27}}](#p27)
-- #### [{{ Special Auras}}{{ 30}}](#p30)
+- #### [{{ Pure Defensive}}{{ 7}}](#p7)
+- #### [{{ Defensive Combinations}}{{ 15}}](#p15)
+- #### [{{ Pure Offensive}}{{ 20}}](#p20)
+- #### [{{ Offensive Combinations}}{{ 23}}](#p23)
+- #### [{{ Auras}}{{ 31}}](#p31)
 
 }}
-`
 }}
 \page
 {{pageNumber,auto}}
@@ -177,9 +175,7 @@ Examples:
 - Evade
 - Temporary HP
 - Healing
-- Save Dice
 - Damage
-- Attack Dice
 
 A **Combination Active Buff** has exactly two mechanical axes.
 
@@ -189,7 +185,7 @@ Examples:
 - Evade + Temporary HP
 - Temporary HP + Healing
 - Armor + Evade
-- Damage + Attack Dice
+- Damage + Penetration
 
 A Combination Active Buff must fit both axes into the same Active Buff PP budget.
 
@@ -217,9 +213,7 @@ They may not be combined with:
 - Evade
 - Temporary HP
 - Healing
-- Save Dice
 - Damage
-- Attack Dice
 - Specials
 - Movement
 - Control
@@ -298,7 +292,7 @@ If a Tree wants a more complex defensive identity, use a Defensive Combination A
 
       NOTES<br>
       This buff affects only the user.<br>
-      It has no aura, no Evade, no Temporary HP, no Healing, no Save Dice, no Damage Reduction, no Phasing, and no secondary rider.<br>
+      It has no aura, no Evade, no Temporary HP, no Healing, no Damage Reduction, no Phasing, and no secondary rider.<br>
       Use this as the default self-protection buff for characters who want direct mitigation instead of avoidance or recovery.
     </span>
   </span>
@@ -364,7 +358,7 @@ You reinforce your body, armor, stance, magic, skin, or guard with a temporary d
 
       NOTES<br>
       This is the cleanest avoidance buff in the catalogue.<br>
-      It grants no Armor, no Temporary HP, no Healing, no Save Dice, no Damage Reduction, no Phasing, and no secondary rider.<br>
+      It grants no Armor, no Temporary HP, no Healing, no Damage Reduction, no Phasing, and no secondary rider.<br>
       Use this for agile, elusive, blurred, evasive, illusionary, or movement-based defensive identities.
     </span>
   </span>
@@ -433,7 +427,7 @@ You become harder to target, harder to read, harder to pin down, or harder to st
 
       NOTES<br>
       This is the standard group-Armor Active Buff.<br>
-      It grants no Evade, no Temporary HP, no Healing, no Save Dice, no Damage Reduction, no Phasing, and no secondary rider.<br>
+      It grants no Evade, no Temporary HP, no Healing, no Damage Reduction, no Phasing, and no secondary rider.<br>
       If a campaign wants smaller tactical auras, this entry may later receive an aura-radius cap rule, but this version follows strict linear scaling.
     </span>
   </span>
@@ -504,7 +498,7 @@ You project your defense outward, turning personal protection into shared battle
       This does not heal real HP.<br>
       It does not restore Health Levels.<br>
       It does not stack with itself; it only restores the Temporary HP from this buff up to the listed value.<br>
-      It grants no Armor, no Evade, no Healing, no Save Dice, no Damage Reduction, no Phasing, and no secondary rider.
+      It grants no Armor, no Evade, no Healing, no Damage Reduction, no Phasing, and no secondary rider.
     </span>
   </span>
 </h3>
@@ -574,7 +568,7 @@ A temporary protective layer rebuilds itself again and again while the buff hold
       This heals real HP.<br>
       It does not grant Temporary HP.<br>
       It does not restore lost Health Levels unless another rule explicitly allows that.<br>
-      It grants no Armor, no Evade, no Save Dice, no Damage Reduction, no Phasing, and no secondary rider.
+      It grants no Armor, no Evade, no Damage Reduction, no Phasing, and no secondary rider.
     </span>
   </span>
 </h3>
@@ -621,7 +615,7 @@ Your body, spirit, blessing, mutation, or magic repeatedly restores itself while
       This buff may never create Damage Reduction on its own.<br>
       This buff may never add more than +10% DR.<br>
       This buff may never exceed the total DR cap allowed by its level band.<br>
-      This buff may not include Armor, Evade, Temporary HP, Healing, Save Dice, Phasing, or any other rider.<br><br>
+      This buff may not include Armor, Evade, Temporary HP, Healing, Phasing, or any other rider.<br><br>
 
       ACTIVE BUFF DR MILESTONES<br>
       L1–3 → no effect.<br>
@@ -703,7 +697,7 @@ Your existing damage resistance hardens, but only if you already possess a true 
       This buff grants only 1 additional temporary Phasing charge.<br>
       This buff may never exceed the total Phasing cap allowed by its level band.<br>
       If the buff ends and the additional charge has not been used, that charge is lost.<br>
-      This buff may not include Armor, Evade, Temporary HP, Healing, Save Dice, Damage Reduction, or any other rider.<br><br>
+      This buff may not include Armor, Evade, Temporary HP, Healing, Damage Reduction, or any other rider.<br><br>
 
       SUPPORTED TOTAL PHASING CAPS<br>
       L1–3 → no effect.<br>
@@ -828,7 +822,7 @@ If a Tree wants a more complex identity, that complexity should come from the Tr
 
       NOTES<br>
       This buff grants fixed Temporary HP when activated, not refreshing Temporary HP.<br>
-      It grants no Evade, no Healing, no Save Dice, no Damage Reduction, no Phasing, and no offensive rider.<br>
+      It grants no Evade, no Healing, no Damage Reduction, no Phasing, and no offensive rider.<br>
       Use this for armored, plated, warded, shielded, stone-skinned, or anti-burst defensive identities.
     </span>
   </span>
@@ -897,7 +891,7 @@ You reinforce yourself with both a hardened defensive layer and a temporary dama
 
       NOTES<br>
       This buff grants refreshing Temporary HP, not real healing.<br>
-      It grants no Armor, no Healing, no Save Dice, no Damage Reduction, no Phasing, and no offensive rider.<br>
+      It grants no Armor, no Healing, no Damage Reduction, no Phasing, and no offensive rider.<br>
       Use this for elusive shield, mist-body, shadow-buffer, kinetic guard, or skirmisher-defense identities.
     </span>
   </span>
@@ -969,7 +963,7 @@ You avoid the cleanest hits, and what still connects is swallowed by a temporary
       Temporary HP and Healing are separate effects.<br>
       Temporary HP never counts as real healing.<br>
       Healing never restores Temporary HP.<br>
-      This buff grants no Armor, no Evade, no Save Dice, no Damage Reduction, no Phasing, and no offensive rider.
+      This buff grants no Armor, no Evade, no Damage Reduction, no Phasing, and no offensive rider.
     </span>
   </span>
 </h3>
@@ -1043,7 +1037,7 @@ A protective buffer rebuilds around you while your real wounds recover beneath i
 
       NOTES<br>
       This is the standard mixed mitigation-and-avoidance buff.<br>
-      It grants no Temporary HP, no Healing, no Save Dice, no Damage Reduction, no Phasing, and no offensive rider.
+      It grants no Temporary HP, no Healing, no Damage Reduction, no Phasing, and no offensive rider.
     </span>
   </span>
 </h3>
@@ -1427,9 +1421,11 @@ If a character wants Critical, they must spend their maintained Active Buff slot
 
 ### Active Buff Special Rules
 
-Active Buffs may not apply Specials by default.
+Active Buffs do not apply Specials.
 
-An Active Buff may only interact with Specials through **Active Buff: Special Overdrive**.
+The only core Active Buff interaction with Specials is **Active Buff: Special Overdrive**.
+
+Special Overdrive never starts a Special. It only increases one chosen eligible Special already affecting the creature you hit.
 
 Special Overdrive may only increase an already existing eligible **Special(X)**.
 
@@ -1452,38 +1448,35 @@ A Special is eligible for Special Overdrive only if all of the following are tru
 
 Common eligible examples include:
 
-- **Bleeding(X)**
-- **Ignite(X)**
-- **Poisoned(X)**
-- **Shock(X)**
-- **Freeze(X)**
+- **Blight(X)**
+- **Challenge(X)**
 - **Corrode(X)**
+- **Disoriented(X)**
 - **Expose(X)**
-- **Mark(X)**
-- **Weaken(X)**
-- **Soulburn(X)**
 - **Hex(X)**
+- **Lacerate(X)**
+- **Mark(X)**
+- **Ruin(X)**
+- **Slow(X)**
+- **Soulburn(X)**
 - **Sundered(X)**
+- **Weaken(X)**
 }}
 
 \page
-{{page
+{{pageNumber,auto}}
+{{wide
 Common ineligible examples include:
 
 - **Stunned**
 - **Prone**
 - **Immovable**
-- **Charm**
-- **Dominate**
-- **Blinded**, if binary
-- **Silenced**, if binary
-- **Immobilized**, if binary
-- **Freeze**, if written as hard control or full action denial
 - any Special without **(X)**
 - any binary Special
-- any hard control Special
-- any full-turn denial Special
-- any full-reaction denial Special
+- any hard-control effect
+- any forced-behavior effect
+- any full-turn denial effect
+- any full-reaction denial effect
 - any effect that grants, increases, or modifies **Damage Reduction**
 - any effect that grants, increases, or modifies **Phasing**
 - **Barriers**
@@ -1495,8 +1488,8 @@ Common ineligible examples include:
 
 Special Overdrive is meant to escalate pressure, not to multiply hard control.
 
-It may push an existing wound, burn, poison, mark, weakness, exposure, shock, or similar numeric condition beyond its normal limit.  
-It may not repeatedly stack knockdown, stun, domination, immobility, full action denial, or other binary control effects.
+It may push an existing numeric wound, mark, weakness, exposure, corrosion, curse, or pool-reduction effect beyond its normal value.  
+It may not escalate knockdown, stun, forced behavior, full action denial, or other binary control effects.
 }}
 
 \page
@@ -1520,10 +1513,10 @@ It may not repeatedly stack knockdown, stun, domination, immobility, full action
       If the target is not already affected by the chosen Special, this buff does nothing.<br><br>
 
       ELIGIBLE SPECIALS<br>
-      Common eligible examples include Bleeding(X), Ignite(X), Poisoned(X), Shock(X), Freeze(X), Corrode(X), Expose(X), Mark(X), Weaken(X), Soulburn(X), Hex(X), and Sundered(X), if the Special is written as Special(X) and increasing X is meaningful.<br><br>
+      Common eligible examples include **Blight(X)**, **Challenge(X)**, **Corrode(X)**, **Disoriented(X)**, **Expose(X)**, **Hex(X)**, **Lacerate(X)**, **Mark(X)**, **Ruin(X)**, **Slow(X)**, **Soulburn(X)**, **Sundered(X)**, and **Weaken(X)**.<br><br>
 
       INELIGIBLE SPECIALS<br>
-      This buff may not affect binary Specials, hard control, Stunned, Immovable, Prone, Charm, Dominate, Blinded if binary, Silenced if binary, Damage Reduction, Phasing, Barriers, Walls, Images, Summons, Illusion Fields, or Persistent Zones.<br><br>
+      This buff may not affect binary Specials, hard control, forced behavior, Stunned, Immovable, Prone, Damage Reduction, Phasing, Barriers, Walls, Images, Summons, Illusion Fields, or Persistent Zones.<br><br>
 
       ACTIVE BUFF SPECIAL OVERDRIVE MILESTONES<br>
       L1–3 → no effect.<br>
@@ -1556,8 +1549,8 @@ It may not repeatedly stack knockdown, stun, domination, immobility, full action
       Unused PP remains unused instead of being converted into other bonuses.<br><br>
 
       NOTES<br>
-      Active Buffs may not apply Specials by default.<br>
-      This entry only increases an already existing Special.<br>
+      Active Buffs do not apply Specials.<br>
+      Special Overdrive is the only core Active Buff interaction with Specials and only increases an already existing Special.<br>
       If a character wants Special Overdrive, they must spend their maintained Active Buff slot on this dedicated buff.
     </span>
   </span>
@@ -1583,6 +1576,16 @@ You push an existing condition past its normal limits, turning setup into escala
 | **14** | Active Buff | Self | — | Mastery Rank Rounds | Choose one eligible **Special(X)**. The first time each round you hit a creature already affected by that Special, increase it by **+3**. |
 | **15** | Active Buff | Self | — | Mastery Rank Rounds | Choose one eligible **Special(X)**. The first time each round you hit a creature already affected by that Special, increase it by **+4**. |
 | **16** | Active Buff | Self | — | Mastery Rank Rounds | Choose one eligible **Special(X)**. The first time each round you hit a creature already affected by that Special, increase it by **+4**. |
+
+---
+:
+#### Example — Weaken Overdrive
+
+A creature is already affected by **Weaken(3)**. At Active Buff Level 8, the first qualifying hit each round increases it by **+2**, producing **Weaken(5)**. If the creature has no Weaken value before the hit, Special Overdrive does nothing.
+
+#### Example — Soulburn Overdrive
+
+A creature is already affected by **Soulburn(4)**. At Active Buff Level 12, the first qualifying hit each round increases it by **+3**, producing **Soulburn(7)**. This increases only the existing Special; it does not alter Attributes, Keep, or derived values.
 
 ---
 
@@ -1627,7 +1630,7 @@ You push an existing condition past its normal limits, turning setup into escala
       NOTES<br>
       Values are rounded down to whole Spell Resistance values.<br>
       Leftover PP is intentionally unused because +1 more Spell Resistance would exceed the target curve at every level.<br>
-      This buff grants no Armor, Evade, Damage Reduction, Phasing, Temporary HP, Healing, Save Dice, Attack Dice, Cleanse, Absorption, Damage, Penetration, Critical, Movement, or control.
+      This buff grants no Armor, Evade, Damage Reduction, Phasing, Temporary HP, Healing, Attack Dice, Cleanse, Absorption, Damage, Penetration, Critical, Movement, or control.
     </span>
   </span>
 </h3>
@@ -1675,7 +1678,7 @@ You raise a temporary ward that makes hostile spell structure harder to force th
       This Cleanse does not trigger Absorption.<br><br>
 
       ELIGIBLE EFFECTS<br>
-      Eligible effects are negative numeric creature effects or removable ongoing creature effects that can normally be reduced by Cleanse, such as Bleeding(X), Ignite(X), Poisoned(X), Shock(X), Freeze(X), Corrode(X), Expose(X), Mark(X), Weaken(X), Soulburn(X), Hex(X), Sundered(X), Frightened(X), Blinded(X), and similar effects if written as removable value-based effects.<br><br>
+      Eligible effects are numeric creature effects that can normally be reduced by Cleanse, including Blight(X), Challenge(X), Corrode(X), Disoriented(X), Expose(X), Hex(X), Lacerate(X), Mark(X), Root(X), Ruin(X), Slow(X), Soulburn(X), Sundered(X), and Weaken(X).<br><br>
 
       INELIGIBLE EFFECTS<br>
       This cannot remove battlefield objects, Barriers, Walls, Images, Summons, Illusion Fields, Persistent Zones, terrain effects, non-creature effects, or effects that require Dispel or a dedicated rule.<br><br>
@@ -1701,7 +1704,7 @@ You raise a temporary ward that makes hostile spell structure harder to force th
       NOTES<br>
       Values are rounded down to whole Cleanse values.<br>
       Leftover PP is intentionally unused because Cleanse(1) more would exceed the target curve at every level.<br>
-      This buff grants no Spell Resistance, Armor, Evade, Damage Reduction, Phasing, Temporary HP, Healing, Save Dice, Attack Dice, Absorption, Damage, Penetration, Critical, Movement, or control.
+      This buff grants no Spell Resistance, Armor, Evade, Damage Reduction, Phasing, Temporary HP, Healing, Attack Dice, Absorption, Damage, Penetration, Critical, Movement, or control.
     </span>
   </span>
 </h3>
@@ -1739,7 +1742,7 @@ You enter a cleansing state that steadily pushes hostile conditions out of you.
 
 Active Buff Auras are maintained self-centered effects that move with the user for the Buff's duration.
 
-They are a dedicated exception to the normal Active Buff rule that Active Buffs do not directly deal damage, heal multiple targets, or apply Specials.
+They are a dedicated exception to the normal Active Buff rule that Active Buffs do not directly deal damage or heal multiple targets.
 
 An Active Buff Aura uses exactly one payload type.
 
@@ -1747,11 +1750,6 @@ Choose one:
 
 - **Damage Aura**
 - **Healing Aura**
-- **Special Aura**
-
-The Aura Payload Budget may not be split between Damage and Special.
-
-The Aura Payload Budget may not be split between Healing and Special.
 
 The Aura Payload Budget may not be split between Damage and Healing.
 
@@ -1759,7 +1757,7 @@ A Damage Aura deals only damage.
 
 A Healing Aura heals only HP.
 
-A Special Aura applies only the chosen eligible Special(X).
+Active Buff Auras never apply or increase Specials.
 
 ---
 
@@ -1829,14 +1827,11 @@ Active Buff Auras may not:
 - trigger each time you pass a creature,
 - trigger when a creature enters or leaves the aura by default,
 - apply more than one payload,
-- combine Damage and Special Application,
 - combine Healing and Damage,
-- combine Healing and Special Application,
 - apply hard control,
 - apply binary Specials,
 - grant Critical,
 - grant Penetration,
-- grant Save Dice,
 - grant Extra Attacks,
 - grant Movement,
 - grant Reactions,
@@ -1868,7 +1863,7 @@ An Active Buff Aura is a maintained battlefield presence, not a movement lawnmow
       DESIGN STRUCTURE<br>
       This is a single-payload Active Buff Aura.<br>
       The aura spends its Payload Budget only on damage.<br>
-      It does not apply Specials, Penetration, Critical, Attack Dice, Save Dice, Armor, Evade, Healing, Temporary HP, Damage Reduction, Phasing, Movement, Reactions, or any other rider.<br><br>
+      It does not apply Specials, Penetration, Critical, Attack Dice, Armor, Evade, Healing, Temporary HP, Damage Reduction, Phasing, Movement, Reactions, or any other rider.<br><br>
 
       TIMING<br>
       At the end of each of your turns, enemies inside the aura take the listed damage.<br>
@@ -2001,422 +1996,6 @@ You radiate restorative force, warmth, blessing, blood magic, life energy, or st
 {{pageNumber,auto}}
 {{wide
 
-## Active Buffs — Special Auras
-
-Special Auras use the same Aura Payload Budget as other Active Buff Auras.
-
-A Special Aura applies exactly one chosen eligible **Special(X)**.
-
-It may not deal damage.
-
-It may not heal.
-
-It may not increase a Special.
-
-It may not apply hard control, binary Specials, Damage Reduction, Phasing, Barriers, Walls, Images, Summons, Illusion Fields, Persistent Zones, or any effect without numeric **(X)** scaling.
-
-The chosen Special is priced using its own **Start PP × T(X)** cost.
-
-The aura applies the highest X value that fits into the Aura Payload Budget.
-
----
-
-### Special Aura Cost Table by Start PP
-
-| **Level** | **Radius** | **Payload Budget** | **Start PP 3** | **Start PP 4** | **Start PP 5** | **Start PP 6** | **Start PP 8** |
-|:--:|:--:|--:|:--:|:--:|:--:|:--:|:--:|
-| **1** | 2 m | 20 | X3 | X2 | X2 | X2 | X1 |
-| **2** | 2 m | 50 | X5 | X4 | X4 | X3 | X3 |
-| **3** | 2 m | 80 | X6 | X5 | X5 | X4 | X4 |
-| **4** | 2 m | 110 | X8 | X6 | X6 | X5 | X4 |
-| **5** | 2 m | 140 | X9 | X7 | X7 | X6 | X5 |
-| **6** | 2 m | 170 | X10 | X8 | X7 | X7 | X6 |
-| **7** | 2 m | 200 | X11 | X9 | X8 | X7 | X6 |
-| **8** | 3 m | 200 | X11 | X9 | X8 | X7 | X6 |
-| **9** | 3 m | 230 | X11 | X10 | X9 | X8 | X7 |
-| **10** | 3 m | 260 | X12 | X10 | X9 | X8 | X7 |
-| **11** | 3 m | 290 | X13 | X11 | X10 | X9 | X8 |
-| **12** | 3 m | 320 | X14 | X12 | X10 | X9 | X8 |
-| **13** | 3 m | 350 | X14 | X12 | X11 | X10 | X8 |
-| **14** | 3 m | 380 | X15 | X13 | X11 | X10 | X9 |
-| **15** | 4 m | 370 | X15 | X13 | X11 | X10 | X9 |
-| **16** | 4 m | 400 | X15 | X13 | X12 | X11 | X9 |
-
----
-
-### Special Mapping
-
-Use these cost groups for the current core Diminishing Specials:
-
-| **Special** | **Start PP** | **Use Aura Table Column** | **Default Valid Targets** |
-|:--|:--:|:--:|:--|
-| **Poisoned(X)** | 3 | Start PP 3 | enemies |
-| **Regeneration(X)** | 3 | Start PP 3 | allies |
-| **Bleeding(X)** | 4 | Start PP 4 | enemies |
-| **Freeze(X)** | 4 | Start PP 4 | enemies |
-| **Ignite(X)** | 4 | Start PP 4 | enemies |
-| **Mark(X)** | 4 | Start PP 4 | enemies |
-| **Weaken(X)** | 5 | Start PP 5 | enemies |
-| **Corrode(X)** | 6 | Start PP 6 | enemies |
-| **Shock(X)** | 6 | Start PP 6 | enemies |
-| **Soulburn(X)** | 6 | Start PP 6 | enemies |
-| **Hex(X)** | 6 | Start PP 6 | enemies |
-| **Sundered(X)** | 6 | Start PP 6 | enemies |
-| **Expose(X)** | 8 | Start PP 8 | enemies |
-
-}}
-\page
-{{pageNumber,auto}}
-{{wide
-<h3 id="active-buff-special-aura-start-pp-3">
-  Active Buff: Special Aura, Start PP 3
-  <span class="tooltip">🛈
-    <span class="tooltiptext">
-      VALID SPECIALS<br>
-      Poisoned(X), Regeneration(X).<br><br>
-
-      BASELINES<br>
-      Active Buff curve = 40 PP at Level 1, then +30 PP per level up to Level 16.<br>
-      Aura radius bands: L1–7 = 2 m for 20 PP, L8–14 = 3 m for 50 PP, L15–16 = 4 m for 90 PP.<br>
-      This aura uses Start PP 3 and Diminishing pricing: 3 × T(X).<br><br>
-
-      DESIGN STRUCTURE<br>
-      Choose either Poisoned(X) or Regeneration(X) when this Aura is built.<br>
-      The aura applies the highest X value that fits into the Payload Budget.<br>
-      Poisoned(X) affects enemies. Regeneration(X) affects allies.<br>
-      This is a single-payload Active Buff Aura.<br>
-      It does not deal damage, heal directly, increase Specials, or grant any other rider.<br><br>
-
-      LEVEL-BY-LEVEL CALCULATION<br>
-      L1 → Payload 20 → X3 costs 18 PP.<br>
-      L2 → Payload 50 → X5 costs 45 PP.<br>
-      L3 → Payload 80 → X6 costs 63 PP.<br>
-      L4 → Payload 110 → X8 costs 108 PP.<br>
-      L5 → Payload 140 → X9 costs 135 PP.<br>
-      L6 → Payload 170 → X10 costs 165 PP.<br>
-      L7 → Payload 200 → X11 costs 198 PP.<br>
-      L8 → Payload 200 → X11 costs 198 PP.<br>
-      L9 → Payload 230 → X11 costs 198 PP.<br>
-      L10 → Payload 260 → X12 costs 234 PP.<br>
-      L11 → Payload 290 → X13 costs 273 PP.<br>
-      L12 → Payload 320 → X14 costs 315 PP.<br>
-      L13 → Payload 350 → X14 costs 315 PP.<br>
-      L14 → Payload 380 → X15 costs 360 PP.<br>
-      L15 → Payload 370 → X15 costs 360 PP.<br>
-      L16 → Payload 400 → X15 costs 360 PP. X16 would cost 408 PP and does not fit.<br><br>
-
-      NOTES<br>
-      This aura follows all Active Buff Aura timing, radius, payload, and stacking rules.
-    </span>
-  </span>
-</h3>
-
-You radiate one low-cost diminishing effect, such as poison, sickness, corruption, spores, renewal, growth, or life force.
-
-| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
-|:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active Buff | Self | 2 m radius | Mastery Rank Rounds | At the end of each of your turns, valid targets in the aura gain **Poisoned(3)** or **Regeneration(3)**, depending on the chosen Special. |
-| **2** | Active Buff | Self | 2 m radius | Mastery Rank Rounds | At the end of each of your turns, valid targets in the aura gain **Poisoned(5)** or **Regeneration(5)**, depending on the chosen Special. |
-| **3** | Active Buff | Self | 2 m radius | Mastery Rank Rounds | At the end of each of your turns, valid targets in the aura gain **Poisoned(6)** or **Regeneration(6)**, depending on the chosen Special. |
-| **4** | Active Buff | Self | 2 m radius | Mastery Rank Rounds | At the end of each of your turns, valid targets in the aura gain **Poisoned(8)** or **Regeneration(8)**, depending on the chosen Special. |
-| **5** | Active Buff | Self | 2 m radius | Mastery Rank Rounds | At the end of each of your turns, valid targets in the aura gain **Poisoned(9)** or **Regeneration(9)**, depending on the chosen Special. |
-| **6** | Active Buff | Self | 2 m radius | Mastery Rank Rounds | At the end of each of your turns, valid targets in the aura gain **Poisoned(10)** or **Regeneration(10)**, depending on the chosen Special. |
-| **7** | Active Buff | Self | 2 m radius | Mastery Rank Rounds | At the end of each of your turns, valid targets in the aura gain **Poisoned(11)** or **Regeneration(11)**, depending on the chosen Special. |
-| **8** | Active Buff | Self | 3 m radius | Mastery Rank Rounds | At the end of each of your turns, valid targets in the aura gain **Poisoned(11)** or **Regeneration(11)**, depending on the chosen Special. |
-| **9** | Active Buff | Self | 3 m radius | Mastery Rank Rounds | At the end of each of your turns, valid targets in the aura gain **Poisoned(11)** or **Regeneration(11)**, depending on the chosen Special. |
-| **10** | Active Buff | Self | 3 m radius | Mastery Rank Rounds | At the end of each of your turns, valid targets in the aura gain **Poisoned(12)** or **Regeneration(12)**, depending on the chosen Special. |
-| **11** | Active Buff | Self | 3 m radius | Mastery Rank Rounds | At the end of each of your turns, valid targets in the aura gain **Poisoned(13)** or **Regeneration(13)**, depending on the chosen Special. |
-| **12** | Active Buff | Self | 3 m radius | Mastery Rank Rounds | At the end of each of your turns, valid targets in the aura gain **Poisoned(14)** or **Regeneration(14)**, depending on the chosen Special. |
-| **13** | Active Buff | Self | 3 m radius | Mastery Rank Rounds | At the end of each of your turns, valid targets in the aura gain **Poisoned(14)** or **Regeneration(14)**, depending on the chosen Special. |
-| **14** | Active Buff | Self | 3 m radius | Mastery Rank Rounds | At the end of each of your turns, valid targets in the aura gain **Poisoned(15)** or **Regeneration(15)**, depending on the chosen Special. |
-| **15** | Active Buff | Self | 4 m radius | Mastery Rank Rounds | At the end of each of your turns, valid targets in the aura gain **Poisoned(15)** or **Regeneration(15)**, depending on the chosen Special. |
-| **16** | Active Buff | Self | 4 m radius | Mastery Rank Rounds | At the end of each of your turns, valid targets in the aura gain **Poisoned(15)** or **Regeneration(15)**, depending on the chosen Special. |
-
----
-}}
-\page
-{{pageNumber,auto}}
-{{wide
-
-<h3 id="active-buff-special-aura-start-pp-4">
-  Active Buff: Special Aura, Start PP 4
-  <span class="tooltip">🛈
-    <span class="tooltiptext">
-      VALID SPECIALS<br>
-      Bleeding(X), Freeze(X), Ignite(X), Mark(X).<br><br>
-
-      BASELINES<br>
-      Active Buff curve = 40 PP at Level 1, then +30 PP per level up to Level 16.<br>
-      Aura radius bands: L1–7 = 2 m for 20 PP, L8–14 = 3 m for 50 PP, L15–16 = 4 m for 90 PP.<br>
-      This aura uses Start PP 4 and Diminishing pricing: 4 × T(X).<br><br>
-
-      DESIGN STRUCTURE<br>
-      Choose either Bleeding(X), Freeze(X), Ignite(X), or Mark(X) when this Aura is built.<br>
-      The aura applies the highest X value that fits into the Payload Budget.<br>
-      This is a single-payload Active Buff Aura.<br>
-      It does not deal damage, heal directly, increase Specials, or grant any other rider.<br><br>
-
-      LEVEL-BY-LEVEL CALCULATION<br>
-      L1 → Payload 20 → X2 costs 12 PP.<br>
-      L2 → Payload 50 → X4 costs 40 PP.<br>
-      L3 → Payload 80 → X5 costs 60 PP.<br>
-      L4 → Payload 110 → X6 costs 84 PP.<br>
-      L5 → Payload 140 → X7 costs 112 PP.<br>
-      L6 → Payload 170 → X8 costs 144 PP.<br>
-      L7 → Payload 200 → X9 costs 180 PP.<br>
-      L8 → Payload 200 → X9 costs 180 PP.<br>
-      L9 → Payload 230 → X10 costs 220 PP.<br>
-      L10 → Payload 260 → X10 costs 220 PP. X11 would cost 264 PP and does not fit.<br>
-      L11 → Payload 290 → X11 costs 264 PP.<br>
-      L12 → Payload 320 → X12 costs 312 PP.<br>
-      L13 → Payload 350 → X12 costs 312 PP.<br>
-      L14 → Payload 380 → X13 costs 364 PP.<br>
-      L15 → Payload 370 → X13 costs 364 PP.<br>
-      L16 → Payload 400 → X13 costs 364 PP. X14 would cost 420 PP and does not fit.<br><br>
-
-      NOTES<br>
-      This aura follows all Active Buff Aura timing, radius, payload, and stacking rules.
-    </span>
-  </span>
-</h3>
-
-You radiate one standard diminishing effect, such as bleeding pressure, frost, fire, or marked threat.
-
-| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
-|:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active Buff | Self | 2 m radius | Mastery Rank Rounds | At the end of each of your turns, enemies in the aura gain **Bleeding(2)** / **Freeze(2)** / **Ignite(2)** / **Mark(2)**, depending on the chosen Special. |
-| **2** | Active Buff | Self | 2 m radius | Mastery Rank Rounds | At the end of each of your turns, enemies in the aura gain **Bleeding(4)** / **Freeze(4)** / **Ignite(4)** / **Mark(4)**, depending on the chosen Special. |
-| **3** | Active Buff | Self | 2 m radius | Mastery Rank Rounds | At the end of each of your turns, enemies in the aura gain **Bleeding(5)** / **Freeze(5)** / **Ignite(5)** / **Mark(5)**, depending on the chosen Special. |
-| **4** | Active Buff | Self | 2 m radius | Mastery Rank Rounds | At the end of each of your turns, enemies in the aura gain **Bleeding(6)** / **Freeze(6)** / **Ignite(6)** / **Mark(6)**, depending on the chosen Special. |
-| **5** | Active Buff | Self | 2 m radius | Mastery Rank Rounds | At the end of each of your turns, enemies in the aura gain **Bleeding(7)** / **Freeze(7)** / **Ignite(7)** / **Mark(7)**, depending on the chosen Special. |
-| **6** | Active Buff | Self | 2 m radius | Mastery Rank Rounds | At the end of each of your turns, enemies in the aura gain **Bleeding(8)** / **Freeze(8)** / **Ignite(8)** / **Mark(8)**, depending on the chosen Special. |
-| **7** | Active Buff | Self | 2 m radius | Mastery Rank Rounds | At the end of each of your turns, enemies in the aura gain **Bleeding(9)** / **Freeze(9)** / **Ignite(9)** / **Mark(9)**, depending on the chosen Special. |
-| **8** | Active Buff | Self | 3 m radius | Mastery Rank Rounds | At the end of each of your turns, enemies in the aura gain **Bleeding(9)** / **Freeze(9)** / **Ignite(9)** / **Mark(9)**, depending on the chosen Special. |
-| **9** | Active Buff | Self | 3 m radius | Mastery Rank Rounds | At the end of each of your turns, enemies in the aura gain **Bleeding(10)** / **Freeze(10)** / **Ignite(10)** / **Mark(10)**, depending on the chosen Special. |
-| **10** | Active Buff | Self | 3 m radius | Mastery Rank Rounds | At the end of each of your turns, enemies in the aura gain **Bleeding(10)** / **Freeze(10)** / **Ignite(10)** / **Mark(10)**, depending on the chosen Special. |
-| **11** | Active Buff | Self | 3 m radius | Mastery Rank Rounds | At the end of each of your turns, enemies in the aura gain **Bleeding(11)** / **Freeze(11)** / **Ignite(11)** / **Mark(11)**, depending on the chosen Special. |
-| **12** | Active Buff | Self | 3 m radius | Mastery Rank Rounds | At the end of each of your turns, enemies in the aura gain **Bleeding(12)** / **Freeze(12)** / **Ignite(12)** / **Mark(12)**, depending on the chosen Special. |
-| **13** | Active Buff | Self | 3 m radius | Mastery Rank Rounds | At the end of each of your turns, enemies in the aura gain **Bleeding(12)** / **Freeze(12)** / **Ignite(12)** / **Mark(12)**, depending on the chosen Special. |
-| **14** | Active Buff | Self | 3 m radius | Mastery Rank Rounds | At the end of each of your turns, enemies in the aura gain **Bleeding(13)** / **Freeze(13)** / **Ignite(13)** / **Mark(13)**, depending on the chosen Special. |
-| **15** | Active Buff | Self | 4 m radius | Mastery Rank Rounds | At the end of each of your turns, enemies in the aura gain **Bleeding(13)** / **Freeze(13)** / **Ignite(13)** / **Mark(13)**, depending on the chosen Special. |
-| **16** | Active Buff | Self | 4 m radius | Mastery Rank Rounds | At the end of each of your turns, enemies in the aura gain **Bleeding(13)** / **Freeze(13)** / **Ignite(13)** / **Mark(13)**, depending on the chosen Special. |
-
----
-
-
-}}
-\page
-{{pageNumber,auto}}
-{{wide
-
-<h3 id="active-buff-special-aura-start-pp-5">
-  Active Buff: Special Aura, Start PP 5
-  <span class="tooltip">🛈
-    <span class="tooltiptext">
-      VALID SPECIALS<br>
-      Weaken(X).<br><br>
-
-      BASELINES<br>
-      Active Buff curve = 40 PP at Level 1, then +30 PP per level up to Level 16.<br>
-      Aura radius bands: L1–7 = 2 m for 20 PP, L8–14 = 3 m for 50 PP, L15–16 = 4 m for 90 PP.<br>
-      This aura uses Start PP 5 and Diminishing pricing: 5 × T(X).<br><br>
-
-      DESIGN STRUCTURE<br>
-      Choose Body, Mind, or Spirit when this Aura is built.<br>
-      The aura applies the highest Weaken(X) value that fits into the Payload Budget.<br>
-      This is a single-payload Active Buff Aura.<br>
-      It does not deal damage, heal directly, increase Specials, or grant any other rider.<br><br>
-
-      LEVEL-BY-LEVEL CALCULATION<br>
-      L1 → Payload 20 → X2 costs 15 PP.<br>
-      L2 → Payload 50 → X4 costs 50 PP.<br>
-      L3 → Payload 80 → X5 costs 75 PP.<br>
-      L4 → Payload 110 → X6 costs 105 PP.<br>
-      L5 → Payload 140 → X7 costs 140 PP.<br>
-      L6 → Payload 170 → X7 costs 140 PP. X8 would cost 180 PP and does not fit.<br>
-      L7 → Payload 200 → X8 costs 180 PP.<br>
-      L8 → Payload 200 → X8 costs 180 PP.<br>
-      L9 → Payload 230 → X9 costs 225 PP.<br>
-      L10 → Payload 260 → X9 costs 225 PP.<br>
-      L11 → Payload 290 → X10 costs 275 PP.<br>
-      L12 → Payload 320 → X10 costs 275 PP.<br>
-      L13 → Payload 350 → X11 costs 330 PP.<br>
-      L14 → Payload 380 → X11 costs 330 PP.<br>
-      L15 → Payload 370 → X11 costs 330 PP.<br>
-      L16 → Payload 400 → X12 costs 390 PP.<br><br>
-
-      NOTES<br>
-      This aura follows all Active Buff Aura timing, radius, payload, and stacking rules.
-    </span>
-  </span>
-</h3>
-
-You radiate doubt, sickness, exhaustion, spiritual pressure, crushing presence, or destabilizing magic.
-
-| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
-|:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active Buff | Self | 2 m radius | Mastery Rank Rounds | At the end of each of your turns, enemies in the aura gain **Weaken(2)** to the chosen Save type. |
-| **2** | Active Buff | Self | 2 m radius | Mastery Rank Rounds | At the end of each of your turns, enemies in the aura gain **Weaken(4)** to the chosen Save type. |
-| **3** | Active Buff | Self | 2 m radius | Mastery Rank Rounds | At the end of each of your turns, enemies in the aura gain **Weaken(5)** to the chosen Save type. |
-| **4** | Active Buff | Self | 2 m radius | Mastery Rank Rounds | At the end of each of your turns, enemies in the aura gain **Weaken(6)** to the chosen Save type. |
-| **5** | Active Buff | Self | 2 m radius | Mastery Rank Rounds | At the end of each of your turns, enemies in the aura gain **Weaken(7)** to the chosen Save type. |
-| **6** | Active Buff | Self | 2 m radius | Mastery Rank Rounds | At the end of each of your turns, enemies in the aura gain **Weaken(7)** to the chosen Save type. |
-| **7** | Active Buff | Self | 2 m radius | Mastery Rank Rounds | At the end of each of your turns, enemies in the aura gain **Weaken(8)** to the chosen Save type. |
-| **8** | Active Buff | Self | 3 m radius | Mastery Rank Rounds | At the end of each of your turns, enemies in the aura gain **Weaken(8)** to the chosen Save type. |
-| **9** | Active Buff | Self | 3 m radius | Mastery Rank Rounds | At the end of each of your turns, enemies in the aura gain **Weaken(9)** to the chosen Save type. |
-| **10** | Active Buff | Self | 3 m radius | Mastery Rank Rounds | At the end of each of your turns, enemies in the aura gain **Weaken(9)** to the chosen Save type. |
-| **11** | Active Buff | Self | 3 m radius | Mastery Rank Rounds | At the end of each of your turns, enemies in the aura gain **Weaken(10)** to the chosen Save type. |
-| **12** | Active Buff | Self | 3 m radius | Mastery Rank Rounds | At the end of each of your turns, enemies in the aura gain **Weaken(10)** to the chosen Save type. |
-| **13** | Active Buff | Self | 3 m radius | Mastery Rank Rounds | At the end of each of your turns, enemies in the aura gain **Weaken(11)** to the chosen Save type. |
-| **14** | Active Buff | Self | 3 m radius | Mastery Rank Rounds | At the end of each of your turns, enemies in the aura gain **Weaken(11)** to the chosen Save type. |
-| **15** | Active Buff | Self | 4 m radius | Mastery Rank Rounds | At the end of each of your turns, enemies in the aura gain **Weaken(11)** to the chosen Save type. |
-| **16** | Active Buff | Self | 4 m radius | Mastery Rank Rounds | At the end of each of your turns, enemies in the aura gain **Weaken(12)** to the chosen Save type. |
-
----
-
-}}
-\page
-{{pageNumber,auto}}
-{{wide
-
-<h3 id="active-buff-special-aura-start-pp-6">
-  Active Buff: Special Aura, Start PP 6
-  <span class="tooltip">🛈
-    <span class="tooltiptext">
-      VALID SPECIALS<br>
-      Corrode(X), Shock(X), Soulburn(X), Hex(X), Sundered(X).<br><br>
-
-      BASELINES<br>
-      Active Buff curve = 40 PP at Level 1, then +30 PP per level up to Level 16.<br>
-      Aura radius bands: L1–7 = 2 m for 20 PP, L8–14 = 3 m for 50 PP, L15–16 = 4 m for 90 PP.<br>
-      This aura uses Start PP 6 and Diminishing pricing: 6 × T(X).<br><br>
-
-      DESIGN STRUCTURE<br>
-      Choose either Corrode(X), Shock(X), Soulburn(X), Hex(X), or Sundered(X) when this Aura is built.<br>
-      The aura applies the highest X value that fits into the Payload Budget.<br>
-      This is a single-payload Active Buff Aura.<br>
-      It does not deal damage, heal directly, increase Specials, or grant any other rider.<br><br>
-
-      LEVEL-BY-LEVEL CALCULATION<br>
-      L1 → Payload 20 → X2 costs 18 PP.<br>
-      L2 → Payload 50 → X3 costs 36 PP.<br>
-      L3 → Payload 80 → X4 costs 60 PP.<br>
-      L4 → Payload 110 → X5 costs 90 PP.<br>
-      L5 → Payload 140 → X6 costs 126 PP.<br>
-      L6 → Payload 170 → X7 costs 168 PP.<br>
-      L7 → Payload 200 → X7 costs 168 PP. X8 would cost 216 PP and does not fit.<br>
-      L8 → Payload 200 → X7 costs 168 PP. X8 would cost 216 PP and does not fit.<br>
-      L9 → Payload 230 → X8 costs 216 PP.<br>
-      L10 → Payload 260 → X8 costs 216 PP.<br>
-      L11 → Payload 290 → X9 costs 270 PP.<br>
-      L12 → Payload 320 → X9 costs 270 PP.<br>
-      L13 → Payload 350 → X10 costs 330 PP.<br>
-      L14 → Payload 380 → X10 costs 330 PP.<br>
-      L15 → Payload 370 → X10 costs 330 PP.<br>
-      L16 → Payload 400 → X11 costs 396 PP.<br><br>
-
-      NOTES<br>
-      This aura follows all Active Buff Aura timing, radius, payload, and stacking rules.
-    </span>
-  </span>
-</h3>
-
-You radiate one high-pressure diminishing effect, such as corrosion, shock, soul pressure, spell vulnerability, or physical vulnerability.
-
-| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
-|:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active Buff | Self | 2 m radius | Mastery Rank Rounds | At the end of each of your turns, enemies in the aura gain **Corrode(2)** / **Shock(2)** / **Soulburn(2)** / **Hex(2)** / **Sundered(2)**, depending on the chosen Special. |
-| **2** | Active Buff | Self | 2 m radius | Mastery Rank Rounds | At the end of each of your turns, enemies in the aura gain **Corrode(3)** / **Shock(3)** / **Soulburn(3)** / **Hex(3)** / **Sundered(3)**, depending on the chosen Special. |
-| **3** | Active Buff | Self | 2 m radius | Mastery Rank Rounds | At the end of each of your turns, enemies in the aura gain **Corrode(4)** / **Shock(4)** / **Soulburn(4)** / **Hex(4)** / **Sundered(4)**, depending on the chosen Special. |
-| **4** | Active Buff | Self | 2 m radius | Mastery Rank Rounds | At the end of each of your turns, enemies in the aura gain **Corrode(5)** / **Shock(5)** / **Soulburn(5)** / **Hex(5)** / **Sundered(5)**, depending on the chosen Special. |
-| **5** | Active Buff | Self | 2 m radius | Mastery Rank Rounds | At the end of each of your turns, enemies in the aura gain **Corrode(6)** / **Shock(6)** / **Soulburn(6)** / **Hex(6)** / **Sundered(6)**, depending on the chosen Special. |
-| **6** | Active Buff | Self | 2 m radius | Mastery Rank Rounds | At the end of each of your turns, enemies in the aura gain **Corrode(7)** / **Shock(7)** / **Soulburn(7)** / **Hex(7)** / **Sundered(7)**, depending on the chosen Special. |
-| **7** | Active Buff | Self | 2 m radius | Mastery Rank Rounds | At the end of each of your turns, enemies in the aura gain **Corrode(7)** / **Shock(7)** / **Soulburn(7)** / **Hex(7)** / **Sundered(7)**, depending on the chosen Special. |
-| **8** | Active Buff | Self | 3 m radius | Mastery Rank Rounds | At the end of each of your turns, enemies in the aura gain **Corrode(7)** / **Shock(7)** / **Soulburn(7)** / **Hex(7)** / **Sundered(7)**, depending on the chosen Special. |
-| **9** | Active Buff | Self | 3 m radius | Mastery Rank Rounds | At the end of each of your turns, enemies in the aura gain **Corrode(8)** / **Shock(8)** / **Soulburn(8)** / **Hex(8)** / **Sundered(8)**, depending on the chosen Special. |
-| **10** | Active Buff | Self | 3 m radius | Mastery Rank Rounds | At the end of each of your turns, enemies in the aura gain **Corrode(8)** / **Shock(8)** / **Soulburn(8)** / **Hex(8)** / **Sundered(8)**, depending on the chosen Special. |
-| **11** | Active Buff | Self | 3 m radius | Mastery Rank Rounds | At the end of each of your turns, enemies in the aura gain **Corrode(9)** / **Shock(9)** / **Soulburn(9)** / **Hex(9)** / **Sundered(9)**, depending on the chosen Special. |
-| **12** | Active Buff | Self | 3 m radius | Mastery Rank Rounds | At the end of each of your turns, enemies in the aura gain **Corrode(9)** / **Shock(9)** / **Soulburn(9)** / **Hex(9)** / **Sundered(9)**, depending on the chosen Special. |
-| **13** | Active Buff | Self | 3 m radius | Mastery Rank Rounds | At the end of each of your turns, enemies in the aura gain **Corrode(10)** / **Shock(10)** / **Soulburn(10)** / **Hex(10)** / **Sundered(10)**, depending on the chosen Special. |
-| **14** | Active Buff | Self | 3 m radius | Mastery Rank Rounds | At the end of each of your turns, enemies in the aura gain **Corrode(10)** / **Shock(10)** / **Soulburn(10)** / **Hex(10)** / **Sundered(10)**, depending on the chosen Special. |
-| **15** | Active Buff | Self | 4 m radius | Mastery Rank Rounds | At the end of each of your turns, enemies in the aura gain **Corrode(10)** / **Shock(10)** / **Soulburn(10)** / **Hex(10)** / **Sundered(10)**, depending on the chosen Special. |
-| **16** | Active Buff | Self | 4 m radius | Mastery Rank Rounds | At the end of each of your turns, enemies in the aura gain **Corrode(11)** / **Shock(11)** / **Soulburn(11)** / **Hex(11)** / **Sundered(11)**, depending on the chosen Special. |
-
----
-
-
-}}
-\page
-{{pageNumber,auto}}
-{{wide
-
-
-<h3 id="active-buff-special-aura-start-pp-8">
-  Active Buff: Special Aura, Start PP 8
-  <span class="tooltip">🛈
-    <span class="tooltiptext">
-      VALID SPECIALS<br>
-      Expose(X).<br><br>
-
-      BASELINES<br>
-      Active Buff curve = 40 PP at Level 1, then +30 PP per level up to Level 16.<br>
-      Aura radius bands: L1–7 = 2 m for 20 PP, L8–14 = 3 m for 50 PP, L15–16 = 4 m for 90 PP.<br>
-      This aura uses Start PP 8 and Diminishing pricing: 8 × T(X).<br><br>
-
-      DESIGN STRUCTURE<br>
-      The aura applies the highest Expose(X) value that fits into the Payload Budget.<br>
-      This is a single-payload Active Buff Aura.<br>
-      It does not deal damage, heal directly, increase Specials, or grant any other rider.<br><br>
-
-      LEVEL-BY-LEVEL CALCULATION<br>
-      L1 → Payload 20 → X1 costs 8 PP.<br>
-      L2 → Payload 50 → X3 costs 48 PP.<br>
-      L3 → Payload 80 → X4 costs 80 PP.<br>
-      L4 → Payload 110 → X4 costs 80 PP. X5 would cost 120 PP and does not fit.<br>
-      L5 → Payload 140 → X5 costs 120 PP.<br>
-      L6 → Payload 170 → X6 costs 168 PP.<br>
-      L7 → Payload 200 → X6 costs 168 PP. X7 would cost 224 PP and does not fit.<br>
-      L8 → Payload 200 → X6 costs 168 PP. X7 would cost 224 PP and does not fit.<br>
-      L9 → Payload 230 → X7 costs 224 PP.<br>
-      L10 → Payload 260 → X7 costs 224 PP.<br>
-      L11 → Payload 290 → X8 costs 288 PP.<br>
-      L12 → Payload 320 → X8 costs 288 PP.<br>
-      L13 → Payload 350 → X8 costs 288 PP. X9 would cost 360 PP and does not fit.<br>
-      L14 → Payload 380 → X9 costs 360 PP.<br>
-      L15 → Payload 370 → X9 costs 360 PP.<br>
-      L16 → Payload 400 → X9 costs 360 PP. X10 would cost 440 PP and does not fit.<br><br>
-
-      NOTES<br>
-      This aura follows all Active Buff Aura timing, radius, payload, and stacking rules.
-    </span>
-  </span>
-</h3>
-
-You radiate revealing light, tactical pressure, sensory distortion, vulnerability, or opening force.
-
-| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
-|:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active Buff | Self | 2 m radius | Mastery Rank Rounds | At the end of each of your turns, enemies in the aura gain **Expose(1)**. |
-| **2** | Active Buff | Self | 2 m radius | Mastery Rank Rounds | At the end of each of your turns, enemies in the aura gain **Expose(3)**. |
-| **3** | Active Buff | Self | 2 m radius | Mastery Rank Rounds | At the end of each of your turns, enemies in the aura gain **Expose(4)**. |
-| **4** | Active Buff | Self | 2 m radius | Mastery Rank Rounds | At the end of each of your turns, enemies in the aura gain **Expose(4)**. |
-| **5** | Active Buff | Self | 2 m radius | Mastery Rank Rounds | At the end of each of your turns, enemies in the aura gain **Expose(5)**. |
-| **6** | Active Buff | Self | 2 m radius | Mastery Rank Rounds | At the end of each of your turns, enemies in the aura gain **Expose(6)**. |
-| **7** | Active Buff | Self | 2 m radius | Mastery Rank Rounds | At the end of each of your turns, enemies in the aura gain **Expose(6)**. |
-| **8** | Active Buff | Self | 3 m radius | Mastery Rank Rounds | At the end of each of your turns, enemies in the aura gain **Expose(6)**. |
-| **9** | Active Buff | Self | 3 m radius | Mastery Rank Rounds | At the end of each of your turns, enemies in the aura gain **Expose(7)**. |
-| **10** | Active Buff | Self | 3 m radius | Mastery Rank Rounds | At the end of each of your turns, enemies in the aura gain **Expose(7)**. |
-| **11** | Active Buff | Self | 3 m radius | Mastery Rank Rounds | At the end of each of your turns, enemies in the aura gain **Expose(8)**. |
-| **12** | Active Buff | Self | 3 m radius | Mastery Rank Rounds | At the end of each of your turns, enemies in the aura gain **Expose(8)**. |
-| **13** | Active Buff | Self | 3 m radius | Mastery Rank Rounds | At the end of each of your turns, enemies in the aura gain **Expose(8)**. |
-| **14** | Active Buff | Self | 3 m radius | Mastery Rank Rounds | At the end of each of your turns, enemies in the aura gain **Expose(9)**. |
-| **15** | Active Buff | Self | 4 m radius | Mastery Rank Rounds | At the end of each of your turns, enemies in the aura gain **Expose(9)**. |
-| **16** | Active Buff | Self | 4 m radius | Mastery Rank Rounds | At the end of each of your turns, enemies in the aura gain **Expose(9)**. |
-
----
-
-
-}}
 \page
 {{pageNumber,auto}}
 {{wide
@@ -2438,7 +2017,7 @@ You radiate revealing light, tactical pressure, sensory distortion, vulnerabilit
       DESIGN STRUCTURE<br>
       This is an Artifact-only single-payload Active Buff Aura.<br>
       The aura spends its Payload Budget only on Smite dice.<br>
-      It does not apply Specials, Penetration, Critical, Attack Dice, Save Dice, Armor, Evade, Healing, Temporary HP, Damage Reduction, Phasing, Movement, Reactions, or any other rider.<br><br>
+      It does not apply Specials, Penetration, Critical, Attack Dice, Armor, Evade, Healing, Temporary HP, Damage Reduction, Phasing, Movement, Reactions, or any other rider.<br><br>
 
       TIMING<br>
       At the end of each of your turns, enemies inside the aura take the listed Smite damage.<br>
@@ -2567,7 +2146,7 @@ You radiate artifact-bound divine wrath, oathfire, judgment, sacred force, or an
       L16 → +16d8 Damage (240) +32 Armor (240) = 480 PP, close to target after True Giant package.<br><br>
 
   NOTES<br>
-      This Active Buff grants no Attack Dice, no Save Dice, no Critical, no Penetration, no Special Application, no Special Increase, no Extra Attacks, no Damage Reduction, no Phasing, and no Movement Power.<br>
+      This Active Buff grants no Attack Dice, no Critical, no Penetration, no Special Application, no Special Increase, no Extra Attacks, no Damage Reduction, no Phasing, and no Movement Power.<br>
       Growth Form does not grant bonus movement.<br>
       Growth Form uses your maintained Active Buff slot.
     </span>
@@ -2583,12 +2162,12 @@ You radiate artifact-bound divine wrath, oathfire, judgment, sacred force, or an
 | **5** | Active Buff | Self | — | Mastery Rank Rounds | Large Form | 3 hexes | +2 m | Reduce Push, Pull, and forced movement by **5 m**. Immune to Prone effects caused by creatures smaller than you. | Gain **+5d8 Damage** and **+10 Armor**. | **-4 Evade** and **-4 Initiative**. |
 | **6** | Active Buff | Self | — | Mastery Rank Rounds | Large Form | 3 hexes | +2 m | Reduce Push, Pull, and forced movement by **6 m**. Immune to Prone effects caused by creatures smaller than you. | Gain **+6d8 Damage** and **+12 Armor**. | **-5 Evade** and **-4 Initiative**. |
 | **7** | Active Buff | Self | — | Mastery Rank Rounds | Large Form | 3 hexes | +2 m | Reduce Push, Pull, and forced movement by **7 m**. Immune to Prone effects caused by creatures smaller than you. | Gain **+7d8 Damage** and **+14 Armor**. | **-5 Evade** and **-4 Initiative**. |
-| **8** | Active Buff | Self | — | Mastery Rank Rounds | Massive Form | 3 hexes | +3 m | Reduce Push, Pull, and forced movement by **8 m**. Immune to Prone effects caused by creatures smaller than you. | Gain **+8d8 Damage** and **+16 Armor**. | **-6 Evade**, **-8 Initiative**, and **-1d8 Physical Skills except Strength and Body**. |
-| **9** | Active Buff | Self | — | Mastery Rank Rounds | Massive Form | 3 hexes | +3 m | Reduce Push, Pull, and forced movement by **9 m**. Immune to Prone effects caused by creatures smaller than you. | Gain **+9d8 Damage** and **+18 Armor**. | **-6 Evade**, **-8 Initiative**, and **-1d8 Physical Skills except Strength and Body**. |
-| **10** | Active Buff | Self | — | Mastery Rank Rounds | Massive Form | 3 hexes | +3 m | Reduce Push, Pull, and forced movement by **10 m**. Immune to Prone effects caused by creatures smaller than you. | Gain **+10d8 Damage** and **+20 Armor**. | **-7 Evade**, **-8 Initiative**, and **-1d8 Physical Skills except Strength and Body**. |
-| **11** | Active Buff | Self | — | Mastery Rank Rounds | Massive Form | 3 hexes | +3 m | Reduce Push, Pull, and forced movement by **11 m**. Immune to Prone effects caused by creatures smaller than you. | Gain **+11d8 Damage** and **+22 Armor**. | **-7 Evade**, **-8 Initiative**, and **-1d8 Physical Skills except Strength and Body**. |
-| **12** | Active Buff | Self | — | Mastery Rank Rounds | Huge Form | 7 hexes | +4 m | Reduce Push, Pull, and forced movement by **12 m**. Immune to standard Prone effects. | Gain **+12d8 Damage** and **+24 Armor**. | **-10 Evade**, **-12 Initiative**, and **-2d8 Physical Skills except Strength and Body**. |
-| **13** | Active Buff | Self | — | Mastery Rank Rounds | Huge Form | 7 hexes | +4 m | Reduce Push, Pull, and forced movement by **13 m**. Immune to standard Prone effects. | Gain **+13d8 Damage** and **+26 Armor**. | **-10 Evade**, **-12 Initiative**, and **-2d8 Physical Skills except Strength and Body**. |
+| **8** | Active Buff | Self | — | Mastery Rank Rounds | Massive Form | 3 hexes | +3 m | Reduce Push, Pull, and forced movement by **8 m**. Immune to Prone effects caused by creatures smaller than you. | Gain **+8d8 Damage** and **+16 Armor**. | **-6 Evade**, **-8 Initiative**, and **-1d8 Agility-based Physical Skills**. |
+| **9** | Active Buff | Self | — | Mastery Rank Rounds | Massive Form | 3 hexes | +3 m | Reduce Push, Pull, and forced movement by **9 m**. Immune to Prone effects caused by creatures smaller than you. | Gain **+9d8 Damage** and **+18 Armor**. | **-6 Evade**, **-8 Initiative**, and **-1d8 Agility-based Physical Skills**. |
+| **10** | Active Buff | Self | — | Mastery Rank Rounds | Massive Form | 3 hexes | +3 m | Reduce Push, Pull, and forced movement by **10 m**. Immune to Prone effects caused by creatures smaller than you. | Gain **+10d8 Damage** and **+20 Armor**. | **-7 Evade**, **-8 Initiative**, and **-1d8 Agility-based Physical Skills**. |
+| **11** | Active Buff | Self | — | Mastery Rank Rounds | Massive Form | 3 hexes | +3 m | Reduce Push, Pull, and forced movement by **11 m**. Immune to Prone effects caused by creatures smaller than you. | Gain **+11d8 Damage** and **+22 Armor**. | **-7 Evade**, **-8 Initiative**, and **-1d8 Agility-based Physical Skills**. |
+| **12** | Active Buff | Self | — | Mastery Rank Rounds | Huge Form | 7 hexes | +4 m | Reduce Push, Pull, and forced movement by **12 m**. Immune to standard Prone effects. | Gain **+12d8 Damage** and **+24 Armor**. | **-10 Evade**, **-12 Initiative**, and **-2d8 Agility-based Physical Skills**. |
+| **13** | Active Buff | Self | — | Mastery Rank Rounds | Huge Form | 7 hexes | +4 m | Reduce Push, Pull, and forced movement by **13 m**. Immune to standard Prone effects. | Gain **+13d8 Damage** and **+26 Armor**. | **-10 Evade**, **-12 Initiative**, and **-2d8 Agility-based Physical Skills**. |
 
 }}
 \page
@@ -2597,9 +2176,9 @@ You radiate artifact-bound divine wrath, oathfire, judgment, sacred force, or an
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Size Stage** | **Footprint** | **Reach Bonus** | **Titanic Stability** | **Effect** | **Drawback** |
 |:--:|:--|:--:|:--:|:--:|:--|:--:|:--:|:--|:--|:--|
-| **14** | Active Buff | Self | — | Mastery Rank Rounds | Huge Form | 7 hexes | +4 m | Reduce Push, Pull, and forced movement by **14 m**. Immune to standard Prone effects. | Gain **+14d8 Damage** and **+28 Armor**. | **-11 Evade**, **-12 Initiative**, and **-2d8 Physical Skills except Strength and Body**. |
-| **15** | Active Buff | Self | — | Mastery Rank Rounds | Huge Form | 7 hexes | +4 m | Reduce Push, Pull, and forced movement by **15 m**. Immune to standard Prone effects. | Gain **+15d8 Damage** and **+30 Armor**. | **-11 Evade**, **-12 Initiative**, and **-2d8 Physical Skills except Strength and Body**. |
-| **16** | Active Buff | Self | — | Mastery Rank Rounds | True Giant Form | 7 hexes | +5 m | Reduce Push, Pull, and forced movement by **16 m**. Immune to standard Prone effects. | Gain **+16d8 Damage** and **+32 Armor**. | **-12 Evade**, **-16 Initiative**, and **-2d8 Physical Skills except Strength and Body**. |
+| **14** | Active Buff | Self | — | Mastery Rank Rounds | Huge Form | 7 hexes | +4 m | Reduce Push, Pull, and forced movement by **14 m**. Immune to standard Prone effects. | Gain **+14d8 Damage** and **+28 Armor**. | **-11 Evade**, **-12 Initiative**, and **-2d8 Agility-based Physical Skills**. |
+| **15** | Active Buff | Self | — | Mastery Rank Rounds | Huge Form | 7 hexes | +4 m | Reduce Push, Pull, and forced movement by **15 m**. Immune to standard Prone effects. | Gain **+15d8 Damage** and **+30 Armor**. | **-11 Evade**, **-12 Initiative**, and **-2d8 Agility-based Physical Skills**. |
+| **16** | Active Buff | Self | — | Mastery Rank Rounds | True Giant Form | 7 hexes | +5 m | Reduce Push, Pull, and forced movement by **16 m**. Immune to standard Prone effects. | Gain **+16d8 Damage** and **+32 Armor**. | **-12 Evade**, **-16 Initiative**, and **-2d8 Agility-based Physical Skills**. |
 
 #### Growth Form Rules
 
@@ -2615,7 +2194,7 @@ While this Active Buff is active, the following rules apply:
 - **Titanic Stability:** While Large Form or larger, reduce any Push, Pull, or forced movement applied to you by the amount listed for your Size Stage.
 - **Prone Resistance:** While in Large Form or Massive Form, you are immune to Prone effects caused by creatures smaller than you.
 - **Prone Immunity:** While in Huge Form or True Giant Form, you are immune to standard Prone effects.
-- **Stability Limit:** Titanic Stability is not full Immovable. It does not prevent teleportation, falling if the ground disappears, being carried by collapsing terrain, Root, Stun, Freeze, Grapple-like restraints, legendary effects, divine effects, or GM-defined environmental disasters.
+- **Stability Limit:** Titanic Stability is not full Immovable. It does not prevent teleportation, falling if the ground disappears, being carried by collapsing terrain, Root, Stunned, Slow, grapple-like restraints, legendary effects, divine effects, or GM-defined environmental disasters.
 - **Grapple Presence:** While Large Form or larger, gain Advantage on checks to start or end Grappled against smaller creatures.
 - **Massive Stability:** While Huge Form or larger, creatures smaller than you have Disadvantage on checks to move you by force unless they are also magically enlarged or larger than Medium.
 - **No Bonus Movement:** Growth Form does not grant additional movement.

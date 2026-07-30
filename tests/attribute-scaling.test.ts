@@ -55,7 +55,7 @@ describe('Attribute Scaling Passives (Player\'s Guide)', () => {
     });
   });
 
-  describe('Intellect - Save TN Scaling', () => {
+  describe('Intellect - legacy Save TN helper (deprecated)', () => {
     it('bonus = floor(Intellect/8)', () => {
       expect(calculateIntellectSaveTNBonus(0)).toBe(0);
       expect(calculateIntellectSaveTNBonus(8)).toBe(1);

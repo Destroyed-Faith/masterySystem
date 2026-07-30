@@ -46,7 +46,7 @@ export interface RadialCombatOption {
     /** Active-as-Spell metadata propagated from artifact progression picks. */
     artifactIsSpell?: boolean;
     artifactCastingAttribute?: string;
-    artifactSpellResolution?: 'spellAttack' | 'saveSpell';
+    artifactSpellResolution?: 'spellAttack';
     artifactPowerTemplateId?: string;
     artifactChosenSpecialKey?: string;
     costsMovement?: boolean;

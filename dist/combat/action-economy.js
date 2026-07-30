@@ -937,13 +937,12 @@ export async function clearCombatStoneTurnBonusesForActor(actor, combat) {
         (sb.freeRaises ?? 0) !== 0 ||
         (sb.critRaises ?? 0) !== 0 ||
         (sb.tempArmor ?? 0) !== 0 ||
-        (sb.saveKeepBonus ?? 0) !== 0 ||
         (sb.spellPoolDice ?? 0) !== 0 ||
         (sb.spellKeepDice ?? 0) !== 0 ||
         (sb.tempHpGrantedThisTurn ?? 0) !== 0 ||
         (sb.ignoreWoundPenalties ?? 0) !== 0 ||
         (sb.spellAutoRaises ?? 0) !== 0 ||
-        (sb.spellSaveBonus ?? 0) !== 0 ||
+        (sb.spellResistanceBonus ?? 0) !== 0 ||
         (sb.spellSpecialBoost ?? 0) !== 0 ||
         (sb.damageReductionBoostPct ?? 0) !== 0 ||
         (sb.phasingChargesFromStones ?? 0) !== 0 ||
@@ -981,7 +980,6 @@ export async function clearCombatStoneTurnBonusesForActor(actor, combat) {
         freeRaises: 0,
         critRaises: 0,
         tempArmor: 0,
-        saveKeepBonus: 0,
         spellPoolDice: 0,
         spellKeepDice: 0,
         tempHpGrantedThisTurn: 0,
@@ -990,11 +988,10 @@ export async function clearCombatStoneTurnBonusesForActor(actor, combat) {
         extendActiveBuffRounds: 0,
         secondChanceFreeBoxes: sb.secondChanceFreeBoxes ?? 0,
         spellAutoRaises: 0,
-        spellSaveBonus: 0,
+        spellResistanceBonus: 0,
         extraSpellActions: sb.extraSpellActions ?? 0,
         spellSpecialBoost: 0,
         damageReductionBoostPct: 0,
-        saveAllBonus: sb.saveAllBonus ?? 0,
         incomingSpecialReduction: sb.incomingSpecialReduction ?? 0,
         phasingChargesFromStones: 0,
         initiativeBonus: sb.initiativeBonus ?? 0,

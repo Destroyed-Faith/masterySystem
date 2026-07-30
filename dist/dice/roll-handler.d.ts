@@ -5,7 +5,7 @@
 import { MasteryRollResult } from '../types';
 import { type CheckContext } from '../system/auto-fail.js';
 /** Roll-kind hint used by the Power Mechanics Engine to look up dice-pool deltas. */
-export type MasteryRollKind = 'attack' | 'skill' | 'damage' | 'saveBody' | 'saveMind' | 'saveSpirit' | 'generic';
+export type MasteryRollKind = 'attack' | 'skill' | 'damage' | 'generic';
 export interface RollOptions {
     numDice: number;
     keepDice: number;
@@ -16,8 +16,34 @@ export interface RollOptions {
     actorId?: string;
     skillKey?: string;
     isSkillRoll?: boolean;
-    isSaveRoll?: boolean;
     baseModifier?: number;
+    /**
+     * Attribute key the dice pool is built from (`might`, `agility`, …).
+     * Drives the Weaken / Soulburn flat pool reductions: Weaken hits
+     * Might / Agility / Intellect pools, Soulburn hits Wits / Influence /
+     * Resolve pools. Omit for pools not built from an attribute (e.g. NPC
+     * flat pools, initiative).
+     */
+    poolAttribute?: string;
+    /**
+     * Actor / token references of every target the attack includes (primary +
+     * AoE targets). Used by Challenge(X): the Attack Pool is only reduced when
+     * the challenger is NOT among these refs.
+     */
+    targetRefs?: string[];
+    /**
+     * When true, `masteryRoll` applies the percentage-based Health /
+     * Encumbrance penalty and the final Minimum Pool (= Mastery Rank) itself —
+     * in canonical order AFTER all flat pool reductions. Callers that set this
+     * must NOT pre-apply those penalties.
+     */
+    applyPoolPenalties?: boolean;
+    /**
+     * Resolved actor instance for the pool-finalize stage. Needed for
+     * unlinked-token (synthetic) actors whose id is not in `game.actors`.
+     * Falls back to `game.actors.get(actorId)`.
+     */
+    actorRef?: any;
     /**
      * Roll kind used by the Power Mechanics Engine to consult the actor's
      * aggregated dice-pool deltas (attack / skill / damage / saveBody / ...).
@@ -106,8 +132,13 @@ export interface MasteryRollRecipe {
     actorId: string | null;
     skillKey: string | null;
     isSkillRoll: boolean;
-    isSaveRoll: boolean;
     baseModifier: number;
+    /** Mirrors `RollOptions.poolAttribute` for Faith Fracture rerolls. */
+    poolAttribute?: string;
+    /** Mirrors `RollOptions.targetRefs` for Faith Fracture rerolls. */
+    targetRefs?: string[];
+    /** Mirrors `RollOptions.applyPoolPenalties` for Faith Fracture rerolls. */
+    applyPoolPenalties?: boolean;
     normalTn?: number;
     raiseTn?: number;
     declaredRaiseSlots?: number;

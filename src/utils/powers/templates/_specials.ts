@@ -1,47 +1,45 @@
 /**
  * Eligible Special keys per Active damage tier.
  *
- * Source: `Actives.md` tier eligibility tables (T3 ~250–290, T4 ~374–407,
- * T5 ~623–629, T6 ~800–807). Keys match `ALL_SPECIAL_EFFECTS[i].id` in
- * `src/utils/special-effects.ts`.
+ * Source: `Rules/actives.md` Start PP group tables:
+ *   T3 / Start PP 3 — Blight
+ *   T4 / Start PP 4 — Lacerate, Slow, Ruin, Mark
+ *   T5 / Start PP 6 — Challenge, Corrode, Hex, Sundered (+ Root)
+ *   T6 / Start PP 8 — Disoriented, Expose, Soulburn, Weaken
  *
- * The catalog (see `power-catalog.ts`) uses these lists to expand every
- * damage Active template × eligible Special into one CatalogEntry per
- * variant, so the user can search directly by the target Special
- * (e.g. "Ruin", "Lacerate", "Sundered", …).
+ * Keys match `ALL_SPECIAL_EFFECTS[i].id` in `src/utils/special-effects.ts`.
  */
 
 import type { ActiveSpecialTier } from '../../../types/item.js';
 
-/** Start PP 3 — Blight Group only (agent.md §10.15). */
+/** Start PP 3 — Blight Group. */
 export const TIER_3_SPECIALS: readonly string[] = [
     'blight',
 ] as const;
 
-/** Tier 4 eligibility per Actives.md ~374–407 (Blinded folded into Disoriented). */
+/** Start PP 4 — standard diminishing Specials. */
 export const TIER_4_SPECIALS: readonly string[] = [
     'lacerate',
-    'expose',
     'slow',
     'ruin',
     'mark',
-    'disoriented',
 ] as const;
 
-/** Tier 5 eligibility per Actives.md ~623–629 (Frightened folded into Dread). */
+/** Start PP 6 — heavy Specials (Challenge / Corrode / Hex / Sundered / Root). */
 export const TIER_5_SPECIALS: readonly string[] = [
-    'weaken',
-    'dread',
-] as const;
-
-/** Tier 6 eligibility per Actives.md ~800–807; includes Root(X) (Shock folded into Disrupt). */
-export const TIER_6_SPECIALS: readonly string[] = [
+    'challenge',
     'corrode',
-    'disrupt',
-    'soulburn',
     'hex',
     'sundered',
     'root',
+] as const;
+
+/** Start PP 8 — Disoriented / Expose / Soulburn / Weaken. */
+export const TIER_6_SPECIALS: readonly string[] = [
+    'disoriented',
+    'expose',
+    'soulburn',
+    'weaken',
 ] as const;
 
 /** Return the eligible special keys for a given damage tier. */

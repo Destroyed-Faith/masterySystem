@@ -160,39 +160,17 @@ The current allowed Passive Categories are:
 | **Health** | Structural durability. | Additional Health Bars |
 | **Temporary HP** | Frontloaded defensive buffer. | Start-of-combat Temporary HP |
 | **Healing** | Recovery and regeneration. | Start-of-turn healing, conditional healing |
-| **Awareness** | Combat senses and perception replacement. | Combat Sense, anti-Blinded functionality |
+| **Awareness** | Combat senses and perception replacement. | Combat Sense, sensory replacement under obstruction |
 | **Phasing** | Premium hit-negation defense. | Ignore limited hits per combat |
-| **Special** | Reserved category for future Special support and Special auras. | Freeze aura, Ignite aura, Special persistence, Special interaction |
+| **Special Aura** | The only approved Passive interaction with Specials. | Increases one chosen existing eligible Special(X) by +1 inside a self-centered aura |
 
-## Parked Passive Category: Special
+## Passive Category: Special Aura
 
-**Special** is an allowed Passive Category, but its general pricing rules are not finalized yet.
+**Special Aura** is finalized and is the only Passive category allowed to interact with Specials.
 
-Until the Special Passive rules are finalized, do not create generic Special Passives unless the user explicitly requests them.
+A Special Aura never applies a Special by itself. It only increases one chosen existing eligible **Special(X)** by **+1 step** while an already affected creature remains inside the aura.
 
-A Passive belongs to the **Special** category if it:
-
-- applies a Special,
-- improves a Special,
-- makes a Special harder to remove,
-- creates a Special aura,
-- modifies the behavior of a Special,
-- or creates a passive area that continuously applies or maintains a Special.
-
-Examples:
-
-- A passive Freeze aura is **Passive, Special**.
-- A passive Frightened aura is **Passive, Special**.
-- A passive Ignite aura is **Passive, Special**.
-- A passive effect that makes Lacerate harder to remove is **Passive, Special**.
-- A passive effect that improves Shock against already Shocked targets is **Passive, Special**.
-
-Special Passives may not be treated as generic Control Passives.
-
-}}
-\page
-{{pageNumber,auto}}
-{{wide
+Use the complete Special Aura rules and progression later in this catalogue.
 
 ## Passive Limits
 
@@ -203,15 +181,14 @@ Passives may not grant:
 - Attribute Dice,
 - Stones,
 - generic Roll bonuses,
-- generic Save Dice,
 - generic Control effects,
 - free attacks,
 - Extra Attacks,
 - or passive action-economy effects.
 
-If a Passive would apply Freeze, Ignite, Shock, Expose, Frightened, Mark, Poisoned, Weaken, Soulburn, Hex, Sundered, Blinded, Prone, Stunned, Immovable, or another Special-like condition, it belongs to the **Special** category.
+A Passive may not apply Specials. Any approved Passive interaction with Specials must use the **Special Aura** category and may only increase one existing eligible Special(X) by +1 inside its aura.
 
-If a Passive would grant Stunned, it must be treated as a high-risk Special Passive and requires explicit design approval. Stunned may never appear as a casual passive rider.
+A Passive may not grant Stunned or any other hard-control Special.
 
 ## Passive Design Restrictions
 
@@ -219,7 +196,7 @@ If a Passive would grant Stunned, it must be treated as a high-risk Special Pass
 - A Passive may never use the **Charged** tag.
 - A Passive may never grant an Attack Action, free attack, Reaction, Movement Power, Spell effect, Barrier, Wall, Image, Illusion Field, Summon, or Persistent Zone.
 - A Passive may not hide an Active effect inside an always-on feature.
-- A Passive may not grant **Stunned** unless explicitly designed as a high-risk Special Passive.
+- A Passive may not grant **Stunned** or any other hard-control Special.
 - A Passive may not create full-turn skip, full-round invulnerability, or automatic hard control.
 - A Passive may not casually combine Armor, Evade, Temporary HP, Healing, Damage Reduction, and Phasing into one package.
 - Unused PP may remain unused for premium milestone systems.
@@ -782,7 +759,7 @@ A Combat Sense does not ignore Total Cover, does not bypass Phasing, and does no
       L8-L11 → choose 2 Combat Senses total<br>
       L12-L14 → choose 3 Combat Senses total; Presence Sense becomes available<br>
       L15-L16 → choose 4 Combat Senses total<br><br>
-      NOTES — This passive helps against Blinded, darkness, fog, invisibility, and visual obstruction when one of your chosen Combat Senses can reasonably perceive the target. It does not automatically reveal hidden creatures, does not ignore Total Cover, does not bypass Phasing, and does not automatically disbelieve illusions.
+      NOTES — This passive helps against darkness, fog, invisibility, sensory interference, and visual obstruction when one of your chosen Combat Senses can reasonably perceive the target. It does not automatically reveal hidden creatures, does not ignore Total Cover, does not bypass Phasing, and does not automatically disbelieve illusions.
     </span>
   </span>
 </h3>
@@ -1316,7 +1293,6 @@ Combined Passives may not use:
 - **Stunned**
 - **Attack Dice**
 - **Attribute bonuses**
-- **generic Save Dice**
 - **generic Roll bonuses**
 
 }}
@@ -1885,7 +1861,6 @@ Conditional Combined Passives may not use:
 - **Stunned**
 - **Attack Dice**
 - **Attribute bonuses**
-- **generic Save Dice**
 - **generic Roll bonuses**
 
 }}
@@ -2679,6 +2654,14 @@ If the creature leaves the aura, the increase immediately ends.
 
 Multiple Special Auras affecting the same Special do not stack. Only the strongest applicable aura applies.
 
+#### Example — Weaken Aura
+
+A creature inside the aura is affected by **Weaken(4)**. The Passive Special Aura increases it to **Weaken(5)** while that creature remains inside the aura. When it leaves, the Special returns to its normal current value. The aura never applies Weaken to an unaffected creature.
+
+#### Example — Soulburn Aura
+
+A creature inside the aura is affected by **Soulburn(6)**. The aura treats it as **Soulburn(7)** while the creature remains inside. The +1 increase ends immediately when the creature leaves the aura.
+
 ## Special Aura Category Rule
 
 A Passive Special Aura uses the following category:
@@ -2710,16 +2693,20 @@ A Passive Special Aura may only affect a Special if all of the following are tru
 
 Common eligible examples include:
 
+- **Blight(X)**
+- **Challenge(X)**
+- **Corrode(X)**
+- **Disoriented(X)**
+- **Expose(X)**
+- **Hex(X)**
 - **Lacerate(X)**
-- **Burning(X)** / **Ignite(X)**
-- **Poison(X)**
-- **Shock(X)**, if numeric
-- **Frightened(X)**, if numeric and not hard control
-- **Slowed(X)**, if numeric and not full action denial
-- **Weakened(X)**
-- **Exposed(X)**
-- **Withered(X)**
-- **Vulnerable(X)**, if numeric
+- **Mark(X)**
+- **Ruin(X)**
+- **Slow(X)**
+- **Soulburn(X)**
+- **Sundered(X)**
+- **Weaken(X)**
+
 
 }}
 
@@ -2731,14 +2718,12 @@ Common ineligible examples include:
 
 - **Stunned**
 - **Immovable**
-- **Freeze**, if hard control or action denial
-- **Immobilized**, if binary
-- **Blinded**, if binary
-- **Silenced**, if binary
 - **Prone**
-- **Charm**
-- **Dominate**
 - any Special without **(X)**
+- any binary Special
+- any hard-control effect
+- any forced-behavior effect
+- any full-turn or full-reaction denial effect
 
 ## Special Aura Restrictions
 
@@ -2875,7 +2860,7 @@ Ward Passives are reliable defensive Passives that protect against Spell pressur
 Ward Passives are not Spells.  
 They do not apply Specials.  
 They do not grant Absorption.  
-They do not grant Armor, Evade, Damage Reduction, Phasing, Temporary HP, Healing, Save Dice, Attack Dice, Damage, Penetration, Critical, Movement, or control unless a specific entry says otherwise.
+They do not grant Armor, Evade, Damage Reduction, Phasing, Temporary HP, Healing, Attack Dice, Damage, Penetration, Critical, Movement, or control unless a specific entry says otherwise.
 
 ---
 
@@ -2914,7 +2899,7 @@ They do not grant Armor, Evade, Damage Reduction, Phasing, Temporary HP, Healing
       NOTES<br>
       Values are rounded down to whole Spell Resistance values.<br>
       Leftover PP is intentionally unused when +1 more Spell Resistance would exceed the target curve.<br>
-      This Passive grants no Armor, Evade, Damage Reduction, Phasing, Temporary HP, Healing, Save Dice, Attack Dice, Cleanse, Absorption, Damage, Penetration, Critical, Movement, or control.
+      This Passive grants no Armor, Evade, Damage Reduction, Phasing, Temporary HP, Healing, Attack Dice, Cleanse, Absorption, Damage, Penetration, Critical, Movement, or control.
     </span>
   </span>
 </h3>
@@ -2968,9 +2953,9 @@ Your body, mind, soul, or warding pattern rejects hostile spell structure.
       If a new application would increase, replace, or refresh an existing Special, reduce the incoming Special value before applying the normal stacking, replacement, or refresh rules.<br><br>
 
    ELIGIBLE SPECIALS<br>
-      Eligible Specials are hostile numeric creature effects that can normally be reduced by Cleanse, such as Lacerate(X), Ignite(X), Poisoned(X), Shock(X), Freeze(X), Corrode(X), Expose(X), Mark(X), Weaken(X), Soulburn(X), Hex(X), Sundered(X), Frightened(X), Blinded(X), and similar removable value-based Specials.<br>
+      Eligible Specials are hostile numeric creature effects that can normally be reduced by Cleanse, including Blight(X), Challenge(X), Corrode(X), Disoriented(X), Expose(X), Hex(X), Lacerate(X), Mark(X), Root(X), Ruin(X), Slow(X), Soulburn(X), Sundered(X), and Weaken(X).<br>
       The delivery method is irrelevant.<br>
-      Ward may protect against Specials delivered by Attacks, Spells, Area Effects, failed Saves, creature abilities, or other hostile effects.<br><br>
+      Ward may protect against Specials delivered by Attacks, Spells, Area Effects, creature abilities, or other hostile effects.<br><br>
 
   INELIGIBLE EFFECTS<br>
       Ward does not affect Damage Dice, Attack Dice, flat damage, forced movement, Prone, Disarm, Stunned, or other binary effects without a reducible numeric value.<br>
@@ -2996,8 +2981,8 @@ Your body, mind, soul, or warding pattern rejects hostile spell structure.
 
   EXAMPLE<br>
       You have Ward 4.<br>
-      An Attack would apply Ignite(7) and Mark(4) to you.<br>
-      Ignite(7) is reduced to Ignite(3).<br>
+      An Attack would apply Soulburn(7) and Mark(4) to you.<br>
+      Soulburn(7) is reduced to Soulburn(3).<br>
       Mark(4) is reduced to 0 and is not applied.<br>
       The Attack's damage and all other effects resolve normally.<br><br>
 
@@ -3005,12 +2990,12 @@ Your body, mind, soul, or warding pattern rejects hostile spell structure.
       Ward prevents or reduces incoming Specials before they are applied.<br>
       Ward is not Cleanse and does not remove existing Specials.<br>
       Ward is not Spell Resistance and does not increase the Target Number of hostile Spells.<br>
-      This Passive grants no Armor, Evade, Parry, Damage Negation, Damage Reduction, Phasing, Temporary HP, Healing, Save Dice, Attack Dice, Absorption, Damage, Penetration, Critical, Movement, control, free Attack, or additional Reaction.
+      This Passive grants no Armor, Evade, Parry, Damage Negation, Damage Reduction, Phasing, Temporary HP, Healing, Attack Dice, Absorption, Damage, Penetration, Critical, Movement, control, free Attack, or additional Reaction.
     </span>
   </span>
 </h3>
 
-Your body, armor, blood, mind, or spirit weakens hostile afflictions before they can fully take hold.
+Your body, armor, blood, mind, or spirit reduces hostile afflictions before they can fully take hold.
 
 ---
 
@@ -3064,9 +3049,9 @@ Telepathy cannot force a creature to reveal information it does not know.
 
 Telepathy cannot read sealed, forgotten, magically protected, or deeply buried memories unless a specific Power explicitly allows it.
 
-A willing creature may accept Telepathy without a Save.
+A willing creature may accept Telepathy without a check.
 
-An unwilling creature makes a Mind Save when Telepathy attempts to read, enter, or maintain contact with its mind.
+When Telepathy attempts to read, enter, or maintain contact with an unwilling creature's mind, that creature makes a **Wits Check** against **TN 8 × your Mastery Rank**.
 
 On a success, the effect fails and the target knows that something touched its mind.
 
@@ -3102,17 +3087,17 @@ A passive mental link that allows silent communication, limited mental contact, 
 | **2** | Passive | 16 m | 1 willing creature | You and the linked creature can communicate silently in both directions. |
 | **3** | Passive | 24 m | 2 willing creatures | You may maintain a small Mind Link between yourself and up to two willing creatures. |
 | **4** | Passive | 32 m | 2 willing creatures | Mind Link no longer requires a shared spoken language for simple meaning, emotion, direction, and intent. |
-| **5** | Passive | 48 m | 3 willing creatures | You may sense the surface emotion of an unwilling creature within range on a failed Mind Save. |
+| **5** | Passive | 48 m | 3 willing creatures | You may sense the surface emotion of an unwilling creature within range if it fails a **Wits Check** against **TN 8 × your Mastery Rank**. |
 | **6** | Passive | 64 m | 3 willing creatures | You may maintain silent group communication between all linked willing creatures. |
 | **7** | Passive | 80 m | 4 willing creatures | A willing linked creature may share one simple sense impression with you, such as a sound, image, smell, pain, or direction. |
 | **8** | Passive | 100 m | 4 willing creatures | You may detect the presence of thinking minds within range. This reveals presence, not identity, exact thoughts, or creature type. |
-| **9** | Passive | 120 m | 5 willing creatures | You may read one surface thought from an unwilling creature within range on a failed Mind Save. |
+| **9** | Passive | 120 m | 5 willing creatures | You may read one surface thought from an unwilling creature within range if it fails a **Wits Check** against **TN 8 × your Mastery Rank**. |
 | **10** | Passive | 160 m | 5 willing creatures | A willing linked creature may share one active sense with you, such as sight or hearing, while the link is maintained. |
 | **11** | Passive | 200 m | 6 willing creatures | Mind Link may pass through normal walls or obstacles if you know the linked creature and it remains within range. |
 | **12** | Passive | 300 m | 6 willing creatures | You may share sight and hearing with one willing linked creature while the link is maintained. |
 | **13** | Passive | 500 m | MR + 2 willing creatures | Your Mind Link becomes a mental conference. All linked willing creatures may communicate silently with each other. |
 | **14** | Passive | 1 km | MR + 2 willing creatures | You may maintain a link to a known willing creature at long range if the link was willingly established. |
-| **15** | Passive | 5 km | MR + 3 willing creatures | You may read a clear surface thought from an unwilling creature on a failed Mind Save. This still does not reveal memories. |
+| **15** | Passive | 5 km | MR + 3 willing creatures | You may read a clear surface thought from an unwilling creature if it fails a **Wits Check** against **TN 8 × your Mastery Rank**. This still does not reveal memories. |
 | **16** | Passive | Same region, GM permission | MR + 4 willing creatures | You may maintain a wide Mind Link with known willing creatures across a large area. The GM may limit this by wards, distance, planes, divine interference, or narrative barriers. |
 
 ---
@@ -3406,7 +3391,7 @@ This Active Buff does not block Special Combat Senses unless another explicit In
   NOTES<br>
   This Passive does not reroll Initiative.<br>
   It does not reopen the Initiative Shop during combat.<br>
-  It does not grant additional Turns, Actions, Reactions, Movement, Attack Dice, Save Dice, Evade, Armor, or any other rider.<br>
+  It does not grant additional Turns, Actions, Reactions, Movement, Attack Dice, Evade, Armor, or any other rider.<br>
   Initiative gained from this Passive follows all normal Initiative Shop and Initiative Order rules.
 </span>
 ```
@@ -3575,7 +3560,6 @@ Parry does not normally affect:
 * Area Effects
 * environmental damage
 * ongoing damage
-* damage or effects caused by a failed Save
 * automatic damage
 * Persistent Zones
 * effects that do not make an Attack Roll
@@ -3658,7 +3642,7 @@ Any Attack Dice that remain are rolled normally against the character's Evade.
 
   LIMITS<br>
   Parry normally affects only eligible direct Attacks that make an Attack Roll.<br>
-  It does not affect Area Attacks, Area Effects, environmental damage, ongoing damage, failed Saves, automatic damage, Persistent Zones, or effects without an Attack Roll.<br><br>
+  It does not affect Area Attacks, Area Effects, environmental damage, ongoing damage, automatic damage, Persistent Zones, or effects without an Attack Roll.<br><br>
 
   NOTES<br>
   This Passive grants no Armor, Evade, Damage Reduction, Phasing, Temporary HP, free Attack, or additional Reaction.<br>
@@ -3946,7 +3930,7 @@ Your body does not reject pain. It consumes it, turning every wound into a brief
 
 ## Damage Negation Passives
 
-Damage Negation is a closed premium defensive subsystem that weakens incoming damage before it is rolled.
+Damage Negation is a closed premium defensive subsystem that reduces incoming damage before it is rolled.
 
 Unlike **Parry**, Damage Negation does not interfere with the Attack Pool and cannot prevent an Attack from hitting.
 
@@ -4104,7 +4088,6 @@ This may include:
 * direct Attacks
 * Area Attacks
 * Area Effects
-* damage caused by a failed Save
 * hostile environmental damage
 * ongoing damage that rolls Damage Dice
 * other hostile effects that create a Damage Pool

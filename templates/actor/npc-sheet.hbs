@@ -142,25 +142,6 @@
           </div>
         </section>
 
-        {{!-- Saving Throws --}}
-        <div class="saves-panel npc-section">
-          <h3 class="npc-section__title"><i class="fas fa-dice-d20"></i> Rettungswürfe</h3>
-          <div class="saves-grid">
-            <div class="save-stat">
-              <label>Körper</label>
-              <input type="number" name="system.phases.{{phaseIndex}}.savingThrows.body" value="{{default phase.savingThrows.body 0}}" data-dtype="Number"/>
-            </div>
-            <div class="save-stat">
-              <label>Geist</label>
-              <input type="number" name="system.phases.{{phaseIndex}}.savingThrows.mind" value="{{default phase.savingThrows.mind 0}}" data-dtype="Number"/>
-            </div>
-            <div class="save-stat">
-              <label>Seele</label>
-              <input type="number" name="system.phases.{{phaseIndex}}.savingThrows.spirit" value="{{default phase.savingThrows.spirit 0}}" data-dtype="Number"/>
-            </div>
-          </div>
-        </div>
-
         {{!-- Health --}}
         <div class="health-panel npc-section">
           <h3 class="npc-section__title"><i class="fas fa-heart"></i> Trefferpunkte</h3>
@@ -449,25 +430,6 @@
           </div>
         </div>
       </section>
-
-      {{!-- Saving Throws --}}
-      <div class="saves-panel npc-section">
-        <h3 class="npc-section__title"><i class="fas fa-dice-d20"></i> Rettungswürfe</h3>
-        <div class="saves-grid">
-          <div class="save-stat">
-            <label>Körper</label>
-            <input type="number" name="system.savingThrows.body" value="{{default system.savingThrows.body 0}}" data-dtype="Number"/>
-          </div>
-          <div class="save-stat">
-            <label>Geist</label>
-            <input type="number" name="system.savingThrows.mind" value="{{default system.savingThrows.mind 0}}" data-dtype="Number"/>
-          </div>
-          <div class="save-stat">
-            <label>Seele</label>
-            <input type="number" name="system.savingThrows.spirit" value="{{default system.savingThrows.spirit 0}}" data-dtype="Number"/>
-          </div>
-        </div>
-      </div>
 
       {{!-- Health --}}
       <div class="health-panel npc-section">

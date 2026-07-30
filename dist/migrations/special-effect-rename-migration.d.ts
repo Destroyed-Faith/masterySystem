@@ -6,9 +6,11 @@
  *   ignite     -> ruin
  *   freeze     -> slow
  *   poisoned   -> blight
- *   shock      -> disrupt      (removed effect, folded into Disrupt)
- *   blinded    -> disoriented  (removed effect, folded into Disoriented)
- *   frightened -> dread        (removed effect, folded into Dread)
+ *   blinded    -> disoriented
+ *   shock      -> disoriented   (removed Special; closest live sensor pressure)
+ *   disrupt    -> challenge     (removed Special; Start PP 6 replacement)
+ *   dread      -> (deleted)     (removed Special — no live replacement)
+ *   frightened -> (deleted)
  *
  * Rewrites, on every character/NPC actor (and its embedded items) plus all
  * world items:

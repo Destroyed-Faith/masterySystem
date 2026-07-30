@@ -96,7 +96,6 @@ export interface EnemyStatBlock {
   speed: number;
   attackSlots: number;
   movementSlots: number;
-  saves: { body: number; mind: number; spirit: number };
   /** Boss: 2-5 phases. Minion: exactly 1. */
   phases: EnemyPhaseStat[];
 }

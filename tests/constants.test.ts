@@ -14,8 +14,6 @@ import {
   powerLevelCost,
   MR_ADVANCEMENT,
   getDivineScale,
-  SAVING_THROWS,
-  SAVE_DC_BY_MR,
   ECHO_SPEEDS,
   ATTACK_ACTIONS_PER_TURN,
   REACTIONS_PER_ROUND,
@@ -228,30 +226,7 @@ describe('Divine Scale (MR8 sub-tier)', () => {
   });
 });
 
-describe('Saving Throws', () => {
-  it('Body saves use Might or Agility', () => {
-    expect(SAVING_THROWS.body).toEqual(['might', 'agility']);
-  });
 
-  it('Mind saves use Intellect or Wits', () => {
-    expect(SAVING_THROWS.mind).toEqual(['intellect', 'wits']);
-  });
-
-  it('Spirit saves use Resolve or Influence', () => {
-    expect(SAVING_THROWS.spirit).toEqual(['resolve', 'influence']);
-  });
-});
-
-describe('Save DC by Mastery Rank', () => {
-  it('M1 DC = 8', () => expect(SAVE_DC_BY_MR[1]).toBe(8));
-  it('M2 DC = 16', () => expect(SAVE_DC_BY_MR[2]).toBe(16));
-  it('M3 DC = 24', () => expect(SAVE_DC_BY_MR[3]).toBe(24));
-  it('M4 DC = 32', () => expect(SAVE_DC_BY_MR[4]).toBe(32));
-  it('M5 DC = 40', () => expect(SAVE_DC_BY_MR[5]).toBe(40));
-  it('M6 DC = 48', () => expect(SAVE_DC_BY_MR[6]).toBe(48));
-  it('M7 DC = 56', () => expect(SAVE_DC_BY_MR[7]).toBe(56));
-  it('M8 DC = 64', () => expect(SAVE_DC_BY_MR[8]).toBe(64));
-});
 
 describe('Echo Speeds', () => {
   it('human speed is 10m', () => expect(ECHO_SPEEDS.human).toBe(10));

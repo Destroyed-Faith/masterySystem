@@ -9,7 +9,6 @@ import type {
     PowerLevelKey,
     PowerSpecial,
     SpellResolution,
-    SpellSaveType,
 } from '../types/item.js';
 import { renderRange, renderAoe, renderDuration } from './power-rendering.js';
 import { SPECIAL_EFFECTS_BY_ID } from './special-effects.js';
@@ -17,11 +16,9 @@ import {
     actorAlreadyHasPower,
     activeTemplateCanBeSpell,
     findCatalogEntry,
-    findTemplateById,
     type CatalogEntry,
 } from './power-catalog.js';
 import type { PowerTemplate } from './powers/templates/index.js';
-import { resolveSpellSaveTypeForEntry } from './spell-save-type.js';
 
 export type { CatalogEntry };
 
@@ -47,11 +44,6 @@ export function buildPowerItemFromCatalogEntry(
     spell: PowerSpellOptions = { isSpell: false },
 ): Record<string, unknown> | null {
     const template = entry.raw as EmbeddedPowerData;
-    const templateDoc = findTemplateById(entry.templateId);
-    let spellSaveType: SpellSaveType | undefined;
-    if (spell.isSpell && spell.spellResolution === 'saveSpell') {
-        spellSaveType = resolveSpellSaveTypeForEntry(entry, templateDoc);
-    }
     const chosenSpecial: ChosenSpecial | undefined = entry.chosenSpecial
         ? { key: entry.chosenSpecial.key, tier: entry.chosenSpecial.tier }
         : undefined;
@@ -103,8 +95,7 @@ export function buildPowerItemFromCatalogEntry(
             chosenSpecial,
             isSpell: spell.isSpell,
             castingAttribute: spell.castingAttribute,
-            spellResolution: spell.spellResolution,
-            spellSaveType,
+            spellResolution: spell.isSpell ? 'spellAttack' : spell.spellResolution,
             powerType: template.category === 'activeBuff' ? 'buff' : template.category,
             range: renderRange(levelRow.range),
             aoe: renderAoe(levelRow.aoe),

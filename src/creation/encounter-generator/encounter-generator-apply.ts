@@ -84,7 +84,6 @@ export function buildNpcSystem(block: EnemyStatBlock): Record<string, unknown> {
     mastery: { rank: block.mr, points: 0, experience: 0 },
     health: healthBlock(primaryPhase),
     combat: combatBlock(primaryPhase, block),
-    savingThrows: { ...block.saves },
     npcBaseAttack: attackRow(primaryPhase),
     attackValues: [],
     attackSlots: Math.max(1, Math.round(block.attackSlots)),
@@ -99,7 +98,6 @@ export function buildNpcSystem(block: EnemyStatBlock): Record<string, unknown> {
       name: phase.name,
       health: healthBlock(phase),
       combat: combatBlock(phase, block),
-      savingThrows: { ...block.saves },
       npcBaseAttack: attackRow(phase),
       attackValues: [],
       statusEffects: [],
@@ -265,7 +263,6 @@ export function buildProjectBossSystem(plan: EncounterProjectPlan): Record<strin
     mastery: { rank: boss.mr, points: 0, experience: 0 },
     health: projectHealthBlock(primary.stat.hp),
     combat: projectCombatBlock(primary.stat, boss.speed),
-    savingThrows: { ...boss.saves },
     npcBaseAttack: primaryRows[0] ?? { name: 'Angriff', attackDiceCount: 4, damageDiceCount: 3, specials: [] },
     attackValues: primaryRows.slice(1),
     attackSlots: Math.max(1, Math.round(primary.actionsPerRound)),
@@ -283,7 +280,6 @@ export function buildProjectBossSystem(plan: EncounterProjectPlan): Record<strin
         name: phase.name,
         health: projectHealthBlock(phase.stat.hp),
         combat: projectCombatBlock(phase.stat, boss.speed),
-        savingThrows: { ...boss.saves },
         npcBaseAttack: rows[0] ?? { name: 'Angriff', attackDiceCount: 4, damageDiceCount: 3, specials: [] },
         attackValues: rows.slice(1),
         statusEffects: [],
@@ -320,7 +316,6 @@ export function buildProjectAddSystem(plan: EncounterProjectPlan): Record<string
     mastery: { rank: d.mr, points: 0, experience: 0 },
     health: projectHealthBlock(d.hp),
     combat: projectCombatBlock(stat, 8),
-    savingThrows: { body: d.mr, mind: d.mr, spirit: d.mr },
     npcBaseAttack: {
       name: 'Biss/Hieb',
       attackDiceCount: d.attackDiceCount,
@@ -358,7 +353,6 @@ export function buildProjectEnvironmentSystem(plan: EncounterProjectPlan): Recor
     mastery: { rank: 1, points: 0, experience: 0 },
     health: projectHealthBlock(1),
     combat: { initiative: 0, evade: 0, armor: 0, speed: 0 },
-    savingThrows: { body: 0, mind: 0, spirit: 0 },
     npcBaseAttack: {
       name: env.zoneName,
       attackDiceCount: 2,
@@ -417,7 +411,6 @@ export function buildNpcSheetHtml(name: string, plan: EncounterProjectPlan): str
   parts.push(`<tr><td>Mastery Rank</td><td>${boss.mr}</td></tr>`);
   parts.push(`<tr><td>Aktionen/Runde</td><td>${plan.phasePlans[0].actionsPerRound}</td></tr>`);
   parts.push(`<tr><td>Bewegung</td><td>${boss.speed} m</td></tr>`);
-  parts.push(`<tr><td>Saves (B/M/S)</td><td>${boss.saves.body} / ${boss.saves.mind} / ${boss.saves.spirit}</td></tr>`);
   for (const p of plan.phasePlans) {
     parts.push(
       `<tr><td>${p.name}</td><td>HP ${p.stat.hp} · Ausweichen ${p.stat.evade} · Rüstung ${p.stat.armor}</td></tr>`,

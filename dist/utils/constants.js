@@ -9,7 +9,7 @@ export const RAISE_INCREMENT = 4; // Every +4 over TN = 1 Raise
  * Auto-Raise: the roller may voluntarily shrink their dice pool in exchange
  * for guaranteed Raises. Each Auto-Raise removes this many dice from the pool
  * and grants +1 Raise on success. Applies to skill rolls, attack rolls, and
- * other generic rolls; never to Saving Throws.
+ * other generic rolls.
  */
 export const AUTO_RAISE_DICE_COST = 4;
 // Attribute ranges
@@ -161,16 +161,18 @@ export function getDivineScale(totalStones) {
         return 'High God';
     return 'Apex God'; // 70+
 }
-// Saving Throw categories
-export const SAVING_THROWS = {
-    body: ['might', 'agility'],
-    mind: ['intellect', 'wits'],
-    spirit: ['resolve', 'influence']
-};
-// Save DC by source Mastery Rank (DC = 8 × MR; covers MR1..MR8 for the new spec)
-export const SAVE_DC_BY_MR = {
+/**
+ * Attribute Check TN by source Mastery Rank (Player's Guide "Attribute Checks
+ * Against Effects"): `TN = 8 × Source Mastery Rank`.
+ */
+export const ATTRIBUTE_CHECK_TN_BY_MR = {
     1: 8, 2: 16, 3: 24, 4: 32, 5: 40, 6: 48, 7: 56, 8: 64
 };
+/** Attribute Check TN = 8 × Source Mastery Rank. */
+export function attributeCheckTn(sourceMasteryRank) {
+    const mr = Math.max(1, Math.floor(Number(sourceMasteryRank) || 1));
+    return ATTRIBUTE_CHECK_TN_BY_MR[mr] ?? mr * 8;
+}
 // Echo base speeds
 export const ECHO_SPEEDS = {
     human: 10,

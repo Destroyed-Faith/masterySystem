@@ -1,9 +1,15 @@
 /**
- * Shared roll-context builders for skill, attribute, and save checks.
+ * Shared roll-context builders for skill and attribute checks.
  * Used by Epic Mastery Roll and available for future sheet refactors.
+ *
+ * Builders return the BASE pool (attribute + skill full-/half-pool rule +
+ * equipment flat penalties). Specials (Weaken / Soulburn / Disoriented),
+ * the percentage Health / Encumbrance penalty, and the final Minimum Pool
+ * (= Mastery Rank) are applied centrally by `masteryRoll` via
+ * `finalizeRolledPool` (`applyPoolPenalties: true`), so previews and final
+ * rolls share one calculation.
  */
 import type { RollOptions } from './roll-handler.js';
-import type { SaveCategory } from '../utils/saving-throws.js';
 export interface TnSpec {
     baseTN: number;
     raises: number;
@@ -37,16 +43,20 @@ export interface SkillRollPoolPreview {
 export declare function reducedSkillAttributePool(attributeValue: number): number;
 /** Sheet + dialog helper: dice pool label and tooltip for a skill attribute roll. */
 export declare function buildSkillRollPoolPreview(actor: Actor, skillKey: string, attributeKey: string, skillRatingOverride?: number): SkillRollPoolPreview;
-/** Skill rolls: attribute dice pool, keep highest equal to the actor's Mastery Rank. */
+/**
+ * Skill rolls: BASE attribute dice pool (attr + full-/half-pool rule +
+ * equipment flat penalty). Pass `baseDice` to `masteryRoll` with
+ * `applyPoolPenalties: true`; `numDice` / `finalizeNotes` are the fully
+ * finalized preview values (same calculation the roll will use).
+ */
 export declare function getSkillRollDicePool(actor: Actor, skillKey: string, attributeKey: string, skillRatingOverride?: number): {
     numDice: number;
+    baseDice: number;
     keepDice: number;
     halfPool: boolean;
     equipPenalty: number;
-    healthPenalty: number;
-    encumbrancePenalty: number;
+    finalizeNotes: string[];
 };
 export declare function buildSkillRollContext(actor: Actor, skillKey: string, attributeKey: string, tnSpec: TnSpec, stoneBonusRaises?: number): BuiltRollContext | null;
 export declare function buildAttributeRollContext(actor: Actor, attributeKey: string, tnSpec: TnSpec, stoneBonusRaises?: number): BuiltRollContext | null;
-export declare function buildSaveRollContext(actor: Actor, saveType: SaveCategory, tnSpec: TnSpec, stoneBonusRaises?: number): BuiltRollContext | null;
 //# sourceMappingURL=roll-context-build.d.ts.map

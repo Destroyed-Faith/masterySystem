@@ -31,8 +31,6 @@ export interface SpecialEffect {
   stacking: 'Yes' | 'No' | 'Additive';
   removal: string; // How to end/remove the effect
   hasValue: boolean; // Whether the effect has a numeric value (X)
-  /** Optional saving throw type: 'Body' | 'Mind' | 'Spirit' | combinations, or '—' */
-  save?: string;
   /** Optional dedicated Remove Action skill (e.g. 'Medicine', 'Athletics', 'Meditation', 'Crafting') */
   removeAction?: string;
   /** Whether Cleanse / Dispel Magic can remove/reduce this effect */
@@ -82,7 +80,6 @@ export const DIMINISHING_EFFECTS: SpecialEffect[] = [
     stacking: 'Yes',
     removal: 'Medicine Remove Action, or Cleanse.',
     hasValue: true,
-    save: '—',
     removeAction: 'Medicine',
     dispellable: true,
     pricing: '3 × T(X)',
@@ -97,7 +94,6 @@ export const DIMINISHING_EFFECTS: SpecialEffect[] = [
     stacking: 'Yes',
     removal: 'Crafting Remove Action, or Cleanse.',
     hasValue: true,
-    save: '—',
     removeAction: 'Crafting',
     dispellable: true,
     pricing: '6 × T(X)',
@@ -113,43 +109,24 @@ export const DIMINISHING_EFFECTS: SpecialEffect[] = [
     stacking: 'Yes',
     removal: 'Meditation Remove Action, or Cleanse.',
     hasValue: true,
-    save: '—',
     removeAction: 'Meditation',
     dispellable: true,
-    pricing: '4 × T(X)',
-    startPP: 4
+    pricing: '8 × T(X)',
+    startPP: 8
   },
   {
-    id: 'disrupt',
-    name: 'Disrupt(X)',
+    id: 'challenge',
+    name: 'Challenge(X)',
     category: 'diminishing',
     description:
-      'When you use a Power, reduce Disrupt by X. If you cannot reduce Disrupt by the required amount, the Power fails and the action is lost. At the start of your turn, Disrupt decays by 1.',
+      'Challenge is bound to the creature that applied it (the challenger). Whenever you build an Attack Pool for an attack that does not include the challenger as a target, remove X dice from that pool, to a minimum of your Mastery Rank. If the attack includes the challenger, Challenge does not reduce the pool. Challenge never forces you to attack, move toward, or remain near the challenger. A creature can have only one challenger at a time: reapplying from the same challenger adds stacks; Challenge from a different source replaces the current value only if the new value is higher. At the start of your turn, Challenge decays by 1.',
     duration: 'Diminishing (X→0)',
     stacking: 'Yes',
-    removal: 'Meditation Remove Action, or Cleanse.',
+    removal: 'Cleanse, or normal decay.',
     hasValue: true,
-    save: '—',
-    removeAction: 'Meditation',
     dispellable: true,
     pricing: '6 × T(X)',
     startPP: 6
-  },
-  {
-    id: 'dread',
-    name: 'Dread(X)',
-    category: 'diminishing',
-    description:
-      'When Dread is applied, the Power states which Save is used: Body, Mind, or Spirit. Before you make an attack, make the listed Save with its DC increased by X. On a failure, the attack is lost. At the start of your turn, Dread decays by 1.',
-    duration: 'Diminishing (X→0)',
-    stacking: 'Yes',
-    removal: 'Leadership Remove Action, or Cleanse.',
-    hasValue: true,
-    save: 'Body / Mind / Spirit',
-    removeAction: 'Leadership',
-    dispellable: true,
-    pricing: '5 × T(X)',
-    startPP: 5
   },
   {
     id: 'expose',
@@ -160,7 +137,6 @@ export const DIMINISHING_EFFECTS: SpecialEffect[] = [
     stacking: 'Yes',
     removal: 'Athletics Remove Action, or Cleanse.',
     hasValue: true,
-    save: '—',
     removeAction: 'Athletics',
     dispellable: true,
     pricing: '8 × T(X)',
@@ -176,7 +152,6 @@ export const DIMINISHING_EFFECTS: SpecialEffect[] = [
     stacking: 'Yes',
     removal: 'Meditation Remove Action, or Cleanse.',
     hasValue: true,
-    save: '—',
     removeAction: 'Meditation',
     dispellable: true,
     pricing: '6 × T(X)',
@@ -192,7 +167,6 @@ export const DIMINISHING_EFFECTS: SpecialEffect[] = [
     stacking: 'Yes',
     removal: 'Medicine Remove Action, or Cleanse.',
     hasValue: true,
-    save: '—',
     removeAction: 'Medicine',
     dispellable: true,
     pricing: '4 × T(X)',
@@ -208,7 +182,6 @@ export const DIMINISHING_EFFECTS: SpecialEffect[] = [
     stacking: 'Yes',
     removal: 'Concealment Remove Action, or Cleanse.',
     hasValue: true,
-    save: '—',
     removeAction: 'Concealment',
     dispellable: true,
     pricing: '4 × T(X)',
@@ -224,26 +197,9 @@ export const DIMINISHING_EFFECTS: SpecialEffect[] = [
     stacking: 'Yes',
     removal: '—',
     hasValue: true,
-    save: '—',
     dispellable: false,
     pricing: '3 × T(X)',
     startPP: 3
-  },
-  {
-    id: 'root',
-    name: 'Root(X)',
-    category: 'diminishing',
-    description:
-      'Root can only be applied with a minimum value of Root(2). While Rooted, your Speed is reduced to 0 m and you cannot move voluntarily. Root does not prevent attacking, casting, using Reactions, other non-movement actions, or being moved by forced movement. At the start of your turn, Root decays by 1.',
-    duration: 'Diminishing (X→0)',
-    stacking: 'Yes',
-    removal: 'Athletics Remove Action, or Cleanse.',
-    hasValue: true,
-    save: '—',
-    removeAction: 'Athletics',
-    dispellable: true,
-    pricing: '6 × T(X)',
-    startPP: 6
   },
   {
     id: 'ruin',
@@ -255,7 +211,6 @@ export const DIMINISHING_EFFECTS: SpecialEffect[] = [
     stacking: 'Yes',
     removal: 'Medicine Remove Action, or Cleanse.',
     hasValue: true,
-    save: '—',
     removeAction: 'Medicine',
     dispellable: true,
     pricing: '4 × T(X)',
@@ -271,7 +226,6 @@ export const DIMINISHING_EFFECTS: SpecialEffect[] = [
     stacking: 'Yes',
     removal: 'Athletics Remove Action, or Cleanse.',
     hasValue: true,
-    save: '—',
     removeAction: 'Athletics',
     dispellable: true,
     pricing: '4 × T(X)',
@@ -282,16 +236,15 @@ export const DIMINISHING_EFFECTS: SpecialEffect[] = [
     name: 'Soulburn(X)',
     category: 'diminishing',
     description:
-      'Suffer −X dice to Body, Mind, and Spirit Saves, to a minimum of your Mastery Rank. At the start of your turn, Soulburn decays by 1.',
+      'Whenever you build a dice pool based on Wits, Influence, or Resolve, remove X dice from that pool. Soulburn reduces rolled dice pools only — never the Attribute itself, Keep, Damage Pools, Health, derived values, or resource maximums. Apply it with other flat pool changes before the percentage-based Health Penalty; the final pool cannot drop below your Mastery Rank. At the start of your turn, Soulburn decays by 1.',
     duration: 'Diminishing (X→0)',
     stacking: 'Yes',
     removal: 'Occultism Remove Action, or Cleanse.',
     hasValue: true,
-    save: '—',
     removeAction: 'Occultism',
     dispellable: true,
-    pricing: '6 × T(X)',
-    startPP: 6
+    pricing: '8 × T(X)',
+    startPP: 8
   },
   {
     id: 'sundered',
@@ -303,7 +256,6 @@ export const DIMINISHING_EFFECTS: SpecialEffect[] = [
     stacking: 'Yes',
     removal: 'Athletics Remove Action, or Cleanse.',
     hasValue: true,
-    save: '—',
     removeAction: 'Athletics',
     dispellable: true,
     pricing: '6 × T(X)',
@@ -314,16 +266,15 @@ export const DIMINISHING_EFFECTS: SpecialEffect[] = [
     name: 'Weaken(X)',
     category: 'diminishing',
     description:
-      'Choose one when applied: Body, Mind, or Spirit. Suffer −X dice to that Save type, to a minimum of your Mastery Rank. At the start of your turn, Weaken decays by 1.',
+      'Whenever you build a dice pool based on Might, Agility, or Intellect, remove X dice from that pool. Weaken reduces rolled dice pools only — never the Attribute itself, Keep, Damage Pools, Health, derived values, or resource maximums. Apply it with other flat pool changes before the percentage-based Health Penalty; the final pool cannot drop below your Mastery Rank. At the start of your turn, Weaken decays by 1.',
     duration: 'Diminishing (X→0)',
     stacking: 'Yes',
     removal: 'Medicine Remove Action, or Cleanse.',
     hasValue: true,
-    save: '—',
     removeAction: 'Medicine',
     dispellable: true,
-    pricing: '5 × T(X)',
-    startPP: 5
+    pricing: '8 × T(X)',
+    startPP: 8
   }
 ];
 
@@ -336,41 +287,39 @@ export const TIMED_EFFECTS: SpecialEffect[] = [
     name: 'Brace(X)',
     category: 'timed',
     description:
-      'Your Speed becomes 0 m. While Braced, your Shield value is doubled for Armor calculation. Brace is Timed (Mastery Rank rounds + X) and ends early if you move, drop your shield, or are knocked Prone.',
-    duration: 'Mastery Rank Rounds + X',
+      'Your Speed becomes 0 m. While Braced, your Shield value is doubled for Armor calculation. At the end of each of your turns, reduce Brace by 1; the effect ends when X reaches 0.',
+    duration: 'Until X reaches 0',
     stacking: 'No',
-    removal: 'Ends when the duration expires, you move, drop your shield, or are knocked Prone.',
+    removal: 'Ends when X reaches 0 at the end of your turns.',
     hasValue: true,
-    save: '—',
     dispellable: false,
     pricing: '15 × X'
   },
   {
     id: 'prone',
-    name: 'Prone(X)',
+    name: 'Prone',
     category: 'timed',
     description:
-      'You are knocked down; attacks against you gain +X Attack Dice. Standing up ends the effect.',
-    duration: '1 Round',
+      'You are knocked down. Standing up requires the normal Movement Action or Action cost and ends the effect.',
+    duration: 'Until you stand',
     stacking: 'No',
-    removal: 'Spend 1 Attack Action to stand up (you may still move normally).',
-    hasValue: true,
-    save: 'Body',
+    removal: 'Stand up (normal Movement Action or Action cost).',
+    hasValue: false,
     dispellable: false,
-    pricing: '20 × X'
+    pricing: '60 PP'
   },
   {
     id: 'stunned',
-    name: 'Stunned(X)',
+    name: 'Stunned',
     category: 'timed',
-    description: 'Lose X Attack Actions this turn.',
-    duration: '1 Round',
+    description:
+      'You lose your next Attack Action and cannot use Reactions until the start of your next turn. Stunned does not remove Movement.',
+    duration: 'Until the start of your next turn',
     stacking: 'No',
-    removal: 'Body Save negates on apply.',
-    hasValue: true,
-    save: 'Body',
+    removal: 'Ends at the start of your next turn.',
+    hasValue: false,
     dispellable: false,
-    pricing: '45 × X'
+    pricing: '120 PP'
   }
 ];
 
@@ -388,7 +337,6 @@ export const UNTIL_USED_EFFECTS: SpecialEffect[] = [
     stacking: 'Yes',
     removal: 'Charges end when X reaches 0.',
     hasValue: true,
-    save: '—',
     dispellable: false,
     pricing: '20 × X'
   },
@@ -401,7 +349,6 @@ export const UNTIL_USED_EFFECTS: SpecialEffect[] = [
     stacking: 'No',
     removal: 'Consumed as the affected attacks are made.',
     hasValue: true,
-    save: '—',
     dispellable: false,
     pricing: '25 × X'
   },
@@ -409,14 +356,28 @@ export const UNTIL_USED_EFFECTS: SpecialEffect[] = [
     id: 'immovable',
     name: 'Immovable',
     category: 'untilUsed',
-    description: 'You are immune to Push and Prone while the effect lasts.',
+    description: 'You are immune to Push, Pull, Prone, and forced movement while the effect lasts.',
     duration: 'Buff Duration',
     stacking: 'No',
     removal: 'Ends when the buff expires.',
     hasValue: false,
-    save: '—',
     dispellable: false,
-    pricing: '20 PP'
+    pricing: '80 PP'
+  },
+  {
+    id: 'root',
+    name: 'Root(X)',
+    category: 'untilUsed',
+    description:
+      'While Rooted, your Speed becomes 0 m and you cannot move voluntarily. Root does not prevent attacking, casting, using Reactions, other non-movement actions, or being moved by forced movement. Root does not decay on its own: spend an Action, Movement Action, or Reaction to make a Vitality Attribute Check against TN 8 × source Mastery Rank — on a success, reduce Root by 1, plus 1 per Raise.',
+    duration: 'Until broken',
+    stacking: 'Yes',
+    removal: 'Break attempt (Vitality Attribute Check), or Cleanse.',
+    hasValue: true,
+    removeAction: 'Athletics',
+    dispellable: true,
+    pricing: '6 × T(X)',
+    startPP: 6
   }
 ];
 
@@ -433,7 +394,6 @@ export const INSTANT_EFFECTS: SpecialEffect[] = [
     stacking: 'No',
     removal: 'Resolves with the attack.',
     hasValue: true,
-    save: '—',
     dispellable: false,
     pricing: '10 × X'
   },
@@ -446,7 +406,6 @@ export const INSTANT_EFFECTS: SpecialEffect[] = [
     stacking: 'No',
     removal: 'Resolves immediately.',
     hasValue: true,
-    save: '—',
     dispellable: false,
     pricing: '2 × X'
   },
@@ -459,7 +418,6 @@ export const INSTANT_EFFECTS: SpecialEffect[] = [
     stacking: 'No',
     removal: 'Resolves with the attack.',
     hasValue: true,
-    save: '—',
     dispellable: false,
     pricing: '7.5 × X'
   },
@@ -472,7 +430,6 @@ export const INSTANT_EFFECTS: SpecialEffect[] = [
     stacking: 'No',
     removal: 'Resolves with the attack.',
     hasValue: true,
-    save: '—',
     dispellable: false,
     pricing: '15 × X'
   },
@@ -485,7 +442,6 @@ export const INSTANT_EFFECTS: SpecialEffect[] = [
     stacking: 'No',
     removal: 'Resolves immediately.',
     hasValue: true,
-    save: '—',
     dispellable: false,
     pricing: '2 × X'
   },
@@ -498,7 +454,6 @@ export const INSTANT_EFFECTS: SpecialEffect[] = [
     stacking: 'No',
     removal: 'Resolves immediately.',
     hasValue: true,
-    save: '—',
     dispellable: false,
     pricing: '2 × X'
   },
@@ -507,12 +462,11 @@ export const INSTANT_EFFECTS: SpecialEffect[] = [
     name: 'Disarm',
     category: 'instant',
     description:
-      "Force the target to drop one held item. The item lands at the target's feet (or up to X meters away if the Power scales the throw distance). The target may pick it up next turn for a Movement action.",
+      'On hit, the target loses grip on one visible held item; the item falls to the ground. Recovering it requires a Movement Action or an Action.',
     duration: 'Instant',
     stacking: 'No',
-    removal: 'Body Save negates on apply.',
+    removal: 'Resolves with the attack.',
     hasValue: false,
-    save: 'Body',
     dispellable: false,
     pricing: 'special'
   },
@@ -525,7 +479,6 @@ export const INSTANT_EFFECTS: SpecialEffect[] = [
     stacking: 'Yes',
     removal: 'Resolves with the attack.',
     hasValue: true,
-    save: '—',
     dispellable: false,
     pricing: '7.5 × X'
   },
@@ -534,12 +487,11 @@ export const INSTANT_EFFECTS: SpecialEffect[] = [
     name: 'Stun',
     category: 'instant',
     description:
-      'The target is Stunned for 1 Round (loses 1 Attack Action). For scaling Stun use the Timed effect Stunned(X) instead.',
-    duration: '1 Round',
+      'The target is Stunned: it loses its next Attack Action and cannot use Reactions until the start of its next turn. Alias of the Timed effect Stunned.',
+    duration: 'Until the start of the target\'s next turn',
     stacking: 'No',
-    removal: 'Body Save negates on apply.',
+    removal: 'Ends at the start of the target\'s next turn.',
     hasValue: false,
-    save: 'Body',
     dispellable: false,
     pricing: 'special'
   }
@@ -551,17 +503,16 @@ export const INSTANT_EFFECTS: SpecialEffect[] = [
 export const SUPPORT_EFFECTS: SpecialEffect[] = [
   {
     id: 'cleanse',
-    name: 'Cleanse',
+    name: 'Cleanse(X)',
     category: 'support',
     description:
-      'Reduce a single eligible ongoing effect on one target by 4 (X → X−4, minimum 0). Stacks per cast: a Power may explicitly buy multiple cleanses, but each one targets a different ongoing effect (or the same effect on a different creature).',
+      'Choose exactly one eligible ongoing Special on one target and reduce its current value by X. The Cleanse value cannot be divided between multiple Specials; any excess is lost. If X equals or exceeds the current value, the Special is removed. Cleanse can only reduce Specials that are dispellable, and does not remove battlefield objects, Barriers, Walls, Images, Summons, Illusion Fields, or Persistent Zones.',
     duration: 'Instant',
     stacking: 'No',
     removal: '—',
-    hasValue: false,
-    save: '—',
+    hasValue: true,
     dispellable: false,
-    pricing: '15 PP per cleanse'
+    pricing: '4 × T(X)'
   },
   {
     id: 'dispel-magic',
@@ -572,7 +523,6 @@ export const SUPPORT_EFFECTS: SpecialEffect[] = [
     stacking: 'No',
     removal: '—',
     hasValue: false,
-    save: '—',
     dispellable: false,
     pricing: 'special / spell-specific'
   }
@@ -596,7 +546,6 @@ export const MULTI_ATTACK_EFFECTS: SpecialEffect[] = [
     stacking: 'No',
     removal: '—',
     hasValue: true,
-    save: '—',
     dispellable: false,
     pricing: '30 × L PP (L = Power Level 1–4)',
     charged: true
@@ -640,9 +589,22 @@ export const LEGACY_SPECIAL_ID_ALIASES: Readonly<Record<string, string>> = {
   freeze: 'slow',
   poisoned: 'blight',
   blinded: 'disoriented',
-  frightened: 'dread',
-  shock: 'disrupt'
+  shock: 'disoriented',
+  disrupt: 'challenge',
+  disrupted: 'challenge',
 };
+
+/**
+ * Special ids removed from the rules entirely (no canonical replacement).
+ * The data migration deletes stored entries with these ids and logs them;
+ * runtime code must never resolve them to an effect.
+ */
+export const REMOVED_SPECIAL_IDS: readonly string[] = [
+  'dread',
+  'frightened',
+  'disrupt',
+  'shock'
+];
 
 /** Resolve a possibly-legacy special id to its canonical id. */
 export function canonicalSpecialId(id: string): string {

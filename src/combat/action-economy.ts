@@ -114,9 +114,8 @@ export interface RoundState {
     critRaises?: number;
     /** Might.Armor — flat temp armor until start of next turn. */
     tempArmor?: number;
-    /** Legacy: +keep raises on next spell/skill roll (saves/skills). */
+    /** Legacy: +keep raises on next spell/skill roll. */
     freeRaises?: number;
-    saveKeepBonus?: number;
     spellPoolDice?: number;
     spellKeepDice?: number;
     /**
@@ -137,16 +136,14 @@ export interface RoundState {
     spellRaiseTnBonus?: number;
     /** @deprecated Use spellRaiseTnBonus — legacy bonus-d8 path removed. */
     spellAutoRaises?: number;
-    /** Intellect.SpellDefense — bonus to Saves vs. Spells until next turn. */
-    spellSaveBonus?: number;
+    /** Intellect.SpellResistance — +TN vs Spells that directly target you until next turn. */
+    spellResistanceBonus?: number;
     /** Intellect.SpellAction — extra attack actions this round, restricted to Spells. */
     extraSpellActions?: number;
     /** Intellect.SpecialBoost — +X to one eligible Special on each spell this turn. */
     spellSpecialBoost?: number;
     /** Resolve.DamageReductionBoost — additional %DR until next turn (0.10/0.20/0.30). */
     damageReductionBoostPct?: number;
-    /** Resolve.SaveBoost — flat bonus to all Saves this round. */
-    saveAllBonus?: number;
     /** Resolve.SpecialReduction — minus to incoming Special values against you this round (floored at 0). */
     incomingSpecialReduction?: number;
     /** Wits.Phasing — phasing charges granted by stone power (consumed by phasing system). */
@@ -1211,13 +1208,12 @@ export async function clearCombatStoneTurnBonusesForActor(actor: Actor, combat: 
     (sb.freeRaises ?? 0) !== 0 ||
     (sb.critRaises ?? 0) !== 0 ||
     (sb.tempArmor ?? 0) !== 0 ||
-    (sb.saveKeepBonus ?? 0) !== 0 ||
     (sb.spellPoolDice ?? 0) !== 0 ||
     (sb.spellKeepDice ?? 0) !== 0 ||
     (sb.tempHpGrantedThisTurn ?? 0) !== 0 ||
     (sb.ignoreWoundPenalties ?? 0) !== 0 ||
     (sb.spellAutoRaises ?? 0) !== 0 ||
-    (sb.spellSaveBonus ?? 0) !== 0 ||
+    (sb.spellResistanceBonus ?? 0) !== 0 ||
     (sb.spellSpecialBoost ?? 0) !== 0 ||
     (sb.damageReductionBoostPct ?? 0) !== 0 ||
     (sb.phasingChargesFromStones ?? 0) !== 0 ||
@@ -1253,7 +1249,6 @@ export async function clearCombatStoneTurnBonusesForActor(actor: Actor, combat: 
     freeRaises: 0,
     critRaises: 0,
     tempArmor: 0,
-    saveKeepBonus: 0,
     spellPoolDice: 0,
     spellKeepDice: 0,
     tempHpGrantedThisTurn: 0,
@@ -1262,11 +1257,10 @@ export async function clearCombatStoneTurnBonusesForActor(actor: Actor, combat: 
     extendActiveBuffRounds: 0,
     secondChanceFreeBoxes: sb.secondChanceFreeBoxes ?? 0,
     spellAutoRaises: 0,
-    spellSaveBonus: 0,
+    spellResistanceBonus: 0,
     extraSpellActions: sb.extraSpellActions ?? 0,
     spellSpecialBoost: 0,
     damageReductionBoostPct: 0,
-    saveAllBonus: sb.saveAllBonus ?? 0,
     incomingSpecialReduction: sb.incomingSpecialReduction ?? 0,
     phasingChargesFromStones: 0,
     initiativeBonus: sb.initiativeBonus ?? 0,

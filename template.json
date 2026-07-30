@@ -181,19 +181,6 @@
       },
       "skills": {},
       "skillsSpent": {},
-      "savingThrows": {
-        "might": 0,
-        "agility": 0,
-        "vitality": 0,
-        "intellect": 0,
-        "resolve": 0,
-        "influence": 0,
-        "wits": 0
-      },
-      "saves": {
-        "vitalitySpent": 0,
-        "vitalityUsesRemaining": 4
-      },
       "conditions": [],
       "schticks": {
         "ranks": []
@@ -242,11 +229,6 @@
         "tempHP": 0
       },
       "skills": {},
-      "savingThrows": {
-        "body": 0,
-        "mind": 0,
-        "spirit": 0
-      },
       "attackValues": [],
       "npcBaseAttack": {
         "name": "Waffenangriff",
@@ -332,7 +314,6 @@
       "isSpell": false,
       "castingAttribute": "",
       "spellResolution": "",
-      "spellSaveType": "",
       "overcast": 0,
       "powerType": "active",
       "level": 1,
@@ -438,7 +419,6 @@
       "diminishing": true,
       "duration": "rounds",
       "effect": "",
-      "save": "body",
       "removal": ""
     },
     "weapon": {

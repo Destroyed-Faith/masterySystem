@@ -64,14 +64,16 @@ Version: v0.9.1 (2026-07-06)
 \page
 {{pageNumber,auto}}
 {{wide
-## Martial Actives — Special-First Damage + Diminishing Specials
+## Martial Actives — Special-First Damage + Numeric Specials
+
+> **Current Start PP 8 Group:** Disoriented, Expose, Soulburn, and Weaken use the dedicated Start PP 8 templates in this catalogue.
 
 > **Scaling Rule:** These templates are Special-first Martial Actives.  
 > The Special is the primary scaling component. Damage is the secondary rider.  
 > Damage and Special may stay the same or increase, but they may never decrease.  
 > Unused PP may be ignored if spending it would block later Special scaling or require adding a second rider.
 
-> **Diminishing Special Formula:**  
+> **Triangular Special Formula:**  
 > Special Cost = Start PP × T(X)  
 > T(X) = X × (X + 1) / 2
 
@@ -98,7 +100,7 @@ This prevents filler damage from turning a Special template into a Damage templa
 :
 ### Example — Building a Special-First Martial Active
 
-A player wants to create a melee poison strike.
+A player wants to create a melee blight strike.
 
 They choose:
 
@@ -164,7 +166,7 @@ If the attack misses, neither the damage nor the Special applies.
       Blight(17) = 459 PP<br><br>
 
       SCALING RULE<br>
-      This is a Poison-first Martial Active.<br>
+      This is a Blight-first Martial Active.<br>
       Blight is the primary scaling axis.<br>
       Damage remains fixed at +1d8 and is only a low damage rider.<br>
       Blight may stay the same or increase, but it may never decrease.<br>
@@ -275,7 +277,7 @@ A close-range martial strike that focuses on applying a high Blight value, with 
       Blight(15) = 360 PP<br><br>
 
       SCALING RULE<br>
-      This is a Poison-first Ranged Martial Active.<br>
+      This is a Blight-first Ranged Martial Active.<br>
       Blight is the primary scaling axis.<br>
       Range is paid as a fixed cost each level.<br>
       Damage remains fixed at +1d8 and is only a low damage rider.<br>
@@ -372,7 +374,7 @@ A ranged martial attack that focuses on applying a high Blight value, with damag
 
       SCALING RULE<br>
       This is a Special-first Martial Active.<br>
-      Lacerate, Slow, Ruin, Mark, and Blinded are the primary scaling axis.<br>
+      Lacerate, Mark, Ruin, and Slow are the primary scaling axis.<br>
       Damage remains fixed at +1d8 and is only a low damage rider.<br>
       Special may stay the same or increase, but it may never decrease.<br>
       Damage is not used to fill all leftover PP.<br><br>
@@ -404,7 +406,7 @@ A ranged martial attack that focuses on applying a high Blight value, with damag
 </h3>
 
 A close-range martial strike that focuses on applying a high standard Diminishing Special, with damage kept as a minor rider.  
-This template covers Lacerate, Slow, Ruin, Mark, and Blinded.
+This template covers Lacerate, Mark, Ruin, and Slow.
 
 ---
 :
@@ -414,22 +416,22 @@ This template covers Lacerate, Slow, Ruin, Mark, and Blinded.
 :
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
 |:--:|:--|:--:|:--:|:--:|:--|:--|
-| **1** | Active | Melee Reach | — | Instant | Deal **+1d8 damage** on hit. | **Lacerate(2) / Slow(2) / Ruin(2) / Mark(2) / Blinded(2)** |
-| **2** | Active | Melee Reach | — | Instant | Deal **+1d8 damage** on hit. | **Lacerate(4) / Slow(4) / Ruin(4) / Mark(4) / Blinded(4)** |
-| **3** | Active | Melee Reach | — | Instant | Deal **+1d8 damage** on hit. | **Lacerate(5) / Slow(5) / Ruin(5) / Mark(5) / Blinded(5)** |
-| **4** | Active | Melee Reach | — | Instant | Deal **+1d8 damage** on hit. | **Lacerate(6) / Slow(6) / Ruin(6) / Mark(6) / Blinded(6)** |
-| **5** | Active | Melee Reach | — | Instant | Deal **+1d8 damage** on hit. | **Lacerate(7) / Slow(7) / Ruin(7) / Mark(7) / Blinded(7)** |
-| **6** | Active | Melee Reach | — | Instant | Deal **+1d8 damage** on hit. | **Lacerate(8) / Slow(8) / Ruin(8) / Mark(8) / Blinded(8)** |
-| **7** | Active | Melee Reach | — | Instant | Deal **+1d8 damage** on hit. | **Lacerate(9) / Slow(9) / Ruin(9) / Mark(9) / Blinded(9)** |
-| **8** | Active | Melee Reach | — | Instant | Deal **+1d8 damage** on hit. | **Lacerate(10) / Slow(10) / Ruin(10) / Mark(10) / Blinded(10)** |
-| **9** | Active | Melee Reach | — | Instant | Deal **+1d8 damage** on hit. | **Lacerate(10) / Slow(10) / Ruin(10) / Mark(10) / Blinded(10)** |
-| **10** | Active | Melee Reach | — | Instant | Deal **+1d8 damage** on hit. | **Lacerate(11) / Slow(11) / Ruin(11) / Mark(11) / Blinded(11)** |
-| **11** | Active | Melee Reach | — | Instant | Deal **+1d8 damage** on hit. | **Lacerate(12) / Slow(12) / Ruin(12) / Mark(12) / Blinded(12)** |
-| **12** | Active | Melee Reach | — | Instant | Deal **+1d8 damage** on hit. | **Lacerate(12) / Slow(12) / Ruin(12) / Mark(12) / Blinded(12)** |
-| **13** | Active | Melee Reach | — | Instant | Deal **+1d8 damage** on hit. | **Lacerate(13) / Slow(13) / Ruin(13) / Mark(13) / Blinded(13)** |
-| **14** | Active | Melee Reach | — | Instant | Deal **+1d8 damage** on hit. | **Lacerate(13) / Slow(13) / Ruin(13) / Mark(13) / Blinded(13)** |
-| **15** | Active | Melee Reach | — | Instant | Deal **+1d8 damage** on hit. | **Lacerate(14) / Slow(14) / Ruin(14) / Mark(14) / Blinded(14)** |
-| **16** | Active | Melee Reach | — | Instant | Deal **+1d8 damage** on hit. | **Lacerate(14) / Slow(14) / Ruin(14) / Mark(14) / Blinded(14)** |
+| **1** | Active | Melee Reach | — | Instant | Deal **+1d8 damage** on hit. | **Lacerate(2) / Slow(2) / Ruin(2) / Mark(2)** |
+| **2** | Active | Melee Reach | — | Instant | Deal **+1d8 damage** on hit. | **Lacerate(4) / Slow(4) / Ruin(4) / Mark(4)** |
+| **3** | Active | Melee Reach | — | Instant | Deal **+1d8 damage** on hit. | **Lacerate(5) / Slow(5) / Ruin(5) / Mark(5)** |
+| **4** | Active | Melee Reach | — | Instant | Deal **+1d8 damage** on hit. | **Lacerate(6) / Slow(6) / Ruin(6) / Mark(6)** |
+| **5** | Active | Melee Reach | — | Instant | Deal **+1d8 damage** on hit. | **Lacerate(7) / Slow(7) / Ruin(7) / Mark(7)** |
+| **6** | Active | Melee Reach | — | Instant | Deal **+1d8 damage** on hit. | **Lacerate(8) / Slow(8) / Ruin(8) / Mark(8)** |
+| **7** | Active | Melee Reach | — | Instant | Deal **+1d8 damage** on hit. | **Lacerate(9) / Slow(9) / Ruin(9) / Mark(9)** |
+| **8** | Active | Melee Reach | — | Instant | Deal **+1d8 damage** on hit. | **Lacerate(10) / Slow(10) / Ruin(10) / Mark(10)** |
+| **9** | Active | Melee Reach | — | Instant | Deal **+1d8 damage** on hit. | **Lacerate(10) / Slow(10) / Ruin(10) / Mark(10)** |
+| **10** | Active | Melee Reach | — | Instant | Deal **+1d8 damage** on hit. | **Lacerate(11) / Slow(11) / Ruin(11) / Mark(11)** |
+| **11** | Active | Melee Reach | — | Instant | Deal **+1d8 damage** on hit. | **Lacerate(12) / Slow(12) / Ruin(12) / Mark(12)** |
+| **12** | Active | Melee Reach | — | Instant | Deal **+1d8 damage** on hit. | **Lacerate(12) / Slow(12) / Ruin(12) / Mark(12)** |
+| **13** | Active | Melee Reach | — | Instant | Deal **+1d8 damage** on hit. | **Lacerate(13) / Slow(13) / Ruin(13) / Mark(13)** |
+| **14** | Active | Melee Reach | — | Instant | Deal **+1d8 damage** on hit. | **Lacerate(13) / Slow(13) / Ruin(13) / Mark(13)** |
+| **15** | Active | Melee Reach | — | Instant | Deal **+1d8 damage** on hit. | **Lacerate(14) / Slow(14) / Ruin(14) / Mark(14)** |
+| **16** | Active | Melee Reach | — | Instant | Deal **+1d8 damage** on hit. | **Lacerate(14) / Slow(14) / Ruin(14) / Mark(14)** |
 
 ---
 :
@@ -482,7 +484,7 @@ This template covers Lacerate, Slow, Ruin, Mark, and Blinded.
 
       SCALING RULE<br>
       This is a Special-first Ranged Martial Active.<br>
-      Lacerate, Slow, Ruin, Mark, and Blinded are the primary scaling axis.<br>
+      Lacerate, Mark, Ruin, and Slow are the primary scaling axis.<br>
       Range is paid as a fixed cost each level.<br>
       Damage remains fixed at +1d8 and is only a low damage rider.<br>
       Special may stay the same or increase, but it may never decrease.<br>
@@ -516,7 +518,7 @@ This template covers Lacerate, Slow, Ruin, Mark, and Blinded.
 </h3>
 
 A ranged martial attack that focuses on applying a high standard Diminishing Special, with damage kept as a minor rider.  
-This template covers Lacerate, Slow, Ruin, Mark, and Blinded.
+This template covers Lacerate, Mark, Ruin, and Slow.
 
 ---
 :
@@ -526,22 +528,22 @@ This template covers Lacerate, Slow, Ruin, Mark, and Blinded.
 :
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
 |:--:|:--|:--:|:--:|:--:|:--|:--|
-| **1** | Active | 8 m | — | Instant | Deal **+1d8 damage** on hit. | **Lacerate(2) / Slow(2) / Ruin(2) / Mark(2) / Blinded(2)** |
-| **2** | Active | 12 m | — | Instant | Deal **+1d8 damage** on hit. | **Lacerate(4) / Slow(4) / Ruin(4) / Mark(4) / Blinded(4)** |
-| **3** | Active | 16 m | — | Instant | Deal **+1d8 damage** on hit. | **Lacerate(5) / Slow(5) / Ruin(5) / Mark(5) / Blinded(5)** |
-| **4** | Active | 20 m | — | Instant | Deal **+1d8 damage** on hit. | **Lacerate(6) / Slow(6) / Ruin(6) / Mark(6) / Blinded(6)** |
-| **5** | Active | 24 m | — | Instant | Deal **+1d8 damage** on hit. | **Lacerate(7) / Slow(7) / Ruin(7) / Mark(7) / Blinded(7)** |
-| **6** | Active | 28 m | — | Instant | Deal **+1d8 damage** on hit. | **Lacerate(7) / Slow(7) / Ruin(7) / Mark(7) / Blinded(7)** |
-| **7** | Active | 32 m | — | Instant | Deal **+1d8 damage** on hit. | **Lacerate(8) / Slow(8) / Ruin(8) / Mark(8) / Blinded(8)** |
-| **8** | Active | 36 m | — | Instant | Deal **+1d8 damage** on hit. | **Lacerate(9) / Slow(9) / Ruin(9) / Mark(9) / Blinded(9)** |
-| **9** | Active | 40 m | — | Instant | Deal **+1d8 damage** on hit. | **Lacerate(9) / Slow(9) / Ruin(9) / Mark(9) / Blinded(9)** |
-| **10** | Active | 44 m | — | Instant | Deal **+1d8 damage** on hit. | **Lacerate(10) / Slow(10) / Ruin(10) / Mark(10) / Blinded(10)** |
-| **11** | Active | 48 m | — | Instant | Deal **+1d8 damage** on hit. | **Lacerate(11) / Slow(11) / Ruin(11) / Mark(11) / Blinded(11)** |
-| **12** | Active | 52 m | — | Instant | Deal **+1d8 damage** on hit. | **Lacerate(11) / Slow(11) / Ruin(11) / Mark(11) / Blinded(11)** |
-| **13** | Active | 56 m | — | Instant | Deal **+1d8 damage** on hit. | **Lacerate(12) / Slow(12) / Ruin(12) / Mark(12) / Blinded(12)** |
-| **14** | Active | 60 m | — | Instant | Deal **+1d8 damage** on hit. | **Lacerate(12) / Slow(12) / Ruin(12) / Mark(12) / Blinded(12)** |
-| **15** | Active | 64 m | — | Instant | Deal **+1d8 damage** on hit. | **Lacerate(13) / Slow(13) / Ruin(13) / Mark(13) / Blinded(13)** |
-| **16** | Active | 68 m | — | Instant | Deal **+1d8 damage** on hit. | **Lacerate(13) / Slow(13) / Ruin(13) / Mark(13) / Blinded(13)** |
+| **1** | Active | 8 m | — | Instant | Deal **+1d8 damage** on hit. | **Lacerate(2) / Slow(2) / Ruin(2) / Mark(2)** |
+| **2** | Active | 12 m | — | Instant | Deal **+1d8 damage** on hit. | **Lacerate(4) / Slow(4) / Ruin(4) / Mark(4)** |
+| **3** | Active | 16 m | — | Instant | Deal **+1d8 damage** on hit. | **Lacerate(5) / Slow(5) / Ruin(5) / Mark(5)** |
+| **4** | Active | 20 m | — | Instant | Deal **+1d8 damage** on hit. | **Lacerate(6) / Slow(6) / Ruin(6) / Mark(6)** |
+| **5** | Active | 24 m | — | Instant | Deal **+1d8 damage** on hit. | **Lacerate(7) / Slow(7) / Ruin(7) / Mark(7)** |
+| **6** | Active | 28 m | — | Instant | Deal **+1d8 damage** on hit. | **Lacerate(7) / Slow(7) / Ruin(7) / Mark(7)** |
+| **7** | Active | 32 m | — | Instant | Deal **+1d8 damage** on hit. | **Lacerate(8) / Slow(8) / Ruin(8) / Mark(8)** |
+| **8** | Active | 36 m | — | Instant | Deal **+1d8 damage** on hit. | **Lacerate(9) / Slow(9) / Ruin(9) / Mark(9)** |
+| **9** | Active | 40 m | — | Instant | Deal **+1d8 damage** on hit. | **Lacerate(9) / Slow(9) / Ruin(9) / Mark(9)** |
+| **10** | Active | 44 m | — | Instant | Deal **+1d8 damage** on hit. | **Lacerate(10) / Slow(10) / Ruin(10) / Mark(10)** |
+| **11** | Active | 48 m | — | Instant | Deal **+1d8 damage** on hit. | **Lacerate(11) / Slow(11) / Ruin(11) / Mark(11)** |
+| **12** | Active | 52 m | — | Instant | Deal **+1d8 damage** on hit. | **Lacerate(11) / Slow(11) / Ruin(11) / Mark(11)** |
+| **13** | Active | 56 m | — | Instant | Deal **+1d8 damage** on hit. | **Lacerate(12) / Slow(12) / Ruin(12) / Mark(12)** |
+| **14** | Active | 60 m | — | Instant | Deal **+1d8 damage** on hit. | **Lacerate(12) / Slow(12) / Ruin(12) / Mark(12)** |
+| **15** | Active | 64 m | — | Instant | Deal **+1d8 damage** on hit. | **Lacerate(13) / Slow(13) / Ruin(13) / Mark(13)** |
+| **16** | Active | 68 m | — | Instant | Deal **+1d8 damage** on hit. | **Lacerate(13) / Slow(13) / Ruin(13) / Mark(13)** |
 
 }}
 \page
@@ -582,193 +584,6 @@ The template remains Mark-first.
 {{pageNumber,auto}}
 {{wide
 
-<h3 id="melee-damage-start-pp-5-special">
-  Melee — Damage + Start PP 5 Special
-  <span class="tooltip">🛈
-    <span class="tooltiptext">
-      BASELINES<br>
-      Active curve = 30 PP per level<br>
-      +1d8 Damage = 15 PP<br>
-      Start PP 5 Diminishing Special<br>
-      Special Cost = 5 × T(X)<br>
-      T(X) = X × (X + 1) / 2<br><br>
-
-      SPECIAL COSTS<br>
-      X1 = 5 PP • X2 = 15 PP • X3 = 30 PP • X4 = 50 PP • X5 = 75 PP • X6 = 105 PP • X7 = 140 PP • X8 = 180 PP • X9 = 225 PP • X10 = 275 PP • X11 = 330 PP • X12 = 390 PP<br><br>
-
-      SCALING RULE<br>
-      Special-first scaling with Damage Anchor.<br>
-      Level 4 establishes the Damage Anchor: +3d8 Damage = 45 PP.<br>
-      From Level 5 onward, the template spends into Weaken or Frightened first.<br>
-      Damage is not increased automatically if doing so would delay later Special scaling.<br><br>
-
-      CALCULATION<br>
-      L1 → Target 30 PP: Damage +1d8 (15) + Special(2) (15) = 30 PP<br>
-      L2 → Target 60 PP: Damage +2d8 (30) + Special(3) (30) = 60 PP<br>
-      L3 → Target 90 PP: Damage +3d8 (45) + Special(4) (50) = 95 PP<br>
-      L4 → Target 120 PP: Damage +3d8 (45) + Special(5) (75) = 120 PP<br>
-      L5 → Target 150 PP: Damage +3d8 (45) + Special(6) (105) = 150 PP<br>
-      L6 → Target 180 PP: Damage +3d8 (45) + Special(6) (105) = 150 PP<br>
-      L7 → Target 210 PP: Damage +3d8 (45) + Special(7) (140) = 185 PP<br>
-      L8 → Target 240 PP: Damage +3d8 (45) + Special(8) (180) = 225 PP<br>
-      L9 → Target 270 PP: Damage +3d8 (45) + Special(9) (225) = 270 PP<br>
-      L10 → Target 300 PP: Damage +3d8 (45) + Special(9) (225) = 270 PP<br>
-      L11 → Target 330 PP: Damage +3d8 (45) + Special(10) (275) = 320 PP<br>
-      L12 → Target 360 PP: Damage +3d8 (45) + Special(10) (275) = 320 PP<br>
-      L13 → Target 390 PP: Damage +3d8 (45) + Special(11) (330) = 375 PP<br>
-      L14 → Target 420 PP: Damage +3d8 (45) + Special(11) (330) = 375 PP<br>
-      L15 → Target 450 PP: Damage +3d8 (45) + Special(12) (390) = 435 PP<br>
-      L16 → Target 480 PP: Damage +3d8 (45) + Special(12) (390) = 435 PP<br><br>
-
-      NOTES — Melee Martial Active. Covers Start PP 5 Diminishing Specials such as Weaken and Frightened. This template intentionally leaves PP unused on some levels to preserve Special-first progression.
-    </span>
-  </span>
-</h3>
-
-A close-range martial strike that deals damage and applies a medium-cost Diminishing Special.  
-This template covers Weaken and Frightened.
-
----
-:
-**Requirement:** Melee Weapon or Unarmed
-
----
-:
-| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
-|:--:|:--|:--:|:--:|:--:|:--|:--|
-| **1** | Active | Melee Reach | — | Instant | Deal **+1d8 damage** on hit. | **Weaken(2) / Frightened(2)** |
-| **2** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Weaken(3) / Frightened(3)** |
-| **3** | Active | Melee Reach | — | Instant | Deal **+3d8 damage** on hit. | **Weaken(4) / Frightened(4)** |
-| **4** | Active | Melee Reach | — | Instant | Deal **+3d8 damage** on hit. | **Weaken(5) / Frightened(5)** |
-| **5** | Active | Melee Reach | — | Instant | Deal **+3d8 damage** on hit. | **Weaken(6) / Frightened(6)** |
-| **6** | Active | Melee Reach | — | Instant | Deal **+3d8 damage** on hit. | **Weaken(6) / Frightened(6)** |
-| **7** | Active | Melee Reach | — | Instant | Deal **+3d8 damage** on hit. | **Weaken(7) / Frightened(7)** |
-| **8** | Active | Melee Reach | — | Instant | Deal **+3d8 damage** on hit. | **Weaken(8) / Frightened(8)** |
-| **9** | Active | Melee Reach | — | Instant | Deal **+3d8 damage** on hit. | **Weaken(9) / Frightened(9)** |
-| **10** | Active | Melee Reach | — | Instant | Deal **+3d8 damage** on hit. | **Weaken(9) / Frightened(9)** |
-| **11** | Active | Melee Reach | — | Instant | Deal **+3d8 damage** on hit. | **Weaken(10) / Frightened(10)** |
-| **12** | Active | Melee Reach | — | Instant | Deal **+3d8 damage** on hit. | **Weaken(10) / Frightened(10)** |
-| **13** | Active | Melee Reach | — | Instant | Deal **+3d8 damage** on hit. | **Weaken(11) / Frightened(11)** |
-| **14** | Active | Melee Reach | — | Instant | Deal **+3d8 damage** on hit. | **Weaken(11) / Frightened(11)** |
-| **15** | Active | Melee Reach | — | Instant | Deal **+3d8 damage** on hit. | **Weaken(12) / Frightened(12)** |
-| **16** | Active | Melee Reach | — | Instant | Deal **+3d8 damage** on hit. | **Weaken(12) / Frightened(12)** |
-
----
-:
-<h3 id="ranged-damage-start-pp-5-special">
-  Ranged — Damage + Start PP 5 Special
-  <span class="tooltip">🛈
-    <span class="tooltiptext">
-      BASELINES<br>
-      Active curve = 30 PP per level<br>
-      +1d8 Damage = 15 PP<br>
-      Range progression = +4 m per level<br>
-      Range cost = +5 PP per +4 m after 8 m<br>
-      Start PP 5 Diminishing Special<br>
-      Special Cost = 5 × T(X)<br>
-      T(X) = X × (X + 1) / 2<br><br>
-
-      SPECIAL COSTS<br>
-      X1 = 5 PP • X2 = 15 PP • X3 = 30 PP • X4 = 50 PP • X5 = 75 PP • X6 = 105 PP • X7 = 140 PP • X8 = 180 PP • X9 = 225 PP • X10 = 275 PP • X11 = 330 PP • X12 = 390 PP<br><br>
-
-      SCALING RULE<br>
-      Special-first scaling with Damage Anchor.<br>
-      Level 4 establishes the Damage Anchor: +3d8 Damage = 45 PP.<br>
-      Ranged also pays Range cost each level.<br>
-      From Level 5 onward, the template spends into Weaken or Frightened first.<br><br>
-
-      CALCULATION<br>
-      L1 → Target 30 PP: Range 8 m (0) + Damage +1d8 (15) + Special(2) (15) = 30 PP<br>
-      L2 → Target 60 PP: Range 12 m (5) + Damage +2d8 (30) + Special(2) (15) = 50 PP<br>
-      L3 → Target 90 PP: Range 16 m (10) + Damage +3d8 (45) + Special(3) (30) = 85 PP<br>
-      L4 → Target 120 PP: Range 20 m (15) + Damage +3d8 (45) + Special(4) (50) = 110 PP<br>
-      L5 → Target 150 PP: Range 24 m (20) + Damage +3d8 (45) + Special(5) (75) = 140 PP<br>
-      L6 → Target 180 PP: Range 28 m (25) + Damage +3d8 (45) + Special(6) (105) = 175 PP<br>
-      L7 → Target 210 PP: Range 32 m (30) + Damage +3d8 (45) + Special(6) (105) = 180 PP<br>
-      L8 → Target 240 PP: Range 36 m (35) + Damage +3d8 (45) + Special(7) (140) = 220 PP<br>
-      L9 → Target 270 PP: Range 40 m (40) + Damage +3d8 (45) + Special(8) (180) = 265 PP<br>
-      L10 → Target 300 PP: Range 44 m (45) + Damage +3d8 (45) + Special(8) (180) = 270 PP<br>
-      L11 → Target 330 PP: Range 48 m (50) + Damage +3d8 (45) + Special(9) (225) = 320 PP<br>
-      L12 → Target 360 PP: Range 52 m (55) + Damage +3d8 (45) + Special(9) (225) = 325 PP<br>
-      L13 → Target 390 PP: Range 56 m (60) + Damage +3d8 (45) + Special(10) (275) = 380 PP<br>
-      L14 → Target 420 PP: Range 60 m (65) + Damage +3d8 (45) + Special(10) (275) = 385 PP<br>
-      L15 → Target 450 PP: Range 64 m (70) + Damage +3d8 (45) + Special(11) (330) = 445 PP<br>
-      L16 → Target 480 PP: Range 68 m (75) + Damage +3d8 (45) + Special(11) (330) = 450 PP<br><br>
-
-      NOTES — Ranged Martial Active. Covers Start PP 5 Diminishing Specials such as Weaken and Frightened. This version pays Range every level, so its Special value trails behind the Melee version.
-    </span>
-  </span>
-</h3>
-
-A ranged martial attack that deals damage and applies a medium-cost Diminishing Special.  
-This template covers Weaken and Frightened.
-
----
-:
-**Requirement:** Ranged Weapon or Thrown Weapon
-
----
-:
-| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
-|:--:|:--|:--:|:--:|:--:|:--|:--|
-| **1** | Active | 8 m | — | Instant | Deal **+1d8 damage** on hit. | **Weaken(2) / Frightened(2)** |
-| **2** | Active | 12 m | — | Instant | Deal **+2d8 damage** on hit. | **Weaken(2) / Frightened(2)** |
-| **3** | Active | 16 m | — | Instant | Deal **+3d8 damage** on hit. | **Weaken(3) / Frightened(3)** |
-| **4** | Active | 20 m | — | Instant | Deal **+3d8 damage** on hit. | **Weaken(4) / Frightened(4)** |
-| **5** | Active | 24 m | — | Instant | Deal **+3d8 damage** on hit. | **Weaken(5) / Frightened(5)** |
-| **6** | Active | 28 m | — | Instant | Deal **+3d8 damage** on hit. | **Weaken(6) / Frightened(6)** |
-| **7** | Active | 32 m | — | Instant | Deal **+3d8 damage** on hit. | **Weaken(6) / Frightened(6)** |
-| **8** | Active | 36 m | — | Instant | Deal **+3d8 damage** on hit. | **Weaken(7) / Frightened(7)** |
-| **9** | Active | 40 m | — | Instant | Deal **+3d8 damage** on hit. | **Weaken(8) / Frightened(8)** |
-| **10** | Active | 44 m | — | Instant | Deal **+3d8 damage** on hit. | **Weaken(8) / Frightened(8)** |
-| **11** | Active | 48 m | — | Instant | Deal **+3d8 damage** on hit. | **Weaken(9) / Frightened(9)** |
-| **12** | Active | 52 m | — | Instant | Deal **+3d8 damage** on hit. | **Weaken(9) / Frightened(9)** |
-| **13** | Active | 56 m | — | Instant | Deal **+3d8 damage** on hit. | **Weaken(10) / Frightened(10)** |
-| **14** | Active | 60 m | — | Instant | Deal **+3d8 damage** on hit. | **Weaken(10) / Frightened(10)** |
-| **15** | Active | 64 m | — | Instant | Deal **+3d8 damage** on hit. | **Weaken(11) / Frightened(11)** |
-| **16** | Active | 68 m | — | Instant | Deal **+3d8 damage** on hit. | **Weaken(11) / Frightened(11)** |
-
-}}
-\page
-{{pageNumber,auto}}
-{{wide
-
----
-:
-### Example — Frightening Blow
-
-A player creates a melee Power called **Frightening Blow**.
-
-They choose:
-
-- **Melee Active**
-- **Damage + Start PP 5 Special**
-- **Frightened** as the Special
-
-At Level 8, the template gives:
-
-- Range: **Melee Reach**
-- Damage: **+3d8 damage**
-- Special: **Frightened(8)**
-
-The attack is a fear-based martial technique.
-
-On a hit:
-
-- the target takes weapon damage plus **+3d8 damage**,
-- the target gains **Frightened(8)**.
-
-Frightened is the primary scaling axis.  
-Damage does not continue increasing every level, because doing so would turn the Power into a damage-first attack.
-
-
-
-
-}}
-\page
-{{pageNumber,auto}}
-{{wide
-
 ---
 :
 <h3 id="melee-damage-start-pp-6-special">
@@ -778,7 +593,7 @@ Damage does not continue increasing every level, because doing so would turn the
       BASELINES<br>
       Active curve = 30 PP per level<br>
       +1d8 Damage = 15 PP<br>
-      Start PP 6 Diminishing Special<br>
+      Start PP 6 Special<br>
       Special Cost = 6 × T(X)<br>
       T(X) = X × (X + 1) / 2<br><br>
       SPECIAL COSTS<br>
@@ -804,12 +619,12 @@ Damage does not continue increasing every level, because doing so would turn the
       L14 → Target 420 PP: Damage +2d8 (30) + Special(10) (330) = 360 PP<br>
       L15 → Target 450 PP: Damage +2d8 (30) + Special(11) (396) = 426 PP<br>
       L16 → Target 480 PP: Damage +2d8 (30) + Special(11) (396) = 426 PP<br><br>
-      NOTES — Melee Martial Active. Covers Corrode, Disrupt, Soulburn, Hex, Sundered, and Root. This group is heavy and should remain clearly Special-first. Root(X) represents Break Strength X.
+      NOTES — Melee Martial Active. Covers Challenge, Corrode, Hex, and Sundered. This group is heavy and should remain clearly Special-first.
     </span>
   </span>
 </h3>
 
-A close-range martial strike that deals damage and applies a heavy Diminishing Special.
+A close-range martial strike that deals damage and applies a heavy Start PP 6 Special.
 
 ---
 :
@@ -819,22 +634,22 @@ A close-range martial strike that deals damage and applies a heavy Diminishing S
 :
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
 |:--:|:--|:--:|:--:|:--:|:--|:--|
-| **1** | Active | Melee Reach | — | Instant | Deal **+1d8 damage** on hit. | **Corrode(2) / Disrupt(2) / Soulburn(2) / Hex(2) / Sundered(2) / Root(2)** |
-| **2** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Corrode(3) / Disrupt(3) / Soulburn(3) / Hex(3) / Sundered(3) / Root(3)** |
-| **3** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Corrode(4) / Disrupt(4) / Soulburn(4) / Hex(4) / Sundered(4) / Root(4)** |
-| **4** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Corrode(5) / Disrupt(5) / Soulburn(5) / Hex(5) / Sundered(5) / Root(5)** |
-| **5** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Corrode(5) / Disrupt(5) / Soulburn(5) / Hex(5) / Sundered(5) / Root(5)** |
-| **6** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Corrode(6) / Disrupt(6) / Soulburn(6) / Hex(6) / Sundered(6) / Root(6)** |
-| **7** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Corrode(7) / Disrupt(7) / Soulburn(7) / Hex(7) / Sundered(7) / Root(7)** |
-| **8** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Corrode(7) / Disrupt(7) / Soulburn(7) / Hex(7) / Sundered(7) / Root(7)** |
-| **9** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Corrode(8) / Disrupt(8) / Soulburn(8) / Hex(8) / Sundered(8) / Root(8)** |
-| **10** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Corrode(9) / Disrupt(9) / Soulburn(9) / Hex(9) / Sundered(9) / Root(9)** |
-| **11** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Corrode(9) / Disrupt(9) / Soulburn(9) / Hex(9) / Sundered(9) / Root(9)** |
-| **12** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Corrode(10) / Disrupt(10) / Soulburn(10) / Hex(10) / Sundered(10) / Root(10)** |
-| **13** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Corrode(10) / Disrupt(10) / Soulburn(10) / Hex(10) / Sundered(10) / Root(10)** |
-| **14** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Corrode(10) / Disrupt(10) / Soulburn(10) / Hex(10) / Sundered(10) / Root(10)** |
-| **15** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Corrode(11) / Disrupt(11) / Soulburn(11) / Hex(11) / Sundered(11) / Root(11)** |
-| **16** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Corrode(11) / Disrupt(11) / Soulburn(11) / Hex(11) / Sundered(11) / Root(11)** |
+| **1** | Active | Melee Reach | — | Instant | Deal **+1d8 damage** on hit. | **Challenge(2) / Corrode(2) / Hex(2) / Sundered(2)** |
+| **2** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(3) / Corrode(3) / Hex(3) / Sundered(3)** |
+| **3** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(4) / Corrode(4) / Hex(4) / Sundered(4)** |
+| **4** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(5) / Corrode(5) / Hex(5) / Sundered(5)** |
+| **5** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(5) / Corrode(5) / Hex(5) / Sundered(5)** |
+| **6** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(6) / Corrode(6) / Hex(6) / Sundered(6)** |
+| **7** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(7) / Corrode(7) / Hex(7) / Sundered(7)** |
+| **8** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(7) / Corrode(7) / Hex(7) / Sundered(7)** |
+| **9** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(8) / Corrode(8) / Hex(8) / Sundered(8)** |
+| **10** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(9) / Corrode(9) / Hex(9) / Sundered(9)** |
+| **11** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(9) / Corrode(9) / Hex(9) / Sundered(9)** |
+| **12** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(10) / Corrode(10) / Hex(10) / Sundered(10)** |
+| **13** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(10) / Corrode(10) / Hex(10) / Sundered(10)** |
+| **14** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(10) / Corrode(10) / Hex(10) / Sundered(10)** |
+| **15** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(11) / Corrode(11) / Hex(11) / Sundered(11)** |
+| **16** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(11) / Corrode(11) / Hex(11) / Sundered(11)** |
 
 ---
 :
@@ -851,7 +666,7 @@ A close-range martial strike that deals damage and applies a heavy Diminishing S
       +1d8 Damage = 15 PP<br>
       Range progression = +4 m per level<br>
       Range cost = +5 PP per +4 m after 8 m<br>
-      Start PP 6 Diminishing Special<br>
+      Start PP 6 Special<br>
       Special Cost = 6 × T(X)<br>
       T(X) = X × (X + 1) / 2<br><br>
       SPECIAL COSTS<br>
@@ -878,12 +693,12 @@ A close-range martial strike that deals damage and applies a heavy Diminishing S
       L14 → Target 420 PP: Range 60 m (65) + Damage +2d8 (30) + Special(9) (270) = 365 PP<br>
       L15 → Target 450 PP: Range 64 m (70) + Damage +2d8 (30) + Special(10) (330) = 430 PP<br>
       L16 → Target 480 PP: Range 68 m (75) + Damage +2d8 (30) + Special(10) (330) = 435 PP<br><br>
-      NOTES — Ranged Martial Active. Covers Corrode, Disrupt, Soulburn, Hex, Sundered, and Root. Range cost slows Special growth compared to the Melee version. Root(X) represents Break Strength X.
+      NOTES — Ranged Martial Active. Covers Challenge, Corrode, Hex, and Sundered. Range cost slows Special growth compared to the Melee version. Root(X) represents Break Strength X.
     </span>
   </span>
 </h3>
 
-A ranged martial attack that deals damage and applies a heavy Diminishing Special.
+A ranged martial attack that deals damage and applies a heavy Start PP 6 Special.
 
 ---
 :
@@ -893,22 +708,22 @@ A ranged martial attack that deals damage and applies a heavy Diminishing Specia
 :
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
 |:--:|:--|:--:|:--:|:--:|:--|:--|
-| **1** | Active | 8 m | — | Instant | Deal **+1d8 damage** on hit. | **Corrode(1) / Disrupt(1) / Soulburn(1) / Hex(1) / Sundered(1) / Root(1)** |
-| **2** | Active | 12 m | — | Instant | Deal **+2d8 damage** on hit. | **Corrode(2) / Disrupt(2) / Soulburn(2) / Hex(2) / Sundered(2) / Root(2)** |
-| **3** | Active | 16 m | — | Instant | Deal **+2d8 damage** on hit. | **Corrode(3) / Disrupt(3) / Soulburn(3) / Hex(3) / Sundered(3) / Root(3)** |
-| **4** | Active | 20 m | — | Instant | Deal **+2d8 damage** on hit. | **Corrode(4) / Disrupt(4) / Soulburn(4) / Hex(4) / Sundered(4) / Root(4)** |
-| **5** | Active | 24 m | — | Instant | Deal **+2d8 damage** on hit. | **Corrode(5) / Disrupt(5) / Soulburn(5) / Hex(5) / Sundered(5) / Root(5)** |
-| **6** | Active | 28 m | — | Instant | Deal **+2d8 damage** on hit. | **Corrode(5) / Disrupt(5) / Soulburn(5) / Hex(5) / Sundered(5) / Root(5)** |
-| **7** | Active | 32 m | — | Instant | Deal **+2d8 damage** on hit. | **Corrode(6) / Disrupt(6) / Soulburn(6) / Hex(6) / Sundered(6) / Root(6)** |
-| **8** | Active | 36 m | — | Instant | Deal **+2d8 damage** on hit. | **Corrode(7) / Disrupt(7) / Soulburn(7) / Hex(7) / Sundered(7) / Root(7)** |
-| **9** | Active | 40 m | — | Instant | Deal **+2d8 damage** on hit. | **Corrode(7) / Disrupt(7) / Soulburn(7) / Hex(7) / Sundered(7) / Root(7)** |
-| **10** | Active | 44 m | — | Instant | Deal **+2d8 damage** on hit. | **Corrode(8) / Disrupt(8) / Soulburn(8) / Hex(8) / Sundered(8) / Root(8)** |
-| **11** | Active | 48 m | — | Instant | Deal **+2d8 damage** on hit. | **Corrode(8) / Disrupt(8) / Soulburn(8) / Hex(8) / Sundered(8) / Root(8)** |
-| **12** | Active | 52 m | — | Instant | Deal **+2d8 damage** on hit. | **Corrode(9) / Disrupt(9) / Soulburn(9) / Hex(9) / Sundered(9) / Root(9)** |
-| **13** | Active | 56 m | — | Instant | Deal **+2d8 damage** on hit. | **Corrode(9) / Disrupt(9) / Soulburn(9) / Hex(9) / Sundered(9) / Root(9)** |
-| **14** | Active | 60 m | — | Instant | Deal **+2d8 damage** on hit. | **Corrode(9) / Disrupt(9) / Soulburn(9) / Hex(9) / Sundered(9) / Root(9)** |
-| **15** | Active | 64 m | — | Instant | Deal **+2d8 damage** on hit. | **Corrode(10) / Disrupt(10) / Soulburn(10) / Hex(10) / Sundered(10) / Root(10)** |
-| **16** | Active | 68 m | — | Instant | Deal **+2d8 damage** on hit. | **Corrode(10) / Disrupt(10) / Soulburn(10) / Hex(10) / Sundered(10) / Root(10)** |
+| **1** | Active | 8 m | — | Instant | Deal **+1d8 damage** on hit. | **Challenge(1) / Corrode(1) / Hex(1) / Sundered(1)** |
+| **2** | Active | 12 m | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(2) / Corrode(2) / Hex(2) / Sundered(2)** |
+| **3** | Active | 16 m | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(3) / Corrode(3) / Hex(3) / Sundered(3)** |
+| **4** | Active | 20 m | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(4) / Corrode(4) / Hex(4) / Sundered(4)** |
+| **5** | Active | 24 m | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(5) / Corrode(5) / Hex(5) / Sundered(5)** |
+| **6** | Active | 28 m | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(5) / Corrode(5) / Hex(5) / Sundered(5)** |
+| **7** | Active | 32 m | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(6) / Corrode(6) / Hex(6) / Sundered(6)** |
+| **8** | Active | 36 m | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(7) / Corrode(7) / Hex(7) / Sundered(7)** |
+| **9** | Active | 40 m | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(7) / Corrode(7) / Hex(7) / Sundered(7)** |
+| **10** | Active | 44 m | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(8) / Corrode(8) / Hex(8) / Sundered(8)** |
+| **11** | Active | 48 m | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(8) / Corrode(8) / Hex(8) / Sundered(8)** |
+| **12** | Active | 52 m | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(9) / Corrode(9) / Hex(9) / Sundered(9)** |
+| **13** | Active | 56 m | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(9) / Corrode(9) / Hex(9) / Sundered(9)** |
+| **14** | Active | 60 m | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(9) / Corrode(9) / Hex(9) / Sundered(9)** |
+| **15** | Active | 64 m | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(10) / Corrode(10) / Hex(10) / Sundered(10)** |
+| **16** | Active | 68 m | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(10) / Corrode(10) / Hex(10) / Sundered(10)** |
 
 }}
 \page
@@ -917,33 +732,192 @@ A ranged martial attack that deals damage and applies a heavy Diminishing Specia
 
 ---
 :
-### Example — Soulburn Strike
+### Example — Hex Strike
 
-A player creates a melee Power called **Soulburn Strike**.
+A player creates a melee Power called **Hex Strike**.
 
 They choose:
 
 - **Melee Active**
 - **Damage + Start PP 6 Special**
-- **Soulburn** as the Special
+- **Hex** as the Special
 
 At Level 10, the template gives:
 
 - Range: **Melee Reach**
 - Damage: **+2d8 damage**
-- Special: **Soulburn(9)**
+- Special: **Hex(9)**
 
 This is a heavy Special-first attack.
 
 On a hit:
 
 - the target takes weapon damage plus **+2d8 damage**,
-- the target gains **Soulburn(9)**.
+- the target gains **Hex(9)**.
 
-Because Soulburn is a Start PP 6 Special, it is more expensive than Blight, Mark, or Weaken.  
+Because Hex is a Start PP 6 Special, it is more expensive than Blight or Mark.  
 The Power therefore has less damage and slower Special scaling than cheaper Special templates.
 
 }}
+\page
+{{pageNumber,auto}}
+{{wide
+<h3 id="melee-damage-start-pp-8-special">
+  Melee — Damage + Start PP 8 Special
+  <span class="tooltip">🛈
+    <span class="tooltiptext">
+      BASELINES<br>
+      Active curve = 30 PP per level<br>
+      +1d8 Damage = 15 PP<br>
+      Melee Reach = 0 PP<br>
+      Start PP 8 Diminishing Special<br>
+      Special Cost = 8 × T(X)<br>
+      T(X) = X × (X + 1) / 2<br><br>
+
+      VALID SPECIALS<br>
+      Disoriented(X), Expose(X), Soulburn(X), Weaken(X).<br><br>
+
+      SCALING RULE<br>
+      This is a high-impact Special-first Martial Active.<br>
+      The Special is the primary axis. Damage is held low so the next Special increase is not delayed.<br>
+      Damage and Special may stay the same or increase, but they may never decrease.<br>
+      Unused PP may remain unused.<br><br>
+
+      CALCULATION<br>
+      L1 → Target 30 PP: Damage +1d8 (15) + Special(1) (8) = 23 PP<br>
+      L2 → Target 60 PP: Damage +1d8 (15) + Special(3) (48) = 63 PP<br>
+      L3 → Target 90 PP: Damage +1d8 (15) + Special(4) (80) = 95 PP<br>
+      L4 → Target 120 PP: Damage +2d8 (30) + Special(4) (80) = 110 PP<br>
+      L5 → Target 150 PP: Damage +2d8 (30) + Special(5) (120) = 150 PP<br>
+      L6 → Target 180 PP: Damage +2d8 (30) + Special(5) (120) = 150 PP<br>
+      L7 → Target 210 PP: Damage +2d8 (30) + Special(6) (168) = 198 PP<br>
+      L8 → Target 240 PP: Damage +2d8 (30) + Special(6) (168) = 198 PP<br>
+      L9 → Target 270 PP: Damage +2d8 (30) + Special(7) (224) = 254 PP<br>
+      L10 → Target 300 PP: Damage +2d8 (30) + Special(7) (224) = 254 PP<br>
+      L11 → Target 330 PP: Damage +2d8 (30) + Special(8) (288) = 318 PP<br>
+      L12 → Target 360 PP: Damage +2d8 (30) + Special(8) (288) = 318 PP<br>
+      L13 → Target 390 PP: Damage +2d8 (30) + Special(9) (360) = 390 PP<br>
+      L14 → Target 420 PP: Damage +2d8 (30) + Special(9) (360) = 390 PP<br>
+      L15 → Target 450 PP: Damage +2d8 (30) + Special(9) (360) = 390 PP<br>
+      L16 → Target 480 PP: Damage +2d8 (30) + Special(10) (440) = 470 PP<br><br>
+      NOTES<br>
+      Weaken and Soulburn reduce dice pools, not Attributes or Keep.<br>
+      Disoriented and Expose use the same Start PP 8 curve.<br>
+      All flat pool reductions apply before percentage-based Health penalties, and the final Pool cannot fall below Mastery Rank.
+    </span>
+  </span>
+</h3>
+
+A close-range martial attack that applies one high-impact Start PP 8 Diminishing Special.
+
+---
+:
+**Requirement:** Melee Weapon or Unarmed
+
+---
+:
+| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
+|:--:|:--|:--:|:--:|:--:|:--|:--|
+| **1** | Active | Melee Reach | — | Instant | Deal **+1d8 damage** on hit. | **Disoriented(1) / Expose(1) / Soulburn(1) / Weaken(1)** |
+| **2** | Active | Melee Reach | — | Instant | Deal **+1d8 damage** on hit. | **Disoriented(3) / Expose(3) / Soulburn(3) / Weaken(3)** |
+| **3** | Active | Melee Reach | — | Instant | Deal **+1d8 damage** on hit. | **Disoriented(4) / Expose(4) / Soulburn(4) / Weaken(4)** |
+| **4** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Disoriented(4) / Expose(4) / Soulburn(4) / Weaken(4)** |
+| **5** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Disoriented(5) / Expose(5) / Soulburn(5) / Weaken(5)** |
+| **6** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Disoriented(5) / Expose(5) / Soulburn(5) / Weaken(5)** |
+| **7** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Disoriented(6) / Expose(6) / Soulburn(6) / Weaken(6)** |
+| **8** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Disoriented(6) / Expose(6) / Soulburn(6) / Weaken(6)** |
+| **9** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Disoriented(7) / Expose(7) / Soulburn(7) / Weaken(7)** |
+| **10** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Disoriented(7) / Expose(7) / Soulburn(7) / Weaken(7)** |
+| **11** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Disoriented(8) / Expose(8) / Soulburn(8) / Weaken(8)** |
+| **12** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Disoriented(8) / Expose(8) / Soulburn(8) / Weaken(8)** |
+| **13** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Disoriented(9) / Expose(9) / Soulburn(9) / Weaken(9)** |
+| **14** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Disoriented(9) / Expose(9) / Soulburn(9) / Weaken(9)** |
+| **15** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Disoriented(9) / Expose(9) / Soulburn(9) / Weaken(9)** |
+| **16** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Disoriented(10) / Expose(10) / Soulburn(10) / Weaken(10)** |
+
+---
+}}
+
+\page
+{{pageNumber,auto}}
+{{wide
+<h3 id="ranged-damage-start-pp-8-special">
+  Ranged — Damage + Start PP 8 Special
+  <span class="tooltip">🛈
+    <span class="tooltiptext">
+      BASELINES<br>
+      Active curve = 30 PP per level<br>
+      +1d8 Damage = 15 PP<br>
+      Range progression = +4 m per level<br>
+      Range cost = +5 PP per +4 m after 8 m<br>
+      Start PP 8 Diminishing Special<br>
+      Special Cost = 8 × T(X)<br>
+      T(X) = X × (X + 1) / 2<br><br>
+
+      VALID SPECIALS<br>
+      Disoriented(X), Expose(X), Soulburn(X), Weaken(X).<br><br>
+
+      SCALING RULE<br>
+      This is a high-impact Special-first Martial Active.<br>
+      The Special is the primary axis. Damage is held low so the next Special increase is not delayed.<br>
+      Damage and Special may stay the same or increase, but they may never decrease.<br>
+      Unused PP may remain unused.<br><br>
+
+      CALCULATION<br>
+      L1 → Target 30 PP: Range 8 m (0) + Damage +1d8 (15) + Special(1) (8) = 23 PP<br>
+      L2 → Target 60 PP: Range 12 m (5) + Damage +2d8 (30) + Special(2) (24) = 59 PP<br>
+      L3 → Target 90 PP: Range 16 m (10) + Damage +2d8 (30) + Special(3) (48) = 88 PP<br>
+      L4 → Target 120 PP: Range 20 m (15) + Damage +2d8 (30) + Special(3) (48) = 93 PP<br>
+      L5 → Target 150 PP: Range 24 m (20) + Damage +2d8 (30) + Special(4) (80) = 130 PP<br>
+      L6 → Target 180 PP: Range 28 m (25) + Damage +2d8 (30) + Special(5) (120) = 175 PP<br>
+      L7 → Target 210 PP: Range 32 m (30) + Damage +2d8 (30) + Special(5) (120) = 180 PP<br>
+      L8 → Target 240 PP: Range 36 m (35) + Damage +2d8 (30) + Special(6) (168) = 233 PP<br>
+      L9 → Target 270 PP: Range 40 m (40) + Damage +2d8 (30) + Special(6) (168) = 238 PP<br>
+      L10 → Target 300 PP: Range 44 m (45) + Damage +2d8 (30) + Special(7) (224) = 299 PP<br>
+      L11 → Target 330 PP: Range 48 m (50) + Damage +2d8 (30) + Special(7) (224) = 304 PP<br>
+      L12 → Target 360 PP: Range 52 m (55) + Damage +2d8 (30) + Special(7) (224) = 309 PP<br>
+      L13 → Target 390 PP: Range 56 m (60) + Damage +2d8 (30) + Special(8) (288) = 378 PP<br>
+      L14 → Target 420 PP: Range 60 m (65) + Damage +2d8 (30) + Special(8) (288) = 383 PP<br>
+      L15 → Target 450 PP: Range 64 m (70) + Damage +2d8 (30) + Special(8) (288) = 388 PP<br>
+      L16 → Target 480 PP: Range 68 m (75) + Damage +2d8 (30) + Special(9) (360) = 465 PP<br><br>
+      NOTES<br>
+      Weaken and Soulburn reduce dice pools, not Attributes or Keep.<br>
+      Disoriented and Expose use the same Start PP 8 curve.<br>
+      All flat pool reductions apply before percentage-based Health penalties, and the final Pool cannot fall below Mastery Rank.
+    </span>
+  </span>
+</h3>
+
+A ranged martial attack that applies one high-impact Start PP 8 Diminishing Special.
+
+---
+:
+**Requirement:** Ranged Weapon or Thrown Weapon
+
+---
+:
+| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
+|:--:|:--|:--:|:--:|:--:|:--|:--|
+| **1** | Active | 8 m | — | Instant | Deal **+1d8 damage** on hit. | **Disoriented(1) / Expose(1) / Soulburn(1) / Weaken(1)** |
+| **2** | Active | 12 m | — | Instant | Deal **+2d8 damage** on hit. | **Disoriented(2) / Expose(2) / Soulburn(2) / Weaken(2)** |
+| **3** | Active | 16 m | — | Instant | Deal **+2d8 damage** on hit. | **Disoriented(3) / Expose(3) / Soulburn(3) / Weaken(3)** |
+| **4** | Active | 20 m | — | Instant | Deal **+2d8 damage** on hit. | **Disoriented(3) / Expose(3) / Soulburn(3) / Weaken(3)** |
+| **5** | Active | 24 m | — | Instant | Deal **+2d8 damage** on hit. | **Disoriented(4) / Expose(4) / Soulburn(4) / Weaken(4)** |
+| **6** | Active | 28 m | — | Instant | Deal **+2d8 damage** on hit. | **Disoriented(5) / Expose(5) / Soulburn(5) / Weaken(5)** |
+| **7** | Active | 32 m | — | Instant | Deal **+2d8 damage** on hit. | **Disoriented(5) / Expose(5) / Soulburn(5) / Weaken(5)** |
+| **8** | Active | 36 m | — | Instant | Deal **+2d8 damage** on hit. | **Disoriented(6) / Expose(6) / Soulburn(6) / Weaken(6)** |
+| **9** | Active | 40 m | — | Instant | Deal **+2d8 damage** on hit. | **Disoriented(6) / Expose(6) / Soulburn(6) / Weaken(6)** |
+| **10** | Active | 44 m | — | Instant | Deal **+2d8 damage** on hit. | **Disoriented(7) / Expose(7) / Soulburn(7) / Weaken(7)** |
+| **11** | Active | 48 m | — | Instant | Deal **+2d8 damage** on hit. | **Disoriented(7) / Expose(7) / Soulburn(7) / Weaken(7)** |
+| **12** | Active | 52 m | — | Instant | Deal **+2d8 damage** on hit. | **Disoriented(7) / Expose(7) / Soulburn(7) / Weaken(7)** |
+| **13** | Active | 56 m | — | Instant | Deal **+2d8 damage** on hit. | **Disoriented(8) / Expose(8) / Soulburn(8) / Weaken(8)** |
+| **14** | Active | 60 m | — | Instant | Deal **+2d8 damage** on hit. | **Disoriented(8) / Expose(8) / Soulburn(8) / Weaken(8)** |
+| **15** | Active | 64 m | — | Instant | Deal **+2d8 damage** on hit. | **Disoriented(8) / Expose(8) / Soulburn(8) / Weaken(8)** |
+| **16** | Active | 68 m | — | Instant | Deal **+2d8 damage** on hit. | **Disoriented(9) / Expose(9) / Soulburn(9) / Weaken(9)** |
+
+---
+}}
+
 \page
 {{pageNumber,auto}}
 {{wide
@@ -1126,7 +1100,7 @@ The weapon damage is included because the Power explicitly says affected creatur
 
 ---
 :
-### Example — Ranged AoE Poison Shot
+### Example — Ranged AoE Blight Shot
 
 A character uses a ranged AoE poison Power.
 
@@ -1241,7 +1215,7 @@ The attacker does not roll separately against the other creatures in the radius.
       Radius 8 m = 350 PP<br><br>
 
       SCALING RULE<br>
-      This is a Poison-first AoE Martial Active.<br>
+      This is a Blight-first AoE Martial Active.<br>
       Blight is derived from the Single-Target reference and halved.<br>
       AoE then scales as high as the remaining PP allows.<br>
       Damage is not added early just because it fits once.<br>
@@ -1404,7 +1378,7 @@ A self-centered area attack that spreads poison around the attacker.
       Radius 8 m = 350 PP<br><br>
 
       SCALING RULE<br>
-      This is a Poison-first Ranged AoE Martial Active.<br>
+      This is a Blight-first Ranged AoE Martial Active.<br>
       Blight is derived from the Ranged Single-Target reference and halved.<br>
       Range is paid as a fixed cost each level.<br>
       AoE then scales as high as the remaining PP allows.<br>
@@ -1485,7 +1459,7 @@ A ranged area attack that spreads poison around a target point within range.
       Damage is optional and may only be added once it can be carried permanently afterward<br><br>
 
       SPECIALS<br>
-      Lacerate / Slow / Ruin / Mark / Blinded<br><br>
+      Lacerate / Mark / Ruin / Slow<br><br>
 
       AOE SPECIAL VALUE RULE<br>
       AoE Special value is derived from the matching Single-Target value, then halved.<br>
@@ -1515,7 +1489,7 @@ A ranged area attack that spreads poison around a target point within range.
 
       SCALING RULE<br>
       This is a Special-first AoE Martial Active.<br>
-      Lacerate, Slow, Ruin, Mark, and Blinded are the primary scaling axis.<br>
+      Lacerate, Mark, Ruin, and Slow are the primary scaling axis.<br>
       AoE and Special may stay the same or increase, but they may never decrease.<br>
       Damage is not added early just because it fits once.<br>
       Damage appears at Level 14 and remains active afterward.<br><br>
@@ -1547,7 +1521,7 @@ A ranged area attack that spreads poison around a target point within range.
 </h3>
 
 A self-centered area attack that applies a standard Diminishing Special around the attacker.  
-This template covers Lacerate, Slow, Ruin, Mark, and Blinded.
+This template covers Lacerate, Mark, Ruin, and Slow.
 
 ---
 :
@@ -1557,22 +1531,22 @@ This template covers Lacerate, Slow, Ruin, Mark, and Blinded.
 :
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
 |:--:|:--|:--:|:--:|:--:|:--|:--|
-| **1** | Active | Self | Radius 2 m | Instant | No damage. | Affected creatures gain **Lacerate(1) / Slow(1) / Ruin(1) / Mark(1) / Blinded(1)**. |
-| **2** | Active | Self | Radius 2 m | Instant | No damage. | Affected creatures gain **Lacerate(2) / Slow(2) / Ruin(2) / Mark(2) / Blinded(2)**. |
-| **3** | Active | Self | Radius 3 m | Instant | No damage. | Affected creatures gain **Lacerate(2) / Slow(2) / Ruin(2) / Mark(2) / Blinded(2)**. |
-| **4** | Active | Self | Radius 3 m | Instant | No damage. | Affected creatures gain **Lacerate(3) / Slow(3) / Ruin(3) / Mark(3) / Blinded(3)**. |
-| **5** | Active | Self | Radius 4 m | Instant | No damage. | Affected creatures gain **Lacerate(3) / Slow(3) / Ruin(3) / Mark(3) / Blinded(3)**. |
-| **6** | Active | Self | Radius 4 m | Instant | No damage. | Affected creatures gain **Lacerate(4) / Slow(4) / Ruin(4) / Mark(4) / Blinded(4)**. |
-| **7** | Active | Self | Radius 5 m | Instant | No damage. | Affected creatures gain **Lacerate(4) / Slow(4) / Ruin(4) / Mark(4) / Blinded(4)**. |
-| **8** | Active | Self | Radius 5 m | Instant | No damage. | Affected creatures gain **Lacerate(5) / Slow(5) / Ruin(5) / Mark(5) / Blinded(5)**. |
-| **9** | Active | Self | Radius 5 m | Instant | No damage. | Affected creatures gain **Lacerate(5) / Slow(5) / Ruin(5) / Mark(5) / Blinded(5)**. |
-| **10** | Active | Self | Radius 6 m | Instant | No damage. | Affected creatures gain **Lacerate(5) / Slow(5) / Ruin(5) / Mark(5) / Blinded(5)**. |
-| **11** | Active | Self | Radius 6 m | Instant | No damage. | Affected creatures gain **Lacerate(6) / Slow(6) / Ruin(6) / Mark(6) / Blinded(6)**. |
-| **12** | Active | Self | Radius 6 m | Instant | No damage. | Affected creatures gain **Lacerate(6) / Slow(6) / Ruin(6) / Mark(6) / Blinded(6)**. |
-| **13** | Active | Self | Radius 7 m | Instant | No damage. | Affected creatures gain **Lacerate(6) / Slow(6) / Ruin(6) / Mark(6) / Blinded(6)**. |
-| **14** | Active | Self | Radius 7 m | Instant | Deal **+1d8 damage** to affected creatures. | Affected creatures gain **Lacerate(6) / Slow(6) / Ruin(6) / Mark(6) / Blinded(6)**. |
-| **15** | Active | Self | Radius 7 m | Instant | Deal **+1d8 damage** to affected creatures. | Affected creatures gain **Lacerate(7) / Slow(7) / Ruin(7) / Mark(7) / Blinded(7)**. |
-| **16** | Active | Self | Radius 7 m | Instant | Deal **+1d8 damage** to affected creatures. | Affected creatures gain **Lacerate(7) / Slow(7) / Ruin(7) / Mark(7) / Blinded(7)**. |
+| **1** | Active | Self | Radius 2 m | Instant | No damage. | Affected creatures gain **Lacerate(1) / Slow(1) / Ruin(1) / Mark(1)**. |
+| **2** | Active | Self | Radius 2 m | Instant | No damage. | Affected creatures gain **Lacerate(2) / Slow(2) / Ruin(2) / Mark(2)**. |
+| **3** | Active | Self | Radius 3 m | Instant | No damage. | Affected creatures gain **Lacerate(2) / Slow(2) / Ruin(2) / Mark(2)**. |
+| **4** | Active | Self | Radius 3 m | Instant | No damage. | Affected creatures gain **Lacerate(3) / Slow(3) / Ruin(3) / Mark(3)**. |
+| **5** | Active | Self | Radius 4 m | Instant | No damage. | Affected creatures gain **Lacerate(3) / Slow(3) / Ruin(3) / Mark(3)**. |
+| **6** | Active | Self | Radius 4 m | Instant | No damage. | Affected creatures gain **Lacerate(4) / Slow(4) / Ruin(4) / Mark(4)**. |
+| **7** | Active | Self | Radius 5 m | Instant | No damage. | Affected creatures gain **Lacerate(4) / Slow(4) / Ruin(4) / Mark(4)**. |
+| **8** | Active | Self | Radius 5 m | Instant | No damage. | Affected creatures gain **Lacerate(5) / Slow(5) / Ruin(5) / Mark(5)**. |
+| **9** | Active | Self | Radius 5 m | Instant | No damage. | Affected creatures gain **Lacerate(5) / Slow(5) / Ruin(5) / Mark(5)**. |
+| **10** | Active | Self | Radius 6 m | Instant | No damage. | Affected creatures gain **Lacerate(5) / Slow(5) / Ruin(5) / Mark(5)**. |
+| **11** | Active | Self | Radius 6 m | Instant | No damage. | Affected creatures gain **Lacerate(6) / Slow(6) / Ruin(6) / Mark(6)**. |
+| **12** | Active | Self | Radius 6 m | Instant | No damage. | Affected creatures gain **Lacerate(6) / Slow(6) / Ruin(6) / Mark(6)**. |
+| **13** | Active | Self | Radius 7 m | Instant | No damage. | Affected creatures gain **Lacerate(6) / Slow(6) / Ruin(6) / Mark(6)**. |
+| **14** | Active | Self | Radius 7 m | Instant | Deal **+1d8 damage** to affected creatures. | Affected creatures gain **Lacerate(6) / Slow(6) / Ruin(6) / Mark(6)**. |
+| **15** | Active | Self | Radius 7 m | Instant | Deal **+1d8 damage** to affected creatures. | Affected creatures gain **Lacerate(7) / Slow(7) / Ruin(7) / Mark(7)**. |
+| **16** | Active | Self | Radius 7 m | Instant | Deal **+1d8 damage** to affected creatures. | Affected creatures gain **Lacerate(7) / Slow(7) / Ruin(7) / Mark(7)**. |
 
 ---
 :
@@ -1594,7 +1568,7 @@ This template covers Lacerate, Slow, Ruin, Mark, and Blinded.
       Damage is optional and may only be added once it can be carried permanently afterward<br><br>
 
       SPECIALS<br>
-      Lacerate / Slow / Ruin / Mark / Blinded<br><br>
+      Lacerate / Mark / Ruin / Slow<br><br>
 
       AOE SPECIAL VALUE RULE<br>
       AoE Special value is derived from the matching Ranged Single-Target value, then halved.<br>
@@ -1606,7 +1580,7 @@ This template covers Lacerate, Slow, Ruin, Mark, and Blinded.
 
       SCALING RULE<br>
       This is a Special-first Ranged AoE Martial Active.<br>
-      Lacerate, Slow, Ruin, Mark, and Blinded are the primary scaling axis.<br>
+      Lacerate, Mark, Ruin, and Slow are the primary scaling axis.<br>
       Range is paid every level.<br>
       AoE and Special may stay the same or increase, but they may never decrease.<br>
       Damage appears only at Level 16, because before that it would create flicker or block the scaling shape.<br><br>
@@ -1637,7 +1611,7 @@ This template covers Lacerate, Slow, Ruin, Mark, and Blinded.
 </h3>
 
 A ranged area attack that applies a standard Diminishing Special at a target point within range.  
-This template covers Lacerate, Slow, Ruin, Mark, and Blinded.
+This template covers Lacerate, Mark, Ruin, and Slow.
 
 ---
 :
@@ -1647,198 +1621,22 @@ This template covers Lacerate, Slow, Ruin, Mark, and Blinded.
 :
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
 |:--:|:--|:--:|:--:|:--:|:--|:--|
-| **1** | Active | 8 m | Radius 2 m | Instant | No damage. | Affected creatures gain **Lacerate(1) / Slow(1) / Ruin(1) / Mark(1) / Blinded(1)**. |
-| **2** | Active | 12 m | Radius 2 m | Instant | No damage. | Affected creatures gain **Lacerate(2) / Slow(2) / Ruin(2) / Mark(2) / Blinded(2)**. |
-| **3** | Active | 16 m | Radius 3 m | Instant | No damage. | Affected creatures gain **Lacerate(2) / Slow(2) / Ruin(2) / Mark(2) / Blinded(2)**. |
-| **4** | Active | 20 m | Radius 3 m | Instant | No damage. | Affected creatures gain **Lacerate(3) / Slow(3) / Ruin(3) / Mark(3) / Blinded(3)**. |
-| **5** | Active | 24 m | Radius 4 m | Instant | No damage. | Affected creatures gain **Lacerate(3) / Slow(3) / Ruin(3) / Mark(3) / Blinded(3)**. |
-| **6** | Active | 28 m | Radius 4 m | Instant | No damage. | Affected creatures gain **Lacerate(4) / Slow(4) / Ruin(4) / Mark(4) / Blinded(4)**. |
-| **7** | Active | 32 m | Radius 4 m | Instant | No damage. | Affected creatures gain **Lacerate(4) / Slow(4) / Ruin(4) / Mark(4) / Blinded(4)**. |
-| **8** | Active | 36 m | Radius 5 m | Instant | No damage. | Affected creatures gain **Lacerate(4) / Slow(4) / Ruin(4) / Mark(4) / Blinded(4)**. |
-| **9** | Active | 40 m | Radius 5 m | Instant | No damage. | Affected creatures gain **Lacerate(5) / Slow(5) / Ruin(5) / Mark(5) / Blinded(5)**. |
-| **10** | Active | 44 m | Radius 5 m | Instant | No damage. | Affected creatures gain **Lacerate(5) / Slow(5) / Ruin(5) / Mark(5) / Blinded(5)**. |
-| **11** | Active | 48 m | Radius 6 m | Instant | No damage. | Affected creatures gain **Lacerate(5) / Slow(5) / Ruin(5) / Mark(5) / Blinded(5)**. |
-| **12** | Active | 52 m | Radius 6 m | Instant | No damage. | Affected creatures gain **Lacerate(5) / Slow(5) / Ruin(5) / Mark(5) / Blinded(5)**. |
-| **13** | Active | 56 m | Radius 6 m | Instant | No damage. | Affected creatures gain **Lacerate(6) / Slow(6) / Ruin(6) / Mark(6) / Blinded(6)**. |
-| **14** | Active | 60 m | Radius 6 m | Instant | No damage. | Affected creatures gain **Lacerate(6) / Slow(6) / Ruin(6) / Mark(6) / Blinded(6)**. |
-| **15** | Active | 64 m | Radius 7 m | Instant | No damage. | Affected creatures gain **Lacerate(6) / Slow(6) / Ruin(6) / Mark(6) / Blinded(6)**. |
-| **16** | Active | 68 m | Radius 7 m | Instant | Deal **+1d8 damage** to affected creatures. | Affected creatures gain **Lacerate(6) / Slow(6) / Ruin(6) / Mark(6) / Blinded(6)**. |
-
-}}
-\page
-{{pageNumber,auto}}
-{{wide
-
----
-:
-<h3 id="melee-aoe-damage-start-pp-5-special">
-  Melee AoE — Damage + Start PP 5 Special
-  <span class="tooltip">🛈
-    <span class="tooltiptext">
-      BASELINES<br>
-      Active curve = 30 PP per level<br>
-      Melee AoE Range = Self<br>
-      No Range cost<br>
-      +1d8 Damage = 15 PP<br>
-      Damage is optional and may only be added once it can be carried permanently afterward<br><br>
-
-      SPECIALS<br>
-      Weaken / Frightened<br><br>
-
-      AOE SPECIAL VALUE RULE<br>
-      AoE Special = floor(Single-Target Special / 2).<br><br>
-
-      AOE SPECIAL COST RULE<br>
-      AoE Special(X) = Start PP 5 × T(X+1).<br><br>
-
-      AOE SPECIAL COSTS<br>
-      Special(1) = 15 PP<br>
-      Special(2) = 30 PP<br>
-      Special(3) = 50 PP<br>
-      Special(4) = 75 PP<br>
-      Special(5) = 105 PP<br>
-      Special(6) = 140 PP<br><br>
-
-      SCALING RULE<br>
-      This is a Special-first AoE Martial Active.<br>
-      Weaken and Frightened are the primary scaling axis.<br>
-      AoE and Special may stay the same or increase, but never decrease.<br>
-      Damage appears at Level 11 and remains active afterward.<br><br>
-
-      CALCULATION<br>
-      L1 → Target 30 PP: Special(1) (15) + Radius 2 m (20) + Damage — (0) = 35 PP<br>
-      L2 → Target 60 PP: Special(2) (30) + Radius 2 m (20) + Damage — (0) = 50 PP<br>
-      L3 → Target 90 PP: Special(2) (30) + Radius 3 m (50) + Damage — (0) = 80 PP<br>
-      L4 → Target 120 PP: Special(3) (50) + Radius 3 m (50) + Damage — (0) = 100 PP<br>
-      L5 → Target 150 PP: Special(3) (50) + Radius 4 m (90) + Damage — (0) = 140 PP<br>
-      L6 → Target 180 PP: Special(3) (50) + Radius 4 m (90) + Damage — (0) = 140 PP<br>
-      L7 → Target 210 PP: Special(4) (75) + Radius 5 m (140) + Damage — (0) = 215 PP<br>
-      L8 → Target 240 PP: Special(4) (75) + Radius 5 m (140) + Damage — (0) = 215 PP<br>
-      L9 → Target 270 PP: Special(4) (75) + Radius 6 m (200) + Damage — (0) = 275 PP<br>
-      L10 → Target 300 PP: Special(5) (105) + Radius 6 m (200) + Damage — (0) = 305 PP<br>
-      L11 → Target 330 PP: Special(5) (105) + Radius 6 m (200) + Damage +1d8 (15) = 320 PP<br>
-      L12 → Target 360 PP: Special(5) (105) + Radius 6 m (200) + Damage +1d8 (15) = 320 PP<br>
-      L13 → Target 390 PP: Special(5) (105) + Radius 7 m (270) + Damage +1d8 (15) = 390 PP<br>
-      L14 → Target 420 PP: Special(6) (140) + Radius 7 m (270) + Damage +1d8 (15) = 425 PP<br>
-      L15 → Target 450 PP: Special(6) (140) + Radius 7 m (270) + Damage +1d8 (15) = 425 PP<br>
-      L16 → Target 480 PP: Special(6) (140) + Radius 7 m (270) + Damage +1d8 (15) = 425 PP<br><br>
-
-      NOTES<br>
-      The first two levels are slightly above or below target because Radius 2 m plus the minimum AoE Special cost is already chunky.<br>
-      Damage begins at Level 11 and then remains stable.
-    </span>
-  </span>
-</h3>
-
-A self-centered area attack that applies a medium-cost Diminishing Special around the attacker.  
-This template covers Weaken and Frightened.
-
----
-:
-**Requirement:** Melee Weapon or Unarmed
-
----
-:
-| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
-|:--:|:--|:--:|:--:|:--:|:--|:--|
-| **1** | Active | Self | Radius 2 m | Instant | No damage. | Affected creatures gain **Weaken(1) / Frightened(1)**. |
-| **2** | Active | Self | Radius 2 m | Instant | No damage. | Affected creatures gain **Weaken(2) / Frightened(2)**. |
-| **3** | Active | Self | Radius 3 m | Instant | No damage. | Affected creatures gain **Weaken(2) / Frightened(2)**. |
-| **4** | Active | Self | Radius 3 m | Instant | No damage. | Affected creatures gain **Weaken(3) / Frightened(3)**. |
-| **5** | Active | Self | Radius 4 m | Instant | No damage. | Affected creatures gain **Weaken(3) / Frightened(3)**. |
-| **6** | Active | Self | Radius 4 m | Instant | No damage. | Affected creatures gain **Weaken(3) / Frightened(3)**. |
-| **7** | Active | Self | Radius 5 m | Instant | No damage. | Affected creatures gain **Weaken(4) / Frightened(4)**. |
-| **8** | Active | Self | Radius 5 m | Instant | No damage. | Affected creatures gain **Weaken(4) / Frightened(4)**. |
-| **9** | Active | Self | Radius 6 m | Instant | No damage. | Affected creatures gain **Weaken(4) / Frightened(4)**. |
-| **10** | Active | Self | Radius 6 m | Instant | No damage. | Affected creatures gain **Weaken(5) / Frightened(5)**. |
-| **11** | Active | Self | Radius 6 m | Instant | Deal **+1d8 damage** to affected creatures. | Affected creatures gain **Weaken(5) / Frightened(5)**. |
-| **12** | Active | Self | Radius 6 m | Instant | Deal **+1d8 damage** to affected creatures. | Affected creatures gain **Weaken(5) / Frightened(5)**. |
-| **13** | Active | Self | Radius 7 m | Instant | Deal **+1d8 damage** to affected creatures. | Affected creatures gain **Weaken(5) / Frightened(5)**. |
-| **14** | Active | Self | Radius 7 m | Instant | Deal **+1d8 damage** to affected creatures. | Affected creatures gain **Weaken(6) / Frightened(6)**. |
-| **15** | Active | Self | Radius 7 m | Instant | Deal **+1d8 damage** to affected creatures. | Affected creatures gain **Weaken(6) / Frightened(6)**. |
-| **16** | Active | Self | Radius 7 m | Instant | Deal **+1d8 damage** to affected creatures. | Affected creatures gain **Weaken(6) / Frightened(6)**. |
-
----
-:
-<h3 id="ranged-aoe-damage-start-pp-5-special">
-  Ranged AoE — Damage + Start PP 5 Special
-  <span class="tooltip">🛈
-    <span class="tooltiptext">
-      BASELINES<br>
-      Active curve = 30 PP per level<br>
-      Ranged AoE uses printed Range<br>
-      Range progression = +4 m per level<br>
-      Range cost = +5 PP per +4 m after 8 m<br>
-      +1d8 Damage = 15 PP<br><br>
-
-      SPECIALS<br>
-      Weaken / Frightened<br><br>
-
-      AOE SPECIAL VALUE RULE<br>
-      AoE Special = floor(Single-Target Special / 2).<br><br>
-
-      AOE SPECIAL COST RULE<br>
-      AoE Special(X) = Start PP 5 × T(X+1).<br><br>
-
-      SCALING RULE<br>
-      This is a Special-first Ranged AoE Martial Active.<br>
-      Weaken and Frightened are the primary scaling axis.<br>
-      Range is paid every level.<br>
-      AoE and Special may stay the same or increase, but never decrease.<br>
-      Damage never appears in this template because it cannot be carried cleanly without weakening the AoE/Special structure.<br><br>
-
-      CALCULATION<br>
-      L1 → Target 30 PP: Range 8 m (0) + Special(1) (15) + Radius 2 m (20) = 35 PP<br>
-      L2 → Target 60 PP: Range 12 m (5) + Special(1) (15) + Radius 2 m (20) = 40 PP<br>
-      L3 → Target 90 PP: Range 16 m (10) + Special(2) (30) + Radius 3 m (50) = 90 PP<br>
-      L4 → Target 120 PP: Range 20 m (15) + Special(2) (30) + Radius 3 m (50) = 95 PP<br>
-      L5 → Target 150 PP: Range 24 m (20) + Special(3) (50) + Radius 3 m (50) = 120 PP<br>
-      L6 → Target 180 PP: Range 28 m (25) + Special(3) (50) + Radius 4 m (90) = 165 PP<br>
-      L7 → Target 210 PP: Range 32 m (30) + Special(3) (50) + Radius 4 m (90) = 170 PP<br>
-      L8 → Target 240 PP: Range 36 m (35) + Special(4) (75) + Radius 4 m (90) = 200 PP<br>
-      L9 → Target 270 PP: Range 40 m (40) + Special(4) (75) + Radius 5 m (140) = 255 PP<br>
-      L10 → Target 300 PP: Range 44 m (45) + Special(4) (75) + Radius 5 m (140) = 260 PP<br>
-      L11 → Target 330 PP: Range 48 m (50) + Special(4) (75) + Radius 6 m (200) = 325 PP<br>
-      L12 → Target 360 PP: Range 52 m (55) + Special(5) (105) + Radius 6 m (200) = 360 PP<br>
-      L13 → Target 390 PP: Range 56 m (60) + Special(5) (105) + Radius 6 m (200) = 365 PP<br>
-      L14 → Target 420 PP: Range 60 m (65) + Special(5) (105) + Radius 6 m (200) = 370 PP<br>
-      L15 → Target 450 PP: Range 64 m (70) + Special(5) (105) + Radius 7 m (270) = 445 PP<br>
-      L16 → Target 480 PP: Range 68 m (75) + Special(6) (140) + Radius 7 m (270) = 485 PP<br><br>
-
-      NOTES<br>
-      Damage is omitted entirely.<br>
-      This keeps the Ranged AoE medium-cost Special template stable and prevents damage flicker.
-    </span>
-  </span>
-</h3>
-
-A ranged area attack that applies a medium-cost Diminishing Special at a target point within range.  
-This template covers Weaken and Frightened.
-
----
-:
-**Requirement:** Ranged Weapon or Thrown Weapon
-
----
-:
-| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
-|:--:|:--|:--:|:--:|:--:|:--|:--|
-| **1** | Active | 8 m | Radius 2 m | Instant | No damage. | Affected creatures gain **Weaken(1) / Frightened(1)**. |
-| **2** | Active | 12 m | Radius 2 m | Instant | No damage. | Affected creatures gain **Weaken(1) / Frightened(1)**. |
-| **3** | Active | 16 m | Radius 3 m | Instant | No damage. | Affected creatures gain **Weaken(2) / Frightened(2)**. |
-| **4** | Active | 20 m | Radius 3 m | Instant | No damage. | Affected creatures gain **Weaken(2) / Frightened(2)**. |
-| **5** | Active | 24 m | Radius 3 m | Instant | No damage. | Affected creatures gain **Weaken(3) / Frightened(3)**. |
-| **6** | Active | 28 m | Radius 4 m | Instant | No damage. | Affected creatures gain **Weaken(3) / Frightened(3)**. |
-| **7** | Active | 32 m | Radius 4 m | Instant | No damage. | Affected creatures gain **Weaken(3) / Frightened(3)**. |
-| **8** | Active | 36 m | Radius 4 m | Instant | No damage. | Affected creatures gain **Weaken(4) / Frightened(4)**. |
-| **9** | Active | 40 m | Radius 5 m | Instant | No damage. | Affected creatures gain **Weaken(4) / Frightened(4)**. |
-| **10** | Active | 44 m | Radius 5 m | Instant | No damage. | Affected creatures gain **Weaken(4) / Frightened(4)**. |
-| **11** | Active | 48 m | Radius 6 m | Instant | No damage. | Affected creatures gain **Weaken(4) / Frightened(4)**. |
-| **12** | Active | 52 m | Radius 6 m | Instant | No damage. | Affected creatures gain **Weaken(5) / Frightened(5)**. |
-| **13** | Active | 56 m | Radius 6 m | Instant | No damage. | Affected creatures gain **Weaken(5) / Frightened(5)**. |
-| **14** | Active | 60 m | Radius 6 m | Instant | No damage. | Affected creatures gain **Weaken(5) / Frightened(5)**. |
-| **15** | Active | 64 m | Radius 7 m | Instant | No damage. | Affected creatures gain **Weaken(5) / Frightened(5)**. |
-| **16** | Active | 68 m | Radius 7 m | Instant | No damage. | Affected creatures gain **Weaken(6) / Frightened(6)**. |
+| **1** | Active | 8 m | Radius 2 m | Instant | No damage. | Affected creatures gain **Lacerate(1) / Slow(1) / Ruin(1) / Mark(1)**. |
+| **2** | Active | 12 m | Radius 2 m | Instant | No damage. | Affected creatures gain **Lacerate(2) / Slow(2) / Ruin(2) / Mark(2)**. |
+| **3** | Active | 16 m | Radius 3 m | Instant | No damage. | Affected creatures gain **Lacerate(2) / Slow(2) / Ruin(2) / Mark(2)**. |
+| **4** | Active | 20 m | Radius 3 m | Instant | No damage. | Affected creatures gain **Lacerate(3) / Slow(3) / Ruin(3) / Mark(3)**. |
+| **5** | Active | 24 m | Radius 4 m | Instant | No damage. | Affected creatures gain **Lacerate(3) / Slow(3) / Ruin(3) / Mark(3)**. |
+| **6** | Active | 28 m | Radius 4 m | Instant | No damage. | Affected creatures gain **Lacerate(4) / Slow(4) / Ruin(4) / Mark(4)**. |
+| **7** | Active | 32 m | Radius 4 m | Instant | No damage. | Affected creatures gain **Lacerate(4) / Slow(4) / Ruin(4) / Mark(4)**. |
+| **8** | Active | 36 m | Radius 5 m | Instant | No damage. | Affected creatures gain **Lacerate(4) / Slow(4) / Ruin(4) / Mark(4)**. |
+| **9** | Active | 40 m | Radius 5 m | Instant | No damage. | Affected creatures gain **Lacerate(5) / Slow(5) / Ruin(5) / Mark(5)**. |
+| **10** | Active | 44 m | Radius 5 m | Instant | No damage. | Affected creatures gain **Lacerate(5) / Slow(5) / Ruin(5) / Mark(5)**. |
+| **11** | Active | 48 m | Radius 6 m | Instant | No damage. | Affected creatures gain **Lacerate(5) / Slow(5) / Ruin(5) / Mark(5)**. |
+| **12** | Active | 52 m | Radius 6 m | Instant | No damage. | Affected creatures gain **Lacerate(5) / Slow(5) / Ruin(5) / Mark(5)**. |
+| **13** | Active | 56 m | Radius 6 m | Instant | No damage. | Affected creatures gain **Lacerate(6) / Slow(6) / Ruin(6) / Mark(6)**. |
+| **14** | Active | 60 m | Radius 6 m | Instant | No damage. | Affected creatures gain **Lacerate(6) / Slow(6) / Ruin(6) / Mark(6)**. |
+| **15** | Active | 64 m | Radius 7 m | Instant | No damage. | Affected creatures gain **Lacerate(6) / Slow(6) / Ruin(6) / Mark(6)**. |
+| **16** | Active | 68 m | Radius 7 m | Instant | Deal **+1d8 damage** to affected creatures. | Affected creatures gain **Lacerate(6) / Slow(6) / Ruin(6) / Mark(6)**. |
 
 }}
 \page
@@ -1857,13 +1655,8 @@ This template covers Weaken and Frightened.
       Damage is optional and may only be added once it can be carried permanently afterward<br><br>
 
       SPECIALS<br>
-      Corrode / Disrupt / Soulburn / Hex / Sundered / Root<br><br>
+      Challenge / Corrode / Hex / Sundered<br><br>
 
-      ROOT NOTE<br>
-      Root(X) represents Break Strength X.<br>
-      A Rooted creature cannot voluntarily move from its current space while Root remains.<br>
-      Root may be broken by spending an Action, Movement Action, or Reaction to make an appropriate breaking attempt.<br>
-      On success, reduce Break Strength by 1. Each Raise reduces it by 1 additional point.<br><br>
 
       AOE SPECIAL VALUE RULE<br>
       AoE Special value is derived from the matching Single-Target value, then halved.<br>
@@ -1915,7 +1708,7 @@ This template covers Weaken and Frightened.
       L16 → Target 480 PP: Special(5) (126) + Radius 7 m (270) + Damage +1d8 (15) = 411 PP<br><br>
 
       NOTES<br>
-      This is the AoE version of the Start PP 6 heavy Diminishing Special group.<br>
+      This is the AoE version of the heavy Start PP 6 Special group.<br>
       Root is included in this group as Root(X), where X is Break Strength.<br>
       Damage is intentionally absent until Level 14.<br>
       Once +1d8 damage appears, it remains present.<br>
@@ -1924,7 +1717,7 @@ This template covers Weaken and Frightened.
   </span>
 </h3>
 
-A self-centered area attack that applies a heavy Diminishing Special around the attacker.
+A self-centered area attack that applies a heavy Start PP 6 Special around the attacker.
 
 ---
 :
@@ -1934,22 +1727,22 @@ A self-centered area attack that applies a heavy Diminishing Special around the 
 :
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
 |:--:|:--|:--:|:--:|:--:|:--|:--|
-| **1** | Active | Self | Radius 2 m | Instant | No damage. | Affected creatures gain **Corrode(1) / Disrupt(1) / Soulburn(1) / Hex(1) / Sundered(1) / Root(1)**. |
-| **2** | Active | Self | Radius 2 m | Instant | No damage. | Affected creatures gain **Corrode(1) / Disrupt(1) / Soulburn(1) / Hex(1) / Sundered(1) / Root(1)**. |
-| **3** | Active | Self | Radius 3 m | Instant | No damage. | Affected creatures gain **Corrode(2) / Disrupt(2) / Soulburn(2) / Hex(2) / Sundered(2) / Root(2)**. |
-| **4** | Active | Self | Radius 3 m | Instant | No damage. | Affected creatures gain **Corrode(2) / Disrupt(2) / Soulburn(2) / Hex(2) / Sundered(2) / Root(2)**. |
-| **5** | Active | Self | Radius 4 m | Instant | No damage. | Affected creatures gain **Corrode(2) / Disrupt(2) / Soulburn(2) / Hex(2) / Sundered(2) / Root(2)**. |
-| **6** | Active | Self | Radius 4 m | Instant | No damage. | Affected creatures gain **Corrode(3) / Disrupt(3) / Soulburn(3) / Hex(3) / Sundered(3) / Root(3)**. |
-| **7** | Active | Self | Radius 5 m | Instant | No damage. | Affected creatures gain **Corrode(3) / Disrupt(3) / Soulburn(3) / Hex(3) / Sundered(3) / Root(3)**. |
-| **8** | Active | Self | Radius 5 m | Instant | No damage. | Affected creatures gain **Corrode(3) / Disrupt(3) / Soulburn(3) / Hex(3) / Sundered(3) / Root(3)**. |
-| **9** | Active | Self | Radius 5 m | Instant | No damage. | Affected creatures gain **Corrode(4) / Disrupt(4) / Soulburn(4) / Hex(4) / Sundered(4) / Root(4)**. |
-| **10** | Active | Self | Radius 6 m | Instant | No damage. | Affected creatures gain **Corrode(4) / Disrupt(4) / Soulburn(4) / Hex(4) / Sundered(4) / Root(4)**. |
-| **11** | Active | Self | Radius 6 m | Instant | No damage. | Affected creatures gain **Corrode(4) / Disrupt(4) / Soulburn(4) / Hex(4) / Sundered(4) / Root(4)**. |
-| **12** | Active | Self | Radius 6 m | Instant | No damage. | Affected creatures gain **Corrode(5) / Disrupt(5) / Soulburn(5) / Hex(5) / Sundered(5) / Root(5)**. |
-| **13** | Active | Self | Radius 6 m | Instant | No damage. | Affected creatures gain **Corrode(5) / Disrupt(5) / Soulburn(5) / Hex(5) / Sundered(5) / Root(5)**. |
-| **14** | Active | Self | Radius 7 m | Instant | Deal **+1d8 damage** to affected creatures. | Affected creatures gain **Corrode(5) / Disrupt(5) / Soulburn(5) / Hex(5) / Sundered(5) / Root(5)**. |
-| **15** | Active | Self | Radius 7 m | Instant | Deal **+1d8 damage** to affected creatures. | Affected creatures gain **Corrode(5) / Disrupt(5) / Soulburn(5) / Hex(5) / Sundered(5) / Root(5)**. |
-| **16** | Active | Self | Radius 7 m | Instant | Deal **+1d8 damage** to affected creatures. | Affected creatures gain **Corrode(5) / Disrupt(5) / Soulburn(5) / Hex(5) / Sundered(5) / Root(5)**. |
+| **1** | Active | Self | Radius 2 m | Instant | No damage. | Affected creatures gain **Challenge(1) / Corrode(1) / Hex(1) / Sundered(1)**. |
+| **2** | Active | Self | Radius 2 m | Instant | No damage. | Affected creatures gain **Challenge(1) / Corrode(1) / Hex(1) / Sundered(1)**. |
+| **3** | Active | Self | Radius 3 m | Instant | No damage. | Affected creatures gain **Challenge(2) / Corrode(2) / Hex(2) / Sundered(2)**. |
+| **4** | Active | Self | Radius 3 m | Instant | No damage. | Affected creatures gain **Challenge(2) / Corrode(2) / Hex(2) / Sundered(2)**. |
+| **5** | Active | Self | Radius 4 m | Instant | No damage. | Affected creatures gain **Challenge(2) / Corrode(2) / Hex(2) / Sundered(2)**. |
+| **6** | Active | Self | Radius 4 m | Instant | No damage. | Affected creatures gain **Challenge(3) / Corrode(3) / Hex(3) / Sundered(3)**. |
+| **7** | Active | Self | Radius 5 m | Instant | No damage. | Affected creatures gain **Challenge(3) / Corrode(3) / Hex(3) / Sundered(3)**. |
+| **8** | Active | Self | Radius 5 m | Instant | No damage. | Affected creatures gain **Challenge(3) / Corrode(3) / Hex(3) / Sundered(3)**. |
+| **9** | Active | Self | Radius 5 m | Instant | No damage. | Affected creatures gain **Challenge(4) / Corrode(4) / Hex(4) / Sundered(4)**. |
+| **10** | Active | Self | Radius 6 m | Instant | No damage. | Affected creatures gain **Challenge(4) / Corrode(4) / Hex(4) / Sundered(4)**. |
+| **11** | Active | Self | Radius 6 m | Instant | No damage. | Affected creatures gain **Challenge(4) / Corrode(4) / Hex(4) / Sundered(4)**. |
+| **12** | Active | Self | Radius 6 m | Instant | No damage. | Affected creatures gain **Challenge(5) / Corrode(5) / Hex(5) / Sundered(5)**. |
+| **13** | Active | Self | Radius 6 m | Instant | No damage. | Affected creatures gain **Challenge(5) / Corrode(5) / Hex(5) / Sundered(5)**. |
+| **14** | Active | Self | Radius 7 m | Instant | Deal **+1d8 damage** to affected creatures. | Affected creatures gain **Challenge(5) / Corrode(5) / Hex(5) / Sundered(5)**. |
+| **15** | Active | Self | Radius 7 m | Instant | Deal **+1d8 damage** to affected creatures. | Affected creatures gain **Challenge(5) / Corrode(5) / Hex(5) / Sundered(5)**. |
+| **16** | Active | Self | Radius 7 m | Instant | Deal **+1d8 damage** to affected creatures. | Affected creatures gain **Challenge(5) / Corrode(5) / Hex(5) / Sundered(5)**. |
 
 ---
 :
@@ -1971,13 +1764,8 @@ A self-centered area attack that applies a heavy Diminishing Special around the 
       Damage is optional and may only be added once it can be carried permanently afterward<br><br>
 
       SPECIALS<br>
-      Corrode / Disrupt / Soulburn / Hex / Sundered / Root<br><br>
+      Challenge / Corrode / Hex / Sundered<br><br>
 
-      ROOT NOTE<br>
-      Root(X) represents Break Strength X.<br>
-      A Rooted creature cannot voluntarily move from its current space while Root remains.<br>
-      Root may be broken by spending an Action, Movement Action, or Reaction to make an appropriate breaking attempt.<br>
-      On success, reduce Break Strength by 1. Each Raise reduces it by 1 additional point.<br><br>
 
       AOE SPECIAL VALUE RULE<br>
       AoE Special value is derived from the matching Ranged Single-Target value, then halved.<br>
@@ -2048,7 +1836,7 @@ A self-centered area attack that applies a heavy Diminishing Special around the 
       L16 → Target 480 PP: Range 68 m (75) + Special(5) (126) + Radius 7 m (270) + Damage — (0) = 471 PP<br><br>
 
       NOTES<br>
-      This is the Ranged AoE version of the Start PP 6 heavy Diminishing Special group.<br>
+      This is the Ranged AoE version of the heavy Start PP 6 Special group.<br>
       Root is included in this group as Root(X), where X is Break Strength.<br>
       The Ranged version trails behind Melee because it pays Range every level.<br>
       Damage is omitted entirely to preserve the Range + AoE + heavy Special progression.
@@ -2056,7 +1844,7 @@ A self-centered area attack that applies a heavy Diminishing Special around the 
   </span>
 </h3>
 
-A ranged area attack that applies a heavy Diminishing Special at a target point within range.
+A ranged area attack that applies a heavy Start PP 6 Special at a target point within range.
 
 ---
 :
@@ -2066,22 +1854,22 @@ A ranged area attack that applies a heavy Diminishing Special at a target point 
 :
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
 |:--:|:--|:--:|:--:|:--:|:--|:--|
-| **1** | Active | 8 m | Radius 2 m | Instant | No damage. | Affected creatures gain **Corrode(1) / Disrupt(1) / Soulburn(1) / Hex(1) / Sundered(1) / Root(1)**. |
-| **2** | Active | 12 m | Radius 2 m | Instant | No damage. | Affected creatures gain **Corrode(1) / Disrupt(1) / Soulburn(1) / Hex(1) / Sundered(1) / Root(1)**. |
-| **3** | Active | 16 m | Radius 3 m | Instant | No damage. | Affected creatures gain **Corrode(1) / Disrupt(1) / Soulburn(1) / Hex(1) / Sundered(1) / Root(1)**. |
-| **4** | Active | 20 m | Radius 3 m | Instant | No damage. | Affected creatures gain **Corrode(2) / Disrupt(2) / Soulburn(2) / Hex(2) / Sundered(2) / Root(2)**. |
-| **5** | Active | 24 m | Radius 4 m | Instant | No damage. | Affected creatures gain **Corrode(2) / Disrupt(2) / Soulburn(2) / Hex(2) / Sundered(2) / Root(2)**. |
-| **6** | Active | 28 m | Radius 4 m | Instant | No damage. | Affected creatures gain **Corrode(2) / Disrupt(2) / Soulburn(2) / Hex(2) / Sundered(2) / Root(2)**. |
-| **7** | Active | 32 m | Radius 4 m | Instant | No damage. | Affected creatures gain **Corrode(3) / Disrupt(3) / Soulburn(3) / Hex(3) / Sundered(3) / Root(3)**. |
-| **8** | Active | 36 m | Radius 5 m | Instant | No damage. | Affected creatures gain **Corrode(3) / Disrupt(3) / Soulburn(3) / Hex(3) / Sundered(3) / Root(3)**. |
-| **9** | Active | 40 m | Radius 5 m | Instant | No damage. | Affected creatures gain **Corrode(3) / Disrupt(3) / Soulburn(3) / Hex(3) / Sundered(3) / Root(3)**. |
-| **10** | Active | 44 m | Radius 5 m | Instant | No damage. | Affected creatures gain **Corrode(4) / Disrupt(4) / Soulburn(4) / Hex(4) / Sundered(4) / Root(4)**. |
-| **11** | Active | 48 m | Radius 5 m | Instant | No damage. | Affected creatures gain **Corrode(4) / Disrupt(4) / Soulburn(4) / Hex(4) / Sundered(4) / Root(4)**. |
-| **12** | Active | 52 m | Radius 6 m | Instant | No damage. | Affected creatures gain **Corrode(4) / Disrupt(4) / Soulburn(4) / Hex(4) / Sundered(4) / Root(4)**. |
-| **13** | Active | 56 m | Radius 6 m | Instant | No damage. | Affected creatures gain **Corrode(4) / Disrupt(4) / Soulburn(4) / Hex(4) / Sundered(4) / Root(4)**. |
-| **14** | Active | 60 m | Radius 6 m | Instant | No damage. | Affected creatures gain **Corrode(4) / Disrupt(4) / Soulburn(4) / Hex(4) / Sundered(4) / Root(4)**. |
-| **15** | Active | 64 m | Radius 6 m | Instant | No damage. | Affected creatures gain **Corrode(5) / Disrupt(5) / Soulburn(5) / Hex(5) / Sundered(5) / Root(5)**. |
-| **16** | Active | 68 m | Radius 7 m | Instant | No damage. | Affected creatures gain **Corrode(5) / Disrupt(5) / Soulburn(5) / Hex(5) / Sundered(5) / Root(5)**. |
+| **1** | Active | 8 m | Radius 2 m | Instant | No damage. | Affected creatures gain **Challenge(1) / Corrode(1) / Hex(1) / Sundered(1)**. |
+| **2** | Active | 12 m | Radius 2 m | Instant | No damage. | Affected creatures gain **Challenge(1) / Corrode(1) / Hex(1) / Sundered(1)**. |
+| **3** | Active | 16 m | Radius 3 m | Instant | No damage. | Affected creatures gain **Challenge(1) / Corrode(1) / Hex(1) / Sundered(1)**. |
+| **4** | Active | 20 m | Radius 3 m | Instant | No damage. | Affected creatures gain **Challenge(2) / Corrode(2) / Hex(2) / Sundered(2)**. |
+| **5** | Active | 24 m | Radius 4 m | Instant | No damage. | Affected creatures gain **Challenge(2) / Corrode(2) / Hex(2) / Sundered(2)**. |
+| **6** | Active | 28 m | Radius 4 m | Instant | No damage. | Affected creatures gain **Challenge(2) / Corrode(2) / Hex(2) / Sundered(2)**. |
+| **7** | Active | 32 m | Radius 4 m | Instant | No damage. | Affected creatures gain **Challenge(3) / Corrode(3) / Hex(3) / Sundered(3)**. |
+| **8** | Active | 36 m | Radius 5 m | Instant | No damage. | Affected creatures gain **Challenge(3) / Corrode(3) / Hex(3) / Sundered(3)**. |
+| **9** | Active | 40 m | Radius 5 m | Instant | No damage. | Affected creatures gain **Challenge(3) / Corrode(3) / Hex(3) / Sundered(3)**. |
+| **10** | Active | 44 m | Radius 5 m | Instant | No damage. | Affected creatures gain **Challenge(4) / Corrode(4) / Hex(4) / Sundered(4)**. |
+| **11** | Active | 48 m | Radius 5 m | Instant | No damage. | Affected creatures gain **Challenge(4) / Corrode(4) / Hex(4) / Sundered(4)**. |
+| **12** | Active | 52 m | Radius 6 m | Instant | No damage. | Affected creatures gain **Challenge(4) / Corrode(4) / Hex(4) / Sundered(4)**. |
+| **13** | Active | 56 m | Radius 6 m | Instant | No damage. | Affected creatures gain **Challenge(4) / Corrode(4) / Hex(4) / Sundered(4)**. |
+| **14** | Active | 60 m | Radius 6 m | Instant | No damage. | Affected creatures gain **Challenge(4) / Corrode(4) / Hex(4) / Sundered(4)**. |
+| **15** | Active | 64 m | Radius 6 m | Instant | No damage. | Affected creatures gain **Challenge(5) / Corrode(5) / Hex(5) / Sundered(5)**. |
+| **16** | Active | 68 m | Radius 7 m | Instant | No damage. | Affected creatures gain **Challenge(5) / Corrode(5) / Hex(5) / Sundered(5)**. |
 
 
 
@@ -2089,11 +1877,162 @@ A ranged area attack that applies a heavy Diminishing Special at a target point 
 \page
 {{pageNumber,auto}}
 {{wide
+<h3 id="melee-aoe-damage-start-pp-8-special">
+  Melee AoE — Damage + Start PP 8 Special
+  <span class="tooltip">🛈
+    <span class="tooltiptext">
+      BASELINES<br>
+      Active curve = 30 PP per level<br>
+      Start PP 8 Diminishing Special<br>
+      AoE Special(X) = 8 × T(X+1)<br>
+      Radius 1 / 2 / 3 / 4 / 5 / 6 m = 0 / 20 / 50 / 90 / 140 / 200 PP<br>
+      Self-centered Melee AoE; no Range cost.<br><br>
 
+      VALID SPECIALS<br>
+      Disoriented(X), Expose(X), Soulburn(X), Weaken(X).<br><br>
+
+      SCALING RULE<br>
+      This is a high-impact Special-first AoE Active.<br>
+      Range, Radius, and Special may stay the same or increase, but they may never decrease.<br>
+      Damage remains secondary and appears only where the progression can carry it.<br><br>
+
+      CALCULATION<br>
+      L1 → Target 30 PP: Radius 1 m (0) + Special(1) (24) = 24 PP<br>
+      L2 → Target 60 PP: Radius 2 m (20) + Special(1) (24) = 44 PP<br>
+      L3 → Target 90 PP: Radius 2 m (20) + Special(2) (48) = 68 PP<br>
+      L4 → Target 120 PP: Radius 3 m (50) + Special(2) (48) = 98 PP<br>
+      L5 → Target 150 PP: Radius 3 m (50) + Special(3) (80) = 130 PP<br>
+      L6 → Target 180 PP: Radius 4 m (90) + Special(3) (80) = 170 PP<br>
+      L7 → Target 210 PP: Radius 4 m (90) + Special(3) (80) = 170 PP<br>
+      L8 → Target 240 PP: Radius 4 m (90) + Special(4) (120) = 210 PP<br>
+      L9 → Target 270 PP: Radius 5 m (140) + Special(4) (120) = 260 PP<br>
+      L10 → Target 300 PP: Radius 5 m (140) + Special(4) (120) = 260 PP<br>
+      L11 → Target 330 PP: Radius 5 m (140) + Special(5) (168) = 308 PP<br>
+      L12 → Target 360 PP: Radius 6 m (200) + Special(5) (168) = 368 PP<br>
+      L13 → Target 390 PP: Radius 6 m (200) + Special(5) (168) = 368 PP<br>
+      L14 → Target 420 PP: Radius 6 m (200) + Special(5) (168) + Damage +1d8 (15) = 383 PP<br>
+      L15 → Target 450 PP: Radius 6 m (200) + Special(5) (168) + Damage +1d8 (15) = 383 PP<br>
+      L16 → Target 480 PP: Radius 6 m (200) + Special(6) (224) + Damage +1d8 (15) = 439 PP<br><br>
+      NOTES<br>
+      Every affected creature receives the full printed Special value.<br>
+      Weaken and Soulburn use the normal Pool Reduction rule and do not reduce Attributes or Keep.
+    </span>
+  </span>
+</h3>
+
+A self-centered area attack that applies one high-impact Start PP 8 Special.
+
+---
+:
+**Requirement:** Melee Weapon or Unarmed
+
+---
+:
+| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
+|:--:|:--|:--:|:--:|:--:|:--|:--|
+| **1** | Active | Self | Radius 1 m | Instant | No damage. | Affected creatures gain **Disoriented(1) / Expose(1) / Soulburn(1) / Weaken(1)**. |
+| **2** | Active | Self | Radius 2 m | Instant | No damage. | Affected creatures gain **Disoriented(1) / Expose(1) / Soulburn(1) / Weaken(1)**. |
+| **3** | Active | Self | Radius 2 m | Instant | No damage. | Affected creatures gain **Disoriented(2) / Expose(2) / Soulburn(2) / Weaken(2)**. |
+| **4** | Active | Self | Radius 3 m | Instant | No damage. | Affected creatures gain **Disoriented(2) / Expose(2) / Soulburn(2) / Weaken(2)**. |
+| **5** | Active | Self | Radius 3 m | Instant | No damage. | Affected creatures gain **Disoriented(3) / Expose(3) / Soulburn(3) / Weaken(3)**. |
+| **6** | Active | Self | Radius 4 m | Instant | No damage. | Affected creatures gain **Disoriented(3) / Expose(3) / Soulburn(3) / Weaken(3)**. |
+| **7** | Active | Self | Radius 4 m | Instant | No damage. | Affected creatures gain **Disoriented(3) / Expose(3) / Soulburn(3) / Weaken(3)**. |
+| **8** | Active | Self | Radius 4 m | Instant | No damage. | Affected creatures gain **Disoriented(4) / Expose(4) / Soulburn(4) / Weaken(4)**. |
+| **9** | Active | Self | Radius 5 m | Instant | No damage. | Affected creatures gain **Disoriented(4) / Expose(4) / Soulburn(4) / Weaken(4)**. |
+| **10** | Active | Self | Radius 5 m | Instant | No damage. | Affected creatures gain **Disoriented(4) / Expose(4) / Soulburn(4) / Weaken(4)**. |
+| **11** | Active | Self | Radius 5 m | Instant | No damage. | Affected creatures gain **Disoriented(5) / Expose(5) / Soulburn(5) / Weaken(5)**. |
+| **12** | Active | Self | Radius 6 m | Instant | No damage. | Affected creatures gain **Disoriented(5) / Expose(5) / Soulburn(5) / Weaken(5)**. |
+| **13** | Active | Self | Radius 6 m | Instant | No damage. | Affected creatures gain **Disoriented(5) / Expose(5) / Soulburn(5) / Weaken(5)**. |
+| **14** | Active | Self | Radius 6 m | Instant | Deal **+1d8 damage** to affected creatures. | Affected creatures gain **Disoriented(5) / Expose(5) / Soulburn(5) / Weaken(5)**. |
+| **15** | Active | Self | Radius 6 m | Instant | Deal **+1d8 damage** to affected creatures. | Affected creatures gain **Disoriented(5) / Expose(5) / Soulburn(5) / Weaken(5)**. |
+| **16** | Active | Self | Radius 6 m | Instant | Deal **+1d8 damage** to affected creatures. | Affected creatures gain **Disoriented(6) / Expose(6) / Soulburn(6) / Weaken(6)**. |
+
+---
+}}
+
+\page
+{{pageNumber,auto}}
+{{wide
+<h3 id="ranged-aoe-damage-start-pp-8-special">
+  Ranged AoE — Damage + Start PP 8 Special
+  <span class="tooltip">🛈
+    <span class="tooltiptext">
+      BASELINES<br>
+      Active curve = 30 PP per level<br>
+      Start PP 8 Diminishing Special<br>
+      AoE Special(X) = 8 × T(X+1)<br>
+      Radius 1 / 2 / 3 / 4 / 5 / 6 m = 0 / 20 / 50 / 90 / 140 / 200 PP<br>
+      Range progression = +4 m per level; +5 PP per step after 8 m.<br><br>
+
+      VALID SPECIALS<br>
+      Disoriented(X), Expose(X), Soulburn(X), Weaken(X).<br><br>
+
+      SCALING RULE<br>
+      This is a high-impact Special-first AoE Active.<br>
+      Range, Radius, and Special may stay the same or increase, but they may never decrease.<br>
+      Damage remains secondary and appears only where the progression can carry it.<br><br>
+
+      CALCULATION<br>
+      L1 → Target 30 PP: Range 8 m (0) + Radius 1 m (0) + Special(1) (24) = 24 PP<br>
+      L2 → Target 60 PP: Range 12 m (5) + Radius 2 m (20) + Special(1) (24) = 49 PP<br>
+      L3 → Target 90 PP: Range 16 m (10) + Radius 2 m (20) + Special(2) (48) = 78 PP<br>
+      L4 → Target 120 PP: Range 20 m (15) + Radius 3 m (50) + Special(2) (48) = 113 PP<br>
+      L5 → Target 150 PP: Range 24 m (20) + Radius 3 m (50) + Special(2) (48) = 118 PP<br>
+      L6 → Target 180 PP: Range 28 m (25) + Radius 4 m (90) + Special(2) (48) = 163 PP<br>
+      L7 → Target 210 PP: Range 32 m (30) + Radius 4 m (90) + Special(3) (80) = 200 PP<br>
+      L8 → Target 240 PP: Range 36 m (35) + Radius 4 m (90) + Special(3) (80) = 205 PP<br>
+      L9 → Target 270 PP: Range 40 m (40) + Radius 5 m (140) + Special(3) (80) = 260 PP<br>
+      L10 → Target 300 PP: Range 44 m (45) + Radius 5 m (140) + Special(3) (80) = 265 PP<br>
+      L11 → Target 330 PP: Range 48 m (50) + Radius 5 m (140) + Special(4) (120) = 310 PP<br>
+      L12 → Target 360 PP: Range 52 m (55) + Radius 5 m (140) + Special(4) (120) = 315 PP<br>
+      L13 → Target 390 PP: Range 56 m (60) + Radius 6 m (200) + Special(4) (120) = 380 PP<br>
+      L14 → Target 420 PP: Range 60 m (65) + Radius 6 m (200) + Special(4) (120) = 385 PP<br>
+      L15 → Target 450 PP: Range 64 m (70) + Radius 6 m (200) + Special(5) (168) = 438 PP<br>
+      L16 → Target 480 PP: Range 68 m (75) + Radius 6 m (200) + Special(5) (168) = 443 PP<br><br>
+      NOTES<br>
+      Every affected creature receives the full printed Special value.<br>
+      Weaken and Soulburn use the normal Pool Reduction rule and do not reduce Attributes or Keep.
+    </span>
+  </span>
+</h3>
+
+A ranged area attack that applies one high-impact Start PP 8 Special.
+
+---
+:
+**Requirement:** Ranged Weapon or Thrown Weapon
+
+---
+:
+| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
+|:--:|:--|:--:|:--:|:--:|:--|:--|
+| **1** | Active | 8 m | Radius 1 m | Instant | No damage. | Affected creatures gain **Disoriented(1) / Expose(1) / Soulburn(1) / Weaken(1)**. |
+| **2** | Active | 12 m | Radius 2 m | Instant | No damage. | Affected creatures gain **Disoriented(1) / Expose(1) / Soulburn(1) / Weaken(1)**. |
+| **3** | Active | 16 m | Radius 2 m | Instant | No damage. | Affected creatures gain **Disoriented(2) / Expose(2) / Soulburn(2) / Weaken(2)**. |
+| **4** | Active | 20 m | Radius 3 m | Instant | No damage. | Affected creatures gain **Disoriented(2) / Expose(2) / Soulburn(2) / Weaken(2)**. |
+| **5** | Active | 24 m | Radius 3 m | Instant | No damage. | Affected creatures gain **Disoriented(2) / Expose(2) / Soulburn(2) / Weaken(2)**. |
+| **6** | Active | 28 m | Radius 4 m | Instant | No damage. | Affected creatures gain **Disoriented(2) / Expose(2) / Soulburn(2) / Weaken(2)**. |
+| **7** | Active | 32 m | Radius 4 m | Instant | No damage. | Affected creatures gain **Disoriented(3) / Expose(3) / Soulburn(3) / Weaken(3)**. |
+| **8** | Active | 36 m | Radius 4 m | Instant | No damage. | Affected creatures gain **Disoriented(3) / Expose(3) / Soulburn(3) / Weaken(3)**. |
+| **9** | Active | 40 m | Radius 5 m | Instant | No damage. | Affected creatures gain **Disoriented(3) / Expose(3) / Soulburn(3) / Weaken(3)**. |
+| **10** | Active | 44 m | Radius 5 m | Instant | No damage. | Affected creatures gain **Disoriented(3) / Expose(3) / Soulburn(3) / Weaken(3)**. |
+| **11** | Active | 48 m | Radius 5 m | Instant | No damage. | Affected creatures gain **Disoriented(4) / Expose(4) / Soulburn(4) / Weaken(4)**. |
+| **12** | Active | 52 m | Radius 5 m | Instant | No damage. | Affected creatures gain **Disoriented(4) / Expose(4) / Soulburn(4) / Weaken(4)**. |
+| **13** | Active | 56 m | Radius 6 m | Instant | No damage. | Affected creatures gain **Disoriented(4) / Expose(4) / Soulburn(4) / Weaken(4)**. |
+| **14** | Active | 60 m | Radius 6 m | Instant | No damage. | Affected creatures gain **Disoriented(4) / Expose(4) / Soulburn(4) / Weaken(4)**. |
+| **15** | Active | 64 m | Radius 6 m | Instant | No damage. | Affected creatures gain **Disoriented(5) / Expose(5) / Soulburn(5) / Weaken(5)**. |
+| **16** | Active | 68 m | Radius 6 m | Instant | No damage. | Affected creatures gain **Disoriented(5) / Expose(5) / Soulburn(5) / Weaken(5)**. |
+
+---
+}}
+
+\page
+{{pageNumber,auto}}
+{{wide
 ## Area Actives — Persistent Diminishing Zones
 
 > **Design Rule:** These Powers are **Ranged Persistent AoE Zones**.  
-> They create an ongoing area within range that applies a Diminishing Special to affected creatures.  
+> They create an ongoing area within range that applies a numeric Special to affected creatures.  
 > These Powers are not self-centered, because the zone remains in place and may continue affecting the battlefield.
 
 ---
@@ -2194,7 +2133,7 @@ It does not gain the Special again, because it has already been affected by that
 {{pageNumber,auto}}
 {{wide
 
-## Persistent Poison Zone
+## Persistent Blight Zone
 
 ---
 :
@@ -2232,7 +2171,7 @@ It does not gain the Special again, because it has already been affected by that
       Radius 6 m = 200 PP<br><br>
 
       SCALING RULE<br>
-      This is a Poison-first Persistent Zone.<br>
+      This is a Blight-first Persistent Zone.<br>
       The zone lasts 4 Rounds.<br>
       Range, Radius, and Blight may stay the same or increase, but they may never decrease.<br>
       Damage is omitted because the persistent Special is the payload.<br><br>
@@ -2312,7 +2251,7 @@ A ranged persistent poison cloud that remains on the battlefield for 4 Rounds.
       AoE Special Cost = 4 × T(X+1)<br><br>
 
       SPECIALS<br>
-      Lacerate / Slow / Ruin / Mark / Blinded<br><br>
+      Lacerate / Mark / Ruin / Slow<br><br>
 
       AOE SPECIAL COSTS<br>
       Special(1) = 12 PP<br>
@@ -2326,7 +2265,7 @@ A ranged persistent poison cloud that remains on the battlefield for 4 Rounds.
 
       SCALING RULE<br>
       This is a persistent Standard Special Zone.<br>
-      Lacerate, Slow, Ruin, Mark, and Blinded are the primary scaling axis.<br>
+      Lacerate, Mark, Ruin, and Slow are the primary scaling axis.<br>
       Range is paid once and is not multiplied by duration.<br>
       Radius and Special are multiplied by the 4-Round duration multiplier.<br>
       Radius and Special may stay the same or increase, but they may never decrease.<br><br>
@@ -2350,14 +2289,14 @@ A ranged persistent poison cloud that remains on the battlefield for 4 Rounds.
       L16 → Target 480 PP: Range 68 m (75) + [(Radius 4 m (90) + Special(6) (112)) ×2] = 479 PP<br><br>
 
       NOTES<br>
-      Covers persistent fire zones, freezing mist, Lacerate fields, marking fields, or blinding fields.<br>
+      Covers persistent wound fields, slowing terrain, ruin zones, or marking fields.<br>
       Radius 4 m is reached only at Level 16 because the 4-Round duration heavily taxes the budget.
     </span>
   </span>
 </h3>
 
 A ranged persistent area that applies a standard Diminishing Special for 4 Rounds.  
-This template covers Lacerate, Slow, Ruin, Mark, and Blinded.
+This template covers Lacerate, Mark, Ruin, and Slow.
 
 ---
 :
@@ -2369,113 +2308,21 @@ This template covers Lacerate, Slow, Ruin, Mark, and Blinded.
 |:--:|:--|:--:|:--:|:--:|:--|:--|
 | **1** | Active | 8 m | — | — | — | — |
 | **2** | Active | 12 m | — | — | — | — |
-| **3** | Active | 16 m | Radius 2 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Lacerate(1) / Slow(1) / Ruin(1) / Mark(1) / Blinded(1)**. |
-| **4** | Active | 20 m | Radius 2 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Lacerate(2) / Slow(2) / Ruin(2) / Mark(2) / Blinded(2)**. |
-| **5** | Active | 24 m | Radius 2 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Lacerate(3) / Slow(3) / Ruin(3) / Mark(3) / Blinded(3)**. |
-| **6** | Active | 28 m | Radius 2 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Lacerate(3) / Slow(3) / Ruin(3) / Mark(3) / Blinded(3)**. |
-| **7** | Active | 32 m | Radius 3 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Lacerate(3) / Slow(3) / Ruin(3) / Mark(3) / Blinded(3)**. |
-| **8** | Active | 36 m | Radius 3 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Lacerate(3) / Slow(3) / Ruin(3) / Mark(3) / Blinded(3)**. |
-| **9** | Active | 40 m | Radius 3 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Lacerate(4) / Slow(4) / Ruin(4) / Mark(4) / Blinded(4)**. |
-| **10** | Active | 44 m | Radius 3 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Lacerate(4) / Slow(4) / Ruin(4) / Mark(4) / Blinded(4)**. |
-| **11** | Active | 48 m | Radius 3 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Lacerate(5) / Slow(5) / Ruin(5) / Mark(5) / Blinded(5)**. |
-| **12** | Active | 52 m | Radius 3 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Lacerate(5) / Slow(5) / Ruin(5) / Mark(5) / Blinded(5)**. |
-| **13** | Active | 56 m | Radius 3 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Lacerate(6) / Slow(6) / Ruin(6) / Mark(6) / Blinded(6)**. |
-| **14** | Active | 60 m | Radius 3 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Lacerate(6) / Slow(6) / Ruin(6) / Mark(6) / Blinded(6)**. |
-| **15** | Active | 64 m | Radius 3 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Lacerate(6) / Slow(6) / Ruin(6) / Mark(6) / Blinded(6)**. |
-| **16** | Active | 68 m | Radius 4 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Lacerate(6) / Slow(6) / Ruin(6) / Mark(6) / Blinded(6)**. |
+| **3** | Active | 16 m | Radius 2 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Lacerate(1) / Slow(1) / Ruin(1) / Mark(1)**. |
+| **4** | Active | 20 m | Radius 2 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Lacerate(2) / Slow(2) / Ruin(2) / Mark(2)**. |
+| **5** | Active | 24 m | Radius 2 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Lacerate(3) / Slow(3) / Ruin(3) / Mark(3)**. |
+| **6** | Active | 28 m | Radius 2 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Lacerate(3) / Slow(3) / Ruin(3) / Mark(3)**. |
+| **7** | Active | 32 m | Radius 3 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Lacerate(3) / Slow(3) / Ruin(3) / Mark(3)**. |
+| **8** | Active | 36 m | Radius 3 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Lacerate(3) / Slow(3) / Ruin(3) / Mark(3)**. |
+| **9** | Active | 40 m | Radius 3 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Lacerate(4) / Slow(4) / Ruin(4) / Mark(4)**. |
+| **10** | Active | 44 m | Radius 3 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Lacerate(4) / Slow(4) / Ruin(4) / Mark(4)**. |
+| **11** | Active | 48 m | Radius 3 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Lacerate(5) / Slow(5) / Ruin(5) / Mark(5)**. |
+| **12** | Active | 52 m | Radius 3 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Lacerate(5) / Slow(5) / Ruin(5) / Mark(5)**. |
+| **13** | Active | 56 m | Radius 3 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Lacerate(6) / Slow(6) / Ruin(6) / Mark(6)**. |
+| **14** | Active | 60 m | Radius 3 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Lacerate(6) / Slow(6) / Ruin(6) / Mark(6)**. |
+| **15** | Active | 64 m | Radius 3 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Lacerate(6) / Slow(6) / Ruin(6) / Mark(6)**. |
+| **16** | Active | 68 m | Radius 4 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Lacerate(6) / Slow(6) / Ruin(6) / Mark(6)**. |
 
-}}
-\page
-{{pageNumber,auto}}
-{{wide
-
-## Persistent Weaken Zone
-
----
-:
-<h3 id="ranged-persistent-zone-start-pp-5-special">
-  Ranged Persistent Zone — Start PP 5 Special
-  <span class="tooltip">🛈
-    <span class="tooltiptext">
-      BASELINES<br>
-      Active curve = 30 PP per level<br>
-      Ranged Persistent Zone uses printed Range and Radius<br>
-      Duration = 4 Rounds<br>
-      Duration Multiplier = ×2<br>
-      Range is not multiplied<br>
-      Start PP 5 Diminishing Special<br>
-      AoE Special Cost = 5 × T(X+1)<br><br>
-
-      SPECIALS<br>
-      Weaken / Frightened<br><br>
-
-      AOE SPECIAL COSTS<br>
-      Special(1) = 15 PP<br>
-      Special(2) = 30 PP<br>
-      Special(3) = 50 PP<br>
-      Special(4) = 75 PP<br>
-      Special(5) = 105 PP<br>
-      Special(6) = 140 PP<br><br>
-
-      SCALING RULE<br>
-      This is a persistent medium-cost Special Zone.<br>
-      Weaken and Frightened are the primary scaling axis.<br>
-      Range is paid once and is not multiplied by duration.<br>
-      Radius and Special are multiplied by the 4-Round duration multiplier.<br>
-      Radius and Special may stay the same or increase, but they may never decrease.<br><br>
-
-      CALCULATION<br>
-      L1 → Target 30 PP: not enough budget for a 4-Round zone<br>
-      L2 → Target 60 PP: not enough budget for a 4-Round zone<br>
-      L3 → Target 90 PP: Range 16 m (10) + [(Radius 2 m (20) + Special(1) (15)) ×2] = 80 PP<br>
-      L4 → Target 120 PP: Range 20 m (15) + [(Radius 2 m (20) + Special(2) (30)) ×2] = 115 PP<br>
-      L5 → Target 150 PP: Range 24 m (20) + [(Radius 2 m (20) + Special(2) (30)) ×2] = 120 PP<br>
-      L6 → Target 180 PP: Range 28 m (25) + [(Radius 2 m (20) + Special(3) (50)) ×2] = 165 PP<br>
-      L7 → Target 210 PP: Range 32 m (30) + [(Radius 2 m (20) + Special(3) (50)) ×2] = 170 PP<br>
-      L8 → Target 240 PP: Range 36 m (35) + [(Radius 3 m (50) + Special(3) (50)) ×2] = 235 PP<br>
-      L9 → Target 270 PP: Range 40 m (40) + [(Radius 3 m (50) + Special(3) (50)) ×2] = 240 PP<br>
-      L10 → Target 300 PP: Range 44 m (45) + [(Radius 3 m (50) + Special(4) (75)) ×2] = 295 PP<br>
-      L11 → Target 330 PP: Range 48 m (50) + [(Radius 3 m (50) + Special(4) (75)) ×2] = 300 PP<br>
-      L12 → Target 360 PP: Range 52 m (55) + [(Radius 3 m (50) + Special(4) (75)) ×2] = 305 PP<br>
-      L13 → Target 390 PP: Range 56 m (60) + [(Radius 4 m (90) + Special(4) (75)) ×2] = 390 PP<br>
-      L14 → Target 420 PP: Range 60 m (65) + [(Radius 4 m (90) + Special(4) (75)) ×2] = 395 PP<br>
-      L15 → Target 450 PP: Range 64 m (70) + [(Radius 4 m (90) + Special(4) (75)) ×2] = 400 PP<br>
-      L16 → Target 480 PP: Range 68 m (75) + [(Radius 4 m (90) + Special(5) (105)) ×2] = 465 PP<br><br>
-
-      NOTES<br>
-      This is a persistent weakening or fear field.<br>
-      It has lower Special values because Start PP 5 Specials are more expensive and the zone persists for 4 Rounds.
-    </span>
-  </span>
-</h3>
-
-A ranged persistent area that applies a medium-cost Diminishing Special for 4 Rounds.  
-This template covers Weaken and Frightened.
-
----
-:
-**Requirement:** None
-
----
-:
-| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
-|:--:|:--|:--:|:--:|:--:|:--|:--|
-| **1** | Active | 8 m | — | — | — | — |
-| **2** | Active | 12 m | — | — | — | — |
-| **3** | Active | 16 m | Radius 2 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Weaken(1) / Frightened(1)**. |
-| **4** | Active | 20 m | Radius 2 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Weaken(2) / Frightened(2)**. |
-| **5** | Active | 24 m | Radius 2 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Weaken(2) / Frightened(2)**. |
-| **6** | Active | 28 m | Radius 2 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Weaken(3) / Frightened(3)**. |
-| **7** | Active | 32 m | Radius 2 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Weaken(3) / Frightened(3)**. |
-| **8** | Active | 36 m | Radius 3 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Weaken(3) / Frightened(3)**. |
-| **9** | Active | 40 m | Radius 3 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Weaken(3) / Frightened(3)**. |
-| **10** | Active | 44 m | Radius 3 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Weaken(4) / Frightened(4)**. |
-| **11** | Active | 48 m | Radius 3 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Weaken(4) / Frightened(4)**. |
-| **12** | Active | 52 m | Radius 3 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Weaken(4) / Frightened(4)**. |
-| **13** | Active | 56 m | Radius 4 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Weaken(4) / Frightened(4)**. |
-| **14** | Active | 60 m | Radius 4 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Weaken(4) / Frightened(4)**. |
-| **15** | Active | 64 m | Radius 4 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Weaken(4) / Frightened(4)**. |
-| **16** | Active | 68 m | Radius 4 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Weaken(5) / Frightened(5)**. |
 }}
 \page
 {{pageNumber,auto}}
@@ -2495,17 +2342,12 @@ This template covers Weaken and Frightened.
       Duration = 4 Rounds<br>
       Duration Multiplier = ×2<br>
       Range is not multiplied<br>
-      Start PP 6 Diminishing Special<br>
+      Start PP 6 Special<br>
       AoE Special Cost = 6 × T(X+1)<br><br>
 
       SPECIALS<br>
-      Corrode / Disrupt / Soulburn / Hex / Sundered / Root<br><br>
+      Challenge / Corrode / Hex / Sundered<br><br>
 
-      ROOT NOTE<br>
-      Root(X) represents Break Strength X.<br>
-      A Rooted creature cannot voluntarily move from its current space while Root remains.<br>
-      Root may be broken by spending an Action, Movement Action, or Reaction to make an appropriate breaking attempt.<br>
-      On success, reduce Break Strength by 1. Each Raise reduces it by 1 additional point.<br><br>
 
       AOE SPECIAL COSTS<br>
       Special(1) = 18 PP<br>
@@ -2539,7 +2381,7 @@ This template covers Weaken and Frightened.
   </span>
 </h3>
 
-A ranged persistent area that applies a heavy Diminishing Special for 4 Rounds.
+A ranged persistent area that applies a heavy Start PP 6 Special for 4 Rounds.
 
 ---
 :
@@ -2551,26 +2393,89 @@ A ranged persistent area that applies a heavy Diminishing Special for 4 Rounds.
 |:--:|:--|:--:|:--:|:--:|:--|:--|
 | **1** | Active | 8 m | — | — | — | — |
 | **2** | Active | 12 m | — | — | — | — |
-| **3** | Active | 16 m | Radius 2 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Corrode(1) / Disrupt(1) / Soulburn(1) / Hex(1) / Sundered(1) / Root(1)**. |
-| **4** | Active | 20 m | Radius 2 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Corrode(1) / Disrupt(1) / Soulburn(1) / Hex(1) / Sundered(1) / Root(1)**. |
-| **5** | Active | 24 m | Radius 2 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Corrode(2) / Disrupt(2) / Soulburn(2) / Hex(2) / Sundered(2) / Root(2)**. |
-| **6** | Active | 28 m | Radius 2 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Corrode(2) / Disrupt(2) / Soulburn(2) / Hex(2) / Sundered(2) / Root(2)**. |
-| **7** | Active | 32 m | Radius 3 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Corrode(2) / Disrupt(2) / Soulburn(2) / Hex(2) / Sundered(2) / Root(2)**. |
-| **8** | Active | 36 m | Radius 3 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Corrode(2) / Disrupt(2) / Soulburn(2) / Hex(2) / Sundered(2) / Root(2)**. |
-| **9** | Active | 40 m | Radius 3 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Corrode(3) / Disrupt(3) / Soulburn(3) / Hex(3) / Sundered(3) / Root(3)**. |
-| **10** | Active | 44 m | Radius 3 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Corrode(3) / Disrupt(3) / Soulburn(3) / Hex(3) / Sundered(3) / Root(3)**. |
-| **11** | Active | 48 m | Radius 3 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Corrode(4) / Disrupt(4) / Soulburn(4) / Hex(4) / Sundered(4) / Root(4)**. |
-| **12** | Active | 52 m | Radius 3 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Corrode(4) / Disrupt(4) / Soulburn(4) / Hex(4) / Sundered(4) / Root(4)**. |
-| **13** | Active | 56 m | Radius 3 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Corrode(4) / Disrupt(4) / Soulburn(4) / Hex(4) / Sundered(4) / Root(4)**. |
-| **14** | Active | 60 m | Radius 3 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Corrode(5) / Disrupt(5) / Soulburn(5) / Hex(5) / Sundered(5) / Root(5)**. |
-| **15** | Active | 64 m | Radius 3 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Corrode(5) / Disrupt(5) / Soulburn(5) / Hex(5) / Sundered(5) / Root(5)**. |
-| **16** | Active | 68 m | Radius 3 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Corrode(5) / Disrupt(5) / Soulburn(5) / Hex(5) / Sundered(5) / Root(5)**. |
+| **3** | Active | 16 m | Radius 2 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Challenge(1) / Corrode(1) / Hex(1) / Sundered(1)**. |
+| **4** | Active | 20 m | Radius 2 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Challenge(1) / Corrode(1) / Hex(1) / Sundered(1)**. |
+| **5** | Active | 24 m | Radius 2 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Challenge(2) / Corrode(2) / Hex(2) / Sundered(2)**. |
+| **6** | Active | 28 m | Radius 2 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Challenge(2) / Corrode(2) / Hex(2) / Sundered(2)**. |
+| **7** | Active | 32 m | Radius 3 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Challenge(2) / Corrode(2) / Hex(2) / Sundered(2)**. |
+| **8** | Active | 36 m | Radius 3 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Challenge(2) / Corrode(2) / Hex(2) / Sundered(2)**. |
+| **9** | Active | 40 m | Radius 3 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Challenge(3) / Corrode(3) / Hex(3) / Sundered(3)**. |
+| **10** | Active | 44 m | Radius 3 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Challenge(3) / Corrode(3) / Hex(3) / Sundered(3)**. |
+| **11** | Active | 48 m | Radius 3 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Challenge(4) / Corrode(4) / Hex(4) / Sundered(4)**. |
+| **12** | Active | 52 m | Radius 3 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Challenge(4) / Corrode(4) / Hex(4) / Sundered(4)**. |
+| **13** | Active | 56 m | Radius 3 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Challenge(4) / Corrode(4) / Hex(4) / Sundered(4)**. |
+| **14** | Active | 60 m | Radius 3 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Challenge(5) / Corrode(5) / Hex(5) / Sundered(5)**. |
+| **15** | Active | 64 m | Radius 3 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Challenge(5) / Corrode(5) / Hex(5) / Sundered(5)**. |
+| **16** | Active | 68 m | Radius 3 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Challenge(5) / Corrode(5) / Hex(5) / Sundered(5)**. |
 
 }}
 \page
 {{pageNumber,auto}}
 {{wide
+## Persistent Pool-Reduction Special Zone
 
+<h3 id="ranged-persistent-zone-start-pp-8-special">
+  Ranged Persistent Zone — Start PP 8 Special
+  <span class="tooltip">🛈
+    <span class="tooltiptext">
+      BASELINES<br>
+      Active curve = 30 PP per level<br>
+      Range progression = +4 m per level; +5 PP per step after 8 m<br>
+      Duration = 4 Rounds; persistent payload multiplier ×2<br>
+      Start PP 8 AoE Special(X) = 8 × T(X+1)<br><br>
+
+      VALID SPECIALS<br>
+      Disoriented(X), Expose(X), Soulburn(X), Weaken(X).<br><br>
+
+      CALCULATION<br>
+      L3 → Target 90 PP: Range 16 m (10) + [(Radius 2 m (20) + Special(1) (24)) ×2] = 98 PP<br>
+      L4 → Target 120 PP: Range 20 m (15) + [(Radius 2 m (20) + Special(1) (24)) ×2] = 103 PP<br>
+      L5 → Target 150 PP: Range 24 m (20) + [(Radius 2 m (20) + Special(2) (48)) ×2] = 156 PP<br>
+      L6 → Target 180 PP: Range 28 m (25) + [(Radius 2 m (20) + Special(2) (48)) ×2] = 161 PP<br>
+      L7 → Target 210 PP: Range 32 m (30) + [(Radius 2 m (20) + Special(2) (48)) ×2] = 166 PP<br>
+      L8 → Target 240 PP: Range 36 m (35) + [(Radius 2 m (20) + Special(2) (48)) ×2] = 171 PP<br>
+      L9 → Target 270 PP: Range 40 m (40) + [(Radius 2 m (20) + Special(3) (80)) ×2] = 240 PP<br>
+      L10 → Target 300 PP: Range 44 m (45) + [(Radius 2 m (20) + Special(3) (80)) ×2] = 245 PP<br>
+      L11 → Target 330 PP: Range 48 m (50) + [(Radius 3 m (50) + Special(3) (80)) ×2] = 310 PP<br>
+      L12 → Target 360 PP: Range 52 m (55) + [(Radius 3 m (50) + Special(3) (80)) ×2] = 315 PP<br>
+      L13 → Target 390 PP: Range 56 m (60) + [(Radius 3 m (50) + Special(3) (80)) ×2] = 320 PP<br>
+      L14 → Target 420 PP: Range 60 m (65) + [(Radius 3 m (50) + Special(4) (120)) ×2] = 405 PP<br>
+      L15 → Target 450 PP: Range 64 m (70) + [(Radius 3 m (50) + Special(4) (120)) ×2] = 410 PP<br>
+      L16 → Target 480 PP: Range 68 m (75) + [(Radius 3 m (50) + Special(4) (120)) ×2] = 415 PP<br><br>
+      NOTES<br>
+      Levels 1–2 have no version because a legal persistent Start PP 8 zone does not fit the curve cleanly.<br>
+      The zone applies the full printed value whenever a creature becomes affected under the Persistent Zone rules.
+    </span>
+  </span>
+</h3>
+
+A persistent battlefield zone that weakens perception, defense, physical performance, or spiritual performance.
+
+| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
+|:--:|:--|:--:|:--:|:--:|:--|:--|
+| **1** | Active | 8 m | — | — | — | — |
+| **2** | Active | 12 m | — | — | — | — |
+| **3** | Active | 16 m | Radius 2 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Disoriented(1) / Expose(1) / Soulburn(1) / Weaken(1)**. |
+| **4** | Active | 20 m | Radius 2 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Disoriented(1) / Expose(1) / Soulburn(1) / Weaken(1)**. |
+| **5** | Active | 24 m | Radius 2 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Disoriented(2) / Expose(2) / Soulburn(2) / Weaken(2)**. |
+| **6** | Active | 28 m | Radius 2 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Disoriented(2) / Expose(2) / Soulburn(2) / Weaken(2)**. |
+| **7** | Active | 32 m | Radius 2 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Disoriented(2) / Expose(2) / Soulburn(2) / Weaken(2)**. |
+| **8** | Active | 36 m | Radius 2 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Disoriented(2) / Expose(2) / Soulburn(2) / Weaken(2)**. |
+| **9** | Active | 40 m | Radius 2 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Disoriented(3) / Expose(3) / Soulburn(3) / Weaken(3)**. |
+| **10** | Active | 44 m | Radius 2 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Disoriented(3) / Expose(3) / Soulburn(3) / Weaken(3)**. |
+| **11** | Active | 48 m | Radius 3 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Disoriented(3) / Expose(3) / Soulburn(3) / Weaken(3)**. |
+| **12** | Active | 52 m | Radius 3 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Disoriented(3) / Expose(3) / Soulburn(3) / Weaken(3)**. |
+| **13** | Active | 56 m | Radius 3 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Disoriented(3) / Expose(3) / Soulburn(3) / Weaken(3)**. |
+| **14** | Active | 60 m | Radius 3 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Disoriented(4) / Expose(4) / Soulburn(4) / Weaken(4)**. |
+| **15** | Active | 64 m | Radius 3 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Disoriented(4) / Expose(4) / Soulburn(4) / Weaken(4)**. |
+| **16** | Active | 68 m | Radius 3 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Disoriented(4) / Expose(4) / Soulburn(4) / Weaken(4)**. |
+
+---
+}}
+
+\page
+{{pageNumber,auto}}
+{{wide
 ## Martial Actives — Control Specials
 
 > **Design Rule:** These Powers are **Control-first Martial Actives**.  
@@ -3415,39 +3320,36 @@ Healing cannot raise a creature above its maximum HP unless a Power explicitly s
 
 ### Cleanse
 
-Cleanse removes negative creature effects.
+Cleanse removes points from one eligible negative Special.
 
-**Cleanse(X)** removes up to **X total negative Special value** from the target.
+When you use **Cleanse(X)**, choose exactly **one** eligible negative Special affecting the target and reduce that Special by **X**.
 
-The removed value may be split across several eligible negative Specials.
+The Cleanse value cannot be divided between several Specials.
 
-If a Special is reduced to 0, it is removed.
+If the chosen Special reaches **0**, it ends. If the chosen Special has a lower value than the Cleanse value, the unused Cleanse points are lost.
 
 Examples:
 
-- **Cleanse(3)** may remove **Ruin(3)**.
-- **Cleanse(6)** may remove **Ruin(3) + Hex(3)**.
-- **Cleanse(6)** may reduce **Ruin(4)** to **Ruin(1)** and remove **Slow(3)**.
+- **Cleanse(3)** reduces **Ruin(5)** to **Ruin(2)**.
+- **Cleanse(6)** ends **Hex(4)**; the remaining 2 Cleanse points are lost.
+- **Cleanse(6)** cannot be divided between **Ruin(3)** and **Slow(3)**.
 
-The user chooses how to distribute the removed value among eligible negative Specials on the target.
+Cleanse can reduce eligible creature effects such as:
 
-Cleanse can remove negative creature effects such as:
-
-- **Lacerate(X)**
-- **Slow(X)**
-- **Ruin(X)**
-- **Poisoned(X)**
-- **Shock(X)**
+- **Blight(X)**
+- **Challenge(X)**
 - **Corrode(X)**
+- **Disoriented(X)**
 - **Expose(X)**
-- **Mark(X)**
-- **Weaken(X)**
-- **Soulburn(X)**
 - **Hex(X)**
-- **Sundered(X)**
+- **Lacerate(X)**
+- **Mark(X)**
 - **Root(X)**
-- **Frightened(X)**
-- **Blinded(X)**
+- **Ruin(X)**
+- **Slow(X)**
+- **Soulburn(X)**
+- **Sundered(X)**
+- **Weaken(X)**
 
 Cleanse does not remove battlefield objects, Barriers, Walls, Images, Summons, Illusion Fields, Persistent Zones, terrain effects, constructs, objects, or ongoing non-creature effects.
 
@@ -4016,10 +3918,10 @@ A ranged restorative Active that repairs lost Health Levels without restoring HP
       Cleanse(15) = 480 PP<br><br>
 
       CLEANSE RULE<br>
-      Cleanse(X) removes up to X total negative Special value from the target.<br>
-      The removed value may be split across several eligible negative Specials.<br>
+      Cleanse(X) reduces one eligible negative Special on the target by X.<br>
+      The Cleanse value cannot be split across several Specials.<br>
       If a Special is reduced to 0, it is removed.<br>
-      Cleanse removes Special value, not PP value.<br>
+      Cleanse reduces the chosen Special value, not PP value.<br>
       Cleanse does not remove battlefield objects, Barriers, Walls, Images, Summons, Illusion Fields, Persistent Zones, terrain effects, constructs, objects, or ongoing non-creature effects.<br><br>
 
       SCALING RULE<br>
@@ -4056,22 +3958,22 @@ A close-range support Active that removes negative Special value from one creatu
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active, Support | Touch / Melee Reach | None | Instant | Remove up to **Cleanse(3)** total negative Special value from one creature. |
-| **2** | Active, Support | Touch / Melee Reach | None | Instant | Remove up to **Cleanse(5)** total negative Special value from one creature. |
-| **3** | Active, Support | Touch / Melee Reach | None | Instant | Remove up to **Cleanse(6)** total negative Special value from one creature. |
-| **4** | Active, Support | Touch / Melee Reach | None | Instant | Remove up to **Cleanse(7)** total negative Special value from one creature. |
-| **5** | Active, Support | Touch / Melee Reach | None | Instant | Remove up to **Cleanse(8)** total negative Special value from one creature. |
-| **6** | Active, Support | Touch / Melee Reach | None | Instant | Remove up to **Cleanse(9)** total negative Special value from one creature. |
-| **7** | Active, Support | Touch / Melee Reach | None | Instant | Remove up to **Cleanse(9)** total negative Special value from one creature. |
-| **8** | Active, Support | Touch / Melee Reach | None | Instant | Remove up to **Cleanse(10)** total negative Special value from one creature. |
-| **9** | Active, Support | Touch / Melee Reach | None | Instant | Remove up to **Cleanse(11)** total negative Special value from one creature. |
-| **10** | Active, Support | Touch / Melee Reach | None | Instant | Remove up to **Cleanse(11)** total negative Special value from one creature. |
-| **11** | Active, Support | Touch / Melee Reach | None | Instant | Remove up to **Cleanse(12)** total negative Special value from one creature. |
-| **12** | Active, Support | Touch / Melee Reach | None | Instant | Remove up to **Cleanse(12)** total negative Special value from one creature. |
-| **13** | Active, Support | Touch / Melee Reach | None | Instant | Remove up to **Cleanse(13)** total negative Special value from one creature. |
-| **14** | Active, Support | Touch / Melee Reach | None | Instant | Remove up to **Cleanse(14)** total negative Special value from one creature. |
-| **15** | Active, Support | Touch / Melee Reach | None | Instant | Remove up to **Cleanse(14)** total negative Special value from one creature. |
-| **16** | Active, Support | Touch / Melee Reach | None | Instant | Remove up to **Cleanse(15)** total negative Special value from one creature. |
+| **1** | Active, Support | Touch / Melee Reach | None | Instant | Reduce one eligible negative Special on one creature by **3**. |
+| **2** | Active, Support | Touch / Melee Reach | None | Instant | Reduce one eligible negative Special on one creature by **5**. |
+| **3** | Active, Support | Touch / Melee Reach | None | Instant | Reduce one eligible negative Special on one creature by **6**. |
+| **4** | Active, Support | Touch / Melee Reach | None | Instant | Reduce one eligible negative Special on one creature by **7**. |
+| **5** | Active, Support | Touch / Melee Reach | None | Instant | Reduce one eligible negative Special on one creature by **8**. |
+| **6** | Active, Support | Touch / Melee Reach | None | Instant | Reduce one eligible negative Special on one creature by **9**. |
+| **7** | Active, Support | Touch / Melee Reach | None | Instant | Reduce one eligible negative Special on one creature by **9**. |
+| **8** | Active, Support | Touch / Melee Reach | None | Instant | Reduce one eligible negative Special on one creature by **10**. |
+| **9** | Active, Support | Touch / Melee Reach | None | Instant | Reduce one eligible negative Special on one creature by **11**. |
+| **10** | Active, Support | Touch / Melee Reach | None | Instant | Reduce one eligible negative Special on one creature by **11**. |
+| **11** | Active, Support | Touch / Melee Reach | None | Instant | Reduce one eligible negative Special on one creature by **12**. |
+| **12** | Active, Support | Touch / Melee Reach | None | Instant | Reduce one eligible negative Special on one creature by **12**. |
+| **13** | Active, Support | Touch / Melee Reach | None | Instant | Reduce one eligible negative Special on one creature by **13**. |
+| **14** | Active, Support | Touch / Melee Reach | None | Instant | Reduce one eligible negative Special on one creature by **14**. |
+| **15** | Active, Support | Touch / Melee Reach | None | Instant | Reduce one eligible negative Special on one creature by **14**. |
+| **16** | Active, Support | Touch / Melee Reach | None | Instant | Reduce one eligible negative Special on one creature by **15**. |
 
 }}
 
@@ -4128,10 +4030,10 @@ A close-range support Active that removes negative Special value from one creatu
       Cleanse(13) = 364 PP<br><br>
 
       CLEANSE RULE<br>
-      Cleanse(X) removes up to X total negative Special value from the target.<br>
-      The removed value may be split across several eligible negative Specials.<br>
+      Cleanse(X) reduces one eligible negative Special on the target by X.<br>
+      The Cleanse value cannot be split across several Specials.<br>
       If a Special is reduced to 0, it is removed.<br>
-      Cleanse removes Special value, not PP value.<br>
+      Cleanse reduces the chosen Special value, not PP value.<br>
       Cleanse does not remove battlefield objects, Barriers, Walls, Images, Summons, Illusion Fields, Persistent Zones, terrain effects, constructs, objects, or ongoing non-creature effects.<br><br>
 
       SCALING RULE<br>
@@ -4169,22 +4071,22 @@ A ranged support Active that removes negative Special value from one creature wi
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active, Support | 8 m | None | Instant | Remove up to **Cleanse(3)** total negative Special value from one creature. |
-| **2** | Active, Support | 12 m | None | Instant | Remove up to **Cleanse(4)** total negative Special value from one creature. |
-| **3** | Active, Support | 16 m | None | Instant | Remove up to **Cleanse(5)** total negative Special value from one creature. |
-| **4** | Active, Support | 20 m | None | Instant | Remove up to **Cleanse(6)** total negative Special value from one creature. |
-| **5** | Active, Support | 24 m | None | Instant | Remove up to **Cleanse(7)** total negative Special value from one creature. |
-| **6** | Active, Support | 28 m | None | Instant | Remove up to **Cleanse(8)** total negative Special value from one creature. |
-| **7** | Active, Support | 32 m | None | Instant | Remove up to **Cleanse(9)** total negative Special value from one creature. |
-| **8** | Active, Support | 36 m | None | Instant | Remove up to **Cleanse(9)** total negative Special value from one creature. |
-| **9** | Active, Support | 40 m | None | Instant | Remove up to **Cleanse(10)** total negative Special value from one creature. |
-| **10** | Active, Support | 44 m | None | Instant | Remove up to **Cleanse(10)** total negative Special value from one creature. |
-| **11** | Active, Support | 48 m | None | Instant | Remove up to **Cleanse(11)** total negative Special value from one creature. |
-| **12** | Active, Support | 52 m | None | Instant | Remove up to **Cleanse(11)** total negative Special value from one creature. |
-| **13** | Active, Support | 56 m | None | Instant | Remove up to **Cleanse(12)** total negative Special value from one creature. |
-| **14** | Active, Support | 60 m | None | Instant | Remove up to **Cleanse(12)** total negative Special value from one creature. |
-| **15** | Active, Support | 64 m | None | Instant | Remove up to **Cleanse(13)** total negative Special value from one creature. |
-| **16** | Active, Support | 68 m | None | Instant | Remove up to **Cleanse(13)** total negative Special value from one creature. |
+| **1** | Active, Support | 8 m | None | Instant | Reduce one eligible negative Special on one creature by **3**. |
+| **2** | Active, Support | 12 m | None | Instant | Reduce one eligible negative Special on one creature by **4**. |
+| **3** | Active, Support | 16 m | None | Instant | Reduce one eligible negative Special on one creature by **5**. |
+| **4** | Active, Support | 20 m | None | Instant | Reduce one eligible negative Special on one creature by **6**. |
+| **5** | Active, Support | 24 m | None | Instant | Reduce one eligible negative Special on one creature by **7**. |
+| **6** | Active, Support | 28 m | None | Instant | Reduce one eligible negative Special on one creature by **8**. |
+| **7** | Active, Support | 32 m | None | Instant | Reduce one eligible negative Special on one creature by **9**. |
+| **8** | Active, Support | 36 m | None | Instant | Reduce one eligible negative Special on one creature by **9**. |
+| **9** | Active, Support | 40 m | None | Instant | Reduce one eligible negative Special on one creature by **10**. |
+| **10** | Active, Support | 44 m | None | Instant | Reduce one eligible negative Special on one creature by **10**. |
+| **11** | Active, Support | 48 m | None | Instant | Reduce one eligible negative Special on one creature by **11**. |
+| **12** | Active, Support | 52 m | None | Instant | Reduce one eligible negative Special on one creature by **11**. |
+| **13** | Active, Support | 56 m | None | Instant | Reduce one eligible negative Special on one creature by **12**. |
+| **14** | Active, Support | 60 m | None | Instant | Reduce one eligible negative Special on one creature by **12**. |
+| **15** | Active, Support | 64 m | None | Instant | Reduce one eligible negative Special on one creature by **13**. |
+| **16** | Active, Support | 68 m | None | Instant | Reduce one eligible negative Special on one creature by **13**. |
 
 }}
 
@@ -4212,10 +4114,10 @@ A ranged support Active that removes negative Special value from one creature wi
       Radius 5 m = 140 PP<br><br>
 
       CLEANSE RULE<br>
-      Cleanse(X) removes up to X total negative Special value from each affected creature.<br>
-      The removed value may be split across several eligible negative Specials on each affected creature.<br>
+      Cleanse(X) reduces one eligible negative Special on each affected creature by X.<br>
+      On each affected creature, choose one eligible negative Special. The Cleanse value cannot be split.<br>
       If a Special is reduced to 0, it is removed.<br>
-      Cleanse removes Special value, not PP value.<br>
+      Cleanse reduces the chosen Special value, not PP value.<br>
       Cleanse does not remove battlefield objects, Barriers, Walls, Images, Summons, Illusion Fields, Persistent Zones, terrain effects, constructs, objects, or ongoing non-creature effects.<br><br>
 
       SCALING RULE<br>
@@ -4255,22 +4157,22 @@ A self-centered support Active that removes negative Special value from affected
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active, Support | Self | Radius 2 m | Instant | Remove up to **Cleanse(1)** total negative Special value from each affected creature. |
-| **2** | Active, Support | Self | Radius 2 m | Instant | Remove up to **Cleanse(4)** total negative Special value from each affected creature. |
-| **3** | Active, Support | Self | Radius 2 m | Instant | Remove up to **Cleanse(5)** total negative Special value from each affected creature. |
-| **4** | Active, Support | Self | Radius 2 m | Instant | Remove up to **Cleanse(6)** total negative Special value from each affected creature. |
-| **5** | Active, Support | Self | Radius 3 m | Instant | Remove up to **Cleanse(6)** total negative Special value from each affected creature. |
-| **6** | Active, Support | Self | Radius 3 m | Instant | Remove up to **Cleanse(7)** total negative Special value from each affected creature. |
-| **7** | Active, Support | Self | Radius 3 m | Instant | Remove up to **Cleanse(8)** total negative Special value from each affected creature. |
-| **8** | Active, Support | Self | Radius 4 m | Instant | Remove up to **Cleanse(8)** total negative Special value from each affected creature. |
-| **9** | Active, Support | Self | Radius 4 m | Instant | Remove up to **Cleanse(9)** total negative Special value from each affected creature. |
-| **10** | Active, Support | Self | Radius 4 m | Instant | Remove up to **Cleanse(9)** total negative Special value from each affected creature. |
-| **11** | Active, Support | Self | Radius 4 m | Instant | Remove up to **Cleanse(10)** total negative Special value from each affected creature. |
-| **12** | Active, Support | Self | Radius 4 m | Instant | Remove up to **Cleanse(11)** total negative Special value from each affected creature. |
-| **13** | Active, Support | Self | Radius 4 m | Instant | Remove up to **Cleanse(11)** total negative Special value from each affected creature. |
-| **14** | Active, Support | Self | Radius 5 m | Instant | Remove up to **Cleanse(11)** total negative Special value from each affected creature. |
-| **15** | Active, Support | Self | Radius 5 m | Instant | Remove up to **Cleanse(11)** total negative Special value from each affected creature. |
-| **16** | Active, Support | Self | Radius 5 m | Instant | Remove up to **Cleanse(12)** total negative Special value from each affected creature. |
+| **1** | Active, Support | Self | Radius 2 m | Instant | Reduce one eligible negative Special on each affected creature by **1**. |
+| **2** | Active, Support | Self | Radius 2 m | Instant | Reduce one eligible negative Special on each affected creature by **4**. |
+| **3** | Active, Support | Self | Radius 2 m | Instant | Reduce one eligible negative Special on each affected creature by **5**. |
+| **4** | Active, Support | Self | Radius 2 m | Instant | Reduce one eligible negative Special on each affected creature by **6**. |
+| **5** | Active, Support | Self | Radius 3 m | Instant | Reduce one eligible negative Special on each affected creature by **6**. |
+| **6** | Active, Support | Self | Radius 3 m | Instant | Reduce one eligible negative Special on each affected creature by **7**. |
+| **7** | Active, Support | Self | Radius 3 m | Instant | Reduce one eligible negative Special on each affected creature by **8**. |
+| **8** | Active, Support | Self | Radius 4 m | Instant | Reduce one eligible negative Special on each affected creature by **8**. |
+| **9** | Active, Support | Self | Radius 4 m | Instant | Reduce one eligible negative Special on each affected creature by **9**. |
+| **10** | Active, Support | Self | Radius 4 m | Instant | Reduce one eligible negative Special on each affected creature by **9**. |
+| **11** | Active, Support | Self | Radius 4 m | Instant | Reduce one eligible negative Special on each affected creature by **10**. |
+| **12** | Active, Support | Self | Radius 4 m | Instant | Reduce one eligible negative Special on each affected creature by **11**. |
+| **13** | Active, Support | Self | Radius 4 m | Instant | Reduce one eligible negative Special on each affected creature by **11**. |
+| **14** | Active, Support | Self | Radius 5 m | Instant | Reduce one eligible negative Special on each affected creature by **11**. |
+| **15** | Active, Support | Self | Radius 5 m | Instant | Reduce one eligible negative Special on each affected creature by **11**. |
+| **16** | Active, Support | Self | Radius 5 m | Instant | Reduce one eligible negative Special on each affected creature by **12**. |
 
 }}
 
@@ -4317,10 +4219,10 @@ A self-centered support Active that removes negative Special value from affected
       Radius 5 m = 140 PP<br><br>
 
       CLEANSE RULE<br>
-      Cleanse(X) removes up to X total negative Special value from each affected creature.<br>
-      The removed value may be split across several eligible negative Specials on each affected creature.<br>
+      Cleanse(X) reduces one eligible negative Special on each affected creature by X.<br>
+      On each affected creature, choose one eligible negative Special. The Cleanse value cannot be split.<br>
       If a Special is reduced to 0, it is removed.<br>
-      Cleanse removes Special value, not PP value.<br>
+      Cleanse reduces the chosen Special value, not PP value.<br>
       Cleanse does not remove battlefield objects, Barriers, Walls, Images, Summons, Illusion Fields, Persistent Zones, terrain effects, constructs, objects, or ongoing non-creature effects.<br><br>
 
       SCALING RULE<br>
@@ -4361,22 +4263,22 @@ A ranged area support Active that removes negative Special value from affected c
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active, Support | 8 m | Radius 2 m | Instant | Remove up to **Cleanse(1)** total negative Special value from each affected creature. |
-| **2** | Active, Support | 12 m | Radius 2 m | Instant | Remove up to **Cleanse(3)** total negative Special value from each affected creature. |
-| **3** | Active, Support | 16 m | Radius 2 m | Instant | Remove up to **Cleanse(5)** total negative Special value from each affected creature. |
-| **4** | Active, Support | 20 m | Radius 2 m | Instant | Remove up to **Cleanse(6)** total negative Special value from each affected creature. |
-| **5** | Active, Support | 24 m | Radius 2 m | Instant | Remove up to **Cleanse(6)** total negative Special value from each affected creature. |
-| **6** | Active, Support | 28 m | Radius 2 m | Instant | Remove up to **Cleanse(7)** total negative Special value from each affected creature. |
-| **7** | Active, Support | 32 m | Radius 2 m | Instant | Remove up to **Cleanse(8)** total negative Special value from each affected creature. |
-| **8** | Active, Support | 36 m | Radius 3 m | Instant | Remove up to **Cleanse(8)** total negative Special value from each affected creature. |
-| **9** | Active, Support | 40 m | Radius 3 m | Instant | Remove up to **Cleanse(9)** total negative Special value from each affected creature. |
-| **10** | Active, Support | 44 m | Radius 3 m | Instant | Remove up to **Cleanse(9)** total negative Special value from each affected creature. |
-| **11** | Active, Support | 48 m | Radius 3 m | Instant | Remove up to **Cleanse(10)** total negative Special value from each affected creature. |
-| **12** | Active, Support | 52 m | Radius 3 m | Instant | Remove up to **Cleanse(10)** total negative Special value from each affected creature. |
-| **13** | Active, Support | 56 m | Radius 4 m | Instant | Remove up to **Cleanse(10)** total negative Special value from each affected creature. |
-| **14** | Active, Support | 60 m | Radius 4 m | Instant | Remove up to **Cleanse(11)** total negative Special value from each affected creature. |
-| **15** | Active, Support | 64 m | Radius 4 m | Instant | Remove up to **Cleanse(11)** total negative Special value from each affected creature. |
-| **16** | Active, Support | 68 m | Radius 5 m | Instant | Remove up to **Cleanse(11)** total negative Special value from each affected creature. |
+| **1** | Active, Support | 8 m | Radius 2 m | Instant | Reduce one eligible negative Special on each affected creature by **1**. |
+| **2** | Active, Support | 12 m | Radius 2 m | Instant | Reduce one eligible negative Special on each affected creature by **3**. |
+| **3** | Active, Support | 16 m | Radius 2 m | Instant | Reduce one eligible negative Special on each affected creature by **5**. |
+| **4** | Active, Support | 20 m | Radius 2 m | Instant | Reduce one eligible negative Special on each affected creature by **6**. |
+| **5** | Active, Support | 24 m | Radius 2 m | Instant | Reduce one eligible negative Special on each affected creature by **6**. |
+| **6** | Active, Support | 28 m | Radius 2 m | Instant | Reduce one eligible negative Special on each affected creature by **7**. |
+| **7** | Active, Support | 32 m | Radius 2 m | Instant | Reduce one eligible negative Special on each affected creature by **8**. |
+| **8** | Active, Support | 36 m | Radius 3 m | Instant | Reduce one eligible negative Special on each affected creature by **8**. |
+| **9** | Active, Support | 40 m | Radius 3 m | Instant | Reduce one eligible negative Special on each affected creature by **9**. |
+| **10** | Active, Support | 44 m | Radius 3 m | Instant | Reduce one eligible negative Special on each affected creature by **9**. |
+| **11** | Active, Support | 48 m | Radius 3 m | Instant | Reduce one eligible negative Special on each affected creature by **10**. |
+| **12** | Active, Support | 52 m | Radius 3 m | Instant | Reduce one eligible negative Special on each affected creature by **10**. |
+| **13** | Active, Support | 56 m | Radius 4 m | Instant | Reduce one eligible negative Special on each affected creature by **10**. |
+| **14** | Active, Support | 60 m | Radius 4 m | Instant | Reduce one eligible negative Special on each affected creature by **11**. |
+| **15** | Active, Support | 64 m | Radius 4 m | Instant | Reduce one eligible negative Special on each affected creature by **11**. |
+| **16** | Active, Support | 68 m | Radius 5 m | Instant | Reduce one eligible negative Special on each affected creature by **11**. |
 
 
 }}
@@ -4421,7 +4323,7 @@ A ranged area support Active that removes negative Special value from affected c
       It is not intended to replace pure Healing, pure Cleanse, or pure Health Level Recovery.<br>
       Normal Healing restores HP inside the target's current Health Level.<br>
       Cleanse removes up to X total negative Special value from the target.<br>
-      The removed Cleanse value may be split across several eligible negative Specials.<br>
+      The Cleanse value applies to exactly one eligible negative Special and cannot be split.<br>
       Health Level Recovery restores lost Health Levels and is tracked as a pool per Safe Haven Rest.<br>
       The Health Level Recovery pool may be spent across multiple uses of this Power.<br>
       Health Level Recovery does not restore HP by itself. HP recovery comes only from the Healing dice.<br><br>
@@ -4463,7 +4365,7 @@ A ranged area support Active that removes negative Special value from affected c
       NOTES<br>
       This Power is intentionally weaker than a pure Heal Active and weaker than a pure Cleanse Active.<br>
       It pays for three support axes from one Active budget: Healing, Cleanse, and Health Level Recovery.<br>
-      Cleanse removes Special value, not PP value.<br>
+      Cleanse reduces the chosen Special value, not PP value.<br>
       This Power does not grant Temporary HP, does not grant an Absorption Bonus, and does not restore Health Levels beyond its listed Safe Haven Rest pool.
     </span>
   </span>
@@ -4548,7 +4450,7 @@ A close-range hybrid support Active that heals one creature and removes negative
       It is not intended to replace pure Healing, pure Cleanse, or pure Health Level Recovery.<br>
       Normal Healing restores HP inside the target's current Health Level.<br>
       Cleanse removes up to X total negative Special value from the target.<br>
-      The removed Cleanse value may be split across several eligible negative Specials.<br>
+      The Cleanse value applies to exactly one eligible negative Special and cannot be split.<br>
       Health Level Recovery restores lost Health Levels and is tracked as a pool per Safe Haven Rest.<br>
       The Health Level Recovery pool may be spent across multiple uses of this Power.<br>
       Health Level Recovery does not restore HP by itself. HP recovery comes only from the Healing dice.<br><br>
@@ -4592,7 +4494,7 @@ A close-range hybrid support Active that heals one creature and removes negative
       This Power is weaker than the melee version because Range is paid every level.<br>
       This Power is intentionally weaker than a pure Heal Active and weaker than a pure Cleanse Active.<br>
       It pays for four support axes from one Active budget: Range, Healing, Cleanse, and Health Level Recovery.<br>
-      Cleanse removes Special value, not PP value.<br>
+      Cleanse reduces the chosen Special value, not PP value.<br>
       This Power does not grant Temporary HP, does not grant an Absorption Bonus, and does not restore Health Levels beyond its listed Safe Haven Rest pool.
     </span>
   </span>
@@ -4652,7 +4554,7 @@ A ranged hybrid support Active that heals one creature and removes negative Spec
       It is not an Active Buff and does not occupy the maintained Active Buff slot.<br>
       Each version has exactly one Absorption type: Damage, Speed, Armor, or Evade.<br>
       The Absorption type is chosen when the Power is created or learned.<br>
-      The Cleanse value may be split across several eligible negative Specials.<br>
+      The Cleanse value applies to exactly one eligible negative Special.<br>
       Absorption triggers only if the full listed Cleanse value is actually spent.<br>
       Absorption Bonuses can stack, including repeated bonuses of the same Absorption type.<br><br>
 
@@ -4676,8 +4578,8 @@ A ranged hybrid support Active that heals one creature and removes negative Spec
 
       NOTES<br>
       Do not rebuild this Power by adding the full standalone Cleanse cost and the full standalone bonus cost together.<br>
-      The Absorption Bonus is conditional and only triggers when the full Cleanse value is spent on eligible negative Specials.<br>
-      If the full Cleanse value cannot be spent, the Power still cleanses what it can, but Absorption does not trigger.<br>
+      The Absorption Bonus is conditional and only triggers when one chosen eligible Special is reduced by the full Cleanse value.<br>
+      If the chosen Special has less than the listed Cleanse value, the Power still reduces that Special to 0, but Absorption does not trigger.<br>
       This Power has no damage by itself, no attack rider, no Spell Resistance, no Healing, no Temporary HP, no Damage Reduction, no Phasing, and no passive effect.<br>
       Damage, Speed, Armor, or Evade are gained only through the chosen Absorption type and only if Absorption triggers.
     </span>
@@ -4690,14 +4592,14 @@ You draw hostile pressure out of a creature and turn the released force into str
 |:--:|:--|:--:|:--:|:--:|:--|:--|
 | **1** | Active, Support | — | — | — | No version. | — |
 | **2** | Active, Support | — | — | — | No version. | — |
-| **3** | Active, Support | 24 m | — | Instant | Remove up to **Cleanse(3)** total negative Special value from the target. The removed value may be split across several eligible negative Specials. If the full Cleanse value is spent, the target gains **Absorption Bonus I** until the end of combat. Choose one Absorption type when this Power is created or learned: Damage, Speed, Armor, or Evade. Absorption Bonuses can stack. | — |
-| **4** | Active, Support | 24 m | — | Instant | Remove up to **Cleanse(4)** total negative Special value from the target. The removed value may be split across several eligible negative Specials. If the full Cleanse value is spent, the target gains **Absorption Bonus I** until the end of combat. Choose one Absorption type when this Power is created or learned: Damage, Speed, Armor, or Evade. Absorption Bonuses can stack. | — |
-| **5** | Active, Support | 24 m | — | Instant | Remove up to **Cleanse(5)** total negative Special value from the target. The removed value may be split across several eligible negative Specials. If the full Cleanse value is spent, the target gains **Absorption Bonus I** until the end of combat. Choose one Absorption type when this Power is created or learned: Damage, Speed, Armor, or Evade. Absorption Bonuses can stack. | — |
-| **6** | Active, Support | 24 m | — | Instant | Remove up to **Cleanse(6)** total negative Special value from the target. The removed value may be split across several eligible negative Specials. If the full Cleanse value is spent, the target gains **Absorption Bonus I** until the end of combat. Choose one Absorption type when this Power is created or learned: Damage, Speed, Armor, or Evade. Absorption Bonuses can stack. | — |
-| **7** | Active, Support | 24 m | — | Instant | Remove up to **Cleanse(6)** total negative Special value from the target. The removed value may be split across several eligible negative Specials. If the full Cleanse value is spent, the target gains **Absorption Bonus II** until the end of combat. Choose one Absorption type when this Power is created or learned: Damage, Speed, Armor, or Evade. Absorption Bonuses can stack. | — |
-| **8** | Active, Support | 24 m | — | Instant | Remove up to **Cleanse(6)** total negative Special value from the target. The removed value may be split across several eligible negative Specials. If the full Cleanse value is spent, the target gains **Absorption Bonus III** until the end of combat. Choose one Absorption type when this Power is created or learned: Damage, Speed, Armor, or Evade. Absorption Bonuses can stack. | — |
-| **9** | Active, Support | 24 m | — | Instant | Remove up to **Cleanse(7)** total negative Special value from the target. The removed value may be split across several eligible negative Specials. If the full Cleanse value is spent, the target gains **Absorption Bonus III** until the end of combat. Choose one Absorption type when this Power is created or learned: Damage, Speed, Armor, or Evade. Absorption Bonuses can stack. | — |
-| **10** | Active, Support | 24 m | — | Instant | Remove up to **Cleanse(8)** total negative Special value from the target. The removed value may be split across several eligible negative Specials. If the full Cleanse value is spent, the target gains **Absorption Bonus III** until the end of combat. Choose one Absorption type when this Power is created or learned: Damage, Speed, Armor, or Evade. Absorption Bonuses can stack. | — |
+| **3** | Active, Support | 24 m | — | Instant | Reduce one eligible negative Special on the target by **3**. The Cleanse value cannot be split across several Specials. If the full Cleanse value is spent, the target gains **Absorption Bonus I** until the end of combat. Choose one Absorption type when this Power is created or learned: Damage, Speed, Armor, or Evade. Absorption Bonuses can stack. | — |
+| **4** | Active, Support | 24 m | — | Instant | Reduce one eligible negative Special on the target by **4**. The Cleanse value cannot be split across several Specials. If the full Cleanse value is spent, the target gains **Absorption Bonus I** until the end of combat. Choose one Absorption type when this Power is created or learned: Damage, Speed, Armor, or Evade. Absorption Bonuses can stack. | — |
+| **5** | Active, Support | 24 m | — | Instant | Reduce one eligible negative Special on the target by **5**. The Cleanse value cannot be split across several Specials. If the full Cleanse value is spent, the target gains **Absorption Bonus I** until the end of combat. Choose one Absorption type when this Power is created or learned: Damage, Speed, Armor, or Evade. Absorption Bonuses can stack. | — |
+| **6** | Active, Support | 24 m | — | Instant | Reduce one eligible negative Special on the target by **6**. The Cleanse value cannot be split across several Specials. If the full Cleanse value is spent, the target gains **Absorption Bonus I** until the end of combat. Choose one Absorption type when this Power is created or learned: Damage, Speed, Armor, or Evade. Absorption Bonuses can stack. | — |
+| **7** | Active, Support | 24 m | — | Instant | Reduce one eligible negative Special on the target by **6**. The Cleanse value cannot be split across several Specials. If the full Cleanse value is spent, the target gains **Absorption Bonus II** until the end of combat. Choose one Absorption type when this Power is created or learned: Damage, Speed, Armor, or Evade. Absorption Bonuses can stack. | — |
+| **8** | Active, Support | 24 m | — | Instant | Reduce one eligible negative Special on the target by **6**. The Cleanse value cannot be split across several Specials. If the full Cleanse value is spent, the target gains **Absorption Bonus III** until the end of combat. Choose one Absorption type when this Power is created or learned: Damage, Speed, Armor, or Evade. Absorption Bonuses can stack. | — |
+| **9** | Active, Support | 24 m | — | Instant | Reduce one eligible negative Special on the target by **7**. The Cleanse value cannot be split across several Specials. If the full Cleanse value is spent, the target gains **Absorption Bonus III** until the end of combat. Choose one Absorption type when this Power is created or learned: Damage, Speed, Armor, or Evade. Absorption Bonuses can stack. | — |
+| **10** | Active, Support | 24 m | — | Instant | Reduce one eligible negative Special on the target by **8**. The Cleanse value cannot be split across several Specials. If the full Cleanse value is spent, the target gains **Absorption Bonus III** until the end of combat. Choose one Absorption type when this Power is created or learned: Damage, Speed, Armor, or Evade. Absorption Bonuses can stack. | — |
 }}
 
 \page
@@ -4705,12 +4607,12 @@ You draw hostile pressure out of a creature and turn the released force into str
 {{wide
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
 |:--:|:--|:--:|:--:|:--:|:--|:--|
-| **11** | Active, Support | 24 m | — | Instant | Remove up to **Cleanse(8)** total negative Special value from the target. The removed value may be split across several eligible negative Specials. If the full Cleanse value is spent, the target gains **Absorption Bonus III** until the end of combat. Choose one Absorption type when this Power is created or learned: Damage, Speed, Armor, or Evade. Absorption Bonuses can stack. | — |
-| **12** | Active, Support | 24 m | — | Instant | Remove up to **Cleanse(8)** total negative Special value from the target. The removed value may be split across several eligible negative Specials. If the full Cleanse value is spent, the target gains **Absorption Bonus IV** until the end of combat. Choose one Absorption type when this Power is created or learned: Damage, Speed, Armor, or Evade. Absorption Bonuses can stack. | — |
-| **13** | Active, Support | 24 m | — | Instant | Remove up to **Cleanse(8)** total negative Special value from the target. The removed value may be split across several eligible negative Specials. If the full Cleanse value is spent, the target gains **Absorption Bonus V** until the end of combat. Choose one Absorption type when this Power is created or learned: Damage, Speed, Armor, or Evade. Absorption Bonuses can stack. | — |
-| **14** | Active, Support | 24 m | — | Instant | Remove up to **Cleanse(8)** total negative Special value from the target. The removed value may be split across several eligible negative Specials. If the full Cleanse value is spent, the target gains **Absorption Bonus V** until the end of combat. Choose one Absorption type when this Power is created or learned: Damage, Speed, Armor, or Evade. Absorption Bonuses can stack. | — |
-| **15** | Active, Support | 24 m | — | Instant | Remove up to **Cleanse(8)** total negative Special value from the target. The removed value may be split across several eligible negative Specials. If the full Cleanse value is spent, the target gains **Absorption Bonus VI** until the end of combat. Choose one Absorption type when this Power is created or learned: Damage, Speed, Armor, or Evade. Absorption Bonuses can stack. | — |
-| **16** | Active, Support | 24 m | — | Instant | Remove up to **Cleanse(8)** total negative Special value from the target. The removed value may be split across several eligible negative Specials. If the full Cleanse value is spent, the target gains **Absorption Bonus VII** until the end of combat. Choose one Absorption type when this Power is created or learned: Damage, Speed, Armor, or Evade. Absorption Bonuses can stack. | — |
+| **11** | Active, Support | 24 m | — | Instant | Reduce one eligible negative Special on the target by **8**. The Cleanse value cannot be split across several Specials. If the full Cleanse value is spent, the target gains **Absorption Bonus III** until the end of combat. Choose one Absorption type when this Power is created or learned: Damage, Speed, Armor, or Evade. Absorption Bonuses can stack. | — |
+| **12** | Active, Support | 24 m | — | Instant | Reduce one eligible negative Special on the target by **8**. The Cleanse value cannot be split across several Specials. If the full Cleanse value is spent, the target gains **Absorption Bonus IV** until the end of combat. Choose one Absorption type when this Power is created or learned: Damage, Speed, Armor, or Evade. Absorption Bonuses can stack. | — |
+| **13** | Active, Support | 24 m | — | Instant | Reduce one eligible negative Special on the target by **8**. The Cleanse value cannot be split across several Specials. If the full Cleanse value is spent, the target gains **Absorption Bonus V** until the end of combat. Choose one Absorption type when this Power is created or learned: Damage, Speed, Armor, or Evade. Absorption Bonuses can stack. | — |
+| **14** | Active, Support | 24 m | — | Instant | Reduce one eligible negative Special on the target by **8**. The Cleanse value cannot be split across several Specials. If the full Cleanse value is spent, the target gains **Absorption Bonus V** until the end of combat. Choose one Absorption type when this Power is created or learned: Damage, Speed, Armor, or Evade. Absorption Bonuses can stack. | — |
+| **15** | Active, Support | 24 m | — | Instant | Reduce one eligible negative Special on the target by **8**. The Cleanse value cannot be split across several Specials. If the full Cleanse value is spent, the target gains **Absorption Bonus VI** until the end of combat. Choose one Absorption type when this Power is created or learned: Damage, Speed, Armor, or Evade. Absorption Bonuses can stack. | — |
+| **16** | Active, Support | 24 m | — | Instant | Reduce one eligible negative Special on the target by **8**. The Cleanse value cannot be split across several Specials. If the full Cleanse value is spent, the target gains **Absorption Bonus VII** until the end of combat. Choose one Absorption type when this Power is created or learned: Damage, Speed, Armor, or Evade. Absorption Bonuses can stack. | — |
 
 
 ABSORPTION BONUS VALUES 
@@ -4724,7 +4626,7 @@ ABSORPTION BONUS VALUES
 | VI | +6d8 Damage | +24 m Speed | +12 Armor | +12 Evade | 
 | VII | +7d8 Damage | +28 m Speed | +14 Armor | +14 Evade | 
 
-CLEANSE EXAMPLES Cleanse(6) may remove Ruin(6). Cleanse(6) may remove Ruin(3) + Hex(3). Cleanse(6) may remove Ruin(2) + Hex(2) + Slow(2). If a Special is reduced to 0, it is removed. Absorption triggers only if the full Cleanse value is spent. If the target has only Ruin(3) and you use Cleanse(6), only 3 value can be spent. Absorption does not trigger. If the target has Ruin(3) and Hex(3), and you use Cleanse(6), the full value can be spent. Absorption triggers.
+CLEANSE EXAMPLES Cleanse(6) may reduce Ruin(8) to Ruin(2). Cleanse(6) may end Ruin(6). Cleanse(6) cannot be divided between Ruin(3) and Hex(3). Absorption triggers only when one chosen Special is reduced by the full Cleanse value. If the target has only Ruin(3) and you use Cleanse(6), Ruin ends but Absorption does not trigger. If the target has Ruin(6) or higher, the full value is spent on that one Special and Absorption triggers.
 }}
 \page
 {{pageNumber,auto}}
@@ -4885,9 +4787,9 @@ Unless a Power says otherwise:
 
 - Barriers have **0 Armor**.
 - Barriers have **0 Evade**.
-- Barriers automatically fail Body / Mind / Spirit Saves.
+- Barriers do not make Attribute Checks.
 - Barriers are immune to Mental effects.
-- Barriers are immune to creature-only negative Specials such as Blight, Lacerate, Frightened, Blinded, Mark, Weaken, and similar effects.
+- Barriers are immune to creature-only negative Specials such as Blight, Lacerate, Mark, Disoriented, and similar creature-only effects.
 
 A Barrier does not attack, move, deal damage, heal, apply Specials, or provide any additional effect unless the Power explicitly says so.
 
@@ -4994,7 +4896,7 @@ A creature cannot move through those spaces unless it destroys the wall, moves a
 
 The wall does not make an attack roll.
 
-The wall does not force a Save.
+The wall does not require an Attribute Check.
 
 It simply occupies space as a real obstruction.
 
@@ -5466,7 +5368,7 @@ A creature may attempt to disbelieve an Illusion Field when:
 
 The check is normally:
 
-**Mind Save or Awareness Check vs. the caster’s Power TN**
+**Wits Attribute Check or Awareness Skill Check vs. the caster’s Power TN**
 
 On success, that creature recognizes the illusion as false.
 
@@ -5722,7 +5624,7 @@ The GM may reject combinations that create action denial loops, unavoidable lock
 :
 ### Stunned
 
-A Stunned creature is briefly overwhelmed, staggered, Disrupted, dazed, or locked out of action.
+A Stunned creature is briefly overwhelmed, staggereded, dazed, or locked out of action.
 
 While Stunned:
 
@@ -5786,7 +5688,7 @@ For this reason:
 
 **Stunning Strike = Damage + Stunned**
 
-The target is struck with enough force, precision, Disrupt, or supernatural pressure to briefly lose its ability to attack.
+The target is struck with enough force, precision, or supernatural pressure to briefly lose its ability to attack.
 
 ---
 :
@@ -6967,9 +6869,6 @@ A ranged weapon attack that sprays fire across several targets without creating 
 
 
 
-
-
-
 }}
 
 \page
@@ -7248,16 +7147,10 @@ A ranged weapon attack that carries judgment into distant unholy targets.
       If no Primary Target is chosen, all valid targets inside the AoE suffer only the listed Smite Damage.<br><br>
 
       SECONDARY TARGET REACTION<br>
-      Before Secondary Target damage is applied, each Secondary Target may spend its Reaction to attempt the AoE Reaction Maneuver.<br>
-      The creature makes a Body Save against the Power user's Mastery Save TN.<br>
-      M1 = DC 8<br>
-      M2 = DC 16<br>
-      M3 = DC 24<br>
-      M4 = DC 32<br>
-      M5 = DC 40<br>
-      M6 = DC 48<br>
-      On a success, the creature moves to the nearest legal space outside the AoE and suffers no Secondary Target effect.<br>
-      On a failure, it remains inside the AoE and suffers the Secondary Target effect normally.<br><br>
+      Before Secondary Target damage is applied, each Secondary Target may spend its Reaction to use Dive for Cover.<br>
+      It immediately moves up to 2 x Mastery Rank meters.<br>
+      If this movement takes it completely outside the AoE, it suffers no Secondary Target effect.<br>
+      If it remains inside the AoE, it suffers the Secondary Target effect normally.<br><br>
 
       RANGE COSTS<br>
       8 m = 0 PP<br>
@@ -7324,7 +7217,7 @@ A ranged weapon attack that carries judgment into distant unholy targets.
       Radius is intentionally capped at 3 m.<br>
       Range is intentionally capped at 32 m.<br>
       This prevents Smite from becoming a large battlefield-clearing AoE.<br>
-      Secondary Targets receive only Smite Damage and may use the AoE Reaction Maneuver.<br>
+      Secondary Targets receive only Smite Damage and may use Dive for Cover.<br>
       This Power is strong against the correct enemies, but narrow in area and range.
     </span>
   </span>
@@ -7355,7 +7248,6 @@ A compact ranged area Smite attack that burns supernatural enemies inside a smal
 | **14** | Active | 32 m | Radius 3 m | Instant | Make one ranged attack against the Primary Target. On hit, the Primary Target takes Weapon Damage plus **+45d8 Smite Damage**. Secondary Targets with a valid Smite tag take **+45d8 Smite Damage**. | Smite |
 | **15** | Active | 32 m | Radius 3 m | Instant | Make one ranged attack against the Primary Target. On hit, the Primary Target takes Weapon Damage plus **+49d8 Smite Damage**. Secondary Targets with a valid Smite tag take **+49d8 Smite Damage**. | Smite |
 | **16** | Active | 32 m | Radius 3 m | Instant | Make one ranged attack against the Primary Target. On hit, the Primary Target takes Weapon Damage plus **+53d8 Smite Damage**. Secondary Targets with a valid Smite tag take **+53d8 Smite Damage**. | Smite |
-
 
 
 
@@ -7408,13 +7300,11 @@ The user rolls the Power against its listed fixed TN.
 
 If the roll fails, the Mental Power fizzles and has no effect.
 
-If the roll succeeds, the target makes the listed Save, usually a **Mind Save**.
+If the roll succeeds, the Mental Power's listed effect resolves.
 
-On a successful Save, apply the listed success result.
+The target does not make an automatic second roll.
 
-On a failed Save, apply the listed failure result.
-
-Mental Powers must always state their success and failure results.
+A later Intellect or Wits Attribute Check occurs only if the Power explicitly grants a disbelief, break, or intrusion response.
 
 ---
 
@@ -7442,17 +7332,9 @@ If a Mental Attack also applies a Special, the Special must be paid normally.
 
 If a Mental Attack also applies a control effect, the control effect must be paid as a separate rider or defined by the Power.
 
-A Mental Attack must list its Save, usually a **Mind Save**.
+On a successful Mental Power roll, the target takes the full listed Mental Damage and suffers any paid Special or rider.
 
-If the Mental Attack deals damage:
-
-- on a successful Save, the target takes half damage and suffers no listed Special,
-- on a failed Save, the target takes full damage and suffers the listed failure effect.
-
-If the Mental Attack does not deal damage:
-
-- on a successful Save, the target resists the effect,
-- on a failed Save, the listed effect applies.
+Mental Attack does not grant an automatic Intellect or Wits Attribute Check after the Power succeeds.
 }}
 
 
@@ -7468,7 +7350,6 @@ If the Mental Attack does not deal damage:
       Active curve = 30 PP per level<br>
       Requires Telepathic Access<br>
       Resolved like a Spell against fixed TN<br>
-      Target Save = Mind Save<br>
       Mental Damage = 30 PP per +1d8 Mental Damage<br>
       Mental Damage ignores Armor<br>
       Mental Attack does not target Evade<br><br>
@@ -7483,24 +7364,24 @@ If the Mental Attack does not deal damage:
 
 A direct psychic assault that harms a creature's mind.
 
-| **Level** | **Type** | **Range** | **Save** | **Duration** | **Effect** |
-|:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active, Mental | Telepathic Access | Mind Save | Instant | Deal **1d8 Mental Damage**. On a successful Save, the target takes half damage. |
-| **2** | Active, Mental | Telepathic Access | Mind Save | Instant | Deal **2d8 Mental Damage**. On a successful Save, the target takes half damage. |
-| **3** | Active, Mental | Telepathic Access | Mind Save | Instant | Deal **3d8 Mental Damage**. On a successful Save, the target takes half damage. |
-| **4** | Active, Mental | Telepathic Access | Mind Save | Instant | Deal **4d8 Mental Damage**. On a successful Save, the target takes half damage. |
-| **5** | Active, Mental | Telepathic Access | Mind Save | Instant | Deal **5d8 Mental Damage**. On a successful Save, the target takes half damage. |
-| **6** | Active, Mental | Telepathic Access | Mind Save | Instant | Deal **6d8 Mental Damage**. On a successful Save, the target takes half damage. |
-| **7** | Active, Mental | Telepathic Access | Mind Save | Instant | Deal **7d8 Mental Damage**. On a successful Save, the target takes half damage. |
-| **8** | Active, Mental | Telepathic Access | Mind Save | Instant | Deal **8d8 Mental Damage**. On a successful Save, the target takes half damage. |
-| **9** | Active, Mental | Telepathic Access | Mind Save | Instant | Deal **9d8 Mental Damage**. On a successful Save, the target takes half damage. |
-| **10** | Active, Mental | Telepathic Access | Mind Save | Instant | Deal **10d8 Mental Damage**. On a successful Save, the target takes half damage. |
-| **11** | Active, Mental | Telepathic Access | Mind Save | Instant | Deal **11d8 Mental Damage**. On a successful Save, the target takes half damage. |
-| **12** | Active, Mental | Telepathic Access | Mind Save | Instant | Deal **12d8 Mental Damage**. On a successful Save, the target takes half damage. |
-| **13** | Active, Mental | Telepathic Access | Mind Save | Instant | Deal **13d8 Mental Damage**. On a successful Save, the target takes half damage. |
-| **14** | Active, Mental | Telepathic Access | Mind Save | Instant | Deal **14d8 Mental Damage**. On a successful Save, the target takes half damage. |
-| **15** | Active, Mental | Telepathic Access | Mind Save | Instant | Deal **15d8 Mental Damage**. On a successful Save, the target takes half damage. |
-| **16** | Active, Mental | Telepathic Access | Mind Save | Instant | Deal **16d8 Mental Damage**. On a successful Save, the target takes half damage. |
+| **Level** | **Type** | **Range** | **Duration** | **Effect** |
+|:--:|:--|:--:|:--:|:--|
+| **1** | Active, Mental | Telepathic Access | Instant | Deal **1d8 Mental Damage**. |
+| **2** | Active, Mental | Telepathic Access | Instant | Deal **2d8 Mental Damage**. |
+| **3** | Active, Mental | Telepathic Access | Instant | Deal **3d8 Mental Damage**. |
+| **4** | Active, Mental | Telepathic Access | Instant | Deal **4d8 Mental Damage**. |
+| **5** | Active, Mental | Telepathic Access | Instant | Deal **5d8 Mental Damage**. |
+| **6** | Active, Mental | Telepathic Access | Instant | Deal **6d8 Mental Damage**. |
+| **7** | Active, Mental | Telepathic Access | Instant | Deal **7d8 Mental Damage**. |
+| **8** | Active, Mental | Telepathic Access | Instant | Deal **8d8 Mental Damage**. |
+| **9** | Active, Mental | Telepathic Access | Instant | Deal **9d8 Mental Damage**. |
+| **10** | Active, Mental | Telepathic Access | Instant | Deal **10d8 Mental Damage**. |
+| **11** | Active, Mental | Telepathic Access | Instant | Deal **11d8 Mental Damage**. |
+| **12** | Active, Mental | Telepathic Access | Instant | Deal **12d8 Mental Damage**. |
+| **13** | Active, Mental | Telepathic Access | Instant | Deal **13d8 Mental Damage**. |
+| **14** | Active, Mental | Telepathic Access | Instant | Deal **14d8 Mental Damage**. |
+| **15** | Active, Mental | Telepathic Access | Instant | Deal **15d8 Mental Damage**. |
+| **16** | Active, Mental | Telepathic Access | Instant | Deal **16d8 Mental Damage**. |
 
 ---
 }}
@@ -7519,11 +7400,7 @@ Mind Illusions are resolved like Spells against a fixed TN.
 
 If the Power roll fails, the illusion fizzles and has no effect.
 
-If the Power roll succeeds, the target makes a **Mind Save**.
-
-On a successful Save, the target resists the illusion.
-
-On a failed Save, the listed illusion effect applies.
+If the Power roll succeeds, the listed illusion applies. There is no automatic resistance roll for every affected creature.
 
 Mind Illusions do not create real objects, creatures, walls, sounds, terrain, light, darkness, or battlefield effects.
 
@@ -7539,9 +7416,7 @@ Mind Illusions may cause the affected creature to perceive something false, but 
 
 Mind Illusions cannot create real cover, real terrain, real summons, real barriers, or real line-of-sight blockers.
 
-If a creature physically interacts with a Mind Illusion or receives clear contradictory evidence, it may immediately repeat the Mind Save.
-
-On a successful repeat Save, the illusion ends for that creature.
+If a creature spends an Action to inspect the Mind Illusion, physically interacts with something it cannot support, or receives clear contradictory evidence, it may make a **Wits Attribute Check** against the Mental Power TN. A specifically analytical or memory-based Power may name **Intellect** instead. On a success, the illusion ends for that creature.
 }}
 
 
@@ -7557,7 +7432,6 @@ On a successful repeat Save, the illusion ends for that creature.
       Active curve = 30 PP per level<br>
       Requires Telepathic Access<br>
       Resolved like a Spell against fixed TN<br>
-      Target Save = Mind Save<br><br>
 
       DESIGN STRUCTURE<br>
       Mind Illusions scale through affected creatures, affected senses, believability, and complexity.<br>
@@ -7616,7 +7490,7 @@ Mind Illusions cannot block line of sight for creatures that are not affected by
 
 Mind Illusions cannot be removed by normal Cleanse unless the Power explicitly applies a cleanseable numeric Special.
 
-A Mind Illusion ends for a creature if that creature succeeds on its Mind Save, the duration ends, or the Power is otherwise broken by a listed rule.
+A Mind Illusion ends for a creature if it succeeds on the listed Wits or Intellect Attribute Check, the duration ends, or the Power is otherwise broken by a listed rule.
 }}
 
 \page
