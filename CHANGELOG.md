@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.237] - 2026-07-31
+
+### Changed
+
+- **Hit blood FX uses Health Level outcome + sheet Blood Color:** Damage apply now spawns blood under the target token after HP is actually applied. Chip damage inside the same health level draws a few animated splatters; depleting a bar / dropping to the next health level spawns a large animated puddle. Color comes from `system.bloodColor` on the character or NPC sheet (default dark red).
+
 ## [0.9.231] - 2026-07-30
 
 ### Added

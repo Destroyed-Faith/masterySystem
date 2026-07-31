@@ -1666,23 +1666,6 @@ async function applyDamageToTarget(
       }
     }
 
-    // Create blood pool at target token position (if token exists on canvas)
-    if (damage > 0 && canvas?.ready) {
-      const targetToken = (target as any).getActiveTokens?.()?.[0] || 
-                         (game as any).scenes?.active?.tokens?.find((t: any) => t.actor?.id === (target as any).id);
-      
-      if (targetToken) {
-        try {
-          const { createBloodPool } = await import('../utils/blood-pool.js');
-          const actorSystem = (target as any).system;
-          const bloodColor = actorSystem?.bloodColor;
-          await createBloodPool(targetToken, damage, true, bloodColor);
-        } catch (error) {
-          console.warn('Mastery System | Could not create blood pool', error);
-        }
-      }
-    }
-    
     // Get current health data
     const system = (target as any).system;
     if (!system.health || !system.health.bars || system.health.bars.length === 0) {
@@ -1694,6 +1677,12 @@ async function applyDamageToTarget(
       });
       return empty;
     }
+
+    // Snapshot pre-hit wound track so blood FX can distinguish chip vs level loss.
+    const oldBarIndex = Math.max(0, Math.floor(Number(system.health.currentBar) || 0));
+    const barsBefore = (system.health.bars as Array<{ current?: number }>).map((b) => ({
+      current: Number(b?.current) || 0,
+    }));
 
     // Step 1: Flat Armor + percentage DR + 8s-min floor.
     logDrDebug('apply-damage-target', {
@@ -1734,6 +1723,8 @@ async function applyDamageToTarget(
 
     // Step 3: Apply remaining damage to health bars with overflow
     let barDamage = 0;
+    let newBarIndex = oldBarIndex;
+    let barsAfter = barsBefore;
     if (remaining > 0) {
       barDamage = remaining;
       // Import applyDamage helper from calculations.ts
@@ -1749,6 +1740,8 @@ async function applyDamageToTarget(
       if (barIndex >= bars.length) {
         barIndex = bars.length - 1;
       }
+      newBarIndex = barIndex;
+      barsAfter = bars.map((b) => ({ current: Number(b?.current) || 0 }));
 
       // Merge tempHP pool updates with bar updates for a single write.
       try {
@@ -1779,7 +1772,7 @@ async function applyDamageToTarget(
         remainingAfterTempHP: remaining,
         barDamageApplied: barDamage,
         tempHPAbsorbed: tempHPConsumption.reducedBy,
-        oldBarIndex: system.health.currentBar || 0,
+        oldBarIndex,
         newBarIndex: barIndex,
         barsAfter: bars.map((b, i) => ({ index: i, current: b.current, max: b.max }))
       });
@@ -1807,7 +1800,36 @@ async function applyDamageToTarget(
         damage
       });
     }
-    
+
+    // Blood FX under the hit token: splatters for HP chips, mega puddle on health-level loss.
+    if (barDamage > 0 && (globalThis as any).canvas?.ready) {
+      try {
+        const { didLoseHealthLevel, showDamageBloodEffect } = await import('../utils/blood-pool.js');
+        const healthLevelLost = didLoseHealthLevel({
+          oldBarIndex,
+          newBarIndex,
+          barsBefore,
+          barsAfter,
+        });
+        const tokens = (target as any).getActiveTokens?.() ?? [];
+        let targetToken = tokens[0] ?? null;
+        if (!targetToken) {
+          const sceneTokens = (globalThis as any).game?.scenes?.active?.tokens;
+          const doc = sceneTokens?.find?.((t: any) => t.actor?.id === (target as any).id);
+          targetToken = doc?.object ?? doc ?? null;
+        }
+        if (targetToken) {
+          await showDamageBloodEffect(targetToken, {
+            barDamage,
+            healthLevelLost,
+            bloodColor: system.bloodColor,
+          });
+        }
+      } catch (error) {
+        console.warn('Mastery System | Could not create blood effect', error);
+      }
+    }
+
     // Refresh the actor sheet if it's open
     const sheet = (target as any).sheet;
     if (sheet && sheet.rendered) {
