@@ -9,7 +9,7 @@
 }}
 
 
-![The mirror](https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/Artwork/4.jpg)  {position:absolute,top:50px,right:55px,width:700px}
+![The mirror](https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/Rulebook/Liora.jpg)  {position:absolute,top:50px,right:55px,width:700px}
 
 
 ![The mirror](https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/LogosBanners/Destroyed%20Faith%20Banner%20Beige.png)  {position:absolute,top:480px,right:55px,width:700px}
@@ -75,6 +75,8 @@
 ---
 - #### [{{ Combat Core}}{{ 137}}](#p137)
 ---
+- #### [{{ Combat Senses}}{{ 140}}](#p140)
+---
 - #### [{{ Initiative}}{{ 153}}](#p153)
 ---
 - #### [{{ Attacks}}{{ 154}}](#p154)
@@ -113,11 +115,13 @@
 ---
 - #### [{{ Magic}}{{ 182}}](#p182)
 ---
-- #### [{{ Powers}}{{ 185}}](#p185)
+- #### [{{ Mental Powers}}{{ 184}}](#p184)
 ---
-- #### [{{ Minor Expressions}}{{ 191}}](#p191)
+- #### [{{ Powers}}{{ 187}}](#p187)
 ---
-- #### [{{ Minor Expressions Catalogue}}{{ 193}}](#p193)
+- #### [{{ Minor Expressions}}{{ 194}}](#p194)
+---
+- #### [{{ Minor Expressions Catalogue}}{{ 196}}](#p196)
 ---
 
 ### Power Catalogues
@@ -137,25 +141,25 @@
 ### Rituals, Summons & Artifacts
 
 ---
-- #### [{{ Rituals}}{{ 205}}](#p205)
+- #### [{{ Rituals}}{{ 208}}](#p208)
 ---
-- #### [{{ Summons}}{{ 216}}](#p216)
+- #### [{{ Summons}}{{ 219}}](#p219)
 ---
-- #### [{{ Artifacts}}{{ 220}}](#p220)
+- #### [{{ Artifacts}}{{ 225}}](#p225)
 ---
 
 ### Advanced & Optional Systems
 
 ---
-- #### [{{ Player Cheat Sheet}}{{ 223}}](#p223)
+- #### [{{ Player Cheat Sheet}}{{ 227}}](#p227)
 ---
-- #### [{{ Game System Details}}{{ 225}}](#p225)
+- #### [{{ Game System Details}}{{ 229}}](#p229)
 ---
 
 ### Appendix
 
 ---
-- #### [{{ Appendix — Special Descriptions}}{{ 226}}](#p226)
+- #### [{{ Appendix — Special Descriptions}}{{ 230}}](#p230)
 
 }}
 
@@ -202,7 +206,7 @@ The Homebrewery
 ::::::::::::::::::::::::::::::::
 {{homebreweryCredits
 Destroyed Faith — DF Core
-Version: v0.9.1 (2026-07-05)
+Version: v0.9.8 (2026-07-31)
 }}
 
 }}
@@ -1887,7 +1891,7 @@ Each decision defines **who you are**, **what drives you**, and **how you face t
 *On your sheet: pick your starting Powers and list them in the Powers section with their Rank.*
 
 > **Powers** —  choose **two Active Powers at Rank 2**.  
-> In addition, choose **two Passives**, **one Reaction**, and **one Active Buff Power** at **Rank 4**.
+> In addition, choose a number of **Passives equal to your available Passive Slots**, plus **one Reaction** and **one Active Buff Power** at **Rank 4**. A normal **MR 2** starting character chooses **two Passives**; an **MR 1** starting character chooses **one Passive**.
 
 #### **Step 4 — Languages** 
 *On your sheet: note your **languages** in the designated box or in the background section.*
@@ -3355,7 +3359,6 @@ Her high Agility and Wits make movement, awareness, and positioning natural stre
 Skills should support the character's existing strengths and provide a few deliberate secondary options. They should not be chosen as an unrelated list of individually useful entries.
 }}
 
-<!-- TODO before public release: confirm Alaris's final 40-point Skill allocation in Foundry. -->
 
 }}
 
@@ -3382,7 +3385,7 @@ A character chooses Powers to define what they can do in combat, how they surviv
 At character creation, choose **two Active Powers at Rank 2**.
 
 ---
-In addition, choose **two Passives**, **one Reaction**, and **one Active Buff Power** at **Rank 4**.
+In addition, choose a number of **Passives equal to your available Passive Slots**, plus **one Reaction** and **one Active Buff Power** at **Rank 4**. Characters normally begin at **MR 2** and therefore choose **two Passives**. If the campaign begins at **MR 1**, choose **one Passive** instead.
 
 ---
 
@@ -3434,6 +3437,12 @@ Use the Power Catalogues when you need to know:
 | **Movement Powers** | Movement replacements: dash, leap, teleport, flight, burrow, wall movement, phase passage, and similar movement options. |
 
 
+{{note
+##### Mentalist Option
+A character may build around Mental Powers by choosing **Telepathy** as a Passive. Telepathy grants Telepathic Access and includes voluntary Mind Links at no additional Power cost. The character may then choose Mental Attack, Mind Illusion, Mind Probe, or Mental Control as Active Powers. A Mental Power's Rank cannot normally exceed the character's Telepathy Rank.
+}}
+
+
 ---
 }}
 \page
@@ -3483,7 +3492,7 @@ For examples, templates, and detailed build guidance, use the external Power Cat
 
 ## Example: Alaris Chooses Her Powers
 
-Alaris uses the standard starting package: **two Actives at Rank 2**, plus **two Passives**, **one Active Buff**, and **one Reaction** at Rank 4.
+Alaris begins at **MR 2** and uses the standard starting package: **two Actives at Rank 2**, plus **two Passives**, **one Active Buff**, and **one Reaction** at Rank 4.
 
 | **Power** | **Rank** | **Role in the build** |
 |:--|:--:|:--|
@@ -3678,7 +3687,6 @@ When Alaris channels one of her Powers, her eyes become completely black. Anyone
 A Schtick should make a character recognizable without duplicating a Power as a free mechanical benefit.
 }}
 
-<!-- TODO before public release: confirm Alaris's second language with Leafy. -->
 
 }}
 
@@ -3757,7 +3765,8 @@ Echo Artifacts follow the normal Artifact rules:
 - They occupy their listed **Equipment Slot**.
 - They cannot normally be removed, sold, stolen, replaced, unequipped, or unbound.
 - They progress through Artifact Levels like other Artifacts.
-- They may grant Base Values, Artifact Functions, Stone Power Support, Active Buffs, Reactions, Movement Powers, or other written effects if the Artifact says so.
+- They may grant Base Values, Artifact Functions, Stone Power Support, Active Buffs, Reactions, Movement Powers, Sense Options, or other written effects if the Artifact says so.
+- A Sense Option is listed separately and never consumes Base Value A, B, or C.
 
 A character normally has **4 Artifact Capacity**.
 
@@ -4113,7 +4122,7 @@ Stonebound Soles are a Dwarf Echo Artifact representing ancestral weight, deep-r
 
 | Slot | Base Type | Artifact Functions | Binding |
 |---|---|---|---|
-| Feet | Dwarven Feet | Tremorsense / Armor / Immovable / Safe Movement / Armor Buff Empowerment | Echo-bound |
+| Feet | Dwarven Feet | Armor / Tunneling / Tremor Sense Option / Immovable / Safe Movement / Armor Buff Empowerment | Echo-bound |
 
 ---
 
@@ -4125,22 +4134,34 @@ Stonebound Soles are Echo-bound and cannot normally be removed, replaced, sold, 
 
 #### Stonebound Soles Base
 
-| Artifact Level | Base Value A: Tremorsense | Base Value B: Armor |
-|---:|---|---:|
-| Level 1 | Detect ground-contact movement within 4 m. | — |
-| Level 2 | Detect ground-contact movement within 6 m. | — |
-| Level 3 | Detect ground-contact movement within 8 m. | — |
-| Level 4 | Locate ground-contact movement within 8 m. | +1 Armor |
-| Level 5 | Locate ground-contact movement within 10 m. | +1 Armor |
-| Level 6 | Locate ground-contact movement within 12 m. | +2 Armor |
-| Level 7 | Target located ground-contact movement within 12 m. | +2 Armor |
-| Level 8 | Target located ground-contact movement within 14 m. | +3 Armor |
-| Level 9 | Target located ground-contact movement within 16 m. | +3 Armor |
-| Level 10 | Target located ground-contact movement within 16 m, True Stonebound Soles. | +4 Armor |
+| Artifact Level | Base Value A: Armor | Base Value B: Tunneling |
+|---:|---:|---:|
+| Level 1 | +1 Armor | — |
+| Level 2 | +1 Armor | — |
+| Level 3 | +2 Armor | — |
+| Level 4 | +2 Armor | +1 m Tunneling |
+| Level 5 | +3 Armor | +1 m Tunneling |
+| Level 6 | +3 Armor | +2 m Tunneling |
+| Level 7 | +4 Armor | +2 m Tunneling |
+| Level 8 | +4 Armor | +3 m Tunneling |
+| Level 9 | +5 Armor | +3 m Tunneling |
+| Level 10 | +5 Armor, True Stonebound Soles | +4 m Tunneling |
+
+The Armor from Stonebound Soles is minor Armor from the Feet Slot. It stacks with Body Armor and Shield Armor as normal Armor resolution.
+
+Tunneling is not Burrow. It improves digging, mining, tunnel work, rubble clearing, and movement through already workable tunnel material.
 
 ---
-Tremorsense only works through shared ground, stone, metal, packed earth, worked floor, or similar solid surfaces.
-Tremorsense does not detect flying creatures, swimming creatures, fully airborne creatures, incorporeal creatures, or creatures not connected to the same surface. The Armor from Stonebound Soles is minor Armor from the Feet Slot. It stacks with Body Armor and Shield Armor as normal Armor resolution.
+
+#### Sense Option: Tremor Sense
+
+Stonebound Soles grant **Tremor Sense** as an available Sense Slot option.
+
+Tremor Sense is not Base Value A or Base Value B and does not scale with Artifact Level.
+
+Before a scene or combat, the dwarf may slot Tremor Sense instead of Normal Combat Awareness. It uses the standard **20 m** range and works through a shared solid surface.
+
+It does not perceive flying, hovering, swimming, fully airborne, incorporeal, or vibrationless creatures unless they contact the connected surface.
 
 ---
 
@@ -4148,17 +4169,16 @@ Tremorsense does not detect flying creatures, swimming creatures, fully airborne
 
 While Immovable, you cannot be pushed, pulled, knocked Prone, or forcibly moved by normal effects.
 
-While Immovable, you cannot use Movement Powers.
+While Immovable, you cannot use Movement Powers and your Movement becomes **0 m**.
 
-While Immovable, your Movement becomes **0 m**.
+You cannot increase Evade through Stone Powers, Actives, Active Buffs, or Reactions while Immovable. Passive Evade still applies, but attacks against you do not need to beat your Evade while you are Immovable.
 
-While Immovable, you cannot use boost your evade with Power Stones powers or other powers like Actives, Active Buffs, Reactions against attacks. Passives will still increase your evade value. Attacks against you do not need to beat your Evade while you are Immovable.
 You may still use Armor, Temporary HP, Damage Reduction, resistance, immunity, Reactions, and other legal defensive effects normally.
-Immovable ends if the effect granting it ends.
+
+Immovable ends when the effect granting it ends.
 
 ---
 }}
-
 \page
 {{pageNumber,auto}}
 {{wide
@@ -4175,9 +4195,8 @@ Immovable ends if the effect granting it ends.
 | **7** | **Anchoring Stance III** | Active Buff | Self | — | 2 Rounds | You become **Immovable** and gain **400 Temporary HP**. | Immovable + Temporary HP |
 | **8** | **Stone-Sure Step III** | Movement | Self | — | Instant | Move up to **20 m** along a legal ground path. This movement does not provoke movement-triggered Reactions. | Safe Movement |
 | **9** | **Stoneweave Guard III** | Support | Self | — | Special | When you activate an Active Buff that grants Armor as one of its effects, you may increase that Buff's effective Power Level by **+3** and its duration by **+3 rounds**. The Active Buff cannot exceed Power Level 16. Uses per Safe Haven Rest: half Mastery Rank, rounded up. | Armor Buff Empowerment |
-| **10** | **True Stonebound Soles** | Ultimate | Self | — | Special | Stonebound Soles fully awaken. Choose or define one final Tremorsense, Armor, Immovable, Safe Movement, or stone defense effect with GM approval. | True Stonebound Soles |
+| **10** | **True Stonebound Soles** | Ultimate | Self | — | Special | Stonebound Soles fully awaken. Choose or define one final Armor, Tunneling, Immovable, Safe Movement, or stone-defense effect with GM approval. | True Stonebound Soles |
 }}
-
 \page
 {{pageNumber,auto}}
 {{wide
@@ -4378,11 +4397,9 @@ The Fading cannot be healed by medicine, magic, rest, or ordinary restoration. O
 \page
 {{pageNumber,auto}}
 {{wide
-Elves gibts es noch als echo... die heißen jetzt elorians und haben ein anderes artefact... bitte anpassen
-
 #### Elorian Stride
 
-Elorian Stride is an Elf Echo Artifact representing otherworldly balance, reflex, clinging movement and focus in combat.
+Elorian Stride is an Elorian Echo Artifact representing otherworldly balance, reflex, clinging movement, and focus in combat.
 
 | Slot | Base Type | Artifact Functions | Binding |
 |---|---|---|---|
@@ -4390,7 +4407,7 @@ Elorian Stride is an Elf Echo Artifact representing otherworldly balance, reflex
 
 ---
 
-Elorian Stride occupies the Feet Slot. An elf with Elorian Stride cannot wear another Feet Artifact, magical boots, hooves, talons, or similar Feet-based Artifact. Elorian Stride is Echo-bound and cannot normally be removed, replaced, sold, stolen, or unbound.
+Elorian Stride occupies the Feet Slot. An Elorian with Elorian Stride cannot wear another Feet Artifact, magical boots, hooves, talons, or similar Feet-based Artifact. Elorian Stride is Echo-bound and cannot normally be removed, replaced, sold, stolen, or unbound.
 
 ---
 
@@ -4415,6 +4432,15 @@ Movement from Elorian Stride is additive.
 ---
 It increases all voluntary movement modes you have, including walking, climbing, swimming, flying, wall walking, or similar movement.
 
+---
+
+#### Elorian Focus and the Crit Stone Ability
+
+Elorian Focus never grants Critical directly.
+
+It only supports the **Agility Ability: Crit** Stone Ability by pre-filling one named Tier. All required lower Tiers must still be paid normally. If those lower Tiers are not paid, the pre-filled Tier has no effect.
+
+The Crit Stone Ability then resolves normally and grants **Crit(1)** to the number of attacks listed by the activated Tier.
 
 ---
 
@@ -4424,13 +4450,13 @@ It increases all voluntary movement modes you have, including walking, climbing,
 |:--:|:--|:--|:--:|:--:|:--:|:--|:--|
 | **1** | **Otherworld Reflex I** | Reaction | Self | — | Triggering attack only | Gain **+4 Evade** against the triggering attack. | Otherworld Reflex |
 | **2** | **Elorian Cling I** | Movement | Self | — | Instant | Move up to **10 m** along walls, ceilings, or similar solid surfaces. | Wall Walk |
-| **3** | **Elorian Focus I** | Support Stone Power | Self | — | Until used | Spend **1 Ready Stone** to gain **Crit(2)**. | Crit |
+| **3** | **Elorian Focus I** | Stone Power Support | Self | — | Instant | Elorian Stride supports the **Agility Ability: Crit** Stone Ability and pre-fills **Tier 2**. You must still pay Tier 1 yourself. If Tier 1 is not paid, the pre-filled Tier 2 has no effect. | Crit Stone Ability |
 | **4** | **Otherworld Reflex II** | Reaction | Self | — | Triggering attack only | Gain **+8 Evade** against the triggering attack. | Otherworld Reflex |
 | **5** | **Elorian Cling II** | Movement | Self | — | Instant | Move up to **25 m** along walls, ceilings, or similar solid surfaces. | Wall Walk |
-| **6** | **Elorian Focus II** | Support Stone Power | Self | — | Until used | Spend **1 Ready Stone** to gain **Crit(3)**. | Crit |
+| **6** | **Elorian Focus II** | Stone Power Support | Self | — | Instant | Elorian Stride pre-fills **Tier 3** of the **Agility Ability: Crit** Stone Ability. You must still pay Tier 1 and Tier 2 yourself. If Tier 1 and Tier 2 are not paid, the pre-filled Tier 3 has no effect. | Crit Stone Ability |
 | **7** | **Otherworld Reflex III** | Reaction | Self | — | Triggering attack only | Gain **+12 Evade** against the triggering attack. | Otherworld Reflex |
 | **8** | **Elorian Cling III** | Movement | Self | — | Instant | Move up to **28 m** along walls, ceilings, or similar solid surfaces. | Wall Walk |
-| **9** | **Elorian Focus III** | Support Stone Power | Self | — | Until used | Spend **1 Ready Stone** to gain **Crit(4)**. | Crit |
+| **9** | **Elorian Focus III** | Stone Power Support | Self | — | Instant | Elorian Stride pre-fills **Tier 4** of the **Agility Ability: Crit** Stone Ability. You must still pay Tier 1, Tier 2, and Tier 3 yourself. If Tier 1, Tier 2, and Tier 3 are not paid, the pre-filled Tier 4 has no effect. | Crit Stone Ability |
 | **10** | **True Elorian Stride** | Ultimate | Self | — | Special | Elorian Stride fully awakens. Choose or define one final movement, reflex, clinging, focus, or agility effect with GM approval. | True Elorian Stride |
 
 
@@ -4441,7 +4467,7 @@ It increases all voluntary movement modes you have, including walking, climbing,
 {{wide
 
 
-##### Elves Echo Deck
+##### Elorian Echo Deck
 *"We were not made for this world – and yet we are still here."*  
 **Theme:** Lingering light of a lost world – outsiders between realms, carrying memories, dreams and beauty that no longer belong here.
 
@@ -5421,26 +5447,36 @@ Serpent Scales are Echo-bound and cannot normally be removed or replaced.
 
 | Slot | Base Type | Artifact Functions | Binding |
 |---|---|---|---|
-| Head | Draconic Head | Bite / Scent of Blood / Breath Weapon / Roar / Stone Refresh | Echo-bound |
+| Head | Draconic Head | Bite / Head Armor / Predator Sense Option / Breath Weapon / Roar / Stone Refresh | Echo-bound |
 
 Dragon Head occupies the Head Slot. A Dragonborn with Dragon Head cannot wear another Head Artifact, helmet, mask, crown, or magical headgear. Dragon Head is Echo-bound and cannot normally be removed, replaced, sold, stolen, or unbound.
 
 ---
 
-#### Bite and Scent Base
+#### Bite and Head Armor Base
 
-| Artifact Level | Base Value A: Bite Weapon Damage | Base Value B: Scent of Blood |
-|---:|---:|---|
-| Level 1 | 1d8 |  |
-| Level 2 | 2d8 |  |
-| Level 3 | 3d8 |  |
-| Level 4 | 4d8 | Detect |
-| Level 5 | 5d8 | Detect |
-| Level 6 | 6d8 | Detect |
-| Level 7 | 7d8 | Locate |
-| Level 8 | 8d8 | Locate |
-| Level 9 | 9d8 | Locate |
-| Level 10 | 10d8 | Identify, True Dragon Head |
+| Artifact Level | Base Value A: Bite Weapon Damage | Base Value B: Head Armor |
+|---:|---:|---:|
+| Level 1 | 1d8 | +1 Armor |
+| Level 2 | 2d8 | +1 Armor |
+| Level 3 | 3d8 | +2 Armor |
+| Level 4 | 4d8 | +2 Armor |
+| Level 5 | 5d8 | +3 Armor |
+| Level 6 | 6d8 | +3 Armor |
+| Level 7 | 7d8 | +4 Armor |
+| Level 8 | 8d8 | +4 Armor |
+| Level 9 | 9d8 | +5 Armor |
+| Level 10 | 10d8, True Dragon Head | +5 Armor |
+
+Head Armor is minor Armor and stacks with Body Armor and Shield Armor as normal Armor resolution.
+
+---
+
+#### Sense Option: Predator Sense
+
+Dragon Head grants **Predator Sense** as an available Sense Slot option. Dragonborn often describe this as Scent of Blood, heat on the tongue, pressure behind the eyes, or the instinctive recognition of wounded prey.
+
+Predator Sense is separate from both Base Values and does not scale with Artifact Level. It uses the standard **20 m** range and the normal Sense Slot rules.
 
 ---
 
@@ -5457,7 +5493,7 @@ Choose one Breath Special when this Artifact is created:
 
 **Ruin, Slow, Corrode, or Blight.**
 
-Resolve Breath Weapon as a Martial AoE attack. Resolve Breath Weapon as a Martial AoE Attack. Make one Attack Roll against the Area TN based on the user’s Mastery Rank. On a success, every valid non-excluded target inside the Breath Shape receives the full Breath Weapon payload. Individual Evade values do not modify the Area TN.
+Resolve Breath Weapon as a Martial AoE Attack. Make one Attack Roll against the Area TN based on the user’s Mastery Rank. On a success, every valid non-excluded target inside the Breath Shape receives the full Breath Weapon payload. Individual Evade values do not modify the Area TN.
 
 ---
 
@@ -5811,7 +5847,7 @@ The chosen shape defines the appearance and narration of the Artifact, but all P
 
 | Slot | Base Type | Artifact Functions | Binding |
 |---|---|---|---|
-| Head | Bestial Head | Bite Damage / Predator Sense / Stone Power Support / Counter Damage / Damage Active Buff | Echo-bound |
+| Head | Bestial Head | Bite Damage / Head Armor / Predator Sense Option / Stone Power Support / Counter Damage / Damage Active Buff | Echo-bound |
 
 Predator Crown occupies the Head Slot.
 
@@ -5823,32 +5859,41 @@ Predator Crown is Echo-bound and cannot normally be removed, replaced, sold, sto
 
 #### Predator Crown Base
 
-| Artifact Level | Base Value A: Bite Damage | Base Value B: Predator Sense |
-|---:|---:|---|
-| Level 1 | 4d8 | - |
-| Level 2 | 5d8 |- |
-| Level 3 | 6d8 | - |
-| Level 4 | 7d8 | Locate hostile intent within 16 m. |
-| Level 5 | 8d8 | Locate hostile intent within 16 m. |
-| Level 6 | 9d8 | Locate hostile intent within 16 m. |
-| Level 7 | 10d8 | Identify hostile intent within 32 m. |
-| Level 8 | 11d8 | Identify hostile intent within 32 m. |
-| Level 9 | 12d8 | Identify hostile intent within 32 m. |
-| Level 10 | 14d8, True Predator Crown | Target hostile intent within 64 m. |
+| Artifact Level | Base Value A: Bite Damage | Base Value B: Head Armor |
+|---:|---:|---:|
+| Level 1 | 4d8 | +1 Armor |
+| Level 2 | 5d8 | +1 Armor |
+| Level 3 | 6d8 | +2 Armor |
+| Level 4 | 7d8 | +2 Armor |
+| Level 5 | 8d8 | +3 Armor |
+| Level 6 | 9d8 | +3 Armor |
+| Level 7 | 10d8 | +4 Armor |
+| Level 8 | 11d8 | +4 Armor |
+| Level 9 | 12d8 | +5 Armor |
+| Level 10 | 14d8, True Predator Crown | +5 Armor |
 
 Bite Damage is Natural Weapon Damage.
 
 Bite Damage may represent a bite, beak strike, horn gore, tusk strike, throat snap, or similar head-based natural attack depending on the chosen Predator Shape.
 
-Predator Sense follows the normal Predator Sense rules.
+Head Armor is minor Armor and stacks with Body Armor and Shield Armor as normal Armor resolution.
 
-Predator Sense does not read thoughts, reveal full plans, or detect creatures with no hostile intent.
+---
+
+#### Sense Option: Predator Sense
+
+Predator Crown grants **Predator Sense** as an available Sense Slot option.
+
+Predator Sense is separate from both Base Values, does not scale with Artifact Level, and uses the standard **20 m** range.
+
+Predator Sense does not read thoughts, reveal full plans, or detect creatures with no readable blood, fear, weakness, or hunting trace.
 
 ---
 }}
 \page
 {{pageNumber,auto}}
 {{wide
+
 #### Predator Stone Choice
 
 When Predator Crown is created, choose one Predator Stone path.
@@ -5880,7 +5925,7 @@ Although Head Artifacts normally follow Head-based Attribute access, Predator Cr
 | **7** | **Predator Stone III** | Stone Power Support | Self | — | Instant | Predator Crown now pre-fills **Tier 4** of the chosen Predator Stone Power. You must still pay Tier 1, Tier 2, and Tier 3 yourself. If the lower tiers are not paid, the pre-filled Tier 4 has no effect. | Chosen Predator Stone |
 | **8** | **Retaliatory Bite III** | Reaction | Melee Reach | — | Triggering damage instance only | Use the normal **Reaction: Counter Damage** at **Power Level 16**. This Counter Damage is delivered as a bite, beak, horn, tusk, or similar head-based strike against the triggering enemy if it is within your melee reach. | Counter Damage |
 | **9** | **Red Hunt III** | Active Buff | Self | — | Mastery Rank Rounds | Use the normal **Active Buff: Damage** at **Power Level 16**. While active, your attacks gain the bonus damage listed by that Power. | Damage |
-| **10** | **True Predator Crown** | Ultimate | Self | — | Special | Predator Crown fully awakens. Choose or define one final Predator Sense, Bite Damage, Counter Damage, Damage Active Buff, Predator Stone, or Beast Shape effect with GM approval. | True Predator Crown |
+| **10** | **True Predator Crown** | Ultimate | Self | — | Special | Predator Crown fully awakens. Choose or define one final Bite Damage, Counter Damage, Damage Active Buff, Predator Stone, or Beast Shape effect with GM approval. | True Predator Crown |
 
 ---
 
@@ -6621,7 +6666,7 @@ You find what they actually feel, then speak to that instead of their words.
 \page
 {{pageNumber,auto}}
 {{wide
-## Deathless - WIP
+## Deathless
 
 In the lands of Tyra, death does not always hold. Not everywhere. Not quickly. Not all at once. But slowly, quietly, and without mercy, something has begun to loosen.
 
@@ -6643,7 +6688,7 @@ It is the place where death failed to finish its work.
 
 | Slot | Base Type | Artifact Functions | Binding |
 |---|---|---|---|
-| Head | Deathless Echo | Deathless Body / Life Sight / Hollow Stillness / Life Absorption | Echo-bound |
+| Head | Deathless Echo | Deathless Body / Life Sense Option / Hollow Stillness / Life Absorption | Echo-bound |
 
 Hollow Crown occupies the Head Slot. A Deathless character with Hollow Crown cannot use another Head Artifact, magical helm, crown, mask, circlet, or head-based Echo Artifact at the same time. Hollow Crown is Echo-bound and cannot normally be removed, replaced, sold, stolen, unequipped, or unbound.
 
@@ -6659,18 +6704,17 @@ Instead, Deathless restore themselves through **Life Absorption**.
 
 ---
 
-### Life Sight
+### Sense Option: Life Sense — Life Sight
 
-Life Sight is a Combat Sense granted by Hollow Crown. A Deathless can sense living creatures as warmth, pulse, breath, blood, hunger, pressure, or flickering life-force.
+Hollow Crown grants **Life Sense** as an available Sense Slot option. Deathless characters usually call this manifestation **Life Sight**.
 
-Life Sight does not reveal thoughts, emotions, memories, names, loyalties, lies, intentions, or moral alignment. Life Sight does not detect objects, constructs, illusions without life, corpses without living force, or other Deathless unless another rule says otherwise. Life Sight is blocked by effects that block Combat Senses, supernatural concealment, or GM-approved barriers.
+A Deathless perceives living creatures as warmth, pulse, breath, blood, hunger, pressure, or flickering life-force.
 
-| Hollow Crown Level | Life Sight Range |
-|---:|---:|
-| Level 1 | 8 m |
-| Level 4 | 16 m |
-| Level 7 | 32 m |
-| Level 10 | 64 m |
+Life Sight uses the standard **Life Sense** rules and the standard **30 m** range. It does not scale with Hollow Crown Level and does not consume a Base Value or Power Line.
+
+It does not reveal thoughts, emotions, memories, names, loyalties, lies, intentions, or moral alignment. It does not detect objects, constructs, illusions without life, corpses without living force, or other Deathless unless another rule says otherwise.
+
+Before a scene or combat, the Deathless may place Life Sense in the Sense Slot instead of Normal Combat Awareness.
 
 ---
 }}
@@ -6759,16 +6803,16 @@ Hollow Stillness does not grant blanket immunity unless a specific rule says so.
 
 | **Echo Level** | **Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
 |:--:|:--|:--|:--:|:--:|:--:|:--|:--|
-| **1** | **Deathless Body I** | Passive | Self | — | Permanent | Gain the exclusive **Deathless Body** Passive. Health Penalties are shifted down by 2 steps. Maximum normal Health Penalty: 20%. Gain **Life Sight 8 m**. | Deathless Body |
+| **1** | **Deathless Body I** | Passive | Self | — | Permanent | Gain the exclusive **Deathless Body** Passive. Health Penalties are shifted down by 2 steps. Maximum normal Health Penalty: 20%. Hollow Crown separately grants Life Sense as a Sense Slot option. | Deathless Body |
 | **2** | **Life Absorption I** | Ritual / Echo Function | Touch | — | Special | You may restore up to **1 Health Level** through completed Life Absorption. You cannot heal through normal healing unless a rule explicitly works on Deathless characters. | Life Absorption |
 | **3** | **Hollow Stillness I** | Passive | Self | — | Permanent | Gain a minor bonus or advantage against Fear, Pain, Poison, Disease, Suffocation, Exhaustion, and effects that rely on living flesh, as approved by the GM. | Hollow Stillness |
-| **4** | **Deathless Body II** | Passive | Self | — | Permanent | Health Penalties are shifted down by 3 steps. Maximum normal Health Penalty: 10%. Life Sight increases to **16 m**. | Deathless Body |
+| **4** | **Deathless Body II** | Passive | Self | — | Permanent | Health Penalties are shifted down by 3 steps. Maximum normal Health Penalty: 10%. | Deathless Body |
 | **5** | **Life Absorption II** | Ritual / Echo Function | Touch | — | Special | You may restore up to **2 Health Levels** through completed Life Absorption. | Life Absorption |
 | **6** | **Hollow Stillness II** | Passive | Self | — | Permanent | Improve the bonus or advantage from Hollow Stillness I. | Hollow Stillness |
-| **7** | **Deathless Body III** | Passive | Self | — | Permanent | Health Penalties are shifted down by 4 steps. Maximum normal Health Penalty: 0%. Life Sight increases to **32 m**. | Deathless Body |
+| **7** | **Deathless Body III** | Passive | Self | — | Permanent | Health Penalties are shifted down by 4 steps. Maximum normal Health Penalty: 0%. | Deathless Body |
 | **8** | **Life Absorption III** | Ritual / Echo Function | Touch | — | Special | You may restore up to **3 Health Levels** through completed Life Absorption. | Life Absorption |
 | **9** | **Hollow Stillness III** | Passive | Self | — | Permanent | Further improve the bonus or advantage from Hollow Stillness I. | Hollow Stillness |
-| **10** | **True Hollow Crown** | Ultimate | Self | — | Permanent | You suffer no normal Health Penalties and remain functional until Incapacitated. Life Sight increases to **64 m**. You may restore up to full Health through Life Absorption if the source or ritual is sufficient. Define one final Hollow Crown, Deathless Body, Life Sight, Life Absorption, Hollow Stillness, memory, hunger, crown, grave, or dead-road effect with GM approval. | True Hollow Crown |
+| **10** | **True Hollow Crown** | Ultimate | Self | — | Permanent | You suffer no normal Health Penalties and remain functional until Incapacitated. You may restore up to full Health through Life Absorption if the source or ritual is sufficient. Define one final Hollow Crown, Deathless Body, Life Absorption, Hollow Stillness, memory, hunger, crown, grave, or dead-road effect with GM approval. | True Hollow Crown |
 
 ---
 }}
@@ -8003,39 +8047,34 @@ Every character has one **Sense Slot**.
 
 By default, it contains **Normal Combat Awareness**.
 
-If a character gains a Special Combat Sense from any source, they may place it in this slot.
+An Echo, Artifact, Species, Power, or story feature may grant additional **Sense Options**. A Sense Option does not use a Passive Slot, does not consume an Artifact Base Value, and does not create another Sense Slot.
 
-A Sense in the Sense Slot does not consume a Passive Slot.
+At the start of a scene, before the first Perception roll, declare which known Sense occupies the Sense Slot. In combat, declare the active Sense before Initiative is rolled.
 
-Additional Special Combat Senses must be slotted as normal Passives, unless an Echo, Artifact, or specific rule says otherwise.
+If no declaration is made, the Sense Slot contains Normal Combat Awareness.
+
+The chosen Sense remains active for the scene or combat. It cannot be switched after a hidden threat is revealed, in response to a failed Perception roll, or after an attack is declared unless a rule explicitly allows the switch.
+
+Selecting a Special Combat Sense does not make the character blind, deaf, or unable to receive ordinary narrative information. The character still sees, hears, smells, touches, and notices ordinary things normally. For rules that ask whether a Combat Sense can locate or target something through darkness, Invisibility, smoke, silence, concealment, or another Sense-specific obstacle, use the Sense currently occupying the Sense Slot.
+
+Special Combat Senses are options, not Passives. Learning several Senses gives the character more choices before a scene; it does not allow several Special Combat Senses to operate at once.
 
 ---
 
-#### Example: Sense Slot
+#### Example: A Blind Dwarf
 
-A character has no special senses.
+A blind dwarf has **Normal Combat Awareness** by default, but Stonebound Soles grant **Tremor Sense** as an additional Sense Option.
 
-Their Sense Slot contains:
+Before a fight begins, the player declares that Tremor Sense occupies the Sense Slot.
 
-**Normal Combat Awareness**
+The dwarf can perceive and target grounded enemies that create readable vibration through the shared surface. Darkness, smoke, and ordinary visual Invisibility do not prevent this.
 
-They perceive the battlefield through ordinary sight, hearing, attention, smell, touch, and instinct.
+A flying enemy creates no readable ground vibration while airborne. The dwarf cannot use Tremor Sense to perceive that enemy and must rely on allies, another available Sense, or another solution.
 
-Later, the character gains **Life Sense** from an Echo.
-
-They may place Life Sense in their Sense Slot.
-
-Their Sense Slot now contains:
-
-**Life Sense**
-
-For sense-based rules, this character may use Life Sense as their active Combat Sense. They can still see, hear, and perceive normally unless something blocks their ordinary awareness.
-
-If an enemy is invisible to Normal Combat Awareness but not invisible to Life Sense, this character may still attempt to perceive that enemy through Life Sense.
+This is the intended role of Senses: they make unusual character concepts playable, but every Sense still has clear limits.
 
 ---
 }}
-
 \page
 {{pageNumber,auto}}
 {{wide
@@ -9920,13 +9959,13 @@ Cleanse can only reduce Specials that list **Cleanse: Yes**. The value of one Cl
 
 #### Until Broken / Until Used Effects
 
-**Critical is not a general Special.** It is available only through the dedicated **Active Buff: Critical** entry.
+**Critical is not a general Special.** It may be granted only through the dedicated **Active Buff: Critical** or the **Agility Ability: Crit** Stone Ability. Artifact Stone Power Support may pre-fill named tiers of the Crit Stone Ability, but it never grants Critical directly.
 
 | **Effect** | **What It Does** | **Duration** | **Stacking** | **Cleanse** |
 |:--|:--|:--:|:--:|:--:|
 | **Bulwark(X)** | As a **Reaction** when hit by an attack you can perceive, reduce the attack’s **final damage by 50%** and consume **1** Bulwark. | Until used | Yes | No |
 | **Immovable** | You are immune to **Push**, **Pull**, **Prone**, and forced movement while the effect lasts. | Buff Duration | No | No |
-| **Root(X)** | You cannot voluntarily leave your current space. Spend an **Action**, **Movement Action**, or **Reaction** to make a **Vitality Attribute Check** against **TN 8 × source Mastery Rank**. On success, reduce Root by **1**; each Raise reduces it by **1 additional point**. | Until broken | Yes | Yes |
+| **Root(X)** | Root has a minimum applied value of **2**. While Root is above **0**, your Speed is **0 m** and you cannot move voluntarily. At the start of your Turn, reduce Root by your **Mastery Rank**. You may also spend an **Action**, **Movement Action**, or **Reaction** to make a **Vitality Attribute Check** against **TN 8 × source Mastery Rank**. On success, reduce Root by **1**; each Raise reduces it by **1 additional point**. | Until broken | Yes | Yes |
 
 ---
 ::
@@ -10404,49 +10443,59 @@ A Spell is therefore:
 {{wide
 
 
+## Mental Powers
+
+Mental Powers offer a complete character path for players who want to communicate mind-to-mind, attack thought directly, create personal hallucinations, search memories, or influence weaker minds outside combat.
+
+### Telepathy and Mind Link
+
+**Telepathy** is a Passive. It grants Telepathic Access and includes voluntary **Mind Links** at no additional Power cost.
+
+Mind Link is not purchased separately. Its communication, linked-creature limit, range, shared impressions, shared senses, and willing memory sharing improve with Telepathy Rank.
+
+Telepathy alone does not read an unwilling creature's thoughts or memories. It only opens the mental path. Hostile information gathering requires **Mind Probe**.
+
+Mental Attack, Mind Illusion, Mind Probe, and Mental Control cannot normally be used at a higher Rank than the character's Telepathy Rank.
+
+---
+
 ### Mental Power Difficulty
 
 Mental Powers are harder to execute than normal Spells.
 
-Mental Attack and Mind Illusion Powers are resolved like Spells against a fixed TN, but their TN is increased by **+4**.
+Mental Attack, Mind Illusion, Mind Probe, and Mental Control are resolved like Spells against a fixed TN, but their TN is increased by **+4**.
 
-This represents the difficulty of reaching, piercing, shaping, or deceiving another creature's mind.
+This represents the difficulty of reaching, piercing, shaping, searching, or controlling another creature's mind.
 
-Mental Powers do not count as one level higher. They use their normal Power Level for scaling, requirements, limits, and Power construction.
+Mental Powers do not count as one level higher. They use their normal Power Rank for scaling, requirements, limits, and Power construction.
 
 Only the fixed TN is increased.
 
----
-
 ### Mental Power TN
 
-When using a Mental Attack or Mind Illusion Power, determine the normal fixed TN for a Power of that level, then increase that TN by **+4**.
+Determine the normal fixed TN for a Power of that Rank, then increase that TN by **+4**.
 
 Example:
 
-If a normal Spell of the same level would use **TN 24**, the Mental Power uses **TN 28**.
+If a normal Spell of the same Rank would use **TN 24**, the Mental Power uses **TN 28**.
 
 If the Mental Power roll fails, the Power fizzles and has no effect.
 
 If the Mental Power roll succeeds, its listed effect resolves. The target does not make an automatic second roll.
 
----
-
+}}
+\page
+{{pageNumber,auto}}
+{{wide
 ### Mental Attack
 
 Mental Attack is a premium damage axis.
 
 Mental Attack requires **Telepathic Access** unless the Power explicitly says otherwise.
 
-Mental Attack is resolved like a Spell against a fixed TN increased by **+4**.
-
-Mental Attack does not target Evade.
-
-Mental Attack damage ignores Armor.
+Mental Attack does not target Evade, and its Mental Damage ignores Armor.
 
 Mental Attack damage costs **30 PP per +1d8 Mental Damage**.
-
-Mental Attack does not count as one Power level higher. The Power uses its normal level for damage scaling and requirements.
 
 On a successful Mental Power roll, the target takes the full listed Mental Damage and suffers any paid Special or rider.
 
@@ -10454,23 +10503,13 @@ Mental Attack does not grant an automatic Intellect or Wits Check after the Powe
 
 ---
 
-}}
-\page
-{{pageNumber,auto}}
-{{wide
 ### Mind Illusion
-
-Mind Illusion is not a damage attack.
 
 Mind Illusion creates false perceptions inside the target's mind.
 
 Mind Illusion requires **Telepathic Access** unless the Power explicitly says otherwise.
 
-Mind Illusion is resolved like a Spell against a fixed TN increased by **+4**.
-
-If the Power roll fails, the illusion fizzles and has no effect.
-
-If the Power roll succeeds, the illusion applies. There is no automatic resistance roll for every affected creature.
+If the Power succeeds, the illusion applies without an automatic resistance roll.
 
 A creature may attempt to disbelieve a Mind Illusion only when:
 
@@ -10479,19 +10518,78 @@ A creature may attempt to disbelieve a Mind Illusion only when:
 - it receives clear contradictory evidence,
 - or the Power explicitly grants another attempt.
 
-The generic Mind Illusion uses **Wits** as its Disbelief Attribute. A specifically analytical, memory-based, or logically constructed Mental Power may state **Intellect** instead.
+The generic Mind Illusion uses **Wits** as its Disbelief Attribute. A specifically analytical, memory-based, or logically constructed Power may state **Intellect** instead.
 
-Roll the named Attribute and keep dice equal to Mastery Rank against the Mental Power TN used by the caster.
+Roll the named Attribute and keep dice equal to Mastery Rank against the original Mental Power TN. On a success, the illusion ends for that creature.
 
-On a success, the illusion ends for that creature. On a failure, the creature continues to perceive it.
+Mind Illusions do not create real objects, terrain, cover, barriers, creatures, or line-of-sight blockers. They do not control actions. The affected creature still chooses how to respond to what it perceives.
 
-Mind Illusions do not create real objects, creatures, walls, sounds, terrain, light, darkness, or battlefield effects.
+}}
+\page
+{{pageNumber,auto}}
+{{wide
+### Mind Probe
 
-Mind Illusions do not deal damage unless a Power explicitly includes and pays for Mental Attack damage.
+Mind Probe searches a creature's thoughts and memories.
 
-Mind Illusions do not control a creature's actions. They may cause the affected creature to perceive something false, but the creature still chooses its own actions based on that perception.
+It requires Telepathic Access and uses the normal Mental Power TN increased by **+4**.
 
-Mind Illusions cannot directly force self-harm, spend a creature's limited resources, create real cover, block real line of sight, create real barriers, or change actual terrain.
+On a success, the user learns the kind of information allowed by the Power's current Rank. Lower Ranks reveal emotions, surface thoughts, and immediate intentions. Higher Ranks reach increasingly old, fragmented, suppressed, or protected memories.
+
+Mind Probe reads the target's remembered understanding rather than objective truth. It cannot discover knowledge the target never possessed, and it cannot make an incorrect belief become correct.
+
+Mind Probe does not alter memories or control behavior.
+
+An unwilling target knows that its mind was probed after the Power resolves, but it does not automatically know exactly what was learned.
+
+> **Telepathy connects. Mind Probe searches.**
+
+A willing creature may share thoughts, impressions, senses, and memories through Telepathy within the Passive's limits. Mind Probe is the Active used when the character deliberately searches or extracts information from an unwilling mind.
+
+---
+
+### Mental Control
+
+Mental Control imposes temporary noncombat instructions, attitudes, relationships, beliefs, or behavioral programs.
+
+It requires Telepathic Access and uses the normal Mental Power TN increased by **+4**.
+
+Mental Control can affect only creatures whose **Mastery Rank is lower than the user's Mastery Rank**.
+
+It cannot be activated during combat and cannot be used to create allied combatants. If a controlled creature becomes a participant in combat, the control ends before it takes its first combat action.
+
+Mental Control may make a weaker creature cooperate, leave an area, ignore an intrusion, open a door, deliver a message, accept a temporary relationship, or pursue another noncombat purpose allowed by the Power's Rank.
+
+}}
+\page
+{{pageNumber,auto}}
+{{wide
+### Mental Control Limits
+
+Mental Control cannot:
+
+- order attacks or offensive Powers,
+- create an allied combatant,
+- force direct self-harm, obvious suicide, or clearly lethal danger,
+- force the expenditure of Stones, Charges, or other limited combat resources,
+- grant knowledge the target does not possess,
+- rewrite or erase memories,
+- permanently change personality, loyalty, love, identity, or conviction,
+- or affect a creature of equal or higher Mastery Rank.
+
+The effect ends immediately if the controller or one of the controller's obvious allies directly harms the target.
+
+A target gains a later **Wits Attribute Check** against the original Mental Power TN only when the control directly collides with a defining conviction, a deeply held bond, or clear evidence that obedience would cause severe harm to someone it is committed to protect. This is not an automatic resistance roll when the Power is applied.
+
+Mental Control may make a target speak or cooperate, but it does not guarantee complete or objectively truthful information. Mind Probe is used to search thoughts and memories directly.
+
+---
+
+### Mental Effects Not Used as Core Powers
+
+**Frightened**, **Charmed**, and **Confused** are not separate core Specials. Their useful functions are already covered by Mental Control, Mind Illusion, or existing combat Specials such as Disoriented, Weaken, and Soulburn.
+
+**Silence**, **Null Field**, and **Power Lock** are not standard player Powers or universal core systems. A particular place, Artifact, creature, or adventure may explicitly prohibit a named Power, Special, or Power tag when the story requires it.
 
 
 ## Powers
@@ -10515,6 +10613,10 @@ Each category has its own design rules, limits, timing, and pricing logic.
 
 ---
 
+}}
+\page
+{{pageNumber,auto}}
+{{wide
 
 ### Power Use Limit
 
@@ -11942,7 +12044,7 @@ Failure should create pressure, not shut down the story.
 | **Raise 0 (Base Success)** | You cleanse one major affliction from the target — **Curse, Paralysis, Petrification, Blindness, or Exhaustion**. The soul realigns and pain subsides. |
 | **Raise 1 (+4 over TN)** | You may remove **two lesser effects** (e.g., Poison and Fear) or one additional severe condition of the same type. |
 | **Raise 2 (+8 over TN)** | The restoration extends to **one additional creature** within 2 meters. Both feel a surge of warmth and clarity. |
-| **Raise 3 (+12 over TN)** | The ritual cleanses **spiritual ailments** — madness, memory corruption, or lingering Taint Stage 1. |
+| **Raise 3 (+12 over TN)** | The ritual cleanses **spiritual ailments** — madness, memory corruption, or lingering spiritual corruption. |
 | **Raise 4 (+16 over TN)** | You channel divine resonance that **purges even ancient or god-born afflictions**. All nearby allies regain inner balance and emotional clarity. |
 
 
@@ -12018,7 +12120,7 @@ Failure should create pressure, not shut down the story.
 | Raise Level | Effect |
 |--------------|---------|
 | **Raise 0 (Base Success)** | You purge one **minor moral or spiritual stain** — easing guilt, lightening emotional Taint, or ending a personal geas. |
-| **Raise 1 (+4 over TN)** | You may reduce a **Taint Stage** by one step, if the bearer accepts the emotional consequence (sorrow, tears, or confession). |
+| **Raise 1 (+4 over TN)** | You may cleanse one **deeper spiritual affliction or lingering corruption**, if the bearer accepts the emotional consequence (sorrow, tears, or confession). |
 | **Raise 2 (+8 over TN)** | The ritual may include **another willing participant**, allowing reconciliation between souls or forgiveness of old bonds. |
 | **Raise 3 (+12 over TN)** | You channel harmony strong enough to cleanse **a group or place** from lingering corruption or despair. |
 | **Raise 4 (+16 over TN)** | The act of atonement resonates through fate itself; divine Echoes acknowledge the sacrifice, granting momentary serenity to all who took part. |
@@ -12162,13 +12264,11 @@ Failure should create pressure, not shut down the story.
 {{wide
 ## Summons
 
-Summons are creatures created through Bound Stones and improved with Summon Tokens.
+Summons are creatures created through **Bound Stones** and improved with **Summon Tokens**.
 
-They are built as mechanical bodies.
+Every Summon uses the same mechanical foundation. There are no separate Familiar, Companion, or Host classes.
 
-The player defines the Summon's Expression.
-
-A Summon may be a beast, spirit, demon, construct, undead, elemental, shadow, echo, weapon-shard, swarm, plant-creature, memory, or any other fitting Expression.
+A Summon may be expressed as a beast, spirit, demon, construct, undead, elemental, shadow, echo, weapon-shard, swarm, plant-creature, memory, or any other fitting form.
 
 The mechanics define what the Summon can do.
 
@@ -12176,35 +12276,35 @@ The player defines what the Summon is.
 
 ---
 
-### Creating a Summon
+### Creating a Summon Bond
 
-To create a Summon, bind **1 Stone**.
+To create a Summon Bond, bind at least **1 Stone**.
 
-That Stone becomes **Bound** and is no longer part of your usable Stone Pool while the bond persists.
+A Bound Stone is removed from the character's usable Stone Pool and does not regenerate while the bond persists.
 
-The first Bound Stone creates the **Base Summon**.
-
-Each additional Bound Stone grants **4 Summon Tokens**.
+Every Bound Stone grants **8 Summon Tokens**, including the first Stone.
 
 **Formula:**  
-Summon Tokens = (Bound Stones - 1) × 4
+**Summon Tokens = Bound Stones x 8**
 
 | **Bound Stones** | **Summon Tokens** |
 |:--:|:--:|
-| 1 | Base Summon |
-| 2 | 4 Tokens |
-| 3 | 8 Tokens |
-| 4 | 12 Tokens |
-| 5 | 16 Tokens |
-| 6 | 20 Tokens |
-| 7 | 24 Tokens |
-| 8 | 28 Tokens |
-| 9 | 32 Tokens |
-| 10 | 36 Tokens |
+| 1 | 8 Tokens |
+| 2 | 16 Tokens |
+| 3 | 24 Tokens |
+| 4 | 32 Tokens |
+| 5 | 40 Tokens |
+| 6 | 48 Tokens |
+| 7 | 56 Tokens |
+| 8 | 64 Tokens |
+| 9 | 72 Tokens |
+| 10 | 80 Tokens |
+
+Bonus Summon Tokens granted by a Passive, Artifact, Active Buff, or other explicit rule are added after this calculation. Bonus Tokens do not count as additional Bound Stones and remain subject to every spending restriction written by their source.
 
 ---
 
-### Base Summon
+### Universal Base Summon
 
 | **Stat** | **Starting Value** |
 |---|:--:|
@@ -12213,232 +12313,326 @@ Summon Tokens = (Bound Stones - 1) × 4
 | Evade | 4 |
 | Attack | 2d8 |
 | Damage | 1d8 |
-| Movement | 2 m walking or 1 m flying |
+| Movement | 8 m in one chosen Movement Mode |
 | Attacks | 1 Summon Attack |
 | Specials | None |
 | Shared Senses | None |
 | Bodies | 1 Summon Body |
 
-Choose **walking** or **flying** when the Summon is created.
+The Base Summon is intentionally simple. Tokens determine whether it becomes a durable guardian, an elite attacker, a scout, a group of weak bodies, or another concept.
 
-A Summon does not have both unless a rule explicitly allows it.
+---
+
+### One Movement Mode
+
+When the Summon Bond is created, choose exactly **one Movement Mode** that fits its Expression:
+
+- Walking
+- Flying
+- Swimming
+- Climbing
+
+All Bodies belonging to that Summon Bond use the chosen Movement Mode.
+
+The selected Movement Mode begins at **8 m** and may be increased to a maximum of **16 m**.
+
+The same Movement Mode may be improved more than once. A Summon Bond may never buy or possess a second permanent Movement Mode through Summon Tokens.
+
+Teleport, Burrow, Phase Passage, and similar premium movement are not normal Movement Modes. They require a canonical Movement Power or another explicit rule.
+
+A purchased Movement Power temporarily replaces normal Movement when used. It does not grant a second permanent Movement Mode.
 
 ---
 }}
-
 
 \page
 {{pageNumber,auto}}
 {{wide
 ### Summon Token Costs
 
-Summon upgrades do not have hard maximum values.
+Summon Tokens may buy improvements to the Bond, to an individual Body, or to the Bond's selected Skill Pools.
 
-A Summon can grow in any direction as long as the character has enough Summon Tokens to pay for the upgrades.
-
-| **Upgrade** | **Starting Value** | **Cost** | **Gain** |
-|---|:--:|:--:|---|
-| HP | 10 HP | 1 Token | +20 HP |
-| Armor | 0 Armor | 2 Tokens | +4 Armor |
-| Evade | 4 Evade | 2 Tokens | +4 Evade |
-| Attack | 2d8 Attack | 2 Tokens | +2d8 Attack Dice |
-| Damage | 1d8 Damage | 2 Tokens | +1d8 Damage |
-| Walking Movement | 2 m | 1 Token | +2 m walking |
-| Flying Movement | 1 m | 1 Token | +1 m flying |
-| Additional Body | 1 Body | 4 Tokens | +1 Summon Body |
-| Shared Sense | None | 2 Tokens | +1 Sense Group |
-| Extra Attack | 1 Attack | 8 Tokens | +1 Summon Attack |
-| Special Access | None | 4 Tokens | Unlock 1 Special |
-| Special Value | Special(0) | 2 Tokens | +1 Special value |
-
-HP, Armor, Evade, Attack, Damage, and Movement can be bought any number of times.
-
-There is no maximum HP.
-
-There is no maximum Armor.
-
-There is no maximum Evade.
-
-There is no maximum Attack Dice.
-
-There is no maximum Damage.
-
-There is no maximum Movement.
-
-The limit is the investment.
+| **Upgrade** | **Scope** | **Starting Value** | **Cost** | **Gain** |
+|---|---|:--:|:--:|---|
+| HP | Body | 10 HP | 1 Token | +20 HP |
+| Armor | Body | 0 Armor | 2 Tokens | +4 Armor |
+| Evade | Body | 4 Evade | 2 Tokens | +4 Evade |
+| Attack | Bond | 2d8 Attack | 2 Tokens | +2d8 Attack Dice |
+| Damage | Bond | 1d8 Damage | 2 Tokens | +1d8 Damage |
+| Movement | Bond | 8 m | 1 Token | +2 m in the chosen Movement Mode |
+| Additional Body | Body | 1 Body | 2 Tokens | +1 Summon Body |
+| Shared Sense | Body | None | 2 Tokens | +1 Shared Sense Group |
+| Summon Skill Dice | Bond | None | 1 Token | +2 Skill Dice to distribute |
+| Extra Attack | Bond | 1 Attack | 8 Tokens | +1 Summon Attack |
+| Special Access | Bond | None | 4 Tokens | Unlock 1 eligible Special at Special(1) |
+| Special Value | Bond | Special(1) | 2 Tokens | Increase the chosen Special by +1 |
+| Canonical Power | Body | None | Special | Pay 1 Token per 10 PP, rounded up |
 
 ---
 
-### Restricted Upgrades
+### Upgrade Scope
 
-Some upgrades remain limited because they affect action economy or Special access.
+**Bond Upgrades** apply once to the entire Summon Bond. All Bodies use the Bond's Attack, Damage, Movement, available Summon Attacks, selected Special, and Summon Skill Pools.
+
+**Body Upgrades** are assigned to one specific Summon Body. HP, Armor, Evade, Shared Senses, and purchased Powers do not automatically transfer to another Body.
+
+An Additional Body begins with the Universal Base Summon's Body values:
+
+- 10 HP
+- 0 Armor
+- 4 Evade
+
+It then uses the Bond's Attack, Damage, Movement, Summon Attacks, Special, and Skill Pools.
+
+---
+
+### Upgrade Limits
 
 | **Upgrade** | **Limit** |
 |---|---|
-| Extra Attack | Maximum 3 Summon Attacks per Summon Bond per round. |
-| Special Access | Maximum 1 Special per Summon Bond. |
+| Movement | Maximum 16 m; only the one chosen Movement Mode. |
+| Extra Attack | Maximum 3 Summon Attacks per Bond per Round. |
+| Special Access | Maximum 1 Special per Bond. |
 | Special Value | Maximum Special(4). |
+| Summon Skills | Two to four selected Skills, based on Bound Stones. |
+| Canonical Powers | Maximum Power Level is set by the owner's Mastery Rank. |
 
-Additional Bodies do not grant additional attacks by themselves.
-
-A Summon Bond makes **1 Summon Attack** by default.
-
-Extra Attacks may be made by the same Summon Body or split between different Summon Bodies from the same Summon Bond.
-
-If the Summon Bond makes multiple attacks, its Special can apply only **once per round**.
+HP, Armor, Evade, Attack, and Damage have no separate Summon maximum. Their practical limit is the available Token investment.
 
 ---
 
-### Additional Bodies
+### Multiple Bodies and Summon Attacks
 
-Each Additional Body costs **4 Tokens**.
+Additional Bodies do not grant additional Summon Attacks by themselves.
 
-Each Summon Body starts with the Base Summon stats.
+All Bodies share one Summon Activation and the number of Summon Attacks purchased for the Bond.
 
-Tokens are assigned to specific Summon Bodies.
+Each available Summon Attack may be made by any active Body. Several attacks may be made by the same Body or divided between different Bodies.
 
-Upgrades do not automatically apply to every Summon Body unless the player buys them for each body.
+If the Bond has a Special, that Special may apply only **once per Round**, regardless of how many Bodies or Summon Attacks the Bond has.
 
-All Summon Bodies from the same Summon Bond share one Summon Activation.
+Multiple Bodies do not receive repeated attempts at the same non-combat task.
+
+> **One task allows one Summon Skill Check per Bond.**
 
 ---
-}}
 
-
-\page
-{{pageNumber,auto}}
-{{wide
 ### Summon Activation
 
 Summons act on the owner's Initiative.
 
-At the start of each round, the owner chooses whether their Summons act immediately before or immediately after them.
+At the start of each Round, the owner chooses whether the Summon Bond acts immediately before or immediately after them.
 
-Summons cannot delay, ready, or choose a different Initiative count on their own.
+During the Summon Activation:
 
-During the Summon Activation, each Summon Body may move.
+- every active Body may move once,
+- the Bond may use its available Summon Attacks,
+- and purchased Powers may be used through their normal action type.
 
-The Summon Bond may make its available Summon Attacks.
+Summons cannot delay, ready, or select a separate Initiative count.
 
-A Summon cannot use Stone Abilities.
+Summons cannot use Stone Abilities or Artifacts, cannot create another Summon Bond, and cannot bind Stones of their own.
 
-A Summon cannot use Artifacts.
+---
+}}
 
-A Summon cannot use Powers unless a rule explicitly allows it.
+\page
+{{pageNumber,auto}}
+{{wide
+### Summon Skills
 
-A Summon cannot summon other creatures.
+A Summon does not receive Attributes or the complete character Skill system.
 
-A Summon cannot use Reactions unless a rule explicitly allows it.
+Instead, the Bond selects a limited number of Skills from the approved Summon Skill list.
+
+| **Bound Stones** | **Selected Summon Skills** |
+|:--:|:--:|
+| 1 | 2 Skills |
+| 2 | 3 Skills |
+| 3 or more | 4 Skills |
+
+Bonus Summon Tokens do not increase the number of selected Skills.
+
+The approved Summon Skills are:
+
+- Perception
+- Investigation
+- Tracking
+- Survival
+- Navigation
+- Weather Sense
+- Stealth
+- Concealment
+- Athletics
+- Acrobatics
+
+Social Skills, Martial Skills, Lore Skills, Medicine, Crafting, Engineering, Artisanry, Alchemy, Herbalism, and other professional Skills are not Summon Skills.
 
 ---
 
-### Summon Specials
+### Buying and Distributing Skill Dice
 
-A Summon does not apply Specials by default.
+Each **Summon Skill Dice** purchase costs **1 Token** and grants **2 Skill Dice**.
 
-To apply a Special, the Summon Bond must buy **Special Access**.
+These dice may be divided freely among the Bond's selected Summon Skills, including one die at a time.
 
-Special Access unlocks one Special for the Summon Bond.
+The number of dice assigned to a Summon Skill may never exceed the owner's current Rating in the same Skill.
 
-Special Value increases that Special.
+If the owner has Rating 0 in a Skill, the Bond cannot assign dice to that Skill.
 
-A Summon Bond can have only **1 Special**.
+#### Example
 
-The Special applies only when a Summon Attack hits.
+The owner has:
 
-If the Summon Bond makes multiple attacks, the Special can apply only once per round.
+- Perception 4
+- Stealth 3
+- Tracking 2
+
+The Bond has bought 4 Skill Dice. It may distribute them as:
+
+- Perception 2d8
+- Stealth 1d8
+- Tracking 1d8
+
+It could instead assign all 4 dice to Perception, but it could not assign 4 dice to Stealth because the owner's Stealth Rating is only 3.
+
+---
+
+### Summon Skill Checks
+
+When a Summon independently performs a selected Skill task, roll its assigned Skill Dice and keep dice equal to the owner's Mastery Rank.
+
+> **Summon Skill Check = assigned Skill Dice k owner's Mastery Rank**
+
+The number of kept dice can never exceed the number of dice rolled.
+
+Summon Skill Pools are not consumable Skill Points. They are the complete dice pool used for the Summon's independent check.
+
+All Bodies share the same selected Skills and Skill Dice. Body count never grants repeated rolls for one task.
 
 ---
 
 ### Shared Senses
 
-A Summon may buy Shared Senses with Tokens.
+A Shared Sense is assigned to one Body.
 
-| **Shared Sense Group** |
-|---|
-| Sight |
-| Hearing |
-| Taste / Smell |
-| Touch / Pressure |
+| **Shared Sense Group** | **Cost** |
+|---|:--:|
+| Sight | 2 Tokens |
+| Hearing | 2 Tokens |
+| Taste / Smell | 2 Tokens |
+| Touch / Pressure | 2 Tokens |
 
-Each Shared Sense group costs **2 Tokens**.
+When the owner actively perceives through a Body's Shared Sense, the owner uses their own normal Attribute, Skill Rating, Skill Points, and Mastery Rank, but perceives from the Body's position and through that Sense Group.
 
-As long as the Summon is within sensing range, the owner may perceive the world through any Shared Sense group the Summon possesses.
+When the Summon observes independently, it uses the Bond's purchased Summon Skill Pool instead.
 
-Switching between the owner's own senses and the Summon's senses costs a Minor Action.
+Switching between the owner's senses and a Summon's Shared Senses costs a Minor Action.
+
+Shared Senses grant sensory access only. They do not grant automatic success, knowledge, analysis, or additional Skill checks.
 
 ---
 }}
 
-
 \page
 {{pageNumber,auto}}
 {{wide
-### Bond Ritual
+### Purchasing Canonical Powers
 
-You may perform a **Bond Ritual** that takes 1 hour.
+Summons do not use separate miniature abilities such as Pounce, Guardian, Scout Training, or other Summon-only substitutes.
 
-During a Bond Ritual, you may:
+If a Summon needs a special combat ability, it buys a complete existing Power from the canonical Power catalogues.
 
-- create a Summon Bond,
-- add Stones to an existing Summon Bond,
-- remove Stones from an existing Summon Bond,
-- change Summon upgrades,
-- assign Tokens to Summon Bodies,
-- release a Summon Bond and reclaim its Stones.
+> **Power Token Cost = the chosen Power Level's PP value divided by 10, rounded up.**
 
-All Stones invested into a Summon remain Bound while the bond persists.
+Use the Power's own written PP calculation. The Power keeps its normal Type, requirements, range, duration, trigger, effect, limitations, and action economy.
 
-If a Summon Bond is released through a Bond Ritual, its Bound Stones return to your usable Stone Pool.
+#### Standard Power Cost Reference
 
-If a Summon is destroyed, its Bound Stones become inert for **1d3 days**.
+| **Power Type** | **Summon Token Cost** |
+|---|---:|
+| Active | 3 Tokens per Power Level |
+| Passive | 2 Tokens per Power Level |
+| Reaction | 2 Tokens per Power Level |
+| Active Buff | 3 Tokens per Power Level + 1 Token |
+| Movement Power | Written PP value divided by 10, rounded up |
 
-After that time, the Stones return to your usable Stone Pool through meditation or a Bond Ritual.
+#### Power Level Cap
+
+| **Owner's Mastery Rank** | **Maximum Summon Power Level** |
+|:--:|:--:|
+| MR 1-2 | Level 4 |
+| MR 3 | Level 8 |
+| MR 4 | Level 12 |
+| MR 5+ | Level 16 |
+
+A purchased Power is assigned to one specific Body.
+
+The Body must meet every requirement of the Power. A natural attack may satisfy an **Unarmed** requirement, but it is not automatically a Melee Weapon, Ranged Weapon, Spell Focus, shield, or other required item.
+
+A Summon has no normal Attributes. If a Power requires an Attack Roll or Spell Roll, use the Bond's Attack pool. A Power that requires an Attribute, resource, item, or subsystem the Summon does not possess cannot be purchased or used unless an explicit rule provides the missing requirement.
+
+---
+
+### Power Action Economy
+
+- **Active:** uses one available Summon Attack.
+- **Active Buff:** uses one available Summon Attack to activate. A Summon Bond may maintain only one Active Buff of its own at a time.
+- **Passive:** affects only the Body to which it is assigned.
+- **Reaction:** a Summon Bond may use no more than one Reaction per Round, regardless of Bodies or purchased Reactions.
+- **Movement Power:** replaces the using Body's normal Movement for that Turn and does not add a second permanent Movement Mode.
+
+A purchased Power cannot grant Stones, Artifacts, another Summon Bond, or additional actions beyond the normal limits of the Summon subsystem.
+
+---
+
+### Summon Specials
+
+Special Access unlocks one eligible numeric **Special(X)** at **Special(1)** for the Bond's normal Summon Attacks.
+
+Special Value increases that Special by +1, to a maximum of **Special(4)**.
+
+The Special applies only when a Summon Attack hits and may apply only once per Round for the entire Bond.
+
+A canonical Power applies only the Special written in that Power and follows the Power's normal rules. It does not grant permanent Special Access to the Bond's normal attacks.
+
+---
+
+### Bond Ritual and Destroyed Bodies
+
+A Bond Ritual takes **1 hour**.
+
+During a Bond Ritual, the owner may:
+
+- create or release a Summon Bond,
+- add or remove Bound Stones,
+- change the Bond's Expression,
+- change its one selected Movement Mode,
+- redistribute Summon Tokens,
+- change selected Summon Skills and Skill Dice,
+- assign Body Upgrades and Powers,
+- or restore destroyed Summon Bodies.
+
+A Body reduced to 0 HP becomes **Dormant** and leaves play. Its upgrades and assigned Powers remain part of the Bond but cannot be used while it is Dormant.
+
+Dormant Bodies return at full HP after a Bond Ritual or Safe Haven Rest.
+
+Bound Stones remain Bound when a Body is destroyed. They do not become inert for a random number of days.
+
+When the Bond is released through a Bond Ritual, its Bound Stones return to the owner's usable Stone Pool.
 
 ---
 
 ### Summon Active Buffs
 
-Summon Active Buffs are Active Buffs that affect only the caster's own Summons.
+Summon Active Buffs cast by the owner affect only that owner's Summons and use the owner's normal maintained Active Buff slot.
 
-They do not affect the caster.
+**Summon Damage Aura** uses the normal Damage Active Buff progression.  
+**Summon Armor Aura** uses the normal Armor Active Buff progression.
 
-They do not affect allies.
+Both use the following Summon-only radius:
 
-They use the normal Active Buff rules for activation, duration, maintenance, and Active Buff limits.
-
-A Summon must be within the listed radius to benefit from the Buff.
-
-If a Summon leaves the radius, it no longer benefits from the Buff.
-
-#### Summon Damage Aura
-
-Summon Damage Aura uses the normal **Damage Active Buff** progression.
-
-It affects only the caster's own Summons.
-
-It applies to Summon Attacks made by affected Summons.
-
-Because it affects only Summons, it uses a large Summon Aura radius.
-
-| **Level** | **Radius** |
-|:--:|:--:|
-| 1-4 | 8 m |
-| 5-8 | 16 m |
-| 9-12 | 24 m |
-| 13-16 | 32 m |
-
-#### Summon Armor Aura
-
-Summon Armor Aura uses the normal **Armor Active Buff** progression.
-
-It affects only the caster's own Summons.
-
-It increases the Armor of affected Summons.
-
-Because it affects only Summons, it uses a large Summon Aura radius.
-
-| **Level** | **Radius** |
+| **Power Level** | **Radius** |
 |:--:|:--:|
 | 1-4 | 8 m |
 | 5-8 | 16 m |
@@ -12446,154 +12640,256 @@ Because it affects only Summons, it uses a large Summon Aura radius.
 | 13-16 | 32 m |
 
 ---
+}}
+
+\page
+{{pageNumber,auto}}
+{{wide
+## Summon Examples
+
+The following examples are not separate Summon classes. Every example uses the same Universal Base Summon and the same Token list.
+
+### Scout Owl - 1 Bound Stone
+
+**Concept:** A simple flying Familiar used for reconnaissance.
+
+**Available:** 8 Summon Tokens  
+**Selected Movement Mode:** Flying  
+**Selected Skills:** Perception, Stealth
+
+| **Purchase** | **Cost** |
+|---|:--:|
+| Shared Sight | 2 Tokens |
+| Shared Hearing | 2 Tokens |
+| 4 Summon Skill Dice | 2 Tokens |
+| +4 m Movement | 2 Tokens |
+| **Total** | **8 Tokens** |
+
+Distribute the four Skill Dice as **Perception 2d8** and **Stealth 2d8**, assuming the owner has at least Rating 2 in both Skills.
+
+**Finished Owl:**
+
+- 10 HP
+- Armor 0
+- Evade 4
+- 12 m Flying Movement
+- Shared Sight and Hearing
+- Perception 2kMR
+- Stealth 2kMR
+- 1 weak Summon Attack at 2d8 Attack and 1d8 Damage
+
+The Owl is a complete scout with one Stone. It can observe independently or act as a remote sensory position for its owner.
+
+---
+
+### Great War Bear - 4 Bound Stones
+
+**Concept:** A durable tank and heavy melee attacker.
+
+**Available:** 32 Summon Tokens  
+**Selected Movement Mode:** Walking
+
+| **Purchase** | **Cost** |
+|---|:--:|
+| +120 HP | 6 Tokens |
+| +12 Armor | 6 Tokens |
+| +4d8 Attack | 4 Tokens |
+| +4d8 Damage | 8 Tokens |
+| Special Access: Challenge(1) | 4 Tokens |
+| Special Value +2 | 4 Tokens |
+| **Total** | **32 Tokens** |
+
+**Finished Bear:**
+
+- 130 HP
+- Armor 12
+- Evade 4
+- Attack 6d8
+- Damage 5d8
+- 8 m Walking Movement
+- 1 Summon Attack
+- Challenge(3), applicable once per Round
+
+The Bear is difficult to remove, dangerous in melee, and can pressure one enemy through a normal existing Special rather than a separate Summon-only tank rule.
+
+---
+}}
+
+\page
+{{pageNumber,auto}}
+{{wide
+### Skeleton Warband - 4 Bound Stones
+
+**Concept:** Many individually weak melee fighters controlled through one Bond.
+
+**Available:** 32 Summon Tokens  
+**Selected Movement Mode:** Walking
+
+| **Purchase** | **Cost** |
+|---|:--:|
+| 6 Additional Bodies | 12 Tokens |
+| 2 Extra Attacks | 16 Tokens |
+| +2d8 Attack | 2 Tokens |
+| +1d8 Damage | 2 Tokens |
+| **Total** | **32 Tokens** |
+
+**Finished Warband:**
+
+- 7 Skeleton Bodies
+- 10 HP, Armor 0, and Evade 4 per Body
+- 8 m Walking Movement
+- Bond Attack 4d8
+- Bond Damage 2d8
+- 3 Summon Attacks per Round
+
+The seven Skeletons occupy separate spaces and may move independently during the shared activation. The Bond still makes no more than three attacks per Round. The remaining Bodies provide presence, positioning, and additional targets without multiplying the action economy.
+
+---
+
+### Shadow Panther - 2 Bound Stones
+
+**Concept:** A fast, elusive predator inspired by an elite magical panther companion.
+
+**Available:** 16 Summon Tokens  
+**Selected Movement Mode:** Walking  
+**Selected Skills:** Perception, Stealth, Tracking
+
+| **Purchase** | **Cost** |
+|---|:--:|
+| +40 HP | 2 Tokens |
+| +4 Evade | 2 Tokens |
+| +2d8 Attack | 2 Tokens |
+| +1d8 Damage | 2 Tokens |
+| +4 m Movement | 2 Tokens |
+| Momentum Passive, Power Level 2 | 4 Tokens |
+| 4 Summon Skill Dice | 2 Tokens |
+| **Total** | **16 Tokens** |
+
+Assign the four Skill Dice to **Stealth 4d8**, assuming the owner has Stealth 4 or higher.
+
+**Finished Panther:**
+
+- 50 HP
+- Armor 0
+- Evade 8
+- Attack 4d8
+- Damage 2d8
+- 12 m Walking Movement
+- Stealth 4kMR
+- Momentum at Power Level 2
+
+After moving at least 8 m, the Panther gains the normal Momentum effect. Its pouncing predator identity therefore comes from a complete canonical Passive rather than an invented Summon-only ability.
+
+---
+
+### What These Examples Demonstrate
+
+The same Summon system can create:
+
+- a non-combat reconnaissance Familiar,
+- one heavy frontline creature,
+- many weak Bodies with a controlled shared action economy,
+- or a mobile elite companion with a real Power.
+
+No example requires a separate Chassis, class, or private subsystem.
+
+---
 
 
 }}
-
 
 \page
 {{pageNumber,auto}}
 {{wide
 ## Artifacts
----
 
-> *“Power never comes freely. Every Artifact demands a piece of your soul.”*
+> *“Power never comes freely. Every Artifact leaves its mark upon the one who carries it.”*
 
-Artifacts are permanently bound relics that draw from your **Mastery Stones** to awaken supernatural effects.  
-Each Artifact grows alongside its wielder, evolving through **eight awakening Levels (1–8)**.  
-Binding an Artifact always carries a cost — the Stones you invest remain locked until the bond is broken.
+Artifacts are supernatural objects, inherited manifestations, living relics, awakened weapons, magical armor, cursed tokens, or supernatural features permanently bound to a character.
 
----
-:
-### **Core Concept**
-
-An **Artifact** is a fragment of divine or arcane intent, tethered directly to your spirit.  
-It channels your Stone energy to manifest powers far beyond normal mastery techniques.  
-While attuned, a portion of your Stones are **bound** and cannot regenerate until the Artifact is released or destroyed.
+An Artifact is more than ordinary equipment. It has its own identity, occupies one or more **Equipment Slots**, and develops new functions as its Artifact Level increases.
 
 ---
 
-> **Binding = Sacrifice.**  
-> Each Artifact is a trade: *permanent power for permanent cost.*
+### Binding Artifacts
 
----
-:
-### **Artifact**
+A character can normally be bound to up to **4 Artifacts** at the same time.
 
-Each Artifact entry follows this structure:
+To bind an Artifact, the character must have:
 
-| **Component** | **Description** |
-|:---------------|:----------------|
-| **Binding Stones** | To claim an Artifact, you must bind it to your spirit this **costs 1 Stone** from your pool. The bound Stone cannot regenerate until the bond is released through a Ritual of Severance. |
-| **Attribute Link** | Each Artifact is attuned to one or two **core Attributes** (e.g., *Agility & Wits* for blades, *Intellect & Resolve* for staves). The bound Stone must originate from one of these Attributes. |
-| **Power Levels (1–8)** | Every time you **gain a new Power Stone**, you may advance **one bound Artifact by one Level**. Each Level grants a **Mastery-List Tier Power** — slightly stronger than standard Mastery Trees. These can include passives, actives, active buffs, utilities, movement or some hybrid effects.|
-| **Taint** | Please see chapter Taint  |
+1. sufficient **Artifact Capacity**, and
+2. the required free **Equipment Slot or Slots**.
 
----
-:
-> **Rule of Growth:**  
-> Each time you gain a **Stone**, you may choose **one Artifact** to increase by one Level.  
----
->  
-> Artifacts may reach up to **Level 8**, matching the typical Stone progression across Mastery Ranks 2–6.
+Artifacts may occupy the following Slots:
 
----
-:
+* Main Hand
+* Off Hand
+* Body
+* Head
+* Feet
+* Amulet
+* Ring
 
-### Artifact Capacity
----
+If an Artifact occupies a Slot, that Slot cannot be used by another Artifact or by normal equipment.
 
-> *“Some wield power. Others forge it.”*
-
-You can maintain multiple Artifact bonds simultaneously.  
-The total number of Artifacts you can attune to equals:
-
-> **Artifact Capacity = Mastery Rank × 2**
-
-This represents the limit of how many relic souls your spirit can sustain in harmony.  
-Each bound Artifact still requires **1 Binding Stone** from your pool.
+A two-handed Artifact occupies both **Main Hand** and **Off Hand**, but still counts as only one Artifact.
 
 ---
 
+### Echo Artifacts
 
-}}  
+Some Echoes grant predefined **Echo Artifacts**.
 
+Echo Artifacts follow the normal Artifact rules:
 
-\page
-{{pageNumber,auto}}
-{{wide
-### Taint
+* they count against Artifact Capacity,
+* they occupy real Equipment Slots,
+* and they advance through normal Artifact Levels.
 
-Every powerful item has a story and stories leave traces.  
-These traces (called “Taints”) don’t directly affect dice rolls but influence the bearer’s behavior.  
-They are not curses, but distortions, influences, or expectations.
-
----
-:
-*Curses do not exist in Destroyed Faith.*
+Unlike ordinary Artifacts, Echo Artifacts are part of the character’s origin and cannot normally be removed, sold, stolen, replaced, or unbound.
 
 ---
-:
-#### Common Taint Types
 
-**Taint: God**  
-*Theme:* Divine presence, faith, purity  
-*Behavioral Shim:* You want to appear worthy. Lying becomes difficult. You strive for order even when it's unnecessary.
-:
-**Taint: Demon**  
-*Theme:* Greed, desire, hunger for power  
-*Behavioral Shim:* You want it all – gold, power, influence, attention.
-:
-**Taint: Dragon**  
-*Theme:* Pride, self-doubt, grandeur  
-*Behavioral Shim:* You’re plagued by constant self-doubt. You need to prove yourself at any cost. Others are beneath you.
-:
-**Taint: Elf**  
-*Theme:* Beauty, melancholy, eternity  
-*Behavioral Shim:* You lose yourself in dreams. You hear music that isn’t there. You feel deep sorrow when leaving beautiful places.
-:
-**Taint: Titan**  
-*Theme:* Strength, perseverance  
-*Behavioral Shim:* You become stubborn. You don’t avoid problems, you smash through them.
+### Artifact Progression
+
+Artifacts have **10 Artifact Levels**.
+
+As an Artifact grows, it may improve its Base Profile, unlock new Powers, strengthen existing functions, or develop an Ultimate effect.
+
+The exact progression is defined by the individual Artifact.
+
+Players do not freely purchase arbitrary effects for an Artifact. Each Artifact has a fixed mechanical structure that represents its identity, history, and supernatural nature.
 
 ---
-:
-
-#### Taint Escalation
-
-**A tainted item demands mental engagement with its nature.**  
-Ignoring or resisting the behavioral shim for too long disrupts the bond – with growing consequences.
-:
-**Stage 0 – Harmony**  
-*Status:* The bearer lives in alignment with the Taint.  
-*Effect:* The item grows as intended. New powers unlock.
-:
-**Stage 1 – Irritation**  
-*Trigger:* The Taint is ignored for an extended period.  
-*Effect:* No new powers. The item "goes silent."
-:
-**Stage 2 – Fracture**  
-*Trigger:* Repeated, active disobedience or contradictory behavior.  
-*Effect:* One ability of the item is blocked or shut down.
-:
-
-
-
-![Forgehammer](https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/items/hamm1er.png) {position:absolute,top:700px,right:20px,width:230px}
-
 
 }}
 
+
 \page
 {{pageNumber,auto}}
 {{wide
-**Stage 3 – Wrath**  
-*Trigger:* Mockery, cleansing, or rejection of the Taint.  
-*Effect:* The item causes harm (e.g., 1d10 psychic), nightmares, or disadvantage on checks.
-:
-**Stage 4 – Collapse / Corruption**  
-*Trigger:* Permanent disobedience.  
-*Effect:* The item breaks and becomes unusable for this bearer.
+
+### Complete Artifact Rules
+
+The complete rules for:
+
+* Artifact Capacity,
+* Equipment Slots,
+* Base Profiles and Base Values,
+* Artifact Levels,
+* Artifact Functions,
+* Artifact Powers,
+* Stone Functions,
+* Amulet, rings, feet, weapons and armor Artifacts,
+* Sense Options,
+* Echo Artifacts,
+* and example Artifacts
+
+can be found in the separate **Artifacts Catalogue**:
+
+[Open the complete Artifacts Catalogue](https://homebrewery.naturalcrit.com/share/TigfuySgic8x)
+
+
 }}
 
 
@@ -13244,13 +13540,15 @@ Regeneration is a positive effect and cannot be removed by Cleanse.
 **Cleanse:** Yes
 
 ---
-**Effect:** Root is a movement-lock Special. **X** is the Root's Break Strength.
+**Effect:** Root is a movement-lock Special. **X** is the Root's Break Strength. A Power that applies Root must apply at least **Root(2)**.
 
 While Root is above **0**, your Speed is reduced to **0 m** and you cannot move voluntarily. Root does not prevent attacking, casting, using Reactions, using non-movement actions, or being moved by forced movement.
 
-You may spend an **Action**, **Movement Action**, or **Reaction** to make a **Vitality Attribute Check** against **TN 8 × source Mastery Rank**. On a success, reduce Root by **1**. Each Raise reduces Root by **1 additional point**.
+At the start of your Turn, reduce Root by your **Mastery Rank**. If this reduces Root to **0**, Root ends before you take your actions.
 
-Root does not decay automatically. Cleanse and successful Breaking Attempts reduce it. When Root reaches **0**, it ends.
+You may additionally spend an **Action**, **Movement Action**, or **Reaction** to make a **Vitality Attribute Check** against **TN 8 × source Mastery Rank**. On a success, reduce Root by **1**. Each Raise reduces Root by **1 additional point**.
+
+Cleanse may reduce Root normally. When Root reaches **0**, it ends.
 
 ---
 

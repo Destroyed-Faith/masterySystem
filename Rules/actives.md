@@ -56,9 +56,37 @@ The Homebrewery
 
 ::::::::::::::::::::::::::::::::
 {{homebreweryCredits
-Destroyed Faith — Core Rules
-Version: v0.9.1 (2026-07-06)
+Destroyed Faith — DF Core Actives
+Version: v0.9.8 (2026-07-31)
 }}
+
+}}
+\page
+{{pageNumber,auto}}
+{{toc,wide
+# Summary
+
+- #### [{{ Artwork Credits}}{{ 2}}](#p2)
+- #### [{{ Martial Actives — Numeric Specials}}{{ 4}}](#p4)
+- #### [{{ Root Template Rule}}{{ 4}}](#p4)
+- #### [{{ Start PP 3 Templates}}{{ 5}}](#p5)
+- #### [{{ Start PP 4 Templates}}{{ 6}}](#p6)
+- #### [{{ Start PP 6 Templates}}{{ 8}}](#p8)
+- #### [{{ Start PP 8 Templates}}{{ 11}}](#p11)
+- #### [{{ Martial AoE Attack Rules}}{{ 13}}](#p13)
+- #### [{{ AoE Start PP 3 Templates}}{{ 16}}](#p16)
+- #### [{{ AoE Start PP 6 and Root Templates}}{{ 19}}](#p19)
+- #### [{{ Persistent Diminishing Zones}}{{ 23}}](#p23)
+- #### [{{ Control Specials}}{{ 29}}](#p29)
+- #### [{{ Support Actives}}{{ 36}}](#p36)
+- #### [{{ Active Constructs and Terrain}}{{ 50}}](#p50)
+- #### [{{ Barrier Actives}}{{ 57}}](#p57)
+- #### [{{ Immovable}}{{ 58}}](#p58)
+- #### [{{ Illusion Fields and Power Images}}{{ 60}}](#p60)
+- #### [{{ Hard Control}}{{ 64}}](#p64)
+- #### [{{ Weapon Attack Templates}}{{ 67}}](#p67)
+- #### [{{ Smite Actives}}{{ 81}}](#p81)
+- #### [{{ Mental Powers}}{{ 85}}](#p85)
 
 }}
 \page
@@ -68,6 +96,8 @@ Version: v0.9.1 (2026-07-06)
 
 > **Current Start PP 8 Group:** Disoriented, Expose, Soulburn, and Weaken use the dedicated Start PP 8 templates in this catalogue.
 
+> **Root:** Root uses **Start PP 6 × T(X)** pricing but follows its own Until Broken rules. Root has a minimum applied value of **Root(2)** and never uses Root(1).
+
 > **Scaling Rule:** These templates are Special-first Martial Actives.  
 > The Special is the primary scaling component. Damage is the secondary rider.  
 > Damage and Special may stay the same or increase, but they may never decrease.  
@@ -76,6 +106,20 @@ Version: v0.9.1 (2026-07-06)
 > **Triangular Special Formula:**  
 > Special Cost = Start PP × T(X)  
 > T(X) = X × (X + 1) / 2
+
+### Root Template Rule
+
+Root is priced through the **Start PP 6** curve, but it is not a standard Diminishing Special.
+
+When a Start PP 6 template is built as Root:
+
+- the applied value can never be lower than **Root(2)**,
+- Root uses **Start PP 6 × T(X)** pricing,
+- the target's Speed becomes **0 m** and it cannot move voluntarily,
+- at the start of the affected creature's Turn, reduce Root by that creature's **Mastery Rank**,
+- and the creature may additionally spend an Action, Movement Action, or Reaction on a Vitality Attribute Check against **TN 8 × source MR**; success reduces Root by 1, plus 1 per Raise.
+
+If the budget of a template cannot support Root(2), Root is unavailable at that Level. Root is not inserted into Persistent Zone templates unless a dedicated rule explicitly permits repeated Root application.
 
 
 ### Special-First Damage Anchor Rule
@@ -619,7 +663,7 @@ The template remains Mark-first.
       L14 → Target 420 PP: Damage +2d8 (30) + Special(10) (330) = 360 PP<br>
       L15 → Target 450 PP: Damage +2d8 (30) + Special(11) (396) = 426 PP<br>
       L16 → Target 480 PP: Damage +2d8 (30) + Special(11) (396) = 426 PP<br><br>
-      NOTES — Melee Martial Active. Covers Challenge, Corrode, Hex, and Sundered. This group is heavy and should remain clearly Special-first.
+      NOTES — Melee Martial Active. Covers Challenge, Corrode, Hex, Sundered, and Root. Root uses the same Start PP 6 pricing but follows its dedicated minimum, decay, and breaking rules. This group is heavy and should remain clearly Special-first.
     </span>
   </span>
 </h3>
@@ -634,22 +678,22 @@ A close-range martial strike that deals damage and applies a heavy Start PP 6 Sp
 :
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
 |:--:|:--|:--:|:--:|:--:|:--|:--|
-| **1** | Active | Melee Reach | — | Instant | Deal **+1d8 damage** on hit. | **Challenge(2) / Corrode(2) / Hex(2) / Sundered(2)** |
-| **2** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(3) / Corrode(3) / Hex(3) / Sundered(3)** |
-| **3** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(4) / Corrode(4) / Hex(4) / Sundered(4)** |
-| **4** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(5) / Corrode(5) / Hex(5) / Sundered(5)** |
-| **5** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(5) / Corrode(5) / Hex(5) / Sundered(5)** |
-| **6** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(6) / Corrode(6) / Hex(6) / Sundered(6)** |
-| **7** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(7) / Corrode(7) / Hex(7) / Sundered(7)** |
-| **8** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(7) / Corrode(7) / Hex(7) / Sundered(7)** |
-| **9** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(8) / Corrode(8) / Hex(8) / Sundered(8)** |
-| **10** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(9) / Corrode(9) / Hex(9) / Sundered(9)** |
-| **11** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(9) / Corrode(9) / Hex(9) / Sundered(9)** |
-| **12** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(10) / Corrode(10) / Hex(10) / Sundered(10)** |
-| **13** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(10) / Corrode(10) / Hex(10) / Sundered(10)** |
-| **14** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(10) / Corrode(10) / Hex(10) / Sundered(10)** |
-| **15** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(11) / Corrode(11) / Hex(11) / Sundered(11)** |
-| **16** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(11) / Corrode(11) / Hex(11) / Sundered(11)** |
+| **1** | Active | Melee Reach | — | Instant | Deal **+1d8 damage** on hit. | **Challenge(2) / Corrode(2) / Hex(2) / Sundered(2) / Root(2)** |
+| **2** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(3) / Corrode(3) / Hex(3) / Sundered(3) / Root(3)** |
+| **3** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(4) / Corrode(4) / Hex(4) / Sundered(4) / Root(4)** |
+| **4** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(5) / Corrode(5) / Hex(5) / Sundered(5) / Root(5)** |
+| **5** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(5) / Corrode(5) / Hex(5) / Sundered(5) / Root(5)** |
+| **6** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(6) / Corrode(6) / Hex(6) / Sundered(6) / Root(6)** |
+| **7** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(7) / Corrode(7) / Hex(7) / Sundered(7) / Root(7)** |
+| **8** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(7) / Corrode(7) / Hex(7) / Sundered(7) / Root(7)** |
+| **9** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(8) / Corrode(8) / Hex(8) / Sundered(8) / Root(8)** |
+| **10** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(9) / Corrode(9) / Hex(9) / Sundered(9) / Root(9)** |
+| **11** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(9) / Corrode(9) / Hex(9) / Sundered(9) / Root(9)** |
+| **12** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(10) / Corrode(10) / Hex(10) / Sundered(10) / Root(10)** |
+| **13** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(10) / Corrode(10) / Hex(10) / Sundered(10) / Root(10)** |
+| **14** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(10) / Corrode(10) / Hex(10) / Sundered(10) / Root(10)** |
+| **15** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(11) / Corrode(11) / Hex(11) / Sundered(11) / Root(11)** |
+| **16** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(11) / Corrode(11) / Hex(11) / Sundered(11) / Root(11)** |
 
 ---
 :
@@ -693,7 +737,7 @@ A close-range martial strike that deals damage and applies a heavy Start PP 6 Sp
       L14 → Target 420 PP: Range 60 m (65) + Damage +2d8 (30) + Special(9) (270) = 365 PP<br>
       L15 → Target 450 PP: Range 64 m (70) + Damage +2d8 (30) + Special(10) (330) = 430 PP<br>
       L16 → Target 480 PP: Range 68 m (75) + Damage +2d8 (30) + Special(10) (330) = 435 PP<br><br>
-      NOTES — Ranged Martial Active. Covers Challenge, Corrode, Hex, and Sundered. Range cost slows Special growth compared to the Melee version. Root(X) represents Break Strength X.
+      NOTES — Ranged Martial Active. Covers Challenge, Corrode, Hex, Sundered, and Root. Root uses a minimum of Root(2), including at Level 1. Range cost slows Special growth compared to the Melee version.
     </span>
   </span>
 </h3>
@@ -708,22 +752,22 @@ A ranged martial attack that deals damage and applies a heavy Start PP 6 Special
 :
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
 |:--:|:--|:--:|:--:|:--:|:--|:--|
-| **1** | Active | 8 m | — | Instant | Deal **+1d8 damage** on hit. | **Challenge(1) / Corrode(1) / Hex(1) / Sundered(1)** |
-| **2** | Active | 12 m | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(2) / Corrode(2) / Hex(2) / Sundered(2)** |
-| **3** | Active | 16 m | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(3) / Corrode(3) / Hex(3) / Sundered(3)** |
-| **4** | Active | 20 m | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(4) / Corrode(4) / Hex(4) / Sundered(4)** |
-| **5** | Active | 24 m | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(5) / Corrode(5) / Hex(5) / Sundered(5)** |
-| **6** | Active | 28 m | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(5) / Corrode(5) / Hex(5) / Sundered(5)** |
-| **7** | Active | 32 m | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(6) / Corrode(6) / Hex(6) / Sundered(6)** |
-| **8** | Active | 36 m | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(7) / Corrode(7) / Hex(7) / Sundered(7)** |
-| **9** | Active | 40 m | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(7) / Corrode(7) / Hex(7) / Sundered(7)** |
-| **10** | Active | 44 m | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(8) / Corrode(8) / Hex(8) / Sundered(8)** |
-| **11** | Active | 48 m | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(8) / Corrode(8) / Hex(8) / Sundered(8)** |
-| **12** | Active | 52 m | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(9) / Corrode(9) / Hex(9) / Sundered(9)** |
-| **13** | Active | 56 m | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(9) / Corrode(9) / Hex(9) / Sundered(9)** |
-| **14** | Active | 60 m | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(9) / Corrode(9) / Hex(9) / Sundered(9)** |
-| **15** | Active | 64 m | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(10) / Corrode(10) / Hex(10) / Sundered(10)** |
-| **16** | Active | 68 m | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(10) / Corrode(10) / Hex(10) / Sundered(10)** |
+| **1** | Active | 8 m | — | Instant | Deal **+1d8 damage** on hit. | **Challenge(1) / Corrode(1) / Hex(1) / Sundered(1) / Root(2)** |
+| **2** | Active | 12 m | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(2) / Corrode(2) / Hex(2) / Sundered(2) / Root(2)** |
+| **3** | Active | 16 m | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(3) / Corrode(3) / Hex(3) / Sundered(3) / Root(3)** |
+| **4** | Active | 20 m | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(4) / Corrode(4) / Hex(4) / Sundered(4) / Root(4)** |
+| **5** | Active | 24 m | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(5) / Corrode(5) / Hex(5) / Sundered(5) / Root(5)** |
+| **6** | Active | 28 m | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(5) / Corrode(5) / Hex(5) / Sundered(5) / Root(5)** |
+| **7** | Active | 32 m | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(6) / Corrode(6) / Hex(6) / Sundered(6) / Root(6)** |
+| **8** | Active | 36 m | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(7) / Corrode(7) / Hex(7) / Sundered(7) / Root(7)** |
+| **9** | Active | 40 m | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(7) / Corrode(7) / Hex(7) / Sundered(7) / Root(7)** |
+| **10** | Active | 44 m | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(8) / Corrode(8) / Hex(8) / Sundered(8) / Root(8)** |
+| **11** | Active | 48 m | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(8) / Corrode(8) / Hex(8) / Sundered(8) / Root(8)** |
+| **12** | Active | 52 m | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(9) / Corrode(9) / Hex(9) / Sundered(9) / Root(9)** |
+| **13** | Active | 56 m | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(9) / Corrode(9) / Hex(9) / Sundered(9) / Root(9)** |
+| **14** | Active | 60 m | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(9) / Corrode(9) / Hex(9) / Sundered(9) / Root(9)** |
+| **15** | Active | 64 m | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(10) / Corrode(10) / Hex(10) / Sundered(10) / Root(10)** |
+| **16** | Active | 68 m | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(10) / Corrode(10) / Hex(10) / Sundered(10) / Root(10)** |
 
 }}
 \page
@@ -1655,12 +1699,14 @@ This template covers Lacerate, Mark, Ruin, and Slow.
       Damage is optional and may only be added once it can be carried permanently afterward<br><br>
 
       SPECIALS<br>
-      Challenge / Corrode / Hex / Sundered<br><br>
+      Challenge / Corrode / Hex / Sundered / Root<br><br>
 
 
       AOE SPECIAL VALUE RULE<br>
       AoE Special value is derived from the matching Single-Target value, then halved.<br>
       AoE Special = floor(Single-Target Special / 2).<br><br>
+      ROOT EXCEPTION<br>
+      Root never falls below Root(2). If the halved value would be Root(1), use Root(2) only when the full Range and AoE budget can support it. Otherwise Root is unavailable at that Level.<br><br>
 
       AOE SPECIAL COST RULE<br>
       AoE Special costs one Diminishing step higher than the printed value.<br>
@@ -1709,7 +1755,7 @@ This template covers Lacerate, Mark, Ruin, and Slow.
 
       NOTES<br>
       This is the AoE version of the heavy Start PP 6 Special group.<br>
-      Root is included in this group as Root(X), where X is Break Strength.<br>
+      Root follows its dedicated minimum and breaking rules. Root is unavailable at Level 1 because the AoE budget cannot support Root(2).<br>
       Damage is intentionally absent until Level 14.<br>
       Once +1d8 damage appears, it remains present.<br>
       Radius 8 m is not reached because Radius 8 m plus Special(5) plus +1d8 would exceed the final budget.
@@ -1727,22 +1773,22 @@ A self-centered area attack that applies a heavy Start PP 6 Special around the a
 :
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
 |:--:|:--|:--:|:--:|:--:|:--|:--|
-| **1** | Active | Self | Radius 2 m | Instant | No damage. | Affected creatures gain **Challenge(1) / Corrode(1) / Hex(1) / Sundered(1)**. |
-| **2** | Active | Self | Radius 2 m | Instant | No damage. | Affected creatures gain **Challenge(1) / Corrode(1) / Hex(1) / Sundered(1)**. |
-| **3** | Active | Self | Radius 3 m | Instant | No damage. | Affected creatures gain **Challenge(2) / Corrode(2) / Hex(2) / Sundered(2)**. |
-| **4** | Active | Self | Radius 3 m | Instant | No damage. | Affected creatures gain **Challenge(2) / Corrode(2) / Hex(2) / Sundered(2)**. |
-| **5** | Active | Self | Radius 4 m | Instant | No damage. | Affected creatures gain **Challenge(2) / Corrode(2) / Hex(2) / Sundered(2)**. |
-| **6** | Active | Self | Radius 4 m | Instant | No damage. | Affected creatures gain **Challenge(3) / Corrode(3) / Hex(3) / Sundered(3)**. |
-| **7** | Active | Self | Radius 5 m | Instant | No damage. | Affected creatures gain **Challenge(3) / Corrode(3) / Hex(3) / Sundered(3)**. |
-| **8** | Active | Self | Radius 5 m | Instant | No damage. | Affected creatures gain **Challenge(3) / Corrode(3) / Hex(3) / Sundered(3)**. |
-| **9** | Active | Self | Radius 5 m | Instant | No damage. | Affected creatures gain **Challenge(4) / Corrode(4) / Hex(4) / Sundered(4)**. |
-| **10** | Active | Self | Radius 6 m | Instant | No damage. | Affected creatures gain **Challenge(4) / Corrode(4) / Hex(4) / Sundered(4)**. |
-| **11** | Active | Self | Radius 6 m | Instant | No damage. | Affected creatures gain **Challenge(4) / Corrode(4) / Hex(4) / Sundered(4)**. |
-| **12** | Active | Self | Radius 6 m | Instant | No damage. | Affected creatures gain **Challenge(5) / Corrode(5) / Hex(5) / Sundered(5)**. |
-| **13** | Active | Self | Radius 6 m | Instant | No damage. | Affected creatures gain **Challenge(5) / Corrode(5) / Hex(5) / Sundered(5)**. |
-| **14** | Active | Self | Radius 7 m | Instant | Deal **+1d8 damage** to affected creatures. | Affected creatures gain **Challenge(5) / Corrode(5) / Hex(5) / Sundered(5)**. |
-| **15** | Active | Self | Radius 7 m | Instant | Deal **+1d8 damage** to affected creatures. | Affected creatures gain **Challenge(5) / Corrode(5) / Hex(5) / Sundered(5)**. |
-| **16** | Active | Self | Radius 7 m | Instant | Deal **+1d8 damage** to affected creatures. | Affected creatures gain **Challenge(5) / Corrode(5) / Hex(5) / Sundered(5)**. |
+| **1** | Active | Self | Radius 2 m | Instant | No damage. | Affected creatures gain **Challenge(1) / Corrode(1) / Hex(1) / Sundered(1)**. **Root is unavailable at this Level.** |
+| **2** | Active | Self | Radius 2 m | Instant | No damage. | Affected creatures gain **Challenge(1) / Corrode(1) / Hex(1) / Sundered(1) / Root(2)**. |
+| **3** | Active | Self | Radius 3 m | Instant | No damage. | Affected creatures gain **Challenge(2) / Corrode(2) / Hex(2) / Sundered(2) / Root(2)**. |
+| **4** | Active | Self | Radius 3 m | Instant | No damage. | Affected creatures gain **Challenge(2) / Corrode(2) / Hex(2) / Sundered(2) / Root(2)**. |
+| **5** | Active | Self | Radius 4 m | Instant | No damage. | Affected creatures gain **Challenge(2) / Corrode(2) / Hex(2) / Sundered(2) / Root(2)**. |
+| **6** | Active | Self | Radius 4 m | Instant | No damage. | Affected creatures gain **Challenge(3) / Corrode(3) / Hex(3) / Sundered(3) / Root(3)**. |
+| **7** | Active | Self | Radius 5 m | Instant | No damage. | Affected creatures gain **Challenge(3) / Corrode(3) / Hex(3) / Sundered(3) / Root(3)**. |
+| **8** | Active | Self | Radius 5 m | Instant | No damage. | Affected creatures gain **Challenge(3) / Corrode(3) / Hex(3) / Sundered(3) / Root(3)**. |
+| **9** | Active | Self | Radius 5 m | Instant | No damage. | Affected creatures gain **Challenge(4) / Corrode(4) / Hex(4) / Sundered(4) / Root(4)**. |
+| **10** | Active | Self | Radius 6 m | Instant | No damage. | Affected creatures gain **Challenge(4) / Corrode(4) / Hex(4) / Sundered(4) / Root(4)**. |
+| **11** | Active | Self | Radius 6 m | Instant | No damage. | Affected creatures gain **Challenge(4) / Corrode(4) / Hex(4) / Sundered(4) / Root(4)**. |
+| **12** | Active | Self | Radius 6 m | Instant | No damage. | Affected creatures gain **Challenge(5) / Corrode(5) / Hex(5) / Sundered(5) / Root(5)**. |
+| **13** | Active | Self | Radius 6 m | Instant | No damage. | Affected creatures gain **Challenge(5) / Corrode(5) / Hex(5) / Sundered(5) / Root(5)**. |
+| **14** | Active | Self | Radius 7 m | Instant | Deal **+1d8 damage** to affected creatures. | Affected creatures gain **Challenge(5) / Corrode(5) / Hex(5) / Sundered(5) / Root(5)**. |
+| **15** | Active | Self | Radius 7 m | Instant | Deal **+1d8 damage** to affected creatures. | Affected creatures gain **Challenge(5) / Corrode(5) / Hex(5) / Sundered(5) / Root(5)**. |
+| **16** | Active | Self | Radius 7 m | Instant | Deal **+1d8 damage** to affected creatures. | Affected creatures gain **Challenge(5) / Corrode(5) / Hex(5) / Sundered(5) / Root(5)**. |
 
 ---
 :
@@ -1764,12 +1810,14 @@ A self-centered area attack that applies a heavy Start PP 6 Special around the a
       Damage is optional and may only be added once it can be carried permanently afterward<br><br>
 
       SPECIALS<br>
-      Challenge / Corrode / Hex / Sundered<br><br>
+      Challenge / Corrode / Hex / Sundered / Root<br><br>
 
 
       AOE SPECIAL VALUE RULE<br>
       AoE Special value is derived from the matching Ranged Single-Target value, then halved.<br>
       AoE Special = floor(Single-Target Special / 2).<br><br>
+      ROOT EXCEPTION<br>
+      Root never falls below Root(2). If the halved value would be Root(1), use Root(2) only when the full Range and AoE budget can support it. Otherwise Root is unavailable at that Level.<br><br>
 
       AOE SPECIAL COST RULE<br>
       AoE Special costs one Diminishing step higher than the printed value.<br>
@@ -1837,7 +1885,7 @@ A self-centered area attack that applies a heavy Start PP 6 Special around the a
 
       NOTES<br>
       This is the Ranged AoE version of the heavy Start PP 6 Special group.<br>
-      Root is included in this group as Root(X), where X is Break Strength.<br>
+      Root follows its dedicated minimum and breaking rules. Root is unavailable at Level 1 because the AoE budget cannot support Root(2).<br>
       The Ranged version trails behind Melee because it pays Range every level.<br>
       Damage is omitted entirely to preserve the Range + AoE + heavy Special progression.
     </span>
@@ -1854,22 +1902,22 @@ A ranged area attack that applies a heavy Start PP 6 Special at a target point w
 :
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
 |:--:|:--|:--:|:--:|:--:|:--|:--|
-| **1** | Active | 8 m | Radius 2 m | Instant | No damage. | Affected creatures gain **Challenge(1) / Corrode(1) / Hex(1) / Sundered(1)**. |
-| **2** | Active | 12 m | Radius 2 m | Instant | No damage. | Affected creatures gain **Challenge(1) / Corrode(1) / Hex(1) / Sundered(1)**. |
-| **3** | Active | 16 m | Radius 3 m | Instant | No damage. | Affected creatures gain **Challenge(1) / Corrode(1) / Hex(1) / Sundered(1)**. |
-| **4** | Active | 20 m | Radius 3 m | Instant | No damage. | Affected creatures gain **Challenge(2) / Corrode(2) / Hex(2) / Sundered(2)**. |
-| **5** | Active | 24 m | Radius 4 m | Instant | No damage. | Affected creatures gain **Challenge(2) / Corrode(2) / Hex(2) / Sundered(2)**. |
-| **6** | Active | 28 m | Radius 4 m | Instant | No damage. | Affected creatures gain **Challenge(2) / Corrode(2) / Hex(2) / Sundered(2)**. |
-| **7** | Active | 32 m | Radius 4 m | Instant | No damage. | Affected creatures gain **Challenge(3) / Corrode(3) / Hex(3) / Sundered(3)**. |
-| **8** | Active | 36 m | Radius 5 m | Instant | No damage. | Affected creatures gain **Challenge(3) / Corrode(3) / Hex(3) / Sundered(3)**. |
-| **9** | Active | 40 m | Radius 5 m | Instant | No damage. | Affected creatures gain **Challenge(3) / Corrode(3) / Hex(3) / Sundered(3)**. |
-| **10** | Active | 44 m | Radius 5 m | Instant | No damage. | Affected creatures gain **Challenge(4) / Corrode(4) / Hex(4) / Sundered(4)**. |
-| **11** | Active | 48 m | Radius 5 m | Instant | No damage. | Affected creatures gain **Challenge(4) / Corrode(4) / Hex(4) / Sundered(4)**. |
-| **12** | Active | 52 m | Radius 6 m | Instant | No damage. | Affected creatures gain **Challenge(4) / Corrode(4) / Hex(4) / Sundered(4)**. |
-| **13** | Active | 56 m | Radius 6 m | Instant | No damage. | Affected creatures gain **Challenge(4) / Corrode(4) / Hex(4) / Sundered(4)**. |
-| **14** | Active | 60 m | Radius 6 m | Instant | No damage. | Affected creatures gain **Challenge(4) / Corrode(4) / Hex(4) / Sundered(4)**. |
-| **15** | Active | 64 m | Radius 6 m | Instant | No damage. | Affected creatures gain **Challenge(5) / Corrode(5) / Hex(5) / Sundered(5)**. |
-| **16** | Active | 68 m | Radius 7 m | Instant | No damage. | Affected creatures gain **Challenge(5) / Corrode(5) / Hex(5) / Sundered(5)**. |
+| **1** | Active | 8 m | Radius 2 m | Instant | No damage. | Affected creatures gain **Challenge(1) / Corrode(1) / Hex(1) / Sundered(1)**. **Root is unavailable at this Level.** |
+| **2** | Active | 12 m | Radius 2 m | Instant | No damage. | Affected creatures gain **Challenge(1) / Corrode(1) / Hex(1) / Sundered(1) / Root(2)**. |
+| **3** | Active | 16 m | Radius 3 m | Instant | No damage. | Affected creatures gain **Challenge(1) / Corrode(1) / Hex(1) / Sundered(1) / Root(2)**. |
+| **4** | Active | 20 m | Radius 3 m | Instant | No damage. | Affected creatures gain **Challenge(2) / Corrode(2) / Hex(2) / Sundered(2) / Root(2)**. |
+| **5** | Active | 24 m | Radius 4 m | Instant | No damage. | Affected creatures gain **Challenge(2) / Corrode(2) / Hex(2) / Sundered(2) / Root(2)**. |
+| **6** | Active | 28 m | Radius 4 m | Instant | No damage. | Affected creatures gain **Challenge(2) / Corrode(2) / Hex(2) / Sundered(2) / Root(2)**. |
+| **7** | Active | 32 m | Radius 4 m | Instant | No damage. | Affected creatures gain **Challenge(3) / Corrode(3) / Hex(3) / Sundered(3) / Root(3)**. |
+| **8** | Active | 36 m | Radius 5 m | Instant | No damage. | Affected creatures gain **Challenge(3) / Corrode(3) / Hex(3) / Sundered(3) / Root(3)**. |
+| **9** | Active | 40 m | Radius 5 m | Instant | No damage. | Affected creatures gain **Challenge(3) / Corrode(3) / Hex(3) / Sundered(3) / Root(3)**. |
+| **10** | Active | 44 m | Radius 5 m | Instant | No damage. | Affected creatures gain **Challenge(4) / Corrode(4) / Hex(4) / Sundered(4) / Root(4)**. |
+| **11** | Active | 48 m | Radius 5 m | Instant | No damage. | Affected creatures gain **Challenge(4) / Corrode(4) / Hex(4) / Sundered(4) / Root(4)**. |
+| **12** | Active | 52 m | Radius 6 m | Instant | No damage. | Affected creatures gain **Challenge(4) / Corrode(4) / Hex(4) / Sundered(4) / Root(4)**. |
+| **13** | Active | 56 m | Radius 6 m | Instant | No damage. | Affected creatures gain **Challenge(4) / Corrode(4) / Hex(4) / Sundered(4) / Root(4)**. |
+| **14** | Active | 60 m | Radius 6 m | Instant | No damage. | Affected creatures gain **Challenge(4) / Corrode(4) / Hex(4) / Sundered(4) / Root(4)**. |
+| **15** | Active | 64 m | Radius 6 m | Instant | No damage. | Affected creatures gain **Challenge(5) / Corrode(5) / Hex(5) / Sundered(5) / Root(5)**. |
+| **16** | Active | 68 m | Radius 7 m | Instant | No damage. | Affected creatures gain **Challenge(5) / Corrode(5) / Hex(5) / Sundered(5) / Root(5)**. |
 
 
 
@@ -3379,7 +3427,6 @@ Cleanse Maintenance is the self-only upkeep tool.
 
 ---
 :
-```markdown
 <h3 id="melee-single-target-heal-active">
   Melee Single Target Heal (Active, Support)
   <span class="tooltip">🛈
@@ -3462,7 +3509,6 @@ A close-range restorative Active that heals one creature you can touch or reach.
 | **14** | Active, Support | Touch / Melee Reach | — | Instant | Heal one creature for **22d8 HP**. You may spend this Power's Health Level Recovery pool to restore lost Health Levels on the target. | Restore up to **3 Health Levels** per Safe Haven Rest. |
 | **15** | Active, Support | Touch / Melee Reach | — | Instant | Heal one creature for **22d8 HP**. You may spend this Power's Health Level Recovery pool to restore lost Health Levels on the target. | Restore up to **4 Health Levels** per Safe Haven Rest. |
 | **16** | Active, Support | Touch / Melee Reach | — | Instant | Heal one creature for **24d8 HP**. You may spend this Power's Health Level Recovery pool to restore lost Health Levels on the target. | Restore up to **4 Health Levels** per Safe Haven Rest. |
-```
 
 ---
 :
@@ -5368,7 +5414,7 @@ A creature may attempt to disbelieve an Illusion Field when:
 
 The check is normally:
 
-**Wits Attribute Check or Awareness Skill Check vs. the caster’s Power TN**
+**Wits Attribute Check or Perception Skill Check vs. the caster’s Power TN**
 
 On success, that creature recognizes the illusion as false.
 
@@ -7261,6 +7307,13 @@ A compact ranged area Smite attack that burns supernatural enemies inside a smal
 
 Mental Powers affect thought, perception, emotion, memory, or the mind itself.
 
+The core Mental Power catalogue contains four distinct Actives:
+
+- **Mental Attack** harms the mind.
+- **Mind Illusion** changes what a creature perceives.
+- **Mind Probe** reads thoughts, intentions, and memories.
+- **Mental Control** imposes temporary noncombat instructions, attitudes, or beliefs on weaker creatures.
+
 Mental Powers are not normal weapon attacks.
 
 Mental Powers do not target Evade unless a Power explicitly says otherwise.
@@ -7269,24 +7322,24 @@ Mental Powers are not reduced by Armor unless a Power explicitly says otherwise.
 
 Most Mental Powers require **Telepathic Access**.
 
-Mental Control is not part of the core Mental Power catalogue.
-
 ---
 
 ### Telepathic Access
 
-Telepathic Access represents the ability to reach, sense, and affect another creature's mind.
+Telepathic Access represents the ability to reach and affect another creature's mind.
 
 A creature has Telepathic Access to a target if one of the following is true:
 
-- the creature has a **Telepathy / Mind Link Passive** that reaches the target,
+- the creature has a **Telepathy Passive** that reaches a target it can perceive or whose location it knows,
 - the target is part of the creature's willing Mind Link,
 - the target is already affected by one of the creature's Mental Powers,
 - the Power explicitly creates its own Telepathic Access.
 
-Mental Attack and Mind Illusion Powers require Telepathic Access unless the Power explicitly says otherwise.
+Telepathic Access alone reveals no thoughts, memories, identity, or hidden information.
 
-A Mental Power's level cannot exceed the user's **Telepathy / Mind Link Passive** level unless a rule explicitly says otherwise.
+Mental Attack, Mind Illusion, Mind Probe, and Mental Control require Telepathic Access unless the Power explicitly says otherwise.
+
+A Mental Power's level cannot exceed the user's **Telepathy Passive** level unless a rule explicitly says otherwise.
 
 Telekinesis does not require Telepathic Access unless the Power explicitly says otherwise.
 
@@ -7294,9 +7347,11 @@ Telekinesis does not require Telepathic Access unless the Power explicitly says 
 
 ### Mental Power Resolution
 
-Mental Attack and Mind Illusion Powers are resolved like Spells against a fixed TN.
+Mental Attack, Mind Illusion, Mind Probe, and Mental Control are resolved like Spells against a fixed TN increased by **+4**.
 
-The user rolls the Power against its listed fixed TN.
+Determine the normal fixed TN for the Power's level, then add **+4**.
+
+The user rolls the Mental Power against that TN.
 
 If the roll fails, the Mental Power fizzles and has no effect.
 
@@ -7357,7 +7412,7 @@ Mental Attack does not grant an automatic Intellect or Wits Attribute Check afte
       DESIGN STRUCTURE<br>
       This is a premium damage axis.<br>
       It is expensive because it bypasses Armor and uses mental defenses instead of physical defenses.<br>
-      It also requires a Telepathy / Mind Link Passive, which costs a Passive Slot and limits the maximum Mental Power level.
+      It also requires a Telepathy Passive, which costs a Passive Slot and limits the maximum Mental Power level.
     </span>
   </span>
 </h3>
@@ -7496,4 +7551,190 @@ A Mind Illusion ends for a creature if it succeeds on the listed Wits or Intelle
 \page
 {{pageNumber,auto}}
 {{wide
+## Mind Probe
 
+Mind Probe searches a creature's active thoughts and memories.
+
+Mind Probe requires Telepathic Access unless the Power explicitly says otherwise.
+
+Mind Probe is resolved as a Mental Power against the fixed TN increased by **+4**.
+
+On a success, learn only the information allowed by the Power's current level.
+
+Mind Probe returns information as the target understands or remembers it. A false belief, incomplete memory, or mistaken conclusion remains false, incomplete, or mistaken when read.
+
+Mind Probe cannot discover information the target never knew.
+
+An unwilling target knows that its mind was probed after the Power resolves, but it does not automatically know exactly what was learned.
+
+Mind Probe does not alter memories, create beliefs, control actions, or deal damage.
+
+---
+
+<h3 id="mind-probe-active">
+  Mind Probe (Active, Mental)
+  <span class="tooltip">🛈
+    <span class="tooltiptext">
+      BASELINES<br>
+      Power Type = Active, Mental<br>
+      Active curve = 30 PP per level<br>
+      Requires Telepathic Access<br>
+      Resolved like a Spell against fixed TN +4<br><br>
+
+      DESIGN STRUCTURE<br>
+      Mind Probe is a fixed qualitative Mental Active.<br>
+      Its full budget is spent on information depth, precision, memory age, and access to difficult memories.<br>
+      It affects one creature and returns one listed answer, fact set, or memory per use unless a level explicitly grants more.<br>
+      It cannot be combined with damage, Specials, Mind Illusion, or Mental Control in a standard catalogue entry.
+    </span>
+  </span>
+</h3>
+
+A direct mental search that extracts one thought, fact, intention, or memory from a creature.
+
+| **Level** | **Type** | **Range** | **Targets** | **Duration** | **Information Access** |
+|:--:|:--|:--:|:--:|:--:|:--|
+| **1** | Active, Mental | Telepathic Access | 1 creature | Instant | Learn the target's current dominant emotion. |
+| **2** | Active, Mental | Telepathic Access | 1 creature | Instant | Read one dominant surface thought currently passing through the target's mind. |
+| **3** | Active, Mental | Telepathic Access | 1 creature | Instant | Learn the target's immediate intention or next intended non-reflexive action. |
+| **4** | Active, Mental | Telepathic Access | 1 creature | Instant | Learn one simple fact currently held in the target's active memory. |
+| **5** | Active, Mental | Telepathic Access | 1 creature | Instant | Read one sensory memory from approximately the last minute. |
+| **6** | Active, Mental | Telepathic Access | 1 creature | Instant | Read one event memory from approximately the last hour. |
+| **7** | Active, Mental | Telepathic Access | 1 creature | Instant | Read one named memory from approximately the last day. |
+| **8** | Active, Mental | Telepathic Access | 1 creature | Instant | Read one named memory from approximately the last week. |
+| **9** | Active, Mental | Telepathic Access | 1 creature | Instant | Read one named memory from approximately the last month. |
+| **10** | Active, Mental | Telepathic Access | 1 creature | Instant | Read one named memory from approximately the last year. |
+| **11** | Active, Mental | Telepathic Access | 1 creature | Instant | Read one accessible named memory from any point in the target's life. |
+| **12** | Active, Mental | Telepathic Access | 1 creature | Instant | Follow one connected memory chain and learn up to **MR linked facts** about one named person, place, object, or event. |
+| **13** | Active, Mental | Telepathic Access | 1 creature | Instant | Recover one fragmented or partially forgotten memory as the target's mind still retains it. |
+| **14** | Active, Mental | Telepathic Access | 1 creature | Instant | Reach one deliberately suppressed or deeply buried memory. |
+| **15** | Active, Mental | Telepathic Access | 1 creature | Instant | Reach one memory protected by a Mental Power, ward, or seal of a lower Power Level. Equal- or higher-level protection still blocks the probe. |
+| **16** | Active, Mental | Telepathic Access | 1 creature | Instant | Reconstruct one complete remembered sequence around a named event, including connected sensory details, emotions, and up to **MR linked facts**. |
+
+---
+}}
+
+\page
+{{pageNumber,auto}}
+{{wide
+### Mind Probe Limits
+
+Mind Probe reads the target's mind. It does not establish objective truth.
+
+Mind Probe cannot:
+
+- discover knowledge the target never possessed,
+- make an incorrect belief become correct,
+- recover information completely erased from the target's mind,
+- alter, erase, implant, or rewrite memories,
+- force the target to act or speak,
+- apply a Special,
+- or deal damage.
+
+A willing target may voluntarily share information through Telepathy instead. Mind Probe is required when the user searches, extracts, or reaches into an unwilling mind.
+
+---
+
+## Mental Control
+
+Mental Control imposes a temporary instruction, attitude, relationship, belief, or behavioral program on a weaker creature.
+
+Mental Control requires Telepathic Access unless the Power explicitly says otherwise.
+
+Mental Control is resolved as a Mental Power against the fixed TN increased by **+4**.
+
+Mental Control can affect only a creature whose **Mastery Rank is strictly lower** than the user's Mastery Rank.
+
+Mental Control is a **noncombat Power**. It cannot be activated after Initiative begins, against a creature currently participating in combat, or to create an allied combatant.
+
+If a controlled creature becomes a participant in combat, the Mental Control ends immediately before it takes its first combat action.
+
+---
+
+<h3 id="mental-control-active">
+  Mental Control (Active, Mental, Noncombat)
+  <span class="tooltip">🛈
+    <span class="tooltiptext">
+      BASELINES<br>
+      Power Type = Active, Mental, Noncombat<br>
+      Active curve = 30 PP per level<br>
+      Requires Telepathic Access<br>
+      Target Mastery Rank must be lower than the user's Mastery Rank<br>
+      Resolved like a Spell against fixed TN +4<br><br>
+
+      DESIGN STRUCTURE<br>
+      Mental Control is a fixed qualitative Mental Active.<br>
+      Its full budget is spent on instruction complexity, target count, duration, conditional behavior, and the breadth of one defined noncombat purpose.<br>
+      It never creates a combatant, never grants direct action-economy value, and never replaces Summon, Companion, or combat-control Powers.
+    </span>
+  </span>
+</h3>
+
+A temporary mental command that changes what weaker creatures are willing to do, believe, or accept outside combat.
+}}
+
+\page
+{{pageNumber,auto}}
+{{wide
+| **Level** | **Type** | **Targets** | **Duration** | **Control Scope** |
+|:--:|:--|:--:|:--:|:--|
+| **1** | Active, Mental, Noncombat | 1 creature | 1 minute | Impose one immediate, simple, non-harmful instruction. |
+| **2** | Active, Mental, Noncombat | 1 creature | 10 minutes | Impose one simple task that can be completed without complex judgment. |
+| **3** | Active, Mental, Noncombat | 1 creature | 1 hour | Impose one simple task with several obvious steps. |
+| **4** | Active, Mental, Noncombat | 1 creature | 4 hours | Impose one clear command or one temporary attitude toward a person, place, or object. |
+| **5** | Active, Mental, Noncombat | 2 creatures | 4 hours | Give both targets the same simple task or attitude. |
+| **6** | Active, Mental, Noncombat | 2 creatures | 8 hours | Impose one sustained role, routine, or pattern of cooperation. |
+| **7** | Active, Mental, Noncombat | 2 creatures | 12 hours | Impose two linked instructions or one simple conditional instruction. |
+| **8** | Active, Mental, Noncombat | 3 creatures | 1 day | Impose one believable temporary relationship, loyalty, aversion, trust, affection, or false assumption. |
+| **9** | Active, Mental, Noncombat | 3 creatures | 1 day | Impose one complex noncombat objective and allow reasonable improvisation toward it. |
+| **10** | Active, Mental, Noncombat | MR creatures | 2 days | Give all targets the same complex task, attitude, or temporary relationship. |
+| **11** | Active, Mental, Noncombat | MR creatures | 3 days | Impose one conditional behavioral program with a clear trigger and response. |
+| **12** | Active, Mental, Noncombat | MR + 1 creatures | 3 days | Combine one complex task with one supporting attitude or belief. |
+| **13** | Active, Mental, Noncombat | MR + 1 creatures | 1 week | Impose one sustained false loyalty, relationship, social role, or long-form objective. |
+| **14** | Active, Mental, Noncombat | MR + 2 creatures | 1 week | Impose several linked instructions serving one defined noncombat purpose. |
+| **15** | Active, Mental, Noncombat | MR + 3 creatures | 2 weeks | Impose a broad behavioral program around one defined noncombat purpose. |
+| **16** | Active, Mental, Noncombat | MR + 4 creatures | 1 month | Impose complex noncombat control around one defined purpose, including linked instructions, attitudes, and conditional behavior. |
+
+---
+}}
+
+\page
+{{pageNumber,auto}}
+{{wide
+### Mental Control Limits
+
+All targets must be within Telepathic Access when the Power is activated. When several creatures are affected, they receive the same control program.
+
+Mental Control may order a creature to speak, cooperate, open a door, ignore an intrusion, leave an area, deliver a message, adopt a temporary attitude, or pursue another noncombat objective within the Power's listed scope.
+
+Mental Control may not:
+
+- be activated during combat,
+- order a creature to make an attack, use an offensive Power, or participate in combat,
+- create an allied combatant,
+- force direct self-harm, obvious suicide, or entry into clearly lethal danger,
+- force the expenditure of Stones, Charges, once-per-rest abilities, or other limited combat resources,
+- grant knowledge the target does not possess,
+- rewrite or erase memories,
+- permanently change personality, loyalty, love, identity, or conviction,
+- or affect a creature whose Mastery Rank is equal to or higher than the user's.
+
+Mental Control transmits intent telepathically and does not require a shared spoken language, but a target cannot execute concepts it is incapable of understanding.
+
+A controlled creature remembers its actions when the effect ends. It may recognize that its behavior was unnatural.
+
+The effect ends immediately if the controller or one of the controller's obvious allies directly harms the target.
+
+A target receives a **Wits Attribute Check** against the original Mental Power TN only when the control directly collides with a defining conviction, a deeply held bond, or clear evidence that obedience would cause severe harm to someone it is committed to protect. On a success, the control ends. This is a later break opportunity, not an automatic resistance roll when the Power is applied.
+
+Mental Control can make a target speak or cooperate, but it does not guarantee complete or objectively truthful information. Use Mind Probe to search thoughts and memories directly.
+
+---
+
+### Excluded Mental Conditions and Power Locks
+
+**Frightened**, **Charmed**, and **Confused** are not separate core Specials or Power families. Their noncombat narrative functions are handled through Mental Control; false perception is handled through Mind Illusion; general combat impairment is handled through existing Specials such as Disoriented, Weaken, or Soulburn.
+
+**Silence**, **Null Field**, and **Power Lock** are not standard player Powers or core Specials. A specific adventure, location, Artifact, monster, or narrative effect may prohibit a named Power, Special, or Power tag, but it must write that exception explicitly.
+
+}}

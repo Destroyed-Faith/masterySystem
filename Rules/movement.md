@@ -57,8 +57,8 @@ The Homebrewery
 
 ::::::::::::::::::::::::::::::::
 {{homebreweryCredits
-Destroyed Faith — DF Core
-Version: v0.8.5 (2026-06-21)
+Destroyed Faith — DF Core Movement
+Version: v0.9.8 (2026-08-01)
 }}
 
 }}
@@ -105,11 +105,11 @@ A Movement Power is not an Attack Action, not an Active Buff, not a Reaction, an
 
 ### Normal Movement Baseline
 
-A normal character can move **10 m** with their normal Movement.
+A normal character can move **8 m** with their normal Movement.
 
 When you use a Movement Power, the listed distance is your **total Movement for that Movement Power**.
 
-It is not added on top of your normal 10 m Movement unless an entry explicitly says otherwise.
+It is not added on top of your normal 8 m Movement unless an entry explicitly says otherwise.
 
 ---
 
@@ -135,7 +135,6 @@ The same distance has different value depending on how the movement works.
 Movement Powers may not grant:
 
 - Attack Dice,
-- Save Dice,
 - Critical,
 - bonus damage to your next attack,
 - Penetration,
@@ -190,7 +189,7 @@ Last-second repositioning is handled only by **Reaction: Reposition**, not by Mo
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
-      Normal Movement = 10 m.<br>
+      Normal Movement = 8 m.<br>
       Ground Dash is the cheapest Movement type because it follows normal ground paths and provokes movement-triggered Reactions normally.<br><br>
 
       PRICING LOGIC<br>
@@ -208,7 +207,7 @@ Last-second repositioning is handled only by **Reaction: Reposition**, not by Mo
       This allows high-level speed without creating 40–50 m default combat movement.<br><br>
 
       NOTES<br>
-      This grants no Safe Movement, Teleport, Flight, Damage, Special, Attack Dice, Save Dice, Critical, Armor, Evade, Temporary HP, or other rider.
+      This grants no Safe Movement, Teleport, Flight, Damage, Special, Attack Dice, Critical, Armor, Evade, Temporary HP, or other rider.
     </span>
   </span>
 </h3>
@@ -245,7 +244,7 @@ You commit your Movement to speed, crossing ground faster than a normal combatan
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
-      Normal Movement = 10 m.<br>
+      Normal Movement = 8 m.<br>
       Safe Movement is premium ground movement because it avoids movement-triggered Reactions.<br><br>
 
       PRICING LOGIC<br>
@@ -266,7 +265,7 @@ You commit your Movement to speed, crossing ground faster than a normal combatan
       This grants no Evade bonus against attacks.<br>
       It does not cancel attacks.<br>
       It does not work outside your turn.<br>
-      It grants no Damage, Special, Attack Dice, Save Dice, Critical, Armor, Temporary HP, or other rider.
+      It grants no Damage, Special, Attack Dice, Critical, Armor, Temporary HP, or other rider.
     </span>
   </span>
 </h3>
@@ -303,7 +302,7 @@ You move with perfect timing, slipping past openings without giving enemies a cl
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
-      Normal Movement = 10 m.<br>
+      Normal Movement = 8 m.<br>
       Teleport is premium Movement.<br>
       Teleport is valued at roughly 30 PP per meter.<br><br>
 
@@ -326,7 +325,7 @@ You move with perfect timing, slipping past openings without giving enemies a cl
       Teleport scales to a hard cap of 16 m.<br><br>
 
       NOTES<br>
-      This grants no Damage, Special, Attack Dice, Save Dice, Critical, Armor, Evade, Temporary HP, defensive Phasing, or other rider.
+      This grants no Damage, Special, Attack Dice, Critical, Armor, Evade, Temporary HP, defensive Phasing, or other rider.
     </span>
   </span>
 </h3>
@@ -386,7 +385,7 @@ You fold distance and appear somewhere else without crossing the space between.
       Teleport with Ally scales to a hard cap of 12 m.<br><br>
 
       NOTES<br>
-      This grants no Damage, Special, Attack Dice, Save Dice, Critical, Armor, Evade, Temporary HP, defensive Phasing, or other rider.
+      This grants no Damage, Special, Attack Dice, Critical, Armor, Evade, Temporary HP, defensive Phasing, or other rider.
     </span>
   </span>
 </h3>
@@ -423,7 +422,7 @@ You fold distance around yourself and one nearby ally, pulling them through the 
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
-      Normal Movement = 10 m.<br>
+      Normal Movement = 8 m.<br>
       Flight is premium movement because it ignores many ground-based terrain and elevation limits.<br>
       Flight is valued at roughly 20 PP per meter.<br><br>
 
@@ -445,7 +444,7 @@ You fold distance around yourself and one nearby ally, pulling them through the 
       Flight scales to a hard cap of 24 m.<br><br>
 
       NOTES<br>
-      This grants no Damage, Special, Attack Dice, Save Dice, Critical, Armor, Evade, Temporary HP, defensive Phasing, or other rider.
+      This grants no Damage, Special, Attack Dice, Critical, Armor, Evade, Temporary HP, defensive Phasing, or other rider.
     </span>
   </span>
 </h3>
@@ -482,7 +481,7 @@ You lift from the ground and move through the air under your own power.
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
-      Normal Movement = 10 m.<br>
+      Normal Movement = 8 m.<br>
       Leap is burst movement through a jump arc.<br>
       Leap is valued at roughly 15 PP per horizontal meter because it can cross gaps and height, but still needs a legal arc and landing point.<br><br>
 
@@ -501,7 +500,7 @@ You lift from the ground and move through the air under your own power.
       Leap scales to a hard cap of 28 m horizontally or 14 m vertically.<br><br>
 
       NOTES<br>
-      This grants no Safe Movement, Teleport, Flight, Damage, Special, Attack Dice, Save Dice, Critical, Armor, Evade, Temporary HP, or other rider.
+      This grants no Safe Movement, Teleport, Flight, Damage, Special, Attack Dice, Critical, Armor, Evade, Temporary HP, or other rider.
     </span>
   </span>
 </h3>
@@ -538,7 +537,7 @@ You launch yourself in a powerful arc, crossing gaps or height that normal movem
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
-      Normal Movement = 10 m.<br>
+      Normal Movement = 8 m.<br>
       Wall Walk is traversal movement that allows movement along walls, ceilings, cliffs, or similar solid surfaces.<br>
       Wall Walk is valued at roughly 12 PP per meter.<br><br>
 
@@ -562,7 +561,7 @@ You launch yourself in a powerful arc, crossing gaps or height that normal movem
       Wall Walk scales to a hard cap of 28 m.<br><br>
 
       NOTES<br>
-      This grants no Damage, Special, Attack Dice, Save Dice, Critical, Armor, Evade, Temporary HP, defensive Phasing, or other rider.
+      This grants no Damage, Special, Attack Dice, Critical, Armor, Evade, Temporary HP, defensive Phasing, or other rider.
     </span>
   </span>
 </h3>
@@ -621,7 +620,7 @@ You cling, crawl, run, or move across surfaces that normal movement cannot use.
       Burrow scales to a hard cap of 16 m.<br><br>
 
       NOTES<br>
-      This grants no Damage, Special, Attack Dice, Save Dice, Critical, Armor, Evade, Temporary HP, defensive Phasing, or other rider.
+      This grants no Damage, Special, Attack Dice, Critical, Armor, Evade, Temporary HP, defensive Phasing, or other rider.
     </span>
   </span>
 </h3>
@@ -682,7 +681,7 @@ You force your way through soft material beneath or around the battlefield.
       Phase Passage scales to a hard cap of 8 m total material thickness.<br><br>
 
       NOTES<br>
-      This grants no Damage, Special, Attack Dice, Save Dice, Critical, Armor, Evade, Temporary HP, defensive Phasing, or other rider.
+      This grants no Damage, Special, Attack Dice, Critical, Armor, Evade, Temporary HP, defensive Phasing, or other rider.
     </span>
   </span>
 </h3>
@@ -746,7 +745,7 @@ You briefly become able to pass through matter, but only as movement, not as pro
       Trample movement scales to a hard cap of 24 m.<br><br>
 
       NOTES<br>
-      This grants no Attack Dice, Save Dice, Critical, Special, Armor, Evade, Temporary HP, Phasing, or other rider.
+      This grants no Attack Dice, Critical, Special, Armor, Evade, Temporary HP, Phasing, or other rider.
     </span>
   </span>
 </h3>

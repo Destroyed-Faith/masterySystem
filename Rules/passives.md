@@ -56,78 +56,91 @@ The Homebrewery
 
 ::::::::::::::::::::::::::::::::
 {{homebreweryCredits
-Destroyed Faith — Core Rules
-Version: v0.9.1 (2026-07-06)
+Destroyed Faith — DF Core Passives
+Version: v0.9.8 (2026-07-31)
 }}
 
 }}
 \page
 {{pageNumber,auto}}
-
 {{toc,wide
 # Summary
 
-
-
 - #### [{{ Artwork Credits}}{{ 2}}](#p2)
-- #### [{{ Passive Design Rules}}{{ 3}}](#p3)
-- #### [{{ Allowed Passive Categories}}{{ 4}}](#p4)
-- #### [{{ Passive Limits}}{{ 5}}](#p5)
-- #### [{{ Passive Pricing Modes}}{{ 6}}](#p6)
+- #### [{{ Passive Design Rules}}{{ 4}}](#p4)
+- #### [{{ Passive Categories}}{{ 5}}](#p5)
+- #### [{{ Passive Limits}}{{ 6}}](#p6)
 - #### [{{ Passive Catalog}}{{ 7}}](#p7)
-- #### [{{ Conditional Passives}}{{ 14}}](#p14)
-- #### [{{ Combined Passives}}{{ 22}}](#p22)
-- #### [{{ Conditional Combined Passives}}{{ 32}}](#p32)
-- #### [{{ Passive Special Aura}}{{ 46}}](#p46)
+- #### [{{ Conditional Passives}}{{ 13}}](#p13)
+- #### [{{ Combined Passives}}{{ 21}}](#p21)
+- #### [{{ Conditional Combined Passives}}{{ 30}}](#p30)
+- #### [{{ Passive Special Aura}}{{ 42}}](#p42)
+- #### [{{ Ward Passives}}{{ 45}}](#p45)
+- #### [{{ Telepathy}}{{ 47}}](#p47)
+- #### [{{ Bound Host}}{{ 48}}](#p48)
+- #### [{{ Thornhide}}{{ 49}}](#p49)
+- #### [{{ Passive Invisibility}}{{ 50}}](#p50)
+- #### [{{ Initiative}}{{ 51}}](#p51)
+- #### [{{ Parry Passives}}{{ 52}}](#p52)
+- #### [{{ Absorption Passives}}{{ 55}}](#p55)
+- #### [{{ Damage Negation Passives}}{{ 59}}](#p59)
 
 }}
-
 \page
 {{pageNumber,auto}}
 {{wide
 
 ## Passive Design Rules
 
-Passives represent reliable, always-on character identity.  
-They require no action to activate, but they must be chosen before combat according to the Passive Loadout rules.
+Passives represent reliable, always-available parts of a character’s combat identity.
 
-## Passive Curve
+They require no Action, Movement, Reaction, or activation roll. A Passive provides its effect while it is slotted, unless its own entry states an additional condition or requirement.
+
+Passives are selected before combat and cannot normally be changed during combat.
+
+---
+::
+### Passive Curve
 
 Passives use the following PP target curve:
 
 | **Level** | **Target PP** |
-|:--:|--:|
-| **1** | 20 |
-| **2** | 40 |
-| **3** | 60 |
-| **4** | 80 |
-| **5** | 100 |
-| **6** | 120 |
-| **7** | 140 |
-| **8** | 160 |
-| **9** | 180 |
-| **10** | 200 |
-| **11** | 220 |
-| **12** | 240 |
-| **13** | 260 |
-| **14** | 280 |
-| **15** | 300 |
-| **16** | 320 |
+| :-------: | ------------: |
+|   **1**   |            20 |
+|   **2**   |            40 |
+|   **3**   |            60 |
+|   **4**   |            80 |
+|   **5**   |           100 |
+|   **6**   |           120 |
+|   **7**   |           140 |
+|   **8**   |           160 |
+|   **9**   |           180 |
+|   **10**  |           200 |
+|   **11**  |           220 |
+|   **12**  |           240 |
+|   **13**  |           260 |
+|   **14**  |           280 |
+|   **15**  |           300 |
+|   **16**  |           320 |
 
-#### Passive Slot Progression
+---
+::
+### Passive Slot Progression
 
-Characters gain Passive Slots by Mastery Rank.
+Characters gain Passive Slots according to their Mastery Rank.
 
 | **Mastery Rank** | **Passive Slots** |
-|:--:|:--:|
-| **MR 1** | 1 |
-| **MR 2** | 2 |
-| **MR 3** | 2 |
-| **MR 4** | 3 |
-| **MR 5** | 3 |
-| **MR 6** | 4 |
+| :--------------: | :---------------: |
+|     **MR 1**     |         1         |
+|     **MR 2**     |         2         |
+|     **MR 3**     |         3         |
+|     **MR 4**     |         3         |
+|     **MR 5**     |         4         |
+|     **MR 6**     |         4         |
+|     **MR 7**     |         5         |
+|     **MR 8**     |         6         |
 
-A character may slot only this many Passives as their prepared Passive loadout.
+A character may slot only this many Passives.
 
 All slotted Passives are active.
 
@@ -135,133 +148,140 @@ There is no separate “prepared but inactive” Passive state.
 
 If a Passive is not slotted, it provides no benefit.
 
-Passive choices cannot be changed during combat.
+Passive choices cannot normally be changed during combat.
 
+---
 }}
+
 \page
 {{pageNumber,auto}}
 {{wide
 
-## Allowed Passive Categories
+### Passive Categories
 
-Every Passive must belong to exactly one Passive Category.
+A **Pure Passive** belongs to exactly one Passive Category.
 
-A Passive Category is a real mechanical classification, not flavor text.  
-Each Passive should express one clear character identity and should not hide an Active effect inside an always-on feature.
+A **Combined Passive** belongs to exactly two Passive Categories and counts as both categories for all loadout, stacking, and duplication rules.
 
-The current allowed Passive Categories are:
+A character cannot benefit from two Passives that use the same category unless a rule explicitly allows it.
 
-| **Category** | **Role** | **Typical Effects** |
-|:--|:--|:--|
-| **Armor** | Flat physical mitigation and toughness. | +Armor, Armor stance, conditional Armor |
-| **Damage Reduction** | Percentage-based post-Armor mitigation. | 10% / 20% / 30% DR |
-| **Evade** | Avoidance and defensive positioning. | +Evade, conditional Evade |
-| **Damage** | Pure offensive output. | +Damage dice, conditional Damage |
-| **Health** | Structural durability. | Additional Health Bars |
-| **Temporary HP** | Frontloaded defensive buffer. | Start-of-combat Temporary HP |
-| **Healing** | Recovery and regeneration. | Start-of-turn healing, conditional healing |
-| **Awareness** | Combat senses and perception replacement. | Combat Sense, sensory replacement under obstruction |
-| **Phasing** | Premium hit-negation defense. | Ignore limited hits per combat |
-| **Special Aura** | The only approved Passive interaction with Specials. | Increases one chosen existing eligible Special(X) by +1 inside a self-centered aura |
+The current Passive Categories are:
 
-## Passive Category: Special Aura
+| **Category**         | **Role**                                                   |
+| :------------------- | :--------------------------------------------------------- |
+| **Armor**            | Flat damage mitigation and physical protection             |
+| **Damage Reduction** | Percentage-based mitigation applied after Armor            |
+| **Evade**            | Avoidance and defensive positioning                        |
+| **Damage**           | Reliable offensive output                                  |
+| **Health**           | Additional Health Bars or structural durability            |
+| **Temporary HP**     | Frontloaded protective HP                                  |
+| **Healing**          | Recovery and regeneration                                  |
+| **Telepathy**        | Telepathic Access, communication, and voluntary Mind Links |
+| **Phasing**          | Limited complete hit negation                              |
+| **Special Aura**     | Increases one existing eligible Special(X) inside an aura  |
+| **Ward**             | Spell Resistance and protection against ongoing effects    |
+| **Initiative**       | Initiative Score and Initiative Shop interaction           |
+| **Invisibility**     | Target denial, Perception TN, and Combat Sense blocking    |
+| **Parry**            | Attack Pool interception through a Parry Pool              |
+| **Absorption**       | Additional Health and power generated from actual HP loss  |
+| **Damage Negation**  | Removal of Damage Dice through a combat reserve            |
+| **Summon**           | Support for existing Summon Bonds and their Summon Tokens |
 
-**Special Aura** is finalized and is the only Passive category allowed to interact with Specials.
+The **Type** of every Passive remains:
 
-A Special Aura never applies a Special by itself. It only increases one chosen existing eligible **Special(X)** by **+1 step** while an already affected creature remains inside the aura.
+> **Type:** Passive
 
-Use the complete Special Aura rules and progression later in this catalogue.
+If category tracking is used, write the category in a separate **Category** field or column.
 
-## Passive Limits
+---
+::
+### Pure and Combined Passives
 
-Passives may not grant:
+A Pure Passive uses one mechanical category.
 
-- permanent Attack Dice,
-- permanent Attribute increases,
-- Attribute Dice,
-- Stones,
-- generic Roll bonuses,
-- generic Control effects,
-- free attacks,
-- Extra Attacks,
-- or passive action-economy effects.
+A Combined Passive combines exactly two approved categories and must fit both effects into the same Passive PP budget.
 
-A Passive may not apply Specials. Any approved Passive interaction with Specials must use the **Special Aura** category and may only increase one existing eligible Special(X) by +1 inside its aura.
+A Combined Passive does not receive a complete PP budget for each included category.
 
-A Passive may not grant Stunned or any other hard-control Special.
+A Combined Passive:
 
-## Passive Design Restrictions
+* occupies one Passive Slot,
+* counts as both included categories,
+* may not add a third category,
+* and may not include a closed or dedicated subsystem unless that subsystem explicitly allows combination use.
 
-- A Passive may never use the **Spell** tag.
-- A Passive may never use the **Charged** tag.
-- A Passive may never grant an Attack Action, free attack, Reaction, Movement Power, Spell effect, Barrier, Wall, Image, Illusion Field, Summon, or Persistent Zone.
-- A Passive may not hide an Active effect inside an always-on feature.
-- A Passive may not grant **Stunned** or any other hard-control Special.
-- A Passive may not create full-turn skip, full-round invulnerability, or automatic hard control.
-- A Passive may not casually combine Armor, Evade, Temporary HP, Healing, Damage Reduction, and Phasing into one package.
-- Unused PP may remain unused for premium milestone systems.
+---
 }}
+
 \page
 {{pageNumber,auto}}
 {{wide
-## Passive Pricing Modes
 
-Some Passive categories may be built in either an **unconditional** or **conditional** form.
+### Passive Limits
 
-An **unconditional Passive** applies broadly, reliably, or without meaningful tactical effort.  
-Because it is always available, it costs **twice** the normal baseline value.
+Passives may not normally grant:
 
-A **conditional Passive** applies only while a clear, meaningful combat condition is met.  
-Because the player must earn, create, or maintain that condition, it uses the normal baseline value.
+* permanent Attack Dice,
+* permanent Attribute increases,
+* generic Roll bonuses,
+* free Attack Actions,
+* free attacks,
+* additional Reactions,
+* Movement Powers,
+* Active Buffs,
+* Spell effects,
+* Extra Attacks,
+* Special Application,
+* hard control,
+* or hidden action-economy benefits.
 
-| **Passive Mode** | **Cost Modifier** | **Design Meaning** |
-|:--|:--:|:--|
-| **Unconditional** | ×2 baseline cost | Reliable, broad, always-on value |
-| **Conditional** | ×1 baseline cost | Stronger value, but requires real tactical play |
+Passives may not apply Specials.
 
-The following categories use this pricing model:
+The only standard Passive interaction with Specials is **Special Aura**, which may increase one chosen existing eligible **Special(X)** by **+1 step** while an already affected creature remains inside the aura.
 
-| **Category** | **Unconditional Cost** | **Conditional Cost** |
-|:--|:--:|:--:|
-| **Damage** | 40 PP per +1d6 Damage | 20 PP per +1d6 Damage |
-| **Armor** | 15 PP per +1 Armor | 7.5 PP per +1 Armor |
-| **Evade** | 10 PP per +1 Evade | 5 PP per +1 Evade |
-| **Healing** | 8 PP per 1 HP healed | 4 PP per 1 HP healed |
+Passives may not normally generate Stones.
 
-Unconditional Passives belong in the main Passive Catalog.  
-Conditional Passives are listed in their own section after the main catalog.
+**Absorption is the explicit exception:** the dedicated Absorption subsystem may generate short-lived **Temporary Colorless Stones** from eligible actual HP loss.
 
-## Closed Defensive Subsystems
+**Bound Host is the explicit Summon exception:** it may grant bonus Summon Tokens to Summon Bonds that already exist. It does not create a Summon Bond, add Summon Bodies, or grant Extra Attacks.
 
-### Damage Reduction
+A Passive may never use the **Spell** or **Charged** tag.
 
-Damage Reduction is a closed defensive subsystem.
+---
+::
+### Dedicated Passive Subsystems
 
-Only the following Power lines may grant, increase, or otherwise enable Damage Reduction:
+Some Passive Categories use dedicated rules rather than normal linear Passive construction.
 
-1. **Damage Reduction (Passive)**
-2. **Unyielding Shell (Active Buff)**
-3. **Unyielding Intercept (Reaction)**
+These include:
 
-No other Passive, Active, Active Buff, Reaction, Movement Power, Spell, Special, rider, aura, item-like effect, or combination entry may grant Damage Reduction, increase Damage Reduction, or simulate Damage Reduction under a different name.
+* Damage Reduction
+* Phasing
+* Ward
+* Initiative
+* Invisibility
+* Parry
+* Absorption
+* Damage Negation
+* Summon
 
-Damage Reduction may not appear as a secondary rider.  
-Damage Reduction may not be bundled with Armor, Evade, Temporary HP, Healing, Phasing, or any other filler value.
+These systems may only be created, increased, restored, or modified through their dedicated entries and explicitly named subsystem extensions.
 
-### Phasing
+They may not appear as casual secondary riders on unrelated Passives.
 
-Phasing is a closed defensive subsystem.
+A dedicated subsystem Passive may coexist with other legal Passives. However, the dedicated Passive itself may not bundle an unrelated second category unless its entry explicitly says otherwise.
 
-Only the following Power lines may grant, increase, or otherwise enable defensive Phasing:
+Unused PP may remain unused in milestone-based or closed subsystem progressions.
 
-1. **Ghostform (Passive)**
-2. **Ghost Mantle (Active Buff)**
-3. **Ghost Slip (Reaction, One-Time-Use)**
+---
+::
+### Combat Senses Are Not Passives
 
-No other Passive, Active, Active Buff, Reaction, Movement Power, Spell, Special, rider, aura, item-like effect, or combination entry may grant Phasing, increase Phasing, or simulate Phasing under a different name.
+Combat Senses use the **Sense Slot** rules from the Core Rulebook.
 
-Phasing may not appear as a secondary rider.  
-Phasing may not be bundled with Armor, Damage Reduction, Evade, Temporary HP, Healing, or any other filler value.
+A Sense Option does not use a Passive Slot and may not be recreated as an Awareness Passive, a Combined Passive axis, or a Conditional Combined Passive axis.
+
+Every character has one Sense Slot. Additional Sense Options increase the choices available before a scene or combat; they do not create additional Sense Slots and do not allow several Special Combat Senses to operate at the same time.
 
 }}
 
@@ -716,74 +736,6 @@ Your body does not merely endure more punishment. It learns to fail more slowly.
 | **14** | Passive, Health | Self | — | Permanent | Gain **+1 Wounded Health Bar**, **+1 Injured Health Bar**, **+1 Bruised Health Bar**, and **+1 Healthy Health Bar**. |
 | **15** | Passive, Health | Self | — | Permanent | Gain **+1 Wounded Health Bar**, **+1 Injured Health Bar**, **+1 Bruised Health Bar**, and **+1 Healthy Health Bar**. |
 | **16** | Passive, Health | Self | — | Permanent | Gain **+1 Wounded Health Bar**, **+1 Injured Health Bar**, **+1 Bruised Health Bar**, and **+1 Healthy Health Bar**. |
-
-}}
-
-\page
-{{pageNumber,auto}}
-
-{{wide
-
-### Combat Sense
-
-A **Combat Sense** is a sense that may replace sight for combat purposes.
-
-If a creature can reasonably be perceived by one of your Combat Senses, you may target it, attack it, defend against it, and use Reactions against it without needing sight.
-
-A Combat Sense does not automatically reveal hidden creatures. If a creature is actively hiding, you must still detect it with an appropriate check.
-
-A Combat Sense does not ignore Total Cover, does not bypass Phasing, and does not automatically disbelieve illusions. It only changes which sense you may use to perceive and fight.
-
-#### Available Combat Senses
-
-| **Combat Sense** | **What It Perceives** | **Common Limits** |
-|:--|:--|:--|
-| **Hearing** | Sound, movement, voice, breathing, impact, armor noise, spellcasting words, weapon motion, and other audible cues. | Fails against silence, soundless targets, overwhelming noise, or barriers that block sound. |
-| **Touch / Vibration** | Contact, pressure, air movement, ground vibration, surface vibration, footfalls, nearby movement, and physical disturbance. | Fails against targets with no shared medium, fully airborne targets, phasing targets, or effects that isolate vibration. |
-| **Scent** | Smell, blood, sweat, breath, smoke, decay, poison traces, tracks, and other scent trails. | Fails against scentless targets, overwhelming smells, sealed environments, strong wind, or effects that mask scent. |
-| **Presence Sense** | Living, undead, spiritual, marked, soul-bearing, or supernatural presence. | Fails against truly empty targets, specially concealed presences, some constructs, Total Cover where presence cannot reach, or effects that hide the soul/signature. Presence Sense may only be chosen at Level 12 or higher. |
-
-<h3 id="heightened-senses-passive">
-  Heightened Senses (Passive: Awareness)
-  <span class="tooltip">🛈
-    <span class="tooltiptext">
-      BASELINES<br>
-      Passive curve = 20 / 40 / 60 / 80 PP, continued linearly to Level 16<br>
-      Awareness is not priced as a flat dice passive. Instead, it uses sensory milestones at Levels 4, 8, 12, and 15.<br><br>
-      COMBAT SENSE<br>
-      A Combat Sense may replace sight for combat purposes if that sense can reasonably perceive the target.<br>
-      You may target, attack, defend against, and use Reactions against a creature perceived by one of your Combat Senses without needing sight.<br><br>
-      PROGRESSION<br>
-      L1-L3 → no Combat Sense yet<br>
-      L4-L7 → choose 1 Combat Sense<br>
-      L8-L11 → choose 2 Combat Senses total<br>
-      L12-L14 → choose 3 Combat Senses total; Presence Sense becomes available<br>
-      L15-L16 → choose 4 Combat Senses total<br><br>
-      NOTES — This passive helps against darkness, fog, invisibility, sensory interference, and visual obstruction when one of your chosen Combat Senses can reasonably perceive the target. It does not automatically reveal hidden creatures, does not ignore Total Cover, does not bypass Phasing, and does not automatically disbelieve illusions.
-    </span>
-  </span>
-</h3>
-
-You no longer trust only your eyes. The world reaches you through sound, pressure, breath, and presence.
-
-| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
-|:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Passive, Awareness | Self | — | Permanent | — |
-| **2** | Passive, Awareness | Self | — | Permanent | — |
-| **3** | Passive, Awareness | Self | — | Permanent | — |
-| **4** | Passive, Awareness | Self | — | Permanent | Choose **1 Combat Sense**. |
-| **5** | Passive, Awareness | Self | — | Permanent | Choose **1 Combat Sense**. |
-| **6** | Passive, Awareness | Self | — | Permanent | Choose **1 Combat Sense**. |
-| **7** | Passive, Awareness | Self | — | Permanent | Choose **1 Combat Sense**. |
-| **8** | Passive, Awareness | Self | — | Permanent | Choose **2 Combat Senses total**. |
-| **9** | Passive, Awareness | Self | — | Permanent | Choose **2 Combat Senses total**. |
-| **10** | Passive, Awareness | Self | — | Permanent | Choose **2 Combat Senses total**. |
-| **11** | Passive, Awareness | Self | — | Permanent | Choose **2 Combat Senses total**. |
-| **12** | Passive, Awareness | Self | — | Permanent | Choose **3 Combat Senses total**. **Presence Sense** is now available. |
-| **13** | Passive, Awareness | Self | — | Permanent | Choose **3 Combat Senses total**. **Presence Sense** is available. |
-| **14** | Passive, Awareness | Self | — | Permanent | Choose **3 Combat Senses total**. **Presence Sense** is available. |
-| **15** | Passive, Awareness | Self | — | Permanent | Choose **4 Combat Senses total**. **Presence Sense** is available. |
-| **16** | Passive, Awareness | Self | — | Permanent | Choose **4 Combat Senses total**. **Presence Sense** is available. |
 
 }}
 
@@ -1283,7 +1235,6 @@ Combined Passives may use:
 - **Health**
 - **Temporary HP**
 - **Healing**
-- **Awareness**
 
 Combined Passives may not use:
 
@@ -1639,91 +1590,6 @@ Combined Passives may not use:
 
 {{wide
 
-<h3 id="passive-awareness-evade">
-  Passive: Awareness / Evade
-  <span class="tooltip">🛈
-    <span class="tooltiptext">
-      BASELINES<br>
-      Passive curve = 20 / 40 / 60 / 80 PP, continued linearly to Level 16<br>
-      Combined Passive = two half-budget axes<br>
-      Evade Half = 10 PP per +1 Evade<br>
-      Awareness Half = Combat Sense milestone progression<br><br>
-      AWARENESS HALF<br>
-      L1-L3 → no Combat Sense<br>
-      L4-L11 → choose 1 Combat Sense<br>
-      L12-L16 → choose 2 Combat Senses total<br>
-      Presence Sense may only be chosen at Level 12 or higher.<br><br>
-      NOTES — Counts as both Awareness and Evade. Awareness is not converted into dice. No Phasing, no Damage Reduction, no automatic hidden detection.
-    </span>
-  </span>
-</h3>
-
-| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
-|:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Passive: Awareness / Evade | Self | — | Permanent | Gain **+1 Evade**. |
-| **2** | Passive: Awareness / Evade | Self | — | Permanent | Gain **+2 Evade**. |
-| **3** | Passive: Awareness / Evade | Self | — | Permanent | Gain **+3 Evade**. |
-| **4** | Passive: Awareness / Evade | Self | — | Permanent | Gain **+4 Evade**. Choose **1 Combat Sense**. |
-| **5** | Passive: Awareness / Evade | Self | — | Permanent | Gain **+5 Evade**. Choose **1 Combat Sense**. |
-| **6** | Passive: Awareness / Evade | Self | — | Permanent | Gain **+6 Evade**. Choose **1 Combat Sense**. |
-| **7** | Passive: Awareness / Evade | Self | — | Permanent | Gain **+7 Evade**. Choose **1 Combat Sense**. |
-| **8** | Passive: Awareness / Evade | Self | — | Permanent | Gain **+8 Evade**. Choose **1 Combat Sense**. |
-| **9** | Passive: Awareness / Evade | Self | — | Permanent | Gain **+9 Evade**. Choose **1 Combat Sense**. |
-| **10** | Passive: Awareness / Evade | Self | — | Permanent | Gain **+10 Evade**. Choose **1 Combat Sense**. |
-| **11** | Passive: Awareness / Evade | Self | — | Permanent | Gain **+11 Evade**. Choose **1 Combat Sense**. |
-| **12** | Passive: Awareness / Evade | Self | — | Permanent | Gain **+12 Evade**. Choose **2 Combat Senses total**. **Presence Sense** is available. |
-| **13** | Passive: Awareness / Evade | Self | — | Permanent | Gain **+13 Evade**. Choose **2 Combat Senses total**. **Presence Sense** is available. |
-| **14** | Passive: Awareness / Evade | Self | — | Permanent | Gain **+14 Evade**. Choose **2 Combat Senses total**. **Presence Sense** is available. |
-| **15** | Passive: Awareness / Evade | Self | — | Permanent | Gain **+15 Evade**. Choose **2 Combat Senses total**. **Presence Sense** is available. |
-| **16** | Passive: Awareness / Evade | Self | — | Permanent | Gain **+16 Evade**. Choose **2 Combat Senses total**. **Presence Sense** is available. |
-
----
-
-<h3 id="passive-awareness-damage">
-  Passive: Awareness / Damage
-  <span class="tooltip">🛈
-    <span class="tooltiptext">
-      BASELINES<br>
-      Passive curve = 20 / 40 / 60 / 80 PP, continued linearly to Level 16<br>
-      Combined Passive = two half-budget axes<br>
-      Damage Half = 40 PP per +1d6 Damage<br>
-      Awareness Half = Combat Sense milestone progression<br><br>
-      AWARENESS HALF<br>
-      L1-L3 → no Combat Sense<br>
-      L4-L11 → choose 1 Combat Sense<br>
-      L12-L16 → choose 2 Combat Senses total<br>
-      Presence Sense may only be chosen at Level 12 or higher.<br><br>
-      NOTES — Counts as both Awareness and Damage. Awareness is not converted into dice. No Attack Dice, no Special rider, no automatic hidden detection.
-    </span>
-  </span>
-</h3>
-
-| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
-|:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Passive: Awareness / Damage | Self | — | Permanent | — |
-| **2** | Passive: Awareness / Damage | Self | — | Permanent | — |
-| **3** | Passive: Awareness / Damage | Self | — | Permanent | — |
-| **4** | Passive: Awareness / Damage | Self | — | Permanent | Gain **+1d6 Damage** on all damage rolls you make. Choose **1 Combat Sense**. |
-| **5** | Passive: Awareness / Damage | Self | — | Permanent | Gain **+1d6 Damage** on all damage rolls you make. Choose **1 Combat Sense**. |
-| **6** | Passive: Awareness / Damage | Self | — | Permanent | Gain **+1d6 Damage** on all damage rolls you make. Choose **1 Combat Sense**. |
-| **7** | Passive: Awareness / Damage | Self | — | Permanent | Gain **+1d6 Damage** on all damage rolls you make. Choose **1 Combat Sense**. |
-| **8** | Passive: Awareness / Damage | Self | — | Permanent | Gain **+2d6 Damage** on all damage rolls you make. Choose **1 Combat Sense**. |
-| **9** | Passive: Awareness / Damage | Self | — | Permanent | Gain **+2d6 Damage** on all damage rolls you make. Choose **1 Combat Sense**. |
-| **10** | Passive: Awareness / Damage | Self | — | Permanent | Gain **+2d6 Damage** on all damage rolls you make. Choose **1 Combat Sense**. |
-| **11** | Passive: Awareness / Damage | Self | — | Permanent | Gain **+2d6 Damage** on all damage rolls you make. Choose **1 Combat Sense**. |
-| **12** | Passive: Awareness / Damage | Self | — | Permanent | Gain **+3d6 Damage** on all damage rolls you make. Choose **2 Combat Senses total**. **Presence Sense** is available. |
-| **13** | Passive: Awareness / Damage | Self | — | Permanent | Gain **+3d6 Damage** on all damage rolls you make. Choose **2 Combat Senses total**. **Presence Sense** is available. |
-| **14** | Passive: Awareness / Damage | Self | — | Permanent | Gain **+3d6 Damage** on all damage rolls you make. Choose **2 Combat Senses total**. **Presence Sense** is available. |
-| **15** | Passive: Awareness / Damage | Self | — | Permanent | Gain **+3d6 Damage** on all damage rolls you make. Choose **2 Combat Senses total**. **Presence Sense** is available. |
-| **16** | Passive: Awareness / Damage | Self | — | Permanent | Gain **+4d6 Damage** on all damage rolls you make. Choose **2 Combat Senses total**. **Presence Sense** is available. |
-
-}}
-
-\page
-{{pageNumber,auto}}
-
-{{wide
-
 <h3 id="passive-health-healing">
   Passive: Health / Healing
   <span class="tooltip">🛈
@@ -1851,7 +1717,6 @@ Conditional Combined Passives may use:
 - **Health**
 - **Temporary HP**
 - **Healing**
-- **Awareness**
 
 Conditional Combined Passives may not use:
 
@@ -1879,7 +1744,6 @@ Conditional Combined Passives may not use:
 | **Healing Half** | Conditional Healing at half budget: **4 PP per 1 HP healed** |
 | **Temporary HP Half** | Start-of-combat Temporary HP at half budget: **2 PP per 1 Temporary HP** |
 | **Health Half** | Milestone structural Health progression; no Healthy bar in Combined Passives |
-| **Awareness Half** | Milestone Combat Sense progression; not priced as flat dice |
 
 ### Conditional Health / Temporary HP Timing
 
@@ -2376,138 +2240,6 @@ If the condition is true, gain the listed Health Bars for that combat. These Hea
 {{pageNumber,auto}}
 
 {{wide
-<h3 id="conditional-passive-awareness-evade">
-  Conditional Passive: Awareness / Evade
-  <span class="tooltip">🛈
-    <span class="tooltiptext">
-      CATEGORIES<br>
-      Awareness + Evade<br><br>
-      BASELINES<br>
-      Passive curve = 20 / 40 / 60 / 80 PP, continued linearly to Level 16<br>
-      Conditional Combined Passive = one conditional value axis and one Awareness milestone axis<br>
-      Evade Half = 5 PP per +1 Evade<br>
-      Awareness Half = Combat Sense milestone progression<br><br>
-      CONDITION<br>
-      Evade applies only against creatures you perceive through one of your chosen Combat Senses other than sight.<br><br>
-      AWARENESS HALF<br>
-      L1-L3 → no Combat Sense<br>
-      L4-L11 → choose 1 Combat Sense<br>
-      L12-L16 → choose 2 Combat Senses total<br>
-      Presence Sense may only be chosen at Level 12 or higher.<br><br>
-      CALCULATION<br>
-      L1 → +2 Evade = 10 PP + Awareness none → partial value below 20 target<br>
-      L2 → +4 Evade = 20 PP + Awareness none → partial value below 40 target<br>
-      L3 → +6 Evade = 30 PP + Awareness none → partial value below 60 target<br>
-      L4 → +8 Evade = 40 PP + 1 Combat Sense milestone → approx 80 target<br>
-      L5 → +10 Evade = 50 PP + 1 Combat Sense milestone → approx 100 target<br>
-      L6 → +12 Evade = 60 PP + 1 Combat Sense milestone → approx 120 target<br>
-      L7 → +14 Evade = 70 PP + 1 Combat Sense milestone → approx 140 target<br>
-      L8 → +16 Evade = 80 PP + 1 Combat Sense milestone → approx 160 target<br>
-      L9 → +18 Evade = 90 PP + 1 Combat Sense milestone → approx 180 target<br>
-      L10 → +20 Evade = 100 PP + 1 Combat Sense milestone → approx 200 target<br>
-      L11 → +22 Evade = 110 PP + 1 Combat Sense milestone → approx 220 target<br>
-      L12 → +24 Evade = 120 PP + 2 Combat Senses milestone → approx 240 target<br>
-      L13 → +26 Evade = 130 PP + 2 Combat Senses milestone → approx 260 target<br>
-      L14 → +28 Evade = 140 PP + 2 Combat Senses milestone → approx 280 target<br>
-      L15 → +30 Evade = 150 PP + 2 Combat Senses milestone → approx 300 target<br>
-      L16 → +32 Evade = 160 PP + 2 Combat Senses milestone → approx 320 target<br><br>
-      NOTES — Counts as both Awareness and Evade. Awareness is not converted into dice. No Phasing, no Damage Reduction, no automatic hidden detection.
-    </span>
-  </span>
-</h3>
-
-| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
-|:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Passive | Self | — | Conditional | Against creatures you perceive through a Combat Sense other than sight, gain **+2 Evade**. |
-| **2** | Passive | Self | — | Conditional | Against creatures you perceive through a Combat Sense other than sight, gain **+4 Evade**. |
-| **3** | Passive | Self | — | Conditional | Against creatures you perceive through a Combat Sense other than sight, gain **+6 Evade**. |
-| **4** | Passive | Self | — | Conditional | Choose **1 Combat Sense**. Against creatures you perceive through a Combat Sense other than sight, gain **+8 Evade**. |
-| **5** | Passive | Self | — | Conditional | Choose **1 Combat Sense**. Against creatures you perceive through a Combat Sense other than sight, gain **+10 Evade**. |
-| **6** | Passive | Self | — | Conditional | Choose **1 Combat Sense**. Against creatures you perceive through a Combat Sense other than sight, gain **+12 Evade**. |
-| **7** | Passive | Self | — | Conditional | Choose **1 Combat Sense**. Against creatures you perceive through a Combat Sense other than sight, gain **+14 Evade**. |
-| **8** | Passive | Self | — | Conditional | Choose **1 Combat Sense**. Against creatures you perceive through a Combat Sense other than sight, gain **+16 Evade**. |
-| **9** | Passive | Self | — | Conditional | Choose **1 Combat Sense**. Against creatures you perceive through a Combat Sense other than sight, gain **+18 Evade**. |
-| **10** | Passive | Self | — | Conditional | Choose **1 Combat Sense**. Against creatures you perceive through a Combat Sense other than sight, gain **+20 Evade**. |
-| **11** | Passive | Self | — | Conditional | Choose **1 Combat Sense**. Against creatures you perceive through a Combat Sense other than sight, gain **+22 Evade**. |
-| **12** | Passive | Self | — | Conditional | Choose **2 Combat Senses total**. **Presence Sense** is available. Against creatures you perceive through a Combat Sense other than sight, gain **+24 Evade**. |
-| **13** | Passive | Self | — | Conditional | Choose **2 Combat Senses total**. **Presence Sense** is available. Against creatures you perceive through a Combat Sense other than sight, gain **+26 Evade**. |
-| **14** | Passive | Self | — | Conditional | Choose **2 Combat Senses total**. **Presence Sense** is available. Against creatures you perceive through a Combat Sense other than sight, gain **+28 Evade**. |
-| **15** | Passive | Self | — | Conditional | Choose **2 Combat Senses total**. **Presence Sense** is available. Against creatures you perceive through a Combat Sense other than sight, gain **+30 Evade**. |
-| **16** | Passive | Self | — | Conditional | Choose **2 Combat Senses total**. **Presence Sense** is available. Against creatures you perceive through a Combat Sense other than sight, gain **+32 Evade**. |
-
----
-}}
-
-\page
-{{pageNumber,auto}}
-
-{{wide
-<h3 id="conditional-passive-awareness-damage">
-  Conditional Passive: Awareness / Damage
-  <span class="tooltip">🛈
-    <span class="tooltiptext">
-      CATEGORIES<br>
-      Awareness + Damage<br><br>
-      BASELINES<br>
-      Passive curve = 20 / 40 / 60 / 80 PP, continued linearly to Level 16<br>
-      Conditional Combined Passive = one conditional value axis and one Awareness milestone axis<br>
-      Damage Half = 20 PP per +1d6 Damage<br>
-      Awareness Half = Combat Sense milestone progression<br><br>
-      CONDITION<br>
-      Damage applies only against targets you perceive through one of your chosen Combat Senses other than sight.<br><br>
-      AWARENESS HALF<br>
-      L1-L3 → no Combat Sense<br>
-      L4-L11 → choose 1 Combat Sense<br>
-      L12-L16 → choose 2 Combat Senses total<br>
-      Presence Sense may only be chosen at Level 12 or higher.<br><br>
-      CALCULATION<br>
-      L1 → no Damage = 0 PP + Awareness none → below 20 target<br>
-      L2 → +1d6 Damage = 20 PP + Awareness none → partial value below 40 target<br>
-      L3 → +1d6 Damage = 20 PP + Awareness none → partial value below 60 target<br>
-      L4 → +2d6 Damage = 40 PP + 1 Combat Sense milestone → approx 80 target<br>
-      L5 → +2d6 Damage = 40 PP + 1 Combat Sense milestone → approx 100 target<br>
-      L6 → +3d6 Damage = 60 PP + 1 Combat Sense milestone → approx 120 target<br>
-      L7 → +3d6 Damage = 60 PP + 1 Combat Sense milestone → approx 140 target<br>
-      L8 → +4d6 Damage = 80 PP + 1 Combat Sense milestone → approx 160 target<br>
-      L9 → +4d6 Damage = 80 PP + 1 Combat Sense milestone → approx 180 target<br>
-      L10 → +5d6 Damage = 100 PP + 1 Combat Sense milestone → approx 200 target<br>
-      L11 → +5d6 Damage = 100 PP + 1 Combat Sense milestone → approx 220 target<br>
-      L12 → +6d6 Damage = 120 PP + 2 Combat Senses milestone → approx 240 target<br>
-      L13 → +6d6 Damage = 120 PP + 2 Combat Senses milestone → approx 260 target<br>
-      L14 → +7d6 Damage = 140 PP + 2 Combat Senses milestone → approx 280 target<br>
-      L15 → +7d6 Damage = 140 PP + 2 Combat Senses milestone → approx 300 target<br>
-      L16 → +8d6 Damage = 160 PP + 2 Combat Senses milestone → approx 320 target<br><br>
-      NOTES — Counts as both Awareness and Damage. Awareness is not converted into dice. No Attack Dice, no Special rider, no automatic hidden detection.
-    </span>
-  </span>
-</h3>
-
-| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
-|:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Passive | Self | — | Conditional | — |
-| **2** | Passive | Self | — | Conditional | Against targets you perceive through a Combat Sense other than sight, gain **+1d6 Damage** on damage rolls you make. |
-| **3** | Passive | Self | — | Conditional | Against targets you perceive through a Combat Sense other than sight, gain **+1d6 Damage** on damage rolls you make. |
-| **4** | Passive | Self | — | Conditional | Choose **1 Combat Sense**. Against targets you perceive through a Combat Sense other than sight, gain **+2d6 Damage** on damage rolls you make. |
-| **5** | Passive | Self | — | Conditional | Choose **1 Combat Sense**. Against targets you perceive through a Combat Sense other than sight, gain **+2d6 Damage** on damage rolls you make. |
-| **6** | Passive | Self | — | Conditional | Choose **1 Combat Sense**. Against targets you perceive through a Combat Sense other than sight, gain **+3d6 Damage** on damage rolls you make. |
-| **7** | Passive | Self | — | Conditional | Choose **1 Combat Sense**. Against targets you perceive through a Combat Sense other than sight, gain **+3d6 Damage** on damage rolls you make. |
-| **8** | Passive | Self | — | Conditional | Choose **1 Combat Sense**. Against targets you perceive through a Combat Sense other than sight, gain **+4d6 Damage** on damage rolls you make. |
-| **9** | Passive | Self | — | Conditional | Choose **1 Combat Sense**. Against targets you perceive through a Combat Sense other than sight, gain **+4d6 Damage** on damage rolls you make. |
-| **10** | Passive | Self | — | Conditional | Choose **1 Combat Sense**. Against targets you perceive through a Combat Sense other than sight, gain **+5d6 Damage** on damage rolls you make. |
-| **11** | Passive | Self | — | Conditional | Choose **1 Combat Sense**. Against targets you perceive through a Combat Sense other than sight, gain **+5d6 Damage** on damage rolls you make. |
-| **12** | Passive | Self | — | Conditional | Choose **2 Combat Senses total**. **Presence Sense** is available. Against targets you perceive through a Combat Sense other than sight, gain **+6d6 Damage** on damage rolls you make. |
-| **13** | Passive | Self | — | Conditional | Choose **2 Combat Senses total**. **Presence Sense** is available. Against targets you perceive through a Combat Sense other than sight, gain **+6d6 Damage** on damage rolls you make. |
-| **14** | Passive | Self | — | Conditional | Choose **2 Combat Senses total**. **Presence Sense** is available. Against targets you perceive through a Combat Sense other than sight, gain **+7d6 Damage** on damage rolls you make. |
-| **15** | Passive | Self | — | Conditional | Choose **2 Combat Senses total**. **Presence Sense** is available. Against targets you perceive through a Combat Sense other than sight, gain **+7d6 Damage** on damage rolls you make. |
-| **16** | Passive | Self | — | Conditional | Choose **2 Combat Senses total**. **Presence Sense** is available. Against targets you perceive through a Combat Sense other than sight, gain **+8d6 Damage** on damage rolls you make. |
-
----
-}}
-
-\page
-{{pageNumber,auto}}
-
-{{wide
 <h3 id="conditional-passive-health-healing">
   Conditional Passive: Health / Healing
   <span class="tooltip">🛈
@@ -2871,13 +2603,11 @@ They do not grant Armor, Evade, Damage Reduction, Phasing, Temporary HP, Healing
       BASELINES<br>
       Passive curve = 20 / 40 / 60 / 80 PP, continued linearly to Level 16.<br>
       Spell Resistance = 15 PP per +1 Spell Resistance.<br><br>
-
       DESIGN STRUCTURE<br>
       This is a pure Ward Passive with exactly one axis: Spell Resistance.<br>
       Spell Resistance increases the Base TN of Spells against you.<br>
       It applies only against Powers with the Spell tag.<br>
       It does not protect against normal attacks, martial Actives, weapon attacks, non-Spell Specials, environmental damage, or non-Spell effects.<br><br>
-
       LEVEL-BY-LEVEL CALCULATION<br>
       L1 target 20 PP → +1 Spell Resistance = 15 PP, below target.<br>
       L2 target 40 PP → +2 Spell Resistance = 30 PP, below target.<br>
@@ -2895,7 +2625,6 @@ They do not grant Armor, Evade, Damage Reduction, Phasing, Temporary HP, Healing
       L14 target 280 PP → +18 Spell Resistance = 270 PP, below target.<br>
       L15 target 300 PP → +20 Spell Resistance = 300 PP, exactly on target.<br>
       L16 target 320 PP → +21 Spell Resistance = 315 PP, below target.<br><br>
-
       NOTES<br>
       Values are rounded down to whole Spell Resistance values.<br>
       Leftover PP is intentionally unused when +1 more Spell Resistance would exceed the target curve.<br>
@@ -3033,11 +2762,13 @@ Ward does not reduce Specials already affecting you.
 \page
 {{pageNumber,auto}}
 {{wide
-## Telepathy / Mind Link (Passive)
+## Telepathy (Passive)
 
-Telepathy / Mind Link is a Passive mental utility category.
+Telepathy is a Passive mental utility category.
 
-It grants mental communication, mental presence, shared senses, and Telepathic Access.
+It grants **Telepathic Access** and allows the user to establish voluntary **Mind Links**.
+
+Mind Link is not a separate Power. It is part of Telepathy and requires no additional Passive Slot.
 
 Telepathy does not deal damage.
 
@@ -3045,60 +2776,57 @@ Telepathy does not apply Specials.
 
 Telepathy does not control creatures.
 
-Telepathy cannot force a creature to reveal information it does not know.
+Telepathy does not read or search an unwilling creature's thoughts or memories. Hostile information gathering requires **Mind Probe**.
 
-Telepathy cannot read sealed, forgotten, magically protected, or deeply buried memories unless a specific Power explicitly allows it.
+While this Passive is slotted, you have Telepathic Access to thinking creatures within the listed range that you can perceive or whose location you know. Telepathic Access by itself reveals no thoughts, memories, identity, or hidden information. It only allows eligible Mental Powers to reach the target.
 
-A willing creature may accept Telepathy without a check.
+A willing creature may accept or leave a Mind Link without a Check.
 
-When Telepathy attempts to read, enter, or maintain contact with an unwilling creature's mind, that creature makes a **Wits Check** against **TN 8 × your Mastery Rank**.
+A Mind Link allows only the communication and voluntary sharing listed by the Passive's current level. A willing creature never reveals more than it chooses to share.
 
-On a success, the effect fails and the target knows that something touched its mind.
-
-On a failure, the listed Telepathy effect applies.
-
-<h3 id="telepathy-mind-link-passive">
-  Telepathy / Mind Link (Passive)
+<h3 id="telepathy-passive">
+  Telepathy (Passive)
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
       Power Type = Passive<br>
+      Category = Telepathy<br>
       Passive curve = 20 PP per level<br>
       Telepathy is an access and utility Passive.<br>
-      It does not deal damage, apply Specials, or control creatures.<br><br>
+      Mind Link is included and does not require a second Power.<br>
+      Telepathy does not deal damage, apply Specials, control creatures, or search unwilling minds.<br><br>
 
       DESIGN STRUCTURE<br>
-      This Passive scales through Range, linked creatures, unwilling access, surface thoughts, and shared senses.<br>
-      It is inspired by mental communication and sense-sharing structures.<br>
-      It is required for most Mental Attack and Mind Illusion Powers.<br><br>
+      This Passive scales through Range, linked creatures, voluntary communication, shared impressions, shared senses, and willing memory sharing.<br>
+      It is required for Mental Attack, Mind Illusion, Mind Probe, and Mental Control unless a specific Power says otherwise.<br><br>
 
       ACCESS RULE<br>
-      A Mental Attack or Mind Illusion Power cannot normally be used at a higher level than the user's Telepathy / Mind Link Passive level.<br>
-      This means Mental builds pay both a Passive Slot and Active Power budget.
+      A Mental Power cannot normally be used at a higher level than the user's Telepathy Passive level.<br>
+      This means Mental builds pay both a Passive Slot and the relevant Active Power choice.
     </span>
   </span>
 </h3>
 
-A passive mental link that allows silent communication, limited mental contact, and sense sharing.
+A passive mental connection that grants Telepathic Access and allows voluntary Mind Links.
 
 | **Level** | **Type** | **Range** | **Linked Creatures** | **Telepathy Feature** |
 |:--:|:--|:--:|:--:|:--|
-| **1** | Passive | 8 m | 1 willing creature | You can send simple silent words to one willing creature within range. |
-| **2** | Passive | 16 m | 1 willing creature | You and the linked creature can communicate silently in both directions. |
-| **3** | Passive | 24 m | 2 willing creatures | You may maintain a small Mind Link between yourself and up to two willing creatures. |
-| **4** | Passive | 32 m | 2 willing creatures | Mind Link no longer requires a shared spoken language for simple meaning, emotion, direction, and intent. |
-| **5** | Passive | 48 m | 3 willing creatures | You may sense the surface emotion of an unwilling creature within range if it fails a **Wits Check** against **TN 8 × your Mastery Rank**. |
-| **6** | Passive | 64 m | 3 willing creatures | You may maintain silent group communication between all linked willing creatures. |
-| **7** | Passive | 80 m | 4 willing creatures | A willing linked creature may share one simple sense impression with you, such as a sound, image, smell, pain, or direction. |
-| **8** | Passive | 100 m | 4 willing creatures | You may detect the presence of thinking minds within range. This reveals presence, not identity, exact thoughts, or creature type. |
-| **9** | Passive | 120 m | 5 willing creatures | You may read one surface thought from an unwilling creature within range if it fails a **Wits Check** against **TN 8 × your Mastery Rank**. |
+| **1** | Passive | 8 m | 1 willing creature | Send simple silent words to one willing creature within range. |
+| **2** | Passive | 16 m | 1 willing creature | You and the linked creature may communicate silently in both directions. |
+| **3** | Passive | 24 m | 2 willing creatures | Maintain a small Mind Link between yourself and up to two willing creatures. |
+| **4** | Passive | 32 m | 2 willing creatures | Simple meaning, emotion, direction, and intent no longer require a shared spoken language. |
+| **5** | Passive | 48 m | 3 willing creatures | Send one simple image, emotion, sensation, or sensory impression through the link. |
+| **6** | Passive | 64 m | 3 willing creatures | All linked willing creatures may communicate silently through you. |
+| **7** | Passive | 80 m | 4 willing creatures | A willing linked creature may deliberately share one simple sensory impression with you. |
+| **8** | Passive | 100 m | 4 willing creatures | Detect the presence of thinking minds within range. This reveals presence only, not identity, exact thoughts, creature type, or precise location. |
+| **9** | Passive | 120 m | 5 willing creatures | A willing linked creature may share one brief memory fragment lasting only a few seconds as it remembers it. |
 | **10** | Passive | 160 m | 5 willing creatures | A willing linked creature may share one active sense with you, such as sight or hearing, while the link is maintained. |
-| **11** | Passive | 200 m | 6 willing creatures | Mind Link may pass through normal walls or obstacles if you know the linked creature and it remains within range. |
-| **12** | Passive | 300 m | 6 willing creatures | You may share sight and hearing with one willing linked creature while the link is maintained. |
+| **11** | Passive | 200 m | 6 willing creatures | A Mind Link may pass through normal walls or obstacles if you know the linked creature and it remains within range. |
+| **12** | Passive | 300 m | 6 willing creatures | Share sight and hearing with one willing linked creature while the link is maintained. |
 | **13** | Passive | 500 m | MR + 2 willing creatures | Your Mind Link becomes a mental conference. All linked willing creatures may communicate silently with each other. |
-| **14** | Passive | 1 km | MR + 2 willing creatures | You may maintain a link to a known willing creature at long range if the link was willingly established. |
-| **15** | Passive | 5 km | MR + 3 willing creatures | You may read a clear surface thought from an unwilling creature if it fails a **Wits Check** against **TN 8 × your Mastery Rank**. This still does not reveal memories. |
-| **16** | Passive | Same region, GM permission | MR + 4 willing creatures | You may maintain a wide Mind Link with known willing creatures across a large area. The GM may limit this by wards, distance, planes, divine interference, or narrative barriers. |
+| **14** | Passive | 1 km | MR + 2 willing creatures | Maintain a link to a known willing creature at long range if the link was willingly established. |
+| **15** | Passive | 5 km | MR + 3 willing creatures | A willing linked creature may deliberately share one complete remembered scene, including its sensory and emotional impressions. |
+| **16** | Passive | Same region, GM permission | MR + 4 willing creatures | Maintain a wide Mind Link with known willing creatures across a large area. Wards, planar separation, divine interference, or narrative barriers may still block it. |
 
 ---
 
@@ -3115,7 +2843,6 @@ A passive mental link that allows silent communication, limited mental contact, 
       BASELINES<br>
       Passive curve = 20 / 40 / 60 / 80 PP, continued linearly to Level 16<br>
       Summon Token Support = 1 Summon Token per 10 PP<br><br>
-
       CALCULATION<br>
       L1 → +2 Summon Tokens = 20 PP<br>
       L2 → +4 Summon Tokens = 40 PP<br>
@@ -3199,18 +2926,15 @@ They may be spent on:
     <span class="tooltiptext">
       CATEGORY<br>
       Damage<br><br>
-
       BASELINES<br>
       Passive curve = 20 PP at Level 1, +20 PP per level after that.<br>
       Thorns = 30 PP per +1d8 Thorns.<br>
       Thorns is reflected damage, not an attack and not a Special.<br><br>
-
       DESIGN STRUCTURE<br>
       This is a Passive Damage effect using the dedicated Thorns rules.<br>
       It has exactly one axis: Thorns damage.<br>
       Thorns damage triggers only when the user takes final HP damage from a direct attack, Spell, or Power.<br>
       Thorns damage cannot exceed the final HP damage the user took from the triggering effect.<br><br>
-
       LEVEL-BY-LEVEL CALCULATION<br>
       L1 target 20 PP → no effect = 0 PP below target.<br>
       L2 target 40 PP → Thorns 1d8 = 30 PP below target.<br>
@@ -3228,7 +2952,6 @@ They may be spent on:
       L14 target 280 PP → Thorns 9d8 = 270 PP below target.<br>
       L15 target 300 PP → Thorns 10d8 = 300 PP exactly on target.<br>
       L16 target 320 PP → Thorns 10d8 = 300 PP below target.<br><br>
-
       NOTES<br>
       Thornhide is intentionally capped by final HP damage taken. It reflects damage only and never reflects Specials. It does not make attacks, does not trigger on-hit effects, does not benefit from Crit, and cannot trigger Thorns. This Passive uses the Damage category and therefore competes with other Damage Passives.
     </span>
@@ -3270,75 +2993,72 @@ Thornhide follows all normal Thorns rules.
 \page
 {{pageNumber,auto}}
 {{wide
-<h3 id="active-buff-invisibility">
-  Active Buff: Invisibility
+<h3 id="passive-invisibility">
+  Passive Invisibility (Passive)
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      BASELINES<br>
-      Active Buff curve = 40 PP at Level 1, 70 PP at Level 2, 100 PP at Level 3, 130 PP at Level 4, then +30 PP per level after that.<br>
-      Invisibility is a premium defensive axis based on perception, sense blocking, and target denial.<br><br>
+      CATEGORY<br>
+      Invisibility<br><br>
 
-      DESIGN STRUCTURE<br>
-      Active Buff: Invisibility grants a stronger temporary Invisibility Bonus than the Passive line.<br>
-      Unlike Passive Invisibility, this Active Buff blocks only Normal Combat Awareness.<br>
-      It does not block Special Combat Senses by itself.<br><br>
+BASELINES<br>
+      Passive curve = 20 PP at Level 1, +20 PP per level after that.<br>
+      Invisibility is a premium defensive axis based on perception, sense blocking, and target denial.<br>
+      Passive Invisibility grants a stable Invisibility Bonus and may block Special Combat Senses at higher levels.<br><br>
 
-      RESTRICTIONS<br>
-      Active Buff: Invisibility does not reduce damage.<br>
-      Active Buff: Invisibility does not increase Evade.<br>
-      Active Buff: Invisibility does not grant Armor, Damage Reduction, Phasing, Temporary HP, or Healing.<br>
-      Active Buff: Invisibility does not grant Special Combat Sense blocking.<br><br>
+ DESIGN STRUCTURE<br>
+      Passive Invisibility does not reduce damage.<br>
+      Passive Invisibility does not increase Evade.<br>
+      Passive Invisibility does not grant Armor, Damage Reduction, Phasing, Temporary HP, or Healing.<br>
+      Instead, it increases the Perception TN required to locate, target, or read the invisible creature.<br><br>
 
-      SUBSYSTEM EXCEPTION<br>
-      Active Buff: Invisibility may stack with Passive Invisibility.<br>
-      If both are active, add both Invisibility Bonuses together.<br>
-      If Passive Invisibility blocks Special Combat Senses, those blocks still apply while this Active Buff is active.<br>
-      This is an explicit Invisibility subsystem exception and does not apply to other Active Buffs.<br><br>
+ PROGRESSION<br>
+      The Passive Invisibility Bonus is capped at +10 and stretched across Levels 1–16.<br>
+      Passive Invisibility always blocks Normal Combat Awareness.<br>
+      At higher levels, it also blocks selected Special Combat Senses.<br><br>
+      LEVEL-BY-LEVEL STRUCTURE<br>
+      L1 → +1 Invisibility Bonus, blocks Normal Combat Awareness.<br>
+      L2 → +2 Invisibility Bonus, blocks Normal Combat Awareness.<br>
+      L3 → +3 Invisibility Bonus, blocks Normal Combat Awareness.<br>
+      L4 → +4 Invisibility Bonus, blocks Normal Combat Awareness + 1 Special Combat Sense.<br>
+      L5 → +4 Invisibility Bonus, blocks Normal Combat Awareness + 1 Special Combat Sense.<br>
+      L6 → +5 Invisibility Bonus, blocks Normal Combat Awareness + 1 Special Combat Sense.<br>
+      L7 → +5 Invisibility Bonus, blocks Normal Combat Awareness + 1 Special Combat Sense.<br>
+      L8 → +6 Invisibility Bonus, blocks Normal Combat Awareness + 2 Special Combat Senses.<br>
+      L9 → +6 Invisibility Bonus, blocks Normal Combat Awareness + 2 Special Combat Senses.<br>
+      L10 → +7 Invisibility Bonus, blocks Normal Combat Awareness + 2 Special Combat Senses.<br>
+      L11 → +7 Invisibility Bonus, blocks Normal Combat Awareness + 2 Special Combat Senses.<br>
+      L12 → +8 Invisibility Bonus, blocks Normal Combat Awareness + 3 Special Combat Senses.<br>
+      L13 → +8 Invisibility Bonus, blocks Normal Combat Awareness + 3 Special Combat Senses.<br>
+      L14 → +9 Invisibility Bonus, blocks Normal Combat Awareness + 3 Special Combat Senses.<br>
+      L15 → +9 Invisibility Bonus, blocks Normal Combat Awareness + 4 Special Combat Senses.<br>
+      L16 → +10 Invisibility Bonus, blocks Normal Combat Awareness + 4 Special Combat Senses.<br><br>
 
-      LEVEL-BY-LEVEL CALCULATION<br>
-      L1 target 40 PP → +1 Invisibility Bonus, Normal Combat Awareness only.<br>
-      L2 target 70 PP → +2 Invisibility Bonus, Normal Combat Awareness only.<br>
-      L3 target 100 PP → +3 Invisibility Bonus, Normal Combat Awareness only.<br>
-      L4 target 130 PP → +4 Invisibility Bonus, Normal Combat Awareness only.<br>
-      L5 target 160 PP → +5 Invisibility Bonus, Normal Combat Awareness only.<br>
-      L6 target 190 PP → +6 Invisibility Bonus, Normal Combat Awareness only.<br>
-      L7 target 220 PP → +7 Invisibility Bonus, Normal Combat Awareness only.<br>
-      L8 target 250 PP → +8 Invisibility Bonus, Normal Combat Awareness only.<br>
-      L9 target 280 PP → +9 Invisibility Bonus, Normal Combat Awareness only.<br>
-      L10 target 310 PP → +10 Invisibility Bonus, Normal Combat Awareness only.<br>
-      L11 target 340 PP → +11 Invisibility Bonus, Normal Combat Awareness only.<br>
-      L12 target 370 PP → +12 Invisibility Bonus, Normal Combat Awareness only.<br>
-      L13 target 400 PP → +13 Invisibility Bonus, Normal Combat Awareness only.<br>
-      L14 target 430 PP → +14 Invisibility Bonus, Normal Combat Awareness only.<br>
-      L15 target 460 PP → +15 Invisibility Bonus, Normal Combat Awareness only.<br>
-      L16 target 490 PP → +16 Invisibility Bonus, Normal Combat Awareness only.<br><br>
-
-      NOTES<br>
-      This Active Buff is intentionally narrow. It gives a high temporary Invisibility Bonus, but only against Normal Combat Awareness. Special Combat Senses remain a counter unless blocked by Passive Invisibility or another explicit Invisibility subsystem rule.
+NOTES<br>
+      This Passive is intentionally not priced as simple Evade. It does not make the user harder to hit after being located; it makes the user harder to locate, target, and read. Area effects, zones, environmental damage, and effects that do not require precise targeting are not stopped by Invisibility.
     </span>
   </span>
 </h3>
 
-You vanish behind shimmer, shadow, distortion, mist, bent light, or predatory camouflage.
+You are hard to find, hard to read, and harder to fight directly.
 
-| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
-|:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+1 Invisibility Bonus**. Blocks **Normal Combat Awareness**. |
-| **2** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+2 Invisibility Bonus**. Blocks **Normal Combat Awareness**. |
-| **3** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+3 Invisibility Bonus**. Blocks **Normal Combat Awareness**. |
-| **4** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+4 Invisibility Bonus**. Blocks **Normal Combat Awareness**. |
-| **5** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+5 Invisibility Bonus**. Blocks **Normal Combat Awareness**. |
-| **6** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+6 Invisibility Bonus**. Blocks **Normal Combat Awareness**. |
-| **7** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+7 Invisibility Bonus**. Blocks **Normal Combat Awareness**. |
-| **8** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+8 Invisibility Bonus**. Blocks **Normal Combat Awareness**. |
-| **9** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+9 Invisibility Bonus**. Blocks **Normal Combat Awareness**. |
-| **10** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+10 Invisibility Bonus**. Blocks **Normal Combat Awareness**. |
-| **11** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+11 Invisibility Bonus**. Blocks **Normal Combat Awareness**. |
-| **12** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+12 Invisibility Bonus**. Blocks **Normal Combat Awareness**. |
-| **13** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+13 Invisibility Bonus**. Blocks **Normal Combat Awareness**. |
-| **14** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+14 Invisibility Bonus**. Blocks **Normal Combat Awareness**. |
-| **15** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+15 Invisibility Bonus**. Blocks **Normal Combat Awareness**. |
-| **16** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+16 Invisibility Bonus**. Blocks **Normal Combat Awareness**. |
+| **Level** | **Type** | **Category** | **Range** | **AoE** | **Duration** | **Effect** |
+|:--:|:--|:--|:--:|:--:|:--:|:--|
+| **1** | Passive | Invisibility | Self | — | Permanent | Gain **+1 Invisibility Bonus**. Blocks **Normal Combat Awareness**. |
+| **2** | Passive | Invisibility | Self | — | Permanent | Gain **+2 Invisibility Bonus**. Blocks **Normal Combat Awareness**. |
+| **3** | Passive | Invisibility | Self | — | Permanent | Gain **+3 Invisibility Bonus**. Blocks **Normal Combat Awareness**. |
+| **4** | Passive | Invisibility | Self | — | Permanent | Gain **+4 Invisibility Bonus**. Blocks **Normal Combat Awareness** and **1 chosen Special Combat Sense**. |
+| **5** | Passive | Invisibility | Self | — | Permanent | Gain **+4 Invisibility Bonus**. Blocks **Normal Combat Awareness** and **1 chosen Special Combat Sense**. |
+| **6** | Passive | Invisibility | Self | — | Permanent | Gain **+5 Invisibility Bonus**. Blocks **Normal Combat Awareness** and **1 chosen Special Combat Sense**. |
+| **7** | Passive | Invisibility | Self | — | Permanent | Gain **+5 Invisibility Bonus**. Blocks **Normal Combat Awareness** and **1 chosen Special Combat Sense**. |
+| **8** | Passive | Invisibility | Self | — | Permanent | Gain **+6 Invisibility Bonus**. Blocks **Normal Combat Awareness** and **2 chosen Special Combat Senses**. |
+| **9** | Passive | Invisibility | Self | — | Permanent | Gain **+6 Invisibility Bonus**. Blocks **Normal Combat Awareness** and **2 chosen Special Combat Senses**. |
+| **10** | Passive | Invisibility | Self | — | Permanent | Gain **+7 Invisibility Bonus**. Blocks **Normal Combat Awareness** and **2 chosen Special Combat Senses**. |
+| **11** | Passive | Invisibility | Self | — | Permanent | Gain **+7 Invisibility Bonus**. Blocks **Normal Combat Awareness** and **2 chosen Special Combat Senses**. |
+| **12** | Passive | Invisibility | Self | — | Permanent | Gain **+8 Invisibility Bonus**. Blocks **Normal Combat Awareness** and **3 chosen Special Combat Senses**. |
+| **13** | Passive | Invisibility | Self | — | Permanent | Gain **+8 Invisibility Bonus**. Blocks **Normal Combat Awareness** and **3 chosen Special Combat Senses**. |
+| **14** | Passive | Invisibility | Self | — | Permanent | Gain **+9 Invisibility Bonus**. Blocks **Normal Combat Awareness** and **3 chosen Special Combat Senses**. |
+| **15** | Passive | Invisibility | Self | — | Permanent | Gain **+9 Invisibility Bonus**. Blocks **Normal Combat Awareness** and **4 chosen Special Combat Senses**. |
+| **16** | Passive | Invisibility | Self | — | Permanent | Gain **+10 Invisibility Bonus**. Blocks **Normal Combat Awareness** and **4 chosen Special Combat Senses**. |
 
 The Invisibility Bonus increases the Perception TN required to locate, target, or read you.
 
@@ -3346,9 +3066,9 @@ The Invisibility Bonus increases the Perception TN required to locate, target, o
 
 Your current Invisibility Bonus may be reduced by **Cloak Disruption**.
 
-This Active Buff may stack with **Passive Invisibility**. If both are active, add both Invisibility Bonuses together.
+Passive Invisibility may stack with **Active Buff: Invisibility**. If both are active, add both Invisibility Bonuses together and combine their blocked Combat Senses.
 
-This Active Buff does not block Special Combat Senses unless another explicit Invisibility subsystem rule says otherwise.
+
 }}
 
 
@@ -3363,8 +3083,6 @@ This Active Buff does not block Special Combat Senses unless another explicit In
       BASELINES<br>
       Passive curve = 20 PP at Level 1, +20 PP per Level.<br>
       +1 Initiative = 10 PP.<br><br>
-
-```
   DESIGN STRUCTURE<br>
   This is a pure Initiative Passive with exactly one mechanical axis: Initiative.<br>
   The bonus is added to the character's initial Initiative Score before the Initiative Shop opens.<br>
@@ -3394,7 +3112,6 @@ This Active Buff does not block Special Combat Senses unless another explicit In
   It does not grant additional Turns, Actions, Reactions, Movement, Attack Dice, Evade, Armor, or any other rider.<br>
   Initiative gained from this Passive follows all normal Initiative Shop and Initiative Order rules.
 </span>
-```
 
   </span>
 </h3>
@@ -3711,7 +3428,7 @@ Absorption is a closed premium Passive subsystem built around accepting real phy
 Unlike other defensive systems, Absorption does not prevent damage.
 
 * **Evade** avoids the Attack.
-* **Parry** removes incoming Damage Dice.
+* **Parry** removes incoming Attack Dice.
 * **Armor** reduces rolled damage.
 * **Damage Reduction** reduces remaining damage.
 * **Phasing** ignores an incoming hit.
@@ -3767,7 +3484,7 @@ Only the final amount entered as HP loss counts as **Absorbed Damage**.
 The following does not generate Absorbed Damage:
 
 * Damage prevented by Evade
-* Damage Dice removed through Parry
+* Damage prevented because Parry removed Attack Dice or Fully Parried the Attack
 * Damage prevented by Armor
 * Damage prevented by Damage Reduction
 * Attacks ignored through Phasing
@@ -3865,7 +3582,6 @@ Absorption may not appear as a secondary rider on another Passive.
       Passive curve = 20 PP per Level.<br>
       Absorption is a closed premium Passive subsystem.<br><br>
 
-```
   CORE IDENTITY<br>
   This Passive grants additional real HP to every normal Health Bar.<br>
   Actual HP lost through eligible hostile damage is accumulated as Absorbed Damage.<br>
@@ -3893,7 +3609,6 @@ Absorption may not appear as a secondary rider on another Passive.
   NOTES<br>
   Absorption is designed for characters who intentionally accept real Health damage and immediately convert that suffering into existing Stone Abilities.
 </span>
-```
 
   </span>
 </h3>

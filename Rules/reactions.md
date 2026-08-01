@@ -55,8 +55,8 @@ The Homebrewery
 
 ::::::::::::::::::::::::::::::::
 {{homebreweryCredits
-Destroyed Faith — DF Core
-Version: v0.8.5 (2026-06-21)
+Destroyed Faith — DF Core Reactions
+Version: v0.9.8 (2026-07-31)
 }}
 
 }}
@@ -68,27 +68,27 @@ Version: v0.8.5 (2026-06-21)
 - #### [{{ Artwork Credits}}{{ 2}}](#p2)
 - #### [{{ Reactions}}{{ 4}}](#p4)
 - #### [{{ Reaction Rules}}{{ 4}}](#p4)
-- #### [{{ Reactions — Pure Defense}}{{ 8}}](#p8)
-- #### [{{ Armor}}{{ 8}}](#p8)
-- #### [{{ Evade}}{{ 9}}](#p9)
-- #### [{{ Temporary HP}}{{ 9}}](#p9)
-- #### [{{ Defensive Combinations}}{{ 10}}](#p10)
-- #### [{{ Armor + Temporary HP}}{{ 10}}](#p10)
-- #### [{{  Evade + Temporary HP}}{{ 11}}](#p11)
-- #### [{{ Ally Protection}}{{ 12}}](#p12)
-- #### [{{ Ally Armor}}{{ 12}}](#p12)
-- #### [{{ Ally Evade}}{{ 13}}](#p13)
-- #### [{{ Ally Temporary HP}}{{ 14}}](#p14)
-- #### [{{  Restricted Utility}}{{ 15}}](#p15)
-- #### [{{  Reposition}}{{ 16}}](#p16)
-- #### [{{ Reactive Cleanse}}{{ 17}}](#p17)
-- #### [{{  Closed Premium}}{{ 18}}](#p18)
-- #### [{{  Damage Reduction}}{{ 18}}](#p18)
-- #### [{{  Phasing}}{{ 19}}](#p19)
-- #### [{{ Counter Effects}}{{ 20}}](#p20)
-- #### [{{ Counter Damage}}{{ 21}}](#p21)
-- #### [{{  Counter Damage + Push}}{{ 22}}](#p22)
-- #### [{{ Special Increase}}{{ 23}}](#p23)
+- #### [{{ Pure Defense}}{{ 7}}](#p7)
+- #### [{{ Armor}}{{ 7}}](#p7)
+- #### [{{ Evade}}{{ 8}}](#p8)
+- #### [{{ Temporary HP}}{{ 8}}](#p8)
+- #### [{{ Defensive Combinations}}{{ 9}}](#p9)
+- #### [{{ Ally Protection}}{{ 11}}](#p11)
+- #### [{{ Restricted Utility}}{{ 14}}](#p14)
+- #### [{{ Reposition}}{{ 15}}](#p15)
+- #### [{{ Reactive Cleanse}}{{ 15}}](#p15)
+- #### [{{ Closed Premium}}{{ 16}}](#p16)
+- #### [{{ Damage Reduction}}{{ 16}}](#p16)
+- #### [{{ Phasing}}{{ 17}}](#p17)
+- #### [{{ Counter Effects}}{{ 18}}](#p18)
+- #### [{{ Counter Damage}}{{ 19}}](#p19)
+- #### [{{ Counter Damage + Push}}{{ 20}}](#p20)
+- #### [{{ Special Increase}}{{ 21}}](#p21)
+- #### [{{ Initiative Gain}}{{ 22}}](#p22)
+- #### [{{ Riposte}}{{ 23}}](#p23)
+- #### [{{ Reflection}}{{ 24}}](#p24)
+- #### [{{ Absorption Reaction}}{{ 26}}](#p26)
+- #### [{{ Reactive Overload}}{{ 27}}](#p27)
 
 }}
 \page
@@ -97,237 +97,172 @@ Version: v0.8.5 (2026-06-21)
 
 ## Reactions
 
-Reactions are immediate answers to a specific trigger.
+Reactions are immediate answers to specific events.
 
-They do not replace Active Powers, Active Buffs, Movement Powers, or Passives.  
-A Reaction is not a second turn, not a hidden Attack Action, and not a way to add free offensive pressure outside your turn.
+They do not replace Active Powers, Active Buffs, Movement Powers, or Passives.
+
+A Reaction is not a second Turn, not a hidden Attack Action, and not a general source of free offense outside the character’s Turn.
 
 A Reaction is built from two parts:
 
-1. a **Reaction Effect**, which defines what the Reaction does,
-2. a **Chosen Trigger**, which defines when the Reaction may be used.
+1. a **Reaction Effect**, which defines what the Reaction does, and
+2. an **Allowed Trigger**, which defines when the Reaction may be used.
 
-When you learn a Reaction Effect, choose one of its allowed Triggers.
+When a Reaction entry offers more than one Allowed Trigger, choose one of those Triggers when the Reaction Effect is learned.
 
-The chosen Trigger becomes part of that Reaction and cannot be changed unless a rule explicitly allows retraining.
+That choice becomes part of the Reaction.
 
 There is no universal Opportunity Attack rule.
 
-A creature may use a Reaction only when the Trigger chosen for that Reaction Effect occurs.
-
-Reactions are intentionally narrow.
-
-They answer one clear moment and apply only to the triggering event unless the entry explicitly says otherwise.
+A creature may use a Reaction only when the Trigger belonging to that Reaction occurs.
 
 ---
-
+::
 ## Reaction Rules
 
-A Reaction costs your **Reaction for the round**. You may normally use only **one Reaction per round**.
+Using a Reaction consumes **1 Reaction**.
 
-A Reaction resolves immediately after its chosen Trigger is declared or resolved, depending on the Trigger and the Reaction Effect.
+A character normally has **1 Reaction per Round**.
 
-If a Reaction modifies the result of an incoming attack, it applies only to the **triggering attack**.
+A Reaction does not grant additional Reactions unless its entry explicitly says so.
 
-If a Reaction modifies a hit or damage instance, it applies only to the **triggering hit** or **triggering damage instance**.
+A Reaction resolves at the timing defined by its Trigger and effect.
 
-A Reaction never creates a maintained state. A Reaction is not an Active Buff. A Reaction is not a Support Power.
+If a Reaction modifies an incoming attack, it applies only to the triggering attack.
 
-If a Reaction grants Armor, Evade, Temporary HP, Damage Reduction, or Phasing, that benefit applies only to the triggering event unless the entry explicitly says otherwise.
+If it modifies a hit or damage instance, it applies only to the triggering hit or damage instance.
 
-Reactions do not grant:
+A Reaction does not normally create a maintained state.
 
-- Attack Dice,
-- Critical,
-- Extra Attacks,
-- free Attack Actions,
-- full Active Powers,
-- Special Application,
-- Special Increase,
-- hard control,
-- or offensive riders,
-
-unless the Reaction Effect explicitly says it is a dedicated exception.
-
-Reactions may not apply or increase Specials by default.
-
-If a Tree wants a highly specific offensive, movement-locking, counterspell, interrupt, or Special-based Reaction, it must be written as a dedicated Tree exception and priced separately. It is not part of the general Reaction catalogue.
+It is not an Active Buff and does not remain active for the rest of the Round unless the entry explicitly states otherwise.
 
 ---
-}}
-\page
-{{pageNumber,auto}}
-{{wide
-### Reaction Effects and Chosen Triggers
-
-Each Reaction entry lists its **Allowed Triggers**.
-
-When you learn that Reaction Effect, choose one allowed Trigger from that list.
-
-That Trigger defines when the Reaction may be used.
-
-A Reaction Effect may not be learned multiple times just to gain different Triggers.
-
-Example:
-
-- A character may learn **Counter Damage** with the **Hit Trigger**.
-- Another character may learn **Counter Damage** with the **Threat Zone Movement Trigger**.
-- A character may not learn **Counter Damage** twice to gain both Triggers unless a specific rule explicitly allows it.
-
-The Trigger is part of the build identity, not a separate Power.
-
----
-
-### Duplicate Reaction Pillar
-
-A character cannot learn or benefit from the same Reaction Effect more than once.
-
-If multiple sources grant the same Reaction Effect, such as a Tree, Artifact, Echo, Item, Shield, Weapon, Armor, or other feature, those sources do not create additional Reaction uses.
-
-Use the highest available version of that Reaction Effect.
-
-Different Chosen Triggers do not create different copies of the same Reaction Effect unless a rule explicitly allows it.
-
-The character still has only one Reaction for the round unless another rule explicitly changes the number of Reactions.
-
-A character cannot stack multiple copies of the same Reaction Effect to gain multiple Phasing triggers, multiple Temporary HP buffers, multiple Armor boosts, multiple Counter Damage triggers, multiple Threat Zone punishments, or multiple uses of the same defensive answer.
-
----
-
-### Trigger Catalogue
-
-These are the standard Triggers used by the general Reaction catalogue.
-
-A Reaction Effect can only use a Trigger listed in its own Allowed Triggers entry.
-
-#### Attack Trigger
-
-> **When you are targeted by an attack.**
-
-Use this Trigger for Reactions that can affect whether an attack hits, such as Evade-based Reactions.
-
-This Trigger happens before the attack result is finalized.
-
-#### Hit Trigger
-
-> **When you are hit by an attack.**
-
-Use this Trigger for Reactions that answer a confirmed hit, such as Armor, Phasing, Counter Damage, Counter Damage + Push, or Special Increase.
-
-This Trigger also covers attacks that include you as one of several targets.
-
-#### Damage Trigger
-
-> **When you would take damage.**
-
-Use this Trigger for Reactions that answer the damage instance itself, such as Temporary HP, Damage Reduction, or damage-instance Armor.
-
-This Trigger may occur after a hit is confirmed, after an area effect is resolved, or whenever a legal effect would deal damage.
-}}
-\page
-{{pageNumber,auto}}
-{{wide
-#### Incoming Effect Trigger
-
-> **When you would gain an eligible ongoing effect.**
-
-Use this Trigger for Reactions that reduce or prevent a newly applied ongoing effect on yourself.
-
-Eligible ongoing effects are effects with a numeric value or removable duration that can normally be reduced by Cleanse, such as Diminishing Specials, Timed Specials, or similar ongoing creature effects.
-
-This Trigger happens after the incoming effect is confirmed but before that effect applies its first Tick or immediate ongoing penalty.
-
-#### Ongoing Effect Trigger
-
-> **When an eligible ongoing effect affecting you would Tick, deal damage, or apply its listed ongoing penalty.**
-
-Use this Trigger for Reactions that let you answer a condition already affecting you at the moment it becomes dangerous.
-
-This Trigger does not allow you to remove battlefield objects, Barriers, Walls, Images, Summons, Illusion Fields, Persistent Zones, or non-creature effects. Those effects require Dispel or another dedicated effect.
-
-#### Ally Attack Trigger
-
-> **When an ally within the Reaction's range is targeted by an attack.**
-
-Use this Trigger for Ally Protection Reactions that can affect whether the attack hits, such as Ally Evade.
-
-#### Ally Hit or Damage Trigger
-
-> **When an ally within the Reaction's range is hit or would take damage.**
-
-Use this Trigger for Ally Protection Reactions that protect against a confirmed hit or incoming damage instance, such as Ally Armor or Ally Temporary HP.
-
-#### Threat Zone Movement Trigger
-
-> **When a hostile creature moves into or out of your Threat Zone.**
-
-Your Threat Zone is normally your Melee Reach.
-
-If a weapon, Artifact, Echo, Passive, Tree, or other rule increases your Melee Reach, your Threat Zone increases accordingly.
-
-A hostile creature can trigger your Threat Zone Movement Trigger when it moves into your Threat Zone, moves out of your Threat Zone, or crosses the boundary of your Threat Zone.
-
-The triggering creature must be in your Threat Zone when the Reaction resolves.
-
-A creature can trigger the same character's Threat Zone Movement Trigger only once per round.
-
-Forced movement only triggers a Threat Zone Movement Trigger if the effect explicitly says it provokes movement-triggered Reactions.
-
-Safe Movement does not trigger Threat Zone Movement Triggers.
-
-Teleport does not trigger Threat Zone Movement Triggers through the intervening path because the creature does not move through those spaces.
-
-#### Premium Subsystem Trigger
-
-Some closed premium subsystems, such as Damage Reduction and Phasing, use restricted Trigger access.
-
-Their entry defines exactly which Trigger they may use.
-
----
-}}
-\page
-{{pageNumber,auto}}
-{{wide
+:
 ### Reaction Curve
 
-Reactions use the Reaction curve.
-
 | **Level** | **Target PP** |
-|:--:|--:|
-| **1** | 20 |
-| **2** | 40 |
-| **3** | 60 |
-| **4** | 80 |
-| **5** | 100 |
-| **6** | 120 |
-| **7** | 140 |
-| **8** | 160 |
-| **9** | 180 |
-| **10** | 200 |
-| **11** | 220 |
-| **12** | 240 |
-| **13** | 260 |
-| **14** | 280 |
-| **15** | 300 |
-| **16** | 320 |
+| :-------: | ------------: |
+|   **1**   |            20 |
+|   **2**   |            40 |
+|   **3**   |            60 |
+|   **4**   |            80 |
+|   **5**   |           100 |
+|   **6**   |           120 |
+|   **7**   |           140 |
+|   **8**   |           160 |
+|   **9**   |           180 |
+|   **10**  |           200 |
+|   **11**  |           220 |
+|   **12**  |           240 |
+|   **13**  |           260 |
+|   **14**  |           280 |
+|   **15**  |           300 |
+|   **16**  |           320 |
 
 ---
+}}
+\page
+{{pageNumber,auto}}
+{{wide
+### Chosen Triggers
 
-### Defensive Reaction Scope
+Each Reaction Effect lists its Allowed Triggers.
 
-A standard Reaction may use one of the following defensive axes:
+A Reaction Effect may not be learned multiple times merely to gain several different Triggers.
 
-- Armor,
-- Evade,
-- Temporary HP,
-- Damage Reduction,
-- Phasing.
+If several sources grant the same Reaction Effect, use only the highest available version unless a rule explicitly permits multiple copies.
 
-A standard Reaction may combine exactly two normal defensive axes only if the entry explicitly does so.
-
-Damage Reduction and Phasing are closed premium subsystems and may not be combined with any other defensive axis.
+Different Triggers do not create separate copies of the same Reaction Effect.
 
 ---
+::
+### Duplicate Reaction Pillar
+
+A character cannot benefit from the same Reaction Effect more than once.
+
+Sources such as Trees, Artifacts, Echoes, weapons, shields, armor, or other features do not create additional uses of an identical Reaction Effect.
+
+Duplicate sources:
+
+* do not stack,
+* do not grant additional Reactions,
+* and do not create additional uses during the same Round.
+
+The character still has only their normal number of Reactions.
+
+---
+::
+### Standard Reaction Scope
+
+Standard defensive Reactions may use:
+
+* Armor
+* Evade
+* Temporary HP
+* Ally Protection
+* Reposition
+* Reactive Cleanse
+
+Standard counter effects may use:
+
+* Counter Damage
+* Counter Damage + Push
+* Special Increase
+
+Counter Effects are not Attack Actions.
+
+They do not make attack rolls, generate Raises, use offensive Active Buffs, apply Specials, or trigger normal on-hit effects unless their entry explicitly says otherwise.
+
+---
+::
+}}
+\page
+{{pageNumber,auto}}
+{{wide
+### Dedicated Reaction Exceptions
+
+Some Reactions belong to dedicated subsystems and may break one narrow general restriction.
+
+These include:
+
+* Damage Reduction
+* Phasing
+* Initiative Gain
+* Riposte
+* Reflection
+* Reactive Overload
+
+Each dedicated Reaction follows only the exception written in its own entry.
+
+For example:
+
+* Riposte may use Weapon Damage after a fully parried melee Attack.
+* Reflection may return a fully intercepted Attack through the Parry subsystem.
+* Reactive Overload may multiply eligible actual HP loss for Absorption calculations.
+* Initiative Gain may change Initiative Order during combat.
+
+These exceptions do not create general permission for other Reactions to copy those effects.
+
+---
+::
+### Reaction Limits
+
+Reactions may not normally grant:
+
+* Attack Dice,
+* Critical,
+* Extra Attacks,
+* free Attack Actions,
+* full Active Powers,
+* Special Application,
+* hard control,
+* maintained defensive states,
+* or unrelated offensive riders.
+
+A Reaction may apply or increase a Special only if it is the dedicated **Reaction: Special Increase** or another explicitly approved subsystem exception.
+
+Closed or dedicated subsystem Reactions may not be combined with unrelated defensive or offensive axes unless their entry explicitly says otherwise.
+
 
 }}
 \page
@@ -1559,7 +1494,6 @@ The triggering creature must be within **2 m** and already affected by your chos
       Reaction curve = 20 PP at Level 1, +20 PP per Level.<br>
       +1 Initiative = 10 PP.<br><br>
 
-```
   DESIGN STRUCTURE<br>
   This is a pure Initiative Reaction with exactly one mechanical axis: Initiative Gain.<br>
   The Reaction triggers when the user is targeted by an attack.<br>
@@ -1595,7 +1529,6 @@ The triggering creature must be within **2 m** and already affected by your chos
   It does not grant Evade, Armor, Damage Reduction, Phasing, Temporary HP, Movement, an Attack Action, an additional Turn, or another Reaction.<br>
   It does not reroll Initiative and does not open the Initiative Shop.
 </span>
-```
 
   </span>
 </h3>
@@ -1678,7 +1611,7 @@ Duplicate sources do not stack and do not grant additional uses.
 
 
   DEDICATED PARRY EXCEPTION<br>
-  Riposte deals normal Counter Damage plus Weapon Damage.<br>
+  Riposte deals Weapon Damage plus 1d8 damage per Power Level as a dedicated Parry exception.<br>
   It may be used multiple times per Round if the character has additional Reactions available.<br><br>
 
   REQUIREMENTS<br>
@@ -1686,7 +1619,7 @@ Duplicate sources do not stack and do not grant additional uses.
   You must currently be Parrying.<br><br>
 
   TRIGGER<br>
-  After you reduce all Damage Dice of a direct melee Attack to 0 by spending Parry.<br>
+  After you reduce all Attack Dice of a direct melee Attack to 0 by spending Parry.<br>
   The triggering creature must be within your Melee Reach when Riposte resolves.<br><br>
 
   RESOLUTION<br>
@@ -1718,7 +1651,7 @@ You turn a completely intercepted strike aside and immediately answer with your 
 
 **Requirement:** Parry Passive and a suitable melee weapon or natural weapon
 
-**Trigger:** After you reduce all Damage Dice of a direct melee Attack to **0** by spending Parry.
+**Trigger:** After you reduce all Attack Dice of a direct melee Attack to **0** by spending Parry.
 
 The triggering creature must be within your **Melee Reach** when this Reaction resolves.
 
@@ -1769,7 +1702,7 @@ To use Reflection:
 * You must currently be Parrying.
 * The triggering Attack must target only you.
 * The Attack must be eligible for Parry.
-* You must reduce all Damage Dice of the triggering Attack to **0** by spending Parry.
+* You must reduce all Attack Dice of the triggering Attack to **0** by spending Parry.
 * The Attack must have an identifiable source that can legally receive the reflected effect.
 
 Reflection cannot be used merely because an Attack deals no damage after Armor, Damage Reduction, resistance, immunity, Temporary HP, or another defensive effect.
@@ -1780,7 +1713,7 @@ The Attack must be completely neutralized through Parry.
 
 ### Resolving Reflection
 
-After reducing all Damage Dice of an eligible Attack to 0 through Parry, you may spend **1 Reaction** to use Reflection.
+After reducing all Attack Dice of an eligible Attack to 0 through Parry, you may spend **1 Reaction** to use Reflection.
 
 The original Attack is redirected back upon its source.
 
@@ -1818,7 +1751,7 @@ Additional Reactions do not bypass Reflection's per-Combat use limit.
 {{wide
 **Requirement:** Parry Passive
 
-**Trigger:** After you reduce all Damage Dice of a direct Attack that targets only you to **0** by spending Parry.
+**Trigger:** After you reduce all Attack Dice of a direct Attack that targets only you to **0** by spending Parry.
 
 Spend **1 Reaction** to redirect the triggering Attack back upon its source.
 
@@ -1828,6 +1761,8 @@ The source suffers the Damage Dice and direct damage effects originally intended
 
 Reflection and Riposte cannot both be used against the same triggering Attack.
 
+Reflection may be used a number of times per Combat equal to **half your Mastery Rank, rounded down, minimum 1**. This grants **1 use at MR 1–3**, **2 uses at MR 4–5**, **3 uses at MR 6–7**, and **4 uses at MR 8**.
+
 | **Mastery Rank** | **Type**        | **Trigger**                    |  **Cost**  | **Uses per Combat** | **Effect**                                           |
 | :--------------: | :-------------- | :----------------------------- | :--------: | :-----------------: | :--------------------------------------------------- |
 |       **1**      | Reaction, Parry | Fully parry an eligible Attack | 1 Reaction |        **1**        | Redirect the triggering Attack back upon its source. |
@@ -1836,78 +1771,11 @@ Reflection and Riposte cannot both be used against the same triggering Attack.
 |       **4**      | Reaction, Parry | Fully parry an eligible Attack | 1 Reaction |        **2**        | Redirect the triggering Attack back upon its source. |
 |       **5**      | Reaction, Parry | Fully parry an eligible Attack | 1 Reaction |        **2**        | Redirect the triggering Attack back upon its source. |
 |       **6**      | Reaction, Parry | Fully parry an eligible Attack | 1 Reaction |        **3**        | Redirect the triggering Attack back upon its source. |
+|       **7**      | Reaction, Parry | Fully parry an eligible Attack | 1 Reaction |        **3**        | Redirect the triggering Attack back upon its source. |
+|       **8**      | Reaction, Parry | Fully parry an eligible Attack | 1 Reaction |        **4**        | Redirect the triggering Attack back upon its source. |
 
 
 }}
-\page
-{{pageNumber,auto}}
-{{wide
-<h3 id="reaction-parry-reflection">
-  Reflection
-  <span class="tooltip">🛈
-    <span class="tooltiptext">
-      PARRY SUBSYSTEM<br>
-      Reflection is a premium extension of Parry.<br>
-      It cannot be used without the Parry Passive.<br><br>
-  TRIGGER<br>
-  After you reduce all Attack Dice of the triggering Attack to 0 by spending Parry.<br>
-  The triggering Attack must target only you.<br><br>
-
-  EFFECT<br>
-  Spend 1 Reaction to redirect the original Attack back upon its source.<br>
-  The source suffers the Damage Dice and direct damage effects originally intended for you.<br><br>
-
-  RESOLUTION<br>
-  No new Attack Roll is made.<br>
-  The reflected Attack cannot generate new Raises or a new Critical result.<br>
-  The source applies its own legal defenses normally.<br><br>
-
-  USE LIMIT<br>
-  Reflection may be used a number of times per Combat equal to half your Mastery Rank, rounded down, with a minimum of once per Combat.<br><br>
-
-  COMBAT USES<br>
-  MR 1–3 = 1 use per Combat.<br>
-  MR 4–5 = 2 uses per Combat.<br>
-  MR 6 = 3 uses per Combat.<br><br>
-
-  RESTRICTIONS<br>
-  Reflection and Riposte cannot both be used against the same Attack.<br>
-  Additional Reactions do not bypass the per-Combat use limit.<br>
-  Reflection does not work against Area Effects, multi-target Attacks, ongoing damage, Persistent Zones, environmental damage, or damage without an identifiable source.
-</span>
-
-  </span>
-</h3>
-
-You completely intercept an incoming attack and turn its full force back upon its source.
-
----
-
-
-
-
-| **Level** | **Type**             | **Allowed Trigger** |          **Range**          | **AoE** | **Effect**                                                                         |
-| :-------: | :------------------- | :------------------ | :-------------------------: | :-----: | :--------------------------------------------------------------------------------- |
-|   **1**   | Reaction, Reflection | Damage Trigger      | Source of triggering Attack |    —    | Prevent the triggering damage and deal **that damage +1d8 damage** to its source.  |
-|   **2**   | Reaction, Reflection | Damage Trigger      | Source of triggering Attack |    —    | Prevent the triggering damage and deal **that damage +2d8 damage** to its source.  |
-|   **3**   | Reaction, Reflection | Damage Trigger      | Source of triggering Attack |    —    | Prevent the triggering damage and deal **that damage +3d8 damage** to its source.  |
-|   **4**   | Reaction, Reflection | Damage Trigger      | Source of triggering Attack |    —    | Prevent the triggering damage and deal **that damage +4d8 damage** to its source.  |
-|   **5**   | Reaction, Reflection | Damage Trigger      | Source of triggering Attack |    —    | Prevent the triggering damage and deal **that damage +5d8 damage** to its source.  |
-|   **6**   | Reaction, Reflection | Damage Trigger      | Source of triggering Attack |    —    | Prevent the triggering damage and deal **that damage +6d8 damage** to its source.  |
-|   **7**   | Reaction, Reflection | Damage Trigger      | Source of triggering Attack |    —    | Prevent the triggering damage and deal **that damage +7d8 damage** to its source.  |
-|   **8**   | Reaction, Reflection | Damage Trigger      | Source of triggering Attack |    —    | Prevent the triggering damage and deal **that damage +8d8 damage** to its source.  |
-|   **9**   | Reaction, Reflection | Damage Trigger      | Source of triggering Attack |    —    | Prevent the triggering damage and deal **that damage +9d8 damage** to its source.  |
-|   **10**  | Reaction, Reflection | Damage Trigger      | Source of triggering Attack |    —    | Prevent the triggering damage and deal **that damage +10d8 damage** to its source. |
-|   **11**  | Reaction, Reflection | Damage Trigger      | Source of triggering Attack |    —    | Prevent the triggering damage and deal **that damage +11d8 damage** to its source. |
-|   **12**  | Reaction, Reflection | Damage Trigger      | Source of triggering Attack |    —    | Prevent the triggering damage and deal **that damage +12d8 damage** to its source. |
-|   **13**  | Reaction, Reflection | Damage Trigger      | Source of triggering Attack |    —    | Prevent the triggering damage and deal **that damage +13d8 damage** to its source. |
-|   **14**  | Reaction, Reflection | Damage Trigger      | Source of triggering Attack |    —    | Prevent the triggering damage and deal **that damage +14d8 damage** to its source. |
-|   **15**  | Reaction, Reflection | Damage Trigger      | Source of triggering Attack |    —    | Prevent the triggering damage and deal **that damage +15d8 damage** to its source. |
-|   **16**  | Reaction, Reflection | Damage Trigger      | Source of triggering Attack |    —    | Prevent the triggering damage and deal **that damage +16d8 damage** to its source. |
-
-
-}}
-
 \page
 {{pageNumber,auto}}
 {{wide

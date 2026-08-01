@@ -56,8 +56,8 @@ The Homebrewery
 
 ::::::::::::::::::::::::::::::::
 {{homebreweryCredits
-Destroyed Faith — Core Rules
-Version: v0.9.1 (2026-07-06)
+Destroyed Faith — DF Core Active Buffs
+Version: v0.9.8 (2026-07-31)
 }}
 
 }}
@@ -66,191 +66,207 @@ Version: v0.9.1 (2026-07-06)
 
 \page
 {{pageNumber,auto}}
-{{wide
-
 {{toc,wide
 # Summary
 
 - #### [{{ Artwork Credits}}{{ 2}}](#p2)
 - #### [{{ Active Buffs}}{{ 4}}](#p4)
 - #### [{{ Active Buff Rules}}{{ 4}}](#p4)
+- #### [{{ Critical Restriction}}{{ 6}}](#p6)
 - #### [{{ Pure Defensive}}{{ 7}}](#p7)
-- #### [{{ Defensive Combinations}}{{ 15}}](#p15)
-- #### [{{ Pure Offensive}}{{ 20}}](#p20)
-- #### [{{ Offensive Combinations}}{{ 23}}](#p23)
-- #### [{{ Auras}}{{ 31}}](#p31)
+- #### [{{ Defensive Combinations}}{{ 14}}](#p14)
+- #### [{{ Pure Offensive}}{{ 19}}](#p19)
+- #### [{{ Offensive Combinations}}{{ 22}}](#p22)
+- #### [{{ Active Buff: Critical}}{{ 24}}](#p24)
+- #### [{{ Special Overdrive}}{{ 27}}](#p27)
+- #### [{{ Spell Resistance}}{{ 28}}](#p28)
+- #### [{{ Cleanse Maintenance}}{{ 29}}](#p29)
+- #### [{{ Active Buff Auras}}{{ 30}}](#p30)
+- #### [{{ Damage Aura}}{{ 32}}](#p32)
+- #### [{{ Healing Aura}}{{ 32}}](#p32)
+- #### [{{ Artifact Smite Aura}}{{ 34}}](#p34)
+- #### [{{ Growth Form}}{{ 35}}](#p35)
+- #### [{{ Summon Damage Aura}}{{ 37}}](#p37)
+- #### [{{ Summon Armor Aura}}{{ 38}}](#p38)
+- #### [{{ Thorns}}{{ 39}}](#p39)
+- #### [{{ Invisibility}}{{ 40}}](#p40)
+- #### [{{ Reinforced Parry}}{{ 41}}](#p41)
+- #### [{{ Absorption Active Buff}}{{ 42}}](#p42)
+- #### [{{ Intensified Absorption}}{{ 43}}](#p43)
+- #### [{{ Reinforced Damage Negation}}{{ 44}}](#p44)
 
-}}
 }}
 \page
 {{pageNumber,auto}}
 {{wide
-
 ## Active Buffs
 
 Active Buffs are temporary combat enhancements.
 
-They represent a character entering a stance, invoking a short-lived protection, empowering their body, reinforcing allies, or activating a temporary combat state.
+They represent a character entering a stance, invoking a short-lived protection, empowering their body, reinforcing allies, concealing themselves, or temporarily intensifying an existing combat subsystem.
 
-Unlike Passives, Active Buffs are not always available.  
-They cost an action to activate, last only for a limited duration, and compete with other Active Buffs for the character’s maintained buff slot.
+Unlike Passives, Active Buffs are not permanently active.
 
-The names in this chapter are deliberately mechanical.  
-A character, Tree, tradition, spell school, item, or culture may rename these effects freely.  
-The mechanical identity is defined by the entry ID and the effect structure, not by its flavour name.
+An Active Buff usually costs **1 Attack Action** to activate and normally lasts **Mastery Rank Rounds**.
 
 ---
-
+::
 ## Active Buff Rules
 
-Active Buffs follow the standard Active Buff curve.
+A character may normally maintain only **one Active Buff** at a time.
 
-An Active Buff usually costs **1 Attack Action** to activate and lasts **Mastery Rank Rounds**.
+If a character activates a new Active Buff while already maintaining another Active Buff, the previous Active Buff ends immediately unless a rule explicitly allows both effects to coexist.
 
-A character may maintain only **one Active Buff** at a time unless a rule explicitly says otherwise.
+Active Buffs do not require a roll unless they target an unwilling creature or the entry explicitly requires one.
 
-If a character activates a new Active Buff while already maintaining another Active Buff, the previous Active Buff ends immediately unless a rule allows both to coexist.
-
-Active Buffs do not require a roll unless they target an unwilling creature or the entry explicitly calls for one.
+The round in which the Active Buff is activated counts as the first round of its duration.
 
 ---
-
+::
 ### Active Buff Curve
 
 | **Level** | **Target PP** |
-|:--:|--:|
-| **1** | 40 |
-| **2** | 70 |
-| **3** | 100 |
-| **4** | 130 |
-| **5** | 160 |
-| **6** | 190 |
-| **7** | 220 |
-| **8** | 250 |
-| **9** | 280 |
-| **10** | 310 |
-| **11** | 340 |
-| **12** | 370 |
-| **13** | 400 |
-| **14** | 430 |
-| **15** | 460 |
-| **16** | 490 |
+| :-------: | ------------: |
+|   **1**   |            40 |
+|   **2**   |            70 |
+|   **3**   |           100 |
+|   **4**   |           130 |
+|   **5**   |           160 |
+|   **6**   |           190 |
+|   **7**   |           220 |
+|   **8**   |           250 |
+|   **9**   |           280 |
+|   **10**  |           310 |
+|   **11**  |           340 |
+|   **12**  |           370 |
+|   **13**  |           400 |
+|   **14**  |           430 |
+|   **15**  |           460 |
+|   **16**  |           490 |
+
+---
+::
+### Linear Scaling Rule
+
+Levels **1–4** define the structure and mechanical identity of an Active Buff.
+
+Levels **5–16** scale that same structure upward.
+
+A standard Active Buff does not gain a new axis, rider, Special, condition, subsystem, or action-economy effect at later Levels.
 
 ---
 }}
 \page
 {{pageNumber,auto}}
 {{wide
-### Linear Scaling Rule
-
-Levels **1–4** define what the Active Buff is.
-
-Levels **5–16** only scale that same structure upward.
-
-A standard Active Buff does not gain new riders, new Specials, new conditions, new defensive axes, new offensive axes, or new subsystems at higher levels.
-
-If an Active Buff starts as:
-
-- Armor only,
-- Evade only,
-- Temporary HP only,
-- Healing only,
-- Armor + Temporary HP,
-- Evade + Temporary HP,
-- or any other fixed structure,
-
-then that same structure continues through Level 16.
-
----
-
-### Pure Active Buffs and Combination Active Buffs
-
-A standard Active Buff may be built in one of two forms.
+### Pure and Combination Active Buffs
 
 A **Pure Active Buff** has exactly one mechanical axis.
 
-Examples:
+Examples include:
 
-- Armor
-- Evade
-- Temporary HP
-- Healing
-- Damage
+* Armor
+* Evade
+* Temporary HP
+* Healing
+* Damage
+* Penetration
+* Thorns
 
 A **Combination Active Buff** has exactly two mechanical axes.
 
-Examples:
+Examples include:
 
-- Armor + Temporary HP
-- Evade + Temporary HP
-- Temporary HP + Healing
-- Armor + Evade
-- Damage + Penetration
+* Armor + Temporary HP
+* Evade + Temporary HP
+* Temporary HP + Healing
+* Armor + Evade
+* Damage + Penetration
 
-A Combination Active Buff must fit both axes into the same Active Buff PP budget.
+Both axes must fit into the same Active Buff PP budget.
 
-It does not receive a full budget for each axis.
+A Combination Active Buff does not receive a complete PP budget for each axis.
+
+---
+::
+### Active Buff Limits
+
+Standard Active Buffs may not grant:
+
+* Attack Dice,
+* Extra Attacks,
+* free Attack Actions,
+* additional Reactions,
+* Special Application,
+* hard control,
+* hidden Movement Powers,
+* or unrelated secondary effects.
+
+An Active Buff may interact with an existing eligible Special only through the dedicated **Active Buff: Special Overdrive** entry.
+
+Special Overdrive never applies a Special by itself.
 
 ---
 }}
 \page
 {{pageNumber,auto}}
 {{wide
-### Closed Premium Subsystems
+### Critical Restriction
 
-Damage Reduction and Phasing are closed premium subsystems.
+Critical is a closed offensive subsystem.
 
-They do not use normal Active Buff scaling.
+Critical may be granted only through:
 
-They may only appear in their dedicated Active Buff entries:
+1. the dedicated **Active Buff: Critical**, or
+2. the dedicated **Agility Ability: Crit**.
 
-- **Active Buff: Damage Reduction**
-- **Active Buff: Phasing**
+Artifact Stone Power Support may pre-fill named tiers of **Agility Ability: Crit**, but it never grants Critical directly.
 
-They may not be combined with:
+No other Active, Passive, Reaction, Movement Power, weapon, Special, aura, rider, or combination effect may directly grant Critical unless an explicit rule says otherwise.
 
-- Armor
-- Evade
-- Temporary HP
-- Healing
-- Damage
-- Specials
-- Movement
-- Control
-- any other rider
+Critical may not appear as a secondary rider.
 
-If a character wants Damage Reduction or Phasing through an Active Buff, that dedicated entry is the entire package.
+**Active Buff: Critical** may not be combined with Damage, Penetration, Attack Dice, Special Application, Extra Attacks, defensive effects, or filler value.
 
 ---
+::
+### Dedicated Active Buff Subsystems
 
-}}
+Some Active Buffs are dedicated extensions of another subsystem and do not follow normal Pure or Combination construction.
 
-\page
-{{pageNumber,auto}}
-{{wide
+These include:
 
-## Active Buffs — Pure Defensive
+* Active Buff: Damage Reduction
+* Active Buff: Phasing
+* Active Buff: Critical
+* Active Buff: Invisibility
+* Active Buff: Reinforced Parry
+* Active Buff: Intensified Absorption
+* Active Buff: Reinforced Damage Negation
+* Active Buff: Special Overdrive
 
-Pure Defensive Active Buffs focus on one defensive axis at a time.
+A subsystem Active Buff may require the matching Passive.
 
-They are the cleanest defensive tools in the system and should be used whenever a Tree wants a simple, readable defensive button.
+If the requirement is not met, the Active Buff has no effect.
 
-A Pure Defensive Active Buff should answer one clear question:
-
-- Do you become harder to hit?
-- Do you reduce incoming damage through Armor?
-- Do you gain a temporary protective buffer?
-- Do you heal repeatedly while the buff lasts?
-- Do you resist hostile effects better?
-- Do you reinforce nearby allies?
-
-Pure Defensive Active Buffs should not carry offensive riders, apply Specials, create damage zones, grant movement, or add control effects.
-
-If a Tree wants a more complex defensive identity, use a Defensive Combination Active Buff instead.
+Dedicated subsystem Active Buffs may not be used as templates for unrelated combination buffs.
 
 ---
+::
+### Invisibility Exception
 
-}}
+**Passive Invisibility** and **Active Buff: Invisibility** may be active at the same time.
+
+This is an explicit exception to normal subsystem stacking.
+
+If both are active:
+
+* add both Invisibility Bonuses together,
+* Passive Invisibility continues to block its chosen Special Combat Senses,
+* and Active Buff: Invisibility continues to block Normal Combat Awareness.
+
+This exception applies only to the Invisibility subsystem and does not allow a character to maintain a second Active Buff.
+
 
 
 }}
@@ -1334,7 +1350,7 @@ Your attacks strike harder and punch through protection more effectively.
 
 Critical is a closed offensive subsystem.
 
-Critical may only be granted through the dedicated **Active Buff: Critical** entry.
+Critical may only be granted by **Active Buff: Critical** or the dedicated **Agility Ability: Crit**. Artifact Stone Power Support may pre-fill named tiers of **Agility Ability: Crit**, but never grants Critical directly.
 
 No Active, Passive, Reaction, Movement Power, weapon, Special, rider, aura, or combination entry may grant Critical unless an explicit SRD exception is added later.
 
@@ -1342,7 +1358,7 @@ Critical may not appear as a secondary rider.
 
 Critical may not be combined with Damage, Penetration, Attack Dice, Special Application, Extra Attacks, defensive effects, or any other filler value.
 
-If a character wants Critical, they must spend their maintained Active Buff slot on **Active Buff: Critical**.
+If a character uses **Active Buff: Critical**, it consumes the maintained Active Buff slot. Critical gained through **Agility Ability: Crit** follows that Stone Ability's own cost and timing instead.
 
 
 <h3 id="active-buff-critical">
@@ -2407,73 +2423,71 @@ This Active Buff follows all normal Thorns rules.
 \page
 {{pageNumber,auto}}
 {{wide
-<h3 id="passive-invisibility">
-  Passive Invisibility (Passive)
+
+<h3 id="active-buff-invisibility">
+  Active Buff: Invisibility
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      CATEGORY<br>
-      Invisibility<br><br>
-
-BASELINES<br>
-      Passive curve = 20 PP at Level 1, +20 PP per level after that.<br>
-      Invisibility is a premium defensive axis based on perception, sense blocking, and target denial.<br>
-      Passive Invisibility grants a stable Invisibility Bonus and may block Special Combat Senses at higher levels.<br><br>
-
- DESIGN STRUCTURE<br>
-      Passive Invisibility does not reduce damage.<br>
-      Passive Invisibility does not increase Evade.<br>
-      Passive Invisibility does not grant Armor, Damage Reduction, Phasing, Temporary HP, or Healing.<br>
-      Instead, it increases the Perception TN required to locate, target, or read the invisible creature.<br><br>
-
- PROGRESSION<br>
-      The Passive Invisibility Bonus is capped at +10 and stretched across Levels 1–16.<br>
-      Passive Invisibility always blocks Normal Combat Awareness.<br>
-      At higher levels, it also blocks selected Special Combat Senses.<br><br>
-
-      LEVEL-BY-LEVEL STRUCTURE<br>
-      L1 → +1 Invisibility Bonus, blocks Normal Combat Awareness.<br>
-      L2 → +2 Invisibility Bonus, blocks Normal Combat Awareness.<br>
-      L3 → +3 Invisibility Bonus, blocks Normal Combat Awareness.<br>
-      L4 → +4 Invisibility Bonus, blocks Normal Combat Awareness + 1 Special Combat Sense.<br>
-      L5 → +4 Invisibility Bonus, blocks Normal Combat Awareness + 1 Special Combat Sense.<br>
-      L6 → +5 Invisibility Bonus, blocks Normal Combat Awareness + 1 Special Combat Sense.<br>
-      L7 → +5 Invisibility Bonus, blocks Normal Combat Awareness + 1 Special Combat Sense.<br>
-      L8 → +6 Invisibility Bonus, blocks Normal Combat Awareness + 2 Special Combat Senses.<br>
-      L9 → +6 Invisibility Bonus, blocks Normal Combat Awareness + 2 Special Combat Senses.<br>
-      L10 → +7 Invisibility Bonus, blocks Normal Combat Awareness + 2 Special Combat Senses.<br>
-      L11 → +7 Invisibility Bonus, blocks Normal Combat Awareness + 2 Special Combat Senses.<br>
-      L12 → +8 Invisibility Bonus, blocks Normal Combat Awareness + 3 Special Combat Senses.<br>
-      L13 → +8 Invisibility Bonus, blocks Normal Combat Awareness + 3 Special Combat Senses.<br>
-      L14 → +9 Invisibility Bonus, blocks Normal Combat Awareness + 3 Special Combat Senses.<br>
-      L15 → +9 Invisibility Bonus, blocks Normal Combat Awareness + 4 Special Combat Senses.<br>
-      L16 → +10 Invisibility Bonus, blocks Normal Combat Awareness + 4 Special Combat Senses.<br><br>
-
-NOTES<br>
-      This Passive is intentionally not priced as simple Evade. It does not make the user harder to hit after being located; it makes the user harder to locate, target, and read. Area effects, zones, environmental damage, and effects that do not require precise targeting are not stopped by Invisibility.
+      BASELINES<br>
+      Active Buff curve = 40 PP at Level 1, 70 PP at Level 2, 100 PP at Level 3, 130 PP at Level 4, then +30 PP per level after that.<br>
+      Invisibility is a premium defensive axis based on perception, sense blocking, and target denial.<br><br>
+      DESIGN STRUCTURE<br>
+      Active Buff: Invisibility grants a stronger temporary Invisibility Bonus than the Passive line.<br>
+      Unlike Passive Invisibility, this Active Buff blocks only Normal Combat Awareness.<br>
+      It does not block Special Combat Senses by itself.<br><br>
+      RESTRICTIONS<br>
+      Active Buff: Invisibility does not reduce damage.<br>
+      Active Buff: Invisibility does not increase Evade.<br>
+      Active Buff: Invisibility does not grant Armor, Damage Reduction, Phasing, Temporary HP, or Healing.<br>
+      Active Buff: Invisibility does not grant Special Combat Sense blocking.<br><br>
+      SUBSYSTEM EXCEPTION<br>
+      Active Buff: Invisibility may stack with Passive Invisibility.<br>
+      If both are active, add both Invisibility Bonuses together.<br>
+      If Passive Invisibility blocks Special Combat Senses, those blocks still apply while this Active Buff is active.<br>
+      This is an explicit Invisibility subsystem exception and does not apply to other Active Buffs.<br><br>
+      LEVEL-BY-LEVEL CALCULATION<br>
+      L1 target 40 PP → +1 Invisibility Bonus, Normal Combat Awareness only.<br>
+      L2 target 70 PP → +2 Invisibility Bonus, Normal Combat Awareness only.<br>
+      L3 target 100 PP → +3 Invisibility Bonus, Normal Combat Awareness only.<br>
+      L4 target 130 PP → +4 Invisibility Bonus, Normal Combat Awareness only.<br>
+      L5 target 160 PP → +5 Invisibility Bonus, Normal Combat Awareness only.<br>
+      L6 target 190 PP → +6 Invisibility Bonus, Normal Combat Awareness only.<br>
+      L7 target 220 PP → +7 Invisibility Bonus, Normal Combat Awareness only.<br>
+      L8 target 250 PP → +8 Invisibility Bonus, Normal Combat Awareness only.<br>
+      L9 target 280 PP → +9 Invisibility Bonus, Normal Combat Awareness only.<br>
+      L10 target 310 PP → +10 Invisibility Bonus, Normal Combat Awareness only.<br>
+      L11 target 340 PP → +11 Invisibility Bonus, Normal Combat Awareness only.<br>
+      L12 target 370 PP → +12 Invisibility Bonus, Normal Combat Awareness only.<br>
+      L13 target 400 PP → +13 Invisibility Bonus, Normal Combat Awareness only.<br>
+      L14 target 430 PP → +14 Invisibility Bonus, Normal Combat Awareness only.<br>
+      L15 target 460 PP → +15 Invisibility Bonus, Normal Combat Awareness only.<br>
+      L16 target 490 PP → +16 Invisibility Bonus, Normal Combat Awareness only.<br><br>
+      NOTES<br>
+      This Active Buff is intentionally narrow. It gives a high temporary Invisibility Bonus, but only against Normal Combat Awareness. Special Combat Senses remain a counter unless blocked by Passive Invisibility or another explicit Invisibility subsystem rule.
     </span>
   </span>
 </h3>
 
-You are hard to find, hard to read, and harder to fight directly.
+You vanish behind shimmer, shadow, distortion, mist, bent light, or predatory camouflage.
 
-| **Level** | **Type** | **Category** | **Range** | **AoE** | **Duration** | **Effect** |
-|:--:|:--|:--|:--:|:--:|:--:|:--|
-| **1** | Passive | Invisibility | Self | — | Permanent | Gain **+1 Invisibility Bonus**. Blocks **Normal Combat Awareness**. |
-| **2** | Passive | Invisibility | Self | — | Permanent | Gain **+2 Invisibility Bonus**. Blocks **Normal Combat Awareness**. |
-| **3** | Passive | Invisibility | Self | — | Permanent | Gain **+3 Invisibility Bonus**. Blocks **Normal Combat Awareness**. |
-| **4** | Passive | Invisibility | Self | — | Permanent | Gain **+4 Invisibility Bonus**. Blocks **Normal Combat Awareness** and **1 chosen Special Combat Sense**. |
-| **5** | Passive | Invisibility | Self | — | Permanent | Gain **+4 Invisibility Bonus**. Blocks **Normal Combat Awareness** and **1 chosen Special Combat Sense**. |
-| **6** | Passive | Invisibility | Self | — | Permanent | Gain **+5 Invisibility Bonus**. Blocks **Normal Combat Awareness** and **1 chosen Special Combat Sense**. |
-| **7** | Passive | Invisibility | Self | — | Permanent | Gain **+5 Invisibility Bonus**. Blocks **Normal Combat Awareness** and **1 chosen Special Combat Sense**. |
-| **8** | Passive | Invisibility | Self | — | Permanent | Gain **+6 Invisibility Bonus**. Blocks **Normal Combat Awareness** and **2 chosen Special Combat Senses**. |
-| **9** | Passive | Invisibility | Self | — | Permanent | Gain **+6 Invisibility Bonus**. Blocks **Normal Combat Awareness** and **2 chosen Special Combat Senses**. |
-| **10** | Passive | Invisibility | Self | — | Permanent | Gain **+7 Invisibility Bonus**. Blocks **Normal Combat Awareness** and **2 chosen Special Combat Senses**. |
-| **11** | Passive | Invisibility | Self | — | Permanent | Gain **+7 Invisibility Bonus**. Blocks **Normal Combat Awareness** and **2 chosen Special Combat Senses**. |
-| **12** | Passive | Invisibility | Self | — | Permanent | Gain **+8 Invisibility Bonus**. Blocks **Normal Combat Awareness** and **3 chosen Special Combat Senses**. |
-| **13** | Passive | Invisibility | Self | — | Permanent | Gain **+8 Invisibility Bonus**. Blocks **Normal Combat Awareness** and **3 chosen Special Combat Senses**. |
-| **14** | Passive | Invisibility | Self | — | Permanent | Gain **+9 Invisibility Bonus**. Blocks **Normal Combat Awareness** and **3 chosen Special Combat Senses**. |
-| **15** | Passive | Invisibility | Self | — | Permanent | Gain **+9 Invisibility Bonus**. Blocks **Normal Combat Awareness** and **4 chosen Special Combat Senses**. |
-| **16** | Passive | Invisibility | Self | — | Permanent | Gain **+10 Invisibility Bonus**. Blocks **Normal Combat Awareness** and **4 chosen Special Combat Senses**. |
+| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
+|:--:|:--|:--:|:--:|:--:|:--|
+| **1** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+1 Invisibility Bonus**. Blocks **Normal Combat Awareness**. |
+| **2** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+2 Invisibility Bonus**. Blocks **Normal Combat Awareness**. |
+| **3** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+3 Invisibility Bonus**. Blocks **Normal Combat Awareness**. |
+| **4** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+4 Invisibility Bonus**. Blocks **Normal Combat Awareness**. |
+| **5** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+5 Invisibility Bonus**. Blocks **Normal Combat Awareness**. |
+| **6** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+6 Invisibility Bonus**. Blocks **Normal Combat Awareness**. |
+| **7** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+7 Invisibility Bonus**. Blocks **Normal Combat Awareness**. |
+| **8** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+8 Invisibility Bonus**. Blocks **Normal Combat Awareness**. |
+| **9** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+9 Invisibility Bonus**. Blocks **Normal Combat Awareness**. |
+| **10** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+10 Invisibility Bonus**. Blocks **Normal Combat Awareness**. |
+| **11** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+11 Invisibility Bonus**. Blocks **Normal Combat Awareness**. |
+| **12** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+12 Invisibility Bonus**. Blocks **Normal Combat Awareness**. |
+| **13** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+13 Invisibility Bonus**. Blocks **Normal Combat Awareness**. |
+| **14** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+14 Invisibility Bonus**. Blocks **Normal Combat Awareness**. |
+| **15** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+15 Invisibility Bonus**. Blocks **Normal Combat Awareness**. |
+| **16** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+16 Invisibility Bonus**. Blocks **Normal Combat Awareness**. |
 
 The Invisibility Bonus increases the Perception TN required to locate, target, or read you.
 
@@ -2481,7 +2495,9 @@ The Invisibility Bonus increases the Perception TN required to locate, target, o
 
 Your current Invisibility Bonus may be reduced by **Cloak Disruption**.
 
-Passive Invisibility may stack with **Active Buff: Invisibility**. If both are active, add both Invisibility Bonuses together and combine their blocked Combat Senses.
+This Active Buff may stack with **Passive Invisibility**. If both are active, add both Invisibility Bonuses together.
+
+This Active Buff does not block Special Combat Senses unless another explicit Invisibility subsystem rule says otherwise.
 }}
 
 

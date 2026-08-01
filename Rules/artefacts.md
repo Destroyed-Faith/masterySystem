@@ -56,8 +56,8 @@ The Homebrewery
 
 ::::::::::::::::::::::::::::::::
 {{homebreweryCredits
-Destroyed Faith — DF Core
-Version: v0.8.5 (2026-06-21)
+Destroyed Faith — DF Core Artefacts
+Version: v0.9.8 (2026-07-31)
 }}
 
 }}
@@ -81,11 +81,12 @@ Version: v0.8.5 (2026-06-21)
 - #### [{{ Body Power Access}}{{ 16}}](#p16)
 - #### [{{ Robe Artifacts}}{{ 18}}](#p18)
 - #### [{{ Head Baseline}}{{ 19}}](#p19)
+- #### [{{ Artifact Sense Options}}{{ 20}}](#p20)
 - #### [{{ Feet Baseline}}{{ 24}}](#p24)
 - #### [{{ Minor Movement Base Values}}{{ 25}}](#p25)
 - #### [{{ Amulet and Ring Baseline}}{{ 30}}](#p30)
 - #### [{{ Stone Functions}}{{ 32}}](#p32)
-- #### [{{ Artifact Examples}}{{ 35}}](#p35)
+- #### [{{ Artifact Examples}}{{ 36}}](#p36)
 
 }}
 
@@ -174,6 +175,10 @@ A two-handed Artifact counts as **one Artifact** for Artifact Capacity.
 
 It occupies both **Main Hand** and **Off Hand**.
 
+Because it permanently occupies both hand Slots, a two-handed Artifact may contain up to **three Base Values** and may therefore use **Base Value C**.
+
+A one-handed or versatile Artifact does not gain access to Base Value C merely because it is temporarily held or used with both hands.
+
 A character with a two-handed Artifact cannot use another weapon, shield, hand focus, claw Artifact, or hand-based magical item at the same time.
 
 | Artifact | Artifact Capacity | Occupied Slots |
@@ -222,8 +227,9 @@ Base values belong in the Base table:
 - Shield Value
 - Head Armor
 - Feet movement qualities
-- Sense packages
 - similar slot values
+
+Sense Options are listed separately. They are never Base Values.
 
 The Level Progression table is for unlocked Artifact Functions.
 
@@ -275,18 +281,23 @@ They define what the Artifact physically or inherently is.
 | Slot | Maximum Base Values |
 |---|---:|
 | **Main Hand / Off Hand** | 2 |
-| **Main Hand + Off Hand** | 2 |
+| **Main Hand + Off Hand** | 3 |
 | **Body** | 1 |
 | **Head** | 2 |
 | **Feet** | 2 |
-| **Ring** | 1 |
-| **Amulet** | 1 |
+| **Ring** | 3 |
+| **Amulet** | 3 |
+
+---
+**The combined maximum number of Base Values printed on an equipped Ring and Amulet is 4.**
 
 The Slot determines the Base Value limit.
 
 The Artifact's story, appearance, origin, rarity, Echo status, or binding type does not change this limit.
 
-A Weapon, Shield, Claw, Gauntlet, Hand Focus, or similar hand-based Artifact may have up to two Base Values.
+A one-handed Weapon, Shield, Claw, Gauntlet, Hand Focus, or similar Artifact that occupies only one hand Slot may have up to **two Base Values**.
+
+A two-handed Artifact that permanently occupies both **Main Hand** and **Off Hand** may have up to **three Base Values** and may use Base Value C.
 
 A Body Artifact may have only one Base Value, regardless of whether it is armor, scales, robes, skin, plating, clothing, or another body-based form.
 
@@ -294,7 +305,17 @@ A Head Artifact may have up to two Base Values.
 
 A Feet Artifact may have up to two Base Values.
 
-A Ring or Amulet may have only one Base Value.
+A Ring or Amulet may individually have up to **three Base Values**.
+
+An equipped Ring and equipped Amulet share a combined maximum of **four printed Base Values**. Count every Base Value assigned to either Artifact, including Base Values that have not yet unlocked through Artifact Levels.
+
+The legal distributions are:
+
+- Ring 3 + Amulet 1
+- Ring 2 + Amulet 2
+- Ring 1 + Amulet 3
+
+Combinations such as 3 + 2, 3 + 3, or 4 + 0 are not legal. If only one of the two Slots is occupied, that Artifact is still limited to three Base Values.
 
 Echo Artifacts do not receive additional Base Values.
 
@@ -315,7 +336,6 @@ If an Artifact needs additional functionality beyond its allowed Base Values, th
 | **Movement** | walking, climbing, swimming, tunneling, flying |
 | **Thrown Range** | thrown weapon range |
 | **Weapon Special** | Penetration, Challenge, Corrode, Disoriented, Expose, Hex, Lacerate, Mark, Ruin, Slow, Soulburn, Sundered, Weaken, Push, Brutal Impact, Finesse |
-| **Sense** | Scent of Blood, Mage Sight, Tremorsense |
 | **Minor Slot Feature** | Returning, Spell Focus, Shadow Stealth, Breath Interaction |
 
 A Base Value must fit the Artifact’s Slot.
@@ -330,7 +350,7 @@ If it creates an action, trigger, resource use, or maintained state, it belongs 
 
 An Artifact may not have more than three Base Values.
 
-If a Base Value is unusually strong, such as a combined Sense package, Returning + Thrown together, or a scaling Special package, it may count as two Base Values.
+If a Base Value is unusually strong, such as Returning + Thrown together or a scaling Special package, it may count as two Base Values.
 
 A Base Value cannot secretly contain a Power Line.
 
@@ -380,9 +400,9 @@ Artifact Level 10 may grant an Ultimate version of the Artifact's concept.
 | Slot Group | Primary Access | Secondary Access | Not Allowed |
 |---|---|---|---|
 | **Main Hand / Off Hand** | Actives | Reactions if written as Shield, Counter, or Guard | Movement, Passives, defensive Active Buffs |
-| **Body** | Armor, Active Buff Support, defensive systems | Defensive Actives, defensive Stone Functions | Weapon Damage, Movement, Awareness, offensive Actives |
-| **Head** | Reactions, Awareness, Head Actives | Senses, Ammo, Breath, Gaze, Roar | Body Armor functions, Movement, Tremor Sense, Passive Reinforcement |
-| **Feet** | Movement | Tremor Sense, terrain senses, special movement modes | Damage, Specials, Armor, Active Buffs, Reactions |
+| **Body** | Armor, Active Buff Support, defensive systems | Defensive Actives, defensive Stone Functions | Weapon Damage, Movement, Sense Support, offensive Actives |
+| **Head** | Reactions, Sense Support, Head Actives | Ammo, Breath, Gaze, Roar | Body Armor functions, Movement, Passive Reinforcement |
+| **Feet** | Movement | terrain movement modes | Damage, Specials, Armor, Active Buffs, Reactions |
 | **Amulet / Ring** | Passive Reinforcement, Ward / Spell Resistance Support | Actives, Reactions, Stone Functions | Weapon Damage, Body Armor, Movement, Extra Attacks |
 
 ---
@@ -557,9 +577,9 @@ A shield used offensively is still a Shield.
 
 | Profile | Slots | Artifact Capacity | Base Function |
 |---|---:|---:|---|
-| **One-Handed Weapon** | Main Hand or Off Hand | 1 | Weapon damage and one Weapon Special |
-| **Two-Handed Weapon** | Main Hand + Off Hand | 1 | Weapon damage and one Weapon Special |
-| **Shield** | Main Hand or Off Hand | 1 | Shield Armor and defensive Artifact functions |
+| **One-Handed Weapon** | Main Hand or Off Hand | 1 | Weapon Damage plus up to one additional eligible Base Value |
+| **Two-Handed Weapon** | Main Hand + Off Hand | 1 | Weapon Damage plus up to two additional eligible Base Values |
+| **Shield** | Main Hand or Off Hand | 1 | Shield Armor plus up to one additional eligible Base Value |
 
 ---
 
@@ -721,7 +741,7 @@ Body Artifacts may not grant:
 - Weapon Damage
 - offensive Actives
 - Movement
-- Awareness
+- Sense Support
 - general Passive Reinforcement
 - Extra Attacks
 - free defensive subsystems outside their written function
@@ -809,7 +829,7 @@ Head Artifacts represent helmets, crowns, masks, horns, eyes, jaws, breath sourc
 A Head Artifact may grant:
 
 - Minor Armor
-- Senses
+- separate Sense Options
 - Ammo support
 - Reactions
 - Breath, Gaze, Roar, Bite, or other Head-based Actives
@@ -846,235 +866,138 @@ Only Head Artifacts and Shield Artifacts may grant Armor outside the Body Slot u
 \page
 {{pageNumber,auto}}
 {{wide
-### Artifact Senses
+### Artifact Sense Options
 
-Senses are Artifact-only.
+Artifacts may grant **Sense Options**.
 
-Senses do not belong to Species, Classes, Trees, or normal Passives.
+A Sense Option is a small perception feature that sits beside the Artifact's real mechanics.
 
-They are Artifact Functions and require a fitting Artifact Slot.
+A Sense Option:
 
-Senses do not grant generic roll bonuses, additional dice, Advantage, or automatic success.
+- is not a Base Value,
+- does not occupy Base Value A, B, or C,
+- is not a Power Line,
+- is not a priced Artifact Function or Level Progression entry,
+- is not a Passive,
+- costs no PP,
+- and does not scale with Artifact Level.
 
-A Sense defines what kind of information the wearer may access and when the wearer may treat a creature, object, trace, or phenomenon as detected, located, identified, or targetable.
+Armor, Damage, Evade, Movement, Weapon Specials, and other actual Artifact values are built normally. A Sense Option is written separately beneath the Base Item.
 
-If uncertainty, opposition, concealment, or dramatic pressure matters, the GM may still call for a Perception, Awareness, Stealth, Concealment, Intuition, or relevant Skill roll.
-
----
-
-### Sense Slot Rule
-
-| Sense | Allowed Artifact Slot | Reason |
-|---|---|---|
-| **Tremorsense** | Feet only | Ground contact, vibration, stance, surface connection |
-| **Scent of Blood** | Head only | Smell, taste, breath, blood trace |
-| **Echo Hearing** | Head only | Hearing, resonance, sound image |
-| **Lifesense** | Head only | Living presence, pulse, breath, vitality |
-| **Mage Sight** | Head only | Magical patterns, enchantments, arcane residue |
-| **True Edge** | Head only | Broken perception, illusion, falsehood, reality fracture |
-| **Predator Sense** | Head only | Danger, hunting instinct, hostile intent |
-
-Hands cannot host Senses.
-
-Head Artifacts are the main Slot for perception channels.
-
-Feet Artifacts are the Slot for ground contact, movement, vibration, stance, and terrain feeling.
+An Artifact normally grants no more than one Sense Option unless its entry explicitly says otherwise.
 
 ---
 
-### Sense Progression
+### The Character's Sense Slot
 
-An Artifact can normally carry only one Sense.
+Every character has one **Sense Slot**.
 
-Stronger Artifacts improve the depth of that Sense, not the number of Senses.
+By default, that slot contains **Normal Combat Awareness**.
 
-| Tier | Function | Meaning |
-|---:|---|---|
-| **Tier 1** | **Detect** | You notice that something valid for the Sense is present. |
-| **Tier 2** | **Locate** | You know the rough direction or approximate position. |
-| **Tier 3** | **Identify** | You gain broad information about type, state, or nature. |
-| **Tier 4** | **Target** | You may treat the detected creature, object, trace, or phenomenon as targetable if the Sense can plausibly track it. |
+An Artifact, Echo, Species, Power, or story feature may add a Special Combat Sense to the character's available Sense Options. Gaining a Sense Option does not create another Sense Slot.
 
-Target does not ignore all other rules.
+At the start of a scene, before the first Perception roll, declare which known Sense occupies the Sense Slot. In combat, declare it before Initiative is rolled. If no declaration is made, the slot contains Normal Combat Awareness.
 
-The target must still be within range, reachable by the Power, and not blocked by a condition the Sense cannot overcome.
+The chosen Sense remains active for the scene or combat. It cannot be switched in response to a failed roll, a newly revealed enemy, or an attack unless a rule explicitly allows the switch.
 
-A Sense cannot target what it cannot plausibly perceive.
-
----
-
-### Sense Range
-
-| Sense Tier | Default Range |
-|---:|---:|
-| Tier 1 | 8 m |
-| Tier 2 | 16 m |
-| Tier 3 | 32 m |
-| Tier 4 | 64 m |
-
-The range is the maximum distance at which the Sense can access valid information.
-
-It does not automatically reveal exact position through walls, sealed rooms, perfect cover, or trace-blocking effects.
+Selecting a Special Combat Sense does not make the character blind, deaf, or unable to receive ordinary narrative information. For rules that ask whether a Combat Sense can locate or target something through darkness, Invisibility, concealment, smoke, silence, or another Sense-specific obstacle, use the Sense currently occupying the Sense Slot.
 
 ---
 }}
 \page
 {{pageNumber,auto}}
 {{wide
-### Tremorsense
+### Granting a Sense Option
 
-**Slot:** Feet only
+A bound and equipped Artifact may add one fitting Sense to the wearer's list of available Sense Options.
 
-You sense movement, weight, pressure, impact, and position through the ground or another shared surface.
+The Sense is available only while the Artifact remains bound, equipped, functional, and able to provide that perception channel.
 
-| Tier | Effect |
-|---:|---|
-| **Tier 1: Detect** | You can detect that a creature or object with ground contact is moving within range. |
-| **Tier 2: Locate** | You know the rough direction or approximate position of detected ground movement. |
-| **Tier 3: Identify** | You can estimate size, weight class, number of moving creatures, and whether movement is walking, running, crawling, falling, or striking the ground. |
-| **Tier 4: Target** | You may treat a detected creature with ground contact as targetable without normal sight, if the Power can plausibly reach it. |
+Most Head Artifacts can plausibly grant:
 
-Tremorsense does not work against flying creatures unless they touch the same surface.
+- **Life Sense**
+- **Mage Sense**
+- **Sonar Sense**
+- **Predator Sense**
 
-Tremorsense does not work across disconnected surfaces unless the GM says the vibration can carry.
+Feet Artifacts are the normal source for:
 
-Tremorsense does not detect creatures that leave no vibration.
+- **Tremor Sense**
 
----
+Other Equipment Slots may grant a Sense Option only when the Artifact concept clearly supports it. A soul-reading amulet, a rune-marked ring, or a living Body Artifact may therefore grant a fitting Sense if the entry explicitly says so.
 
-### Scent of Blood
-
-**Slot:** Head only
-
-You smell blood, wounds, fear, fresh violence, living bodies, decay, and recent injury.
-
-Scent of Blood is not sight and does not behave like sight.
-
-| Tier | Effect |
-|---:|---|
-| **Tier 1: Detect** | You can detect blood, fresh wounds, fear-sweat, decay, or recently injured living bodies within range. |
-| **Tier 2: Locate** | You know the rough direction or approximate position of a valid scent source. |
-| **Tier 3: Identify** | You can broadly identify whether the scent is fresh blood, old blood, fear, decay, living flesh, dying flesh, or recent violence. |
-| **Tier 4: Target** | You may treat a valid scent source as targetable without normal sight, if scent can plausibly track it. |
-
-Scent of Blood cannot detect armor by itself, exact position through sealed walls, illusions without scent, constructs without blood or scent, bloodless undead, or fully cleaned traces.
-
-Scent of Blood may be blocked or distorted by water, strong wind, smoke, alchemy, sealed rooms, scent masks, or overwhelming competing smells.
-
----
-
-### Echo Hearing
-
-**Slot:** Head only
-
-You read spaces and creatures through sound, echo, resonance, vibration in air, and reflected noise.
-
-| Tier | Effect |
-|---:|---|
-| **Tier 1: Detect** | You can detect meaningful sound, movement, breathing, impact, or resonance within range. |
-| **Tier 2: Locate** | You know the rough direction or approximate position of a detected sound source. |
-| **Tier 3: Identify** | You can broadly identify size, movement type, hollow spaces, barriers, moving creatures, or unusual resonance. |
-| **Tier 4: Target** | You may treat a detected sound source as targetable without normal sight, if sound can plausibly track it. |
-
-Echo Hearing may be blocked or distorted by silence effects, overwhelming noise, soundless movement, vacuum-like spaces, heavy barriers, or magic that removes sound.
+Hands do not normally grant Combat Senses merely because a weapon is being held.
 
 ---
 }}
 \page
 {{pageNumber,auto}}
 {{wide
-### Lifesense
+### Core Sense Options
 
-**Slot:** Head only
+| Sense Option | Default Range | Primary Use |
+|---|---:|---|
+| **Normal Combat Awareness** | 60 m | Ordinary sight, hearing, touch, smell, instinct, and battlefield reading. |
+| **Life Sense** | 30 m | Perceiving living creatures through vital signs and life-force. |
+| **Mage Sense** | 30 m | Perceiving magic, curses, supernatural force, undead power, and magical effects. |
+| **Tremor Sense** | 20 m | Perceiving grounded creatures and movement through a shared solid surface. |
+| **Sonar Sense** | 30 m | Perceiving space, obstacles, and creatures through reflected sound. |
+| **Predator Sense** | 20 m | Perceiving blood, wounds, fear, weakness, and hunting traces. |
 
-You sense living presence, pulse, breath, vitality, and the pressure of life nearby.
+Use the detailed Combat Sense rules in the Player Guide.
 
-| Tier | Effect |
-|---:|---|
-| **Tier 1: Detect** | You can detect that living creatures are present within range. |
-| **Tier 2: Locate** | You know the rough direction or approximate position of living presence. |
-| **Tier 3: Identify** | You can broadly identify number, size category, wounded state, dying state, or whether a creature is alive, dying, or unnaturally sustained. |
-| **Tier 4: Target** | You may treat a detected living creature as targetable without normal sight, if Lifesense can plausibly track it. |
+A Sense Option grants access to information. It never grants extra dice, a static Perception bonus, Advantage, automatic success, or perfect identification.
 
-Lifesense does not reveal identity, exact anatomy, exact HP, thoughts, emotions, or intentions.
-
-Lifesense does not normally detect constructs, objects, corpses, bloodless undead, or creatures without life signs.
-
----
-
-### Mage Sight
-
-**Slot:** Head only
-
-You perceive active magic, enchantments, spell residue, curses, magical pressure, and arcane patterns.
-
-| Tier | Effect |
-|---:|---|
-| **Tier 1: Detect** | You can detect active magic, obvious magical residue, curses, enchantments, or arcane pressure within range. |
-| **Tier 2: Locate** | You know the rough direction or approximate position of a magical source. |
-| **Tier 3: Identify** | You can broadly identify whether the magic is active, lingering, cursed, divine, demonic, illusionary, protective, destructive, or transformative. |
-| **Tier 4: Target** | You may treat a detected magical source as targetable if the Power can plausibly affect it. |
-
-Mage Sight does not automatically identify exact spells, Power Levels, hidden rules, caster identity, or full magical structure.
-
----
-
-### True Edge
-
-**Slot:** Head only
-
-You sense when perception, reality, or truth is wrong, broken, false, doubled, hidden, or artificially shaped.
-
-True Edge does not automatically reveal the truth. It only reveals that something is wrong.
-
-| Tier | Effect |
-|---:|---|
-| **Tier 1: Detect** | You can detect that something in range is false, warped, illusionary, contradictory, or perceptually wrong. |
-| **Tier 2: Locate** | You know the rough direction or approximate position of the false or broken point. |
-| **Tier 3: Identify** | You can broadly identify whether the problem is illusion, disguise, concealment, false memory, reality fracture, duplicate image, or manipulated perception. |
-| **Tier 4: Target** | You may treat the false or broken point as targetable by a fitting Power, even if normal perception would not fully reveal it. |
-
-True Edge does not automatically dispel illusions, reveal hidden creatures, or grant perfect truth.
-
-It tells you where reality or perception does not align.
+If uncertainty, concealment, opposition, distance, or detail matters, roll Perception normally.
 
 ---
 }}
 \page
 {{pageNumber,auto}}
 {{wide
-### Predator Sense
+### Sense Boundaries
 
-**Slot:** Head only
+A Sense only perceives what its channel can plausibly detect.
 
-You sense danger, hunting pressure, hostile intent, and the moment before violence.
+Examples:
 
-| Tier | Effect |
-|---:|---|
-| **Tier 1: Detect** | You can detect immediate hostile intent, hunting pressure, ambush tension, or the moment before violence within range. |
-| **Tier 2: Locate** | You know the rough direction or approximate position of the source of hostile intent. |
-| **Tier 3: Identify** | You can broadly identify whether the threat is about to attack, flee, stalk, defend, cast, ambush, or strike a nearby ally. |
-| **Tier 4: Target** | You may treat the detected hostile creature as targetable without normal sight, if Predator Sense can plausibly track it. |
+- Tremor Sense does not perceive a flying creature that never touches the connected surface.
+- Life Sense does not perceive a construct or a lifeless object.
+- Mage Sense does not reveal mundane stealth merely because the hidden creature carries no magic.
+- Sonar Sense can fail in magical silence or overwhelming noise.
+- Predator Sense can fail against scentless constructs, sealed targets, or creatures without readable blood, fear, or weakness.
 
-Predator Sense does not read thoughts, reveal full plans, or detect creatures with no hostile intent.
+A Sense does not ignore range, total cover, line of effect, sealed barriers, or a specific effect that blocks that Sense unless its own rule explicitly says otherwise.
 
-Predator Sense may fail against mindless hazards, traps, constructs, or creatures whose attack carries no readable intent.
+---
+
+### Darkvision
+
+Darkvision is a minor sight upgrade, not a full Combat Sense.
+
+It allows Normal Combat Awareness to function through ordinary darkness within its listed range. It does not occupy the Sense Slot and does not reveal invisible creatures, see through smoke or walls, or identify illusions as false.
+
+Darkvision is also written separately from Base Values and Power Lines.
+
+---
+
+### Example: Stonebound Soles
+
+Stonebound Soles may have **Armor** as Base Value A and **Tunneling** as Base Value B.
+
+They additionally grant **Tremor Sense** as a Sense Option.
+
+The Tremor Sense does not replace either Base Value. Before a combat begins, the dwarf decides whether Normal Combat Awareness or Tremor Sense occupies the Sense Slot.
+
+A blind dwarf using Tremor Sense can still fight grounded enemies that create readable vibration. A flying enemy remains a serious problem because Tremor Sense cannot perceive it while it is airborne.
 
 ---
 
 ### Canonical Sense Rule
 
-Senses are Artifact-only.
+Sense Options are deliberately useful but secondary.
 
-Most Senses require a Head Artifact.
-
-Tremorsense requires a Feet Artifact.
-
-Hands cannot host Senses.
-
-Senses grant access, detection, location, identification, or targeting permission.
-
-Senses never grant static bonuses, extra dice, Advantage, or automatic success.
+They create distinctive concepts and alternative ways to perceive a scene. They do not consume the Artifact's real mechanical values and they do not become a second progression system.
 
 ---
 
@@ -1088,7 +1011,7 @@ Feet Artifacts represent boots, hooves, talons, movement organs, supernatural st
 
 Feet Artifacts may grant Movement Powers or movement qualities.
 
-Feet Artifacts may grant Tremor Sense and other ground-based senses.
+Feet Artifacts may grant Tremor Sense as a separate Sense Option.
 
 Feet Artifacts may not grant:
 
@@ -1342,7 +1265,7 @@ Stonebound Soles are a Dwarf Echo Artifact representing ancestral weight, deep-r
 
 | Slot | Base Type | Artifact Functions | Binding |
 |---|---|---|---|
-| Feet | Dwarven Feet | Tremorsense / Tunneling / Safe Movement | Echo-bound |
+| Feet | Dwarven Feet | Armor / Tunneling / Tremor Sense Option / Immovable / Safe Movement / Armor Buff Empowerment | Echo-bound |
 
 Stonebound Soles occupy the Feet Slot.
 
@@ -1354,26 +1277,48 @@ Stonebound Soles are Echo-bound and cannot normally be removed, replaced, sold, 
 
 ### Stonebound Soles Base
 
-| Artifact Level | Base Value A: Tremorsense | Base Value B: Tunneling |
-|---:|---|---:|
-| Level 1 | Detect ground-contact movement within 4 m. | — |
-| Level 2 | Detect ground-contact movement within 6 m. | — |
-| Level 3 | Detect ground-contact movement within 8 m. | — |
-| Level 4 | Locate ground-contact movement within 8 m. | +1 m Tunneling |
-| Level 5 | Locate ground-contact movement within 10 m. | +1 m Tunneling |
-| Level 6 | Locate ground-contact movement within 12 m. | +2 m Tunneling |
-| Level 7 | Target located ground-contact movement within 12 m. | +2 m Tunneling |
-| Level 8 | Target located ground-contact movement within 14 m. | +3 m Tunneling |
-| Level 9 | Target located ground-contact movement within 16 m. | +3 m Tunneling |
-| Level 10 | Target located ground-contact movement within 16 m, True Stonebound Soles. | +4 m Tunneling |
+| Artifact Level | Base Value A: Armor | Base Value B: Tunneling |
+|---:|---:|---:|
+| Level 1 | +1 Armor | — |
+| Level 2 | +1 Armor | — |
+| Level 3 | +2 Armor | — |
+| Level 4 | +2 Armor | +1 m Tunneling |
+| Level 5 | +3 Armor | +1 m Tunneling |
+| Level 6 | +3 Armor | +2 m Tunneling |
+| Level 7 | +4 Armor | +2 m Tunneling |
+| Level 8 | +4 Armor | +3 m Tunneling |
+| Level 9 | +5 Armor | +3 m Tunneling |
+| Level 10 | +5 Armor, True Stonebound Soles | +4 m Tunneling |
 
-Tremorsense only works through shared ground, stone, metal, packed earth, worked floor, or similar solid surfaces.
+The Armor from Stonebound Soles is minor Armor from the Feet Slot. It stacks with Body Armor and Shield Armor as normal Armor resolution.
 
-Tremorsense does not detect flying creatures, swimming creatures, fully airborne creatures, incorporeal creatures, or creatures not connected to the same surface.
+Tunneling is not Burrow. It improves digging, mining, tunnel work, rubble clearing, and movement through already workable tunnel material.
 
-Tunneling is not Burrow.
+---
 
-Tunneling improves digging, mining, tunnel work, rubble clearing, and movement through already workable tunnel material.
+### Sense Option: Tremor Sense
+
+While Stonebound Soles are bound, the dwarf knows **Tremor Sense** as an available Sense Slot option.
+
+Tremor Sense is separate from Base Value A and Base Value B. It does not scale with Artifact Level.
+
+Before a scene or combat, the dwarf may place Tremor Sense in the Sense Slot instead of Normal Combat Awareness. Tremor Sense uses its standard **20 m** range and works only through a shared solid surface.
+
+It does not perceive flying, hovering, swimming, fully airborne, incorporeal, or vibrationless creatures unless they contact the connected surface.
+
+---
+
+### Immovable
+
+While Immovable, you cannot be pushed, pulled, knocked Prone, or forcibly moved by normal effects.
+
+While Immovable, you cannot use Movement Powers and your Movement becomes **0 m**.
+
+You cannot increase Evade through Stone Powers, Actives, Active Buffs, or Reactions while Immovable. Passive Evade still applies, but attacks against you do not need to beat your Evade while you are Immovable.
+
+You may still use Armor, Temporary HP, Damage Reduction, resistance, immunity, Reactions, and other legal defensive effects normally.
+
+Immovable ends when the effect granting it ends.
 
 ---
 }}
@@ -1384,22 +1329,19 @@ Tunneling improves digging, mining, tunnel work, rubble clearing, and movement t
 
 | **Artifact Level** | **Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
 |:--:|:--|:--|:--:|:--:|:--:|:--|:--|
-| **1** | **Stone-Sure Step I** | Movement | Self | — | Instant | Move up to **8 m** along a legal ground path. This movement does not provoke movement-triggered Reactions. | Safe Movement |
+| **1** | **Anchoring Stance I** | Active Buff | Self | — | 2 Rounds | You become **Immovable** and gain **40 Temporary HP**. | Immovable + Temporary HP |
 | **2** | **Stone-Sure Step I** | Movement | Self | — | Instant | Move up to **8 m** along a legal ground path. This movement does not provoke movement-triggered Reactions. | Safe Movement |
-| **3** | **Stone-Sure Step I** | Movement | Self | — | Instant | Move up to **8 m** along a legal ground path. This movement does not provoke movement-triggered Reactions. | Safe Movement |
-| **4** | **Stone-Sure Step II** | Movement | Self | — | Instant | Move up to **14 m** along a legal ground path. This movement does not provoke movement-triggered Reactions. | Safe Movement |
+| **3** | **Stoneweave Guard I** | Support | Self | — | Special | When you activate an Active Buff that grants Armor as one of its effects, you may increase that Buff's effective Power Level by **+1** and its duration by **+1 round**. The Active Buff cannot exceed Power Level 16. Uses per Safe Haven Rest: half Mastery Rank, rounded up. | Armor Buff Empowerment |
+| **4** | **Anchoring Stance II** | Active Buff | Self | — | 2 Rounds | You become **Immovable** and gain **220 Temporary HP**. | Immovable + Temporary HP |
 | **5** | **Stone-Sure Step II** | Movement | Self | — | Instant | Move up to **14 m** along a legal ground path. This movement does not provoke movement-triggered Reactions. | Safe Movement |
-| **6** | **Stone-Sure Step II** | Movement | Self | — | Instant | Move up to **14 m** along a legal ground path. This movement does not provoke movement-triggered Reactions. | Safe Movement |
-| **7** | **Stone-Sure Step III** | Movement | Self | — | Instant | Move up to **20 m** along a legal ground path. This movement does not provoke movement-triggered Reactions. | Safe Movement |
+| **6** | **Stoneweave Guard II** | Support | Self | — | Special | When you activate an Active Buff that grants Armor as one of its effects, you may increase that Buff's effective Power Level by **+2** and its duration by **+2 rounds**. The Active Buff cannot exceed Power Level 16. Uses per Safe Haven Rest: half Mastery Rank, rounded up. | Armor Buff Empowerment |
+| **7** | **Anchoring Stance III** | Active Buff | Self | — | 2 Rounds | You become **Immovable** and gain **400 Temporary HP**. | Immovable + Temporary HP |
 | **8** | **Stone-Sure Step III** | Movement | Self | — | Instant | Move up to **20 m** along a legal ground path. This movement does not provoke movement-triggered Reactions. | Safe Movement |
-| **9** | **Stone-Sure Step III** | Movement | Self | — | Instant | Move up to **20 m** along a legal ground path. This movement does not provoke movement-triggered Reactions. | Safe Movement |
-| **10** | **True Stonebound Soles** | Ultimate | Self | — | Special | Stonebound Soles fully awaken. Choose or define one final Tremorsense, Tunneling, Safe Movement, or stone movement effect with GM approval. | True Stonebound Soles |
+| **9** | **Stoneweave Guard III** | Support | Self | — | Special | When you activate an Active Buff that grants Armor as one of its effects, you may increase that Buff's effective Power Level by **+3** and its duration by **+3 rounds**. The Active Buff cannot exceed Power Level 16. Uses per Safe Haven Rest: half Mastery Rank, rounded up. | Armor Buff Empowerment |
+| **10** | **True Stonebound Soles** | Ultimate | Self | — | Special | Stonebound Soles fully awaken. Choose or define one final Armor, Tunneling, Immovable, Safe Movement, or stone-defense effect with GM approval. | True Stonebound Soles |
 
 ---
 
-
-
----
 }}
 \page
 {{pageNumber,auto}}
@@ -1529,6 +1471,8 @@ Stone Power Support never pre-fills Tier 1.
 The character must always pay all lower tiers themselves.
 
 If the required lower tiers are not paid, the pre-filled tier has no effect.
+
+When Stone Power Support is linked to the **Agility Ability: Crit**, it only pre-fills the named Tier of that Stone Ability. It never grants Critical directly and never creates an independent Critical weapon rider.
 
 Stone Power Support can be used a number of times per Safe Haven Rest equal to the character's Mastery Rank.
 
@@ -1713,6 +1657,7 @@ A Head Artifact that breathes fire uses an Active. Breath is not a separate cate
 A Feet Artifact that teleports uses Movement. It does not also deal damage unless specifically written as a rare exception.
 
 ---
+}}
 \page
 {{pageNumber,auto}}
 {{wide
@@ -1968,7 +1913,7 @@ Its mechanism draws with supernatural force, aligning every bolt along invisible
 
 | Slot                 | Base Type      | Artifact Functions                                                                                    | Binding |
 | -------------------- | -------------- | ----------------------------------------------------------------------------------------------------- | ------- |
-| Main Hand + Off Hand | Heavy Crossbow | Weapon Damage / Precision / Ranged Split Attack / Critical Stone Power Support / Damage + Penetration | Bound   |
+| Main Hand + Off Hand | Heavy Crossbow | Weapon Damage / Precision / Ranged Split Attack / Crit Stone Power Support / Damage + Penetration | Bound   |
 
 Heartseeker occupies both the **Main Hand** and **Off Hand** Slots.
 
@@ -2011,15 +1956,15 @@ Penetration and Precision apply only to attacks made with Heartseeker.
 | **Artifact Level** | **Name**                  | **Type**            | **Range** | **AoE** |     **Duration**    | **Effect**                                                                                                                                                                                                                                                                          | **Special**          |
 | :----------------: | :------------------------ | :------------------ | :-------: | :-----: | :-----------------: | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------------------- |
 |        **1**       | **Divided Execution I**   | Active              |    20 m   |    —    |       Instant       | Use **Ranged Split Attack** at **Power Level 4**. Make up to **2 ranged weapon attacks** with Heartseeker. Split your Attack Pool between them. Roll one total Damage Pool equal to Heartseeker's Weapon Damage + **5d8 damage**, then split that damage between successful hits.   | Ranged Split Attack  |
-|        **2**       | **Killing Focus I**       | Stone Power Support |    Self   |    —    |       Instant       | Heartseeker supports the **Agility Ability: Critical** Stone Power and pre-fills **Tier 2**. You must still pay Tier 1 yourself. If Tier 1 is not paid, the pre-filled Tier 2 has no effect.                                                                                        | Critical Stone Power |
+|        **2**       | **Killing Focus I**       | Stone Power Support |    Self   |    —    |       Instant       | Heartseeker supports the **Agility Ability: Crit** Stone Power and pre-fills **Tier 2**. You must still pay Tier 1 yourself. If Tier 1 is not paid, the pre-filled Tier 2 has no effect.                                                                                        | Crit Stone Power |
 |        **3**       | **Armorbreaker I**        | Active Buff         |    Self   |    —    | Mastery Rank Rounds | Use **Active Buff: Damage + Penetration** at **Power Level 4**. Your attacks gain **+4d8 damage** and **Penetration(9)** while the Buff lasts. This uses your maintained Active Buff slot.                                                                                          | Damage + Penetration |
 |        **4**       | **Divided Execution II**  | Active              |    44 m   |    —    |       Instant       | Use **Ranged Split Attack** at **Power Level 10**. Make up to **3 ranged weapon attacks** with Heartseeker. Split your Attack Pool between them. Roll one total Damage Pool equal to Heartseeker's Weapon Damage + **12d8 damage**, then split that damage between successful hits. | Ranged Split Attack  |
-|        **5**       | **Killing Focus II**      | Stone Power Support |    Self   |    —    |       Instant       | Heartseeker now pre-fills **Tier 3** of the **Agility Ability: Critical** Stone Power. You must still pay Tier 1 and Tier 2 yourself. If the lower tiers are not paid, the pre-filled Tier 3 has no effect.                                                                         | Critical Stone Power |
+|        **5**       | **Killing Focus II**      | Stone Power Support |    Self   |    —    |       Instant       | Heartseeker now pre-fills **Tier 3** of the **Agility Ability: Crit** Stone Power. You must still pay Tier 1 and Tier 2 yourself. If the lower tiers are not paid, the pre-filled Tier 3 has no effect.                                                                         | Crit Stone Power |
 |        **6**       | **Armorbreaker II**       | Active Buff         |    Self   |    —    | Mastery Rank Rounds | Use **Active Buff: Damage + Penetration** at **Power Level 10**. Your attacks gain **+10d8 damage** and **Penetration(21)** while the Buff lasts. This uses your maintained Active Buff slot.                                                                                       | Damage + Penetration |
 |        **7**       | **Divided Execution III** | Active              |    68 m   |    —    |       Instant       | Use **Ranged Split Attack** at **Power Level 16**. Make up to **4 ranged weapon attacks** with Heartseeker. Split your Attack Pool between them. Roll one total Damage Pool equal to Heartseeker's Weapon Damage + **20d8 damage**, then split that damage between successful hits. | Ranged Split Attack  |
-|        **8**       | **Killing Focus III**     | Stone Power Support |    Self   |    —    |       Instant       | Heartseeker now pre-fills **Tier 4** of the **Agility Ability: Critical** Stone Power. You must still pay Tier 1, Tier 2, and Tier 3 yourself. If the lower tiers are not paid, the pre-filled Tier 4 has no effect.                                                                | Critical Stone Power |
+|        **8**       | **Killing Focus III**     | Stone Power Support |    Self   |    —    |       Instant       | Heartseeker now pre-fills **Tier 4** of the **Agility Ability: Crit** Stone Power. You must still pay Tier 1, Tier 2, and Tier 3 yourself. If the lower tiers are not paid, the pre-filled Tier 4 has no effect.                                                                | Crit Stone Power |
 |        **9**       | **Armorbreaker III**      | Active Buff         |    Self   |    —    | Mastery Rank Rounds | Use **Active Buff: Damage + Penetration** at **Power Level 16**. Your attacks gain **+16d8 damage** and **Penetration(33)** while the Buff lasts. This uses your maintained Active Buff slot.                                                                                       | Damage + Penetration |
-|       **10**       | **True Heartseeker**      | Ultimate            |    Self   |    —    |       Special       | Heartseeker fully awakens. Its additional Precision increases to **Precision(4)**. Choose or define one final Split Attack, Critical, Precision, Damage, Penetration, or execution-themed effect with GM approval.                                                                  | True Heartseeker     |
+|       **10**       | **True Heartseeker**      | Ultimate            |    Self   |    —    |       Special       | Heartseeker fully awakens. Its additional Precision increases to **Precision(4)**. Choose or define one final Split Attack, **Crit Stone Power Support**, Precision, Damage, Penetration, or execution-themed effect with GM approval. This effect may not grant Critical independently.                                                                  | True Heartseeker     |
 
 
 
@@ -2039,7 +1984,7 @@ Its broad brim hides the wearer's eyes and movements, allowing them to watch the
 
 | Slot | Base Type | Artifact Functions | Binding |
 |---|---|---|---|
-| Head | Tailored Wide-Brimmed Hat | Evade / Predator Sense / Initiative Boost Stone Power Support / Reposition / Initiative Gain | Bound |
+| Head | Tailored Wide-Brimmed Hat | Evade / Predator Sense Option / Initiative Boost Stone Power Support / Reposition / Initiative Gain | Bound |
 
 Falcon Wide Brim occupies the **Head Slot**.
 
@@ -2048,18 +1993,24 @@ Falcon Wide Brim occupies the **Head Slot**.
 
 #### Falcon Wide Brim Base
 
-| Artifact Level | Base Value A: Evade | Base Value B: Combat Sense |
-|---:|---:|---|
-| **Level 1** | **+1 Evade** | — |
-| **Level 2** | **+1 Evade** | — |
-| **Level 3** | **+2 Evade** | — |
-| **Level 4** | **+2 Evade** | **Predator Sense** |
-| **Level 5** | **+3 Evade** | **Predator Sense** |
-| **Level 6** | **+3 Evade** | **Predator Sense** |
-| **Level 7** | **+4 Evade** | **Predator Sense** |
-| **Level 8** | **+4 Evade** | **Predator Sense** |
-| **Level 9** | **+5 Evade** | **Predator Sense** |
-| **Level 10** | **+5 Evade** | **Predator Sense** |
+| Artifact Level | Base Value A: Evade |
+|---:|---:|
+| **Level 1** | **+1 Evade** |
+| **Level 2** | **+1 Evade** |
+| **Level 3** | **+2 Evade** |
+| **Level 4** | **+2 Evade** |
+| **Level 5** | **+3 Evade** |
+| **Level 6** | **+3 Evade** |
+| **Level 7** | **+4 Evade** |
+| **Level 8** | **+4 Evade** |
+| **Level 9** | **+5 Evade** |
+| **Level 10** | **+5 Evade** |
+
+#### Sense Option: Predator Sense
+
+At Artifact Level 4, Falcon Wide Brim adds **Predator Sense** to the wearer's available Sense Options.
+
+Predator Sense is separate from the Evade Base Value. It does not consume Base Value B, does not scale with Artifact Level, and uses the normal Sense Slot rules.
 
 ---
 
@@ -2076,7 +2027,7 @@ Falcon Wide Brim occupies the **Head Slot**.
 | **7** | **Falcon Initiative III** | Stone Power Support | Self | — | Instant | Falcon Wide Brim now pre-fills **Tier 4** of **Initiative Boost**. You must still pay Tier 1, Tier 2, and Tier 3 yourself. If the lower Tiers are not paid, the pre-filled Tier 4 has no effect. | Initiative Boost |
 | **8** | **Falcon Step III** | Reaction | Self | — | Instant | Use **Reaction: Reposition** at **Power Level 16**. After the triggering event resolves, move up to **8 m** using normal legal movement. | Reposition |
 | **9** | **Falcon Momentum III** | Reaction | Self | — | Permanent | Use **Reaction: Initiative Gain** at **Power Level 16**. After the triggering attack resolves, gain **+32 Initiative**. | Initiative Gain |
-| **10** | **True Falcon Wide Brim** | Base Completion | Self | — | Permanent | Falcon Wide Brim reaches its final Base Values. It grants **+5 Evade** and **Predator Sense**. It gains no additional Power. | — |
+| **10** | **True Falcon Wide Brim** | Base Completion | Self | — | Permanent | Falcon Wide Brim reaches its final Base Value and grants **+5 Evade**. Its Predator Sense option remains available separately. It gains no additional Power. | — |
 
 
 }}
@@ -2195,7 +2146,7 @@ In its dormant state, it appears as a claw-like knuckle guard. When activated, i
 
 | Slot | Base Type | Artifact Functions | Binding |
 |---|---|---|---|
-| Main Hand or Off Hand | Medium Shield | Shield Value / Reflection / Crystalized / Crystal Rain | Bound |
+| Main Hand or Off Hand | Medium Shield | Shield Value / Force Reversal / Crystalized / Crystal Rain | Bound |
 
 The Starfallen Forceshield occupies one hand Slot. A character with the Starfallen Forceshield cannot use another weapon, shield, hand focus, claw Artifact, or hand-based magical item in the same hand.
 
@@ -2224,13 +2175,13 @@ Shield Value stacks with Armor Value as normal Armor resolution.
 
 | **Artifact Level** | **Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
 |:--:|:--|:--|:--:|:--:|:--:|:--|:--|
-| **1** | **Reflection I** | Reaction | 2 m | — | Triggering attack only | When a creature within range hits you with an attack, deal **2d8 damage** to the triggering creature and push it **4 m**. | Counter Damage + Push |
+| **1** | **Force Reversal I** | Reaction | 2 m | — | Triggering attack only | When a creature within range hits you with an attack, deal **2d8 damage** to the triggering creature and push it **4 m**. | Counter Damage + Push |
 | **2** | **Crystalized I** | Active | 20 m | Radius 2 m | Instant | Deal **+1d8 damage** on hit. | **Root(4)** |
 | **3** | **Crystal Rain I** | Active | 20 m | Radius 2 m | Instant | Deal **+7d8 damage** on hit. | — |
-| **4** | **Reflection II** | Reaction | 2 m | — | Triggering attack only | When a creature within range hits you with an attack, deal **6d8 damage** to the triggering creature and push it **8 m**. | Counter Damage + Push |
+| **4** | **Force Reversal II** | Reaction | 2 m | — | Triggering attack only | When a creature within range hits you with an attack, deal **6d8 damage** to the triggering creature and push it **8 m**. | Counter Damage + Push |
 | **5** | **Crystalized II** | Active | 44 m | Radius 3 m | Instant | Deal **+2d8 damage** on hit. | **Root(8)** |
 | **6** | **Crystal Rain II** | Active | 44 m | Radius 3 m | Instant | Deal **+17d8 damage** on hit. | — |
-| **7** | **Reflection III** | Reaction | 2 m | — | Triggering attack only | When a creature within range hits you with an attack, deal **12d8 damage** to the triggering creature and push it **8 m**. | Counter Damage + Push |
+| **7** | **Force Reversal III** | Reaction | 2 m | — | Triggering attack only | When a creature within range hits you with an attack, deal **12d8 damage** to the triggering creature and push it **8 m**. | Counter Damage + Push |
 | **8** | **Crystalized III** | Active | 68 m | Radius 4 m | Instant | Deal **+2d8 damage** on hit. | **Root(10)** |
 | **9** | **Crystal Rain III** | Active | 68 m | Radius 4 m | Instant | Deal **+27d8 damage** on hit. | — |
 | **10** | **True Starfallen Forceshield** | Ultimate | Self | — | Special | The Starfallen Forceshield fully awakens. Choose or define one final Starfallen Forceshield effect with GM approval. | True Starfallen Forceshield |

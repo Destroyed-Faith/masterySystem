@@ -5,11 +5,13 @@
 
 MASTERy POWER DESIGN BUNDLE
 
-Version: 1.0
+Version: 1.1
 
 Author: Daniel Rodrigo Navarro Melendo
 
-Purpose: Core reference for balancing and building Powers in the Mastery System.
+Purpose: Canonical reference for balancing and building Powers in the Mastery System.
+
+Canonical Sync: 2026-08-01
 
 Update Procedure:
 
@@ -223,7 +225,7 @@ For example:
 Combat in Mastery is divided into **Rounds** and **Turns**.
 
 
-- A **Round** represents a full cycle in which **every creature** in combat has taken a Turn. At the start of each new Round, Initiative is rolled again.
+- A **Round** represents a full cycle in which **every creature** in combat has taken a Turn. Initiative is rolled once at the start of combat. The Initiative Order normally remains fixed for the rest of the combat unless a rule explicitly changes it.
 
 - A **Turn** is your individual moment within that Round. During your Turn, you can move, act, and use Powers.
 
@@ -243,19 +245,31 @@ Effects that last longer than 1 Turn usually require concentration or may consum
 
 ### Round Structure
 
-1. **Initiative** – Roll at the start of each Round (see below).
-2. Determine **Evade Value**.
-3. **Start of Each Turn** – Resolve start-of-turn effects.
+1. **Start of Combat**
+   - Roll Initiative once.
+   - Add any initial Initiative bonuses, including the Initiative Passive.
+   - Resolve the initial Initiative Shop.
+   - Determine Initiative Order.
+2. **Start of Each Round**
+   - Refresh the normal Action Economy: 1 Movement, 1 Attack Action, and 1 Reaction.
+   - Initiative is not rolled again.
+   - The Initiative Shop does not reopen unless a rule explicitly allows it.
+3. **Start of Each Turn**
+   - Resolve start-of-turn effects.
    - For standard **Diminishing Stacks**, resolve **Tick, then Decay**.
-   - For **Triggered Diminishing Effects** (such as **Lacerate**), no damage is dealt at Tick unless the entry says so; they still decay normally at the start of the turn.
-4. **Your Turn** – You may take:
-&nbsp;  - **1 Movement** (up to your Speed)
-&nbsp;  - **1 Attack Action** (Attack, Cast, Special, Use Item)
-&nbsp;  - **1 Reaction** (outside your turn, when triggered)
-5. **End of Your Turn** – Resolve end-of-turn effects.
+   - For **Triggered Diminishing Effects** such as **Lacerate**, resolve only the listed trigger effect; they still decay normally unless their entry says otherwise.
+   - Resolve the automatic Root decay described in the Root rules.
+4. **Your Turn**
+   - Use Movement and Attack Actions in any legal order.
+   - Reactions are used when their chosen Trigger occurs.
+5. **End of Turn / End of Round**
+   - Resolve the appropriate end-of-turn and end-of-round effects.
+   - Exhausted Stones regenerate at the normal end-of-round timing.
+6. **New Round**
+   - Continue with the existing Initiative Order.
+   - A later Initiative effect may change Initiative, move a creature in the remaining order, or reopen the Initiative Shop only if it explicitly says so.
 
 ---
-
 
 ## 2. Power Types & Target Curves
 
@@ -263,7 +277,7 @@ Effects that last longer than 1 Turn usually require concentration or may consum
 ## Types of Powers
 
 
-Powers in the Mastery System are divided into **Actives**, **Active Buffs** and **Passives**.
+Powers in the Mastery System are divided into **Actives**, **Active Buffs**, **Passives**, **Reactions**, and **Movement Powers**.
 
 Each type follows different rules for how it is used in combat.
 
@@ -278,11 +292,11 @@ A Movement Power is not an Attack Action, not an Active Buff, not a Reaction, an
 
 #### Normal Movement Baseline
 
-A normal character can move **10 m** with their normal Movement.
+A normal character can move **8 m** with their normal Movement.
 
 When you use a Movement Power, the listed distance is your **total Movement for that Movement Power**.
 
-It is not added on top of your normal 10 m Movement unless an entry explicitly says otherwise.
+It is not added on top of your normal 8 m Movement unless an entry explicitly says otherwise.
 
 #### Movement Pricing Philosophy
 
@@ -441,17 +455,29 @@ The following Active Buff combinations are explicitly **not** part of the core c
 - Critical + anything
 - Special Overdrive + anything
 
-##### Active Buff Critical Restriction
+##### Critical Restriction
 
-Critical is a closed offensive Active Buff subsystem.
+Critical is a closed offensive subsystem.
 
-Critical may only be granted through the dedicated **Active Buff: Critical** entry.
+Critical may be granted only through:
 
-No Active, Passive, Reaction, Movement Power, weapon, Special, rider, aura, item-like effect, or combination entry may grant Critical unless an explicit future SRD exception is added.
+1. the dedicated **Active Buff: Critical**, or
+2. the **Agility Ability: Crit** Stone Ability.
+
+The two sources use their own written structures:
+
+- **Active Buff: Critical** grants the listed **Critical(X)** value while the Buff is maintained.
+- **Agility Ability: Crit** grants **Crit(1)** to the number of attacks listed by the activated Tier.
+
+Artifact, Echo, Potion, or other explicit Stone Power Support may pre-fill named Tiers of the **Agility Ability: Crit** Stone Ability. The character must still pay every required lower Tier. Stone Power Support never grants Critical directly.
+
+An explicit source may also grant access to or activate **Active Buff: Critical**, but it may not recreate Critical as an independent rider.
+
+No other Active, Passive, Reaction, Movement Power, weapon, Special, rider, aura, or combination entry may directly grant Critical.
 
 Critical may not appear as a secondary rider and may not be combined with Damage, Penetration, Attack Dice, Special Application, Extra Attacks, defensive effects, or filler value.
 
-If a character wants Critical, they must spend their maintained Active Buff slot on **Active Buff: Critical**.
+When Critical is gained through **Active Buff: Critical**, it uses the character's maintained Active Buff slot.
 
 Use this milestone progression for Active Buff Critical:
 
@@ -490,9 +516,9 @@ A Special is eligible for Special Overdrive only if all of the following are tru
 - the Special does not grant or modify Damage Reduction,
 - the Special does not grant or modify Phasing.
 
-Common eligible examples include **Blight(X)**, **Corrode(X)**, **Disoriented(X)**, **Expose(X)**, **Hex(X)**, **Lacerate(X)**, **Mark(X)**, **Ruin(X)**, **Slow(X)**, **Soulburn(X)**, **Sundered(X)**, and **Weaken(X)**.
+Common eligible examples include **Blight(X)**, **Challenge(X)**, **Corrode(X)**, **Disoriented(X)**, **Expose(X)**, **Hex(X)**, **Lacerate(X)**, **Mark(X)**, **Ruin(X)**, **Slow(X)**, **Soulburn(X)**, **Sundered(X)**, and **Weaken(X)**.
 
-Common ineligible examples include **Stunned**, **Prone**, **Immovable**, **Charm**, **Dominate**, binary **Silenced**, binary **Immobilized**, any Special without **(X)**, any full-turn denial, any full-reaction denial, any effect that modifies **Damage Reduction** or **Phasing**, **Barriers**, **Walls**, **Images**, **Summons**, **Illusion Fields**, and **Persistent Zones**.
+Common ineligible examples include **Stunned**, **Prone**, **Immovable**, **Mental Control**, binary **Immobilized**, or any other non-numeric control or lock, any Special without **(X)**, any full-turn denial, any full-reaction denial, any effect that modifies **Damage Reduction** or **Phasing**, **Barriers**, **Walls**, **Images**, **Summons**, **Illusion Fields**, and **Persistent Zones**.
 
 Special Overdrive is meant to escalate pressure, not to multiply hard control.
 
@@ -511,193 +537,107 @@ Special Overdrive affects only one chosen eligible Special.
 It may not be combined with Damage, Penetration, Critical, Attack Dice, Extra Attacks, defensive effects, Special Application, or filler value.
 
 
+
+#### Current Dedicated Active Buff Extensions
+
+The current catalogue also contains these approved dedicated entries. They are exceptions with fixed structures and may not be generalized into new free-form axes:
+
+- **Spell Resistance:** +2 Spell Resistance per Power Level; applies only to Spell-tagged Powers.
+- **Cleanse Maintenance:** at the start of each Turn, reduce one eligible negative ongoing creature effect by an amount equal to the Power Level. The value cannot be split.
+- **Damage Aura / Healing Aura:** self-centered maintained auras that trigger once at the end of each of the user's Turns. Radius bands are 2 m at Levels 1–7, 3 m at 8–14, and 4 m at 15–16. Use one payload only.
+- **Growth Form:** dedicated size/transformation entry; use only its written catalogue progression.
+- **Thorns:** Thorns 1d8 per Power Level, capped by final HP damage suffered from the triggering direct attack, Spell, or Power.
+- **Invisibility:** +1 Invisibility Bonus per Power Level; blocks Normal Combat Awareness and may explicitly stack with Passive Invisibility.
+- **Reinforced Parry:** requires Parry; may regain up to 2 Parry per Power Level each Round, never above the Pool with which the user entered Parry.
+- **Intensified Absorption:** requires Absorption; the first successful Absorption harvest each Round gains +1 / +2 / +3 / +4 Temporary Colorless Stones at Levels 1–4 / 5–8 / 9–12 / 13–16.
+- **Reinforced Damage Negation:** requires Damage Negation; gain a separate temporary Negation Pool equal to Power Level at the beginning of each Round. Spend it before the long-term Reserve. Both share the half-pool limit.
+- **Artifact-only or Summon-only Auras:** use only when the entry explicitly restricts its recipients or source. They do not create a generic player aura axis.
+
 ### Reactions
 
-Reactions are **instant responses** triggered by specific events during combat.
+Reactions are immediate answers to a specific Trigger. They are not a second Turn, a hidden Attack Action, or a miniature Active Power.
 
-They represent instinct, reflex, or trained counter-techniques — the art of turning a moment of danger into advantage.
+- **Cost:** 1 Reaction.
+- **Normal limit:** 1 Reaction per Round unless another rule explicitly grants additional Reactions.
+- **Duration:** Instant unless the entry explicitly says otherwise.
+- **Roll:** None unless the entry explicitly requires one.
+- **Scope:** A Reaction affects only the triggering Attack, hit, damage instance, effect, ally, or movement event described by the entry.
 
+A Reaction is built from two parts:
 
-- **Cost:** **Consumes your Reaction for this round** (no Attack action spent).
+1. a **Reaction Effect**, which defines what happens, and
+2. a **Chosen Trigger**, which defines when that Reaction Effect may be used.
 
-- **Trigger:** Each Reaction specifies its trigger condition (e.g. *“when hit by a melee attack”* or *“when an ally would take damage”*).
+When a Reaction entry lists several Allowed Triggers, choose one when the Reaction is learned. The chosen Trigger becomes part of that Reaction and cannot normally be changed without retraining.
 
-- **Roll:** Usually none. A Reaction only requires a roll if the entry explicitly says so.
+There is no universal Opportunity Attack rule. Movement is punished only by a Reaction whose chosen Trigger legally occurs.
 
-- **Limit:** 1 Reaction per round unless another Power explicitly grants an extra Reaction.
+#### Duplicate Reaction Rule
 
-- **Timing:** Resolves at the timing stated by the entry. If it modifies an incoming attack or damage instance, it applies only to that triggering event.
+A character cannot learn or benefit from the same Reaction Effect more than once. If several sources grant the same Reaction Effect, use only the highest available version. Different Chosen Triggers do not create separate copies unless a rule explicitly says otherwise. Duplicate sources do not stack and do not grant additional uses.
 
-- **Duration:** **Instant** unless otherwise stated.
+#### Standard Trigger Catalogue
 
+- **Attack Trigger:** when you are targeted by an attack; used before the attack result is finalized.
+- **Hit Trigger:** when you are hit by an attack.
+- **Damage Trigger:** when you would take damage, or after actual HP loss if the entry explicitly uses post-damage timing.
+- **Incoming Effect Trigger:** when an eligible ongoing creature effect would be applied to you, before its first Tick or ongoing penalty.
+- **Ongoing Effect Trigger:** when an eligible ongoing effect already affecting you would Tick, deal damage, or apply its listed penalty.
+- **Ally Attack Trigger:** when an ally within range is targeted by an attack.
+- **Ally Hit or Damage Trigger:** when an ally within range is hit or would take damage.
+- **Threat Zone Movement Trigger:** when a hostile creature moves into, out of, or across the boundary of your Threat Zone. The creature must be in the Threat Zone when the Reaction resolves. One creature can trigger the same character's Threat Zone Reaction only once per Round. Forced movement triggers only when the forcing effect explicitly says it provokes movement-triggered Reactions. Safe Movement and the skipped path of Teleport do not trigger it.
+- **Subsystem Trigger:** a dedicated closed subsystem may define a narrower Trigger.
 
----
+#### Reaction Curve
 
+Reactions use **20 PP per Power Level**:
 
-| **Level** | **Type** | **Trigger** | **Range** | **AoE** | **Effect** |
+20 / 40 / 60 / 80 / 100 / 120 / 140 / 160 / 180 / 200 / 220 / 240 / 260 / 280 / 300 / 320.
 
-|:--:|:--|:--|:--:|:--:|:--|
+#### Reaction Governance
 
-| **1–X** | *Reaction* | see trigger | Self / 0–8 m | — / Radius | see Description |
+Standard Reactions may use Armor, Evade, Temporary HP, Ally Protection, Counter Damage, restricted mobility, restricted Cleanse, Initiative Gain, or a specifically approved subsystem interaction.
 
+Damage Reduction, Phasing, Parry, Absorption, and other closed systems may only be used by their dedicated Reaction entries.
 
----
+Reactions do not grant Attack Dice, Critical, Extra Attacks, free Attack Actions, full Active Powers, Special Application, hard control, or unrelated riders unless the dedicated entry explicitly defines an exception.
 
-:
+The current core catalogue includes:
 
-| **Field** | **Meaning / Range** | **Notes** |
+- **Pure Defense:** Armor, Evade, Temporary HP.
+- **Defensive Combinations:** Armor + Temporary HP, Evade + Temporary HP.
+- **Ally Protection:** Ally Armor, Ally Evade, Ally Temporary HP.
+- **Restricted Utility:** Reposition, Reactive Cleanse, Initiative Gain.
+- **Closed Premium:** Damage Reduction, Phasing.
+- **Counter Effects:** Counter Damage, Counter Damage + Push.
+- **Restricted Special:** Special Increase.
+- **Parry Extensions:** Riposte, Reflection.
+- **Absorption Extension:** Reactive Overload.
 
-|:--|:--|:--|
+#### Counter Effect Rules
 
-| **Type** | *Reaction* — triggered outside your turn. | Costs Reaction per round. |
+Counter Effects are not attacks. They make no Attack Roll, generate no Raises, use no weapon damage unless the dedicated entry says otherwise, trigger no on-hit effects, apply no Specials, and gain no benefit from Critical or offensive Active Buffs.
 
-| **Trigger** | Event or condition that activates it. | e.g. *when hit*, *ally attacked*, *enemy enters range*. |
+**Counter Damage** and **Counter Damage + Push** may use the Hit Trigger or Threat Zone Movement Trigger when the entry lists both. Choose one Trigger when learning the Reaction.
 
-| **Range** | *Self* or *0–8 m*. | Melee reach by default. |
+- Hit Trigger: the triggering creature must be within the listed fixed range, normally 2 m.
+- Threat Zone Movement Trigger: the creature must be in your Threat Zone when the Reaction resolves.
+- Counter Damage costs 20 PP per 1d8.
+- Counter Push costs 20 PP per 2 m and is capped at 8 m.
+- The triggering creature applies its legal defenses normally.
 
-| **AoE** | Optional radius (if affects multiple). | — |
+#### Restricted Utility Rules
 
-| **Effect** | The reaction’s outcome (e.g. *Block attack*, *Counterstrike*). | — |
+- **Reposition:** the triggering event resolves first; then move 2 / 4 / 6 / 8 m at Levels 4 / 8 / 12 / 15. This is normal legal movement, not Teleport, Evade, damage prevention, or automatic Safe Movement.
+- **Reactive Cleanse:** affects exactly one triggering eligible Special and cannot split its value. Progression: 2, 4, 5, 5, 6, 7, 7, 8, 9, 9, 10, 10, 10, 11, 11, 12.
+- **Initiative Gain:** uses the Attack Trigger and grants +2 Initiative per Power Level after the triggering attack resolves. It can change the remaining Initiative Order but can never grant a second Turn in the same Round.
+- **Special Increase:** increases one already existing eligible Special(X); it never applies a Special by itself.
 
-#### Reaction Governance — Canonical Catalogue Decisions
+#### Parry and Absorption Reactions
 
-Reactions are narrow answers to concrete trigger events.
-
-They may protect, absorb, negate, reposition, or retaliate only in the way the entry states.
-
-Reactions are not a second turn, not hidden Attack Actions, and not mini-Actives.
-
-Reactions do not grant:
-
-- Attack Dice,
-- Critical,
-- Extra Attacks,
-- free Attack Actions,
-- full Active Powers,
-- Special Application,
-- hard control,
-- or unpriced offensive riders.
-
-Reactions may not apply Specials by default.
-
-The only core Special-based Reaction is **Reaction: Special Increase**, and it may only increase one already existing eligible **Special(X)** on the triggering creature.
-
-Standard defensive Reaction axes are:
-
-- Armor,
-- Evade,
-- Temporary HP,
-- Damage Reduction,
-- Phasing.
-
-Damage Reduction and Phasing are closed premium subsystems and may not be combined with any other Reaction axis.
-
-##### Reaction Catalogue Decisions
-
-The core Reaction catalogue includes these families:
-
-- Pure Defense: Armor, Evade, Temporary HP
-- Defensive Combinations: Armor + Temporary HP, Evade + Temporary HP
-- Ally Protection: Ally Armor, Ally Evade, Ally Temporary HP
-- Closed Premium: Damage Reduction, Phasing
-- Counter Effects: Counter Damage, Counter Damage + Push
-- Restricted Special: Special Increase
-- Restricted Mobility: Reposition
-
-The following Reaction families are not part of the core catalogue:
-
-- Special Application
-- Counter Attack / make an attack as a Reaction
-- Counter Special
-- Crit Reactions
-- Attack Dice Reactions
-- Hard Control Reactions
-- pure Push Reactions
-- Ally Push / Guard Push Reactions
-- Ally Reposition Reactions
-- Evade + Reposition Reactions
-- any Reaction that functions as a hidden full Active Power
-
-##### Counter Effect Rules
-
-Counter Effects are retaliatory Reactions, but they are not Attack Actions.
-
-Counter Effects:
-
-- do not make an attack roll,
-- cannot generate Raises,
-- do not use weapon damage,
-- do not trigger on-hit effects,
-- do not apply Specials,
-- do not increase Specials unless the entry is specifically **Reaction: Special Increase**,
-- do not benefit from Critical,
-- do not benefit from Active Buff: Damage, Active Buff: Penetration, Active Buff: Critical, or Active Buff: Special Overdrive,
-- affect only the triggering creature.
-
-Unless an entry says otherwise, a Counter Effect requires the triggering creature to be within **2 m** and to have **hit you with an attack**.
-
-Counter Damage is fixed Reaction damage and costs **20 PP per 1d8**.
-
-It is intentionally more expensive than normal damage because it does not require an attack roll and happens outside your turn.
-
-The triggering creature applies Armor, Damage Reduction, resistance, immunity, and other legal mitigation normally.
-
-For **Reaction: Counter Damage + Push**, Push is priced as a Reaction rider at **20 PP per 2 m**, capped at **8 m**. Push moves the triggering creature directly away from you if movement is possible.
-
-If the creature cannot be pushed, the damage still applies.
-
-##### Reaction Special Increase
-
-Reaction: Special Increase is the only core Special-based Reaction.
-
-It never applies a Special by itself.
-
-It only increases one already existing eligible **Special(X)** on the triggering creature.
-
-Core rules:
-
-- choose one eligible Special(X) when taking the Reaction,
-- the triggering creature must be within **2 m**,
-- the triggering creature must hit you with an attack,
-- the triggering creature must already be affected by the chosen Special(X),
-- the Reaction affects only the triggering creature,
-- no Damage, Push, Armor, Evade, Temporary HP, Movement, Critical, Attack Dice, or other rider may be added.
-
-Use this milestone progression:
-
-| **Level Band** | **Effect** |
-|:--|:--|
-| **1–3** | no effect |
-| **4–7** | increase the chosen existing Special by **+1** |
-| **8–15** | increase the chosen existing Special by **+2** |
-| **16** | increase the chosen existing Special by **+3** |
-
-The eligible and ineligible Special rules are the same as for Active Buff Special Overdrive.
-
-##### Reaction Reposition
-
-Reaction: Reposition is a hard-capped last-resort mobility Reaction.
-
-It is not a dodge, not Evade, not teleportation, not damage prevention, not Disengage by default, and not a hidden Movement Power.
-
-The triggering attack or damage instance resolves first. After it resolves, you may move using normal legal movement up to the listed distance.
-
-This movement does not ignore terrain, walls, creatures, hazards, zones, engagement, or movement restrictions unless another rule explicitly says otherwise.
-
-Use this milestone progression:
-
-| **Level Band** | **Effect** |
-|:--|:--|
-| **1–3** | no effect |
-| **4–7** | move up to **2 m** after the triggering event resolves |
-| **8–11** | move up to **4 m** after the triggering event resolves |
-| **12–14** | move up to **6 m** after the triggering event resolves |
-| **15–16** | move up to **8 m** after the triggering event resolves |
-
-Unused PP in non-milestone levels remains unused.
-
-Do not fill it with Evade, Armor, Temporary HP, Push, Damage, or any other bonus.
-
+- **Riposte:** requires Parry and a suitable melee or natural weapon. After Fully Parrying a direct melee Attack, spend 1 Reaction to deal Weapon Damage + 1d8 per Power Level. No Attack Roll, Raises, Critical, on-hit effects, or Specials. Each use costs a Reaction.
+- **Reflection:** requires Parry. After Fully Parrying a single-target eligible Attack, spend 1 Reaction to redirect the original Attack back upon its source. Make no new Attack Roll. The source applies its legal defenses. Uses per Combat equal half MR rounded down, minimum 1: MR 1–3 = 1, MR 4–5 = 2, MR 6–7 = 3, MR 8 = 4. Reflection and Riposte cannot both answer the same Attack.
+- **Reactive Overload:** requires Absorption. After eligible hostile damage removes actual HP, that HP loss counts twice at Levels 1–4, three times at 5–8, four times at 9–12, and five times at 13–16 for Absorbed Damage only. The real HP loss is not multiplied.
 
 ### Passives
 
@@ -728,110 +668,86 @@ Passives use the Passive curve:
 
 #### Passive Loadout Rules
 
-- **Passive Slots (Loadout):** You may slot up to **8 Passives** as your prepared loadout.
-- **Active Limit:** Before the first Initiative roll, choose up to **MR** slotted Passives to be active.
-- **No Switching:** You cannot change which Passives are active during combat.
-- **No Stacking:** Each Passive category can be chosen only once.
-- **Roll:** No roll is required; active Passives apply automatically.
-- **Terminology:**
-  - **Slotted** = prepared on your sheet
-  - **Active** = currently providing its effect
+Characters gain Passive Slots by Mastery Rank:
+
+| **Mastery Rank** | **Passive Slots** |
+|:--:|:--:|
+| **MR 1** | 1 |
+| **MR 2** | 2 |
+| **MR 3** | 3 |
+| **MR 4** | 3 |
+| **MR 5** | 4 |
+| **MR 6** | 4 |
+| **MR 7** | 5 |
+| **MR 8** | 6 |
+
+A character may slot only this many Passives. Every slotted Passive is active. There is no separate prepared-but-inactive state. A Passive that is not slotted provides no benefit. Passive choices cannot be changed during combat.
 
 #### Passive Category Rule
 
-Every Passive must belong to exactly one allowed Passive Category.
+A standard Passive belongs to exactly one Category. A Combined Passive belongs to exactly two approved Categories and counts as both for loadout and stacking purposes.
 
-The **Type** field of a Passive is always only:
+The mechanical Type is `Passive`. Prefer a separate Category field or column. When revising an existing catalogue entry, preserve that catalogue's current presentation style while keeping Type and Category mechanically distinct.
 
-> **Type:** Passive
-
-The category is tracked separately as:
-
-> **Category:** Armor
-> **Category:** Damage
-> **Category:** Special Aura
-
-If a table has only a **Type** column, write only:
-
-> **Passive**
-
-Do not write `Passive, Armor`, `Passive: Armor`, or `Passive, Special Aura` in the Type field.
-
-A Passive Category is a real mechanical classification, not flavor text.
-No Passive category may be chosen more than once in the same active loadout.
+A Category is a real mechanical classification, not flavour text. The same Category may not be represented more than once in the character's active Passive loadout unless a dedicated subsystem explicitly says otherwise.
 
 #### Allowed Passive Categories
 
-| **Category** | **Description** | **Typical Effects / Examples** |
-|:--|:--|:--|
-| **Armor** | Flat physical mitigation and toughness. | +Armor • conditional Armor • Armor stance • Armor aura |
-| **Damage Reduction** | Percentage-based post-Armor mitigation. | 10% / 20% / 30% DR |
-| **Evade** | Avoidance and defensive positioning. | +Evade • conditional Evade • Evade aura |
-| **Damage** | Pure offensive output. | +Damage dice • conditional Damage |
-| **Health** | Structural durability. | additional Health Bars |
-| **Temporary HP** | Frontloaded defensive HP buffer. | start-of-combat Temporary HP |
-| **Healing** | Recovery and regeneration. | start-of-turn healing • conditional healing |
-| **Awareness** | Combat senses and perception replacement. | Combat Sense • sensory replacement • functioning through visual obstruction |
-| **Phasing** | Premium hit-negation defense. | ignore limited hits per combat |
-| **Special Aura** | The only allowed Passive form that may interact with Specials. | self-centered aura that increases one eligible existing Special(X) by +1 step |
+| **Category** | **Role / Approved Use** |
+|:--|:--|
+| **Armor** | flat or conditional Armor |
+| **Damage Reduction** | dedicated percentage mitigation after Armor |
+| **Evade** | flat or conditional Evade |
+| **Damage** | pure or conditional damage, including Thornhide |
+| **Health** | additional Health Bars or approved structural Health |
+| **Temporary HP** | start-of-combat defensive buffer |
+| **Healing** | regeneration or conditional recovery |
+| **Telepathy** | Telepathic Access, Mind Links, willing sense or memory sharing |
+| **Phasing** | dedicated ignored-hit subsystem |
+| **Special Aura** | increases one existing eligible Special(X) by +1 inside an aura |
+| **Ward** | Spell Resistance or incoming eligible Special reduction |
+| **Invisibility** | perception TN, target denial, and explicit Sense blocking |
+| **Initiative** | initial Initiative Score bonus |
+| **Parry** | dedicated Attack-Pool disruption subsystem |
+| **Absorption** | additional real HP and Temporary Colorless Stone generation from hostile HP loss |
+| **Damage Negation** | dedicated per-Combat Damage-Dice removal reserve |
+| **Summon** | support for already existing Summon Bonds; does not create a Summon |
 
-#### Removed Passive Categories
+#### Removed Generic Categories
 
-The following categories are no longer valid Passive categories:
+The following are not valid generic Passive Categories: Attack, Attribute, Roll, Control, or generic Special.
 
-- **Attack**
-- **Attribute**
-- **Roll**
-- **Control**
-- generic **Special**
+#### Passive Restrictions and Explicit Exceptions
 
-These removed categories may not be used as Passive categories in new Tree design.
+Passives do not normally grant permanent Attack Dice, permanent Attribute increases, generic Roll bonuses, free attacks, Extra Attacks, Actions, Reactions, Movement Powers, hard control, generic Special Application, or hidden Active effects.
 
-Passives may not grant:
+The following dedicated exceptions are canonical and must not be generalized:
 
-- permanent Attack Dice,
-- permanent Attribute increases,
-- Attribute Dice,
-- Stones,
-- generic Roll bonuses,
-- generic Control effects,
-- free attacks,
-- Extra Attacks,
-- passive action-economy effects,
-- generic Special support,
-- passive Special application,
-- or passive hard control.
+- **Absorption** may generate Temporary Colorless Stones from eligible actual HP loss.
+- **Bound Host** may grant Summon Tokens to existing Summon Bonds.
+- **Parry** may remove Attack Dice from eligible direct Attacks through its dedicated Pool.
+- **Damage Negation** may remove Damage Dice through its dedicated combat Reserve.
+- **Ward** may reduce incoming eligible hostile Specials before application.
+- **Special Aura** may increase one existing eligible Special(X) by +1 inside its aura.
+- **Invisibility** may block Combat Senses and modify Perception TN according to the Invisibility subsystem.
 
-If a Passive would interact with Specials, it must use the **Special Aura** category and obey the Passive Special Aura rules below.
+A Passive may never use the Spell or Charged tag. It may not casually combine unrelated premium defensive systems. Damage Reduction, Phasing, Parry, Absorption, Damage Negation, Ward, and Invisibility use only their approved dedicated entries or explicit catalogue extensions.
 
-#### Passive Design Restrictions
 
-- A Passive may never use the **Spell** tag.
-- A Passive may never use the **Charged** tag.
-- A Passive may never grant an Attack Action, free attack, Reaction, Movement Power, Spell effect, Barrier, Wall, Image, Illusion Field, Summon, or Persistent Zone.
-- A Passive may not contain more than two scaling mechanical axes.
-- A Passive may not hide an Active effect inside an always-on feature.
-- A Passive may not grant **Stunned**.
-- A Passive may not create full-turn skip, full-round invulnerability, automatic hard control, or action-economy denial.
-- A Passive may not casually combine Armor, Evade, Temporary HP, Healing, Damage Reduction, and Phasing into one package.
-- Unused PP may remain unused for premium milestone systems.
+### Combat Senses and the Sense Slot
 
-Passives may grant:
+Combat Senses are governed by the Core Rulebook and are not Passive Powers.
 
-- flat or conditional **Armor**,
-- flat or conditional **Evade**,
-- flat or conditional **Damage**,
-- structural **Health Bars**,
-- start-of-combat **Temporary HP**,
-- start-of-turn or conditional **Healing**,
-- **Combat Senses** and Awareness functionality,
-- dedicated **Damage Reduction**,
-- dedicated **Phasing**,
-- or **Special Aura** as the only approved Passive-Special interaction.
+- Every character has exactly **one Sense Slot**.
+- The Sense Slot contains **Normal Combat Awareness** by default.
+- Echoes, Artifacts, Species, Powers, and story features may grant additional **Sense Options**.
+- A Sense Option does not use a Passive Slot, does not consume an Artifact Base Value, and does not create another Sense Slot.
+- Before a scene, before the first Perception roll, choose which known Sense occupies the Sense Slot. In combat, choose before Initiative is rolled.
+- If no choice is declared, Normal Combat Awareness remains active.
+- Knowing several Sense Options increases preparation choices only. Several Special Combat Senses never operate simultaneously unless an explicit rule creates an exception.
+- A character still receives ordinary narrative information through sight, hearing, smell, touch, and similar senses. The active Sense determines mechanical perception and targeting when darkness, Invisibility, smoke, silence, concealment, or another Sense-specific obstacle matters.
 
-> **Design Note:**
-> Passives must never invalidate Active choices.
-> A Passive that grants too much raw damage, defense, control, or action economy can trivialize tactical play.
+Do not create an **Awareness Passive**, **Heightened Senses Passive**, Awareness Combined Passive, or Awareness half-budget axis. New Special Combat Senses must be granted as Sense Options and use the single Sense Slot.
 
 ---
 
@@ -914,7 +830,6 @@ Combined Passives may use:
 - **Health**
 - **Temporary HP**
 - **Healing**
-- **Awareness**
 
 Combined Passives may not use:
 
@@ -978,7 +893,6 @@ A Conditional Combined Passive may never exceed the Passive Curve target for its
 | **Healing Half** | 4 PP per 1 HP healed |
 | **Temporary HP Half** | 2 PP per 1 Temporary HP |
 | **Health Half** | Milestone structural Health progression; no Healthy bar in Combined Passives |
-| **Awareness Half** | Milestone Combat Sense progression; not priced as flat dice |
 
 #### Conditional Health / Temporary HP Timing
 
@@ -1082,6 +996,7 @@ Common eligible examples include:
 - **Expose(X)**
 - **Hex(X)**
 - **Lacerate(X)**
+- **Challenge(X)**
 - **Mark(X)**
 - **Ruin(X)**
 - **Slow(X)**
@@ -1094,10 +1009,9 @@ Common ineligible examples include:
 - **Stunned**
 - **Immovable**
 - **Immobilized**, if binary
-- **Silenced**, if binary
 - **Prone**
-- **Charm**
-- **Dominate**
+- **Mental Control**
+- any non-numeric control state or Power lock
 - any Special without **(X)**
 
 #### Special Aura Restrictions
@@ -1495,8 +1409,7 @@ Instead, it follows a gated structure:
 > Active Buffs and Reactions cannot grant DR on their own; they only increase an already existing DR value.
 
 > **Armor Interaction:**
-> Damage Reduction is always applied **after Armor**.
-> A character benefiting from this DR system may not benefit from **physically worn armor** or **shields** that grant Armor value.
+> Damage Reduction is always applied **after Armor**. A character may combine Armor and Damage Reduction from separate legal sources. The dedicated Damage Reduction Power lines themselves may not bundle Armor or another filler axis.
 
 ---
 
@@ -1823,6 +1736,7 @@ Diminishing effects use **Start PP × T(X)** pricing.
 | **Effect** | **Start PP** | **X Definition** | **What It Does** | **Cleanse/Dispel** |
 |:--|:--:|:--|:--|:--:|
 | **Blight(X)** | **3** | X = healing reduction and Stress on Tick | Healing received is reduced by **X**. At Tick, take **X Stress**. | Yes |
+| **Challenge(X)** | **6** | X = Attack Pool reduction against non-challenger targets | Challenge is source-bound. Reduce Attack Pools by **X** when the attack does not include the challenger as a target, to a minimum of Mastery Rank. | Yes |
 | **Corrode(X)** | **6** | X = Armor reduction | Your **Armor** is reduced by **X**. | Yes |
 | **Disoriented(X)** | **8** | X = Attack and perception-pool reduction | Reduce Attack Pools and pools used to notice, locate, track, or identify something by **X**, to a minimum of Mastery Rank. | Yes |
 | **Expose(X)** | **8** | X = Evade reduction | Your **Evade** is reduced by **X**. | Yes |
@@ -1835,6 +1749,22 @@ Diminishing effects use **Start PP × T(X)** pricing.
 | **Soulburn(X)** | **8** | X = dice removed from Wits, Influence, and Resolve pools | Whenever you build a pool based on **Wits**, **Influence**, or **Resolve**, remove **X dice**. | Yes |
 | **Sundered(X)** | **6** | X = vulnerability to non-Spell attacks | When hit by a **non-Spell attack**, take **+1d8 bonus damage for every 2 Sundered**, rounded up. | Yes |
 | **Weaken(X)** | **8** | X = dice removed from Might, Agility, and Intellect pools | Whenever you build a pool based on **Might**, **Agility**, or **Intellect**, remove **X dice**. | Yes |
+
+#### Challenge Rule
+
+Challenge is a source-bound Diminishing Special that creates target pressure without forcing behavior.
+
+- When Challenge is applied, record the applying creature as the **challenger**.
+- Whenever the affected creature builds an **Attack Pool** for an attack that does **not** include the challenger as a target, remove **X dice** from that pool.
+- If the attack includes the challenger as one of its targets, Challenge does not reduce that Attack Pool.
+- Challenge does not force movement, targeting, or action choice.
+- Challenge reduces Attack Pools only. It does not reduce Attributes, Keep, Damage Pools, Evade, non-attack checks, or derived values.
+- Apply Challenge with other flat pool changes before the percentage-based Health Penalty.
+- The final Attack Pool cannot be reduced below **Mastery Rank**.
+- A creature can have only one challenger at a time. Reapplication from the same challenger adds stacks normally. A different source replaces the current Challenge only if the newly applied value is higher.
+- Challenge decays by 1 at the start of the affected creature's turn and may be reduced by Cleanse.
+
+Challenge uses **Start PP 6**. It is cheaper than Disoriented, Weaken, or Soulburn because its penalty is conditional and can be avoided by including the challenger as a target. It must not be treated as Mental Control, behavior control, Taunt, or forced targeting.
 
 #### Pool Reduction Rule — Weaken and Soulburn
 
@@ -1957,6 +1887,7 @@ These effects still decay by **1** at the start of the affected creature’s tur
 | 10 | 165 | 220 | 330 | 440 |
 
 Use this table to calibrate Diminishing effects priced by **Start PP × T(X)**.
+Use **Start PP 6** for **Challenge**, **Corrode**, **Hex**, **Sundered**, and **Root**.
 Use **Start PP 8** for **Disoriented**, **Expose**, **Weaken**, and **Soulburn**.
 
 ---
@@ -1994,16 +1925,16 @@ These effects persist until they are consumed, broken, or their own internal cou
 |:--|:--:|:--|:--:|:--|:--:|
 | **Brace(X)** | **15 × X PP** | X = number of rounds/end steps it persists | Until X reaches 0 | Your **Speed becomes 0 m**. While Braced, your **Shield value is doubled** for Armor calculation. At the end of each of your turns, reduce **Brace by 1**. | No |
 | **Bulwark(X)** | **20 × X PP** | X = number of charges | Until used | As a **Reaction** when hit by an attack you can perceive, reduce the attack’s **final damage by 50%** and consume **1** Bulwark. | No |
-| **Crit(X)** | **closed subsystem** | X = Critical rank | Active Buff only | Critical may only be granted by **Active Buff: Critical**. It may not appear as an Active, Passive, Reaction, weapon, Special, rider, or generic Until Used effect. | No |
+| **Critical / Crit** | **closed subsystem** | Active Buff rank or number of **Crit(1)** attacks | Buff Duration / this Round | Critical may function only through **Active Buff: Critical** or the **Agility Ability: Crit** Stone Ability. Explicit support may grant access to the Buff or pre-fill named Stone Ability Tiers, but it never creates an independent Critical rider. | No |
 | **Immovable** | **80 PP** | fixed effect | Buff Duration | You are immune to **Push**, **Pull**, **Prone**, and forced movement while the effect lasts. | No |
-| **Root(X)** | **Start PP 6 × T(X)** | X = Break Strength | Until broken | Your Speed becomes **0 m** and you cannot move voluntarily. An Action, Movement Action, or Reaction may be spent on a Vitality Attribute Check against **TN 8 × source MR**; success reduces Root by 1, plus 1 per Raise. | Yes |
+| **Root(X)** | **Start PP 6 × T(X)** | X = Break Strength; minimum applied value 2 | Until X reaches 0 | Your Speed becomes **0 m** and you cannot move voluntarily. At the start of your Turn, reduce Root by your Mastery Rank. You may also spend an Action, Movement Action, or Reaction on a Vitality Attribute Check against **TN 8 × source MR**; success reduces Root by 1, plus 1 per Raise. | Yes |
 
 > **Design Note — Until Used Effects**
 > These effects are priced for stored value: they do nothing until the right moment, then convert into a strong spike of offense or defense.
 > Because they are more controllable than normal Timed effects, they should remain narrow and clearly defined.
 
 > **Critical Update:**
-> Critical is no longer a general Until Used rider. It exists only as the dedicated **Active Buff: Critical** premium subsystem. Do not place Critical on Actives, Passives, Reactions, weapons, Specials, or combination entries.
+> Critical is not a general Until Used rider. It exists only through the dedicated **Active Buff: Critical** or the **Agility Ability: Crit** Stone Ability. Explicit sources may grant access to the Buff or pre-fill named Tiers of the Stone Ability, but they must not place Critical directly on Actives, Passives, Reactions, weapons, Specials, or combination entries.
 
 ---
 
@@ -2125,6 +2056,7 @@ They represent the unique flavor of a weapon or the advanced techniques unlocked
 
 | **−1 Pool Die (Loss)** | 7.5 PP | Baseline value for a lost action or attack die. Persistent broad reductions must use a named Special. |
 
+| **Challenge Attack-Pressure Reduction** | Start PP 6 × T(X) | Source-bound Diminishing Special; affects only attacks that do not include the challenger as a target. |
 | **Weaken / Soulburn Pool Reduction** | Start PP 8 × T(X) | Named Diminishing Specials only; apply before percentage-based Health Penalty. |
 
 
@@ -2348,7 +2280,7 @@ The old per-meter movement table is removed.
 
 Movement is no longer priced by one universal meter cost.
 
-Use the relative value of the movement mode.
+Use the relative value of the movement mode. Normal Movement is **8 m** for every character unless a specific rule explicitly replaces that value.
 
 ### Movement Catalogue — Approved Core Entries
 
@@ -3519,189 +3451,113 @@ If not, correct the format before returning the result.
 
 ---
 
-## 9. Active Buff, Reaction, and Movement Catalogue Governance
+## 9. Canonical Catalogue Governance
 
-This section records the current canonical catalogue decisions for **Active Buffs**, **Reactions**, and **Movement Powers**. It exists so the Agent does not reconstruct removed old-tree ideas such as Attack Dice buffs, Crit riders, Special Application buffs, mini-Active Reactions, or Movement Powers that secretly act as attack enhancers.
+This section is the current catalogue index. Do not reconstruct removed legacy powers or introduce a new axis merely because unused PP remains.
 
-### 9.1 Active Buff Catalogue — Canonical Decisions
+### 9.1 Active Buff Catalogue
 
-Active Buffs use the full Active Buff curve from Level 1 to Level 16:
+#### Standard Pure and Combination Entries
 
-| **Level** | **Target PP** |
-|:--:|--:|
-| 1 | 40 |
-| 2 | 70 |
-| 3 | 100 |
-| 4 | 130 |
-| 5 | 160 |
-| 6 | 190 |
-| 7 | 220 |
-| 8 | 250 |
-| 9 | 280 |
-| 10 | 310 |
-| 11 | 340 |
-| 12 | 370 |
-| 13 | 400 |
-| 14 | 430 |
-| 15 | 460 |
-| 16 | 490 |
+- Armor
+- Evade
+- Armor Aura
+- Temporary HP
+- Healing
+- Armor + Temporary HP
+- Evade + Temporary HP
+- Temporary HP + Healing
+- Armor + Evade
+- Damage
+- Penetration
+- Damage + Penetration
 
-The standard catalogue supports the following Active Buff entries:
+#### Closed or Dedicated Entries
 
-#### Pure Defensive Active Buffs
+- Damage Reduction
+- Phasing
+- Critical
+- Special Overdrive
+- Spell Resistance
+- Cleanse Maintenance
+- Damage Aura
+- Healing Aura
+- Growth Form
+- Thorns
+- Invisibility
+- Reinforced Parry
+- Intensified Absorption
+- Reinforced Damage Negation
+- explicit Artifact-only or Summon-only aura entries
 
-- **Active Buff: Armor** — pure self Armor at 7.5 PP per +1 Armor.
-- **Active Buff: Armor Aura** — self-centered group Armor aura; pay radius first, then Armor.
-- **Active Buff: Evade** — pure self Evade at 5 PP per +1 Evade.
-- **Active Buff: Temporary HP** — refreshing Temporary HP at 4 PP per HP.
-- **Active Buff: Healing** — start-of-turn healing at 4 PP per HP.
-- **Active Buff: Damage Reduction** — closed milestone subsystem; only increases Passive DR by +10%.
-- **Active Buff: Phasing** — closed milestone subsystem; only reinforces Passive Phasing.
+The following remain forbidden as generic Active Buffs: Attack Dice, Extra Attacks, free Attack Actions, Damage + Critical, Damage + Special Application, Special Application, Detection/Reveal/Sensor Buffs, hidden Movement, and hard control.
 
-#### Defensive Combination Active Buffs
+### 9.2 Reaction Catalogue
 
-- **Active Buff: Armor + Temporary HP** — Armor plus fixed Temporary HP gained on activation.
-- **Active Buff: Evade + Temporary HP** — Evade plus refreshing Temporary HP.
-- **Active Buff: Temporary HP + Healing** — refreshing Temporary HP plus start-of-turn healing.
-- **Active Buff: Armor + Evade** — mixed mitigation and avoidance.
+- Pure Defense: Armor, Evade, Temporary HP.
+- Defensive Combinations: Armor + Temporary HP, Evade + Temporary HP.
+- Ally Protection: Ally Armor, Ally Evade, Ally Temporary HP.
+- Restricted Utility: Reposition, Reactive Cleanse, Initiative Gain.
+- Closed Premium: Damage Reduction, Phasing.
+- Counter Effects: Counter Damage, Counter Damage + Push.
+- Restricted Special: Special Increase.
+- Parry: Riposte, Reflection.
+- Absorption: Reactive Overload.
 
-#### Offensive Active Buffs
+The following remain forbidden as generic Reactions: Attack Dice, Special Application, normal Counter Attacks, Counter Specials, Critical riders, hard control, pure Push, Ally Push, Ally Reposition, Evade + Reposition, and any hidden full Active Power.
 
-- **Active Buff: Damage** — pure bonus damage.
-- **Active Buff: Penetration** — pure armor bypass.
-- **Active Buff: Damage + Penetration** — only approved standard offensive combination.
-- **Active Buff: Critical** — closed premium milestone subsystem, no secondary axis.
-- **Active Buff: Special Overdrive** — closed Special Increase subsystem, no Special Application.
+### 9.3 Passive Catalogue
 
-The following Active Buff entries are explicitly removed or forbidden in the core catalogue:
+The standard catalogue includes pure, conditional, combined, and conditional-combined Armor, Evade, Damage, Health, Temporary HP, and Healing entries, plus the following dedicated systems:
 
-- Active Buff: Attack Dice
-- Active Buff: Damage + Critical
-- Active Buff: Attack Dice + Critical
-- Active Buff: Damage + Special Application
-- Active Buff: Special Application
-- any Detection / Detector / Reveal / Sensor active buff
-- any Critical rider outside Active Buff: Critical
+- Damage Reduction
+- Phasing
+- Special Aura
+- Spell Resistance
+- Ward
+- Telepathy
+- Bound Host
+- Thornhide
+- Passive Invisibility
+- Initiative
+- Parry
+- Absorption
+- Damage Negation
 
-### 9.2 Reaction Catalogue — Canonical Decisions
+A catalogue entry may use a dedicated exception without making that exception generally available to all Passive design.
 
-Reactions use the full Reaction curve from Level 1 to Level 16:
+### 9.4 Movement Catalogue
 
-| **Level** | **Target PP** |
-|:--:|--:|
-| 1 | 20 |
-| 2 | 40 |
-| 3 | 60 |
-| 4 | 80 |
-| 5 | 100 |
-| 6 | 120 |
-| 7 | 140 |
-| 8 | 160 |
-| 9 | 180 |
-| 10 | 200 |
-| 11 | 220 |
-| 12 | 240 |
-| 13 | 260 |
-| 14 | 280 |
-| 15 | 300 |
-| 16 | 320 |
+Normal Movement is **8 m**. A Movement Power replaces that Movement and lists its total distance.
 
-The standard catalogue supports the following Reaction entries:
+Approved entries:
 
-#### Pure Defensive Reactions
+- Ground Dash — cap 34 m.
+- Safe Movement — cap 20 m.
+- Teleport — cap 16 m.
+- Teleport with Ally — cap 12 m.
+- Flight — cap 24 m.
+- Leap — cap 28 m horizontal / 14 m vertical.
+- Wall Walk — cap 28 m.
+- Burrow — cap 16 m through suitable material.
+- Phase Passage — cap 8 m material thickness; traversal only, never defensive Phasing.
+- Trample — cap 24 m path / 8d8 contact damage.
 
-- **Reaction: Armor** — Armor against the triggering attack or damage instance.
-- **Reaction: Evade** — Evade against the triggering attack.
-- **Reaction: Temporary HP** — Temporary HP against the triggering damage instance; leftovers disappear at the end of your next turn.
+Movement + Attack Dice, Critical, Special Application, Special Increase, next-hit Damage, Penetration, defensive buffs, hard control, or hidden Reaction dodges remain forbidden.
 
-#### Defensive Combination Reactions
+### 9.5 Active Catalogue Additions
 
-- **Reaction: Armor + Temporary HP** — one-hit mitigation plus buffer.
-- **Reaction: Evade + Temporary HP** — one-hit avoidance plus buffer if damage still occurs.
+The current Active catalogue also recognizes:
 
-#### Ally Protection Reactions
+- Health Level Heal as a structural recovery Support Active. The recovery pool refreshes on Safe Haven Rest and costs 30 PP per recoverable Health Level.
+- Cleanse Absorption as a fixed catalogue Support progression; do not rebuild it as full standalone Cleanse plus full standalone buff value.
+- Weapon Attack templates: Single Weapon Attack, AoE Weapon Attack, Split Attack, Split AoE, and Autofire.
+- Smite as an Artifact, relic, divine weapon, vow, blessing, or story-reward effect rather than a freely selectable generic Active family.
+- Mental Attack, Mind Illusion, Mind Probe, and Mental Control under the Telepathy governance rules.
 
-Ally Protection Reactions protect one ally within **4 m** and pay a **10 PP Ally Protection premium** before buying the actual defensive effect.
+### 9.6 Tooltip Requirement
 
-- **Reaction: Ally Armor**
-- **Reaction: Ally Evade**
-- **Reaction: Ally Temporary HP**
-
-#### Counter Effects
-
-Counter Effects are damage-shield style Reactions, not attacks.
-
-- **Reaction: Counter Damage** — fixed damage at **20 PP per 1d8** when a creature within 2 m hits you.
-- **Reaction: Counter Damage + Push** — fixed damage plus Push directly away from you; Push costs **20 PP per 2 m** and is capped at 8 m.
-
-#### Closed Premium Reactions
-
-- **Reaction: Damage Reduction** — only increases existing Passive DR by +10% against the triggering damage instance.
-- **Reaction: Phasing** — only reinforces existing Passive Phasing and ignores the triggering hit within milestone caps.
-
-#### Restricted Utility Reactions
-
-- **Reaction: Special Increase** — only increases an existing eligible Special(X) on the triggering creature; no Special Application.
-- **Reaction: Reposition** — hard-capped movement after the triggering event resolves; no Evade, no damage prevention, no teleport, no Disengage by default.
-
-The following Reaction entries are explicitly removed or forbidden in the core catalogue:
-
-- Reaction: Attack Dice
-- Reaction: Special Application
-- Reaction: Counter Attack / make an attack
-- Reaction: Counter Special
-- Reaction: Critical / Crit rider
-- Reaction: Hard Control
-- Reaction: pure Push
-- Reaction: Ally Push / Guard Push
-- Reaction: Ally Reposition
-- Reaction: Evade + Reposition
-- any Reaction that functions as a hidden full Active Power
-
-### 9.3 Movement Catalogue — Canonical Decisions
-
-Movement Powers replace normal Movement. A normal character has **10 m** normal Movement. A Movement Power's listed distance is total Movement, not bonus distance added to 10 m, unless the entry explicitly says otherwise.
-
-Movement Powers are priced by movement quality and hard caps, not by one universal linear Movement curve. Do not use the old 2 PP/m Run, 5 PP/m Flight, or 8 PP/m Teleport table for new catalogue entries.
-
-The standard Movement catalogue includes:
-
-- **Movement: Ground Dash** — legal ground movement; provokes normally; cap **34 m**.
-- **Movement: Safe Movement** — legal ground movement that does not provoke movement-triggered Reactions; cap **20 m**.
-- **Movement: Teleport** — premium relocation; skips intervening spaces; cap **16 m**.
-- **Movement: Teleport with Ally** — self plus one willing ally within 2 m; cap **12 m**.
-- **Movement: Flight** — path-based three-dimensional movement; cap **24 m**.
-- **Movement: Leap** — arc movement; cap **28 m horizontal / 14 m vertical**.
-- **Movement: Wall Walk** — traversal along walls, ceilings, or similar surfaces; cap **28 m**.
-- **Movement: Burrow** — suitable soft material only; cap **16 m**.
-- **Movement: Phase Passage** — traversal through material thickness, not defensive Phasing; cap **8 m material thickness**.
-- **Movement: Trample** — offensive path movement; cap **24 m path / 8d8 contact damage**.
-
-The following Movement entries or riders are explicitly removed or forbidden in the core catalogue:
-
-- Movement: Glide
-- Movement + Attack Dice
-- Movement + Critical
-- Movement + Special Application
-- Movement + Special Increase
-- Movement + next-hit Damage
-- Movement + Penetration
-- Movement + defensive buff
-- Movement + hard control
-- Movement + hidden Reaction dodge
-
-Movement Powers may not improve the next attack by default. If the main payoff is “your next attack gains X,” it is not a Movement Power. It is an Active Buff, Active Power, or Tree-specific exception.
-
-### 9.4 Tooltip Requirement for Catalogue Entries
-
-Active Buff, Reaction, and Movement catalogue entries must use expanded tooltips. A valid tooltip must include:
-
-- **BASELINES** — target curve or movement baseline and component costs,
-- **DESIGN STRUCTURE** — what axes the entry uses and what is forbidden,
-- **LEVEL-BY-LEVEL CALCULATION** or **DISTANCE PROGRESSION** — each level's target value and bought value,
-- **NOTES** or **DESIGN NOTE** — why the entry is restricted, capped, or milestone-based.
-
-Short tooltips are not sufficient for catalogue entries.
+Catalogue entries must include BASELINES, DESIGN STRUCTURE, a level-by-level calculation or progression, and NOTES explaining restrictions, caps, milestones, or unused PP.
 
 ## 10. Active Power Template Governance
 
@@ -3909,7 +3765,7 @@ If a specific Zone, Barrier, Wall, Ward, Glyph, Illusion Field, or Summoned effe
 |---|:--:|---|
 | **Blight Group** | Start PP 3 | Blight |
 | **Standard Group** | Start PP 4 | Lacerate, Slow, Ruin, Mark |
-| **Heavy Group** | Start PP 6 | Corrode, Hex, Sundered, Root |
+| **Heavy Group** | Start PP 6 | Challenge, Corrode, Hex, Sundered, Root |
 | **Premium Reduction Group** | Start PP 8 | Disoriented, Expose |
 | **Pool Reduction Group** | Start PP 8 | Weaken, Soulburn |
 
@@ -4082,14 +3938,122 @@ A Barrier can also be destroyed by reducing its HP to 0.
 The following effects are not missing from the Active template examples. They belong elsewhere or require dedicated subsystems.
 
 - **Bulwark** is handled as a Reaction or Until-Used defensive effect.
-- **Crit(X)** is handled only as the dedicated **Active Buff: Critical** premium subsystem. It is not an Until-Used rider and must not appear on Actives, Reactions, Passives, weapons, or combination entries.
-- **Summons** require their own subsystem for body, action economy, duration, scaling, and dismissal.
+- **Critical / Crit** is handled only through the dedicated **Active Buff: Critical** or the **Agility Ability: Crit** Stone Ability. It is not a generic Until-Used rider and must not appear as an independent effect on Actives, Reactions, Passives, weapons, or combination entries.
+- **Summons** use the dedicated canonical subsystem in **Section 11.14** for Bodies, action economy, scaling, Skills, Powers, destruction, and dismissal.
 
-Do not improvise Summon pricing from AoE, Images, Barriers, or Persistent Zone templates.
+Do not improvise Summon pricing from AoE, Images, Barriers, Persistent Zone templates, or separate Familiar, Companion, and Host Chassis.
 
 ---
 
-### 10.23 Template Output Instruction for the Agent
+### 10.23 Mental Power Governance
+
+Mental Powers are a dedicated Active family built around the **Telepathy Passive**.
+
+#### Telepathy Passive
+
+Telepathy is the only standard Passive that grants **Telepathic Access**.
+
+Mind Link is included inside Telepathy. It is not a separate Power and does not require another Passive Slot.
+
+Telepathy may provide:
+
+- silent voluntary communication,
+- voluntary Mind Links,
+- shared images, emotions, and simple sensory impressions,
+- willing sense sharing,
+- willing memory sharing,
+- and limited awareness of thinking presence where the catalogue explicitly grants it.
+
+Telepathy may not:
+
+- read or search an unwilling mind,
+- force disclosure,
+- deal damage,
+- apply Specials,
+- control creatures,
+- or hide an Active effect inside the Passive.
+
+The Telepathy Passive level is the maximum level of Mental Attack, Mind Illusion, Mind Probe, and Mental Control unless a specific rule says otherwise.
+
+#### Telepathic Access
+
+A creature has Telepathic Access to a target when:
+
+- its Telepathy Passive reaches a target it can perceive or whose location it knows,
+- the target is part of its willing Mind Link,
+- the target is already affected by one of its Mental Powers,
+- or a specific Power explicitly creates access.
+
+Telepathic Access alone reveals no thoughts, memories, identity, or hidden information.
+
+#### Mental Power Resolution
+
+Mental Attack, Mind Illusion, Mind Probe, and Mental Control resolve like Spells against the normal fixed TN for their Power Level increased by **+4**.
+
+A successful Mental Power resolves its listed effect without an automatic second defensive roll.
+
+A later **Wits** or **Intellect** Attribute Check exists only when the Power explicitly grants a disbelief, break, or intrusion response.
+
+Use:
+
+- **Wits** for immediate mental intrusion, manipulated awareness, doubt, and breaking imposed control.
+- **Intellect** only for analytical, memory-structured, or logically constructed recognition when the Power explicitly names it.
+
+#### Core Mental Actives
+
+| **Power** | **Function** | **Core Restriction** |
+|:--|:--|:--|
+| **Mental Attack** | Direct Mental Damage. | 30 PP per +1d8; ignores Armor; does not target Evade. |
+| **Mind Illusion** | False perception inside affected minds. | No real battlefield matter and no direct action control. |
+| **Mind Probe** | Reads thoughts, intentions, facts, and memories. | One listed information result per use; reads the target's remembered understanding, not objective truth. |
+| **Mental Control** | Temporary noncombat instructions, attitudes, beliefs, or behavioral programs. | Only creatures with lower MR; never creates combatants; cannot be activated during combat. |
+
+Mind Probe and Mental Control are fixed qualitative catalogue families. Do not convert their milestones into generic numeric riders.
+
+#### Mind Probe Rules
+
+Mind Probe:
+
+- requires Telepathic Access,
+- affects one creature unless its catalogue entry says otherwise,
+- may read only the depth allowed by its level,
+- cannot discover knowledge the target never possessed,
+- returns memories as the target remembers them,
+- does not alter, erase, or implant memories,
+- and does not control actions.
+
+An unwilling target knows that its mind was probed after resolution unless a specific higher-level effect explicitly conceals the intrusion.
+
+#### Mental Control Rules
+
+Mental Control:
+
+- requires Telepathic Access,
+- affects only creatures whose MR is strictly lower than the user's MR,
+- cannot be activated after Initiative begins or against a creature currently participating in combat,
+- ends before a controlled creature takes its first combat action,
+- cannot order attacks, offensive Powers, self-harm, obvious suicide, or clearly lethal danger,
+- cannot force limited combat resources to be spent,
+- cannot permanently rewrite personality, loyalty, love, identity, conviction, or memory,
+- and cannot replace Summon, Companion, or combat-control Powers.
+
+A target may receive a later Wits Attribute Check against the original Mental Power TN only when the imposed control directly collides with a defining conviction, deeply held bond, or clear severe-harm contradiction. This is not an automatic resistance roll on application.
+
+#### Excluded Mental Conditions and Lock Effects
+
+Do not create separate core Specials or standard Power families named **Frightened**, **Charmed**, or **Confused**.
+
+- Noncombat emotional or behavioral influence belongs to Mental Control.
+- False perception belongs to Mind Illusion.
+- Combat impairment belongs to existing Specials such as Disoriented, Weaken, or Soulburn.
+
+Do not create standard player Powers or core Specials named **Silence**, **Null Field**, or **Power Lock**.
+
+An adventure, location, Artifact, monster, or explicit narrative effect may prohibit a named Power, Special, or Power tag, but it must write that exception directly and must not be treated as a universal subsystem.
+
+---
+
+### 10.24 Template Output Instruction for the Agent
 
 When the user asks for an Active, the Agent must determine the matching template family first.
 
@@ -4103,3 +4067,728 @@ Then the Agent should output:
 If the user asks for a full catalog or template family, output the family as a clean Homebrewery-ready block.
 
 If the user says they will append examples below the Agent file, do not duplicate the examples inside the rules. Add only governance, pricing, and interpretation rules here.
+
+---
+
+## 11. Current Cross-System Canon
+
+This chapter overrides older text in this SRD if a duplicated rule survived an earlier revision.
+
+### 11.1 Initiative Canon
+
+- Roll Initiative once at the start of combat.
+- Add Combat Reflexes spending and the Initiative Passive before the initial Initiative Shop finishes.
+- The remaining Initiative Score determines Initiative Order.
+- Initiative Order normally remains fixed for the rest of combat.
+- Do not reroll Initiative or reopen the Initiative Shop each Round.
+- Initiative Gain and explicit Wits Stone Powers may alter Initiative or reopen the Shop according to their own wording.
+- A creature can never gain a second Turn in the same Round from an Initiative change.
+
+### 11.2 Canonical Defense Resolution Order
+
+When relevant, resolve defenses in this order. Skip steps the character does not possess.
+
+1. Build the Attack Pool and declare targets, Raises, and split assignments.
+2. Apply **Parry** and other legal Attack-Pool changes before rolling.
+3. Roll against **Evade**.
+4. If the Attack misses or is Fully Parried, stop.
+5. Resolve **Phasing** or another effect that ignores the entire hit.
+6. Apply **Ward** to each incoming eligible hostile Special before that Special is applied.
+7. Build the Damage Pool assigned to the character.
+8. Apply **Damage Negation** before rolling Damage Dice.
+9. Roll remaining Damage Dice.
+10. Apply **Armor**.
+11. Apply **Damage Reduction** after Armor.
+12. If Armor and Damage Reduction reduce damage to 0 or less, apply minimum damage from natural 8s using only Damage Dice that were actually rolled.
+13. Apply Temporary HP or another legal damage buffer.
+14. Apply remaining damage to real HP.
+15. Resolve **Absorption** from actual hostile HP loss only.
+
+### 11.3 Ward and Spell Resistance
+
+**Spell Resistance** increases the Base TN of Spell-tagged Powers against the protected creature. It does not affect non-Spell attacks or effects.
+
+- Passive Spell Resistance progression: 1, 2, 4, 5, 6, 8, 9, 10, 12, 13, 14, 16, 17, 18, 20, 21.
+- Active Buff Spell Resistance progression: +2 per Power Level.
+- Cost baseline: 15 PP per +1 Spell Resistance.
+
+**Ward** reduces every incoming eligible hostile Special(X) before application. Apply the full Ward value separately to each eligible Special delivered by the same effect. If reduced to 0 or less, that Special is not applied. Ward does not remove existing Specials and is not Cleanse.
+
+Ward progression: 1, 2, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10.
+
+Eligible examples: Blight, Challenge, Corrode, Disoriented, Expose, Hex, Lacerate, Mark, Root, Ruin, Slow, Soulburn, Sundered, Weaken. Ward does not affect damage, Attack Dice, forced movement, Prone, Disarm, Stunned, battlefield objects, or effects requiring Dispel.
+
+### 11.4 Invisibility Canon
+
+Invisibility is a perception and target-access subsystem, not Evade or damage prevention.
+
+- Passive Invisibility grants a stable Invisibility Bonus and blocks Normal Combat Awareness. At Levels 4 / 8 / 12 / 15 it additionally blocks 1 / 2 / 3 / 4 chosen Special Combat Senses.
+- Passive Invisibility Bonus progression: 1, 2, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10.
+- Active Buff Invisibility grants +1 Invisibility Bonus per Power Level and blocks Normal Combat Awareness only.
+- Passive and Active Buff Invisibility explicitly stack; add their bonuses and combine blocked Senses.
+- Perception TN = normal Skill Check TN by the invisible creature's MR + current Invisibility Bonus + any Stealth Raise Bonus.
+- Direct targeting through a blocked Sense requires a successful Perception Check. Failure does not spend the action; choose another legal target or action.
+- Cloak Disruption reduces the current Invisibility Bonus until the start of the invisible creature's next Turn: direct attack −4, hostile Spell −4, hostile Power −4, qualifying visible Reaction −4, final HP damage −4, and −4 for every full 4 m voluntarily moved. Moving more than 3 m also removes a Stealth Raise Bonus.
+- Invisibility does not stop Area Effects, zones, environmental damage, or effects that do not require precise targeting.
+
+### 11.5 Parry Canon
+
+Parry is a primary Defense Pillar.
+
+- Requirement: suitable melee weapon, shield, natural weapon, or explicit Parry implement.
+- Choose Might or Agility as the Parry Attribute when learning the Passive.
+- At the beginning of the Turn, enter Parry until the beginning of the next Turn.
+- While Parrying, no Attack Action or additional Attack Action may be used. Movement and Reactions remain available.
+- Parry Pool = chosen Attribute, capped at 5 × Parry Power Level.
+- Before an eligible direct Attack Roll, spend 1 Parry to remove 1 Attack Die assigned to you.
+- If fewer dice remain than Keep, roll and keep all remaining dice.
+- If the Attack Pool reaches 0, the Attack is Fully Parried: no roll, hit, damage, Special, or on-hit effect.
+- Parry does not normally affect Area Attacks, Area Effects, environmental or ongoing damage, automatic damage, Persistent Zones, or effects without an Attack Roll.
+- Parry removes Attack Dice, never Damage Dice.
+
+Dedicated extensions:
+
+- **Reinforced Parry:** regain up to 2 × Power Level spent Parry per Round, never above the entry Pool.
+- **Riposte:** after a Fully Parried direct melee Attack, Weapon Damage + 1d8 per Reaction Power Level.
+- **Reflection:** after a Fully Parried single-target eligible Attack, redirect the original Attack to its source. Uses per Combat are based on MR as stated above.
+
+### 11.6 Absorption Canon
+
+Absorption does not prevent damage. It increases real HP in every normal Health Bar and converts eligible hostile actual HP loss into short-lived Temporary Colorless Stones.
+
+- Each Absorption Power Level adds +4 Maximum HP to every normal Health Bar.
+- Health Bar size = Vitality × 2 + Absorption HP.
+- The Incapacitated box is unchanged.
+- Track actual hostile HP loss after all prevention and buffers.
+- Whenever accumulated Absorbed Damage reaches Vitality, subtract Vitality and gain 1 Temporary Colorless Stone. Excess carries over.
+- Stones are gained Ready, may pay as any Attribute Stone, disappear when spent instead of becoming Exhausted, and expire at the end of the character's next Turn.
+- They cannot be stored, regenerated, transferred, Sealed, Bound, Burned, invested, used outside combat, or used for permanent requirements.
+- Prevented damage, Temporary HP loss, self-damage, HP costs, own Powers, and willing-ally damage do not count.
+- Remaining accumulated damage disappears when combat ends.
+
+Only the dedicated Absorption subsystem may generate Temporary Colorless Stones from lost HP.
+
+### 11.7 Damage Negation Canon
+
+Damage Negation removes Damage Dice after a hit creates a Damage Pool but before those dice are rolled.
+
+- Passive Reserve = 4 × Power Level per Combat.
+- Spend 1 Reserve to remove 1 Damage Die.
+- All Damage Negation combined can remove at most half of the original Damage Dice, rounded down.
+- The Reserve does not refresh during the same combat and is lost when combat ends.
+- It does not change whether the Attack hit and does not remove Specials, on-hit effects, control, forced movement, flat damage, or other payload.
+- It may combine with other legal defenses, but a Damage Negation Power itself may not bundle another axis.
+- **Reinforced Damage Negation:** temporary Pool equal to Active Buff Level at the beginning of each Round; spend it first, lose leftovers on refresh, and share the same half-pool limit.
+
+### 11.8 Initiative Powers
+
+- **Initiative Passive:** +2 Initiative per Power Level. Add it once to the initial Initiative Score before the initial Shop. It does not reopen the Shop.
+- **Reaction: Initiative Gain:** uses the Attack Trigger and grants +2 Initiative per Power Level after the triggering attack resolves. If the user has not acted, move them in the remaining order; if the new position has passed, act immediately after the current Turn. If already acted, the new position applies next Round. Never grant an extra Turn.
+
+### 11.9 Thorns Canon
+
+Thorns is reflected damage, not an attack and not a Special.
+
+- Trigger only after the user takes final HP damage from a direct attack, Spell, or Power.
+- Resolve after the triggering effect is complete.
+- Thorns damage cannot exceed the final HP damage taken from that effect.
+- If no final HP damage is taken, Thorns deals no damage.
+- Thorns makes no Attack Roll, generates no Raises or Critical, applies no Specials or on-hit effects, and cannot trigger Thorns.
+- Passive Thornhide uses the Damage Category and costs 30 PP per 1d8.
+- Active Buff: Thorns grants 1d8 per Power Level.
+
+### 11.10 Active Buff Aura Canon
+
+Active Buff Auras are dedicated self-centered exceptions. They move with the user and trigger once at the end of each of the user's Turns.
+
+- Radius: 2 m at Levels 1–7, 3 m at Levels 8–14, 4 m at Levels 15–16.
+- A creature can be affected by the same aura only once per Round.
+- Entering, leaving, or being crossed by the aura does not trigger it.
+- Use exactly one payload: Damage or Healing.
+- Damage and Healing Aura payloads cost 35 PP per 1d8 after radius cost.
+- They never apply or increase Specials and may not add another defensive, offensive, movement, or action-economy axis.
+
+### 11.11 Current Active Support and Weapon Structures
+
+**Health Level Heal** is structural recovery, not normal HP Healing.
+
+- 30 PP per Health Level recoverable per Safe Haven Rest.
+- The recovery pool may be spent across several uses.
+- It cannot exceed the creature's normal maximum Health Level structure.
+- A pure Health Level Heal does not restore HP.
+
+**Cleanse Absorption** is a fixed catalogue Support progression. It reduces one eligible Special and grants its chosen Absorption Bonus only if the full listed Cleanse value is actually spent on that one Special. Do not divide Cleanse and do not price the Power as unrestricted full Cleanse plus unrestricted full buff.
+
+**Weapon Attack Templates:**
+
+- Single Weapon Attack: one normal weapon attack; full weapon damage plus listed bonus damage.
+- AoE Weapon Attack: one AoE Attack Roll; affected creatures take the printed weapon/AoE damage according to the entry.
+- Split Attack: split Attack Pool before rolling and split one total Damage Pool among successful hits; do not multiply weapon damage.
+- Split AoE: split Attack Pool and one total Damage Pool among successful placements; a creature is affected only once unless explicitly stated.
+- Autofire: one Primary Target gets the full payload; additional targets reached through Raises receive only printed weapon damage unless the entry explicitly says otherwise.
+
+**Smite** is not a freely selectable generic Active family. It may be granted by Artifacts, relics, divine weapons, vows, blessings, or major story rewards. Smite(X) adds +Xd8 against valid tags, normally Undead and Fiends.
+
+### 11.12 Root Canon
+
+Root(X) is a numeric movement-lock with Start PP 6 triangular pricing.
+
+- A Power applying Root must apply at least Root(2).
+- While Root is above 0, Speed is 0 m and voluntary movement is impossible.
+- Root does not prevent attacks, Spells, Reactions, non-movement actions, or forced movement.
+- At the start of the affected creature's Turn, reduce Root by that creature's Mastery Rank.
+- The creature may additionally spend an Action, Movement Action, or Reaction on a Vitality Attribute Check against TN 8 × source MR. Success reduces Root by 1; each Raise reduces it by 1 more.
+- Cleanse may reduce Root normally.
+- Root ends at 0.
+
+### 11.13 Artifact and Echo Interaction
+
+Artifacts and Echoes may grant access to existing catalogue Powers at a stated Power Level. They do not rewrite the Power's subsystem rules.
+
+- An Artifact may grant access to or activate **Active Buff: Critical**, or provide Stone Power Support that pre-fills named Tiers of the **Agility Ability: Crit** Stone Ability. It may not grant Critical as an independent weapon rider.
+- An Artifact may grant Parry, Riposte, Reflection, Ward, Damage Negation, Absorption, Invisibility, or another dedicated system only by explicitly naming the legal catalogue entry or an approved Artifact-specific exception.
+- Duplicate Reaction sources use the highest version and do not create extra Reaction uses.
+- Artifact functions do not bypass maintained Active Buff limits, Reaction limits, Passive Slots, Trigger rules, or closed-subsystem restrictions unless the function explicitly says so.
+
+### 11.14 Summon System Canon
+
+The following rules are the complete canonical Summon subsystem. Do not construct Summons from AoE, Image, Barrier, Companion, or improvised minion pricing. Do not introduce Familiar, Companion, or Host Chassis.
+
+Summons are creatures created through **Bound Stones** and improved with **Summon Tokens**.
+
+Every Summon uses the same mechanical foundation. There are no separate Familiar, Companion, or Host classes.
+
+A Summon may be expressed as a beast, spirit, demon, construct, undead, elemental, shadow, echo, weapon-shard, swarm, plant-creature, memory, or any other fitting form.
+
+The mechanics define what the Summon can do.
+
+The player defines what the Summon is.
+
+---
+
+#### Creating a Summon Bond
+
+To create a Summon Bond, bind at least **1 Stone**.
+
+A Bound Stone is removed from the character's usable Stone Pool and does not regenerate while the bond persists.
+
+Every Bound Stone grants **8 Summon Tokens**, including the first Stone.
+
+**Formula:**  
+**Summon Tokens = Bound Stones x 8**
+
+| **Bound Stones** | **Summon Tokens** |
+|:--:|:--:|
+| 1 | 8 Tokens |
+| 2 | 16 Tokens |
+| 3 | 24 Tokens |
+| 4 | 32 Tokens |
+| 5 | 40 Tokens |
+| 6 | 48 Tokens |
+| 7 | 56 Tokens |
+| 8 | 64 Tokens |
+| 9 | 72 Tokens |
+| 10 | 80 Tokens |
+
+Bonus Summon Tokens granted by a Passive, Artifact, Active Buff, or other explicit rule are added after this calculation. Bonus Tokens do not count as additional Bound Stones and remain subject to every spending restriction written by their source.
+
+---
+
+#### Universal Base Summon
+
+| **Stat** | **Starting Value** |
+|---|:--:|
+| HP | 10 |
+| Armor | 0 |
+| Evade | 4 |
+| Attack | 2d8 |
+| Damage | 1d8 |
+| Movement | 8 m in one chosen Movement Mode |
+| Attacks | 1 Summon Attack |
+| Specials | None |
+| Shared Senses | None |
+| Bodies | 1 Summon Body |
+
+The Base Summon is intentionally simple. Tokens determine whether it becomes a durable guardian, an elite attacker, a scout, a group of weak bodies, or another concept.
+
+---
+
+#### One Movement Mode
+
+When the Summon Bond is created, choose exactly **one Movement Mode** that fits its Expression:
+
+- Walking
+- Flying
+- Swimming
+- Climbing
+
+All Bodies belonging to that Summon Bond use the chosen Movement Mode.
+
+The selected Movement Mode begins at **8 m** and may be increased to a maximum of **16 m**.
+
+The same Movement Mode may be improved more than once. A Summon Bond may never buy or possess a second permanent Movement Mode through Summon Tokens.
+
+Teleport, Burrow, Phase Passage, and similar premium movement are not normal Movement Modes. They require a canonical Movement Power or another explicit rule.
+
+A purchased Movement Power temporarily replaces normal Movement when used. It does not grant a second permanent Movement Mode.
+
+---
+
+#### Summon Token Costs
+
+Summon Tokens may buy improvements to the Bond, to an individual Body, or to the Bond's selected Skill Pools.
+
+| **Upgrade** | **Scope** | **Starting Value** | **Cost** | **Gain** |
+|---|---|:--:|:--:|---|
+| HP | Body | 10 HP | 1 Token | +20 HP |
+| Armor | Body | 0 Armor | 2 Tokens | +4 Armor |
+| Evade | Body | 4 Evade | 2 Tokens | +4 Evade |
+| Attack | Bond | 2d8 Attack | 2 Tokens | +2d8 Attack Dice |
+| Damage | Bond | 1d8 Damage | 2 Tokens | +1d8 Damage |
+| Movement | Bond | 8 m | 1 Token | +2 m in the chosen Movement Mode |
+| Additional Body | Body | 1 Body | 2 Tokens | +1 Summon Body |
+| Shared Sense | Body | None | 2 Tokens | +1 Shared Sense Group |
+| Summon Skill Dice | Bond | None | 1 Token | +2 Skill Dice to distribute |
+| Extra Attack | Bond | 1 Attack | 8 Tokens | +1 Summon Attack |
+| Special Access | Bond | None | 4 Tokens | Unlock 1 eligible Special at Special(1) |
+| Special Value | Bond | Special(1) | 2 Tokens | Increase the chosen Special by +1 |
+| Canonical Power | Body | None | Special | Pay 1 Token per 10 PP, rounded up |
+
+---
+
+#### Upgrade Scope
+
+**Bond Upgrades** apply once to the entire Summon Bond. All Bodies use the Bond's Attack, Damage, Movement, available Summon Attacks, selected Special, and Summon Skill Pools.
+
+**Body Upgrades** are assigned to one specific Summon Body. HP, Armor, Evade, Shared Senses, and purchased Powers do not automatically transfer to another Body.
+
+An Additional Body begins with the Universal Base Summon's Body values:
+
+- 10 HP
+- 0 Armor
+- 4 Evade
+
+It then uses the Bond's Attack, Damage, Movement, Summon Attacks, Special, and Skill Pools.
+
+---
+
+#### Upgrade Limits
+
+| **Upgrade** | **Limit** |
+|---|---|
+| Movement | Maximum 16 m; only the one chosen Movement Mode. |
+| Extra Attack | Maximum 3 Summon Attacks per Bond per Round. |
+| Special Access | Maximum 1 Special per Bond. |
+| Special Value | Maximum Special(4). |
+| Summon Skills | Two to four selected Skills, based on Bound Stones. |
+| Canonical Powers | Maximum Power Level is set by the owner's Mastery Rank. |
+
+HP, Armor, Evade, Attack, and Damage have no separate Summon maximum. Their practical limit is the available Token investment.
+
+---
+
+#### Multiple Bodies and Summon Attacks
+
+Additional Bodies do not grant additional Summon Attacks by themselves.
+
+All Bodies share one Summon Activation and the number of Summon Attacks purchased for the Bond.
+
+Each available Summon Attack may be made by any active Body. Several attacks may be made by the same Body or divided between different Bodies.
+
+If the Bond has a Special, that Special may apply only **once per Round**, regardless of how many Bodies or Summon Attacks the Bond has.
+
+Multiple Bodies do not receive repeated attempts at the same non-combat task.
+
+> **One task allows one Summon Skill Check per Bond.**
+
+---
+
+#### Summon Activation
+
+Summons act on the owner's Initiative.
+
+At the start of each Round, the owner chooses whether the Summon Bond acts immediately before or immediately after them.
+
+During the Summon Activation:
+
+- every active Body may move once,
+- the Bond may use its available Summon Attacks,
+- and purchased Powers may be used through their normal action type.
+
+Summons cannot delay, ready, or select a separate Initiative count.
+
+Summons cannot use Stone Abilities or Artifacts, cannot create another Summon Bond, and cannot bind Stones of their own.
+
+---
+
+#### Summon Skills
+
+A Summon does not receive Attributes or the complete character Skill system.
+
+Instead, the Bond selects a limited number of Skills from the approved Summon Skill list.
+
+| **Bound Stones** | **Selected Summon Skills** |
+|:--:|:--:|
+| 1 | 2 Skills |
+| 2 | 3 Skills |
+| 3 or more | 4 Skills |
+
+Bonus Summon Tokens do not increase the number of selected Skills.
+
+The approved Summon Skills are:
+
+- Perception
+- Investigation
+- Tracking
+- Survival
+- Navigation
+- Weather Sense
+- Stealth
+- Concealment
+- Athletics
+- Acrobatics
+
+Social Skills, Martial Skills, Lore Skills, Medicine, Crafting, Engineering, Artisanry, Alchemy, Herbalism, and other professional Skills are not Summon Skills.
+
+---
+
+#### Buying and Distributing Skill Dice
+
+Each **Summon Skill Dice** purchase costs **1 Token** and grants **2 Skill Dice**.
+
+These dice may be divided freely among the Bond's selected Summon Skills, including one die at a time.
+
+The number of dice assigned to a Summon Skill may never exceed the owner's current Rating in the same Skill.
+
+If the owner has Rating 0 in a Skill, the Bond cannot assign dice to that Skill.
+
+##### Example
+
+The owner has:
+
+- Perception 4
+- Stealth 3
+- Tracking 2
+
+The Bond has bought 4 Skill Dice. It may distribute them as:
+
+- Perception 2d8
+- Stealth 1d8
+- Tracking 1d8
+
+It could instead assign all 4 dice to Perception, but it could not assign 4 dice to Stealth because the owner's Stealth Rating is only 3.
+
+---
+
+#### Summon Skill Checks
+
+When a Summon independently performs a selected Skill task, roll its assigned Skill Dice and keep dice equal to the owner's Mastery Rank.
+
+> **Summon Skill Check = assigned Skill Dice k owner's Mastery Rank**
+
+The number of kept dice can never exceed the number of dice rolled.
+
+Summon Skill Pools are not consumable Skill Points. They are the complete dice pool used for the Summon's independent check.
+
+All Bodies share the same selected Skills and Skill Dice. Body count never grants repeated rolls for one task.
+
+---
+
+#### Shared Senses
+
+A Shared Sense is assigned to one Body.
+
+| **Shared Sense Group** | **Cost** |
+|---|:--:|
+| Sight | 2 Tokens |
+| Hearing | 2 Tokens |
+| Taste / Smell | 2 Tokens |
+| Touch / Pressure | 2 Tokens |
+
+When the owner actively perceives through a Body's Shared Sense, the owner uses their own normal Attribute, Skill Rating, Skill Points, and Mastery Rank, but perceives from the Body's position and through that Sense Group.
+
+When the Summon observes independently, it uses the Bond's purchased Summon Skill Pool instead.
+
+Switching between the owner's senses and a Summon's Shared Senses costs a Minor Action.
+
+Shared Senses grant sensory access only. They do not grant automatic success, knowledge, analysis, or additional Skill checks.
+
+---
+
+#### Purchasing Canonical Powers
+
+Summons do not use separate miniature abilities such as Pounce, Guardian, Scout Training, or other Summon-only substitutes.
+
+If a Summon needs a special combat ability, it buys a complete existing Power from the canonical Power catalogues.
+
+> **Power Token Cost = the chosen Power Level's PP value divided by 10, rounded up.**
+
+Use the Power's own written PP calculation. The Power keeps its normal Type, requirements, range, duration, trigger, effect, limitations, and action economy.
+
+##### Standard Power Cost Reference
+
+| **Power Type** | **Summon Token Cost** |
+|---|---:|
+| Active | 3 Tokens per Power Level |
+| Passive | 2 Tokens per Power Level |
+| Reaction | 2 Tokens per Power Level |
+| Active Buff | 3 Tokens per Power Level + 1 Token |
+| Movement Power | Written PP value divided by 10, rounded up |
+
+##### Power Level Cap
+
+| **Owner's Mastery Rank** | **Maximum Summon Power Level** |
+|:--:|:--:|
+| MR 1-2 | Level 4 |
+| MR 3 | Level 8 |
+| MR 4 | Level 12 |
+| MR 5+ | Level 16 |
+
+A purchased Power is assigned to one specific Body.
+
+The Body must meet every requirement of the Power. A natural attack may satisfy an **Unarmed** requirement, but it is not automatically a Melee Weapon, Ranged Weapon, Spell Focus, shield, or other required item.
+
+A Summon has no normal Attributes. If a Power requires an Attack Roll or Spell Roll, use the Bond's Attack pool. A Power that requires an Attribute, resource, item, or subsystem the Summon does not possess cannot be purchased or used unless an explicit rule provides the missing requirement.
+
+---
+
+#### Power Action Economy
+
+- **Active:** uses one available Summon Attack.
+- **Active Buff:** uses one available Summon Attack to activate. A Summon Bond may maintain only one Active Buff of its own at a time.
+- **Passive:** affects only the Body to which it is assigned.
+- **Reaction:** a Summon Bond may use no more than one Reaction per Round, regardless of Bodies or purchased Reactions.
+- **Movement Power:** replaces the using Body's normal Movement for that Turn and does not add a second permanent Movement Mode.
+
+A purchased Power cannot grant Stones, Artifacts, another Summon Bond, or additional actions beyond the normal limits of the Summon subsystem.
+
+---
+
+#### Summon Specials
+
+Special Access unlocks one eligible numeric **Special(X)** at **Special(1)** for the Bond's normal Summon Attacks.
+
+Special Value increases that Special by +1, to a maximum of **Special(4)**.
+
+The Special applies only when a Summon Attack hits and may apply only once per Round for the entire Bond.
+
+A canonical Power applies only the Special written in that Power and follows the Power's normal rules. It does not grant permanent Special Access to the Bond's normal attacks.
+
+---
+
+#### Bond Ritual and Destroyed Bodies
+
+A Bond Ritual takes **1 hour**.
+
+During a Bond Ritual, the owner may:
+
+- create or release a Summon Bond,
+- add or remove Bound Stones,
+- change the Bond's Expression,
+- change its one selected Movement Mode,
+- redistribute Summon Tokens,
+- change selected Summon Skills and Skill Dice,
+- assign Body Upgrades and Powers,
+- or restore destroyed Summon Bodies.
+
+A Body reduced to 0 HP becomes **Dormant** and leaves play. Its upgrades and assigned Powers remain part of the Bond but cannot be used while it is Dormant.
+
+Dormant Bodies return at full HP after a Bond Ritual or Safe Haven Rest.
+
+Bound Stones remain Bound when a Body is destroyed. They do not become inert for a random number of days.
+
+When the Bond is released through a Bond Ritual, its Bound Stones return to the owner's usable Stone Pool.
+
+---
+
+#### Summon Active Buffs
+
+Summon Active Buffs cast by the owner affect only that owner's Summons and use the owner's normal maintained Active Buff slot.
+
+**Summon Damage Aura** uses the normal Damage Active Buff progression.  
+**Summon Armor Aura** uses the normal Armor Active Buff progression.
+
+Both use the following Summon-only radius:
+
+| **Power Level** | **Radius** |
+|:--:|:--:|
+| 1-4 | 8 m |
+| 5-8 | 16 m |
+| 9-12 | 24 m |
+| 13-16 | 32 m |
+
+---
+
+#### Summon Examples
+
+The following examples are not separate Summon classes. Every example uses the same Universal Base Summon and the same Token list.
+
+#### Scout Owl - 1 Bound Stone
+
+**Concept:** A simple flying Familiar used for reconnaissance.
+
+**Available:** 8 Summon Tokens  
+**Selected Movement Mode:** Flying  
+**Selected Skills:** Perception, Stealth
+
+| **Purchase** | **Cost** |
+|---|:--:|
+| Shared Sight | 2 Tokens |
+| Shared Hearing | 2 Tokens |
+| 4 Summon Skill Dice | 2 Tokens |
+| +4 m Movement | 2 Tokens |
+| **Total** | **8 Tokens** |
+
+Distribute the four Skill Dice as **Perception 2d8** and **Stealth 2d8**, assuming the owner has at least Rating 2 in both Skills.
+
+**Finished Owl:**
+
+- 10 HP
+- Armor 0
+- Evade 4
+- 12 m Flying Movement
+- Shared Sight and Hearing
+- Perception 2kMR
+- Stealth 2kMR
+- 1 weak Summon Attack at 2d8 Attack and 1d8 Damage
+
+The Owl is a complete scout with one Stone. It can observe independently or act as a remote sensory position for its owner.
+
+---
+
+#### Great War Bear - 4 Bound Stones
+
+**Concept:** A durable tank and heavy melee attacker.
+
+**Available:** 32 Summon Tokens  
+**Selected Movement Mode:** Walking
+
+| **Purchase** | **Cost** |
+|---|:--:|
+| +120 HP | 6 Tokens |
+| +12 Armor | 6 Tokens |
+| +4d8 Attack | 4 Tokens |
+| +4d8 Damage | 8 Tokens |
+| Special Access: Challenge(1) | 4 Tokens |
+| Special Value +2 | 4 Tokens |
+| **Total** | **32 Tokens** |
+
+**Finished Bear:**
+
+- 130 HP
+- Armor 12
+- Evade 4
+- Attack 6d8
+- Damage 5d8
+- 8 m Walking Movement
+- 1 Summon Attack
+- Challenge(3), applicable once per Round
+
+The Bear is difficult to remove, dangerous in melee, and can pressure one enemy through a normal existing Special rather than a separate Summon-only tank rule.
+
+---
+
+#### Skeleton Warband - 4 Bound Stones
+
+**Concept:** Many individually weak melee fighters controlled through one Bond.
+
+**Available:** 32 Summon Tokens  
+**Selected Movement Mode:** Walking
+
+| **Purchase** | **Cost** |
+|---|:--:|
+| 6 Additional Bodies | 12 Tokens |
+| 2 Extra Attacks | 16 Tokens |
+| +2d8 Attack | 2 Tokens |
+| +1d8 Damage | 2 Tokens |
+| **Total** | **32 Tokens** |
+
+**Finished Warband:**
+
+- 7 Skeleton Bodies
+- 10 HP, Armor 0, and Evade 4 per Body
+- 8 m Walking Movement
+- Bond Attack 4d8
+- Bond Damage 2d8
+- 3 Summon Attacks per Round
+
+The seven Skeletons occupy separate spaces and may move independently during the shared activation. The Bond still makes no more than three attacks per Round. The remaining Bodies provide presence, positioning, and additional targets without multiplying the action economy.
+
+---
+
+#### Shadow Panther - 2 Bound Stones
+
+**Concept:** A fast, elusive predator inspired by an elite magical panther companion.
+
+**Available:** 16 Summon Tokens  
+**Selected Movement Mode:** Walking  
+**Selected Skills:** Perception, Stealth, Tracking
+
+| **Purchase** | **Cost** |
+|---|:--:|
+| +40 HP | 2 Tokens |
+| +4 Evade | 2 Tokens |
+| +2d8 Attack | 2 Tokens |
+| +1d8 Damage | 2 Tokens |
+| +4 m Movement | 2 Tokens |
+| Momentum Passive, Power Level 2 | 4 Tokens |
+| 4 Summon Skill Dice | 2 Tokens |
+| **Total** | **16 Tokens** |
+
+Assign the four Skill Dice to **Stealth 4d8**, assuming the owner has Stealth 4 or higher.
+
+**Finished Panther:**
+
+- 50 HP
+- Armor 0
+- Evade 8
+- Attack 4d8
+- Damage 2d8
+- 12 m Walking Movement
+- Stealth 4kMR
+- Momentum at Power Level 2
+
+After moving at least 8 m, the Panther gains the normal Momentum effect. Its pouncing predator identity therefore comes from a complete canonical Passive rather than an invented Summon-only ability.
+
+---
+
+#### What These Examples Demonstrate
+
+The same Summon system can create:
+
+- a non-combat reconnaissance Familiar,
+- one heavy frontline creature,
+- many weak Bodies with a controlled shared action economy,
+- or a mobile elite companion with a real Power.
+
+No example requires a separate Chassis, class, or private subsystem.
+
+---
+
+### 11.15 Final Agent Validation
+
+Before producing or revising content, verify all of the following:
+
+- Normal Movement baseline is 8 m.
+- Initiative is rolled once at combat start.
+- Passive Slots follow MR 1/2/3/3/4/4/5/6 and every slotted Passive is active.
+- Parry removes Attack Dice, not Damage Dice.
+- Damage Negation removes Damage Dice, not Attack Dice.
+- Ward reduces incoming eligible Specials before application.
+- Absorption uses actual hostile HP loss after defenses.
+- Damage Reduction applies after Armor and may coexist with Armor from separate legal sources.
+- Root applies at minimum 2 and decays by target MR at the start of the target's Turn.
+- Every Bound Stone grants 8 Summon Tokens, including the first Stone.
+- Every Summon begins from the Universal Base Summon and never uses a Familiar, Companion, or Host Chassis.
+- A Summon Bond has exactly one permanent Movement Mode, beginning at 8 m and capped at 16 m.
+- Additional Bodies do not grant additional Summon Attacks; a Bond is capped at 3 Summon Attacks per Round.
+- A Bond may have only one purchased Special, capped at Special(4), and it may apply only once per Round.
+- Summon Skills are limited to the approved list; 1 Token grants 2 distributable Skill Dice, and no Skill Pool may exceed the owner's Rating in that Skill.
+- One non-combat task permits only one Summon Skill Check per Bond, regardless of Body count.
+- Summons buy complete canonical Powers at 1 Token per 10 PP, rounded up; never invent Pounce, Guardian, Scout Training, or other miniature Summon-only Powers.
+- A Summon Bond has at most one Reaction per Round and may maintain at most one Active Buff of its own.
+- Bonus Summon Tokens obey every spending restriction written by their source and do not count as Bound Stones.
+- Critical functions only through **Active Buff: Critical** or the **Agility Ability: Crit** Stone Ability; Stone Power Support may pre-fill named Tiers but never grants Critical directly.
+- No removed Save or Saving Throw subsystem is reintroduced.
+- Reactions use their listed Chosen Trigger and never become hidden full Actions.
+
