@@ -3,7 +3,8 @@
  * Organized by category with their associated attributes
  */
 export const SKILL_CATEGORIES = {
-    AWARENESS: 'Awareness',
+    /** Perception / sensing skills (was "Awareness"; Sense Slot is separate). */
+    AWARENESS: 'Perception',
     PHYSICAL: 'Physical',
     KNOWLEDGE_CRAFT: 'Knowledge & Craft',
     SOCIAL: 'Social',

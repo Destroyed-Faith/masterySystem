@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.238] - 2026-08-01
+
+### Changed
+
+- **Rules v0.9.8 alignment:** Base Speed **8 m**; Movement Powers replace normal Movement for the round; Active Buff Critical wires into attack explode-on-7–8; Root reduces by Mastery Rank at turn start; Skill category Awareness → Perception; Active Buff Armor/Evade curve synced to +5…+65; Summon Aura radii banded 8/16/24/32 m.
+- **Summons V2:** Universal Summon Bond model (`system.summonBonds`) with Tokens = Bound Stones × 8, one Movement Mode 8–16 m, Bond vs Body upgrades, migration from legacy `familiars`.
+
+### Removed
+
+- Awareness / Heightened Senses passives from the catalog (Combat Senses use the Sense Slot).
+- Orphan `dist/utils/saving-throws.*`; Tower weaken-save step disabled; condition saveTypes cleared.
+
+### Added
+
+- Migrations: `speed-8m`, `summon-v2`.
+- Tests for Summon Bond rules and Rules v0.9.8 combat/catalog samples.
+
 ## [0.9.237] - 2026-07-31
 
 ### Changed

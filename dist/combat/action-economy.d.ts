@@ -44,6 +44,11 @@ export interface RoundState {
     };
     /** Power item IDs already used this combat round (max one use per power per round). */
     usedPowerIdsThisRound?: string[];
+    /**
+     * When true, a Movement Power already replaced normal Movement this round —
+     * base Move/Dash maneuvers are unavailable (Rules v0.9.8).
+     */
+    movementPowerUsedThisRound?: boolean;
     stoneBonuses?: {
         extraAttacks: number;
         extraReactions: number;
@@ -154,6 +159,12 @@ export declare function spendAttackAction(actor: Actor, combat: Combat | null): 
  * Spend a movement action
  */
 export declare function spendMovementAction(actor: Actor, combat: Combat | null): Promise<boolean>;
+/**
+ * Spend Movement for a Movement Power — replaces normal Movement for the round.
+ */
+export declare function spendMovementPowerAction(actor: Actor, combat: Combat | null): Promise<boolean>;
+/** True when base Move/Dash should be blocked because a Movement Power replaced Movement. */
+export declare function isNormalMovementReplaced(actor: Actor, combat: Combat | null): boolean;
 /**
  * Spend a reaction action
  */

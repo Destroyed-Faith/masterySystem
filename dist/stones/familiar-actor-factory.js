@@ -1,11 +1,11 @@
 /**
- * Create summon actors and place tokens from bound familiar records.
+ * Create summon actors and place tokens from Summon Bonds (V2) or legacy familiars.
  */
 import { parseD8Count } from './familiar-bind.js';
 import { getSharedSenseLabel } from './familiar-bind.js';
 const DEFAULT_SUMMON_IMG = 'icons/creatures/mammals/wolf-shadow-black.webp';
 async function ensureFamiliarsFolder(ownerName) {
-    const parentName = 'Familiars';
+    const parentName = 'Summons';
     let parent = game.folders?.find((f) => f.type === 'Actor' && f.name === parentName && !f.folder);
     if (!parent) {
         parent = await Folder.create({ name: parentName, type: 'Actor', sorting: 'a' });
@@ -160,6 +160,104 @@ export async function deleteSummonActor(summonActorId) {
     }
     catch (err) {
         console.warn('Mastery System | Could not delete summon actor', err);
+    }
+}
+/** Build a world summon actor from a V2 Summon Bond body. */
+export function buildSummonActorDataFromBond(bond, body, ownerActor) {
+    const senseLines = (body.sharedSenses || []).map(String);
+    return {
+        name: bond.name,
+        type: 'summon',
+        img: bond.img || DEFAULT_SUMMON_IMG,
+        prototypeToken: {
+            texture: { src: bond.img || DEFAULT_SUMMON_IMG },
+            actorLink: false,
+        },
+        system: {
+            bio: {
+                name: bond.name,
+                summonType: 'Summon',
+                duration: 'Permanent (bound)',
+                description: `Summon Bond of ${ownerActor.name}. Mode: ${bond.movementMode} ${bond.movementM} m. Expression: ${bond.expression || '—'}.${body.dormant ? ' (Dormant)' : ''}`,
+            },
+            familiar: {
+                familiarId: bond.id,
+                ownerActorId: bond.ownerActorId,
+                movementType: bond.movementMode === 'flying' ? 'flying' : 'ground',
+                size: 'Medium',
+                sharedSenses: senseLines,
+                boundStoneCount: bond.boundStoneCount,
+            },
+            summonBond: {
+                bondId: bond.id,
+                bodyId: body.id,
+                ownerActorId: bond.ownerActorId,
+                movementMode: bond.movementMode,
+                sharedSenses: senseLines,
+                boundStoneCount: bond.boundStoneCount,
+                dormant: !!body.dormant,
+            },
+            health: {
+                bars: [{ name: 'Healthy', max: body.hp, current: body.hp, penalty: 0 }],
+                currentBar: 0,
+                tempHP: 0,
+            },
+            combat: {
+                evade: body.evade,
+                armor: body.armor,
+                speed: bond.movementM,
+            },
+            npcBaseAttack: {
+                name: 'Summon Attack',
+                attackDiceCount: bond.attackDice,
+                damageDiceCount: bond.damageDice,
+                specials: bond.specialValue > 0 && bond.specialKey
+                    ? [{ special: bond.specialKey, specialValue: bond.specialValue }]
+                    : [],
+            },
+            attackValues: [],
+            attackSlots: bond.summonAttacks,
+            npcMovementSlots: 1,
+            notes: senseLines.length ? `Shared senses: ${senseLines.join(', ')}` : '',
+        },
+        flags: {
+            'mastery-system': {
+                bondId: bond.id,
+                bodyId: body.id,
+                ownerActorId: bond.ownerActorId,
+            },
+        },
+    };
+}
+export async function createSummonActorForBondBody(bond, body, ownerActor) {
+    if (body.summonActorId) {
+        const existing = game.actors?.get(body.summonActorId);
+        if (existing)
+            return existing;
+    }
+    const folder = await ensureFamiliarsFolder(ownerActor.name ?? 'Owner');
+    const data = buildSummonActorDataFromBond(bond, body, ownerActor);
+    if (folder)
+        data.folder = folder.id;
+    const ownership = {
+        default: CONST.DOCUMENT_OWNERSHIP_LEVELS.OBSERVER,
+    };
+    if (game.user?.id) {
+        ownership[game.user.id] = CONST.DOCUMENT_OWNERSHIP_LEVELS.OWNER;
+    }
+    for (const [uid, level] of Object.entries(ownerActor.ownership ?? {})) {
+        if (Number(level) >= CONST.DOCUMENT_OWNERSHIP_LEVELS.OWNER) {
+            ownership[uid] = CONST.DOCUMENT_OWNERSHIP_LEVELS.OWNER;
+        }
+    }
+    data.ownership = ownership;
+    try {
+        return (await Actor.create(data)) ?? null;
+    }
+    catch (err) {
+        console.error('Mastery System | Failed to create summon body actor', err);
+        ui.notifications?.error('Failed to create summon actor.');
+        return null;
     }
 }
 //# sourceMappingURL=familiar-actor-factory.js.map

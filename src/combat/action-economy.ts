@@ -97,6 +97,11 @@ export interface RoundState {
   };
   /** Power item IDs already used this combat round (max one use per power per round). */
   usedPowerIdsThisRound?: string[];
+  /**
+   * When true, a Movement Power already replaced normal Movement this round —
+   * base Move/Dash maneuvers are unavailable (Rules v0.9.8).
+   */
+  movementPowerUsedThisRound?: boolean;
   stoneBonuses?: {
     extraAttacks: number;
     extraReactions: number;
@@ -517,6 +522,11 @@ export async function spendAttackAction(actor: Actor, combat: Combat | null): Pr
  */
 export async function spendMovementAction(actor: Actor, combat: Combat | null): Promise<boolean> {
   const roundState = getRoundState(actor, combat);
+
+  if (roundState.movementPowerUsedThisRound) {
+    ui.notifications?.warn('A Movement Power already replaced your normal Movement this round.');
+    return false;
+  }
   
   if (roundState.movementActions.used >= roundState.movementActions.total) {
     ui.notifications?.warn('No movement actions remaining!');
@@ -527,6 +537,33 @@ export async function spendMovementAction(actor: Actor, combat: Combat | null): 
   await setRoundState(actor, roundState);
   await maybeLockStonePowersAfterCombatAction(actor, combat);
   return true;
+}
+
+/**
+ * Spend Movement for a Movement Power — replaces normal Movement for the round.
+ */
+export async function spendMovementPowerAction(actor: Actor, combat: Combat | null): Promise<boolean> {
+  const roundState = getRoundState(actor, combat);
+
+  if (roundState.movementPowerUsedThisRound) {
+    ui.notifications?.warn('A Movement Power was already used this round.');
+    return false;
+  }
+  if (roundState.movementActions.used >= roundState.movementActions.total) {
+    ui.notifications?.warn('No movement actions remaining!');
+    return false;
+  }
+
+  roundState.movementActions.used = roundState.movementActions.total;
+  roundState.movementPowerUsedThisRound = true;
+  await setRoundState(actor, roundState);
+  await maybeLockStonePowersAfterCombatAction(actor, combat);
+  return true;
+}
+
+/** True when base Move/Dash should be blocked because a Movement Power replaced Movement. */
+export function isNormalMovementReplaced(actor: Actor, combat: Combat | null): boolean {
+  return !!getRoundState(actor, combat).movementPowerUsedThisRound;
 }
 
 /**

@@ -207,10 +207,10 @@ describe('Echo Artifact tree builder — Sentinel frames map to catalog Powers +
 
     const tree = buildEchoArtifactTree(getEchoArtifact('wyrmScalesHeavy')!);
     const l2Rows = (tree.nodes[1].itemData.system as any).levelProgression as any[];
-    expect(l2Rows.find((r: any) => r.name === 'Wyrm Scales I')?.effect).toContain('+13 Armor');
+    expect(l2Rows.find((r: any) => r.name === 'Wyrm Scales I')?.effect).toContain('+17 Armor');
     expect(l2Rows.find((r: any) => r.name === 'Wyrm Scales I')?.powerTemplateId).toBe('ab-armor');
     const l5Rows = (tree.nodes[4].itemData.system as any).levelProgression as any[];
-    expect(l5Rows.find((r: any) => r.name === 'Wyrm Scales II')?.effect).toContain('+31 Armor');
+    expect(l5Rows.find((r: any) => r.name === 'Wyrm Scales II')?.effect).toContain('+41 Armor');
   });
 
   it('Serpent Scales: Dragon Wings + ab-evade / mobility extension + EVADE Stone Support', () => {

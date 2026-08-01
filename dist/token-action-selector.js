@@ -12,7 +12,7 @@ import { promptMeleeAoePrimaryChoice } from './melee-aoe-primary-dialog.js';
 import { extractMeleeAoePowerBonusD8 } from './utils/power-mechanics.js';
 import { startRangedTargeting } from './ranged-targeting.js';
 import { startUtilitySingleTargetMode, startUtilityRadiusMode } from './utility-targeting.js';
-import { getRoundState, getMovementRangeBonusMeters, getAvailableAttackActions, getAvailableMovementActions, consumeAttackAction, consumeMovementAction, refundAttackAction, markPowerUsedThisRound, hasPowerBeenUsedThisRound } from './combat/action-economy.js';
+import { getRoundState, getMovementRangeBonusMeters, getAvailableAttackActions, getAvailableMovementActions, consumeAttackAction, consumeMovementAction, spendMovementPowerAction, isNormalMovementReplaced, refundAttackAction, markPowerUsedThisRound, hasPowerBeenUsedThisRound } from './combat/action-economy.js';
 import { gridStepsFromMeters, gridStepsBetweenCenters, measureSceneDistanceBetweenPoints, metersToSceneDistance } from './utils/grid-range.js';
 import { highlightHexesInRange, clearHexHighlight, collectHexKeysInRangeForToken, highlightTabuHexesOnLayer } from './utils/hex-highlighting.js';
 /** Same yellow tone as radial range preview (`range-preview.ts`). */
@@ -757,12 +757,19 @@ export async function handleChosenCombatOption(token, option) {
     }
     // Check and consume movement action if needed
     if (option.costsMovement) {
+        const isMovementPower = option.source === 'power' && option.powerType === 'movement';
+        if (!isMovementPower && isNormalMovementReplaced(actor, combat)) {
+            ui.notifications?.warn('A Movement Power already replaced your normal Movement this round.');
+            return;
+        }
         const available = getAvailableMovementActions(actor, combat);
         if (available <= 0) {
             ui.notifications?.warn('No Movement actions left this round.');
             return; // Menu stays open
         }
-        const consumed = await consumeMovementAction(actor, combat);
+        const consumed = isMovementPower
+            ? await spendMovementPowerAction(actor, combat)
+            : await consumeMovementAction(actor, combat);
         if (!consumed) {
             ui.notifications?.warn('Failed to consume movement action.');
             return;

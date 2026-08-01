@@ -409,7 +409,16 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
             const combatRef = game.combat;
             const rsCrit = actionEco.getRoundState(economyForStones, combatRef);
             const critBank = Math.max(0, Math.floor(Number(rsCrit?.stoneBonuses?.critRaises ?? 0) || 0));
-            const attackExplodeDiceOn78 = critBank > 0;
+            let buffCritical = 0;
+            try {
+                const { getActiveBuffCriticalTier } = await import('../utils/active-buffs.js');
+                buffCritical = getActiveBuffCriticalTier(freshAttacker);
+            }
+            catch {
+                buffCritical = 0;
+            }
+            // Stone Crit(1) charges OR maintained Active Buff: Critical (≥1) → explode on 7–8.
+            const attackExplodeDiceOn78 = critBank > 0 || buffCritical >= 1;
             const bloodRaises = Math.max(0, parseInt(button.attr('data-blood-raises') || '0', 10) || 0);
             let raiseTnRollBonus = 0;
             if (isSpellcasting && freshAttacker && combatRef) {
@@ -463,7 +472,8 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
                 // another reroll button.
                 ...(isFaithReroll ? { isRerollResult: true } : {}),
             });
-            if (attackExplodeDiceOn78 && !isFaithReroll) {
+            // Consume stone Crit charges only (Active Buff Critical lasts for the buff duration).
+            if (critBank > 0 && attackExplodeDiceOn78 && !isFaithReroll) {
                 const rs2 = actionEco.getRoundState(economyForStones, combatRef);
                 if (!rs2.stoneBonuses) {
                     rs2.stoneBonuses = { extraAttacks: 0, extraReactions: 0, extraMoveMeters: 0 };

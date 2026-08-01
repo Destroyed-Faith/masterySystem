@@ -7,8 +7,9 @@
  */
 import { buildLevels, activeBuffRow } from './_shared.js';
 // Level-scaled value tables derived from the L1..L16 calculations in the md.
-const AB_ARMOR = [4, 7, 10, 13, 16, 19, 22, 25, 28, 31, 34, 37, 40, 43, 46, 49];
-const AB_EVADE = [4, 7, 10, 13, 16, 19, 22, 25, 28, 31, 34, 37, 40, 43, 46, 49];
+// Rules/active-buffs.md: +5 Armor/Evade at L1, +4 per level → L16 = +65.
+const AB_ARMOR = [5, 9, 13, 17, 21, 25, 29, 33, 37, 41, 45, 49, 53, 57, 61, 65];
+const AB_EVADE = [5, 9, 13, 17, 21, 25, 29, 33, 37, 41, 45, 49, 53, 57, 61, 65];
 const AB_TEMP = [10, 17, 25, 32, 40, 47, 55, 62, 70, 77, 85, 92, 100, 107, 115, 122];
 // Active Buff: Healing heals FLAT HP at the start of each turn (4 PP / 1 HP).
 const AB_HEAL = [10, 17, 25, 32, 40, 47, 55, 62, 70, 77, 85, 92, 100, 107, 115, 122];
@@ -32,8 +33,8 @@ const GF_ARMOR = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32];
 const GF_EVADE_PEN = [1, 1, 2, 4, 4, 5, 5, 6, 6, 7, 7, 10, 10, 11, 11, 12];
 const GF_INIT_PEN = [0, 0, 0, 4, 4, 4, 4, 8, 8, 8, 8, 12, 12, 12, 12, 16];
 const GF_PHYS_PEN = [0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 2];
-/** Summon Damage / Armor Aura — radius (m). */
-const SUMMON_AURA_RADIUS = [8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 40];
+/** Summon Damage / Armor Aura — radius bands (Players Guide Summons). */
+const SUMMON_AURA_RADIUS = [8, 8, 8, 8, 16, 16, 16, 16, 24, 24, 24, 24, 32, 32, 32, 32];
 const SUMMON_DMG_AURA = [1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8];
 const SUMMON_ARMOR_AURA = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32];
 /** Reinforced Parry regain cap per Round (2 × Level). */

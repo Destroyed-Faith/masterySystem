@@ -394,8 +394,17 @@ const ECHO_ARMOR_VALUE_PASSIVE: PowerTemplate = {
 
 // ─── Templates ───────────────────────────────────────────────────────────
 
-export const PASSIVE_TEMPLATES: PowerTemplate[] = [
-    // ─── Base unconditional (Armor / DR / Evade / THP / Healing / Phasing / Damage / Health / Awareness) ───
+/** Retired: Combat Senses use the Sense Slot — not Awareness Passives (Rules v0.9.8 / agent.md). */
+const RETIRED_AWARENESS_PASSIVE_IDS = new Set([
+    'passive-heightened-senses',
+    'passive-awareness-evade',
+    'passive-awareness-damage',
+    'conditional-passive-awareness-evade',
+    'conditional-passive-awareness-damage',
+]);
+
+const RAW_PASSIVE_TEMPLATES: PowerTemplate[] = [
+    // ─── Base unconditional (Armor / DR / Evade / THP / Healing / Phasing / Damage / Health) ───
     basePassive({
         id: 'passive-fortified-frame', name: 'Fortified Frame', subfamily: 'armor',
         fluff: 'Your body learns to carry steel as if it were a second skin.',
@@ -1108,3 +1117,7 @@ export const PASSIVE_TEMPLATES: PowerTemplate[] = [
     mobilityBuffExtensionPassive(),
     ECHO_ARMOR_VALUE_PASSIVE,
 ];
+
+export const PASSIVE_TEMPLATES: PowerTemplate[] = RAW_PASSIVE_TEMPLATES.filter(
+    (t) => !RETIRED_AWARENESS_PASSIVE_IDS.has(t.templateId),
+);

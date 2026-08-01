@@ -74,7 +74,9 @@ export class MasteryItemSheet extends BaseItemSheet {
         context.echoTypes = ['human', 'elf', 'dwarf', 'titanborn', 'centaur', 'other'];
         break;
       case 'condition':
-        context.saveTypes = ['body', 'mind', 'spirit'];
+        // Saves removed (Rules v0.9.8) — resistance uses named Attribute Checks.
+        context.saveTypes = [];
+        context.resistanceAttributes = ['vitality', 'resolve', 'intellect', 'wits'];
         break;
       case 'weapon': {
         const ws = itemData.system as any;

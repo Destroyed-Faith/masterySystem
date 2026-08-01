@@ -17,7 +17,8 @@ import { refreshRadialMenuActionLabelsIfOpenForActor } from '../token-radial-men
 import { STONE_RITUALS_CATALOG } from './rituals-catalog.js';
 import { FAMILIAR_UPGRADE_CATEGORY_OPTIONS, getFamiliarProgressionTableRows, getMaxFamiliarCount, getMaxStonesPerFamiliar, } from './familiar-rules.js';
 import { bindFamiliarToActor, buildFamiliarResultFromDraft, collectDraftStoneCounts, countDraftBoundStones, emptyFamiliarDraft, getFamiliarsFromActor, progressionHighlightTiers, releaseFamiliarFromActor, SHARED_SENSE_UI, validateFamiliarDraft, } from './familiar-bind.js';
-import { createSummonActorForFamiliar, deleteSummonActor, placeFamiliarToken, } from './familiar-actor-factory.js';
+import { createSummonActorForFamiliar, createSummonActorForBondBody, deleteSummonActor, placeFamiliarToken, } from './familiar-actor-factory.js';
+import { getSummonBondsFromActor, migrateFamiliarToBond, persistSummonBonds, } from './summon-bond-bind.js';
 const STONE_DRAG_MIME = 'application/x-mastery-stone-attribute';
 const STONE_RETURN_MIME = 'application/x-mastery-stone-return-acc';
 /**
@@ -600,20 +601,24 @@ export class StonePowersDialog extends BaseDialog {
         const record = await bindFamiliarToActor(this.actor, this._familiarDraft, mr);
         if (!record)
             return;
+        // Summons V2: also persist as summonBond (tokens available for redistribution).
+        let bond = migrateFamiliarToBond(record, this.actor.id);
         if (createActor) {
-            const summon = await createSummonActorForFamiliar(record, this.actor);
+            const summon = await createSummonActorForBondBody(bond, bond.bodies[0], this.actor);
             if (summon) {
-                const familiars = getFamiliarsFromActor(this.actor);
-                const idx = familiars.findIndex((f) => f.id === record.id);
-                if (idx >= 0) {
-                    familiars[idx] = { ...familiars[idx], summonActorId: summon.id };
-                    await this.actor.update({ 'system.familiars': familiars });
-                }
+                bond = {
+                    ...bond,
+                    bodies: [{ ...bond.bodies[0], summonActorId: summon.id }],
+                };
             }
         }
+        const bonds = [...getSummonBondsFromActor(this.actor).filter((b) => b.id !== bond.id), bond];
+        await persistSummonBonds(this.actor, bonds);
+        // Clear legacy familiar list once V2 bond exists.
+        await this.actor.update({ 'system.familiars': [] });
         this._familiarDraft = emptyFamiliarDraft();
         this._familiarView = 'list';
-        ui.notifications?.info(`Bound familiar "${record.name}".`);
+        ui.notifications?.info(`Bound Summon "${bond.name}" (${bond.boundStoneCount * 8} Tokens — redistribute in Bond Ritual).`);
         await this.render({ force: true });
     }
     #bindFamiliarForm(root) {

@@ -233,7 +233,7 @@ describe('tower-wizard-packages', () => {
     it('default active buff preview reflects defense package', () => {
         const preview = getDefaultActiveBuffPreview('armor');
         expect(preview?.id).toBe('ab-armor');
-        expect(preview?.rankPreview).toMatch(/13 Armor/i);
+        expect(preview?.rankPreview).toMatch(/17 Armor/i);
     });
 
     it('offensive active buff replaces defensive buff in package', () => {

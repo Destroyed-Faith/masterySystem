@@ -1736,12 +1736,9 @@ export function packageNeedsDeliveryStep(selection) {
         return false;
     return !!selection.offenseId;
 }
-export function packageNeedsWeakenSaveStep(selection) {
-    if (isManualBuildMode(selection))
-        return false;
-    if (selectionUsesCatalogOffense(selection))
-        return false;
-    return selection.offenseId === 'weaken-save';
+/** Saves removed in Rules v0.9.8 — never show Body/Mind/Spirit save step. */
+export function packageNeedsWeakenSaveStep(_selection) {
+    return false;
 }
 export { GUIDED_DELIVERY_OPTIONS, getGuidedSpecialFocusGroups, resolveGuidedCoreAttackPick, resolveGuidedSpecialPick, getDefensiveActiveBuffChoiceBody, buildGuidedBuildSummary, } from './tower-wizard-guided.js';
 //# sourceMappingURL=tower-wizard-packages.js.map

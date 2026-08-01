@@ -351,6 +351,10 @@ export async function spendAttackAction(actor, combat) {
  */
 export async function spendMovementAction(actor, combat) {
     const roundState = getRoundState(actor, combat);
+    if (roundState.movementPowerUsedThisRound) {
+        ui.notifications?.warn('A Movement Power already replaced your normal Movement this round.');
+        return false;
+    }
     if (roundState.movementActions.used >= roundState.movementActions.total) {
         ui.notifications?.warn('No movement actions remaining!');
         return false;
@@ -359,6 +363,29 @@ export async function spendMovementAction(actor, combat) {
     await setRoundState(actor, roundState);
     await maybeLockStonePowersAfterCombatAction(actor, combat);
     return true;
+}
+/**
+ * Spend Movement for a Movement Power — replaces normal Movement for the round.
+ */
+export async function spendMovementPowerAction(actor, combat) {
+    const roundState = getRoundState(actor, combat);
+    if (roundState.movementPowerUsedThisRound) {
+        ui.notifications?.warn('A Movement Power was already used this round.');
+        return false;
+    }
+    if (roundState.movementActions.used >= roundState.movementActions.total) {
+        ui.notifications?.warn('No movement actions remaining!');
+        return false;
+    }
+    roundState.movementActions.used = roundState.movementActions.total;
+    roundState.movementPowerUsedThisRound = true;
+    await setRoundState(actor, roundState);
+    await maybeLockStonePowersAfterCombatAction(actor, combat);
+    return true;
+}
+/** True when base Move/Dash should be blocked because a Movement Power replaced Movement. */
+export function isNormalMovementReplaced(actor, combat) {
+    return !!getRoundState(actor, combat).movementPowerUsedThisRound;
 }
 /**
  * Spend a reaction action

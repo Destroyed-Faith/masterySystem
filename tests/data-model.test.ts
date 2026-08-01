@@ -66,6 +66,10 @@ describe('Actor Data Model - template.json', () => {
       expect(combatant.combat.speed).toBeDefined();
     });
 
+    it('defaults base Speed to 8 m (Rules v0.9.8)', () => {
+      expect(combatant.combat.speed).toBe(8);
+    });
+
     it('has resources (reactions, movement, actions)', () => {
       expect(combatant.resources.reactions).toEqual({ value: 1, max: 1 });
       expect(combatant.resources.movement).toEqual({ value: 1, max: 1 });
@@ -317,7 +321,7 @@ describe('Skill Keys Match Between skills.ts and Data Model', () => {
   });
 
   it('every skill has a valid category', () => {
-    const validCategories = ['Awareness', 'Physical', 'Knowledge & Craft', 'Social', 'Survival', 'Martial'];
+    const validCategories = ['Perception', 'Awareness', 'Physical', 'Knowledge & Craft', 'Social', 'Survival', 'Martial'];
     for (const skill of Object.values(SKILLS)) {
       expect(validCategories).toContain(skill.category);
     }

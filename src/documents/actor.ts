@@ -894,7 +894,7 @@ export class MasteryActor extends Actor {
         });
       }
       if (slow > 0) {
-        system.combat.speed = Math.max(0, Number(system.combat.speed ?? 6) - slow);
+        system.combat.speed = Math.max(0, Number(system.combat.speed ?? 8) - slow);
       }
     } catch (err) {
       console.debug?.('Mastery System | special-effect malus skipped', err);

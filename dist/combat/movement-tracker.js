@@ -86,7 +86,7 @@ export async function handleTokenMovement(tokenDoc, changes) {
     const lacerate = getActiveSpecialValue(actor, 'lacerate');
     if (lacerate <= 0)
         return;
-    const speed = Math.max(1, Number(actor.system?.combat?.speed ?? 6));
+    const speed = Math.max(1, Number(actor.system?.combat?.speed ?? 8));
     let stage = Number(actor.getFlag(FLAG_SCOPE, FLAG_LACERATE_STAGE) ?? 0);
     let damage = 0;
     const notes = [];

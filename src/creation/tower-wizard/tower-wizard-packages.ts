@@ -1973,10 +1973,9 @@ export function packageNeedsDeliveryStep(selection: Partial<TowerWizardSelection
     return !!selection.offenseId;
 }
 
-export function packageNeedsWeakenSaveStep(selection: Partial<TowerWizardSelection>): boolean {
-    if (isManualBuildMode(selection)) return false;
-    if (selectionUsesCatalogOffense(selection)) return false;
-    return selection.offenseId === 'weaken-save';
+/** Saves removed in Rules v0.9.8 — never show Body/Mind/Spirit save step. */
+export function packageNeedsWeakenSaveStep(_selection: Partial<TowerWizardSelection>): boolean {
+    return false;
 }
 
 export {

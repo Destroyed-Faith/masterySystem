@@ -58,6 +58,8 @@ import { runElorianStrideMigration } from './migrations/elorian-stride-migration
 import { runTitanScarsAffinityMigration } from './migrations/titan-scars-affinity-migration.js';
 import { runSpecialEffectRenameMigration } from './migrations/special-effect-rename-migration.js';
 import { registerRulesV2AlignmentMigrationSetting, runRulesV2AlignmentMigration, } from './migrations/rules-v2-alignment-migration.js';
+import { registerSpeed8mMigrationSetting, runSpeed8mMigration, } from './migrations/speed-8m-migration.js';
+import { registerSummonV2MigrationSetting, runSummonV2Migration, } from './migrations/summon-v2-migration.js';
 import { registerPaperdollSlotCanonicalSetting, runPaperdollSlotCanonical, } from './migrations/paperdoll-slot-canonical.js';
 import { registerArtifactEchoLinkMigrationSetting, runArtifactEchoLinkMigration, } from './migrations/artifact-echo-link-migration.js';
 import { registerAbCriticalMilestonesMigrationSetting, runAbCriticalMilestonesMigration, } from './migrations/ab-critical-milestones-migration.js';
@@ -88,6 +90,8 @@ function registerAllMasteryInitSettings() {
     registerAbCriticalMilestonesMigrationSetting();
     registerPowerTemplateResyncMigrationSetting();
     registerRulesV2AlignmentMigrationSetting();
+    registerSpeed8mMigrationSetting();
+    registerSummonV2MigrationSetting();
 }
 /**
  * Initialize the Mastery System
@@ -2983,6 +2987,20 @@ Hooks.once('ready', async function () {
     }
     catch (error) {
         console.warn('Mastery System | Rules v2 alignment migration failed', error);
+    }
+    // Migration: base Speed 6 → 8 (Rules v0.9.8).
+    try {
+        await runSpeed8mMigration(migrationActors);
+    }
+    catch (error) {
+        console.warn('Mastery System | speed-8m migration failed', error);
+    }
+    // Migration: familiars → Summons V2 summonBonds.
+    try {
+        await runSummonV2Migration(migrationActors);
+    }
+    catch (error) {
+        console.warn('Mastery System | summon-v2 migration failed', error);
     }
     // Migration: Backfill inventory sizes for existing items (GM only)
     if (game.user?.isGM) {

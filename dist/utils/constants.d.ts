@@ -16,6 +16,8 @@ export declare const MAX_ATTRIBUTE = 80;
 export declare const ATTACK_ACTIONS_PER_TURN = 1;
 export declare const REACTIONS_PER_ROUND = 1;
 export declare const MOVEMENT_PER_TURN = 1;
+/** Normal base Speed in meters (Players Guide / agent.md v0.9.8). */
+export declare const BASE_SPEED_M = 8;
 export declare const HEALTH_BARS_COUNT = 6;
 export declare const HEALTH_PENALTIES: number[];
 /**

@@ -98,6 +98,7 @@ export declare function collectOverrideIdentityKeys(overrides: PackagePowerOverr
 export declare function buildManualReviewPowerRows(selection: Partial<TowerWizardSelection>): ReviewPowerRow[];
 export declare function buildManualPackageReview(selection: Partial<TowerWizardSelection>): PackageReview;
 export declare function packageNeedsDeliveryStep(selection: Partial<TowerWizardSelection>): boolean;
-export declare function packageNeedsWeakenSaveStep(selection: Partial<TowerWizardSelection>): boolean;
+/** Saves removed in Rules v0.9.8 — never show Body/Mind/Spirit save step. */
+export declare function packageNeedsWeakenSaveStep(_selection: Partial<TowerWizardSelection>): boolean;
 export { GUIDED_DELIVERY_OPTIONS, getGuidedSpecialFocusGroups, resolveGuidedCoreAttackPick, resolveGuidedSpecialPick, getDefensiveActiveBuffChoiceBody, buildGuidedBuildSummary, } from './tower-wizard-guided.js';
 //# sourceMappingURL=tower-wizard-packages.d.ts.map

@@ -21,6 +21,8 @@ import {
   getAvailableMovementActions,
   consumeAttackAction,
   consumeMovementAction,
+  spendMovementPowerAction,
+  isNormalMovementReplaced,
   refundAttackAction,
   markPowerUsedThisRound,
   hasPowerBeenUsedThisRound
@@ -934,13 +936,20 @@ export async function handleChosenCombatOption(token: any, option: RadialCombatO
 
   // Check and consume movement action if needed
   if (option.costsMovement) {
+    const isMovementPower = option.source === 'power' && option.powerType === 'movement';
+    if (!isMovementPower && isNormalMovementReplaced(actor, combat)) {
+      ui.notifications?.warn('A Movement Power already replaced your normal Movement this round.');
+      return;
+    }
     const available = getAvailableMovementActions(actor, combat);
     if (available <= 0) {
       ui.notifications?.warn('No Movement actions left this round.');
       return; // Menu stays open
     }
-    
-    const consumed = await consumeMovementAction(actor, combat);
+
+    const consumed = isMovementPower
+      ? await spendMovementPowerAction(actor, combat)
+      : await consumeMovementAction(actor, combat);
     if (!consumed) {
       ui.notifications?.warn('Failed to consume movement action.');
       return;

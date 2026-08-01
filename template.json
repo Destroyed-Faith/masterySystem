@@ -59,7 +59,7 @@
           "armorName": "",
           "shield": 0,
           "shieldName": "",
-          "speed": 6
+          "speed": 8
         },
         "combatSenses": {
           "activeSenseId": "normalCombatAwareness",
@@ -206,7 +206,8 @@
       "languages": {
         "known": ["common"]
       },
-      "familiars": []
+      "familiars": [],
+      "summonBonds": []
     },
     "npc": {
       "templates": ["base", "combatant"],
@@ -250,7 +251,7 @@
       "bloodColor": "#4a148c",
       "bio": {
         "name": "",
-        "summonType": "Familiar",
+        "summonType": "Summon",
         "duration": "Permanent (bound)",
         "description": ""
       },
@@ -261,6 +262,15 @@
         "size": "Tiny",
         "sharedSenses": [],
         "boundStoneCount": 1
+      },
+      "summonBond": {
+        "bondId": "",
+        "bodyId": "",
+        "ownerActorId": "",
+        "movementMode": "walking",
+        "sharedSenses": [],
+        "boundStoneCount": 1,
+        "dormant": false
       },
       "health": {
         "bars": [

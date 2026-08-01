@@ -354,8 +354,10 @@ export interface CharacterData {
   derived?: DerivedData;
   /** Player/GM-authored manual adjustments applied on top of computed stats. */
   manual?: ManualAdjustments;
-  /** Bound familiars / summons (persistent stone bindings). */
+  /** @deprecated V1 familiar bindings — migrated to summonBonds. */
   familiars?: BoundFamiliarRecord[];
+  /** Summons V2: universal Summon Bonds. */
+  summonBonds?: SummonBondRecord[];
 }
 
 // Status effect structure
@@ -509,7 +511,7 @@ export interface NpcData {
   };
 }
 
-// === Summon Data ===
+// === Summon Data (V2 Bond + legacy familiar link) ===
 export interface SummonFamiliarLink {
   familiarId: string;
   ownerActorId: string;
@@ -519,6 +521,16 @@ export interface SummonFamiliarLink {
   boundStoneCount: number;
 }
 
+export interface SummonBondLink {
+  bondId: string;
+  bodyId: string;
+  ownerActorId: string;
+  movementMode: 'walking' | 'flying' | 'swimming' | 'climbing';
+  sharedSenses: string[];
+  boundStoneCount: number;
+  dormant: boolean;
+}
+
 export interface SummonData {
   bio: {
     name: string;
@@ -526,7 +538,9 @@ export interface SummonData {
     duration: string;
     description: string;
   };
+  /** @deprecated Prefer summonBond. */
   familiar?: SummonFamiliarLink;
+  summonBond?: SummonBondLink;
   health: {
     bars: HealthBar[];
     currentBar: number;
@@ -549,6 +563,7 @@ export interface SummonData {
   notes: string;
 }
 
+/** @deprecated V1 familiar record. */
 export interface BoundFamiliarRecord {
   id: string;
   name: string;
@@ -573,6 +588,52 @@ export interface BoundFamiliarRecord {
   };
   size: string;
   summonActorId?: string;
+  locked: boolean;
+}
+
+export interface SummonPowerRef {
+  templateId: string;
+  level: number;
+  tokenCost: number;
+  category?: string;
+}
+
+export interface SummonBodyRecord {
+  id: string;
+  hp: number;
+  armor: number;
+  evade: number;
+  sharedSenses: string[];
+  powers: SummonPowerRef[];
+  dormant: boolean;
+  summonActorId?: string;
+  hpPurchases?: number;
+  armorPurchases?: number;
+  evadePurchases?: number;
+}
+
+export interface SummonBondRecord {
+  id: string;
+  name: string;
+  img: string;
+  expression: string;
+  ownerActorId: string;
+  boundStoneCount: number;
+  stoneAttributes: string[];
+  bonusTokens: number;
+  movementMode: 'walking' | 'flying' | 'swimming' | 'climbing';
+  movementM: number;
+  attackDice: number;
+  damageDice: number;
+  summonAttacks: number;
+  specialKey?: string | null;
+  specialValue: number;
+  selectedSkills: string[];
+  skillDiceAlloc: Record<string, number>;
+  spend: Record<string, unknown>;
+  bodies: SummonBodyRecord[];
+  activationTiming: 'before' | 'after';
+  needsRedistribution: boolean;
   locked: boolean;
 }
 

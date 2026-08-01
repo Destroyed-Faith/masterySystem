@@ -362,6 +362,21 @@ export function getActiveBuffs(actor) {
     });
 }
 /**
+ * Highest Active Buff Critical(X) currently maintained (0 if none).
+ * Closed subsystem: explode-on-7–8 for Critical ≥ 1 (same as Crit(1)).
+ */
+export function getActiveBuffCriticalTier(actor) {
+    let best = 0;
+    for (const effect of getActiveBuffs(actor)) {
+        const flags = effect.flags?.['mastery-system'] ?? {};
+        const mech = flags.mechanics ?? {};
+        const crit = Math.max(0, Math.floor(Number(mech.critical) || 0));
+        if (crit > best)
+            best = crit;
+    }
+    return best;
+}
+/**
  * Check if a specific power is currently active as a buff
  */
 export function isPowerActiveAsBuff(actor, powerId) {

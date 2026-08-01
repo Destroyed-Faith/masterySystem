@@ -23,6 +23,8 @@ export const MAX_ATTRIBUTE = 80; // Theoretical max per Player's Guide scaling t
 export const ATTACK_ACTIONS_PER_TURN = 1;
 export const REACTIONS_PER_ROUND = 1;
 export const MOVEMENT_PER_TURN = 1;
+/** Normal base Speed in meters (Players Guide / agent.md v0.9.8). */
+export const BASE_SPEED_M = 8;
 
 // Health bars
 // Six health levels:

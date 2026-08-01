@@ -481,7 +481,7 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
                 initiative: 0,
                 evade: 10,
                 armor: 0,
-                speed: 6
+                speed: 8
             },
             npcBaseAttack: {
                 name: 'Waffenangriff',

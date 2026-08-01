@@ -198,19 +198,19 @@ function calculateRange(
 
   // Special case: Disengage uses actor's movement
   if (optionId === 'disengage') {
-    const actorSpeed = (actor.system as any)?.combat?.speed || 6;
+    const actorSpeed = (actor.system as any)?.combat?.speed || 8;
     return actorSpeed + moveBonus;
   }
   
   // Special case: Move uses actor's speed
   if (optionId === 'move') {
-    const actorSpeed = (actor.system as any)?.combat?.speed || 6;
+    const actorSpeed = (actor.system as any)?.combat?.speed || 8;
     return actorSpeed + moveBonus;
   }
   
   // Special case: Dash uses 2x actor's speed
   if (optionId === 'dash') {
-    const actorSpeed = (actor.system as any)?.combat?.speed || 6;
+    const actorSpeed = (actor.system as any)?.combat?.speed || 8;
     return actorSpeed * 2 + moveBonus;
   }
   
@@ -898,9 +898,19 @@ export async function getAllCombatOptionsForActor(actor: any): Promise<RadialCom
   
   // --- BUILD MOVEMENT SEGMENT WITH PROPER ORDERING ---
   const movementOptions: RadialCombatOption[] = [];
+
+  let normalMoveReplaced = false;
+  try {
+    const { isNormalMovementReplaced } = await import('../combat/action-economy.js');
+    normalMoveReplaced = isNormalMovementReplaced(actor, (globalThis as any).game?.combat ?? null);
+  } catch {
+    normalMoveReplaced = false;
+  }
   
   // 1. Core movement maneuvers (in order: move, dash, disengage, stand-up if prone)
+  // Move/Dash are blocked when a Movement Power already replaced normal Movement.
   for (const coreId of CORE_MOVEMENT_MANEUVER_IDS) {
+    if (normalMoveReplaced && (coreId === 'move' || coreId === 'dash')) continue;
     const coreManeuver = allManeuvers.find(m => m.id === coreId && m.slot === 'movement');
     if (coreManeuver) {
       movementOptions.push(coreManeuver);

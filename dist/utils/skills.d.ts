@@ -10,7 +10,8 @@ export interface SkillDefinition {
     description: string;
 }
 export declare const SKILL_CATEGORIES: {
-    readonly AWARENESS: "Awareness";
+    /** Perception / sensing skills (was "Awareness"; Sense Slot is separate). */
+    readonly AWARENESS: "Perception";
     readonly PHYSICAL: "Physical";
     readonly KNOWLEDGE_CRAFT: "Knowledge & Craft";
     readonly SOCIAL: "Social";

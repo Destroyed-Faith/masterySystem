@@ -263,7 +263,7 @@ export async function resetCharacterForRecreation(actor, options) {
     updates['system.combat.armorName'] = '';
     updates['system.combat.shield'] = 0;
     updates['system.combat.shieldName'] = '';
-    updates['system.combat.speed'] = 6;
+    updates['system.combat.speed'] = 8;
     // Resources reset to 1/1 per template.
     updates['system.resources.reactions'] = { value: 1, max: 1 };
     updates['system.resources.movement'] = { value: 1, max: 1 };

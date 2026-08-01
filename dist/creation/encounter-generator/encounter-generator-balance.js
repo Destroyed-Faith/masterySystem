@@ -148,7 +148,7 @@ function buildBoss(index, bossCount, party, params, phases, rng) {
         name: bossCount > 1 ? `Boss ${index + 1}` : 'Boss',
         mr,
         agility,
-        speed: 6,
+        speed: 8,
         attackSlots,
         movementSlots: 1,
         phases: phaseStats,
@@ -175,7 +175,7 @@ function buildMinion(index, minionCount, party, params, rng) {
         name: minionCount > 1 ? `Minion ${index + 1}` : 'Minion',
         mr,
         agility,
-        speed: 6,
+        speed: 8,
         attackSlots: 1,
         movementSlots: 1,
         phases: [

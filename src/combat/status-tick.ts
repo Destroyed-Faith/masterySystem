@@ -47,10 +47,24 @@ export async function processTurnStartStatusTick(actor: any): Promise<string> {
   let regenHeal = 0;
   const notes: string[] = [];
   const next: StatusEffectEntry[] = [];
+  const masteryRank = Math.max(1, Math.floor(Number(system?.mastery?.rank) || 1));
 
   for (const entry of list) {
     const id = statusEntryId(entry);
     const effect = id ? getEffectById(id) : undefined;
+
+    // Root(X): at start of turn, reduce by Mastery Rank (Rules v0.9.8 / agent.md).
+    if (id === 'root') {
+      const value = Math.max(0, Math.floor(Number(entry.value ?? 0)));
+      const reduced = Math.max(0, value - masteryRank);
+      if (reduced > 0) {
+        next.push({ ...entry, id, value: reduced });
+        notes.push(`Root(${value}) → Root(${reduced}) (−${masteryRank} MR)`);
+      } else if (value > 0) {
+        notes.push('Root ended');
+      }
+      continue;
+    }
 
     // Non-diminishing (timed / until-used / instant) entries are left untouched.
     if (!effect || effect.category !== 'diminishing') {

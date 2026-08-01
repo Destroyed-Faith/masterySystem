@@ -172,7 +172,7 @@ describe('Skill Definitions (Player\'s Guide compliance)', () => {
 describe('Skill Categories', () => {
   it('has all 6 categories', () => {
     expect(Object.keys(SKILL_CATEGORIES)).toHaveLength(6);
-    expect(SKILL_CATEGORIES.AWARENESS).toBe('Awareness');
+    expect(SKILL_CATEGORIES.AWARENESS).toBe('Perception');
     expect(SKILL_CATEGORIES.PHYSICAL).toBe('Physical');
     expect(SKILL_CATEGORIES.KNOWLEDGE_CRAFT).toBe('Knowledge & Craft');
     expect(SKILL_CATEGORIES.SOCIAL).toBe('Social');
