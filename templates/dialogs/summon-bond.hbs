@@ -1,0 +1,225 @@
+<div class="summon-bond-dialog">
+  <header class="sb-header">
+    <h3 class="sb-title">{{#if isCreate}}Create Summon Bond{{else}}Bond Ritual — {{draft.name}}{{/if}}</h3>
+    <p class="sb-subtitle">Bound Stones × 8 = Summon Tokens. Artifact Summon Stones add +4 Tokens each (bonus only).</p>
+  </header>
+
+  {{#if isCreate}}
+  <section class="sb-section">
+    <h4>Basics</h4>
+    <label class="sb-field">Name
+      <input type="text" class="js-sb-name" value="{{draft.name}}" placeholder="Summon name" />
+    </label>
+    <label class="sb-field">Expression
+      <input type="text" class="js-sb-expression" value="{{draft.expression}}" placeholder="beast, spirit, construct…" />
+    </label>
+    <label class="sb-field">Image path
+      <input type="text" class="js-sb-img" value="{{draft.img}}" placeholder="icons/creatures/…" />
+    </label>
+    <fieldset class="sb-field">
+      <legend>Permanent Movement Mode</legend>
+      {{#each movementModes}}
+      <label class="sb-radio"><input type="radio" name="sbMovement" value="{{this.value}}" {{#if this.selected}}checked{{/if}} /> {{this.label}} (base 8 m, max 16 m)</label>
+      {{/each}}
+    </fieldset>
+    <fieldset class="sb-field">
+      <legend>Activation Timing</legend>
+      <label class="sb-radio"><input type="radio" name="sbTiming" value="before" {{#if timingBefore}}checked{{/if}} /> Before owner</label>
+      <label class="sb-radio"><input type="radio" name="sbTiming" value="after" {{#if timingAfter}}checked{{/if}} /> After owner</label>
+    </fieldset>
+  </section>
+
+  <section class="sb-section">
+    <h4>Bound Stones <span class="sb-meta">(each → 8 Tokens)</span></h4>
+    <p class="sb-hint">Click a pool gem to add a Bound Stone. Stones leave your usable pool until the Bond is dissolved.</p>
+    <ul class="sb-stone-list">
+      {{#each draft.stoneAttributes}}
+      <li class="sb-stone-chip" data-index="{{@index}}">
+        <span>{{this}}</span>
+        <button type="button" class="js-sb-remove-create-stone" data-index="{{@index}}">✕</button>
+      </li>
+      {{/each}}
+    </ul>
+    <div class="sb-pool-row">
+      {{#each poolGems}}
+      <button type="button" class="js-sb-add-create-stone sb-pool-gem {{#unless this.available}}is-empty{{/unless}}" data-attr="{{this.attr}}" {{#unless this.available}}disabled{{/unless}} title="{{this.attr}}: {{this.spendable}} free">
+        <span class="ms-stone-gem-chip is-filled" style="--stone-fill: {{this.fill}}; --stone-stroke: {{this.stroke}};">{{this.label}}</span>
+        <span class="sb-pool-count">{{this.spendable}}</span>
+      </button>
+      {{/each}}
+    </div>
+    <p class="sb-budget">Preview: <strong>{{createStoneCount}}</strong> Bound Stones → <strong>{{createTokenPreview}}</strong> Tokens</p>
+    {{#if createErrors.length}}
+    <ul class="sb-errors">{{#each createErrors}}<li>{{this}}</li>{{/each}}</ul>
+    {{/if}}
+    <div class="sb-actions">
+      <button type="button" class="js-sb-create dialog-btn dialog-btn-primary" {{#unless canCreate}}disabled{{/unless}}>Create Bond</button>
+      <button type="button" class="js-sb-cancel dialog-btn dialog-btn-secondary">Cancel</button>
+    </div>
+  </section>
+  {{/if}}
+
+  {{#if isRitual}}
+  <section class="sb-section sb-token-bar">
+    <div class="sb-token-stat"><span>Available</span><strong>{{tokens.available}}</strong></div>
+    <div class="sb-token-stat"><span>Spent</span><strong>{{tokens.spent}}</strong></div>
+    <div class="sb-token-stat"><span>Remaining</span><strong class="{{#if tokens.over}}is-over{{/if}}">{{tokens.remaining}}</strong></div>
+    <div class="sb-token-stat"><span>Skill Slots</span><strong>{{tokens.skillSlots}}</strong></div>
+    {{#if draft.needsRedistribution}}
+    <p class="sb-warn">Tokens need redistribution — apply the Bond Ritual when finished.</p>
+    {{/if}}
+  </section>
+
+  <section class="sb-section">
+    <h4>Identity</h4>
+    <label class="sb-field">Name <input type="text" class="js-sb-name" value="{{draft.name}}" /></label>
+    <label class="sb-field">Expression <input type="text" class="js-sb-expression" value="{{draft.expression}}" /></label>
+    <label class="sb-field">Image <input type="text" class="js-sb-img" value="{{draft.img}}" /></label>
+    <fieldset class="sb-field">
+      <legend>Movement Mode</legend>
+      {{#each movementModes}}
+      <label class="sb-radio"><input type="radio" name="sbMovement" value="{{this.value}}" {{#if this.selected}}checked{{/if}} /> {{this.label}}</label>
+      {{/each}}
+    </fieldset>
+    <fieldset class="sb-field">
+      <legend>Activation</legend>
+      <label class="sb-radio"><input type="radio" name="sbTiming" value="before" {{#if timingBefore}}checked{{/if}} /> Before owner</label>
+      <label class="sb-radio"><input type="radio" name="sbTiming" value="after" {{#if timingAfter}}checked{{/if}} /> After owner</label>
+    </fieldset>
+  </section>
+
+  <section class="sb-section">
+    <h4>Bound Stones</h4>
+    <ul class="sb-stone-list">
+      {{#each draft.stoneAttributes}}
+      <li class="sb-stone-chip" data-index="{{@index}}">
+        <span>{{this}}</span>
+        <button type="button" class="js-sb-remove-stone" data-index="{{@index}}" {{#if @root.onlyOneStone}}disabled title="Keep at least one stone"{{/if}}>✕</button>
+      </li>
+      {{/each}}
+    </ul>
+    <div class="sb-pool-row">
+      {{#each poolGems}}
+      <button type="button" class="js-sb-add-stone sb-pool-gem {{#unless this.available}}is-empty{{/unless}}" data-attr="{{this.attr}}" {{#unless this.available}}disabled{{/unless}}>
+        <span class="ms-stone-gem-chip is-filled" style="--stone-fill: {{this.fill}}; --stone-stroke: {{this.stroke}};">{{this.label}}</span>
+        <span class="sb-pool-count">{{this.spendable}}</span>
+      </button>
+      {{/each}}
+    </div>
+    <label class="sb-field">Artifact bonus Tokens
+      <input type="number" min="0" step="4" class="js-sb-bonus-tokens" value="{{draft.bonusTokens}}" />
+      <span class="sb-meta">(+4 per Artifact Summon Stone; cannot create a Bond)</span>
+    </label>
+  </section>
+
+  <section class="sb-section">
+    <h4>Bond Upgrades</h4>
+    <div class="sb-grid">
+      <label>Attack (+2d8 / 2 tok) <input type="number" min="0" class="js-sb-spend" data-field="attackPurchases" value="{{draft.spend.attackPurchases}}" /></label>
+      <label>Damage (+1d8 / 2 tok) <input type="number" min="0" class="js-sb-spend" data-field="damagePurchases" value="{{draft.spend.damagePurchases}}" /></label>
+      <label>Movement (+2 m / 1 tok, max 16) <input type="number" min="0" max="4" class="js-sb-spend" data-field="movementPurchases" value="{{draft.spend.movementPurchases}}" /></label>
+      <label>Extra Attack (+1 / 8 tok, max 3) <input type="number" min="0" max="2" class="js-sb-spend" data-field="extraAttackPurchases" value="{{draft.spend.extraAttackPurchases}}" /></label>
+      <label>Skill Dice (+2 dice / 1 tok) <input type="number" min="0" class="js-sb-spend" data-field="skillDicePurchases" value="{{draft.spend.skillDicePurchases}}" /></label>
+      <label>Additional Bodies (+1 / 2 tok) <input type="number" min="0" class="js-sb-spend" data-field="additionalBodies" value="{{draft.spend.additionalBodies}}" /></label>
+    </div>
+    <div class="sb-preview-line">Attack {{computed.attackDice}}d8 · Damage {{computed.damageDice}}d8 · Move {{computed.movementM}} m · Attacks {{computed.summonAttacks}} · Bodies {{computed.bodyCount}}</div>
+  </section>
+
+  <section class="sb-section">
+    <h4>Special Access</h4>
+    <label class="sb-check"><input type="checkbox" class="js-sb-special-access" {{#if draft.spend.specialAccess}}checked{{/if}} /> Unlock Special Access (4 Tokens → Special(1))</label>
+    {{#if draft.spend.specialAccess}}
+    <label class="sb-field">Special
+      <select class="js-sb-special-key">
+        <option value="">— choose —</option>
+        {{#each specialOptions}}
+        <option value="{{this.id}}" {{#if this.selected}}selected{{/if}}>{{this.label}}</option>
+        {{/each}}
+      </select>
+    </label>
+    <label class="sb-field">Special Value purchases (+1 / 2 tok, max Special(4))
+      <input type="number" min="0" max="3" class="js-sb-spend" data-field="specialValuePurchases" value="{{draft.spend.specialValuePurchases}}" />
+    </label>
+    <p class="sb-meta">Current: {{specialDisplay}} · applies once per Round for the whole Bond</p>
+    {{/if}}
+  </section>
+
+  <section class="sb-section">
+    <h4>Summon Skills</h4>
+    <p class="sb-meta">Select up to {{tokens.skillSlots}} skills. Distribute {{computed.skillDiceTotal}} purchased dice (≤ owner Rating).</p>
+    <div class="sb-skill-list">
+      {{#each skillOptions}}
+      <div class="sb-skill-row">
+        <label class="sb-check">
+          <input type="checkbox" class="js-sb-skill-select" data-skill="{{this.id}}" {{#if this.selected}}checked{{/if}} {{#unless this.canSelect}}disabled{{/unless}} />
+          {{this.label}} <span class="sb-meta">(owner {{this.ownerRating}})</span>
+        </label>
+        {{#if this.selected}}
+        <input type="number" min="0" max="{{this.ownerRating}}" class="js-sb-skill-dice" data-skill="{{this.id}}" value="{{this.dice}}" />
+        {{/if}}
+      </div>
+      {{/each}}
+    </div>
+  </section>
+
+  <section class="sb-section">
+    <h4>Bodies</h4>
+    {{#each bodyViews}}
+    <details class="sb-body" {{#if this.open}}open{{/if}} data-body-index="{{this.index}}">
+      <summary>Body {{this.n}} {{#if this.dormant}}(Dormant){{/if}} — HP {{this.hp}} / Armor {{this.armor}} / Evade {{this.evade}}</summary>
+      <div class="sb-grid">
+        <label>HP purchases (+20 / 1 tok) <input type="number" min="0" class="js-sb-body-spend" data-body="{{this.index}}" data-field="hpPurchases" value="{{this.hpPurchases}}" /></label>
+        <label>Armor (+4 / 2 tok) <input type="number" min="0" class="js-sb-body-spend" data-body="{{this.index}}" data-field="armorPurchases" value="{{this.armorPurchases}}" /></label>
+        <label>Evade (+4 / 2 tok) <input type="number" min="0" class="js-sb-body-spend" data-body="{{this.index}}" data-field="evadePurchases" value="{{this.evadePurchases}}" /></label>
+      </div>
+      <div class="sb-sense-row">
+        <span class="sb-meta">Shared Senses (2 Tokens each, body-specific)</span>
+        {{#each this.senses}}
+        <label class="sb-check"><input type="checkbox" class="js-sb-body-sense" data-body="{{../index}}" data-sense="{{this.value}}" {{#if this.checked}}checked{{/if}} /> {{this.label}}</label>
+        {{/each}}
+      </div>
+      <div class="sb-powers">
+        <h5>Powers <span class="sb-meta">(1 Token per started 10 PP · max L{{@root.maxPowerLevel}})</span></h5>
+        <ul>
+          {{#each this.powers}}
+          <li>{{this.name}} L{{this.level}} ({{this.tokenCost}} tok)
+            <button type="button" class="js-sb-remove-power" data-body="{{../index}}" data-power-idx="{{@index}}">✕</button>
+          </li>
+          {{/each}}
+        </ul>
+        <div class="sb-power-add">
+          <select class="js-sb-power-template" data-body="{{this.index}}">
+            {{#each @root.powerCatalog}}
+            <option value="{{this.templateId}}" data-category="{{this.category}}">{{this.name}} ({{this.category}})</option>
+            {{/each}}
+          </select>
+          <input type="number" min="1" max="{{@root.maxPowerLevel}}" class="js-sb-power-level" data-body="{{this.index}}" value="1" />
+          <button type="button" class="js-sb-add-power dialog-btn dialog-btn-secondary" data-body="{{this.index}}">Add Power</button>
+        </div>
+      </div>
+      <div class="sb-body-actions">
+        {{#if this.summonActorId}}
+        <button type="button" class="js-sb-open-actor dialog-btn dialog-btn-secondary" data-body="{{this.index}}">Open Actor</button>
+        <button type="button" class="js-sb-place-token dialog-btn dialog-btn-secondary" data-body="{{this.index}}">Place Token</button>
+        {{else}}
+        <button type="button" class="js-sb-create-actor dialog-btn dialog-btn-secondary" data-body="{{this.index}}">Create Actor</button>
+        {{/if}}
+      </div>
+    </details>
+    {{/each}}
+  </section>
+
+  {{#if ritualErrors.length}}
+  <ul class="sb-errors">{{#each ritualErrors}}<li>{{this}}</li>{{/each}}</ul>
+  {{/if}}
+  {{#if ritualWarnings.length}}
+  <ul class="sb-warnings">{{#each ritualWarnings}}<li>{{this}}</li>{{/each}}</ul>
+  {{/if}}
+
+  <div class="sb-actions">
+    <button type="button" class="js-sb-apply-ritual dialog-btn dialog-btn-primary" {{#unless canApplyRitual}}disabled{{/unless}}>Apply Bond Ritual</button>
+    <button type="button" class="js-sb-dissolve dialog-btn dialog-btn-danger">Dissolve Bond</button>
+    <button type="button" class="js-sb-cancel dialog-btn dialog-btn-secondary">Close</button>
+  </div>
+  {{/if}}
+</div>

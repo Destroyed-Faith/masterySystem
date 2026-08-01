@@ -1,5 +1,5 @@
 /**
- * Summon / Familiar actor sheet — read-focused statblock for bound familiars.
+ * Summon actor sheet — read-focused statblock for Summons V2 Bond bodies.
  */
 import { MasteryCharacterSheet } from './character-sheet.js';
 import { getSharedSenseLabel } from '../stones/familiar-bind.js';
@@ -28,7 +28,19 @@ export class MasterySummonSheet extends MasteryCharacterSheet {
     async _prepareContext(options) {
         const context = await super._prepareContext(options);
         const system = this.actor.system ?? {};
+        const bondLink = system.summonBond ?? {};
         const familiar = system.familiar ?? {};
+        const ownerId = bondLink.ownerActorId || familiar.ownerActorId || '';
+        const owner = ownerId ? game.actors?.get(ownerId) : null;
+        const senseGroups = (bondLink.sharedSenses ?? familiar.sharedSenses ?? []);
+        const specials = system.npcBaseAttack?.specials ?? [];
+        const special0 = specials[0];
+        const specialDisplay = special0?.special && special0?.specialValue
+            ? `${special0.special}(${special0.specialValue})`
+            : '';
+        const powers = Array.isArray(system.notesPowers)
+            ? system.notesPowers
+            : [];
         const stats = {
             hp: system.health?.bars?.[0]?.max ?? system.health?.maximum ?? 0,
             armor: system.combat?.armor ?? 0,
@@ -41,26 +53,28 @@ export class MasterySummonSheet extends MasteryCharacterSheet {
                 ? `${system.npcBaseAttack.damageDiceCount}d8`
                 : '—',
         };
-        const senseGroups = (familiar.sharedSenses ?? []);
-        const ownerId = familiar.ownerActorId ?? '';
-        const owner = ownerId ? game.actors?.get(ownerId) : null;
         return {
             ...context,
             familiar,
             familiarStats: stats,
-            familiarSize: familiar.size ?? '—',
-            familiarMovement: familiar.movementType ?? 'ground',
+            movementMode: bondLink.movementMode || familiar.movementType || 'walking',
+            expression: system.bio?.description?.match(/Expression: ([^.]+)/)?.[1] ?? '',
             sharedSenseLabels: senseGroups.map((g) => getSharedSenseLabel(g)),
             ownerName: owner?.name ?? 'Unknown',
             ownerActorId: ownerId,
-            boundStoneCount: familiar.boundStoneCount ?? 0,
+            boundStoneCount: bondLink.boundStoneCount ?? familiar.boundStoneCount ?? 0,
+            summonAttacks: system.attackSlots ?? 1,
+            specialDisplay,
+            dormant: !!bondLink.dormant,
+            powerLabels: powers,
         };
     }
     activateListeners(html) {
         super.activateListeners(html);
         html.find('[data-action="open-owner"]').on('click', (ev) => {
             ev.preventDefault();
-            const ownerId = this.actor.system?.familiar?.ownerActorId;
+            const system = this.actor.system ?? {};
+            const ownerId = system.summonBond?.ownerActorId || system.familiar?.ownerActorId;
             if (!ownerId)
                 return;
             const owner = game.actors?.get(ownerId);

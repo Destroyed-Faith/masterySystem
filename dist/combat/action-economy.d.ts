@@ -49,6 +49,16 @@ export interface RoundState {
      * base Move/Dash maneuvers are unavailable (Rules v0.9.8).
      */
     movementPowerUsedThisRound?: boolean;
+    /**
+     * Per-Bond Summon combat usage this round (attacks / special / reaction).
+     * Keyed by SummonBondRecord.id on the owner actor.
+     */
+    summonBondUsage?: Record<string, {
+        bondId: string;
+        attacksUsed: number;
+        specialApplied: boolean;
+        reactionsUsed: number;
+    }>;
     stoneBonuses?: {
         extraAttacks: number;
         extraReactions: number;

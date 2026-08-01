@@ -2,6 +2,36 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.240] - 2026-08-01
+
+### Added
+
+- **Summons V2 Bond Ritual UI:** Full create / token shop / skills / specials / body powers / dissolve workflow (`SummonBondDialog`). Stone Powers Summons tab lists `summonBonds` only.
+- Summon combat helpers: shared Bond attack budget, Special once/round, Reaction once/round (`summon-combat.ts`).
+- Critical resolution isolator + docs (`critical-resolution.ts`, `docs/CRITICAL-RESOLUTION.md`).
+- Verification tests for Weaken/Soulburn, saves removal, senses, reactions, summons, Critical isolation.
+- Abschlussbericht: `docs/RULES-V098-COMPLETION-REPORT.md`.
+
+### Changed
+
+- Legacy Familiar editor removed as canonical Summon creation path (migration-only).
+- Artifact Summon Token Generator clarified as +4 bonus Tokens per Artifact Summon Stone (not a conflict with Bound Stones ×8).
+- Summon actor sheet surfaces V2 bond fields.
+
+### Removed
+
+- Familiar draft editor from Stone Powers Summons tab.
+
+## [0.9.239] - 2026-08-01
+
+### Added
+
+- Machine-readable Rules↔Foundry catalog audit (`npm run audit:catalog` → `docs/catalog-audit.json`).
+
+### Fixed
+
+- Active Buff Evade / Evade+TempHP / Armor+Evade curves aligned to Rules tables.
+
 ## [0.9.238] - 2026-08-01
 
 ### Changed

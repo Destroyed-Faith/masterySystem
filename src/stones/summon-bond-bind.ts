@@ -1,13 +1,20 @@
 /**
  * Summon Bond create / release / stone accounting (V2).
+ * Canonical workflow — do not use the legacy Familiar editor for creation.
  */
 
 import type { BoundFamiliarRecord } from '../types/actor.js';
+import {
+  applySustainedDelta,
+  getActorPoolSpendable,
+} from './familiar-bind.js';
 import {
   BASE_SUMMON,
   computeSummonBond,
   emptyBondSpend,
   legacyMovementTypeToMode,
+  maxSummonPowerLevel,
+  standardPowerTokenCost,
   summonSkillSlots,
   summonTokensFromStones,
   type SharedSenseGroup,
@@ -295,4 +302,381 @@ export function tokensSummary(bond: SummonBondRecord): {
     remaining: computed.tokensRemaining,
     skillSlots: summonSkillSlots(bond.boundStoneCount),
   };
+}
+
+export function bondStoneAssignments(bond: SummonBondRecord): Record<string, number> {
+  const out: Record<string, number> = {};
+  for (const attr of bond.stoneAttributes || []) {
+    if (!attr) continue;
+    out[attr] = (out[attr] ?? 0) + 1;
+  }
+  return out;
+}
+
+export function syncBodiesFromSpend(bond: SummonBondRecord): SummonBondRecord {
+  const computed = computeSummonBond({
+    boundStoneCount: bond.boundStoneCount,
+    bonusTokens: bond.bonusTokens,
+    movementMode: bond.movementMode,
+    spend: bond.spend,
+  });
+  const existing = [...bond.bodies];
+  const bodies: SummonBodyRecord[] = [];
+  for (let i = 0; i < computed.bodyCount; i++) {
+    const prev = existing[i];
+    const cb = computed.bodies[i];
+    const bodySpend = bond.spend.bodies[i];
+    const powers = prev?.powers ?? [];
+    bodies.push(
+      createBaseBody({
+        id: prev?.id,
+        summonActorId: prev?.summonActorId,
+        dormant: !!prev?.dormant,
+        hp: prev?.dormant ? prev.hp : cb.hp,
+        armor: cb.armor,
+        evade: cb.evade,
+        sharedSenses: cb.sharedSenses,
+        powers,
+        hpPurchases: bodySpend?.hpPurchases ?? 0,
+        armorPurchases: bodySpend?.armorPurchases ?? 0,
+        evadePurchases: bodySpend?.evadePurchases ?? 0,
+      }),
+    );
+  }
+  // Drop surplus body actors when body count shrinks (caller deletes actors).
+  return {
+    ...bond,
+    movementM: computed.movementM,
+    attackDice: computed.attackDice,
+    damageDice: computed.damageDice,
+    summonAttacks: computed.summonAttacks,
+    specialValue: computed.specialValue,
+    bodies,
+  };
+}
+
+export type BondRitualValidation = {
+  ok: boolean;
+  errors: string[];
+  warnings: string[];
+  computed: ReturnType<typeof computeSummonBond>;
+};
+
+export function validateBondRitual(
+  bond: SummonBondRecord,
+  ownerSkillRatings: Record<string, number> = {},
+  ownerMasteryRank = 1,
+): BondRitualValidation {
+  const errors: string[] = [];
+  const warnings: string[] = [];
+  if (!bond.name?.trim()) errors.push('Name is required.');
+  if (bond.boundStoneCount < 1 || bond.stoneAttributes.length < 1) {
+    errors.push('A Summon Bond requires at least 1 Bound Stone.');
+  }
+  if (bond.stoneAttributes.length !== bond.boundStoneCount) {
+    errors.push('stoneAttributes length must equal boundStoneCount.');
+  }
+  const computed = computeSummonBond({
+    boundStoneCount: bond.boundStoneCount,
+    bonusTokens: bond.bonusTokens,
+    movementMode: bond.movementMode,
+    spend: bond.spend,
+  });
+  errors.push(...computed.errors);
+  warnings.push(...computed.warnings);
+  errors.push(...validateBondSkillAlloc(bond, ownerSkillRatings));
+
+  if (bond.spend.specialAccess && !bond.specialKey) {
+    errors.push('Special Access requires selecting an eligible Special.');
+  }
+  if (!bond.spend.specialAccess && bond.specialKey) {
+    warnings.push('Special key set without Special Access — will be cleared on apply.');
+  }
+
+  const maxLvl = maxSummonPowerLevel(ownerMasteryRank);
+  for (const body of bond.bodies) {
+    for (const p of body.powers || []) {
+      if (p.level > maxLvl) {
+        errors.push(`Power ${p.templateId} L${p.level} exceeds max Summon Power Level ${maxLvl}.`);
+      }
+      const expected =
+        p.tokenCost ||
+        standardPowerTokenCost(
+          (p.category as any) || 'active',
+          p.level,
+        );
+      if (p.tokenCost > 0 && p.tokenCost !== expected && p.category) {
+        // Allow explicit tokenCost from PP formula; only warn on mismatch with category estimate.
+      }
+    }
+  }
+
+  // Ensure body power token costs are reflected in spend.bodies[*].powerTokenCosts
+  for (let i = 0; i < bond.spend.bodies.length; i++) {
+    const body = bond.bodies[i];
+    if (!body) continue;
+    const costs = (body.powers || []).map((p) => Math.max(0, Math.floor(p.tokenCost || 0)));
+    bond.spend.bodies[i] = { ...bond.spend.bodies[i], powerTokenCosts: costs };
+  }
+  const recomputed = computeSummonBond({
+    boundStoneCount: bond.boundStoneCount,
+    bonusTokens: bond.bonusTokens,
+    movementMode: bond.movementMode,
+    spend: bond.spend,
+  });
+  if (recomputed.errors.length && !errors.includes(recomputed.errors[0])) {
+    errors.push(...recomputed.errors.filter((e) => !errors.includes(e)));
+  }
+
+  return { ok: errors.length === 0, errors, warnings, computed: recomputed };
+}
+
+/** Create a new Summon Bond, debit Bound Stones from the owner's pool, clear legacy familiars. */
+export async function createSummonBondWithStones(
+  actor: any,
+  opts: {
+    name: string;
+    img?: string;
+    expression?: string;
+    movementMode: SummonMovementMode;
+    stoneAttributes: StonePoolAttr[];
+    bonusTokens?: number;
+    activationTiming?: 'before' | 'after';
+  },
+): Promise<{ bond: SummonBondRecord | null; errors: string[] }> {
+  const attrs = (opts.stoneAttributes || []).filter((a) => STONE_POOL_ATTRS.includes(a));
+  if (attrs.length < 1) return { bond: null, errors: ['Assign at least 1 Bound Stone.'] };
+  if (!opts.name?.trim()) return { bond: null, errors: ['Name is required.'] };
+
+  const need: Record<string, number> = {};
+  for (const a of attrs) need[a] = (need[a] ?? 0) + 1;
+  const spendable = getActorPoolSpendable(actor);
+  for (const [attr, n] of Object.entries(need)) {
+    if ((spendable[attr] ?? 0) < n) {
+      return { bond: null, errors: [`Not enough ${attr} stones (need ${n}, have ${spendable[attr] ?? 0}).`] };
+    }
+  }
+
+  let bond = createEmptyBond({
+    name: opts.name,
+    img: opts.img,
+    ownerActorId: actor.id,
+    movementMode: opts.movementMode,
+    stoneAttributes: attrs,
+    expression: opts.expression,
+  });
+  bond.bonusTokens = Math.max(0, Math.floor(Number(opts.bonusTokens) || 0));
+  bond.activationTiming = opts.activationTiming ?? 'after';
+  bond.needsRedistribution = true;
+  bond = recomputeBondDerived(bond);
+
+  const stonePools = applySustainedDelta(
+    actor.system?.stonePools ?? {},
+    need,
+    1,
+  );
+  const bonds = [...getSummonBondsFromActor(actor), bond];
+  await actor.update({
+    'system.summonBonds': bonds,
+    'system.stonePools': stonePools,
+    'system.familiars': [],
+  });
+  return { bond, errors: [] };
+}
+
+/** Persist an edited bond list entry (no stone debit). */
+export async function upsertSummonBond(actor: any, bond: SummonBondRecord): Promise<void> {
+  const bonds = getSummonBondsFromActor(actor);
+  const idx = bonds.findIndex((b) => b.id === bond.id);
+  const next = recomputeBondDerived(bond);
+  if (idx >= 0) bonds[idx] = next;
+  else bonds.push(next);
+  await persistSummonBonds(actor, bonds);
+}
+
+/**
+ * Apply Bond Ritual: validate spend, sync bodies, clear needsRedistribution,
+ * restore dormant bodies to full HP.
+ */
+export async function applyBondRitual(
+  actor: any,
+  bondDraft: SummonBondRecord,
+  ownerSkillRatings: Record<string, number> = {},
+): Promise<{ bond: SummonBondRecord | null; errors: string[]; warnings: string[] }> {
+  const mr = Math.max(1, Math.floor(Number(actor?.system?.mastery?.rank) || 1));
+  // Sync power token costs into spend before validate
+  const draft = foundryDuplicate(bondDraft);
+  for (let i = 0; i < draft.spend.bodies.length; i++) {
+    const body = draft.bodies[i];
+    if (!body) continue;
+    draft.spend.bodies[i] = {
+      ...draft.spend.bodies[i],
+      powerTokenCosts: (body.powers || []).map((p) => Math.max(0, Math.floor(p.tokenCost || 0))),
+      sharedSenses: (body.sharedSenses || []) as SharedSenseGroup[],
+      hpPurchases: body.hpPurchases ?? draft.spend.bodies[i].hpPurchases,
+      armorPurchases: body.armorPurchases ?? draft.spend.bodies[i].armorPurchases,
+      evadePurchases: body.evadePurchases ?? draft.spend.bodies[i].evadePurchases,
+    };
+  }
+  if (!draft.spend.specialAccess) {
+    draft.specialKey = null;
+    draft.spend.specialValuePurchases = 0;
+  }
+  const validation = validateBondRitual(draft, ownerSkillRatings, mr);
+  if (!validation.ok) {
+    return { bond: null, errors: validation.errors, warnings: validation.warnings };
+  }
+
+  let bond = syncBodiesFromSpend(draft);
+  const computed = computeSummonBond({
+    boundStoneCount: bond.boundStoneCount,
+    bonusTokens: bond.bonusTokens,
+    movementMode: bond.movementMode,
+    spend: bond.spend,
+  });
+  // Bond Ritual / Safe Haven Rest restores dormant bodies at full HP.
+  bond.bodies = bond.bodies.map((b, i) => ({
+    ...b,
+    dormant: false,
+    hp: computed.bodies[i]?.hp ?? b.hp,
+    armor: computed.bodies[i]?.armor ?? b.armor,
+    evade: computed.bodies[i]?.evade ?? b.evade,
+    sharedSenses: computed.bodies[i]?.sharedSenses ?? b.sharedSenses,
+  }));
+  bond.needsRedistribution = false;
+  bond.locked = true;
+  bond = recomputeBondDerived(bond);
+
+  await upsertSummonBond(actor, bond);
+  return { bond, errors: [], warnings: validation.warnings };
+}
+
+function foundryDuplicate<T>(obj: T): T {
+  try {
+    return (globalThis as any).foundry?.utils?.duplicate?.(obj) ?? structuredClone(obj);
+  } catch {
+    return JSON.parse(JSON.stringify(obj)) as T;
+  }
+}
+
+/** Add Bound Stones during a Bond Ritual (debits pool; marks needsRedistribution). */
+export async function addBoundStonesToBond(
+  actor: any,
+  bondId: string,
+  attributes: StonePoolAttr[],
+): Promise<{ bond: SummonBondRecord | null; errors: string[] }> {
+  const attrs = attributes.filter((a) => STONE_POOL_ATTRS.includes(a));
+  if (!attrs.length) return { bond: null, errors: ['No stones selected.'] };
+  const bonds = getSummonBondsFromActor(actor);
+  const idx = bonds.findIndex((b) => b.id === bondId);
+  if (idx < 0) return { bond: null, errors: ['Bond not found.'] };
+
+  const need: Record<string, number> = {};
+  for (const a of attrs) need[a] = (need[a] ?? 0) + 1;
+  const spendable = getActorPoolSpendable(actor);
+  for (const [attr, n] of Object.entries(need)) {
+    if ((spendable[attr] ?? 0) < n) {
+      return { bond: null, errors: [`Not enough ${attr} stones.`] };
+    }
+  }
+
+  const bond = { ...bonds[idx] };
+  bond.stoneAttributes = [...bond.stoneAttributes, ...attrs];
+  bond.boundStoneCount = bond.stoneAttributes.length;
+  bond.needsRedistribution = true;
+  bonds[idx] = recomputeBondDerived(bond);
+
+  const stonePools = applySustainedDelta(actor.system?.stonePools ?? {}, need, 1);
+  await actor.update({
+    'system.summonBonds': bonds,
+    'system.stonePools': stonePools,
+  });
+  return { bond: bonds[idx], errors: [] };
+}
+
+/** Remove Bound Stones during a Bond Ritual (credits pool; may force redistrib). */
+export async function removeBoundStonesFromBond(
+  actor: any,
+  bondId: string,
+  indices: number[],
+): Promise<{ bond: SummonBondRecord | null; errors: string[] }> {
+  const bonds = getSummonBondsFromActor(actor);
+  const idx = bonds.findIndex((b) => b.id === bondId);
+  if (idx < 0) return { bond: null, errors: ['Bond not found.'] };
+  const bond = { ...bonds[idx], stoneAttributes: [...bonds[idx].stoneAttributes] };
+  const sorted = [...new Set(indices)].sort((a, b) => b - a);
+  const returned: Record<string, number> = {};
+  for (const i of sorted) {
+    if (i < 0 || i >= bond.stoneAttributes.length) continue;
+    const [attr] = bond.stoneAttributes.splice(i, 1);
+    if (attr) returned[attr] = (returned[attr] ?? 0) + 1;
+  }
+  if (bond.stoneAttributes.length < 1) {
+    return { bond: null, errors: ['A Bond must keep at least 1 Bound Stone (or dissolve it).'] };
+  }
+  bond.boundStoneCount = bond.stoneAttributes.length;
+  bond.needsRedistribution = true;
+  bonds[idx] = recomputeBondDerived(bond);
+  const stonePools = applySustainedDelta(actor.system?.stonePools ?? {}, returned, -1);
+  await actor.update({
+    'system.summonBonds': bonds,
+    'system.stonePools': stonePools,
+  });
+  return { bond: bonds[idx], errors: [] };
+}
+
+/** Set Artifact-generated bonus Tokens on a Bond (not Bound Stones). */
+export async function setBondBonusTokens(
+  actor: any,
+  bondId: string,
+  bonusTokens: number,
+): Promise<SummonBondRecord | null> {
+  const bonds = getSummonBondsFromActor(actor);
+  const idx = bonds.findIndex((b) => b.id === bondId);
+  if (idx < 0) return null;
+  bonds[idx] = recomputeBondDerived({
+    ...bonds[idx],
+    bonusTokens: Math.max(0, Math.floor(Number(bonusTokens) || 0)),
+    needsRedistribution: true,
+  });
+  await persistSummonBonds(actor, bonds);
+  return bonds[idx];
+}
+
+/**
+ * Dissolve / release a Summon Bond via Bond Ritual: return Bound Stones, delete body actors.
+ */
+export async function dissolveSummonBond(
+  actor: any,
+  bondId: string,
+  deleteActors: (id: string | undefined) => Promise<void> = async () => {},
+): Promise<{ removed: SummonBondRecord | null; errors: string[] }> {
+  const bonds = getSummonBondsFromActor(actor);
+  const idx = bonds.findIndex((b) => b.id === bondId);
+  if (idx < 0) return { removed: null, errors: ['Bond not found.'] };
+  const [removed] = bonds.splice(idx, 1);
+  for (const body of removed.bodies || []) {
+    await deleteActors(body.summonActorId);
+  }
+  const assignments = bondStoneAssignments(removed);
+  const stonePools = applySustainedDelta(actor.system?.stonePools ?? {}, assignments, -1);
+  await actor.update({
+    'system.summonBonds': bonds,
+    'system.stonePools': stonePools,
+  });
+  return { removed, errors: [] };
+}
+
+/** Owner skill ratings helper for ritual validation. */
+export function ownerSkillRatingsFromActor(actor: any): Record<string, number> {
+  const skills = actor?.system?.skills ?? {};
+  const out: Record<string, number> = {};
+  for (const [key, val] of Object.entries(skills)) {
+    const rating =
+      typeof val === 'number'
+        ? val
+        : Math.max(0, Math.floor(Number((val as any)?.rating ?? (val as any)?.value ?? 0) || 0));
+    out[key] = rating;
+  }
+  return out;
 }

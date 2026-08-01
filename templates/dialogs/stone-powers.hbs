@@ -262,197 +262,38 @@
   {{/if}}
 
   {{#if tabSummonsActive}}
-  <div class="stone-summons-pane" role="tabpanel" aria-label="Summons and Familiars">
+  <div class="stone-summons-pane" role="tabpanel" aria-label="Summon Bonds">
     <section class="stone-summons-intro">
-      <p><strong>Summons &amp; Familiars</strong> — Bound Stones leave your attribute pools until the bond ends. Base: <strong>1</strong> stone; each <strong>upgrade</strong> stone grants <strong>two different</strong> stat picks; each <strong>shared sense</strong> costs <strong>1</strong> stone with no upgrade picks.</p>
-      <p class="stone-summons-hint">Bind Familiar ritual (2 Resolve stones, 1 hour) is a separate one-time cost. Initiative matches the owner each round.</p>
-      <p class="stone-familiar-budget">Draft budget: <strong>{{familiarDraftBoundCount}}</strong> / {{familiarMasteryCap}} stones · Familiars: <strong>{{familiarListCount}}</strong> / {{familiarMaxCount}}</p>
+      <p><strong>Summons V2</strong> — Bind Stones to create a Summon Bond. Each Bound Stone grants <strong>8 Summon Tokens</strong>. Spend Tokens in the Bond Ritual on Bond upgrades, Bodies, Skills, Specials, and canonical Powers.</p>
+      <p class="stone-summons-hint">Artifact Summon Stones grant <strong>+4 bonus Tokens</strong> to an existing Bond (they are not Bound Stones and cannot create a Bond). Bond Ritual: 1 hour.</p>
     </section>
 
-    {{#if familiarViewIsList}}
     <section class="stone-familiar-list-section">
       <div class="stone-familiar-list-header">
-        <h4 class="stone-summons-subtitle">Bound Familiars</h4>
-        <button type="button" class="js-familiar-new dialog-btn dialog-btn-primary" {{#unless familiarCanAddNew}}disabled title="Maximum familiars reached"{{/unless}}>+ New Summon</button>
+        <h4 class="stone-summons-subtitle">Summon Bonds</h4>
+        <button type="button" class="js-summon-bond-new dialog-btn dialog-btn-primary">+ New Summon Bond</button>
       </div>
-      {{#if boundFamiliars.length}}
+      {{#if summonBonds.length}}
       <ul class="stone-familiar-list">
-        {{#each boundFamiliars}}
-        <li class="stone-familiar-list-item" data-familiar-id="{{this.id}}">
+        {{#each summonBonds}}
+        <li class="stone-familiar-list-item" data-bond-id="{{this.id}}">
           <div class="stone-familiar-list-main">
             <strong>{{this.name}}</strong>
-            <span class="stone-familiar-list-meta">{{this.size}} · {{this.stats.movementM}} m · {{this.boundStoneCount}} stones</span>
-            {{#if this.hasToken}}<span class="stone-familiar-badge">Actor ready</span>{{/if}}
+            <span class="stone-familiar-list-meta">{{this.movementMode}} {{this.movementM}} m · {{this.boundStoneCount}} stones · {{this.tokensAvailable}} Tokens ({{this.tokensRemaining}} left) · {{this.bodyCount}} bodies</span>
+            {{#if this.needsRedistribution}}<span class="stone-familiar-badge">Needs redistrib</span>{{/if}}
+            {{#if this.hasActor}}<span class="stone-familiar-badge">Actor ready</span>{{/if}}
           </div>
           <div class="stone-familiar-list-actions">
-            {{#if this.summonActorId}}
-            <button type="button" class="js-familiar-open-actor dialog-btn dialog-btn-secondary" data-familiar-id="{{this.id}}">Open</button>
-            <button type="button" class="js-familiar-place-token dialog-btn dialog-btn-secondary" data-familiar-id="{{this.id}}">Place Token</button>
-            {{else}}
-            <button type="button" class="js-familiar-create-actor dialog-btn dialog-btn-secondary" data-familiar-id="{{this.id}}">Create Actor</button>
-            {{/if}}
-            <button type="button" class="js-familiar-release dialog-btn dialog-btn-secondary" data-familiar-id="{{this.id}}">Release Bond</button>
+            <button type="button" class="js-summon-bond-ritual dialog-btn dialog-btn-primary" data-bond-id="{{this.id}}">Bond Ritual</button>
+            <button type="button" class="js-summon-bond-dissolve dialog-btn dialog-btn-secondary" data-bond-id="{{this.id}}">Dissolve</button>
           </div>
         </li>
         {{/each}}
       </ul>
       {{else}}
-      <p class="stone-familiar-empty">No bound familiars yet. Choose basics, assign stones from the pool above, then bind.</p>
+      <p class="stone-familiar-empty">No Summon Bonds yet. Create one to bind Stones and open the Bond Ritual token shop.</p>
       {{/if}}
     </section>
-    {{/if}}
-
-    {{#if familiarViewIsEditor}}
-    <div class="stone-summons-columns">
-      <form class="stone-familiar-form" autocomplete="off">
-        <div class="stone-familiar-editor-toolbar">
-          <button type="button" class="js-familiar-back dialog-btn dialog-btn-secondary">← Back to list</button>
-          <h4 class="stone-summons-subtitle">New Familiar</h4>
-        </div>
-
-        <div class="stone-familiar-step">
-          <h5 class="stone-familiar-step-title">1. Basics</h5>
-          <div class="stone-familiar-field">
-            <label class="stone-familiar-label">Name</label>
-            <input type="text" class="js-familiar-name stone-familiar-input" name="familiarName" value="{{familiarDraft.name}}" placeholder="Familiar name" />
-          </div>
-          <div class="stone-familiar-field">
-            <label class="stone-familiar-label">Portrait / token image path</label>
-            <input type="text" class="js-familiar-img stone-familiar-input" name="familiarImg" value="{{familiarDraft.img}}" placeholder="icons/creatures/..." />
-          </div>
-          <fieldset class="stone-familiar-field stone-familiar-movement-fieldset">
-            <legend class="stone-familiar-label">Movement (locked after binding)</legend>
-            <label class="stone-familiar-radio"><input type="radio" name="familiarMovement" value="ground" {{#if familiarDraftMovementIsGround}}checked{{/if}} /> Ground (base 8 m)</label>
-            <label class="stone-familiar-radio"><input type="radio" name="familiarMovement" value="flying" {{#if familiarDraftMovementIsFlying}}checked{{/if}} /> Flying (base 4 m)</label>
-          </fieldset>
-        </div>
-
-        <div class="stone-familiar-step">
-          <h5 class="stone-familiar-step-title">2. Base Bound Stone</h5>
-          <div class="stone-familiar-stone-slot js-familiar-base-slot" data-slot-kind="base" title="Click to assign a stone from your pool">
-            {{#if familiarDraft.baseStoneUi.filled}}
-            <span class="ms-stone-gem-chip is-filled" style="--stone-fill: {{familiarDraft.baseStoneUi.gemStyle.fill}}; --stone-stroke: {{familiarDraft.baseStoneUi.gemStyle.stroke}};">{{familiarDraft.baseStoneUi.label}}</span>
-            <button type="button" class="js-familiar-clear-stone stone-familiar-clear" data-slot-kind="base">✕</button>
-            {{else}}
-            <span class="stone-familiar-slot-empty">+ Assign pool stone</span>
-            {{/if}}
-          </div>
-        </div>
-
-        <div class="stone-familiar-step">
-          <h5 class="stone-familiar-step-title">3. Upgrade Stones <span class="stone-familiar-meta">(each stone → 2 picks)</span></h5>
-          <div class="stone-familiar-upgrade-list">
-            {{#each familiarDraft.upgradeRows as |row|}}
-            <div class="js-familiar-upgrade-row stone-familiar-upgrade-row" data-row-id="{{row.id}}">
-              <div class="stone-familiar-stone-slot js-familiar-upgrade-slot" data-slot-kind="upgrade" data-row-id="{{row.id}}">
-                {{#if row.stoneUi.filled}}
-                <span class="ms-stone-gem-chip is-filled" style="--stone-fill: {{row.stoneUi.gemStyle.fill}}; --stone-stroke: {{row.stoneUi.gemStyle.stroke}};">{{row.stoneUi.label}}</span>
-                <button type="button" class="js-familiar-clear-stone stone-familiar-clear" data-slot-kind="upgrade" data-row-id="{{row.id}}">✕</button>
-                {{else}}
-                <span class="stone-familiar-slot-empty">Stone</span>
-                {{/if}}
-              </div>
-              <select class="js-familiar-pick-a stone-familiar-select" aria-label="First pick">
-                {{#each @root.familiarUpgradeCategoryOptions}}
-                <option value="{{this.value}}" {{#if (eq row.pickA this.value)}}selected{{/if}}>{{this.label}}</option>
-                {{/each}}
-              </select>
-              <select class="js-familiar-pick-b stone-familiar-select" aria-label="Second pick">
-                {{#each @root.familiarUpgradeCategoryOptions}}
-                <option value="{{this.value}}" {{#if (eq row.pickB this.value)}}selected{{/if}}>{{this.label}}</option>
-                {{/each}}
-              </select>
-              <button type="button" class="js-familiar-remove-upgrade-stone dialog-btn dialog-btn-secondary stone-familiar-remove" data-row-id="{{row.id}}">✕</button>
-            </div>
-            {{/each}}
-          </div>
-          <button type="button" class="js-familiar-add-upgrade-stone dialog-btn dialog-btn-secondary stone-familiar-add" {{#unless familiarCanAddUpgrade}}disabled{{/unless}}>+ Upgrade Stone</button>
-        </div>
-
-        <div class="stone-familiar-step">
-          <h5 class="stone-familiar-step-title">4. Shared Senses <span class="stone-familiar-meta">(1 stone each)</span></h5>
-          <div class="stone-familiar-sense-list">
-            {{#each familiarSenseOptions}}
-            <div class="stone-familiar-sense-row">
-              <label class="stone-familiar-check">
-                <input type="checkbox" class="js-familiar-sense-enable" data-sense-field="{{this.field}}" {{#if this.enabled}}checked{{/if}} {{#unless this.canEnable}}disabled{{/unless}} />
-                <span>{{this.label}}</span> <span class="stone-familiar-meta">(+1 stone)</span>
-              </label>
-              <p class="stone-familiar-sense-desc">{{this.description}}</p>
-              {{#if this.enabled}}
-              <div class="stone-familiar-stone-slot js-familiar-sense-slot" data-slot-kind="sense" data-sense-field="{{this.field}}">
-                {{#if this.stoneUi.filled}}
-                <span class="ms-stone-gem-chip is-filled" style="--stone-fill: {{this.stoneUi.gemStyle.fill}}; --stone-stroke: {{this.stoneUi.gemStyle.stroke}};">{{this.stoneUi.label}}</span>
-                <button type="button" class="js-familiar-clear-stone stone-familiar-clear" data-slot-kind="sense" data-sense-field="{{this.field}}">✕</button>
-                {{else}}
-                <span class="stone-familiar-slot-empty">Assign stone</span>
-                {{/if}}
-              </div>
-              {{/if}}
-            </div>
-            {{/each}}
-          </div>
-        </div>
-
-        <div class="stone-familiar-bind-row">
-          <button type="button" class="js-familiar-bind dialog-btn dialog-btn-primary" {{#unless familiarCanBind}}disabled{{/unless}}>Bind Familiar</button>
-          <button type="button" class="js-familiar-bind-and-actor dialog-btn dialog-btn-secondary" {{#unless familiarCanBind}}disabled{{/unless}}>Bind + Create Actor</button>
-        </div>
-      </form>
-
-      {{#if familiarResult}}
-      <div class="stone-familiar-output">
-        <h4 class="stone-summons-subtitle">Live preview</h4>
-        <dl class="stone-familiar-dl">
-          <dt>Name</dt><dd>{{familiarResult.familiarName}}</dd>
-          <dt>Bound Stones</dt><dd>{{familiarResult.totalBoundStones}} / {{familiarMasteryCap}}</dd>
-          <dt>Size</dt><dd>{{familiarResult.size}}</dd>
-          <dt>HP / Armor / Evade</dt><dd>{{familiarResult.finalStats.hp}} / {{familiarResult.finalStats.armor}} / {{familiarResult.finalStats.evade}}</dd>
-          <dt>Attack / Damage</dt><dd>{{familiarResult.finalStats.attack}} / {{familiarResult.finalStats.damage}}</dd>
-          <dt>Movement</dt><dd>{{familiarResult.finalStats.movementM}} m ({{familiarResult.movementType}})</dd>
-        </dl>
-        {{#if familiarValidation.errors.length}}
-        <ul class="stone-familiar-errors">
-          {{#each familiarValidation.errors}}
-          <li>{{this}}</li>
-          {{/each}}
-        </ul>
-        {{/if}}
-        {{#if familiarValidation.warnings.length}}
-        <ul class="stone-familiar-warnings">
-          {{#each familiarValidation.warnings}}
-          <li>{{this}}</li>
-          {{/each}}
-        </ul>
-        {{/if}}
-      </div>
-      {{/if}}
-    </div>
-
-    <details class="stone-familiar-ref-table-wrap">
-      <summary class="stone-summons-subtitle">Reference table (base + 8 upgrades)</summary>
-      <table class="stone-familiar-grid-table" role="grid">
-        <thead>
-          <tr>
-            <th scope="col"></th>
-            <th scope="col">Base</th>
-            <th scope="col">+1</th><th scope="col">+2</th><th scope="col">+3</th><th scope="col">+4</th>
-            <th scope="col">+5</th><th scope="col">+6</th><th scope="col">+7</th><th scope="col">+8</th>
-          </tr>
-        </thead>
-        <tbody>
-          {{#each familiarProgressionTable}}
-          <tr>
-            <th scope="row">{{this.label}}</th>
-            {{#each this.cells}}
-            <td class="{{#if this.isHighlight}}is-tier-highlight{{/if}}">{{this.value}}</td>
-            {{/each}}
-          </tr>
-          {{/each}}
-        </tbody>
-      </table>
-    </details>
-    {{/if}}
   </div>
   {{/if}}
 

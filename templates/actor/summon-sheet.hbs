@@ -1,56 +1,44 @@
-<div class="{{cssClass}} summon-sheet">
-  <header class="sheet-header">
-    <div class="portrait-section">
-      <div class="profile-img-wrapper">
-        <div class="profile-img-container">
-          <img class="profile-img" src="{{actor.img}}" alt="{{actor.name}}" />
-        </div>
-        <div class="profile-img-label">FAMILIAR</div>
-      </div>
-    </div>
-    <div class="header-info">
-      <div class="character-name-box">
-        <h1>{{actor.name}}</h1>
-      </div>
-      <p class="summon-meta">{{system.bio.summonType}} · {{familiarSize}} · {{familiarMovement}}</p>
-      <p class="summon-owner">Owner: <a href="#" data-action="open-owner">{{ownerName}}</a></p>
+<section class="summon-sheet">
+  <header class="summon-sheet-header">
+    <img class="summon-sheet-portrait" src="{{actor.img}}" alt="{{actor.name}}" />
+    <div class="summon-sheet-identity">
+      <h1 class="summon-sheet-name">{{actor.name}}</h1>
+      <p class="summon-sheet-type">SUMMON</p>
+      <p class="summon-sheet-owner">Owner: <a href="#" data-action="open-owner">{{ownerName}}</a></p>
+      {{#if expression}}<p class="summon-sheet-expression">{{expression}}</p>{{/if}}
     </div>
   </header>
 
-  <section class="summon-statblock">
-    <h3>Combat</h3>
-    <dl class="summon-dl">
-      <dt>HP</dt><dd>{{familiarStats.hp}}</dd>
-      <dt>Armor</dt><dd>{{familiarStats.armor}}</dd>
-      <dt>Evade</dt><dd>{{familiarStats.evade}}</dd>
-      <dt>Movement</dt><dd>{{familiarStats.speed}} m</dd>
-      <dt>Attack</dt><dd>{{familiarStats.attack}}</dd>
-      <dt>Damage</dt><dd>{{familiarStats.damage}}</dd>
-      <dt>Bound Stones</dt><dd>{{boundStoneCount}}</dd>
-    </dl>
-  </section>
+  <dl class="summon-sheet-stats">
+    <div><dt>HP</dt><dd>{{familiarStats.hp}}</dd></div>
+    <div><dt>Armor</dt><dd>{{familiarStats.armor}}</dd></div>
+    <div><dt>Evade</dt><dd>{{familiarStats.evade}}</dd></div>
+    <div><dt>Movement</dt><dd>{{familiarStats.speed}} m ({{movementMode}})</dd></div>
+    <div><dt>Attack</dt><dd>{{familiarStats.attack}}</dd></div>
+    <div><dt>Damage</dt><dd>{{familiarStats.damage}}</dd></div>
+    <div><dt>Summon Attacks</dt><dd>{{summonAttacks}}</dd></div>
+    <div><dt>Bound Stones</dt><dd>{{boundStoneCount}}</dd></div>
+  </dl>
+
+  {{#if specialDisplay}}
+  <p class="summon-sheet-special">Special: {{specialDisplay}} <span class="summon-sheet-meta">(once per Round)</span></p>
+  {{/if}}
+
+  {{#if dormant}}
+  <p class="summon-sheet-dormant">Dormant — restore via Bond Ritual or Safe Haven Rest</p>
+  {{/if}}
 
   {{#if sharedSenseLabels.length}}
-  <section class="summon-senses">
-    <h3>Shared Senses</h3>
-    <ul>
-      {{#each sharedSenseLabels}}
-      <li>{{this}}</li>
-      {{/each}}
-    </ul>
+  <section class="summon-sheet-senses">
+    <h3>Shared Senses (this Body)</h3>
+    <ul>{{#each sharedSenseLabels}}<li>{{this}}</li>{{/each}}</ul>
   </section>
   {{/if}}
 
-  {{#if system.bio.description}}
-  <section class="summon-notes">
-    <h3>Notes</h3>
-    <p>{{system.bio.description}}</p>
+  {{#if powerLabels.length}}
+  <section class="summon-sheet-powers">
+    <h3>Purchased Powers</h3>
+    <ul>{{#each powerLabels}}<li>{{this}}</li>{{/each}}</ul>
   </section>
   {{/if}}
-
-  {{#if system.notes}}
-  <section class="summon-notes">
-    <p>{{system.notes}}</p>
-  </section>
-  {{/if}}
-</div>
+</section>

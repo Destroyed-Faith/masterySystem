@@ -52,10 +52,13 @@ Foundry Mastery System aligned to DF Rules v0.9.8 for combat foundations, Critic
 - **Result:** `npm test` — **1209 passed**; `npm run build` — OK
 
 ## Open conflicts / uncertainties
-1. **Critical(2–4):** Grant path implemented; resolution for tiers >1 not defined in PG/agent beyond Crit(1)=explode 7–8. Implemented: any Critical ≥ 1 → explode 7–8 for all attacks while buff lasts.
-2. **Artifact Summon Token Generator** (`artefacts.md`): 1 Artifact Summon Stone → **4** Tokens. Summon Bound Stones use **×8**. Left as written in artefacts.md (specific artifact subsystem).
-3. **Summon UI:** Full Bond Ritual token shop / skill picker / power purchase UI is partially bridged (bind creates V2 bond + needsRedistribution). Legacy familiar editor still present as entry UI.
-4. **Full power-catalog row audit** vs every Rules table line not exhaustively automated; Armor/Evade/Summon Aura/Awareness were priority fixes.
+
+> Superseded by **v0.9.240** — see `docs/RULES-V098-COMPLETION-REPORT.md`.
+
+1. **Critical(2–4):** Still the only open Rules decision (isolated in `critical-resolution.ts`).
+2. ~~Artifact Summon Token Generator~~ — clarified: Bound Stones ×8 vs Artifact +4 bonus Tokens (not a conflict).
+3. ~~Summon UI~~ — completed in v0.9.240 (`SummonBondDialog`).
+4. ~~Full catalog audit~~ — completed (`docs/catalog-audit.json`).
 
 ## Manual Foundry checks
 - [ ] Create character: Speed shows 8 m

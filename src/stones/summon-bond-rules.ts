@@ -54,7 +54,14 @@ export const SUMMON_CAPS = {
   maxMovementM: 16,
   maxSummonAttacks: 3,
   maxSpecialValue: 4,
+  /** Normal Bound Stone → Summon Tokens (Players Guide). */
   tokensPerStone: 8,
+  /**
+   * Artifact Summon Token Generator (`Rules/artefacts.md`):
+   * each Artifact Summon Stone → 4 bonus Tokens for an existing Bond.
+   * These are not Bound Stones and cannot create a Bond.
+   */
+  artifactSummonTokensPerStone: 4,
   extraBodyTokenCost: 2,
   sharedSenseTokenCost: 2,
   skillDiceTokenCost: 1,
@@ -75,6 +82,30 @@ export const SUMMON_CAPS = {
   movementTokenCost: 1,
   movementGainM: 2,
 } as const;
+
+/** Bonus Tokens from N Artifact Summon Stones (not Bound Stones). */
+export function artifactSummonBonusTokens(artifactSummonStoneCount: number): number {
+  const n = Math.max(0, Math.floor(Number(artifactSummonStoneCount) || 0));
+  return n * SUMMON_CAPS.artifactSummonTokensPerStone;
+}
+
+/** Eligible numeric Specials for Summon Bond Special Access (attack Specials). */
+export const SUMMON_ELIGIBLE_SPECIALS: { id: string; label: string }[] = [
+  { id: 'challenge', label: 'Challenge' },
+  { id: 'blight', label: 'Blight' },
+  { id: 'corrode', label: 'Corrode' },
+  { id: 'disoriented', label: 'Disoriented' },
+  { id: 'expose', label: 'Expose' },
+  { id: 'hex', label: 'Hex' },
+  { id: 'lacerate', label: 'Lacerate' },
+  { id: 'mark', label: 'Mark' },
+  { id: 'ruin', label: 'Ruin' },
+  { id: 'slow', label: 'Slow' },
+  { id: 'soulburn', label: 'Soulburn' },
+  { id: 'sundered', label: 'Sundered' },
+  { id: 'weaken', label: 'Weaken' },
+  { id: 'root', label: 'Root' },
+];
 
 export type SummonBodyUpgradeSpend = {
   hpPurchases: number;

@@ -1,5 +1,5 @@
 /**
- * Summon / Familiar actor sheet — read-focused statblock for bound familiars.
+ * Summon actor sheet — read-focused statblock for Summons V2 Bond bodies.
  */
 import { MasteryCharacterSheet } from './character-sheet.js';
 export declare class MasterySummonSheet extends MasteryCharacterSheet {

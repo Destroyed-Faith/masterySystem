@@ -1,10 +1,10 @@
 /**
- * Summon / Familiar actor sheet — read-focused statblock for bound familiars.
+ * Summon actor sheet — read-focused statblock for Summons V2 Bond bodies.
  */
 
 import { MasteryCharacterSheet } from './character-sheet.js';
 import { getSharedSenseLabel } from '../stones/familiar-bind.js';
-import type { SharedSenseGroup } from '../stones/familiar-rules.js';
+import type { SharedSenseGroup } from '../stones/summon-bond-rules.js';
 
 export class MasterySummonSheet extends MasteryCharacterSheet {
   /** @override */
@@ -34,7 +34,21 @@ export class MasterySummonSheet extends MasteryCharacterSheet {
   override async _prepareContext(options?: any): Promise<any> {
     const context = await super._prepareContext(options);
     const system = (this.actor as any).system ?? {};
+    const bondLink = system.summonBond ?? {};
     const familiar = system.familiar ?? {};
+    const ownerId = bondLink.ownerActorId || familiar.ownerActorId || '';
+    const owner = ownerId ? (game as any).actors?.get(ownerId) : null;
+    const senseGroups = (bondLink.sharedSenses ?? familiar.sharedSenses ?? []) as SharedSenseGroup[];
+    const specials = system.npcBaseAttack?.specials ?? [];
+    const special0 = specials[0];
+    const specialDisplay =
+      special0?.special && special0?.specialValue
+        ? `${special0.special}(${special0.specialValue})`
+        : '';
+    const powers = Array.isArray(system.notesPowers)
+      ? system.notesPowers
+      : [];
+
     const stats = {
       hp: system.health?.bars?.[0]?.max ?? system.health?.maximum ?? 0,
       armor: system.combat?.armor ?? 0,
@@ -47,20 +61,21 @@ export class MasterySummonSheet extends MasteryCharacterSheet {
         ? `${system.npcBaseAttack.damageDiceCount}d8`
         : '—',
     };
-    const senseGroups = (familiar.sharedSenses ?? []) as SharedSenseGroup[];
-    const ownerId = familiar.ownerActorId ?? '';
-    const owner = ownerId ? (game as any).actors?.get(ownerId) : null;
 
     return {
       ...context,
       familiar,
       familiarStats: stats,
-      familiarSize: familiar.size ?? '—',
-      familiarMovement: familiar.movementType ?? 'ground',
-      sharedSenseLabels: senseGroups.map((g) => getSharedSenseLabel(g)),
+      movementMode: bondLink.movementMode || familiar.movementType || 'walking',
+      expression: system.bio?.description?.match(/Expression: ([^.]+)/)?.[1] ?? '',
+      sharedSenseLabels: senseGroups.map((g) => getSharedSenseLabel(g as any)),
       ownerName: owner?.name ?? 'Unknown',
       ownerActorId: ownerId,
-      boundStoneCount: familiar.boundStoneCount ?? 0,
+      boundStoneCount: bondLink.boundStoneCount ?? familiar.boundStoneCount ?? 0,
+      summonAttacks: system.attackSlots ?? 1,
+      specialDisplay,
+      dormant: !!bondLink.dormant,
+      powerLabels: powers,
     };
   }
 
@@ -68,7 +83,8 @@ export class MasterySummonSheet extends MasteryCharacterSheet {
     super.activateListeners(html);
     html.find('[data-action="open-owner"]').on('click', (ev) => {
       ev.preventDefault();
-      const ownerId = (this.actor as any).system?.familiar?.ownerActorId;
+      const system = (this.actor as any).system ?? {};
+      const ownerId = system.summonBond?.ownerActorId || system.familiar?.ownerActorId;
       if (!ownerId) return;
       const owner = (game as any).actors?.get(ownerId);
       owner?.sheet?.render(true);

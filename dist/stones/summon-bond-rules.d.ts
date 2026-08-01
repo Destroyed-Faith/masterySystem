@@ -31,7 +31,14 @@ export declare const SUMMON_CAPS: {
     readonly maxMovementM: 16;
     readonly maxSummonAttacks: 3;
     readonly maxSpecialValue: 4;
+    /** Normal Bound Stone → Summon Tokens (Players Guide). */
     readonly tokensPerStone: 8;
+    /**
+     * Artifact Summon Token Generator (`Rules/artefacts.md`):
+     * each Artifact Summon Stone → 4 bonus Tokens for an existing Bond.
+     * These are not Bound Stones and cannot create a Bond.
+     */
+    readonly artifactSummonTokensPerStone: 4;
     readonly extraBodyTokenCost: 2;
     readonly sharedSenseTokenCost: 2;
     readonly skillDiceTokenCost: 1;
@@ -52,6 +59,13 @@ export declare const SUMMON_CAPS: {
     readonly movementTokenCost: 1;
     readonly movementGainM: 2;
 };
+/** Bonus Tokens from N Artifact Summon Stones (not Bound Stones). */
+export declare function artifactSummonBonusTokens(artifactSummonStoneCount: number): number;
+/** Eligible numeric Specials for Summon Bond Special Access (attack Specials). */
+export declare const SUMMON_ELIGIBLE_SPECIALS: {
+    id: string;
+    label: string;
+}[];
 export type SummonBodyUpgradeSpend = {
     hpPurchases: number;
     armorPurchases: number;

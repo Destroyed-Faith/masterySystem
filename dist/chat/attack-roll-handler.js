@@ -417,8 +417,13 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
             catch {
                 buffCritical = 0;
             }
-            // Stone Crit(1) charges OR maintained Active Buff: Critical (≥1) → explode on 7–8.
-            const attackExplodeDiceOn78 = critBank > 0 || buffCritical >= 1;
+            // Isolated Critical resolver — Critical(2–4) await Rules decision (see docs/CRITICAL-RESOLUTION.md).
+            const { resolveCriticalAttackModifier } = await import('../combat/critical-resolution.js');
+            const critMod = resolveCriticalAttackModifier({
+                activeBuffCriticalTier: buffCritical,
+                stoneCritCharges: critBank,
+            });
+            const attackExplodeDiceOn78 = critMod.explodeOn78;
             const bloodRaises = Math.max(0, parseInt(button.attr('data-blood-raises') || '0', 10) || 0);
             let raiseTnRollBonus = 0;
             if (isSpellcasting && freshAttacker && combatRef) {
