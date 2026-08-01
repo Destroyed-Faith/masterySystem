@@ -1,0 +1,1462 @@
+{
+  "version": "0.9.239",
+  "generatedAt": "2026-08-01T19:52:20.818Z",
+  "summary": {
+    "correct": 203,
+    "corrected": 3,
+    "missing": 0,
+    "obsolete": 0,
+    "requires-rule-decision": 1
+  },
+  "entries": [
+    {
+      "category": "active",
+      "id": "active-cleanse-absorption",
+      "name": "Cleanse Absorption",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "active",
+      "id": "active-melee-aoe-cleanse",
+      "name": "Melee AoE Cleanse",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "active",
+      "id": "active-melee-aoe-damage-t3",
+      "name": "Melee AoE Damage — Tier 3",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "active",
+      "id": "active-melee-aoe-damage-t4",
+      "name": "Melee AoE Damage — Tier 4",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "active",
+      "id": "active-melee-aoe-damage-t5",
+      "name": "Melee AoE Damage — Tier 5",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "active",
+      "id": "active-melee-aoe-damage-t6",
+      "name": "Melee AoE Damage — Tier 6",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "active",
+      "id": "active-melee-aoe-dispel",
+      "name": "Melee AoE Dispel",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "active",
+      "id": "active-melee-aoe-heal",
+      "name": "Melee AoE Heal",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "active",
+      "id": "active-melee-control-pull-disarm",
+      "name": "Melee Control — Pull + Disarm",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "active",
+      "id": "active-melee-control-push-prone",
+      "name": "Melee Control — Push + Prone",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "active",
+      "id": "active-melee-control-push-pull",
+      "name": "Melee Control — Push + Pull",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "active",
+      "id": "active-melee-damage-dispel-mixed",
+      "name": "Melee Damage + Dispel (Mixed)",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "active",
+      "id": "active-melee-damage-stunned",
+      "name": "Melee Damage + Stunned",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "active",
+      "id": "active-melee-damage-t3",
+      "name": "Melee Damage — Tier 3",
+      "status": "correct",
+      "notes": "Special-first Active family (curated RULES_EXPECTED manifest)"
+    },
+    {
+      "category": "active",
+      "id": "active-melee-damage-t4",
+      "name": "Melee Damage — Tier 4",
+      "status": "correct",
+      "notes": "Special-first Active family (curated RULES_EXPECTED manifest)"
+    },
+    {
+      "category": "active",
+      "id": "active-melee-damage-t5",
+      "name": "Melee Damage — Tier 5",
+      "status": "correct",
+      "notes": "Special-first Active family (curated RULES_EXPECTED manifest)"
+    },
+    {
+      "category": "active",
+      "id": "active-melee-damage-t6",
+      "name": "Melee Damage — Tier 6",
+      "status": "correct",
+      "notes": "Special-first Active family (curated RULES_EXPECTED manifest)"
+    },
+    {
+      "category": "active",
+      "id": "active-melee-heal-cleanse-mixed",
+      "name": "Melee Heal + Cleanse (Mixed)",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "active",
+      "id": "active-melee-health-level-heal",
+      "name": "Melee Health Level Heal",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "active",
+      "id": "active-melee-single-cleanse",
+      "name": "Melee Single-Target Cleanse",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "active",
+      "id": "active-melee-single-dispel",
+      "name": "Melee Single-Target Dispel",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "active",
+      "id": "active-melee-single-heal",
+      "name": "Melee Single-Target Heal",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "active",
+      "id": "active-melee-smite-attack",
+      "name": "Melee Smite Attack",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "active",
+      "id": "active-melee-weapon-aoe",
+      "name": "Melee AoE Attack",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "active",
+      "id": "active-melee-weapon-single",
+      "name": "Melee Single Attack",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "active",
+      "id": "active-melee-weapon-split",
+      "name": "Melee Split Attack",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "active",
+      "id": "active-mental-attack",
+      "name": "Mental Attack",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "active",
+      "id": "active-mind-illusion",
+      "name": "Mind Illusion",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "active",
+      "id": "active-ranged-aoe-cleanse",
+      "name": "Ranged AoE Cleanse",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "active",
+      "id": "active-ranged-aoe-damage-t3",
+      "name": "Ranged AoE Damage — Tier 3",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "active",
+      "id": "active-ranged-aoe-damage-t4",
+      "name": "Ranged AoE Damage — Tier 4",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "active",
+      "id": "active-ranged-aoe-damage-t5",
+      "name": "Ranged AoE Damage — Tier 5",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "active",
+      "id": "active-ranged-aoe-damage-t6",
+      "name": "Ranged AoE Damage — Tier 6",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "active",
+      "id": "active-ranged-aoe-dispel",
+      "name": "Ranged AoE Dispel",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "active",
+      "id": "active-ranged-aoe-heal",
+      "name": "Ranged AoE Heal",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "active",
+      "id": "active-ranged-aoe-smite-attack",
+      "name": "Ranged AoE Smite Attack",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "active",
+      "id": "active-ranged-barrier",
+      "name": "Ranged Barrier — 4 Rounds",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "active",
+      "id": "active-ranged-control-pull-disarm",
+      "name": "Ranged Control — Pull + Disarm",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "active",
+      "id": "active-ranged-control-push-prone",
+      "name": "Ranged Control — Push + Prone",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "active",
+      "id": "active-ranged-control-push-pull",
+      "name": "Ranged Control — Push + Pull",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "active",
+      "id": "active-ranged-damage-dispel-mixed",
+      "name": "Ranged Damage + Dispel (Mixed)",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "active",
+      "id": "active-ranged-damage-stunned",
+      "name": "Ranged Damage + Stunned",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "active",
+      "id": "active-ranged-damage-t3",
+      "name": "Ranged Damage — Tier 3",
+      "status": "correct",
+      "notes": "Special-first Active family (curated RULES_EXPECTED manifest)"
+    },
+    {
+      "category": "active",
+      "id": "active-ranged-damage-t4",
+      "name": "Ranged Damage — Tier 4",
+      "status": "correct",
+      "notes": "Special-first Active family (curated RULES_EXPECTED manifest)"
+    },
+    {
+      "category": "active",
+      "id": "active-ranged-damage-t5",
+      "name": "Ranged Damage — Tier 5",
+      "status": "correct",
+      "notes": "Special-first Active family (curated RULES_EXPECTED manifest)"
+    },
+    {
+      "category": "active",
+      "id": "active-ranged-damage-t6",
+      "name": "Ranged Damage — Tier 6",
+      "status": "correct",
+      "notes": "Special-first Active family (curated RULES_EXPECTED manifest)"
+    },
+    {
+      "category": "active",
+      "id": "active-ranged-heal-cleanse-mixed",
+      "name": "Ranged Heal + Cleanse (Mixed)",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "active",
+      "id": "active-ranged-health-level-heal",
+      "name": "Ranged Health Level Heal",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "active",
+      "id": "active-ranged-illusion-image",
+      "name": "Ranged Images — 4 Rounds",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "active",
+      "id": "active-ranged-single-cleanse",
+      "name": "Ranged Single-Target Cleanse",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "active",
+      "id": "active-ranged-single-dispel",
+      "name": "Ranged Single-Target Dispel",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "active",
+      "id": "active-ranged-single-heal",
+      "name": "Ranged Single-Target Heal",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "active",
+      "id": "active-ranged-smite-attack",
+      "name": "Ranged Smite Attack",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "active",
+      "id": "active-ranged-weapon-aoe",
+      "name": "Ranged AoE Attack",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "active",
+      "id": "active-ranged-weapon-autofire",
+      "name": "Ranged Autofire",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "active",
+      "id": "active-ranged-weapon-single",
+      "name": "Ranged Single Attack",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "active",
+      "id": "active-ranged-weapon-split",
+      "name": "Ranged Split Attack",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "active",
+      "id": "active-ranged-zone-t3",
+      "name": "Ranged Persistent Zone — Tier 3",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "active",
+      "id": "active-ranged-zone-t4",
+      "name": "Ranged Persistent Zone — Tier 4",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "active",
+      "id": "active-ranged-zone-t5",
+      "name": "Ranged Persistent Zone — Tier 5",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "active",
+      "id": "active-ranged-zone-t6",
+      "name": "Ranged Persistent Zone — Tier 6",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "activeBuff",
+      "id": "ab-armor",
+      "name": "Active Buff: Armor",
+      "status": "correct",
+      "notes": "Armor curve +5…+65 matches Rules; Active Buff: Armor"
+    },
+    {
+      "category": "activeBuff",
+      "id": "ab-armor-aura",
+      "name": "Active Buff: Armor Aura",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "activeBuff",
+      "id": "ab-armor-temp-hp",
+      "name": "Active Buff: Armor + Temporary HP",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "activeBuff",
+      "id": "ab-cleanse-maintenance",
+      "name": "Active Buff: Cleanse Maintenance",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "activeBuff",
+      "id": "ab-damage",
+      "name": "Active Buff: Damage",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "activeBuff",
+      "id": "ab-damage-aura",
+      "name": "Active Buff: Damage Aura",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "activeBuff",
+      "id": "ab-damage-penetration",
+      "name": "Active Buff: Damage + Penetration",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "activeBuff",
+      "id": "ab-damage-reduction",
+      "name": "Active Buff: Damage Reduction",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "activeBuff",
+      "id": "ab-growth-form",
+      "name": "Active Buff: Growth Form",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "activeBuff",
+      "id": "ab-healing",
+      "name": "Active Buff: Healing",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "activeBuff",
+      "id": "ab-healing-aura",
+      "name": "Active Buff: Healing Aura",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "activeBuff",
+      "id": "ab-immovable-temp-hp",
+      "name": "Active Buff: Immovable + Temporary HP",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "activeBuff",
+      "id": "ab-intensified-absorption",
+      "name": "Active Buff: Intensified Absorption",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "activeBuff",
+      "id": "ab-invisibility",
+      "name": "Active Buff: Invisibility",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "activeBuff",
+      "id": "ab-penetration",
+      "name": "Active Buff: Penetration",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "activeBuff",
+      "id": "ab-phasing",
+      "name": "Active Buff: Phasing",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "activeBuff",
+      "id": "ab-reinforced-damage-negation",
+      "name": "Active Buff: Reinforced Damage Negation",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "activeBuff",
+      "id": "ab-reinforced-parry",
+      "name": "Active Buff: Reinforced Parry",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "activeBuff",
+      "id": "ab-smite-aura",
+      "name": "Artifact Only Active Buff: Smite Aura",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "activeBuff",
+      "id": "ab-special-overdrive",
+      "name": "Active Buff: Special Overdrive",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "activeBuff",
+      "id": "ab-spell-resistance",
+      "name": "Active Buff: Spell Resistance",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "activeBuff",
+      "id": "ab-summon-armor-aura",
+      "name": "Active Buff: Summon Armor Aura",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "activeBuff",
+      "id": "ab-summon-damage-aura",
+      "name": "Active Buff: Summon Damage Aura",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "activeBuff",
+      "id": "ab-temp-hp",
+      "name": "Active Buff: Temporary HP",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "activeBuff",
+      "id": "ab-temp-hp-healing",
+      "name": "Active Buff: Temporary HP + Healing",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "activeBuff",
+      "id": "ab-thorns",
+      "name": "Active Buff: Thorns",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "activeBuff",
+      "id": "ab-armor-evade",
+      "name": "Active Buff: Armor + Evade",
+      "status": "corrected",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "activeBuff",
+      "id": "ab-evade",
+      "name": "Active Buff: Evade",
+      "status": "corrected",
+      "notes": "Evade curve +8…+98 matches Rules; Active Buff: Evade"
+    },
+    {
+      "category": "activeBuff",
+      "id": "ab-evade-temp-hp",
+      "name": "Active Buff: Evade + Temporary HP",
+      "status": "corrected",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "activeBuff",
+      "id": "ab-critical",
+      "name": "Active Buff: Critical",
+      "status": "requires-rule-decision",
+      "notes": "Critical(1) explode-on-7–8 implemented; Critical(2–4) resolution requires Rules decision (docs/CRITICAL-RESOLUTION.md)"
+    },
+    {
+      "category": "artifact",
+      "id": "dragonClaws",
+      "name": "Dragon Claws",
+      "status": "correct",
+      "notes": "Present in echo catalog; referenced in Rules/artefacts.md"
+    },
+    {
+      "category": "artifact",
+      "id": "dragonHead",
+      "name": "Dragon Head",
+      "status": "correct",
+      "notes": "Present in echo catalog (curated expected list)"
+    },
+    {
+      "category": "artifact",
+      "id": "elorianStride",
+      "name": "Elorian Stride",
+      "status": "correct",
+      "notes": "Present in echo catalog (curated expected list)"
+    },
+    {
+      "category": "artifact",
+      "id": "falconWideBrim",
+      "name": "Falcon Wide Brim",
+      "status": "correct",
+      "notes": "Present in general catalog; referenced in Rules/artefacts.md"
+    },
+    {
+      "category": "artifact",
+      "id": "frostboundReturningAxe",
+      "name": "Frostbound Returning Axe",
+      "status": "correct",
+      "notes": "Present in general catalog; referenced in Rules/artefacts.md"
+    },
+    {
+      "category": "artifact",
+      "id": "heartOfWinter",
+      "name": "Heart of Winter",
+      "status": "correct",
+      "notes": "Present in general catalog; referenced in Rules/artefacts.md"
+    },
+    {
+      "category": "artifact",
+      "id": "heartseeker",
+      "name": "Heartseeker",
+      "status": "correct",
+      "notes": "Present in general catalog; referenced in Rules/artefacts.md"
+    },
+    {
+      "category": "artifact",
+      "id": "judicatorFrame",
+      "name": "Judicator Frame",
+      "status": "correct",
+      "notes": "Present in echo catalog (curated expected list)"
+    },
+    {
+      "category": "artifact",
+      "id": "lanternOfTheHollowStar",
+      "name": "Lantern of the Hollow Star",
+      "status": "correct",
+      "notes": "Present in general catalog; referenced in Rules/artefacts.md"
+    },
+    {
+      "category": "artifact",
+      "id": "lorKethsStaff",
+      "name": "Lor-Keth's Staff",
+      "status": "correct",
+      "notes": "Present in general catalog (curated expected list)"
+    },
+    {
+      "category": "artifact",
+      "id": "moonlightGreatsword",
+      "name": "Moonlight Greatsword",
+      "status": "correct",
+      "notes": "Present in general catalog; referenced in Rules/artefacts.md"
+    },
+    {
+      "category": "artifact",
+      "id": "oracleFrame",
+      "name": "Oracle Frame",
+      "status": "correct",
+      "notes": "Present in echo catalog (curated expected list)"
+    },
+    {
+      "category": "artifact",
+      "id": "sentinelFrame",
+      "name": "Sentinel Frame",
+      "status": "correct",
+      "notes": "Present in echo catalog (curated expected list)"
+    },
+    {
+      "category": "artifact",
+      "id": "shadowgraveArmor",
+      "name": "Shadowgrave Armor",
+      "status": "correct",
+      "notes": "Present in general catalog; referenced in Rules/artefacts.md"
+    },
+    {
+      "category": "artifact",
+      "id": "soulSigil",
+      "name": "Soul Sigil",
+      "status": "correct",
+      "notes": "Present in general catalog; referenced in Rules/artefacts.md"
+    },
+    {
+      "category": "artifact",
+      "id": "staffOfTheDark",
+      "name": "Staff of the Dark",
+      "status": "correct",
+      "notes": "Present in general catalog; referenced in Rules/artefacts.md"
+    },
+    {
+      "category": "artifact",
+      "id": "starfallenForceshield",
+      "name": "Starfallen Forceshield",
+      "status": "correct",
+      "notes": "Present in general catalog; referenced in Rules/artefacts.md"
+    },
+    {
+      "category": "artifact",
+      "id": "stoneboundSoles",
+      "name": "Stonebound Soles",
+      "status": "correct",
+      "notes": "Present in echo catalog; referenced in Rules/artefacts.md"
+    },
+    {
+      "category": "artifact",
+      "id": "titanScars*",
+      "name": "Titan Scars",
+      "status": "correct",
+      "notes": "7 attribute variants in ECHO_ARTIFACTS (Might/Agility/…); Rules example family"
+    },
+    {
+      "category": "artifact",
+      "id": "wyrmScalesHeavy",
+      "name": "Wyrm Scales (Heavy)",
+      "status": "correct",
+      "notes": "Present in echo catalog (curated expected list)"
+    },
+    {
+      "category": "artifact",
+      "id": "wyrmScalesLight",
+      "name": "Serpent Scales",
+      "status": "correct",
+      "notes": "Present in echo catalog (curated expected list)"
+    },
+    {
+      "category": "artifact-rule",
+      "id": "artifact-summon-token-generator",
+      "name": "Artifact Summon Token Generator",
+      "status": "correct",
+      "notes": "Rules: 1 Artifact Summon Stone → 4 Tokens (bonus tokens, not Bound Stones). Marked correct — not a conflict with Summon Bound Stone ×8."
+    },
+    {
+      "category": "movement",
+      "id": "movement-burrow",
+      "name": "Movement: Burrow",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "movement",
+      "id": "movement-flight",
+      "name": "Movement: Flight",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "movement",
+      "id": "movement-ground-dash",
+      "name": "Movement: Ground Dash",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "movement",
+      "id": "movement-leap",
+      "name": "Movement: Leap",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "movement",
+      "id": "movement-phase-passage",
+      "name": "Movement: Phase Passage",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "movement",
+      "id": "movement-safe-movement",
+      "name": "Movement: Safe Movement",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "movement",
+      "id": "movement-teleport",
+      "name": "Movement: Teleport",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "movement",
+      "id": "movement-teleport-with-ally",
+      "name": "Movement: Teleport with Ally",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "movement",
+      "id": "movement-trample",
+      "name": "Movement: Trample",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "movement",
+      "id": "movement-wall-walk",
+      "name": "Movement: Wall Walk",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "passive",
+      "id": "conditional-passive-armor-healing",
+      "name": "Passive: Armor / Healing (Conditional)",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "passive",
+      "id": "conditional-passive-armor-health",
+      "name": "Passive: Armor / Health (Conditional)",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "passive",
+      "id": "conditional-passive-armor-temp-hp",
+      "name": "Passive: Armor / Temporary HP (Conditional)",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "passive",
+      "id": "conditional-passive-awareness-damage",
+      "name": "conditional awareness-damage",
+      "status": "correct",
+      "notes": "Retired Awareness passive correctly filtered from PASSIVE_TEMPLATES (Sense Slot)"
+    },
+    {
+      "category": "passive",
+      "id": "conditional-passive-awareness-evade",
+      "name": "conditional awareness-evade",
+      "status": "correct",
+      "notes": "Retired Awareness passive correctly filtered from PASSIVE_TEMPLATES (Sense Slot)"
+    },
+    {
+      "category": "passive",
+      "id": "conditional-passive-damage-healing",
+      "name": "Passive: Damage / Healing (Conditional)",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "passive",
+      "id": "conditional-passive-damage-temp-hp",
+      "name": "Passive: Damage / Temporary HP (Conditional)",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "passive",
+      "id": "conditional-passive-evade-damage",
+      "name": "Passive: Evade / Damage (Conditional)",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "passive",
+      "id": "conditional-passive-evade-healing",
+      "name": "Passive: Evade / Healing (Conditional)",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "passive",
+      "id": "conditional-passive-evade-temp-hp",
+      "name": "Passive: Evade / Temporary HP (Conditional)",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "passive",
+      "id": "conditional-passive-health-healing",
+      "name": "Passive: Health / Healing (Conditional)",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "passive",
+      "id": "conditional-passive-health-temp-hp",
+      "name": "Passive: Health / Temporary HP (Conditional)",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "passive",
+      "id": "empower-buff-armor",
+      "name": "Passive: Armor Buff Empowerment",
+      "status": "correct",
+      "notes": "System support passive (buff empowerment / extension / echo armor)"
+    },
+    {
+      "category": "passive",
+      "id": "empower-buff-damage",
+      "name": "Passive: Damage Buff Empowerment",
+      "status": "correct",
+      "notes": "System support passive (buff empowerment / extension / echo armor)"
+    },
+    {
+      "category": "passive",
+      "id": "empower-buff-evade",
+      "name": "Passive: Evade Buff Empowerment",
+      "status": "correct",
+      "notes": "System support passive (buff empowerment / extension / echo armor)"
+    },
+    {
+      "category": "passive",
+      "id": "empower-buff-wind",
+      "name": "Passive: Wind Buff Empowerment",
+      "status": "correct",
+      "notes": "System support passive (buff empowerment / extension / echo armor)"
+    },
+    {
+      "category": "passive",
+      "id": "extend-buff-armor",
+      "name": "Passive: Armor Buff Extension",
+      "status": "correct",
+      "notes": "System support passive (buff empowerment / extension / echo armor)"
+    },
+    {
+      "category": "passive",
+      "id": "extend-buff-damage-reduction",
+      "name": "Passive: DR Buff Extension",
+      "status": "correct",
+      "notes": "System support passive (buff empowerment / extension / echo armor)"
+    },
+    {
+      "category": "passive",
+      "id": "extend-buff-evade",
+      "name": "Passive: Evade Buff Extension",
+      "status": "correct",
+      "notes": "System support passive (buff empowerment / extension / echo armor)"
+    },
+    {
+      "category": "passive",
+      "id": "extend-buff-mobility",
+      "name": "Passive: Mobility Buff Extension",
+      "status": "correct",
+      "notes": "System support passive (buff empowerment / extension / echo armor)"
+    },
+    {
+      "category": "passive",
+      "id": "passive-absorption",
+      "name": "Passive: Absorption",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "passive",
+      "id": "passive-ambusher",
+      "name": "Passive: Ambusher",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "passive",
+      "id": "passive-armor-healing",
+      "name": "Passive: Armor / Healing",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "passive",
+      "id": "passive-armor-health",
+      "name": "Passive: Armor / Health",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "passive",
+      "id": "passive-armor-temp-hp",
+      "name": "Passive: Armor / Temporary HP",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "passive",
+      "id": "passive-awareness-damage",
+      "name": "awareness-damage",
+      "status": "correct",
+      "notes": "Retired Awareness passive correctly filtered from PASSIVE_TEMPLATES (Sense Slot)"
+    },
+    {
+      "category": "passive",
+      "id": "passive-awareness-evade",
+      "name": "awareness-evade",
+      "status": "correct",
+      "notes": "Retired Awareness passive correctly filtered from PASSIVE_TEMPLATES (Sense Slot)"
+    },
+    {
+      "category": "passive",
+      "id": "passive-battle-trance",
+      "name": "Passive: Battle Trance",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "passive",
+      "id": "passive-blood-feast",
+      "name": "Passive: Blood Feast",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "passive",
+      "id": "passive-bloodlust",
+      "name": "Passive: Bloodlust",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "passive",
+      "id": "passive-bound-host",
+      "name": "Passive: Bound Host",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "passive",
+      "id": "passive-damage-healing",
+      "name": "Passive: Damage / Healing",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "passive",
+      "id": "passive-damage-negation",
+      "name": "Passive: Damage Negation",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "passive",
+      "id": "passive-damage-reduction",
+      "name": "Passive: Damage Reduction",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "passive",
+      "id": "passive-damage-temp-hp",
+      "name": "Passive: Damage / Temporary HP",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "passive",
+      "id": "passive-deep-vitality",
+      "name": "Passive: Deep Vitality",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "passive",
+      "id": "passive-duelist-footwork",
+      "name": "Passive: Duelist Footwork",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "passive",
+      "id": "passive-echo-armor-value",
+      "name": "Passive: Echo Armor Value",
+      "status": "correct",
+      "notes": "System support passive (buff empowerment / extension / echo armor)"
+    },
+    {
+      "category": "passive",
+      "id": "passive-evade",
+      "name": "Passive: Evade",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "passive",
+      "id": "passive-evade-damage",
+      "name": "Passive: Evade / Damage",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "passive",
+      "id": "passive-evade-healing",
+      "name": "Passive: Evade / Healing",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "passive",
+      "id": "passive-evade-temp-hp",
+      "name": "Passive: Evade / Temporary HP",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "passive",
+      "id": "passive-executioner",
+      "name": "Passive: Executioner",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "passive",
+      "id": "passive-flowing-step",
+      "name": "Passive: Flowing Step",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "passive",
+      "id": "passive-fortified-frame",
+      "name": "Passive: Fortified Frame",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "passive",
+      "id": "passive-ghostform",
+      "name": "Passive: Ghostform",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "passive",
+      "id": "passive-health-healing",
+      "name": "Passive: Health / Healing",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "passive",
+      "id": "passive-health-temp-hp",
+      "name": "Passive: Health / Temporary HP",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "passive",
+      "id": "passive-heightened-senses",
+      "name": "heightened-senses",
+      "status": "correct",
+      "notes": "Retired Awareness passive correctly filtered from PASSIVE_TEMPLATES (Sense Slot)"
+    },
+    {
+      "category": "passive",
+      "id": "passive-initiative",
+      "name": "Passive: Initiative",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "passive",
+      "id": "passive-invisibility",
+      "name": "Passive: Invisibility",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "passive",
+      "id": "passive-killing-intent",
+      "name": "Passive: Killing Intent",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "passive",
+      "id": "passive-momentum",
+      "name": "Passive: Momentum",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "passive",
+      "id": "passive-parry",
+      "name": "Passive: Parry",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "passive",
+      "id": "passive-regeneration",
+      "name": "Passive: Regeneration",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "passive",
+      "id": "passive-special-aura",
+      "name": "Passive: Special Aura",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "passive",
+      "id": "passive-spell-resistance",
+      "name": "Passive: Spell Resistance",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "passive",
+      "id": "passive-stillness-recovery",
+      "name": "Passive: Stillness Recovery",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "passive",
+      "id": "passive-stone-stance",
+      "name": "Passive: Stone Stance",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "passive",
+      "id": "passive-surrounded-bulwark",
+      "name": "Passive: Surrounded Bulwark",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "passive",
+      "id": "passive-telepathy-mind-link",
+      "name": "Passive: Telepathy / Mind Link",
+      "status": "correct",
+      "notes": "Matches curated RULES_EXPECTED manifest"
+    },
+    {
+      "category": "passive",
+      "id": "passive-temp-hp",
+      "name": "Passive: Temporary Hit Points",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "passive",
+      "id": "passive-thornhide",
+      "name": "Passive: Thornhide",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "passive",
+      "id": "passive-ward",
+      "name": "Passive: Ward",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "reaction",
+      "id": "reaction-ally-armor",
+      "name": "Reaction: Ally Armor",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "reaction",
+      "id": "reaction-ally-evade",
+      "name": "Reaction: Ally Evade",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "reaction",
+      "id": "reaction-ally-temp-hp",
+      "name": "Reaction: Ally Temporary HP",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "reaction",
+      "id": "reaction-armor",
+      "name": "Reaction: Armor",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "reaction",
+      "id": "reaction-armor-temp-hp",
+      "name": "Reaction: Armor + Temporary HP",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "reaction",
+      "id": "reaction-counter-damage",
+      "name": "Reaction: Counter Damage",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "reaction",
+      "id": "reaction-counter-damage-push",
+      "name": "Reaction: Counter Damage + Push",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "reaction",
+      "id": "reaction-damage-reduction",
+      "name": "Reaction: Damage Reduction",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "reaction",
+      "id": "reaction-evade",
+      "name": "Reaction: Evade",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "reaction",
+      "id": "reaction-evade-temp-hp",
+      "name": "Reaction: Evade + Temporary HP",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "reaction",
+      "id": "reaction-initiative-gain",
+      "name": "Reaction: Initiative Gain",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "reaction",
+      "id": "reaction-parry-reflection",
+      "name": "Reaction: Reflection",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "reaction",
+      "id": "reaction-phasing",
+      "name": "Reaction: Phasing",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "reaction",
+      "id": "reaction-reactive-cleanse",
+      "name": "Reaction: Reactive Cleanse",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "reaction",
+      "id": "reaction-reactive-overload",
+      "name": "Reaction: Reactive Overload",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "reaction",
+      "id": "reaction-reposition",
+      "name": "Reaction: Reposition",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "reaction",
+      "id": "reaction-repositioning-intercept",
+      "name": "Reaction: Repositioning Intercept",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "reaction",
+      "id": "reaction-riposte",
+      "name": "Reaction: Riposte",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "reaction",
+      "id": "reaction-special-increase",
+      "name": "Reaction: Special Increase",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "reaction",
+      "id": "reaction-temp-hp",
+      "name": "Reaction: Temporary HP",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    }
+  ]
+}

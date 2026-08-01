@@ -10,9 +10,10 @@ import type { PowerTemplate } from './_shared.js';
 import { buildLevels, activeBuffRow } from './_shared.js';
 
 // Level-scaled value tables derived from the L1..L16 calculations in the md.
-// Rules/active-buffs.md: +5 Armor/Evade at L1, +4 per level → L16 = +65.
+// Rules/active-buffs.md Armor: +5 at L1, +4/level → L16 = +65 (7.5 PP per Armor).
+// Rules/active-buffs.md Evade: +8 at L1, +6/level → L16 = +98 (5 PP per Evade).
 const AB_ARMOR = [5, 9, 13, 17, 21, 25, 29, 33, 37, 41, 45, 49, 53, 57, 61, 65];
-const AB_EVADE = [5, 9, 13, 17, 21, 25, 29, 33, 37, 41, 45, 49, 53, 57, 61, 65];
+const AB_EVADE = [8, 14, 20, 26, 32, 38, 44, 50, 56, 62, 68, 74, 80, 86, 92, 98];
 const AB_TEMP = [10, 17, 25, 32, 40, 47, 55, 62, 70, 77, 85, 92, 100, 107, 115, 122];
 // Active Buff: Healing heals FLAT HP at the start of each turn (4 PP / 1 HP).
 const AB_HEAL = [10, 17, 25, 32, 40, 47, 55, 62, 70, 77, 85, 92, 100, 107, 115, 122];
@@ -278,7 +279,7 @@ export const ACTIVE_BUFF_TEMPLATES: PowerTemplate[] = [
         roll: { kind: 'none' },
         levels: buildLevels((lvl) => {
             const ev = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32][lvl - 1];
-            const temp = [5, 7, 10, 12, 15, 17, 20, 22, 25, 27, 30, 32, 35, 37, 40, 42][lvl - 1];
+            const temp = [8, 12, 17, 22, 28, 32, 38, 42, 48, 52, 58, 62, 68, 72, 78, 82][lvl - 1];
             return activeBuffRow({
                 duration: DURATION_MR_ROUNDS,
                 effectText:
@@ -318,8 +319,8 @@ export const ACTIVE_BUFF_TEMPLATES: PowerTemplate[] = [
         cost: { action: 'attack' },
         roll: { kind: 'none' },
         levels: buildLevels((lvl) => {
-            const armor = [2, 3, 5, 6, 8, 9, 11, 12, 14, 15, 17, 18, 20, 21, 23, 24][lvl - 1];
-            const evade = [2, 4, 5, 7, 8, 10, 11, 13, 14, 16, 17, 19, 20, 22, 23, 25][lvl - 1];
+            const armor = [3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31, 33][lvl - 1];
+            const evade = [4, 7, 10, 13, 16, 19, 22, 25, 28, 31, 34, 37, 40, 43, 46, 49][lvl - 1];
             return activeBuffRow({
                 duration: DURATION_MR_ROUNDS,
                 effectText: `Gain **+${armor} Armor** and **+${evade} Evade**.`,

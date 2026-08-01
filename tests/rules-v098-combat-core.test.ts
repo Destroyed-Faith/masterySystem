@@ -37,6 +37,14 @@ describe('Rules v0.9.8 catalog alignment samples', () => {
     expect(levels['16']?.mechanics?.armor).toBe(65);
   });
 
+  it('Active Buff Evade uses +8 / +14 / +98 curve', () => {
+    const ab = ACTIVE_BUFF_TEMPLATES.find((t) => t.templateId === 'ab-evade');
+    expect(ab).toBeTruthy();
+    const levels = ab!.levels as Record<string, any>;
+    expect(levels['1']?.mechanics?.evade).toBe(8);
+    expect(levels['16']?.mechanics?.evade).toBe(98);
+  });
+
   it('Active Buff Critical milestones remain closed-subsystem', () => {
     const crit = findTemplateById('ab-critical') || ACTIVE_BUFF_TEMPLATES.find((t) => t.templateId === 'ab-critical');
     expect(crit).toBeTruthy();
