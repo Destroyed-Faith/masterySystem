@@ -476,17 +476,34 @@ export async function executeAttackRollFromCard(
       const combatRef = (game as any).combat;
       const rsCrit = actionEco.getRoundState(economyForStones, combatRef);
       const critBank = Math.max(0, Math.floor(Number(rsCrit?.stoneBonuses?.critRaises ?? 0) || 0));
-      let buffCritical = 0;
+      let buffCriticalX = 0;
       try {
         const { getActiveBuffCriticalTier } = await import('../utils/active-buffs.js');
-        buffCritical = getActiveBuffCriticalTier(freshAttacker);
+        buffCriticalX = getActiveBuffCriticalTier(freshAttacker);
       } catch {
-        buffCritical = 0;
+        buffCriticalX = 0;
       }
-      // Isolated Critical resolver — Critical(2–4) await Rules decision (see docs/CRITICAL-RESOLUTION.md).
-      const { resolveCriticalAttackModifier } = await import('../combat/critical-resolution.js');
+      // Critical(X) = X Critical attacks per Round; explode threshold always 7–8 on Attack Dice.
+      const {
+        resolveCriticalAttackModifier,
+        syncCriticalRoundQuota,
+        consumeCriticalQuota,
+        combatRoundKey,
+      } = await import('../combat/critical-resolution.js');
+      const roundKey = combatRoundKey(combatRef);
+      const syncedQuota = syncCriticalRoundQuota(rsCrit.criticalQuota, roundKey, buffCriticalX);
+      if (
+        !rsCrit.criticalQuota ||
+        rsCrit.criticalQuota.roundKey !== syncedQuota.roundKey ||
+        rsCrit.criticalQuota.granted !== syncedQuota.granted ||
+        rsCrit.criticalQuota.remaining !== syncedQuota.remaining
+      ) {
+        rsCrit.criticalQuota = syncedQuota;
+        await actionEco.setRoundState(economyForStones, rsCrit);
+      }
       const critMod = resolveCriticalAttackModifier({
-        activeBuffCriticalTier: buffCritical,
+        activeBuffCriticalX: buffCriticalX,
+        buffQuotaRemaining: syncedQuota.remaining,
         stoneCritCharges: critBank,
       });
       const attackExplodeDiceOn78 = critMod.explodeOn78;
@@ -553,14 +570,20 @@ export async function executeAttackRollFromCard(
         ...(isFaithReroll ? { isRerollResult: true } : {}),
       });
 
-      // Consume stone Crit charges only (Active Buff Critical lasts for the buff duration).
-      if (critBank > 0 && attackExplodeDiceOn78 && !isFaithReroll) {
+      // Consume one Critical application (buff quota preferred, else stone Crit charge).
+      if (critMod.applyCritical && critMod.consumeFrom && !isFaithReroll) {
         const rs2 = actionEco.getRoundState(economyForStones, combatRef);
-        if (!rs2.stoneBonuses) {
-          rs2.stoneBonuses = { extraAttacks: 0, extraReactions: 0, extraMoveMeters: 0 };
+        if (critMod.consumeFrom === 'active-buff') {
+          rs2.criticalQuota = consumeCriticalQuota(
+            syncCriticalRoundQuota(rs2.criticalQuota, combatRoundKey(combatRef), buffCriticalX),
+          );
+        } else if (critMod.consumeFrom === 'stone-crit') {
+          if (!rs2.stoneBonuses) {
+            rs2.stoneBonuses = { extraAttacks: 0, extraReactions: 0, extraMoveMeters: 0 };
+          }
+          const curCrit = Math.max(0, Math.floor(Number(rs2.stoneBonuses.critRaises ?? 0) || 0));
+          rs2.stoneBonuses.critRaises = Math.max(0, curCrit - 1);
         }
-        const curCrit = Math.max(0, Math.floor(Number(rs2.stoneBonuses.critRaises ?? 0) || 0));
-        rs2.stoneBonuses.critRaises = Math.max(0, curCrit - 1);
         await actionEco.setRoundState(economyForStones, rs2);
       }
       

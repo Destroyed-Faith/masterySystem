@@ -53,9 +53,9 @@ Foundry Mastery System aligned to DF Rules v0.9.8 for combat foundations, Critic
 
 ## Open conflicts / uncertainties
 
-> Superseded by **v0.9.240** — see `docs/RULES-V098-COMPLETION-REPORT.md`.
+> Superseded by **v0.9.241** — see `docs/RULES-V098-COMPLETION-REPORT.md`.
 
-1. **Critical(2–4):** Still the only open Rules decision (isolated in `critical-resolution.ts`).
+1. ~~Critical(2–4)~~ — Critical(X) = X Critical attacks per Round; explode threshold always 7–8 (v0.9.241).
 2. ~~Artifact Summon Token Generator~~ — clarified: Bound Stones ×8 vs Artifact +4 bonus Tokens (not a conflict).
 3. ~~Summon UI~~ — completed in v0.9.240 (`SummonBondDialog`).
 4. ~~Full catalog audit~~ — completed (`docs/catalog-audit.json`).

@@ -59,6 +59,15 @@ export interface RoundState {
         specialApplied: boolean;
         reactionsUsed: number;
     }>;
+    /**
+     * Active Buff Critical(X) per-round attack quota.
+     * Refreshes when `roundKey` changes (`combatId:round`).
+     */
+    criticalQuota?: {
+        roundKey: string;
+        granted: number;
+        remaining: number;
+    };
     stoneBonuses?: {
         extraAttacks: number;
         extraReactions: number;

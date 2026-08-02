@@ -2,8 +2,8 @@
 
 ## Verdict
 
-**Vollständig implementiert und automatisiert getestet** für Summons V2 UI/Workflow, Artifact Token Generator (als getrennte Umwandlung), Katalog-Audit (+ Korrekturen), Critical-Isolation, und die ausdrücklich genannten Verifikationssysteme.  
-**Einzige echte Regelentscheidung wartend:** Critical(2–4) Skalierung.
+**Vollständig implementiert und automatisiert getestet** für Summons V2 UI/Workflow, Artifact Token Generator (als getrennte Umwandlung), Katalog-Audit (+ Korrekturen), Critical(X)-Rundenkontingent, und die ausdrücklich genannten Verifikationssysteme.  
+**Keine offenen Regelentscheidungen** in diesem Scope.
 
 ## Version
 
@@ -11,8 +11,8 @@
 |---|---|
 | Baseline | v0.9.238 |
 | Catalog audit + Evade curve | v0.9.239 |
-| Summons V2 UI + verification | **v0.9.240** |
-| Branch | `cursor/summons-v2-catalog-audit-bd9f` |
+| Summons V2 UI + verification | v0.9.240 |
+| Critical(X) per-round quota | **v0.9.241** |
 
 ---
 
@@ -68,15 +68,17 @@
 
 ---
 
-## 3. Critical(2–4)
+## 3. Critical(X)
 
 | Punkt | Status |
 |---|---|
-| Datenfluss dokumentiert | ✅ `docs/CRITICAL-RESOLUTION.md` |
-| Auswertung isoliert | ✅ `src/combat/critical-resolution.ts` |
-| Critical(1) = explode 7–8 | ✅ |
-| Critical(2–4) eigene Skalierung | ⏳ **requires-rule-decision** |
-| Erfundene Skalierung | ❌ nicht eingeführt |
+| Definition | ✅ Critical(X) = X Critical-Angriffe pro Runde |
+| Explosionsschwelle | ✅ immer 7–8 auf Attack Dice |
+| Damage Dice | ✅ explodieren nie durch Critical |
+| Runden-Reset | ✅ `syncCriticalRoundQuota` bei neuem Round-Key |
+| Verbrauch pro Angriff | ✅ Buff-Quota bevorzugt, sonst Stone Crit |
+| Anzeige | ✅ weiterhin `Critical(X)` |
+| Docs | ✅ `docs/CRITICAL-RESOLUTION.md` |
 
 ---
 
@@ -85,14 +87,14 @@
 Maschine: `npm run audit:catalog` → `docs/catalog-audit.json`  
 Engine: `src/utils/catalog-rules-audit.ts`
 
-### Summary (v0.9.240)
+### Summary (v0.9.241)
 | Status | Count |
 |---|---|
-| correct | 203 |
+| correct | 204 |
 | corrected | 3 |
 | missing | 0 |
 | obsolete | 0 |
-| requires-rule-decision | 1 (`ab-critical` higher tiers) |
+| requires-rule-decision | 0 |
 
 ### Corrected in this pass (v0.9.239)
 - `ab-evade` → Rules +8…+98
@@ -130,7 +132,7 @@ Jeder Eintrag hat `status` in der JSON-Datei (Actives, Active Buffs, Passives, R
 | Suite | Result |
 |---|---|
 | `npm run build` | ✅ |
-| `npm test` | ✅ **1248 passed** (79 files) |
+| `npm test` | ✅ **1259 passed** (80 files) |
 | `npm run audit:catalog` | ✅ 207 entries |
 | Migrations (unit: migrateFamiliarToBond) | ✅ |
 | Playwright (`e2e/*`) | ⚠️ vorhanden (7 Specs); brauchen laufende Foundry-Instanz — **manuell** |
@@ -187,4 +189,4 @@ Neue Tests:
 
 ## Verbleibende echte Regelentscheidungen
 
-1. **Critical(2–4)** — Grant vorhanden; keine Auflösung in den Regelwerken jenseits Critical(1). Zentral erweiterbar in `resolveCriticalAttackModifier`.
+Keine in diesem Scope. Critical(X) ist als Rundenkontingent implementiert.

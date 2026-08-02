@@ -93,9 +93,11 @@ describe('catalog-rules-audit report', () => {
         expect(report.entries.length).toBeGreaterThan(50);
         expect(report.summary.correct + report.summary.corrected).toBeGreaterThan(50);
 
-        // Critical(2–4) must be flagged as requires-rule-decision
+        // Critical(X) is fully defined: X attacks/round, explode 7–8
         const crit = report.entries.find((e) => e.id === 'ab-critical');
-        expect(crit?.status).toBe('requires-rule-decision');
+        expect(crit?.status).toBe('correct');
+        expect(crit?.notes).toMatch(/Critical\(X\).*per Round/i);
+        expect(report.summary['requires-rule-decision']).toBe(0);
 
         // Artifact Summon Token Generator is correct (4 tokens — not a conflict)
         const tokens = report.entries.find((e) => e.id === 'artifact-summon-token-generator');

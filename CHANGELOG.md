@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.241] - 2026-08-02
+
+### Changed
+
+- **Critical(X)** is a per-round attack quota: up to X attacks receive Critical each Round. Attack Dice always explode on **7–8**; Damage Dice never explode; X is never explode strength. Round quota resets each combat round (`RoundState.criticalQuota`).
+- Catalog audit: `ab-critical` is `correct` (no longer `requires-rule-decision`).
+
 ## [0.9.240] - 2026-08-01
 
 ### Added

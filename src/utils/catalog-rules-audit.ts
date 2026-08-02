@@ -798,10 +798,10 @@ export function runCatalogRulesAudit(options: CatalogAuditOptions = {}): Catalog
         entries,
         summary,
         structuralById,
-        decisionIds: new Set(['ab-critical']),
+        decisionIds: new Set(),
         notesForId: (id, rulesName) => {
             if (id === 'ab-critical') {
-                return 'Critical(1) explode-on-7–8 implemented; Critical(2–4) resolution requires Rules decision (docs/CRITICAL-RESOLUTION.md)';
+                return 'Critical(X) = X Critical attacks per Round; Attack Dice explode on 7–8; Damage Dice never explode (docs/CRITICAL-RESOLUTION.md)';
             }
             if (id === 'ab-evade') {
                 const tpl = abMap.get(id)?.template;

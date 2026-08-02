@@ -360,17 +360,18 @@ export const ACTIVE_BUFF_TEMPLATES = [
         subfamily: 'offensive',
         category: 'activeBuff',
         tags: [],
-        fluff: 'While this buff lasts, your qualifying attacks gain Critical at milestone ranks — not linear crit bonuses or filler riders.',
+        fluff: 'While this buff lasts, Critical(X) lets X attacks per Round explode Attack Dice on 7–8. X is the per-round attack quota — never a lower explode threshold.',
         cost: { action: 'attack' },
         roll: { kind: 'none' },
         // SRD: L1–3 no effect; L4–7 Critical(1); L8–11 Critical(2); L12–14 Critical(3); L15–16 Critical(4).
+        // Critical(X) = X Critical-capable attacks per Round; explode threshold always 7–8 on Attack Dice.
         levels: buildLevels((lvl) => {
             const criticalTier = lvl >= 15 ? 4 : lvl >= 12 ? 3 : lvl >= 8 ? 2 : lvl >= 4 ? 1 : 0;
             return activeBuffRow({
                 duration: DURATION_MR_ROUNDS,
                 effectText: criticalTier === 0
                     ? '—'
-                    : `Your attacks gain **Critical(${criticalTier})**.`,
+                    : `Your attacks gain **Critical(${criticalTier})** (${criticalTier} Critical attack${criticalTier === 1 ? '' : 's'} per Round; Attack Dice explode on 7–8).`,
                 mechanics: criticalTier === 0
                     ? { duration: 'masteryRankRounds' }
                     : { critical: criticalTier, duration: 'masteryRankRounds' },

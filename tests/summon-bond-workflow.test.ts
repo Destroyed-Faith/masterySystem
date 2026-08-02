@@ -22,8 +22,10 @@ import {
   validateBondSkillAlloc,
 } from '../src/stones/summon-bond-bind';
 import {
-  CRITICAL_HIGHER_TIER_STATUS,
+  CRITICAL_ATTACK_EXPLODE_FACES,
   resolveCriticalAttackModifier,
+  syncCriticalRoundQuota,
+  consumeCriticalQuota,
 } from '../src/combat/critical-resolution';
 
 describe('Artifact Summon Token Generator', () => {
@@ -220,21 +222,18 @@ describe('Summon actor restrictions', () => {
   });
 });
 
-describe('Critical resolution isolation', () => {
-  it('Critical(1) explodes on 7–8', () => {
-    const m = resolveCriticalAttackModifier({ activeBuffCriticalTier: 1 });
+describe('Critical resolution (quota model)', () => {
+  it('Critical(X) grants X attacks per round with fixed 7–8 explode', () => {
+    let quota = syncCriticalRoundQuota(null, 'c:1', 2);
+    const m = resolveCriticalAttackModifier({
+      activeBuffCriticalX: 2,
+      buffQuotaRemaining: quota.remaining,
+    });
     expect(m.explodeOn78).toBe(true);
-    expect(m.higherTierAwaitingRules).toBe(false);
-  });
-
-  it('Critical(2–4) do not invent extra effects; marked awaiting Rules', () => {
-    for (const tier of [2, 3, 4]) {
-      const m = resolveCriticalAttackModifier({ activeBuffCriticalTier: tier });
-      expect(m.explodeOn78).toBe(true);
-      expect(m.higherTierAwaitingRules).toBe(true);
-      expect(m.pendingHigherTierEffect).toBeNull();
-    }
-    expect(CRITICAL_HIGHER_TIER_STATUS).toBe('requires-rule-decision');
+    expect(m.explodeFaces).toEqual(CRITICAL_ATTACK_EXPLODE_FACES);
+    expect(m.damageDiceExplode).toBe(false);
+    quota = consumeCriticalQuota(quota);
+    expect(quota.remaining).toBe(1);
   });
 
   it('stone Crit charges also enable explode-on-7–8', () => {

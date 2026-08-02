@@ -30,8 +30,8 @@ export declare function activateActiveBuff(actor: Actor, power: any): Promise<bo
 export declare function getActiveBuffs(actor: Actor): any[];
 /**
  * Highest Active Buff Critical(X) currently maintained (0 if none).
- * Resolution (explode-on-7–8 for tier ≥ 1; Critical(2–4) pending Rules) lives in
- * `src/combat/critical-resolution.ts` — do not invent tier scaling here.
+ * X = Critical-capable attacks per Round (not explode strength).
+ * Resolution lives in `src/combat/critical-resolution.ts`.
  */
 export declare function getActiveBuffCriticalTier(actor: Actor): number;
 /**

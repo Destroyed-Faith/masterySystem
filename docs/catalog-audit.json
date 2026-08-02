@@ -1,12 +1,12 @@
 {
-  "version": "0.9.240",
-  "generatedAt": "2026-08-01T19:55:16.924Z",
+  "version": "0.9.241",
+  "generatedAt": "2026-08-02T05:02:11.375Z",
   "summary": {
-    "correct": 203,
+    "correct": 204,
     "corrected": 3,
     "missing": 0,
     "obsolete": 0,
-    "requires-rule-decision": 1
+    "requires-rule-decision": 0
   },
   "entries": [
     {
@@ -466,6 +466,13 @@
     },
     {
       "category": "activeBuff",
+      "id": "ab-critical",
+      "name": "Active Buff: Critical",
+      "status": "correct",
+      "notes": "Critical(X) = X Critical attacks per Round; Attack Dice explode on 7–8; Damage Dice never explode (docs/CRITICAL-RESOLUTION.md)"
+    },
+    {
+      "category": "activeBuff",
       "id": "ab-damage",
       "name": "Active Buff: Damage",
       "status": "correct",
@@ -638,13 +645,6 @@
       "name": "Active Buff: Evade + Temporary HP",
       "status": "corrected",
       "notes": "Matches Rules entry"
-    },
-    {
-      "category": "activeBuff",
-      "id": "ab-critical",
-      "name": "Active Buff: Critical",
-      "status": "requires-rule-decision",
-      "notes": "Critical(1) explode-on-7–8 implemented; Critical(2–4) resolution requires Rules decision (docs/CRITICAL-RESOLUTION.md)"
     },
     {
       "category": "artifact",

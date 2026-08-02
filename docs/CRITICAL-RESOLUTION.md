@@ -1,47 +1,51 @@
-# Critical Resolution — Data Flow & Open Rules Decision
+# Critical(X) Resolution
 
-## Current data flow
+## Definition
 
-1. **Catalog grant** — `ab-critical` in `src/utils/powers/templates/activeBuffs.ts`  
-   Levels store `mechanics.critical` = 0 / 1 / 2 / 3 / 4 at milestones (L4 / L8 / L12 / L15).
-2. **Activate** — `activateActiveBuff()` snapshots level mechanics onto an ActiveEffect  
-   (`flags['mastery-system'].mechanics`) in `src/utils/active-buffs.ts`.
-3. **Read** — `getActiveBuffCriticalTier(actor)` returns the highest maintained `mechanics.critical`.
-4. **Resolve** — `resolveCriticalAttackModifier()` in `src/combat/critical-resolution.ts`  
-   combines Active Buff tier, stone Crit charges, and Special Crit.
-5. **Attack** — `executeAttackRollFromCard` in `src/chat/attack-roll-handler.ts` sets  
-   `attackExplodeDiceOn78` from the resolver.
-6. **Roll** — `src/dice/roll-handler.ts` explodes pool d8s on **7–8** when flagged.
+**Critical(X)** determines how many attacks per Round may receive Critical.
 
-## Critical(1) today
+`X` does **not** change the Critical explode threshold.
 
-Critical(1) / Crit(1) = attack pool dice explode on natural **7–8** for the duration (buff) or per charge (stone). Stone charges are consumed; the buff is not.
+For every attack that receives Critical:
 
-## Critical(2–4)
+- Attack Dice explode on **7 or 8**
+- Exploding Attack Dice continue to explode as usual
+- Damage Dice do **not** explode
+- The explode threshold stays **7–8** for every value of X
 
-| Aspect | Status |
+| Grant | Meaning |
 |---|---|
-| Stored on template / ActiveEffect | Yes (`critical: 2\|3\|4`) |
-| Distinct mechanical resolution in Rules | **Missing** |
-| Implemented differentiation | **None** — resolver flags `higherTierAwaitingRules` |
+| Critical(1) | Critical on up to **1** attack this Round |
+| Critical(2) | Critical on up to **2** attacks this Round |
+| Critical(3) | Critical on up to **3** attacks this Round |
+| Critical(4) | Critical on up to **4** attacks this Round |
 
-Rules (`active-buffs.md`, `players-guide.md`) define the grant table and Crit(1) explode behaviour. They do **not** define what Critical(2), Critical(3), or Critical(4) add beyond Critical(1).
+Display and rules text continue to use **Critical(X)**.
 
-## Files that read / write / evaluate Critical
+## Data flow
+
+1. **Catalog grant** — `ab-critical` stores `mechanics.critical` = 0 / 1 / 2 / 3 / 4  
+   (`src/utils/powers/templates/activeBuffs.ts`)
+2. **Activate** — `activateActiveBuff()` snapshots mechanics onto an ActiveEffect
+3. **Read** — `getActiveBuffCriticalTier(actor)` → X
+4. **Round quota** — `syncCriticalRoundQuota` sets remaining = X at each new combat round  
+   (`RoundState.criticalQuota`)
+5. **Resolve** — `resolveCriticalAttackModifier` enables explode-on-7–8 when quota or stone Crit charges remain
+6. **Attack** — `attack-roll-handler` passes `attackExplodeDiceOn78` into `masteryRoll`
+7. **Consume** — one application from Active Buff quota (preferred) or stone Crit charge
+8. **Roll** — Attack pool d8s explode on 7–8; Damage Dice never explode from Critical
+
+## Multiple sources
+
+Stone Crit charges and Active Buff Critical may both supply applications. They never improve the explode threshold — it remains 7–8. Damage Dice never explode from either source.
+
+## Files
 
 | Role | Path |
 |---|---|
-| Write (catalog) | `src/utils/powers/templates/activeBuffs.ts` |
-| Write (activate) | `src/utils/active-buffs.ts` |
-| Read (tier) | `src/utils/active-buffs.ts` → `getActiveBuffCriticalTier` |
-| Resolve (isolated) | `src/combat/critical-resolution.ts` |
-| Evaluate (attack) | `src/chat/attack-roll-handler.ts` |
-| Evaluate (dice) | `src/dice/roll-handler.ts` |
-| Write (stone Crit) | `src/stones/stone-powers.ts` (`critRaises`) |
-| Types | `src/types/item.d.ts` (`PowerMechanics.critical`) |
-| Migration | `src/migrations/ab-critical-milestones-migration.ts` |
-
-## Waiting Rules decision
-
-**Status:** `requires-rule-decision`  
-Do not invent Critical(2–4) scaling. Extend `resolveCriticalAttackModifier` centrally when Rules define it.
+| Catalog | `src/utils/powers/templates/activeBuffs.ts` |
+| Read tier | `src/utils/active-buffs.ts` → `getActiveBuffCriticalTier` |
+| Resolve / quota | `src/combat/critical-resolution.ts` |
+| Round state | `src/combat/action-economy.ts` → `criticalQuota` |
+| Attack consume | `src/chat/attack-roll-handler.ts` |
+| Dice | `src/dice/roll-handler.ts` (`attackExplodeDiceOn78`) |
