@@ -33,7 +33,8 @@
     "destroyed-faith"
   ],
   "author": "Daniel Rodrigo Navarro Melendo",
-  "license": "SEE LICENSE IN LICENSE",
+  "license": "SEE LICENSE IN LICENSE.md",
+  "private": true,
   "devDependencies": {
     "@playwright/test": "^1.52.0",
     "@foundryvtt/foundryvtt-cli": "^3.0.3",

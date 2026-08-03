@@ -90,21 +90,32 @@ Release process: [`RELEASING.md`](RELEASING.md).
 
 ---
 
-## License and credits
+## License and Community Content
 
-© Daniel Rodrigo Navarro Melendo. All rights reserved. See [`LICENSE`](LICENSE).
+Destroyed Faith is **free to play**. The Foundry system is publicly **source-available but proprietary** — not open source.
 
-Private, non-commercial table use is permitted. Redistribution of the system, rule text, or commissioned assets without permission is not.
+- Videos, streams, Actual Plays, reviews, tutorials, convention play, and paid GM sessions are permitted.
+- Ordinary monetization of that media is permitted.
+- Publishing, redistributing, selling, or maintaining modified versions of the official core is **not** permitted without written authorization.
+- Artwork and other assets may appear in permitted gameplay coverage but may **not** be extracted and redistributed separately.
 
-| Area | Notes |
-|---|---|
-| Source code & game system | All rights reserved (LICENSE) |
-| Rule text (`Rules/`, in-world text) | All rights reserved |
-| Artwork, maps, tokens, logos | Commissioned / third-party — see [`docs/ASSET-RIGHTS-CHECKLIST.md`](docs/ASSET-RIGHTS-CHECKLIST.md) |
+Full terms:
 
-**Credits**
+- [`LICENSE.md`](LICENSE.md) — Destroyed Faith Proprietary Source-Available License
+- [`MEDIA-AND-COMMUNITY-POLICY.md`](MEDIA-AND-COMMUNITY-POLICY.md) — streamers, reviewers, GMs, conventions
+- [`ASSET-LICENSE.md`](ASSET-LICENSE.md) — visual and audio asset notice
+- [`CONTRIBUTING.md`](CONTRIBUTING.md) — issues welcome; invited contributions only for code
+- [`THIRD-PARTY-NOTICES.md`](THIRD-PARTY-NOTICES.md) — third-party and Foundry notices
+
+### Foundry Virtual Tabletop
+
+This game system is designed for use with a legally licensed copy of Foundry Virtual Tabletop. Foundry Virtual Tabletop is software owned by Foundry Gaming LLC. Destroyed Faith is an independent project and is not affiliated with or endorsed by Foundry Gaming LLC.
+
+### Credits
 
 - **System design:** Daniel Rodrigo Navarro Melendo
 - **Character art:** Jesús Bey
 - **World map:** Pena Negra
 - **Full-page art:** Dzmitry Zasimovich
+
+Artwork rights checklist for owner verification: [`docs/ASSET-RIGHTS-CHECKLIST.md`](docs/ASSET-RIGHTS-CHECKLIST.md).

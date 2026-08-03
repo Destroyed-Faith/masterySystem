@@ -100,7 +100,7 @@
   "url": "https://github.com/Destroyed-Faith/masterySystem",
   "manifest": "https://raw.githubusercontent.com/Destroyed-Faith/masterySystem/main/system.json",
   "download": "https://github.com/Destroyed-Faith/masterySystem/archive/refs/heads/main.zip",
-  "license": "LICENSE",
+  "license": "LICENSE.md",
   "readme": "README.md",
   "bugs": "https://github.com/Destroyed-Faith/masterySystem/issues",
   "changelog": "CHANGELOG.md"

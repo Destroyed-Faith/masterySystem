@@ -29,7 +29,7 @@ On push of tag `vX.Y.Z`, [`.github/workflows/release.yml`](.github/workflows/rel
 6. Builds an allowlist ZIP via `npm run release:package`
 7. Creates a GitHub Release and uploads `mastery-system-X.Y.Z.zip`
 
-The ZIP contains only runtime files (`system.json`, `template.json`, `dist/**/*.js`, `templates/`, `styles/`, `assets/`, `lang/`, `packs/`, `LICENSE`, `README.md`, `CHANGELOG.md`). No `src/`, tests, scripts, docs internals, or source maps.
+The ZIP contains only runtime files (`system.json`, `template.json`, `dist/**/*.js`, `templates/`, `styles/`, `assets/`, `lang/`, `packs/`, `LICENSE`, `LICENSE.md`, community/asset license notices, `README.md`, `CHANGELOG.md`). No `src/`, tests, scripts, docs internals, or source maps.
 
 ## Switching `download` from branch archive to a release asset
 
