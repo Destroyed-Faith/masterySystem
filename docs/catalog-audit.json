@@ -1,5 +1,5 @@
 {
-  "version": "0.9.242",
+  "version": "0.9.243",
   "generatedAt": "2026-08-03T14:40:05.917Z",
   "summary": {
     "correct": 204,
@@ -26,28 +26,28 @@
     {
       "category": "active",
       "id": "active-melee-aoe-damage-t3",
-      "name": "Melee AoE Damage — Tier 3",
+      "name": "Melee AoE Damage \u2014 Tier 3",
       "status": "correct",
       "notes": "Matches Rules entry"
     },
     {
       "category": "active",
       "id": "active-melee-aoe-damage-t4",
-      "name": "Melee AoE Damage — Tier 4",
+      "name": "Melee AoE Damage \u2014 Tier 4",
       "status": "correct",
       "notes": "Matches Rules entry"
     },
     {
       "category": "active",
       "id": "active-melee-aoe-damage-t5",
-      "name": "Melee AoE Damage — Tier 5",
+      "name": "Melee AoE Damage \u2014 Tier 5",
       "status": "correct",
       "notes": "Matches Rules entry"
     },
     {
       "category": "active",
       "id": "active-melee-aoe-damage-t6",
-      "name": "Melee AoE Damage — Tier 6",
+      "name": "Melee AoE Damage \u2014 Tier 6",
       "status": "correct",
       "notes": "Matches Rules entry"
     },
@@ -68,21 +68,21 @@
     {
       "category": "active",
       "id": "active-melee-control-pull-disarm",
-      "name": "Melee Control — Pull + Disarm",
+      "name": "Melee Control \u2014 Pull + Disarm",
       "status": "correct",
       "notes": "Matches Rules entry"
     },
     {
       "category": "active",
       "id": "active-melee-control-push-prone",
-      "name": "Melee Control — Push + Prone",
+      "name": "Melee Control \u2014 Push + Prone",
       "status": "correct",
       "notes": "Matches Rules entry"
     },
     {
       "category": "active",
       "id": "active-melee-control-push-pull",
-      "name": "Melee Control — Push + Pull",
+      "name": "Melee Control \u2014 Push + Pull",
       "status": "correct",
       "notes": "Matches Rules entry"
     },
@@ -103,28 +103,28 @@
     {
       "category": "active",
       "id": "active-melee-damage-t3",
-      "name": "Melee Damage — Tier 3",
+      "name": "Melee Damage \u2014 Tier 3",
       "status": "correct",
       "notes": "Special-first Active family (curated RULES_EXPECTED manifest)"
     },
     {
       "category": "active",
       "id": "active-melee-damage-t4",
-      "name": "Melee Damage — Tier 4",
+      "name": "Melee Damage \u2014 Tier 4",
       "status": "correct",
       "notes": "Special-first Active family (curated RULES_EXPECTED manifest)"
     },
     {
       "category": "active",
       "id": "active-melee-damage-t5",
-      "name": "Melee Damage — Tier 5",
+      "name": "Melee Damage \u2014 Tier 5",
       "status": "correct",
       "notes": "Special-first Active family (curated RULES_EXPECTED manifest)"
     },
     {
       "category": "active",
       "id": "active-melee-damage-t6",
-      "name": "Melee Damage — Tier 6",
+      "name": "Melee Damage \u2014 Tier 6",
       "status": "correct",
       "notes": "Special-first Active family (curated RULES_EXPECTED manifest)"
     },
@@ -215,28 +215,28 @@
     {
       "category": "active",
       "id": "active-ranged-aoe-damage-t3",
-      "name": "Ranged AoE Damage — Tier 3",
+      "name": "Ranged AoE Damage \u2014 Tier 3",
       "status": "correct",
       "notes": "Matches Rules entry"
     },
     {
       "category": "active",
       "id": "active-ranged-aoe-damage-t4",
-      "name": "Ranged AoE Damage — Tier 4",
+      "name": "Ranged AoE Damage \u2014 Tier 4",
       "status": "correct",
       "notes": "Matches Rules entry"
     },
     {
       "category": "active",
       "id": "active-ranged-aoe-damage-t5",
-      "name": "Ranged AoE Damage — Tier 5",
+      "name": "Ranged AoE Damage \u2014 Tier 5",
       "status": "correct",
       "notes": "Matches Rules entry"
     },
     {
       "category": "active",
       "id": "active-ranged-aoe-damage-t6",
-      "name": "Ranged AoE Damage — Tier 6",
+      "name": "Ranged AoE Damage \u2014 Tier 6",
       "status": "correct",
       "notes": "Matches Rules entry"
     },
@@ -264,28 +264,28 @@
     {
       "category": "active",
       "id": "active-ranged-barrier",
-      "name": "Ranged Barrier — 4 Rounds",
+      "name": "Ranged Barrier \u2014 4 Rounds",
       "status": "correct",
       "notes": "Matches Rules entry"
     },
     {
       "category": "active",
       "id": "active-ranged-control-pull-disarm",
-      "name": "Ranged Control — Pull + Disarm",
+      "name": "Ranged Control \u2014 Pull + Disarm",
       "status": "correct",
       "notes": "Matches Rules entry"
     },
     {
       "category": "active",
       "id": "active-ranged-control-push-prone",
-      "name": "Ranged Control — Push + Prone",
+      "name": "Ranged Control \u2014 Push + Prone",
       "status": "correct",
       "notes": "Matches Rules entry"
     },
     {
       "category": "active",
       "id": "active-ranged-control-push-pull",
-      "name": "Ranged Control — Push + Pull",
+      "name": "Ranged Control \u2014 Push + Pull",
       "status": "correct",
       "notes": "Matches Rules entry"
     },
@@ -306,28 +306,28 @@
     {
       "category": "active",
       "id": "active-ranged-damage-t3",
-      "name": "Ranged Damage — Tier 3",
+      "name": "Ranged Damage \u2014 Tier 3",
       "status": "correct",
       "notes": "Special-first Active family (curated RULES_EXPECTED manifest)"
     },
     {
       "category": "active",
       "id": "active-ranged-damage-t4",
-      "name": "Ranged Damage — Tier 4",
+      "name": "Ranged Damage \u2014 Tier 4",
       "status": "correct",
       "notes": "Special-first Active family (curated RULES_EXPECTED manifest)"
     },
     {
       "category": "active",
       "id": "active-ranged-damage-t5",
-      "name": "Ranged Damage — Tier 5",
+      "name": "Ranged Damage \u2014 Tier 5",
       "status": "correct",
       "notes": "Special-first Active family (curated RULES_EXPECTED manifest)"
     },
     {
       "category": "active",
       "id": "active-ranged-damage-t6",
-      "name": "Ranged Damage — Tier 6",
+      "name": "Ranged Damage \u2014 Tier 6",
       "status": "correct",
       "notes": "Special-first Active family (curated RULES_EXPECTED manifest)"
     },
@@ -348,7 +348,7 @@
     {
       "category": "active",
       "id": "active-ranged-illusion-image",
-      "name": "Ranged Images — 4 Rounds",
+      "name": "Ranged Images \u2014 4 Rounds",
       "status": "correct",
       "notes": "Matches Rules entry"
     },
@@ -411,28 +411,28 @@
     {
       "category": "active",
       "id": "active-ranged-zone-t3",
-      "name": "Ranged Persistent Zone — Tier 3",
+      "name": "Ranged Persistent Zone \u2014 Tier 3",
       "status": "correct",
       "notes": "Matches Rules entry"
     },
     {
       "category": "active",
       "id": "active-ranged-zone-t4",
-      "name": "Ranged Persistent Zone — Tier 4",
+      "name": "Ranged Persistent Zone \u2014 Tier 4",
       "status": "correct",
       "notes": "Matches Rules entry"
     },
     {
       "category": "active",
       "id": "active-ranged-zone-t5",
-      "name": "Ranged Persistent Zone — Tier 5",
+      "name": "Ranged Persistent Zone \u2014 Tier 5",
       "status": "correct",
       "notes": "Matches Rules entry"
     },
     {
       "category": "active",
       "id": "active-ranged-zone-t6",
-      "name": "Ranged Persistent Zone — Tier 6",
+      "name": "Ranged Persistent Zone \u2014 Tier 6",
       "status": "correct",
       "notes": "Matches Rules entry"
     },
@@ -441,7 +441,7 @@
       "id": "ab-armor",
       "name": "Active Buff: Armor",
       "status": "correct",
-      "notes": "Armor curve +5…+65 matches Rules; Active Buff: Armor"
+      "notes": "Armor curve +5\u2026+65 matches Rules; Active Buff: Armor"
     },
     {
       "category": "activeBuff",
@@ -469,7 +469,7 @@
       "id": "ab-critical",
       "name": "Active Buff: Critical",
       "status": "correct",
-      "notes": "Critical(X) = X Critical attacks per Round; Attack Dice explode on 7–8; Damage Dice never explode (docs/CRITICAL-RESOLUTION.md)"
+      "notes": "Critical(X) = X Critical attacks per Round; Attack Dice explode on 7\u20138; Damage Dice never explode (docs/CRITICAL-RESOLUTION.md)"
     },
     {
       "category": "activeBuff",
@@ -637,7 +637,7 @@
       "id": "ab-evade",
       "name": "Active Buff: Evade",
       "status": "corrected",
-      "notes": "Evade curve +8…+98 matches Rules; Active Buff: Evade"
+      "notes": "Evade curve +8\u2026+98 matches Rules; Active Buff: Evade"
     },
     {
       "category": "activeBuff",
@@ -777,7 +777,7 @@
       "id": "titanScars*",
       "name": "Titan Scars",
       "status": "correct",
-      "notes": "7 attribute variants in ECHO_ARTIFACTS (Might/Agility/…); Rules example family"
+      "notes": "7 attribute variants in ECHO_ARTIFACTS (Might/Agility/\u2026); Rules example family"
     },
     {
       "category": "artifact",
@@ -798,7 +798,7 @@
       "id": "artifact-summon-token-generator",
       "name": "Artifact Summon Token Generator",
       "status": "correct",
-      "notes": "Rules: 1 Artifact Summon Stone → 4 Tokens (bonus tokens, not Bound Stones). Marked correct — not a conflict with Summon Bound Stone ×8."
+      "notes": "Rules: 1 Artifact Summon Stone \u2192 4 Tokens (bonus tokens, not Bound Stones). Marked correct \u2014 not a conflict with Summon Bound Stone \u00d78."
     },
     {
       "category": "movement",

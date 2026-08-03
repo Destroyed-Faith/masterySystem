@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.243] - 2026-08-03
+
+### Changed
+
+- Added proprietary source-available licensing structure: `LICENSE.md`, Media and Community Use Policy, Asset Notice, Contributing guide, and Third-Party Notices.
+- Clarified free play, monetized media coverage, and paid GM sessions are permitted; official Foundry core remains proprietary with no public modified distributions without written authorization.
+- Marked `package.json` as `"private": true` and pointed the license field at `LICENSE.md`.
+
 ## [0.9.242] - 2026-08-03
 
 ### Changed
