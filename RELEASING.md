@@ -4,8 +4,8 @@ This document describes how to publish an immutable Foundry system ZIP from GitH
 
 ## Version policy
 
-- Current development version: whatever is in `package.json` / `system.json` (today **0.9.241**).
-- Intended next public Release Candidate: **0.99.0** (not `0.9.9` — that would sort lower than `0.9.241`).
+- Current development version: whatever is in `package.json` / `system.json` (today **0.9.242**).
+- Intended next public Release Candidate: **0.99.0** (not `0.9.9` — that would sort lower than current `0.9.x`).
 - Pre-1.0 GitHub Releases are marked **prerelease**.
 - Tags must be `vX.Y.Z` matching `package.json` / `system.json`.
 
