@@ -14,6 +14,7 @@ import {
 } from './utils/grid-range.js';
 import { clearHexHighlight, highlightHexesWithinStepsFromPoint } from './utils/hex-highlighting.js';
 
+import { log } from './utils/logger.js';
 type PlacementColors = {
   hex: number;
   hexAlpha: number;
@@ -426,7 +427,7 @@ function createTargetSelectionPanel(state: UtilityTargetingState): any {
  * Start single-target utility mode
  */
 export function startUtilitySingleTargetMode(token: any, option: RadialCombatOption): void {
-  console.log('Mastery System | Starting single-target utility mode', { token: token.name, option: option.name });
+  log.debug('Mastery System | Starting single-target utility mode', { token: token.name, option: option.name });
   
   // Cancel any existing utility targeting
   endUtilityTargeting(false);
@@ -531,7 +532,7 @@ export function startUtilitySingleTargetMode(token: any, option: RadialCombatOpt
         const matches = matchesTargetGroup(token, clickedToken, targetGroup);
         
         if (isWithinMasteryPowerRange(casterCenter, clickedToken.center, rangeMeters) && matches) {
-          console.log('Mastery System | Single-target utility confirmed:', clickedToken.name);
+          log.debug('Mastery System | Single-target utility confirmed:', clickedToken.name);
           confirmUtilityTargets({
             casterToken: token,
             option,
@@ -606,14 +607,14 @@ export function startUtilitySingleTargetMode(token: any, option: RadialCombatOpt
   canvas.stage.on('pointerdown', state.onPointerDown);
   window.addEventListener('keydown', state.onKeyDown);
 
-  console.log('Mastery System | Single-target utility mode active');
+  log.debug('Mastery System | Single-target utility mode active');
 }
 
 /**
  * Start radius utility mode
  */
 export function startUtilityRadiusMode(token: any, option: RadialCombatOption): void {
-  console.log('Mastery System | Starting radius utility mode', { token: token.name, option: option.name });
+  log.debug('Mastery System | Starting radius utility mode', { token: token.name, option: option.name });
   
   // Cancel any existing utility targeting
   endUtilityTargeting(false);
@@ -625,7 +626,7 @@ export function startUtilityRadiusMode(token: any, option: RadialCombatOption): 
   const radiusMeters = option.aoeRadiusMeters || 0;
   const targetGroup = option.defaultTargetGroup || 'ally';
   
-  console.log('Mastery System | Utility radius mode:', {
+  log.debug('Mastery System | Utility radius mode:', {
     rangeMeters,
     radiusMeters,
     targetGroup
@@ -913,7 +914,7 @@ export function startUtilityRadiusMode(token: any, option: RadialCombatOption): 
   canvas.stage.on('pointerdown', state.onPointerDown);
   window.addEventListener('keydown', state.onKeyDown);
   
-  console.log('Mastery System | Radius utility mode active');
+  log.debug('Mastery System | Radius utility mode active');
 }
 
 /**
@@ -948,13 +949,13 @@ async function confirmUtilityTargets(state: UtilityTargetingState): Promise<void
       ui.notifications?.warn('Failed to consume attack action.');
       return;
     }
-    console.log('Mastery System | [RADIAL FLOW] utility confirm: consumed attack action', {
+    log.debug('Mastery System | [RADIAL FLOW] utility confirm: consumed attack action', {
       remaining: getAvailableAttackActions(actor, combat),
       option: state.option.name,
       targetCount: targets.length
     });
   } else {
-    console.log('Mastery System | [RADIAL FLOW] utility confirm: no attack cost', {
+    log.debug('Mastery System | [RADIAL FLOW] utility confirm: no attack cost', {
       option: state.option.name,
       targetCount: targets.length
     });
@@ -964,7 +965,7 @@ async function confirmUtilityTargets(state: UtilityTargetingState): Promise<void
     await markPowerUsedThisRound(actor, combat, state.option.item.id);
   }
 
-  console.log('Mastery System | Utility confirmed:', {
+  log.debug('Mastery System | Utility confirmed:', {
     caster: state.casterToken.name,
     option: state.option.name,
     targets: targets.map(t => t.name)
@@ -989,7 +990,7 @@ export function endUtilityTargeting(success: boolean): void {
   const state = activeUtilityTargeting;
   if (!state) return;
   
-  console.log('Mastery System | Ending utility targeting mode, success =', success);
+  log.debug('Mastery System | Ending utility targeting mode, success =', success);
   
   // Remove event listeners
   canvas.stage.off('pointermove', state.onPointerMove);

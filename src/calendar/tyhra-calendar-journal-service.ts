@@ -25,14 +25,15 @@ import {
   setStoredJournalFolderId,
 } from './tyhra-calendar-settings.js';
 
+import { log } from '../utils/logger.js';
 const journalCreationLocks = new Map<string, Promise<JournalEntry | null>>();
 
 let journalIndexCache: Map<string, string> | null = null;
 let journalIndexBuilt = false;
 
 function logInfo(message: string, data?: unknown): void {
-  if (data !== undefined) console.log(`${TYHRA_CALENDAR_LOG_PREFIX} ${message}`, data);
-  else console.log(`${TYHRA_CALENDAR_LOG_PREFIX} ${message}`);
+  if (data !== undefined) log.debug(`${TYHRA_CALENDAR_LOG_PREFIX} ${message}`, data);
+  else log.debug(`${TYHRA_CALENDAR_LOG_PREFIX} ${message}`);
 }
 
 function logWarn(message: string, data?: unknown): void {

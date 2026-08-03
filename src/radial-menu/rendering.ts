@@ -220,7 +220,7 @@ function createRadialOptionSlice(
       optionSource: option.source
     });
     
-    console.log('Mastery System | [RADIAL FLOW] outer ring pointertap → handleChosenCombatOption next', {
+    log.debug('Mastery System | [RADIAL FLOW] outer ring pointertap → handleChosenCombatOption next', {
       segment: segmentId,
       optionId: option.id,
       name: option.name,
@@ -229,7 +229,7 @@ function createRadialOptionSlice(
       range: option.range,
       costsAction: option.costsAction
     });
-    console.log('Mastery System | Selected combat option:', {
+    log.debug('Mastery System | Selected combat option:', {
       segment: segmentId,
       optionId: option.id,
       name: option.name,
@@ -334,7 +334,7 @@ export function renderInnerSegments(
   const angleStep = (Math.PI * 2) / segmentCount;
   const startAngle = -Math.PI / 2; // Start at top
   
-  console.log('Mastery System | Rendering inner segments, current segment:', getCurrentSegmentId());
+  log.debug('Mastery System | Rendering inner segments, current segment:', getCurrentSegmentId());
   
   MS_INNER_SEGMENTS.forEach((seg, index) => {
     const container = new PIXI.Container();
@@ -405,7 +405,7 @@ export function renderInnerSegments(
       }
     } catch (error) {
       // If round state lookup fails, just use base label
-      console.debug('Mastery System | Could not get round state for radial menu label', error);
+      log.debug('Mastery System | Could not get round state for radial menu label', error);
     }
     
     const text = new PIXI.Text(labelText, {

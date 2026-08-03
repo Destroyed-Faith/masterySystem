@@ -295,8 +295,8 @@ async function createStoneActorsForPlayer(
     ? (game as any).settings.get('mastery-system', 'divineClashPowerStoneImg')
     : (game as any).settings.get('mastery-system', 'divineClashVitalityStoneImg');
   const defaultImg = kind === 'power'
-    ? 'systems/mastery-system/icons/svg/power-stone.svg'
-    : 'systems/mastery-system/icons/svg/vitality-stone.svg';
+    ? 'systems/mastery-system/assets/icons/stones/power-stone.svg'
+    : 'systems/mastery-system/assets/icons/stones/vitality-stone.svg';
   const stoneImg = (settingsImg && settingsImg.trim() !== '') ? settingsImg : defaultImg;
   
   log.debug(`[CREATE STONE ACTORS] Ensuring ${count} ${kindName} stone actors for ${user.name}`);
@@ -485,8 +485,8 @@ async function _ensurePlayerStoneActor(user: User, kind: StoneKind): Promise<Act
     type: 'npc',
     ownership: { [user.id]: CONST.DOCUMENT_OWNERSHIP_LEVELS.OWNER },
     img: kind === 'power' 
-      ? ((game as any).settings.get('mastery-system', 'divineClashPowerStoneImg') || 'systems/mastery-system/icons/svg/power-stone.svg')
-      : ((game as any).settings.get('mastery-system', 'divineClashVitalityStoneImg') || 'systems/mastery-system/icons/svg/vitality-stone.svg')
+      ? ((game as any).settings.get('mastery-system', 'divineClashPowerStoneImg') || 'systems/mastery-system/assets/icons/stones/power-stone.svg')
+      : ((game as any).settings.get('mastery-system', 'divineClashVitalityStoneImg') || 'systems/mastery-system/assets/icons/stones/vitality-stone.svg')
   };
   
   try {
@@ -1327,8 +1327,8 @@ async function copyStoneActor(
         ? (game as any).settings.get('mastery-system', 'divineClashPowerStoneImg')
         : (game as any).settings.get('mastery-system', 'divineClashVitalityStoneImg');
       const defaultImg = isPowerStone
-        ? 'systems/mastery-system/icons/svg/power-stone.svg'
-        : 'systems/mastery-system/icons/svg/vitality-stone.svg';
+        ? 'systems/mastery-system/assets/icons/stones/power-stone.svg'
+        : 'systems/mastery-system/assets/icons/stones/vitality-stone.svg';
       const finalImg = (settingsImg && settingsImg.trim() !== '') ? settingsImg : defaultImg;
       
       log.debug(`[COPY STONE ACTOR] Image override:`, {
@@ -1816,7 +1816,7 @@ async function processPlayerActor(actor: Actor): Promise<{
 }
 
 export async function startDivineClash(): Promise<void> {
-  console.log('Mastery System | [DIVINE CLASH START] Beginning startDivineClash');
+  log.debug('Mastery System | [DIVINE CLASH START] Beginning startDivineClash');
   
   if (!game.user?.isGM) {
     ui.notifications?.warn('Only the GM can start Divine Clash');
@@ -1930,7 +1930,7 @@ export async function startDivineClash(): Promise<void> {
     }
     
     ui.notifications?.info(`Divine Clash: Created stone tokens for ${characterTokens.length} player(s)`);
-    console.log('Mastery System | [DIVINE CLASH START] ===== COMPLETED =====');
+    log.debug('Mastery System | [DIVINE CLASH START] ===== COMPLETED =====');
   } finally {
     isStartingDivineClash = false;
   }

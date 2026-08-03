@@ -42,6 +42,7 @@ import {
 } from '../utils/creature-type.js';
 import { formatEffectReference } from '../utils/special-effects.js';
 
+import { log } from '../utils/logger.js';
 /**
  * Weapon specials come in two shapes: plain strings ("Penetration(4)") on
  * conventional weapons, and `{ specialId, value }` refs on artifact virtual
@@ -329,7 +330,7 @@ export async function showDamageDialog(
   flags?: any
 ): Promise<DamageResult | null> {
   // Debug log at entry
-  console.log('Mastery System | [WEAPON-ID DEBUG]', {
+  log.debug('Mastery System | [WEAPON-ID DEBUG]', {
     messageType: 'damage-dialog:entry',
     weaponIdArg: weaponId,
     selectedPowerIdArg: selectedPowerId,
@@ -338,7 +339,7 @@ export async function showDamageDialog(
     targetId: (target as any).id
   });
   
-  console.log('Mastery System | [DAMAGE DIALOG] showDamageDialog - starting', {
+  log.debug('Mastery System | [DAMAGE DIALOG] showDamageDialog - starting', {
     attackerId: (attacker as any).id,
     attackerName: (attacker as any).name,
     targetId: (target as any).id,
@@ -398,7 +399,7 @@ export async function showDamageDialog(
   }
   
   // Debug: Log all items to see what we have
-  console.log('Mastery System | [DAMAGE DIALOG] Items collection', {
+  log.debug('Mastery System | [DAMAGE DIALOG] Items collection', {
     attackerId: (attacker as any).id,
     freshActorId: actorToUse?.id,
     itemsCount: items.length,
@@ -443,7 +444,7 @@ export async function showDamageDialog(
       const atk: 'melee' | 'ranged' = flags?.attackType === 'ranged' ? 'ranged' : 'melee';
       const strict = resolveEquippedWeaponForAttackType(items, atk);
       if (strict) {
-        console.log('Mastery System | [DAMAGE DIALOG] weaponId not equipped; using equipped weapon for attack type', {
+        log.debug('Mastery System | [DAMAGE DIALOG] weaponId not equipped; using equipped weapon for attack type', {
           weaponId,
           attackType: atk,
           strictWeaponId: strict.id,
@@ -454,7 +455,7 @@ export async function showDamageDialog(
         weaponForDamage = null;
       }
     } else if (weaponForDamage) {
-      console.log('Mastery System | [DAMAGE DIALOG] Found equipped weapon via direct actor lookup by ID', {
+      log.debug('Mastery System | [DAMAGE DIALOG] Found equipped weapon via direct actor lookup by ID', {
         weaponId: weaponId,
         weaponName: weaponForDamage.name,
         weaponType: weaponForDamage.type
@@ -468,7 +469,7 @@ export async function showDamageDialog(
       const weaponItem = (game as any).items?.get(weaponId);
       if (weaponItem && weaponItem.actor?.id === actorToUse?.id) {
         weaponForDamage = weaponItem;
-        console.log('Mastery System | [DAMAGE DIALOG] Found weapon via game.items lookup', {
+        log.debug('Mastery System | [DAMAGE DIALOG] Found weapon via game.items lookup', {
           weaponId: weaponId,
           weaponName: weaponForDamage.name,
           weaponType: weaponForDamage.type,
@@ -489,7 +490,7 @@ export async function showDamageDialog(
   if (!isNpcAttackFlow && !weaponForDamage && flags && (flags.attackType === 'melee' || flags.attackType === 'ranged')) {
     weaponForDamage = resolveEquippedWeaponForAttackType(items, flags.attackType);
     if (weaponForDamage) {
-      console.log('Mastery System | [DAMAGE DIALOG] Resolved weapon by attackType', {
+      log.debug('Mastery System | [DAMAGE DIALOG] Resolved weapon by attackType', {
         attackType: flags.attackType,
         weaponId: weaponForDamage.id,
         weaponName: weaponForDamage.name
@@ -506,7 +507,7 @@ export async function showDamageDialog(
     weaponForDamage = applyMeleeUnarmedFallback(weaponForDamage, atk);
   }
   
-  console.log('Mastery System | [DAMAGE DIALOG] Weapon loading', {
+  log.debug('Mastery System | [DAMAGE DIALOG] Weapon loading', {
     isNpcAttackFlow,
     weaponId: weaponId,
     totalItems: items.length,
@@ -532,7 +533,7 @@ export async function showDamageDialog(
         .filter(Boolean);
   
   // Debug log after weapon resolve
-  console.log('Mastery System | [WEAPON-ID DEBUG]', {
+  log.debug('Mastery System | [WEAPON-ID DEBUG]', {
     messageType: 'damage-dialog:weapon-resolve',
     weaponResolved: !!weaponForDamage,
     weaponName: weaponForDamage?.name || null,
@@ -542,7 +543,7 @@ export async function showDamageDialog(
     baseDamageSanitized: sanitizedBaseDamage
   });
   
-  console.log("Mastery System | [DAMAGE DIALOG] Base damage resolved", {
+  log.debug("Mastery System | [DAMAGE DIALOG] Base damage resolved", {
     weaponId,
     weaponFound: !!weaponForDamage,
     weaponName: weaponForDamage?.name,
@@ -556,7 +557,7 @@ export async function showDamageDialog(
   let powerSpecials: string[] = [];
   let selectedPowerData: any = null;
   
-  console.log('Mastery System | [DAMAGE DIALOG] Power loading', {
+  log.debug('Mastery System | [DAMAGE DIALOG] Power loading', {
     selectedPowerId: selectedPowerId,
     hasSelectedPowerId: !!selectedPowerId,
     totalItems: items.length,
@@ -580,7 +581,7 @@ export async function showDamageDialog(
   
   if (selectedPowerId) {
     const selectedPower = resolvePowerItemForDamage(actorToUse, selectedPowerId);
-    console.log('Mastery System | [DAMAGE DIALOG] Power search result', {
+    log.debug('Mastery System | [DAMAGE DIALOG] Power search result', {
       selectedPowerId: selectedPowerId,
       powerFound: !!selectedPower,
       powerName: selectedPower ? selectedPower.name : 'not found',
@@ -669,7 +670,7 @@ export async function showDamageDialog(
         damage: powerDamage
       };
       
-      console.log('Mastery System | [DAMAGE DIALOG] Power loaded from actor', {
+      log.debug('Mastery System | [DAMAGE DIALOG] Power loaded from actor', {
         powerId: selectedPowerId,
         powerName: selectedPower.name,
         powerLevel: rawLevel,
@@ -710,7 +711,7 @@ export async function showDamageDialog(
       }
     }
   } else {
-    console.log('Mastery System | [DAMAGE DIALOG] No power selected (selectedPowerId is null/undefined)', {
+    log.debug('Mastery System | [DAMAGE DIALOG] No power selected (selectedPowerId is null/undefined)', {
       selectedPowerId: selectedPowerId,
       selectedPowerIdType: typeof selectedPowerId
     });
@@ -733,7 +734,7 @@ export async function showDamageDialog(
     }
   }
 
-  console.log('Mastery System | [DAMAGE DIALOG] Final power damage', {
+  log.debug('Mastery System | [DAMAGE DIALOG] Final power damage', {
     powerDamage: powerDamage,
     spellFocusBonusDice,
     hasSelectedPower: !!selectedPowerData,
@@ -832,13 +833,13 @@ export async function showDamageDialog(
   
   // Calculate passive damage (from equipped passives)
   const passiveDamage = await calculatePassiveDamage(attacker);
-  console.log('Mastery System | DEBUG: showDamageDialog - passiveDamage', passiveDamage);
+  log.debug('Mastery System | DEBUG: showDamageDialog - passiveDamage', passiveDamage);
   
   // Collect available specials (include power specials from selected power)
   // Use weaponForDamage (found weapon or fallback) to ensure weapon specials are included
   const baseSpecials = await collectAvailableSpecials(actorToUse as Actor, weaponForDamage, selectedPowerData);
   const availableSpecials = [...baseSpecials, ...npcLists.options];
-  console.log('Mastery System | DEBUG: showDamageDialog - availableSpecials', {
+  log.debug('Mastery System | DEBUG: showDamageDialog - availableSpecials', {
     count: availableSpecials.length,
     specials: availableSpecials.map(s => ({ id: s.id, name: s.name, type: s.type }))
   });
@@ -922,8 +923,8 @@ export async function showDamageDialog(
     };
     
     ChatMessage.create(chatData).then((message: any) => {
-      console.log('Mastery System | DEBUG: Damage card created in chat', message.id);
-      console.log('Mastery System | [DAMAGE CARD CREATED] Message flags check', {
+      log.debug('Mastery System | DEBUG: Damage card created in chat', message.id);
+      log.debug('Mastery System | [DAMAGE CARD CREATED] Message flags check', {
         messageId: message.id,
         messageFlags: message.flags,
         masterySystemFlags: message.flags?.['mastery-system'],
@@ -980,7 +981,7 @@ function createDamageCardContent(
       </div>`;
   }
   
-  console.log('Mastery System | [DAMAGE CARD HTML] createDamageCardContent - values', {
+  log.debug('Mastery System | [DAMAGE CARD HTML] createDamageCardContent - values', {
     baseDamage: baseDamage,
     powerDamage: powerDamage,
     passiveDamage: passiveDamage,
@@ -1061,7 +1062,7 @@ function createDamageCardContent(
     </div>
   `;
   
-  console.log('Mastery System | [DAMAGE CARD HTML] Generated HTML', {
+  log.debug('Mastery System | [DAMAGE CARD HTML] Generated HTML', {
     htmlLength: html.length,
     htmlPreview: html.substring(0, 500),
     containsBaseDamage: html.includes(baseDamage),
@@ -1098,7 +1099,7 @@ export function attachDamageCardHandlers(messageId: string): void {
     $btn.prop('disabled', true);
     let rollDamageCompleted = false;
 
-    console.log('Mastery System | [ROLL DAMAGE BUTTON] Button clicked', {
+    log.debug('Mastery System | [ROLL DAMAGE BUTTON] Button clicked', {
       messageId: messageId,
       buttonData: {
         attackerId: $btn.data('attacker-id'),
@@ -1131,7 +1132,7 @@ export function attachDamageCardHandlers(messageId: string): void {
       const tokenDoc = canvas?.scene?.tokens?.get(flags.targetTokenId);
       if (tokenDoc?.actor) {
         target = tokenDoc.actor;
-        console.log('Mastery System | [ROLL DAMAGE BUTTON] Resolved target from token', {
+        log.debug('Mastery System | [ROLL DAMAGE BUTTON] Resolved target from token', {
           targetTokenId: flags.targetTokenId,
           targetId: (target as any).id,
           targetName: (target as any).name,
@@ -1143,7 +1144,7 @@ export function attachDamageCardHandlers(messageId: string): void {
     // Fallback to base actor if token not found
     if (!target) {
       target = (game as any).actors?.get(targetId);
-      console.log('Mastery System | [ROLL DAMAGE BUTTON] Resolved target from base actor', {
+      log.debug('Mastery System | [ROLL DAMAGE BUTTON] Resolved target from base actor', {
         targetId: targetId,
         targetName: target ? (target as any).name : null,
         isTokenActor: false
@@ -1161,7 +1162,7 @@ export function attachDamageCardHandlers(messageId: string): void {
       ui.notifications?.error('Could not find attacker or target');
       return;
     }
-    console.log('Mastery System | [ROLL DAMAGE BUTTON] Flags retrieved', {
+    log.debug('Mastery System | [ROLL DAMAGE BUTTON] Flags retrieved', {
       messageId,
       hasFlags: !!flags,
       flagsKeys: flags ? Object.keys(flags) : [],
@@ -1205,7 +1206,7 @@ export function attachDamageCardHandlers(messageId: string): void {
       flags.attackType === 'ranged' ? 'ranged' : 'melee',
     );
     
-    console.log('Mastery System | [ROLL DAMAGE BUTTON] calculateDamageResult returned', {
+    log.debug('Mastery System | [ROLL DAMAGE BUTTON] calculateDamageResult returned', {
       messageId,
       hasResult: !!result,
       resultKeys: result ? Object.keys(result) : [],
@@ -1473,7 +1474,7 @@ async function applyStatusEffectsToTarget(
   attacker?: Actor | null,
 ): Promise<void> {
   try {
-    console.log('Mastery System | [APPLY STATUS EFFECTS] Applying to target', {
+    log.debug('Mastery System | [APPLY STATUS EFFECTS] Applying to target', {
       targetId: (target as any).id,
       targetName: (target as any).name,
       specialsUsed
@@ -1533,7 +1534,7 @@ async function applyStatusEffectsToTarget(
     // Update target actor
     await (target as any).update({ 'system.statusEffects': list });
     
-    console.log('Mastery System | [APPLY STATUS EFFECTS] Status effects applied', {
+    log.debug('Mastery System | [APPLY STATUS EFFECTS] Status effects applied', {
       targetId: (target as any).id,
       statusEffects: list
     });
@@ -1597,7 +1598,7 @@ async function applyDamageToTarget(
     phased: false,
   };
   try {
-    console.log('Mastery System | [APPLY DAMAGE] Applying damage to target', {
+    log.debug('Mastery System | [APPLY DAMAGE] Applying damage to target', {
       targetId: (target as any).id,
       targetName: (target as any).name,
       attackerId: (attacker as any).id,
@@ -1713,7 +1714,7 @@ async function applyDamageToTarget(
     const remaining = tempHPConsumption.remainingDamage;
 
     if (tempHPConsumption.reducedBy > 0) {
-      console.log('Mastery System | [APPLY DAMAGE] TempHP absorbed', {
+      log.debug('Mastery System | [APPLY DAMAGE] TempHP absorbed', {
         tempHPBefore: system.health.tempHP,
         tempHPAfter: Math.max(0, (system.health.tempHP || 0) - tempHPConsumption.reducedBy),
         absorbed: tempHPConsumption.reducedBy,
@@ -1764,7 +1765,7 @@ async function applyDamageToTarget(
         throw e;
       }
 
-      console.log('Mastery System | [APPLY DAMAGE] Damage applied to bars', {
+      log.debug('Mastery System | [APPLY DAMAGE] Damage applied to bars', {
         targetId: (target as any).id,
         targetName: (target as any).name,
         damageInput: damage,
@@ -1793,7 +1794,7 @@ async function applyDamageToTarget(
         throw e;
       }
 
-      console.log('Mastery System | [APPLY DAMAGE] Only tempHP reduced', {
+      log.debug('Mastery System | [APPLY DAMAGE] Only tempHP reduced', {
         targetId: (target as any).id,
         tempHPBefore: system.health.tempHP,
         tempHPAfter: Math.max(0, (system.health.tempHP || 0) - tempHPConsumption.reducedBy),
@@ -2244,7 +2245,7 @@ async function calculateDamageResult(
     + vulnerabilityBonusRolled
     + smiteBonusRolled;
   
-  console.log('Mastery System | [CALCULATE DAMAGE] Final calculation', {
+  log.debug('Mastery System | [CALCULATE DAMAGE] Final calculation', {
     baseDamageRolled,
     stoneMightDamageRolled,
     stoneDamageBonusDice,
@@ -2370,7 +2371,7 @@ async function calculateDamageResult(
   // dice of *this* strike; we keep the full count (it is per-strike).
   const appliedCount8s = count8s;
   if (splitAttack) {
-    console.log('Mastery System | [CALCULATE DAMAGE] Split-Attack damage split', {
+    log.debug('Mastery System | [CALCULATE DAMAGE] Split-Attack damage split', {
       rawTotalDamage: totalDamage,
       raiseDamage,
       nonRaiseDamage,
@@ -2400,7 +2401,7 @@ async function calculateDamageResult(
     mitigation,
   };
   
-  console.log('Mastery System | [CALCULATE DAMAGE] Returning result', result);
+  log.debug('Mastery System | [CALCULATE DAMAGE] Returning result', result);
   
   return result;
 }
@@ -2481,7 +2482,7 @@ class DamageDialog extends Application {
     super({});
     this.data = data;
     this.resolve = resolve;
-    console.log('Mastery System | DEBUG: DamageDialog constructor', {
+    log.debug('Mastery System | DEBUG: DamageDialog constructor', {
       hasData: !!data,
       raises: data.raises,
       baseDamage: data.baseDamage,
@@ -2491,7 +2492,7 @@ class DamageDialog extends Application {
   
   static override get defaultOptions(): any {
     const opts = super.defaultOptions || {};
-    console.log('Mastery System | DEBUG: DamageDialog defaultOptions - super.defaultOptions', super.defaultOptions);
+    log.debug('Mastery System | DEBUG: DamageDialog defaultOptions - super.defaultOptions', super.defaultOptions);
     opts.id = 'mastery-damage-dialog';
     opts.title = 'Calculate Damage';
     opts.template = 'systems/mastery-system/templates/dice/damage-dialog.hbs';
@@ -2500,7 +2501,7 @@ class DamageDialog extends Application {
     opts.resizable = true;
     opts.classes = ['mastery-damage-dialog'];
     opts.popOut = true;
-    console.log('Mastery System | DEBUG: DamageDialog defaultOptions - final opts', opts);
+    log.debug('Mastery System | DEBUG: DamageDialog defaultOptions - final opts', opts);
     return opts;
   }
   
@@ -2510,7 +2511,7 @@ class DamageDialog extends Application {
     if (!template) {
       throw new Error('Template path is required');
     }
-    console.log('Mastery System | DEBUG: DamageDialog _renderHTML - rendering template', { 
+    log.debug('Mastery System | DEBUG: DamageDialog _renderHTML - rendering template', { 
       template, 
       hasData: !!data,
       dataKeys: data ? Object.keys(data) : [],
@@ -2518,7 +2519,7 @@ class DamageDialog extends Application {
     });
     // Always call getData() to ensure we have the correct data structure
     const templateData = await this.getData();
-    console.log('Mastery System | DEBUG: DamageDialog _renderHTML - templateData from getData()', {
+    log.debug('Mastery System | DEBUG: DamageDialog _renderHTML - templateData from getData()', {
       hasData: !!templateData,
       keys: templateData ? Object.keys(templateData) : [],
       baseDamage: templateData?.baseDamage,
@@ -2532,13 +2533,13 @@ class DamageDialog extends Application {
       fullData: JSON.stringify(templateData, null, 2).substring(0, 1000)
     });
     const html = await foundry.applications.handlebars.renderTemplate(template, templateData);
-    console.log('Mastery System | DEBUG: DamageDialog _renderHTML - template rendered', { 
+    log.debug('Mastery System | DEBUG: DamageDialog _renderHTML - template rendered', { 
       htmlLength: html.length,
       htmlType: typeof html,
       htmlPreview: html.substring ? html.substring(0, 500) : String(html).substring(0, 500)
     });
     const $html = $(html);
-    console.log('Mastery System | DEBUG: DamageDialog _renderHTML - jQuery object created', {
+    log.debug('Mastery System | DEBUG: DamageDialog _renderHTML - jQuery object created', {
       length: $html.length,
       htmlContent: $html.html()?.substring(0, 500)
     });
@@ -2546,18 +2547,18 @@ class DamageDialog extends Application {
   }
   
   async _replaceHTML(element: JQuery, html: JQuery): Promise<void> {
-    console.log('Mastery System | DEBUG: DamageDialog _replaceHTML - replacing element', {
+    log.debug('Mastery System | DEBUG: DamageDialog _replaceHTML - replacing element', {
       elementLength: element.length,
       elementHtml: element.html()?.substring(0, 200),
       htmlLength: html.length,
       htmlContent: html.html()?.substring(0, 500)
     });
     element.replaceWith(html);
-    console.log('Mastery System | DEBUG: DamageDialog _replaceHTML - element replaced');
+    log.debug('Mastery System | DEBUG: DamageDialog _replaceHTML - element replaced');
   }
   
   override async getData(): Promise<any> {
-    console.log('Mastery System | DEBUG: DamageDialog getData() - called', {
+    log.debug('Mastery System | DEBUG: DamageDialog getData() - called', {
       hasData: !!this.data,
       raises: this.data?.raises,
       baseDamage: this.data?.baseDamage,
@@ -2583,7 +2584,7 @@ class DamageDialog extends Application {
         ...selection
       }))
     };
-    console.log('Mastery System | DEBUG: DamageDialog getData() - returning', {
+    log.debug('Mastery System | DEBUG: DamageDialog getData() - returning', {
       hasData: !!data,
       raises: data.raises,
       baseDamage: data.baseDamage,

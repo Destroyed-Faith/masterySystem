@@ -17,6 +17,7 @@
 
 import { grantEchoArtifactTreeToActor } from '../utils/seed-artifact-library.js';
 
+import { log } from '../utils/logger.js';
 const SETTING_NAMESPACE = 'mastery-system';
 const SETTING_KEY = 'echoArtifactTreeMigrationRun';
 
@@ -110,7 +111,7 @@ export async function runEchoArtifactTreeMigration(): Promise<void> {
 
   if (upgraded > 0 || failed > 0) {
     const msg = `Mastery System | Echo Artifact tree migration: upgraded ${upgraded} artifact(s)${failed ? `, ${failed} deferred (library not seeded yet)` : ''}.`;
-    console.log(msg);
+    log.debug(msg);
     try {
       if (upgraded > 0) ui.notifications?.info(msg);
     } catch {

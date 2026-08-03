@@ -63,36 +63,6 @@
   ],
   "packs": [
     {
-      "name": "sample-powers",
-      "label": "Sample Powers",
-      "path": "packs/sample-powers",
-      "type": "Item",
-      "ownership": {
-        "PLAYER": "OBSERVER",
-        "ASSISTANT": "OWNER"
-      }
-    },
-    {
-      "name": "sample-echoes",
-      "label": "Sample Echoes",
-      "path": "packs/sample-echoes",
-      "type": "Item",
-      "ownership": {
-        "PLAYER": "OBSERVER",
-        "ASSISTANT": "OWNER"
-      }
-    },
-    {
-      "name": "sample-artifacts",
-      "label": "Sample Artifacts",
-      "path": "packs/sample-artifacts",
-      "type": "Item",
-      "ownership": {
-        "PLAYER": "OBSERVER",
-        "ASSISTANT": "OWNER"
-      }
-    },
-    {
       "name": "echo-artifacts",
       "label": "Echo Artifacts",
       "path": "packs/echo-artifacts",

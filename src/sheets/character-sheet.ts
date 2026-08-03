@@ -383,7 +383,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
    */
   async #openGeneralItemsStorage(): Promise<void> {
     try {
-      console.log('Mastery System | [Storage Debug] CharacterSheet open storage', {
+      log.debug('Mastery System | [Storage Debug] CharacterSheet open storage', {
         actorId: this.actor?.id,
         actorName: this.actor?.name
       });
@@ -507,7 +507,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       
       if (updates.length > 0) {
         await this.actor.updateEmbeddedDocuments('Item', updates);
-        console.log('Mastery System | [EQUIP TOGGLE] Updated items', {
+        log.debug('Mastery System | [EQUIP TOGGLE] Updated items', {
           itemId,
           itemName: item.name,
           equipped,
@@ -615,7 +615,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     const creationCompleteRaw = context.system.creation?.complete;
     context.creationComplete = creationCompleteRaw !== false;
     
-    console.log('Mastery System | getData - Creation Status:', {
+    log.debug('Mastery System | getData - Creation Status:', {
       creationCompleteRaw,
       creationComplete: context.creationComplete,
       systemCreation: context.system.creation,
@@ -794,7 +794,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       };
     }
 
-    console.log('Mastery System | getData - Powers Status:', {
+    log.debug('Mastery System | getData - Powers Status:', {
       totalPowers: powers.length,
       selectedTrees: selectedTrees,
       selectedTreesCount: selectedTrees.length,
@@ -894,7 +894,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                    context.languagesView?.creationValid !== false
     };
     
-    console.log('Mastery System | getData - Final Context Check:', {
+    log.debug('Mastery System | getData - Final Context Check:', {
       creationComplete: context.creationComplete,
       creationCompleteType: typeof context.creationComplete,
       creationCompleteValue: String(context.creationComplete),
@@ -1002,7 +1002,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     context.activeBuffs = [];
     try {
       const activeBuffs = getActiveBuffs(this.actor);
-      console.log('Mastery System | [CHARACTER SHEET] Found active buffs:', activeBuffs.length, activeBuffs);
+      log.debug('Mastery System | [CHARACTER SHEET] Found active buffs:', activeBuffs.length, activeBuffs);
       
       if (activeBuffs && activeBuffs.length > 0) {
         context.activeBuffs = activeBuffs.map((effect: any) => {
@@ -1026,12 +1026,12 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             roundsRemaining: roundsRemaining
           };
           
-          console.log('Mastery System | [CHARACTER SHEET] Processed buff:', buffData);
+          log.debug('Mastery System | [CHARACTER SHEET] Processed buff:', buffData);
           return buffData;
         });
       }
       
-      console.log('Mastery System | [CHARACTER SHEET] Final activeBuffs array:', context.activeBuffs.length, context.activeBuffs);
+      log.debug('Mastery System | [CHARACTER SHEET] Final activeBuffs array:', context.activeBuffs.length, context.activeBuffs);
     } catch (error) {
       console.error('Mastery System | [CHARACTER SHEET] Failed to load active buffs', error);
       context.activeBuffs = [];
@@ -1537,7 +1537,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     const lastDroppedId = (this as any)._lastDroppedItemId as string | undefined;
     if (lastDroppedId) {
       const lastItem = equipmentItems.find(it => it.id === lastDroppedId);
-      console.log('Mastery System | [Equipment Drop] Last dropped item in UI', {
+      log.debug('Mastery System | [Equipment Drop] Last dropped item in UI', {
         lastDroppedId,
         found: !!lastItem,
         lastItemType: lastItem?.type,
@@ -1545,7 +1545,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         lastItemFlags: lastItem?.getFlag?.('mastery-system', 'equipment') || null
       });
     }
-    console.log('Mastery System | [Equipment Drop] Equipment UI counts', {
+    log.debug('Mastery System | [Equipment Drop] Equipment UI counts', {
       equipmentTotal: equipmentItems.length,
       notCount: notItems.length,
       encCount: encItems.length,
@@ -1677,7 +1677,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       return;
     }
     
-    console.log('Mastery System | Schtick name change:', {
+    log.debug('Mastery System | Schtick name change:', {
       rank,
       schtickName
     });
@@ -1707,7 +1707,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       'system.schticks.ranks': newRanks
     });
     
-    console.log('Mastery System | Schticks ranks updated:', {
+    log.debug('Mastery System | Schticks ranks updated:', {
       newRanks,
       count: newRanks.length
     });
@@ -1733,7 +1733,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       return;
     }
     
-    console.log('Mastery System | Schtick manifestation change:', {
+    log.debug('Mastery System | Schtick manifestation change:', {
       rank,
       manifestation
     });
@@ -1760,7 +1760,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       'system.schticks.ranks': newRanks
     });
     
-    console.log('Mastery System | Schtick manifestation updated for rank', rank);
+    log.debug('Mastery System | Schtick manifestation updated for rank', rank);
   }
 
   /**
@@ -1926,7 +1926,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
 
   /** @override */
   activateListeners(html: JQuery) {
-    console.log('Mastery System | activateListeners START', {
+    log.debug('Mastery System | activateListeners START', {
       htmlLength: html.length,
       actorName: this.actor?.name,
       htmlIsJQuery: html instanceof jQuery,
@@ -2027,7 +2027,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     // New attribute XP distribution system (with confirmation)
     const increaseButtons = html.find('.attr-increase-xp');
     const decreaseButtons = html.find('.attr-decrease-xp');
-    console.log('Mastery System | Setting up attribute XP buttons', {
+    log.debug('Mastery System | Setting up attribute XP buttons', {
       increaseButtonsCount: increaseButtons.length,
       decreaseButtonsCount: decreaseButtons.length,
       htmlLength: html.length,
@@ -2141,7 +2141,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     
     // Disadvantages buttons (only during creation)
     const addDisadvantageBtn = html.find('.add-disadvantage-btn');
-    console.log('Mastery System | Setting up add-disadvantage-btn listener', {
+    log.debug('Mastery System | Setting up add-disadvantage-btn listener', {
       buttonFound: addDisadvantageBtn.length,
       buttonElement: addDisadvantageBtn[0],
       isDisabled: addDisadvantageBtn.prop('disabled'),
@@ -2150,7 +2150,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     
     if (addDisadvantageBtn.length > 0) {
       addDisadvantageBtn.off('click.add-disadvantage').on('click.add-disadvantage', (e: JQuery.ClickEvent) => {
-        console.log('Mastery System | add-disadvantage-btn clicked!', {
+        log.debug('Mastery System | add-disadvantage-btn clicked!', {
           event: e,
           target: e.target,
           currentTarget: e.currentTarget,
@@ -2160,7 +2160,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       });
       // Also try direct binding as fallback
       addDisadvantageBtn.on('click', (e: JQuery.ClickEvent) => {
-        console.log('Mastery System | add-disadvantage-btn clicked (direct binding)', e);
+        log.debug('Mastery System | add-disadvantage-btn clicked (direct binding)', e);
         e.preventDefault();
         e.stopPropagation();
         this.#onAddDisadvantage(e);
@@ -2250,7 +2250,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     // Use event delegation to handle clicks even if elements are added later
     const containers = html.find('.profile-img-container');
     
-    console.log('Mastery System | Setting up profile image handlers', {
+    log.debug('Mastery System | Setting up profile image handlers', {
       containerFound: containers.length,
       htmlLength: html.length
     });
@@ -2269,7 +2269,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       // Also check if container has the token class
       const isTokenContainer = container.hasClass('profile-img-container-token');
       
-      console.log('Mastery System | Container clicked', {
+      log.debug('Mastery System | Container clicked', {
         target: target[0]?.className,
         clickedZone: clickedZone.length,
         zoneClass: clickedZone[0]?.className,
@@ -2286,11 +2286,11 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       let finalImgType = imgType;
       if (!zoneImgType && isTokenContainer) {
         finalImgType = 'token';
-        console.log('Mastery System | Overriding imgType to token based on container class');
+        log.debug('Mastery System | Overriding imgType to token based on container class');
       }
       
       if (clickedZone.hasClass('profile-zone-edit')) {
-        console.log('Mastery System | EDIT zone clicked via delegation', { 
+        log.debug('Mastery System | EDIT zone clicked via delegation', { 
           imgType: finalImgType, 
           isToken: finalImgType === 'token',
           willCallOnProfileEdit: true
@@ -2300,7 +2300,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         // Pass imgType as string to ensure it's not modified
         this.#onProfileEdit(e, String(finalImgType));
       } else if (clickedZone.hasClass('profile-zone-show')) {
-        console.log('Mastery System | SHOW zone clicked via delegation', { imgType: finalImgType });
+        log.debug('Mastery System | SHOW zone clicked via delegation', { imgType: finalImgType });
         e.preventDefault();
         e.stopPropagation();
         this.#onProfileShow(e, String(finalImgType));
@@ -2312,13 +2312,13 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       const editZone = html.find('.profile-zone-edit');
       const showZone = html.find('.profile-zone-show');
       
-      console.log('Mastery System | Direct handler setup', {
+      log.debug('Mastery System | Direct handler setup', {
         editZoneFound: editZone.length,
         showZoneFound: showZone.length
       });
       
       editZone.off('click.profile-edit').on('click.profile-edit', (e) => {
-        console.log('Mastery System | EDIT zone clicked (direct)', e);
+        log.debug('Mastery System | EDIT zone clicked (direct)', e);
         e.preventDefault();
         e.stopPropagation();
         e.stopImmediatePropagation();
@@ -2331,7 +2331,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         // Determine imgType - prioritize zone attribute, then container class, then container attribute
         let imgType = zoneImgType || (isTokenContainer ? 'token' : null) || containerImgType || 'portrait';
         
-        console.log('Mastery System | Direct handler imgType detection', {
+        log.debug('Mastery System | Direct handler imgType detection', {
           zoneImgType: zoneImgType,
           containerImgType: containerImgType,
           isTokenContainer: isTokenContainer,
@@ -2342,7 +2342,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       });
       
       showZone.off('click.profile-show').on('click.profile-show', (e) => {
-        console.log('Mastery System | SHOW zone clicked (direct)', e);
+        log.debug('Mastery System | SHOW zone clicked (direct)', e);
         e.preventDefault();
         e.stopPropagation();
         e.stopImmediatePropagation();
@@ -2355,7 +2355,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         // Determine imgType - prioritize zone attribute, then container class, then container attribute
         let imgType = zoneImgType || (isTokenContainer ? 'token' : null) || containerImgType || 'portrait';
         
-        console.log('Mastery System | Direct handler imgType detection (show)', {
+        log.debug('Mastery System | Direct handler imgType detection (show)', {
           zoneImgType: zoneImgType,
           containerImgType: containerImgType,
           isTokenContainer: isTokenContainer,
@@ -2401,7 +2401,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     }
 
     const dropTargets = html.find('[data-df-drop]');
-    console.log('Mastery System | [Equipment Drop] Drop targets in sheet', {
+    log.debug('Mastery System | [Equipment Drop] Drop targets in sheet', {
       count: dropTargets.length,
       samples: dropTargets
         .slice(0, 5)
@@ -2434,7 +2434,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       const cellFromTarget = (ev.target as HTMLElement)?.closest?.('.df-cell') as HTMLElement | null;
       (dragEvent as any).__msDropTarget = target || undefined;
       (dragEvent as any).__msDropCell = cellFromTarget || cellFromPath || undefined;
-      console.log('Mastery System | [Equipment Drop] Delegated drop handler', {
+      log.debug('Mastery System | [Equipment Drop] Delegated drop handler', {
         targetClass: target?.className,
         dropType: target?.dataset?.dfDrop,
         band: target?.dataset?.band,
@@ -2458,28 +2458,28 @@ export class MasteryCharacterSheet extends BaseActorSheet {
 
     if (!(window as any).__msGlobalDropDebugBound) {
       (window as any).__msGlobalDropDebugBound = true;
-      console.log('Mastery System | [Storage Debug] Global drag/drop listeners bound');
-      console.log('Mastery System | [Storage Debug] Global drop debug active');
+      log.debug('Mastery System | [Storage Debug] Global drag/drop listeners bound');
+      log.debug('Mastery System | [Storage Debug] Global drop debug active');
       document.addEventListener('dragstart', (ev: DragEvent) => {
         const target = ev.target as HTMLElement | null;
         if (!target) return;
         const storageItem = target.closest('.storage-item');
         if (!storageItem) return;
         const itemId = (storageItem as HTMLElement).dataset?.itemId;
-        console.log('Mastery System | [Storage Debug] document dragstart', {
+        log.debug('Mastery System | [Storage Debug] document dragstart', {
           targetClass: target.className,
           itemId
         });
         const dataTransfer = ev.dataTransfer;
         if (!dataTransfer) {
-          console.log('Mastery System | [Storage Debug] document dragstart missing dataTransfer', {
+          log.debug('Mastery System | [Storage Debug] document dragstart missing dataTransfer', {
             itemId
           });
           return;
         }
         const sourceItem = (game as any).items?.get(itemId);
         if (!sourceItem) {
-          console.log('Mastery System | [Storage Debug] document dragstart missing source item', {
+          log.debug('Mastery System | [Storage Debug] document dragstart missing source item', {
             itemId
           });
           return;
@@ -2491,7 +2491,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         dataTransfer.setData('application/json', payload);
         (window as any).__msDragInventorySize = sourceItem?.system?.inventorySize || '1x1';
         (window as any).__msDragItemId = sourceItem?.id;
-        console.log('Mastery System | [Storage Debug] document dragstart set dataTransfer', {
+        log.debug('Mastery System | [Storage Debug] document dragstart set dataTransfer', {
           itemId,
           types: Array.from(dataTransfer.types || [])
         });
@@ -2502,7 +2502,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         if (target.closest('.stone-powers-dialog')) return;
         // If drop happens inside the character sheet, let sheet handlers handle it.
         if (target.closest('.mastery-system.sheet.actor.character')) {
-          console.log('Mastery System | [Storage Debug] document drop skipped (sheet handled)', {
+          log.debug('Mastery System | [Storage Debug] document drop skipped (sheet handled)', {
             targetClass: target.className
           });
           return;
@@ -2511,7 +2511,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         const dropTarget = target.closest('[data-df-drop]') as HTMLElement | null;
         const pathDropTarget = path.find(el => el?.dataset?.dfDrop) as HTMLElement | undefined;
         const resolvedDropTarget = dropTarget || pathDropTarget || null;
-        console.log('Mastery System | [Storage Debug] document drop', {
+        log.debug('Mastery System | [Storage Debug] document drop', {
           targetClass: target.className,
           dropType: resolvedDropTarget?.dataset?.dfDrop,
           band: resolvedDropTarget?.dataset?.band,
@@ -2522,7 +2522,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         if (resolvedDropTarget) {
           const dragEvent = ev as DragEvent;
           (dragEvent as any).__msDropTarget = resolvedDropTarget;
-          console.log('Mastery System | [Equipment Drop] Global document drop invoking _onDrop', {
+          log.debug('Mastery System | [Equipment Drop] Global document drop invoking _onDrop', {
             dropType: resolvedDropTarget.dataset?.dfDrop,
             band: resolvedDropTarget.dataset?.band,
             slot: resolvedDropTarget.dataset?.slot
@@ -2539,7 +2539,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         const key = `${dropTarget.dataset?.dfDrop || ''}:${dropTarget.dataset?.band || ''}:${dropTarget.dataset?.slot || ''}`;
         if (last !== key) {
           (window as any).__msLastDropTargetKey = key;
-          console.log('Mastery System | [Storage Debug] document dragover target', {
+          log.debug('Mastery System | [Storage Debug] document dragover target', {
             dropType: dropTarget?.dataset?.dfDrop,
             band: dropTarget?.dataset?.band,
             slot: dropTarget?.dataset?.slot
@@ -2570,7 +2570,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         if (ev.dataTransfer) {
           ev.dataTransfer.setData('application/x-mastery-inventory-size', resolvedSize);
         }
-        console.log('Mastery System | [Equipment Grid Debug] dragstart capture', {
+        log.debug('Mastery System | [Equipment Grid Debug] dragstart capture', {
           itemId: sourceItem?.id || itemId,
           systemSize: sourceItem?.system?.inventorySize,
           sizeAttr,
@@ -2580,7 +2580,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       };
       (sheetEl as any).__msDragstartCaptureHandler = captureHandler;
       sheetEl.addEventListener('dragstart', captureHandler, true);
-      console.log('Mastery System | [Equipment Grid Debug] dragstart capture bound');
+      log.debug('Mastery System | [Equipment Grid Debug] dragstart capture bound');
     }
 
     html.off('dragstart.df-grid').on('dragstart.df-grid', '.df-item-tile', (ev: any) => {
@@ -2600,7 +2600,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         if (dataTransfer) {
           dataTransfer.setData('application/x-mastery-inventory-size', resolvedSize);
         }
-        console.log('Mastery System | [Equipment Grid Debug] dragstart tile', {
+        log.debug('Mastery System | [Equipment Grid Debug] dragstart tile', {
           itemId: sourceItem.id,
           systemSize: sourceItem.system?.inventorySize,
           sizeAttr,
@@ -2635,7 +2635,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       delete (window as any).__msDragInventorySize;
       delete (window as any).__msDragItemId;
     });
-    console.log('Mastery System | [Equipment Grid Debug] dragstart handler bound');
+    log.debug('Mastery System | [Equipment Grid Debug] dragstart handler bound');
 
     const clearDropHighlight = () => {
       html.find('.df-cell.df-drop-valid, .df-cell.df-drop-invalid')
@@ -2647,7 +2647,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         const key = JSON.stringify({ source, ...details });
         if ((window as any).__msLastDragSizeDebug === key) return;
         (window as any).__msLastDragSizeDebug = key;
-        console.log('Mastery System | [Equipment Grid Debug] resolveDragSize', { source, ...details });
+        log.debug('Mastery System | [Equipment Grid Debug] resolveDragSize', { source, ...details });
       };
       const getDragDataFromDataTransfer = (dt: DataTransfer | null) => {
         if (!dt) return { types: [] as string[], raw: '', parsed: undefined as any, size: undefined as string | undefined };
@@ -2803,7 +2803,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       const debugKey = `${col}:${row}:${w}:${h}`;
       if ((window as any).__msLastDragoverDebug !== debugKey) {
         (window as any).__msLastDragoverDebug = debugKey;
-        console.log('Mastery System | [Equipment Grid Debug] dragover size', {
+        log.debug('Mastery System | [Equipment Grid Debug] dragover size', {
           col,
           row,
           w,
@@ -3124,7 +3124,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     event.preventDefault();
     event.stopPropagation();
     
-    console.log('Mastery System | #onAttributeIncreaseXP called', {
+    log.debug('Mastery System | #onAttributeIncreaseXP called', {
       target: event.currentTarget,
       targetType: typeof event.currentTarget,
       targetIsElement: event.currentTarget instanceof HTMLElement,
@@ -3143,7 +3143,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     
     const $target = $(event.currentTarget);
     const attributeName = $target.data('attribute') as string;
-    console.log('Mastery System | #onAttributeIncreaseXP: Attribute name', {
+    log.debug('Mastery System | #onAttributeIncreaseXP: Attribute name', {
       attributeName,
       targetData: $target.data(),
       targetAttrs: Array.from((event.currentTarget as HTMLElement).attributes).map(a => `${a.name}="${a.value}"`)
@@ -3163,7 +3163,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     const nextPending = pending + 1;
     const effectiveAfter = currentValue + nextPending;
     
-    console.log('Mastery System | #onAttributeIncreaseXP: Current state', {
+    log.debug('Mastery System | #onAttributeIncreaseXP: Current state', {
       attributeName,
       currentValue,
       pending,
@@ -3208,7 +3208,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
 
     const netPendingCost = this.#calculateAttributePendingNetCost(simulateMap);
     const xpState = this.#getXpState(this.actor);
-    console.log('Mastery System | #onAttributeIncreaseXP: Cost check', {
+    log.debug('Mastery System | #onAttributeIncreaseXP: Cost check', {
       netPendingCost,
       availablePoints: xpState.available
     });
@@ -3229,7 +3229,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       delete this._pendingAttributeChanges[attributeName];
     }
     
-    console.log('Mastery System | #onAttributeIncreaseXP: Added pending increase', {
+    log.debug('Mastery System | #onAttributeIncreaseXP: Added pending increase', {
       attributeName,
       newPending: this._pendingAttributeChanges[attributeName],
       allPendingChanges: this._pendingAttributeChanges
@@ -3246,7 +3246,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     event.preventDefault();
     event.stopPropagation();
     
-    console.log('Mastery System | #onAttributeDecreaseXP called', {
+    log.debug('Mastery System | #onAttributeDecreaseXP called', {
       target: event.currentTarget,
       targetType: typeof event.currentTarget,
       targetIsElement: event.currentTarget instanceof HTMLElement,
@@ -3257,7 +3257,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     
     const $target = $(event.currentTarget);
     const attributeName = $target.data('attribute') as string;
-    console.log('Mastery System | #onAttributeDecreaseXP: Attribute name', {
+    log.debug('Mastery System | #onAttributeDecreaseXP: Attribute name', {
       attributeName,
       targetData: $target.data(),
       targetAttrs: Array.from((event.currentTarget as HTMLElement).attributes).map(a => `${a.name}="${a.value}"`)
@@ -3278,7 +3278,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     const nextPending = pending - 1;
     const effectiveAfter = currentValue + nextPending;
     
-    console.log('Mastery System | #onAttributeDecreaseXP: Current pending', {
+    log.debug('Mastery System | #onAttributeDecreaseXP: Current pending', {
       attributeName,
       pending,
       nextPending,
@@ -3299,7 +3299,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       delete this._pendingAttributeChanges[attributeName];
     }
     
-    console.log('Mastery System | #onAttributeDecreaseXP: Removed pending increase', {
+    log.debug('Mastery System | #onAttributeDecreaseXP: Removed pending increase', {
       attributeName,
       newPending: this._pendingAttributeChanges[attributeName],
       allPendingChanges: this._pendingAttributeChanges
@@ -3523,7 +3523,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     event.preventDefault();
     event.stopPropagation();
     
-    console.log('Mastery System | #onPowerIncreaseLevel called', {
+    log.debug('Mastery System | #onPowerIncreaseLevel called', {
       target: event.currentTarget,
       itemId: $(event.currentTarget).data('item-id')
     });
@@ -3551,7 +3551,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     const pending = this._pendingPowerLevelChanges[itemId] || 0;
     const effectiveLevel = currentLevel + pending;
     
-    console.log('Mastery System | #onPowerIncreaseLevel: Current state', {
+    log.debug('Mastery System | #onPowerIncreaseLevel: Current state', {
       itemId,
       currentLevel,
       pending,
@@ -3595,7 +3595,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     // Combined spendable XP (Free pool is spent first, then regular).
     const availableXP = (this.actor.system.points?.xp || 0) + (this.actor.system.points?.xpFree || 0);
     
-    console.log('Mastery System | #onPowerIncreaseLevel: Cost check', {
+    log.debug('Mastery System | #onPowerIncreaseLevel: Cost check', {
       netCost,
       availableXP,
       nextLevel: effectiveLevel + 1,
@@ -3619,7 +3619,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       delete this._pendingPowerLevelChanges[itemId];
     }
     
-    console.log('Mastery System | #onPowerIncreaseLevel: Added pending increase', {
+    log.debug('Mastery System | #onPowerIncreaseLevel: Added pending increase', {
       itemId,
       newPending: this._pendingPowerLevelChanges[itemId],
       allPendingChanges: this._pendingPowerLevelChanges
@@ -3636,7 +3636,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     event.preventDefault();
     event.stopPropagation();
     
-    console.log('Mastery System | #onPowerDecreaseLevel called', {
+    log.debug('Mastery System | #onPowerDecreaseLevel called', {
       target: event.currentTarget,
       itemId: $(event.currentTarget).data('item-id')
     });
@@ -3665,7 +3665,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     const pending = this._pendingPowerLevelChanges[itemId] || 0;
     const effectiveLevel = currentLevel + pending;
     
-    console.log('Mastery System | #onPowerDecreaseLevel: Current state', {
+    log.debug('Mastery System | #onPowerDecreaseLevel: Current state', {
       itemId,
       currentLevel,
       minLevel,
@@ -3689,7 +3689,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       delete this._pendingPowerLevelChanges[itemId];
     }
     
-    console.log('Mastery System | #onPowerDecreaseLevel: Decreased pending', {
+    log.debug('Mastery System | #onPowerDecreaseLevel: Decreased pending', {
       itemId,
       newPending: this._pendingPowerLevelChanges[itemId],
       allPendingChanges: this._pendingPowerLevelChanges
@@ -4789,7 +4789,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
 
     await this.actor.update(updates);
 
-    console.log('Mastery System | Safe Haven Rest: Full restoration applied', {
+    log.debug('Mastery System | Safe Haven Rest: Full restoration applied', {
       actorId: this.actor.id,
       actorName: this.actor.name,
       skillsReset: Object.keys(skillsSpent).length,
@@ -5565,7 +5565,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     event.preventDefault();
     event.stopPropagation();
     
-    console.log('Mastery System | [TOGGLE DETAILS] Handler called', {
+    log.debug('Mastery System | [TOGGLE DETAILS] Handler called', {
       currentTarget: event.currentTarget,
       target: event.target
     });
@@ -5577,7 +5577,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     }
     
     const $button = $(event.currentTarget);
-    console.log('Mastery System | [TOGGLE DETAILS] Button jQuery object', {
+    log.debug('Mastery System | [TOGGLE DETAILS] Button jQuery object', {
       buttonLength: $button.length,
       buttonIsJQuery: $button instanceof jQuery
     });
@@ -5665,7 +5665,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     const compactDescription = powerCard.find('.power-description-compact');
     const toggleIcon = $button.find('i');
     
-    console.log('Mastery System | [TOGGLE DETAILS] Toggling details', {
+    log.debug('Mastery System | [TOGGLE DETAILS] Toggling details', {
       itemId: powerCard.attr('data-item-id'),
       detailsVisible: detailsSection.is(':visible'),
       compactVisible: compactDescription.is(':visible'),
@@ -5878,7 +5878,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         const inCreationMode = !creationComplete;
         
         await item.delete();
-        console.log('Mastery System | [DELETE ITEM] Item deleted successfully', {
+        log.debug('Mastery System | [DELETE ITEM] Item deleted successfully', {
           itemId,
           itemName,
           itemType,
@@ -5953,7 +5953,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
    * Handle profile image edit (upper zone)
    */
   async #onProfileEdit(event: JQuery.ClickEvent, imgType: string = 'portrait') {
-    console.log('Mastery System | #onProfileEdit called', {
+    log.debug('Mastery System | #onProfileEdit called', {
       eventType: event.type,
       target: event.target,
       currentTarget: event.currentTarget,
@@ -5968,7 +5968,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     event.stopImmediatePropagation();
     
     if (!this.isEditable) {
-      console.log('Mastery System | Sheet is not editable, showing warning');
+      log.debug('Mastery System | Sheet is not editable, showing warning');
       ui.notifications?.warn('You do not have permission to edit this character.');
       return;
     }
@@ -5985,7 +5985,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       const isTokenEdit = (imgType === 'token'); // Store in const to ensure it's captured correctly in closure
       let currentImage: string;
       
-      console.log('Mastery System | Determining image type for edit', {
+      log.debug('Mastery System | Determining image type for edit', {
         imgType: imgType,
         imgTypeType: typeof imgType,
         isTokenEdit: isTokenEdit,
@@ -5996,10 +5996,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       
       if (isTokenEdit) {
         currentImage = this.actor.prototypeToken?.texture?.src || this.actor.img || '';
-        console.log('Mastery System | Token image edit - current:', currentImage);
+        log.debug('Mastery System | Token image edit - current:', currentImage);
       } else {
         currentImage = this.actor.img || '';
-        console.log('Mastery System | Portrait image edit - current:', currentImage);
+        log.debug('Mastery System | Portrait image edit - current:', currentImage);
       }
       
       // Store isTokenEdit in a way that can't be modified
@@ -6009,7 +6009,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         type: 'image',
         current: currentImage,
         callback: async (path: string) => {
-          console.log('Mastery System | FilePicker callback triggered', { 
+          log.debug('Mastery System | FilePicker callback triggered', { 
             path, 
             imgType: imgType,
             imgTypeType: typeof imgType,
@@ -6021,18 +6021,18 @@ export class MasteryCharacterSheet extends BaseActorSheet {
           try {
             if (updateIsToken) {
               // Update token image
-              console.log('Mastery System | Updating TOKEN image to:', path);
+              log.debug('Mastery System | Updating TOKEN image to:', path);
               const updateData = { 'prototypeToken.texture.src': path };
-              console.log('Mastery System | Update data:', updateData);
+              log.debug('Mastery System | Update data:', updateData);
               await this.actor.update(updateData);
-              console.log('Mastery System | Token image updated successfully');
+              log.debug('Mastery System | Token image updated successfully');
             } else {
               // Update portrait image
-              console.log('Mastery System | Updating PORTRAIT image to:', path);
+              log.debug('Mastery System | Updating PORTRAIT image to:', path);
               const updateData = { img: path };
-              console.log('Mastery System | Update data:', updateData);
+              log.debug('Mastery System | Update data:', updateData);
               await this.actor.update(updateData);
-              console.log('Mastery System | Portrait image updated successfully');
+              log.debug('Mastery System | Portrait image updated successfully');
             }
             // Re-render the sheet to show the new image
             this.render(false);
@@ -6043,9 +6043,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         }
       });
       
-      console.log('Mastery System | FilePicker created, rendering...');
+      log.debug('Mastery System | FilePicker created, rendering...');
       await filePicker.render(true);
-      console.log('Mastery System | FilePicker rendered successfully');
+      log.debug('Mastery System | FilePicker rendered successfully');
     } catch (error) {
       console.error('Mastery System | Error opening file picker:', error);
       console.error('Mastery System | Error stack:', error instanceof Error ? error.stack : 'No stack');
@@ -6057,7 +6057,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
    * Handle profile image show (lower zone)
    */
   async #onProfileShow(event: JQuery.ClickEvent, imgType: string = 'portrait') {
-    console.log('Mastery System | #onProfileShow called', {
+    log.debug('Mastery System | #onProfileShow called', {
       eventType: event.type,
       target: event.target,
       currentTarget: event.currentTarget,
@@ -6074,25 +6074,25 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     let imgSrc: string;
     if (imgType === 'token') {
       imgSrc = this.actor.prototypeToken?.texture?.src || this.actor.img || '';
-      console.log('Mastery System | Token image show - source:', imgSrc, {
+      log.debug('Mastery System | Token image show - source:', imgSrc, {
         hasTokenSrc: !!this.actor.prototypeToken?.texture?.src,
         fallbackToPortrait: !this.actor.prototypeToken?.texture?.src
       });
     } else {
       imgSrc = this.actor.img || '';
-      console.log('Mastery System | Portrait image show - source:', imgSrc);
+      log.debug('Mastery System | Portrait image show - source:', imgSrc);
     }
     
-    console.log('Mastery System | Image source check', { imgSrc, isDefault: imgSrc === 'icons/svg/mystery-man.svg' });
+    log.debug('Mastery System | Image source check', { imgSrc, isDefault: imgSrc === 'icons/svg/mystery-man.svg' });
     
     if (!imgSrc || imgSrc === 'icons/svg/mystery-man.svg') {
-      console.log('Mastery System | No valid image to display');
+      log.debug('Mastery System | No valid image to display');
       ui.notifications?.warn('No image to display.');
       return;
     }
     
     try {
-      console.log('Mastery System | Attempting to show image popup', {
+      log.debug('Mastery System | Attempting to show image popup', {
         imgSrc,
         ImagePopoutAvailable: typeof (foundry as any)?.applications?.apps?.ImagePopout?.implementation !== 'undefined',
         windowImagePopout: typeof (window as any).ImagePopout !== 'undefined'
@@ -6103,17 +6103,17 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                                (window as any).ImagePopout;
       
       if (ImagePopoutClass) {
-        console.log('Mastery System | Using ImagePopout class', { className: ImagePopoutClass.name || 'unknown' });
+        log.debug('Mastery System | Using ImagePopout class', { className: ImagePopoutClass.name || 'unknown' });
         const popout = new ImagePopoutClass(imgSrc, {
           title: this.actor.name,
           shareable: true,
           uuid: this.actor.uuid
         });
-        console.log('Mastery System | ImagePopout created, rendering...');
+        log.debug('Mastery System | ImagePopout created, rendering...');
         await popout.render(true);
-        console.log('Mastery System | ImagePopout rendered successfully');
+        log.debug('Mastery System | ImagePopout rendered successfully');
       } else {
-        console.log('Mastery System | ImagePopout not available, using Dialog fallback');
+        log.debug('Mastery System | ImagePopout not available, using Dialog fallback');
         // Fallback: Create a simple dialog with the image
         const dialog = new Dialog({
           title: this.actor.name,
@@ -6126,16 +6126,16 @@ export class MasteryCharacterSheet extends BaseActorSheet {
           },
           default: 'close'
         } as any);
-        console.log('Mastery System | Dialog created, rendering...');
+        log.debug('Mastery System | Dialog created, rendering...');
         await dialog.render(true);
-        console.log('Mastery System | Dialog rendered successfully');
+        log.debug('Mastery System | Dialog rendered successfully');
       }
     } catch (error) {
       console.error('Mastery System | Failed to show image popup', error);
       console.error('Mastery System | Error stack:', error instanceof Error ? error.stack : 'No stack');
       // Fallback: Create a simple dialog with the image
       try {
-        console.log('Mastery System | Attempting fallback dialog');
+        log.debug('Mastery System | Attempting fallback dialog');
         const dialog = new Dialog({
           title: this.actor.name,
           content: `<div style="text-align: center;"><img src="${imgSrc}" style="max-width: 100%; max-height: 80vh; height: auto; border-radius: 4px;" /></div>`,
@@ -6148,7 +6148,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
           default: 'close'
         } as any);
         await dialog.render(true);
-        console.log('Mastery System | Fallback dialog rendered successfully');
+        log.debug('Mastery System | Fallback dialog rendered successfully');
       } catch (fallbackError) {
         console.error('Mastery System | Fallback dialog also failed', fallbackError);
         console.error('Mastery System | Fallback error stack:', fallbackError instanceof Error ? fallbackError.stack : 'No stack');
@@ -6162,19 +6162,19 @@ export class MasteryCharacterSheet extends BaseActorSheet {
    * Only disable non-creation fields, allow creation controls
    */
   #lockSheetForCreation(html: JQuery) {
-    console.log('Mastery System | #lockSheetForCreation called');
+    log.debug('Mastery System | #lockSheetForCreation called');
     
     html.find('input[name="name"], textarea').prop('disabled', true);
     html.find('select:not(.power-rank-select):not(.attr-creation-select):not(.mastery-rank-select)').prop('disabled', true);
     
     // Disable buttons except creation controls
     const buttonsToDisable = html.find('button:not(.attr-increase):not(.attr-decrease):not(.skill-increase):not(.skill-decrease):not(.finalize-creation):not(.reset-creation-attributes):not(.force-unlock-creation):not(.reset-character):not(.add-disadvantage-btn):not(.disadvantage-edit-btn):not(.disadvantage-remove-btn):not(.open-tower-wizard-btn):not(.open-manual-combat-package-btn):not(.add-spell-creation-btn):not(.power-rank-select):not(.item-delete):not(.power-toggle-details):not(.power-edit-mechanics):not(.general-items-btn):not(.choose-echo-btn):not(.add-echo-card-btn):not(.echo-card-use-btn):not(.open-languages-btn)');
-    console.log('Mastery System | Disabling buttons:', buttonsToDisable.length);
+    log.debug('Mastery System | Disabling buttons:', buttonsToDisable.length);
     buttonsToDisable.prop('disabled', true);
     
     // Ensure creation buttons are enabled
     const creationButtons = html.find('.attr-increase, .attr-decrease, .skill-increase, .skill-decrease, .finalize-creation, .reset-creation-attributes, .force-unlock-creation, .reset-character, .add-disadvantage-btn, .disadvantage-edit-btn, .disadvantage-remove-btn, .open-tower-wizard-btn, .open-manual-combat-package-btn, .add-spell-creation-btn, .item-delete, .general-items-btn, .choose-echo-btn, .add-echo-card-btn, .echo-card-use-btn, .open-languages-btn');
-    console.log('Mastery System | Enabling creation buttons:', {
+    log.debug('Mastery System | Enabling creation buttons:', {
       total: creationButtons.length,
       addDisadvantageBtn: html.find('.add-disadvantage-btn').length,
       addPowerCreationBtn: html.find('.open-tower-wizard-btn').length,
@@ -6198,23 +6198,23 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     
     if (addDisadvantageBtn.length > 0) {
       addDisadvantageBtn.prop('disabled', false);
-      console.log('Mastery System | add-disadvantage-btn explicitly enabled, final state:', addDisadvantageBtn.prop('disabled'));
+      log.debug('Mastery System | add-disadvantage-btn explicitly enabled, final state:', addDisadvantageBtn.prop('disabled'));
     } else {
       console.warn('Mastery System | add-disadvantage-btn not found during lockSheetForCreation!');
     }
     
     if (addPowerCreationBtn.length > 0) {
       addPowerCreationBtn.prop('disabled', false);
-      console.log('Mastery System | open-tower-wizard-btn explicitly enabled, final state:', addPowerCreationBtn.prop('disabled'));
+      log.debug('Mastery System | open-tower-wizard-btn explicitly enabled, final state:', addPowerCreationBtn.prop('disabled'));
     } else {
-      console.log('Mastery System | open-tower-wizard-btn not found (might be normal if creation complete)');
+      log.debug('Mastery System | open-tower-wizard-btn not found (might be normal if creation complete)');
     }
     
     if (addSpellCreationBtn.length > 0) {
       addSpellCreationBtn.prop('disabled', false);
-      console.log('Mastery System | add-spell-creation-btn explicitly enabled, final state:', addSpellCreationBtn.prop('disabled'));
+      log.debug('Mastery System | add-spell-creation-btn explicitly enabled, final state:', addSpellCreationBtn.prop('disabled'));
     } else {
-      console.log('Mastery System | add-spell-creation-btn not found (might be normal if creation complete)');
+      log.debug('Mastery System | add-spell-creation-btn not found (might be normal if creation complete)');
     }
 
     const generalItemsBtn = html.find('.general-items-btn');
@@ -6238,7 +6238,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
   async #onForceUnlockCreation(event: JQuery.ClickEvent) {
     event.preventDefault();
     event.stopPropagation();
-    console.log('Mastery System | Force Unlock clicked');
+    log.debug('Mastery System | Force Unlock clicked');
     
     if (!(game as any).user?.isGM) {
       ui.notifications?.warn('Only the GM can force unlock character creation.');
@@ -6558,8 +6558,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
    * Add Disadvantage during Creation
    */
   async #onAddDisadvantage(event: JQuery.ClickEvent) {
-    console.log('Mastery System | ========== #onAddDisadvantage START ==========');
-    console.log('Mastery System | Event details:', {
+    log.debug('Mastery System | ========== #onAddDisadvantage START ==========');
+    log.debug('Mastery System | Event details:', {
       type: event.type,
       target: event.target,
       currentTarget: event.currentTarget,
@@ -6577,7 +6577,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       return;
     }
     
-    console.log('Mastery System | Actor details:', {
+    log.debug('Mastery System | Actor details:', {
       actorId: this.actor.id,
       actorName: this.actor.name,
       isOwner: this.actor.isOwner,
@@ -6585,7 +6585,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     });
     
     // Debug: Check if DISADVANTAGES is loaded
-    console.log('Mastery System | DISADVANTAGES check:', {
+    log.debug('Mastery System | DISADVANTAGES check:', {
       exists: typeof DISADVANTAGES !== 'undefined',
       isArray: Array.isArray(DISADVANTAGES),
       length: DISADVANTAGES?.length || 0,
@@ -6602,7 +6602,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       return;
     }
     
-    console.log('Mastery System | DISADVANTAGES loaded successfully, proceeding with dialog creation...');
+    log.debug('Mastery System | DISADVANTAGES loaded successfully, proceeding with dialog creation...');
     
     // Show selection dialog
     const disadvantageOptions = DISADVANTAGES.map(d => ({
@@ -6610,7 +6610,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       label: `${d.name} (${Array.isArray(d.basePoints) ? d.basePoints.join('/') : d.basePoints} pts)`
     }));
     
-    console.log('Mastery System | Disadvantage options:', disadvantageOptions);
+    log.debug('Mastery System | Disadvantage options:', disadvantageOptions);
     
     const content = `
       <form>
@@ -6625,7 +6625,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       </form>
     `;
     
-    console.log('Mastery System | Creating Dialog with content:', {
+    log.debug('Mastery System | Creating Dialog with content:', {
       contentLength: content.length,
       optionsCount: disadvantageOptions.length,
       firstOption: disadvantageOptions[0]
@@ -6641,9 +6641,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         configure: {
           label: 'Configure',
           callback: async (html: JQuery) => {
-            console.log('Mastery System | Configure button clicked in dialog');
+            log.debug('Mastery System | Configure button clicked in dialog');
             const disadvantageId = html.find('[name="disadvantageId"]').val() as string;
-            console.log('Mastery System | Selected disadvantage ID:', disadvantageId);
+            log.debug('Mastery System | Selected disadvantage ID:', disadvantageId);
             
             if (!disadvantageId) {
               ui.notifications?.warn('Please select a disadvantage.');
@@ -6651,7 +6651,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             }
             
             const def = getDisadvantageDefinition(disadvantageId);
-            console.log('Mastery System | Disadvantage definition:', def);
+            log.debug('Mastery System | Disadvantage definition:', def);
             
             if (!def) {
               ui.notifications?.error(`Disadvantage definition not found for ID: ${disadvantageId}`);
@@ -6659,7 +6659,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             }
             
             // Open configuration dialog
-            console.log('Mastery System | Opening configuration dialog for:', def.name);
+            log.debug('Mastery System | Opening configuration dialog for:', def.name);
             await this.#openDisadvantageConfigDialog(def);
             return true;
           }
@@ -6667,23 +6667,23 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         cancel: {
           label: 'Cancel',
           callback: () => {
-            console.log('Mastery System | Dialog cancelled');
+            log.debug('Mastery System | Dialog cancelled');
           }
         }
       },
       default: 'configure'
     } as any);
     
-    console.log('Mastery System | Dialog created, calling render(true)...');
+    log.debug('Mastery System | Dialog created, calling render(true)...');
     try {
       await dialog.render(true);
       this.#setupDisadvantageDialogChrome(dialog, 'selection');
-      console.log('Mastery System | Dialog rendered successfully!');
+      log.debug('Mastery System | Dialog rendered successfully!');
     } catch (error) {
       console.error('Mastery System | ERROR rendering dialog:', error);
       ui.notifications?.error('Failed to open disadvantage dialog. Check console for details.');
     }
-    console.log('Mastery System | ========== #onAddDisadvantage END ==========');
+    log.debug('Mastery System | ========== #onAddDisadvantage END ==========');
   }
 
   /**
@@ -7080,7 +7080,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       });
     }
     // Schticks validation removed - no longer required
-    console.log('Mastery System | Finalizing character creation - persisting schticks:', schticksRanks);
+    log.debug('Mastery System | Finalizing character creation - persisting schticks:', schticksRanks);
     
     // Sync Faith Fractures: Disadvantage Points = Starting Faith Fractures (both current and maximum)
     const updateData: any = {
@@ -7203,7 +7203,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
    */
   async _onDrop(event: DragEvent): Promise<boolean> {
     if ((event as any).__msDropHandled) {
-      console.log('Mastery System | [Equipment Drop] Skipping duplicate drop event');
+      log.debug('Mastery System | [Equipment Drop] Skipping duplicate drop event');
       return false;
     }
     (event as any).__msDropHandled = true;
@@ -7217,7 +7217,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       || pathDropTarget
       || null;
     const target = resolvedTarget as HTMLElement | null;
-    console.log('Mastery System | [Equipment Drop] Event', {
+    log.debug('Mastery System | [Equipment Drop] Event', {
       hasTarget: !!target,
       dropType: target?.dataset?.dfDrop,
       band: target?.dataset?.band,
@@ -7246,7 +7246,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         droppedItem = this.actor.items.get(dragItemId);
       }
     }
-    console.log('Mastery System | [Equipment Drop] Resolved item', {
+    log.debug('Mastery System | [Equipment Drop] Resolved item', {
       itemId: droppedItem?.id,
       itemName: droppedItem?.name,
       itemUuid: droppedItem?.uuid,
@@ -7277,7 +7277,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         const itemsArray = Array.from(this.actor.items.values());
         droppedItem = itemsArray[itemsArray.length - 1];
         if (droppedItem) {
-          console.log('Mastery System | [Equipment Drop] New embedded item created via super._onDrop', {
+          log.debug('Mastery System | [Equipment Drop] New embedded item created via super._onDrop', {
             itemId: droppedItem.id,
             itemName: droppedItem.name
           });
@@ -7297,14 +7297,14 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     if (!droppedItem.parent || droppedItem.parent.id !== this.actor.id) {
       const sourceWorldItem = droppedItem;
       const itemData = this.#sanitizeItemDataForActorEmbed(droppedItem.toObject());
-      console.log('Mastery System | [Equipment Drop] Creating embedded copy', {
+      log.debug('Mastery System | [Equipment Drop] Creating embedded copy', {
         sourceId: droppedItem?.id,
         sourceName: droppedItem?.name,
         targetActor: this.actor?.id
       });
       try {
         const [created] = await this.actor.createEmbeddedDocuments('Item', [itemData], { render: false });
-        console.log('Mastery System | [Equipment Drop] Embedded create result', {
+        log.debug('Mastery System | [Equipment Drop] Embedded create result', {
           createdId: created?.id,
           createdName: created?.name
         });
@@ -7414,7 +7414,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       'flags.mastery-system.equipment': newFlags,
       'system.equipped': true
     });
-    console.log('Mastery System | [Equip] Applied slot', { itemId: item.id, slot });
+    log.debug('Mastery System | [Equip] Applied slot', { itemId: item.id, slot });
     return true;
   }
 
@@ -7616,7 +7616,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
 
     const currentFlags = item.getFlag('mastery-system', 'equipment') || {};
     const newFlags: any = { ...currentFlags };
-    console.log('Mastery System | [Equipment Drop] Update flags start', {
+    log.debug('Mastery System | [Equipment Drop] Update flags start', {
       itemId: item?.id,
       itemName: item?.name,
       dropType,
@@ -7633,7 +7633,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         'flags.mastery-system.equipment': newFlags,
         'system.equipped': false
       });
-      console.log('Mastery System | [Equipment Drop] Update flags stash', { newFlags });
+      log.debug('Mastery System | [Equipment Drop] Update flags stash', { newFlags });
     } else if (dropType === 'band') {
       const band = target.dataset.band;
       if (band === 'not' || band === 'enc' || band === 'heavy') {
@@ -7677,7 +7677,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
           'flags.mastery-system.equipment': newFlags,
           'system.equipped': false
         });
-        console.log('Mastery System | [Equipment Drop] Update flags band', { newFlags });
+        log.debug('Mastery System | [Equipment Drop] Update flags band', { newFlags });
       }
     } else if (dropType === 'equip-slot') {
       const slot = target.dataset.slot;

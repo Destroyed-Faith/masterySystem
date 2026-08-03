@@ -22,7 +22,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Environment
+# Environment / local credentials
 .env
 .env.local
 .env.*.local
@@ -36,16 +36,28 @@ packs/*/*.db-wal
 # Echo Artifacts is shipped in-repo so Foundry installs include the compendium.
 # Other packs remain build-time only until explicitly added here.
 
-# Temporary files
+# Temporary / disposable artifacts
 *.tmp
+*.temp
+temp_*
+tmp/
 
-# Playwright (credentials stay local — never commit Forge/login secrets)
+# Generated release archives and staging
+dist-release/
+release/
+*.zip
+!e2e/**/*.zip
+
+# Coverage / test output
+coverage/
+.nyc_output/
 /test-results/
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+
+# Playwright credentials stay local — never commit Forge/login secrets
 e2e/.env
 e2e/.env.local
 e2e/.env.*
 !e2e/.env.example
-

@@ -18,6 +18,7 @@ import {
   logInitiativeOrderDebug,
 } from '../utils/combat-trace-debug.js';
 
+import { log } from '../utils/logger.js';
 const CR_SKILL_KEY = 'combatReflexes';
 
 function getMasteryRank(actor: any): number {
@@ -214,7 +215,7 @@ export async function rollInitiativeForCombatant(
     });
   }
 
-  console.log('Mastery System | Initiative rolled', {
+  log.debug('Mastery System | Initiative rolled', {
     actor: actor.name,
     diceTotal,
     combatReflexesSpent,
@@ -240,7 +241,7 @@ export async function rollInitiativeForCombatant(
 export async function executeInitiativePhase(combat: Combat): Promise<void> {
   const { InitiativeShopDialog } = await import('./initiative-shop-dialog.js');
 
-  console.log('Mastery System | Initiative phase for combat', combat.id, 'round', combat.round);
+  log.debug('Mastery System | Initiative phase for combat', combat.id, 'round', combat.round);
 
   logInitiativeOrderDebug('executeInitiativePhase.start', {
     note: '`turns` before rolls/shops; `combatants` is encounter iteration order (may differ).',

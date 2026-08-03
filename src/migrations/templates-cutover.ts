@@ -14,6 +14,7 @@
 
 import { getForcedDeletion } from '../utils/foundry-v14.js';
 
+import { log } from '../utils/logger.js';
 const SETTING_NAMESPACE = 'mastery-system';
 const SETTING_KEY = 'templatesCutoverRun';
 
@@ -96,7 +97,7 @@ export async function runTemplatesCutover(): Promise<void> {
     const msg = removedCount > 0
         ? `Mastery System | Trees → Templates cutover: removed ${removedCount} power item(s) across ${actors.length} actor(s). Please re-select your Powers from the new Template catalog.`
         : 'Mastery System | Trees → Templates cutover: no power items to remove.';
-    console.log(msg);
+    log.debug(msg);
     try {
         ui.notifications?.info(msg);
     } catch {

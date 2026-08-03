@@ -2,6 +2,7 @@ import { WEAPONS, masteryWeaponCatalogKey } from './weapons';
 import { BASE_ARMOR, BASE_SHIELDS } from './equipment';
 import { getItemIcon, normalizeWeaponNameKey } from './item-icons';
 
+import { log } from './logger.js';
 const STORAGE_FOLDER_NAME = 'General Items Storage';
 
 const GEAR_ITEMS: Array<{ name: string; price?: number; weight?: number; inventorySize: string }> = [
@@ -140,19 +141,19 @@ export async function seedGeneralItemsStorage(): Promise<any[]> {
     return [];
   }
 
-  console.log('Mastery System | Seeding General Items Storage...');
+  log.debug('Mastery System | Seeding General Items Storage...');
   const existingFolder = (game as any).folders?.find((f: any) => f.name === STORAGE_FOLDER_NAME && f.type === 'Item');
   const folder = existingFolder
     ? existingFolder
     : await (Folder as any).create({ name: STORAGE_FOLDER_NAME, type: 'Item' });
-  console.log('Mastery System | Storage folder resolved:', folder?.id, folder?.name);
+  log.debug('Mastery System | Storage folder resolved:', folder?.id, folder?.name);
 
   const existingItems = Array.from((game as any).items || []).filter((item: any) => item.folder?.id === folder.id);
   const existingNames = new Set(existingItems.map((item: any) => item.name));
   const existingWeaponCatalogKeys = new Set(
     existingItems.map((item: any) => masteryWeaponCatalogKey(item.name || ''))
   );
-  console.log('Mastery System | Existing storage items:', existingItems.length);
+  log.debug('Mastery System | Existing storage items:', existingItems.length);
 
   const itemsToCreate: any[] = [];
 
@@ -275,7 +276,7 @@ export async function seedGeneralItemsStorage(): Promise<any[]> {
   if (!createdItems || createdItems.length === 0) {
     console.warn('Mastery System | Seeding completed but no items were created.');
   } else {
-    console.log('Mastery System | Seeded items:', createdItems.length);
+    log.debug('Mastery System | Seeded items:', createdItems.length);
   }
   return createdItems ?? [];
 }

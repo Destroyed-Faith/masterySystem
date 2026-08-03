@@ -6,8 +6,9 @@
 /**
  * Register click handlers for skill spend buttons in chat messages
  */
+import { log } from '../utils/logger.js';
 export function registerSkillSpendClickHandler(): void {
-  console.log('Mastery System | Registering skill spend click handler');
+  log.debug('Mastery System | Registering skill spend click handler');
   
   Hooks.on('renderChatMessageHTML', (message: ChatMessage, htmlRaw: HTMLElement | JQuery) => {
     try {
@@ -36,7 +37,7 @@ export function registerSkillSpendClickHandler(): void {
       const actorId = button.data('actor-id');
       const spendAmount = parseInt(button.data('spend') || '0');
       
-      console.log('SkillSpend | Click handler triggered', {
+      log.debug('SkillSpend | Click handler triggered', {
         skillKey,
         actorId,
         spendAmount,
@@ -72,7 +73,7 @@ export function registerSkillSpendClickHandler(): void {
       const currentSpent = system.skillsSpent?.[skillKey] || 0;
       const remaining = Math.max(0, skillRating - currentSpent);
       
-      console.log('SkillSpend | Actor data', {
+      log.debug('SkillSpend | Actor data', {
         actorId,
         actorName: actor.name,
         skillKey,
@@ -101,7 +102,7 @@ export function registerSkillSpendClickHandler(): void {
         [`system.skillsSpent.${skillKey}`]: newSpent
       });
       
-      console.log('SkillSpend | Actor updated', {
+      log.debug('SkillSpend | Actor updated', {
         actorId,
         skillKey,
         oldSpent: currentSpent,
@@ -227,7 +228,7 @@ export function registerSkillSpendClickHandler(): void {
         }
       });
       
-      console.log('SkillSpend | Message updated', {
+      log.debug('SkillSpend | Message updated', {
         messageId: message.id,
         skillKey,
         spend: finalSpend,
@@ -243,6 +244,6 @@ export function registerSkillSpendClickHandler(): void {
     }
   });
   
-  console.log('Mastery System | Skill spend click handler registered');
+  log.debug('Mastery System | Skill spend click handler registered');
 }
 

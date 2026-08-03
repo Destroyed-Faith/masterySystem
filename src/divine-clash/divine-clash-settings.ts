@@ -20,22 +20,22 @@ export function registerDivineClashSettings(): void {
   // Power Stone Image Path
   (game as any).settings.register('mastery-system', 'divineClashPowerStoneImg', {
     name: 'Divine Clash: Power Stone Image',
-    hint: 'Image path for Power Stone tokens. Default: systems/mastery-system/icons/svg/power-stone.svg',
+    hint: 'Image path for Power Stone tokens. Default: systems/mastery-system/assets/icons/stones/power-stone.svg',
     scope: 'world',
     config: true,
     type: String,
-    default: 'systems/mastery-system/icons/svg/power-stone.svg',
+    default: 'systems/mastery-system/assets/icons/stones/power-stone.svg',
     filePicker: 'image'
   });
 
   // Vitality Stone Image Path
   (game as any).settings.register('mastery-system', 'divineClashVitalityStoneImg', {
     name: 'Divine Clash: Vitality Stone Image',
-    hint: 'Image path for Vitality Stone tokens. Default: systems/mastery-system/icons/svg/vitality-stone.svg',
+    hint: 'Image path for Vitality Stone tokens. Default: systems/mastery-system/assets/icons/stones/vitality-stone.svg',
     scope: 'world',
     config: true,
     type: String,
-    default: 'systems/mastery-system/icons/svg/vitality-stone.svg',
+    default: 'systems/mastery-system/assets/icons/stones/vitality-stone.svg',
     filePicker: 'image'
   });
 

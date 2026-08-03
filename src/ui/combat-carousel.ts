@@ -23,6 +23,7 @@ import {
 import { requestEndTurn } from '../combat/end-turn.js';
 import { StonePowersDialog } from '../stones/stone-powers-dialog.js';
 import { MASTERY_STATUS_EFFECTS } from '../system/status-effects.js';
+import { log } from '../utils/logger.js';
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
 // Type workaround for Mixin
@@ -57,7 +58,7 @@ export class CombatCarouselApp extends BaseCarousel {
    * Open the carousel (singleton pattern)
    */
   static open(): void {
-    console.log('Mastery System | [CAROUSEL] Opening carousel');
+    log.debug('Mastery System | [CAROUSEL] Opening carousel');
     
     // Check for existing instance
     const existingApp = foundry.applications.instances.get('mastery-combat-carousel') as CombatCarouselApp | undefined;
@@ -67,10 +68,10 @@ export class CombatCarouselApp extends BaseCarousel {
     }
     
     if (!CombatCarouselApp._instance) {
-      console.log('Mastery System | [CAROUSEL] Creating new instance');
+      log.debug('Mastery System | [CAROUSEL] Creating new instance');
       CombatCarouselApp._instance = new CombatCarouselApp();
     }
-    console.log('Mastery System | [CAROUSEL] Rendering carousel');
+    log.debug('Mastery System | [CAROUSEL] Rendering carousel');
     (CombatCarouselApp._instance as any).render({ force: true, focus: false });
   }
 
@@ -97,7 +98,7 @@ export class CombatCarouselApp extends BaseCarousel {
   static refresh(): void {
     const instance = CombatCarouselApp.instance;
     if (instance && (instance as any).rendered) {
-      console.log('Mastery System | [CAROUSEL] Refreshing carousel');
+      log.debug('Mastery System | [CAROUSEL] Refreshing carousel');
       (instance as any).render({ force: true });
     }
   }
@@ -105,14 +106,14 @@ export class CombatCarouselApp extends BaseCarousel {
   async _prepareContext(_options: any): Promise<any> {
     const combat = game.combats?.active;
     
-    console.log('Mastery System | [CAROUSEL] _prepareContext called', { 
+    log.debug('Mastery System | [CAROUSEL] _prepareContext called', { 
       hasCombat: !!combat,
       combatId: combat?.id,
       combatantsCount: combat?.combatants?.size || 0
     });
     
     if (!combat) {
-      console.log('Mastery System | [CAROUSEL] No active combat, returning inactive');
+      log.debug('Mastery System | [CAROUSEL] No active combat, returning inactive');
       return { active: false };
     }
 
@@ -377,7 +378,7 @@ export class CombatCarouselApp extends BaseCarousel {
     
     // Add body class when carousel is rendered
     document.body.classList.add('mastery-carousel-open');
-    console.log('Mastery System | [CAROUSEL] Carousel rendered, body class added');
+    log.debug('Mastery System | [CAROUSEL] Carousel rendered, body class added');
 
     // Register hooks for live updates (only once per render)
     this.registerUpdateHooks();
@@ -576,7 +577,7 @@ export class CombatCarouselApp extends BaseCarousel {
         // unlinked-token vs world-actor mismatch obvious in the console.
         try {
           const pools = (actor as any).system?.stonePools ?? {};
-          console.log('Mastery System | [CAROUSEL] Opening Stone Powers', {
+          log.debug('Mastery System | [CAROUSEL] Opening Stone Powers', {
             via: tokenDoc?.actor ? 'tokenDocument.actor' : 'combatant.actor',
             actorId: (actor as any).id,
             actorName: (actor as any).name,
@@ -614,7 +615,7 @@ export class CombatCarouselApp extends BaseCarousel {
     
     // Remove body class when carousel is closed
     document.body.classList.remove('mastery-carousel-open');
-    console.log('Mastery System | [CAROUSEL] Carousel closed, body class removed');
+    log.debug('Mastery System | [CAROUSEL] Carousel closed, body class removed');
     return super._onClose(_options);
   }
 

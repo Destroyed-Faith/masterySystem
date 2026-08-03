@@ -128,7 +128,7 @@ import {
 
 // Dice roller functions are imported in sheets where needed
 
-console.log('Mastery System | All imports completed');
+log.debug('Mastery System | All imports completed');
 
 // Register Handlebars helpers immediately (before init hook)
 // This ensures they are available when templates are first rendered
@@ -163,14 +163,14 @@ function registerAllMasteryInitSettings(): void {
  * This hook is called once when Foundry first starts up
  */
 Hooks.once('init', async function() {
-  console.log('Mastery System | Initializing Mastery System / Destroyed Faith');
+  log.debug('Mastery System | Initializing Mastery System / Destroyed Faith');
 
   const sysVer =
     typeof game !== 'undefined' && (game as any).system?.version
       ? String((game as any).system.version)
       : '?.?.?';
   const versionInner = `  Version: ${sysVer}`.slice(0, 57).padEnd(57);
-  console.log(`
+  log.debug(`
 ╔═══════════════════════════════════════════════════════════╗
 ║                                                           ║
 ║            MASTERY SYSTEM / DESTROYED FAITH               ║
@@ -199,7 +199,7 @@ Hooks.once('init', async function() {
   if (coreActorSheet) {
     try {
       foundry.documents.collections.Actors.unregisterSheet('core', coreActorSheet);
-      console.log('Mastery System | Unregistered core ActorSheet');
+      log.debug('Mastery System | Unregistered core ActorSheet');
     } catch (err) {
       console.warn('Mastery System | Could not unregister core ActorSheet', err);
     }
@@ -210,7 +210,7 @@ Hooks.once('init', async function() {
     makeDefault: true,
     label: 'Character Sheet'
   });
-  console.log('Mastery System | Registered Character Sheet');
+  log.debug('Mastery System | Registered Character Sheet');
   
   // Register NPC sheet
   foundry.documents.collections.Actors.registerSheet('mastery-system', MasteryNpcSheet, {
@@ -218,20 +218,20 @@ Hooks.once('init', async function() {
     makeDefault: true,
     label: 'Mastery NPC Sheet'
   });
-  console.log('Mastery System | Registered NPC Sheet');
+  log.debug('Mastery System | Registered NPC Sheet');
 
   foundry.documents.collections.Actors.registerSheet('mastery-system', MasterySummonSheet, {
     types: ['summon'],
     makeDefault: true,
     label: 'Summon Sheet'
   });
-  console.log('Mastery System | Registered Summon Sheet');
+  log.debug('Mastery System | Registered Summon Sheet');
   
   const coreItemSheet = (foundry as any).appv1?.sheets?.ItemSheet;
   if (coreItemSheet) {
     try {
       foundry.documents.collections.Items.unregisterSheet('core', coreItemSheet);
-      console.log('Mastery System | Unregistered core ItemSheet');
+      log.debug('Mastery System | Unregistered core ItemSheet');
     } catch (err) {
       console.warn('Mastery System | Could not unregister core ItemSheet', err);
     }
@@ -255,14 +255,14 @@ Hooks.once('init', async function() {
     makeDefault: true,
     label: 'Item Sheet'
   });
-  console.log('Mastery System | Registered Item Sheet');
+  log.debug('Mastery System | Registered Item Sheet');
 
   foundry.documents.collections.Items.registerSheet('mastery-system', ArtifactSheetV2, {
     types: ['artifact'],
     makeDefault: true,
     label: 'Artifact Sheet'
   });
-  console.log('Mastery System | Registered Artifact Sheet');
+  log.debug('Mastery System | Registered Artifact Sheet');
 
   // Replace Foundry's default status-effects list with the Mastery-System
   // specials catalog so the token HUD radial shows only system conditions.
@@ -350,14 +350,14 @@ Hooks.once('init', async function() {
   Hooks.on('combatStart', async (combat: Combat) => {
     const msFlags = (combat.flags as any)?.['mastery-system'] || {};
     if (msFlags.encounterSetup?.started) {
-      console.log(
+      log.debug(
         'Mastery System | combatStart: Begin Encounter flow already handled passives/stones — opening carousel only'
       );
       CombatCarouselApp.open();
       return;
     }
 
-    console.log('Mastery System | Combat started (legacy path), showing passive selection overlay');
+    log.debug('Mastery System | Combat started (legacy path), showing passive selection overlay');
 
     try {
       await PassiveSelectionDialog.showForCombat(combat);
@@ -386,7 +386,7 @@ Hooks.once('init', async function() {
 
   // Close carousel when combat ends (normal end)
   Hooks.on('combatEnd', () => {
-    console.log('Mastery System | Combat ended, closing carousel');
+    log.debug('Mastery System | Combat ended, closing carousel');
     closeMasteryCombatCarouselUI();
   });
 
@@ -406,7 +406,7 @@ Hooks.once('init', async function() {
       } else if (combat?.started) {
         const carousel = CombatCarouselApp.instance as any;
         if (!carousel || !carousel.rendered) {
-          console.log('Mastery System | [CAROUSEL] Active encounter found on canvas ready — reopening carousel');
+          log.debug('Mastery System | [CAROUSEL] Active encounter found on canvas ready — reopening carousel');
           CombatCarouselApp.open();
         }
       }
@@ -443,7 +443,7 @@ Hooks.once('init', async function() {
     const flagValue = freshCombatant.getFlag('mastery-system', 'msInitiativeValue');
     const initiativeValue = (flagValue !== null && flagValue !== undefined) ? flagValue : (freshCombatant.initiative ?? 0);
     
-    console.log('Mastery System | [INITIATIVE DISPLAY] Updating tracker', {
+    log.debug('Mastery System | [INITIATIVE DISPLAY] Updating tracker', {
       combatantId: freshCombatant.id,
       flagValue,
       combatantInitiative: freshCombatant.initiative,
@@ -637,7 +637,7 @@ Hooks.once('init', async function() {
 
       // Add click handlers
       passiveBtn.off('click.ms-passive').on('click.ms-passive', async (ev: JQuery.ClickEvent) => {
-        console.log('Mastery System | [COMBAT TRACKER DEBUG] Passive button clicked', { combatantId });
+        log.debug('Mastery System | [COMBAT TRACKER DEBUG] Passive button clicked', { combatantId });
         ev.preventDefault();
         ev.stopPropagation();
         
@@ -667,7 +667,7 @@ Hooks.once('init', async function() {
       });
 
       initiativeBtn.off('click.ms-initiative').on('click.ms-initiative', async (ev: JQuery.ClickEvent) => {
-        console.log('Mastery System | [COMBAT TRACKER DEBUG] Initiative button clicked', { combatantId });
+        log.debug('Mastery System | [COMBAT TRACKER DEBUG] Initiative button clicked', { combatantId });
         ev.preventDefault();
         ev.stopPropagation();
         
@@ -761,25 +761,25 @@ Hooks.once('init', async function() {
         
         // Add click handler
         passiveBtn.off('click.ms-passive').on('click.ms-passive', async (ev: JQuery.ClickEvent) => {
-          console.log('Mastery System | [PASSIVE DIALOG DEBUG] Button clicked in combat tracker');
+          log.debug('Mastery System | [PASSIVE DIALOG DEBUG] Button clicked in combat tracker');
           ev.preventDefault();
           ev.stopPropagation();
           
           const combat = game.combat;
           if (!combat) {
-            console.log('Mastery System | [PASSIVE DIALOG DEBUG] No active combat');
+            log.debug('Mastery System | [PASSIVE DIALOG DEBUG] No active combat');
             ui.notifications?.warn('No active combat encounter');
             return;
           }
 
-          console.log('Mastery System | [PASSIVE DIALOG DEBUG] Opening dialog from button', {
+          log.debug('Mastery System | [PASSIVE DIALOG DEBUG] Opening dialog from button', {
             combatId: combat.id,
             combatants: combat.combatants.size
           });
 
           try {
             await PassiveSelectionDialog.showForCombat(combat);
-            console.log('Mastery System | [PASSIVE DIALOG DEBUG] Dialog opened successfully from button');
+            log.debug('Mastery System | [PASSIVE DIALOG DEBUG] Dialog opened successfully from button');
           } catch (error) {
             console.error('Mastery System | [PASSIVE DIALOG DEBUG] Error showing passive selection dialog', error);
             ui.notifications?.error('Failed to open passive selection dialog');
@@ -801,7 +801,7 @@ Hooks.once('init', async function() {
     }
   });
   
-  console.log('Mastery System | Combat hooks initialized');
+  log.debug('Mastery System | Combat hooks initialized');
   
   // Initialize passive combat-trigger framework (temp HP from passives,
   // combat-start one-shots, turn-start refresh pools). Registered BEFORE
@@ -931,18 +931,18 @@ Hooks.once('init', async function() {
       console.error('Mastery System | passive-triggers deleteActiveEffect cleanup failed', err);
     }
   });
-  console.log('Mastery System | Passive combat-trigger hooks initialized');
+  log.debug('Mastery System | Passive combat-trigger hooks initialized');
 
   // Initialize stone system hooks (turn state, regen, restore)
   initializeStoneHooks();
-  console.log('Mastery System | Stone system hooks initialized');
+  log.debug('Mastery System | Stone system hooks initialized');
 
   // Initialize encounter start system
   initializeEncounterStart();
   initializeEpicMasteryRoll();
   initializeTyhraCalendar();
   initializeProseMirrorFontColor();
-  console.log('Mastery System | Encounter start system initialized');
+  log.debug('Mastery System | Encounter start system initialized');
 
   // Initialize token action selector
   initializeTokenActionSelector();
@@ -995,7 +995,7 @@ Hooks.once('init', async function() {
     };
   }
 
-  console.log('Mastery System | System initialized');
+  log.debug('Mastery System | System initialized');
 });
 
 /**
@@ -1345,7 +1345,7 @@ function registerHandlebarsHelpersImmediate() {
   if (!Handlebars.helpers.length) {
     console.error('Mastery System | Failed to register length helper!');
   } else {
-    console.log('Mastery System | length helper registered successfully');
+    log.debug('Mastery System | length helper registered successfully');
   }
 }
 
@@ -1598,7 +1598,7 @@ function setupXpManagementInline() {
     // Find the Character XP Management setting
     const xpSetting = $html.find('[name="mastery-system.characterXpManagement"]').closest('.form-group');
     if (xpSetting.length === 0) {
-      console.log('Mastery System | XP Management setting not found in settings');
+      log.debug('Mastery System | XP Management setting not found in settings');
       return;
     }
     
@@ -2456,7 +2456,7 @@ Hooks.on('preCreateActor', async (actor: any, data: any, _options: any, _userId:
       data.system.creation = {};
     }
     data.system.creation.complete = false;
-    console.log('Mastery System | New character created - setting creationComplete=false');
+    log.debug('Mastery System | New character created - setting creationComplete=false');
   }
   
   // Initialize health bars (6 levels for characters, 1 for NPCs)
@@ -2657,7 +2657,7 @@ Hooks.on('preCreateActor', async (actor: any, data: any, _options: any, _userId:
       }
     }
     
-    console.log('Mastery System | New NPC created - initialized with 30 HP and statusEffects');
+    log.debug('Mastery System | New NPC created - initialized with 30 HP and statusEffects');
   }
 });
 
@@ -2670,7 +2670,7 @@ Hooks.on('preCreateActor', async (actor: any, data: any, _options: any, _userId:
  * Also migrate skillsSpent for new consumable skill system
  */
 Hooks.once('ready', async function() {
-  console.log('Mastery System | Running character creation migration...');
+  log.debug('Mastery System | Running character creation migration...');
   
   // Get all character actors
   const characters = (game as any).actors?.filter((a: any) => a.type === 'character') || [];
@@ -2999,13 +2999,13 @@ Hooks.once('ready', async function() {
  * Ready hook - called when Foundry is fully loaded and ready
  */
 Hooks.once('ready', async function() {
-  console.log('Mastery System | System ready');
+  log.debug('Mastery System | System ready');
   
   // Log system version prominently
   const system = (game as any).system;
-  console.log(`╔═══════════════════════════════════════════════════════════╗`);
-  console.log(`║  MASTERY SYSTEM / DESTROYED FAITH - VERSION ${system.version.padEnd(10)} ║`);
-  console.log(`╚═══════════════════════════════════════════════════════════╝`);
+  log.debug(`╔═══════════════════════════════════════════════════════════╗`);
+  log.debug(`║  MASTERY SYSTEM / DESTROYED FAITH - VERSION ${system.version.padEnd(10)} ║`);
+  log.debug(`╚═══════════════════════════════════════════════════════════╝`);
   log.debug(`Version ${system.version}`);
 
   try {
@@ -3157,17 +3157,17 @@ Hooks.once('ready', async function() {
     console.warn('Mastery System | Artifact Awakening hook not found, re-initializing...');
     try {
       initializeArtifactAwakening();
-      console.log('✅ Mastery System | Artifact Awakening re-initialized in ready hook');
+      log.debug('✅ Mastery System | Artifact Awakening re-initialized in ready hook');
       
       // Trigger the hook manually if Item Directory is already open
       setTimeout(() => {
         const itemDir = (ui as any).items;
         if (itemDir && itemDir.rendered) {
-          console.log('Mastery System | Item Directory already rendered, triggering hook manually...');
+          log.debug('Mastery System | Item Directory already rendered, triggering hook manually...');
           const html = $(itemDir.element || itemDir._element || '.sidebar-tab[data-tab="items"]');
           if (html.length > 0) {
             Hooks.callAll('renderItemDirectory', itemDir, html, {});
-            console.log('✅ Mastery System | Hook triggered manually');
+            log.debug('✅ Mastery System | Hook triggered manually');
           }
         }
       }, 500);
@@ -3175,17 +3175,17 @@ Hooks.once('ready', async function() {
       console.error('❌ Mastery System | Error re-initializing Artifact Awakening:', error);
     }
   } else {
-    console.log('✅ Mastery System | Artifact Awakening hook already registered');
+    log.debug('✅ Mastery System | Artifact Awakening hook already registered');
     
     // Even if hook is registered, trigger it if Item Directory is already open
     setTimeout(() => {
       const itemDir = (ui as any).items;
       if (itemDir && itemDir.rendered) {
-        console.log('Mastery System | Item Directory already rendered, triggering hook...');
+        log.debug('Mastery System | Item Directory already rendered, triggering hook...');
         const html = $(itemDir.element || itemDir._element || '.sidebar-tab[data-tab="items"]');
         if (html.length > 0) {
           Hooks.callAll('renderItemDirectory', itemDir, html, {});
-          console.log('✅ Mastery System | Hook triggered for existing Item Directory');
+          log.debug('✅ Mastery System | Hook triggered for existing Item Directory');
         }
       }
     }, 500);
@@ -3283,7 +3283,7 @@ Hooks.once('ready', async function() {
   // Migration: Backfill inventory sizes for existing items (GM only)
   if (game.user?.isGM) {
     try {
-      console.log('Mastery System | Running inventory size migration...');
+      log.debug('Mastery System | Running inventory size migration...');
       const { getDefaultInventorySizeForItemData } = await import('./utils/seed-general-items.js');
       let updated = 0;
 
@@ -3507,11 +3507,11 @@ Hooks.once('ready', async function() {
     }
   } catch (error) {
     // utils/equipment.ts doesn't exist or doesn't export the needed functions - that's okay
-    console.log('Mastery System | Equipment backfill skipped (utils/equipment.js not available)');
+    log.debug('Mastery System | Equipment backfill skipped (utils/equipment.js not available)');
   }
   
   // Migration: Fix stone pool current values for existing actors
-  console.log('Mastery System | Running stone pool migration...');
+  log.debug('Mastery System | Running stone pool migration...');
   
   const characterActors = (game as any).actors?.filter((a: any) => a.type === 'character') || [];
   let stonePoolsFixed = 0;
@@ -3576,7 +3576,7 @@ Hooks.on('preCreateScene', (_scene: any, data: any, _options: any, _userId: stri
     if (defaultImage && defaultImage.trim() !== '') {
       // Set the background image - Foundry uses 'img' field for scene background
       data.img = defaultImage;
-      console.log('Mastery System | Setting default scene background:', defaultImage);
+      log.debug('Mastery System | Setting default scene background:', defaultImage);
     }
   }
 });

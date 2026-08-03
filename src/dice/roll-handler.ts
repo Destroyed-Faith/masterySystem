@@ -14,6 +14,7 @@ import {
   readManualAdjustments,
 } from '../utils/manual-adjustments.js';
 
+import { log } from '../utils/logger.js';
 /** Roll-kind hint used by the Power Mechanics Engine to look up dice-pool deltas. */
 export type MasteryRollKind =
   | 'attack'
@@ -481,7 +482,7 @@ export async function masteryRoll(options: RollOptions): Promise<MasteryRollResu
     flavor = flavor ? `${flavor} | ${note}` : note;
   }
 
-  console.log('Mastery System | DEBUG: masteryRoll called', {
+  log.debug('Mastery System | DEBUG: masteryRoll called', {
     numDice,
     keepDice,
     skill,
@@ -501,7 +502,7 @@ export async function masteryRoll(options: RollOptions): Promise<MasteryRollResu
     rollAdvantage: useAdv,
     rollDisadvantage: useDis,
   });
-  console.log('Mastery System | DEBUG: Dice rolled', {
+  log.debug('Mastery System | DEBUG: Dice rolled', {
     numDice,
     dice,
     exploded,
@@ -511,7 +512,7 @@ export async function masteryRoll(options: RollOptions): Promise<MasteryRollResu
   // Select highest dice to keep
   const keptIndices = selectHighestDice(dice, keepDice);
   const keptValues = keptIndices.map(i => dice[i]);
-  console.log('Mastery System | DEBUG: Dice selection', {
+  log.debug('Mastery System | DEBUG: Dice selection', {
     keptIndices,
     keptValues,
     allDice: dice
@@ -519,7 +520,7 @@ export async function masteryRoll(options: RollOptions): Promise<MasteryRollResu
   
   // Calculate total from kept dice
   const diceTotal = calculateTotal(dice, keptIndices);
-  console.log('Mastery System | DEBUG: Dice total calculated', {
+  log.debug('Mastery System | DEBUG: Dice total calculated', {
     diceTotal,
     skill,
     totalBeforeSkill: diceTotal
@@ -567,7 +568,7 @@ export async function masteryRoll(options: RollOptions): Promise<MasteryRollResu
       raiseOutcome === 'full' ? declaredRaiseSlots + stoneBonusRaises : 0;
   }
   
-  console.log('Mastery System | DEBUG: Roll result calculated', {
+  log.debug('Mastery System | DEBUG: Roll result calculated', {
     total,
     normalTn: normalTnVal,
     raiseTn: raiseTnVal,
@@ -606,7 +607,7 @@ export async function masteryRoll(options: RollOptions): Promise<MasteryRollResu
     ...(autoFailReason ? { autoFailReason } : {}),
   };
   
-  console.log('Mastery System | DEBUG: Sending roll to chat', {
+  log.debug('Mastery System | DEBUG: Sending roll to chat', {
     result,
     label,
     flavor
@@ -673,7 +674,7 @@ export async function masteryRoll(options: RollOptions): Promise<MasteryRollResu
     }
   }
   
-  console.log('Mastery System | DEBUG: Roll complete, returning result', result);
+  log.debug('Mastery System | DEBUG: Roll complete, returning result', result);
   
   return result;
 }
@@ -824,7 +825,7 @@ async function sendRollToChat(
       result.skill
     );
 
-    console.log('Mastery System | Roll display built', {
+    log.debug('Mastery System | Roll display built', {
       numDice: result.dice.length,
       keptDice: keptIndices.length,
       formula: roll.formula,

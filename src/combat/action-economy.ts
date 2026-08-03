@@ -613,7 +613,7 @@ export function getAvailableAttackActions(actor: Actor, combat: Combat | null): 
   const effectiveTotal = Math.max(0, roundState.attackActions.total - stunnedLock);
   const n = Math.max(0, effectiveTotal - roundState.attackActions.used);
   if (n === 0) {
-    console.debug('Mastery System | [action-economy] getAvailableAttackActions: 0 remaining', {
+    log.debug('Mastery System | [action-economy] getAvailableAttackActions: 0 remaining', {
       actorId: (owner as any).id,
       name: (owner as any).name,
       combatId: (combat as any)?.id,
@@ -785,7 +785,7 @@ export async function refillStonePoolsFromAttributes(actor: Actor): Promise<void
   if (Object.keys(updates).length > 0) {
     await owner.update(updates);
     if ((globalThis as any).CONFIG?.masterySystemDebugStonePools === true) {
-      console.log('Mastery System | [StonePools] refillStonePoolsFromAttributes', (owner as any).name, updates);
+      log.debug('Mastery System | [StonePools] refillStonePoolsFromAttributes', (owner as any).name, updates);
     }
   }
 }
@@ -815,7 +815,7 @@ export async function syncStonePoolCapsFromAttributes(actor: Actor): Promise<voi
   if (Object.keys(updates).length > 0) {
     await owner.update(updates);
     if ((globalThis as any).CONFIG?.masterySystemDebugStonePools === true) {
-      console.log('Mastery System | [StonePools] syncStonePoolCapsFromAttributes', (owner as any).name, updates);
+      log.debug('Mastery System | [StonePools] syncStonePoolCapsFromAttributes', (owner as any).name, updates);
     }
   }
 }

@@ -6,6 +6,7 @@
 
 import { dedupeEchoArtifactsOnActor } from '../utils/echo-artifact-equip.js';
 
+import { log } from '../utils/logger.js';
 const SETTING_NAMESPACE = 'mastery-system';
 const SETTING_KEY = 'echoArtifactDedupeRun';
 
@@ -61,7 +62,7 @@ export async function runEchoArtifactDedupeMigration(): Promise<void> {
 
   if (removed > 0) {
     const msg = `Mastery System | Echo artifact dedupe: removed ${removed} duplicate copy/copies from actor inventories.`;
-    console.log(msg);
+    log.debug(msg);
     try {
       ui.notifications?.info(msg);
     } catch {

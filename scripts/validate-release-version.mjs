@@ -3,10 +3,11 @@
  * Fail-fast release version consistency check.
  *
  * Usage:
- *   node scripts/validate-release-version.mjs [--tag vX.Y.Z] [--zip path]
+ *   node scripts/validate-release-version.mjs
+ *   node scripts/validate-release-version.mjs [--tag vX.Y.Z] [--zip path] [--require-release-download]
  *
- * When --tag is omitted, validates that package.json and system.json versions match
- * and that CHANGELOG.md contains a heading for that version.
+ * Without flags: package.json === system.json, CHANGELOG heading exists, manifest URL looks valid.
+ * With --tag / --require-release-download: also require versioned GitHub Release download URL.
  */
 
 import { readFileSync, existsSync } from 'node:fs';
@@ -22,10 +23,11 @@ function fail(msg) {
 }
 
 function parseArgs(argv) {
-  const out = { tag: null, zip: null };
+  const out = { tag: null, zip: null, requireReleaseDownload: false };
   for (let i = 0; i < argv.length; i++) {
     if (argv[i] === '--tag') out.tag = argv[++i];
     else if (argv[i] === '--zip') out.zip = argv[++i];
+    else if (argv[i] === '--require-release-download') out.requireReleaseDownload = true;
   }
   return out;
 }
@@ -67,8 +69,15 @@ if (args.zip) {
 
 const download = String(sys.download || '');
 const expectedDownload = `https://github.com/Destroyed-Faith/masterySystem/releases/download/v${pkgVer}/mastery-system-${pkgVer}.zip`;
-if (download !== expectedDownload) {
-  fail(`system.json download URL mismatch.\n  got:      ${download}\n  expected: ${expectedDownload}`);
+const requireDownload = args.requireReleaseDownload || !!args.tag;
+if (requireDownload) {
+  if (download !== expectedDownload) {
+    fail(`system.json download URL mismatch.\n  got:      ${download}\n  expected: ${expectedDownload}`);
+  }
+} else if (download !== expectedDownload) {
+  console.warn(
+    `validate-release-version: note — download still temporary (ok until 0.99.0 release flip):\n  ${download}`,
+  );
 }
 
 const manifest = String(sys.manifest || '');
@@ -79,4 +88,4 @@ if (!manifest.includes('raw.githubusercontent.com/Destroyed-Faith/masterySystem'
 console.log(`validate-release-version: OK — ${pkgVer}`);
 console.log(`  tag:      v${pkgVer}`);
 console.log(`  zip:      ${expectedZipName}`);
-console.log(`  download: ${expectedDownload}`);
+console.log(`  download: ${requireDownload ? expectedDownload : download}`);

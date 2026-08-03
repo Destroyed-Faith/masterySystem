@@ -11,6 +11,7 @@ import {
   serializeActorArtifactProgress,
 } from '../utils/artifact-actor-rules.js';
 
+import { log } from '../utils/logger.js';
 const SETTING_NAMESPACE = 'mastery-system';
 const SETTING_KEY = 'artifactEchoLinkResetRun';
 
@@ -85,7 +86,7 @@ export async function runArtifactEchoLinkMigration(): Promise<void> {
 
   if (updated > 0) {
     const msg = `Mastery System | Echo artifact activation: reset ${updated} auto-linked artifact(s) on MR1 characters to inactive.`;
-    console.log(msg);
+    log.debug(msg);
     try {
       ui.notifications?.info(msg);
     } catch {

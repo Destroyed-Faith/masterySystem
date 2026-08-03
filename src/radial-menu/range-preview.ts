@@ -5,6 +5,7 @@
 import { highlightHexesInRange, clearHexHighlight } from '../utils/hex-highlighting';
 import { gridStepsFromMeters } from '../utils/grid-range';
 
+import { log } from '../utils/logger.js';
 /**
  * Global state for range preview graphics
  */
@@ -102,7 +103,7 @@ export function showRangePreview(token: any, rangeMeters: number): void {
     gfx.renderable = true;
     gfx.alpha = 1.0;
     
-    console.log('Mastery System | [DEBUG] showRangePreview: Graphics added', {
+    log.debug('Mastery System | [DEBUG] showRangePreview: Graphics added', {
       containerName: effectsContainer.constructor.name,
       graphicsPosition: { x: gfx.position.x, y: gfx.position.y },
       graphicsVisible: gfx.visible,
@@ -138,7 +139,7 @@ export function showRangePreview(token: any, rangeMeters: number): void {
  * @param token - The token to show the range around
  */
 export function showRadialMenuRange(token: any): void {
-  console.log('Mastery System | [DEBUG] showRadialMenuRange: Called', {
+  log.debug('Mastery System | [DEBUG] showRadialMenuRange: Called', {
     hasToken: !!token,
     tokenId: token?.id,
     tokenName: token?.name,
@@ -162,7 +163,7 @@ export function showRadialMenuRange(token: any): void {
   }
   
   const tokenCenter = token.center;
-  console.log('Mastery System | [DEBUG] showRadialMenuRange: Token center', {
+  log.debug('Mastery System | [DEBUG] showRadialMenuRange: Token center', {
     x: tokenCenter?.x,
     y: tokenCenter?.y,
     hasCenter: !!tokenCenter
@@ -171,24 +172,24 @@ export function showRadialMenuRange(token: any): void {
   // Check if grid is actually enabled (not gridless)
   const isGridless = !canvas.grid || canvas.grid.type === CONST.GRID_TYPES.GRIDLESS;
   
-  console.log('Mastery System | [DEBUG] showRadialMenuRange: Grid check');
-  console.log('  hasGrid:', !!canvas.grid);
-  console.log('  gridType:', canvas.grid?.type);
+  log.debug('Mastery System | [DEBUG] showRadialMenuRange: Grid check');
+  log.debug('  hasGrid:', !!canvas.grid);
+  log.debug('  gridType:', canvas.grid?.type);
   const gridTypeName = canvas.grid?.type === CONST.GRID_TYPES.GRIDLESS ? 'GRIDLESS' : 
                       canvas.grid?.type === CONST.GRID_TYPES.SQUARE ? 'SQUARE' : 
                       canvas.grid?.type === CONST.GRID_TYPES.HEXAGONAL ? 'HEXAGONAL' : 
                       `UNKNOWN (${canvas.grid?.type})`;
-  console.log('  gridTypeName:', gridTypeName);
-  console.log('  isGridless:', isGridless);
-  console.log('  CONST_GRID_TYPES_GRIDLESS:', CONST.GRID_TYPES.GRIDLESS);
-  console.log('  CONST_GRID_TYPES_SQUARE:', CONST.GRID_TYPES.SQUARE);
-  console.log('  CONST_GRID_TYPES_HEXAGONAL:', CONST.GRID_TYPES.HEXAGONAL);
-  console.log('  gridType === GRIDLESS:', canvas.grid?.type === CONST.GRID_TYPES.GRIDLESS);
-  console.log('  !canvas.grid:', !canvas.grid);
+  log.debug('  gridTypeName:', gridTypeName);
+  log.debug('  isGridless:', isGridless);
+  log.debug('  CONST_GRID_TYPES_GRIDLESS:', CONST.GRID_TYPES.GRIDLESS);
+  log.debug('  CONST_GRID_TYPES_SQUARE:', CONST.GRID_TYPES.SQUARE);
+  log.debug('  CONST_GRID_TYPES_HEXAGONAL:', CONST.GRID_TYPES.HEXAGONAL);
+  log.debug('  gridType === GRIDLESS:', canvas.grid?.type === CONST.GRID_TYPES.GRIDLESS);
+  log.debug('  !canvas.grid:', !canvas.grid);
   
   // If grid is enabled, highlight grid fields
   if (!isGridless) {
-    console.log('Mastery System | [DEBUG] showRadialMenuRange: Grid enabled, highlighting fields', {
+    log.debug('Mastery System | [DEBUG] showRadialMenuRange: Grid enabled, highlighting fields', {
       gridType: canvas.grid.type,
       rangeUnits: RANGE_UNITS,
       color: FIXED_COLOR.toString(16),
@@ -198,7 +199,7 @@ export function showRadialMenuRange(token: any): void {
       highlightHexesInRange(token.id, RANGE_UNITS, 'mastery-radial-menu-range', FIXED_COLOR, FIXED_ALPHA);
     }
   } else {
-    console.log('Mastery System | [DEBUG] showRadialMenuRange: No grid or gridless, drawing circle', {
+    log.debug('Mastery System | [DEBUG] showRadialMenuRange: No grid or gridless, drawing circle', {
       hasGrid: !!canvas.grid,
       gridType: canvas.grid?.type,
       isGridless
@@ -240,7 +241,7 @@ export function showRadialMenuRange(token: any): void {
       gfx.renderable = true;
       gfx.alpha = 1.0;
       
-      console.log('Mastery System | [DEBUG] showRadialMenuRange: Circle graphics added', {
+      log.debug('Mastery System | [DEBUG] showRadialMenuRange: Circle graphics added', {
         containerName: effectsContainer.constructor.name,
         graphicsPosition: { x: gfx.position.x, y: gfx.position.y },
         graphicsVisible: gfx.visible,
@@ -261,7 +262,7 @@ export function showRadialMenuRange(token: any): void {
     }
   }
   
-  console.log('Mastery System | [DEBUG] showRadialMenuRange: Complete', {
+  log.debug('Mastery System | [DEBUG] showRadialMenuRange: Complete', {
     rangeUnits: RANGE_UNITS,
     color: FIXED_COLOR.toString(16),
     hasGrid: !!(canvas.grid && canvas.grid.type !== CONST.GRID_TYPES.GRIDLESS),

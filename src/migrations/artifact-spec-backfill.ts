@@ -30,6 +30,7 @@
  * It walks both world `Items` and embedded items on every Actor.
  */
 
+import { log } from '../utils/logger.js';
 const SETTING_NAMESPACE = 'mastery-system';
 const SETTING_KEY = 'artifactSpecBackfillRun';
 
@@ -225,7 +226,7 @@ export async function runArtifactSpecBackfill(): Promise<void> {
     await markRun();
 
     const msg = `Mastery System | Artifact spec backfill: migrated ${touchedWorld} world artifact(s) and ${touchedEmbedded} embedded artifact(s) to the new spec.`;
-    console.log(msg);
+    log.debug(msg);
     try {
         ui.notifications?.info(msg);
     } catch {

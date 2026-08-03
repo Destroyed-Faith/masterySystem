@@ -12,6 +12,7 @@ import { gridStepsFromMeters, isWithinRangeMeters } from "./utils/grid-range";
 import { tokenIsHostileTo } from "./combat/threatened-ranged.js";
 import { filterPerceivableTargetIds } from "./combat/perception-gate.js";
 
+import { log } from './utils/logger.js';
 interface MeleeTargetingState {
   attackerToken: any;
   option: RadialCombatOption;
@@ -128,7 +129,7 @@ function drawReachArea(state: MeleeTargetingState): void {
     // Gridless: draw circle with PIXI.Graphics
     // This would need to be stored in state.previewGraphics for cleanup
     // For now, we'll just use hex highlighting for gridded maps
-    console.log("Mastery System | [MELEE TARGETING] Gridless maps not yet supported for reach preview");
+    log.debug("Mastery System | [MELEE TARGETING] Gridless maps not yet supported for reach preview");
   }
 }
 
@@ -428,7 +429,7 @@ export function startMeleeTargeting(attackerToken: any, option: RadialCombatOpti
       : `Melee targeting: ${reachMeters}m. No targets in range.`
   );
 
-  console.log("Mastery System | [MELEE TARGETING] started", {
+  log.debug("Mastery System | [MELEE TARGETING] started", {
     attacker: attackerToken?.name,
     reachMeters,
     reachGridUnits: state.reachGridUnits,
@@ -472,10 +473,10 @@ export function endMeleeTargeting(success: boolean): void {
 
   if (!success) {
     ui.notifications?.info?.("Melee targeting cancelled");
-    console.log("Mastery System | [RADIAL FLOW] melee targeting cancelled — no attack action spent (spend happens on target confirm)");
+    log.debug("Mastery System | [RADIAL FLOW] melee targeting cancelled — no attack action spent (spend happens on target confirm)");
   }
 
-  console.log("Mastery System | [MELEE TARGETING] ended", { success });
+  log.debug("Mastery System | [MELEE TARGETING] ended", { success });
 }
 
 export function isMeleeTargetingActive(): boolean {

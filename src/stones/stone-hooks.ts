@@ -25,13 +25,13 @@ import { log } from '../utils/logger.js';
 export function initializeStoneHooks(): void {
   // Hook: Combat started - initialize round state
   Hooks.on('combatStart', async (combat: Combat) => {
-    console.log('Mastery System | Combat started, initializing round state');
+    log.debug('Mastery System | Combat started, initializing round state');
     await initializeCombatRoundState(combat);
   });
   
   // Hook: Combat turn/round changes
   Hooks.on('updateCombat', async (combat: Combat, changes: any, _options: any, _userId: string) => {
-    console.log('Mastery System | updateCombat hook', { changes });
+    log.debug('Mastery System | updateCombat hook', { changes });
     if (changes?.turn !== undefined || changes?.round !== undefined) {
       logCombatTrace('updateCombat', {
         changes,
@@ -75,7 +75,7 @@ export function initializeStoneHooks(): void {
   
   // Hook: Combat ended - restore stone pools to full
   Hooks.on('deleteCombat', async (combat: Combat, _options: any, _userId: string) => {
-    console.log('Mastery System | Combat ended, restoring stone pools');
+    log.debug('Mastery System | Combat ended, restoring stone pools');
     await clearStonePowersConfigurationLocksInCombat(combat);
     try {
       await clearMasteryActiveBuffsForCombatants(combat);
@@ -87,7 +87,7 @@ export function initializeStoneHooks(): void {
   
   // Also trigger on explicit combatEnd
   Hooks.on('combatEnd', async (combat: Combat) => {
-    console.log('Mastery System | Combat end hook, restoring stone pools');
+    log.debug('Mastery System | Combat end hook, restoring stone pools');
     await clearStonePowersConfigurationLocksInCombat(combat);
     try {
       await clearMasteryActiveBuffsForCombatants(combat);

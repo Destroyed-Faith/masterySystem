@@ -40,6 +40,7 @@ import {
   highlightTabuHexesOnLayer
 } from './utils/hex-highlighting';
 
+import { log } from './utils/logger.js';
 /** Same yellow tone as radial range preview (`range-preview.ts`). */
 const MOVEMENT_RANGE_COLOR = 0xffe066;
 const MOVEMENT_RANGE_ALPHA = 0.45;
@@ -75,7 +76,7 @@ let activeMovementState: MovementState | null = null;
  * Initialize token action selector hooks
  */
 export function initializeTokenActionSelector() {
-  console.log('Mastery System | Initializing Token Action Selector');
+  log.debug('Mastery System | Initializing Token Action Selector');
 
   // Hook into Token HUD rendering to add custom icon
   Hooks.on('renderTokenHUD', (app: any, html: any, _data: any) => {
@@ -187,7 +188,7 @@ export function initializeTokenActionSelector() {
     const action = tokenDoc.getFlag('mastery-system', 'currentAction') || {};
     if (action.category === 'movement') {
       await tokenDoc.unsetFlag('mastery-system', 'currentAction');
-      console.log('Mastery System | Cleared currentAction flag after movement');
+      log.debug('Mastery System | Cleared currentAction flag after movement');
     }
   });
 
@@ -424,7 +425,7 @@ function getDefaultMovementRange(token: any, option: RadialCombatOption): number
  * Start guided movement mode for a token
  */
 export function startGuidedMovement(token: any, option: RadialCombatOption): void {
-  console.log('Mastery System | Starting guided movement mode', { token: token.name, option: option.name });
+  log.debug('Mastery System | Starting guided movement mode', { token: token.name, option: option.name });
   
   // Cancel any existing movement mode first
   endGuidedMovement(false);
@@ -439,7 +440,7 @@ export function startGuidedMovement(token: any, option: RadialCombatOption): voi
   const blockedHexKeys = collectBlockedHexKeysFromOtherTokens(token);
   const originalAlpha = token.alpha;
   
-  console.log('Mastery System | Guided movement start:', token.name, 'maxRangeMeters:', maxRangeMeters, 'steps:', maxRangeSteps, 'option:', option);
+  log.debug('Mastery System | Guided movement start:', token.name, 'maxRangeMeters:', maxRangeMeters, 'steps:', maxRangeSteps, 'option:', option);
   
   // Make the token slightly transparent to indicate "picked up"
   token.alpha = 0.6;
@@ -484,7 +485,7 @@ export function startGuidedMovement(token: any, option: RadialCombatOption): voi
   const onDown = (ev: PIXI.FederatedPointerEvent) => handleMovementPointerDown(ev);
   const onKeyDown = (ev: KeyboardEvent) => {
     if (ev.key === 'Escape' && activeMovementState) {
-      console.log('Mastery System | Guided movement cancelled via ESC');
+      log.debug('Mastery System | Guided movement cancelled via ESC');
       endGuidedMovement(false);
     }
   };
@@ -520,7 +521,7 @@ export function startGuidedMovement(token: any, option: RadialCombatOption): voi
   // Initial preview at origin (zero-length)
   refreshMovementPreview(state, origin.x, origin.y);
   
-  console.log('Mastery System | Guided movement mode active', { maxRangeMeters, maxRangeSteps, origin });
+  log.debug('Mastery System | Guided movement mode active', { maxRangeMeters, maxRangeSteps, origin });
 }
 
 /**
@@ -619,7 +620,7 @@ function handleMovementPointerDown(ev: PIXI.FederatedPointerEvent, state?: Movem
   
   // Right or middle click cancels
   if (ev.button === 2 || ev.button === 1) {
-    console.log('Mastery System | Guided movement cancelled via mouse button', ev.button);
+    log.debug('Mastery System | Guided movement cancelled via mouse button', ev.button);
     endGuidedMovement(false);
     return;
   }
@@ -686,7 +687,7 @@ async function attemptCommitMovement(destX: number, destY: number, state: Moveme
   try {
     await token.document.update({ x: destTL.x, y: destTL.y }, { animate: true });
 
-    console.log('Mastery System | Movement completed', {
+    log.debug('Mastery System | Movement completed', {
       option: state.option.name,
       distance: distanceLabel,
       maxRangeMeters: state.maxRangeMeters,
@@ -713,7 +714,7 @@ export function endGuidedMovement(success: boolean): void {
   const state = activeMovementState;
   if (!state) return;
   
-  console.log('Mastery System | Guided movement end. success =', success);
+  log.debug('Mastery System | Guided movement end. success =', success);
   
   // Remove event listeners
   canvas.stage.off("pointermove", state.onMove);
@@ -767,7 +768,7 @@ export function endGuidedMovement(success: boolean): void {
  * @param option - The chosen option (power or maneuver)
  */
 export async function handleChosenCombatOption(token: any, option: RadialCombatOption) {
-  console.log('Mastery System | [RADIAL FLOW] handleChosenCombatOption start', {
+  log.debug('Mastery System | [RADIAL FLOW] handleChosenCombatOption start', {
     token: token?.name,
     optionId: option.id,
     name: option.name,
@@ -779,8 +780,8 @@ export async function handleChosenCombatOption(token: any, option: RadialCombatO
     costsAction: option.costsAction,
     aoeShape: option.aoeShape
   });
-  console.log('Mastery System | Chosen combat option:', { token: token.name, option });
-  console.log('Mastery System | Option details:', {
+  log.debug('Mastery System | Chosen combat option:', { token: token.name, option });
+  log.debug('Mastery System | Option details:', {
     slot: option.slot,
     segment: (option as any).segment,
     source: option.source,
@@ -829,7 +830,7 @@ export async function handleChosenCombatOption(token: any, option: RadialCombatO
 
   // Debug: Log remaining actions when opening radial
   const roundState = getRoundState(actor, combat);
-  console.log('Mastery System | [ACTION ECONOMY] Remaining actions:', {
+  log.debug('Mastery System | [ACTION ECONOMY] Remaining actions:', {
     attack: getAvailableAttackActions(actor, combat),
     movement: getAvailableMovementActions(actor, combat),
     roundState: {
@@ -846,7 +847,7 @@ export async function handleChosenCombatOption(token: any, option: RadialCombatO
   const isActiveBuff = segmentId === 'active-buff';
   
   if (isActiveBuff && option.source === 'power' && option.item) {
-    console.log('Mastery System | [ACTIVE BUFF] Activating active buff:', option.name);
+    log.debug('Mastery System | [ACTIVE BUFF] Activating active buff:', option.name);
     
     // Check and consume attack action if needed (active buffs cost an action)
     if (option.costsAction) {
@@ -862,7 +863,7 @@ export async function handleChosenCombatOption(token: any, option: RadialCombatO
         return;
       }
       
-      console.log('Mastery System | [ACTION ECONOMY] Consumed attack action for active buff. Remaining:', getAvailableAttackActions(actor, combat));
+      log.debug('Mastery System | [ACTION ECONOMY] Consumed attack action for active buff. Remaining:', getAvailableAttackActions(actor, combat));
     }
     
     closeRadialMenu();
@@ -901,7 +902,7 @@ export async function handleChosenCombatOption(token: any, option: RadialCombatO
       ui.notifications?.warn(`${option.name} is already active!`);
       if (option.costsAction) {
         await refundAttackAction(actor, combat);
-        console.log('Mastery System | [RADIAL FLOW] active buff: refunded attack (already active)');
+        log.debug('Mastery System | [RADIAL FLOW] active buff: refunded attack (already active)');
       }
       return;
     }
@@ -955,14 +956,14 @@ export async function handleChosenCombatOption(token: any, option: RadialCombatO
       return;
     }
     
-    console.log('Mastery System | [ACTION ECONOMY] Consumed movement action. Remaining:', getAvailableMovementActions(actor, combat));
+    log.debug('Mastery System | [ACTION ECONOMY] Consumed movement action. Remaining:', getAvailableMovementActions(actor, combat));
   }
 
   // Attack actions are consumed only when an attack/utility actually resolves (see melee hook, utility confirm, active buff, stand-up).
 
   // Check if this is a movement option - check both segment and slot
   const isMovement = option.slot === 'movement' || (option as any).segment === 'movement';
-  console.log('Mastery System | Is movement option?', isMovement, { slot: option.slot, segment: (option as any).segment });
+  log.debug('Mastery System | Is movement option?', isMovement, { slot: option.slot, segment: (option as any).segment });
   
   if (isMovement) {
     // Close radial menu immediately when movement option is selected
@@ -970,7 +971,7 @@ export async function handleChosenCombatOption(token: any, option: RadialCombatO
     
     // Handle stand-up differently (it's an immediate action, not movement)
     if (option.id === 'stand-up' || option.maneuver?.id === 'stand-up') {
-      console.log('Mastery System | Executing Stand Up for', token.name);
+      log.debug('Mastery System | Executing Stand Up for', token.name);
       // Stand Up is immediate - just execute it
       executeStandUp(token, option);
       return;
@@ -984,19 +985,19 @@ export async function handleChosenCombatOption(token: any, option: RadialCombatO
                         option.name?.toLowerCase().includes('teleport');
       
       if (isTeleport) {
-        console.log('Mastery System | Starting teleport targeting for', token.name, option);
+        log.debug('Mastery System | Starting teleport targeting for', token.name, option);
         // TODO: Implement teleport targeting mode (for now, use guided movement)
         startGuidedMovement(token, option);
       } else {
         // Regular movement power - use guided movement
-        console.log('Mastery System | Starting guided movement for movement power', token.name, option);
+        log.debug('Mastery System | Starting guided movement for movement power', token.name, option);
         startGuidedMovement(token, option);
       }
       return;
     }
     
     // Regular movement maneuver
-    console.log('Mastery System | Starting guided movement for', token.name, option);
+    log.debug('Mastery System | Starting guided movement for', token.name, option);
     startGuidedMovement(token, option);
     return;
   }
@@ -1009,7 +1010,7 @@ export async function handleChosenCombatOption(token: any, option: RadialCombatO
                         option.slot === 'attack' && 
                         (option.range === undefined || option.range <= 4);
   
-  console.log('Mastery System | [ATTACK SELECTION] Checking if melee attack', {
+  log.debug('Mastery System | [ATTACK SELECTION] Checking if melee attack', {
     isMeleeAttack,
     slot: option.slot,
     range: option.range,
@@ -1032,14 +1033,14 @@ export async function handleChosenCombatOption(token: any, option: RadialCombatO
         return;
       }
     }
-    console.log('Mastery System | [RADIAL FLOW] branch: melee targeting (attack spent only after you pick a target)', {
+    log.debug('Mastery System | [RADIAL FLOW] branch: melee targeting (attack spent only after you pick a target)', {
       tokenName: token.name,
       optionId: option.id,
       optionName: option.name,
       range: option.range,
       costsAction: option.costsAction
     });
-    console.log('Mastery System | [ATTACK SELECTION] Starting melee targeting', {
+    log.debug('Mastery System | [ATTACK SELECTION] Starting melee targeting', {
       tokenName: token.name,
       optionId: option.id,
       optionName: option.name,
@@ -1199,7 +1200,7 @@ export async function handleChosenCombatOption(token: any, option: RadialCombatO
         return;
       }
     }
-    console.log("Mastery System | [RADIAL FLOW] branch: active zone hex placement (same UX as utility radius)", {
+    log.debug("Mastery System | [RADIAL FLOW] branch: active zone hex placement (same UX as utility radius)", {
       option: option.name,
       costsAction: option.costsAction
     });
@@ -1226,7 +1227,7 @@ export async function handleChosenCombatOption(token: any, option: RadialCombatO
         return;
       }
     }
-    console.log("Mastery System | [RADIAL FLOW] branch: ranged targeting", {
+    log.debug("Mastery System | [RADIAL FLOW] branch: ranged targeting", {
       range: option.range,
       option: option.name,
       costsAction: option.costsAction
@@ -1249,7 +1250,7 @@ export async function handleChosenCombatOption(token: any, option: RadialCombatO
 
   // Check if this is a utility option
   const isUtility = option.slot === 'utility';
-  console.log('Mastery System | Is utility option?', isUtility, { slot: option.slot, aoeShape: option.aoeShape });
+  log.debug('Mastery System | Is utility option?', isUtility, { slot: option.slot, aoeShape: option.aoeShape });
   
   if (isUtility) {
     if (option.costsAction) {
@@ -1263,17 +1264,17 @@ export async function handleChosenCombatOption(token: any, option: RadialCombatO
         return;
       }
     }
-    console.log('Mastery System | [RADIAL FLOW] branch: utility (attack spent on Confirm, not on opening targeting)', {
+    log.debug('Mastery System | [RADIAL FLOW] branch: utility (attack spent on Confirm, not on opening targeting)', {
       aoeShape: option.aoeShape,
       costsAction: option.costsAction
     });
     closeRadialMenu();
     if (option.aoeShape === 'none') {
-      console.log('Mastery System | Starting single-target utility mode for', token.name, option);
+      log.debug('Mastery System | Starting single-target utility mode for', token.name, option);
       startUtilitySingleTargetMode(token, option);
       return;
     } else if (option.aoeShape === 'radius') {
-      console.log('Mastery System | Starting radius utility mode for', token.name, option);
+      log.debug('Mastery System | Starting radius utility mode for', token.name, option);
       startUtilityRadiusMode(token, option);
       return;
     } else if (option.aoeShape === 'cone') {
@@ -1294,7 +1295,7 @@ export async function handleChosenCombatOption(token: any, option: RadialCombatO
       costsAction: option.costsAction,
       note: 'Attack actions are NOT consumed here; use a melee-range power or weapon attack until ranged powers are wired up.'
     });
-    console.log('Mastery System | Power selected:', option.name, option.item);
+    log.debug('Mastery System | Power selected:', option.name, option.item);
     ui.notifications?.warn(
       `${option.name}: Fern-/Ranged-Angriff ist noch nicht angebunden — keine Aktion verbraucht. Nahkampf (Reichweite ≤4m) wählen oder später erneut testen.`
     );
@@ -1306,7 +1307,7 @@ export async function handleChosenCombatOption(token: any, option: RadialCombatO
       range: option.range,
       maneuverId: option.maneuver.id
     });
-    console.log('Mastery System | Maneuver selected:', option.name, option.maneuver);
+    log.debug('Mastery System | Maneuver selected:', option.name, option.maneuver);
     ui.notifications?.info(`Action selected: ${option.name} (${option.slot}) — Ausführung noch nicht implementiert (keine Aktion verbraucht).`);
   }
 }
@@ -1405,7 +1406,7 @@ async function executeStandUp(token: any, option: RadialCombatOption): Promise<v
     const { consumeAttackAction } = await import('./combat/action-economy.js');
     const consumed = await consumeAttackAction(token.actor, combat);
     if (consumed) {
-      console.log('Mastery System | [ACTION ECONOMY] Consumed attack action for Stand Up. Remaining:', 
+      log.debug('Mastery System | [ACTION ECONOMY] Consumed attack action for Stand Up. Remaining:', 
         (await import('./combat/action-economy.js')).getAvailableAttackActions(token.actor, combat));
     }
   }
@@ -1427,5 +1428,5 @@ async function executeStandUp(token: any, option: RadialCombatOption): Promise<v
   }
   
   ui.notifications.info(`${token.actor.name} stands up.`);
-  console.log('Mastery System | Stand Up executed for', token.actor.name);
+  log.debug('Mastery System | Stand Up executed for', token.actor.name);
 }
