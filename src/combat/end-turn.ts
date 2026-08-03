@@ -4,6 +4,7 @@
 
 import { buildCombatTurnSnapshot, logCombatTrace } from '../utils/combat-trace-debug.js';
 
+import { log } from '../utils/logger.js';
 let requestEndTurnInFlight = false;
 
 /**
@@ -37,7 +38,7 @@ export async function requestEndTurn(): Promise<void> {
     return;
   }
   
-  console.log(`Mastery System | Next turn from ${currentCombatant.name}`);
+  log.debug(`Next turn from ${currentCombatant.name}`);
   logCombatTrace('before-nextTurn', {
     fromCombatantId: currentCombatant.id,
     fromName: currentCombatant.name,

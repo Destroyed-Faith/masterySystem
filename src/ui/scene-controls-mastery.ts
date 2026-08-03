@@ -6,6 +6,7 @@
 import { StonePowersDialog } from '../stones/stone-powers-dialog.js';
 import { startDivineClash, revealDivineClash, endRoundDivineClash, resetDivineClash } from '../divine-clash/divine-clash.js';
 
+import { log } from '../utils/logger.js';
 /**
  * Resolve combatant for active actor
  */
@@ -122,7 +123,7 @@ export function initializeSceneControls(): void {
           return;
         }
         
-        console.log(`Mastery System | [DEBUG] Delegated click handler triggered for: ${toolName}`);
+        log.debug(`[DEBUG] Delegated click handler triggered for: ${toolName}`);
         
         ev.preventDefault();
         ev.stopPropagation();
@@ -282,7 +283,7 @@ export function initializeSceneControls(): void {
           return;
         }
         
-        console.log(`Mastery System | [DEBUG] Delegated click handler triggered for: ${toolName}`);
+        log.debug(`[DEBUG] Delegated click handler triggered for: ${toolName}`);
         
         ev.preventDefault();
         ev.stopPropagation();
@@ -373,7 +374,7 @@ export function initializeSceneControls(): void {
           // Event delegation handles all clicks
           
           masteryToolsContainer.appendChild(btn);
-          console.log(`Mastery System | [DEBUG] Injected button: ${config.name}`);
+          log.debug(`[DEBUG] Injected button: ${config.name}`);
         });
         
         return true;

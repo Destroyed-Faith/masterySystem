@@ -1,3 +1,4 @@
+import { log } from '../utils/logger.js';
 /**
  * One-shot GM migration: reconcile legacy Special-Effect ids/names to the
  * canonical post-reconciliation set.
@@ -275,6 +276,6 @@ export async function runSpecialEffectRenameMigration(actors: any[]): Promise<vo
   }
 
   if (migrated > 0) {
-    console.log(`Mastery System | Special-Effect rename migration updated ${migrated} document(s).`);
+    log.debug(`Special-Effect rename migration updated ${migrated} document(s).`);
   }
 }

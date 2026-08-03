@@ -11,6 +11,7 @@ import { handleChosenCombatOption } from '../token-action-selector';
 import type { CombatSlot } from '../system/combat-maneuvers';
 import { getRoundState } from '../combat/action-economy.js';
 
+import { log } from '../utils/logger.js';
 /**
  * Foundry v13: When the radial menu spawns under the mouse cursor, PIXI can
  * immediately fire pointerover for whichever slice is "under" the cursor.
@@ -269,7 +270,7 @@ export function renderOuterRing(
   // Get options for this segment
   const options = bySegment[segmentId] ?? [];
   
-  console.log(`Mastery System | Rendering outer ring for segment "${segmentId}" with ${options.length} options`);
+  log.debug(`Rendering outer ring for segment "${segmentId}" with ${options.length} options`);
   
   // Faint background ring
   const ringGfx = new PIXI.Graphics();
@@ -345,7 +346,7 @@ export function renderInnerSegments(
     const endAngle = baseAngle + angleStep;
     const isActive = getCurrentSegmentId() === seg.id;
     
-    console.log(`Mastery System | Creating inner segment "${seg.id}" (index ${index}), active: ${isActive}, angles: ${baseAngle.toFixed(2)} to ${endAngle.toFixed(2)}`);
+    log.debug(`Creating inner segment "${seg.id}" (index ${index}), active: ${isActive}, angles: ${baseAngle.toFixed(2)} to ${endAngle.toFixed(2)}`);
     
     const gfx = new PIXI.Graphics();
     
@@ -439,7 +440,7 @@ export function renderInnerSegments(
     const hitPolygon = new PIXI.Polygon(hitPoints);
     container.hitArea = hitPolygon;
     
-    console.log(`Mastery System | Inner segment "${seg.id}": interactive=${container.interactive}, hitArea=${!!container.hitArea}, children=${container.children.length}`);
+    log.debug(`Inner segment "${seg.id}": interactive=${container.interactive}, hitArea=${!!container.hitArea}, children=${container.children.length}`);
     
     // Ensure the graphics don't capture events - container should handle them
     gfx.interactive = false;
@@ -448,7 +449,7 @@ export function renderInnerSegments(
     const handleClick = (event: any) => {
       event.stopPropagation(); // Prevent event from bubbling to parent
       event.stopImmediatePropagation(); // Prevent other handlers
-      console.log(`Mastery System | [CLICK] Inner segment "${seg.id}" clicked! (was: ${getCurrentSegmentId()})`, {
+      log.debug(`[CLICK] Inner segment "${seg.id}" clicked! (was: ${getCurrentSegmentId()})`, {
         eventType: event.type,
         target: event.target?.constructor?.name,
         currentTarget: event.currentTarget?.constructor?.name,
@@ -464,7 +465,7 @@ export function renderInnerSegments(
     container.on('pointerdown', (event: any) => {
       event.stopPropagation();
       event.stopImmediatePropagation();
-      console.log(`Mastery System | [POINTERDOWN] Inner segment "${seg.id}" pointerdown`, {
+      log.debug(`[POINTERDOWN] Inner segment "${seg.id}" pointerdown`, {
         eventType: event.type,
         target: event.target?.constructor?.name
       });
@@ -474,7 +475,7 @@ export function renderInnerSegments(
     
     // Add hover feedback with debug logs
     container.on('pointerover', (event: any) => {
-      console.log(`Mastery System | [HOVER] Inner segment "${seg.id}" hovered`, {
+      log.debug(`[HOVER] Inner segment "${seg.id}" hovered`, {
         eventType: event.type,
         target: event.target?.constructor?.name
       });
@@ -496,7 +497,7 @@ export function renderInnerSegments(
     });
     
     container.on('pointerout', (_event: any) => {
-      console.log(`Mastery System | [HOVER OUT] Inner segment "${seg.id}" hover out`);
+      log.debug(`[HOVER OUT] Inner segment "${seg.id}" hover out`);
       if (!isActive) {
         // Restore default appearance
         gfx.clear();
@@ -517,7 +518,7 @@ export function renderInnerSegments(
     // Add to root AFTER setting up all properties
     root.addChild(container);
     
-    console.log(`Mastery System | Inner segment "${seg.id}" added to root, zIndex: ${root.getChildIndex(container)}`);
+    log.debug(`Inner segment "${seg.id}" added to root, zIndex: ${root.getChildIndex(container)}`);
   });
 }
 
@@ -532,7 +533,7 @@ export function refreshInnerSegmentsVisual(
   token?: any
 ): void {
   const current = getCurrentSegmentId();
-  console.log(`Mastery System | Refreshing inner segments visual, active: ${current}`);
+  log.debug(`Refreshing inner segments visual, active: ${current}`);
   
   for (const child of root.children) {
     if (!(child as any).msInnerSegment) continue;

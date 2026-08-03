@@ -1,3 +1,4 @@
+import { log } from './logger.js';
 /**
  * Debug Helpers for Mastery System
  * Utility functions for logging and diagnostics
@@ -9,7 +10,7 @@
  */
 export function logActorItemSummary(actor: any, tag: string): void {
   if (!actor) {
-    console.log(`Mastery System | [${tag}] Actor is null/undefined`);
+    log.debug(`[${tag}] Actor is null/undefined`);
     return;
   }
 
@@ -68,7 +69,7 @@ export function logActorItemSummary(actor: any, tag: string): void {
     };
   });
 
-  console.log(`Mastery System | [${tag}] Actor Item Summary`, {
+  log.debug(`[${tag}] Actor Item Summary`, {
     actorId: actor.id,
     actorName: actor.name,
     itemsCount: items.length,

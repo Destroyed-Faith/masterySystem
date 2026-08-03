@@ -1,3 +1,4 @@
+import { log } from '../utils/logger.js';
 /**
  * One-shot: bump default combat speed 6 → 8 (Rules v0.9.8 base movement).
  */
@@ -67,5 +68,5 @@ export async function runSpeed8mMigration(actors: any[]): Promise<void> {
     }
   }
   await markRun();
-  console.log(`Mastery System | speed-8m migration complete (${updated} updates)`);
+  log.debug(`speed-8m migration complete (${updated} updates)`);
 }

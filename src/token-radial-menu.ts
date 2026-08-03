@@ -19,6 +19,7 @@ import { hideRadialInfoPanel } from './radial-menu/info-panel';
 import { renderOuterRing, renderInnerSegments, refreshInnerSegmentsVisual } from './radial-menu/rendering';
 import { getActionEconomyActor } from './combat/action-economy.js';
 
+import { log } from './utils/logger.js';
 // Re-export for external use
 export { getAllCombatOptionsForActor };
 export type { RadialCombatOption, InnerSegment, TargetGroup, AoEShape } from './radial-menu/types';
@@ -339,7 +340,7 @@ export function openRadialMenuForActor(token: any, allOptions: RadialCombatOptio
         const value = (canvas.hud as any)[key];
         if (value && typeof value.addChild === 'function') {
           hudContainer = value;
-          console.log(`Mastery System | Using canvas.hud.${key}`);
+          log.debug(`Using canvas.hud.${key}`);
           break;
         }
         // Also check nested properties
@@ -347,13 +348,13 @@ export function openRadialMenuForActor(token: any, allOptions: RadialCombatOptio
           // Check for v13 element property first (replaces deprecated container)
           if (value.element && typeof value.element.addChild === 'function') {
             hudContainer = value.element;
-            console.log(`Mastery System | Using canvas.hud.${key}.element`);
+            log.debug(`Using canvas.hud.${key}.element`);
             break;
           }
           // Fallback to deprecated container property (for backwards compatibility)
           if (value.container && typeof value.container.addChild === 'function') {
             hudContainer = value.container;
-            console.log(`Mastery System | Using canvas.hud.${key}.container (deprecated)`);
+            log.debug(`Using canvas.hud.${key}.container (deprecated)`);
             break;
           }
         }
@@ -433,27 +434,27 @@ export function openRadialMenuForActor(token: any, allOptions: RadialCombatOptio
   msRadialGetCurrentSegmentId = getCurrentSegmentId;
   
   const setCurrentSegmentId = (id: InnerSegment['id']) => {
-    console.log(`Mastery System | [setCurrentSegmentId] Called with id="${id}", current="${currentSegmentId}"`);
+    log.debug(`[setCurrentSegmentId] Called with id="${id}", current="${currentSegmentId}"`);
     
     if (currentSegmentId === id) {
-      console.log(`Mastery System | Segment ${id} already active, no change needed`);
+      log.debug(`Segment ${id} already active, no change needed`);
       return; // No change needed
     }
     
-    console.log(`Mastery System | [setCurrentSegmentId] Changing segment from "${currentSegmentId}" to "${id}"`);
+    log.debug(`[setCurrentSegmentId] Changing segment from "${currentSegmentId}" to "${id}"`);
     const oldSegmentId = currentSegmentId;
     currentSegmentId = id;
     
     // Check if the new segment has options
     const optionsForSegment = bySegment[currentSegmentId] ?? [];
-    console.log(`Mastery System | [setCurrentSegmentId] Segment "${currentSegmentId}" has ${optionsForSegment.length} options`);
+    log.debug(`[setCurrentSegmentId] Segment "${currentSegmentId}" has ${optionsForSegment.length} options`);
     
     // Re-render outer ring with filtered options for the new segment
-    console.log(`Mastery System | [setCurrentSegmentId] Re-rendering outer ring...`);
+    log.debug(`[setCurrentSegmentId] Re-rendering outer ring...`);
     renderOuterRing(root, token, bySegment, currentSegmentId);
     
     // Refresh inner segments visual state to highlight the active segment
-    console.log(`Mastery System | [setCurrentSegmentId] Refreshing inner segments visual...`);
+    log.debug(`[setCurrentSegmentId] Refreshing inner segments visual...`);
     refreshInnerSegmentsVisual(root, getCurrentSegmentId, token);
     
     // Ensure inner segments stay on top after re-rendering outer ring
@@ -464,7 +465,7 @@ export function openRadialMenuForActor(token: any, allOptions: RadialCombatOptio
       }
     });
     
-    console.log(`Mastery System | [setCurrentSegmentId] Moving ${innerSegments.length} inner segments to top...`);
+    log.debug(`[setCurrentSegmentId] Moving ${innerSegments.length} inner segments to top...`);
     
     // Remove and re-add to put them on top
     innerSegments.forEach((seg, idx) => {
@@ -472,10 +473,10 @@ export function openRadialMenuForActor(token: any, allOptions: RadialCombatOptio
       root.removeChild(seg);
       root.addChild(seg);
       const newIndex = root.getChildIndex(seg);
-      console.log(`Mastery System | [setCurrentSegmentId] Inner segment ${idx} moved from index ${oldIndex} to ${newIndex}`);
+      log.debug(`[setCurrentSegmentId] Inner segment ${idx} moved from index ${oldIndex} to ${newIndex}`);
     });
     
-    console.log(`Mastery System | [setCurrentSegmentId] Segment change complete: "${oldSegmentId}" -> "${currentSegmentId}"`);
+    log.debug(`[setCurrentSegmentId] Segment change complete: "${oldSegmentId}" -> "${currentSegmentId}"`);
   };
   
   // Initial render
@@ -493,7 +494,7 @@ export function openRadialMenuForActor(token: any, allOptions: RadialCombatOptio
     }
   });
   
-  console.log(`Mastery System | Found ${innerSegments.length} inner segments, moving to top`);
+  log.debug(`Found ${innerSegments.length} inner segments, moving to top`);
   
   // Remove and re-add to put them on top
   innerSegments.forEach((seg, idx) => {
@@ -501,7 +502,7 @@ export function openRadialMenuForActor(token: any, allOptions: RadialCombatOptio
     root.removeChild(seg);
     root.addChild(seg);
     const newIndex = root.getChildIndex(seg);
-    console.log(`Mastery System | Inner segment ${idx} moved from index ${oldIndex} to ${newIndex}`);
+    log.debug(`Inner segment ${idx} moved from index ${oldIndex} to ${newIndex}`);
   });
   
   // Final verification: log all children in order

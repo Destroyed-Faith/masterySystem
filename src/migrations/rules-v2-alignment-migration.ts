@@ -11,6 +11,7 @@
 
 import { REMOVED_SPECIAL_IDS } from '../utils/special-effects.js';
 
+import { log } from '../utils/logger.js';
 const SETTING_NAMESPACE = 'mastery-system';
 const SETTING_KEY = 'rulesV2AlignmentRun';
 
@@ -159,7 +160,6 @@ export async function runRulesV2AlignmentMigration(actors: any[]): Promise<void>
   }
 
   await markRun();
-  console.log(
-    `Mastery System | Rules v2 alignment migration complete (${migrated} document(s) updated).`,
+  log.debug(`Rules v2 alignment migration complete (${migrated} document(s) updated).`,
   );
 }

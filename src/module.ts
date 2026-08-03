@@ -1,10 +1,10 @@
 /**
  * Mastery System / Destroyed Faith
- * Main module entry point for Foundry VTT v13
+ * Main module entry point for Foundry VTT
  */
 
-// Immediate log to verify module is loading
-console.log('Mastery System | Module file loaded');
+import { log } from './utils/logger.js';
+log.debug('Module file loaded');
 
 import { MasteryActor } from './documents/actor.js';
 import { MasteryItem } from './documents/item.js';
@@ -1382,7 +1382,7 @@ function applyThemeClass(theme: string): void {
   // Add new theme class
   if (theme) {
     document.body.classList.add(`ms-theme-${theme}`);
-    console.log(`Mastery System | Applied theme: ${theme}`);
+    log.debug(`Applied theme: ${theme}`);
   }
 }
 
@@ -2722,13 +2722,13 @@ Hooks.once('ready', async function() {
 
       if (needsSkillKeyMigration) {
         await actor.update(updates);
-        console.log(`Mastery System | Skill key migration: Updated skill keys for ${actor.name}`);
+        log.debug(`Skill key migration: Updated skill keys for ${actor.name}`);
       }
     }
 
     // Migration: skillsSpent initialization
     if (!system?.skillsSpent || typeof system.skillsSpent !== 'object') {
-      console.log(`Mastery System | SkillsSpent migration: Initializing for ${actor.name}`);
+      log.debug(`SkillsSpent migration: Initializing for ${actor.name}`);
       const { SKILLS } = await import('./utils/skills.js');
       const skillsSpent: Record<string, number> = {};
       
@@ -2748,7 +2748,7 @@ Hooks.once('ready', async function() {
       
       await actor.update({ 'system.skillsSpent': skillsSpent });
       migratedSkillsSpent++;
-      console.log(`Mastery System | SkillsSpent migration: Initialized ${Object.keys(skillsSpent).length} skills for ${actor.name}`);
+      log.debug(`SkillsSpent migration: Initialized ${Object.keys(skillsSpent).length} skills for ${actor.name}`);
     } else {
       // Ensure all skills from SKILLS exist in skillsSpent
       const { SKILLS } = await import('./utils/skills.js');
@@ -2775,7 +2775,7 @@ Hooks.once('ready', async function() {
       if (needsUpdate) {
         await actor.update({ 'system.skillsSpent': skillsSpent });
         migratedSkillsSpent++;
-        console.log(`Mastery System | SkillsSpent migration: Updated skills for ${actor.name}`);
+        log.debug(`SkillsSpent migration: Updated skills for ${actor.name}`);
       }
     }
     
@@ -2791,7 +2791,7 @@ Hooks.once('ready', async function() {
       system.stonePools.might !== undefined;
     
     if (hasOldStones && !hasNewStonePools) {
-      console.log(`Mastery System | Migrating stone pools for ${actor.name}`);
+      log.debug(`Migrating stone pools for ${actor.name}`);
       
       // Get old stone values
       const oldCurrent = system.stones?.current ?? 0;
@@ -2862,20 +2862,20 @@ Hooks.once('ready', async function() {
       await actor.update(updates);
       migratedStones++;
       
-      console.log(`Mastery System | Migrated stones for ${actor.name}: ${oldCurrent}/${oldMaximum} -> distributed across ${attributeKeys.length} pools`);
+      log.debug(`Migrated stones for ${actor.name}: ${oldCurrent}/${oldMaximum} -> distributed across ${attributeKeys.length} pools`);
     }
   }
   
   if (migratedCreation > 0) {
-    console.log(`Mastery System | Migrated ${migratedCreation} existing characters (set creationComplete=true)`);
+    log.debug(`Migrated ${migratedCreation} existing characters (set creationComplete=true)`);
   }
   
   if (migratedStones > 0) {
-    console.log(`Mastery System | Migrated ${migratedStones} characters from old stone system to per-attribute pools`);
+    log.debug(`Migrated ${migratedStones} characters from old stone system to per-attribute pools`);
   }
   
   if (migratedSkillsSpent > 0) {
-    console.log(`Mastery System | SkillsSpent migration: Migrated ${migratedSkillsSpent} characters`);
+    log.debug(`SkillsSpent migration: Migrated ${migratedSkillsSpent} characters`);
   }
 
   // Migration: Update item icons from Foundry default SVGs to custom PNGs
@@ -2990,7 +2990,7 @@ Hooks.once('ready', async function() {
   }
 
   if (migratedIcons > 0) {
-    console.log(`Mastery System | Migrated ${migratedIcons} item icons from default SVGs to custom icons`);
+    log.debug(`Migrated ${migratedIcons} item icons from default SVGs to custom icons`);
     ui.notifications?.info(`Updated ${migratedIcons} item icons.`);
   }
 });
@@ -3006,7 +3006,7 @@ Hooks.once('ready', async function() {
   console.log(`╔═══════════════════════════════════════════════════════════╗`);
   console.log(`║  MASTERY SYSTEM / DESTROYED FAITH - VERSION ${system.version.padEnd(10)} ║`);
   console.log(`╚═══════════════════════════════════════════════════════════╝`);
-  console.log(`Mastery System | Version ${system.version}`);
+  log.debug(`Version ${system.version}`);
 
   try {
     applyMasteryStatusEffects();
@@ -3053,7 +3053,7 @@ Hooks.once('ready', async function() {
     try {
       const createdItems = await seedGeneralItemsStorage();
       if (createdItems.length > 0) {
-        console.log(`Mastery System | Seeded ${createdItems.length} General Items Storage items on ready`);
+        log.debug(`Seeded ${createdItems.length} General Items Storage items on ready`);
       }
     } catch (error) {
       console.warn('Mastery System | Failed to seed General Items Storage on ready', error);
@@ -3064,7 +3064,7 @@ Hooks.once('ready', async function() {
     try {
       const createdArtifacts = await seedArtifactLibrary();
       if (createdArtifacts > 0) {
-        console.log(`Mastery System | Seeded ${createdArtifacts} Echo Artifact items on ready`);
+        log.debug(`Seeded ${createdArtifacts} Echo Artifact items on ready`);
       }
     } catch (error) {
       console.warn('Mastery System | Failed to seed Echo Artifact library on ready', error);
@@ -3231,7 +3231,7 @@ Hooks.once('ready', async function() {
       }
     }
     if (removed > 0) {
-      console.log(`Mastery System | Removed ${removed} legacy Unarmed weapon item(s)`);
+      log.debug(`Removed ${removed} legacy Unarmed weapon item(s)`);
     }
   }
 
@@ -3310,7 +3310,7 @@ Hooks.once('ready', async function() {
       }
 
       if (updated > 0) {
-        console.log(`Mastery System | Inventory size migration: Updated ${updated} items`);
+        log.debug(`Inventory size migration: Updated ${updated} items`);
       }
 
       const WEAPON_SIZE_BY_NAME: Record<string, string> = {
@@ -3335,7 +3335,7 @@ Hooks.once('ready', async function() {
         }
       }
       if (sizeFixes > 0) {
-        console.log(`Mastery System | Weapon inventory size fix (Rapier/Spear): Updated ${sizeFixes} items`);
+        log.debug(`Weapon inventory size fix (Rapier/Spear): Updated ${sizeFixes} items`);
       }
 
       const { getWeapon } = await import('./utils/weapons.js');
@@ -3375,8 +3375,7 @@ Hooks.once('ready', async function() {
         }
       }
       if (gearToWeaponMigrations > 0) {
-        console.log(
-          `Mastery System | Migrated ${gearToWeaponMigrations} catalog weapons from type gear to weapon`
+        log.debug(`Migrated ${gearToWeaponMigrations} catalog weapons from type gear to weapon`
         );
         ui.notifications?.info(
           `Mastery System: ${gearToWeaponMigrations} item(s) set to type Weapon (Players Guide names).`
@@ -3424,7 +3423,7 @@ Hooks.once('ready', async function() {
       }
 
       if (equipMigrated > 0) {
-        console.log(`Mastery System | equipSlots migration: Updated ${equipMigrated} items`);
+        log.debug(`equipSlots migration: Updated ${equipMigrated} items`);
       }
     } catch (error) {
       console.warn('Mastery System | equipSlots migration failed:', error);
@@ -3465,7 +3464,7 @@ Hooks.once('ready', async function() {
               
               await actor.createEmbeddedDocuments('Item', [armorItem]);
               backfilled++;
-              console.log(`Mastery System | Backfilled armor "${combat.armorName}" for ${actor.name}`);
+              log.debug(`Backfilled armor "${combat.armorName}" for ${actor.name}`);
             } else {
               console.warn(`Mastery System | Could not find armor definition for "${combat.armorName}" (actor: ${actor.name})`);
             }
@@ -3492,7 +3491,7 @@ Hooks.once('ready', async function() {
               
               await actor.createEmbeddedDocuments('Item', [shieldItem]);
               backfilled++;
-              console.log(`Mastery System | Backfilled shield "${combat.shieldName}" for ${actor.name}`);
+              log.debug(`Backfilled shield "${combat.shieldName}" for ${actor.name}`);
             } else {
               console.warn(`Mastery System | Could not find shield definition for "${combat.shieldName}" (actor: ${actor.name})`);
             }
@@ -3503,7 +3502,7 @@ Hooks.once('ready', async function() {
       }
       
       if (backfilled > 0) {
-        console.log(`Mastery System | Backfilled ${backfilled} equipment items`);
+        log.debug(`Backfilled ${backfilled} equipment items`);
       }
     }
   } catch (error) {
@@ -3555,7 +3554,7 @@ Hooks.once('ready', async function() {
       if (needsUpdate) {
         await actor.update(updates);
         stonePoolsFixed++;
-        console.log(`Mastery System | Fixed stone pools for ${actor.name}`);
+        log.debug(`Fixed stone pools for ${actor.name}`);
       }
     } catch (error) {
       console.warn(`Mastery System | Could not migrate stone pools for ${actor.name}:`, error);
@@ -3563,7 +3562,7 @@ Hooks.once('ready', async function() {
   }
   
   if (stonePoolsFixed > 0) {
-    console.log(`Mastery System | Migrated ${stonePoolsFixed} actors (fixed stone pool current values)`);
+    log.debug(`Migrated ${stonePoolsFixed} actors (fixed stone pool current values)`);
   }
 });
 
@@ -3628,7 +3627,7 @@ Hooks.on('preUpdateItem', async (item: any, changes: any, _options: any, _userId
     }));
     
     await actor.updateEmbeddedDocuments('Item', updates);
-    console.log(`Mastery System | Unequipped ${otherEquippedItems.length} other ${itemType}(s) when equipping ${item.name}`);
+    log.debug(`Unequipped ${otherEquippedItems.length} other ${itemType}(s) when equipping ${item.name}`);
   }
 });
 

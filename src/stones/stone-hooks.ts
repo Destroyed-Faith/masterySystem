@@ -18,6 +18,7 @@ import { clearMasteryActiveBuffsForCombatants } from '../utils/active-buffs.js';
 import { runMasteryCombatRoundAdvancePipeline } from '../combat/stone-powers-flow.js';
 import { buildCombatTurnSnapshot, logCombatTrace } from '../utils/combat-trace-debug.js';
 
+import { log } from '../utils/logger.js';
 /**
  * Initialize stone system hooks
  */
@@ -60,14 +61,14 @@ export function initializeStoneHooks(): void {
 
       if (currentCombatant && currentCombatant.actor) {
         await resetTurnState(currentCombatant.actor, combat);
-        console.log(`Mastery System | Turn state reset for ${currentCombatant.name}`);
+        log.debug(`Turn state reset for ${currentCombatant.name}`);
       }
     }
     
     // Round changed: ein Pfad — Reset, ggf. Regen, dann Stone Powers (Runde 2+)
     if (changes.round !== undefined) {
       const newRound = changes.round;
-      console.log(`Mastery System | Round changed to ${newRound}, running stone round pipeline`);
+      log.debug(`Round changed to ${newRound}, running stone round pipeline`);
       await runMasteryCombatRoundAdvancePipeline(combat, newRound);
     }
   });

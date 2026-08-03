@@ -4,6 +4,7 @@
 
 import { migrateFamiliarToBond, getSummonBondsFromActor } from '../stones/summon-bond-bind.js';
 
+import { log } from '../utils/logger.js';
 const SETTING_NAMESPACE = 'mastery-system';
 const SETTING_KEY = 'summonV2MigrationRun';
 
@@ -71,5 +72,5 @@ export async function runSummonV2Migration(actors: any[]): Promise<void> {
     }
   }
   await markRun();
-  console.log(`Mastery System | summon-v2 migration complete (${migrated} characters)`);
+  log.debug(`summon-v2 migration complete (${migrated} characters)`);
 }

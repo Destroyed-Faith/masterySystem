@@ -10,6 +10,7 @@
 import { healStressFromBars } from '../utils/calculations.js';
 import { getStunnedRank } from '../system/auto-fail.js';
 
+import { log } from '../utils/logger.js';
 export type AttributeKey =
   | 'might'
   | 'agility'
@@ -1078,7 +1079,7 @@ export async function applyAutomaticStoneRegen(actor: Actor): Promise<void> {
 
   if (Object.keys(updates).length > 0) {
     await owner.update(updates);
-    console.log(`Mastery System | Automatic stone regen for ${(owner as any).name}`, {
+    log.debug(`Automatic stone regen for ${(owner as any).name}`, {
       regenPoints,
       updates
     });
@@ -1101,7 +1102,7 @@ export async function regenStonesEndOfRound(combat: Combat): Promise<void> {
     return;
   }
 
-  console.log(`Mastery System | Automatic stone regen for ${pcCombatants.length} PC combatant(s)`);
+  log.debug(`Automatic stone regen for ${pcCombatants.length} PC combatant(s)`);
 
   for (const combatant of pcCombatants) {
     const actor = combatant.actor;
@@ -1125,7 +1126,7 @@ export async function regenStonesEndOfRound(combat: Combat): Promise<void> {
     });
 
     if (!canRegen) {
-      console.log(`Mastery System | ${(owner as any).name} stone pools already full, skipping regen`);
+      log.debug(`${(owner as any).name} stone pools already full, skipping regen`);
       continue;
     }
 
@@ -1171,7 +1172,7 @@ export async function restoreStonesAfterCombat(combat: Combat): Promise<void> {
     
     if (Object.keys(updates).length > 0) {
       await owner.update(updates);
-      console.log(`Mastery System | Restored stone pools for ${(owner as any).name}`);
+      log.debug(`Restored stone pools for ${(owner as any).name}`);
     }
 
     // Drop per-encounter round state and stone usage so stone evade/damage

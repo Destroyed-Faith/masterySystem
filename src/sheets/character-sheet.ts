@@ -70,6 +70,7 @@ import {
 } from '../progression/progression-hub-actions.js';
 import type { MinorExpressionAttribute } from '../utils/minor-expressions.js';
 import { isEchoBoundArtifact, isEchoArtifactInventoryHidden } from '../utils/echo-artifact-equip.js';
+import { log } from '../utils/logger.js';
 // Removed: showWeaponCreationDialog, showArmorCreationDialog, showShieldCreationDialog
 // Replaced with General Items Storage and Store dialogs
 
@@ -7551,7 +7552,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     if (legacyIds.length === 0) return;
     try {
       await this.actor.deleteEmbeddedDocuments('Item', legacyIds, { masterySystemForceDelete: true } as any);
-      console.log(`Mastery System | Removed ${legacyIds.length} legacy Unarmed item(s) from ${this.actor.name}`);
+      log.debug(`Removed ${legacyIds.length} legacy Unarmed item(s) from ${this.actor.name}`);
       await this.render(false);
     } catch (error) {
       console.warn(`Mastery System | Could not remove legacy Unarmed from ${this.actor.name}:`, error);
