@@ -48,6 +48,9 @@ release/
 *.zip
 !e2e/**/*.zip
 
+# Generated audit / translation reports (regenerate via npm run audit:* / scripts)
+reports/
+
 # Coverage / test output
 coverage/
 .nyc_output/

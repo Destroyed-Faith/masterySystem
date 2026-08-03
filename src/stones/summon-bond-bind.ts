@@ -405,9 +405,6 @@ export function validateBondRitual(
           (p.category as any) || 'active',
           p.level,
         );
-      if (p.tokenCost > 0 && p.tokenCost !== expected && p.category) {
-        // Allow explicit tokenCost from PP formula; only warn on mismatch with category estimate.
-      }
     }
   }
 

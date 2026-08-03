@@ -4,7 +4,6 @@
  * Keeps the best wired/slotted copy per echoArtifactKey and re-equips orphans.
  */
 import { dedupeEchoArtifactsOnActor } from '../utils/echo-artifact-equip.js';
-import { log } from '../utils/logger.js';
 const SETTING_NAMESPACE = 'mastery-system';
 const SETTING_KEY = 'echoArtifactDedupeRun';
 export function registerEchoArtifactDedupeMigrationSetting() {
@@ -56,7 +55,6 @@ export async function runEchoArtifactDedupeMigration() {
     await markRun();
     if (removed > 0) {
         const msg = `Mastery System | Echo artifact dedupe: removed ${removed} duplicate copy/copies from actor inventories.`;
-        log.debug(msg);
         try {
             ui.notifications?.info(msg);
         }

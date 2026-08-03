@@ -4,8 +4,6 @@
 
 import { highlightHexesInRange, clearHexHighlight } from '../utils/hex-highlighting';
 import { gridStepsFromMeters } from '../utils/grid-range';
-
-import { log } from '../utils/logger.js';
 /**
  * Global state for range preview graphics
  */
@@ -102,20 +100,6 @@ export function showRangePreview(token: any, rangeMeters: number): void {
     gfx.visible = true;
     gfx.renderable = true;
     gfx.alpha = 1.0;
-    
-    log.debug('Mastery System | [DEBUG] showRangePreview: Graphics added', {
-      containerName: effectsContainer.constructor.name,
-      graphicsPosition: { x: gfx.position.x, y: gfx.position.y },
-      graphicsVisible: gfx.visible,
-      graphicsRenderable: gfx.renderable,
-      graphicsAlpha: gfx.alpha,
-      graphicsWorldVisible: gfx.worldVisible,
-      graphicsParent: gfx.parent?.constructor?.name,
-      containerVisible: (effectsContainer as any).visible,
-      containerWorldVisible: (effectsContainer as any).worldVisible,
-      rangeMeters,
-      gridSteps
-    });
   } else {
     console.warn('Mastery System | [DEBUG] Could not find effects layer for range preview', {
       hasEffects: !!canvas.effects,
@@ -139,18 +123,6 @@ export function showRangePreview(token: any, rangeMeters: number): void {
  * @param token - The token to show the range around
  */
 export function showRadialMenuRange(token: any): void {
-  log.debug('Mastery System | [DEBUG] showRadialMenuRange: Called', {
-    hasToken: !!token,
-    tokenId: token?.id,
-    tokenName: token?.name,
-    hasCanvas: !!canvas,
-    hasGrid: !!canvas.grid,
-    gridType: canvas.grid?.type,
-    gridTypeName: canvas.grid?.type === CONST.GRID_TYPES.GRIDLESS ? 'GRIDLESS' : 
-                  canvas.grid?.type === CONST.GRID_TYPES.SQUARE ? 'SQUARE' : 
-                  canvas.grid?.type === CONST.GRID_TYPES.HEXAGONAL ? 'HEXAGONAL' : 'UNKNOWN'
-  });
-  
   clearRadialMenuRange();
   
   const RANGE_UNITS = 6; // Fixed 6 fields
@@ -163,47 +135,18 @@ export function showRadialMenuRange(token: any): void {
   }
   
   const tokenCenter = token.center;
-  log.debug('Mastery System | [DEBUG] showRadialMenuRange: Token center', {
-    x: tokenCenter?.x,
-    y: tokenCenter?.y,
-    hasCenter: !!tokenCenter
-  });
-  
   // Check if grid is actually enabled (not gridless)
   const isGridless = !canvas.grid || canvas.grid.type === CONST.GRID_TYPES.GRIDLESS;
-  
-  log.debug('Mastery System | [DEBUG] showRadialMenuRange: Grid check');
-  log.debug('  hasGrid:', !!canvas.grid);
-  log.debug('  gridType:', canvas.grid?.type);
   const gridTypeName = canvas.grid?.type === CONST.GRID_TYPES.GRIDLESS ? 'GRIDLESS' : 
                       canvas.grid?.type === CONST.GRID_TYPES.SQUARE ? 'SQUARE' : 
                       canvas.grid?.type === CONST.GRID_TYPES.HEXAGONAL ? 'HEXAGONAL' : 
                       `UNKNOWN (${canvas.grid?.type})`;
-  log.debug('  gridTypeName:', gridTypeName);
-  log.debug('  isGridless:', isGridless);
-  log.debug('  CONST_GRID_TYPES_GRIDLESS:', CONST.GRID_TYPES.GRIDLESS);
-  log.debug('  CONST_GRID_TYPES_SQUARE:', CONST.GRID_TYPES.SQUARE);
-  log.debug('  CONST_GRID_TYPES_HEXAGONAL:', CONST.GRID_TYPES.HEXAGONAL);
-  log.debug('  gridType === GRIDLESS:', canvas.grid?.type === CONST.GRID_TYPES.GRIDLESS);
-  log.debug('  !canvas.grid:', !canvas.grid);
-  
   // If grid is enabled, highlight grid fields
   if (!isGridless) {
-    log.debug('Mastery System | [DEBUG] showRadialMenuRange: Grid enabled, highlighting fields', {
-      gridType: canvas.grid.type,
-      rangeUnits: RANGE_UNITS,
-      color: FIXED_COLOR.toString(16),
-      alpha: FIXED_ALPHA
-    });
     if (token?.id) {
       highlightHexesInRange(token.id, RANGE_UNITS, 'mastery-radial-menu-range', FIXED_COLOR, FIXED_ALPHA);
     }
   } else {
-    log.debug('Mastery System | [DEBUG] showRadialMenuRange: No grid or gridless, drawing circle', {
-      hasGrid: !!canvas.grid,
-      gridType: canvas.grid?.type,
-      isGridless
-    });
     // If no grid, draw a circle
     const radiusPx = gridStepsToPixels(RANGE_UNITS);
     const gfx = new PIXI.Graphics();
@@ -240,19 +183,6 @@ export function showRadialMenuRange(token: any): void {
       gfx.visible = true;
       gfx.renderable = true;
       gfx.alpha = 1.0;
-      
-      log.debug('Mastery System | [DEBUG] showRadialMenuRange: Circle graphics added', {
-        containerName: effectsContainer.constructor.name,
-        graphicsPosition: { x: gfx.position.x, y: gfx.position.y },
-        graphicsVisible: gfx.visible,
-        graphicsRenderable: gfx.renderable,
-        graphicsAlpha: gfx.alpha,
-        graphicsWorldVisible: gfx.worldVisible,
-        graphicsParent: gfx.parent?.constructor?.name,
-        containerVisible: (effectsContainer as any).visible,
-        containerWorldVisible: (effectsContainer as any).worldVisible,
-        radiusPx
-      });
     } else {
       console.warn('Mastery System | [DEBUG] showRadialMenuRange: Could not find effects layer for circle', {
         hasEffects: !!canvas.effects,
@@ -261,12 +191,5 @@ export function showRadialMenuRange(token: any): void {
       });
     }
   }
-  
-  log.debug('Mastery System | [DEBUG] showRadialMenuRange: Complete', {
-    rangeUnits: RANGE_UNITS,
-    color: FIXED_COLOR.toString(16),
-    hasGrid: !!(canvas.grid && canvas.grid.type !== CONST.GRID_TYPES.GRIDLESS),
-    hasGraphics: !!msRadialMenuRangeGfx
-  });
 }
 

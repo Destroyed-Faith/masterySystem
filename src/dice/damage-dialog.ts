@@ -16,7 +16,6 @@ import {
 } from '../utils/npc-attack-model.js';
 import { previewTempHPConsumption } from '../combat/passive-triggers.js';
 import { applyDefensiveMitigation, countNaturalEights } from '../combat/damage-mitigation.js';
-import { logDrDebug } from '../utils/dr-debug.js';
 import { artifactSystemHasSpellFocus } from '../utils/artifact-rules.js';
 import { deriveArtifactWeaponDamage } from '../utils/artifact-base-derive.js';
 import { getActorSpellFocusBonusDice } from '../utils/artifact-base-values.js';
@@ -42,7 +41,6 @@ import {
 } from '../utils/creature-type.js';
 import { formatEffectReference } from '../utils/special-effects.js';
 
-import { log } from '../utils/logger.js';
 /**
  * Weapon specials come in two shapes: plain strings ("Penetration(4)") on
  * conventional weapons, and `{ specialId, value }` refs on artifact virtual
@@ -330,38 +328,6 @@ export async function showDamageDialog(
   flags?: any
 ): Promise<DamageResult | null> {
   // Debug log at entry
-  log.debug('Mastery System | [WEAPON-ID DEBUG]', {
-    messageType: 'damage-dialog:entry',
-    weaponIdArg: weaponId,
-    selectedPowerIdArg: selectedPowerId,
-    raisesArg: raises,
-    attackerId: (attacker as any).id,
-    targetId: (target as any).id
-  });
-  
-  log.debug('Mastery System | [DAMAGE DIALOG] showDamageDialog - starting', {
-    attackerId: (attacker as any).id,
-    attackerName: (attacker as any).name,
-    targetId: (target as any).id,
-    targetName: (target as any).name,
-    weaponId: weaponId,
-    weaponIdType: typeof weaponId,
-    weaponIdLength: weaponId ? weaponId.length : 0,
-    selectedPowerId: selectedPowerId,
-    selectedPowerIdType: typeof selectedPowerId,
-    selectedPowerIdLength: selectedPowerId ? selectedPowerId.length : 0,
-    raises: raises,
-    raisesType: typeof raises,
-    raisesIsNumber: typeof raises === 'number',
-    raisesValue: raises,
-    raisesIsZero: raises === 0,
-    hasFlags: !!flags,
-    flagsKeys: flags ? Object.keys(flags) : [],
-    flagsWeaponId: flags?.weaponId,
-    flagsSelectedPowerId: flags?.selectedPowerId,
-    flagsRaises: flags?.raises
-  });
-  
   // CRITICAL: Always get fresh actor from game to ensure we have latest items.
   // The attacker parameter might be a stale reference — BUT for an UNLINKED
   // token the synthetic token actor shares the base actor's id, so
@@ -399,17 +365,6 @@ export async function showDamageDialog(
   }
   
   // Debug: Log all items to see what we have
-  log.debug('Mastery System | [DAMAGE DIALOG] Items collection', {
-    attackerId: (attacker as any).id,
-    freshActorId: actorToUse?.id,
-    itemsCount: items.length,
-    itemsTypes: items.map((i: any) => ({ id: i.id, name: i.name, type: i.type })),
-    actorItemsType: typeof actorToUse?.items,
-    actorItemsIsArray: Array.isArray(actorToUse?.items),
-    actorItemsIsMap: actorToUse?.items instanceof Map,
-    actorItemsSize: actorToUse?.items?.size
-  });
-  
   const isNpcAttackFlow = !!(flags?.npcAttackSource === true && (actorToUse as any).type === 'npc');
 
   // Resolve weapon with priority: forced weapon > equipped melee weapon > equipped weapon > weaponId match > any weapon
@@ -444,22 +399,10 @@ export async function showDamageDialog(
       const atk: 'melee' | 'ranged' = flags?.attackType === 'ranged' ? 'ranged' : 'melee';
       const strict = resolveEquippedWeaponForAttackType(items, atk);
       if (strict) {
-        log.debug('Mastery System | [DAMAGE DIALOG] weaponId not equipped; using equipped weapon for attack type', {
-          weaponId,
-          attackType: atk,
-          strictWeaponId: strict.id,
-          strictWeaponName: strict.name
-        });
         weaponForDamage = strict;
       } else {
         weaponForDamage = null;
       }
-    } else if (weaponForDamage) {
-      log.debug('Mastery System | [DAMAGE DIALOG] Found equipped weapon via direct actor lookup by ID', {
-        weaponId: weaponId,
-        weaponName: weaponForDamage.name,
-        weaponType: weaponForDamage.type
-      });
     }
   }
   
@@ -469,12 +412,6 @@ export async function showDamageDialog(
       const weaponItem = (game as any).items?.get(weaponId);
       if (weaponItem && weaponItem.actor?.id === actorToUse?.id) {
         weaponForDamage = weaponItem;
-        log.debug('Mastery System | [DAMAGE DIALOG] Found weapon via game.items lookup', {
-          weaponId: weaponId,
-          weaponName: weaponForDamage.name,
-          weaponType: weaponForDamage.type,
-          actorId: weaponItem.actor?.id
-        });
       }
     } catch (e) {
       console.warn('Mastery System | [DAMAGE DIALOG] Error looking up weapon from game.items', e);
@@ -489,13 +426,6 @@ export async function showDamageDialog(
   // Method 3: Equipped weapon matching attack type (from attack card flags)
   if (!isNpcAttackFlow && !weaponForDamage && flags && (flags.attackType === 'melee' || flags.attackType === 'ranged')) {
     weaponForDamage = resolveEquippedWeaponForAttackType(items, flags.attackType);
-    if (weaponForDamage) {
-      log.debug('Mastery System | [DAMAGE DIALOG] Resolved weapon by attackType', {
-        attackType: flags.attackType,
-        weaponId: weaponForDamage.id,
-        weaponName: weaponForDamage.name
-      });
-    }
   }
 
   // Method 4: Virtual unarmed when no equipped weapon (melee only)
@@ -506,19 +436,6 @@ export async function showDamageDialog(
         : 'melee';
     weaponForDamage = applyMeleeUnarmedFallback(weaponForDamage, atk);
   }
-  
-  log.debug('Mastery System | [DAMAGE DIALOG] Weapon loading', {
-    isNpcAttackFlow,
-    weaponId: weaponId,
-    totalItems: items.length,
-    weaponItems: items.filter((item: any) => item.type === 'weapon').length,
-    weaponFound: !!weaponForDamage,
-    weaponName: weaponForDamage?.name || 'none',
-    weaponIdMatch: weaponForDamage ? weaponForDamage.id === weaponId : false,
-    allWeaponIds: items.filter((item: any) => item.type === 'weapon').map((item: any) => item.id),
-    usedFreshActor: !!freshAttacker
-  });
-  
   // Resolve base damage using helper (returns string directly)
   const baseDamage = isNpcAttackFlow ? '0' : resolveWeaponBaseDamage(weaponForDamage);
   
@@ -533,42 +450,10 @@ export async function showDamageDialog(
         .filter(Boolean);
   
   // Debug log after weapon resolve
-  log.debug('Mastery System | [WEAPON-ID DEBUG]', {
-    messageType: 'damage-dialog:weapon-resolve',
-    weaponResolved: !!weaponForDamage,
-    weaponName: weaponForDamage?.name || null,
-    weaponIdResolved: weaponForDamage?.id || null,
-    weaponSystemKeys: weaponForDamage ? Object.keys(weaponForDamage.system || {}) : [],
-    baseDamageRaw: baseDamage,
-    baseDamageSanitized: sanitizedBaseDamage
-  });
-  
-  log.debug("Mastery System | [DAMAGE DIALOG] Base damage resolved", {
-    weaponId,
-    weaponFound: !!weaponForDamage,
-    weaponName: weaponForDamage?.name,
-    baseDamage: baseDamage,
-    baseDamageSanitized: sanitizedBaseDamage
-  });
-  
-  
   // Load selected power from actor by ID and get its data
   let powerDamage = '0';
   let powerSpecials: string[] = [];
   let selectedPowerData: any = null;
-  
-  log.debug('Mastery System | [DAMAGE DIALOG] Power loading', {
-    selectedPowerId: selectedPowerId,
-    hasSelectedPowerId: !!selectedPowerId,
-    totalItems: items.length,
-    specialItems: items.filter((item: any) => item.type === 'power').length,
-    allSpecialIds: items.filter((item: any) => item.type === 'power').map((item: any) => ({
-      id: item.id,
-      name: item.name,
-      powerType: (item.system as any)?.powerType
-    }))
-  });
-  
   // Helper function to clean power damage string (remove "Weapon DMG +" prefix)
   const cleanPowerDamage = (damageStr: string | number): string => {
     if (damageStr === null || damageStr === undefined || damageStr === '') return '0';
@@ -581,13 +466,6 @@ export async function showDamageDialog(
   
   if (selectedPowerId) {
     const selectedPower = resolvePowerItemForDamage(actorToUse, selectedPowerId);
-    log.debug('Mastery System | [DAMAGE DIALOG] Power search result', {
-      selectedPowerId: selectedPowerId,
-      powerFound: !!selectedPower,
-      powerName: selectedPower ? selectedPower.name : 'not found',
-      powerIdMatch: selectedPower ? selectedPower.id === selectedPowerId : false
-    });
-    
     if (selectedPower) {
       const powerSystem = selectedPower.system as any;
       const rawLevel = powerSystem.level || 1;
@@ -669,19 +547,6 @@ export async function showDamageDialog(
         specials: powerSpecials,
         damage: powerDamage
       };
-      
-      log.debug('Mastery System | [DAMAGE DIALOG] Power loaded from actor', {
-        powerId: selectedPowerId,
-        powerName: selectedPower.name,
-        powerLevel: rawLevel,
-        powerDamage: powerDamage,
-        powerSpecials: powerSpecials,
-        hasLevelData: !!levelData,
-        levelDataSpecial: levelData?.special,
-        levelDataDamage: levelData?.roll?.damage,
-        systemSpecials: powerSystem.specials,
-        systemDamage: powerSystem.roll?.damage
-      });
     } else {
       console.error('Mastery System | [DAMAGE DIALOG] ERROR: Selected power not found in actor items', {
         selectedPowerId: selectedPowerId,
@@ -711,10 +576,6 @@ export async function showDamageDialog(
       }
     }
   } else {
-    log.debug('Mastery System | [DAMAGE DIALOG] No power selected (selectedPowerId is null/undefined)', {
-      selectedPowerId: selectedPowerId,
-      selectedPowerIdType: typeof selectedPowerId
-    });
   }
   // Spell Focus: weapon-slot artifacts that route their value into Spell
   // damage add their bonus dice whenever a damaging Spell is being resolved.
@@ -733,14 +594,6 @@ export async function showDamageDialog(
       console.warn('Mastery System | spell focus bonus failed', err);
     }
   }
-
-  log.debug('Mastery System | [DAMAGE DIALOG] Final power damage', {
-    powerDamage: powerDamage,
-    spellFocusBonusDice,
-    hasSelectedPower: !!selectedPowerData,
-    selectedPowerName: selectedPowerData?.name
-  });
-
   let raiseOutcomeLine = '';
   let resolvedPowerSnapshot: PowerSnapshot | null = null;
   if (flags?.basePowerSnapshot && flags?.raiseOutcome) {
@@ -833,17 +686,10 @@ export async function showDamageDialog(
   
   // Calculate passive damage (from equipped passives)
   const passiveDamage = await calculatePassiveDamage(attacker);
-  log.debug('Mastery System | DEBUG: showDamageDialog - passiveDamage', passiveDamage);
-  
   // Collect available specials (include power specials from selected power)
   // Use weaponForDamage (found weapon or fallback) to ensure weapon specials are included
   const baseSpecials = await collectAvailableSpecials(actorToUse as Actor, weaponForDamage, selectedPowerData);
   const availableSpecials = [...baseSpecials, ...npcLists.options];
-  log.debug('Mastery System | DEBUG: showDamageDialog - availableSpecials', {
-    count: availableSpecials.length,
-    specials: availableSpecials.map(s => ({ id: s.id, name: s.name, type: s.type }))
-  });
-
   const weaponInnateLines: string[] = weaponForDamage
     ? ([] as unknown[])
         .concat((weaponForDamage.system as any)?.innateAbilities || [])
@@ -923,15 +769,6 @@ export async function showDamageDialog(
     };
     
     ChatMessage.create(chatData).then((message: any) => {
-      log.debug('Mastery System | DEBUG: Damage card created in chat', message.id);
-      log.debug('Mastery System | [DAMAGE CARD CREATED] Message flags check', {
-        messageId: message.id,
-        messageFlags: message.flags,
-        masterySystemFlags: message.flags?.['mastery-system'],
-        selectedPowerId: message.flags?.['mastery-system']?.selectedPowerId,
-        weaponId: message.flags?.['mastery-system']?.weaponId,
-        raises: message.flags?.['mastery-system']?.raises
-      });
       damageCardPendingResolves.set(message.id, resolve);
       registerDamageCardChatHooks();
       setTimeout(() => attachDamageCardHandlers(message.id), 100);
@@ -980,25 +817,6 @@ function createDamageCardContent(
         <p class="raises-description">After the damage roll you may spend any amount of Mark. Spent Mark becomes the Damage Floor for this roll (dice below that value are raised) — the prompt shows exactly how much each option gains. Anyone who hits this target may spend Mark.</p>
       </div>`;
   }
-  
-  log.debug('Mastery System | [DAMAGE CARD HTML] createDamageCardContent - values', {
-    baseDamage: baseDamage,
-    powerDamage: powerDamage,
-    passiveDamage: passiveDamage,
-    raiseOutcomeLine,
-    targetMarkValue: markMax,
-    selectedPower: selectedPower ? {
-      id: selectedPower.id,
-      name: selectedPower.name,
-      level: selectedPower.level,
-      specials: selectedPower.specials,
-      damage: selectedPower.damage,
-      specialsCount: selectedPower.specials?.length || 0
-    } : null,
-    availableSpecialsCount: availableSpecials.length,
-    weaponSpecialsCount: _weaponSpecials.length
-  });
-  
   const html = `
     <div class="mastery-damage-card">
       <div class="damage-header">
@@ -1061,18 +879,6 @@ function createDamageCardContent(
       </div>
     </div>
   `;
-  
-  log.debug('Mastery System | [DAMAGE CARD HTML] Generated HTML', {
-    htmlLength: html.length,
-    htmlPreview: html.substring(0, 500),
-    containsBaseDamage: html.includes(baseDamage),
-    containsPowerDamage: html.includes(powerDamage),
-    containsRaiseOutcome: !!raiseOutcomeLine && html.includes(raiseOutcomeLine),
-    containsSelectedPower: selectedPower ? html.includes(selectedPower.name) : false,
-    containsPowerSpecials: selectedPower && selectedPower.specials.length > 0 ? 
-      selectedPower.specials.some((s: string) => html.includes(s)) : false
-  });
-  
   return html;
 }
 
@@ -1098,15 +904,6 @@ export function attachDamageCardHandlers(messageId: string): void {
     rollDamageMessageLocks.add(lockKey);
     $btn.prop('disabled', true);
     let rollDamageCompleted = false;
-
-    log.debug('Mastery System | [ROLL DAMAGE BUTTON] Button clicked', {
-      messageId: messageId,
-      buttonData: {
-        attackerId: $btn.data('attacker-id'),
-        targetId: $btn.data('target-id'),
-      },
-    });
-
     try {
     const message = (game as any).messages?.get(messageId);
     if (!message) {
@@ -1132,23 +929,12 @@ export function attachDamageCardHandlers(messageId: string): void {
       const tokenDoc = canvas?.scene?.tokens?.get(flags.targetTokenId);
       if (tokenDoc?.actor) {
         target = tokenDoc.actor;
-        log.debug('Mastery System | [ROLL DAMAGE BUTTON] Resolved target from token', {
-          targetTokenId: flags.targetTokenId,
-          targetId: (target as any).id,
-          targetName: (target as any).name,
-          isTokenActor: true
-        });
       }
     }
     
     // Fallback to base actor if token not found
     if (!target) {
       target = (game as any).actors?.get(targetId);
-      log.debug('Mastery System | [ROLL DAMAGE BUTTON] Resolved target from base actor', {
-        targetId: targetId,
-        targetName: target ? (target as any).name : null,
-        isTokenActor: false
-      });
     }
     
     if (!attacker || !target) {
@@ -1162,18 +948,6 @@ export function attachDamageCardHandlers(messageId: string): void {
       ui.notifications?.error('Could not find attacker or target');
       return;
     }
-    log.debug('Mastery System | [ROLL DAMAGE BUTTON] Flags retrieved', {
-      messageId,
-      hasFlags: !!flags,
-      flagsKeys: flags ? Object.keys(flags) : [],
-      baseDamage: flags?.baseDamage,
-      powerDamage: flags?.powerDamage,
-      passiveDamage: flags?.passiveDamage,
-      raises: flags?.raises,
-      raisesType: typeof flags?.raises,
-      availableSpecials: flags?.availableSpecials?.length || 0
-    });
-    
     if (!flags) {
       console.error('Mastery System | [ROLL DAMAGE BUTTON] Could not find damage card data', {
         messageId,
@@ -1205,17 +979,6 @@ export function attachDamageCardHandlers(messageId: string): void {
       !!flags.splitAttack,
       flags.attackType === 'ranged' ? 'ranged' : 'melee',
     );
-    
-    log.debug('Mastery System | [ROLL DAMAGE BUTTON] calculateDamageResult returned', {
-      messageId,
-      hasResult: !!result,
-      resultKeys: result ? Object.keys(result) : [],
-      totalDamage: result?.totalDamage,
-      baseDamage: result?.baseDamage,
-      powerDamage: result?.powerDamage,
-      passiveDamage: result?.passiveDamage
-    });
-
     // NSC signature attacks: Nd8 Stress on hit (plain dice; Stress Armor
     // mitigates inside applyStressToActor). Applies alongside the HP damage.
     const stressDice = Math.max(0, Math.floor(Number(flags.npcStressD8) || 0));
@@ -1474,12 +1237,6 @@ async function applyStatusEffectsToTarget(
   attacker?: Actor | null,
 ): Promise<void> {
   try {
-    log.debug('Mastery System | [APPLY STATUS EFFECTS] Applying to target', {
-      targetId: (target as any).id,
-      targetName: (target as any).name,
-      specialsUsed
-    });
-    
     // Get current status effects from target
     const system = (target as any).system;
     if (!system.statusEffects) {
@@ -1533,11 +1290,6 @@ async function applyStatusEffectsToTarget(
     
     // Update target actor
     await (target as any).update({ 'system.statusEffects': list });
-    
-    log.debug('Mastery System | [APPLY STATUS EFFECTS] Status effects applied', {
-      targetId: (target as any).id,
-      statusEffects: list
-    });
   } catch (error) {
     console.error('Mastery System | [APPLY STATUS EFFECTS] Error applying status effects', error);
   }
@@ -1598,15 +1350,6 @@ async function applyDamageToTarget(
     phased: false,
   };
   try {
-    log.debug('Mastery System | [APPLY DAMAGE] Applying damage to target', {
-      targetId: (target as any).id,
-      targetName: (target as any).name,
-      attackerId: (attacker as any).id,
-      attackerName: (attacker as any).name,
-      damage,
-      count8s,
-    });
-
     // Step 0: Phasing — opt-in prompt for the target owner. If consumed, the
     // strike inflicts no damage and skips all riders (the caller in the attack
     // pipeline is responsible for skipping on-hit specials when phased).
@@ -1686,14 +1429,6 @@ async function applyDamageToTarget(
     }));
 
     // Step 1: Flat Armor + percentage DR + 8s-min floor.
-    logDrDebug('apply-damage-target', {
-      targetId: (target as any).id,
-      targetName: (target as any).name,
-      damageRollInput: damage,
-      armorTotalRead: Number(system.combat?.armorTotal ?? 0),
-      damageReductionPctRead: Number(system.combat?.damageReductionPct ?? 0),
-      count8s,
-    });
     const baseArmorTotal =
       Number(system.combat?.armorTotal ?? 0) + Number(system.combat?.armorFromActiveBuffs ?? 0);
     const mitigation = applyDefensiveMitigation({
@@ -1712,16 +1447,6 @@ async function applyDamageToTarget(
     //         tempHP + health-bar changes in a single atomic update below.
     const tempHPConsumption = previewTempHPConsumption(target, mitigated);
     const remaining = tempHPConsumption.remainingDamage;
-
-    if (tempHPConsumption.reducedBy > 0) {
-      log.debug('Mastery System | [APPLY DAMAGE] TempHP absorbed', {
-        tempHPBefore: system.health.tempHP,
-        tempHPAfter: Math.max(0, (system.health.tempHP || 0) - tempHPConsumption.reducedBy),
-        absorbed: tempHPConsumption.reducedBy,
-        remaining
-      });
-    }
-
     // Step 3: Apply remaining damage to health bars with overflow
     let barDamage = 0;
     let newBarIndex = oldBarIndex;
@@ -1764,19 +1489,6 @@ async function applyDamageToTarget(
         }
         throw e;
       }
-
-      log.debug('Mastery System | [APPLY DAMAGE] Damage applied to bars', {
-        targetId: (target as any).id,
-        targetName: (target as any).name,
-        damageInput: damage,
-        mitigatedDamage: mitigated,
-        remainingAfterTempHP: remaining,
-        barDamageApplied: barDamage,
-        tempHPAbsorbed: tempHPConsumption.reducedBy,
-        oldBarIndex,
-        newBarIndex: barIndex,
-        barsAfter: bars.map((b, i) => ({ index: i, current: b.current, max: b.max }))
-      });
     } else if (Object.keys(tempHPConsumption.patch).length > 0) {
       // Only tempHP was reduced, no bar damage
       try {
@@ -1793,13 +1505,6 @@ async function applyDamageToTarget(
         }
         throw e;
       }
-
-      log.debug('Mastery System | [APPLY DAMAGE] Only tempHP reduced', {
-        targetId: (target as any).id,
-        tempHPBefore: system.health.tempHP,
-        tempHPAfter: Math.max(0, (system.health.tempHP || 0) - tempHPConsumption.reducedBy),
-        damage
-      });
     }
 
     // Blood FX under the hit token: splatters for HP chips, mega puddle on health-level loss.
@@ -2244,20 +1949,6 @@ async function calculateDamageResult(
     + manualDamageFlat
     + vulnerabilityBonusRolled
     + smiteBonusRolled;
-  
-  log.debug('Mastery System | [CALCULATE DAMAGE] Final calculation', {
-    baseDamageRolled,
-    stoneMightDamageRolled,
-    stoneDamageBonusDice,
-    powerDamageRolled,
-    passiveDamageRolled,
-    raiseDamage,
-    totalDamage,
-    specialsUsed,
-    rollDetails,
-    calculation: `Base (${baseDamageRolled}) + Might stones (${stoneMightDamageRolled}) + Power (${powerDamageRolled}) + Raises (${raiseDamage}) = ${totalDamage}`
-  });
-
   // Faith Fracture damage reroll — offered once, AFTER seeing the result but
   // BEFORE anything touches the target (no status effects, no Mark spend, no
   // damage application yet, so the reroll can simply re-run the dice phase).
@@ -2370,18 +2061,6 @@ async function calculateDamageResult(
   // pipeline. Halving it would under-report 8s that came from the raise
   // dice of *this* strike; we keep the full count (it is per-strike).
   const appliedCount8s = count8s;
-  if (splitAttack) {
-    log.debug('Mastery System | [CALCULATE DAMAGE] Split-Attack damage split', {
-      rawTotalDamage: totalDamage,
-      raiseDamage,
-      nonRaiseDamage,
-      halvedNonRaise: Math.floor(nonRaiseDamage / 2),
-      appliedDamage,
-      rawCount8s: count8s,
-      appliedCount8s,
-    });
-  }
-
   // Apply damage to target
   let mitigation: AppliedDamageSummary | undefined;
   if (target) {
@@ -2400,9 +2079,6 @@ async function calculateDamageResult(
     count8s: appliedCount8s,
     mitigation,
   };
-  
-  log.debug('Mastery System | [CALCULATE DAMAGE] Returning result', result);
-  
   return result;
 }
 
@@ -2469,245 +2145,3 @@ async function rollDice(diceNotation: string): Promise<number> {
   return (await rollDiceWithDetail(diceNotation, "Roll")).total;
 }
 
-// DamageDialog class removed - now using chat messages instead
-// The following code is kept for reference but not used:
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/*
-class DamageDialog extends Application {
-  private data: DamageDialogData;
-  private resolve: (result: DamageResult | null) => void;
-  private raiseSelections: Map<number, { type: 'special' | 'damage'; value: string }> = new Map();
-  
-  constructor(data: DamageDialogData, resolve: (result: DamageResult | null) => void) {
-    super({});
-    this.data = data;
-    this.resolve = resolve;
-    log.debug('Mastery System | DEBUG: DamageDialog constructor', {
-      hasData: !!data,
-      raises: data.raises,
-      baseDamage: data.baseDamage,
-      availableSpecials: data.availableSpecials?.length || 0
-    });
-  }
-  
-  static override get defaultOptions(): any {
-    const opts = super.defaultOptions || {};
-    log.debug('Mastery System | DEBUG: DamageDialog defaultOptions - super.defaultOptions', super.defaultOptions);
-    opts.id = 'mastery-damage-dialog';
-    opts.title = 'Calculate Damage';
-    opts.template = 'systems/mastery-system/templates/dice/damage-dialog.hbs';
-    opts.width = 600;
-    opts.height = 'auto';
-    opts.resizable = true;
-    opts.classes = ['mastery-damage-dialog'];
-    opts.popOut = true;
-    log.debug('Mastery System | DEBUG: DamageDialog defaultOptions - final opts', opts);
-    return opts;
-  }
-  
-  // Implement required methods for Handlebars templates (Foundry VTT v13)
-  async _renderHTML(data: any): Promise<JQuery> {
-    const template = (this.constructor as any).defaultOptions.template || this.options.template;
-    if (!template) {
-      throw new Error('Template path is required');
-    }
-    log.debug('Mastery System | DEBUG: DamageDialog _renderHTML - rendering template', { 
-      template, 
-      hasData: !!data,
-      dataKeys: data ? Object.keys(data) : [],
-      dataValue: data
-    });
-    // Always call getData() to ensure we have the correct data structure
-    const templateData = await this.getData();
-    log.debug('Mastery System | DEBUG: DamageDialog _renderHTML - templateData from getData()', {
-      hasData: !!templateData,
-      keys: templateData ? Object.keys(templateData) : [],
-      baseDamage: templateData?.baseDamage,
-      powerDamage: templateData?.powerDamage,
-      passiveDamage: templateData?.passiveDamage,
-      raises: templateData?.raises,
-      availableSpecials: templateData?.availableSpecials?.length || 0,
-      weaponSpecials: templateData?.weaponSpecials?.length || 0,
-      attacker: templateData?.attacker ? (templateData.attacker as any).name : 'none',
-      target: templateData?.target ? (templateData.target as any).name : 'none',
-      fullData: JSON.stringify(templateData, null, 2).substring(0, 1000)
-    });
-    const html = await foundry.applications.handlebars.renderTemplate(template, templateData);
-    log.debug('Mastery System | DEBUG: DamageDialog _renderHTML - template rendered', { 
-      htmlLength: html.length,
-      htmlType: typeof html,
-      htmlPreview: html.substring ? html.substring(0, 500) : String(html).substring(0, 500)
-    });
-    const $html = $(html);
-    log.debug('Mastery System | DEBUG: DamageDialog _renderHTML - jQuery object created', {
-      length: $html.length,
-      htmlContent: $html.html()?.substring(0, 500)
-    });
-    return $html;
-  }
-  
-  async _replaceHTML(element: JQuery, html: JQuery): Promise<void> {
-    log.debug('Mastery System | DEBUG: DamageDialog _replaceHTML - replacing element', {
-      elementLength: element.length,
-      elementHtml: element.html()?.substring(0, 200),
-      htmlLength: html.length,
-      htmlContent: html.html()?.substring(0, 500)
-    });
-    element.replaceWith(html);
-    log.debug('Mastery System | DEBUG: DamageDialog _replaceHTML - element replaced');
-  }
-  
-  override async getData(): Promise<any> {
-    log.debug('Mastery System | DEBUG: DamageDialog getData() - called', {
-      hasData: !!this.data,
-      raises: this.data?.raises,
-      baseDamage: this.data?.baseDamage,
-      powerDamage: this.data?.powerDamage,
-      passiveDamage: this.data?.passiveDamage,
-      availableSpecials: this.data?.availableSpecials?.length || 0,
-      weaponSpecials: this.data?.weaponSpecials?.length || 0,
-      attacker: (this.data?.attacker as any)?.name,
-      target: (this.data?.target as any)?.name
-    });
-    const data = {
-      attacker: this.data?.attacker || null,
-      target: this.data?.target || null,
-      weapon: this.data?.weapon || null,
-      baseDamage: this.data?.baseDamage || '0',
-      powerDamage: this.data?.powerDamage || '0',
-      passiveDamage: this.data?.passiveDamage || '0',
-      raises: this.data?.raises || 0,
-      availableSpecials: this.data?.availableSpecials || [],
-      weaponSpecials: this.data?.weaponSpecials || [],
-      raiseSelections: Array.from(this.raiseSelections.entries()).map(([index, selection]) => ({
-        index,
-        ...selection
-      }))
-    };
-    log.debug('Mastery System | DEBUG: DamageDialog getData() - returning', {
-      hasData: !!data,
-      raises: data.raises,
-      baseDamage: data.baseDamage,
-      powerDamage: data.powerDamage,
-      passiveDamage: data.passiveDamage,
-      availableSpecials: data.availableSpecials?.length || 0,
-      weaponSpecials: data.weaponSpecials?.length || 0,
-      raiseSelectionsCount: data.raiseSelections?.length || 0,
-      attackerName: data.attacker ? (data.attacker as any).name : 'none',
-      targetName: data.target ? (data.target as any).name : 'none'
-    });
-    return data;
-  }
-  
-  override activateListeners(html: JQuery): void {
-    super.activateListeners(html);
-    
-    // Handle raise selection changes
-    html.find('.raise-selection').on('change', (ev) => {
-      const raiseIndex = parseInt($(ev.currentTarget).data('raise-index'));
-      const selectionType = $(ev.currentTarget).val() as string;
-      
-      if (selectionType === 'damage') {
-        this.raiseSelections.set(raiseIndex, { type: 'damage', value: '1d8' });
-      } else if (selectionType === 'special') {
-        // Show special selection dropdown
-        const specialSelect = html.find(`.special-select[data-raise-index="${raiseIndex}"]`);
-        specialSelect.show();
-      } else {
-        this.raiseSelections.delete(raiseIndex);
-        html.find(`.special-select[data-raise-index="${raiseIndex}"]`).hide();
-      }
-      
-      this.render();
-    });
-    
-    // Handle special selection
-    html.find('.special-select').on('change', (ev) => {
-      const raiseIndex = parseInt($(ev.currentTarget).data('raise-index'));
-      const specialId = $(ev.currentTarget).val() as string;
-      this.raiseSelections.set(raiseIndex, { type: 'special', value: specialId });
-    });
-    
-    // Handle roll damage button
-    html.find('.roll-damage-btn').on('click', async () => {
-      const result = await this.calculateDamage();
-      this.resolve(result);
-      this.close();
-    });
-    
-    // Handle cancel button
-    html.find('.cancel-btn').on('click', () => {
-      this.resolve(null);
-      this.close();
-    });
-  }
-  
-  private async calculateDamage(): Promise<DamageResult> {
-    // Sanitize dice notations before rolling
-    const sanitizedBaseDamage = sanitizeDiceNotation(this.data.baseDamage);
-    const sanitizedPowerDamage = sanitizeDiceNotation(this.data.powerDamage || '0');
-    const sanitizedPassiveDamage = sanitizeDiceNotation(this.data.passiveDamage || '0');
-    
-    // Roll base damage
-    const baseDamage = await this.rollDice(sanitizedBaseDamage);
-    
-    // Roll power damage
-    const powerDamage = await this.rollDice(sanitizedPowerDamage);
-    
-    // Roll passive damage
-    const passiveDamage = await this.rollDice(sanitizedPassiveDamage);
-    
-    // Calculate raise damage and collect specials
-    let raiseDamage = 0;
-    const specialsUsed: string[] = [];
-    
-    for (let i = 0; i < this.data.raises; i++) {
-      const selection = this.raiseSelections.get(i);
-      if (selection) {
-        if (selection.type === 'damage') {
-          raiseDamage += await this.rollDice('1d8');
-        } else if (selection.type === 'special') {
-          const special = this.data.availableSpecials.find(s => s.id === selection.value);
-          if (special) {
-            specialsUsed.push(special.name);
-          }
-        }
-      }
-    }
-    
-    const totalDamage = baseDamage + powerDamage + passiveDamage + raiseDamage;
-    
-    return {
-      baseDamage,
-      powerDamage,
-      passiveDamage,
-      raiseDamage,
-      specialsUsed,
-      totalDamage
-    };
-  }
-  
-  private async rollDice(diceNotation: string): Promise<number> {
-    if (!diceNotation || diceNotation === '0') return 0;
-    
-    // Parse dice notation (e.g., "2d8+3" or "1d8")
-    const match = diceNotation.match(/(\d+)d(\d+)([+-]\d+)?/);
-    if (!match) {
-      // Try to parse as flat number
-      const num = parseInt(diceNotation);
-      return isNaN(num) ? 0 : num;
-    }
-    
-    const numDice = parseInt(match[1]);
-    const dieSize = parseInt(match[2]);
-    const modifier = match[3] ? parseInt(match[3]) : 0;
-    
-    let total = 0;
-    for (let i = 0; i < numDice; i++) {
-      total += Math.floor(Math.random() * dieSize) + 1;
-    }
-    
-    return total + modifier;
-  }
-}
-*/

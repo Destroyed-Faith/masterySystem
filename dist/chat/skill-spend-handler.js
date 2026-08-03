@@ -1,13 +1,4 @@
-/**
- * Skill Spend Handler
- * Handles skill point spending from chat message buttons
- */
-/**
- * Register click handlers for skill spend buttons in chat messages
- */
-import { log } from '../utils/logger.js';
 export function registerSkillSpendClickHandler() {
-    log.debug('Mastery System | Registering skill spend click handler');
     Hooks.on('renderChatMessageHTML', (message, htmlRaw) => {
         try {
             const htmlEl = (htmlRaw instanceof HTMLElement) ? $(htmlRaw) : htmlRaw;
@@ -31,12 +22,6 @@ export function registerSkillSpendClickHandler() {
                 const skillKey = button.data('skill-key');
                 const actorId = button.data('actor-id');
                 const spendAmount = parseInt(button.data('spend') || '0');
-                log.debug('SkillSpend | Click handler triggered', {
-                    skillKey,
-                    actorId,
-                    spendAmount,
-                    messageId: message.id
-                });
                 // Get message flags
                 const messageFlags = message.flags?.['mastery-system'] || {};
                 if (!messageFlags.isSkillRoll || !messageFlags.skillKey || !messageFlags.actorId) {
@@ -61,15 +46,6 @@ export function registerSkillSpendClickHandler() {
                 const skillRating = system.skills?.[skillKey] || 0;
                 const currentSpent = system.skillsSpent?.[skillKey] || 0;
                 const remaining = Math.max(0, skillRating - currentSpent);
-                log.debug('SkillSpend | Actor data', {
-                    actorId,
-                    actorName: actor.name,
-                    skillKey,
-                    skillRating,
-                    currentSpent,
-                    remaining,
-                    spendAmount
-                });
                 // Validation: check if we have enough points
                 if (spendAmount <= 0) {
                     ui.notifications?.warn('Invalid skill point amount.');
@@ -84,13 +60,6 @@ export function registerSkillSpendClickHandler() {
                 const newSpent = Math.min(skillRating, currentSpent + finalSpend);
                 await actor.update({
                     [`system.skillsSpent.${skillKey}`]: newSpent
-                });
-                log.debug('SkillSpend | Actor updated', {
-                    actorId,
-                    skillKey,
-                    oldSpent: currentSpent,
-                    newSpent,
-                    spent: finalSpend
                 });
                 // Update message: recalculate roll result
                 const rollResult = messageFlags.rollResult;
@@ -201,14 +170,6 @@ export function registerSkillSpendClickHandler() {
                         'mastery-system': updatedFlags
                     }
                 });
-                log.debug('SkillSpend | Message updated', {
-                    messageId: message.id,
-                    skillKey,
-                    spend: finalSpend,
-                    newTotal,
-                    remainingBefore: remaining,
-                    remainingAfter: Math.max(0, remaining - finalSpend)
-                });
                 ui.notifications?.info(`Spent ${finalSpend} skill point${finalSpend !== 1 ? 's' : ''} from ${skillKey}. New total: ${newTotal}`);
             });
         }
@@ -216,6 +177,5 @@ export function registerSkillSpendClickHandler() {
             console.error('Mastery System | skill-spend renderChatMessageHTML (skill) failed', e);
         }
     });
-    log.debug('Mastery System | Skill spend click handler registered');
 }
 //# sourceMappingURL=skill-spend-handler.js.map

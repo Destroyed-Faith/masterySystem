@@ -11,8 +11,6 @@ import {
   readActorArtifactProgress,
   serializeActorArtifactProgress,
 } from '../utils/artifact-actor-rules.js';
-
-import { log } from '../utils/logger.js';
 const SETTING_NAMESPACE = 'mastery-system';
 
 const LEGACY_STRIDE_KEYS = new Set([
@@ -96,10 +94,5 @@ export async function runElorianStrideMigration(actors: any[]): Promise<void> {
         artifactsMigrated += 1;
       }
     }
-  }
-
-  if (echoRenamed > 0 || artifactsMigrated > 0) {
-    log.debug(`Elorian migration: ${echoRenamed} echo(s) renamed, ${artifactsMigrated} Stride artifact(s) consolidated.`,
-    );
   }
 }

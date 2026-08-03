@@ -7,7 +7,6 @@
  * Migrated to Foundry VTT v13 ApplicationV2 + HandlebarsApplicationMixin
  */
 import { getPassiveSlots, getAvailablePassives, getSlottedPassiveIds, getPassiveSlotCountForMasteryRank, MAX_PASSIVE_SLOTS, slotPassive, unslotPassive } from '../powers/passives.js';
-import { log } from '../utils/logger.js';
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 // Type workaround for Mixin
 const BaseDialog = HandlebarsApplicationMixin(ApplicationV2);
@@ -32,11 +31,6 @@ export class PassiveSelectionDialog extends BaseDialog {
      * @param readOnly If true, dialog is read-only (view only, cannot change choices)
      */
     static async showForCombatant(combatant, readOnly = false) {
-        log.debug('Mastery System | [PASSIVE DIALOG] showForCombatant', {
-            combatantId: combatant.id,
-            actorName: combatant.actor?.name,
-            readOnly
-        });
         const user = game.user;
         if (!user || (!user.isGM && !combatant.actor?.isOwner)) {
             return { confirmed: false };
@@ -55,10 +49,6 @@ export class PassiveSelectionDialog extends BaseDialog {
      * Show passive selection dialog for all player-controlled combatants
      */
     static async showForCombat(combat) {
-        log.debug('Mastery System | [PASSIVE DIALOG] showForCombat', {
-            combatId: combat.id,
-            combatants: combat.combatants.size
-        });
         const user = game.user;
         if (!user)
             return { confirmed: false };
@@ -69,7 +59,6 @@ export class PassiveSelectionDialog extends BaseDialog {
         }
         const pcs = combat.combatants.filter((c) => c.actor?.type === 'character' && (user.isGM || c.actor?.isOwner));
         if (pcs.length === 0) {
-            log.debug('Mastery System | [PASSIVE DIALOG] No player characters for passive selection');
             return { confirmed: false };
         }
         return new Promise((resolve) => {

@@ -9,8 +9,6 @@
  */
 
 import { getRoundState } from '../combat/action-economy.js';
-
-import { log } from '../utils/logger.js';
 const ApplicationV2 = (foundry.applications.api as any)?.ApplicationV2 || Application;
 
 export class CombatActionOverlay extends ApplicationV2 {
@@ -39,7 +37,6 @@ export class CombatActionOverlay extends ApplicationV2 {
     const actor = current?.actor;
     
     if (!actor) {
-      log.debug('Mastery System | No actor for current combatant');
       return;
     }
 
@@ -48,7 +45,6 @@ export class CombatActionOverlay extends ApplicationV2 {
 
     // Only show to owner or GM
     if (!user.isGM && !actor.isOwner) {
-      log.debug('Mastery System | User does not own current combatant');
       return;
     }
 
@@ -193,7 +189,6 @@ export class CombatActionOverlay extends ApplicationV2 {
       super.activateListeners(html);
     } catch (error) {
       // ApplicationV2 or Application may not have activateListeners in this Foundry version
-      log.debug('Mastery System | activateListeners: parent class does not have activateListeners method', error);
     }
 
     // Use a power

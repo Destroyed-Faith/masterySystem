@@ -7,7 +7,6 @@
  */
 import { getArtifactBindingKind, readActorArtifactProgress, serializeActorArtifactProgress, } from '../utils/artifact-actor-rules.js';
 import { echoEmbeddedArtifactNeedsSync, repairActorEchoArtifacts, syncEmbeddedArtifactFromWorldNode, } from '../utils/artifact-echo-repair.js';
-import { log } from '../utils/logger.js';
 const SETTING_NAMESPACE = 'mastery-system';
 const SETTING_KEY = 'artifactEchoActivationV2Run';
 export function registerArtifactEchoActivationMigrationSetting() {
@@ -88,7 +87,6 @@ export async function runArtifactEchoActivationMigration() {
     if (total > 0) {
         const msg = `Mastery System | Echo artifact activation: normalized ${flagUpdates} flag(s), ` +
             `reset ${linkResets} legacy link(s), synced ${syncUpdates} stale item(s).`;
-        log.debug(msg);
         try {
             ui.notifications?.info(msg);
         }

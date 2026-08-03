@@ -20,8 +20,6 @@ import { getItemIcon } from '../utils/item-icons';
 import { matchesMasteryWeaponCatalog } from '../utils/weapons';
 import { normalizeSlotKey } from '../utils/equip-slots.js';
 import { isEchoArtifactInventoryHidden } from '../utils/echo-artifact-equip.js';
-
-import { log } from '../utils/logger.js';
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const BaseDialog = HandlebarsApplicationMixin(ApplicationV2) as typeof ApplicationV2;
 
@@ -56,15 +54,8 @@ export class GeneralItemsStorageDialog extends BaseDialog {
   }
 
   async _prepareContext(_options: any): Promise<any> {
-    log.debug('Mastery System | [Storage Debug] _prepareContext start', {
-      actorId: (this._actor as any)?.id,
-      actorName: (this._actor as any)?.name,
-      isGM: game.user?.isGM === true
-    });
     // Automatically seed items if folder is empty or doesn't exist
     const createdItems = await seedGeneralItemsStorage();
-    log.debug('Mastery System | General Items Storage seed result:', createdItems.length);
-
     // Get all items from General Items Storage (world-level folder or compendium)
     const storageFolder = (game as any).folders?.find((f: any) => 
       f.name === 'General Items Storage' && f.type === 'Item'
@@ -79,8 +70,6 @@ export class GeneralItemsStorageDialog extends BaseDialog {
         item.folder?.id === storageFolder.id
       );
     }
-    log.debug('Mastery System | Storage items in dialog:', storageItems.length);
-
     const mapStorageRow = (item: any) => {
       const rawImg = item.img != null ? String(item.img).trim() : '';
       const img =
@@ -412,23 +401,12 @@ export class GeneralItemsStorageDialog extends BaseDialog {
     await super._onRender?.(element, _options);
 
     const $scope = this.#getStorageScope(element);
-    log.debug('Mastery System | [Storage Debug] _onRender', {
-      elementExists: !!element,
-      scopeResolved: $scope.length > 0,
-      storageItems: $scope.find('.storage-item').length,
-      actorId: (this._actor as any)?.id
-    });
-
     // Enable drag and drop for storage items
     const storageItemEls = $scope.find('.storage-item');
     storageItemEls.each((_index, itemEl) => {
       const $item = $(itemEl);
       $item.find('*').addBack().attr('draggable', 'true');
     });
-    log.debug('Mastery System | [Storage Debug] Drag handlers bound', {
-      storageItemCount: storageItemEls.length
-    });
-
     const rootEl = (this as any).element?.[0] as HTMLElement | undefined;
     const appElement = (rootEl?.closest?.('#mastery-general-items-storage') as HTMLElement | null)
       || (document.getElementById('mastery-general-items-storage') as HTMLElement | null);
@@ -474,10 +452,6 @@ export class GeneralItemsStorageDialog extends BaseDialog {
 
     $scope.off('mousedown.storage').on('mousedown.storage', '.storage-item, .storage-item *', (e: any) => {
       const $item = $(e.target).closest('.storage-item');
-      log.debug('Mastery System | [Storage MouseDown]', {
-        targetClass: (e.target as HTMLElement)?.className,
-        itemId: $item.attr('data-item-id')
-      });
     });
 
     $scope.off('dragstart.storage').on('dragstart.storage', '.storage-item, .storage-item *', (e: any) => {
@@ -486,34 +460,17 @@ export class GeneralItemsStorageDialog extends BaseDialog {
       const sourceItem = (game as any).items?.get(itemId);
       const dataTransfer = e.originalEvent?.dataTransfer;
       if (!sourceItem || !dataTransfer) {
-        log.debug('Mastery System | [Storage DragStart] Missing source or dataTransfer', {
-          itemId,
-          hasSource: !!sourceItem,
-          hasDataTransfer: !!dataTransfer
-        });
         return;
       }
-      log.debug('Mastery System | [Storage DragStart]', {
-        itemId,
-        itemName: sourceItem?.name,
-        itemUuid: sourceItem?.uuid,
-        itemType: sourceItem?.type
-      });
       const dragData = sourceItem.toDragData ? sourceItem.toDragData() : { type: 'Item', uuid: sourceItem.uuid };
       const payload = JSON.stringify(dragData);
       dataTransfer.effectAllowed = 'copy';
       dataTransfer.setData('text/plain', payload);
       dataTransfer.setData('application/json', payload);
-      log.debug('Mastery System | [Storage DragStart] DataTransfer types', {
-        types: Array.from(dataTransfer.types || [])
-      });
     });
 
     $scope.off('dragend.storage').on('dragend.storage', '.storage-item, .storage-item *', (e: any) => {
       const $item = $(e.target).closest('.storage-item');
-      log.debug('Mastery System | [Storage DragEnd]', {
-        itemId: $item.attr('data-item-id')
-      });
     });
 
     const ContextMenuCls = (foundry as any).applications?.ux?.ContextMenu;
@@ -560,18 +517,9 @@ export class GeneralItemsStorageDialog extends BaseDialog {
         e.preventDefault();
         e.stopPropagation();
         $band.removeClass('drag-over');
-        log.debug('Mastery System | [Storage Drop] Drop event', {
-          band,
-          actorId: (this._actor as any)?.id,
-          hasDataTransfer: !!e.originalEvent?.dataTransfer,
-          dataTransferTypes: Array.from(e.originalEvent?.dataTransfer?.types || [])
-        });
-
         try {
           const TextEditorImpl = foundry.applications?.ux?.TextEditor?.implementation || TextEditor;
           const data = TextEditorImpl.getDragEventData(e.originalEvent ?? e);
-          log.debug('Mastery System | [Storage Drop] Drag data', data);
-
           let droppedItem: any = null;
           if (data?.uuid) {
             droppedItem = await fromUuid(data.uuid);
@@ -580,13 +528,6 @@ export class GeneralItemsStorageDialog extends BaseDialog {
           } else if (data?.data?._id) {
             droppedItem = (this._actor as any).items?.get(data.data._id);
           }
-
-          log.debug('Mastery System | [Storage Drop] Resolved item', {
-            itemId: droppedItem?.id,
-            itemName: droppedItem?.name,
-            itemUuid: droppedItem?.uuid,
-            itemParent: droppedItem?.parent?.id
-          });
           if (!droppedItem) return;
 
           const targetBand = band || 'not';
@@ -607,12 +548,6 @@ export class GeneralItemsStorageDialog extends BaseDialog {
     if (GeneralItemsStorageDialog._instance) {
       await GeneralItemsStorageDialog._instance.close();
     }
-
-    log.debug('Mastery System | [Storage Debug] Opening General Items Storage', {
-      actorId: actor?.id,
-      actorName: actor?.name,
-      isGM: game.user?.isGM === true
-    });
     const dialog = new GeneralItemsStorageDialog(actor);
     GeneralItemsStorageDialog._instance = dialog;
     await dialog.render(true);

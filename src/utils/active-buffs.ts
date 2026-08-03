@@ -6,10 +6,8 @@
 import { powerCostPaysAction } from '../radial-menu/options.js';
 import { resolvePowerMechanics } from './power-mechanics.js';
 import { ALL_POWER_TEMPLATES } from './powers/index.js';
-import { logDrDebug } from './dr-debug.js';
 import { getRoundState, setRoundState } from '../combat/action-economy.js';
 
-import { log } from './logger.js';
 /**
  * Consume a pending Vitality "Extend Active Buff" stone-power extension.
  * Returns the extra rounds for the buff being activated right now (0 if none)
@@ -280,12 +278,7 @@ export async function activateActiveBuff(actor: Actor, power: any): Promise<bool
           ...rankMechanics,
           applyWhen: 'activeBuff-active',
         };
-        logDrDebug('active-buff-dr-catalog-fallback', {
-          powerLevelKey: lvlKey,
-          source: 'ALL_POWER_TEMPLATES',
-        });
       } else {
-        logDrDebug('active-buff-dr-catalog-missing', { powerLevelKey: lvlKey });
       }
     }
   }
@@ -341,11 +334,8 @@ export async function activateActiveBuff(actor: Actor, power: any): Promise<bool
   }
   
   try {
-    log.debug('Mastery System | Creating ActiveEffect:', effectData);
     // Create the effect on the actor
     const created = await (actor as any).createEmbeddedDocuments('ActiveEffect', [effectData]);
-    log.debug('Mastery System | ActiveEffect created:', created);
-    
     ui.notifications?.info(
       `Activated ${power.name} (Duration: ${durationRounds} rounds${extendRounds > 0 ? `, incl. +${extendRounds} from Extend Active Buff` : ''})`,
     );

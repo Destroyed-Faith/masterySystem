@@ -1,10 +1,3 @@
-/**
- * Advance combat tracker by one step (next combatant in initiative order).
- */
-
-import { buildCombatTurnSnapshot, logCombatTrace } from '../utils/combat-trace-debug.js';
-
-import { log } from '../utils/logger.js';
 let requestEndTurnInFlight = false;
 
 /**
@@ -37,14 +30,6 @@ export async function requestEndTurn(): Promise<void> {
     ui.notifications.warn('You can only end your own turn!');
     return;
   }
-  
-  log.debug(`Next turn from ${currentCombatant.name}`);
-  logCombatTrace('before-nextTurn', {
-    fromCombatantId: currentCombatant.id,
-    fromName: currentCombatant.name,
-    snapshot: buildCombatTurnSnapshot(combat),
-  });
-
   requestEndTurnInFlight = true;
   try {
     await combat.nextTurn();

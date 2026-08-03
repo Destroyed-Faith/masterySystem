@@ -5,7 +5,6 @@
 import { highlightHexesInRange, clearHexHighlight } from "./utils/hex-highlighting.js";
 import { gridStepsFromMeters, isWithinRangeMeters } from "./utils/grid-range.js";
 import { filterPerceivableTargetIds } from "./combat/perception-gate.js";
-import { log } from './utils/logger.js';
 let active = null;
 let confirming = false;
 function getRangedMaxMeters(option) {
@@ -46,7 +45,6 @@ function drawRangeArea(state) {
         highlightHexesInRange(attackerId, RANGE, state.highlightId, 0xff8833, 0.35);
     }
     else {
-        log.debug("Mastery System | [RANGED TARGETING] Gridless maps not yet supported for range preview");
     }
 }
 function createTargetRing(token) {
@@ -250,11 +248,6 @@ export function startRangedTargeting(attackerToken, option) {
     ui.notifications?.info?.(state.validTargetIds.size
         ? `Ranged targeting: ${rangeMeters}m. Click a target.`
         : `Ranged targeting: ${rangeMeters}m. No targets in range.`);
-    log.debug("Mastery System | [RANGED TARGETING] started", {
-        attacker: attackerToken?.name,
-        rangeMeters,
-        validTargets: Array.from(state.validTargetIds)
-    });
     if (state.validTargetIds.size === 0) {
         console.warn("Mastery System | [RADIAL FLOW] ranged targeting: zero valid targets — Esc or click empty to cancel (no action spent until confirm)");
     }
@@ -283,9 +276,7 @@ export function endRangedTargeting(success) {
     confirming = false;
     if (!success) {
         ui.notifications?.info?.("Ranged targeting cancelled");
-        log.debug("Mastery System | [RADIAL FLOW] ranged targeting cancelled — no attack spent until target confirm");
     }
-    log.debug("Mastery System | [RANGED TARGETING] ended", { success });
 }
 export function isRangedTargetingActive() {
     return !!active;

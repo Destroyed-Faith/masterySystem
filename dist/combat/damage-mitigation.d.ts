@@ -1,21 +1,4 @@
 /**
- * Damage Mitigation — pure helpers for the post-roll pipeline.
- *
- * Pipeline order (per strike, per target):
- *   raw  →  −armorTotal (flat Armor)
- *         →  continuous DR% on post-armor damage (ceil, defender-favorable)
- *         →  reaction DR% on the remainder (same rounding), then
- *         →  8s-minimum-rule: if the reduced value would be ≤ 0 but the raw
- *            damage roll produced at least one natural "8", the strike still
- *            inflicts `count8s` damage — never zero.
- *         →  Temp-HP consumption (per-source bookkeeping via passive-triggers)
- *         →  Health-bar bleed-through
- *
- * This module is deliberately pure: it returns numbers, patches, and a
- * breakdown for chat logging. The caller (`applyDamageToTarget` in
- * `damage-dialog.ts`) owns the single atomic `actor.update`.
- */
-/**
  * Describes the outcome of flat Armor + DR% mitigation.
  * `mitigatedDamage` is the value the caller forwards to Temp-HP/bars.
  */

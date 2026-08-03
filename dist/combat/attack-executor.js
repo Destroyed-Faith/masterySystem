@@ -2,7 +2,6 @@
  * Attack Executor
  * Creates melee/ranged attack chat cards with proper flags for the roll handler
  */
-import { logActorItemSummary } from "../utils/debug-helpers.js";
 import { getAttackAttributeForPowerTreeOrSchool } from "../utils/power-roll-attribute.js";
 import { resolveEquippedWeaponForAttackType } from "../utils/equipment-modifiers.js";
 import { artifactToVirtualWeapon, createVirtualUnarmedWeapon, isVirtualUnarmedWeapon } from "../utils/unarmed-fallback.js";
@@ -15,7 +14,6 @@ import { RAISE_INCREMENT } from "../utils/constants.js";
 import { calculateBaseTN } from "./spell-roll-handler.js";
 import { artifactLevelToTemplateRank } from "../utils/artifact-spell-pick.js";
 import { buildAvailableRaiseOptions, computeRaiseTns, countRaiseSlots, declaredRaiseFromOptionId, formatSnapshotSummary, loadPowerSnapshotForArtifactOption, loadPowerSnapshotForItem, previewAfterRaiseCost, } from "./raise-resolution.js";
-import { log } from '../utils/logger.js';
 function newSplitPairId() {
     try {
         if (typeof foundry !== 'undefined' && foundry.utils?.randomID) {
@@ -253,18 +251,6 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
     const baseActorId = attackerToken.actorLink ? null : attackerToken.actorId;
     const baseActor = baseActorId ? game.actors?.get(baseActorId) : null;
     // Debug: Log actor information
-    log.debug('Mastery System | [ATTACK EXECUTOR] Actor resolution', {
-        attackerTokenId: attackerToken.id,
-        attackerActorId: attacker?.id,
-        attackerActorType: attacker?.type,
-        attackerName: attacker?.name,
-        isUnlinked: isUnlinked,
-        baseActorId: baseActorId,
-        baseActorName: baseActor?.name,
-        tokenActorMight: attacker?.system?.attributes?.might?.value,
-        baseActorMight: baseActor?.system?.attributes?.might?.value,
-        actorSystem: attacker?.system?.attributes
-    });
     if (!attacker || !target) {
         console.error('Mastery System | [ATTACK EXECUTOR] Missing actor data', {
             hasAttacker: !!attacker,
@@ -273,7 +259,6 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
         return;
     }
     // Log actor item summary for diagnostics
-    logActorItemSummary(attacker, 'attack-card:create');
     const items = collectActorItems(attacker);
     let weapon = resolveWeaponForAttack(items, attackType);
     // Forced weapon (e.g. an artifact natural weapon like the Dragon Head Bite):
@@ -307,14 +292,6 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
     }
     // Virtual unarmed has no embedded item id — omit weaponId so damage dialog uses fallback.
     let weaponId = weapon && !isVirtualUnarmedWeapon(weapon) ? weapon.id ?? null : null;
-    log.debug('Mastery System | [ATTACK EXECUTOR] Weapon resolution', {
-        attackerId: attacker.id,
-        totalItems: items.length,
-        weaponItems: items.filter((i) => i.type === 'weapon').length,
-        weaponFound: !!weapon,
-        weaponId: weaponId,
-        weaponName: weapon?.name || null
-    });
     // Determine attack attribute
     const attribute = getAttackAttribute(attacker, weapon, option, attackType);
     const poolFromNpc = npcAttackDiceCount(npcAttackRow);
@@ -325,16 +302,6 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
         attributeValue = Math.max(0, Math.floor(attributeValue / 2));
     }
     // Debug: Log attribute reading
-    log.debug('Mastery System | [ATTACK EXECUTOR] Attribute calculation', {
-        attribute,
-        attributeValue,
-        masteryRank,
-        attackerId: attacker.id,
-        attackerName: attacker.name,
-        actorSystem: attacker.system?.attributes,
-        mightValue: attacker.system?.attributes?.might?.value,
-        mightStones: attacker.system?.attributes?.might?.stones
-    });
     // Base TN: Evade (weapon / martial) or Casting TN from Power Level (Active-as-Spell attack)
     let targetEvadeFromActor = getTargetEvade(target);
     const { resolveEvadeVsInvisibleAttacker, } = await import('./perception-gate.js');
@@ -516,20 +483,6 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
     };
     // Debug log before creating message
     const weaponCandidateFromEquipped = weapon;
-    log.debug('Mastery System | [WEAPON-ID DEBUG]', {
-        messageType: 'attack-card:create:before',
-        attackerId: attacker.id,
-        targetId: target.id,
-        weaponId: weaponId,
-        selectedPowerId: selectedPowerId,
-        raises: 0,
-        flagsKeys: Object.keys(flagsObj),
-        weaponCandidateFromEquipped: weaponCandidateFromEquipped ? {
-            id: weaponCandidateFromEquipped.id,
-            name: weaponCandidateFromEquipped.name,
-            type: weaponCandidateFromEquipped.type
-        } : null
-    });
     const attackerName = attacker.name || "Unknown";
     const targetName = target.name || "Unknown";
     const baseOptionName = option.name || "Attack";
@@ -699,11 +652,6 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
                 'mastery-system': flagsObj
             }
         });
-        log.debug("Mastery System | [WEAPON-ID DEBUG]", {
-            messageType: "attack-card:create:after",
-            messageId: message.id,
-            createdFlags: message.flags?.["mastery-system"]
-        });
         if (tr.threatened) {
             Hooks.call("masterySystem.threatenedRangedDeclared", {
                 attackerTokenId: attackerToken.id,
@@ -732,17 +680,6 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
                 }
             }, 100);
         }
-        log.debug("Mastery System | [ATTACK EXECUTOR] Attack card created", {
-            attackType,
-            attackerId: attacker.id,
-            targetId: target.id,
-            optionId: option.id,
-            attribute,
-            attributeValue,
-            masteryRank,
-            targetEvade: normalTn,
-            threatenedRanged: tr.threatened
-        });
     }
     catch (error) {
         console.error("Mastery System | [ATTACK EXECUTOR] Failed to create attack card", error);

@@ -1,4 +1,3 @@
-import { log } from '../utils/logger.js';
 /**
  * One-shot GM migration: reconcile legacy Special-Effect ids/names to the
  * canonical post-reconciliation set.
@@ -278,9 +277,6 @@ export async function runSpecialEffectRenameMigration(actors) {
         catch (err) {
             console.warn('Mastery System | Special rename: world item migration failed', item?.name, err);
         }
-    }
-    if (migrated > 0) {
-        log.debug(`Special-Effect rename migration updated ${migrated} document(s).`);
     }
 }
 //# sourceMappingURL=special-effect-rename-migration.js.map

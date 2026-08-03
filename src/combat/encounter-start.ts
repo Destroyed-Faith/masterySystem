@@ -13,13 +13,6 @@ import { PassiveSelectionDialog } from '../sheets/passive-selection-dialog.js';
 import { CombatCarouselApp } from '../ui/combat-carousel.js';
 import { openStonePowersForAllCombatants } from './stone-powers-flow.js';
 import { syncCombatTurnToHighestInitiativeFirst } from './initiative-roll.js';
-import {
-  buildCombatTurnSnapshot,
-  buildCombatantsIteratorOrder,
-  logInitiativeOrderDebug,
-} from '../utils/combat-trace-debug.js';
-
-import { log } from '../utils/logger.js';
 const SOCKET_NAME = 'system.mastery-system';
 
 interface EncounterSetupState {
@@ -96,13 +89,6 @@ async function handleInitiativeConfirmed(combat: Combat, combatantId: string, fi
   setup.initiativeConfirmed[combatantId] = true;
   
   await updateEncounterSetup(combat, { initiativeConfirmed: setup.initiativeConfirmed });
-  
-  log.debug('Mastery System | Initiative confirmed', {
-    combatantId,
-    finalInitiative,
-    setup: setup.initiativeConfirmed
-  });
-  
   // Check if all PCs have confirmed (only GM can start combat)
   if (game.user?.isGM) {
     const allPCs = Array.from(combat.combatants).filter((c: any) => c.actor?.type === 'character');
@@ -110,8 +96,6 @@ async function handleInitiativeConfirmed(combat: Combat, combatantId: string, fi
     
     if (allConfirmed) {
       // All PCs confirmed - re-sort combat by initiative and refresh carousel
-      log.debug('Mastery System | All PCs confirmed - re-sorting combat by initiative');
-      
       // Ensure combat is sorted by initiative
       // Foundry v13: use setupTurns() to re-sort based on current initiative values
       if ((combat as any).setupTurns) {
@@ -122,13 +106,6 @@ async function handleInitiativeConfirmed(combat: Combat, combatantId: string, fi
       }
 
       await syncCombatTurnToHighestInitiativeFirst(combat);
-
-      logInitiativeOrderDebug('encounter-start.allPCsConfirmed.afterSetupAndSync', {
-        note: 'Encounter pipeline: setupTurns + syncCombatTurnToHighestInitiativeFirst',
-        snapshot: buildCombatTurnSnapshot(combat),
-        combatantsIteratorOrder: buildCombatantsIteratorOrder(combat),
-      });
-
       // Small delay to ensure combat sorting is complete
       await new Promise(resolve => setTimeout(resolve, 100));
       
@@ -144,7 +121,6 @@ async function handleInitiativeConfirmed(combat: Combat, combatantId: string, fi
       // Start combat if not already started
       if (combat.round === 0 && !combat.started) {
         await combat.startCombat();
-        log.debug('Mastery System | All PCs confirmed initiative - combat started');
         ui.notifications?.info('All players have confirmed initiative. Combat started!');
       }
     }
@@ -170,9 +146,6 @@ export async function beginEncounter(combat: Combat): Promise<void> {
 
   // Mark as started
   await updateEncounterSetup(combat, { started: true });
-
-  log.debug('Mastery System | Beginning encounter setup', { combatId: combat.id });
-
   // Show carousel on all clients (only if not already shown)
   const currentSetup = getEncounterSetup(combat);
   if (!currentSetup.carouselShown) {
@@ -259,7 +232,6 @@ async function checkAndOpenStonePowersAfterPassives(combat: Combat): Promise<voi
   });
   
   if (allPassivesDone) {
-    log.debug('Mastery System | All passives completed - opening Stone Powers for round 1');
     // Open Stone Powers for all combatants (round 1)
     // This will automatically open Initiative Shop after all Stone Powers are done
     await openStonePowersForAllCombatants(combat, 1);
@@ -371,8 +343,6 @@ function debouncedCarouselRefresh(delay: number = 150): void {
  * Initialize encounter start system
  */
 export function initializeEncounterStart(): void {
-  log.debug('Mastery System | Initializing encounter start system');
-
   // Register socket handler
   game.socket?.on(SOCKET_NAME, handleSocketMessage);
 

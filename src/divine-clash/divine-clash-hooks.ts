@@ -6,7 +6,6 @@
 import type { DivineClashTokenFlags } from './divine-clash-types.js';
 import { getDivineClashPhase, isDivineClashScene } from './divine-clash.js';
 
-import { log } from '../utils/logger.js';
 /**
  * Initialize Divine Clash hooks
  */
@@ -202,7 +201,5 @@ export function initializeDivineClashHooks(): void {
       } as DivineClashTokenFlags);
     }
   });
-  
-  log.debug('Mastery System | Divine Clash hooks initialized');
 }
 

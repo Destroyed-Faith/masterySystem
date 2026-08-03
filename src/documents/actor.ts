@@ -24,7 +24,6 @@ import { getInitiativeEquipmentRows, getEquippedEquipmentInitiativeModifier, get
 import { buildActorMechanicsBreakdown, buildBuffMechanicsBreakdown } from '../utils/power-mechanics.js';
 import { buildArtifactBaseValueBreakdown } from '../utils/artifact-base-values.js';
 import { getArtifactStoneFunctionStatus } from '../utils/artifact-stone-functions.js';
-import { logDrDebug } from '../utils/dr-debug.js';
 import { normalizeManualAdjustments } from '../utils/manual-adjustments.js';
 import { getActiveSpecialValue } from '../system/active-specials.js';
 import { getRoundState } from '../combat/action-economy.js';
@@ -555,13 +554,6 @@ export class MasteryActor extends Actor {
       drRows.push({ label: r.source, detail: 'DR Reaction (per-hit)', value: r.value, display: fmtPct(r.value) });
     }
     system.combat.damageReductionRows = drRows;
-    logDrDebug('actor-prepareDerived', {
-      actorId: (this as any).id,
-      actorName: (this as any).name,
-      damageReductionPct: system.combat.damageReductionPct,
-      drRowLabels: drRows.map((r) => `${r.label}=${r.value}%`),
-    });
-
     if (iniD8MechBonus !== 0) {
       const fmt = (n: number): string => (n > 0 ? `+${n}` : String(n));
       for (const entry of mechBreakdown.initiativeD8) {
@@ -781,9 +773,6 @@ export class MasteryActor extends Actor {
         const baseMax = Number((system.stones as any).maximum) || 0;
         (system.stones as any).maximum = baseMax + totalPoolExtra;
         const cur = Number((system.stones as any).current) || 0;
-        if (cur < baseMax + totalPoolExtra) {
-          // Don't auto-fill on prepare — keep current value, just lift the cap.
-        }
       }
     } catch (err) {
       console.warn('Mastery System | could not aggregate artifact stone functions', err);

@@ -12,7 +12,6 @@
  * See plan §7.
  */
 import { getForcedDeletion } from '../utils/foundry-v14.js';
-import { log } from '../utils/logger.js';
 const SETTING_NAMESPACE = 'mastery-system';
 const SETTING_KEY = 'templatesCutoverRun';
 /** Register the cutover world-setting once at init time. */
@@ -95,7 +94,6 @@ export async function runTemplatesCutover() {
     const msg = removedCount > 0
         ? `Mastery System | Trees → Templates cutover: removed ${removedCount} power item(s) across ${actors.length} actor(s). Please re-select your Powers from the new Template catalog.`
         : 'Mastery System | Trees → Templates cutover: no power items to remove.';
-    log.debug(msg);
     try {
         ui.notifications?.info(msg);
     }

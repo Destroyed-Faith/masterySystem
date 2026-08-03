@@ -1,10 +1,4 @@
 /**
- * Turn Indicator - Blue Ring around Active Combatant
- *
- * Replaces the big d20 turn indicator with a subtle blue ring around the active token
- * Integrates with the radial menu to adjust size when menu is open
- */
-/**
  * Clear the turn ring
  */
 export declare function clearTurnRing(): void;

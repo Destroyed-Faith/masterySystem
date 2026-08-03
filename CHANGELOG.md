@@ -6,8 +6,10 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
-- Public-repo cleanup for a later 0.99 RC: HTTPS lockfile for clean `npm ci`, player-first README, `RELEASING.md`, allowlist release packaging + fail-fast release workflow (prerelease when < 1.0), removed missing `sample-*` packs, Divine Clash stone icon defaults, and gated verbose console noise behind `logger.ts`.
-- Install `download` still points at `main.zip` until the coordinated `0.99.0` release flip.
+- Public-repo cleanup: HTTPS lockfile for clean `npm ci`, player-first README, `RELEASING.md`, allowlist release packaging + fail-fast release workflow (prerelease when < 1.0), removed missing `sample-*` packs, Divine Clash stone icon defaults.
+- Docs clarify that Foundry system versions continue on `0.9.x` and the Destroyed Faith rulebook uses an independent version sequence.
+- Install `download` intentionally remains on `main.zip` by project policy.
+- Removed dedicated debug/trace logging infrastructure (logger, combat/DR/stone debug helpers and settings).
 
 ## [0.9.241] - 2026-08-02
 

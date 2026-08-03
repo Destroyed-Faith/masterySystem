@@ -16,8 +16,6 @@ import {
   slotPassive,
   unslotPassive
 } from '../powers/passives.js';
-
-import { log } from '../utils/logger.js';
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
 // Type workaround for Mixin
@@ -52,12 +50,6 @@ export class PassiveSelectionDialog extends BaseDialog {
     combatant: Combatant,
     readOnly: boolean = false
   ): Promise<PassiveSelectionOutcome> {
-    log.debug('Mastery System | [PASSIVE DIALOG] showForCombatant', {
-      combatantId: combatant.id,
-      actorName: (combatant.actor as any)?.name,
-      readOnly
-    });
-
     const user = game.user;
     if (!user || (!user.isGM && !combatant.actor?.isOwner)) {
       return { confirmed: false };
@@ -79,11 +71,6 @@ export class PassiveSelectionDialog extends BaseDialog {
    * Show passive selection dialog for all player-controlled combatants
    */
   static async showForCombat(combat: Combat): Promise<PassiveSelectionOutcome> {
-    log.debug('Mastery System | [PASSIVE DIALOG] showForCombat', {
-      combatId: combat.id,
-      combatants: combat.combatants.size
-    });
-
     const user = game.user;
     if (!user) return { confirmed: false };
 
@@ -98,7 +85,6 @@ export class PassiveSelectionDialog extends BaseDialog {
     );
 
     if (pcs.length === 0) {
-      log.debug('Mastery System | [PASSIVE DIALOG] No player characters for passive selection');
       return { confirmed: false };
     }
 

@@ -9,7 +9,6 @@ import { highlightHexesInRange, clearHexHighlight } from "./utils/hex-highlighti
 import { gridStepsFromMeters, isWithinRangeMeters } from "./utils/grid-range.js";
 import { tokenIsHostileTo } from "./combat/threatened-ranged.js";
 import { filterPerceivableTargetIds } from "./combat/perception-gate.js";
-import { log } from './utils/logger.js';
 let active = null;
 let confirming = false;
 /* -------------------------------------------- */
@@ -100,7 +99,6 @@ function drawReachArea(state) {
         // Gridless: draw circle with PIXI.Graphics
         // This would need to be stored in state.previewGraphics for cleanup
         // For now, we'll just use hex highlighting for gridded maps
-        log.debug("Mastery System | [MELEE TARGETING] Gridless maps not yet supported for reach preview");
     }
 }
 /**
@@ -354,12 +352,6 @@ export function startMeleeTargeting(attackerToken, option) {
     ui.notifications?.info?.(state.validTargetIds.size
         ? `Melee targeting: ${reachMeters}m. Click an enemy in range.`
         : `Melee targeting: ${reachMeters}m. No targets in range.`);
-    log.debug("Mastery System | [MELEE TARGETING] started", {
-        attacker: attackerToken?.name,
-        reachMeters,
-        reachGridUnits: state.reachGridUnits,
-        validTargets: Array.from(state.validTargetIds)
-    });
     if (state.validTargetIds.size === 0) {
         console.warn("Mastery System | [RADIAL FLOW] melee targeting: zero valid targets in reach — click empty map or Esc to cancel (no action spent until you confirm a target)");
     }
@@ -393,9 +385,7 @@ export function endMeleeTargeting(success) {
     confirming = false;
     if (!success) {
         ui.notifications?.info?.("Melee targeting cancelled");
-        log.debug("Mastery System | [RADIAL FLOW] melee targeting cancelled — no attack action spent (spend happens on target confirm)");
     }
-    log.debug("Mastery System | [MELEE TARGETING] ended", { success });
 }
 export function isMeleeTargetingActive() {
     return !!active;

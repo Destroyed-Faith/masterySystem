@@ -7,7 +7,6 @@
 import { consumeAttackAction, getAvailableAttackActions, markPowerUsedThisRound } from './combat/action-economy.js';
 import { isWithinMasteryPowerRange, masteryAoERadiusPixels, masteryPowerMaxSteps } from './utils/grid-range.js';
 import { clearHexHighlight, highlightHexesWithinStepsFromPoint } from './utils/hex-highlighting.js';
-import { log } from './utils/logger.js';
 function placementColorsFromOption(option) {
     if (option.aoePlacementProfile === 'hostile-zone') {
         return {
@@ -328,7 +327,6 @@ function createTargetSelectionPanel(state) {
  * Start single-target utility mode
  */
 export function startUtilitySingleTargetMode(token, option) {
-    log.debug('Mastery System | Starting single-target utility mode', { token: token.name, option: option.name });
     // Cancel any existing utility targeting
     endUtilityTargeting(false);
     // Ensure token is controlled
@@ -421,7 +419,6 @@ export function startUtilitySingleTargetMode(token, option) {
                 const casterCenter = token.center;
                 const matches = matchesTargetGroup(token, clickedToken, targetGroup);
                 if (isWithinMasteryPowerRange(casterCenter, clickedToken.center, rangeMeters) && matches) {
-                    log.debug('Mastery System | Single-target utility confirmed:', clickedToken.name);
                     confirmUtilityTargets({
                         casterToken: token,
                         option,
@@ -489,13 +486,11 @@ export function startUtilitySingleTargetMode(token, option) {
     canvas.stage.on('pointermove', state.onPointerMove);
     canvas.stage.on('pointerdown', state.onPointerDown);
     window.addEventListener('keydown', state.onKeyDown);
-    log.debug('Mastery System | Single-target utility mode active');
 }
 /**
  * Start radius utility mode
  */
 export function startUtilityRadiusMode(token, option) {
-    log.debug('Mastery System | Starting radius utility mode', { token: token.name, option: option.name });
     // Cancel any existing utility targeting
     endUtilityTargeting(false);
     // Ensure token is controlled
@@ -503,11 +498,6 @@ export function startUtilityRadiusMode(token, option) {
     const rangeMeters = option.rangeMeters || option.range || 0;
     const radiusMeters = option.aoeRadiusMeters || 0;
     const targetGroup = option.defaultTargetGroup || 'ally';
-    log.debug('Mastery System | Utility radius mode:', {
-        rangeMeters,
-        radiusMeters,
-        targetGroup
-    });
     // Create preview graphics
     const previewGraphics = new PIXI.Graphics();
     const rangeLineGraphics = new PIXI.Graphics();
@@ -759,7 +749,6 @@ export function startUtilityRadiusMode(token, option) {
     canvas.stage.on('pointermove', state.onPointerMove);
     canvas.stage.on('pointerdown', state.onPointerDown);
     window.addEventListener('keydown', state.onKeyDown);
-    log.debug('Mastery System | Radius utility mode active');
 }
 /**
  * Confirm utility targets and resolve power
@@ -792,26 +781,12 @@ async function confirmUtilityTargets(state) {
             ui.notifications?.warn('Failed to consume attack action.');
             return;
         }
-        log.debug('Mastery System | [RADIAL FLOW] utility confirm: consumed attack action', {
-            remaining: getAvailableAttackActions(actor, combat),
-            option: state.option.name,
-            targetCount: targets.length
-        });
     }
     else {
-        log.debug('Mastery System | [RADIAL FLOW] utility confirm: no attack cost', {
-            option: state.option.name,
-            targetCount: targets.length
-        });
     }
     if (state.option.source === 'power' && state.option.item?.id && actor && combat) {
         await markPowerUsedThisRound(actor, combat, state.option.item.id);
     }
-    log.debug('Mastery System | Utility confirmed:', {
-        caster: state.casterToken.name,
-        option: state.option.name,
-        targets: targets.map(t => t.name)
-    });
     // TODO: Call actual utility resolution function
     // For now, just show notification
     const dur = state.option.zoneDurationNote;
@@ -829,7 +804,6 @@ export function endUtilityTargeting(success) {
     const state = activeUtilityTargeting;
     if (!state)
         return;
-    log.debug('Mastery System | Ending utility targeting mode, success =', success);
     // Remove event listeners
     canvas.stage.off('pointermove', state.onPointerMove);
     canvas.stage.off('pointerdown', state.onPointerDown);

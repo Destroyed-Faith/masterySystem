@@ -1,6 +1,6 @@
 # Baseline — public release cleanup
 
-Recorded while preparing `chore/public-release-cleanup` (version **0.9.241**).
+Historical note recorded while preparing the public-repo cleanup (around Foundry system **0.9.241** / **0.9.242**).
 
 ## Install / lockfile
 
@@ -13,10 +13,10 @@ No `git+ssh://` URLs remain in `package-lock.json`.
 
 ## Manifest / docs (before cleanup)
 
-- README claimed `0.0.68 (Alpha)` and Foundry v13 while `system.json` declares Foundry **14** and version **0.9.241**
+- README claimed `0.0.68 (Alpha)` and Foundry v13 while `system.json` declared Foundry **14**
 - `download` pointed at `…/archive/refs/heads/main.zip` (source tree, not a release asset)
 - Release workflow rsynced nearly the whole repo; no build/test gate
 
-## Kept for install validity
+## Install path (current policy)
 
-Until the coordinated **0.99.0** release, `system.json` `download` remains the `main.zip` archive URL so Forge/manifest installs keep working. Packaging already produces `mastery-system-X.Y.Z.zip`; see `RELEASING.md`.
+`system.json` `download` intentionally remains the `main.zip` archive URL so Forge/manifest installs keep working. Packaging can still produce `mastery-system-X.Y.Z.zip` for a future tagged release; see `RELEASING.md`.

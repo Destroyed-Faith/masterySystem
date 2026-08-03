@@ -1,24 +1,4 @@
 /**
- * Damage Mitigation — pure helpers for the post-roll pipeline.
- *
- * Pipeline order (per strike, per target):
- *   raw  →  −armorTotal (flat Armor)
- *         →  continuous DR% on post-armor damage (ceil, defender-favorable)
- *         →  reaction DR% on the remainder (same rounding), then
- *         →  8s-minimum-rule: if the reduced value would be ≤ 0 but the raw
- *            damage roll produced at least one natural "8", the strike still
- *            inflicts `count8s` damage — never zero.
- *         →  Temp-HP consumption (per-source bookkeeping via passive-triggers)
- *         →  Health-bar bleed-through
- *
- * This module is deliberately pure: it returns numbers, patches, and a
- * breakdown for chat logging. The caller (`applyDamageToTarget` in
- * `damage-dialog.ts`) owns the single atomic `actor.update`.
- */
-
-import { logDrDebug } from '../utils/dr-debug.js';
-
-/**
  * Describes the outcome of flat Armor + DR% mitigation.
  * `mitigatedDamage` is the value the caller forwards to Temp-HP/bars.
  */
@@ -83,23 +63,6 @@ export function applyDefensiveMitigation(input: DefensiveMitigationInput): Defen
   const reductionTotal = reductionBase + reductionReact;
   const effectiveDrPct =
     afterArmor > 0 ? Math.min(100, Math.round((100 * reductionTotal) / afterArmor)) : 0;
-  logDrDebug('mitigation-apply', {
-    raw,
-    armor,
-    drBasePct: drBase,
-    reactionDrPct: drReact,
-    afterArmor,
-    reductionBase,
-    reductionReact,
-    effectiveDrPct,
-  });
-  logDrDebug('mitigation-after-dr', {
-    afterArmor,
-    reductionFromDr: reductionTotal,
-    afterDr,
-    min8sRuleWillApply: afterDr <= 0 && count8s > 0,
-  });
-
   // Step 3 — 8s-minimum rule.
   let mitigated = afterDr;
   let min8sUsed = false;

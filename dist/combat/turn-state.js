@@ -7,7 +7,6 @@
  * This file now wraps the action-economy system for compatibility.
  */
 import { getRoundState, setRoundState, resetTurnState as resetTurnStateNew, spendAttackAction, spendMovementAction, spendReactionAction } from './action-economy.js';
-import { log } from '../utils/logger.js';
 /**
  * Get base actions for a combatant
  * PCs and NPCs both get: { move: 1, attack: 1, reaction: 1 }
@@ -74,7 +73,6 @@ export async function resetTurnState(combatant) {
     if (!actor)
         return;
     await resetTurnStateNew(actor, combat);
-    log.debug(`Turn state reset for ${combatant.name}`);
 }
 /**
  * Decrement an action from turn state

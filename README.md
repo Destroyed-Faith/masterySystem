@@ -12,7 +12,11 @@
 
 ## Project status
 
-Pre-1.0 public development. The installed system version is defined in [`system.json`](system.json) (and mirrored in [`package.json`](package.json)). The intended next public Release Candidate version is **0.99.0** — see [`RELEASING.md`](RELEASING.md).
+Pre-1.0 public development.
+
+- **Foundry VTT system version** is defined in [`system.json`](system.json) (mirrored in [`package.json`](package.json)).
+- The **Destroyed Faith rulebook** has a separate public version number (independent of the Foundry system).
+- The two version sequences are intentionally independent — do not put the rulebook version in `package.json` / `system.json`.
 
 **Supported Foundry VTT:** version **14** (`compatibility.minimum` / `verified` in `system.json`).
 
@@ -43,7 +47,7 @@ Pre-1.0 public development. The installed system version is defined in [`system.
    ```
 3. Install, then create a world with this system
 
-Manifest installs receive Foundry update notifications when `system.json` on `main` advances and the `download` URL points at a matching release asset. Until the coordinated **0.99.0** release, `download` still uses the `main` branch archive so installs keep working; immutable ZIP installs are the goal of the release process in [`RELEASING.md`](RELEASING.md).
+Manifest installs receive Foundry update notifications when `system.json` on `main` advances and the `download` URL points at a matching release asset. By project policy, `download` currently uses the `main` branch archive so installs keep working; tagged immutable ZIP installs are optional and described in [`RELEASING.md`](RELEASING.md).
 
 ### Self-hosted — development checkout
 
@@ -80,15 +84,7 @@ npm test
 | `npm run release:check` | Validate + build + test + audit + package |
 | `npm run test:e2e` | Playwright (needs a Foundry world; optional) |
 
-**Debug logging** is off by default. Enable with the client setting **Debug Mode**, or in the browser console:
-
-```js
-CONFIG.masterySystemDebug = true
-```
-
-Specialized Stone Powers DnD traces use separate `CONFIG.masterySystemDebugStone*` flags.
-
-Power templates live under `src/utils/powers/templates/`. Do not commit one-off root debug scripts; put helpers in `scripts/dev/`.
+Power templates live under `src/utils/powers/templates/`. Put one-off developer helpers in `scripts/dev/` (excluded from the player ZIP).
 
 Release process: [`RELEASING.md`](RELEASING.md).
 

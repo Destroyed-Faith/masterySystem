@@ -10,8 +10,6 @@ import { showRadialInfoPanel, hideRadialInfoPanel } from './info-panel';
 import { handleChosenCombatOption } from '../token-action-selector';
 import type { CombatSlot } from '../system/combat-maneuvers';
 import { getRoundState } from '../combat/action-economy.js';
-
-import { log } from '../utils/logger.js';
 /**
  * Foundry v13: When the radial menu spawns under the mouse cursor, PIXI can
  * immediately fire pointerover for whichever slice is "under" the cursor.
@@ -219,23 +217,6 @@ function createRadialOptionSlice(
       optionId: option.id,
       optionSource: option.source
     });
-    
-    log.debug('Mastery System | [RADIAL FLOW] outer ring pointertap → handleChosenCombatOption next', {
-      segment: segmentId,
-      optionId: option.id,
-      name: option.name,
-      source: option.source,
-      slot: option.slot,
-      range: option.range,
-      costsAction: option.costsAction
-    });
-    log.debug('Mastery System | Selected combat option:', {
-      segment: segmentId,
-      optionId: option.id,
-      name: option.name,
-      source: option.source
-    });
-    
     // Trigger handler
     handleChosenCombatOption(token, option);
     
@@ -269,9 +250,6 @@ export function renderOuterRing(
   
   // Get options for this segment
   const options = bySegment[segmentId] ?? [];
-  
-  log.debug(`Rendering outer ring for segment "${segmentId}" with ${options.length} options`);
-  
   // Faint background ring
   const ringGfx = new PIXI.Graphics();
   ringGfx.lineStyle(2, ringColor, 0.3);
@@ -333,9 +311,6 @@ export function renderInnerSegments(
   const segmentCount = MS_INNER_SEGMENTS.length;
   const angleStep = (Math.PI * 2) / segmentCount;
   const startAngle = -Math.PI / 2; // Start at top
-  
-  log.debug('Mastery System | Rendering inner segments, current segment:', getCurrentSegmentId());
-  
   MS_INNER_SEGMENTS.forEach((seg, index) => {
     const container = new PIXI.Container();
     (container as any).msInnerSegment = true;
@@ -345,9 +320,6 @@ export function renderInnerSegments(
     const baseAngle = startAngle + index * angleStep;
     const endAngle = baseAngle + angleStep;
     const isActive = getCurrentSegmentId() === seg.id;
-    
-    log.debug(`Creating inner segment "${seg.id}" (index ${index}), active: ${isActive}, angles: ${baseAngle.toFixed(2)} to ${endAngle.toFixed(2)}`);
-    
     const gfx = new PIXI.Graphics();
     
     // Draw pie slice with visual feedback for active state
@@ -405,7 +377,6 @@ export function renderInnerSegments(
       }
     } catch (error) {
       // If round state lookup fails, just use base label
-      log.debug('Mastery System | Could not get round state for radial menu label', error);
     }
     
     const text = new PIXI.Text(labelText, {
@@ -439,9 +410,6 @@ export function renderInnerSegments(
     // Use PIXI.Polygon for hitArea (more reliable than Graphics)
     const hitPolygon = new PIXI.Polygon(hitPoints);
     container.hitArea = hitPolygon;
-    
-    log.debug(`Inner segment "${seg.id}": interactive=${container.interactive}, hitArea=${!!container.hitArea}, children=${container.children.length}`);
-    
     // Ensure the graphics don't capture events - container should handle them
     gfx.interactive = false;
     
@@ -449,12 +417,6 @@ export function renderInnerSegments(
     const handleClick = (event: any) => {
       event.stopPropagation(); // Prevent event from bubbling to parent
       event.stopImmediatePropagation(); // Prevent other handlers
-      log.debug(`[CLICK] Inner segment "${seg.id}" clicked! (was: ${getCurrentSegmentId()})`, {
-        eventType: event.type,
-        target: event.target?.constructor?.name,
-        currentTarget: event.currentTarget?.constructor?.name,
-        data: event.data
-      });
       setCurrentSegmentId(seg.id);
     };
     
@@ -465,20 +427,12 @@ export function renderInnerSegments(
     container.on('pointerdown', (event: any) => {
       event.stopPropagation();
       event.stopImmediatePropagation();
-      log.debug(`[POINTERDOWN] Inner segment "${seg.id}" pointerdown`, {
-        eventType: event.type,
-        target: event.target?.constructor?.name
-      });
       // Don't call setCurrentSegmentId here to avoid double-triggering
       // Only use pointertap/click for actual selection
     });
     
     // Add hover feedback with debug logs
     container.on('pointerover', (event: any) => {
-      log.debug(`[HOVER] Inner segment "${seg.id}" hovered`, {
-        eventType: event.type,
-        target: event.target?.constructor?.name
-      });
       if (!isActive) {
         gfx.clear();
         gfx.beginFill(seg.color, 0.75); // Slightly brighter on hover
@@ -497,7 +451,6 @@ export function renderInnerSegments(
     });
     
     container.on('pointerout', (_event: any) => {
-      log.debug(`[HOVER OUT] Inner segment "${seg.id}" hover out`);
       if (!isActive) {
         // Restore default appearance
         gfx.clear();
@@ -517,8 +470,6 @@ export function renderInnerSegments(
     
     // Add to root AFTER setting up all properties
     root.addChild(container);
-    
-    log.debug(`Inner segment "${seg.id}" added to root, zIndex: ${root.getChildIndex(container)}`);
   });
 }
 
@@ -533,8 +484,6 @@ export function refreshInnerSegmentsVisual(
   token?: any
 ): void {
   const current = getCurrentSegmentId();
-  log.debug(`Refreshing inner segments visual, active: ${current}`);
-  
   for (const child of root.children) {
     if (!(child as any).msInnerSegment) continue;
     

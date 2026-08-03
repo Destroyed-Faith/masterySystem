@@ -1,1 +1,1 @@
-{"version":3,"file":"artifact-spec-backfill.d.ts","sourceRoot":"","sources":["../../src/migrations/artifact-spec-backfill.ts"],"names":[],"mappings":"AAAA;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;GA8BG;AAuCH,wBAAgB,mCAAmC,IAAI,IAAI,CAa1D;AA0HD,yEAAyE;AACzE,wBAAsB,uBAAuB,IAAI,OAAO,CAAC,IAAI,CAAC,CA6B7D"}
+{"version":3,"file":"artifact-spec-backfill.d.ts","sourceRoot":"","sources":["../../src/migrations/artifact-spec-backfill.ts"],"names":[],"mappings":"AAoCA,wBAAgB,mCAAmC,IAAI,IAAI,CAa1D;AA0HD,yEAAyE;AACzE,wBAAsB,uBAAuB,IAAI,OAAO,CAAC,IAAI,CAAC,CA4B7D"}

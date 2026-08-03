@@ -1,7 +1,6 @@
 import { WEAPONS, masteryWeaponCatalogKey } from './weapons.js';
 import { BASE_ARMOR, BASE_SHIELDS } from './equipment.js';
 import { getItemIcon, normalizeWeaponNameKey } from './item-icons.js';
-import { log } from './logger.js';
 const STORAGE_FOLDER_NAME = 'General Items Storage';
 const GEAR_ITEMS = [
     { name: 'Backpack', inventorySize: '2x3' },
@@ -125,16 +124,13 @@ export async function seedGeneralItemsStorage() {
         // Non-GMs cannot seed items
         return [];
     }
-    log.debug('Mastery System | Seeding General Items Storage...');
     const existingFolder = game.folders?.find((f) => f.name === STORAGE_FOLDER_NAME && f.type === 'Item');
     const folder = existingFolder
         ? existingFolder
         : await Folder.create({ name: STORAGE_FOLDER_NAME, type: 'Item' });
-    log.debug('Mastery System | Storage folder resolved:', folder?.id, folder?.name);
     const existingItems = Array.from(game.items || []).filter((item) => item.folder?.id === folder.id);
     const existingNames = new Set(existingItems.map((item) => item.name));
     const existingWeaponCatalogKeys = new Set(existingItems.map((item) => masteryWeaponCatalogKey(item.name || '')));
-    log.debug('Mastery System | Existing storage items:', existingItems.length);
     const itemsToCreate = [];
     for (const gear of GEAR_ITEMS) {
         if (existingNames.has(gear.name))
@@ -256,7 +252,6 @@ export async function seedGeneralItemsStorage() {
         console.warn('Mastery System | Seeding completed but no items were created.');
     }
     else {
-        log.debug('Mastery System | Seeded items:', createdItems.length);
     }
     return createdItems ?? [];
 }

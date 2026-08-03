@@ -30,7 +30,6 @@ import {
   countAdjacentAllyTokenCount,
   getPrimaryTokenForActor,
 } from './mechanics-adjacency.js';
-import { logDrDebug } from './dr-debug.js';
 
 /** Empty breakdown skeleton (all arrays/objects present, all totals zero). */
 export function emptyBreakdown(): MechanicsBreakdown {
@@ -428,24 +427,10 @@ export function collectMechanicsContributions(actor: any): MechanicsContribution
         mech = resolvePowerMechanics(powerItem);
       }
       if (!mech) {
-        logDrDebug('buff-skip', {
-          reason: 'no-mechanics',
-          effectId: effect?.id,
-          effectName: effect?.name,
-          powerId: flags.powerId,
-          hasMechanicsOnFlags: !!(flags.mechanics && typeof flags.mechanics === 'object'),
-        });
         continue;
       }
       const aw = mech.applyWhen as string | undefined;
       if (aw && String(aw) !== 'activeBuff-active') {
-        logDrDebug('buff-skip', {
-          reason: 'applyWhen',
-          effectId: effect?.id,
-          effectName: effect?.name,
-          applyWhen: aw,
-          powerName: flags.powerName,
-        });
         continue;
       }
       const pname = (flags.powerName as string) ?? effect.name ?? 'Active Buff';
@@ -468,13 +453,6 @@ export function collectMechanicsContributions(actor: any): MechanicsContribution
         sourceKind: 'buff',
         mechanics: mech,
         buffTemplateId,
-      });
-      logDrDebug('buff-contribution', {
-        effectId: effect?.id,
-        powerName: pname,
-        buffTemplateId,
-        damageReductionPct: mech.damageReductionPct,
-        applyWhen: mech.applyWhen ?? null,
       });
     }
   }
@@ -519,13 +497,6 @@ function readMasterySystemActiveEffectFlags(effect: any): Record<string, unknown
           activatedRound: pick('activatedRound'),
           isUtility: pick('isUtility'),
         };
-        logDrDebug('active-effect-flags', {
-          effectId: effect?.id,
-          effectName: effect?.name,
-          hadNestedMechanics: !!(nestedObj as any).mechanics,
-          mergedHasMechanics: !!(merged as any).mechanics,
-          powerTemplateId: merged.powerTemplateId,
-        });
         return merged;
       }
     }
@@ -577,14 +548,6 @@ export function aggregateMechanics(
         : Number(drPctRaw);
     if (Number.isFinite(drPctNum) && drPctNum > 0) {
       const sanctioned = isSanctionedDR(contribution);
-      logDrDebug('aggregate-dr-row', {
-        source,
-        sourceKind,
-        powerName: contribution.powerName,
-        buffTemplateId: (contribution as any).buffTemplateId ?? null,
-        drPct: Math.floor(drPctNum),
-        sanctioned,
-      });
       if (sanctioned) {
         const row: MechanicsBreakdownEntry = { source, value: Math.floor(drPctNum) };
         if (sourceKind === 'passive') bd.damageReductionPct.passive.push(row);
@@ -640,14 +603,6 @@ export function aggregateMechanics(
     bd.damageReductionPct.buff = [];
     bd.damageReductionPct.reaction = [];
   }
-  logDrDebug('aggregate-dr-totals', {
-    passiveDR,
-    buffDR,
-    passiveRows: bd.damageReductionPct.passive,
-    buffRows: bd.damageReductionPct.buff,
-    reactionRows: bd.damageReductionPct.reaction,
-    totalPct: bd.totals.damageReductionPct,
-  });
   return bd;
 }
 

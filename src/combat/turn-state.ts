@@ -16,7 +16,6 @@ import {
   spendReactionAction
 } from './action-economy.js';
 
-import { log } from '../utils/logger.js';
 /**
  * Legacy TurnState interface (for backwards compatibility)
  * @deprecated Use RoundState from action-economy.ts instead
@@ -105,8 +104,6 @@ export async function resetTurnState(combatant: Combatant): Promise<void> {
   if (!actor) return;
   
   await resetTurnStateNew(actor, combat);
-  
-  log.debug(`Turn state reset for ${combatant.name}`);
 }
 
 /**

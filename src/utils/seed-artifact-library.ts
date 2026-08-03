@@ -23,8 +23,6 @@ import {
   ECHO_ARTIFACT_SEED_VERSION,
 } from '../artifacts/echo-artifact-tree-builder.js';
 import { pushWorldArtifactNodeToEmbeddedActors } from './artifact-embedded-sync.js';
-
-import { log } from './logger.js';
 export { grantArtifactTreeToActor, grantEchoArtifactTreeToActor } from './artifact-tree-grant.js';
 
 export const ECHO_ARTIFACT_LIBRARY_FOLDER_NAME = 'Echo Artifacts';
@@ -211,7 +209,6 @@ export async function seedArtifactLibrary(options: { force?: boolean } = {}): Pr
   }
 
   if (count > 0) {
-    log.debug(`Seeded ${count} artifact node items`, newTreeNames);
     const folderHint = newTreeNames.length
       ? ` — new trees: ${newTreeNames.join(', ')}`
       : '';
@@ -220,7 +217,6 @@ export async function seedArtifactLibrary(options: { force?: boolean } = {}): Pr
     );
   }
   if (upgraded > 0) {
-    log.debug(`Refreshed ${upgraded} artifact node items to v${ECHO_ARTIFACT_SEED_VERSION}`);
     const repairHint =
       repairedTrees.length > 0 ? ` Repaired incomplete trees: ${repairedTrees.join(', ')}.` : '';
     ui.notifications?.info(

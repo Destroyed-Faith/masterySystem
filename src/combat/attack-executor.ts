@@ -4,7 +4,6 @@
  */
 
 import type { RadialCombatOption } from "../token-radial-menu";
-import { logActorItemSummary } from "../utils/debug-helpers";
 import { getAttackAttributeForPowerTreeOrSchool } from "../utils/power-roll-attribute.js";
 import { resolveEquippedWeaponForAttackType } from "../utils/equipment-modifiers.js";
 import { artifactToVirtualWeapon, createVirtualUnarmedWeapon, isVirtualUnarmedWeapon } from "../utils/unarmed-fallback.js";
@@ -36,7 +35,6 @@ import {
   type RaiseOption,
 } from "./raise-resolution.js";
 
-import { log } from '../utils/logger.js';
 /** Bookkeeping for a single strike of a split-attack pair. */
 interface SplitContext {
   splitPairId: string;
@@ -324,19 +322,6 @@ export async function createAttackCard(
   const baseActor = baseActorId ? (game as any).actors?.get(baseActorId) : null;
   
   // Debug: Log actor information
-  log.debug('Mastery System | [ATTACK EXECUTOR] Actor resolution', {
-    attackerTokenId: attackerToken.id,
-    attackerActorId: attacker?.id,
-    attackerActorType: attacker?.type,
-    attackerName: attacker?.name,
-    isUnlinked: isUnlinked,
-    baseActorId: baseActorId,
-    baseActorName: baseActor?.name,
-    tokenActorMight: (attacker?.system as any)?.attributes?.might?.value,
-    baseActorMight: (baseActor?.system as any)?.attributes?.might?.value,
-    actorSystem: (attacker?.system as any)?.attributes
-  });
-  
   if (!attacker || !target) {
     console.error('Mastery System | [ATTACK EXECUTOR] Missing actor data', {
       hasAttacker: !!attacker,
@@ -346,8 +331,6 @@ export async function createAttackCard(
   }
   
   // Log actor item summary for diagnostics
-  logActorItemSummary(attacker, 'attack-card:create');
-  
   const items = collectActorItems(attacker);
   let weapon = resolveWeaponForAttack(items, attackType);
   // Forced weapon (e.g. an artifact natural weapon like the Dragon Head Bite):
@@ -386,16 +369,6 @@ export async function createAttackCard(
 
   // Virtual unarmed has no embedded item id — omit weaponId so damage dialog uses fallback.
   let weaponId = weapon && !isVirtualUnarmedWeapon(weapon) ? weapon.id ?? null : null;
-  
-  log.debug('Mastery System | [ATTACK EXECUTOR] Weapon resolution', {
-    attackerId: attacker.id,
-    totalItems: items.length,
-    weaponItems: items.filter((i: any) => i.type === 'weapon').length,
-    weaponFound: !!weapon,
-    weaponId: weaponId,
-    weaponName: weapon?.name || null
-  });
-  
   // Determine attack attribute
   const attribute = getAttackAttribute(attacker, weapon, option, attackType);
   const poolFromNpc = npcAttackDiceCount(npcAttackRow);
@@ -409,17 +382,6 @@ export async function createAttackCard(
   }
   
   // Debug: Log attribute reading
-  log.debug('Mastery System | [ATTACK EXECUTOR] Attribute calculation', {
-    attribute,
-    attributeValue,
-    masteryRank,
-    attackerId: attacker.id,
-    attackerName: attacker.name,
-    actorSystem: (attacker.system as any)?.attributes,
-    mightValue: (attacker.system as any)?.attributes?.might?.value,
-    mightStones: (attacker.system as any)?.attributes?.might?.stones
-  });
-  
   // Base TN: Evade (weapon / martial) or Casting TN from Power Level (Active-as-Spell attack)
   let targetEvadeFromActor = getTargetEvade(target);
 
@@ -632,21 +594,6 @@ export async function createAttackCard(
   
   // Debug log before creating message
   const weaponCandidateFromEquipped = weapon;
-  log.debug('Mastery System | [WEAPON-ID DEBUG]', {
-    messageType: 'attack-card:create:before',
-    attackerId: attacker.id,
-    targetId: target.id,
-    weaponId: weaponId,
-    selectedPowerId: selectedPowerId,
-    raises: 0,
-    flagsKeys: Object.keys(flagsObj),
-    weaponCandidateFromEquipped: weaponCandidateFromEquipped ? {
-      id: weaponCandidateFromEquipped.id,
-      name: weaponCandidateFromEquipped.name,
-      type: weaponCandidateFromEquipped.type
-    } : null
-  });
-  
   const attackerName = attacker.name || "Unknown";
   const targetName = target.name || "Unknown";
   const baseOptionName = option.name || "Attack";
@@ -846,13 +793,6 @@ export async function createAttackCard(
         'mastery-system': flagsObj
       }
     });
-    
-    log.debug("Mastery System | [WEAPON-ID DEBUG]", {
-      messageType: "attack-card:create:after",
-      messageId: message.id,
-      createdFlags: message.flags?.["mastery-system"]
-    });
-
     if (tr.threatened) {
       Hooks.call("masterySystem.threatenedRangedDeclared", {
         attackerTokenId: attackerToken.id,
@@ -883,18 +823,6 @@ export async function createAttackCard(
         }
       }, 100);
     }
-    
-    log.debug("Mastery System | [ATTACK EXECUTOR] Attack card created", {
-      attackType,
-      attackerId: attacker.id,
-      targetId: target.id,
-      optionId: option.id,
-      attribute,
-      attributeValue,
-      masteryRank,
-      targetEvade: normalTn,
-      threatenedRanged: tr.threatened
-    });
   } catch (error) {
     console.error("Mastery System | [ATTACK EXECUTOR] Failed to create attack card", error);
     ui.notifications?.error("Failed to create attack card");

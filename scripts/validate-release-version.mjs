@@ -76,7 +76,7 @@ if (requireDownload) {
   }
 } else if (download !== expectedDownload) {
   console.warn(
-    `validate-release-version: note — download still temporary (ok until 0.99.0 release flip):\n  ${download}`,
+    `validate-release-version: note — temporary branch archive currently accepted by project policy:\n  ${download}`,
   );
 }
 

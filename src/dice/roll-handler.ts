@@ -13,8 +13,6 @@ import {
   manualRollBonusForKind,
   readManualAdjustments,
 } from '../utils/manual-adjustments.js';
-
-import { log } from '../utils/logger.js';
 /** Roll-kind hint used by the Power Mechanics Engine to look up dice-pool deltas. */
 export type MasteryRollKind =
   | 'attack'
@@ -481,19 +479,6 @@ export async function masteryRoll(options: RollOptions): Promise<MasteryRollResu
     const note = 'Disadvantage: only one 8 may explode';
     flavor = flavor ? `${flavor} | ${note}` : note;
   }
-
-  log.debug('Mastery System | DEBUG: masteryRoll called', {
-    numDice,
-    keepDice,
-    skill,
-    tn,
-    label,
-    flavor,
-    attackExplodeDiceOn78: explodeAttack78,
-    rollAdvantage,
-    rollDisadvantage,
-  });
-  
   // Roll the dice
   const useAdv = rollAdvantage && !rollDisadvantage;
   const useDis = rollDisadvantage && !rollAdvantage;
@@ -502,30 +487,11 @@ export async function masteryRoll(options: RollOptions): Promise<MasteryRollResu
     rollAdvantage: useAdv,
     rollDisadvantage: useDis,
   });
-  log.debug('Mastery System | DEBUG: Dice rolled', {
-    numDice,
-    dice,
-    exploded,
-    diceCount: dice.length
-  });
-  
   // Select highest dice to keep
   const keptIndices = selectHighestDice(dice, keepDice);
   const keptValues = keptIndices.map(i => dice[i]);
-  log.debug('Mastery System | DEBUG: Dice selection', {
-    keptIndices,
-    keptValues,
-    allDice: dice
-  });
-  
   // Calculate total from kept dice
   const diceTotal = calculateTotal(dice, keptIndices);
-  log.debug('Mastery System | DEBUG: Dice total calculated', {
-    diceTotal,
-    skill,
-    totalBeforeSkill: diceTotal
-  });
-  
   // Add skill bonus (deprecated: now handled via skill spending, but kept for compatibility)
   // `manualFlatBonus` is layered on top — it was already announced in `flavor`.
   const totalBeforeBlood = diceTotal + skill + manualFlatBonus;
@@ -567,18 +533,6 @@ export async function masteryRoll(options: RollOptions): Promise<MasteryRollResu
     raises =
       raiseOutcome === 'full' ? declaredRaiseSlots + stoneBonusRaises : 0;
   }
-  
-  log.debug('Mastery System | DEBUG: Roll result calculated', {
-    total,
-    normalTn: normalTnVal,
-    raiseTn: raiseTnVal,
-    raiseOutcome,
-    success,
-    raises,
-    diceTotal,
-    skill
-  });
-  
   // Create result object
   const result: MasteryRollResult & {
     keptIndices?: number[];
@@ -606,13 +560,6 @@ export async function masteryRoll(options: RollOptions): Promise<MasteryRollResu
     stoneBonusRaises,
     ...(autoFailReason ? { autoFailReason } : {}),
   };
-  
-  log.debug('Mastery System | DEBUG: Sending roll to chat', {
-    result,
-    label,
-    flavor
-  });
-
   const rollRecipe: MasteryRollRecipe = {
     numDice: options.numDice,
     keepDice,
@@ -673,9 +620,6 @@ export async function masteryRoll(options: RollOptions): Promise<MasteryRollResu
       console.warn('Mastery System | stealth perception state update failed', stealthErr);
     }
   }
-  
-  log.debug('Mastery System | DEBUG: Roll complete, returning result', result);
-  
   return result;
 }
 
@@ -824,15 +768,6 @@ async function sendRollToChat(
       result as MasteryRollResult & { keptIndices?: number[] },
       result.skill
     );
-
-    log.debug('Mastery System | Roll display built', {
-      numDice: result.dice.length,
-      keptDice: keptIndices.length,
-      formula: roll.formula,
-      termCount: roll.terms.length
-    });
-    
-    
     // Build result display HTML
     const successClass = result.success ? 'success' : 'failure';
     

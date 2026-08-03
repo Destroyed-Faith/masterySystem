@@ -286,9 +286,6 @@ export function validateBondRitual(bond, ownerSkillRatings = {}, ownerMasteryRan
             }
             const expected = p.tokenCost ||
                 standardPowerTokenCost(p.category || 'active', p.level);
-            if (p.tokenCost > 0 && p.tokenCost !== expected && p.category) {
-                // Allow explicit tokenCost from PP formula; only warn on mismatch with category estimate.
-            }
         }
     }
     // Ensure body power token costs are reflected in spend.bodies[*].powerTokenCosts

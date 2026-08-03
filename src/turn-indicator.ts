@@ -1,12 +1,3 @@
-/**
- * Turn Indicator - Blue Ring around Active Combatant
- * 
- * Replaces the big d20 turn indicator with a subtle blue ring around the active token
- * Integrates with the radial menu to adjust size when menu is open
- */
-
-// Global state
-import { log } from './utils/logger.js';
 let activeTurnRing: PIXI.Graphics | null = null;
 let activeTurnTokenId: string | null = null;
 let turnRingTickerFn: ((delta: number) => void) | null = null;
@@ -84,9 +75,6 @@ function createTurnRing({
  */
 export function clearTurnRing(): void {
   if (!activeTurnRing) return;
-
-  log.debug('Mastery System | Clearing turn ring');
-
   const ring = activeTurnRing;
   activeTurnRing = null;
   activeTurnTokenId = null;
@@ -179,13 +167,6 @@ export function showTurnRingForToken(token: any, radius?: number): void {
   
   const radialOpen = isRadialMenuOpenForToken(token);
   const ringRadius = radius || computeTurnRingRadius(token, radialOpen);
-  
-  log.debug('Mastery System | Showing turn ring for token', {
-    token: token.name,
-    radius: ringRadius,
-    radialOpen
-  });
-  
   // Create the ring
   const ring = createTurnRing({
     token,
@@ -236,8 +217,6 @@ export function showTurnRingForToken(token: any, radius?: number): void {
   
   activeTurnRing = ring;
   activeTurnTokenId = token.id;
-  
-  log.debug('Mastery System | Turn ring created and displayed');
 }
 
 /**
@@ -261,12 +240,9 @@ export function updateTurnRingForRadialMenu(token: any, radialOpen: boolean): vo
  * Initialize turn indicator hooks
  */
 export function initializeTurnIndicator(): void {
-  log.debug('Mastery System | Initializing Turn Indicator');
-  
   // Hook into combat updates — only refresh ring on real turn/round changes or combatant swap
   Hooks.on('updateCombat', (combat: any, changes: any) => {
     if (!combat?.started) {
-      log.debug('Mastery System | Combat ended - clearing turn ring');
       lastTurnRingCombatantId = null;
       clearTurnRing();
       return;
@@ -294,17 +270,10 @@ export function initializeTurnIndicator(): void {
 
     const token = combatant.token?.object;
     if (!token) {
-      log.debug('Mastery System | No token for current combatant - clearing turn ring');
       lastTurnRingCombatantId = null;
       clearTurnRing();
       return;
     }
-
-    log.debug('Mastery System | [TURN-RING] Active combatant', token.name, {
-      turnDelta: changes?.turn,
-      roundDelta: changes?.round,
-    });
-
     const radialOpen = isRadialMenuOpenForToken(token);
     const radius = computeTurnRingRadius(token, radialOpen);
 
@@ -313,7 +282,6 @@ export function initializeTurnIndicator(): void {
 
   // Hook into combat end
   Hooks.on('deleteCombat', () => {
-    log.debug('Mastery System | Combat deleted - clearing turn ring');
     lastTurnRingCombatantId = null;
     clearTurnRing();
   });
@@ -351,7 +319,5 @@ export function initializeTurnIndicator(): void {
       }
     }
   });
-  
-  log.debug('Mastery System | Turn indicator hooks registered');
 }
 

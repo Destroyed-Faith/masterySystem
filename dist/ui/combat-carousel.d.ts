@@ -1,14 +1,3 @@
-/**
- * Mastery Combat Carousel UI
- * Displays combatants as portrait cards with initiative, resources, and controls
- *
- * Stone Powers: Pro PC-Karte ein Button (Owner/GM), solange die Zuordnung nicht durch
- * `stonePowersConfigLock` gesperrt ist (erste Bewegung/Angriff/Reaktion in der Runde).
- * Vorplanen für eine künftige Runde N+1 während Runde N ohne Rundenwechsel wäre ein
- * separates Datenmodell — hier nicht umgesetzt.
- *
- * Migrated to Foundry VTT v13 ApplicationV2 + HandlebarsApplicationMixin
- */
 declare const ApplicationV2: typeof import("@league-of-foundry-developers/foundry-vtt-types/src/foundry/client/applications/api/application.mjs").default;
 declare const BaseCarousel: typeof ApplicationV2;
 export declare class CombatCarouselApp extends BaseCarousel {

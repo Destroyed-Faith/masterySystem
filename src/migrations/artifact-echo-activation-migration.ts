@@ -16,8 +16,6 @@ import {
   repairActorEchoArtifacts,
   syncEmbeddedArtifactFromWorldNode,
 } from '../utils/artifact-echo-repair.js';
-
-import { log } from '../utils/logger.js';
 const SETTING_NAMESPACE = 'mastery-system';
 const SETTING_KEY = 'artifactEchoActivationV2Run';
 
@@ -106,7 +104,6 @@ export async function runArtifactEchoActivationMigration(): Promise<void> {
     const msg =
       `Mastery System | Echo artifact activation: normalized ${flagUpdates} flag(s), ` +
       `reset ${linkResets} legacy link(s), synced ${syncUpdates} stale item(s).`;
-    log.debug(msg);
     try {
       ui.notifications?.info(msg);
     } catch {

@@ -23,8 +23,6 @@ import {
   readActorArtifactProgress,
   serializeActorArtifactProgress,
 } from '../utils/artifact-actor-rules.js';
-
-import { log } from '../utils/logger.js';
 const SETTING_NAMESPACE = 'mastery-system';
 
 const ATTR_TO_TITAN_KEY: Record<string, string> = {
@@ -111,9 +109,5 @@ export async function runTitanScarsAffinityMigration(actors: any[]): Promise<voi
         console.warn(`Mastery System | Titan Scars migration: could not backfill subChoiceKey on ${actor.name}`, err);
       }
     }
-  }
-
-  if (migrated > 0) {
-    log.debug(`Migrated ${migrated} legacy Titan Scars item(s) to Attribute-affinity trees.`);
   }
 }

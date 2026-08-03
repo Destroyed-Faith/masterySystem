@@ -24,17 +24,10 @@ import {
   getStoredJournalFolderId,
   setStoredJournalFolderId,
 } from './tyhra-calendar-settings.js';
-
-import { log } from '../utils/logger.js';
 const journalCreationLocks = new Map<string, Promise<JournalEntry | null>>();
 
 let journalIndexCache: Map<string, string> | null = null;
 let journalIndexBuilt = false;
-
-function logInfo(message: string, data?: unknown): void {
-  if (data !== undefined) log.debug(`${TYHRA_CALENDAR_LOG_PREFIX} ${message}`, data);
-  else log.debug(`${TYHRA_CALENDAR_LOG_PREFIX} ${message}`);
-}
 
 function logWarn(message: string, data?: unknown): void {
   if (data !== undefined) console.warn(`${TYHRA_CALENDAR_LOG_PREFIX} ${message}`, data);
@@ -158,7 +151,6 @@ export async function ensureCalendarJournalFolder(year: number): Promise<Folder>
     rootFolder = await findJournalFolderByName(TYHRA_CALENDAR_FOLDER_NAME, null);
     if (!rootFolder) {
       rootFolder = await ensureJournalFolder(TYHRA_CALENDAR_FOLDER_NAME, null);
-      logInfo(`Created journal folder "${TYHRA_CALENDAR_FOLDER_NAME}"`, rootFolder.id);
     }
     await setStoredJournalFolderId(rootFolder.id);
   }
@@ -167,7 +159,6 @@ export async function ensureCalendarJournalFolder(year: number): Promise<Folder>
   let yearFolder = await findJournalFolderByName(yearFolderName, rootFolder.id);
   if (!yearFolder) {
     yearFolder = await ensureJournalFolder(yearFolderName, rootFolder.id);
-    logInfo(`Created journal folder "${yearFolderName}"`, yearFolder.id);
   }
 
   return yearFolder;
@@ -253,7 +244,6 @@ export async function openDayJournal(
 
       invalidateJournalIndexCache();
       buildJournalIndex();
-      logInfo(`Created day journal ${journalKey}`, entry.id);
       return entry;
     } catch (error) {
       logError(`Failed to create day journal ${journalKey}`, error);

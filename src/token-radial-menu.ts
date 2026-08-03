@@ -18,8 +18,6 @@ import { clearRangePreview, clearRadialMenuRange } from './radial-menu/range-pre
 import { hideRadialInfoPanel } from './radial-menu/info-panel';
 import { renderOuterRing, renderInnerSegments, refreshInnerSegmentsVisual } from './radial-menu/rendering';
 import { getActionEconomyActor } from './combat/action-economy.js';
-
-import { log } from './utils/logger.js';
 // Re-export for external use
 export { getAllCombatOptionsForActor };
 export type { RadialCombatOption, InnerSegment, TargetGroup, AoEShape } from './radial-menu/types';
@@ -138,7 +136,6 @@ export function closeRadialMenu(): void {
   if (msTokenHUD && msTokenHUD.length > 0) {
     msTokenHUD.css('display', '');
     msTokenHUD = null;
-    log.debug('Mastery System | Token HUD restored');
   }
   
   // Don't cancel melee/utility targeting when menu closes
@@ -161,18 +158,6 @@ export function openRadialMenuForActor(token: any, allOptions: RadialCombatOptio
       try {
         const { getRoundState, getAvailableAttackActions, getAvailableMovementActions } = await import('./combat/action-economy.js');
         const roundState = getRoundState(actor, combat);
-        log.debug('Mastery System | [RADIAL MENU OPEN] Remaining actions:', {
-          actorName: actor.name,
-          attack: getAvailableAttackActions(actor, combat),
-          movement: getAvailableMovementActions(actor, combat),
-          roundState: {
-            round: roundState.round,
-            attackTotal: roundState.attackActions.total,
-            attackUsed: roundState.attackActions.used,
-            movementTotal: roundState.movementActions.total,
-            movementUsed: roundState.movementActions.used
-          }
-        });
       } catch (err) {
         console.warn('Mastery System | Could not log action economy on radial menu open', err);
       }
@@ -184,16 +169,6 @@ export function openRadialMenuForActor(token: any, allOptions: RadialCombatOptio
   const gridType = getGridType();
   const gridTypeName = getGridTypeName();
   const sceneGridType = canvas.scene?.gridType;
-  
-  log.debug('Mastery System | Grid Status:', {
-    gridEnabled,
-    gridType,
-    gridTypeName,
-    sceneGridType,
-    hasCanvasGrid: !!canvas.grid,
-    hasCanvasScene: !!canvas.scene
-  });
-  
   // Hide Token HUD to show only the radial menu
   // Find the Token HUD element for this token
   const tokenHUD = canvas.hud?.token;
@@ -227,7 +202,6 @@ export function openRadialMenuForActor(token: any, allOptions: RadialCombatOptio
     if (hudElement && hudElement.length > 0) {
       msTokenHUD = hudElement;
       hudElement.css('display', 'none');
-      log.debug('Mastery System | Token HUD hidden');
     } else {
       console.warn('Mastery System | Could not find Token HUD element to hide');
     }
@@ -245,14 +219,6 @@ export function openRadialMenuForActor(token: any, allOptions: RadialCombatOptio
     const segmentId = getSegmentIdForOption(option);
     bySegment[segmentId].push(option);
   }
-  
-  log.debug('Mastery System | Options by segment:', {
-    movement: bySegment.movement.length,
-    attack: bySegment.attack.length,
-    utility: bySegment.utility.length,
-    'active-buff': bySegment['active-buff'].length
-  });
-  
   // Determine initial segment (first non-empty segment, default to movement)
   const segments: InnerSegment['id'][] = ['movement', 'attack', 'utility', 'active-buff'];
   let currentSegmentId: InnerSegment['id'] = segments.find(id => (bySegment[id]?.length ?? 0) > 0) ?? 'movement';
@@ -272,15 +238,6 @@ export function openRadialMenuForActor(token: any, allOptions: RadialCombatOptio
         hudKeyTypes[key] += ' (has addChild)';
       }
     });
-    
-    log.debug('Mastery System | canvas.hud structure:', {
-      hasAddChild: typeof (canvas.hud as any).addChild === 'function',
-      hasContainer: !!(canvas.hud as any).container,
-      hasObjects: !!(canvas.hud as any).objects,
-      keys: hudKeys,
-      keyTypes: hudKeyTypes
-    });
-    
     // Try v13 structure - check for layers property
     if ((canvas.hud as any).layers) {
       // Foundry v13 uses layers array/object
@@ -290,21 +247,17 @@ export function openRadialMenuForActor(token: any, allOptions: RadialCombatOptio
         const firstLayer = layers[0];
         if (firstLayer && typeof firstLayer.addChild === 'function') {
           hudContainer = firstLayer;
-          log.debug('Mastery System | Using canvas.hud.layers[0]');
         } else if (firstLayer && firstLayer.container && typeof firstLayer.container.addChild === 'function') {
           hudContainer = firstLayer.container;
-          log.debug('Mastery System | Using canvas.hud.layers[0].container');
         }
       } else if (layers && typeof layers.addChild === 'function') {
         hudContainer = layers;
-        log.debug('Mastery System | Using canvas.hud.layers');
       }
     }
     
     // Try v13 structure - check for interactive property (TokenHUD)
     if (!hudContainer && (canvas.hud as any).interactive && typeof (canvas.hud as any).interactive.addChild === 'function') {
       hudContainer = (canvas.hud as any).interactive;
-      log.debug('Mastery System | Using canvas.hud.interactive');
     }
     
     // Try v13 structure - check for children property
@@ -312,26 +265,22 @@ export function openRadialMenuForActor(token: any, allOptions: RadialCombatOptio
       // If it has children, it might be a container itself
       if (typeof (canvas.hud as any).addChild === 'function') {
         hudContainer = canvas.hud as any;
-        log.debug('Mastery System | Using canvas.hud (has children array)');
       }
     }
     
     // Try container property
     if (!hudContainer && (canvas.hud as any).container && typeof (canvas.hud as any).container.addChild === 'function') {
       hudContainer = (canvas.hud as any).container;
-      log.debug('Mastery System | Using canvas.hud.container');
     }
     
     // Try direct addChild (older versions)
     if (!hudContainer && typeof (canvas.hud as any).addChild === 'function') {
       hudContainer = canvas.hud as any;
-      log.debug('Mastery System | Using canvas.hud directly');
     }
     
     // Try objects container
     if (!hudContainer && (canvas.hud as any).objects && typeof (canvas.hud as any).objects.addChild === 'function') {
       hudContainer = (canvas.hud as any).objects;
-      log.debug('Mastery System | Using canvas.hud.objects');
     }
     
     // Try each key to see if any is a PIXI.Container
@@ -340,7 +289,6 @@ export function openRadialMenuForActor(token: any, allOptions: RadialCombatOptio
         const value = (canvas.hud as any)[key];
         if (value && typeof value.addChild === 'function') {
           hudContainer = value;
-          log.debug(`Using canvas.hud.${key}`);
           break;
         }
         // Also check nested properties
@@ -348,13 +296,11 @@ export function openRadialMenuForActor(token: any, allOptions: RadialCombatOptio
           // Check for v13 element property first (replaces deprecated container)
           if (value.element && typeof value.element.addChild === 'function') {
             hudContainer = value.element;
-            log.debug(`Using canvas.hud.${key}.element`);
             break;
           }
           // Fallback to deprecated container property (for backwards compatibility)
           if (value.container && typeof value.container.addChild === 'function') {
             hudContainer = value.container;
-            log.debug(`Using canvas.hud.${key}.container (deprecated)`);
             break;
           }
         }
@@ -366,10 +312,8 @@ export function openRadialMenuForActor(token: any, allOptions: RadialCombatOptio
   if (!hudContainer && canvas.tokens) {
     if ((canvas.tokens as any).container && typeof (canvas.tokens as any).container.addChild === 'function') {
       hudContainer = (canvas.tokens as any).container;
-      log.debug('Mastery System | Using canvas.tokens.container');
     } else if (typeof (canvas.tokens as any).addChild === 'function') {
       hudContainer = canvas.tokens as any;
-      log.debug('Mastery System | Using canvas.tokens directly');
     }
   }
   
@@ -377,17 +321,14 @@ export function openRadialMenuForActor(token: any, allOptions: RadialCombatOptio
   if (!hudContainer && canvas.foreground) {
     if ((canvas.foreground as any).container && typeof (canvas.foreground as any).container.addChild === 'function') {
       hudContainer = (canvas.foreground as any).container;
-      log.debug('Mastery System | Using canvas.foreground.container');
     } else if (typeof (canvas.foreground as any).addChild === 'function') {
       hudContainer = canvas.foreground as any;
-      log.debug('Mastery System | Using canvas.foreground directly');
     }
   }
   
   // Last resort: use canvas.app.stage (the root PIXI container)
   if (!hudContainer && canvas.app && canvas.app.stage) {
     hudContainer = canvas.app.stage;
-    log.debug('Mastery System | Using canvas.app.stage as last resort');
   }
   
   if (!hudContainer) {
@@ -413,18 +354,8 @@ export function openRadialMenuForActor(token: any, allOptions: RadialCombatOptio
   
   // Notify turn indicator that radial menu opened
   Hooks.call('masterySystem.radialMenuOpened', token.id);
-  
-  log.debug('Mastery System | Root container created:', {
-    interactive: root.interactive,
-    interactiveChildren: root.interactiveChildren,
-    name: root.name
-  });
-  
   // Add to canvas layer
   hudContainer.addChild(root);
-  
-  log.debug('Mastery System | Root container added to hudContainer, parent:', root.parent?.constructor?.name);
-  
   // Center on token
   const tokenCenter = token.center;
   root.position.set(tokenCenter.x, tokenCenter.y);
@@ -434,27 +365,18 @@ export function openRadialMenuForActor(token: any, allOptions: RadialCombatOptio
   msRadialGetCurrentSegmentId = getCurrentSegmentId;
   
   const setCurrentSegmentId = (id: InnerSegment['id']) => {
-    log.debug(`[setCurrentSegmentId] Called with id="${id}", current="${currentSegmentId}"`);
-    
     if (currentSegmentId === id) {
-      log.debug(`Segment ${id} already active, no change needed`);
       return; // No change needed
     }
-    
-    log.debug(`[setCurrentSegmentId] Changing segment from "${currentSegmentId}" to "${id}"`);
     const oldSegmentId = currentSegmentId;
     currentSegmentId = id;
     
     // Check if the new segment has options
     const optionsForSegment = bySegment[currentSegmentId] ?? [];
-    log.debug(`[setCurrentSegmentId] Segment "${currentSegmentId}" has ${optionsForSegment.length} options`);
-    
     // Re-render outer ring with filtered options for the new segment
-    log.debug(`[setCurrentSegmentId] Re-rendering outer ring...`);
     renderOuterRing(root, token, bySegment, currentSegmentId);
     
     // Refresh inner segments visual state to highlight the active segment
-    log.debug(`[setCurrentSegmentId] Refreshing inner segments visual...`);
     refreshInnerSegmentsVisual(root, getCurrentSegmentId, token);
     
     // Ensure inner segments stay on top after re-rendering outer ring
@@ -464,19 +386,13 @@ export function openRadialMenuForActor(token: any, allOptions: RadialCombatOptio
         innerSegments.push(child);
       }
     });
-    
-    log.debug(`[setCurrentSegmentId] Moving ${innerSegments.length} inner segments to top...`);
-    
     // Remove and re-add to put them on top
     innerSegments.forEach((seg, idx) => {
       const oldIndex = root.getChildIndex(seg);
       root.removeChild(seg);
       root.addChild(seg);
       const newIndex = root.getChildIndex(seg);
-      log.debug(`[setCurrentSegmentId] Inner segment ${idx} moved from index ${oldIndex} to ${newIndex}`);
     });
-    
-    log.debug(`[setCurrentSegmentId] Segment change complete: "${oldSegmentId}" -> "${currentSegmentId}"`);
   };
   
   // Initial render
@@ -493,25 +409,19 @@ export function openRadialMenuForActor(token: any, allOptions: RadialCombatOptio
       innerSegments.push(child);
     }
   });
-  
-  log.debug(`Found ${innerSegments.length} inner segments, moving to top`);
-  
   // Remove and re-add to put them on top
   innerSegments.forEach((seg, idx) => {
     const oldIndex = root.getChildIndex(seg);
     root.removeChild(seg);
     root.addChild(seg);
     const newIndex = root.getChildIndex(seg);
-    log.debug(`Inner segment ${idx} moved from index ${oldIndex} to ${newIndex}`);
   });
   
   // Final verification: log all children in order
-  log.debug('Mastery System | Root children order (bottom to top):');
   root.children.forEach((child: any, idx: number) => {
     const type = child.msInnerSegment ? 'INNER_SEGMENT' : 
                  child.msOuterSlice ? 'OUTER_SLICE' : 
                  child.msOuterRing ? 'OUTER_RING' : 'UNKNOWN';
-    log.debug(`  [${idx}] ${type} - ${child.name || child.constructor.name}`);
   });
   
   // Outside-click closes the menu

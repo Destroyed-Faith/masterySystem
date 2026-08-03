@@ -24,7 +24,6 @@
 import { findTemplateById } from '../utils/power-catalog.js';
 import { ALL_POWER_TEMPLATES } from '../utils/powers/templates/index.js';
 import { renderRange, renderAoe, renderDuration } from '../utils/power-rendering.js';
-import { log } from '../utils/logger.js';
 const SETTING_NAMESPACE = 'mastery-system';
 // Retained only so old worlds that registered this world-setting don't error on
 // `settings.get`. The flag is no longer used to gate the migration.
@@ -148,7 +147,6 @@ export async function runPowerTemplateResyncMigration(options = {}) {
             actorsTouched++;
     }
     if (updated > 0) {
-        log.debug(`power-resync: resynced ${updated} power item(s) on ${actorsTouched} actor(s)`);
         ui.notifications?.info(`Updated ${updated} Active/Active-Buff power(s) to the latest values.`);
     }
     else if (options.notify) {

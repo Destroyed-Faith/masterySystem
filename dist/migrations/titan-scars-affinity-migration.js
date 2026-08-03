@@ -16,7 +16,6 @@
  */
 import { findEchoArtifactRootInWorld, findEchoArtifactWorldItem, } from '../utils/seed-artifact-library.js';
 import { readActorArtifactProgress, serializeActorArtifactProgress, } from '../utils/artifact-actor-rules.js';
-import { log } from '../utils/logger.js';
 const SETTING_NAMESPACE = 'mastery-system';
 const ATTR_TO_TITAN_KEY = {
     might: 'titanScarsMight',
@@ -90,9 +89,6 @@ export async function runTitanScarsAffinityMigration(actors) {
                 console.warn(`Mastery System | Titan Scars migration: could not backfill subChoiceKey on ${actor.name}`, err);
             }
         }
-    }
-    if (migrated > 0) {
-        log.debug(`Migrated ${migrated} legacy Titan Scars item(s) to Attribute-affinity trees.`);
     }
 }
 //# sourceMappingURL=titan-scars-affinity-migration.js.map

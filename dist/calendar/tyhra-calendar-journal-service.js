@@ -4,16 +4,9 @@
 import { TYHRA_CALENDAR_FLAG_SCOPE, TYHRA_CALENDAR_FOLDER_NAME, TYHRA_CALENDAR_ID, TYHRA_CALENDAR_LOG_PREFIX, } from './tyhra-calendar-config.js';
 import { buildDayJournalPageContent, dateToJournalFlagData, dayIndexFromParts, getDateFromDayIndex, getDayIndexFromDate, getDayJournalName, getJournalKey, getJournalKeyFromDayIndex, } from './tyhra-calendar-service.js';
 import { canUserCreateDayJournals, getStoredJournalFolderId, setStoredJournalFolderId, } from './tyhra-calendar-settings.js';
-import { log } from '../utils/logger.js';
 const journalCreationLocks = new Map();
 let journalIndexCache = null;
 let journalIndexBuilt = false;
-function logInfo(message, data) {
-    if (data !== undefined)
-        log.debug(`${TYHRA_CALENDAR_LOG_PREFIX} ${message}`, data);
-    else
-        log.debug(`${TYHRA_CALENDAR_LOG_PREFIX} ${message}`);
-}
 function logWarn(message, data) {
     if (data !== undefined)
         console.warn(`${TYHRA_CALENDAR_LOG_PREFIX} ${message}`, data);
@@ -120,7 +113,6 @@ export async function ensureCalendarJournalFolder(year) {
         rootFolder = await findJournalFolderByName(TYHRA_CALENDAR_FOLDER_NAME, null);
         if (!rootFolder) {
             rootFolder = await ensureJournalFolder(TYHRA_CALENDAR_FOLDER_NAME, null);
-            logInfo(`Created journal folder "${TYHRA_CALENDAR_FOLDER_NAME}"`, rootFolder.id);
         }
         await setStoredJournalFolderId(rootFolder.id);
     }
@@ -128,7 +120,6 @@ export async function ensureCalendarJournalFolder(year) {
     let yearFolder = await findJournalFolderByName(yearFolderName, rootFolder.id);
     if (!yearFolder) {
         yearFolder = await ensureJournalFolder(yearFolderName, rootFolder.id);
-        logInfo(`Created journal folder "${yearFolderName}"`, yearFolder.id);
     }
     return yearFolder;
 }
@@ -201,7 +192,6 @@ export async function openDayJournal(input) {
             ]);
             invalidateJournalIndexCache();
             buildJournalIndex();
-            logInfo(`Created day journal ${journalKey}`, entry.id);
             return entry;
         }
         catch (error) {
