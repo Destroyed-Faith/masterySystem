@@ -6,7 +6,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
-- Public-repo cleanup for a later 0.99 RC: HTTPS lockfile for clean `npm ci`, player-first README, `RELEASING.md`, allowlist release packaging + fail-fast release workflow (prerelease when &lt; 1.0), removed missing `sample-*` packs, Divine Clash stone icon defaults, and gated verbose console noise behind `logger.ts`.
+- Public-repo cleanup for a later 0.99 RC: HTTPS lockfile for clean `npm ci`, player-first README, `RELEASING.md`, allowlist release packaging + fail-fast release workflow (prerelease when < 1.0), removed missing `sample-*` packs, Divine Clash stone icon defaults, and gated verbose console noise behind `logger.ts`.
 - Install `download` still points at `main.zip` until the coordinated `0.99.0` release flip.
 
 ## [0.9.241] - 2026-08-02
