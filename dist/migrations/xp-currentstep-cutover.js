@@ -19,6 +19,7 @@
  *   `game.settings.get('mastery-system', 'xpCurrentStepCutoverRun') === true`
  */
 import { getForcedDeletion } from '../utils/foundry-v14.js';
+import { log } from '../utils/logger.js';
 const SETTING_NAMESPACE = 'mastery-system';
 const SETTING_KEY = 'xpCurrentStepCutoverRun';
 export function registerXpCurrentStepCutoverSetting() {
@@ -124,7 +125,7 @@ export async function runXpCurrentStepCutover() {
     const msg = touched > 0
         ? `Mastery System | XP Upgrade-Step cutover: normalized ${touched} character actor(s) to the new once-per-step shape.`
         : 'Mastery System | XP Upgrade-Step cutover: no character actors needed migration.';
-    console.log(msg);
+    log.debug(msg);
     try {
         ui.notifications?.info(msg);
     }

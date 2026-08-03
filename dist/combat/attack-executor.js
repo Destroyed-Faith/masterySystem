@@ -15,6 +15,7 @@ import { RAISE_INCREMENT } from "../utils/constants.js";
 import { calculateBaseTN } from "./spell-roll-handler.js";
 import { artifactLevelToTemplateRank } from "../utils/artifact-spell-pick.js";
 import { buildAvailableRaiseOptions, computeRaiseTns, countRaiseSlots, declaredRaiseFromOptionId, formatSnapshotSummary, loadPowerSnapshotForArtifactOption, loadPowerSnapshotForItem, previewAfterRaiseCost, } from "./raise-resolution.js";
+import { log } from '../utils/logger.js';
 function newSplitPairId() {
     try {
         if (typeof foundry !== 'undefined' && foundry.utils?.randomID) {
@@ -252,7 +253,7 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
     const baseActorId = attackerToken.actorLink ? null : attackerToken.actorId;
     const baseActor = baseActorId ? game.actors?.get(baseActorId) : null;
     // Debug: Log actor information
-    console.log('Mastery System | [ATTACK EXECUTOR] Actor resolution', {
+    log.debug('Mastery System | [ATTACK EXECUTOR] Actor resolution', {
         attackerTokenId: attackerToken.id,
         attackerActorId: attacker?.id,
         attackerActorType: attacker?.type,
@@ -306,7 +307,7 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
     }
     // Virtual unarmed has no embedded item id — omit weaponId so damage dialog uses fallback.
     let weaponId = weapon && !isVirtualUnarmedWeapon(weapon) ? weapon.id ?? null : null;
-    console.log('Mastery System | [ATTACK EXECUTOR] Weapon resolution', {
+    log.debug('Mastery System | [ATTACK EXECUTOR] Weapon resolution', {
         attackerId: attacker.id,
         totalItems: items.length,
         weaponItems: items.filter((i) => i.type === 'weapon').length,
@@ -324,7 +325,7 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
         attributeValue = Math.max(0, Math.floor(attributeValue / 2));
     }
     // Debug: Log attribute reading
-    console.log('Mastery System | [ATTACK EXECUTOR] Attribute calculation', {
+    log.debug('Mastery System | [ATTACK EXECUTOR] Attribute calculation', {
         attribute,
         attributeValue,
         masteryRank,
@@ -515,7 +516,7 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
     };
     // Debug log before creating message
     const weaponCandidateFromEquipped = weapon;
-    console.log('Mastery System | [WEAPON-ID DEBUG]', {
+    log.debug('Mastery System | [WEAPON-ID DEBUG]', {
         messageType: 'attack-card:create:before',
         attackerId: attacker.id,
         targetId: target.id,
@@ -698,7 +699,7 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
                 'mastery-system': flagsObj
             }
         });
-        console.log("Mastery System | [WEAPON-ID DEBUG]", {
+        log.debug("Mastery System | [WEAPON-ID DEBUG]", {
             messageType: "attack-card:create:after",
             messageId: message.id,
             createdFlags: message.flags?.["mastery-system"]
@@ -731,7 +732,7 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
                 }
             }, 100);
         }
-        console.log("Mastery System | [ATTACK EXECUTOR] Attack card created", {
+        log.debug("Mastery System | [ATTACK EXECUTOR] Attack card created", {
             attackType,
             attackerId: attacker.id,
             targetId: target.id,

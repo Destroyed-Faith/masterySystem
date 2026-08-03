@@ -11,6 +11,7 @@ import { calculateMaxSkillRank } from '../utils/calculations.js';
 import { getEquippedEquipmentInitiativeModifier } from '../utils/equipment-modifiers.js';
 import { readManualAdjustments } from '../utils/manual-adjustments.js';
 import { buildCombatTurnSnapshot, buildCombatantsIteratorOrder, logCombatTrace, logInitiativeOrderDebug, } from '../utils/combat-trace-debug.js';
+import { log } from '../utils/logger.js';
 const CR_SKILL_KEY = 'combatReflexes';
 function getMasteryRank(actor) {
     if (!actor || !actor.system)
@@ -153,7 +154,7 @@ export async function rollInitiativeForCombatant(combatant, options = {}) {
             masteryRank
         });
     }
-    console.log('Mastery System | Initiative rolled', {
+    log.debug('Mastery System | Initiative rolled', {
         actor: actor.name,
         diceTotal,
         combatReflexesSpent,
@@ -176,7 +177,7 @@ export async function rollInitiativeForCombatant(combatant, options = {}) {
  */
 export async function executeInitiativePhase(combat) {
     const { InitiativeShopDialog } = await import('./initiative-shop-dialog.js');
-    console.log('Mastery System | Initiative phase for combat', combat.id, 'round', combat.round);
+    log.debug('Mastery System | Initiative phase for combat', combat.id, 'round', combat.round);
     logInitiativeOrderDebug('executeInitiativePhase.start', {
         note: '`turns` before rolls/shops; `combatants` is encounter iteration order (may differ).',
         snapshot: buildCombatTurnSnapshot(combat),

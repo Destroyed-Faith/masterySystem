@@ -3,6 +3,7 @@
  * milestone-based Active Buff: Critical template (SRD bands, no linear crit riders).
  */
 import { findTemplateById } from '../utils/power-catalog.js';
+import { log } from '../utils/logger.js';
 const SETTING_NAMESPACE = 'mastery-system';
 const SETTING_KEY = 'abCriticalMilestonesMigrationRun';
 export function registerAbCriticalMilestonesMigrationSetting() {
@@ -77,7 +78,7 @@ export async function runAbCriticalMilestonesMigration() {
     }
     await markRun();
     if (updated > 0) {
-        console.log(`Mastery System | ab-critical migration: resynced ${updated} Active Buff: Critical item(s)`);
+        log.debug(`ab-critical migration: resynced ${updated} Active Buff: Critical item(s)`);
         ui.notifications?.info(`Updated ${updated} Active Buff: Critical power(s) to milestone bands.`);
     }
 }

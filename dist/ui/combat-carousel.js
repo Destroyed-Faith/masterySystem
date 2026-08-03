@@ -14,6 +14,7 @@ import { getActionEconomyActor, getReactionActionsSummary, isStonePowersConfigur
 import { requestEndTurn } from '../combat/end-turn.js';
 import { StonePowersDialog } from '../stones/stone-powers-dialog.js';
 import { MASTERY_STATUS_EFFECTS } from '../system/status-effects.js';
+import { log } from '../utils/logger.js';
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 // Type workaround for Mixin
 const BaseCarousel = HandlebarsApplicationMixin(ApplicationV2);
@@ -41,7 +42,7 @@ export class CombatCarouselApp extends BaseCarousel {
      * Open the carousel (singleton pattern)
      */
     static open() {
-        console.log('Mastery System | [CAROUSEL] Opening carousel');
+        log.debug('Mastery System | [CAROUSEL] Opening carousel');
         // Check for existing instance
         const existingApp = foundry.applications.instances.get('mastery-combat-carousel');
         if (existingApp) {
@@ -49,10 +50,10 @@ export class CombatCarouselApp extends BaseCarousel {
             return;
         }
         if (!CombatCarouselApp._instance) {
-            console.log('Mastery System | [CAROUSEL] Creating new instance');
+            log.debug('Mastery System | [CAROUSEL] Creating new instance');
             CombatCarouselApp._instance = new CombatCarouselApp();
         }
-        console.log('Mastery System | [CAROUSEL] Rendering carousel');
+        log.debug('Mastery System | [CAROUSEL] Rendering carousel');
         CombatCarouselApp._instance.render({ force: true, focus: false });
     }
     /**
@@ -76,19 +77,19 @@ export class CombatCarouselApp extends BaseCarousel {
     static refresh() {
         const instance = CombatCarouselApp.instance;
         if (instance && instance.rendered) {
-            console.log('Mastery System | [CAROUSEL] Refreshing carousel');
+            log.debug('Mastery System | [CAROUSEL] Refreshing carousel');
             instance.render({ force: true });
         }
     }
     async _prepareContext(_options) {
         const combat = game.combats?.active;
-        console.log('Mastery System | [CAROUSEL] _prepareContext called', {
+        log.debug('Mastery System | [CAROUSEL] _prepareContext called', {
             hasCombat: !!combat,
             combatId: combat?.id,
             combatantsCount: combat?.combatants?.size || 0
         });
         if (!combat) {
-            console.log('Mastery System | [CAROUSEL] No active combat, returning inactive');
+            log.debug('Mastery System | [CAROUSEL] No active combat, returning inactive');
             return { active: false };
         }
         // Get settings for resource paths
@@ -320,7 +321,7 @@ export class CombatCarouselApp extends BaseCarousel {
         const root = this.element;
         // Add body class when carousel is rendered
         document.body.classList.add('mastery-carousel-open');
-        console.log('Mastery System | [CAROUSEL] Carousel rendered, body class added');
+        log.debug('Mastery System | [CAROUSEL] Carousel rendered, body class added');
         // Register hooks for live updates (only once per render)
         this.registerUpdateHooks();
         // Portrait click - pan to token
@@ -509,7 +510,7 @@ export class CombatCarouselApp extends BaseCarousel {
                 // unlinked-token vs world-actor mismatch obvious in the console.
                 try {
                     const pools = actor.system?.stonePools ?? {};
-                    console.log('Mastery System | [CAROUSEL] Opening Stone Powers', {
+                    log.debug('Mastery System | [CAROUSEL] Opening Stone Powers', {
                         via: tokenDoc?.actor ? 'tokenDocument.actor' : 'combatant.actor',
                         actorId: actor.id,
                         actorName: actor.name,
@@ -542,7 +543,7 @@ export class CombatCarouselApp extends BaseCarousel {
         this.unregisterUpdateHooks();
         // Remove body class when carousel is closed
         document.body.classList.remove('mastery-carousel-open');
-        console.log('Mastery System | [CAROUSEL] Carousel closed, body class removed');
+        log.debug('Mastery System | [CAROUSEL] Carousel closed, body class removed');
         return super._onClose(_options);
     }
     /**

@@ -29,6 +29,7 @@
  * This migration is GM-only, idempotent, and gated by a world setting.
  * It walks both world `Items` and embedded items on every Actor.
  */
+import { log } from '../utils/logger.js';
 const SETTING_NAMESPACE = 'mastery-system';
 const SETTING_KEY = 'artifactSpecBackfillRun';
 const LEGACY_KIND_TO_SLOT = {
@@ -218,7 +219,7 @@ export async function runArtifactSpecBackfill() {
     }
     await markRun();
     const msg = `Mastery System | Artifact spec backfill: migrated ${touchedWorld} world artifact(s) and ${touchedEmbedded} embedded artifact(s) to the new spec.`;
-    console.log(msg);
+    log.debug(msg);
     try {
         ui.notifications?.info(msg);
     }

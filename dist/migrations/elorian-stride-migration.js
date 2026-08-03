@@ -4,6 +4,7 @@
  */
 import { findEchoArtifactRootInWorld, findEchoArtifactWorldItem, } from '../utils/seed-artifact-library.js';
 import { readActorArtifactProgress, serializeActorArtifactProgress, } from '../utils/artifact-actor-rules.js';
+import { log } from '../utils/logger.js';
 const SETTING_NAMESPACE = 'mastery-system';
 const LEGACY_STRIDE_KEYS = new Set([
     'elvenStride',
@@ -78,7 +79,7 @@ export async function runElorianStrideMigration(actors) {
         }
     }
     if (echoRenamed > 0 || artifactsMigrated > 0) {
-        console.log(`Mastery System | Elorian migration: ${echoRenamed} echo(s) renamed, ${artifactsMigrated} Stride artifact(s) consolidated.`);
+        log.debug(`Elorian migration: ${echoRenamed} echo(s) renamed, ${artifactsMigrated} Stride artifact(s) consolidated.`);
     }
 }
 //# sourceMappingURL=elorian-stride-migration.js.map

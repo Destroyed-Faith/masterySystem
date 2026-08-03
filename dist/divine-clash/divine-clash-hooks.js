@@ -3,6 +3,7 @@
  * Handles token movement restrictions and zone tracking
  */
 import { getDivineClashPhase, isDivineClashScene } from './divine-clash.js';
+import { log } from '../utils/logger.js';
 /**
  * Initialize Divine Clash hooks
  */
@@ -184,6 +185,6 @@ export function initializeDivineClashHooks() {
             });
         }
     });
-    console.log('Mastery System | Divine Clash hooks initialized');
+    log.debug('Mastery System | Divine Clash hooks initialized');
 }
 //# sourceMappingURL=divine-clash-hooks.js.map

@@ -7,6 +7,7 @@
  * Show the weapon creation dialog for an actor
  * @param actor - The actor to add weapons to
  */
+import { log } from '../utils/logger.js';
 export async function showWeaponCreationDialog(actor) {
     // Dynamic import to avoid build issues
     const { getWeaponsByHands, getWeaponsByType } = await import('../utils/weapons.js');
@@ -135,7 +136,7 @@ export async function showWeaponCreationDialog(actor) {
                     if (actor.sheet && actor.sheet.rendered) {
                         actor.sheet.render();
                     }
-                    console.log('Mastery System | [WEAPON DIALOG] Weapon created', {
+                    log.debug('Mastery System | [WEAPON DIALOG] Weapon created', {
                         weaponName,
                         itemId: createdItems[0]?.id,
                         actorId: actor.id,

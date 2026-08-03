@@ -5,8 +5,9 @@
 /**
  * Register click handlers for skill spend buttons in chat messages
  */
+import { log } from '../utils/logger.js';
 export function registerSkillSpendClickHandler() {
-    console.log('Mastery System | Registering skill spend click handler');
+    log.debug('Mastery System | Registering skill spend click handler');
     Hooks.on('renderChatMessageHTML', (message, htmlRaw) => {
         try {
             const htmlEl = (htmlRaw instanceof HTMLElement) ? $(htmlRaw) : htmlRaw;
@@ -30,7 +31,7 @@ export function registerSkillSpendClickHandler() {
                 const skillKey = button.data('skill-key');
                 const actorId = button.data('actor-id');
                 const spendAmount = parseInt(button.data('spend') || '0');
-                console.log('SkillSpend | Click handler triggered', {
+                log.debug('SkillSpend | Click handler triggered', {
                     skillKey,
                     actorId,
                     spendAmount,
@@ -60,7 +61,7 @@ export function registerSkillSpendClickHandler() {
                 const skillRating = system.skills?.[skillKey] || 0;
                 const currentSpent = system.skillsSpent?.[skillKey] || 0;
                 const remaining = Math.max(0, skillRating - currentSpent);
-                console.log('SkillSpend | Actor data', {
+                log.debug('SkillSpend | Actor data', {
                     actorId,
                     actorName: actor.name,
                     skillKey,
@@ -84,7 +85,7 @@ export function registerSkillSpendClickHandler() {
                 await actor.update({
                     [`system.skillsSpent.${skillKey}`]: newSpent
                 });
-                console.log('SkillSpend | Actor updated', {
+                log.debug('SkillSpend | Actor updated', {
                     actorId,
                     skillKey,
                     oldSpent: currentSpent,
@@ -200,7 +201,7 @@ export function registerSkillSpendClickHandler() {
                         'mastery-system': updatedFlags
                     }
                 });
-                console.log('SkillSpend | Message updated', {
+                log.debug('SkillSpend | Message updated', {
                     messageId: message.id,
                     skillKey,
                     spend: finalSpend,
@@ -215,6 +216,6 @@ export function registerSkillSpendClickHandler() {
             console.error('Mastery System | skill-spend renderChatMessageHTML (skill) failed', e);
         }
     });
-    console.log('Mastery System | Skill spend click handler registered');
+    log.debug('Mastery System | Skill spend click handler registered');
 }
 //# sourceMappingURL=skill-spend-handler.js.map

@@ -1,1 +1,1 @@
-{"version":3,"file":"artifact-echo-link-migration.d.ts","sourceRoot":"","sources":["../../src/migrations/artifact-echo-link-migration.ts"],"names":[],"mappings":"AAAA;;;;;;GAMG;AAUH,wBAAgB,wCAAwC,IAAI,IAAI,CAa/D;AAkBD,yEAAyE;AACzE,wBAAsB,4BAA4B,IAAI,OAAO,CAAC,IAAI,CAAC,CA8ClE"}
+{"version":3,"file":"artifact-echo-link-migration.d.ts","sourceRoot":"","sources":["../../src/migrations/artifact-echo-link-migration.ts"],"names":[],"mappings":"AAAA;;;;;;GAMG;AAWH,wBAAgB,wCAAwC,IAAI,IAAI,CAa/D;AAkBD,yEAAyE;AACzE,wBAAsB,4BAA4B,IAAI,OAAO,CAAC,IAAI,CAAC,CA8ClE"}

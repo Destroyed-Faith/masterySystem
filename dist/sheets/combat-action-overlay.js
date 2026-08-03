@@ -8,6 +8,7 @@
  * - Quick action buttons
  */
 import { getRoundState } from '../combat/action-economy.js';
+import { log } from '../utils/logger.js';
 const ApplicationV2 = foundry.applications.api?.ApplicationV2 || Application;
 export class CombatActionOverlay extends ApplicationV2 {
     actor;
@@ -32,7 +33,7 @@ export class CombatActionOverlay extends ApplicationV2 {
         const current = combat.combatant;
         const actor = current?.actor;
         if (!actor) {
-            console.log('Mastery System | No actor for current combatant');
+            log.debug('Mastery System | No actor for current combatant');
             return;
         }
         const user = game.user;
@@ -40,7 +41,7 @@ export class CombatActionOverlay extends ApplicationV2 {
             return;
         // Only show to owner or GM
         if (!user.isGM && !actor.isOwner) {
-            console.log('Mastery System | User does not own current combatant');
+            log.debug('Mastery System | User does not own current combatant');
             return;
         }
         const app = new CombatActionOverlay(actor);
@@ -171,7 +172,7 @@ export class CombatActionOverlay extends ApplicationV2 {
         }
         catch (error) {
             // ApplicationV2 or Application may not have activateListeners in this Foundry version
-            console.debug('Mastery System | activateListeners: parent class does not have activateListeners method', error);
+            log.debug('Mastery System | activateListeners: parent class does not have activateListeners method', error);
         }
         // Use a power
         html.find('.js-use-power').on('click', async (ev) => {

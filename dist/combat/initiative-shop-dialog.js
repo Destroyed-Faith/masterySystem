@@ -4,6 +4,7 @@
 import { INITIATIVE_SHOP } from '../utils/constants.js';
 import { getCombatReflexesInitiativeLimits } from './initiative-roll.js';
 import { resetRoundState } from './action-economy.js';
+import { log } from '../utils/logger.js';
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const BaseDialog = HandlebarsApplicationMixin(ApplicationV2);
 const CR_SKILL_KEY = 'combatReflexes';
@@ -205,7 +206,7 @@ export class InitiativeShopDialog extends BaseDialog {
                 });
             }
             await resetRoundState(actor, this.combatant, this.combat);
-            console.log('Mastery System | [INITIATIVE SHOP] RoundState updated after purchases', {
+            log.debug('Mastery System | [INITIATIVE SHOP] RoundState updated after purchases', {
                 actorName: actor.name,
                 purchases: this.purchases,
                 crSpent: this.crSpent,

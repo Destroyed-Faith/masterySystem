@@ -2,6 +2,7 @@
  * One-shot: migrate V1 familiars → Summons V2 summonBonds.
  */
 import { migrateFamiliarToBond, getSummonBondsFromActor } from '../stones/summon-bond-bind.js';
+import { log } from '../utils/logger.js';
 const SETTING_NAMESPACE = 'mastery-system';
 const SETTING_KEY = 'summonV2MigrationRun';
 export function registerSummonV2MigrationSetting() {
@@ -69,6 +70,6 @@ export async function runSummonV2Migration(actors) {
         }
     }
     await markRun();
-    console.log(`Mastery System | summon-v2 migration complete (${migrated} characters)`);
+    log.debug(`summon-v2 migration complete (${migrated} characters)`);
 }
 //# sourceMappingURL=summon-v2-migration.js.map

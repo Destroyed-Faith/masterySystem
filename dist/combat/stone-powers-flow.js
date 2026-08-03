@@ -9,6 +9,7 @@ import { StonePowersDialog } from '../stones/stone-powers-dialog.js';
 import { buildCombatTurnSnapshot, buildCombatantsIteratorOrder, logInitiativeOrderDebug, } from '../utils/combat-trace-debug.js';
 import { executeInitiativePhase, syncCombatTurnToHighestInitiativeFirst, } from './initiative-roll.js';
 import { clearStonePowersConfigurationLocksInCombat, regenStonesEndOfRound, refillStonePoolsFromAttributes, resetRoundState, syncStonePoolCapsFromAttributes } from './action-economy.js';
+import { log } from '../utils/logger.js';
 const SOCKET_NAME = 'system.mastery-system';
 function getStonePowersState(combat) {
     const flags = combat.flags['mastery-system'] || {};
@@ -57,7 +58,7 @@ export async function runInitiativePhaseAfterStones(combat, round) {
         combatantsIteratorOrder: buildCombatantsIteratorOrder(combat),
     });
     if (state.initiativePhaseDoneByRound?.[round]) {
-        console.log('Mastery System | Initiative phase already done for round', round);
+        log.debug('Mastery System | Initiative phase already done for round', round);
         return;
     }
     try {
@@ -69,7 +70,7 @@ export async function runInitiativePhaseAfterStones(combat, round) {
             await executeInitiativePhase(combat);
         }
         else {
-            console.log('Mastery System | Round', round, '— Initiative persists (no reroll / no shop); syncing turn pointer only');
+            log.debug('Mastery System | Round', round, '— Initiative persists (no reroll / no shop); syncing turn pointer only');
             if (typeof combat.setupTurns === 'function') {
                 await combat.setupTurns();
             }
@@ -98,7 +99,7 @@ async function openStonePowersForCombatant(combat, combatant, round) {
         return;
     }
     if (actor.type === 'npc' || actor.type === 'summon' || actor.type === 'divine') {
-        console.log('Mastery System | Auto-resolving stone powers for NPC', actor.name);
+        log.debug('Mastery System | Auto-resolving stone powers for NPC', actor.name);
         await markStonePowersDone(combat, combatant.id, round);
         return;
     }
@@ -112,10 +113,10 @@ async function openStonePowersForCombatant(combat, combatant, round) {
         return;
     }
     try {
-        console.log('Mastery System | Opening stone powers dialog for', actor.name, 'round', round);
+        log.debug('Mastery System | Opening stone powers dialog for', actor.name, 'round', round);
         await StonePowersDialog.showForActor(actor, combatant);
         await markStonePowersDone(combat, combatant.id, round);
-        console.log('Mastery System | Stone powers completed for', actor.name, 'round', round);
+        log.debug('Mastery System | Stone powers completed for', actor.name, 'round', round);
     }
     catch (error) {
         console.error('Mastery System | Error in stone powers dialog', error);
@@ -140,7 +141,7 @@ export async function runMasteryCombatRoundAdvancePipeline(combat, newRound) {
                 const restored = Math.max(0, cur - boost);
                 await combatant.update({ initiative: restored });
                 await combatant.setFlag('mastery-system', 'msInitiativeValue', restored);
-                console.log('Mastery System | Initiative Boost expired', {
+                log.debug('Mastery System | Initiative Boost expired', {
                     combatant: combatant.name,
                     boost,
                     restored,
@@ -169,7 +170,7 @@ export async function runMasteryCombatRoundAdvancePipeline(combat, newRound) {
 export async function openStonePowersForAllCombatants(combat, round) {
     const state = getStonePowersState(combat);
     if (state.roundStonesPrompted[round]) {
-        console.log('Mastery System | Stone powers already prompted for round', round);
+        log.debug('Mastery System | Stone powers already prompted for round', round);
         return;
     }
     // Encounter flow opens round-1 stones before `combatStart`; `prepareBaseData` skips refilling
@@ -189,26 +190,26 @@ export async function openStonePowersForAllCombatants(combat, round) {
     await updateStonePowersState(combat, {
         roundStonesPrompted: { ...state.roundStonesPrompted, [round]: true }
     });
-    console.log('Mastery System | Opening stone powers for all combatants, round', round);
+    log.debug('Mastery System | Opening stone powers for all combatants, round', round);
     const allCombatants = Array.from(combat.combatants);
     for (const combatant of allCombatants) {
         await openStonePowersForCombatant(combat, combatant, round);
         await new Promise((resolve) => setTimeout(resolve, 300));
     }
     if (areAllCombatantsDone(combat, round)) {
-        console.log('Mastery System | All combatants completed stone powers for round', round);
+        log.debug('Mastery System | All combatants completed stone powers for round', round);
         await runInitiativePhaseAfterStones(combat, round);
     }
 }
 async function handleStonePowersComplete(combat, combatantId, round) {
     await markStonePowersDone(combat, combatantId, round);
     if (areAllCombatantsDone(combat, round)) {
-        console.log('Mastery System | All combatants completed stone powers for round', round);
+        log.debug('Mastery System | All combatants completed stone powers for round', round);
         await runInitiativePhaseAfterStones(combat, round);
     }
 }
 export function initializeStonePowersFlow() {
-    console.log('Mastery System | Initializing stone powers flow system');
+    log.debug('Mastery System | Initializing stone powers flow system');
     game.socket?.on(SOCKET_NAME, async (payload) => {
         const { type, combatId, combatantId, round } = payload;
         if (type !== 'stonePowersComplete')

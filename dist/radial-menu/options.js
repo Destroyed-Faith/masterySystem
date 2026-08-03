@@ -11,6 +11,7 @@ import { formatRadialPowerDisplayName } from './power-radial-label.js';
 import { buildArtifactRadialOptions } from './artifact-options.js';
 import { artifactPowersUnlocked } from '../utils/artifact-actor-rules.js';
 import { resolveEquippedWeaponForAttackType } from '../utils/unarmed-fallback.js';
+import { log } from '../utils/logger.js';
 /**
  * True when activating spends an action: legacy `cost.action === true` or
  * string `attack` / `full` / `utility` (e.g. catalog active buffs).
@@ -857,9 +858,9 @@ export async function getAllCombatOptionsForActor(actor) {
         console.warn('Mastery System | Could not build artifact radial options:', err);
     }
     // Logging
-    console.log(`Mastery System | Collected movement powers: ${movementPowers.length}`);
-    console.log(`Mastery System | Movement segment final options: [${movementOptions.map(o => o.id).join(', ')}]`);
-    console.log(`Mastery System | Collected ${options.length} combat options for actor:`, {
+    log.debug(`Collected movement powers: ${movementPowers.length}`);
+    log.debug(`Movement segment final options: [${movementOptions.map(o => o.id).join(', ')}]`);
+    log.debug(`Collected ${options.length} combat options for actor:`, {
         powers: options.filter(o => o.source === 'power').length,
         maneuvers: options.filter(o => o.source === 'maneuver').length,
         bySegment: {

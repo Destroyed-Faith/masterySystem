@@ -5,6 +5,7 @@
  * - Draws via canvas.interface.grid.highlightPosition(layerId, {x,y,color,alpha})
  * - Uses grid.getTopLeftPoint(offsetObj) where offsetObj is {i,j}
  */
+import { log } from './logger.js';
 /** Normalize grid.getOffset() (hex i,j, square col/row, or x,y) to {i,j} for BFS + getTopLeftPoint. */
 function pixelOffsetToIJ(raw) {
     if (!raw)
@@ -73,7 +74,7 @@ export function highlightHexesInRange(tokenId, rangeUnits, highlightLayerId, col
         return;
     const startRaw = grid.getOffset(token.center);
     const start = pixelOffsetToIJ(startRaw);
-    console.log("[MS][HL] start", {
+    log.debug("[MS][HL] start", {
         tokenId,
         tokenName: token.name,
         RANGE,
@@ -91,7 +92,7 @@ export function highlightHexesInRange(tokenId, rangeUnits, highlightLayerId, col
         return;
     }
     const all = collectHexOffsetsWithinSteps(start, RANGE, getNeighbors, ijKey);
-    console.log("[MS][HL] total", { hexes: all.length });
+    log.debug("[MS][HL] total", { hexes: all.length });
     // Highlight layer (the reliable way you already used successfully)
     gridUI.addHighlightLayer?.(highlightLayerId);
     gridUI.clearHighlightLayer?.(highlightLayerId);
@@ -106,7 +107,7 @@ export function highlightHexesInRange(tokenId, rangeUnits, highlightLayerId, col
         gridUI.highlightPosition?.(highlightLayerId, { x: tl.x, y: tl.y, color, alpha });
         highlighted++;
     }
-    console.log("[MS][HL] done", { highlighted, tlFail });
+    log.debug("[MS][HL] done", { highlighted, tlFail });
 }
 /** Hex keys (`"i,j"`) reachable from the token in `rangeSteps` BFS steps (same rules as `highlightHexesInRange`). */
 export function collectHexKeysInRangeForToken(tokenId, rangeSteps) {

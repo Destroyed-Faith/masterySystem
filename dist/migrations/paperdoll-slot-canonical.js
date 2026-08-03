@@ -28,6 +28,7 @@
  * GM-only, idempotent, gated by a world setting.
  */
 import { LEGACY_PAPERDOLL_SLOT_MAP, PAPERDOLL_SLOT_KEYS } from '../utils/equip-slots.js';
+import { log } from '../utils/logger.js';
 const SETTING_NAMESPACE = 'mastery-system';
 const SETTING_KEY = 'paperdollSlotCanonicalRun';
 const CANONICAL_SET = new Set(PAPERDOLL_SLOT_KEYS);
@@ -190,7 +191,7 @@ export async function runPaperdollSlotCanonical() {
     }
     await markRun();
     const msg = `Mastery System | Paperdoll slot canonicalization: normalized ${touchedWorld} world item(s) and ${touchedEmbedded} embedded item(s) to the new 7-slot vocabulary.`;
-    console.log(msg);
+    log.debug(msg);
     try {
         ui.notifications?.info(msg);
     }

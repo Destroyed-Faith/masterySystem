@@ -18,6 +18,7 @@
  */
 import { buildAllEchoArtifactTrees, buildAllGeneralArtifactTrees, ECHO_ARTIFACT_SEED_VERSION, } from '../artifacts/echo-artifact-tree-builder.js';
 import { pushWorldArtifactNodeToEmbeddedActors } from './artifact-embedded-sync.js';
+import { log } from './logger.js';
 export { grantArtifactTreeToActor, grantEchoArtifactTreeToActor } from './artifact-tree-grant.js';
 export const ECHO_ARTIFACT_LIBRARY_FOLDER_NAME = 'Echo Artifacts';
 export const GENERAL_ARTIFACT_LIBRARY_FOLDER_NAME = 'General Artifacts';
@@ -174,14 +175,14 @@ export async function seedArtifactLibrary(options = {}) {
         count = Array.isArray(created) ? created.length : 0;
     }
     if (count > 0) {
-        console.log(`Mastery System | Seeded ${count} artifact node items`, newTreeNames);
+        log.debug(`Seeded ${count} artifact node items`, newTreeNames);
         const folderHint = newTreeNames.length
             ? ` — new trees: ${newTreeNames.join(', ')}`
             : '';
         ui.notifications?.info(`Seeded ${count} artifact items.${folderHint} Look under Items → Echo Artifacts / General Artifacts.`);
     }
     if (upgraded > 0) {
-        console.log(`Mastery System | Refreshed ${upgraded} artifact node items to v${ECHO_ARTIFACT_SEED_VERSION}`);
+        log.debug(`Refreshed ${upgraded} artifact node items to v${ECHO_ARTIFACT_SEED_VERSION}`);
         const repairHint = repairedTrees.length > 0 ? ` Repaired incomplete trees: ${repairedTrees.join(', ')}.` : '';
         ui.notifications?.info(`Refreshed ${upgraded} artifact items to v${ECHO_ARTIFACT_SEED_VERSION} (icons, base values, abilities).${repairHint}`);
     }

@@ -1,1 +1,1 @@
-{"version":3,"file":"titan-scars-affinity-migration.d.ts","sourceRoot":"","sources":["../../src/migrations/titan-scars-affinity-migration.ts"],"names":[],"mappings":"AAAA;;;;;;;;;;;;;;;GAeG;AAqCH,8EAA8E;AAC9E,wBAAsB,8BAA8B,CAAC,MAAM,EAAE,GAAG,EAAE,GAAG,OAAO,CAAC,IAAI,CAAC,CAgEjF"}
+{"version":3,"file":"titan-scars-affinity-migration.d.ts","sourceRoot":"","sources":["../../src/migrations/titan-scars-affinity-migration.ts"],"names":[],"mappings":"AAAA;;;;;;;;;;;;;;;GAeG;AAsCH,8EAA8E;AAC9E,wBAAsB,8BAA8B,CAAC,MAAM,EAAE,GAAG,EAAE,GAAG,OAAO,CAAC,IAAI,CAAC,CAgEjF"}

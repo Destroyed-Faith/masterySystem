@@ -7,6 +7,7 @@
 // Actor, Combatant, and Combat are global types in Foundry VTT v13
 import { healStressFromBars } from '../utils/calculations.js';
 import { getStunnedRank } from '../system/auto-fail.js';
+import { log } from '../utils/logger.js';
 const STONE_USAGE_ATTR_KEYS = [
     'might',
     'agility',
@@ -413,7 +414,7 @@ export function getAvailableAttackActions(actor, combat) {
     const effectiveTotal = Math.max(0, roundState.attackActions.total - stunnedLock);
     const n = Math.max(0, effectiveTotal - roundState.attackActions.used);
     if (n === 0) {
-        console.debug('Mastery System | [action-economy] getAvailableAttackActions: 0 remaining', {
+        log.debug('Mastery System | [action-economy] getAvailableAttackActions: 0 remaining', {
             actorId: owner.id,
             name: owner.name,
             combatId: combat?.id,
@@ -557,7 +558,7 @@ export async function refillStonePoolsFromAttributes(actor) {
     if (Object.keys(updates).length > 0) {
         await owner.update(updates);
         if (globalThis.CONFIG?.masterySystemDebugStonePools === true) {
-            console.log('Mastery System | [StonePools] refillStonePoolsFromAttributes', owner.name, updates);
+            log.debug('Mastery System | [StonePools] refillStonePoolsFromAttributes', owner.name, updates);
         }
     }
 }
@@ -588,7 +589,7 @@ export async function syncStonePoolCapsFromAttributes(actor) {
     if (Object.keys(updates).length > 0) {
         await owner.update(updates);
         if (globalThis.CONFIG?.masterySystemDebugStonePools === true) {
-            console.log('Mastery System | [StonePools] syncStonePoolCapsFromAttributes', owner.name, updates);
+            log.debug('Mastery System | [StonePools] syncStonePoolCapsFromAttributes', owner.name, updates);
         }
     }
 }
@@ -799,7 +800,7 @@ export async function applyAutomaticStoneRegen(actor) {
     }
     if (Object.keys(updates).length > 0) {
         await owner.update(updates);
-        console.log(`Mastery System | Automatic stone regen for ${owner.name}`, {
+        log.debug(`Automatic stone regen for ${owner.name}`, {
             regenPoints,
             updates
         });
@@ -819,7 +820,7 @@ export async function regenStonesEndOfRound(combat) {
     if (pcCombatants.length === 0) {
         return;
     }
-    console.log(`Mastery System | Automatic stone regen for ${pcCombatants.length} PC combatant(s)`);
+    log.debug(`Automatic stone regen for ${pcCombatants.length} PC combatant(s)`);
     for (const combatant of pcCombatants) {
         const actor = combatant.actor;
         if (!actor)
@@ -841,7 +842,7 @@ export async function regenStonesEndOfRound(combat) {
             return pool.current < effectiveMax;
         });
         if (!canRegen) {
-            console.log(`Mastery System | ${owner.name} stone pools already full, skipping regen`);
+            log.debug(`${owner.name} stone pools already full, skipping regen`);
             continue;
         }
         await applyAutomaticStoneRegen(actor);
@@ -880,7 +881,7 @@ export async function restoreStonesAfterCombat(combat) {
         }
         if (Object.keys(updates).length > 0) {
             await owner.update(updates);
-            console.log(`Mastery System | Restored stone pools for ${owner.name}`);
+            log.debug(`Restored stone pools for ${owner.name}`);
         }
         // Drop per-encounter round state and stone usage so stone evade/damage
         // bonuses and usage counters cannot leak into the next combat or out of combat.

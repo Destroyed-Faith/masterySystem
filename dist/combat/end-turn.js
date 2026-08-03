@@ -2,6 +2,7 @@
  * Advance combat tracker by one step (next combatant in initiative order).
  */
 import { buildCombatTurnSnapshot, logCombatTrace } from '../utils/combat-trace-debug.js';
+import { log } from '../utils/logger.js';
 let requestEndTurnInFlight = false;
 /**
  * Request to advance the active encounter one turn (same as Foundry's next turn).
@@ -29,7 +30,7 @@ export async function requestEndTurn() {
         ui.notifications.warn('You can only end your own turn!');
         return;
     }
-    console.log(`Mastery System | Next turn from ${currentCombatant.name}`);
+    log.debug(`Next turn from ${currentCombatant.name}`);
     logCombatTrace('before-nextTurn', {
         fromCombatantId: currentCombatant.id,
         fromName: currentCombatant.name,

@@ -1,1 +1,1 @@
-{"version":3,"file":"speed-8m-migration.d.ts","sourceRoot":"","sources":["../../src/migrations/speed-8m-migration.ts"],"names":[],"mappings":"AAAA;;GAEG;AAKH,wBAAgB,+BAA+B,IAAI,IAAI,CAatD;AAkBD,wBAAsB,mBAAmB,CAAC,MAAM,EAAE,GAAG,EAAE,GAAG,OAAO,CAAC,IAAI,CAAC,CAgCtE"}
+{"version":3,"file":"speed-8m-migration.d.ts","sourceRoot":"","sources":["../../src/migrations/speed-8m-migration.ts"],"names":[],"mappings":"AAQA,wBAAgB,+BAA+B,IAAI,IAAI,CAatD;AAkBD,wBAAsB,mBAAmB,CAAC,MAAM,EAAE,GAAG,EAAE,GAAG,OAAO,CAAC,IAAI,CAAC,CAgCtE"}

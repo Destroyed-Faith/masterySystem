@@ -1,1 +1,1 @@
-{"version":3,"file":"initiative.js","sourceRoot":"","sources":["../../src/combat/initiative.ts"],"names":[],"mappings":"AAAA;;;;GAIG;AAEH,MAAM,UAAU,qBAAqB;IACnC,OAAO,CAAC,GAAG,CAAC,6FAA6F,CAAC,CAAC;AAC7G,CAAC"}
+{"version":3,"file":"initiative.js","sourceRoot":"","sources":["../../src/combat/initiative.ts"],"names":[],"mappings":"AAAA;;;;GAIG;AAEH,OAAO,EAAE,GAAG,EAAE,MAAM,oBAAoB,CAAC;AACzC,MAAM,UAAU,qBAAqB;IACnC,GAAG,CAAC,KAAK,CAAC,6FAA6F,CAAC,CAAC;AAC3G,CAAC"}

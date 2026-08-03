@@ -1,1 +1,1 @@
-{"version":3,"file":"summon-v2-migration.d.ts","sourceRoot":"","sources":["../../src/migrations/summon-v2-migration.ts"],"names":[],"mappings":"AAAA;;GAEG;AAOH,wBAAgB,gCAAgC,IAAI,IAAI,CAavD;AAkBD,wBAAsB,oBAAoB,CAAC,MAAM,EAAE,GAAG,EAAE,GAAG,OAAO,CAAC,IAAI,CAAC,CAkCvE"}
+{"version":3,"file":"summon-v2-migration.d.ts","sourceRoot":"","sources":["../../src/migrations/summon-v2-migration.ts"],"names":[],"mappings":"AAAA;;GAEG;AAQH,wBAAgB,gCAAgC,IAAI,IAAI,CAavD;AAkBD,wBAAsB,oBAAoB,CAAC,MAAM,EAAE,GAAG,EAAE,GAAG,OAAO,CAAC,IAAI,CAAC,CAkCvE"}

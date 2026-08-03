@@ -9,6 +9,7 @@
  * Guard: `game.settings.get('mastery-system', 'rulesV2AlignmentRun') === true`
  */
 import { REMOVED_SPECIAL_IDS } from '../utils/special-effects.js';
+import { log } from '../utils/logger.js';
 const SETTING_NAMESPACE = 'mastery-system';
 const SETTING_KEY = 'rulesV2AlignmentRun';
 /** Retired Active Buff Special Application aura templates (never apply Specials). */
@@ -161,6 +162,6 @@ export async function runRulesV2AlignmentMigration(actors) {
         }
     }
     await markRun();
-    console.log(`Mastery System | Rules v2 alignment migration complete (${migrated} document(s) updated).`);
+    log.debug(`Rules v2 alignment migration complete (${migrated} document(s) updated).`);
 }
 //# sourceMappingURL=rules-v2-alignment-migration.js.map

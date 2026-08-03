@@ -4,14 +4,15 @@
 import { TYHRA_CALENDAR_FLAG_SCOPE, TYHRA_CALENDAR_FOLDER_NAME, TYHRA_CALENDAR_ID, TYHRA_CALENDAR_LOG_PREFIX, } from './tyhra-calendar-config.js';
 import { buildDayJournalPageContent, dateToJournalFlagData, dayIndexFromParts, getDateFromDayIndex, getDayIndexFromDate, getDayJournalName, getJournalKey, getJournalKeyFromDayIndex, } from './tyhra-calendar-service.js';
 import { canUserCreateDayJournals, getStoredJournalFolderId, setStoredJournalFolderId, } from './tyhra-calendar-settings.js';
+import { log } from '../utils/logger.js';
 const journalCreationLocks = new Map();
 let journalIndexCache = null;
 let journalIndexBuilt = false;
 function logInfo(message, data) {
     if (data !== undefined)
-        console.log(`${TYHRA_CALENDAR_LOG_PREFIX} ${message}`, data);
+        log.debug(`${TYHRA_CALENDAR_LOG_PREFIX} ${message}`, data);
     else
-        console.log(`${TYHRA_CALENDAR_LOG_PREFIX} ${message}`);
+        log.debug(`${TYHRA_CALENDAR_LOG_PREFIX} ${message}`);
 }
 function logWarn(message, data) {
     if (data !== undefined)

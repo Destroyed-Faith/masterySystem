@@ -23,13 +23,13 @@ const STONE_DRAG_MIME = 'application/x-mastery-stone-attribute';
 const STONE_RETURN_MIME = 'application/x-mastery-stone-return-acc';
 /**
  * Konsole nach `StoneDnD` filtern.
- * Abschalten: in F12 `CONFIG.masterySystemDebugStoneDnD = false` (Standard ist an, bis ihr es dauerhaft ausmacht).
+ * Einschalten: in F12 `CONFIG.masterySystemDebugStoneDnD = true` (Standard aus).
  * Rückgabe Pool↔Feld: zusätzlich `CONFIG.masterySystemDebugStoneReturn = true` (Standard aus), dann [StoneReturn]-Logs.
  * Ablage-Raster (wave/acc/nextCost): `CONFIG.masterySystemDebugStoneWave = true` → [StoneWave]-Logs.
  * Lane-UI / Akku / DOM: `CONFIG.masterySystemDebugStoneLanes = true` → [StoneLanes]-Logs.
  * Zahlungs-Wellen / spendableNet / warum Slot locked: `CONFIG.masterySystemDebugStonePayment = true` → [StonePayment]-Logs bei jedem Render + `console.warn` bei Drop auf locked (immer kurz, Details wenn Flag an).
  */
-const DEBUG_STONE_POWERS_DND = globalThis.CONFIG?.masterySystemDebugStoneDnD !== false;
+const DEBUG_STONE_POWERS_DND = globalThis.CONFIG?.masterySystemDebugStoneDnD === true;
 const DEBUG_STONE_RETURN = globalThis.CONFIG?.masterySystemDebugStoneReturn === true;
 const DEBUG_STONE_WAVE = globalThis.CONFIG?.masterySystemDebugStoneWave === true;
 /** F12: `CONFIG.masterySystemDebugStoneLanes = true` — Lane-Zustand, Akku-Keys, DOM nach Render. */

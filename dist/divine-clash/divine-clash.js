@@ -2,6 +2,7 @@
  * Divine Clash Manager
  * Handles automation for the Divine Clash board system
  */
+import { log } from '../utils/logger.js';
 /**
  * Get Divine Clash scene (by ID or name)
  * @deprecated Not used in new implementation
@@ -47,24 +48,24 @@ async function updateSceneFlags(scene, updates) {
  * Find region by name pattern
  */
 function findRegion(scene, namePattern) {
-    console.log(`Mastery System | [FIND REGION] Looking for region: "${namePattern}"`);
+    log.debug(`[FIND REGION] Looking for region: "${namePattern}"`);
     // In Foundry V13, regions are placeables on the canvas
     let regions = [];
     // Try canvas.regions.placeables first (V13 API)
     if (canvas?.regions?.placeables) {
         regions = Array.from(canvas.regions.placeables.values());
-        console.log(`Mastery System | [FIND REGION] Found ${regions.length} regions via canvas.regions.placeables`);
+        log.debug(`[FIND REGION] Found ${regions.length} regions via canvas.regions.placeables`);
     }
     else {
         // Fallback: try scene.regions collection
         if (scene.regions) {
             if (scene.regions instanceof Map || scene.regions.size !== undefined) {
                 regions = Array.from(scene.regions.values());
-                console.log(`Mastery System | [FIND REGION] Found ${regions.length} regions via scene.regions (Collection)`);
+                log.debug(`[FIND REGION] Found ${regions.length} regions via scene.regions (Collection)`);
             }
             else if (Array.isArray(scene.regions)) {
                 regions = scene.regions;
-                console.log(`Mastery System | [FIND REGION] Found ${regions.length} regions via scene.regions (Array)`);
+                log.debug(`[FIND REGION] Found ${regions.length} regions via scene.regions (Array)`);
             }
         }
     }
@@ -72,14 +73,14 @@ function findRegion(scene, namePattern) {
         console.warn(`Mastery System | [FIND REGION] No regions found in any expected location`);
         return null;
     }
-    console.log(`Mastery System | [FIND REGION] Available region names:`, regions.map((r) => {
+    log.debug(`[FIND REGION] Available region names:`, regions.map((r) => {
         const name = r.document?.name || r.name || r.document?.label || r.label || r.document?.id || r.id || 'unnamed';
         return name;
     }));
     for (const region of regions) {
         // In V13, region name is in region.document.name
         const regionName = region.document?.name || region.name || region.document?.label || region.label || region.document?.id || region.id || '';
-        console.log(`Mastery System | [FIND REGION] Checking region "${regionName}" against pattern "${namePattern}"`);
+        log.debug(`[FIND REGION] Checking region "${regionName}" against pattern "${namePattern}"`);
         if (regionName === namePattern || regionName.includes(namePattern)) {
             // Extract bounds from region
             // In V13, bounds are in region.bounds or region.document.shape
@@ -90,7 +91,7 @@ function findRegion(scene, namePattern) {
                 y = region.bounds.y;
                 width = region.bounds.width;
                 height = region.bounds.height;
-                console.log(`Mastery System | [FIND REGION] Using region.bounds:`, { x, y, width, height });
+                log.debug(`[FIND REGION] Using region.bounds:`, { x, y, width, height });
             }
             // Try region.document.shape
             else if (region.document?.shape) {
@@ -100,21 +101,21 @@ function findRegion(scene, namePattern) {
                     y = shape.y;
                     width = shape.width || 100;
                     height = shape.height || 100;
-                    console.log(`Mastery System | [FIND REGION] Using region.document.shape (x/y):`, { x, y, width, height });
+                    log.debug(`[FIND REGION] Using region.document.shape (x/y):`, { x, y, width, height });
                 }
                 else if (shape.x1 !== undefined && shape.y1 !== undefined) {
                     x = shape.x1;
                     y = shape.y1;
                     width = (shape.x2 || shape.x1 + 100) - shape.x1;
                     height = (shape.y2 || shape.y1 + 100) - shape.y1;
-                    console.log(`Mastery System | [FIND REGION] Using region.document.shape (x1/y1):`, { x, y, width, height });
+                    log.debug(`[FIND REGION] Using region.document.shape (x1/y1):`, { x, y, width, height });
                 }
                 else if (shape.center) {
                     x = shape.center.x - (shape.radius || 50);
                     y = shape.center.y - (shape.radius || 50);
                     width = (shape.radius || 50) * 2;
                     height = (shape.radius || 50) * 2;
-                    console.log(`Mastery System | [FIND REGION] Using region.document.shape (center):`, { x, y, width, height });
+                    log.debug(`[FIND REGION] Using region.document.shape (center):`, { x, y, width, height });
                 }
             }
             // Try region.shape (legacy)
@@ -139,7 +140,7 @@ function findRegion(scene, namePattern) {
                 y = region.document.y;
                 width = region.document.width || 100;
                 height = region.document.height || 100;
-                console.log(`Mastery System | [FIND REGION] Using region.document.x/y:`, { x, y, width, height });
+                log.debug(`[FIND REGION] Using region.document.x/y:`, { x, y, width, height });
             }
             const result = {
                 id: region.document?.id || region.id || region._id || '',
@@ -149,7 +150,7 @@ function findRegion(scene, namePattern) {
                 width,
                 height
             };
-            console.log(`Mastery System | [FIND REGION] Match found!`, result);
+            log.debug(`[FIND REGION] Match found!`, result);
             return result;
         }
     }
@@ -205,23 +206,23 @@ function getTokenZone(scene, token, seatIndex) {
  */
 async function ensurePlayerStoneFolder(user) {
     const folderName = `Divine Clash - ${user.name}`;
-    console.log(`Mastery System | [ENSURE FOLDER] Looking for folder: "${folderName}" for user: ${user.name} (${user.id})`);
+    log.debug(`[ENSURE FOLDER] Looking for folder: "${folderName}" for user: ${user.name} (${user.id})`);
     // Check if folder already exists
     const allFolders = game.folders || [];
-    console.log(`Mastery System | [ENSURE FOLDER] Total folders in game: ${allFolders.length}`);
+    log.debug(`[ENSURE FOLDER] Total folders in game: ${allFolders.length}`);
     const existingFolder = allFolders.find((f) => {
         const matches = f.name === folderName && f.type === 'Actor';
         if (matches) {
-            console.log(`Mastery System | [ENSURE FOLDER] Found matching folder: ${f.name} (${f.id})`);
+            log.debug(`[ENSURE FOLDER] Found matching folder: ${f.name} (${f.id})`);
         }
         return matches;
     });
     if (existingFolder) {
-        console.log(`Mastery System | [ENSURE FOLDER] Found existing folder: ${folderName} (${existingFolder.id})`);
+        log.debug(`[ENSURE FOLDER] Found existing folder: ${folderName} (${existingFolder.id})`);
         return existingFolder.id;
     }
     // Create new folder
-    console.log(`Mastery System | [ENSURE FOLDER] Creating new folder: ${folderName}`);
+    log.debug(`[ENSURE FOLDER] Creating new folder: ${folderName}`);
     try {
         const folderData = {
             name: folderName,
@@ -238,9 +239,9 @@ async function ensurePlayerStoneFolder(user) {
                 }
             }
         };
-        console.log(`Mastery System | [ENSURE FOLDER] Folder data:`, folderData);
+        log.debug(`[ENSURE FOLDER] Folder data:`, folderData);
         const folder = await Folder.create(folderData);
-        console.log(`Mastery System | [ENSURE FOLDER] Successfully created folder: ${folderName} (${folder.id})`);
+        log.debug(`[ENSURE FOLDER] Successfully created folder: ${folderName} (${folder.id})`);
         return folder.id;
     }
     catch (error) {
@@ -263,10 +264,10 @@ async function createStoneActorsForPlayer(user, kind, count, folderId) {
         ? game.settings.get('mastery-system', 'divineClashPowerStoneImg')
         : game.settings.get('mastery-system', 'divineClashVitalityStoneImg');
     const defaultImg = kind === 'power'
-        ? 'systems/mastery-system/icons/svg/power-stone.svg'
-        : 'systems/mastery-system/icons/svg/vitality-stone.svg';
+        ? 'systems/mastery-system/assets/icons/stones/power-stone.svg'
+        : 'systems/mastery-system/assets/icons/stones/vitality-stone.svg';
     const stoneImg = (settingsImg && settingsImg.trim() !== '') ? settingsImg : defaultImg;
-    console.log(`Mastery System | [CREATE STONE ACTORS] Ensuring ${count} ${kindName} stone actors for ${user.name}`);
+    log.debug(`[CREATE STONE ACTORS] Ensuring ${count} ${kindName} stone actors for ${user.name}`);
     if (!folderId) {
         console.error(`Mastery System | [CREATE STONE ACTORS] No folder ID provided, cannot create actors`);
         return [];
@@ -286,18 +287,18 @@ async function createStoneActorsForPlayer(user, kind, count, folderId) {
             aName.includes(user.name) &&
             (aFlags?.stoneKind === kind || aFlags?.isStoneActor);
     });
-    console.log(`Mastery System | [CREATE STONE ACTORS] Found ${existingActors.length} existing ${kindName} stone actors in folder`);
+    log.debug(`[CREATE STONE ACTORS] Found ${existingActors.length} existing ${kindName} stone actors in folder`);
     const actors = [];
     // Reuse existing actors first
     for (let i = 0; i < Math.min(existingActors.length, count); i++) {
         const existingActor = existingActors[i];
-        console.log(`Mastery System | [CREATE STONE ACTORS] Reusing existing actor: ${existingActor.name || 'Unknown'} (${existingActor.id})`);
+        log.debug(`[CREATE STONE ACTORS] Reusing existing actor: ${existingActor.name || 'Unknown'} (${existingActor.id})`);
         actors.push(existingActor);
     }
     // Create missing actors
     const actorsToCreate = count - actors.length;
     if (actorsToCreate > 0) {
-        console.log(`Mastery System | [CREATE STONE ACTORS] Creating ${actorsToCreate} new ${kindName} stone actors`);
+        log.debug(`[CREATE STONE ACTORS] Creating ${actorsToCreate} new ${kindName} stone actors`);
         for (let i = actors.length; i < count; i++) {
             const actorName = `${kindName} Stone ${i + 1} - ${user.name}`;
             const actorData = {
@@ -319,7 +320,7 @@ async function createStoneActorsForPlayer(user, kind, count, folderId) {
             };
             try {
                 const actor = await Actor.create(actorData);
-                console.log(`Mastery System | [CREATE STONE ACTORS] Created new actor ${i + 1}/${count}: ${actorName} (${actor.id})`);
+                log.debug(`[CREATE STONE ACTORS] Created new actor ${i + 1}/${count}: ${actorName} (${actor.id})`);
                 actors.push(actor);
             }
             catch (error) {
@@ -328,13 +329,13 @@ async function createStoneActorsForPlayer(user, kind, count, folderId) {
         }
     }
     else {
-        console.log(`Mastery System | [CREATE STONE ACTORS] All ${count} ${kindName} stone actors already exist, reusing them`);
+        log.debug(`[CREATE STONE ACTORS] All ${count} ${kindName} stone actors already exist, reusing them`);
     }
     // If we have more existing actors than needed, log a warning but use what we have
     if (existingActors.length > count) {
         console.warn(`Mastery System | [CREATE STONE ACTORS] Found ${existingActors.length} existing ${kindName} stone actors but only need ${count}. Using first ${count}.`);
     }
-    console.log(`Mastery System | [CREATE STONE ACTORS] Final result: ${actors.length}/${count} ${kindName} stone actors (${actors.length - actorsToCreate} reused, ${actorsToCreate} created)`);
+    log.debug(`[CREATE STONE ACTORS] Final result: ${actors.length}/${count} ${kindName} stone actors (${actors.length - actorsToCreate} reused, ${actorsToCreate} created)`);
     return actors.slice(0, count); // Ensure we only return the exact count needed
 }
 /**
@@ -347,7 +348,7 @@ async function createStoneActorsForPlayer(user, kind, count, folderId) {
 async function _ensurePlayerStoneActor(user, kind) {
     const actorName = `DC Stone (${kind === 'power' ? 'Power' : 'Vitality'}) - ${user.name}`;
     const kindName = kind === 'power' ? 'Power' : 'Vitality';
-    console.log(`Mastery System | [ENSURE STONE ACTOR] Looking for ${kindName} stone actor for user ${user.name}`);
+    log.debug(`[ENSURE STONE ACTOR] Looking for ${kindName} stone actor for user ${user.name}`);
     // Strategy 0: Check for configured base stone actor (global basisstein)
     const baseActorId = kind === 'power'
         ? game.settings.get('mastery-system', 'divineClashBasePowerStoneActorId')
@@ -355,14 +356,14 @@ async function _ensurePlayerStoneActor(user, kind) {
     if (baseActorId && baseActorId.trim() !== '') {
         const baseActor = game.actors?.get(baseActorId);
         if (baseActor) {
-            console.log(`Mastery System | [ENSURE STONE ACTOR] Using configured base stone actor: ${baseActor.name} (${baseActorId})`);
+            log.debug(`[ENSURE STONE ACTOR] Using configured base stone actor: ${baseActor.name} (${baseActorId})`);
             // Ensure user has OWNER permission (so they can move their stone tokens)
             const currentOwnership = baseActor.ownership || {};
             const userPermission = currentOwnership[user.id] || CONST.DOCUMENT_OWNERSHIP_LEVELS.NONE;
             if (userPermission < CONST.DOCUMENT_OWNERSHIP_LEVELS.OWNER) {
                 const newOwnership = { ...currentOwnership, [user.id]: CONST.DOCUMENT_OWNERSHIP_LEVELS.OWNER };
                 await baseActor.update({ ownership: newOwnership });
-                console.log(`Mastery System | [ENSURE STONE ACTOR] Granted OWNER permission to user ${user.name}`);
+                log.debug(`[ENSURE STONE ACTOR] Granted OWNER permission to user ${user.name}`);
             }
             return baseActor;
         }
@@ -377,7 +378,7 @@ async function _ensurePlayerStoneActor(user, kind) {
         return name === actorName && type === 'npc';
     });
     if (existing) {
-        console.log(`Mastery System | [ENSURE STONE ACTOR] Found exact match: ${existing.name}`);
+        log.debug(`[ENSURE STONE ACTOR] Found exact match: ${existing.name}`);
         // Ensure ownership
         const ownership = { [user.id]: CONST.DOCUMENT_OWNERSHIP_LEVELS.OWNER };
         await existing.update({ ownership });
@@ -392,7 +393,7 @@ async function _ensurePlayerStoneActor(user, kind) {
             a.ownership?.[user.id] === CONST.DOCUMENT_OWNERSHIP_LEVELS.OWNER;
         return hasOwnership && a.type === 'npc';
     });
-    console.log(`Mastery System | [ENSURE STONE ACTOR] Found ${userOwnedActors.length} NPC actors owned by ${user.name}`);
+    log.debug(`[ENSURE STONE ACTOR] Found ${userOwnedActors.length} NPC actors owned by ${user.name}`);
     // Look for actors with stone-related names
     const stoneKeywords = kind === 'power'
         ? ['power', 'stone', 'dc stone']
@@ -403,7 +404,7 @@ async function _ensurePlayerStoneActor(user, kind) {
             (kind === 'power' ? !name.includes('vitality') : name.includes('vitality'));
     });
     if (existing) {
-        console.log(`Mastery System | [ENSURE STONE ACTOR] Found existing stone actor by name pattern: ${existing.name}`);
+        log.debug(`[ENSURE STONE ACTOR] Found existing stone actor by name pattern: ${existing.name}`);
         // Ensure ownership
         const ownership = { [user.id]: CONST.DOCUMENT_OWNERSHIP_LEVELS.OWNER };
         await existing.update({ ownership });
@@ -417,24 +418,24 @@ async function _ensurePlayerStoneActor(user, kind) {
     });
     if (stoneActors.length === 1 && kind === 'power') {
         // If only one stone actor exists and we need power, use it
-        console.log(`Mastery System | [ENSURE STONE ACTOR] Using single existing stone actor: ${stoneActors[0].name}`);
+        log.debug(`[ENSURE STONE ACTOR] Using single existing stone actor: ${stoneActors[0].name}`);
         const ownership = { [user.id]: CONST.DOCUMENT_OWNERSHIP_LEVELS.OWNER };
         await stoneActors[0].update({ ownership });
         return stoneActors[0];
     }
     // Strategy 4: Create new actor if none found
-    console.log(`Mastery System | [ENSURE STONE ACTOR] No existing stone actor found, creating new one: ${actorName}`);
+    log.debug(`[ENSURE STONE ACTOR] No existing stone actor found, creating new one: ${actorName}`);
     const actorData = {
         name: actorName,
         type: 'npc',
         ownership: { [user.id]: CONST.DOCUMENT_OWNERSHIP_LEVELS.OWNER },
         img: kind === 'power'
-            ? (game.settings.get('mastery-system', 'divineClashPowerStoneImg') || 'systems/mastery-system/icons/svg/power-stone.svg')
-            : (game.settings.get('mastery-system', 'divineClashVitalityStoneImg') || 'systems/mastery-system/icons/svg/vitality-stone.svg')
+            ? (game.settings.get('mastery-system', 'divineClashPowerStoneImg') || 'systems/mastery-system/assets/icons/stones/power-stone.svg')
+            : (game.settings.get('mastery-system', 'divineClashVitalityStoneImg') || 'systems/mastery-system/assets/icons/stones/vitality-stone.svg')
     };
     try {
         const actor = await Actor.create(actorData);
-        console.log(`Mastery System | [ENSURE STONE ACTOR] Created new stone actor: ${actorName}`);
+        log.debug(`[ENSURE STONE ACTOR] Created new stone actor: ${actorName}`);
         return actor;
     }
     catch (error) {
@@ -479,10 +480,10 @@ function findExistingStoneTokensForSeat(scene, seatIndex, stoneActors, stoneKind
             tokenActorId &&
             actorIds.has(tokenActorId)) {
             existingTokens.set(tokenActorId, token);
-            console.log(`Mastery System | [FIND EXISTING TOKENS] Found existing token for actor ${tokenActorId}: ${token.name || token.document?.name}`);
+            log.debug(`[FIND EXISTING TOKENS] Found existing token for actor ${tokenActorId}: ${token.name || token.document?.name}`);
         }
     }
-    console.log(`Mastery System | [FIND EXISTING TOKENS] Found ${existingTokens.size}/${stoneActors.length} existing ${stoneKind} stone tokens for seat ${seatIndex}`);
+    log.debug(`[FIND EXISTING TOKENS] Found ${existingTokens.size}/${stoneActors.length} existing ${stoneKind} stone tokens for seat ${seatIndex}`);
     return existingTokens;
 }
 /**
@@ -503,7 +504,7 @@ async function cleanupOrphanedStonesForSeat(scene, seatIndex, validActorIds) {
         }
     }
     if (tokensToDelete.length > 0) {
-        console.log(`Mastery System | [CLEANUP ORPHANED] Removing ${tokensToDelete.length} orphaned stone token(s) for seat ${seatIndex}`);
+        log.debug(`[CLEANUP ORPHANED] Removing ${tokensToDelete.length} orphaned stone token(s) for seat ${seatIndex}`);
         await scene.deleteEmbeddedDocuments('Token', tokensToDelete);
     }
 }
@@ -514,7 +515,7 @@ async function cleanupOrphanedStonesForSeat(scene, seatIndex, validActorIds) {
 // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/ban-ts-comment
 // @ts-ignore
 async function _spawnStonesForSeat(scene, seatIndex, _actor, user, powerStoneCount, vitalityStoneCount) {
-    console.log(`Mastery System | [SPAWN STONES] Starting for seat ${seatIndex}:`, {
+    log.debug(`[SPAWN STONES] Starting for seat ${seatIndex}:`, {
         powerCount: powerStoneCount,
         vitalityCount: vitalityStoneCount,
         hasUser: !!user,
@@ -525,7 +526,7 @@ async function _spawnStonesForSeat(scene, seatIndex, _actor, user, powerStoneCou
         console.error(`Mastery System | [SPAWN STONES] Seat ${seatIndex} READY region not found - cannot spawn stones`);
         return;
     }
-    console.log(`Mastery System | [SPAWN STONES] Found READY region for seat ${seatIndex}:`, seatRegion);
+    log.debug(`[SPAWN STONES] Found READY region for seat ${seatIndex}:`, seatRegion);
     // Create folder for player's stones (always, even if no stones to spawn)
     let folderId = null;
     if (user) {
@@ -537,7 +538,7 @@ async function _spawnStonesForSeat(scene, seatIndex, _actor, user, powerStoneCou
     }
     // Spawn power stones
     if (powerStoneCount > 0 && user && folderId) {
-        console.log(`Mastery System | [SPAWN STONES] Spawning ${powerStoneCount} power stones for user ${user.name}`);
+        log.debug(`[SPAWN STONES] Spawning ${powerStoneCount} power stones for user ${user.name}`);
         // Create individual stone actors (one per stone) - reuses existing if available
         const stoneActors = await createStoneActorsForPlayer(user, 'power', powerStoneCount, folderId);
         if (stoneActors.length !== powerStoneCount) {
@@ -557,7 +558,7 @@ async function _spawnStonesForSeat(scene, seatIndex, _actor, user, powerStoneCou
             // Check if token already exists for this actor
             const existingToken = existingTokens.get(actorId);
             if (existingToken) {
-                console.log(`Mastery System | [SPAWN STONES] Reusing existing power stone token ${i + 1}/${stoneActors.length} for actor ${actorId}: ${existingToken.name || existingToken.document?.name}`);
+                log.debug(`[SPAWN STONES] Reusing existing power stone token ${i + 1}/${stoneActors.length} for actor ${actorId}: ${existingToken.name || existingToken.document?.name}`);
                 reusedCount++;
                 continue;
             }
@@ -583,7 +584,7 @@ async function _spawnStonesForSeat(scene, seatIndex, _actor, user, powerStoneCou
                 disposition: CONST.TOKEN_DISPOSITIONS.NEUTRAL,
                 locked: false
             };
-            console.log(`Mastery System | [SPAWN STONES] Creating new power stone token ${i + 1}/${stoneActors.length}:`, {
+            log.debug(`[SPAWN STONES] Creating new power stone token ${i + 1}/${stoneActors.length}:`, {
                 name: tokenData.name,
                 actorId: tokenData.actorId,
                 actorName: stoneActor.name,
@@ -595,7 +596,7 @@ async function _spawnStonesForSeat(scene, seatIndex, _actor, user, powerStoneCou
                 const created = await scene.createEmbeddedDocuments('Token', [tokenData]);
                 const createdToken = created[0];
                 if (createdToken) {
-                    console.log(`Mastery System | [SPAWN STONES] Created new power stone token ${i + 1}/${stoneActors.length}:`, {
+                    log.debug(`[SPAWN STONES] Created new power stone token ${i + 1}/${stoneActors.length}:`, {
                         id: createdToken.id,
                         name: createdToken.name,
                         actorId: createdToken.actorId,
@@ -612,17 +613,17 @@ async function _spawnStonesForSeat(scene, seatIndex, _actor, user, powerStoneCou
                 console.error(`Mastery System | [SPAWN STONES] Failed to spawn power stone token ${i + 1}:`, error);
             }
         }
-        console.log(`Mastery System | [SPAWN STONES] Power stones summary: ${reusedCount} reused, ${createdCount} created, ${stoneActors.length} total`);
+        log.debug(`[SPAWN STONES] Power stones summary: ${reusedCount} reused, ${createdCount} created, ${stoneActors.length} total`);
     }
     else {
-        console.log(`Mastery System | [SPAWN STONES] Skipping power stones:`, {
+        log.debug(`[SPAWN STONES] Skipping power stones:`, {
             powerCount: powerStoneCount,
             hasUser: !!user
         });
     }
     // Spawn vitality stones
     if (vitalityStoneCount > 0 && user && folderId) {
-        console.log(`Mastery System | [SPAWN STONES] Spawning ${vitalityStoneCount} vitality stones for user ${user.name}`);
+        log.debug(`[SPAWN STONES] Spawning ${vitalityStoneCount} vitality stones for user ${user.name}`);
         // Folder already created above, reuse folderId
         // Create individual stone actors (one per stone) - reuses existing if available
         const stoneActors = await createStoneActorsForPlayer(user, 'vitality', vitalityStoneCount, folderId);
@@ -634,7 +635,7 @@ async function _spawnStonesForSeat(scene, seatIndex, _actor, user, powerStoneCou
             console.error(`Mastery System | [SPAWN STONES] VITALITY region not found for seat ${seatIndex}`);
             return;
         }
-        console.log(`Mastery System | [SPAWN STONES] Found VITALITY region for seat ${seatIndex}:`, vitalityRegion);
+        log.debug(`[SPAWN STONES] Found VITALITY region for seat ${seatIndex}:`, vitalityRegion);
         // Find existing tokens for these actors
         const existingTokens = findExistingStoneTokensForSeat(scene, seatIndex, stoneActors, 'vitality');
         const validActorIds = new Set(stoneActors.map(a => a.id));
@@ -649,7 +650,7 @@ async function _spawnStonesForSeat(scene, seatIndex, _actor, user, powerStoneCou
             // Check if token already exists for this actor
             const existingToken = existingTokens.get(actorId);
             if (existingToken) {
-                console.log(`Mastery System | [SPAWN STONES] Reusing existing vitality stone token ${i + 1}/${stoneActors.length} for actor ${actorId}: ${existingToken.name || existingToken.document?.name}`);
+                log.debug(`[SPAWN STONES] Reusing existing vitality stone token ${i + 1}/${stoneActors.length} for actor ${actorId}: ${existingToken.name || existingToken.document?.name}`);
                 reusedCount++;
                 continue;
             }
@@ -675,7 +676,7 @@ async function _spawnStonesForSeat(scene, seatIndex, _actor, user, powerStoneCou
                 disposition: CONST.TOKEN_DISPOSITIONS.NEUTRAL,
                 locked: false
             };
-            console.log(`Mastery System | [SPAWN STONES] Creating new vitality stone token ${i + 1}/${stoneActors.length}:`, {
+            log.debug(`[SPAWN STONES] Creating new vitality stone token ${i + 1}/${stoneActors.length}:`, {
                 name: tokenData.name,
                 actorId: tokenData.actorId,
                 actorName: stoneActor.name,
@@ -687,7 +688,7 @@ async function _spawnStonesForSeat(scene, seatIndex, _actor, user, powerStoneCou
                 const created = await scene.createEmbeddedDocuments('Token', [tokenData]);
                 const createdToken = created[0];
                 if (createdToken) {
-                    console.log(`Mastery System | [SPAWN STONES] Created new vitality stone token ${i + 1}/${stoneActors.length}:`, {
+                    log.debug(`[SPAWN STONES] Created new vitality stone token ${i + 1}/${stoneActors.length}:`, {
                         id: createdToken.id,
                         name: createdToken.name,
                         actorId: createdToken.actorId,
@@ -704,15 +705,15 @@ async function _spawnStonesForSeat(scene, seatIndex, _actor, user, powerStoneCou
                 console.error(`Mastery System | [SPAWN STONES] Failed to spawn vitality stone token ${i + 1}:`, error);
             }
         }
-        console.log(`Mastery System | [SPAWN STONES] Vitality stones summary: ${reusedCount} reused, ${createdCount} created, ${stoneActors.length} total`);
+        log.debug(`[SPAWN STONES] Vitality stones summary: ${reusedCount} reused, ${createdCount} created, ${stoneActors.length} total`);
     }
     else {
-        console.log(`Mastery System | [SPAWN STONES] Skipping vitality stones:`, {
+        log.debug(`[SPAWN STONES] Skipping vitality stones:`, {
             count: vitalityStoneCount,
             hasUser: !!user
         });
     }
-    console.log(`Mastery System | [SPAWN STONES] Completed spawning for seat ${seatIndex}`);
+    log.debug(`[SPAWN STONES] Completed spawning for seat ${seatIndex}`);
 }
 /**
  * Spawn avatar token for a seat
@@ -721,20 +722,20 @@ async function _spawnStonesForSeat(scene, seatIndex, _actor, user, powerStoneCou
 // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/ban-ts-comment
 // @ts-ignore
 async function _spawnAvatarForSeat(scene, seatIndex, actor) {
-    console.log(`Mastery System | [SPAWN AVATAR] Starting for seat ${seatIndex}:`, {
+    log.debug(`[SPAWN AVATAR] Starting for seat ${seatIndex}:`, {
         actorId: actor.id,
         actorName: actor.name,
         actorType: actor.type
     });
     // Find avatar position (use READY region center as fallback)
     const regionName = getRegionName(seatIndex, 'READY');
-    console.log(`Mastery System | [SPAWN AVATAR] Looking for region: ${regionName}`);
+    log.debug(`[SPAWN AVATAR] Looking for region: ${regionName}`);
     const seatRegion = findRegion(scene, regionName);
     if (!seatRegion) {
         console.warn(`Mastery System | [SPAWN AVATAR] Seat ${seatIndex} region "${regionName}" not found for avatar`);
         return;
     }
-    console.log(`Mastery System | [SPAWN AVATAR] Found region:`, {
+    log.debug(`[SPAWN AVATAR] Found region:`, {
         id: seatRegion.id,
         x: seatRegion.x,
         y: seatRegion.y,
@@ -745,7 +746,7 @@ async function _spawnAvatarForSeat(scene, seatIndex, actor) {
         x: seatRegion.x + seatRegion.width / 2,
         y: seatRegion.y + seatRegion.height / 2
     };
-    console.log(`Mastery System | [SPAWN AVATAR] Calculated position:`, pos);
+    log.debug(`[SPAWN AVATAR] Calculated position:`, pos);
     const tokenData = {
         name: actor.name,
         actorId: actor.id,
@@ -763,11 +764,11 @@ async function _spawnAvatarForSeat(scene, seatIndex, actor) {
         disposition: CONST.TOKEN_DISPOSITIONS.FRIENDLY,
         locked: false
     };
-    console.log(`Mastery System | [SPAWN AVATAR] Token data:`, tokenData);
+    log.debug(`[SPAWN AVATAR] Token data:`, tokenData);
     try {
-        console.log(`Mastery System | [SPAWN AVATAR] Creating token document...`);
+        log.debug(`[SPAWN AVATAR] Creating token document...`);
         const created = await scene.createEmbeddedDocuments('Token', [tokenData]);
-        console.log(`Mastery System | [SPAWN AVATAR] Successfully created avatar token for seat ${seatIndex}:`, {
+        log.debug(`[SPAWN AVATAR] Successfully created avatar token for seat ${seatIndex}:`, {
             count: created.length,
             tokenIds: created.map((t) => t.id),
             tokenNames: created.map((t) => t.name),
@@ -778,7 +779,7 @@ async function _spawnAvatarForSeat(scene, seatIndex, actor) {
         // Verify token is visible on canvas
         const canvasToken = canvas?.tokens?.placeables.find((t) => t.id === created[0].id);
         if (canvasToken) {
-            console.log(`Mastery System | [SPAWN AVATAR] Token is visible on canvas at:`, {
+            log.debug(`[SPAWN AVATAR] Token is visible on canvas at:`, {
                 x: canvasToken.x,
                 y: canvasToken.y,
                 visible: canvasToken.visible
@@ -814,7 +815,7 @@ async function _pullUsersToScene(scene, userIds) {
             if (game.socket && typeof game.socket.emit === 'function') {
                 try {
                     game.socket.emit('pullToScene', scene.id, userId);
-                    console.log(`Mastery System | Pulled user ${user.name} to scene via socket`);
+                    log.debug(`Pulled user ${user.name} to scene via socket`);
                 }
                 catch (socketError) {
                     // Fallback to direct activation
@@ -850,7 +851,7 @@ async function _pullUsersToScene(scene, userIds) {
 function _calculatePowerStoneCount(actor) {
     const system = actor.system || {};
     const stones = system.stones || {};
-    console.log(`Mastery System | [CALCULATE POWER STONES] Starting calculation for actor:`, {
+    log.debug(`[CALCULATE POWER STONES] Starting calculation for actor:`, {
         actorId: actor.id,
         actorName: actor.name,
         hasStones: !!stones,
@@ -862,7 +863,7 @@ function _calculatePowerStoneCount(actor) {
         const totalStones = stones.current !== undefined ? stones.current : stones.total;
         const vitality = stones.vitality || 0;
         const powerStones = Math.max(0, totalStones - vitality);
-        console.log(`Mastery System | [CALCULATE POWER STONES] Using system.stones:`, {
+        log.debug(`[CALCULATE POWER STONES] Using system.stones:`, {
             total: stones.total,
             current: stones.current,
             vitality: vitality,
@@ -871,20 +872,20 @@ function _calculatePowerStoneCount(actor) {
         return powerStones;
     }
     // Fallback to old stonePools system for backwards compatibility
-    console.log(`Mastery System | [CALCULATE POWER STONES] Falling back to stonePools`);
+    log.debug(`[CALCULATE POWER STONES] Falling back to stonePools`);
     const stonePools = system.stonePools || {};
     let total = 0;
     for (const [key, pool] of Object.entries(stonePools)) {
         if (key === 'vitality') {
-            console.log(`Mastery System | [CALCULATE POWER STONES] Skipping vitality pool`);
+            log.debug(`[CALCULATE POWER STONES] Skipping vitality pool`);
             continue;
         }
         const poolData = pool;
         const current = poolData.current || 0;
         total += current;
-        console.log(`Mastery System | [CALCULATE POWER STONES] Pool "${key}": current=${current}, runningTotal=${total}`);
+        log.debug(`[CALCULATE POWER STONES] Pool "${key}": current=${current}, runningTotal=${total}`);
     }
-    console.log(`Mastery System | [CALCULATE POWER STONES] Final total: ${total}`);
+    log.debug(`[CALCULATE POWER STONES] Final total: ${total}`);
     return total;
 }
 /**
@@ -897,7 +898,7 @@ function _calculateVitalityStoneCount(actor) {
     // Check flag first
     const flagValue = actor.getFlag('mastery-system', 'divineClash.vitality');
     if (flagValue !== undefined && flagValue !== null) {
-        console.log(`Mastery System | [CALCULATE VITALITY STONES] Using flag value: ${flagValue}`);
+        log.debug(`[CALCULATE VITALITY STONES] Using flag value: ${flagValue}`);
         return flagValue;
     }
     const system = actor.system || {};
@@ -905,15 +906,15 @@ function _calculateVitalityStoneCount(actor) {
     // Use system.stones if available (new system)
     if (stones.vitality !== undefined) {
         const vitality = stones.vitality || 0;
-        console.log(`Mastery System | [CALCULATE VITALITY STONES] Using system.stones.vitality: ${vitality}`);
+        log.debug(`[CALCULATE VITALITY STONES] Using system.stones.vitality: ${vitality}`);
         return vitality;
     }
     // Fallback to old stonePools system for backwards compatibility
-    console.log(`Mastery System | [CALCULATE VITALITY STONES] Falling back to stonePools`);
+    log.debug(`[CALCULATE VITALITY STONES] Falling back to stonePools`);
     const stonePools = system.stonePools || {};
     const vitalityPool = stonePools.vitality || {};
     const fallback = vitalityPool.max || 10;
-    console.log(`Mastery System | [CALCULATE VITALITY STONES] Using stonePools.vitality.max: ${fallback}`);
+    log.debug(`[CALCULATE VITALITY STONES] Using stonePools.vitality.max: ${fallback}`);
     return fallback;
 }
 // Guard to prevent multiple simultaneous calls
@@ -939,11 +940,11 @@ async function ensureStonesFolderForActor(actor) {
     const actorName = actor.name || 'Unknown Actor';
     const actorId = actor.id;
     const folderName = `Stones for ${actorName}`;
-    console.log(`Mastery System | [ENSURE STONES FOLDER] ===== START Creating folder "${folderName}" =====`);
+    log.debug(`[ENSURE STONES FOLDER] ===== START Creating folder "${folderName}" =====`);
     // Get the actor's current folder
     const actorFolder = getActorFolder(actor);
     const parentFolderId = actorFolder ? actorFolder.id : null;
-    console.log(`Mastery System | [ENSURE STONES FOLDER] Actor folder info:`, {
+    log.debug(`[ENSURE STONES FOLDER] Actor folder info:`, {
         actorName,
         actorId: actorId,
         actorFolderId: actor.folder,
@@ -956,13 +957,13 @@ async function ensureStonesFolderForActor(actor) {
     // In Foundry VTT, game.folders is a Collection, not an array
     const foldersCollection = game.folders;
     const allFolders = foldersCollection ? (Array.isArray(foldersCollection) ? foldersCollection : Array.from(foldersCollection.values())) : [];
-    console.log(`Mastery System | [ENSURE STONES FOLDER] Total folders in game: ${allFolders.length}`);
+    log.debug(`[ENSURE STONES FOLDER] Total folders in game: ${allFolders.length}`);
     const existingFolder = allFolders.find((f) => {
         const matches = f.name === folderName &&
             f.type === 'Actor' &&
             f.folder === parentFolderId;
         if (matches) {
-            console.log(`Mastery System | [ENSURE STONES FOLDER] Found matching folder:`, {
+            log.debug(`[ENSURE STONES FOLDER] Found matching folder:`, {
                 id: f.id,
                 name: f.name,
                 type: f.type,
@@ -973,12 +974,12 @@ async function ensureStonesFolderForActor(actor) {
         return matches;
     });
     if (existingFolder) {
-        console.log(`Mastery System | [ENSURE STONES FOLDER] Found existing folder: ${folderName} (${existingFolder.id})`);
-        console.log(`Mastery System | [ENSURE STONES FOLDER] ===== COMPLETED (existing) =====`);
+        log.debug(`[ENSURE STONES FOLDER] Found existing folder: ${folderName} (${existingFolder.id})`);
+        log.debug(`[ENSURE STONES FOLDER] ===== COMPLETED (existing) =====`);
         return existingFolder.id;
     }
     // Create new folder
-    console.log(`Mastery System | [ENSURE STONES FOLDER] Creating new folder: ${folderName} in parent ${parentFolderId || 'root'}`);
+    log.debug(`[ENSURE STONES FOLDER] Creating new folder: ${folderName} in parent ${parentFolderId || 'root'}`);
     try {
         const folderData = {
             name: folderName,
@@ -995,17 +996,17 @@ async function ensureStonesFolderForActor(actor) {
                 }
             }
         };
-        console.log(`Mastery System | [ENSURE STONES FOLDER] Folder data to create:`, folderData);
-        console.log(`Mastery System | [ENSURE STONES FOLDER] Calling Folder.create...`);
+        log.debug(`[ENSURE STONES FOLDER] Folder data to create:`, folderData);
+        log.debug(`[ENSURE STONES FOLDER] Calling Folder.create...`);
         const folder = await Folder.create(folderData);
-        console.log(`Mastery System | [ENSURE STONES FOLDER] Folder.create returned:`, {
+        log.debug(`[ENSURE STONES FOLDER] Folder.create returned:`, {
             id: folder.id,
             name: folder.name,
             type: folder.type,
             folder: folder.folder
         });
-        console.log(`Mastery System | [ENSURE STONES FOLDER] Successfully created folder: ${folderName} (${folder.id})`);
-        console.log(`Mastery System | [ENSURE STONES FOLDER] ===== COMPLETED (created) =====`);
+        log.debug(`[ENSURE STONES FOLDER] Successfully created folder: ${folderName} (${folder.id})`);
+        log.debug(`[ENSURE STONES FOLDER] ===== COMPLETED (created) =====`);
         return folder.id;
     }
     catch (error) {
@@ -1015,7 +1016,7 @@ async function ensureStonesFolderForActor(actor) {
             stack: error.stack,
             error: error
         });
-        console.log(`Mastery System | [ENSURE STONES FOLDER] ===== COMPLETED (error) =====`);
+        log.debug(`[ENSURE STONES FOLDER] ===== COMPLETED (error) =====`);
         return null;
     }
 }
@@ -1024,8 +1025,8 @@ async function ensureStonesFolderForActor(actor) {
  * The image is taken from settings, not from the base actor (to avoid placeholder images)
  */
 async function copyStoneActor(baseActor, count, folderId, actorName) {
-    console.log(`Mastery System | [COPY STONE ACTOR] ===== START Copying "${actorName}" ${count} times =====`);
-    console.log(`Mastery System | [COPY STONE ACTOR] Parameters:`, {
+    log.debug(`[COPY STONE ACTOR] ===== START Copying "${actorName}" ${count} times =====`);
+    log.debug(`[COPY STONE ACTOR] Parameters:`, {
         baseActorId: baseActor.id,
         baseActorName: baseActor.name,
         count: count,
@@ -1045,10 +1046,10 @@ async function copyStoneActor(baseActor, count, folderId, actorName) {
     // In Foundry VTT, game.actors is a Collection, not an array
     const actorsCollection = game.actors;
     const allActors = actorsCollection ? (Array.isArray(actorsCollection) ? actorsCollection : Array.from(actorsCollection.values())) : [];
-    console.log(`Mastery System | [COPY STONE ACTOR] Total actors in game: ${allActors.length}`);
+    log.debug(`[COPY STONE ACTOR] Total actors in game: ${allActors.length}`);
     // Also check folder by getting it directly from game.folders
     const folder = game.folders?.get(folderId);
-    console.log(`Mastery System | [COPY STONE ACTOR] Folder lookup:`, {
+    log.debug(`[COPY STONE ACTOR] Folder lookup:`, {
         folderId: folderId,
         folderExists: !!folder,
         folderName: folder?.name,
@@ -1058,7 +1059,7 @@ async function copyStoneActor(baseActor, count, folderId, actorName) {
     // In Foundry VTT, folders have a `contents` property that lists all documents in the folder
     if (folder && folder.contents) {
         const folderContents = folder.contents;
-        console.log(`Mastery System | [COPY STONE ACTOR] Folder contents (from folder.contents):`, {
+        log.debug(`[COPY STONE ACTOR] Folder contents (from folder.contents):`, {
             total: folderContents?.length || 0,
             actors: folderContents?.filter((c) => c?.documentName === 'Actor')?.length || 0
         });
@@ -1070,7 +1071,7 @@ async function copyStoneActor(baseActor, count, folderId, actorName) {
         const aFolderId = typeof aFolderRaw === 'string' ? aFolderRaw : (aFolderRaw?.id || null);
         const matches = aFolderId === folderId;
         if (matches) {
-            console.log(`Mastery System | [COPY STONE ACTOR] Found actor in folder:`, {
+            log.debug(`[COPY STONE ACTOR] Found actor in folder:`, {
                 id: a.id,
                 name: a.name,
                 folderRaw: aFolderRaw,
@@ -1083,9 +1084,9 @@ async function copyStoneActor(baseActor, count, folderId, actorName) {
         }
         return matches;
     });
-    console.log(`Mastery System | [COPY STONE ACTOR] Total actors in folder ${folderId}: ${actorsInFolder.length}`);
+    log.debug(`[COPY STONE ACTOR] Total actors in folder ${folderId}: ${actorsInFolder.length}`);
     if (actorsInFolder.length > 0) {
-        console.log(`Mastery System | [COPY STONE ACTOR] Actors in folder:`, actorsInFolder.map((a) => ({
+        log.debug(`[COPY STONE ACTOR] Actors in folder:`, actorsInFolder.map((a) => ({
             id: a.id,
             name: a.name,
             folder: a.folder,
@@ -1103,7 +1104,7 @@ async function copyStoneActor(baseActor, count, folderId, actorName) {
         const aName = a.name || '';
         const matches = aFolderId === folderId && aName.startsWith(actorName);
         if (matches) {
-            console.log(`Mastery System | [COPY STONE ACTOR] Found existing actor:`, {
+            log.debug(`[COPY STONE ACTOR] Found existing actor:`, {
                 id: a.id,
                 name: aName,
                 folderRaw: aFolderRaw,
@@ -1116,7 +1117,7 @@ async function copyStoneActor(baseActor, count, folderId, actorName) {
         }
         else if (aFolderId === folderId) {
             // Log actors in the folder that don't match to help debug
-            console.log(`Mastery System | [COPY STONE ACTOR] Actor in folder but doesn't match:`, {
+            log.debug(`[COPY STONE ACTOR] Actor in folder but doesn't match:`, {
                 id: a.id,
                 name: aName,
                 folderRaw: aFolderRaw,
@@ -1128,38 +1129,38 @@ async function copyStoneActor(baseActor, count, folderId, actorName) {
         }
         return matches;
     });
-    console.log(`Mastery System | [COPY STONE ACTOR] Found ${existingActors.length} existing copies in folder ${folderId}`);
-    console.log(`Mastery System | [COPY STONE ACTOR] Required count: ${count}, Existing count: ${existingActors.length}`);
-    console.log(`Mastery System | [COPY STONE ACTOR] Comparison: ${existingActors.length} >= ${count} = ${existingActors.length >= count}`);
+    log.debug(`[COPY STONE ACTOR] Found ${existingActors.length} existing copies in folder ${folderId}`);
+    log.debug(`[COPY STONE ACTOR] Required count: ${count}, Existing count: ${existingActors.length}`);
+    log.debug(`[COPY STONE ACTOR] Comparison: ${existingActors.length} >= ${count} = ${existingActors.length >= count}`);
     // If we already have enough or more actors, just return the first 'count' ones
     if (existingActors.length >= count) {
-        console.log(`Mastery System | [COPY STONE ACTOR] ===== SKIPPING CREATION - ENOUGH ACTORS EXIST =====`);
-        console.log(`Mastery System | [COPY STONE ACTOR] Already have ${existingActors.length} actors, which is >= ${count} required. Reusing first ${count}.`);
+        log.debug(`[COPY STONE ACTOR] ===== SKIPPING CREATION - ENOUGH ACTORS EXIST =====`);
+        log.debug(`[COPY STONE ACTOR] Already have ${existingActors.length} actors, which is >= ${count} required. Reusing first ${count}.`);
         for (let i = 0; i < count; i++) {
-            console.log(`Mastery System | [COPY STONE ACTOR] Reusing existing copy ${i + 1}/${count}: ${existingActors[i].name} (${existingActors[i].id})`);
+            log.debug(`[COPY STONE ACTOR] Reusing existing copy ${i + 1}/${count}: ${existingActors[i].name} (${existingActors[i].id})`);
             actors.push(existingActors[i]);
         }
-        console.log(`Mastery System | [COPY STONE ACTOR] Final result: ${actors.length}/${count} actors (all reused, 0 created)`);
-        console.log(`Mastery System | [COPY STONE ACTOR] ===== COMPLETED (no new actors needed) =====`);
+        log.debug(`[COPY STONE ACTOR] Final result: ${actors.length}/${count} actors (all reused, 0 created)`);
+        log.debug(`[COPY STONE ACTOR] ===== COMPLETED (no new actors needed) =====`);
         return actors.slice(0, count);
     }
     // Reuse existing copies
     for (let i = 0; i < existingActors.length; i++) {
-        console.log(`Mastery System | [COPY STONE ACTOR] Reusing existing copy ${i + 1}: ${existingActors[i].name} (${existingActors[i].id})`);
+        log.debug(`[COPY STONE ACTOR] Reusing existing copy ${i + 1}: ${existingActors[i].name} (${existingActors[i].id})`);
         actors.push(existingActors[i]);
     }
     // Create missing copies
     const copiesToCreate = count - actors.length;
-    console.log(`Mastery System | [COPY STONE ACTOR] Need to create ${copiesToCreate} new copies`);
+    log.debug(`[COPY STONE ACTOR] Need to create ${copiesToCreate} new copies`);
     if (copiesToCreate > 0) {
-        console.log(`Mastery System | [COPY STONE ACTOR] Creating ${copiesToCreate} new copies`);
+        log.debug(`[COPY STONE ACTOR] Creating ${copiesToCreate} new copies`);
         // Get base actor data
-        console.log(`Mastery System | [COPY STONE ACTOR] Getting base actor data...`);
+        log.debug(`[COPY STONE ACTOR] Getting base actor data...`);
         const baseData = baseActor.toObject();
-        console.log(`Mastery System | [COPY STONE ACTOR] Base actor data keys:`, Object.keys(baseData));
+        log.debug(`[COPY STONE ACTOR] Base actor data keys:`, Object.keys(baseData));
         for (let i = actors.length; i < count; i++) {
             const copyName = `${actorName} ${i + 1}`;
-            console.log(`Mastery System | [COPY STONE ACTOR] Creating copy ${i + 1}/${count}: ${copyName}`);
+            log.debug(`[COPY STONE ACTOR] Creating copy ${i + 1}/${count}: ${copyName}`);
             // Create copy data
             const copyData = (foundry.utils?.duplicate || ((obj) => JSON.parse(JSON.stringify(obj))))(baseData);
             copyData.name = copyName;
@@ -1175,10 +1176,10 @@ async function copyStoneActor(baseActor, count, folderId, actorName) {
                 ? game.settings.get('mastery-system', 'divineClashPowerStoneImg')
                 : game.settings.get('mastery-system', 'divineClashVitalityStoneImg');
             const defaultImg = isPowerStone
-                ? 'systems/mastery-system/icons/svg/power-stone.svg'
-                : 'systems/mastery-system/icons/svg/vitality-stone.svg';
+                ? 'systems/mastery-system/assets/icons/stones/power-stone.svg'
+                : 'systems/mastery-system/assets/icons/stones/vitality-stone.svg';
             const finalImg = (settingsImg && settingsImg.trim() !== '') ? settingsImg : defaultImg;
-            console.log(`Mastery System | [COPY STONE ACTOR] Image override:`, {
+            log.debug(`[COPY STONE ACTOR] Image override:`, {
                 isPowerStone,
                 settingsImg,
                 defaultImg,
@@ -1186,7 +1187,7 @@ async function copyStoneActor(baseActor, count, folderId, actorName) {
                 baseActorImg: baseData.img
             });
             copyData.img = finalImg;
-            console.log(`Mastery System | [COPY STONE ACTOR] Copy data:`, {
+            log.debug(`[COPY STONE ACTOR] Copy data:`, {
                 name: copyData.name,
                 folder: copyData.folder,
                 folderType: typeof copyData.folder,
@@ -1197,14 +1198,14 @@ async function copyStoneActor(baseActor, count, folderId, actorName) {
                 img: copyData.img
             });
             try {
-                console.log(`Mastery System | [COPY STONE ACTOR] Calling Actor.create...`);
+                log.debug(`[COPY STONE ACTOR] Calling Actor.create...`);
                 const copiedActor = await Actor.create(copyData);
-                console.log(`Mastery System | [COPY STONE ACTOR] Actor.create returned:`, {
+                log.debug(`[COPY STONE ACTOR] Actor.create returned:`, {
                     id: copiedActor.id,
                     name: copiedActor.name,
                     folder: copiedActor.folder
                 });
-                console.log(`Mastery System | [COPY STONE ACTOR] Created copy ${i + 1}/${count}: ${copyName} (${copiedActor.id})`);
+                log.debug(`[COPY STONE ACTOR] Created copy ${i + 1}/${count}: ${copyName} (${copiedActor.id})`);
                 actors.push(copiedActor);
                 // IMPORTANT: After creating an actor, verify it's in the collection and has the correct folder
                 // This helps debug why actors aren't found on subsequent runs
@@ -1214,7 +1215,7 @@ async function copyStoneActor(baseActor, count, folderId, actorName) {
                     // We need to handle both cases
                     const verifyFolderRaw = verifyActor.folder;
                     const verifyFolderId = typeof verifyFolderRaw === 'string' ? verifyFolderRaw : (verifyFolderRaw?.id || null);
-                    console.log(`Mastery System | [COPY STONE ACTOR] Verified: Created actor is now in collection`, {
+                    log.debug(`[COPY STONE ACTOR] Verified: Created actor is now in collection`, {
                         id: verifyActor.id,
                         name: verifyActor.name,
                         folderRaw: verifyFolderRaw,
@@ -1242,10 +1243,10 @@ async function copyStoneActor(baseActor, count, folderId, actorName) {
         }
     }
     else {
-        console.log(`Mastery System | [COPY STONE ACTOR] All ${count} copies already exist, reusing them`);
+        log.debug(`[COPY STONE ACTOR] All ${count} copies already exist, reusing them`);
     }
-    console.log(`Mastery System | [COPY STONE ACTOR] Final result: ${actors.length}/${count} actors (${actors.length - copiesToCreate} reused, ${copiesToCreate} created)`);
-    console.log(`Mastery System | [COPY STONE ACTOR] ===== COMPLETED =====`);
+    log.debug(`[COPY STONE ACTOR] Final result: ${actors.length}/${count} actors (${actors.length - copiesToCreate} reused, ${copiesToCreate} created)`);
+    log.debug(`[COPY STONE ACTOR] ===== COMPLETED =====`);
     return actors.slice(0, count);
 }
 /**
@@ -1256,11 +1257,11 @@ async function copyStoneActor(baseActor, count, folderId, actorName) {
 async function spawnTokensForPlayer(scene, playerToken, // The selected token on the scene
 playerActor, stoneActors, playerIndex) {
     const playerName = playerActor.name || 'Unknown';
-    console.log(`Mastery System | [SPAWN TOKENS] ===== START Spawning tokens for ${playerName} =====`);
+    log.debug(`[SPAWN TOKENS] ===== START Spawning tokens for ${playerName} =====`);
     // Use existing token position as anchor
     const baseX = playerToken.x || (playerToken.document?.x || 0);
     const baseY = playerToken.y || (playerToken.document?.y || 0);
-    console.log(`Mastery System | [SPAWN TOKENS] Using player token position for ${playerName} at:`, {
+    log.debug(`[SPAWN TOKENS] Using player token position for ${playerName} at:`, {
         x: baseX,
         y: baseY,
         tokenId: playerToken.id
@@ -1273,7 +1274,7 @@ playerActor, stoneActors, playerIndex) {
             isPlayer: true,
             playerIndex: playerIndex
         });
-        console.log(`Mastery System | [SPAWN TOKENS] Added Divine Clash flags to player token for ${playerName}`);
+        log.debug(`[SPAWN TOKENS] Added Divine Clash flags to player token for ${playerName}`);
     }
     // 2. Place vitality stone token to the right of player
     if (stoneActors.vitalityStoneActors.length > 0) {
@@ -1301,14 +1302,14 @@ playerActor, stoneActors, playerIndex) {
                 }
             }
         };
-        console.log(`Mastery System | [SPAWN TOKENS] Vitality stone token image:`, {
+        log.debug(`[SPAWN TOKENS] Vitality stone token image:`, {
             actorImg: vitalityActorImg,
             actorId: vitalityActor.id,
             actorName: vitalityActor.name
         });
         try {
             const vitalityTokens = await scene.createEmbeddedDocuments('Token', [vitalityTokenData]);
-            console.log(`Mastery System | [SPAWN TOKENS] Created vitality stone token for ${playerName}:`, {
+            log.debug(`[SPAWN TOKENS] Created vitality stone token for ${playerName}:`, {
                 tokenId: vitalityTokens[0]?.id,
                 position: { x: vitalityX, y: vitalityY }
             });
@@ -1350,7 +1351,7 @@ playerActor, stoneActors, playerIndex) {
                     }
                 }
             };
-            console.log(`Mastery System | [SPAWN TOKENS] Power stone ${i + 1} token image:`, {
+            log.debug(`[SPAWN TOKENS] Power stone ${i + 1} token image:`, {
                 actorImg: powerActorImg,
                 actorId: powerActor.id,
                 actorName: powerActor.name
@@ -1359,7 +1360,7 @@ playerActor, stoneActors, playerIndex) {
         }
         try {
             const createdPowerTokens = await scene.createEmbeddedDocuments('Token', powerStoneTokens);
-            console.log(`Mastery System | [SPAWN TOKENS] Created ${createdPowerTokens.length} power stone tokens for ${playerName}:`, {
+            log.debug(`[SPAWN TOKENS] Created ${createdPowerTokens.length} power stone tokens for ${playerName}:`, {
                 tokenIds: createdPowerTokens.map((t) => t.id),
                 positions: createdPowerTokens.map((t) => ({ x: t.x, y: t.y }))
             });
@@ -1370,7 +1371,7 @@ playerActor, stoneActors, playerIndex) {
     }
     // 4. Create drawing rectangles around stones
     await createStoneAreaDrawings(scene, baseX, baseY, gridSize, stoneActors, playerIndex);
-    console.log(`Mastery System | [SPAWN TOKENS] ===== COMPLETED Spawning tokens for ${playerName} =====`);
+    log.debug(`[SPAWN TOKENS] ===== COMPLETED Spawning tokens for ${playerName} =====`);
 }
 /**
  * Create drawing rectangles around Power Stones and Vitality Stone
@@ -1467,7 +1468,7 @@ async function createStoneAreaDrawings(scene, baseX, baseY, gridSize, stoneActor
         }
         if (drawings.length > 0) {
             const createdDrawings = await scene.createEmbeddedDocuments('Drawing', drawings);
-            console.log(`Mastery System | [STONE AREAS] Created ${createdDrawings.length} drawing rectangle(s) for player ${playerIndex}`);
+            log.debug(`[STONE AREAS] Created ${createdDrawings.length} drawing rectangle(s) for player ${playerIndex}`);
         }
     }
     catch (error) {
@@ -1481,11 +1482,11 @@ async function createStoneAreaDrawings(scene, baseX, baseY, gridSize, stoneActor
 async function processPlayerActor(actor) {
     const actorName = actor.name || 'Unknown';
     const actorId = actor.id;
-    console.log(`Mastery System | [PROCESS PLAYER] ===== START Processing actor: ${actorName} (${actorId}) =====`);
+    log.debug(`[PROCESS PLAYER] ===== START Processing actor: ${actorName} (${actorId}) =====`);
     // Check system.stones
     const system = actor.system || {};
     const stones = system.stones || {};
-    console.log(`Mastery System | [PROCESS PLAYER] Actor system data:`, {
+    log.debug(`[PROCESS PLAYER] Actor system data:`, {
         hasSystem: !!system,
         hasStones: !!stones,
         stonesKeys: Object.keys(stones),
@@ -1493,7 +1494,7 @@ async function processPlayerActor(actor) {
     });
     const powerCount = Math.max(0, (stones.current !== undefined ? stones.current : stones.total || 0) - (stones.vitality || 0));
     const vitalityCount = stones.vitality || 0;
-    console.log(`Mastery System | [PROCESS PLAYER] Stone counts for ${actorName}:`, {
+    log.debug(`[PROCESS PLAYER] Stone counts for ${actorName}:`, {
         total: stones.total,
         current: stones.current,
         vitality: vitalityCount,
@@ -1506,21 +1507,21 @@ async function processPlayerActor(actor) {
         }
     });
     if (powerCount === 0 && vitalityCount === 0) {
-        console.log(`Mastery System | [PROCESS PLAYER] No stones for ${actorName}, skipping`);
+        log.debug(`[PROCESS PLAYER] No stones for ${actorName}, skipping`);
         return null;
     }
     // Get actor's folder
     const actorFolder = getActorFolder(actor);
-    console.log(`Mastery System | [PROCESS PLAYER] Actor folder:`, {
+    log.debug(`[PROCESS PLAYER] Actor folder:`, {
         hasFolder: !!actorFolder,
         folderId: actorFolder?.id,
         folderName: actorFolder?.name,
         actorFolderId: actor.folder
     });
     // Create stones folder
-    console.log(`Mastery System | [PROCESS PLAYER] Creating stones folder...`);
+    log.debug(`[PROCESS PLAYER] Creating stones folder...`);
     const stonesFolderId = await ensureStonesFolderForActor(actor);
-    console.log(`Mastery System | [PROCESS PLAYER] Stones folder result:`, {
+    log.debug(`[PROCESS PLAYER] Stones folder result:`, {
         folderId: stonesFolderId,
         success: !!stonesFolderId
     });
@@ -1531,7 +1532,7 @@ async function processPlayerActor(actor) {
     // Get base stone actors from settings
     const basePowerStoneId = game.settings.get('mastery-system', 'divineClashBasePowerStoneActorId');
     const baseVitalityStoneId = game.settings.get('mastery-system', 'divineClashBaseVitalityStoneActorId');
-    console.log(`Mastery System | [PROCESS PLAYER] Base stone actor IDs:`, {
+    log.debug(`[PROCESS PLAYER] Base stone actor IDs:`, {
         powerStoneId: basePowerStoneId,
         vitalityStoneId: baseVitalityStoneId,
         hasPowerStone: !!basePowerStoneId && basePowerStoneId.trim() !== '',
@@ -1540,13 +1541,13 @@ async function processPlayerActor(actor) {
     // Copy power stones
     let powerStoneActors = [];
     if (powerCount > 0) {
-        console.log(`Mastery System | [PROCESS PLAYER] Processing ${powerCount} power stones...`);
+        log.debug(`[PROCESS PLAYER] Processing ${powerCount} power stones...`);
         if (!basePowerStoneId || basePowerStoneId.trim() === '') {
             console.warn(`Mastery System | [PROCESS PLAYER] No base Power Stone actor configured, skipping power stones`);
         }
         else {
             const basePowerActor = game.actors?.get(basePowerStoneId);
-            console.log(`Mastery System | [PROCESS PLAYER] Base Power Stone actor lookup:`, {
+            log.debug(`[PROCESS PLAYER] Base Power Stone actor lookup:`, {
                 actorId: basePowerStoneId,
                 found: !!basePowerActor,
                 actorName: basePowerActor?.name
@@ -1555,9 +1556,9 @@ async function processPlayerActor(actor) {
                 console.error(`Mastery System | [PROCESS PLAYER] Base Power Stone actor ${basePowerStoneId} not found`);
             }
             else {
-                console.log(`Mastery System | [PROCESS PLAYER] Copying ${powerCount} power stones...`);
+                log.debug(`[PROCESS PLAYER] Copying ${powerCount} power stones...`);
                 powerStoneActors = await copyStoneActor(basePowerActor, powerCount, stonesFolderId, `Power Stone`);
-                console.log(`Mastery System | [PROCESS PLAYER] Power stones copied:`, {
+                log.debug(`[PROCESS PLAYER] Power stones copied:`, {
                     requested: powerCount,
                     copied: powerStoneActors.length,
                     actorIds: powerStoneActors.map((a) => a.id)
@@ -1568,13 +1569,13 @@ async function processPlayerActor(actor) {
     // Copy vitality stones
     let vitalityStoneActors = [];
     if (vitalityCount > 0) {
-        console.log(`Mastery System | [PROCESS PLAYER] Processing ${vitalityCount} vitality stones...`);
+        log.debug(`[PROCESS PLAYER] Processing ${vitalityCount} vitality stones...`);
         if (!baseVitalityStoneId || baseVitalityStoneId.trim() === '') {
             console.warn(`Mastery System | [PROCESS PLAYER] No base Vitality Stone actor configured, skipping vitality stones`);
         }
         else {
             const baseVitalityActor = game.actors?.get(baseVitalityStoneId);
-            console.log(`Mastery System | [PROCESS PLAYER] Base Vitality Stone actor lookup:`, {
+            log.debug(`[PROCESS PLAYER] Base Vitality Stone actor lookup:`, {
                 actorId: baseVitalityStoneId,
                 found: !!baseVitalityActor,
                 actorName: baseVitalityActor?.name
@@ -1583,9 +1584,9 @@ async function processPlayerActor(actor) {
                 console.error(`Mastery System | [PROCESS PLAYER] Base Vitality Stone actor ${baseVitalityStoneId} not found`);
             }
             else {
-                console.log(`Mastery System | [PROCESS PLAYER] Copying ${vitalityCount} vitality stones...`);
+                log.debug(`[PROCESS PLAYER] Copying ${vitalityCount} vitality stones...`);
                 vitalityStoneActors = await copyStoneActor(baseVitalityActor, vitalityCount, stonesFolderId, `Vitality Stone`);
-                console.log(`Mastery System | [PROCESS PLAYER] Vitality stones copied:`, {
+                log.debug(`[PROCESS PLAYER] Vitality stones copied:`, {
                     requested: vitalityCount,
                     copied: vitalityStoneActors.length,
                     actorIds: vitalityStoneActors.map((a) => a.id)
@@ -1593,7 +1594,7 @@ async function processPlayerActor(actor) {
             }
         }
     }
-    console.log(`Mastery System | [PROCESS PLAYER] ===== COMPLETED Processing ${actorName} =====`);
+    log.debug(`[PROCESS PLAYER] ===== COMPLETED Processing ${actorName} =====`);
     // Return the created stone actors for token placement
     return {
         playerActor: actor,
@@ -1602,7 +1603,7 @@ async function processPlayerActor(actor) {
     };
 }
 export async function startDivineClash() {
-    console.log('Mastery System | [DIVINE CLASH START] Beginning startDivineClash');
+    log.debug('Mastery System | [DIVINE CLASH START] Beginning startDivineClash');
     if (!game.user?.isGM) {
         ui.notifications?.warn('Only the GM can start Divine Clash');
         return;
@@ -1620,7 +1621,7 @@ export async function startDivineClash() {
             ui.notifications?.warn('No active scene. Please switch to the Divine Clash scene first.');
             return;
         }
-        console.log(`Mastery System | [DIVINE CLASH START] Using current scene:`, {
+        log.debug(`[DIVINE CLASH START] Using current scene:`, {
             id: currentScene.id,
             name: currentScene.name
         });
@@ -1630,7 +1631,7 @@ export async function startDivineClash() {
             ui.notifications?.warn('Please select at least one character token to start Divine Clash.');
             return;
         }
-        console.log(`Mastery System | [DIVINE CLASH START] Found ${selectedTokens.length} selected token(s)`);
+        log.debug(`[DIVINE CLASH START] Found ${selectedTokens.length} selected token(s)`);
         // Filter to only character tokens
         const characterTokens = [];
         const playerActors = [];
@@ -1642,7 +1643,7 @@ export async function startDivineClash() {
                 if (!playerActors.find(a => a.id === actor.id)) {
                     playerActors.push(actor);
                 }
-                console.log(`Mastery System | [DIVINE CLASH START] Added character token:`, {
+                log.debug(`[DIVINE CLASH START] Added character token:`, {
                     tokenId: token.id,
                     actorId: actor.id,
                     actorName: actor.name,
@@ -1650,7 +1651,7 @@ export async function startDivineClash() {
                 });
             }
             else {
-                console.log(`Mastery System | [DIVINE CLASH START] Skipped non-character token:`, {
+                log.debug(`[DIVINE CLASH START] Skipped non-character token:`, {
                     tokenId: token.id,
                     actorType: actor?.type || 'NO ACTOR'
                 });
@@ -1660,7 +1661,7 @@ export async function startDivineClash() {
             ui.notifications?.warn('No character tokens selected. Please select character tokens.');
             return;
         }
-        console.log(`Mastery System | [DIVINE CLASH START] Processing ${characterTokens.length} character token(s)`);
+        log.debug(`[DIVINE CLASH START] Processing ${characterTokens.length} character token(s)`);
         // Initialize scene flags if needed
         const flags = getSceneFlags(currentScene);
         if (!flags.started) {
@@ -1690,14 +1691,14 @@ export async function startDivineClash() {
                 console.warn(`Mastery System | [DIVINE CLASH START] Token ${token.id} has no actor, skipping`);
                 continue;
             }
-            console.log(`Mastery System | [DIVINE CLASH START] Processing: ${actor.name}`);
+            log.debug(`[DIVINE CLASH START] Processing: ${actor.name}`);
             const result = await processPlayerActor(actor);
             if (result) {
                 await spawnTokensForPlayer(currentScene, token, actor, result, playerIndex);
             }
         }
         ui.notifications?.info(`Divine Clash: Created stone tokens for ${characterTokens.length} player(s)`);
-        console.log('Mastery System | [DIVINE CLASH START] ===== COMPLETED =====');
+        log.debug('Mastery System | [DIVINE CLASH START] ===== COMPLETED =====');
     }
     finally {
         isStartingDivineClash = false;
@@ -1898,7 +1899,7 @@ async function cleanupPlayerStoneFolder(user) {
     const folderName = `Divine Clash - ${user.name}`;
     const folder = game.folders?.find((f) => f.name === folderName && f.type === 'Actor');
     if (!folder) {
-        console.log(`Mastery System | [CLEANUP FOLDER] No folder found for ${user.name}`);
+        log.debug(`[CLEANUP FOLDER] No folder found for ${user.name}`);
         return;
     }
     // Find all actors in this folder
@@ -1906,16 +1907,16 @@ async function cleanupPlayerStoneFolder(user) {
         const aFolder = a.folder;
         return aFolder === folder.id;
     }) || [];
-    console.log(`Mastery System | [CLEANUP FOLDER] Found ${actorsInFolder.length} actors in folder "${folderName}"`);
+    log.debug(`[CLEANUP FOLDER] Found ${actorsInFolder.length} actors in folder "${folderName}"`);
     // Delete all actors in folder
     if (actorsInFolder.length > 0) {
         const actorIds = actorsInFolder.map((a) => a.id);
         await Actor.deleteDocuments(actorIds);
-        console.log(`Mastery System | [CLEANUP FOLDER] Deleted ${actorIds.length} actors from folder`);
+        log.debug(`[CLEANUP FOLDER] Deleted ${actorIds.length} actors from folder`);
     }
     // Delete folder
     await folder.delete();
-    console.log(`Mastery System | [CLEANUP FOLDER] Deleted folder "${folderName}"`);
+    log.debug(`[CLEANUP FOLDER] Deleted folder "${folderName}"`);
 }
 /**
  * RESET: Cleanup all Divine Clash tokens, actors, and folders
@@ -1950,7 +1951,7 @@ export async function resetDivineClash() {
     }
     if (tokensToDelete.length > 0) {
         await scene.deleteEmbeddedDocuments('Token', tokensToDelete);
-        console.log(`Mastery System | [RESET] Deleted ${tokensToDelete.length} token(s)`);
+        log.debug(`[RESET] Deleted ${tokensToDelete.length} token(s)`);
     }
     // Cleanup folders and actors for each user
     for (const userId of userIds) {

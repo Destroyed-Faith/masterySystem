@@ -5,6 +5,7 @@
  */
 import { countRaiseSlots, parseDeclaredRaises, resolvePowerSnapshot, resolveRaiseOutcome, } from '../combat/raise-resolution.js';
 import { RAISE_INCREMENT } from '../utils/constants.js';
+import { log } from '../utils/logger.js';
 /** jQuery `.data()` caches parsed `data-*` on first read; dynamic `.attr()` updates won't match. */
 function readAttackButtonDataInt(button, kebab, fallback) {
     const raw = button.attr(`data-${kebab}`);
@@ -15,11 +16,11 @@ function readAttackButtonDataInt(button, kebab, fallback) {
 }
 const rollAttackMessageLocks = new Set();
 export function registerAttackRollClickHandler() {
-    console.log('Mastery System | DEBUG: Setting up global roll-attack-btn handler on chat log');
+    log.debug('Mastery System | DEBUG: Setting up global roll-attack-btn handler on chat log');
     // Register handler on the chat log container using event delegation
     // This ensures it works for all messages, including dynamically added ones
     $(document).off('click', '.roll-attack-btn').on('click', '.roll-attack-btn', async (ev) => {
-        console.log('Mastery System | DEBUG: Roll Attack button clicked!', {
+        log.debug('Mastery System | DEBUG: Roll Attack button clicked!', {
             eventType: ev.type,
             target: ev.target,
             currentTarget: ev.currentTarget,
@@ -33,7 +34,7 @@ export function registerAttackRollClickHandler() {
         const messageId = messageElement.attr('data-message-id') ||
             messageElement.data('message-id') ||
             messageElement.data('messageId');
-        console.log('Mastery System | DEBUG: Button click details', {
+        log.debug('Mastery System | DEBUG: Button click details', {
             messageId,
             messageElementAttrs: {
                 'data-message-id': messageElement.attr('data-message-id'),
@@ -85,7 +86,7 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
         }
         // Debug: Check all flags on the message
         const allFlags = message.flags;
-        console.log('Mastery System | [ROLL BUTTON CLICK] All message flags', {
+        log.debug('Mastery System | [ROLL BUTTON CLICK] All message flags', {
             messageId: messageId,
             allFlags: allFlags,
             allFlagKeys: Object.keys(allFlags || {}),
@@ -94,7 +95,7 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
         // Try both methods to get flags (getFlag might not work in some Foundry versions)
         const flags = message.getFlag?.('mastery-system') || message.flags?.['mastery-system'];
         // Debug log after flags read
-        console.log('Mastery System | [WEAPON-ID DEBUG]', {
+        log.debug('Mastery System | [WEAPON-ID DEBUG]', {
             messageType: 'roll-attack:flags-read',
             messageId: messageId,
             flagsWeaponId: flags?.weaponId,
@@ -104,7 +105,7 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
             flagsAttackerId: flags?.attackerId,
             allKeys: Object.keys(flags || {})
         });
-        console.log('Mastery System | [ROLL BUTTON CLICK] Message flags (mastery-system)', {
+        log.debug('Mastery System | [ROLL BUTTON CLICK] Message flags (mastery-system)', {
             messageId: messageId,
             flags: flags,
             weaponId: flags?.weaponId,
@@ -113,7 +114,7 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
             baseEvade: flags?.baseEvade,
             allFlagKeys: Object.keys(flags || {})
         });
-        console.log('Mastery System | [ROLL BUTTON CLICK] Flags structure', {
+        log.debug('Mastery System | [ROLL BUTTON CLICK] Flags structure', {
             messageId: messageId,
             hasGetFlag: typeof message.getFlag === 'function',
             flagsDirect: message.flags?.['mastery-system'],
@@ -143,14 +144,14 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
         };
         // Disable button during roll
         button.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Rolling...');
-        console.log('Mastery System | DEBUG: Starting attack roll...');
+        log.debug('Mastery System | DEBUG: Starting attack roll...');
         let spentActionOnRoll = false;
         let actorToRefund = null;
         let markedPowerIdForRoll = null;
         try {
             // Import the roll handler (must use .js extension for ES modules in Foundry VTT)
             const { masteryRoll } = await import('../dice/roll-handler.js');
-            console.log('Mastery System | DEBUG: Roll handler imported');
+            log.debug('Mastery System | DEBUG: Roll handler imported');
             // Get actor data - always get fresh from game.actors
             const attacker = game.actors?.get(flags.attackerId);
             if (!attacker) {
@@ -207,7 +208,7 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
                     attackerItems = Array.from(freshAttacker.items.values());
                 }
             }
-            console.log('Mastery System | [ROLL ATTACK] Fresh attacker items', {
+            log.debug('Mastery System | [ROLL ATTACK] Fresh attacker items', {
                 attackerId: freshAttacker.id,
                 itemsCount: attackerItems.length,
                 itemsTypes: attackerItems.map((i) => ({ id: i.id, name: i.name, type: i.type })),
@@ -352,7 +353,7 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
             // AoE spells roll vs the fixed Area TN but keep spell mechanics
             // (Blood Raises, spell raise bonuses).
             const isSpellcasting = tnKind === 'casting' || (tnKind === 'area' && flags.powerIsSpell === true);
-            console.log('Mastery System | DEBUG: Roll parameters', {
+            log.debug('Mastery System | DEBUG: Roll parameters', {
                 numDice: numDice,
                 keepDice: keepDice,
                 baseKeepDice,
@@ -381,7 +382,7 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
             }
             // Perform the attack roll with d8 dice (exploding 8s handled in roll-handler)
             // Label should reflect "Roll N d8 keep K"
-            console.log('Mastery System | DEBUG: Calling masteryRoll...');
+            log.debug('Mastery System | DEBUG: Calling masteryRoll...');
             const advantageNote = flags.rollAdvantage
                 ? ' (Advantage: reroll any 1 once)'
                 : '';
@@ -504,7 +505,7 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
             }
             const raiseOutcome = result.raiseOutcome ??
                 resolveRaiseOutcome(result.total, normalTn, declaredRaiseSlots);
-            console.log('Mastery System | DEBUG: Roll completed!', {
+            log.debug('Mastery System | DEBUG: Roll completed!', {
                 total: result.total,
                 normalTn,
                 raiseTn,
@@ -527,7 +528,7 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
                     const tokenDoc = canvas?.scene?.tokens?.get(flags.targetTokenId);
                     if (tokenDoc?.actor) {
                         target = tokenDoc.actor;
-                        console.log('Mastery System | [ATTACK ROLL] Resolved target from token', {
+                        log.debug('Mastery System | [ATTACK ROLL] Resolved target from token', {
                             targetTokenId: flags.targetTokenId,
                             targetId: target.id,
                             targetName: target.name,
@@ -538,7 +539,7 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
                 // Fallback to base actor if token not found
                 if (!target) {
                     target = game.actors?.get(flags.targetId) || null;
-                    console.log('Mastery System | [ATTACK ROLL] Resolved target from base actor', {
+                    log.debug('Mastery System | [ATTACK ROLL] Resolved target from base actor', {
                         targetId: flags.targetId,
                         targetName: target ? target.name : null,
                         isTokenActor: false
@@ -548,7 +549,7 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
                     // Re-read flags from message to get updated power selection
                     const currentMessage = game.messages?.get(messageId);
                     let updatedFlags = flags;
-                    console.log('Mastery System | [BEFORE DAMAGE DIALOG] Re-reading flags from message', {
+                    log.debug('Mastery System | [BEFORE DAMAGE DIALOG] Re-reading flags from message', {
                         messageId: messageId,
                         hasMessage: !!currentMessage,
                         originalFlags: {
@@ -562,7 +563,7 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
                         const messageFlags = currentMessage.getFlag('mastery-system') || currentMessage.flags?.['mastery-system'];
                         if (messageFlags) {
                             updatedFlags = { ...flags, ...messageFlags };
-                            console.log('Mastery System | [BEFORE DAMAGE DIALOG] Updated flags from message', {
+                            log.debug('Mastery System | [BEFORE DAMAGE DIALOG] Updated flags from message', {
                                 messageId: messageId,
                                 originalFlags: {
                                     weaponId: flags.weaponId,
@@ -622,7 +623,7 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
                         }
                     }
                     // Debug: Log all items to see what we have
-                    console.log('Mastery System | [BEFORE DAMAGE DIALOG] Items from fresh attacker', {
+                    log.debug('Mastery System | [BEFORE DAMAGE DIALOG] Items from fresh attacker', {
                         attackerId: freshAttackerForDialog.id,
                         itemsCount: items.length,
                         itemsTypes: items.map((i) => ({ id: i.id, name: i.name, type: i.type, equipped: i.system?.equipped })),
@@ -654,7 +655,7 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
                                 const gameItem = game.items?.get(weaponId);
                                 if (gameItem && gameItem.actor?.id === freshAttackerForDialog.id) {
                                     weaponFromFlags = gameItem;
-                                    console.log('Mastery System | [BEFORE DAMAGE DIALOG] Found weapon from flags via game.items', {
+                                    log.debug('Mastery System | [BEFORE DAMAGE DIALOG] Found weapon from flags via game.items', {
                                         weaponId: weaponId,
                                         weaponName: weaponFromFlags.name,
                                         weaponType: weaponFromFlags.type
@@ -677,7 +678,7 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
                             weaponId = null; // Will fall back to equipped weapon below
                         }
                         else {
-                            console.log('Mastery System | [BEFORE DAMAGE DIALOG] Using weaponId from flags', {
+                            log.debug('Mastery System | [BEFORE DAMAGE DIALOG] Using weaponId from flags', {
                                 weaponId: weaponId,
                                 weaponName: weaponFromFlags.name,
                                 weaponType: weaponFromFlags.type,
@@ -692,7 +693,7 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
                         const equippedWeapon = items.find((item) => item.type === 'weapon' && item.system?.equipped === true);
                         weaponId = equippedWeapon ? equippedWeapon.id : null;
                         if (weaponId) {
-                            console.log('Mastery System | [BEFORE DAMAGE DIALOG] Using equipped weapon as fallback', {
+                            log.debug('Mastery System | [BEFORE DAMAGE DIALOG] Using equipped weapon as fallback', {
                                 weaponId: weaponId,
                                 weaponName: equippedWeapon.name,
                                 weaponType: equippedWeapon.type
@@ -714,7 +715,7 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
                                 const gameItem = game.items?.get(weaponId);
                                 if (gameItem && gameItem.actor?.id === freshAttackerForDialog.id) {
                                     weaponItem = gameItem;
-                                    console.log('Mastery System | [BEFORE DAMAGE DIALOG] Found weapon via game.items lookup', {
+                                    log.debug('Mastery System | [BEFORE DAMAGE DIALOG] Found weapon via game.items lookup', {
                                         weaponId: weaponId,
                                         weaponName: weaponItem.name,
                                         weaponType: weaponItem.type,
@@ -727,7 +728,7 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
                             }
                         }
                         if (weaponItem) {
-                            console.log('Mastery System | [BEFORE DAMAGE DIALOG] Found weapon via direct lookup', {
+                            log.debug('Mastery System | [BEFORE DAMAGE DIALOG] Found weapon via direct lookup', {
                                 weaponId: weaponId,
                                 weaponName: weaponItem.name,
                                 weaponType: weaponItem.type
@@ -746,7 +747,7 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
                     }
                     // Find equipped weapon for logging purposes
                     const equippedWeaponForLog = items.find((item) => item.type === 'weapon' && item.system?.equipped === true);
-                    console.log('Mastery System | [BEFORE DAMAGE DIALOG] Weapon and power IDs', {
+                    log.debug('Mastery System | [BEFORE DAMAGE DIALOG] Weapon and power IDs', {
                         messageId: messageId,
                         weaponId: weaponId,
                         weaponIdFromFlags: updatedFlags.weaponId,
@@ -829,13 +830,13 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
                         raiseTn,
                         ...(spellCostOverride ? { spellCostOverride } : {}),
                     };
-                    console.log('Mastery System | [BEFORE DAMAGE DIALOG] Raise resolution', {
+                    log.debug('Mastery System | [BEFORE DAMAGE DIALOG] Raise resolution', {
                         messageId,
                         raiseOutcome,
                         declaredRaiseSlots,
                         stoneBonusRaises,
                     });
-                    console.log('Mastery System | [BEFORE DAMAGE DIALOG] Calling showDamageDialog with', {
+                    log.debug('Mastery System | [BEFORE DAMAGE DIALOG] Calling showDamageDialog with', {
                         messageId: messageId,
                         attackerId: attacker.id,
                         attackerName: attacker.name,
@@ -847,7 +848,7 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
                         flagsKeys: Object.keys(updatedFlags || {})
                     });
                     // Import and show damage dialog - pass only IDs, not full objects
-                    console.log('Mastery System | [BEFORE DAMAGE DIALOG] Final check before calling showDamageDialog', {
+                    log.debug('Mastery System | [BEFORE DAMAGE DIALOG] Final check before calling showDamageDialog', {
                         messageId: messageId,
                         weaponId: weaponId,
                         weaponIdType: typeof weaponId,
@@ -864,7 +865,7 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
                         attackerPowers: attacker.items?.filter((i) => i.type === 'power').map((i) => ({ id: i.id, name: i.name })) || []
                     });
                     // Debug log before calling showDamageDialog
-                    console.log('Mastery System | [WEAPON-ID DEBUG]', {
+                    log.debug('Mastery System | [WEAPON-ID DEBUG]', {
                         messageType: 'roll-attack:before-damage-dialog',
                         weaponIdArg: weaponId,
                         weaponIdFromFlags: updatedFlags.weaponId,
@@ -905,7 +906,7 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
                     if (!primaryEscaped) {
                         const { showDamageDialog } = await import('../dice/damage-dialog.js');
                         damageResult = await showDamageDialog(freshAttackerForDialog, target, weaponId, updatedFlags.selectedPowerId || null, 0, updatedFlags);
-                        console.log('Mastery System | [AFTER DAMAGE DIALOG] showDamageDialog returned', {
+                        log.debug('Mastery System | [AFTER DAMAGE DIALOG] showDamageDialog returned', {
                             hasResult: !!damageResult,
                             resultType: damageResult ? typeof damageResult : 'null',
                             resultKeys: damageResult ? Object.keys(damageResult) : [],
