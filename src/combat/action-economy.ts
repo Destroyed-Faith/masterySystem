@@ -9,6 +9,34 @@
 
 import { healStressFromBars } from '../utils/calculations.js';
 import { getStunnedRank } from '../system/auto-fail.js';
+import { sumNpcAttackSlotsFromPowers } from '../utils/npc-attack-model.js';
+
+/** NPC ATK total = sum of Angriffe/Runde copies (falls back to attackSlots). */
+function npcAttackSlotsForEconomy(owner: any): number {
+  if (!owner || owner.type !== 'npc') return 1;
+  try {
+    return sumNpcAttackSlotsFromPowers(owner.system);
+  } catch {
+    return Math.max(1, Math.min(20, Math.floor(Number(owner.system?.attackSlots) || 1)));
+  }
+}
+
+/** Keep RoundState.attackActions.total in sync with current NPC APR sum. */
+function reconcileNpcAttackActions(owner: any, state: RoundState): RoundState {
+  if (!owner || owner.type !== 'npc') return state;
+  const slots = npcAttackSlotsForEconomy(owner);
+  const used = Math.min(Math.max(0, Math.floor(Number(state.attackActions?.used) || 0)), slots);
+  if (
+    Math.floor(Number(state.attackActions?.total) || 0) === slots &&
+    Math.floor(Number(state.attackActions?.used) || 0) === used
+  ) {
+    return state;
+  }
+  return {
+    ...state,
+    attackActions: { total: slots, used },
+  };
+}
 export type AttributeKey =
   | 'might'
   | 'agility'
@@ -311,15 +339,13 @@ export function getRoundState(actor: Actor, combat: Combat | null): RoundState {
     stored.round === round &&
     storedCombatId === combatId
   ) {
-    return stored;
+    // NPC ATK label / spend budget must follow live Angriffe/Runde edits.
+    return reconcileNpcAttackActions(owner, stored);
   }
 
   // Create default state
   const isPC = owner.type === 'character';
-  const npcAttackSlots =
-    owner.type === 'npc'
-      ? Math.max(1, Math.min(20, Math.floor(Number(owner.system?.attackSlots) || 1)))
-      : 1;
+  const npcAttackSlots = owner.type === 'npc' ? npcAttackSlotsForEconomy(owner) : 1;
   const npcMoveSlots =
     owner.type === 'npc'
       ? Math.max(1, Math.min(10, Math.floor(Number(owner.system?.npcMovementSlots) || 1)))
@@ -1359,9 +1385,7 @@ export async function resetRoundState(actor: Actor, combatant: Combatant, combat
   // Create fresh round state
   const isPC = actor.type === 'character';
   const npcSlots =
-    !isPC && (actor as any).type === 'npc'
-      ? Math.max(1, Math.min(20, Math.floor(Number((actor as any).system?.attackSlots) || 1)))
-      : 1;
+    !isPC && (actor as any).type === 'npc' ? npcAttackSlotsForEconomy(actor) : 1;
   const npcMoveSlots =
     !isPC && (actor as any).type === 'npc'
       ? Math.max(1, Math.min(10, Math.floor(Number((actor as any).system?.npcMovementSlots) || 1)))

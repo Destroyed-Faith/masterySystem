@@ -331,7 +331,7 @@ export class CombatCarouselApp extends BaseCarousel {
     // Register hooks for live updates (only once per render)
     this.registerUpdateHooks();
 
-    // Portrait click - pan to token
+    // Portrait click - pan to token; double-click - open actor sheet
     root.querySelectorAll('.carousel-portrait').forEach((portrait: HTMLElement) => {
       portrait.onclick = async (_ev: MouseEvent) => {
         const combatantId = portrait.dataset.combatantId;
@@ -354,6 +354,18 @@ export class CombatCarouselApp extends BaseCarousel {
             scale: canvas.stage.scale.x
           });
         }
+      };
+
+      portrait.ondblclick = async (ev: MouseEvent) => {
+        ev.preventDefault();
+        ev.stopPropagation();
+        const combatantId = portrait.dataset.combatantId;
+        if (!combatantId) return;
+        const combat = game.combats?.active;
+        const combatant = combat?.combatants?.get(combatantId);
+        const actor = (combatant as any)?.actor;
+        if (!actor?.sheet) return;
+        await actor.sheet.render(true);
       };
     });
 

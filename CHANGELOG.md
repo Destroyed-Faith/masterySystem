@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.254] - 2026-08-04
+
+### Fixed
+
+- NPC radial **ATK** count now follows the live Angriffe/Runde sum (no longer stuck at 1).
+- Adding an NPC **phase** copies Evade / Armor / Speed / HP (and attacks) from the previous phase / root sheet instead of resetting to defaults.
+
+### Added
+
+- NPC radial **Active Buff** segment lists catalog Active Buffs for selection.
+- Combat carousel: **double-click** a portrait opens that combatant's actor sheet.
+
 ## [0.9.253] - 2026-08-04
 
 ### Changed

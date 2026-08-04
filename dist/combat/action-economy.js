@@ -7,6 +7,33 @@
 // Actor, Combatant, and Combat are global types in Foundry VTT v13
 import { healStressFromBars } from '../utils/calculations.js';
 import { getStunnedRank } from '../system/auto-fail.js';
+import { sumNpcAttackSlotsFromPowers } from '../utils/npc-attack-model.js';
+/** NPC ATK total = sum of Angriffe/Runde copies (falls back to attackSlots). */
+function npcAttackSlotsForEconomy(owner) {
+    if (!owner || owner.type !== 'npc')
+        return 1;
+    try {
+        return sumNpcAttackSlotsFromPowers(owner.system);
+    }
+    catch {
+        return Math.max(1, Math.min(20, Math.floor(Number(owner.system?.attackSlots) || 1)));
+    }
+}
+/** Keep RoundState.attackActions.total in sync with current NPC APR sum. */
+function reconcileNpcAttackActions(owner, state) {
+    if (!owner || owner.type !== 'npc')
+        return state;
+    const slots = npcAttackSlotsForEconomy(owner);
+    const used = Math.min(Math.max(0, Math.floor(Number(state.attackActions?.used) || 0)), slots);
+    if (Math.floor(Number(state.attackActions?.total) || 0) === slots &&
+        Math.floor(Number(state.attackActions?.used) || 0) === used) {
+        return state;
+    }
+    return {
+        ...state,
+        attackActions: { total: slots, used },
+    };
+}
 const STONE_USAGE_ATTR_KEYS = [
     'might',
     'agility',
@@ -160,13 +187,12 @@ export function getRoundState(actor, combat) {
     if (stored &&
         stored.round === round &&
         storedCombatId === combatId) {
-        return stored;
+        // NPC ATK label / spend budget must follow live Angriffe/Runde edits.
+        return reconcileNpcAttackActions(owner, stored);
     }
     // Create default state
     const isPC = owner.type === 'character';
-    const npcAttackSlots = owner.type === 'npc'
-        ? Math.max(1, Math.min(20, Math.floor(Number(owner.system?.attackSlots) || 1)))
-        : 1;
+    const npcAttackSlots = owner.type === 'npc' ? npcAttackSlotsForEconomy(owner) : 1;
     const npcMoveSlots = owner.type === 'npc'
         ? Math.max(1, Math.min(10, Math.floor(Number(owner.system?.npcMovementSlots) || 1)))
         : 1;
@@ -1043,9 +1069,7 @@ export async function clearCombatStoneTurnBonusesForActor(actor, combat) {
 export async function resetRoundState(actor, combatant, combat) {
     // Create fresh round state
     const isPC = actor.type === 'character';
-    const npcSlots = !isPC && actor.type === 'npc'
-        ? Math.max(1, Math.min(20, Math.floor(Number(actor.system?.attackSlots) || 1)))
-        : 1;
+    const npcSlots = !isPC && actor.type === 'npc' ? npcAttackSlotsForEconomy(actor) : 1;
     const npcMoveSlots = !isPC && actor.type === 'npc'
         ? Math.max(1, Math.min(10, Math.floor(Number(actor.system?.npcMovementSlots) || 1)))
         : 1;

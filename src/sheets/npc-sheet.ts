@@ -556,43 +556,53 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
     event.preventDefault();
 
     const system = (this.actor as any).system;
-    if (!system.phases) {
-      system.phases = [];
-    }
+    const phases = Array.isArray(system.phases) ? dup(system.phases) : [];
 
-    const phaseNumber = system.phases.length + 1;
-    const newPhase = {
-      name: `Phase ${phaseNumber}`,
-      health: {
-        bars: [
-          {
-            name: 'Healthy',
-            max: 30,
-            current: 30,
-            penalty: 0
-          }
-        ],
-        currentBar: 0,
-        tempHP: 0
-      },
-      combat: {
-        initiative: 0,
-        evade: 10,
-        armor: 0,
-        speed: 8
-      },
-      npcBaseAttack: {
-        name: 'Waffenangriff',
-        attackDiceCount: 6,
-        damageDiceCount: 4,
-        specials: [] as { special?: string; specialValue?: number }[]
-      },
-      attackValues: [],
-      statusEffects: []
+    const defaultAttack = {
+      name: 'Waffenangriff',
+      attackDiceCount: 6,
+      damageDiceCount: 4,
+      specials: [] as { special?: string; specialValue?: number }[],
+    };
+    const defaultCombat = { initiative: 0, evade: 10, armor: 0, speed: 8 };
+    const defaultHealth = {
+      bars: [{ name: 'Healthy', max: 30, current: 30, penalty: 0 }],
+      currentBar: 0,
+      tempHP: 0,
     };
 
-    const phases = dup(system.phases);
-    phases.push(newPhase);
+    // First phase: migrate the current (root) stats so adding phases does not
+    // wipe Evade / Armor / Speed / HP that were already tuned on the sheet.
+    if (phases.length === 0) {
+      phases.push({
+        name: 'Phase 1',
+        health: dup(system.health) || defaultHealth,
+        combat: { ...defaultCombat, ...(dup(system.combat) || {}) },
+        npcBaseAttack: dup(system.npcBaseAttack) || defaultAttack,
+        attackValues: Array.isArray(system.attackValues) ? dup(system.attackValues) : [],
+        statusEffects: [],
+      });
+      await (this.actor as any).update({
+        'system.phases': phases,
+        'system.npcActivePhaseIndex': 0,
+      });
+      return;
+    }
+
+    // Further phases: copy the previous phase as a starting point.
+    const prev = phases[phases.length - 1] || {};
+    phases.push({
+      name: `Phase ${phases.length + 1}`,
+      health: dup(prev.health) || dup(system.health) || defaultHealth,
+      combat: { ...defaultCombat, ...(dup(prev.combat) || dup(system.combat) || {}) },
+      npcBaseAttack: dup(prev.npcBaseAttack) || dup(system.npcBaseAttack) || defaultAttack,
+      attackValues: Array.isArray(prev.attackValues)
+        ? dup(prev.attackValues)
+        : Array.isArray(system.attackValues)
+          ? dup(system.attackValues)
+          : [],
+      statusEffects: [],
+    });
     await (this.actor as any).update({ 'system.phases': phases });
   }
 

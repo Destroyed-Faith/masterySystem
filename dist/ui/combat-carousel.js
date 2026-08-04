@@ -284,7 +284,7 @@ export class CombatCarouselApp extends BaseCarousel {
         document.body.classList.add('mastery-carousel-open');
         // Register hooks for live updates (only once per render)
         this.registerUpdateHooks();
-        // Portrait click - pan to token
+        // Portrait click - pan to token; double-click - open actor sheet
         root.querySelectorAll('.carousel-portrait').forEach((portrait) => {
             portrait.onclick = async (_ev) => {
                 const combatantId = portrait.dataset.combatantId;
@@ -306,6 +306,19 @@ export class CombatCarouselApp extends BaseCarousel {
                         scale: canvas.stage.scale.x
                     });
                 }
+            };
+            portrait.ondblclick = async (ev) => {
+                ev.preventDefault();
+                ev.stopPropagation();
+                const combatantId = portrait.dataset.combatantId;
+                if (!combatantId)
+                    return;
+                const combat = game.combats?.active;
+                const combatant = combat?.combatants?.get(combatantId);
+                const actor = combatant?.actor;
+                if (!actor?.sheet)
+                    return;
+                await actor.sheet.render(true);
             };
         });
         // Combat controls - Previous Turn

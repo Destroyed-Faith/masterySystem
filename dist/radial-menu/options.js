@@ -11,6 +11,8 @@ import { formatRadialPowerDisplayName } from './power-radial-label.js';
 import { buildArtifactRadialOptions } from './artifact-options.js';
 import { artifactPowersUnlocked } from '../utils/artifact-actor-rules.js';
 import { resolveEquippedWeaponForAttackType } from '../utils/unarmed-fallback.js';
+import { filterCatalog } from '../utils/power-catalog.js';
+import { buildPowerItemFromCatalogEntry } from '../utils/power-item-builder.js';
 /**
  * True when activating spends an action: legacy `cost.action === true` or
  * string `attack` / `full` / `utility` (e.g. catalog active buffs).
@@ -56,6 +58,64 @@ function buildNpcAttackDescription(atk) {
     if (sp)
         parts.push(`Spezial: ${sp}`);
     return parts.join(' · ');
+}
+/**
+ * Catalog Active Buffs for NPCs (they have no power sheet). Synthetic items are
+ * enough for activateActiveBuff / once-per-round tracking.
+ */
+function buildNpcCatalogActiveBuffOptions(actor) {
+    if (!actor || actor.type !== 'npc')
+        return [];
+    const mr = Math.max(1, Math.min(16, Math.floor(Number(actor.system?.mastery?.rank) || 2)));
+    const ownedTemplateIds = new Set();
+    for (const item of actor.items || []) {
+        if (item?.type !== 'power')
+            continue;
+        const tid = String(item.system?.templateId || '');
+        if (tid)
+            ownedTemplateIds.add(tid);
+    }
+    const entries = filterCatalog({ category: 'activeBuff' }).filter((e) => {
+        if (e.chosenSpecial)
+            return false;
+        if (Array.isArray(e.requiresEcho) && e.requiresEcho.length > 0)
+            return false;
+        if (String(e.name || '').toLowerCase().includes('artifact only'))
+            return false;
+        if (ownedTemplateIds.has(e.templateId))
+            return false;
+        return true;
+    });
+    const seen = new Set();
+    const out = [];
+    for (const entry of entries) {
+        if (seen.has(entry.templateId))
+            continue;
+        seen.add(entry.templateId);
+        const itemData = buildPowerItemFromCatalogEntry(entry, mr);
+        if (!itemData)
+            continue;
+        const sys = itemData.system || {};
+        const synthetic = {
+            id: `npc-ab-${entry.templateId}`,
+            name: String(itemData.name || entry.name),
+            type: 'power',
+            system: sys,
+        };
+        out.push({
+            id: `npc-ab-${entry.templateId}`,
+            name: String(itemData.name || entry.name),
+            description: String(sys.fluff || sys.effect || sys.description || ''),
+            slot: 'attack',
+            source: 'power',
+            powerType: 'active-buff',
+            costsAction: true,
+            costsMovement: false,
+            item: synthetic,
+            tags: ['active-buff', 'npc-catalog-buff'],
+        });
+    }
+    return out;
 }
 /**
  * One radial entry per copy of each NSC attack row (Angriffe/Runde = copies).
