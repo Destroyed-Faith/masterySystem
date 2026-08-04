@@ -125,7 +125,7 @@ if (existsSync(join(root, 'packs'))) {
 const stagedSys = readJson(join(stage, 'system.json'));
 const required = new Set();
 required.add(stagedSys.template || 'template.json');
-required.add(stagedSys.license || 'LICENSE');
+required.add(stagedSys.license || 'LICENSE.md');
 required.add(stagedSys.readme || 'README.md');
 required.add(stagedSys.changelog || 'CHANGELOG.md');
 if (stagedSys.logo) required.add(stagedSys.logo);
