@@ -433,13 +433,6 @@ export interface NpcBaseAttack extends Partial<AttackValue> {
   specials?: NpcAttackSpecialEntry[];
 }
 
-/** NSC-wide specials for damage / raise UI (with optional auto-apply). */
-export interface NpcListedSpecial {
-  name: string;
-  value?: string | number;
-  auto?: boolean;
-}
-
 // Phase structure for Boss NPCs
 export interface BossPhase {
   name: string; // e.g., "Phase 1", "Phase 2"
@@ -502,10 +495,6 @@ export interface NpcData {
   attackSlots?: number;
   /** Movement actions per round in combat (default 1). */
   npcMovementSlots?: number;
-  /** Reference list: specials tied to the creature (optional auto-apply). */
-  npcCombatSpecials?: NpcListedSpecial[];
-  /** Reference list: specials typically spent with raises (optional auto-apply). */
-  npcRaiseSpecials?: NpcListedSpecial[];
   conditions: any[];
   statusEffects?: StatusEffect[];
   notes: string;

@@ -241,8 +241,6 @@
       "npcActivePhaseIndex": 0,
       "attackSlots": 1,
       "npcMovementSlots": 1,
-      "npcCombatSpecials": [],
-      "npcRaiseSpecials": [],
       "conditions": [],
       "statusEffects": [],
       "notes": ""

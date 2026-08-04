@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.251] - 2026-08-04
+
+### Removed
+
+- NPC sheet: freestyle **Spezial-Listen (Schaden / Raises)** block (`npcCombatSpecials` / `npcRaiseSpecials`). Speziale belong on each attack/power.
+
 ## [0.9.250] - 2026-08-04
 
 ### Changed

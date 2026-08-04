@@ -4415,66 +4415,6 @@
   color: #f0ebe3;
 }
 
-.mastery-system.sheet.actor.npc .npc-special-lists .npc-special-list-block {
-  margin-bottom: 14px;
-}
-
-.mastery-system.sheet.actor.npc .npc-special-list-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  font-weight: 700;
-  font-size: 0.85rem;
-  margin-bottom: 8px;
-  color: #e8dcc8;
-}
-
-.mastery-system.sheet.actor.npc .npc-special-list-header button {
-  border-radius: 4px;
-  border: 1px solid rgba(201, 162, 39, 0.45);
-  background: rgba(201, 162, 39, 0.15);
-  color: #ffe9a8;
-  padding: 4px 10px;
-  cursor: pointer;
-}
-
-.mastery-system.sheet.actor.npc .npc-special-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr auto auto;
-  gap: 8px;
-  align-items: center;
-  margin-bottom: 6px;
-}
-
-.mastery-system.sheet.actor.npc .npc-special-row input[type="text"] {
-  font-size: 0.85rem;
-  padding: 5px 6px;
-  border-radius: 4px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(0, 0, 0, 0.35);
-  color: #f0ebe3;
-}
-
-.mastery-system.sheet.actor.npc .npc-special-auto {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 0.75rem;
-  color: rgba(255, 255, 255, 0.7);
-  white-space: nowrap;
-}
-
-.mastery-system.sheet.actor.npc .npc-special-row .npc-combat-special-del,
-.mastery-system.sheet.actor.npc .npc-special-row .npc-raise-special-del {
-  border: none;
-  background: rgba(139, 0, 0, 0.35);
-  color: #fff;
-  border-radius: 4px;
-  padding: 6px 8px;
-  cursor: pointer;
-}
-
 .mastery-system.sheet.actor.npc .npc-attack-field label {
   font-size: 0.65rem;
   font-weight: 700;

@@ -211,12 +211,6 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
             }
         }
         if (context.actor?.type === 'npc' && context.system) {
-            if (!Array.isArray(context.system.npcCombatSpecials)) {
-                context.system.npcCombatSpecials = [];
-            }
-            if (!Array.isArray(context.system.npcRaiseSpecials)) {
-                context.system.npcRaiseSpecials = [];
-            }
             if (context.system.creatureType == null || context.system.creatureType === undefined) {
                 // Legacy: bio.type may already hold a free-text creature label.
                 context.system.creatureType = String(context.system.bio?.type ?? '');
@@ -333,10 +327,6 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
         html.find('.attack-value-delete').on('click', this.#onAttackValueDelete.bind(this));
         html.find('.phase-add-btn').on('click', this.#onPhaseAdd.bind(this));
         html.find('.phase-delete-btn').on('click', this.#onPhaseDelete.bind(this));
-        html.find('.npc-combat-special-add').on('click', this.#onNpcCombatSpecialAdd.bind(this));
-        html.find('.npc-combat-special-del').on('click', this.#onNpcCombatSpecialDel.bind(this));
-        html.find('.npc-raise-special-add').on('click', this.#onNpcRaiseSpecialAdd.bind(this));
-        html.find('.npc-raise-special-del').on('click', this.#onNpcRaiseSpecialDel.bind(this));
         html.find('.npc-power-special-add').on('click', this.#onNpcPowerSpecialAdd.bind(this));
         html.find('.npc-power-special-del').on('click', this.#onNpcPowerSpecialDel.bind(this));
     }
@@ -575,40 +565,6 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
             const phases = dup(system.phases);
             phases.splice(phaseIndex, 1);
             await this.actor.update({ 'system.phases': phases });
-        }
-    }
-    async #onNpcCombatSpecialAdd(event) {
-        event.preventDefault();
-        const system = this.actor.system;
-        const arr = [...(system.npcCombatSpecials || [])];
-        arr.push({ name: '', value: '', auto: false });
-        await this.actor.update({ 'system.npcCombatSpecials': arr });
-    }
-    async #onNpcCombatSpecialDel(event) {
-        event.preventDefault();
-        const i = parseInt(String($(event.currentTarget).data('special-index') ?? '-1'), 10);
-        const system = this.actor.system;
-        const arr = [...(system.npcCombatSpecials || [])];
-        if (i >= 0 && i < arr.length) {
-            arr.splice(i, 1);
-            await this.actor.update({ 'system.npcCombatSpecials': arr });
-        }
-    }
-    async #onNpcRaiseSpecialAdd(event) {
-        event.preventDefault();
-        const system = this.actor.system;
-        const arr = [...(system.npcRaiseSpecials || [])];
-        arr.push({ name: '', value: '', auto: false });
-        await this.actor.update({ 'system.npcRaiseSpecials': arr });
-    }
-    async #onNpcRaiseSpecialDel(event) {
-        event.preventDefault();
-        const i = parseInt(String($(event.currentTarget).data('raise-index') ?? '-1'), 10);
-        const system = this.actor.system;
-        const arr = [...(system.npcRaiseSpecials || [])];
-        if (i >= 0 && i < arr.length) {
-            arr.splice(i, 1);
-            await this.actor.update({ 'system.npcRaiseSpecials': arr });
         }
     }
 }

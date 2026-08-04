@@ -736,47 +736,6 @@
       </div>
     {{/if}}
 
-    <div class="npc-section npc-special-lists">
-      <h3 class="npc-section__title"><i class="fas fa-list"></i> Spezial-Listen (Schaden / Raises)</h3>
-      <p class="hint">Freitext-Zeilen für den <strong>Schadensdialog</strong> (nicht „Races“ — gemeint sind <strong>Raises</strong>, also übrige Erfolgsgrade). <strong>Name</strong> = Kurzbezeichnung in der Liste; <strong>Wert</strong> = Beschreibung oder Zahl, die beim Anwenden übernommen wird (je nach Dialog-Logik). <strong>Auto</strong>: wird beim Schaden automatisch mit angeboten bzw. vorgeschlagen, <em>ohne</em> dass du einen Raise dafür „kaufst“. Ohne Auto erscheint der Eintrag in der Auswahl, wenn Raises ausgegeben werden. Zwei Blöcke: <strong>NSC-Speziale</strong> (Kampf/Schaden-Kontext) und <strong>Raise-Speziale</strong> (nur Raise-Liste).</p>
-      <div class="npc-special-list-block">
-        <div class="npc-special-list-header">
-          <span>NSC-Speziale</span>
-          <button type="button" class="npc-combat-special-add" title="Eintrag hinzufügen"><i class="fas fa-plus"></i></button>
-        </div>
-        <div class="npc-special-list-rows">
-          {{#each system.npcCombatSpecials as |row i|}}
-          <div class="npc-special-row" data-special-index="{{i}}">
-            <input type="text" name="system.npcCombatSpecials.{{i}}.name" value="{{row.name}}" placeholder="Name"/>
-            <input type="text" name="system.npcCombatSpecials.{{i}}.value" value="{{row.value}}" placeholder="Wert"/>
-            <label class="npc-special-auto"><input type="checkbox" name="system.npcCombatSpecials.{{i}}.auto" {{#if row.auto}}checked{{/if}} data-dtype="Boolean"/> Auto</label>
-            <button type="button" class="npc-combat-special-del" data-special-index="{{i}}" title="Entfernen"><i class="fas fa-trash"></i></button>
-          </div>
-          {{else}}
-          <p class="hint">Noch keine Einträge.</p>
-          {{/each}}
-        </div>
-      </div>
-      <div class="npc-special-list-block">
-        <div class="npc-special-list-header">
-          <span>Raise-Speziale</span>
-          <button type="button" class="npc-raise-special-add" title="Eintrag hinzufügen"><i class="fas fa-plus"></i></button>
-        </div>
-        <div class="npc-special-list-rows">
-          {{#each system.npcRaiseSpecials as |row i|}}
-          <div class="npc-special-row" data-raise-index="{{i}}">
-            <input type="text" name="system.npcRaiseSpecials.{{i}}.name" value="{{row.name}}" placeholder="Name"/>
-            <input type="text" name="system.npcRaiseSpecials.{{i}}.value" value="{{row.value}}" placeholder="Wert"/>
-            <label class="npc-special-auto"><input type="checkbox" name="system.npcRaiseSpecials.{{i}}.auto" {{#if row.auto}}checked{{/if}} data-dtype="Boolean"/> Auto</label>
-            <button type="button" class="npc-raise-special-del" data-raise-index="{{i}}" title="Entfernen"><i class="fas fa-trash"></i></button>
-          </div>
-          {{else}}
-          <p class="hint">Noch keine Einträge.</p>
-          {{/each}}
-        </div>
-      </div>
-    </div>
-
     {{!-- Notes --}}
     <div class="notes-panel npc-section npc-section--notes">
       <div class="form-group">

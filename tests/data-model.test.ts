@@ -149,9 +149,12 @@ describe('Actor Data Model - template.json', () => {
       expect(npc.npcActivePhaseIndex).toBe(0);
     });
 
-    it('has special list arrays', () => {
-      expect(Array.isArray(npc.npcCombatSpecials)).toBe(true);
-      expect(Array.isArray(npc.npcRaiseSpecials)).toBe(true);
+    it('has a base attack shape for radial powers', () => {
+      expect(npc.npcBaseAttack).toBeTruthy();
+      expect(Array.isArray(npc.npcBaseAttack.specials)).toBe(true);
+      expect(Array.isArray(npc.attackValues)).toBe(true);
+      expect(npc.npcCombatSpecials).toBeUndefined();
+      expect(npc.npcRaiseSpecials).toBeUndefined();
     });
   });
 });

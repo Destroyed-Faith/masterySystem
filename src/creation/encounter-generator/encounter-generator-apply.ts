@@ -88,8 +88,6 @@ export function buildNpcSystem(block: EnemyStatBlock): Record<string, unknown> {
     attackValues: [],
     attackSlots: Math.max(1, Math.round(block.attackSlots)),
     npcMovementSlots: Math.max(1, Math.round(block.movementSlots)),
-    npcCombatSpecials: [],
-    npcRaiseSpecials: [],
     npcActivePhaseIndex: 0,
   };
 
@@ -287,8 +285,6 @@ export function buildProjectBossSystem(plan: EncounterProjectPlan): Record<strin
     // ATK = Summe der Angriffe/Runde-Kopien.
     attackSlots: primaryAprSum,
     npcMovementSlots: Math.max(0, Math.round(boss.movementSlots)),
-    npcCombatSpecials: [],
-    npcRaiseSpecials: [],
     npcActivePhaseIndex: 0,
     bio: { description: tacticsHtml(plan) },
   };
@@ -346,8 +342,6 @@ export function buildProjectAddSystem(plan: EncounterProjectPlan): Record<string
     attackValues: [],
     attackSlots: 1,
     npcMovementSlots: 1,
-    npcCombatSpecials: [],
-    npcRaiseSpecials: [],
     npcActivePhaseIndex: 0,
     bio: {
       description:
@@ -387,8 +381,6 @@ export function buildProjectEnvironmentSystem(plan: EncounterProjectPlan): Recor
     attackValues: [],
     attackSlots: Math.max(1, env.actionsPerRound),
     npcMovementSlots: 0,
-    npcCombatSpecials: [],
-    npcRaiseSpecials: [],
     npcActivePhaseIndex: 0,
     bio: { description: `<p>${env.description}</p>` },
   };

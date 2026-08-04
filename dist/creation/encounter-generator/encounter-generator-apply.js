@@ -64,8 +64,6 @@ export function buildNpcSystem(block) {
         attackValues: [],
         attackSlots: Math.max(1, Math.round(block.attackSlots)),
         npcMovementSlots: Math.max(1, Math.round(block.movementSlots)),
-        npcCombatSpecials: [],
-        npcRaiseSpecials: [],
         npcActivePhaseIndex: 0,
     };
     if (isBoss) {
@@ -239,8 +237,6 @@ export function buildProjectBossSystem(plan) {
         // ATK = Summe der Angriffe/Runde-Kopien.
         attackSlots: primaryAprSum,
         npcMovementSlots: Math.max(0, Math.round(boss.movementSlots)),
-        npcCombatSpecials: [],
-        npcRaiseSpecials: [],
         npcActivePhaseIndex: 0,
         bio: { description: tacticsHtml(plan) },
     };
@@ -296,8 +292,6 @@ export function buildProjectAddSystem(plan) {
         attackValues: [],
         attackSlots: 1,
         npcMovementSlots: 1,
-        npcCombatSpecials: [],
-        npcRaiseSpecials: [],
         npcActivePhaseIndex: 0,
         bio: {
             description: `<p>Add-Prototyp — bei Bedarf duplizieren. Spawn: ${adds.spawnPerRound}/Runde, max. ${adds.maxActive} aktiv.` +
@@ -336,8 +330,6 @@ export function buildProjectEnvironmentSystem(plan) {
         attackValues: [],
         attackSlots: Math.max(1, env.actionsPerRound),
         npcMovementSlots: 0,
-        npcCombatSpecials: [],
-        npcRaiseSpecials: [],
         npcActivePhaseIndex: 0,
         bio: { description: `<p>${env.description}</p>` },
     };

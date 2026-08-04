@@ -9,7 +9,6 @@ import { getPassiveSlots } from '../powers/passives.js';
 import { resolveEquippedWeaponForAttackType } from '../utils/equipment-modifiers.js';
 import { applyMeleeUnarmedFallback, artifactToVirtualWeapon } from '../utils/unarmed-fallback.js';
 import {
-  formatNpcSpecialLabel,
   getNpcAttackByIndex,
   npcDamageDiceFormula,
   npcSpecialEffectString
@@ -649,8 +648,6 @@ export async function showDamageDialog(
   let npcAutoDamageDice = 0;
   let npcStressD8 = 0;
   const npcAutoSpecialStrings: string[] = [];
-  const npcLists = buildNpcSpecialOptionsFromActor(actorToUse as Actor);
-  npcAutoSpecialStrings.push(...npcLists.autoEffectStrings);
 
   if (isNpcAttackFlow) {
     const atk = getNpcAttackByIndex((actorToUse as any).system, flags?.npcAttackIndex, flags?.npcPhaseIndex);
@@ -658,13 +655,25 @@ export async function showDamageDialog(
     npcStressD8 = Math.max(0, Math.floor(Number((atk as any)?.npcStressD8) || 0));
     npcAutoDamageDice += 0; // legacy npc autoRaises removed with new Raise rules
     const atkName = String(flags?.npcAttackName || atk?.name || 'NSC-Angriff');
+    // Speziale sitzen an der Power (specials[]), mit Legacy-Fallback.
+    const specialRows =
+      Array.isArray(atk?.specials) && atk!.specials!.length
+        ? atk!.specials!
+        : atk?.special
+          ? [{ special: atk.special, specialValue: atk.specialValue }]
+          : [];
     const inlineSpecials: string[] = [];
-    if (atk?.special) {
+    for (const row of specialRows) {
+      const eff = npcSpecialEffectString(String(row.special || ''), row.specialValue);
+      if (eff) inlineSpecials.push(eff);
+    }
+    // Legacy single-special auto-apply (pre-specials[] rows).
+    if ((!Array.isArray(atk?.specials) || !atk!.specials!.length) && atk?.autoApplySpecial && atk.special) {
       const eff = npcSpecialEffectString(atk.special, atk.specialValue);
-      if (atk.autoApplySpecial) {
-        if (eff) npcAutoSpecialStrings.push(eff);
-      } else if (eff) {
-        inlineSpecials.push(eff);
+      if (eff) {
+        npcAutoSpecialStrings.push(eff);
+        const idx = inlineSpecials.indexOf(eff);
+        if (idx >= 0) inlineSpecials.splice(idx, 1);
       }
     }
     selectedPowerData = {
@@ -688,8 +697,7 @@ export async function showDamageDialog(
   const passiveDamage = await calculatePassiveDamage(attacker);
   // Collect available specials (include power specials from selected power)
   // Use weaponForDamage (found weapon or fallback) to ensure weapon specials are included
-  const baseSpecials = await collectAvailableSpecials(actorToUse as Actor, weaponForDamage, selectedPowerData);
-  const availableSpecials = [...baseSpecials, ...npcLists.options];
+  const availableSpecials = await collectAvailableSpecials(actorToUse as Actor, weaponForDamage, selectedPowerData);
   const weaponInnateLines: string[] = weaponForDamage
     ? ([] as unknown[])
         .concat((weaponForDamage.system as any)?.innateAbilities || [])
@@ -1019,54 +1027,6 @@ export function attachDamageCardHandlers(messageId: string): void {
     $btn.prop('disabled', false);
     completeDamageCard(messageId, null);
   });
-}
-
-/**
- * Calculate passive damage bonuses
- */
-function buildNpcSpecialOptionsFromActor(actor: Actor): {
-  options: SpecialOption[];
-  autoEffectStrings: string[];
-} {
-  const options: SpecialOption[] = [];
-  const autoEffectStrings: string[] = [];
-  if ((actor as any).type !== 'npc') return { options, autoEffectStrings };
-  const sys = (actor as any).system || {};
-  const combatSpec = Array.isArray(sys.npcCombatSpecials) ? sys.npcCombatSpecials : [];
-  combatSpec.forEach((row: any, i: number) => {
-    const name = String(row?.name || '').trim() || `Spezial ${i + 1}`;
-    const effect = npcSpecialEffectString(name, row?.value);
-    const display = formatNpcSpecialLabel(name, row?.value);
-    if (row?.auto === true) {
-      if (effect) autoEffectStrings.push(effect);
-    } else if (effect) {
-      options.push({
-        id: `npc-c-${i}`,
-        name: `[NSC] ${display}`,
-        type: 'npc-combat',
-        description: 'NSC-Spezial',
-        effect
-      });
-    }
-  });
-  const raiseSpec = Array.isArray(sys.npcRaiseSpecials) ? sys.npcRaiseSpecials : [];
-  raiseSpec.forEach((row: any, i: number) => {
-    const name = String(row?.name || '').trim() || `Raise-Spezial ${i + 1}`;
-    const effect = npcSpecialEffectString(name, row?.value);
-    const display = formatNpcSpecialLabel(name, row?.value);
-    if (row?.auto === true) {
-      if (effect) autoEffectStrings.push(effect);
-    } else if (effect) {
-      options.push({
-        id: `npc-r-${i}`,
-        name: `[Raise] ${display}`,
-        type: 'npc-raise',
-        description: 'Für Raises gedacht',
-        effect
-      });
-    }
-  });
-  return { options, autoEffectStrings };
 }
 
 /**
