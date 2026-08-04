@@ -58,8 +58,6 @@ export interface RadialCombatOption {
     burstMeleeRadiusMeters?: number;
     /** NSC-Angriff: Split wie mechanics.splitAttack (zwei Karten). */
     npcSplitAttack?: boolean;
-    /** NSC Melee-AoE: Bonus-W8 für Sekundärziele (kein Power-Item nötig). */
-    npcMeleeAoeBonusD8?: number;
 }
 /**
  * Inner segment definition

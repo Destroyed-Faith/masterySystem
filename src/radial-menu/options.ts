@@ -87,7 +87,6 @@ function buildNpcAttackRadialOptions(actor: any): RadialCombatOption[] {
       shapeRaw === 'radius' || shapeRaw === 'cone' || shapeRaw === 'line' ? shapeRaw : 'none';
     const rad = Math.max(0, Math.floor(Number(atk?.npcAoeRadiusM) || 0));
     const burstMelee = !isRanged && shape === 'radius' && rad > 0;
-    const splash = Math.max(0, Math.floor(Number(atk?.npcMeleeAoeBonusD8) || 0));
     return {
       id: `npc-attack-${phaseKey}-${index}`,
       name: (atk?.name && String(atk.name).trim()) || `Angriff ${index + 1}`,
@@ -106,7 +105,6 @@ function buildNpcAttackRadialOptions(actor: any): RadialCombatOption[] {
       costsAction: true,
       costsMovement: false,
       npcSplitAttack: !!atk?.npcSplitAttack,
-      npcMeleeAoeBonusD8: splash,
       tags: isRanged ? ['attack', 'npc-attack', 'ranged'] : ['attack', 'npc-attack', 'melee']
     };
   });

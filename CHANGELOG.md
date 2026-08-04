@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.246] - 2026-08-04
+
+### Changed
+
+- NPC sheet: removed Splash damage field and NPC splash wiring from attacks.
+
 ## [0.9.245] - 2026-08-04
 
 ### Changed

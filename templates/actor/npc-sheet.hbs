@@ -212,7 +212,7 @@
               </div>
             </div>
             <div class="npc-attack-advanced-grid">
-              <p class="npc-attack-advanced-hint">Radial: <strong>Reach</strong> (1–8 m) oder <strong>Fern</strong> (Min 12 / Max 24 m). <strong>Splash-Schaden</strong> = Anzahl W8 Extra-Schaden für Nebenziele (Reach + Radius-AoE). <strong>Stress-Schaden</strong> = Anzahl W8 Stress bei Treffer.</p>
+              <p class="npc-attack-advanced-hint">Radial: <strong>Reach</strong> (1–8 m) oder <strong>Fern</strong> (Min 12 / Max 24 m). <strong>Stress-Schaden</strong> = Anzahl W8 Stress bei Treffer.</p>
               <div class="npc-attack-field">
                 <label>Reichweite</label>
                 <select name="system.phases.{{phaseIndex}}.npcBaseAttack.npcRangeKind">
@@ -244,15 +244,6 @@
               <div class="npc-attack-field npc-attack-field--check">
                 <label>Split-Angriff</label>
                 <label class="npc-attack-checkbox-label"><input type="checkbox" name="system.phases.{{phaseIndex}}.npcBaseAttack.npcSplitAttack" {{#if phase.npcBaseAttack.npcSplitAttack}}checked{{/if}} data-dtype="Boolean"/> Zwei Treffer (Pool/Schaden halbiert)</label>
-              </div>
-              <div class="npc-attack-field">
-                <label>Splash-Schaden (W8)</label>
-                <select name="system.phases.{{phaseIndex}}.npcBaseAttack.npcMeleeAoeBonusD8" data-dtype="Number">
-                  <option value="" {{#unless phase.npcBaseAttack.npcMeleeAoeBonusD8}}selected{{/unless}}>—</option>
-                  {{#each (range 1 16)}}
-                  <option value="{{this}}" {{#if (eqNum ../phase.npcBaseAttack.npcMeleeAoeBonusD8 this)}}selected{{/if}}>{{this}}d8</option>
-                  {{/each}}
-                </select>
               </div>
               <div class="npc-attack-field">
                 <label>Stress-Schaden (W8)</label>
@@ -331,7 +322,7 @@
                   </div>
                 </div>
                 <div class="npc-attack-advanced-grid">
-                  <p class="npc-attack-advanced-hint">Radial: <strong>Reach</strong> (1–8 m) / <strong>Fern</strong> (12–24 m); AoE; Split; Splash-/Stress-Schaden = Anzahl W8.</p>
+                  <p class="npc-attack-advanced-hint">Radial: <strong>Reach</strong> (1–8 m) / <strong>Fern</strong> (12–24 m); AoE; Split; Stress-Schaden = Anzahl W8.</p>
                   <div class="npc-attack-field">
                     <label>Reichweite</label>
                     <select name="system.phases.{{../phaseIndex}}.attackValues.{{index}}.npcRangeKind">
@@ -363,15 +354,6 @@
                   <div class="npc-attack-field npc-attack-field--check">
                     <label>Split</label>
                     <label class="npc-attack-checkbox-label"><input type="checkbox" name="system.phases.{{../phaseIndex}}.attackValues.{{index}}.npcSplitAttack" {{#if attack.npcSplitAttack}}checked{{/if}} data-dtype="Boolean"/></label>
-                  </div>
-                  <div class="npc-attack-field">
-                    <label>Splash-Schaden (W8)</label>
-                    <select name="system.phases.{{../phaseIndex}}.attackValues.{{index}}.npcMeleeAoeBonusD8" data-dtype="Number">
-                      <option value="" {{#unless attack.npcMeleeAoeBonusD8}}selected{{/unless}}>—</option>
-                      {{#each (range 1 16)}}
-                      <option value="{{this}}" {{#if (eqNum ../attack.npcMeleeAoeBonusD8 this)}}selected{{/if}}>{{this}}d8</option>
-                      {{/each}}
-                    </select>
                   </div>
                   <div class="npc-attack-field">
                     <label>Stress-Schaden (W8)</label>
@@ -517,7 +499,7 @@
             </div>
           </div>
           <div class="npc-attack-advanced-grid">
-            <p class="npc-attack-advanced-hint">Radial: <strong>Reach</strong> (1–8 m) / <strong>Fern</strong> (12–24 m); AoE; Split; Splash-/Stress-Schaden = Anzahl W8.</p>
+            <p class="npc-attack-advanced-hint">Radial: <strong>Reach</strong> (1–8 m) / <strong>Fern</strong> (12–24 m); AoE; Split; Stress-Schaden = Anzahl W8.</p>
             <div class="npc-attack-field">
               <label>Reichweite</label>
               <select name="system.npcBaseAttack.npcRangeKind">
@@ -549,15 +531,6 @@
             <div class="npc-attack-field npc-attack-field--check">
               <label>Split</label>
               <label class="npc-attack-checkbox-label"><input type="checkbox" name="system.npcBaseAttack.npcSplitAttack" {{#if system.npcBaseAttack.npcSplitAttack}}checked{{/if}} data-dtype="Boolean"/></label>
-            </div>
-            <div class="npc-attack-field">
-              <label>Splash-Schaden (W8)</label>
-              <select name="system.npcBaseAttack.npcMeleeAoeBonusD8" data-dtype="Number">
-                <option value="" {{#unless system.npcBaseAttack.npcMeleeAoeBonusD8}}selected{{/unless}}>—</option>
-                {{#each (range 1 16)}}
-                <option value="{{this}}" {{#if (eqNum ../system.npcBaseAttack.npcMeleeAoeBonusD8 this)}}selected{{/if}}>{{this}}d8</option>
-                {{/each}}
-              </select>
             </div>
             <div class="npc-attack-field">
               <label>Stress-Schaden (W8)</label>
@@ -636,7 +609,7 @@
                 </div>
               </div>
               <div class="npc-attack-advanced-grid">
-                <p class="npc-attack-advanced-hint">Radial: <strong>Reach</strong> (1–8 m) / <strong>Fern</strong> (12–24 m); AoE; Split; Splash-/Stress-Schaden = Anzahl W8.</p>
+                <p class="npc-attack-advanced-hint">Radial: <strong>Reach</strong> (1–8 m) / <strong>Fern</strong> (12–24 m); AoE; Split; Stress-Schaden = Anzahl W8.</p>
                 <div class="npc-attack-field">
                   <label>Reichweite</label>
                   <select name="system.attackValues.{{index}}.npcRangeKind">
@@ -668,15 +641,6 @@
                 <div class="npc-attack-field npc-attack-field--check">
                   <label>Split</label>
                   <label class="npc-attack-checkbox-label"><input type="checkbox" name="system.attackValues.{{index}}.npcSplitAttack" {{#if attack.npcSplitAttack}}checked{{/if}} data-dtype="Boolean"/></label>
-                </div>
-                <div class="npc-attack-field">
-                  <label>Splash-Schaden (W8)</label>
-                  <select name="system.attackValues.{{index}}.npcMeleeAoeBonusD8" data-dtype="Number">
-                    <option value="" {{#unless attack.npcMeleeAoeBonusD8}}selected{{/unless}}>—</option>
-                    {{#each (range 1 16)}}
-                    <option value="{{this}}" {{#if (eqNum ../attack.npcMeleeAoeBonusD8 this)}}selected{{/if}}>{{this}}d8</option>
-                    {{/each}}
-                  </select>
                 </div>
                 <div class="npc-attack-field">
                   <label>Stress-Schaden (W8)</label>

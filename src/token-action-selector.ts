@@ -977,10 +977,9 @@ export async function handleChosenCombatOption(token: any, option: RadialCombatO
         return;
       }
 
+      // NPC attacks have no splash pool; player powers use damageRider.flat.
       const powerBonus =
-        option.source === 'npc-attack'
-          ? Math.max(0, Math.floor(Number((option as any).npcMeleeAoeBonusD8) || 0))
-          : extractMeleeAoePowerBonusD8(option.item);
+        option.source === 'npc-attack' ? 0 : extractMeleeAoePowerBonusD8(option.item);
       if (burstIds.length > 1 && powerBonus <= 0) {
         ui.notifications?.warn?.(
           'Melee AoE: power has no unconditional +Nd8 splash on damageRider.flat — secondary splash disabled.',

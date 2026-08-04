@@ -52,7 +52,6 @@ function normalizeNpcAttackRowForContext(row: Record<string, any> | null | undef
     'npcRangeMeters',
     'npcRangeMinMeters',
     'npcAoeRadiusM',
-    'npcMeleeAoeBonusD8',
     'npcStressD8',
   ] as const;
   for (const k of intKeys) {

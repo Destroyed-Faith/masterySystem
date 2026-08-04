@@ -45,7 +45,6 @@ function normalizeNpcAttackRowForContext(row) {
         'npcRangeMeters',
         'npcRangeMinMeters',
         'npcAoeRadiusM',
-        'npcMeleeAoeBonusD8',
         'npcStressD8',
     ];
     for (const k of intKeys) {
