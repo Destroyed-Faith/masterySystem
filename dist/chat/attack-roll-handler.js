@@ -87,6 +87,7 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
         let spentActionOnRoll = false;
         let actorToRefund = null;
         let markedPowerIdForRoll = null;
+        let markedNpcAttackIdForRoll = null;
         try {
             // Import the roll handler (must use .js extension for ES modules in Foundry VTT)
             const { masteryRoll } = await import('../dice/roll-handler.js');
@@ -131,6 +132,11 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
                     const { markPowerUsedThisRound } = await import('../combat/action-economy.js');
                     await markPowerUsedThisRound(economyAttacker, combat, flags.selectedPowerId);
                     markedPowerIdForRoll = flags.selectedPowerId;
+                }
+                if (flags.npcAttackSource && flags.npcAttackOptionId) {
+                    const { markNpcAttackUsedThisRound } = await import('../combat/action-economy.js');
+                    await markNpcAttackUsedThisRound(economyAttacker, combat, String(flags.npcAttackOptionId));
+                    markedNpcAttackIdForRoll = String(flags.npcAttackOptionId);
                 }
             }
             // Debug: Log actor items to verify we have latest data
@@ -704,10 +710,13 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
         catch (error) {
             if (spentActionOnRoll && actorToRefund) {
                 try {
-                    const { refundAttackAction, unmarkPowerUsedThisRound } = await import('../combat/action-economy.js');
+                    const { refundAttackAction, unmarkPowerUsedThisRound, unmarkNpcAttackUsedThisRound, } = await import('../combat/action-economy.js');
                     await refundAttackAction(actorToRefund, game.combat);
                     if (markedPowerIdForRoll) {
                         await unmarkPowerUsedThisRound(actorToRefund, game.combat, markedPowerIdForRoll);
+                    }
+                    if (markedNpcAttackIdForRoll) {
+                        await unmarkNpcAttackUsedThisRound(actorToRefund, game.combat, markedNpcAttackIdForRoll);
                     }
                 }
                 catch (refundErr) {

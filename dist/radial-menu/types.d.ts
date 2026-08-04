@@ -58,6 +58,10 @@ export interface RadialCombatOption {
     burstMeleeRadiusMeters?: number;
     /** NSC-Angriff: Split wie mechanics.splitAttack (zwei Karten). */
     npcSplitAttack?: boolean;
+    /** NSC-Angriff: Spell — Casting TN = 8 × MR (+ Spell Resistance), nicht Evade. */
+    npcIsSpell?: boolean;
+    /** NSC-Angriff: erlaubte Nutzungen dieser Power pro Runde (1–5). */
+    npcAttacksPerRound?: number;
 }
 /**
  * Inner segment definition

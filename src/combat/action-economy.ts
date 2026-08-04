@@ -97,6 +97,11 @@ export interface RoundState {
   /** Power item IDs already used this combat round (max one use per power per round). */
   usedPowerIdsThisRound?: string[];
   /**
+   * NPC attack option uses this round (keyed by radial option id, e.g. `npc-attack-root-0`).
+   * Compared against each attack's `npcAttacksPerRound` (1–5).
+   */
+  npcAttackUsesThisRound?: Record<string, number>;
+  /**
    * When true, a Movement Power already replaced normal Movement this round —
    * base Move/Dash maneuvers are unavailable (Rules v0.9.8).
    */
@@ -333,6 +338,7 @@ export function getRoundState(actor: Actor, combat: Combat | null): RoundState {
     ...baseActions,
     moveBonusMeters: 0,
     usedPowerIdsThisRound: [],
+    npcAttackUsesThisRound: {},
     stoneBonuses: {
       extraAttacks: 0,
       extraReactions: 0,
@@ -402,6 +408,58 @@ export async function unmarkPowerUsedThisRound(
   const arr = rs.usedPowerIdsThisRound ?? [];
   if (!arr.length) return;
   rs.usedPowerIdsThisRound = arr.filter((id) => id !== powerItemId);
+  await setRoundState(actor, rs);
+}
+
+/** How many times this NPC attack option was already used this round. */
+export function getNpcAttackUsesThisRound(
+  actor: Actor,
+  combat: Combat | null,
+  npcAttackOptionId: string
+): number {
+  if (!npcAttackOptionId) return 0;
+  const rs = getRoundState(actor, combat);
+  return Math.max(0, Math.floor(Number(rs.npcAttackUsesThisRound?.[npcAttackOptionId]) || 0));
+}
+
+/** Whether this NPC attack still has remaining uses this round (maxUses is 1–5). */
+export function canUseNpcAttackThisRound(
+  actor: Actor,
+  combat: Combat | null,
+  npcAttackOptionId: string,
+  maxUses: number
+): boolean {
+  const cap = Math.min(5, Math.max(1, Math.floor(Number(maxUses) || 1)));
+  return getNpcAttackUsesThisRound(actor, combat, npcAttackOptionId) < cap;
+}
+
+/** Record one use of an NPC attack option this round. */
+export async function markNpcAttackUsedThisRound(
+  actor: Actor,
+  combat: Combat | null,
+  npcAttackOptionId: string
+): Promise<void> {
+  if (!npcAttackOptionId) return;
+  const rs = getRoundState(actor, combat);
+  const map = { ...(rs.npcAttackUsesThisRound ?? {}) };
+  map[npcAttackOptionId] = Math.max(0, Math.floor(Number(map[npcAttackOptionId]) || 0)) + 1;
+  rs.npcAttackUsesThisRound = map;
+  await setRoundState(actor, rs);
+}
+
+/** Undo one use (e.g. attack roll failed after spending an action). */
+export async function unmarkNpcAttackUsedThisRound(
+  actor: Actor,
+  combat: Combat | null,
+  npcAttackOptionId: string
+): Promise<void> {
+  if (!npcAttackOptionId) return;
+  const rs = getRoundState(actor, combat);
+  const map = { ...(rs.npcAttackUsesThisRound ?? {}) };
+  const next = Math.max(0, Math.floor(Number(map[npcAttackOptionId]) || 0) - 1);
+  if (next <= 0) delete map[npcAttackOptionId];
+  else map[npcAttackOptionId] = next;
+  rs.npcAttackUsesThisRound = map;
   await setRoundState(actor, rs);
 }
 
@@ -1318,6 +1376,7 @@ export async function resetRoundState(actor: Actor, combatant: Combatant, combat
     reactionActions: { total: 1, used: 0 },
     moveBonusMeters: 0,
     usedPowerIdsThisRound: [],
+    npcAttackUsesThisRound: {},
     stoneBonuses: {
       extraAttacks: 0,
       extraReactions: 0,
@@ -1334,6 +1393,7 @@ export async function resetRoundState(actor: Actor, combatant: Combatant, combat
   }
 
   roundState.usedPowerIdsThisRound = [];
+  roundState.npcAttackUsesThisRound = {};
   roundState.combatId = (combat as any).id ?? '';
 
   await setRoundState(actor, roundState);

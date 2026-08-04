@@ -8,10 +8,15 @@ import { isManeuverHiddenFromActorRadial } from '../utils/radial-maneuver-prefs.
 import type { RadialCombatOption, TargetGroup, AoEShape, InnerSegment } from './types';
 import type { AoeSpec } from '../types/item.js';
 import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
-import { getMovementRangeBonusMeters, hasPowerBeenUsedThisRound } from '../combat/action-economy.js';
+import {
+  canUseNpcAttackThisRound,
+  getMovementRangeBonusMeters,
+  hasPowerBeenUsedThisRound,
+} from '../combat/action-economy.js';
 import {
   formatNpcAttackSpecialsLine,
   npcAttackDiceCount,
+  npcAttacksPerRoundCap,
   npcDamageDiceFormula,
   resolveNpcAttackList
 } from '../utils/npc-attack-model.js';
@@ -55,6 +60,9 @@ function buildNpcAttackDescription(atk: any): string {
   }
   const stress = Math.max(0, Math.floor(Number(atk?.npcStressD8) || 0));
   if (stress > 0) parts.push(`Stress: ${stress}d8`);
+  if (atk?.npcIsSpell) parts.push('Spell');
+  const uses = npcAttacksPerRoundCap(atk);
+  if (uses > 1) parts.push(`${uses}×/Runde`);
   if (atk?.armor) parts.push(`Rüstung: ${atk.armor}`);
   const sp = formatNpcAttackSpecialsLine(atk);
   if (sp) parts.push(`Spezial: ${sp}`);
@@ -69,7 +77,14 @@ function buildNpcAttackRadialOptions(actor: any): RadialCombatOption[] {
   const { attacks, phaseIndex } = resolveNpcAttackList(actor.system || {});
   if (!attacks.length) return [];
   const phaseKey = phaseIndex == null ? 'root' : String(phaseIndex);
-  return attacks.map((atk: any, index: number) => {
+  const combat = (globalThis as any).game?.combat ?? null;
+  const out: RadialCombatOption[] = [];
+  attacks.forEach((atk: any, index: number) => {
+    const optionId = `npc-attack-${phaseKey}-${index}`;
+    const maxUses = npcAttacksPerRoundCap(atk);
+    if (combat && !canUseNpcAttackThisRound(actor as Actor, combat, optionId, maxUses)) {
+      return;
+    }
     const isRanged = String(atk?.npcRangeKind || '').toLowerCase() === 'ranged';
     // Reach: 1–8 m (default 2). Ranged: max 12–24 m (default 24), min 12–24 (default 12).
     const reachRaw = Math.floor(Number(atk?.npcRangeMeters));
@@ -87,8 +102,8 @@ function buildNpcAttackRadialOptions(actor: any): RadialCombatOption[] {
       shapeRaw === 'radius' || shapeRaw === 'cone' || shapeRaw === 'line' ? shapeRaw : 'none';
     const rad = Math.max(0, Math.floor(Number(atk?.npcAoeRadiusM) || 0));
     const burstMelee = !isRanged && shape === 'radius' && rad > 0;
-    return {
-      id: `npc-attack-${phaseKey}-${index}`,
+    out.push({
+      id: optionId,
       name: (atk?.name && String(atk.name).trim()) || `Angriff ${index + 1}`,
       description: buildNpcAttackDescription(atk),
       slot: 'attack' as CombatSlot,
@@ -105,9 +120,12 @@ function buildNpcAttackRadialOptions(actor: any): RadialCombatOption[] {
       costsAction: true,
       costsMovement: false,
       npcSplitAttack: !!atk?.npcSplitAttack,
+      npcIsSpell: !!atk?.npcIsSpell,
+      npcAttacksPerRound: maxUses,
       tags: isRanged ? ['attack', 'npc-attack', 'ranged'] : ['attack', 'npc-attack', 'melee']
-    };
+    });
   });
+  return out;
 }
 
 /**

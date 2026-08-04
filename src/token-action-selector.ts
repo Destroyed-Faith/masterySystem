@@ -25,6 +25,8 @@ import {
   isNormalMovementReplaced,
   refundAttackAction,
   markPowerUsedThisRound,
+  markNpcAttackUsedThisRound,
+  canUseNpcAttackThisRound,
   hasPowerBeenUsedThisRound
 } from './combat/action-economy';
 import {
@@ -952,6 +954,18 @@ export async function handleChosenCombatOption(token: any, option: RadialCombatO
         });
         return;
       }
+      if (
+        option.source === 'npc-attack' &&
+        !canUseNpcAttackThisRound(
+          actor,
+          combat,
+          option.id,
+          Math.min(5, Math.max(1, Math.floor(Number(option.npcAttacksPerRound) || 1))),
+        )
+      ) {
+        ui.notifications?.warn('Keine Nutzungen dieser Attacke mehr in dieser Runde.');
+        return;
+      }
     }
     // Close radial menu when attack option is selected
     closeRadialMenu();
@@ -1009,6 +1023,9 @@ export async function handleChosenCombatOption(token: any, option: RadialCombatO
         if (option.source === 'power' && option.item?.id) {
           await markPowerUsedThisRound(actor, combat, option.item.id);
         }
+        if (option.source === 'npc-attack' && option.costsAction) {
+          await markNpcAttackUsedThisRound(actor, combat, option.id);
+        }
 
         // AoE attacks roll once vs the fixed Area TN = 8 × Source MR — even
         // without a primary target. On a miss nobody in the area is affected.
@@ -1053,6 +1070,7 @@ export async function handleChosenCombatOption(token: any, option: RadialCombatO
         const { resolveAoeMeleeSecondaries } = await import('./combat/aoe-melee-resolution.js');
         const isSpellAoe =
           (option as any).artifactIsSpell === true ||
+          (option as any).npcIsSpell === true ||
           ((option.item?.system as any)?.isSpell === true);
         await resolveAoeMeleeSecondaries({
           attacker: actor as any,
@@ -1126,6 +1144,18 @@ export async function handleChosenCombatOption(token: any, option: RadialCombatO
           actor: actor.name,
           option: option.name
         });
+        return;
+      }
+      if (
+        option.source === 'npc-attack' &&
+        !canUseNpcAttackThisRound(
+          actor,
+          combat,
+          option.id,
+          Math.min(5, Math.max(1, Math.floor(Number(option.npcAttacksPerRound) || 1))),
+        )
+      ) {
+        ui.notifications?.warn('Keine Nutzungen dieser Attacke mehr in dieser Runde.');
         return;
       }
     }

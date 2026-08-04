@@ -400,6 +400,16 @@ export interface AttackValue {
   npcAoeRadiusM?: number;
   /** Wie Split-Attack-Powers: zwei Treffer, Pool & Schaden je floor(Hälfte). */
   npcSplitAttack?: boolean;
+  /**
+   * Spell-Angriff: TN ist der harte MR-Standard (8 × Mastery Rank + Spell Resistance),
+   * nicht Evade.
+   */
+  npcIsSpell?: boolean;
+  /**
+   * Wie oft diese Power pro Runde genutzt werden darf (1–5).
+   * Verbraucht zusätzlich weiterhin globale attackSlots.
+   */
+  npcAttacksPerRound?: number;
   /** Stress-Schaden bei Treffer (Nd8, plain — Stress-Armor mindert). */
   npcStressD8?: number;
   /** Multiple specials on this attack */

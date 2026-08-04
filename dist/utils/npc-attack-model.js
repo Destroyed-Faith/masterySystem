@@ -42,6 +42,13 @@ export function normalizeNpcAttackRow(attack) {
     const merged = mergeSpecialsFromLegacy(attack);
     return { ...attack, specials: merged.length ? merged : undefined };
 }
+/** Per-power attack uses this round (sheet dropdown 1–5; default 1). */
+export function npcAttacksPerRoundCap(attack) {
+    const n = Math.floor(Number(attack?.npcAttacksPerRound));
+    if (!Number.isFinite(n) || n < 1)
+        return 1;
+    return Math.min(5, n);
+}
 function npcBaseAttackRow(raw) {
     if (!raw || typeof raw !== 'object')
         return null;

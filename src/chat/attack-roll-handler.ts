@@ -112,6 +112,7 @@ export async function executeAttackRollFromCard(
     let spentActionOnRoll = false;
     let actorToRefund: any = null;
     let markedPowerIdForRoll: string | null = null;
+    let markedNpcAttackIdForRoll: string | null = null;
 
     try {
       // Import the roll handler (must use .js extension for ES modules in Foundry VTT)
@@ -164,6 +165,15 @@ export async function executeAttackRollFromCard(
           const { markPowerUsedThisRound } = await import('../combat/action-economy.js');
           await markPowerUsedThisRound(economyAttacker, combat, flags.selectedPowerId);
           markedPowerIdForRoll = flags.selectedPowerId;
+        }
+        if (flags.npcAttackSource && flags.npcAttackOptionId) {
+          const { markNpcAttackUsedThisRound } = await import('../combat/action-economy.js');
+          await markNpcAttackUsedThisRound(
+            economyAttacker,
+            combat,
+            String(flags.npcAttackOptionId),
+          );
+          markedNpcAttackIdForRoll = String(flags.npcAttackOptionId);
         }
       }
       
@@ -819,10 +829,21 @@ export async function executeAttackRollFromCard(
     } catch (error) {
       if (spentActionOnRoll && actorToRefund) {
         try {
-          const { refundAttackAction, unmarkPowerUsedThisRound } = await import('../combat/action-economy.js');
+          const {
+            refundAttackAction,
+            unmarkPowerUsedThisRound,
+            unmarkNpcAttackUsedThisRound,
+          } = await import('../combat/action-economy.js');
           await refundAttackAction(actorToRefund, (game as any).combat);
           if (markedPowerIdForRoll) {
             await unmarkPowerUsedThisRound(actorToRefund, (game as any).combat, markedPowerIdForRoll);
+          }
+          if (markedNpcAttackIdForRoll) {
+            await unmarkNpcAttackUsedThisRound(
+              actorToRefund,
+              (game as any).combat,
+              markedNpcAttackIdForRoll,
+            );
           }
         } catch (refundErr) {
           console.warn('Mastery System | Could not refund attack action after failed roll', refundErr);

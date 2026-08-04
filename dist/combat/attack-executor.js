@@ -354,6 +354,13 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
             castingBaseTn = calculateBaseTN(lvl) + getTargetSpellResistance(target);
         }
     }
+    // NPC Spell attacks use the hard MR casting standard (8 × Mastery Rank),
+    // not Evade and not PC power-level Casting TN.
+    const npcIsSpell = isNpcAttack && (!!option.npcIsSpell || !!npcAttackRow?.npcIsSpell);
+    if (npcIsSpell) {
+        tnKind = 'casting';
+        castingBaseTn = 8 * Math.max(1, masteryRank) + getTargetSpellResistance(target);
+    }
     /** Whether the underlying power is a spell (kept for damage riders / raises). */
     const powerWasSpell = tnKind === 'casting';
     // Area TN overrides Evade AND Casting TN for AoE attacks.
@@ -468,13 +475,17 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
         npcAttackName: isNpcAttack
             ? (npcAttackRow?.name?.trim() || option.name || "NSC-Angriff")
             : undefined,
+        npcAttackOptionId: isNpcAttack ? String(option.id || '') : undefined,
+        npcIsSpell: npcIsSpell || undefined,
         ...(raiseContext
             ? {
                 powerIsSpell: raiseContext.isSpell,
                 basePowerSnapshot: raiseContext.baseSnapshot,
                 raiseOptions: raiseContext.raiseOptions,
             }
-            : {}),
+            : npcIsSpell
+                ? { powerIsSpell: true }
+                : {}),
         tnKind,
         ...(castingBaseTn != null ? { castingBaseTn } : {}),
         ...(tnKind === 'area' ? { areaTn } : {}),
@@ -620,7 +631,9 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
         : tnKind === 'casting' && castingBaseTn != null
             ? `<div class="detail-row">
           <span class="detail-label">Casting TN:</span>
-          <span class="detail-value">${castingBaseTn} (Power Level ${Math.max(1, Math.floor(Number(selectedPowerLevel) || 1))})</span>
+          <span class="detail-value">${castingBaseTn}${npcIsSpell
+                ? ` (8 × Mastery Rank ${masteryRank})`
+                : ` (Power Level ${Math.max(1, Math.floor(Number(selectedPowerLevel) || 1))})`}</span>
         </div>`
             : `<div class="detail-row">
           <span class="detail-label">Target Evade:</span>

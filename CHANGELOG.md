@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.247] - 2026-08-04
+
+### Added
+
+- NPC attacks: **Spell** checkbox — Casting TN uses hard MR standard (`8 × Mastery Rank` + Spell Resistance) instead of Evade.
+- NPC attacks: **Angriffe/Runde** dropdown (1–5) limits how often each power can be used per round (still spends global attack slots).
+
 ## [0.9.246] - 2026-08-04
 
 ### Changed

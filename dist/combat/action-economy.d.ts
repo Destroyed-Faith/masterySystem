@@ -45,6 +45,11 @@ export interface RoundState {
     /** Power item IDs already used this combat round (max one use per power per round). */
     usedPowerIdsThisRound?: string[];
     /**
+     * NPC attack option uses this round (keyed by radial option id, e.g. `npc-attack-root-0`).
+     * Compared against each attack's `npcAttacksPerRound` (1–5).
+     */
+    npcAttackUsesThisRound?: Record<string, number>;
+    /**
      * When true, a Movement Power already replaced normal Movement this round —
      * base Move/Dash maneuvers are unavailable (Rules v0.9.8).
      */
@@ -156,6 +161,14 @@ export declare function markPowerUsedThisRound(actor: Actor, combat: Combat | nu
  * Undo mark (e.g. attack roll failed after spending an action).
  */
 export declare function unmarkPowerUsedThisRound(actor: Actor, combat: Combat | null, powerItemId: string): Promise<void>;
+/** How many times this NPC attack option was already used this round. */
+export declare function getNpcAttackUsesThisRound(actor: Actor, combat: Combat | null, npcAttackOptionId: string): number;
+/** Whether this NPC attack still has remaining uses this round (maxUses is 1–5). */
+export declare function canUseNpcAttackThisRound(actor: Actor, combat: Combat | null, npcAttackOptionId: string, maxUses: number): boolean;
+/** Record one use of an NPC attack option this round. */
+export declare function markNpcAttackUsedThisRound(actor: Actor, combat: Combat | null, npcAttackOptionId: string): Promise<void>;
+/** Undo one use (e.g. attack roll failed after spending an action). */
+export declare function unmarkNpcAttackUsedThisRound(actor: Actor, combat: Combat | null, npcAttackOptionId: string): Promise<void>;
 /**
  * Apply initiative shop bonuses to round state
  * Called when shop purchases are made or at start of round

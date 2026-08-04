@@ -183,6 +183,7 @@ export function getRoundState(actor, combat) {
         ...baseActions,
         moveBonusMeters: 0,
         usedPowerIdsThisRound: [],
+        npcAttackUsesThisRound: {},
         stoneBonuses: {
             extraAttacks: 0,
             extraReactions: 0,
@@ -239,6 +240,42 @@ export async function unmarkPowerUsedThisRound(actor, combat, powerItemId) {
     if (!arr.length)
         return;
     rs.usedPowerIdsThisRound = arr.filter((id) => id !== powerItemId);
+    await setRoundState(actor, rs);
+}
+/** How many times this NPC attack option was already used this round. */
+export function getNpcAttackUsesThisRound(actor, combat, npcAttackOptionId) {
+    if (!npcAttackOptionId)
+        return 0;
+    const rs = getRoundState(actor, combat);
+    return Math.max(0, Math.floor(Number(rs.npcAttackUsesThisRound?.[npcAttackOptionId]) || 0));
+}
+/** Whether this NPC attack still has remaining uses this round (maxUses is 1–5). */
+export function canUseNpcAttackThisRound(actor, combat, npcAttackOptionId, maxUses) {
+    const cap = Math.min(5, Math.max(1, Math.floor(Number(maxUses) || 1)));
+    return getNpcAttackUsesThisRound(actor, combat, npcAttackOptionId) < cap;
+}
+/** Record one use of an NPC attack option this round. */
+export async function markNpcAttackUsedThisRound(actor, combat, npcAttackOptionId) {
+    if (!npcAttackOptionId)
+        return;
+    const rs = getRoundState(actor, combat);
+    const map = { ...(rs.npcAttackUsesThisRound ?? {}) };
+    map[npcAttackOptionId] = Math.max(0, Math.floor(Number(map[npcAttackOptionId]) || 0)) + 1;
+    rs.npcAttackUsesThisRound = map;
+    await setRoundState(actor, rs);
+}
+/** Undo one use (e.g. attack roll failed after spending an action). */
+export async function unmarkNpcAttackUsedThisRound(actor, combat, npcAttackOptionId) {
+    if (!npcAttackOptionId)
+        return;
+    const rs = getRoundState(actor, combat);
+    const map = { ...(rs.npcAttackUsesThisRound ?? {}) };
+    const next = Math.max(0, Math.floor(Number(map[npcAttackOptionId]) || 0) - 1);
+    if (next <= 0)
+        delete map[npcAttackOptionId];
+    else
+        map[npcAttackOptionId] = next;
+    rs.npcAttackUsesThisRound = map;
     await setRoundState(actor, rs);
 }
 /**
@@ -1022,6 +1059,7 @@ export async function resetRoundState(actor, combatant, combat) {
         reactionActions: { total: 1, used: 0 },
         moveBonusMeters: 0,
         usedPowerIdsThisRound: [],
+        npcAttackUsesThisRound: {},
         stoneBonuses: {
             extraAttacks: 0,
             extraReactions: 0,
@@ -1036,6 +1074,7 @@ export async function resetRoundState(actor, combatant, combat) {
         Object.assign(roundState, updated);
     }
     roundState.usedPowerIdsThisRound = [];
+    roundState.npcAttackUsesThisRound = {};
     roundState.combatId = combat.id ?? '';
     await setRoundState(actor, roundState);
 }

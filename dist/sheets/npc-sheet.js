@@ -21,6 +21,7 @@ function newExtraNpcPower() {
         name: '',
         attackDiceCount: 6,
         damageDiceCount: 4,
+        npcAttacksPerRound: 1,
         specials: []
     };
 }
@@ -64,6 +65,17 @@ function normalizeNpcAttackRowForContext(row) {
     }
     else {
         delete o.npcSplitAttack;
+    }
+    if (o.npcIsSpell === true || o.npcIsSpell === 'true' || o.npcIsSpell === 'on') {
+        o.npcIsSpell = true;
+    }
+    else {
+        delete o.npcIsSpell;
+    }
+    {
+        const apr = Math.floor(Number(o.npcAttacksPerRound));
+        o.npcAttacksPerRound =
+            Number.isFinite(apr) && apr >= 1 ? Math.min(5, apr) : 1;
     }
     const rk = String(o.npcRangeKind || '').toLowerCase();
     if (rk === 'ranged') {

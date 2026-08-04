@@ -12,7 +12,7 @@ import { promptMeleeAoePrimaryChoice } from './melee-aoe-primary-dialog.js';
 import { extractMeleeAoePowerBonusD8 } from './utils/power-mechanics.js';
 import { startRangedTargeting } from './ranged-targeting.js';
 import { startUtilitySingleTargetMode, startUtilityRadiusMode } from './utility-targeting.js';
-import { getRoundState, getMovementRangeBonusMeters, getAvailableAttackActions, getAvailableMovementActions, consumeAttackAction, consumeMovementAction, spendMovementPowerAction, isNormalMovementReplaced, refundAttackAction, markPowerUsedThisRound, hasPowerBeenUsedThisRound } from './combat/action-economy.js';
+import { getRoundState, getMovementRangeBonusMeters, getAvailableAttackActions, getAvailableMovementActions, consumeAttackAction, consumeMovementAction, spendMovementPowerAction, isNormalMovementReplaced, refundAttackAction, markPowerUsedThisRound, markNpcAttackUsedThisRound, canUseNpcAttackThisRound, hasPowerBeenUsedThisRound } from './combat/action-economy.js';
 import { gridStepsFromMeters, gridStepsBetweenCenters, measureSceneDistanceBetweenPoints, metersToSceneDistance } from './utils/grid-range.js';
 import { highlightHexesInRange, clearHexHighlight, collectHexKeysInRangeForToken, highlightTabuHexesOnLayer } from './utils/hex-highlighting.js';
 /** Same yellow tone as radial range preview (`range-preview.ts`). */
@@ -778,6 +778,11 @@ export async function handleChosenCombatOption(token, option) {
                 });
                 return;
             }
+            if (option.source === 'npc-attack' &&
+                !canUseNpcAttackThisRound(actor, combat, option.id, Math.min(5, Math.max(1, Math.floor(Number(option.npcAttacksPerRound) || 1))))) {
+                ui.notifications?.warn('Keine Nutzungen dieser Attacke mehr in dieser Runde.');
+                return;
+            }
         }
         // Close radial menu when attack option is selected
         closeRadialMenu();
@@ -826,6 +831,9 @@ export async function handleChosenCombatOption(token, option) {
                 if (option.source === 'power' && option.item?.id) {
                     await markPowerUsedThisRound(actor, combat, option.item.id);
                 }
+                if (option.source === 'npc-attack' && option.costsAction) {
+                    await markNpcAttackUsedThisRound(actor, combat, option.id);
+                }
                 // AoE attacks roll once vs the fixed Area TN = 8 × Source MR — even
                 // without a primary target. On a miss nobody in the area is affected.
                 const { getAttackAttribute, getAttributeValue, getMasteryRank } = await import('./combat/attack-executor.js');
@@ -860,6 +868,7 @@ export async function handleChosenCombatOption(token, option) {
                 }
                 const { resolveAoeMeleeSecondaries } = await import('./combat/aoe-melee-resolution.js');
                 const isSpellAoe = option.artifactIsSpell === true ||
+                    option.npcIsSpell === true ||
                     (option.item?.system?.isSpell === true);
                 await resolveAoeMeleeSecondaries({
                     attacker: actor,
@@ -922,6 +931,11 @@ export async function handleChosenCombatOption(token, option) {
                     actor: actor.name,
                     option: option.name
                 });
+                return;
+            }
+            if (option.source === 'npc-attack' &&
+                !canUseNpcAttackThisRound(actor, combat, option.id, Math.min(5, Math.max(1, Math.floor(Number(option.npcAttacksPerRound) || 1))))) {
+                ui.notifications?.warn('Keine Nutzungen dieser Attacke mehr in dieser Runde.');
                 return;
             }
         }
