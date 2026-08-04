@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.244] - 2026-08-04
+
+### Changed
+
+- Removed obsolete root `LICENSE` stub; `LICENSE.md` is the sole canonical proprietary license file shipped with the system.
+
 ## [0.9.243] - 2026-08-03
 
 ### Changed
