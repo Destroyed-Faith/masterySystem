@@ -12,7 +12,23 @@ export declare class MasteryNpcSheet extends MasteryCharacterSheet {
             width: number;
             height: number;
         };
+        window: {
+            controls: {
+                icon: string;
+                label: string;
+                action: string;
+            }[];
+        };
+        actions: {
+            msNpcPrintSheet: (this: any) => void;
+        };
     };
+    /**
+     * Parent strips the PC print control for non-characters; keep the NPC print
+     * control and drop the inherited PC one if it ever leaks through.
+     * @override
+     */
+    _getHeaderControls(): any[];
     /** Prefer short type label "NPC: Name" via i18n; fall back to actor name. */
     get title(): string;
     /** @override */

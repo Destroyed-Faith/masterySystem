@@ -1,0 +1,106 @@
+{{!-- Printable NPC sheet — one A4 page per phase. Populated by buildNpcPrintContext(). --}}
+
+{{#each pages}}
+<section class="print-page npc-print-page">
+  <header class="np-identity">
+    <div class="np-identity-main">
+      <div class="np-field np-name">
+        <span class="np-field-label">Name</span>
+        <span class="np-field-value">{{name}}</span>
+      </div>
+      {{#if hasPhases}}
+      <div class="np-field np-phase">
+        <span class="np-field-label">Phase</span>
+        <span class="np-field-value">{{phaseName}} <span class="np-subtle">({{phaseNumber}}/{{phaseCount}})</span></span>
+      </div>
+      {{/if}}
+    </div>
+    <div class="np-meta">
+      <div class="np-meta-box"><span class="np-meta-label">MR</span><span class="np-meta-value">{{masteryRank}}</span></div>
+      <div class="np-meta-box"><span class="np-meta-label">Typ</span><span class="np-meta-value">{{creatureType}}</span></div>
+      <div class="np-meta-box" title="Casting TN für Spell-Angriffe"><span class="np-meta-label">Spell TN</span><span class="np-meta-value">{{castingTn}}</span></div>
+      {{#if faction}}
+      <div class="np-meta-box"><span class="np-meta-label">Fraktion</span><span class="np-meta-value">{{faction}}</span></div>
+      {{/if}}
+    </div>
+  </header>
+
+  <section class="np-block np-combat">
+    <h2 class="np-section-title">Kampfwerte</h2>
+    <div class="np-combat-grid">
+      <div class="np-combat-cell"><span class="np-combat-label">Ausweichen</span><span class="np-combat-value">{{evade}}</span></div>
+      <div class="np-combat-cell"><span class="np-combat-label">Rüstung</span><span class="np-combat-value">{{armor}}</span></div>
+      <div class="np-combat-cell"><span class="np-combat-label">Tempo</span><span class="np-combat-value">{{speed}} m</span></div>
+      <div class="np-combat-cell"><span class="np-combat-label">ATK / Runde</span><span class="np-combat-value">{{attackSlots}}</span></div>
+      <div class="np-combat-cell"><span class="np-combat-label">Bewegung / Runde</span><span class="np-combat-value">{{movementSlots}}</span></div>
+      <div class="np-combat-cell np-combat-cell--wide"><span class="np-combat-label">HP</span><span class="np-combat-value">{{health.summary}}</span></div>
+    </div>
+    {{#if health.hasMultipleBars}}
+    <ul class="np-health-bars">
+      {{#each health.bars}}
+      <li><span class="np-health-name">{{name}}</span><span class="np-health-val">{{current}} / {{max}}</span></li>
+      {{/each}}
+    </ul>
+    {{/if}}
+  </section>
+
+  <section class="np-block np-attacks">
+    <h2 class="np-section-title">Angriffe &amp; Powers</h2>
+    {{#if hasAttacks}}
+    <table class="np-table">
+      <thead>
+        <tr>
+          <th class="np-col-name">Name</th>
+          <th>Pool</th>
+          <th>Schaden</th>
+          <th>Reichweite</th>
+          <th>AoE</th>
+          <th>Flags</th>
+          <th>×/R</th>
+          <th>Stress</th>
+          <th class="np-col-specials">Speziale</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each attacks}}
+        <tr class="{{#if isSpell}}is-spell{{/if}}{{#if isSplit}} is-split{{/if}}">
+          <td class="np-col-name">{{name}}</td>
+          <td>{{pool}}</td>
+          <td>{{damage}}</td>
+          <td>{{range}}</td>
+          <td>{{aoe}}</td>
+          <td>{{flags}}</td>
+          <td>{{apr}}</td>
+          <td>{{stress}}</td>
+          <td class="np-col-specials">{{specials}}</td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+    <p class="np-hint">Spell = Casting TN {{castingTn}} (8×MR), nicht Ausweichen. Split = zwei Treffer, Pool/Schaden je Hälfte. ×/R = Radial-Kopien.</p>
+    {{else}}
+    <p class="np-empty">Keine Angriffe hinterlegt.</p>
+    {{/if}}
+  </section>
+
+  {{#if hasStatuses}}
+  <section class="np-block np-statuses">
+    <h2 class="np-section-title">Status</h2>
+    <ul class="np-status-list">
+      {{#each statuses}}
+      <li>{{this}}</li>
+      {{/each}}
+    </ul>
+  </section>
+  {{/if}}
+
+  {{#if description}}
+  <section class="np-block np-notes">
+    <h2 class="np-section-title">Notizen</h2>
+    <p class="np-notes-body">{{description}}</p>
+  </section>
+  {{/if}}
+
+  <footer class="np-page-footer">{{pageLabel}} · Seite {{pageIndex}}/{{pageTotal}}</footer>
+</section>
+{{/each}}

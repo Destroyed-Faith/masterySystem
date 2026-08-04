@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.255] - 2026-08-04
+
+### Added
+
+- Printable **NPC sheet** (header control „Bogen drucken“): one A4 page per boss phase with Kampfwerte, HP, attacks/powers (pool, damage, range, AoE, Spell/Split, Angriffe/Runde, stress, specials).
+
 ## [0.9.254] - 2026-08-04
 
 ### Fixed

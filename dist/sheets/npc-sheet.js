@@ -5,6 +5,7 @@
 import { MasteryCharacterSheet } from './character-sheet.js';
 import { ALL_SPECIAL_EFFECTS, getEffectBaseName, } from '../utils/special-effects.js';
 import { sumNpcAttackSlotsFromPowers } from '../utils/npc-attack-model.js';
+import { openNpcPrintSheet } from './npc-print.js';
 function dup(obj) {
     const fn = foundry.utils?.duplicate;
     return fn ? fn(obj) : JSON.parse(JSON.stringify(obj));
@@ -155,7 +156,30 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
     static DEFAULT_OPTIONS = {
         classes: ['npc'],
         position: { width: 720, height: 820 },
+        window: {
+            controls: [
+                {
+                    icon: 'fas fa-print',
+                    label: 'Bogen drucken',
+                    action: 'msNpcPrintSheet',
+                },
+            ],
+        },
+        actions: {
+            msNpcPrintSheet: function () {
+                void openNpcPrintSheet(this.actor);
+            },
+        },
     };
+    /**
+     * Parent strips the PC print control for non-characters; keep the NPC print
+     * control and drop the inherited PC one if it ever leaks through.
+     * @override
+     */
+    _getHeaderControls() {
+        const controls = super._getHeaderControls?.() ?? [];
+        return controls.filter((c) => c?.action !== 'msPrintSheet');
+    }
     /** Prefer short type label "NPC: Name" via i18n; fall back to actor name. */
     get title() {
         const name = String(this.document?.name ?? '').trim();

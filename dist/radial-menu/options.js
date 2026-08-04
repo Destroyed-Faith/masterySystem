@@ -937,6 +937,13 @@ export async function getAllCombatOptionsForActor(actor) {
     options.push(...nonMovementOptions);
     // NSC-defined attacks (same segment as other attacks)
     options.push(...npcAttackOptions);
+    // NSC catalog Active Buffs (Buff segment) — NPCs have no power list on sheet.
+    try {
+        options.push(...buildNpcCatalogActiveBuffOptions(actor));
+    }
+    catch (err) {
+        console.warn('Mastery System | Could not build NPC Active Buff radial options:', err);
+    }
     // Add non-movement maneuvers
     const nonMovementManeuvers = allManeuvers.filter(m => m.slot !== 'movement');
     options.push(...nonMovementManeuvers);
