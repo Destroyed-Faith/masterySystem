@@ -1,8 +1,8 @@
 /**
  * Rules ↔ Foundry catalog audit engine.
  *
- * Compares power / artifact catalogs against Rules/*.md and curated expected
- * manifests. Pure & testable — no Foundry runtime required.
+ * Compares power / artifact catalogs against docs/Rules/*.md and curated
+ * expected manifests. Pure & testable — no Foundry runtime required.
  */
 import type { PowerTemplate } from './powers/templates/_shared.js';
 export type CatalogAuditStatus = 'correct' | 'corrected' | 'missing' | 'obsolete' | 'requires-rule-decision';

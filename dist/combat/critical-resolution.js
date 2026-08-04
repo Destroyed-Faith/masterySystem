@@ -5,7 +5,7 @@
  * X is never an explode-threshold strength; the threshold is always 7–8 on
  * Attack Dice only. Damage Dice never explode from Critical.
  *
- * @see docs/CRITICAL-RESOLUTION.md
+ * Critical attacks: Attack Dice explode on 7–8; Damage Dice never explode.
  */
 /** Fixed explode faces for every Critical application. */
 export const CRITICAL_ATTACK_EXPLODE_FACES = [7, 8];

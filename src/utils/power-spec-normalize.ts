@@ -1,7 +1,7 @@
 /**
  * Power spec consistency — canonical shapes after import / before persist.
  *
- * Rules (see docs/power-structure-new.json mergedPrimitives):
+ * Power-spec normalization rules:
  * - PowerSpecial: canonical persisted form uses lowercase `key` + `rank` (not type/value).
  * - AoE: do not persist both radiusM and sizeM for radius-class shapes.
  * - PowerMechanics: usageLimit canonical; triggerLimit read once then stripped on persist.

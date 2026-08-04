@@ -1,8 +1,8 @@
 /**
  * Rules ↔ Foundry catalog audit engine.
  *
- * Compares power / artifact catalogs against Rules/*.md and curated expected
- * manifests. Pure & testable — no Foundry runtime required.
+ * Compares power / artifact catalogs against docs/Rules/*.md and curated
+ * expected manifests. Pure & testable — no Foundry runtime required.
  */
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
@@ -436,7 +436,7 @@ function loadPackageVersion(rootDir) {
 function loadRulesBook(rootDir, book, override) {
     if (override?.[book] != null)
         return override[book];
-    const path = join(rootDir, 'Rules', `${book}.md`);
+    const path = join(rootDir, 'docs', 'Rules', `${book}.md`);
     if (!existsSync(path))
         return '';
     return readFileSync(path, 'utf8');
@@ -495,7 +495,7 @@ function auditExpectedAgainstCatalog(args) {
                 name: inCatalog.name,
                 status: 'requires-rule-decision',
                 notes: withStruct(exp.id, note ??
-                    'Present in catalog; open Rules decision (see docs/CRITICAL-RESOLUTION.md)'),
+                    'Present in catalog; open Rules decision'),
             });
             continue;
         }
@@ -633,7 +633,7 @@ export function runCatalogRulesAudit(options = {}) {
         decisionIds: new Set(),
         notesForId: (id, rulesName) => {
             if (id === 'ab-critical') {
-                return 'Critical(X) = X Critical attacks per Round; Attack Dice explode on 7–8; Damage Dice never explode (docs/CRITICAL-RESOLUTION.md)';
+                return 'Critical(X) = X Critical attacks per Round; Attack Dice explode on 7–8; Damage Dice never explode';
             }
             if (id === 'ab-evade') {
                 const tpl = abMap.get(id)?.template;
@@ -806,7 +806,7 @@ export function runCatalogRulesAudit(options = {}) {
             name: row.name,
             status: 'correct',
             notes: mentioned
-                ? `Present in ${exp.source} catalog; referenced in Rules/artefacts.md`
+                ? `Present in ${exp.source} catalog; referenced in docs/Rules/artefacts.md`
                 : `Present in ${exp.source} catalog (curated expected list)`,
         });
     }
@@ -839,7 +839,7 @@ export function runCatalogRulesAudit(options = {}) {
             ? 'Rules: 1 Artifact Summon Stone → 4 Tokens (bonus tokens, not Bound Stones). Marked correct — not a conflict with Summon Bound Stone ×8.'
             : tokenRatio == null
                 ? 'Rules section present or assumed; 4 tokens per Artifact Summon Stone is the documented conversion (not a conflict).'
-                : `Unexpected token ratio ${tokenRatio}; expected 4 per Rules/artefacts.md`,
+                : `Unexpected token ratio ${tokenRatio}; expected 4 per docs/Rules/artefacts.md`,
     });
     // Sort for stable output
     entries.sort((a, b) => {

@@ -118,4 +118,4 @@ This game system is designed for use with a legally licensed copy of Foundry Vir
 - **World map:** Pena Negra
 - **Full-page art:** Dzmitry Zasimovich
 
-Artwork rights checklist for owner verification: [`docs/ASSET-RIGHTS-CHECKLIST.md`](docs/ASSET-RIGHTS-CHECKLIST.md).
+Rulebook source markdown lives under [`docs/Rules/`](docs/Rules/). Artwork rights checklist for owner verification: [`docs/ASSET-RIGHTS-CHECKLIST.md`](docs/ASSET-RIGHTS-CHECKLIST.md).

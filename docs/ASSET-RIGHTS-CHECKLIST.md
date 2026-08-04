@@ -17,7 +17,7 @@ Confirm the following before any broader redistribution or relicensing.
 
 ## Rule text
 
-- [ ] `Rules/` and in-game rule strings are owned / cleared for the project’s published terms
+- [ ] `docs/Rules/` and in-game rule strings are owned / cleared for the project’s published terms
 - [ ] External SRD or third-party rule excerpts (if any) are identified and licensed separately
 
 ## Commissioned / third-party artwork

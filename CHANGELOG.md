@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.253] - 2026-08-04
+
+### Changed
+
+- Moved rulebook markdown from `Rules/` to `docs/Rules/`.
+- Pruned outdated docs (v0.9.8 reports, public-release plans, old structure JSON examples). Kept import schema/examples, asset checklist, and catalog audit output.
+
 ## [0.9.252] - 2026-08-04
 
 ### Removed

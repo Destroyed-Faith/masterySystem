@@ -1,6 +1,6 @@
 {
-  "version": "0.9.252",
-  "generatedAt": "2026-08-04T09:12:36.574Z",
+  "version": "0.9.253",
+  "generatedAt": "2026-08-04T09:42:21.159Z",
   "summary": {
     "correct": 204,
     "corrected": 3,
@@ -469,7 +469,7 @@
       "id": "ab-critical",
       "name": "Active Buff: Critical",
       "status": "correct",
-      "notes": "Critical(X) = X Critical attacks per Round; Attack Dice explode on 7–8; Damage Dice never explode (docs/CRITICAL-RESOLUTION.md)"
+      "notes": "Critical(X) = X Critical attacks per Round; Attack Dice explode on 7–8; Damage Dice never explode"
     },
     {
       "category": "activeBuff",
@@ -651,7 +651,7 @@
       "id": "dragonClaws",
       "name": "Dragon Claws",
       "status": "correct",
-      "notes": "Present in echo catalog; referenced in Rules/artefacts.md"
+      "notes": "Present in echo catalog; referenced in docs/Rules/artefacts.md"
     },
     {
       "category": "artifact",
@@ -672,28 +672,28 @@
       "id": "falconWideBrim",
       "name": "Falcon Wide Brim",
       "status": "correct",
-      "notes": "Present in general catalog; referenced in Rules/artefacts.md"
+      "notes": "Present in general catalog; referenced in docs/Rules/artefacts.md"
     },
     {
       "category": "artifact",
       "id": "frostboundReturningAxe",
       "name": "Frostbound Returning Axe",
       "status": "correct",
-      "notes": "Present in general catalog; referenced in Rules/artefacts.md"
+      "notes": "Present in general catalog; referenced in docs/Rules/artefacts.md"
     },
     {
       "category": "artifact",
       "id": "heartOfWinter",
       "name": "Heart of Winter",
       "status": "correct",
-      "notes": "Present in general catalog; referenced in Rules/artefacts.md"
+      "notes": "Present in general catalog; referenced in docs/Rules/artefacts.md"
     },
     {
       "category": "artifact",
       "id": "heartseeker",
       "name": "Heartseeker",
       "status": "correct",
-      "notes": "Present in general catalog; referenced in Rules/artefacts.md"
+      "notes": "Present in general catalog; referenced in docs/Rules/artefacts.md"
     },
     {
       "category": "artifact",
@@ -707,7 +707,7 @@
       "id": "lanternOfTheHollowStar",
       "name": "Lantern of the Hollow Star",
       "status": "correct",
-      "notes": "Present in general catalog; referenced in Rules/artefacts.md"
+      "notes": "Present in general catalog; referenced in docs/Rules/artefacts.md"
     },
     {
       "category": "artifact",
@@ -721,7 +721,7 @@
       "id": "moonlightGreatsword",
       "name": "Moonlight Greatsword",
       "status": "correct",
-      "notes": "Present in general catalog; referenced in Rules/artefacts.md"
+      "notes": "Present in general catalog; referenced in docs/Rules/artefacts.md"
     },
     {
       "category": "artifact",
@@ -742,35 +742,35 @@
       "id": "shadowgraveArmor",
       "name": "Shadowgrave Armor",
       "status": "correct",
-      "notes": "Present in general catalog; referenced in Rules/artefacts.md"
+      "notes": "Present in general catalog; referenced in docs/Rules/artefacts.md"
     },
     {
       "category": "artifact",
       "id": "soulSigil",
       "name": "Soul Sigil",
       "status": "correct",
-      "notes": "Present in general catalog; referenced in Rules/artefacts.md"
+      "notes": "Present in general catalog; referenced in docs/Rules/artefacts.md"
     },
     {
       "category": "artifact",
       "id": "staffOfTheDark",
       "name": "Staff of the Dark",
       "status": "correct",
-      "notes": "Present in general catalog; referenced in Rules/artefacts.md"
+      "notes": "Present in general catalog; referenced in docs/Rules/artefacts.md"
     },
     {
       "category": "artifact",
       "id": "starfallenForceshield",
       "name": "Starfallen Forceshield",
       "status": "correct",
-      "notes": "Present in general catalog; referenced in Rules/artefacts.md"
+      "notes": "Present in general catalog; referenced in docs/Rules/artefacts.md"
     },
     {
       "category": "artifact",
       "id": "stoneboundSoles",
       "name": "Stonebound Soles",
       "status": "correct",
-      "notes": "Present in echo catalog; referenced in Rules/artefacts.md"
+      "notes": "Present in echo catalog; referenced in docs/Rules/artefacts.md"
     },
     {
       "category": "artifact",

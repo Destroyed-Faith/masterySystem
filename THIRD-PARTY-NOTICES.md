@@ -83,6 +83,6 @@ Do not copy third-party license texts into `LICENSE.md`. Keep upstream LICENSE f
 - Commission contracts / usage scope for credited artists and for uncredited files under `assets/`
 - License terms for Google Fonts families and the Laviossa Forge CDN font
 - Any stock, AI-assisted, or third-party icons that may have been imported without a recorded notice
-- Rulebook materials under `Rules/` that credit additional collaborators (for example design contributors named only in rulebook front matter)
+- Rulebook materials under `docs/Rules/` that credit additional collaborators (for example design contributors named only in rulebook front matter)
 
 Until verified, do not grant broader redistribution rights for those materials beyond gameplay use and the media policy.

@@ -154,7 +154,6 @@ const forbiddenPrefixes = [
   'reports/',
   '.github/',
   'node_modules/',
-  'Rules/',
   'docs/',
 ];
 const stagedFiles = listFilesRecursive(stage).map((f) => relative(stage, f).replace(/\\/g, '/'));

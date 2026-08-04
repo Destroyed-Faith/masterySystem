@@ -125,7 +125,6 @@ export type RaiseUpgrade =
 
 /**
  * Suggested `mechanics.trigger` values (extensible string).
- * Document full list in docs/power-structure-new.json.
  */
 export type PowerMechanicsTrigger =
   | 'onUse'
