@@ -97,8 +97,8 @@ export interface RoundState {
   /** Power item IDs already used this combat round (max one use per power per round). */
   usedPowerIdsThisRound?: string[];
   /**
-   * NPC attack option uses this round (keyed by radial option id, e.g. `npc-attack-root-0`).
-   * Compared against each attack's `npcAttacksPerRound` (1–5).
+   * NPC attack uses this round (keyed by usage key, e.g. `npc-attack-root-0`).
+   * Each use removes one radial copy; max copies = `npcAttacksPerRound` (1–5).
    */
   npcAttackUsesThisRound?: Record<string, number>;
   /**
