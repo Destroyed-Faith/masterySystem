@@ -90,7 +90,6 @@ mkdirSync(stage, { recursive: true });
 const ROOT_FILES = [
   'system.json',
   'template.json',
-  'LICENSE',
   'LICENSE.md',
   'MEDIA-AND-COMMUNITY-POLICY.md',
   'ASSET-LICENSE.md',

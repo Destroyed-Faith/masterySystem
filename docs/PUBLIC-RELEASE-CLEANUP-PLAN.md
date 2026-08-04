@@ -14,6 +14,6 @@ Completed work on the Foundry system around **0.9.241–0.9.242**. Kept here onl
 
 ## Runtime ZIP allowlist
 
-Include: `system.json`, `template.json`, `dist/**/*.js` (no `.map`/`.d.ts`), `templates/`, `styles/`, `assets/`, `lang/`, existing `packs/`, `LICENSE`, `README.md`, `CHANGELOG.md`.
+Include: `system.json`, `template.json`, `dist/**/*.js` (no `.map`/`.d.ts`), `templates/`, `styles/`, `assets/`, `lang/`, existing `packs/`, `LICENSE.md`, `README.md`, `CHANGELOG.md`.
 
 Exclude: `.github/`, `src/`, `tests/`, `e2e/`, `tools/`, `scripts/`, generated `reports/`, `docs/`, `Rules/`, `node_modules/`, source maps, lockfiles, tsconfig.
