@@ -5,13 +5,19 @@
 
 import type { RadialCombatOption } from "./token-radial-menu";
 import { highlightHexesInRange, clearHexHighlight } from "./utils/hex-highlighting";
-import { gridStepsFromMeters, isWithinRangeMeters } from "./utils/grid-range";
+import {
+  gridStepsFromMeters,
+  isWithinRangeMeters,
+  measureSceneDistanceBetweenPoints,
+  metersToSceneDistance,
+} from "./utils/grid-range";
 import { filterPerceivableTargetIds } from "./combat/perception-gate.js";
 
 interface RangedTargetingState {
   attackerToken: any;
   option: RadialCombatOption;
   rangeMeters: number;
+  rangeMinMeters: number;
   rangeGridUnits: number;
   highlightId: string;
   rings: Map<string, PIXI.Graphics>;
@@ -30,7 +36,27 @@ function getRangedMaxMeters(option: RadialCombatOption): number {
   return 30;
 }
 
-function computeValidTargets(attackerToken: any, rangeMeters: number): Set<string> {
+function getRangedMinMeters(option: RadialCombatOption): number {
+  const min = Math.floor(Number(option.rangeMinMeters));
+  return Number.isFinite(min) && min > 0 ? min : 0;
+}
+
+function isAtOrBeyondMinMeters(
+  from: { x: number; y: number },
+  to: { x: number; y: number },
+  minMeters: number
+): boolean {
+  if (!(minMeters > 0)) return true;
+  const minScene = metersToSceneDistance(minMeters);
+  const dPath = measureSceneDistanceBetweenPoints(from, to);
+  return Number.isFinite(dPath) && dPath + 0.01 >= minScene;
+}
+
+function computeValidTargets(
+  attackerToken: any,
+  rangeMeters: number,
+  rangeMinMeters = 0
+): Set<string> {
   const inRange = new Set<string>();
   const tokens = canvas.tokens?.placeables ?? [];
   const attackerCenter = attackerToken?.center;
@@ -41,9 +67,9 @@ function computeValidTargets(attackerToken: any, rangeMeters: number): Set<strin
     if (!token.actor) continue;
 
     const targetCenter = token.center;
-    if (isWithinRangeMeters(attackerCenter, targetCenter, rangeMeters)) {
-      inRange.add(token.id);
-    }
+    if (!isWithinRangeMeters(attackerCenter, targetCenter, rangeMeters)) continue;
+    if (!isAtOrBeyondMinMeters(attackerCenter, targetCenter, rangeMinMeters)) continue;
+    inRange.add(token.id);
   }
 
   const attackerActor = attackerToken.actor;
@@ -255,11 +281,13 @@ export function startRangedTargeting(attackerToken: any, option: RadialCombatOpt
   attackerToken?.control?.({ releaseOthers: false });
 
   const rangeMeters = getRangedMaxMeters(option);
+  const rangeMinMeters = getRangedMinMeters(option);
 
   const state: RangedTargetingState = {
     attackerToken,
     option,
     rangeMeters,
+    rangeMinMeters,
     rangeGridUnits: gridStepsFromMeters(rangeMeters),
     highlightId: "mastery-ranged",
     rings: new Map(),
@@ -273,16 +301,18 @@ export function startRangedTargeting(attackerToken: any, option: RadialCombatOpt
   active = state;
 
   drawRangeArea(state);
-  state.validTargetIds = computeValidTargets(attackerToken, rangeMeters);
+  state.validTargetIds = computeValidTargets(attackerToken, rangeMeters, rangeMinMeters);
   markValidTargets(state);
 
   canvas.stage.on("pointerdown", state.onPointerDown, true);
   window.addEventListener("keydown", state.onKeyDown);
 
+  const rangeLabel =
+    rangeMinMeters > 0 ? `${rangeMinMeters}–${rangeMeters}m` : `${rangeMeters}m`;
   ui.notifications?.info?.(
     state.validTargetIds.size
-      ? `Ranged targeting: ${rangeMeters}m. Click a target.`
-      : `Ranged targeting: ${rangeMeters}m. No targets in range.`
+      ? `Ranged targeting: ${rangeLabel}. Click a target.`
+      : `Ranged targeting: ${rangeLabel}. No targets in range.`
   );
   if (state.validTargetIds.size === 0) {
     console.warn(

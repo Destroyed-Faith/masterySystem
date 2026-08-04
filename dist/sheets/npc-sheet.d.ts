@@ -13,6 +13,8 @@ export declare class MasteryNpcSheet extends MasteryCharacterSheet {
             height: number;
         };
     };
+    /** Prefer short type label "NPC: Name" via i18n; fall back to actor name. */
+    get title(): string;
     /** @override */
     static PARTS: {
         body: {

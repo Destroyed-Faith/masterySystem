@@ -759,12 +759,14 @@ export async function handleChosenCombatOption(token, option) {
         return;
     }
     // Check if this is a melee attack option
-    // Melee attacks have range <= 4m (2m base + up to 2m reach)
-    // OR if it's an attack slot with no range specified (should use weapon range)
+    // NPC attacks: tagged melee / not ranged (Reach may be up to 8m).
+    // Other attacks: range <= 4m (2m base + up to 2m reach) or unspecified.
     // Exclude active buffs (they're handled above)
+    const isNpcMelee = option.source === 'npc-attack' && !option.tags?.includes('ranged');
     const isMeleeAttack = segmentId !== 'active-buff' &&
         option.slot === 'attack' &&
-        (option.range === undefined || option.range <= 4);
+        (isNpcMelee ||
+            (option.source !== 'npc-attack' && (option.range === undefined || option.range <= 4)));
     if (isMeleeAttack) {
         if (option.costsAction) {
             const atkAvail = getAvailableAttackActions(actor, combat);

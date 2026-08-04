@@ -235,6 +235,7 @@
         "name": "Waffenangriff",
         "attackDiceCount": 6,
         "damageDiceCount": 4,
+        "npcRangeMeters": 2,
         "specials": []
       },
       "npcActivePhaseIndex": 0,

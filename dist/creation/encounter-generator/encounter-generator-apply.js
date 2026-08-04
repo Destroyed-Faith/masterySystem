@@ -161,7 +161,12 @@ function cycleEntryToAttackRow(entry) {
     };
     if (entry.rangeKind === 'ranged') {
         row.npcRangeKind = 'ranged';
-        row.npcRangeMeters = Math.max(4, Math.round(entry.rangeMeters));
+        const maxM = Math.min(24, Math.max(12, Math.round(entry.rangeMeters || 24)));
+        row.npcRangeMeters = maxM;
+        row.npcRangeMinMeters = 12;
+    }
+    else if (entry.rangeMeters != null) {
+        row.npcRangeMeters = Math.min(8, Math.max(1, Math.round(entry.rangeMeters || 2)));
     }
     if (entry.aoe) {
         row.npcAoeShape = entry.aoe.shape;

@@ -83,9 +83,15 @@
           "name": "Aktueller Tagesindex",
           "hint": "Interner Tagesindex für das aktuelle Weltdatum."
         },
-        "currentHour": { "name": "Aktuelle Stunde" },
-        "currentMinute": { "name": "Aktuelle Minute" },
-        "journalFolderId": { "name": "Kalender-Journalordner-ID" },
+        "currentHour": {
+          "name": "Aktuelle Stunde"
+        },
+        "currentMinute": {
+          "name": "Aktuelle Minute"
+        },
+        "journalFolderId": {
+          "name": "Kalender-Journalordner-ID"
+        },
         "defaultYear": {
           "name": "Standard-Kalenderjahr",
           "hint": "Jahr beim ersten Öffnen des Kalenders."
@@ -111,6 +117,13 @@
       "fontColorClear": "Farbe entfernen",
       "fontColorInvalid": "Bitte eine gültige Hex-Farbe eingeben (z. B. #ff8800).",
       "fontColorUnsupported": "Dieser Editor unterstützt keine Textfarbe."
+    }
+  },
+  "TYPES": {
+    "Actor": {
+      "character": "Charakter",
+      "npc": "NPC",
+      "summon": "Beschwörung"
     }
   }
 }

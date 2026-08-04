@@ -212,17 +212,21 @@
               </div>
             </div>
             <div class="npc-attack-advanced-grid">
-              <p class="npc-attack-advanced-hint">Radial: <strong>Fern</strong> = Ziele auf Distanz; <strong>AoE</strong> Kegel/Linie/Radius (m); <strong>Split</strong> = zwei geteilte Treffer; <strong>Splash Nd8</strong> = Extra-W8 für Nebenziele bei Nahkampf + Radius-AoE.</p>
+              <p class="npc-attack-advanced-hint">Radial: <strong>Reach</strong> (1–8 m) oder <strong>Fern</strong> (Min 12 / Max 24 m). <strong>Splash-Schaden</strong> = Anzahl W8 Extra-Schaden für Nebenziele (Reach + Radius-AoE). <strong>Stress-Schaden</strong> = Anzahl W8 Stress bei Treffer.</p>
               <div class="npc-attack-field">
                 <label>Reichweite</label>
                 <select name="system.phases.{{phaseIndex}}.npcBaseAttack.npcRangeKind">
-                  <option value="" {{#unless phase.npcBaseAttack.npcRangeKind}}selected{{/unless}}>Nah</option>
+                  <option value="" {{#unless phase.npcBaseAttack.npcRangeKind}}selected{{/unless}}>Reach</option>
                   <option value="ranged" {{#if (eq phase.npcBaseAttack.npcRangeKind "ranged")}}selected{{/if}}>Fern</option>
                 </select>
               </div>
               <div class="npc-attack-field">
-                <label>Max. m (Fern)</label>
-                <input type="number" name="system.phases.{{phaseIndex}}.npcBaseAttack.npcRangeMeters" value="{{default phase.npcBaseAttack.npcRangeMeters 12}}" min="0" step="1" data-dtype="Number" title="Max. Reichweite in Metern (Fern; Standard 12)"/>
+                <label>m (Reach 1–8 / Fern-Max 12–24)</label>
+                <input type="number" name="system.phases.{{phaseIndex}}.npcBaseAttack.npcRangeMeters" value="{{default phase.npcBaseAttack.npcRangeMeters 2}}" min="1" max="24" step="1" data-dtype="Number" title="Reach: 1–8 m. Fernkampf: maximale Distanz 12–24 m."/>
+              </div>
+              <div class="npc-attack-field">
+                <label>Fern Min. m</label>
+                <input type="number" name="system.phases.{{phaseIndex}}.npcBaseAttack.npcRangeMinMeters" value="{{default phase.npcBaseAttack.npcRangeMinMeters 12}}" min="12" max="24" step="1" data-dtype="Number" title="Nur Fernkampf: minimale Distanz (Standard 12 m)"/>
               </div>
               <div class="npc-attack-field">
                 <label>AoE-Form</label>
@@ -242,7 +246,7 @@
                 <label class="npc-attack-checkbox-label"><input type="checkbox" name="system.phases.{{phaseIndex}}.npcBaseAttack.npcSplitAttack" {{#if phase.npcBaseAttack.npcSplitAttack}}checked{{/if}} data-dtype="Boolean"/> Zwei Treffer (Pool/Schaden halbiert)</label>
               </div>
               <div class="npc-attack-field">
-                <label>Splash Nd8 (Nah+Radius)</label>
+                <label>Splash-Schaden (W8)</label>
                 <select name="system.phases.{{phaseIndex}}.npcBaseAttack.npcMeleeAoeBonusD8" data-dtype="Number">
                   <option value="" {{#unless phase.npcBaseAttack.npcMeleeAoeBonusD8}}selected{{/unless}}>—</option>
                   {{#each (range 1 16)}}
@@ -251,7 +255,7 @@
                 </select>
               </div>
               <div class="npc-attack-field">
-                <label>Stress Nd8</label>
+                <label>Stress-Schaden (W8)</label>
                 <select name="system.phases.{{phaseIndex}}.npcBaseAttack.npcStressD8" data-dtype="Number" data-tooltip="Stress-Schaden bei Treffer (Stress-Rüstung mindert)">
                   <option value="" {{#unless phase.npcBaseAttack.npcStressD8}}selected{{/unless}}>—</option>
                   {{#each (range 1 4)}}
@@ -269,8 +273,12 @@
               <div class="npc-attack-special-row">
                 <select name="system.phases.{{../phaseIndex}}.npcBaseAttack.specials.{{si}}.special" class="special-select">
                   <option value="">—</option>
-                  {{#each @root.npcSpecialSelectOptions}}
-                  <option value="{{this.value}}" {{#if (eq sp.special this.value)}}selected{{/if}}>{{this.label}}</option>
+                  {{#each @root.npcSpecialSelectGroups as |grp|}}
+                  <optgroup label="{{grp.label}}">
+                    {{#each grp.options as |opt|}}
+                    <option value="{{opt.value}}" {{#if (eq sp.special opt.value)}}selected{{/if}}>{{opt.label}}</option>
+                    {{/each}}
+                  </optgroup>
                   {{/each}}
                 </select>
                 <select name="system.phases.{{../phaseIndex}}.npcBaseAttack.specials.{{si}}.specialValue" data-dtype="Number">
@@ -323,17 +331,21 @@
                   </div>
                 </div>
                 <div class="npc-attack-advanced-grid">
-                  <p class="npc-attack-advanced-hint">Radial: <strong>Fern</strong>, <strong>AoE</strong> (Kegel/Linie/Radius in m), <strong>Split</strong>, <strong>Splash Nd8</strong> bei Nah + Radius-AoE.</p>
+                  <p class="npc-attack-advanced-hint">Radial: <strong>Reach</strong> (1–8 m) / <strong>Fern</strong> (12–24 m); AoE; Split; Splash-/Stress-Schaden = Anzahl W8.</p>
                   <div class="npc-attack-field">
                     <label>Reichweite</label>
                     <select name="system.phases.{{../phaseIndex}}.attackValues.{{index}}.npcRangeKind">
-                      <option value="" {{#unless attack.npcRangeKind}}selected{{/unless}}>Nah</option>
+                      <option value="" {{#unless attack.npcRangeKind}}selected{{/unless}}>Reach</option>
                       <option value="ranged" {{#if (eq attack.npcRangeKind "ranged")}}selected{{/if}}>Fern</option>
                     </select>
                   </div>
                   <div class="npc-attack-field">
-                    <label>Max. m (Fern)</label>
-                    <input type="number" name="system.phases.{{../phaseIndex}}.attackValues.{{index}}.npcRangeMeters" value="{{default attack.npcRangeMeters 12}}" min="0" step="1" data-dtype="Number"/>
+                    <label>m (Reach / Fern-Max)</label>
+                    <input type="number" name="system.phases.{{../phaseIndex}}.attackValues.{{index}}.npcRangeMeters" value="{{default attack.npcRangeMeters 2}}" min="1" max="24" step="1" data-dtype="Number" title="Reach 1–8 m oder Fern-Max 12–24 m"/>
+                  </div>
+                  <div class="npc-attack-field">
+                    <label>Fern Min. m</label>
+                    <input type="number" name="system.phases.{{../phaseIndex}}.attackValues.{{index}}.npcRangeMinMeters" value="{{default attack.npcRangeMinMeters 12}}" min="12" max="24" step="1" data-dtype="Number" title="Nur Fernkampf: Min. 12–24 m"/>
                   </div>
                   <div class="npc-attack-field">
                     <label>AoE-Form</label>
@@ -353,7 +365,7 @@
                     <label class="npc-attack-checkbox-label"><input type="checkbox" name="system.phases.{{../phaseIndex}}.attackValues.{{index}}.npcSplitAttack" {{#if attack.npcSplitAttack}}checked{{/if}} data-dtype="Boolean"/></label>
                   </div>
                   <div class="npc-attack-field">
-                    <label>Splash Nd8</label>
+                    <label>Splash-Schaden (W8)</label>
                     <select name="system.phases.{{../phaseIndex}}.attackValues.{{index}}.npcMeleeAoeBonusD8" data-dtype="Number">
                       <option value="" {{#unless attack.npcMeleeAoeBonusD8}}selected{{/unless}}>—</option>
                       {{#each (range 1 16)}}
@@ -362,7 +374,7 @@
                     </select>
                   </div>
                   <div class="npc-attack-field">
-                    <label>Stress Nd8</label>
+                    <label>Stress-Schaden (W8)</label>
                     <select name="system.phases.{{../phaseIndex}}.attackValues.{{index}}.npcStressD8" data-dtype="Number" data-tooltip="Stress-Schaden bei Treffer (Stress-Rüstung mindert)">
                       <option value="" {{#unless attack.npcStressD8}}selected{{/unless}}>—</option>
                       {{#each (range 1 4)}}
@@ -380,9 +392,13 @@
                   <div class="npc-attack-special-row">
                     <select name="system.phases.{{../../phaseIndex}}.attackValues.{{../index}}.specials.{{si}}.special" class="special-select">
                       <option value="">—</option>
-                      {{#each @root.npcSpecialSelectOptions}}
-                      <option value="{{this.value}}" {{#if (eq sp.special this.value)}}selected{{/if}}>{{this.label}}</option>
-                      {{/each}}
+                      {{#each @root.npcSpecialSelectGroups as |grp|}}
+                  <optgroup label="{{grp.label}}">
+                    {{#each grp.options as |opt|}}
+                    <option value="{{opt.value}}" {{#if (eq sp.special opt.value)}}selected{{/if}}>{{opt.label}}</option>
+                    {{/each}}
+                  </optgroup>
+                  {{/each}}
                     </select>
                     <select name="system.phases.{{../../phaseIndex}}.attackValues.{{../index}}.specials.{{si}}.specialValue" data-dtype="Number">
                       <option value="">—</option>
@@ -501,17 +517,21 @@
             </div>
           </div>
           <div class="npc-attack-advanced-grid">
-            <p class="npc-attack-advanced-hint">Radial: <strong>Fern</strong>, <strong>AoE</strong> (Kegel/Linie/Radius in m), <strong>Split</strong>, <strong>Splash Nd8</strong> bei Nah + Radius-AoE.</p>
+            <p class="npc-attack-advanced-hint">Radial: <strong>Reach</strong> (1–8 m) / <strong>Fern</strong> (12–24 m); AoE; Split; Splash-/Stress-Schaden = Anzahl W8.</p>
             <div class="npc-attack-field">
               <label>Reichweite</label>
               <select name="system.npcBaseAttack.npcRangeKind">
-                <option value="" {{#unless system.npcBaseAttack.npcRangeKind}}selected{{/unless}}>Nah</option>
+                <option value="" {{#unless system.npcBaseAttack.npcRangeKind}}selected{{/unless}}>Reach</option>
                 <option value="ranged" {{#if (eq system.npcBaseAttack.npcRangeKind "ranged")}}selected{{/if}}>Fern</option>
               </select>
             </div>
             <div class="npc-attack-field">
-              <label>Max. m (Fern)</label>
-              <input type="number" name="system.npcBaseAttack.npcRangeMeters" value="{{default system.npcBaseAttack.npcRangeMeters 12}}" min="0" step="1" data-dtype="Number"/>
+              <label>m (Reach 1–8 / Fern-Max 12–24)</label>
+              <input type="number" name="system.npcBaseAttack.npcRangeMeters" value="{{default system.npcBaseAttack.npcRangeMeters 2}}" min="1" max="24" step="1" data-dtype="Number" title="Reach: 1–8 m. Fernkampf: maximale Distanz 12–24 m."/>
+            </div>
+            <div class="npc-attack-field">
+              <label>Fern Min. m</label>
+              <input type="number" name="system.npcBaseAttack.npcRangeMinMeters" value="{{default system.npcBaseAttack.npcRangeMinMeters 12}}" min="12" max="24" step="1" data-dtype="Number" title="Nur Fernkampf: minimale Distanz (Standard 12 m)"/>
             </div>
             <div class="npc-attack-field">
               <label>AoE-Form</label>
@@ -531,7 +551,7 @@
               <label class="npc-attack-checkbox-label"><input type="checkbox" name="system.npcBaseAttack.npcSplitAttack" {{#if system.npcBaseAttack.npcSplitAttack}}checked{{/if}} data-dtype="Boolean"/></label>
             </div>
             <div class="npc-attack-field">
-              <label>Splash Nd8</label>
+              <label>Splash-Schaden (W8)</label>
               <select name="system.npcBaseAttack.npcMeleeAoeBonusD8" data-dtype="Number">
                 <option value="" {{#unless system.npcBaseAttack.npcMeleeAoeBonusD8}}selected{{/unless}}>—</option>
                 {{#each (range 1 16)}}
@@ -540,7 +560,7 @@
               </select>
             </div>
             <div class="npc-attack-field">
-              <label>Stress Nd8</label>
+              <label>Stress-Schaden (W8)</label>
               <select name="system.npcBaseAttack.npcStressD8" data-dtype="Number" data-tooltip="Stress-Schaden bei Treffer (Stress-Rüstung mindert)">
                 <option value="" {{#unless system.npcBaseAttack.npcStressD8}}selected{{/unless}}>—</option>
                 {{#each (range 1 4)}}
@@ -558,9 +578,13 @@
             <div class="npc-attack-special-row">
               <select name="system.npcBaseAttack.specials.{{si}}.special" class="special-select">
                 <option value="">—</option>
-                {{#each @root.npcSpecialSelectOptions}}
-                <option value="{{this.value}}" {{#if (eq sp.special this.value)}}selected{{/if}}>{{this.label}}</option>
-                {{/each}}
+                {{#each @root.npcSpecialSelectGroups as |grp|}}
+                  <optgroup label="{{grp.label}}">
+                    {{#each grp.options as |opt|}}
+                    <option value="{{opt.value}}" {{#if (eq sp.special opt.value)}}selected{{/if}}>{{opt.label}}</option>
+                    {{/each}}
+                  </optgroup>
+                  {{/each}}
               </select>
               <select name="system.npcBaseAttack.specials.{{si}}.specialValue" data-dtype="Number">
                 <option value="">—</option>
@@ -612,17 +636,21 @@
                 </div>
               </div>
               <div class="npc-attack-advanced-grid">
-                <p class="npc-attack-advanced-hint">Radial: <strong>Fern</strong>, <strong>AoE</strong>, <strong>Split</strong>, <strong>Splash Nd8</strong> (Nah + Radius).</p>
+                <p class="npc-attack-advanced-hint">Radial: <strong>Reach</strong> (1–8 m) / <strong>Fern</strong> (12–24 m); AoE; Split; Splash-/Stress-Schaden = Anzahl W8.</p>
                 <div class="npc-attack-field">
                   <label>Reichweite</label>
                   <select name="system.attackValues.{{index}}.npcRangeKind">
-                    <option value="" {{#unless attack.npcRangeKind}}selected{{/unless}}>Nah</option>
+                    <option value="" {{#unless attack.npcRangeKind}}selected{{/unless}}>Reach</option>
                     <option value="ranged" {{#if (eq attack.npcRangeKind "ranged")}}selected{{/if}}>Fern</option>
                   </select>
                 </div>
                 <div class="npc-attack-field">
-                  <label>Max. m (Fern)</label>
-                  <input type="number" name="system.attackValues.{{index}}.npcRangeMeters" value="{{default attack.npcRangeMeters 12}}" min="0" step="1" data-dtype="Number"/>
+                  <label>m (Reach / Fern-Max)</label>
+                  <input type="number" name="system.attackValues.{{index}}.npcRangeMeters" value="{{default attack.npcRangeMeters 2}}" min="1" max="24" step="1" data-dtype="Number" title="Reach 1–8 m oder Fern-Max 12–24 m"/>
+                </div>
+                <div class="npc-attack-field">
+                  <label>Fern Min. m</label>
+                  <input type="number" name="system.attackValues.{{index}}.npcRangeMinMeters" value="{{default attack.npcRangeMinMeters 12}}" min="12" max="24" step="1" data-dtype="Number" title="Nur Fernkampf: Min. 12–24 m"/>
                 </div>
                 <div class="npc-attack-field">
                   <label>AoE-Form</label>
@@ -642,7 +670,7 @@
                   <label class="npc-attack-checkbox-label"><input type="checkbox" name="system.attackValues.{{index}}.npcSplitAttack" {{#if attack.npcSplitAttack}}checked{{/if}} data-dtype="Boolean"/></label>
                 </div>
                 <div class="npc-attack-field">
-                  <label>Splash Nd8</label>
+                  <label>Splash-Schaden (W8)</label>
                   <select name="system.attackValues.{{index}}.npcMeleeAoeBonusD8" data-dtype="Number">
                     <option value="" {{#unless attack.npcMeleeAoeBonusD8}}selected{{/unless}}>—</option>
                     {{#each (range 1 16)}}
@@ -651,7 +679,7 @@
                   </select>
                 </div>
                 <div class="npc-attack-field">
-                  <label>Stress Nd8</label>
+                  <label>Stress-Schaden (W8)</label>
                   <select name="system.attackValues.{{index}}.npcStressD8" data-dtype="Number" data-tooltip="Stress-Schaden bei Treffer (Stress-Rüstung mindert)">
                     <option value="" {{#unless attack.npcStressD8}}selected{{/unless}}>—</option>
                     {{#each (range 1 4)}}
@@ -669,9 +697,13 @@
                 <div class="npc-attack-special-row">
                   <select name="system.attackValues.{{../index}}.specials.{{si}}.special" class="special-select">
                     <option value="">—</option>
-                    {{#each @root.npcSpecialSelectOptions}}
-                    <option value="{{this.value}}" {{#if (eq sp.special this.value)}}selected{{/if}}>{{this.label}}</option>
+                    {{#each @root.npcSpecialSelectGroups as |grp|}}
+                  <optgroup label="{{grp.label}}">
+                    {{#each grp.options as |opt|}}
+                    <option value="{{opt.value}}" {{#if (eq sp.special opt.value)}}selected{{/if}}>{{opt.label}}</option>
                     {{/each}}
+                  </optgroup>
+                  {{/each}}
                   </select>
                   <select name="system.attackValues.{{../index}}.specials.{{si}}.specialValue" data-dtype="Number">
                     <option value="">—</option>

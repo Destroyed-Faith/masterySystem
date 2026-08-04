@@ -33,6 +33,18 @@ function buildNpcAttackDescription(atk) {
     const parts = [];
     parts.push(pool > 0 ? `Angriff: ${pool}d8` : `Angriff: ${String(atk?.attackDice || '—').trim() || '—'}`);
     parts.push(`Schaden: ${dmg}`);
+    const isRanged = String(atk?.npcRangeKind || '').toLowerCase() === 'ranged';
+    const meters = Math.floor(Number(atk?.npcRangeMeters) || 0);
+    if (isRanged) {
+        const maxM = meters > 0 ? Math.min(24, Math.max(12, meters)) : 24;
+        const minRaw = Math.floor(Number(atk?.npcRangeMinMeters) || 0);
+        const minM = minRaw > 0 ? Math.min(24, Math.max(12, minRaw)) : 12;
+        parts.push(`Fern: ${Math.min(minM, maxM)}–${maxM} m`);
+    }
+    else {
+        const reachM = meters > 0 ? Math.min(8, Math.max(1, meters)) : 2;
+        parts.push(`Reach: ${reachM} m`);
+    }
     const stress = Math.max(0, Math.floor(Number(atk?.npcStressD8) || 0));
     if (stress > 0)
         parts.push(`Stress: ${stress}d8`);
@@ -54,14 +66,21 @@ function buildNpcAttackRadialOptions(actor) {
         return [];
     const phaseKey = phaseIndex == null ? 'root' : String(phaseIndex);
     return attacks.map((atk, index) => {
-        const kind = String(atk?.npcRangeKind || '').toLowerCase() === 'ranged' ? 'ranged' : 'melee';
-        const rangeM = kind === 'ranged'
-            ? Math.max(6, Math.floor(Number(atk?.npcRangeMeters) || 12))
-            : 2;
+        const isRanged = String(atk?.npcRangeKind || '').toLowerCase() === 'ranged';
+        // Reach: 1–8 m (default 2). Ranged: max 12–24 m (default 24), min 12–24 (default 12).
+        const reachRaw = Math.floor(Number(atk?.npcRangeMeters));
+        const reachM = Number.isFinite(reachRaw) && reachRaw > 0 ? Math.min(8, Math.max(1, reachRaw)) : 2;
+        const maxRaw = Math.floor(Number(atk?.npcRangeMeters));
+        const minRaw = Math.floor(Number(atk?.npcRangeMinMeters));
+        const rangedMaxM = Number.isFinite(maxRaw) && maxRaw > 0 ? Math.min(24, Math.max(12, maxRaw)) : 24;
+        let rangedMinM = Number.isFinite(minRaw) && minRaw > 0 ? Math.min(24, Math.max(12, minRaw)) : 12;
+        if (rangedMinM > rangedMaxM)
+            rangedMinM = rangedMaxM;
+        const rangeM = isRanged ? rangedMaxM : reachM;
         const shapeRaw = String(atk?.npcAoeShape || 'none').toLowerCase();
         const shape = shapeRaw === 'radius' || shapeRaw === 'cone' || shapeRaw === 'line' ? shapeRaw : 'none';
         const rad = Math.max(0, Math.floor(Number(atk?.npcAoeRadiusM) || 0));
-        const burstMelee = kind === 'melee' && shape === 'radius' && rad > 0;
+        const burstMelee = !isRanged && shape === 'radius' && rad > 0;
         const splash = Math.max(0, Math.floor(Number(atk?.npcMeleeAoeBonusD8) || 0));
         return {
             id: `npc-attack-${phaseKey}-${index}`,
@@ -70,6 +89,8 @@ function buildNpcAttackRadialOptions(actor) {
             slot: 'attack',
             source: 'npc-attack',
             range: rangeM,
+            meleeReachMeters: isRanged ? undefined : reachM,
+            rangeMinMeters: isRanged ? rangedMinM : undefined,
             aoeShape: shape,
             aoeRadiusMeters: rad > 0 ? rad : undefined,
             burstMeleeAoE: burstMelee,
@@ -80,7 +101,7 @@ function buildNpcAttackRadialOptions(actor) {
             costsMovement: false,
             npcSplitAttack: !!atk?.npcSplitAttack,
             npcMeleeAoeBonusD8: splash,
-            tags: ['attack', 'npc-attack']
+            tags: isRanged ? ['attack', 'npc-attack', 'ranged'] : ['attack', 'npc-attack', 'melee']
         };
     });
 }

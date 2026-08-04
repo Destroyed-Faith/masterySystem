@@ -385,10 +385,15 @@ export interface AttackValue {
   attackDiceCount?: number;
   /** Damage pool: d8 count (sheet dropdown 4–16) */
   damageDiceCount?: number;
-  /** Nahkampf (Standard) oder Fernkampf — steuert Radial-Reichweite und Angriffsart. */
+  /** Reach (Standard/leer) oder Fernkampf — steuert Radial-Reichweite und Angriffsart. */
   npcRangeKind?: 'melee' | 'ranged' | '' | string;
-  /** Maximale Reichweite in Metern bei Fernangriff (Radial: >4 m ⇒ Fern-Zielauswahl). */
+  /**
+   * Reach-Modus: Reach in Metern (1–8, Standard 2).
+   * Fern-Modus: maximale Reichweite in Metern (12–24, Standard 24).
+   */
   npcRangeMeters?: number;
+  /** Fern-Modus: minimale Reichweite in Metern (12–24, Standard 12). */
+  npcRangeMinMeters?: number;
   /** AoE-Form für Nah-/Fern (Radial-Metadaten; Nah-Burst nutzt „radius“ + Radius). */
   npcAoeShape?: 'none' | 'radius' | 'cone' | 'line' | string;
   /** AoE-Radius in Metern (wenn npcAoeShape === radius). */

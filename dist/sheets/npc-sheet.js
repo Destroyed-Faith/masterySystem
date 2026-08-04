@@ -3,7 +3,7 @@
  * Simplified sheet for non-player characters
  */
 import { MasteryCharacterSheet } from './character-sheet.js';
-import { ALL_SPECIAL_EFFECTS, getEffectBaseName } from '../utils/special-effects.js';
+import { ALL_SPECIAL_EFFECTS, getEffectBaseName, } from '../utils/special-effects.js';
 function dup(obj) {
     const fn = foundry.utils?.duplicate;
     return fn ? fn(obj) : JSON.parse(JSON.stringify(obj));
@@ -39,7 +39,15 @@ function normalizeAttackValuesArray(raw) {
 /** Coerce sheet / FormData strings so attack & damage pool &lt;select&gt; `eq` matches. */
 function normalizeNpcAttackRowForContext(row) {
     const o = row && typeof row === 'object' ? { ...row } : {};
-    const intKeys = ['attackDiceCount', 'damageDiceCount', 'npcRangeMeters', 'npcAoeRadiusM', 'npcMeleeAoeBonusD8'];
+    const intKeys = [
+        'attackDiceCount',
+        'damageDiceCount',
+        'npcRangeMeters',
+        'npcRangeMinMeters',
+        'npcAoeRadiusM',
+        'npcMeleeAoeBonusD8',
+        'npcStressD8',
+    ];
     for (const k of intKeys) {
         const raw = o[k];
         if (raw === '' || raw === null || raw === undefined) {
@@ -59,10 +67,30 @@ function normalizeNpcAttackRowForContext(row) {
         delete o.npcSplitAttack;
     }
     const rk = String(o.npcRangeKind || '').toLowerCase();
-    if (rk === 'ranged')
+    if (rk === 'ranged') {
         o.npcRangeKind = 'ranged';
-    else
+        // Fernkampf: Min 12 / Max 24 (sheet defaults + clamps for display).
+        const maxRaw = Math.floor(Number(o.npcRangeMeters));
+        const minRaw = Math.floor(Number(o.npcRangeMinMeters));
+        const maxM = Number.isFinite(maxRaw) && maxRaw > 0 ? Math.min(24, Math.max(12, maxRaw)) : 24;
+        let minM = Number.isFinite(minRaw) && minRaw > 0 ? Math.min(24, Math.max(12, minRaw)) : 12;
+        if (minM > maxM)
+            minM = maxM;
+        o.npcRangeMeters = maxM;
+        o.npcRangeMinMeters = minM;
+    }
+    else {
         delete o.npcRangeKind;
+        // Reach: 1–8 m (default 2 when empty).
+        const reachRaw = Math.floor(Number(o.npcRangeMeters));
+        if (Number.isFinite(reachRaw) && reachRaw > 0) {
+            o.npcRangeMeters = Math.min(8, Math.max(1, reachRaw));
+        }
+        else {
+            o.npcRangeMeters = 2;
+        }
+        delete o.npcRangeMinMeters;
+    }
     const sh = String(o.npcAoeShape || '').toLowerCase();
     if (sh === 'radius' || sh === 'cone' || sh === 'line')
         o.npcAoeShape = sh;
@@ -70,28 +98,45 @@ function normalizeNpcAttackRowForContext(row) {
         delete o.npcAoeShape;
     return o;
 }
-function buildNpcSpecialDropdownOptions() {
-    const legacy = [
-        { value: 'Bleed', label: 'Lacerate (Legacy)' },
-        { value: 'Ignite', label: 'Ruin (Legacy)' },
-        { value: 'Freeze', label: 'Slow (Legacy)' },
-        { value: 'Poison', label: 'Blight (Legacy)' },
-        { value: 'Stun', label: 'Stun (Legacy)' },
-        { value: 'Knockdown', label: 'Knockdown (Legacy)' }
-    ];
-    const seen = new Set(legacy.map((x) => x.value));
-    const fromCatalog = [];
+const NPC_SPECIAL_CATEGORY_ORDER = [
+    'instant',
+    'diminishing',
+    'timed',
+    'untilUsed',
+    'support',
+];
+const NPC_SPECIAL_CATEGORY_LABELS = {
+    instant: 'Sofort',
+    diminishing: 'Abklingend',
+    timed: 'Zeitlich',
+    untilUsed: 'Bis verbraucht',
+    support: 'Support',
+    multiAttack: 'Multi-Angriff',
+};
+/** Catalog specials for NPC attacks — no Legacy keys, no Extra Attack / multiAttack. */
+function buildNpcSpecialSelectGroups() {
+    const byCat = new Map();
     for (const e of ALL_SPECIAL_EFFECTS) {
-        if (!e.hasValue)
-            continue;
-        if (seen.has(e.id))
-            continue;
-        seen.add(e.id);
+        if (e.category === 'multiAttack')
+            continue; // Extra Attack is not an NPC raise special
         const label = getEffectBaseName(e.name).replace(/\(X\)/gi, '').trim() || e.id;
-        fromCatalog.push({ value: e.id, label });
+        const list = byCat.get(e.category) ?? [];
+        list.push({ value: e.id, label });
+        byCat.set(e.category, list);
     }
-    fromCatalog.sort((a, b) => a.label.localeCompare(b.label, undefined, { sensitivity: 'base' }));
-    return [...legacy, ...fromCatalog];
+    const groups = [];
+    for (const category of NPC_SPECIAL_CATEGORY_ORDER) {
+        const options = byCat.get(category);
+        if (!options?.length)
+            continue;
+        options.sort((a, b) => a.label.localeCompare(b.label, 'de', { sensitivity: 'base' }));
+        groups.push({
+            category,
+            label: NPC_SPECIAL_CATEGORY_LABELS[category] ?? category,
+            options,
+        });
+    }
+    return groups;
 }
 export class MasteryNpcSheet extends MasteryCharacterSheet {
     /** @override */
@@ -99,6 +144,15 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
         classes: ['npc'],
         position: { width: 720, height: 820 },
     };
+    /** Prefer short type label "NPC: Name" via i18n; fall back to actor name. */
+    get title() {
+        const name = String(this.document?.name ?? '').trim();
+        const typeLabel = game?.i18n?.localize?.('TYPES.Actor.npc');
+        if (typeLabel && typeLabel !== 'TYPES.Actor.npc') {
+            return name ? `${typeLabel}: ${name}` : typeLabel;
+        }
+        return name || 'NPC';
+    }
     /** @override */
     static PARTS = {
         body: {
@@ -195,7 +249,7 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
             });
         }
         if (context.actor?.type === 'npc' && context.system) {
-            context.npcSpecialSelectOptions = buildNpcSpecialDropdownOptions();
+            context.npcSpecialSelectGroups = buildNpcSpecialSelectGroups();
             context.system.npcBaseAttack = normalizeNpcAttackRowForContext(context.system.npcBaseAttack);
             if (Array.isArray(context.system.attackValues)) {
                 context.system.attackValues = context.system.attackValues.map((r) => normalizeNpcAttackRowForContext(r));

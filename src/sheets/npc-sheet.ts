@@ -4,7 +4,11 @@
  */
 
 import { MasteryCharacterSheet } from './character-sheet';
-import { ALL_SPECIAL_EFFECTS, getEffectBaseName } from '../utils/special-effects.js';
+import {
+  ALL_SPECIAL_EFFECTS,
+  getEffectBaseName,
+  type EffectCategory,
+} from '../utils/special-effects.js';
 
 function dup<T>(obj: T): T {
   const fn = (foundry as any).utils?.duplicate as ((x: T) => T) | undefined;
@@ -42,7 +46,15 @@ function normalizeAttackValuesArray(raw: unknown): Record<string, unknown>[] {
 /** Coerce sheet / FormData strings so attack & damage pool &lt;select&gt; `eq` matches. */
 function normalizeNpcAttackRowForContext(row: Record<string, any> | null | undefined): Record<string, any> {
   const o = row && typeof row === 'object' ? { ...row } : {};
-  const intKeys = ['attackDiceCount', 'damageDiceCount', 'npcRangeMeters', 'npcAoeRadiusM', 'npcMeleeAoeBonusD8'] as const;
+  const intKeys = [
+    'attackDiceCount',
+    'damageDiceCount',
+    'npcRangeMeters',
+    'npcRangeMinMeters',
+    'npcAoeRadiusM',
+    'npcMeleeAoeBonusD8',
+    'npcStressD8',
+  ] as const;
   for (const k of intKeys) {
     const raw = o[k];
     if (raw === '' || raw === null || raw === undefined) {
@@ -59,34 +71,78 @@ function normalizeNpcAttackRowForContext(row: Record<string, any> | null | undef
     delete o.npcSplitAttack;
   }
   const rk = String(o.npcRangeKind || '').toLowerCase();
-  if (rk === 'ranged') o.npcRangeKind = 'ranged';
-  else delete o.npcRangeKind;
+  if (rk === 'ranged') {
+    o.npcRangeKind = 'ranged';
+    // Fernkampf: Min 12 / Max 24 (sheet defaults + clamps for display).
+    const maxRaw = Math.floor(Number(o.npcRangeMeters));
+    const minRaw = Math.floor(Number(o.npcRangeMinMeters));
+    const maxM = Number.isFinite(maxRaw) && maxRaw > 0 ? Math.min(24, Math.max(12, maxRaw)) : 24;
+    let minM = Number.isFinite(minRaw) && minRaw > 0 ? Math.min(24, Math.max(12, minRaw)) : 12;
+    if (minM > maxM) minM = maxM;
+    o.npcRangeMeters = maxM;
+    o.npcRangeMinMeters = minM;
+  } else {
+    delete o.npcRangeKind;
+    // Reach: 1–8 m (default 2 when empty).
+    const reachRaw = Math.floor(Number(o.npcRangeMeters));
+    if (Number.isFinite(reachRaw) && reachRaw > 0) {
+      o.npcRangeMeters = Math.min(8, Math.max(1, reachRaw));
+    } else {
+      o.npcRangeMeters = 2;
+    }
+    delete o.npcRangeMinMeters;
+  }
   const sh = String(o.npcAoeShape || '').toLowerCase();
   if (sh === 'radius' || sh === 'cone' || sh === 'line') o.npcAoeShape = sh;
   else delete o.npcAoeShape;
   return o;
 }
 
-function buildNpcSpecialDropdownOptions(): { value: string; label: string }[] {
-  const legacy: { value: string; label: string }[] = [
-    { value: 'Bleed', label: 'Lacerate (Legacy)' },
-    { value: 'Ignite', label: 'Ruin (Legacy)' },
-    { value: 'Freeze', label: 'Slow (Legacy)' },
-    { value: 'Poison', label: 'Blight (Legacy)' },
-    { value: 'Stun', label: 'Stun (Legacy)' },
-    { value: 'Knockdown', label: 'Knockdown (Legacy)' }
-  ];
-  const seen = new Set(legacy.map((x) => x.value));
-  const fromCatalog: { value: string; label: string }[] = [];
+const NPC_SPECIAL_CATEGORY_ORDER: EffectCategory[] = [
+  'instant',
+  'diminishing',
+  'timed',
+  'untilUsed',
+  'support',
+];
+
+const NPC_SPECIAL_CATEGORY_LABELS: Record<EffectCategory, string> = {
+  instant: 'Sofort',
+  diminishing: 'Abklingend',
+  timed: 'Zeitlich',
+  untilUsed: 'Bis verbraucht',
+  support: 'Support',
+  multiAttack: 'Multi-Angriff',
+};
+
+type NpcSpecialSelectGroup = {
+  category: EffectCategory;
+  label: string;
+  options: { value: string; label: string }[];
+};
+
+/** Catalog specials for NPC attacks — no Legacy keys, no Extra Attack / multiAttack. */
+function buildNpcSpecialSelectGroups(): NpcSpecialSelectGroup[] {
+  const byCat = new Map<EffectCategory, { value: string; label: string }[]>();
   for (const e of ALL_SPECIAL_EFFECTS) {
-    if (!e.hasValue) continue;
-    if (seen.has(e.id)) continue;
-    seen.add(e.id);
+    if (e.category === 'multiAttack') continue; // Extra Attack is not an NPC raise special
     const label = getEffectBaseName(e.name).replace(/\(X\)/gi, '').trim() || e.id;
-    fromCatalog.push({ value: e.id, label });
+    const list = byCat.get(e.category) ?? [];
+    list.push({ value: e.id, label });
+    byCat.set(e.category, list);
   }
-  fromCatalog.sort((a, b) => a.label.localeCompare(b.label, undefined, { sensitivity: 'base' }));
-  return [...legacy, ...fromCatalog];
+  const groups: NpcSpecialSelectGroup[] = [];
+  for (const category of NPC_SPECIAL_CATEGORY_ORDER) {
+    const options = byCat.get(category);
+    if (!options?.length) continue;
+    options.sort((a, b) => a.label.localeCompare(b.label, 'de', { sensitivity: 'base' }));
+    groups.push({
+      category,
+      label: NPC_SPECIAL_CATEGORY_LABELS[category] ?? category,
+      options,
+    });
+  }
+  return groups;
 }
 
 export class MasteryNpcSheet extends MasteryCharacterSheet {
@@ -95,6 +151,16 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
     classes: ['npc'],
     position: { width: 720, height: 820 },
   };
+
+  /** Prefer short type label "NPC: Name" via i18n; fall back to actor name. */
+  get title(): string {
+    const name = String((this as any).document?.name ?? '').trim();
+    const typeLabel = (game as any)?.i18n?.localize?.('TYPES.Actor.npc');
+    if (typeLabel && typeLabel !== 'TYPES.Actor.npc') {
+      return name ? `${typeLabel}: ${name}` : typeLabel;
+    }
+    return name || 'NPC';
+  }
 
   /** @override */
   static PARTS = {
@@ -206,7 +272,7 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
     }
 
     if (context.actor?.type === 'npc' && context.system) {
-      (context as any).npcSpecialSelectOptions = buildNpcSpecialDropdownOptions();
+      (context as any).npcSpecialSelectGroups = buildNpcSpecialSelectGroups();
       context.system.npcBaseAttack = normalizeNpcAttackRowForContext(context.system.npcBaseAttack);
       if (Array.isArray(context.system.attackValues)) {
         context.system.attackValues = context.system.attackValues.map((r: any) => normalizeNpcAttackRowForContext(r));

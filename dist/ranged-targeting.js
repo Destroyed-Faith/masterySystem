@@ -3,7 +3,7 @@
  * but uses option.range (meters) and fires masterySystem.rangedTargetSelected.
  */
 import { highlightHexesInRange, clearHexHighlight } from "./utils/hex-highlighting.js";
-import { gridStepsFromMeters, isWithinRangeMeters } from "./utils/grid-range.js";
+import { gridStepsFromMeters, isWithinRangeMeters, measureSceneDistanceBetweenPoints, metersToSceneDistance, } from "./utils/grid-range.js";
 import { filterPerceivableTargetIds } from "./combat/perception-gate.js";
 let active = null;
 let confirming = false;
@@ -12,7 +12,18 @@ function getRangedMaxMeters(option) {
         return option.range;
     return 30;
 }
-function computeValidTargets(attackerToken, rangeMeters) {
+function getRangedMinMeters(option) {
+    const min = Math.floor(Number(option.rangeMinMeters));
+    return Number.isFinite(min) && min > 0 ? min : 0;
+}
+function isAtOrBeyondMinMeters(from, to, minMeters) {
+    if (!(minMeters > 0))
+        return true;
+    const minScene = metersToSceneDistance(minMeters);
+    const dPath = measureSceneDistanceBetweenPoints(from, to);
+    return Number.isFinite(dPath) && dPath + 0.01 >= minScene;
+}
+function computeValidTargets(attackerToken, rangeMeters, rangeMinMeters = 0) {
     const inRange = new Set();
     const tokens = canvas.tokens?.placeables ?? [];
     const attackerCenter = attackerToken?.center;
@@ -24,9 +35,11 @@ function computeValidTargets(attackerToken, rangeMeters) {
         if (!token.actor)
             continue;
         const targetCenter = token.center;
-        if (isWithinRangeMeters(attackerCenter, targetCenter, rangeMeters)) {
-            inRange.add(token.id);
-        }
+        if (!isWithinRangeMeters(attackerCenter, targetCenter, rangeMeters))
+            continue;
+        if (!isAtOrBeyondMinMeters(attackerCenter, targetCenter, rangeMinMeters))
+            continue;
+        inRange.add(token.id);
     }
     const attackerActor = attackerToken.actor;
     if (!attackerActor)
@@ -226,10 +239,12 @@ export function startRangedTargeting(attackerToken, option) {
     endRangedTargeting(false);
     attackerToken?.control?.({ releaseOthers: false });
     const rangeMeters = getRangedMaxMeters(option);
+    const rangeMinMeters = getRangedMinMeters(option);
     const state = {
         attackerToken,
         option,
         rangeMeters,
+        rangeMinMeters,
         rangeGridUnits: gridStepsFromMeters(rangeMeters),
         highlightId: "mastery-ranged",
         rings: new Map(),
@@ -241,13 +256,14 @@ export function startRangedTargeting(attackerToken, option) {
     };
     active = state;
     drawRangeArea(state);
-    state.validTargetIds = computeValidTargets(attackerToken, rangeMeters);
+    state.validTargetIds = computeValidTargets(attackerToken, rangeMeters, rangeMinMeters);
     markValidTargets(state);
     canvas.stage.on("pointerdown", state.onPointerDown, true);
     window.addEventListener("keydown", state.onKeyDown);
+    const rangeLabel = rangeMinMeters > 0 ? `${rangeMinMeters}–${rangeMeters}m` : `${rangeMeters}m`;
     ui.notifications?.info?.(state.validTargetIds.size
-        ? `Ranged targeting: ${rangeMeters}m. Click a target.`
-        : `Ranged targeting: ${rangeMeters}m. No targets in range.`);
+        ? `Ranged targeting: ${rangeLabel}. Click a target.`
+        : `Ranged targeting: ${rangeLabel}. No targets in range.`);
     if (state.validTargetIds.size === 0) {
         console.warn("Mastery System | [RADIAL FLOW] ranged targeting: zero valid targets — Esc or click empty to cancel (no action spent until confirm)");
     }

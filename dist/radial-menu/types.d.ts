@@ -25,6 +25,8 @@ export interface RadialCombatOption {
     npcPhaseIndex?: number | null;
     range?: number;
     meleeReachMeters?: number;
+    /** Optional minimum range in meters (e.g. NPC ranged attacks). */
+    rangeMinMeters?: number;
     rangeMeters?: number;
     aoeShape?: AoEShape;
     aoeRadiusMeters?: number;

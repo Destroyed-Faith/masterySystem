@@ -29,6 +29,8 @@ export interface RadialCombatOption {
   npcPhaseIndex?: number | null;
   range?: number; // numeric range in meters (always set for all options)
   meleeReachMeters?: number; // Optional override for melee reach in meters
+  /** Optional minimum range in meters (e.g. NPC ranged attacks). */
+  rangeMinMeters?: number;
   // Utility targeting fields
   rangeMeters?: number; // Max distance to center or target (for utilities)
   aoeShape?: AoEShape; // AoE shape: "none" | "radius" | "cone" | "line"

@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.245] - 2026-08-04
+
+### Changed
+
+- NPC sheet: window type label is **NPC**; attack range is **Reach** (1–8 m) or **Fern** (min 12 / max 24 m).
+- NPC sheet: Splash/Stress labels clarify W8 counts; Specials dropdown drops Legacy entries and groups Instant / Abklingend / Timed / etc. (no Extra Attack).
+- NPC ranged targeting respects minimum range; melee NPC attacks with Reach up to 8 m stay on the melee path.
+
 ## [0.9.244] - 2026-08-04
 
 ### Changed

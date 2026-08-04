@@ -83,9 +83,15 @@
           "name": "Current Day Index",
           "hint": "Internal day index for the current world date."
         },
-        "currentHour": { "name": "Current Hour" },
-        "currentMinute": { "name": "Current Minute" },
-        "journalFolderId": { "name": "Calendar Journal Folder ID" },
+        "currentHour": {
+          "name": "Current Hour"
+        },
+        "currentMinute": {
+          "name": "Current Minute"
+        },
+        "journalFolderId": {
+          "name": "Calendar Journal Folder ID"
+        },
         "defaultYear": {
           "name": "Default Calendar Year",
           "hint": "Initial year shown when opening the calendar."
@@ -112,6 +118,12 @@
       "fontColorInvalid": "Enter a valid hex color (e.g. #ff8800).",
       "fontColorUnsupported": "This editor does not support colored text."
     }
+  },
+  "TYPES": {
+    "Actor": {
+      "character": "Character",
+      "npc": "NPC",
+      "summon": "Summon"
+    }
   }
 }
-
