@@ -316,7 +316,10 @@ describe('apply payload builders', () => {
   it('boss system carries per-phase attack rows with specials', () => {
     const { plan } = samaelPlan();
     const system = buildProjectBossSystem(plan) as any;
-    expect(system.attackSlots).toBe(plan.phasePlans[0].actionsPerRound);
+    const aprSum = plan.phasePlans[0].cycle
+      .filter((c) => !c.isSummon)
+      .reduce((s, c) => s + Math.min(5, Math.max(1, c.attacksPerRound ?? 1)), 0);
+    expect(system.attackSlots).toBe(aprSum);
     expect(Array.isArray(system.phases)).toBe(true);
     expect(system.phases).toHaveLength(3);
     for (const phase of system.phases) {

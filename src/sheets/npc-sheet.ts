@@ -9,6 +9,7 @@ import {
   getEffectBaseName,
   type EffectCategory,
 } from '../utils/special-effects.js';
+import { sumNpcAttackSlotsFromPowers } from '../utils/npc-attack-model.js';
 
 function dup<T>(obj: T): T {
   const fn = (foundry as any).utils?.duplicate as ((x: T) => T) | undefined;
@@ -296,6 +297,8 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
             : ph.attackValues
         }));
       }
+      // ATK = Summe der Angriffe/Runde-Kopien (aktive Phase bzw. Root-Liste).
+      context.system.attackSlots = sumNpcAttackSlotsFromPowers(context.system);
     }
 
     return context;

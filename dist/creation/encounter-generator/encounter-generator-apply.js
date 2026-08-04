@@ -226,6 +226,9 @@ export function buildProjectBossSystem(plan) {
         influence: { value: 2, stones: 0 },
         wits: { value: 2, stones: 0 },
     };
+    const primaryAprSum = Math.max(1, primary.cycle
+        .filter((c) => !c.isSummon)
+        .reduce((s, c) => s + Math.min(5, Math.max(1, Math.floor(Number(c.attacksPerRound) || 1))), 0));
     const system = {
         attributes,
         mastery: { rank: boss.mr, points: 0, experience: 0 },
@@ -233,7 +236,8 @@ export function buildProjectBossSystem(plan) {
         combat: projectCombatBlock(primary.stat, boss.speed),
         npcBaseAttack: primaryRows[0] ?? { name: 'Angriff', attackDiceCount: 4, damageDiceCount: 3, specials: [] },
         attackValues: primaryRows.slice(1),
-        attackSlots: Math.max(1, Math.round(primary.actionsPerRound)),
+        // ATK = Summe der Angriffe/Runde-Kopien.
+        attackSlots: primaryAprSum,
         npcMovementSlots: Math.max(0, Math.round(boss.movementSlots)),
         npcCombatSpecials: [],
         npcRaiseSpecials: [],

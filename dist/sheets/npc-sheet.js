@@ -4,6 +4,7 @@
  */
 import { MasteryCharacterSheet } from './character-sheet.js';
 import { ALL_SPECIAL_EFFECTS, getEffectBaseName, } from '../utils/special-effects.js';
+import { sumNpcAttackSlotsFromPowers } from '../utils/npc-attack-model.js';
 function dup(obj) {
     const fn = foundry.utils?.duplicate;
     return fn ? fn(obj) : JSON.parse(JSON.stringify(obj));
@@ -274,6 +275,8 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
                         : ph.attackValues
                 }));
             }
+            // ATK = Summe der Angriffe/Runde-Kopien (aktive Phase bzw. Root-Liste).
+            context.system.attackSlots = sumNpcAttackSlotsFromPowers(context.system);
         }
         return context;
     }

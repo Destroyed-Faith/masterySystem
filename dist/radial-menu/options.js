@@ -4,8 +4,8 @@
 import { getAvailableManeuvers } from '../system/combat-maneuvers.js';
 import { isManeuverHiddenFromActorRadial } from '../utils/radial-maneuver-prefs.js';
 import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
-import { canUseNpcAttackThisRound, getMovementRangeBonusMeters, hasPowerBeenUsedThisRound, } from '../combat/action-economy.js';
-import { formatNpcAttackSpecialsLine, npcAttackDiceCount, npcAttacksPerRoundCap, npcDamageDiceFormula, resolveNpcAttackList } from '../utils/npc-attack-model.js';
+import { getMovementRangeBonusMeters, getNpcAttackUsesThisRound, hasPowerBeenUsedThisRound, } from '../combat/action-economy.js';
+import { formatNpcAttackSpecialsLine, npcAttackDiceCount, npcAttacksPerRoundCap, npcAttackUsageKey, npcDamageDiceFormula, resolveNpcAttackList } from '../utils/npc-attack-model.js';
 import { resolvePowerMechanics } from '../utils/power-mechanics.js';
 import { formatRadialPowerDisplayName } from './power-radial-label.js';
 import { buildArtifactRadialOptions } from './artifact-options.js';
@@ -50,9 +50,6 @@ function buildNpcAttackDescription(atk) {
         parts.push(`Stress: ${stress}d8`);
     if (atk?.npcIsSpell)
         parts.push('Spell');
-    const uses = npcAttacksPerRoundCap(atk);
-    if (uses > 1)
-        parts.push(`${uses}×/Runde`);
     if (atk?.armor)
         parts.push(`Rüstung: ${atk.armor}`);
     const sp = formatNpcAttackSpecialsLine(atk);
@@ -61,7 +58,8 @@ function buildNpcAttackDescription(atk) {
     return parts.join(' · ');
 }
 /**
- * One radial entry per NSC attack row (active phase when using phases).
+ * One radial entry per copy of each NSC attack row (Angriffe/Runde = copies).
+ * Spent copies disappear until the next round.
  */
 function buildNpcAttackRadialOptions(actor) {
     if (!actor || actor.type !== 'npc')
@@ -69,15 +67,15 @@ function buildNpcAttackRadialOptions(actor) {
     const { attacks, phaseIndex } = resolveNpcAttackList(actor.system || {});
     if (!attacks.length)
         return [];
-    const phaseKey = phaseIndex == null ? 'root' : String(phaseIndex);
     const combat = globalThis.game?.combat ?? null;
     const out = [];
     attacks.forEach((atk, index) => {
-        const optionId = `npc-attack-${phaseKey}-${index}`;
-        const maxUses = npcAttacksPerRoundCap(atk);
-        if (combat && !canUseNpcAttackThisRound(actor, combat, optionId, maxUses)) {
+        const usageKey = npcAttackUsageKey(phaseIndex, index);
+        const maxCopies = npcAttacksPerRoundCap(atk);
+        const used = combat ? getNpcAttackUsesThisRound(actor, combat, usageKey) : 0;
+        const remaining = Math.max(0, maxCopies - used);
+        if (remaining <= 0)
             return;
-        }
         const isRanged = String(atk?.npcRangeKind || '').toLowerCase() === 'ranged';
         // Reach: 1–8 m (default 2). Ranged: max 12–24 m (default 24), min 12–24 (default 12).
         const reachRaw = Math.floor(Number(atk?.npcRangeMeters));
@@ -93,28 +91,33 @@ function buildNpcAttackRadialOptions(actor) {
         const shape = shapeRaw === 'radius' || shapeRaw === 'cone' || shapeRaw === 'line' ? shapeRaw : 'none';
         const rad = Math.max(0, Math.floor(Number(atk?.npcAoeRadiusM) || 0));
         const burstMelee = !isRanged && shape === 'radius' && rad > 0;
-        out.push({
-            id: optionId,
-            name: (atk?.name && String(atk.name).trim()) || `Angriff ${index + 1}`,
-            description: buildNpcAttackDescription(atk),
-            slot: 'attack',
-            source: 'npc-attack',
-            range: rangeM,
-            meleeReachMeters: isRanged ? undefined : reachM,
-            rangeMinMeters: isRanged ? rangedMinM : undefined,
-            aoeShape: shape,
-            aoeRadiusMeters: rad > 0 ? rad : undefined,
-            burstMeleeAoE: burstMelee,
-            burstMeleeRadiusMeters: burstMelee ? rad : undefined,
-            npcAttackIndex: index,
-            npcPhaseIndex: phaseIndex,
-            costsAction: true,
-            costsMovement: false,
-            npcSplitAttack: !!atk?.npcSplitAttack,
-            npcIsSpell: !!atk?.npcIsSpell,
-            npcAttacksPerRound: maxUses,
-            tags: isRanged ? ['attack', 'npc-attack', 'ranged'] : ['attack', 'npc-attack', 'melee']
-        });
+        const baseName = (atk?.name && String(atk.name).trim()) || `Angriff ${index + 1}`;
+        const description = buildNpcAttackDescription(atk);
+        for (let copy = 0; copy < remaining; copy++) {
+            out.push({
+                id: `${usageKey}#${copy}`,
+                name: baseName,
+                description,
+                slot: 'attack',
+                source: 'npc-attack',
+                range: rangeM,
+                meleeReachMeters: isRanged ? undefined : reachM,
+                rangeMinMeters: isRanged ? rangedMinM : undefined,
+                aoeShape: shape,
+                aoeRadiusMeters: rad > 0 ? rad : undefined,
+                burstMeleeAoE: burstMelee,
+                burstMeleeRadiusMeters: burstMelee ? rad : undefined,
+                npcAttackIndex: index,
+                npcPhaseIndex: phaseIndex,
+                costsAction: true,
+                costsMovement: false,
+                npcSplitAttack: !!atk?.npcSplitAttack,
+                npcIsSpell: !!atk?.npcIsSpell,
+                npcAttacksPerRound: maxCopies,
+                npcAttackUsageKey: usageKey,
+                tags: isRanged ? ['attack', 'npc-attack', 'ranged'] : ['attack', 'npc-attack', 'melee']
+            });
+        }
     });
     return out;
 }

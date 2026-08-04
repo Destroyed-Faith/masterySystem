@@ -6,8 +6,17 @@ import type { AttackValue } from '../types/actor.js';
 export declare function displayNpcSpecialName(raw: string): string;
 /** Effective attack row for display / damage (includes merged specials). */
 export declare function normalizeNpcAttackRow(attack: AttackValue): AttackValue;
-/** Per-power attack uses this round (sheet dropdown 1–5; default 1). */
+/**
+ * How many radial copies this power has (sheet dropdown 1–5; default 1).
+ * Each copy is one Attack action in the radial menu.
+ */
 export declare function npcAttacksPerRoundCap(attack: AttackValue | null | undefined): number;
+/** Stable usage key for an NPC attack row (shared by all radial copies). */
+export declare function npcAttackUsageKey(phaseIndex: number | null | undefined, attackIndex: number): string;
+/**
+ * Sum of Angriffe/Runde across the active attack list (= ATK / attackSlots).
+ */
+export declare function sumNpcAttackSlotsFromPowers(system: any): number;
 export declare function resolveNpcAttackList(system: any): {
     attacks: AttackValue[];
     phaseIndex: number | null;

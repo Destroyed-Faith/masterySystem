@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.250] - 2026-08-04
+
+### Changed
+
+- NPC **Angriffe/Runde**: each power appears that many times in the radial menu; **ATK** is the sum of those copies (sheet field is derived/readonly).
+
 ## [0.9.249] - 2026-08-04
 
 ### Changed

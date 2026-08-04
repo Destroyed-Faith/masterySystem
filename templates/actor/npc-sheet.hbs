@@ -100,7 +100,7 @@
     </div>
     <div class="npc-phase-toolbar__field">
       <label>Angriffe / Runde</label>
-      <input type="number" name="system.attackSlots" value="{{default system.attackSlots 1}}" min="1" max="20" step="1" data-dtype="Number" title="Attack-Aktionen pro Runde"/>
+      <input type="number" name="system.attackSlots" value="{{default system.attackSlots 1}}" min="1" max="20" step="1" data-dtype="Number" readonly title="Summe der Angriffe/Runde aller Powers (aktive Phase) — erscheint als ATK im Kampf"/>
     </div>
     <div class="npc-phase-toolbar__field">
       <label>Bewegung / Runde</label>
@@ -212,7 +212,7 @@
               </div>
             </div>
             <div class="npc-attack-advanced-grid">
-              <p class="npc-attack-advanced-hint">Radial: <strong>Reach</strong>/<strong>Fern</strong>; <strong>Spell</strong> = Casting TN 8×MR; <strong>Angriffe/Runde</strong> 1–5; Stress = W8.</p>
+              <p class="npc-attack-advanced-hint">Radial: Reach/Fern; Spell = Casting TN 8×MR; <strong>Angriffe/Runde</strong> = so oft die Power im Radial erscheint (setzt ATK); Stress = W8.</p>
               <div class="npc-attack-field">
                 <label>Reichweite</label>
                 <select name="system.phases.{{phaseIndex}}.npcBaseAttack.npcRangeKind">
@@ -251,7 +251,7 @@
               </div>
               <div class="npc-attack-field">
                 <label>Angriffe/Runde</label>
-                <select name="system.phases.{{phaseIndex}}.npcBaseAttack.npcAttacksPerRound" data-dtype="Number" title="Wie oft diese Power pro Runde genutzt werden darf (zusätzlich zu globalen Attack-Slots)">
+                <select name="system.phases.{{phaseIndex}}.npcBaseAttack.npcAttacksPerRound" data-dtype="Number" title="So oft erscheint diese Power im Radialmenü (1–5). Summe aller Powers = ATK.">
                   {{#each (range 1 5)}}
                   <option value="{{this}}" {{#if (eqNum ../phase.npcBaseAttack.npcAttacksPerRound this)}}selected{{/if}}>{{this}}</option>
                   {{/each}}
@@ -334,7 +334,7 @@
                   </div>
                 </div>
                 <div class="npc-attack-advanced-grid">
-                  <p class="npc-attack-advanced-hint">Radial: Reach/Fern; AoE; Split; Spell (8×MR); Angriffe/Runde 1–5; Stress = W8.</p>
+                  <p class="npc-attack-advanced-hint">Radial: Reach/Fern; AoE; Split; Spell (8×MR); Angriffe/Runde = Radial-Kopien (Summe = ATK); Stress = W8.</p>
                   <div class="npc-attack-field">
                     <label>Reichweite</label>
                     <select name="system.phases.{{../phaseIndex}}.attackValues.{{index}}.npcRangeKind">
@@ -373,7 +373,7 @@
                   </div>
                   <div class="npc-attack-field">
                     <label>Angriffe/Runde</label>
-                    <select name="system.phases.{{../phaseIndex}}.attackValues.{{index}}.npcAttacksPerRound" data-dtype="Number" title="Nutzungen dieser Power pro Runde">
+                    <select name="system.phases.{{../phaseIndex}}.attackValues.{{index}}.npcAttacksPerRound" data-dtype="Number" title="So oft erscheint diese Power im Radialmenü (1–5). Summe aller Powers = ATK.">
                       {{#each (range 1 5)}}
                       <option value="{{this}}" {{#if (eqNum ../attack.npcAttacksPerRound this)}}selected{{/if}}>{{this}}</option>
                       {{/each}}
@@ -444,7 +444,7 @@
           </div>
           <div class="npc-combat-chip">
             <span class="npc-combat-chip__label">Angriffe / Runde</span>
-            <input type="number" name="system.attackSlots" value="{{default system.attackSlots 1}}" min="1" max="20" step="1" data-dtype="Number" title="Attack-Aktionen pro Runde"/>
+            <input type="number" name="system.attackSlots" value="{{default system.attackSlots 1}}" min="1" max="20" step="1" data-dtype="Number" readonly title="Summe der Angriffe/Runde aller Powers (aktive Phase) — erscheint als ATK im Kampf"/>
           </div>
           <div class="npc-combat-chip">
             <span class="npc-combat-chip__label">Bewegung / Runde</span>
@@ -523,7 +523,7 @@
             </div>
           </div>
           <div class="npc-attack-advanced-grid">
-            <p class="npc-attack-advanced-hint">Radial: Reach/Fern; AoE; Split; Spell (8×MR); Angriffe/Runde 1–5; Stress = W8.</p>
+            <p class="npc-attack-advanced-hint">Radial: Reach/Fern; AoE; Split; Spell (8×MR); Angriffe/Runde = Radial-Kopien (Summe = ATK); Stress = W8.</p>
             <div class="npc-attack-field">
               <label>Reichweite</label>
               <select name="system.npcBaseAttack.npcRangeKind">
@@ -562,7 +562,7 @@
             </div>
             <div class="npc-attack-field">
               <label>Angriffe/Runde</label>
-              <select name="system.npcBaseAttack.npcAttacksPerRound" data-dtype="Number" title="Nutzungen dieser Power pro Runde">
+              <select name="system.npcBaseAttack.npcAttacksPerRound" data-dtype="Number" title="So oft erscheint diese Power im Radialmenü (1–5). Summe aller Powers = ATK.">
                 {{#each (range 1 5)}}
                 <option value="{{this}}" {{#if (eqNum ../system.npcBaseAttack.npcAttacksPerRound this)}}selected{{/if}}>{{this}}</option>
                 {{/each}}
@@ -645,7 +645,7 @@
                 </div>
               </div>
               <div class="npc-attack-advanced-grid">
-                <p class="npc-attack-advanced-hint">Radial: Reach/Fern; AoE; Split; Spell (8×MR); Angriffe/Runde 1–5; Stress = W8.</p>
+                <p class="npc-attack-advanced-hint">Radial: Reach/Fern; AoE; Split; Spell (8×MR); Angriffe/Runde = Radial-Kopien (Summe = ATK); Stress = W8.</p>
                 <div class="npc-attack-field">
                   <label>Reichweite</label>
                   <select name="system.attackValues.{{index}}.npcRangeKind">
@@ -684,7 +684,7 @@
                 </div>
                 <div class="npc-attack-field">
                   <label>Angriffe/Runde</label>
-                  <select name="system.attackValues.{{index}}.npcAttacksPerRound" data-dtype="Number" title="Nutzungen dieser Power pro Runde">
+                  <select name="system.attackValues.{{index}}.npcAttacksPerRound" data-dtype="Number" title="So oft erscheint diese Power im Radialmenü (1–5). Summe aller Powers = ATK.">
                     {{#each (range 1 5)}}
                     <option value="{{this}}" {{#if (eqNum ../attack.npcAttacksPerRound this)}}selected{{/if}}>{{this}}</option>
                     {{/each}}

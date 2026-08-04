@@ -33,6 +33,7 @@ import {
   STARTING_MASTERY_RANK,
 } from '../utils/mastery-rank-sync.js';
 import { getDivineScale } from '../utils/constants.js';
+import { sumNpcAttackSlotsFromPowers } from '../utils/npc-attack-model.js';
 
 export class MasteryActor extends Actor {
   // NOTE: Do NOT override prepareData() here. Core v13 already runs
@@ -450,6 +451,11 @@ export class MasteryActor extends Actor {
         { label: 'Evade', detail, value: blockEvade, display: String(blockEvade) },
       ];
       system.combat.evadeBreakdownHint = `${detail}: ${blockEvade}`;
+
+      // NPC ATK slots = sum of Angriffe/Runde copies on the active attack list.
+      if (actorType === 'npc') {
+        system.attackSlots = sumNpcAttackSlotsFromPowers(system);
+      }
     } else {
       // Character: armorTotal = Mastery Rank + Armor Value + Shield Value
       const armorValue = (equippedArmor?.system as any)?.armorValue || 0;

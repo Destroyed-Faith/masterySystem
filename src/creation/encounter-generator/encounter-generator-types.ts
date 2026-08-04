@@ -234,8 +234,8 @@ export interface CyclePowerEntry {
    */
   isSpell?: boolean;
   /**
-   * Max uses of this power per round (1–5) → NPC `npcAttacksPerRound`.
-   * Still consumes global `attackSlots` / actionsPerRound.
+   * Radial copies of this power (1–5) → NPC `npcAttacksPerRound`.
+   * Sum across the cycle becomes actor `attackSlots` (ATK).
    */
   attacksPerRound?: number;
 }

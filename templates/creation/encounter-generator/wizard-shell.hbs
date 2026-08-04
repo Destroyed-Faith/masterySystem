@@ -256,7 +256,7 @@
                 </label>
               </td>
               <td>
-                <select class="js-eg-cycle encounter-gen-input--small" data-phase="{{@../index}}" data-slot="{{this.cycleIndex}}" data-field="attacksPerRound" title="Nutzungen dieser Power pro Runde">
+                <select class="js-eg-cycle encounter-gen-input--small" data-phase="{{@../index}}" data-slot="{{this.cycleIndex}}" data-field="attacksPerRound" title="So oft erscheint diese Power im Radial (Summe = ATK)">
                   {{#each (range 1 5)}}
                   <option value="{{this}}" {{#if (eqNum ../attacksPerRound this)}}selected{{/if}}>{{this}}</option>
                   {{/each}}

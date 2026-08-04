@@ -778,10 +778,12 @@ export async function handleChosenCombatOption(token, option) {
                 });
                 return;
             }
-            if (option.source === 'npc-attack' &&
-                !canUseNpcAttackThisRound(actor, combat, option.id, Math.min(5, Math.max(1, Math.floor(Number(option.npcAttacksPerRound) || 1))))) {
-                ui.notifications?.warn('Keine Nutzungen dieser Attacke mehr in dieser Runde.');
-                return;
+            if (option.source === 'npc-attack') {
+                const usageKey = String(option.npcAttackUsageKey || option.id || '');
+                if (!canUseNpcAttackThisRound(actor, combat, usageKey, Math.min(5, Math.max(1, Math.floor(Number(option.npcAttacksPerRound) || 1))))) {
+                    ui.notifications?.warn('Keine Nutzungen dieser Attacke mehr in dieser Runde.');
+                    return;
+                }
             }
         }
         // Close radial menu when attack option is selected
@@ -832,7 +834,7 @@ export async function handleChosenCombatOption(token, option) {
                     await markPowerUsedThisRound(actor, combat, option.item.id);
                 }
                 if (option.source === 'npc-attack' && option.costsAction) {
-                    await markNpcAttackUsedThisRound(actor, combat, option.id);
+                    await markNpcAttackUsedThisRound(actor, combat, String(option.npcAttackUsageKey || option.id || ''));
                 }
                 // AoE attacks roll once vs the fixed Area TN = 8 × Source MR — even
                 // without a primary target. On a miss nobody in the area is affected.
@@ -933,10 +935,12 @@ export async function handleChosenCombatOption(token, option) {
                 });
                 return;
             }
-            if (option.source === 'npc-attack' &&
-                !canUseNpcAttackThisRound(actor, combat, option.id, Math.min(5, Math.max(1, Math.floor(Number(option.npcAttacksPerRound) || 1))))) {
-                ui.notifications?.warn('Keine Nutzungen dieser Attacke mehr in dieser Runde.');
-                return;
+            if (option.source === 'npc-attack') {
+                const usageKey = String(option.npcAttackUsageKey || option.id || '');
+                if (!canUseNpcAttackThisRound(actor, combat, usageKey, Math.min(5, Math.max(1, Math.floor(Number(option.npcAttacksPerRound) || 1))))) {
+                    ui.notifications?.warn('Keine Nutzungen dieser Attacke mehr in dieser Runde.');
+                    return;
+                }
             }
         }
         closeRadialMenu();

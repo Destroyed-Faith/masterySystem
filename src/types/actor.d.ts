@@ -406,8 +406,8 @@ export interface AttackValue {
    */
   npcIsSpell?: boolean;
   /**
-   * Wie oft diese Power pro Runde genutzt werden darf (1–5).
-   * Verbraucht zusätzlich weiterhin globale attackSlots.
+   * Wie oft diese Power im Radialmenü erscheint (1–5 Kopien).
+   * Die Summe über alle Powers der aktiven Phase setzt `attackSlots` (ATK).
    */
   npcAttacksPerRound?: number;
   /** Stress-Schaden bei Treffer (Nd8, plain — Stress-Armor mindert). */

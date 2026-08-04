@@ -42,12 +42,30 @@ export function normalizeNpcAttackRow(attack) {
     const merged = mergeSpecialsFromLegacy(attack);
     return { ...attack, specials: merged.length ? merged : undefined };
 }
-/** Per-power attack uses this round (sheet dropdown 1–5; default 1). */
+/**
+ * How many radial copies this power has (sheet dropdown 1–5; default 1).
+ * Each copy is one Attack action in the radial menu.
+ */
 export function npcAttacksPerRoundCap(attack) {
     const n = Math.floor(Number(attack?.npcAttacksPerRound));
     if (!Number.isFinite(n) || n < 1)
         return 1;
     return Math.min(5, n);
+}
+/** Stable usage key for an NPC attack row (shared by all radial copies). */
+export function npcAttackUsageKey(phaseIndex, attackIndex) {
+    const phaseKey = phaseIndex == null ? 'root' : String(phaseIndex);
+    return `npc-attack-${phaseKey}-${Math.max(0, Math.floor(Number(attackIndex) || 0))}`;
+}
+/**
+ * Sum of Angriffe/Runde across the active attack list (= ATK / attackSlots).
+ */
+export function sumNpcAttackSlotsFromPowers(system) {
+    const { attacks } = resolveNpcAttackList(system);
+    if (!attacks.length)
+        return Math.max(1, Math.floor(Number(system?.attackSlots) || 1));
+    const sum = attacks.reduce((acc, atk) => acc + npcAttacksPerRoundCap(atk), 0);
+    return Math.max(1, Math.min(20, sum));
 }
 function npcBaseAttackRow(raw) {
     if (!raw || typeof raw !== 'object')

@@ -60,8 +60,13 @@ export interface RadialCombatOption {
     npcSplitAttack?: boolean;
     /** NSC-Angriff: Spell — Casting TN = 8 × MR (+ Spell Resistance), nicht Evade. */
     npcIsSpell?: boolean;
-    /** NSC-Angriff: erlaubte Nutzungen dieser Power pro Runde (1–5). */
+    /** NSC-Angriff: Anzahl Radial-Kopien dieser Power (1–5). */
     npcAttacksPerRound?: number;
+    /**
+     * Stable usage key shared by all radial copies of one NPC attack row
+     * (e.g. `npc-attack-root-0`). Used for per-round spend tracking.
+     */
+    npcAttackUsageKey?: string;
 }
 /**
  * Inner segment definition

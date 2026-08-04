@@ -587,7 +587,9 @@ export async function createAttackCard(
     npcAttackName: isNpcAttack
       ? (npcAttackRow?.name?.trim() || option.name || "NSC-Angriff")
       : undefined,
-    npcAttackOptionId: isNpcAttack ? String(option.id || '') : undefined,
+    npcAttackOptionId: isNpcAttack
+      ? String((option as any).npcAttackUsageKey || option.id || '')
+      : undefined,
     npcIsSpell: npcIsSpell || undefined,
     ...(raiseContext
       ? {
