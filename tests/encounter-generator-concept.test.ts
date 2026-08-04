@@ -251,6 +251,21 @@ describe('buildThreatReport', () => {
     expect(report.enemyActionsByRound[2]).toBeGreaterThan(report.enemyActionsByRound[0]);
   });
 
+  it('boss HP is thick enough to survive more than a few focus hits', () => {
+    const party = testParty();
+    const preset = ARCHETYPE_PRESETS.find((p) => p.id === 'ruin-spellcaster')!;
+    const plan = deriveConceptPlan(party, preset.concept, seededRng(41));
+    const totalHp = plan.phasePlans.reduce((s, p) => s + p.stat.hp, 0);
+    // Rough focus hit after armor from the sheet-mean model (~16+2 − armor).
+    const armor = plan.phasePlans[0].stat.armor;
+    const approxHit = Math.max(1, 18 - armor);
+    // Across the whole boss, expect well more than ~4 party focus hits.
+    expect(totalHp / approxHit).toBeGreaterThanOrEqual(12);
+    for (const phase of plan.phasePlans) {
+      expect(phase.stat.hp / approxHit).toBeGreaterThanOrEqual(5);
+    }
+  });
+
   it('exactly one boss cycle attack per phase carries stress damage (1–2d8)', () => {
     const party = testParty();
     for (const preset of ARCHETYPE_PRESETS) {

@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.249] - 2026-08-04
+
+### Changed
+
+- Encounter Generator: boss HP is substantially thicker (higher TTK, realism pad for raises/exploding, per-phase hit floor) so phases no longer melt in a few player hits.
+
 ## [0.9.248] - 2026-08-04
 
 ### Changed

@@ -32,6 +32,11 @@ export const RANK_BUDGET_FACTOR = {
     major: 1.2,
     mythic: 1.45,
 };
+/**
+ * Sheet-mean party DPS undercounts real table damage (raises, exploding keep,
+ * multi-power turns). Without this pad, bosses melt in 1–3 hits.
+ */
+const BOSS_HP_REALISM_FACTOR = 2.4;
 const RANK_MR_OFFSET = {
     minor: -1,
     standard: 0,
@@ -642,15 +647,25 @@ export function deriveConceptPlan(party, concept, rng = Math.random) {
     }
     const actionsPerRound = clamp(Math.round(concept.actionsPerRound) || 3, 1, 6);
     const perActionBudget = bossBudget / actionsPerRound;
-    // Total HP: party focus-DPS × target TTK (rank-scaled).
+    // Total HP: party focus-DPS × target TTK (rank-scaled + realism pad).
+    // Real table hits (raises / exploding) run hotter than weaponDamageMean, so
+    // we pad both the per-hit estimate and the final pool.
     let partyDps = 0;
+    let avgHitAfterArmor = 0;
     for (const m of party.members) {
         const hr = hitRate(m.attackTotals, realizedEvade);
-        const dmg = Math.max(0, m.weaponDamageMean + m.mightMeleeBonus - armor);
+        const rawHit = (m.weaponDamageMean + m.mightMeleeBonus) * 1.35;
+        const dmg = Math.max(0, rawHit - armor);
+        avgHitAfterArmor += dmg;
         partyDps += hr * dmg * m.attacksPerRound;
     }
     partyDps = Math.max(1, partyDps);
-    const totalHp = Math.max(concept.phaseCount, Math.round(partyDps * params.bossTTKRounds * Math.sqrt(rankFactor)));
+    avgHitAfterArmor = Math.max(1, avgHitAfterArmor / Math.max(1, party.members.length));
+    // Floor: each phase should survive more than a couple of focus hits.
+    const minHitsPerPhase = Math.max(6, Math.round(party.size * 2));
+    const hpFromDps = Math.round(partyDps * params.bossTTKRounds * rankFactor * BOSS_HP_REALISM_FACTOR);
+    const hpFromHitFloor = Math.round(avgHitAfterArmor * minHitsPerPhase * Math.max(1, concept.phaseCount));
+    const totalHp = Math.max(concept.phaseCount, hpFromDps, hpFromHitFloor);
     // Phases: own budget + own cycle per phase.
     const themes = phaseThemes(concept);
     const hpPerPhase = splitHpAcrossPhases(totalHp, themes.length);

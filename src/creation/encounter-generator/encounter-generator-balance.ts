@@ -54,7 +54,7 @@ export interface DifficultyParams {
 
 export const DIFFICULTY_PARAMS: Record<Difficulty, DifficultyParams> = {
   moderate: {
-    bossTTKRounds: 4,
+    bossTTKRounds: 8,
     partyHitRateVsBoss: 0.7,
     bossHitRateVsParty: 0.5,
     bossHitDamageFrac: 0.2,
@@ -66,7 +66,7 @@ export const DIFFICULTY_PARAMS: Record<Difficulty, DifficultyParams> = {
     respawnPressure: 0.6,
   },
   hard: {
-    bossTTKRounds: 6,
+    bossTTKRounds: 12,
     partyHitRateVsBoss: 0.65,
     bossHitRateVsParty: 0.6,
     bossHitDamageFrac: 0.32,
@@ -78,7 +78,7 @@ export const DIFFICULTY_PARAMS: Record<Difficulty, DifficultyParams> = {
     respawnPressure: 0.9,
   },
   brutal: {
-    bossTTKRounds: 8,
+    bossTTKRounds: 16,
     partyHitRateVsBoss: 0.58,
     bossHitRateVsParty: 0.7,
     bossHitDamageFrac: 0.45,
