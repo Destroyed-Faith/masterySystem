@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.252] - 2026-08-04
+
+### Removed
+
+- Deleted legacy standalone `tools/artifact-awakening/` module (D&D5e-era prototype). Live Artifact Builder remains in `src/artifacts/`.
+
 ## [0.9.251] - 2026-08-04
 
 ### Removed

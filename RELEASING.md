@@ -6,14 +6,14 @@ This document describes how to publish an immutable Foundry system ZIP from GitH
 
 | Product | Where version lives | Sequence |
 |---|---|---|
-| **Foundry VTT system** (`mastery-system`) | `package.json` + `system.json` | Continues as `0.9.251`, `0.9.251`, … |
+| **Foundry VTT system** (`mastery-system`) | `package.json` + `system.json` | Continues as `0.9.252`, `0.9.252`, … |
 | **Destroyed Faith rulebook** (tabletop) | Outside this repo / print pipeline | Independent public sequence (e.g. rulebook `0.9.9`) |
 
 Do **not** put the rulebook version in `package.json` or `system.json`.
 
 ## Foundry version policy
 
-- Current Foundry system version: whatever is in `package.json` / `system.json` (today **0.9.251**).
+- Current Foundry system version: whatever is in `package.json` / `system.json` (today **0.9.252**).
 - Tags must be `vX.Y.Z` matching `package.json` / `system.json`.
 - Pre-1.0 GitHub Releases are marked **prerelease**.
 
