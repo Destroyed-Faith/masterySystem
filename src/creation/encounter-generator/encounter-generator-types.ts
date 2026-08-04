@@ -228,6 +228,16 @@ export interface CyclePowerEntry {
   condition?: string;
   /** True when this slot is the summon action (summoner style). */
   isSummon?: boolean;
+  /**
+   * Spell attack → NPC `npcIsSpell` (Casting TN = 8 × MR + SR, not Evade).
+   * Martial weapon cycles stay false.
+   */
+  isSpell?: boolean;
+  /**
+   * Max uses of this power per round (1–5) → NPC `npcAttacksPerRound`.
+   * Still consumes global `attackSlots` / actionsPerRound.
+   */
+  attacksPerRound?: number;
 }
 
 export interface PhasePlan {

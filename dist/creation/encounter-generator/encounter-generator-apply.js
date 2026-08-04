@@ -175,6 +175,14 @@ function cycleEntryToAttackRow(entry) {
     if (entry.stressD8 && entry.stressD8 > 0) {
         row.npcStressD8 = Math.max(1, Math.round(entry.stressD8));
     }
+    if (!entry.isSummon && entry.isSpell) {
+        row.npcIsSpell = true;
+    }
+    if (!entry.isSummon) {
+        const apr = Math.floor(Number(entry.attacksPerRound));
+        row.npcAttacksPerRound =
+            Number.isFinite(apr) && apr >= 1 ? Math.min(5, apr) : 1;
+    }
     return row;
 }
 function projectHealthBlock(hp) {
@@ -278,6 +286,7 @@ export function buildProjectAddSystem(plan) {
             name: 'Biss/Hieb',
             attackDiceCount: d.attackDiceCount,
             damageDiceCount: d.damageDiceCount,
+            npcAttacksPerRound: 1,
             specials: d.special ? [{ special: d.special, specialValue: d.specialValue }] : [],
         },
         attackValues: [],
@@ -316,6 +325,8 @@ export function buildProjectEnvironmentSystem(plan) {
             damageDiceCount: env.damageDiceCount,
             npcAoeShape: 'radius',
             npcAoeRadiusM: env.radiusM,
+            npcIsSpell: true,
+            npcAttacksPerRound: Math.min(5, Math.max(1, Math.round(env.actionsPerRound) || 1)),
             specials: env.special ? [{ special: env.special, specialValue: env.specialValue }] : [],
         },
         attackValues: [],
@@ -348,7 +359,15 @@ function cycleTableHtml(cycle, cycleStyle) {
         const dmg = c.isSummon
             ? '—'
             : `${c.damageDiceCount}d8${c.stressD8 ? ` + ${c.stressD8}d8 Stress` : ''}`;
-        return `<tr><td>${c.slot}</td><td><strong>${c.name}</strong></td><td>${pool}</td><td>${dmg}</td><td>${fmtSpecial(c.special, c.specialValue)}</td><td>${range}</td><td>${extra || c.note || ''}</td></tr>`;
+        const flags = c.isSummon
+            ? ''
+            : [
+                c.isSpell ? 'Spell' : null,
+                c.attacksPerRound && c.attacksPerRound > 0 ? `${c.attacksPerRound}×/Runde` : null,
+            ]
+                .filter(Boolean)
+                .join(' · ');
+        return `<tr><td>${c.slot}</td><td><strong>${c.name}</strong></td><td>${pool}</td><td>${dmg}</td><td>${fmtSpecial(c.special, c.specialValue)}</td><td>${range}</td><td>${[flags, extra || c.note || ''].filter(Boolean).join(' — ')}</td></tr>`;
     });
     return ('<table><thead><tr><th>#</th><th>Power</th><th>Pool</th><th>Schaden</th><th>Special</th><th>Reichweite</th><th>Hinweis</th></tr></thead><tbody>' +
         rows.join('') +

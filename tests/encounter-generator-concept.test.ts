@@ -312,6 +312,43 @@ describe('apply payload builders', () => {
     }
   });
 
+  it('spell-style bosses write npcIsSpell and attacks-per-round onto attack rows', () => {
+    const party = testParty();
+    const preset = ARCHETYPE_PRESETS.find((p) => p.id === 'ruin-spellcaster')!;
+    const plan = deriveConceptPlan(party, preset.concept, seededRng(41));
+    for (const phase of plan.phasePlans) {
+      const attackRows = phase.cycle.filter((c) => !c.isSummon);
+      expect(attackRows.length).toBeGreaterThan(0);
+      expect(attackRows.every((c) => c.isSpell === true)).toBe(true);
+      expect(attackRows.every((c) => (c.attacksPerRound ?? 0) >= 1 && (c.attacksPerRound ?? 0) <= 5)).toBe(
+        true,
+      );
+      const sumApr = attackRows.reduce((s, c) => s + (c.attacksPerRound ?? 0), 0);
+      // Enough per-power uses to spend the phase action budget (capped at 5 each).
+      expect(sumApr).toBeGreaterThanOrEqual(
+        Math.min(phase.actionsPerRound, attackRows.length * 5),
+      );
+    }
+    const system = buildProjectBossSystem(plan) as any;
+    const rows = [system.npcBaseAttack, ...(system.attackValues ?? [])];
+    expect(rows.every((r: any) => r.npcIsSpell === true)).toBe(true);
+    expect(rows.every((r: any) => r.npcAttacksPerRound >= 1 && r.npcAttacksPerRound <= 5)).toBe(true);
+  });
+
+  it('martial bosses keep Evade attacks (no npcIsSpell)', () => {
+    const party = testParty();
+    const preset = ARCHETYPE_PRESETS.find((p) => p.concept.style === 'martial')!;
+    const plan = deriveConceptPlan(party, preset.concept, seededRng(41));
+    for (const phase of plan.phasePlans) {
+      const attackRows = phase.cycle.filter((c) => !c.isSummon);
+      expect(attackRows.every((c) => !c.isSpell)).toBe(true);
+    }
+    const system = buildProjectBossSystem(plan) as any;
+    const rows = [system.npcBaseAttack, ...(system.attackValues ?? [])];
+    expect(rows.every((r: any) => !r.npcIsSpell)).toBe(true);
+    expect(rows.every((r: any) => r.npcAttacksPerRound >= 1)).toBe(true);
+  });
+
   it('add prototype and environment actor are built when planned', () => {
     const { plan } = samaelPlan();
     expect(buildProjectAddSystem(plan)).not.toBeNull();

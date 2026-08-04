@@ -351,7 +351,7 @@ export class EncounterGeneratorDialog extends BaseDialog {
       }
     });
 
-    // Review: edit individual cycle rows (dice, special value).
+    // Review: edit individual cycle rows (dice, special, spell, APR).
     root.find('.js-eg-cycle').on('change', (ev) => {
       if (!this.plan) return;
       const el = $(ev.currentTarget);
@@ -359,11 +359,17 @@ export class EncounterGeneratorDialog extends BaseDialog {
       const slot = Math.floor(Number(el.data('slot')) || 0);
       const field = String(el.data('field') || '');
       const entry = this.plan.phasePlans[phase]?.cycle[slot];
-      if (!entry || !(field in entry)) return;
+      if (!entry) return;
       if (field === 'name') {
         (entry as any)[field] = String(el.val() || '');
-      } else {
+      } else if (field === 'isSpell') {
+        entry.isSpell = el.is(':checked');
+      } else if (field === 'attacksPerRound') {
+        entry.attacksPerRound = Math.min(5, Math.max(1, Math.floor(Number(el.val()) || 1)));
+      } else if (field in entry) {
         (entry as any)[field] = Math.max(0, Math.floor(Number(el.val()) || 0));
+      } else {
+        return;
       }
       // Keep the phase display row in sync with the first damage power.
       const stat = this.plan.phasePlans[phase]?.stat;

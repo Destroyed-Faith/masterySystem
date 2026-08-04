@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.248] - 2026-08-04
+
+### Changed
+
+- Encounter Generator: fills NPC **Spell** (`npcIsSpell`) and **Angriffe/Runde** (`npcAttacksPerRound`) on generated attack rows; review step can edit both before create.
+
 ## [0.9.247] - 2026-08-04
 
 ### Added

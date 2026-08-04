@@ -349,6 +349,8 @@ export function buildPowerCycle(party, concept, perActionBudget, bossMr, options
                 weight: concept.cycleStyle === 'weighted' ? CYCLE_WEIGHTS[i] ?? 10 : undefined,
                 condition: concept.cycleStyle === 'conditional' ? CONDITION_TEXTS.summon : undefined,
                 isSummon: true,
+                isSpell: false,
+                attacksPerRound: 1,
             });
             return;
         }
@@ -395,6 +397,9 @@ export function buildPowerCycle(party, concept, perActionBudget, bossMr, options
             else
                 condition = CONDITION_TEXTS.default;
         }
+        // Martial cycles are weapon/Evade attacks; spell/hybrid/summoner/env use
+        // Casting TN (npcIsSpell) for their damage/control powers.
+        const isSpell = concept.style !== 'martial';
         entries.push({
             slot: i + 1,
             name: pick.entry?.name ?? pick.fallbackName,
@@ -409,6 +414,8 @@ export function buildPowerCycle(party, concept, perActionBudget, bossMr, options
             note: pick.isControl ? 'Kontrolle statt Schaden.' : '',
             weight: concept.cycleStyle === 'weighted' ? CYCLE_WEIGHTS[i] ?? 10 : undefined,
             condition,
+            isSpell,
+            attacksPerRound: 1,
         });
     });
     // Signature attack: the boss's main strike additionally inflicts Stress
@@ -423,7 +430,65 @@ export function buildPowerCycle(party, concept, perActionBudget, bossMr, options
             .filter(Boolean)
             .join(' ');
     }
+    assignAttacksPerRound(entries, concept.actionsPerRound, concept.cycleStyle === 'weighted');
     return entries;
+}
+/**
+ * Fill `attacksPerRound` (1–5) so powers can actually spend the boss's
+ * action budget: each non-summon power starts at 1, leftover actions go to
+ * the signature (stress) row — or by weight when the cycle is weighted.
+ */
+function assignAttacksPerRound(entries, actionsPerRound, weighted) {
+    const targets = entries.filter((e) => !e.isSummon);
+    if (!targets.length)
+        return;
+    const actions = clamp(Math.round(actionsPerRound) || 1, 1, 8);
+    for (const e of targets)
+        e.attacksPerRound = 1;
+    let remaining = Math.max(0, actions - targets.length);
+    if (remaining <= 0)
+        return;
+    if (weighted) {
+        const totalW = targets.reduce((s, e) => s + Math.max(1, Number(e.weight) || 1), 0);
+        // Largest remainder method: give extras to highest fractional shares.
+        const shares = targets.map((e) => {
+            const w = Math.max(1, Number(e.weight) || 1);
+            const exact = (remaining * w) / totalW;
+            return { e, base: Math.floor(exact), frac: exact - Math.floor(exact) };
+        });
+        let given = 0;
+        for (const s of shares) {
+            const add = Math.min(4, s.base); // already have 1 → cap at 5
+            s.e.attacksPerRound = Math.min(5, 1 + add);
+            given += add;
+        }
+        let left = remaining - given;
+        shares.sort((a, b) => b.frac - a.frac);
+        for (const s of shares) {
+            if (left <= 0)
+                break;
+            if ((s.e.attacksPerRound ?? 1) >= 5)
+                continue;
+            s.e.attacksPerRound = (s.e.attacksPerRound ?? 1) + 1;
+            left--;
+        }
+        return;
+    }
+    const preferred = targets.find((e) => (e.stressD8 ?? 0) > 0) ?? targets[0];
+    let i = Math.max(0, targets.indexOf(preferred));
+    let guard = 0;
+    while (remaining > 0 && guard < 64) {
+        guard++;
+        const e = targets[i % targets.length];
+        if ((e.attacksPerRound ?? 1) < 5) {
+            e.attacksPerRound = (e.attacksPerRound ?? 1) + 1;
+            remaining--;
+        }
+        else if (targets.every((t) => (t.attacksPerRound ?? 1) >= 5)) {
+            break;
+        }
+        i++;
+    }
 }
 function phaseThemes(concept) {
     const n = clamp(Math.round(concept.phaseCount) || 1, 1, 5);
