@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.270] - 2026-08-07
+
+### Changed
+
+- **Combat carousel**: removed the old portrait HP/Stress resource bars. Stress now uses a segmented bar under HP in the same layout (Healthy → Breaking).
+
 ## [0.9.269] - 2026-08-07
 
 ### Added

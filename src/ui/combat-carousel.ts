@@ -86,12 +86,6 @@ export class CombatCarouselApp extends BaseCarousel {
       return { active: false };
     }
 
-    // Get settings for resource paths
-    const resource1Path = (game as any).settings.get('mastery-system', 'carouselResource1Path') || 'tracked.hp';
-    const resource2Path = (game as any).settings.get('mastery-system', 'carouselResource2Path') || 'tracked.stress';
-    const resource1Label = (game as any).settings.get('mastery-system', 'carouselResource1Label') || 'HP';
-    const resource2Label = (game as any).settings.get('mastery-system', 'carouselResource2Label') || 'Stress';
-
     // Build combatants array — use Foundry's `combat.turns` order as-is so portrait order
     // matches `combat.turn` / `nextTurn`. Re-sorting here broke alignment with the tracker.
     const combatants: any[] = [];
@@ -119,10 +113,6 @@ export class CombatCarouselApp extends BaseCarousel {
 
       const tokenId = combatant.tokenId || combatant.token?.id;
       const token = tokenId ? canvas.tokens?.get(tokenId) : null;
-
-      // Get resources from tracked fields
-      const resource1 = this.getResourceValue(actor, resource1Path);
-      const resource2 = this.getResourceValue(actor, resource2Path);
 
       // Active Specials / conditions from `system.statusEffects` — ONLY entries
       // that are actually present (value > 0, or valueless conditions like
@@ -198,6 +188,45 @@ export class CombatCarouselApp extends BaseCarousel {
         }
       } catch (err) {
         console.warn('Mastery System | [CAROUSEL] Failed to build HP segments:', err);
+      }
+
+      // Segmented Stress bar — same layout as HP (Healthy → Breaking).
+      const stressSegments: Array<{
+        name: string;
+        current: number;
+        max: number;
+        severity: number;
+        widthPct: number;
+      }> = [];
+      let stressTotalCurrent = 0;
+      let stressTotalMax = 0;
+      try {
+        const bars = (actor.system as any)?.stress?.bars;
+        if (Array.isArray(bars) && bars.length > 0) {
+          for (const bar of bars) {
+            const cur = Math.max(0, Math.floor(Number(bar?.current ?? 0) || 0));
+            const mx = Math.max(0, Math.floor(Number(bar?.max ?? 0) || 0));
+            stressTotalCurrent += cur;
+            stressTotalMax += mx;
+          }
+          if (stressTotalMax > 0) {
+            bars.forEach((bar: any, idx: number) => {
+              const cur = Math.max(0, Math.floor(Number(bar?.current ?? 0) || 0));
+              const mx = Math.max(0, Math.floor(Number(bar?.max ?? 0) || 0));
+              const severity = Math.min(3, idx);
+              const widthPct = mx > 0 ? (mx / stressTotalMax) * 100 : 0;
+              stressSegments.push({
+                name: String(bar?.name ?? `Stress ${idx + 1}`),
+                current: cur,
+                max: mx,
+                severity,
+                widthPct,
+              });
+            });
+          }
+        }
+      } catch (err) {
+        console.warn('Mastery System | [CAROUSEL] Failed to build Stress segments:', err);
       }
 
       // Use actor portrait, not token image
@@ -290,19 +319,14 @@ export class CombatCarouselApp extends BaseCarousel {
         isCurrent: combatant.id === currentCombatantId,
         hidden: combatant.hidden || false,
         defeated: combatant.defeated || false,
-        resource1: {
-          ...resource1,
-          label: resource1Label
-        },
-        resource2: {
-          ...resource2,
-          label: resource2Label
-        },
         statusIcons: statusIcons.filter((item: any) => item && item.icon),
         hpTotalCurrent,
         hpTotalMax,
         tempHP,
         hpSegments,
+        stressTotalCurrent,
+        stressTotalMax,
+        stressSegments,
         combatStrip,
         hasToken: !!token,
         tokenId: tokenId,
@@ -710,32 +734,4 @@ export class CombatCarouselApp extends BaseCarousel {
     }, 150);
   }
 
-  /**
-   * Safely get resource value from actor system using path
-   */
-  private getResourceValue(actor: any, path: string): { value: number; max: number } {
-    try {
-      // Resolve path like "tracked.hp" to actor.system.tracked.hp
-      const parts = path.split('.');
-      let current: any = actor.system;
-      
-      for (const part of parts) {
-        if (current && typeof current === 'object' && part in current) {
-          current = current[part];
-        } else {
-          return { value: 0, max: 0 };
-        }
-      }
-      
-      if (current && typeof current === 'object') {
-        return {
-          value: Number(current.value ?? 0),
-          max: Number(current.max ?? 0)
-        };
-      }
-    } catch (error) {
-      console.warn('Mastery System | Failed to get resource from path', path, error);
-    }
-    return { value: 0, max: 0 };
-  }
 }

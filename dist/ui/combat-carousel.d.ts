@@ -68,10 +68,6 @@ export declare class CombatCarouselApp extends BaseCarousel {
      */
     private refreshTimeout;
     private debouncedRefresh;
-    /**
-     * Safely get resource value from actor system using path
-     */
-    private getResourceValue;
 }
 export {};
 //# sourceMappingURL=combat-carousel.d.ts.map

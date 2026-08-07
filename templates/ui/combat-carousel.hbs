@@ -64,35 +64,30 @@
             </div>
           {{/if}}
 
-          <!-- Resources -->
-          <div class="portrait-resources">
-            <div class="resource-bar resource-1">
-              <div class="resource-label">{{combatant.resource1.label}}</div>
-              <div class="resource-value">
-                {{#if combatant.resource1.max}}
-                  {{#with (divide combatant.resource1.value combatant.resource1.max)}}
-                    <div class="resource-bar-fill" style="width: {{multiply this 100}}%"></div>
-                  {{/with}}
-                {{else}}
-                  <div class="resource-bar-fill" style="width: 0%"></div>
-                {{/if}}
-                <span class="resource-text">{{combatant.resource1.value}}/{{combatant.resource1.max}}</span>
+          <!-- Segmented Stress Bar (same layout as HP; stress severity colors) -->
+          {{#if combatant.stressSegments.length}}
+            <div class="ms-hp-bar ms-stress-bar" title="Stress: {{combatant.stressTotalCurrent}}/{{combatant.stressTotalMax}}">
+              <div class="ms-hp-bar-header">
+                <span class="ms-hp-bar-label">Stress</span>
+                <span class="ms-hp-bar-totals">
+                  {{combatant.stressTotalCurrent}}/{{combatant.stressTotalMax}}
+                </span>
+              </div>
+              <div class="ms-hp-bar-track">
+                {{#each combatant.stressSegments as |seg|}}
+                  <div class="ms-hp-segment ms-stress-severity-{{seg.severity}}"
+                       style="flex-basis: {{seg.widthPct}}%"
+                       title="{{seg.name}}: {{seg.current}}/{{seg.max}}">
+                    {{#if seg.max}}
+                      {{#with (divide seg.current seg.max)}}
+                        <div class="ms-hp-segment-fill" style="width: {{multiply this 100}}%"></div>
+                      {{/with}}
+                    {{/if}}
+                  </div>
+                {{/each}}
               </div>
             </div>
-            <div class="resource-bar resource-2">
-              <div class="resource-label">{{combatant.resource2.label}}</div>
-              <div class="resource-value">
-                {{#if combatant.resource2.max}}
-                  {{#with (divide combatant.resource2.value combatant.resource2.max)}}
-                    <div class="resource-bar-fill" style="width: {{multiply this 100}}%"></div>
-                  {{/with}}
-                {{else}}
-                  <div class="resource-bar-fill" style="width: 0%"></div>
-                {{/if}}
-                <span class="resource-text">{{combatant.resource2.value}}/{{combatant.resource2.max}}</span>
-              </div>
-            </div>
-          </div>
+          {{/if}}
 
           {{#if combatant.showStonePowersButton}}
             <button type="button"
