@@ -4764,6 +4764,39 @@
   color: rgba(255, 255, 255, 0.55);
 }
 
+.mastery-system.sheet.actor.npc .npc-attack-targeting {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.mastery-system.sheet.actor.npc .npc-attack-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 8px 10px;
+  align-items: end;
+}
+
+.mastery-system.sheet.actor.npc .npc-attack-row--aoe {
+  grid-template-columns: minmax(120px, 160px) 1fr;
+}
+
+.mastery-system.sheet.actor.npc .npc-attack-field--hint {
+  display: flex;
+  align-items: flex-end;
+  min-height: 2rem;
+}
+
+.mastery-system.sheet.actor.npc .npc-attack-inline-hint {
+  font-size: 0.72rem;
+  line-height: 1.35;
+  color: rgba(255, 255, 255, 0.55);
+  padding-bottom: 4px;
+}
+
 .mastery-system.sheet.actor.npc .attack-value-add {
   background: #8b0000;
   color: #fff;

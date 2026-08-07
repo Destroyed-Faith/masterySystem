@@ -52,14 +52,19 @@ function buildNpcAttackDescription(atk: any): string {
   parts.push(`Schaden: ${dmg}`);
   const isRanged = String(atk?.npcRangeKind || '').toLowerCase() === 'ranged';
   const meters = Math.floor(Number(atk?.npcRangeMeters) || 0);
+  const aoeRad = Math.max(0, Math.floor(Number(atk?.npcAoeRadiusM) || 0));
+  const hasAoe = aoeRad >= 2;
   if (isRanged) {
     const maxM = meters > 0 ? Math.min(24, Math.max(12, meters)) : 24;
     const minRaw = Math.floor(Number(atk?.npcRangeMinMeters) || 0);
     const minM = minRaw > 0 ? Math.min(24, Math.max(12, minRaw)) : 12;
-    parts.push(`Fern: ${Math.min(minM, maxM)}–${maxM} m`);
+    parts.push(`Range ${Math.min(minM, maxM)}–${maxM} m`);
   } else {
     const reachM = meters > 0 ? Math.min(8, Math.max(1, meters)) : 2;
-    parts.push(`Reach: ${reachM} m`);
+    parts.push(`Melee ${reachM} m`);
+  }
+  if (hasAoe) {
+    parts.push(isRanged ? `AoE ${aoeRad} m` : `AoE burst ${aoeRad} m`);
   }
   const stress = Math.max(0, Math.floor(Number(atk?.npcStressD8) || 0));
   if (stress > 0) parts.push(`Stress: ${stress}d8`);
@@ -152,14 +157,23 @@ export function buildNpcAttackRadialOptions(actor: any): RadialCombatOption[] {
       Number.isFinite(minRaw) && minRaw > 0 ? Math.min(24, Math.max(12, minRaw)) : 12;
     if (rangedMinM > rangedMaxM) rangedMinM = rangedMaxM;
     const rangeM = isRanged ? rangedMaxM : reachM;
-    const shapeRaw = String(atk?.npcAoeShape || 'none').toLowerCase();
-    const shapeCandidate =
-      shapeRaw === 'radius' || shapeRaw === 'cone' || shapeRaw === 'line' ? shapeRaw : 'none';
+    // Radius ≥ 2 m is the only AoE gate. Ignore leftover npcAoeShape ('radius' etc.).
     const rad = Math.max(0, Math.floor(Number(atk?.npcAoeRadiusM) || 0));
-    // Empty / "none" / radius below 2 m ⇒ normal attack (no AoE targeting).
-    const shape = shapeCandidate !== 'none' && rad >= 2 ? shapeCandidate : 'none';
-    const burstMelee = !isRanged && shape === 'radius';
-    const rangedZone = isRanged && shape === 'radius';
+    const hasAoe = rad >= 2;
+    const shape = hasAoe ? 'radius' : 'none';
+    const burstMelee = !isRanged && hasAoe;
+    const rangedZone = isRanged && hasAoe;
+    if (typeof console !== 'undefined' && console.debug) {
+      console.debug('[MS NPC Targeting] radial option', {
+        name: atk?.name,
+        npcRangeKind: isRanged ? 'ranged' : 'melee',
+        npcAoeRadiusM: rad,
+        storedShape: atk?.npcAoeShape,
+        resolvedShape: shape,
+        burstMeleeAoE: burstMelee,
+        rangedZone,
+      });
+    }
     const baseName = (atk?.name && String(atk.name).trim()) || `Angriff ${index + 1}`;
     const description = buildNpcAttackDescription(atk);
 

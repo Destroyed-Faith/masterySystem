@@ -911,6 +911,11 @@ function registerHandlebarsHelpersImmediate() {
         }
         return result;
     });
+    /** Concatenate strings for form paths: {{concat "system.phases." phaseIndex ".npcBaseAttack"}} */
+    Handlebars.registerHelper('concat', function (...args) {
+        // Last arg is Handlebars options hash
+        return args.slice(0, -1).map((a) => (a == null ? '' : String(a))).join('');
+    });
     // Helper for multiplication
     Handlebars.registerHelper('multiply', function (a, b) {
         return a * b;
@@ -2020,6 +2025,7 @@ async function preloadTemplates() {
         // Actor sheets (only load existing templates)
         'systems/mastery-system/templates/actor/character-sheet.hbs',
         'systems/mastery-system/templates/actor/partials/combat-senses-config.hbs',
+        'systems/mastery-system/templates/actor/partials/npc-attack-targeting.hbs',
         'systems/mastery-system/templates/actor/character-print.hbs',
         'systems/mastery-system/templates/actor/npc-print.hbs',
         'systems/mastery-system/templates/actor/npc-sheet.hbs',

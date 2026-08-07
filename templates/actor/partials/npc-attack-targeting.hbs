@@ -1,0 +1,99 @@
+{{!--
+  NPC attack targeting block.
+  Expects hash params:
+    - path: form name prefix, e.g. "system.npcBaseAttack"
+    - atk: attack row object
+--}}
+<div class="npc-attack-targeting" data-npc-attack-path="{{path}}">
+  {{!-- Row 1: Melee / Range + meters --}}
+  <div class="npc-attack-row npc-attack-row--range">
+    <div class="npc-attack-field">
+      <label>Melee / Range</label>
+      <select name="{{path}}.npcRangeKind" class="npc-range-kind" data-npc-attack-path="{{path}}">
+        <option value="melee" {{#unless (eq atk.npcRangeKind "ranged")}}selected{{/unless}}>Melee</option>
+        <option value="ranged" {{#if (eq atk.npcRangeKind "ranged")}}selected{{/if}}>Range</option>
+      </select>
+    </div>
+
+    {{#if (eq atk.npcRangeKind "ranged")}}
+    <div class="npc-attack-field">
+      <label>Min</label>
+      <select name="{{path}}.npcRangeMinMeters" data-dtype="Number" class="npc-range-min" title="Range minimum (m)">
+        {{#each (range 12 24)}}
+        <option value="{{this}}" {{#if (eqNum ../atk.npcRangeMinMeters this)}}selected{{/if}}>{{this}} m</option>
+        {{/each}}
+      </select>
+    </div>
+    <div class="npc-attack-field">
+      <label>Max</label>
+      <select name="{{path}}.npcRangeMeters" data-dtype="Number" class="npc-range-max" title="Range maximum (m)">
+        {{#each (range 12 24)}}
+        <option value="{{this}}" {{#if (eqNum ../atk.npcRangeMeters this)}}selected{{/if}}>{{this}} m</option>
+        {{/each}}
+      </select>
+    </div>
+    {{else}}
+    <div class="npc-attack-field">
+      <label>Reach</label>
+      <select name="{{path}}.npcRangeMeters" data-dtype="Number" class="npc-range-reach" title="Melee reach (1–8 m)">
+        {{#each (range 1 8)}}
+        <option value="{{this}}" {{#if (eqNum ../atk.npcRangeMeters this)}}selected{{/if}}>{{this}} m</option>
+        {{/each}}
+      </select>
+    </div>
+    <input type="hidden" name="{{path}}.npcRangeMinMeters" value="0" data-dtype="Number"/>
+    {{/if}}
+  </div>
+
+  {{!-- Row 2: AoE radius only (— = normal attack). Shape is derived in code. --}}
+  <div class="npc-attack-row npc-attack-row--aoe">
+    <div class="npc-attack-field">
+      <label>AoE</label>
+      <select name="{{path}}.npcAoeRadiusM" data-dtype="Number" class="npc-aoe-radius" data-npc-attack-path="{{path}}" title="— = no AoE (normal single-target). Melee = burst around self. Range = placeable zone.">
+        <option value="0" {{#unless atk.npcAoeRadiusM}}selected{{/unless}}>—</option>
+        {{#each (range 2 12)}}
+        <option value="{{this}}" {{#if (eqNum ../atk.npcAoeRadiusM this)}}selected{{/if}}>{{this}} m</option>
+        {{/each}}
+      </select>
+    </div>
+    <div class="npc-attack-field npc-attack-field--hint">
+      <span class="npc-attack-inline-hint">
+        {{#if atk.npcAoeRadiusM}}
+          {{#if (eq atk.npcRangeKind "ranged")}}Range AoE zone{{else}}Melee burst (around self){{/if}}
+        {{else}}
+          No AoE — normal single-target attack
+        {{/if}}
+      </span>
+    </div>
+    <input type="hidden" name="{{path}}.npcAoeShape" class="npc-aoe-shape" value="{{#if atk.npcAoeRadiusM}}radius{{else}}none{{/if}}"/>
+  </div>
+
+  {{!-- Row 3: Spell / APR / Split / Stress --}}
+  <div class="npc-attack-row npc-attack-row--flags">
+    <div class="npc-attack-field npc-attack-field--check">
+      <label>Spell</label>
+      <label class="npc-attack-checkbox-label"><input type="checkbox" name="{{path}}.npcIsSpell" {{#if atk.npcIsSpell}}checked{{/if}} data-dtype="Boolean" title="Casting TN = 8×MR (not Evade)"/></label>
+    </div>
+    <div class="npc-attack-field">
+      <label>Attacks/Round</label>
+      <select name="{{path}}.npcAttacksPerRound" data-dtype="Number" title="Radial copies (1–5). Sum = ATK.">
+        {{#each (range 1 5)}}
+        <option value="{{this}}" {{#if (eqNum ../atk.npcAttacksPerRound this)}}selected{{/if}}>{{this}}</option>
+        {{/each}}
+      </select>
+    </div>
+    <div class="npc-attack-field npc-attack-field--check">
+      <label>Split</label>
+      <label class="npc-attack-checkbox-label"><input type="checkbox" name="{{path}}.npcSplitAttack" {{#if atk.npcSplitAttack}}checked{{/if}} data-dtype="Boolean" title="Two hits; pool/damage halved"/></label>
+    </div>
+    <div class="npc-attack-field">
+      <label>Stress (d8)</label>
+      <select name="{{path}}.npcStressD8" data-dtype="Number" data-tooltip="Stress damage on hit">
+        <option value="" {{#unless atk.npcStressD8}}selected{{/unless}}>—</option>
+        {{#each (range 1 4)}}
+        <option value="{{this}}" {{#if (eqNum ../atk.npcStressD8 this)}}selected{{/if}}>{{this}}d8</option>
+        {{/each}}
+      </select>
+    </div>
+  </div>
+</div>

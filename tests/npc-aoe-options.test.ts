@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { buildNpcAttackRadialOptions } from '../src/radial-menu/options.js';
 
 describe('NPC AoE radial options', () => {
-  it('does not mark AoE when shape is none/empty even if radius leftover exists', () => {
+  it('treats radius ≥ 2 as AoE even when shape is empty/stale-off', () => {
     const actor = {
       type: 'npc',
       system: {
@@ -20,12 +20,12 @@ describe('NPC AoE radial options', () => {
     };
     const opts = buildNpcAttackRadialOptions(actor as any);
     expect(opts).toHaveLength(1);
-    expect(opts[0].aoeShape).toBe('none');
-    expect(opts[0].burstMeleeAoE).toBeFalsy();
-    expect(opts[0].aoePlacementProfile).toBeUndefined();
+    expect(opts[0].aoeShape).toBe('radius');
+    expect(opts[0].burstMeleeAoE).toBe(true);
+    expect(opts[0].burstMeleeRadiusMeters).toBe(4);
   });
 
-  it('does not mark AoE when shape is set but radius is 0 or 1', () => {
+  it('does not mark AoE when radius is 0 or 1 even if shape leftover is radius', () => {
     for (const rad of [0, 1]) {
       const actor = {
         type: 'npc',
@@ -44,6 +44,8 @@ describe('NPC AoE radial options', () => {
       const opts = buildNpcAttackRadialOptions(actor as any);
       expect(opts[0].aoeShape).toBe('none');
       expect(opts[0].burstMeleeAoE).toBeFalsy();
+      expect(opts[0].description).toMatch(/Melee/);
+      expect(opts[0].description).not.toMatch(/AoE/);
     }
   });
 
@@ -66,9 +68,10 @@ describe('NPC AoE radial options', () => {
     expect(opts[0].burstMeleeAoE).toBe(true);
     expect(opts[0].burstMeleeRadiusMeters).toBe(3);
     expect(opts[0].aoePlacementProfile).toBeUndefined();
+    expect(opts[0].description).toContain('AoE burst 3 m');
   });
 
-  it('marks ranged hostile-zone placement when Fern + radius AoE', () => {
+  it('marks ranged hostile-zone placement when Range + radius AoE', () => {
     const actor = {
       type: 'npc',
       system: {
@@ -92,9 +95,11 @@ describe('NPC AoE radial options', () => {
     expect(opts[0].aoeRadiusMeters).toBe(4);
     expect(opts[0].aoePlacementProfile).toBe('hostile-zone');
     expect(opts[0].burstMeleeAoE).toBeFalsy();
+    expect(opts[0].description).toContain('Range 12–24 m');
+    expect(opts[0].description).toContain('AoE 4 m');
   });
 
-  it('treats melee range kind as non-ranged even with leftover Fern meters', () => {
+  it('treats melee range kind as non-ranged even with leftover Range meters', () => {
     const actor = {
       type: 'npc',
       system: {
@@ -116,5 +121,7 @@ describe('NPC AoE radial options', () => {
     expect(opts[0].tags).not.toContain('ranged');
     expect(opts[0].aoeShape).toBe('none');
     expect(opts[0].burstMeleeAoE).toBeFalsy();
+    expect(opts[0].description).toContain('Melee');
+    expect(opts[0].description).not.toMatch(/AoE/);
   });
 });

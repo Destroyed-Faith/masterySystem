@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.261] - 2026-08-07
+
+### Fixed
+
+- **NPC attack targeting UI**: Row 1 is **Melee / Range** with Reach 1–8 or Min/Max 12–24; separate **AoE** row (`—` = normal single-target). Removed sticky AoE-Form / Fern-Minimum leftovers.
+- **NPC AoE off is authoritative**: radius `< 2` / `—` hard-writes `npcAoeRadiusM: 0` + `npcAoeShape: 'none'` on the actor so combat no longer opens Melee AoE from stale data. Switching Melee↔Range also clears AoE and resets meters.
+- **Radial / description**: AoE gated only by radius ≥ 2 m (ignore leftover shape); descriptions use `Melee` / `Range` and only show AoE when active. Console debug logs on sheet switch and radial resolve.
+
 ## [0.9.260] - 2026-08-07
 
 ### Changed

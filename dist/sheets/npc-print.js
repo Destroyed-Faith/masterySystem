@@ -47,18 +47,18 @@ function formatRangeLine(atk) {
     if (kind === 'ranged') {
         const maxM = Math.floor(num(atk.npcRangeMeters, 24));
         const minM = Math.floor(num(atk.npcRangeMinMeters, 12));
-        return `Fern ${minM}–${maxM} m`;
+        return `Range ${minM}–${maxM} m`;
     }
     const reach = Math.floor(num(atk.npcRangeMeters, 2));
-    return `Reach ${reach > 0 ? reach : 2} m`;
+    return `Melee ${reach > 0 ? reach : 2} m`;
 }
 function formatAoeLine(atk) {
-    const shape = String(atk.npcAoeShape || '').toLowerCase();
-    if (!shape || shape === 'none')
-        return '—';
+    // Radius ≥ 2 m is the only AoE gate (ignore leftover shape).
     const m = Math.floor(num(atk.npcAoeRadiusM, 0));
-    const label = shape === 'radius' ? 'Radius' : shape === 'cone' ? 'Kegel' : shape === 'line' ? 'Linie' : shape;
-    return m > 0 ? `${label} ${m} m` : label;
+    if (m < 2)
+        return '—';
+    const kind = String(atk.npcRangeKind || '').toLowerCase();
+    return kind === 'ranged' ? `AoE ${m} m` : `AoE burst ${m} m`;
 }
 function formatFlags(atk) {
     const flags = [];

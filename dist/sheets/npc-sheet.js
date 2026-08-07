@@ -106,19 +106,17 @@ function normalizeNpcAttackRowForContext(row) {
         }
         delete o.npcRangeMinMeters;
     }
-    // AoE is active only with a real shape AND radius ≥ 2 m.
-    // 0 / empty / "—" ⇒ normal attack (no AoE).
-    const sh = String(o.npcAoeShape || '').toLowerCase();
+    // AoE is driven only by radius (≥ 2 m). Stale npcAoeShape alone must not keep AoE on.
+    // "—" / 0 / 1 ⇒ normal single-target; shape is always derived (radius | none).
     const radRaw = Math.floor(Number(o.npcAoeRadiusM));
-    const radOk = Number.isFinite(radRaw) && radRaw >= 2;
-    if ((sh === 'radius' || sh === 'cone' || sh === 'line') && radOk) {
-        o.npcAoeShape = sh;
+    const hasAoe = Number.isFinite(radRaw) && radRaw >= 2;
+    if (hasAoe) {
         o.npcAoeRadiusM = radRaw;
+        o.npcAoeShape = 'radius';
     }
     else {
-        delete o.npcAoeShape;
-        // Keep 0 in context so the "—" option (value=0) stays selected.
         o.npcAoeRadiusM = 0;
+        o.npcAoeShape = 'none';
     }
     return o;
 }
@@ -309,67 +307,73 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
         }
         return context;
     }
+    /**
+     * Hard-write NPC attack targeting fields so sticky AoE / range leftovers
+     * cannot survive a Melee↔Range or AoE "—" switch (FormData alone was flaky).
+     */
+    async #persistNpcAttackTargeting(path, patch, reason) {
+        if (!path || !this.actor)
+            return;
+        const update = {};
+        for (const [key, value] of Object.entries(patch)) {
+            update[`${path}.${key}`] = value;
+        }
+        console.log(`[MS NPC Targeting] ${reason}`, { path, patch, actorId: this.actor.id });
+        await this.actor.update(update);
+        const row = path.split('.').reduce((acc, key) => (acc == null ? acc : acc[key]), this.actor);
+        console.log(`[MS NPC Targeting] after update`, { path, row });
+    }
     /** @override */
     activateListeners(html) {
         super.activateListeners(html);
-        // Reach ↔ Fern: keep meters in the valid band so Fern doesn't stay stuck at 2 m.
-        html.find('select[name$=".npcRangeKind"]').on('change', (ev) => {
+        // Melee ↔ Range: full retarget — reset meters + hard-clear AoE on the actor.
+        html.find('select.npc-range-kind, select[name$=".npcRangeKind"]').on('change', (ev) => {
+            ev.preventDefault();
+            ev.stopPropagation();
             const select = ev.currentTarget;
-            const base = String(select.name || '').replace(/\.npcRangeKind$/, '');
-            if (!base)
+            const path = select.dataset.npcAttackPath ||
+                String(select.name || '').replace(/\.npcRangeKind$/, '');
+            if (!path)
                 return;
-            const kind = String(select.value || '').toLowerCase();
-            const metersEl = html.find(`[name="${base}.npcRangeMeters"]`).get(0);
-            const minEl = html.find(`[name="${base}.npcRangeMinMeters"]`).get(0);
-            if (kind === 'ranged') {
-                const cur = Math.floor(Number(metersEl?.value));
-                if (metersEl && (!Number.isFinite(cur) || cur < 12))
-                    metersEl.value = '24';
-                if (minEl) {
-                    const minCur = Math.floor(Number(minEl.value));
-                    if (!Number.isFinite(minCur) || minCur < 12)
-                        minEl.value = '12';
+            const kind = String(select.value || '').toLowerCase() === 'ranged' ? 'ranged' : 'melee';
+            const patch = kind === 'ranged'
+                ? {
+                    npcRangeKind: 'ranged',
+                    npcRangeMeters: 24,
+                    npcRangeMinMeters: 12,
+                    npcAoeRadiusM: 0,
+                    npcAoeShape: 'none',
                 }
-            }
-            else {
-                const cur = Math.floor(Number(metersEl?.value));
-                if (metersEl && (!Number.isFinite(cur) || cur < 1 || cur > 8))
-                    metersEl.value = '2';
-            }
+                : {
+                    npcRangeKind: 'melee',
+                    npcRangeMeters: 2,
+                    npcRangeMinMeters: 0,
+                    npcAoeRadiusM: 0,
+                    npcAoeShape: 'none',
+                };
+            void this.#persistNpcAttackTargeting(path, patch, `range-kind → ${kind} (AoE cleared, meters reset)`);
         });
-        // Enabling an AoE shape with empty/0 radius defaults to 2 m (DOM), so the
-        // subsequent submitOnChange persists a real AoE. Setting radius to — / 0
-        // clears the shape so the attack becomes normal again.
-        html.find('select[name$=".npcAoeShape"]').on('change', (ev) => {
-            const select = ev.currentTarget;
-            const base = String(select.name || '').replace(/\.npcAoeShape$/, '');
-            if (!base)
-                return;
-            const shape = String(select.value || '').toLowerCase();
-            const radEl = html.find(`[name="${base}.npcAoeRadiusM"]`).get(0);
-            if (!shape || shape === 'none') {
-                if (radEl)
-                    radEl.value = '0';
-                return;
-            }
-            const cur = Math.floor(Number(radEl?.value));
-            if (!radEl || !Number.isFinite(cur) || cur < 2) {
-                if (radEl)
-                    radEl.value = '2';
-            }
-        });
-        html.find('[name$=".npcAoeRadiusM"]').on('change', (ev) => {
+        // AoE radius is the only switch. "—" / 0 ⇒ normal single-target (not Melee AoE).
+        html.find('select.npc-aoe-radius, [name$=".npcAoeRadiusM"]').on('change', (ev) => {
+            ev.preventDefault();
+            ev.stopPropagation();
             const radEl = ev.currentTarget;
-            const base = String(radEl.name || '').replace(/\.npcAoeRadiusM$/, '');
-            if (!base)
+            const path = radEl.dataset?.npcAttackPath ||
+                String(radEl.name || '').replace(/\.npcAoeRadiusM$/, '');
+            if (!path)
                 return;
             const rad = Math.floor(Number(radEl.value));
-            const shapeEl = html.find(`[name="${base}.npcAoeShape"]`).get(0);
-            if (!radEl.value || !Number.isFinite(rad) || rad < 2) {
-                if (shapeEl)
-                    shapeEl.value = 'none';
+            const hasAoe = Number.isFinite(rad) && rad >= 2;
+            const patch = hasAoe
+                ? { npcAoeRadiusM: rad, npcAoeShape: 'radius' }
+                : { npcAoeRadiusM: 0, npcAoeShape: 'none' };
+            // Keep hidden shape field in sync for any subsequent form submit.
+            const shapeEl = html.find(`[name="${path}.npcAoeShape"]`).get(0);
+            if (shapeEl)
+                shapeEl.value = hasAoe ? 'radius' : 'none';
+            if (!hasAoe)
                 radEl.value = '0';
-            }
+            void this.#persistNpcAttackTargeting(path, patch, hasAoe ? `AoE ON → radius ${rad} m` : 'AoE OFF → normal single-target (not Melee AoE)');
         });
         const syncColorPickerToText = (e) => {
             const colorPicker = $(e.currentTarget);

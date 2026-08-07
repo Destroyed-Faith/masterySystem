@@ -211,67 +211,7 @@
                 </select>
               </div>
             </div>
-            <div class="npc-attack-advanced-grid">
-              <p class="npc-attack-advanced-hint">Radial: Reach/Fern; Spell = Casting TN 8×MR; <strong>Angriffe/Runde</strong> = so oft die Power im Radial erscheint (setzt ATK); Stress = W8.</p>
-              <div class="npc-attack-field">
-                <label>Reichweite</label>
-                <select name="system.phases.{{phaseIndex}}.npcBaseAttack.npcRangeKind">
-                  <option value="melee" {{#unless (eq phase.npcBaseAttack.npcRangeKind "ranged")}}selected{{/unless}}>Reach</option>
-                  <option value="ranged" {{#if (eq phase.npcBaseAttack.npcRangeKind "ranged")}}selected{{/if}}>Fern</option>
-                </select>
-              </div>
-              <div class="npc-attack-field">
-                <label>m (Reach 1–8 / Fern-Max 12–24)</label>
-                <input type="number" name="system.phases.{{phaseIndex}}.npcBaseAttack.npcRangeMeters" value="{{default phase.npcBaseAttack.npcRangeMeters 2}}" min="1" max="24" step="1" data-dtype="Number" title="Reach: 1–8 m. Fernkampf: maximale Distanz 12–24 m."/>
-              </div>
-              <div class="npc-attack-field">
-                <label>Fern Min. m</label>
-                <input type="number" name="system.phases.{{phaseIndex}}.npcBaseAttack.npcRangeMinMeters" value="{{default phase.npcBaseAttack.npcRangeMinMeters 12}}" min="12" max="24" step="1" data-dtype="Number" title="Nur Fernkampf: minimale Distanz (Standard 12 m)"/>
-              </div>
-              <div class="npc-attack-field">
-                <label>AoE-Form</label>
-                <select name="system.phases.{{phaseIndex}}.npcBaseAttack.npcAoeShape">
-                  <option value="none" {{#unless phase.npcBaseAttack.npcAoeShape}}selected{{/unless}}>Keine</option>
-                  <option value="radius" {{#if (eq phase.npcBaseAttack.npcAoeShape "radius")}}selected{{/if}}>Radius</option>
-                  <option value="cone" {{#if (eq phase.npcBaseAttack.npcAoeShape "cone")}}selected{{/if}}>Kegel</option>
-                  <option value="line" {{#if (eq phase.npcBaseAttack.npcAoeShape "line")}}selected{{/if}}>Linie</option>
-                </select>
-              </div>
-              <div class="npc-attack-field">
-                <label>AoE m (Radius/Länge)</label>
-                <select name="system.phases.{{phaseIndex}}.npcBaseAttack.npcAoeRadiusM" data-dtype="Number" title="Ab 2 m aktiv. — / leer = kein AoE (normaler Angriff).">
-                  <option value="0" {{#unless phase.npcBaseAttack.npcAoeRadiusM}}selected{{/unless}}>—</option>
-                  {{#each (range 2 12)}}
-                  <option value="{{this}}" {{#if (eqNum phase.npcBaseAttack.npcAoeRadiusM this)}}selected{{/if}}>{{this}} m</option>
-                  {{/each}}
-                </select>
-              </div>
-              <div class="npc-attack-field npc-attack-field--check">
-                <label>Split-Angriff</label>
-                <label class="npc-attack-checkbox-label"><input type="checkbox" name="system.phases.{{phaseIndex}}.npcBaseAttack.npcSplitAttack" {{#if phase.npcBaseAttack.npcSplitAttack}}checked{{/if}} data-dtype="Boolean"/> Zwei Treffer (Pool/Schaden halbiert)</label>
-              </div>
-              <div class="npc-attack-field npc-attack-field--check">
-                <label>Spell</label>
-                <label class="npc-attack-checkbox-label"><input type="checkbox" name="system.phases.{{phaseIndex}}.npcBaseAttack.npcIsSpell" {{#if phase.npcBaseAttack.npcIsSpell}}checked{{/if}} data-dtype="Boolean"/> Casting TN = 8×MR (nicht Evade)</label>
-              </div>
-              <div class="npc-attack-field">
-                <label>Angriffe/Runde</label>
-                <select name="system.phases.{{phaseIndex}}.npcBaseAttack.npcAttacksPerRound" data-dtype="Number" title="So oft erscheint diese Power im Radialmenü (1–5). Summe aller Powers = ATK.">
-                  {{#each (range 1 5)}}
-                  <option value="{{this}}" {{#if (eqNum phase.npcBaseAttack.npcAttacksPerRound this)}}selected{{/if}}>{{this}}</option>
-                  {{/each}}
-                </select>
-              </div>
-              <div class="npc-attack-field">
-                <label>Stress-Schaden (W8)</label>
-                <select name="system.phases.{{phaseIndex}}.npcBaseAttack.npcStressD8" data-dtype="Number" data-tooltip="Stress-Schaden bei Treffer (Stress-Rüstung mindert)">
-                  <option value="" {{#unless phase.npcBaseAttack.npcStressD8}}selected{{/unless}}>—</option>
-                  {{#each (range 1 4)}}
-                  <option value="{{this}}" {{#if (eqNum phase.npcBaseAttack.npcStressD8 this)}}selected{{/if}}>{{this}}d8</option>
-                  {{/each}}
-                </select>
-              </div>
-            </div>
+            {{> "systems/mastery-system/templates/actor/partials/npc-attack-targeting.hbs" path=(concat "system.phases." phaseIndex ".npcBaseAttack") atk=phase.npcBaseAttack}}
             <div class="npc-attack-specials-block">
               <div class="npc-attack-specials-header">
                 <span>Speziale</span>
@@ -338,67 +278,7 @@
                     </select>
                   </div>
                 </div>
-                <div class="npc-attack-advanced-grid">
-                  <p class="npc-attack-advanced-hint">Radial: Reach/Fern; AoE; Split; Spell (8×MR); Angriffe/Runde = Radial-Kopien (Summe = ATK); Stress = W8.</p>
-                  <div class="npc-attack-field">
-                    <label>Reichweite</label>
-                    <select name="system.phases.{{../phaseIndex}}.attackValues.{{index}}.npcRangeKind">
-                      <option value="melee" {{#unless (eq attack.npcRangeKind "ranged")}}selected{{/unless}}>Reach</option>
-                      <option value="ranged" {{#if (eq attack.npcRangeKind "ranged")}}selected{{/if}}>Fern</option>
-                    </select>
-                  </div>
-                  <div class="npc-attack-field">
-                    <label>m (Reach / Fern-Max)</label>
-                    <input type="number" name="system.phases.{{../phaseIndex}}.attackValues.{{index}}.npcRangeMeters" value="{{default attack.npcRangeMeters 2}}" min="1" max="24" step="1" data-dtype="Number" title="Reach 1–8 m oder Fern-Max 12–24 m"/>
-                  </div>
-                  <div class="npc-attack-field">
-                    <label>Fern Min. m</label>
-                    <input type="number" name="system.phases.{{../phaseIndex}}.attackValues.{{index}}.npcRangeMinMeters" value="{{default attack.npcRangeMinMeters 12}}" min="12" max="24" step="1" data-dtype="Number" title="Nur Fernkampf: Min. 12–24 m"/>
-                  </div>
-                  <div class="npc-attack-field">
-                    <label>AoE-Form</label>
-                    <select name="system.phases.{{../phaseIndex}}.attackValues.{{index}}.npcAoeShape">
-                      <option value="none" {{#unless attack.npcAoeShape}}selected{{/unless}}>Keine</option>
-                      <option value="radius" {{#if (eq attack.npcAoeShape "radius")}}selected{{/if}}>Radius</option>
-                      <option value="cone" {{#if (eq attack.npcAoeShape "cone")}}selected{{/if}}>Kegel</option>
-                      <option value="line" {{#if (eq attack.npcAoeShape "line")}}selected{{/if}}>Linie</option>
-                    </select>
-                  </div>
-                  <div class="npc-attack-field">
-                    <label>AoE m</label>
-                    <select name="system.phases.{{../phaseIndex}}.attackValues.{{index}}.npcAoeRadiusM" data-dtype="Number" title="Ab 2 m aktiv. — / leer = kein AoE.">
-                      <option value="0" {{#unless attack.npcAoeRadiusM}}selected{{/unless}}>—</option>
-                      {{#each (range 2 12)}}
-                      <option value="{{this}}" {{#if (eqNum attack.npcAoeRadiusM this)}}selected{{/if}}>{{this}} m</option>
-                      {{/each}}
-                    </select>
-                  </div>
-                  <div class="npc-attack-field npc-attack-field--check">
-                    <label>Split</label>
-                    <label class="npc-attack-checkbox-label"><input type="checkbox" name="system.phases.{{../phaseIndex}}.attackValues.{{index}}.npcSplitAttack" {{#if attack.npcSplitAttack}}checked{{/if}} data-dtype="Boolean"/></label>
-                  </div>
-                  <div class="npc-attack-field npc-attack-field--check">
-                    <label>Spell</label>
-                    <label class="npc-attack-checkbox-label"><input type="checkbox" name="system.phases.{{../phaseIndex}}.attackValues.{{index}}.npcIsSpell" {{#if attack.npcIsSpell}}checked{{/if}} data-dtype="Boolean" title="Casting TN = 8×MR (nicht Evade)"/></label>
-                  </div>
-                  <div class="npc-attack-field">
-                    <label>Angriffe/Runde</label>
-                    <select name="system.phases.{{../phaseIndex}}.attackValues.{{index}}.npcAttacksPerRound" data-dtype="Number" title="So oft erscheint diese Power im Radialmenü (1–5). Summe aller Powers = ATK.">
-                      {{#each (range 1 5)}}
-                      <option value="{{this}}" {{#if (eqNum attack.npcAttacksPerRound this)}}selected{{/if}}>{{this}}</option>
-                      {{/each}}
-                    </select>
-                  </div>
-                  <div class="npc-attack-field">
-                    <label>Stress-Schaden (W8)</label>
-                    <select name="system.phases.{{../phaseIndex}}.attackValues.{{index}}.npcStressD8" data-dtype="Number" data-tooltip="Stress-Schaden bei Treffer (Stress-Rüstung mindert)">
-                      <option value="" {{#unless attack.npcStressD8}}selected{{/unless}}>—</option>
-                      {{#each (range 1 4)}}
-                      <option value="{{this}}" {{#if (eqNum attack.npcStressD8 this)}}selected{{/if}}>{{this}}d8</option>
-                      {{/each}}
-                    </select>
-                  </div>
-                </div>
+                {{> "systems/mastery-system/templates/actor/partials/npc-attack-targeting.hbs" path=(concat "system.phases." ../phaseIndex ".attackValues." index) atk=attack}}
                 <div class="npc-attack-specials-block">
                   <div class="npc-attack-specials-header">
                     <span>Speziale</span>
@@ -532,67 +412,7 @@
               </select>
             </div>
           </div>
-          <div class="npc-attack-advanced-grid">
-            <p class="npc-attack-advanced-hint">Radial: Reach/Fern; AoE; Split; Spell (8×MR); Angriffe/Runde = Radial-Kopien (Summe = ATK); Stress = W8.</p>
-            <div class="npc-attack-field">
-              <label>Reichweite</label>
-              <select name="system.npcBaseAttack.npcRangeKind">
-                <option value="melee" {{#unless (eq system.npcBaseAttack.npcRangeKind "ranged")}}selected{{/unless}}>Reach</option>
-                <option value="ranged" {{#if (eq system.npcBaseAttack.npcRangeKind "ranged")}}selected{{/if}}>Fern</option>
-              </select>
-            </div>
-            <div class="npc-attack-field">
-              <label>m (Reach 1–8 / Fern-Max 12–24)</label>
-              <input type="number" name="system.npcBaseAttack.npcRangeMeters" value="{{default system.npcBaseAttack.npcRangeMeters 2}}" min="1" max="24" step="1" data-dtype="Number" title="Reach: 1–8 m. Fernkampf: maximale Distanz 12–24 m."/>
-            </div>
-            <div class="npc-attack-field">
-              <label>Fern Min. m</label>
-              <input type="number" name="system.npcBaseAttack.npcRangeMinMeters" value="{{default system.npcBaseAttack.npcRangeMinMeters 12}}" min="12" max="24" step="1" data-dtype="Number" title="Nur Fernkampf: minimale Distanz (Standard 12 m)"/>
-            </div>
-            <div class="npc-attack-field">
-              <label>AoE-Form</label>
-              <select name="system.npcBaseAttack.npcAoeShape">
-                <option value="none" {{#unless system.npcBaseAttack.npcAoeShape}}selected{{/unless}}>Keine</option>
-                <option value="radius" {{#if (eq system.npcBaseAttack.npcAoeShape "radius")}}selected{{/if}}>Radius</option>
-                <option value="cone" {{#if (eq system.npcBaseAttack.npcAoeShape "cone")}}selected{{/if}}>Kegel</option>
-                <option value="line" {{#if (eq system.npcBaseAttack.npcAoeShape "line")}}selected{{/if}}>Linie</option>
-              </select>
-            </div>
-            <div class="npc-attack-field">
-              <label>AoE m</label>
-              <select name="system.npcBaseAttack.npcAoeRadiusM" data-dtype="Number" title="Ab 2 m aktiv. — / leer = kein AoE (normaler Angriff).">
-                <option value="0" {{#unless system.npcBaseAttack.npcAoeRadiusM}}selected{{/unless}}>—</option>
-                {{#each (range 2 12)}}
-                <option value="{{this}}" {{#if (eqNum ../system.npcBaseAttack.npcAoeRadiusM this)}}selected{{/if}}>{{this}} m</option>
-                {{/each}}
-              </select>
-            </div>
-            <div class="npc-attack-field npc-attack-field--check">
-              <label>Split</label>
-              <label class="npc-attack-checkbox-label"><input type="checkbox" name="system.npcBaseAttack.npcSplitAttack" {{#if system.npcBaseAttack.npcSplitAttack}}checked{{/if}} data-dtype="Boolean"/></label>
-            </div>
-            <div class="npc-attack-field npc-attack-field--check">
-              <label>Spell</label>
-              <label class="npc-attack-checkbox-label"><input type="checkbox" name="system.npcBaseAttack.npcIsSpell" {{#if system.npcBaseAttack.npcIsSpell}}checked{{/if}} data-dtype="Boolean" title="Casting TN = 8×MR (nicht Evade)"/></label>
-            </div>
-            <div class="npc-attack-field">
-              <label>Angriffe/Runde</label>
-              <select name="system.npcBaseAttack.npcAttacksPerRound" data-dtype="Number" title="So oft erscheint diese Power im Radialmenü (1–5). Summe aller Powers = ATK.">
-                {{#each (range 1 5)}}
-                <option value="{{this}}" {{#if (eqNum ../system.npcBaseAttack.npcAttacksPerRound this)}}selected{{/if}}>{{this}}</option>
-                {{/each}}
-              </select>
-            </div>
-            <div class="npc-attack-field">
-              <label>Stress-Schaden (W8)</label>
-              <select name="system.npcBaseAttack.npcStressD8" data-dtype="Number" data-tooltip="Stress-Schaden bei Treffer (Stress-Rüstung mindert)">
-                <option value="" {{#unless system.npcBaseAttack.npcStressD8}}selected{{/unless}}>—</option>
-                {{#each (range 1 4)}}
-                <option value="{{this}}" {{#if (eqNum ../system.npcBaseAttack.npcStressD8 this)}}selected{{/if}}>{{this}}d8</option>
-                {{/each}}
-              </select>
-            </div>
-          </div>
+          {{> "systems/mastery-system/templates/actor/partials/npc-attack-targeting.hbs" path="system.npcBaseAttack" atk=system.npcBaseAttack}}
           <div class="npc-attack-specials-block">
             <div class="npc-attack-specials-header">
               <span>Speziale</span>
@@ -659,67 +479,7 @@
                   </select>
                 </div>
               </div>
-              <div class="npc-attack-advanced-grid">
-                <p class="npc-attack-advanced-hint">Radial: Reach/Fern; AoE; Split; Spell (8×MR); Angriffe/Runde = Radial-Kopien (Summe = ATK); Stress = W8.</p>
-                <div class="npc-attack-field">
-                  <label>Reichweite</label>
-                  <select name="system.attackValues.{{index}}.npcRangeKind">
-                    <option value="melee" {{#unless (eq attack.npcRangeKind "ranged")}}selected{{/unless}}>Reach</option>
-                    <option value="ranged" {{#if (eq attack.npcRangeKind "ranged")}}selected{{/if}}>Fern</option>
-                  </select>
-                </div>
-                <div class="npc-attack-field">
-                  <label>m (Reach / Fern-Max)</label>
-                  <input type="number" name="system.attackValues.{{index}}.npcRangeMeters" value="{{default attack.npcRangeMeters 2}}" min="1" max="24" step="1" data-dtype="Number" title="Reach 1–8 m oder Fern-Max 12–24 m"/>
-                </div>
-                <div class="npc-attack-field">
-                  <label>Fern Min. m</label>
-                  <input type="number" name="system.attackValues.{{index}}.npcRangeMinMeters" value="{{default attack.npcRangeMinMeters 12}}" min="12" max="24" step="1" data-dtype="Number" title="Nur Fernkampf: Min. 12–24 m"/>
-                </div>
-                <div class="npc-attack-field">
-                  <label>AoE-Form</label>
-                  <select name="system.attackValues.{{index}}.npcAoeShape">
-                    <option value="none" {{#unless attack.npcAoeShape}}selected{{/unless}}>Keine</option>
-                    <option value="radius" {{#if (eq attack.npcAoeShape "radius")}}selected{{/if}}>Radius</option>
-                    <option value="cone" {{#if (eq attack.npcAoeShape "cone")}}selected{{/if}}>Kegel</option>
-                    <option value="line" {{#if (eq attack.npcAoeShape "line")}}selected{{/if}}>Linie</option>
-                  </select>
-                </div>
-                <div class="npc-attack-field">
-                  <label>AoE m</label>
-                  <select name="system.attackValues.{{index}}.npcAoeRadiusM" data-dtype="Number" title="Ab 2 m aktiv. — / leer = kein AoE.">
-                    <option value="0" {{#unless attack.npcAoeRadiusM}}selected{{/unless}}>—</option>
-                    {{#each (range 2 12)}}
-                    <option value="{{this}}" {{#if (eqNum attack.npcAoeRadiusM this)}}selected{{/if}}>{{this}} m</option>
-                    {{/each}}
-                  </select>
-                </div>
-                <div class="npc-attack-field npc-attack-field--check">
-                  <label>Split</label>
-                  <label class="npc-attack-checkbox-label"><input type="checkbox" name="system.attackValues.{{index}}.npcSplitAttack" {{#if attack.npcSplitAttack}}checked{{/if}} data-dtype="Boolean"/></label>
-                </div>
-                <div class="npc-attack-field npc-attack-field--check">
-                  <label>Spell</label>
-                  <label class="npc-attack-checkbox-label"><input type="checkbox" name="system.attackValues.{{index}}.npcIsSpell" {{#if attack.npcIsSpell}}checked{{/if}} data-dtype="Boolean" title="Casting TN = 8×MR (nicht Evade)"/></label>
-                </div>
-                <div class="npc-attack-field">
-                  <label>Angriffe/Runde</label>
-                  <select name="system.attackValues.{{index}}.npcAttacksPerRound" data-dtype="Number" title="So oft erscheint diese Power im Radialmenü (1–5). Summe aller Powers = ATK.">
-                    {{#each (range 1 5)}}
-                    <option value="{{this}}" {{#if (eqNum attack.npcAttacksPerRound this)}}selected{{/if}}>{{this}}</option>
-                    {{/each}}
-                  </select>
-                </div>
-                <div class="npc-attack-field">
-                  <label>Stress-Schaden (W8)</label>
-                  <select name="system.attackValues.{{index}}.npcStressD8" data-dtype="Number" data-tooltip="Stress-Schaden bei Treffer (Stress-Rüstung mindert)">
-                    <option value="" {{#unless attack.npcStressD8}}selected{{/unless}}>—</option>
-                    {{#each (range 1 4)}}
-                    <option value="{{this}}" {{#if (eqNum attack.npcStressD8 this)}}selected{{/if}}>{{this}}d8</option>
-                    {{/each}}
-                  </select>
-                </div>
-              </div>
+              {{> "systems/mastery-system/templates/actor/partials/npc-attack-targeting.hbs" path=(concat "system.attackValues." index) atk=attack}}
               <div class="npc-attack-specials-block">
                 <div class="npc-attack-specials-header">
                   <span>Speziale</span>

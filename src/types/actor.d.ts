@@ -395,8 +395,9 @@ export interface AttackValue {
   /** Fern-Modus: minimale Reichweite in Metern (12–24, Standard 12). */
   npcRangeMinMeters?: number;
   /** AoE-Form für Nah-/Fern (Radial-Metadaten; Nah-Burst nutzt „radius“ + Radius). */
+  /** Derived from npcAoeRadiusM (≥2 ⇒ 'radius', else 'none'). Kept for persistence/compat. */
   npcAoeShape?: 'none' | 'radius' | 'cone' | 'line' | string;
-  /** AoE-Radius in Metern (wenn npcAoeShape === radius). */
+  /** AoE radius in meters. ≥2 enables AoE; 0 / — = normal single-target (not Melee AoE). */
   npcAoeRadiusM?: number;
   /** Wie Split-Attack-Powers: zwei Treffer, Pool & Schaden je floor(Hälfte). */
   npcSplitAttack?: boolean;
