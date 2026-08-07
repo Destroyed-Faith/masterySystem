@@ -6,6 +6,7 @@
  * portraits). ApplicationV2 no longer wires those automatically, so these
  * helpers replicate the V1 behavior on top of the V2 lifecycle.
  */
+import { getFilePickerClass } from '../utils/foundry-v14.js';
 /**
  * Wire classic `nav.sheet-tabs` navigation inside a V2-rendered sheet.
  *
@@ -62,7 +63,11 @@ export function bindEditImage(root, document) {
                 return;
             const attr = el.dataset.edit || 'img';
             const current = foundry.utils.getProperty(document, attr);
-            const FilePickerImpl = foundry.applications?.apps?.FilePicker?.implementation ?? globalThis.FilePicker;
+            const FilePickerImpl = getFilePickerClass();
+            if (!FilePickerImpl) {
+                console.warn('Mastery System | FilePicker unavailable (namespaced API missing)');
+                return;
+            }
             const fp = new FilePickerImpl({
                 type: 'image',
                 current: current || '',

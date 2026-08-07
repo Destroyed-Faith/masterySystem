@@ -7,6 +7,8 @@
  * helpers replicate the V1 behavior on top of the V2 lifecycle.
  */
 
+import { getFilePickerClass } from '../utils/foundry-v14.js';
+
 /**
  * Wire classic `nav.sheet-tabs` navigation inside a V2-rendered sheet.
  *
@@ -70,8 +72,11 @@ export function bindEditImage(root: HTMLElement, document: any): void {
       if (!document?.canUserModify?.((game as any).user, 'update')) return;
       const attr = el.dataset.edit || 'img';
       const current = (foundry.utils as any).getProperty(document, attr);
-      const FilePickerImpl: any =
-        (foundry.applications as any)?.apps?.FilePicker?.implementation ?? (globalThis as any).FilePicker;
+      const FilePickerImpl = getFilePickerClass();
+      if (!FilePickerImpl) {
+        console.warn('Mastery System | FilePicker unavailable (namespaced API missing)');
+        return;
+      }
       const fp = new FilePickerImpl({
         type: 'image',
         current: current || '',

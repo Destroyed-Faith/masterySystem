@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.267] - 2026-08-07
+
+### Changed
+
+- **FilePicker**: sheet image edit no longer falls back to the deprecated global `FilePicker`; uses only `foundry.applications.apps.FilePicker.implementation` via `getFilePickerClass()`.
+
 ## [0.9.266] - 2026-08-07
 
 ### Fixed
