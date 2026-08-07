@@ -85,7 +85,8 @@ function normalizeNpcAttackRowForContext(row) {
         // Fernkampf: Min 12 / Max 24 (sheet defaults + clamps for display).
         const maxRaw = Math.floor(Number(o.npcRangeMeters));
         const minRaw = Math.floor(Number(o.npcRangeMinMeters));
-        const maxM = Number.isFinite(maxRaw) && maxRaw > 0 ? Math.min(24, Math.max(12, maxRaw)) : 24;
+        // If the row was previously melee (e.g. 2 m), bump max up into the Fern band.
+        const maxM = Number.isFinite(maxRaw) && maxRaw >= 12 ? Math.min(24, maxRaw) : 24;
         let minM = Number.isFinite(minRaw) && minRaw > 0 ? Math.min(24, Math.max(12, minRaw)) : 12;
         if (minM > maxM)
             minM = maxM;
@@ -93,11 +94,12 @@ function normalizeNpcAttackRowForContext(row) {
         o.npcRangeMinMeters = minM;
     }
     else {
-        delete o.npcRangeKind;
-        // Reach: 1–8 m (default 2 when empty).
+        // Persist explicit melee so empty FormData can't leave a stale "ranged" flag.
+        o.npcRangeKind = 'melee';
+        // Reach: 1–8 m (default 2 when empty / when coming from Fern 12–24).
         const reachRaw = Math.floor(Number(o.npcRangeMeters));
-        if (Number.isFinite(reachRaw) && reachRaw > 0) {
-            o.npcRangeMeters = Math.min(8, Math.max(1, reachRaw));
+        if (Number.isFinite(reachRaw) && reachRaw >= 1 && reachRaw <= 8) {
+            o.npcRangeMeters = reachRaw;
         }
         else {
             o.npcRangeMeters = 2;
@@ -115,7 +117,8 @@ function normalizeNpcAttackRowForContext(row) {
     }
     else {
         delete o.npcAoeShape;
-        delete o.npcAoeRadiusM;
+        // Keep 0 in context so the "—" option (value=0) stays selected.
+        o.npcAoeRadiusM = 0;
     }
     return o;
 }
@@ -309,9 +312,34 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
     /** @override */
     activateListeners(html) {
         super.activateListeners(html);
+        // Reach ↔ Fern: keep meters in the valid band so Fern doesn't stay stuck at 2 m.
+        html.find('select[name$=".npcRangeKind"]').on('change', (ev) => {
+            const select = ev.currentTarget;
+            const base = String(select.name || '').replace(/\.npcRangeKind$/, '');
+            if (!base)
+                return;
+            const kind = String(select.value || '').toLowerCase();
+            const metersEl = html.find(`[name="${base}.npcRangeMeters"]`).get(0);
+            const minEl = html.find(`[name="${base}.npcRangeMinMeters"]`).get(0);
+            if (kind === 'ranged') {
+                const cur = Math.floor(Number(metersEl?.value));
+                if (metersEl && (!Number.isFinite(cur) || cur < 12))
+                    metersEl.value = '24';
+                if (minEl) {
+                    const minCur = Math.floor(Number(minEl.value));
+                    if (!Number.isFinite(minCur) || minCur < 12)
+                        minEl.value = '12';
+                }
+            }
+            else {
+                const cur = Math.floor(Number(metersEl?.value));
+                if (metersEl && (!Number.isFinite(cur) || cur < 1 || cur > 8))
+                    metersEl.value = '2';
+            }
+        });
         // Enabling an AoE shape with empty/0 radius defaults to 2 m (DOM), so the
-        // subsequent submitOnChange persists a real AoE. Setting radius to — clears
-        // the shape so the attack becomes normal again.
+        // subsequent submitOnChange persists a real AoE. Setting radius to — / 0
+        // clears the shape so the attack becomes normal again.
         html.find('select[name$=".npcAoeShape"]').on('change', (ev) => {
             const select = ev.currentTarget;
             const base = String(select.name || '').replace(/\.npcAoeShape$/, '');
@@ -321,7 +349,7 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
             const radEl = html.find(`[name="${base}.npcAoeRadiusM"]`).get(0);
             if (!shape || shape === 'none') {
                 if (radEl)
-                    radEl.value = '';
+                    radEl.value = '0';
                 return;
             }
             const cur = Math.floor(Number(radEl?.value));
@@ -340,7 +368,7 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
             if (!radEl.value || !Number.isFinite(rad) || rad < 2) {
                 if (shapeEl)
                     shapeEl.value = 'none';
-                radEl.value = '';
+                radEl.value = '0';
             }
         });
         const syncColorPickerToText = (e) => {

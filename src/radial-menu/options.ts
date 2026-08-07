@@ -139,7 +139,8 @@ export function buildNpcAttackRadialOptions(actor: any): RadialCombatOption[] {
     const remaining = Math.max(0, maxCopies - used);
     if (remaining <= 0) return;
 
-    const isRanged = String(atk?.npcRangeKind || '').toLowerCase() === 'ranged';
+    const rangeKind = String(atk?.npcRangeKind || '').toLowerCase();
+    const isRanged = rangeKind === 'ranged';
     // Reach: 1–8 m (default 2). Ranged: max 12–24 m (default 24), min 12–24 (default 12).
     const reachRaw = Math.floor(Number(atk?.npcRangeMeters));
     const reachM = Number.isFinite(reachRaw) && reachRaw > 0 ? Math.min(8, Math.max(1, reachRaw)) : 2;

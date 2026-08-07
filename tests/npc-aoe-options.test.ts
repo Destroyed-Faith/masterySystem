@@ -93,4 +93,28 @@ describe('NPC AoE radial options', () => {
     expect(opts[0].aoePlacementProfile).toBe('hostile-zone');
     expect(opts[0].burstMeleeAoE).toBeFalsy();
   });
+
+  it('treats melee range kind as non-ranged even with leftover Fern meters', () => {
+    const actor = {
+      type: 'npc',
+      system: {
+        npcBaseAttack: {
+          name: 'Slash',
+          attackDiceCount: 6,
+          damageDiceCount: 4,
+          npcRangeKind: 'melee',
+          npcRangeMeters: 24,
+          npcAoeShape: 'none',
+          npcAoeRadiusM: 0,
+          npcAttacksPerRound: 1,
+        },
+        attackValues: [],
+      },
+    };
+    const opts = buildNpcAttackRadialOptions(actor as any);
+    expect(opts[0].tags).toContain('melee');
+    expect(opts[0].tags).not.toContain('ranged');
+    expect(opts[0].aoeShape).toBe('none');
+    expect(opts[0].burstMeleeAoE).toBeFalsy();
+  });
 });

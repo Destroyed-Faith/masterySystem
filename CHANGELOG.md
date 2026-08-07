@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.259] - 2026-08-07
+
+### Fixed
+
+- **NPC Fernkampf**: Reach/Fern now uses explicit `melee`/`ranged` values (empty Reach no longer fails to persist); switching to Fern bumps meters into 12–24.
+- **NPC AoE off**: "—" submits `0` so a stuck 2 m radius is overwritten; shape clears with it.
+- **NPC print**: Reichweite no longer renders as `1,2,3,4,5,6,7,8` (Handlebars `range` helper collision).
+
 ## [0.9.258] - 2026-08-07
 
 ### Changed

@@ -216,7 +216,7 @@
               <div class="npc-attack-field">
                 <label>Reichweite</label>
                 <select name="system.phases.{{phaseIndex}}.npcBaseAttack.npcRangeKind">
-                  <option value="" {{#unless phase.npcBaseAttack.npcRangeKind}}selected{{/unless}}>Reach</option>
+                  <option value="melee" {{#unless (eq phase.npcBaseAttack.npcRangeKind "ranged")}}selected{{/unless}}>Reach</option>
                   <option value="ranged" {{#if (eq phase.npcBaseAttack.npcRangeKind "ranged")}}selected{{/if}}>Fern</option>
                 </select>
               </div>
@@ -240,7 +240,7 @@
               <div class="npc-attack-field">
                 <label>AoE m (Radius/Länge)</label>
                 <select name="system.phases.{{phaseIndex}}.npcBaseAttack.npcAoeRadiusM" data-dtype="Number" title="Ab 2 m aktiv. — / leer = kein AoE (normaler Angriff).">
-                  <option value="" {{#unless phase.npcBaseAttack.npcAoeRadiusM}}selected{{/unless}}>—</option>
+                  <option value="0" {{#unless phase.npcBaseAttack.npcAoeRadiusM}}selected{{/unless}}>—</option>
                   {{#each (range 2 12)}}
                   <option value="{{this}}" {{#if (eqNum phase.npcBaseAttack.npcAoeRadiusM this)}}selected{{/if}}>{{this}} m</option>
                   {{/each}}
@@ -343,7 +343,7 @@
                   <div class="npc-attack-field">
                     <label>Reichweite</label>
                     <select name="system.phases.{{../phaseIndex}}.attackValues.{{index}}.npcRangeKind">
-                      <option value="" {{#unless attack.npcRangeKind}}selected{{/unless}}>Reach</option>
+                      <option value="melee" {{#unless (eq attack.npcRangeKind "ranged")}}selected{{/unless}}>Reach</option>
                       <option value="ranged" {{#if (eq attack.npcRangeKind "ranged")}}selected{{/if}}>Fern</option>
                     </select>
                   </div>
@@ -367,7 +367,7 @@
                   <div class="npc-attack-field">
                     <label>AoE m</label>
                     <select name="system.phases.{{../phaseIndex}}.attackValues.{{index}}.npcAoeRadiusM" data-dtype="Number" title="Ab 2 m aktiv. — / leer = kein AoE.">
-                      <option value="" {{#unless attack.npcAoeRadiusM}}selected{{/unless}}>—</option>
+                      <option value="0" {{#unless attack.npcAoeRadiusM}}selected{{/unless}}>—</option>
                       {{#each (range 2 12)}}
                       <option value="{{this}}" {{#if (eqNum attack.npcAoeRadiusM this)}}selected{{/if}}>{{this}} m</option>
                       {{/each}}
@@ -537,7 +537,7 @@
             <div class="npc-attack-field">
               <label>Reichweite</label>
               <select name="system.npcBaseAttack.npcRangeKind">
-                <option value="" {{#unless system.npcBaseAttack.npcRangeKind}}selected{{/unless}}>Reach</option>
+                <option value="melee" {{#unless (eq system.npcBaseAttack.npcRangeKind "ranged")}}selected{{/unless}}>Reach</option>
                 <option value="ranged" {{#if (eq system.npcBaseAttack.npcRangeKind "ranged")}}selected{{/if}}>Fern</option>
               </select>
             </div>
@@ -561,7 +561,7 @@
             <div class="npc-attack-field">
               <label>AoE m</label>
               <select name="system.npcBaseAttack.npcAoeRadiusM" data-dtype="Number" title="Ab 2 m aktiv. — / leer = kein AoE (normaler Angriff).">
-                <option value="" {{#unless system.npcBaseAttack.npcAoeRadiusM}}selected{{/unless}}>—</option>
+                <option value="0" {{#unless system.npcBaseAttack.npcAoeRadiusM}}selected{{/unless}}>—</option>
                 {{#each (range 2 12)}}
                 <option value="{{this}}" {{#if (eqNum ../system.npcBaseAttack.npcAoeRadiusM this)}}selected{{/if}}>{{this}} m</option>
                 {{/each}}
@@ -664,7 +664,7 @@
                 <div class="npc-attack-field">
                   <label>Reichweite</label>
                   <select name="system.attackValues.{{index}}.npcRangeKind">
-                    <option value="" {{#unless attack.npcRangeKind}}selected{{/unless}}>Reach</option>
+                    <option value="melee" {{#unless (eq attack.npcRangeKind "ranged")}}selected{{/unless}}>Reach</option>
                     <option value="ranged" {{#if (eq attack.npcRangeKind "ranged")}}selected{{/if}}>Fern</option>
                   </select>
                 </div>
@@ -688,7 +688,7 @@
                 <div class="npc-attack-field">
                   <label>AoE m</label>
                   <select name="system.attackValues.{{index}}.npcAoeRadiusM" data-dtype="Number" title="Ab 2 m aktiv. — / leer = kein AoE.">
-                    <option value="" {{#unless attack.npcAoeRadiusM}}selected{{/unless}}>—</option>
+                    <option value="0" {{#unless attack.npcAoeRadiusM}}selected{{/unless}}>—</option>
                     {{#each (range 2 12)}}
                     <option value="{{this}}" {{#if (eqNum attack.npcAoeRadiusM this)}}selected{{/if}}>{{this}} m</option>
                     {{/each}}

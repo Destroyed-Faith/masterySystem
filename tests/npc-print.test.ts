@@ -48,7 +48,7 @@ describe('buildNpcPrintContext', () => {
     expect(page.attacks).toHaveLength(2);
     expect(page.attacks[0].name).toBe('Speer');
     expect(page.attacks[0].pool).toBe('6d8');
-    expect(page.attacks[0].range).toContain('Reach');
+    expect(page.attacks[0].rangeText).toContain('Reach');
     expect(page.attacks[1].flags).toContain('Spell');
     expect(page.attacks[1].specials.toLowerCase()).toContain('ruin');
   });

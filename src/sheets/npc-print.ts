@@ -95,7 +95,9 @@ function buildAttackRows(attacks: AttackValue[]): Record<string, unknown>[] {
       name: String(atk.name || '').trim() || (index === 0 ? 'Waffenangriff' : `Power ${index + 1}`),
       pool: pool > 0 ? `${pool}d8` : '—',
       damage: damage && damage !== '0' ? damage : '—',
-      range: formatRangeLine(atk),
+      // Named rangeText — `range` collides with the Handlebars {{range}} helper
+      // and rendered as "1,2,3,4,5,6,7,8" on the print sheet.
+      rangeText: formatRangeLine(atk),
       aoe: formatAoeLine(atk),
       flags: formatFlags(atk),
       apr,
