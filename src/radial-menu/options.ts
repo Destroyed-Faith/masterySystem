@@ -155,8 +155,8 @@ export function buildNpcAttackRadialOptions(actor: any): RadialCombatOption[] {
     const shapeCandidate =
       shapeRaw === 'radius' || shapeRaw === 'cone' || shapeRaw === 'line' ? shapeRaw : 'none';
     const rad = Math.max(0, Math.floor(Number(atk?.npcAoeRadiusM) || 0));
-    // Empty / "none" / zero-meter AoE must not enter AoE targeting.
-    const shape = shapeCandidate !== 'none' && rad > 0 ? shapeCandidate : 'none';
+    // Empty / "none" / radius below 2 m ⇒ normal attack (no AoE targeting).
+    const shape = shapeCandidate !== 'none' && rad >= 2 ? shapeCandidate : 'none';
     const burstMelee = !isRanged && shape === 'radius';
     const rangedZone = isRanged && shape === 'radius';
     const baseName = (atk?.name && String(atk.name).trim()) || `Angriff ${index + 1}`;

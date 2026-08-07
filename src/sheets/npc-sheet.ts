@@ -104,9 +104,18 @@ function normalizeNpcAttackRowForContext(row: Record<string, any> | null | undef
     }
     delete o.npcRangeMinMeters;
   }
+  // AoE is active only with a real shape AND radius ≥ 2 m.
+  // 0 / empty / "—" ⇒ normal attack (no AoE).
   const sh = String(o.npcAoeShape || '').toLowerCase();
-  if (sh === 'radius' || sh === 'cone' || sh === 'line') o.npcAoeShape = sh;
-  else delete o.npcAoeShape;
+  const radRaw = Math.floor(Number(o.npcAoeRadiusM));
+  const radOk = Number.isFinite(radRaw) && radRaw >= 2;
+  if ((sh === 'radius' || sh === 'cone' || sh === 'line') && radOk) {
+    o.npcAoeShape = sh;
+    o.npcAoeRadiusM = radRaw;
+  } else {
+    delete o.npcAoeShape;
+    delete o.npcAoeRadiusM;
+  }
   return o;
 }
 
@@ -323,56 +332,42 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
     return context;
   }
 
-  /**
-   * Empty/"none" AoE selects must clear persisted shape+radius. Blank
-   * `<option value="">` was previously omitted from FormData, so old AoE
-   * values stuck forever on the actor.
-   * @override
-   */
-  _prepareSubmitData(event: any, form: any, formData: any, updateData?: any): any {
-    const self = this as any;
-    const parentFn = (() => {
-      let proto = Object.getPrototypeOf(self);
-      while (proto) {
-        const desc = Object.getOwnPropertyDescriptor(proto, '_prepareSubmitData');
-        if (desc?.value && desc.value !== self._prepareSubmitData) {
-          return desc.value as (...args: any[]) => any;
-        }
-        proto = Object.getPrototypeOf(proto);
-      }
-      return null;
-    })();
-    const data = parentFn ? parentFn.call(this, event, form, formData, updateData) : {};
-    const scrubAttack = (atk: any) => {
-      if (!atk || typeof atk !== 'object') return;
-      const shape = String(atk.npcAoeShape ?? '').toLowerCase();
-      if (!shape || shape === 'none') {
-        // Must overwrite persisted "radius"/cone/line — deleting the key
-        // would leave the old value untouched by the Actor update merge.
-        atk.npcAoeShape = '';
-        atk.npcAoeRadiusM = null;
-      }
-    };
-    if (data?.system) {
-      scrubAttack(data.system.npcBaseAttack);
-      if (Array.isArray(data.system.attackValues)) {
-        for (const atk of data.system.attackValues) scrubAttack(atk);
-      }
-      if (Array.isArray(data.system.phases)) {
-        for (const ph of data.system.phases) {
-          scrubAttack(ph?.npcBaseAttack);
-          if (Array.isArray(ph?.attackValues)) {
-            for (const atk of ph.attackValues) scrubAttack(atk);
-          }
-        }
-      }
-    }
-    return data;
-  }
-
   /** @override */
   activateListeners(html: JQuery) {
     super.activateListeners(html);
+
+    // Enabling an AoE shape with empty/0 radius defaults to 2 m (DOM), so the
+    // subsequent submitOnChange persists a real AoE. Setting radius to — clears
+    // the shape so the attack becomes normal again.
+    html.find('select[name$=".npcAoeShape"]').on('change', (ev: JQuery.ChangeEvent) => {
+      const select = ev.currentTarget as HTMLSelectElement;
+      const base = String(select.name || '').replace(/\.npcAoeShape$/, '');
+      if (!base) return;
+      const shape = String(select.value || '').toLowerCase();
+      const radEl = html.find(`[name="${base}.npcAoeRadiusM"]`).get(0) as
+        | HTMLInputElement
+        | HTMLSelectElement
+        | undefined;
+      if (!shape || shape === 'none') {
+        if (radEl) radEl.value = '';
+        return;
+      }
+      const cur = Math.floor(Number(radEl?.value));
+      if (!radEl || !Number.isFinite(cur) || cur < 2) {
+        if (radEl) radEl.value = '2';
+      }
+    });
+    html.find('[name$=".npcAoeRadiusM"]').on('change', (ev: JQuery.ChangeEvent) => {
+      const radEl = ev.currentTarget as HTMLInputElement | HTMLSelectElement;
+      const base = String(radEl.name || '').replace(/\.npcAoeRadiusM$/, '');
+      if (!base) return;
+      const rad = Math.floor(Number(radEl.value));
+      const shapeEl = html.find(`[name="${base}.npcAoeShape"]`).get(0) as HTMLSelectElement | undefined;
+      if (!radEl.value || !Number.isFinite(rad) || rad < 2) {
+        if (shapeEl) shapeEl.value = 'none';
+        radEl.value = '';
+      }
+    });
 
     const syncColorPickerToText = (e: any) => {
       const colorPicker = $(e.currentTarget);

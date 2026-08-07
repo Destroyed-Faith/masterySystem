@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.257] - 2026-08-07
+
+### Fixed
+
+- **NPC sheet dropdowns** (Angriffspool, Schaden, Angriffe/Runde): removed a broken `_prepareSubmitData` override that could drop saves; fixed Handlebars `selected` paths so choices stick after re-render.
+- **NPC AoE**: starts at **2 m** when a shape is chosen; **— / 0** clears AoE and the attack is normal again.
+
 ## [0.9.256] - 2026-08-07
 
 ### Fixed

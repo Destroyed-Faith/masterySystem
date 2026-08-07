@@ -25,24 +25,26 @@ describe('NPC AoE radial options', () => {
     expect(opts[0].aoePlacementProfile).toBeUndefined();
   });
 
-  it('does not mark AoE when shape is set but radius is 0', () => {
-    const actor = {
-      type: 'npc',
-      system: {
-        npcBaseAttack: {
-          name: 'Hieb',
-          attackDiceCount: 6,
-          damageDiceCount: 4,
-          npcAoeShape: 'radius',
-          npcAoeRadiusM: 0,
-          npcAttacksPerRound: 1,
+  it('does not mark AoE when shape is set but radius is 0 or 1', () => {
+    for (const rad of [0, 1]) {
+      const actor = {
+        type: 'npc',
+        system: {
+          npcBaseAttack: {
+            name: 'Hieb',
+            attackDiceCount: 6,
+            damageDiceCount: 4,
+            npcAoeShape: 'radius',
+            npcAoeRadiusM: rad,
+            npcAttacksPerRound: 1,
+          },
+          attackValues: [],
         },
-        attackValues: [],
-      },
-    };
-    const opts = buildNpcAttackRadialOptions(actor as any);
-    expect(opts[0].aoeShape).toBe('none');
-    expect(opts[0].burstMeleeAoE).toBeFalsy();
+      };
+      const opts = buildNpcAttackRadialOptions(actor as any);
+      expect(opts[0].aoeShape).toBe('none');
+      expect(opts[0].burstMeleeAoE).toBeFalsy();
+    }
   });
 
   it('marks melee burst when radius AoE is configured', () => {

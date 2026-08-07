@@ -148,7 +148,7 @@
           <div class="health-display">
             <label>HP:</label>
             {{#each phase.health.bars as |bar index|}}
-            <div class="health-bar {{#if (eq ../phase.health.currentBar index)}}active{{/if}}">
+            <div class="health-bar {{#if (eq phase.health.currentBar index)}}active{{/if}}">
               <input type="number" name="system.phases.{{../phaseIndex}}.health.bars.{{index}}.current" value="{{bar.current}}" data-dtype="Number"/> / 
               <input type="number" name="system.phases.{{../phaseIndex}}.health.bars.{{index}}.max" value="{{bar.max}}" data-dtype="Number"/>
               <span class="bar-penalty">({{bar.penalty}})</span>
@@ -197,7 +197,7 @@
                 <select name="system.phases.{{phaseIndex}}.npcBaseAttack.attackDiceCount" data-dtype="Number">
                   <option value="">—</option>
                   {{#each (range 2 16)}}
-                  <option value="{{this}}" {{#if (eqNum ../phase.npcBaseAttack.attackDiceCount this)}}selected{{/if}}>{{this}}d8</option>
+                  <option value="{{this}}" {{#if (eqNum phase.npcBaseAttack.attackDiceCount this)}}selected{{/if}}>{{this}}d8</option>
                   {{/each}}
                 </select>
               </div>
@@ -206,7 +206,7 @@
                 <select name="system.phases.{{phaseIndex}}.npcBaseAttack.damageDiceCount" data-dtype="Number">
                   <option value="">—</option>
                   {{#each (range 4 16)}}
-                  <option value="{{this}}" {{#if (eqNum ../phase.npcBaseAttack.damageDiceCount this)}}selected{{/if}}>{{this}}d8</option>
+                  <option value="{{this}}" {{#if (eqNum phase.npcBaseAttack.damageDiceCount this)}}selected{{/if}}>{{this}}d8</option>
                   {{/each}}
                 </select>
               </div>
@@ -239,7 +239,12 @@
               </div>
               <div class="npc-attack-field">
                 <label>AoE m (Radius/Länge)</label>
-                <input type="number" name="system.phases.{{phaseIndex}}.npcBaseAttack.npcAoeRadiusM" value="{{default phase.npcBaseAttack.npcAoeRadiusM 0}}" min="0" step="1" data-dtype="Number" title="Meter: Radius (Burst), Kegel- oder Linienlänge je nach Tool"/>
+                <select name="system.phases.{{phaseIndex}}.npcBaseAttack.npcAoeRadiusM" data-dtype="Number" title="Ab 2 m aktiv. — / leer = kein AoE (normaler Angriff).">
+                  <option value="" {{#unless phase.npcBaseAttack.npcAoeRadiusM}}selected{{/unless}}>—</option>
+                  {{#each (range 2 12)}}
+                  <option value="{{this}}" {{#if (eqNum phase.npcBaseAttack.npcAoeRadiusM this)}}selected{{/if}}>{{this}} m</option>
+                  {{/each}}
+                </select>
               </div>
               <div class="npc-attack-field npc-attack-field--check">
                 <label>Split-Angriff</label>
@@ -253,7 +258,7 @@
                 <label>Angriffe/Runde</label>
                 <select name="system.phases.{{phaseIndex}}.npcBaseAttack.npcAttacksPerRound" data-dtype="Number" title="So oft erscheint diese Power im Radialmenü (1–5). Summe aller Powers = ATK.">
                   {{#each (range 1 5)}}
-                  <option value="{{this}}" {{#if (eqNum ../phase.npcBaseAttack.npcAttacksPerRound this)}}selected{{/if}}>{{this}}</option>
+                  <option value="{{this}}" {{#if (eqNum phase.npcBaseAttack.npcAttacksPerRound this)}}selected{{/if}}>{{this}}</option>
                   {{/each}}
                 </select>
               </div>
@@ -262,7 +267,7 @@
                 <select name="system.phases.{{phaseIndex}}.npcBaseAttack.npcStressD8" data-dtype="Number" data-tooltip="Stress-Schaden bei Treffer (Stress-Rüstung mindert)">
                   <option value="" {{#unless phase.npcBaseAttack.npcStressD8}}selected{{/unless}}>—</option>
                   {{#each (range 1 4)}}
-                  <option value="{{this}}" {{#if (eqNum ../phase.npcBaseAttack.npcStressD8 this)}}selected{{/if}}>{{this}}d8</option>
+                  <option value="{{this}}" {{#if (eqNum phase.npcBaseAttack.npcStressD8 this)}}selected{{/if}}>{{this}}d8</option>
                   {{/each}}
                 </select>
               </div>
@@ -319,7 +324,7 @@
                     <select name="system.phases.{{../phaseIndex}}.attackValues.{{index}}.attackDiceCount" data-dtype="Number">
                       <option value="">—</option>
                       {{#each (range 2 16)}}
-                      <option value="{{this}}" {{#if (eqNum ../attack.attackDiceCount this)}}selected{{/if}}>{{this}}d8</option>
+                      <option value="{{this}}" {{#if (eqNum attack.attackDiceCount this)}}selected{{/if}}>{{this}}d8</option>
                       {{/each}}
                     </select>
                   </div>
@@ -328,7 +333,7 @@
                     <select name="system.phases.{{../phaseIndex}}.attackValues.{{index}}.damageDiceCount" data-dtype="Number">
                       <option value="">—</option>
                       {{#each (range 4 16)}}
-                      <option value="{{this}}" {{#if (eqNum ../attack.damageDiceCount this)}}selected{{/if}}>{{this}}d8</option>
+                      <option value="{{this}}" {{#if (eqNum attack.damageDiceCount this)}}selected{{/if}}>{{this}}d8</option>
                       {{/each}}
                     </select>
                   </div>
@@ -361,7 +366,12 @@
                   </div>
                   <div class="npc-attack-field">
                     <label>AoE m</label>
-                    <input type="number" name="system.phases.{{../phaseIndex}}.attackValues.{{index}}.npcAoeRadiusM" value="{{default attack.npcAoeRadiusM 0}}" min="0" step="1" data-dtype="Number"/>
+                    <select name="system.phases.{{../phaseIndex}}.attackValues.{{index}}.npcAoeRadiusM" data-dtype="Number" title="Ab 2 m aktiv. — / leer = kein AoE.">
+                      <option value="" {{#unless attack.npcAoeRadiusM}}selected{{/unless}}>—</option>
+                      {{#each (range 2 12)}}
+                      <option value="{{this}}" {{#if (eqNum attack.npcAoeRadiusM this)}}selected{{/if}}>{{this}} m</option>
+                      {{/each}}
+                    </select>
                   </div>
                   <div class="npc-attack-field npc-attack-field--check">
                     <label>Split</label>
@@ -375,7 +385,7 @@
                     <label>Angriffe/Runde</label>
                     <select name="system.phases.{{../phaseIndex}}.attackValues.{{index}}.npcAttacksPerRound" data-dtype="Number" title="So oft erscheint diese Power im Radialmenü (1–5). Summe aller Powers = ATK.">
                       {{#each (range 1 5)}}
-                      <option value="{{this}}" {{#if (eqNum ../attack.npcAttacksPerRound this)}}selected{{/if}}>{{this}}</option>
+                      <option value="{{this}}" {{#if (eqNum attack.npcAttacksPerRound this)}}selected{{/if}}>{{this}}</option>
                       {{/each}}
                     </select>
                   </div>
@@ -384,7 +394,7 @@
                     <select name="system.phases.{{../phaseIndex}}.attackValues.{{index}}.npcStressD8" data-dtype="Number" data-tooltip="Stress-Schaden bei Treffer (Stress-Rüstung mindert)">
                       <option value="" {{#unless attack.npcStressD8}}selected{{/unless}}>—</option>
                       {{#each (range 1 4)}}
-                      <option value="{{this}}" {{#if (eqNum ../attack.npcStressD8 this)}}selected{{/if}}>{{this}}d8</option>
+                      <option value="{{this}}" {{#if (eqNum attack.npcStressD8 this)}}selected{{/if}}>{{this}}d8</option>
                       {{/each}}
                     </select>
                   </div>
@@ -550,7 +560,12 @@
             </div>
             <div class="npc-attack-field">
               <label>AoE m</label>
-              <input type="number" name="system.npcBaseAttack.npcAoeRadiusM" value="{{default system.npcBaseAttack.npcAoeRadiusM 0}}" min="0" step="1" data-dtype="Number"/>
+              <select name="system.npcBaseAttack.npcAoeRadiusM" data-dtype="Number" title="Ab 2 m aktiv. — / leer = kein AoE (normaler Angriff).">
+                <option value="" {{#unless system.npcBaseAttack.npcAoeRadiusM}}selected{{/unless}}>—</option>
+                {{#each (range 2 12)}}
+                <option value="{{this}}" {{#if (eqNum ../system.npcBaseAttack.npcAoeRadiusM this)}}selected{{/if}}>{{this}} m</option>
+                {{/each}}
+              </select>
             </div>
             <div class="npc-attack-field npc-attack-field--check">
               <label>Split</label>
@@ -630,7 +645,7 @@
                   <select name="system.attackValues.{{index}}.attackDiceCount" data-dtype="Number">
                     <option value="">—</option>
                     {{#each (range 2 16)}}
-                    <option value="{{this}}" {{#if (eqNum ../attack.attackDiceCount this)}}selected{{/if}}>{{this}}d8</option>
+                    <option value="{{this}}" {{#if (eqNum attack.attackDiceCount this)}}selected{{/if}}>{{this}}d8</option>
                     {{/each}}
                   </select>
                 </div>
@@ -639,7 +654,7 @@
                   <select name="system.attackValues.{{index}}.damageDiceCount" data-dtype="Number">
                     <option value="">—</option>
                     {{#each (range 4 16)}}
-                    <option value="{{this}}" {{#if (eqNum ../attack.damageDiceCount this)}}selected{{/if}}>{{this}}d8</option>
+                    <option value="{{this}}" {{#if (eqNum attack.damageDiceCount this)}}selected{{/if}}>{{this}}d8</option>
                     {{/each}}
                   </select>
                 </div>
@@ -672,7 +687,12 @@
                 </div>
                 <div class="npc-attack-field">
                   <label>AoE m</label>
-                  <input type="number" name="system.attackValues.{{index}}.npcAoeRadiusM" value="{{default attack.npcAoeRadiusM 0}}" min="0" step="1" data-dtype="Number"/>
+                  <select name="system.attackValues.{{index}}.npcAoeRadiusM" data-dtype="Number" title="Ab 2 m aktiv. — / leer = kein AoE.">
+                    <option value="" {{#unless attack.npcAoeRadiusM}}selected{{/unless}}>—</option>
+                    {{#each (range 2 12)}}
+                    <option value="{{this}}" {{#if (eqNum attack.npcAoeRadiusM this)}}selected{{/if}}>{{this}} m</option>
+                    {{/each}}
+                  </select>
                 </div>
                 <div class="npc-attack-field npc-attack-field--check">
                   <label>Split</label>
@@ -686,7 +706,7 @@
                   <label>Angriffe/Runde</label>
                   <select name="system.attackValues.{{index}}.npcAttacksPerRound" data-dtype="Number" title="So oft erscheint diese Power im Radialmenü (1–5). Summe aller Powers = ATK.">
                     {{#each (range 1 5)}}
-                    <option value="{{this}}" {{#if (eqNum ../attack.npcAttacksPerRound this)}}selected{{/if}}>{{this}}</option>
+                    <option value="{{this}}" {{#if (eqNum attack.npcAttacksPerRound this)}}selected{{/if}}>{{this}}</option>
                     {{/each}}
                   </select>
                 </div>
@@ -695,7 +715,7 @@
                   <select name="system.attackValues.{{index}}.npcStressD8" data-dtype="Number" data-tooltip="Stress-Schaden bei Treffer (Stress-Rüstung mindert)">
                     <option value="" {{#unless attack.npcStressD8}}selected{{/unless}}>—</option>
                     {{#each (range 1 4)}}
-                    <option value="{{this}}" {{#if (eqNum ../attack.npcStressD8 this)}}selected{{/if}}>{{this}}d8</option>
+                    <option value="{{this}}" {{#if (eqNum attack.npcStressD8 this)}}selected{{/if}}>{{this}}d8</option>
                     {{/each}}
                   </select>
                 </div>
