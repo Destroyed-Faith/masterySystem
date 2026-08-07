@@ -6,6 +6,41 @@ import {
   resolveNpcAttackTargeting,
 } from '../src/utils/npc-attack-model.js';
 
+describe('coerceNpcPhasesArray', () => {
+  it('reads object-shaped phases like an array', async () => {
+    const { coerceNpcPhasesArray, resolveNpcAttackList } = await import(
+      '../src/utils/npc-attack-model.js'
+    );
+    const phasesObj = {
+      0: {
+        npcBaseAttack: {
+          name: 'Slash',
+          attackDiceCount: 6,
+          damageDiceCount: 4,
+          npcRangeKind: 'melee',
+          npcAoeRadiusM: 0,
+          npcAoeShape: 'none',
+        },
+      },
+    };
+    expect(coerceNpcPhasesArray(phasesObj)).toHaveLength(1);
+    const { attacks, phaseIndex } = resolveNpcAttackList({
+      phases: phasesObj,
+      npcActivePhaseIndex: 0,
+      npcBaseAttack: {
+        name: 'STALE ROOT',
+        attackDiceCount: 8,
+        damageDiceCount: 8,
+        npcAoeRadiusM: 4,
+        npcAoeShape: 'radius',
+      },
+    });
+    expect(phaseIndex).toBe(0);
+    expect(attacks[0].name).toBe('Slash');
+    expect(attacks[0].npcAoeRadiusM).toBe(0);
+  });
+});
+
 describe('resolveNpcAttackTargeting', () => {
   it('ignores leftover shape when radius is off', () => {
     const t = resolveNpcAttackTargeting({

@@ -47,6 +47,12 @@ export declare class MasteryNpcSheet extends MasteryCharacterSheet {
     _initializeApplicationOptions(options: any): any;
     /** @override */
     _prepareContext(options?: any): Promise<any>;
+    /**
+     * Every form submit: force AoE off when radius &lt; 2, and coerce object-shaped
+     * phases back to a real array so combat and sheet share one source of truth.
+     * @override
+     */
+    _onSubmitForm(formConfig: any, event: Event): Promise<any>;
     /** @override */
     activateListeners(html: JQuery): void;
 }

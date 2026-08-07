@@ -37,11 +37,20 @@ export declare function npcAttackUsageKey(phaseIndex: number | null | undefined,
  * Sum of Angriffe/Runde across the active attack list (= ATK / attackSlots).
  */
 export declare function sumNpcAttackSlotsFromPowers(system: any): number;
+/**
+ * Foundry often stores `system.phases` as a plain object `{ "0": {...} }` after
+ * dotted-path updates. Combat must treat that the same as an array, otherwise
+ * it falls back to root `npcBaseAttack` (stale Melee AoE) while the sheet edits
+ * phase rows.
+ */
+export declare function coerceNpcPhasesArray(raw: unknown): any[];
 export declare function resolveNpcAttackList(system: any): {
     attacks: AttackValue[];
     phaseIndex: number | null;
 };
 export declare function getNpcAttackByIndex(system: any, attackIndex: number, phaseIndex: number | null | undefined): AttackValue | null;
+/** Overlay authoritative targeting flags (if present) onto an attack row. */
+export declare function mergeNpcAttackTargetingFlag(atk: AttackValue | null | undefined, actor: any, usageKey: string): AttackValue | null;
 /** Attack roll pool: explicit count (2–16 typical), else parse legacy attackDice */
 export declare function npcAttackDiceCount(attack: AttackValue | null | undefined): number;
 /** Damage formula: Nd8 from count (4–16 typical), else legacy damage string */

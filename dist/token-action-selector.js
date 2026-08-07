@@ -739,19 +739,34 @@ export async function handleChosenCombatOption(token, option) {
     // NPC attacks: always re-read live actor data at click time so sheet changes
     // (Melee/Range, AoE —) win over stale radial option flags.
     if (option.source === 'npc-attack') {
-        const { getNpcAttackByIndex, applyNpcAttackTargetingToOption, resolveNpcAttackTargeting } = await import('./utils/npc-attack-model.js');
-        const row = getNpcAttackByIndex(actor.system, option.npcAttackIndex ?? 0, option.npcPhaseIndex);
-        const before = {
-            burstMeleeAoE: option.burstMeleeAoE,
-            tags: option.tags,
-            aoeShape: option.aoeShape,
-            aoeRadiusMeters: option.aoeRadiusMeters,
-        };
+        const { getNpcAttackByIndex, applyNpcAttackTargetingToOption, resolveNpcAttackTargeting, mergeNpcAttackTargetingFlag, coerceNpcPhasesArray, } = await import('./utils/npc-attack-model.js');
+        const usageKey = String(option.npcAttackUsageKey || option.id || '').split('#')[0];
+        let row = getNpcAttackByIndex(actor.system, option.npcAttackIndex ?? 0, option.npcPhaseIndex);
+        row = mergeNpcAttackTargetingFlag(row, actor, usageKey);
+        // Also try world actor if token actor row still looks like sticky Melee AoE
+        // while flags/sheet say otherwise.
+        const world = globalThis.game?.actors?.get(actor.id);
+        if (world && world !== actor) {
+            let worldRow = getNpcAttackByIndex(world.system, option.npcAttackIndex ?? 0, option.npcPhaseIndex);
+            worldRow = mergeNpcAttackTargetingFlag(worldRow, world, usageKey);
+            const tokenT = resolveNpcAttackTargeting(row);
+            const worldT = resolveNpcAttackTargeting(worldRow);
+            if (tokenT.burstMeleeAoE && !worldT.burstMeleeAoE) {
+                console.warn('[MS NPC Targeting] token actor had sticky Melee AoE — using world actor row');
+                row = worldRow;
+            }
+        }
+        const beforeBurst = !!option.burstMeleeAoE;
         option = applyNpcAttackTargetingToOption(option, row);
-        console.log('[MS NPC Targeting] live resolve on select', {
+        const after = resolveNpcAttackTargeting(row);
+        const phasesRaw = actor.system?.phases;
+        console.log(`[MS NPC Targeting] live resolve on select → burst=${after.burstMeleeAoE} ranged=${after.isRanged} aoe=${after.aoeRad} (beforeBurst=${beforeBurst})`, {
             name: option.name,
-            npcAttackIndex: option.npcAttackIndex,
-            npcPhaseIndex: option.npcPhaseIndex,
+            usageKey,
+            actorId: actor.id,
+            isToken: !!actor.isToken,
+            phasesIsArray: Array.isArray(phasesRaw),
+            phasesLen: coerceNpcPhasesArray(phasesRaw).length,
             storedRow: row
                 ? {
                     npcRangeKind: row.npcRangeKind,
@@ -760,16 +775,13 @@ export async function handleChosenCombatOption(token, option) {
                     npcAoeShape: row.npcAoeShape,
                 }
                 : null,
-            before,
-            after: resolveNpcAttackTargeting(row),
-            optionFlags: {
-                burstMeleeAoE: option.burstMeleeAoE,
-                tags: option.tags,
-                aoeShape: option.aoeShape,
-                aoeRadiusMeters: option.aoeRadiusMeters,
-                aoePlacementProfile: option.aoePlacementProfile,
-            },
+            after,
         });
+        // Hard gate: never open Melee AoE dialog when live data says it's off.
+        if (!after.burstMeleeAoE) {
+            option.burstMeleeAoE = false;
+            option.burstMeleeRadiusMeters = undefined;
+        }
     }
     // Check if this is a melee attack option
     // NPC attacks: tagged melee / not ranged (Reach may be up to 8m).
@@ -811,6 +823,17 @@ export async function handleChosenCombatOption(token, option) {
             return;
         }
         if (option.burstMeleeAoE) {
+            // Final hard gate for NPC rows — flags/live resolve already applied above.
+            if (option.source === 'npc-attack') {
+                const aoeM = Math.max(0, Math.floor(Number(option.aoeRadiusMeters) || 0));
+                const isRangedTag = !!option.tags?.includes('ranged');
+                if (aoeM < 2 || isRangedTag || option.aoeShape === 'none') {
+                    console.warn(`[MS NPC Targeting] blocked Melee AoE dialog (aoe=${aoeM}, ranged=${isRangedTag}, shape=${option.aoeShape}) — single-target melee instead`);
+                    option.burstMeleeAoE = false;
+                    startMeleeTargeting(token, option);
+                    return;
+                }
+            }
             const burstIds = collectMeleeBurstHostileTokenIds(token, option);
             if (!burstIds.length) {
                 ui.notifications?.warn?.('Melee AoE: no hostile targets in range.');

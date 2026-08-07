@@ -142,37 +142,76 @@ function mergeAttackLists(baseRaw, extras) {
     out.push(...ex);
     return out;
 }
+/**
+ * Foundry often stores `system.phases` as a plain object `{ "0": {...} }` after
+ * dotted-path updates. Combat must treat that the same as an array, otherwise
+ * it falls back to root `npcBaseAttack` (stale Melee AoE) while the sheet edits
+ * phase rows.
+ */
+export function coerceNpcPhasesArray(raw) {
+    if (Array.isArray(raw))
+        return raw;
+    if (raw && typeof raw === 'object') {
+        return Object.keys(raw)
+            .filter((k) => /^\d+$/.test(k))
+            .sort((a, b) => parseInt(a, 10) - parseInt(b, 10))
+            .map((k) => raw[k]);
+    }
+    return [];
+}
+function attackValuesArray(raw) {
+    if (Array.isArray(raw))
+        return raw;
+    if (raw && typeof raw === 'object') {
+        return Object.keys(raw)
+            .filter((k) => /^\d+$/.test(k))
+            .sort((a, b) => parseInt(a, 10) - parseInt(b, 10))
+            .map((k) => raw[k]);
+    }
+    return [];
+}
 export function resolveNpcAttackList(system) {
     if (!system)
         return { attacks: [], phaseIndex: null };
-    const phases = system.phases;
-    if (Array.isArray(phases) && phases.length > 0) {
+    const phases = coerceNpcPhasesArray(system.phases);
+    if (phases.length > 0) {
         const pi = Math.max(0, Math.min(phases.length - 1, Math.floor(Number(system.npcActivePhaseIndex) || 0)));
         const phase = phases[pi];
-        const attacks = mergeAttackLists(phase?.npcBaseAttack, phase?.attackValues);
+        const attacks = mergeAttackLists(phase?.npcBaseAttack, attackValuesArray(phase?.attackValues));
         return { attacks, phaseIndex: pi };
     }
-    const attacks = mergeAttackLists(system.npcBaseAttack, system.attackValues);
+    const attacks = mergeAttackLists(system.npcBaseAttack, attackValuesArray(system.attackValues));
     return { attacks, phaseIndex: null };
 }
 export function getNpcAttackByIndex(system, attackIndex, phaseIndex) {
     if (!system)
         return null;
     const idx = Math.max(0, Math.floor(Number(attackIndex) || 0));
-    if (Array.isArray(system.phases) && system.phases.length > 0) {
+    const phases = coerceNpcPhasesArray(system.phases);
+    if (phases.length > 0) {
         const pi = phaseIndex == null || phaseIndex === undefined
-            ? Math.max(0, Math.min(system.phases.length - 1, Math.floor(Number(system.npcActivePhaseIndex) || 0)))
-            : Math.max(0, Math.min(system.phases.length - 1, Math.floor(Number(phaseIndex))));
-        const phase = system.phases[pi];
-        const attacks = mergeAttackLists(phase?.npcBaseAttack, phase?.attackValues);
+            ? Math.max(0, Math.min(phases.length - 1, Math.floor(Number(system.npcActivePhaseIndex) || 0)))
+            : Math.max(0, Math.min(phases.length - 1, Math.floor(Number(phaseIndex))));
+        const phase = phases[pi];
+        const attacks = mergeAttackLists(phase?.npcBaseAttack, attackValuesArray(phase?.attackValues));
         if (idx >= attacks.length)
             return null;
         return attacks[idx] ?? null;
     }
-    const attacks = mergeAttackLists(system.npcBaseAttack, system.attackValues);
+    const attacks = mergeAttackLists(system.npcBaseAttack, attackValuesArray(system.attackValues));
     if (idx >= attacks.length)
         return null;
     return attacks[idx] ?? null;
+}
+/** Overlay authoritative targeting flags (if present) onto an attack row. */
+export function mergeNpcAttackTargetingFlag(atk, actor, usageKey) {
+    if (!atk)
+        return null;
+    const bag = actor?.getFlag?.('mastery-system', 'npcTargeting');
+    const flagged = bag && usageKey ? bag[usageKey] : undefined;
+    if (!flagged || typeof flagged !== 'object')
+        return atk;
+    return { ...atk, ...flagged };
 }
 /** Attack roll pool: explicit count (2–16 typical), else parse legacy attackDice */
 export function npcAttackDiceCount(attack) {

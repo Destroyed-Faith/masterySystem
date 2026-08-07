@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.263] - 2026-08-07
+
+### Fixed
+
+- **NPC Melee AoE still opening after sheet clear**: `system.phases` object-shaped data is now coerced to an array (combat no longer falls back to a stale root Melee AoE row). Targeting is mirrored to root + `flags.mastery-system.npcTargeting`, synced to world/token actors, and hard-blocked before the Melee AoE dialog when live AoE is off.
+
 ## [0.9.262] - 2026-08-07
 
 ### Fixed

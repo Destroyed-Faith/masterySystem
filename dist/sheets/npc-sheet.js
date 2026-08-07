@@ -309,71 +309,165 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
     }
     /**
      * Hard-write NPC attack targeting by replacing the whole attack row / phases
-     * array. Dot-path updates into `system.phases.N.*` are unreliable in Foundry
-     * and were leaving sticky Melee AoE on the actor.
+     * array (coercing object-shaped phases). Also mirrors into root npcBaseAttack
+     * when editing the active phase base, and stores flags as authoritative backup.
      */
     async #persistNpcAttackTargeting(path, patch, reason) {
         if (!path || !this.actor)
             return;
         const actor = this.actor;
         const dup = (v) => JSON.parse(JSON.stringify(v));
+        const { coerceNpcPhasesArray, npcAttackUsageKey } = await import('../utils/npc-attack-model.js');
         const phaseBase = /^system\.phases\.(\d+)\.npcBaseAttack$/.exec(path);
         const phaseExtra = /^system\.phases\.(\d+)\.attackValues\.(\d+)$/.exec(path);
         const rootExtra = /^system\.attackValues\.(\d+)$/.exec(path);
-        let update;
+        let usageKey = 'npc-attack-root-0';
+        let update = {};
         if (phaseBase) {
             const pi = Number(phaseBase[1]);
-            const phases = dup(Array.isArray(actor.system?.phases) ? actor.system.phases : []);
+            const phases = dup(coerceNpcPhasesArray(actor.system?.phases));
             while (phases.length <= pi)
                 phases.push({});
             const phase = { ...(phases[pi] || {}) };
             phase.npcBaseAttack = { ...(phase.npcBaseAttack || {}), ...patch };
             phases[pi] = phase;
-            update = { 'system.phases': phases };
+            update['system.phases'] = phases;
+            usageKey = npcAttackUsageKey(pi, 0);
+            // Keep root in sync so combat never falls back to a stale root Melee AoE row.
+            const activePi = Math.floor(Number(actor.system?.npcActivePhaseIndex) || 0);
+            if (pi === activePi) {
+                update['system.npcBaseAttack'] = { ...(actor.system?.npcBaseAttack || {}), ...patch };
+            }
         }
         else if (phaseExtra) {
             const pi = Number(phaseExtra[1]);
             const ai = Number(phaseExtra[2]);
-            const phases = dup(Array.isArray(actor.system?.phases) ? actor.system.phases : []);
+            const phases = dup(coerceNpcPhasesArray(actor.system?.phases));
             while (phases.length <= pi)
                 phases.push({});
             const phase = { ...(phases[pi] || {}) };
-            const attackValues = Array.isArray(phase.attackValues) ? [...phase.attackValues] : [];
+            const attackValues = Array.isArray(phase.attackValues)
+                ? [...phase.attackValues]
+                : coerceNpcPhasesArray(phase.attackValues);
             while (attackValues.length <= ai)
                 attackValues.push({});
             attackValues[ai] = { ...(attackValues[ai] || {}), ...patch };
             phase.attackValues = attackValues;
             phases[pi] = phase;
-            update = { 'system.phases': phases };
+            update['system.phases'] = phases;
+            {
+                const base = phase.npcBaseAttack || {};
+                const hasBase = Math.floor(Number(base.attackDiceCount) || 0) > 0 ||
+                    Math.floor(Number(base.damageDiceCount) || 0) > 0 ||
+                    String(base.name || '').trim().length > 0;
+                usageKey = npcAttackUsageKey(pi, hasBase ? ai + 1 : ai);
+            }
         }
         else if (rootExtra) {
             const ai = Number(rootExtra[1]);
-            const attackValues = dup(Array.isArray(actor.system?.attackValues) ? actor.system.attackValues : []);
+            const attackValues = dup(Array.isArray(actor.system?.attackValues)
+                ? actor.system.attackValues
+                : coerceNpcPhasesArray(actor.system?.attackValues));
             while (attackValues.length <= ai)
                 attackValues.push({});
             attackValues[ai] = { ...(attackValues[ai] || {}), ...patch };
-            update = { 'system.attackValues': attackValues };
+            update['system.attackValues'] = attackValues;
+            {
+                const base = actor.system?.npcBaseAttack || {};
+                const hasBase = Math.floor(Number(base.attackDiceCount) || 0) > 0 ||
+                    Math.floor(Number(base.damageDiceCount) || 0) > 0 ||
+                    String(base.name || '').trim().length > 0;
+                usageKey = npcAttackUsageKey(null, hasBase ? ai + 1 : ai);
+            }
         }
         else if (path === 'system.npcBaseAttack') {
-            update = { 'system.npcBaseAttack': { ...(actor.system?.npcBaseAttack || {}), ...patch } };
+            update['system.npcBaseAttack'] = { ...(actor.system?.npcBaseAttack || {}), ...patch };
+            usageKey = npcAttackUsageKey(null, 0);
         }
         else {
-            // Fallback: flat dotted keys
-            update = {};
             for (const [key, value] of Object.entries(patch))
                 update[`${path}.${key}`] = value;
+            usageKey = `npc-attack-path-${path}`;
         }
-        console.log(`[MS NPC Targeting] ${reason}`, { path, patch, actorId: actor.id, updateKeys: Object.keys(update) });
-        await actor.update(update);
-        const row = path.split('.').reduce((acc, key) => (acc == null ? acc : acc[key]), actor);
-        console.log(`[MS NPC Targeting] after update`, {
+        // Authoritative targeting backup — survives flaky nested system merges.
+        const targetingFlag = {
+            npcRangeKind: patch.npcRangeKind,
+            npcRangeMeters: patch.npcRangeMeters,
+            npcRangeMinMeters: patch.npcRangeMinMeters,
+            npcAoeRadiusM: patch.npcAoeRadiusM ?? 0,
+            npcAoeShape: patch.npcAoeShape ?? 'none',
+        };
+        const prevBag = (actor.getFlag?.('mastery-system', 'npcTargeting') || {});
+        update['flags.mastery-system.npcTargeting'] = { ...prevBag, [usageKey]: targetingFlag };
+        console.log(`[MS NPC Targeting] ${reason}`, {
             path,
-            npcRangeKind: row?.npcRangeKind,
-            npcRangeMeters: row?.npcRangeMeters,
-            npcAoeRadiusM: row?.npcAoeRadiusM,
-            npcAoeShape: row?.npcAoeShape,
-            row,
+            patch,
+            usageKey,
+            actorId: actor.id,
+            isToken: !!actor.isToken,
+            phasesIsArray: Array.isArray(actor.system?.phases),
+            updateKeys: Object.keys(update),
         });
+        // Update the sheet actor, and if this is the world actor also push into
+        // unlinked token actors so combat (token.actor) cannot keep stale AoE.
+        const targets = [actor];
+        if (!actor.isToken && typeof actor.getActiveTokens === 'function') {
+            for (const tok of actor.getActiveTokens(true) || []) {
+                if (tok?.actor && tok.actor !== actor && tok.document?.actorLink === false) {
+                    targets.push(tok.actor);
+                }
+            }
+        }
+        if (actor.isToken) {
+            const world = globalThis.game?.actors?.get(actor.id);
+            if (world && world !== actor)
+                targets.push(world);
+        }
+        for (const target of targets) {
+            try {
+                await target.update(dup(update));
+            }
+            catch (err) {
+                console.warn('[MS NPC Targeting] update failed for', target?.id, err);
+            }
+        }
+        const row = path.split('.').reduce((acc, key) => (acc == null ? acc : acc[key]), actor);
+        const summary = `kind=${row?.npcRangeKind ?? '∅'} meters=${row?.npcRangeMeters ?? '∅'} aoe=${row?.npcAoeRadiusM ?? '∅'} shape=${row?.npcAoeShape ?? '∅'}`;
+        console.log(`[MS NPC Targeting] after update → ${summary}`, { path, usageKey, row });
+    }
+    /**
+     * Every form submit: force AoE off when radius &lt; 2, and coerce object-shaped
+     * phases back to a real array so combat and sheet share one source of truth.
+     * @override
+     */
+    async _onSubmitForm(formConfig, event) {
+        try {
+            const form = this.form;
+            if (form) {
+                const radFields = form.querySelectorAll('[name$=".npcAoeRadiusM"]');
+                radFields.forEach((el) => {
+                    const radEl = el;
+                    const name = String(radEl.name || '');
+                    if (!name)
+                        return;
+                    const rad = Math.floor(Number(radEl.value));
+                    const base = name.replace(/\.npcAoeRadiusM$/, '');
+                    const shapeInput = form.querySelector(`[name="${base}.npcAoeShape"]`);
+                    if (!Number.isFinite(rad) || rad < 2) {
+                        radEl.value = '0';
+                        if (shapeInput)
+                            shapeInput.value = 'none';
+                    }
+                    else if (shapeInput) {
+                        shapeInput.value = 'radius';
+                    }
+                });
+            }
+        }
+        catch (err) {
+            console.warn('[MS NPC Targeting] submit sanitize failed', err);
+        }
+        return super._onSubmitForm(formConfig, event);
     }
     /** @override */
     activateListeners(html) {
