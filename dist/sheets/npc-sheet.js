@@ -298,6 +298,55 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
         }
         return context;
     }
+    /**
+     * Empty/"none" AoE selects must clear persisted shape+radius. Blank
+     * `<option value="">` was previously omitted from FormData, so old AoE
+     * values stuck forever on the actor.
+     * @override
+     */
+    _prepareSubmitData(event, form, formData, updateData) {
+        const self = this;
+        const parentFn = (() => {
+            let proto = Object.getPrototypeOf(self);
+            while (proto) {
+                const desc = Object.getOwnPropertyDescriptor(proto, '_prepareSubmitData');
+                if (desc?.value && desc.value !== self._prepareSubmitData) {
+                    return desc.value;
+                }
+                proto = Object.getPrototypeOf(proto);
+            }
+            return null;
+        })();
+        const data = parentFn ? parentFn.call(this, event, form, formData, updateData) : {};
+        const scrubAttack = (atk) => {
+            if (!atk || typeof atk !== 'object')
+                return;
+            const shape = String(atk.npcAoeShape ?? '').toLowerCase();
+            if (!shape || shape === 'none') {
+                // Must overwrite persisted "radius"/cone/line — deleting the key
+                // would leave the old value untouched by the Actor update merge.
+                atk.npcAoeShape = '';
+                atk.npcAoeRadiusM = null;
+            }
+        };
+        if (data?.system) {
+            scrubAttack(data.system.npcBaseAttack);
+            if (Array.isArray(data.system.attackValues)) {
+                for (const atk of data.system.attackValues)
+                    scrubAttack(atk);
+            }
+            if (Array.isArray(data.system.phases)) {
+                for (const ph of data.system.phases) {
+                    scrubAttack(ph?.npcBaseAttack);
+                    if (Array.isArray(ph?.attackValues)) {
+                        for (const atk of ph.attackValues)
+                            scrubAttack(atk);
+                    }
+                }
+            }
+        }
+        return data;
+    }
     /** @override */
     activateListeners(html) {
         super.activateListeners(html);

@@ -4,9 +4,12 @@
  * Provides targeting preview and selection for utility powers, especially AoE utilities
  * Supports single-target and radius AoE with manual target selection
  */
-import { consumeAttackAction, getAvailableAttackActions, markPowerUsedThisRound } from './combat/action-economy.js';
+import { consumeAttackAction, getAvailableAttackActions, markPowerUsedThisRound, markNpcAttackUsedThisRound, } from './combat/action-economy.js';
+import { extractMeleeAoePowerBonusD8 } from './utils/power-mechanics.js';
+import { getNpcAttackByIndex, npcDamageDiceFormula } from './utils/npc-attack-model.js';
 import { isWithinMasteryPowerRange, masteryAoERadiusPixels, masteryPowerMaxSteps } from './utils/grid-range.js';
 import { clearHexHighlight, highlightHexesWithinStepsFromPoint } from './utils/hex-highlighting.js';
+import { eventWorldPoint, resolveOverlayContainer, snapWorldCenter, } from './utils/grid-snap.js';
 function placementColorsFromOption(option) {
     if (option.aoePlacementProfile === 'hostile-zone') {
         return {
@@ -336,70 +339,61 @@ export function startUtilitySingleTargetMode(token, option) {
     // Create preview graphics
     const previewGraphics = new PIXI.Graphics();
     const rangeLineGraphics = new PIXI.Graphics();
-    // Add to effects layer
-    let effectsContainer = null;
-    if (canvas.effects) {
-        if (canvas.effects.container && typeof canvas.effects.container.addChild === 'function') {
-            effectsContainer = canvas.effects.container;
-        }
-        else if (typeof canvas.effects.addChild === 'function') {
-            effectsContainer = canvas.effects;
-        }
-    }
-    if (!effectsContainer && canvas.foreground) {
-        if (canvas.foreground.container && typeof canvas.foreground.container.addChild === 'function') {
-            effectsContainer = canvas.foreground.container;
-        }
-        else if (typeof canvas.foreground.addChild === 'function') {
-            effectsContainer = canvas.foreground;
-        }
-    }
+    const effectsContainer = resolveOverlayContainer();
     if (effectsContainer) {
         effectsContainer.addChild(previewGraphics);
         effectsContainer.addChild(rangeLineGraphics);
+    }
+    else {
+        console.warn('Mastery System | Utility targeting: no overlay container for preview graphics');
     }
     const highlightId = 'mastery-utility-single';
     const placement = placementColorsFromOption(option);
     // Event handlers
     const onPointerMove = (ev) => {
-        const worldPos = ev.data.getLocalPosition(canvas.app.stage);
-        const snapped = canvas.grid.getSnappedPosition(worldPos.x, worldPos.y, 1);
-        // Draw range line
-        rangeLineGraphics.clear();
-        const casterCenter = token.center;
-        const isValid = isWithinMasteryPowerRange(casterCenter, snapped, rangeMeters);
-        rangeLineGraphics.lineStyle(2, isValid ? placement.lineValid : placement.lineInvalid, 0.8);
-        rangeLineGraphics.moveTo(casterCenter.x, casterCenter.y);
-        rangeLineGraphics.lineTo(snapped.x, snapped.y);
-        // Highlight valid targets
-        const allTokens = canvas.tokens?.placeables || [];
-        for (const targetToken of allTokens) {
-            if (targetToken.id === token.id)
-                continue;
-            const targetCenter = targetToken.center;
-            const isInRange = isWithinMasteryPowerRange(casterCenter, targetCenter, rangeMeters);
-            const matches = matchesTargetGroup(token, targetToken, targetGroup);
-            if (isInRange && matches) {
-                // Highlight valid target
-                targetToken.alpha = Math.min(1.0, targetToken.alpha);
-                if (!targetToken.filters) {
-                    const tintFilter = new PIXI.filters.ColorMatrixFilter();
-                    tintFilter.tint(placement.tokenTint, false);
-                    targetToken.filters = [tintFilter];
+        try {
+            const worldPos = eventWorldPoint(ev);
+            const snapped = snapWorldCenter(worldPos.x, worldPos.y);
+            // Draw range line
+            rangeLineGraphics.clear();
+            const casterCenter = token.center;
+            const isValid = isWithinMasteryPowerRange(casterCenter, snapped, rangeMeters);
+            rangeLineGraphics.lineStyle(2, isValid ? placement.lineValid : placement.lineInvalid, 0.8);
+            rangeLineGraphics.moveTo(casterCenter.x, casterCenter.y);
+            rangeLineGraphics.lineTo(snapped.x, snapped.y);
+            // Highlight valid targets
+            const allTokens = canvas.tokens?.placeables || [];
+            for (const targetToken of allTokens) {
+                if (targetToken.id === token.id)
+                    continue;
+                const targetCenter = targetToken.center;
+                const isInRange = isWithinMasteryPowerRange(casterCenter, targetCenter, rangeMeters);
+                const matches = matchesTargetGroup(token, targetToken, targetGroup);
+                if (isInRange && matches) {
+                    // Highlight valid target
+                    targetToken.alpha = Math.min(1.0, targetToken.alpha);
+                    if (!targetToken.filters) {
+                        const tintFilter = new PIXI.filters.ColorMatrixFilter();
+                        tintFilter.tint(placement.tokenTint, false);
+                        targetToken.filters = [tintFilter];
+                    }
                 }
-            }
-            else {
-                // Restore normal appearance
-                targetToken.alpha = targetToken._originalAlpha || 1.0;
-                if (targetToken.filters) {
-                    targetToken.filters = targetToken.filters.filter((f) => {
-                        return !(f instanceof PIXI.filters.ColorMatrixFilter);
-                    });
-                    if (targetToken.filters.length === 0) {
-                        targetToken.filters = null;
+                else {
+                    // Restore normal appearance
+                    targetToken.alpha = targetToken._originalAlpha || 1.0;
+                    if (targetToken.filters) {
+                        targetToken.filters = targetToken.filters.filter((f) => {
+                            return !(f instanceof PIXI.filters.ColorMatrixFilter);
+                        });
+                        if (targetToken.filters.length === 0) {
+                            targetToken.filters = null;
+                        }
                     }
                 }
             }
+        }
+        catch (err) {
+            console.error('Mastery System | Utility single-target pointermove failed', err);
         }
     };
     const onPointerDown = (ev) => {
@@ -408,7 +402,7 @@ export function startUtilitySingleTargetMode(token, option) {
             return;
         }
         if (ev.button === 0) {
-            const worldPos = ev.data.getLocalPosition(canvas.app.stage);
+            const worldPos = eventWorldPoint(ev);
             // Find token at click position
             const tokens = canvas.tokens?.placeables || [];
             const clickedToken = tokens.find((t) => {
@@ -501,27 +495,13 @@ export function startUtilityRadiusMode(token, option) {
     // Create preview graphics
     const previewGraphics = new PIXI.Graphics();
     const rangeLineGraphics = new PIXI.Graphics();
-    // Add to effects layer
-    let effectsContainer = null;
-    if (canvas.effects) {
-        if (canvas.effects.container && typeof canvas.effects.container.addChild === 'function') {
-            effectsContainer = canvas.effects.container;
-        }
-        else if (typeof canvas.effects.addChild === 'function') {
-            effectsContainer = canvas.effects;
-        }
-    }
-    if (!effectsContainer && canvas.foreground) {
-        if (canvas.foreground.container && typeof canvas.foreground.container.addChild === 'function') {
-            effectsContainer = canvas.foreground.container;
-        }
-        else if (typeof canvas.foreground.addChild === 'function') {
-            effectsContainer = canvas.foreground;
-        }
-    }
+    const effectsContainer = resolveOverlayContainer();
     if (effectsContainer) {
         effectsContainer.addChild(previewGraphics);
         effectsContainer.addChild(rangeLineGraphics);
+    }
+    else {
+        console.warn('Mastery System | AoE targeting: no overlay container for preview graphics');
     }
     const highlightId = `mastery-aoe-${option.id}`;
     const placement = placementColorsFromOption(option);
@@ -551,49 +531,54 @@ export function startUtilityRadiusMode(token, option) {
     activeUtilityTargeting = state;
     // Event handlers (can now reference state)
     state.onPointerMove = (ev) => {
-        if (rangeMeters === 0) {
-            // Self-aura: no movement needed
-            return;
-        }
-        if (!state.center) {
-            // Still choosing center point
-            const worldPos = ev.data.getLocalPosition(canvas.app.stage);
-            const snapped = canvas.grid.getSnappedPosition(worldPos.x, worldPos.y, 1);
-            // Draw range line
-            state.rangeLineGraphics.clear();
-            const casterCenter = token.center;
-            const isValid = isWithinMasteryPowerRange(casterCenter, snapped, rangeMeters);
-            state.rangeLineGraphics.lineStyle(2, isValid ? state.placement.lineValid : state.placement.lineInvalid, 0.8);
-            state.rangeLineGraphics.moveTo(casterCenter.x, casterCenter.y);
-            state.rangeLineGraphics.lineTo(snapped.x, snapped.y);
-            if (isValid) {
-                state.previewGraphics.clear();
-                const grid = canvas.grid;
-                const gridless = !grid || grid.type === CONST.GRID_TYPES.GRIDLESS;
-                if (gridless) {
-                    const radiusPx = masteryAoERadiusPixels(radiusMeters);
-                    if (radiusMeters > 0 && radiusPx > 0) {
-                        state.previewGraphics.lineStyle(2, state.placement.previewLine, 0.75);
-                        state.previewGraphics.beginFill(state.placement.previewFill, 0.12);
-                        state.previewGraphics.drawCircle(0, 0, radiusPx);
-                        state.previewGraphics.endFill();
-                    }
-                    state.previewGraphics.position.set(snapped.x, snapped.y);
-                }
-                else {
-                    state.previewGraphics.position.set(0, 0);
-                    if (radiusMeters > 0) {
-                        highlightHexesWithinStepsFromPoint(snapped, masteryPowerMaxSteps(radiusMeters), state.aoePreviewLayerId, state.placement.hex, state.placement.previewAlpha);
+        try {
+            if (rangeMeters === 0) {
+                // Self-aura: no movement needed
+                return;
+            }
+            if (!state.center) {
+                // Still choosing center point — snap to hex/square center and paint AoE preview
+                const worldPos = eventWorldPoint(ev);
+                const snapped = snapWorldCenter(worldPos.x, worldPos.y);
+                // Draw range line
+                state.rangeLineGraphics.clear();
+                const casterCenter = token.center;
+                const isValid = isWithinMasteryPowerRange(casterCenter, snapped, rangeMeters);
+                state.rangeLineGraphics.lineStyle(2, isValid ? state.placement.lineValid : state.placement.lineInvalid, 0.8);
+                state.rangeLineGraphics.moveTo(casterCenter.x, casterCenter.y);
+                state.rangeLineGraphics.lineTo(snapped.x, snapped.y);
+                if (isValid) {
+                    state.previewGraphics.clear();
+                    const grid = canvas.grid;
+                    const gridless = !grid || grid.type === CONST.GRID_TYPES.GRIDLESS;
+                    if (gridless) {
+                        const radiusPx = masteryAoERadiusPixels(radiusMeters);
+                        if (radiusMeters > 0 && radiusPx > 0) {
+                            state.previewGraphics.lineStyle(2, state.placement.previewLine, 0.75);
+                            state.previewGraphics.beginFill(state.placement.previewFill, 0.12);
+                            state.previewGraphics.drawCircle(0, 0, radiusPx);
+                            state.previewGraphics.endFill();
+                        }
+                        state.previewGraphics.position.set(snapped.x, snapped.y);
                     }
                     else {
-                        clearHexHighlight(state.aoePreviewLayerId);
+                        state.previewGraphics.position.set(0, 0);
+                        if (radiusMeters > 0) {
+                            highlightHexesWithinStepsFromPoint(snapped, masteryPowerMaxSteps(radiusMeters), state.aoePreviewLayerId, state.placement.hex, state.placement.previewAlpha);
+                        }
+                        else {
+                            clearHexHighlight(state.aoePreviewLayerId);
+                        }
                     }
                 }
+                else {
+                    state.previewGraphics.clear();
+                    clearHexHighlight(state.aoePreviewLayerId);
+                }
             }
-            else {
-                state.previewGraphics.clear();
-                clearHexHighlight(state.aoePreviewLayerId);
-            }
+        }
+        catch (err) {
+            console.error('Mastery System | AoE radius pointermove failed', err);
         }
     };
     state.onPointerDown = (ev) => {
@@ -602,105 +587,110 @@ export function startUtilityRadiusMode(token, option) {
             return;
         }
         if (ev.button === 0) {
-            if (rangeMeters === 0) {
-                // Self-aura: clicking toggles targets in manual mode
-                if (state.manualMode) {
-                    const worldPos = ev.data.getLocalPosition(canvas.app.stage);
-                    const tokens = canvas.tokens?.placeables || [];
-                    const clickedToken = tokens.find((t) => {
-                        const bounds = t.bounds;
-                        return bounds && bounds.contains(worldPos.x, worldPos.y);
-                    });
-                    if (clickedToken && state.candidates.has(clickedToken.id)) {
-                        const candidate = state.candidates.get(clickedToken.id);
-                        if (state.excludeAllies && candidate.isAlly && !candidate.selected) {
-                            ui.notifications?.info('Verbündete/Spieler sind ausgenommen (Häkchen im Panel entfernen, um sie zu treffen).');
-                            return;
-                        }
-                        candidate.selected = !candidate.selected;
-                        if (candidate.selected) {
-                            state.selectedTargets.add(clickedToken.id);
-                        }
-                        else {
-                            state.selectedTargets.delete(clickedToken.id);
-                        }
-                        updateCandidateVisuals(state);
-                        if (state.panelApp) {
-                            const html = $(state.panelApp.element);
-                            html.find('#selected-count').text(state.selectedTargets.size);
-                        }
-                    }
-                }
-                return;
-            }
-            if (!state.center) {
-                // Choosing center point
-                const worldPos = ev.data.getLocalPosition(canvas.app.stage);
-                const snapped = canvas.grid.getSnappedPosition(worldPos.x, worldPos.y, 1);
-                const casterCenter = token.center;
-                if (isWithinMasteryPowerRange(casterCenter, snapped, rangeMeters)) {
-                    state.center = snapped;
-                    clearHexHighlight(state.aoePreviewLayerId);
-                    if (state.center) {
-                        state.candidates = findCandidatesInRadius(token, state.center, radiusMeters, targetGroup);
-                    }
-                    // Default selection (allies never pre-selected while excluded)
-                    for (const [tokenId, candidate] of state.candidates.entries()) {
-                        if (state.excludeAllies && candidate.isAlly) {
-                            candidate.selected = false;
-                            continue;
-                        }
-                        if (candidate.selected) {
-                            state.selectedTargets.add(tokenId);
-                        }
-                    }
-                    // Draw radius and update visuals
-                    highlightRadiusArea(state);
-                    updateCandidateVisuals(state);
-                    // Create UI panel
-                    const panel = createTargetSelectionPanel(state);
-                    state.panelApp = panel;
-                    panel.render(true);
-                    // Position panel near caster
-                    const tokenScreen = canvas.stage.toGlobal(new PIXI.Point(token.center.x, token.center.y));
-                    if (panel.element) {
-                        $(panel.element).css({
-                            position: 'absolute',
-                            left: `${tokenScreen.x + 100}px`,
-                            top: `${tokenScreen.y - 100}px`
+            try {
+                if (rangeMeters === 0) {
+                    // Self-aura: clicking toggles targets in manual mode
+                    if (state.manualMode) {
+                        const worldPos = eventWorldPoint(ev);
+                        const tokens = canvas.tokens?.placeables || [];
+                        const clickedToken = tokens.find((t) => {
+                            const bounds = t.bounds;
+                            return bounds && bounds.contains(worldPos.x, worldPos.y);
                         });
+                        if (clickedToken && state.candidates.has(clickedToken.id)) {
+                            const candidate = state.candidates.get(clickedToken.id);
+                            if (state.excludeAllies && candidate.isAlly && !candidate.selected) {
+                                ui.notifications?.info('Verbündete/Spieler sind ausgenommen (Häkchen im Panel entfernen, um sie zu treffen).');
+                                return;
+                            }
+                            candidate.selected = !candidate.selected;
+                            if (candidate.selected) {
+                                state.selectedTargets.add(clickedToken.id);
+                            }
+                            else {
+                                state.selectedTargets.delete(clickedToken.id);
+                            }
+                            updateCandidateVisuals(state);
+                            if (state.panelApp) {
+                                const html = $(state.panelApp.element);
+                                html.find('#selected-count').text(state.selectedTargets.size);
+                            }
+                        }
+                    }
+                    return;
+                }
+                if (!state.center) {
+                    // Choosing center point
+                    const worldPos = eventWorldPoint(ev);
+                    const snapped = snapWorldCenter(worldPos.x, worldPos.y);
+                    const casterCenter = token.center;
+                    if (isWithinMasteryPowerRange(casterCenter, snapped, rangeMeters)) {
+                        state.center = snapped;
+                        clearHexHighlight(state.aoePreviewLayerId);
+                        if (state.center) {
+                            state.candidates = findCandidatesInRadius(token, state.center, radiusMeters, targetGroup);
+                        }
+                        // Default selection (allies never pre-selected while excluded)
+                        for (const [tokenId, candidate] of state.candidates.entries()) {
+                            if (state.excludeAllies && candidate.isAlly) {
+                                candidate.selected = false;
+                                continue;
+                            }
+                            if (candidate.selected) {
+                                state.selectedTargets.add(tokenId);
+                            }
+                        }
+                        // Draw radius and update visuals
+                        highlightRadiusArea(state);
+                        updateCandidateVisuals(state);
+                        // Create UI panel
+                        const panel = createTargetSelectionPanel(state);
+                        state.panelApp = panel;
+                        panel.render(true);
+                        // Position panel near caster
+                        const tokenScreen = canvas.stage.toGlobal(new PIXI.Point(token.center.x, token.center.y));
+                        if (panel.element) {
+                            $(panel.element).css({
+                                position: 'absolute',
+                                left: `${tokenScreen.x + 100}px`,
+                                top: `${tokenScreen.y - 100}px`
+                            });
+                        }
+                    }
+                }
+                else {
+                    // Center chosen, clicking toggles targets in manual mode
+                    if (state.manualMode) {
+                        const worldPos = eventWorldPoint(ev);
+                        const tokens = canvas.tokens?.placeables || [];
+                        const clickedToken = tokens.find((t) => {
+                            const bounds = t.bounds;
+                            return bounds && bounds.contains(worldPos.x, worldPos.y);
+                        });
+                        if (clickedToken && state.candidates.has(clickedToken.id)) {
+                            const candidate = state.candidates.get(clickedToken.id);
+                            if (state.excludeAllies && candidate.isAlly && !candidate.selected) {
+                                ui.notifications?.info('Verbündete/Spieler sind ausgenommen (Häkchen im Panel entfernen, um sie zu treffen).');
+                                return;
+                            }
+                            candidate.selected = !candidate.selected;
+                            if (candidate.selected) {
+                                state.selectedTargets.add(clickedToken.id);
+                            }
+                            else {
+                                state.selectedTargets.delete(clickedToken.id);
+                            }
+                            updateCandidateVisuals(state);
+                            if (state.panelApp) {
+                                const html = $(state.panelApp.element);
+                                html.find('#selected-count').text(state.selectedTargets.size);
+                            }
+                        }
                     }
                 }
             }
-            else {
-                // Center chosen, clicking toggles targets in manual mode
-                if (state.manualMode) {
-                    const worldPos = ev.data.getLocalPosition(canvas.app.stage);
-                    const tokens = canvas.tokens?.placeables || [];
-                    const clickedToken = tokens.find((t) => {
-                        const bounds = t.bounds;
-                        return bounds && bounds.contains(worldPos.x, worldPos.y);
-                    });
-                    if (clickedToken && state.candidates.has(clickedToken.id)) {
-                        const candidate = state.candidates.get(clickedToken.id);
-                        if (state.excludeAllies && candidate.isAlly && !candidate.selected) {
-                            ui.notifications?.info('Verbündete/Spieler sind ausgenommen (Häkchen im Panel entfernen, um sie zu treffen).');
-                            return;
-                        }
-                        candidate.selected = !candidate.selected;
-                        if (candidate.selected) {
-                            state.selectedTargets.add(clickedToken.id);
-                        }
-                        else {
-                            state.selectedTargets.delete(clickedToken.id);
-                        }
-                        updateCandidateVisuals(state);
-                        if (state.panelApp) {
-                            const html = $(state.panelApp.element);
-                            html.find('#selected-count').text(state.selectedTargets.size);
-                        }
-                    }
-                }
+            catch (err) {
+                console.error('Mastery System | AoE radius pointerdown failed', err);
             }
         }
     };
@@ -787,14 +777,51 @@ async function confirmUtilityTargets(state) {
     if (state.option.source === 'power' && state.option.item?.id && actor && combat) {
         await markPowerUsedThisRound(actor, combat, state.option.item.id);
     }
-    // TODO: Call actual utility resolution function
-    // For now, just show notification
-    const dur = state.option.zoneDurationNote;
+    if (state.option.source === 'npc-attack' && state.option.costsAction && actor && combat) {
+        await markNpcAttackUsedThisRound(actor, combat, String(state.option.npcAttackUsageKey || state.option.id || ''));
+    }
     const isHostileZone = state.option.aoePlacementProfile === 'hostile-zone';
+    const isAttackZone = isHostileZone && state.option.slot === 'attack';
+    if (isAttackZone) {
+        if (!targets.length) {
+            ui.notifications?.warn('Keine Ziele in der Zone ausgewählt.');
+            endUtilityTargeting(false);
+            return;
+        }
+        const primary = targets[0];
+        const secondaries = targets.slice(1).map((t) => String(t.id));
+        let powerBonus = 0;
+        if (state.option.source === 'npc-attack' && actor) {
+            const row = getNpcAttackByIndex(actor.system, state.option.npcAttackIndex ?? 0, state.option.npcPhaseIndex);
+            const formula = npcDamageDiceFormula(row);
+            const m = /^(\d+)d8$/i.exec(String(formula));
+            powerBonus = m ? Math.max(0, parseInt(m[1], 10)) : 0;
+        }
+        else if (state.option.item) {
+            powerBonus = extractMeleeAoePowerBonusD8(state.option.item);
+        }
+        // Pass an AoE context even with zero secondaries so the card uses Area TN (8×MR).
+        try {
+            const { createRangedAttackCard } = await import('./combat/attack-executor.js');
+            await createRangedAttackCard(state.casterToken, primary, state.option, {
+                secondaryTokenIds: secondaries,
+                powerBonusDice: powerBonus,
+            });
+        }
+        catch (err) {
+            console.error('Mastery System | Hostile-zone attack resolve failed', err);
+            ui.notifications?.error('AoE-Angriff konnte nicht erstellt werden.');
+            endUtilityTargeting(false);
+            return;
+        }
+        endUtilityTargeting(true);
+        return;
+    }
+    // Utility / persistent zone placement (no attack card)
+    const dur = state.option.zoneDurationNote;
     const durPart = dur ? ` — Dauer ${dur} (Zone am Tisch weiterverfolgen)` : '';
     const kind = isHostileZone ? 'Zone' : 'Utility';
     ui.notifications?.info(`${kind} ${state.option.name}: ${targets.length} Ziel(e)${durPart}`);
-    // End targeting mode
     endUtilityTargeting(true);
 }
 /**

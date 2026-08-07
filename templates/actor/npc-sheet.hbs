@@ -231,7 +231,7 @@
               <div class="npc-attack-field">
                 <label>AoE-Form</label>
                 <select name="system.phases.{{phaseIndex}}.npcBaseAttack.npcAoeShape">
-                  <option value="" {{#unless phase.npcBaseAttack.npcAoeShape}}selected{{/unless}}>Keine</option>
+                  <option value="none" {{#unless phase.npcBaseAttack.npcAoeShape}}selected{{/unless}}>Keine</option>
                   <option value="radius" {{#if (eq phase.npcBaseAttack.npcAoeShape "radius")}}selected{{/if}}>Radius</option>
                   <option value="cone" {{#if (eq phase.npcBaseAttack.npcAoeShape "cone")}}selected{{/if}}>Kegel</option>
                   <option value="line" {{#if (eq phase.npcBaseAttack.npcAoeShape "line")}}selected{{/if}}>Linie</option>
@@ -353,7 +353,7 @@
                   <div class="npc-attack-field">
                     <label>AoE-Form</label>
                     <select name="system.phases.{{../phaseIndex}}.attackValues.{{index}}.npcAoeShape">
-                      <option value="" {{#unless attack.npcAoeShape}}selected{{/unless}}>Keine</option>
+                      <option value="none" {{#unless attack.npcAoeShape}}selected{{/unless}}>Keine</option>
                       <option value="radius" {{#if (eq attack.npcAoeShape "radius")}}selected{{/if}}>Radius</option>
                       <option value="cone" {{#if (eq attack.npcAoeShape "cone")}}selected{{/if}}>Kegel</option>
                       <option value="line" {{#if (eq attack.npcAoeShape "line")}}selected{{/if}}>Linie</option>
@@ -542,7 +542,7 @@
             <div class="npc-attack-field">
               <label>AoE-Form</label>
               <select name="system.npcBaseAttack.npcAoeShape">
-                <option value="" {{#unless system.npcBaseAttack.npcAoeShape}}selected{{/unless}}>Keine</option>
+                <option value="none" {{#unless system.npcBaseAttack.npcAoeShape}}selected{{/unless}}>Keine</option>
                 <option value="radius" {{#if (eq system.npcBaseAttack.npcAoeShape "radius")}}selected{{/if}}>Radius</option>
                 <option value="cone" {{#if (eq system.npcBaseAttack.npcAoeShape "cone")}}selected{{/if}}>Kegel</option>
                 <option value="line" {{#if (eq system.npcBaseAttack.npcAoeShape "line")}}selected{{/if}}>Linie</option>
@@ -664,7 +664,7 @@
                 <div class="npc-attack-field">
                   <label>AoE-Form</label>
                   <select name="system.attackValues.{{index}}.npcAoeShape">
-                    <option value="" {{#unless attack.npcAoeShape}}selected{{/unless}}>Keine</option>
+                    <option value="none" {{#unless attack.npcAoeShape}}selected{{/unless}}>Keine</option>
                     <option value="radius" {{#if (eq attack.npcAoeShape "radius")}}selected{{/if}}>Radius</option>
                     <option value="cone" {{#if (eq attack.npcAoeShape "cone")}}selected{{/if}}>Kegel</option>
                     <option value="line" {{#if (eq attack.npcAoeShape "line")}}selected{{/if}}>Linie</option>

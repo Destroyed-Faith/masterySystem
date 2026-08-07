@@ -126,7 +126,7 @@ function buildNpcCatalogActiveBuffOptions(actor: any): RadialCombatOption[] {
  * One radial entry per copy of each NSC attack row (Angriffe/Runde = copies).
  * Spent copies disappear until the next round.
  */
-function buildNpcAttackRadialOptions(actor: any): RadialCombatOption[] {
+export function buildNpcAttackRadialOptions(actor: any): RadialCombatOption[] {
   if (!actor || actor.type !== 'npc') return [];
   const { attacks, phaseIndex } = resolveNpcAttackList(actor.system || {});
   if (!attacks.length) return [];
@@ -152,10 +152,13 @@ function buildNpcAttackRadialOptions(actor: any): RadialCombatOption[] {
     if (rangedMinM > rangedMaxM) rangedMinM = rangedMaxM;
     const rangeM = isRanged ? rangedMaxM : reachM;
     const shapeRaw = String(atk?.npcAoeShape || 'none').toLowerCase();
-    const shape =
+    const shapeCandidate =
       shapeRaw === 'radius' || shapeRaw === 'cone' || shapeRaw === 'line' ? shapeRaw : 'none';
     const rad = Math.max(0, Math.floor(Number(atk?.npcAoeRadiusM) || 0));
-    const burstMelee = !isRanged && shape === 'radius' && rad > 0;
+    // Empty / "none" / zero-meter AoE must not enter AoE targeting.
+    const shape = shapeCandidate !== 'none' && rad > 0 ? shapeCandidate : 'none';
+    const burstMelee = !isRanged && shape === 'radius';
+    const rangedZone = isRanged && shape === 'radius';
     const baseName = (atk?.name && String(atk.name).trim()) || `Angriff ${index + 1}`;
     const description = buildNpcAttackDescription(atk);
 
@@ -169,10 +172,14 @@ function buildNpcAttackRadialOptions(actor: any): RadialCombatOption[] {
         range: rangeM,
         meleeReachMeters: isRanged ? undefined : reachM,
         rangeMinMeters: isRanged ? rangedMinM : undefined,
+        rangeMeters: rangeM,
         aoeShape: shape as any,
-        aoeRadiusMeters: rad > 0 ? rad : undefined,
+        aoeRadiusMeters: shape !== 'none' ? rad : undefined,
         burstMeleeAoE: burstMelee,
         burstMeleeRadiusMeters: burstMelee ? rad : undefined,
+        aoePlacementProfile: rangedZone ? 'hostile-zone' : undefined,
+        defaultTargetGroup: shape !== 'none' ? 'enemy' : undefined,
+        allowManualTargetSelection: rangedZone ? true : undefined,
         npcAttackIndex: index,
         npcPhaseIndex: phaseIndex,
         costsAction: true,
@@ -431,13 +438,18 @@ function parseAoERadius(aoeInput: string | AoeSpec | undefined): number | undefi
   }
   if (isAoeSpecObject(aoeInput)) {
     const o = aoeInput;
-    if (o.shape === 'radius' || o.shape === 'burst' || o.shape === 'aura') {
+    if (
+      o.shape === 'radius' ||
+      o.shape === 'burst' ||
+      o.shape === 'aura' ||
+      o.shape === 'zone'
+    ) {
       const r = o.radiusM ?? o.m;
       return r !== undefined ? r : undefined;
     }
     return undefined;
   }
-  const match = String(aoeInput).match(/radius\s*(\d+(?:\.\d+)?)\s*m/i);
+  const match = String(aoeInput).match(/(?:radius|burst|aura|zone)\s*(\d+(?:\.\d+)?)\s*m/i);
   if (match) {
     return parseFloat(match[1]);
   }
@@ -454,13 +466,19 @@ function parseAoEShape(aoeInput: string | AoeSpec | undefined): AoEShape {
   if (isAoeSpecObject(aoeInput)) {
     const s = aoeInput.shape;
     if (s === 'none' || s === 'single' || s === 'weapon') return 'none';
-    if (s === 'radius' || s === 'burst' || s === 'aura') return 'radius';
+    // Persistent zones / auras place like a radius footprint.
+    if (s === 'radius' || s === 'burst' || s === 'aura' || s === 'zone') return 'radius';
     if (s === 'cone') return 'cone';
     if (s === 'line') return 'line';
     return 'none';
   }
   const lower = String(aoeInput).toLowerCase();
-  if (lower.includes('radius') || lower.includes('burst') || lower.includes('aura')) {
+  if (
+    lower.includes('radius') ||
+    lower.includes('burst') ||
+    lower.includes('aura') ||
+    lower.includes('zone')
+  ) {
     return 'radius';
   }
   if (lower.includes('cone')) {

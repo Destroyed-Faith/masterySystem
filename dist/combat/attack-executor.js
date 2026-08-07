@@ -704,8 +704,8 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
 export async function createMeleeAttackCard(attackerToken, targetToken, option, burstVolley = null, aoeMelee = null) {
     return createAttackCard(attackerToken, targetToken, option, "melee", null, burstVolley, aoeMelee);
 }
-export async function createRangedAttackCard(attackerToken, targetToken, option) {
-    return createAttackCard(attackerToken, targetToken, option, "ranged", null, null, null);
+export async function createRangedAttackCard(attackerToken, targetToken, option, aoeZone = null) {
+    return createAttackCard(attackerToken, targetToken, option, "ranged", null, null, aoeZone);
 }
 /**
  * Setup raise-plan editor on attack cards (new Raise rules).

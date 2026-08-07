@@ -281,13 +281,22 @@ export function buildArtifactRadialOptions(actor) {
                 option.artifactPowerTemplateId = row.powerTemplateId;
                 option.artifactChosenSpecialKey = row.chosenSpecialKey;
             }
-            if (aoe.shape !== 'none') {
+            if (aoe.shape !== 'none' && (aoe.radiusM ?? 0) > 0) {
                 option.aoeShape = aoe.shape;
                 option.aoeRadiusMeters = aoe.radiusM;
-                option.rangeMeters = isRanged ? range : 0;
                 option.defaultTargetGroup = 'enemy';
-                option.allowManualTargetSelection = true;
-                option.aoePlacementProfile = 'hostile-zone';
+                // Melee AoE stays self-centered (burst dialog + hex preview).
+                // Ranged / zone AoE uses cursor placement.
+                if (!isRanged && /melee/i.test(rowType)) {
+                    option.burstMeleeAoE = true;
+                    option.burstMeleeRadiusMeters = aoe.radiusM;
+                    option.rangeMeters = range;
+                }
+                else {
+                    option.rangeMeters = isRanged ? range : 0;
+                    option.allowManualTargetSelection = true;
+                    option.aoePlacementProfile = 'hostile-zone';
+                }
                 if (row.duration)
                     option.zoneDurationNote = row.duration;
             }

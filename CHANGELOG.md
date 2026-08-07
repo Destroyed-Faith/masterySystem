@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.256] - 2026-08-07
+
+### Fixed
+
+- **AoE targeting on Foundry v14**: placement preview no longer crashes on removed `getSnappedPosition` — snaps via `getCenterPoint` / `getSnappedPoint`, paints hex/circle under the cursor again.
+- **NPC AoE stuck on**: empty/"Keine" AoE shape now clears persisted shape+radius; AoE mode requires shape **and** radius > 0.
+- **NPC ranged AoE** enters cursor placement (hostile-zone) instead of single-target ranged mode.
+- Melee AoE shows a burst hex preview around the attacker while the primary dialog is open.
+
 ## [0.9.255] - 2026-08-04
 
 ### Added

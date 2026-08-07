@@ -11,6 +11,11 @@ export declare function powerCostPaysAction(cost: {
     actions?: unknown;
 } | undefined): boolean;
 /**
+ * One radial entry per copy of each NSC attack row (Angriffe/Runde = copies).
+ * Spent copies disappear until the next round.
+ */
+export declare function buildNpcAttackRadialOptions(actor: any): RadialCombatOption[];
+/**
  * Map an option to one of the 4 inner segment IDs
  * This determines which inner quadrant (Buff/Move/Util/Atk) an option belongs to
  */

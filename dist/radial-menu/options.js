@@ -121,7 +121,7 @@ function buildNpcCatalogActiveBuffOptions(actor) {
  * One radial entry per copy of each NSC attack row (Angriffe/Runde = copies).
  * Spent copies disappear until the next round.
  */
-function buildNpcAttackRadialOptions(actor) {
+export function buildNpcAttackRadialOptions(actor) {
     if (!actor || actor.type !== 'npc')
         return [];
     const { attacks, phaseIndex } = resolveNpcAttackList(actor.system || {});
@@ -148,9 +148,12 @@ function buildNpcAttackRadialOptions(actor) {
             rangedMinM = rangedMaxM;
         const rangeM = isRanged ? rangedMaxM : reachM;
         const shapeRaw = String(atk?.npcAoeShape || 'none').toLowerCase();
-        const shape = shapeRaw === 'radius' || shapeRaw === 'cone' || shapeRaw === 'line' ? shapeRaw : 'none';
+        const shapeCandidate = shapeRaw === 'radius' || shapeRaw === 'cone' || shapeRaw === 'line' ? shapeRaw : 'none';
         const rad = Math.max(0, Math.floor(Number(atk?.npcAoeRadiusM) || 0));
-        const burstMelee = !isRanged && shape === 'radius' && rad > 0;
+        // Empty / "none" / zero-meter AoE must not enter AoE targeting.
+        const shape = shapeCandidate !== 'none' && rad > 0 ? shapeCandidate : 'none';
+        const burstMelee = !isRanged && shape === 'radius';
+        const rangedZone = isRanged && shape === 'radius';
         const baseName = (atk?.name && String(atk.name).trim()) || `Angriff ${index + 1}`;
         const description = buildNpcAttackDescription(atk);
         for (let copy = 0; copy < remaining; copy++) {
@@ -163,10 +166,14 @@ function buildNpcAttackRadialOptions(actor) {
                 range: rangeM,
                 meleeReachMeters: isRanged ? undefined : reachM,
                 rangeMinMeters: isRanged ? rangedMinM : undefined,
+                rangeMeters: rangeM,
                 aoeShape: shape,
-                aoeRadiusMeters: rad > 0 ? rad : undefined,
+                aoeRadiusMeters: shape !== 'none' ? rad : undefined,
                 burstMeleeAoE: burstMelee,
                 burstMeleeRadiusMeters: burstMelee ? rad : undefined,
+                aoePlacementProfile: rangedZone ? 'hostile-zone' : undefined,
+                defaultTargetGroup: shape !== 'none' ? 'enemy' : undefined,
+                allowManualTargetSelection: rangedZone ? true : undefined,
                 npcAttackIndex: index,
                 npcPhaseIndex: phaseIndex,
                 costsAction: true,
@@ -397,13 +404,16 @@ function parseAoERadius(aoeInput) {
     }
     if (isAoeSpecObject(aoeInput)) {
         const o = aoeInput;
-        if (o.shape === 'radius' || o.shape === 'burst' || o.shape === 'aura') {
+        if (o.shape === 'radius' ||
+            o.shape === 'burst' ||
+            o.shape === 'aura' ||
+            o.shape === 'zone') {
             const r = o.radiusM ?? o.m;
             return r !== undefined ? r : undefined;
         }
         return undefined;
     }
-    const match = String(aoeInput).match(/radius\s*(\d+(?:\.\d+)?)\s*m/i);
+    const match = String(aoeInput).match(/(?:radius|burst|aura|zone)\s*(\d+(?:\.\d+)?)\s*m/i);
     if (match) {
         return parseFloat(match[1]);
     }
@@ -420,7 +430,8 @@ function parseAoEShape(aoeInput) {
         const s = aoeInput.shape;
         if (s === 'none' || s === 'single' || s === 'weapon')
             return 'none';
-        if (s === 'radius' || s === 'burst' || s === 'aura')
+        // Persistent zones / auras place like a radius footprint.
+        if (s === 'radius' || s === 'burst' || s === 'aura' || s === 'zone')
             return 'radius';
         if (s === 'cone')
             return 'cone';
@@ -429,7 +440,10 @@ function parseAoEShape(aoeInput) {
         return 'none';
     }
     const lower = String(aoeInput).toLowerCase();
-    if (lower.includes('radius') || lower.includes('burst') || lower.includes('aura')) {
+    if (lower.includes('radius') ||
+        lower.includes('burst') ||
+        lower.includes('aura') ||
+        lower.includes('zone')) {
         return 'radius';
     }
     if (lower.includes('cone')) {

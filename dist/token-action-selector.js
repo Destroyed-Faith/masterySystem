@@ -13,8 +13,9 @@ import { extractMeleeAoePowerBonusD8 } from './utils/power-mechanics.js';
 import { startRangedTargeting } from './ranged-targeting.js';
 import { startUtilitySingleTargetMode, startUtilityRadiusMode } from './utility-targeting.js';
 import { getRoundState, getMovementRangeBonusMeters, getAvailableAttackActions, getAvailableMovementActions, consumeAttackAction, consumeMovementAction, spendMovementPowerAction, isNormalMovementReplaced, refundAttackAction, markPowerUsedThisRound, markNpcAttackUsedThisRound, canUseNpcAttackThisRound, hasPowerBeenUsedThisRound } from './combat/action-economy.js';
-import { gridStepsFromMeters, gridStepsBetweenCenters, measureSceneDistanceBetweenPoints, metersToSceneDistance } from './utils/grid-range.js';
-import { highlightHexesInRange, clearHexHighlight, collectHexKeysInRangeForToken, highlightTabuHexesOnLayer } from './utils/hex-highlighting.js';
+import { gridStepsFromMeters, gridStepsBetweenCenters, masteryPowerMaxSteps, measureSceneDistanceBetweenPoints, metersToSceneDistance } from './utils/grid-range.js';
+import { eventWorldPoint, resolveOverlayContainer, snapWorldTopLeft, } from './utils/grid-snap.js';
+import { highlightHexesInRange, highlightHexesWithinStepsFromPoint, clearHexHighlight, collectHexKeysInRangeForToken, highlightTabuHexesOnLayer } from './utils/hex-highlighting.js';
 /** Same yellow tone as radial range preview (`range-preview.ts`). */
 const MOVEMENT_RANGE_COLOR = 0xffe066;
 const MOVEMENT_RANGE_ALPHA = 0.45;
@@ -338,24 +339,7 @@ export function startGuidedMovement(token, option) {
     const highlightIdHover = 'mastery-move-hover';
     // Create preview graphics
     const previewGraphics = new PIXI.Graphics();
-    // Add to effects layer (similar to range preview)
-    let effectsContainer = null;
-    if (canvas.effects) {
-        if (canvas.effects.container && typeof canvas.effects.container.addChild === 'function') {
-            effectsContainer = canvas.effects.container;
-        }
-        else if (typeof canvas.effects.addChild === 'function') {
-            effectsContainer = canvas.effects;
-        }
-    }
-    if (!effectsContainer && canvas.foreground) {
-        if (canvas.foreground.container && typeof canvas.foreground.container.addChild === 'function') {
-            effectsContainer = canvas.foreground.container;
-        }
-        else if (typeof canvas.foreground.addChild === 'function') {
-            effectsContainer = canvas.foreground;
-        }
-    }
+    const effectsContainer = resolveOverlayContainer();
     if (effectsContainer) {
         effectsContainer.addChild(previewGraphics);
     }
@@ -400,11 +384,8 @@ function handleMovementPointerMove(ev, state) {
     const currentState = state || activeMovementState;
     if (!currentState || activeMovementState !== currentState)
         return;
-    const worldPos = ev.data.getLocalPosition(canvas.app.stage);
-    const grid = canvas.grid;
-    const snapped = grid && typeof grid.getSnappedPosition === 'function'
-        ? grid.getSnappedPosition(worldPos.x, worldPos.y, 1)
-        : { x: worldPos.x, y: worldPos.y };
+    const worldPos = eventWorldPoint(ev);
+    const snapped = snapWorldTopLeft(worldPos.x, worldPos.y);
     refreshMovementPreview(currentState, snapped.x, snapped.y);
 }
 /**
@@ -481,11 +462,8 @@ function handleMovementPointerDown(ev, state) {
     }
     // Left click -> attempt move
     if (ev.button === 0) {
-        const worldPos = ev.data.getLocalPosition(canvas.app.stage);
-        const grid = canvas.grid;
-        const snapped = grid && typeof grid.getSnappedPosition === 'function'
-            ? grid.getSnappedPosition(worldPos.x, worldPos.y, 1)
-            : { x: worldPos.x, y: worldPos.y };
+        const worldPos = eventWorldPoint(ev);
+        const snapped = snapWorldTopLeft(worldPos.x, worldPos.y);
         attemptCommitMovement(snapped.x, snapped.y, currentState)
             .catch(err => {
             console.error('Mastery System | Guided movement commit failed', err);
@@ -807,12 +785,32 @@ export async function handleChosenCombatOption(token, option) {
                 });
                 return;
             }
+            // Paint the burst footprint around the attacker while the primary dialog is open.
+            const burstHighlightId = `mastery-melee-aoe-${token.id}`;
+            const burstM = typeof option.burstMeleeRadiusMeters === 'number' && option.burstMeleeRadiusMeters > 0
+                ? option.burstMeleeRadiusMeters
+                : (option.meleeReachMeters ?? option.range ?? 2);
+            try {
+                const steps = masteryPowerMaxSteps(burstM);
+                if (steps > 0 && token.center) {
+                    highlightHexesWithinStepsFromPoint(token.center, steps, burstHighlightId, 0xff6644, 0.38);
+                }
+            }
+            catch (err) {
+                console.warn('Mastery System | Melee AoE preview failed', err);
+            }
             // NPC attacks have no splash pool; player powers use damageRider.flat.
             const powerBonus = option.source === 'npc-attack' ? 0 : extractMeleeAoePowerBonusD8(option.item);
             if (burstIds.length > 1 && powerBonus <= 0) {
                 ui.notifications?.warn?.('Melee AoE: power has no unconditional +Nd8 splash on damageRider.flat — secondary splash disabled.');
             }
-            const choice = await promptMeleeAoePrimaryChoice(burstIds, token.id, option);
+            let choice;
+            try {
+                choice = await promptMeleeAoePrimaryChoice(burstIds, token.id, option);
+            }
+            finally {
+                clearHexHighlight(burstHighlightId);
+            }
             if (choice === 'cancelled') {
                 return;
             }
@@ -898,12 +896,11 @@ export async function handleChosenCombatOption(token, option) {
         startMeleeTargeting(token, option);
         return;
     }
-    const isAttackHostileZonePlacement = option.source === "power" &&
-        option.slot === "attack" &&
-        option.powerType === "active" &&
+    const isAttackHostileZonePlacement = option.slot === "attack" &&
         option.aoeShape === "radius" &&
         (option.aoeRadiusMeters ?? 0) > 0 &&
-        option.aoePlacementProfile === "hostile-zone";
+        (option.aoePlacementProfile === "hostile-zone" ||
+            (option.source === "npc-attack" && option.tags?.includes("ranged")));
     if (isAttackHostileZonePlacement) {
         if (option.costsAction) {
             const atkAvail = getAvailableAttackActions(actor, combat);
@@ -915,8 +912,25 @@ export async function handleChosenCombatOption(token, option) {
                 });
                 return;
             }
+            if (option.source === "npc-attack") {
+                const usageKey = String(option.npcAttackUsageKey || option.id || "");
+                if (!canUseNpcAttackThisRound(actor, combat, usageKey, Math.min(5, Math.max(1, Math.floor(Number(option.npcAttacksPerRound) || 1))))) {
+                    ui.notifications?.warn("Keine Nutzungen dieser Attacke mehr in dieser Runde.");
+                    return;
+                }
+            }
         }
         closeRadialMenu();
+        // Ranged AoE: place a radius under the cursor (hex highlight / circle).
+        if (!option.aoePlacementProfile) {
+            option.aoePlacementProfile = "hostile-zone";
+        }
+        if (!option.defaultTargetGroup) {
+            option.defaultTargetGroup = "enemy";
+        }
+        if (option.allowManualTargetSelection === undefined) {
+            option.allowManualTargetSelection = true;
+        }
         startUtilityRadiusMode(token, option);
         return;
     }

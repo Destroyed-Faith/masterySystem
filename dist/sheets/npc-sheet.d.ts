@@ -47,6 +47,13 @@ export declare class MasteryNpcSheet extends MasteryCharacterSheet {
     _initializeApplicationOptions(options: any): any;
     /** @override */
     _prepareContext(options?: any): Promise<any>;
+    /**
+     * Empty/"none" AoE selects must clear persisted shape+radius. Blank
+     * `<option value="">` was previously omitted from FormData, so old AoE
+     * values stuck forever on the actor.
+     * @override
+     */
+    _prepareSubmitData(event: any, form: any, formData: any, updateData?: any): any;
     /** @override */
     activateListeners(html: JQuery): void;
 }

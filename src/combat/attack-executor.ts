@@ -861,9 +861,10 @@ export async function createMeleeAttackCard(
 export async function createRangedAttackCard(
   attackerToken: any,
   targetToken: any,
-  option: RadialCombatOption
+  option: RadialCombatOption,
+  aoeZone: AoeMeleeWeaponContext | null = null,
 ): Promise<void> {
-  return createAttackCard(attackerToken, targetToken, option, "ranged", null, null, null);
+  return createAttackCard(attackerToken, targetToken, option, "ranged", null, null, aoeZone);
 }
 
 /**
