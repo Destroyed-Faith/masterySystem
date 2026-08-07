@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.258] - 2026-08-07
+
+### Changed
+
+- Version bump for Foundry package refresh (includes 0.9.257 NPC sheet dropdown + AoE fixes).
+
 ## [0.9.257] - 2026-08-07
 
 ### Fixed
