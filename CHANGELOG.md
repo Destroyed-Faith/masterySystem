@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.271] - 2026-08-07
+
+### Added
+
+- **Basic Combat Maneuvers** (universal options for all combatants):
+  - **Basic Attack**: Weapon Damage + MR × 2d8; no Active Power effects; weapon properties / Passives / Buffs still apply.
+  - **Basic Movement**: Move, Dash (2× Speed, locks base Attack), Disengage (safe move + locks base Attack), Quick Load (Reload 1, cap MR), Stand Up (costs Attack Action), Flee (4× Speed; no Attacks / Reactions / Stones until next Turn).
+  - **Basic Reactions** in the Reaction Window: Guard (+MR×2 Armor), Evade (+MR×2 Evade), Counterattack (Basic Attack; does not spend an Attack Action). Not Powers — reusable with extra Reactions.
+  - **Initiative: Delay**: skip Turn, pick after whom to act; permanent Initiative change; can carry into the next round.
+
+### Changed
+
+- **Threatened Ranged**: Disadvantage when an enemy has you in *their* melee reach; those enemies may spend a Reaction after declaration (wording aligned).
+- Radial **Weapon Attack** label → **Basic Attack**.
+
 ## [0.9.270] - 2026-08-07
 
 ### Changed

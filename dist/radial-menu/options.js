@@ -327,6 +327,15 @@ function calculateRange(actor, optionId, slot, rangeStr, levelData) {
         const actorSpeed = actor.system?.combat?.speed || 8;
         return actorSpeed * 2 + moveBonus;
     }
+    // Flee: 4× Speed directly away from danger
+    if (optionId === 'flee') {
+        const actorSpeed = actor.system?.combat?.speed || 8;
+        return actorSpeed * 4 + moveBonus;
+    }
+    // Quick Load does not move
+    if (optionId === 'quick-load') {
+        return 0;
+    }
     // Check if it's a melee power/attack
     const isMelee = !rangeStr ||
         rangeStr.toLowerCase() === 'self' ||
@@ -870,7 +879,14 @@ export async function getAllCombatOptionsForActor(actor) {
     // --- MANEUVERS (generic combat maneuvers) ---
     const availableManeuvers = getAvailableManeuvers(actor);
     // Core movement maneuver IDs (must appear first in movement segment)
-    const CORE_MOVEMENT_MANEUVER_IDS = ['move', 'dash', 'disengage', 'stand-up'];
+    const CORE_MOVEMENT_MANEUVER_IDS = [
+        'move',
+        'dash',
+        'disengage',
+        'quick-load',
+        'stand-up',
+        'flee',
+    ];
     for (const maneuver of availableManeuvers) {
         // Filter out Multiattacks
         if (maneuver.tags?.includes('multiattack') || maneuver.id?.includes('multiattack')) {
@@ -881,11 +897,20 @@ export async function getAllCombatOptionsForActor(actor) {
             continue;
         }
         // Filter out specific reaction maneuvers that should not appear in radial menu
+        // Basic Reactions (Guard/Evade/Counterattack/Dive) live in the Reaction Window, not the radial.
         if (maneuver.id === 'readied-action' ||
             maneuver.id === 'counter-attack' ||
+            maneuver.id === 'counterattack' ||
             maneuver.id === 'opportunity-attack' ||
             maneuver.id === 'defensive-roll' ||
-            maneuver.id === 'cover-fire') {
+            maneuver.id === 'cover-fire' ||
+            maneuver.id === 'guard' ||
+            maneuver.id === 'evade' ||
+            maneuver.id === 'dive-for-cover' ||
+            maneuver.id === 'parry' ||
+            maneuver.id === 'dodge' ||
+            maneuver.id === 'block' ||
+            maneuver.tags?.includes('basic-reaction')) {
             continue;
         }
         // For attack slot: only allow Weapon Attack and the two main stances
@@ -933,21 +958,21 @@ export async function getAllCombatOptionsForActor(actor) {
         !isManeuverHiddenFromActorRadial(actor, 'weapon-attack')) {
         allManeuvers.push({
             id: 'weapon-attack',
-            name: 'Weapon Attack',
-            description: 'Make a standard attack with your equipped weapon.',
+            name: 'Basic Attack',
+            description: 'Weapon Damage + MR × 2d8. No Active Power effects.',
             slot: 'attack',
             source: 'maneuver',
             range: calculateRange(actor, 'weapon-attack', 'attack', undefined, undefined),
             maneuver: {
                 id: 'weapon-attack',
-                name: 'Weapon Attack',
-                description: 'Make a standard attack with your equipped weapon.',
+                name: 'Basic Attack',
+                description: 'Weapon Damage + MR × 2d8. No Active Power effects.',
                 slot: 'attack',
                 category: 'combat-action',
-                tags: ['attack', 'weapon'],
-                effect: 'Make a standard attack with your equipped weapon. Roll attack dice against the target\'s Evade.'
+                tags: ['attack', 'weapon', 'basic'],
+                effect: 'Make a Basic Attack with your equipped weapon: Weapon Damage + MR × 2d8. No Active Power effects. Weapon properties and eligible Passives/Buffs still apply.',
             },
-            tags: ['attack', 'weapon'],
+            tags: ['attack', 'weapon', 'basic'],
             costsAction: true
         });
     }

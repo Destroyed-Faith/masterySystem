@@ -36,9 +36,10 @@ describe('defender-reactions', () => {
     expect(isAllyReactionPower({ name: 'Reaction: Ally Evade', system: {} })).toBe(true);
   });
 
-  it('getEligibleReactionPowers returns reaction items and omits phasing.reactionSingleHit', () => {
+  it('getEligibleReactionPowers returns reaction items, basic reactions, and omits phasing.reactionSingleHit', () => {
     const combat = { id: 'c1' } as any;
     const defender = {
+      system: { mastery: { rank: 2 } },
       items: [
         { id: 'r1', type: 'power', name: 'R1', system: { powerType: 'reaction', equipped: true } },
         { id: 'u1', type: 'power', name: 'U1', system: { powerType: 'utility', equipped: true } },
@@ -47,6 +48,11 @@ describe('defender-reactions', () => {
     } as any;
 
     const list = getEligibleReactionPowers(defender, combat);
-    expect(list.map((x: any) => x.id).sort()).toEqual(['r1']);
+    expect(list.map((x: any) => x.id).sort()).toEqual([
+      'basic-reaction-counterattack',
+      'basic-reaction-evade',
+      'basic-reaction-guard',
+      'r1',
+    ]);
   });
 });

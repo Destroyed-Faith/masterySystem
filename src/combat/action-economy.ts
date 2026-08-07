@@ -135,6 +135,20 @@ export interface RoundState {
    */
   movementPowerUsedThisRound?: boolean;
   /**
+   * Dash / Disengage: base Attack Action locked this Turn (stone extras still ok).
+   */
+  baseAttackLocked?: boolean;
+  /**
+   * Disengage: movement does not provoke movement-triggered Reactions.
+   */
+  safeMovementThisTurn?: boolean;
+  /**
+   * Flee: until start of next Turn — no Attacks, Reactions, or Stones.
+   */
+  fleeLock?: boolean;
+  /** Quick Load Reload(1) spends this Turn (capped at Mastery Rank). */
+  quickLoadReloadThisTurn?: number;
+  /**
    * Per-Bond Summon combat usage this round (attacks / special / reaction).
    * Keyed by SummonBondRecord.id on the owner actor.
    */
@@ -672,6 +686,11 @@ export function isNormalMovementReplaced(actor: Actor, combat: Combat | null): b
 export async function spendReactionAction(actor: Actor, combat: Combat | null): Promise<boolean> {
   const roundState = getRoundState(actor, combat);
 
+  if (roundState.fleeLock) {
+    ui.notifications?.warn('Flee: you cannot use Reactions until the start of your next Turn.');
+    return false;
+  }
+
   if (roundState.reactionActions.used >= roundState.reactionActions.total) {
     ui.notifications?.warn('No reaction actions remaining!');
     return false;
@@ -687,14 +706,43 @@ export async function spendReactionAction(actor: Actor, combat: Combat | null): 
  * Get available attack actions (remaining count).
  * Stunned(X) locks X attack actions for the current round — the total is
  * clamped before subtracting `used`, never going below 0.
+ * Dash/Disengage locks the base Attack Action (`baseAttackLocked`).
+ * Flee locks all attacks until next Turn.
  */
 export function getAvailableAttackActions(actor: Actor, combat: Combat | null): number {
   const roundState = getRoundState(actor, combat);
+  if (roundState.fleeLock) return 0;
   const owner = getActionEconomyActor(actor) ?? actor;
   const stunnedLock = Math.max(0, getStunnedRank(owner));
-  const effectiveTotal = Math.max(0, roundState.attackActions.total - stunnedLock);
+  const baseLock = roundState.baseAttackLocked ? 1 : 0;
+  const effectiveTotal = Math.max(0, roundState.attackActions.total - stunnedLock - baseLock);
   const n = Math.max(0, effectiveTotal - roundState.attackActions.used);
   return n;
+}
+
+/** Apply Dash / Disengage / Flee side-effects after spending Movement. */
+export async function applyBasicMovementManeuverFlags(
+  actor: Actor,
+  combat: Combat | null,
+  maneuverId: string,
+): Promise<void> {
+  const id = String(maneuverId || '');
+  if (!id) return;
+  const rs = getRoundState(actor, combat);
+  if (id === 'dash') {
+    rs.baseAttackLocked = true;
+  } else if (id === 'disengage') {
+    rs.baseAttackLocked = true;
+    rs.safeMovementThisTurn = true;
+  } else if (id === 'flee') {
+    rs.fleeLock = true;
+    rs.baseAttackLocked = true;
+  }
+  await setRoundState(actor, rs);
+}
+
+export function isFleeLocked(actor: Actor, combat: Combat | null): boolean {
+  return !!getRoundState(actor, combat).fleeLock;
 }
 
 /**
@@ -747,6 +795,36 @@ export async function refundAttackAction(actor: Actor, combat: Combat | null): P
  */
 export async function consumeMovementAction(actor: Actor, combat: Combat | null): Promise<boolean> {
   return await spendMovementAction(actor, combat);
+}
+
+/**
+ * Refund one movement action if any were spent this round.
+ */
+export async function refundMovementAction(actor: Actor, combat: Combat | null): Promise<void> {
+  const roundState = getRoundState(actor, combat);
+  if (roundState.movementActions.used <= 0) return;
+  roundState.movementActions.used -= 1;
+  await setRoundState(actor, roundState);
+}
+
+/** Quick Load Reload(1) spent so far this Turn (capped at Mastery Rank). */
+export function getQuickLoadReloadThisTurn(actor: Actor, combat: Combat | null): number {
+  return Math.max(0, Math.floor(Number(getRoundState(actor, combat).quickLoadReloadThisTurn) || 0));
+}
+
+/** Record one Quick Load Reload(1). Returns false if already at Mastery Rank cap. */
+export async function recordQuickLoadReload(
+  actor: Actor,
+  combat: Combat | null,
+  masteryRank: number,
+): Promise<boolean> {
+  const rs = getRoundState(actor, combat);
+  const used = Math.max(0, Math.floor(Number(rs.quickLoadReloadThisTurn) || 0));
+  const cap = Math.max(1, Math.floor(Number(masteryRank) || 1));
+  if (used >= cap) return false;
+  rs.quickLoadReloadThisTurn = used + 1;
+  await setRoundState(actor, rs);
+  return true;
 }
 
 /**
@@ -922,6 +1000,11 @@ export async function spendStoneAbility(
   const combat = game.combat;
   if (!combat) {
     ui.notifications?.warn('Not in combat!');
+    return false;
+  }
+
+  if (isFleeLocked(actor, combat)) {
+    ui.notifications?.warn('Flee: you cannot spend Stones until the start of your next Turn.');
     return false;
   }
 
@@ -1279,6 +1362,11 @@ export async function resetTurnState(actor: Actor, combat: Combat | null): Promi
   roundState.movementActions.used = 0;
   roundState.attackActions.used = 0;
   roundState.reactionActions.used = 0;
+  // Basic maneuver turn locks expire at the start of your next Turn.
+  roundState.baseAttackLocked = false;
+  roundState.safeMovementThisTurn = false;
+  roundState.fleeLock = false;
+  roundState.quickLoadReloadThisTurn = 0;
   
   // Clear stone usage for this turn (keep round-level usage)
   const stoneUsage = (o.getFlag('mastery-system', 'stoneUsage') as Record<string, number>) || {};

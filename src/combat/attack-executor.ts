@@ -679,7 +679,7 @@ export async function createAttackCard(
       ? `<div class="mastery-threatened-ranged" style="border-left:4px solid #c0392b;padding:8px;margin:8px 0;background:rgba(192,57,43,0.08);">
           <p><strong>Threatened Ranged</strong></p>
           <p><strong>Disadvantage:</strong> keep one fewer die on the attack roll.</p>
-          <p>After this declaration, these enemies in <em>your</em> melee reach may spend a <strong>Reaction</strong> for an <strong>Opportunity Attack</strong> against you: <strong>${oppNames.length ? oppNames.join(", ") : "(none in reach)"}</strong></p>
+          <p>After this declaration, enemies who have you in <em>their</em> melee reach may spend a <strong>Reaction</strong>: <strong>${oppNames.length ? oppNames.join(", ") : "(none in reach)"}</strong></p>
         </div>`
       : "";
 

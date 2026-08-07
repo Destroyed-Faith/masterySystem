@@ -453,6 +453,16 @@ export async function showDamageDialog(
   let powerDamage = '0';
   let powerSpecials: string[] = [];
   let selectedPowerData: any = null;
+  // Basic Attack (no Active Power): Weapon Damage + MR × 2d8.
+  let basicAttackMrDamage = '0';
+  if (!isNpcAttackFlow && !selectedPowerId) {
+    try {
+      const { basicAttackMrDamageFormula } = await import('../combat/basic-combat.js');
+      basicAttackMrDamage = basicAttackMrDamageFormula(actorToUse);
+    } catch {
+      basicAttackMrDamage = '0';
+    }
+  }
   // Helper function to clean power damage string (remove "Weapon DMG +" prefix)
   const cleanPowerDamage = (damageStr: string | number): string => {
     if (damageStr === null || damageStr === undefined || damageStr === '') return '0';
@@ -682,6 +692,24 @@ export async function showDamageDialog(
       level: 1,
       specials: inlineSpecials,
       damage: powerDamage
+    };
+  }
+
+  // Basic Attack: fold MR × 2d8 into the power-damage slot for display + roll.
+  if (
+    !isNpcAttackFlow &&
+    !selectedPowerId &&
+    basicAttackMrDamage &&
+    basicAttackMrDamage !== '0' &&
+    (!powerDamage || powerDamage === '0')
+  ) {
+    powerDamage = basicAttackMrDamage;
+    selectedPowerData = {
+      id: 'basic-attack',
+      name: 'Basic Attack (MR × 2d8)',
+      level: 1,
+      specials: [],
+      damage: powerDamage,
     };
   }
 

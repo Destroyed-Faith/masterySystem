@@ -55,6 +55,20 @@ export interface RoundState {
      */
     movementPowerUsedThisRound?: boolean;
     /**
+     * Dash / Disengage: base Attack Action locked this Turn (stone extras still ok).
+     */
+    baseAttackLocked?: boolean;
+    /**
+     * Disengage: movement does not provoke movement-triggered Reactions.
+     */
+    safeMovementThisTurn?: boolean;
+    /**
+     * Flee: until start of next Turn — no Attacks, Reactions, or Stones.
+     */
+    fleeLock?: boolean;
+    /** Quick Load Reload(1) spends this Turn (capped at Mastery Rank). */
+    quickLoadReloadThisTurn?: number;
+    /**
      * Per-Bond Summon combat usage this round (attacks / special / reaction).
      * Keyed by SummonBondRecord.id on the owner actor.
      */
@@ -205,8 +219,13 @@ export declare function spendReactionAction(actor: Actor, combat: Combat | null)
  * Get available attack actions (remaining count).
  * Stunned(X) locks X attack actions for the current round — the total is
  * clamped before subtracting `used`, never going below 0.
+ * Dash/Disengage locks the base Attack Action (`baseAttackLocked`).
+ * Flee locks all attacks until next Turn.
  */
 export declare function getAvailableAttackActions(actor: Actor, combat: Combat | null): number;
+/** Apply Dash / Disengage / Flee side-effects after spending Movement. */
+export declare function applyBasicMovementManeuverFlags(actor: Actor, combat: Combat | null, maneuverId: string): Promise<void>;
+export declare function isFleeLocked(actor: Actor, combat: Combat | null): boolean;
 /**
  * Get available movement actions (remaining count)
  */
@@ -233,6 +252,14 @@ export declare function refundAttackAction(actor: Actor, combat: Combat | null):
  * Consume a movement action (alias for spendMovementAction)
  */
 export declare function consumeMovementAction(actor: Actor, combat: Combat | null): Promise<boolean>;
+/**
+ * Refund one movement action if any were spent this round.
+ */
+export declare function refundMovementAction(actor: Actor, combat: Combat | null): Promise<void>;
+/** Quick Load Reload(1) spent so far this Turn (capped at Mastery Rank). */
+export declare function getQuickLoadReloadThisTurn(actor: Actor, combat: Combat | null): number;
+/** Record one Quick Load Reload(1). Returns false if already at Mastery Rank cap. */
+export declare function recordQuickLoadReload(actor: Actor, combat: Combat | null, masteryRank: number): Promise<boolean>;
 /**
  * Get stone usage count for an ability this turn
  */

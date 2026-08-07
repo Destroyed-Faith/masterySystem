@@ -39,7 +39,7 @@ export const COMBAT_MANEUVERS = [
         slot: "movement",
         category: "movement",
         tags: ["movement", "basic"],
-        effect: "Move up to your Speed this turn. Movement provokes Opportunity Attacks as normal. You may draw or sheathe a weapon as part of your Movement.",
+        effect: "Move up to your Speed. You may draw or sheathe a weapon as part of Movement. Provokes movement-triggered Reactions normally.",
     },
     {
         id: "dash",
@@ -47,17 +47,17 @@ export const COMBAT_MANEUVERS = [
         description: "Focus entirely on movement (2× Speed).",
         slot: "movement",
         category: "movement",
-        tags: ["movement", "speed"],
-        effect: "Move up to **2× your normal Speed** this turn. You cannot perform your base Attack Action, but you may still buy additional attacks using Stones. Movement provokes Opportunity Attacks as normal.",
+        tags: ["movement", "speed", "basic"],
+        effect: "Move up to **double your normal Speed**. You cannot perform your base Attack Action this Turn, but additional Attack Actions from Stones or another source may still be used. Provokes movement-triggered Reactions normally.",
     },
     {
         id: "disengage",
         name: "Disengage",
-        description: "Withdraw without provoking Opportunity Attacks.",
+        description: "Withdraw without provoking movement-triggered Reactions.",
         slot: "movement",
         category: "movement",
-        tags: ["movement", "defensive"],
-        effect: "Move up to your normal Speed this turn **without provoking Opportunity Attacks**. You cannot perform your base Attack Action this turn (unless granted by a Stone).",
+        tags: ["movement", "defensive", "basic"],
+        effect: "Move up to your normal Speed **without provoking movement-triggered Reactions**. You cannot perform your base Attack Action this Turn unless another effect grants an additional Attack Action.",
     },
     {
         id: "quick-load",
@@ -65,27 +65,28 @@ export const COMBAT_MANEUVERS = [
         description: "Spend Movement to perform Reload (1).",
         slot: "movement",
         category: "movement",
-        tags: ["movement", "reload"],
+        tags: ["movement", "reload", "basic"],
         requirements: {
             requiresFreeHand: true,
         },
-        effect: "Instead of moving, spend your Movement to perform **Reload (1)**. You may convert Movement into Reload multiple times per turn (max **MR** total Reload per turn). Requires a free hand and the ability to manipulate the weapon/ammunition. You cannot Quick Load while Immobilized/Restrained.",
+        effect: "Instead of moving, spend your Movement to perform **Reload (1)**. Additional Movements may Quick Load again, up to a total Reload equal to your **Mastery Rank**. Requires a free hand. Cannot Quick Load while Immobilized or Restrained.",
     },
     {
         id: "stand-up",
         name: "Stand Up",
         description: "Recover from Prone (costs 1 Attack Action).",
-        slot: "attack",
+        // Lives in the Movement radial segment for UX, but spends an Attack Action
+        // (not Movement) — see costsAction / costsMovement in radial options.
+        slot: "movement",
         category: "movement",
-        tags: ["movement", "prone"],
+        tags: ["movement", "prone", "basic"],
         requirements: {
             requiresProne: true,
         },
-        effect: "Standing up costs **one Attack Action** but does not limit your movement. You may move normally after standing. Standing up itself does not provoke Opportunity Attacks; only the movement you take afterward might.",
+        effect: "Standing up costs **1 Attack Action** but does not consume Movement. After standing, you may use Movement normally. Standing itself does not provoke Reactions.",
     },
     // ========================================
     // ESCAPE RULE
-    // (Players Guide 6859–6870)
     // ========================================
     {
         id: "flee",
@@ -93,45 +94,38 @@ export const COMBAT_MANEUVERS = [
         description: "Escape danger at 4× Speed.",
         slot: "movement",
         category: "movement",
-        tags: ["movement", "escape"],
-        effect: "Move up to **4× your normal Speed** directly away from danger. You cannot make Attacks, take Reactions, or spend Stones until the start of your next turn. This movement provokes Opportunity Attacks as normal (unless you used Disengage this turn). The GM may immediately transition into a chase / escape resolution if appropriate.",
+        tags: ["movement", "escape", "basic"],
+        effect: "Move up to **4× your normal Speed** directly away from danger. Until the start of your next Turn you cannot make Attacks, use Reactions, or spend Stones. Provokes movement-triggered Reactions normally. The GM may transition into a chase if appropriate.",
     },
     // ========================================
-    // DEFENSIVE REACTIONS
-    // (Players Guide 6874–6884)
+    // BASIC REACTIONS (also injected into the Reaction Window)
     // ========================================
     {
-        id: "parry",
-        name: "Parry",
-        description: "Contest a melee hit with your weapon.",
+        id: "guard",
+        name: "Guard",
+        description: "Gain +MR × 2 Armor vs the triggering hit/damage.",
         slot: "reaction",
         category: "defensive-reaction",
-        tags: ["reaction", "defensive", "melee"],
-        requirements: {
-            requiresMeleeWeapon: true,
-        },
-        effect: "When hit by a melee attack, roll a Contest (Weapon Skill + Might/Agility vs. Attack Roll). On success, the attack is deflected. Requires a melee weapon.",
+        tags: ["reaction", "defensive", "basic", "basic-reaction"],
+        effect: "Trigger: you are hit by an Attack or would take damage. Gain **+MR × 2 Armor** against that triggering event only.",
     },
     {
-        id: "dodge",
-        name: "Dodge",
-        description: "Raise your TN to be hit by MR × 4.",
+        id: "evade",
+        name: "Evade",
+        description: "Gain +MR × 2 Evade vs the triggering attack.",
         slot: "reaction",
         category: "defensive-reaction",
-        tags: ["reaction", "defensive", "evasion"],
-        effect: "When targeted by **any attack**, raise your TN to be hit by **Mastery Rank × 4** until the attack resolves.",
+        tags: ["reaction", "defensive", "basic", "basic-reaction"],
+        effect: "Trigger: you are targeted by an Attack, before the result is finalized. Gain **+MR × 2 Evade** against that Attack only.",
     },
     {
-        id: "block",
-        name: "Block (Shield)",
-        description: "Raise your TN to be hit by MR × 4 (shield).",
+        id: "counterattack",
+        name: "Counterattack",
+        description: "Basic Attack against the creature that hit you.",
         slot: "reaction",
-        category: "defensive-reaction",
-        tags: ["reaction", "defensive", "shield"],
-        requirements: {
-            requiresShield: true,
-        },
-        effect: "When targeted by **any attack**, raise your TN to be hit by **Mastery Rank × 4**. Requires a shield.",
+        category: "tactical-reaction",
+        tags: ["reaction", "tactical", "basic", "basic-reaction", "melee"],
+        effect: "Trigger: a creature hits you with an Attack and is a valid target. Immediately make a **Basic Attack** (Weapon Damage + MR × 2d8). No Active Power effects.",
     },
     {
         id: "dive-for-cover",
@@ -139,8 +133,8 @@ export const COMBAT_MANEUVERS = [
         description: "Move 2 × MR m to escape an AoE.",
         slot: "reaction",
         category: "defensive-reaction",
-        tags: ["reaction", "defensive", "movement"],
-        effect: "When an AoE is placed and you are inside its area, you may spend your Reaction to immediately move up to **2 × your Mastery Rank meters**. If this movement takes you completely outside the AoE, you are not affected by that AoE's damage or payload. If you remain inside, the AoE affects you normally. This does **not** provoke Opportunity Attacks.",
+        tags: ["reaction", "defensive", "movement", "basic", "basic-reaction"],
+        effect: "Trigger: an AoE Attack reaches its Area TN, before damage. Move up to **2 × Mastery Rank meters**. If you leave the area completely, you are not affected. This movement does not provoke movement-triggered Reactions.",
     },
     // ========================================
     // SUPPORT REACTIONS
@@ -178,7 +172,7 @@ export const COMBAT_MANEUVERS = [
         requirements: {
             requiresMeleeWeapon: true,
         },
-        effect: "When an enemy **leaves your melee reach** by movement, you may spend your Reaction to immediately make **one Basic Melee Attack** against them. This attack **cannot use a Power** — it deals weapon damage + passives + active buffs only.",
+        effect: "When an enemy **leaves your melee reach** by movement, spend your Reaction to make **one Basic Attack** (Weapon Damage + MR × 2d8). No Active Power effects.",
     },
     // ========================================
     // COMBAT ACTIONS / STANCES

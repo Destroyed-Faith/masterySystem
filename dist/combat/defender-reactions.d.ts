@@ -24,6 +24,8 @@ export interface DefenderReactionMitigation {
     reactionEvadeBonus?: number;
     /** Evade TN used for the comparison (base + bonus when negated/applied). */
     effectiveEvade?: number;
+    /** Basic Counterattack: spawn a Basic Attack after this hit resolves. */
+    counterattack?: boolean;
 }
 export interface ReactionEvadeEval {
     baseEvade: number;

@@ -692,6 +692,24 @@ export async function handleChosenCombatOption(token, option) {
         }
         return;
     }
+    // Flee lock: no Attacks / Reactions / Stones until next Turn
+    try {
+        const { isFleeLocked } = await import('./combat/action-economy.js');
+        const mid = option.maneuver?.id || option.id;
+        const isAttackish = option.slot === 'attack' ||
+            option.source === 'npc-attack' ||
+            (option.source === 'power' && option.powerType === 'active');
+        if (isFleeLocked(actor, combat) && isAttackish) {
+            ui.notifications?.warn('Flee: you cannot make Attacks until the start of your next Turn.');
+            return;
+        }
+        if (isFleeLocked(actor, combat) && (mid === 'initiative-delay' || option.id === 'initiative-delay')) {
+            /* Delay still allowed — not an attack */
+        }
+    }
+    catch {
+        /* ignore */
+    }
     // Check and consume movement action if needed
     if (option.costsMovement) {
         const isMovementPower = option.source === 'power' && option.powerType === 'movement';
@@ -711,6 +729,17 @@ export async function handleChosenCombatOption(token, option) {
             ui.notifications?.warn('Failed to consume movement action.');
             return;
         }
+        // Dash / Disengage / Flee side-effects
+        const moveId = String(option.maneuver?.id || option.id || '');
+        if (moveId === 'dash' || moveId === 'disengage' || moveId === 'flee') {
+            try {
+                const { applyBasicMovementManeuverFlags } = await import('./combat/action-economy.js');
+                await applyBasicMovementManeuverFlags(actor, combat, moveId);
+            }
+            catch (err) {
+                console.warn('Mastery System | movement maneuver flags failed', err);
+            }
+        }
     }
     // Attack actions are consumed only when an attack/utility actually resolves (see melee hook, utility confirm, active buff, stand-up).
     // Check if this is a movement option - check both segment and slot
@@ -722,6 +751,11 @@ export async function handleChosenCombatOption(token, option) {
         if (option.id === 'stand-up' || option.maneuver?.id === 'stand-up') {
             // Stand Up is immediate - just execute it
             executeStandUp(token, option);
+            return;
+        }
+        // Quick Load: Reload(1), no movement
+        if (option.id === 'quick-load' || option.maneuver?.id === 'quick-load') {
+            await executeQuickLoad(token, option);
             return;
         }
         // For movement powers, check if they're teleport-type or move-type
@@ -742,6 +776,12 @@ export async function handleChosenCombatOption(token, option) {
         }
         // Regular movement maneuver
         startGuidedMovement(token, option);
+        return;
+    }
+    // Initiative: Delay
+    if (option.id === 'initiative-delay' || option.maneuver?.id === 'initiative-delay') {
+        closeRadialMenu();
+        await executeInitiativeDelay(token, option);
         return;
     }
     // NPC attacks: re-read live actor data at click time (source of truth).
@@ -1231,5 +1271,201 @@ async function executeStandUp(token, option) {
         console.warn('Mastery System | Could not create chat message:', error);
     }
     ui.notifications.info(`${token.actor.name} stands up.`);
+}
+async function actorHasBlockingCondition(actor, names) {
+    try {
+        const { hasCondition } = await import('./utils/power-mechanics.js');
+        return names.some((n) => hasCondition(actor, n));
+    }
+    catch {
+        const statuses = actor?.statuses;
+        if (statuses && typeof statuses.has === 'function') {
+            for (const n of names) {
+                if (statuses.has(n))
+                    return true;
+            }
+        }
+        const effects = actor?.effects
+            ? Array.isArray(actor.effects)
+                ? actor.effects
+                : Array.from(actor.effects)
+            : [];
+        for (const e of effects) {
+            const label = String(e?.name || e?.label || e?.id || '').toLowerCase();
+            if (names.some((n) => label.includes(n.toLowerCase())))
+                return true;
+        }
+        return false;
+    }
+}
+/**
+ * Quick Load — spend Movement (already consumed) for Reload (1).
+ * Caps total Reload this Turn at Mastery Rank. No token movement.
+ */
+async function executeQuickLoad(token, option) {
+    const actor = token.actor;
+    if (!actor)
+        return;
+    const combat = game.combat ?? null;
+    const { refundMovementAction, getQuickLoadReloadThisTurn, recordQuickLoadReload, } = await import('./combat/action-economy.js');
+    const { getMasteryRank } = await import('./combat/basic-combat.js');
+    const refund = async (msg) => {
+        if (combat && option.costsMovement) {
+            try {
+                await refundMovementAction(actor, combat);
+            }
+            catch (err) {
+                console.warn('Mastery System | Quick Load refund failed', err);
+            }
+        }
+        ui.notifications?.warn(msg);
+    };
+    if (await actorHasBlockingCondition(actor, ['immobilized', 'restrained'])) {
+        await refund('Quick Load: you cannot Quick Load while Immobilized or Restrained.');
+        return;
+    }
+    const mr = getMasteryRank(actor);
+    const used = getQuickLoadReloadThisTurn(actor, combat);
+    if (used >= mr) {
+        await refund(`Quick Load: Reload this Turn is capped at Mastery Rank (${mr}).`);
+        return;
+    }
+    const recorded = await recordQuickLoadReload(actor, combat, mr);
+    if (!recorded) {
+        await refund(`Quick Load: Reload this Turn is capped at Mastery Rank (${mr}).`);
+        return;
+    }
+    const chatData = {
+        speaker: ChatMessage.getSpeaker({ actor, token: token.document }),
+        content: `<div class="mastery-system-action">
+      <h3><i class="fas fa-sync-alt"></i> ${option.name}</h3>
+      <p>Reload (1). Movement converted to reload — no repositioning.</p>
+      <p><em>Quick Load this Turn: ${used + 1} / ${mr} (Mastery Rank)</em></p>
+    </div>`,
+        style: CONST.CHAT_MESSAGE_STYLES.OTHER,
+    };
+    try {
+        await ChatMessage.create(chatData);
+    }
+    catch (error) {
+        console.warn('Mastery System | Could not create Quick Load chat message:', error);
+    }
+    ui.notifications?.info(`${actor.name}: Quick Load — Reload (1) (${used + 1}/${mr}).`);
+}
+/**
+ * Initiative: Delay — skip this Turn; pick a combatant to act after; permanent Initiative change.
+ */
+async function executeInitiativeDelay(token, option) {
+    const actor = token.actor;
+    if (!actor)
+        return;
+    const combat = game.combat;
+    if (!combat?.started) {
+        ui.notifications?.warn('Initiative: Delay requires an active combat.');
+        return;
+    }
+    if (await actorHasBlockingCondition(actor, ['incapacitated', 'surprised'])) {
+        ui.notifications?.warn('You cannot Delay while Incapacitated or Surprised.');
+        return;
+    }
+    const selfCombatant = combat.combatants.find((c) => c.actor?.id === actor.id || c.tokenId === token.id) ??
+        combat.combatants.find((c) => c.token?.id === token.id);
+    if (!selfCombatant) {
+        ui.notifications?.warn('You are not in this combat.');
+        return;
+    }
+    const others = combat.combatants
+        .filter((c) => c.id !== selfCombatant.id && c.actor)
+        .slice()
+        .sort((a, b) => (Number(b.initiative) || 0) - (Number(a.initiative) || 0));
+    const choice = await new Promise((resolve) => {
+        const buttons = {};
+        for (const c of others) {
+            const id = String(c.id);
+            const ini = Number(c.initiative);
+            const iniLabel = Number.isFinite(ini) ? ini.toFixed(2).replace(/\.00$/, '') : '—';
+            buttons[`after_${id}`] = {
+                label: `After ${c.name} (Ini ${iniLabel})`,
+                callback: () => resolve(id),
+            };
+        }
+        buttons.next_round = {
+            label: 'Next round (after current last / highest+1 if you were last)',
+            callback: () => resolve('__next_round__'),
+        };
+        buttons.cancel = {
+            label: 'Cancel',
+            callback: () => resolve(null),
+        };
+        try {
+            new Dialog({
+                title: 'Initiative: Delay',
+                content: `<p>Skip your current Turn. Choose after whom you take the delayed Turn. Your Initiative permanently changes to that position. You may not interrupt another creature's Turn.</p>`,
+                buttons,
+                default: others[0] ? `after_${others[0].id}` : 'next_round',
+                close: () => resolve(null),
+            }).render(true);
+        }
+        catch {
+            resolve(null);
+        }
+    });
+    if (!choice)
+        return;
+    const allInis = combat.combatants.map((c) => Number(c.initiative) || 0);
+    const highest = allInis.length ? Math.max(...allInis) : 0;
+    const lowest = allInis.length ? Math.min(...allInis) : 0;
+    const selfIni = Number(selfCombatant.initiative) || 0;
+    const wasLast = selfIni <= lowest;
+    let newInitiative;
+    if (choice === '__next_round__') {
+        // Carry into next round: if you were last, sit just above current highest.
+        newInitiative = wasLast ? highest + 1 : lowest - 1;
+    }
+    else {
+        const after = combat.combatants.get?.(choice) ?? others.find((c) => c.id === choice);
+        if (!after) {
+            ui.notifications?.warn('Delay target not found.');
+            return;
+        }
+        const afterIni = Number(after.initiative) || 0;
+        // Foundry sorts descending: place just below the chosen combatant.
+        newInitiative = afterIni - 0.01;
+    }
+    try {
+        await selfCombatant.update({ initiative: newInitiative });
+        await selfCombatant.setFlag?.('mastery-system', 'msInitiativeValue', newInitiative);
+    }
+    catch (err) {
+        console.warn('Mastery System | Delay initiative update failed', err);
+        ui.notifications?.error('Failed to update Initiative for Delay.');
+        return;
+    }
+    const chatData = {
+        speaker: ChatMessage.getSpeaker({ actor, token: token.document }),
+        content: `<div class="mastery-system-action">
+      <h3><i class="fas fa-hourglass-half"></i> ${option.name}</h3>
+      <p>${actor.name} delays — new Initiative <strong>${newInitiative}</strong>.</p>
+      <p><em>${option.maneuver?.effect || option.description || ''}</em></p>
+    </div>`,
+        style: CONST.CHAT_MESSAGE_STYLES.OTHER,
+    };
+    try {
+        await ChatMessage.create(chatData);
+    }
+    catch (error) {
+        console.warn('Mastery System | Could not create Delay chat message:', error);
+    }
+    // Skip the rest of this Turn if we are the active combatant.
+    try {
+        const currentId = combat.combatant?.id ?? combat.current?.combatantId;
+        if (currentId && String(currentId) === String(selfCombatant.id) && typeof combat.nextTurn === 'function') {
+            await combat.nextTurn();
+        }
+    }
+    catch (err) {
+        console.warn('Mastery System | Delay nextTurn failed', err);
+    }
+    ui.notifications?.info(`${actor.name} delays (Initiative → ${newInitiative}).`);
 }
 //# sourceMappingURL=token-action-selector.js.map

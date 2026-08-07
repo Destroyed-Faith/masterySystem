@@ -21,6 +21,17 @@ import { buildActorMechanicsBreakdown, resolvePowerMechanics } from '../utils/po
 import { buildArtifactReactionOptions } from '../radial-menu/artifact-options.js';
 import { getPrimaryTokenForActor } from '../utils/mechanics-adjacency.js';
 import { distanceBetweenTokensMeters } from './threatened-ranged.js';
+import {
+  buildBasicReactionItems,
+  isBasicReactionItem,
+} from './basic-combat.js';
+
+function mechanicsOf(item: any): ReturnType<typeof resolvePowerMechanics> {
+  if (item?.mechanics && typeof item.mechanics === 'object') {
+    return item.mechanics as ReturnType<typeof resolvePowerMechanics>;
+  }
+  return resolvePowerMechanics(item);
+}
 
 export interface DefenderReactionMitigation {
   /** Extra flat armor for this damage instance only. */
@@ -37,6 +48,8 @@ export interface DefenderReactionMitigation {
   reactionEvadeBonus?: number;
   /** Evade TN used for the comparison (base + bonus when negated/applied). */
   effectiveEvade?: number;
+  /** Basic Counterattack: spawn a Basic Attack after this hit resolves. */
+  counterattack?: boolean;
 }
 
 export interface ReactionEvadeEval {
@@ -164,6 +177,15 @@ export function getEligibleReactionPowers(defender: Actor, combat: Combat | null
     console.warn('Mastery System | defender-reactions: artifact reaction collection failed', err);
   }
 
+  // Universal Basic Reactions — always available (not Powers; never become spent).
+  try {
+    for (const basic of buildBasicReactionItems(owner)) {
+      out.push(basic);
+    }
+  } catch (err) {
+    console.warn('Mastery System | defender-reactions: basic reaction injection failed', err);
+  }
+
   return out;
 }
 
@@ -180,13 +202,17 @@ function formatPowerPreviewLine(
   baseEvade: number,
   attackTotal: number | null,
 ): string {
-  const mech = resolvePowerMechanics(item);
+  const mech = mechanicsOf(item);
   const name = String(item?.name ?? 'Reaction').trim();
   const bits: string[] = [];
   const ev = Math.max(0, Math.floor(Number(mech?.evade) || 0));
   const armor = Math.max(0, Math.floor(Number(mech?.armor) || 0));
   const dr = Math.max(0, Math.floor(Number(mech?.damageReductionPct) || 0));
   const ini = Math.max(0, Math.floor(Number(mech?.initiativeGain) || 0));
+
+  if (item?.basicReaction === 'counterattack') {
+    bits.push('Basic Attack vs triggering creature (Weapon + MR × 2d8)');
+  }
 
   if (ev > 0) {
     const evEval = evaluateReactionEvadeNegation(baseEvade, ev, attackTotal);
@@ -522,7 +548,7 @@ export async function promptDefenderReactionsBeforeMitigation(params: {
     for (const item of powers) {
       const id = `react_${(item as any).id}`;
       const pnm = String(item.name ?? 'Reaction').trim();
-      const mech = resolvePowerMechanics(item);
+      const mech = mechanicsOf(item);
       const ev = Math.max(0, Math.floor(Number(mech?.evade) || 0));
       let label = pnm.length > 40 ? `${pnm.slice(0, 37)}…` : pnm;
       if (ev > 0) {
@@ -558,13 +584,17 @@ export async function promptDefenderReactionsBeforeMitigation(params: {
   const spent = await spendReactionAction(economyDef, combat);
   if (!spent) return empty;
 
-  await markPowerUsedThisRound(economyDef, combat, chosen.item.id);
+  // Basic Reactions are not Powers — they are not marked spent (may reuse with more Reactions).
+  if (!isBasicReactionItem(chosen.item)) {
+    await markPowerUsedThisRound(economyDef, combat, chosen.item.id);
+  }
 
-  const mech = resolvePowerMechanics(chosen.item);
+  const mech = mechanicsOf(chosen.item);
   let mit = extractMitigationFromMechanics(mech);
   const ev = Math.max(0, Math.floor(Number(mech?.evade) || 0));
   const iniGain = mit.initiativeGain ?? 0;
   const evEval = evaluateReactionEvadeNegation(baseEvade, ev, attackTotal);
+  const isCounterattack = chosen.item?.basicReaction === 'counterattack';
 
   // Reaction DR% only applies when this defender already has continuous DR% on
   // the sheet. Use the same actor document that receives damage (token / linked
@@ -615,11 +645,23 @@ export async function promptDefenderReactionsBeforeMitigation(params: {
   if (iniGain > 0) {
     note += ` <em>(+${iniGain} Initiative applies after this attack fully resolves.)</em>`;
   }
+  if (isCounterattack) {
+    note += ` <em>(Basic Counterattack queued against ${String((attacker as any)?.name ?? 'attacker')}.)</em>`;
+  }
 
   await postReactionChat(
     `<strong>${defName}</strong> uses <strong>${chosen.item.name}</strong> (1 Reaction spent).${note || ' (No numeric mitigation on this power.)'}`,
     defender,
   );
+
+  if (isCounterattack) {
+    try {
+      await launchBasicCounterattack(defender, attacker);
+    } catch (err) {
+      console.warn('Mastery System | Counterattack launch failed', err);
+      ui.notifications?.warn?.('Counterattack: could not open attack card — resolve manually.');
+    }
+  }
 
   if (evEval.negates) {
     return {
@@ -630,6 +672,7 @@ export async function promptDefenderReactionsBeforeMitigation(params: {
       negatedByEvade: true,
       reactionEvadeBonus: ev,
       effectiveEvade: evEval.effectiveEvade,
+      counterattack: isCounterattack || undefined,
     };
   }
 
@@ -640,5 +683,27 @@ export async function promptDefenderReactionsBeforeMitigation(params: {
     powerName: chosen.item.name,
     reactionEvadeBonus: ev > 0 ? ev : undefined,
     effectiveEvade: ev > 0 ? evEval.effectiveEvade : undefined,
+    counterattack: isCounterattack || undefined,
   };
+}
+
+async function launchBasicCounterattack(defender: Actor, attacker: Actor): Promise<void> {
+  const defTok = getPrimaryTokenForActor(defender);
+  const atkTok = getPrimaryTokenForActor(attacker);
+  if (!defTok || !atkTok) {
+    throw new Error('Missing tokens for Counterattack');
+  }
+  const { createMeleeAttackCard } = await import('./attack-executor.js');
+  const option = {
+    id: 'weapon-attack',
+    name: 'Counterattack (Basic Attack)',
+    description: 'Basic Attack — Weapon Damage + MR × 2d8. No Active Power effects.',
+    slot: 'attack' as const,
+    source: 'maneuver' as const,
+    tags: ['attack', 'basic', 'counterattack'],
+    selectedPowerId: null,
+    // Reaction already spent the Reaction; Counterattack does not spend an Attack Action.
+    costsAction: false,
+  };
+  await createMeleeAttackCard(defTok, atkTok, option as any);
 }

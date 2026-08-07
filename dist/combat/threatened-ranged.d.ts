@@ -1,9 +1,10 @@
 /**
  * Threatened Ranged (Mastery System tactical rule)
  *
- * If you declare a ranged weapon attack while at least one hostile can reach you with their melee,
- * the attack is Threatened: disadvantage on the attack roll; after declaring, hostiles in YOUR
- * melee reach may spend a Reaction for an Opportunity Attack against you.
+ * If you declare a Ranged Attack / Ranged Power with a bow, crossbow, thrown weapon,
+ * or similar while at least one enemy has you within THEIR melee reach, the attack is
+ * Threatened: Disadvantage on the attack roll; after declaring, those enemies may
+ * immediately spend a legal Reaction if they have one available.
  *
  * Powers/spells only use this rule if flagged (tag `threatened-ranged` or system.threatenedRanged).
  */
@@ -23,7 +24,10 @@ export declare function usesThreatenedRangedWeaponRules(actor: any, option: Radi
 /** Hostile is standing close enough that their melee could reach the shooter. */
 export declare function enemyThreatensRangedShooter(shooterToken: any, enemyToken: any): boolean;
 export declare function findThreateningEnemyTokenIds(shooterToken: any): string[];
-/** Hostiles within the shooter's melee reach (may spend Reaction for OA vs shooter). */
+/**
+ * Hostiles who have the shooter in THEIR melee reach — after a Threatened
+ * Ranged declaration they may spend a Reaction (same set as threatening enemies).
+ */
 export declare function findOpportunityEnemyTokenIds(shooterToken: any): string[];
 export interface ThreatenedRangedResult {
     appliesRule: boolean;

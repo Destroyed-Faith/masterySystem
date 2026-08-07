@@ -1,9 +1,10 @@
 /**
  * Threatened Ranged (Mastery System tactical rule)
  *
- * If you declare a ranged weapon attack while at least one hostile can reach you with their melee,
- * the attack is Threatened: disadvantage on the attack roll; after declaring, hostiles in YOUR
- * melee reach may spend a Reaction for an Opportunity Attack against you.
+ * If you declare a Ranged Attack / Ranged Power with a bow, crossbow, thrown weapon,
+ * or similar while at least one enemy has you within THEIR melee reach, the attack is
+ * Threatened: Disadvantage on the attack roll; after declaring, those enemies may
+ * immediately spend a legal Reaction if they have one available.
  *
  * Powers/spells only use this rule if flagged (tag `threatened-ranged` or system.threatenedRanged).
  */
@@ -132,20 +133,12 @@ export function findThreateningEnemyTokenIds(shooterToken: any): string[] {
   return out;
 }
 
-/** Hostiles within the shooter's melee reach (may spend Reaction for OA vs shooter). */
+/**
+ * Hostiles who have the shooter in THEIR melee reach — after a Threatened
+ * Ranged declaration they may spend a Reaction (same set as threatening enemies).
+ */
 export function findOpportunityEnemyTokenIds(shooterToken: any): string[] {
-  const actor = shooterToken?.actor;
-  if (!actor) return [];
-  const myReach = getActorMeleeReachMeters(actor);
-  const out: string[] = [];
-  const tokens = canvas.tokens?.placeables ?? [];
-  for (const t of tokens) {
-    if (!t?.id || t.id === shooterToken.id || !t.actor) continue;
-    if (!tokenIsHostileTo(shooterToken, t)) continue;
-    const dist = distanceBetweenTokensMeters(shooterToken, t);
-    if (dist <= myReach) out.push(t.id);
-  }
-  return out;
+  return findThreateningEnemyTokenIds(shooterToken);
 }
 
 export interface ThreatenedRangedResult {
