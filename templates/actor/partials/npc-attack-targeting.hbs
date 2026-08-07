@@ -17,18 +17,18 @@
 
     {{#if (eq atk.npcRangeKind "ranged")}}
     <div class="npc-attack-field">
-      <label>Min</label>
-      <select name="{{path}}.npcRangeMinMeters" data-dtype="Number" class="npc-range-min" title="Range minimum (m). 0 = no minimum.">
+      <label>Short</label>
+      <select name="{{path}}.npcRangeMinMeters" data-dtype="Number" class="npc-range-min" title="Short band (m): gifted full dice pool from 0 up to this distance. Not a minimum attack distance — close targets are always allowed. 0 = derive Short from Long.">
         <option value="0" {{#unless atk.npcRangeMinMeters}}selected{{/unless}}>0 m</option>
-        {{#each (range 2 24)}}
+        {{#each (range 2 48)}}
         <option value="{{this}}" {{#if (eqNum ../atk.npcRangeMinMeters this)}}selected{{/if}}>{{this}} m</option>
         {{/each}}
       </select>
     </div>
     <div class="npc-attack-field">
-      <label>Max</label>
-      <select name="{{path}}.npcRangeMeters" data-dtype="Number" class="npc-range-max" title="Range maximum (m)">
-        {{#each (range 12 24)}}
+      <label>Long</label>
+      <select name="{{path}}.npcRangeMeters" data-dtype="Number" class="npc-range-max" title="Long band (m): absolute maximum range. Any target within this radius can be selected. Beyond Short, Medium/Long reduce the dice pool.">
+        {{#each (range 8 48)}}
         <option value="{{this}}" {{#if (eqNum ../atk.npcRangeMeters this)}}selected{{/if}}>{{this}} m</option>
         {{/each}}
       </select>

@@ -23,7 +23,7 @@ describe('NPC Fernkampf / AoE sheet persistence rules', () => {
       },
     } as any);
     expect(opts[0].tags).toContain('ranged');
-    expect(opts[0].range).toBeGreaterThanOrEqual(12);
+    expect(opts[0].range).toBeGreaterThanOrEqual(8);
   });
 
   it('AoE radius 0 disables burst even if shape string is radius', () => {
@@ -47,7 +47,7 @@ describe('NPC Fernkampf / AoE sheet persistence rules', () => {
     expect(opts[0].aoeShape).toBe('none');
   });
 
-  it('print sheet shows Reach/Fern text, not the range() helper list', () => {
+  it('print sheet shows Short/Long range text, not the range() helper list', () => {
     const ctx = buildNpcPrintContext({
       type: 'npc',
       name: 'Dummy',
@@ -71,8 +71,30 @@ describe('NPC Fernkampf / AoE sheet persistence rules', () => {
       },
     } as any) as any;
     const row = ctx.pages[0].attacks[0];
-    expect(row.rangeText).toMatch(/Fern/i);
+    expect(row.rangeText).toMatch(/Short/i);
+    expect(row.rangeText).toMatch(/Long/i);
     expect(row.rangeText).not.toContain('1,2,3');
-    expect(row.aoe).toBe('Radius 2 m');
+    expect(row.aoe).toMatch(/2 m/);
+  });
+
+  it('radial description uses Short/Long wording, not Min–Max exclusion', () => {
+    const opts = buildNpcAttackRadialOptions({
+      type: 'npc',
+      system: {
+        npcBaseAttack: {
+          name: 'Bolt',
+          attackDiceCount: 6,
+          damageDiceCount: 4,
+          npcRangeKind: 'ranged',
+          npcRangeMeters: 24,
+          npcRangeMinMeters: 12,
+          npcAttacksPerRound: 1,
+        },
+        attackValues: [],
+      },
+    } as any);
+    expect(opts[0].description).toMatch(/Short ≤12/);
+    expect(opts[0].description).toMatch(/Long ≤24/);
+    expect(opts[0].description).not.toMatch(/12–24/);
   });
 });

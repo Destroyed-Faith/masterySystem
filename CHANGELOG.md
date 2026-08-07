@@ -2,11 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.266] - 2026-08-07
+
+### Fixed
+
+- **NPC Range Short/Long semantics** (Players Guide Threatened Ranged + range bands): sheet **Short** is the gifted full-pool band (0…Short), **not** a minimum attack distance. Any target within **Long** can be selected, including 1–2 m. Beyond Short, Medium/Long reduce the dice pool (100% / 75% / 50%). Martial NPC ranged attacks use **Threatened Ranged** (Disadvantage + Reaction/OA window) when enemies are in melee reach; spells stay exempt. Labels renamed Min/Max → Short/Long; Long selectable 8–48 m.
+
 ## [0.9.265] - 2026-08-07
 
 ### Fixed
 
-- **NPC Range targeting stall**: clicking a token outside the Min–Max band no longer silently cancels; shows why (too close / too far). Zero-target warning explains the 12 m minimum. Min can be set to **0 m**. Debug logs list nearby token distances and confirm when the attack card is created.
+- **NPC Range targeting stall**: clicking a token outside Long range no longer silently cancels; warn with distance. Debug logs list nearby token distances and confirm when the attack card is created.
 
 ## [0.9.264] - 2026-08-07
 

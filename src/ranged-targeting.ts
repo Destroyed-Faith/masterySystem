@@ -1,6 +1,11 @@
 /**
  * Ranged attack targeting (Foundry v13) — same interaction model as melee-targeting,
  * but uses option.range (meters) and fires masterySystem.rangedTargetSelected.
+ *
+ * Players Guide: Short band ("Min" on NPC sheet) is the gifted full-pool range —
+ * NOT a hard minimum. Any target within Long (max) may be selected. Closer than
+ * Short still works at full Short pool; Threatened Ranged applies separately when
+ * enemies are in melee reach.
  */
 
 import type { RadialCombatOption } from "./token-radial-menu";
@@ -9,7 +14,6 @@ import {
   gridStepsFromMeters,
   isWithinRangeMeters,
   measureSceneDistanceBetweenPoints,
-  metersToSceneDistance,
 } from "./utils/grid-range";
 import { filterPerceivableTargetIds } from "./combat/perception-gate.js";
 
@@ -17,7 +21,8 @@ interface RangedTargetingState {
   attackerToken: any;
   option: RadialCombatOption;
   rangeMeters: number;
-  rangeMinMeters: number;
+  /** Short-band ceiling (gifted full pool). Informational only for targeting. */
+  shortBandMeters: number;
   rangeGridUnits: number;
   highlightId: string;
   rings: Map<string, PIXI.Graphics>;
@@ -36,27 +41,12 @@ function getRangedMaxMeters(option: RadialCombatOption): number {
   return 30;
 }
 
-function getRangedMinMeters(option: RadialCombatOption): number {
+function getRangedShortMeters(option: RadialCombatOption): number {
   const min = Math.floor(Number(option.rangeMinMeters));
   return Number.isFinite(min) && min > 0 ? min : 0;
 }
 
-function isAtOrBeyondMinMeters(
-  from: { x: number; y: number },
-  to: { x: number; y: number },
-  minMeters: number
-): boolean {
-  if (!(minMeters > 0)) return true;
-  const minScene = metersToSceneDistance(minMeters);
-  const dPath = measureSceneDistanceBetweenPoints(from, to);
-  return Number.isFinite(dPath) && dPath + 0.01 >= minScene;
-}
-
-function computeValidTargets(
-  attackerToken: any,
-  rangeMeters: number,
-  rangeMinMeters = 0
-): Set<string> {
+function computeValidTargets(attackerToken: any, rangeMeters: number): Set<string> {
   const inRange = new Set<string>();
   const tokens = canvas.tokens?.placeables ?? [];
   const attackerCenter = attackerToken?.center;
@@ -67,8 +57,8 @@ function computeValidTargets(
     if (!token.actor) continue;
 
     const targetCenter = token.center;
+    // Only Long/max is a hard targeting limit. Short band is never an exclusion.
     if (!isWithinRangeMeters(attackerCenter, targetCenter, rangeMeters)) continue;
-    if (!isAtOrBeyondMinMeters(attackerCenter, targetCenter, rangeMinMeters)) continue;
     inRange.add(token.id);
   }
 
@@ -88,7 +78,6 @@ function drawRangeArea(state: RangedTargetingState): void {
 
   if (grid.type !== CONST.GRID_TYPES.GRIDLESS) {
     highlightHexesInRange(attackerId, RANGE, state.highlightId, 0xff8833, 0.35);
-  } else {
   }
 }
 
@@ -98,95 +87,81 @@ function createTargetRing(token: any): PIXI.Graphics {
   ring.lineStyle(3, 0xff6600, 0.9);
   ring.drawCircle(0, 0, radius);
   ring.position.set(token.center.x, token.center.y);
-  ring.eventMode = "none";
-  ring.interactive = false;
-  ring.hitArea = null;
+  canvas.stage.addChild(ring);
   return ring;
 }
 
-function createTargetOverlay(token: any, tokenId: string, onClick: (tokenId: string) => void): PIXI.Container {
+function createTargetOverlay(
+  token: any,
+  targetId: string,
+  onClick: (id: string) => void
+): PIXI.Container {
   const overlay = new PIXI.Container();
-  overlay.name = `ms-ranged-overlay-${tokenId}`;
-  const cx = (token.w ?? token.width ?? 100) / 2;
-  const cy = (token.h ?? token.height ?? 100) / 2;
-  const radius = Math.max(cx, cy) + 18;
   const hit = new PIXI.Graphics();
-  hit.beginFill(0xffffff, 0.001);
-  hit.drawCircle(0, 0, radius);
+  const w = token.w ?? 50;
+  const h = token.h ?? 50;
+  hit.beginFill(0xff6600, 0.001);
+  hit.drawRect(-w / 2, -h / 2, w, h);
   hit.endFill();
-  hit.position.set(cx, cy);
   hit.eventMode = "static";
   hit.cursor = "pointer";
   hit.on("pointerdown", (ev: PIXI.FederatedPointerEvent) => {
-    ev.preventDefault?.();
+    if (ev.button !== 0) return;
     ev.stopPropagation();
-    ev.stopImmediatePropagation();
-    onClick(tokenId);
+    onClick(targetId);
   });
-  hit.on("pointerover", () => (overlay.alpha = 0.85));
-  hit.on("pointerout", () => (overlay.alpha = 1.0));
   overlay.addChild(hit);
-  overlay.eventMode = "passive";
-  (overlay as any).targetTokenId = tokenId;
   return overlay;
 }
 
 function restoreTargetVisuals(state: RangedTargetingState): void {
-  for (const [targetId, alpha] of state.originalTokenAlphas.entries()) {
-    const token = canvas.tokens?.get(targetId);
-    if (!token) continue;
-    token.alpha = alpha;
+  for (const [tokenId, alpha] of state.originalTokenAlphas) {
+    const token = canvas.tokens?.get(tokenId);
+    if (token) token.alpha = alpha;
   }
   state.originalTokenAlphas.clear();
 }
 
+function handleOverlayClick(targetId: string): void {
+  const state = active;
+  if (!state || confirming) return;
+  if (!state.validTargetIds.has(targetId)) return;
+
+  confirming = true;
+  try {
+    console.log("[MS NPC Targeting] RANGED overlay confirm → attack card", {
+      attacker: state.attackerToken.name,
+      targetId,
+      option: state.option?.name,
+      shortBand: state.shortBandMeters,
+      max: state.rangeMeters,
+    });
+    Hooks.call("masterySystem.rangedTargetSelected", {
+      attackerTokenId: state.attackerToken.id,
+      targetTokenId: targetId,
+      option: state.option,
+    });
+    endRangedTargeting(true);
+  } catch (err) {
+    console.error("Mastery System | [RANGED TARGETING] Overlay click failed", err);
+    ui.notifications?.error?.("Failed to select target");
+    endRangedTargeting(false);
+  } finally {
+    confirming = false;
+  }
+}
+
 function markValidTargets(state: RangedTargetingState): void {
-  for (const ring of state.rings.values()) {
-    if (ring.parent) ring.parent.removeChild(ring);
-    ring.destroy(true);
-  }
-  state.rings.clear();
-
-  for (const overlay of state.overlays.values()) {
-    if (overlay.parent) overlay.parent.removeChild(overlay);
-    overlay.destroy({ children: true });
-  }
-  state.overlays.clear();
-
-  const layer: any = canvas.effects ?? canvas.foreground ?? canvas.tokens;
-  const container: any = layer?.container ?? layer;
-  if (!container?.addChild) return;
-
-  const handleOverlayClick = (targetId: string) => {
-    if (confirming) return;
-    const targetToken = canvas.tokens?.get(targetId);
-    if (!targetToken) return;
-
-    confirming = true;
-    try {
-      Hooks.call("masterySystem.rangedTargetSelected", {
-        attackerTokenId: state.attackerToken.id,
-        targetTokenId: targetId,
-        option: state.option
-      });
-      endRangedTargeting(true);
-    } catch (err) {
-      console.error("Mastery System | [RANGED TARGETING] Overlay click failed", err);
-      ui.notifications?.error?.("Failed to select target");
-      endRangedTargeting(false);
-    } finally {
-      confirming = false;
-    }
-  };
+  const container = canvas.stage;
+  if (!container) return;
 
   for (const targetId of state.validTargetIds) {
     const token = canvas.tokens?.get(targetId);
     if (!token) continue;
 
     if (!state.originalTokenAlphas.has(targetId)) {
-      state.originalTokenAlphas.set(targetId, token.alpha);
+      state.originalTokenAlphas.set(targetId, token.alpha ?? 1.0);
     }
-
     token.alpha = Math.min(1.0, (token.alpha ?? 1.0) * 1.05);
 
     const ring = createTargetRing(token);
@@ -202,7 +177,7 @@ function markValidTargets(state: RangedTargetingState): void {
   }
 }
 
-/** Pixel hit-test any token under the pointer (not limited to valid targets). */
+/** Pixel hit-test any token under the pointer. */
 function findClickedTokenAny(ev: PIXI.FederatedPointerEvent): any | null {
   const pos = ev.data.getLocalPosition(canvas.stage);
   const tokens = canvas.tokens?.placeables ?? [];
@@ -235,26 +210,7 @@ function measureMetersBetweenTokens(a: any, b: any): number | null {
   return Number.isFinite(dScene) ? dScene : null;
 }
 
-function explainRangedInvalidTarget(
-  state: RangedTargetingState,
-  targetToken: any
-): string {
-  const attacker = state.attackerToken;
-  const distM = measureMetersBetweenTokens(attacker, targetToken);
-  const distLabel = distM != null ? `${distM.toFixed(1)} m` : "? m";
-  const minM = state.rangeMinMeters;
-  const maxM = state.rangeMeters;
-
-  if (distM != null && minM > 0 && distM + 0.01 < metersToSceneDistance(minM)) {
-    return `Target too close (${distLabel}). Range band is ${minM}–${maxM} m.`;
-  }
-  if (distM != null && !isWithinRangeMeters(attacker.center, targetToken.center, maxM)) {
-    return `Target too far (${distLabel}). Range band is ${minM > 0 ? `${minM}–` : ""}${maxM} m.`;
-  }
-  return `Target not valid for ranged attack (${distLabel}; band ${minM > 0 ? `${minM}–` : ""}${maxM} m).`;
-}
-
-function logNearbyTokenDistances(attackerToken: any, minM: number, maxM: number): void {
+function logNearbyTokenDistances(attackerToken: any, shortM: number, maxM: number): void {
   const attackerCenter = attackerToken?.center;
   if (!attackerCenter) return;
   const rows: Record<string, unknown>[] = [];
@@ -262,19 +218,21 @@ function logNearbyTokenDistances(attackerToken: any, minM: number, maxM: number)
     if (!token?.id || token.id === attackerToken.id || !token.center) continue;
     const dScene = measureSceneDistanceBetweenPoints(attackerCenter, token.center);
     const withinMax = isWithinRangeMeters(attackerCenter, token.center, maxM);
-    const beyondMin = isAtOrBeyondMinMeters(attackerCenter, token.center, minM);
+    const inShort =
+      Number.isFinite(dScene) && shortM > 0 ? dScene <= shortM : withinMax;
     rows.push({
       name: token.name,
       id: token.id,
       distScene: Number.isFinite(dScene) ? Number(dScene.toFixed(2)) : null,
       withinMax,
-      beyondMin,
-      validBand: withinMax && beyondMin,
+      inShortBand: inShort,
+      selectable: withinMax,
     });
   }
   console.log("[MS NPC Targeting] RANGED nearby token distances", {
-    minM,
+    shortBandM: shortM,
     maxM,
+    note: "Short band is gifted full pool — NOT a minimum distance to attack",
     attacker: attackerToken.name,
     tokens: rows,
   });
@@ -299,7 +257,6 @@ function onPointerDown(ev: PIXI.FederatedPointerEvent): void {
 
   const clicked = findClickedTokenAny(ev);
 
-  // Empty canvas → cancel.
   if (!clicked) {
     endRangedTargeting(false);
     return;
@@ -311,25 +268,34 @@ function onPointerDown(ev: PIXI.FederatedPointerEvent): void {
   ev.stopPropagation();
   ev.stopImmediatePropagation();
 
-  // Clicked a token outside the Range band → keep targeting, explain why.
   if (!state.validTargetIds.has(clicked.id)) {
-    const msg = explainRangedInvalidTarget(state, clicked);
+    const distM = measureMetersBetweenTokens(state.attackerToken, clicked);
+    const distLabel = distM != null ? `${distM.toFixed(1)} m` : "? m";
+    const msg = `Target out of range (${distLabel}). Max range is ${state.rangeMeters} m.`;
     ui.notifications?.warn?.(msg);
-    console.warn("[MS NPC Targeting] RANGED click rejected", {
+    console.warn("[MS NPC Targeting] RANGED click rejected (beyond Long)", {
       target: clicked.name,
-      reason: msg,
-      minM: state.rangeMinMeters,
+      distM,
       maxM: state.rangeMeters,
+      shortBandM: state.shortBandMeters,
     });
     return;
   }
 
   confirming = true;
   try {
+    const distM = measureMetersBetweenTokens(state.attackerToken, clicked);
     console.log("[MS NPC Targeting] RANGED target confirmed → creating attack card", {
       attacker: state.attackerToken.name,
       target: clicked.name,
       option: state.option?.name,
+      distM,
+      shortBandM: state.shortBandMeters,
+      maxM: state.rangeMeters,
+      inShortBand:
+        distM != null && state.shortBandMeters > 0
+          ? distM <= state.shortBandMeters
+          : true,
     });
     Hooks.call("masterySystem.rangedTargetSelected", {
       attackerTokenId: state.attackerToken.id,
@@ -352,13 +318,13 @@ export function startRangedTargeting(attackerToken: any, option: RadialCombatOpt
   attackerToken?.control?.({ releaseOthers: false });
 
   const rangeMeters = getRangedMaxMeters(option);
-  const rangeMinMeters = getRangedMinMeters(option);
+  const shortBandMeters = getRangedShortMeters(option);
 
   const state: RangedTargetingState = {
     attackerToken,
     option,
     rangeMeters,
-    rangeMinMeters,
+    shortBandMeters,
     rangeGridUnits: gridStepsFromMeters(rangeMeters),
     highlightId: "mastery-ranged",
     rings: new Map(),
@@ -366,32 +332,33 @@ export function startRangedTargeting(attackerToken: any, option: RadialCombatOpt
     originalTokenAlphas: new Map(),
     validTargetIds: new Set(),
     onPointerDown,
-    onKeyDown
+    onKeyDown,
   };
 
   active = state;
 
   drawRangeArea(state);
-  state.validTargetIds = computeValidTargets(attackerToken, rangeMeters, rangeMinMeters);
+  state.validTargetIds = computeValidTargets(attackerToken, rangeMeters);
   markValidTargets(state);
-  logNearbyTokenDistances(attackerToken, rangeMinMeters, rangeMeters);
+  logNearbyTokenDistances(attackerToken, shortBandMeters, rangeMeters);
 
   canvas.stage.on("pointerdown", state.onPointerDown, true);
   window.addEventListener("keydown", state.onKeyDown);
 
-  const rangeLabel =
-    rangeMinMeters > 0 ? `${rangeMinMeters}–${rangeMeters}m` : `${rangeMeters}m`;
+  const bandHint =
+    shortBandMeters > 0
+      ? `Short ≤${shortBandMeters} m (full pool), Long ≤${rangeMeters} m`
+      : `Long ≤${rangeMeters} m`;
   if (state.validTargetIds.size) {
-    ui.notifications?.info?.(`Ranged targeting: ${rangeLabel}. Click a highlighted target.`);
+    ui.notifications?.info?.(
+      `Ranged targeting: ${bandHint}. Click any target within Long range.`,
+    );
   } else {
     ui.notifications?.warn?.(
-      `Ranged targeting: ${rangeLabel}. No targets in that band` +
-        (rangeMinMeters > 0
-          ? ` (need ≥ ${rangeMinMeters} m — move farther or lower Min).`
-          : "."),
+      `Ranged targeting: ${bandHint}. No targets within ${rangeMeters} m.`,
     );
     console.warn(
-      "Mastery System | [RADIAL FLOW] ranged targeting: zero valid targets — Esc or click empty to cancel (no action spent until confirm)",
+      "Mastery System | [RADIAL FLOW] ranged targeting: zero valid targets within Long range",
     );
   }
 }

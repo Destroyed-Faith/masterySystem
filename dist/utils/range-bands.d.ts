@@ -25,6 +25,13 @@ export interface RangeBands {
 /** Default Players Guide bands when none are printed. */
 export declare const DEFAULT_RANGE_BANDS: RangeBands;
 /**
+ * NPC sheet Short/Long meters → Players Guide Short/Medium/Long bands.
+ * Short (= "Min" on the sheet) is the gifted full-pool band (0…short).
+ * Long (= "Max") is absolute maximum. Medium is midway.
+ */
+export declare function bandsFromNpcShortLong(shortM: number, longM: number): RangeBands;
+export declare function rangeTextFromBands(bands: RangeBands): string;
+/**
  * Parse a Players-Guide-style range string (`"8/16/32m"`, `"8 / 16 / 32 m"`,
  * `"Ranged (8/16/32m)"`, …) into structured bands. Returns `null` when no
  * triple of meters can be extracted.

@@ -69,7 +69,7 @@ function normalizeNpcAttackRowForContext(row: Record<string, any> | null | undef
     if (Number.isFinite(n) && n > 0) (o as any)[k] = n;
     else delete (o as any)[k];
   }
-  // Min range may be 0 (= no minimum) — keep it for the select.
+  // Short band may be 0 (= derive from Long) — keep it for the select.
   {
     const raw = o.npcRangeMinMeters;
     if (raw === '' || raw === null || raw === undefined) {
@@ -98,15 +98,15 @@ function normalizeNpcAttackRowForContext(row: Record<string, any> | null | undef
   const rk = String(o.npcRangeKind || '').toLowerCase();
   if (rk === 'ranged') {
     o.npcRangeKind = 'ranged';
-    // Fernkampf: Max 12–24; Min 0 (none) or 2–24. Default min 12 when unset.
+    // Range: Long 8–48 (absolute max); Short 0 (derive) or 2–48 (gifted full pool).
     const maxRaw = Math.floor(Number(o.npcRangeMeters));
     const minRaw = Math.floor(Number(o.npcRangeMinMeters));
     const maxM =
-      Number.isFinite(maxRaw) && maxRaw >= 12 ? Math.min(24, maxRaw) : 24;
+      Number.isFinite(maxRaw) && maxRaw >= 8 ? Math.min(48, maxRaw) : 24;
     let minM = 12;
     if (Number.isFinite(minRaw)) {
       if (minRaw <= 0) minM = 0;
-      else minM = Math.min(24, Math.max(2, minRaw));
+      else minM = Math.min(48, Math.max(2, minRaw));
     }
     if (minM > maxM) minM = maxM;
     o.npcRangeMeters = maxM;

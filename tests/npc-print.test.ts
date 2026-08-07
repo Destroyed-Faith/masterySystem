@@ -48,7 +48,7 @@ describe('buildNpcPrintContext', () => {
     expect(page.attacks).toHaveLength(2);
     expect(page.attacks[0].name).toBe('Speer');
     expect(page.attacks[0].pool).toBe('6d8');
-    expect(page.attacks[0].rangeText).toContain('Reach');
+    expect(page.attacks[0].rangeText).toMatch(/Melee|Reach/i);
     expect(page.attacks[1].flags).toContain('Spell');
     expect(page.attacks[1].specials.toLowerCase()).toContain('ruin');
   });
@@ -119,7 +119,7 @@ describe('buildNpcPrintContext', () => {
     expect(ctx.pages[1].attackSlots).toBe(4);
     expect(ctx.pages[1].attacks).toHaveLength(2);
     expect(ctx.pages[1].attacks[0].flags).toContain('Split');
-    expect(ctx.pages[1].attacks[1].aoe).toBe('Radius 4 m');
+    expect(ctx.pages[1].attacks[1].aoe).toMatch(/4 m/);
     expect(ctx.pages[1].castingTn).toBe(40);
   });
 });

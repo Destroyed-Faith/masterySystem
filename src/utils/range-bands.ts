@@ -29,6 +29,30 @@ export interface RangeBands {
 export const DEFAULT_RANGE_BANDS: RangeBands = { short: 8, medium: 16, long: 32 };
 
 /**
+ * NPC sheet Short/Long meters → Players Guide Short/Medium/Long bands.
+ * Short (= "Min" on the sheet) is the gifted full-pool band (0…short).
+ * Long (= "Max") is absolute maximum. Medium is midway.
+ */
+export function bandsFromNpcShortLong(shortM: number, longM: number): RangeBands {
+  let long = Math.max(1, Math.floor(Number(longM) || 0));
+  let short = Math.floor(Number(shortM) || 0);
+  if (!Number.isFinite(long) || long <= 0) long = DEFAULT_RANGE_BANDS.long;
+  if (!Number.isFinite(short) || short <= 0) {
+    // No explicit short → approximate 8/16/32 proportions from long.
+    short = Math.max(1, Math.floor(long / 4));
+  }
+  if (short > long) short = long;
+  let medium = Math.floor((short + long) / 2);
+  if (medium < short) medium = short;
+  if (medium > long) medium = long;
+  return { short, medium, long };
+}
+
+export function rangeTextFromBands(bands: RangeBands): string {
+  return `${bands.short}/${bands.medium}/${bands.long}m`;
+}
+
+/**
  * Parse a Players-Guide-style range string (`"8/16/32m"`, `"8 / 16 / 32 m"`,
  * `"Ranged (8/16/32m)"`, …) into structured bands. Returns `null` when no
  * triple of meters can be extracted.

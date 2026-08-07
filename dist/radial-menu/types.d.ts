@@ -25,7 +25,10 @@ export interface RadialCombatOption {
     npcPhaseIndex?: number | null;
     range?: number;
     meleeReachMeters?: number;
-    /** Optional minimum range in meters (e.g. NPC ranged attacks). */
+    /**
+     * NPC ranged Short band in meters (gifted full-pool ceiling).
+     * Not a hard minimum distance — targets closer than this remain valid.
+     */
     rangeMinMeters?: number;
     rangeMeters?: number;
     aoeShape?: AoEShape;

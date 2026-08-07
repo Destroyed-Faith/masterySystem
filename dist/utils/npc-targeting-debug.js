@@ -10,7 +10,8 @@ export function npcTargetingSnap(row) {
         name: String(row?.name || '—'),
         kind: String(row?.npcRangeKind ?? '∅'),
         meters: row?.npcRangeMeters ?? '∅',
-        min: row?.npcRangeMinMeters ?? '∅',
+        short: row?.npcRangeMinMeters ?? '∅',
+        long: row?.npcRangeMeters ?? '∅',
         aoe: row?.npcAoeRadiusM ?? '∅',
         shape: String(row?.npcAoeShape ?? '∅'),
         burst: t.burstMeleeAoE,
@@ -19,7 +20,7 @@ export function npcTargetingSnap(row) {
 }
 export function npcTargetingLine(label, row) {
     const s = npcTargetingSnap(row);
-    return `${PREFIX} ${label} → name="${s.name}" kind=${s.kind} m=${s.meters} min=${s.min} aoe=${s.aoe} shape=${s.shape} burst=${s.burst} ranged=${s.ranged}`;
+    return `${PREFIX} ${label} → name="${s.name}" kind=${s.kind} short=${s.short} long=${s.long} aoe=${s.aoe} shape=${s.shape} burst=${s.burst} ranged=${s.ranged}`;
 }
 export function logNpcTargeting(label, detail) {
     if (detail)

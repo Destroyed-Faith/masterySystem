@@ -45,9 +45,11 @@ function creatureTypeLabel(actor) {
 function formatRangeLine(atk) {
     const kind = String(atk.npcRangeKind || '').toLowerCase();
     if (kind === 'ranged') {
-        const maxM = Math.floor(num(atk.npcRangeMeters, 24));
-        const minM = Math.floor(num(atk.npcRangeMinMeters, 12));
-        return `Range ${minM}–${maxM} m`;
+        const longM = Math.floor(num(atk.npcRangeMeters, 24));
+        const shortM = Math.floor(num(atk.npcRangeMinMeters, 12));
+        return shortM > 0
+            ? `Range Short ≤${shortM} / Long ≤${longM} m`
+            : `Range Long ≤${longM} m`;
     }
     const reach = Math.floor(num(atk.npcRangeMeters, 2));
     return `Melee ${reach > 0 ? reach : 2} m`;

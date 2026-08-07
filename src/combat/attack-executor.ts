@@ -8,6 +8,7 @@ import { getAttackAttributeForPowerTreeOrSchool } from "../utils/power-roll-attr
 import { resolveEquippedWeaponForAttackType } from "../utils/equipment-modifiers.js";
 import { artifactToVirtualWeapon, createVirtualUnarmedWeapon, isVirtualUnarmedWeapon } from "../utils/unarmed-fallback.js";
 import { evaluateThreatenedRanged } from "./threatened-ranged.js";
+import { bandsFromNpcShortLong, rangeTextFromBands } from "../utils/range-bands.js";
 import {
   formatNpcAttackSpecialsLine,
   getNpcAttackByIndex,
@@ -579,6 +580,16 @@ export async function createAttackCard(
     rollDisadvantage: tr.rollDisadvantage,
     threateningEnemyTokenIds: tr.threateningEnemyTokenIds,
     opportunityEnemyTokenIds: tr.opportunityEnemyTokenIds,
+    // NPC ranged: Short/Medium/Long from sheet Short(=gifted full pool) / Long(=max).
+    weaponRange:
+      isNpcAttack && attackType === "ranged"
+        ? rangeTextFromBands(
+            bandsFromNpcShortLong(
+              Math.floor(Number((option as any).rangeMinMeters) || 0),
+              Math.floor(Number((option as any).rangeMeters ?? option.range) || 0),
+            ),
+          )
+        : undefined,
     useNpcAttackDicePool: isNpcAttack,
     npcAttackDicePool: isNpcAttack ? attributeValue : undefined,
     npcAttackSource: isNpcAttack,

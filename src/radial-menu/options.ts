@@ -57,15 +57,20 @@ function buildNpcAttackDescription(atk: any): string {
   const aoeRad = Math.max(0, Math.floor(Number(atk?.npcAoeRadiusM) || 0));
   const hasAoe = aoeRad >= 2;
   if (isRanged) {
-    const maxM = meters > 0 ? Math.min(24, Math.max(12, meters)) : 24;
+    const maxM = meters > 0 ? Math.min(48, Math.max(8, meters)) : 24;
     const minRaw = Math.floor(Number(atk?.npcRangeMinMeters));
-    let minM = 12;
+    let shortM = 12;
     if (Number.isFinite(minRaw)) {
-      if (minRaw <= 0) minM = 0;
-      else minM = Math.min(24, Math.max(2, minRaw));
+      if (minRaw <= 0) shortM = 0;
+      else shortM = Math.min(48, Math.max(2, minRaw));
     }
-    if (minM > maxM) minM = maxM;
-    parts.push(minM > 0 ? `Range ${minM}–${maxM} m` : `Range ≤${maxM} m`);
+    if (shortM > maxM) shortM = maxM;
+    // Short = gifted full-pool band; Long = absolute max (not Min–Max exclusion).
+    parts.push(
+      shortM > 0
+        ? `Range Short ≤${shortM} / Long ≤${maxM} m`
+        : `Range Long ≤${maxM} m`,
+    );
   } else {
     const reachM = meters > 0 ? Math.min(8, Math.max(1, meters)) : 2;
     parts.push(`Melee ${reachM} m`);

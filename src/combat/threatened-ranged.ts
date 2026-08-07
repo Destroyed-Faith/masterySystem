@@ -89,6 +89,13 @@ export function tokenIsHostileTo(attackerToken: any, other: any): boolean {
  * so spell-like attacks do not automatically provoke the weapon rule.
  */
 export function usesThreatenedRangedWeaponRules(actor: any, option: RadialCombatOption): boolean {
+  // NPC martial ranged attacks (not spells) use Threatened Ranged like bows.
+  if (option.source === "npc-attack") {
+    if ((option as any).npcIsSpell === true) return false;
+    if (option.tags?.includes("ranged")) return true;
+    return false;
+  }
+
   if (option.source === "power" && option.item) {
     if (option.tags?.includes("threatened-ranged")) return true;
     const sys = (option.item.system as any) || {};

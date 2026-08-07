@@ -7,7 +7,8 @@ export declare function npcTargetingSnap(row: any): {
     name: string;
     kind: string;
     meters: string | number;
-    min: string | number;
+    short: string | number;
+    long: string | number;
     aoe: string | number;
     shape: string;
     burst: boolean;
