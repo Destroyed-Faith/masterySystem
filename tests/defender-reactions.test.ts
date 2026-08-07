@@ -14,6 +14,14 @@ vi.mock('../src/utils/power-mechanics.js', () => ({
     if (item?.id === 'gs') return { phasing: { reactionSingleHit: true } };
     return { armor: 1 };
   },
+  buildActorMechanicsBreakdown: () => ({
+    damageReductionPct: { passive: [], buff: [], reaction: [] },
+    totals: { damageReductionPct: 0 },
+  }),
+}));
+
+vi.mock('../src/radial-menu/artifact-options.js', () => ({
+  buildArtifactReactionOptions: () => [],
 }));
 
 import { getEligibleReactionPowers } from '../src/combat/defender-reactions.js';

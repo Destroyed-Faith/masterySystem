@@ -73,6 +73,8 @@ export interface AppliedDamageSummary {
     breakdownLine: string;
     /** `true` if the target phased out of the hit entirely. */
     phased: boolean;
+    /** `true` if Reaction: Evade raised Evade above the attack total. */
+    negatedByEvade?: boolean;
 }
 /**
  * Apply damage to target actor — full defensive pipeline:
@@ -83,5 +85,8 @@ export interface AppliedDamageSummary {
  * ("never below count8s if any 8 was rolled").
  */
 /** Exported for AoE secondary hits (power dice only, same mitigation pipeline). */
-export declare function applyDamageToTargetFromAoe(target: Actor, damage: number, attacker: Actor, count8s?: number): Promise<AppliedDamageSummary>;
+export declare function applyDamageToTargetFromAoe(target: Actor, damage: number, attacker: Actor, count8s?: number, attackContext?: {
+    attackTotal?: number | null;
+    evadeTn?: number | null;
+}): Promise<AppliedDamageSummary>;
 //# sourceMappingURL=damage-dialog.d.ts.map

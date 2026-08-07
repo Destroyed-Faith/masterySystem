@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.268] - 2026-08-07
+
+### Fixed
+
+- **Reaction: Evade** now applies against the triggering attack: dialog preview shows `Evade → Evade+bonus vs Attack total` and whether the reaction would **negate** the hit before you spend it. If `(Evade + bonus) > attack total`, damage is cancelled (no roll). Removed the old “not applied retroactively — track manually” note.
+
 ## [0.9.267] - 2026-08-07
 
 ### Changed

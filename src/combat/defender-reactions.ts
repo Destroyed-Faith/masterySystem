@@ -3,6 +3,9 @@
  * Spends `RoundState.reactionActions`, marks `usedPowerIdsThisRound`, and applies
  * one-hit armor / reaction DR from power `mechanics` where present.
  *
+ * Reaction: Evade adds its bonus to the Evade TN of the triggering attack.
+ * If (Evade + bonus) > attack total, the hit is negated — no damage. No roll.
+ *
  * Ghost Slip–style powers (`phasing.reactionSingleHit`) are omitted here: they
  * interact with the phasing step, not post-phasing mitigation.
  */
@@ -27,6 +30,61 @@ export interface DefenderReactionMitigation {
   initiativeGain?: number;
   /** Power display name if one was used. */
   powerName?: string;
+  /** Reaction Evade raised the TN above the attack total — no damage. */
+  negatedByEvade?: boolean;
+  /** Evade bonus from the chosen reaction (0 if none). */
+  reactionEvadeBonus?: number;
+  /** Evade TN used for the comparison (base + bonus when negated/applied). */
+  effectiveEvade?: number;
+}
+
+export interface ReactionEvadeEval {
+  baseEvade: number;
+  bonus: number;
+  effectiveEvade: number;
+  attackTotal: number | null;
+  /** True when attack total is known and effective Evade exceeds it. */
+  negates: boolean;
+  /** True when we cannot decide (missing attack total). */
+  unknown: boolean;
+}
+
+/**
+ * Reaction Evade vs a known attack total.
+ * Hit rule is attack ≥ Evade, so the reaction negates only when
+ * (baseEvade + bonus) > attackTotal.
+ */
+export function evaluateReactionEvadeNegation(
+  baseEvade: number,
+  bonus: number,
+  attackTotal: number | null | undefined,
+): ReactionEvadeEval {
+  const base = Math.max(0, Math.floor(Number(baseEvade) || 0));
+  const b = Math.max(0, Math.floor(Number(bonus) || 0));
+  const effectiveEvade = base + b;
+  const atk =
+    attackTotal == null || !Number.isFinite(Number(attackTotal))
+      ? null
+      : Math.floor(Number(attackTotal));
+  if (atk == null) {
+    return { baseEvade: base, bonus: b, effectiveEvade, attackTotal: null, negates: false, unknown: true };
+  }
+  return {
+    baseEvade: base,
+    bonus: b,
+    effectiveEvade,
+    attackTotal: atk,
+    negates: b > 0 && effectiveEvade > atk,
+    unknown: false,
+  };
+}
+
+function defenderEvadeFromActor(defender: Actor): number {
+  const sys = (defender as any)?.system;
+  const total = Number(sys?.combat?.evadeTotal);
+  if (Number.isFinite(total) && total > 0) return Math.floor(total);
+  const evade = Number(sys?.combat?.evade);
+  return Number.isFinite(evade) ? Math.max(0, Math.floor(evade)) : 0;
 }
 
 function defenderActorForEconomy(defender: Actor): Actor {
@@ -116,6 +174,44 @@ function extractMitigationFromMechanics(mech: ReturnType<typeof resolvePowerMech
   return { reactionArmorFlat, reactionDrPct, initiativeGain: initiativeGain || undefined };
 }
 
+function formatPowerPreviewLine(
+  item: any,
+  baseEvade: number,
+  attackTotal: number | null,
+): string {
+  const mech = resolvePowerMechanics(item);
+  const name = String(item?.name ?? 'Reaction').trim();
+  const bits: string[] = [];
+  const ev = Math.max(0, Math.floor(Number(mech?.evade) || 0));
+  const armor = Math.max(0, Math.floor(Number(mech?.armor) || 0));
+  const dr = Math.max(0, Math.floor(Number(mech?.damageReductionPct) || 0));
+  const ini = Math.max(0, Math.floor(Number(mech?.initiativeGain) || 0));
+
+  if (ev > 0) {
+    const evEval = evaluateReactionEvadeNegation(baseEvade, ev, attackTotal);
+    if (evEval.unknown) {
+      bits.push(`+${ev} Evade (attack total unknown — cannot preview)`);
+    } else if (evEval.negates) {
+      bits.push(
+        `+${ev} Evade: ${evEval.baseEvade}→${evEval.effectiveEvade} vs Attack ${evEval.attackTotal} → <strong style="color:#2ecc71">NEGATES hit</strong>`,
+      );
+    } else {
+      bits.push(
+        `+${ev} Evade: ${evEval.baseEvade}→${evEval.effectiveEvade} vs Attack ${evEval.attackTotal} → <strong style="color:#e74c3c">still hits</strong>`,
+      );
+    }
+  }
+  if (armor > 0) bits.push(`+${armor} Armor (this hit)`);
+  if (dr > 0) bits.push(`+${dr}% DR (this hit)`);
+  if (ini > 0) bits.push(`+${ini} Initiative after resolve`);
+  if (mech?.tempHP) bits.push(`Temp HP ${mech.tempHP} if damage remains`);
+  if (!bits.length) {
+    const desc = String(item?.artifactReactionMeta?.description || item?.system?.description || '').trim();
+    bits.push(desc ? desc.slice(0, 120) : 'no numeric mitigation');
+  }
+  return `<li><strong>${name}</strong> — ${bits.join('; ')}</li>`;
+}
+
 const INITIATIVE_GAIN_TEMPLATE = 'reaction-initiative-gain';
 
 /** Duplicate Initiative Gain sources do not stack — keep only the highest version. */
@@ -155,6 +251,10 @@ export async function promptDefenderReactionsBeforeMitigation(params: {
   attacker: Actor;
   combat: Combat | null;
   rawDamage: number;
+  /** Kept attack total from the triggering roll (for Reaction Evade). */
+  attackTotal?: number | null;
+  /** Evade / Normal TN the attack was rolled against. */
+  evadeTn?: number | null;
 }): Promise<DefenderReactionMitigation> {
   const empty: DefenderReactionMitigation = { reactionArmorFlat: 0, reactionDrPct: 0 };
   const { defender, attacker, combat, rawDamage } = params;
@@ -191,12 +291,32 @@ export async function promptDefenderReactionsBeforeMitigation(params: {
     const s = i18n?.localize?.(k);
     return s && !String(s).startsWith('MASTERY.') ? String(s) : fb;
   };
+
+  const evadeTnRaw = Math.floor(Number(params.evadeTn));
+  const baseEvade =
+    Number.isFinite(evadeTnRaw) && evadeTnRaw > 0 ? evadeTnRaw : defenderEvadeFromActor(defender);
+  const attackTotalRaw = Math.floor(Number(params.attackTotal));
+  const attackTotal =
+    Number.isFinite(attackTotalRaw) && params.attackTotal != null ? attackTotalRaw : null;
+
+  const previewList = `<ul style="margin:0.5em 0 0.25em; padding-left:1.2em; font-size:0.92em;">${powers
+    .map((p) => formatPowerPreviewLine(p, baseEvade, attackTotal))
+    .join('')}</ul>`;
+
+  const attackLine =
+    attackTotal != null
+      ? `<p>Attack total: <strong>${attackTotal}</strong> · Evade TN: <strong>${baseEvade}</strong></p>`
+      : `<p><em>Attack total unavailable — Evade reactions cannot auto-negate this hit.</em></p>`;
+
   const chosen: { item: any } | { item: null } = await new Promise((resolve) => {
     const attackerName = (attacker as any)?.name ?? 'Attacker';
     const titleRaw = loc('MASTERY.reactionDialogTitle', 'Reaction — {defender}');
     const dialogTitle = titleRaw.replace(/\{defender\}/g, defName);
     const bodyIntro = `<p><strong>${attackerName}</strong> deals <strong>${rawDamage}</strong> raw damage (after phasing checks).</p>
-            <p>Spend <strong>1 Reaction</strong> (${summary.remaining}/${summary.total} left) and pick a power, or decline.</p>`;
+            ${attackLine}
+            <p>Spend <strong>1 Reaction</strong> (${summary.remaining}/${summary.total} left) and pick a power, or decline.</p>
+            <p style="margin-bottom:0"><strong>Preview</strong> (before you spend):</p>
+            ${previewList}`;
 
     if (powers.length >= 2) {
       const optionsHtml = powers
@@ -240,8 +360,17 @@ export async function promptDefenderReactionsBeforeMitigation(params: {
     for (const item of powers) {
       const id = `react_${(item as any).id}`;
       const pnm = String(item.name ?? 'Reaction').trim();
+      const mech = resolvePowerMechanics(item);
+      const ev = Math.max(0, Math.floor(Number(mech?.evade) || 0));
+      let label = pnm.length > 40 ? `${pnm.slice(0, 37)}…` : pnm;
+      if (ev > 0) {
+        const evEval = evaluateReactionEvadeNegation(baseEvade, ev, attackTotal);
+        if (!evEval.unknown) {
+          label = evEval.negates ? `${label} — NEGATES` : `${label} — still hits`;
+        }
+      }
       buttons[id] = {
-        label: pnm.length > 48 ? `${pnm.slice(0, 45)}…` : pnm,
+        label: label.length > 56 ? `${label.slice(0, 53)}…` : label,
         callback: () => resolve({ item }),
       };
     }
@@ -273,6 +402,7 @@ export async function promptDefenderReactionsBeforeMitigation(params: {
   let mit = extractMitigationFromMechanics(mech);
   const ev = Math.max(0, Math.floor(Number(mech?.evade) || 0));
   const iniGain = mit.initiativeGain ?? 0;
+  const evEval = evaluateReactionEvadeNegation(baseEvade, ev, attackTotal);
 
   // Reaction DR% only applies when this defender already has continuous DR% on
   // the sheet. Use the same actor document that receives damage (token / linked
@@ -280,7 +410,7 @@ export async function promptDefenderReactionsBeforeMitigation(params: {
   // points at the world actor while passives and `prepareDerivedData` live on
   // the token actor — gating on the prototype wrongly saw 0% and stripped reaction DR.
   let reactionDrBlocked = false;
-  if (mit.reactionDrPct > 0) {
+  if (mit.reactionDrPct > 0 && !evEval.negates) {
     const drSubject = defender as any;
     if (typeof drSubject.prepareDerivedData === 'function') {
       try {
@@ -300,17 +430,25 @@ export async function promptDefenderReactionsBeforeMitigation(params: {
   }
 
   let note = '';
-  if (mit.reactionArmorFlat > 0) note += ` +${mit.reactionArmorFlat} Armor (this hit)`;
-  if (mit.reactionDrPct > 0) note += ` +${mit.reactionDrPct}% DR (this hit)`;
-  if (reactionDrBlocked) {
-    note +=
-      ' <em>(Reaction DR% needs slotted <strong>Damage Reduction</strong> DR% and/or a sustained DR% on the character sheet.)</em>';
-  }
   if (ev > 0) {
-    note += ` <em>(+${ev} Evade is not applied retroactively after the hit — track manually if needed.)</em>`;
+    if (evEval.unknown) {
+      note += ` <em>(+${ev} Evade — attack total missing, could not auto-negate.)</em>`;
+    } else if (evEval.negates) {
+      note += ` +${ev} Evade (${evEval.baseEvade}→${evEval.effectiveEvade} vs Attack ${evEval.attackTotal}) — <strong>hit negated, no damage</strong>.`;
+    } else {
+      note += ` +${ev} Evade (${evEval.baseEvade}→${evEval.effectiveEvade} vs Attack ${evEval.attackTotal}) — still a hit.`;
+    }
   }
-  if (mech?.tempHP) {
-    note += ` <em>(Temp HP from this reaction: apply manually or extend pipeline — declared: ${mech.tempHP})</em>`;
+  if (!evEval.negates) {
+    if (mit.reactionArmorFlat > 0) note += ` +${mit.reactionArmorFlat} Armor (this hit)`;
+    if (mit.reactionDrPct > 0) note += ` +${mit.reactionDrPct}% DR (this hit)`;
+    if (reactionDrBlocked) {
+      note +=
+        ' <em>(Reaction DR% needs slotted <strong>Damage Reduction</strong> DR% and/or a sustained DR% on the character sheet.)</em>';
+    }
+    if (mech?.tempHP) {
+      note += ` <em>(Temp HP from this reaction: apply manually or extend pipeline — declared: ${mech.tempHP})</em>`;
+    }
   }
   if (iniGain > 0) {
     note += ` <em>(+${iniGain} Initiative applies after this attack fully resolves.)</em>`;
@@ -321,10 +459,24 @@ export async function promptDefenderReactionsBeforeMitigation(params: {
     defender,
   );
 
+  if (evEval.negates) {
+    return {
+      reactionArmorFlat: 0,
+      reactionDrPct: 0,
+      initiativeGain: iniGain > 0 ? iniGain : undefined,
+      powerName: chosen.item.name,
+      negatedByEvade: true,
+      reactionEvadeBonus: ev,
+      effectiveEvade: evEval.effectiveEvade,
+    };
+  }
+
   return {
     reactionArmorFlat: mit.reactionArmorFlat,
     reactionDrPct: mit.reactionDrPct,
     initiativeGain: iniGain > 0 ? iniGain : undefined,
     powerName: chosen.item.name,
+    reactionEvadeBonus: ev > 0 ? ev : undefined,
+    effectiveEvade: ev > 0 ? evEval.effectiveEvade : undefined,
   };
 }

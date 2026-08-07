@@ -663,6 +663,9 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
                     splitIndex: flags?.splitIndex ?? null,
                     splitPairId: flags?.splitPairId ?? null,
                     targetMarkValue,
+                    // Triggering attack roll — Reaction: Evade compares against these.
+                    attackTotal: Math.max(0, Math.floor(Number(flags?.attackTotal) || 0)) || null,
+                    normalTn: Math.max(0, Math.floor(Number(flags?.normalTn ?? flags?.baseEvade ?? flags?.targetEvade) || 0)) || null,
                 }
             }
         };
@@ -832,7 +835,10 @@ export function attachDamageCardHandlers(messageId) {
             const raiseSelections = new Map();
             // Mark spend is chosen AFTER the roll via a post-roll prompt inside
             // calculateDamageResult (exact "total → new total" options per spend).
-            const result = await calculateDamageResult(flags.baseDamage, flags.powerDamage, flags.passiveDamage, 0, raiseSelections, flags.availableSpecials, attacker, target, Math.max(0, Number(flags.stoneDamageBonusDice) || 0), Math.max(0, Number(flags.npcAutoDamageDice) || 0), Array.isArray(flags.npcAutoSpecialStrings) ? flags.npcAutoSpecialStrings : [], flags.selectedPowerId || null, !!flags.splitAttack, flags.attackType === 'ranged' ? 'ranged' : 'melee');
+            const result = await calculateDamageResult(flags.baseDamage, flags.powerDamage, flags.passiveDamage, 0, raiseSelections, flags.availableSpecials, attacker, target, Math.max(0, Number(flags.stoneDamageBonusDice) || 0), Math.max(0, Number(flags.npcAutoDamageDice) || 0), Array.isArray(flags.npcAutoSpecialStrings) ? flags.npcAutoSpecialStrings : [], flags.selectedPowerId || null, !!flags.splitAttack, flags.attackType === 'ranged' ? 'ranged' : 'melee', true, {
+                attackTotal: flags.attackTotal ?? null,
+                evadeTn: flags.normalTn ?? flags.baseEvade ?? flags.targetEvade ?? null,
+            });
             // NSC signature attacks: Nd8 Stress on hit (plain dice; Stress Armor
             // mitigates inside applyStressToActor). Applies alongside the HP damage.
             const stressDice = Math.max(0, Math.floor(Number(flags.npcStressD8) || 0));
@@ -1095,10 +1101,10 @@ async function applyStatusEffectsToTarget(target, specialsUsed, attacker) {
  * ("never below count8s if any 8 was rolled").
  */
 /** Exported for AoE secondary hits (power dice only, same mitigation pipeline). */
-export async function applyDamageToTargetFromAoe(target, damage, attacker, count8s = 0) {
-    return applyDamageToTarget(target, damage, attacker, count8s);
+export async function applyDamageToTargetFromAoe(target, damage, attacker, count8s = 0, attackContext) {
+    return applyDamageToTarget(target, damage, attacker, count8s, attackContext);
 }
-async function applyDamageToTarget(target, damage, attacker, count8s = 0) {
+async function applyDamageToTarget(target, damage, attacker, count8s = 0, attackContext) {
     const empty = {
         rawDamage: Math.max(0, Math.floor(damage)),
         armorApplied: 0,
@@ -1155,10 +1161,42 @@ async function applyDamageToTarget(target, damage, attacker, count8s = 0) {
                 attacker: attacker,
                 combat,
                 rawDamage: damage,
+                attackTotal: attackContext?.attackTotal ?? null,
+                evadeTn: attackContext?.evadeTn ?? null,
             });
             reactionArmorFlat = reactMit.reactionArmorFlat;
             reactionDrPct = reactMit.reactionDrPct;
             reactionInitiativeGain = Math.max(0, Math.floor(Number(reactMit.initiativeGain) || 0));
+            if (reactMit.negatedByEvade) {
+                // Still grant post-resolve initiative if the reaction included it.
+                if (reactionInitiativeGain > 0) {
+                    try {
+                        if (combat) {
+                            const { applyMidCombatInitiativeGain } = await import('../combat/initiative-gain.js');
+                            const iniResult = await applyMidCombatInitiativeGain(combat, target, reactionInitiativeGain);
+                            if (iniResult.applied) {
+                                const defName = String(target.name ?? 'Defender');
+                                await globalThis.ChatMessage?.create?.({
+                                    user: globalThis.game?.user?.id,
+                                    speaker: globalThis.ChatMessage?.getSpeaker?.({ actor: target }),
+                                    content: `<p class="mastery-reaction-msg"><strong>${defName}</strong> gains <strong>+${reactionInitiativeGain} Initiative</strong> after the attack resolves. ${iniResult.note}</p>`,
+                                });
+                            }
+                        }
+                    }
+                    catch (iniErr) {
+                        console.warn('Mastery System | [APPLY DAMAGE] initiative gain after evade negate failed', iniErr);
+                    }
+                }
+                const eff = Math.max(0, Math.floor(Number(reactMit.effectiveEvade) || 0));
+                const bonus = Math.max(0, Math.floor(Number(reactMit.reactionEvadeBonus) || 0));
+                const atk = Math.max(0, Math.floor(Number(attackContext?.attackTotal) || 0));
+                return {
+                    ...empty,
+                    negatedByEvade: true,
+                    breakdownLine: `Raw ${empty.rawDamage} → Reaction Evade +${bonus} (Evade ${eff} > Attack ${atk}) — ignored`,
+                };
+            }
         }
         catch (err) {
             console.debug?.('Mastery System | [APPLY DAMAGE] defender reactions skipped', err);
@@ -1466,7 +1504,7 @@ async function calculateDamageResult(baseDamage, powerDamage, passiveDamage, rai
  * Offer a Faith Fracture damage reroll after rolling, before applying.
  * The reroll recursion passes `false` — any roll may be rerolled at most once.
  */
-allowFaithReroll = true) {
+allowFaithReroll = true, attackContext) {
     // Roll base damage
     // Sanitize dice notations before rolling
     const sanitizedBaseDamage = sanitizeDiceNotation(baseDamage || '0');
@@ -1697,7 +1735,7 @@ allowFaithReroll = true) {
             const cur = Number(attacker?.system?.faithFractures?.current ?? 0) || 0;
             await attacker.update({ 'system.faithFractures.current': Math.max(0, cur - 1) });
             ui.notifications?.info(`${attacker.name} spent 1 Faith Fracture — rerolling damage (was ${prevTotal}).`);
-            const rerolled = await calculateDamageResult(baseDamage, powerDamage, passiveDamage, raises, raiseSelections, availableSpecials, attacker, target, stoneDamageBonusDice, npcAutoDamageDice, npcAutoSpecialStrings, selectedPowerId, splitAttack, attackType, false);
+            const rerolled = await calculateDamageResult(baseDamage, powerDamage, passiveDamage, raises, raiseSelections, availableSpecials, attacker, target, stoneDamageBonusDice, npcAutoDamageDice, npcAutoSpecialStrings, selectedPowerId, splitAttack, attackType, false, attackContext);
             rerolled.rollDetails = [
                 `Reroll — 1 Faith Fracture spent (previous total: ${prevTotal})`,
                 ...(rerolled.rollDetails ?? []),
@@ -1786,7 +1824,7 @@ allowFaithReroll = true) {
     // Apply damage to target
     let mitigation;
     if (target) {
-        mitigation = await applyDamageToTarget(target, appliedDamage, attacker, appliedCount8s);
+        mitigation = await applyDamageToTarget(target, appliedDamage, attacker, appliedCount8s, attackContext);
     }
     const result = {
         baseDamage: baseDamageRolled,

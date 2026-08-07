@@ -772,6 +772,9 @@ export async function showDamageDialog(
           splitIndex: flags?.splitIndex ?? null,
           splitPairId: flags?.splitPairId ?? null,
           targetMarkValue,
+          // Triggering attack roll — Reaction: Evade compares against these.
+          attackTotal: Math.max(0, Math.floor(Number(flags?.attackTotal) || 0)) || null,
+          normalTn: Math.max(0, Math.floor(Number(flags?.normalTn ?? flags?.baseEvade ?? flags?.targetEvade) || 0)) || null,
         }
       }
     };
@@ -986,6 +989,11 @@ export function attachDamageCardHandlers(messageId: string): void {
       flags.selectedPowerId || null,
       !!flags.splitAttack,
       flags.attackType === 'ranged' ? 'ranged' : 'melee',
+      true,
+      {
+        attackTotal: flags.attackTotal ?? null,
+        evadeTn: flags.normalTn ?? flags.baseEvade ?? flags.targetEvade ?? null,
+      },
     );
     // NSC signature attacks: Nd8 Stress on hit (plain dice; Stress Armor
     // mitigates inside applyStressToActor). Applies alongside the HP damage.
@@ -1272,6 +1280,8 @@ export interface AppliedDamageSummary {
   breakdownLine: string;
   /** `true` if the target phased out of the hit entirely. */
   phased: boolean;
+  /** `true` if Reaction: Evade raised Evade above the attack total. */
+  negatedByEvade?: boolean;
 }
 
 /**
@@ -1288,8 +1298,9 @@ export async function applyDamageToTargetFromAoe(
   damage: number,
   attacker: Actor,
   count8s: number = 0,
+  attackContext?: { attackTotal?: number | null; evadeTn?: number | null },
 ): Promise<AppliedDamageSummary> {
-  return applyDamageToTarget(target, damage, attacker, count8s);
+  return applyDamageToTarget(target, damage, attacker, count8s, attackContext);
 }
 
 async function applyDamageToTarget(
@@ -1297,6 +1308,7 @@ async function applyDamageToTarget(
   damage: number,
   attacker: Actor,
   count8s: number = 0,
+  attackContext?: { attackTotal?: number | null; evadeTn?: number | null },
 ): Promise<AppliedDamageSummary> {
   const empty: AppliedDamageSummary = {
     rawDamage: Math.max(0, Math.floor(damage)),
@@ -1354,10 +1366,45 @@ async function applyDamageToTarget(
         attacker: attacker as any,
         combat,
         rawDamage: damage,
+        attackTotal: attackContext?.attackTotal ?? null,
+        evadeTn: attackContext?.evadeTn ?? null,
       });
       reactionArmorFlat = reactMit.reactionArmorFlat;
       reactionDrPct = reactMit.reactionDrPct;
       reactionInitiativeGain = Math.max(0, Math.floor(Number(reactMit.initiativeGain) || 0));
+      if (reactMit.negatedByEvade) {
+        // Still grant post-resolve initiative if the reaction included it.
+        if (reactionInitiativeGain > 0) {
+          try {
+            if (combat) {
+              const { applyMidCombatInitiativeGain } = await import('../combat/initiative-gain.js');
+              const iniResult = await applyMidCombatInitiativeGain(
+                combat,
+                target as any,
+                reactionInitiativeGain,
+              );
+              if (iniResult.applied) {
+                const defName = String((target as any).name ?? 'Defender');
+                await (globalThis as any).ChatMessage?.create?.({
+                  user: (globalThis as any).game?.user?.id,
+                  speaker: (globalThis as any).ChatMessage?.getSpeaker?.({ actor: target }),
+                  content: `<p class="mastery-reaction-msg"><strong>${defName}</strong> gains <strong>+${reactionInitiativeGain} Initiative</strong> after the attack resolves. ${iniResult.note}</p>`,
+                });
+              }
+            }
+          } catch (iniErr) {
+            console.warn('Mastery System | [APPLY DAMAGE] initiative gain after evade negate failed', iniErr);
+          }
+        }
+        const eff = Math.max(0, Math.floor(Number(reactMit.effectiveEvade) || 0));
+        const bonus = Math.max(0, Math.floor(Number(reactMit.reactionEvadeBonus) || 0));
+        const atk = Math.max(0, Math.floor(Number(attackContext?.attackTotal) || 0));
+        return {
+          ...empty,
+          negatedByEvade: true,
+          breakdownLine: `Raw ${empty.rawDamage} → Reaction Evade +${bonus} (Evade ${eff} > Attack ${atk}) — ignored`,
+        };
+      }
     } catch (err) {
       console.debug?.('Mastery System | [APPLY DAMAGE] defender reactions skipped', err);
     }
@@ -1694,6 +1741,7 @@ async function calculateDamageResult(
    * The reroll recursion passes `false` — any roll may be rerolled at most once.
    */
   allowFaithReroll: boolean = true,
+  attackContext?: { attackTotal?: number | null; evadeTn?: number | null },
 ): Promise<DamageResult> {
   // Roll base damage
   // Sanitize dice notations before rolling
@@ -1937,6 +1985,7 @@ async function calculateDamageResult(
         splitAttack,
         attackType,
         false,
+        attackContext,
       );
       rerolled.rollDetails = [
         `Reroll — 1 Faith Fracture spent (previous total: ${prevTotal})`,
@@ -2024,7 +2073,13 @@ async function calculateDamageResult(
   // Apply damage to target
   let mitigation: AppliedDamageSummary | undefined;
   if (target) {
-    mitigation = await applyDamageToTarget(target, appliedDamage, attacker, appliedCount8s);
+    mitigation = await applyDamageToTarget(
+      target,
+      appliedDamage,
+      attacker,
+      appliedCount8s,
+      attackContext,
+    );
   }
 
   const result: DamageResult = {

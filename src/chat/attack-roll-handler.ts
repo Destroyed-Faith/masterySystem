@@ -737,6 +737,8 @@ export async function executeAttackRollFromCard(
             stoneBonusRaises,
             normalTn,
             raiseTn,
+            // Needed so Reaction: Evade can compare Evade+bonus vs this total.
+            attackTotal: Math.floor(Number(result?.total) || 0),
             ...(spellCostOverride ? { spellCostOverride } : {}),
           };
           // Import and show damage dialog - pass only IDs, not full objects
@@ -919,12 +921,19 @@ async function rollAndDisplayDamage(
     min8sUsed: boolean;
     breakdownLine: string;
     phased: boolean;
+    negatedByEvade?: boolean;
   } | undefined;
   if (mit) {
     if (mit.phased) {
       mitigationHtml = `
         <div class="mastery-damage-mitigation mastery-damage-phased">
           <div class="mastery-damage-mitigation-title"><i class="fas fa-ghost"></i> Phased — Angriff ignoriert</div>
+          <div class="mastery-damage-mitigation-breakdown">${esc(mit.breakdownLine)}</div>
+        </div>`;
+    } else if (mit.negatedByEvade) {
+      mitigationHtml = `
+        <div class="mastery-damage-mitigation mastery-damage-phased">
+          <div class="mastery-damage-mitigation-title"><i class="fas fa-person-running"></i> Reaction Evade — Treffer negiert</div>
           <div class="mastery-damage-mitigation-breakdown">${esc(mit.breakdownLine)}</div>
         </div>`;
     } else {
