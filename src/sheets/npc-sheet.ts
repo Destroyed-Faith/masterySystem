@@ -335,8 +335,9 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
   }
 
   /**
-   * Hard-write NPC attack targeting fields so sticky AoE / range leftovers
-   * cannot survive a Melee↔Range or AoE "—" switch (FormData alone was flaky).
+   * Hard-write NPC attack targeting by replacing the whole attack row / phases
+   * array. Dot-path updates into `system.phases.N.*` are unreliable in Foundry
+   * and were leaving sticky Melee AoE on the actor.
    */
   async #persistNpcAttackTargeting(
     path: string,
@@ -344,14 +345,59 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
     reason: string
   ): Promise<void> {
     if (!path || !this.actor) return;
-    const update: Record<string, unknown> = {};
-    for (const [key, value] of Object.entries(patch)) {
-      update[`${path}.${key}`] = value;
+    const actor = this.actor as any;
+    const dup = <T>(v: T): T => JSON.parse(JSON.stringify(v)) as T;
+
+    const phaseBase = /^system\.phases\.(\d+)\.npcBaseAttack$/.exec(path);
+    const phaseExtra = /^system\.phases\.(\d+)\.attackValues\.(\d+)$/.exec(path);
+    const rootExtra = /^system\.attackValues\.(\d+)$/.exec(path);
+
+    let update: Record<string, unknown>;
+    if (phaseBase) {
+      const pi = Number(phaseBase[1]);
+      const phases = dup(Array.isArray(actor.system?.phases) ? actor.system.phases : []);
+      while (phases.length <= pi) phases.push({});
+      const phase = { ...(phases[pi] || {}) };
+      phase.npcBaseAttack = { ...(phase.npcBaseAttack || {}), ...patch };
+      phases[pi] = phase;
+      update = { 'system.phases': phases };
+    } else if (phaseExtra) {
+      const pi = Number(phaseExtra[1]);
+      const ai = Number(phaseExtra[2]);
+      const phases = dup(Array.isArray(actor.system?.phases) ? actor.system.phases : []);
+      while (phases.length <= pi) phases.push({});
+      const phase = { ...(phases[pi] || {}) };
+      const attackValues = Array.isArray(phase.attackValues) ? [...phase.attackValues] : [];
+      while (attackValues.length <= ai) attackValues.push({});
+      attackValues[ai] = { ...(attackValues[ai] || {}), ...patch };
+      phase.attackValues = attackValues;
+      phases[pi] = phase;
+      update = { 'system.phases': phases };
+    } else if (rootExtra) {
+      const ai = Number(rootExtra[1]);
+      const attackValues = dup(Array.isArray(actor.system?.attackValues) ? actor.system.attackValues : []);
+      while (attackValues.length <= ai) attackValues.push({});
+      attackValues[ai] = { ...(attackValues[ai] || {}), ...patch };
+      update = { 'system.attackValues': attackValues };
+    } else if (path === 'system.npcBaseAttack') {
+      update = { 'system.npcBaseAttack': { ...(actor.system?.npcBaseAttack || {}), ...patch } };
+    } else {
+      // Fallback: flat dotted keys
+      update = {};
+      for (const [key, value] of Object.entries(patch)) update[`${path}.${key}`] = value;
     }
-    console.log(`[MS NPC Targeting] ${reason}`, { path, patch, actorId: this.actor.id });
-    await this.actor.update(update);
-    const row = path.split('.').reduce((acc: any, key: string) => (acc == null ? acc : acc[key]), this.actor);
-    console.log(`[MS NPC Targeting] after update`, { path, row });
+
+    console.log(`[MS NPC Targeting] ${reason}`, { path, patch, actorId: actor.id, updateKeys: Object.keys(update) });
+    await actor.update(update);
+    const row = path.split('.').reduce((acc: any, key: string) => (acc == null ? acc : acc[key]), actor);
+    console.log(`[MS NPC Targeting] after update`, {
+      path,
+      npcRangeKind: row?.npcRangeKind,
+      npcRangeMeters: row?.npcRangeMeters,
+      npcAoeRadiusM: row?.npcAoeRadiusM,
+      npcAoeShape: row?.npcAoeShape,
+      row,
+    });
   }
 
   /** @override */

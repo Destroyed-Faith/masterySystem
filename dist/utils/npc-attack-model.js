@@ -42,6 +42,54 @@ export function normalizeNpcAttackRow(attack) {
     const merged = mergeSpecialsFromLegacy(attack);
     return { ...attack, specials: merged.length ? merged : undefined };
 }
+export function resolveNpcAttackTargeting(atk) {
+    const rangeKind = String(atk?.npcRangeKind || '').toLowerCase();
+    const isRanged = rangeKind === 'ranged';
+    const metersRaw = Math.floor(Number(atk?.npcRangeMeters));
+    const reachM = Number.isFinite(metersRaw) && metersRaw > 0 ? Math.min(8, Math.max(1, metersRaw)) : 2;
+    const rangedMaxM = Number.isFinite(metersRaw) && metersRaw > 0 ? Math.min(24, Math.max(12, metersRaw)) : 24;
+    const minRaw = Math.floor(Number(atk?.npcRangeMinMeters));
+    let rangedMinM = Number.isFinite(minRaw) && minRaw > 0 ? Math.min(24, Math.max(12, minRaw)) : 12;
+    if (rangedMinM > rangedMaxM)
+        rangedMinM = rangedMaxM;
+    const aoeRad = Math.max(0, Math.floor(Number(atk?.npcAoeRadiusM) || 0));
+    const hasAoe = aoeRad >= 2;
+    const burstMeleeAoE = !isRanged && hasAoe;
+    const rangedZone = isRanged && hasAoe;
+    return {
+        isRanged,
+        reachM,
+        rangedMinM,
+        rangedMaxM,
+        rangeM: isRanged ? rangedMaxM : reachM,
+        hasAoe,
+        aoeRad: hasAoe ? aoeRad : 0,
+        aoeShape: hasAoe ? 'radius' : 'none',
+        burstMeleeAoE,
+        rangedZone,
+        tags: isRanged ? ['attack', 'npc-attack', 'ranged'] : ['attack', 'npc-attack', 'melee'],
+    };
+}
+/** Apply live sheet targeting onto a radial option (call at click time). */
+export function applyNpcAttackTargetingToOption(option, atk) {
+    const t = resolveNpcAttackTargeting(atk);
+    return {
+        ...option,
+        range: t.rangeM,
+        meleeReachMeters: t.isRanged ? undefined : t.reachM,
+        rangeMinMeters: t.isRanged ? t.rangedMinM : undefined,
+        rangeMeters: t.rangeM,
+        aoeShape: t.aoeShape,
+        aoeRadiusMeters: t.hasAoe ? t.aoeRad : undefined,
+        // Explicit false so a stale true cannot survive a spread/merge.
+        burstMeleeAoE: t.burstMeleeAoE,
+        burstMeleeRadiusMeters: t.burstMeleeAoE ? t.aoeRad : undefined,
+        aoePlacementProfile: t.rangedZone ? 'hostile-zone' : undefined,
+        defaultTargetGroup: t.hasAoe ? 'enemy' : undefined,
+        allowManualTargetSelection: t.rangedZone ? true : undefined,
+        tags: t.tags,
+    };
+}
 /**
  * How many radial copies this power has (sheet dropdown 1–5; default 1).
  * Each copy is one Attack action in the radial menu.

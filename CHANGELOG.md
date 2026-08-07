@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.262] - 2026-08-07
+
+### Fixed
+
+- **NPC Melee AoE always opening**: targeting is now persisted by replacing the whole attack row / `phases` array (dot-path updates into phase attacks were sticky). Combat re-resolves Melee/Range + AoE from live actor data on select, so `—` / Range cannot still open Melee AoE. Louder `[MS NPC Targeting]` console logs.
+
 ## [0.9.261] - 2026-08-07
 
 ### Fixed

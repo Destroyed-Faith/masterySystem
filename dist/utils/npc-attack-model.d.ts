@@ -7,6 +7,26 @@ export declare function displayNpcSpecialName(raw: string): string;
 /** Effective attack row for display / damage (includes merged specials). */
 export declare function normalizeNpcAttackRow(attack: AttackValue): AttackValue;
 /**
+ * Canonical Melee/Range + AoE resolution for NPC attack rows.
+ * AoE is ON only when npcAoeRadiusM ≥ 2 (ignore leftover npcAoeShape).
+ */
+export type NpcAttackTargeting = {
+    isRanged: boolean;
+    reachM: number;
+    rangedMinM: number;
+    rangedMaxM: number;
+    rangeM: number;
+    hasAoe: boolean;
+    aoeRad: number;
+    aoeShape: 'none' | 'radius';
+    burstMeleeAoE: boolean;
+    rangedZone: boolean;
+    tags: string[];
+};
+export declare function resolveNpcAttackTargeting(atk: AttackValue | null | undefined): NpcAttackTargeting;
+/** Apply live sheet targeting onto a radial option (call at click time). */
+export declare function applyNpcAttackTargetingToOption<T extends Record<string, any>>(option: T, atk: AttackValue | null | undefined): T;
+/**
  * How many radial copies this power has (sheet dropdown 1–5; default 1).
  * Each copy is one Attack action in the radial menu.
  */

@@ -19,7 +19,8 @@ import {
   npcAttacksPerRoundCap,
   npcAttackUsageKey,
   npcDamageDiceFormula,
-  resolveNpcAttackList
+  resolveNpcAttackList,
+  resolveNpcAttackTargeting,
 } from '../utils/npc-attack-model.js';
 import { resolvePowerMechanics } from '../utils/power-mechanics.js';
 import { formatRadialPowerDisplayName } from './power-radial-label.js';
@@ -144,36 +145,20 @@ export function buildNpcAttackRadialOptions(actor: any): RadialCombatOption[] {
     const remaining = Math.max(0, maxCopies - used);
     if (remaining <= 0) return;
 
-    const rangeKind = String(atk?.npcRangeKind || '').toLowerCase();
-    const isRanged = rangeKind === 'ranged';
-    // Reach: 1–8 m (default 2). Ranged: max 12–24 m (default 24), min 12–24 (default 12).
-    const reachRaw = Math.floor(Number(atk?.npcRangeMeters));
-    const reachM = Number.isFinite(reachRaw) && reachRaw > 0 ? Math.min(8, Math.max(1, reachRaw)) : 2;
-    const maxRaw = Math.floor(Number(atk?.npcRangeMeters));
-    const minRaw = Math.floor(Number(atk?.npcRangeMinMeters));
-    const rangedMaxM =
-      Number.isFinite(maxRaw) && maxRaw > 0 ? Math.min(24, Math.max(12, maxRaw)) : 24;
-    let rangedMinM =
-      Number.isFinite(minRaw) && minRaw > 0 ? Math.min(24, Math.max(12, minRaw)) : 12;
-    if (rangedMinM > rangedMaxM) rangedMinM = rangedMaxM;
-    const rangeM = isRanged ? rangedMaxM : reachM;
-    // Radius ≥ 2 m is the only AoE gate. Ignore leftover npcAoeShape ('radius' etc.).
-    const rad = Math.max(0, Math.floor(Number(atk?.npcAoeRadiusM) || 0));
-    const hasAoe = rad >= 2;
-    const shape = hasAoe ? 'radius' : 'none';
-    const burstMelee = !isRanged && hasAoe;
-    const rangedZone = isRanged && hasAoe;
-    if (typeof console !== 'undefined' && console.debug) {
-      console.debug('[MS NPC Targeting] radial option', {
-        name: atk?.name,
-        npcRangeKind: isRanged ? 'ranged' : 'melee',
-        npcAoeRadiusM: rad,
-        storedShape: atk?.npcAoeShape,
-        resolvedShape: shape,
-        burstMeleeAoE: burstMelee,
-        rangedZone,
-      });
-    }
+    const targeting = resolveNpcAttackTargeting(atk);
+    console.log('[MS NPC Targeting] radial option', {
+      name: atk?.name,
+      phaseIndex,
+      attackIndex: index,
+      stored: {
+        npcRangeKind: atk?.npcRangeKind,
+        npcRangeMeters: atk?.npcRangeMeters,
+        npcRangeMinMeters: atk?.npcRangeMinMeters,
+        npcAoeRadiusM: atk?.npcAoeRadiusM,
+        npcAoeShape: atk?.npcAoeShape,
+      },
+      resolved: targeting,
+    });
     const baseName = (atk?.name && String(atk.name).trim()) || `Angriff ${index + 1}`;
     const description = buildNpcAttackDescription(atk);
 
@@ -184,17 +169,17 @@ export function buildNpcAttackRadialOptions(actor: any): RadialCombatOption[] {
         description,
         slot: 'attack' as CombatSlot,
         source: 'npc-attack' as const,
-        range: rangeM,
-        meleeReachMeters: isRanged ? undefined : reachM,
-        rangeMinMeters: isRanged ? rangedMinM : undefined,
-        rangeMeters: rangeM,
-        aoeShape: shape as any,
-        aoeRadiusMeters: shape !== 'none' ? rad : undefined,
-        burstMeleeAoE: burstMelee,
-        burstMeleeRadiusMeters: burstMelee ? rad : undefined,
-        aoePlacementProfile: rangedZone ? 'hostile-zone' : undefined,
-        defaultTargetGroup: shape !== 'none' ? 'enemy' : undefined,
-        allowManualTargetSelection: rangedZone ? true : undefined,
+        range: targeting.rangeM,
+        meleeReachMeters: targeting.isRanged ? undefined : targeting.reachM,
+        rangeMinMeters: targeting.isRanged ? targeting.rangedMinM : undefined,
+        rangeMeters: targeting.rangeM,
+        aoeShape: targeting.aoeShape as any,
+        aoeRadiusMeters: targeting.hasAoe ? targeting.aoeRad : undefined,
+        burstMeleeAoE: targeting.burstMeleeAoE,
+        burstMeleeRadiusMeters: targeting.burstMeleeAoE ? targeting.aoeRad : undefined,
+        aoePlacementProfile: targeting.rangedZone ? 'hostile-zone' : undefined,
+        defaultTargetGroup: targeting.hasAoe ? 'enemy' : undefined,
+        allowManualTargetSelection: targeting.rangedZone ? true : undefined,
         npcAttackIndex: index,
         npcPhaseIndex: phaseIndex,
         costsAction: true,
@@ -203,7 +188,7 @@ export function buildNpcAttackRadialOptions(actor: any): RadialCombatOption[] {
         npcIsSpell: !!atk?.npcIsSpell,
         npcAttacksPerRound: maxCopies,
         npcAttackUsageKey: usageKey,
-        tags: isRanged ? ['attack', 'npc-attack', 'ranged'] : ['attack', 'npc-attack', 'melee']
+        tags: targeting.tags,
       });
     }
   });

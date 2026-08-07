@@ -915,6 +915,47 @@ export async function handleChosenCombatOption(token: any, option: RadialCombatO
     return;
   }
   
+  // NPC attacks: always re-read live actor data at click time so sheet changes
+  // (Melee/Range, AoE —) win over stale radial option flags.
+  if (option.source === 'npc-attack') {
+    const { getNpcAttackByIndex, applyNpcAttackTargetingToOption, resolveNpcAttackTargeting } =
+      await import('./utils/npc-attack-model.js');
+    const row = getNpcAttackByIndex(
+      actor.system,
+      (option as any).npcAttackIndex ?? 0,
+      (option as any).npcPhaseIndex,
+    );
+    const before = {
+      burstMeleeAoE: option.burstMeleeAoE,
+      tags: option.tags,
+      aoeShape: option.aoeShape,
+      aoeRadiusMeters: option.aoeRadiusMeters,
+    };
+    option = applyNpcAttackTargetingToOption(option, row);
+    console.log('[MS NPC Targeting] live resolve on select', {
+      name: option.name,
+      npcAttackIndex: (option as any).npcAttackIndex,
+      npcPhaseIndex: (option as any).npcPhaseIndex,
+      storedRow: row
+        ? {
+            npcRangeKind: row.npcRangeKind,
+            npcRangeMeters: row.npcRangeMeters,
+            npcAoeRadiusM: row.npcAoeRadiusM,
+            npcAoeShape: row.npcAoeShape,
+          }
+        : null,
+      before,
+      after: resolveNpcAttackTargeting(row),
+      optionFlags: {
+        burstMeleeAoE: option.burstMeleeAoE,
+        tags: option.tags,
+        aoeShape: option.aoeShape,
+        aoeRadiusMeters: option.aoeRadiusMeters,
+        aoePlacementProfile: option.aoePlacementProfile,
+      },
+    });
+  }
+
   // Check if this is a melee attack option
   // NPC attacks: tagged melee / not ranged (Reach may be up to 8m).
   // Other attacks: range <= 4m (2m base + up to 2m reach) or unspecified.

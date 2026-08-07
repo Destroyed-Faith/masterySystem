@@ -49,6 +49,79 @@ export function normalizeNpcAttackRow(attack: AttackValue): AttackValue {
 }
 
 /**
+ * Canonical Melee/Range + AoE resolution for NPC attack rows.
+ * AoE is ON only when npcAoeRadiusM ≥ 2 (ignore leftover npcAoeShape).
+ */
+export type NpcAttackTargeting = {
+  isRanged: boolean;
+  reachM: number;
+  rangedMinM: number;
+  rangedMaxM: number;
+  rangeM: number;
+  hasAoe: boolean;
+  aoeRad: number;
+  aoeShape: 'none' | 'radius';
+  burstMeleeAoE: boolean;
+  rangedZone: boolean;
+  tags: string[];
+};
+
+export function resolveNpcAttackTargeting(atk: AttackValue | null | undefined): NpcAttackTargeting {
+  const rangeKind = String(atk?.npcRangeKind || '').toLowerCase();
+  const isRanged = rangeKind === 'ranged';
+  const metersRaw = Math.floor(Number(atk?.npcRangeMeters));
+  const reachM =
+    Number.isFinite(metersRaw) && metersRaw > 0 ? Math.min(8, Math.max(1, metersRaw)) : 2;
+  const rangedMaxM =
+    Number.isFinite(metersRaw) && metersRaw > 0 ? Math.min(24, Math.max(12, metersRaw)) : 24;
+  const minRaw = Math.floor(Number(atk?.npcRangeMinMeters));
+  let rangedMinM =
+    Number.isFinite(minRaw) && minRaw > 0 ? Math.min(24, Math.max(12, minRaw)) : 12;
+  if (rangedMinM > rangedMaxM) rangedMinM = rangedMaxM;
+  const aoeRad = Math.max(0, Math.floor(Number(atk?.npcAoeRadiusM) || 0));
+  const hasAoe = aoeRad >= 2;
+  const burstMeleeAoE = !isRanged && hasAoe;
+  const rangedZone = isRanged && hasAoe;
+  return {
+    isRanged,
+    reachM,
+    rangedMinM,
+    rangedMaxM,
+    rangeM: isRanged ? rangedMaxM : reachM,
+    hasAoe,
+    aoeRad: hasAoe ? aoeRad : 0,
+    aoeShape: hasAoe ? 'radius' : 'none',
+    burstMeleeAoE,
+    rangedZone,
+    tags: isRanged ? ['attack', 'npc-attack', 'ranged'] : ['attack', 'npc-attack', 'melee'],
+  };
+}
+
+/** Apply live sheet targeting onto a radial option (call at click time). */
+export function applyNpcAttackTargetingToOption<T extends Record<string, any>>(
+  option: T,
+  atk: AttackValue | null | undefined,
+): T {
+  const t = resolveNpcAttackTargeting(atk);
+  return {
+    ...option,
+    range: t.rangeM,
+    meleeReachMeters: t.isRanged ? undefined : t.reachM,
+    rangeMinMeters: t.isRanged ? t.rangedMinM : undefined,
+    rangeMeters: t.rangeM,
+    aoeShape: t.aoeShape,
+    aoeRadiusMeters: t.hasAoe ? t.aoeRad : undefined,
+    // Explicit false so a stale true cannot survive a spread/merge.
+    burstMeleeAoE: t.burstMeleeAoE,
+    burstMeleeRadiusMeters: t.burstMeleeAoE ? t.aoeRad : undefined,
+    aoePlacementProfile: t.rangedZone ? 'hostile-zone' : undefined,
+    defaultTargetGroup: t.hasAoe ? 'enemy' : undefined,
+    allowManualTargetSelection: t.rangedZone ? true : undefined,
+    tags: t.tags,
+  };
+}
+
+/**
  * How many radial copies this power has (sheet dropdown 1–5; default 1).
  * Each copy is one Attack action in the radial menu.
  */

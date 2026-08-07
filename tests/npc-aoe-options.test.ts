@@ -1,6 +1,54 @@
 import { describe, expect, it } from 'vitest';
 
 import { buildNpcAttackRadialOptions } from '../src/radial-menu/options.js';
+import {
+  applyNpcAttackTargetingToOption,
+  resolveNpcAttackTargeting,
+} from '../src/utils/npc-attack-model.js';
+
+describe('resolveNpcAttackTargeting', () => {
+  it('ignores leftover shape when radius is off', () => {
+    const t = resolveNpcAttackTargeting({
+      npcAoeShape: 'radius',
+      npcAoeRadiusM: 0,
+      npcRangeKind: 'melee',
+    } as any);
+    expect(t.hasAoe).toBe(false);
+    expect(t.burstMeleeAoE).toBe(false);
+    expect(t.aoeShape).toBe('none');
+  });
+
+  it('Range + AoE is zone placement, not melee burst', () => {
+    const t = resolveNpcAttackTargeting({
+      npcRangeKind: 'ranged',
+      npcRangeMeters: 24,
+      npcRangeMinMeters: 12,
+      npcAoeRadiusM: 2,
+      npcAoeShape: 'none',
+    } as any);
+    expect(t.isRanged).toBe(true);
+    expect(t.hasAoe).toBe(true);
+    expect(t.burstMeleeAoE).toBe(false);
+    expect(t.rangedZone).toBe(true);
+  });
+
+  it('live apply clears stale burstMeleeAoE on the option', () => {
+    const option = applyNpcAttackTargetingToOption(
+      {
+        source: 'npc-attack',
+        burstMeleeAoE: true,
+        burstMeleeRadiusMeters: 4,
+        tags: ['attack', 'npc-attack', 'melee'],
+        aoeShape: 'radius',
+        aoeRadiusMeters: 4,
+      },
+      { npcRangeKind: 'melee', npcAoeRadiusM: 0, npcAoeShape: 'radius' } as any,
+    );
+    expect(option.burstMeleeAoE).toBe(false);
+    expect(option.aoeShape).toBe('none');
+    expect(option.tags).toContain('melee');
+  });
+});
 
 describe('NPC AoE radial options', () => {
   it('treats radius ≥ 2 as AoE even when shape is empty/stale-off', () => {
