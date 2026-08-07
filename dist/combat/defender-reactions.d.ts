@@ -53,9 +53,29 @@ export declare function evaluateReactionEvadeNegation(baseEvade: number, bonus: 
  *     in the same once-per-round bookkeeping.
  */
 export declare function getEligibleReactionPowers(defender: Actor, combat: Combat | null): any[];
+/** Ally-protection reactions (help another creature in range). */
+export declare function isAllyReactionPower(item: any): boolean;
+export interface ReactionWindowActorEntry {
+    actor: Actor;
+    name: string;
+    remaining: number;
+    total: number;
+    powers: any[];
+    role: 'defender' | 'ally';
+    distanceM: number | null;
+}
 /**
- * After phasing: offer reaction spend + power selection for this hit.
- * No-op when user cannot prompt for defender, no reactions left, or no eligible powers.
+ * Defender + nearby allies who still have a Reaction and at least one eligible power
+ * for this damage window (defender: own reactions; allies: Ally-* reactions only).
+ */
+export declare function collectReactionWindowEntries(params: {
+    defender: Actor;
+    attacker: Actor | null;
+    combat: Combat;
+}): ReactionWindowActorEntry[];
+/**
+ * After phasing: announce the public Reaction Window in chat, then offer the
+ * defender's spend dialog (owner/GM only).
  */
 export declare function promptDefenderReactionsBeforeMitigation(params: {
     defender: Actor;

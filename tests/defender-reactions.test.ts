@@ -24,9 +24,18 @@ vi.mock('../src/radial-menu/artifact-options.js', () => ({
   buildArtifactReactionOptions: () => [],
 }));
 
-import { getEligibleReactionPowers } from '../src/combat/defender-reactions.js';
+import {
+  getEligibleReactionPowers,
+  isAllyReactionPower,
+} from '../src/combat/defender-reactions.js';
 
 describe('defender-reactions', () => {
+  it('isAllyReactionPower detects Ally templates', () => {
+    expect(isAllyReactionPower({ system: { templateId: 'reaction-ally-armor' } })).toBe(true);
+    expect(isAllyReactionPower({ system: { templateId: 'reaction-evade' } })).toBe(false);
+    expect(isAllyReactionPower({ name: 'Reaction: Ally Evade', system: {} })).toBe(true);
+  });
+
   it('getEligibleReactionPowers returns reaction items and omits phasing.reactionSingleHit', () => {
     const combat = { id: 'c1' } as any;
     const defender = {

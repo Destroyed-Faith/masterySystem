@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.269] - 2026-08-07
+
+### Added
+
+- **Reaction Window chat card** after damage (post-phasing): lists who can still react and which powers they have — the hit target plus allies within 4 m with Ally Reactions — so the table sees the window before the spend dialog.
+
 ## [0.9.268] - 2026-08-07
 
 ### Fixed

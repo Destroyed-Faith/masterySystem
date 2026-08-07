@@ -12,6 +12,8 @@
 import { getActionEconomyActor, getReactionActionsSummary, hasPowerBeenUsedThisRound, markPowerUsedThisRound, spendReactionAction, } from './action-economy.js';
 import { buildActorMechanicsBreakdown, resolvePowerMechanics } from '../utils/power-mechanics.js';
 import { buildArtifactReactionOptions } from '../radial-menu/artifact-options.js';
+import { getPrimaryTokenForActor } from '../utils/mechanics-adjacency.js';
+import { distanceBetweenTokensMeters } from './threatened-ranged.js';
 /**
  * Reaction Evade vs a known attack total.
  * Hit rule is attack ≥ Evade, so the reaction negates only when
@@ -173,6 +175,142 @@ function formatPowerPreviewLine(item, baseEvade, attackTotal) {
     return `<li><strong>${name}</strong> — ${bits.join('; ')}</li>`;
 }
 const INITIATIVE_GAIN_TEMPLATE = 'reaction-initiative-gain';
+const ALLY_REACTION_RANGE_M = 4;
+/** Ally-protection reactions (help another creature in range). */
+export function isAllyReactionPower(item) {
+    const tid = String(item?.system?.templateId ?? '').toLowerCase();
+    if (tid.startsWith('reaction-ally-'))
+        return true;
+    const sub = String(item?.system?.subfamily ?? '').toLowerCase();
+    if (sub === 'ally')
+        return true;
+    const name = String(item?.name ?? '').toLowerCase();
+    return /\bally\b/.test(name);
+}
+function escHtml(s) {
+    return String(s)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+}
+function listReactionPowerNames(powers) {
+    if (!powers.length)
+        return '<em>none eligible</em>';
+    return powers
+        .map((p, i) => `<li>${i + 1}. <strong>${escHtml(String(p?.name ?? 'Reaction'))}</strong></li>`)
+        .join('');
+}
+/**
+ * Defender + nearby allies who still have a Reaction and at least one eligible power
+ * for this damage window (defender: own reactions; allies: Ally-* reactions only).
+ */
+export function collectReactionWindowEntries(params) {
+    const { defender, attacker, combat } = params;
+    const out = [];
+    const economyDef = defenderActorForEconomy(defender);
+    const defSummary = getReactionActionsSummary(economyDef, combat);
+    const defPowers = dedupeInitiativeGainReactions(getEligibleReactionPowers(economyDef, combat));
+    out.push({
+        actor: economyDef,
+        name: String(defender.name ?? 'Defender'),
+        remaining: defSummary.remaining,
+        total: defSummary.total,
+        powers: defPowers,
+        role: 'defender',
+        distanceM: 0,
+    });
+    try {
+        const defToken = getPrimaryTokenForActor(defender);
+        if (!defToken || typeof canvas === 'undefined')
+            return out;
+        const attackerId = attacker?.id ?? null;
+        const seenActorIds = new Set([
+            String(economyDef.id ?? ''),
+            String(defender.id ?? ''),
+        ]);
+        for (const token of canvas.tokens?.placeables ?? []) {
+            if (!token?.actor || token.id === defToken.id)
+                continue;
+            const other = token.actor;
+            const otherId = String(other.id ?? '');
+            if (!otherId || seenActorIds.has(otherId))
+                continue;
+            if (attackerId && otherId === String(attackerId))
+                continue;
+            const dd = defToken.document?.disposition ?? defToken.disposition;
+            const od = token.document?.disposition ?? token.disposition;
+            const HOSTILE = globalThis.CONST?.TOKEN_DISPOSITIONS?.HOSTILE ?? -1;
+            if (od === HOSTILE)
+                continue;
+            if (dd !== od)
+                continue;
+            const dist = distanceBetweenTokensMeters(defToken, token);
+            if (!Number.isFinite(dist) || dist > ALLY_REACTION_RANGE_M)
+                continue;
+            const economyAlly = defenderActorForEconomy(other);
+            const allyId = String(economyAlly.id ?? otherId);
+            if (seenActorIds.has(allyId))
+                continue;
+            seenActorIds.add(allyId);
+            seenActorIds.add(otherId);
+            const summary = getReactionActionsSummary(economyAlly, combat);
+            if (summary.remaining <= 0)
+                continue;
+            const allyPowers = getEligibleReactionPowers(economyAlly, combat).filter(isAllyReactionPower);
+            if (!allyPowers.length)
+                continue;
+            out.push({
+                actor: economyAlly,
+                name: String(other.name ?? 'Ally'),
+                remaining: summary.remaining,
+                total: summary.total,
+                powers: allyPowers,
+                role: 'ally',
+                distanceM: Math.round(dist * 10) / 10,
+            });
+        }
+    }
+    catch (err) {
+        console.warn('Mastery System | reaction window ally scan failed', err);
+    }
+    return out;
+}
+async function announceReactionWindow(params) {
+    const { defender, attacker, rawDamage, entries } = params;
+    const defName = escHtml(String(defender.name ?? 'Defender'));
+    const atkName = escHtml(String(attacker?.name ?? 'Attacker'));
+    const actionable = entries.filter((e) => e.remaining > 0 && e.powers.length > 0);
+    let body;
+    if (!actionable.length) {
+        const def = entries.find((e) => e.role === 'defender');
+        body = `<p>${def
+            ? def.remaining <= 0
+                ? `<strong>${defName}</strong> has <strong>no Reactions left</strong> this round (${def.total - def.remaining}/${def.total} used).`
+                : `<strong>${defName}</strong> has Reaction(s) left but <strong>no eligible reaction powers</strong>.`
+            : 'No one can react.'}</p>
+      <p>Nearby allies within ${ALLY_REACTION_RANGE_M} m: none with an Ally Reaction ready.</p>`;
+    }
+    else {
+        const blocks = actionable
+            .map((e) => {
+            const role = e.role === 'defender' ? 'target' : 'ally';
+            const dist = e.role === 'ally' && e.distanceM != null ? ` · ${e.distanceM} m` : '';
+            return `<div class="ms-reaction-window-actor" style="margin:0.45em 0;">
+          <div><strong>${escHtml(e.name)}</strong> <span style="opacity:0.85">(${role}${dist}) — Reactions ${e.remaining}/${e.total}</span></div>
+          <ol style="margin:0.2em 0 0 1.2em; padding:0;">${listReactionPowerNames(e.powers)}</ol>
+        </div>`;
+        })
+            .join('');
+        body = `<p>These characters can spend a <strong>Reaction</strong> now:</p>${blocks}
+      <p style="opacity:0.9; font-size:0.92em;"><em>Target: pick in the Reaction dialog. Allies with Ally Reactions: call it now before damage finishes.</em></p>`;
+    }
+    await postReactionChat(`<div class="mastery-reaction-window">
+      <strong>⚡ Reaction Window</strong>
+      <p><strong>${atkName}</strong> → <strong>${defName}</strong> (raw ${Math.max(0, Math.floor(rawDamage))} after phasing).</p>
+      ${body}
+    </div>`, defender);
+}
 /** Duplicate Initiative Gain sources do not stack — keep only the highest version. */
 function dedupeInitiativeGainReactions(powers) {
     const gainers = powers.filter((item) => {
@@ -202,8 +340,8 @@ function dedupeInitiativeGainReactions(powers) {
     });
 }
 /**
- * After phasing: offer reaction spend + power selection for this hit.
- * No-op when user cannot prompt for defender, no reactions left, or no eligible powers.
+ * After phasing: announce the public Reaction Window in chat, then offer the
+ * defender's spend dialog (owner/GM only).
  */
 export async function promptDefenderReactionsBeforeMitigation(params) {
     const empty = { reactionArmorFlat: 0, reactionDrPct: 0 };
@@ -211,19 +349,25 @@ export async function promptDefenderReactionsBeforeMitigation(params) {
     if (!defender || !combat)
         return empty;
     const economyDef = defenderActorForEconomy(defender);
+    const defName = String(defender.name ?? 'Defender');
+    const entries = collectReactionWindowEntries({ defender, attacker, combat });
+    // Always post a table-visible list so every player sees who can react.
+    try {
+        await announceReactionWindow({ defender, attacker, rawDamage, entries });
+    }
+    catch (err) {
+        console.warn('Mastery System | reaction window announce failed', err);
+    }
+    // Interactive spend dialog only for owner / GM on this client.
     if (!userMayPromptForActor(economyDef))
         return empty;
     const summary = getReactionActionsSummary(economyDef, combat);
-    const defName = String(defender.name ?? 'Defender');
-    if (summary.remaining <= 0) {
-        await postReactionChat(`<strong>${defName}</strong> has <strong>no Reactions</strong> left this round (${summary.used}/${summary.total} used).`, defender);
+    if (summary.remaining <= 0)
         return empty;
-    }
-    const powers = dedupeInitiativeGainReactions(getEligibleReactionPowers(economyDef, combat));
-    if (!powers.length) {
-        await postReactionChat(`<strong>${defName}</strong> has <strong>${summary.remaining}</strong> Reaction(s) left but <strong>no eligible reaction powers</strong> (equipped, not yet used this round).`, defender);
+    const powers = dedupeInitiativeGainReactions(entries.find((e) => e.role === 'defender')?.powers ??
+        getEligibleReactionPowers(economyDef, combat));
+    if (!powers.length)
         return empty;
-    }
     const Dialog = globalThis.Dialog;
     if (!Dialog)
         return empty;
