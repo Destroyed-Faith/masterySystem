@@ -81,7 +81,6 @@ export function applyNpcAttackTargetingToOption(option, atk) {
         rangeMeters: t.rangeM,
         aoeShape: t.aoeShape,
         aoeRadiusMeters: t.hasAoe ? t.aoeRad : undefined,
-        // Explicit false so a stale true cannot survive a spread/merge.
         burstMeleeAoE: t.burstMeleeAoE,
         burstMeleeRadiusMeters: t.burstMeleeAoE ? t.aoeRad : undefined,
         aoePlacementProfile: t.rangedZone ? 'hostile-zone' : undefined,
@@ -89,6 +88,87 @@ export function applyNpcAttackTargetingToOption(option, atk) {
         allowManualTargetSelection: t.rangedZone ? true : undefined,
         tags: t.tags,
     };
+}
+/**
+ * Normalize one attack row's targeting fields for persistence.
+ * Radius &lt; 2 ⇒ no AoE (`npcAoeShape: 'none'`). Shape is always derived.
+ */
+export function sanitizeNpcAttackTargetingFields(row) {
+    if (!row || typeof row !== 'object')
+        return row;
+    const out = { ...row };
+    const isRanged = String(out.npcRangeKind || '').toLowerCase() === 'ranged';
+    out.npcRangeKind = isRanged ? 'ranged' : 'melee';
+    const metersRaw = Math.floor(Number(out.npcRangeMeters));
+    if (isRanged) {
+        const maxM = Number.isFinite(metersRaw) && metersRaw >= 12 ? Math.min(24, metersRaw) : 24;
+        let minM = Math.floor(Number(out.npcRangeMinMeters));
+        if (!Number.isFinite(minM) || minM < 12)
+            minM = 12;
+        minM = Math.min(24, Math.max(12, minM));
+        if (minM > maxM)
+            minM = maxM;
+        out.npcRangeMeters = maxM;
+        out.npcRangeMinMeters = minM;
+    }
+    else {
+        out.npcRangeMeters =
+            Number.isFinite(metersRaw) && metersRaw >= 1 && metersRaw <= 8 ? metersRaw : 2;
+        out.npcRangeMinMeters = 0;
+    }
+    const rad = Math.floor(Number(out.npcAoeRadiusM));
+    if (Number.isFinite(rad) && rad >= 2) {
+        out.npcAoeRadiusM = rad;
+        out.npcAoeShape = 'radius';
+    }
+    else {
+        out.npcAoeRadiusM = 0;
+        out.npcAoeShape = 'none';
+    }
+    return out;
+}
+function sanitizeAttackValuesList(raw) {
+    if (raw == null)
+        return raw;
+    const list = Array.isArray(raw)
+        ? raw
+        : raw && typeof raw === 'object'
+            ? coerceNpcPhasesArray(raw)
+            : null;
+    if (!list)
+        return raw;
+    return list.map((row) => row && typeof row === 'object' ? sanitizeNpcAttackTargetingFields(row) : row);
+}
+/**
+ * Sanitize all NPC attack targeting on a `system` blob (sheet submit / updates).
+ * Coerces object-shaped `phases` to a real array so combat and sheet share one shape.
+ */
+export function sanitizeNpcSystemAttackTargeting(system) {
+    if (!system || typeof system !== 'object')
+        return system;
+    const out = { ...system };
+    if (out.npcBaseAttack && typeof out.npcBaseAttack === 'object') {
+        out.npcBaseAttack = sanitizeNpcAttackTargetingFields(out.npcBaseAttack);
+    }
+    if (out.attackValues != null) {
+        out.attackValues = sanitizeAttackValuesList(out.attackValues);
+    }
+    const phases = coerceNpcPhasesArray(out.phases);
+    if (phases.length > 0 || (out.phases && typeof out.phases === 'object')) {
+        out.phases = phases.map((phase) => {
+            if (!phase || typeof phase !== 'object')
+                return phase;
+            const p = { ...phase };
+            if (p.npcBaseAttack && typeof p.npcBaseAttack === 'object') {
+                p.npcBaseAttack = sanitizeNpcAttackTargetingFields(p.npcBaseAttack);
+            }
+            if (p.attackValues != null) {
+                p.attackValues = sanitizeAttackValuesList(p.attackValues);
+            }
+            return p;
+        });
+    }
+    return out;
 }
 /**
  * How many radial copies this power has (sheet dropdown 1–5; default 1).

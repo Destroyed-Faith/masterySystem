@@ -9,7 +9,10 @@ import {
   getEffectBaseName,
   type EffectCategory,
 } from '../utils/special-effects.js';
-import { sumNpcAttackSlotsFromPowers } from '../utils/npc-attack-model.js';
+import {
+  sumNpcAttackSlotsFromPowers,
+  sanitizeNpcSystemAttackTargeting,
+} from '../utils/npc-attack-model.js';
 import { openNpcPrintSheet } from './npc-print.js';
 
 function dup<T>(obj: T): T {
@@ -336,8 +339,7 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
 
   /**
    * Hard-write NPC attack targeting by replacing the whole attack row / phases
-   * array (coercing object-shaped phases). Also mirrors into root npcBaseAttack
-   * when editing the active phase base, and stores flags as authoritative backup.
+   * array (coercing object-shaped phases). Mirrors active phase base → root.
    */
   async #persistNpcAttackTargeting(
     path: string,
@@ -347,7 +349,49 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
     if (!path || !this.actor) return;
     const actor = this.actor as any;
     const dup = <T>(v: T): T => JSON.parse(JSON.stringify(v)) as T;
-    const { coerceNpcPhasesArray, npcAttackUsageKey } = await import('../utils/npc-attack-model.js');
+    const {
+      coerceNpcPhasesArray,
+      npcAttackUsageKey,
+      sanitizeNpcAttackTargetingFields,
+    } = await import('../utils/npc-attack-model.js');
+    const {
+      logNpcTargeting,
+      logNpcTargetingRow,
+      logNpcAttackListDump,
+      logNpcActorTargetingCompare,
+      npcTargetingSnap,
+    } = await import('../utils/npc-targeting-debug.js');
+
+    const beforeRow = path.split('.').reduce((acc: any, key: string) => (acc == null ? acc : acc[key]), actor);
+    logNpcTargeting(`SHEET WRITE begin — ${reason}`, {
+      path,
+      patch,
+      actorId: actor.id,
+      actorName: actor.name,
+      isToken: !!actor.isToken,
+      phasesIsArray: Array.isArray(actor.system?.phases),
+      phasesType:
+        actor.system?.phases == null
+          ? 'null'
+          : Array.isArray(actor.system.phases)
+            ? 'array'
+            : typeof actor.system.phases,
+      activePhaseIndex: actor.system?.npcActivePhaseIndex,
+      beforeRow: npcTargetingSnap(beforeRow),
+      beforeRaw: beforeRow
+        ? {
+            npcRangeKind: beforeRow.npcRangeKind,
+            npcRangeMeters: beforeRow.npcRangeMeters,
+            npcRangeMinMeters: beforeRow.npcRangeMinMeters,
+            npcAoeRadiusM: beforeRow.npcAoeRadiusM,
+            npcAoeShape: beforeRow.npcAoeShape,
+          }
+        : null,
+    });
+    logNpcAttackListDump('SHEET WRITE before — combat-visible list', actor.system, {
+      actorId: actor.id,
+      isToken: !!actor.isToken,
+    });
 
     const phaseBase = /^system\.phases\.(\d+)\.npcBaseAttack$/.exec(path);
     const phaseExtra = /^system\.phases\.(\d+)\.attackValues\.(\d+)$/.exec(path);
@@ -360,14 +404,28 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
       const phases = dup(coerceNpcPhasesArray(actor.system?.phases));
       while (phases.length <= pi) phases.push({});
       const phase = { ...(phases[pi] || {}) };
-      phase.npcBaseAttack = { ...(phase.npcBaseAttack || {}), ...patch };
+      phase.npcBaseAttack = sanitizeNpcAttackTargetingFields({
+        ...(phase.npcBaseAttack || {}),
+        ...patch,
+      });
       phases[pi] = phase;
       update['system.phases'] = phases;
       usageKey = npcAttackUsageKey(pi, 0);
-      // Keep root in sync so combat never falls back to a stale root Melee AoE row.
       const activePi = Math.floor(Number(actor.system?.npcActivePhaseIndex) || 0);
       if (pi === activePi) {
-        update['system.npcBaseAttack'] = { ...(actor.system?.npcBaseAttack || {}), ...patch };
+        update['system.npcBaseAttack'] = sanitizeNpcAttackTargetingFields({
+          ...(actor.system?.npcBaseAttack || {}),
+          ...patch,
+        });
+        logNpcTargeting('SHEET WRITE also mirroring to system.npcBaseAttack (active phase)', {
+          pi,
+          activePi,
+        });
+      } else {
+        logNpcTargeting('SHEET WRITE NOT mirroring to root (edited phase ≠ active)', {
+          pi,
+          activePi,
+        });
       }
     } else if (phaseExtra) {
       const pi = Number(phaseExtra[1]);
@@ -379,7 +437,10 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
         ? [...phase.attackValues]
         : coerceNpcPhasesArray(phase.attackValues);
       while (attackValues.length <= ai) attackValues.push({});
-      attackValues[ai] = { ...(attackValues[ai] || {}), ...patch };
+      attackValues[ai] = sanitizeNpcAttackTargetingFields({
+        ...(attackValues[ai] || {}),
+        ...patch,
+      });
       phase.attackValues = attackValues;
       phases[pi] = phase;
       update['system.phases'] = phases;
@@ -399,7 +460,10 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
           : coerceNpcPhasesArray(actor.system?.attackValues),
       );
       while (attackValues.length <= ai) attackValues.push({});
-      attackValues[ai] = { ...(attackValues[ai] || {}), ...patch };
+      attackValues[ai] = sanitizeNpcAttackTargetingFields({
+        ...(attackValues[ai] || {}),
+        ...patch,
+      });
       update['system.attackValues'] = attackValues;
       {
         const base = actor.system?.npcBaseAttack || {};
@@ -410,95 +474,121 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
         usageKey = npcAttackUsageKey(null, hasBase ? ai + 1 : ai);
       }
     } else if (path === 'system.npcBaseAttack') {
-      update['system.npcBaseAttack'] = { ...(actor.system?.npcBaseAttack || {}), ...patch };
+      update['system.npcBaseAttack'] = sanitizeNpcAttackTargetingFields({
+        ...(actor.system?.npcBaseAttack || {}),
+        ...patch,
+      });
       usageKey = npcAttackUsageKey(null, 0);
     } else {
       for (const [key, value] of Object.entries(patch)) update[`${path}.${key}`] = value;
       usageKey = `npc-attack-path-${path}`;
     }
 
-    // Authoritative targeting backup — survives flaky nested system merges.
-    const targetingFlag = {
-      npcRangeKind: patch.npcRangeKind,
-      npcRangeMeters: patch.npcRangeMeters,
-      npcRangeMinMeters: patch.npcRangeMinMeters,
-      npcAoeRadiusM: patch.npcAoeRadiusM ?? 0,
-      npcAoeShape: patch.npcAoeShape ?? 'none',
-    };
-    const prevBag =
-      ((actor.getFlag?.('mastery-system', 'npcTargeting') as Record<string, unknown>) || {});
-    update['flags.mastery-system.npcTargeting'] = { ...prevBag, [usageKey]: targetingFlag };
-
-    console.log(`[MS NPC Targeting] ${reason}`, {
-      path,
-      patch,
+    logNpcTargeting(`SHEET WRITE payload — ${reason}`, {
       usageKey,
-      actorId: actor.id,
-      isToken: !!actor.isToken,
-      phasesIsArray: Array.isArray(actor.system?.phases),
       updateKeys: Object.keys(update),
+      updatePreview: {
+        npcBaseAttack: (update as any)['system.npcBaseAttack']
+          ? npcTargetingSnap((update as any)['system.npcBaseAttack'])
+          : undefined,
+        phases0Base: Array.isArray((update as any)['system.phases'])
+          ? npcTargetingSnap((update as any)['system.phases'][0]?.npcBaseAttack)
+          : undefined,
+      },
     });
 
-    // Update the sheet actor, and if this is the world actor also push into
-    // unlinked token actors so combat (token.actor) cannot keep stale AoE.
     const targets: any[] = [actor];
     if (!actor.isToken && typeof actor.getActiveTokens === 'function') {
       for (const tok of actor.getActiveTokens(true) || []) {
         if (tok?.actor && tok.actor !== actor && tok.document?.actorLink === false) {
           targets.push(tok.actor);
+          logNpcTargeting('SHEET WRITE will also update unlinked token actor', {
+            tokenId: tok.id,
+            tokenActorId: tok.actor.id,
+          });
         }
       }
     }
     if (actor.isToken) {
       const world = (globalThis as any).game?.actors?.get(actor.id);
-      if (world && world !== actor) targets.push(world);
+      if (world && world !== actor) {
+        targets.push(world);
+        logNpcTargeting('SHEET WRITE will also update world actor', { worldId: world.id });
+      }
     }
 
     for (const target of targets) {
       try {
-        await target.update(dup(update));
+        const result = await target.update(dup(update));
+        logNpcTargeting('SHEET WRITE update result', {
+          targetId: target.id,
+          isToken: !!target.isToken,
+          resultNull: result == null,
+        });
       } catch (err) {
-        console.warn('[MS NPC Targeting] update failed for', target?.id, err);
+        console.warn('[MS NPC Targeting] SHEET WRITE update failed for', target?.id, err);
       }
     }
 
     const row = path.split('.').reduce((acc: any, key: string) => (acc == null ? acc : acc[key]), actor);
-    const summary = `kind=${row?.npcRangeKind ?? '∅'} meters=${row?.npcRangeMeters ?? '∅'} aoe=${row?.npcAoeRadiusM ?? '∅'} shape=${row?.npcAoeShape ?? '∅'}`;
-    console.log(`[MS NPC Targeting] after update → ${summary}`, { path, usageKey, row });
+    logNpcTargetingRow('SHEET WRITE after — path row on sheet actor', row, { path, usageKey });
+    logNpcAttackListDump('SHEET WRITE after — combat-visible list on sheet actor', actor.system, {
+      actorId: actor.id,
+      isToken: !!actor.isToken,
+    });
+
+    const world = (globalThis as any).game?.actors?.get(actor.id);
+    const tokenActor =
+      actor.isToken
+        ? actor
+        : actor.getActiveTokens?.(true)?.[0]?.actor;
+    if (tokenActor || world) {
+      logNpcActorTargetingCompare('SHEET WRITE after — token vs world', tokenActor || actor, world);
+    }
   }
 
   /**
-   * Every form submit: force AoE off when radius &lt; 2, and coerce object-shaped
-   * phases back to a real array so combat and sheet share one source of truth.
+   * Sanitize targeting on every form submit so FormData cannot re-introduce
+   * stale AoE shape / wrong meters after a Melee↔Range switch.
    * @override
    */
-  async _onSubmitForm(formConfig: any, event: Event) {
-    try {
-      const form = (this as any).form as HTMLFormElement | undefined;
-      if (form) {
-        const radFields = form.querySelectorAll('[name$=".npcAoeRadiusM"]');
-        radFields.forEach((el) => {
-          const radEl = el as HTMLInputElement | HTMLSelectElement;
-          const name = String(radEl.name || '');
-          if (!name) return;
-          const rad = Math.floor(Number(radEl.value));
-          const base = name.replace(/\.npcAoeRadiusM$/, '');
-          const shapeInput = form.querySelector(`[name="${base}.npcAoeShape"]`) as
-            | HTMLInputElement
-            | HTMLSelectElement
-            | null;
-          if (!Number.isFinite(rad) || rad < 2) {
-            radEl.value = '0';
-            if (shapeInput) shapeInput.value = 'none';
-          } else if (shapeInput) {
-            shapeInput.value = 'radius';
-          }
-        });
-      }
-    } catch (err) {
-      console.warn('[MS NPC Targeting] submit sanitize failed', err);
+  _prepareSubmitData(event: any, form: any, formData: any, updateData?: any): any {
+    const data = super._prepareSubmitData(event, form, formData, updateData);
+    if (!data?.system) {
+      console.log('[MS NPC Targeting] FORM SUBMIT — no system in submit data', {
+        keys: data ? Object.keys(data) : null,
+      });
+      return data;
     }
-    return super._onSubmitForm(formConfig, event);
+    const beforeRoot = data.system.npcBaseAttack
+      ? {
+          kind: data.system.npcBaseAttack.npcRangeKind,
+          aoe: data.system.npcBaseAttack.npcAoeRadiusM,
+          shape: data.system.npcBaseAttack.npcAoeShape,
+        }
+      : null;
+    data.system = sanitizeNpcSystemAttackTargeting(data.system);
+    console.log('[MS NPC Targeting] FORM SUBMIT sanitized', {
+      actorId: this.actor?.id,
+      hasPhases: !!data.system.phases,
+      phasesIsArray: Array.isArray(data.system.phases),
+      beforeRoot,
+      afterRoot: data.system.npcBaseAttack
+        ? {
+            kind: data.system.npcBaseAttack.npcRangeKind,
+            aoe: data.system.npcBaseAttack.npcAoeRadiusM,
+            shape: data.system.npcBaseAttack.npcAoeShape,
+          }
+        : null,
+      afterPhase0: Array.isArray(data.system.phases)
+        ? {
+            kind: data.system.phases[0]?.npcBaseAttack?.npcRangeKind,
+            aoe: data.system.phases[0]?.npcBaseAttack?.npcAoeRadiusM,
+            shape: data.system.phases[0]?.npcBaseAttack?.npcAoeShape,
+          }
+        : null,
+    });
+    return data;
   }
 
   /** @override */

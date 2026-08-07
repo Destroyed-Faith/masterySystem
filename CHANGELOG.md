@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.264] - 2026-08-07
+
+### Changed
+
+- **NPC targeting debug**: verbose `[MS NPC Targeting]` logs on sheet write, form submit, radial build, and attack select — dumps combat-visible attack list, token vs world comparison, power items on the actor, and which branch (Melee AoE / single / Range) will run. Hard dialog blocks removed; live row re-read remains.
+
 ## [0.9.263] - 2026-08-07
 
 ### Fixed

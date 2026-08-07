@@ -5,7 +5,8 @@ import { getAvailableManeuvers } from '../system/combat-maneuvers.js';
 import { isManeuverHiddenFromActorRadial } from '../utils/radial-maneuver-prefs.js';
 import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
 import { getMovementRangeBonusMeters, getNpcAttackUsesThisRound, hasPowerBeenUsedThisRound, } from '../combat/action-economy.js';
-import { formatNpcAttackSpecialsLine, npcAttackDiceCount, npcAttacksPerRoundCap, npcAttackUsageKey, npcDamageDiceFormula, resolveNpcAttackList, resolveNpcAttackTargeting, mergeNpcAttackTargetingFlag, } from '../utils/npc-attack-model.js';
+import { formatNpcAttackSpecialsLine, npcAttackDiceCount, npcAttacksPerRoundCap, npcAttackUsageKey, npcDamageDiceFormula, resolveNpcAttackList, resolveNpcAttackTargeting, } from '../utils/npc-attack-model.js';
+import { logNpcAttackListDump, logNpcTargeting } from '../utils/npc-targeting-debug.js';
 import { resolvePowerMechanics } from '../utils/power-mechanics.js';
 import { formatRadialPowerDisplayName } from './power-radial-label.js';
 import { buildArtifactRadialOptions } from './artifact-options.js';
@@ -130,8 +131,15 @@ export function buildNpcAttackRadialOptions(actor) {
     if (!actor || actor.type !== 'npc')
         return [];
     const { attacks, phaseIndex } = resolveNpcAttackList(actor.system || {});
-    if (!attacks.length)
+    logNpcAttackListDump('RADIAL build', actor.system, {
+        actorId: actor.id,
+        actorName: actor.name,
+        isToken: !!actor.isToken,
+    });
+    if (!attacks.length) {
+        logNpcTargeting('RADIAL build — no attacks resolved');
         return [];
+    }
     const combat = globalThis.game?.combat ?? null;
     const out = [];
     attacks.forEach((atk, index) => {
@@ -141,22 +149,22 @@ export function buildNpcAttackRadialOptions(actor) {
         const remaining = Math.max(0, maxCopies - used);
         if (remaining <= 0)
             return;
-        const atkLive = mergeNpcAttackTargetingFlag(atk, actor, usageKey) ?? atk;
-        const targeting = resolveNpcAttackTargeting(atkLive);
-        console.log(`[MS NPC Targeting] radial option → burst=${targeting.burstMeleeAoE} ranged=${targeting.isRanged} aoe=${targeting.aoeRad}`, {
-            name: atkLive?.name,
+        const targeting = resolveNpcAttackTargeting(atk);
+        console.log(`[MS NPC Targeting] RADIAL option #${index} → burst=${targeting.burstMeleeAoE} ranged=${targeting.isRanged} aoe=${targeting.aoeRad}`, {
+            name: atk?.name,
             phaseIndex,
-            attackIndex: index,
             usageKey,
+            remaining,
             stored: {
-                npcRangeKind: atkLive?.npcRangeKind,
-                npcRangeMeters: atkLive?.npcRangeMeters,
-                npcAoeRadiusM: atkLive?.npcAoeRadiusM,
-                npcAoeShape: atkLive?.npcAoeShape,
+                npcRangeKind: atk?.npcRangeKind,
+                npcRangeMeters: atk?.npcRangeMeters,
+                npcAoeRadiusM: atk?.npcAoeRadiusM,
+                npcAoeShape: atk?.npcAoeShape,
             },
+            targeting,
         });
-        const baseName = (atkLive?.name && String(atkLive.name).trim()) || `Angriff ${index + 1}`;
-        const description = buildNpcAttackDescription(atkLive);
+        const baseName = (atk?.name && String(atk.name).trim()) || `Angriff ${index + 1}`;
+        const description = buildNpcAttackDescription(atk);
         for (let copy = 0; copy < remaining; copy++) {
             out.push({
                 id: `${usageKey}#${copy}`,
@@ -179,14 +187,34 @@ export function buildNpcAttackRadialOptions(actor) {
                 npcPhaseIndex: phaseIndex,
                 costsAction: true,
                 costsMovement: false,
-                npcSplitAttack: !!atkLive?.npcSplitAttack,
-                npcIsSpell: !!atkLive?.npcIsSpell,
+                npcSplitAttack: !!atk?.npcSplitAttack,
+                npcIsSpell: !!atk?.npcIsSpell,
                 npcAttacksPerRound: maxCopies,
                 npcAttackUsageKey: usageKey,
                 tags: targeting.tags,
             });
         }
     });
+    // Also list power items that can still produce Melee AoE independently of sheet rows.
+    try {
+        const powerItems = [...(actor.items || [])].filter((it) => it?.type === 'power');
+        if (powerItems.length) {
+            logNpcTargeting('RADIAL actor power items (separate from sheet attack rows)', {
+                count: powerItems.length,
+                powers: powerItems.map((it) => ({
+                    id: it.id,
+                    name: it.name,
+                    powerType: it.system?.powerType,
+                    range: it.system?.range,
+                    aoe: it.system?.aoe,
+                    showInRadialMenu: it.system?.showInRadialMenu,
+                })),
+            });
+        }
+    }
+    catch {
+        /* ignore */
+    }
     return out;
 }
 /**

@@ -27,6 +27,16 @@ export declare function resolveNpcAttackTargeting(atk: AttackValue | null | unde
 /** Apply live sheet targeting onto a radial option (call at click time). */
 export declare function applyNpcAttackTargetingToOption<T extends Record<string, any>>(option: T, atk: AttackValue | null | undefined): T;
 /**
+ * Normalize one attack row's targeting fields for persistence.
+ * Radius &lt; 2 ⇒ no AoE (`npcAoeShape: 'none'`). Shape is always derived.
+ */
+export declare function sanitizeNpcAttackTargetingFields<T extends Record<string, any>>(row: T): T;
+/**
+ * Sanitize all NPC attack targeting on a `system` blob (sheet submit / updates).
+ * Coerces object-shaped `phases` to a real array so combat and sheet share one shape.
+ */
+export declare function sanitizeNpcSystemAttackTargeting(system: any): any;
+/**
  * How many radial copies this power has (sheet dropdown 1–5; default 1).
  * Each copy is one Attack action in the radial menu.
  */

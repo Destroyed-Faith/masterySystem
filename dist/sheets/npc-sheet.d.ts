@@ -48,11 +48,11 @@ export declare class MasteryNpcSheet extends MasteryCharacterSheet {
     /** @override */
     _prepareContext(options?: any): Promise<any>;
     /**
-     * Every form submit: force AoE off when radius &lt; 2, and coerce object-shaped
-     * phases back to a real array so combat and sheet share one source of truth.
+     * Sanitize targeting on every form submit so FormData cannot re-introduce
+     * stale AoE shape / wrong meters after a Melee↔Range switch.
      * @override
      */
-    _onSubmitForm(formConfig: any, event: Event): Promise<any>;
+    _prepareSubmitData(event: any, form: any, formData: any, updateData?: any): any;
     /** @override */
     activateListeners(html: JQuery): void;
 }
