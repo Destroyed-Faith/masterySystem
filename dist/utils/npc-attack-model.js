@@ -49,7 +49,14 @@ export function resolveNpcAttackTargeting(atk) {
     const reachM = Number.isFinite(metersRaw) && metersRaw > 0 ? Math.min(8, Math.max(1, metersRaw)) : 2;
     const rangedMaxM = Number.isFinite(metersRaw) && metersRaw > 0 ? Math.min(24, Math.max(12, metersRaw)) : 24;
     const minRaw = Math.floor(Number(atk?.npcRangeMinMeters));
-    let rangedMinM = Number.isFinite(minRaw) && minRaw > 0 ? Math.min(24, Math.max(12, minRaw)) : 12;
+    // 0 = no minimum band; default when unset remains 12 m.
+    let rangedMinM = 12;
+    if (Number.isFinite(minRaw)) {
+        if (minRaw <= 0)
+            rangedMinM = 0;
+        else
+            rangedMinM = Math.min(24, Math.max(2, minRaw));
+    }
     if (rangedMinM > rangedMaxM)
         rangedMinM = rangedMaxM;
     const aoeRad = Math.max(0, Math.floor(Number(atk?.npcAoeRadiusM) || 0));
@@ -103,9 +110,11 @@ export function sanitizeNpcAttackTargetingFields(row) {
     if (isRanged) {
         const maxM = Number.isFinite(metersRaw) && metersRaw >= 12 ? Math.min(24, metersRaw) : 24;
         let minM = Math.floor(Number(out.npcRangeMinMeters));
-        if (!Number.isFinite(minM) || minM < 12)
+        // 0 = no minimum; otherwise clamp into 2–24 and never above max.
+        if (!Number.isFinite(minM) || minM < 0)
             minM = 12;
-        minM = Math.min(24, Math.max(12, minM));
+        if (minM > 0)
+            minM = Math.min(24, Math.max(2, minM));
         if (minM > maxM)
             minM = maxM;
         out.npcRangeMeters = maxM;

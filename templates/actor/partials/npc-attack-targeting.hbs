@@ -18,8 +18,9 @@
     {{#if (eq atk.npcRangeKind "ranged")}}
     <div class="npc-attack-field">
       <label>Min</label>
-      <select name="{{path}}.npcRangeMinMeters" data-dtype="Number" class="npc-range-min" title="Range minimum (m)">
-        {{#each (range 12 24)}}
+      <select name="{{path}}.npcRangeMinMeters" data-dtype="Number" class="npc-range-min" title="Range minimum (m). 0 = no minimum.">
+        <option value="0" {{#unless atk.npcRangeMinMeters}}selected{{/unless}}>0 m</option>
+        {{#each (range 2 24)}}
         <option value="{{this}}" {{#if (eqNum ../atk.npcRangeMinMeters this)}}selected{{/if}}>{{this}} m</option>
         {{/each}}
       </select>

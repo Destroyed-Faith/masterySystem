@@ -46,7 +46,6 @@ function normalizeNpcAttackRowForContext(row) {
         'attackDiceCount',
         'damageDiceCount',
         'npcRangeMeters',
-        'npcRangeMinMeters',
         'npcAoeRadiusM',
         'npcStressD8',
     ];
@@ -61,6 +60,20 @@ function normalizeNpcAttackRowForContext(row) {
             o[k] = n;
         else
             delete o[k];
+    }
+    // Min range may be 0 (= no minimum) — keep it for the select.
+    {
+        const raw = o.npcRangeMinMeters;
+        if (raw === '' || raw === null || raw === undefined) {
+            delete o.npcRangeMinMeters;
+        }
+        else {
+            const n = Math.floor(Number(raw));
+            if (Number.isFinite(n) && n >= 0)
+                o.npcRangeMinMeters = n;
+            else
+                delete o.npcRangeMinMeters;
+        }
     }
     if (o.npcSplitAttack === true || o.npcSplitAttack === 'true' || o.npcSplitAttack === 'on') {
         o.npcSplitAttack = true;
@@ -82,12 +95,17 @@ function normalizeNpcAttackRowForContext(row) {
     const rk = String(o.npcRangeKind || '').toLowerCase();
     if (rk === 'ranged') {
         o.npcRangeKind = 'ranged';
-        // Fernkampf: Min 12 / Max 24 (sheet defaults + clamps for display).
+        // Fernkampf: Max 12–24; Min 0 (none) or 2–24. Default min 12 when unset.
         const maxRaw = Math.floor(Number(o.npcRangeMeters));
         const minRaw = Math.floor(Number(o.npcRangeMinMeters));
-        // If the row was previously melee (e.g. 2 m), bump max up into the Fern band.
         const maxM = Number.isFinite(maxRaw) && maxRaw >= 12 ? Math.min(24, maxRaw) : 24;
-        let minM = Number.isFinite(minRaw) && minRaw > 0 ? Math.min(24, Math.max(12, minRaw)) : 12;
+        let minM = 12;
+        if (Number.isFinite(minRaw)) {
+            if (minRaw <= 0)
+                minM = 0;
+            else
+                minM = Math.min(24, Math.max(2, minRaw));
+        }
         if (minM > maxM)
             minM = maxM;
         o.npcRangeMeters = maxM;
@@ -560,6 +578,7 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
                 ? {
                     npcRangeKind: 'ranged',
                     npcRangeMeters: 24,
+                    // Default Fern band; set Min to 0 on the sheet if targets stand closer.
                     npcRangeMinMeters: 12,
                     npcAoeRadiusM: 0,
                     npcAoeShape: 'none',

@@ -42,9 +42,17 @@ function buildNpcAttackDescription(atk) {
     const hasAoe = aoeRad >= 2;
     if (isRanged) {
         const maxM = meters > 0 ? Math.min(24, Math.max(12, meters)) : 24;
-        const minRaw = Math.floor(Number(atk?.npcRangeMinMeters) || 0);
-        const minM = minRaw > 0 ? Math.min(24, Math.max(12, minRaw)) : 12;
-        parts.push(`Range ${Math.min(minM, maxM)}–${maxM} m`);
+        const minRaw = Math.floor(Number(atk?.npcRangeMinMeters));
+        let minM = 12;
+        if (Number.isFinite(minRaw)) {
+            if (minRaw <= 0)
+                minM = 0;
+            else
+                minM = Math.min(24, Math.max(2, minRaw));
+        }
+        if (minM > maxM)
+            minM = maxM;
+        parts.push(minM > 0 ? `Range ${minM}–${maxM} m` : `Range ≤${maxM} m`);
     }
     else {
         const reachM = meters > 0 ? Math.min(8, Math.max(1, meters)) : 2;

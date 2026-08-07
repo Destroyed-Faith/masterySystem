@@ -182,7 +182,15 @@ export function initializeTokenActionSelector() {
                 if (!ok)
                     return;
             }
+            console.log("[MS NPC Targeting] rangedTargetSelected → createRangedAttackCard", {
+                attacker: attackerToken.name,
+                target: targetToken.name,
+                option: option?.name,
+                range: option?.range,
+                rangeMinMeters: option?.rangeMinMeters,
+            });
             await createRangedAttackCard(attackerToken, targetToken, option);
+            console.log("[MS NPC Targeting] rangedTargetSelected → attack card created");
         }
         catch (e) {
             console.error("Mastery System | [TOKEN ACTION SELECTOR] rangedTargetSelected hook failed", e);

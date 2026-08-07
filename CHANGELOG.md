@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.265] - 2026-08-07
+
+### Fixed
+
+- **NPC Range targeting stall**: clicking a token outside the Min–Max band no longer silently cancels; shows why (too close / too far). Zero-target warning explains the 12 m minimum. Min can be set to **0 m**. Debug logs list nearby token distances and confirm when the attack card is created.
+
 ## [0.9.264] - 2026-08-07
 
 ### Changed
