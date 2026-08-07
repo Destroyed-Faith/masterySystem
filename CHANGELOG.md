@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.260] - 2026-08-07
+
+### Changed
+
+- Version bump for Foundry package refresh (includes 0.9.259 NPC Fernkampf / AoE clear fixes).
+
 ## [0.9.259] - 2026-08-07
 
 ### Fixed
