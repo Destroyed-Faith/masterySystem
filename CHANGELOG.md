@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.279] - 2026-08-08
+
+### Fixed
+
+- **Threatened Ranged Disadvantage text** on the attack card: no longer claims “keep one fewer die”. Combat Disadvantage means only **one** initial 8 may explode; pool size and Keep stay the same.
+
 ## [0.9.278] - 2026-08-08
 
 ### Fixed
