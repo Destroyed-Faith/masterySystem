@@ -12,6 +12,8 @@ vi.mock('../src/combat/action-economy.js', () => ({
 vi.mock('../src/utils/power-mechanics.js', () => ({
   resolvePowerMechanics: (item: any) => {
     if (item?.id === 'gs') return { phasing: { reactionSingleHit: true } };
+    if (item?.id === 'ev-power' || item?.basicReaction === 'evade') return { evade: 2 };
+    if (item?.id === 'guard-power' || item?.basicReaction === 'guard') return { armor: 2 };
     return { armor: 1 };
   },
   buildActorMechanicsBreakdown: () => ({
@@ -25,6 +27,7 @@ vi.mock('../src/radial-menu/artifact-options.js', () => ({
 }));
 
 import {
+  dedupeOverlappingBasicReactions,
   getEligibleReactionPowers,
   isAllyReactionPower,
 } from '../src/combat/defender-reactions.js';
@@ -53,6 +56,52 @@ describe('defender-reactions', () => {
       'basic-reaction-evade',
       'basic-reaction-guard',
       'r1',
+    ]);
+  });
+
+  it('dedupeOverlappingBasicReactions hides Basic Evade/Guard when a real power exists', () => {
+    const powers = [
+      {
+        id: 'ev-power',
+        name: 'Reaction: Evade',
+        system: { templateId: 'reaction-evade', powerType: 'reaction' },
+      },
+      {
+        id: 'guard-power',
+        name: 'Reaction: Armor',
+        system: { templateId: 'reaction-armor', powerType: 'reaction' },
+      },
+      { id: 'basic-reaction-evade', name: 'Evade', basicReaction: 'evade' },
+      { id: 'basic-reaction-guard', name: 'Guard', basicReaction: 'guard' },
+      { id: 'basic-reaction-counterattack', name: 'Counterattack', basicReaction: 'counterattack' },
+    ];
+    const deduped = dedupeOverlappingBasicReactions(powers);
+    expect(deduped.map((p: any) => p.id).sort()).toEqual([
+      'basic-reaction-counterattack',
+      'ev-power',
+      'guard-power',
+    ]);
+  });
+
+  it('getEligibleReactionPowers omits Basic Evade when Reaction: Evade is equipped', () => {
+    const combat = { id: 'c1' } as any;
+    const defender = {
+      system: { mastery: { rank: 2 } },
+      items: [
+        {
+          id: 'ev-power',
+          type: 'power',
+          name: 'Reaction: Evade',
+          system: { powerType: 'reaction', equipped: true, templateId: 'reaction-evade' },
+        },
+      ],
+    } as any;
+
+    const list = getEligibleReactionPowers(defender, combat);
+    expect(list.map((x: any) => x.id).sort()).toEqual([
+      'basic-reaction-counterattack',
+      'basic-reaction-guard',
+      'ev-power',
     ]);
   });
 });

@@ -15,7 +15,7 @@ import { resolvePowerMechanics } from '../utils/power-mechanics.js';
 import { buildArtifactReactionOptions } from '../radial-menu/artifact-options.js';
 import { getPrimaryTokenForActor } from '../utils/mechanics-adjacency.js';
 import { distanceBetweenTokensMeters } from './threatened-ranged.js';
-import { buildBasicReactionItems } from './basic-combat.js';
+import { buildBasicReactionItems, isBasicReactionItem } from './basic-combat.js';
 
 export interface DefenderReactionMitigation {
   /** Extra flat armor for this damage instance only. */
@@ -138,7 +138,40 @@ export function getEligibleReactionPowers(defender: Actor, combat: Combat | null
     console.warn('Mastery System | defender-reactions: basic reaction injection failed', err);
   }
 
-  return out;
+  return dedupeOverlappingBasicReactions(out);
+}
+
+/**
+ * If the actor already has a real Evade/Guard reaction power, hide the matching
+ * Basic Reaction so the window does not list "Reaction: Evade" and "Evade".
+ */
+export function dedupeOverlappingBasicReactions(powers: any[]): any[] {
+  if (!powers?.length) return powers ?? [];
+  const nonBasic = powers.filter((p) => !isBasicReactionItem(p));
+
+  const hasPowerEvade = nonBasic.some((p) => {
+    const mech = resolvePowerMechanics(p);
+    if ((Number(mech?.evade) || 0) > 0) return true;
+    const tid = String(p?.system?.templateId ?? '').toLowerCase();
+    if (tid.includes('evade') && !tid.includes('ally')) return true;
+    const name = String(p?.name ?? '').toLowerCase();
+    return /\bevade\b/.test(name) && !/\bally\b/.test(name);
+  });
+
+  const hasPowerGuard = nonBasic.some((p) => {
+    const tid = String(p?.system?.templateId ?? '').toLowerCase();
+    const name = String(p?.name ?? '').toLowerCase();
+    if (tid.includes('guard') || tid === 'reaction-armor' || tid.includes('pure-defense')) {
+      return true;
+    }
+    return /\bguard\b/.test(name) || /^reaction:\s*armor\b/.test(name);
+  });
+
+  return powers.filter((p) => {
+    if (p?.basicReaction === 'evade' && hasPowerEvade) return false;
+    if (p?.basicReaction === 'guard' && hasPowerGuard) return false;
+    return true;
+  });
 }
 
 const INITIATIVE_GAIN_TEMPLATE = 'reaction-initiative-gain';
@@ -282,7 +315,7 @@ export async function promptDefenderReactionsBeforeMitigation(params: {
   evadeTn?: number | null;
 }): Promise<DefenderReactionMitigation> {
   const { runInteractiveReactionWindow } = await import('./reaction-window-chat.js');
-  return runInteractiveReactionWindow({
+  const result = await runInteractiveReactionWindow({
     defender: params.defender,
     attacker: params.attacker,
     combat: params.combat,
@@ -290,5 +323,7 @@ export async function promptDefenderReactionsBeforeMitigation(params: {
     attackTotal: params.attackTotal ?? null,
     evadeTn: params.evadeTn ?? null,
     hit: true,
+    phase: 'defender',
   });
+  return result.mitigation;
 }

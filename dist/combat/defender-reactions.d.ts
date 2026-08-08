@@ -51,6 +51,11 @@ export declare function evaluateReactionEvadeNegation(baseEvade: number, bonus: 
  *     in the same once-per-round bookkeeping.
  */
 export declare function getEligibleReactionPowers(defender: Actor, combat: Combat | null): any[];
+/**
+ * If the actor already has a real Evade/Guard reaction power, hide the matching
+ * Basic Reaction so the window does not list "Reaction: Evade" and "Evade".
+ */
+export declare function dedupeOverlappingBasicReactions(powers: any[]): any[];
 /** Ally-protection reactions (help another creature in range). */
 export declare function isAllyReactionPower(item: any): boolean;
 export interface ReactionWindowActorEntry {

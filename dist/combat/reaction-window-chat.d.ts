@@ -1,15 +1,19 @@
 /**
  * Interactive Reaction Window — chat card with per-actor buttons.
  *
- * Flow:
- *  - Posted AFTER the damage roll chat (hit) or after the attack roll (miss).
- *  - Each eligible actor may spend exactly one Reaction for this event.
- *  - After a reaction is used, the card refreshes for remaining actors.
- *  - GM / owners can Continue to close the window (damage apply resumes).
+ * Two phases:
+ *  1. `defender` — direct target, right after the attack Roll (before damage).
+ *  2. `others` — allies / other reactors, after the damage roll is posted.
+ *
+ * Each actor may spend exactly one Reaction per event. After a reaction is used,
+ * the card refreshes for remaining actors. Continue closes the window.
  */
 import { type DefenderReactionMitigation } from './defender-reactions.js';
+/** Defender = target after attack roll; others = allies after damage roll. */
+export type ReactionWindowPhase = 'defender' | 'others';
 export interface ReactionWindowState {
     eventId: string;
+    phase: ReactionWindowPhase;
     attackerId: string;
     defenderId: string;
     defenderTokenId?: string | null;
@@ -17,7 +21,7 @@ export interface ReactionWindowState {
     evadeTn: number | null;
     rawDamage: number;
     hit: boolean;
-    /** Actor ids that already spent a reaction on this event. */
+    /** Actor ids that already spent a reaction on this event (shared across phases). */
     spentActorIds: string[];
     /** Log of used reactions for the card. */
     used: Array<{
@@ -32,9 +36,23 @@ export interface ReactionWindowState {
     /** Message id of the preceding damage chat (hit path), for optional updates. */
     damageMessageId?: string | null;
 }
+/** Result of a reaction phase (mitigation + who already spent). */
+export interface ReactionPhaseResult {
+    mitigation: DefenderReactionMitigation;
+    eventId: string;
+    spentActorIds: string[];
+    used: Array<{
+        actorId: string;
+        actorName: string;
+        powerId: string;
+        powerName: string;
+    }>;
+}
 /**
- * Post the interactive Reaction Window and wait until it is closed.
- * Call this AFTER the damage chat message on a hit (or after the attack roll on a miss).
+ * Post an interactive Reaction Window for one phase and wait until it is closed.
+ *
+ * - `defender`: call after the attack Roll (before damage dialog).
+ * - `others`: call after the damage roll chat is posted.
  */
 export declare function runInteractiveReactionWindow(params: {
     defender: Actor;
@@ -45,6 +63,18 @@ export declare function runInteractiveReactionWindow(params: {
     evadeTn?: number | null;
     hit: boolean;
     damageMessageId?: string | null;
-}): Promise<DefenderReactionMitigation>;
+    /** Defaults to `defender` for backward compatibility. */
+    phase?: ReactionWindowPhase;
+    /** Carry over from a prior phase of the same attack event. */
+    eventId?: string;
+    spentActorIds?: string[];
+    used?: ReactionWindowState['used'];
+    priorMitigation?: DefenderReactionMitigation;
+    /**
+     * When true and nobody can act, skip posting a chat card (used for ally phase).
+     * Defender phase still posts an info card so the table sees "no reactions left".
+     */
+    silentIfEmpty?: boolean;
+}): Promise<ReactionPhaseResult>;
 export declare function registerReactionWindowChatHandlers(): void;
 //# sourceMappingURL=reaction-window-chat.d.ts.map

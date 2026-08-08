@@ -153,6 +153,29 @@ export async function resolveAoeMeleeSecondaries(params: {
       }
     }
 
+    // Phase 1 — secondary target reacts before splash damage is rolled.
+    const combat = (game as any).combat ?? null;
+    const { runInteractiveReactionWindow } = await import('./reaction-window-chat.js');
+    const phase1 = await runInteractiveReactionWindow({
+      defender,
+      attacker,
+      combat,
+      rawDamage: 0,
+      attackTotal: params.attackTotal ?? null,
+      evadeTn: params.evadeTn ?? null,
+      hit: true,
+      phase: 'defender',
+    });
+
+    if (phase1.mitigation?.negatedByEvade) {
+      await ChatMessage.create({
+        user: (game as any).user?.id,
+        speaker: ChatMessage.getSpeaker({ actor: defender, token: tok?.document }),
+        content: `<p><strong>AoE secondary</strong> → <strong>${defender.name}</strong>: hit <strong>negated</strong> by Evade. No damage.</p>`,
+      } as any);
+      continue;
+    }
+
     // ── Hex / Sundered vulnerability (+1d8 per 2 points, rounded up) ─────
     const vulnId = isSpell ? 'hex' : 'sundered';
     const vulnValue = Math.max(0, getActiveSpecialValue(defender, vulnId));
@@ -178,11 +201,11 @@ export async function resolveAoeMeleeSecondaries(params: {
       ? ` + ${vulnDice}d8 ${isSpell ? 'Hex' : 'Sundered'}(${vulnValue})`
       : '';
 
-    // Post damage roll first, then Reaction Window, then apply HP.
+    // Post damage roll, then apply HP with Phase-1 mitigation, then ally phase.
     const dmgMsg = await ChatMessage.create({
       user: (game as any).user?.id,
       speaker: ChatMessage.getSpeaker({ actor: attacker }),
-      content: `<p><strong>AoE secondary</strong> → <strong>${defender.name}</strong>: ${total} (${powerBonusDice}d8 power${vulnNote}) <em>— awaiting reactions…</em></p>`,
+      content: `<p><strong>AoE secondary</strong> → <strong>${defender.name}</strong>: ${total} (${powerBonusDice}d8 power${vulnNote}) <em>— applying…</em></p>`,
     } as any);
 
     let phasedOut = false;
@@ -198,28 +221,36 @@ export async function resolveAoeMeleeSecondaries(params: {
     if (phasedOut) {
       mitLine = `<p>Raw ${total} → Phased (ignored)</p>`;
     } else {
-      const combat = (game as any).combat ?? null;
-      const { runInteractiveReactionWindow } = await import('./reaction-window-chat.js');
-      const reactMit = await runInteractiveReactionWindow({
-        defender,
-        attacker,
-        combat,
-        rawDamage: total,
-        attackTotal: params.attackTotal ?? null,
-        evadeTn: params.evadeTn ?? null,
-        hit: true,
-        damageMessageId: dmgMsg?.id ?? null,
-      });
-
       const { applyDamageToTargetFromAoe } = await import('../dice/damage-dialog.js');
       const mit = await applyDamageToTargetFromAoe(defender, total, attacker, c8, {
         attackTotal: params.attackTotal ?? null,
         evadeTn: params.evadeTn ?? null,
-        reactionMitigation: reactMit,
+        reactionMitigation: phase1.mitigation,
         skipReactionPrompt: true,
         skipPhasing: true,
       });
       mitLine = mit?.breakdownLine ? `<p>${mit.breakdownLine}</p>` : '';
+
+      try {
+        await runInteractiveReactionWindow({
+          defender,
+          attacker,
+          combat,
+          rawDamage: total,
+          attackTotal: params.attackTotal ?? null,
+          evadeTn: params.evadeTn ?? null,
+          hit: true,
+          damageMessageId: dmgMsg?.id ?? null,
+          phase: 'others',
+          eventId: phase1.eventId,
+          spentActorIds: phase1.spentActorIds,
+          used: phase1.used,
+          priorMitigation: phase1.mitigation,
+          silentIfEmpty: true,
+        });
+      } catch (allyErr) {
+        console.warn('Mastery System | AoE secondary ally reaction window failed', allyErr);
+      }
     }
 
     try {

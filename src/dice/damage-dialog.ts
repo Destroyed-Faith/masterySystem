@@ -1416,9 +1416,9 @@ export async function applyDamageToTarget(
     try {
       let reactMit = attackContext?.reactionMitigation;
       if (!reactMit && !attackContext?.skipReactionPrompt) {
-        // Legacy / AoE fallback: interactive chat Reaction Window (blocking).
+        // Legacy fallback: defender phase only (primary path uses two-phase windows).
         const { runInteractiveReactionWindow } = await import('../combat/reaction-window-chat.js');
-        reactMit = await runInteractiveReactionWindow({
+        const phaseResult = await runInteractiveReactionWindow({
           defender: target as any,
           attacker: attacker as any,
           combat,
@@ -1426,7 +1426,9 @@ export async function applyDamageToTarget(
           attackTotal: attackContext?.attackTotal ?? null,
           evadeTn: attackContext?.evadeTn ?? null,
           hit: true,
+          phase: 'defender',
         });
+        reactMit = phaseResult.mitigation;
       }
       reactMit = reactMit ?? { reactionArmorFlat: 0, reactionDrPct: 0 };
       reactionArmorFlat = reactMit.reactionArmorFlat;

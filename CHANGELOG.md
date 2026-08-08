@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.277] - 2026-08-08
+
+### Changed
+
+- **Two Reaction Window phases**:
+  1. **Target** — right after the attack Roll, before the damage dialog. Only the direct target; Evade can negate the hit (no damage).
+  2. **Allies** — after the damage roll is posted and HP applied from Phase‑1 mitigation. Nearby allies get buttons; the card refreshes after each use until Continue / nobody left.
+- **Dedupe**: if a real Evade/Guard reaction power is equipped, the matching Basic Evade/Guard button is hidden (no more double Evade).
+
 ## [0.9.276] - 2026-08-08
 
 ### Fixed

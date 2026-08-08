@@ -1,11 +1,12 @@
 /**
  * Interactive Reaction Window — chat card with per-actor buttons.
  *
- * Flow:
- *  - Posted AFTER the damage roll chat (hit) or after the attack roll (miss).
- *  - Each eligible actor may spend exactly one Reaction for this event.
- *  - After a reaction is used, the card refreshes for remaining actors.
- *  - GM / owners can Continue to close the window (damage apply resumes).
+ * Two phases:
+ *  1. `defender` — direct target, right after the attack Roll (before damage).
+ *  2. `others` — allies / other reactors, after the damage roll is posted.
+ *
+ * Each actor may spend exactly one Reaction per event. After a reaction is used,
+ * the card refreshes for remaining actors. Continue closes the window.
  */
 
 import {
@@ -27,8 +28,12 @@ import { getPrimaryTokenForActor } from '../utils/mechanics-adjacency.js';
 
 const SOCKET_NAME = 'system.mastery-system';
 
+/** Defender = target after attack roll; others = allies after damage roll. */
+export type ReactionWindowPhase = 'defender' | 'others';
+
 export interface ReactionWindowState {
   eventId: string;
+  phase: ReactionWindowPhase;
   attackerId: string;
   defenderId: string;
   defenderTokenId?: string | null;
@@ -36,7 +41,7 @@ export interface ReactionWindowState {
   evadeTn: number | null;
   rawDamage: number;
   hit: boolean;
-  /** Actor ids that already spent a reaction on this event. */
+  /** Actor ids that already spent a reaction on this event (shared across phases). */
   spentActorIds: string[];
   /** Log of used reactions for the card. */
   used: Array<{ actorId: string; actorName: string; powerId: string; powerName: string }>;
@@ -45,6 +50,14 @@ export interface ReactionWindowState {
   resolved: boolean;
   /** Message id of the preceding damage chat (hit path), for optional updates. */
   damageMessageId?: string | null;
+}
+
+/** Result of a reaction phase (mitigation + who already spent). */
+export interface ReactionPhaseResult {
+  mitigation: DefenderReactionMitigation;
+  eventId: string;
+  spentActorIds: string[];
+  used: Array<{ actorId: string; actorName: string; powerId: string; powerName: string }>;
 }
 
 type PendingWaiter = {
@@ -97,12 +110,21 @@ function readState(message: any): ReactionWindowState | null {
   return st as ReactionWindowState;
 }
 
+function entriesForPhase(
+  entries: ReactionWindowActorEntry[],
+  phase: ReactionWindowPhase,
+): ReactionWindowActorEntry[] {
+  if (phase === 'defender') return entries.filter((e) => e.role === 'defender');
+  return entries.filter((e) => e.role === 'ally');
+}
+
 function filterEntriesForCard(
   entries: ReactionWindowActorEntry[],
   state: ReactionWindowState,
 ): ReactionWindowActorEntry[] {
   const spent = new Set(state.spentActorIds.map(String));
-  return entries
+  const phaseEntries = entriesForPhase(entries, state.phase ?? 'defender');
+  return phaseEntries
     .map((e) => {
       const id = String((e.actor as any)?.id ?? '');
       if (!id || spent.has(id)) {
@@ -113,10 +135,13 @@ function filterEntriesForCard(
       if (!state.hit) {
         powers = powers.filter((p) => p?.basicReaction !== 'guard');
       }
+      // Phase 1 is defensive window for the target — ally-only powers stay out.
+      if (state.phase === 'defender') {
+        powers = powers.filter((p) => !isAllyReactionPower(p));
+      }
       return { ...e, powers };
     })
     .filter((e) => {
-      // Keep spent actors out of the actionable list entirely.
       const id = String((e.actor as any)?.id ?? '');
       if (spent.has(id)) return false;
       return e.remaining > 0 && e.powers.length > 0;
@@ -129,10 +154,26 @@ function buildReactionWindowHtml(
   attackerName: string,
   defenderName: string,
 ): string {
+  const phase = state.phase ?? 'defender';
   const actionable = filterEntriesForCard(entries, state);
-  const hitLine = state.hit
-    ? `<p><strong>${escHtml(attackerName)}</strong> → <strong>${escHtml(defenderName)}</strong> (raw ${Math.max(0, Math.floor(state.rawDamage))} after phasing).</p>`
-    : `<p><strong>${escHtml(attackerName)}</strong> → <strong>${escHtml(defenderName)}</strong> — attack <strong>missed</strong>. Reactions are still available.</p>`;
+  const title =
+    phase === 'defender'
+      ? '⚡ Reaction Window — Target'
+      : '⚡ Reaction Window — Allies';
+
+  let hitLine: string;
+  if (phase === 'others') {
+    hitLine = state.hit
+      ? `<p><strong>${escHtml(attackerName)}</strong> → <strong>${escHtml(defenderName)}</strong> — damage rolled (${Math.max(0, Math.floor(state.rawDamage))}). Nearby allies may react.</p>`
+      : `<p><strong>${escHtml(attackerName)}</strong> → <strong>${escHtml(defenderName)}</strong> — nearby allies may react.</p>`;
+  } else if (state.hit) {
+    hitLine =
+      state.rawDamage > 0
+        ? `<p><strong>${escHtml(attackerName)}</strong> → <strong>${escHtml(defenderName)}</strong> (hit — react before damage).</p>`
+        : `<p><strong>${escHtml(attackerName)}</strong> → <strong>${escHtml(defenderName)}</strong> (hit — react before damage).</p>`;
+  } else {
+    hitLine = `<p><strong>${escHtml(attackerName)}</strong> → <strong>${escHtml(defenderName)}</strong> — attack <strong>missed</strong>. Target may still react.</p>`;
+  }
 
   const usedBlock =
     state.used.length > 0
@@ -153,28 +194,22 @@ function buildReactionWindowHtml(
   if (state.resolved) {
     body = `<p style="opacity:0.9;">Reaction window closed.</p>${usedBlock}`;
   } else if (!actionable.length) {
-    const def = entries.find((e) => e.role === 'defender');
-    const defId = def ? String((def.actor as any)?.id ?? '') : '';
-    const defSpent = defId && state.spentActorIds.map(String).includes(defId);
-    const allyNames = entries
-      .filter((e) => e.role === 'ally')
-      .map((e) => e.name)
-      .filter(Boolean);
-    body = `<p>${
-      defSpent
-        ? `<strong>${escHtml(defenderName)}</strong> already used a Reaction for this event.`
-        : def
-          ? def.remaining <= 0
-            ? `<strong>${escHtml(defenderName)}</strong> has <strong>no Reactions left</strong> this round (${def.total - def.remaining}/${def.total} used).`
-            : `<strong>${escHtml(defenderName)}</strong> has Reaction(s) left but <strong>no eligible reaction powers</strong>.`
-          : 'No one can react.'
-    }</p>
-      <p>Nearby allies within 4 m: ${
-        allyNames.length
-          ? allyNames.map((n) => escHtml(n)).join(', ')
-          : 'none with an Ally Reaction ready'
-      }.</p>
-      ${usedBlock}`;
+    if (phase === 'others') {
+      body = `<p>No nearby allies with an Ally Reaction ready.</p>${usedBlock}`;
+    } else {
+      const def = entries.find((e) => e.role === 'defender');
+      const defId = def ? String((def.actor as any)?.id ?? '') : '';
+      const defSpent = defId && state.spentActorIds.map(String).includes(defId);
+      body = `<p>${
+        defSpent
+          ? `<strong>${escHtml(defenderName)}</strong> already used a Reaction for this event.`
+          : def
+            ? def.remaining <= 0
+              ? `<strong>${escHtml(defenderName)}</strong> has <strong>no Reactions left</strong> this round (${def.total - def.remaining}/${def.total} used).`
+              : `<strong>${escHtml(defenderName)}</strong> has Reaction(s) left but <strong>no eligible reaction powers</strong>.`
+            : 'No one can react.'
+      }</p>${usedBlock}`;
+    }
   } else {
     const blocks = actionable
       .map((e) => {
@@ -208,8 +243,19 @@ function buildReactionWindowHtml(
         </div>`;
       })
       .join('');
-    body = `<p>Each character may use <strong>one</strong> Reaction for this event:</p>${blocks}${usedBlock}`;
+    const intro =
+      phase === 'defender'
+        ? `<p>The <strong>target</strong> may use <strong>one</strong> Reaction now (before damage):</p>`
+        : `<p>Each ally may use <strong>one</strong> Reaction for this event:</p>`;
+    body = `${intro}${blocks}${usedBlock}`;
   }
+
+  const continueHint =
+    phase === 'defender'
+      ? state.hit
+        ? 'Continue to the damage roll.'
+        : 'Close the window.'
+      : 'Close when everyone who wants to react has acted (optional).';
 
   const continueBtn = state.resolved
     ? ''
@@ -218,12 +264,12 @@ function buildReactionWindowHtml(
           <i class="fas fa-check"></i> Continue
         </button>
         <span class="ms-reaction-continue-hint" style="opacity:0.85;font-size:0.88em;margin-left:0.4em;">
-          Close the window${state.hit ? ' and apply damage' : ''}.
+          ${escHtml(continueHint)}
         </span>
       </div>`;
 
-  return `<div class="mastery-reaction-window" data-reaction-event="${escHtml(state.eventId)}">
-      <strong>⚡ Reaction Window</strong>
+  return `<div class="mastery-reaction-window" data-reaction-event="${escHtml(state.eventId)}" data-reaction-phase="${escHtml(phase)}">
+      <strong>${title}</strong>
       ${hitLine}
       ${body}
       ${continueBtn}
@@ -614,9 +660,20 @@ async function handleContinueClick(messageId: string): Promise<void> {
   await closeReactionWindow(messageId, state);
 }
 
+function emptyPhaseResult(eventId?: string): ReactionPhaseResult {
+  return {
+    mitigation: emptyMitigation(),
+    eventId: eventId || `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+    spentActorIds: [],
+    used: [],
+  };
+}
+
 /**
- * Post the interactive Reaction Window and wait until it is closed.
- * Call this AFTER the damage chat message on a hit (or after the attack roll on a miss).
+ * Post an interactive Reaction Window for one phase and wait until it is closed.
+ *
+ * - `defender`: call after the attack Roll (before damage dialog).
+ * - `others`: call after the damage roll chat is posted.
  */
 export async function runInteractiveReactionWindow(params: {
   defender: Actor;
@@ -627,15 +684,33 @@ export async function runInteractiveReactionWindow(params: {
   evadeTn?: number | null;
   hit: boolean;
   damageMessageId?: string | null;
-}): Promise<DefenderReactionMitigation> {
-  const empty = emptyMitigation();
+  /** Defaults to `defender` for backward compatibility. */
+  phase?: ReactionWindowPhase;
+  /** Carry over from a prior phase of the same attack event. */
+  eventId?: string;
+  spentActorIds?: string[];
+  used?: ReactionWindowState['used'];
+  priorMitigation?: DefenderReactionMitigation;
+  /**
+   * When true and nobody can act, skip posting a chat card (used for ally phase).
+   * Defender phase still posts an info card so the table sees "no reactions left".
+   */
+  silentIfEmpty?: boolean;
+}): Promise<ReactionPhaseResult> {
+  const phase: ReactionWindowPhase = params.phase ?? 'defender';
+  const empty = emptyPhaseResult(params.eventId);
+  empty.spentActorIds = [...(params.spentActorIds ?? [])];
+  empty.used = [...(params.used ?? [])];
+  empty.mitigation = params.priorMitigation ?? emptyMitigation();
+
   const { defender, attacker, combat, rawDamage, hit } = params;
   if (!defender || !combat) return empty;
 
   const defToken = getPrimaryTokenForActor(defender);
   const entries = collectReactionWindowEntries({ defender, attacker, combat });
   const state: ReactionWindowState = {
-    eventId: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+    eventId: params.eventId || empty.eventId,
+    phase,
     attackerId: String((attacker as any)?.id ?? ''),
     defenderId: String((defender as any)?.id ?? ''),
     defenderTokenId: defToken?.id ?? null,
@@ -649,16 +724,23 @@ export async function runInteractiveReactionWindow(params: {
         : null,
     rawDamage: Math.max(0, Math.floor(rawDamage)),
     hit,
-    spentActorIds: [],
-    used: [],
-    mitigation: empty,
+    spentActorIds: [...(params.spentActorIds ?? [])],
+    used: [...(params.used ?? [])],
+    mitigation: params.priorMitigation ?? emptyMitigation(),
     resolved: false,
     damageMessageId: params.damageMessageId ?? null,
   };
 
-  // Nothing to do — post info card (already closed) and return immediately.
   const actionable = filterEntriesForCard(entries, state);
   if (!actionable.length) {
+    if (params.silentIfEmpty || phase === 'others') {
+      return {
+        mitigation: state.mitigation,
+        eventId: state.eventId,
+        spentActorIds: state.spentActorIds,
+        used: state.used,
+      };
+    }
     state.resolved = true;
   }
 
@@ -675,7 +757,7 @@ export async function runInteractiveReactionWindow(params: {
     message = await g.ChatMessage?.create?.({
       user: g.game?.user?.id,
       speaker: g.ChatMessage?.getSpeaker?.({ actor: defender }),
-      content: `<p class="mastery-reaction-msg">${html}</p>`,
+      content: `<div class="mastery-reaction-msg">${html}</div>`,
       flags: {
         'mastery-system': {
           reactionWindow: state,
@@ -688,10 +770,30 @@ export async function runInteractiveReactionWindow(params: {
   }
 
   const messageId = String(message?.id ?? '');
-  if (!messageId || state.resolved) return empty;
+  if (!messageId || state.resolved) {
+    return {
+      mitigation: state.mitigation,
+      eventId: state.eventId,
+      spentActorIds: state.spentActorIds,
+      used: state.used,
+    };
+  }
 
-  return new Promise<DefenderReactionMitigation>((resolve) => {
-    pendingWaiters.set(messageId, { resolve, mitigation: empty });
+  return new Promise<ReactionPhaseResult>((resolve) => {
+    pendingWaiters.set(messageId, {
+      resolve: (mit) => {
+        // Re-read latest spent/used from the message when possible.
+        const msg = g.game?.messages?.get?.(messageId);
+        const latest = readState(msg) || state;
+        resolve({
+          mitigation: mit || latest.mitigation || emptyMitigation(),
+          eventId: latest.eventId || state.eventId,
+          spentActorIds: latest.spentActorIds || state.spentActorIds,
+          used: latest.used || state.used,
+        });
+      },
+      mitigation: state.mitigation,
+    });
   });
 }
 

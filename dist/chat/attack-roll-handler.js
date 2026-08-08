@@ -682,91 +682,146 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
                         updatedFlags.aoeMeleeWeapon === true ||
                         String(updatedFlags.aoeMeleeWeapon) === 'true';
                     const isAreaAttack = aoeWeapon || updatedFlags.tnKind === 'area';
-                    // Dive for Cover applies to EVERY creature in the area — the primary
-                    // target may spend its Reaction to escape before damage is rolled.
+                    // Phase 1 — direct target reacts immediately after the attack Roll,
+                    // before the damage dialog / damage roll.
+                    const combatForReactions = game.combat ?? null;
+                    const { runInteractiveReactionWindow } = await import('../combat/reaction-window-chat.js');
+                    const phase1 = await runInteractiveReactionWindow({
+                        defender: target,
+                        attacker: freshAttackerForDialog,
+                        combat: combatForReactions,
+                        rawDamage: 0,
+                        attackTotal: updatedFlags.attackTotal ?? null,
+                        evadeTn: normalTn,
+                        hit: true,
+                        phase: 'defender',
+                    });
+                    const primaryNegated = !!phase1.mitigation?.negatedByEvade;
                     let primaryEscaped = false;
-                    if (isAreaAttack) {
-                        const { promptDiveForCoverEscape } = await import('../combat/aoe-melee-resolution.js');
-                        const primaryTok = canvas?.tokens?.placeables?.find((t) => t?.id === updatedFlags.targetTokenId) ?? null;
-                        primaryEscaped = await promptDiveForCoverEscape(target, primaryTok);
-                    }
                     let damageResult = null;
-                    if (!primaryEscaped) {
-                        const { showDamageDialog } = await import('../dice/damage-dialog.js');
-                        damageResult = await showDamageDialog(freshAttackerForDialog, target, weaponId, updatedFlags.selectedPowerId || null, 0, updatedFlags);
-                    }
-                    if (damageResult) {
-                        // 1) Post damage rolls first (HP not applied yet when pendingApply).
-                        const dmgMsg = await rollAndDisplayDamage(damageResult, attacker, target, updatedFlags);
-                        if (damageResult.pendingApply) {
-                            const combat = game.combat ?? null;
-                            const attackCtx = damageResult.attackContext ?? {
-                                attackTotal: updatedFlags.attackTotal ?? null,
-                                evadeTn: updatedFlags.normalTn ??
-                                    updatedFlags.baseEvade ??
-                                    updatedFlags.targetEvade ??
-                                    null,
-                            };
-                            // Phasing before the Reaction Window (same order as before).
-                            let phasedOut = false;
-                            try {
-                                const { promptPhasingConsume, consumePhasingCharge } = await import('../combat/phasing.js');
-                                phasedOut = await promptPhasingConsume(target, {
-                                    attacker: freshAttackerForDialog,
-                                    rawDamage: damageResult.totalDamage,
-                                });
-                                if (phasedOut) {
-                                    await consumePhasingCharge(target);
-                                    const sheet = target.sheet;
-                                    if (sheet?.rendered)
-                                        sheet.render(false);
-                                    damageResult.mitigation = {
-                                        rawDamage: damageResult.totalDamage,
-                                        armorApplied: 0,
-                                        drPercent: 0,
-                                        mitigatedDamage: 0,
-                                        tempHPAbsorbed: 0,
-                                        barDamage: 0,
-                                        min8sUsed: false,
-                                        breakdownLine: `Raw ${damageResult.totalDamage} → Phased (ignored)`,
-                                        phased: true,
-                                    };
-                                }
-                            }
-                            catch (phaseErr) {
-                                console.debug?.('Mastery System | deferred phasing skipped', phaseErr);
-                            }
-                            if (!phasedOut) {
-                                const { runInteractiveReactionWindow } = await import('../combat/reaction-window-chat.js');
-                                const reactMit = await runInteractiveReactionWindow({
-                                    defender: target,
-                                    attacker: freshAttackerForDialog,
-                                    combat,
-                                    rawDamage: damageResult.totalDamage,
-                                    attackTotal: attackCtx.attackTotal ?? null,
-                                    evadeTn: attackCtx.evadeTn ?? null,
-                                    hit: true,
-                                    damageMessageId: dmgMsg?.id ?? null,
-                                });
-                                const { applyDamageToTarget } = await import('../dice/damage-dialog.js');
-                                damageResult.mitigation = await applyDamageToTarget(target, damageResult.totalDamage, freshAttackerForDialog, damageResult.count8s ?? 0, {
-                                    attackTotal: attackCtx.attackTotal ?? null,
-                                    evadeTn: attackCtx.evadeTn ?? null,
-                                    reactionMitigation: reactMit,
-                                    skipPhasing: true,
-                                    skipReactionPrompt: true,
-                                });
-                            }
-                            damageResult.pendingApply = false;
-                            if (dmgMsg?.id) {
-                                await updateDamageChatWithMitigation(String(dmgMsg.id), damageResult, target);
+                    if (primaryNegated) {
+                        try {
+                            const defName = String(target.name ?? 'Defender');
+                            const atkName = String(freshAttackerForDialog.name ?? 'Attacker');
+                            const ev = phase1.mitigation.reactionEvadeBonus ?? 0;
+                            const eff = phase1.mitigation.effectiveEvade;
+                            await globalThis.ChatMessage?.create?.({
+                                user: game.user?.id,
+                                speaker: globalThis.ChatMessage?.getSpeaker?.({ actor: target }),
+                                content: `<p class="mastery-reaction-msg"><strong>${atkName}</strong> → <strong>${defName}</strong>: hit <strong>negated</strong> by Evade${ev > 0 && eff != null ? ` (+${ev} → Evade ${eff})` : ''}. No damage.</p>`,
+                            });
+                            const iniGain = Math.max(0, Math.floor(Number(phase1.mitigation.initiativeGain) || 0));
+                            if (iniGain > 0 && combatForReactions) {
+                                const { applyMidCombatInitiativeGain } = await import('../combat/initiative-gain.js');
+                                await applyMidCombatInitiativeGain(combatForReactions, target, iniGain);
                             }
                         }
+                        catch (negErr) {
+                            console.warn('Mastery System | evade-negated follow-up failed', negErr);
+                        }
                     }
-                    // Secondaries are hit by the same Area-TN roll — resolve them even
-                    // when the primary dove out of the area. Only a cancelled damage
-                    // dialog (GM abort) skips them.
-                    if ((damageResult || primaryEscaped) &&
+                    else {
+                        // Dive for Cover applies to EVERY creature in the area — the primary
+                        // target may spend its Reaction to escape before damage is rolled.
+                        if (isAreaAttack) {
+                            const { promptDiveForCoverEscape } = await import('../combat/aoe-melee-resolution.js');
+                            const primaryTok = canvas?.tokens?.placeables?.find((t) => t?.id === updatedFlags.targetTokenId) ?? null;
+                            primaryEscaped = await promptDiveForCoverEscape(target, primaryTok);
+                        }
+                        if (!primaryEscaped) {
+                            const { showDamageDialog } = await import('../dice/damage-dialog.js');
+                            damageResult = await showDamageDialog(freshAttackerForDialog, target, weaponId, updatedFlags.selectedPowerId || null, 0, updatedFlags);
+                        }
+                        if (damageResult) {
+                            // Post damage rolls first (HP not applied yet when pendingApply).
+                            const dmgMsg = await rollAndDisplayDamage(damageResult, attacker, target, updatedFlags);
+                            if (damageResult.pendingApply) {
+                                const combat = combatForReactions;
+                                const attackCtx = damageResult.attackContext ?? {
+                                    attackTotal: updatedFlags.attackTotal ?? null,
+                                    evadeTn: updatedFlags.normalTn ??
+                                        updatedFlags.baseEvade ??
+                                        updatedFlags.targetEvade ??
+                                        null,
+                                };
+                                // Phasing after damage roll, before HP apply / ally reactions.
+                                let phasedOut = false;
+                                try {
+                                    const { promptPhasingConsume, consumePhasingCharge } = await import('../combat/phasing.js');
+                                    phasedOut = await promptPhasingConsume(target, {
+                                        attacker: freshAttackerForDialog,
+                                        rawDamage: damageResult.totalDamage,
+                                    });
+                                    if (phasedOut) {
+                                        await consumePhasingCharge(target);
+                                        const sheet = target.sheet;
+                                        if (sheet?.rendered)
+                                            sheet.render(false);
+                                        damageResult.mitigation = {
+                                            rawDamage: damageResult.totalDamage,
+                                            armorApplied: 0,
+                                            drPercent: 0,
+                                            mitigatedDamage: 0,
+                                            tempHPAbsorbed: 0,
+                                            barDamage: 0,
+                                            min8sUsed: false,
+                                            breakdownLine: `Raw ${damageResult.totalDamage} → Phased (ignored)`,
+                                            phased: true,
+                                        };
+                                    }
+                                }
+                                catch (phaseErr) {
+                                    console.debug?.('Mastery System | deferred phasing skipped', phaseErr);
+                                }
+                                if (!phasedOut) {
+                                    const { applyDamageToTarget } = await import('../dice/damage-dialog.js');
+                                    damageResult.mitigation = await applyDamageToTarget(target, damageResult.totalDamage, freshAttackerForDialog, damageResult.count8s ?? 0, {
+                                        attackTotal: attackCtx.attackTotal ?? null,
+                                        evadeTn: attackCtx.evadeTn ?? null,
+                                        reactionMitigation: phase1.mitigation,
+                                        skipPhasing: true,
+                                        skipReactionPrompt: true,
+                                    });
+                                }
+                                damageResult.pendingApply = false;
+                                if (dmgMsg?.id) {
+                                    await updateDamageChatWithMitigation(String(dmgMsg.id), damageResult, target);
+                                }
+                                // Phase 2 — nearby allies / other reactors (after damage).
+                                // Silent when nobody can act; refreshes after each button press.
+                                if (!phasedOut) {
+                                    try {
+                                        await runInteractiveReactionWindow({
+                                            defender: target,
+                                            attacker: freshAttackerForDialog,
+                                            combat,
+                                            rawDamage: damageResult.totalDamage,
+                                            attackTotal: attackCtx.attackTotal ?? null,
+                                            evadeTn: attackCtx.evadeTn ?? null,
+                                            hit: true,
+                                            damageMessageId: dmgMsg?.id ?? null,
+                                            phase: 'others',
+                                            eventId: phase1.eventId,
+                                            spentActorIds: phase1.spentActorIds,
+                                            used: phase1.used,
+                                            priorMitigation: phase1.mitigation,
+                                            silentIfEmpty: true,
+                                        });
+                                    }
+                                    catch (allyErr) {
+                                        console.warn('Mastery System | ally reaction window failed', allyErr);
+                                    }
+                                }
+                            }
+                        }
+                        else if (!primaryEscaped) {
+                            console.warn('Mastery System | [AFTER DAMAGE DIALOG] No damage result returned from showDamageDialog');
+                        }
+                    }
+                    // Secondaries share the Area-TN success — resolve even if the primary
+                    // Evaded or dove out. Skip only when the GM cancelled the primary dialog
+                    // without an escape/negate outcome (no confirmed area hit follow-through).
+                    if ((damageResult || primaryEscaped || primaryNegated) &&
                         aoeWeapon &&
                         aoeSecondaries.length > 0 &&
                         aoeDice > 0) {
@@ -782,13 +837,10 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
                             evadeTn: updatedFlags.normalTn ?? updatedFlags.baseEvade ?? null,
                         });
                     }
-                    if (!damageResult && !primaryEscaped) {
-                        console.warn('Mastery System | [AFTER DAMAGE DIALOG] No damage result returned from showDamageDialog');
-                    }
                 }
             }
             else {
-                // Miss — reaction entitlement still applies (opened when Roll was pressed).
+                // Miss — Phase 1 for the target only (no damage → no ally phase).
                 try {
                     let missTarget = null;
                     if (flags.targetTokenId) {
@@ -810,6 +862,7 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
                             attackTotal: Math.floor(Number(result?.total) || 0),
                             evadeTn: normalTn,
                             hit: false,
+                            phase: 'defender',
                         });
                     }
                 }
