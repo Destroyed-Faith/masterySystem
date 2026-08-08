@@ -46,6 +46,11 @@ export interface ReactionWindowState {
     opportunityEnemyTokenIds?: string[];
     /** Nested reaction-counterattack windows: hide Counterattack to avoid deep pauses. */
     suppressCounterattack?: boolean;
+    /**
+     * True when this chat card was replaced by a newer copy posted below
+     * (post-attack summary repost). Not a real close — waiters must not resolve.
+     */
+    superseded?: boolean;
 }
 /** Result of a reaction phase (mitigation + who already spent). */
 export interface ReactionPhaseResult {
@@ -63,7 +68,8 @@ export interface ReactionPhaseResult {
  * Post an interactive Reaction Window for one phase and wait until it is closed.
  *
  * - `defender`: call after the attack Roll (before damage dialog).
- * - `others`: call after the damage roll chat is posted.
+ * - `others` / `opportunity`: call after the attack fully resolves; each
+ *   Use/Decline reposts a fresh summary at the bottom of chat.
  */
 export declare function runInteractiveReactionWindow(params: {
     defender: Actor;

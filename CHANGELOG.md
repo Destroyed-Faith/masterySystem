@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.285] - 2026-08-08
+
+### Changed
+
+- **Post-attack Reaction summary**: after each Use / Decline, the remaining-reactions card is **copied to a new chat message at the bottom** (old card shows “moved below ↓”). No more scrolling up past OA cards to see who still needs to react.
+
 ## [0.9.284] - 2026-08-08
 
 ### Added

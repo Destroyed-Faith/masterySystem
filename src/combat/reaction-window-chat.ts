@@ -61,6 +61,11 @@ export interface ReactionWindowState {
   opportunityEnemyTokenIds?: string[];
   /** Nested reaction-counterattack windows: hide Counterattack to avoid deep pauses. */
   suppressCounterattack?: boolean;
+  /**
+   * True when this chat card was replaced by a newer copy posted below
+   * (post-attack summary repost). Not a real close — waiters must not resolve.
+   */
+  superseded?: boolean;
 }
 
 /** Result of a reaction phase (mitigation + who already spent). */
@@ -349,12 +354,32 @@ async function resolveActors(state: ReactionWindowState): Promise<{
   return { attacker, defender, combat };
 }
 
-async function refreshReactionCard(messageId: string, state: ReactionWindowState): Promise<void> {
+function buildSupersededReactionHtml(state: ReactionWindowState, remainingN: number): string {
+  const phase = state.phase ?? 'others';
+  const label =
+    phase === 'opportunity' ? 'Opportunity Attacks' : 'After attack — Reactions';
+  const rem =
+    remainingN > 0 ? `${remainingN} remaining` : 'updated';
+  return `<div class="mastery-reaction-window" data-reaction-event="${escHtml(state.eventId)}" data-reaction-phase="${escHtml(phase)}" data-reaction-superseded="1">
+      <strong>⚡ ${escHtml(label)}</strong>
+      <p style="opacity:0.85;margin:0.35em 0 0;">Summary moved below ↓ <em>(${escHtml(rem)})</em></p>
+    </div>`;
+}
+
+/**
+ * Refresh the reaction card. For post-attack phases (`others` / `opportunity`),
+ * posts a **new** chat message at the bottom (so the GM doesn't scroll) and
+ * supersedes the previous card. Returns the active message id.
+ */
+async function refreshReactionCard(
+  messageId: string,
+  state: ReactionWindowState,
+): Promise<string> {
   const g = globalThis as any;
   const message = g.game?.messages?.get?.(messageId);
-  if (!message) return;
+  if (!message) return messageId;
   const { attacker, defender, combat } = await resolveActors(state);
-  if (!defender || !combat) return;
+  if (!defender || !combat) return messageId;
 
   const entries = collectReactionWindowEntries({
     defender,
@@ -369,7 +394,60 @@ async function refreshReactionCard(messageId: string, state: ReactionWindowState
     String((defender as any)?.name ?? 'Defender'),
   );
 
-  const content = `<p class="mastery-reaction-msg">${html}</p>`;
+  const content = `<div class="mastery-reaction-msg">${html}</div>`;
+  const postAttack = state.phase === 'others' || state.phase === 'opportunity';
+  const shouldRepost = postAttack && !state.resolved && !state.superseded;
+
+  if (shouldRepost) {
+    const remainingN = filterEntriesForCard(entries, state).length;
+    const supersededState: ReactionWindowState = {
+      ...state,
+      resolved: true,
+      superseded: true,
+    };
+    try {
+      await message.update({
+        content: `<div class="mastery-reaction-msg">${buildSupersededReactionHtml(state, remainingN)}</div>`,
+        flags: {
+          'mastery-system': {
+            ...(message.flags?.['mastery-system'] || {}),
+            reactionWindow: supersededState,
+          },
+        },
+      });
+    } catch (err) {
+      console.warn('Mastery System | reaction window supersede failed', err);
+    }
+
+    try {
+      const newMsg = await g.ChatMessage?.create?.({
+        user: g.game?.user?.id,
+        speaker: g.ChatMessage?.getSpeaker?.({ actor: defender }),
+        content,
+        flags: {
+          'mastery-system': {
+            reactionWindow: { ...state, superseded: false },
+          },
+        },
+      });
+      const newId = String(newMsg?.id ?? '');
+      if (newId) {
+        const waiter = pendingWaiters.get(messageId);
+        if (waiter) {
+          pendingWaiters.delete(messageId);
+          pendingWaiters.set(newId, waiter);
+        }
+        if (busyReactionMessages.has(messageId)) {
+          busyReactionMessages.delete(messageId);
+          busyReactionMessages.add(newId);
+        }
+        return newId;
+      }
+    } catch (err) {
+      console.warn('Mastery System | reaction window repost failed', err);
+    }
+  }
+
   try {
     await message.update({
       content,
@@ -383,6 +461,7 @@ async function refreshReactionCard(messageId: string, state: ReactionWindowState
   } catch (err) {
     console.warn('Mastery System | reaction window refresh failed', err);
   }
+  return messageId;
 }
 
 function findPowerForActor(entry: ReactionWindowActorEntry | undefined, powerId: string): any | null {
@@ -752,8 +831,8 @@ async function handleUseClick(messageId: string, actorId: string, powerId: strin
     return;
   }
 
-  await refreshReactionCard(messageId, next);
-  const waiter = pendingWaiters.get(messageId);
+  const activeId = await refreshReactionCard(messageId, next);
+  const waiter = pendingWaiters.get(activeId);
   if (waiter) waiter.mitigation = next.mitigation || emptyMitigation();
 }
 
@@ -829,7 +908,8 @@ function emptyPhaseResult(eventId?: string): ReactionPhaseResult {
  * Post an interactive Reaction Window for one phase and wait until it is closed.
  *
  * - `defender`: call after the attack Roll (before damage dialog).
- * - `others`: call after the damage roll chat is posted.
+ * - `others` / `opportunity`: call after the attack fully resolves; each
+ *   Use/Decline reposts a fresh summary at the bottom of chat.
  */
 export async function runInteractiveReactionWindow(params: {
   defender: Actor;
@@ -1051,7 +1131,8 @@ export function registerReactionWindowChatHandlers(): void {
     Hooks.on('updateChatMessage', (message: any) => {
       try {
         const st = readState(message);
-        if (!st?.resolved) return;
+        // Superseded cards are replaced by a newer copy below — not a real close.
+        if (!st?.resolved || st.superseded) return;
         const id = String(message?.id ?? '');
         const waiter = pendingWaiters.get(id);
         if (!waiter) return;
