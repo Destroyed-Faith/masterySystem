@@ -54,14 +54,11 @@ async function resolveOpportunityEnemyTokenIds(
       flags?.npcIsSpell !== true);
 
   if (!applies || attackType === 'melee') {
-    console.log('[MS Threatened Ranged] resolveOpportunity — skip live rescan', {
-      attackType,
-      applies,
-      fromFlags,
-      threatenedRangedAppliesRule: flags?.threatenedRangedAppliesRule,
-      threatenedRanged: flags?.threatenedRanged,
-      debugReason: flags?.threatenedRangedDebugReason,
-    });
+    console.log(
+      `[MS Threatened Ranged] resolveOpportunity — skip live rescan attackType=${attackType} ` +
+        `applies=${applies} fromFlags=[${fromFlags.join(', ') || 'none'}] ` +
+        `cardReason=${flags?.threatenedRangedDebugReason ?? '∅'}`,
+    );
     return fromFlags;
   }
 
@@ -80,14 +77,11 @@ async function resolveOpportunityEnemyTokenIds(
     }
     const live = shooterTok ? findOpportunityEnemyTokenIds(shooterTok) : [];
     const merged = [...new Set([...fromFlags, ...live.map(String)])];
-    console.log('[MS Threatened Ranged] resolveOpportunity — flags ∪ live', {
-      fromFlags,
-      live,
-      merged,
-      shooterTokenId: shooterTok?.id,
-      shooterName: shooterTok?.name,
-      cardDebugReason: flags?.threatenedRangedDebugReason,
-    });
+    console.log(
+      `[MS Threatened Ranged] resolveOpportunity — shooter="${shooterTok?.name || '?'}" ` +
+        `fromFlags=[${fromFlags.join(', ') || 'none'}] live=[${live.join(', ') || 'none'}] ` +
+        `merged=[${merged.join(', ') || 'none'}] cardReason=${flags?.threatenedRangedDebugReason ?? '∅'}`,
+    );
     return merged;
   } catch (err) {
     console.warn('[MS Threatened Ranged] resolveOpportunity rescan failed', err);
@@ -865,6 +859,35 @@ export async function executeAttackRollFromCard(
           const { runInteractiveReactionWindow } = await import(
             '../combat/reaction-window-chat.js'
           );
+
+          // Threatened Ranged OA — immediately after the attack roll, before the
+          // target's defensive reactions / damage (Alaris, Fynn, …).
+          let eventCarry: string | undefined;
+          let spentCarry: string[] = [];
+          let usedCarry: Array<{
+            actorId: string;
+            actorName: string;
+            powerId: string;
+            powerName: string;
+          }> = [];
+          if (opportunityEnemyTokenIds.length > 0 && !suppressNestedCounterattack) {
+            const oaPhase = await runInteractiveReactionWindow({
+              defender: target as any,
+              attacker: freshAttackerForDialog as any,
+              combat: combatForReactions,
+              rawDamage: 0,
+              attackTotal: updatedFlags.attackTotal ?? null,
+              evadeTn: normalTn,
+              hit: true,
+              phase: 'opportunity',
+              opportunityEnemyTokenIds,
+              silentIfEmpty: true,
+            });
+            eventCarry = oaPhase.eventId;
+            spentCarry = oaPhase.spentActorIds;
+            usedCarry = oaPhase.used;
+          }
+
           const phase1 = await runInteractiveReactionWindow({
             defender: target as any,
             attacker: freshAttackerForDialog as any,
@@ -874,6 +897,9 @@ export async function executeAttackRollFromCard(
             evadeTn: normalTn,
             hit: true,
             phase: 'defender',
+            eventId: eventCarry,
+            spentActorIds: spentCarry,
+            used: usedCarry,
             suppressCounterattack: suppressNestedCounterattack,
           });
 
@@ -1009,6 +1035,7 @@ export async function executeAttackRollFromCard(
           // Runs after damage (or after Evade negate / Dive) so Alaris/Fynn etc.
           // get Opportunity Attack buttons even when nobody has Ally powers.
           try {
+            // Allies only here — Threatened Ranged OA already ran right after the roll.
             await runInteractiveReactionWindow({
               defender: target as any,
               attacker: freshAttackerForDialog as any,
@@ -1023,9 +1050,7 @@ export async function executeAttackRollFromCard(
               spentActorIds: phase1.spentActorIds,
               used: phase1.used,
               priorMitigation: phase1.mitigation,
-              opportunityEnemyTokenIds: suppressNestedCounterattack
-                ? []
-                : opportunityEnemyTokenIds,
+              opportunityEnemyTokenIds: [],
               suppressCounterattack: suppressNestedCounterattack,
               silentIfEmpty: true,
             });
@@ -1080,6 +1105,31 @@ export async function executeAttackRollFromCard(
               missFlags,
               missAttacker,
             );
+            let eventCarry: string | undefined;
+            let spentCarry: string[] = [];
+            let usedCarry: Array<{
+              actorId: string;
+              actorName: string;
+              powerId: string;
+              powerName: string;
+            }> = [];
+            if (opportunityEnemyTokenIds.length > 0 && !suppressNestedCounterattack) {
+              const oaPhase = await runInteractiveReactionWindow({
+                defender: missTarget,
+                attacker: missAttacker,
+                combat: (game as any).combat ?? null,
+                rawDamage: 0,
+                attackTotal: Math.floor(Number(result?.total) || 0),
+                evadeTn: normalTn,
+                hit: false,
+                phase: 'opportunity',
+                opportunityEnemyTokenIds,
+                silentIfEmpty: true,
+              });
+              eventCarry = oaPhase.eventId;
+              spentCarry = oaPhase.spentActorIds;
+              usedCarry = oaPhase.used;
+            }
             const phase1 = await runInteractiveReactionWindow({
               defender: missTarget,
               attacker: missAttacker,
@@ -1089,6 +1139,9 @@ export async function executeAttackRollFromCard(
               evadeTn: normalTn,
               hit: false,
               phase: 'defender',
+              eventId: eventCarry,
+              spentActorIds: spentCarry,
+              used: usedCarry,
               suppressCounterattack: suppressNestedCounterattack,
             });
             await runInteractiveReactionWindow({
@@ -1104,9 +1157,7 @@ export async function executeAttackRollFromCard(
               spentActorIds: phase1.spentActorIds,
               used: phase1.used,
               priorMitigation: phase1.mitigation,
-              opportunityEnemyTokenIds: suppressNestedCounterattack
-                ? []
-                : opportunityEnemyTokenIds,
+              opportunityEnemyTokenIds: [],
               suppressCounterattack: suppressNestedCounterattack,
               silentIfEmpty: true,
             });

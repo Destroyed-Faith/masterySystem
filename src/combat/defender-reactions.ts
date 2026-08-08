@@ -390,11 +390,14 @@ export function collectReactionWindowEntries(params: {
     oppDebug.push({ skip: 'no-opportunity-token-ids-on-event' });
   }
 
-  console.log('[MS Threatened Ranged] Phase-2/others opportunity build', {
-    oppIds,
-    oppDebug,
-    includedOpportunity: out.filter((e) => e.role === 'opportunity').map((e) => e.name),
-  });
+  const includedOpp = out.filter((e) => e.role === 'opportunity').map((e) => e.name);
+  console.log(
+    `[MS Threatened Ranged] Phase-2/others opportunity build ids=[${oppIds.join(', ') || 'none'}] ` +
+      `included=[${includedOpp.join(', ') || 'none'}]`,
+  );
+  for (const row of oppDebug) {
+    console.log(`[MS Threatened Ranged]   OA row: ${JSON.stringify(row)}`);
+  }
 
   return out;
 }

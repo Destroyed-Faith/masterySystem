@@ -40,7 +40,8 @@ export function distanceBetweenTokensMeters(a: any, b: any): number {
   if (grid && typeof grid.measurePath === "function") {
     try {
       const path = grid.measurePath([ac, bc], {});
-      return path.distance ?? path.total ?? 0;
+      const d = path.distance ?? path.total ?? 0;
+      if (Number.isFinite(d)) return d;
     } catch {
       // fall through
     }
@@ -54,9 +55,7 @@ export function distanceBetweenTokensMeters(a: any, b: any): number {
 
 /**
  * Approximate edge-to-edge distance in meters (centers minus half-widths).
- * Melee reach should care about touching/engaging, not only center-to-center —
- * two medium tokens on a 2 m grid are often ~2 m center and fail a strict
- * `dist <= 2` check when slightly diagonal.
+ * Melee reach should care about touching/engaging, not only center-to-center.
  */
 export function distanceBetweenTokenEdgesMeters(a: any, b: any): number {
   const center = distanceBetweenTokensMeters(a, b);
@@ -65,6 +64,55 @@ export function distanceBetweenTokenEdgesMeters(a: any, b: any): number {
   const halfA = (tokenSizeSquares(a) * unit) / 2;
   const halfB = (tokenSizeSquares(b) * unit) / 2;
   return Math.max(0, center - halfA - halfB);
+}
+
+/**
+ * Grid-neighbor fallback: true when tokens occupy adjacent squares (incl. diagonal),
+ * accounting for multi-square tokens. Used when meter math is noisy.
+ */
+export function tokensAreGridAdjacent(a: any, b: any): boolean {
+  try {
+    const grid = (globalThis as any).canvas?.grid;
+    const size = Number(grid?.size) || 100;
+    const ax = Number(a?.document?.x ?? a?.x);
+    const ay = Number(a?.document?.y ?? a?.y);
+    const bx = Number(b?.document?.x ?? b?.x);
+    const by = Number(b?.document?.y ?? b?.y);
+    if (![ax, ay, bx, by].every(Number.isFinite)) return false;
+
+    const aw = tokenSizeSquares(a);
+    const ah = Number(a?.document?.height ?? a?.height ?? aw) || aw;
+    const bw = tokenSizeSquares(b);
+    const bh = Number(b?.document?.height ?? b?.height ?? bw) || bw;
+
+    // Bounding boxes in grid squares (top-left based).
+    const aCol0 = Math.floor(ax / size);
+    const aRow0 = Math.floor(ay / size);
+    const bCol0 = Math.floor(bx / size);
+    const bRow0 = Math.floor(by / size);
+
+    // Expand to all occupied cells; adjacent if Chebyshev distance between any pair ≤ 1
+    // and not the same cell set overlapping as "same space only".
+    let minCheb = Infinity;
+    let overlap = false;
+    for (let ac = 0; ac < aw; ac++) {
+      for (let ar = 0; ar < ah; ar++) {
+        for (let bc = 0; bc < bw; bc++) {
+          for (let br = 0; br < bh; br++) {
+            const dc = Math.abs(aCol0 + ac - (bCol0 + bc));
+            const dr = Math.abs(aRow0 + ar - (bRow0 + br));
+            const cheb = Math.max(dc, dr);
+            if (cheb === 0) overlap = true;
+            if (cheb < minCheb) minCheb = cheb;
+          }
+        }
+      }
+    }
+    // Adjacent (1) or overlapping (0 — same space / grappling-adjacent).
+    return Number.isFinite(minCheb) && minCheb <= 1;
+  } catch {
+    return false;
+  }
 }
 
 function getEquippedWeapon(actor: any): any {
@@ -107,42 +155,67 @@ function tokenDisposition(token: any): number {
   return Number(token?.document?.disposition ?? token?.disposition ?? 0);
 }
 
-function tokenHasPlayerOwner(token: any): boolean {
-  return !!(
-    token?.actor?.hasPlayerOwner ||
-    token?.document?.hasPlayerOwner ||
-    token?.document?.isOwner
-  );
+/**
+ * True for player combatants (characters / player-owned tokens).
+ * Important: GM-controlled "Dummy" NPCs are often disposition FRIENDLY — we must
+ * still treat them as opposing PCs for Threatened Ranged.
+ */
+export function isPlayerCombatantToken(token: any): boolean {
+  const actor = token?.actor;
+  if (!actor) return false;
+  if (actor.type === 'character') return true;
+  if (actor.type === 'npc') return false;
+  if (actor.hasPlayerOwner === true || token?.document?.hasPlayerOwner === true) return true;
+
+  // Ownership map: any non-GM user with OWNER/OBSERVER linked as character.
+  try {
+    const ownership = actor.ownership ?? actor.permission;
+    const users = (globalThis as any).game?.users;
+    if (ownership && users) {
+      for (const [uid, level] of Object.entries(ownership)) {
+        if (uid === 'default') continue;
+        if (Number(level) < 1) continue;
+        const user = typeof users.get === 'function' ? users.get(uid) : null;
+        if (user && !user.isGM) return true;
+      }
+    }
+    // Assigned character actor for a player user.
+    if (typeof users?.contents !== 'undefined') {
+      for (const u of users) {
+        if (u?.isGM) continue;
+        if (u?.character?.id && u.character.id === actor.id) return true;
+      }
+    }
+  } catch {
+    /* ignore */
+  }
+  return false;
 }
 
 /**
- * True when `other` is treated as hostile to `attackerToken`.
- * Uses opposite dispositions first; falls back to player-owner XOR when
- * disposition is ambiguous (0 / SECRET), so NPC Dummy vs PC Alaris still counts.
+ * True when `other` opposes `attackerToken` for Threatened Ranged.
+ * PC ↔ NPC always counts, even when both tokens are marked Friendly.
  */
 export function tokenIsHostileTo(attackerToken: any, other: any): boolean {
   const HOSTILE = (globalThis as any).CONST?.TOKEN_DISPOSITIONS?.HOSTILE ?? -1;
   const FRIENDLY = (globalThis as any).CONST?.TOKEN_DISPOSITIONS?.FRIENDLY ?? 1;
-  const SECRET = (globalThis as any).CONST?.TOKEN_DISPOSITIONS?.SECRET ?? -2;
+
+  const aPC = isPlayerCombatantToken(attackerToken);
+  const oPC = isPlayerCombatantToken(other);
+  // Strongest signal: player character vs NPC (Dummy often set Friendly!).
+  if (aPC !== oPC) return true;
+
   const ad = tokenDisposition(attackerToken);
   const od = tokenDisposition(other);
 
-  // Clear opposite sides (FRIENDLY↔HOSTILE).
   if (ad * od < 0) return true;
   if (ad === FRIENDLY && od === HOSTILE) return true;
   if (ad === HOSTILE && od === FRIENDLY) return true;
 
-  // Same non-zero disposition → allies / same faction.
-  if (ad === od && ad !== 0 && ad !== SECRET) return false;
+  // Same clear disposition among same "side" (two NPCs, two PCs).
+  if (ad === od && ad !== 0) return false;
 
-  // Ambiguous disposition: PC-owned vs not PC-owned counts as opposing for this rule.
-  if (ad === 0 || od === 0 || ad === SECRET || od === SECRET) {
-    const aPlayer = tokenHasPlayerOwner(attackerToken);
-    const oPlayer = tokenHasPlayerOwner(other);
-    if (aPlayer !== oPlayer) return true;
-  }
-
-  return false;
+  return ad !== od;
 }
 
 /**
@@ -179,11 +252,12 @@ export interface ThreatScanRow {
   tokenId: string;
   name: string;
   disposition: number;
-  hasPlayerOwner: boolean;
+  isPlayerCombatant: boolean;
   hostile: boolean;
   centerDistM: number;
   edgeDistM: number;
   enemyReachM: number;
+  gridAdjacent: boolean;
   threatens: boolean;
   skipReason?: string;
 }
@@ -193,8 +267,10 @@ export function enemyThreatensRangedShooter(shooterToken: any, enemyToken: any):
   if (!enemyToken?.actor) return false;
   const edge = distanceBetweenTokenEdgesMeters(shooterToken, enemyToken);
   const enemyReach = getActorMeleeReachMeters(enemyToken.actor);
-  // Small epsilon for floating measurePath noise.
-  return edge <= enemyReach + 0.05;
+  if (edge <= enemyReach + 0.05) return true;
+  // Standard melee (2 m / 1 square): grid adjacency is enough.
+  if (enemyReach >= 2 - 0.01 && tokensAreGridAdjacent(shooterToken, enemyToken)) return true;
+  return false;
 }
 
 export function scanThreateningEnemies(shooterToken: any): {
@@ -206,22 +282,31 @@ export function scanThreateningEnemies(shooterToken: any): {
   const tokens = (globalThis as any).canvas?.tokens?.placeables ?? [];
   const shooterName = String(shooterToken?.name ?? shooterToken?.document?.name ?? 'shooter');
   const shooterDisp = tokenDisposition(shooterToken);
+  const shooterPC = isPlayerCombatantToken(shooterToken);
+  const placeableCount = Array.isArray(tokens) ? tokens.length : 0;
+
+  console.log(
+    `${LOG} scan start shooter="${shooterName}" id=${shooterToken?.id} disp=${shooterDisp} isPC=${shooterPC} placeables=${placeableCount}`,
+  );
 
   for (const t of tokens) {
     if (!t?.id || t.id === shooterToken.id) continue;
     const name = String(t.name ?? t.document?.name ?? t.id);
     const disposition = tokenDisposition(t);
-    const hasPlayerOwner = tokenHasPlayerOwner(t);
+    const isPC = isPlayerCombatantToken(t);
     if (!t.actor) {
+      const line = `${LOG}   skip "${name}" (${t.id}): no-actor disp=${disposition}`;
+      console.log(line);
       rows.push({
         tokenId: t.id,
         name,
         disposition,
-        hasPlayerOwner,
+        isPlayerCombatant: isPC,
         hostile: false,
         centerDistM: NaN,
         edgeDistM: NaN,
         enemyReachM: 0,
+        gridAdjacent: false,
         threatens: false,
         skipReason: 'no-actor',
       });
@@ -232,40 +317,47 @@ export function scanThreateningEnemies(shooterToken: any): {
     const centerDistM = distanceBetweenTokensMeters(shooterToken, t);
     const edgeDistM = distanceBetweenTokenEdgesMeters(shooterToken, t);
     const enemyReachM = getActorMeleeReachMeters(t.actor);
+    const gridAdjacent = tokensAreGridAdjacent(shooterToken, t);
     let threatens = false;
     let skipReason: string | undefined;
 
     if (!hostile) {
-      skipReason = `not-hostile (shooterDisp=${shooterDisp}, otherDisp=${disposition}, playerOwner=${hasPlayerOwner})`;
-    } else if (edgeDistM > enemyReachM + 0.05) {
-      skipReason = `out-of-reach (edge ${edgeDistM.toFixed(2)} m > reach ${enemyReachM} m; center ${centerDistM.toFixed(2)} m)`;
+      skipReason = `not-hostile (shooterPC=${shooterPC}/disp=${shooterDisp}, otherPC=${isPC}/disp=${disposition})`;
+    } else if (!(edgeDistM <= enemyReachM + 0.05) && !(enemyReachM >= 2 - 0.01 && gridAdjacent)) {
+      skipReason = `out-of-reach (edge=${edgeDistM.toFixed(2)}m center=${centerDistM.toFixed(2)}m reach=${enemyReachM}m gridAdj=${gridAdjacent})`;
     } else {
       threatens = true;
       threateningIds.push(t.id);
     }
 
-    rows.push({
+    const row: ThreatScanRow = {
       tokenId: t.id,
       name,
       disposition,
-      hasPlayerOwner,
+      isPlayerCombatant: isPC,
       hostile,
       centerDistM: Math.round(centerDistM * 100) / 100,
       edgeDistM: Math.round(edgeDistM * 100) / 100,
       enemyReachM,
+      gridAdjacent,
       threatens,
       skipReason,
-    });
+    };
+    rows.push(row);
+    console.log(
+      `${LOG}   ${threatens ? 'THREAT' : 'skip '} "${name}" (${t.id}): ` +
+        `hostile=${hostile} isPC=${isPC} disp=${disposition} ` +
+        `edge=${row.edgeDistM} center=${row.centerDistM} reach=${enemyReachM} gridAdj=${gridAdjacent}` +
+        (skipReason ? ` | ${skipReason}` : ''),
+    );
   }
 
-  console.log(`${LOG} scan around "${shooterName}"`, {
-    shooterId: shooterToken?.id,
-    shooterDisposition: shooterDisp,
-    shooterPlayerOwner: tokenHasPlayerOwner(shooterToken),
-    threateningIds,
-    threateningNames: rows.filter((r) => r.threatens).map((r) => r.name),
-    candidates: rows,
-  });
+  console.log(
+    `${LOG} scan done for "${shooterName}": threatening=[${rows
+      .filter((r) => r.threatens)
+      .map((r) => r.name)
+      .join(', ') || 'none'}]`,
+  );
 
   return { threateningIds, rows };
 }
@@ -297,15 +389,10 @@ export function evaluateThreatenedRanged(
   option: RadialCombatOption
 ): ThreatenedRangedResult {
   const actor = shooterToken?.actor;
-  const optionMeta = {
-    name: option?.name,
-    source: option?.source,
-    tags: option?.tags,
-    npcIsSpell: (option as any)?.npcIsSpell,
-  };
+  const optionMeta = `${option?.name || '?'} source=${option?.source} tags=${JSON.stringify(option?.tags || [])} npcIsSpell=${!!(option as any)?.npcIsSpell}`;
 
   if (!actor) {
-    console.log(`${LOG} evaluate — no shooter actor`, optionMeta);
+    console.log(`${LOG} evaluate — no shooter actor | ${optionMeta}`);
     return {
       appliesRule: false,
       threatened: false,
@@ -318,12 +405,7 @@ export function evaluateThreatenedRanged(
 
   const appliesRule = usesThreatenedRangedWeaponRules(actor, option);
   if (!appliesRule) {
-    console.log(`${LOG} evaluate — rule does NOT apply to this attack`, {
-      shooter: actor.name,
-      optionMeta,
-      hint:
-        'NPC: needs source=npc-attack + tag ranged + not spell. PC: ranged/thrown weapon or flagged power.',
-    });
+    console.log(`${LOG} evaluate — rule NOT applicable for "${actor.name}" | ${optionMeta}`);
     return {
       appliesRule: false,
       threatened: false,
@@ -336,6 +418,7 @@ export function evaluateThreatenedRanged(
 
   const { threateningIds, rows } = scanThreateningEnemies(shooterToken);
   const threatened = threateningIds.length > 0;
+  const names = rows.filter((r) => r.threatens).map((r) => r.name);
   const result: ThreatenedRangedResult = {
     appliesRule: true,
     threatened,
@@ -343,24 +426,15 @@ export function evaluateThreatenedRanged(
     opportunityEnemyTokenIds: threateningIds,
     rollDisadvantage: threatened,
     debugReason: threatened
-      ? `threatened-by:${rows
-          .filter((r) => r.threatens)
-          .map((r) => r.name)
-          .join(',')}`
+      ? `threatened-by:${names.join(',')}`
       : 'no-enemy-in-melee-reach',
   };
 
-  console.log(`${LOG} evaluate — result`, {
-    shooter: actor.name,
-    optionMeta,
-    ...result,
-    nearbyHostilesOutOfReach: rows
-      .filter((r) => r.hostile && !r.threatens)
-      .map((r) => `${r.name}: ${r.skipReason}`),
-    nonHostilesNearby: rows
-      .filter((r) => !r.hostile && Number.isFinite(r.edgeDistM) && r.edgeDistM <= 4)
-      .map((r) => `${r.name}: ${r.skipReason}`),
-  });
+  console.log(
+    `${LOG} evaluate — "${actor.name}" appliesRule=true threatened=${threatened} ` +
+      `disadvantage=${result.rollDisadvantage} oa=[${names.join(', ') || 'none'}] ` +
+      `reason=${result.debugReason} | ${optionMeta}`,
+  );
 
   return result;
 }

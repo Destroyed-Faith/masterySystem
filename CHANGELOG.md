@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.282] - 2026-08-08
+
+### Fixed
+
+- **Threatened Ranged vs Friendly Dummy**: PC ↔ NPC always counts as opposing, even when the Dummy token is disposition **Friendly** (common GM setup). This restores Disadvantage + Alaris/Fynn OA detection.
+- **Melee engagement**: grid adjacency (incl. diagonal) as fallback when meter math is noisy.
+- **OA timing**: Opportunity Attack window runs **right after the attack roll** (before target reactions / damage).
+- Console logs are plain strings (filter **`[MS Threatened Ranged]`**) so pasted logs show names/distances without expanding Objects.
+
 ## [0.9.281] - 2026-08-08
 
 ### Fixed

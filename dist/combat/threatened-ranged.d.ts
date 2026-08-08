@@ -15,17 +15,25 @@ import type { RadialCombatOption } from "../token-radial-menu";
 export declare function distanceBetweenTokensMeters(a: any, b: any): number;
 /**
  * Approximate edge-to-edge distance in meters (centers minus half-widths).
- * Melee reach should care about touching/engaging, not only center-to-center —
- * two medium tokens on a 2 m grid are often ~2 m center and fail a strict
- * `dist <= 2` check when slightly diagonal.
+ * Melee reach should care about touching/engaging, not only center-to-center.
  */
 export declare function distanceBetweenTokenEdgesMeters(a: any, b: any): number;
+/**
+ * Grid-neighbor fallback: true when tokens occupy adjacent squares (incl. diagonal),
+ * accounting for multi-square tokens. Used when meter math is noisy.
+ */
+export declare function tokensAreGridAdjacent(a: any, b: any): boolean;
 /** Melee reach in meters for this actor (2m base + weapon reach bonus). */
 export declare function getActorMeleeReachMeters(actor: any): number;
 /**
- * True when `other` is treated as hostile to `attackerToken`.
- * Uses opposite dispositions first; falls back to player-owner XOR when
- * disposition is ambiguous (0 / SECRET), so NPC Dummy vs PC Alaris still counts.
+ * True for player combatants (characters / player-owned tokens).
+ * Important: GM-controlled "Dummy" NPCs are often disposition FRIENDLY — we must
+ * still treat them as opposing PCs for Threatened Ranged.
+ */
+export declare function isPlayerCombatantToken(token: any): boolean;
+/**
+ * True when `other` opposes `attackerToken` for Threatened Ranged.
+ * PC ↔ NPC always counts, even when both tokens are marked Friendly.
  */
 export declare function tokenIsHostileTo(attackerToken: any, other: any): boolean;
 /**
@@ -38,11 +46,12 @@ export interface ThreatScanRow {
     tokenId: string;
     name: string;
     disposition: number;
-    hasPlayerOwner: boolean;
+    isPlayerCombatant: boolean;
     hostile: boolean;
     centerDistM: number;
     edgeDistM: number;
     enemyReachM: number;
+    gridAdjacent: boolean;
     threatens: boolean;
     skipReason?: string;
 }

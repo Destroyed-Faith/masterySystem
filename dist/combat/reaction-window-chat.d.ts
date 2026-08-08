@@ -9,8 +9,12 @@
  * the card refreshes for remaining actors. Continue closes the window.
  */
 import { type DefenderReactionMitigation } from './defender-reactions.js';
-/** Defender = target after attack roll; others = allies after damage roll. */
-export type ReactionWindowPhase = 'defender' | 'others';
+/**
+ * - defender: target after attack roll (before damage)
+ * - opportunity: Threatened Ranged OA (right after the attack roll)
+ * - others: nearby allies after damage
+ */
+export type ReactionWindowPhase = 'defender' | 'others' | 'opportunity';
 export interface ReactionWindowState {
     eventId: string;
     phase: ReactionWindowPhase;

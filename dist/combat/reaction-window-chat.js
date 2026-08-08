@@ -61,7 +61,9 @@ function readState(message) {
 function entriesForPhase(entries, phase) {
     if (phase === 'defender')
         return entries.filter((e) => e.role === 'defender');
-    // Allies (protect target) + Threatened Ranged opportunity attackers.
+    if (phase === 'opportunity')
+        return entries.filter((e) => e.role === 'opportunity');
+    // After damage: allies (and any leftover OA if still listed).
     return entries.filter((e) => e.role === 'ally' || e.role === 'opportunity');
 }
 function filterEntriesForCard(entries, state) {
@@ -98,17 +100,19 @@ function filterEntriesForCard(entries, state) {
 function buildReactionWindowHtml(state, entries, attackerName, defenderName) {
     const phase = state.phase ?? 'defender';
     const actionable = filterEntriesForCard(entries, state);
-    const hasOppIds = (state.opportunityEnemyTokenIds?.length ?? 0) > 0;
     const title = phase === 'defender'
         ? '⚡ Reaction Window — Target'
-        : hasOppIds
-            ? '⚡ Reaction Window — Allies & Opportunity'
+        : phase === 'opportunity'
+            ? '⚡ Reaction Window — Opportunity Attacks'
             : '⚡ Reaction Window — Allies';
     let hitLine;
-    if (phase === 'others') {
+    if (phase === 'opportunity') {
+        hitLine = `<p><strong>${escHtml(attackerName)}</strong> shot while threatened — enemies in melee reach may spend a <strong>Reaction</strong> for an Opportunity Attack.</p>`;
+    }
+    else if (phase === 'others') {
         hitLine = state.hit
-            ? `<p><strong>${escHtml(attackerName)}</strong> → <strong>${escHtml(defenderName)}</strong> — damage rolled (${Math.max(0, Math.floor(state.rawDamage))}). Allies and/or opportunity attackers may react.</p>`
-            : `<p><strong>${escHtml(attackerName)}</strong> shot while threatened — opportunity attackers (and allies) may react.</p>`;
+            ? `<p><strong>${escHtml(attackerName)}</strong> → <strong>${escHtml(defenderName)}</strong> — damage rolled (${Math.max(0, Math.floor(state.rawDamage))}). Nearby allies may react.</p>`
+            : `<p><strong>${escHtml(attackerName)}</strong> → <strong>${escHtml(defenderName)}</strong> — nearby allies may react.</p>`;
     }
     else if (state.hit) {
         hitLine =
@@ -134,8 +138,11 @@ function buildReactionWindowHtml(state, entries, attackerName, defenderName) {
         body = `<p style="opacity:0.9;">Reaction window closed.</p>${usedBlock}`;
     }
     else if (!actionable.length) {
-        if (phase === 'others') {
-            body = `<p>No allies or opportunity attackers ready to react.</p>${usedBlock}`;
+        if (phase === 'opportunity') {
+            body = `<p>No opportunity attackers with a Reaction ready.</p>${usedBlock}`;
+        }
+        else if (phase === 'others') {
+            body = `<p>No nearby allies with an Ally Reaction ready.</p>${usedBlock}`;
         }
         else {
             const def = entries.find((e) => e.role === 'defender');
@@ -183,22 +190,20 @@ function buildReactionWindowHtml(state, entries, attackerName, defenderName) {
         </div>`;
         })
             .join('');
-        const hasOpp = actionable.some((e) => e.role === 'opportunity');
-        const hasAlly = actionable.some((e) => e.role === 'ally');
         const intro = phase === 'defender'
             ? `<p>The <strong>target</strong> may use <strong>one</strong> Reaction now (before damage):</p>`
-            : hasOpp && hasAlly
-                ? `<p>Allies and opportunity attackers may each use <strong>one</strong> Reaction:</p>`
-                : hasOpp
-                    ? `<p>Threatened Ranged — each listed combatant may spend <strong>one</strong> Reaction for an Opportunity Attack:</p>`
-                    : `<p>Each ally may use <strong>one</strong> Reaction for this event:</p>`;
+            : phase === 'opportunity'
+                ? `<p>Threatened Ranged — each listed combatant may spend <strong>one</strong> Reaction for an Opportunity Attack:</p>`
+                : `<p>Each ally may use <strong>one</strong> Reaction for this event:</p>`;
         body = `${intro}${blocks}${usedBlock}`;
     }
     const continueHint = phase === 'defender'
         ? state.hit
             ? 'Continue to the damage roll.'
             : 'Close the window.'
-        : 'Close when everyone who wants to react has acted (optional).';
+        : phase === 'opportunity'
+            ? 'Continue when opportunity attackers are done (optional).'
+            : 'Close when everyone who wants to react has acted (optional).';
     const continueBtn = state.resolved
         ? ''
         : `<div class="ms-reaction-window-actions" style="margin-top:0.6em;">
