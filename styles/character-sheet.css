@@ -4116,6 +4116,35 @@
   border-color: #8b0000;
 }
 
+.mastery-system.sheet.actor.npc .npc-disposition-box {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 110px;
+  flex-shrink: 0;
+}
+
+.mastery-system.sheet.actor.npc .npc-disposition-box label {
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.mastery-system.sheet.actor.npc .npc-disposition-box select {
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 4px;
+  color: #fff;
+  font-size: 0.85rem;
+  padding: 4px 6px;
+}
+
+.mastery-system.sheet.actor.npc .npc-disposition-box select:focus {
+  outline: none;
+  border-color: #8b0000;
+}
+
 .mastery-system.sheet.actor.npc .sheet-body {
   display: flex;
   flex-direction: column;

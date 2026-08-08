@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.283] - 2026-08-08
+
+### Added
+
+- **NPC sheet — Seite (Disposition)**: Dropdown **Hostile / Neutral / Friendly** next to creature type. Writes Foundry `prototypeToken.disposition` and syncs all placed tokens for that NPC (so Threatened Ranged / targeting see the correct side without digging into Token Config).
+
 ## [0.9.282] - 2026-08-08
 
 ### Fixed

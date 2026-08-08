@@ -307,6 +307,19 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
         }
         if (context.actor?.type === 'npc' && context.system) {
             context.npcSpecialSelectGroups = buildNpcSpecialSelectGroups();
+            // Token disposition for Threatened Ranged / targeting (Foundry: -1 / 0 / 1).
+            // Prefer the placed token when editing an unlinked token actor.
+            const actorDoc = context.actor;
+            const tokenDisp = Number(actorDoc?.token?.disposition ??
+                actorDoc?.prototypeToken?.disposition ??
+                globalThis.CONST?.TOKEN_DISPOSITIONS?.HOSTILE ??
+                -1);
+            const disposition = tokenDisp === 1 || tokenDisp === 0 || tokenDisp === -1 ? tokenDisp : -1;
+            context.npcDispositionOptions = [
+                { value: -1, label: 'Hostile', selected: disposition === -1 },
+                { value: 0, label: 'Neutral', selected: disposition === 0 },
+                { value: 1, label: 'Friendly', selected: disposition === 1 },
+            ];
             context.system.npcBaseAttack = normalizeNpcAttackRowForContext(context.system.npcBaseAttack);
             if (Array.isArray(context.system.attackValues)) {
                 context.system.attackValues = context.system.attackValues.map((r) => normalizeNpcAttackRowForContext(r));
@@ -564,6 +577,12 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
     /** @override */
     activateListeners(html) {
         super.activateListeners(html);
+        // Friendly / Neutral / Hostile — write prototypeToken + sync placed tokens.
+        html.find('select.npc-disposition-select').on('change', (ev) => {
+            ev.preventDefault();
+            ev.stopPropagation();
+            void this.#onNpcDispositionChange(ev);
+        });
         // Melee ↔ Range: full retarget — reset meters + hard-clear AoE on the actor.
         html.find('select.npc-range-kind, select[name$=".npcRangeKind"]').on('change', (ev) => {
             ev.preventDefault();
@@ -666,6 +685,42 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
         html.find('.phase-delete-btn').on('click', this.#onPhaseDelete.bind(this));
         html.find('.npc-power-special-add').on('click', this.#onNpcPowerSpecialAdd.bind(this));
         html.find('.npc-power-special-del').on('click', this.#onNpcPowerSpecialDel.bind(this));
+    }
+    /**
+     * Persist Foundry token disposition (-1 Hostile / 0 Neutral / 1 Friendly)
+     * on the actor prototype and every placed token for this actor.
+     */
+    async #onNpcDispositionChange(event) {
+        const select = event.currentTarget;
+        const value = Math.trunc(Number(select.value));
+        if (value !== -1 && value !== 0 && value !== 1)
+            return;
+        const actor = this.actor;
+        try {
+            // Unlinked token actor: the TokenDocument is the source of truth.
+            if (actor.isToken && actor.token) {
+                await actor.token.update({ disposition: value });
+                return;
+            }
+            await actor.update({ 'prototypeToken.disposition': value });
+            const tokens = typeof actor.getActiveTokens === 'function' ? actor.getActiveTokens(false) || [] : [];
+            for (const token of tokens) {
+                const doc = token?.document ?? token;
+                if (!doc?.update)
+                    continue;
+                if (Number(doc.disposition) === value)
+                    continue;
+                try {
+                    await doc.update({ disposition: value });
+                }
+                catch (err) {
+                    console.warn('[MS NPC] disposition token sync failed', doc?.id, err);
+                }
+            }
+        }
+        catch (err) {
+            console.warn('[MS NPC] disposition update failed', actor?.id, err);
+        }
     }
     async #onRemoveStatusEffect(event) {
         event.preventDefault();

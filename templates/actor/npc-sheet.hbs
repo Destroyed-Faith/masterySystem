@@ -67,6 +67,14 @@
           <option value="other" {{#if (eq system.creatureType "other")}}selected{{/if}}>Other</option>
         </select>
       </div>
+      <div class="npc-disposition-box" title="Token-Seite: Friendly / Neutral / Hostile — steuert Threatened Ranged, Targeting, Aura-Farbe">
+        <label>Seite</label>
+        <select name="prototypeToken.disposition" class="npc-disposition-select" data-dtype="Number">
+          {{#each npcDispositionOptions as |opt|}}
+          <option value="{{opt.value}}" {{#if opt.selected}}selected{{/if}}>{{opt.label}}</option>
+          {{/each}}
+        </select>
+      </div>
     </div>
   </header>
 
