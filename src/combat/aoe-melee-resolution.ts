@@ -121,6 +121,8 @@ export async function resolveAoeMeleeSecondaries(params: {
   powerBonusDice: number;
   /** True when the AoE power is a spell (Hex applies); otherwise Sundered. */
   isSpell?: boolean;
+  attackTotal?: number | null;
+  evadeTn?: number | null;
 }): Promise<void> {
   const { attacker, secondaryTokenIds, powerBonusDice } = params;
   const isSpell = params.isSpell === true;
@@ -172,16 +174,62 @@ export async function resolveAoeMeleeSecondaries(params: {
     const rollsArr = r ? [r] : [];
     const c8 = countNaturalEights(rollsArr);
 
-    const { applyDamageToTargetFromAoe } = await import('../dice/damage-dialog.js');
-    const mit = await applyDamageToTargetFromAoe(defender, total, attacker, c8);
-    const mitLine = mit?.breakdownLine ? `<p>${mit.breakdownLine}</p>` : '';
     const vulnNote = vulnDice > 0
       ? ` + ${vulnDice}d8 ${isSpell ? 'Hex' : 'Sundered'}(${vulnValue})`
       : '';
-    await ChatMessage.create({
+
+    // Post damage roll first, then Reaction Window, then apply HP.
+    const dmgMsg = await ChatMessage.create({
       user: (game as any).user?.id,
       speaker: ChatMessage.getSpeaker({ actor: attacker }),
-      content: `<p><strong>AoE secondary</strong> → <strong>${defender.name}</strong>: ${total} (${powerBonusDice}d8 power${vulnNote}) ${mitLine}</p>`,
+      content: `<p><strong>AoE secondary</strong> → <strong>${defender.name}</strong>: ${total} (${powerBonusDice}d8 power${vulnNote}) <em>— awaiting reactions…</em></p>`,
     } as any);
+
+    let phasedOut = false;
+    try {
+      const { promptPhasingConsume, consumePhasingCharge } = await import('./phasing.js');
+      phasedOut = await promptPhasingConsume(defender, { attacker, rawDamage: total });
+      if (phasedOut) await consumePhasingCharge(defender);
+    } catch {
+      phasedOut = false;
+    }
+
+    let mitLine = '';
+    if (phasedOut) {
+      mitLine = `<p>Raw ${total} → Phased (ignored)</p>`;
+    } else {
+      const combat = (game as any).combat ?? null;
+      const { runInteractiveReactionWindow } = await import('./reaction-window-chat.js');
+      const reactMit = await runInteractiveReactionWindow({
+        defender,
+        attacker,
+        combat,
+        rawDamage: total,
+        attackTotal: params.attackTotal ?? null,
+        evadeTn: params.evadeTn ?? null,
+        hit: true,
+        damageMessageId: dmgMsg?.id ?? null,
+      });
+
+      const { applyDamageToTargetFromAoe } = await import('../dice/damage-dialog.js');
+      const mit = await applyDamageToTargetFromAoe(defender, total, attacker, c8, {
+        attackTotal: params.attackTotal ?? null,
+        evadeTn: params.evadeTn ?? null,
+        reactionMitigation: reactMit,
+        skipReactionPrompt: true,
+        skipPhasing: true,
+      });
+      mitLine = mit?.breakdownLine ? `<p>${mit.breakdownLine}</p>` : '';
+    }
+
+    try {
+      if (dmgMsg?.id) {
+        await dmgMsg.update({
+          content: `<p><strong>AoE secondary</strong> → <strong>${defender.name}</strong>: ${total} (${powerBonusDice}d8 power${vulnNote}) ${mitLine}</p>`,
+        });
+      }
+    } catch {
+      /* ignore */
+    }
   }
 }

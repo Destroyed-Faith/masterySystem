@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.275] - 2026-08-08
+
+### Changed
+
+- **Reaction Window UX**:
+  - Chat card posts **after** the damage roll (not before).
+  - Interactive **buttons** per eligible actor (Guard / Evade / Counterattack / powers / Ally reactions).
+  - **One reaction per actor per event**; after someone reacts, the card refreshes for remaining actors.
+  - **Continue** closes the window and applies HP (with Guard/Evade mitigation).
+  - Pressing **Roll** on an attack entitles reactions even on a **miss** (window still opens).
+
+## [0.9.274] - 2026-08-08
+
+### Fixed
+
+- **Ranged targeting always picking a nearby token (e.g. Fynn)**: stage capture no longer confirms a guessed target from stale `mousePosition`. Each valid target gets a stage hit-pad bound to its token id; rings are non-interactive. Client→canvas coordinates used for cancel/out-of-range checks. Look for `via: "stage-hit-pad"` in confirm logs.
+
 ## [0.9.273] - 2026-08-08
 
 ### Fixed

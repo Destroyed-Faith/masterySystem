@@ -913,3 +913,42 @@
   opacity: 0.85;
   letter-spacing: 0.02em;
 }
+
+#chat-log .mastery-damage-mitigation.mastery-damage-pending {
+  border-left: 3px solid rgba(255, 209, 102, 0.65);
+}
+
+#chat-log .mastery-reaction-window {
+  border-left: 3px solid rgba(241, 196, 15, 0.7);
+  padding: 0.35em 0.55em;
+  background: rgba(241, 196, 15, 0.06);
+}
+
+#chat-log .mastery-reaction-window .ms-reaction-use-btn,
+#chat-log .mastery-reaction-window .ms-reaction-decline-btn,
+#chat-log .mastery-reaction-window .ms-reaction-continue-btn {
+  cursor: pointer;
+  font-size: 0.85rem;
+  padding: 0.28em 0.55em;
+  border-radius: 4px;
+  border: 1px solid var(--ms-border, #3a3f44);
+  background: var(--ms-panel2, #1b2124);
+  color: var(--ms-text, #d0d0d0);
+}
+
+#chat-log .mastery-reaction-window .ms-reaction-use-btn:hover,
+#chat-log .mastery-reaction-window .ms-reaction-continue-btn:hover {
+  border-color: rgba(241, 196, 15, 0.75);
+  color: #ffe08a;
+}
+
+#chat-log .mastery-reaction-window .ms-reaction-decline-btn {
+  opacity: 0.85;
+}
+
+#chat-log .mastery-reaction-window .ms-reaction-window-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35em;
+  margin-top: 0.35em;
+}

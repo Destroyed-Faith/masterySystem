@@ -34,5 +34,7 @@ export declare function resolveAoeMeleeSecondaries(params: {
     powerBonusDice: number;
     /** True when the AoE power is a spell (Hex applies); otherwise Sundered. */
     isSpell?: boolean;
+    attackTotal?: number | null;
+    evadeTn?: number | null;
 }): Promise<void>;
 //# sourceMappingURL=aoe-melee-resolution.d.ts.map

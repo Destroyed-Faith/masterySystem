@@ -102,6 +102,19 @@ export async function executeAttackRollFromCard(
     }
     rollAttackMessageLocks.add(lockId);
 
+    // Entitlement: pressing Roll opens a reaction opportunity for this attack
+    // even if the attack later misses (window posts after the roll / damage).
+    try {
+      await message.setFlag?.('mastery-system', 'reactionEntitled', {
+        attackerId: flags.attackerId || button.attr('data-attacker-id') || null,
+        targetId: flags.targetId || button.attr('data-target-id') || null,
+        targetTokenId: flags.targetTokenId || button.attr('data-target-token-id') || null,
+        at: Date.now(),
+      });
+    } catch (entitleErr) {
+      console.warn('Mastery System | reaction entitlement flag failed', entitleErr);
+    }
+
     const resetRollButton = () => {
       button.prop('disabled', false).html('<i class="fas fa-dice-d20"></i> Roll');
       rollAttackMessageLocks.delete(lockId);
@@ -795,8 +808,91 @@ export async function executeAttackRollFromCard(
           }
 
           if (damageResult) {
-            // Roll and display damage
-            await rollAndDisplayDamage(damageResult, attacker as any, target, flags);
+            // 1) Post damage rolls first (HP not applied yet when pendingApply).
+            const dmgMsg = await rollAndDisplayDamage(
+              damageResult,
+              attacker as any,
+              target,
+              updatedFlags,
+            );
+
+            if (damageResult.pendingApply) {
+              const combat = (game as any).combat ?? null;
+              const attackCtx = damageResult.attackContext ?? {
+                attackTotal: updatedFlags.attackTotal ?? null,
+                evadeTn:
+                  updatedFlags.normalTn ??
+                  updatedFlags.baseEvade ??
+                  updatedFlags.targetEvade ??
+                  null,
+              };
+
+              // Phasing before the Reaction Window (same order as before).
+              let phasedOut = false;
+              try {
+                const { promptPhasingConsume, consumePhasingCharge } = await import(
+                  '../combat/phasing.js'
+                );
+                phasedOut = await promptPhasingConsume(target, {
+                  attacker: freshAttackerForDialog,
+                  rawDamage: damageResult.totalDamage,
+                });
+                if (phasedOut) {
+                  await consumePhasingCharge(target);
+                  const sheet = (target as any).sheet;
+                  if (sheet?.rendered) sheet.render(false);
+                  damageResult.mitigation = {
+                    rawDamage: damageResult.totalDamage,
+                    armorApplied: 0,
+                    drPercent: 0,
+                    mitigatedDamage: 0,
+                    tempHPAbsorbed: 0,
+                    barDamage: 0,
+                    min8sUsed: false,
+                    breakdownLine: `Raw ${damageResult.totalDamage} → Phased (ignored)`,
+                    phased: true,
+                  };
+                }
+              } catch (phaseErr) {
+                console.debug?.('Mastery System | deferred phasing skipped', phaseErr);
+              }
+
+              if (!phasedOut) {
+                const { runInteractiveReactionWindow } = await import(
+                  '../combat/reaction-window-chat.js'
+                );
+                const reactMit = await runInteractiveReactionWindow({
+                  defender: target as any,
+                  attacker: freshAttackerForDialog as any,
+                  combat,
+                  rawDamage: damageResult.totalDamage,
+                  attackTotal: attackCtx.attackTotal ?? null,
+                  evadeTn: attackCtx.evadeTn ?? null,
+                  hit: true,
+                  damageMessageId: dmgMsg?.id ?? null,
+                });
+
+                const { applyDamageToTarget } = await import('../dice/damage-dialog.js');
+                damageResult.mitigation = await applyDamageToTarget(
+                  target as any,
+                  damageResult.totalDamage,
+                  freshAttackerForDialog as any,
+                  damageResult.count8s ?? 0,
+                  {
+                    attackTotal: attackCtx.attackTotal ?? null,
+                    evadeTn: attackCtx.evadeTn ?? null,
+                    reactionMitigation: reactMit,
+                    skipPhasing: true,
+                    skipReactionPrompt: true,
+                  },
+                );
+              }
+
+              damageResult.pendingApply = false;
+              if (dmgMsg?.id) {
+                await updateDamageChatWithMitigation(String(dmgMsg.id), damageResult, target);
+              }
+            }
           }
 
           // Secondaries are hit by the same Area-TN roll — resolve them even
@@ -819,12 +915,43 @@ export async function executeAttackRollFromCard(
               secondaryTokenIds: aoeSecondaries,
               powerBonusDice: aoeDice,
               isSpell: (updatedFlags as any).powerIsSpell === true,
+              attackTotal: updatedFlags.attackTotal ?? null,
+              evadeTn: updatedFlags.normalTn ?? updatedFlags.baseEvade ?? null,
             });
           }
 
           if (!damageResult && !primaryEscaped) {
             console.warn('Mastery System | [AFTER DAMAGE DIALOG] No damage result returned from showDamageDialog');
           }
+        }
+      } else {
+        // Miss — reaction entitlement still applies (opened when Roll was pressed).
+        try {
+          let missTarget: any = null;
+          if (flags.targetTokenId) {
+            const tokenDoc = canvas?.scene?.tokens?.get(flags.targetTokenId);
+            if (tokenDoc?.actor) missTarget = tokenDoc.actor;
+          }
+          if (!missTarget && flags.targetId) {
+            missTarget = (game as any).actors?.get(flags.targetId) || null;
+          }
+          const missAttacker = freshAttacker || (game as any).actors?.get(flags.attackerId);
+          if (missTarget && missAttacker) {
+            const { runInteractiveReactionWindow } = await import(
+              '../combat/reaction-window-chat.js'
+            );
+            await runInteractiveReactionWindow({
+              defender: missTarget,
+              attacker: missAttacker,
+              combat: (game as any).combat ?? null,
+              rawDamage: 0,
+              attackTotal: Math.floor(Number(result?.total) || 0),
+              evadeTn: normalTn,
+              hit: false,
+            });
+          }
+        } catch (missReactErr) {
+          console.warn('Mastery System | miss reaction window failed', missReactErr);
         }
       }
       
@@ -859,58 +986,9 @@ export async function executeAttackRollFromCard(
   }
 }
 
-/**
- * Roll and display damage in chat
- */
-async function rollAndDisplayDamage(
-  damageResult: any,
-  attacker: Actor,
-  target: Actor,
-  _flags?: any
-): Promise<void> {
-  const damageBreakdown: string[] = [];
-  
-  if (damageResult.baseDamage > 0) {
-    damageBreakdown.push(`Base: ${damageResult.baseDamage}`);
-  }
-  if (damageResult.powerDamage > 0) {
-    damageBreakdown.push(`Power: ${damageResult.powerDamage}`);
-  }
-  if (damageResult.passiveDamage > 0) {
-    damageBreakdown.push(`Passive: ${damageResult.passiveDamage}`);
-  }
-  if (damageResult.raiseDamage > 0) {
-    damageBreakdown.push(`Raises: ${damageResult.raiseDamage}`);
-  }
-  
-  const damageText = damageBreakdown.length > 0 
-    ? damageBreakdown.join(', ') 
-    : `${damageResult.totalDamage} damage`;
-
-  const details = Array.isArray(damageResult.rollDetails) ? (damageResult.rollDetails as string[]) : [];
+function buildMitigationHtml(damageResult: any): string {
   const esc = (s: string) =>
-    s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-  const rollsHtml =
-    details.length > 0
-      ? `<div class="mastery-damage-rolls"><strong>Rolled</strong><ul class="mastery-damage-roll-list">${details
-          .map((line) => `<li>${esc(line)}</li>`)
-          .join("")}</ul></div>`
-      : "";
-  
-  const attackerToken = (attacker as any).getActiveTokens?.()?.[0]?.document || null;
-  const chatRolls = Array.isArray(damageResult.damageChatRolls) ? damageResult.damageChatRolls : [];
-  const serializedRolls =
-    chatRolls.length > 0
-      ? chatRolls
-          .map((r: any) => (typeof r?.toJSON === 'function' ? r.toJSON() : r))
-          .filter(Boolean)
-      : [];
-
-  // Mitigation summary block — make it easy to see how much damage was
-  // soaked by Armor / DR% and what actually went through. The mitigation
-  // object is produced by `applyDefensiveMitigation`; it is absent if the
-  // attack bypassed the defensive pipeline (e.g. no target).
-  let mitigationHtml = '';
+    s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   const mit = damageResult.mitigation as {
     rawDamage: number;
     armorApplied: number;
@@ -923,33 +1001,47 @@ async function rollAndDisplayDamage(
     phased: boolean;
     negatedByEvade?: boolean;
   } | undefined;
-  if (mit) {
-    if (mit.phased) {
-      mitigationHtml = `
+
+  if (damageResult.pendingApply && !mit) {
+    return `
+        <div class="mastery-damage-mitigation mastery-damage-pending">
+          <div class="mastery-damage-mitigation-title"><i class="fas fa-hourglass-half"></i> Awaiting Reactions…</div>
+          <div class="mastery-damage-mitigation-breakdown">Roh ${Math.max(0, Math.floor(Number(damageResult.totalDamage) || 0))} — HP not applied yet</div>
+        </div>`;
+  }
+  if (!mit) return '';
+
+  if (mit.phased) {
+    return `
         <div class="mastery-damage-mitigation mastery-damage-phased">
           <div class="mastery-damage-mitigation-title"><i class="fas fa-ghost"></i> Phased — Angriff ignoriert</div>
           <div class="mastery-damage-mitigation-breakdown">${esc(mit.breakdownLine)}</div>
         </div>`;
-    } else if (mit.negatedByEvade) {
-      mitigationHtml = `
+  }
+  if (mit.negatedByEvade) {
+    return `
         <div class="mastery-damage-mitigation mastery-damage-phased">
           <div class="mastery-damage-mitigation-title"><i class="fas fa-person-running"></i> Reaction Evade — Treffer negiert</div>
           <div class="mastery-damage-mitigation-breakdown">${esc(mit.breakdownLine)}</div>
         </div>`;
-    } else {
-      const armorLine = mit.armorApplied > 0
-        ? `<span class="mitigation-chip mitigation-chip-armor"><i class="fas fa-shield-alt"></i> Rüstung: ${mit.armorApplied} aufgefangen</span>`
-        : '';
-      const drLine = mit.drPercent > 0
-        ? `<span class="mitigation-chip mitigation-chip-dr"><i class="fas fa-user-shield"></i> DR: ${mit.drPercent}% reduziert</span>`
-        : '';
-      const tempLine = mit.tempHPAbsorbed > 0
-        ? `<span class="mitigation-chip mitigation-chip-temp"><i class="fas fa-heart"></i> Temp-HP: ${mit.tempHPAbsorbed} absorbiert</span>`
-        : '';
-      const min8sLine = mit.min8sUsed
-        ? `<span class="mitigation-chip mitigation-chip-8s"><i class="fas fa-dice"></i> 8er-Minimum</span>`
-        : '';
-      mitigationHtml = `
+  }
+
+  const armorLine =
+    mit.armorApplied > 0
+      ? `<span class="mitigation-chip mitigation-chip-armor"><i class="fas fa-shield-alt"></i> Rüstung: ${mit.armorApplied} aufgefangen</span>`
+      : '';
+  const drLine =
+    mit.drPercent > 0
+      ? `<span class="mitigation-chip mitigation-chip-dr"><i class="fas fa-user-shield"></i> DR: ${mit.drPercent}% reduziert</span>`
+      : '';
+  const tempLine =
+    mit.tempHPAbsorbed > 0
+      ? `<span class="mitigation-chip mitigation-chip-temp"><i class="fas fa-heart"></i> Temp-HP: ${mit.tempHPAbsorbed} absorbiert</span>`
+      : '';
+  const min8sLine = mit.min8sUsed
+    ? `<span class="mitigation-chip mitigation-chip-8s"><i class="fas fa-dice"></i> 8er-Minimum</span>`
+    : '';
+  return `
         <div class="mastery-damage-mitigation">
           <div class="mastery-damage-mitigation-title">
             <i class="fas fa-shield-halved"></i> Schadensreduktion
@@ -964,19 +1056,60 @@ async function rollAndDisplayDamage(
           </div>
           <div class="mastery-damage-mitigation-breakdown">${esc(mit.breakdownLine)}</div>
         </div>`;
-    }
-  }
+}
 
-  const chatData: any = {
-    user: (game as any).user?.id,
-    speaker: ChatMessage.getSpeaker({ actor: attacker, token: attackerToken }),
-    content: `<div class="mastery-system-damage">
+function buildDamageChatContent(damageResult: any, target: Actor): string {
+  const damageBreakdown: string[] = [];
+  if (damageResult.baseDamage > 0) damageBreakdown.push(`Base: ${damageResult.baseDamage}`);
+  if (damageResult.powerDamage > 0) damageBreakdown.push(`Power: ${damageResult.powerDamage}`);
+  if (damageResult.passiveDamage > 0) damageBreakdown.push(`Passive: ${damageResult.passiveDamage}`);
+  if (damageResult.raiseDamage > 0) damageBreakdown.push(`Raises: ${damageResult.raiseDamage}`);
+  const damageText =
+    damageBreakdown.length > 0 ? damageBreakdown.join(', ') : `${damageResult.totalDamage} damage`;
+
+  const details = Array.isArray(damageResult.rollDetails)
+    ? (damageResult.rollDetails as string[])
+    : [];
+  const esc = (s: string) =>
+    s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  const rollsHtml =
+    details.length > 0
+      ? `<div class="mastery-damage-rolls"><strong>Rolled</strong><ul class="mastery-damage-roll-list">${details
+          .map((line) => `<li>${esc(line)}</li>`)
+          .join('')}</ul></div>`
+      : '';
+
+  return `<div class="mastery-system-damage">
       <h3><i class="fas fa-sword"></i> Damage: ${damageResult.totalDamage}</h3>
       ${rollsHtml}
       <p class="mastery-damage-summary">${damageText}</p>
       <p><strong>Target:</strong> ${(target as any).name}</p>
-      ${mitigationHtml}
-    </div>`
+      ${buildMitigationHtml(damageResult)}
+    </div>`;
+}
+
+/**
+ * Roll and display damage in chat. Returns the created message (for later mitigation updates).
+ */
+async function rollAndDisplayDamage(
+  damageResult: any,
+  attacker: Actor,
+  target: Actor,
+  _flags?: any,
+): Promise<ChatMessage | null> {
+  const attackerToken = (attacker as any).getActiveTokens?.()?.[0]?.document || null;
+  const chatRolls = Array.isArray(damageResult.damageChatRolls) ? damageResult.damageChatRolls : [];
+  const serializedRolls =
+    chatRolls.length > 0
+      ? chatRolls
+          .map((r: any) => (typeof r?.toJSON === 'function' ? r.toJSON() : r))
+          .filter(Boolean)
+      : [];
+
+  const chatData: any = {
+    user: (game as any).user?.id,
+    speaker: ChatMessage.getSpeaker({ actor: attacker, token: attackerToken }),
+    content: buildDamageChatContent(damageResult, target),
   };
 
   if (serializedRolls.length > 0) {
@@ -987,9 +1120,25 @@ async function rollAndDisplayDamage(
   }
 
   try {
-    await ChatMessage.create(chatData);
+    return (await ChatMessage.create(chatData)) as ChatMessage;
   } catch (error) {
     console.warn('Mastery System | Could not create damage chat message:', error);
+    return null;
+  }
+}
+
+/** Patch an existing damage chat message after reactions + HP apply. */
+async function updateDamageChatWithMitigation(
+  messageId: string,
+  damageResult: any,
+  target: Actor,
+): Promise<void> {
+  try {
+    const message = (game as any).messages?.get?.(messageId);
+    if (!message) return;
+    await message.update({ content: buildDamageChatContent(damageResult, target) });
+  } catch (err) {
+    console.warn('Mastery System | Could not update damage chat with mitigation', err);
   }
 }
 

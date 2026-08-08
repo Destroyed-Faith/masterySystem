@@ -187,6 +187,13 @@ export interface DamageResult {
    * why a hit went through (or got phased/mitigated).
    */
   mitigation?: AppliedDamageSummary;
+  /**
+   * When true, dice were rolled but HP was not applied yet — the caller
+   * posts the damage chat, runs the Reaction Window, then applies.
+   */
+  pendingApply?: boolean;
+  /** Attack total / Evade TN carried for the deferred apply path. */
+  attackContext?: { attackTotal?: number | null; evadeTn?: number | null };
 }
 
 /**
@@ -1002,6 +1009,7 @@ export function attachDamageCardHandlers(messageId: string): void {
 
     // Mark spend is chosen AFTER the roll via a post-roll prompt inside
     // calculateDamageResult (exact "total → new total" options per spend).
+    // Defer HP apply so the damage chat can post before the Reaction Window.
     const result = await calculateDamageResult(
       flags.baseDamage,
       flags.powerDamage,
@@ -1022,6 +1030,7 @@ export function attachDamageCardHandlers(messageId: string): void {
         attackTotal: flags.attackTotal ?? null,
         evadeTn: flags.normalTn ?? flags.baseEvade ?? flags.targetEvade ?? null,
       },
+      true,
     );
     // NSC signature attacks: Nd8 Stress on hit (plain dice; Stress Armor
     // mitigates inside applyStressToActor). Applies alongside the HP damage.
@@ -1320,23 +1329,38 @@ export interface AppliedDamageSummary {
  * this strike; `applyDamageToTarget` uses it to enforce the floor rule
  * ("never below count8s if any 8 was rolled").
  */
+export interface ApplyDamageOptions {
+  attackTotal?: number | null;
+  evadeTn?: number | null;
+  /**
+   * When set, skip the Reaction Window prompt and use this mitigation
+   * (collected earlier via the interactive chat card).
+   */
+  reactionMitigation?: import('../combat/defender-reactions.js').DefenderReactionMitigation;
+  /** Skip the Reaction Window entirely (empty mitigation). */
+  skipReactionPrompt?: boolean;
+  /** Phasing already resolved by the caller — do not prompt again. */
+  skipPhasing?: boolean;
+}
+
 /** Exported for AoE secondary hits (power dice only, same mitigation pipeline). */
 export async function applyDamageToTargetFromAoe(
   target: Actor,
   damage: number,
   attacker: Actor,
   count8s: number = 0,
-  attackContext?: { attackTotal?: number | null; evadeTn?: number | null },
+  attackContext?: ApplyDamageOptions,
 ): Promise<AppliedDamageSummary> {
   return applyDamageToTarget(target, damage, attacker, count8s, attackContext);
 }
 
-async function applyDamageToTarget(
+/** Full defensive pipeline (phasing → reactions → armor/DR → temp HP → bars). */
+export async function applyDamageToTarget(
   target: Actor,
   damage: number,
   attacker: Actor,
   count8s: number = 0,
-  attackContext?: { attackTotal?: number | null; evadeTn?: number | null },
+  attackContext?: ApplyDamageOptions,
 ): Promise<AppliedDamageSummary> {
   const empty: AppliedDamageSummary = {
     rawDamage: Math.max(0, Math.floor(damage)),
@@ -1353,23 +1377,25 @@ async function applyDamageToTarget(
     // Step 0: Phasing — opt-in prompt for the target owner. If consumed, the
     // strike inflicts no damage and skips all riders (the caller in the attack
     // pipeline is responsible for skipping on-hit specials when phased).
-    try {
-      const { promptPhasingConsume, consumePhasingCharge } =
-        await import('../combat/phasing.js');
-      const phased = await promptPhasingConsume(target, { attacker, rawDamage: damage });
-      if (phased) {
-        await consumePhasingCharge(target);
-        const sheet = (target as any).sheet;
-        if (sheet && sheet.rendered) sheet.render(false);
-        return {
-          ...empty,
-          phased: true,
-          breakdownLine: `Raw ${empty.rawDamage} → Phased (ignored)`,
-        };
+    if (!attackContext?.skipPhasing) {
+      try {
+        const { promptPhasingConsume, consumePhasingCharge } =
+          await import('../combat/phasing.js');
+        const phased = await promptPhasingConsume(target, { attacker, rawDamage: damage });
+        if (phased) {
+          await consumePhasingCharge(target);
+          const sheet = (target as any).sheet;
+          if (sheet && sheet.rendered) sheet.render(false);
+          return {
+            ...empty,
+            phased: true,
+            breakdownLine: `Raw ${empty.rawDamage} → Phased (ignored)`,
+          };
+        }
+      } catch (err) {
+        // Phasing module not yet loaded or target has no charges — treat as pass.
+        console.debug?.('Mastery System | [APPLY DAMAGE] phasing skipped', err);
       }
-    } catch (err) {
-      // Phasing module not yet loaded or target has no charges — treat as pass.
-      console.debug?.('Mastery System | [APPLY DAMAGE] phasing skipped', err);
     }
 
     // Recompute combat totals before defender reactions so DR gating and the
@@ -1386,17 +1412,23 @@ async function applyDamageToTarget(
     let reactionArmorFlat = 0;
     let reactionDrPct = 0;
     let reactionInitiativeGain = 0;
+    const combat = (globalThis as any).game?.combat ?? null;
     try {
-      const combat = (globalThis as any).game?.combat ?? null;
-      const { promptDefenderReactionsBeforeMitigation } = await import('../combat/defender-reactions.js');
-      const reactMit = await promptDefenderReactionsBeforeMitigation({
-        defender: target as any,
-        attacker: attacker as any,
-        combat,
-        rawDamage: damage,
-        attackTotal: attackContext?.attackTotal ?? null,
-        evadeTn: attackContext?.evadeTn ?? null,
-      });
+      let reactMit = attackContext?.reactionMitigation;
+      if (!reactMit && !attackContext?.skipReactionPrompt) {
+        // Legacy / AoE fallback: interactive chat Reaction Window (blocking).
+        const { runInteractiveReactionWindow } = await import('../combat/reaction-window-chat.js');
+        reactMit = await runInteractiveReactionWindow({
+          defender: target as any,
+          attacker: attacker as any,
+          combat,
+          rawDamage: damage,
+          attackTotal: attackContext?.attackTotal ?? null,
+          evadeTn: attackContext?.evadeTn ?? null,
+          hit: true,
+        });
+      }
+      reactMit = reactMit ?? { reactionArmorFlat: 0, reactionDrPct: 0 };
       reactionArmorFlat = reactMit.reactionArmorFlat;
       reactionDrPct = reactMit.reactionDrPct;
       reactionInitiativeGain = Math.max(0, Math.floor(Number(reactMit.initiativeGain) || 0));
@@ -1770,6 +1802,11 @@ async function calculateDamageResult(
    */
   allowFaithReroll: boolean = true,
   attackContext?: { attackTotal?: number | null; evadeTn?: number | null },
+  /**
+   * When true, roll dice + status effects but do not apply HP yet.
+   * Caller posts damage chat → Reaction Window → `applyDamageToTarget`.
+   */
+  skipApply: boolean = false,
 ): Promise<DamageResult> {
   // Roll base damage
   // Sanitize dice notations before rolling
@@ -2014,6 +2051,7 @@ async function calculateDamageResult(
         attackType,
         false,
         attackContext,
+        skipApply,
       );
       rerolled.rollDetails = [
         `Reroll — 1 Faith Fracture spent (previous total: ${prevTotal})`,
@@ -2098,9 +2136,9 @@ async function calculateDamageResult(
   // pipeline. Halving it would under-report 8s that came from the raise
   // dice of *this* strike; we keep the full count (it is per-strike).
   const appliedCount8s = count8s;
-  // Apply damage to target
+  // Apply damage to target (unless deferred for Reaction Window chat order)
   let mitigation: AppliedDamageSummary | undefined;
-  if (target) {
+  if (target && !skipApply) {
     mitigation = await applyDamageToTarget(
       target,
       appliedDamage,
@@ -2121,6 +2159,8 @@ async function calculateDamageResult(
     damageChatRolls: damageChatRolls.length ? damageChatRolls : undefined,
     count8s: appliedCount8s,
     mitigation,
+    pendingApply: skipApply || undefined,
+    attackContext: skipApply ? attackContext : undefined,
   };
   return result;
 }

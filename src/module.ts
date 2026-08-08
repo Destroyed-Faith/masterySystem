@@ -3054,6 +3054,9 @@ Hooks.once('ready', async function() {
   const { registerFaithFractureRerollHandlers } = await import('./chat/faith-fracture-reroll.js');
   registerFaithFractureRerollHandlers();
 
+  const { registerReactionWindowChatHandlers } = await import('./combat/reaction-window-chat.js');
+  registerReactionWindowChatHandlers();
+
   const { registerWorldArtifactFlagSyncSocket } = await import('./utils/world-artifact-flag-sync.js');
   registerWorldArtifactFlagSyncSocket();
 

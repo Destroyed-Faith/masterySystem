@@ -2819,6 +2819,8 @@ Hooks.once('ready', async function () {
     registerSkillSpendClickHandler();
     const { registerFaithFractureRerollHandlers } = await import('./chat/faith-fracture-reroll.js');
     registerFaithFractureRerollHandlers();
+    const { registerReactionWindowChatHandlers } = await import('./combat/reaction-window-chat.js');
+    registerReactionWindowChatHandlers();
     const { registerWorldArtifactFlagSyncSocket } = await import('./utils/world-artifact-flag-sync.js');
     registerWorldArtifactFlagSyncSocket();
     const migrationActors = game.actors?.filter((a) => a.type === 'character' || a.type === 'npc') || [];

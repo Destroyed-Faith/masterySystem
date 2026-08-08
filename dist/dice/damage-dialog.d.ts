@@ -50,6 +50,16 @@ export interface DamageResult {
      * why a hit went through (or got phased/mitigated).
      */
     mitigation?: AppliedDamageSummary;
+    /**
+     * When true, dice were rolled but HP was not applied yet — the caller
+     * posts the damage chat, runs the Reaction Window, then applies.
+     */
+    pendingApply?: boolean;
+    /** Attack total / Evade TN carried for the deferred apply path. */
+    attackContext?: {
+        attackTotal?: number | null;
+        evadeTn?: number | null;
+    };
 }
 export declare function showDamageDialog(attacker: Actor, target: Actor, weaponId: string | null, selectedPowerId: string | null, raises: number, flags?: any): Promise<DamageResult | null>;
 /**
@@ -84,9 +94,21 @@ export interface AppliedDamageSummary {
  * this strike; `applyDamageToTarget` uses it to enforce the floor rule
  * ("never below count8s if any 8 was rolled").
  */
-/** Exported for AoE secondary hits (power dice only, same mitigation pipeline). */
-export declare function applyDamageToTargetFromAoe(target: Actor, damage: number, attacker: Actor, count8s?: number, attackContext?: {
+export interface ApplyDamageOptions {
     attackTotal?: number | null;
     evadeTn?: number | null;
-}): Promise<AppliedDamageSummary>;
+    /**
+     * When set, skip the Reaction Window prompt and use this mitigation
+     * (collected earlier via the interactive chat card).
+     */
+    reactionMitigation?: import('../combat/defender-reactions.js').DefenderReactionMitigation;
+    /** Skip the Reaction Window entirely (empty mitigation). */
+    skipReactionPrompt?: boolean;
+    /** Phasing already resolved by the caller — do not prompt again. */
+    skipPhasing?: boolean;
+}
+/** Exported for AoE secondary hits (power dice only, same mitigation pipeline). */
+export declare function applyDamageToTargetFromAoe(target: Actor, damage: number, attacker: Actor, count8s?: number, attackContext?: ApplyDamageOptions): Promise<AppliedDamageSummary>;
+/** Full defensive pipeline (phasing → reactions → armor/DR → temp HP → bars). */
+export declare function applyDamageToTarget(target: Actor, damage: number, attacker: Actor, count8s?: number, attackContext?: ApplyDamageOptions): Promise<AppliedDamageSummary>;
 //# sourceMappingURL=damage-dialog.d.ts.map

@@ -861,10 +861,11 @@ export function attachDamageCardHandlers(messageId) {
             const raiseSelections = new Map();
             // Mark spend is chosen AFTER the roll via a post-roll prompt inside
             // calculateDamageResult (exact "total → new total" options per spend).
+            // Defer HP apply so the damage chat can post before the Reaction Window.
             const result = await calculateDamageResult(flags.baseDamage, flags.powerDamage, flags.passiveDamage, 0, raiseSelections, flags.availableSpecials, attacker, target, Math.max(0, Number(flags.stoneDamageBonusDice) || 0), Math.max(0, Number(flags.npcAutoDamageDice) || 0), Array.isArray(flags.npcAutoSpecialStrings) ? flags.npcAutoSpecialStrings : [], flags.selectedPowerId || null, !!flags.splitAttack, flags.attackType === 'ranged' ? 'ranged' : 'melee', true, {
                 attackTotal: flags.attackTotal ?? null,
                 evadeTn: flags.normalTn ?? flags.baseEvade ?? flags.targetEvade ?? null,
-            });
+            }, true);
             // NSC signature attacks: Nd8 Stress on hit (plain dice; Stress Armor
             // mitigates inside applyStressToActor). Applies alongside the HP damage.
             const stressDice = Math.max(0, Math.floor(Number(flags.npcStressD8) || 0));
@@ -1118,19 +1119,12 @@ async function applyStatusEffectsToTarget(target, specialsUsed, attacker) {
         console.error('Mastery System | [APPLY STATUS EFFECTS] Error applying status effects', error);
     }
 }
-/**
- * Apply damage to target actor — full defensive pipeline:
- *   Phasing check (Phase 3) → Armor → DR% → 8s-minimum → Temp-HP → Health bars.
- *
- * `count8s` is the number of natural 8s rolled across all damage dice for
- * this strike; `applyDamageToTarget` uses it to enforce the floor rule
- * ("never below count8s if any 8 was rolled").
- */
 /** Exported for AoE secondary hits (power dice only, same mitigation pipeline). */
 export async function applyDamageToTargetFromAoe(target, damage, attacker, count8s = 0, attackContext) {
     return applyDamageToTarget(target, damage, attacker, count8s, attackContext);
 }
-async function applyDamageToTarget(target, damage, attacker, count8s = 0, attackContext) {
+/** Full defensive pipeline (phasing → reactions → armor/DR → temp HP → bars). */
+export async function applyDamageToTarget(target, damage, attacker, count8s = 0, attackContext) {
     const empty = {
         rawDamage: Math.max(0, Math.floor(damage)),
         armorApplied: 0,
@@ -1146,24 +1140,26 @@ async function applyDamageToTarget(target, damage, attacker, count8s = 0, attack
         // Step 0: Phasing — opt-in prompt for the target owner. If consumed, the
         // strike inflicts no damage and skips all riders (the caller in the attack
         // pipeline is responsible for skipping on-hit specials when phased).
-        try {
-            const { promptPhasingConsume, consumePhasingCharge } = await import('../combat/phasing.js');
-            const phased = await promptPhasingConsume(target, { attacker, rawDamage: damage });
-            if (phased) {
-                await consumePhasingCharge(target);
-                const sheet = target.sheet;
-                if (sheet && sheet.rendered)
-                    sheet.render(false);
-                return {
-                    ...empty,
-                    phased: true,
-                    breakdownLine: `Raw ${empty.rawDamage} → Phased (ignored)`,
-                };
+        if (!attackContext?.skipPhasing) {
+            try {
+                const { promptPhasingConsume, consumePhasingCharge } = await import('../combat/phasing.js');
+                const phased = await promptPhasingConsume(target, { attacker, rawDamage: damage });
+                if (phased) {
+                    await consumePhasingCharge(target);
+                    const sheet = target.sheet;
+                    if (sheet && sheet.rendered)
+                        sheet.render(false);
+                    return {
+                        ...empty,
+                        phased: true,
+                        breakdownLine: `Raw ${empty.rawDamage} → Phased (ignored)`,
+                    };
+                }
             }
-        }
-        catch (err) {
-            // Phasing module not yet loaded or target has no charges — treat as pass.
-            console.debug?.('Mastery System | [APPLY DAMAGE] phasing skipped', err);
+            catch (err) {
+                // Phasing module not yet loaded or target has no charges — treat as pass.
+                console.debug?.('Mastery System | [APPLY DAMAGE] phasing skipped', err);
+            }
         }
         // Recompute combat totals before defender reactions so DR gating and the
         // reaction dialog see the same `system.combat` as mitigation (token vs
@@ -1179,17 +1175,23 @@ async function applyDamageToTarget(target, damage, attacker, count8s = 0, attack
         let reactionArmorFlat = 0;
         let reactionDrPct = 0;
         let reactionInitiativeGain = 0;
+        const combat = globalThis.game?.combat ?? null;
         try {
-            const combat = globalThis.game?.combat ?? null;
-            const { promptDefenderReactionsBeforeMitigation } = await import('../combat/defender-reactions.js');
-            const reactMit = await promptDefenderReactionsBeforeMitigation({
-                defender: target,
-                attacker: attacker,
-                combat,
-                rawDamage: damage,
-                attackTotal: attackContext?.attackTotal ?? null,
-                evadeTn: attackContext?.evadeTn ?? null,
-            });
+            let reactMit = attackContext?.reactionMitigation;
+            if (!reactMit && !attackContext?.skipReactionPrompt) {
+                // Legacy / AoE fallback: interactive chat Reaction Window (blocking).
+                const { runInteractiveReactionWindow } = await import('../combat/reaction-window-chat.js');
+                reactMit = await runInteractiveReactionWindow({
+                    defender: target,
+                    attacker: attacker,
+                    combat,
+                    rawDamage: damage,
+                    attackTotal: attackContext?.attackTotal ?? null,
+                    evadeTn: attackContext?.evadeTn ?? null,
+                    hit: true,
+                });
+            }
+            reactMit = reactMit ?? { reactionArmorFlat: 0, reactionDrPct: 0 };
             reactionArmorFlat = reactMit.reactionArmorFlat;
             reactionDrPct = reactMit.reactionDrPct;
             reactionInitiativeGain = Math.max(0, Math.floor(Number(reactMit.initiativeGain) || 0));
@@ -1530,7 +1532,12 @@ async function calculateDamageResult(baseDamage, powerDamage, passiveDamage, rai
  * Offer a Faith Fracture damage reroll after rolling, before applying.
  * The reroll recursion passes `false` — any roll may be rerolled at most once.
  */
-allowFaithReroll = true, attackContext) {
+allowFaithReroll = true, attackContext, 
+/**
+ * When true, roll dice + status effects but do not apply HP yet.
+ * Caller posts damage chat → Reaction Window → `applyDamageToTarget`.
+ */
+skipApply = false) {
     // Roll base damage
     // Sanitize dice notations before rolling
     const sanitizedBaseDamage = sanitizeDiceNotation(baseDamage || '0');
@@ -1761,7 +1768,7 @@ allowFaithReroll = true, attackContext) {
             const cur = Number(attacker?.system?.faithFractures?.current ?? 0) || 0;
             await attacker.update({ 'system.faithFractures.current': Math.max(0, cur - 1) });
             ui.notifications?.info(`${attacker.name} spent 1 Faith Fracture — rerolling damage (was ${prevTotal}).`);
-            const rerolled = await calculateDamageResult(baseDamage, powerDamage, passiveDamage, raises, raiseSelections, availableSpecials, attacker, target, stoneDamageBonusDice, npcAutoDamageDice, npcAutoSpecialStrings, selectedPowerId, splitAttack, attackType, false, attackContext);
+            const rerolled = await calculateDamageResult(baseDamage, powerDamage, passiveDamage, raises, raiseSelections, availableSpecials, attacker, target, stoneDamageBonusDice, npcAutoDamageDice, npcAutoSpecialStrings, selectedPowerId, splitAttack, attackType, false, attackContext, skipApply);
             rerolled.rollDetails = [
                 `Reroll — 1 Faith Fracture spent (previous total: ${prevTotal})`,
                 ...(rerolled.rollDetails ?? []),
@@ -1847,9 +1854,9 @@ allowFaithReroll = true, attackContext) {
     // pipeline. Halving it would under-report 8s that came from the raise
     // dice of *this* strike; we keep the full count (it is per-strike).
     const appliedCount8s = count8s;
-    // Apply damage to target
+    // Apply damage to target (unless deferred for Reaction Window chat order)
     let mitigation;
-    if (target) {
+    if (target && !skipApply) {
         mitigation = await applyDamageToTarget(target, appliedDamage, attacker, appliedCount8s, attackContext);
     }
     const result = {
@@ -1863,6 +1870,8 @@ allowFaithReroll = true, attackContext) {
         damageChatRolls: damageChatRolls.length ? damageChatRolls : undefined,
         count8s: appliedCount8s,
         mitigation,
+        pendingApply: skipApply || undefined,
+        attackContext: skipApply ? attackContext : undefined,
     };
     return result;
 }

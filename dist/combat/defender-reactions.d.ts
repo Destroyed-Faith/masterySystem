@@ -1,13 +1,9 @@
 /**
- * Defender reactions — prompted when incoming damage is applied (after Phasing).
- * Spends `RoundState.reactionActions`, marks `usedPowerIdsThisRound`, and applies
- * one-hit armor / reaction DR from power `mechanics` where present.
+ * Defender reactions — eligibility + Evade negation helpers.
  *
- * Reaction: Evade adds its bonus to the Evade TN of the triggering attack.
- * If (Evade + bonus) > attack total, the hit is negated — no damage. No roll.
- *
- * Ghost Slip–style powers (`phasing.reactionSingleHit`) are omitted here: they
- * interact with the phasing step, not post-phasing mitigation.
+ * Interactive spend UI lives in `reaction-window-chat.ts` (chat buttons posted
+ * after the damage roll). Ghost Slip–style powers (`phasing.reactionSingleHit`)
+ * are omitted here: they interact with the phasing step, not post-phasing mitigation.
  */
 export interface DefenderReactionMitigation {
     /** Extra flat armor for this damage instance only. */
@@ -76,17 +72,14 @@ export declare function collectReactionWindowEntries(params: {
     combat: Combat;
 }): ReactionWindowActorEntry[];
 /**
- * After phasing: announce the public Reaction Window in chat, then offer the
- * defender's spend dialog (owner/GM only).
+ * @deprecated Prefer `runInteractiveReactionWindow` from `reaction-window-chat.ts`.
  */
 export declare function promptDefenderReactionsBeforeMitigation(params: {
     defender: Actor;
     attacker: Actor;
     combat: Combat | null;
     rawDamage: number;
-    /** Kept attack total from the triggering roll (for Reaction Evade). */
     attackTotal?: number | null;
-    /** Evade / Normal TN the attack was rolled against. */
     evadeTn?: number | null;
 }): Promise<DefenderReactionMitigation>;
 //# sourceMappingURL=defender-reactions.d.ts.map
