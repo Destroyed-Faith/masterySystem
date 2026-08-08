@@ -37,6 +37,8 @@ export interface ReactionWindowState {
     damageMessageId?: string | null;
     /** Threatened Ranged OA token ids (enemies who may strike the shooter). */
     opportunityEnemyTokenIds?: string[];
+    /** Nested reaction-counterattack windows: hide Counterattack to avoid deep pauses. */
+    suppressCounterattack?: boolean;
 }
 /** Result of a reaction phase (mitigation + who already spent). */
 export interface ReactionPhaseResult {
@@ -79,6 +81,8 @@ export declare function runInteractiveReactionWindow(params: {
     silentIfEmpty?: boolean;
     /** Threatened Ranged: token ids that may spend a Reaction for an Opportunity Attack. */
     opportunityEnemyTokenIds?: string[] | null;
+    /** Hide Counterattack buttons (nested reaction-counterattack resolution). */
+    suppressCounterattack?: boolean;
 }): Promise<ReactionPhaseResult>;
 export declare function registerReactionWindowChatHandlers(): void;
 //# sourceMappingURL=reaction-window-chat.d.ts.map

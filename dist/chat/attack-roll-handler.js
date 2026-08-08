@@ -88,6 +88,8 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
             return;
         }
         rollAttackMessageLocks.add(lockId);
+        const awaitsResolution = !!flags.awaitAttackResolution;
+        const suppressNestedCounterattack = !!flags.fromReactionCounterattack;
         // Entitlement: pressing Roll opens a reaction opportunity for this attack
         // even if the attack later misses (window posts after the roll / damage).
         try {
@@ -706,6 +708,7 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
                         evadeTn: normalTn,
                         hit: true,
                         phase: 'defender',
+                        suppressCounterattack: suppressNestedCounterattack,
                     });
                     const primaryNegated = !!phase1.mitigation?.negatedByEvade;
                     let primaryEscaped = false;
@@ -822,7 +825,10 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
                             spentActorIds: phase1.spentActorIds,
                             used: phase1.used,
                             priorMitigation: phase1.mitigation,
-                            opportunityEnemyTokenIds,
+                            opportunityEnemyTokenIds: suppressNestedCounterattack
+                                ? []
+                                : opportunityEnemyTokenIds,
+                            suppressCounterattack: suppressNestedCounterattack,
                             silentIfEmpty: true,
                         });
                     }
@@ -876,6 +882,7 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
                             evadeTn: normalTn,
                             hit: false,
                             phase: 'defender',
+                            suppressCounterattack: suppressNestedCounterattack,
                         });
                         await runInteractiveReactionWindow({
                             defender: missTarget,
@@ -890,7 +897,10 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
                             spentActorIds: phase1.spentActorIds,
                             used: phase1.used,
                             priorMitigation: phase1.mitigation,
-                            opportunityEnemyTokenIds,
+                            opportunityEnemyTokenIds: suppressNestedCounterattack
+                                ? []
+                                : opportunityEnemyTokenIds,
+                            suppressCounterattack: suppressNestedCounterattack,
                             silentIfEmpty: true,
                         });
                     }
@@ -920,6 +930,18 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
             console.error('Mastery System | Error rolling attack:', error);
             ui.notifications?.error('Failed to roll attack');
             resetRollButton();
+        }
+        finally {
+            // Unblock a Reaction Counterattack / OA that paused another attack.
+            if (awaitsResolution) {
+                try {
+                    const { completeAttackResolution } = await import('../combat/attack-resolution-wait.js');
+                    completeAttackResolution(String(messageId), { status: 'resolved' });
+                }
+                catch (completeErr) {
+                    console.warn('Mastery System | completeAttackResolution failed', completeErr);
+                }
+            }
         }
     }
 }

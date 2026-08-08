@@ -239,7 +239,7 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
             splitIndex: 2,
             attributePool: 0,
         }, null, null);
-        return;
+        return null;
     }
     // Use token actor (for unlinked tokens) or base actor
     // For unlinked tokens, token.actor is a synthetic actor with delta data
@@ -257,7 +257,7 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
             hasAttacker: !!attacker,
             hasTarget: !!target
         });
-        return;
+        return null;
     }
     // Log actor item summary for diagnostics
     const items = collectActorItems(attacker);
@@ -431,10 +431,16 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
     else if (split) {
         costsThisCard = optionPaysAction && split.splitIndex === 1;
     }
+    // Reaction Counterattack: pause the original attack until this card resolves.
+    const fromReactionCounterattack = !!option.tags?.includes('counterattack') ||
+        /^counterattack\b/i.test(String(option.name || ''));
     const flagsObj = {
         attackType,
         // Split second strike / melee burst follow-up cards do not consume another action on roll.
         costsAction: costsThisCard,
+        ...(fromReactionCounterattack
+            ? { fromReactionCounterattack: true, awaitAttackResolution: true }
+            : {}),
         attackerId: attacker.id,
         targetId: target.id,
         targetTokenId: targetToken.id,
@@ -556,6 +562,14 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
         : "";
     const aoeDiceAttr = aoeMelee && aoeMelee.powerBonusDice > 0 ? String(Math.floor(aoeMelee.powerBonusDice)) : "0";
     const aoeMeleeAttr = aoeMelee && aoeMelee.secondaryTokenIds?.length ? "1" : "0";
+    const skipAwaitedHtml = fromReactionCounterattack
+        ? `<button type="button" class="ms-skip-awaited-attack-btn" title="Skip this Counterattack and continue the original attack's damage">
+        <i class="fas fa-forward"></i> Skip — continue original damage
+      </button>
+      <p class="ms-awaited-attack-hint" style="opacity:0.9;font-size:0.9em;margin:0.35em 0 0;">
+        Original damage is <strong>paused</strong> until you Roll this Counterattack (or Skip).
+      </p>`
+        : '';
     const buttonHtml = `
     <button class="roll-attack-btn" 
             data-attacker-id="${attacker.id}"
@@ -575,6 +589,7 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
             data-aoe-power-dice="${aoeDiceAttr}">
       <i class="fas fa-dice-d20"></i> Roll
     </button>
+    ${skipAwaitedHtml}
   `;
     const raisePlanHtml = raiseContext
         ? `
@@ -692,19 +707,21 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
                     // Try alternative selector
                     const altElement = $(`[data-message-id="${messageId}"]`);
                     if (altElement.length) {
-                        setupRaisesHandler(messageElement, messageId, normalTn, raiseContext);
+                        setupRaisesHandler(altElement, messageId, normalTn, raiseContext);
                     }
                 }
                 else {
                     setupRaisesHandler(messageElement, messageId, normalTn, raiseContext);
                 }
             }, 100);
+            return String(messageId);
         }
     }
     catch (error) {
         console.error("Mastery System | [ATTACK EXECUTOR] Failed to create attack card", error);
         ui.notifications?.error("Failed to create attack card");
     }
+    return null;
 }
 export async function createMeleeAttackCard(attackerToken, targetToken, option, burstVolley = null, aoeMelee = null) {
     return createAttackCard(attackerToken, targetToken, option, "melee", null, burstVolley, aoeMelee);

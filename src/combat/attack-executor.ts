@@ -289,7 +289,7 @@ export async function createAttackCard(
   split: SplitContext | null = null,
   burstVolley: MeleeBurstVolleyContext | null = null,
   aoeMelee: AoeMeleeWeaponContext | null = null,
-): Promise<void> {
+): Promise<string | null> {
   // Split-Attack dispatcher: when a power declares `mechanics.splitAttack`,
   // we recurse into two strikes sharing one attack action. Pool + damage are
   // halved per strike (floor — odd remainder falls off symmetrically).
@@ -307,7 +307,7 @@ export async function createAttackCard(
       splitIndex: 2,
       attributePool: 0,
     }, null, null);
-    return;
+    return null;
   }
 
   // Use token actor (for unlinked tokens) or base actor
@@ -328,7 +328,7 @@ export async function createAttackCard(
       hasAttacker: !!attacker,
       hasTarget: !!target
     });
-    return;
+    return null;
   }
   
   // Log actor item summary for diagnostics
@@ -541,10 +541,18 @@ export async function createAttackCard(
     costsThisCard = optionPaysAction && split.splitIndex === 1;
   }
 
+  // Reaction Counterattack: pause the original attack until this card resolves.
+  const fromReactionCounterattack =
+    !!option.tags?.includes('counterattack') ||
+    /^counterattack\b/i.test(String(option.name || ''));
+
   const flagsObj: any = {
     attackType,
     // Split second strike / melee burst follow-up cards do not consume another action on roll.
     costsAction: costsThisCard,
+    ...(fromReactionCounterattack
+      ? { fromReactionCounterattack: true, awaitAttackResolution: true }
+      : {}),
     attackerId: attacker.id,
     targetId: target.id,
     targetTokenId: targetToken.id,
@@ -691,6 +699,15 @@ export async function createAttackCard(
     aoeMelee && aoeMelee.powerBonusDice > 0 ? String(Math.floor(aoeMelee.powerBonusDice)) : "0";
   const aoeMeleeAttr = aoeMelee && aoeMelee.secondaryTokenIds?.length ? "1" : "0";
 
+  const skipAwaitedHtml = fromReactionCounterattack
+    ? `<button type="button" class="ms-skip-awaited-attack-btn" title="Skip this Counterattack and continue the original attack's damage">
+        <i class="fas fa-forward"></i> Skip — continue original damage
+      </button>
+      <p class="ms-awaited-attack-hint" style="opacity:0.9;font-size:0.9em;margin:0.35em 0 0;">
+        Original damage is <strong>paused</strong> until you Roll this Counterattack (or Skip).
+      </p>`
+    : '';
+
   const buttonHtml = `
     <button class="roll-attack-btn" 
             data-attacker-id="${attacker.id}"
@@ -710,6 +727,7 @@ export async function createAttackCard(
             data-aoe-power-dice="${aoeDiceAttr}">
       <i class="fas fa-dice-d20"></i> Roll
     </button>
+    ${skipAwaitedHtml}
   `;
 
   const raisePlanHtml = raiseContext
@@ -846,17 +864,19 @@ export async function createAttackCard(
           // Try alternative selector
           const altElement = $(`[data-message-id="${messageId}"]`);
           if (altElement.length) {
-            setupRaisesHandler(messageElement, messageId, normalTn, raiseContext);
+            setupRaisesHandler(altElement, messageId, normalTn, raiseContext);
           }
         } else {
           setupRaisesHandler(messageElement, messageId, normalTn, raiseContext);
         }
       }, 100);
+      return String(messageId);
     }
   } catch (error) {
     console.error("Mastery System | [ATTACK EXECUTOR] Failed to create attack card", error);
     ui.notifications?.error("Failed to create attack card");
   }
+  return null;
 }
 
 export async function createMeleeAttackCard(
@@ -865,7 +885,7 @@ export async function createMeleeAttackCard(
   option: RadialCombatOption,
   burstVolley: MeleeBurstVolleyContext | null = null,
   aoeMelee: AoeMeleeWeaponContext | null = null,
-): Promise<void> {
+): Promise<string | null> {
   return createAttackCard(attackerToken, targetToken, option, "melee", null, burstVolley, aoeMelee);
 }
 
@@ -874,7 +894,7 @@ export async function createRangedAttackCard(
   targetToken: any,
   option: RadialCombatOption,
   aoeZone: AoeMeleeWeaponContext | null = null,
-): Promise<void> {
+): Promise<string | null> {
   return createAttackCard(attackerToken, targetToken, option, "ranged", null, null, aoeZone);
 }
 

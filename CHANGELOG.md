@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.280] - 2026-08-08
+
+### Fixed
+
+- **Reaction Counterattack / Opportunity Attack**: original attack damage is **paused** until the Counterattack card is rolled and fully resolved (or **Skip** is pressed). No more Dummy damage continuing while the Counterattack Roll sits unused.
+- Nested Counterattack buttons are suppressed on reaction-counterattack cards to avoid pause stacks.
+
 ## [0.9.279] - 2026-08-08
 
 ### Fixed

@@ -15,6 +15,8 @@ import { isBasicReactionItem } from './basic-combat.js';
 import { getPrimaryTokenForActor } from '../utils/mechanics-adjacency.js';
 const SOCKET_NAME = 'system.mastery-system';
 const pendingWaiters = new Map();
+/** Reaction windows currently resolving a blocking Counterattack/OA. */
+const busyReactionMessages = new Set();
 let hooksRegistered = false;
 let socketRegistered = false;
 function escHtml(s) {
@@ -79,6 +81,10 @@ function filterEntriesForCard(entries, state) {
         // Phase 1 is defensive window for the target — ally-only powers stay out.
         if (state.phase === 'defender') {
             powers = powers.filter((p) => !isAllyReactionPower(p));
+        }
+        // Reaction Counterattack already paused one attack — don't nest another.
+        if (state.suppressCounterattack) {
+            powers = powers.filter((p) => p?.basicReaction !== 'counterattack');
         }
         return { ...e, powers };
     })
@@ -267,6 +273,7 @@ async function launchBasicCounterattack(defender, attacker) {
         throw new Error('Missing tokens for Counterattack');
     }
     const { createMeleeAttackCard } = await import('./attack-executor.js');
+    const { waitForAttackResolution } = await import('./attack-resolution-wait.js');
     const option = {
         id: 'weapon-attack',
         name: 'Counterattack (Basic Attack)',
@@ -277,7 +284,14 @@ async function launchBasicCounterattack(defender, attacker) {
         selectedPowerId: null,
         costsAction: false,
     };
-    await createMeleeAttackCard(defTok, atkTok, option);
+    const messageId = await createMeleeAttackCard(defTok, atkTok, option);
+    if (!messageId) {
+        throw new Error('Counterattack attack card was not created');
+    }
+    globalThis.ui?.notifications?.info?.('Counterattack: Roll this attack now. Original damage is paused until it finishes (or you Skip).');
+    // Block the original attack pipeline until this Counterattack is rolled +
+    // resolved (or skipped). Otherwise Dummy damage continues immediately.
+    await waitForAttackResolution(messageId);
 }
 /**
  * Apply a chosen reaction for one actor. Updates economy + returns defender mitigation delta.
@@ -312,12 +326,13 @@ async function executeReactionSpend(params) {
     let note = '';
     const mech = mechanicsOf(power);
     const isCounterattack = power?.basicReaction === 'counterattack';
-    // Threatened Ranged OA: strike the shooter (attacker).
+    // Threatened Ranged OA: strike the shooter (attacker) before continuing.
     if (role === 'opportunity') {
-        note = ` <em>(Opportunity Attack vs ${String(attacker?.name ?? 'the shooter')}.)</em>`;
+        note = ` <em>(Opportunity Attack vs ${String(attacker?.name ?? 'the shooter')} — resolve it now.)</em>`;
         if (attacker) {
             try {
                 await launchBasicCounterattack(actor, attacker);
+                note += ' <em>(Opportunity Attack finished.)</em>';
             }
             catch (err) {
                 console.warn('Mastery System | Opportunity Attack launch failed', err);
@@ -332,7 +347,7 @@ async function executeReactionSpend(params) {
         if (isCounterattack && attacker) {
             try {
                 await launchBasicCounterattack(actor, attacker);
-                note += ' <em>(Counterattack queued.)</em>';
+                note += ' <em>(Counterattack finished.)</em>';
             }
             catch (err) {
                 console.warn('Mastery System | Ally counterattack launch failed', err);
@@ -399,10 +414,11 @@ async function executeReactionSpend(params) {
         note += ` <em>(+${iniGain} Initiative applies after this attack fully resolves.)</em>`;
     }
     if (isCounterattack) {
-        note += ` <em>(Basic Counterattack queued against ${String(attacker?.name ?? 'attacker')}.)</em>`;
+        note += ` <em>(Basic Counterattack vs ${String(attacker?.name ?? 'attacker')} — resolve it now; original damage is paused.)</em>`;
         if (attacker) {
             try {
-                await launchBasicCounterattack(defender, attacker);
+                await launchBasicCounterattack(actor, attacker);
+                note += ' <em>(Counterattack finished.)</em>';
             }
             catch (err) {
                 console.warn('Mastery System | Counterattack launch failed', err);
@@ -483,6 +499,10 @@ async function handleUseClick(messageId, actorId, powerId) {
     const state = readState(message);
     if (!state || state.resolved)
         return;
+    if (busyReactionMessages.has(messageId)) {
+        g.ui?.notifications?.warn?.('Finish the pending Counterattack / Opportunity Attack first.');
+        return;
+    }
     const { attacker, defender, combat } = await resolveActors(state);
     if (!defender || !combat)
         return;
@@ -502,20 +522,53 @@ async function handleUseClick(messageId, actorId, powerId) {
         g.ui?.notifications?.warn?.('Reaction power not available.');
         return;
     }
-    const { state: next, note } = await executeReactionSpend({
-        state,
-        actor: entry.actor,
-        power,
-        role: entry.role,
-        attacker,
-        combat,
-        defender,
-    });
+    const blocksOriginal = power?.basicReaction === 'counterattack' ||
+        String(power?.id || '') === 'basic-reaction-opportunity-attack';
+    // Announce immediately so the table sees the spend before a long Counterattack wait.
     await g.ChatMessage?.create?.({
         user: g.game?.user?.id,
         speaker: g.ChatMessage?.getSpeaker?.({ actor: entry.actor }),
-        content: `<p class="mastery-reaction-msg"><strong>${escHtml(String(entry.actor.name))}</strong> uses <strong>${escHtml(String(power.name))}</strong> (1 Reaction spent).${note}</p>`,
+        content: `<p class="mastery-reaction-msg"><strong>${escHtml(String(entry.actor.name))}</strong> uses <strong>${escHtml(String(power.name))}</strong> (1 Reaction spent).${blocksOriginal
+            ? ' <em>(Original damage paused until this attack is rolled or skipped.)</em>'
+            : ''}</p>`,
     });
+    if (blocksOriginal) {
+        busyReactionMessages.add(messageId);
+        try {
+            const $msg = $(`.message[data-message-id="${messageId}"]`);
+            $msg
+                .find('.ms-reaction-continue-btn, .ms-reaction-use-btn, .ms-reaction-decline-btn')
+                .prop('disabled', true);
+        }
+        catch {
+            /* ignore */
+        }
+    }
+    let next = state;
+    let note = '';
+    try {
+        const spent = await executeReactionSpend({
+            state,
+            actor: entry.actor,
+            power,
+            role: entry.role,
+            attacker,
+            combat,
+            defender,
+        });
+        next = spent.state;
+        note = spent.note;
+    }
+    finally {
+        busyReactionMessages.delete(messageId);
+    }
+    if (note) {
+        await g.ChatMessage?.create?.({
+            user: g.game?.user?.id,
+            speaker: g.ChatMessage?.getSpeaker?.({ actor: entry.actor }),
+            content: `<p class="mastery-reaction-msg">${note}</p>`,
+        });
+    }
     const still = filterEntriesForCard(entriesFromState(next, defender, attacker, combat), next);
     if (!still.length) {
         await closeReactionWindow(messageId, next);
@@ -564,6 +617,10 @@ async function handleContinueClick(messageId) {
     const state = readState(message);
     if (!state || state.resolved)
         return;
+    if (busyReactionMessages.has(messageId)) {
+        g.ui?.notifications?.warn?.('Finish the pending Counterattack / Opportunity Attack before continuing.');
+        return;
+    }
     const u = g.game?.user;
     const { defender } = await resolveActors(state);
     // GM, damage roller (pending waiter on this client), or defender owner may continue.
@@ -629,6 +686,7 @@ export async function runInteractiveReactionWindow(params) {
         resolved: false,
         damageMessageId: params.damageMessageId ?? null,
         opportunityEnemyTokenIds: oppIds,
+        suppressCounterattack: !!params.suppressCounterattack,
     };
     const actionable = filterEntriesForCard(entries, state);
     if (!actionable.length) {
@@ -731,6 +789,37 @@ export function registerReactionWindowChatHandlers() {
             if (!messageId)
                 return;
             await handleContinueClick(messageId);
+        });
+        $(document)
+            .off('click.msSkipAwaitedAttack', '.ms-skip-awaited-attack-btn')
+            .on('click.msSkipAwaitedAttack', '.ms-skip-awaited-attack-btn', async (ev) => {
+            ev.preventDefault();
+            ev.stopPropagation();
+            const btn = $(ev.currentTarget);
+            const messageId = String(btn.closest('.message').attr('data-message-id') || '');
+            if (!messageId)
+                return;
+            const { completeAttackResolution, isAwaitingAttackResolution } = await import('./attack-resolution-wait.js');
+            if (!isAwaitingAttackResolution(messageId)) {
+                globalThis.ui?.notifications?.warn?.('This attack is not waiting to unblock another action.');
+                return;
+            }
+            btn.prop('disabled', true);
+            completeAttackResolution(messageId, { status: 'skipped' });
+            try {
+                const msg = globalThis.game?.messages?.get?.(messageId);
+                if (msg) {
+                    const content = String(msg.content || '');
+                    const note = '<p class="ms-awaited-attack-skipped" style="opacity:0.9;"><em>Counterattack skipped — original damage continues.</em></p>';
+                    if (!content.includes('ms-awaited-attack-skipped')) {
+                        await msg.update({ content: `${content}${note}` });
+                    }
+                }
+            }
+            catch {
+                /* ignore */
+            }
+            globalThis.ui?.notifications?.info?.('Counterattack skipped — original damage continues.');
         });
         Hooks.on('updateChatMessage', (message) => {
             try {
