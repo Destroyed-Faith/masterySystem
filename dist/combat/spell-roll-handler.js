@@ -22,7 +22,7 @@
 import { masteryRoll } from '../dice/roll-handler.js';
 import { computeRaiseTns, resolveRaiseOutcome } from './raise-resolution.js';
 import { RAISE_INCREMENT } from '../utils/constants.js';
-import { applyStress, applyDamage } from '../utils/calculations.js';
+import { applyStress, applyDamage, isStressTrackCollapsed, } from '../utils/calculations.js';
 /** Flag scope used for persistent spell-related state on actors. */
 const FLAG_SCOPE = 'mastery-system';
 /** Boolean flag: any HP lost to Blood Raises that is still outstanding. */
@@ -135,18 +135,32 @@ export async function applyStressToActor(actor, amount, options) {
             }
         }
     }
+    const wasCollapsed = isStressTrackCollapsed(bars, currentBar);
     const barsClone = bars.map((b) => ({ ...b }));
     const newCurrent = applyStress(barsClone, currentBar, appliedAmount);
+    // Store a clamped bar index for sheet UI; collapse is detected separately.
+    const storedBar = Math.min(Math.max(0, newCurrent), Math.max(0, barsClone.length - 1));
     try {
         await actor.update({
             'system.stress.bars': barsClone,
-            'system.stress.currentBar': newCurrent,
+            'system.stress.currentBar': storedBar,
         });
     }
     catch (err) {
         console.warn('Mastery System | applyStressToActor failed', err);
     }
-    return newCurrent;
+    // Players Guide: when the track fills, run the Stress Breakdown Check.
+    try {
+        const nowCollapsed = isStressTrackCollapsed(barsClone, newCurrent);
+        if (!wasCollapsed && nowCollapsed) {
+            const { maybeTriggerStressBreakdown } = await import('./stress-breakdown.js');
+            await maybeTriggerStressBreakdown(actor, { wasCollapsed: false });
+        }
+    }
+    catch (err) {
+        console.warn('Mastery System | stress breakdown trigger failed', err);
+    }
+    return storedBar;
 }
 /** Roll `1d8` and apply the result as stress. Returns the stress inflicted. */
 export async function applyFizzleStress(actor) {

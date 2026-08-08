@@ -41,6 +41,7 @@ import {
   removeAugmentCharges,
   registerPhasingSettings,
 } from './combat/phasing.js';
+import { registerStressBreakdownSettings } from './combat/stress-breakdown.js';
 import { initializeEncounterStart, beginEncounter } from './combat/encounter-start.js';
 import { initializeSceneControls, initializeTokenHUDButton } from './ui/scene-controls-mastery.js';
 import { openStonePowersForAllCombatants, initializeStonePowersFlow } from './combat/stone-powers-flow.js';
@@ -145,6 +146,7 @@ function registerAllMasteryInitSettings(): void {
   registerRulesV2AlignmentMigrationSetting();
   registerSpeed8mMigrationSetting();
   registerSummonV2MigrationSetting();
+  registerStressBreakdownSettings();
 }
 
 /**
@@ -3056,6 +3058,9 @@ Hooks.once('ready', async function() {
 
   const { registerReactionWindowChatHandlers } = await import('./combat/reaction-window-chat.js');
   registerReactionWindowChatHandlers();
+
+  const { registerStressBreakdownChatHandlers } = await import('./combat/stress-breakdown.js');
+  registerStressBreakdownChatHandlers();
 
   const { registerWorldArtifactFlagSyncSocket } = await import('./utils/world-artifact-flag-sync.js');
   registerWorldArtifactFlagSyncSocket();

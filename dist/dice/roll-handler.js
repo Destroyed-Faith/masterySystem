@@ -147,8 +147,27 @@ export function countMarginRaises(total, tn) {
  * Dice explode on 8
  */
 export async function masteryRoll(options) {
-    const { keepDice, skill = 0, tn = 0, label = 'Roll' } = options;
+    let keepDice = Math.max(1, Math.floor(Number(options.keepDice) || 1));
+    const { skill = 0, tn = 0, label = 'Roll' } = options;
     let { numDice, flavor = '' } = options;
+    // Stress Breakdown Virtue: next action gains +1 Keep (Players Guide ~9223).
+    if (options.actorId || options.actorRef) {
+        try {
+            const virtueActor = options.actorRef ?? game?.actors?.get?.(options.actorId);
+            if (virtueActor) {
+                const { consumeStressBreakdownVirtueKeep } = await import('../combat/stress-breakdown.js');
+                const bonus = await consumeStressBreakdownVirtueKeep(virtueActor);
+                if (bonus > 0) {
+                    keepDice += bonus;
+                    const note = 'Stress Breakdown Virtue: +1 Keep';
+                    flavor = flavor ? `${flavor} | ${note}` : note;
+                }
+            }
+        }
+        catch (err) {
+            console.warn('Mastery System | stress virtue keep failed', err);
+        }
+    }
     // Pre-Auto-Raise pool size, preserved so the reroll recipe can re-apply the
     // same Auto-Raise deduction on reroll without double-counting the cost.
     const originalNumDice = numDice;

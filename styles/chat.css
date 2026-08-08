@@ -918,6 +918,31 @@
   border-left: 3px solid rgba(255, 209, 102, 0.65);
 }
 
+#chat-log .mastery-stress-breakdown {
+  border-left: 3px solid rgba(142, 68, 173, 0.75);
+  padding: 0.35em 0.55em;
+  background: rgba(142, 68, 173, 0.08);
+}
+
+#chat-log .mastery-stress-breakdown .ms-stress-breakdown-roll-btn,
+#chat-log .mastery-stress-breakdown .ms-stress-affliction-a-btn,
+#chat-log .mastery-stress-breakdown .ms-stress-affliction-b-btn {
+  cursor: pointer;
+  font-size: 0.85rem;
+  padding: 0.28em 0.55em;
+  border-radius: 4px;
+  border: 1px solid rgba(155, 89, 182, 0.55);
+  background: rgba(44, 24, 52, 0.85);
+  color: #e8d5f5;
+}
+
+#chat-log .mastery-stress-breakdown .ms-stress-breakdown-roll-btn:hover,
+#chat-log .mastery-stress-breakdown .ms-stress-affliction-a-btn:hover,
+#chat-log .mastery-stress-breakdown .ms-stress-affliction-b-btn:hover {
+  border-color: rgba(187, 143, 206, 0.9);
+  color: #f5e6ff;
+}
+
 #chat-log .mastery-reaction-window {
   border-left: 3px solid rgba(241, 196, 15, 0.7);
   padding: 0.35em 0.55em;

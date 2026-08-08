@@ -292,30 +292,51 @@ export function updateStressBars(bars: HealthBar[], resolve: number, intellect: 
 
 /**
  * Apply stress damage to stress bars
- * Returns the new current bar index
+ * Returns the new current bar index (may equal `bars.length` when the track
+ * has collapsed into Breakdown — callers should clamp for storage).
  */
 export function applyStress(
   bars: HealthBar[],
   currentBar: number,
   stress: number
 ): number {
-  let remainingStress = stress;
-  let barIndex = currentBar;
+  let remainingStress = Math.max(0, Math.floor(Number(stress) || 0));
+  let barIndex = Math.max(0, Math.floor(Number(currentBar) || 0));
   
   while (remainingStress > 0 && barIndex < bars.length) {
     const bar = bars[barIndex];
+    const cur = Math.max(0, Math.floor(Number(bar.current) || 0));
+    bar.current = cur;
     
-    if (bar.current >= remainingStress) {
-      bar.current -= remainingStress;
+    if (cur >= remainingStress) {
+      bar.current = cur - remainingStress;
       remainingStress = 0;
     } else {
-      remainingStress -= bar.current;
+      remainingStress -= cur;
       bar.current = 0;
       barIndex++;
     }
   }
   
   return barIndex;
+}
+
+/**
+ * Players Guide: Stress track is collapsed when every bar is empty (or the
+ * active index has moved past Breaking into the Breakdown box).
+ */
+export function isStressTrackCollapsed(bars: HealthBar[], currentBar: number): boolean {
+  if (!Array.isArray(bars) || bars.length === 0) return false;
+  if (Math.floor(Number(currentBar) || 0) >= bars.length) return true;
+  return bars.every((b) => Math.max(0, Math.floor(Number(b?.current) || 0)) <= 0);
+}
+
+/** Reset every stress bar to max (Clear) — used after a Breakdown Check. */
+export function resetStressBarsToClear(bars: HealthBar[]): HealthBar[] {
+  return (bars || []).map((b) => {
+    const max = Math.max(0, Math.floor(Number(b?.max) || 0));
+    return { ...b, current: max };
+  });
 }
 
 /**

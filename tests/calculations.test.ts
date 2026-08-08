@@ -8,6 +8,8 @@ import {
   applyDamage,
   healDamage,
   restoreHealthBarsFrom,
+  isStressTrackCollapsed,
+  resetStressBarsToClear,
   calculateStressBarMax,
   initializeStressBars,
   applyStress,
@@ -227,6 +229,28 @@ describe('Stress Bar Calculations', () => {
     expect(bars[0].current).toBe(0); // Depleted
     expect(bars[1].current).toBe(6); // 10 - 8 = 2 overflow, 8-2=6
     expect(newBar).toBe(1);
+  });
+
+  it('detects Stress Track collapse when all bars empty or past Breaking', () => {
+    const bars = initializeStressBars(4, 4);
+    expect(isStressTrackCollapsed(bars, 0)).toBe(false);
+    const exact = applyStress(bars, 0, 32); // 4 × 8 = full track, lands on Breaking at 0
+    expect(exact).toBe(3);
+    expect(bars.every((b) => b.current === 0)).toBe(true);
+    expect(isStressTrackCollapsed(bars, exact)).toBe(true);
+
+    const overflowBars = initializeStressBars(4, 4);
+    const past = applyStress(overflowBars, 0, 33); // overflow into Breakdown box
+    expect(past).toBe(4);
+    expect(isStressTrackCollapsed(overflowBars, past)).toBe(true);
+  });
+
+  it('resets stress bars to Clear after Breakdown', () => {
+    const bars = initializeStressBars(4, 4);
+    applyStress(bars, 0, 32);
+    const cleared = resetStressBarsToClear(bars);
+    expect(cleared.every((b) => b.current === b.max)).toBe(true);
+    expect(isStressTrackCollapsed(cleared, 0)).toBe(false);
   });
 });
 

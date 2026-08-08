@@ -91,9 +91,17 @@ export declare function initializeStressBars(resolve: number, intellect: number)
 export declare function updateStressBars(bars: HealthBar[], resolve: number, intellect: number): void;
 /**
  * Apply stress damage to stress bars
- * Returns the new current bar index
+ * Returns the new current bar index (may equal `bars.length` when the track
+ * has collapsed into Breakdown — callers should clamp for storage).
  */
 export declare function applyStress(bars: HealthBar[], currentBar: number, stress: number): number;
+/**
+ * Players Guide: Stress track is collapsed when every bar is empty (or the
+ * active index has moved past Breaking into the Breakdown box).
+ */
+export declare function isStressTrackCollapsed(bars: HealthBar[], currentBar: number): boolean;
+/** Reset every stress bar to max (Clear) — used after a Breakdown Check. */
+export declare function resetStressBarsToClear(bars: HealthBar[]): HealthBar[];
 /**
  * Heal (remove) stress from stress bars: fill capacity from the current bar backward.
  */

@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.287] - 2026-08-08
+
+### Added
+
+- **Stress Breakdown Check** (Players Guide): when a PC’s Stress Track fills (all bars empty / Breakdown), a Meltdown chat card prompts a **Wits check** (keep MR, TN 8×MR).
+  - **Virtue (success):** track resets to Clear; next action gains **+1 Keep**.
+  - **Affliction (fail):** track resets; choose **Scar of Will** (Mental Restriction 2 pts + 2 Reroll Points) or **Push It Down** (GM gains 1d8 Misfortune Tokens — world setting).
+
 ## [0.9.286] - 2026-08-08
 
 ### Added
