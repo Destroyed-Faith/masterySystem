@@ -10,6 +10,7 @@
 import { highlightHexesInRange, clearHexHighlight } from "./utils/hex-highlighting.js";
 import { gridStepsFromMeters, isWithinRangeMeters, measureSceneDistanceBetweenPoints, } from "./utils/grid-range.js";
 import { filterPerceivableTargetIds } from "./combat/perception-gate.js";
+import { pickTokenFromPointerEvent } from "./utils/token-pick.js";
 let active = null;
 let confirming = false;
 function getRangedMaxMeters(option) {
@@ -99,8 +100,10 @@ function handleOverlayClick(targetId) {
         return;
     confirming = true;
     try {
+        const overlayTok = canvas.tokens?.get(targetId);
         console.log("[MS NPC Targeting] RANGED overlay confirm → attack card", {
             attacker: state.attackerToken.name,
+            target: overlayTok?.name ?? "?",
             targetId,
             option: state.option?.name,
             shortBand: state.shortBandMeters,
@@ -145,31 +148,9 @@ function markValidTargets(state) {
         token.sortChildren();
     }
 }
-/** Pixel hit-test any token under the pointer. */
+/** Pixel hit-test: closest / topmost token under the pointer (not placeables order). */
 function findClickedTokenAny(ev) {
-    const pos = ev.data.getLocalPosition(canvas.stage);
-    const tokens = canvas.tokens?.placeables ?? [];
-    if (!tokens.length)
-        return null;
-    for (const token of tokens) {
-        if (!token?.bounds)
-            continue;
-        if (token.bounds.contains(pos.x, pos.y))
-            return token;
-    }
-    let best = null;
-    let bestDist = Infinity;
-    for (const token of tokens) {
-        if (!token?.center)
-            continue;
-        const r = (token.w ?? 50) / 2 + 15;
-        const d = Math.hypot(pos.x - token.center.x, pos.y - token.center.y);
-        if (d <= r && d < bestDist) {
-            best = token;
-            bestDist = d;
-        }
-    }
-    return best;
+    return pickTokenFromPointerEvent(ev);
 }
 function measureMetersBetweenTokens(a, b) {
     const from = a?.center;
@@ -222,7 +203,16 @@ function onPointerDown(ev) {
     }
     if (confirming)
         return;
-    const clicked = findClickedTokenAny(ev);
+    // Prefer a valid in-range target under the pointer. Only if none hit, fall
+    // back to any token (so we can warn "out of range" instead of cancelling).
+    const exclude = state.attackerToken?.id ? [state.attackerToken.id] : [];
+    let clicked = pickTokenFromPointerEvent(ev, {
+        excludeIds: exclude,
+        onlyIds: state.validTargetIds,
+    });
+    if (!clicked) {
+        clicked = findClickedTokenAny(ev);
+    }
     if (!clicked) {
         endRangedTargeting(false);
         return;

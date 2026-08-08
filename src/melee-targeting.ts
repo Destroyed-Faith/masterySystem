@@ -11,6 +11,7 @@ import { highlightHexesInRange, clearHexHighlight } from "./utils/hex-highlighti
 import { gridStepsFromMeters, isWithinRangeMeters } from "./utils/grid-range";
 import { tokenIsHostileTo } from "./combat/threatened-ranged.js";
 import { filterPerceivableTargetIds } from "./combat/perception-gate.js";
+import { pickTokenFromPointerEvent } from "./utils/token-pick.js";
 
 interface MeleeTargetingState {
   attackerToken: any;
@@ -286,43 +287,16 @@ function restoreTargetVisuals(state: MeleeTargetingState): void {
 /* -------------------------------------------- */
 
 /**
- * Find clicked token in reach area
- * This handles clicks on tokens themselves (not just overlays)
+ * Find clicked token in reach area.
+ * Prefer closest/topmost under the pointer among valid targets — never the first
+ * placeables entry whose bounds happen to overlap.
  */
 function findClickedTokenInReachArea(state: MeleeTargetingState, ev: PIXI.FederatedPointerEvent): any | null {
-  const pos = ev.data.getLocalPosition(canvas.stage);
-
-  const tokens = canvas.tokens?.placeables ?? [];
-  if (!tokens.length) return null;
-
-  // Direct bounds check
-  for (const token of tokens) {
-    if (!token?.bounds) continue;
-    if (token.bounds.contains(pos.x, pos.y)) {
-      // Check if it's a valid target
-      if (state.validTargetIds.has(token.id)) {
-        return token;
-      }
-    }
-  }
-
-  // Fallback: nearest valid target within ring radius
-  let best: any = null;
-  let bestDist = Infinity;
-
-  for (const targetId of state.validTargetIds) {
-    const token = canvas.tokens?.get(targetId);
-    if (!token) continue;
-
-    const r = (token.w ?? 50) / 2 + 15; // Must match ring pad
-    const d = Math.hypot(pos.x - token.center.x, pos.y - token.center.y);
-    if (d <= r && d < bestDist) {
-      best = token;
-      bestDist = d;
-    }
-  }
-
-  return best;
+  return pickTokenFromPointerEvent(ev, {
+    excludeIds: state.attackerToken?.id ? [state.attackerToken.id] : [],
+    onlyIds: state.validTargetIds,
+    centerPadPx: 15,
+  });
 }
 
 /* -------------------------------------------- */

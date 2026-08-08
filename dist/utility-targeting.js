@@ -10,6 +10,7 @@ import { getNpcAttackByIndex, npcDamageDiceFormula } from './utils/npc-attack-mo
 import { isWithinMasteryPowerRange, masteryAoERadiusPixels, masteryPowerMaxSteps } from './utils/grid-range.js';
 import { clearHexHighlight, highlightHexesWithinStepsFromPoint } from './utils/hex-highlighting.js';
 import { eventWorldPoint, resolveOverlayContainer, snapWorldCenter, } from './utils/grid-snap.js';
+import { pickTokenAtPoint } from './utils/token-pick.js';
 function placementColorsFromOption(option) {
     if (option.aoePlacementProfile === 'hostile-zone') {
         return {
@@ -403,11 +404,9 @@ export function startUtilitySingleTargetMode(token, option) {
         }
         if (ev.button === 0) {
             const worldPos = eventWorldPoint(ev);
-            // Find token at click position
-            const tokens = canvas.tokens?.placeables || [];
-            const clickedToken = tokens.find((t) => {
-                const bounds = t.bounds;
-                return bounds && bounds.contains(worldPos.x, worldPos.y);
+            const clickedToken = pickTokenAtPoint(worldPos.x, worldPos.y, {
+                excludeIds: token?.id ? [token.id] : [],
+                noCenterFallback: true,
             });
             if (clickedToken && clickedToken.id !== token.id) {
                 const casterCenter = token.center;
@@ -592,10 +591,9 @@ export function startUtilityRadiusMode(token, option) {
                     // Self-aura: clicking toggles targets in manual mode
                     if (state.manualMode) {
                         const worldPos = eventWorldPoint(ev);
-                        const tokens = canvas.tokens?.placeables || [];
-                        const clickedToken = tokens.find((t) => {
-                            const bounds = t.bounds;
-                            return bounds && bounds.contains(worldPos.x, worldPos.y);
+                        const clickedToken = pickTokenAtPoint(worldPos.x, worldPos.y, {
+                            onlyIds: state.candidates.keys(),
+                            noCenterFallback: true,
                         });
                         if (clickedToken && state.candidates.has(clickedToken.id)) {
                             const candidate = state.candidates.get(clickedToken.id);
@@ -662,10 +660,9 @@ export function startUtilityRadiusMode(token, option) {
                     // Center chosen, clicking toggles targets in manual mode
                     if (state.manualMode) {
                         const worldPos = eventWorldPoint(ev);
-                        const tokens = canvas.tokens?.placeables || [];
-                        const clickedToken = tokens.find((t) => {
-                            const bounds = t.bounds;
-                            return bounds && bounds.contains(worldPos.x, worldPos.y);
+                        const clickedToken = pickTokenAtPoint(worldPos.x, worldPos.y, {
+                            onlyIds: state.candidates.keys(),
+                            noCenterFallback: true,
                         });
                         if (clickedToken && state.candidates.has(clickedToken.id)) {
                             const candidate = state.candidates.get(clickedToken.id);

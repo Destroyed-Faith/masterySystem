@@ -25,6 +25,7 @@ import {
   resolveOverlayContainer,
   snapWorldCenter,
 } from './utils/grid-snap.js';
+import { pickTokenAtPoint } from './utils/token-pick.js';
 type PlacementColors = {
   hex: number;
   hexAlpha: number;
@@ -519,11 +520,9 @@ export function startUtilitySingleTargetMode(token: any, option: RadialCombatOpt
     
     if (ev.button === 0) {
       const worldPos = eventWorldPoint(ev);
-          // Find token at click position
-      const tokens = canvas.tokens?.placeables || [];
-      const clickedToken = tokens.find((t: any) => {
-        const bounds = t.bounds;
-        return bounds && bounds.contains(worldPos.x, worldPos.y);
+      const clickedToken = pickTokenAtPoint(worldPos.x, worldPos.y, {
+        excludeIds: token?.id ? [token.id] : [],
+        noCenterFallback: true,
       });
       
       if (clickedToken && clickedToken.id !== token.id) {
@@ -735,10 +734,9 @@ export function startUtilityRadiusMode(token: any, option: RadialCombatOption): 
         // Self-aura: clicking toggles targets in manual mode
         if (state.manualMode) {
           const worldPos = eventWorldPoint(ev);
-          const tokens = canvas.tokens?.placeables || [];
-          const clickedToken = tokens.find((t: any) => {
-            const bounds = t.bounds;
-            return bounds && bounds.contains(worldPos.x, worldPos.y);
+          const clickedToken = pickTokenAtPoint(worldPos.x, worldPos.y, {
+            onlyIds: state.candidates.keys(),
+            noCenterFallback: true,
           });
           
           if (clickedToken && state.candidates.has(clickedToken.id)) {
@@ -811,10 +809,9 @@ export function startUtilityRadiusMode(token: any, option: RadialCombatOption): 
         // Center chosen, clicking toggles targets in manual mode
         if (state.manualMode) {
           const worldPos = eventWorldPoint(ev);
-          const tokens = canvas.tokens?.placeables || [];
-          const clickedToken = tokens.find((t: any) => {
-            const bounds = t.bounds;
-            return bounds && bounds.contains(worldPos.x, worldPos.y);
+          const clickedToken = pickTokenAtPoint(worldPos.x, worldPos.y, {
+            onlyIds: state.candidates.keys(),
+            noCenterFallback: true,
           });
           
           if (clickedToken && state.candidates.has(clickedToken.id)) {
