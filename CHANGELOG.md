@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.278] - 2026-08-08
+
+### Fixed
+
+- **Dodge Stance removed from radial menu** (and from radial prefs). Parry Stance remains.
+- **Threatened Ranged Opportunity Attacks**: Phase 2 now includes the listed opportunity enemies (e.g. Alaris/Fynn) with an **Opportunity Attack** button — not only Ally-* powers. Also runs after a miss / Evade negate when OA token ids are on the attack card.
+- **Hostile detection** for Threatened Ranged: NPC shooters correctly see friendly PCs in their melee reach as threatening (opposite dispositions).
+
 ## [0.9.277] - 2026-08-08
 
 ### Changed

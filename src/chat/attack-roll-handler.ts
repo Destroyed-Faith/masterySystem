@@ -24,6 +24,16 @@ function readAttackButtonDataInt(button: JQuery, kebab: string, fallback: number
   return Number.isFinite(n) ? n : fallback;
 }
 
+/** Threatened Ranged OA token ids from attack-card flags. */
+function readOpportunityEnemyTokenIds(flags: any): string[] {
+  const raw = flags?.opportunityEnemyTokenIds;
+  if (Array.isArray(raw)) return raw.map((id) => String(id || '').trim()).filter(Boolean);
+  if (typeof raw === 'string' && raw.trim()) {
+    return raw.split(/[,|]/).map((s) => s.trim()).filter(Boolean);
+  }
+  return [];
+}
+
 const rollAttackMessageLocks = new Set<string>();
 
 export function registerAttackRollClickHandler(): void {
@@ -785,6 +795,7 @@ export async function executeAttackRollFromCard(
           // Phase 1 — direct target reacts immediately after the attack Roll,
           // before the damage dialog / damage roll.
           const combatForReactions = (game as any).combat ?? null;
+          const opportunityEnemyTokenIds = readOpportunityEnemyTokenIds(updatedFlags);
           const { runInteractiveReactionWindow } = await import(
             '../combat/reaction-window-chat.js'
           );
@@ -921,35 +932,35 @@ export async function executeAttackRollFromCard(
                 if (dmgMsg?.id) {
                   await updateDamageChatWithMitigation(String(dmgMsg.id), damageResult, target);
                 }
-
-                // Phase 2 — nearby allies / other reactors (after damage).
-                // Silent when nobody can act; refreshes after each button press.
-                if (!phasedOut) {
-                  try {
-                    await runInteractiveReactionWindow({
-                      defender: target as any,
-                      attacker: freshAttackerForDialog as any,
-                      combat,
-                      rawDamage: damageResult.totalDamage,
-                      attackTotal: attackCtx.attackTotal ?? null,
-                      evadeTn: attackCtx.evadeTn ?? null,
-                      hit: true,
-                      damageMessageId: dmgMsg?.id ?? null,
-                      phase: 'others',
-                      eventId: phase1.eventId,
-                      spentActorIds: phase1.spentActorIds,
-                      used: phase1.used,
-                      priorMitigation: phase1.mitigation,
-                      silentIfEmpty: true,
-                    });
-                  } catch (allyErr) {
-                    console.warn('Mastery System | ally reaction window failed', allyErr);
-                  }
-                }
               }
             } else if (!primaryEscaped) {
               console.warn('Mastery System | [AFTER DAMAGE DIALOG] No damage result returned from showDamageDialog');
             }
+          }
+
+          // Phase 2 — allies + Threatened Ranged opportunity attackers.
+          // Runs after damage (or after Evade negate / Dive) so Alaris/Fynn etc.
+          // get Opportunity Attack buttons even when nobody has Ally powers.
+          try {
+            await runInteractiveReactionWindow({
+              defender: target as any,
+              attacker: freshAttackerForDialog as any,
+              combat: combatForReactions,
+              rawDamage: Math.max(0, Math.floor(Number(damageResult?.totalDamage) || 0)),
+              attackTotal: updatedFlags.attackTotal ?? null,
+              evadeTn: normalTn,
+              hit: !primaryNegated,
+              damageMessageId: null,
+              phase: 'others',
+              eventId: phase1.eventId,
+              spentActorIds: phase1.spentActorIds,
+              used: phase1.used,
+              priorMitigation: phase1.mitigation,
+              opportunityEnemyTokenIds,
+              silentIfEmpty: true,
+            });
+          } catch (allyErr) {
+            console.warn('Mastery System | ally/opportunity reaction window failed', allyErr);
           }
 
           // Secondaries share the Area-TN success — resolve even if the primary
@@ -978,7 +989,7 @@ export async function executeAttackRollFromCard(
           }
         }
       } else {
-        // Miss — Phase 1 for the target only (no damage → no ally phase).
+        // Miss — Phase 1 for the target, then Phase 2 for Threatened Ranged OA.
         try {
           let missTarget: any = null;
           if (flags.targetTokenId) {
@@ -993,7 +1004,10 @@ export async function executeAttackRollFromCard(
             const { runInteractiveReactionWindow } = await import(
               '../combat/reaction-window-chat.js'
             );
-            await runInteractiveReactionWindow({
+            const missFlags =
+              message.getFlag?.('mastery-system') || message.flags?.['mastery-system'] || flags;
+            const opportunityEnemyTokenIds = readOpportunityEnemyTokenIds(missFlags);
+            const phase1 = await runInteractiveReactionWindow({
               defender: missTarget,
               attacker: missAttacker,
               combat: (game as any).combat ?? null,
@@ -1002,6 +1016,22 @@ export async function executeAttackRollFromCard(
               evadeTn: normalTn,
               hit: false,
               phase: 'defender',
+            });
+            await runInteractiveReactionWindow({
+              defender: missTarget,
+              attacker: missAttacker,
+              combat: (game as any).combat ?? null,
+              rawDamage: 0,
+              attackTotal: Math.floor(Number(result?.total) || 0),
+              evadeTn: normalTn,
+              hit: false,
+              phase: 'others',
+              eventId: phase1.eventId,
+              spentActorIds: phase1.spentActorIds,
+              used: phase1.used,
+              priorMitigation: phase1.mitigation,
+              opportunityEnemyTokenIds,
+              silentIfEmpty: true,
             });
           }
         } catch (missReactErr) {

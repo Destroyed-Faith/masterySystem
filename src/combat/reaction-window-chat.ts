@@ -50,6 +50,8 @@ export interface ReactionWindowState {
   resolved: boolean;
   /** Message id of the preceding damage chat (hit path), for optional updates. */
   damageMessageId?: string | null;
+  /** Threatened Ranged OA token ids (enemies who may strike the shooter). */
+  opportunityEnemyTokenIds?: string[];
 }
 
 /** Result of a reaction phase (mitigation + who already spent). */
@@ -115,7 +117,8 @@ function entriesForPhase(
   phase: ReactionWindowPhase,
 ): ReactionWindowActorEntry[] {
   if (phase === 'defender') return entries.filter((e) => e.role === 'defender');
-  return entries.filter((e) => e.role === 'ally');
+  // Allies (protect target) + Threatened Ranged opportunity attackers.
+  return entries.filter((e) => e.role === 'ally' || e.role === 'opportunity');
 }
 
 function filterEntriesForCard(
@@ -156,16 +159,19 @@ function buildReactionWindowHtml(
 ): string {
   const phase = state.phase ?? 'defender';
   const actionable = filterEntriesForCard(entries, state);
+  const hasOppIds = (state.opportunityEnemyTokenIds?.length ?? 0) > 0;
   const title =
     phase === 'defender'
       ? '⚡ Reaction Window — Target'
-      : '⚡ Reaction Window — Allies';
+      : hasOppIds
+        ? '⚡ Reaction Window — Allies & Opportunity'
+        : '⚡ Reaction Window — Allies';
 
   let hitLine: string;
   if (phase === 'others') {
     hitLine = state.hit
-      ? `<p><strong>${escHtml(attackerName)}</strong> → <strong>${escHtml(defenderName)}</strong> — damage rolled (${Math.max(0, Math.floor(state.rawDamage))}). Nearby allies may react.</p>`
-      : `<p><strong>${escHtml(attackerName)}</strong> → <strong>${escHtml(defenderName)}</strong> — nearby allies may react.</p>`;
+      ? `<p><strong>${escHtml(attackerName)}</strong> → <strong>${escHtml(defenderName)}</strong> — damage rolled (${Math.max(0, Math.floor(state.rawDamage))}). Allies and/or opportunity attackers may react.</p>`
+      : `<p><strong>${escHtml(attackerName)}</strong> shot while threatened — opportunity attackers (and allies) may react.</p>`;
   } else if (state.hit) {
     hitLine =
       state.rawDamage > 0
@@ -195,7 +201,7 @@ function buildReactionWindowHtml(
     body = `<p style="opacity:0.9;">Reaction window closed.</p>${usedBlock}`;
   } else if (!actionable.length) {
     if (phase === 'others') {
-      body = `<p>No nearby allies with an Ally Reaction ready.</p>${usedBlock}`;
+      body = `<p>No allies or opportunity attackers ready to react.</p>${usedBlock}`;
     } else {
       const def = entries.find((e) => e.role === 'defender');
       const defId = def ? String((def.actor as any)?.id ?? '') : '';
@@ -214,7 +220,8 @@ function buildReactionWindowHtml(
     const blocks = actionable
       .map((e) => {
         const actorId = String((e.actor as any).id ?? '');
-        const role = e.role === 'defender' ? 'target' : 'ally';
+        const role =
+          e.role === 'defender' ? 'target' : e.role === 'opportunity' ? 'opportunity' : 'ally';
         const dist = e.role === 'ally' && e.distanceM != null ? ` · ${e.distanceM} m` : '';
         const buttons = e.powers
           .map((p) => {
@@ -243,10 +250,16 @@ function buildReactionWindowHtml(
         </div>`;
       })
       .join('');
+    const hasOpp = actionable.some((e) => e.role === 'opportunity');
+    const hasAlly = actionable.some((e) => e.role === 'ally');
     const intro =
       phase === 'defender'
         ? `<p>The <strong>target</strong> may use <strong>one</strong> Reaction now (before damage):</p>`
-        : `<p>Each ally may use <strong>one</strong> Reaction for this event:</p>`;
+        : hasOpp && hasAlly
+          ? `<p>Allies and opportunity attackers may each use <strong>one</strong> Reaction:</p>`
+          : hasOpp
+            ? `<p>Threatened Ranged — each listed combatant may spend <strong>one</strong> Reaction for an Opportunity Attack:</p>`
+            : `<p>Each ally may use <strong>one</strong> Reaction for this event:</p>`;
     body = `${intro}${blocks}${usedBlock}`;
   }
 
@@ -304,6 +317,7 @@ async function refreshReactionCard(messageId: string, state: ReactionWindowState
     defender,
     attacker,
     combat,
+    opportunityEnemyTokenIds: state.opportunityEnemyTokenIds ?? [],
   });
   const html = buildReactionWindowHtml(
     state,
@@ -360,7 +374,7 @@ async function executeReactionSpend(params: {
   state: ReactionWindowState;
   actor: Actor;
   power: any;
-  role: 'defender' | 'ally';
+  role: 'defender' | 'ally' | 'opportunity';
   attacker: Actor | null;
   combat: Combat;
   defender: Actor;
@@ -400,6 +414,22 @@ async function executeReactionSpend(params: {
   let note = '';
   const mech = mechanicsOf(power);
   const isCounterattack = power?.basicReaction === 'counterattack';
+
+  // Threatened Ranged OA: strike the shooter (attacker).
+  if (role === 'opportunity') {
+    note = ` <em>(Opportunity Attack vs ${String((attacker as any)?.name ?? 'the shooter')}.)</em>`;
+    if (attacker) {
+      try {
+        await launchBasicCounterattack(actor, attacker);
+      } catch (err) {
+        console.warn('Mastery System | Opportunity Attack launch failed', err);
+        (globalThis as any).ui?.notifications?.warn?.(
+          'Opportunity Attack: could not open attack card — resolve manually.',
+        );
+      }
+    }
+    return { state, note };
+  }
 
   // Ally reactions: spend + announce only (table resolves narrative effects).
   if (role === 'ally' || isAllyReactionPower(power)) {
@@ -546,6 +576,20 @@ async function closeReactionWindow(messageId: string, state: ReactionWindowState
   }
 }
 
+function entriesFromState(
+  state: ReactionWindowState,
+  defender: Actor,
+  attacker: Actor | null,
+  combat: Combat,
+): ReactionWindowActorEntry[] {
+  return collectReactionWindowEntries({
+    defender,
+    attacker,
+    combat,
+    opportunityEnemyTokenIds: state.opportunityEnemyTokenIds ?? [],
+  });
+}
+
 async function handleUseClick(messageId: string, actorId: string, powerId: string): Promise<void> {
   const g = globalThis as any;
   const message = g.game?.messages?.get?.(messageId);
@@ -556,7 +600,7 @@ async function handleUseClick(messageId: string, actorId: string, powerId: strin
   const { attacker, defender, combat } = await resolveActors(state);
   if (!defender || !combat) return;
 
-  const entries = collectReactionWindowEntries({ defender, attacker, combat });
+  const entries = entriesFromState(state, defender, attacker, combat);
   const actionable = filterEntriesForCard(entries, state);
   const entry = actionable.find((e) => String((e.actor as any).id) === actorId);
   if (!entry) {
@@ -590,10 +634,7 @@ async function handleUseClick(messageId: string, actorId: string, powerId: strin
     content: `<p class="mastery-reaction-msg"><strong>${escHtml(String((entry.actor as any).name))}</strong> uses <strong>${escHtml(String(power.name))}</strong> (1 Reaction spent).${note}</p>`,
   });
 
-  const still = filterEntriesForCard(
-    collectReactionWindowEntries({ defender, attacker, combat }),
-    next,
-  );
+  const still = filterEntriesForCard(entriesFromState(next, defender, attacker, combat), next);
   if (!still.length) {
     await closeReactionWindow(messageId, next);
     return;
@@ -614,7 +655,7 @@ async function handleDeclineClick(messageId: string, actorId: string): Promise<v
   const { attacker, defender, combat } = await resolveActors(state);
   if (!defender || !combat) return;
 
-  const entries = collectReactionWindowEntries({ defender, attacker, combat });
+  const entries = entriesFromState(state, defender, attacker, combat);
   const entry = entries.find((e) => String((e.actor as any).id) === actorId);
   if (!entry) return;
   if (!userMayActForActor(entry.actor)) {
@@ -627,10 +668,7 @@ async function handleDeclineClick(messageId: string, actorId: string): Promise<v
     spentActorIds: [...state.spentActorIds, actorId],
   };
 
-  const still = filterEntriesForCard(
-    collectReactionWindowEntries({ defender, attacker, combat }),
-    next,
-  );
+  const still = filterEntriesForCard(entriesFromState(next, defender, attacker, combat), next);
   if (!still.length) {
     await closeReactionWindow(messageId, next);
     return;
@@ -696,6 +734,8 @@ export async function runInteractiveReactionWindow(params: {
    * Defender phase still posts an info card so the table sees "no reactions left".
    */
   silentIfEmpty?: boolean;
+  /** Threatened Ranged: token ids that may spend a Reaction for an Opportunity Attack. */
+  opportunityEnemyTokenIds?: string[] | null;
 }): Promise<ReactionPhaseResult> {
   const phase: ReactionWindowPhase = params.phase ?? 'defender';
   const empty = emptyPhaseResult(params.eventId);
@@ -706,8 +746,17 @@ export async function runInteractiveReactionWindow(params: {
   const { defender, attacker, combat, rawDamage, hit } = params;
   if (!defender || !combat) return empty;
 
+  const oppIds = (params.opportunityEnemyTokenIds ?? [])
+    .map((id) => String(id || '').trim())
+    .filter(Boolean);
+
   const defToken = getPrimaryTokenForActor(defender);
-  const entries = collectReactionWindowEntries({ defender, attacker, combat });
+  const entries = collectReactionWindowEntries({
+    defender,
+    attacker,
+    combat,
+    opportunityEnemyTokenIds: oppIds,
+  });
   const state: ReactionWindowState = {
     eventId: params.eventId || empty.eventId,
     phase,
@@ -729,6 +778,7 @@ export async function runInteractiveReactionWindow(params: {
     mitigation: params.priorMitigation ?? emptyMitigation(),
     resolved: false,
     damageMessageId: params.damageMessageId ?? null,
+    opportunityEnemyTokenIds: oppIds,
   };
 
   const actionable = filterEntriesForCard(entries, state);

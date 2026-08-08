@@ -152,6 +152,22 @@ export function isAllyReactionPower(item) {
     const name = String(item?.name ?? '').toLowerCase();
     return /\bally\b/.test(name);
 }
+/** Synthetic Opportunity Attack button (Threatened Ranged / leaving reach). */
+export function buildOpportunityAttackReactionItem(actor) {
+    const mr2 = Math.max(2, Math.floor(Number(actor?.system?.mastery?.rank) || 2) * 2);
+    return {
+        id: 'basic-reaction-opportunity-attack',
+        name: 'Opportunity Attack',
+        type: 'basic-reaction',
+        system: {
+            powerType: 'reaction',
+            templateId: 'basic-opportunity-attack',
+            description: `Spend 1 Reaction to make a Basic Attack (Weapon + ${mr2}d8) against the creature that provoked you.`,
+        },
+        basicReaction: 'counterattack',
+        mechanics: {},
+    };
+}
 /** Duplicate Initiative Gain sources do not stack — keep only the highest version. */
 function dedupeInitiativeGainReactions(powers) {
     const gainers = powers.filter((item) => {
@@ -181,8 +197,10 @@ function dedupeInitiativeGainReactions(powers) {
     });
 }
 /**
- * Defender + nearby allies who still have a Reaction and at least one eligible power
- * for this damage window (defender: own reactions; allies: Ally-* reactions only).
+ * Defender + nearby allies + Threatened Ranged opportunity attackers.
+ * - defender: own reactions
+ * - allies: Ally-* reactions only (within 4 m)
+ * - opportunity: Opportunity Attack (token ids from Threatened Ranged)
  */
 export function collectReactionWindowEntries(params) {
     const { defender, attacker, combat } = params;
@@ -199,59 +217,95 @@ export function collectReactionWindowEntries(params) {
         role: 'defender',
         distanceM: 0,
     });
+    const seenActorIds = new Set([
+        String(economyDef.id ?? ''),
+        String(defender.id ?? ''),
+    ]);
+    const attackerId = attacker?.id ?? null;
+    if (attackerId)
+        seenActorIds.add(String(attackerId));
     try {
         const defToken = getPrimaryTokenForActor(defender);
-        if (!defToken || typeof canvas === 'undefined')
-            return out;
-        const attackerId = attacker?.id ?? null;
-        const seenActorIds = new Set([
-            String(economyDef.id ?? ''),
-            String(defender.id ?? ''),
-        ]);
-        for (const token of canvas.tokens?.placeables ?? []) {
-            if (!token?.actor || token.id === defToken.id)
-                continue;
-            const other = token.actor;
-            const otherId = String(other.id ?? '');
-            if (!otherId || seenActorIds.has(otherId))
-                continue;
-            if (attackerId && otherId === String(attackerId))
-                continue;
-            const dd = defToken.document?.disposition ?? defToken.disposition;
-            const od = token.document?.disposition ?? token.disposition;
-            const HOSTILE = globalThis.CONST?.TOKEN_DISPOSITIONS?.HOSTILE ?? -1;
-            if (od === HOSTILE)
-                continue;
-            if (dd !== od)
-                continue;
-            const dist = distanceBetweenTokensMeters(defToken, token);
-            if (!Number.isFinite(dist) || dist > ALLY_REACTION_RANGE_M)
-                continue;
-            const economyAlly = defenderActorForEconomy(other);
-            const allyId = String(economyAlly.id ?? otherId);
-            if (seenActorIds.has(allyId))
-                continue;
-            seenActorIds.add(allyId);
-            seenActorIds.add(otherId);
-            const summary = getReactionActionsSummary(economyAlly, combat);
-            if (summary.remaining <= 0)
-                continue;
-            const allyPowers = getEligibleReactionPowers(economyAlly, combat).filter(isAllyReactionPower);
-            if (!allyPowers.length)
-                continue;
-            out.push({
-                actor: economyAlly,
-                name: String(other.name ?? 'Ally'),
-                remaining: summary.remaining,
-                total: summary.total,
-                powers: allyPowers,
-                role: 'ally',
-                distanceM: Math.round(dist * 10) / 10,
-            });
+        if (defToken && typeof canvas !== 'undefined') {
+            for (const token of canvas.tokens?.placeables ?? []) {
+                if (!token?.actor || token.id === defToken.id)
+                    continue;
+                const other = token.actor;
+                const otherId = String(other.id ?? '');
+                if (!otherId || seenActorIds.has(otherId))
+                    continue;
+                const dd = defToken.document?.disposition ?? defToken.disposition;
+                const od = token.document?.disposition ?? token.disposition;
+                const HOSTILE = globalThis.CONST?.TOKEN_DISPOSITIONS?.HOSTILE ?? -1;
+                if (od === HOSTILE)
+                    continue;
+                if (dd !== od)
+                    continue;
+                const dist = distanceBetweenTokensMeters(defToken, token);
+                if (!Number.isFinite(dist) || dist > ALLY_REACTION_RANGE_M)
+                    continue;
+                const economyAlly = defenderActorForEconomy(other);
+                const allyId = String(economyAlly.id ?? otherId);
+                if (seenActorIds.has(allyId))
+                    continue;
+                seenActorIds.add(allyId);
+                seenActorIds.add(otherId);
+                const summary = getReactionActionsSummary(economyAlly, combat);
+                if (summary.remaining <= 0)
+                    continue;
+                const allyPowers = getEligibleReactionPowers(economyAlly, combat).filter(isAllyReactionPower);
+                if (!allyPowers.length)
+                    continue;
+                out.push({
+                    actor: economyAlly,
+                    name: String(other.name ?? 'Ally'),
+                    remaining: summary.remaining,
+                    total: summary.total,
+                    powers: allyPowers,
+                    role: 'ally',
+                    distanceM: Math.round(dist * 10) / 10,
+                });
+            }
         }
     }
     catch (err) {
         console.warn('Mastery System | reaction window ally scan failed', err);
+    }
+    // Threatened Ranged / similar: named opportunity token ids.
+    const oppIds = (params.opportunityEnemyTokenIds ?? [])
+        .map((id) => String(id || '').trim())
+        .filter(Boolean);
+    if (oppIds.length && typeof canvas !== 'undefined') {
+        try {
+            for (const tid of oppIds) {
+                const token = canvas.tokens?.placeables?.find((t) => t?.id === tid) ||
+                    canvas.scene?.tokens?.get?.(tid)?.object ||
+                    null;
+                const actor = (token?.actor || null);
+                if (!actor)
+                    continue;
+                const economyOpp = defenderActorForEconomy(actor);
+                const oppActorId = String(economyOpp.id ?? actor.id ?? '');
+                if (!oppActorId || seenActorIds.has(oppActorId))
+                    continue;
+                seenActorIds.add(oppActorId);
+                const summary = getReactionActionsSummary(economyOpp, combat);
+                if (summary.remaining <= 0)
+                    continue;
+                out.push({
+                    actor: economyOpp,
+                    name: String(actor.name ?? token?.name ?? 'Opportunity'),
+                    remaining: summary.remaining,
+                    total: summary.total,
+                    powers: [buildOpportunityAttackReactionItem(economyOpp)],
+                    role: 'opportunity',
+                    distanceM: null,
+                });
+            }
+        }
+        catch (err) {
+            console.warn('Mastery System | reaction window opportunity scan failed', err);
+        }
     }
     return out;
 }

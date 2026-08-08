@@ -71,11 +71,16 @@ export function getActorMeleeReachMeters(actor) {
 }
 /** True when `other` is treated as hostile to `attackerToken` (disposition-based). */
 export function tokenIsHostileTo(attackerToken, other) {
-    const ad = attackerToken?.document?.disposition ?? attackerToken?.disposition;
-    const od = other?.document?.disposition ?? other?.disposition;
-    if (od === CONST.TOKEN_DISPOSITIONS.HOSTILE)
+    const ad = Number(attackerToken?.document?.disposition ?? attackerToken?.disposition ?? 0);
+    const od = Number(other?.document?.disposition ?? other?.disposition ?? 0);
+    // Opposite signs (FRIENDLY=1 vs HOSTILE=-1) — covers NPC shooters threatened by PCs.
+    if (ad * od < 0)
         return true;
-    if (ad === CONST.TOKEN_DISPOSITIONS.FRIENDLY && od === CONST.TOKEN_DISPOSITIONS.HOSTILE)
+    const HOSTILE = globalThis.CONST?.TOKEN_DISPOSITIONS?.HOSTILE ?? -1;
+    const FRIENDLY = globalThis.CONST?.TOKEN_DISPOSITIONS?.FRIENDLY ?? 1;
+    if (ad === FRIENDLY && od === HOSTILE)
+        return true;
+    if (ad === HOSTILE && od === FRIENDLY)
         return true;
     return false;
 }

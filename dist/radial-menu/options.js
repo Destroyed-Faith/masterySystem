@@ -539,12 +539,11 @@ function determineTargetGroup(option) {
  * This determines which inner quadrant (Buff/Move/Util/Atk) an option belongs to
  */
 export function getSegmentIdForOption(option) {
-    // Maneuvers: route the combat stances (Parry/Dodge) into the MAN. segment
-    // even though their slot is 'attack'. Keeps the Atk quadrant focused on
-    // actual attacks (Weapon Attack + offensive powers).
+    // Maneuvers: route Parry Stance into the MAN. segment even though its slot
+    // is 'attack'. Keeps the Atk quadrant focused on actual attacks.
     if (option.source === 'maneuver' && option.maneuver) {
         const mid = option.maneuver.id;
-        if (mid === 'parry-stance' || mid === 'dodge-stance') {
+        if (mid === 'parry-stance') {
             return 'utility';
         }
     }
@@ -898,6 +897,7 @@ export async function getAllCombatOptionsForActor(actor) {
         }
         // Filter out specific reaction maneuvers that should not appear in radial menu
         // Basic Reactions (Guard/Evade/Counterattack/Dive) live in the Reaction Window, not the radial.
+        // Dodge Stance is retired from the radial (use Evade reaction / other defenses).
         if (maneuver.id === 'readied-action' ||
             maneuver.id === 'counter-attack' ||
             maneuver.id === 'counterattack' ||
@@ -909,13 +909,14 @@ export async function getAllCombatOptionsForActor(actor) {
             maneuver.id === 'dive-for-cover' ||
             maneuver.id === 'parry' ||
             maneuver.id === 'dodge' ||
+            maneuver.id === 'dodge-stance' ||
             maneuver.id === 'block' ||
             maneuver.tags?.includes('basic-reaction')) {
             continue;
         }
-        // For attack slot: only allow Weapon Attack and the two main stances
+        // For attack slot: only Parry Stance (Weapon Attack is injected separately).
         if (maneuver.slot === 'attack') {
-            if (maneuver.id !== 'parry-stance' && maneuver.id !== 'dodge-stance') {
+            if (maneuver.id !== 'parry-stance') {
                 continue;
             }
         }

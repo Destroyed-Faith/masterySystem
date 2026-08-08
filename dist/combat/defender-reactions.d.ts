@@ -64,17 +64,23 @@ export interface ReactionWindowActorEntry {
     remaining: number;
     total: number;
     powers: any[];
-    role: 'defender' | 'ally';
+    role: 'defender' | 'ally' | 'opportunity';
     distanceM: number | null;
 }
+/** Synthetic Opportunity Attack button (Threatened Ranged / leaving reach). */
+export declare function buildOpportunityAttackReactionItem(actor: any): any;
 /**
- * Defender + nearby allies who still have a Reaction and at least one eligible power
- * for this damage window (defender: own reactions; allies: Ally-* reactions only).
+ * Defender + nearby allies + Threatened Ranged opportunity attackers.
+ * - defender: own reactions
+ * - allies: Ally-* reactions only (within 4 m)
+ * - opportunity: Opportunity Attack (token ids from Threatened Ranged)
  */
 export declare function collectReactionWindowEntries(params: {
     defender: Actor;
     attacker: Actor | null;
     combat: Combat;
+    /** Token ids of enemies who may OA the shooter (Threatened Ranged). */
+    opportunityEnemyTokenIds?: string[] | null;
 }): ReactionWindowActorEntry[];
 /**
  * @deprecated Prefer `runInteractiveReactionWindow` from `reaction-window-chat.ts`.

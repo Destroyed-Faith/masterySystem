@@ -35,6 +35,8 @@ export interface ReactionWindowState {
     resolved: boolean;
     /** Message id of the preceding damage chat (hit path), for optional updates. */
     damageMessageId?: string | null;
+    /** Threatened Ranged OA token ids (enemies who may strike the shooter). */
+    opportunityEnemyTokenIds?: string[];
 }
 /** Result of a reaction phase (mitigation + who already spent). */
 export interface ReactionPhaseResult {
@@ -75,6 +77,8 @@ export declare function runInteractiveReactionWindow(params: {
      * Defender phase still posts an info card so the table sees "no reactions left".
      */
     silentIfEmpty?: boolean;
+    /** Threatened Ranged: token ids that may spend a Reaction for an Opportunity Attack. */
+    opportunityEnemyTokenIds?: string[] | null;
 }): Promise<ReactionPhaseResult>;
 export declare function registerReactionWindowChatHandlers(): void;
 //# sourceMappingURL=reaction-window-chat.d.ts.map
