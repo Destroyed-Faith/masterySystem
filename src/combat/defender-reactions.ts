@@ -357,22 +357,17 @@ export function collectReactionWindowEntries(params: {
         seenActorIds.add(oppActorId);
 
         const summary = getReactionActionsSummary(economyOpp, combat);
-        if (summary.remaining <= 0) {
-          oppDebug.push({
-            tokenId: tid,
-            name,
-            skip: 'no-reactions-left',
-            reactions: summary,
-          });
-          continue;
-        }
-
+        // Always list OA candidates (even at 0 Reactions) so the post-attack
+        // card can explain why Alaris/Fynn cannot strike — never silent-skip.
         out.push({
           actor: economyOpp,
           name,
           remaining: summary.remaining,
           total: summary.total,
-          powers: [buildOpportunityAttackReactionItem(economyOpp)],
+          powers:
+            summary.remaining > 0
+              ? [buildOpportunityAttackReactionItem(economyOpp)]
+              : [],
           role: 'opportunity',
           distanceM: null,
         });
@@ -380,7 +375,9 @@ export function collectReactionWindowEntries(params: {
           tokenId: tid,
           name,
           included: true,
+          canAct: summary.remaining > 0,
           reactions: summary,
+          ...(summary.remaining <= 0 ? { note: 'no-reactions-left' } : {}),
         });
       }
     } catch (err) {

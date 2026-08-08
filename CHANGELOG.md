@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.290] - 2026-08-08
+
+### Fixed
+
+- **Threatened Ranged OA card missing**: the post-attack window no longer silent-skips when Alaris/Fynn (etc.) are named but have **0 Reactions left**. The card still appears and lists why each threatener cannot Opportunity Attack.
+
 ## [0.9.289] - 2026-08-08
 
 ### Changed

@@ -206,8 +206,21 @@ function buildReactionWindowHtml(state, entries, attackerName, defenderName) {
             : `<p style="opacity:0.9;">Reaction window closed.</p>${usedBlock}`;
     }
     else if (!actionable.length) {
-        if (phase === 'opportunity') {
-            body = `<p>No opportunity attackers with a Reaction ready.</p>${usedBlock}`;
+        if (phase === 'opportunity' || (phase === 'others' && hasOa)) {
+            const oppEntries = entries.filter((e) => e.role === 'opportunity');
+            const skipLines = oppEntries.length > 0
+                ? `<ul style="margin:0.25em 0 0 1.2em;padding:0;">${oppEntries
+                    .map((e) => {
+                    const left = Math.max(0, Math.floor(Number(e.remaining) || 0));
+                    const tot = Math.max(0, Math.floor(Number(e.total) || 0));
+                    const why = left <= 0
+                        ? `no Reactions left this round (${tot - left}/${tot} used)`
+                        : 'no Opportunity Attack available';
+                    return `<li><strong>${escHtml(e.name)}</strong> — ${escHtml(why)}</li>`;
+                })
+                    .join('')}</ul>`
+                : '';
+            body = `<p>No Opportunity Attacks available right now.</p>${skipLines}${usedBlock}`;
         }
         else if (phase === 'others') {
             body = `<p>No nearby allies with an Ally Reaction ready.</p>${usedBlock}`;
@@ -277,6 +290,25 @@ function buildReactionWindowHtml(state, entries, attackerName, defenderName) {
         </div>`;
         })
             .join('');
+        const actionableIds = new Set(actionable.map((e) => String(e.actor?.id ?? '')));
+        const skippedOpp = phase === 'others' || phase === 'opportunity'
+            ? entries.filter((e) => e.role === 'opportunity' &&
+                !actionableIds.has(String(e.actor?.id ?? '')))
+            : [];
+        const skippedBlock = skippedOpp.length > 0
+            ? `<div class="ms-reaction-window-skipped" style="margin:0.45em 0;opacity:0.9;font-size:0.92em;">
+            <div><strong>Cannot Opportunity Attack:</strong></div>
+            <ul style="margin:0.2em 0 0 1.2em;padding:0;">
+              ${skippedOpp
+                .map((e) => {
+                const left = Math.max(0, Math.floor(Number(e.remaining) || 0));
+                const tot = Math.max(0, Math.floor(Number(e.total) || 0));
+                return `<li><strong>${escHtml(e.name)}</strong> — no Reactions left (${tot - left}/${tot} used)</li>`;
+            })
+                .join('')}
+            </ul>
+          </div>`
+            : '';
         const intro = phase === 'defender'
             ? `<p>The <strong>target</strong> may use <strong>one</strong> Reaction now (before damage):</p>`
             : phase === 'opportunity'
@@ -284,7 +316,7 @@ function buildReactionWindowHtml(state, entries, attackerName, defenderName) {
                 : hasOa
                     ? `<p>Each listed combatant may spend <strong>one</strong> Reaction (Opportunity Attack and/or Ally powers). Cards open in parallel:</p>`
                     : `<p>Each ally may use <strong>one</strong> Reaction for this event:</p>`;
-        body = `${intro}${blocks}${usedBlock}`;
+        body = `${intro}${blocks}${skippedBlock}${usedBlock}`;
     }
     const continueHint = phase === 'defender'
         ? state.hit
@@ -912,8 +944,11 @@ export async function runInteractiveReactionWindow(params) {
         suppressCounterattack: !!params.suppressCounterattack,
     };
     const actionable = filterEntriesForCard(entries, state);
+    // Threatened Ranged named OAs must always produce a post-attack card — even
+    // when every threatener is out of Reactions (explain why; don't silent-skip).
+    const mustShowOpportunityCard = oppIds.length > 0 && (phase === 'others' || phase === 'opportunity');
     if (!actionable.length) {
-        if (params.silentIfEmpty || phase === 'others') {
+        if (!mustShowOpportunityCard && (params.silentIfEmpty || phase === 'others')) {
             return {
                 mitigation: state.mitigation,
                 eventId: state.eventId,
@@ -921,7 +956,10 @@ export async function runInteractiveReactionWindow(params) {
                 used: state.used,
             };
         }
-        state.resolved = true;
+        // Info card only (defender empty, or OA threateners all spent) — still post.
+        if (!mustShowOpportunityCard) {
+            state.resolved = true;
+        }
     }
     const html = buildReactionWindowHtml(state, entries, String(attacker?.name ?? 'Attacker'), String(defender?.name ?? 'Defender'));
     const g = globalThis;
