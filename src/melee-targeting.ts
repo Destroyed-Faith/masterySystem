@@ -315,10 +315,12 @@ function onPointerDown(ev: PIXI.FederatedPointerEvent): void {
 
   const debug: TokenPickDebug = {
     world: { x: 0, y: 0 },
-    mousePosition: null,
+    fromClient: null,
     stageLocal: null,
+    mousePosition: null,
     fromEventTarget: null,
     boundsHits: [],
+    nearestAll: [],
     picked: null,
     pickReason: '',
   };

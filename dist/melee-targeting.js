@@ -255,10 +255,12 @@ function onPointerDown(ev) {
         return;
     const debug = {
         world: { x: 0, y: 0 },
-        mousePosition: null,
+        fromClient: null,
         stageLocal: null,
+        mousePosition: null,
         fromEventTarget: null,
         boundsHits: [],
+        nearestAll: [],
         picked: null,
         pickReason: '',
     };

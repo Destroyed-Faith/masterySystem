@@ -76,4 +76,12 @@ describe('pickTokenAtPoint', () => {
     const hit = { parent: tok };
     expect(tokenFromEventTarget({ target: hit })?.id).toBe('sj');
   });
+
+  it('picks the far token when the click is on its bounds (not a nearer one)', () => {
+    const near = makeToken({ id: 'fynn', name: 'Fynn', x: 100, y: 100 });
+    const far = makeToken({ id: 'sj', name: 'Sjossfur', x: 800, y: 100 });
+    (globalThis as any).canvas.tokens.placeables = [near, far];
+    expect(pickTokenAtPoint(800, 100)?.id).toBe('sj');
+    expect(pickTokenAtPoint(100, 100)?.id).toBe('fynn');
+  });
 });

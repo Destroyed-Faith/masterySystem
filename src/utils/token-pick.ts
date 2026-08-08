@@ -1,14 +1,14 @@
 /**
- * Pick the token the user most likely meant under a canvas point.
+ * Pick the token the user most likely meant under a canvas point / pointer event.
  *
- * Foundry `placeables` order is not paint/z order. Returning the first
- * `bounds.contains` hit often selects a token behind another when they
- * overlap.
+ * Coordinate priority (Foundry v13):
+ * 1. PIXI event-target Token (walk parents)
+ * 2. `canvas.canvasCoordinatesFromClient(clientX/Y)` from the real click
+ * 3. `event.getLocalPosition(canvas.stage)` / stage.toLocal(global)
  *
- * Preference:
- * 1. Token recovered by walking the PIXI event target tree (most reliable)
- * 2. Tokens whose bounds contain the point — closest center, then topmost
- * 3. Soft center-radius fallback
+ * Do **not** prefer `canvas.mousePosition` — it can lag behind the click when the
+ * event was captured by a stage overlay (rings/highlights), which caused distant
+ * clicks to resolve as a nearby token (e.g. always Fynn).
  */
 
 import { eventWorldPoint } from './grid-snap.js';
@@ -26,10 +26,12 @@ export type TokenPickOptions = {
 
 export type TokenPickDebug = {
   world: { x: number; y: number };
-  mousePosition: { x: number; y: number } | null;
+  fromClient: { x: number; y: number } | null;
   stageLocal: { x: number; y: number } | null;
+  mousePosition: { x: number; y: number } | null;
   fromEventTarget: string | null;
   boundsHits: Array<{ id: string; name: string; dist: number }>;
+  nearestAll: Array<{ id: string; name: string; dist: number }>;
   picked: string | null;
   pickReason: string;
 };
@@ -66,7 +68,6 @@ export function tokenFromEventTarget(ev: any): any | null {
     if (obj.id && byId.has(obj.id) && (obj.actor != null || obj.document?.documentName === 'Token')) {
       return byId.get(obj.id);
     }
-    // Overlay/hit child sometimes stores the placeable on `.token` / `.object`
     if (obj.token?.id && byId.has(obj.token.id)) return byId.get(obj.token.id);
     if (obj.object?.id && byId.has(obj.object.id)) return byId.get(obj.object.id);
     obj = obj.parent;
@@ -80,10 +81,21 @@ export function pointerEventIsOnToken(ev: any): boolean {
   return !!tokenFromEventTarget(ev);
 }
 
-function resolveWorldPoint(ev?: any): {
+function clientPointFromEvent(ev: any): { x: number; y: number } | null {
+  const src = ev?.nativeEvent ?? ev?.data?.originalEvent ?? ev;
+  const x = Number(src?.clientX ?? ev?.clientX);
+  const y = Number(src?.clientY ?? ev?.clientY);
+  if (!Number.isFinite(x) || !Number.isFinite(y)) return null;
+  return { x, y };
+}
+
+/** Best canvas-space point for a pointer event (never trusts stale mousePosition alone). */
+export function pointerEventCanvasPoint(ev?: any): {
   world: { x: number; y: number };
-  mousePosition: { x: number; y: number } | null;
+  fromClient: { x: number; y: number } | null;
   stageLocal: { x: number; y: number } | null;
+  mousePosition: { x: number; y: number } | null;
+  source: string;
 } {
   const mouse = (canvas as any)?.mousePosition;
   const mousePosition =
@@ -91,26 +103,59 @@ function resolveWorldPoint(ev?: any): {
       ? { x: Number(mouse.x), y: Number(mouse.y) }
       : null;
 
+  let fromClient: { x: number; y: number } | null = null;
+  const client = clientPointFromEvent(ev);
+  if (client) {
+    try {
+      const fn = (canvas as any)?.canvasCoordinatesFromClient;
+      if (typeof fn === 'function') {
+        const p = fn.call(canvas, client);
+        if (p && Number.isFinite(p.x) && Number.isFinite(p.y)) {
+          fromClient = { x: Number(p.x), y: Number(p.y) };
+        }
+      }
+    } catch {
+      fromClient = null;
+    }
+    if (!fromClient) {
+      try {
+        const stage = canvas.stage;
+        const PIXI = (globalThis as any).PIXI;
+        if (stage && typeof stage.toLocal === 'function' && PIXI?.Point) {
+          const p = stage.toLocal(new PIXI.Point(client.x, client.y));
+          if (p && Number.isFinite(p.x) && Number.isFinite(p.y)) {
+            fromClient = { x: Number(p.x), y: Number(p.y) };
+          }
+        }
+      } catch {
+        /* ignore */
+      }
+    }
+  }
+
   let stageLocal: { x: number; y: number } | null = null;
   try {
-    const stage = canvas.stage;
-    if (stage && ev) {
-      const p =
-        typeof ev.getLocalPosition === 'function'
-          ? ev.getLocalPosition(stage)
-          : ev.data?.getLocalPosition?.(stage);
+    if (ev) {
+      const p = eventWorldPoint(ev);
       if (p && Number.isFinite(p.x) && Number.isFinite(p.y)) {
-        stageLocal = { x: Number(p.x), y: Number(p.y) };
+        stageLocal = { x: p.x, y: p.y };
       }
     }
   } catch {
     stageLocal = null;
   }
 
-  // Prefer Foundry's tracked mouse position (canvas space), then eventWorldPoint.
-  const fromEvent = ev ? eventWorldPoint(ev) : null;
-  const world = mousePosition ?? fromEvent ?? stageLocal ?? { x: 0, y: 0 };
-  return { world, mousePosition, stageLocal };
+  // Prefer click-derived client→canvas. mousePosition is last resort only.
+  if (fromClient) {
+    return { world: fromClient, fromClient, stageLocal, mousePosition, source: 'client' };
+  }
+  if (stageLocal) {
+    return { world: stageLocal, fromClient, stageLocal, mousePosition, source: 'stageLocal' };
+  }
+  if (mousePosition) {
+    return { world: mousePosition, fromClient, stageLocal, mousePosition, source: 'mousePosition-fallback' };
+  }
+  return { world: { x: 0, y: 0 }, fromClient, stageLocal, mousePosition, source: 'zero' };
 }
 
 function pointInTokenBounds(token: any, x: number, y: number): boolean {
@@ -119,7 +164,6 @@ function pointInTokenBounds(token: any, x: number, y: number): boolean {
   } catch {
     /* ignore */
   }
-  // Fallback: axis-aligned box from center + w/h (canvas pixels).
   const c = token?.center;
   const w = Number(token?.w ?? token?.width ?? 0);
   const h = Number(token?.h ?? token?.height ?? 0);
@@ -193,7 +237,8 @@ export function pickTokenFromPointerEvent(
   options: TokenPickOptions = {},
   outDebug?: TokenPickDebug,
 ): any | null {
-  const { world, mousePosition, stageLocal } = resolveWorldPoint(ev);
+  const resolved = pointerEventCanvasPoint(ev);
+  const { world, fromClient, stageLocal, mousePosition } = resolved;
   const exclude = new Set(options.excludeIds ? [...options.excludeIds] : []);
   const only = asIdSet(options.onlyIds);
 
@@ -205,41 +250,38 @@ export function pickTokenFromPointerEvent(
     picked = fromTarget;
     pickReason = 'event-target';
   } else {
-    // Try mousePosition and stage-local independently — they can diverge when
-    // the canvas is panned/zoomed and FederatedEvent coords are stale in capture.
-    const candidates: Array<{ label: string; p: { x: number; y: number } }> = [];
-    if (mousePosition) candidates.push({ label: 'mousePosition', p: mousePosition });
-    if (stageLocal) candidates.push({ label: 'stageLocal', p: stageLocal });
-    candidates.push({ label: 'world', p: world });
-
-    for (const c of candidates) {
-      const hit = pickTokenAtPoint(c.p.x, c.p.y, options);
-      if (hit) {
-        picked = hit;
-        pickReason = `bounds:${c.label}`;
-        break;
-      }
+    const hit = pickTokenAtPoint(world.x, world.y, options);
+    if (hit) {
+      picked = hit;
+      pickReason = `bounds:${resolved.source}`;
     }
   }
 
   if (outDebug) {
     const tokens = (canvas.tokens?.placeables ?? []) as any[];
     const boundsHits: TokenPickDebug['boundsHits'] = [];
+    const nearestAll: TokenPickDebug['nearestAll'] = [];
     for (const token of tokens) {
+      if (!token?.id || !token.center) continue;
+      const dist = Number(tokenCenterDist(token, world.x, world.y).toFixed(1));
+      nearestAll.push({ id: String(token.id), name: String(token.name ?? '?'), dist });
       if (!isEligible(token, exclude, only)) continue;
       if (!pointInTokenBounds(token, world.x, world.y)) continue;
       boundsHits.push({
         id: String(token.id),
         name: String(token.name ?? '?'),
-        dist: Number(tokenCenterDist(token, world.x, world.y).toFixed(1)),
+        dist,
       });
     }
     boundsHits.sort((a, b) => a.dist - b.dist);
+    nearestAll.sort((a, b) => a.dist - b.dist);
     outDebug.world = world;
-    outDebug.mousePosition = mousePosition;
+    outDebug.fromClient = fromClient;
     outDebug.stageLocal = stageLocal;
+    outDebug.mousePosition = mousePosition;
     outDebug.fromEventTarget = fromTarget ? String(fromTarget.name ?? fromTarget.id) : null;
     outDebug.boundsHits = boundsHits;
+    outDebug.nearestAll = nearestAll.slice(0, 8);
     outDebug.picked = picked ? String(picked.name ?? picked.id) : null;
     outDebug.pickReason = pickReason;
   }

@@ -1,14 +1,14 @@
 /**
- * Pick the token the user most likely meant under a canvas point.
+ * Pick the token the user most likely meant under a canvas point / pointer event.
  *
- * Foundry `placeables` order is not paint/z order. Returning the first
- * `bounds.contains` hit often selects a token behind another when they
- * overlap.
+ * Coordinate priority (Foundry v13):
+ * 1. PIXI event-target Token (walk parents)
+ * 2. `canvas.canvasCoordinatesFromClient(clientX/Y)` from the real click
+ * 3. `event.getLocalPosition(canvas.stage)` / stage.toLocal(global)
  *
- * Preference:
- * 1. Token recovered by walking the PIXI event target tree (most reliable)
- * 2. Tokens whose bounds contain the point — closest center, then topmost
- * 3. Soft center-radius fallback
+ * Do **not** prefer `canvas.mousePosition` — it can lag behind the click when the
+ * event was captured by a stage overlay (rings/highlights), which caused distant
+ * clicks to resolve as a nearby token (e.g. always Fynn).
  */
 export type TokenPickOptions = {
     /** Skip these token ids (usually the attacker). */
@@ -25,7 +25,7 @@ export type TokenPickDebug = {
         x: number;
         y: number;
     };
-    mousePosition: {
+    fromClient: {
         x: number;
         y: number;
     } | null;
@@ -33,8 +33,17 @@ export type TokenPickDebug = {
         x: number;
         y: number;
     } | null;
+    mousePosition: {
+        x: number;
+        y: number;
+    } | null;
     fromEventTarget: string | null;
     boundsHits: Array<{
+        id: string;
+        name: string;
+        dist: number;
+    }>;
+    nearestAll: Array<{
         id: string;
         name: string;
         dist: number;
@@ -46,6 +55,26 @@ export type TokenPickDebug = {
 export declare function tokenFromEventTarget(ev: any): any | null;
 /** True when the pointer event landed on (or inside) a Token placeable. */
 export declare function pointerEventIsOnToken(ev: any): boolean;
+/** Best canvas-space point for a pointer event (never trusts stale mousePosition alone). */
+export declare function pointerEventCanvasPoint(ev?: any): {
+    world: {
+        x: number;
+        y: number;
+    };
+    fromClient: {
+        x: number;
+        y: number;
+    } | null;
+    stageLocal: {
+        x: number;
+        y: number;
+    } | null;
+    mousePosition: {
+        x: number;
+        y: number;
+    } | null;
+    source: string;
+};
 /**
  * Best token under canvas coordinates `(x, y)`.
  */

@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.273] - 2026-08-08
+
+### Fixed
+
+- **Ranged/melee targeting cancel on distant tokens**: capture-phase miss no longer immediately cancels (that killed overlays before they could fire). Token pick now prefers the PIXI event-target token, then `canvas.mousePosition` / stage coords; verbose `[MS NPC Targeting] RANGED pointerdown` logs included for diagnosis.
+
 ## [0.9.272] - 2026-08-08
 
 ### Fixed
