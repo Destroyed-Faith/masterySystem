@@ -150,6 +150,43 @@ function isSmallBasicReaction(power: any): boolean {
   return kind === 'guard' || kind === 'evade' || kind === 'counterattack';
 }
 
+/**
+ * Evade-focused reaction (Basic Evade or a reaction whose only combat effect
+ * is an Evade bonus). These are grayed out when they cannot prevent the hit.
+ */
+function isEvadeOnlyReaction(power: any): boolean {
+  if (power?.basicReaction === 'evade') return true;
+  const mech = mechanicsOf(power);
+  const ev = Math.max(0, Math.floor(Number(mech?.evade) || 0));
+  if (ev <= 0) return false;
+  const armor = Math.max(0, Math.floor(Number(mech?.armor) || 0));
+  const dr = Math.max(0, Math.floor(Number(mech?.damageReductionPct) || 0));
+  if (armor > 0 || dr > 0) return false;
+  if (power?.basicReaction === 'counterattack' || power?.basicReaction === 'guard') return false;
+  return true;
+}
+
+/**
+ * Whether an Evade-only reaction would raise Evade above the attack total.
+ * - `true` / `false` when decidable
+ * - `null` when not an evade-only reaction, or attack total unknown (keep enabled)
+ */
+function evadeReactionWouldNegateHit(
+  power: any,
+  state: ReactionWindowState,
+): boolean | null {
+  if (!isEvadeOnlyReaction(power)) return null;
+  if (!state.hit) return false;
+  const mech = mechanicsOf(power);
+  const bonus = Math.max(0, Math.floor(Number(mech?.evade) || 0));
+  const evadeTnRaw = Math.floor(Number(state.evadeTn));
+  // Need a known Normal TN / Evade baseline from the attack card.
+  if (!Number.isFinite(evadeTnRaw) || evadeTnRaw <= 0) return null;
+  const evEval = evaluateReactionEvadeNegation(evadeTnRaw, bonus, state.attackTotal);
+  if (evEval.unknown) return null;
+  return evEval.negates;
+}
+
 function filterEntriesForCard(
   entries: ReactionWindowActorEntry[],
   state: ReactionWindowState,
@@ -282,10 +319,30 @@ function buildReactionWindowHtml(
             const pid = String((p as any).id ?? '');
             const pname = String(p?.name ?? 'Reaction').trim();
             const label = pname.length > 42 ? `${pname.slice(0, 39)}…` : pname;
+            const evadeOk = evadeReactionWouldNegateHit(p, state);
+            // Evade-only reactions that cannot prevent this hit → grayed out.
+            if (evadeOk === false) {
+              const why = !state.hit
+                ? 'Attack already missed'
+                : 'Will not prevent the hit';
+              return `<button type="button" class="ms-reaction-use-btn ms-reaction-use-btn--disabled"
+                data-actor-id="${escHtml(actorId)}"
+                data-power-id="${escHtml(pid)}"
+                data-evade-useless="1"
+                disabled
+                aria-disabled="true"
+                title="${escHtml(why)}">
+                <i class="fas fa-bolt"></i> ${escHtml(label)}
+              </button>`;
+            }
+            const tip =
+              evadeOk === true
+                ? `${pname} — would prevent the hit`
+                : pname;
             return `<button type="button" class="ms-reaction-use-btn"
               data-actor-id="${escHtml(actorId)}"
               data-power-id="${escHtml(pid)}"
-              title="${escHtml(pname)}">
+              title="${escHtml(tip)}">
               <i class="fas fa-bolt"></i> ${escHtml(label)}
             </button>`;
           })
@@ -808,6 +865,14 @@ async function handleUseClick(messageId: string, actorId: string, powerId: strin
   const power = findPowerForActor(entry, powerId);
   if (!power) {
     g.ui?.notifications?.warn?.('Reaction power not available.');
+    return;
+  }
+
+  // Evade that cannot prevent this hit must stay unusable (matches grayed UI).
+  if (evadeReactionWouldNegateHit(power, state) === false) {
+    g.ui?.notifications?.warn?.(
+      !state.hit ? 'Attack already missed — Evade will not change that.' : 'Will not prevent the hit.',
+    );
     return;
   }
 

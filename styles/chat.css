@@ -968,6 +968,22 @@
   color: #ffe08a;
 }
 
+#chat-log .mastery-reaction-window .ms-reaction-use-btn.ms-reaction-use-btn--disabled,
+#chat-log .mastery-reaction-window .ms-reaction-use-btn:disabled {
+  opacity: 0.42;
+  cursor: not-allowed;
+  filter: grayscale(0.55);
+  color: #8a8a8a;
+  border-color: rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.25);
+}
+
+#chat-log .mastery-reaction-window .ms-reaction-use-btn.ms-reaction-use-btn--disabled:hover,
+#chat-log .mastery-reaction-window .ms-reaction-use-btn:disabled:hover {
+  border-color: rgba(255, 255, 255, 0.12);
+  color: #8a8a8a;
+}
+
 #chat-log .mastery-reaction-window .ms-reaction-gm-close-btn {
   border-color: rgba(192, 57, 43, 0.75);
   background: rgba(192, 57, 43, 0.22);

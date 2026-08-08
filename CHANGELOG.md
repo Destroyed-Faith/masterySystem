@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.289] - 2026-08-08
+
+### Changed
+
+- **Reaction Evade**: grayed out (disabled) when it would **not** raise Evade above the attack total — tooltip **“Will not prevent the hit”**. Still offered when it would negate the hit.
+
 ## [0.9.288] - 2026-08-08
 
 ### Added
