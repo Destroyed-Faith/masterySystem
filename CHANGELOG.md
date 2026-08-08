@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.281] - 2026-08-08
+
+### Fixed
+
+- **Threatened Ranged detection**: melee engagement now uses **edge-to-edge** distance (diagonal / grid noise no longer drops Alaris/Fynn). Ambiguous dispositions fall back to PC-owner vs NPC.
+- **Phase 2 OA**: re-scans hostiles around the shooter at resolve time (flags ∪ live), with console debug.
+
+### Debug
+
+- Filter the browser console with **`[MS Threatened Ranged]`** — logs rule apply/skip, each nearby token (disposition, edge distance, reach, why skipped), and Phase‑2 opportunity inclusion.
+
 ## [0.9.280] - 2026-08-08
 
 ### Fixed

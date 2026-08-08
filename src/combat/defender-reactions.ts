@@ -325,6 +325,7 @@ export function collectReactionWindowEntries(params: {
   const oppIds = (params.opportunityEnemyTokenIds ?? [])
     .map((id) => String(id || '').trim())
     .filter(Boolean);
+  const oppDebug: Array<Record<string, unknown>> = [];
   if (oppIds.length && typeof canvas !== 'undefined') {
     try {
       for (const tid of oppIds) {
@@ -333,29 +334,67 @@ export function collectReactionWindowEntries(params: {
           (canvas as any).scene?.tokens?.get?.(tid)?.object ||
           null;
         const actor = (token?.actor || null) as Actor | null;
-        if (!actor) continue;
+        if (!actor) {
+          oppDebug.push({ tokenId: tid, skip: 'token-or-actor-not-found' });
+          continue;
+        }
         const economyOpp = defenderActorForEconomy(actor);
         const oppActorId = String((economyOpp as any).id ?? (actor as any).id ?? '');
-        if (!oppActorId || seenActorIds.has(oppActorId)) continue;
+        const name = String((actor as any).name ?? token?.name ?? 'Opportunity');
+        if (!oppActorId) {
+          oppDebug.push({ tokenId: tid, name, skip: 'no-actor-id' });
+          continue;
+        }
+        if (seenActorIds.has(oppActorId)) {
+          oppDebug.push({
+            tokenId: tid,
+            name,
+            skip: 'already-listed-or-is-defender/attacker',
+            actorId: oppActorId,
+          });
+          continue;
+        }
         seenActorIds.add(oppActorId);
 
         const summary = getReactionActionsSummary(economyOpp, combat);
-        if (summary.remaining <= 0) continue;
+        if (summary.remaining <= 0) {
+          oppDebug.push({
+            tokenId: tid,
+            name,
+            skip: 'no-reactions-left',
+            reactions: summary,
+          });
+          continue;
+        }
 
         out.push({
           actor: economyOpp,
-          name: String((actor as any).name ?? token?.name ?? 'Opportunity'),
+          name,
           remaining: summary.remaining,
           total: summary.total,
           powers: [buildOpportunityAttackReactionItem(economyOpp)],
           role: 'opportunity',
           distanceM: null,
         });
+        oppDebug.push({
+          tokenId: tid,
+          name,
+          included: true,
+          reactions: summary,
+        });
       }
     } catch (err) {
       console.warn('Mastery System | reaction window opportunity scan failed', err);
     }
+  } else if (!oppIds.length) {
+    oppDebug.push({ skip: 'no-opportunity-token-ids-on-event' });
   }
+
+  console.log('[MS Threatened Ranged] Phase-2/others opportunity build', {
+    oppIds,
+    oppDebug,
+    includedOpportunity: out.filter((e) => e.role === 'opportunity').map((e) => e.name),
+  });
 
   return out;
 }

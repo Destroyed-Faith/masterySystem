@@ -471,9 +471,12 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
         aoeMeleeSecondaryTokenIds: aoeMelee && aoeMelee.secondaryTokenIds?.length ? aoeMelee.secondaryTokenIds.join(",") : "",
         aoeMeleePowerBonusDice: aoeMelee && aoeMelee.powerBonusDice > 0 ? Math.floor(aoeMelee.powerBonusDice) : 0,
         threatenedRanged: tr.threatened,
+        /** Rule can apply even when nobody is currently in reach (Phase 2 re-scan). */
+        threatenedRangedAppliesRule: tr.appliesRule,
         rollDisadvantage: tr.rollDisadvantage,
         threateningEnemyTokenIds: tr.threateningEnemyTokenIds,
         opportunityEnemyTokenIds: tr.opportunityEnemyTokenIds,
+        threatenedRangedDebugReason: tr.debugReason ?? null,
         // NPC ranged: Short/Medium/Long from sheet Short(=gifted full pool) / Long(=max).
         weaponRange: isNpcAttack && attackType === "ranged"
             ? rangeTextFromBands(bandsFromNpcShortLong(Math.floor(Number(option.rangeMinMeters) || 0), Math.floor(Number(option.rangeMeters ?? option.range) || 0)))

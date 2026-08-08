@@ -23,6 +23,57 @@ function readOpportunityEnemyTokenIds(flags) {
     }
     return [];
 }
+/**
+ * Flags ∪ live re-scan around the shooter. Catches cases where card creation
+ * missed melee enemies (distance/disposition) but they are engaged at resolve time.
+ */
+async function resolveOpportunityEnemyTokenIds(flags, attackerActor) {
+    const fromFlags = readOpportunityEnemyTokenIds(flags);
+    const attackType = String(flags?.attackType || '');
+    const applies = flags?.threatenedRangedAppliesRule === true ||
+        flags?.threatenedRanged === true ||
+        flags?.rollDisadvantage === true ||
+        fromFlags.length > 0 ||
+        (attackType === 'ranged' &&
+            flags?.npcAttackSource === true &&
+            flags?.npcIsSpell !== true);
+    if (!applies || attackType === 'melee') {
+        console.log('[MS Threatened Ranged] resolveOpportunity — skip live rescan', {
+            attackType,
+            applies,
+            fromFlags,
+            threatenedRangedAppliesRule: flags?.threatenedRangedAppliesRule,
+            threatenedRanged: flags?.threatenedRanged,
+            debugReason: flags?.threatenedRangedDebugReason,
+        });
+        return fromFlags;
+    }
+    try {
+        const { findOpportunityEnemyTokenIds } = await import('../combat/threatened-ranged.js');
+        const { getPrimaryTokenForActor } = await import('../utils/mechanics-adjacency.js');
+        let shooterTok = (typeof canvas !== 'undefined'
+            ? canvas.tokens?.placeables?.find((t) => t?.actor?.id === attackerActor?.id || t?.document?.actorId === attackerActor?.id)
+            : null) ?? null;
+        if (!shooterTok && attackerActor) {
+            shooterTok = getPrimaryTokenForActor(attackerActor);
+        }
+        const live = shooterTok ? findOpportunityEnemyTokenIds(shooterTok) : [];
+        const merged = [...new Set([...fromFlags, ...live.map(String)])];
+        console.log('[MS Threatened Ranged] resolveOpportunity — flags ∪ live', {
+            fromFlags,
+            live,
+            merged,
+            shooterTokenId: shooterTok?.id,
+            shooterName: shooterTok?.name,
+            cardDebugReason: flags?.threatenedRangedDebugReason,
+        });
+        return merged;
+    }
+    catch (err) {
+        console.warn('[MS Threatened Ranged] resolveOpportunity rescan failed', err);
+        return fromFlags;
+    }
+}
 const rollAttackMessageLocks = new Set();
 export function registerAttackRollClickHandler() {
     // Register handler on the chat log container using event delegation
@@ -697,7 +748,7 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
                     // Phase 1 — direct target reacts immediately after the attack Roll,
                     // before the damage dialog / damage roll.
                     const combatForReactions = game.combat ?? null;
-                    const opportunityEnemyTokenIds = readOpportunityEnemyTokenIds(updatedFlags);
+                    const opportunityEnemyTokenIds = await resolveOpportunityEnemyTokenIds(updatedFlags, freshAttackerForDialog);
                     const { runInteractiveReactionWindow } = await import('../combat/reaction-window-chat.js');
                     const phase1 = await runInteractiveReactionWindow({
                         defender: target,
@@ -872,7 +923,7 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
                     if (missTarget && missAttacker) {
                         const { runInteractiveReactionWindow } = await import('../combat/reaction-window-chat.js');
                         const missFlags = message.getFlag?.('mastery-system') || message.flags?.['mastery-system'] || flags;
-                        const opportunityEnemyTokenIds = readOpportunityEnemyTokenIds(missFlags);
+                        const opportunityEnemyTokenIds = await resolveOpportunityEnemyTokenIds(missFlags, missAttacker);
                         const phase1 = await runInteractiveReactionWindow({
                             defender: missTarget,
                             attacker: missAttacker,

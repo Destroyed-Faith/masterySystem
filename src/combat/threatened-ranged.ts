@@ -7,14 +7,27 @@
  * immediately spend a legal Reaction if they have one available.
  *
  * Powers/spells only use this rule if flagged (tag `threatened-ranged` or system.threatenedRanged).
+ *
+ * Console filter: `[MS Threatened Ranged]`
  */
 
 import type { RadialCombatOption } from "../token-radial-menu";
+
+const LOG = '[MS Threatened Ranged]';
 
 function distance(a: { x: number; y: number }, b: { x: number; y: number }): number {
   const dx = a.x - b.x;
   const dy = a.y - b.y;
   return Math.hypot(dx, dy);
+}
+
+function gridDistanceMeters(): number {
+  return Number((globalThis as any).canvas?.grid?.distance) || 1;
+}
+
+function tokenSizeSquares(token: any): number {
+  const w = Number(token?.document?.width ?? token?.width ?? 1);
+  return Number.isFinite(w) && w > 0 ? w : 1;
 }
 
 /** Distance between token centers in meters (grid-aware when possible). */
@@ -23,7 +36,7 @@ export function distanceBetweenTokensMeters(a: any, b: any): number {
   const bc = b?.center;
   if (!ac || !bc) return Infinity;
 
-  const grid = canvas.grid;
+  const grid = (globalThis as any).canvas?.grid;
   if (grid && typeof grid.measurePath === "function") {
     try {
       const path = grid.measurePath([ac, bc], {});
@@ -37,6 +50,21 @@ export function distanceBetweenTokensMeters(a: any, b: any): number {
   const gridSize = grid?.size ?? 100;
   const gridUnits = distPx / gridSize;
   return gridUnits * (grid?.distance ?? 1);
+}
+
+/**
+ * Approximate edge-to-edge distance in meters (centers minus half-widths).
+ * Melee reach should care about touching/engaging, not only center-to-center —
+ * two medium tokens on a 2 m grid are often ~2 m center and fail a strict
+ * `dist <= 2` check when slightly diagonal.
+ */
+export function distanceBetweenTokenEdgesMeters(a: any, b: any): number {
+  const center = distanceBetweenTokensMeters(a, b);
+  if (!Number.isFinite(center)) return Infinity;
+  const unit = gridDistanceMeters();
+  const halfA = (tokenSizeSquares(a) * unit) / 2;
+  const halfB = (tokenSizeSquares(b) * unit) / 2;
+  return Math.max(0, center - halfA - halfB);
 }
 
 function getEquippedWeapon(actor: any): any {
@@ -75,16 +103,45 @@ export function getActorMeleeReachMeters(actor: any): number {
   return 2 + getReachBonusMeters(actor);
 }
 
-/** True when `other` is treated as hostile to `attackerToken` (disposition-based). */
+function tokenDisposition(token: any): number {
+  return Number(token?.document?.disposition ?? token?.disposition ?? 0);
+}
+
+function tokenHasPlayerOwner(token: any): boolean {
+  return !!(
+    token?.actor?.hasPlayerOwner ||
+    token?.document?.hasPlayerOwner ||
+    token?.document?.isOwner
+  );
+}
+
+/**
+ * True when `other` is treated as hostile to `attackerToken`.
+ * Uses opposite dispositions first; falls back to player-owner XOR when
+ * disposition is ambiguous (0 / SECRET), so NPC Dummy vs PC Alaris still counts.
+ */
 export function tokenIsHostileTo(attackerToken: any, other: any): boolean {
-  const ad = Number(attackerToken?.document?.disposition ?? attackerToken?.disposition ?? 0);
-  const od = Number(other?.document?.disposition ?? other?.disposition ?? 0);
-  // Opposite signs (FRIENDLY=1 vs HOSTILE=-1) — covers NPC shooters threatened by PCs.
-  if (ad * od < 0) return true;
   const HOSTILE = (globalThis as any).CONST?.TOKEN_DISPOSITIONS?.HOSTILE ?? -1;
   const FRIENDLY = (globalThis as any).CONST?.TOKEN_DISPOSITIONS?.FRIENDLY ?? 1;
+  const SECRET = (globalThis as any).CONST?.TOKEN_DISPOSITIONS?.SECRET ?? -2;
+  const ad = tokenDisposition(attackerToken);
+  const od = tokenDisposition(other);
+
+  // Clear opposite sides (FRIENDLY↔HOSTILE).
+  if (ad * od < 0) return true;
   if (ad === FRIENDLY && od === HOSTILE) return true;
   if (ad === HOSTILE && od === FRIENDLY) return true;
+
+  // Same non-zero disposition → allies / same faction.
+  if (ad === od && ad !== 0 && ad !== SECRET) return false;
+
+  // Ambiguous disposition: PC-owned vs not PC-owned counts as opposing for this rule.
+  if (ad === 0 || od === 0 || ad === SECRET || od === SECRET) {
+    const aPlayer = tokenHasPlayerOwner(attackerToken);
+    const oPlayer = tokenHasPlayerOwner(other);
+    if (aPlayer !== oPlayer) return true;
+  }
+
   return false;
 }
 
@@ -118,23 +175,103 @@ export function usesThreatenedRangedWeaponRules(actor: any, option: RadialCombat
   return false;
 }
 
+export interface ThreatScanRow {
+  tokenId: string;
+  name: string;
+  disposition: number;
+  hasPlayerOwner: boolean;
+  hostile: boolean;
+  centerDistM: number;
+  edgeDistM: number;
+  enemyReachM: number;
+  threatens: boolean;
+  skipReason?: string;
+}
+
 /** Hostile is standing close enough that their melee could reach the shooter. */
 export function enemyThreatensRangedShooter(shooterToken: any, enemyToken: any): boolean {
   if (!enemyToken?.actor) return false;
-  const dist = distanceBetweenTokensMeters(shooterToken, enemyToken);
+  const edge = distanceBetweenTokenEdgesMeters(shooterToken, enemyToken);
   const enemyReach = getActorMeleeReachMeters(enemyToken.actor);
-  return dist <= enemyReach;
+  // Small epsilon for floating measurePath noise.
+  return edge <= enemyReach + 0.05;
+}
+
+export function scanThreateningEnemies(shooterToken: any): {
+  threateningIds: string[];
+  rows: ThreatScanRow[];
+} {
+  const rows: ThreatScanRow[] = [];
+  const threateningIds: string[] = [];
+  const tokens = (globalThis as any).canvas?.tokens?.placeables ?? [];
+  const shooterName = String(shooterToken?.name ?? shooterToken?.document?.name ?? 'shooter');
+  const shooterDisp = tokenDisposition(shooterToken);
+
+  for (const t of tokens) {
+    if (!t?.id || t.id === shooterToken.id) continue;
+    const name = String(t.name ?? t.document?.name ?? t.id);
+    const disposition = tokenDisposition(t);
+    const hasPlayerOwner = tokenHasPlayerOwner(t);
+    if (!t.actor) {
+      rows.push({
+        tokenId: t.id,
+        name,
+        disposition,
+        hasPlayerOwner,
+        hostile: false,
+        centerDistM: NaN,
+        edgeDistM: NaN,
+        enemyReachM: 0,
+        threatens: false,
+        skipReason: 'no-actor',
+      });
+      continue;
+    }
+
+    const hostile = tokenIsHostileTo(shooterToken, t);
+    const centerDistM = distanceBetweenTokensMeters(shooterToken, t);
+    const edgeDistM = distanceBetweenTokenEdgesMeters(shooterToken, t);
+    const enemyReachM = getActorMeleeReachMeters(t.actor);
+    let threatens = false;
+    let skipReason: string | undefined;
+
+    if (!hostile) {
+      skipReason = `not-hostile (shooterDisp=${shooterDisp}, otherDisp=${disposition}, playerOwner=${hasPlayerOwner})`;
+    } else if (edgeDistM > enemyReachM + 0.05) {
+      skipReason = `out-of-reach (edge ${edgeDistM.toFixed(2)} m > reach ${enemyReachM} m; center ${centerDistM.toFixed(2)} m)`;
+    } else {
+      threatens = true;
+      threateningIds.push(t.id);
+    }
+
+    rows.push({
+      tokenId: t.id,
+      name,
+      disposition,
+      hasPlayerOwner,
+      hostile,
+      centerDistM: Math.round(centerDistM * 100) / 100,
+      edgeDistM: Math.round(edgeDistM * 100) / 100,
+      enemyReachM,
+      threatens,
+      skipReason,
+    });
+  }
+
+  console.log(`${LOG} scan around "${shooterName}"`, {
+    shooterId: shooterToken?.id,
+    shooterDisposition: shooterDisp,
+    shooterPlayerOwner: tokenHasPlayerOwner(shooterToken),
+    threateningIds,
+    threateningNames: rows.filter((r) => r.threatens).map((r) => r.name),
+    candidates: rows,
+  });
+
+  return { threateningIds, rows };
 }
 
 export function findThreateningEnemyTokenIds(shooterToken: any): string[] {
-  const out: string[] = [];
-  const tokens = canvas.tokens?.placeables ?? [];
-  for (const t of tokens) {
-    if (!t?.id || t.id === shooterToken.id || !t.actor) continue;
-    if (!tokenIsHostileTo(shooterToken, t)) continue;
-    if (enemyThreatensRangedShooter(shooterToken, t)) out.push(t.id);
-  }
-  return out;
+  return scanThreateningEnemies(shooterToken).threateningIds;
 }
 
 /**
@@ -151,6 +288,8 @@ export interface ThreatenedRangedResult {
   threateningEnemyTokenIds: string[];
   opportunityEnemyTokenIds: string[];
   rollDisadvantage: boolean;
+  /** Why the rule did / did not apply (for UI/debug). */
+  debugReason?: string;
 }
 
 export function evaluateThreatenedRanged(
@@ -158,15 +297,70 @@ export function evaluateThreatenedRanged(
   option: RadialCombatOption
 ): ThreatenedRangedResult {
   const actor = shooterToken?.actor;
-  const appliesRule = !!actor && usesThreatenedRangedWeaponRules(actor, option);
-  const threateningEnemyTokenIds = appliesRule ? findThreateningEnemyTokenIds(shooterToken) : [];
-  const threatened = appliesRule && threateningEnemyTokenIds.length > 0;
-  const opportunityEnemyTokenIds = appliesRule ? findOpportunityEnemyTokenIds(shooterToken) : [];
-  return {
-    appliesRule,
-    threatened,
-    threateningEnemyTokenIds,
-    opportunityEnemyTokenIds,
-    rollDisadvantage: threatened
+  const optionMeta = {
+    name: option?.name,
+    source: option?.source,
+    tags: option?.tags,
+    npcIsSpell: (option as any)?.npcIsSpell,
   };
+
+  if (!actor) {
+    console.log(`${LOG} evaluate — no shooter actor`, optionMeta);
+    return {
+      appliesRule: false,
+      threatened: false,
+      threateningEnemyTokenIds: [],
+      opportunityEnemyTokenIds: [],
+      rollDisadvantage: false,
+      debugReason: 'no-shooter-actor',
+    };
+  }
+
+  const appliesRule = usesThreatenedRangedWeaponRules(actor, option);
+  if (!appliesRule) {
+    console.log(`${LOG} evaluate — rule does NOT apply to this attack`, {
+      shooter: actor.name,
+      optionMeta,
+      hint:
+        'NPC: needs source=npc-attack + tag ranged + not spell. PC: ranged/thrown weapon or flagged power.',
+    });
+    return {
+      appliesRule: false,
+      threatened: false,
+      threateningEnemyTokenIds: [],
+      opportunityEnemyTokenIds: [],
+      rollDisadvantage: false,
+      debugReason: 'rule-not-applicable',
+    };
+  }
+
+  const { threateningIds, rows } = scanThreateningEnemies(shooterToken);
+  const threatened = threateningIds.length > 0;
+  const result: ThreatenedRangedResult = {
+    appliesRule: true,
+    threatened,
+    threateningEnemyTokenIds: threateningIds,
+    opportunityEnemyTokenIds: threateningIds,
+    rollDisadvantage: threatened,
+    debugReason: threatened
+      ? `threatened-by:${rows
+          .filter((r) => r.threatens)
+          .map((r) => r.name)
+          .join(',')}`
+      : 'no-enemy-in-melee-reach',
+  };
+
+  console.log(`${LOG} evaluate — result`, {
+    shooter: actor.name,
+    optionMeta,
+    ...result,
+    nearbyHostilesOutOfReach: rows
+      .filter((r) => r.hostile && !r.threatens)
+      .map((r) => `${r.name}: ${r.skipReason}`),
+    nonHostilesNearby: rows
+      .filter((r) => !r.hostile && Number.isFinite(r.edgeDistM) && r.edgeDistM <= 4)
+      .map((r) => `${r.name}: ${r.skipReason}`),
+  });
+
+  return result;
 }

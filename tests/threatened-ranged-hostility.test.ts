@@ -1,5 +1,9 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { tokenIsHostileTo } from '../src/combat/threatened-ranged.js';
+import {
+  tokenIsHostileTo,
+  distanceBetweenTokenEdgesMeters,
+  enemyThreatensRangedShooter,
+} from '../src/combat/threatened-ranged.js';
 
 describe('tokenIsHostileTo', () => {
   beforeEach(() => {
@@ -24,6 +28,46 @@ describe('tokenIsHostileTo', () => {
     const shooter = { document: { disposition: -1 } };
     const other = { document: { disposition: 1 } };
     expect(tokenIsHostileTo(shooter, other)).toBe(true);
+  });
+
+  it('falls back to player-owner XOR when disposition is neutral', () => {
+    const npc = {
+      disposition: 0,
+      actor: { hasPlayerOwner: false },
+      document: { disposition: 0, hasPlayerOwner: false },
+    };
+    const pc = {
+      disposition: 0,
+      actor: { hasPlayerOwner: true },
+      document: { disposition: 0, hasPlayerOwner: true },
+    };
+    expect(tokenIsHostileTo(npc, pc)).toBe(true);
+    expect(tokenIsHostileTo(pc, npc)).toBe(true);
+  });
+});
+
+describe('melee edge distance', () => {
+  beforeEach(() => {
+    (globalThis as any).canvas = {
+      grid: { size: 100, distance: 2, measurePath: undefined },
+    };
+  });
+
+  it('treats orthogonally adjacent medium tokens as in 2 m reach via edges', () => {
+    // Centers 2 m apart on a 2 m grid; edge distance ≈ 0.
+    const a = {
+      center: { x: 50, y: 50 },
+      document: { width: 1 },
+      actor: { system: { mastery: { rank: 2 } }, items: [] },
+    };
+    const b = {
+      center: { x: 150, y: 50 },
+      document: { width: 1 },
+      actor: { system: { mastery: { rank: 2 } }, items: [] },
+    };
+    const edge = distanceBetweenTokenEdgesMeters(a, b);
+    expect(edge).toBeLessThanOrEqual(0.05);
+    expect(enemyThreatensRangedShooter(a, b)).toBe(true);
   });
 });
 
