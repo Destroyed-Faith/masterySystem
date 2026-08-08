@@ -223,7 +223,11 @@ export function getMovementRangeBonusMeters(actor, combat) {
     return (Number(rs.moveBonusMeters) || 0) + (Number(rs.stoneBonuses?.extraMoveMeters) || 0);
 }
 /**
- * Set round state on actor
+ * Set round state on actor.
+ *
+ * Foundry `setFlag` **merges** object values — writing `npcAttackUsesThisRound: {}`
+ * does NOT remove prior keys. That left spent NPC attack copies stuck forever across
+ * rounds. Always replace the whole `roundState` flag (unset, then set).
  */
 export async function setRoundState(actor, state) {
     const owner = getActionEconomyActor(actor) ?? actor;
@@ -231,6 +235,27 @@ export async function setRoundState(actor, state) {
     const toSave = { ...state };
     if (toSave.combatId !== undefined) {
         toSave.combatId = String(toSave.combatId);
+    }
+    // Ensure object maps are plain data (never leave undefined holes that skip clears).
+    if (!toSave.npcAttackUsesThisRound)
+        toSave.npcAttackUsesThisRound = {};
+    if (!toSave.usedPowerIdsThisRound)
+        toSave.usedPowerIdsThisRound = [];
+    const hadPrev = !!o.getFlag?.('mastery-system', 'roundState') ||
+        !!o.flags?.['mastery-system']?.roundState;
+    if (hadPrev && typeof o.unsetFlag === 'function') {
+        try {
+            await o.unsetFlag('mastery-system', 'roundState');
+        }
+        catch (err) {
+            console.warn('Mastery System | unsetFlag(roundState) failed; attempting replace via update', err);
+            try {
+                await o.update?.({ 'flags.mastery-system.-=roundState': null });
+            }
+            catch {
+                /* ignore — setFlag below still runs */
+            }
+        }
     }
     await o.setFlag('mastery-system', 'roundState', toSave);
     Hooks.callAll('masterySystem.roundStateUpdated', { actorId: o.id });

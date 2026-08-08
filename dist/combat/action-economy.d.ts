@@ -160,7 +160,11 @@ export declare function getRoundState(actor: Actor, combat: Combat | null): Roun
 /** Extra movement distance (m) this round from initiative shop, stones, etc. — for range previews, not action counts. */
 export declare function getMovementRangeBonusMeters(actor: Actor, combat: Combat | null): number;
 /**
- * Set round state on actor
+ * Set round state on actor.
+ *
+ * Foundry `setFlag` **merges** object values — writing `npcAttackUsesThisRound: {}`
+ * does NOT remove prior keys. That left spent NPC attack copies stuck forever across
+ * rounds. Always replace the whole `roundState` flag (unset, then set).
  */
 export declare function setRoundState(actor: Actor, state: RoundState): Promise<void>;
 /**
