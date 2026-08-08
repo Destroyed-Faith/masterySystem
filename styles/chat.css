@@ -926,7 +926,8 @@
 
 #chat-log .mastery-reaction-window .ms-reaction-use-btn,
 #chat-log .mastery-reaction-window .ms-reaction-decline-btn,
-#chat-log .mastery-reaction-window .ms-reaction-continue-btn {
+#chat-log .mastery-reaction-window .ms-reaction-continue-btn,
+#chat-log .mastery-reaction-window .ms-reaction-gm-close-btn {
   cursor: pointer;
   font-size: 0.85rem;
   padding: 0.28em 0.55em;
@@ -940,6 +941,19 @@
 #chat-log .mastery-reaction-window .ms-reaction-continue-btn:hover {
   border-color: rgba(241, 196, 15, 0.75);
   color: #ffe08a;
+}
+
+#chat-log .mastery-reaction-window .ms-reaction-gm-close-btn {
+  border-color: rgba(192, 57, 43, 0.75);
+  background: rgba(192, 57, 43, 0.22);
+  color: #f5c6c2;
+  font-weight: 700;
+}
+
+#chat-log .mastery-reaction-window .ms-reaction-gm-close-btn:hover {
+  border-color: rgba(231, 76, 60, 0.95);
+  background: rgba(192, 57, 43, 0.4);
+  color: #ffe0dd;
 }
 
 #chat-log .mastery-reaction-window .ms-reaction-decline-btn {

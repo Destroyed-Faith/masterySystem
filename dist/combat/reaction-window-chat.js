@@ -20,6 +20,8 @@ const SOCKET_NAME = 'system.mastery-system';
 const pendingWaiters = new Map();
 /** Reaction windows currently resolving a blocking Counterattack/OA. */
 const busyReactionMessages = new Set();
+/** Event ids the GM closed — no further reposts / spends for that attack. */
+const closedReactionEvents = new Set();
 let hooksRegistered = false;
 let socketRegistered = false;
 function escHtml(s) {
@@ -159,7 +161,9 @@ function buildReactionWindowHtml(state, entries, attackerName, defenderName) {
         : '';
     let body;
     if (state.resolved) {
-        body = `<p style="opacity:0.9;">Reaction window closed.</p>${usedBlock}`;
+        body = state.gmClosed
+            ? `<p style="opacity:0.9;"><strong>GM:</strong> Reactions abgeschlossen — keine weiteren Karten.</p>${usedBlock}`
+            : `<p style="opacity:0.9;">Reaction window closed.</p>${usedBlock}`;
     }
     else if (!actionable.length) {
         if (phase === 'opportunity') {
@@ -228,15 +232,25 @@ function buildReactionWindowHtml(state, entries, attackerName, defenderName) {
             ? 'Continue to the damage roll.'
             : 'Close the window.'
         : remainingN > 0
-            ? 'Continue to close early (remaining actors skip).'
+            ? 'Close early (remaining actors skip).'
             : 'Close the window.';
+    const postAttack = phase === 'others' || phase === 'opportunity';
     const continueBtn = state.resolved
         ? ''
-        : `<div class="ms-reaction-window-actions" style="margin-top:0.6em;">
-        <button type="button" class="ms-reaction-continue-btn">
+        : `<div class="ms-reaction-window-actions" style="margin-top:0.6em;display:flex;flex-wrap:wrap;gap:0.45em;align-items:center;">
+        ${phase === 'defender'
+            ? `<button type="button" class="ms-reaction-continue-btn">
           <i class="fas fa-check"></i> Continue
-        </button>
-        <span class="ms-reaction-continue-hint" style="opacity:0.85;font-size:0.88em;margin-left:0.4em;">
+        </button>`
+            : ''}
+        ${postAttack
+            ? `<button type="button" class="ms-reaction-gm-close-btn" title="GM only — stop further reaction cards for this attack">
+          <i class="fas fa-gavel"></i> Reactions abgeschlossen
+        </button>`
+            : `<button type="button" class="ms-reaction-gm-close-btn" title="GM only — close this reaction window">
+          <i class="fas fa-gavel"></i> GM: Close
+        </button>`}
+        <span class="ms-reaction-continue-hint" style="opacity:0.85;font-size:0.88em;">
           ${escHtml(continueHint)}
         </span>
       </div>`;
@@ -292,7 +306,8 @@ async function refreshReactionCard(messageId, state) {
     const html = buildReactionWindowHtml(state, entries, String(attacker?.name ?? 'Attacker'), String(defender?.name ?? 'Defender'));
     const content = `<div class="mastery-reaction-msg">${html}</div>`;
     const postAttack = state.phase === 'others' || state.phase === 'opportunity';
-    const shouldRepost = postAttack && !state.resolved && !state.superseded;
+    const eventClosed = closedReactionEvents.has(String(state.eventId || ''));
+    const shouldRepost = postAttack && !state.resolved && !state.superseded && !state.gmClosed && !eventClosed;
     if (shouldRepost) {
         const remainingN = filterEntriesForCard(entries, state).length;
         const supersededState = {
@@ -571,8 +586,17 @@ async function executeReactionSpend(params) {
     }
     return { state, note };
 }
-async function closeReactionWindow(messageId, state) {
-    state = { ...state, resolved: true };
+async function closeReactionWindow(messageId, state, opts) {
+    const eventId = String(state.eventId || '');
+    if (eventId)
+        closedReactionEvents.add(eventId);
+    state = {
+        ...state,
+        resolved: true,
+        superseded: false,
+        gmClosed: !!opts?.gmClosed || !!state.gmClosed,
+    };
+    // In-place final card (resolved → no repost).
     await refreshReactionCard(messageId, state);
     const waiter = pendingWaiters.get(messageId);
     if (waiter) {
@@ -583,6 +607,8 @@ async function closeReactionWindow(messageId, state) {
         globalThis.game?.socket?.emit?.(SOCKET_NAME, {
             type: 'reactionWindowResolved',
             messageId,
+            eventId,
+            gmClosed: !!state.gmClosed,
             mitigation: state.mitigation,
         });
     }
@@ -606,6 +632,10 @@ async function handleUseClick(messageId, actorId, powerId) {
     const state = readState(message);
     if (!state || state.resolved)
         return;
+    if (closedReactionEvents.has(String(state.eventId || '')) || state.gmClosed) {
+        g.ui?.notifications?.warn?.('GM has closed reactions for this attack.');
+        return;
+    }
     if (busyReactionMessages.has(messageId)) {
         g.ui?.notifications?.warn?.('Finish the pending Counterattack / Opportunity Attack first.');
         return;
@@ -695,6 +725,10 @@ async function handleDeclineClick(messageId, actorId) {
     const state = readState(message);
     if (!state || state.resolved)
         return;
+    if (closedReactionEvents.has(String(state.eventId || '')) || state.gmClosed) {
+        g.ui?.notifications?.warn?.('GM has closed reactions for this attack.');
+        return;
+    }
     const { attacker, defender, combat } = await resolveActors(state);
     if (!defender || !combat)
         return;
@@ -740,6 +774,22 @@ async function handleContinueClick(messageId) {
         return;
     }
     await closeReactionWindow(messageId, state);
+}
+/** GM: permanently end this reaction event — no further reposts. */
+async function handleGmCloseClick(messageId) {
+    const g = globalThis;
+    const message = g.game?.messages?.get?.(messageId);
+    if (!message)
+        return;
+    const state = readState(message);
+    if (!state || state.resolved)
+        return;
+    if (!g.game?.user?.isGM) {
+        g.ui?.notifications?.warn?.('Only the GM can close reactions for everyone.');
+        return;
+    }
+    await closeReactionWindow(messageId, state, { gmClosed: true });
+    g.ui?.notifications?.info?.('Reactions abgeschlossen — keine weiteren Karten für diesen Angriff.');
 }
 function emptyPhaseResult(eventId) {
     return {
@@ -900,6 +950,23 @@ export function registerReactionWindowChatHandlers() {
             await handleContinueClick(messageId);
         });
         $(document)
+            .off('click.msReactionGmClose', '.ms-reaction-gm-close-btn')
+            .on('click.msReactionGmClose', '.ms-reaction-gm-close-btn', async (ev) => {
+            ev.preventDefault();
+            ev.stopPropagation();
+            const btn = $(ev.currentTarget);
+            const messageId = String(btn.closest('.message').attr('data-message-id') || '');
+            if (!messageId)
+                return;
+            btn.prop('disabled', true);
+            try {
+                await handleGmCloseClick(messageId);
+            }
+            finally {
+                btn.prop('disabled', false);
+            }
+        });
+        $(document)
             .off('click.msSkipAwaitedAttack', '.ms-skip-awaited-attack-btn')
             .on('click.msSkipAwaitedAttack', '.ms-skip-awaited-attack-btn', async (ev) => {
             ev.preventDefault();
@@ -954,6 +1021,9 @@ export function registerReactionWindowChatHandlers() {
             globalThis.game?.socket?.on?.(SOCKET_NAME, (payload) => {
                 if (payload?.type !== 'reactionWindowResolved')
                     return;
+                const eventId = String(payload.eventId || '');
+                if (eventId)
+                    closedReactionEvents.add(eventId);
                 const id = String(payload.messageId || '');
                 const waiter = pendingWaiters.get(id);
                 if (!waiter)

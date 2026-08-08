@@ -51,6 +51,8 @@ export interface ReactionWindowState {
      * (post-attack summary repost). Not a real close — waiters must not resolve.
      */
     superseded?: boolean;
+    /** GM pressed “Reactions abgeschlossen” — event is done, no more cards. */
+    gmClosed?: boolean;
 }
 /** Result of a reaction phase (mitigation + who already spent). */
 export interface ReactionPhaseResult {

@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.286] - 2026-08-08
+
+### Added
+
+- **GM: Reactions abgeschlossen** button on reaction chat cards. Closes the event permanently — no further Use/Decline and no more summary copies for that attack.
+
 ## [0.9.285] - 2026-08-08
 
 ### Changed
