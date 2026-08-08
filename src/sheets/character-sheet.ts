@@ -1918,6 +1918,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     // Safe Haven Rest button
     html.find('.safe-haven-rest').on('click', this.#onSafeHavenRest.bind(this));
     html.find('.gm-restore-health-bar').on('click', this.#onGmRestoreHealthBar.bind(this));
+    html.find('.gm-restore-stress-bar').on('click', this.#onGmRestoreStressBar.bind(this));
     html.find('.perform-ritual-btn').on('click', this.#onPerformRitual.bind(this));
     html.find('.social-combat-btn').on('click', this.#onSocialCombat.bind(this));
     html.find('.gm-award-faith-fracture').on('click', this.#onGmAwardFaithFracture.bind(this));
@@ -4317,6 +4318,51 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     const startName = String(hpBars[fromIndex]?.name ?? `Bar ${fromIndex + 1}`);
     (ui as any).notifications?.info?.(
       `Health restored from ${startName} through Incapacitated.`,
+    );
+    this.render();
+  }
+
+  /**
+   * GM: restore this stress bar and all more-severe bars below it
+   * (e.g. Stressed → also Not Well…Breaking). Same cascade as HP restore.
+   */
+  async #onGmRestoreStressBar(event: JQuery.ClickEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    if (!(game as any).user?.isGM) {
+      (ui as any).notifications?.warn('Only a GM can restore stress bars.');
+      return;
+    }
+
+    const btn = event.currentTarget as HTMLElement;
+    const fromIndex = Math.floor(Number(btn?.dataset?.barIndex));
+    if (!Number.isFinite(fromIndex) || fromIndex < 0) return;
+
+    const system = (this.actor as any).system;
+    const rawBars = Array.isArray(system?.stress?.bars) ? system.stress.bars : [];
+    if (!rawBars.length) return;
+    const stressBars = rawBars.map((b: any) => ({ ...b }));
+
+    const { restoreHealthBarsFrom } = await import('../utils/calculations.js');
+    const currentBar = restoreHealthBarsFrom(stressBars, fromIndex);
+    await this.actor.update({
+      'system.stress.bars': stressBars,
+      'system.stress.currentBar': currentBar,
+    });
+
+    // Clearing stress via GM restore also clears a pending Breakdown prompt.
+    try {
+      if (this.actor.getFlag?.('mastery-system', 'stressBreakdownPending') != null) {
+        await this.actor.unsetFlag?.('mastery-system', 'stressBreakdownPending');
+      }
+    } catch {
+      /* ignore */
+    }
+
+    const startName = String(stressBars[fromIndex]?.name ?? `Bar ${fromIndex + 1}`);
+    const endName = String(stressBars[stressBars.length - 1]?.name ?? 'Breaking');
+    (ui as any).notifications?.info?.(
+      `Stress restored from ${startName} through ${endName}.`,
     );
     this.render();
   }

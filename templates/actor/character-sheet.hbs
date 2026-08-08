@@ -970,6 +970,14 @@
               <div class="stress-bar-row {{#if (eq index ../system.stress.currentBar)}}active{{/if}}">
                 <div class="stress-bar-info">
                   <span class="stress-bar-name">{{bar.name}}</span>
+                  {{#if (userIsGM)}}
+                  <button type="button"
+                    class="gm-restore-stress-bar"
+                    data-bar-index="{{index}}"
+                    title="Diese Stress-Bar und alle schwereren darunter (bis Breaking) auf Maximum setzen">
+                    <i class="fas fa-brain"></i> Wiederherstellen
+                  </button>
+                  {{/if}}
                 </div>
                 <div class="stress-bar-inputs">
                   <input type="number" name="system.stress.bars.{{index}}.current" value="{{bar.current}}" data-dtype="Number" min="0" max="{{bar.max}}" />

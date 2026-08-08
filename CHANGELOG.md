@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.288] - 2026-08-08
+
+### Added
+
+- **GM Stress restore (Attributes)**: each Stress bar has a **Wiederherstellen** button (same cascade as HP — that bar and all more-severe bars below, e.g. Stressed → Not Well…Breaking).
+
 ## [0.9.287] - 2026-08-08
 
 ### Added
