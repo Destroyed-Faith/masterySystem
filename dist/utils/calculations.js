@@ -191,6 +191,28 @@ export function healDamage(bars, currentBar, healing) {
     bar.current = Math.min(bar.current + healing, bar.max);
 }
 /**
+ * GM restore: top-fill every bar from `fromIndex` through the most severe
+ * (Bruised → … → Incapacitated when starting at Bruised). Leaves less-severe
+ * bars above `fromIndex` untouched.
+ * Returns the new active bar index (first not-full bar, else 0).
+ */
+export function restoreHealthBarsFrom(bars, fromIndex) {
+    if (!Array.isArray(bars) || bars.length === 0)
+        return 0;
+    const start = Math.max(0, Math.min(bars.length - 1, Math.floor(Number(fromIndex) || 0)));
+    for (let i = start; i < bars.length; i++) {
+        const max = Math.max(0, Math.floor(Number(bars[i]?.max) || 0));
+        bars[i].current = max;
+    }
+    for (let i = 0; i < bars.length; i++) {
+        const cur = Math.floor(Number(bars[i]?.current) || 0);
+        const max = Math.max(0, Math.floor(Number(bars[i]?.max) || 0));
+        if (cur < max)
+            return i;
+    }
+    return 0;
+}
+/**
  * Calculate Stress Bar maximum
  * Each bar = Resolve + Intellect
  */

@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.284] - 2026-08-08
+
+### Added
+
+- **GM Health restore (Attributes)**: each Vitality bar has a **Wiederherstellen** button. Restores that bar and all more-severe bars below it (e.g. Bruised → also Injured…Incapacitated).
+
+### Changed
+
+- **Threatened Ranged / post-attack reactions**: the original attack now **fully resolves** (target reaction → damage) first. Then one shrinking summary offers Opportunity Attacks + Ally Reactions in parallel — no Guard/Evade/Basic Counterattack in that window. OA cards no longer pause or bury the original attack.
+
 ## [0.9.283] - 2026-08-08
 
 ### Added

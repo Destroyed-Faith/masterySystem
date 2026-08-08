@@ -1,18 +1,21 @@
 /**
  * Interactive Reaction Window — chat card with per-actor buttons.
  *
- * Two phases:
+ * Phases:
  *  1. `defender` — direct target, right after the attack Roll (before damage).
- *  2. `others` — allies / other reactors, after the damage roll is posted.
+ *  2. `others` — after the original attack fully resolves: Threatened Ranged
+ *     Opportunity Attacks + Ally reaction powers in one shrinking summary.
+ *  3. `opportunity` — legacy/standalone OA-only window (same post-resolve rules).
  *
- * Each actor may spend exactly one Reaction per event. After a reaction is used,
- * the card refreshes for remaining actors. Continue closes the window.
+ * Each actor may spend exactly one Reaction per event. After a reaction is used
+ * or declined, that actor drops off the card until nobody remains.
+ * Post-attack OAs launch without pausing the summary (parallel OK).
  */
 import { type DefenderReactionMitigation } from './defender-reactions.js';
 /**
  * - defender: target after attack roll (before damage)
- * - opportunity: Threatened Ranged OA (right after the attack roll)
- * - others: nearby allies after damage
+ * - others: OA + allies after the original attack fully resolves
+ * - opportunity: OA-only window (same timing / parallel rules as others)
  */
 export type ReactionWindowPhase = 'defender' | 'others' | 'opportunity';
 export interface ReactionWindowState {

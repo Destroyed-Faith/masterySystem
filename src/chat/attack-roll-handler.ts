@@ -860,34 +860,8 @@ export async function executeAttackRollFromCard(
             '../combat/reaction-window-chat.js'
           );
 
-          // Threatened Ranged OA — immediately after the attack roll, before the
-          // target's defensive reactions / damage (Alaris, Fynn, …).
-          let eventCarry: string | undefined;
-          let spentCarry: string[] = [];
-          let usedCarry: Array<{
-            actorId: string;
-            actorName: string;
-            powerId: string;
-            powerName: string;
-          }> = [];
-          if (opportunityEnemyTokenIds.length > 0 && !suppressNestedCounterattack) {
-            const oaPhase = await runInteractiveReactionWindow({
-              defender: target as any,
-              attacker: freshAttackerForDialog as any,
-              combat: combatForReactions,
-              rawDamage: 0,
-              attackTotal: updatedFlags.attackTotal ?? null,
-              evadeTn: normalTn,
-              hit: true,
-              phase: 'opportunity',
-              opportunityEnemyTokenIds,
-              silentIfEmpty: true,
-            });
-            eventCarry = oaPhase.eventId;
-            spentCarry = oaPhase.spentActorIds;
-            usedCarry = oaPhase.used;
-          }
-
+          // Target reactions first (before damage). Threatened Ranged OA waits
+          // until this attack fully resolves — see Phase 2 below.
           const phase1 = await runInteractiveReactionWindow({
             defender: target as any,
             attacker: freshAttackerForDialog as any,
@@ -897,9 +871,6 @@ export async function executeAttackRollFromCard(
             evadeTn: normalTn,
             hit: true,
             phase: 'defender',
-            eventId: eventCarry,
-            spentActorIds: spentCarry,
-            used: usedCarry,
             suppressCounterattack: suppressNestedCounterattack,
           });
 
@@ -1031,11 +1002,9 @@ export async function executeAttackRollFromCard(
             }
           }
 
-          // Phase 2 — allies + Threatened Ranged opportunity attackers.
-          // Runs after damage (or after Evade negate / Dive) so Alaris/Fynn etc.
-          // get Opportunity Attack buttons even when nobody has Ally powers.
+          // Phase 2 — after the original attack fully resolved: Threatened Ranged
+          // OAs + Ally reactions in one shrinking summary (parallel OK).
           try {
-            // Allies only here — Threatened Ranged OA already ran right after the roll.
             await runInteractiveReactionWindow({
               defender: target as any,
               attacker: freshAttackerForDialog as any,
@@ -1050,7 +1019,9 @@ export async function executeAttackRollFromCard(
               spentActorIds: phase1.spentActorIds,
               used: phase1.used,
               priorMitigation: phase1.mitigation,
-              opportunityEnemyTokenIds: [],
+              opportunityEnemyTokenIds: suppressNestedCounterattack
+                ? []
+                : opportunityEnemyTokenIds,
               suppressCounterattack: suppressNestedCounterattack,
               silentIfEmpty: true,
             });
@@ -1084,7 +1055,7 @@ export async function executeAttackRollFromCard(
           }
         }
       } else {
-        // Miss — Phase 1 for the target, then Phase 2 for Threatened Ranged OA.
+        // Miss — target reacts first; Threatened Ranged OA + allies after.
         try {
           let missTarget: any = null;
           if (flags.targetTokenId) {
@@ -1105,31 +1076,6 @@ export async function executeAttackRollFromCard(
               missFlags,
               missAttacker,
             );
-            let eventCarry: string | undefined;
-            let spentCarry: string[] = [];
-            let usedCarry: Array<{
-              actorId: string;
-              actorName: string;
-              powerId: string;
-              powerName: string;
-            }> = [];
-            if (opportunityEnemyTokenIds.length > 0 && !suppressNestedCounterattack) {
-              const oaPhase = await runInteractiveReactionWindow({
-                defender: missTarget,
-                attacker: missAttacker,
-                combat: (game as any).combat ?? null,
-                rawDamage: 0,
-                attackTotal: Math.floor(Number(result?.total) || 0),
-                evadeTn: normalTn,
-                hit: false,
-                phase: 'opportunity',
-                opportunityEnemyTokenIds,
-                silentIfEmpty: true,
-              });
-              eventCarry = oaPhase.eventId;
-              spentCarry = oaPhase.spentActorIds;
-              usedCarry = oaPhase.used;
-            }
             const phase1 = await runInteractiveReactionWindow({
               defender: missTarget,
               attacker: missAttacker,
@@ -1139,9 +1085,6 @@ export async function executeAttackRollFromCard(
               evadeTn: normalTn,
               hit: false,
               phase: 'defender',
-              eventId: eventCarry,
-              spentActorIds: spentCarry,
-              used: usedCarry,
               suppressCounterattack: suppressNestedCounterattack,
             });
             await runInteractiveReactionWindow({
@@ -1157,7 +1100,9 @@ export async function executeAttackRollFromCard(
               spentActorIds: phase1.spentActorIds,
               used: phase1.used,
               priorMitigation: phase1.mitigation,
-              opportunityEnemyTokenIds: [],
+              opportunityEnemyTokenIds: suppressNestedCounterattack
+                ? []
+                : opportunityEnemyTokenIds,
               suppressCounterattack: suppressNestedCounterattack,
               silentIfEmpty: true,
             });

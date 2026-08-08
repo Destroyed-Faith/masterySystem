@@ -1761,6 +1761,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         html.find('.skill-roll-compact').on('click', this.#onSkillRoll.bind(this));
         // Safe Haven Rest button
         html.find('.safe-haven-rest').on('click', this.#onSafeHavenRest.bind(this));
+        html.find('.gm-restore-health-bar').on('click', this.#onGmRestoreHealthBar.bind(this));
         html.find('.perform-ritual-btn').on('click', this.#onPerformRitual.bind(this));
         html.find('.social-combat-btn').on('click', this.#onSocialCombat.bind(this));
         html.find('.gm-award-faith-fracture').on('click', this.#onGmAwardFaithFracture.bind(this));
@@ -3866,6 +3867,36 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         const party = [this.actor];
         const { showSocialCombatDialog } = await import('../ui/social-combat-dialog.js');
         await showSocialCombatDialog(party);
+    }
+    /**
+     * GM: restore this health bar and all more-severe bars below it
+     * (e.g. Bruised → also Injured…Incapacitated).
+     */
+    async #onGmRestoreHealthBar(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        if (!game.user?.isGM) {
+            ui.notifications?.warn('Only a GM can restore health bars.');
+            return;
+        }
+        const btn = event.currentTarget;
+        const fromIndex = Math.floor(Number(btn?.dataset?.barIndex));
+        if (!Number.isFinite(fromIndex) || fromIndex < 0)
+            return;
+        const system = this.actor.system;
+        const rawBars = Array.isArray(system?.health?.bars) ? system.health.bars : [];
+        if (!rawBars.length)
+            return;
+        const hpBars = rawBars.map((b) => ({ ...b }));
+        const { restoreHealthBarsFrom } = await import('../utils/calculations.js');
+        const currentBar = restoreHealthBarsFrom(hpBars, fromIndex);
+        await this.actor.update({
+            'system.health.bars': hpBars,
+            'system.health.currentBar': currentBar,
+        });
+        const startName = String(hpBars[fromIndex]?.name ?? `Bar ${fromIndex + 1}`);
+        ui.notifications?.info?.(`Health restored from ${startName} through Incapacitated.`);
+        this.render();
     }
     /**
      * Handle Safe Haven Rest - reset all skillsSpent to 0

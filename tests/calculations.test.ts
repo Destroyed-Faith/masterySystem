@@ -7,6 +7,7 @@ import {
   getCurrentPenalty,
   applyDamage,
   healDamage,
+  restoreHealthBarsFrom,
   calculateStressBarMax,
   initializeStressBars,
   applyStress,
@@ -145,6 +146,28 @@ describe('Health Bar Calculations', () => {
     healDamage(bars, 1, 100);
     expect(bars[1].current).toBe(16); // Capped at max
     expect(bars[0].current).toBe(16); // Healthy unchanged
+  });
+
+  it('GM restore from Bruised tops Bruised through Incapacitated, leaves Healthy', () => {
+    const bars = initializeHealthBars(8);
+    bars[0].current = 4;
+    bars[1].current = 2;
+    bars[2].current = 0;
+    bars[5].current = 0;
+    const currentBar = restoreHealthBarsFrom(bars, 1);
+    expect(bars[0].current).toBe(4); // Healthy untouched
+    expect(bars[1].current).toBe(16);
+    expect(bars[2].current).toBe(16);
+    expect(bars[5].current).toBe(1); // Incapacitated max = 1
+    expect(currentBar).toBe(0); // Healthy still damaged → active bar
+  });
+
+  it('GM restore from Healthy tops every bar', () => {
+    const bars = initializeHealthBars(8);
+    for (const b of bars) b.current = 0;
+    const currentBar = restoreHealthBarsFrom(bars, 0);
+    expect(bars.every((b) => b.current === b.max)).toBe(true);
+    expect(currentBar).toBe(0);
   });
 
   describe('percentage-of-pool penalty (with pool argument)', () => {

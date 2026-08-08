@@ -68,6 +68,13 @@ export declare function applyDamage(bars: HealthBar[], currentBar: number, damag
  */
 export declare function healDamage(bars: HealthBar[], currentBar: number, healing: number): void;
 /**
+ * GM restore: top-fill every bar from `fromIndex` through the most severe
+ * (Bruised → … → Incapacitated when starting at Bruised). Leaves less-severe
+ * bars above `fromIndex` untouched.
+ * Returns the new active bar index (first not-full bar, else 0).
+ */
+export declare function restoreHealthBarsFrom(bars: HealthBar[], fromIndex: number): number;
+/**
  * Calculate Stress Bar maximum
  * Each bar = Resolve + Intellect
  */

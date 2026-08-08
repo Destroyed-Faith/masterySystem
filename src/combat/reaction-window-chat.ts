@@ -1,12 +1,15 @@
 /**
  * Interactive Reaction Window — chat card with per-actor buttons.
  *
- * Two phases:
+ * Phases:
  *  1. `defender` — direct target, right after the attack Roll (before damage).
- *  2. `others` — allies / other reactors, after the damage roll is posted.
+ *  2. `others` — after the original attack fully resolves: Threatened Ranged
+ *     Opportunity Attacks + Ally reaction powers in one shrinking summary.
+ *  3. `opportunity` — legacy/standalone OA-only window (same post-resolve rules).
  *
- * Each actor may spend exactly one Reaction per event. After a reaction is used,
- * the card refreshes for remaining actors. Continue closes the window.
+ * Each actor may spend exactly one Reaction per event. After a reaction is used
+ * or declined, that actor drops off the card until nobody remains.
+ * Post-attack OAs launch without pausing the summary (parallel OK).
  */
 
 import {
@@ -30,8 +33,8 @@ const SOCKET_NAME = 'system.mastery-system';
 
 /**
  * - defender: target after attack roll (before damage)
- * - opportunity: Threatened Ranged OA (right after the attack roll)
- * - others: nearby allies after damage
+ * - others: OA + allies after the original attack fully resolves
+ * - opportunity: OA-only window (same timing / parallel rules as others)
  */
 export type ReactionWindowPhase = 'defender' | 'others' | 'opportunity';
 
@@ -130,12 +133,21 @@ function entriesForPhase(
   return entries.filter((e) => e.role === 'ally' || e.role === 'opportunity');
 }
 
+/** Basic Guard / Evade / Counterattack — only for the defender pre-damage window. */
+function isSmallBasicReaction(power: any): boolean {
+  if (!isBasicReactionItem(power)) return false;
+  if (String(power?.id || '') === 'basic-reaction-opportunity-attack') return false;
+  const kind = String(power?.basicReaction || '');
+  return kind === 'guard' || kind === 'evade' || kind === 'counterattack';
+}
+
 function filterEntriesForCard(
   entries: ReactionWindowActorEntry[],
   state: ReactionWindowState,
 ): ReactionWindowActorEntry[] {
   const spent = new Set(state.spentActorIds.map(String));
   const phaseEntries = entriesForPhase(entries, state.phase ?? 'defender');
+  const postAttack = state.phase === 'others' || state.phase === 'opportunity';
   return phaseEntries
     .map((e) => {
       const id = String((e.actor as any)?.id ?? '');
@@ -151,9 +163,17 @@ function filterEntriesForCard(
       if (state.phase === 'defender') {
         powers = powers.filter((p) => !isAllyReactionPower(p));
       }
+      // Post-attack summary: OA + real Ally powers only — no Guard/Evade/Counter.
+      if (postAttack) {
+        powers = powers.filter((p) => !isSmallBasicReaction(p));
+      }
       // Reaction Counterattack already paused one attack — don't nest another.
       if (state.suppressCounterattack) {
-        powers = powers.filter((p) => p?.basicReaction !== 'counterattack');
+        powers = powers.filter(
+          (p) =>
+            p?.basicReaction !== 'counterattack' ||
+            String(p?.id || '') === 'basic-reaction-opportunity-attack',
+        );
       }
       return { ...e, powers };
     })
@@ -172,20 +192,27 @@ function buildReactionWindowHtml(
 ): string {
   const phase = state.phase ?? 'defender';
   const actionable = filterEntriesForCard(entries, state);
+  const remainingN = actionable.length;
+  const remainingSuffix =
+    !state.resolved && remainingN > 0 ? ` — ${remainingN} remaining` : '';
   const title =
     phase === 'defender'
       ? '⚡ Reaction Window — Target'
       : phase === 'opportunity'
-        ? '⚡ Reaction Window — Opportunity Attacks'
-        : '⚡ Reaction Window — Allies';
+        ? `⚡ Opportunity Attacks${remainingSuffix}`
+        : `⚡ After attack — Reactions${remainingSuffix}`;
 
+  const hasOa = (state.opportunityEnemyTokenIds?.length ?? 0) > 0;
   let hitLine: string;
   if (phase === 'opportunity') {
-    hitLine = `<p><strong>${escHtml(attackerName)}</strong> shot while threatened — enemies in melee reach may spend a <strong>Reaction</strong> for an Opportunity Attack.</p>`;
+    hitLine = `<p><strong>${escHtml(attackerName)}</strong>'s attack is done — enemies in melee reach may spend a <strong>Reaction</strong> for an Opportunity Attack (in parallel).</p>`;
   } else if (phase === 'others') {
-    hitLine = state.hit
-      ? `<p><strong>${escHtml(attackerName)}</strong> → <strong>${escHtml(defenderName)}</strong> — damage rolled (${Math.max(0, Math.floor(state.rawDamage))}). Nearby allies may react.</p>`
-      : `<p><strong>${escHtml(attackerName)}</strong> → <strong>${escHtml(defenderName)}</strong> — nearby allies may react.</p>`;
+    const dmgBit = state.hit
+      ? `damage applied (${Math.max(0, Math.floor(state.rawDamage))})`
+      : 'attack resolved';
+    hitLine = hasOa
+      ? `<p><strong>${escHtml(attackerName)}</strong> → <strong>${escHtml(defenderName)}</strong> — ${dmgBit}. Threatened enemies may Opportunity Attack; nearby allies may use Ally Reactions. Summary shrinks as each acts or Declines.</p>`
+      : `<p><strong>${escHtml(attackerName)}</strong> → <strong>${escHtml(defenderName)}</strong> — ${dmgBit}. Nearby allies may react.</p>`;
   } else if (state.hit) {
     hitLine =
       state.rawDamage > 0
@@ -270,8 +297,10 @@ function buildReactionWindowHtml(
       phase === 'defender'
         ? `<p>The <strong>target</strong> may use <strong>one</strong> Reaction now (before damage):</p>`
         : phase === 'opportunity'
-          ? `<p>Threatened Ranged — each listed combatant may spend <strong>one</strong> Reaction for an Opportunity Attack:</p>`
-          : `<p>Each ally may use <strong>one</strong> Reaction for this event:</p>`;
+          ? `<p>Each listed combatant may spend <strong>one</strong> Reaction for an Opportunity Attack (cards open in parallel — original attack already finished):</p>`
+          : hasOa
+            ? `<p>Each listed combatant may spend <strong>one</strong> Reaction (Opportunity Attack and/or Ally powers). Cards open in parallel:</p>`
+            : `<p>Each ally may use <strong>one</strong> Reaction for this event:</p>`;
     body = `${intro}${blocks}${usedBlock}`;
   }
 
@@ -280,9 +309,9 @@ function buildReactionWindowHtml(
       ? state.hit
         ? 'Continue to the damage roll.'
         : 'Close the window.'
-      : phase === 'opportunity'
-        ? 'Continue when opportunity attackers are done (optional).'
-        : 'Close when everyone who wants to react has acted (optional).';
+      : remainingN > 0
+        ? 'Continue to close early (remaining actors skip).'
+        : 'Close the window.';
 
   const continueBtn = state.resolved
     ? ''
@@ -361,17 +390,22 @@ function findPowerForActor(entry: ReactionWindowActorEntry | undefined, powerId:
   return entry.powers.find((p) => String((p as any).id) === powerId) ?? null;
 }
 
-async function launchBasicCounterattack(defender: Actor, attacker: Actor): Promise<void> {
+async function launchBasicCounterattack(
+  defender: Actor,
+  attacker: Actor,
+  opts?: { awaitResolution?: boolean; label?: string },
+): Promise<void> {
+  const awaitResolution = opts?.awaitResolution !== false;
+  const label = opts?.label || 'Counterattack';
   const defTok = getPrimaryTokenForActor(defender);
   const atkTok = getPrimaryTokenForActor(attacker);
   if (!defTok || !atkTok) {
-    throw new Error('Missing tokens for Counterattack');
+    throw new Error(`Missing tokens for ${label}`);
   }
   const { createMeleeAttackCard } = await import('./attack-executor.js');
-  const { waitForAttackResolution } = await import('./attack-resolution-wait.js');
   const option = {
     id: 'weapon-attack',
-    name: 'Counterattack (Basic Attack)',
+    name: `${label} (Basic Attack)`,
     description: 'Basic Attack — Weapon Damage + MR × 2d8. No Active Power effects.',
     slot: 'attack' as const,
     source: 'maneuver' as const,
@@ -381,10 +415,17 @@ async function launchBasicCounterattack(defender: Actor, attacker: Actor): Promi
   };
   const messageId = await createMeleeAttackCard(defTok, atkTok, option as any);
   if (!messageId) {
-    throw new Error('Counterattack attack card was not created');
+    throw new Error(`${label} attack card was not created`);
   }
+  if (!awaitResolution) {
+    (globalThis as any).ui?.notifications?.info?.(
+      `${label}: attack card opened — roll when ready (original attack already finished).`,
+    );
+    return;
+  }
+  const { waitForAttackResolution } = await import('./attack-resolution-wait.js');
   (globalThis as any).ui?.notifications?.info?.(
-    'Counterattack: Roll this attack now. Original damage is paused until it finishes (or you Skip).',
+    `${label}: Roll this attack now. Original damage is paused until it finishes (or you Skip).`,
   );
   // Block the original attack pipeline until this Counterattack is rolled +
   // resolved (or skipped). Otherwise Dummy damage continues immediately.
@@ -439,13 +480,16 @@ async function executeReactionSpend(params: {
   const mech = mechanicsOf(power);
   const isCounterattack = power?.basicReaction === 'counterattack';
 
-  // Threatened Ranged OA: strike the shooter (attacker) before continuing.
+  // Threatened Ranged OA: open attack card without blocking the summary
+  // (original attack already finished; multiple OAs may run in parallel).
   if (role === 'opportunity') {
-    note = ` <em>(Opportunity Attack vs ${String((attacker as any)?.name ?? 'the shooter')} — resolve it now.)</em>`;
+    note = ` <em>(Opportunity Attack vs ${String((attacker as any)?.name ?? 'the shooter')} — card opened, roll when ready.)</em>`;
     if (attacker) {
       try {
-        await launchBasicCounterattack(actor, attacker);
-        note += ' <em>(Opportunity Attack finished.)</em>';
+        await launchBasicCounterattack(actor, attacker, {
+          awaitResolution: false,
+          label: 'Opportunity Attack',
+        });
       } catch (err) {
         console.warn('Mastery System | Opportunity Attack launch failed', err);
         (globalThis as any).ui?.notifications?.warn?.(
@@ -648,9 +692,10 @@ async function handleUseClick(messageId: string, actorId: string, powerId: strin
     return;
   }
 
+  // Only the defender's pre-damage Counterattack pauses the original attack.
+  // Post-attack OAs must not freeze the shrinking summary.
   const blocksOriginal =
-    power?.basicReaction === 'counterattack' ||
-    String(power?.id || '') === 'basic-reaction-opportunity-attack';
+    state.phase === 'defender' && power?.basicReaction === 'counterattack';
 
   // Announce immediately so the table sees the spend before a long Counterattack wait.
   await g.ChatMessage?.create?.({

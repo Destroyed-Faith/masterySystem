@@ -1917,6 +1917,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     
     // Safe Haven Rest button
     html.find('.safe-haven-rest').on('click', this.#onSafeHavenRest.bind(this));
+    html.find('.gm-restore-health-bar').on('click', this.#onGmRestoreHealthBar.bind(this));
     html.find('.perform-ritual-btn').on('click', this.#onPerformRitual.bind(this));
     html.find('.social-combat-btn').on('click', this.#onSocialCombat.bind(this));
     html.find('.gm-award-faith-fracture').on('click', this.#onGmAwardFaithFracture.bind(this));
@@ -4283,6 +4284,41 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     const party: Actor[] = [this.actor as Actor];
     const { showSocialCombatDialog } = await import('../ui/social-combat-dialog.js');
     await showSocialCombatDialog(party);
+  }
+
+  /**
+   * GM: restore this health bar and all more-severe bars below it
+   * (e.g. Bruised → also Injured…Incapacitated).
+   */
+  async #onGmRestoreHealthBar(event: JQuery.ClickEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    if (!(game as any).user?.isGM) {
+      (ui as any).notifications?.warn('Only a GM can restore health bars.');
+      return;
+    }
+
+    const btn = event.currentTarget as HTMLElement;
+    const fromIndex = Math.floor(Number(btn?.dataset?.barIndex));
+    if (!Number.isFinite(fromIndex) || fromIndex < 0) return;
+
+    const system = (this.actor as any).system;
+    const rawBars = Array.isArray(system?.health?.bars) ? system.health.bars : [];
+    if (!rawBars.length) return;
+    const hpBars = rawBars.map((b: any) => ({ ...b }));
+
+    const { restoreHealthBarsFrom } = await import('../utils/calculations.js');
+    const currentBar = restoreHealthBarsFrom(hpBars, fromIndex);
+    await this.actor.update({
+      'system.health.bars': hpBars,
+      'system.health.currentBar': currentBar,
+    });
+
+    const startName = String(hpBars[fromIndex]?.name ?? `Bar ${fromIndex + 1}`);
+    (ui as any).notifications?.info?.(
+      `Health restored from ${startName} through Incapacitated.`,
+    );
+    this.render();
   }
 
   /**

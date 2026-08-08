@@ -934,6 +934,14 @@
                       {{bar.name}}{{#if bar.penalty}} ({{bar.penalty}} penalty){{/if}}
                     {{/if}}
                   </span>
+                  {{#if (userIsGM)}}
+                  <button type="button"
+                    class="gm-restore-health-bar"
+                    data-bar-index="{{index}}"
+                    title="Diese Bar und alle schwereren darunter (bis Incapacitated) auf Maximum setzen">
+                    <i class="fas fa-heart"></i> Wiederherstellen
+                  </button>
+                  {{/if}}
                 </div>
                 <div class="health-bar-inputs">
                   <input type="number" name="system.health.bars.{{index}}.current" value="{{bar.current}}" data-dtype="Number" min="0" max="{{bar.max}}" />
