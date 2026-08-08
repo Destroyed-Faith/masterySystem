@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.272] - 2026-08-08
+
+### Fixed
+
+- **Target picking**: ranged/melee/utility clicks no longer take the first overlapping token in Foundry `placeables` order. Picks the closest / topmost token under the cursor (and prefers in-range valid targets for ranged), so clicking Sjossfur no longer silently selects someone else.
+
 ## [0.9.271] - 2026-08-07
 
 ### Added

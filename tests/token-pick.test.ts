@@ -1,5 +1,5 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { pickTokenAtPoint } from '../src/utils/token-pick.js';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { pickTokenAtPoint, tokenFromEventTarget } from '../src/utils/token-pick.js';
 
 function makeToken(opts: {
   id: string;
@@ -66,5 +66,14 @@ describe('pickTokenAtPoint', () => {
 
     expect(pickTokenAtPoint(5, 0, { onlyIds: ['b'] })?.id).toBe('b');
     expect(pickTokenAtPoint(5, 0, { excludeIds: ['b'] })?.id).toBe('a');
+  });
+
+  it('tokenFromEventTarget walks parents to a placeable', () => {
+    const tok = makeToken({ id: 'sj', name: 'Sjossfur', x: 50, y: 50 });
+    (tok as any).actor = { id: 'actor-sj' };
+    (tok as any).document = { documentName: 'Token' };
+    (globalThis as any).canvas.tokens.placeables = [tok];
+    const hit = { parent: tok };
+    expect(tokenFromEventTarget({ target: hit })?.id).toBe('sj');
   });
 });

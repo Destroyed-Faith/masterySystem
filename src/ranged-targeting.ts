@@ -16,7 +16,12 @@ import {
   measureSceneDistanceBetweenPoints,
 } from "./utils/grid-range";
 import { filterPerceivableTargetIds } from "./combat/perception-gate.js";
-import { pickTokenFromPointerEvent } from "./utils/token-pick.js";
+import {
+  pickTokenFromPointerEvent,
+  pointerEventIsOnToken,
+  tokenFromEventTarget,
+  type TokenPickDebug,
+} from "./utils/token-pick.js";
 
 interface RangedTargetingState {
   attackerToken: any;
@@ -126,32 +131,16 @@ function restoreTargetVisuals(state: RangedTargetingState): void {
 function handleOverlayClick(targetId: string): void {
   const state = active;
   if (!state || confirming) return;
-  if (!state.validTargetIds.has(targetId)) return;
-
-  confirming = true;
-  try {
-    const overlayTok = canvas.tokens?.get(targetId);
-    console.log("[MS NPC Targeting] RANGED overlay confirm → attack card", {
-      attacker: state.attackerToken.name,
-      target: overlayTok?.name ?? "?",
-      targetId,
-      option: state.option?.name,
-      shortBand: state.shortBandMeters,
-      max: state.rangeMeters,
-    });
-    Hooks.call("masterySystem.rangedTargetSelected", {
-      attackerTokenId: state.attackerToken.id,
-      targetTokenId: targetId,
-      option: state.option,
-    });
-    endRangedTargeting(true);
-  } catch (err) {
-    console.error("Mastery System | [RANGED TARGETING] Overlay click failed", err);
-    ui.notifications?.error?.("Failed to select target");
-    endRangedTargeting(false);
-  } finally {
-    confirming = false;
+  if (!state.validTargetIds.has(targetId)) {
+    console.warn("[MS NPC Targeting] RANGED overlay click on non-valid id", { targetId });
+    return;
   }
+  const overlayTok = canvas.tokens?.get(targetId);
+  if (!overlayTok) {
+    console.warn("[MS NPC Targeting] RANGED overlay token missing", { targetId });
+    return;
+  }
+  confirmRangedTarget(state, overlayTok, "overlay");
 }
 
 function markValidTargets(state: RangedTargetingState): void {
@@ -178,11 +167,6 @@ function markValidTargets(state: RangedTargetingState): void {
     token.addChild(overlay);
     token.sortChildren();
   }
-}
-
-/** Pixel hit-test: closest / topmost token under the pointer (not placeables order). */
-function findClickedTokenAny(ev: PIXI.FederatedPointerEvent): any | null {
-  return pickTokenFromPointerEvent(ev);
 }
 
 function measureMetersBetweenTokens(a: any, b: any): number | null {
@@ -227,59 +211,16 @@ function onKeyDown(ev: KeyboardEvent): void {
   }
 }
 
-function onPointerDown(ev: PIXI.FederatedPointerEvent): void {
-  const state = active;
-  if (!state) return;
-
-  if (ev.button !== 0) {
-    endRangedTargeting(false);
-    return;
-  }
-
+function confirmRangedTarget(state: RangedTargetingState, clicked: any, via: string): void {
   if (confirming) return;
-
-  // Prefer a valid in-range target under the pointer. Only if none hit, fall
-  // back to any token (so we can warn "out of range" instead of cancelling).
-  const exclude = state.attackerToken?.id ? [state.attackerToken.id] : [];
-  let clicked = pickTokenFromPointerEvent(ev, {
-    excludeIds: exclude,
-    onlyIds: state.validTargetIds,
-  });
-  if (!clicked) {
-    clicked = findClickedTokenAny(ev);
-  }
-
-  if (!clicked) {
-    endRangedTargeting(false);
-    return;
-  }
-  if (clicked.id === state.attackerToken.id) {
-    return;
-  }
-
-  ev.stopPropagation();
-  ev.stopImmediatePropagation();
-
-  if (!state.validTargetIds.has(clicked.id)) {
-    const distM = measureMetersBetweenTokens(state.attackerToken, clicked);
-    const distLabel = distM != null ? `${distM.toFixed(1)} m` : "? m";
-    const msg = `Target out of range (${distLabel}). Max range is ${state.rangeMeters} m.`;
-    ui.notifications?.warn?.(msg);
-    console.warn("[MS NPC Targeting] RANGED click rejected (beyond Long)", {
-      target: clicked.name,
-      distM,
-      maxM: state.rangeMeters,
-      shortBandM: state.shortBandMeters,
-    });
-    return;
-  }
-
   confirming = true;
   try {
     const distM = measureMetersBetweenTokens(state.attackerToken, clicked);
     console.log("[MS NPC Targeting] RANGED target confirmed → creating attack card", {
+      via,
       attacker: state.attackerToken.name,
       target: clicked.name,
+      targetId: clicked.id,
       option: state.option?.name,
       distM,
       shortBandM: state.shortBandMeters,
@@ -288,6 +229,7 @@ function onPointerDown(ev: PIXI.FederatedPointerEvent): void {
         distM != null && state.shortBandMeters > 0
           ? distM <= state.shortBandMeters
           : true,
+      validIds: [...state.validTargetIds],
     });
     Hooks.call("masterySystem.rangedTargetSelected", {
       attackerTokenId: state.attackerToken.id,
@@ -302,6 +244,97 @@ function onPointerDown(ev: PIXI.FederatedPointerEvent): void {
   } finally {
     confirming = false;
   }
+}
+
+function onPointerDown(ev: PIXI.FederatedPointerEvent): void {
+  const state = active;
+  if (!state) return;
+
+  if (ev.button !== 0) {
+    console.log("[MS NPC Targeting] RANGED pointer cancel (non-left button)", { button: ev.button });
+    endRangedTargeting(false);
+    return;
+  }
+
+  if (confirming) return;
+
+  const exclude = state.attackerToken?.id ? [state.attackerToken.id] : [];
+  const debugValid: TokenPickDebug = {
+    world: { x: 0, y: 0 },
+    mousePosition: null,
+    stageLocal: null,
+    fromEventTarget: null,
+    boundsHits: [],
+    picked: null,
+    pickReason: '',
+  };
+  const debugAny: TokenPickDebug = { ...debugValid, boundsHits: [] };
+
+  // Prefer a valid in-range target under the pointer. Only if none hit, fall
+  // back to any token (so we can warn "out of range" instead of cancelling).
+  let clicked = pickTokenFromPointerEvent(
+    ev,
+    { excludeIds: exclude, onlyIds: state.validTargetIds },
+    debugValid,
+  );
+  if (!clicked) {
+    clicked = pickTokenFromPointerEvent(ev, { excludeIds: exclude }, debugAny);
+  }
+
+  const eventTok = tokenFromEventTarget(ev);
+  console.log("[MS NPC Targeting] RANGED pointerdown", {
+    button: ev.button,
+    eventTargetType: (ev.target as any)?.constructor?.name ?? typeof ev.target,
+    eventToken: eventTok ? `${eventTok.name} (${eventTok.id})` : null,
+    pickValid: debugValid,
+    pickAny: debugAny,
+    chosen: clicked ? `${clicked.name} (${clicked.id})` : null,
+    validCount: state.validTargetIds.size,
+    attacker: state.attackerToken?.name,
+  });
+
+  if (!clicked) {
+    // CRITICAL: capture-phase miss must NOT cancel — overlays still need to
+    // receive the event. Only cancel when the click is clearly empty canvas.
+    if (pointerEventIsOnToken(ev)) {
+      console.log(
+        "[MS NPC Targeting] RANGED pick miss but event is on a token — deferring to overlay/bubble",
+      );
+      return;
+    }
+    console.log("[MS NPC Targeting] RANGED empty-canvas click → cancel");
+    endRangedTargeting(false);
+    return;
+  }
+  if (clicked.id === state.attackerToken.id) {
+    console.log("[MS NPC Targeting] RANGED click on attacker — ignored");
+    return;
+  }
+
+  ev.stopPropagation();
+  ev.stopImmediatePropagation();
+
+  if (!state.validTargetIds.has(clicked.id)) {
+    const distM = measureMetersBetweenTokens(state.attackerToken, clicked);
+    const distLabel = distM != null ? `${distM.toFixed(1)} m` : "? m";
+    const msg = `Target out of range (${distLabel}). Max range is ${state.rangeMeters} m.`;
+    ui.notifications?.warn?.(msg);
+    console.warn("[MS NPC Targeting] RANGED click rejected (beyond Long / not selectable)", {
+      target: clicked.name,
+      targetId: clicked.id,
+      distM,
+      maxM: state.rangeMeters,
+      shortBandM: state.shortBandMeters,
+      inValidSet: false,
+      validIds: [...state.validTargetIds].map((id) => {
+        const t = canvas.tokens?.get(id);
+        return t ? `${t.name}(${id})` : id;
+      }),
+    });
+    return;
+  }
+
+  confirmRangedTarget(state, clicked, "stage-capture");
 }
 
 export function startRangedTargeting(attackerToken: any, option: RadialCombatOption): void {
@@ -333,6 +366,17 @@ export function startRangedTargeting(attackerToken: any, option: RadialCombatOpt
   state.validTargetIds = computeValidTargets(attackerToken, rangeMeters);
   markValidTargets(state);
   logNearbyTokenDistances(attackerToken, shortBandMeters, rangeMeters);
+  console.log("[MS NPC Targeting] RANGED targeting started", {
+    attacker: attackerToken.name,
+    attackerId: attackerToken.id,
+    option: option.name,
+    shortBandMeters,
+    rangeMeters,
+    validTargets: [...state.validTargetIds].map((id) => {
+      const t = canvas.tokens?.get(id);
+      return t ? { id, name: t.name } : { id, name: "?" };
+    }),
+  });
 
   canvas.stage.on("pointerdown", state.onPointerDown, true);
   window.addEventListener("keydown", state.onKeyDown);

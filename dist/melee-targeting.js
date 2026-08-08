@@ -9,7 +9,7 @@ import { highlightHexesInRange, clearHexHighlight } from "./utils/hex-highlighti
 import { gridStepsFromMeters, isWithinRangeMeters } from "./utils/grid-range.js";
 import { tokenIsHostileTo } from "./combat/threatened-ranged.js";
 import { filterPerceivableTargetIds } from "./combat/perception-gate.js";
-import { pickTokenFromPointerEvent } from "./utils/token-pick.js";
+import { pickTokenFromPointerEvent, pointerEventIsOnToken, } from "./utils/token-pick.js";
 let active = null;
 let confirming = false;
 /* -------------------------------------------- */
@@ -233,18 +233,6 @@ function restoreTargetVisuals(state) {
 /* -------------------------------------------- */
 /*  Click Detection                             */
 /* -------------------------------------------- */
-/**
- * Find clicked token in reach area.
- * Prefer closest/topmost under the pointer among valid targets — never the first
- * placeables entry whose bounds happen to overlap.
- */
-function findClickedTokenInReachArea(state, ev) {
-    return pickTokenFromPointerEvent(ev, {
-        excludeIds: state.attackerToken?.id ? [state.attackerToken.id] : [],
-        onlyIds: state.validTargetIds,
-        centerPadPx: 15,
-    });
-}
 /* -------------------------------------------- */
 /*  Input Handlers                               */
 /* -------------------------------------------- */
@@ -265,20 +253,35 @@ function onPointerDown(ev) {
     // Ignore if already confirming
     if (confirming)
         return;
-    // Check if click is on a valid target (token itself, not overlay)
-    const clicked = findClickedTokenInReachArea(state, ev);
+    const debug = {
+        world: { x: 0, y: 0 },
+        mousePosition: null,
+        stageLocal: null,
+        fromEventTarget: null,
+        boundsHits: [],
+        picked: null,
+        pickReason: '',
+    };
+    const clicked = pickTokenFromPointerEvent(ev, {
+        excludeIds: state.attackerToken?.id ? [state.attackerToken.id] : [],
+        onlyIds: state.validTargetIds,
+        centerPadPx: 15,
+    }, debug);
+    console.log('[MS NPC Targeting] MELEE pointerdown', {
+        chosen: clicked ? `${clicked.name} (${clicked.id})` : null,
+        pick: debug,
+        validCount: state.validTargetIds.size,
+    });
     if (clicked && clicked.id !== state.attackerToken.id && state.validTargetIds.has(clicked.id)) {
         ev.stopPropagation();
         ev.stopImmediatePropagation();
         confirming = true;
         try {
-            // Fire hook with attacker/target ids + option
             Hooks.call("masterySystem.meleeTargetSelected", {
                 attackerTokenId: state.attackerToken.id,
                 targetTokenId: clicked.id,
                 option: state.option
             });
-            // End targeting
             endMeleeTargeting(true);
         }
         catch (err) {
@@ -291,10 +294,13 @@ function onPointerDown(ev) {
         }
         return;
     }
-    // Click on empty space cancels
+    // Capture miss must not cancel when the click is on a token (overlays still fire).
     if (!clicked) {
+        if (pointerEventIsOnToken(ev)) {
+            console.log('[MS NPC Targeting] MELEE pick miss on token — deferring to overlay');
+            return;
+        }
         endMeleeTargeting(false);
-        return;
     }
 }
 /* -------------------------------------------- */
