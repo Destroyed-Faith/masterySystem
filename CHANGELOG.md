@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.276] - 2026-08-08
+
+### Fixed
+
+- **NPC attacks not resetting next round**: Foundry `setFlag` merges objects, so writing `npcAttackUsesThisRound: {}` left spent attack keys in place. `setRoundState` now unsets then replaces the whole `roundState` flag so Angriffe/Runde copies come back each round.
+
 ## [0.9.275] - 2026-08-08
 
 ### Changed
