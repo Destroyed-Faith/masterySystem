@@ -858,6 +858,36 @@ export async function handleChosenCombatOption(token, option) {
             itemRange: option.item?.system?.range,
         });
     }
+    // Parry Stance → enter Passive Parry pool (must run before melee targeting —
+    // the maneuver uses slot "attack" with a melee-ish range).
+    if (option.source === 'maneuver' && option.maneuver?.id === 'parry-stance') {
+        const atkAvail = getAvailableAttackActions(actor, combat);
+        if (atkAvail <= 0) {
+            ui.notifications?.warn('No Actions left this round.');
+            return;
+        }
+        closeRadialMenu();
+        try {
+            const { enterParry } = await import('./combat/parry.js');
+            const result = await enterParry(actor, combat);
+            if (!result.ok) {
+                ui.notifications?.warn(result.reason || 'Could not enter Parry.');
+                return;
+            }
+            const attrLabel = result.attribute === 'agility' ? 'Agility' : 'Might';
+            ui.notifications?.info(`Parry entered — pool ${result.pool}/${result.max} (${attrLabel}). Attack Actions given up this round.`);
+            await globalThis.ChatMessage?.create?.({
+                user: game.user?.id,
+                speaker: globalThis.ChatMessage?.getSpeaker?.({ actor }),
+                content: `<p class="mastery-reaction-msg"><strong>${String(actor.name)}</strong> enters <strong>Parry</strong> (pool <strong>${result.pool}</strong> via ${attrLabel}).</p>`,
+            });
+        }
+        catch (err) {
+            console.warn('Mastery System | enter Parry failed', err);
+            ui.notifications?.warn('Could not enter Parry.');
+        }
+        return;
+    }
     // Check if this is a melee attack option
     // NPC attacks: tagged melee / not ranged (Reach may be up to 8m).
     // Other attacks: range <= 4m (2m base + up to 2m reach) or unspecified.

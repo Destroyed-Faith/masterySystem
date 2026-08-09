@@ -16,7 +16,8 @@ import { getActionEconomyActor, getReactionActionsSummary, markPowerUsedThisRoun
 import { buildActorMechanicsBreakdown, resolvePowerMechanics } from '../utils/power-mechanics.js';
 import { isBasicReactionItem } from './basic-combat.js';
 import { getPrimaryTokenForActor } from '../utils/mechanics-adjacency.js';
-import { buildReactionTriggerContext, evaluateReactionEligibility, isCounterDamageReaction, isGhostSlipReaction, isInterposeReaction, isRepositionReaction, isSpecialIncreaseReaction, } from './reaction-eligibility.js';
+import { buildReactionTriggerContext, evaluateReactionEligibility, isCounterDamageReaction, isGhostSlipReaction, isInterposeReaction, isParryFollowUpReaction, isRepositionReaction, isSpecialIncreaseReaction, } from './reaction-eligibility.js';
+import { buildReflectionFormula, buildRiposteFormula, isReflectionReaction, isRiposteReaction, } from './parry.js';
 const SOCKET_NAME = 'system.mastery-system';
 const pendingWaiters = new Map();
 /** Reaction windows currently resolving a blocking Counterattack/OA. */
@@ -145,6 +146,9 @@ function filterEntriesForCard(entries, state, actors) {
             attacker,
             allyDistanceM: e.role === 'ally' ? e.distanceM : null,
             suppressCounterattack: state.suppressCounterattack,
+            hasParryThisHit: !!state.hasParryThisHit,
+            attackType: state.attackType ?? null,
+            isAoE: !!state.isAoE,
         });
         const powers = e.powers.filter((p) => evaluateReactionEligibility(p, ctx).shown);
         return { ...e, powers };
@@ -599,6 +603,55 @@ async function executeReactionSpend(params) {
         catch (err) {
             console.warn('Mastery System | Ghost Slip reaction failed', err);
             note = ' <em>(Ghost Slip failed — resolve manually.)</em>';
+        }
+        return { state, note };
+    }
+    // Riposte / Reflection — after a Full Parry (no new attack roll).
+    if (state.hasParryThisHit && attacker && isParryFollowUpReaction(power)) {
+        const rider = String(mech?.damageRider?.flat ?? '').replace(/^\+/, '');
+        try {
+            let formula = '';
+            let label = '';
+            if (isRiposteReaction(power)) {
+                formula = buildRiposteFormula(actor, rider);
+                label = 'Riposte';
+            }
+            else if (isReflectionReaction(power)) {
+                formula = buildReflectionFormula(state.rawDamage, attacker, rider);
+                label = 'Reflection';
+                // Reflection also prevents any residual triggering damage on the defender.
+                state.mitigation = {
+                    ...(state.mitigation || emptyMitigation()),
+                    negatedByEvade: true,
+                    powerName: power.name,
+                };
+            }
+            else {
+                formula = buildRiposteFormula(actor, rider);
+                label = String(power.name ?? 'Parry Follow-up');
+            }
+            if (formula && formula !== '0') {
+                const roll = await new globalThis.Roll(formula).evaluate({ async: true });
+                const total = Math.max(0, Math.floor(Number(roll?.total) || 0));
+                const { applyDamageToTarget } = await import('../dice/damage-dialog.js');
+                await applyDamageToTarget(attacker, total, actor, 0, {
+                    skipPhasing: true,
+                    skipReactionPrompt: true,
+                });
+                note += ` <em>(${label} ${formula} → ${total} to ${String(attacker.name)}.)</em>`;
+                await globalThis.ChatMessage?.create?.({
+                    user: globalThis.game?.user?.id,
+                    speaker: globalThis.ChatMessage?.getSpeaker?.({ actor }),
+                    content: `<p class="mastery-reaction-msg"><strong>${escHtml(actorName)}</strong> ${escHtml(label)}: <strong>${escHtml(formula)}</strong> → <strong>${total}</strong> to <strong>${escHtml(String(attacker.name))}</strong>.</p>`,
+                });
+            }
+            else {
+                note += ` <em>(${label} — no damage formula.)</em>`;
+            }
+        }
+        catch (err) {
+            console.warn('Mastery System | Parry follow-up reaction failed', err);
+            note += ' <em>(Parry follow-up failed — resolve manually.)</em>';
         }
         return { state, note };
     }
@@ -1127,6 +1180,9 @@ export async function runInteractiveReactionWindow(params) {
         damageMessageId: params.damageMessageId ?? null,
         opportunityEnemyTokenIds: oppIds,
         suppressCounterattack: !!params.suppressCounterattack,
+        hasParryThisHit: !!params.hasParryThisHit,
+        attackType: params.attackType ?? null,
+        isAoE: !!params.isAoE,
     };
     const actionable = filterEntriesForCard(entries, state);
     // Threatened Ranged named OAs must always produce a post-attack card — even

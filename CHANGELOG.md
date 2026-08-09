@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.295] - 2026-08-09
+
+### Added
+
+- **Passive Parry runtime**: Parry Stance enters a Parry pool (Might/Agility, capped at 5×Level), gives up Attack Actions, and strips Attack Dice 1:1 before the roll.
+- **Fully Parried → Riposte / Reflection**: 0 Attack Dice skips the roll and damage, opens the defender Reaction Window with `hasParryThisHit`, and spend resolves Weapon+Nd8 (Riposte) or reflected damage+Nd8 (Reflection).
+- **Reaction flow tests**: gates (miss / DR / Counter Damage range / Ghost Slip / Cleanse / Overload / Interpose) plus Full Parry → follow-up eligibility and spend formulas.
+
+### Changed
+
+- Reaction Window threads `hasParryThisHit`, `attackType`, and `isAoE` into eligibility filtering.
+
 ## [0.9.294] - 2026-08-09
 
 ### Added

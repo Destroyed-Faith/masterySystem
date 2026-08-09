@@ -87,6 +87,16 @@ export interface RoundState {
         granted: number;
         remaining: number;
     };
+    /**
+     * Passive Parry stance for this round — spend pool 1:1 to strip Attack Dice
+     * before the roll (0 dice = Fully Parried → Riposte / Reflection).
+     */
+    parry?: {
+        entered: boolean;
+        pool: number;
+        max: number;
+        attribute: 'might' | 'agility';
+    };
     stoneBonuses?: {
         extraAttacks: number;
         extraReactions: number;

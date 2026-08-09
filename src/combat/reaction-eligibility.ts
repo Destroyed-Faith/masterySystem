@@ -221,8 +221,24 @@ export function evaluateReactionEligibility(power: any, ctx: ReactionTriggerCont
   }
 
   // Parry follow-ups need a Full Parry this hit.
-  if (isParryFollowUpReaction(power) && !ctx.hasParryThisHit) {
-    return { shown: false, enabled: false, reason: 'Requires a Full Parry on this attack' };
+  if (isParryFollowUpReaction(power)) {
+    if (!ctx.hasParryThisHit) {
+      return { shown: false, enabled: false, reason: 'Requires a Full Parry on this attack' };
+    }
+    // Riposte: melee Full Parry only.
+    if (tid === 'reaction-riposte' && ctx.attackType === 'ranged') {
+      return { shown: false, enabled: false, reason: 'Riposte requires a melee Full Parry' };
+    }
+    // Reflection: single-target only.
+    if (
+      (tid === 'reaction-parry-reflection' || tid.includes('reflection')) &&
+      ctx.isAoE
+    ) {
+      return { shown: false, enabled: false, reason: 'Reflection requires a single-target attack' };
+    }
+    if (phase !== 'defender') {
+      return { shown: false, enabled: false, reason: 'Parry follow-ups are defender reactions' };
+    }
   }
 
   // Repositioning Intercept — out of scope for auto-retarget; hide from window.

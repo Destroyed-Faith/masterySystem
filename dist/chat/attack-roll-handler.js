@@ -340,6 +340,78 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
                     console.warn('Mastery System | Range Band evaluation failed:', err);
                 }
             }
+            // Passive Parry: strip Attack Dice 1:1 before the roll. 0 dice = Fully Parried.
+            let hasParryThisHit = false;
+            let defenderForParry = null;
+            let parryFlavorNote = '';
+            try {
+                const combatForParry = game.combat ?? null;
+                if (flags.targetTokenId) {
+                    const tokDoc = canvas?.scene?.tokens?.get?.(flags.targetTokenId) ??
+                        canvas?.tokens?.placeables?.find?.((t) => t?.id === flags.targetTokenId);
+                    defenderForParry =
+                        tokDoc?.actor ?? tokDoc?.document?.actor ?? tokDoc?.object?.actor ?? null;
+                }
+                if (!defenderForParry && flags.targetId) {
+                    defenderForParry = game.actors?.get(flags.targetId) ?? null;
+                }
+                if (defenderForParry && combatForParry && numDice > 0) {
+                    const { applyParryDiceStrip } = await import('../combat/parry.js');
+                    const strip = await applyParryDiceStrip(defenderForParry, combatForParry, numDice);
+                    if (strip.spent > 0) {
+                        numDice = strip.remainingDice;
+                        hasParryThisHit = strip.fullyParried;
+                        if (strip.note)
+                            parryFlavorNote = ` (${strip.note})`;
+                    }
+                }
+            }
+            catch (parryErr) {
+                console.warn('Mastery System | Parry strip failed', parryErr);
+            }
+            // Fully Parried: no attack roll, no hit effects, no damage — open Riposte/Reflection window.
+            if (hasParryThisHit) {
+                button.html('<i class="fas fa-check"></i> Fully Parried').addClass('rolled');
+                const atkName = String(freshAttacker?.name ?? 'Attacker');
+                const defName = String(defenderForParry?.name ?? 'Defender');
+                try {
+                    await globalThis.ChatMessage?.create?.({
+                        user: game.user?.id,
+                        speaker: globalThis.ChatMessage?.getSpeaker?.({ actor: defenderForParry }),
+                        content: `<p class="mastery-reaction-msg"><strong>${defName}</strong> Fully Parried <strong>${atkName}</strong>'s attack (0 Attack Dice). No damage.</p>`,
+                    });
+                }
+                catch {
+                    /* ignore */
+                }
+                try {
+                    const combatForReactions = game.combat ?? null;
+                    const { runInteractiveReactionWindow } = await import('../combat/reaction-window-chat.js');
+                    const aoeFromBtn = !!button.attr('data-aoe-melee-weapon');
+                    const isAoE = aoeFromBtn ||
+                        flags.aoeMeleeWeapon === true ||
+                        String(flags.aoeMeleeWeapon) === 'true' ||
+                        flags.tnKind === 'area';
+                    await runInteractiveReactionWindow({
+                        defender: defenderForParry,
+                        attacker: freshAttacker,
+                        combat: combatForReactions,
+                        rawDamage: 0,
+                        attackTotal: null,
+                        evadeTn: normalTn,
+                        hit: false,
+                        phase: 'defender',
+                        hasParryThisHit: true,
+                        attackType: flags.attackType === 'ranged' ? 'ranged' : 'melee',
+                        isAoE,
+                        suppressCounterattack: suppressNestedCounterattack,
+                    });
+                }
+                catch (fpErr) {
+                    console.warn('Mastery System | Fully Parried reaction window failed', fpErr);
+                }
+                return;
+            }
             // Split-Attack: hard-cap the final pool inside `masteryRoll` so attack-rider
             // / manual bonus dice cannot inflate the strike back to the full attribute pool.
             const splitAttackDiceCap = flags.splitAttack === true ? numDice : undefined;
@@ -379,10 +451,10 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
             const attackKind = flags.attackType === 'ranged' ? 'Ranged' : 'Melee';
             const targetActorForFlavor = game.actors?.get(flags.targetId);
             const rollFlavorBase = tnKind === 'area'
-                ? `Roll ${numDice}d8 keep ${keepDice} vs Area TN ${normalTn}${declaredRaiseSlots > 0 ? ` (Raise TN ${raiseTn})` : ''} — one roll, hits every target in the area${advantageNote}${disadvantageNote}${rangeBandNote}`
+                ? `Roll ${numDice}d8 keep ${keepDice} vs Area TN ${normalTn}${declaredRaiseSlots > 0 ? ` (Raise TN ${raiseTn})` : ''} — one roll, hits every target in the area${advantageNote}${disadvantageNote}${rangeBandNote}${parryFlavorNote}`
                 : tnKind === 'casting'
-                    ? `Roll ${numDice}d8 keep ${keepDice} vs Casting TN ${normalTn}${declaredRaiseSlots > 0 ? ` (Raise TN ${raiseTn})` : ''}${advantageNote}${disadvantageNote}${rangeBandNote}`
-                    : `Roll ${numDice}d8 keep ${keepDice} vs ${targetActorForFlavor?.name || 'Target'}'s Evade (${normalTn}${declaredRaiseSlots > 0 ? `, Raise TN ${raiseTn}` : ''})${advantageNote}${disadvantageNote}${rangeBandNote}`;
+                    ? `Roll ${numDice}d8 keep ${keepDice} vs Casting TN ${normalTn}${declaredRaiseSlots > 0 ? ` (Raise TN ${raiseTn})` : ''}${advantageNote}${disadvantageNote}${rangeBandNote}${parryFlavorNote}`
+                    : `Roll ${numDice}d8 keep ${keepDice} vs ${targetActorForFlavor?.name || 'Target'}'s Evade (${normalTn}${declaredRaiseSlots > 0 ? `, Raise TN ${raiseTn}` : ''})${advantageNote}${disadvantageNote}${rangeBandNote}${parryFlavorNote}`;
             const rollFlavor = opts.faithReroll
                 ? `${rollFlavorBase}\n\n<i class="fas fa-sync-alt"></i> Reroll — ${opts.faithReroll.spenderName} spent 1 Faith Fracture.`
                 : rollFlavorBase;
@@ -752,6 +824,8 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
                         hit: true,
                         phase: 'defender',
                         suppressCounterattack: suppressNestedCounterattack,
+                        attackType: updatedFlags.attackType === 'ranged' ? 'ranged' : 'melee',
+                        isAoE: isAreaAttack,
                     });
                     // Allies protect before damage (Armor / Evade / Temp HP / Interpose).
                     let preDamage = phase1;
@@ -772,6 +846,8 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
                                 priorMitigation: phase1.mitigation,
                                 silentIfEmpty: true,
                                 suppressCounterattack: suppressNestedCounterattack,
+                                attackType: updatedFlags.attackType === 'ranged' ? 'ranged' : 'melee',
+                                isAoE: isAreaAttack,
                             });
                         }
                         catch (allyPreErr) {

@@ -42,6 +42,10 @@ export interface ReactionWindowState {
     opportunityEnemyTokenIds?: string[];
     /** Nested reaction-counterattack windows: hide Counterattack to avoid deep pauses. */
     suppressCounterattack?: boolean;
+    /** Full Parry this attack — shows Riposte / Reflection. */
+    hasParryThisHit?: boolean;
+    attackType?: 'melee' | 'ranged' | null;
+    isAoE?: boolean;
     /**
      * True when this chat card was replaced by a newer copy posted below
      * (post-attack summary repost). Not a real close — waiters must not resolve.
@@ -94,6 +98,10 @@ export declare function runInteractiveReactionWindow(params: {
     opportunityEnemyTokenIds?: string[] | null;
     /** Hide Counterattack buttons (nested reaction-counterattack resolution). */
     suppressCounterattack?: boolean;
+    /** Full Parry this attack — enables Riposte / Reflection. */
+    hasParryThisHit?: boolean;
+    attackType?: 'melee' | 'ranged' | null;
+    isAoE?: boolean;
 }): Promise<ReactionPhaseResult>;
 export declare function registerReactionWindowChatHandlers(): void;
 //# sourceMappingURL=reaction-window-chat.d.ts.map

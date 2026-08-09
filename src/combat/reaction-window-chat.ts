@@ -34,10 +34,17 @@ import {
   isCounterDamageReaction,
   isGhostSlipReaction,
   isInterposeReaction,
+  isParryFollowUpReaction,
   isRepositionReaction,
   isSpecialIncreaseReaction,
   type ReactionWindowPhase,
 } from './reaction-eligibility.js';
+import {
+  buildReflectionFormula,
+  buildRiposteFormula,
+  isReflectionReaction,
+  isRiposteReaction,
+} from './parry.js';
 
 export type { ReactionWindowPhase } from './reaction-eligibility.js';
 
@@ -66,6 +73,10 @@ export interface ReactionWindowState {
   opportunityEnemyTokenIds?: string[];
   /** Nested reaction-counterattack windows: hide Counterattack to avoid deep pauses. */
   suppressCounterattack?: boolean;
+  /** Full Parry this attack — shows Riposte / Reflection. */
+  hasParryThisHit?: boolean;
+  attackType?: 'melee' | 'ranged' | null;
+  isAoE?: boolean;
   /**
    * True when this chat card was replaced by a newer copy posted below
    * (post-attack summary repost). Not a real close — waiters must not resolve.
@@ -223,6 +234,9 @@ function filterEntriesForCard(
         attacker,
         allyDistanceM: e.role === 'ally' ? e.distanceM : null,
         suppressCounterattack: state.suppressCounterattack,
+        hasParryThisHit: !!state.hasParryThisHit,
+        attackType: state.attackType ?? null,
+        isAoE: !!state.isAoE,
       });
       const powers = e.powers.filter((p) => evaluateReactionEligibility(p, ctx).shown);
       return { ...e, powers };
@@ -747,6 +761,52 @@ async function executeReactionSpend(params: {
     } catch (err) {
       console.warn('Mastery System | Ghost Slip reaction failed', err);
       note = ' <em>(Ghost Slip failed — resolve manually.)</em>';
+    }
+    return { state, note };
+  }
+
+  // Riposte / Reflection — after a Full Parry (no new attack roll).
+  if (state.hasParryThisHit && attacker && isParryFollowUpReaction(power)) {
+    const rider = String(mech?.damageRider?.flat ?? '').replace(/^\+/, '');
+    try {
+      let formula = '';
+      let label = '';
+      if (isRiposteReaction(power)) {
+        formula = buildRiposteFormula(actor, rider);
+        label = 'Riposte';
+      } else if (isReflectionReaction(power)) {
+        formula = buildReflectionFormula(state.rawDamage, attacker, rider);
+        label = 'Reflection';
+        // Reflection also prevents any residual triggering damage on the defender.
+        state.mitigation = {
+          ...(state.mitigation || emptyMitigation()),
+          negatedByEvade: true,
+          powerName: power.name,
+        };
+      } else {
+        formula = buildRiposteFormula(actor, rider);
+        label = String(power.name ?? 'Parry Follow-up');
+      }
+      if (formula && formula !== '0') {
+        const roll = await new (globalThis as any).Roll(formula).evaluate({ async: true });
+        const total = Math.max(0, Math.floor(Number(roll?.total) || 0));
+        const { applyDamageToTarget } = await import('../dice/damage-dialog.js');
+        await applyDamageToTarget(attacker as any, total, actor as any, 0, {
+          skipPhasing: true,
+          skipReactionPrompt: true,
+        });
+        note += ` <em>(${label} ${formula} → ${total} to ${String((attacker as any).name)}.)</em>`;
+        await (globalThis as any).ChatMessage?.create?.({
+          user: (globalThis as any).game?.user?.id,
+          speaker: (globalThis as any).ChatMessage?.getSpeaker?.({ actor }),
+          content: `<p class="mastery-reaction-msg"><strong>${escHtml(actorName)}</strong> ${escHtml(label)}: <strong>${escHtml(formula)}</strong> → <strong>${total}</strong> to <strong>${escHtml(String((attacker as any).name))}</strong>.</p>`,
+        });
+      } else {
+        note += ` <em>(${label} — no damage formula.)</em>`;
+      }
+    } catch (err) {
+      console.warn('Mastery System | Parry follow-up reaction failed', err);
+      note += ' <em>(Parry follow-up failed — resolve manually.)</em>';
     }
     return { state, note };
   }
@@ -1303,6 +1363,10 @@ export async function runInteractiveReactionWindow(params: {
   opportunityEnemyTokenIds?: string[] | null;
   /** Hide Counterattack buttons (nested reaction-counterattack resolution). */
   suppressCounterattack?: boolean;
+  /** Full Parry this attack — enables Riposte / Reflection. */
+  hasParryThisHit?: boolean;
+  attackType?: 'melee' | 'ranged' | null;
+  isAoE?: boolean;
 }): Promise<ReactionPhaseResult> {
   const phase: ReactionWindowPhase = params.phase ?? 'defender';
   const empty = emptyPhaseResult(params.eventId);
@@ -1347,6 +1411,9 @@ export async function runInteractiveReactionWindow(params: {
     damageMessageId: params.damageMessageId ?? null,
     opportunityEnemyTokenIds: oppIds,
     suppressCounterattack: !!params.suppressCounterattack,
+    hasParryThisHit: !!params.hasParryThisHit,
+    attackType: params.attackType ?? null,
+    isAoE: !!params.isAoE,
   };
 
   const actionable = filterEntriesForCard(entries, state);

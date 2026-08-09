@@ -70,6 +70,7 @@ describe('reaction eligibility', () => {
       system: { templateId: 'reaction-reactive-overload', subfamily: 'absorption' },
     };
     const riposte = { system: { templateId: 'reaction-riposte', subfamily: 'parry' } };
+    const reflection = { system: { templateId: 'reaction-parry-reflection', subfamily: 'parry' } };
     expect(isCleanseReaction(cleanse)).toBe(true);
     expect(isOverloadReaction(overload)).toBe(true);
     expect(isParryFollowUpReaction(riposte)).toBe(true);
@@ -77,8 +78,26 @@ describe('reaction eligibility', () => {
     expect(evaluateReactionEligibility(overload, hitCtx).shown).toBe(false);
     expect(evaluateReactionEligibility(riposte, hitCtx).shown).toBe(false);
     expect(
-      evaluateReactionEligibility(riposte, { ...hitCtx, hasParryThisHit: true }).shown,
+      evaluateReactionEligibility(riposte, {
+        ...hitCtx,
+        hasParryThisHit: true,
+        attackType: 'melee',
+      }).shown,
     ).toBe(true);
+    expect(
+      evaluateReactionEligibility(riposte, {
+        ...hitCtx,
+        hasParryThisHit: true,
+        attackType: 'ranged',
+      }).shown,
+    ).toBe(false);
+    expect(
+      evaluateReactionEligibility(reflection, {
+        ...hitCtx,
+        hasParryThisHit: true,
+        isAoE: true,
+      }).shown,
+    ).toBe(false);
   });
 
   it('gates counter damage by hit and 2 m range', () => {
