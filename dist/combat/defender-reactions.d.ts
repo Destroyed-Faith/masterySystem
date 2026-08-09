@@ -10,18 +10,25 @@ export interface DefenderReactionMitigation {
     reactionArmorFlat: number;
     /** Extra DR% for this hit (stacked in mitigation with base DR). */
     reactionDrPct: number;
+    /** Temporary HP granted by a reaction before this damage applies. */
+    reactionTempHP?: number;
     /** Initiative gained after the attack fully resolves (Reaction: Initiative Gain). */
     initiativeGain?: number;
     /** Power display name if one was used. */
     powerName?: string;
     /** Reaction Evade raised the TN above the attack total — no damage. */
     negatedByEvade?: boolean;
+    /** Ghost Slip / reaction phasing ignored the hit. */
+    phasedByReaction?: boolean;
     /** Evade bonus from the chosen reaction (0 if none). */
     reactionEvadeBonus?: number;
     /** Evade TN used for the comparison (base + bonus when negated/applied). */
     effectiveEvade?: number;
     /** Basic Counterattack: spawn a Basic Attack after this hit resolves. */
     counterattack?: boolean;
+    /** Interpose: ally actor id taking half of the damage. */
+    interposeActorId?: string;
+    interposeActorName?: string;
 }
 export interface ReactionEvadeEval {
     baseEvade: number;
@@ -67,6 +74,8 @@ export interface ReactionWindowActorEntry {
     role: 'defender' | 'ally' | 'opportunity';
     distanceM: number | null;
 }
+/** Synthetic Interpose button (ally ≤2 m takes half damage). */
+export declare function buildInterposeReactionItem(): any;
 /** Synthetic Opportunity Attack button (Threatened Ranged / leaving reach). */
 export declare function buildOpportunityAttackReactionItem(actor: any): any;
 /**

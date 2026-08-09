@@ -753,21 +753,48 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
                         phase: 'defender',
                         suppressCounterattack: suppressNestedCounterattack,
                     });
-                    const primaryNegated = !!phase1.mitigation?.negatedByEvade;
+                    // Allies protect before damage (Armor / Evade / Temp HP / Interpose).
+                    let preDamage = phase1;
+                    if (!phase1.mitigation?.negatedByEvade && !phase1.mitigation?.phasedByReaction) {
+                        try {
+                            preDamage = await runInteractiveReactionWindow({
+                                defender: target,
+                                attacker: freshAttackerForDialog,
+                                combat: combatForReactions,
+                                rawDamage: 0,
+                                attackTotal: updatedFlags.attackTotal ?? null,
+                                evadeTn: normalTn,
+                                hit: true,
+                                phase: 'allies',
+                                eventId: phase1.eventId,
+                                spentActorIds: phase1.spentActorIds,
+                                used: phase1.used,
+                                priorMitigation: phase1.mitigation,
+                                silentIfEmpty: true,
+                                suppressCounterattack: suppressNestedCounterattack,
+                            });
+                        }
+                        catch (allyPreErr) {
+                            console.warn('Mastery System | pre-damage ally reaction window failed', allyPreErr);
+                        }
+                    }
+                    const primaryNegated = !!preDamage.mitigation?.negatedByEvade || !!preDamage.mitigation?.phasedByReaction;
                     let primaryEscaped = false;
                     let damageResult = null;
                     if (primaryNegated) {
                         try {
                             const defName = String(target.name ?? 'Defender');
                             const atkName = String(freshAttackerForDialog.name ?? 'Attacker');
-                            const ev = phase1.mitigation.reactionEvadeBonus ?? 0;
-                            const eff = phase1.mitigation.effectiveEvade;
+                            const mit = preDamage.mitigation;
+                            const ev = mit.reactionEvadeBonus ?? 0;
+                            const eff = mit.effectiveEvade;
+                            const how = mit.phasedByReaction ? 'Ghost Slip / Phasing' : 'Evade';
                             await globalThis.ChatMessage?.create?.({
                                 user: game.user?.id,
                                 speaker: globalThis.ChatMessage?.getSpeaker?.({ actor: target }),
-                                content: `<p class="mastery-reaction-msg"><strong>${atkName}</strong> → <strong>${defName}</strong>: hit <strong>negated</strong> by Evade${ev > 0 && eff != null ? ` (+${ev} → Evade ${eff})` : ''}. No damage.</p>`,
+                                content: `<p class="mastery-reaction-msg"><strong>${atkName}</strong> → <strong>${defName}</strong>: hit <strong>negated</strong> by ${how}${!mit.phasedByReaction && ev > 0 && eff != null ? ` (+${ev} → Evade ${eff})` : ''}. No damage.</p>`,
                             });
-                            const iniGain = Math.max(0, Math.floor(Number(phase1.mitigation.initiativeGain) || 0));
+                            const iniGain = Math.max(0, Math.floor(Number(mit.initiativeGain) || 0));
                             if (iniGain > 0 && combatForReactions) {
                                 const { applyMidCombatInitiativeGain } = await import('../combat/initiative-gain.js');
                                 await applyMidCombatInitiativeGain(combatForReactions, target, iniGain);
@@ -835,7 +862,7 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
                                     damageResult.mitigation = await applyDamageToTarget(target, damageResult.totalDamage, freshAttackerForDialog, damageResult.count8s ?? 0, {
                                         attackTotal: attackCtx.attackTotal ?? null,
                                         evadeTn: attackCtx.evadeTn ?? null,
-                                        reactionMitigation: phase1.mitigation,
+                                        reactionMitigation: preDamage.mitigation,
                                         skipPhasing: true,
                                         skipReactionPrompt: true,
                                     });
@@ -850,8 +877,7 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
                             console.warn('Mastery System | [AFTER DAMAGE DIALOG] No damage result returned from showDamageDialog');
                         }
                     }
-                    // Phase 2 — after the original attack fully resolved: Threatened Ranged
-                    // OAs + Ally reactions in one shrinking summary (parallel OK).
+                    // Phase 2 — after the original attack fully resolved: Threatened Ranged OAs.
                     try {
                         await runInteractiveReactionWindow({
                             defender: target,
@@ -863,10 +889,10 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
                             hit: !primaryNegated,
                             damageMessageId: null,
                             phase: 'others',
-                            eventId: phase1.eventId,
-                            spentActorIds: phase1.spentActorIds,
-                            used: phase1.used,
-                            priorMitigation: phase1.mitigation,
+                            eventId: preDamage.eventId,
+                            spentActorIds: preDamage.spentActorIds,
+                            used: preDamage.used,
+                            priorMitigation: preDamage.mitigation,
                             opportunityEnemyTokenIds: suppressNestedCounterattack
                                 ? []
                                 : opportunityEnemyTokenIds,
@@ -875,7 +901,7 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
                         });
                     }
                     catch (allyErr) {
-                        console.warn('Mastery System | ally/opportunity reaction window failed', allyErr);
+                        console.warn('Mastery System | opportunity reaction window failed', allyErr);
                     }
                     // Secondaries share the Area-TN success — resolve even if the primary
                     // Evaded or dove out. Skip only when the GM cancelled the primary dialog

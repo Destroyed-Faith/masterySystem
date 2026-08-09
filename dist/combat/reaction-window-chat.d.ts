@@ -3,21 +3,17 @@
  *
  * Phases:
  *  1. `defender` — direct target, right after the attack Roll (before damage).
- *  2. `others` — after the original attack fully resolves: Threatened Ranged
- *     Opportunity Attacks + Ally reaction powers in one shrinking summary.
- *  3. `opportunity` — legacy/standalone OA-only window (same post-resolve rules).
+ *  2. `allies` — nearby allies with Ally Armor/Evade/TempHP / Interpose (before damage).
+ *  3. `others` — after the original attack fully resolves: Threatened Ranged OAs.
+ *  4. `opportunity` — legacy/standalone OA-only window (same post-resolve rules).
  *
  * Each actor may spend exactly one Reaction per event. After a reaction is used
  * or declined, that actor drops off the card until nobody remains.
  * Post-attack OAs launch without pausing the summary (parallel OK).
  */
 import { type DefenderReactionMitigation } from './defender-reactions.js';
-/**
- * - defender: target after attack roll (before damage)
- * - others: OA + allies after the original attack fully resolves
- * - opportunity: OA-only window (same timing / parallel rules as others)
- */
-export type ReactionWindowPhase = 'defender' | 'others' | 'opportunity';
+import { type ReactionWindowPhase } from './reaction-eligibility.js';
+export type { ReactionWindowPhase } from './reaction-eligibility.js';
 export interface ReactionWindowState {
     eventId: string;
     phase: ReactionWindowPhase;
@@ -37,7 +33,7 @@ export interface ReactionWindowState {
         powerId: string;
         powerName: string;
     }>;
-    /** Accumulated defender mitigation (ally spends do not merge here). */
+    /** Accumulated defender mitigation (ally pre-damage spends merge here). */
     mitigation: DefenderReactionMitigation;
     resolved: boolean;
     /** Message id of the preceding damage chat (hit path), for optional updates. */

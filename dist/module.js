@@ -2823,6 +2823,8 @@ Hooks.once('ready', async function () {
     registerFaithFractureRerollHandlers();
     const { registerReactionWindowChatHandlers } = await import('./combat/reaction-window-chat.js');
     registerReactionWindowChatHandlers();
+    const { registerReactionFollowupChatHandlers } = await import('./combat/reaction-followups.js');
+    registerReactionFollowupChatHandlers();
     const { registerStressBreakdownChatHandlers } = await import('./combat/stress-breakdown.js');
     registerStressBreakdownChatHandlers();
     const { registerWorldArtifactFlagSyncSocket } = await import('./utils/world-artifact-flag-sync.js');

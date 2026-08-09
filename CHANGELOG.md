@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.294] - 2026-08-09
+
+### Added
+
+- **Reaction trigger eligibility**: central `ReactionTriggerContext` / `evaluateReactionEligibility` gates which buttons appear (Hit/Miss, ≤2 m, Passive DR/Phasing, wrong surfaces).
+- **Pre-damage Allies phase**: Ally Armor / Evade / Temp HP and **Interpose** run before damage and merge into shared mitigation.
+- **Reaction auto-effects**: Temp HP grant, Counter Damage (Nd8 to attacker), Special Increase (confirm), Reposition prompt, Ghost Slip → Phasing ignore-hit.
+- **Reactive Overload / Cleanse**: separate chat prompts after HP loss / status apply (not on the attack window).
+
+### Changed
+
+- Post-attack `others` phase is now **Opportunity Attacks only** (ally mitigation moved pre-damage).
+- Catalog Armor / Counterattack hidden on miss; DR hidden without Passive DR; Riposte/Reflection require Full Parry; Intercept retarget stays table-side.
+
 ## [0.9.293] - 2026-08-09
 
 ### Changed

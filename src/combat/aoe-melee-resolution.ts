@@ -167,11 +167,34 @@ export async function resolveAoeMeleeSecondaries(params: {
       phase: 'defender',
     });
 
-    if (phase1.mitigation?.negatedByEvade) {
+    let preDamage = phase1;
+    if (!phase1.mitigation?.negatedByEvade && !phase1.mitigation?.phasedByReaction) {
+      try {
+        preDamage = await runInteractiveReactionWindow({
+          defender,
+          attacker,
+          combat,
+          rawDamage: 0,
+          attackTotal: params.attackTotal ?? null,
+          evadeTn: params.evadeTn ?? null,
+          hit: true,
+          phase: 'allies',
+          eventId: phase1.eventId,
+          spentActorIds: phase1.spentActorIds,
+          used: phase1.used,
+          priorMitigation: phase1.mitigation,
+          silentIfEmpty: true,
+        });
+      } catch {
+        /* ignore */
+      }
+    }
+
+    if (preDamage.mitigation?.negatedByEvade || preDamage.mitigation?.phasedByReaction) {
       await ChatMessage.create({
         user: (game as any).user?.id,
         speaker: ChatMessage.getSpeaker({ actor: defender, token: tok?.document }),
-        content: `<p><strong>AoE secondary</strong> → <strong>${defender.name}</strong>: hit <strong>negated</strong> by Evade. No damage.</p>`,
+        content: `<p><strong>AoE secondary</strong> → <strong>${defender.name}</strong>: hit <strong>negated</strong> by reaction. No damage.</p>`,
       } as any);
       continue;
     }
@@ -225,7 +248,7 @@ export async function resolveAoeMeleeSecondaries(params: {
       const mit = await applyDamageToTargetFromAoe(defender, total, attacker, c8, {
         attackTotal: params.attackTotal ?? null,
         evadeTn: params.evadeTn ?? null,
-        reactionMitigation: phase1.mitigation,
+        reactionMitigation: preDamage.mitigation,
         skipReactionPrompt: true,
         skipPhasing: true,
       });
@@ -242,14 +265,14 @@ export async function resolveAoeMeleeSecondaries(params: {
           hit: true,
           damageMessageId: dmgMsg?.id ?? null,
           phase: 'others',
-          eventId: phase1.eventId,
-          spentActorIds: phase1.spentActorIds,
-          used: phase1.used,
-          priorMitigation: phase1.mitigation,
+          eventId: preDamage.eventId,
+          spentActorIds: preDamage.spentActorIds,
+          used: preDamage.used,
+          priorMitigation: preDamage.mitigation,
           silentIfEmpty: true,
         });
       } catch (allyErr) {
-        console.warn('Mastery System | AoE secondary ally reaction window failed', allyErr);
+        console.warn('Mastery System | AoE secondary opportunity reaction window failed', allyErr);
       }
     }
 

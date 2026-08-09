@@ -3,9 +3,9 @@
  *
  * Phases:
  *  1. `defender` — direct target, right after the attack Roll (before damage).
- *  2. `others` — after the original attack fully resolves: Threatened Ranged
- *     Opportunity Attacks + Ally reaction powers in one shrinking summary.
- *  3. `opportunity` — legacy/standalone OA-only window (same post-resolve rules).
+ *  2. `allies` — nearby allies with Ally Armor/Evade/TempHP / Interpose (before damage).
+ *  3. `others` — after the original attack fully resolves: Threatened Ranged OAs.
+ *  4. `opportunity` — legacy/standalone OA-only window (same post-resolve rules).
  *
  * Each actor may spend exactly one Reaction per event. After a reaction is used
  * or declined, that actor drops off the card until nobody remains.
@@ -28,15 +28,20 @@ import {
 import { buildActorMechanicsBreakdown, resolvePowerMechanics } from '../utils/power-mechanics.js';
 import { isBasicReactionItem } from './basic-combat.js';
 import { getPrimaryTokenForActor } from '../utils/mechanics-adjacency.js';
+import {
+  buildReactionTriggerContext,
+  evaluateReactionEligibility,
+  isCounterDamageReaction,
+  isGhostSlipReaction,
+  isInterposeReaction,
+  isRepositionReaction,
+  isSpecialIncreaseReaction,
+  type ReactionWindowPhase,
+} from './reaction-eligibility.js';
+
+export type { ReactionWindowPhase } from './reaction-eligibility.js';
 
 const SOCKET_NAME = 'system.mastery-system';
-
-/**
- * - defender: target after attack roll (before damage)
- * - others: OA + allies after the original attack fully resolves
- * - opportunity: OA-only window (same timing / parallel rules as others)
- */
-export type ReactionWindowPhase = 'defender' | 'others' | 'opportunity';
 
 export interface ReactionWindowState {
   eventId: string;
@@ -52,7 +57,7 @@ export interface ReactionWindowState {
   spentActorIds: string[];
   /** Log of used reactions for the card. */
   used: Array<{ actorId: string; actorName: string; powerId: string; powerName: string }>;
-  /** Accumulated defender mitigation (ally spends do not merge here). */
+  /** Accumulated defender mitigation (ally pre-damage spends merge here). */
   mitigation: DefenderReactionMitigation;
   resolved: boolean;
   /** Message id of the preceding damage chat (hit path), for optional updates. */
@@ -142,17 +147,10 @@ function entriesForPhase(
   phase: ReactionWindowPhase,
 ): ReactionWindowActorEntry[] {
   if (phase === 'defender') return entries.filter((e) => e.role === 'defender');
+  if (phase === 'allies') return entries.filter((e) => e.role === 'ally');
   if (phase === 'opportunity') return entries.filter((e) => e.role === 'opportunity');
-  // After damage: allies (and any leftover OA if still listed).
-  return entries.filter((e) => e.role === 'ally' || e.role === 'opportunity');
-}
-
-/** Basic Guard / Evade / Counterattack — only for the defender pre-damage window. */
-function isSmallBasicReaction(power: any): boolean {
-  if (!isBasicReactionItem(power)) return false;
-  if (String(power?.id || '') === 'basic-reaction-opportunity-attack') return false;
-  const kind = String(power?.basicReaction || '');
-  return kind === 'guard' || kind === 'evade' || kind === 'counterattack';
+  // After damage: Threatened Ranged OAs (ally mitigation already ran pre-damage).
+  return entries.filter((e) => e.role === 'opportunity');
 }
 
 /**
@@ -195,37 +193,38 @@ function evadeReactionWouldNegateHit(
 function filterEntriesForCard(
   entries: ReactionWindowActorEntry[],
   state: ReactionWindowState,
+  actors?: { defender?: Actor | null; attacker?: Actor | null },
 ): ReactionWindowActorEntry[] {
   const spent = new Set(state.spentActorIds.map(String));
-  const phaseEntries = entriesForPhase(entries, state.phase ?? 'defender');
-  const postAttack = state.phase === 'others' || state.phase === 'opportunity';
+  const phase = state.phase ?? 'defender';
+  const phaseEntries = entriesForPhase(entries, phase);
+  const g = globalThis as any;
+  const defender =
+    actors?.defender ??
+    (state.defenderId ? g.game?.actors?.get?.(state.defenderId) : null) ??
+    null;
+  const attacker =
+    actors?.attacker ??
+    (state.attackerId ? g.game?.actors?.get?.(state.attackerId) : null) ??
+    null;
+
   return phaseEntries
     .map((e) => {
       const id = String((e.actor as any)?.id ?? '');
       if (!id || spent.has(id)) {
         return { ...e, powers: [], remaining: 0 };
       }
-      // On a miss, Guard has nothing to absorb — still allow Evade/Counter/other.
-      let powers = e.powers;
-      if (!state.hit) {
-        powers = powers.filter((p) => p?.basicReaction !== 'guard');
-      }
-      // Phase 1 is defensive window for the target — ally-only powers stay out.
-      if (state.phase === 'defender') {
-        powers = powers.filter((p) => !isAllyReactionPower(p));
-      }
-      // Post-attack summary: OA + real Ally powers only — no Guard/Evade/Counter.
-      if (postAttack) {
-        powers = powers.filter((p) => !isSmallBasicReaction(p));
-      }
-      // Reaction Counterattack already paused one attack — don't nest another.
-      if (state.suppressCounterattack) {
-        powers = powers.filter(
-          (p) =>
-            p?.basicReaction !== 'counterattack' ||
-            String(p?.id || '') === 'basic-reaction-opportunity-attack',
-        );
-      }
+      const ctx = buildReactionTriggerContext({
+        phase,
+        hit: state.hit,
+        attackTotal: state.attackTotal,
+        evadeTn: state.evadeTn,
+        defender: phase === 'allies' ? defender : e.role === 'defender' ? e.actor : defender,
+        attacker,
+        allyDistanceM: e.role === 'ally' ? e.distanceM : null,
+        suppressCounterattack: state.suppressCounterattack,
+      });
+      const powers = e.powers.filter((p) => evaluateReactionEligibility(p, ctx).shown);
       return { ...e, powers };
     })
     .filter((e) => {
@@ -249,9 +248,11 @@ function buildReactionWindowHtml(
   const title =
     phase === 'defender'
       ? '⚡ Reaction Window — Target'
-      : phase === 'opportunity'
-        ? `⚡ Opportunity Attacks${remainingSuffix}`
-        : `⚡ After attack — Reactions${remainingSuffix}`;
+      : phase === 'allies'
+        ? `⚡ Reaction Window — Allies${remainingSuffix}`
+        : phase === 'opportunity'
+          ? `⚡ Opportunity Attacks${remainingSuffix}`
+          : `⚡ After attack — Opportunity Attacks${remainingSuffix}`;
 
   const hasOa = (state.opportunityEnemyTokenIds?.length ?? 0) > 0;
   let hitLine: string;
@@ -262,8 +263,12 @@ function buildReactionWindowHtml(
       ? `damage applied (${Math.max(0, Math.floor(state.rawDamage))})`
       : 'attack resolved';
     hitLine = hasOa
-      ? `<p><strong>${escHtml(attackerName)}</strong> → <strong>${escHtml(defenderName)}</strong> — ${dmgBit}. Threatened enemies may Opportunity Attack; nearby allies may use Ally Reactions. Summary shrinks as each acts or Declines.</p>`
-      : `<p><strong>${escHtml(attackerName)}</strong> → <strong>${escHtml(defenderName)}</strong> — ${dmgBit}. Nearby allies may react.</p>`;
+      ? `<p><strong>${escHtml(attackerName)}</strong> → <strong>${escHtml(defenderName)}</strong> — ${dmgBit}. Threatened enemies may Opportunity Attack. Summary shrinks as each acts or Declines.</p>`
+      : `<p><strong>${escHtml(attackerName)}</strong> → <strong>${escHtml(defenderName)}</strong> — ${dmgBit}.</p>`;
+  } else if (phase === 'allies') {
+    hitLine = state.hit
+      ? `<p>Nearby allies may protect <strong>${escHtml(defenderName)}</strong> before damage (Ally Armor / Evade / Temp HP / Interpose).</p>`
+      : `<p>Attack missed — ally damage buffers are not needed.</p>`;
   } else if (state.hit) {
     hitLine =
       state.rawDamage > 0
@@ -311,8 +316,10 @@ function buildReactionWindowHtml(
               .join('')}</ul>`
           : '';
       body = `<p>No Opportunity Attacks available right now.</p>${skipLines}${usedBlock}`;
+    } else if (phase === 'allies') {
+      body = `<p>No nearby allies with an Ally Reaction / Interpose ready.</p>${usedBlock}`;
     } else if (phase === 'others') {
-      body = `<p>No nearby allies with an Ally Reaction ready.</p>${usedBlock}`;
+      body = `<p>No Opportunity Attacks available.</p>${usedBlock}`;
     } else {
       const def = entries.find((e) => e.role === 'defender');
       const defId = def ? String((def.actor as any)?.id ?? '') : '';
@@ -704,21 +711,47 @@ async function executeReactionSpend(params: {
     return { state, note };
   }
 
-  // Ally reactions: spend + announce only (table resolves narrative effects).
-  if (role === 'ally' || isAllyReactionPower(power)) {
-    note = ` <em>(Ally Reaction — resolve its effect for ${String((defender as any).name ?? 'the target')}.)</em>`;
-    if (isCounterattack && attacker) {
-      try {
-        await launchBasicCounterattack(actor, attacker);
-        note += ' <em>(Counterattack finished.)</em>';
-      } catch (err) {
-        console.warn('Mastery System | Ally counterattack launch failed', err);
+  // Interpose: ally takes half of the incoming damage (applied at HP-apply time).
+  if (isInterposeReaction(power) || role === 'ally' && power?.basicReaction === 'interpose') {
+    const prev = state.mitigation || emptyMitigation();
+    state.mitigation = {
+      ...prev,
+      interposeActorId: actorId,
+      interposeActorName: actorName,
+      powerName: power.name,
+    };
+    note = ` <em>(Interpose — ${actorName} will take half of the damage dealt to ${String((defender as any).name ?? 'the target')}.)</em>`;
+    return { state, note };
+  }
+
+  // Ally mitigation merges into the shared defender mitigation (pre-damage allies phase).
+  const allyMitigation = role === 'ally' || isAllyReactionPower(power);
+
+  // Ghost Slip — ignore the hit via reaction phasing charge.
+  if (isGhostSlipReaction(power)) {
+    try {
+      const { triggerGhostSlipReaction } = await import('./phasing.js');
+      const ok = await triggerGhostSlipReaction(defender, combat, String(power.id || 'ghost-slip'));
+      if (ok) {
+        state.mitigation = {
+          reactionArmorFlat: 0,
+          reactionDrPct: 0,
+          powerName: power.name,
+          phasedByReaction: true,
+          negatedByEvade: true,
+        };
+        note = ' <em>(Ghost Slip — hit ignored via Phasing.)</em>';
+      } else {
+        note = ' <em>(Ghost Slip failed — no phasing charge consumed.)</em>';
       }
+    } catch (err) {
+      console.warn('Mastery System | Ghost Slip reaction failed', err);
+      note = ' <em>(Ghost Slip failed — resolve manually.)</em>';
     }
     return { state, note };
   }
 
-  // Defender mitigation
+  // Defender / Ally mitigation
   const evadeTnRaw = Math.floor(Number(state.evadeTn));
   const baseEvade =
     Number.isFinite(evadeTnRaw) && evadeTnRaw > 0 ? evadeTnRaw : defenderEvadeFromActor(defender);
@@ -731,6 +764,7 @@ async function executeReactionSpend(params: {
   let reactionDrPct = Math.max(0, Math.min(100, Math.floor(Number(mech?.damageReductionPct) || 0)));
   const iniGain = Math.max(0, Math.floor(Number(mech?.initiativeGain) || 0));
   const ev = Math.max(0, Math.floor(Number(mech?.evade) || 0));
+  const tempHpGain = Math.max(0, Math.floor(Number(String(mech?.tempHP ?? '').replace(/[^\d.-]/g, '')) || 0));
   const evEval = evaluateReactionEvadeNegation(baseEvade, ev, attackTotal);
 
   let reactionDrBlocked = false;
@@ -753,6 +787,10 @@ async function executeReactionSpend(params: {
     }
   }
 
+  if (allyMitigation) {
+    note += ` <em>(Ally Reaction for ${String((defender as any).name ?? 'the target')})</em>`;
+  }
+
   if (!state.hit) {
     note += ' <em>(Attack missed — Guard/Evade mitigation not applied.)</em>';
   } else if (ev > 0) {
@@ -767,6 +805,7 @@ async function executeReactionSpend(params: {
   if (state.hit && !evEval.negates) {
     if (reactionArmorFlat > 0) note += ` +${reactionArmorFlat} Armor (this hit)`;
     if (reactionDrPct > 0) note += ` +${reactionDrPct}% DR (this hit)`;
+    if (tempHpGain > 0) note += ` +${tempHpGain} Temp HP`;
     if (reactionDrBlocked) {
       note +=
         ' <em>(Reaction DR% needs slotted <strong>Damage Reduction</strong> DR% and/or a sustained DR% on the character sheet.)</em>';
@@ -775,6 +814,155 @@ async function executeReactionSpend(params: {
   if (iniGain > 0) {
     note += ` <em>(+${iniGain} Initiative applies after this attack fully resolves.)</em>`;
   }
+
+  // Grant Temp HP onto the defender immediately so mitigation can absorb it.
+  if (state.hit && !evEval.negates && tempHpGain > 0) {
+    try {
+      const cur = Math.max(0, Math.floor(Number((defender as any).system?.health?.tempHP ?? 0) || 0));
+      await (defender as any).update?.({ 'system.health.tempHP': cur + tempHpGain });
+    } catch (err) {
+      console.warn('Mastery System | reaction Temp HP grant failed', err);
+    }
+  }
+
+  // Counter Damage (+ optional Push confirm).
+  if (state.hit && attacker && isCounterDamageReaction(power)) {
+    const flat = String(mech?.damageRider?.flat ?? '').replace(/^\+/, '');
+    if (flat) {
+      try {
+        const roll = await new (globalThis as any).Roll(flat).evaluate({ async: true });
+        const total = Math.max(0, Math.floor(Number(roll?.total) || 0));
+        const { applyDamageToTarget } = await import('../dice/damage-dialog.js');
+        await applyDamageToTarget(attacker as any, total, actor as any, 0, {
+          skipPhasing: true,
+          skipReactionPrompt: true,
+        });
+        note += ` <em>(Counter Damage ${flat} → ${total} to ${String((attacker as any).name)}.)</em>`;
+        await (globalThis as any).ChatMessage?.create?.({
+          user: (globalThis as any).game?.user?.id,
+          speaker: (globalThis as any).ChatMessage?.getSpeaker?.({ actor }),
+          content: `<p class="mastery-reaction-msg"><strong>${escHtml(actorName)}</strong> Counter Damage: <strong>${escHtml(flat)}</strong> → <strong>${total}</strong> to <strong>${escHtml(String((attacker as any).name))}</strong>.</p>`,
+        });
+      } catch (err) {
+        console.warn('Mastery System | Counter Damage failed', err);
+        note += ' <em>(Counter Damage failed — resolve manually.)</em>';
+      }
+    }
+    const pushRank = Array.isArray((power as any)?.system?.specials)
+      ? Math.max(
+          0,
+          ...((power as any).system.specials as any[])
+            .filter((s: any) => String(s?.key || s?.id || '').toLowerCase() === 'push')
+            .map((s: any) => Math.floor(Number(s?.rank ?? s?.value) || 0)),
+        )
+      : 0;
+    const pushFromTemplate = (() => {
+      try {
+        const specials = (power as any)?.system?.levelData?.specials ?? (power as any)?.specials;
+        if (!Array.isArray(specials)) return 0;
+        return Math.max(
+          0,
+          ...specials
+            .filter((s: any) => String(s?.key || '').toLowerCase() === 'push')
+            .map((s: any) => Math.floor(Number(s?.rank) || 0)),
+        );
+      } catch {
+        return 0;
+      }
+    })();
+    const pushM = Math.max(pushRank, pushFromTemplate);
+    if (pushM > 0) {
+      note += ` <em>(Push ${pushM} m — move ${String((attacker as any).name)} manually.)</em>`;
+      (globalThis as any).ui?.notifications?.info?.(
+        `Counter Damage + Push: move ${String((attacker as any).name)} ${pushM} m away from ${actorName}.`,
+      );
+    }
+  }
+
+  // Special Increase — bump an existing Special on the attacker.
+  if (state.hit && attacker && isSpecialIncreaseReaction(power)) {
+    const amount = Math.max(0, Math.floor(Number((mech as any)?.modifySpecial?.amount) || 0));
+    if (amount > 0) {
+      try {
+        const { readActiveSpecials } = await import('../system/active-specials.js');
+        const list = readActiveSpecials(attacker);
+        if (!list.length) {
+          note += ' <em>(Special Increase — attacker has no active Special to raise.)</em>';
+        } else {
+          let chosenIdx = 0;
+          if (list.length > 1) {
+            const Dialog = (globalThis as any).Dialog;
+            const options = list
+              .map(
+                (s, i) =>
+                  `<option value="${i}">${escHtml(String(s.id))} (${Math.floor(Number(s.value) || 0)})</option>`,
+              )
+              .join('');
+            chosenIdx = await new Promise<number>((resolve) => {
+              if (!Dialog) {
+                resolve(0);
+                return;
+              }
+              new Dialog({
+                title: 'Special Increase — choose Special',
+                content: `<p>Increase which Special by <strong>+${amount}</strong>?</p>
+                  <select id="ms-special-inc" style="width:100%">${options}</select>`,
+                buttons: {
+                  ok: {
+                    label: 'Increase',
+                    callback: (html: any) => {
+                      const v = Number($(html).find('#ms-special-inc').val());
+                      resolve(Number.isFinite(v) ? v : 0);
+                    },
+                  },
+                  cancel: { label: 'Skip', callback: () => resolve(-1) },
+                },
+                default: 'ok',
+                close: () => resolve(-1),
+              }).render(true);
+            });
+          }
+          if (chosenIdx >= 0 && chosenIdx < list.length) {
+            const chosen = list[chosenIdx]!;
+            const raw = Array.isArray((attacker as any).system?.statusEffects)
+              ? [...(attacker as any).system.statusEffects]
+              : [];
+            let updated = false;
+            for (let i = 0; i < raw.length; i++) {
+              const entry = raw[i];
+              const eid = String(entry?.id || entry?.name || '').toLowerCase();
+              if (eid === chosen.id.toLowerCase() || String(entry?.name || '').toLowerCase().includes(chosen.id)) {
+                raw[i] = { ...entry, value: Math.max(0, Math.floor(Number(entry?.value) || 0)) + amount };
+                updated = true;
+                break;
+              }
+            }
+            if (updated) {
+              await (attacker as any).update?.({ 'system.statusEffects': raw });
+              note += ` <em>(Special Increase — ${chosen.id} ${chosen.value}→${chosen.value + amount}.)</em>`;
+            } else {
+              note += ` <em>(Special Increase +${amount} on ${chosen.id} — apply manually.)</em>`;
+            }
+          }
+        }
+      } catch (err) {
+        console.warn('Mastery System | Special Increase failed', err);
+        note += ' <em>(Special Increase — resolve at the table.)</em>';
+      }
+    }
+  }
+
+  // Reposition — chat prompt (no forced token move).
+  if (isRepositionReaction(power)) {
+    const meters = Math.max(0, Math.floor(Number(mech?.movementBonus) || 0));
+    if (meters > 0) {
+      note += ` <em>(Reposition — move up to ${meters} m after this resolves.)</em>`;
+      (globalThis as any).ui?.notifications?.info?.(
+        `${actorName}: Reposition — move up to ${meters} m (normal legal movement).`,
+      );
+    }
+  }
+
   if (isCounterattack) {
     note += ` <em>(Basic Counterattack vs ${String((attacker as any)?.name ?? 'attacker')} — resolve it now; original damage is paused.)</em>`;
     if (attacker) {
@@ -795,6 +983,7 @@ async function executeReactionSpend(params: {
       state.mitigation = {
         reactionArmorFlat: 0,
         reactionDrPct: 0,
+        reactionTempHP: 0,
         initiativeGain: iniGain > 0 ? iniGain : undefined,
         powerName: power.name,
         negatedByEvade: true,
@@ -807,6 +996,7 @@ async function executeReactionSpend(params: {
       state.mitigation = {
         reactionArmorFlat: (prev.reactionArmorFlat || 0) + reactionArmorFlat,
         reactionDrPct: Math.min(100, (prev.reactionDrPct || 0) + reactionDrPct),
+        reactionTempHP: (prev.reactionTempHP || 0) + tempHpGain || undefined,
         initiativeGain:
           (prev.initiativeGain || 0) + iniGain > 0
             ? (prev.initiativeGain || 0) + iniGain
@@ -815,14 +1005,16 @@ async function executeReactionSpend(params: {
         reactionEvadeBonus: ev > 0 ? ev : prev.reactionEvadeBonus,
         effectiveEvade: ev > 0 ? evEval.effectiveEvade : prev.effectiveEvade,
         counterattack: isCounterattack || prev.counterattack || undefined,
+        interposeActorId: prev.interposeActorId,
+        interposeActorName: prev.interposeActorName,
       };
     }
   } else if (iniGain > 0) {
     state.mitigation = {
-      ...emptyMitigation(),
-      initiativeGain: iniGain,
+      ...(state.mitigation || emptyMitigation()),
+      initiativeGain: (state.mitigation?.initiativeGain || 0) + iniGain,
       powerName: power.name,
-      counterattack: isCounterattack || undefined,
+      counterattack: isCounterattack || state.mitigation?.counterattack || undefined,
     };
   }
 

@@ -69,9 +69,8 @@ export function getEligibleReactionPowers(defender, combat) {
             continue;
         if (hasPowerBeenUsedThisRound(owner, combat, item.id))
             continue;
-        const mech = resolvePowerMechanics(item);
-        if (mech?.phasing?.reactionSingleHit)
-            continue;
+        // Ghost Slip (phasing.reactionSingleHit) stays in the pool; the Reaction
+        // Window eligibility layer hides it unless Passive Phasing + hit apply.
         out.push(item);
     }
     try {
@@ -151,6 +150,21 @@ export function isAllyReactionPower(item) {
         return true;
     const name = String(item?.name ?? '').toLowerCase();
     return /\bally\b/.test(name);
+}
+/** Synthetic Interpose button (ally ≤2 m takes half damage). */
+export function buildInterposeReactionItem() {
+    return {
+        id: 'basic-reaction-interpose',
+        name: 'Interpose',
+        type: 'basic-reaction',
+        system: {
+            powerType: 'reaction',
+            templateId: 'basic-interpose',
+            description: 'When an ally within 2 m takes damage, step in and take half of it (rounded up to you).',
+        },
+        basicReaction: 'interpose',
+        mechanics: {},
+    };
 }
 /** Synthetic Opportunity Attack button (Threatened Ranged / leaving reach). */
 export function buildOpportunityAttackReactionItem(actor) {
@@ -254,14 +268,16 @@ export function collectReactionWindowEntries(params) {
                 if (summary.remaining <= 0)
                     continue;
                 const allyPowers = getEligibleReactionPowers(economyAlly, combat).filter(isAllyReactionPower);
-                if (!allyPowers.length)
+                // Basic Interpose — take half damage for an adjacent ally (≤2 m).
+                const powersForAlly = dist <= 2.05 ? [...allyPowers, buildInterposeReactionItem()] : allyPowers;
+                if (!powersForAlly.length)
                     continue;
                 out.push({
                     actor: economyAlly,
                     name: String(other.name ?? 'Ally'),
                     remaining: summary.remaining,
                     total: summary.total,
-                    powers: allyPowers,
+                    powers: powersForAlly,
                     role: 'ally',
                     distanceM: Math.round(dist * 10) / 10,
                 });

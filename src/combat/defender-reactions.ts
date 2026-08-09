@@ -22,18 +22,25 @@ export interface DefenderReactionMitigation {
   reactionArmorFlat: number;
   /** Extra DR% for this hit (stacked in mitigation with base DR). */
   reactionDrPct: number;
+  /** Temporary HP granted by a reaction before this damage applies. */
+  reactionTempHP?: number;
   /** Initiative gained after the attack fully resolves (Reaction: Initiative Gain). */
   initiativeGain?: number;
   /** Power display name if one was used. */
   powerName?: string;
   /** Reaction Evade raised the TN above the attack total — no damage. */
   negatedByEvade?: boolean;
+  /** Ghost Slip / reaction phasing ignored the hit. */
+  phasedByReaction?: boolean;
   /** Evade bonus from the chosen reaction (0 if none). */
   reactionEvadeBonus?: number;
   /** Evade TN used for the comparison (base + bonus when negated/applied). */
   effectiveEvade?: number;
   /** Basic Counterattack: spawn a Basic Attack after this hit resolves. */
   counterattack?: boolean;
+  /** Interpose: ally actor id taking half of the damage. */
+  interposeActorId?: string;
+  interposeActorName?: string;
 }
 
 export interface ReactionEvadeEval {
@@ -105,8 +112,8 @@ export function getEligibleReactionPowers(defender: Actor, combat: Combat | null
     if (sys?.equipped === false) continue;
     if (sys?.showInRadialMenu === false) continue;
     if (hasPowerBeenUsedThisRound(owner as Actor, combat, item.id)) continue;
-    const mech = resolvePowerMechanics(item);
-    if (mech?.phasing?.reactionSingleHit) continue;
+    // Ghost Slip (phasing.reactionSingleHit) stays in the pool; the Reaction
+    // Window eligibility layer hides it unless Passive Phasing + hit apply.
     out.push(item);
   }
 
@@ -195,6 +202,23 @@ export interface ReactionWindowActorEntry {
   powers: any[];
   role: 'defender' | 'ally' | 'opportunity';
   distanceM: number | null;
+}
+
+/** Synthetic Interpose button (ally ≤2 m takes half damage). */
+export function buildInterposeReactionItem(): any {
+  return {
+    id: 'basic-reaction-interpose',
+    name: 'Interpose',
+    type: 'basic-reaction',
+    system: {
+      powerType: 'reaction',
+      templateId: 'basic-interpose',
+      description:
+        'When an ally within 2 m takes damage, step in and take half of it (rounded up to you).',
+    },
+    basicReaction: 'interpose',
+    mechanics: {},
+  };
 }
 
 /** Synthetic Opportunity Attack button (Threatened Ranged / leaving reach). */
@@ -304,14 +328,17 @@ export function collectReactionWindowEntries(params: {
         const summary = getReactionActionsSummary(economyAlly, combat);
         if (summary.remaining <= 0) continue;
         const allyPowers = getEligibleReactionPowers(economyAlly, combat).filter(isAllyReactionPower);
-        if (!allyPowers.length) continue;
+        // Basic Interpose — take half damage for an adjacent ally (≤2 m).
+        const powersForAlly =
+          dist <= 2.05 ? [...allyPowers, buildInterposeReactionItem()] : allyPowers;
+        if (!powersForAlly.length) continue;
 
         out.push({
           actor: economyAlly,
           name: String((other as any).name ?? 'Ally'),
           remaining: summary.remaining,
           total: summary.total,
-          powers: allyPowers,
+          powers: powersForAlly,
           role: 'ally',
           distanceM: Math.round(dist * 10) / 10,
         });

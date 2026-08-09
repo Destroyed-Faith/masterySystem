@@ -1295,6 +1295,18 @@ async function applyStatusEffectsToTarget(
     
     // Update target actor
     await (target as any).update({ 'system.statusEffects': list });
+
+    // Reactive Cleanse — status surface (not the attack Reaction Window).
+    try {
+      const { maybeOfferReactiveCleanseChat } = await import('../combat/reaction-followups.js');
+      await maybeOfferReactiveCleanseChat(
+        target,
+        specialsUsed,
+        (globalThis as any).game?.combat ?? null,
+      );
+    } catch (cleanseErr) {
+      console.debug?.('Mastery System | Reactive Cleanse prompt skipped', cleanseErr);
+    }
   } catch (error) {
     console.error('Mastery System | [APPLY STATUS EFFECTS] Error applying status effects', error);
   }
@@ -1412,6 +1424,8 @@ export async function applyDamageToTarget(
     let reactionArmorFlat = 0;
     let reactionDrPct = 0;
     let reactionInitiativeGain = 0;
+    let interposeActorId: string | null = null;
+    let interposeActorName: string | null = null;
     const combat = (globalThis as any).game?.combat ?? null;
     try {
       let reactMit = attackContext?.reactionMitigation;
@@ -1434,7 +1448,9 @@ export async function applyDamageToTarget(
       reactionArmorFlat = reactMit.reactionArmorFlat;
       reactionDrPct = reactMit.reactionDrPct;
       reactionInitiativeGain = Math.max(0, Math.floor(Number(reactMit.initiativeGain) || 0));
-      if (reactMit.negatedByEvade) {
+      interposeActorId = reactMit.interposeActorId ? String(reactMit.interposeActorId) : null;
+      interposeActorName = reactMit.interposeActorName ? String(reactMit.interposeActorName) : null;
+      if (reactMit.negatedByEvade || reactMit.phasedByReaction) {
         // Still grant post-resolve initiative if the reaction included it.
         if (reactionInitiativeGain > 0) {
           try {
@@ -1461,10 +1477,14 @@ export async function applyDamageToTarget(
         const eff = Math.max(0, Math.floor(Number(reactMit.effectiveEvade) || 0));
         const bonus = Math.max(0, Math.floor(Number(reactMit.reactionEvadeBonus) || 0));
         const atk = Math.max(0, Math.floor(Number(attackContext?.attackTotal) || 0));
+        const line = reactMit.phasedByReaction
+          ? `Raw ${empty.rawDamage} → Ghost Slip / Phasing — ignored`
+          : `Raw ${empty.rawDamage} → Reaction Evade +${bonus} (Evade ${eff} > Attack ${atk}) — ignored`;
         return {
           ...empty,
           negatedByEvade: true,
-          breakdownLine: `Raw ${empty.rawDamage} → Reaction Evade +${bonus} (Evade ${eff} > Attack ${atk}) — ignored`,
+          phased: !!reactMit.phasedByReaction,
+          breakdownLine: line,
         };
       }
     } catch (err) {
@@ -1515,7 +1535,36 @@ export async function applyDamageToTarget(
     //         returns a partial actor-update patch so we can still commit
     //         tempHP + health-bar changes in a single atomic update below.
     const tempHPConsumption = previewTempHPConsumption(target, mitigated);
-    const remaining = tempHPConsumption.remainingDamage;
+    let remaining = tempHPConsumption.remainingDamage;
+
+    // Interpose: ally takes half of the remaining HP damage (after armor/DR/tempHP).
+    if (interposeActorId && remaining > 0) {
+      const toAlly = Math.ceil(remaining / 2);
+      const toTarget = Math.max(0, remaining - toAlly);
+      remaining = toTarget;
+      try {
+        const g = globalThis as any;
+        const ally =
+          g.game?.actors?.get?.(interposeActorId) ||
+          g.canvas?.tokens?.placeables?.find((t: any) => t?.actor?.id === interposeActorId)?.actor ||
+          null;
+        if (ally && toAlly > 0) {
+          await applyDamageToTarget(ally, toAlly, attacker, 0, {
+            skipPhasing: true,
+            skipReactionPrompt: true,
+          });
+          await g.ChatMessage?.create?.({
+            user: g.game?.user?.id,
+            speaker: g.ChatMessage?.getSpeaker?.({ actor: ally }),
+            content: `<p class="mastery-reaction-msg"><strong>${interposeActorName || ally.name}</strong> Interposes — takes <strong>${toAlly}</strong> damage (ally keeps ${toTarget}).</p>`,
+          });
+        }
+      } catch (interposeErr) {
+        console.warn('Mastery System | Interpose damage split failed', interposeErr);
+        remaining = tempHPConsumption.remainingDamage;
+      }
+    }
+
     // Step 3: Apply remaining damage to health bars with overflow
     let barDamage = 0;
     let newBarIndex = oldBarIndex;
@@ -1631,9 +1680,22 @@ export async function applyDamageToTarget(
       }
     }
 
+    // Reactive Overload — after actual HP loss, offer a chat note (Absorption table tracks Absorbed Damage).
+    if (barDamage > 0) {
+      try {
+        const { maybeOfferReactiveOverloadChat } = await import('../combat/reaction-followups.js');
+        await maybeOfferReactiveOverloadChat(target, barDamage, combat);
+      } catch (overloadErr) {
+        console.debug?.('Mastery System | Reactive Overload prompt skipped', overloadErr);
+      }
+    }
+
     const tail: string[] = [];
     if (tempHPConsumption.reducedBy > 0) {
       tail.push(`TempHP ${tempHPConsumption.reducedBy}`);
+    }
+    if (interposeActorId) {
+      tail.push(`Interpose (${interposeActorName || 'ally'})`);
     }
     if (barDamage > 0) {
       tail.push(`Bars ${barDamage}`);

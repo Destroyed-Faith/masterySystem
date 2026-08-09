@@ -39,7 +39,7 @@ describe('defender-reactions', () => {
     expect(isAllyReactionPower({ name: 'Reaction: Ally Evade', system: {} })).toBe(true);
   });
 
-  it('getEligibleReactionPowers returns reaction items, basic reactions, and omits phasing.reactionSingleHit', () => {
+  it('getEligibleReactionPowers returns reaction items, basics, and Ghost Slip (window eligibility gates it)', () => {
     const combat = { id: 'c1' } as any;
     const defender = {
       system: { mastery: { rank: 2 } },
@@ -55,6 +55,7 @@ describe('defender-reactions', () => {
       'basic-reaction-counterattack',
       'basic-reaction-evade',
       'basic-reaction-guard',
+      'gs',
       'r1',
     ]);
   });
