@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.296] - 2026-08-09
+
+### Added
+
+- **Push / Pull targeting**: after Counter Damage (+ Push/Pull), legal destination cells are highlighted on the grid. **Push** only allows cells farther from the source; **Pull** only closer. Click to move; Esc/RMB skips (damage still applies).
+
 ## [0.9.295] - 2026-08-09
 
 ### Added
