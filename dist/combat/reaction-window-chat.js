@@ -20,7 +20,12 @@ const SOCKET_NAME = 'system.mastery-system';
 const pendingWaiters = new Map();
 /** Reaction windows currently resolving a blocking Counterattack/OA. */
 const busyReactionMessages = new Set();
-/** Event ids the GM closed — no further reposts / spends for that attack. */
+/**
+ * Event ids the GM explicitly closed via “Reactions abgeschlossen”.
+ * Must NOT be set on normal phase completion (defender Continue / auto-close),
+ * because defender + others share one eventId — poisoning this set would block
+ * the post-attack OA window.
+ */
 const closedReactionEvents = new Set();
 let hooksRegistered = false;
 let socketRegistered = false;
@@ -679,13 +684,16 @@ async function executeReactionSpend(params) {
 }
 async function closeReactionWindow(messageId, state, opts) {
     const eventId = String(state.eventId || '');
-    if (eventId)
+    const gmClosed = !!opts?.gmClosed || !!state.gmClosed;
+    // Only GM “Reactions abgeschlossen” locks the whole attack event.
+    // Normal phase close (target Continue / last Decline) must leave others/OA usable.
+    if (gmClosed && eventId)
         closedReactionEvents.add(eventId);
     state = {
         ...state,
         resolved: true,
         superseded: false,
-        gmClosed: !!opts?.gmClosed || !!state.gmClosed,
+        gmClosed,
     };
     // In-place final card (resolved → no repost).
     await refreshReactionCard(messageId, state);
@@ -699,7 +707,7 @@ async function closeReactionWindow(messageId, state, opts) {
             type: 'reactionWindowResolved',
             messageId,
             eventId,
-            gmClosed: !!state.gmClosed,
+            gmClosed,
             mitigation: state.mitigation,
         });
     }

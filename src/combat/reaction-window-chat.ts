@@ -86,7 +86,12 @@ type PendingWaiter = {
 const pendingWaiters = new Map<string, PendingWaiter>();
 /** Reaction windows currently resolving a blocking Counterattack/OA. */
 const busyReactionMessages = new Set<string>();
-/** Event ids the GM closed — no further reposts / spends for that attack. */
+/**
+ * Event ids the GM explicitly closed via “Reactions abgeschlossen”.
+ * Must NOT be set on normal phase completion (defender Continue / auto-close),
+ * because defender + others share one eventId — poisoning this set would block
+ * the post-attack OA window.
+ */
 const closedReactionEvents = new Set<string>();
 let hooksRegistered = false;
 let socketRegistered = false;
@@ -830,12 +835,15 @@ async function closeReactionWindow(
   opts?: { gmClosed?: boolean },
 ): Promise<void> {
   const eventId = String(state.eventId || '');
-  if (eventId) closedReactionEvents.add(eventId);
+  const gmClosed = !!opts?.gmClosed || !!state.gmClosed;
+  // Only GM “Reactions abgeschlossen” locks the whole attack event.
+  // Normal phase close (target Continue / last Decline) must leave others/OA usable.
+  if (gmClosed && eventId) closedReactionEvents.add(eventId);
   state = {
     ...state,
     resolved: true,
     superseded: false,
-    gmClosed: !!opts?.gmClosed || !!state.gmClosed,
+    gmClosed,
   };
   // In-place final card (resolved → no repost).
   await refreshReactionCard(messageId, state);
@@ -851,7 +859,7 @@ async function closeReactionWindow(
       type: 'reactionWindowResolved',
       messageId,
       eventId,
-      gmClosed: !!state.gmClosed,
+      gmClosed,
       mitigation: state.mitigation,
     });
   } catch {
@@ -879,7 +887,7 @@ async function handleUseClick(messageId: string, actorId: string, powerId: strin
   if (!message) return;
   const state = readState(message);
   if (!state || state.resolved) return;
-  if (closedReactionEvents.has(String(state.eventId || '')) || state.gmClosed) {
+  if (state.gmClosed || closedReactionEvents.has(String(state.eventId || ''))) {
     g.ui?.notifications?.warn?.('GM has closed reactions for this attack.');
     return;
   }
@@ -988,7 +996,7 @@ async function handleDeclineClick(messageId: string, actorId: string): Promise<v
   if (!message) return;
   const state = readState(message);
   if (!state || state.resolved) return;
-  if (closedReactionEvents.has(String(state.eventId || '')) || state.gmClosed) {
+  if (state.gmClosed || closedReactionEvents.has(String(state.eventId || ''))) {
     g.ui?.notifications?.warn?.('GM has closed reactions for this attack.');
     return;
   }
@@ -1340,7 +1348,8 @@ export function registerReactionWindowChatHandlers(): void {
       (globalThis as any).game?.socket?.on?.(SOCKET_NAME, (payload: any) => {
         if (payload?.type !== 'reactionWindowResolved') return;
         const eventId = String(payload.eventId || '');
-        if (eventId) closedReactionEvents.add(eventId);
+        // Mirror GM-close lock across clients only — not every phase resolve.
+        if (payload.gmClosed && eventId) closedReactionEvents.add(eventId);
         const id = String(payload.messageId || '');
         const waiter = pendingWaiters.get(id);
         if (!waiter) return;

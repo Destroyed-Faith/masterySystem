@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.291] - 2026-08-09
+
+### Fixed
+
+- **False “GM has closed reactions”**: closing the target reaction window no longer locks the shared event id, so the post-attack OA card for Alaris/Fynn stays clickable. Only the GM button **Reactions abgeschlossen** locks the whole attack.
+
 ## [0.9.290] - 2026-08-08
 
 ### Fixed
