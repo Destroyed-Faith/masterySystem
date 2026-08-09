@@ -731,7 +731,7 @@ async function handleUseClick(messageId, actorId, powerId) {
     const state = readState(message);
     if (!state || state.resolved)
         return;
-    if (closedReactionEvents.has(String(state.eventId || '')) || state.gmClosed) {
+    if (state.gmClosed || closedReactionEvents.has(String(state.eventId || ''))) {
         g.ui?.notifications?.warn?.('GM has closed reactions for this attack.');
         return;
     }
@@ -829,7 +829,7 @@ async function handleDeclineClick(messageId, actorId) {
     const state = readState(message);
     if (!state || state.resolved)
         return;
-    if (closedReactionEvents.has(String(state.eventId || '')) || state.gmClosed) {
+    if (state.gmClosed || closedReactionEvents.has(String(state.eventId || ''))) {
         g.ui?.notifications?.warn?.('GM has closed reactions for this attack.');
         return;
     }
@@ -1132,7 +1132,8 @@ export function registerReactionWindowChatHandlers() {
                 if (payload?.type !== 'reactionWindowResolved')
                     return;
                 const eventId = String(payload.eventId || '');
-                if (eventId)
+                // Mirror GM-close lock across clients only — not every phase resolve.
+                if (payload.gmClosed && eventId)
                     closedReactionEvents.add(eventId);
                 const id = String(payload.messageId || '');
                 const waiter = pendingWaiters.get(id);

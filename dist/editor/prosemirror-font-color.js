@@ -352,6 +352,26 @@ function resolveMenuContext(source) {
 function registerProseMirrorMenu(menu, menuEl) {
     registerEditorView(menu, menuEl);
 }
+/** True when the ProseMirror instance belongs to the sidebar chat input (not journals/sheets). */
+export function isChatProseMirrorContext(menu, menuEl) {
+    const candidates = [menuEl];
+    if (menu && typeof menu === 'object') {
+        const m = menu;
+        candidates.push(m.element ?? null, m.menuElement ?? null, m.options?.element ?? null);
+        const view = getMenuView(menu);
+        const dom = view?.dom ?? null;
+        candidates.push(dom);
+    }
+    for (const candidate of candidates) {
+        if (!candidate || !(candidate instanceof Element))
+            continue;
+        if (candidate.closest('#chat-message, #chat-form, #chat, .chat-input'))
+            return true;
+        if (candidate.id === 'chat-message' || candidate.classList.contains('chat-input'))
+            return true;
+    }
+    return false;
+}
 function normalizeHexColor(value) {
     const raw = String(value ?? '').trim();
     if (!raw)
@@ -669,6 +689,8 @@ function handleFontColorActionClick(event) {
 /** Inject a palette icon button at the start of the ProseMirror toolbar DOM. */
 export function injectFontColorToolbarButton(menuEl, menu) {
     menuRegistry.set(menuEl, menu);
+    if (isChatProseMirrorContext(menu, menuEl))
+        return;
     if (menuEl.querySelector(`[data-action="${FONT_COLOR_ACTION}"]`))
         return;
     const title = game.i18n.localize('MASTERY.editor.fontColor');
@@ -758,7 +780,9 @@ function patchProseMirrorMenuActivateListeners() {
         original.call(this, html);
         registerProseMirrorMenu(this, html);
         menuRegistry.set(html, this);
-        injectFontColorToolbarButton(html, this);
+        if (!isChatProseMirrorContext(this, html)) {
+            injectFontColorToolbarButton(html, this);
+        }
     };
     prototype._masteryFontColorPatched = true;
 }
@@ -768,6 +792,8 @@ function scheduleToolbarInjection(root) {
         if (!menuEl)
             return;
         const proseMirror = root.querySelector('prose-mirror');
+        if (proseMirror && isChatProseMirrorContext({}, proseMirror))
+            return;
         const menuFromElement = proseMirror?.menu;
         const menu = menuRegistry.get(menuEl) ?? menuFromElement ?? {};
         injectFontColorToolbarButton(menuEl, menu);
@@ -779,10 +805,15 @@ function scheduleToolbarInjection(root) {
 export function initializeProseMirrorFontColor() {
     Hooks.on('getProseMirrorMenuItems', (menu, items) => {
         registerProseMirrorMenu(menu);
+        // Keep sidebar chat focused on typing /roll — no journal-style color toolbar there.
+        if (isChatProseMirrorContext(menu))
+            return;
         prependFontColorMenuItem(menu, items);
     });
     Hooks.on('getProseMirrorMenuDropDowns', (menu, config) => {
         registerProseMirrorMenu(menu);
+        if (isChatProseMirrorContext(menu))
+            return;
         prependFontColorDropDown(config);
     });
     installGlobalFontColorClickHandler();

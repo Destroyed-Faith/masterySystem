@@ -488,6 +488,32 @@ function registerProseMirrorMenu(menu: unknown, menuEl?: HTMLElement | null): vo
   registerEditorView(menu, menuEl);
 }
 
+/** True when the ProseMirror instance belongs to the sidebar chat input (not journals/sheets). */
+export function isChatProseMirrorContext(menu?: unknown, menuEl?: HTMLElement | null): boolean {
+  const candidates: Array<Element | null | undefined> = [menuEl];
+
+  if (menu && typeof menu === 'object') {
+    const m = menu as {
+      element?: Element | null;
+      menuElement?: Element | null;
+      options?: { element?: Element | null; view?: PMEditorView | null; compact?: boolean };
+      view?: PMEditorView | null;
+    };
+    candidates.push(m.element ?? null, m.menuElement ?? null, m.options?.element ?? null);
+    const view = getMenuView(menu);
+    const dom = (view as PMEditorView & { dom?: Element | null })?.dom ?? null;
+    candidates.push(dom);
+  }
+
+  for (const candidate of candidates) {
+    if (!candidate || !(candidate instanceof Element)) continue;
+    if (candidate.closest('#chat-message, #chat-form, #chat, .chat-input')) return true;
+    if (candidate.id === 'chat-message' || candidate.classList.contains('chat-input')) return true;
+  }
+
+  return false;
+}
+
 function normalizeHexColor(value: string | null | undefined): string | null {
   const raw = String(value ?? '').trim();
   if (!raw) return null;
@@ -841,6 +867,7 @@ function handleFontColorActionClick(event: Event): void {
 /** Inject a palette icon button at the start of the ProseMirror toolbar DOM. */
 export function injectFontColorToolbarButton(menuEl: HTMLElement, menu: unknown): void {
   menuRegistry.set(menuEl, menu);
+  if (isChatProseMirrorContext(menu, menuEl)) return;
 
   if (menuEl.querySelector(`[data-action="${FONT_COLOR_ACTION}"]`)) return;
 
@@ -937,7 +964,9 @@ function patchProseMirrorMenuActivateListeners(): void {
     original.call(this, html);
     registerProseMirrorMenu(this, html);
     menuRegistry.set(html, this);
-    injectFontColorToolbarButton(html, this);
+    if (!isChatProseMirrorContext(this, html)) {
+      injectFontColorToolbarButton(html, this);
+    }
   };
   prototype._masteryFontColorPatched = true;
 }
@@ -947,6 +976,7 @@ function scheduleToolbarInjection(root: ParentNode): void {
     const menuEl = root.querySelector('menu.editor-menu') as HTMLElement | null;
     if (!menuEl) return;
     const proseMirror = root.querySelector('prose-mirror');
+    if (proseMirror && isChatProseMirrorContext({}, proseMirror as HTMLElement)) return;
     const menuFromElement = (proseMirror as { menu?: unknown } | null)?.menu;
     const menu = menuRegistry.get(menuEl) ?? menuFromElement ?? {};
     injectFontColorToolbarButton(menuEl, menu);
@@ -960,11 +990,14 @@ function scheduleToolbarInjection(root: ParentNode): void {
 export function initializeProseMirrorFontColor(): void {
   Hooks.on('getProseMirrorMenuItems', (menu: unknown, items: Array<Record<string, unknown>>) => {
     registerProseMirrorMenu(menu);
+    // Keep sidebar chat focused on typing /roll — no journal-style color toolbar there.
+    if (isChatProseMirrorContext(menu)) return;
     prependFontColorMenuItem(menu, items);
   });
 
   Hooks.on('getProseMirrorMenuDropDowns', (menu: unknown, config: Record<string, DropdownConfig>) => {
     registerProseMirrorMenu(menu);
+    if (isChatProseMirrorContext(menu)) return;
     prependFontColorDropDown(config);
   });
 

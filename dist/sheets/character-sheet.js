@@ -991,7 +991,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 this._powersListDetailsOpen = pld.open;
             }
         }
-        // Save scroll positions for all tabs and the main window before rendering
+        // Save scroll positions for all tabs and the main window before rendering.
+        // ApplicationV2 sheets scroll primarily via `.window-content` (see character-sheet.css).
         const scrollPositions = {};
         if ($el && $el.length > 0) {
             // Save scroll position for each tab
@@ -1012,12 +1013,18 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                     scrollPositions['sheet-body'] = bodyScrollTop;
                 }
             }
+            const windowContent = $el.find('.window-content').first();
+            if (windowContent.length > 0) {
+                const windowScrollTop = windowContent.scrollTop();
+                if (windowScrollTop !== undefined && windowScrollTop > 0) {
+                    scrollPositions['window-content'] = windowScrollTop;
+                }
+            }
         }
         const result = await super.render(options, _options);
         // Restore scroll positions after rendering
         if (this.element && Object.keys(scrollPositions).length > 0) {
-            // Use requestAnimationFrame to ensure DOM is fully updated
-            requestAnimationFrame(() => {
+            const restoreScroll = () => {
                 if (!this.element)
                     return;
                 const $now = $(this.element);
@@ -1037,7 +1044,15 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                         sheetBody.scrollTop(scrollPositions['sheet-body']);
                     }
                 }
-            });
+                if (scrollPositions['window-content'] !== undefined) {
+                    const windowContent = $now.find('.window-content').first();
+                    if (windowContent.length > 0) {
+                        windowContent.scrollTop(scrollPositions['window-content']);
+                    }
+                }
+            };
+            // Use double rAF so ApplicationV2 layout settles before restoring scroll.
+            requestAnimationFrame(() => requestAnimationFrame(restoreScroll));
         }
         return result;
     }
@@ -3891,13 +3906,14 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         const hpBars = rawBars.map((b) => ({ ...b }));
         const { restoreHealthBarsFrom } = await import('../utils/calculations.js');
         const currentBar = restoreHealthBarsFrom(hpBars, fromIndex);
+        // Avoid Foundry's auto sheet re-render (scroll jump); our render() preserves scroll.
         await this.actor.update({
             'system.health.bars': hpBars,
             'system.health.currentBar': currentBar,
-        });
+        }, { render: false });
         const startName = String(hpBars[fromIndex]?.name ?? `Bar ${fromIndex + 1}`);
         ui.notifications?.info?.(`Health restored from ${startName} through Incapacitated.`);
-        this.render();
+        await this.render();
     }
     /**
      * GM: restore this stress bar and all more-severe bars below it
@@ -3921,23 +3937,24 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         const stressBars = rawBars.map((b) => ({ ...b }));
         const { restoreHealthBarsFrom } = await import('../utils/calculations.js');
         const currentBar = restoreHealthBarsFrom(stressBars, fromIndex);
-        await this.actor.update({
+        // Single update + render:false so unsetFlag/auto-render cannot jump scroll to top.
+        const updateData = {
             'system.stress.bars': stressBars,
             'system.stress.currentBar': currentBar,
-        });
-        // Clearing stress via GM restore also clears a pending Breakdown prompt.
+        };
         try {
             if (this.actor.getFlag?.('mastery-system', 'stressBreakdownPending') != null) {
-                await this.actor.unsetFlag?.('mastery-system', 'stressBreakdownPending');
+                updateData['flags.mastery-system.-=stressBreakdownPending'] = null;
             }
         }
         catch {
             /* ignore */
         }
+        await this.actor.update(updateData, { render: false });
         const startName = String(stressBars[fromIndex]?.name ?? `Bar ${fromIndex + 1}`);
         const endName = String(stressBars[stressBars.length - 1]?.name ?? 'Breaking');
         ui.notifications?.info?.(`Stress restored from ${startName} through ${endName}.`);
-        this.render();
+        await this.render();
     }
     /**
      * Handle Safe Haven Rest - reset all skillsSpent to 0

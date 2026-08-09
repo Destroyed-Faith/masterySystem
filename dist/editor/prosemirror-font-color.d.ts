@@ -114,6 +114,8 @@ export declare function resolveActiveEditorView(menu?: unknown, view?: PMEditorV
 export declare function getMenuView(menu: unknown, view?: PMEditorView | null): PMEditorView | null;
 /** Resolve the live ProseMirror view from the surrounding editor DOM. */
 export declare function findEditorViewFromElement(root: Element | ParentNode | null): PMEditorView | null;
+/** True when the ProseMirror instance belongs to the sidebar chat input (not journals/sheets). */
+export declare function isChatProseMirrorContext(menu?: unknown, menuEl?: HTMLElement | null): boolean;
 /** Fallback for schemas where no color mark can be toggled: wrap the selection in a colored span via HTML. */
 export declare function applyColorViaHtmlSlice(view: PMEditorView, color: string | null): boolean;
 export declare function promptFontColor(menu: unknown, view?: PMEditorView | null, source?: Element | null): Promise<void>;

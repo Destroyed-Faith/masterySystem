@@ -1,4 +1,29 @@
 /* =========================================
+   Chat input: keep /roll typing space usable
+   Foundry's ProseMirror Format toolbar (plus any module menus) crowds the
+   sidebar bottom. Hide the rich-text menu on the chat composer so players can
+   type /roll 4d8 again; journals/sheets keep their editors unchanged.
+   ========================================= */
+
+#chat-form #chat-message.chat-input > .menu-container,
+#chat-message.chat-input > .menu-container,
+prose-mirror#chat-message.chat-input > .menu-container {
+  display: none !important;
+}
+
+#chat-form #chat-message.chat-input > .editor-container,
+#chat-message.chat-input > .editor-container,
+prose-mirror#chat-message.chat-input > .editor-container {
+  min-height: 2.5rem;
+}
+
+#chat-form #chat-message.chat-input .editor-content.ProseMirror,
+#chat-message.chat-input .editor-content.ProseMirror {
+  min-height: 2.25rem;
+  padding: 0.35rem 0.5rem;
+}
+
+/* =========================================
    General Chat Styling (applies to all chat messages)
    ========================================= */
 

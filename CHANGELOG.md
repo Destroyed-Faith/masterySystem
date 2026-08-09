@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.292] - 2026-08-09
+
+### Fixed
+
+- **GM Wiederherstellen scroll jump**: restoring Health/Stress bars no longer scrolls the character sheet to the top (ApplicationV2 `.window-content` scroll is preserved; updates use `render: false` before a single sheet refresh).
+- **Chat `/roll` input**: sidebar chat no longer shows the Mastery text-color / Format toolbar clutter — the composer is a plain typing area again for `/roll 4d8` (and normal chat). Journal editors keep the color palette.
+
 ## [0.9.291] - 2026-08-09
 
 ### Fixed
