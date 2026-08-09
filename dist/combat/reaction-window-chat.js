@@ -753,28 +753,29 @@ async function executeReactionSpend(params) {
                 note += ' <em>(Counter Damage failed — resolve manually.)</em>';
             }
         }
-        const pushRank = Array.isArray(power?.system?.specials)
-            ? Math.max(0, ...power.system.specials
-                .filter((s) => String(s?.key || s?.id || '').toLowerCase() === 'push')
-                .map((s) => Math.floor(Number(s?.rank ?? s?.value) || 0)))
-            : 0;
-        const pushFromTemplate = (() => {
-            try {
-                const specials = power?.system?.levelData?.specials ?? power?.specials;
-                if (!Array.isArray(specials))
-                    return 0;
-                return Math.max(0, ...specials
-                    .filter((s) => String(s?.key || '').toLowerCase() === 'push')
-                    .map((s) => Math.floor(Number(s?.rank) || 0)));
+        try {
+            const { readPushPullMetersFromPower, offerForcedMovementFromActors } = await import('./forced-movement.js');
+            const { push: pushM, pull: pullM } = readPushPullMetersFromPower(power);
+            if (pushM > 0 || pullM > 0) {
+                const bits = [];
+                if (pushM > 0)
+                    bits.push(`Push ${pushM} m (away)`);
+                if (pullM > 0)
+                    bits.push(`Pull ${pullM} m (toward)`);
+                note += ` <em>(${bits.join(' / ')} — choose a highlighted cell.)</em>`;
+                // Canvas mode: only cells farther (Push) / closer (Pull) than current.
+                await offerForcedMovementFromActors({
+                    movedActor: attacker,
+                    referenceActor: actor,
+                    pushM,
+                    pullM,
+                    labelPrefix: 'Counter Damage',
+                });
             }
-            catch {
-                return 0;
-            }
-        })();
-        const pushM = Math.max(pushRank, pushFromTemplate);
-        if (pushM > 0) {
-            note += ` <em>(Push ${pushM} m — move ${String(attacker.name)} manually.)</em>`;
-            globalThis.ui?.notifications?.info?.(`Counter Damage + Push: move ${String(attacker.name)} ${pushM} m away from ${actorName}.`);
+        }
+        catch (err) {
+            console.warn('Mastery System | Counter Damage Push/Pull targeting failed', err);
+            note += ' <em>(Push/Pull targeting failed — move manually.)</em>';
         }
     }
     // Special Increase — bump an existing Special on the attacker.
