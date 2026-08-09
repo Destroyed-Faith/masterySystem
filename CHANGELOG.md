@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.293] - 2026-08-09
+
+### Changed
+
+- **Faith Fracture damage reroll**: no more popup dialog. After damage dice are rolled, Keep / Reroll appears as a **chat card** in the log (same place as the rest of the attack flow) — including when attacking from a Reaction.
+
 ## [0.9.292] - 2026-08-09
 
 ### Fixed

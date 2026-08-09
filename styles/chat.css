@@ -943,6 +943,68 @@ prose-mirror#chat-message.chat-input > .editor-container {
   border-left: 3px solid rgba(255, 209, 102, 0.65);
 }
 
+#chat-log .mastery-damage-faith-reroll {
+  border-left: 3px solid rgba(139, 0, 0, 0.75);
+  padding: 0.35em 0.55em;
+  background: rgba(139, 0, 0, 0.08);
+}
+
+#chat-log .mastery-damage-faith-reroll h3 {
+  margin: 0 0 0.35em;
+  font-size: 0.95rem;
+}
+
+#chat-log .mastery-damage-faith-reroll .ms-damage-faith-details {
+  margin: 0.35em 0;
+  font-size: 0.85em;
+  opacity: 0.9;
+  padding-left: 1.2em;
+}
+
+#chat-log .mastery-damage-faith-reroll .ms-damage-faith-hint {
+  margin: 0.35em 0 0.5em;
+  font-size: 0.9em;
+}
+
+#chat-log .mastery-damage-faith-reroll .ms-damage-faith-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35em;
+  margin-top: 0.35em;
+}
+
+#chat-log .mastery-damage-faith-reroll .ms-damage-faith-keep-btn,
+#chat-log .mastery-damage-faith-reroll .ms-damage-faith-reroll-btn {
+  cursor: pointer;
+  font-size: 0.85rem;
+  padding: 0.28em 0.55em;
+  border-radius: 4px;
+  border: 1px solid var(--ms-border, #3a3f44);
+  background: var(--ms-panel2, #1b2124);
+  color: var(--ms-text, #d0d0d0);
+}
+
+#chat-log .mastery-damage-faith-reroll .ms-damage-faith-keep-btn:hover:not(:disabled) {
+  border-color: rgba(63, 107, 84, 0.75);
+  color: #b8e0c8;
+}
+
+#chat-log .mastery-damage-faith-reroll .ms-damage-faith-reroll-btn:hover:not(:disabled) {
+  border-color: rgba(202, 178, 113, 0.75);
+  color: #ffe08a;
+}
+
+#chat-log .mastery-damage-faith-reroll .ms-damage-faith-keep-btn:disabled,
+#chat-log .mastery-damage-faith-reroll .ms-damage-faith-reroll-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+#chat-log .mastery-damage-faith-reroll.resolved {
+  border-left-color: rgba(63, 107, 84, 0.65);
+  background: rgba(63, 107, 84, 0.08);
+}
+
 #chat-log .mastery-stress-breakdown {
   border-left: 3px solid rgba(142, 68, 173, 0.75);
   padding: 0.35em 0.55em;

@@ -1659,11 +1659,165 @@ export async function applyDamageToTarget(
   }
 }
 
+/** In-memory waiter for the damage Faith Fracture chat prompt (rolling client). */
+type PendingDamageFaithPrompt = {
+  resolve: (wantsReroll: boolean) => void;
+  attackerId: string;
+};
+const pendingDamageFaithPrompts = new Map<string, PendingDamageFaithPrompt>();
+let damageFaithChatHooksRegistered = false;
+
+function registerDamageFaithRerollChatHooks(): void {
+  if (damageFaithChatHooksRegistered) return;
+  damageFaithChatHooksRegistered = true;
+  Hooks.on('renderChatMessageHTML', (message: ChatMessage, htmlRaw: HTMLElement | JQuery) => {
+    try {
+      const ms = (message.flags as any)?.['mastery-system'];
+      if (ms?.type !== 'damageFaithRerollPrompt' || ms?.resolved) return;
+      attachDamageFaithPromptHandlers(message, htmlRaw);
+    } catch (e) {
+      console.warn('Mastery System | damage Faith Fracture prompt hook', e);
+    }
+  });
+}
+
+function damageFaithPromptEsc(text: string): string {
+  return String(text)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function buildDamageFaithPromptHtml(opts: {
+  attackerName: string;
+  totalDamage: number;
+  fracturesLeft: number;
+  rollDetails: string[];
+  resolved?: false | 'keep' | 'reroll';
+}): string {
+  const detailsHtml = opts.rollDetails.length
+    ? `<ul class="ms-damage-faith-details">${opts.rollDetails
+        .map((line) => `<li>${damageFaithPromptEsc(line)}</li>`)
+        .join('')}</ul>`
+    : '';
+
+  if (opts.resolved === 'keep') {
+    return `<div class="mastery-damage-faith-reroll resolved">
+      <h3><i class="fas fa-dice-d20"></i> Damage rolled — kept</h3>
+      <p><strong>${damageFaithPromptEsc(opts.attackerName)}</strong> keeps <strong>${opts.totalDamage}</strong> damage.</p>
+      ${detailsHtml}
+    </div>`;
+  }
+  if (opts.resolved === 'reroll') {
+    return `<div class="mastery-damage-faith-reroll resolved">
+      <h3><i class="fas fa-sync-alt"></i> Damage reroll</h3>
+      <p><strong>${damageFaithPromptEsc(opts.attackerName)}</strong> spends 1 Faith Fracture to reroll (was ${opts.totalDamage}).</p>
+      ${detailsHtml}
+    </div>`;
+  }
+
+  return `<div class="mastery-damage-faith-reroll">
+    <h3><i class="fas fa-dice-d20"></i> Damage rolled — keep or reroll?</h3>
+    <p><strong>${damageFaithPromptEsc(opts.attackerName)}</strong> rolled <strong>Total damage: ${opts.totalDamage}</strong></p>
+    ${detailsHtml}
+    <p class="ms-damage-faith-hint">Spend <strong>1 Faith Fracture</strong> (${opts.fracturesLeft} left) to reroll <em>all</em> damage dice once? One reroll per roll — the new result is final.</p>
+    <div class="ms-damage-faith-buttons">
+      <button type="button" class="ms-damage-faith-keep-btn"><i class="fas fa-check"></i> Keep &amp; apply</button>
+      <button type="button" class="ms-damage-faith-reroll-btn"><i class="fas fa-sync-alt"></i> Reroll (1 Faith Fracture)</button>
+    </div>
+  </div>`;
+}
+
+async function settleDamageFaithPrompt(
+  message: ChatMessage,
+  wantsReroll: boolean,
+): Promise<void> {
+  const messageId = String((message as any).id || '');
+  const pending = pendingDamageFaithPrompts.get(messageId);
+  if (!pending) {
+    (ui as any).notifications?.warn?.(
+      'Only the player who rolled this damage can choose Keep / Reroll here.',
+    );
+    return;
+  }
+  pendingDamageFaithPrompts.delete(messageId);
+
+  const flags = ((message.flags as any)?.['mastery-system'] ?? {}) as Record<string, unknown>;
+  const html = buildDamageFaithPromptHtml({
+    attackerName: String(flags.attackerName || 'Attacker'),
+    totalDamage: Math.max(0, Math.floor(Number(flags.totalDamage) || 0)),
+    fracturesLeft: Math.max(0, Math.floor(Number(flags.fracturesLeft) || 0)),
+    rollDetails: Array.isArray(flags.rollDetails) ? (flags.rollDetails as string[]) : [],
+    resolved: wantsReroll ? 'reroll' : 'keep',
+  });
+
+  try {
+    await (message as any).update({
+      content: html,
+      flags: {
+        'mastery-system': {
+          ...flags,
+          type: 'damageFaithRerollPrompt',
+          resolved: wantsReroll ? 'reroll' : 'keep',
+        },
+      },
+    });
+  } catch (e) {
+    console.warn('Mastery System | could not update damage Faith Fracture prompt message', e);
+  }
+
+  pending.resolve(wantsReroll);
+}
+
+function attachDamageFaithPromptHandlers(
+  message: ChatMessage,
+  htmlRaw: HTMLElement | JQuery,
+): void {
+  const $root = htmlRaw instanceof HTMLElement ? $(htmlRaw) : htmlRaw;
+  const card = $root
+    .filter('.mastery-damage-faith-reroll')
+    .add($root.find('.mastery-damage-faith-reroll'))
+    .first();
+  if (!card.length || card.hasClass('resolved')) return;
+  if (card.data('msFaithBound')) return;
+  card.data('msFaithBound', true);
+
+  const messageId = String((message as any).id || '');
+  const canAct = pendingDamageFaithPrompts.has(messageId);
+  const keepBtn = card.find('.ms-damage-faith-keep-btn');
+  const rerollBtn = card.find('.ms-damage-faith-reroll-btn');
+  if (!canAct) {
+    keepBtn.prop('disabled', true);
+    rerollBtn.prop('disabled', true);
+    keepBtn.attr('title', 'Waiting for the rolling player…');
+    rerollBtn.attr('title', 'Waiting for the rolling player…');
+    return;
+  }
+
+  const lock = async (wantsReroll: boolean) => {
+    keepBtn.prop('disabled', true);
+    rerollBtn.prop('disabled', true);
+    await settleDamageFaithPrompt(message, wantsReroll);
+  };
+
+  keepBtn.off('click.msDmgFaith').on('click.msDmgFaith', (ev: JQuery.ClickEvent) => {
+    ev.preventDefault();
+    ev.stopPropagation();
+    void lock(false);
+  });
+  rerollBtn.off('click.msDmgFaith').on('click.msDmgFaith', (ev: JQuery.ClickEvent) => {
+    ev.preventDefault();
+    ev.stopPropagation();
+    void lock(true);
+  });
+}
+
 /**
  * Offer a one-time Faith Fracture reroll of the just-rolled damage dice.
- * Shown only when the attacker is a player character with a Faith Fracture
- * left and the current user may act for them (owner or GM). Resolves `false`
- * on decline/close so the damage simply applies.
+ * Posts a chat card (no modal) with Keep / Reroll. Only offered when the
+ * attacker is a PC with a Fracture left and the current user may act for them.
+ * Resolves `false` on Keep so damage simply applies.
  */
 async function promptDamageFaithReroll(
   attacker: Actor,
@@ -1677,39 +1831,47 @@ async function promptDamageFaithReroll(
     const user = (game as any).user;
     if (!user?.isGM && !(attacker as any).isOwner) return false;
 
-    const esc = (s: string) =>
-      String(s)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;');
-    const detailsHtml = rollDetails.length
-      ? `<ul style="margin:0.35em 0;font-size:0.85em;opacity:0.9">${rollDetails
-          .map((line) => `<li>${esc(line)}</li>`)
-          .join('')}</ul>`
-      : '';
+    registerDamageFaithRerollChatHooks();
+
+    const attackerName = String((attacker as any).name || 'Attacker');
+    const content = buildDamageFaithPromptHtml({
+      attackerName,
+      totalDamage,
+      fracturesLeft: cur,
+      rollDetails,
+    });
+
+    const message = await ChatMessage.create({
+      user: user?.id,
+      speaker: ChatMessage.getSpeaker({ actor: attacker }),
+      content,
+      style: (CONST as any)?.CHAT_MESSAGE_STYLES?.OTHER,
+      flags: {
+        'mastery-system': {
+          type: 'damageFaithRerollPrompt',
+          attackerId: (attacker as any).id,
+          attackerName,
+          totalDamage,
+          fracturesLeft: cur,
+          rollDetails: [...rollDetails],
+          resolved: false,
+        },
+      },
+    } as any);
+
+    if (!message?.id) return false;
 
     return await new Promise<boolean>((resolve) => {
-      new Dialog({
-        title: 'Damage rolled — keep or reroll?',
-        content: `<p style="margin-bottom:0.35em"><strong>Total damage: ${totalDamage}</strong></p>
-          ${detailsHtml}
-          <p style="margin:0.35em 0 0">Spend <strong>1 Faith Fracture</strong> (${cur} left) to reroll <em>all</em> damage dice once? One reroll per roll — the new result is final.</p>`,
-        buttons: {
-          apply: {
-            icon: '<i class="fas fa-check"></i>',
-            label: 'Keep & apply',
-            callback: () => resolve(false),
-          },
-          reroll: {
-            icon: '<i class="fas fa-sync-alt"></i>',
-            label: 'Reroll (1 Faith Fracture)',
-            callback: () => resolve(true),
-          },
-        },
-        default: 'apply',
-        close: () => resolve(false),
-      } as any).render(true);
+      pendingDamageFaithPrompts.set(String(message.id), {
+        resolve,
+        attackerId: String((attacker as any).id || ''),
+      });
+      window.setTimeout(() => {
+        const el =
+          document.querySelector(`.chat-message[data-message-id="${message.id}"]`) ??
+          document.querySelector(`.message[data-message-id="${message.id}"]`);
+        if (el) attachDamageFaithPromptHandlers(message, el as HTMLElement);
+      }, 50);
     });
   } catch (e) {
     console.warn('Mastery System | [DAMAGE REROLL] prompt failed — applying without reroll', e);
