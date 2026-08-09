@@ -98,12 +98,20 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                     label: 'Bogen drucken',
                     action: 'msPrintSheet',
                 },
+                {
+                    icon: 'fas fa-scroll',
+                    label: 'Bogen + Standardmanöver',
+                    action: 'msPrintSheetWithBasics',
+                },
             ],
         },
         form: { submitOnChange: true, closeOnSubmit: false },
         actions: {
             msPrintSheet: function () {
                 void openCharacterPrintSheet(this.actor);
+            },
+            msPrintSheetWithBasics: function () {
+                void openCharacterPrintSheet(this.actor, { includeStandardManeuvers: true });
             },
         },
     };
@@ -122,7 +130,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         const controls = super._getHeaderControls?.() ?? [];
         if (this.actor?.type === 'character')
             return controls;
-        return controls.filter((c) => c?.action !== 'msPrintSheet');
+        return controls.filter((c) => c?.action !== 'msPrintSheet' && c?.action !== 'msPrintSheetWithBasics');
     }
     /**
      * Add Spell → open magic power dialog

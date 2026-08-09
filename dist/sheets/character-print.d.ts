@@ -12,13 +12,21 @@
  * (Movement / Active / Reaction) plus an empty check-box meaning
  * "may be used once per round".
  */
+/** Options for the printable character sheet. */
+export interface CharacterPrintOptions {
+    /**
+     * When true, seed Basic Attack + Guard / Evade / Counterattack onto the
+     * battle page (same universal options as radial / Reaction Window).
+     */
+    includeStandardManeuvers?: boolean;
+}
 /**
  * Build the flat data object consumed by `character-print.hbs`.
  */
-export declare function buildCharacterPrintContext(actor: any): Record<string, unknown>;
+export declare function buildCharacterPrintContext(actor: any, options?: CharacterPrintOptions): Record<string, unknown>;
 /**
  * Render the printable sheet for `actor` and open it in a new window that
  * triggers the browser print dialog (save as PDF).
  */
-export declare function openCharacterPrintSheet(actor: any): Promise<void>;
+export declare function openCharacterPrintSheet(actor: any, options?: CharacterPrintOptions): Promise<void>;
 //# sourceMappingURL=character-print.d.ts.map

@@ -478,14 +478,14 @@
           {{#if battle.hasActive}}
           <div class="cp-battle-cards cp-battle-cards-active">
             {{#each battle.active}}
-            <div class="cp-battle-card">
+            <div class="cp-battle-card{{#if baseline}} is-baseline{{/if}}">
               <span class="cp-use-box"></span>
               <span class="cp-battle-card-body">
-                <span class="cp-battle-card-name">{{name}}{{#unless fromArtifact}}{{#unless hideRank}}{{#if rank}} <span class="cp-battle-card-rank">Stufe {{rank}}</span>{{/if}}{{/unless}}{{/unless}}{{#if isSpell}} <span class="cp-power-spell" title="{{spellLabel}}">Spell</span>{{/if}}{{#if fromArtifact}} <span class="cp-power-artifact" title="From artifact: {{source}}">&#9733; {{source}}</span>{{/if}}</span>
+                <span class="cp-battle-card-name">{{name}}{{#unless fromArtifact}}{{#unless hideRank}}{{#if rank}} <span class="cp-battle-card-rank">Stufe {{rank}}</span>{{/if}}{{/unless}}{{/unless}}{{#if isSpell}} <span class="cp-power-spell" title="{{spellLabel}}">Spell</span>{{/if}}{{#if fromArtifact}} <span class="cp-power-artifact" title="From artifact: {{source}}">&#9733; {{source}}</span>{{/if}}{{#if baseline}} <span class="cp-power-baseline" title="Standardmanöver">Basis</span>{{/if}}</span>
                 {{#if attackKind}}<span class="cp-battle-card-kind">{{attackKind}}</span>{{/if}}
                 {{#unless battleCompact}}{{#if effect}}<span class="cp-battle-card-eff">{{effect}}</span>{{/if}}{{/unless}}
                 {{#if attackRoll}}<span class="cp-battle-card-roll"><strong>Attack:</strong> {{attackRoll}}</span>{{/if}}
-                {{#if damageRoll}}{{#if (eq rollKind "heal")}}<span class="cp-battle-card-roll"><strong>Heal:</strong> {{damageRoll}}</span>{{else}}<span class="cp-battle-card-roll"><strong>Damage:</strong> {{damageRoll}}</span>{{/if}}{{/if}}
+                {{#if damageRoll}}{{#if (eq rollKind "heal")}}<span class="cp-battle-card-roll"><strong>Heal:</strong> {{damageRoll}}</span>{{else}}<span class="cp-battle-card-roll"><strong>{{#if rollLabel}}{{rollLabel}}{{else}}Damage{{/if}}:</strong> {{damageRoll}}</span>{{/if}}{{/if}}
                 {{#if battleFootnote}}<span class="cp-battle-card-footnote">{{battleFootnote}}</span>{{/if}}
               </span>
             </div>
@@ -526,14 +526,14 @@
       {{#if battle.hasReactions}}
       <div class="cp-battle-cards cp-battle-cards-stack">
         {{#each battle.reactions}}
-        <div class="cp-battle-card cp-battle-card-reaction">
+        <div class="cp-battle-card cp-battle-card-reaction{{#if baseline}} is-baseline{{/if}}">
           <span class="cp-use-box"></span>
           <span class="cp-battle-card-body">
-            <span class="cp-battle-card-name">{{name}}{{#unless fromArtifact}}{{#unless hideRank}}{{#if rank}} <span class="cp-battle-card-rank">Stufe {{rank}}</span>{{/if}}{{/unless}}{{/unless}}{{#if isSpell}} <span class="cp-power-spell" title="{{spellLabel}}">Spell</span>{{/if}}{{#if fromArtifact}} <span class="cp-power-artifact" title="From artifact: {{source}}">&#9733; {{source}}</span>{{/if}}</span>
+            <span class="cp-battle-card-name">{{name}}{{#unless fromArtifact}}{{#unless hideRank}}{{#if rank}} <span class="cp-battle-card-rank">Stufe {{rank}}</span>{{/if}}{{/unless}}{{/unless}}{{#if isSpell}} <span class="cp-power-spell" title="{{spellLabel}}">Spell</span>{{/if}}{{#if fromArtifact}} <span class="cp-power-artifact" title="From artifact: {{source}}">&#9733; {{source}}</span>{{/if}}{{#if baseline}} <span class="cp-power-baseline" title="Standardmanöver">Basis</span>{{/if}}</span>
             {{#if attackKind}}<span class="cp-battle-card-kind">{{attackKind}}</span>{{/if}}
             {{#unless battleCompact}}{{#if effect}}<span class="cp-battle-card-eff">{{effect}}</span>{{/if}}{{/unless}}
             {{#if attackRoll}}<span class="cp-battle-card-roll"><strong>Attack:</strong> {{attackRoll}}</span>{{/if}}
-            {{#if damageRoll}}{{#if (eq rollKind "heal")}}<span class="cp-battle-card-roll"><strong>Heal:</strong> {{damageRoll}}</span>{{else}}<span class="cp-battle-card-roll"><strong>Damage:</strong> {{damageRoll}}</span>{{/if}}{{/if}}
+            {{#if damageRoll}}{{#if (eq rollKind "heal")}}<span class="cp-battle-card-roll"><strong>Heal:</strong> {{damageRoll}}</span>{{else}}<span class="cp-battle-card-roll"><strong>{{#if rollLabel}}{{rollLabel}}{{else}}Damage{{/if}}:</strong> {{damageRoll}}</span>{{/if}}{{/if}}
             {{#if battleFootnote}}<span class="cp-battle-card-footnote">{{battleFootnote}}</span>{{/if}}
           </span>
         </div>

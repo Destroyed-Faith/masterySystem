@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.297] - 2026-08-09
+
+### Added
+
+- **Print: Bogen + Standardmanöver** (Drei-Punkte-Menü): optionaler Ausdruck mit **Basic Attack** (Weapon + MR×2d8) und den drei Basic Reactions **Guard / Evade / Counterattack** auf der Battle-Seite — zusätzlich zu den normalen Powers.
+
 ## [0.9.296] - 2026-08-09
 
 ### Added

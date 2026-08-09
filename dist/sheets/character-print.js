@@ -32,6 +32,7 @@ import { getDisadvantageDefinition } from '../system/disadvantages.js';
 import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
 import { buildPrintCombatPreview, buildPrintCombatPreviewForArtifactRow, buildArtifactRowSpellPrintMeta, buildSpellPrintMeta } from './character-print-combat.js';
 import { buildCombatSensesDisplayContext } from '../combat/combat-sense-collection.js';
+import { basicAttackMrDamageFormula, basicCombatMrTimesTwo, buildBasicReactionItems, } from '../combat/basic-combat.js';
 /** Human-readable label per Stone Function kind (technical summary). */
 const STONE_FN_KIND_LABEL = {
     stonePool: 'Stone Pool',
@@ -420,7 +421,7 @@ function buildPrintEquipment(allItems) {
 /**
  * Build the flat data object consumed by `character-print.hbs`.
  */
-export function buildCharacterPrintContext(actor) {
+export function buildCharacterPrintContext(actor, options = {}) {
     const system = actor?.system ?? {};
     const masteryRank = num(system?.mastery?.rank, 2);
     // Stones bound into artifacts (blocked) — used to show real availability.
@@ -704,6 +705,53 @@ export function buildCharacterPrintContext(actor) {
     const battleActive = [];
     const battleBuffs = [];
     const battleReactions = [];
+    // Optional: universal Basic Attack + Basic Reactions (radial / Reaction Window).
+    if (options.includeStandardManeuvers) {
+        const mrDice = basicAttackMrDamageFormula(actor);
+        const mr2 = basicCombatMrTimesTwo(actor);
+        battleActive.push({
+            name: 'Basic Attack',
+            effect: `Weapon Damage + ${mrDice} (MR × 2d8). No Active Power effects. ` +
+                `Weapon properties and eligible Passives / Buffs still apply.`,
+            phase: 'Active',
+            baseline: true,
+            battleCompact: true,
+            attackKind: 'Melee / Ranged',
+            damageRoll: `Weapon + ${mrDice}`,
+            rollKind: 'damage',
+            rollLabel: 'Damage',
+            battleFootnote: 'Universal — not a Power; usable every round.',
+            hideRank: true,
+        });
+        for (const r of buildBasicReactionItems(actor)) {
+            const key = String(r.basicReaction || '');
+            const entry = {
+                name: r.name,
+                effect: String(r.system?.description || ''),
+                phase: 'Reaction',
+                baseline: true,
+                hideRank: true,
+                battleCompact: true,
+                battleFootnote: 'Basic Reaction — not a Power; reusable with extra Reactions.',
+            };
+            if (key === 'guard') {
+                entry.damageRoll = `+${mr2} Armor`;
+                entry.rollLabel = 'Effect';
+                entry.battleFootnote = 'Basic Reaction — +Armor vs the triggering attack / damage.';
+            }
+            else if (key === 'evade') {
+                entry.damageRoll = `+${mr2} Evade`;
+                entry.rollLabel = 'Effect';
+                entry.battleFootnote = 'Basic Reaction — may negate the hit if Evade exceeds the attack total.';
+            }
+            else if (key === 'counterattack') {
+                entry.damageRoll = `Weapon + ${mrDice}`;
+                entry.rollLabel = 'Damage';
+                entry.battleFootnote = 'Basic Reaction — Basic Attack vs the triggering creature.';
+            }
+            battleReactions.push(entry);
+        }
+    }
     const powerItemById = new Map(powerItems.map((p) => [p.id, p]));
     for (const p of activePowers) {
         const slot = classifyBattleSlot(p.phase);
@@ -736,6 +784,7 @@ export function buildCharacterPrintContext(actor) {
         hasBuffs: battleBuffs.length > 0,
         hasReactions: battleReactions.length > 0,
         hasPassives: passivePowers.length > 0,
+        includeStandardManeuvers: !!options.includeStandardManeuvers,
     };
     // ── Skills ────────────────────────────────────────────────────────────
     const skillsByGroup = SKILL_GROUPS.map((group) => ({
@@ -997,14 +1046,14 @@ function routed(path) {
  * Render the printable sheet for `actor` and open it in a new window that
  * triggers the browser print dialog (save as PDF).
  */
-export async function openCharacterPrintSheet(actor) {
+export async function openCharacterPrintSheet(actor, options = {}) {
     if (!actor || actor.type !== 'character') {
         ui?.notifications?.warn('Druck-Export ist nur für Charaktere verfügbar.');
         return;
     }
     let body = '';
     try {
-        const context = buildCharacterPrintContext(actor);
+        const context = buildCharacterPrintContext(actor, options);
         body = await foundry.applications.handlebars.renderTemplate(PRINT_TEMPLATE, context);
     }
     catch (error) {
