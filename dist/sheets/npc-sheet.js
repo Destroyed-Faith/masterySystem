@@ -6,7 +6,17 @@ import { MasteryCharacterSheet } from './character-sheet.js';
 import { ALL_SPECIAL_EFFECTS, getEffectBaseName, } from '../utils/special-effects.js';
 import { coerceNpcPhasesArray, defaultNpcHealth, displayNpcSpecialName, ensureNpcHealthState, npcHealthHasBars, sumNpcAttackSlotsFromPowers, sanitizeNpcSystemAttackTargeting, } from '../utils/npc-attack-model.js';
 import { coerceStatusEffectsArray, reduceStatusEffectAt, statusEntryId, } from '../system/active-specials.js';
+import { clampNpcInitiativeModifier, splitNpcInitiativeModifier, } from '../utils/npc-initiative.js';
 import { openNpcPrintSheet } from './npc-print.js';
+/** Attach Ini malus/bonus split fields for the sheet dropdowns. */
+function withNpcIniUi(combat) {
+    const c = combat && typeof combat === 'object' ? { ...combat } : {};
+    const split = splitNpcInitiativeModifier(c.initiative);
+    c.initiative = split.net;
+    c.initiativeMalus = split.malus;
+    c.initiativeBonus = split.bonus;
+    return c;
+}
 /** Sheet rows for root `system.statusEffects` (combat writes here, not per phase). */
 function buildNpcStatusRows(raw) {
     return coerceStatusEffectsArray(raw).map((entry, index) => {
@@ -280,10 +290,13 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
                 }
                 context.system.phases = phases.map((phase) => ({
                     ...phase,
+                    combat: withNpcIniUi(phase?.combat),
                     npcBaseAttack: ensureNpcBaseShape(phase?.npcBaseAttack),
                     health: ensureNpcHealthState(phase?.health ?? context.system.health),
                 }));
             }
+            context.system.combat = withNpcIniUi(context.system.combat);
+            context.npcMasteryRank = Math.max(1, Math.floor(Number(context.system.mastery?.rank) || 2));
         }
         if (context.actor?.type === 'npc' && context.system) {
             context.npcSpecialSelectGroups = buildNpcSpecialSelectGroups();
@@ -556,11 +569,24 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
                 const health = npcHealthHasBars(phase.health)
                     ? phase.health
                     : prev.health ?? existingSystem.health;
+                const combat = phase.combat && typeof phase.combat === 'object'
+                    ? {
+                        ...phase.combat,
+                        initiative: clampNpcInitiativeModifier(phase.combat.initiative),
+                    }
+                    : phase.combat;
                 return {
                     ...phase,
+                    combat,
                     health: ensureNpcHealthState(health),
                 };
             });
+        }
+        if (data.system.combat && typeof data.system.combat === 'object') {
+            data.system.combat = {
+                ...data.system.combat,
+                initiative: clampNpcInitiativeModifier(data.system.combat.initiative),
+            };
         }
         // Status UI is button-driven (not form fields) — never let an empty submit wipe it.
         if (Object.prototype.hasOwnProperty.call(data.system, 'statusEffects')) {
@@ -593,9 +619,35 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
         });
         return data;
     }
+    /** Sync Ini malus/bonus selects → hidden net field + summary (MR d8 ± N). */
+    #syncNpcIniChip(chip) {
+        const malusEl = chip.querySelector('select.npc-ini-malus');
+        const bonusEl = chip.querySelector('select.npc-ini-bonus');
+        const hidden = chip.querySelector('input.npc-ini-net-input');
+        const summary = chip.querySelector('.npc-ini-summary');
+        if (!malusEl || !bonusEl || !hidden)
+            return;
+        const malus = Math.floor(Number(malusEl.value) || 0);
+        const bonus = Math.floor(Number(bonusEl.value) || 0);
+        const net = clampNpcInitiativeModifier(malus + bonus);
+        hidden.value = String(net);
+        if (summary) {
+            const mr = Math.max(1, Math.floor(Number(summary.dataset.mr) || 2));
+            const signed = net === 0 ? '' : net > 0 ? ` +${net}` : ` ${net}`;
+            summary.textContent = `${mr}d8${signed}`;
+        }
+    }
     /** @override */
     activateListeners(html) {
         super.activateListeners(html);
+        html.find('[data-npc-ini-chip]').each((_, el) => {
+            const chip = el;
+            const onChange = () => this.#syncNpcIniChip(chip);
+            chip.querySelectorAll('select.npc-ini-malus, select.npc-ini-bonus').forEach((sel) => {
+                sel.addEventListener('change', onChange);
+            });
+            this.#syncNpcIniChip(chip);
+        });
         // Friendly / Neutral / Hostile — write prototypeToken + sync placed tokens.
         html.find('select.npc-disposition-select').on('change', (ev) => {
             ev.preventDefault();

@@ -11,6 +11,10 @@ import { getRoundState } from './action-economy.js';
 import { calculateMaxSkillRank } from '../utils/calculations.js';
 import { getEquippedEquipmentInitiativeModifier } from '../utils/equipment-modifiers.js';
 import { readManualAdjustments } from '../utils/manual-adjustments.js';
+import {
+  formatNpcInitiativeSigned,
+  getNpcInitiativeModifier,
+} from '../utils/npc-initiative.js';
 const CR_SKILL_KEY = 'combatReflexes';
 
 function getMasteryRank(actor: any): number {
@@ -85,6 +89,14 @@ export async function rollInitiativeForCombatant(
       ? ` · Equipment ${equipmentInitiativeModifier >= 0 ? '+' : ''}${equipmentInitiativeModifier} (armor/shield/weapon)`
       : '';
 
+  // NPC / Summon sheet Ini (−10…+10) — flat on the Mastery Rank d8 total.
+  const isNpcLike = actor.type === 'npc' || actor.type === 'summon';
+  const npcInitiativeModifier = isNpcLike ? getNpcInitiativeModifier(actor) : 0;
+  const npcIniFlavor =
+    npcInitiativeModifier !== 0
+      ? ` · Sheet Ini ${formatNpcInitiativeSigned(npcInitiativeModifier)}`
+      : '';
+
   // Players Guide attribute scaling (~5969–5973): +floor(Wits/8) initiative.
   // Read from the actor's pre-derived `system.scaling.witsInitiativeBonus` so
   // any rank-up / mid-encounter Wits change is reflected immediately.
@@ -121,7 +133,7 @@ export async function rollInitiativeForCombatant(
     keepDice: initiativeNumDice,
     skill: 0,
     label: 'Initiative Roll',
-    flavor: `${actor.name}${equipFlavor}${witsFlavor}${passiveInitFlavor}${manualFlavor}`,
+    flavor: `${actor.name}${equipFlavor}${witsFlavor}${passiveInitFlavor}${manualFlavor}${npcIniFlavor}`,
     actorId: actor.id
   });
 
@@ -191,7 +203,8 @@ export async function rollInitiativeForCombatant(
     manualInitiativeFlat +
     passiveInitiativeBonus +
     witsInitBonus +
-    stoneInitiativeBonus;
+    stoneInitiativeBonus +
+    npcInitiativeModifier;
   await combatant.update({ initiative: totalInitiative });
 
   await combatant.setFlag('mastery-system', 'msInitiativeValue', totalInitiative);

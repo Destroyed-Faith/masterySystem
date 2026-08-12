@@ -99,7 +99,7 @@
   {{#if system.phases}}
   <div class="npc-phase-toolbar npc-section">
     <div class="npc-phase-toolbar__field">
-      <label>Aktive Phase (Radial / Angriffe)</label>
+      <label>Active Phase (Radial / Attacks)</label>
       <select name="system.npcActivePhaseIndex" data-dtype="Number">
         {{#each system.phases as |ph idx|}}
         <option value="{{idx}}" {{#if (eq ../system.npcActivePhaseIndex idx)}}selected{{/if}}>{{ph.name}}</option>
@@ -107,12 +107,12 @@
       </select>
     </div>
     <div class="npc-phase-toolbar__field">
-      <label>Angriffe / Runde</label>
-      <input type="number" name="system.attackSlots" value="{{default system.attackSlots 1}}" min="1" max="20" step="1" data-dtype="Number" readonly title="Summe der Angriffe/Runde aller Powers (aktive Phase) — erscheint als ATK im Kampf"/>
+      <label>Attacks / Round</label>
+      <input type="number" name="system.attackSlots" value="{{default system.attackSlots 1}}" min="1" max="20" step="1" data-dtype="Number" readonly title="Sum of Attacks/Round copies (active phase) — shown as ATK in combat"/>
     </div>
     <div class="npc-phase-toolbar__field">
-      <label>Bewegung / Runde</label>
-      <input type="number" name="system.npcMovementSlots" value="{{default system.npcMovementSlots 1}}" min="1" max="10" step="1" data-dtype="Number" title="Movement-Aktionen pro Runde"/>
+      <label>Move Actions / Round</label>
+      <input type="number" name="system.npcMovementSlots" value="{{default system.npcMovementSlots 1}}" min="1" max="10" step="1" data-dtype="Number" title="Movement actions per round"/>
     </div>
   </div>
   {{/if}}
@@ -133,28 +133,33 @@
         </div>
         
         <section class="npc-section npc-section--combat">
-          <h3 class="npc-section__title"><i class="fas fa-shield-alt"></i> Kampfwerte</h3>
+          <h3 class="npc-section__title"><i class="fas fa-shield-alt"></i> Combat</h3>
           <div class="npc-combat-strip">
             <div class="npc-combat-chip">
-              <span class="npc-combat-chip__label">Ausweichen</span>
+              <span class="npc-combat-chip__label">Evade</span>
               <input type="number" name="system.phases.{{phaseIndex}}.combat.evade" value="{{default phase.combat.evade 10}}" data-dtype="Number" title="Evade"/>
             </div>
             <div class="npc-combat-chip">
-              <span class="npc-combat-chip__label">Rüstung</span>
-              <input type="number" name="system.phases.{{phaseIndex}}.combat.armor" value="{{default phase.combat.armor 0}}" data-dtype="Number" title="Rüstung"/>
+              <span class="npc-combat-chip__label">Armor</span>
+              <input type="number" name="system.phases.{{phaseIndex}}.combat.armor" value="{{default phase.combat.armor 0}}" data-dtype="Number" title="Armor"/>
             </div>
+            {{> "systems/mastery-system/templates/actor/partials/npc-combat-ini.hbs"
+              fieldPath=(concat "system.phases." phaseIndex ".combat.initiative")
+              iniMalus=phase.combat.initiativeMalus
+              iniBonus=phase.combat.initiativeBonus
+              iniNet=phase.combat.initiative
+              masteryRank=@root.npcMasteryRank}}
             <div class="npc-combat-chip">
-              <span class="npc-combat-chip__label">Tempo</span>
-              <input type="number" name="system.phases.{{phaseIndex}}.combat.speed" value="{{default phase.combat.speed 6}}" data-dtype="Number" title="Speed"/>
+              <span class="npc-combat-chip__label">Speed (m)</span>
+              <input type="number" name="system.phases.{{phaseIndex}}.combat.speed" value="{{default phase.combat.speed 6}}" min="0" max="48" step="1" data-dtype="Number" title="Base movement in meters per Move"/>
             </div>
           </div>
         </section>
 
         {{!-- Health --}}
         <div class="health-panel npc-section">
-          <h3 class="npc-section__title"><i class="fas fa-heart"></i> Trefferpunkte</h3>
+          <h3 class="npc-section__title"><i class="fas fa-heart"></i> HP</h3>
           <div class="health-display">
-            <label>HP:</label>
             {{#each phase.health.bars as |bar index|}}
             <div class="health-bar {{#if (eq phase.health.currentBar index)}}active{{/if}}">
               {{!-- Use block-param phaseIndex (not ../phaseIndex): nested #each breaks ../ lookup and orphaned HP on submit. --}}
@@ -194,15 +199,15 @@
               </div>
               {{/each}}
             {{else}}
-              <div class="no-status-effects">Keine aktiven Effekte</div>
+              <div class="no-status-effects">No active effects</div>
             {{/if}}
           </div>
         </div>
 
         {{!-- Basis: Waffenangriff (Phase) --}}
         <div class="attack-values-panel npc-section">
-          <h3 class="npc-section__title"><i class="fas fa-sword"></i> Basis: Waffenangriff</h3>
-          <p class="hint">Immer im Radialmenü; zusätzliche Einträge unten sind Extras. Erste Zeile: Angriffs-<strong>W8</strong> im Pool, zweite: Schadens-<strong>W8</strong> im Pool.</p>
+          <h3 class="npc-section__title"><i class="fas fa-sword"></i> Base: Weapon Attack</h3>
+          <p class="hint">Always in the radial menu; rows below are extras. First line: attack <strong>d8</strong> pool, second: damage <strong>d8</strong> pool.</p>
           <div class="npc-attack-card npc-attack-card--base">
             <div class="npc-attack-card__grid npc-attack-card__grid--simple">
               <div class="npc-attack-field">
@@ -210,7 +215,7 @@
                 <input type="text" name="system.phases.{{phaseIndex}}.npcBaseAttack.name" value="{{default phase.npcBaseAttack.name 'Waffenangriff'}}" placeholder="Waffenangriff"/>
               </div>
               <div class="npc-attack-field">
-                <label>Angriff (Pool)</label>
+                <label>Attack (Pool)</label>
                 <select name="system.phases.{{phaseIndex}}.npcBaseAttack.attackDiceCount" data-dtype="Number">
                   <option value="">—</option>
                   {{#each (range 2 16)}}
@@ -219,7 +224,7 @@
                 </select>
               </div>
               <div class="npc-attack-field">
-                <label>Schaden</label>
+                <label>Damage</label>
                 <select name="system.phases.{{phaseIndex}}.npcBaseAttack.damageDiceCount" data-dtype="Number">
                   <option value="">—</option>
                   {{#each (range 4 16)}}
@@ -231,7 +236,7 @@
             {{> "systems/mastery-system/templates/actor/partials/npc-attack-targeting.hbs" path=(concat "system.phases." phaseIndex ".npcBaseAttack") atk=phase.npcBaseAttack}}
             <div class="npc-attack-specials-block">
               <div class="npc-attack-specials-header">
-                <span>Speziale</span>
+                <span>Specials</span>
                 <button type="button" class="npc-power-special-add" data-scope="phase-base" data-phase-index="{{phaseIndex}}" title="Spezial hinzufügen"><i class="fas fa-plus"></i></button>
               </div>
               {{#each phase.npcBaseAttack.specials as |sp si|}}
@@ -277,7 +282,7 @@
                 </div>
                 <div class="npc-attack-card__grid npc-attack-card__grid--simple">
                   <div class="npc-attack-field">
-                    <label>Angriff (Pool)</label>
+                    <label>Attack (Pool)</label>
                     <select name="system.phases.{{../phaseIndex}}.attackValues.{{index}}.attackDiceCount" data-dtype="Number">
                       <option value="">—</option>
                       {{#each (range 2 16)}}
@@ -286,7 +291,7 @@
                     </select>
                   </div>
                   <div class="npc-attack-field">
-                    <label>Schaden</label>
+                    <label>Damage</label>
                     <select name="system.phases.{{../phaseIndex}}.attackValues.{{index}}.damageDiceCount" data-dtype="Number">
                       <option value="">—</option>
                       {{#each (range 4 16)}}
@@ -298,7 +303,7 @@
                 {{> "systems/mastery-system/templates/actor/partials/npc-attack-targeting.hbs" path=(concat "system.phases." ../phaseIndex ".attackValues." index) atk=attack}}
                 <div class="npc-attack-specials-block">
                   <div class="npc-attack-specials-header">
-                    <span>Speziale</span>
+                    <span>Specials</span>
                     <button type="button" class="npc-power-special-add" data-scope="extra" data-phase-index="{{../phaseIndex}}" data-attack-index="{{index}}"><i class="fas fa-plus"></i></button>
                   </div>
                   {{#each attack.specials as |sp si|}}
@@ -326,7 +331,7 @@
               </div>
               {{/each}}
             {{else}}
-              <div class="no-attack-values">Noch keine Extra-Powers.</div>
+              <div class="no-attack-values">No extra powers yet.</div>
             {{/if}}
           </div>
         </div>
@@ -335,36 +340,41 @@
     {{else}}
       {{!-- Normal NPC View (no phases) --}}
       <section class="npc-section npc-section--combat">
-        <h3 class="npc-section__title"><i class="fas fa-shield-alt"></i> Kampfwerte</h3>
+        <h3 class="npc-section__title"><i class="fas fa-shield-alt"></i> Combat</h3>
         <div class="npc-combat-strip">
           <div class="npc-combat-chip">
-            <span class="npc-combat-chip__label">Ausweichen</span>
+            <span class="npc-combat-chip__label">Evade</span>
             <input type="number" name="system.combat.evade" value="{{system.combat.evade}}" data-dtype="Number"/>
           </div>
           <div class="npc-combat-chip">
-            <span class="npc-combat-chip__label">Rüstung</span>
+            <span class="npc-combat-chip__label">Armor</span>
             <input type="number" name="system.combat.armor" value="{{system.combat.armor}}" data-dtype="Number"/>
           </div>
+          {{> "systems/mastery-system/templates/actor/partials/npc-combat-ini.hbs"
+            fieldPath="system.combat.initiative"
+            iniMalus=system.combat.initiativeMalus
+            iniBonus=system.combat.initiativeBonus
+            iniNet=system.combat.initiative
+            masteryRank=npcMasteryRank}}
           <div class="npc-combat-chip">
-            <span class="npc-combat-chip__label">Tempo</span>
-            <input type="number" name="system.combat.speed" value="{{system.combat.speed}}" data-dtype="Number"/>
+            <span class="npc-combat-chip__label">Speed (m)</span>
+            <input type="number" name="system.combat.speed" value="{{system.combat.speed}}" min="0" max="48" step="1" data-dtype="Number" title="Base movement in meters per Move"/>
           </div>
           <div class="npc-combat-chip">
-            <span class="npc-combat-chip__label">Angriffe / Runde</span>
-            <input type="number" name="system.attackSlots" value="{{default system.attackSlots 1}}" min="1" max="20" step="1" data-dtype="Number" readonly title="Summe der Angriffe/Runde aller Powers (aktive Phase) — erscheint als ATK im Kampf"/>
+            <span class="npc-combat-chip__label">Attacks / Round</span>
+            <input type="number" name="system.attackSlots" value="{{default system.attackSlots 1}}" min="1" max="20" step="1" data-dtype="Number" readonly title="Sum of Attacks/Round copies — shown as ATK in combat"/>
           </div>
           <div class="npc-combat-chip">
-            <span class="npc-combat-chip__label">Bewegung / Runde</span>
-            <input type="number" name="system.npcMovementSlots" value="{{default system.npcMovementSlots 1}}" min="1" max="10" step="1" data-dtype="Number" title="Movement-Aktionen pro Runde"/>
+            <span class="npc-combat-chip__label">Move Actions / Round</span>
+            <input type="number" name="system.npcMovementSlots" value="{{default system.npcMovementSlots 1}}" min="1" max="10" step="1" data-dtype="Number" title="Movement actions per round"/>
           </div>
         </div>
       </section>
 
       {{!-- Health --}}
       <div class="health-panel npc-section">
-        <h3 class="npc-section__title"><i class="fas fa-heart"></i> Trefferpunkte</h3>
+        <h3 class="npc-section__title"><i class="fas fa-heart"></i> HP</h3>
         <div class="health-display">
-          <label>HP:</label>
           {{#each system.health.bars as |bar index|}}
           <div class="health-bar {{#if (eq ../system.health.currentBar index)}}active{{/if}}">
             <input type="number" name="system.health.bars.{{index}}.current" value="{{bar.current}}" data-dtype="Number"/> / 
@@ -401,15 +411,15 @@
             </div>
             {{/each}}
           {{else}}
-            <div class="no-status-effects">Keine aktiven Effekte</div>
+            <div class="no-status-effects">No active effects</div>
           {{/if}}
         </div>
       </div>
 
       {{!-- Basis: Waffenangriff --}}
       <div class="attack-values-panel npc-section">
-        <h3 class="npc-section__title"><i class="fas fa-sword"></i> Basis: Waffenangriff</h3>
-        <p class="hint">Standard-Angriff, immer im Radialmenü. Darunter: Extra-Powers. Erste Zeile: Angriffs-<strong>W8</strong> im Pool, zweite: Schadens-<strong>W8</strong> im Pool.</p>
+        <h3 class="npc-section__title"><i class="fas fa-sword"></i> Base: Weapon Attack</h3>
+        <p class="hint">Standard attack, always in the radial menu. Below: extra powers. First line: attack <strong>d8</strong> pool, second: damage <strong>d8</strong> pool.</p>
         <div class="npc-attack-card npc-attack-card--base">
           <div class="npc-attack-card__grid npc-attack-card__grid--simple">
             <div class="npc-attack-field">
@@ -417,7 +427,7 @@
               <input type="text" name="system.npcBaseAttack.name" value="{{default system.npcBaseAttack.name 'Waffenangriff'}}" placeholder="Waffenangriff"/>
             </div>
             <div class="npc-attack-field">
-              <label>Angriff (Pool)</label>
+                    <label>Attack (Pool)</label>
               <select name="system.npcBaseAttack.attackDiceCount" data-dtype="Number">
                 <option value="">—</option>
                 {{#each (range 2 16)}}
@@ -426,7 +436,7 @@
               </select>
             </div>
             <div class="npc-attack-field">
-              <label>Schaden</label>
+                    <label>Damage</label>
               <select name="system.npcBaseAttack.damageDiceCount" data-dtype="Number">
                 <option value="">—</option>
                 {{#each (range 4 16)}}
@@ -438,7 +448,7 @@
           {{> "systems/mastery-system/templates/actor/partials/npc-attack-targeting.hbs" path="system.npcBaseAttack" atk=system.npcBaseAttack}}
           <div class="npc-attack-specials-block">
             <div class="npc-attack-specials-header">
-              <span>Speziale</span>
+              <span>Specials</span>
               <button type="button" class="npc-power-special-add" data-scope="base" title="Spezial hinzufügen"><i class="fas fa-plus"></i></button>
             </div>
             {{#each system.npcBaseAttack.specials as |sp si|}}
@@ -484,7 +494,7 @@
               </div>
               <div class="npc-attack-card__grid npc-attack-card__grid--simple">
                 <div class="npc-attack-field">
-                  <label>Angriff (Pool)</label>
+                  <label>Attack (Pool)</label>
                   <select name="system.attackValues.{{index}}.attackDiceCount" data-dtype="Number">
                     <option value="">—</option>
                     {{#each (range 2 16)}}
@@ -493,7 +503,7 @@
                   </select>
                 </div>
                 <div class="npc-attack-field">
-                  <label>Schaden</label>
+                  <label>Damage</label>
                   <select name="system.attackValues.{{index}}.damageDiceCount" data-dtype="Number">
                     <option value="">—</option>
                     {{#each (range 4 16)}}
@@ -505,7 +515,7 @@
               {{> "systems/mastery-system/templates/actor/partials/npc-attack-targeting.hbs" path=(concat "system.attackValues." index) atk=attack}}
               <div class="npc-attack-specials-block">
                 <div class="npc-attack-specials-header">
-                  <span>Speziale</span>
+                  <span>Specials</span>
                   <button type="button" class="npc-power-special-add" data-scope="extra" data-attack-index="{{index}}"><i class="fas fa-plus"></i></button>
                 </div>
                 {{#each attack.specials as |sp si|}}
@@ -533,7 +543,7 @@
             </div>
             {{/each}}
           {{else}}
-            <div class="no-attack-values">Noch keine Extra-Powers.</div>
+            <div class="no-attack-values">No extra powers yet.</div>
           {{/if}}
         </div>
       </div>

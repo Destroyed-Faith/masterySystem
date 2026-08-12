@@ -292,6 +292,7 @@
         "tempHP": 0
       },
       "combat": {
+        "initiative": 0,
         "evade": 4,
         "armor": 0,
         "speed": 8

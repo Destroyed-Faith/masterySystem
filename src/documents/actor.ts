@@ -467,8 +467,16 @@ export class MasteryActor extends Actor {
       const blockEvade = Math.max(0, Number(block.evade) || 0);
       system.combat.armorTotal = blockArmor;
       system.combat.evadeTotal = blockEvade;
-      if (phaseIndex != null && block.speed != null) {
-        system.combat.speed = Number(block.speed) || system.combat.speed;
+      if (phaseIndex != null) {
+        if (block.speed != null) {
+          system.combat.speed = Number(block.speed) || system.combat.speed;
+        }
+        if (block.initiative != null && block.initiative !== '') {
+          const ini = Math.floor(Number(block.initiative));
+          if (Number.isFinite(ini)) {
+            system.combat.initiative = Math.max(-10, Math.min(10, ini));
+          }
+        }
       }
 
       const detail = phaseIndex != null ? `Stat block · Phase ${phaseIndex + 1}` : 'Stat block';

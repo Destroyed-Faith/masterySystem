@@ -1,0 +1,23 @@
+{{!-- Ini malus/bonus dropdowns (−10…+10) + net / roll summary.
+     Expects: fieldPath (e.g. system.combat.initiative), iniMalus, iniBonus, iniNet, masteryRank --}}
+<div class="npc-combat-chip npc-combat-chip--ini" data-npc-ini-chip>
+  <span class="npc-combat-chip__label">Ini</span>
+  <div class="npc-ini-controls">
+    <select class="npc-ini-malus" title="Initiative malus">
+      <option value="0" {{#if (eq iniMalus 0)}}selected{{/if}}>0</option>
+      {{#each (range 1 10)}}
+      <option value="-{{this}}" {{#if (eqNum ../iniMalus (multiply this -1))}}selected{{/if}}>−{{this}}</option>
+      {{/each}}
+    </select>
+    <select class="npc-ini-bonus" title="Initiative bonus">
+      <option value="0" {{#if (eq iniBonus 0)}}selected{{/if}}>0</option>
+      {{#each (range 1 10)}}
+      <option value="{{this}}" {{#if (eqNum ../iniBonus this)}}selected{{/if}}>+{{this}}</option>
+      {{/each}}
+    </select>
+    <input type="hidden" class="npc-ini-net-input" name="{{fieldPath}}" value="{{iniNet}}" data-dtype="Number"/>
+    <span class="npc-ini-summary" data-mr="{{masteryRank}}" title="Rolled at combat start: Mastery Rank d8 + this modifier">
+      {{masteryRank}}d8{{#if (eq iniNet 0)}}{{else}} {{#if (gt iniNet 0)}}+{{iniNet}}{{else}}{{iniNet}}{{/if}}{{/if}}
+    </span>
+  </div>
+</div>

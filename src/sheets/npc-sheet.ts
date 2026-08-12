@@ -23,7 +23,21 @@ import {
   reduceStatusEffectAt,
   statusEntryId,
 } from '../system/active-specials.js';
+import {
+  clampNpcInitiativeModifier,
+  splitNpcInitiativeModifier,
+} from '../utils/npc-initiative.js';
 import { openNpcPrintSheet } from './npc-print.js';
+
+/** Attach Ini malus/bonus split fields for the sheet dropdowns. */
+function withNpcIniUi(combat: Record<string, any> | null | undefined): Record<string, any> {
+  const c = combat && typeof combat === 'object' ? { ...combat } : {};
+  const split = splitNpcInitiativeModifier(c.initiative);
+  c.initiative = split.net;
+  c.initiativeMalus = split.malus;
+  c.initiativeBonus = split.bonus;
+  return c;
+}
 
 /** Sheet rows for root `system.statusEffects` (combat writes here, not per phase). */
 function buildNpcStatusRows(raw: unknown): Array<{
@@ -315,10 +329,16 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
         }
         context.system.phases = phases.map((phase: any) => ({
           ...phase,
+          combat: withNpcIniUi(phase?.combat),
           npcBaseAttack: ensureNpcBaseShape(phase?.npcBaseAttack),
           health: ensureNpcHealthState(phase?.health ?? context.system.health),
         }));
       }
+      context.system.combat = withNpcIniUi(context.system.combat);
+      (context as any).npcMasteryRank = Math.max(
+        1,
+        Math.floor(Number(context.system.mastery?.rank) || 2),
+      );
     }
 
     if (context.actor?.type === 'npc' && context.system) {
@@ -616,11 +636,25 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
         const health = npcHealthHasBars(phase.health)
           ? phase.health
           : prev.health ?? existingSystem.health;
+        const combat =
+          phase.combat && typeof phase.combat === 'object'
+            ? {
+                ...phase.combat,
+                initiative: clampNpcInitiativeModifier(phase.combat.initiative),
+              }
+            : phase.combat;
         return {
           ...phase,
+          combat,
           health: ensureNpcHealthState(health),
         };
       });
+    }
+    if (data.system.combat && typeof data.system.combat === 'object') {
+      data.system.combat = {
+        ...data.system.combat,
+        initiative: clampNpcInitiativeModifier(data.system.combat.initiative),
+      };
     }
     // Status UI is button-driven (not form fields) — never let an empty submit wipe it.
     if (Object.prototype.hasOwnProperty.call(data.system, 'statusEffects')) {
@@ -655,9 +689,36 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
     return data;
   }
 
+  /** Sync Ini malus/bonus selects → hidden net field + summary (MR d8 ± N). */
+  #syncNpcIniChip(chip: HTMLElement): void {
+    const malusEl = chip.querySelector('select.npc-ini-malus') as HTMLSelectElement | null;
+    const bonusEl = chip.querySelector('select.npc-ini-bonus') as HTMLSelectElement | null;
+    const hidden = chip.querySelector('input.npc-ini-net-input') as HTMLInputElement | null;
+    const summary = chip.querySelector('.npc-ini-summary') as HTMLElement | null;
+    if (!malusEl || !bonusEl || !hidden) return;
+    const malus = Math.floor(Number(malusEl.value) || 0);
+    const bonus = Math.floor(Number(bonusEl.value) || 0);
+    const net = clampNpcInitiativeModifier(malus + bonus);
+    hidden.value = String(net);
+    if (summary) {
+      const mr = Math.max(1, Math.floor(Number(summary.dataset.mr) || 2));
+      const signed = net === 0 ? '' : net > 0 ? ` +${net}` : ` ${net}`;
+      summary.textContent = `${mr}d8${signed}`;
+    }
+  }
+
   /** @override */
   activateListeners(html: JQuery) {
     super.activateListeners(html);
+
+    html.find('[data-npc-ini-chip]').each((_, el) => {
+      const chip = el as HTMLElement;
+      const onChange = () => this.#syncNpcIniChip(chip);
+      chip.querySelectorAll('select.npc-ini-malus, select.npc-ini-bonus').forEach((sel) => {
+        sel.addEventListener('change', onChange);
+      });
+      this.#syncNpcIniChip(chip);
+    });
 
     // Friendly / Neutral / Hostile — write prototypeToken + sync placed tokens.
     html.find('select.npc-disposition-select').on('change', (ev: JQuery.ChangeEvent) => {

@@ -4220,6 +4220,40 @@
   padding: 6px 4px;
 }
 
+.mastery-system.sheet.actor.npc .npc-combat-chip--ini {
+  flex: 1 1 220px;
+  min-width: 200px;
+}
+
+.mastery-system.sheet.actor.npc .npc-ini-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.mastery-system.sheet.actor.npc .npc-ini-controls select {
+  flex: 1 1 64px;
+  min-width: 56px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.45);
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-align: center;
+  padding: 6px 2px;
+}
+
+.mastery-system.sheet.actor.npc .npc-ini-summary {
+  flex: 1 1 100%;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #c9a227;
+  letter-spacing: 0.02em;
+  text-align: center;
+}
+
 .mastery-system.sheet.actor.npc .npc-attack-card {
   background: rgba(0, 0, 0, 0.28);
   border: 1px solid rgba(139, 0, 0, 0.35);
