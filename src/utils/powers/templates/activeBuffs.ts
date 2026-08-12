@@ -32,7 +32,6 @@ const AURA_ARMOR = [4, 6, 9, 12, 14, 17, 20, 22, 25, 28, 30, 33, 36, 38, 41, 44]
 const AURA_BAND_RADIUS = [2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 4, 4];
 const AURA_DAMAGE = ['1d8', '1d8', '2d8', '3d8', '4d8', '4d8', '5d8', '5d8', '6d8', '7d8', '8d8', '9d8', '10d8', '10d8', '10d8', '11d8'];
 const AURA_HEALING = ['1d8', '1d8', '2d8', '3d8', '4d8', '4d8', '5d8', '5d8', '6d8', '7d8', '8d8', '9d8', '10d8', '10d8', '10d8', '11d8'];
-const AURA_SMITE = ['1d8', '1d8', '2d8', '3d8', '4d8', '5d8', '6d8', '6d8', '7d8', '8d8', '9d8', '10d8', '11d8', '12d8', '12d8', '13d8'];
 
 // --- Growth Form tables ---
 const GF_ARMOR = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32];
@@ -513,30 +512,6 @@ export const ACTIVE_BUFF_TEMPLATES: PowerTemplate[] = [
     },
     // Active Buff Auras never apply or increase Specials (Rules/active-buffs.md).
     // Special interaction is Active Buff: Special Overdrive only; Passive Special Aura lives in passives.
-    {
-        templateId: 'ab-smite-aura',
-        templateName: 'Smite Aura (Artifact Only)',
-        name: 'Artifact Only Active Buff: Smite Aura',
-        subfamily: 'aura',
-        category: 'activeBuff',
-        // Artifact-only: must be limited to Mastery Rank uses per Safe Haven Rest
-        // by the granting Artifact. Not selectable in normal character creation.
-        tags: ['artifact-only'],
-        fluff: 'You radiate artifact-bound divine wrath, oathfire, judgment, sacred force, or annihilating light.',
-        cost: { action: 'attack' },
-        roll: { kind: 'none' },
-        levels: buildLevels((lvl) => {
-            const r = AURA_BAND_RADIUS[lvl - 1];
-            const dice = AURA_SMITE[lvl - 1];
-            return activeBuffRow({
-                type: 'Artifact Only Active Buff',
-                aoe: { shape: 'aura', radiusM: r, targetFilter: 'enemies', center: 'self' },
-                duration: DURATION_MR_ROUNDS,
-                effectText: `At the end of each of your turns, enemies within **${r} m** take **${dice} Smite**.`,
-                mechanics: { auraPayload: { kind: 'smite', dice, targets: 'enemies', radiusM: r }, duration: 'masteryRankRounds' },
-            });
-        }),
-    },
     {
         templateId: 'ab-growth-form',
         templateName: 'Growth Form',

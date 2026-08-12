@@ -451,15 +451,15 @@ export interface PowerMechanics {
     | null;
 
   /**
-   * Active Buff Aura payload (Damage / Healing / Smite / Special auras). Carries
+   * Active Buff Aura payload (Damage / Healing / Special auras). Carries
    * the per-level payload so the runtime can resolve "at the end of each of your
    * turns" effects. Geometry (radius/shape) also lives on the row's `aoe`; this
    * block restates the radius for convenience. NOTE: payload *resolution* is not
    * yet wired — these are authored as catalog data for a follow-up step.
    */
   auraPayload?: {
-    kind: 'damage' | 'healing' | 'smite' | 'special';
-    /** Damage / Healing / Smite dice (e.g. "5d8"). */
+    kind: 'damage' | 'healing' | 'special';
+    /** Damage / Healing dice (e.g. "5d8"). */
     dice?: string;
     /** Chosen Special key for special auras (e.g. "ruin"). */
     special?: string;

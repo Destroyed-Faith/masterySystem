@@ -51,7 +51,6 @@ export const RULES_EXPECTED_ACTIVE_BUFFS = [
     { rulesName: 'Cleanse Maintenance', id: 'ab-cleanse-maintenance' },
     { rulesName: 'Damage Aura', id: 'ab-damage-aura' },
     { rulesName: 'Healing Aura', id: 'ab-healing-aura' },
-    { rulesName: 'Smite Aura', id: 'ab-smite-aura' },
     { rulesName: 'Growth Form', id: 'ab-growth-form' },
     { rulesName: 'Summon Damage Aura', id: 'ab-summon-damage-aura' },
     { rulesName: 'Summon Armor Aura', id: 'ab-summon-armor-aura' },
@@ -580,12 +579,11 @@ export function runCatalogRulesAudit(options = {}) {
     const mdActives = loadRulesBook(rootDir, 'actives', rulesOverride);
     const mdArtefacts = loadRulesBook(rootDir, 'artefacts', rulesOverride);
     const parsedActiveBuffs = new Set(parsePrefixedPowerNames(mdActiveBuffs, 'Active Buff').map(normalizeName));
-    // Smite Aura appears as "Artifact Only Active Buff: Smite Aura"
     for (const n of parsePrefixedPowerNames(mdActiveBuffs, 'Artifact Only Active Buff')) {
         parsedActiveBuffs.add(normalizeName(n));
     }
     // Summon auras / Intensified Absorption appear as bare titles
-    for (const bare of ['Summon Damage Aura', 'Summon Armor Aura', 'Intensified Absorption', 'Smite Aura']) {
+    for (const bare of ['Summon Damage Aura', 'Summon Armor Aura', 'Intensified Absorption']) {
         if (mdActiveBuffs.includes(bare))
             parsedActiveBuffs.add(normalizeName(bare));
     }

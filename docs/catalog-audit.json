@@ -1,8 +1,8 @@
 {
-  "version": "0.9.298",
-  "generatedAt": "2026-08-12T08:09:22.192Z",
+  "version": "0.9.299",
+  "generatedAt": "2026-08-12T08:18:04.405Z",
   "summary": {
-    "correct": 205,
+    "correct": 204,
     "corrected": 3,
     "missing": 0,
     "obsolete": 0,
@@ -575,13 +575,6 @@
       "name": "Active Buff: Reinforced Parry",
       "status": "correct",
       "notes": "Matches Rules entry"
-    },
-    {
-      "category": "activeBuff",
-      "id": "ab-smite-aura",
-      "name": "Artifact Only Active Buff: Smite Aura",
-      "status": "correct",
-      "notes": "Matches curated RULES_EXPECTED manifest"
     },
     {
       "category": "activeBuff",

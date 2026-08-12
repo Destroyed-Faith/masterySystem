@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.299] - 2026-08-12
+
+### Removed
+
+- **Artifact Only Active Buff: Smite Aura** (`ab-smite-aura`) and `auraPayload.kind: 'smite'` — no longer present in current Rule Docs; catalog audit updated.
+
 ## [0.9.298] - 2026-08-12
 
 ### Changed
