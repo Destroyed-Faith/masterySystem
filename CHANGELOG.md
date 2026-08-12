@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.308] - 2026-08-12
+
+### Fixed
+
+- **Install / Forge download:** `system.json` `download` now points at a GitHub Release ZIP instead of the ~56 MB `main` branch archive (Forge/Bazaar often failed with “Failure to download package from URL”). Packaging also normalizes Windows paths so `dist/` is included in the release ZIP.
+
 ## [0.9.307] - 2026-08-12
 
 ### Fixed

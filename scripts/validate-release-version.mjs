@@ -75,8 +75,8 @@ if (requireDownload) {
     fail(`system.json download URL mismatch.\n  got:      ${download}\n  expected: ${expectedDownload}`);
   }
 } else if (download !== expectedDownload) {
-  console.warn(
-    `validate-release-version: note — temporary branch archive currently accepted by project policy:\n  ${download}`,
+  fail(
+    `system.json download must be the GitHub Release ZIP (branch archives break Forge installs).\n  got:      ${download}\n  expected: ${expectedDownload}`,
   );
 }
 

@@ -55,6 +55,10 @@ function listFilesRecursive(dir) {
   return out;
 }
 
+function toPosix(p) {
+  return p.replace(/\\/g, '/');
+}
+
 function copyFiltered(srcRel, destRoot, filterFn) {
   const srcAbs = join(root, srcRel);
   if (!existsSync(srcAbs)) fail(`Missing required path: ${srcRel}`);
@@ -66,9 +70,9 @@ function copyFiltered(srcRel, destRoot, filterFn) {
     return;
   }
   for (const file of listFilesRecursive(srcAbs)) {
-    const rel = relative(root, file);
+    const rel = toPosix(relative(root, file));
     if (filterFn && !filterFn(rel, file)) continue;
-    const dest = join(destRoot, rel);
+    const dest = join(destRoot, ...rel.split('/'));
     mkdirSync(dirname(dest), { recursive: true });
     cpSync(file, dest);
   }
@@ -156,7 +160,7 @@ const forbiddenPrefixes = [
   'node_modules/',
   'docs/',
 ];
-const stagedFiles = listFilesRecursive(stage).map((f) => relative(stage, f).replace(/\\/g, '/'));
+const stagedFiles = listFilesRecursive(stage).map((f) => toPosix(relative(stage, f)));
 for (const rel of stagedFiles) {
   if (forbiddenPrefixes.some((p) => rel === p.slice(0, -1) || rel.startsWith(p))) {
     fail(`Forbidden path leaked into staging: ${rel}`);
@@ -170,20 +174,36 @@ for (const rel of stagedFiles) {
 mkdirSync(outDir, { recursive: true });
 if (existsSync(zipPath)) rmSync(zipPath);
 try {
-  execSync(`cd "${stage}" && zip -r -q "${zipPath}" .`, { stdio: 'inherit' });
+  // Prefer Info-ZIP when present (Linux CI); fall back to tar (Windows).
+  execSync(`zip -r -q "${zipPath}" .`, { cwd: stage, stdio: 'inherit', shell: true });
 } catch {
-  fail('zip command failed — ensure `zip` is installed');
+  try {
+    execSync(`tar -a -cf "${zipPath}" -C "${stage}" .`, { stdio: 'inherit', shell: true });
+  } catch {
+    fail('zip/tar failed — install Info-ZIP or use a tar that can write .zip');
+  }
 }
 
 // Verify ZIP root contains system.json
-const listing = execSync(`unzip -l "${zipPath}"`, { encoding: 'utf8' });
-if (!/^.*\s system\.json$/m.test(listing) && !listing.includes(' system.json\n') && !listing.includes(' system.json\r')) {
-  // unzip -l formats with leading spaces before filename at end of line
-  if (!listing.split('\n').some((line) => line.trimEnd().endsWith('system.json') && !line.includes('/system.json'))) {
-    fail('ZIP does not contain system.json at archive root');
-  }
+let listing = '';
+try {
+  listing = execSync(`unzip -l "${zipPath}"`, { encoding: 'utf8' });
+} catch {
+  listing = execSync(`tar -tf "${zipPath}"`, { encoding: 'utf8' });
 }
-if (listing.includes('stage/system.json')) {
+const hasRootSystemJson = listing
+  .split(/\r?\n/)
+  .some((line) => {
+    const trimmed = line.trimEnd();
+    // unzip -l ends with the path; tar -tf prints the path alone (maybe ./system.json)
+    const name = trimmed.replace(/^\S+\s+\S+\s+\S+\s+\S+\s+/, '').trim() || trimmed.trim();
+    const base = name.replace(/^\.\//, '');
+    return base === 'system.json' || trimmed.endsWith(' system.json') || trimmed === 'system.json' || trimmed === './system.json';
+  });
+if (!hasRootSystemJson) {
+  fail('ZIP does not contain system.json at archive root');
+}
+if (listing.includes('stage/system.json') || listing.includes('stage\\system.json')) {
   fail('ZIP incorrectly nests files under stage/');
 }
 

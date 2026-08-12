@@ -31,9 +31,9 @@ On push of tag `vX.Y.Z`, [`.github/workflows/release.yml`](.github/workflows/rel
 
 The ZIP contains only runtime files (`system.json`, `template.json`, `dist/**/*.js`, `templates/`, `styles/`, `assets/`, `lang/`, `packs/`, `LICENSE.md`, community/asset license notices, `README.md`, `CHANGELOG.md`). No `src/`, tests, scripts, docs internals, or source maps.
 
-## Switching `download` from branch archive to a release asset
+## Publishing a release (required for installs)
 
-Project policy currently keeps `system.json` `download` on the `main` branch archive (`main.zip`) so installs keep working. When you intentionally publish a tagged release asset instead:
+`system.json` `download` must point at a GitHub Release asset (`mastery-system-X.Y.Z.zip`). Branch archives (`main.zip`) are too large/unreliable for Forge/Bazaar.
 
 1. On `main`, bump **both** `package.json` and `system.json` to `X.Y.Z`
 2. Add `## [X.Y.Z] - YYYY-MM-DD` to `CHANGELOG.md`
