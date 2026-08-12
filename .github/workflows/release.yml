@@ -72,24 +72,14 @@ jobs:
             --require-release-download \
             --zip "$ZIP"
 
-      - name: Detect prerelease
-        id: pre
-        run: |
-          VERSION="${{ steps.tag_version.outputs.VERSION }}"
-          MAJOR="${VERSION%%.*}"
-          if [ "$MAJOR" -eq 0 ]; then
-            echo "PRERELEASE=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "PRERELEASE=false" >> "$GITHUB_OUTPUT"
-          fi
-
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           files: dist-release/mastery-system-${{ steps.tag_version.outputs.VERSION }}.zip
           body_path: release_notes.md
           draft: false
-          prerelease: ${{ steps.pre.outputs.PRERELEASE }}
+          prerelease: false
+          make_latest: true
           generate_release_notes: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

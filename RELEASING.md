@@ -13,9 +13,9 @@ Do **not** put the rulebook version in `package.json` or `system.json`.
 
 ## Foundry version policy
 
-- Current Foundry system version: whatever is in `package.json` / `system.json` (today **0.9.260**).
+- Current Foundry system version: whatever is in `package.json` / `system.json` (today **0.9.309**).
 - Tags must be `vX.Y.Z` matching `package.json` / `system.json`.
-- Pre-1.0 GitHub Releases are marked **prerelease**.
+- GitHub Releases are published as **full releases** (not prerelease), including 0.x.
 
 ## What the release workflow does
 
