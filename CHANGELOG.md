@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.303] - 2026-08-12
+
+### Fixed
+
+- **NPC sheet Ini partial:** Preload `npc-combat-ini.hbs` so the sheet renders instead of failing on a missing Handlebars partial.
+
 ## [0.9.302] - 2026-08-12
 
 ### Added
