@@ -74,6 +74,15 @@
           <span class="points-label">/ {{default system.faithFractures.maximum 0}}</span>
         </div>
       </div>
+      {{#if skillsRedistributing}}
+      <div class="points-box creation-points" title="Skill Points Remaining (redistribute: max 4 per skill)">
+        <label>SP</label>
+        <div class="points-display">
+          <span class="points-value {{#if (eq creation.skillPointsRemaining 0)}}complete{{else}}remaining{{/if}}">{{creation.skillPointsRemaining}}</span>
+          <span class="points-label">/ {{creation.skillPointsConfig}}</span>
+        </div>
+      </div>
+      {{/if}}
       {{else}}
       <!-- Attribute Distribution Counter -->
       <div class="points-box creation-points" title="Attribute Distribution: 2×8, 2×6, 2×4, 1×2">
@@ -148,6 +157,11 @@
   {{#if (userIsGM)}}
   <div class="gm-character-tools">
     <span class="gm-character-tools-label"><i class="fas fa-user-shield"></i> GM Tools</span>
+    {{#if canStartSkillsRedistribute}}
+    <button type="button" class="start-skills-redistribute" title="Reset skills to 0 and re-allocate the 40 creation points (max 4 each). Only when the character has no XP yet.">
+      <i class="fas fa-rotate"></i> Redistribute Skills
+    </button>
+    {{/if}}
     <button type="button" class="reset-character" title="Wipe this character back to creation (keeps name + portrait; earned XP returned to the player's pool). Destructive, requires double confirmation.">
       <i class="fas fa-trash-restore-alt"></i> Reset Character
     </button>
@@ -1145,7 +1159,19 @@
         {{#if system.combat.physicalSkillPenaltyDisplay}}
         <p class="stat-summary-hint skills-equipment-penalty-hint"><i class="fas fa-shield-alt" aria-hidden="true"></i> {{system.combat.physicalSkillPenaltyDisplay}} from equipped armor / shield / body artifact.</p>
         {{/if}}
-        {{#if creationComplete}}
+        {{#if skillsRedistributing}}
+        <div class="skills-redistribute-banner">
+          <p><i class="fas fa-rotate"></i> <strong>Redistribute Skills</strong> — allocate all <strong>{{creation.skillPointsConfig}}</strong> creation points (max 4 per skill). Remaining: <strong>{{creation.skillPointsRemaining}}</strong>.</p>
+          <div class="skills-redistribute-actions">
+            <button type="button" class="finish-skills-redistribute" {{#unless canFinishSkillsRedistribute}}disabled{{/unless}} title="Save the new 40-point allocation">
+              <i class="fas fa-check"></i> Finish Redistribute
+            </button>
+            <button type="button" class="cancel-skills-redistribute" title="Restore the previous skill ranks">
+              <i class="fas fa-times"></i> Cancel
+            </button>
+          </div>
+        </div>
+        {{else if creationComplete}}
         <div class="attribute-xp-distribution-controls skill-xp-toolbar">
           <div class="pending-skill-changes-info">
             <span class="remaining-xp-text">After pending: <span id="remaining-skill-xp">0</span> XP</span>
@@ -1171,6 +1197,11 @@
           <button type="button" class="social-combat-btn" title="Run a 3-phase Social Combat encounter">
             <i class="fas fa-comments"></i> Social Combat
           </button>
+          {{#if canStartSkillsRedistribute}}
+          <button type="button" class="start-skills-redistribute" title="Reset skills to 0 and re-allocate the 40 creation points (max 4 each). Only when the character has no XP yet.">
+            <i class="fas fa-rotate"></i> Redistribute Skills
+          </button>
+          {{/if}}
           {{#if (userIsGM)}}
           <button type="button" class="gm-award-faith-fracture" title="Reward playing out disadvantages (+1 Reroll Point, up to maximum)">
             <i class="fas fa-plus-circle"></i> GM: +1 Reroll Point
@@ -1221,11 +1252,20 @@
                 <div class="skill-value-display-compact">
                   <div class="skill-rank-block">
                     <span class="skill-value-compact">{{default this.value 0}}</span>
-                    {{#if @root.creationComplete}}
+                    {{#if @root.creationComplete}}{{#unless @root.skillsRedistributing}}
                     <span class="skill-rank-pending-badge" data-skill="{{this.key}}" title="Rank after pending changes"></span>
-                    {{/if}}
+                    {{/unless}}{{/if}}
                   </div>
-                  {{#if @root.creationComplete}}
+                  {{#if @root.skillsAllocationMode}}
+                  <div class="creation-controls">
+                    <button type="button" class="skill-decrease" data-skill="{{this.key}}" title="Decrease Skill" {{#if (lte this.value 0)}}disabled{{/if}}>
+                      <i class="fas fa-minus"></i>
+                    </button>
+                    <button type="button" class="skill-increase" data-skill="{{this.key}}" title="Increase Skill" {{#if (gte this.value 4)}}disabled{{/if}} {{#if (eq @root.creation.skillPointsRemaining 0)}}disabled{{/if}}>
+                      <i class="fas fa-plus"></i>
+                    </button>
+                  </div>
+                  {{else}}
                   <span class="skill-pool-display">{{default this.remaining 0}} / {{default this.value 0}} uses</span>
                   <span class="skill-pending-xp" data-skill="{{this.key}}" title="XP reserved on this skill until Confirm"></span>
                   <div class="skill-progress-controls">
@@ -1236,25 +1276,16 @@
                       <i class="fas fa-minus"></i>
                     </button>
                   </div>
-                  {{else}}
-                  <div class="creation-controls">
-                    <button type="button" class="skill-decrease" data-skill="{{this.key}}" title="Decrease Skill" {{#if (lte this.value 0)}}disabled{{/if}}>
-                      <i class="fas fa-minus"></i>
-                    </button>
-                    <button type="button" class="skill-increase" data-skill="{{this.key}}" title="Increase Skill" {{#if (gte this.value 4)}}disabled{{/if}} {{#if (eq @root.creation.skillPointsRemaining 0)}}disabled{{/if}}>
-                      <i class="fas fa-plus"></i>
-                    </button>
-                  </div>
                   {{/if}}
                 </div>
-                {{#if @root.creationComplete}}
+                {{#if @root.creationComplete}}{{#unless @root.skillsRedistributing}}
                 <div class="skill-use-boxes" title="{{this.remaining}}/{{this.value}} uses remaining">
                   <span class="skill-use-box {{#if (gte this.value 1)}}{{#if (gte this.remaining 1)}}available{{else}}spent{{/if}}{{else}}locked{{/if}}"></span>
                   <span class="skill-use-box {{#if (gte this.value 2)}}{{#if (gte this.remaining 2)}}available{{else}}spent{{/if}}{{else}}locked{{/if}}"></span>
                   <span class="skill-use-box {{#if (gte this.value 3)}}{{#if (gte this.remaining 3)}}available{{else}}spent{{/if}}{{else}}locked{{/if}}"></span>
                   <span class="skill-use-box {{#if (gte this.value 4)}}{{#if (gte this.remaining 4)}}available{{else}}spent{{/if}}{{else}}locked{{/if}}"></span>
                 </div>
-                {{/if}}
+                {{/unless}}{{/if}}
               </div>
             {{/each}}
           </div>

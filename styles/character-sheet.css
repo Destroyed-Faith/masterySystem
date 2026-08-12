@@ -9819,6 +9819,75 @@
   transition: background 0.15s, border-color 0.15s, color 0.15s;
 }
 
+.mastery-system.sheet.actor.character .start-skills-redistribute,
+.mastery-system.sheet.actor.character .gm-character-tools .start-skills-redistribute,
+.mastery-system.sheet.actor.character .finish-skills-redistribute,
+.mastery-system.sheet.actor.character .cancel-skills-redistribute {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 4px 10px;
+  border-radius: 3px;
+  font-size: 0.88em;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.mastery-system.sheet.actor.character .start-skills-redistribute,
+.mastery-system.sheet.actor.character .gm-character-tools .start-skills-redistribute {
+  background: rgba(201, 162, 39, 0.18);
+  border: 1px solid rgba(201, 162, 39, 0.55);
+  color: #f0e0a8;
+}
+
+.mastery-system.sheet.actor.character .start-skills-redistribute:hover {
+  background: rgba(201, 162, 39, 0.32);
+  color: #fff8d8;
+}
+
+.mastery-system.sheet.actor.character .skills-redistribute-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin: 0 0 0.75rem;
+  padding: 0.65rem 0.85rem;
+  background: rgba(201, 162, 39, 0.1);
+  border: 1px solid rgba(201, 162, 39, 0.4);
+  border-radius: 6px;
+}
+
+.mastery-system.sheet.actor.character .skills-redistribute-banner p {
+  margin: 0;
+  flex: 1 1 240px;
+  color: #f0e0a8;
+  font-size: 0.92em;
+}
+
+.mastery-system.sheet.actor.character .skills-redistribute-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.mastery-system.sheet.actor.character .finish-skills-redistribute {
+  background: rgba(60, 140, 80, 0.25);
+  border: 1px solid rgba(80, 170, 100, 0.6);
+  color: #d8ffe0;
+}
+
+.mastery-system.sheet.actor.character .finish-skills-redistribute:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.mastery-system.sheet.actor.character .cancel-skills-redistribute {
+  background: rgba(200, 60, 60, 0.18);
+  border: 1px solid rgba(200, 60, 60, 0.55);
+  color: #ffd0d0;
+}
+
 .mastery-system.sheet.actor.character .reset-character:hover,
 .mastery-system.sheet.actor.character .gm-character-tools .reset-character:hover {
   background: rgba(200, 60, 60, 0.35);

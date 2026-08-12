@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.305] - 2026-08-12
+
+### Added
+
+- **Redistribute Skills:** Owner/GM button (Skills tab + GM Tools) resets skills and re-opens the creation allocation (40 points, max 4 per skill) when the character has no XP earned or spent yet. Finish saves; Cancel restores the previous ranks.
+
 ## [0.9.304] - 2026-08-12
 
 ### Fixed

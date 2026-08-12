@@ -191,7 +191,8 @@
         "background": ""
       },
       "creation": {
-        "complete": false
+        "complete": false,
+        "skillsRedistributing": false
       },
       "echo": {
         "key": "",

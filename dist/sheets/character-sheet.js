@@ -23,6 +23,7 @@ import { loadZoneFromBands, movementPenaltyForLoad, LOAD_ZONE_LABEL, ZONE_WIDTH_
 import { getFilePickerClass } from '../utils/foundry-v14.js';
 import { buildPostCreationSnapshot } from '../utils/xp-post-creation.js';
 import { resetCharacterForRecreation, listEquippedGeneralArtifacts } from '../utils/reset-character.js';
+import { buildCancelSkillsRedistributeUpdates, buildFinishSkillsRedistributeUpdates, buildStartSkillsRedistributeUpdates, canStartSkillsRedistribute, getCreationSkillBudget, isSkillsRedistributing, } from '../utils/skills-redistribute.js';
 import { getDefaultInventorySizeForItemData } from '../utils/seed-general-items.js';
 import { getNormalizedEquipSlots, normalizeSlotKey } from '../utils/equip-slots.js';
 import { attributeBandCost, powerLevelCost } from '../utils/constants.js';
@@ -798,6 +799,20 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         context.canEditMasteryRank =
             context.isGM || (!context.creationComplete && this.actor.isOwner);
         context.defaultMasteryRank = game.settings.get('mastery-system', 'defaultMasteryRank') || 2;
+        // Post-creation skill redistribute (40 pts, max 4) when no XP yet.
+        const skillsRedistributing = isSkillsRedistributing(this.actor);
+        context.skillsRedistributing = skillsRedistributing;
+        context.skillsAllocationMode = !context.creationComplete || skillsRedistributing;
+        const startGate = canStartSkillsRedistribute(this.actor);
+        context.canStartSkillsRedistribute =
+            !!context.creationComplete &&
+                !skillsRedistributing &&
+                startGate.ok &&
+                (!!this.actor.isOwner || context.isGM);
+        context.canFinishSkillsRedistribute =
+            skillsRedistributing &&
+                skillPointsSpent === skillPointsConfig &&
+                (!!this.actor.isOwner || context.isGM);
         // Add configuration data
         context.config = CONFIG.MASTERY;
         // Enrich biography info for display
@@ -1743,6 +1758,30 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 this.#onResetCharacter(e);
             });
         }
+        html
+            .find('.start-skills-redistribute')
+            .off('click.skills-redistribute')
+            .on('click.skills-redistribute', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            void this.#onStartSkillsRedistribute();
+        });
+        html
+            .find('.finish-skills-redistribute')
+            .off('click.skills-redistribute')
+            .on('click.skills-redistribute', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            void this.#onFinishSkillsRedistribute();
+        });
+        html
+            .find('.cancel-skills-redistribute')
+            .off('click.skills-redistribute')
+            .on('click.skills-redistribute', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            void this.#onCancelSkillsRedistribute();
+        });
         // Passive slotting is handled exclusively by the in-combat dialog; the
         // character-sheet passive-slot manager (and its handlers) were removed.
         // Check if creation is incomplete - don't lock, just disable non-creation fields
@@ -4187,6 +4226,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
      */
     async #onSkillSpendPoint(event) {
         event.preventDefault();
+        if (isSkillsRedistributing(this.actor)) {
+            ui.notifications?.warn('Finish or cancel skill redistribution before spending XP on skills.');
+            return;
+        }
         // Check if user is owner
         if (!this.actor.isOwner) {
             ui.notifications?.warn('Only the owner can spend XP.');
@@ -4240,6 +4283,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     async #onSkillRefundPoint(event) {
         event.preventDefault();
         event.stopPropagation();
+        if (isSkillsRedistributing(this.actor)) {
+            ui.notifications?.warn('Finish or cancel skill redistribution before adjusting skills with XP.');
+            return;
+        }
         // Check if user is owner
         if (!this.actor.isOwner) {
             ui.notifications?.warn('Only the owner can adjust skills.');
@@ -5489,27 +5536,35 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         this.render();
     }
     /**
-     * Character Creation: Increase Skill
+     * Character Creation / Redistribute: Increase Skill (max 4, budget 40).
      */
     async #onCreationSkillIncrease(event) {
         event.preventDefault();
         const skill = $(event.currentTarget).data('skill');
         if (!skill)
             return;
+        const creationComplete = this.actor.system?.creation?.complete !== false;
+        const redistributing = isSkillsRedistributing(this.actor);
+        if (creationComplete && !redistributing)
+            return;
+        if (!this.actor.isOwner && !game.user?.isGM) {
+            ui.notifications?.warn('Only the owner or GM can allocate skill points.');
+            return;
+        }
         // Save scroll position
         const skillsTab = $(this.element).find('.tab.skills');
         const scrollTop = skillsTab.scrollTop();
         const system = this.actor.system;
         const currentValue = system.skills?.[skill] || 0;
-        const skillPointsConfig = CONFIG.MASTERY?.creation?.skillPoints || 40;
+        const { total: skillPointsConfig, maxPerSkill } = getCreationSkillBudget();
         // Calculate current points spent
         let skillPointsSpent = 0;
         for (const skillValue of Object.values(system.skills || {})) {
             skillPointsSpent += (typeof skillValue === 'number' ? skillValue : 0);
         }
         // Validate
-        if (currentValue >= 4) {
-            ui.notifications?.warn('Skill cannot exceed 4 during character creation.');
+        if (currentValue >= maxPerSkill) {
+            ui.notifications?.warn(`Skill cannot exceed ${maxPerSkill} during character creation.`);
             return;
         }
         if (skillPointsSpent >= skillPointsConfig) {
@@ -5528,13 +5583,21 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         }
     }
     /**
-     * Character Creation: Decrease Skill
+     * Character Creation / Redistribute: Decrease Skill
      */
     async #onCreationSkillDecrease(event) {
         event.preventDefault();
         const skill = $(event.currentTarget).data('skill');
         if (!skill)
             return;
+        const creationComplete = this.actor.system?.creation?.complete !== false;
+        const redistributing = isSkillsRedistributing(this.actor);
+        if (creationComplete && !redistributing)
+            return;
+        if (!this.actor.isOwner && !game.user?.isGM) {
+            ui.notifications?.warn('Only the owner or GM can allocate skill points.');
+            return;
+        }
         // Save scroll position
         const skillsTab = $(this.element).find('.tab.skills');
         const scrollTop = skillsTab.scrollTop();
@@ -5555,6 +5618,71 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         if (newSkillsTab.length) {
             newSkillsTab.scrollTop(scrollTop ?? 0);
         }
+    }
+    async #onStartSkillsRedistribute() {
+        if (!this.actor.isOwner && !game.user?.isGM) {
+            ui.notifications?.warn('Only the owner or GM can redistribute skills.');
+            return;
+        }
+        const gate = canStartSkillsRedistribute(this.actor);
+        if (!gate.ok) {
+            ui.notifications?.warn(gate.reason || 'Cannot redistribute skills.');
+            return;
+        }
+        const { total, maxPerSkill } = getCreationSkillBudget();
+        const confirmed = await new Promise((resolve) => {
+            new Dialog({
+                title: 'Redistribute Skills',
+                content: `<p>Reset all skills to <strong>0</strong> and redistribute the <strong>${total}</strong> creation points (max <strong>${maxPerSkill}</strong> per skill)?</p>
+<p><em>Only available when the character has no XP yet. Cancel restores the previous allocation.</em></p>`,
+                buttons: {
+                    yes: {
+                        icon: '<i class="fas fa-check"></i>',
+                        label: 'Reset & Redistribute',
+                        callback: () => resolve(true),
+                    },
+                    no: {
+                        icon: '<i class="fas fa-times"></i>',
+                        label: 'Cancel',
+                        callback: () => resolve(false),
+                    },
+                },
+                default: 'no',
+                close: () => resolve(false),
+            }).render(true);
+        });
+        if (!confirmed)
+            return;
+        await this.actor.update(buildStartSkillsRedistributeUpdates(this.actor));
+        ui.notifications?.info(`Skills cleared — allocate ${total} points (max ${maxPerSkill} each), then Finish.`);
+        this.render();
+    }
+    async #onFinishSkillsRedistribute() {
+        if (!this.actor.isOwner && !game.user?.isGM) {
+            ui.notifications?.warn('Only the owner or GM can finish skill redistribution.');
+            return;
+        }
+        if (!isSkillsRedistributing(this.actor))
+            return;
+        const result = buildFinishSkillsRedistributeUpdates(this.actor);
+        if (!result.ok || !result.updates) {
+            ui.notifications?.warn(result.reason || 'Cannot finish skill redistribution.');
+            return;
+        }
+        await this.actor.update(result.updates);
+        ui.notifications?.info('Skill redistribution complete.');
+        this.render();
+    }
+    async #onCancelSkillsRedistribute() {
+        if (!this.actor.isOwner && !game.user?.isGM) {
+            ui.notifications?.warn('Only the owner or GM can cancel skill redistribution.');
+            return;
+        }
+        if (!isSkillsRedistributing(this.actor))
+            return;
+        await this.actor.update(buildCancelSkillsRedistributeUpdates(this.actor));
+        ui.notifications?.info('Skill redistribution cancelled — previous skills restored.');
+        this.render();
     }
     /**
      * Add Disadvantage during Creation
