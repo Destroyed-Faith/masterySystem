@@ -1,8 +1,8 @@
 /**
  * Range Preview and Hex Highlighting for Radial Menu
  */
-import { highlightHexesInRange, clearHexHighlight } from '../utils/hex-highlighting';
-import { gridStepsFromMeters } from '../utils/grid-range';
+import { highlightHexesInRange, clearHexHighlight } from '../utils/hex-highlighting.js';
+import { gridStepsFromMeters } from '../utils/grid-range.js';
 /**
  * Global state for range preview graphics
  */

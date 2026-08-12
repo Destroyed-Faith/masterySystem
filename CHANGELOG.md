@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.304] - 2026-08-12
+
+### Fixed
+
+- **Broken sheets (0.9.303):** Clean rebuild restored missing `.js` extensions on ES module imports in `dist/` (botched `fix-imports` left sheets as title + portrait only).
+
 ## [0.9.303] - 2026-08-12
 
 ### Fixed
