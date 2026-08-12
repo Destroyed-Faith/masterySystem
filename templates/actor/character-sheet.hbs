@@ -75,7 +75,7 @@
         </div>
       </div>
       {{#if skillsRedistributing}}
-      <div class="points-box creation-points" title="Skill Points Remaining (redistribute: max 4 per skill)">
+      <div class="points-box creation-points" title="Skill Points Remaining (+ sets a skill to 4; only 0 or 4 allowed)">
         <label>SP</label>
         <div class="points-display">
           <span class="points-value {{#if (eq creation.skillPointsRemaining 0)}}complete{{else}}remaining{{/if}}">{{creation.skillPointsRemaining}}</span>
@@ -158,7 +158,7 @@
   <div class="gm-character-tools">
     <span class="gm-character-tools-label"><i class="fas fa-user-shield"></i> GM Tools</span>
     {{#if canStartSkillsRedistribute}}
-    <button type="button" class="start-skills-redistribute" title="Reset skills to 0 and re-allocate the 40 creation points (max 4 each). Only when the character has no XP yet.">
+    <button type="button" class="start-skills-redistribute" title="Reset skills to 0 and pick 10 skills at 4 each (+ sets 4). Only when the character has no XP yet.">
       <i class="fas fa-rotate"></i> Redistribute Skills
     </button>
     {{/if}}
@@ -1161,7 +1161,7 @@
         {{/if}}
         {{#if skillsRedistributing}}
         <div class="skills-redistribute-banner">
-          <p><i class="fas fa-rotate"></i> <strong>Redistribute Skills</strong> — allocate all <strong>{{creation.skillPointsConfig}}</strong> creation points (max 4 per skill). Remaining: <strong>{{creation.skillPointsRemaining}}</strong>.</p>
+          <p><i class="fas fa-rotate"></i> <strong>Redistribute Skills</strong> — pick skills at <strong>{{creation.maxSkillAtCreation}}</strong> each ({{creation.skillPointsConfig}} total). <strong>+</strong> sets 4; no 1/2/3. Remaining: <strong>{{creation.skillPointsRemaining}}</strong>.</p>
           <div class="skills-redistribute-actions">
             <button type="button" class="finish-skills-redistribute" {{#unless canFinishSkillsRedistribute}}disabled{{/unless}} title="Save the new 40-point allocation">
               <i class="fas fa-check"></i> Finish Redistribute
@@ -1198,7 +1198,7 @@
             <i class="fas fa-comments"></i> Social Combat
           </button>
           {{#if canStartSkillsRedistribute}}
-          <button type="button" class="start-skills-redistribute" title="Reset skills to 0 and re-allocate the 40 creation points (max 4 each). Only when the character has no XP yet.">
+          <button type="button" class="start-skills-redistribute" title="Reset skills to 0 and pick 10 skills at 4 each (+ sets 4). Only when the character has no XP yet.">
             <i class="fas fa-rotate"></i> Redistribute Skills
           </button>
           {{/if}}
@@ -1258,10 +1258,10 @@
                   </div>
                   {{#if @root.skillsAllocationMode}}
                   <div class="creation-controls">
-                    <button type="button" class="skill-decrease" data-skill="{{this.key}}" title="Decrease Skill" {{#if (lte this.value 0)}}disabled{{/if}}>
+                    <button type="button" class="skill-decrease" data-skill="{{this.key}}" title="Clear skill to 0 (refund {{@root.creation.maxSkillAtCreation}} points)" {{#if (lte this.value 0)}}disabled{{/if}}>
                       <i class="fas fa-minus"></i>
                     </button>
-                    <button type="button" class="skill-increase" data-skill="{{this.key}}" title="Increase Skill" {{#if (gte this.value 4)}}disabled{{/if}} {{#if (eq @root.creation.skillPointsRemaining 0)}}disabled{{/if}}>
+                    <button type="button" class="skill-increase" data-skill="{{this.key}}" title="Set skill to {{@root.creation.maxSkillAtCreation}} (costs {{@root.creation.maxSkillAtCreation}} points)" {{#if (gte this.value 4)}}disabled{{/if}} {{#if (lt @root.creation.skillPointsRemaining 4)}}disabled{{/if}}>
                       <i class="fas fa-plus"></i>
                     </button>
                   </div>

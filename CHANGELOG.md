@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.306] - 2026-08-12
+
+### Changed
+
+- **Creation / Redistribute Skills:** `+` sets a skill to **4** in one click; `-` clears to **0**. Partial ranks (1–3) are not allowed — only 10×4 chunks of the 40-point budget.
+
 ## [0.9.305] - 2026-08-12
 
 ### Added

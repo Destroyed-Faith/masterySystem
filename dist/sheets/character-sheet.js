@@ -23,7 +23,7 @@ import { loadZoneFromBands, movementPenaltyForLoad, LOAD_ZONE_LABEL, ZONE_WIDTH_
 import { getFilePickerClass } from '../utils/foundry-v14.js';
 import { buildPostCreationSnapshot } from '../utils/xp-post-creation.js';
 import { resetCharacterForRecreation, listEquippedGeneralArtifacts } from '../utils/reset-character.js';
-import { buildCancelSkillsRedistributeUpdates, buildFinishSkillsRedistributeUpdates, buildStartSkillsRedistributeUpdates, canStartSkillsRedistribute, getCreationSkillBudget, isSkillsRedistributing, } from '../utils/skills-redistribute.js';
+import { buildCancelSkillsRedistributeUpdates, buildFinishSkillsRedistributeUpdates, buildStartSkillsRedistributeUpdates, canStartSkillsRedistribute, getCreationSkillBudget, isSkillsRedistributing, validateCreationSkillAllocation, } from '../utils/skills-redistribute.js';
 import { getDefaultInventorySizeForItemData } from '../utils/seed-general-items.js';
 import { getNormalizedEquipSlots, normalizeSlotKey } from '../utils/equip-slots.js';
 import { attributeBandCost, powerLevelCost } from '../utils/constants.js';
@@ -754,9 +754,11 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             }
         };
         // Always provide creation data for template (even if complete)
+        const { maxPerSkill: maxSkillAtCreation } = getCreationSkillBudget();
         context.creation = {
             masteryRank,
             skillPointsConfig,
+            maxSkillAtCreation,
             attrCount8: count8,
             attrCount6: count6,
             attrCount4: count4,
@@ -790,6 +792,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             languagesCreationValid: context.languagesView?.creationValid !== false,
             canFinalize: attributeDistributionValid &&
                 skillPointsSpent === skillPointsConfig &&
+                validateCreationSkillAllocation(context.system).ok &&
                 categoriesValid &&
                 disadvantagesValid &&
                 echoCreationValid &&
@@ -5536,7 +5539,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         this.render();
     }
     /**
-     * Character Creation / Redistribute: Increase Skill (max 4, budget 40).
+     * Character Creation / Redistribute: set skill to the full chunk (4).
+     * Partial ranks (1–3) are not allowed — only 0 or 4.
      */
     async #onCreationSkillIncrease(event) {
         event.preventDefault();
@@ -5555,25 +5559,25 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         const skillsTab = $(this.element).find('.tab.skills');
         const scrollTop = skillsTab.scrollTop();
         const system = this.actor.system;
-        const currentValue = system.skills?.[skill] || 0;
+        const currentValue = Math.max(0, Math.floor(Number(system.skills?.[skill]) || 0));
         const { total: skillPointsConfig, maxPerSkill } = getCreationSkillBudget();
         // Calculate current points spent
         let skillPointsSpent = 0;
         for (const skillValue of Object.values(system.skills || {})) {
             skillPointsSpent += (typeof skillValue === 'number' ? skillValue : 0);
         }
-        // Validate
+        const remaining = skillPointsConfig - skillPointsSpent;
+        // Validate: all-or-nothing chunk of maxPerSkill (4)
         if (currentValue >= maxPerSkill) {
-            ui.notifications?.warn(`Skill cannot exceed ${maxPerSkill} during character creation.`);
+            ui.notifications?.warn(`This skill is already at ${maxPerSkill}.`);
             return;
         }
-        if (skillPointsSpent >= skillPointsConfig) {
-            ui.notifications?.warn('All skill points have been allocated.');
+        if (remaining < maxPerSkill) {
+            ui.notifications?.warn(`Need ${maxPerSkill} free skill points to pick a skill (remaining: ${remaining}).`);
             return;
         }
-        // Update
         await this.actor.update({
-            [`system.skills.${skill}`]: currentValue + 1
+            [`system.skills.${skill}`]: maxPerSkill,
         });
         await this.render();
         // Restore scroll position
@@ -5583,7 +5587,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         }
     }
     /**
-     * Character Creation / Redistribute: Decrease Skill
+     * Character Creation / Redistribute: clear skill chunk back to 0.
      */
     async #onCreationSkillDecrease(event) {
         event.preventDefault();
@@ -5602,15 +5606,14 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         const skillsTab = $(this.element).find('.tab.skills');
         const scrollTop = skillsTab.scrollTop();
         const system = this.actor.system;
-        const currentValue = system.skills?.[skill] || 0;
+        const currentValue = Math.max(0, Math.floor(Number(system.skills?.[skill]) || 0));
         // Validate
         if (currentValue <= 0) {
             ui.notifications?.warn('Skill cannot go below 0.');
             return;
         }
-        // Update
         await this.actor.update({
-            [`system.skills.${skill}`]: currentValue - 1
+            [`system.skills.${skill}`]: 0,
         });
         await this.render();
         // Restore scroll position
@@ -5630,10 +5633,11 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             return;
         }
         const { total, maxPerSkill } = getCreationSkillBudget();
+        const picks = Math.floor(total / maxPerSkill);
         const confirmed = await new Promise((resolve) => {
             new Dialog({
                 title: 'Redistribute Skills',
-                content: `<p>Reset all skills to <strong>0</strong> and redistribute the <strong>${total}</strong> creation points (max <strong>${maxPerSkill}</strong> per skill)?</p>
+                content: `<p>Reset all skills to <strong>0</strong> and pick <strong>${picks}</strong> skills at <strong>${maxPerSkill}</strong> each (${total} points). Each + sets a skill to ${maxPerSkill} — no 1/2/3 ranks.</p>
 <p><em>Only available when the character has no XP yet. Cancel restores the previous allocation.</em></p>`,
                 buttons: {
                     yes: {
@@ -5654,7 +5658,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         if (!confirmed)
             return;
         await this.actor.update(buildStartSkillsRedistributeUpdates(this.actor));
-        ui.notifications?.info(`Skills cleared — allocate ${total} points (max ${maxPerSkill} each), then Finish.`);
+        ui.notifications?.info(`Skills cleared — pick ${picks} skills at ${maxPerSkill} each (+ sets ${maxPerSkill}), then Finish.`);
         this.render();
     }
     async #onFinishSkillsRedistribute() {

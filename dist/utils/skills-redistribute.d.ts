@@ -17,6 +17,11 @@ export declare function canStartSkillsRedistribute(actor: any): {
     ok: boolean;
     reason?: string;
 };
+/**
+ * Creation / redistribute ranks are all-or-nothing chunks: 0 or maxPerSkill (4).
+ * Partial ranks (1–3) are illegal.
+ */
+export declare function isValidCreationSkillRank(raw: unknown, maxPerSkill?: number): boolean;
 export declare function validateCreationSkillAllocation(system: any): {
     ok: boolean;
     reason?: string;

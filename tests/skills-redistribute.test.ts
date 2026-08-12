@@ -6,6 +6,7 @@ import {
   buildStartSkillsRedistributeUpdates,
   canStartSkillsRedistribute,
   getCreationSkillBudget,
+  isValidCreationSkillRank,
   sumActorSkillPoints,
   validateCreationSkillAllocation,
 } from '../src/utils/skills-redistribute.js';
@@ -89,7 +90,7 @@ describe('skills redistribute', () => {
     expect(updates['system.skills.stealth']).toBe(2);
   });
 
-  it('finish requires exact 40 and max 4, then clears the mode flag', () => {
+  it('finish requires exact 40 and ranks of only 0 or 4', () => {
     const actor = makeActor();
     expect(sumActorSkillPoints(actor.system)).toBe(40);
     expect(validateCreationSkillAllocation(actor.system).ok).toBe(true);
@@ -101,5 +102,17 @@ describe('skills redistribute', () => {
     actor.system.skills[Object.keys(SKILLS)[0]] = 5;
     expect(validateCreationSkillAllocation(actor.system).ok).toBe(false);
     expect(buildFinishSkillsRedistributeUpdates(actor).ok).toBe(false);
+  });
+
+  it('rejects partial creation ranks (1–3)', () => {
+    expect(isValidCreationSkillRank(0)).toBe(true);
+    expect(isValidCreationSkillRank(4)).toBe(true);
+    expect(isValidCreationSkillRank(1)).toBe(false);
+    expect(isValidCreationSkillRank(2)).toBe(false);
+    expect(isValidCreationSkillRank(3)).toBe(false);
+    const actor = makeActor();
+    const key = Object.keys(SKILLS)[0];
+    actor.system.skills[key] = 2;
+    expect(validateCreationSkillAllocation(actor.system).ok).toBe(false);
   });
 });
