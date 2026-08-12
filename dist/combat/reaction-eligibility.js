@@ -7,7 +7,7 @@
 import { resolvePowerMechanics } from '../utils/power-mechanics.js';
 import { buildActorMechanicsBreakdown } from '../utils/power-mechanics.js';
 import { isBasicReactionItem } from './basic-combat.js';
-import { isAllyReactionPower } from './defender-reactions.js';
+import { isAllyReactionPower, isThreatenedRangedOffensiveReaction } from './defender-reactions.js';
 import { getPrimaryTokenForActor } from '../utils/mechanics-adjacency.js';
 import { distanceBetweenTokensMeters } from './threatened-ranged.js';
 function mechanicsOf(item) {
@@ -214,13 +214,14 @@ export function evaluateReactionEligibility(power, ctx) {
     if (tid === 'reaction-repositioning-intercept') {
         return { shown: false, enabled: false, reason: 'Intercept retarget is resolved at the table' };
     }
+    // Retired synthetic OA — Rules: no universal Opportunity Attack.
+    if (String(power?.id || '') === 'basic-reaction-opportunity-attack') {
+        return { shown: false, enabled: false, reason: 'No universal Opportunity Attack' };
+    }
     // Phase role filters (coarse).
     if (phase === 'defender') {
         if (isAllyReactionPower(power) || isInterposeReaction(power)) {
             return { shown: false, enabled: false, reason: 'Ally reaction — wait for allies phase' };
-        }
-        if (String(power?.id || '') === 'basic-reaction-opportunity-attack') {
-            return { shown: false, enabled: false, reason: 'Opportunity Attack is post-resolve' };
         }
     }
     if (phase === 'allies') {
@@ -228,23 +229,24 @@ export function evaluateReactionEligibility(power, ctx) {
             return { shown: false, enabled: false, reason: 'Not an ally reaction' };
         }
     }
-    if (phase === 'others' || phase === 'opportunity') {
-        if (isAllyReactionPower(power) || isInterposeReaction(power)) {
-            // Ally mitigation runs pre-damage; post-resolve card is OA-focused.
-            return { shown: false, enabled: false, reason: 'Ally mitigation already offered before damage' };
-        }
-        if (isBasicReactionItem(power) && basic !== 'counterattack') {
-            if (String(power?.id || '') !== 'basic-reaction-opportunity-attack') {
-                return { shown: false, enabled: false, reason: 'Basic Guard/Evade/Counter are pre-damage only' };
-            }
+    const threatenedWindow = phase === 'others' || phase === 'opportunity';
+    if (threatenedWindow) {
+        if (!isThreatenedRangedOffensiveReaction(power)) {
+            return {
+                shown: false,
+                enabled: false,
+                reason: 'Threatened Ranged window — offensive reactions only (Counterattack / Counter Damage / Special Increase)',
+            };
         }
     }
     // Miss: no Armor / damage-buffer / counterattack / counter-damage.
-    if (!ctx.hit) {
+    // Threatened Ranged reactors were not the attack target — miss/hit of the
+    // original strike does not gate their offensive reactions vs the shooter.
+    if (!ctx.hit && !threatenedWindow) {
         if (basic === 'guard' || isArmorAxisReaction(power) || isDamageTriggerReaction(power)) {
             return { shown: false, enabled: false, reason: 'Attack missed — nothing to absorb' };
         }
-        if (basic === 'counterattack' && String(power?.id || '') !== 'basic-reaction-opportunity-attack') {
+        if (basic === 'counterattack') {
             return { shown: false, enabled: false, reason: 'Counterattack requires a hit' };
         }
         if (isCounterDamageReaction(power) || isSpecialIncreaseReaction(power)) {
@@ -255,9 +257,7 @@ export function evaluateReactionEligibility(power, ctx) {
         }
     }
     // Nested counterattack windows.
-    if (ctx.suppressCounterattack &&
-        basic === 'counterattack' &&
-        String(power?.id || '') !== 'basic-reaction-opportunity-attack') {
+    if (ctx.suppressCounterattack && basic === 'counterattack') {
         return { shown: false, enabled: false, reason: 'Counterattack already in progress' };
     }
     // DR reaction needs Passive / sheet DR.

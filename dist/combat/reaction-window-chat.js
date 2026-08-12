@@ -137,12 +137,20 @@ function filterEntriesForCard(entries, state, actors) {
         if (!id || spent.has(id)) {
             return { ...e, powers: [], remaining: 0 };
         }
+        // Opportunity reactors: range is reactor ↔ shooter, not original defender ↔ shooter.
+        const rangeSubject = e.role === 'opportunity'
+            ? e.actor
+            : phase === 'allies'
+                ? defender
+                : e.role === 'defender'
+                    ? e.actor
+                    : defender;
         const ctx = buildReactionTriggerContext({
             phase,
             hit: state.hit,
             attackTotal: state.attackTotal,
             evadeTn: state.evadeTn,
-            defender: phase === 'allies' ? defender : e.role === 'defender' ? e.actor : defender,
+            defender: rangeSubject,
             attacker,
             allyDistanceM: e.role === 'ally' ? e.distanceM : null,
             suppressCounterattack: state.suppressCounterattack,
@@ -170,19 +178,19 @@ function buildReactionWindowHtml(state, entries, attackerName, defenderName) {
         : phase === 'allies'
             ? `⚡ Reaction Window — Allies${remainingSuffix}`
             : phase === 'opportunity'
-                ? `⚡ Opportunity Attacks${remainingSuffix}`
-                : `⚡ After attack — Opportunity Attacks${remainingSuffix}`;
-    const hasOa = (state.opportunityEnemyTokenIds?.length ?? 0) > 0;
+                ? `⚡ Threatened Ranged — Reactions${remainingSuffix}`
+                : `⚡ After attack — Threatened Reactions${remainingSuffix}`;
+    const hasThreatened = (state.opportunityEnemyTokenIds?.length ?? 0) > 0;
     let hitLine;
     if (phase === 'opportunity') {
-        hitLine = `<p><strong>${escHtml(attackerName)}</strong>'s attack is done — enemies in melee reach may spend a <strong>Reaction</strong> for an Opportunity Attack (in parallel).</p>`;
+        hitLine = `<p><strong>${escHtml(attackerName)}</strong>'s attack is done — enemies who had the shooter in melee reach may spend a <strong>Reaction</strong> (offensive Reactions vs the shooter, in parallel).</p>`;
     }
     else if (phase === 'others') {
         const dmgBit = state.hit
             ? `damage applied (${Math.max(0, Math.floor(state.rawDamage))})`
             : 'attack resolved';
-        hitLine = hasOa
-            ? `<p><strong>${escHtml(attackerName)}</strong> → <strong>${escHtml(defenderName)}</strong> — ${dmgBit}. Threatened enemies may Opportunity Attack. Summary shrinks as each acts or Declines.</p>`
+        hitLine = hasThreatened
+            ? `<p><strong>${escHtml(attackerName)}</strong> → <strong>${escHtml(defenderName)}</strong> — ${dmgBit}. Threatened enemies may spend a <strong>Reaction</strong> (Counterattack / Counter Damage / Special Increase). Summary shrinks as each acts or Declines.</p>`
             : `<p><strong>${escHtml(attackerName)}</strong> → <strong>${escHtml(defenderName)}</strong> — ${dmgBit}.</p>`;
     }
     else if (phase === 'allies') {
@@ -216,7 +224,7 @@ function buildReactionWindowHtml(state, entries, attackerName, defenderName) {
             : `<p style="opacity:0.9;">Reaction window closed.</p>${usedBlock}`;
     }
     else if (!actionable.length) {
-        if (phase === 'opportunity' || (phase === 'others' && hasOa)) {
+        if (phase === 'opportunity' || (phase === 'others' && hasThreatened)) {
             const oppEntries = entries.filter((e) => e.role === 'opportunity');
             const skipLines = oppEntries.length > 0
                 ? `<ul style="margin:0.25em 0 0 1.2em;padding:0;">${oppEntries
@@ -225,18 +233,18 @@ function buildReactionWindowHtml(state, entries, attackerName, defenderName) {
                     const tot = Math.max(0, Math.floor(Number(e.total) || 0));
                     const why = left <= 0
                         ? `no Reactions left this round (${tot - left}/${tot} used)`
-                        : 'no Opportunity Attack available';
+                        : 'no usable offensive Reaction (Counterattack / Counter Damage / Special Increase)';
                     return `<li><strong>${escHtml(e.name)}</strong> — ${escHtml(why)}</li>`;
                 })
                     .join('')}</ul>`
                 : '';
-            body = `<p>No Opportunity Attacks available right now.</p>${skipLines}${usedBlock}`;
+            body = `<p>No Threatened Reactions available right now.</p>${skipLines}${usedBlock}`;
         }
         else if (phase === 'allies') {
             body = `<p>No nearby allies with an Ally Reaction / Interpose ready.</p>${usedBlock}`;
         }
         else if (phase === 'others') {
-            body = `<p>No Opportunity Attacks available.</p>${usedBlock}`;
+            body = `<p>No Threatened Reactions available.</p>${usedBlock}`;
         }
         else {
             const def = entries.find((e) => e.role === 'defender');
@@ -310,13 +318,16 @@ function buildReactionWindowHtml(state, entries, attackerName, defenderName) {
             : [];
         const skippedBlock = skippedOpp.length > 0
             ? `<div class="ms-reaction-window-skipped" style="margin:0.45em 0;opacity:0.9;font-size:0.92em;">
-            <div><strong>Cannot Opportunity Attack:</strong></div>
+            <div><strong>Cannot react (Threatened):</strong></div>
             <ul style="margin:0.2em 0 0 1.2em;padding:0;">
               ${skippedOpp
                 .map((e) => {
                 const left = Math.max(0, Math.floor(Number(e.remaining) || 0));
                 const tot = Math.max(0, Math.floor(Number(e.total) || 0));
-                return `<li><strong>${escHtml(e.name)}</strong> — no Reactions left (${tot - left}/${tot} used)</li>`;
+                const why = left <= 0
+                    ? `no Reactions left (${tot - left}/${tot} used)`
+                    : 'no usable offensive Reaction';
+                return `<li><strong>${escHtml(e.name)}</strong> — ${escHtml(why)}</li>`;
             })
                 .join('')}
             </ul>
@@ -324,11 +335,9 @@ function buildReactionWindowHtml(state, entries, attackerName, defenderName) {
             : '';
         const intro = phase === 'defender'
             ? `<p>The <strong>target</strong> may use <strong>one</strong> Reaction now (before damage):</p>`
-            : phase === 'opportunity'
-                ? `<p>Each listed combatant may spend <strong>one</strong> Reaction for an Opportunity Attack (cards open in parallel — original attack already finished):</p>`
-                : hasOa
-                    ? `<p>Each listed combatant may spend <strong>one</strong> Reaction (Opportunity Attack and/or Ally powers). Cards open in parallel:</p>`
-                    : `<p>Each ally may use <strong>one</strong> Reaction for this event:</p>`;
+            : phase === 'opportunity' || (phase === 'others' && hasThreatened)
+                ? `<p>Each listed combatant may spend <strong>one</strong> Reaction vs the shooter (Counterattack / Counter Damage / Special Increase). Cards open in parallel — original attack already finished:</p>`
+                : `<p>Each ally may use <strong>one</strong> Reaction for this event:</p>`;
         body = `${intro}${blocks}${skippedBlock}${usedBlock}`;
     }
     const continueHint = phase === 'defender'
@@ -381,7 +390,9 @@ async function resolveActors(state) {
 }
 function buildSupersededReactionHtml(state, remainingN) {
     const phase = state.phase ?? 'others';
-    const label = phase === 'opportunity' ? 'Opportunity Attacks' : 'After attack — Reactions';
+    const label = phase === 'opportunity' || phase === 'others'
+        ? 'Threatened Reactions'
+        : 'After attack — Reactions';
     const rem = remainingN > 0 ? `${remainingN} remaining` : 'updated';
     return `<div class="mastery-reaction-window" data-reaction-event="${escHtml(state.eventId)}" data-reaction-phase="${escHtml(phase)}" data-reaction-superseded="1">
       <strong>⚡ ${escHtml(label)}</strong>
@@ -549,20 +560,20 @@ async function executeReactionSpend(params) {
     let note = '';
     const mech = mechanicsOf(power);
     const isCounterattack = power?.basicReaction === 'counterattack';
-    // Threatened Ranged OA: open attack card without blocking the summary
-    // (original attack already finished; multiple OAs may run in parallel).
-    if (role === 'opportunity') {
-        note = ` <em>(Opportunity Attack vs ${String(attacker?.name ?? 'the shooter')} — card opened, roll when ready.)</em>`;
+    // Threatened Ranged: offensive reactions vs the shooter. Original attack
+    // already finished — Counterattack cards open in parallel (non-blocking).
+    if (role === 'opportunity' && isCounterattack) {
+        note = ` <em>(Counterattack vs ${String(attacker?.name ?? 'the shooter')} — card opened, roll when ready.)</em>`;
         if (attacker) {
             try {
                 await launchBasicCounterattack(actor, attacker, {
                     awaitResolution: false,
-                    label: 'Opportunity Attack',
+                    label: 'Counterattack',
                 });
             }
             catch (err) {
-                console.warn('Mastery System | Opportunity Attack launch failed', err);
-                globalThis.ui?.notifications?.warn?.('Opportunity Attack: could not open attack card — resolve manually.');
+                console.warn('Mastery System | Threatened Counterattack launch failed', err);
+                globalThis.ui?.notifications?.warn?.('Counterattack: could not open attack card — resolve manually.');
             }
         }
         return { state, note };
@@ -730,7 +741,9 @@ async function executeReactionSpend(params) {
         }
     }
     // Counter Damage (+ optional Push confirm).
-    if (state.hit && attacker && isCounterDamageReaction(power)) {
+    // Threatened Ranged reactors were not the hit target — still allowed vs shooter.
+    const allowOffensiveVsShooter = state.hit || role === 'opportunity';
+    if (allowOffensiveVsShooter && attacker && isCounterDamageReaction(power)) {
         const flat = String(mech?.damageRider?.flat ?? '').replace(/^\+/, '');
         if (flat) {
             try {
@@ -778,8 +791,8 @@ async function executeReactionSpend(params) {
             note += ' <em>(Push/Pull targeting failed — move manually.)</em>';
         }
     }
-    // Special Increase — bump an existing Special on the attacker.
-    if (state.hit && attacker && isSpecialIncreaseReaction(power)) {
+    // Special Increase — bump an existing Special on the attacker / shooter.
+    if (allowOffensiveVsShooter && attacker && isSpecialIncreaseReaction(power)) {
         const amount = Math.max(0, Math.floor(Number(mech?.modifySpecial?.amount) || 0));
         if (amount > 0) {
             try {
@@ -858,7 +871,9 @@ async function executeReactionSpend(params) {
             globalThis.ui?.notifications?.info?.(`${actorName}: Reposition — move up to ${meters} m (normal legal movement).`);
         }
     }
-    if (isCounterattack) {
+    // Defender Counterattack (pre-damage) — blocks until resolved. Threatened
+    // Counterattack already returned above with awaitResolution: false.
+    if (isCounterattack && role !== 'opportunity') {
         note += ` <em>(Basic Counterattack vs ${String(attacker?.name ?? 'attacker')} — resolve it now; original damage is paused.)</em>`;
         if (attacker) {
             try {
@@ -967,7 +982,7 @@ async function handleUseClick(messageId, actorId, powerId) {
         return;
     }
     if (busyReactionMessages.has(messageId)) {
-        g.ui?.notifications?.warn?.('Finish the pending Counterattack / Opportunity Attack first.');
+        g.ui?.notifications?.warn?.('Finish the pending Counterattack first.');
         return;
     }
     const { attacker, defender, combat } = await resolveActors(state);
@@ -1095,7 +1110,7 @@ async function handleContinueClick(messageId) {
     if (!state || state.resolved)
         return;
     if (busyReactionMessages.has(messageId)) {
-        g.ui?.notifications?.warn?.('Finish the pending Counterattack / Opportunity Attack before continuing.');
+        g.ui?.notifications?.warn?.('Finish the pending Counterattack before continuing.');
         return;
     }
     const u = g.game?.user;

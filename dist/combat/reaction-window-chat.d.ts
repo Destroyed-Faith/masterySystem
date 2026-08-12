@@ -94,7 +94,7 @@ export declare function runInteractiveReactionWindow(params: {
      * Defender phase still posts an info card so the table sees "no reactions left".
      */
     silentIfEmpty?: boolean;
-    /** Threatened Ranged: token ids that may spend a Reaction for an Opportunity Attack. */
+    /** Threatened Ranged: token ids that may spend a Reaction vs the shooter. */
     opportunityEnemyTokenIds?: string[] | null;
     /** Hide Counterattack buttons (nested reaction-counterattack resolution). */
     suppressCounterattack?: boolean;

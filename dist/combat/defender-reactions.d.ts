@@ -76,19 +76,27 @@ export interface ReactionWindowActorEntry {
 }
 /** Synthetic Interpose button (ally ≤2 m takes half damage). */
 export declare function buildInterposeReactionItem(): any;
-/** Synthetic Opportunity Attack button (Threatened Ranged / leaving reach). */
+/**
+ * @deprecated No universal Opportunity Attack (reactions.md). Kept only so old
+ * chat cards / tests referencing the id do not crash on import.
+ */
 export declare function buildOpportunityAttackReactionItem(actor: any): any;
 /**
- * Defender + nearby allies + Threatened Ranged opportunity attackers.
+ * Offensive reactions for Threatened Ranged (shooter in your melee reach).
+ * Not the attack target — Guard/Evade/Ally mitigation do not apply here.
+ */
+export declare function isThreatenedRangedOffensiveReaction(item: any): boolean;
+/**
+ * Defender + nearby allies + Threatened Ranged reactors.
  * - defender: own reactions
  * - allies: Ally-* reactions only (within 4 m)
- * - opportunity: Opportunity Attack (token ids from Threatened Ranged)
+ * - opportunity: offensive reactions vs the shooter (token ids from Threatened Ranged)
  */
 export declare function collectReactionWindowEntries(params: {
     defender: Actor;
     attacker: Actor | null;
     combat: Combat;
-    /** Token ids of enemies who may OA the shooter (Threatened Ranged). */
+    /** Token ids of enemies in melee reach of the shooter (Threatened Ranged). */
     opportunityEnemyTokenIds?: string[] | null;
 }): ReactionWindowActorEntry[];
 /**

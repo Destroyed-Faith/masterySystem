@@ -25,5 +25,12 @@ export declare function readActiveSpecials(actor: any): ActiveSpecial[];
  * Diminishing Specials track a single stack value, so entries are summed.
  */
 export declare function getActiveSpecialValue(actor: any, id: string): number;
+/** Coerce Foundry object-shaped `statusEffects` to a real array. */
+export declare function coerceStatusEffectsArray(raw: unknown): RawStatusEntry[];
+/**
+ * Reduce (or remove) one statusEffects entry by `steps`.
+ * Non-positive / missing values are treated as a single stack (any reduce removes).
+ */
+export declare function reduceStatusEffectAt(list: unknown, index: number, steps: number): RawStatusEntry[];
 export {};
 //# sourceMappingURL=active-specials.d.ts.map

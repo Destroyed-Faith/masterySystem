@@ -59,3 +59,47 @@ export function getActiveSpecialValue(actor: any, id: string): number {
   }
   return total;
 }
+
+/** Coerce Foundry object-shaped `statusEffects` to a real array. */
+export function coerceStatusEffectsArray(raw: unknown): RawStatusEntry[] {
+  if (Array.isArray(raw)) return raw as RawStatusEntry[];
+  if (raw && typeof raw === 'object') {
+    return Object.keys(raw as object)
+      .filter((k) => /^\d+$/.test(k))
+      .sort((a, b) => parseInt(a, 10) - parseInt(b, 10))
+      .map((k) => (raw as Record<string, RawStatusEntry>)[k]);
+  }
+  return [];
+}
+
+/**
+ * Reduce (or remove) one statusEffects entry by `steps`.
+ * Non-positive / missing values are treated as a single stack (any reduce removes).
+ */
+export function reduceStatusEffectAt(
+  list: unknown,
+  index: number,
+  steps: number,
+): RawStatusEntry[] {
+  const next = coerceStatusEffectsArray(list).map((e) => ({ ...(e as object) })) as RawStatusEntry[];
+  const i = Math.floor(Number(index));
+  const n = Math.max(1, Math.floor(Number(steps) || 1));
+  if (!Number.isFinite(i) || i < 0 || i >= next.length) return next;
+  const entry = next[i]!;
+  const rawVal = entry.value;
+  const cur =
+    rawVal === undefined || rawVal === null || rawVal === ('' as any)
+      ? 0
+      : Math.floor(Number(rawVal));
+  if (!Number.isFinite(cur) || cur <= 0) {
+    next.splice(i, 1);
+    return next;
+  }
+  const remaining = cur - n;
+  if (remaining <= 0) {
+    next.splice(i, 1);
+  } else {
+    next[i] = { ...entry, value: remaining };
+  }
+  return next;
+}

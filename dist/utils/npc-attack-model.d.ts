@@ -54,6 +54,33 @@ export declare function sumNpcAttackSlotsFromPowers(system: any): number;
  * phase rows.
  */
 export declare function coerceNpcPhasesArray(raw: unknown): any[];
+/** Default single-bar NPC / phase HP block (editable current/max). */
+export declare function defaultNpcHealth(): {
+    bars: Array<{
+        name: string;
+        max: number;
+        current: number;
+        penalty: number;
+    }>;
+    currentBar: number;
+    tempHP: number;
+};
+/**
+ * Ensure an NPC (or boss-phase) health blob has at least one usable bar.
+ * Repairs empty / object-shaped `bars` left behind after bad sheet submits.
+ */
+export declare function ensureNpcHealthState(raw: unknown): {
+    bars: Array<{
+        name: string;
+        max: number;
+        current: number;
+        penalty: number;
+    }>;
+    currentBar: number;
+    tempHP: number;
+};
+/** True when health already has at least one bar (array or numeric-key object). */
+export declare function npcHealthHasBars(raw: unknown): boolean;
 export declare function resolveNpcAttackList(system: any): {
     attacks: AttackValue[];
     phaseIndex: number | null;

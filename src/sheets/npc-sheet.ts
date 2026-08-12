@@ -10,10 +10,52 @@ import {
   type EffectCategory,
 } from '../utils/special-effects.js';
 import {
+  coerceNpcPhasesArray,
+  defaultNpcHealth,
+  displayNpcSpecialName,
+  ensureNpcHealthState,
+  npcHealthHasBars,
   sumNpcAttackSlotsFromPowers,
   sanitizeNpcSystemAttackTargeting,
 } from '../utils/npc-attack-model.js';
+import {
+  coerceStatusEffectsArray,
+  reduceStatusEffectAt,
+  statusEntryId,
+} from '../system/active-specials.js';
 import { openNpcPrintSheet } from './npc-print.js';
+
+/** Sheet rows for root `system.statusEffects` (combat writes here, not per phase). */
+function buildNpcStatusRows(raw: unknown): Array<{
+  index: number;
+  id: string;
+  name: string;
+  value: number | null;
+  hasValue: boolean;
+}> {
+  return coerceStatusEffectsArray(raw).map((entry, index) => {
+    const id = statusEntryId(entry) || String(entry?.id || '').trim();
+    const rawName = String(entry?.name || '').trim();
+    const name =
+      displayNpcSpecialName(rawName || id) ||
+      rawName ||
+      id ||
+      `Status ${index + 1}`;
+    const valueNum = Math.floor(Number(entry?.value));
+    const hasValue =
+      entry?.value !== undefined &&
+      entry?.value !== null &&
+      entry?.value !== ('' as any) &&
+      Number.isFinite(valueNum);
+    return {
+      index,
+      id,
+      name,
+      value: hasValue ? valueNum : null,
+      hasValue,
+    };
+  });
+}
 
 function dup<T>(obj: T): T {
   const fn = (foundry as any).utils?.duplicate as ((x: T) => T) | undefined;
@@ -252,29 +294,8 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
   async _prepareContext(options?: any) {
     const context: any = await super._prepareContext(options);
 
-    // Normalize health.bars: convert object to array if needed
-    if (context.system?.health?.bars) {
-      const bars = context.system.health.bars;
-      if (!Array.isArray(bars) && typeof bars === 'object') {
-        const barsArray = Object.keys(bars)
-          .sort((a, b) => parseInt(a, 10) - parseInt(b, 10))
-          .map((key) => bars[key]);
-        context.system.health.bars = barsArray;
-      }
-
-      if (Array.isArray(context.system.health.bars)) {
-        context.system.health.bars = context.system.health.bars.map((bar: any, index: number) => ({
-          name: bar.name || `Bar ${index + 1}`,
-          max: bar.max !== undefined && bar.max !== null ? bar.max : 30,
-          current:
-            bar.current !== undefined && bar.current !== null
-              ? bar.current
-              : bar.max !== undefined && bar.max !== null
-                ? bar.max
-                : 30,
-          penalty: bar.penalty !== undefined && bar.penalty !== null ? bar.penalty : 0
-        }));
-      }
+    if (context.system) {
+      context.system.health = ensureNpcHealthState(context.system.health);
     }
 
     if (context.actor?.type === 'npc' && context.system) {
@@ -284,48 +305,20 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
       }
       context.system.npcBaseAttack = ensureNpcBaseShape(context.system.npcBaseAttack);
 
-      if (
-        Array.isArray(context.system.phases) &&
-        context.system.phases.length > 0 &&
-        (context.system.npcActivePhaseIndex == null || !Number.isFinite(Number(context.system.npcActivePhaseIndex)))
-      ) {
-        context.system.npcActivePhaseIndex = 0;
-      }
-
-      if (Array.isArray(context.system.phases)) {
-        context.system.phases = context.system.phases.map((phase: any) => ({
+      const phases = coerceNpcPhasesArray(context.system.phases);
+      if (phases.length > 0) {
+        if (
+          context.system.npcActivePhaseIndex == null ||
+          !Number.isFinite(Number(context.system.npcActivePhaseIndex))
+        ) {
+          context.system.npcActivePhaseIndex = 0;
+        }
+        context.system.phases = phases.map((phase: any) => ({
           ...phase,
-          npcBaseAttack: ensureNpcBaseShape(phase.npcBaseAttack)
+          npcBaseAttack: ensureNpcBaseShape(phase?.npcBaseAttack),
+          health: ensureNpcHealthState(phase?.health ?? context.system.health),
         }));
       }
-    }
-
-    if (context.system?.phases && Array.isArray(context.system.phases)) {
-      context.system.phases = context.system.phases.map((phase: any) => {
-        if (phase.health?.bars) {
-          const phaseBars = phase.health.bars;
-          if (!Array.isArray(phaseBars) && typeof phaseBars === 'object') {
-            const barsArray = Object.keys(phaseBars)
-              .sort((a, b) => parseInt(a, 10) - parseInt(b, 10))
-              .map((key) => phaseBars[key]);
-            phase.health.bars = barsArray;
-          }
-          if (Array.isArray(phase.health.bars)) {
-            phase.health.bars = phase.health.bars.map((bar: any, index: number) => ({
-              name: bar.name || `Bar ${index + 1}`,
-              max: bar.max !== undefined && bar.max !== null ? bar.max : 30,
-              current:
-                bar.current !== undefined && bar.current !== null
-                  ? bar.current
-                  : bar.max !== undefined && bar.max !== null
-                    ? bar.max
-                    : 30,
-              penalty: bar.penalty !== undefined && bar.penalty !== null ? bar.penalty : 0
-            }));
-          }
-        }
-        return phase;
-      });
     }
 
     if (context.actor?.type === 'npc' && context.system) {
@@ -360,6 +353,13 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
       }
       // ATK = Summe der Angriffe/Runde-Kopien (aktive Phase bzw. Root-Liste).
       context.system.attackSlots = sumNpcAttackSlotsFromPowers(context.system);
+
+      // Combat applies Specials to root system.statusEffects. Phase tabs used to
+      // read empty phase.statusEffects ([] is truthy in Handlebars → blank panel).
+      const statusList = coerceStatusEffectsArray(context.system.statusEffects);
+      context.system.statusEffects = statusList;
+      (context as any).npcStatusEffects = buildNpcStatusRows(statusList);
+      (context as any).hasNpcStatusEffects = statusList.length > 0;
     }
 
     return context;
@@ -595,6 +595,39 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
           shape: data.system.npcBaseAttack.npcAoeShape,
         }
       : null;
+
+    // Form expand replaces `system.phases` as a whole. If HP inputs were missing
+    // (empty bars / bad name paths), merge existing health back so we don't wipe it.
+    const existingSystem = (this.actor as any)?.system ?? {};
+    if (data.system.health != null) {
+      data.system.health = npcHealthHasBars(data.system.health)
+        ? ensureNpcHealthState(data.system.health)
+        : ensureNpcHealthState(existingSystem.health);
+    }
+    if (data.system.phases != null) {
+      const existingPhases = coerceNpcPhasesArray(existingSystem.phases);
+      const submitPhases = coerceNpcPhasesArray(data.system.phases);
+      data.system.phases = submitPhases.map((phase: any, i: number) => {
+        if (!phase || typeof phase !== 'object') return phase;
+        const prev = existingPhases[i] || {};
+        const health = npcHealthHasBars(phase.health)
+          ? phase.health
+          : prev.health ?? existingSystem.health;
+        return {
+          ...phase,
+          health: ensureNpcHealthState(health),
+        };
+      });
+    }
+    // Status UI is button-driven (not form fields) — never let an empty submit wipe it.
+    if (Object.prototype.hasOwnProperty.call(data.system, 'statusEffects')) {
+      const submitted = coerceStatusEffectsArray(data.system.statusEffects);
+      data.system.statusEffects =
+        submitted.length > 0
+          ? submitted
+          : coerceStatusEffectsArray(existingSystem.statusEffects);
+    }
+
     data.system = sanitizeNpcSystemAttackTargeting(data.system);
     console.log('[MS NPC Targeting] FORM SUBMIT sanitized', {
       actorId: this.actor?.id,
@@ -742,6 +775,7 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
     });
 
     html.find('.effect-remove').on('click', this.#onRemoveStatusEffect.bind(this));
+    html.find('.effect-reduce').on('click', this.#onReduceStatusEffect.bind(this));
 
     html.find('.attack-value-add').on('click', this.#onAttackValueAdd.bind(this));
     html.find('.attack-value-delete').on('click', this.#onAttackValueDelete.bind(this));
@@ -791,30 +825,24 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
 
   async #onRemoveStatusEffect(event: JQuery.ClickEvent) {
     event.preventDefault();
-    const index = parseInt($(event.currentTarget).data('effect-index') || '0', 10);
-    const phaseIndex = $(event.currentTarget).data('phase-index');
+    event.stopPropagation();
+    const index = parseInt(String($(event.currentTarget).data('effect-index') ?? ''), 10);
+    const list = coerceStatusEffectsArray((this.actor as any).system?.statusEffects);
+    if (!Number.isFinite(index) || index < 0 || index >= list.length) return;
+    const next = list.filter((_, i) => i !== index);
+    await (this.actor as any).update({ 'system.statusEffects': next });
+  }
 
-    const system = (this.actor as any).system;
-
-    if (phaseIndex !== undefined && phaseIndex !== null) {
-      if (!system.phases || !system.phases[phaseIndex] || !system.phases[phaseIndex].statusEffects) {
-        return;
-      }
-      if (index >= 0 && index < system.phases[phaseIndex].statusEffects.length) {
-        system.phases[phaseIndex].statusEffects.splice(index, 1);
-        await (this.actor as any).update({
-          [`system.phases.${phaseIndex}.statusEffects`]: system.phases[phaseIndex].statusEffects
-        });
-      }
-    } else {
-      if (!system.statusEffects || !Array.isArray(system.statusEffects)) {
-        return;
-      }
-      if (index >= 0 && index < system.statusEffects.length) {
-        system.statusEffects.splice(index, 1);
-        await (this.actor as any).update({ 'system.statusEffects': system.statusEffects });
-      }
-    }
+  async #onReduceStatusEffect(event: JQuery.ClickEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    const btn = $(event.currentTarget);
+    const index = parseInt(String(btn.data('effect-index') ?? ''), 10);
+    const steps = Math.max(1, parseInt(String(btn.data('steps') ?? '1'), 10) || 1);
+    const list = coerceStatusEffectsArray((this.actor as any).system?.statusEffects);
+    if (!Number.isFinite(index) || index < 0 || index >= list.length) return;
+    const next = reduceStatusEffectAt(list, index, steps);
+    await (this.actor as any).update({ 'system.statusEffects': next });
   }
 
   async #onAttackValueAdd(event: JQuery.ClickEvent) {
@@ -988,18 +1016,14 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
       specials: [] as { special?: string; specialValue?: number }[],
     };
     const defaultCombat = { initiative: 0, evade: 10, armor: 0, speed: 8 };
-    const defaultHealth = {
-      bars: [{ name: 'Healthy', max: 30, current: 30, penalty: 0 }],
-      currentBar: 0,
-      tempHP: 0,
-    };
+    const defaultHealth = defaultNpcHealth();
 
     // First phase: migrate the current (root) stats so adding phases does not
     // wipe Evade / Armor / Speed / HP that were already tuned on the sheet.
     if (phases.length === 0) {
       phases.push({
         name: 'Phase 1',
-        health: dup(system.health) || defaultHealth,
+        health: ensureNpcHealthState(dup(system.health) || defaultHealth),
         combat: { ...defaultCombat, ...(dup(system.combat) || {}) },
         npcBaseAttack: dup(system.npcBaseAttack) || defaultAttack,
         attackValues: Array.isArray(system.attackValues) ? dup(system.attackValues) : [],
@@ -1016,7 +1040,7 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
     const prev = phases[phases.length - 1] || {};
     phases.push({
       name: `Phase ${phases.length + 1}`,
-      health: dup(prev.health) || dup(system.health) || defaultHealth,
+      health: ensureNpcHealthState(dup(prev.health) || dup(system.health) || defaultHealth),
       combat: { ...defaultCombat, ...(dup(prev.combat) || dup(system.combat) || {}) },
       npcBaseAttack: dup(prev.npcBaseAttack) || dup(system.npcBaseAttack) || defaultAttack,
       attackValues: Array.isArray(prev.attackValues)

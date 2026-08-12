@@ -4693,14 +4693,32 @@
   font-weight: 700;
 }
 
+.mastery-system.sheet.actor.npc .status-effect-item .effect-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+}
+
+.mastery-system.sheet.actor.npc .status-effect-item .effect-reduce,
 .mastery-system.sheet.actor.npc .status-effect-item .effect-remove {
   background: rgba(0, 0, 0, 0.35);
   border: 1px solid rgba(255, 255, 255, 0.15);
-  color: rgba(255, 255, 255, 0.75);
+  color: rgba(255, 255, 255, 0.85);
   cursor: pointer;
-  padding: 4px 8px;
+  padding: 3px 7px;
   border-radius: 4px;
-  transition: background 0.15s ease, color 0.15s ease;
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1.2;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.mastery-system.sheet.actor.npc .status-effect-item .effect-reduce:hover {
+  background: rgba(201, 162, 39, 0.35);
+  border-color: rgba(201, 162, 39, 0.55);
+  color: #fff;
 }
 
 .mastery-system.sheet.actor.npc .status-effect-item .effect-remove:hover {

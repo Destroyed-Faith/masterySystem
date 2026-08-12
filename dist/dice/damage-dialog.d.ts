@@ -60,6 +60,11 @@ export interface DamageResult {
         attackTotal?: number | null;
         evadeTn?: number | null;
     };
+    /**
+     * Faith Fracture Keep already posted this chat message as the damage card
+     * (with Keep/Reroll). Caller should update it instead of creating a second one.
+     */
+    prePostedChatMessageId?: string;
 }
 export declare function showDamageDialog(attacker: Actor, target: Actor, weaponId: string | null, selectedPowerId: string | null, raises: number, flags?: any): Promise<DamageResult | null>;
 /**

@@ -119,14 +119,23 @@ describe('reaction eligibility', () => {
     ).toBe(true);
   });
 
-  it('keeps ally powers out of defender phase and OA out of allies phase', () => {
+  it('keeps ally powers out of defender phase; retires synthetic OA; allows Counterattack in Threatened window', () => {
     const ally = { system: { templateId: 'reaction-ally-armor' }, mechanics: { armor: 3 } };
     const oa = { id: 'basic-reaction-opportunity-attack', basicReaction: 'counterattack' };
+    const counter = { id: 'basic-reaction-counterattack', basicReaction: 'counterattack' };
+    const guard = { id: 'basic-reaction-guard', basicReaction: 'guard', mechanics: { armor: 4 } };
     expect(evaluateReactionEligibility(ally, hitCtx).shown).toBe(false);
     expect(
       evaluateReactionEligibility(ally, { ...hitCtx, phase: 'allies', allyDistanceM: 3 }).shown,
     ).toBe(true);
-    expect(evaluateReactionEligibility(oa, { ...hitCtx, phase: 'allies' }).shown).toBe(false);
-    expect(evaluateReactionEligibility(oa, { ...hitCtx, phase: 'others' }).shown).toBe(true);
+    expect(evaluateReactionEligibility(oa, { ...hitCtx, phase: 'others' }).shown).toBe(false);
+    expect(evaluateReactionEligibility(counter, { ...hitCtx, phase: 'others' }).shown).toBe(true);
+    expect(evaluateReactionEligibility(guard, { ...hitCtx, phase: 'others' }).shown).toBe(false);
+    expect(
+      evaluateReactionEligibility(
+        { system: { templateId: 'reaction-counter-damage' }, mechanics: { damageRider: { flat: '+2d8' } } },
+        { ...hitCtx, phase: 'others', hit: false, rangeToAttackerM: 2 },
+      ).shown,
+    ).toBe(true);
   });
 });

@@ -558,7 +558,7 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
         ? `<div class="mastery-threatened-ranged" style="border-left:4px solid #c0392b;padding:8px;margin:8px 0;background:rgba(192,57,43,0.08);">
           <p><strong>Threatened Ranged</strong></p>
           <p><strong>Disadvantage:</strong> only <strong>one</strong> die showing 8 may explode; other 8s stay flat. Pool size and Keep are unchanged.</p>
-          <p>After this attack fully resolves, enemies who have you in <em>their</em> melee reach may spend a <strong>Reaction</strong> for an Opportunity Attack: <strong>${oppNames.length ? oppNames.join(", ") : "(none in reach)"}</strong></p>
+          <p>After this attack fully resolves, enemies who have you in <em>their</em> melee reach may spend a <strong>Reaction</strong> (Counterattack / Counter Damage / Special Increase): <strong>${oppNames.length ? oppNames.join(", ") : "(none in reach)"}</strong></p>
         </div>`
         : "";
     const aoeIdsAttr = aoeMelee && aoeMelee.secondaryTokenIds?.length
@@ -693,7 +693,7 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
                 targetTokenId: targetToken.id,
                 optionId: option.id
             });
-            ui.notifications?.info?.(`Threatened Ranged: Nachteil auf den Fernangriff. Gelegenheitsangriff (Reaktion) für: ${oppNames.join(", ") || "—"}`);
+            ui.notifications?.info?.(`Threatened Ranged: Nachteil auf den Fernangriff. Reaktion (Counterattack / Counter Damage / Special Increase) für: ${oppNames.join(", ") || "—"}`);
         }
         if (message) {
             const messageId = message.id;

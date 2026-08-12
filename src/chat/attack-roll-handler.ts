@@ -1450,10 +1450,31 @@ async function rollAndDisplayDamage(
           .filter(Boolean)
       : [];
 
+  const content = buildDamageChatContent(damageResult, target);
+
+  // Faith Keep already posted this card — refresh rolls/details, do not duplicate.
+  const prePostedId = String(damageResult?.prePostedChatMessageId || '');
+  if (prePostedId) {
+    try {
+      const existing = (game as any).messages?.get?.(prePostedId);
+      if (existing) {
+        const patch: Record<string, unknown> = { content };
+        if (serializedRolls.length > 0) {
+          patch.rolls = serializedRolls;
+          patch.sound = CONFIG.sounds.dice;
+        }
+        await existing.update(patch);
+        return existing as ChatMessage;
+      }
+    } catch (err) {
+      console.warn('Mastery System | Could not update pre-posted damage chat — creating new', err);
+    }
+  }
+
   const chatData: any = {
     user: (game as any).user?.id,
     speaker: ChatMessage.getSpeaker({ actor: attacker, token: attackerToken }),
-    content: buildDamageChatContent(damageResult, target),
+    content,
   };
 
   if (serializedRolls.length > 0) {

@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.300] - 2026-08-12
+
+### Fixed
+
+- **NPC sheet HP:** Phase HP inputs no longer orphan on submit (`phaseIndex` path); empty bars restored so current/max edit fields show again.
+- **NPC sheet Status:** Shows root `system.statusEffects` (combat writes here) with **−1/−2/−3/−4** and remove; phased sheets no longer hide statuses behind empty `phase.statusEffects`.
+- **PC damage Faith Fracture:** Removed the extra “Damage rolled — kept” chat. Keep / Reroll (1 Faith Fracture) lives on the single damage card.
+
+### Changed
+
+- **Threatened Ranged Reactions:** No universal Opportunity Attack. Post-resolve window offers offensive Reactions only (Counterattack / Counter Damage / Special Increase) vs the shooter.
+
 ## [0.9.299] - 2026-08-12
 
 ### Removed

@@ -33,7 +33,11 @@ import {
   STARTING_MASTERY_RANK,
 } from '../utils/mastery-rank-sync.js';
 import { getDivineScale } from '../utils/constants.js';
-import { sumNpcAttackSlotsFromPowers } from '../utils/npc-attack-model.js';
+import {
+  coerceNpcPhasesArray,
+  ensureNpcHealthState,
+  sumNpcAttackSlotsFromPowers,
+} from '../utils/npc-attack-model.js';
 
 export class MasteryActor extends Actor {
   // NOTE: Do NOT override prepareData() here. Core v13 already runs
@@ -376,6 +380,30 @@ export class MasteryActor extends Actor {
               bar.max = maxStress;
               bar.current = Math.min(Math.floor(maxStress * ratio), maxStress);
             }
+          }
+        }
+      }
+    }
+
+    // NPCs: keep a single editable HP bar (root + each boss phase). Sheet
+    // submits that omit bars used to wipe phase.health — repair here so the
+    // sheet and damage pipeline always see current/max fields.
+    if ((this as any).type === 'npc') {
+      system.health = ensureNpcHealthState(system.health);
+      const phases = coerceNpcPhasesArray(system.phases);
+      if (phases.length > 0) {
+        const repaired = phases.map((phase: any) => {
+          if (!phase || typeof phase !== 'object') return phase;
+          return {
+            ...phase,
+            health: ensureNpcHealthState(phase.health ?? system.health),
+          };
+        });
+        if (Array.isArray(system.phases)) {
+          system.phases = repaired;
+        } else if (system.phases && typeof system.phases === 'object') {
+          for (let i = 0; i < repaired.length; i++) {
+            (system.phases as Record<string, unknown>)[String(i)] = repaired[i];
           }
         }
       }

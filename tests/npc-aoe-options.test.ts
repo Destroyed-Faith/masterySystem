@@ -6,6 +6,34 @@ import {
   resolveNpcAttackTargeting,
 } from '../src/utils/npc-attack-model.js';
 
+describe('ensureNpcHealthState', () => {
+  it('restores a default bar when bars are missing or empty', async () => {
+    const { ensureNpcHealthState, npcHealthHasBars } = await import(
+      '../src/utils/npc-attack-model.js'
+    );
+    expect(npcHealthHasBars({})).toBe(false);
+    expect(ensureNpcHealthState(undefined).bars).toEqual([
+      { name: 'Healthy', max: 30, current: 30, penalty: 0 },
+    ]);
+    expect(ensureNpcHealthState({ bars: [] }).bars[0].max).toBe(30);
+    const kept = ensureNpcHealthState({
+      bars: [{ name: 'Healthy', max: 42, current: 17, penalty: 0 }],
+      currentBar: 0,
+    });
+    expect(kept.bars[0]).toEqual({ name: 'Healthy', max: 42, current: 17, penalty: 0 });
+    expect(npcHealthHasBars(kept)).toBe(true);
+  });
+
+  it('coerces object-shaped bars', async () => {
+    const { ensureNpcHealthState } = await import('../src/utils/npc-attack-model.js');
+    const health = ensureNpcHealthState({
+      bars: { 0: { name: 'Healthy', max: 12, current: 8, penalty: 0 } },
+    });
+    expect(health.bars).toHaveLength(1);
+    expect(health.bars[0].current).toBe(8);
+  });
+});
+
 describe('coerceNpcPhasesArray', () => {
   it('reads object-shaped phases like an array', async () => {
     const { coerceNpcPhasesArray, resolveNpcAttackList } = await import(

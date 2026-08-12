@@ -14,6 +14,8 @@ import {
   readActiveSpecials,
   getActiveSpecialValue,
   statusEntryId,
+  reduceStatusEffectAt,
+  coerceStatusEffectsArray,
 } from '../src/system/active-specials';
 
 describe('special-effects rename + aliases', () => {
@@ -99,6 +101,22 @@ describe('active-specials readers', () => {
     };
     expect(getActiveSpecialValue(actor, 'ruin')).toBe(5);
     expect(getActiveSpecialValue(actor, 'slow')).toBe(0);
+  });
+
+  it('reduceStatusEffectAt lowers stacks and removes at 0', () => {
+    const list = [
+      { id: 'lacerate', name: 'Lacerate', value: 5 },
+      { id: 'slow', name: 'Slow', value: 2 },
+    ];
+    expect(reduceStatusEffectAt(list, 0, 2)[0]).toMatchObject({ id: 'lacerate', value: 3 });
+    expect(reduceStatusEffectAt(list, 1, 4)).toHaveLength(1);
+    expect(reduceStatusEffectAt(list, 1, 4)[0].id).toBe('lacerate');
+  });
+
+  it('coerceStatusEffectsArray accepts object-shaped lists', () => {
+    expect(
+      coerceStatusEffectsArray({ 0: { id: 'ruin', value: 1 }, 1: { id: 'slow', value: 2 } }),
+    ).toHaveLength(2);
   });
 });
 

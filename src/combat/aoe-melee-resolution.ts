@@ -240,20 +240,40 @@ export async function resolveAoeFullPayloadOnTarget(params: {
   const details = Array.isArray(damageResult.rollDetails)
     ? (damageResult.rollDetails as string[]).map((l) => `<li>${String(l)}</li>`).join('')
     : '';
-  const dmgMsg = await ChatMessage.create({
-    user: (game as any).user?.id,
-    speaker: ChatMessage.getSpeaker({ actor: attacker }),
-    content:
-      `<div class="mastery-system-damage"><h3><i class="fas fa-sword"></i> AoE Damage: ${damageResult.totalDamage}</h3>` +
-      (details ? `<ul class="mastery-damage-roll-list">${details}</ul>` : '') +
-      `<p><strong>Target:</strong> ${defender.name}</p><p><em>— applying…</em></p></div>`,
-    rolls: Array.isArray(damageResult.damageChatRolls)
-      ? damageResult.damageChatRolls
-          .map((r: any) => (typeof r?.toJSON === 'function' ? r.toJSON() : r))
-          .filter(Boolean)
-      : undefined,
-    sound: CONFIG.sounds.dice,
-  } as any);
+  const aoeContent =
+    `<div class="mastery-system-damage"><h3><i class="fas fa-sword"></i> AoE Damage: ${damageResult.totalDamage}</h3>` +
+    (details ? `<ul class="mastery-damage-roll-list">${details}</ul>` : '') +
+    `<p><strong>Target:</strong> ${defender.name}</p><p><em>— applying…</em></p></div>`;
+  const aoeRolls = Array.isArray(damageResult.damageChatRolls)
+    ? damageResult.damageChatRolls
+        .map((r: any) => (typeof r?.toJSON === 'function' ? r.toJSON() : r))
+        .filter(Boolean)
+    : undefined;
+
+  let dmgMsg: any = null;
+  const prePostedId = String((damageResult as any)?.prePostedChatMessageId || '');
+  if (prePostedId) {
+    dmgMsg = (game as any).messages?.get?.(prePostedId) ?? null;
+    if (dmgMsg) {
+      try {
+        await dmgMsg.update({
+          content: aoeContent,
+          ...(aoeRolls?.length ? { rolls: aoeRolls, sound: CONFIG.sounds.dice } : {}),
+        });
+      } catch {
+        dmgMsg = null;
+      }
+    }
+  }
+  if (!dmgMsg) {
+    dmgMsg = await ChatMessage.create({
+      user: (game as any).user?.id,
+      speaker: ChatMessage.getSpeaker({ actor: attacker }),
+      content: aoeContent,
+      rolls: aoeRolls,
+      sound: CONFIG.sounds.dice,
+    } as any);
+  }
 
   if (damageResult.pendingApply) {
     let phasedOut = false;

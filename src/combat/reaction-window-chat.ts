@@ -225,12 +225,21 @@ function filterEntriesForCard(
       if (!id || spent.has(id)) {
         return { ...e, powers: [], remaining: 0 };
       }
+      // Opportunity reactors: range is reactor ↔ shooter, not original defender ↔ shooter.
+      const rangeSubject =
+        e.role === 'opportunity'
+          ? e.actor
+          : phase === 'allies'
+            ? defender
+            : e.role === 'defender'
+              ? e.actor
+              : defender;
       const ctx = buildReactionTriggerContext({
         phase,
         hit: state.hit,
         attackTotal: state.attackTotal,
         evadeTn: state.evadeTn,
-        defender: phase === 'allies' ? defender : e.role === 'defender' ? e.actor : defender,
+        defender: rangeSubject,
         attacker,
         allyDistanceM: e.role === 'ally' ? e.distanceM : null,
         suppressCounterattack: state.suppressCounterattack,
@@ -265,19 +274,19 @@ function buildReactionWindowHtml(
       : phase === 'allies'
         ? `⚡ Reaction Window — Allies${remainingSuffix}`
         : phase === 'opportunity'
-          ? `⚡ Opportunity Attacks${remainingSuffix}`
-          : `⚡ After attack — Opportunity Attacks${remainingSuffix}`;
+          ? `⚡ Threatened Ranged — Reactions${remainingSuffix}`
+          : `⚡ After attack — Threatened Reactions${remainingSuffix}`;
 
-  const hasOa = (state.opportunityEnemyTokenIds?.length ?? 0) > 0;
+  const hasThreatened = (state.opportunityEnemyTokenIds?.length ?? 0) > 0;
   let hitLine: string;
   if (phase === 'opportunity') {
-    hitLine = `<p><strong>${escHtml(attackerName)}</strong>'s attack is done — enemies in melee reach may spend a <strong>Reaction</strong> for an Opportunity Attack (in parallel).</p>`;
+    hitLine = `<p><strong>${escHtml(attackerName)}</strong>'s attack is done — enemies who had the shooter in melee reach may spend a <strong>Reaction</strong> (offensive Reactions vs the shooter, in parallel).</p>`;
   } else if (phase === 'others') {
     const dmgBit = state.hit
       ? `damage applied (${Math.max(0, Math.floor(state.rawDamage))})`
       : 'attack resolved';
-    hitLine = hasOa
-      ? `<p><strong>${escHtml(attackerName)}</strong> → <strong>${escHtml(defenderName)}</strong> — ${dmgBit}. Threatened enemies may Opportunity Attack. Summary shrinks as each acts or Declines.</p>`
+    hitLine = hasThreatened
+      ? `<p><strong>${escHtml(attackerName)}</strong> → <strong>${escHtml(defenderName)}</strong> — ${dmgBit}. Threatened enemies may spend a <strong>Reaction</strong> (Counterattack / Counter Damage / Special Increase). Summary shrinks as each acts or Declines.</p>`
       : `<p><strong>${escHtml(attackerName)}</strong> → <strong>${escHtml(defenderName)}</strong> — ${dmgBit}.</p>`;
   } else if (phase === 'allies') {
     hitLine = state.hit
@@ -313,7 +322,7 @@ function buildReactionWindowHtml(
       ? `<p style="opacity:0.9;"><strong>GM:</strong> Reactions abgeschlossen — keine weiteren Karten.</p>${usedBlock}`
       : `<p style="opacity:0.9;">Reaction window closed.</p>${usedBlock}`;
   } else if (!actionable.length) {
-    if (phase === 'opportunity' || (phase === 'others' && hasOa)) {
+    if (phase === 'opportunity' || (phase === 'others' && hasThreatened)) {
       const oppEntries = entries.filter((e) => e.role === 'opportunity');
       const skipLines =
         oppEntries.length > 0
@@ -324,16 +333,16 @@ function buildReactionWindowHtml(
                 const why =
                   left <= 0
                     ? `no Reactions left this round (${tot - left}/${tot} used)`
-                    : 'no Opportunity Attack available';
+                    : 'no usable offensive Reaction (Counterattack / Counter Damage / Special Increase)';
                 return `<li><strong>${escHtml(e.name)}</strong> — ${escHtml(why)}</li>`;
               })
               .join('')}</ul>`
           : '';
-      body = `<p>No Opportunity Attacks available right now.</p>${skipLines}${usedBlock}`;
+      body = `<p>No Threatened Reactions available right now.</p>${skipLines}${usedBlock}`;
     } else if (phase === 'allies') {
       body = `<p>No nearby allies with an Ally Reaction / Interpose ready.</p>${usedBlock}`;
     } else if (phase === 'others') {
-      body = `<p>No Opportunity Attacks available.</p>${usedBlock}`;
+      body = `<p>No Threatened Reactions available.</p>${usedBlock}`;
     } else {
       const def = entries.find((e) => e.role === 'defender');
       const defId = def ? String((def.actor as any)?.id ?? '') : '';
@@ -416,13 +425,17 @@ function buildReactionWindowHtml(
     const skippedBlock =
       skippedOpp.length > 0
         ? `<div class="ms-reaction-window-skipped" style="margin:0.45em 0;opacity:0.9;font-size:0.92em;">
-            <div><strong>Cannot Opportunity Attack:</strong></div>
+            <div><strong>Cannot react (Threatened):</strong></div>
             <ul style="margin:0.2em 0 0 1.2em;padding:0;">
               ${skippedOpp
                 .map((e) => {
                   const left = Math.max(0, Math.floor(Number(e.remaining) || 0));
                   const tot = Math.max(0, Math.floor(Number(e.total) || 0));
-                  return `<li><strong>${escHtml(e.name)}</strong> — no Reactions left (${tot - left}/${tot} used)</li>`;
+                  const why =
+                    left <= 0
+                      ? `no Reactions left (${tot - left}/${tot} used)`
+                      : 'no usable offensive Reaction';
+                  return `<li><strong>${escHtml(e.name)}</strong> — ${escHtml(why)}</li>`;
                 })
                 .join('')}
             </ul>
@@ -431,11 +444,9 @@ function buildReactionWindowHtml(
     const intro =
       phase === 'defender'
         ? `<p>The <strong>target</strong> may use <strong>one</strong> Reaction now (before damage):</p>`
-        : phase === 'opportunity'
-          ? `<p>Each listed combatant may spend <strong>one</strong> Reaction for an Opportunity Attack (cards open in parallel — original attack already finished):</p>`
-          : hasOa
-            ? `<p>Each listed combatant may spend <strong>one</strong> Reaction (Opportunity Attack and/or Ally powers). Cards open in parallel:</p>`
-            : `<p>Each ally may use <strong>one</strong> Reaction for this event:</p>`;
+        : phase === 'opportunity' || (phase === 'others' && hasThreatened)
+          ? `<p>Each listed combatant may spend <strong>one</strong> Reaction vs the shooter (Counterattack / Counter Damage / Special Increase). Cards open in parallel — original attack already finished:</p>`
+          : `<p>Each ally may use <strong>one</strong> Reaction for this event:</p>`;
     body = `${intro}${blocks}${skippedBlock}${usedBlock}`;
   }
 
@@ -501,7 +512,9 @@ async function resolveActors(state: ReactionWindowState): Promise<{
 function buildSupersededReactionHtml(state: ReactionWindowState, remainingN: number): string {
   const phase = state.phase ?? 'others';
   const label =
-    phase === 'opportunity' ? 'Opportunity Attacks' : 'After attack — Reactions';
+    phase === 'opportunity' || phase === 'others'
+      ? 'Threatened Reactions'
+      : 'After attack — Reactions';
   const rem =
     remainingN > 0 ? `${remainingN} remaining` : 'updated';
   return `<div class="mastery-reaction-window" data-reaction-event="${escHtml(state.eventId)}" data-reaction-phase="${escHtml(phase)}" data-reaction-superseded="1">
@@ -705,20 +718,20 @@ async function executeReactionSpend(params: {
   const mech = mechanicsOf(power);
   const isCounterattack = power?.basicReaction === 'counterattack';
 
-  // Threatened Ranged OA: open attack card without blocking the summary
-  // (original attack already finished; multiple OAs may run in parallel).
-  if (role === 'opportunity') {
-    note = ` <em>(Opportunity Attack vs ${String((attacker as any)?.name ?? 'the shooter')} — card opened, roll when ready.)</em>`;
+  // Threatened Ranged: offensive reactions vs the shooter. Original attack
+  // already finished — Counterattack cards open in parallel (non-blocking).
+  if (role === 'opportunity' && isCounterattack) {
+    note = ` <em>(Counterattack vs ${String((attacker as any)?.name ?? 'the shooter')} — card opened, roll when ready.)</em>`;
     if (attacker) {
       try {
         await launchBasicCounterattack(actor, attacker, {
           awaitResolution: false,
-          label: 'Opportunity Attack',
+          label: 'Counterattack',
         });
       } catch (err) {
-        console.warn('Mastery System | Opportunity Attack launch failed', err);
+        console.warn('Mastery System | Threatened Counterattack launch failed', err);
         (globalThis as any).ui?.notifications?.warn?.(
-          'Opportunity Attack: could not open attack card — resolve manually.',
+          'Counterattack: could not open attack card — resolve manually.',
         );
       }
     }
@@ -886,7 +899,9 @@ async function executeReactionSpend(params: {
   }
 
   // Counter Damage (+ optional Push confirm).
-  if (state.hit && attacker && isCounterDamageReaction(power)) {
+  // Threatened Ranged reactors were not the hit target — still allowed vs shooter.
+  const allowOffensiveVsShooter = state.hit || role === 'opportunity';
+  if (allowOffensiveVsShooter && attacker && isCounterDamageReaction(power)) {
     const flat = String(mech?.damageRider?.flat ?? '').replace(/^\+/, '');
     if (flat) {
       try {
@@ -933,8 +948,8 @@ async function executeReactionSpend(params: {
     }
   }
 
-  // Special Increase — bump an existing Special on the attacker.
-  if (state.hit && attacker && isSpecialIncreaseReaction(power)) {
+  // Special Increase — bump an existing Special on the attacker / shooter.
+  if (allowOffensiveVsShooter && attacker && isSpecialIncreaseReaction(power)) {
     const amount = Math.max(0, Math.floor(Number((mech as any)?.modifySpecial?.amount) || 0));
     if (amount > 0) {
       try {
@@ -1017,7 +1032,9 @@ async function executeReactionSpend(params: {
     }
   }
 
-  if (isCounterattack) {
+  // Defender Counterattack (pre-damage) — blocks until resolved. Threatened
+  // Counterattack already returned above with awaitResolution: false.
+  if (isCounterattack && role !== 'opportunity') {
     note += ` <em>(Basic Counterattack vs ${String((attacker as any)?.name ?? 'attacker')} — resolve it now; original damage is paused.)</em>`;
     if (attacker) {
       try {
@@ -1138,7 +1155,7 @@ async function handleUseClick(messageId: string, actorId: string, powerId: strin
     return;
   }
   if (busyReactionMessages.has(messageId)) {
-    g.ui?.notifications?.warn?.('Finish the pending Counterattack / Opportunity Attack first.');
+    g.ui?.notifications?.warn?.('Finish the pending Counterattack first.');
     return;
   }
 
@@ -1279,7 +1296,7 @@ async function handleContinueClick(messageId: string): Promise<void> {
   if (!state || state.resolved) return;
   if (busyReactionMessages.has(messageId)) {
     g.ui?.notifications?.warn?.(
-      'Finish the pending Counterattack / Opportunity Attack before continuing.',
+      'Finish the pending Counterattack before continuing.',
     );
     return;
   }
@@ -1353,7 +1370,7 @@ export async function runInteractiveReactionWindow(params: {
    * Defender phase still posts an info card so the table sees "no reactions left".
    */
   silentIfEmpty?: boolean;
-  /** Threatened Ranged: token ids that may spend a Reaction for an Opportunity Attack. */
+  /** Threatened Ranged: token ids that may spend a Reaction vs the shooter. */
   opportunityEnemyTokenIds?: string[] | null;
   /** Hide Counterattack buttons (nested reaction-counterattack resolution). */
   suppressCounterattack?: boolean;

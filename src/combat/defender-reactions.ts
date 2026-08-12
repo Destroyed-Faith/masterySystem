@@ -221,7 +221,10 @@ export function buildInterposeReactionItem(): any {
   };
 }
 
-/** Synthetic Opportunity Attack button (Threatened Ranged / leaving reach). */
+/**
+ * @deprecated No universal Opportunity Attack (reactions.md). Kept only so old
+ * chat cards / tests referencing the id do not crash on import.
+ */
 export function buildOpportunityAttackReactionItem(actor: any): any {
   const mr2 = Math.max(2, Math.floor(Number(actor?.system?.mastery?.rank) || 2) * 2);
   return {
@@ -236,6 +239,29 @@ export function buildOpportunityAttackReactionItem(actor: any): any {
     basicReaction: 'counterattack',
     mechanics: {},
   };
+}
+
+/**
+ * Offensive reactions for Threatened Ranged (shooter in your melee reach).
+ * Not the attack target — Guard/Evade/Ally mitigation do not apply here.
+ */
+export function isThreatenedRangedOffensiveReaction(item: any): boolean {
+  if (String(item?.id || '') === 'basic-reaction-opportunity-attack') return false;
+  if (String(item?.basicReaction || '') === 'counterattack') return true;
+  const tid = String(item?.system?.templateId ?? '').toLowerCase();
+  if (tid === 'reaction-counter-damage' || tid === 'reaction-counter-damage-push') return true;
+  if (tid === 'reaction-special-increase') return true;
+  const sub = String(item?.system?.subfamily ?? '').toLowerCase();
+  if (sub === 'counter') return true;
+  const mech = resolvePowerMechanics(item);
+  if (mech?.modifySpecial?.mode === 'increaseExisting' && mech?.modifySpecial?.type === 'chosen') {
+    return true;
+  }
+  const flat = String(mech?.damageRider?.flat ?? '');
+  if (/d8/i.test(flat) && sub !== 'parry' && !tid.includes('riposte') && !tid.includes('reflection')) {
+    return true;
+  }
+  return false;
 }
 
 /** Duplicate Initiative Gain sources do not stack — keep only the highest version. */
@@ -267,16 +293,16 @@ function dedupeInitiativeGainReactions(powers: any[]): any[] {
 }
 
 /**
- * Defender + nearby allies + Threatened Ranged opportunity attackers.
+ * Defender + nearby allies + Threatened Ranged reactors.
  * - defender: own reactions
  * - allies: Ally-* reactions only (within 4 m)
- * - opportunity: Opportunity Attack (token ids from Threatened Ranged)
+ * - opportunity: offensive reactions vs the shooter (token ids from Threatened Ranged)
  */
 export function collectReactionWindowEntries(params: {
   defender: Actor;
   attacker: Actor | null;
   combat: Combat;
-  /** Token ids of enemies who may OA the shooter (Threatened Ranged). */
+  /** Token ids of enemies in melee reach of the shooter (Threatened Ranged). */
   opportunityEnemyTokenIds?: string[] | null;
 }): ReactionWindowActorEntry[] {
   const { defender, attacker, combat } = params;
@@ -384,17 +410,18 @@ export function collectReactionWindowEntries(params: {
         seenActorIds.add(oppActorId);
 
         const summary = getReactionActionsSummary(economyOpp, combat);
-        // Always list OA candidates (even at 0 Reactions) so the post-attack
-        // card can explain why Alaris/Fynn cannot strike — never silent-skip.
+        const offensivePowers =
+          summary.remaining > 0
+            ? getEligibleReactionPowers(economyOpp, combat).filter(isThreatenedRangedOffensiveReaction)
+            : [];
+        // Always list Threatened candidates (even at 0 Reactions / no powers)
+        // so the post-attack card can explain why they cannot act.
         out.push({
           actor: economyOpp,
           name,
           remaining: summary.remaining,
           total: summary.total,
-          powers:
-            summary.remaining > 0
-              ? [buildOpportunityAttackReactionItem(economyOpp)]
-              : [],
+          powers: offensivePowers,
           role: 'opportunity',
           distanceM: null,
         });
@@ -402,9 +429,13 @@ export function collectReactionWindowEntries(params: {
           tokenId: tid,
           name,
           included: true,
-          canAct: summary.remaining > 0,
+          canAct: summary.remaining > 0 && offensivePowers.length > 0,
+          powerIds: offensivePowers.map((p: any) => String(p?.id || p?.name || '')),
           reactions: summary,
           ...(summary.remaining <= 0 ? { note: 'no-reactions-left' } : {}),
+          ...(summary.remaining > 0 && !offensivePowers.length
+            ? { note: 'no-offensive-reactions' }
+            : {}),
         });
       }
     } catch (err) {
@@ -416,11 +447,11 @@ export function collectReactionWindowEntries(params: {
 
   const includedOpp = out.filter((e) => e.role === 'opportunity').map((e) => e.name);
   console.log(
-    `[MS Threatened Ranged] Phase-2/others opportunity build ids=[${oppIds.join(', ') || 'none'}] ` +
+    `[MS Threatened Ranged] Phase-2/others threatened-reactors ids=[${oppIds.join(', ') || 'none'}] ` +
       `included=[${includedOpp.join(', ') || 'none'}]`,
   );
   for (const row of oppDebug) {
-    console.log(`[MS Threatened Ranged]   OA row: ${JSON.stringify(row)}`);
+    console.log(`[MS Threatened Ranged]   reactor row: ${JSON.stringify(row)}`);
   }
 
   return out;

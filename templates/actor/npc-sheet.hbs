@@ -157,31 +157,38 @@
             <label>HP:</label>
             {{#each phase.health.bars as |bar index|}}
             <div class="health-bar {{#if (eq phase.health.currentBar index)}}active{{/if}}">
-              <input type="number" name="system.phases.{{../phaseIndex}}.health.bars.{{index}}.current" value="{{bar.current}}" data-dtype="Number"/> / 
-              <input type="number" name="system.phases.{{../phaseIndex}}.health.bars.{{index}}.max" value="{{bar.max}}" data-dtype="Number"/>
+              {{!-- Use block-param phaseIndex (not ../phaseIndex): nested #each breaks ../ lookup and orphaned HP on submit. --}}
+              <input type="number" name="system.phases.{{phaseIndex}}.health.bars.{{index}}.current" value="{{bar.current}}" data-dtype="Number"/> /
+              <input type="number" name="system.phases.{{phaseIndex}}.health.bars.{{index}}.max" value="{{bar.max}}" data-dtype="Number"/>
               <span class="bar-penalty">({{bar.penalty}})</span>
             </div>
             {{/each}}
           </div>
         </div>
 
-        {{!-- Status Effects --}}
+        {{!-- Status Effects (root system.statusEffects — shared across phases) --}}
         <div class="status-effects-panel npc-section">
           <h3 class="npc-section__title"><i class="fas fa-bolt"></i> Status</h3>
           <div class="status-effects-list">
-            {{#if phase.statusEffects}}
-              {{#each phase.statusEffects as |effect index|}}
-              <div class="status-effect-item" data-effect-index="{{index}}" data-phase-index="{{../phaseIndex}}">
+            {{#if hasNpcStatusEffects}}
+              {{#each npcStatusEffects as |effect|}}
+              <div class="status-effect-item" data-effect-index="{{effect.index}}">
                 <span class="effect-name">
                   <i class="fas fa-exclamation-triangle"></i>
                   {{effect.name}}
-                  {{#if effect.value}}
+                  {{#if effect.hasValue}}
                     <span class="effect-value">({{effect.value}})</span>
                   {{/if}}
                 </span>
-                <button type="button" class="effect-remove" data-effect-index="{{index}}" data-phase-index="{{../phaseIndex}}" title="Remove Effect">
-                  <i class="fas fa-times"></i>
-                </button>
+                <div class="effect-actions">
+                  <button type="button" class="effect-reduce" data-effect-index="{{effect.index}}" data-steps="1" title="−1 Stufe">−1</button>
+                  <button type="button" class="effect-reduce" data-effect-index="{{effect.index}}" data-steps="2" title="−2 Stufen">−2</button>
+                  <button type="button" class="effect-reduce" data-effect-index="{{effect.index}}" data-steps="3" title="−3 Stufen">−3</button>
+                  <button type="button" class="effect-reduce" data-effect-index="{{effect.index}}" data-steps="4" title="−4 Stufen">−4</button>
+                  <button type="button" class="effect-remove" data-effect-index="{{effect.index}}" title="Status entfernen">
+                    <i class="fas fa-times"></i>
+                  </button>
+                </div>
               </div>
               {{/each}}
             {{else}}
@@ -370,19 +377,25 @@
       <div class="status-effects-panel npc-section">
         <h3 class="npc-section__title"><i class="fas fa-bolt"></i> Status</h3>
         <div class="status-effects-list">
-          {{#if system.statusEffects}}
-            {{#each system.statusEffects as |effect index|}}
-            <div class="status-effect-item" data-effect-index="{{index}}">
+          {{#if hasNpcStatusEffects}}
+            {{#each npcStatusEffects as |effect|}}
+            <div class="status-effect-item" data-effect-index="{{effect.index}}">
               <span class="effect-name">
                 <i class="fas fa-exclamation-triangle"></i>
                 {{effect.name}}
-                {{#if effect.value}}
+                {{#if effect.hasValue}}
                   <span class="effect-value">({{effect.value}})</span>
                 {{/if}}
               </span>
-              <button type="button" class="effect-remove" data-effect-index="{{index}}" title="Remove Effect">
-                <i class="fas fa-times"></i>
-              </button>
+              <div class="effect-actions">
+                <button type="button" class="effect-reduce" data-effect-index="{{effect.index}}" data-steps="1" title="−1 Stufe">−1</button>
+                <button type="button" class="effect-reduce" data-effect-index="{{effect.index}}" data-steps="2" title="−2 Stufen">−2</button>
+                <button type="button" class="effect-reduce" data-effect-index="{{effect.index}}" data-steps="3" title="−3 Stufen">−3</button>
+                <button type="button" class="effect-reduce" data-effect-index="{{effect.index}}" data-steps="4" title="−4 Stufen">−4</button>
+                <button type="button" class="effect-remove" data-effect-index="{{effect.index}}" title="Status entfernen">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
             </div>
             {{/each}}
           {{else}}

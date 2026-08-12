@@ -1245,10 +1245,30 @@ async function rollAndDisplayDamage(damageResult, attacker, target, _flags) {
             .map((r) => (typeof r?.toJSON === 'function' ? r.toJSON() : r))
             .filter(Boolean)
         : [];
+    const content = buildDamageChatContent(damageResult, target);
+    // Faith Keep already posted this card — refresh rolls/details, do not duplicate.
+    const prePostedId = String(damageResult?.prePostedChatMessageId || '');
+    if (prePostedId) {
+        try {
+            const existing = game.messages?.get?.(prePostedId);
+            if (existing) {
+                const patch = { content };
+                if (serializedRolls.length > 0) {
+                    patch.rolls = serializedRolls;
+                    patch.sound = CONFIG.sounds.dice;
+                }
+                await existing.update(patch);
+                return existing;
+            }
+        }
+        catch (err) {
+            console.warn('Mastery System | Could not update pre-posted damage chat — creating new', err);
+        }
+    }
     const chatData = {
         user: game.user?.id,
         speaker: ChatMessage.getSpeaker({ actor: attacker, token: attackerToken }),
-        content: buildDamageChatContent(damageResult, target),
+        content,
     };
     if (serializedRolls.length > 0) {
         chatData.rolls = serializedRolls;

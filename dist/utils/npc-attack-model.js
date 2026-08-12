@@ -249,6 +249,63 @@ export function coerceNpcPhasesArray(raw) {
     }
     return [];
 }
+/** Default single-bar NPC / phase HP block (editable current/max). */
+export function defaultNpcHealth() {
+    return {
+        bars: [{ name: 'Healthy', max: 30, current: 30, penalty: 0 }],
+        currentBar: 0,
+        tempHP: 0,
+    };
+}
+function coerceHealthBarsArray(raw) {
+    if (Array.isArray(raw))
+        return raw;
+    if (raw && typeof raw === 'object') {
+        return Object.keys(raw)
+            .filter((k) => /^\d+$/.test(k))
+            .sort((a, b) => parseInt(a, 10) - parseInt(b, 10))
+            .map((k) => raw[k]);
+    }
+    return [];
+}
+/**
+ * Ensure an NPC (or boss-phase) health blob has at least one usable bar.
+ * Repairs empty / object-shaped `bars` left behind after bad sheet submits.
+ */
+export function ensureNpcHealthState(raw) {
+    const fallback = defaultNpcHealth();
+    if (!raw || typeof raw !== 'object')
+        return fallback;
+    const src = raw;
+    const bars = coerceHealthBarsArray(src.bars)
+        .filter((bar) => bar && typeof bar === 'object')
+        .map((bar, index) => {
+        const max = bar.max !== undefined && bar.max !== null && Number.isFinite(Number(bar.max))
+            ? Number(bar.max)
+            : 30;
+        const current = bar.current !== undefined && bar.current !== null && Number.isFinite(Number(bar.current))
+            ? Number(bar.current)
+            : max;
+        const penalty = bar.penalty !== undefined && bar.penalty !== null && Number.isFinite(Number(bar.penalty))
+            ? Number(bar.penalty)
+            : 0;
+        return {
+            name: String(bar.name || `Bar ${index + 1}`),
+            max,
+            current,
+            penalty,
+        };
+    });
+    if (bars.length === 0)
+        return fallback;
+    const currentBar = Math.max(0, Math.min(bars.length - 1, Math.floor(Number(src.currentBar) || 0)));
+    const tempHP = Math.max(0, Math.floor(Number(src.tempHP) || 0));
+    return { bars, currentBar, tempHP };
+}
+/** True when health already has at least one bar (array or numeric-key object). */
+export function npcHealthHasBars(raw) {
+    return coerceHealthBarsArray(raw?.bars).length > 0;
+}
 function attackValuesArray(raw) {
     if (Array.isArray(raw))
         return raw;
