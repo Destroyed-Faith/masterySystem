@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.307] - 2026-08-12
+
+### Fixed
+
+- **Skills tab:** Perception category shows again at the top (sheet/hub still looked for the old "Awareness" label after the rename).
+
 ## [0.9.306] - 2026-08-12
 
 ### Changed

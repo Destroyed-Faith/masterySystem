@@ -7,7 +7,7 @@ import { actorHasProgressionArtifacts, listUnwiredEmbeddedArtifacts, } from '../
 import { attributeBandCost, powerLevelCost } from '../utils/constants.js';
 import { getPowerMinLevel as resolvePowerMinLevel } from '../utils/power-xp-refund.js';
 import { calculateMaxPowerLevel, calculateMaxSkillRank } from '../utils/calculations.js';
-import { SKILLS } from '../utils/skills.js';
+import { SKILLS, SKILL_CATEGORIES } from '../utils/skills.js';
 import * as stepRule from '../utils/xp-step-rule.js';
 export const ATTRIBUTE_KEYS = [
     'might',
@@ -193,12 +193,12 @@ export function buildProgressionHubContext(actor) {
         });
     }
     const categoryOrder = [
-        'Awareness',
-        'Physical',
-        'Knowledge & Craft',
-        'Social',
-        'Survival',
-        'Martial',
+        SKILL_CATEGORIES.AWARENESS,
+        SKILL_CATEGORIES.PHYSICAL,
+        SKILL_CATEGORIES.KNOWLEDGE_CRAFT,
+        SKILL_CATEGORIES.SOCIAL,
+        SKILL_CATEGORIES.SURVIVAL,
+        SKILL_CATEGORIES.MARTIAL,
     ];
     const skillGroups = categoryOrder
         .filter((c) => skillsByCategory[c]?.length)

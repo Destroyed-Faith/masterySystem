@@ -1645,21 +1645,33 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         for (const category in skillsByCategory) {
             skillsByCategory[category].sort((a, b) => a.name.localeCompare(b.name));
         }
-        // Convert to array of category objects
+        // Convert to array of category objects.
+        // Category labels come from SKILL_CATEGORIES (Awareness key → "Perception").
         const categoryOrder = [
-            'Awareness',
-            'Physical',
-            'Knowledge & Craft',
-            'Social',
-            'Survival',
-            'Martial'
+            SKILL_CATEGORIES.AWARENESS,
+            SKILL_CATEGORIES.PHYSICAL,
+            SKILL_CATEGORIES.KNOWLEDGE_CRAFT,
+            SKILL_CATEGORIES.SOCIAL,
+            SKILL_CATEGORIES.SURVIVAL,
+            SKILL_CATEGORIES.MARTIAL,
         ];
         const groupedSkills = [];
+        const seen = new Set();
         for (const category of categoryOrder) {
             if (skillsByCategory[category] && skillsByCategory[category].length > 0) {
                 groupedSkills.push({
                     category,
                     skills: skillsByCategory[category]
+                });
+                seen.add(category);
+            }
+        }
+        // Don't drop categories if labels drift again.
+        for (const category of Object.keys(skillsByCategory)) {
+            if (!seen.has(category) && skillsByCategory[category].length > 0) {
+                groupedSkills.push({
+                    category,
+                    skills: skillsByCategory[category],
                 });
             }
         }
@@ -6061,6 +6073,11 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         }
         if (skillPointsSpent !== skillPointsConfig) {
             ui.notifications?.error(`Must spend exactly ${skillPointsConfig} skill points. Currently spent: ${skillPointsSpent}`);
+            return;
+        }
+        const skillAlloc = validateCreationSkillAllocation(system);
+        if (!skillAlloc.ok) {
+            ui.notifications?.error(skillAlloc.reason || 'Invalid skill allocation.');
             return;
         }
         const towerErr = validateTowerWizardCreation(this.actor);

@@ -1786,22 +1786,34 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       skillsByCategory[category].sort((a: any, b: any) => a.name.localeCompare(b.name));
     }
     
-    // Convert to array of category objects
+    // Convert to array of category objects.
+    // Category labels come from SKILL_CATEGORIES (Awareness key → "Perception").
     const categoryOrder = [
-      'Awareness',
-      'Physical',
-      'Knowledge & Craft',
-      'Social',
-      'Survival',
-      'Martial'
+      SKILL_CATEGORIES.AWARENESS,
+      SKILL_CATEGORIES.PHYSICAL,
+      SKILL_CATEGORIES.KNOWLEDGE_CRAFT,
+      SKILL_CATEGORIES.SOCIAL,
+      SKILL_CATEGORIES.SURVIVAL,
+      SKILL_CATEGORIES.MARTIAL,
     ];
     const groupedSkills: any[] = [];
+    const seen = new Set<string>();
     
     for (const category of categoryOrder) {
       if (skillsByCategory[category] && skillsByCategory[category].length > 0) {
         groupedSkills.push({
           category,
           skills: skillsByCategory[category]
+        });
+        seen.add(category);
+      }
+    }
+    // Don't drop categories if labels drift again.
+    for (const category of Object.keys(skillsByCategory)) {
+      if (!seen.has(category) && skillsByCategory[category].length > 0) {
+        groupedSkills.push({
+          category,
+          skills: skillsByCategory[category],
         });
       }
     }
