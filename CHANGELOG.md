@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.309] - 2026-08-12
+
+### Fixed
+
+- **Install size:** Compressed oversized logo/banner/item icons so the release ZIP is ~22 MB (was ~53 MB), reducing Forge/Bazaar download failures.
+
 ## [0.9.308] - 2026-08-12
 
 ### Fixed
