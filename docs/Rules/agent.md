@@ -516,7 +516,7 @@ A Special is eligible for Special Overdrive only if all of the following are tru
 - the Special does not grant or modify Damage Reduction,
 - the Special does not grant or modify Phasing.
 
-Common eligible examples include **Blight(X)**, **Challenge(X)**, **Corrode(X)**, **Disoriented(X)**, **Expose(X)**, **Hex(X)**, **Lacerate(X)**, **Mark(X)**, **Ruin(X)**, **Slow(X)**, **Soulburn(X)**, **Sundered(X)**, and **Weaken(X)**.
+Common eligible examples include **Blight(X)**, **Challenge(X)**, **Corrode(X)**, **Disoriented(X)**, **Expose(X)**, **Hex(X)**, **Lacerate(X)**, **Mark(X)**, **Ruin(X)**, **Exorcism(X)**, **Requiem(X)**, **Slow(X)**, **Soulburn(X)**, **Sundered(X)**, and **Weaken(X)**.
 
 Common ineligible examples include **Stunned**, **Prone**, **Immovable**, **Mental Control**, binary **Immobilized**, or any other non-numeric control or lock, any Special without **(X)**, any full-turn denial, any full-reaction denial, any effect that modifies **Damage Reduction** or **Phasing**, **Barriers**, **Walls**, **Images**, **Summons**, **Illusion Fields**, and **Persistent Zones**.
 
@@ -1744,6 +1744,8 @@ Diminishing effects use **Start PP × T(X)** pricing.
 | **Lacerate(X)** | **4** | X = movement damage per trigger | The first time each turn you voluntarily move more than **0 m**, take **X** damage. Moving more than half Speed deals **+X** again; exceeding normal Speed deals **+X** again. | Yes |
 | **Mark(X)** | **4** | X = spendable damage-floor value | After a hit, spend any amount of Mark to set the minimum result of each damage die to the amount spent for that damage roll, then reduce Mark by that amount. | Yes |
 | **Regeneration(X)** | **3** | X = healing on Tick | At Tick, heal **X HP**. | No |
+| **Exorcism(X)** | **2** | X = damage on Tick (Fiend only) | At Tick, take **X** damage (ignores Armor unless stated). Applies only to **Fiends**. | Yes |
+| **Requiem(X)** | **2** | X = damage on Tick (Undead only) | At Tick, take **X** damage (ignores Armor unless stated). Applies only to **Undead**. | Yes |
 | **Ruin(X)** | **4** | X = damage on Tick | At Tick, take **X** damage. | Yes |
 | **Slow(X)** | **4** | X = Speed reduction in meters | Your Speed is reduced by **X m**. If you do not voluntarily move at least 1 m during your turn, take **X damage** at the end of your turn. | Yes |
 | **Soulburn(X)** | **8** | X = dice removed from Wits, Influence, and Resolve pools | Whenever you build a pool based on **Wits**, **Influence**, or **Resolve**, remove **X dice**. | Yes |
@@ -1954,8 +1956,6 @@ Instant effects resolve immediately and do not create ongoing tracking unless th
 | **Precision(X)** | **15 × X PP** | X = bonus damage dice | Instant | On hit, add **+Xd8** bonus damage. | No |
 | **Push(X)** | **2 × X PP** | X = meters pushed | Instant | Push the target **X m** immediately. | No |
 | **Pull(X)** | **2 × X PP** | X = meters pulled | Instant | Pull the target **X m** immediately. | No |
-| **Smite(X)** | **7.5 × X PP** | X = bonus damage dice vs tagged enemy types | Instant | Add **+Xd8** bonus damage vs **Undead / Fiends**. | No |
-
 > **Design Note — Instant Effects**
 > Instant effects are the cleanest additive riders in the system.
 > Use them to price immediate payoff such as burst damage, armor bypass, or forced movement, without introducing upkeep or tracking.
@@ -2497,164 +2497,111 @@ Attribute modification (Strength, Agility, Intellect, etc.) uses a separate PP m
 
 #### Multi-Target Attack Structures
 
-Some Powers can create **multiple hits** or affect **multiple targets** from one Attack Action.
-These structures are not stronger than pure single-target offense.
-A normal single-target damage Power will always be the most efficient way to push damage into one enemy.
+Some Powers affect several creatures from one Attack Action. Coverage is paid in PP, but every successful hit resolves the Power's normal printed payload unless the structure explicitly splits a shared pool.
 
-There are now **three** distinct structures:
+There are three distinct structures:
 
-- **Split-Attack** = the Power creates **2 separate strikes**, but the **Attack Pool**, the **Damage Pool**, and any bought **Specials** are **split** across them.
-- **Autofire** = one target receives the **full payload**, while additional targets receive only the Power’s **printed base damage**.
-- **AoE** = one target inside the area may receive the **full payload**, while all other targets in the area receive only the Power’s **printed base damage**.
+- **Split-Attack** = several separate attack rolls created by splitting the Attack Pool and one shared Damage Pool.
+- **Autofire** = one ordered chained Attack Roll that continues through targets until the first miss.
+- **AoE** = one area Attack Roll compared independently against every creature in the area.
 
-> *“More coverage, more flexibility, less concentrated force.”*
-
-These structures trade raw single-target efficiency for multi-hit or multi-target pressure.
-A combatant may only benefit from **one such structure per Action per round** unless a Power explicitly overrides this limit.
+A normal single-target damage Power remains the most efficient way to push damage into one enemy because Split, Autofire, and AoE spend part of their PP budget on coverage.
 
 ---
 
 ### Split-Attack(2 Strikes)
 
-> *Split one technique into two real impacts.*
-
-**Core Rule**
-
 When a Power grants **Split-Attack(2 Strikes)**:
 
-- You make **exactly 2 attacks**.
-- Your **Attack Pool is split evenly** between them (**round down**).
-- Your **Damage Pool** from the Power is also **split evenly** between them.
-- Any bought **Specials** from the Power are also **split evenly** between the strikes.
-- Each strike is a **separate attack roll**.
-- Each strike uses the **same weapon or attack mode** unless the Power states otherwise.
-- Each strike resolves separately for:
-  - hit or miss,
-  - Armor,
-  - and on-hit resolution.
+- Make exactly 2 attacks.
+- Split the Attack Pool evenly before rolling, round down.
+- Split the Power's Damage Pool and bought Specials between the strikes.
+- Resolve each strike separately for hit, miss, Armor, and on-hit resolution.
 
-#### Split Damage Pricing
+Split-Attack does not multiply weapon damage or the full Power payload.
 
-**Split-Attack** itself has **no additional PP cost**.
+---
 
-For Powers using **Split-Attack(2 Strikes)**, bought bonus damage is priced at:
+### Split AoE
 
-`+1d8 Damage = 10 PP`
+Split AoE divides one AoE attack sequence between several placements. Split the Attack Pool between the placements before rolling. Each placement is rolled once, and that placement's result is compared separately against the defense of every valid creature inside it.
 
-This is lower than the normal **15 PP**, because Split-Attack divides both the **Attack Pool** and the **Damage Pool** across two separate strikes.
+After legal Evade Reactions and Dive for Cover resolve, a placement counts as successful if at least one creature remains hit. Roll one total Damage Pool for the Power and split it between the successful placements. Every creature hit by a placement takes the damage assigned to that placement.
 
-Split-Attack is treated as a weaker but more flexible offensive structure, not as a premium multi-attack bonus.**Targeting**
+A creature can be affected only once by the same Split AoE unless the Power explicitly says otherwise. If successful placements overlap, apply only the highest damage assigned to one of those placements to that creature.
 
-- **Ranged Split:** the strikes may hit different targets if the Power allows it.
-  If distance between targets must be bridged, this must be paid through **Raises**, if the Power says so.
-- **Melee Split:** the strikes do **not** bridge distance.
-  They are simply two consecutive close-range strikes.
-
-**Restriction**
-
-- Standard Tree design should allow **only 2 strikes**.
-- **3+ strike splits** should not appear in normal L1–L4 Powers; reserve them for exceptional capstones, monsters, or explicit subsystem exceptions.
+Split AoE does not multiply the total Damage Pool.
 
 ---
 
 ### Autofire(X)
 
-> *Choose the first victim. The rest only catch the spill.*
+**X** is the maximum number of additional targets after the first target.
 
-**Core Rule**
+Before rolling, declare the target order. Every target after the first must be within **4 m of the previous target** and within the Power's Range. A creature cannot appear twice in the same chain.
 
-When a Power grants **Autofire(X)**:
+Make **one ranged Attack Roll**. Compare that same final result against the first target's Evade, then against each later target's Evade in order. The **first miss ends Autofire immediately**. Later declared targets are not checked.
 
-- **X** defines the maximum number of **additional targets** the Power may include.
-- Autofire is declared **before rolling**.
-- For every **additional target** beyond the first, declare **+1 Raise** before the roll.
-- You make **one single Attack Roll** against the **highest TN** among the chosen targets.
-- If your final result meets or exceeds that TN, all declared targets are hit once.
+Autofire requires **no Raises** for additional targets.
 
-**Payload Rule**
+A target may use **Reaction: Evade** to increase its Evade against the Autofire hit check. If this turns a hit into a miss, the chain ends. **Dive for Cover cannot be used against Autofire.**
 
-- Choose **one target** as the **primary target**.
-- The **primary target** receives the Power’s **full payload**.
-- All additional Autofire targets receive only the Power’s **printed base damage**.
-- Additional Autofire targets do **not** receive the full payload unless the Power explicitly says so.
-- Autofire may not hit the same target multiple times unless a Power explicitly overrides this.
+Every target successfully hit receives the full printed payload, including Weapon Damage, Power Damage, Specials, and applicable offensive buffs.
 
-**Restriction**
+**Autofire(X) Cost = 30 PP × X.**
 
-- Autofire is a **multi-target spread mechanic**, not a true multi-attack structure.
--
 ---
 
 ### AoE
 
-> *The center breaks first. Everything else catches the blast.*
+An instant Attack AoE uses one Attack Roll for the entire area.
 
-**Core Rule**
+- **Martial AoE:** compare the same final Attack result separately against the **Evade** of each valid creature in the area.
+- **Spell AoE:** compare the same final Spell result separately against the **Final Spell TN** of each valid creature in the area.
+- A miss against one creature does not affect any other creature.
+- Each creature inside the area is resolved independently.
+- Every creature successfully hit receives the full printed payload.
+- A creature that would be hit may use **Dive for Cover** before payload is applied.
 
-When a Power has an **AoE**:
-
-- The Power affects all valid targets inside its area.
-- One target inside the area may be chosen as the **primary target**.
-- The **primary target** must be **fully covered by the AoE**.
-
-**Payload Rule**
-
-- The **primary target** receives the Power’s **full payload**.
-- All other affected targets receive only the Power’s **printed base damage**.
-- If no primary target is designated, all targets receive only the Power’s **printed base damage**.
-
-**Restriction**
-
-- Only **one** target in the area may receive the full payload.
-- AoE is an **area-pressure mechanic**, not a substitute for Split-Attack.
+AoE Specials use their normal printed value and normal Special PP cost. The Special is not halved and does not pay an extra Diminishing step. Radius is the coverage tax.
 
 ---
 
 ## AoE Reaction Maneuver — Dive for Cover
 
-After an AoE Attack successfully reaches its Area TN, but before its damage or payload is applied, a creature inside the area may spend its Reaction to immediately move up to:
+After an AoE Attack result has been compared against your defense and would hit you, but before damage or payload is applied, you may spend your Reaction to move up to:
 
 > **2 × Mastery Rank meters**
 
-If this movement takes the creature completely outside the AoE, it is not affected by that AoE.
+If this movement takes you completely outside the AoE, you are not affected by that AoE. If you remain inside it, you are affected normally. This movement does not provoke movement-triggered Reactions.
 
-If it remains inside the area, it is affected normally.
-
-The Primary Target may use Dive for Cover only if a rule explicitly allows it; by default, the Primary Target was directly hit by the placement roll and cannot escape that same AoE through this maneuver.
-
-A creature cannot use Dive for Cover if:
-
-- it has no Reaction available,
-- it cannot move,
-- it is Rooted, Stunned, Immobilized, or otherwise prevented from moving,
-- there is no legal space outside the AoE it can reach,
-- or the AoE explicitly cannot be escaped.
-
-This movement does not provoke Reactions.
+If you already spent your Reaction on Reaction: Evade, you need another available Reaction to also Dive for Cover.
 
 ### Multi-Target Pricing
 
 | **Structure** | **Cost** | **Notes** |
 |:--|:--:|:--|
-| **Split-Attack(2 Strikes)** | **+10 PP** | Creates 2 separate strikes. **Attack Pool**, **Damage Pool**, and bought **Specials** are split between them. |
-| **Autofire(X)** | **+20 PP × X** | **X** = number of **additional targets**. One target gets the **full payload**; all additional targets receive only the Power’s **printed base damage**. |
+| **Split-Attack(2 Strikes)** | **+10 PP** | Split Attack Pool, shared Damage Pool, and bought Specials between the strikes. |
+| **Autofire(X)** | **+30 PP × X** | X additional chained targets; first miss ends the chain; every hit gets full payload. |
 
 ---
 
-### AoE Pricing
+### Instant Attack AoE Pricing
+
+This table applies only to instant **Attack AoEs**. Support AoEs, Persistent Zones, Auras, Images, Barriers, and other dedicated area systems keep their own written pricing.
 
 | **Radius** | **AoE Cost** |
 |:--:|:--:|
 | **1 m** | **0 PP** |
 | **2 m** | **20 PP** |
 | **3 m** | **50 PP** |
-| **4 m** | **90 PP** |
-| **5 m** | **140 PP** |
-| **6 m** | **200 PP** |
-| **7 m** | **270 PP** |
-| **8 m** | **350 PP** |
+| **4 m** | **80 PP** |
+| **5 m** | **120 PP** |
+| **6 m** | **165 PP** |
+| **7 m** | **220 PP** |
+| **8 m** | **280 PP** |
 
-**8 m Radius is the maximum size for standard player Powers.**
+**8 m Radius is the maximum size for standard player Attack Powers.**
 
 #### Mental and Spiritual Effects
 
@@ -3552,7 +3499,7 @@ The current Active catalogue also recognizes:
 - Health Level Heal as a structural recovery Support Active. The recovery pool refreshes on Safe Haven Rest and costs 30 PP per recoverable Health Level.
 - Cleanse Absorption as a fixed catalogue Support progression; do not rebuild it as full standalone Cleanse plus full standalone buff value.
 - Weapon Attack templates: Single Weapon Attack, AoE Weapon Attack, Split Attack, Split AoE, and Autofire.
-- Smite as an Artifact, relic, divine weapon, vow, blessing, or story-reward effect rather than a freely selectable generic Active family.
+- Targeted Special Attack templates (Melee / Ranged / Melee AoE / Ranged AoE) that apply **Exorcism** or **Requiem** (chosen at Power build; tag-gated at apply).
 - Mental Attack, Mind Illusion, Mind Probe, and Mental Control under the Telepathy governance rules.
 
 ### 9.6 Tooltip Requirement
@@ -3667,38 +3614,37 @@ From Level 5 onward:
 
 ### 10.8 AoE Martial Active Rules
 
-AoE Martial Actives are not normal single-target Powers with a free area attached.
-
-They must follow these rules:
+Instant Martial AoE Actives are normal attacks with paid coverage.
 
 1. Pay Range first if the Power is ranged.
-2. Pay AoE second using the standard AoE table.
-3. Spend remaining PP on the Special.
-4. Add up to **+1d8 damage** only if it can remain permanently afterward.
-5. AoE, Range, and Special may stay the same or increase, but may never decrease.
-6. Do not allow damage to flicker on and off between levels.
+2. Pay Radius second using the **Instant Attack AoE Pricing** table.
+3. Spend remaining PP on Damage or the Power's Special according to the template's primary scaling axis.
+4. Make one Attack Roll and compare the same result separately against every valid creature's Evade.
+5. Every creature successfully hit receives full Weapon Damage when applicable, full listed Power Damage, full listed Specials, and applicable offensive buffs.
+6. AoE, Range, Damage, and Special values may stay the same or increase, but may never decrease.
+7. Unused PP may remain unused to protect later Radius or primary-axis progression.
 
 ---
 
 ### 10.9 AoE Special Value Rule
 
-AoE Special values are derived from the matching Single-Target template and then reduced.
+Instant Attack AoEs do **not** reduce the printed value of a Special.
 
-> **AoE Special = floor(Single-Target Special / 2)**
+> **AoE Special(X) uses the full printed X.**
 
-The AoE value may never exceed the matching Single-Target Special cap.
+Do not derive the AoE value by halving the matching single-target Special. The Radius cost already pays for multi-target coverage.
 
 ---
 
 ### 10.10 AoE Special Cost Rule
 
-AoE Specials cost one Diminishing step higher than their printed value.
+For an instant Attack AoE, a Special uses its **normal Special cost**.
 
-> **AoE Special(X) = Start PP x T(X+1)**
+> **Instant Attack AoE Special(X) = Start PP × T(X)**
 
-> **T(X) = X x (X + 1) / 2**
+There is no extra Diminishing step for instant Attack AoEs.
 
-This applies to AoE delivery and persistent zones unless a specific template states otherwise.
+This rule does not change Persistent Zones. Persistent Zones remain a separate repeated-delivery subsystem and use their dedicated pricing and Duration Multiplier.
 
 ---
 
@@ -4222,12 +4168,12 @@ Active Buff Auras are dedicated self-centered exceptions. They move with the use
 **Weapon Attack Templates:**
 
 - Single Weapon Attack: one normal weapon attack; full weapon damage plus listed bonus damage.
-- AoE Weapon Attack: one AoE Attack Roll; affected creatures take the printed weapon/AoE damage according to the entry.
+- AoE Weapon Attack: one AoE Attack Roll compared separately against each creature's Evade; every creature that remains hit takes the full printed payload; Dive for Cover applies before payload.
 - Split Attack: split Attack Pool before rolling and split one total Damage Pool among successful hits; do not multiply weapon damage.
-- Split AoE: split Attack Pool and one total Damage Pool among successful placements; a creature is affected only once unless explicitly stated.
-- Autofire: one Primary Target gets the full payload; additional targets reached through Raises receive only printed weapon damage unless the entry explicitly says otherwise.
+- Split AoE: split Attack Pool and one total Damage Pool among successful placements; each placement is checked per creature Evade; a creature is affected only once unless explicitly stated.
+- Autofire: ordered target chain within 4 m of the previous target; one Attack Roll checked in order; first miss ends the chain; every hit gets full payload; no target-count Raises; Dive for Cover cannot be used.
 
-**Smite** is not a freely selectable generic Active family. It may be granted by Artifacts, relics, divine weapons, vows, blessings, or major story rewards. Smite(X) adds +Xd8 against valid tags, normally Undead and Fiends.
+**Exorcism(X)** and **Requiem(X)** are separate Diminishing Specials (Start PP **2 × T(X)**). Exorcism applies only to **Fiends**; Requiem applies only to **Undead**. They are delivered by the Targeted Special Attack templates (Melee / Ranged / Melee AoE / Ranged AoE). An invalid creature may still take Weapon Damage if hit, but cannot receive the chosen targeted Special. Tick damage ignores Armor unless a rule says otherwise.
 
 ### 11.12 Root Canon
 
@@ -4778,6 +4724,8 @@ Before producing or revising content, verify all of the following:
 - Absorption uses actual hostile HP loss after defenses.
 - Damage Reduction applies after Armor and may coexist with Armor from separate legal sources.
 - Root applies at minimum 2 and decays by target MR at the start of the target's Turn.
+- Instant Attack AoEs use one roll against each target's individual defense, resolve every creature independently, and use the dedicated 0/20/50/80/120/165/220/280 radius costs.
+- Autofire costs 30 PP per additional target, uses no target-count Raises, and ends at the first miss.
 - Every Bound Stone grants 8 Summon Tokens, including the first Stone.
 - Every Summon begins from the Universal Base Summon and never uses a Familiar, Companion, or Host Chassis.
 - A Summon Bond has exactly one permanent Movement Mode, beginning at 8 m and capped at 16 m.

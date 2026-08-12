@@ -50,30 +50,43 @@ function rowFromBudget(opts) {
 // is still derived from the budget solver (it is not shown in the md tables).
 /** Single-target damage anchor per tier (dice = min(level, anchor)). */
 const SINGLE_DAMAGE_ANCHOR = { 3: 1, 4: 1, 5: 3, 6: 2 };
-/** AoE damage bonus dice per tier+flavour (mostly 0 — budget funds radius). */
+/** Instant Attack Martial Special AoE — printed PL tables (docs/Rules/actives.md). */
 const MELEE_AOE_DMG_DICE = {
-    3: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1],
-    4: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1],
-    5: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1],
-    6: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1],
+    3: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    4: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    5: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    6: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 };
 const RANGED_AOE_DMG_DICE = {
-    3: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1],
-    4: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    3: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    4: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     5: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     6: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 };
 const MELEE_AOE_DMG_RADIUS = {
     3: [2, 2, 3, 3, 4, 4, 5, 5, 5, 6, 6, 6, 7, 7, 7, 7],
     4: [2, 2, 3, 3, 4, 4, 5, 5, 5, 6, 6, 6, 7, 7, 7, 7],
-    5: [2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 6, 6, 7, 7, 7, 7],
-    6: [2, 2, 3, 3, 4, 4, 5, 5, 5, 6, 6, 6, 6, 7, 7, 7],
+    5: [2, 2, 3, 3, 4, 4, 5, 5, 5, 6, 6, 6, 6, 7, 7, 7],
+    6: [1, 2, 2, 3, 3, 4, 4, 4, 5, 5, 5, 6, 6, 6, 6, 6],
 };
 const RANGED_AOE_DMG_RADIUS = {
     3: [2, 2, 2, 3, 3, 4, 4, 4, 5, 5, 5, 6, 6, 6, 6, 6],
     4: [2, 2, 3, 3, 4, 4, 4, 5, 5, 5, 6, 6, 6, 6, 7, 7],
-    5: [2, 2, 3, 3, 3, 4, 4, 4, 5, 5, 6, 6, 6, 6, 7, 7],
-    6: [2, 2, 3, 3, 4, 4, 4, 5, 5, 5, 5, 6, 6, 6, 6, 7],
+    5: [2, 2, 3, 3, 4, 4, 4, 5, 5, 5, 5, 6, 6, 6, 6, 7],
+    6: [1, 2, 2, 3, 3, 4, 4, 4, 5, 5, 5, 5, 6, 6, 6, 6],
+};
+/** Printed Special ranks for Instant Attack Martial Special AoE (full value). */
+const MELEE_AOE_DMG_SPECIAL = {
+    3: [2, 4, 4, 6, 6, 7, 7, 8, 9, 9, 10, 10, 10, 11, 11, 12],
+    4: [1, 4, 4, 5, 5, 6, 6, 7, 7, 7, 8, 8, 8, 9, 10, 10],
+    5: [1, 3, 3, 4, 4, 5, 5, 5, 6, 6, 6, 7, 7, 7, 8, 8],
+    6: [2, 2, 3, 3, 4, 4, 5, 5, 5, 6, 6, 6, 7, 7, 7, 8],
+};
+const RANGED_AOE_DMG_SPECIAL = {
+    3: [2, 4, 5, 5, 6, 6, 7, 8, 8, 9, 9, 9, 10, 10, 11, 12],
+    4: [1, 3, 3, 4, 4, 5, 6, 6, 6, 7, 7, 7, 8, 8, 8, 9],
+    5: [1, 2, 2, 3, 3, 4, 4, 4, 5, 6, 6, 6, 6, 7, 7, 7],
+    6: [2, 2, 3, 3, 3, 3, 4, 4, 4, 5, 5, 5, 5, 6, 6, 7],
 };
 /** Persistent-zone radius per tier (0 = no zone available at that rank). */
 const ZONE_RADIUS_BY_TIER = {
@@ -140,19 +153,19 @@ function damageAoeTemplate(def) {
         cost: { action: 'attack' },
         roll: { kind: 'attack', attribute: isRanged ? 'agility' : 'might' },
         levels: buildLevels((lvl) => {
-            const r = rowFromBudget({ tier: def.tier, lvl, isRanged, aoe: true });
             const radius = (isRanged ? RANGED_AOE_DMG_RADIUS : MELEE_AOE_DMG_RADIUS)[def.tier][lvl - 1];
             const d = (isRanged ? RANGED_AOE_DMG_DICE : MELEE_AOE_DMG_DICE)[def.tier][lvl - 1];
+            const rank = (isRanged ? RANGED_AOE_DMG_SPECIAL : MELEE_AOE_DMG_SPECIAL)[def.tier][lvl - 1];
             const effectText = d === 0
-                ? 'No damage. The chosen Special applies to every affected creature at half value.'
-                : `Deal **+${d}d8 damage** to every affected creature; Special applies at half value.`;
+                ? 'Make one AoE Attack Roll and compare it separately against each creature\'s Evade. Every creature hit takes weapon damage and the full printed Special. Dive for Cover may be used after the hit check and before payload.'
+                : `Make one AoE Attack Roll and compare it separately against each creature's Evade. Every creature hit takes weapon damage + **+${d}d8 damage** and the full printed Special. Dive for Cover may be used after the hit check and before payload.`;
             return activeRow({
                 type: isRanged ? 'Ranged AoE' : 'Melee AoE',
-                range: isRanged ? rangedRange(lvl, 8) : MELEE_RANGE,
+                range: isRanged ? rangedRange(lvl, 8) : { kind: 'self' },
                 aoe: { shape: 'radius', radiusM: radius, center: isRanged ? 'targetPoint' : 'self', targetFilter: 'enemies' },
                 effectText,
                 dice: d === 0 ? undefined : `${d}d8`,
-                specials: [{ key: 'SPECIAL', rank: r.rank, note: 'bound at item-create via chosenSpecial (AoE = half value, T(X+1) cost)' }],
+                specials: [{ key: 'SPECIAL', rank, note: 'bound at item-create via chosenSpecial (full printed Special)' }],
                 mechanics: d === 0
                     ? { applyWhen: 'attack-rider' }
                     : { damageRider: { flat: `+${d}d8` }, applyWhen: 'attack-rider' },
@@ -570,10 +583,11 @@ function buildActiveTemplates() {
         splitWeaponAttackTemplate('melee'),
         splitWeaponAttackTemplate('ranged'),
         autofireWeaponAttackTemplate(),
-        // Smite Attacks — not in the free Special-damage catalogue (Actives.md §Smite Actives)
-        smiteMeleeAttackTemplate(),
-        smiteRangedAttackTemplate(),
-        smiteRangedAoeAttackTemplate(),
+        // Targeted Special Attacks — Exorcism / Requiem (docs/Rules/actives.md)
+        targetedSpecialAttackTemplate('melee'),
+        targetedSpecialAttackTemplate('ranged'),
+        targetedSpecialAoeAttackTemplate('melee'),
+        targetedSpecialAoeAttackTemplate('ranged'),
         // Support leftovers + Mental Powers (Rules/actives.md 2026-07)
         healthLevelHealTemplate('melee'),
         healthLevelHealTemplate('ranged'),
@@ -582,99 +596,89 @@ function buildActiveTemplates() {
         mindIllusionTemplate(),
     ];
 }
-// ─── Smite Attack Templates (Actives.md §Smite Actives) ───────────────────
-//
-// Smite is baked into the template — no Special picker. Valid targets: Undead,
-// Fiends, etc. (GM-defined). Not part of the diminishing-Special tier catalogue.
-const MELEE_SMITE_RANK = [
-    4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48, 52, 56, 60, 64,
+// ─── Targeted Special Attacks (Exorcism / Requiem) ────────────────────────
+// Choose Exorcism or Requiem at Power build. Tag-gated at apply time.
+const TARGETED_SPECIAL_KEYS = ['exorcism', 'requiem'];
+const MELEE_TARGETED_SPECIAL_RANK = [
+    5, 7, 9, 10, 11, 12, 14, 15, 15, 16, 17, 18, 19, 20, 20, 21,
 ];
-const RANGED_SMITE_RANK = [
-    4, 7, 10, 14, 17, 20, 24, 27, 30, 34, 37, 40, 44, 47, 50, 54,
+const RANGED_TARGETED_SPECIAL_RANK = [
+    5, 6, 8, 9, 10, 11, 12, 13, 14, 15, 16, 16, 17, 18, 19, 19,
 ];
-const RANGED_AOE_SMITE_RANGE_M = [
-    8, 12, 16, 20, 24, 28, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32,
+const MELEE_AOE_TARGETED_RADIUS = [
+    2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 8, 8,
 ];
-const RANGED_AOE_SMITE_RADIUS_M = [
-    2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+const MELEE_AOE_TARGETED_SPECIAL_RANK = [
+    2, 5, 5, 7, 7, 9, 9, 9, 9, 10, 10, 10, 10, 11, 12, 13,
 ];
-const RANGED_AOE_SMITE_DICE = [
-    1, 4, 8, 7, 10, 14, 17, 21, 25, 29, 33, 37, 41, 45, 49, 53,
+const RANGED_AOE_TARGETED_RADIUS = [
+    2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 7, 8, 8, 8,
 ];
-function smiteMeleeAttackTemplate() {
+const RANGED_AOE_TARGETED_SPECIAL_RANK = [
+    2, 5, 5, 6, 6, 7, 7, 7, 7, 7, 7, 8, 8, 8, 9, 10,
+];
+function targetedSpecialSlot() {
+    // Start PP 2 Specials — tier field is catalog plumbing only (not a Start-PP group).
+    return { tier: 3, eligibleSpecialKeys: [...TARGETED_SPECIAL_KEYS] };
+}
+function targetedSpecialAttackTemplate(flavour) {
+    const isRanged = flavour === 'ranged';
+    const ranks = isRanged ? RANGED_TARGETED_SPECIAL_RANK : MELEE_TARGETED_SPECIAL_RANK;
     return {
-        templateId: 'active-melee-smite-attack',
-        templateName: 'Melee Smite Attack',
-        name: 'Melee Smite Attack',
-        subfamily: 'smite-attack',
+        templateId: isRanged ? 'active-ranged-targeted-special' : 'active-melee-targeted-special',
+        templateName: isRanged ? 'Ranged Targeted Special Attack' : 'Melee Targeted Special Attack',
+        name: isRanged ? 'Ranged Targeted Special Attack' : 'Melee Targeted Special Attack',
+        subfamily: 'targeted-special-attack',
         category: 'active',
         tags: [],
+        specialSlot: targetedSpecialSlot(),
         spellHints: { defaultResolution: 'spellAttack' },
-        fluff: 'A melee weapon attack that burns enemies marked by death, corruption, or divine opposition. Smite only affects valid tagged enemies.',
+        fluff: 'A targeted weapon strike against one supernatural creature type. Choose Exorcism (Fiend) or Requiem (Undead) when the Power is built.',
         cost: { action: 'attack' },
-        roll: { kind: 'attack', attribute: 'might' },
+        roll: { kind: 'attack', attribute: isRanged ? 'agility' : 'might' },
         levels: buildLevels((lvl) => {
-            const rank = MELEE_SMITE_RANK[lvl - 1];
+            const rank = ranks[lvl - 1];
             return activeRow({
-                type: 'Melee',
-                range: MELEE_RANGE,
+                type: isRanged ? 'Ranged' : 'Melee',
+                range: isRanged ? rangedRange(lvl) : MELEE_RANGE,
                 aoe: R_NONE,
-                effectText: 'Make one melee attack. On hit, deal weapon damage.',
-                specials: [{ key: 'smite', rank }],
+                effectText: 'Make one weapon attack. On hit, deal weapon damage. If the target qualifies, it also gains the chosen targeted Special.',
+                specials: [{ key: 'SPECIAL', rank, note: 'bound at item-create via chosenSpecial (Exorcism or Requiem)' }],
                 mechanics: { applyWhen: 'attack-rider' },
             });
         }),
     };
 }
-function smiteRangedAttackTemplate() {
+function targetedSpecialAoeAttackTemplate(flavour) {
+    const isRanged = flavour === 'ranged';
+    const radii = isRanged ? RANGED_AOE_TARGETED_RADIUS : MELEE_AOE_TARGETED_RADIUS;
+    const ranks = isRanged ? RANGED_AOE_TARGETED_SPECIAL_RANK : MELEE_AOE_TARGETED_SPECIAL_RANK;
     return {
-        templateId: 'active-ranged-smite-attack',
-        templateName: 'Ranged Smite Attack',
-        name: 'Ranged Smite Attack',
-        subfamily: 'smite-attack',
+        templateId: isRanged ? 'active-ranged-aoe-targeted-special' : 'active-melee-aoe-targeted-special',
+        templateName: isRanged ? 'Ranged AoE Targeted Special Attack' : 'Melee AoE Targeted Special Attack',
+        name: isRanged ? 'Ranged AoE Targeted Special Attack' : 'Melee AoE Targeted Special Attack',
+        subfamily: 'targeted-special-attack',
         category: 'active',
         tags: [],
+        specialSlot: targetedSpecialSlot(),
         spellHints: { defaultResolution: 'spellAttack' },
-        fluff: 'A ranged weapon attack that carries judgment into distant unholy targets. Smite only affects valid tagged enemies.',
+        fluff: 'A targeted area attack against one supernatural creature type. Choose Exorcism (Fiend) or Requiem (Undead) when the Power is built.',
         cost: { action: 'attack' },
-        roll: { kind: 'attack', attribute: 'agility' },
+        roll: { kind: 'attack', attribute: isRanged ? 'agility' : 'might' },
         levels: buildLevels((lvl) => {
-            const rank = RANGED_SMITE_RANK[lvl - 1];
+            const rank = ranks[lvl - 1];
+            const radiusM = radii[lvl - 1];
             return activeRow({
-                type: 'Ranged',
-                range: rangedRange(lvl),
-                aoe: R_NONE,
-                effectText: 'Make one ranged attack. On hit, deal weapon damage.',
-                specials: [{ key: 'smite', rank }],
-                mechanics: { applyWhen: 'attack-rider' },
-            });
-        }),
-    };
-}
-function smiteRangedAoeAttackTemplate() {
-    return {
-        templateId: 'active-ranged-aoe-smite-attack',
-        templateName: 'Ranged AoE Smite Attack',
-        name: 'Ranged AoE Smite Attack',
-        subfamily: 'smite-attack',
-        category: 'active',
-        tags: [],
-        spellHints: { defaultResolution: 'spellAttack' },
-        fluff: 'A compact ranged area Smite attack that burns supernatural enemies inside a small blast. Max range 32 m, max radius 3 m.',
-        cost: { action: 'attack' },
-        roll: { kind: 'attack', attribute: 'agility' },
-        levels: buildLevels((lvl) => {
-            const smiteDice = RANGED_AOE_SMITE_DICE[lvl - 1];
-            const rangeM = RANGED_AOE_SMITE_RANGE_M[lvl - 1];
-            const radiusM = RANGED_AOE_SMITE_RADIUS_M[lvl - 1];
-            const smiteText = `+${smiteDice}d8 Smite Damage`;
-            return activeRow({
-                type: 'Ranged AoE',
-                range: { kind: 'distance', m: rangeM },
-                aoe: { shape: 'radius', radiusM, center: 'targetPoint', targetFilter: 'enemies' },
-                effectText: `Make one ranged attack against the Primary Target. On hit, the Primary Target takes Weapon Damage plus **${smiteText}**. ` +
-                    `Secondary Targets with a valid Smite tag take **${smiteText}**.`,
-                specials: [{ key: 'smite', rank: smiteDice }],
+                type: isRanged ? 'Ranged AoE' : 'Melee AoE',
+                range: isRanged ? rangedRange(lvl) : { kind: 'self' },
+                aoe: {
+                    shape: 'radius',
+                    radiusM,
+                    center: isRanged ? 'targetPoint' : 'self',
+                    targetFilter: 'enemies',
+                },
+                effectText: 'Make one AoE weapon attack. Every creature hit takes weapon damage. Qualifying targets also gain the chosen targeted Special.',
+                specials: [{ key: 'SPECIAL', rank, note: 'bound at item-create via chosenSpecial (Exorcism or Requiem)' }],
                 mechanics: { applyWhen: 'attack-rider' },
             });
         }),
@@ -827,18 +831,18 @@ function singleWeaponAttackTemplate(flavour) {
         }),
     };
 }
-// AoE Weapon Attack progression: (radius in meters, bonus dice).
+// AoE Weapon Attack progression — exact PL tables from docs/Rules/actives.md.
 const MELEE_AOE_PROG = [
-    { radiusM: 2, dice: 0 }, { radiusM: 2, dice: 2 }, { radiusM: 3, dice: 2 }, { radiusM: 3, dice: 2 },
-    { radiusM: 4, dice: 2 }, { radiusM: 4, dice: 2 }, { radiusM: 5, dice: 2 }, { radiusM: 5, dice: 2 },
-    { radiusM: 6, dice: 2 }, { radiusM: 6, dice: 2 }, { radiusM: 7, dice: 2 }, { radiusM: 7, dice: 2 },
-    { radiusM: 8, dice: 2 }, { radiusM: 8, dice: 4 }, { radiusM: 8, dice: 6 }, { radiusM: 8, dice: 8 },
+    { radiusM: 2, dice: 0 }, { radiusM: 2, dice: 2 }, { radiusM: 3, dice: 2 }, { radiusM: 3, dice: 4 },
+    { radiusM: 4, dice: 4 }, { radiusM: 4, dice: 6 }, { radiusM: 5, dice: 6 }, { radiusM: 5, dice: 7 },
+    { radiusM: 6, dice: 7 }, { radiusM: 6, dice: 7 }, { radiusM: 7, dice: 7 }, { radiusM: 7, dice: 7 },
+    { radiusM: 8, dice: 7 }, { radiusM: 8, dice: 9 }, { radiusM: 8, dice: 11 }, { radiusM: 8, dice: 13 },
 ];
 const RANGED_AOE_PROG = [
-    { radiusM: 2, dice: 0 }, { radiusM: 2, dice: 0 }, { radiusM: 3, dice: 0 }, { radiusM: 3, dice: 0 },
-    { radiusM: 4, dice: 0 }, { radiusM: 4, dice: 0 }, { radiusM: 5, dice: 0 }, { radiusM: 5, dice: 0 },
-    { radiusM: 6, dice: 0 }, { radiusM: 6, dice: 0 }, { radiusM: 7, dice: 0 }, { radiusM: 7, dice: 0 },
-    { radiusM: 7, dice: 0 }, { radiusM: 8, dice: 0 }, { radiusM: 8, dice: 2 }, { radiusM: 8, dice: 4 },
+    { radiusM: 2, dice: 0 }, { radiusM: 2, dice: 2 }, { radiusM: 3, dice: 2 }, { radiusM: 3, dice: 3 },
+    { radiusM: 4, dice: 3 }, { radiusM: 4, dice: 4 }, { radiusM: 5, dice: 4 }, { radiusM: 5, dice: 4 },
+    { radiusM: 6, dice: 4 }, { radiusM: 6, dice: 4 }, { radiusM: 7, dice: 4 }, { radiusM: 7, dice: 5 },
+    { radiusM: 7, dice: 5 }, { radiusM: 8, dice: 5 }, { radiusM: 8, dice: 6 }, { radiusM: 8, dice: 8 },
 ];
 function aoeWeaponAttackTemplate(flavour) {
     const isRanged = flavour === 'ranged';
@@ -852,8 +856,8 @@ function aoeWeaponAttackTemplate(flavour) {
         tags: [],
         spellHints: { defaultResolution: 'spellAttack' },
         fluff: isRanged
-            ? 'A ranged weapon attack that bursts around a target point.'
-            : 'A self-centered weapon sweep or burst around the attacker.',
+            ? 'A ranged weapon attack that bursts around a target point. One roll is compared separately against each creature\'s Evade; every hit takes the full printed payload.'
+            : 'A self-centered weapon sweep or burst around the attacker. One roll is compared separately against each creature\'s Evade; every hit takes the full printed payload.',
         cost: { action: 'attack' },
         roll: { kind: 'attack', attribute: isRanged ? 'agility' : 'might' },
         levels: buildLevels((lvl) => {
@@ -866,8 +870,8 @@ function aoeWeaponAttackTemplate(flavour) {
             };
             const diceText = p.dice === 0 ? '' : `+${p.dice}d8`;
             const effect = p.dice === 0
-                ? `Make a ${isRanged ? 'ranged' : 'melee'} AoE attack. Affected creatures take weapon damage.`
-                : `Make a ${isRanged ? 'ranged' : 'melee'} AoE attack. Affected creatures take weapon damage + **${p.dice}d8 damage**.`;
+                ? `Make one ${isRanged ? 'ranged' : 'melee'} AoE Attack Roll and compare it separately against the Evade of each valid creature in the area. Every creature hit takes weapon damage and may use Dive for Cover before payload.`
+                : `Make one ${isRanged ? 'ranged' : 'melee'} AoE Attack Roll and compare it separately against the Evade of each valid creature in the area. Every creature hit takes weapon damage + **${p.dice}d8 damage** and may use Dive for Cover before payload.`;
             return activeRow({
                 type: isRanged ? 'Ranged AoE' : 'Melee AoE',
                 range: isRanged ? rangedRange(lvl) : { kind: 'self' },
@@ -935,12 +939,13 @@ function splitWeaponAttackTemplate(flavour) {
         }),
     };
 }
-// Autofire progression: (additional targets, bonus dice); range = 8 + 4*(L-1).
+// Autofire progression: (additional targets X, bonus dice); range = 8 + 4*(L-1).
+// Matches docs/Rules/actives.md Ranged Autofire (30 PP × X capacity tax).
 const AUTOFIRE_PROG = [
-    { extra: 1, dice: 0 }, { extra: 1, dice: 2 }, { extra: 2, dice: 2 }, { extra: 2, dice: 4 },
-    { extra: 3, dice: 4 }, { extra: 3, dice: 6 }, { extra: 4, dice: 6 }, { extra: 4, dice: 8 },
-    { extra: 5, dice: 8 }, { extra: 5, dice: 10 }, { extra: 6, dice: 10 }, { extra: 6, dice: 12 },
-    { extra: 7, dice: 12 }, { extra: 7, dice: 14 }, { extra: 8, dice: 14 }, { extra: 8, dice: 16 },
+    { extra: 1, dice: 0 }, { extra: 1, dice: 1 }, { extra: 2, dice: 1 }, { extra: 2, dice: 2 },
+    { extra: 3, dice: 2 }, { extra: 3, dice: 4 }, { extra: 4, dice: 4 }, { extra: 4, dice: 5 },
+    { extra: 5, dice: 5 }, { extra: 5, dice: 6 }, { extra: 6, dice: 6 }, { extra: 6, dice: 8 },
+    { extra: 7, dice: 8 }, { extra: 7, dice: 9 }, { extra: 8, dice: 9 }, { extra: 8, dice: 11 },
 ];
 function autofireWeaponAttackTemplate() {
     return {
@@ -951,23 +956,23 @@ function autofireWeaponAttackTemplate() {
         category: 'active',
         tags: [],
         spellHints: { defaultResolution: 'spellAttack' },
-        fluff: 'A ranged weapon attack that sweeps across several targets without creating separate attacks.',
+        fluff: 'A ranged weapon attack that walks through an ordered chain of targets. One roll is checked against each Evade in order; the first miss ends the chain. Every hit takes the full printed payload.',
         cost: { action: 'attack' },
         roll: { kind: 'attack', attribute: 'agility' },
         levels: buildLevels((lvl) => {
             const p = AUTOFIRE_PROG[lvl - 1];
+            const totalTargets = 1 + p.extra;
             const diceText = p.dice === 0 ? '' : `+${p.dice}d8`;
-            const primary = p.dice === 0 ? 'weapon damage' : `weapon damage + **${p.dice}d8 damage**`;
-            const effect = `Make **one ranged weapon attack** against a primary target. You may declare up to **${p.extra} additional target${p.extra === 1 ? '' : 's'}** within range. Each additional target requires **+1 Raise**. Primary target takes ${primary}. Additional targets take only printed weapon damage.`;
+            const payload = p.dice === 0 ? 'weapon damage' : `weapon damage + **${p.dice}d8 damage**`;
+            const effect = `Autofire up to **${totalTargets} targets**. Each next target must be within **4 m** of the previous target. Make one Attack Roll and check it against each target's Evade in order; the first miss ends the chain. Every hit takes ${payload}. Dive for Cover cannot be used.`;
             return activeRow({
                 type: 'Ranged',
                 range: rangedRange(lvl),
-                aoe: { shape: 'weapon', targets: 1 + p.extra },
+                aoe: { shape: 'weapon', targets: totalTargets },
                 effectText: effect,
                 dice: diceText || undefined,
                 // Autofire is an attack *mode*, not a Special: declared via
-                // mechanics.autofire. The "+1 Raise per extra target" rule is
-                // applied by the runtime, not by exposing a catalog entry.
+                // mechanics.autofire (ordered chain; no target-count Raises).
                 specials: [],
                 mechanics: p.dice === 0
                     ? { applyWhen: 'attack-rider', autofire: { extraTargets: p.extra } }

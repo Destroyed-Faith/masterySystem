@@ -101,7 +101,8 @@ describe('deriveLevelProgressionFromPicks', () => {
       {
         level: 2,
         kind: 'power',
-        powerTemplateId: 'active-ranged-aoe-smite-attack',
+        powerTemplateId: 'active-ranged-aoe-targeted-special',
+        chosenSpecial: { key: 'requiem', tier: 3 },
         isSpell: true,
         castingAttribute: 'resolve',
         spellResolution: 'spellAttack',
@@ -113,7 +114,7 @@ describe('deriveLevelProgressionFromPicks', () => {
       expect(r.isSpell).toBe(true);
       expect(r.castingAttribute).toBe('resolve');
       expect(r.spellResolution).toBe('spellAttack');
-      expect(r.powerTemplateId).toBe('active-ranged-aoe-smite-attack');
+      expect(r.powerTemplateId).toBe('active-ranged-aoe-targeted-special');
       expect(r.special).toContain('Spell');
     }
   });

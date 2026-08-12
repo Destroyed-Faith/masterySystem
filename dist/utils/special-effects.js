@@ -183,6 +183,32 @@ export const DIMINISHING_EFFECTS = [
         startPP: 4
     },
     {
+        id: 'exorcism',
+        name: 'Exorcism(X)',
+        category: 'diminishing',
+        description: 'Can be applied only to a creature with the Fiend tag. At the start of the affected creature\'s turn, take X damage (ignores Armor unless a rule says otherwise), then reduce X by 1. Cleanse: Yes.',
+        duration: 'Diminishing (X→0)',
+        stacking: 'Yes',
+        removal: 'Cleanse.',
+        hasValue: true,
+        dispellable: true,
+        pricing: '2 × T(X)',
+        startPP: 2
+    },
+    {
+        id: 'requiem',
+        name: 'Requiem(X)',
+        category: 'diminishing',
+        description: 'Can be applied only to a creature with the Undead tag. At the start of the affected creature\'s turn, take X damage (ignores Armor unless a rule says otherwise), then reduce X by 1. Cleanse: Yes.',
+        duration: 'Diminishing (X→0)',
+        stacking: 'Yes',
+        removal: 'Cleanse.',
+        hasValue: true,
+        dispellable: true,
+        pricing: '2 × T(X)',
+        startPP: 2
+    },
+    {
         id: 'soulburn',
         name: 'Soulburn(X)',
         category: 'diminishing',
@@ -408,18 +434,6 @@ export const INSTANT_EFFECTS = [
         hasValue: false,
         dispellable: false,
         pricing: 'special'
-    },
-    {
-        id: 'smite',
-        name: 'Smite(X)',
-        category: 'instant',
-        description: 'Add +Xd8 bonus damage vs. Undead / Fiends.',
-        duration: 'Instant',
-        stacking: 'Yes',
-        removal: 'Resolves with the attack.',
-        hasValue: true,
-        dispellable: false,
-        pricing: '7.5 × X'
     },
     {
         id: 'stun',

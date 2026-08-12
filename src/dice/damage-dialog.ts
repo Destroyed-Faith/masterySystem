@@ -33,11 +33,7 @@ import {
 } from '../combat/raise-resolution.js';
 import { RAISE_INCREMENT } from '../utils/constants.js';
 import { computeMarkFloorBonus, clampMarkSpend } from './mark-floor.js';
-import {
-  extractSmiteDice,
-  isSmiteValidTarget,
-  stripSmiteSpecials,
-} from '../utils/creature-type.js';
+import { isTargetedSpecialValidTarget } from '../utils/creature-type.js';
 import { formatEffectReference } from '../utils/special-effects.js';
 
 /**
@@ -1264,6 +1260,14 @@ async function applyStatusEffectsToTarget(
         const isChallenge =
           effectId === 'challenge' || effectName.toLowerCase() === 'challenge';
 
+        // Exorcism / Requiem: tag-gated; invalid creatures never receive the Special.
+        if (
+          (effectId === 'exorcism' || effectId === 'requiem') &&
+          !isTargetedSpecialValidTarget(effectId, target)
+        ) {
+          continue;
+        }
+
         if (isChallenge && effectValue !== null && effectValue > 0) {
           list = mergeChallengeEntry(list, effectValue, sourceName, sourceUuid);
           continue;
@@ -2076,13 +2080,12 @@ async function calculateDamageResult(
     if (special.type === 'power-special' && special.effect) {
       specialsUsed.push(special.effect);
     }
-    // Weapon Smite(X) is an instant on-hit rider (not a Raise pick / lasting status).
-    if (
-      special.type === 'weapon' &&
-      special.effect &&
-      /^smite\s*\(/i.test(String(special.effect).trim())
-    ) {
-      specialsUsed.push(special.effect);
+    // Weapon Exorcism/Requiem ride as on-hit Specials (tag-gated at apply).
+    if (special.type === 'weapon' && special.effect) {
+      const effect = String(special.effect).trim();
+      if (/^(exorcism|requiem)\s*\(/i.test(effect)) {
+        specialsUsed.push(effect);
+      }
     }
   }
   
@@ -2116,21 +2119,6 @@ async function calculateDamageResult(
     if (r.roll) damageChatRolls.push(r.roll);
   }
 
-  // Smite(X): instant +Xd8 vs Undead / Fiend only — never a lasting status.
-  let smiteBonusRolled = 0;
-  const smiteDice = extractSmiteDice(specialsUsed);
-  if (smiteDice > 0) {
-    if (isSmiteValidTarget(target)) {
-      const r = await rollDiceWithDetail(`${smiteDice}d8`, `Smite(${smiteDice})`);
-      smiteBonusRolled = r.total;
-      if (r.line) rollDetails.push(r.line);
-      if (r.roll) damageChatRolls.push(r.roll);
-      specialsUsed.push(`Smite(${smiteDice}) → +${smiteDice}d8`);
-    } else {
-      rollDetails.push(`Smite(${smiteDice}) — target is not Undead/Fiend (no bonus)`);
-    }
-  }
-  
   // Conditional damage riders (fires only when the target carries the gated condition).
   let conditionalDamageRolled = 0;
   const conditionalSpecialsUsed: string[] = [];
@@ -2152,6 +2140,30 @@ async function calculateDamageResult(
     }
   } catch (e) {
     console.warn('Mastery System | [CALCULATE DAMAGE] conditional rider eval failed', e);
+  }
+
+  // Unconditional Active Buff damage riders — full listed damage on every hit
+  // (Single / AoE / Autofire). Docs: active-buffs.md Active Buff: Damage.
+  let activeBuffDamageRolled = 0;
+  try {
+    if (attacker) {
+      const contributions = collectMechanicsContributions(attacker);
+      for (const c of contributions) {
+        if (c.sourceKind !== 'buff') continue;
+        const rider = c.mechanics?.damageRider;
+        if (!rider?.flat || rider.vsCondition) continue;
+        const aw = c.mechanics?.applyWhen as string | undefined;
+        if (aw && String(aw) !== 'activeBuff-active') continue;
+        const dice = String(rider.flat).trim().replace(/^\+\s*/, '');
+        if (!dice || !/^\d*d\d+/i.test(dice)) continue;
+        const r = await rollDiceWithDetail(dice, `${c.source} (buff damage)`);
+        activeBuffDamageRolled += r.total;
+        if (r.line) rollDetails.push(r.line);
+        if (r.roll) damageChatRolls.push(r.roll);
+      }
+    }
+  } catch (e) {
+    console.warn('Mastery System | [CALCULATE DAMAGE] active buff damage rider failed', e);
   }
 
   // Manual damage bonus from the attacker's character sheet
@@ -2235,7 +2247,7 @@ async function calculateDamageResult(
     }
   }
 
-  // Total damage = Base Weapon + Might stone bonus + Might/8 melee bonus + Power Damage + Raises + Conditional + Manual + Smite (Passives separate)
+  // Total damage = Base Weapon + Might stone bonus + Might/8 melee bonus + Power Damage + Raises + Conditional + Manual + Active Buff Damage (Passives separate)
   // (Mark floor bonus is added after the post-roll Mark prompt below.)
   let totalDamage =
     baseDamageRolled
@@ -2244,10 +2256,10 @@ async function calculateDamageResult(
     + powerDamageRolled
     + raiseDamage
     + conditionalDamageRolled
+    + activeBuffDamageRolled
     + manualDamageRolled
     + manualDamageFlat
-    + vulnerabilityBonusRolled
-    + smiteBonusRolled;
+    + vulnerabilityBonusRolled;
   // Faith Fracture damage reroll — offered once, AFTER seeing the result but
   // BEFORE anything touches the target (no status effects, no Mark spend, no
   // damage application yet, so the reroll can simply re-run the dice phase).
@@ -2326,12 +2338,11 @@ async function calculateDamageResult(
     }
   }
 
-  // Apply status effects from specials to target (Smite is instant — never persisted).
-  const statusSpecials = stripSmiteSpecials(specialsUsed).filter((s) => {
-    // Drop narrative smite result lines and similar non-status notes.
-    if (/^smite\(/i.test(s) && /→/.test(s)) return false;
+  // Apply status effects from specials to target (Exorcism/Requiem tag-gated inside apply).
+  const statusSpecials = specialsUsed.filter((s) => {
     if (/^mark spent /i.test(s)) return false;
     if (/vulnerability/i.test(s) && /→/.test(s)) return false;
+    if (/\(buff damage\)/i.test(s)) return false;
     return true;
   });
   if (statusSpecials.length > 0 && target) {

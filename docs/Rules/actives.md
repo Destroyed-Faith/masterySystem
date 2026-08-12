@@ -74,19 +74,19 @@ Version: v0.9.8 (2026-07-31)
 - #### [{{ Start PP 6 Templates}}{{ 8}}](#p8)
 - #### [{{ Start PP 8 Templates}}{{ 11}}](#p11)
 - #### [{{ Martial AoE Attack Rules}}{{ 13}}](#p13)
-- #### [{{ AoE Start PP 3 Templates}}{{ 16}}](#p16)
-- #### [{{ AoE Start PP 6 and Root Templates}}{{ 19}}](#p19)
-- #### [{{ Persistent Diminishing Zones}}{{ 23}}](#p23)
-- #### [{{ Control Specials}}{{ 29}}](#p29)
-- #### [{{ Support Actives}}{{ 36}}](#p36)
-- #### [{{ Active Constructs and Terrain}}{{ 50}}](#p50)
-- #### [{{ Barrier Actives}}{{ 57}}](#p57)
-- #### [{{ Immovable}}{{ 58}}](#p58)
-- #### [{{ Illusion Fields and Power Images}}{{ 60}}](#p60)
-- #### [{{ Hard Control}}{{ 64}}](#p64)
-- #### [{{ Weapon Attack Templates}}{{ 67}}](#p67)
-- #### [{{ Smite Actives}}{{ 81}}](#p81)
-- #### [{{ Mental Powers}}{{ 85}}](#p85)
+- #### [{{ AoE Start PP 3 Templates}}{{ 14}}](#p14)
+- #### [{{ AoE Start PP 6 and Root Templates}}{{ 18}}](#p18)
+- #### [{{ Persistent Diminishing Zones}}{{ 22}}](#p22)
+- #### [{{ Control Specials}}{{ 28}}](#p28)
+- #### [{{ Support Actives}}{{ 35}}](#p35)
+- #### [{{ Active Constructs and Terrain}}{{ 49}}](#p49)
+- #### [{{ Barrier Actives}}{{ 56}}](#p56)
+- #### [{{ Immovable}}{{ 57}}](#p57)
+- #### [{{ Illusion Fields and Power Images}}{{ 59}}](#p59)
+- #### [{{ Hard Control}}{{ 63}}](#p63)
+- #### [{{ Weapon Attack Templates}}{{ 66}}](#p66)
+- #### [{{ Targeted Diminishing Specials}}{{ 81}}](#p81)
+- #### [{{ Mental Powers}}{{ 86}}](#p86)
 
 }}
 \page
@@ -95,6 +95,8 @@ Version: v0.9.8 (2026-07-31)
 ## Martial Actives — Special-First Damage + Numeric Specials
 
 > **Current Start PP 8 Group:** Disoriented, Expose, Soulburn, and Weaken use the dedicated Start PP 8 templates in this catalogue.
+
+> **Targeted Start PP 2 Specials:** Exorcism and Requiem use dedicated targeted templates later in this catalogue.
 
 > **Root:** Root uses **Start PP 6 × T(X)** pricing but follows its own Until Broken rules. Root has a minimum applied value of **Root(2)** and never uses Root(1).
 
@@ -967,125 +969,75 @@ A ranged martial attack that applies one high-impact Start PP 8 Diminishing Spec
 {{wide
 ### Martial AoE Attack Rules
 
-A Martial AoE Active is still an attack.
+A Martial AoE Active is one attack roll applied across an area.
 
-It does not automatically hit every creature in the area.
+When using a Martial AoE Active:
 
-When using a Martial AoE Active, choose one **Primary Target** that can be legally attacked by the Power.
+1. Choose the legal AoE placement.
+2. Build and roll one Attack Pool for the Power.
+3. Compare the same final Attack result separately against the current **Evade** of every valid creature inside the area.
+4. A creature is hit if the result reaches its Evade. A miss against one creature does not affect any other creature.
+5. Each creature may use legal Attack-Trigger defenses that modify its own Evade before its hit result is finalized.
+6. A creature that would still be hit may use **Dive for Cover** before damage or payload is applied.
+7. Every creature that remains hit receives the Power's full printed payload.
 
-The attacker makes one attack roll to place the AoE.
-
-The roll is made against the Power's normal Target Number, not against each creature's Evade.
-
-The Primary Target or target point determines the center of the AoE.
-
-If the attack roll succeeds, the AoE is placed successfully and all valid creatures inside the AoE are affected.
-
-If the attack roll fails, the AoE fails and no creature is affected.
-
-Creatures inside the AoE do not use their Evade against the original attack unless a Reaction, Power, or special rule explicitly allows it.
+Each creature inside the area is resolved independently.
 
 ---
 :
 ### Melee AoE Center
 
-A Melee AoE is centered on the attacker.
-
-The attacker chooses one valid **Primary Target** inside the AoE.
-
-The Primary Target must be a creature the attacker could legally attack with the Power.
-
-The Primary Target does not have to stand in the center of the AoE.
-
-It only has to be inside the Melee AoE radius and within legal reach or targeting rules.
-
-If the attack hits the Primary Target, the AoE affects all valid creatures inside the radius around the attacker.
-
-The attacker is not affected by their own Melee AoE unless the Power explicitly says so.
+A Melee AoE is centered on the attacker. The attacker is not affected by their own Melee AoE unless the Power explicitly says otherwise.
 
 ---
 :
 ### Ranged AoE Center
 
-A Ranged AoE is centered on the chosen Primary Target or target point.
-
-The Primary Target or target point must be within the Power's printed Range.
-
-If the attack hits the Primary Target, the AoE affects all valid creatures inside the radius around that target point.
-
-If the Power targets a point instead of a creature, use the Power's listed casting or attack rule to determine whether the AoE is successfully placed.
+A Ranged AoE is centered on a chosen target point within the Power's printed Range. The center point only determines placement and does not determine whether any creature is hit.
 
 ---
 :
-### Primary Target
+### Full Payload Rule
 
-The Primary Target is the creature the attack is rolled against.
+Every creature successfully hit by an AoE receives the complete payload printed on the Power:
 
-The Primary Target is hit by the full Power.
+- full weapon damage, if the Power uses a weapon or unarmed attack,
+- full listed Power damage,
+- full listed Special values,
+- and every legal offensive buff or rider that applies to that attack.
 
-This includes:
-
-- weapon damage, if the Power uses a weapon,
-- the Power's listed bonus damage,
-- the Power's listed Special,
-- and any other listed payload.
-
-The Primary Target is the only creature whose defense determines whether the AoE happens.
-
-Other creatures inside the AoE do not roll Evade against the original attack unless a specific Power or Reaction says otherwise.
+Damage, Specials, and Active Buff: Damage are never divided, halved, or reduced merely because the attack is an AoE.
 
 ---
 :
-}}
+### Instant Attack AoE Pricing
 
-\page
-{{pageNumber,auto}}
-{{wide
-### Secondary Targets
+This pricing applies only to **instant Attack AoEs**. Support AoEs, Persistent Zones, Auras, Images, Barriers, and other dedicated area systems keep their own written pricing.
 
-Every other valid creature inside the AoE is a **Secondary Target**.
+| **Radius** | **Cost** |
+|:--:|--:|
+| **1 m** | **0 PP** |
+| **2 m** | **20 PP** |
+| **3 m** | **50 PP** |
+| **4 m** | **80 PP** |
+| **5 m** | **120 PP** |
+| **6 m** | **165 PP** |
+| **7 m** | **220 PP** |
+| **8 m** | **280 PP** |
 
-A Secondary Target is affected only if the attack hits the Primary Target.
-
-Secondary Targets take the Power's AoE payload.
-
-Unless the Power says otherwise, Secondary Targets take:
-
-- the Power's listed AoE damage,
-- the listed Special,
-- and weapon damage only if the Power explicitly includes melee or ranged weapon damage.
-
-Secondary Targets do not take extra single-target riders that only apply to the Primary Target.
-
-Secondary Targets are not individually attacked.
-
-The attacker does not roll separately against each Secondary Target.
-
----
-:
-### AoE Damage Rule
-
-If a Martial AoE Power lists damage, all affected creatures take that listed damage.
-
-If the Power says **weapon damage**, affected creatures also take the weapon damage used to deliver the Power.
-
-If the Power only lists a Special and says **No damage**, affected creatures take no damage and only receive the listed Special.
-
-If the Power lists **+1d8 damage**, affected creatures take that bonus damage in addition to any weapon damage included by the Power.
+**8 m Radius** is the normal maximum for standard player Attack Powers.
 
 ---
 :
 ### AoE Special Rule
 
-If the AoE applies a Special, all affected creatures receive the listed Special value.
+An AoE Special uses the same printed value and the same normal PP cost as the matching single-target Special.
 
-Example:
+There is no AoE Special halving rule and no extra Diminishing pricing step.
 
-A Power with **Blight(5)** applies **Blight(5)** to every affected creature inside the AoE.
+> **AoE Special Cost = normal Special Cost**
 
-The Special is not split between targets.
-
-Each affected creature receives the full listed Special value.
+The Radius cost is the coverage tax.
 
 ---
 :
@@ -1093,208 +1045,78 @@ Each affected creature receives the full listed Special value.
 
 To resolve a Martial AoE Active:
 
-1. Determine whether the Power is **Melee AoE** or **Ranged AoE**.
-2. Choose a legal **Primary Target**.
-3. Roll one attack against the Primary Target.
-4. If the attack misses, the AoE fails.
-5. If the attack hits, place the AoE:
-   - **Melee AoE:** centered on the attacker.
-   - **Ranged AoE:** centered on the Primary Target or target point.
-6. The Primary Target takes the full Power.
-7. All Secondary Targets inside the AoE take the listed AoE payload.
-8. Do not roll separate attacks against Secondary Targets.
-9. Do not compare the attack roll against every creature's Evade unless a specific rule says so.
-
-}}
-
-\page
-{{pageNumber,auto}}
-{{wide
+1. Place the AoE.
+2. Roll once.
+3. Compare the same result separately against every valid creature's Evade.
+4. Resolve Evade-changing Reactions separately for each creature.
+5. Each creature that would still be hit may use Dive for Cover.
+6. Apply the full printed payload to every creature that remains hit.
 
 ---
 :
 ### Example — Melee AoE Weapon Sweep
 
-A character uses a melee AoE weapon attack.
+A character uses a Melee AoE with **Radius 3 m** and **weapon damage + 4d8 damage**.
 
-The Power has:
+The attacker rolls once and gets **27**. Three enemies are in the radius with Evade **18**, **25**, and **30**.
 
-- Range: **Self**
-- AoE: **Radius 3 m**
-- Effect: affected creatures take weapon damage + **2d8 damage**
+- Evade 18: hit.
+- Evade 25: hit.
+- Evade 30: miss.
 
-The attacker is the center of the AoE.
-
-The attacker chooses one enemy inside the 3 m radius as the **Primary Target**.
-
-The Primary Target does not have to stand in the center of the AoE.
-
-The attacker rolls one melee attack against that Primary Target.
-
-If the attack misses, the sweep fails and no creature is affected.
-
-If the attack hits:
-
-- the Primary Target takes weapon damage + **2d8 damage**,
-- every other valid creature inside the 3 m radius around the attacker also takes weapon damage + **2d8 damage**.
-
-The attacker is not affected by their own Melee AoE unless the Power explicitly says so.
-
-The weapon damage is included because the Power explicitly says affected creatures take weapon damage.
+The two creatures that would be hit may use Dive for Cover before damage is applied. Every creature that remains hit takes the full **weapon damage + 4d8 damage**.
 
 ---
 :
 ### Example — Ranged AoE Blight Shot
 
-A character uses a ranged AoE poison Power.
+A character places a Ranged AoE with **Blight(6)**. The same Attack Roll is compared separately against every creature inside the radius. Every creature that is hit and remains inside after any Dive for Cover gains the full **Blight(6)**. A creature that is missed does not gain Blight, but its miss does not protect any other creature.
 
-The Power has:
-
-- Range: **32 m**
-- AoE: **Radius 4 m**
-- Damage: **No damage**
-- Special: **Blight(5)**
-
-The attacker chooses one enemy within 32 m as the **Primary Target**.
-
-The Primary Target is the center of the AoE.
-
-The attacker rolls one ranged attack against the Primary Target.
-
-If the attack misses, nothing happens.
-
-If the attack hits:
-
-- the Primary Target gains **Blight(5)**,
-- every other valid creature inside the 4 m radius around the Primary Target also gains **Blight(5)**.
-
-No damage is dealt, because the Power says **No damage**.
-
-The attacker does not roll separately against the other creatures in the radius.
-
+---
 }}
 \page
 {{pageNumber,auto}}
 {{wide
-
-
----
-:
 <h3 id="melee-aoe-damage-start-pp-3-special">
   Melee AoE — Damage + Start PP 3 Special
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
       Active curve = 30 PP per level<br>
-      Melee AoE Range = Self<br>
-      No Range cost<br>
-      +1d8 Damage = 15 PP<br>
-      Damage is optional and may only be added once it can be carried permanently afterward<br><br>
-
-      SINGLE TARGET REFERENCE<br>
-      This AoE template is based on the Melee Single-Target Blight progression.<br>
-      Single-Target Blight progression:<br>
-      L1 Blight(3)<br>
-      L2 Blight(5)<br>
-      L3 Blight(6)<br>
-      L4 Blight(8)<br>
-      L5 Blight(9)<br>
-      L6 Blight(10)<br>
-      L7 Blight(11)<br>
-      L8 Blight(12)<br>
-      L9 Blight(12)<br>
-      L10 Blight(13)<br>
-      L11 Blight(14)<br>
-      L12 Blight(14)<br>
-      L13 Blight(15)<br>
-      L14 Blight(16)<br>
-      L15 Blight(16)<br>
-      L16 Blight(17)<br><br>
-
-      AOE SPECIAL VALUE RULE<br>
-      AoE Special value is derived from the Single-Target value, then halved.<br>
-      AoE Blight = floor(Single-Target Blight / 2)<br>
-      Minimum value is Blight(1).<br><br>
-
-      RESULTING AOE Blight PROGRESSION<br>
-      L1 → Single Target Blight(3) / 2 = Blight(1)<br>
-      L2 → Single Target Blight(5) / 2 = Blight(2)<br>
-      L3 → Single Target Blight(6) / 2 = Blight(3)<br>
-      L4 → Single Target Blight(8) / 2 = Blight(4)<br>
-      L5 → Single Target Blight(9) / 2 = Blight(4)<br>
-      L6 → Single Target Blight(10) / 2 = Blight(5)<br>
-      L7 → Single Target Blight(11) / 2 = Blight(5)<br>
-      L8 → Single Target Blight(12) / 2 = Blight(6)<br>
-      L9 → Single Target Blight(12) / 2 = Blight(6)<br>
-      L10 → Single Target Blight(13) / 2 = Blight(6)<br>
-      L11 → Single Target Blight(14) / 2 = Blight(7)<br>
-      L12 → Single Target Blight(14) / 2 = Blight(7)<br>
-      L13 → Single Target Blight(15) / 2 = Blight(7)<br>
-      L14 → Single Target Blight(16) / 2 = Blight(8)<br>
-      L15 → Single Target Blight(16) / 2 = Blight(8)<br>
-      L16 → Single Target Blight(17) / 2 = Blight(8)<br><br>
-
-      AOE SPECIAL COST RULE<br>
-      AoE Special costs one Diminishing step higher than the printed value.<br>
-      AoE Blight(X) = Start PP 3 × T(X+1)<br>
-      T(X) = X × (X + 1) / 2<br><br>
-
-      AOE Blight COSTS<br>
-      Blight(1) = 3 × T(2) = 9 PP<br>
-      Blight(2) = 3 × T(3) = 18 PP<br>
-      Blight(3) = 3 × T(4) = 30 PP<br>
-      Blight(4) = 3 × T(5) = 45 PP<br>
-      Blight(5) = 3 × T(6) = 63 PP<br>
-      Blight(6) = 3 × T(7) = 84 PP<br>
-      Blight(7) = 3 × T(8) = 108 PP<br>
-      Blight(8) = 3 × T(9) = 135 PP<br><br>
-
-      AOE COSTS<br>
-      Radius 2 m = 20 PP<br>
-      Radius 3 m = 50 PP<br>
-      Radius 4 m = 90 PP<br>
-      Radius 5 m = 140 PP<br>
-      Radius 6 m = 200 PP<br>
-      Radius 7 m = 270 PP<br>
-      Radius 8 m = 350 PP<br><br>
-
-      SCALING RULE<br>
-      This is a Blight-first AoE Martial Active.<br>
-      Blight is derived from the Single-Target reference and halved.<br>
-      AoE then scales as high as the remaining PP allows.<br>
-      Damage is not added early just because it fits once.<br>
-      Damage is added only once it can be kept permanently afterward.<br>
-      AoE and Blight may stay the same or increase, but they may never decrease.<br><br>
-
-      CALCULATION<br>
-      L1 → Target 30 PP: Blight(1) (9) + Radius 2 m (20) + Damage — (0) = 29 PP<br>
-      L2 → Target 60 PP: Blight(2) (18) + Radius 2 m (20) + Damage — (0) = 38 PP<br>
-      L3 → Target 90 PP: Blight(3) (30) + Radius 3 m (50) + Damage — (0) = 80 PP<br>
-      L4 → Target 120 PP: Blight(4) (45) + Radius 3 m (50) + Damage — (0) = 95 PP<br>
-      L5 → Target 150 PP: Blight(4) (45) + Radius 4 m (90) + Damage — (0) = 135 PP<br>
-      L6 → Target 180 PP: Blight(5) (63) + Radius 4 m (90) + Damage — (0) = 153 PP<br>
-      L7 → Target 210 PP: Blight(5) (63) + Radius 5 m (140) + Damage — (0) = 203 PP<br>
-      L8 → Target 240 PP: Blight(6) (84) + Radius 5 m (140) + Damage — (0) = 224 PP<br>
-      L9 → Target 270 PP: Blight(6) (84) + Radius 5 m (140) + Damage — (0) = 224 PP<br>
-      L10 → Target 300 PP: Blight(6) (84) + Radius 6 m (200) + Damage — (0) = 284 PP<br>
-      L11 → Target 330 PP: Blight(7) (108) + Radius 6 m (200) + Damage — (0) = 308 PP<br>
-      L12 → Target 360 PP: Blight(7) (108) + Radius 7 m (270) + Damage — (0) = 378 PP above target, so Radius 6 m is retained = 308 PP<br>
-      L13 → Target 390 PP: Blight(7) (108) + Radius 7 m (270) + Damage +1d8 (15) = 393 PP ≈ 390 target<br>
-      L14 → Target 420 PP: Blight(8) (135) + Radius 7 m (270) + Damage +1d8 (15) = 420 PP<br>
-      L15 → Target 450 PP: Blight(8) (135) + Radius 7 m (270) + Damage +1d8 (15) = 420 PP<br>
-      L16 → Target 480 PP: Blight(8) (135) + Radius 8 m (350) + Damage +1d8 (15) = 500 PP above target, so Radius 7 m is retained = 420 PP<br><br>
-
-      NOTES<br>
-      Damage is intentionally absent until Level 13.<br>
-      Once +1d8 damage appears, it remains present through the rest of the template.<br>
-      Radius 7 m is delayed until the template can carry it together with the late damage rider.<br>
-      Radius 8 m is not reached in this version because Radius 8 m + Blight(8) + +1d8 damage exceeds the Level 16 budget.<br>
-      This avoids damage appearing and disappearing between levels.
+      Melee AoE Range = Self; no Range cost<br>
+      Weapon Damage is the baseline damage of the attack and is not priced again<br>
+      Instant Attack AoE costs: Radius 1/2/3/4/5/6/7/8 m = 0/20/50/80/120/165/220/280 PP<br>
+      Special Cost = Start PP 3 × T(X), T(X) = X × (X + 1) / 2<br><br>
+      DESIGN STRUCTURE<br>
+      Eligible Specials: Blight.<br>
+      AoE pays for coverage through Radius. The Special uses its normal printed value and normal Special cost: it is not halved and does not pay an extra Diminishing step.<br>
+      Make one AoE Attack Roll and compare the same result separately against each creature's Evade. Each creature hit receives full Weapon Damage and the full printed Special. Dive for Cover may be used after the hit check and before payload.<br>
+      This Special-first AoE template adds no bonus Power damage dice; Weapon Damage remains the damage component.<br><br>
+      LEVEL-BY-LEVEL CALCULATION<br>
+      L1 → Target 30 PP: Radius 2 m (20) + Special(2) (9) = 29 PP<br>
+      L2 → Target 60 PP: Radius 2 m (20) + Special(4) (30) = 50 PP<br>
+      L3 → Target 90 PP: Radius 3 m (50) + Special(4) (30) = 80 PP<br>
+      L4 → Target 120 PP: Radius 3 m (50) + Special(6) (63) = 113 PP<br>
+      L5 → Target 150 PP: Radius 4 m (80) + Special(6) (63) = 143 PP<br>
+      L6 → Target 180 PP: Radius 4 m (80) + Special(7) (84) = 164 PP<br>
+      L7 → Target 210 PP: Radius 5 m (120) + Special(7) (84) = 204 PP<br>
+      L8 → Target 240 PP: Radius 5 m (120) + Special(8) (108) = 228 PP<br>
+      L9 → Target 270 PP: Radius 5 m (120) + Special(9) (135) = 255 PP<br>
+      L10 → Target 300 PP: Radius 6 m (165) + Special(9) (135) = 300 PP<br>
+      L11 → Target 330 PP: Radius 6 m (165) + Special(10) (165) = 330 PP<br>
+      L12 → Target 360 PP: Radius 6 m (165) + Special(10) (165) = 330 PP<br>
+      L13 → Target 390 PP: Radius 7 m (220) + Special(10) (165) = 385 PP<br>
+      L14 → Target 420 PP: Radius 7 m (220) + Special(11) (198) = 418 PP<br>
+      L15 → Target 450 PP: Radius 7 m (220) + Special(11) (198) = 418 PP<br>
+      L16 → Target 480 PP: Radius 7 m (220) + Special(12) (234) = 454 PP<br>
+<br>      NOTES<br>
+      Values never decrease. Unused PP may remain unused when the next Radius or Special increase does not fit cleanly.<br>
+      Active Buff: Damage, if active, adds its full listed damage to every creature successfully hit by this AoE.
     </span>
   </span>
 </h3>
 
-A self-centered area attack that spreads poison around the attacker.
+A self-centered martial AoE that spreads a virulent Blight through a weapon-driven area attack.
 
 ---
 :
@@ -1304,161 +1126,69 @@ A self-centered area attack that spreads poison around the attacker.
 :
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
 |:--:|:--|:--:|:--:|:--:|:--|:--|
-| **1** | Active | Self | Radius 2 m | Instant | No damage. | Affected creatures gain **Blight(1)**. |
-| **2** | Active | Self | Radius 2 m | Instant | No damage. | Affected creatures gain **Blight(2)**. |
-| **3** | Active | Self | Radius 3 m | Instant | No damage. | Affected creatures gain **Blight(3)**. |
-| **4** | Active | Self | Radius 3 m | Instant | No damage. | Affected creatures gain **Blight(4)**. |
-| **5** | Active | Self | Radius 4 m | Instant | No damage. | Affected creatures gain **Blight(4)**. |
-| **6** | Active | Self | Radius 4 m | Instant | No damage. | Affected creatures gain **Blight(5)**. |
-| **7** | Active | Self | Radius 5 m | Instant | No damage. | Affected creatures gain **Blight(5)**. |
-| **8** | Active | Self | Radius 5 m | Instant | No damage. | Affected creatures gain **Blight(6)**. |
-| **9** | Active | Self | Radius 5 m | Instant | No damage. | Affected creatures gain **Blight(6)**. |
-| **10** | Active | Self | Radius 6 m | Instant | No damage. | Affected creatures gain **Blight(6)**. |
-| **11** | Active | Self | Radius 6 m | Instant | No damage. | Affected creatures gain **Blight(7)**. |
-| **12** | Active | Self | Radius 6 m | Instant | No damage. | Affected creatures gain **Blight(7)**. |
-| **13** | Active | Self | Radius 7 m | Instant | Deal **+1d8 damage** to affected creatures. | Affected creatures gain **Blight(7)**. |
-| **14** | Active | Self | Radius 7 m | Instant | Deal **+1d8 damage** to affected creatures. | Affected creatures gain **Blight(8)**. |
-| **15** | Active | Self | Radius 7 m | Instant | Deal **+1d8 damage** to affected creatures. | Affected creatures gain **Blight(8)**. |
-| **16** | Active | Self | Radius 7 m | Instant | Deal **+1d8 damage** to affected creatures. | Affected creatures gain **Blight(8)**. |
-
+| **1** | Active | Self | Radius 2 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Blight(2)** |
+| **2** | Active | Self | Radius 2 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Blight(4)** |
+| **3** | Active | Self | Radius 3 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Blight(4)** |
+| **4** | Active | Self | Radius 3 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Blight(6)** |
+| **5** | Active | Self | Radius 4 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Blight(6)** |
+| **6** | Active | Self | Radius 4 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Blight(7)** |
+| **7** | Active | Self | Radius 5 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Blight(7)** |
+| **8** | Active | Self | Radius 5 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Blight(8)** |
+| **9** | Active | Self | Radius 5 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Blight(9)** |
+| **10** | Active | Self | Radius 6 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Blight(9)** |
+| **11** | Active | Self | Radius 6 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Blight(10)** |
+| **12** | Active | Self | Radius 6 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Blight(10)** |
+| **13** | Active | Self | Radius 7 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Blight(10)** |
+| **14** | Active | Self | Radius 7 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Blight(11)** |
+| **15** | Active | Self | Radius 7 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Blight(11)** |
+| **16** | Active | Self | Radius 7 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Blight(12)** |
 
 
 ---
-:
+}}
+\page
+{{pageNumber,auto}}
+{{wide
 <h3 id="ranged-aoe-damage-start-pp-3-special">
   Ranged AoE — Damage + Start PP 3 Special
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
       Active curve = 30 PP per level<br>
-      Ranged AoE uses printed Range<br>
-      Range progression = +4 m per level<br>
-      Range cost = +5 PP per +4 m after 8 m<br>
-      +1d8 Damage = 15 PP<br>
-      Damage is optional and may only be added once it can be carried permanently afterward<br><br>
-
-      SINGLE TARGET REFERENCE<br>
-      This AoE template is based on the Ranged Single-Target Blight progression.<br>
-      Single-Target Ranged Blight progression:<br>
-      L1 Blight(2)<br>
-      L2 Blight(4)<br>
-      L3 Blight(6)<br>
-      L4 Blight(7)<br>
-      L5 Blight(8)<br>
-      L6 Blight(9)<br>
-      L7 Blight(10)<br>
-      L8 Blight(10)<br>
-      L9 Blight(11)<br>
-      L10 Blight(12)<br>
-      L11 Blight(12)<br>
-      L12 Blight(13)<br>
-      L13 Blight(14)<br>
-      L14 Blight(14)<br>
-      L15 Blight(15)<br>
-      L16 Blight(15)<br><br>
-
-      AOE SPECIAL VALUE RULE<br>
-      AoE Special value is derived from the Single-Target value, then halved.<br>
-      AoE Blight = floor(Single-Target Blight / 2)<br>
-      Minimum value is Blight(1).<br><br>
-
-      RESULTING AOE Blight PROGRESSION<br>
-      L1 → Single Target Blight(2) / 2 = Blight(1)<br>
-      L2 → Single Target Blight(4) / 2 = Blight(2)<br>
-      L3 → Single Target Blight(6) / 2 = Blight(3)<br>
-      L4 → Single Target Blight(7) / 2 = Blight(3)<br>
-      L5 → Single Target Blight(8) / 2 = Blight(4)<br>
-      L6 → Single Target Blight(9) / 2 = Blight(4)<br>
-      L7 → Single Target Blight(10) / 2 = Blight(5)<br>
-      L8 → Single Target Blight(10) / 2 = Blight(5)<br>
-      L9 → Single Target Blight(11) / 2 = Blight(5)<br>
-      L10 → Single Target Blight(12) / 2 = Blight(6)<br>
-      L11 → Single Target Blight(12) / 2 = Blight(6)<br>
-      L12 → Single Target Blight(13) / 2 = Blight(6)<br>
-      L13 → Single Target Blight(14) / 2 = Blight(7)<br>
-      L14 → Single Target Blight(14) / 2 = Blight(7)<br>
-      L15 → Single Target Blight(15) / 2 = Blight(7)<br>
-      L16 → Single Target Blight(15) / 2 = Blight(7)<br><br>
-
-      AOE SPECIAL COST RULE<br>
-      AoE Special costs one Diminishing step higher than the printed value.<br>
-      AoE Blight(X) = Start PP 3 × T(X+1)<br>
-      T(X) = X × (X + 1) / 2<br><br>
-
-      AOE Blight COSTS<br>
-      Blight(1) = 3 × T(2) = 9 PP<br>
-      Blight(2) = 3 × T(3) = 18 PP<br>
-      Blight(3) = 3 × T(4) = 30 PP<br>
-      Blight(4) = 3 × T(5) = 45 PP<br>
-      Blight(5) = 3 × T(6) = 63 PP<br>
-      Blight(6) = 3 × T(7) = 84 PP<br>
-      Blight(7) = 3 × T(8) = 108 PP<br><br>
-
-      RANGE COSTS<br>
-      8 m = 0 PP<br>
-      12 m = 5 PP<br>
-      16 m = 10 PP<br>
-      20 m = 15 PP<br>
-      24 m = 20 PP<br>
-      28 m = 25 PP<br>
-      32 m = 30 PP<br>
-      36 m = 35 PP<br>
-      40 m = 40 PP<br>
-      44 m = 45 PP<br>
-      48 m = 50 PP<br>
-      52 m = 55 PP<br>
-      56 m = 60 PP<br>
-      60 m = 65 PP<br>
-      64 m = 70 PP<br>
-      68 m = 75 PP<br><br>
-
-      AOE COSTS<br>
-      Radius 2 m = 20 PP<br>
-      Radius 3 m = 50 PP<br>
-      Radius 4 m = 90 PP<br>
-      Radius 5 m = 140 PP<br>
-      Radius 6 m = 200 PP<br>
-      Radius 7 m = 270 PP<br>
-      Radius 8 m = 350 PP<br><br>
-
-      SCALING RULE<br>
-      This is a Blight-first Ranged AoE Martial Active.<br>
-      Blight is derived from the Ranged Single-Target reference and halved.<br>
-      Range is paid as a fixed cost each level.<br>
-      AoE then scales as high as the remaining PP allows.<br>
-      Damage is not added early just because it fits once.<br>
-      Damage is added only once it can be kept permanently afterward.<br>
-      Range, AoE, and Blight may stay the same or increase, but they may never decrease.<br><br>
-
-      CALCULATION<br>
-      L1 → Target 30 PP: Range 8 m (0) + Blight(1) (9) + Radius 2 m (20) + Damage — (0) = 29 PP<br>
-      L2 → Target 60 PP: Range 12 m (5) + Blight(2) (18) + Radius 2 m (20) + Damage — (0) = 43 PP<br>
-      L3 → Target 90 PP: Range 16 m (10) + Blight(3) (30) + Radius 2 m (20) + Damage — (0) = 60 PP<br>
-      L4 → Target 120 PP: Range 20 m (15) + Blight(3) (30) + Radius 3 m (50) + Damage — (0) = 95 PP<br>
-      L5 → Target 150 PP: Range 24 m (20) + Blight(4) (45) + Radius 3 m (50) + Damage — (0) = 115 PP<br>
-      L6 → Target 180 PP: Range 28 m (25) + Blight(4) (45) + Radius 4 m (90) + Damage — (0) = 160 PP<br>
-      L7 → Target 210 PP: Range 32 m (30) + Blight(5) (63) + Radius 4 m (90) + Damage — (0) = 183 PP<br>
-      L8 → Target 240 PP: Range 36 m (35) + Blight(5) (63) + Radius 4 m (90) + Damage — (0) = 188 PP<br>
-      L9 → Target 270 PP: Range 40 m (40) + Blight(5) (63) + Radius 5 m (140) + Damage — (0) = 243 PP<br>
-      L10 → Target 300 PP: Range 44 m (45) + Blight(6) (84) + Radius 5 m (140) + Damage — (0) = 269 PP<br>
-      L11 → Target 330 PP: Range 48 m (50) + Blight(6) (84) + Radius 5 m (140) + Damage — (0) = 274 PP<br>
-      L12 → Target 360 PP: Range 52 m (55) + Blight(6) (84) + Radius 6 m (200) + Damage — (0) = 339 PP<br>
-      L13 → Target 390 PP: Range 56 m (60) + Blight(7) (108) + Radius 6 m (200) + Damage — (0) = 368 PP<br>
-      L14 → Target 420 PP: Range 60 m (65) + Blight(7) (108) + Radius 6 m (200) + Damage — (0) = 373 PP<br>
-      L15 → Target 450 PP: Range 64 m (70) + Blight(7) (108) + Radius 6 m (200) + Damage +1d8 (15) = 393 PP<br>
-      L16 → Target 480 PP: Range 68 m (75) + Blight(7) (108) + Radius 6 m (200) + Damage +1d8 (15) = 398 PP<br><br>
-
-      NOTES<br>
-      Damage is intentionally absent until Level 15.<br>
-      Once +1d8 damage appears, it remains present through the rest of the template.<br>
-      The Ranged version trails behind the Melee version because it pays Range every level.<br>
-      Radius 7 m is not reached in this version because Range + Radius 7 m + Blight(7) would exceed the available budget before the late damage rider can be carried cleanly.<br>
-      This avoids damage appearing and disappearing between levels.
+      Ranged AoE Range = 8 m +4 m per level; Range costs +5 PP per +4 m after 8 m<br>
+      Weapon Damage is the baseline damage of the attack and is not priced again<br>
+      Instant Attack AoE costs: Radius 1/2/3/4/5/6/7/8 m = 0/20/50/80/120/165/220/280 PP<br>
+      Special Cost = Start PP 3 × T(X), T(X) = X × (X + 1) / 2<br><br>
+      DESIGN STRUCTURE<br>
+      Eligible Specials: Blight.<br>
+      AoE pays for coverage through Radius. The Special uses its normal printed value and normal Special cost: it is not halved and does not pay an extra Diminishing step.<br>
+      Make one AoE Attack Roll and compare the same result separately against each creature's Evade. Each creature hit receives full Weapon Damage and the full printed Special. Dive for Cover may be used after the hit check and before payload.<br>
+      This Special-first AoE template adds no bonus Power damage dice; Weapon Damage remains the damage component.<br><br>
+      LEVEL-BY-LEVEL CALCULATION<br>
+      L1 → Target 30 PP: Range 8 m (0) + Radius 2 m (20) + Special(2) (9) = 29 PP<br>
+      L2 → Target 60 PP: Range 12 m (5) + Radius 2 m (20) + Special(4) (30) = 55 PP<br>
+      L3 → Target 90 PP: Range 16 m (10) + Radius 2 m (20) + Special(5) (45) = 75 PP<br>
+      L4 → Target 120 PP: Range 20 m (15) + Radius 3 m (50) + Special(5) (45) = 110 PP<br>
+      L5 → Target 150 PP: Range 24 m (20) + Radius 3 m (50) + Special(6) (63) = 133 PP<br>
+      L6 → Target 180 PP: Range 28 m (25) + Radius 4 m (80) + Special(6) (63) = 168 PP<br>
+      L7 → Target 210 PP: Range 32 m (30) + Radius 4 m (80) + Special(7) (84) = 194 PP<br>
+      L8 → Target 240 PP: Range 36 m (35) + Radius 4 m (80) + Special(8) (108) = 223 PP<br>
+      L9 → Target 270 PP: Range 40 m (40) + Radius 5 m (120) + Special(8) (108) = 268 PP<br>
+      L10 → Target 300 PP: Range 44 m (45) + Radius 5 m (120) + Special(9) (135) = 300 PP<br>
+      L11 → Target 330 PP: Range 48 m (50) + Radius 5 m (120) + Special(9) (135) = 305 PP<br>
+      L12 → Target 360 PP: Range 52 m (55) + Radius 6 m (165) + Special(9) (135) = 355 PP<br>
+      L13 → Target 390 PP: Range 56 m (60) + Radius 6 m (165) + Special(10) (165) = 390 PP<br>
+      L14 → Target 420 PP: Range 60 m (65) + Radius 6 m (165) + Special(10) (165) = 395 PP<br>
+      L15 → Target 450 PP: Range 64 m (70) + Radius 6 m (165) + Special(11) (198) = 433 PP<br>
+      L16 → Target 480 PP: Range 68 m (75) + Radius 6 m (165) + Special(12) (234) = 474 PP<br>
+<br>      NOTES<br>
+      Values never decrease. Unused PP may remain unused when the next Radius or Special increase does not fit cleanly.<br>
+      Active Buff: Damage, if active, adds its full listed damage to every creature successfully hit by this AoE.
     </span>
   </span>
 </h3>
 
-A ranged area attack that spreads poison around a target point within range.
+A ranged martial AoE that spreads a virulent Blight through a weapon-driven area attack.
 
 ---
 :
@@ -1468,25 +1198,25 @@ A ranged area attack that spreads poison around a target point within range.
 :
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
 |:--:|:--|:--:|:--:|:--:|:--|:--|
-| **1** | Active | 8 m | Radius 2 m | Instant | No damage. | Affected creatures gain **Blight(1)**. |
-| **2** | Active | 12 m | Radius 2 m | Instant | No damage. | Affected creatures gain **Blight(2)**. |
-| **3** | Active | 16 m | Radius 2 m | Instant | No damage. | Affected creatures gain **Blight(3)**. |
-| **4** | Active | 20 m | Radius 3 m | Instant | No damage. | Affected creatures gain **Blight(3)**. |
-| **5** | Active | 24 m | Radius 3 m | Instant | No damage. | Affected creatures gain **Blight(4)**. |
-| **6** | Active | 28 m | Radius 4 m | Instant | No damage. | Affected creatures gain **Blight(4)**. |
-| **7** | Active | 32 m | Radius 4 m | Instant | No damage. | Affected creatures gain **Blight(5)**. |
-| **8** | Active | 36 m | Radius 4 m | Instant | No damage. | Affected creatures gain **Blight(5)**. |
-| **9** | Active | 40 m | Radius 5 m | Instant | No damage. | Affected creatures gain **Blight(5)**. |
-| **10** | Active | 44 m | Radius 5 m | Instant | No damage. | Affected creatures gain **Blight(6)**. |
-| **11** | Active | 48 m | Radius 5 m | Instant | No damage. | Affected creatures gain **Blight(6)**. |
-| **12** | Active | 52 m | Radius 6 m | Instant | No damage. | Affected creatures gain **Blight(6)**. |
-| **13** | Active | 56 m | Radius 6 m | Instant | No damage. | Affected creatures gain **Blight(7)**. |
-| **14** | Active | 60 m | Radius 6 m | Instant | No damage. | Affected creatures gain **Blight(7)**. |
-| **15** | Active | 64 m | Radius 6 m | Instant | Deal **+1d8 damage** to affected creatures. | Affected creatures gain **Blight(7)**. |
-| **16** | Active | 68 m | Radius 6 m | Instant | Deal **+1d8 damage** to affected creatures. | Affected creatures gain **Blight(7)**. |
+| **1** | Active | 8 m | Radius 2 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Blight(2)** |
+| **2** | Active | 12 m | Radius 2 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Blight(4)** |
+| **3** | Active | 16 m | Radius 2 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Blight(5)** |
+| **4** | Active | 20 m | Radius 3 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Blight(5)** |
+| **5** | Active | 24 m | Radius 3 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Blight(6)** |
+| **6** | Active | 28 m | Radius 4 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Blight(6)** |
+| **7** | Active | 32 m | Radius 4 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Blight(7)** |
+| **8** | Active | 36 m | Radius 4 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Blight(8)** |
+| **9** | Active | 40 m | Radius 5 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Blight(8)** |
+| **10** | Active | 44 m | Radius 5 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Blight(9)** |
+| **11** | Active | 48 m | Radius 5 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Blight(9)** |
+| **12** | Active | 52 m | Radius 6 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Blight(9)** |
+| **13** | Active | 56 m | Radius 6 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Blight(10)** |
+| **14** | Active | 60 m | Radius 6 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Blight(10)** |
+| **15** | Active | 64 m | Radius 6 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Blight(11)** |
+| **16** | Active | 68 m | Radius 6 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Blight(12)** |
 
 
-
+---
 }}
 \page
 {{pageNumber,auto}}
@@ -1497,75 +1227,40 @@ A ranged area attack that spreads poison around a target point within range.
     <span class="tooltiptext">
       BASELINES<br>
       Active curve = 30 PP per level<br>
-      Melee AoE Range = Self<br>
-      No Range cost<br>
-      +1d8 Damage = 15 PP<br>
-      Damage is optional and may only be added once it can be carried permanently afterward<br><br>
-
-      SPECIALS<br>
-      Lacerate / Mark / Ruin / Slow<br><br>
-
-      AOE SPECIAL VALUE RULE<br>
-      AoE Special value is derived from the matching Single-Target value, then halved.<br>
-      AoE Special = floor(Single-Target Special / 2).<br><br>
-
-      AOE SPECIAL COST RULE<br>
-      AoE Special costs one Diminishing step higher than the printed value.<br>
-      AoE Special(X) = Start PP 4 × T(X+1).<br><br>
-
-      AOE SPECIAL COSTS<br>
-      Special(1) = 12 PP<br>
-      Special(2) = 24 PP<br>
-      Special(3) = 40 PP<br>
-      Special(4) = 60 PP<br>
-      Special(5) = 84 PP<br>
-      Special(6) = 112 PP<br>
-      Special(7) = 144 PP<br><br>
-
-      AOE COSTS<br>
-      Radius 2 m = 20 PP<br>
-      Radius 3 m = 50 PP<br>
-      Radius 4 m = 90 PP<br>
-      Radius 5 m = 140 PP<br>
-      Radius 6 m = 200 PP<br>
-      Radius 7 m = 270 PP<br>
-      Radius 8 m = 350 PP<br><br>
-
-      SCALING RULE<br>
-      This is a Special-first AoE Martial Active.<br>
-      Lacerate, Mark, Ruin, and Slow are the primary scaling axis.<br>
-      AoE and Special may stay the same or increase, but they may never decrease.<br>
-      Damage is not added early just because it fits once.<br>
-      Damage appears at Level 14 and remains active afterward.<br><br>
-
-      CALCULATION<br>
-      L1 → Target 30 PP: Special(1) (12) + Radius 2 m (20) + Damage — (0) = 32 PP<br>
-      L2 → Target 60 PP: Special(2) (24) + Radius 2 m (20) + Damage — (0) = 44 PP<br>
-      L3 → Target 90 PP: Special(2) (24) + Radius 3 m (50) + Damage — (0) = 74 PP<br>
-      L4 → Target 120 PP: Special(3) (40) + Radius 3 m (50) + Damage — (0) = 90 PP<br>
-      L5 → Target 150 PP: Special(3) (40) + Radius 4 m (90) + Damage — (0) = 130 PP<br>
-      L6 → Target 180 PP: Special(4) (60) + Radius 4 m (90) + Damage — (0) = 150 PP<br>
-      L7 → Target 210 PP: Special(4) (60) + Radius 5 m (140) + Damage — (0) = 200 PP<br>
-      L8 → Target 240 PP: Special(5) (84) + Radius 5 m (140) + Damage — (0) = 224 PP<br>
-      L9 → Target 270 PP: Special(5) (84) + Radius 5 m (140) + Damage — (0) = 224 PP<br>
-      L10 → Target 300 PP: Special(5) (84) + Radius 6 m (200) + Damage — (0) = 284 PP<br>
-      L11 → Target 330 PP: Special(6) (112) + Radius 6 m (200) + Damage — (0) = 312 PP<br>
-      L12 → Target 360 PP: Special(6) (112) + Radius 6 m (200) + Damage — (0) = 312 PP<br>
-      L13 → Target 390 PP: Special(6) (112) + Radius 7 m (270) + Damage — (0) = 382 PP<br>
-      L14 → Target 420 PP: Special(6) (112) + Radius 7 m (270) + Damage +1d8 (15) = 397 PP<br>
-      L15 → Target 450 PP: Special(7) (144) + Radius 7 m (270) + Damage +1d8 (15) = 429 PP<br>
-      L16 → Target 480 PP: Special(7) (144) + Radius 7 m (270) + Damage +1d8 (15) = 429 PP<br><br>
-
-      NOTES<br>
-      Damage is intentionally absent until Level 14.<br>
-      Once +1d8 damage appears, it remains present.<br>
-      Radius 8 m is not reached because Radius 8 m plus Special(7) plus +1d8 would exceed the final budget.
+      Melee AoE Range = Self; no Range cost<br>
+      Weapon Damage is the baseline damage of the attack and is not priced again<br>
+      Instant Attack AoE costs: Radius 1/2/3/4/5/6/7/8 m = 0/20/50/80/120/165/220/280 PP<br>
+      Special Cost = Start PP 4 × T(X), T(X) = X × (X + 1) / 2<br><br>
+      DESIGN STRUCTURE<br>
+      Eligible Specials: Lacerate / Slow / Ruin / Mark.<br>
+      AoE pays for coverage through Radius. The Special uses its normal printed value and normal Special cost: it is not halved and does not pay an extra Diminishing step.<br>
+      Make one AoE Attack Roll and compare the same result separately against each creature's Evade. Each creature hit receives full Weapon Damage and the full printed Special. Dive for Cover may be used after the hit check and before payload.<br>
+      This Special-first AoE template adds no bonus Power damage dice; Weapon Damage remains the damage component.<br><br>
+      LEVEL-BY-LEVEL CALCULATION<br>
+      L1 → Target 30 PP: Radius 2 m (20) + Special(1) (4) = 24 PP<br>
+      L2 → Target 60 PP: Radius 2 m (20) + Special(4) (40) = 60 PP<br>
+      L3 → Target 90 PP: Radius 3 m (50) + Special(4) (40) = 90 PP<br>
+      L4 → Target 120 PP: Radius 3 m (50) + Special(5) (60) = 110 PP<br>
+      L5 → Target 150 PP: Radius 4 m (80) + Special(5) (60) = 140 PP<br>
+      L6 → Target 180 PP: Radius 4 m (80) + Special(6) (84) = 164 PP<br>
+      L7 → Target 210 PP: Radius 5 m (120) + Special(6) (84) = 204 PP<br>
+      L8 → Target 240 PP: Radius 5 m (120) + Special(7) (112) = 232 PP<br>
+      L9 → Target 270 PP: Radius 5 m (120) + Special(7) (112) = 232 PP<br>
+      L10 → Target 300 PP: Radius 6 m (165) + Special(7) (112) = 277 PP<br>
+      L11 → Target 330 PP: Radius 6 m (165) + Special(8) (144) = 309 PP<br>
+      L12 → Target 360 PP: Radius 6 m (165) + Special(8) (144) = 309 PP<br>
+      L13 → Target 390 PP: Radius 7 m (220) + Special(8) (144) = 364 PP<br>
+      L14 → Target 420 PP: Radius 7 m (220) + Special(9) (180) = 400 PP<br>
+      L15 → Target 450 PP: Radius 7 m (220) + Special(10) (220) = 440 PP<br>
+      L16 → Target 480 PP: Radius 7 m (220) + Special(10) (220) = 440 PP<br>
+<br>      NOTES<br>
+      Values never decrease. Unused PP may remain unused when the next Radius or Special increase does not fit cleanly.<br>
+      Active Buff: Damage, if active, adds its full listed damage to every creature successfully hit by this AoE.
     </span>
   </span>
 </h3>
 
-A self-centered area attack that applies a standard Diminishing Special around the attacker.  
-This template covers Lacerate, Mark, Ruin, and Slow.
+A self-centered martial AoE that carries a standard numeric Special through a weapon-driven area attack.
 
 ---
 :
@@ -1575,87 +1270,69 @@ This template covers Lacerate, Mark, Ruin, and Slow.
 :
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
 |:--:|:--|:--:|:--:|:--:|:--|:--|
-| **1** | Active | Self | Radius 2 m | Instant | No damage. | Affected creatures gain **Lacerate(1) / Slow(1) / Ruin(1) / Mark(1)**. |
-| **2** | Active | Self | Radius 2 m | Instant | No damage. | Affected creatures gain **Lacerate(2) / Slow(2) / Ruin(2) / Mark(2)**. |
-| **3** | Active | Self | Radius 3 m | Instant | No damage. | Affected creatures gain **Lacerate(2) / Slow(2) / Ruin(2) / Mark(2)**. |
-| **4** | Active | Self | Radius 3 m | Instant | No damage. | Affected creatures gain **Lacerate(3) / Slow(3) / Ruin(3) / Mark(3)**. |
-| **5** | Active | Self | Radius 4 m | Instant | No damage. | Affected creatures gain **Lacerate(3) / Slow(3) / Ruin(3) / Mark(3)**. |
-| **6** | Active | Self | Radius 4 m | Instant | No damage. | Affected creatures gain **Lacerate(4) / Slow(4) / Ruin(4) / Mark(4)**. |
-| **7** | Active | Self | Radius 5 m | Instant | No damage. | Affected creatures gain **Lacerate(4) / Slow(4) / Ruin(4) / Mark(4)**. |
-| **8** | Active | Self | Radius 5 m | Instant | No damage. | Affected creatures gain **Lacerate(5) / Slow(5) / Ruin(5) / Mark(5)**. |
-| **9** | Active | Self | Radius 5 m | Instant | No damage. | Affected creatures gain **Lacerate(5) / Slow(5) / Ruin(5) / Mark(5)**. |
-| **10** | Active | Self | Radius 6 m | Instant | No damage. | Affected creatures gain **Lacerate(5) / Slow(5) / Ruin(5) / Mark(5)**. |
-| **11** | Active | Self | Radius 6 m | Instant | No damage. | Affected creatures gain **Lacerate(6) / Slow(6) / Ruin(6) / Mark(6)**. |
-| **12** | Active | Self | Radius 6 m | Instant | No damage. | Affected creatures gain **Lacerate(6) / Slow(6) / Ruin(6) / Mark(6)**. |
-| **13** | Active | Self | Radius 7 m | Instant | No damage. | Affected creatures gain **Lacerate(6) / Slow(6) / Ruin(6) / Mark(6)**. |
-| **14** | Active | Self | Radius 7 m | Instant | Deal **+1d8 damage** to affected creatures. | Affected creatures gain **Lacerate(6) / Slow(6) / Ruin(6) / Mark(6)**. |
-| **15** | Active | Self | Radius 7 m | Instant | Deal **+1d8 damage** to affected creatures. | Affected creatures gain **Lacerate(7) / Slow(7) / Ruin(7) / Mark(7)**. |
-| **16** | Active | Self | Radius 7 m | Instant | Deal **+1d8 damage** to affected creatures. | Affected creatures gain **Lacerate(7) / Slow(7) / Ruin(7) / Mark(7)**. |
+| **1** | Active | Self | Radius 2 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Lacerate(1) / Slow(1) / Ruin(1) / Mark(1)** |
+| **2** | Active | Self | Radius 2 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Lacerate(4) / Slow(4) / Ruin(4) / Mark(4)** |
+| **3** | Active | Self | Radius 3 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Lacerate(4) / Slow(4) / Ruin(4) / Mark(4)** |
+| **4** | Active | Self | Radius 3 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Lacerate(5) / Slow(5) / Ruin(5) / Mark(5)** |
+| **5** | Active | Self | Radius 4 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Lacerate(5) / Slow(5) / Ruin(5) / Mark(5)** |
+| **6** | Active | Self | Radius 4 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Lacerate(6) / Slow(6) / Ruin(6) / Mark(6)** |
+| **7** | Active | Self | Radius 5 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Lacerate(6) / Slow(6) / Ruin(6) / Mark(6)** |
+| **8** | Active | Self | Radius 5 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Lacerate(7) / Slow(7) / Ruin(7) / Mark(7)** |
+| **9** | Active | Self | Radius 5 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Lacerate(7) / Slow(7) / Ruin(7) / Mark(7)** |
+| **10** | Active | Self | Radius 6 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Lacerate(7) / Slow(7) / Ruin(7) / Mark(7)** |
+| **11** | Active | Self | Radius 6 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Lacerate(8) / Slow(8) / Ruin(8) / Mark(8)** |
+| **12** | Active | Self | Radius 6 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Lacerate(8) / Slow(8) / Ruin(8) / Mark(8)** |
+| **13** | Active | Self | Radius 7 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Lacerate(8) / Slow(8) / Ruin(8) / Mark(8)** |
+| **14** | Active | Self | Radius 7 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Lacerate(9) / Slow(9) / Ruin(9) / Mark(9)** |
+| **15** | Active | Self | Radius 7 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Lacerate(10) / Slow(10) / Ruin(10) / Mark(10)** |
+| **16** | Active | Self | Radius 7 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Lacerate(10) / Slow(10) / Ruin(10) / Mark(10)** |
+
 
 ---
-:
 }}
 \page
 {{pageNumber,auto}}
 {{wide
-
 <h3 id="ranged-aoe-damage-start-pp-4-special">
   Ranged AoE — Damage + Start PP 4 Special
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
       Active curve = 30 PP per level<br>
-      Ranged AoE uses printed Range<br>
-      Range progression = +4 m per level<br>
-      Range cost = +5 PP per +4 m after 8 m<br>
-      +1d8 Damage = 15 PP<br>
-      Damage is optional and may only be added once it can be carried permanently afterward<br><br>
-
-      SPECIALS<br>
-      Lacerate / Mark / Ruin / Slow<br><br>
-
-      AOE SPECIAL VALUE RULE<br>
-      AoE Special value is derived from the matching Ranged Single-Target value, then halved.<br>
-      AoE Special = floor(Single-Target Special / 2).<br><br>
-
-      AOE SPECIAL COST RULE<br>
-      AoE Special costs one Diminishing step higher than the printed value.<br>
-      AoE Special(X) = Start PP 4 × T(X+1).<br><br>
-
-      SCALING RULE<br>
-      This is a Special-first Ranged AoE Martial Active.<br>
-      Lacerate, Mark, Ruin, and Slow are the primary scaling axis.<br>
-      Range is paid every level.<br>
-      AoE and Special may stay the same or increase, but they may never decrease.<br>
-      Damage appears only at Level 16, because before that it would create flicker or block the scaling shape.<br><br>
-
-      CALCULATION<br>
-      L1 → Target 30 PP: Range 8 m (0) + Special(1) (12) + Radius 2 m (20) + Damage — (0) = 32 PP<br>
-      L2 → Target 60 PP: Range 12 m (5) + Special(2) (24) + Radius 2 m (20) + Damage — (0) = 49 PP<br>
-      L3 → Target 90 PP: Range 16 m (10) + Special(2) (24) + Radius 3 m (50) + Damage — (0) = 84 PP<br>
-      L4 → Target 120 PP: Range 20 m (15) + Special(3) (40) + Radius 3 m (50) + Damage — (0) = 105 PP<br>
-      L5 → Target 150 PP: Range 24 m (20) + Special(3) (40) + Radius 4 m (90) + Damage — (0) = 150 PP<br>
-      L6 → Target 180 PP: Range 28 m (25) + Special(4) (60) + Radius 4 m (90) + Damage — (0) = 175 PP<br>
-      L7 → Target 210 PP: Range 32 m (30) + Special(4) (60) + Radius 4 m (90) + Damage — (0) = 180 PP<br>
-      L8 → Target 240 PP: Range 36 m (35) + Special(4) (60) + Radius 5 m (140) + Damage — (0) = 235 PP<br>
-      L9 → Target 270 PP: Range 40 m (40) + Special(5) (84) + Radius 5 m (140) + Damage — (0) = 264 PP<br>
-      L10 → Target 300 PP: Range 44 m (45) + Special(5) (84) + Radius 5 m (140) + Damage — (0) = 269 PP<br>
-      L11 → Target 330 PP: Range 48 m (50) + Special(5) (84) + Radius 6 m (200) + Damage — (0) = 334 PP<br>
-      L12 → Target 360 PP: Range 52 m (55) + Special(5) (84) + Radius 6 m (200) + Damage — (0) = 339 PP<br>
-      L13 → Target 390 PP: Range 56 m (60) + Special(6) (112) + Radius 6 m (200) + Damage — (0) = 372 PP<br>
-      L14 → Target 420 PP: Range 60 m (65) + Special(6) (112) + Radius 6 m (200) + Damage — (0) = 377 PP<br>
-      L15 → Target 450 PP: Range 64 m (70) + Special(6) (112) + Radius 7 m (270) + Damage — (0) = 452 PP<br>
-      L16 → Target 480 PP: Range 68 m (75) + Special(6) (112) + Radius 7 m (270) + Damage +1d8 (15) = 472 PP<br><br>
-
-      NOTES<br>
-      The Ranged version trails behind Melee because it pays Range every level.<br>
-      Damage appears only at Level 16 and then has no later level to flicker away from.
+      Ranged AoE Range = 8 m +4 m per level; Range costs +5 PP per +4 m after 8 m<br>
+      Weapon Damage is the baseline damage of the attack and is not priced again<br>
+      Instant Attack AoE costs: Radius 1/2/3/4/5/6/7/8 m = 0/20/50/80/120/165/220/280 PP<br>
+      Special Cost = Start PP 4 × T(X), T(X) = X × (X + 1) / 2<br><br>
+      DESIGN STRUCTURE<br>
+      Eligible Specials: Lacerate / Slow / Ruin / Mark.<br>
+      AoE pays for coverage through Radius. The Special uses its normal printed value and normal Special cost: it is not halved and does not pay an extra Diminishing step.<br>
+      Make one AoE Attack Roll and compare the same result separately against each creature's Evade. Each creature hit receives full Weapon Damage and the full printed Special. Dive for Cover may be used after the hit check and before payload.<br>
+      This Special-first AoE template adds no bonus Power damage dice; Weapon Damage remains the damage component.<br><br>
+      LEVEL-BY-LEVEL CALCULATION<br>
+      L1 → Target 30 PP: Range 8 m (0) + Radius 2 m (20) + Special(1) (4) = 24 PP<br>
+      L2 → Target 60 PP: Range 12 m (5) + Radius 2 m (20) + Special(3) (24) = 49 PP<br>
+      L3 → Target 90 PP: Range 16 m (10) + Radius 3 m (50) + Special(3) (24) = 84 PP<br>
+      L4 → Target 120 PP: Range 20 m (15) + Radius 3 m (50) + Special(4) (40) = 105 PP<br>
+      L5 → Target 150 PP: Range 24 m (20) + Radius 4 m (80) + Special(4) (40) = 140 PP<br>
+      L6 → Target 180 PP: Range 28 m (25) + Radius 4 m (80) + Special(5) (60) = 165 PP<br>
+      L7 → Target 210 PP: Range 32 m (30) + Radius 4 m (80) + Special(6) (84) = 194 PP<br>
+      L8 → Target 240 PP: Range 36 m (35) + Radius 5 m (120) + Special(6) (84) = 239 PP<br>
+      L9 → Target 270 PP: Range 40 m (40) + Radius 5 m (120) + Special(6) (84) = 244 PP<br>
+      L10 → Target 300 PP: Range 44 m (45) + Radius 5 m (120) + Special(7) (112) = 277 PP<br>
+      L11 → Target 330 PP: Range 48 m (50) + Radius 6 m (165) + Special(7) (112) = 327 PP<br>
+      L12 → Target 360 PP: Range 52 m (55) + Radius 6 m (165) + Special(7) (112) = 332 PP<br>
+      L13 → Target 390 PP: Range 56 m (60) + Radius 6 m (165) + Special(8) (144) = 369 PP<br>
+      L14 → Target 420 PP: Range 60 m (65) + Radius 6 m (165) + Special(8) (144) = 374 PP<br>
+      L15 → Target 450 PP: Range 64 m (70) + Radius 7 m (220) + Special(8) (144) = 434 PP<br>
+      L16 → Target 480 PP: Range 68 m (75) + Radius 7 m (220) + Special(9) (180) = 475 PP<br>
+<br>      NOTES<br>
+      Values never decrease. Unused PP may remain unused when the next Radius or Special increase does not fit cleanly.<br>
+      Active Buff: Damage, if active, adds its full listed damage to every creature successfully hit by this AoE.
     </span>
   </span>
 </h3>
 
-A ranged area attack that applies a standard Diminishing Special at a target point within range.  
-This template covers Lacerate, Mark, Ruin, and Slow.
+A ranged martial AoE that carries a standard numeric Special through a weapon-driven area attack.
 
 ---
 :
@@ -1665,105 +1342,70 @@ This template covers Lacerate, Mark, Ruin, and Slow.
 :
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
 |:--:|:--|:--:|:--:|:--:|:--|:--|
-| **1** | Active | 8 m | Radius 2 m | Instant | No damage. | Affected creatures gain **Lacerate(1) / Slow(1) / Ruin(1) / Mark(1)**. |
-| **2** | Active | 12 m | Radius 2 m | Instant | No damage. | Affected creatures gain **Lacerate(2) / Slow(2) / Ruin(2) / Mark(2)**. |
-| **3** | Active | 16 m | Radius 3 m | Instant | No damage. | Affected creatures gain **Lacerate(2) / Slow(2) / Ruin(2) / Mark(2)**. |
-| **4** | Active | 20 m | Radius 3 m | Instant | No damage. | Affected creatures gain **Lacerate(3) / Slow(3) / Ruin(3) / Mark(3)**. |
-| **5** | Active | 24 m | Radius 4 m | Instant | No damage. | Affected creatures gain **Lacerate(3) / Slow(3) / Ruin(3) / Mark(3)**. |
-| **6** | Active | 28 m | Radius 4 m | Instant | No damage. | Affected creatures gain **Lacerate(4) / Slow(4) / Ruin(4) / Mark(4)**. |
-| **7** | Active | 32 m | Radius 4 m | Instant | No damage. | Affected creatures gain **Lacerate(4) / Slow(4) / Ruin(4) / Mark(4)**. |
-| **8** | Active | 36 m | Radius 5 m | Instant | No damage. | Affected creatures gain **Lacerate(4) / Slow(4) / Ruin(4) / Mark(4)**. |
-| **9** | Active | 40 m | Radius 5 m | Instant | No damage. | Affected creatures gain **Lacerate(5) / Slow(5) / Ruin(5) / Mark(5)**. |
-| **10** | Active | 44 m | Radius 5 m | Instant | No damage. | Affected creatures gain **Lacerate(5) / Slow(5) / Ruin(5) / Mark(5)**. |
-| **11** | Active | 48 m | Radius 6 m | Instant | No damage. | Affected creatures gain **Lacerate(5) / Slow(5) / Ruin(5) / Mark(5)**. |
-| **12** | Active | 52 m | Radius 6 m | Instant | No damage. | Affected creatures gain **Lacerate(5) / Slow(5) / Ruin(5) / Mark(5)**. |
-| **13** | Active | 56 m | Radius 6 m | Instant | No damage. | Affected creatures gain **Lacerate(6) / Slow(6) / Ruin(6) / Mark(6)**. |
-| **14** | Active | 60 m | Radius 6 m | Instant | No damage. | Affected creatures gain **Lacerate(6) / Slow(6) / Ruin(6) / Mark(6)**. |
-| **15** | Active | 64 m | Radius 7 m | Instant | No damage. | Affected creatures gain **Lacerate(6) / Slow(6) / Ruin(6) / Mark(6)**. |
-| **16** | Active | 68 m | Radius 7 m | Instant | Deal **+1d8 damage** to affected creatures. | Affected creatures gain **Lacerate(6) / Slow(6) / Ruin(6) / Mark(6)**. |
+| **1** | Active | 8 m | Radius 2 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Lacerate(1) / Slow(1) / Ruin(1) / Mark(1)** |
+| **2** | Active | 12 m | Radius 2 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Lacerate(3) / Slow(3) / Ruin(3) / Mark(3)** |
+| **3** | Active | 16 m | Radius 3 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Lacerate(3) / Slow(3) / Ruin(3) / Mark(3)** |
+| **4** | Active | 20 m | Radius 3 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Lacerate(4) / Slow(4) / Ruin(4) / Mark(4)** |
+| **5** | Active | 24 m | Radius 4 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Lacerate(4) / Slow(4) / Ruin(4) / Mark(4)** |
+| **6** | Active | 28 m | Radius 4 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Lacerate(5) / Slow(5) / Ruin(5) / Mark(5)** |
+| **7** | Active | 32 m | Radius 4 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Lacerate(6) / Slow(6) / Ruin(6) / Mark(6)** |
+| **8** | Active | 36 m | Radius 5 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Lacerate(6) / Slow(6) / Ruin(6) / Mark(6)** |
+| **9** | Active | 40 m | Radius 5 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Lacerate(6) / Slow(6) / Ruin(6) / Mark(6)** |
+| **10** | Active | 44 m | Radius 5 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Lacerate(7) / Slow(7) / Ruin(7) / Mark(7)** |
+| **11** | Active | 48 m | Radius 6 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Lacerate(7) / Slow(7) / Ruin(7) / Mark(7)** |
+| **12** | Active | 52 m | Radius 6 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Lacerate(7) / Slow(7) / Ruin(7) / Mark(7)** |
+| **13** | Active | 56 m | Radius 6 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Lacerate(8) / Slow(8) / Ruin(8) / Mark(8)** |
+| **14** | Active | 60 m | Radius 6 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Lacerate(8) / Slow(8) / Ruin(8) / Mark(8)** |
+| **15** | Active | 64 m | Radius 7 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Lacerate(8) / Slow(8) / Ruin(8) / Mark(8)** |
+| **16** | Active | 68 m | Radius 7 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Lacerate(9) / Slow(9) / Ruin(9) / Mark(9)** |
 
+
+---
 }}
 \page
 {{pageNumber,auto}}
 {{wide
-
 <h3 id="melee-aoe-damage-start-pp-6-special">
   Melee AoE — Damage + Start PP 6 Special
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
       Active curve = 30 PP per level<br>
-      Melee AoE Range = Self<br>
-      No Range cost<br>
-      +1d8 Damage = 15 PP<br>
-      Damage is optional and may only be added once it can be carried permanently afterward<br><br>
-
-      SPECIALS<br>
-      Challenge / Corrode / Hex / Sundered / Root<br><br>
-
-
-      AOE SPECIAL VALUE RULE<br>
-      AoE Special value is derived from the matching Single-Target value, then halved.<br>
-      AoE Special = floor(Single-Target Special / 2).<br><br>
-      ROOT EXCEPTION<br>
-      Root never falls below Root(2). If the halved value would be Root(1), use Root(2) only when the full Range and AoE budget can support it. Otherwise Root is unavailable at that Level.<br><br>
-
-      AOE SPECIAL COST RULE<br>
-      AoE Special costs one Diminishing step higher than the printed value.<br>
-      AoE Special(X) = Start PP 6 × T(X+1).<br><br>
-
-      AOE SPECIAL COSTS<br>
-      Special(1) = 18 PP<br>
-      Special(2) = 36 PP<br>
-      Special(3) = 60 PP<br>
-      Special(4) = 90 PP<br>
-      Special(5) = 126 PP<br>
-      Special(6) = 168 PP<br><br>
-
-      AOE COSTS<br>
-      Radius 2 m = 20 PP<br>
-      Radius 3 m = 50 PP<br>
-      Radius 4 m = 90 PP<br>
-      Radius 5 m = 140 PP<br>
-      Radius 6 m = 200 PP<br>
-      Radius 7 m = 270 PP<br>
-      Radius 8 m = 350 PP<br><br>
-
-      SCALING RULE<br>
-      This is a heavy Special-first AoE Martial Active.<br>
-      AoE and Special may stay the same or increase, but they may never decrease.<br>
-      Damage is not added early just because it fits once.<br>
-      Damage appears at Level 14 and remains active afterward.<br><br>
-
-      CALCULATION<br>
-      L1 → Target 30 PP: Special(1) (18) + Radius 2 m (20) + Damage — (0) = 38 PP<br>
-      L2 → Target 60 PP: Special(1) (18) + Radius 2 m (20) + Damage — (0) = 38 PP<br>
-      L3 → Target 90 PP: Special(2) (36) + Radius 3 m (50) + Damage — (0) = 86 PP<br>
-      L4 → Target 120 PP: Special(2) (36) + Radius 3 m (50) + Damage — (0) = 86 PP<br>
-      L5 → Target 150 PP: Special(2) (36) + Radius 4 m (90) + Damage — (0) = 126 PP<br>
-      L6 → Target 180 PP: Special(3) (60) + Radius 4 m (90) + Damage — (0) = 150 PP<br>
-      L7 → Target 210 PP: Special(3) (60) + Radius 5 m (140) + Damage — (0) = 200 PP<br>
-      L8 → Target 240 PP: Special(3) (60) + Radius 5 m (140) + Damage — (0) = 200 PP<br>
-      L9 → Target 270 PP: Special(4) (90) + Radius 5 m (140) + Damage — (0) = 230 PP<br>
-      L10 → Target 300 PP: Special(4) (90) + Radius 6 m (200) + Damage — (0) = 290 PP<br>
-      L11 → Target 330 PP: Special(4) (90) + Radius 6 m (200) + Damage — (0) = 290 PP<br>
-      L12 → Target 360 PP: Special(5) (126) + Radius 6 m (200) + Damage — (0) = 326 PP<br>
-      L13 → Target 390 PP: Special(5) (126) + Radius 6 m (200) + Damage — (0) = 326 PP<br>
-      L14 → Target 420 PP: Special(5) (126) + Radius 7 m (270) + Damage +1d8 (15) = 411 PP<br>
-      L15 → Target 450 PP: Special(5) (126) + Radius 7 m (270) + Damage +1d8 (15) = 411 PP<br>
-      L16 → Target 480 PP: Special(5) (126) + Radius 7 m (270) + Damage +1d8 (15) = 411 PP<br><br>
-
-      NOTES<br>
-      This is the AoE version of the heavy Start PP 6 Special group.<br>
-      Root follows its dedicated minimum and breaking rules. Root is unavailable at Level 1 because the AoE budget cannot support Root(2).<br>
-      Damage is intentionally absent until Level 14.<br>
-      Once +1d8 damage appears, it remains present.<br>
-      Radius 8 m is not reached because Radius 8 m plus Special(5) plus +1d8 would exceed the final budget.
+      Melee AoE Range = Self; no Range cost<br>
+      Weapon Damage is the baseline damage of the attack and is not priced again<br>
+      Instant Attack AoE costs: Radius 1/2/3/4/5/6/7/8 m = 0/20/50/80/120/165/220/280 PP<br>
+      Special Cost = Start PP 6 × T(X), T(X) = X × (X + 1) / 2<br><br>
+      DESIGN STRUCTURE<br>
+      Eligible Specials: Challenge / Corrode / Hex / Sundered / Root.<br>
+      AoE pays for coverage through Radius. The Special uses its normal printed value and normal Special cost: it is not halved and does not pay an extra Diminishing step.<br>
+      Make one AoE Attack Roll and compare the same result separately against each creature's Evade. Each creature hit receives full Weapon Damage and the full printed Special. Dive for Cover may be used after the hit check and before payload.<br>
+      This Special-first AoE template adds no bonus Power damage dice; Weapon Damage remains the damage component.<br><br>
+      LEVEL-BY-LEVEL CALCULATION<br>
+      L1 → Target 30 PP: Radius 2 m (20) + Special(1) (6) = 26 PP<br>
+      L2 → Target 60 PP: Radius 2 m (20) + Special(3) (36) = 56 PP<br>
+      L3 → Target 90 PP: Radius 3 m (50) + Special(3) (36) = 86 PP<br>
+      L4 → Target 120 PP: Radius 3 m (50) + Special(4) (60) = 110 PP<br>
+      L5 → Target 150 PP: Radius 4 m (80) + Special(4) (60) = 140 PP<br>
+      L6 → Target 180 PP: Radius 4 m (80) + Special(5) (90) = 170 PP<br>
+      L7 → Target 210 PP: Radius 5 m (120) + Special(5) (90) = 210 PP<br>
+      L8 → Target 240 PP: Radius 5 m (120) + Special(5) (90) = 210 PP<br>
+      L9 → Target 270 PP: Radius 5 m (120) + Special(6) (126) = 246 PP<br>
+      L10 → Target 300 PP: Radius 6 m (165) + Special(6) (126) = 291 PP<br>
+      L11 → Target 330 PP: Radius 6 m (165) + Special(6) (126) = 291 PP<br>
+      L12 → Target 360 PP: Radius 6 m (165) + Special(7) (168) = 333 PP<br>
+      L13 → Target 390 PP: Radius 6 m (165) + Special(7) (168) = 333 PP<br>
+      L14 → Target 420 PP: Radius 7 m (220) + Special(7) (168) = 388 PP<br>
+      L15 → Target 450 PP: Radius 7 m (220) + Special(8) (216) = 436 PP<br>
+      L16 → Target 480 PP: Radius 7 m (220) + Special(8) (216) = 436 PP<br>
+<br>      NOTES<br>
+      Values never decrease. Unused PP may remain unused when the next Radius or Special increase does not fit cleanly.<br>
+      Root still requires a minimum applied value of Root(2); where the table prints Special(1), Root is unavailable.<br>
+      Active Buff: Damage, if active, adds its full listed damage to every creature successfully hit by this AoE.
     </span>
   </span>
 </h3>
 
-A self-centered area attack that applies a heavy Start PP 6 Special around the attacker.
+A self-centered martial AoE that delivers a heavy numeric Special through a weapon-driven area attack.
 
 ---
 :
@@ -1773,126 +1415,70 @@ A self-centered area attack that applies a heavy Start PP 6 Special around the a
 :
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
 |:--:|:--|:--:|:--:|:--:|:--|:--|
-| **1** | Active | Self | Radius 2 m | Instant | No damage. | Affected creatures gain **Challenge(1) / Corrode(1) / Hex(1) / Sundered(1)**. **Root is unavailable at this Level.** |
-| **2** | Active | Self | Radius 2 m | Instant | No damage. | Affected creatures gain **Challenge(1) / Corrode(1) / Hex(1) / Sundered(1) / Root(2)**. |
-| **3** | Active | Self | Radius 3 m | Instant | No damage. | Affected creatures gain **Challenge(2) / Corrode(2) / Hex(2) / Sundered(2) / Root(2)**. |
-| **4** | Active | Self | Radius 3 m | Instant | No damage. | Affected creatures gain **Challenge(2) / Corrode(2) / Hex(2) / Sundered(2) / Root(2)**. |
-| **5** | Active | Self | Radius 4 m | Instant | No damage. | Affected creatures gain **Challenge(2) / Corrode(2) / Hex(2) / Sundered(2) / Root(2)**. |
-| **6** | Active | Self | Radius 4 m | Instant | No damage. | Affected creatures gain **Challenge(3) / Corrode(3) / Hex(3) / Sundered(3) / Root(3)**. |
-| **7** | Active | Self | Radius 5 m | Instant | No damage. | Affected creatures gain **Challenge(3) / Corrode(3) / Hex(3) / Sundered(3) / Root(3)**. |
-| **8** | Active | Self | Radius 5 m | Instant | No damage. | Affected creatures gain **Challenge(3) / Corrode(3) / Hex(3) / Sundered(3) / Root(3)**. |
-| **9** | Active | Self | Radius 5 m | Instant | No damage. | Affected creatures gain **Challenge(4) / Corrode(4) / Hex(4) / Sundered(4) / Root(4)**. |
-| **10** | Active | Self | Radius 6 m | Instant | No damage. | Affected creatures gain **Challenge(4) / Corrode(4) / Hex(4) / Sundered(4) / Root(4)**. |
-| **11** | Active | Self | Radius 6 m | Instant | No damage. | Affected creatures gain **Challenge(4) / Corrode(4) / Hex(4) / Sundered(4) / Root(4)**. |
-| **12** | Active | Self | Radius 6 m | Instant | No damage. | Affected creatures gain **Challenge(5) / Corrode(5) / Hex(5) / Sundered(5) / Root(5)**. |
-| **13** | Active | Self | Radius 6 m | Instant | No damage. | Affected creatures gain **Challenge(5) / Corrode(5) / Hex(5) / Sundered(5) / Root(5)**. |
-| **14** | Active | Self | Radius 7 m | Instant | Deal **+1d8 damage** to affected creatures. | Affected creatures gain **Challenge(5) / Corrode(5) / Hex(5) / Sundered(5) / Root(5)**. |
-| **15** | Active | Self | Radius 7 m | Instant | Deal **+1d8 damage** to affected creatures. | Affected creatures gain **Challenge(5) / Corrode(5) / Hex(5) / Sundered(5) / Root(5)**. |
-| **16** | Active | Self | Radius 7 m | Instant | Deal **+1d8 damage** to affected creatures. | Affected creatures gain **Challenge(5) / Corrode(5) / Hex(5) / Sundered(5) / Root(5)**. |
+| **1** | Active | Self | Radius 2 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(1) / Corrode(1) / Hex(1) / Sundered(1)**. **Root is unavailable at this Level.** |
+| **2** | Active | Self | Radius 2 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(3) / Corrode(3) / Hex(3) / Sundered(3) / Root(3)** |
+| **3** | Active | Self | Radius 3 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(3) / Corrode(3) / Hex(3) / Sundered(3) / Root(3)** |
+| **4** | Active | Self | Radius 3 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(4) / Corrode(4) / Hex(4) / Sundered(4) / Root(4)** |
+| **5** | Active | Self | Radius 4 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(4) / Corrode(4) / Hex(4) / Sundered(4) / Root(4)** |
+| **6** | Active | Self | Radius 4 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(5) / Corrode(5) / Hex(5) / Sundered(5) / Root(5)** |
+| **7** | Active | Self | Radius 5 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(5) / Corrode(5) / Hex(5) / Sundered(5) / Root(5)** |
+| **8** | Active | Self | Radius 5 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(5) / Corrode(5) / Hex(5) / Sundered(5) / Root(5)** |
+| **9** | Active | Self | Radius 5 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(6) / Corrode(6) / Hex(6) / Sundered(6) / Root(6)** |
+| **10** | Active | Self | Radius 6 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(6) / Corrode(6) / Hex(6) / Sundered(6) / Root(6)** |
+| **11** | Active | Self | Radius 6 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(6) / Corrode(6) / Hex(6) / Sundered(6) / Root(6)** |
+| **12** | Active | Self | Radius 6 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(7) / Corrode(7) / Hex(7) / Sundered(7) / Root(7)** |
+| **13** | Active | Self | Radius 6 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(7) / Corrode(7) / Hex(7) / Sundered(7) / Root(7)** |
+| **14** | Active | Self | Radius 7 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(7) / Corrode(7) / Hex(7) / Sundered(7) / Root(7)** |
+| **15** | Active | Self | Radius 7 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(8) / Corrode(8) / Hex(8) / Sundered(8) / Root(8)** |
+| **16** | Active | Self | Radius 7 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(8) / Corrode(8) / Hex(8) / Sundered(8) / Root(8)** |
+
 
 ---
-:
 }}
 \page
 {{pageNumber,auto}}
 {{wide
-
 <h3 id="ranged-aoe-damage-start-pp-6-special">
   Ranged AoE — Damage + Start PP 6 Special
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
       Active curve = 30 PP per level<br>
-      Ranged AoE uses printed Range<br>
-      Range progression = +4 m per level<br>
-      Range cost = +5 PP per +4 m after 8 m<br>
-      +1d8 Damage = 15 PP<br>
-      Damage is optional and may only be added once it can be carried permanently afterward<br><br>
-
-      SPECIALS<br>
-      Challenge / Corrode / Hex / Sundered / Root<br><br>
-
-
-      AOE SPECIAL VALUE RULE<br>
-      AoE Special value is derived from the matching Ranged Single-Target value, then halved.<br>
-      AoE Special = floor(Single-Target Special / 2).<br><br>
-      ROOT EXCEPTION<br>
-      Root never falls below Root(2). If the halved value would be Root(1), use Root(2) only when the full Range and AoE budget can support it. Otherwise Root is unavailable at that Level.<br><br>
-
-      AOE SPECIAL COST RULE<br>
-      AoE Special costs one Diminishing step higher than the printed value.<br>
-      AoE Special(X) = Start PP 6 × T(X+1).<br><br>
-
-      AOE SPECIAL COSTS<br>
-      Special(1) = 18 PP<br>
-      Special(2) = 36 PP<br>
-      Special(3) = 60 PP<br>
-      Special(4) = 90 PP<br>
-      Special(5) = 126 PP<br>
-      Special(6) = 168 PP<br><br>
-
-      RANGE COSTS<br>
-      8 m = 0 PP<br>
-      12 m = 5 PP<br>
-      16 m = 10 PP<br>
-      20 m = 15 PP<br>
-      24 m = 20 PP<br>
-      28 m = 25 PP<br>
-      32 m = 30 PP<br>
-      36 m = 35 PP<br>
-      40 m = 40 PP<br>
-      44 m = 45 PP<br>
-      48 m = 50 PP<br>
-      52 m = 55 PP<br>
-      56 m = 60 PP<br>
-      60 m = 65 PP<br>
-      64 m = 70 PP<br>
-      68 m = 75 PP<br><br>
-
-      AOE COSTS<br>
-      Radius 2 m = 20 PP<br>
-      Radius 3 m = 50 PP<br>
-      Radius 4 m = 90 PP<br>
-      Radius 5 m = 140 PP<br>
-      Radius 6 m = 200 PP<br>
-      Radius 7 m = 270 PP<br>
-      Radius 8 m = 350 PP<br><br>
-
-      SCALING RULE<br>
-      This is a heavy Special-first Ranged AoE Martial Active.<br>
-      Range is paid every level.<br>
-      AoE and Special may stay the same or increase, but they may never decrease.<br>
-      Damage is not added early just because it fits once.<br>
-      Damage is omitted in this version because the template spends into Range, AoE, and the heavy Special first.<br><br>
-
-      CALCULATION<br>
-      L1 → Target 30 PP: Range 8 m (0) + Special(1) (18) + Radius 2 m (20) + Damage — (0) = 38 PP<br>
-      L2 → Target 60 PP: Range 12 m (5) + Special(1) (18) + Radius 2 m (20) + Damage — (0) = 43 PP<br>
-      L3 → Target 90 PP: Range 16 m (10) + Special(1) (18) + Radius 3 m (50) + Damage — (0) = 78 PP<br>
-      L4 → Target 120 PP: Range 20 m (15) + Special(2) (36) + Radius 3 m (50) + Damage — (0) = 101 PP<br>
-      L5 → Target 150 PP: Range 24 m (20) + Special(2) (36) + Radius 4 m (90) + Damage — (0) = 146 PP<br>
-      L6 → Target 180 PP: Range 28 m (25) + Special(2) (36) + Radius 4 m (90) + Damage — (0) = 151 PP<br>
-      L7 → Target 210 PP: Range 32 m (30) + Special(3) (60) + Radius 4 m (90) + Damage — (0) = 180 PP<br>
-      L8 → Target 240 PP: Range 36 m (35) + Special(3) (60) + Radius 5 m (140) + Damage — (0) = 235 PP<br>
-      L9 → Target 270 PP: Range 40 m (40) + Special(3) (60) + Radius 5 m (140) + Damage — (0) = 240 PP<br>
-      L10 → Target 300 PP: Range 44 m (45) + Special(4) (90) + Radius 5 m (140) + Damage — (0) = 275 PP<br>
-      L11 → Target 330 PP: Range 48 m (50) + Special(4) (90) + Radius 5 m (140) + Damage — (0) = 280 PP<br>
-      L12 → Target 360 PP: Range 52 m (55) + Special(4) (90) + Radius 6 m (200) + Damage — (0) = 345 PP<br>
-      L13 → Target 390 PP: Range 56 m (60) + Special(4) (90) + Radius 6 m (200) + Damage — (0) = 350 PP<br>
-      L14 → Target 420 PP: Range 60 m (65) + Special(4) (90) + Radius 6 m (200) + Damage — (0) = 355 PP<br>
-      L15 → Target 450 PP: Range 64 m (70) + Special(5) (126) + Radius 6 m (200) + Damage — (0) = 396 PP<br>
-      L16 → Target 480 PP: Range 68 m (75) + Special(5) (126) + Radius 7 m (270) + Damage — (0) = 471 PP<br><br>
-
-      NOTES<br>
-      This is the Ranged AoE version of the heavy Start PP 6 Special group.<br>
-      Root follows its dedicated minimum and breaking rules. Root is unavailable at Level 1 because the AoE budget cannot support Root(2).<br>
-      The Ranged version trails behind Melee because it pays Range every level.<br>
-      Damage is omitted entirely to preserve the Range + AoE + heavy Special progression.
+      Ranged AoE Range = 8 m +4 m per level; Range costs +5 PP per +4 m after 8 m<br>
+      Weapon Damage is the baseline damage of the attack and is not priced again<br>
+      Instant Attack AoE costs: Radius 1/2/3/4/5/6/7/8 m = 0/20/50/80/120/165/220/280 PP<br>
+      Special Cost = Start PP 6 × T(X), T(X) = X × (X + 1) / 2<br><br>
+      DESIGN STRUCTURE<br>
+      Eligible Specials: Challenge / Corrode / Hex / Sundered / Root.<br>
+      AoE pays for coverage through Radius. The Special uses its normal printed value and normal Special cost: it is not halved and does not pay an extra Diminishing step.<br>
+      Make one AoE Attack Roll and compare the same result separately against each creature's Evade. Each creature hit receives full Weapon Damage and the full printed Special. Dive for Cover may be used after the hit check and before payload.<br>
+      This Special-first AoE template adds no bonus Power damage dice; Weapon Damage remains the damage component.<br><br>
+      LEVEL-BY-LEVEL CALCULATION<br>
+      L1 → Target 30 PP: Range 8 m (0) + Radius 2 m (20) + Special(1) (6) = 26 PP<br>
+      L2 → Target 60 PP: Range 12 m (5) + Radius 2 m (20) + Special(2) (18) = 43 PP<br>
+      L3 → Target 90 PP: Range 16 m (10) + Radius 3 m (50) + Special(2) (18) = 78 PP<br>
+      L4 → Target 120 PP: Range 20 m (15) + Radius 3 m (50) + Special(3) (36) = 101 PP<br>
+      L5 → Target 150 PP: Range 24 m (20) + Radius 4 m (80) + Special(3) (36) = 136 PP<br>
+      L6 → Target 180 PP: Range 28 m (25) + Radius 4 m (80) + Special(4) (60) = 165 PP<br>
+      L7 → Target 210 PP: Range 32 m (30) + Radius 4 m (80) + Special(4) (60) = 170 PP<br>
+      L8 → Target 240 PP: Range 36 m (35) + Radius 5 m (120) + Special(4) (60) = 215 PP<br>
+      L9 → Target 270 PP: Range 40 m (40) + Radius 5 m (120) + Special(5) (90) = 250 PP<br>
+      L10 → Target 300 PP: Range 44 m (45) + Radius 5 m (120) + Special(6) (126) = 291 PP<br>
+      L11 → Target 330 PP: Range 48 m (50) + Radius 5 m (120) + Special(6) (126) = 296 PP<br>
+      L12 → Target 360 PP: Range 52 m (55) + Radius 6 m (165) + Special(6) (126) = 346 PP<br>
+      L13 → Target 390 PP: Range 56 m (60) + Radius 6 m (165) + Special(6) (126) = 351 PP<br>
+      L14 → Target 420 PP: Range 60 m (65) + Radius 6 m (165) + Special(7) (168) = 398 PP<br>
+      L15 → Target 450 PP: Range 64 m (70) + Radius 6 m (165) + Special(7) (168) = 403 PP<br>
+      L16 → Target 480 PP: Range 68 m (75) + Radius 7 m (220) + Special(7) (168) = 463 PP<br>
+<br>      NOTES<br>
+      Values never decrease. Unused PP may remain unused when the next Radius or Special increase does not fit cleanly.<br>
+      Root still requires a minimum applied value of Root(2); where the table prints Special(1), Root is unavailable.<br>
+      Active Buff: Damage, if active, adds its full listed damage to every creature successfully hit by this AoE.
     </span>
   </span>
 </h3>
 
-A ranged area attack that applies a heavy Start PP 6 Special at a target point within range.
+A ranged martial AoE that delivers a heavy numeric Special through a weapon-driven area attack.
 
 ---
 :
@@ -1902,25 +1488,25 @@ A ranged area attack that applies a heavy Start PP 6 Special at a target point w
 :
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
 |:--:|:--|:--:|:--:|:--:|:--|:--|
-| **1** | Active | 8 m | Radius 2 m | Instant | No damage. | Affected creatures gain **Challenge(1) / Corrode(1) / Hex(1) / Sundered(1)**. **Root is unavailable at this Level.** |
-| **2** | Active | 12 m | Radius 2 m | Instant | No damage. | Affected creatures gain **Challenge(1) / Corrode(1) / Hex(1) / Sundered(1) / Root(2)**. |
-| **3** | Active | 16 m | Radius 3 m | Instant | No damage. | Affected creatures gain **Challenge(1) / Corrode(1) / Hex(1) / Sundered(1) / Root(2)**. |
-| **4** | Active | 20 m | Radius 3 m | Instant | No damage. | Affected creatures gain **Challenge(2) / Corrode(2) / Hex(2) / Sundered(2) / Root(2)**. |
-| **5** | Active | 24 m | Radius 4 m | Instant | No damage. | Affected creatures gain **Challenge(2) / Corrode(2) / Hex(2) / Sundered(2) / Root(2)**. |
-| **6** | Active | 28 m | Radius 4 m | Instant | No damage. | Affected creatures gain **Challenge(2) / Corrode(2) / Hex(2) / Sundered(2) / Root(2)**. |
-| **7** | Active | 32 m | Radius 4 m | Instant | No damage. | Affected creatures gain **Challenge(3) / Corrode(3) / Hex(3) / Sundered(3) / Root(3)**. |
-| **8** | Active | 36 m | Radius 5 m | Instant | No damage. | Affected creatures gain **Challenge(3) / Corrode(3) / Hex(3) / Sundered(3) / Root(3)**. |
-| **9** | Active | 40 m | Radius 5 m | Instant | No damage. | Affected creatures gain **Challenge(3) / Corrode(3) / Hex(3) / Sundered(3) / Root(3)**. |
-| **10** | Active | 44 m | Radius 5 m | Instant | No damage. | Affected creatures gain **Challenge(4) / Corrode(4) / Hex(4) / Sundered(4) / Root(4)**. |
-| **11** | Active | 48 m | Radius 5 m | Instant | No damage. | Affected creatures gain **Challenge(4) / Corrode(4) / Hex(4) / Sundered(4) / Root(4)**. |
-| **12** | Active | 52 m | Radius 6 m | Instant | No damage. | Affected creatures gain **Challenge(4) / Corrode(4) / Hex(4) / Sundered(4) / Root(4)**. |
-| **13** | Active | 56 m | Radius 6 m | Instant | No damage. | Affected creatures gain **Challenge(4) / Corrode(4) / Hex(4) / Sundered(4) / Root(4)**. |
-| **14** | Active | 60 m | Radius 6 m | Instant | No damage. | Affected creatures gain **Challenge(4) / Corrode(4) / Hex(4) / Sundered(4) / Root(4)**. |
-| **15** | Active | 64 m | Radius 6 m | Instant | No damage. | Affected creatures gain **Challenge(5) / Corrode(5) / Hex(5) / Sundered(5) / Root(5)**. |
-| **16** | Active | 68 m | Radius 7 m | Instant | No damage. | Affected creatures gain **Challenge(5) / Corrode(5) / Hex(5) / Sundered(5) / Root(5)**. |
+| **1** | Active | 8 m | Radius 2 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(1) / Corrode(1) / Hex(1) / Sundered(1)**. **Root is unavailable at this Level.** |
+| **2** | Active | 12 m | Radius 2 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(2) / Corrode(2) / Hex(2) / Sundered(2) / Root(2)** |
+| **3** | Active | 16 m | Radius 3 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(2) / Corrode(2) / Hex(2) / Sundered(2) / Root(2)** |
+| **4** | Active | 20 m | Radius 3 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(3) / Corrode(3) / Hex(3) / Sundered(3) / Root(3)** |
+| **5** | Active | 24 m | Radius 4 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(3) / Corrode(3) / Hex(3) / Sundered(3) / Root(3)** |
+| **6** | Active | 28 m | Radius 4 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(4) / Corrode(4) / Hex(4) / Sundered(4) / Root(4)** |
+| **7** | Active | 32 m | Radius 4 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(4) / Corrode(4) / Hex(4) / Sundered(4) / Root(4)** |
+| **8** | Active | 36 m | Radius 5 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(4) / Corrode(4) / Hex(4) / Sundered(4) / Root(4)** |
+| **9** | Active | 40 m | Radius 5 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(5) / Corrode(5) / Hex(5) / Sundered(5) / Root(5)** |
+| **10** | Active | 44 m | Radius 5 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(6) / Corrode(6) / Hex(6) / Sundered(6) / Root(6)** |
+| **11** | Active | 48 m | Radius 5 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(6) / Corrode(6) / Hex(6) / Sundered(6) / Root(6)** |
+| **12** | Active | 52 m | Radius 6 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(6) / Corrode(6) / Hex(6) / Sundered(6) / Root(6)** |
+| **13** | Active | 56 m | Radius 6 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(6) / Corrode(6) / Hex(6) / Sundered(6) / Root(6)** |
+| **14** | Active | 60 m | Radius 6 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(7) / Corrode(7) / Hex(7) / Sundered(7) / Root(7)** |
+| **15** | Active | 64 m | Radius 6 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(7) / Corrode(7) / Hex(7) / Sundered(7) / Root(7)** |
+| **16** | Active | 68 m | Radius 7 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(7) / Corrode(7) / Hex(7) / Sundered(7) / Root(7)** |
 
 
-
+---
 }}
 \page
 {{pageNumber,auto}}
@@ -1931,44 +1517,40 @@ A ranged area attack that applies a heavy Start PP 6 Special at a target point w
     <span class="tooltiptext">
       BASELINES<br>
       Active curve = 30 PP per level<br>
-      Start PP 8 Diminishing Special<br>
-      AoE Special(X) = 8 × T(X+1)<br>
-      Radius 1 / 2 / 3 / 4 / 5 / 6 m = 0 / 20 / 50 / 90 / 140 / 200 PP<br>
-      Self-centered Melee AoE; no Range cost.<br><br>
-
-      VALID SPECIALS<br>
-      Disoriented(X), Expose(X), Soulburn(X), Weaken(X).<br><br>
-
-      SCALING RULE<br>
-      This is a high-impact Special-first AoE Active.<br>
-      Range, Radius, and Special may stay the same or increase, but they may never decrease.<br>
-      Damage remains secondary and appears only where the progression can carry it.<br><br>
-
-      CALCULATION<br>
-      L1 → Target 30 PP: Radius 1 m (0) + Special(1) (24) = 24 PP<br>
-      L2 → Target 60 PP: Radius 2 m (20) + Special(1) (24) = 44 PP<br>
-      L3 → Target 90 PP: Radius 2 m (20) + Special(2) (48) = 68 PP<br>
-      L4 → Target 120 PP: Radius 3 m (50) + Special(2) (48) = 98 PP<br>
-      L5 → Target 150 PP: Radius 3 m (50) + Special(3) (80) = 130 PP<br>
-      L6 → Target 180 PP: Radius 4 m (90) + Special(3) (80) = 170 PP<br>
-      L7 → Target 210 PP: Radius 4 m (90) + Special(3) (80) = 170 PP<br>
-      L8 → Target 240 PP: Radius 4 m (90) + Special(4) (120) = 210 PP<br>
-      L9 → Target 270 PP: Radius 5 m (140) + Special(4) (120) = 260 PP<br>
-      L10 → Target 300 PP: Radius 5 m (140) + Special(4) (120) = 260 PP<br>
-      L11 → Target 330 PP: Radius 5 m (140) + Special(5) (168) = 308 PP<br>
-      L12 → Target 360 PP: Radius 6 m (200) + Special(5) (168) = 368 PP<br>
-      L13 → Target 390 PP: Radius 6 m (200) + Special(5) (168) = 368 PP<br>
-      L14 → Target 420 PP: Radius 6 m (200) + Special(5) (168) + Damage +1d8 (15) = 383 PP<br>
-      L15 → Target 450 PP: Radius 6 m (200) + Special(5) (168) + Damage +1d8 (15) = 383 PP<br>
-      L16 → Target 480 PP: Radius 6 m (200) + Special(6) (224) + Damage +1d8 (15) = 439 PP<br><br>
-      NOTES<br>
-      Every affected creature receives the full printed Special value.<br>
-      Weaken and Soulburn use the normal Pool Reduction rule and do not reduce Attributes or Keep.
+      Melee AoE Range = Self; no Range cost<br>
+      Weapon Damage is the baseline damage of the attack and is not priced again<br>
+      Instant Attack AoE costs: Radius 1/2/3/4/5/6/7/8 m = 0/20/50/80/120/165/220/280 PP<br>
+      Special Cost = Start PP 8 × T(X), T(X) = X × (X + 1) / 2<br><br>
+      DESIGN STRUCTURE<br>
+      Eligible Specials: Disoriented / Expose / Soulburn / Weaken.<br>
+      AoE pays for coverage through Radius. The Special uses its normal printed value and normal Special cost: it is not halved and does not pay an extra Diminishing step.<br>
+      Make one AoE Attack Roll and compare the same result separately against each creature's Evade. Each creature hit receives full Weapon Damage and the full printed Special. Dive for Cover may be used after the hit check and before payload.<br>
+      This Special-first AoE template adds no bonus Power damage dice; Weapon Damage remains the damage component.<br><br>
+      LEVEL-BY-LEVEL CALCULATION<br>
+      L1 → Target 30 PP: Radius 1 m (0) + Special(2) (24) = 24 PP<br>
+      L2 → Target 60 PP: Radius 2 m (20) + Special(2) (24) = 44 PP<br>
+      L3 → Target 90 PP: Radius 2 m (20) + Special(3) (48) = 68 PP<br>
+      L4 → Target 120 PP: Radius 3 m (50) + Special(3) (48) = 98 PP<br>
+      L5 → Target 150 PP: Radius 3 m (50) + Special(4) (80) = 130 PP<br>
+      L6 → Target 180 PP: Radius 4 m (80) + Special(4) (80) = 160 PP<br>
+      L7 → Target 210 PP: Radius 4 m (80) + Special(5) (120) = 200 PP<br>
+      L8 → Target 240 PP: Radius 4 m (80) + Special(5) (120) = 200 PP<br>
+      L9 → Target 270 PP: Radius 5 m (120) + Special(5) (120) = 240 PP<br>
+      L10 → Target 300 PP: Radius 5 m (120) + Special(6) (168) = 288 PP<br>
+      L11 → Target 330 PP: Radius 5 m (120) + Special(6) (168) = 288 PP<br>
+      L12 → Target 360 PP: Radius 6 m (165) + Special(6) (168) = 333 PP<br>
+      L13 → Target 390 PP: Radius 6 m (165) + Special(7) (224) = 389 PP<br>
+      L14 → Target 420 PP: Radius 6 m (165) + Special(7) (224) = 389 PP<br>
+      L15 → Target 450 PP: Radius 6 m (165) + Special(7) (224) = 389 PP<br>
+      L16 → Target 480 PP: Radius 6 m (165) + Special(8) (288) = 453 PP<br>
+<br>      NOTES<br>
+      Values never decrease. Unused PP may remain unused when the next Radius or Special increase does not fit cleanly.<br>
+      Active Buff: Damage, if active, adds its full listed damage to every creature successfully hit by this AoE.
     </span>
   </span>
 </h3>
 
-A self-centered area attack that applies one high-impact Start PP 8 Special.
+A self-centered martial AoE that delivers a premium reduction Special through a weapon-driven area attack.
 
 ---
 :
@@ -1978,26 +1560,26 @@ A self-centered area attack that applies one high-impact Start PP 8 Special.
 :
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
 |:--:|:--|:--:|:--:|:--:|:--|:--|
-| **1** | Active | Self | Radius 1 m | Instant | No damage. | Affected creatures gain **Disoriented(1) / Expose(1) / Soulburn(1) / Weaken(1)**. |
-| **2** | Active | Self | Radius 2 m | Instant | No damage. | Affected creatures gain **Disoriented(1) / Expose(1) / Soulburn(1) / Weaken(1)**. |
-| **3** | Active | Self | Radius 2 m | Instant | No damage. | Affected creatures gain **Disoriented(2) / Expose(2) / Soulburn(2) / Weaken(2)**. |
-| **4** | Active | Self | Radius 3 m | Instant | No damage. | Affected creatures gain **Disoriented(2) / Expose(2) / Soulburn(2) / Weaken(2)**. |
-| **5** | Active | Self | Radius 3 m | Instant | No damage. | Affected creatures gain **Disoriented(3) / Expose(3) / Soulburn(3) / Weaken(3)**. |
-| **6** | Active | Self | Radius 4 m | Instant | No damage. | Affected creatures gain **Disoriented(3) / Expose(3) / Soulburn(3) / Weaken(3)**. |
-| **7** | Active | Self | Radius 4 m | Instant | No damage. | Affected creatures gain **Disoriented(3) / Expose(3) / Soulburn(3) / Weaken(3)**. |
-| **8** | Active | Self | Radius 4 m | Instant | No damage. | Affected creatures gain **Disoriented(4) / Expose(4) / Soulburn(4) / Weaken(4)**. |
-| **9** | Active | Self | Radius 5 m | Instant | No damage. | Affected creatures gain **Disoriented(4) / Expose(4) / Soulburn(4) / Weaken(4)**. |
-| **10** | Active | Self | Radius 5 m | Instant | No damage. | Affected creatures gain **Disoriented(4) / Expose(4) / Soulburn(4) / Weaken(4)**. |
-| **11** | Active | Self | Radius 5 m | Instant | No damage. | Affected creatures gain **Disoriented(5) / Expose(5) / Soulburn(5) / Weaken(5)**. |
-| **12** | Active | Self | Radius 6 m | Instant | No damage. | Affected creatures gain **Disoriented(5) / Expose(5) / Soulburn(5) / Weaken(5)**. |
-| **13** | Active | Self | Radius 6 m | Instant | No damage. | Affected creatures gain **Disoriented(5) / Expose(5) / Soulburn(5) / Weaken(5)**. |
-| **14** | Active | Self | Radius 6 m | Instant | Deal **+1d8 damage** to affected creatures. | Affected creatures gain **Disoriented(5) / Expose(5) / Soulburn(5) / Weaken(5)**. |
-| **15** | Active | Self | Radius 6 m | Instant | Deal **+1d8 damage** to affected creatures. | Affected creatures gain **Disoriented(5) / Expose(5) / Soulburn(5) / Weaken(5)**. |
-| **16** | Active | Self | Radius 6 m | Instant | Deal **+1d8 damage** to affected creatures. | Affected creatures gain **Disoriented(6) / Expose(6) / Soulburn(6) / Weaken(6)**. |
+| **1** | Active | Self | Radius 1 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(2) / Expose(2) / Soulburn(2) / Weaken(2)** |
+| **2** | Active | Self | Radius 2 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(2) / Expose(2) / Soulburn(2) / Weaken(2)** |
+| **3** | Active | Self | Radius 2 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(3) / Expose(3) / Soulburn(3) / Weaken(3)** |
+| **4** | Active | Self | Radius 3 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(3) / Expose(3) / Soulburn(3) / Weaken(3)** |
+| **5** | Active | Self | Radius 3 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(4) / Expose(4) / Soulburn(4) / Weaken(4)** |
+| **6** | Active | Self | Radius 4 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(4) / Expose(4) / Soulburn(4) / Weaken(4)** |
+| **7** | Active | Self | Radius 4 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(5) / Expose(5) / Soulburn(5) / Weaken(5)** |
+| **8** | Active | Self | Radius 4 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(5) / Expose(5) / Soulburn(5) / Weaken(5)** |
+| **9** | Active | Self | Radius 5 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(5) / Expose(5) / Soulburn(5) / Weaken(5)** |
+| **10** | Active | Self | Radius 5 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(6) / Expose(6) / Soulburn(6) / Weaken(6)** |
+| **11** | Active | Self | Radius 5 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(6) / Expose(6) / Soulburn(6) / Weaken(6)** |
+| **12** | Active | Self | Radius 6 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(6) / Expose(6) / Soulburn(6) / Weaken(6)** |
+| **13** | Active | Self | Radius 6 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(7) / Expose(7) / Soulburn(7) / Weaken(7)** |
+| **14** | Active | Self | Radius 6 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(7) / Expose(7) / Soulburn(7) / Weaken(7)** |
+| **15** | Active | Self | Radius 6 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(7) / Expose(7) / Soulburn(7) / Weaken(7)** |
+| **16** | Active | Self | Radius 6 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(8) / Expose(8) / Soulburn(8) / Weaken(8)** |
+
 
 ---
 }}
-
 \page
 {{pageNumber,auto}}
 {{wide
@@ -2007,44 +1589,40 @@ A self-centered area attack that applies one high-impact Start PP 8 Special.
     <span class="tooltiptext">
       BASELINES<br>
       Active curve = 30 PP per level<br>
-      Start PP 8 Diminishing Special<br>
-      AoE Special(X) = 8 × T(X+1)<br>
-      Radius 1 / 2 / 3 / 4 / 5 / 6 m = 0 / 20 / 50 / 90 / 140 / 200 PP<br>
-      Range progression = +4 m per level; +5 PP per step after 8 m.<br><br>
-
-      VALID SPECIALS<br>
-      Disoriented(X), Expose(X), Soulburn(X), Weaken(X).<br><br>
-
-      SCALING RULE<br>
-      This is a high-impact Special-first AoE Active.<br>
-      Range, Radius, and Special may stay the same or increase, but they may never decrease.<br>
-      Damage remains secondary and appears only where the progression can carry it.<br><br>
-
-      CALCULATION<br>
-      L1 → Target 30 PP: Range 8 m (0) + Radius 1 m (0) + Special(1) (24) = 24 PP<br>
-      L2 → Target 60 PP: Range 12 m (5) + Radius 2 m (20) + Special(1) (24) = 49 PP<br>
-      L3 → Target 90 PP: Range 16 m (10) + Radius 2 m (20) + Special(2) (48) = 78 PP<br>
-      L4 → Target 120 PP: Range 20 m (15) + Radius 3 m (50) + Special(2) (48) = 113 PP<br>
-      L5 → Target 150 PP: Range 24 m (20) + Radius 3 m (50) + Special(2) (48) = 118 PP<br>
-      L6 → Target 180 PP: Range 28 m (25) + Radius 4 m (90) + Special(2) (48) = 163 PP<br>
-      L7 → Target 210 PP: Range 32 m (30) + Radius 4 m (90) + Special(3) (80) = 200 PP<br>
-      L8 → Target 240 PP: Range 36 m (35) + Radius 4 m (90) + Special(3) (80) = 205 PP<br>
-      L9 → Target 270 PP: Range 40 m (40) + Radius 5 m (140) + Special(3) (80) = 260 PP<br>
-      L10 → Target 300 PP: Range 44 m (45) + Radius 5 m (140) + Special(3) (80) = 265 PP<br>
-      L11 → Target 330 PP: Range 48 m (50) + Radius 5 m (140) + Special(4) (120) = 310 PP<br>
-      L12 → Target 360 PP: Range 52 m (55) + Radius 5 m (140) + Special(4) (120) = 315 PP<br>
-      L13 → Target 390 PP: Range 56 m (60) + Radius 6 m (200) + Special(4) (120) = 380 PP<br>
-      L14 → Target 420 PP: Range 60 m (65) + Radius 6 m (200) + Special(4) (120) = 385 PP<br>
-      L15 → Target 450 PP: Range 64 m (70) + Radius 6 m (200) + Special(5) (168) = 438 PP<br>
-      L16 → Target 480 PP: Range 68 m (75) + Radius 6 m (200) + Special(5) (168) = 443 PP<br><br>
-      NOTES<br>
-      Every affected creature receives the full printed Special value.<br>
-      Weaken and Soulburn use the normal Pool Reduction rule and do not reduce Attributes or Keep.
+      Ranged AoE Range = 8 m +4 m per level; Range costs +5 PP per +4 m after 8 m<br>
+      Weapon Damage is the baseline damage of the attack and is not priced again<br>
+      Instant Attack AoE costs: Radius 1/2/3/4/5/6/7/8 m = 0/20/50/80/120/165/220/280 PP<br>
+      Special Cost = Start PP 8 × T(X), T(X) = X × (X + 1) / 2<br><br>
+      DESIGN STRUCTURE<br>
+      Eligible Specials: Disoriented / Expose / Soulburn / Weaken.<br>
+      AoE pays for coverage through Radius. The Special uses its normal printed value and normal Special cost: it is not halved and does not pay an extra Diminishing step.<br>
+      Make one AoE Attack Roll and compare the same result separately against each creature's Evade. Each creature hit receives full Weapon Damage and the full printed Special. Dive for Cover may be used after the hit check and before payload.<br>
+      This Special-first AoE template adds no bonus Power damage dice; Weapon Damage remains the damage component.<br><br>
+      LEVEL-BY-LEVEL CALCULATION<br>
+      L1 → Target 30 PP: Range 8 m (0) + Radius 1 m (0) + Special(2) (24) = 24 PP<br>
+      L2 → Target 60 PP: Range 12 m (5) + Radius 2 m (20) + Special(2) (24) = 49 PP<br>
+      L3 → Target 90 PP: Range 16 m (10) + Radius 2 m (20) + Special(3) (48) = 78 PP<br>
+      L4 → Target 120 PP: Range 20 m (15) + Radius 3 m (50) + Special(3) (48) = 113 PP<br>
+      L5 → Target 150 PP: Range 24 m (20) + Radius 3 m (50) + Special(3) (48) = 118 PP<br>
+      L6 → Target 180 PP: Range 28 m (25) + Radius 4 m (80) + Special(3) (48) = 153 PP<br>
+      L7 → Target 210 PP: Range 32 m (30) + Radius 4 m (80) + Special(4) (80) = 190 PP<br>
+      L8 → Target 240 PP: Range 36 m (35) + Radius 4 m (80) + Special(4) (80) = 195 PP<br>
+      L9 → Target 270 PP: Range 40 m (40) + Radius 5 m (120) + Special(4) (80) = 240 PP<br>
+      L10 → Target 300 PP: Range 44 m (45) + Radius 5 m (120) + Special(5) (120) = 285 PP<br>
+      L11 → Target 330 PP: Range 48 m (50) + Radius 5 m (120) + Special(5) (120) = 290 PP<br>
+      L12 → Target 360 PP: Range 52 m (55) + Radius 5 m (120) + Special(5) (120) = 295 PP<br>
+      L13 → Target 390 PP: Range 56 m (60) + Radius 6 m (165) + Special(5) (120) = 345 PP<br>
+      L14 → Target 420 PP: Range 60 m (65) + Radius 6 m (165) + Special(6) (168) = 398 PP<br>
+      L15 → Target 450 PP: Range 64 m (70) + Radius 6 m (165) + Special(6) (168) = 403 PP<br>
+      L16 → Target 480 PP: Range 68 m (75) + Radius 6 m (165) + Special(7) (224) = 464 PP<br>
+<br>      NOTES<br>
+      Values never decrease. Unused PP may remain unused when the next Radius or Special increase does not fit cleanly.<br>
+      Active Buff: Damage, if active, adds its full listed damage to every creature successfully hit by this AoE.
     </span>
   </span>
 </h3>
 
-A ranged area attack that applies one high-impact Start PP 8 Special.
+A ranged martial AoE that delivers a premium reduction Special through a weapon-driven area attack.
 
 ---
 :
@@ -2054,26 +1632,26 @@ A ranged area attack that applies one high-impact Start PP 8 Special.
 :
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
 |:--:|:--|:--:|:--:|:--:|:--|:--|
-| **1** | Active | 8 m | Radius 1 m | Instant | No damage. | Affected creatures gain **Disoriented(1) / Expose(1) / Soulburn(1) / Weaken(1)**. |
-| **2** | Active | 12 m | Radius 2 m | Instant | No damage. | Affected creatures gain **Disoriented(1) / Expose(1) / Soulburn(1) / Weaken(1)**. |
-| **3** | Active | 16 m | Radius 2 m | Instant | No damage. | Affected creatures gain **Disoriented(2) / Expose(2) / Soulburn(2) / Weaken(2)**. |
-| **4** | Active | 20 m | Radius 3 m | Instant | No damage. | Affected creatures gain **Disoriented(2) / Expose(2) / Soulburn(2) / Weaken(2)**. |
-| **5** | Active | 24 m | Radius 3 m | Instant | No damage. | Affected creatures gain **Disoriented(2) / Expose(2) / Soulburn(2) / Weaken(2)**. |
-| **6** | Active | 28 m | Radius 4 m | Instant | No damage. | Affected creatures gain **Disoriented(2) / Expose(2) / Soulburn(2) / Weaken(2)**. |
-| **7** | Active | 32 m | Radius 4 m | Instant | No damage. | Affected creatures gain **Disoriented(3) / Expose(3) / Soulburn(3) / Weaken(3)**. |
-| **8** | Active | 36 m | Radius 4 m | Instant | No damage. | Affected creatures gain **Disoriented(3) / Expose(3) / Soulburn(3) / Weaken(3)**. |
-| **9** | Active | 40 m | Radius 5 m | Instant | No damage. | Affected creatures gain **Disoriented(3) / Expose(3) / Soulburn(3) / Weaken(3)**. |
-| **10** | Active | 44 m | Radius 5 m | Instant | No damage. | Affected creatures gain **Disoriented(3) / Expose(3) / Soulburn(3) / Weaken(3)**. |
-| **11** | Active | 48 m | Radius 5 m | Instant | No damage. | Affected creatures gain **Disoriented(4) / Expose(4) / Soulburn(4) / Weaken(4)**. |
-| **12** | Active | 52 m | Radius 5 m | Instant | No damage. | Affected creatures gain **Disoriented(4) / Expose(4) / Soulburn(4) / Weaken(4)**. |
-| **13** | Active | 56 m | Radius 6 m | Instant | No damage. | Affected creatures gain **Disoriented(4) / Expose(4) / Soulburn(4) / Weaken(4)**. |
-| **14** | Active | 60 m | Radius 6 m | Instant | No damage. | Affected creatures gain **Disoriented(4) / Expose(4) / Soulburn(4) / Weaken(4)**. |
-| **15** | Active | 64 m | Radius 6 m | Instant | No damage. | Affected creatures gain **Disoriented(5) / Expose(5) / Soulburn(5) / Weaken(5)**. |
-| **16** | Active | 68 m | Radius 6 m | Instant | No damage. | Affected creatures gain **Disoriented(5) / Expose(5) / Soulburn(5) / Weaken(5)**. |
+| **1** | Active | 8 m | Radius 1 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(2) / Expose(2) / Soulburn(2) / Weaken(2)** |
+| **2** | Active | 12 m | Radius 2 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(2) / Expose(2) / Soulburn(2) / Weaken(2)** |
+| **3** | Active | 16 m | Radius 2 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(3) / Expose(3) / Soulburn(3) / Weaken(3)** |
+| **4** | Active | 20 m | Radius 3 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(3) / Expose(3) / Soulburn(3) / Weaken(3)** |
+| **5** | Active | 24 m | Radius 3 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(3) / Expose(3) / Soulburn(3) / Weaken(3)** |
+| **6** | Active | 28 m | Radius 4 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(3) / Expose(3) / Soulburn(3) / Weaken(3)** |
+| **7** | Active | 32 m | Radius 4 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(4) / Expose(4) / Soulburn(4) / Weaken(4)** |
+| **8** | Active | 36 m | Radius 4 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(4) / Expose(4) / Soulburn(4) / Weaken(4)** |
+| **9** | Active | 40 m | Radius 5 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(4) / Expose(4) / Soulburn(4) / Weaken(4)** |
+| **10** | Active | 44 m | Radius 5 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(5) / Expose(5) / Soulburn(5) / Weaken(5)** |
+| **11** | Active | 48 m | Radius 5 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(5) / Expose(5) / Soulburn(5) / Weaken(5)** |
+| **12** | Active | 52 m | Radius 5 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(5) / Expose(5) / Soulburn(5) / Weaken(5)** |
+| **13** | Active | 56 m | Radius 6 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(5) / Expose(5) / Soulburn(5) / Weaken(5)** |
+| **14** | Active | 60 m | Radius 6 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(6) / Expose(6) / Soulburn(6) / Weaken(6)** |
+| **15** | Active | 64 m | Radius 6 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(6) / Expose(6) / Soulburn(6) / Weaken(6)** |
+| **16** | Active | 68 m | Radius 6 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(7) / Expose(7) / Soulburn(7) / Weaken(7)** |
+
 
 ---
 }}
-
 \page
 {{pageNumber,auto}}
 {{wide
@@ -5980,33 +5558,24 @@ It does not hit additional creatures unless another rule says so.
 
 An AoE Weapon Attack is one attack that affects an area.
 
-AoE Weapon Attacks do not make separate attack rolls against every creature in the area.
-
 When you use an AoE Weapon Attack:
 
 1. Choose the AoE placement.
-2. Choose the Primary Target or center point as required by the Power.
-3. Roll one Attack Roll for the AoE.
-4. If the AoE succeeds, all valid affected creatures in the AoE are hit.
-5. Roll one Damage Pool for the Power.
-6. Each affected creature takes the listed AoE damage.
+2. Roll **one Attack Roll** for the entire AoE.
+3. Compare that same final result separately against the **Evade of each valid creature** in the area.
+4. Each creature whose Evade is met or exceeded would be hit independently of every other creature.
+5. A creature may use legal Attack-Trigger defenses that modify its own Evade before its hit is finalized.
+6. A creature that would still be hit may use **Dive for Cover** before damage or payload is applied.
+7. Every creature that remains hit receives the Power's **full printed payload**.
 
-For AoE Weapon Attacks, the Damage Pool includes:
+For an AoE Weapon Attack, full payload includes:
 
-- weapon damage,
-- plus the Power's listed bonus damage, if any.
+- full weapon damage,
+- the Power's full listed bonus damage,
+- the Power's full listed Specials,
+- and applicable offensive buffs and riders.
 
-If the Power says affected creatures take:
-
-> weapon damage + **Xd8 damage**
-
-then every affected creature hit by the AoE takes that damage.
-
-If the Power says affected creatures take:
-
-> weapon damage
-
-then every affected creature hit by the AoE takes only the weapon damage.
+Damage and Specials are not divided or reduced because several creatures were hit.
 
 ---
 
@@ -6014,29 +5583,15 @@ then every affected creature hit by the AoE takes only the weapon damage.
 
 A Melee AoE Weapon Attack is centered on the attacker.
 
-The attacker is the center of the AoE.
-
-The AoE affects valid creatures around the attacker within the listed Radius.
-
-The attacker does not hit themselves unless a Power explicitly says so.
-
-The attacker does not choose a distant center point.
-
-The attacker may choose a Primary Target inside the AoE if the Power or table procedure needs one, but the AoE itself is still centered on the attacker.
+The attacker is the center of the AoE. Every valid creature around the attacker within the listed Radius is checked against the same Attack Roll. The attacker does not hit themselves unless the Power explicitly says so.
 
 ---
 
 ### Ranged AoE Placement
 
-A Ranged AoE Weapon Attack is placed at a target point within the Power's Range.
+A Ranged AoE Weapon Attack is centered on a chosen target point within the Power's printed Range.
 
-The target point is the center of the AoE.
-
-Creatures inside the listed Radius around that point are affected.
-
-If a creature occupies the center point, that creature may be treated as the Primary Target.
-
-A Ranged AoE Weapon Attack does not require separate attack rolls against every creature in the area.
+Every valid creature inside the listed Radius is checked separately against the same Attack Roll. The center point determines placement only and does not determine whether any creature is hit.
 
 ---
 }}
@@ -6077,29 +5632,25 @@ It does not roll full weapon damage separately for every target.
 
 ### Split AoE Rule
 
-Split AoE does not create multiple full-damage AoEs.
-
-A Split AoE divides one AoE attack sequence between multiple impact zones.
+Split AoE divides one AoE attack sequence between multiple impact zones. It does not create several full-damage AoEs.
 
 When you use a Split AoE:
 
 1. Choose the listed number of AoE placements.
-2. Split your **Attack Pool** between those AoE placements before rolling.
+2. Split your **Attack Pool** between those placements before rolling.
 3. Roll each AoE placement separately.
-4. Determine which AoE placements succeed.
-5. Roll one total **Damage Pool** for the Power.
-6. Split that total Damage Pool between all successful AoE placements.
-7. Each creature affected by a successful AoE placement takes the damage assigned to that placement.
+4. For each placement, compare that placement's final roll separately against the **Evade of every valid creature** inside its Radius.
+5. Resolve legal Evade Reactions and **Dive for Cover** for each creature normally.
+6. A placement is successful if at least one creature remains hit after those defenses resolve.
+7. Roll one total **Damage Pool** for the Power.
+8. Split that total Damage Pool between all successful placements.
+9. Every creature hit by a successful placement takes the damage assigned to that placement.
 
-Each AoE placement uses the listed Radius.
+Each placement uses the Power's listed Radius.
 
-A creature can only be affected once by the same Split AoE unless the Power explicitly allows otherwise.
+A creature can be affected only once by the same Split AoE unless the Power explicitly says otherwise. If overlapping successful placements would affect the same creature, apply only the **highest damage assigned to one of those placements**.
 
-Split AoE increases battlefield coverage.
-
-It does not multiply damage.  
-It does not create several full-damage explosions.  
-It does not roll a separate full Damage Pool for every AoE placement.
+Split AoE increases battlefield coverage. It does not multiply the Power's total Damage Pool and does not roll full weapon damage separately for every placement.
 
 ---
 }}
@@ -6109,55 +5660,29 @@ It does not roll a separate full Damage Pool for every AoE placement.
 
 ### Autofire Rule
 
-Autofire is not multiple attacks.
+Autofire is one ranged attack that walks through an ordered chain of targets.
 
-Autofire uses one ranged attack roll against a Primary Target.
+Before rolling:
 
-Before rolling, the attacker may declare additional targets within range.
+1. Choose the first target within the Power's Range.
+2. Declare the remaining targets in order, up to the Power's Target Capacity.
+3. Every target after the first must be within **4 m of the previous target** and within the Power's Range.
+4. A creature cannot appear more than once in the same Autofire chain.
 
-Each additional target requires **+1 Raise**.
+Then make **one ranged Attack Roll**.
 
-When you use Autofire:
+Compare that same final result against each target's **Evade in the declared order**.
 
-1. Choose one Primary Target within range.
-2. Declare any additional targets within range.
-3. Each additional target requires **+1 Raise**.
-4. Roll one ranged Attack Roll against the Primary Target.
-5. If the attack misses, the Autofire misses completely.
-6. If the attack hits, the Primary Target takes the full payload.
-7. Additional targets reached by Raises take only the attack's printed weapon damage.
+- A target may use **Reaction: Evade** against its own hit check.
+- If the Attack Roll fails to meet a target's final Evade, that target is missed and **Autofire ends immediately**.
+- Later declared targets are not checked.
+- **Dive for Cover cannot be used against Autofire.**
 
-The Primary Target receives:
+Every target successfully hit receives the Power's **full printed payload**, including full weapon damage, full listed Power damage, full Specials, and applicable offensive buffs and riders.
 
-- weapon damage,
-- bonus damage,
-- Specials,
-- riders,
-- and any other payload listed by the Power.
+Autofire Target Capacity costs **30 PP per additional target** after the first target.
 
-Additional targets receive only:
-
-- printed weapon damage.
-
-Additional targets do not receive:
-
-- bonus damage,
-- Specials,
-- riders,
-- forced movement,
-- control effects,
-- Stunned,
-- Disarm,
-- Prone,
-- or any other payload
-
-unless the Power explicitly says so.
-
-Autofire increases target coverage.
-
-It does not create multiple full attacks.  
-It does not multiply the Power's bonus damage.  
-It does not apply the full payload to every target.
+Additional Autofire targets require **no target-count Raises**. Normal Raises may still be used for legal Raise effects of the Power.
 
 ---
 :
@@ -6174,51 +5699,34 @@ The Power says:
 
 > Make one ranged weapon attack. On hit, deal weapon damage + **7d8 damage**.
 
-The character chooses one enemy within range.
+The character chooses one enemy within range and rolls one ranged Attack Roll.
 
-The character rolls one ranged Attack Roll.
-
-If the attack misses, nothing happens.
-
-If the attack hits, the character rolls:
+On a hit, the target takes:
 
 > weapon damage + **7d8 damage**
-
-The target takes the full result.
 
 No other creature is affected.
 
 ---
 
-### Example — AoE Weapon Attack
+### Example — Melee AoE Weapon Attack
 
-A character uses a Level 6 Melee AoE Attack.
-
-The Power says:
+A character uses a Level 6 Melee AoE Weapon Attack:
 
 > Range: **Self**  
 > AoE: **Radius 4 m**  
-> Effect: affected creatures take weapon damage + **6d8 damage**
+> Effect: weapon damage + **6d8 damage**
 
-Because this is a Melee AoE, the character is the center of the AoE.
+The character rolls one AoE Attack Roll. The same result is compared separately against the Evade of every valid enemy within 4 m.
 
-Every valid enemy within **4 m** of the character is affected.
+An enemy whose Evade is not reached is not hit. An enemy that would be hit may use a legal Evade Reaction and, if still hit and a Reaction remains available, may use **Dive for Cover**.
 
-The character rolls one AoE Attack Roll for the Power.
-
-If the AoE fails, no creature is hit.
-
-If the AoE succeeds, every affected enemy in the Radius is hit.
-
-The character rolls one Damage Pool:
+Every enemy that remains hit takes:
 
 > weapon damage + **6d8 damage**
 
-Each affected enemy takes that damage.
+A miss against one creature does not change the result against any other creature.
 
-The attacker does not damage themselves unless the Power explicitly says so.
-
----
 }}
 \page
 {{pageNumber,auto}}
@@ -6226,35 +5734,24 @@ The attacker does not damage themselves unless the Power explicitly says so.
 
 ### Example — Ranged AoE Weapon Attack
 
-A character uses a Level 5 Ranged AoE Attack.
-
-The Power says:
+A character uses a Level 5 Ranged AoE Weapon Attack:
 
 > Range: **24 m**  
 > AoE: **Radius 4 m**  
-> Effect: affected creatures take weapon damage + **2d8 damage**
+> Effect: weapon damage + **3d8 damage**
 
-The character chooses a point within **24 m**.
+The character chooses a point within 24 m and rolls one AoE Attack Roll.
 
-That point becomes the center of the AoE.
+Three enemies are inside the Radius. The same Attack Roll is compared separately against all three Evade values. Two are hit and one is missed.
 
-Three enemies are inside the **4 m Radius**.
+Either hit creature may use its own legal Evade Reaction or **Dive for Cover** if available.
 
-The character rolls one AoE Attack Roll for the Power.
+Every creature that remains hit takes:
 
-If the AoE fails, no creature is hit.
+> weapon damage + **3d8 damage**
 
-If the AoE succeeds, all three enemies are hit.
+The attack does not make separate Attack Rolls against the creatures in the area.
 
-The character rolls one Damage Pool:
-
-> weapon damage + **2d8 damage**
-
-Each of the three affected enemies takes that damage.
-
-The character does not roll a separate attack against each enemy.
-
----
 }}
 \page
 {{pageNumber,auto}}
@@ -6264,15 +5761,7 @@ The character does not roll a separate attack against each enemy.
 
 A character uses a Level 7 Melee Split Attack.
 
-The Power says:
-
-> Make up to **3 melee weapon attacks**.  
-> Split your Attack Pool between them.  
-> Roll one total Damage Pool equal to weapon damage + **10d8 damage**, then split that damage between successful hits.
-
-The character chooses three enemies in melee reach.
-
-The character has an Attack Pool of **12 dice**.
+The Power allows up to **3 melee weapon attacks** and the character has an Attack Pool of **12 dice**.
 
 Before rolling, the character splits the pool:
 
@@ -6280,32 +5769,12 @@ Before rolling, the character splits the pool:
 - 4 dice against Enemy B
 - 3 dice against Enemy C
 
-The character rolls each split attack separately.
+Enemy A and Enemy C are hit. Enemy B is missed.
 
-Enemy A is hit.  
-Enemy B is missed.  
-Enemy C is hit.
+The character rolls the Power's one total Damage Pool and splits the final damage only between A and C.
 
-Now the character rolls one total Damage Pool:
+Split Attack does not roll full weapon damage separately for every strike and does not multiply the total Damage Pool.
 
-> weapon damage + **10d8 damage**
-
-The total damage is **42**.
-
-Only Enemy A and Enemy C were hit, so the character splits the **42 damage** between those two successful hits.
-
-For example:
-
-- Enemy A takes **22 damage**
-- Enemy C takes **20 damage**
-
-Enemy B takes no damage.
-
-The character does not roll weapon damage three times.  
-The character does not apply +10d8 damage to each target.  
-The Damage Pool is rolled once and split.
-
----
 }}
 \page
 {{pageNumber,auto}}
@@ -6313,41 +5782,21 @@ The Damage Pool is rolled once and split.
 
 ### Example — Split AoE
 
-A character uses a Split AoE Power that allows **2 AoE placements**.
+A character uses a Split AoE Power with **2 AoE placements**, each with **Radius 3 m**, and an Attack Pool of **10 dice**.
 
-The Power says:
+Before rolling, the character splits the Attack Pool:
 
-> Each AoE uses **Radius 3 m**.  
-> Split your Attack Pool between the AoE placements.  
-> Roll one total Damage Pool, then split that damage between successful AoE zones.
+- 6 dice for Zone A
+- 4 dice for Zone B
 
-The character chooses two different AoE center points.
+Each zone is rolled once. The result for Zone A is compared separately against every creature's Evade in Zone A. The result for Zone B is compared separately against every creature's Evade in Zone B.
 
-The character has an Attack Pool of **10 dice**.
+After legal Evade Reactions and Dive for Cover resolve, Zone A still has two hit creatures while Zone B has none. Only Zone A is therefore a successful placement.
 
-Before rolling, the character splits the pool:
+The character rolls one total Damage Pool and assigns it to Zone A. Both creatures still hit in Zone A take that assigned damage.
 
-- 6 dice for AoE Zone A
-- 4 dice for AoE Zone B
+If both zones had been successful, the one total Damage Pool would have been split between the two zones.
 
-The character rolls both AoE placements separately.
-
-AoE Zone A succeeds.  
-AoE Zone B fails.
-
-The character rolls one total Damage Pool.
-
-Because only AoE Zone A succeeded, all assigned damage goes to AoE Zone A.
-
-Every valid creature inside AoE Zone A takes that assigned damage.
-
-Creatures inside AoE Zone B take no damage because that AoE placement failed.
-
-If both AoE Zones had succeeded, the character would split the one total Damage Pool between the two zones.
-
-Split AoE does not roll full damage for each zone.
-
----
 }}
 \page
 {{pageNumber,auto}}
@@ -6355,46 +5804,30 @@ Split AoE does not roll full damage for each zone.
 
 ### Example — Autofire
 
-A character uses a Level 8 Ranged Autofire Power.
+A character uses a Level 8 Ranged Autofire Power. It can include up to **5 targets** and deals weapon damage + **5d8 damage** on every successful hit.
 
-The Power says:
+Before rolling, the character declares:
 
-> Make one ranged weapon attack against a Primary Target.  
-> You may declare up to **4 additional targets** within range.  
-> Each additional target requires **+1 Raise**.  
-> Primary Target takes weapon damage + **8d8 damage**.  
-> Additional targets take only printed weapon damage.
+> A → B → C → D
 
-The character chooses one Primary Target.
+Each target is within 4 m of the previous target and all four are within the Power's Range.
 
-The character also declares two additional targets.
+The character makes one ranged Attack Roll and gets **27**.
 
-Two additional targets require **+2 Raises**.
+- Target A has Evade 18: hit.
+- Target B has Evade 23: hit.
+- Target C has Evade 25 and uses Reaction: Evade to raise its final Evade to 29: miss.
+- Autofire ends immediately. Target D is not checked.
 
-The character rolls one ranged Attack Roll against the Primary Target with the required Raises.
+Targets A and B each take:
 
-If the attack misses, nobody is hit.
+> weapon damage + **5d8 damage**
 
-If the attack hits:
+Target C and Target D take nothing.
 
-The Primary Target takes:
-
-> weapon damage + **8d8 damage**
-
-Each additional target takes:
-
-> printed weapon damage only
-
-The additional targets do not take the +8d8 damage.
-
-They also do not receive any Special, rider, or extra payload unless the Power explicitly says so.
-
-Autofire is one attack that spreads weapon fire.
-
-It is not three full attacks.
+Autofire uses no target-count Raises, and Dive for Cover cannot be used against it.
 
 }}
-
 \page
 {{pageNumber,auto}}
 {{wide
@@ -6546,54 +5979,38 @@ A clean ranged weapon attack with no Special, rider, movement, or secondary effe
     <span class="tooltiptext">
       BASELINES<br>
       Active curve = 30 PP per level<br>
-      Melee AoE Range = Self<br>
-      No Range cost<br>
+      Melee Range = Self; no Range cost<br>
+      Instant Attack AoE costs: Radius 1/2/3/4/5/6/7/8 m = 0/20/50/80/120/165/220/280 PP<br>
       +1d8 Damage = 15 PP<br><br>
-
-      AOE COSTS<br>
-      Radius 2 m = 20 PP<br>
-      Radius 3 m = 50 PP<br>
-      Radius 4 m = 90 PP<br>
-      Radius 5 m = 140 PP<br>
-      Radius 6 m = 200 PP<br>
-      Radius 7 m = 270 PP<br>
-      Radius 8 m = 350 PP<br><br>
-
-      DESIGN RULE<br>
-      This version is recalculated on curve with non-decreasing damage.<br>
-      AoE radius is paid first.<br>
-      Damage is only increased when it can remain permanently afterward.<br>
-      Damage may stay the same or increase, but it may never decrease.<br>
-      Radius may stay the same or increase, but it may never decrease.<br>
-      Unused PP may remain unused if spending it would cause damage flicker later.<br><br>
-
-      CALCULATION<br>
-      L1 → Target 30 PP: Radius 2 m (20) + Damage — (0) = 20 PP<br>
-      L2 → Target 60 PP: Radius 2 m (20) + +2d8 Damage (30) = 50 PP<br>
-      L3 → Target 90 PP: Radius 3 m (50) + +2d8 Damage (30) = 80 PP<br>
-      L4 → Target 120 PP: Radius 3 m (50) + +2d8 Damage (30) = 80 PP<br>
-      L5 → Target 150 PP: Radius 4 m (90) + +2d8 Damage (30) = 120 PP<br>
-      L6 → Target 180 PP: Radius 4 m (90) + +2d8 Damage (30) = 120 PP<br>
-      L7 → Target 210 PP: Radius 5 m (140) + +2d8 Damage (30) = 170 PP<br>
-      L8 → Target 240 PP: Radius 5 m (140) + +2d8 Damage (30) = 170 PP<br>
-      L9 → Target 270 PP: Radius 6 m (200) + +2d8 Damage (30) = 230 PP<br>
-      L10 → Target 300 PP: Radius 6 m (200) + +2d8 Damage (30) = 230 PP<br>
-      L11 → Target 330 PP: Radius 7 m (270) + +2d8 Damage (30) = 300 PP<br>
-      L12 → Target 360 PP: Radius 7 m (270) + +2d8 Damage (30) = 300 PP<br>
-      L13 → Target 390 PP: Radius 8 m (350) + +2d8 Damage (30) = 380 PP<br>
-      L14 → Target 420 PP: Radius 8 m (350) + +4d8 Damage (60) = 410 PP<br>
-      L15 → Target 450 PP: Radius 8 m (350) + +6d8 Damage (90) = 440 PP<br>
-      L16 → Target 480 PP: Radius 8 m (350) + +8d8 Damage (120) = 470 PP<br><br>
-
-      NOTES<br>
-      The earlier version allowed bonus damage to rise before a radius upgrade and then fall afterward.<br>
-      This corrected version delays bonus damage so that damage never decreases.<br>
-      Radius reaches 8 m at Level 13 and remains there.
+      DESIGN STRUCTURE<br>
+      Every successful target receives full Weapon Damage plus the full listed Power damage.<br>
+      One AoE Attack Roll is compared separately against each creature's Evade. Dive for Cover is resolved before payload.<br>
+      Damage never decreases; unused PP is allowed when a later Radius increase must be protected.<br><br>
+      LEVEL-BY-LEVEL CALCULATION<br>
+      L1 → Target 30 PP: Radius 2 m (20) + Damage +0d8 (0) = 20 PP<br>
+      L2 → Target 60 PP: Radius 2 m (20) + Damage +2d8 (30) = 50 PP<br>
+      L3 → Target 90 PP: Radius 3 m (50) + Damage +2d8 (30) = 80 PP<br>
+      L4 → Target 120 PP: Radius 3 m (50) + Damage +4d8 (60) = 110 PP<br>
+      L5 → Target 150 PP: Radius 4 m (80) + Damage +4d8 (60) = 140 PP<br>
+      L6 → Target 180 PP: Radius 4 m (80) + Damage +6d8 (90) = 170 PP<br>
+      L7 → Target 210 PP: Radius 5 m (120) + Damage +6d8 (90) = 210 PP<br>
+      L8 → Target 240 PP: Radius 5 m (120) + Damage +7d8 (105) = 225 PP<br>
+      L9 → Target 270 PP: Radius 6 m (165) + Damage +7d8 (105) = 270 PP<br>
+      L10 → Target 300 PP: Radius 6 m (165) + Damage +7d8 (105) = 270 PP<br>
+      L11 → Target 330 PP: Radius 7 m (220) + Damage +7d8 (105) = 325 PP<br>
+      L12 → Target 360 PP: Radius 7 m (220) + Damage +7d8 (105) = 325 PP<br>
+      L13 → Target 390 PP: Radius 8 m (280) + Damage +7d8 (105) = 385 PP<br>
+      L14 → Target 420 PP: Radius 8 m (280) + Damage +9d8 (135) = 415 PP<br>
+      L15 → Target 450 PP: Radius 8 m (280) + Damage +11d8 (165) = 445 PP<br>
+      L16 → Target 480 PP: Radius 8 m (280) + Damage +13d8 (195) = 475 PP<br>
+<br>      NOTES<br>
+      Active Buff: Damage applies its full listed bonus to every successfully hit creature.<br>
+      Radius 8 m remains the standard player cap.
     </span>
   </span>
 </h3>
 
-A sweeping melee weapon attack that strikes all valid creatures around the attacker.
+A self-centered weapon sweep that hits everything around the attacker.
 
 ---
 :
@@ -6603,101 +6020,66 @@ A sweeping melee weapon attack that strikes all valid creatures around the attac
 :
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
 |:--:|:--|:--:|:--:|:--:|:--|:--|
-| **1** | Active | Self | Radius 2 m | Instant | Make a melee AoE attack. Affected creatures take weapon damage. | — |
-| **2** | Active | Self | Radius 2 m | Instant | Make a melee AoE attack. Affected creatures take weapon damage + **2d8 damage**. | — |
-| **3** | Active | Self | Radius 3 m | Instant | Make a melee AoE attack. Affected creatures take weapon damage + **2d8 damage**. | — |
-| **4** | Active | Self | Radius 3 m | Instant | Make a melee AoE attack. Affected creatures take weapon damage + **2d8 damage**. | — |
-| **5** | Active | Self | Radius 4 m | Instant | Make a melee AoE attack. Affected creatures take weapon damage + **2d8 damage**. | — |
-| **6** | Active | Self | Radius 4 m | Instant | Make a melee AoE attack. Affected creatures take weapon damage + **2d8 damage**. | — |
-| **7** | Active | Self | Radius 5 m | Instant | Make a melee AoE attack. Affected creatures take weapon damage + **2d8 damage**. | — |
-| **8** | Active | Self | Radius 5 m | Instant | Make a melee AoE attack. Affected creatures take weapon damage + **2d8 damage**. | — |
-| **9** | Active | Self | Radius 6 m | Instant | Make a melee AoE attack. Affected creatures take weapon damage + **2d8 damage**. | — |
-| **10** | Active | Self | Radius 6 m | Instant | Make a melee AoE attack. Affected creatures take weapon damage + **2d8 damage**. | — |
-| **11** | Active | Self | Radius 7 m | Instant | Make a melee AoE attack. Affected creatures take weapon damage + **2d8 damage**. | — |
-| **12** | Active | Self | Radius 7 m | Instant | Make a melee AoE attack. Affected creatures take weapon damage + **2d8 damage**. | — |
-| **13** | Active | Self | Radius 8 m | Instant | Make a melee AoE attack. Affected creatures take weapon damage + **2d8 damage**. | — |
-| **14** | Active | Self | Radius 8 m | Instant | Make a melee AoE attack. Affected creatures take weapon damage + **4d8 damage**. | — |
-| **15** | Active | Self | Radius 8 m | Instant | Make a melee AoE attack. Affected creatures take weapon damage + **6d8 damage**. | — |
-| **16** | Active | Self | Radius 8 m | Instant | Make a melee AoE attack. Affected creatures take weapon damage + **8d8 damage**. | — |
+| **1** | Active | Self | Radius 2 m | Instant | Make one melee AoE attack. Every creature hit takes weapon damage. | — |
+| **2** | Active | Self | Radius 2 m | Instant | Make one melee AoE attack. Every creature hit takes weapon damage + **2d8 damage**. | — |
+| **3** | Active | Self | Radius 3 m | Instant | Make one melee AoE attack. Every creature hit takes weapon damage + **2d8 damage**. | — |
+| **4** | Active | Self | Radius 3 m | Instant | Make one melee AoE attack. Every creature hit takes weapon damage + **4d8 damage**. | — |
+| **5** | Active | Self | Radius 4 m | Instant | Make one melee AoE attack. Every creature hit takes weapon damage + **4d8 damage**. | — |
+| **6** | Active | Self | Radius 4 m | Instant | Make one melee AoE attack. Every creature hit takes weapon damage + **6d8 damage**. | — |
+| **7** | Active | Self | Radius 5 m | Instant | Make one melee AoE attack. Every creature hit takes weapon damage + **6d8 damage**. | — |
+| **8** | Active | Self | Radius 5 m | Instant | Make one melee AoE attack. Every creature hit takes weapon damage + **7d8 damage**. | — |
+| **9** | Active | Self | Radius 6 m | Instant | Make one melee AoE attack. Every creature hit takes weapon damage + **7d8 damage**. | — |
+| **10** | Active | Self | Radius 6 m | Instant | Make one melee AoE attack. Every creature hit takes weapon damage + **7d8 damage**. | — |
+| **11** | Active | Self | Radius 7 m | Instant | Make one melee AoE attack. Every creature hit takes weapon damage + **7d8 damage**. | — |
+| **12** | Active | Self | Radius 7 m | Instant | Make one melee AoE attack. Every creature hit takes weapon damage + **7d8 damage**. | — |
+| **13** | Active | Self | Radius 8 m | Instant | Make one melee AoE attack. Every creature hit takes weapon damage + **7d8 damage**. | — |
+| **14** | Active | Self | Radius 8 m | Instant | Make one melee AoE attack. Every creature hit takes weapon damage + **9d8 damage**. | — |
+| **15** | Active | Self | Radius 8 m | Instant | Make one melee AoE attack. Every creature hit takes weapon damage + **11d8 damage**. | — |
+| **16** | Active | Self | Radius 8 m | Instant | Make one melee AoE attack. Every creature hit takes weapon damage + **13d8 damage**. | — |
 
 ---
-
----
-:
+}}
+\page
+{{pageNumber,auto}}
+{{wide
 <h3 id="ranged-aoe-weapon-attack">
   Ranged AoE Weapon Attack
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
       Active curve = 30 PP per level<br>
-      Ranged Power uses printed Range<br>
-      Range progression = +4 m per level<br>
-      Range cost = +5 PP per +4 m after 8 m<br>
+      Range progression = +4 m per level; Range cost = +5 PP per +4 m after 8 m<br>
+      Instant Attack AoE costs: Radius 1/2/3/4/5/6/7/8 m = 0/20/50/80/120/165/220/280 PP<br>
       +1d8 Damage = 15 PP<br><br>
-
-      RANGE COSTS<br>
-      8 m = 0 PP<br>
-      12 m = 5 PP<br>
-      16 m = 10 PP<br>
-      20 m = 15 PP<br>
-      24 m = 20 PP<br>
-      28 m = 25 PP<br>
-      32 m = 30 PP<br>
-      36 m = 35 PP<br>
-      40 m = 40 PP<br>
-      44 m = 45 PP<br>
-      48 m = 50 PP<br>
-      52 m = 55 PP<br>
-      56 m = 60 PP<br>
-      60 m = 65 PP<br>
-      64 m = 70 PP<br>
-      68 m = 75 PP<br><br>
-
-      AOE COSTS<br>
-      Radius 2 m = 20 PP<br>
-      Radius 3 m = 50 PP<br>
-      Radius 4 m = 90 PP<br>
-      Radius 5 m = 140 PP<br>
-      Radius 6 m = 200 PP<br>
-      Radius 7 m = 270 PP<br>
-      Radius 8 m = 350 PP<br><br>
-
-      DESIGN RULE<br>
-      This version is recalculated on curve with non-decreasing damage.<br>
-      Range is paid first.<br>
-      AoE radius is paid second.<br>
-      Damage is only added once the chosen radius can be kept afterward.<br>
-      Damage may stay the same or increase, but it may never decrease.<br>
-      Radius may stay the same or increase, but it may never decrease.<br>
-      Unused PP may remain unused if spending it would cause damage flicker later.<br><br>
-
-      CALCULATION<br>
-      L1 → Target 30 PP: Range 8 m (0) + Radius 2 m (20) + Damage — (0) = 20 PP<br>
-      L2 → Target 60 PP: Range 12 m (5) + Radius 2 m (20) + Damage — (0) = 25 PP<br>
-      L3 → Target 90 PP: Range 16 m (10) + Radius 3 m (50) + Damage — (0) = 60 PP<br>
-      L4 → Target 120 PP: Range 20 m (15) + Radius 3 m (50) + Damage — (0) = 65 PP<br>
-      L5 → Target 150 PP: Range 24 m (20) + Radius 4 m (90) + Damage — (0) = 110 PP<br>
-      L6 → Target 180 PP: Range 28 m (25) + Radius 4 m (90) + Damage — (0) = 115 PP<br>
-      L7 → Target 210 PP: Range 32 m (30) + Radius 5 m (140) + Damage — (0) = 170 PP<br>
-      L8 → Target 240 PP: Range 36 m (35) + Radius 5 m (140) + Damage — (0) = 175 PP<br>
-      L9 → Target 270 PP: Range 40 m (40) + Radius 6 m (200) + Damage — (0) = 240 PP<br>
-      L10 → Target 300 PP: Range 44 m (45) + Radius 6 m (200) + Damage — (0) = 245 PP<br>
-      L11 → Target 330 PP: Range 48 m (50) + Radius 7 m (270) + Damage — (0) = 320 PP<br>
-      L12 → Target 360 PP: Range 52 m (55) + Radius 7 m (270) + Damage — (0) = 325 PP<br>
-      L13 → Target 390 PP: Range 56 m (60) + Radius 7 m (270) + Damage — (0) = 330 PP<br>
-      L14 → Target 420 PP: Range 60 m (65) + Radius 8 m (350) + Damage — (0) = 415 PP<br>
-      L15 → Target 450 PP: Range 64 m (70) + Radius 8 m (350) + +2d8 Damage (30) = 450 PP<br>
-      L16 → Target 480 PP: Range 68 m (75) + Radius 8 m (350) + +4d8 Damage (60) = 485 PP ≈ 480 target<br><br>
-
-      NOTES<br>
-      The earlier version caused damage to rise and then drop when the AoE radius increased.<br>
-      This corrected version prioritizes stable Range and AoE progression first.<br>
-      Bonus damage appears only at Level 15, after Radius 8 m can be held.
+      DESIGN STRUCTURE<br>
+      Every successful target receives full Weapon Damage plus the full listed Power damage.<br>
+      One AoE Attack Roll is compared separately against each creature's Evade. Dive for Cover is resolved before payload.<br>
+      Damage never decreases; unused PP is allowed when a later Radius increase must be protected.<br><br>
+      LEVEL-BY-LEVEL CALCULATION<br>
+      L1 → Target 30 PP: Range 8 m (0) + Radius 2 m (20) + Damage +0d8 (0) = 20 PP<br>
+      L2 → Target 60 PP: Range 12 m (5) + Radius 2 m (20) + Damage +2d8 (30) = 55 PP<br>
+      L3 → Target 90 PP: Range 16 m (10) + Radius 3 m (50) + Damage +2d8 (30) = 90 PP<br>
+      L4 → Target 120 PP: Range 20 m (15) + Radius 3 m (50) + Damage +3d8 (45) = 110 PP<br>
+      L5 → Target 150 PP: Range 24 m (20) + Radius 4 m (80) + Damage +3d8 (45) = 145 PP<br>
+      L6 → Target 180 PP: Range 28 m (25) + Radius 4 m (80) + Damage +4d8 (60) = 165 PP<br>
+      L7 → Target 210 PP: Range 32 m (30) + Radius 5 m (120) + Damage +4d8 (60) = 210 PP<br>
+      L8 → Target 240 PP: Range 36 m (35) + Radius 5 m (120) + Damage +4d8 (60) = 215 PP<br>
+      L9 → Target 270 PP: Range 40 m (40) + Radius 6 m (165) + Damage +4d8 (60) = 265 PP<br>
+      L10 → Target 300 PP: Range 44 m (45) + Radius 6 m (165) + Damage +4d8 (60) = 270 PP<br>
+      L11 → Target 330 PP: Range 48 m (50) + Radius 7 m (220) + Damage +4d8 (60) = 330 PP<br>
+      L12 → Target 360 PP: Range 52 m (55) + Radius 7 m (220) + Damage +5d8 (75) = 350 PP<br>
+      L13 → Target 390 PP: Range 56 m (60) + Radius 7 m (220) + Damage +5d8 (75) = 355 PP<br>
+      L14 → Target 420 PP: Range 60 m (65) + Radius 8 m (280) + Damage +5d8 (75) = 420 PP<br>
+      L15 → Target 450 PP: Range 64 m (70) + Radius 8 m (280) + Damage +6d8 (90) = 440 PP<br>
+      L16 → Target 480 PP: Range 68 m (75) + Radius 8 m (280) + Damage +8d8 (120) = 475 PP<br>
+<br>      NOTES<br>
+      Active Buff: Damage applies its full listed bonus to every successfully hit creature.<br>
+      Radius 8 m remains the standard player cap.
     </span>
   </span>
 </h3>
 
-A ranged weapon attack that bursts around a target point.
+A ranged weapon attack that detonates across an area.
 
 ---
 :
@@ -6707,34 +6089,28 @@ A ranged weapon attack that bursts around a target point.
 :
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
 |:--:|:--|:--:|:--:|:--:|:--|:--|
-| **1** | Active | 8 m | Radius 2 m | Instant | Make a ranged AoE attack. Affected creatures take weapon damage. | — |
-| **2** | Active | 12 m | Radius 2 m | Instant | Make a ranged AoE attack. Affected creatures take weapon damage. | — |
-| **3** | Active | 16 m | Radius 3 m | Instant | Make a ranged AoE attack. Affected creatures take weapon damage. | — |
-| **4** | Active | 20 m | Radius 3 m | Instant | Make a ranged AoE attack. Affected creatures take weapon damage. | — |
-| **5** | Active | 24 m | Radius 4 m | Instant | Make a ranged AoE attack. Affected creatures take weapon damage. | — |
-| **6** | Active | 28 m | Radius 4 m | Instant | Make a ranged AoE attack. Affected creatures take weapon damage. | — |
-| **7** | Active | 32 m | Radius 5 m | Instant | Make a ranged AoE attack. Affected creatures take weapon damage. | — |
-| **8** | Active | 36 m | Radius 5 m | Instant | Make a ranged AoE attack. Affected creatures take weapon damage. | — |
-| **9** | Active | 40 m | Radius 6 m | Instant | Make a ranged AoE attack. Affected creatures take weapon damage. | — |
-| **10** | Active | 44 m | Radius 6 m | Instant | Make a ranged AoE attack. Affected creatures take weapon damage. | — |
-| **11** | Active | 48 m | Radius 7 m | Instant | Make a ranged AoE attack. Affected creatures take weapon damage. | — |
-| **12** | Active | 52 m | Radius 7 m | Instant | Make a ranged AoE attack. Affected creatures take weapon damage. | — |
-| **13** | Active | 56 m | Radius 7 m | Instant | Make a ranged AoE attack. Affected creatures take weapon damage. | — |
-| **14** | Active | 60 m | Radius 8 m | Instant | Make a ranged AoE attack. Affected creatures take weapon damage. | — |
-| **15** | Active | 64 m | Radius 8 m | Instant | Make a ranged AoE attack. Affected creatures take weapon damage + **2d8 damage**. | — |
-| **16** | Active | 68 m | Radius 8 m | Instant | Make a ranged AoE attack. Affected creatures take weapon damage + **4d8 damage**. | — |
+| **1** | Active | 8 m | Radius 2 m | Instant | Make one ranged AoE attack. Every creature hit takes weapon damage. | — |
+| **2** | Active | 12 m | Radius 2 m | Instant | Make one ranged AoE attack. Every creature hit takes weapon damage + **2d8 damage**. | — |
+| **3** | Active | 16 m | Radius 3 m | Instant | Make one ranged AoE attack. Every creature hit takes weapon damage + **2d8 damage**. | — |
+| **4** | Active | 20 m | Radius 3 m | Instant | Make one ranged AoE attack. Every creature hit takes weapon damage + **3d8 damage**. | — |
+| **5** | Active | 24 m | Radius 4 m | Instant | Make one ranged AoE attack. Every creature hit takes weapon damage + **3d8 damage**. | — |
+| **6** | Active | 28 m | Radius 4 m | Instant | Make one ranged AoE attack. Every creature hit takes weapon damage + **4d8 damage**. | — |
+| **7** | Active | 32 m | Radius 5 m | Instant | Make one ranged AoE attack. Every creature hit takes weapon damage + **4d8 damage**. | — |
+| **8** | Active | 36 m | Radius 5 m | Instant | Make one ranged AoE attack. Every creature hit takes weapon damage + **4d8 damage**. | — |
+| **9** | Active | 40 m | Radius 6 m | Instant | Make one ranged AoE attack. Every creature hit takes weapon damage + **4d8 damage**. | — |
+| **10** | Active | 44 m | Radius 6 m | Instant | Make one ranged AoE attack. Every creature hit takes weapon damage + **4d8 damage**. | — |
+| **11** | Active | 48 m | Radius 7 m | Instant | Make one ranged AoE attack. Every creature hit takes weapon damage + **4d8 damage**. | — |
+| **12** | Active | 52 m | Radius 7 m | Instant | Make one ranged AoE attack. Every creature hit takes weapon damage + **5d8 damage**. | — |
+| **13** | Active | 56 m | Radius 7 m | Instant | Make one ranged AoE attack. Every creature hit takes weapon damage + **5d8 damage**. | — |
+| **14** | Active | 60 m | Radius 8 m | Instant | Make one ranged AoE attack. Every creature hit takes weapon damage + **5d8 damage**. | — |
+| **15** | Active | 64 m | Radius 8 m | Instant | Make one ranged AoE attack. Every creature hit takes weapon damage + **6d8 damage**. | — |
+| **16** | Active | 68 m | Radius 8 m | Instant | Make one ranged AoE attack. Every creature hit takes weapon damage + **8d8 damage**. | — |
 
-
+---
 }}
-
 \page
 {{pageNumber,auto}}
 {{wide
-
-
-
----
-:
 <h3 id="melee-split-weapon-attack">
   Melee Split Attack
   <span class="tooltip">🛈
@@ -6860,171 +6236,136 @@ A ranged technique that divides one attack sequence between multiple targets.
     <span class="tooltiptext">
       BASELINES<br>
       Active curve = 30 PP per level<br>
-      Ranged Autofire uses printed Range<br>
-      Range progression = +4 m per level<br>
-      Range cost = +5 PP per +4 m after 8 m<br>
-      Autofire Target Capacity = 20 PP per additional target beyond the primary target<br>
+      Range progression = +4 m per level; Range cost = +5 PP per +4 m after 8 m<br>
+      Autofire Target Capacity = 30 PP per additional target<br>
       +1d8 Damage = 15 PP<br><br>
-
+      DESIGN STRUCTURE<br>
+      Declare an ordered target chain before rolling. Every target after the first must be within 4 m of the previous target.<br>
+      Make one Attack Roll and compare the same result against each target's Evade in order. The first miss ends the chain.<br>
+      Autofire requires no Raises for additional targets.<br>
+      Every successful target receives full Weapon Damage, full listed Power damage, full Specials, and applicable offensive buffs.<br>
+      Reaction: Evade can turn a hit into a miss and end the chain. Dive for Cover cannot be used.<br><br>
       AUTOFIRE TARGET CAPACITY<br>
-      L1–2 → Primary + 1 additional target<br>
-      L3–4 → Primary + 2 additional targets<br>
-      L5–6 → Primary + 3 additional targets<br>
-      L7–8 → Primary + 4 additional targets<br>
-      L9–10 → Primary + 5 additional targets<br>
-      L11–12 → Primary + 6 additional targets<br>
-      L13–14 → Primary + 7 additional targets<br>
-      L15–16 → Primary + 8 additional targets<br><br>
-
-      NOTES<br>
-      Autofire is not multiple attacks.<br>
-      It uses one ranged attack roll against the primary target.<br>
-      Additional targets are reached through Raises.<br>
-      The primary target takes the full payload.<br>
-      Additional targets take only printed weapon damage and do not receive bonus damage or riders.
+      L1–2 → first target + 1 additional target<br>
+      L3–4 → first target + 2 additional targets<br>
+      L5–6 → first target + 3 additional targets<br>
+      L7–8 → first target + 4 additional targets<br>
+      L9–10 → first target + 5 additional targets<br>
+      L11–12 → first target + 6 additional targets<br>
+      L13–14 → first target + 7 additional targets<br>
+      L15–16 → first target + 8 additional targets<br>
+<br>      LEVEL-BY-LEVEL CALCULATION<br>
+      L1 → Target 30 PP: Range 8 m (0) + Autofire +1 targets (30) + Damage +0d8 (0) = 30 PP<br>
+      L2 → Target 60 PP: Range 12 m (5) + Autofire +1 targets (30) + Damage +1d8 (15) = 50 PP<br>
+      L3 → Target 90 PP: Range 16 m (10) + Autofire +2 targets (60) + Damage +1d8 (15) = 85 PP<br>
+      L4 → Target 120 PP: Range 20 m (15) + Autofire +2 targets (60) + Damage +2d8 (30) = 105 PP<br>
+      L5 → Target 150 PP: Range 24 m (20) + Autofire +3 targets (90) + Damage +2d8 (30) = 140 PP<br>
+      L6 → Target 180 PP: Range 28 m (25) + Autofire +3 targets (90) + Damage +4d8 (60) = 175 PP<br>
+      L7 → Target 210 PP: Range 32 m (30) + Autofire +4 targets (120) + Damage +4d8 (60) = 210 PP<br>
+      L8 → Target 240 PP: Range 36 m (35) + Autofire +4 targets (120) + Damage +5d8 (75) = 230 PP<br>
+      L9 → Target 270 PP: Range 40 m (40) + Autofire +5 targets (150) + Damage +5d8 (75) = 265 PP<br>
+      L10 → Target 300 PP: Range 44 m (45) + Autofire +5 targets (150) + Damage +6d8 (90) = 285 PP<br>
+      L11 → Target 330 PP: Range 48 m (50) + Autofire +6 targets (180) + Damage +6d8 (90) = 320 PP<br>
+      L12 → Target 360 PP: Range 52 m (55) + Autofire +6 targets (180) + Damage +8d8 (120) = 355 PP<br>
+      L13 → Target 390 PP: Range 56 m (60) + Autofire +7 targets (210) + Damage +8d8 (120) = 390 PP<br>
+      L14 → Target 420 PP: Range 60 m (65) + Autofire +7 targets (210) + Damage +9d8 (135) = 410 PP<br>
+      L15 → Target 450 PP: Range 64 m (70) + Autofire +8 targets (240) + Damage +9d8 (135) = 445 PP<br>
+      L16 → Target 480 PP: Range 68 m (75) + Autofire +8 targets (240) + Damage +11d8 (165) = 480 PP<br>
+<br>      NOTES<br>
+      Damage is held at some levels so it never decreases when Target Capacity increases.<br>
+      The structure remains weaker than a Single Attack against one target because a substantial part of its budget is permanently invested in Target Capacity.
     </span>
   </span>
 </h3>
 
-A ranged weapon attack that sprays fire across several targets without creating separate attacks.
+A ranged weapon attack that walks a burst through an ordered line of targets.
 
 ---
-
+:
 **Requirement:** Ranged Weapon
 
 ---
 :
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
 |:--:|:--|:--:|:--:|:--:|:--|:--|
-| **1** | Active | 8 m | — | Instant | Make **one ranged weapon attack** against a primary target. You may declare up to **1 additional target** within range. Each additional target requires **+1 Raise**. Primary target takes weapon damage. Additional targets take only printed weapon damage. | — |
-| **2** | Active | 12 m | — | Instant | Make **one ranged weapon attack** against a primary target. You may declare up to **1 additional target** within range. Each additional target requires **+1 Raise**. Primary target takes weapon damage + **2d8 damage**. Additional targets take only printed weapon damage. | — |
-| **3** | Active | 16 m | — | Instant | Make **one ranged weapon attack** against a primary target. You may declare up to **2 additional targets** within range. Each additional target requires **+1 Raise**. Primary target takes weapon damage + **2d8 damage**. Additional targets take only printed weapon damage. | — |
-| **4** | Active | 20 m | — | Instant | Make **one ranged weapon attack** against a primary target. You may declare up to **2 additional targets** within range. Each additional target requires **+1 Raise**. Primary target takes weapon damage + **4d8 damage**. Additional targets take only printed weapon damage. | — |
-| **5** | Active | 24 m | — | Instant | Make **one ranged weapon attack** against a primary target. You may declare up to **3 additional targets** within range. Each additional target requires **+1 Raise**. Primary target takes weapon damage + **4d8 damage**. Additional targets take only printed weapon damage. | — |
-| **6** | Active | 28 m | — | Instant | Make **one ranged weapon attack** against a primary target. You may declare up to **3 additional targets** within range. Each additional target requires **+1 Raise**. Primary target takes weapon damage + **6d8 damage**. Additional targets take only printed weapon damage. | — |
-| **7** | Active | 32 m | — | Instant | Make **one ranged weapon attack** against a primary target. You may declare up to **4 additional targets** within range. Each additional target requires **+1 Raise**. Primary target takes weapon damage + **6d8 damage**. Additional targets take only printed weapon damage. | — |
-| **8** | Active | 36 m | — | Instant | Make **one ranged weapon attack** against a primary target. You may declare up to **4 additional targets** within range. Each additional target requires **+1 Raise**. Primary target takes weapon damage + **8d8 damage**. Additional targets take only printed weapon damage. | — |
-| **9** | Active | 40 m | — | Instant | Make **one ranged weapon attack** against a primary target. You may declare up to **5 additional targets** within range. Each additional target requires **+1 Raise**. Primary target takes weapon damage + **8d8 damage**. Additional targets take only printed weapon damage. | — |
-| **10** | Active | 44 m | — | Instant | Make **one ranged weapon attack** against a primary target. You may declare up to **5 additional targets** within range. Each additional target requires **+1 Raise**. Primary target takes weapon damage + **10d8 damage**. Additional targets take only printed weapon damage. | — |
-| **11** | Active | 48 m | — | Instant | Make **one ranged weapon attack** against a primary target. You may declare up to **6 additional targets** within range. Each additional target requires **+1 Raise**. Primary target takes weapon damage + **10d8 damage**. Additional targets take only printed weapon damage. | — |
-| **12** | Active | 52 m | — | Instant | Make **one ranged weapon attack** against a primary target. You may declare up to **6 additional targets** within range. Each additional target requires **+1 Raise**. Primary target takes weapon damage + **12d8 damage**. Additional targets take only printed weapon damage. | — |
-| **13** | Active | 56 m | — | Instant | Make **one ranged weapon attack** against a primary target. You may declare up to **7 additional targets** within range. Each additional target requires **+1 Raise**. Primary target takes weapon damage + **12d8 damage**. Additional targets take only printed weapon damage. | — |
-| **14** | Active | 60 m | — | Instant | Make **one ranged weapon attack** against a primary target. You may declare up to **7 additional targets** within range. Each additional target requires **+1 Raise**. Primary target takes weapon damage + **14d8 damage**. Additional targets take only printed weapon damage. | — |
-| **15** | Active | 64 m | — | Instant | Make **one ranged weapon attack** against a primary target. You may declare up to **8 additional targets** within range. Each additional target requires **+1 Raise**. Primary target takes weapon damage + **14d8 damage**. Additional targets take only printed weapon damage. | — |
-| **16** | Active | 68 m | — | Instant | Make **one ranged weapon attack** against a primary target. You may declare up to **8 additional targets** within range. Each additional target requires **+1 Raise**. Primary target takes weapon damage + **16d8 damage**. Additional targets take only printed weapon damage. | — |
+| **1** | Active | 8 m | — | Instant | Autofire up to **2 targets**. Each next target must be within **4 m** of the previous target. Make one Attack Roll and check it against each target's Evade in order; the first miss ends the chain. Every hit takes weapon damage. | — |
+| **2** | Active | 12 m | — | Instant | Autofire up to **2 targets**. Each next target must be within **4 m** of the previous target. Make one Attack Roll and check it against each target's Evade in order; the first miss ends the chain. Every hit takes weapon damage + **1d8 damage**. | — |
+| **3** | Active | 16 m | — | Instant | Autofire up to **3 targets**. Each next target must be within **4 m** of the previous target. Make one Attack Roll and check it against each target's Evade in order; the first miss ends the chain. Every hit takes weapon damage + **1d8 damage**. | — |
+| **4** | Active | 20 m | — | Instant | Autofire up to **3 targets**. Each next target must be within **4 m** of the previous target. Make one Attack Roll and check it against each target's Evade in order; the first miss ends the chain. Every hit takes weapon damage + **2d8 damage**. | — |
+| **5** | Active | 24 m | — | Instant | Autofire up to **4 targets**. Each next target must be within **4 m** of the previous target. Make one Attack Roll and check it against each target's Evade in order; the first miss ends the chain. Every hit takes weapon damage + **2d8 damage**. | — |
+| **6** | Active | 28 m | — | Instant | Autofire up to **4 targets**. Each next target must be within **4 m** of the previous target. Make one Attack Roll and check it against each target's Evade in order; the first miss ends the chain. Every hit takes weapon damage + **4d8 damage**. | — |
+| **7** | Active | 32 m | — | Instant | Autofire up to **5 targets**. Each next target must be within **4 m** of the previous target. Make one Attack Roll and check it against each target's Evade in order; the first miss ends the chain. Every hit takes weapon damage + **4d8 damage**. | — |
+| **8** | Active | 36 m | — | Instant | Autofire up to **5 targets**. Each next target must be within **4 m** of the previous target. Make one Attack Roll and check it against each target's Evade in order; the first miss ends the chain. Every hit takes weapon damage + **5d8 damage**. | — |
+| **9** | Active | 40 m | — | Instant | Autofire up to **6 targets**. Each next target must be within **4 m** of the previous target. Make one Attack Roll and check it against each target's Evade in order; the first miss ends the chain. Every hit takes weapon damage + **5d8 damage**. | — |
+| **10** | Active | 44 m | — | Instant | Autofire up to **6 targets**. Each next target must be within **4 m** of the previous target. Make one Attack Roll and check it against each target's Evade in order; the first miss ends the chain. Every hit takes weapon damage + **6d8 damage**. | — |
+| **11** | Active | 48 m | — | Instant | Autofire up to **7 targets**. Each next target must be within **4 m** of the previous target. Make one Attack Roll and check it against each target's Evade in order; the first miss ends the chain. Every hit takes weapon damage + **6d8 damage**. | — |
+| **12** | Active | 52 m | — | Instant | Autofire up to **7 targets**. Each next target must be within **4 m** of the previous target. Make one Attack Roll and check it against each target's Evade in order; the first miss ends the chain. Every hit takes weapon damage + **8d8 damage**. | — |
+| **13** | Active | 56 m | — | Instant | Autofire up to **8 targets**. Each next target must be within **4 m** of the previous target. Make one Attack Roll and check it against each target's Evade in order; the first miss ends the chain. Every hit takes weapon damage + **8d8 damage**. | — |
+| **14** | Active | 60 m | — | Instant | Autofire up to **8 targets**. Each next target must be within **4 m** of the previous target. Make one Attack Roll and check it against each target's Evade in order; the first miss ends the chain. Every hit takes weapon damage + **9d8 damage**. | — |
+| **15** | Active | 64 m | — | Instant | Autofire up to **9 targets**. Each next target must be within **4 m** of the previous target. Make one Attack Roll and check it against each target's Evade in order; the first miss ends the chain. Every hit takes weapon damage + **9d8 damage**. | — |
+| **16** | Active | 68 m | — | Instant | Autofire up to **9 targets**. Each next target must be within **4 m** of the previous target. Make one Attack Roll and check it against each target's Evade in order; the first miss ends the chain. Every hit takes weapon damage + **11d8 damage**. | — |
 
-
-
+---
 }}
-
 \page
 {{pageNumber,auto}}
 {{wide
+## Targeted Diminishing Specials
 
-## Smite Actives
+**Exorcism(X)** and **Requiem(X)** are separate Diminishing Specials with the same pricing:
 
-Smite is not part of the freely selectable Active Power catalogue.
+- **Exorcism(X):** can be applied only to a creature with the **Fiend** tag.
+- **Requiem(X):** can be applied only to a creature with the **Undead** tag.
+- **Cost:** Start PP **2 × T(X)**.
+- **Tick:** at the start of the affected creature's Turn, take **X damage**, then reduce X by 1.
+- **Stacking:** normal Diminishing stacking.
+- **Cleanse:** Yes.
+- Their Tick damage ignores Armor unless a rule explicitly says otherwise.
 
-In Destroyed Faith, demons, undead, possessed creatures, and divine-tainted enemies are too central to the campaign for broad anti-tag bonus damage to be priced as a normal restricted-target discount.
-
-Smite may appear on artifacts, relics, divine weapons, vows, blessings, or major story rewards.
-
-
----
-:
-### Smite Rule
-
-**Smite(X)** adds **+Xd8 bonus damage** when the attack hits a valid Smite target.
-
-By default, valid Smite targets are:
-
-- **Undead**
-- **Fiends**
-
-Smite has no effect against creatures without a valid Smite tag.
-
-Smite is not a Diminishing Special.
-
-Smite is not a Timed Special.
-
-Smite is an **Instant Effect**.
-
-
+A creature without the required tag cannot receive the Special at all.
 
 ---
-:
-### Smite and Other Techniques
-
-Smite can be used on:
-
-- Melee Attacks
-- Ranged Attacks
-- AoE Attacks
-- Split-Attacks
-- Autofire
-
-If Smite is applied through **AoE** or **Autofire**, use the same payload restrictions as other multi-target techniques.
-
-Smite is only applied to a target if:
-
-1. the target is actually hit or affected by the technique,
-2. the target has a valid Smite tag,
-3. and the Power's payload includes Smite.
-
-Smite does not trigger against invalid targets.
-
 }}
-
 \page
 {{pageNumber,auto}}
 {{wide
-
----
-:
-<h3 id="melee-smite-attack">
-  Melee Smite Attack
+<h3 id="melee-targeted-special-attack">
+  Melee Targeted Special Attack
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
       Active curve = 30 PP per level<br>
-      Melee Range = Melee Reach<br>
-      No Range cost<br>
-      Smite = 7.5 PP per +1d8 conditional damage<br><br>
-
-      SCALING RULE<br>
-      This is a Smite-first Martial Active.<br>
-      The attack uses normal weapon damage as its delivery method.<br>
-      Smite is the full purchased payload.<br>
-      Smite only adds damage against valid Smite targets, usually Undead and Fiends.<br>
-      Against invalid targets, this Power is only a normal weapon attack.<br><br>
-
-      CALCULATION<br>
-      L1 → Target 30 PP: Smite(4) = 30 PP<br>
-      L2 → Target 60 PP: Smite(8) = 60 PP<br>
-      L3 → Target 90 PP: Smite(12) = 90 PP<br>
-      L4 → Target 120 PP: Smite(16) = 120 PP<br>
-      L5 → Target 150 PP: Smite(20) = 150 PP<br>
-      L6 → Target 180 PP: Smite(24) = 180 PP<br>
-      L7 → Target 210 PP: Smite(28) = 210 PP<br>
-      L8 → Target 240 PP: Smite(32) = 240 PP<br>
-      L9 → Target 270 PP: Smite(36) = 270 PP<br>
-      L10 → Target 300 PP: Smite(40) = 300 PP<br>
-      L11 → Target 330 PP: Smite(44) = 330 PP<br>
-      L12 → Target 360 PP: Smite(48) = 360 PP<br>
-      L13 → Target 390 PP: Smite(52) = 390 PP<br>
-      L14 → Target 420 PP: Smite(56) = 420 PP<br>
-      L15 → Target 450 PP: Smite(60) = 450 PP<br>
-      L16 → Target 480 PP: Smite(64) = 480 PP<br><br>
-
-      NOTES<br>
-      Smite is allowed to scale higher than normal damage because it is conditional damage.<br>
-      It only works against valid enemy types.<br>
-      This Power does not add extra normal damage, Penetration, Critical, or a Diminishing Special.
+      Exorcism(X) and Requiem(X) each use Start PP 2 × T(X)<br>
+      Weapon Damage is the baseline delivery and is not priced again<br>
+<br>      DESIGN STRUCTURE<br>
+      Choose either Exorcism or Requiem when the Power is built. That choice is fixed for that Power.<br>
+      Exorcism can be applied only to Fiends. Requiem can be applied only to Undead.<br>
+      An invalid creature may still take the attack's Weapon Damage if hit, but it cannot receive the chosen targeted Special.<br>
+<br>      LEVEL-BY-LEVEL CALCULATION<br>
+      L1 → Target 30 PP: Targeted Special(5) (30) = 30 PP<br>
+      L2 → Target 60 PP: Targeted Special(7) (56) = 56 PP<br>
+      L3 → Target 90 PP: Targeted Special(9) (90) = 90 PP<br>
+      L4 → Target 120 PP: Targeted Special(10) (110) = 110 PP<br>
+      L5 → Target 150 PP: Targeted Special(11) (132) = 132 PP<br>
+      L6 → Target 180 PP: Targeted Special(12) (156) = 156 PP<br>
+      L7 → Target 210 PP: Targeted Special(14) (210) = 210 PP<br>
+      L8 → Target 240 PP: Targeted Special(15) (240) = 240 PP<br>
+      L9 → Target 270 PP: Targeted Special(15) (240) = 240 PP<br>
+      L10 → Target 300 PP: Targeted Special(16) (272) = 272 PP<br>
+      L11 → Target 330 PP: Targeted Special(17) (306) = 306 PP<br>
+      L12 → Target 360 PP: Targeted Special(18) (342) = 342 PP<br>
+      L13 → Target 390 PP: Targeted Special(19) (380) = 380 PP<br>
+      L14 → Target 420 PP: Targeted Special(20) (420) = 420 PP<br>
+      L15 → Target 450 PP: Targeted Special(20) (420) = 420 PP<br>
+      L16 → Target 480 PP: Targeted Special(21) (462) = 462 PP<br>
+<br>      NOTES<br>
+      These Specials deal ongoing Special damage at Tick and therefore do not create a cheaper direct-damage-dice axis.<br>
+      Armor does not reduce their Tick damage unless a rule explicitly says otherwise.
     </span>
   </span>
 </h3>
 
-A melee weapon attack that burns enemies marked by death, corruption, or divine opposition.
+A targeted weapon strike against one supernatural creature type.
 
 ---
 :
@@ -7034,90 +6375,66 @@ A melee weapon attack that burns enemies marked by death, corruption, or divine 
 :
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
 |:--:|:--|:--:|:--:|:--:|:--|:--|
-| **1** | Active | Melee Reach | — | Instant | Make one melee attack. On hit, deal weapon damage. | **Smite(4)** |
-| **2** | Active | Melee Reach | — | Instant | Make one melee attack. On hit, deal weapon damage. | **Smite(8)** |
-| **3** | Active | Melee Reach | — | Instant | Make one melee attack. On hit, deal weapon damage. | **Smite(12)** |
-| **4** | Active | Melee Reach | — | Instant | Make one melee attack. On hit, deal weapon damage. | **Smite(16)** |
-| **5** | Active | Melee Reach | — | Instant | Make one melee attack. On hit, deal weapon damage. | **Smite(20)** |
-| **6** | Active | Melee Reach | — | Instant | Make one melee attack. On hit, deal weapon damage. | **Smite(24)** |
-| **7** | Active | Melee Reach | — | Instant | Make one melee attack. On hit, deal weapon damage. | **Smite(28)** |
-| **8** | Active | Melee Reach | — | Instant | Make one melee attack. On hit, deal weapon damage. | **Smite(32)** |
-| **9** | Active | Melee Reach | — | Instant | Make one melee attack. On hit, deal weapon damage. | **Smite(36)** |
-| **10** | Active | Melee Reach | — | Instant | Make one melee attack. On hit, deal weapon damage. | **Smite(40)** |
-| **11** | Active | Melee Reach | — | Instant | Make one melee attack. On hit, deal weapon damage. | **Smite(44)** |
-| **12** | Active | Melee Reach | — | Instant | Make one melee attack. On hit, deal weapon damage. | **Smite(48)** |
-| **13** | Active | Melee Reach | — | Instant | Make one melee attack. On hit, deal weapon damage. | **Smite(52)** |
-| **14** | Active | Melee Reach | — | Instant | Make one melee attack. On hit, deal weapon damage. | **Smite(56)** |
-| **15** | Active | Melee Reach | — | Instant | Make one melee attack. On hit, deal weapon damage. | **Smite(60)** |
-| **16** | Active | Melee Reach | — | Instant | Make one melee attack. On hit, deal weapon damage. | **Smite(64)** |
-
-
+| **1** | Active | Melee Reach | — | Instant | Make one weapon attack. On hit, deal weapon damage. If the target qualifies, it also gains the chosen targeted Special. | **Exorcism(5)** or **Requiem(5)** |
+| **2** | Active | Melee Reach | — | Instant | Make one weapon attack. On hit, deal weapon damage. If the target qualifies, it also gains the chosen targeted Special. | **Exorcism(7)** or **Requiem(7)** |
+| **3** | Active | Melee Reach | — | Instant | Make one weapon attack. On hit, deal weapon damage. If the target qualifies, it also gains the chosen targeted Special. | **Exorcism(9)** or **Requiem(9)** |
+| **4** | Active | Melee Reach | — | Instant | Make one weapon attack. On hit, deal weapon damage. If the target qualifies, it also gains the chosen targeted Special. | **Exorcism(10)** or **Requiem(10)** |
+| **5** | Active | Melee Reach | — | Instant | Make one weapon attack. On hit, deal weapon damage. If the target qualifies, it also gains the chosen targeted Special. | **Exorcism(11)** or **Requiem(11)** |
+| **6** | Active | Melee Reach | — | Instant | Make one weapon attack. On hit, deal weapon damage. If the target qualifies, it also gains the chosen targeted Special. | **Exorcism(12)** or **Requiem(12)** |
+| **7** | Active | Melee Reach | — | Instant | Make one weapon attack. On hit, deal weapon damage. If the target qualifies, it also gains the chosen targeted Special. | **Exorcism(14)** or **Requiem(14)** |
+| **8** | Active | Melee Reach | — | Instant | Make one weapon attack. On hit, deal weapon damage. If the target qualifies, it also gains the chosen targeted Special. | **Exorcism(15)** or **Requiem(15)** |
+| **9** | Active | Melee Reach | — | Instant | Make one weapon attack. On hit, deal weapon damage. If the target qualifies, it also gains the chosen targeted Special. | **Exorcism(15)** or **Requiem(15)** |
+| **10** | Active | Melee Reach | — | Instant | Make one weapon attack. On hit, deal weapon damage. If the target qualifies, it also gains the chosen targeted Special. | **Exorcism(16)** or **Requiem(16)** |
+| **11** | Active | Melee Reach | — | Instant | Make one weapon attack. On hit, deal weapon damage. If the target qualifies, it also gains the chosen targeted Special. | **Exorcism(17)** or **Requiem(17)** |
+| **12** | Active | Melee Reach | — | Instant | Make one weapon attack. On hit, deal weapon damage. If the target qualifies, it also gains the chosen targeted Special. | **Exorcism(18)** or **Requiem(18)** |
+| **13** | Active | Melee Reach | — | Instant | Make one weapon attack. On hit, deal weapon damage. If the target qualifies, it also gains the chosen targeted Special. | **Exorcism(19)** or **Requiem(19)** |
+| **14** | Active | Melee Reach | — | Instant | Make one weapon attack. On hit, deal weapon damage. If the target qualifies, it also gains the chosen targeted Special. | **Exorcism(20)** or **Requiem(20)** |
+| **15** | Active | Melee Reach | — | Instant | Make one weapon attack. On hit, deal weapon damage. If the target qualifies, it also gains the chosen targeted Special. | **Exorcism(20)** or **Requiem(20)** |
+| **16** | Active | Melee Reach | — | Instant | Make one weapon attack. On hit, deal weapon damage. If the target qualifies, it also gains the chosen targeted Special. | **Exorcism(21)** or **Requiem(21)** |
 
 ---
-:
-<h3 id="ranged-smite-attack">
-  Ranged Smite Attack
+}}
+\page
+{{pageNumber,auto}}
+{{wide
+<h3 id="ranged-targeted-special-attack">
+  Ranged Targeted Special Attack
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
       Active curve = 30 PP per level<br>
-      Ranged version uses printed Range<br>
-      Range progression = +4 m per level<br>
-      Range cost = +5 PP per +4 m after 8 m<br>
-      Smite = 7.5 PP per +1d8 conditional damage<br><br>
-
-      RANGE COSTS<br>
-      8 m = 0 PP<br>
-      12 m = 5 PP<br>
-      16 m = 10 PP<br>
-      20 m = 15 PP<br>
-      24 m = 20 PP<br>
-      28 m = 25 PP<br>
-      32 m = 30 PP<br>
-      36 m = 35 PP<br>
-      40 m = 40 PP<br>
-      44 m = 45 PP<br>
-      48 m = 50 PP<br>
-      52 m = 55 PP<br>
-      56 m = 60 PP<br>
-      60 m = 65 PP<br>
-      64 m = 70 PP<br>
-      68 m = 75 PP<br><br>
-
-      SCALING RULE<br>
-      This is a ranged Smite-first Martial Active.<br>
-      Range is paid every level.<br>
-      Smite is the full purchased payload after Range cost.<br>
-      The attack uses normal weapon damage as its delivery method.<br>
-      Smite only adds damage against valid Smite targets, usually Undead and Fiends.<br><br>
-
-      CALCULATION<br>
-      L1 → Target 30 PP: Range 8 m (0) + Smite(4) (30) = 30 PP<br>
-      L2 → Target 60 PP: Range 12 m (5) + Smite(7) (52.5) = 57.5 PP<br>
-      L3 → Target 90 PP: Range 16 m (10) + Smite(10) (75) = 85 PP<br>
-      L4 → Target 120 PP: Range 20 m (15) + Smite(14) (105) = 120 PP<br>
-      L5 → Target 150 PP: Range 24 m (20) + Smite(17) (127.5) = 147.5 PP<br>
-      L6 → Target 180 PP: Range 28 m (25) + Smite(20) (150) = 175 PP<br>
-      L7 → Target 210 PP: Range 32 m (30) + Smite(24) (180) = 210 PP<br>
-      L8 → Target 240 PP: Range 36 m (35) + Smite(27) (202.5) = 237.5 PP<br>
-      L9 → Target 270 PP: Range 40 m (40) + Smite(30) (225) = 265 PP<br>
-      L10 → Target 300 PP: Range 44 m (45) + Smite(34) (255) = 300 PP<br>
-      L11 → Target 330 PP: Range 48 m (50) + Smite(37) (277.5) = 327.5 PP<br>
-      L12 → Target 360 PP: Range 52 m (55) + Smite(40) (300) = 355 PP<br>
-      L13 → Target 390 PP: Range 56 m (60) + Smite(44) (330) = 390 PP<br>
-      L14 → Target 420 PP: Range 60 m (65) + Smite(47) (352.5) = 417.5 PP<br>
-      L15 → Target 450 PP: Range 64 m (70) + Smite(50) (375) = 445 PP<br>
-      L16 → Target 480 PP: Range 68 m (75) + Smite(54) (405) = 480 PP<br><br>
-
-      NOTES<br>
-      The Ranged version has lower Smite values than the Melee version because it pays Range every level.<br>
-      Smite is conditional damage and only works against valid enemy types.<br>
-      Against invalid targets, this Power is only a normal ranged weapon attack.
+      Exorcism(X) and Requiem(X) each use Start PP 2 × T(X)<br>
+      Weapon Damage is the baseline delivery and is not priced again<br>
+      Range progression = +4 m per level; Range cost = +5 PP per +4 m after 8 m<br>
+<br>      DESIGN STRUCTURE<br>
+      Choose either Exorcism or Requiem when the Power is built. That choice is fixed for that Power.<br>
+      Exorcism can be applied only to Fiends. Requiem can be applied only to Undead.<br>
+      An invalid creature may still take the attack's Weapon Damage if hit, but it cannot receive the chosen targeted Special.<br>
+<br>      LEVEL-BY-LEVEL CALCULATION<br>
+      L1 → Target 30 PP: Range 8 m (0) + Targeted Special(5) (30) = 30 PP<br>
+      L2 → Target 60 PP: Range 12 m (5) + Targeted Special(6) (42) = 47 PP<br>
+      L3 → Target 90 PP: Range 16 m (10) + Targeted Special(8) (72) = 82 PP<br>
+      L4 → Target 120 PP: Range 20 m (15) + Targeted Special(9) (90) = 105 PP<br>
+      L5 → Target 150 PP: Range 24 m (20) + Targeted Special(10) (110) = 130 PP<br>
+      L6 → Target 180 PP: Range 28 m (25) + Targeted Special(11) (132) = 157 PP<br>
+      L7 → Target 210 PP: Range 32 m (30) + Targeted Special(12) (156) = 186 PP<br>
+      L8 → Target 240 PP: Range 36 m (35) + Targeted Special(13) (182) = 217 PP<br>
+      L9 → Target 270 PP: Range 40 m (40) + Targeted Special(14) (210) = 250 PP<br>
+      L10 → Target 300 PP: Range 44 m (45) + Targeted Special(15) (240) = 285 PP<br>
+      L11 → Target 330 PP: Range 48 m (50) + Targeted Special(16) (272) = 322 PP<br>
+      L12 → Target 360 PP: Range 52 m (55) + Targeted Special(16) (272) = 327 PP<br>
+      L13 → Target 390 PP: Range 56 m (60) + Targeted Special(17) (306) = 366 PP<br>
+      L14 → Target 420 PP: Range 60 m (65) + Targeted Special(18) (342) = 407 PP<br>
+      L15 → Target 450 PP: Range 64 m (70) + Targeted Special(19) (380) = 450 PP<br>
+      L16 → Target 480 PP: Range 68 m (75) + Targeted Special(19) (380) = 455 PP<br>
+<br>      NOTES<br>
+      These Specials deal ongoing Special damage at Tick and therefore do not create a cheaper direct-damage-dice axis.<br>
+      Armor does not reduce their Tick damage unless a rule explicitly says otherwise.
     </span>
   </span>
 </h3>
 
-A ranged weapon attack that carries judgment into distant unholy targets.
+A targeted weapon strike against one supernatural creature type.
 
 ---
 :
@@ -7127,182 +6444,169 @@ A ranged weapon attack that carries judgment into distant unholy targets.
 :
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
 |:--:|:--|:--:|:--:|:--:|:--|:--|
-| **1** | Active | 8 m | — | Instant | Make one ranged attack. On hit, deal weapon damage. | **Smite(4)** |
-| **2** | Active | 12 m | — | Instant | Make one ranged attack. On hit, deal weapon damage. | **Smite(7)** |
-| **3** | Active | 16 m | — | Instant | Make one ranged attack. On hit, deal weapon damage. | **Smite(10)** |
-| **4** | Active | 20 m | — | Instant | Make one ranged attack. On hit, deal weapon damage. | **Smite(14)** |
-| **5** | Active | 24 m | — | Instant | Make one ranged attack. On hit, deal weapon damage. | **Smite(17)** |
-| **6** | Active | 28 m | — | Instant | Make one ranged attack. On hit, deal weapon damage. | **Smite(20)** |
-| **7** | Active | 32 m | — | Instant | Make one ranged attack. On hit, deal weapon damage. | **Smite(24)** |
-| **8** | Active | 36 m | — | Instant | Make one ranged attack. On hit, deal weapon damage. | **Smite(27)** |
-| **9** | Active | 40 m | — | Instant | Make one ranged attack. On hit, deal weapon damage. | **Smite(30)** |
-| **10** | Active | 44 m | — | Instant | Make one ranged attack. On hit, deal weapon damage. | **Smite(34)** |
-| **11** | Active | 48 m | — | Instant | Make one ranged attack. On hit, deal weapon damage. | **Smite(37)** |
-| **12** | Active | 52 m | — | Instant | Make one ranged attack. On hit, deal weapon damage. | **Smite(40)** |
-| **13** | Active | 56 m | — | Instant | Make one ranged attack. On hit, deal weapon damage. | **Smite(44)** |
-| **14** | Active | 60 m | — | Instant | Make one ranged attack. On hit, deal weapon damage. | **Smite(47)** |
-| **15** | Active | 64 m | — | Instant | Make one ranged attack. On hit, deal weapon damage. | **Smite(50)** |
-| **16** | Active | 68 m | — | Instant | Make one ranged attack. On hit, deal weapon damage. | **Smite(54)** |
-
-}}
-
-\page
-{{pageNumber,auto}}
-{{wide
-
-## Ranged AoE Smite Attack
-
-> **Design Rule:** Smite is a limited-target damage rider.  
-> Smite Damage only affects valid supernatural enemies, such as Demons, Undead, Fiends, Possessed, Divine-Tainted, Unholy, or Cursed creatures, if defined by the GM.
-
-> **Balance Rule:** Because Smite only works against valid tagged enemies, Smite Damage costs **7.5 PP per +1d8**.  
-> However, because these enemy types are common in Destroyed Faith, the AoE version is tightly restricted:
-> - Maximum Radius: **3 m**
-> - Maximum Range: **32 m**
+| **1** | Active | 8 m | — | Instant | Make one weapon attack. On hit, deal weapon damage. If the target qualifies, it also gains the chosen targeted Special. | **Exorcism(5)** or **Requiem(5)** |
+| **2** | Active | 12 m | — | Instant | Make one weapon attack. On hit, deal weapon damage. If the target qualifies, it also gains the chosen targeted Special. | **Exorcism(6)** or **Requiem(6)** |
+| **3** | Active | 16 m | — | Instant | Make one weapon attack. On hit, deal weapon damage. If the target qualifies, it also gains the chosen targeted Special. | **Exorcism(8)** or **Requiem(8)** |
+| **4** | Active | 20 m | — | Instant | Make one weapon attack. On hit, deal weapon damage. If the target qualifies, it also gains the chosen targeted Special. | **Exorcism(9)** or **Requiem(9)** |
+| **5** | Active | 24 m | — | Instant | Make one weapon attack. On hit, deal weapon damage. If the target qualifies, it also gains the chosen targeted Special. | **Exorcism(10)** or **Requiem(10)** |
+| **6** | Active | 28 m | — | Instant | Make one weapon attack. On hit, deal weapon damage. If the target qualifies, it also gains the chosen targeted Special. | **Exorcism(11)** or **Requiem(11)** |
+| **7** | Active | 32 m | — | Instant | Make one weapon attack. On hit, deal weapon damage. If the target qualifies, it also gains the chosen targeted Special. | **Exorcism(12)** or **Requiem(12)** |
+| **8** | Active | 36 m | — | Instant | Make one weapon attack. On hit, deal weapon damage. If the target qualifies, it also gains the chosen targeted Special. | **Exorcism(13)** or **Requiem(13)** |
+| **9** | Active | 40 m | — | Instant | Make one weapon attack. On hit, deal weapon damage. If the target qualifies, it also gains the chosen targeted Special. | **Exorcism(14)** or **Requiem(14)** |
+| **10** | Active | 44 m | — | Instant | Make one weapon attack. On hit, deal weapon damage. If the target qualifies, it also gains the chosen targeted Special. | **Exorcism(15)** or **Requiem(15)** |
+| **11** | Active | 48 m | — | Instant | Make one weapon attack. On hit, deal weapon damage. If the target qualifies, it also gains the chosen targeted Special. | **Exorcism(16)** or **Requiem(16)** |
+| **12** | Active | 52 m | — | Instant | Make one weapon attack. On hit, deal weapon damage. If the target qualifies, it also gains the chosen targeted Special. | **Exorcism(16)** or **Requiem(16)** |
+| **13** | Active | 56 m | — | Instant | Make one weapon attack. On hit, deal weapon damage. If the target qualifies, it also gains the chosen targeted Special. | **Exorcism(17)** or **Requiem(17)** |
+| **14** | Active | 60 m | — | Instant | Make one weapon attack. On hit, deal weapon damage. If the target qualifies, it also gains the chosen targeted Special. | **Exorcism(18)** or **Requiem(18)** |
+| **15** | Active | 64 m | — | Instant | Make one weapon attack. On hit, deal weapon damage. If the target qualifies, it also gains the chosen targeted Special. | **Exorcism(19)** or **Requiem(19)** |
+| **16** | Active | 68 m | — | Instant | Make one weapon attack. On hit, deal weapon damage. If the target qualifies, it also gains the chosen targeted Special. | **Exorcism(19)** or **Requiem(19)** |
 
 ---
-:
-
 }}
-
 \page
 {{pageNumber,auto}}
 {{wide
-<h3 id="ranged-aoe-smite-attack">
-  Ranged AoE Smite Attack
+<h3 id="melee-aoe-targeted-special-attack">
+  Melee AoE Targeted Special Attack
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
       Active curve = 30 PP per level<br>
-      Ranged AoE uses printed Range and Radius<br>
-      Range progression = +4 m per level, capped at 32 m<br>
-      Range cost = +5 PP per +4 m after 8 m<br>
-      Smite Damage = 7.5 PP per +1d8<br>
-      Maximum Radius = 3 m<br><br>
-
-      VALID SMITE TARGETS<br>
-      Smite Damage only affects creatures with a valid enemy tag, such as:<br>
-      Demon / Undead / Fiend / Possessed / Divine-Tainted / Unholy / Cursed, if defined by the GM.<br><br>
-
-      AOE ATTACK RULE<br>
-      Choose one valid creature inside the AoE as the Primary Target.<br>
-      Make one ranged attack roll against the Primary Target.<br>
-      On a hit, the Primary Target suffers Weapon Damage plus the listed Smite Damage.<br>
-      Secondary Targets inside the AoE suffer only the listed Smite Damage if they have a valid Smite tag.<br>
-      Secondary Targets do not suffer Weapon Damage unless another rule explicitly says so.<br>
-      If no Primary Target is chosen, all valid targets inside the AoE suffer only the listed Smite Damage.<br><br>
-
-      SECONDARY TARGET REACTION<br>
-      Before Secondary Target damage is applied, each Secondary Target may spend its Reaction to use Dive for Cover.<br>
-      It immediately moves up to 2 x Mastery Rank meters.<br>
-      If this movement takes it completely outside the AoE, it suffers no Secondary Target effect.<br>
-      If it remains inside the AoE, it suffers the Secondary Target effect normally.<br><br>
-
-      RANGE COSTS<br>
-      8 m = 0 PP<br>
-      12 m = 5 PP<br>
-      16 m = 10 PP<br>
-      20 m = 15 PP<br>
-      24 m = 20 PP<br>
-      28 m = 25 PP<br>
-      32 m = 30 PP<br><br>
-
-      AOE COSTS<br>
-      Radius 2 m = 20 PP<br>
-      Radius 3 m = 50 PP<br><br>
-
-      SMITE DAMAGE COSTS<br>
-      +1d8 = 7.5 PP<br>
-      +2d8 = 15 PP<br>
-      +3d8 = 22.5 PP<br>
-      +4d8 = 30 PP<br>
-      +5d8 = 37.5 PP<br>
-      +6d8 = 45 PP<br>
-      +8d8 = 60 PP<br>
-      +10d8 = 75 PP<br>
-      +12d8 = 90 PP<br>
-      +16d8 = 120 PP<br>
-      +20d8 = 150 PP<br>
-      +24d8 = 180 PP<br>
-      +28d8 = 210 PP<br>
-      +32d8 = 240 PP<br>
-      +36d8 = 270 PP<br>
-      +40d8 = 300 PP<br>
-      +44d8 = 330 PP<br>
-      +48d8 = 360 PP<br>
-      +52d8 = 390 PP<br>
-      +56d8 = 420 PP<br><br>
-
-      SCALING RULE<br>
-      This is a Smite-first Ranged AoE Attack.<br>
-      Range is paid first, up to a maximum of 32 m.<br>
-      Radius is paid second, up to a maximum of Radius 3 m.<br>
-      Remaining PP is spent into Smite Damage.<br>
-      Range, Radius, and Smite Damage may stay the same or increase, but they may never decrease.<br>
-      After Range and Radius reach their caps, only Smite Damage continues to scale.<br><br>
-
-      CALCULATION<br>
-      L1 → Target 30 PP: Range 8 m (0) + Radius 2 m (20) + Smite +1d8 (7.5) = 27.5 PP<br>
-      L2 → Target 60 PP: Range 12 m (5) + Radius 2 m (20) + Smite +4d8 (30) = 55 PP<br>
-      L3 → Target 90 PP: Range 16 m (10) + Radius 2 m (20) + Smite +8d8 (60) = 90 PP<br>
-      L4 → Target 120 PP: Range 20 m (15) + Radius 3 m (50) + Smite +7d8 (52.5) = 117.5 PP<br>
-      L5 → Target 150 PP: Range 24 m (20) + Radius 3 m (50) + Smite +10d8 (75) = 145 PP<br>
-      L6 → Target 180 PP: Range 28 m (25) + Radius 3 m (50) + Smite +14d8 (105) = 180 PP<br>
-      L7 → Target 210 PP: Range 32 m (30) + Radius 3 m (50) + Smite +17d8 (127.5) = 207.5 PP<br>
-      L8 → Target 240 PP: Range 32 m (30) + Radius 3 m (50) + Smite +21d8 (157.5) = 237.5 PP<br>
-      L9 → Target 270 PP: Range 32 m (30) + Radius 3 m (50) + Smite +25d8 (187.5) = 267.5 PP<br>
-      L10 → Target 300 PP: Range 32 m (30) + Radius 3 m (50) + Smite +29d8 (217.5) = 297.5 PP<br>
-      L11 → Target 330 PP: Range 32 m (30) + Radius 3 m (50) + Smite +33d8 (247.5) = 327.5 PP<br>
-      L12 → Target 360 PP: Range 32 m (30) + Radius 3 m (50) + Smite +37d8 (277.5) = 357.5 PP<br>
-      L13 → Target 390 PP: Range 32 m (30) + Radius 3 m (50) + Smite +41d8 (307.5) = 387.5 PP<br>
-      L14 → Target 420 PP: Range 32 m (30) + Radius 3 m (50) + Smite +45d8 (337.5) = 417.5 PP<br>
-      L15 → Target 450 PP: Range 32 m (30) + Radius 3 m (50) + Smite +49d8 (367.5) = 447.5 PP<br>
-      L16 → Target 480 PP: Range 32 m (30) + Radius 3 m (50) + Smite +53d8 (397.5) = 477.5 PP<br><br>
-
-      NOTES<br>
-      Radius is intentionally capped at 3 m.<br>
-      Range is intentionally capped at 32 m.<br>
-      This prevents Smite from becoming a large battlefield-clearing AoE.<br>
-      Secondary Targets receive only Smite Damage and may use Dive for Cover.<br>
-      This Power is strong against the correct enemies, but narrow in area and range.
+      Exorcism(X) and Requiem(X) each use Start PP 2 × T(X)<br>
+      Weapon Damage is the baseline delivery and is not priced again<br>
+      Instant Attack AoE costs: Radius 1/2/3/4/5/6/7/8 m = 0/20/50/80/120/165/220/280 PP<br>
+<br>      DESIGN STRUCTURE<br>
+      Choose either Exorcism or Requiem when the Power is built. That choice is fixed for that Power.<br>
+      Exorcism can be applied only to Fiends. Requiem can be applied only to Undead.<br>
+      An invalid creature may still take the attack's Weapon Damage if hit, but it cannot receive the chosen targeted Special.<br>
+      AoE uses one Attack Roll checked separately against each creature's Evade. Every hit receives full Weapon Damage; qualifying targets also receive the full targeted Special. Dive for Cover applies normally.<br>
+<br>      LEVEL-BY-LEVEL CALCULATION<br>
+      L1 → Target 30 PP: Radius 2 m (20) + Targeted Special(2) (6) = 26 PP<br>
+      L2 → Target 60 PP: Radius 2 m (20) + Targeted Special(5) (30) = 50 PP<br>
+      L3 → Target 90 PP: Radius 3 m (50) + Targeted Special(5) (30) = 80 PP<br>
+      L4 → Target 120 PP: Radius 3 m (50) + Targeted Special(7) (56) = 106 PP<br>
+      L5 → Target 150 PP: Radius 4 m (80) + Targeted Special(7) (56) = 136 PP<br>
+      L6 → Target 180 PP: Radius 4 m (80) + Targeted Special(9) (90) = 170 PP<br>
+      L7 → Target 210 PP: Radius 5 m (120) + Targeted Special(9) (90) = 210 PP<br>
+      L8 → Target 240 PP: Radius 5 m (120) + Targeted Special(9) (90) = 210 PP<br>
+      L9 → Target 270 PP: Radius 6 m (165) + Targeted Special(9) (90) = 255 PP<br>
+      L10 → Target 300 PP: Radius 6 m (165) + Targeted Special(10) (110) = 275 PP<br>
+      L11 → Target 330 PP: Radius 7 m (220) + Targeted Special(10) (110) = 330 PP<br>
+      L12 → Target 360 PP: Radius 7 m (220) + Targeted Special(10) (110) = 330 PP<br>
+      L13 → Target 390 PP: Radius 8 m (280) + Targeted Special(10) (110) = 390 PP<br>
+      L14 → Target 420 PP: Radius 8 m (280) + Targeted Special(11) (132) = 412 PP<br>
+      L15 → Target 450 PP: Radius 8 m (280) + Targeted Special(12) (156) = 436 PP<br>
+      L16 → Target 480 PP: Radius 8 m (280) + Targeted Special(13) (182) = 462 PP<br>
+<br>      NOTES<br>
+      These Specials deal ongoing Special damage at Tick and therefore do not create a cheaper direct-damage-dice axis.<br>
+      Armor does not reduce their Tick damage unless a rule explicitly says otherwise.
     </span>
   </span>
 </h3>
 
-A compact ranged area Smite attack that burns supernatural enemies inside a small blast.
-
+A targeted area attack against one supernatural creature type.
 
 ---
 :
+**Requirement:** Melee Weapon or Unarmed
 
-
+---
+:
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
 |:--:|:--|:--:|:--:|:--:|:--|:--|
-| **1** | Active | 8 m | Radius 2 m | Instant | Make one ranged attack against the Primary Target. On hit, the Primary Target takes Weapon Damage plus **+1d8 Smite Damage**. Secondary Targets with a valid Smite tag take **+1d8 Smite Damage**. | Smite |
-| **2** | Active | 12 m | Radius 2 m | Instant | Make one ranged attack against the Primary Target. On hit, the Primary Target takes Weapon Damage plus **+4d8 Smite Damage**. Secondary Targets with a valid Smite tag take **+4d8 Smite Damage**. | Smite |
-| **3** | Active | 16 m | Radius 2 m | Instant | Make one ranged attack against the Primary Target. On hit, the Primary Target takes Weapon Damage plus **+8d8 Smite Damage**. Secondary Targets with a valid Smite tag take **+8d8 Smite Damage**. | Smite |
-| **4** | Active | 20 m | Radius 3 m | Instant | Make one ranged attack against the Primary Target. On hit, the Primary Target takes Weapon Damage plus **+7d8 Smite Damage**. Secondary Targets with a valid Smite tag take **+7d8 Smite Damage**. | Smite |
-| **5** | Active | 24 m | Radius 3 m | Instant | Make one ranged attack against the Primary Target. On hit, the Primary Target takes Weapon Damage plus **+10d8 Smite Damage**. Secondary Targets with a valid Smite tag take **+10d8 Smite Damage**. | Smite |
-| **6** | Active | 28 m | Radius 3 m | Instant | Make one ranged attack against the Primary Target. On hit, the Primary Target takes Weapon Damage plus **+14d8 Smite Damage**. Secondary Targets with a valid Smite tag take **+14d8 Smite Damage**. | Smite |
-| **7** | Active | 32 m | Radius 3 m | Instant | Make one ranged attack against the Primary Target. On hit, the Primary Target takes Weapon Damage plus **+17d8 Smite Damage**. Secondary Targets with a valid Smite tag take **+17d8 Smite Damage**. | Smite |
-| **8** | Active | 32 m | Radius 3 m | Instant | Make one ranged attack against the Primary Target. On hit, the Primary Target takes Weapon Damage plus **+21d8 Smite Damage**. Secondary Targets with a valid Smite tag take **+21d8 Smite Damage**. | Smite |
-| **9** | Active | 32 m | Radius 3 m | Instant | Make one ranged attack against the Primary Target. On hit, the Primary Target takes Weapon Damage plus **+25d8 Smite Damage**. Secondary Targets with a valid Smite tag take **+25d8 Smite Damage**. | Smite |
-| **10** | Active | 32 m | Radius 3 m | Instant | Make one ranged attack against the Primary Target. On hit, the Primary Target takes Weapon Damage plus **+29d8 Smite Damage**. Secondary Targets with a valid Smite tag take **+29d8 Smite Damage**. | Smite |
-| **11** | Active | 32 m | Radius 3 m | Instant | Make one ranged attack against the Primary Target. On hit, the Primary Target takes Weapon Damage plus **+33d8 Smite Damage**. Secondary Targets with a valid Smite tag take **+33d8 Smite Damage**. | Smite |
-| **12** | Active | 32 m | Radius 3 m | Instant | Make one ranged attack against the Primary Target. On hit, the Primary Target takes Weapon Damage plus **+37d8 Smite Damage**. Secondary Targets with a valid Smite tag take **+37d8 Smite Damage**. | Smite |
-| **13** | Active | 32 m | Radius 3 m | Instant | Make one ranged attack against the Primary Target. On hit, the Primary Target takes Weapon Damage plus **+41d8 Smite Damage**. Secondary Targets with a valid Smite tag take **+41d8 Smite Damage**. | Smite |
-| **14** | Active | 32 m | Radius 3 m | Instant | Make one ranged attack against the Primary Target. On hit, the Primary Target takes Weapon Damage plus **+45d8 Smite Damage**. Secondary Targets with a valid Smite tag take **+45d8 Smite Damage**. | Smite |
-| **15** | Active | 32 m | Radius 3 m | Instant | Make one ranged attack against the Primary Target. On hit, the Primary Target takes Weapon Damage plus **+49d8 Smite Damage**. Secondary Targets with a valid Smite tag take **+49d8 Smite Damage**. | Smite |
-| **16** | Active | 32 m | Radius 3 m | Instant | Make one ranged attack against the Primary Target. On hit, the Primary Target takes Weapon Damage plus **+53d8 Smite Damage**. Secondary Targets with a valid Smite tag take **+53d8 Smite Damage**. | Smite |
+| **1** | Active | Self | Radius 2 m | Instant | Make one AoE weapon attack. Every creature hit takes weapon damage. Qualifying targets also gain the chosen targeted Special. | **Exorcism(2)** or **Requiem(2)** |
+| **2** | Active | Self | Radius 2 m | Instant | Make one AoE weapon attack. Every creature hit takes weapon damage. Qualifying targets also gain the chosen targeted Special. | **Exorcism(5)** or **Requiem(5)** |
+| **3** | Active | Self | Radius 3 m | Instant | Make one AoE weapon attack. Every creature hit takes weapon damage. Qualifying targets also gain the chosen targeted Special. | **Exorcism(5)** or **Requiem(5)** |
+| **4** | Active | Self | Radius 3 m | Instant | Make one AoE weapon attack. Every creature hit takes weapon damage. Qualifying targets also gain the chosen targeted Special. | **Exorcism(7)** or **Requiem(7)** |
+| **5** | Active | Self | Radius 4 m | Instant | Make one AoE weapon attack. Every creature hit takes weapon damage. Qualifying targets also gain the chosen targeted Special. | **Exorcism(7)** or **Requiem(7)** |
+| **6** | Active | Self | Radius 4 m | Instant | Make one AoE weapon attack. Every creature hit takes weapon damage. Qualifying targets also gain the chosen targeted Special. | **Exorcism(9)** or **Requiem(9)** |
+| **7** | Active | Self | Radius 5 m | Instant | Make one AoE weapon attack. Every creature hit takes weapon damage. Qualifying targets also gain the chosen targeted Special. | **Exorcism(9)** or **Requiem(9)** |
+| **8** | Active | Self | Radius 5 m | Instant | Make one AoE weapon attack. Every creature hit takes weapon damage. Qualifying targets also gain the chosen targeted Special. | **Exorcism(9)** or **Requiem(9)** |
+| **9** | Active | Self | Radius 6 m | Instant | Make one AoE weapon attack. Every creature hit takes weapon damage. Qualifying targets also gain the chosen targeted Special. | **Exorcism(9)** or **Requiem(9)** |
+| **10** | Active | Self | Radius 6 m | Instant | Make one AoE weapon attack. Every creature hit takes weapon damage. Qualifying targets also gain the chosen targeted Special. | **Exorcism(10)** or **Requiem(10)** |
+| **11** | Active | Self | Radius 7 m | Instant | Make one AoE weapon attack. Every creature hit takes weapon damage. Qualifying targets also gain the chosen targeted Special. | **Exorcism(10)** or **Requiem(10)** |
+| **12** | Active | Self | Radius 7 m | Instant | Make one AoE weapon attack. Every creature hit takes weapon damage. Qualifying targets also gain the chosen targeted Special. | **Exorcism(10)** or **Requiem(10)** |
+| **13** | Active | Self | Radius 8 m | Instant | Make one AoE weapon attack. Every creature hit takes weapon damage. Qualifying targets also gain the chosen targeted Special. | **Exorcism(10)** or **Requiem(10)** |
+| **14** | Active | Self | Radius 8 m | Instant | Make one AoE weapon attack. Every creature hit takes weapon damage. Qualifying targets also gain the chosen targeted Special. | **Exorcism(11)** or **Requiem(11)** |
+| **15** | Active | Self | Radius 8 m | Instant | Make one AoE weapon attack. Every creature hit takes weapon damage. Qualifying targets also gain the chosen targeted Special. | **Exorcism(12)** or **Requiem(12)** |
+| **16** | Active | Self | Radius 8 m | Instant | Make one AoE weapon attack. Every creature hit takes weapon damage. Qualifying targets also gain the chosen targeted Special. | **Exorcism(13)** or **Requiem(13)** |
 
-
-
+---
 }}
-
 \page
 {{pageNumber,auto}}
 {{wide
+<h3 id="ranged-aoe-targeted-special-attack">
+  Ranged AoE Targeted Special Attack
+  <span class="tooltip">🛈
+    <span class="tooltiptext">
+      BASELINES<br>
+      Active curve = 30 PP per level<br>
+      Exorcism(X) and Requiem(X) each use Start PP 2 × T(X)<br>
+      Weapon Damage is the baseline delivery and is not priced again<br>
+      Range progression = +4 m per level; Range cost = +5 PP per +4 m after 8 m<br>
+      Instant Attack AoE costs: Radius 1/2/3/4/5/6/7/8 m = 0/20/50/80/120/165/220/280 PP<br>
+<br>      DESIGN STRUCTURE<br>
+      Choose either Exorcism or Requiem when the Power is built. That choice is fixed for that Power.<br>
+      Exorcism can be applied only to Fiends. Requiem can be applied only to Undead.<br>
+      An invalid creature may still take the attack's Weapon Damage if hit, but it cannot receive the chosen targeted Special.<br>
+      AoE uses one Attack Roll checked separately against each creature's Evade. Every hit receives full Weapon Damage; qualifying targets also receive the full targeted Special. Dive for Cover applies normally.<br>
+<br>      LEVEL-BY-LEVEL CALCULATION<br>
+      L1 → Target 30 PP: Range 8 m (0) + Radius 2 m (20) + Targeted Special(2) (6) = 26 PP<br>
+      L2 → Target 60 PP: Range 12 m (5) + Radius 2 m (20) + Targeted Special(5) (30) = 55 PP<br>
+      L3 → Target 90 PP: Range 16 m (10) + Radius 3 m (50) + Targeted Special(5) (30) = 90 PP<br>
+      L4 → Target 120 PP: Range 20 m (15) + Radius 3 m (50) + Targeted Special(6) (42) = 107 PP<br>
+      L5 → Target 150 PP: Range 24 m (20) + Radius 4 m (80) + Targeted Special(6) (42) = 142 PP<br>
+      L6 → Target 180 PP: Range 28 m (25) + Radius 4 m (80) + Targeted Special(7) (56) = 161 PP<br>
+      L7 → Target 210 PP: Range 32 m (30) + Radius 5 m (120) + Targeted Special(7) (56) = 206 PP<br>
+      L8 → Target 240 PP: Range 36 m (35) + Radius 5 m (120) + Targeted Special(7) (56) = 211 PP<br>
+      L9 → Target 270 PP: Range 40 m (40) + Radius 6 m (165) + Targeted Special(7) (56) = 261 PP<br>
+      L10 → Target 300 PP: Range 44 m (45) + Radius 6 m (165) + Targeted Special(7) (56) = 266 PP<br>
+      L11 → Target 330 PP: Range 48 m (50) + Radius 7 m (220) + Targeted Special(7) (56) = 326 PP<br>
+      L12 → Target 360 PP: Range 52 m (55) + Radius 7 m (220) + Targeted Special(8) (72) = 347 PP<br>
+      L13 → Target 390 PP: Range 56 m (60) + Radius 7 m (220) + Targeted Special(8) (72) = 352 PP<br>
+      L14 → Target 420 PP: Range 60 m (65) + Radius 8 m (280) + Targeted Special(8) (72) = 417 PP<br>
+      L15 → Target 450 PP: Range 64 m (70) + Radius 8 m (280) + Targeted Special(9) (90) = 440 PP<br>
+      L16 → Target 480 PP: Range 68 m (75) + Radius 8 m (280) + Targeted Special(10) (110) = 465 PP<br>
+<br>      NOTES<br>
+      These Specials deal ongoing Special damage at Tick and therefore do not create a cheaper direct-damage-dice axis.<br>
+      Armor does not reduce their Tick damage unless a rule explicitly says otherwise.
+    </span>
+  </span>
+</h3>
 
+A targeted area attack against one supernatural creature type.
+
+---
+:
+**Requirement:** Ranged Weapon or Thrown Weapon
+
+---
+:
+| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
+|:--:|:--|:--:|:--:|:--:|:--|:--|
+| **1** | Active | 8 m | Radius 2 m | Instant | Make one AoE weapon attack. Every creature hit takes weapon damage. Qualifying targets also gain the chosen targeted Special. | **Exorcism(2)** or **Requiem(2)** |
+| **2** | Active | 12 m | Radius 2 m | Instant | Make one AoE weapon attack. Every creature hit takes weapon damage. Qualifying targets also gain the chosen targeted Special. | **Exorcism(5)** or **Requiem(5)** |
+| **3** | Active | 16 m | Radius 3 m | Instant | Make one AoE weapon attack. Every creature hit takes weapon damage. Qualifying targets also gain the chosen targeted Special. | **Exorcism(5)** or **Requiem(5)** |
+| **4** | Active | 20 m | Radius 3 m | Instant | Make one AoE weapon attack. Every creature hit takes weapon damage. Qualifying targets also gain the chosen targeted Special. | **Exorcism(6)** or **Requiem(6)** |
+| **5** | Active | 24 m | Radius 4 m | Instant | Make one AoE weapon attack. Every creature hit takes weapon damage. Qualifying targets also gain the chosen targeted Special. | **Exorcism(6)** or **Requiem(6)** |
+| **6** | Active | 28 m | Radius 4 m | Instant | Make one AoE weapon attack. Every creature hit takes weapon damage. Qualifying targets also gain the chosen targeted Special. | **Exorcism(7)** or **Requiem(7)** |
+| **7** | Active | 32 m | Radius 5 m | Instant | Make one AoE weapon attack. Every creature hit takes weapon damage. Qualifying targets also gain the chosen targeted Special. | **Exorcism(7)** or **Requiem(7)** |
+| **8** | Active | 36 m | Radius 5 m | Instant | Make one AoE weapon attack. Every creature hit takes weapon damage. Qualifying targets also gain the chosen targeted Special. | **Exorcism(7)** or **Requiem(7)** |
+| **9** | Active | 40 m | Radius 6 m | Instant | Make one AoE weapon attack. Every creature hit takes weapon damage. Qualifying targets also gain the chosen targeted Special. | **Exorcism(7)** or **Requiem(7)** |
+| **10** | Active | 44 m | Radius 6 m | Instant | Make one AoE weapon attack. Every creature hit takes weapon damage. Qualifying targets also gain the chosen targeted Special. | **Exorcism(7)** or **Requiem(7)** |
+| **11** | Active | 48 m | Radius 7 m | Instant | Make one AoE weapon attack. Every creature hit takes weapon damage. Qualifying targets also gain the chosen targeted Special. | **Exorcism(7)** or **Requiem(7)** |
+| **12** | Active | 52 m | Radius 7 m | Instant | Make one AoE weapon attack. Every creature hit takes weapon damage. Qualifying targets also gain the chosen targeted Special. | **Exorcism(8)** or **Requiem(8)** |
+| **13** | Active | 56 m | Radius 7 m | Instant | Make one AoE weapon attack. Every creature hit takes weapon damage. Qualifying targets also gain the chosen targeted Special. | **Exorcism(8)** or **Requiem(8)** |
+| **14** | Active | 60 m | Radius 8 m | Instant | Make one AoE weapon attack. Every creature hit takes weapon damage. Qualifying targets also gain the chosen targeted Special. | **Exorcism(8)** or **Requiem(8)** |
+| **15** | Active | 64 m | Radius 8 m | Instant | Make one AoE weapon attack. Every creature hit takes weapon damage. Qualifying targets also gain the chosen targeted Special. | **Exorcism(9)** or **Requiem(9)** |
+| **16** | Active | 68 m | Radius 8 m | Instant | Make one AoE weapon attack. Every creature hit takes weapon damage. Qualifying targets also gain the chosen targeted Special. | **Exorcism(10)** or **Requiem(10)** |
+
+---
+}}
+\page
+{{pageNumber,auto}}
+{{wide
 ## Mental Powers
 
 Mental Powers affect thought, perception, emotion, memory, or the mind itself.

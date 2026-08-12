@@ -294,11 +294,15 @@ export interface PowerMechanics {
 
   /**
    * Declares this power as Autofire. This is an attack *mode*, not a Special:
-   * it does not appear in the Raise-Special catalog. The attacker makes one
-   * attack roll against a primary target and may declare up to `extraTargets`
-   * additional targets at the cost of +1 Raise each.
+   * it does not appear in the Raise-Special catalog. Before rolling, declare an
+   * ordered chain of up to `1 + extraTargets` creatures. Every target after the
+   * first must be within 4 m of the previous target and within Range. One
+   * Attack Roll is compared against each target's Evade in order; the first
+   * miss ends the chain. No Raises are required for target count. Every hit
+   * receives the full printed payload. Dive for Cover cannot be used.
    */
   autofire?: {
+    /** Maximum additional targets after the first (Autofire(X) = X). */
     extraTargets: number;
   };
 

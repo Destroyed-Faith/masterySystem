@@ -142,7 +142,7 @@ export function getMasteryRank(actor) {
  * Get evade value from target actor
  * Uses evadeTotal if available (includes shield bonus), otherwise falls back to base evade
  */
-function getTargetEvade(targetActor) {
+export function getTargetEvade(targetActor) {
     if (!targetActor || !targetActor.system)
         return 6; // Default
     const system = targetActor.system;
@@ -152,7 +152,7 @@ function getTargetEvade(targetActor) {
     return base + buffBonus;
 }
 /** Spell Resistance from Ward passives + active buffs + Intellect stone (vs Spell-tagged Powers). */
-function getTargetSpellResistance(targetActor) {
+export function getTargetSpellResistance(targetActor) {
     if (!targetActor?.system)
         return 0;
     const combat = targetActor.system.combat ?? {};
@@ -179,7 +179,7 @@ function weaponHasFinesse(weapon) {
  * Determine which attribute to use for attack rolls.
  * - Spells: casting attribute on the item / option.
  * - Weapons with Finesse (incl. artifact Free Trait): Agility for To-Hit —
- *   also for weapon-carried attack powers (Melee Single Attack, Smite, …),
+ *   also for weapon-carried attack powers (Melee Single Attack, Targeted Special, …),
  *   where it beats the mastery-tree default (rules: "Attack Roll uses Agility").
  * - Powers: attribute from mastery tree / spell school (`system.tree`) via fixed list; if unknown tree, fall back to `roll.attribute`.
  * - Otherwise: Might for melee, Agility for ranged (weapon or maneuver).
@@ -222,6 +222,8 @@ export function getAttackAttribute(_actor, weapon, option, attackType) {
  * Create a melee or ranged attack chat card with roll button (Threatened Ranged for qualifying ranged attacks).
  */
 export async function createAttackCard(attackerToken, targetToken, option, attackType, split = null, burstVolley = null, aoeMelee = null) {
+    // Autofire is handled before createAttackCard (chain targeting → one card
+    // with autofireChainTokenIds). Do not treat it as Split-Attack.
     // Split-Attack dispatcher: when a power declares `mechanics.splitAttack`,
     // we recurse into two strikes sharing one attack action. Pool + damage are
     // halved per strike (floor — odd remainder falls off symmetrically).
@@ -322,11 +324,9 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
     let selectedPowerDamage = null;
     let tnKind = 'evade';
     let castingBaseTn = null;
-    // AoE Attacks roll once against the fixed Area TN = 8 × Source Mastery Rank
-    // and ignore individual Evade / Spell Resistance (Players Guide, Attack
-    // Sequence step 2). Detect bursts even before secondaries are confirmed.
-    const isAoeAttack = !!aoeMelee || option.burstMeleeAoE === true;
-    const areaTn = 8 * Math.max(1, masteryRank);
+    // AoE: one roll compared separately against each creature's Evade (martial)
+    // or Final Spell TN (spell). The card's display TN is the primary/anchor
+    // target; secondaries are checked independently after the roll.
     if (option.source === 'power' && option.item) {
         selectedPowerId = option.item.id;
         const powerSystem = option.item.system || {};
@@ -362,18 +362,10 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
         tnKind = 'casting';
         castingBaseTn = 8 * Math.max(1, masteryRank) + getTargetSpellResistance(target);
     }
-    /** Whether the underlying power is a spell (kept for damage riders / raises). */
-    const powerWasSpell = tnKind === 'casting';
-    // Area TN overrides Evade AND Casting TN for AoE attacks.
-    if (isAoeAttack) {
-        tnKind = 'area';
-    }
-    /** Normal TN (Area, Casting or Evade) — unchanged by declared raises. */
-    const normalTn = tnKind === 'area'
-        ? areaTn
-        : tnKind === 'casting' && castingBaseTn != null
-            ? castingBaseTn
-            : targetEvadeFromActor;
+    /** Normal TN for the card's anchor target — unchanged by declared raises. */
+    const normalTn = tnKind === 'casting' && castingBaseTn != null
+        ? castingBaseTn
+        : targetEvadeFromActor;
     const baseEvade = normalTn;
     let raiseContext = null;
     if (option.source === 'power' && option.item && !isNpcAttack) {
@@ -467,9 +459,15 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
         meleeBurstVolleyId: burstVolley?.volleyId ?? null,
         meleeBurstVolleyIndex: burstVolley?.volleyIndex ?? null,
         meleeBurstVolleyTotal: burstVolley?.volleyTotal ?? null,
-        aoeMeleeWeapon: !!(aoeMelee && (aoeMelee.secondaryTokenIds?.length ?? 0) > 0),
+        aoeMeleeWeapon: !!aoeMelee,
         aoeMeleeSecondaryTokenIds: aoeMelee && aoeMelee.secondaryTokenIds?.length ? aoeMelee.secondaryTokenIds.join(",") : "",
         aoeMeleePowerBonusDice: aoeMelee && aoeMelee.powerBonusDice > 0 ? Math.floor(aoeMelee.powerBonusDice) : 0,
+        // Autofire ordered chain (includes the card's primary as index 0).
+        autofire: Array.isArray(option.autofireChainTokenIds)
+            && option.autofireChainTokenIds.length > 0,
+        autofireChainTokenIds: Array.isArray(option.autofireChainTokenIds)
+            ? option.autofireChainTokenIds.map((id) => String(id)).join(',')
+            : '',
         threatenedRanged: tr.threatened,
         /** Rule can apply even when nobody is currently in reach (Phase 2 re-scan). */
         threatenedRangedAppliesRule: tr.appliesRule,
@@ -504,7 +502,10 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
                 : {}),
         tnKind,
         ...(castingBaseTn != null ? { castingBaseTn } : {}),
-        ...(tnKind === 'area' ? { areaTn } : {}),
+        /** Spell Base TN without this target's SR — used for per-creature Spell AoE checks. */
+        ...(tnKind === 'casting' && castingBaseTn != null
+            ? { spellBaseTn: castingBaseTn - getTargetSpellResistance(target) }
+            : {}),
         targetEvadeFromActor: tnKind !== 'evade' ? targetEvadeFromActor : undefined,
         halfEvadeVsInvisible: evadeVsInvisible.evadeMultiplier < 1,
     };
@@ -564,7 +565,7 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
         ? attackCardEsc(aoeMelee.secondaryTokenIds.join("|"))
         : "";
     const aoeDiceAttr = aoeMelee && aoeMelee.powerBonusDice > 0 ? String(Math.floor(aoeMelee.powerBonusDice)) : "0";
-    const aoeMeleeAttr = aoeMelee && aoeMelee.secondaryTokenIds?.length ? "1" : "0";
+    const aoeMeleeAttr = aoeMelee ? "1" : "0";
     const skipAwaitedHtml = fromReactionCounterattack
         ? `<button type="button" class="ms-skip-awaited-attack-btn" title="Skip this Counterattack and continue the original attack's damage">
         <i class="fas fa-forward"></i> Skip — continue original damage
@@ -610,7 +611,7 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
           </select>
         </div>`
             : ''}
-      ${tnKind === 'casting' || (tnKind === 'area' && powerWasSpell)
+      ${tnKind === 'casting'
             ? `<div class="blood-raises-row md-sublabel">
           Blood Raises (+4 roll each, −4 HP each):
           <input type="number" class="blood-raises-input" min="0" max="8" value="0" style="width:3em" />
@@ -620,11 +621,9 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
       <button type="button" class="add-raise-btn"><i class="fas fa-plus"></i> Add Raise</button>
     </div>`
         : '';
-    const raisesTitle = tnKind === 'area'
-        ? `Declare Raises before rolling. Each Raise adds +${RAISE_INCREMENT} to the Raise TN (Area TN stays ${normalTn}). Pay Raise Cost from the Power first.`
-        : tnKind === 'casting'
-            ? `Declare Raises before rolling. Each Raise adds +${RAISE_INCREMENT} to the Raise TN (Normal TN stays ${normalTn}). Pay Raise Cost from the Power first.`
-            : `Declare Raises before rolling. Each Raise adds +${RAISE_INCREMENT} to the Raise TN (Normal TN / Evade stays ${normalTn}). Pay Raise Cost from the Power first.`;
+    const raisesTitle = tnKind === 'casting'
+        ? `Declare Raises before rolling. Each Raise adds +${RAISE_INCREMENT} to the Raise TN (Normal TN stays ${normalTn}). Pay Raise Cost from the Power first.${aoeMelee ? ' AoE: the same roll is compared separately against each creature\'s Final Spell TN.' : ''}`
+        : `Declare Raises before rolling. Each Raise adds +${RAISE_INCREMENT} to the Raise TN (Normal TN / Evade stays ${normalTn}). Pay Raise Cost from the Power first.${aoeMelee ? ' AoE: the same roll is compared separately against each creature\'s Evade.' : ''}`;
     const content = `
     <div class="mastery-attack-card">
       <div class="attack-header">
@@ -648,21 +647,16 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
         ${tr.rollDisadvantage
         ? `<div class="detail-row"><span class="detail-label">Disadvantage:</span><span class="detail-value">Yes (Threatened Ranged)</span></div>`
         : ""}
-        ${tnKind === 'area'
+        ${tnKind === 'casting' && castingBaseTn != null
         ? `<div class="detail-row">
-          <span class="detail-label">Area TN:</span>
-          <span class="detail-value">${normalTn} (8 × Mastery Rank ${masteryRank}) — one roll, hits every target in the area</span>
-        </div>`
-        : tnKind === 'casting' && castingBaseTn != null
-            ? `<div class="detail-row">
-          <span class="detail-label">Casting TN:</span>
+          <span class="detail-label">${aoeMelee ? 'Anchor Final Spell TN' : 'Casting TN'}:</span>
           <span class="detail-value">${castingBaseTn}${npcIsSpell
-                ? ` (8 × Mastery Rank ${masteryRank})`
-                : ` (Power Level ${Math.max(1, Math.floor(Number(selectedPowerLevel) || 1))})`}</span>
+            ? ` (8 × Mastery Rank ${masteryRank})`
+            : ` (Power Level ${Math.max(1, Math.floor(Number(selectedPowerLevel) || 1))})`}${aoeMelee ? ' — each creature checked separately' : ''}</span>
         </div>`
-            : `<div class="detail-row">
-          <span class="detail-label">Target Evade:</span>
-          <span class="detail-value">${normalTn}${evadeVsInvisible.evadeMultiplier < 1 ? ' (half — failed Perception vs invisible attacker)' : ''}</span>
+        : `<div class="detail-row">
+          <span class="detail-label">${aoeMelee ? 'Anchor Evade' : 'Target Evade'}:</span>
+          <span class="detail-value">${normalTn}${evadeVsInvisible.evadeMultiplier < 1 ? ' (half — failed Perception vs invisible attacker)' : ''}${aoeMelee ? ' — each creature checked separately' : ''}</span>
         </div>`}
         ${weapon ? `<div class="detail-row"><span class="detail-label">Weapon:</span><span class="detail-value">${attackCardEsc(weapon.name)}</span></div>` : ""}
         ${innatesHtml}

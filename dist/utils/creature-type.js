@@ -1,7 +1,7 @@
 /**
- * Creature type helpers (Smite validity, NPC typing).
+ * Creature type helpers (Exorcism / Requiem validity, NPC typing).
  *
- * Smite(X) adds +Xd8 bonus damage only vs Undead / Fiends (Rules).
+ * Exorcism(X) applies only to Fiends; Requiem(X) only to Undead (Rules).
  * NPCs set `system.creatureType`; aliases like "Dämon" / "demon" map to fiend.
  */
 export const CREATURE_TYPE_OPTIONS = [
@@ -52,34 +52,21 @@ export function resolveCreatureType(actor) {
         return 'other';
     return raw;
 }
-/** True when Smite(X) bonus damage applies (Undead or Fiend). */
-export function isSmiteValidTarget(actor) {
-    const t = resolveCreatureType(actor);
-    return t === 'undead' || t === 'fiend';
+/** True when Exorcism(X) may be applied (Fiend only). */
+export function isExorcismValidTarget(actor) {
+    return resolveCreatureType(actor) === 'fiend';
 }
-/**
- * Sum Smite(X) ranks from special effect strings (e.g. "Smite(8)").
- * Instant rider — not a lasting status.
- */
-export function extractSmiteDice(specialStrings) {
-    let total = 0;
-    for (const raw of specialStrings) {
-        const s = String(raw ?? '').trim();
-        const m = s.match(/^smite\s*\((\d+)\)$/i);
-        if (m)
-            total += Math.max(0, Math.floor(Number(m[1]) || 0));
-    }
-    return total;
+/** True when Requiem(X) may be applied (Undead only). */
+export function isRequiemValidTarget(actor) {
+    return resolveCreatureType(actor) === 'undead';
 }
-/** Drop Smite entries so they are not written as lasting status effects. */
-export function stripSmiteSpecials(specialStrings) {
-    return specialStrings.filter((raw) => {
-        const s = String(raw ?? '').trim();
-        if (/^smite$/i.test(s))
-            return false;
-        if (/^smite\s*\(/i.test(s))
-            return false;
-        return true;
-    });
+/** Tag gate for a targeted Special id (`exorcism` / `requiem`). */
+export function isTargetedSpecialValidTarget(specialId, actor) {
+    const id = String(specialId ?? '').trim().toLowerCase();
+    if (id === 'exorcism')
+        return isExorcismValidTarget(actor);
+    if (id === 'requiem')
+        return isRequiemValidTarget(actor);
+    return true;
 }
 //# sourceMappingURL=creature-type.js.map

@@ -342,7 +342,7 @@ describe('buildPrintCombatPreview', () => {
         isSpell: true,
         castingAttribute: 'resolve',
         spellResolution: 'spellAttack',
-        powerTemplateId: 'active-ranged-aoe-smite-attack',
+        powerTemplateId: 'active-ranged-aoe-targeted-special',
       },
       [],
     );

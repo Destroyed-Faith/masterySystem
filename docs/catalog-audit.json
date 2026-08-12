@@ -1,8 +1,8 @@
 {
-  "version": "0.9.291",
-  "generatedAt": "2026-08-09T07:16:05.679Z",
+  "version": "0.9.298",
+  "generatedAt": "2026-08-12T08:09:22.192Z",
   "summary": {
-    "correct": 204,
+    "correct": 205,
     "corrected": 3,
     "missing": 0,
     "obsolete": 0,
@@ -62,6 +62,13 @@
       "category": "active",
       "id": "active-melee-aoe-heal",
       "name": "Melee AoE Heal",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "active",
+      "id": "active-melee-aoe-targeted-special",
+      "name": "Melee AoE Targeted Special Attack",
       "status": "correct",
       "notes": "Matches Rules entry"
     },
@@ -165,8 +172,8 @@
     },
     {
       "category": "active",
-      "id": "active-melee-smite-attack",
-      "name": "Melee Smite Attack",
+      "id": "active-melee-targeted-special",
+      "name": "Melee Targeted Special Attack",
       "status": "correct",
       "notes": "Matches Rules entry"
     },
@@ -256,8 +263,8 @@
     },
     {
       "category": "active",
-      "id": "active-ranged-aoe-smite-attack",
-      "name": "Ranged AoE Smite Attack",
+      "id": "active-ranged-aoe-targeted-special",
+      "name": "Ranged AoE Targeted Special Attack",
       "status": "correct",
       "notes": "Matches Rules entry"
     },
@@ -375,8 +382,8 @@
     },
     {
       "category": "active",
-      "id": "active-ranged-smite-attack",
-      "name": "Ranged Smite Attack",
+      "id": "active-ranged-targeted-special",
+      "name": "Ranged Targeted Special Attack",
       "status": "correct",
       "notes": "Matches Rules entry"
     },
@@ -574,7 +581,7 @@
       "id": "ab-smite-aura",
       "name": "Artifact Only Active Buff: Smite Aura",
       "status": "correct",
-      "notes": "Matches Rules entry"
+      "notes": "Matches curated RULES_EXPECTED manifest"
     },
     {
       "category": "activeBuff",

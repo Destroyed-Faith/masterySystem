@@ -25,18 +25,18 @@ const MOONLIGHT_GREATSWORD = {
     restriction: 'The Moonlight Greatsword occupies both hand Slots. A character with the Moonlight Greatsword cannot use another weapon, shield, hand focus, claw Artifact, or hand-based magical item at the same time.',
     baseValues: [
         { slot: 'a', label: 'Weapon Damage', note: '5d8 to 14d8 across levels (4d8 two-handed base + 1d8/level).' },
-        { slot: 'b', label: 'Weapon Special', note: 'Smite(4) from L4, Smite(8) from L7.' },
+        { slot: 'b', label: 'Weapon Special', note: 'Requiem(4) from L4, Requiem(8) from L7.' },
         { slot: 'c', label: 'Weapon Special', note: 'Expose(4) from L7, Expose(8) + True Moonlight at L10.' },
     ],
     // The three Level Progression lines are standard catalog Powers, only renamed:
     //   L1 Moonlight Mending  → Ranged Single-Target Heal (stages I/II/III @ L1/4/7),
-    //   L2 Moonlight Judgment → Ranged AoE Weapon Attack (Smite rides from Base Value B/C),
+    //   L2 Moonlight Judgment → Ranged AoE Targeted Special (Requiem),
     //   L3 Moonlight Shadow   → Damage Aura Active Buff (stages I/II/III @ L3/6/9).
     // The 1–9 rows are derived from these picks; only the bespoke L10 Ultimate
     // ("True Moonlight") is authored verbatim below.
     progressionPickSpecs: {
         1: { templateId: 'active-ranged-single-heal', name: 'Moonlight Mending' },
-        2: { templateId: 'active-ranged-aoe-smite-attack', name: 'Moonlight Judgment' },
+        2: { templateId: 'active-ranged-aoe-targeted-special', special: 'requiem', name: 'Moonlight Judgment' },
         3: { templateId: 'ab-damage-aura', name: 'Moonlight Shadow' },
     },
     levelProgression: [

@@ -71,7 +71,8 @@ export const MASTERY_STATUS_EFFECTS: MasteryStatusEffect[] = [
 
   { id: 'crit',         name: 'Crit',         img: ICON('explosion') },
   { id: 'penetration',  name: 'Penetration',  img: ICON('sword') },
-  { id: 'smite',        name: 'Smite',        img: ICON('holy-shield') },
+  { id: 'exorcism',     name: 'Exorcism',     img: ICON('holy-shield') },
+  { id: 'requiem',      name: 'Requiem',      img: ICON('skull') },
   { id: 'knockback',    name: 'Knockback',    img: ICON('direction') },
   { id: 'pull',         name: 'Pull',         img: ICON('pawprint') },
   { id: 'push',         name: 'Push',         img: ICON('direction') },

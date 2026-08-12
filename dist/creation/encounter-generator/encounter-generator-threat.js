@@ -24,22 +24,22 @@ export function buildThreatReport(party, plan, rng = Math.random) {
     const evades = party.members.map((m) => m.evade);
     const lowEvade = evades.length ? Math.min(...evades) : party.avgEvade;
     const highEvade = evades.length ? Math.max(...evades) : party.avgEvade;
-    // Direct rows roll vs Evade; AoE rows roll once vs the fixed
-    // Area TN = 8 × Source MR (Evade / Spell Resistance are ignored).
+    // Direct and AoE rows both compare against Evade. AoE uses one shared roll
+    // checked separately per creature — model expected hits with avg Evade and
+    // ~2 affected PCs (each checked independently).
     const directRows = cycle.filter((c) => !c.aoe);
     const aoeRows = cycle.filter((c) => !!c.aoe);
-    const areaTn = aoeRows.length ? 8 * Math.max(1, mr) : null;
     // Boss to-hit sample vs Evade (direct rows share one attack pool per phase).
     const attackDice = directRows[0]?.attackDiceCount ?? cycle[0]?.attackDiceCount ?? plan.boss.phases[0]?.attackDiceCount ?? 6;
     const totals = simulateAttackTotals(attackDice, mr, 2500, rng);
     const hitLow = hitRate(totals, lowEvade);
     const hitAvg = hitRate(totals, party.avgEvade);
     const hitHigh = hitRate(totals, highEvade);
-    // AoE to-hit sample vs Area TN — predictable, same vs every party.
+    // AoE to-hit sample vs average party Evade (per-creature check).
     let hitAoe = 0;
-    if (areaTn != null) {
+    if (aoeRows.length) {
         const aoeTotals = simulateAttackTotals(aoeRows[0].attackDiceCount, mr, 2500, rng);
-        hitAoe = hitRate(aoeTotals, areaTn);
+        hitAoe = hitRate(aoeTotals, party.avgEvade);
     }
     /** Hit chance of a cycle row vs the average PC. */
     const rowHit = (c) => (c.aoe ? hitAoe : hitAvg);
@@ -75,7 +75,7 @@ export function buildThreatReport(party, plan, rng = Math.random) {
     const burstDice = burstRows.length
         ? burstRows.reduce((a, c) => a + c.damageDiceCount, 0) / burstRows.length
         : avgDice;
-    const burstHit = burstRows === directRows || !areaTn ? hitAvg : hitAoe;
+    const burstHit = burstRows === directRows || !aoeRows.length ? hitAvg : hitAoe;
     const p90Total = quantile(totals, 0.9);
     const p90Hits = p90Total >= party.avgEvade ? damageActions : Math.round(damageActions * burstHit);
     const burstPerHitRaw = burstDice * EXPLODING_D8_MEAN * 1.3; // ~p90 of the dice
@@ -162,8 +162,8 @@ export function buildThreatReport(party, plan, rng = Math.random) {
         hitChanceLowEvade: pct(hitLow),
         hitChanceAvgEvade: pct(hitAvg),
         hitChanceHighEvade: pct(hitHigh),
-        areaTn,
-        hitChanceAreaTn: areaTn != null ? pct(hitAoe) : null,
+        areaTn: null,
+        hitChanceAreaTn: aoeRows.length ? pct(hitAoe) : null,
         expectedHitDamageRaw: round1(rawPerHit),
         expectedHitDamageAfterArmor: round1(afterArmorPerHit),
         persistentDamagePerRound: round1(persistentPerRound),

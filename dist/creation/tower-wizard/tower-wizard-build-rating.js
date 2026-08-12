@@ -32,7 +32,7 @@ const OFFENSIVE_ACTIVE_BUFFS = new Set([
 ]);
 const OFFENSIVE_SPECIALS = new Set([
     'lacerate', 'ruin', 'challenge', 'blight', 'corrode', 'expose',
-    'sundered', 'penetration', 'precision', 'smite', 'crit', 'soulburn',
+    'sundered', 'penetration', 'precision', 'exorcism', 'requiem', 'crit', 'soulburn',
 ]);
 const CONTROL_SPECIALS = new Set([
     'stunned', 'stun', 'prone', 'challenge', 'root', 'slow', 'disoriented',

@@ -332,10 +332,9 @@ export function buildPowerCycle(party, concept, perActionBudget, bossMr, options
     const share = persistentShare(specialId, concept.style);
     const drFraction = clamp(party.avgDrPct / 100, 0, 0.95);
     const attackDice = clamp(solveAttackDiceForHitRate(party.avgEvade, bossMr, hitTarget, 2, 16, 1200, rng), 2, 16);
-    // AoE attacks roll vs the fixed Area TN = 8 × Source MR (ignores Evade) —
-    // that keeps their hit chance predictable regardless of the party.
-    const areaTn = 8 * Math.max(1, bossMr);
-    const attackDiceAoe = clamp(solveAttackDiceForHitRate(areaTn, bossMr, hitTarget, 2, 16, 1200, rng), 2, 16);
+    // AoE attacks use one roll compared separately against each creature's Evade.
+    // Price AoE pools against the same party Evade target as direct attacks.
+    const attackDiceAoe = clamp(solveAttackDiceForHitRate(party.avgEvade, bossMr, hitTarget, 2, 16, 1200, rng), 2, 16);
     const entries = [];
     picks.forEach((pick, i) => {
         if (pick.isSummon) {
@@ -903,7 +902,7 @@ export const TARGETING_OPTIONS = [
     {
         value: 'aoe',
         label: 'AoE',
-        description: 'Flächenangriffe gegen mehrere Ziele — trifft oft gegen fixe Area TN statt Ausweichen.',
+        description: 'Flächenangriffe gegen mehrere Ziele — ein Wurf, pro Kreatur separat gegen Ausweichen.',
     },
     {
         value: 'mixed',

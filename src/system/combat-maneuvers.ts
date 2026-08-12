@@ -199,7 +199,7 @@ export const COMBAT_MANEUVERS: CombatManeuver[] = [
     category: "defensive-reaction",
     tags: ["reaction", "defensive", "movement", "basic", "basic-reaction"],
     effect:
-      "Trigger: an AoE Attack reaches its Area TN, before damage. Move up to **2 × Mastery Rank meters**. If you leave the area completely, you are not affected. This movement does not provoke movement-triggered Reactions.",
+      "Trigger: you would be hit by an AoE Attack after its shared roll is compared to your defense, before damage. Move up to **2 × Mastery Rank meters**. If you leave the area completely, you are not affected. This movement does not provoke movement-triggered Reactions.",
   },
 
   // ========================================

@@ -1,16 +1,17 @@
 /**
- * Melee weapon AoE — secondary target resolution.
+ * Martial / Spell AoE resolution — per-creature Evade (or Final Spell TN) checks
+ * with full printed payload on every remaining hit.
  *
- * Since the Area-TN rework the AoE roll hits every target in the area with a
- * single roll. Secondaries may spend their Reaction on **Dive for Cover**
- * (move up to 2 × own Mastery Rank meters; fully outside the area = not
- * affected). Targets that stay take the power splash dice, plus Hex/Sundered
- * vulnerability dice depending on whether the power was a spell.
+ * One shared Attack/Spell Roll is compared separately against each creature.
+ * A miss against one creature does not protect any other. Creatures that would
+ * be hit may use Dive for Cover before payload. Secondaries receive the same
+ * full payload as the primary (weapon + power damage + specials), not splash-only.
  */
 import { getActionEconomyActor, getRoundState, spendReactionAction, } from './action-economy.js';
-import { countNaturalEights } from './damage-mitigation.js';
+import { getTargetEvade, getTargetSpellResistance } from './attack-executor.js';
+import { RAISE_INCREMENT } from '../utils/constants.js';
 /** Resolve a burst token id to a canvas actor (handles scene / placeable quirks). */
-function resolveBurstTarget(tid) {
+export function resolveBurstTarget(tid) {
     const placeables = canvas?.tokens?.placeables ?? [];
     const p = placeables.find((t) => t?.id === tid || t?.document?.id === tid);
     if (p?.actor)
@@ -44,7 +45,7 @@ async function confirmSpendReaction(title, html) {
     return typeof globalThis !== 'undefined' && globalThis.confirm?.(`${title}\n\n${plain}`);
 }
 /**
- * @deprecated Legacy Body-save DC (pre Area-TN rules). Kept for old callers.
+ * @deprecated Legacy Body-save DC (pre per-Evade AoE rules). Kept for old callers.
  */
 export function aoeSecondaryBodySaveDc(masteryRank) {
     const r = Math.max(1, Math.min(6, Math.floor(Number(masteryRank) || 1)));
@@ -56,9 +57,9 @@ export function diveForCoverDistanceM(actor) {
     return mr * 2;
 }
 /**
- * Offer Dive for Cover to a creature inside a successful AoE (primary or
- * secondary target alike). Spends the Reaction, lets the table move the
- * token, and asks whether it ended up fully outside the area.
+ * Offer Dive for Cover to a creature that would be hit by an AoE.
+ * Spends the Reaction, lets the table move the token, and asks whether it
+ * ended up fully outside the area.
  *
  * @returns true when the creature escaped (→ not affected by the AoE).
  */
@@ -88,18 +89,190 @@ export async function promptDiveForCoverEscape(defender, tok) {
     });
     return outside;
 }
+/** Per-creature AoE defense TN (Evade or Final Spell TN) before Raise increments. */
+export function aoeCreatureNormalTn(params) {
+    if (params.isSpell) {
+        const base = Math.max(0, Math.floor(Number(params.spellBaseTn) || 0));
+        return base + getTargetSpellResistance(params.defender);
+    }
+    return getTargetEvade(params.defender);
+}
 /**
- * After the AoE roll reached the Area TN and primary damage is resolved:
- * every secondary is hit. Before the payload lands, each may spend a Reaction
- * on Dive for Cover (move up to 2 × own MR meters; fully outside = not
- * affected). Targets that stay take the splash dice + Hex/Sundered dice.
+ * Hit check for one creature against a shared AoE roll.
+ * Declared Raises add +4 per slot to that creature's TN (same as single-target).
+ */
+export function aoeCreatureHitCheck(params) {
+    const slots = Math.max(0, Math.floor(Number(params.declaredRaiseSlots) || 0));
+    const raiseTn = slots > 0 ? params.normalTn + slots * RAISE_INCREMENT : params.normalTn;
+    const total = Math.floor(Number(params.attackTotal) || 0);
+    return { hit: total >= params.normalTn, raiseTn };
+}
+/**
+ * Apply full printed payload to one AoE target via the normal damage dialog.
+ */
+export async function resolveAoeFullPayloadOnTarget(params) {
+    const { attacker, defender, tok, weaponId, flags, attackTotal, evadeTn, } = params;
+    const allowDive = params.allowDiveForCover !== false;
+    const combat = game.combat ?? null;
+    const { runInteractiveReactionWindow } = await import('./reaction-window-chat.js');
+    const phase1 = await runInteractiveReactionWindow({
+        defender,
+        attacker,
+        combat,
+        rawDamage: 0,
+        attackTotal,
+        evadeTn,
+        hit: true,
+        phase: 'defender',
+        isAoE: true,
+    });
+    let preDamage = phase1;
+    if (!phase1.mitigation?.negatedByEvade && !phase1.mitigation?.phasedByReaction) {
+        try {
+            preDamage = await runInteractiveReactionWindow({
+                defender,
+                attacker,
+                combat,
+                rawDamage: 0,
+                attackTotal,
+                evadeTn,
+                hit: true,
+                phase: 'allies',
+                eventId: phase1.eventId,
+                spentActorIds: phase1.spentActorIds,
+                used: phase1.used,
+                priorMitigation: phase1.mitigation,
+                silentIfEmpty: true,
+                isAoE: true,
+            });
+        }
+        catch {
+            /* ignore */
+        }
+    }
+    if (preDamage.mitigation?.negatedByEvade || preDamage.mitigation?.phasedByReaction) {
+        await ChatMessage.create({
+            user: game.user?.id,
+            speaker: ChatMessage.getSpeaker({ actor: defender, token: tok?.document }),
+            content: `<p><strong>AoE</strong> → <strong>${defender.name}</strong>: hit <strong>negated</strong> by reaction. No damage.</p>`,
+        });
+        return 'negated';
+    }
+    if (allowDive) {
+        const escaped = await promptDiveForCoverEscape(defender, tok);
+        if (escaped)
+            return 'escaped';
+    }
+    const targetFlags = {
+        ...flags,
+        targetId: defender.id,
+        targetTokenId: tok?.id ?? flags.targetTokenId,
+        attackTotal,
+        normalTn: evadeTn,
+        baseEvade: evadeTn,
+        targetEvade: evadeTn,
+        aoeMeleeWeapon: true,
+    };
+    const { showDamageDialog, applyDamageToTarget } = await import('../dice/damage-dialog.js');
+    const damageResult = await showDamageDialog(attacker, defender, weaponId, targetFlags.selectedPowerId || null, 0, targetFlags);
+    if (!damageResult)
+        return 'cancelled';
+    const details = Array.isArray(damageResult.rollDetails)
+        ? damageResult.rollDetails.map((l) => `<li>${String(l)}</li>`).join('')
+        : '';
+    const dmgMsg = await ChatMessage.create({
+        user: game.user?.id,
+        speaker: ChatMessage.getSpeaker({ actor: attacker }),
+        content: `<div class="mastery-system-damage"><h3><i class="fas fa-sword"></i> AoE Damage: ${damageResult.totalDamage}</h3>` +
+            (details ? `<ul class="mastery-damage-roll-list">${details}</ul>` : '') +
+            `<p><strong>Target:</strong> ${defender.name}</p><p><em>— applying…</em></p></div>`,
+        rolls: Array.isArray(damageResult.damageChatRolls)
+            ? damageResult.damageChatRolls
+                .map((r) => (typeof r?.toJSON === 'function' ? r.toJSON() : r))
+                .filter(Boolean)
+            : undefined,
+        sound: CONFIG.sounds.dice,
+    });
+    if (damageResult.pendingApply) {
+        let phasedOut = false;
+        try {
+            const { promptPhasingConsume, consumePhasingCharge } = await import('./phasing.js');
+            phasedOut = await promptPhasingConsume(defender, {
+                attacker,
+                rawDamage: damageResult.totalDamage,
+            });
+            if (phasedOut)
+                await consumePhasingCharge(defender);
+        }
+        catch {
+            phasedOut = false;
+        }
+        let mitLine = '';
+        if (phasedOut) {
+            mitLine = `Raw ${damageResult.totalDamage} → Phased (ignored)`;
+        }
+        else {
+            const mit = await applyDamageToTarget(defender, damageResult.totalDamage, attacker, damageResult.count8s ?? 0, {
+                attackTotal,
+                evadeTn,
+                reactionMitigation: preDamage.mitigation,
+                skipPhasing: true,
+                skipReactionPrompt: true,
+            });
+            mitLine = mit?.breakdownLine || `HP lost: ${mit?.barDamage ?? '?'}`;
+        }
+        try {
+            if (dmgMsg?.id) {
+                await dmgMsg.update({
+                    content: `<div class="mastery-system-damage"><h3><i class="fas fa-sword"></i> AoE Damage: ${damageResult.totalDamage}</h3>` +
+                        (details ? `<ul class="mastery-damage-roll-list">${details}</ul>` : '') +
+                        `<p><strong>Target:</strong> ${defender.name}</p><p>${mitLine}</p></div>`,
+                });
+            }
+        }
+        catch {
+            /* ignore */
+        }
+    }
+    try {
+        await runInteractiveReactionWindow({
+            defender,
+            attacker,
+            combat,
+            rawDamage: Math.max(0, Math.floor(Number(damageResult?.totalDamage) || 0)),
+            attackTotal,
+            evadeTn,
+            hit: true,
+            phase: 'others',
+            eventId: preDamage.eventId,
+            spentActorIds: preDamage.spentActorIds,
+            used: preDamage.used,
+            priorMitigation: preDamage.mitigation,
+            silentIfEmpty: true,
+            isAoE: true,
+        });
+    }
+    catch {
+        /* ignore */
+    }
+    return 'damaged';
+}
+/**
+ * After the shared AoE roll: resolve every secondary token with its own Evade /
+ * Final Spell TN check, Dive for Cover, and full payload.
+ *
+ * `powerBonusDice` is ignored for damage (full payload via damage dialog).
+ * Kept in the signature for call-site compatibility.
  */
 export async function resolveAoeMeleeSecondaries(params) {
-    const { attacker, secondaryTokenIds, powerBonusDice } = params;
+    const { attacker, secondaryTokenIds } = params;
     const isSpell = params.isSpell === true;
-    if (!secondaryTokenIds.length || powerBonusDice <= 0)
+    const attackTotal = Math.floor(Number(params.attackTotal) || 0);
+    const raiseSlots = Math.max(0, Math.floor(Number(params.declaredRaiseSlots) || 0));
+    const flags = { ...(params.flags || {}) };
+    const weaponId = params.weaponId ?? flags.weaponId ?? null;
+    if (!secondaryTokenIds.length)
         return;
-    const { getActiveSpecialValue } = await import('../system/active-specials.js');
     for (const tid of secondaryTokenIds) {
         const resolved = resolveBurstTarget(tid);
         if (!resolved?.defender) {
@@ -110,10 +283,6 @@ export async function resolveAoeMeleeSecondaries(params) {
             continue;
         }
         const { defender, tok } = resolved;
-        // ── Dive for Cover (Reaction) ────────────────────────────────────────
-        const escaped = await promptDiveForCoverEscape(defender, tok);
-        if (escaped)
-            continue;
         if (typeof defender.prepareDerivedData === 'function') {
             try {
                 defender.prepareDerivedData();
@@ -122,135 +291,62 @@ export async function resolveAoeMeleeSecondaries(params) {
                 /* ignore */
             }
         }
-        // Phase 1 — secondary target reacts before splash damage is rolled.
-        const combat = game.combat ?? null;
-        const { runInteractiveReactionWindow } = await import('./reaction-window-chat.js');
-        const phase1 = await runInteractiveReactionWindow({
+        const normalTn = aoeCreatureNormalTn({
             defender,
-            attacker,
-            combat,
-            rawDamage: 0,
-            attackTotal: params.attackTotal ?? null,
-            evadeTn: params.evadeTn ?? null,
-            hit: true,
-            phase: 'defender',
+            isSpell,
+            spellBaseTn: params.spellBaseTn ?? flags.spellBaseTn ?? null,
         });
-        let preDamage = phase1;
-        if (!phase1.mitigation?.negatedByEvade && !phase1.mitigation?.phasedByReaction) {
-            try {
-                preDamage = await runInteractiveReactionWindow({
-                    defender,
-                    attacker,
-                    combat,
-                    rawDamage: 0,
-                    attackTotal: params.attackTotal ?? null,
-                    evadeTn: params.evadeTn ?? null,
-                    hit: true,
-                    phase: 'allies',
-                    eventId: phase1.eventId,
-                    spentActorIds: phase1.spentActorIds,
-                    used: phase1.used,
-                    priorMitigation: phase1.mitigation,
-                    silentIfEmpty: true,
-                });
-            }
-            catch {
-                /* ignore */
-            }
-        }
-        if (preDamage.mitigation?.negatedByEvade || preDamage.mitigation?.phasedByReaction) {
+        const { hit, raiseTn } = aoeCreatureHitCheck({
+            attackTotal,
+            normalTn,
+            declaredRaiseSlots: raiseSlots,
+        });
+        if (!hit) {
             await ChatMessage.create({
                 user: game.user?.id,
-                speaker: ChatMessage.getSpeaker({ actor: defender, token: tok?.document }),
-                content: `<p><strong>AoE secondary</strong> → <strong>${defender.name}</strong>: hit <strong>negated</strong> by reaction. No damage.</p>`,
+                speaker: ChatMessage.getSpeaker({ actor: attacker }),
+                content: `<p><strong>AoE</strong> → <strong>${defender.name}</strong>: miss (roll ${attackTotal} vs ${isSpell ? 'Final Spell TN' : 'Evade'} ${normalTn}${raiseSlots > 0 ? `, Raise TN ${raiseTn}` : ''}).</p>`,
             });
             continue;
         }
-        // ── Hex / Sundered vulnerability (+1d8 per 2 points, rounded up) ─────
-        const vulnId = isSpell ? 'hex' : 'sundered';
-        const vulnValue = Math.max(0, getActiveSpecialValue(defender, vulnId));
-        const vulnDice = vulnValue > 0 ? Math.ceil(vulnValue / 2) : 0;
-        const totalDice = powerBonusDice + vulnDice;
-        const spec = `${totalDice}d8x`;
-        let total = 0;
-        let r = null;
-        try {
-            const RollCls = globalThis.Roll;
-            if (RollCls?.create) {
-                r = await RollCls.create(spec).evaluate({ async: true });
-                total = Math.max(0, Math.floor(Number(r?.total) || 0));
-            }
-        }
-        catch (err) {
-            console.warn('Mastery System | AoE secondary damage roll failed', spec, err);
-        }
-        const rollsArr = r ? [r] : [];
-        const c8 = countNaturalEights(rollsArr);
-        const vulnNote = vulnDice > 0
-            ? ` + ${vulnDice}d8 ${isSpell ? 'Hex' : 'Sundered'}(${vulnValue})`
-            : '';
-        // Post damage roll, then apply HP with Phase-1 mitigation, then ally phase.
-        const dmgMsg = await ChatMessage.create({
-            user: game.user?.id,
-            speaker: ChatMessage.getSpeaker({ actor: attacker }),
-            content: `<p><strong>AoE secondary</strong> → <strong>${defender.name}</strong>: ${total} (${powerBonusDice}d8 power${vulnNote}) <em>— applying…</em></p>`,
+        // Declared Raises raise each creature's TN; if the roll meets Normal TN but
+        // not Raise TN, still a hit without raise benefits — use partial flags.
+        const creatureFlags = {
+            ...flags,
+            raiseOutcome: raiseSlots > 0 && attackTotal < raiseTn
+                ? 'partial'
+                : flags.raiseOutcome === 'fail'
+                    ? 'partial'
+                    : flags.raiseOutcome || 'full',
+        };
+        await resolveAoeFullPayloadOnTarget({
+            attacker,
+            defender,
+            tok,
+            weaponId,
+            flags: creatureFlags,
+            attackTotal,
+            evadeTn: normalTn,
+            allowDiveForCover: true,
         });
-        let phasedOut = false;
-        try {
-            const { promptPhasingConsume, consumePhasingCharge } = await import('./phasing.js');
-            phasedOut = await promptPhasingConsume(defender, { attacker, rawDamage: total });
-            if (phasedOut)
-                await consumePhasingCharge(defender);
-        }
-        catch {
-            phasedOut = false;
-        }
-        let mitLine = '';
-        if (phasedOut) {
-            mitLine = `<p>Raw ${total} → Phased (ignored)</p>`;
-        }
-        else {
-            const { applyDamageToTargetFromAoe } = await import('../dice/damage-dialog.js');
-            const mit = await applyDamageToTargetFromAoe(defender, total, attacker, c8, {
-                attackTotal: params.attackTotal ?? null,
-                evadeTn: params.evadeTn ?? null,
-                reactionMitigation: preDamage.mitigation,
-                skipReactionPrompt: true,
-                skipPhasing: true,
-            });
-            mitLine = mit?.breakdownLine ? `<p>${mit.breakdownLine}</p>` : '';
-            try {
-                await runInteractiveReactionWindow({
-                    defender,
-                    attacker,
-                    combat,
-                    rawDamage: total,
-                    attackTotal: params.attackTotal ?? null,
-                    evadeTn: params.evadeTn ?? null,
-                    hit: true,
-                    damageMessageId: dmgMsg?.id ?? null,
-                    phase: 'others',
-                    eventId: preDamage.eventId,
-                    spentActorIds: preDamage.spentActorIds,
-                    used: preDamage.used,
-                    priorMitigation: preDamage.mitigation,
-                    silentIfEmpty: true,
-                });
-            }
-            catch (allyErr) {
-                console.warn('Mastery System | AoE secondary opportunity reaction window failed', allyErr);
-            }
-        }
-        try {
-            if (dmgMsg?.id) {
-                await dmgMsg.update({
-                    content: `<p><strong>AoE secondary</strong> → <strong>${defender.name}</strong>: ${total} (${powerBonusDice}d8 power${vulnNote}) ${mitLine}</p>`,
-                });
-            }
-        }
-        catch {
-            /* ignore */
-        }
     }
+}
+/**
+ * Resolve an entire AoE from a shared roll with no attack-card primary path
+ * (e.g. melee AoE with "no primary" / all secondaries).
+ */
+export async function resolveAoeFromSharedRoll(params) {
+    await resolveAoeMeleeSecondaries({
+        attacker: params.attacker,
+        attackerMasteryRank: 1,
+        secondaryTokenIds: params.tokenIds,
+        powerBonusDice: 0,
+        isSpell: params.isSpell,
+        attackTotal: params.attackTotal,
+        flags: params.flags,
+        weaponId: params.weaponId,
+        declaredRaiseSlots: params.declaredRaiseSlots,
+        spellBaseTn: params.spellBaseTn,
+    });
 }
 //# sourceMappingURL=aoe-melee-resolution.js.map

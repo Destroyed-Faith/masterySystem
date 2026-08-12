@@ -1674,7 +1674,7 @@ The Moonlight Greatsword is a two-handed Artifact Weapon forged from pale lunar 
 
 | Slot | Base Type | Artifact Functions | Binding |
 |---|---|---|---|
-| Main Hand + Off Hand | Two-Handed Weapon | Weapon Damage / Smite / Expose / Moonlight Functions | Bound |
+| Main Hand + Off Hand | Two-Handed Weapon | Weapon Damage / Requiem / Expose / Moonlight Functions | Bound |
 
 The Moonlight Greatsword occupies both hand Slots.
 A character with the Moonlight Greatsword cannot use another weapon, shield, hand focus, claw Artifact, or hand-based magical item at the same time. Moonlight Greatsword attacks may use **Might or Agility**.
@@ -1688,13 +1688,13 @@ A character with the Moonlight Greatsword cannot use another weapon, shield, han
 | Level 1 | 4d8 | — | — |
 | Level 2 | 5d8 | — | — |
 | Level 3 | 6d8 | — | — |
-| Level 4 | 8d8 | Smite(4) | — |
-| Level 5 | 9d8 | Smite(4) | — |
-| Level 6 | 10d8 | Smite(4) | — |
-| Level 7 | 12d8 | Smite(8) | Expose(4) |
-| Level 8 | 13d8 | Smite(8) | Expose(4) |
-| Level 9 | 14d8 | Smite(8) | Expose(4) |
-| Level 10 | 16d8 | Smite(8) | Expose(8), True Moonlight |
+| Level 4 | 8d8 | Requiem(4) | — |
+| Level 5 | 9d8 | Requiem(4) | — |
+| Level 6 | 10d8 | Requiem(4) | — |
+| Level 7 | 12d8 | Requiem(8) | Expose(4) |
+| Level 8 | 13d8 | Requiem(8) | Expose(4) |
+| Level 9 | 14d8 | Requiem(8) | Expose(4) |
+| Level 10 | 16d8 | Requiem(8) | Expose(8), True Moonlight |
 
 ---
 }}
@@ -1706,14 +1706,14 @@ A character with the Moonlight Greatsword cannot use another weapon, shield, han
 | **Artifact Level** | **Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
 |:--:|:--|:--|:--:|:--:|:--:|:--|:--|
 | **1** | **Moonlight Mending I** | Active | 20 m | - | Instant | Heal one creature for **10d8 HP**. | Restore **1 Health Level** per Safe Haven Rest. |
-| **2** | **Moonlight Judgment I** | Active | 20 m | Radius 3 m | Instant | Make one ranged attack against the Primary Target. On hit, the Primary Target takes Weapon Damage plus **+7d8 Smite Damage**. Secondary Targets with a valid Smite tag take **+7d8 Smite Damage**. | Smite |
-| **3** | **Moonlight Shadow I**¹ | Artifact Only Active Buff | Self | 2 m radius | Mastery Rank Rounds | At the end of each of your turns, enemies in the aura take **3d8 Smite**. | Smite Aura |
+| **2** | **Moonlight Judgment I** | Active | 20 m | Radius 3 m | Instant | Make one ranged AoE Attack Roll and compare it separately against the Evade of each creature in the radius. Every creature hit takes **Weapon Damage**. An **Undead** creature hit also gains **Requiem(6)**. Each creature that would be hit may use **Dive for Cover** before payload. | Requiem(6) |
+| **3** | **Moonlight Shadow I**¹ | Artifact Only Active Buff | Self | 2 m radius | Mastery Rank Rounds | Use the normal **Active Buff: Damage Aura** at **Power Level 4**. At the end of each of your turns, enemies in the aura take **3d8 damage**. | Damage Aura |
 | **4** | **Moonlight Mending II** | Active | 44 m | - | Instant | Heal one creature for **25d8 HP**. | Restore **2 Health Levels** per Safe Haven Rest. |
-| **5** | **Moonlight Judgment II** | Active | 32 m | Radius 3 m | Instant | Make one ranged attack against the Primary Target. On hit, the Primary Target takes Weapon Damage plus **+29d8 Smite Damage**. Secondary Targets with a valid Smite tag take **+29d8 Smite Damage**. | Smite |
-| **6** | **Moonlight Shadow II**¹ | Artifact Only Active Buff | Self | 3 m radius | Mastery Rank Rounds | At the end of each of your turns, enemies in the aura take **8d8 Smite**. | Smite Aura |
+| **5** | **Moonlight Judgment II** | Active | 32 m | Radius 3 m | Instant | Make one ranged AoE Attack Roll and compare it separately against the Evade of each creature in the radius. Every creature hit takes **Weapon Damage**. An **Undead** creature hit also gains **Requiem(14)**. Each creature that would be hit may use **Dive for Cover** before payload. | Requiem(14) |
+| **6** | **Moonlight Shadow II**¹ | Artifact Only Active Buff | Self | 3 m radius | Mastery Rank Rounds | Use the normal **Active Buff: Damage Aura** at **Power Level 10**. At the end of each of your turns, enemies in the aura take **7d8 damage**. | Damage Aura |
 | **7** | **Moonlight Mending III** | Active | 68 m | - | Instant | Heal one creature for **40d8 HP**. | Restore **4 Health Levels** per Safe Haven Rest. |
-| **8** | **Moonlight Judgment III** | Active | 32 m | Radius 3 m | Instant | Make one ranged attack against the Primary Target. On hit, the Primary Target takes Weapon Damage plus **+53d8 Smite Damage**. Secondary Targets with a valid Smite tag take **+53d8 Smite Damage**. | Smite |
-| **9** | **Moonlight Shadow III**¹ | Artifact Only Active Buff | Self | 4 m radius | Mastery Rank Rounds | At the end of each of your turns, enemies in the aura take **13d8 Smite**. | Smite Aura |
+| **8** | **Moonlight Judgment III** | Active | 32 m | Radius 3 m | Instant | Make one ranged AoE Attack Roll and compare it separately against the Evade of each creature in the radius. Every creature hit takes **Weapon Damage**. An **Undead** creature hit also gains **Requiem(19)**. Each creature that would be hit may use **Dive for Cover** before payload. | Requiem(19) |
+| **9** | **Moonlight Shadow III**¹ | Artifact Only Active Buff | Self | 4 m radius | Mastery Rank Rounds | Use the normal **Active Buff: Damage Aura** at **Power Level 16**. At the end of each of your turns, enemies in the aura take **11d8 damage**. | Damage Aura |
 | **10** | **True Moonlight** | Ultimate | Self | - | Special | The Moonlight Greatsword fully awakens. Choose or define one final Moonlight effect with GM approval. | True Moonlight |
 
 ¹ **Moonlight Shadow Uses:** Moonlight Shadow can be used a number of times per Safe Haven Rest equal to half the wielder's Mastery Rank, rounded up in the player's favor. For example, MR 2 grants 1 use, MR 3 grants 2 uses, MR 4 grants 2 uses, and MR 5 grants 3 uses.
@@ -1886,13 +1886,13 @@ Shield Armor stacks with other Armor as normal.
 | :----------------: | :------------------------ | :------------------ | :-------: | :-------: | :--------------: | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :-------------- |
 |        **1**       | **Frozen Reserve I**      | Stone Power Support |    Self   |     —     |      Instant     | The Frostshield supports the **Temporary HP Stone Power** and pre-fills **Tier 2**. The wielder must pay Tier 1.                                                                                                                                         | Temporary HP    |
 |        **2**       | **Glacial Intercept I**   | Reaction            |    4 m    |     —     | Triggering event | When an ally within range is hit or would take damage, that ally gains **+7 Armor** against the triggering attack or damage instance.                                                                                                                    | Ally Armor      |
-|        **3**       | **Frostwave I**           | Active              |    Self   |  Cone 6 m |      Instant     | Make one attack against a Primary Target inside the Cone. On a hit, all hostile creatures inside the Cone gain **Slow(3)**. Frostwave deals no damage.                                                                                                   | Slow(3)         |
+|        **3**       | **Frostwave I**           | Active              |    Self   |  Cone 6 m |      Instant     | Make one AoE Attack Roll and compare it separately against the Evade of each hostile creature inside the Cone. Each creature hit gains **Slow(3)** and may use **Dive for Cover** before the Special is applied. Frostwave deals no damage. | Slow(3) |
 |        **4**       | **Frozen Reserve II**     | Stone Power Support |    Self   |     —     |      Instant     | The Frostshield now pre-fills **Tier 3** of the Temporary HP Stone Power. The wielder must pay Tier 1 and Tier 2.                                                                                                                                        | Temporary HP    |
 |        **5**       | **Glacial Intercept II**  | Reaction            |    4 m    |     —     | Triggering event | When an ally within range is hit or would take damage, that ally gains **+19 Armor** against the triggering attack or damage instance.                                                                                                                   | Ally Armor      |
-|        **6**       | **Frostwave II**          | Active              |    Self   | Cone 10 m |      Instant     | Make one attack against a Primary Target inside the Cone. On a hit, all hostile creatures inside the Cone gain **Slow(5)**. Frostwave deals no damage.                                                                                                   | Slow(5)         |
+|        **6**       | **Frostwave II**          | Active              |    Self   | Cone 10 m |      Instant     | Make one AoE Attack Roll and compare it separately against the Evade of each hostile creature inside the Cone. Each creature hit gains **Slow(5)** and may use **Dive for Cover** before the Special is applied. Frostwave deals no damage. | Slow(5) |
 |        **7**       | **Frozen Reserve III**    | Stone Power Support |    Self   |     —     |      Instant     | The Frostshield now pre-fills **Tier 4** of the Temporary HP Stone Power. The wielder must pay Tier 1, Tier 2, and Tier 3.                                                                                                                               | Temporary HP    |
 |        **8**       | **Glacial Intercept III** | Reaction            |    4 m    |     —     | Triggering event | When an ally within range is hit or would take damage, that ally gains **+31 Armor** against the triggering attack or damage instance.                                                                                                                   | Ally Armor      |
-|        **9**       | **Frostwave III**         | Active              |    Self   | Cone 14 m |      Instant     | Make one attack against a Primary Target inside the Cone. On a hit, all hostile creatures inside the Cone take **+1d8 damage** and gain **Slow(7)**.                                                                                                     | Slow(7)         |
+|        **9**       | **Frostwave III**         | Active              |    Self   | Cone 14 m |      Instant     | Make one AoE Attack Roll and compare it separately against the Evade of each hostile creature inside the Cone. Each creature hit takes **+1d8 damage**, gains **Slow(7)**, and may use **Dive for Cover** before the payload is applied. | Slow(7) |
 |       **10**       | **Heart of Winter**       | Ultimate            |    Self   |     —     |     Permanent    | The Frostshield fully awakens. Its Shield Armor increases to **+14 Armor**. Once per Combat, when you use **Glacial Intercept**, the protected ally also gains **Temporary HP equal to your Mastery Rank × 10** after the triggering damage is resolved. | Heart of Winter |
 
 ---

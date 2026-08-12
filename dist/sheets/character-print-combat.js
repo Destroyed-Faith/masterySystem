@@ -156,11 +156,11 @@ function powerTemplateKey(sys) {
 }
 /** Martial weapon-attack templates always stack weapon damage (even if mis-tagged as Spell). */
 function isWeaponAttackPower(sys) {
-    return /weapon-attack|weapon-aoe|weapon-single|weapon-smite|active-(melee|ranged)-weapon-/i.test(powerTemplateKey(sys));
+    return /weapon-attack|weapon-aoe|weapon-single|targeted-special|active-(melee|ranged)-weapon-|active-(melee|ranged)-(aoe-)?targeted-special/i.test(powerTemplateKey(sys));
 }
 function usesWeaponDamage(sys, rank) {
     const sub = powerTemplateKey(sys);
-    if (/weapon-attack|weapon-aoe|weapon-single|weapon-smite|active-(melee|ranged)-weapon-/i.test(sub)) {
+    if (/weapon-attack|weapon-aoe|weapon-single|targeted-special|active-(melee|ranged)-weapon-|active-(melee|ranged)-(aoe-)?targeted-special/i.test(sub)) {
         return true;
     }
     if (isAttackPower(sys) && !isSpellPowerSys(sys) && !isHealPower(sys, rank))

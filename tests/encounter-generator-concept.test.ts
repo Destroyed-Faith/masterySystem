@@ -283,19 +283,19 @@ describe('buildThreatReport', () => {
     }
   });
 
-  it('AoE rows report a fixed Area TN (8 × MR) hit chance, independent of evade', () => {
+  it('AoE rows use per-creature Evade hit chance (no Area TN)', () => {
     const party = testParty();
     // Ruin spellcaster uses mixed targeting → the cycle contains AoE rows.
     const preset = ARCHETYPE_PRESETS.find((p) => p.id === 'ruin-spellcaster')!;
     const plan = deriveConceptPlan(party, preset.concept, seededRng(43));
     const report = buildThreatReport(party, plan, seededRng(43));
 
-    expect(report.areaTn).toBe(8 * plan.boss.mr);
+    expect(report.areaTn).toBeNull();
     expect(report.hitChanceAreaTn).not.toBeNull();
     expect(report.hitChanceAreaTn!).toBeGreaterThan(0);
     expect(report.hitChanceAreaTn!).toBeLessThanOrEqual(100);
 
-    // A single-target-only enemy has no Area TN line.
+    // A single-target-only enemy has no AoE hit-chance line.
     const jailer = ARCHETYPE_PRESETS.find((p) => p.id === 'kerkermeister')!;
     const planSingle = deriveConceptPlan(party, jailer.concept, seededRng(43));
     const reportSingle = buildThreatReport(party, planSingle, seededRng(43));

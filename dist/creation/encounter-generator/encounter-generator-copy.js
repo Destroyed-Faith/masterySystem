@@ -153,7 +153,7 @@ export const ENCOUNTER_GENERATOR_COPY = {
     threat: {
         heading: 'Threat Report',
         hitChances: 'Trefferchance (niedrig / Ø / hoch Ausweichen)',
-        aoeHitChance: 'AoE-Trefferchance (fixe Area TN, ignoriert Ausweichen)',
+        aoeHitChance: 'AoE-Trefferchance (pro Kreatur vs Ø Ausweichen)',
         rawDamage: 'Erwarteter Schaden pro Treffer (vor Rüstung)',
         afterArmor: 'Nach Ø Rüstung/DR',
         persistent: 'Persistenter Schaden pro Runde (ignoriert Rüstung)',

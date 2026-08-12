@@ -94,25 +94,30 @@ describe('Power Catalog (Templates refactor)', () => {
         }
     });
 
-    it('exposes the Smite attack templates (baked-in Smite, no Special picker)', () => {
+    it('exposes Targeted Special Attack templates (Exorcism / Requiem picker)', () => {
         const entries = getAllCatalogEntries();
-        const smiteIds = [
-            'active-melee-smite-attack',
-            'active-ranged-smite-attack',
-            'active-ranged-aoe-smite-attack',
+        const targetedIds = [
+            'active-melee-targeted-special',
+            'active-ranged-targeted-special',
+            'active-melee-aoe-targeted-special',
+            'active-ranged-aoe-targeted-special',
         ];
-        for (const id of smiteIds) {
-            const hit = entries.find((e) => e.templateId === id);
-            expect(hit, `missing smite template: ${id}`).toBeDefined();
-            expect(hit!.subfamily).toBe('smite-attack');
-            expect(hit!.chosenSpecial).toBeUndefined();
+        for (const id of targetedIds) {
+            const hits = entries.filter((e) => e.templateId === id);
+            expect(hits.length, `missing targeted template: ${id}`).toBeGreaterThanOrEqual(2);
+            expect(hits.every((h) => h.subfamily === 'targeted-special-attack')).toBe(true);
+            const keys = new Set(hits.map((h) => h.chosenSpecial?.key));
+            expect(keys.has('exorcism')).toBe(true);
+            expect(keys.has('requiem')).toBe(true);
         }
-        const aoe = entries.find((e) => e.templateId === 'active-ranged-aoe-smite-attack')!;
-        expect((aoe.raw as any).levels['1'].specials).toEqual([{ key: 'smite', rank: 1 }]);
-        expect((aoe.raw as any).levels['4'].specials).toEqual([{ key: 'smite', rank: 7 }]);
-        expect((aoe.raw as any).levels['16'].specials).toEqual([{ key: 'smite', rank: 53 }]);
-        expect((aoe.raw as any).levels['7'].range).toEqual({ kind: 'distance', m: 32 });
-        expect((aoe.raw as any).levels['7'].aoe).toMatchObject({ shape: 'radius', radiusM: 3 });
+        const aoe = entries.find(
+            (e) => e.templateId === 'active-ranged-aoe-targeted-special' && e.chosenSpecial?.key === 'requiem',
+        )!;
+        expect(aoe.chosenSpecial?.key).toBe('requiem');
+        expect((aoe.raw as any).levels['1'].specials[0]).toMatchObject({ key: 'SPECIAL', rank: 2 });
+        expect((aoe.raw as any).levels['4'].specials[0]).toMatchObject({ key: 'SPECIAL', rank: 6 });
+        expect((aoe.raw as any).levels['16'].specials[0]).toMatchObject({ key: 'SPECIAL', rank: 10 });
+        expect((aoe.raw as any).levels['7'].aoe).toMatchObject({ shape: 'radius', radiusM: 5 });
     });
 
     it('exposes the Ranged Images illusion template', () => {

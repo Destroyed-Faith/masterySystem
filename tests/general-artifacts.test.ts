@@ -148,11 +148,11 @@ describe('Moonlight Greatsword', () => {
     }
   });
 
-  it('Smite unlocks at L4 (rank 4) and upgrades at L7 (rank 8)', () => {
-    expect(baseValue(tree, 3, 'Smite')).toBeUndefined();
-    expect(baseValue(tree, 4, 'Smite').value).toBe(4);
-    expect(baseValue(tree, 7, 'Smite').value).toBe(8);
-    expect(baseValue(tree, 10, 'Smite').value).toBe(8);
+  it('Requiem unlocks at L4 (rank 4) and upgrades at L7 (rank 8)', () => {
+    expect(baseValue(tree, 3, 'Requiem')).toBeUndefined();
+    expect(baseValue(tree, 4, 'Requiem').value).toBe(4);
+    expect(baseValue(tree, 7, 'Requiem').value).toBe(8);
+    expect(baseValue(tree, 10, 'Requiem').value).toBe(8);
   });
 
   it('Expose unlocks at L7 (rank 4) and upgrades at L10 (rank 8)', () => {
@@ -168,10 +168,10 @@ describe('Moonlight Greatsword', () => {
     expect(picks.map((p) => p.kind)).toEqual(['power', 'power', 'power']);
     expect(picks.map((p) => p.powerTemplateId)).toEqual([
       'active-ranged-single-heal',
-      // v0.9.152: Moonlight Judgment uses the Smite AoE template.
-      'active-ranged-aoe-smite-attack',
+      'active-ranged-aoe-targeted-special',
       'ab-damage-aura',
     ]);
+    expect(picks[1].chosenSpecial?.key).toBe('requiem');
 
     const byLevel = new Map(resolvedProgression(def).map((r: any) => [r.level, r]));
     for (const lvl of [1, 4, 7]) expect((byLevel.get(lvl) as any).name).toMatch(/Moonlight Mending/);
@@ -185,13 +185,15 @@ describe('Moonlight Greatsword', () => {
     expect(shadow.category).toBe('activeBuff');
   });
 
-  it('Moonlight Judgment is a ranged AoE weapon attack; Smite rides from the weapon Base Value', () => {
+  it('Moonlight Judgment is a ranged AoE Targeted Special with Requiem', () => {
     const judgment = sysAt(tree, 8).powers.find((p: any) => /Moonlight Judgment/.test(p.name));
     expect(judgment).toBeTruthy();
     expect(judgment.category).toBe('active');
-    // Smite is delivered by the weapon Base Value (Smite(4) from L4, Smite(8) from L7),
-    // not authored into the Power's effect text.
-    expect(baseValue(tree, 8, 'Smite').value).toBe(8);
+    const byLevel = new Map(resolvedProgression(getGeneralArtifact('moonlightGreatsword')!).map((r: any) => [r.level, r]));
+    const row = byLevel.get(8) as any;
+    expect(String(row?.powerTemplateId ?? '')).toBe('active-ranged-aoe-targeted-special');
+    expect(String(row?.chosenSpecialKey ?? row?.chosenSpecial?.key ?? '')).toBe('requiem');
+    expect(baseValue(tree, 8, 'Requiem').value).toBe(8);
   });
 });
 

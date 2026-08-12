@@ -473,8 +473,8 @@ export function buildSummaryHtml(
 
   parts.push('<h3>Threat Report</h3><table><tbody>');
   parts.push(`<tr><td>Trefferchance (niedrig/Ø/hoch Ausweichen)</td><td>${report.hitChanceLowEvade}% / ${report.hitChanceAvgEvade}% / ${report.hitChanceHighEvade}%</td></tr>`);
-  if (report.areaTn != null) {
-    parts.push(`<tr><td>AoE-Trefferchance (Area TN ${report.areaTn} = 8 × MR, ignoriert Ausweichen)</td><td>${report.hitChanceAreaTn}%</td></tr>`);
+  if (report.hitChanceAreaTn != null) {
+    parts.push(`<tr><td>AoE-Trefferchance (pro Kreatur vs Ø Ausweichen)</td><td>${report.hitChanceAreaTn}%</td></tr>`);
   }
   parts.push(`<tr><td>Erwarteter Schaden pro Treffer (vor Rüstung)</td><td>${report.expectedHitDamageRaw}</td></tr>`);
   parts.push(`<tr><td>… nach Ø Rüstung/DR</td><td>${report.expectedHitDamageAfterArmor}</td></tr>`);

@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.298] - 2026-08-12
+
+### Changed
+
+- **Rules break — Autofire & AoE redesign:** Removed Area TN / Raise-extra-target Autofire from docs **and combat runtime**. Martial AoE: one roll vs each creature's Evade, full payload each hit, Dive for Cover after hit check. Spell AoE: one roll vs each Final Spell TN. Autofire(X): ordered 4 m chain (first miss ends; no target-count Raises; full payload; no Dive for Cover; **30 PP × X**) with chain picker UI. Encounter threat math prices AoE vs party Evade. Docs: `actives.md`, `agent.md`, `players-guide.md`, `active-buffs.md`, `artefacts.md`.
+- **Weapon / Martial Special AoE tables:** Instant Attack AoE PL1–16 radius and bonus dice / Special ranks taken from printed `actives.md` tables (full Special value, not half).
+- **Active Buff: Damage:** Unconditional buff `damageRider.flat` applies on every attack hit (Single / AoE / Autofire) via the shared damage dialog.
+- **Exorcism / Requiem replace Smite:** Instant Smite-+Xd8 removed. Exorcism (Fiend) and Requiem (Undead) are diminishing Specials (Start PP 2 × T(X), tick damage). Catalog uses Melee/Ranged/Melee AoE/Ranged AoE Targeted Special Attack templates. Moonlight Greatsword / Hunter's Scourge docs and artifact picks aligned.
+
 ## [0.9.297] - 2026-08-09
 
 ### Added

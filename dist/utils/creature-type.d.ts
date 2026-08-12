@@ -1,7 +1,7 @@
 /**
- * Creature type helpers (Smite validity, NPC typing).
+ * Creature type helpers (Exorcism / Requiem validity, NPC typing).
  *
- * Smite(X) adds +Xd8 bonus damage only vs Undead / Fiends (Rules).
+ * Exorcism(X) applies only to Fiends; Requiem(X) only to Undead (Rules).
  * NPCs set `system.creatureType`; aliases like "Dämon" / "demon" map to fiend.
  */
 export declare const CREATURE_TYPE_OPTIONS: readonly [{
@@ -34,15 +34,16 @@ export type CreatureTypeValue = (typeof CREATURE_TYPE_OPTIONS)[number]['value'];
 export declare function resolveCreatureType(actor: {
     system?: any;
 } | null | undefined): string;
-/** True when Smite(X) bonus damage applies (Undead or Fiend). */
-export declare function isSmiteValidTarget(actor: {
+/** True when Exorcism(X) may be applied (Fiend only). */
+export declare function isExorcismValidTarget(actor: {
     system?: any;
 } | null | undefined): boolean;
-/**
- * Sum Smite(X) ranks from special effect strings (e.g. "Smite(8)").
- * Instant rider — not a lasting status.
- */
-export declare function extractSmiteDice(specialStrings: readonly string[]): number;
-/** Drop Smite entries so they are not written as lasting status effects. */
-export declare function stripSmiteSpecials(specialStrings: readonly string[]): string[];
+/** True when Requiem(X) may be applied (Undead only). */
+export declare function isRequiemValidTarget(actor: {
+    system?: any;
+} | null | undefined): boolean;
+/** Tag gate for a targeted Special id (`exorcism` / `requiem`). */
+export declare function isTargetedSpecialValidTarget(specialId: string, actor: {
+    system?: any;
+} | null | undefined): boolean;
 //# sourceMappingURL=creature-type.d.ts.map

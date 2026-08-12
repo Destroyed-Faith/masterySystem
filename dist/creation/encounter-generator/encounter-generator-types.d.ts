@@ -279,9 +279,9 @@ export interface ThreatReport {
     hitChanceLowEvade: number;
     hitChanceAvgEvade: number;
     hitChanceHighEvade: number;
-    /** Fixed Area TN (8 × Source MR) — null when the cycle has no AoE rows. */
+    /** @deprecated Area TN removed — always null. Kept for report shape compat. */
     areaTn: number | null;
-    /** AoE hit chance vs the Area TN — predictable, party-independent. */
+    /** AoE hit chance vs average party Evade (per-creature check). */
     hitChanceAreaTn: number | null;
     /** Average expected rolled damage per boss hit, before armor. */
     expectedHitDamageRaw: number;

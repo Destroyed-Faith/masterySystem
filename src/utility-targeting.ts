@@ -964,7 +964,7 @@ async function confirmUtilityTargets(state: UtilityTargetingState): Promise<void
     } else if (state.option.item) {
       powerBonus = extractMeleeAoePowerBonusD8(state.option.item);
     }
-    // Pass an AoE context even with zero secondaries so the card uses Area TN (8×MR).
+    // Pass AoE context so secondaries each get a per-Evade check + full payload.
     try {
       const { createRangedAttackCard } = await import('./combat/attack-executor.js');
       await createRangedAttackCard(state.casterToken, primary, state.option, {

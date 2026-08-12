@@ -454,8 +454,7 @@ export async function executeAttackRollFromCard(
           const isAoE =
             aoeFromBtn ||
             flags.aoeMeleeWeapon === true ||
-            String(flags.aoeMeleeWeapon) === 'true' ||
-            (flags as any).tnKind === 'area';
+            String(flags.aoeMeleeWeapon) === 'true';
           await runInteractiveReactionWindow({
             defender: defenderForParry as any,
             attacker: freshAttacker as any,
@@ -488,15 +487,9 @@ export async function executeAttackRollFromCard(
       // dice engine can apply the correct rule.
 
       const tnKind =
-        (flags as any).tnKind === 'casting'
-          ? 'casting'
-          : (flags as any).tnKind === 'area'
-            ? 'area'
-            : 'evade';
-      // AoE spells roll vs the fixed Area TN but keep spell mechanics
-      // (Blood Raises, spell raise bonuses).
-      const isSpellcasting =
-        tnKind === 'casting' || (tnKind === 'area' && (flags as any).powerIsSpell === true);
+        (flags as any).tnKind === 'casting' ? 'casting' : 'evade';
+      // Spell attacks (including Spell AoEs) keep Blood Raises / spell raise bonuses.
+      const isSpellcasting = tnKind === 'casting';
       // Warn if values don't match (for debugging) — but split-attack is
       // expected to differ (flags holds half of live attribute), so skip then.
       if (flags.attributeValue !== numDice && flags.attributeValue > 0 && flags.splitAttack !== true) {
@@ -519,27 +512,25 @@ export async function executeAttackRollFromCard(
       void baseKeepDice;
       const attackKind = flags.attackType === 'ranged' ? 'Ranged' : 'Melee';
       const targetActorForFlavor = (game as any).actors?.get(flags.targetId);
+      const aoeFlavorHint =
+        flags.aoeMeleeWeapon === true || String(flags.aoeMeleeWeapon) === 'true'
+          ? ' — AoE: same roll compared separately against each creature'
+          : '';
       const rollFlavorBase =
-        tnKind === 'area'
-          ? `Roll ${numDice}d8 keep ${keepDice} vs Area TN ${normalTn}${
+        tnKind === 'casting'
+          ? `Roll ${numDice}d8 keep ${keepDice} vs Casting TN ${normalTn}${
               declaredRaiseSlots > 0 ? ` (Raise TN ${raiseTn})` : ''
-            } — one roll, hits every target in the area${advantageNote}${disadvantageNote}${rangeBandNote}${parryFlavorNote}`
-          : tnKind === 'casting'
-            ? `Roll ${numDice}d8 keep ${keepDice} vs Casting TN ${normalTn}${
-                declaredRaiseSlots > 0 ? ` (Raise TN ${raiseTn})` : ''
-              }${advantageNote}${disadvantageNote}${rangeBandNote}${parryFlavorNote}`
-            : `Roll ${numDice}d8 keep ${keepDice} vs ${targetActorForFlavor?.name || 'Target'}'s Evade (${normalTn}${
-                declaredRaiseSlots > 0 ? `, Raise TN ${raiseTn}` : ''
-              })${advantageNote}${disadvantageNote}${rangeBandNote}${parryFlavorNote}`;
+            }${aoeFlavorHint}${advantageNote}${disadvantageNote}${rangeBandNote}${parryFlavorNote}`
+          : `Roll ${numDice}d8 keep ${keepDice} vs ${targetActorForFlavor?.name || 'Target'}'s Evade (${normalTn}${
+              declaredRaiseSlots > 0 ? `, Raise TN ${raiseTn}` : ''
+            })${aoeFlavorHint}${advantageNote}${disadvantageNote}${rangeBandNote}${parryFlavorNote}`;
       const rollFlavor = opts.faithReroll
         ? `${rollFlavorBase}\n\n<i class="fas fa-sync-alt"></i> Reroll — ${opts.faithReroll.spenderName} spent 1 Faith Fracture.`
         : rollFlavorBase;
       const rollLabel =
-        tnKind === 'area'
-          ? `AoE Attack (${flags.attribute.charAt(0).toUpperCase() + flags.attribute.slice(1)})`
-          : tnKind === 'casting'
-            ? `Spell Attack (${flags.attribute.charAt(0).toUpperCase() + flags.attribute.slice(1)})`
-            : `${attackKind} Attack (${flags.attribute.charAt(0).toUpperCase() + flags.attribute.slice(1)})`;
+        tnKind === 'casting'
+          ? `Spell Attack (${flags.attribute.charAt(0).toUpperCase() + flags.attribute.slice(1)})`
+          : `${attackKind} Attack (${flags.attribute.charAt(0).toUpperCase() + flags.attribute.slice(1)})`;
 
       const actionEco = await import('../combat/action-economy.js');
       const economyForStones = actionEco.getActionEconomyActor(freshAttacker) ?? freshAttacker;
@@ -662,6 +653,34 @@ export async function executeAttackRollFromCard(
         resolveRaiseOutcome(result.total, normalTn, declaredRaiseSlots);
       // Update button to show it was rolled
       button.html('<i class="fas fa-check"></i> Rolled').addClass('rolled');
+
+      // Autofire: one shared roll walks an ordered chain; first miss ends it.
+      // Full payload per hit; Dive for Cover is not offered.
+      const autofireChain = String(flags.autofireChainTokenIds || '')
+        .split(',')
+        .map((s: string) => s.trim())
+        .filter(Boolean);
+      if (flags.autofire === true && autofireChain.length > 0) {
+        const { resolveAutofireChain } = await import('../combat/autofire.js');
+        const afAttacker = freshAttacker || (game as any).actors?.get(flags.attackerId);
+        if (afAttacker) {
+          await resolveAutofireChain({
+            attacker: afAttacker,
+            chainTokenIds: autofireChain,
+            attackTotal: Math.floor(Number(result?.total) || 0),
+            declaredRaiseSlots,
+            flags: {
+              ...flags,
+              raiseOutcome,
+              attackTotal: Math.floor(Number(result?.total) || 0),
+              declaredRaises,
+              declaredRaiseSlots,
+            },
+            weaponId: flags.weaponId || null,
+          });
+        }
+        return;
+      }
       
       // Partial or full success → damage dialog; fail → stop.
       if (raiseOutcome !== 'fail') {
@@ -923,7 +942,7 @@ export async function executeAttackRollFromCard(
             aoeFromBtn ||
             updatedFlags.aoeMeleeWeapon === true ||
             String(updatedFlags.aoeMeleeWeapon) === 'true';
-          const isAreaAttack = aoeWeapon || (updatedFlags as any).tnKind === 'area';
+          const isAreaAttack = aoeWeapon;
 
           // Phase 1 — direct target reacts immediately after the attack Roll,
           // before the damage dialog / damage roll.
@@ -1136,19 +1155,14 @@ export async function executeAttackRollFromCard(
             console.warn('Mastery System | opportunity reaction window failed', allyErr);
           }
 
-          // Secondaries share the Area-TN success — resolve even if the primary
-          // Evaded or dove out. Skip only when the GM cancelled the primary dialog
-          // without an escape/negate outcome (no confirmed area hit follow-through).
-          if (
-            (damageResult || primaryEscaped || primaryNegated) &&
-            aoeWeapon &&
-            aoeSecondaries.length > 0 &&
-            aoeDice > 0
-          ) {
+          // Secondaries: each compared separately against its own Evade / Final
+          // Spell TN. Resolve even if the primary Evaded, dove out, or was missed
+          // for raise purposes — a miss against one creature does not protect others.
+          if (aoeWeapon && aoeSecondaries.length > 0) {
             const { resolveAoeMeleeSecondaries } = await import('../combat/aoe-melee-resolution.js');
             const atkMr = Math.max(
               1,
-              Math.min(6, Math.floor(Number(updatedFlags.masteryRank) || 2)),
+              Math.min(8, Math.floor(Number(updatedFlags.masteryRank) || 2)),
             );
             await resolveAoeMeleeSecondaries({
               attacker: freshAttackerForDialog as any,
@@ -1158,10 +1172,64 @@ export async function executeAttackRollFromCard(
               isSpell: (updatedFlags as any).powerIsSpell === true,
               attackTotal: updatedFlags.attackTotal ?? null,
               evadeTn: updatedFlags.normalTn ?? updatedFlags.baseEvade ?? null,
+              flags: updatedFlags,
+              weaponId,
+              declaredRaiseSlots,
+              spellBaseTn: (updatedFlags as any).spellBaseTn ?? null,
             });
           }
         }
       } else {
+        // Miss vs the anchor TN — for AoE, still check every other creature
+        // independently (a miss against one does not end the AoE).
+        if (
+          (flags.aoeMeleeWeapon === true || String(flags.aoeMeleeWeapon) === 'true') ||
+          !!button.attr('data-aoe-melee')
+        ) {
+          const aoeIdsMiss = String(button.attr('data-aoe-secondary-ids') || '')
+            .split('|')
+            .map((s: string) => s.trim())
+            .filter(Boolean);
+          const aoeSecondariesMiss =
+            aoeIdsMiss.length > 0
+              ? aoeIdsMiss
+              : String(flags.aoeMeleeSecondaryTokenIds || '')
+                  .split(',')
+                  .map((s: string) => s.trim())
+                  .filter(Boolean);
+          if (aoeSecondariesMiss.length > 0) {
+            try {
+              const { resolveAoeMeleeSecondaries } = await import(
+                '../combat/aoe-melee-resolution.js'
+              );
+              const missAttacker = freshAttacker || (game as any).actors?.get(flags.attackerId);
+              if (missAttacker) {
+                await resolveAoeMeleeSecondaries({
+                  attacker: missAttacker as any,
+                  attackerMasteryRank: Math.max(
+                    1,
+                    Math.min(8, Math.floor(Number(flags.masteryRank) || 2)),
+                  ),
+                  secondaryTokenIds: aoeSecondariesMiss,
+                  powerBonusDice: 0,
+                  isSpell: (flags as any).powerIsSpell === true,
+                  attackTotal: Math.floor(Number(result?.total) || 0),
+                  flags: {
+                    ...flags,
+                    attackTotal: Math.floor(Number(result?.total) || 0),
+                    raiseOutcome: 'fail',
+                  },
+                  weaponId: flags.weaponId || null,
+                  declaredRaiseSlots,
+                  spellBaseTn: (flags as any).spellBaseTn ?? null,
+                });
+              }
+            } catch (aoeMissErr) {
+              console.warn('Mastery System | AoE secondary resolve on anchor miss failed', aoeMissErr);
+            }
+          }
+        }
+
         // Miss — target reacts first; Threatened Ranged OA + allies after.
         try {
           let missTarget: any = null;

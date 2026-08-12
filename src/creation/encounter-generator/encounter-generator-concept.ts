@@ -430,11 +430,10 @@ export function buildPowerCycle(
     2,
     16,
   );
-  // AoE attacks roll vs the fixed Area TN = 8 × Source MR (ignores Evade) —
-  // that keeps their hit chance predictable regardless of the party.
-  const areaTn = 8 * Math.max(1, bossMr);
+  // AoE attacks use one roll compared separately against each creature's Evade.
+  // Price AoE pools against the same party Evade target as direct attacks.
   const attackDiceAoe = clamp(
-    solveAttackDiceForHitRate(areaTn, bossMr, hitTarget, 2, 16, 1200, rng),
+    solveAttackDiceForHitRate(party.avgEvade, bossMr, hitTarget, 2, 16, 1200, rng),
     2,
     16,
   );
@@ -1084,7 +1083,7 @@ export const TARGETING_OPTIONS: Array<LabeledOption<TargetingMode>> = [
   {
     value: 'aoe',
     label: 'AoE',
-    description: 'Flächenangriffe gegen mehrere Ziele — trifft oft gegen fixe Area TN statt Ausweichen.',
+    description: 'Flächenangriffe gegen mehrere Ziele — ein Wurf, pro Kreatur separat gegen Ausweichen.',
   },
   {
     value: 'mixed',

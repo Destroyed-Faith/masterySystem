@@ -292,7 +292,7 @@ const BASE_VALUE_TABLES: Record<string, BaseValueSpec[]> = {
   // --- General artifacts (Artifact Examples) ---
   moonlightGreatsword: [
     { slot: 'a', type: 'weaponDamage', label: 'Weapon Damage', unlock: 1, valueAt: (l) => twoHandedEchoDamageForLevel(l) },
-    { slot: 'b', type: 'weaponSpecial', label: 'Smite', unlock: 4, valueAt: (l) => weaponSpecialRankForLevel([0, 4, 8, 8], l) },
+    { slot: 'b', type: 'weaponSpecial', label: 'Requiem', unlock: 4, valueAt: (l) => weaponSpecialRankForLevel([0, 4, 8, 8], l) },
     { slot: 'c', type: 'weaponSpecial', label: 'Expose', unlock: 7, valueAt: (l) => weaponSpecialRankForLevel([0, 0, 4, 8], l) },
   ],
   soulSigil: [

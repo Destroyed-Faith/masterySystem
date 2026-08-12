@@ -16,10 +16,18 @@ export interface MeleeBurstVolleyContext {
     volleyIndex: number;
     volleyTotal: number;
 }
-/** Melee weapon AoE: one roll vs primary; secondaries resolved after primary damage. */
+/**
+ * Weapon / martial AoE context. One Attack Roll is compared separately against
+ * each creature's Evade (or Final Spell TN for spell AoEs). Every hit receives
+ * the full printed payload; Dive for Cover may be used before payload.
+ */
 export interface AoeMeleeWeaponContext {
+    /** Other tokens in the area besides the card's display/primary target. */
     secondaryTokenIds: string[];
-    /** Extra d8 from the power template for secondary targets only. */
+    /**
+     * Power bonus d8 (damageRider). Kept for UI/debug; secondaries now resolve
+     * full payload via the damage dialog, not splash-only dice.
+     */
     powerBonusDice: number;
 }
 /**
@@ -31,10 +39,17 @@ export declare function getAttributeValue(actor: any, attributeName: string): nu
  */
 export declare function getMasteryRank(actor: any): number;
 /**
+ * Get evade value from target actor
+ * Uses evadeTotal if available (includes shield bonus), otherwise falls back to base evade
+ */
+export declare function getTargetEvade(targetActor: any): number;
+/** Spell Resistance from Ward passives + active buffs + Intellect stone (vs Spell-tagged Powers). */
+export declare function getTargetSpellResistance(targetActor: any): number;
+/**
  * Determine which attribute to use for attack rolls.
  * - Spells: casting attribute on the item / option.
  * - Weapons with Finesse (incl. artifact Free Trait): Agility for To-Hit —
- *   also for weapon-carried attack powers (Melee Single Attack, Smite, …),
+ *   also for weapon-carried attack powers (Melee Single Attack, Targeted Special, …),
  *   where it beats the mastery-tree default (rules: "Attack Roll uses Agility").
  * - Powers: attribute from mastery tree / spell school (`system.tree`) via fixed list; if unknown tree, fall back to `roll.attribute`.
  * - Otherwise: Might for melee, Agility for ranged (weapon or maneuver).

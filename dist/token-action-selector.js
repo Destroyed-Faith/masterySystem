@@ -969,11 +969,8 @@ export async function handleChosenCombatOption(token, option) {
             catch (err) {
                 console.warn('Mastery System | Melee AoE preview failed', err);
             }
-            // NPC attacks have no splash pool; player powers use damageRider.flat.
+            // Power bonus dice are part of the full payload (not splash-only).
             const powerBonus = option.source === 'npc-attack' ? 0 : extractMeleeAoePowerBonusD8(option.item);
-            if (burstIds.length > 1 && powerBonus <= 0) {
-                ui.notifications?.warn?.('Melee AoE: power has no unconditional +Nd8 splash on damageRider.flat — secondary splash disabled.');
-            }
             let choice;
             try {
                 choice = await promptMeleeAoePrimaryChoice(burstIds, token.id, option);
@@ -987,8 +984,8 @@ export async function handleChosenCombatOption(token, option) {
             // Ally filter from the dialog: secondaries come from the effective pool.
             const effectiveBurstIds = choice.effectiveBurstTokenIds;
             if (choice.primaryTokenId === null) {
-                if (powerBonus <= 0) {
-                    ui.notifications?.warn?.('Melee AoE (no primary): power must declare +Nd8 splash damage.');
+                if (!effectiveBurstIds.length) {
+                    ui.notifications?.warn?.('Melee AoE (no primary): no valid targets in the area.');
                     return;
                 }
                 if (option.costsAction) {
@@ -1004,11 +1001,10 @@ export async function handleChosenCombatOption(token, option) {
                 if (option.source === 'npc-attack' && option.costsAction) {
                     await markNpcAttackUsedThisRound(actor, combat, String(option.npcAttackUsageKey || option.id || ''));
                 }
-                // AoE attacks roll once vs the fixed Area TN = 8 × Source MR — even
-                // without a primary target. On a miss nobody in the area is affected.
-                const { getAttackAttribute, getAttributeValue, getMasteryRank } = await import('./combat/attack-executor.js');
+                // No-primary AoE: roll once (TN = first creature's Evade for the roll
+                // UI), then compare that same total separately against every creature.
+                const { getAttackAttribute, getAttributeValue, getMasteryRank, getTargetEvade } = await import('./combat/attack-executor.js');
                 const mr = getMasteryRank(actor);
-                const areaTn = 8 * Math.max(1, mr);
                 const attribute = getAttackAttribute(actor, null, option, 'melee');
                 let numDice = Math.max(1, getAttributeValue(actor, attribute));
                 if (option.source === 'npc-attack') {
@@ -1018,34 +1014,40 @@ export async function handleChosenCombatOption(token, option) {
                     if (pool > 0)
                         numDice = pool;
                 }
+                const firstTok = canvas.tokens?.get(effectiveBurstIds[0]);
+                const anchorTn = getTargetEvade(firstTok?.actor) || 6;
                 const { masteryRoll } = await import('./dice/roll-handler.js');
                 const areaRoll = await masteryRoll({
                     numDice,
                     keepDice: mr,
                     skill: 0,
-                    tn: areaTn,
+                    tn: anchorTn,
                     label: `AoE Attack (${attribute.charAt(0).toUpperCase() + attribute.slice(1)})`,
-                    flavor: `Roll ${numDice}d8 keep ${mr} vs Area TN ${areaTn} — one roll, hits every target in the area`,
+                    flavor: `Roll ${numDice}d8 keep ${mr} — AoE: same result compared separately against each creature's Evade`,
                     actorId: actor.id,
                     rollKind: 'attack',
                     autoFailIntent: 'attack',
                     checkContext: { tags: ['sight'] },
-                    normalTn: areaTn,
+                    normalTn: anchorTn,
                 });
-                if (!areaRoll?.success) {
-                    ui.notifications?.info?.(`AoE verfehlt (Area TN ${areaTn}) — keine Ziele betroffen.`);
-                    return;
-                }
-                const { resolveAoeMeleeSecondaries } = await import('./combat/aoe-melee-resolution.js');
+                const attackTotal = Math.floor(Number(areaRoll?.total) || 0);
+                const { resolveAoeFromSharedRoll } = await import('./combat/aoe-melee-resolution.js');
                 const isSpellAoe = option.artifactIsSpell === true ||
                     option.npcIsSpell === true ||
                     (option.item?.system?.isSpell === true);
-                await resolveAoeMeleeSecondaries({
+                await resolveAoeFromSharedRoll({
                     attacker: actor,
-                    attackerMasteryRank: mr,
-                    secondaryTokenIds: effectiveBurstIds.slice(),
-                    powerBonusDice: powerBonus,
+                    tokenIds: effectiveBurstIds.slice(),
+                    attackTotal,
                     isSpell: isSpellAoe,
+                    flags: {
+                        selectedPowerId: option.item?.id ?? null,
+                        masteryRank: mr,
+                        attackType: 'melee',
+                        powerIsSpell: isSpellAoe,
+                        aoeMeleeWeapon: true,
+                    },
+                    weaponId: null,
                 });
                 return;
             }
@@ -1056,7 +1058,8 @@ export async function handleChosenCombatOption(token, option) {
                 ui.notifications?.warn?.('Melee AoE: primary token not found.');
                 return;
             }
-            const aoeMelee = secondaries.length && powerBonus > 0
+            // Always attach secondaries — each gets a per-Evade check + full payload.
+            const aoeMelee = secondaries.length
                 ? { secondaryTokenIds: secondaries, powerBonusDice: powerBonus }
                 : null;
             const { createMeleeAttackCard } = await import('./combat/attack-executor.js');
@@ -1128,6 +1131,28 @@ export async function handleChosenCombatOption(token, option) {
             }
         }
         closeRadialMenu();
+        // Autofire: ordered chain targeting → one attack card vs first target.
+        try {
+            const { detectAutofire } = await import('./combat/autofire.js');
+            if (detectAutofire(option)) {
+                const { promptAutofireChain } = await import('./autofire-targeting.js');
+                const chain = await promptAutofireChain(token, option);
+                if (!chain?.length)
+                    return;
+                const primaryTok = canvas.tokens?.get(chain[0]);
+                if (!primaryTok) {
+                    ui.notifications?.warn?.('Autofire: first target token not found.');
+                    return;
+                }
+                option.autofireChainTokenIds = chain;
+                const { createRangedAttackCard } = await import('./combat/attack-executor.js');
+                await createRangedAttackCard(token, primaryTok, option);
+                return;
+            }
+        }
+        catch (afErr) {
+            console.warn('Mastery System | Autofire targeting failed', afErr);
+        }
         const preTarget = option.targetToken;
         if (preTarget) {
             Hooks.call("masterySystem.rangedTargetSelected", {

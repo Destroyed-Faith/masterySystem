@@ -151,7 +151,7 @@ export declare const ENCOUNTER_GENERATOR_COPY: {
     readonly threat: {
         readonly heading: "Threat Report";
         readonly hitChances: "Trefferchance (niedrig / Ø / hoch Ausweichen)";
-        readonly aoeHitChance: "AoE-Trefferchance (fixe Area TN, ignoriert Ausweichen)";
+        readonly aoeHitChance: "AoE-Trefferchance (pro Kreatur vs Ø Ausweichen)";
         readonly rawDamage: "Erwarteter Schaden pro Treffer (vor Rüstung)";
         readonly afterArmor: "Nach Ø Rüstung/DR";
         readonly persistent: "Persistenter Schaden pro Runde (ignoriert Rüstung)";

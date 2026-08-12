@@ -84,16 +84,15 @@ Version: v0.9.8 (2026-07-31)
 - #### [{{ Active Buff Auras}}{{ 30}}](#p30)
 - #### [{{ Damage Aura}}{{ 32}}](#p32)
 - #### [{{ Healing Aura}}{{ 32}}](#p32)
-- #### [{{ Artifact Smite Aura}}{{ 34}}](#p34)
-- #### [{{ Growth Form}}{{ 35}}](#p35)
-- #### [{{ Summon Damage Aura}}{{ 37}}](#p37)
-- #### [{{ Summon Armor Aura}}{{ 38}}](#p38)
-- #### [{{ Thorns}}{{ 39}}](#p39)
-- #### [{{ Invisibility}}{{ 40}}](#p40)
-- #### [{{ Reinforced Parry}}{{ 41}}](#p41)
-- #### [{{ Absorption Active Buff}}{{ 42}}](#p42)
-- #### [{{ Intensified Absorption}}{{ 43}}](#p43)
-- #### [{{ Reinforced Damage Negation}}{{ 44}}](#p44)
+- #### [{{ Growth Form}}{{ 34}}](#p34)
+- #### [{{ Summon Damage Aura}}{{ 36}}](#p36)
+- #### [{{ Summon Armor Aura}}{{ 37}}](#p37)
+- #### [{{ Thorns}}{{ 38}}](#p38)
+- #### [{{ Invisibility}}{{ 39}}](#p39)
+- #### [{{ Reinforced Parry}}{{ 40}}](#p40)
+- #### [{{ Absorption Active Buff}}{{ 41}}](#p41)
+- #### [{{ Intensified Absorption}}{{ 42}}](#p42)
+- #### [{{ Reinforced Damage Negation}}{{ 43}}](#p43)
 
 }}
 \page
@@ -1154,7 +1153,8 @@ They may not add defensive benefits unless the entry is built as a separate Offe
 
       NOTES<br>
       This buff grants no Attack Dice, no Critical, no Penetration, no Special, no Extra Attack, and no defensive benefit.<br>
-      It is the clean default for a character who wants temporary raw offensive output.
+      It is the clean default for a character who wants temporary raw offensive output.<br>
+      When an AoE or Autofire hits multiple creatures, every successful hit receives the full listed bonus damage. The bonus is never divided or reduced because the attack has multiple targets.
     </span>
   </span>
 </h3>
@@ -1473,6 +1473,8 @@ Common eligible examples include:
 - **Lacerate(X)**
 - **Mark(X)**
 - **Ruin(X)**
+- **Exorcism(X)**
+- **Requiem(X)**
 - **Slow(X)**
 - **Soulburn(X)**
 - **Sundered(X)**
@@ -1529,7 +1531,7 @@ It may not escalate knockdown, stun, forced behavior, full action denial, or oth
       If the target is not already affected by the chosen Special, this buff does nothing.<br><br>
 
       ELIGIBLE SPECIALS<br>
-      Common eligible examples include **Blight(X)**, **Challenge(X)**, **Corrode(X)**, **Disoriented(X)**, **Expose(X)**, **Hex(X)**, **Lacerate(X)**, **Mark(X)**, **Ruin(X)**, **Slow(X)**, **Soulburn(X)**, **Sundered(X)**, and **Weaken(X)**.<br><br>
+      Common eligible examples include **Blight(X)**, **Challenge(X)**, **Corrode(X)**, **Disoriented(X)**, **Expose(X)**, **Hex(X)**, **Lacerate(X)**, **Mark(X)**, **Ruin(X)**, **Exorcism(X)**, **Requiem(X)**, **Slow(X)**, **Soulburn(X)**, **Sundered(X)**, and **Weaken(X)**.<br><br>
 
       INELIGIBLE SPECIALS<br>
       This buff may not affect binary Specials, hard control, forced behavior, Stunned, Immovable, Prone, Damage Reduction, Phasing, Barriers, Walls, Images, Summons, Illusion Fields, or Persistent Zones.<br><br>
@@ -2016,90 +2018,6 @@ You radiate restorative force, warmth, blessing, blood magic, life energy, or st
 {{pageNumber,auto}}
 {{wide
 
-<h3 id="artifact-only-active-buff-smite-aura">
-  Artifact Only Active Buff: Smite Aura
-  <span class="tooltip">🛈
-    <span class="tooltiptext">
-      ARTIFACT ONLY RESTRICTION<br>
-      This Active Buff may only appear on Artifacts and only if the GM permits it.<br>
-      The Artifact must limit this Power to Mastery Rank uses per Safe Haven Rest.<br>
-      This Power may not be selected through normal character creation, normal Active Buff selection, normal Special selection, Spells, Reactions, Movement Powers, Passives, or Auras unless an Artifact explicitly grants it.<br><br>
-
-      BASELINES<br>
-      Active Buff curve = 40 PP at Level 1, then +30 PP per level up to Level 16.<br>
-      Aura radius bands: L1–7 = 2 m for 20 PP, L8–14 = 3 m for 50 PP, L15–16 = 4 m for 90 PP.<br>
-      Aura Smite = 30 PP per 1d8 Smite.<br><br>
-
-      DESIGN STRUCTURE<br>
-      This is an Artifact-only single-payload Active Buff Aura.<br>
-      The aura spends its Payload Budget only on Smite dice.<br>
-      It does not apply Specials, Penetration, Critical, Attack Dice, Armor, Evade, Healing, Temporary HP, Damage Reduction, Phasing, Movement, Reactions, or any other rider.<br><br>
-
-      TIMING<br>
-      At the end of each of your turns, enemies inside the aura take the listed Smite damage.<br>
-      A creature can be affected by this aura only once per Round.<br>
-      Moving the aura over a creature does not trigger the aura.<br>
-      A creature entering or leaving the aura does not trigger the aura unless the Artifact explicitly says otherwise.<br><br>
-
-      DAMAGE RESOLUTION<br>
-      This is not an attack roll.<br>
-      It cannot generate Raises.<br>
-      It cannot Crit.<br>
-      It does not use weapon damage.<br>
-      It does not benefit from Active Buff: Damage, Active Buff: Penetration, Active Buff: Critical, or Special Overdrive.<br>
-      Targets apply Armor, Damage Reduction, resistance, immunity, and other legal mitigation normally.<br><br>
-
-      LEVEL-BY-LEVEL CALCULATION<br>
-      L1 → PP 40 − Radius 2 m (20) = 20 Payload. Minimum function exception grants 1d8 Smite.<br>
-      L2 → PP 70 − Radius 2 m (20) = 50 Payload → 1d8 Smite.<br>
-      L3 → PP 100 − Radius 2 m (20) = 80 Payload → 2d8 Smite.<br>
-      L4 → PP 130 − Radius 2 m (20) = 110 Payload → 3d8 Smite.<br>
-      L5 → PP 160 − Radius 2 m (20) = 140 Payload → 4d8 Smite.<br>
-      L6 → PP 190 − Radius 2 m (20) = 170 Payload → 5d8 Smite.<br>
-      L7 → PP 220 − Radius 2 m (20) = 200 Payload → 6d8 Smite.<br>
-      L8 → PP 250 − Radius 3 m (50) = 200 Payload → 6d8 Smite.<br>
-      L9 → PP 280 − Radius 3 m (50) = 230 Payload → 7d8 Smite.<br>
-      L10 → PP 310 − Radius 3 m (50) = 260 Payload → 8d8 Smite.<br>
-      L11 → PP 340 − Radius 3 m (50) = 290 Payload → 9d8 Smite.<br>
-      L12 → PP 370 − Radius 3 m (50) = 320 Payload → 10d8 Smite.<br>
-      L13 → PP 400 − Radius 3 m (50) = 350 Payload → 11d8 Smite.<br>
-      L14 → PP 430 − Radius 3 m (50) = 380 Payload → 12d8 Smite.<br>
-      L15 → PP 460 − Radius 4 m (90) = 370 Payload → 12d8 Smite.<br>
-      L16 → PP 490 − Radius 4 m (90) = 400 Payload → 13d8 Smite.<br><br>
-
-      NOTES<br>
-      The lower Smite cost is only legal because this is Artifact-only and must be limited to Mastery Rank uses per Safe Haven Rest.
-    </span>
-  </span>
-</h3>
-
-You radiate artifact-bound divine wrath, oathfire, judgment, sacred force, or annihilating light.
-
-| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
-|:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Artifact Only Active Buff | Self | 2 m radius | Mastery Rank Rounds | At the end of each of your turns, enemies in the aura take **1d8 Smite**. |
-| **2** | Artifact Only Active Buff | Self | 2 m radius | Mastery Rank Rounds | At the end of each of your turns, enemies in the aura take **1d8 Smite**. |
-| **3** | Artifact Only Active Buff | Self | 2 m radius | Mastery Rank Rounds | At the end of each of your turns, enemies in the aura take **2d8 Smite**. |
-| **4** | Artifact Only Active Buff | Self | 2 m radius | Mastery Rank Rounds | At the end of each of your turns, enemies in the aura take **3d8 Smite**. |
-| **5** | Artifact Only Active Buff | Self | 2 m radius | Mastery Rank Rounds | At the end of each of your turns, enemies in the aura take **4d8 Smite**. |
-| **6** | Artifact Only Active Buff | Self | 2 m radius | Mastery Rank Rounds | At the end of each of your turns, enemies in the aura take **5d8 Smite**. |
-| **7** | Artifact Only Active Buff | Self | 2 m radius | Mastery Rank Rounds | At the end of each of your turns, enemies in the aura take **6d8 Smite**. |
-| **8** | Artifact Only Active Buff | Self | 3 m radius | Mastery Rank Rounds | At the end of each of your turns, enemies in the aura take **6d8 Smite**. |
-| **9** | Artifact Only Active Buff | Self | 3 m radius | Mastery Rank Rounds | At the end of each of your turns, enemies in the aura take **7d8 Smite**. |
-| **10** | Artifact Only Active Buff | Self | 3 m radius | Mastery Rank Rounds | At the end of each of your turns, enemies in the aura take **8d8 Smite**. |
-| **11** | Artifact Only Active Buff | Self | 3 m radius | Mastery Rank Rounds | At the end of each of your turns, enemies in the aura take **9d8 Smite**. |
-| **12** | Artifact Only Active Buff | Self | 3 m radius | Mastery Rank Rounds | At the end of each of your turns, enemies in the aura take **10d8 Smite**. |
-| **13** | Artifact Only Active Buff | Self | 3 m radius | Mastery Rank Rounds | At the end of each of your turns, enemies in the aura take **11d8 Smite**. |
-| **14** | Artifact Only Active Buff | Self | 3 m radius | Mastery Rank Rounds | At the end of each of your turns, enemies in the aura take **12d8 Smite**. |
-| **15** | Artifact Only Active Buff | Self | 4 m radius | Mastery Rank Rounds | At the end of each of your turns, enemies in the aura take **12d8 Smite**. |
-| **16** | Artifact Only Active Buff | Self | 4 m radius | Mastery Rank Rounds | At the end of each of your turns, enemies in the aura take **13d8 Smite**. |
-
----
-
-}}
-\page
-{{pageNumber,auto}}
-{{wide
 <h3 id="active-buff-growth-form">
   Active Buff: Growth Form
   <span class="tooltip">🛈

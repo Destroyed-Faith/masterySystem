@@ -1836,8 +1836,8 @@ Your victories will be small, your sacrifices great yet even the smallest triump
 > **Pool & Keep:** Roll your Pool (X dice), keep the best Y.  
 > **Exploding Dice:** On an **8**, **reroll that die** and **add** the new result. Repeat on further 8s.
 > **Target Number (TN):** The value you must reach to hit or succeed.  
-> **Evade:**The TN a direct Attack must reach to hit a creature. AoE Attacks use the fixed Area TN and ignore individual Evade.
->**Area TN:** The fixed TN for an AoE Attack, equal to 8 × Source Mastery Rank
+> **Evade:** The TN an Attack must reach to hit a creature. For an AoE Attack, one roll is compared separately against the defense of each valid creature in the area.
+> **AoE Attack:** Roll once for the whole area. A Martial AoE compares that result separately against each creature's Evade. A Spell AoE compares the same Spell Roll separately against each creature's Final Spell TN.
 > **Raises:** In combat, Raises are usually declared before rolling and increase TN by +4 each. Some systems, such as Rituals and Echo Cards, count Raises after the roll: every full +4 over TN equals 1 Raise. 
 > **Penetration(X):** Ignores X points of the target’s Armor.  
 >**Armor (AR):** Reduces the rolled damage of a successful hit. Armor does not reduce Specials, conditions, ongoing damage, or other effect damage unless a rule explicitly says so. 
@@ -5493,7 +5493,7 @@ Choose one Breath Special when this Artifact is created:
 
 **Ruin, Slow, Corrode, or Blight.**
 
-Resolve Breath Weapon as a Martial AoE Attack. Make one Attack Roll against the Area TN based on the user’s Mastery Rank. On a success, every valid non-excluded target inside the Breath Shape receives the full Breath Weapon payload. Individual Evade values do not modify the Area TN.
+Resolve Breath Weapon as a Martial AoE Attack. Make one Attack Roll for the Breath Shape and compare the same final result separately against the **Evade** of each valid non-excluded creature inside it. Each creature whose Evade is met would be hit and may use **Dive for Cover** before the payload is applied. Every creature that remains hit receives the full Breath Weapon payload. A miss against one creature does not affect any other creature in the Breath Shape.
 
 ---
 
@@ -6403,7 +6403,7 @@ Where Alchemists survive the hunt by changing their own bodies, and Green Warden
 
 | Slot | Base Type | Artifact Functions | Binding |
 |---|---|---|---|
-| Main Hand + Off Hand | Two-Handed Chain Whip | Whip Damage / Finesse / Reach / Smite Lash / Snap Chain / Whirling Scourge | Echo-bound |
+| Main Hand + Off Hand | Two-Handed Chain Whip | Whip Damage / Finesse / Reach / Scourge Lash / Snap Chain / Whirling Scourge | Echo-bound |
 
 Hunter's Scourge occupies both hand Slots.
 
@@ -6457,26 +6457,26 @@ Hunter's Scourge keeps the **Finesse** quality.
 
 | **Artifact Level** | **Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
 |:--:|:--|:--|:--:|:--:|:--:|:--|:--|
-| **1** | **Smite Lash I** | Active | Melee Reach | — | Instant | Use the normal **Melee Smite Attack** at **Power Level 4**. This attack must be made with Hunter's Scourge. | Smite |
+| **1** | **Scourge Lash I** | Active | Melee Reach | — | Instant | Use the normal **Melee Targeted Special Attack** at **Power Level 4**. Choose **Exorcism** or **Requiem** when the Power is built. This attack must be made with Hunter's Scourge. | Exorcism or Requiem |
 | **2** | **Snap Chain I** | Reaction | Threat Zone | — | Triggering movement only | Use the normal **Reaction: Counter Damage + Pull** at **Power Level 4**. This Reaction must be made with Hunter's Scourge. | Pull |
-| **3** | **Whirling Scourge I** | Active | Melee Reach | Special | Instant | Use the normal **Melee AoE Smite Attack** at **Power Level 4**. This attack must be made with Hunter's Scourge. | Smite |
-| **4** | **Smite Lash II** | Active | Melee Reach | — | Instant | Use the normal **Melee Smite Attack** at **Power Level 10**. This attack must be made with Hunter's Scourge. | Smite |
+| **3** | **Whirling Scourge I** | Active | Melee Reach | Special | Instant | Use the normal **Melee AoE Targeted Special Attack** at **Power Level 4**. Choose **Exorcism** or **Requiem** when the Power is built. This attack must be made with Hunter's Scourge. | Exorcism or Requiem |
+| **4** | **Scourge Lash II** | Active | Melee Reach | — | Instant | Use the normal **Melee Targeted Special Attack** at **Power Level 10**. Choose **Exorcism** or **Requiem** when the Power is built. This attack must be made with Hunter's Scourge. | Exorcism or Requiem |
 | **5** | **Snap Chain II** | Reaction | Threat Zone | — | Triggering movement only | Use the normal **Reaction: Counter Damage + Pull** at **Power Level 10**. This Reaction must be made with Hunter's Scourge. | Pull |
-| **6** | **Whirling Scourge II** | Active | Melee Reach | Special | Instant | Use the normal **Melee AoE Smite Attack** at **Power Level 10**. This attack must be made with Hunter's Scourge. | Smite |
-| **7** | **Smite Lash III** | Active | Melee Reach | — | Instant | Use the normal **Melee Smite Attack** at **Power Level 16**. This attack must be made with Hunter's Scourge. | Smite |
+| **6** | **Whirling Scourge II** | Active | Melee Reach | Special | Instant | Use the normal **Melee AoE Targeted Special Attack** at **Power Level 10**. Choose **Exorcism** or **Requiem** when the Power is built. This attack must be made with Hunter's Scourge. | Exorcism or Requiem |
+| **7** | **Scourge Lash III** | Active | Melee Reach | — | Instant | Use the normal **Melee Targeted Special Attack** at **Power Level 16**. Choose **Exorcism** or **Requiem** when the Power is built. This attack must be made with Hunter's Scourge. | Exorcism or Requiem |
 | **8** | **Snap Chain III** | Reaction | Threat Zone | — | Triggering movement only | Use the normal **Reaction: Counter Damage + Pull** at **Power Level 16**. This Reaction must be made with Hunter's Scourge. | Pull |
-| **9** | **Whirling Scourge III** | Active | Melee Reach | Special | Instant | Use the normal **Melee AoE Smite Attack** at **Power Level 16**. This attack must be made with Hunter's Scourge. | Smite |
-| **10** | **True Hunter's Scourge** | Ultimate | Self | — | Special | Hunter's Scourge fully awakens. Choose or define one final Scourge Damage, Reach, Smite Lash, Snap Chain, Whirling Scourge, demon-hunting, undead-hunting, chain, whip, relic, or Demon Hunter effect with GM approval. | True Hunter's Scourge |
+| **9** | **Whirling Scourge III** | Active | Melee Reach | Special | Instant | Use the normal **Melee AoE Targeted Special Attack** at **Power Level 16**. Choose **Exorcism** or **Requiem** when the Power is built. This attack must be made with Hunter's Scourge. | Exorcism or Requiem |
+| **10** | **True Hunter's Scourge** | Ultimate | Self | — | Special | Hunter's Scourge fully awakens. Choose or define one final Scourge Damage, Reach, Scourge Lash, Snap Chain, Whirling Scourge, demon-hunting, undead-hunting, chain, whip, relic, or Demon Hunter effect with GM approval. | True Hunter's Scourge |
 
 ---
 
-### Smite Lash I-III
+### Scourge Lash I-III
 
 The Demon Hunter strikes one supernatural enemy with the full weight of the hunt.
 
 The chain burns, cracks, hooks, tears, or flashes with old killing rites.
 
-Mechanically, Smite Lash I-III use the normal **Melee Smite Attack** at the listed Power Level.
+Mechanically, Scourge Lash I-III use the normal **Melee Targeted Special Attack** at the listed Power Level (**Exorcism** or **Requiem**, chosen when the Power is built).
 
 ---
 
@@ -6496,7 +6496,7 @@ The Demon Hunter turns the chain into a circle of judgment.
 
 Hooks, iron links, silvered edges, weighted heads, and relic knots carve through everything close enough to be caught in the spin.
 
-Mechanically, Whirling Scourge I-III use the normal **Melee AoE Smite Attack** at the listed Power Level.
+Mechanically, Whirling Scourge I-III use the normal **Melee AoE Targeted Special Attack** at the listed Power Level (**Exorcism** or **Requiem**, chosen when the Power is built).
 
 ---
 
@@ -7673,7 +7673,7 @@ If a Stone Power states “cumulative per combat”, the doubling cost persists 
 | **Stone Ability** | **Tier 1** | **Tier 2** | **Tier 3** | **Tier 4** |
 |:--|:--|:--|:--|:--|
 | **Spell Raises** | Your **Spells** this turn gain **+4** to their roll for the purpose of meeting the **Raise TN** only. | Your **Spells** this turn gain **+8** to their roll for the purpose of meeting the **Raise TN** only. | Your **Spells** this turn gain **+12** to their roll for the purpose of meeting the **Raise TN** only. | Your **Spells** this turn gain **+16** to their roll for the purpose of meeting the **Raise TN** only. |
-| **Spell Resistance** | Until the start of your next turn, Spells that directly target you increase their TN against you by **+4**. Spell Resistance does not increase the TN of AoE Spells that include you in their area. | Until the start of your next turn, Spells that directly target you increase their TN against you by **+8**. Spell Resistance does not increase the TN of AoE Spells that include you in their area. | Until the start of your next turn, Spells that directly target you increase their TN against you by **+12**. Spell Resistance does not increase the TN of AoE Spells that include you in their area. | Until the start of your next turn, Spells that directly target you increase their TN against you by **+16**. Spell Resistance does not increase the TN of AoE Spells that include you in their area. |
+| **Spell Resistance** | Until the start of your next turn, Spells that target you increase their Final Spell TN against you by **+4**, including Spell AoEs that include you in their area. | Until the start of your next turn, Spells that target you increase their Final Spell TN against you by **+8**, including Spell AoEs that include you in their area. | Until the start of your next turn, Spells that target you increase their Final Spell TN against you by **+12**, including Spell AoEs that include you in their area. | Until the start of your next turn, Spells that target you increase their Final Spell TN against you by **+16**, including Spell AoEs that include you in their area. |
 | **Spell Action** | — | Gain **1 additional Attack Action** this round. It may only be used to cast a **Spell**. | Gain **2 additional Attack Actions** this round. They may only be used to cast **Spells**. | Gain **3 additional Attack Actions** this round. They may only be used to cast **Spells**. |
 | **Special Boost** | Increase one eligible Special on your **Spells** this turn by **+2**. | Increase one eligible Special on your **Spells** this turn by **+4**. | Increase one eligible Special on your **Spells** this turn by **+8**. | Increase one eligible Special on your **Spells** this turn by **+12**. |
 
@@ -8678,7 +8678,7 @@ The Primary Defense Pillars are complete defensive foundations around which a ch
 | **Primary Defense Pillar** | **Stage** | **Function** |
 |:--|:--|:--|
 | **Parry** | Before the Attack Roll | Removes Attack Dice from an eligible direct Attack. If the entire Attack Pool is reduced to 0, the Attack is Fully Parried and does not resolve. |
-| **Evade** | During the Attack Roll | Determines the Target Number a direct Attack must reach to hit the character. Evade does not modify the TN of an AoE Attack.|
+| **Evade** | During the Attack Roll | Determines the Target Number an Attack must reach to hit the character. For a Martial AoE, the same Attack Roll is compared separately against each creature's Evade.|
 | **Armor** | After the Damage Roll | Reduces the rolled damage result before it is applied to the character. |
 | **Absorption** | After actual HP loss | Provides additional real HP and converts actual HP lost into Temporary Colorless Stones. |
 
@@ -8728,14 +8728,16 @@ Choose the target and the Attack, Spell, Power, weapon, or other hostile effect 
 
 #### 2. Determine the Target Number
 
-Determine whether the effect is a direct Attack or an AoE Attack.
+Determine the defense used by the effect.
 
 ---
- - A direct normal Attack rolls against the target’s Evade.
- - A direct Spell uses Final Spell TN = Spell Base TN + Target Spell Resistance.
- - An AoE Attack uses Area TN = 8 × Source Mastery Rank.
+ - A direct normal Attack rolls against the target’s **Evade**.
+ - A direct Spell uses **Final Spell TN = Spell Base TN + Target Spell Resistance**.
+ - A Martial AoE uses one Attack Roll and compares that same result separately against the **Evade of each valid creature** in the area.
+ - A Spell AoE uses one Spell Roll and compares that same result separately against the **Final Spell TN of each valid creature** in the area.
 ---
-AoE Attacks ignore the Evade and Spell Resistance of creature
+
+Each valid creature in an AoE is checked independently against its own applicable defense.
 
 #### 3. Declare Raises and Pay Costs
 
@@ -8751,7 +8753,11 @@ Before an eligible direct Attack is rolled, a character currently using Parry ma
 
 #### 6. Make the Roll
 
-Roll the remaining Attack or Spell Pool, resolve exploding dice, keep the appropriate number of dice, and compare the final result to the applicable Target Number. If the result does not reach the Target Number, the effect misses or fails against that target and its resolution ends there.For an AoE Attack, compare the result once against the Area TN. On a success, every valid non-excluded target inside the area is hit. Do not compare the result separately against individual targets.
+Roll the remaining Attack or Spell Pool, resolve exploding dice, keep the appropriate number of dice, and compare the final result to the applicable Target Number. If the result does not reach the Target Number, the effect misses or fails against that target.
+
+For an **AoE Attack**, use the same final roll for every valid creature in the area and compare it separately against that creature's defense. A miss against one creature does not affect any other creature. Each creature that would be hit may use legal Attack-Trigger defenses that modify its own defense before the hit is finalized. After that comparison, a creature that would still be hit may use **Dive for Cover** before damage or payload is applied.
+
+Every creature that remains hit receives the Power's **full printed payload**, including weapon damage when the Power uses a weapon, listed Power damage, listed Specials, and applicable offensive buffs. AoE damage and Specials are not divided or reduced because several creatures were hit.
 
 #### 7. Resolve Phasing
 
@@ -9362,13 +9368,15 @@ Your <strong>Movement</strong> represents your tactical positioning during your 
 ---
 :
 #### Defensive Reactions
-  <strong>Dive for Cover</strong> – After an AoE Attack successfully reaches its Area TN, but before its damage or payload is applied, a creature inside the area may spend its Reaction to immediately move up to 2 × Mastery Rank meters.
+  <strong>Dive for Cover</strong> – After an AoE Attack result has been compared against your defense and would hit you, but before its damage or payload is applied, spend your Reaction to immediately move up to **2 × Mastery Rank meters**.
 
-If this movement takes the creature completely outside the AoE, it is not affected by that AoE.
+If this movement takes you completely outside the AoE, you are not affected by that AoE.
 
-If it remains inside the area, it is affected normally.
+If you remain inside the area, you are affected normally.
 
-This movement does not provoke Reactions.
+This movement does not provoke movement-triggered Reactions.
+
+Dive for Cover is available to any creature that would be hit by the AoE, including a creature standing at its center point. If you already spent your Reaction on **Reaction: Evade**, you need another available Reaction to also use Dive for Cover. Dive for Cover cannot be used against Autofire.
 </li>
 </ul>
 
@@ -9927,6 +9935,8 @@ Cleanse can only reduce Specials that list **Cleanse: Yes**. The value of one Cl
 | **Lacerate(X)** | You suffer damage from movement. The first time each turn you move **more than 0 m**, take **X** damage. If you move **more than half your Speed** that turn, take **+X** damage again. If you **Sprint / Dash / otherwise exceed your normal Speed**, take **+X** damage again. | Yes | Yes |
 | **Mark(X)** | After a hit, spend any amount of Mark from the target to set the minimum result of each damage die to the spent Mark value for that damage roll. Then reduce Mark by the amount spent. | Yes | Yes |
 | **Regeneration(X)** | At Tick, heal **X HP**. | Yes | No |
+| **Exorcism(X)** | At Tick, take **X** damage (ignores Armor unless stated). Applies only to **Fiends**. | Yes | Yes |
+| **Requiem(X)** | At Tick, take **X** damage (ignores Armor unless stated). Applies only to **Undead**. | Yes | Yes |
 | **Ruin(X)** | At Tick, take **X** damage. | Yes | Yes |
 | **Slow(X)** | Your **Speed** is reduced by **X m**. If you do not voluntarily move at least **1 m** during your turn, take **X damage** at the end of your turn. | Yes | Yes |
 | **Soulburn(X)** | All dice pools based on **Wits**, **Influence**, or **Resolve** are reduced by **X**, to a minimum of your **Mastery Rank**. | Yes | Yes |
@@ -9982,7 +9992,6 @@ They do not grant an automatic Attribute Check.
 | **Precision(X)** | On hit, add **+Xd8** bonus damage. | No | No |
 | **Push(X)** | Push the target **X m** immediately. | No | No |
 | **Pull(X)** | Pull the target **X m** immediately. | No | No |
-| **Smite(X)** | Add **+Xd8** bonus damage vs **Undead / Fiends**. | Yes | No |
 | **Disarm** | On hit, the target loses grip on one visible held item; the item falls to the ground. Recovering it requires a **Movement Action** or an **Action**. | No | No |
 
 ---
@@ -10403,14 +10412,14 @@ For a Spell that directly targets a creature, add the target’s **Spell Resista
 
 ---
 
-For a Spell with the **AoE** tag, use the **Base Casting TN without adding Spell Resistance**.
+For a Spell with the **AoE** tag, make **one Spell Roll** and compare that same final result separately against the **Final Spell TN** of each valid creature in the area (`Final Spell TN = Spell Base TN + that creature's Spell Resistance`).
 
 ---
-AoE Spells ignore the individual **Evade** and **Spell Resistance** of all creatures inside their area.
+A miss against one creature does not affect any other creature. Every creature that remains hit receives the Spell's full printed payload. Each creature that would be hit may use **Dive for Cover** before payload is applied.
 
 ---
 
-If the casting roll equals or exceeds the applicable Casting TN, the Spell is successfully cast and its effects resolve.
+If the casting roll equals or exceeds a creature's Final Spell TN, that creature is successfully affected by the Spell.
 
 ---
 
@@ -13070,16 +13079,16 @@ Attack sequence:
 **Direct Attack TN:** Target Evade + declared Raises × 4
 
 ---
-**Direct Spell TN:** Spell Base TN + Target Spell Resistance + declared Raises×4
+**Direct Spell TN:** Spell Base TN + Target Spell Resistance + declared Raises × 4
 
 ---
-**AoE Attack TN:** 8 × Source MR + declared Raises × 4
+**Martial AoE:** Roll once. For each valid creature in the area, compare the same result against **that creature's Evade + declared Raises × 4**.
 
 ---
-AoE Attacks ignore individual Evade and Spell Resistance.
+**Spell AoE:** Roll once. For each valid creature in the area, compare the same result against **that creature's Final Spell TN + declared Raises × 4**.
 
 ---
-If your result is equal or higher, the attack hits.
+If your result is equal or higher than a creature's applicable TN, that creature is hit. Other creatures are checked independently.
 
 ---
 A declared Raise succeeds only if the result also reaches the raised TN.
@@ -13843,18 +13852,33 @@ Forced movement does not trigger Lacerate unless a Power explicitly says otherwi
 
 ---
 
-#### Smite(X)
+#### Exorcism(X)
 
-**Type:** Instant
+**Type:** Diminishing
 
 ---
 **Stacking:** Yes
 
 ---
-**Cleanse:** No
+**Cleanse:** Yes
 
 ---
-**Effect:** Smite adds damage against specific creature types. On hit, add **+Xd8** bonus damage against **Undead** or **Fiends**. Smite only applies if the target matches the listed creature type.
+**Effect:** Exorcism can be applied only to a creature with the **Fiend** tag. At the start of the affected creature's turn, take **X** damage (ignores Armor unless a rule says otherwise), then reduce X by 1.
+
+---
+
+#### Requiem(X)
+
+**Type:** Diminishing
+
+---
+**Stacking:** Yes
+
+---
+**Cleanse:** Yes
+
+---
+**Effect:** Requiem can be applied only to a creature with the **Undead** tag. At the start of the affected creature's turn, take **X** damage (ignores Armor unless a rule says otherwise), then reduce X by 1.
 
 ---
 }}

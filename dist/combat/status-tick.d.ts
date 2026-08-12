@@ -5,6 +5,8 @@
  * resolves its Tick (if any) and then decays by 1 (removed at 0), per the
  * Special Effects Reference:
  *   - Ruin(X)         : take X damage (ignores Armor)
+ *   - Exorcism(X)     : take X damage (ignores Armor)
+ *   - Requiem(X)      : take X damage (ignores Armor)
  *   - Blight(X)       : take X Stress (ignores Stress Armor)
  *   - Regeneration(X) : heal X HP
  *
