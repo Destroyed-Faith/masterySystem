@@ -8,8 +8,11 @@
 import type { RadialCombatOption } from "./token-radial-menu";
 export declare function getMeleeReachMeters(option: RadialCombatOption): number;
 /**
- * Hostile token ids within a melee burst AoE: distance from attacker center
- * ≤ min(melee reach, template burst radius). Reach caps how far a melee strike can reach.
+ * Hostile token ids within a melee burst AoE (self-centered): distance from
+ * attacker center ≤ printed burst radius.
+ *
+ * Catalog Melee AoE is Self + radius (not weapon-reach-capped). Using
+ * min(reach, burst) clipped PC bursts to ~2 m when range was weapon reach.
  */
 export declare function collectMeleeBurstHostileTokenIds(attackerToken: any, option: RadialCombatOption): string[];
 export declare function startMeleeTargeting(attackerToken: any, option: RadialCombatOption): void;

@@ -5,7 +5,7 @@
 import type { RadialCombatOption, InnerSegment } from './types';
 import { MS_INNER_SEGMENTS, MS_INNER_RADIUS, MS_OUTER_RING_INNER, MS_OUTER_RING_OUTER } from './types';
 import { getSegmentIdForOption } from './options';
-import { showRangePreview, clearRangePreview } from './range-preview';
+import { showRangePreview, clearRangePreview, resolveHoverPreviewMeters } from './range-preview';
 import { showRadialInfoPanel, hideRadialInfoPanel } from './info-panel';
 import { handleChosenCombatOption } from '../token-action-selector';
 import type { CombatSlot } from '../system/combat-maneuvers';
@@ -159,12 +159,11 @@ function createRadialOptionSlice(
     wedge.moveTo(innerStartX, innerStartY);
     wedge.lineTo(Math.cos(startAngle) * MS_OUTER_RING_OUTER, Math.sin(startAngle) * MS_OUTER_RING_OUTER);
     
-    // Range preview (Foundry v13 - keep it explicit and predictable)
-    // We do NOT auto-default to 6m, and we do NOT treat special range categories.
-    // If you want a preview, ensure the option has an explicit numeric range.
+    // Range / AoE footprint preview. Prefer burst/radius over cast range
+    // (PC Ranged AoE otherwise paints 68 m instead of Radius 7 m).
     if (Date.now() >= _msSuppressHoverPreviewUntil) {
-      const r = Number((option as any).range);
-      if (Number.isFinite(r) && r > 0) {
+      const r = resolveHoverPreviewMeters(option);
+      if (r != null) {
         showRangePreview(token, r);
       } else {
         clearRangePreview();

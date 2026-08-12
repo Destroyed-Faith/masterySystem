@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.301] - 2026-08-12
+
+### Fixed
+
+- **NPC sheet Status (phases):** Status panel inside phase tabs now reads `@root` flags so active effects show (same Handlebars scope class as the HP path bug).
+- **Add Power dialog:** Stopped forcing `position: relative` on the legacy Dialog — it no longer shifts Foundry’s UI / sticks off-screen; dialog is a centered fixed overlay.
+- **PC radial AoE hover:** Preview paints AoE footprint (burst / radius), not cast/weapon range — Melee AoE Self shows the printed radius; Ranged AoE no longer shows e.g. 68 m instead of Radius 7 m.
+- **PC Melee AoE hits:** Burst target collection uses the printed burst radius (no longer clipped by ~2 m weapon reach).
+
 ## [0.9.300] - 2026-08-12
 
 ### Fixed

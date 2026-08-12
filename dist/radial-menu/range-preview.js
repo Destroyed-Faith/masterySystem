@@ -8,6 +8,30 @@ import { gridStepsFromMeters } from '../utils/grid-range.js';
  */
 let msRangePreviewGfx = null;
 let msRadialMenuRangeGfx = null;
+/**
+ * Meters to paint on radial-menu hover.
+ * Prefer AoE footprint (burst / radius) over cast/weapon range — otherwise
+ * Ranged AoE shows e.g. 68 m cast range instead of a 7 m radius, and Melee
+ * AoE Self often shows 0 / weapon reach instead of the burst.
+ */
+export function resolveHoverPreviewMeters(option) {
+    if (!option)
+        return undefined;
+    const burst = Number(option.burstMeleeRadiusMeters);
+    if (option.burstMeleeAoE && Number.isFinite(burst) && burst > 0) {
+        return burst;
+    }
+    const aoe = Number(option.aoeRadiusMeters);
+    if (option.aoeShape === 'radius' &&
+        Number.isFinite(aoe) &&
+        aoe > 0) {
+        return aoe;
+    }
+    const r = Number(option.range);
+    if (Number.isFinite(r) && r > 0)
+        return r;
+    return undefined;
+}
 /** Grid steps → pixels (gridless circle). */
 function gridStepsToPixels(steps) {
     return steps * (canvas.grid?.size || 100);

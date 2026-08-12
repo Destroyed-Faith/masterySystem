@@ -234,12 +234,6 @@ export async function showTowerWizardPowerPicker(options: {
                         minHeight: 420,
                     });
                     const dialogEl = html.closest('.window-app.dialog');
-                    // The chrome sets position:relative, which keeps the dialog in the
-                    // document flow and shifts Foundry's whole layout. Force fixed overlay
-                    // and re-center (Foundry measured left:0 before our width applied).
-                    const left = Math.max(8, Math.round((window.innerWidth - dialogWidth) / 2));
-                    const top = Math.max(8, Math.round((window.innerHeight - dialogHeight) / 2));
-                    dialogEl.css({ position: 'fixed', left: `${left}px`, top: `${top}px` });
                     // Reused wizard styling assumes a dark surface; force dark theme so the
                     // light Foundry theme does not wash out our light-on-dark cards.
                     dialogEl.removeClass('theme-light').addClass('themed theme-dark');

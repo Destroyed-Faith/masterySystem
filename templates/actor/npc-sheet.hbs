@@ -166,12 +166,14 @@
           </div>
         </div>
 
-        {{!-- Status Effects (root system.statusEffects — shared across phases) --}}
+        {{!-- Status Effects (root system.statusEffects — shared across phases).
+             Must use @root: inside #each phases, unbound lookups resolve on the
+             phase object (same class of bug as nested ../phaseIndex for HP). --}}
         <div class="status-effects-panel npc-section">
           <h3 class="npc-section__title"><i class="fas fa-bolt"></i> Status</h3>
           <div class="status-effects-list">
-            {{#if hasNpcStatusEffects}}
-              {{#each npcStatusEffects as |effect|}}
+            {{#if @root.hasNpcStatusEffects}}
+              {{#each @root.npcStatusEffects as |effect|}}
               <div class="status-effect-item" data-effect-index="{{effect.index}}">
                 <span class="effect-name">
                   <i class="fas fa-exclamation-triangle"></i>
@@ -373,12 +375,12 @@
         </div>
       </div>
 
-      {{!-- Status Effects --}}
+      {{!-- Status Effects (root system.statusEffects) --}}
       <div class="status-effects-panel npc-section">
         <h3 class="npc-section__title"><i class="fas fa-bolt"></i> Status</h3>
         <div class="status-effects-list">
-          {{#if hasNpcStatusEffects}}
-            {{#each npcStatusEffects as |effect|}}
+          {{#if @root.hasNpcStatusEffects}}
+            {{#each @root.npcStatusEffects as |effect|}}
             <div class="status-effect-item" data-effect-index="{{effect.index}}">
               <span class="effect-name">
                 <i class="fas fa-exclamation-triangle"></i>

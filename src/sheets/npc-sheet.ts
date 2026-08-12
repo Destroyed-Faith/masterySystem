@@ -356,7 +356,10 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
 
       // Combat applies Specials to root system.statusEffects. Phase tabs used to
       // read empty phase.statusEffects ([] is truthy in Handlebars → blank panel).
-      const statusList = coerceStatusEffectsArray(context.system.statusEffects);
+      // Prefer live actor data (same source as combat carousel).
+      const statusList = coerceStatusEffectsArray(
+        (this.actor as any)?.system?.statusEffects ?? context.system.statusEffects
+      );
       context.system.statusEffects = statusList;
       (context as any).npcStatusEffects = buildNpcStatusRows(statusList);
       (context as any).hasNpcStatusEffects = statusList.length > 0;

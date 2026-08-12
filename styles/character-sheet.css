@@ -6540,7 +6540,8 @@
 .window-app.dialog.mastery-system.ms-power-catalog-dialog {
   display: flex;
   flex-direction: column;
-  position: relative;
+  /* Keep floating overlay (fixed/absolute + left/top). Never use relative —
+     that puts the dialog in document flow and shifts Foundry's whole UI. */
   min-width: 720px;
   min-height: 520px;
   max-width: 95vw;

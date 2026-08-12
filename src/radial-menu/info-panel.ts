@@ -78,7 +78,17 @@ export function showRadialInfoPanel(token: any, option: RadialCombatOption): voi
   
   const segmentId = getSegmentIdForOption(option);
   const category = segmentId === 'active-buff' ? 'attack' : segmentId;
-  const rangeText = option.range !== undefined ? `${option.range}m` : '–';
+  const castRange =
+    option.rangeMeters ??
+    (option.burstMeleeAoE ? undefined : option.range);
+  const rangeText = castRange !== undefined ? `${castRange}m` : (option.range !== undefined ? `${option.range}m` : '–');
+  const aoeM =
+    (option.burstMeleeAoE && option.burstMeleeRadiusMeters) ||
+    (option.aoeShape === 'radius' ? option.aoeRadiusMeters : undefined);
+  const aoeText =
+    typeof aoeM === 'number' && aoeM > 0
+      ? (option.burstMeleeAoE ? `AoE burst ${aoeM}m` : `AoE radius ${aoeM}m`)
+      : '';
   
   // Get weapon damage if this is a weapon attack
   let damageText = '';
@@ -163,8 +173,12 @@ export function showRadialInfoPanel(token: any, option: RadialCombatOption): voi
   
   if (reachText) {
     infoHTML += `<div class="ms-info-reach">${reachText}</div>`;
-  } else {
+  } else if (!option.burstMeleeAoE) {
     infoHTML += `<div class="ms-info-range">Range: ${rangeText}</div>`;
+  }
+
+  if (aoeText) {
+    infoHTML += `<div class="ms-info-aoe">${aoeText}</div>`;
   }
   
   if (specialText) {

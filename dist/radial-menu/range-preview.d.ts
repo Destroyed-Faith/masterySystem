@@ -1,6 +1,14 @@
 /**
  * Range Preview and Hex Highlighting for Radial Menu
  */
+import type { RadialCombatOption } from './types';
+/**
+ * Meters to paint on radial-menu hover.
+ * Prefer AoE footprint (burst / radius) over cast/weapon range — otherwise
+ * Ranged AoE shows e.g. 68 m cast range instead of a 7 m radius, and Melee
+ * AoE Self often shows 0 / weapon reach instead of the burst.
+ */
+export declare function resolveHoverPreviewMeters(option: RadialCombatOption | null | undefined): number | undefined;
 /**
  * Clear the range preview graphics
  */

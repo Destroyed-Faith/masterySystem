@@ -22,15 +22,18 @@ export function getMeleeReachMeters(option) {
     return 2;
 }
 /**
- * Hostile token ids within a melee burst AoE: distance from attacker center
- * ≤ min(melee reach, template burst radius). Reach caps how far a melee strike can reach.
+ * Hostile token ids within a melee burst AoE (self-centered): distance from
+ * attacker center ≤ printed burst radius.
+ *
+ * Catalog Melee AoE is Self + radius (not weapon-reach-capped). Using
+ * min(reach, burst) clipped PC bursts to ~2 m when range was weapon reach.
  */
 export function collectMeleeBurstHostileTokenIds(attackerToken, option) {
     const reachM = getMeleeReachMeters(option);
     const burstM = typeof option.burstMeleeRadiusMeters === "number" && option.burstMeleeRadiusMeters > 0
         ? option.burstMeleeRadiusMeters
         : reachM;
-    const hitRadiusM = Math.min(reachM, burstM);
+    const hitRadiusM = burstM;
     const attackerCenter = attackerToken?.center;
     if (!attackerCenter)
         return [];

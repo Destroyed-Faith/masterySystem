@@ -378,22 +378,16 @@ function calculateRange(
                   rangeStr.toLowerCase() === 'touch' ||
                   (levelData && levelData.type && levelData.type.toLowerCase() === 'melee');
   
-  // For melee attacks/powers: use weapon range if available, otherwise 2m base + reach bonus
+  // Melee / Self / Touch: always melee reach. Never inherit a ranged weapon's
+  // long range (that made Self AoEs preview as e.g. 68 m).
   if (slot === 'attack' && isMelee) {
-    // First try to get weapon range
+    const reachBonus = getReachBonus(actor);
+    const meleeDefault = 2 + reachBonus;
     const weaponRange = getWeaponRange(actor);
-    if (weaponRange !== undefined) {
-      // If weapon is melee (0m), calculate with reach
-      if (weaponRange === 0) {
-        const reachBonus = getReachBonus(actor);
-        return 2 + reachBonus; // Base 2m + reach bonus
-      }
-      // If weapon is ranged, use weapon range
+    if (weaponRange !== undefined && weaponRange > 0 && weaponRange <= 8) {
       return weaponRange;
     }
-    // No weapon equipped, use default melee range
-    const reachBonus = getReachBonus(actor);
-    return 2 + reachBonus; // Base 2m + reach bonus
+    return meleeDefault;
   }
   
   // For powers with no range specified: use weapon range if available
@@ -896,6 +890,11 @@ export async function getAllCombatOptionsForActor(actor: any): Promise<RadialCom
         if (shapeM === 'radius' && radM !== undefined && radM > 0) {
           burstMeleeAoE = true;
           burstMeleeRadiusMeters = radM;
+          aoeShape = 'radius';
+          aoeRadiusMeters = radM;
+          // Preview / burst collection use the printed radius, not weapon reach.
+          range = radM;
+          rangeMeters = radM;
         }
       }
     }
@@ -929,7 +928,15 @@ export async function getAllCombatOptionsForActor(actor: any): Promise<RadialCom
       tags: Array.isArray(tags) ? tags : [],
       costsMovement: costsMovement,
       costsAction: costsAction,
-      ...(burstMeleeAoE ? { burstMeleeAoE: true, burstMeleeRadiusMeters } : {}),
+      ...(burstMeleeAoE
+        ? {
+            burstMeleeAoE: true,
+            burstMeleeRadiusMeters,
+            aoeShape,
+            aoeRadiusMeters,
+            meleeReachMeters: burstMeleeRadiusMeters,
+          }
+        : {}),
     };
     
     // Add utility targeting fields if this is a utility

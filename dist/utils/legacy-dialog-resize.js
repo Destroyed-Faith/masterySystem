@@ -1,6 +1,10 @@
 /**
  * Resize handle for legacy Foundry `Dialog` windows (.window-app.dialog).
  * ApplicationV2 has built-in resizing; legacy Dialog does not expose a visible grip.
+ *
+ * IMPORTANT: never set `position: relative` on `.window-app` — that pulls the
+ * dialog into document flow, shifts Foundry's whole UI (black bar / layout
+ * jump), and breaks dragging. Keep `position: fixed` (or absolute) + left/top.
  */
 export function syncLegacyDialogContentHeight(root) {
     if (!root?.length)
@@ -18,6 +22,23 @@ export function syncLegacyDialogContentHeight(root) {
         overflowY: 'auto',
     });
 }
+/** Keep a legacy dialog as a floating overlay and (re)center it in the viewport. */
+export function placeLegacyDialogOverlay(root, width, height) {
+    if (!root?.length)
+        return;
+    const w = Math.min(width, Math.max(320, window.innerWidth - 24));
+    const h = Math.min(height, Math.max(240, window.innerHeight - 24));
+    const left = Math.max(8, Math.round((window.innerWidth - w) / 2));
+    const top = Math.max(8, Math.round((window.innerHeight - h) / 2));
+    root.css({
+        position: 'fixed',
+        left: `${left}px`,
+        top: `${top}px`,
+        width: `${w}px`,
+        height: `${h}px`,
+        margin: '0',
+    });
+}
 export function attachLegacyDialogResizeHandle(root, options = {}) {
     if (!root?.length)
         return;
@@ -27,7 +48,7 @@ export function attachLegacyDialogResizeHandle(root, options = {}) {
     const minHeight = options.minHeight ?? 520;
     const maxWidth = options.maxWidth ?? Math.min(1200, window.innerWidth - 24);
     const maxHeight = options.maxHeight ?? Math.min(920, window.innerHeight - 24);
-    root.css({ position: 'relative' });
+    // Do not touch `position` here — caller / Foundry owns overlay placement.
     root.addClass('ms-legacy-resizable-dialog');
     const sync = () => {
         syncLegacyDialogContentHeight(root);
@@ -82,14 +103,20 @@ export function setupPowerCatalogDialogChrome(html, options = {}) {
     dialogElement.css({
         display: 'flex',
         flexDirection: 'column',
-        position: 'relative',
-        width: `${initialWidth}px`,
-        height: `${initialHeight}px`,
         minWidth: `${minWidth}px`,
         minHeight: `${minHeight}px`,
         maxWidth: '95vw',
         maxHeight: '92vh',
     });
+    if (options.center !== false) {
+        placeLegacyDialogOverlay(dialogElement, initialWidth, initialHeight);
+    }
+    else {
+        dialogElement.css({
+            width: `${initialWidth}px`,
+            height: `${initialHeight}px`,
+        });
+    }
     attachLegacyDialogResizeHandle(dialogElement, { minWidth, minHeight });
 }
 //# sourceMappingURL=legacy-dialog-resize.js.map

@@ -252,7 +252,6 @@ export function buildArtifactRadialOptions(actor) {
             // ── Attack: offensive artifact power (Melee / Ranged / AoE / Zone) ──
             const range = parseRowRange(row.range) ?? 0;
             const aoe = parseRowAoe(row.aoe);
-            const isRanged = /ranged|zone/i.test(rowType);
             const option = {
                 id,
                 name,
@@ -285,15 +284,19 @@ export function buildArtifactRadialOptions(actor) {
                 option.aoeShape = aoe.shape;
                 option.aoeRadiusMeters = aoe.radiusM;
                 option.defaultTargetGroup = 'enemy';
-                // Melee AoE stays self-centered (burst dialog + hex preview).
-                // Ranged / zone AoE uses cursor placement.
-                if (!isRanged && /melee/i.test(rowType)) {
+                // Melee / Self AoE: self-centered burst. Everything else with a
+                // cast range (incl. type "Active" + "68 m" + Radius 7 m) is a
+                // placeable hostile zone — not cast-range as the AoE footprint.
+                const meleeLike = /melee/i.test(rowType) || range === 0 || (row.range || '').trim().toLowerCase() === 'self';
+                if (meleeLike) {
                     option.burstMeleeAoE = true;
                     option.burstMeleeRadiusMeters = aoe.radiusM;
-                    option.rangeMeters = range;
+                    option.range = aoe.radiusM ?? range;
+                    option.rangeMeters = option.range;
+                    option.meleeReachMeters = aoe.radiusM;
                 }
                 else {
-                    option.rangeMeters = isRanged ? range : 0;
+                    option.rangeMeters = range > 0 ? range : 0;
                     option.allowManualTargetSelection = true;
                     option.aoePlacementProfile = 'hostile-zone';
                 }
