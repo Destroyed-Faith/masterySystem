@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.302] - 2026-08-12
+
+### Added
+
+- **NPC sheet Ini:** Malus/bonus dropdowns (−10…+10) with `MRd8 ± N` summary; modifier applied on combat-start initiative for NPCs/summons.
+- **NPC Speed (m):** Former “Tempo” field clarified as base movement meters (separate from Move Actions / Round).
+
+### Changed
+
+- **NPC sheet labels:** Combat strip and HP section use English (Evade, Armor, Ini, Speed, HP).
+
 ## [0.9.301] - 2026-08-12
 
 ### Fixed
