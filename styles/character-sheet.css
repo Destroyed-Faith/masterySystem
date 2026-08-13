@@ -3993,9 +3993,9 @@
   justify-content: space-between;
   align-items: center;
   padding: 8px 15px;
-  background: linear-gradient(to bottom, #4a4a4a, #2a2a2a);
-  color: #fff;
-  border-bottom: 2px solid #8b0000;
+  background: linear-gradient(to bottom, var(--df-bg-panel, #2a3136), var(--df-bg-primary, #20272B));
+  color: var(--df-text-primary, #d0d0d0);
+  border-bottom: 2px solid var(--df-border-primary, #3a3f44);
   min-height: 80px;
   max-height: 80px;
 }
@@ -4013,13 +4013,36 @@
   flex: 1;
 }
 
+.mastery-system.sheet.actor.npc .npc-sheet-kind {
+  font-family: var(--df-font-head, inherit);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--df-text-primary, #d0d0d0);
+  border: 1px solid var(--df-border-primary, #3a3f44);
+  border-radius: 4px;
+  padding: 6px 8px;
+  background: rgba(0, 0, 0, 0.25);
+}
+
+.mastery-system.sheet.actor.npc .npc-disposition-locked {
+  display: block;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid var(--df-border-primary, #3a3f44);
+  border-radius: 4px;
+  color: var(--df-text-primary, #d0d0d0);
+  font-size: 0.85rem;
+  padding: 4px 6px;
+}
+
 .mastery-system.sheet.actor.npc .mastery-rank-box {
   display: flex;
   flex-direction: column;
   gap: 2px;
   padding: 3px 6px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(139, 0, 0, 0.5);
+  background: var(--df-accent-subtle, rgba(255, 255, 255, 0.15));
+  border: 1px solid var(--df-border-primary, #3a3f44);
   border-radius: 4px;
   min-width: 50px;
   max-width: 60px;
@@ -4038,9 +4061,9 @@
 .mastery-system.sheet.actor.npc .mastery-rank-select {
   width: 100%;
   background: rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(139, 0, 0, 0.5);
+  border: 1px solid var(--df-border-primary, #3a3f44);
   border-radius: 3px;
-  color: #fff;
+  color: var(--df-text-primary, #d0d0d0);
   font-size: 14px;
   font-weight: 700;
   text-align: center;
@@ -4050,13 +4073,13 @@
 
 .mastery-system.sheet.actor.npc .mastery-rank-select:hover {
   background: rgba(0, 0, 0, 0.5);
-  border-color: rgba(139, 0, 0, 0.8);
+  border-color: var(--df-border-highlight, #5a6168);
 }
 
 .mastery-system.sheet.actor.npc .mastery-rank-select:focus {
   outline: none;
-  border-color: #8b0000;
-  box-shadow: 0 0 5px rgba(139, 0, 0, 0.5);
+  border-color: var(--df-border-highlight, #5a6168);
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.35);
 }
 
 .mastery-system.sheet.actor.npc .character-name-box {
@@ -4077,7 +4100,7 @@
 
 .mastery-system.sheet.actor.npc .character-name-box input:focus {
   outline: none;
-  border-bottom-color: #8b0000;
+  border-bottom-color: var(--df-border-highlight, #5a6168);
 }
 
 .mastery-system.sheet.actor.npc .character-name-box h1 {
@@ -4113,7 +4136,7 @@
 
 .mastery-system.sheet.actor.npc .npc-creature-type-box select:focus {
   outline: none;
-  border-color: #8b0000;
+  border-color: var(--df-border-highlight, #5a6168);
 }
 
 .mastery-system.sheet.actor.npc .npc-disposition-box {
@@ -4142,7 +4165,7 @@
 
 .mastery-system.sheet.actor.npc .npc-disposition-box select:focus {
   outline: none;
-  border-color: #8b0000;
+  border-color: var(--df-border-highlight, #5a6168);
 }
 
 .mastery-system.sheet.actor.npc .sheet-body {
@@ -4156,7 +4179,7 @@
 
 .mastery-system.sheet.actor.npc .npc-section {
   background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(139, 0, 0, 0.25);
+  border: 1px solid var(--df-border-primary, #3a3f44);
   border-radius: 8px;
   padding: 10px 12px;
   box-shadow: 0 1px 0 rgba(255, 255, 255, 0.04) inset;
@@ -4256,7 +4279,7 @@
 
 .mastery-system.sheet.actor.npc .npc-attack-card {
   background: rgba(0, 0, 0, 0.28);
-  border: 1px solid rgba(139, 0, 0, 0.35);
+  border: 1px solid var(--df-border-primary, #3a3f44);
   border-radius: 8px;
   padding: 10px 10px 12px;
   margin-bottom: 10px;
@@ -4286,15 +4309,15 @@
   width: 36px;
   height: 36px;
   border-radius: 4px;
-  border: 1px solid rgba(139, 0, 0, 0.5);
-  background: rgba(139, 0, 0, 0.2);
-  color: #ffb4b4;
+  border: 1px solid var(--df-border-primary, #3a3f44);
+  background: rgba(0, 0, 0, 0.35);
+  color: var(--df-text-muted, #aeb5c0);
   cursor: pointer;
   transition: background 0.15s ease;
 }
 
 .mastery-system.sheet.actor.npc .npc-attack-delete:hover {
-  background: rgba(139, 0, 0, 0.45);
+  background: rgba(123, 58, 58, 0.55);
   color: #fff;
 }
 
@@ -4362,8 +4385,8 @@
 }
 
 .mastery-system.sheet.actor.npc .npc-attack-specials-header button:hover {
-  background: rgba(139, 0, 0, 0.35);
-  border-color: rgba(139, 0, 0, 0.55);
+  background: rgba(174, 181, 192, 0.2);
+  border-color: var(--df-border-highlight, #5a6168);
   color: #fff;
 }
 
@@ -4648,7 +4671,7 @@
 }
 
 .mastery-system.sheet.actor.npc .profile-img-container .profile-zone:hover {
-  background: rgba(139, 0, 0, 0.7);
+  background: rgba(174, 181, 192, 0.35);
 }
 
 .mastery-system.sheet.actor.npc .profile-img-container .zone-label {
@@ -4674,7 +4697,7 @@
 .mastery-system.sheet.actor.npc .status-effects-panel,
 .mastery-system.sheet.actor.npc .saves-panel {
   background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(139, 0, 0, 0.25);
+  border: 1px solid var(--df-border-primary, #3a3f44);
   border-radius: 8px;
   padding: 10px 12px;
   box-shadow: 0 1px 0 rgba(255, 255, 255, 0.04) inset;
@@ -4803,7 +4826,7 @@
 .mastery-system.sheet.actor.npc .attack-values-panel {
   padding: 10px 12px;
   background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(139, 0, 0, 0.25);
+  border: 1px solid var(--df-border-primary, #3a3f44);
   border-radius: 8px;
   box-shadow: 0 1px 0 rgba(255, 255, 255, 0.04) inset;
 }
@@ -4879,9 +4902,9 @@
 }
 
 .mastery-system.sheet.actor.npc .attack-value-add {
-  background: #8b0000;
-  color: #fff;
-  border: none;
+  background: var(--df-bg-panel2, #343b40);
+  color: var(--df-text-primary, #d0d0d0);
+  border: 1px solid var(--df-border-primary, #3a3f44);
   padding: 5px 10px;
   border-radius: 3px;
   cursor: pointer;
@@ -4891,7 +4914,8 @@
 }
 
 .mastery-system.sheet.actor.npc .attack-value-add:hover {
-  background: #a00000;
+  background: var(--df-bg-header, #343b40);
+  border-color: var(--df-border-highlight, #5a6168);
 }
 
 .mastery-system.sheet.actor.npc .attack-values-list {
@@ -4902,7 +4926,7 @@
 
 .mastery-system.sheet.actor.npc .attack-value-item {
   background: rgba(0, 0, 0, 0.22);
-  border: 1px solid rgba(139, 0, 0, 0.35);
+  border: 1px solid var(--df-border-primary, #3a3f44);
   border-radius: 8px;
   padding: 10px;
 }
@@ -4983,8 +5007,8 @@
 }
 
 .mastery-system.sheet.actor.npc .attack-value-delete:hover {
-  background: #f0f0f0;
-  color: #8b0000;
+  background: var(--df-bg-panel2, #343b40);
+  color: var(--df-text-primary, #d0d0d0);
 }
 
 .mastery-system.sheet.actor.npc .no-attack-values {
@@ -4999,55 +5023,39 @@
 .mastery-system.sheet.actor.npc .phase-controls {
   padding: 10px;
   text-align: center;
-  border-bottom: 1px solid #ccc;
-}
-
-.mastery-system.sheet.actor.npc .phase-add-btn {
-  background: #8b0000;
-  color: #fff;
-  border: none;
-  padding: 8px 15px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 13px;
-  font-weight: 600;
-  transition: background 0.2s;
-}
-
-.mastery-system.sheet.actor.npc .phase-add-btn:hover {
-  background: #a00000;
+  border-bottom: 1px solid var(--df-border-primary, #3a3f44);
 }
 
 .mastery-system.sheet.actor.npc .sheet-tabs {
   display: flex;
   gap: 5px;
   padding: 5px 10px;
-  background: #f0f0f0;
-  border-bottom: 2px solid #8b0000;
+  background: var(--df-bg-panel, #2a3136);
+  border-bottom: 2px solid var(--df-border-primary, #3a3f44);
 }
 
 .mastery-system.sheet.actor.npc .sheet-tabs .item {
   padding: 8px 15px;
-  background: #fff;
-  border: 1px solid #ccc;
+  background: var(--df-bg-panel2, #343b40);
+  border: 1px solid var(--df-border-primary, #3a3f44);
   border-bottom: none;
   border-radius: 4px 4px 0 0;
   cursor: pointer;
   font-size: 13px;
   font-weight: 600;
-  color: #666;
+  color: var(--df-text-muted, #aeb5c0);
   transition: all 0.2s;
 }
 
 .mastery-system.sheet.actor.npc .sheet-tabs .item:hover {
-  background: #f8f8f8;
-  color: #8b0000;
+  background: var(--df-bg-header, #343b40);
+  color: var(--df-text-primary, #d0d0d0);
 }
 
 .mastery-system.sheet.actor.npc .sheet-tabs .item.active {
-  background: #8b0000;
-  color: #fff;
-  border-color: #8b0000;
+  background: var(--df-bg-header, #343b40);
+  color: var(--df-text-primary, #f0f0f0);
+  border-color: var(--df-border-highlight, #5a6168);
 }
 
 .mastery-system.sheet.actor.npc .phase-header {
@@ -5055,19 +5063,20 @@
   justify-content: space-between;
   align-items: center;
   padding: 10px;
-  background: #f8f8f8;
-  border-bottom: 1px solid #ccc;
+  background: var(--df-bg-panel, #2a3136);
+  border-bottom: 1px solid var(--df-border-primary, #3a3f44);
   margin-bottom: 10px;
 }
 
 .mastery-system.sheet.actor.npc .phase-name-input {
   flex: 1;
   padding: 5px 10px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--df-border-primary, #3a3f44);
   border-radius: 3px;
   font-size: 16px;
   font-weight: 700;
-  color: #8b0000;
+  color: var(--df-text-primary, #d0d0d0);
+  background: rgba(0, 0, 0, 0.3);
   margin-right: 10px;
 }
 

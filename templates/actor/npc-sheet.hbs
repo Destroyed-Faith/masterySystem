@@ -33,6 +33,9 @@
     </div>
     
     <div class="header-info">
+      {{#if isSummon}}
+      <div class="npc-sheet-kind" title="Summon">Summon</div>
+      {{/if}}
       <div class="mastery-rank-box" title="Mastery Rank">
         <label>MR</label>
         <select name="system.mastery.rank" class="mastery-rank-select" data-dtype="Number">
@@ -49,7 +52,7 @@
       
       <div class="character-name-box">
         {{#if editable}}
-          <input name="name" type="text" value="{{actor.name}}" placeholder="NPC Name" />
+          <input name="name" type="text" value="{{actor.name}}" placeholder="{{#if isSummon}}Summon Name{{else}}NPC Name{{/if}}" />
         {{else}}
           <h1>{{actor.name}}</h1>
         {{/if}}
@@ -67,6 +70,13 @@
           <option value="other" {{#if (eq system.creatureType "other")}}selected{{/if}}>Other</option>
         </select>
       </div>
+      {{#if isSummon}}
+      <div class="npc-disposition-box" title="Summons are always Friendly">
+        <label>Seite</label>
+        <span class="npc-disposition-locked">Friendly</span>
+        <input type="hidden" name="prototypeToken.disposition" value="1" data-dtype="Number" />
+      </div>
+      {{else}}
       <div class="npc-disposition-box" title="Token-Seite: Friendly / Neutral / Hostile — steuert Threatened Ranged, Targeting, Aura-Farbe">
         <label>Seite</label>
         <select name="prototypeToken.disposition" class="npc-disposition-select" data-dtype="Number">
@@ -75,10 +85,12 @@
           {{/each}}
         </select>
       </div>
+      {{/if}}
     </div>
   </header>
 
-  {{!-- Phase Tabs Navigation (if phases exist) --}}
+  {{!-- Phase Tabs Navigation (if phases exist). Summons never have phases. --}}
+  {{#unless isSummon}}
   {{#if system.phases}}
   <nav class="sheet-tabs tabs" data-group="primary">
     {{#each system.phases as |phase index|}}
@@ -95,8 +107,10 @@
     </button>
   </div>
   {{/if}}
+  {{/unless}}
 
   {{#if system.phases}}
+  {{#unless isSummon}}
   <div class="npc-phase-toolbar npc-section">
     <div class="npc-phase-toolbar__field">
       <label>Active Phase (Radial / Attacks)</label>
@@ -115,6 +129,7 @@
       <input type="number" name="system.npcMovementSlots" value="{{default system.npcMovementSlots 1}}" min="1" max="10" step="1" data-dtype="Number" title="Movement actions per round"/>
     </div>
   </div>
+  {{/unless}}
   {{/if}}
 
   {{!-- Sheet Body --}}
@@ -439,7 +454,7 @@
                     <label>Damage</label>
               <select name="system.npcBaseAttack.damageDiceCount" data-dtype="Number">
                 <option value="">—</option>
-                {{#each (range 4 16)}}
+                {{#each (range npcDamageDiceMin 16)}}
                 <option value="{{this}}" {{#if (eqNum ../system.npcBaseAttack.damageDiceCount this)}}selected{{/if}}>{{this}}d8</option>
                 {{/each}}
               </select>
@@ -476,7 +491,8 @@
         </div>
       </div>
 
-      {{!-- Extra-Powers --}}
+      {{!-- Extra-Powers (NPC only — Summons inherit Bond values, no extras) --}}
+      {{#unless isSummon}}
       <div class="attack-values-panel npc-section">
         <div class="attack-values-header">
           <h3 class="npc-section__title"><i class="fas fa-khanda"></i> Weitere Powers (Extras)</h3>
@@ -547,6 +563,7 @@
           {{/if}}
         </div>
       </div>
+      {{/unless}}
     {{/if}}
 
     {{!-- Notes --}}
@@ -559,7 +576,7 @@
         </div>
         <p class="hint"><i class="fas fa-info-circle"></i> This color will be used for blood pools when this NPC takes damage.</p>
       </div>
-      
+      {{#unless isSummon}}
       <label>Description:</label>
       {{#if editable}}
           <prose-mirror name="system.bio.description" value="{{system.bio.description}}" toggled document-uuid="{{actor.uuid}}">{{{enrichedBio.description}}}</prose-mirror>
@@ -569,6 +586,7 @@
       
       <label>Notes:</label>
       <textarea name="system.notes">{{system.notes}}</textarea>
+      {{/unless}}
     </div>
 
   </section>

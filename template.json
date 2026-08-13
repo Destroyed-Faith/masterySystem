@@ -299,9 +299,18 @@
         "speed": 8
       },
       "npcBaseAttack": {
-        "name": "Familiar Attack",
+        "name": "Summon Attack",
         "attackDiceCount": 2,
         "damageDiceCount": 1,
+        "npcRangeKind": "melee",
+        "npcRangeMeters": 2,
+        "npcRangeMinMeters": 0,
+        "npcAoeShape": "none",
+        "npcAoeRadiusM": 0,
+        "npcIsSpell": false,
+        "npcAttacksPerRound": 1,
+        "npcSplitAttack": false,
+        "npcStressD8": 0,
         "specials": []
       },
       "attackValues": [],

@@ -23,6 +23,10 @@ import {
   validateBondSkillAlloc,
 } from '../src/stones/summon-bond-bind';
 import {
+  buildSummonActorDataFromBond,
+  buildSummonActorOwnership,
+} from '../src/stones/familiar-actor-factory';
+import {
   CRITICAL_ATTACK_EXPLODE_FACES,
   resolveCriticalAttackModifier,
   syncCriticalRoundQuota,
@@ -453,6 +457,53 @@ describe('Summon acceptance — rules, budget, action economy', () => {
     const v2 = validateBondRitual(bond);
     expect(v2.computed.summonAttacks).toBe(1);
     expect(v2.computed.bodyCount).toBe(4);
+  });
+});
+
+describe('Summon actor create data', () => {
+  it('fills NPC combat fields, Friendly disposition, and no notes/description', () => {
+    const bond = createEmptyBond({
+      name: 'Eule',
+      ownerActorId: 'Actor.fin',
+      movementMode: 'flying',
+      stoneAttributes: ['vitality'],
+    });
+    const derived = recomputeBondDerived(bond);
+    const data = buildSummonActorDataFromBond(derived, derived.bodies[0], {
+      id: 'Actor.fin',
+      name: 'Fin',
+      system: { mastery: { rank: 3 } },
+    });
+    expect(data.type).toBe('summon');
+    expect((data.prototypeToken as any).disposition).toBe(1);
+    expect((data.system as any).combat.evade).toBe(derived.bodies[0].evade);
+    expect((data.system as any).combat.armor).toBe(derived.bodies[0].armor);
+    expect((data.system as any).combat.speed).toBe(derived.movementM);
+    expect((data.system as any).npcBaseAttack.attackDiceCount).toBe(derived.attackDice);
+    expect((data.system as any).npcBaseAttack.damageDiceCount).toBe(derived.damageDice);
+    expect((data.system as any).npcBaseAttack.npcRangeKind).toBe('melee');
+    expect((data.system as any).attackSlots).toBe(derived.summonAttacks);
+    expect((data.system as any).mastery.rank).toBe(3);
+    expect((data.system as any).notes).toBe('');
+    expect((data.system as any).bio.description).toBe('');
+    expect((data.system as any).bloodColor).toBe('#4a148c');
+  });
+
+  it('grants OWNER to GMs and the assigned player of the owner character', () => {
+    const ownerActor = {
+      id: 'Actor.fin',
+      ownership: { default: 0, 'User.gm': 3 },
+    };
+    const users = [
+      { id: 'User.gm', isGM: true, character: null },
+      { id: 'User.fin', isGM: false, character: { id: 'Actor.fin' } },
+      { id: 'User.other', isGM: false, character: { id: 'Actor.other' } },
+    ];
+    const ownership = buildSummonActorOwnership(ownerActor, users, 'User.gm');
+    expect(ownership.default).toBe(2);
+    expect(ownership['User.gm']).toBe(3);
+    expect(ownership['User.fin']).toBe(3);
+    expect(ownership['User.other']).toBeUndefined();
   });
 });
 

@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.316] - 2026-08-13
+
+### Changed
+
+- **Summon actor:** Create Actor now fills an NPC-style sheet titled **Summon** (no phases, no Description/Notes, no extra powers). Combat and the base attack come from the Bond. Disposition is always **Friendly**. Ownership is set to the owner’s assigned player and every GM. Blood Color stays. NPC sheet CSS no longer uses the old red character-sheet boxes.
+
 ## [0.9.315] - 2026-08-13
 
 ### Fixed

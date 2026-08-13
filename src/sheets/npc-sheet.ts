@@ -312,27 +312,36 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
       context.system.health = ensureNpcHealthState(context.system.health);
     }
 
-    if (context.actor?.type === 'npc' && context.system) {
+    const isSummon = context.actor?.type === 'summon';
+    const isNpcLike = context.actor?.type === 'npc' || isSummon;
+    context.isSummon = isSummon;
+    context.npcDamageDiceMin = isSummon ? 1 : 4;
+
+    if (isNpcLike && context.system) {
       if (context.system.creatureType == null || context.system.creatureType === undefined) {
         // Legacy: bio.type may already hold a free-text creature label.
         context.system.creatureType = String(context.system.bio?.type ?? '');
       }
       context.system.npcBaseAttack = ensureNpcBaseShape(context.system.npcBaseAttack);
 
-      const phases = coerceNpcPhasesArray(context.system.phases);
-      if (phases.length > 0) {
-        if (
-          context.system.npcActivePhaseIndex == null ||
-          !Number.isFinite(Number(context.system.npcActivePhaseIndex))
-        ) {
-          context.system.npcActivePhaseIndex = 0;
+      if (isSummon) {
+        context.system.phases = null;
+      } else {
+        const phases = coerceNpcPhasesArray(context.system.phases);
+        if (phases.length > 0) {
+          if (
+            context.system.npcActivePhaseIndex == null ||
+            !Number.isFinite(Number(context.system.npcActivePhaseIndex))
+          ) {
+            context.system.npcActivePhaseIndex = 0;
+          }
+          context.system.phases = phases.map((phase: any) => ({
+            ...phase,
+            combat: withNpcIniUi(phase?.combat),
+            npcBaseAttack: ensureNpcBaseShape(phase?.npcBaseAttack),
+            health: ensureNpcHealthState(phase?.health ?? context.system.health),
+          }));
         }
-        context.system.phases = phases.map((phase: any) => ({
-          ...phase,
-          combat: withNpcIniUi(phase?.combat),
-          npcBaseAttack: ensureNpcBaseShape(phase?.npcBaseAttack),
-          health: ensureNpcHealthState(phase?.health ?? context.system.health),
-        }));
       }
       context.system.combat = withNpcIniUi(context.system.combat);
       (context as any).npcMasteryRank = Math.max(
@@ -341,7 +350,7 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
       );
     }
 
-    if (context.actor?.type === 'npc' && context.system) {
+    if (isNpcLike && context.system) {
       (context as any).npcSpecialSelectGroups = buildNpcSpecialSelectGroups();
       // Token disposition for Threatened Ranged / targeting (Foundry: -1 / 0 / 1).
       // Prefer the placed token when editing an unlinked token actor.
@@ -352,7 +361,11 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
           (globalThis as any).CONST?.TOKEN_DISPOSITIONS?.HOSTILE ??
           -1
       );
-      const disposition = tokenDisp === 1 || tokenDisp === 0 || tokenDisp === -1 ? tokenDisp : -1;
+      const disposition = isSummon
+        ? 1
+        : tokenDisp === 1 || tokenDisp === 0 || tokenDisp === -1
+          ? tokenDisp
+          : -1;
       (context as any).npcDispositionOptions = [
         { value: -1, label: 'Hostile', selected: disposition === -1 },
         { value: 0, label: 'Neutral', selected: disposition === 0 },
@@ -362,7 +375,7 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
       if (Array.isArray(context.system.attackValues)) {
         context.system.attackValues = context.system.attackValues.map((r: any) => normalizeNpcAttackRowForContext(r));
       }
-      if (Array.isArray(context.system.phases)) {
+      if (!isSummon && Array.isArray(context.system.phases)) {
         context.system.phases = context.system.phases.map((ph: any) => ({
           ...ph,
           npcBaseAttack: normalizeNpcAttackRowForContext(ph.npcBaseAttack),
@@ -371,8 +384,10 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
             : ph.attackValues
         }));
       }
-      // ATK = Summe der Angriffe/Runde-Kopien (aktive Phase bzw. Root-Liste).
-      context.system.attackSlots = sumNpcAttackSlotsFromPowers(context.system);
+      // NPC ATK = Summe der Angriffe/Runde-Kopien. Summons keep Bond attackSlots.
+      if (!isSummon) {
+        context.system.attackSlots = sumNpcAttackSlotsFromPowers(context.system);
+      }
 
       // Combat applies Specials to root system.statusEffects. Phase tabs used to
       // read empty phase.statusEffects ([] is truthy in Handlebars → blank panel).
