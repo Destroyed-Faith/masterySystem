@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.322] - 2026-08-13
+
+### Changed
+
+- **Blood stains:** Hits now stamp one tinted splash texture (drops / impacts / pools) on the map under the token, not ellipse blobs on top of the character. Light = small chip, medium = heavy chip, heavy = health-level loss. Wounded / Broken / Incapacitated tokens leave directional trail smears when they move. Oldest stains fade out after a handful so the floor does not fill up.
+
 ## [0.9.321] - 2026-08-13
 
 ### Changed

@@ -41,6 +41,7 @@ packs/*/*.db-wal
 *.temp
 temp_*
 tmp/
+_splatter-preview/
 
 # Generated release archives and staging
 dist-release/

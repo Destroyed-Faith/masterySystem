@@ -1637,7 +1637,7 @@ export async function applyDamageToTarget(
       }
     }
 
-    // Blood FX under the hit token: splatters for HP chips, mega puddle on health-level loss.
+    // Blood FX under the hit token: light/medium stains for chips, heavy pool on level loss.
     if (barDamage > 0 && (globalThis as any).canvas?.ready) {
       try {
         const { didLoseHealthLevel, showDamageBloodEffect } = await import('../utils/blood-pool.js');
