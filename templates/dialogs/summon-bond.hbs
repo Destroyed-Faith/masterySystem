@@ -70,38 +70,38 @@
   {{#if isRitual}}
   <section class="sb-budget-sticky {{#if tokens.over}}is-over{{else if tokens.noneLeft}}is-empty{{/if}}">
     <div class="sb-budget-main">
-      <div class="sb-budget-left">
-        <span class="sb-budget-label">Tokens left</span>
-        <strong class="sb-budget-remaining {{#if tokens.over}}is-over{{/if}}">{{tokens.remaining}}</strong>
-        <span class="sb-budget-of">of {{tokens.available}}</span>
+      <div class="sb-budget-col">
+        <div class="sb-budget-left">
+          <span class="sb-budget-label">Tokens left</span>
+          <strong class="sb-budget-remaining {{#if tokens.over}}is-over{{/if}}">{{tokens.remaining}}</strong>
+          <span class="sb-budget-of">of {{tokens.available}}</span>
+        </div>
+        <div class="sb-budget-breakdown">
+          <div>Bound Stones {{draft.boundStoneCount}} × 8 = <strong>{{tokens.boundTotal}}</strong></div>
+          <div>Artifact bonus = <strong>+{{tokens.artifactBonus}}</strong></div>
+          <div>Spent {{tokens.spent}} · Bond {{tokens.bondSpent}} · Skills {{tokens.skillsSpent}}{{#each tokens.bodySpentViews}} · Body {{this.label}} {{this.spent}}{{/each}}</div>
+          <div class="sb-status sb-status-{{bondStatus}}">Status: <strong>{{bondStatusLabel}}</strong> · Skill slots: {{tokens.skillSlots}}</div>
+        </div>
       </div>
-      <div class="sb-budget-breakdown">
-        <div>Bound Stones {{draft.boundStoneCount}} × 8 = <strong>{{tokens.boundTotal}}</strong></div>
-        <div>Artifact bonus = <strong>+{{tokens.artifactBonus}}</strong> <span class="sb-meta">(adds to the pool)</span></div>
-        <div>Spent {{tokens.spent}} · Bond {{tokens.bondSpent}} · Skills {{tokens.skillsSpent}}{{#each tokens.bodySpentViews}} · Body {{this.label}} {{this.spent}}{{/each}}</div>
-        <div class="sb-status sb-status-{{bondStatus}}">Status: <strong>{{bondStatusLabel}}</strong> · Skill slots: {{tokens.skillSlots}}</div>
+      <div class="sb-stat-grid">
+        <div class="sb-stat"><span class="sb-stat-lbl">Attack</span><span class="sb-stat-val">{{previewStats.attack}}</span></div>
+        <div class="sb-stat"><span class="sb-stat-lbl">Damage</span><span class="sb-stat-val">{{previewStats.damage}}</span></div>
+        <div class="sb-stat"><span class="sb-stat-lbl">Move</span><span class="sb-stat-val">{{previewStats.move}}</span></div>
+        <div class="sb-stat"><span class="sb-stat-lbl">Attacks</span><span class="sb-stat-val">{{previewStats.attacks}}</span></div>
+        {{#if previewStats.multiBody}}
+        {{#each previewStats.bodyRows}}
+        <div class="sb-stat sb-stat-wide"><span class="sb-stat-lbl">Body {{this.n}}</span><span class="sb-stat-val">HP {{this.hp}} · Armor {{this.armor}} · Evade {{this.evade}}</span></div>
+        {{/each}}
+        {{else}}
+        <div class="sb-stat"><span class="sb-stat-lbl">HP</span><span class="sb-stat-val">{{previewStats.hp}}</span></div>
+        <div class="sb-stat"><span class="sb-stat-lbl">Armor</span><span class="sb-stat-val">{{previewStats.armor}}</span></div>
+        <div class="sb-stat"><span class="sb-stat-lbl">Evade</span><span class="sb-stat-val">{{previewStats.evade}}</span></div>
+        {{/if}}
+        <div class="sb-stat"><span class="sb-stat-lbl">Bodies</span><span class="sb-stat-val">{{previewStats.bodies}}</span></div>
+        {{#if previewStats.showSpecial}}
+        <div class="sb-stat"><span class="sb-stat-lbl">Special</span><span class="sb-stat-val">{{previewStats.special}}</span></div>
+        {{/if}}
       </div>
-      <table class="sb-stat-table">
-        <tbody>
-          <tr><th>Attack</th><td>{{previewStats.attack}}</td></tr>
-          <tr><th>Damage</th><td>{{previewStats.damage}}</td></tr>
-          <tr><th>Move</th><td>{{previewStats.move}}</td></tr>
-          <tr><th>Attacks</th><td>{{previewStats.attacks}}</td></tr>
-          {{#if previewStats.multiBody}}
-          {{#each previewStats.bodyRows}}
-          <tr><th>Body {{this.n}}</th><td>HP {{this.hp}} · Armor {{this.armor}} · Evade {{this.evade}}</td></tr>
-          {{/each}}
-          {{else}}
-          <tr><th>HP</th><td>{{previewStats.hp}}</td></tr>
-          <tr><th>Armor</th><td>{{previewStats.armor}}</td></tr>
-          <tr><th>Evade</th><td>{{previewStats.evade}}</td></tr>
-          {{/if}}
-          <tr><th>Bodies</th><td>{{previewStats.bodies}}</td></tr>
-          {{#if previewStats.showSpecial}}
-          <tr><th>Special</th><td>{{previewStats.special}}</td></tr>
-          {{/if}}
-        </tbody>
-      </table>
     </div>
     {{#if tokens.over}}
     <p class="sb-warn">Over budget. Reduce purchases until Tokens left is 0 or more.</p>

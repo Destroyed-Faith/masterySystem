@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.315] - 2026-08-13
+
+### Fixed
+
+- **Summon Bond Ritual:** Compact two-column sticky bar. Left: Tokens left, Bound Stones, Artifact bonus, Spent, Status. Right: Attack / Damage / Move / Attacks / HP / Armor / Evade / Bodies as small side-by-side labels so the theme heading font no longer blows up the panel.
+
 ## [0.9.314] - 2026-08-13
 
 ### Changed
