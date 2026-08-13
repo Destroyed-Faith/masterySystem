@@ -116,12 +116,16 @@ export class SummonBondDialog extends BaseDialog {
   private openBodyIndexes = new Set<number>([0]);
   private identityOpen = false;
   private stonesOpen = false;
+  private sensesOpen = false;
+  private powersOpen = false;
+  private specialOpen = false;
+  private skillsOpen = false;
   private restoreUiAfterRender = false;
 
   static DEFAULT_OPTIONS = {
     id: 'mastery-summon-bond',
     classes: ['mastery-system', 'summon-bond-dialog-app'],
-    position: { width: 720, height: 820 },
+    position: { width: 800, height: 820 },
     window: { title: 'Summon Bond Ritual', resizable: true },
   };
 
@@ -496,6 +500,32 @@ export class SummonBondDialog extends BaseDialog {
       hasEligibleSelected,
       identityOpen: this.identityOpen,
       stonesOpen: this.stonesOpen,
+      sensesOpen: this.sensesOpen,
+      powersOpen: this.powersOpen,
+      specialOpen: this.specialOpen,
+      skillsOpen: this.skillsOpen,
+      multiBody: computed.bodyCount > 1,
+      previewStats: {
+        attack: `${computed.attackDice}d8`,
+        damage: `${computed.damageDice}d8`,
+        move: `${computed.movementM} m`,
+        attacks: `${computed.summonAttacks}/rd`,
+        bodies: computed.bodyCount,
+        special: specialDisplay,
+        showSpecial: !!this.draft.spend.specialAccess && !!this.draft.specialKey,
+        hp: bodyViews[0]?.hp ?? 10,
+        armor: bodyViews[0]?.armor ?? 0,
+        evade: bodyViews[0]?.evade ?? 4,
+        multiBody: computed.bodyCount > 1,
+        bodyRows: bodyViews.map((b) => ({
+          n: b.n,
+          hp: b.hp,
+          armor: b.armor,
+          evade: b.evade,
+        })),
+      },
+      createActorBodyIndex: bodyViews.find((b) => !b.summonActorId)?.index ?? 0,
+      canCreateActor: bodyViews.some((b) => !b.summonActorId),
       bodyViews,
       powerCatalog,
       specialOptions,
@@ -558,6 +588,10 @@ export class SummonBondDialog extends BaseDialog {
     );
     this.identityOpen = !!root.querySelector('.sb-fold[data-fold="identity"][open]');
     this.stonesOpen = !!root.querySelector('.sb-fold[data-fold="stones"][open]');
+    this.sensesOpen = !!root.querySelector('.sb-fold[data-fold="senses"][open]');
+    this.powersOpen = !!root.querySelector('.sb-fold[data-fold="powers"][open]');
+    this.specialOpen = !!root.querySelector('.sb-fold[data-fold="special"][open]');
+    this.skillsOpen = !!root.querySelector('.sb-fold[data-fold="skills"][open]');
   }
 
   #restoreUi(): void {

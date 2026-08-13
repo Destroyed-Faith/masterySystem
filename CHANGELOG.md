@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.314] - 2026-08-13
+
+### Changed
+
+- **Summon Bond Ritual:** Sticky **Tokens left** bar uses a dark panel with readable cream text and a live stats table on the right (Attack, Damage, Move, Attacks, HP / Armor / Evade, Bodies). Bond Upgrades and Bodies are one **Upgrades** section. Shared Senses, Powers, and Summon Skills are click-to-expand folds. Special Access lives inside Powers. **Create Actor** is in the bottom action row with Apply, Dissolve, and Close.
+
 ## [0.9.313] - 2026-08-13
 
 ### Changed
