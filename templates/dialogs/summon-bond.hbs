@@ -82,6 +82,13 @@
     {{#if draft.needsRedistribution}}
     <p class="sb-warn">Needs Ritual — apply the Bond Ritual when the spend is legal.</p>
     {{/if}}
+    {{#if illegalSpend}}
+    <div class="sb-illegal">
+      <p class="sb-warn">This Bond has illegal or over-budget purchases. Preview values are clamped. Apply is disabled until you reset.</p>
+      <ul class="sb-errors">{{#each illegalReasons}}<li>{{this}}</li>{{/each}}</ul>
+      <button type="button" class="js-sb-reset-illegal dialog-btn dialog-btn-secondary">Reset illegal purchases</button>
+    </div>
+    {{/if}}
   </section>
 
   <section class="sb-section">
@@ -131,22 +138,75 @@
     {{else}}
     <p class="sb-meta">No additional free stones in your pool.</p>
     {{/if}}
-    <label class="sb-field">Artifact bonus Tokens
-      <input type="number" min="0" step="4" class="js-sb-bonus-tokens" value="{{draft.bonusTokens}}" />
-      <span class="sb-meta">(+4 per Artifact Summon Stone; cannot create a Bond)</span>
-    </label>
+    <div class="sb-stepper sb-stepper-artifact">
+      <div class="sb-stepper-name">Artifact bonus Tokens</div>
+      <div class="sb-stepper-row">
+        <button type="button" class="js-sb-step sb-step-btn" data-field="bonusTokens" data-delta="-1" {{#unless artifactBonus.canMinus}}disabled{{/unless}} aria-label="Decrease Artifact bonus">−</button>
+        <span class="sb-stepper-count" aria-live="polite">{{artifactBonus.value}}</span>
+        <button type="button" class="js-sb-step sb-step-btn" data-field="bonusTokens" data-delta="1" {{#unless artifactBonus.canPlus}}disabled{{/unless}} aria-label="Increase Artifact bonus">+</button>
+      </div>
+      <div class="sb-stepper-meta">{{artifactBonus.stones}} / {{artifactBonus.maxStones}} Artifact Summon Stones · +4 Tokens each · cannot create a Bond</div>
+    </div>
   </section>
 
   <section class="sb-section">
     <h4>Bond Upgrades <span class="sb-meta">(shared by all bodies)</span></h4>
     <p class="sb-hint">Movement lives here — not on the body. Base {{movementBaseM}} m; each purchase +2 m (max 16 m / {{movementMaxPurchases}} purchases).</p>
     <div class="sb-grid sb-grid-wide">
-      <label>Attack (+2d8 / 2 tok) <input type="number" min="0" class="js-sb-spend" data-field="attackPurchases" value="{{draft.spend.attackPurchases}}" /></label>
-      <label>Damage (+1d8 / 2 tok) <input type="number" min="0" class="js-sb-spend" data-field="damagePurchases" value="{{draft.spend.damagePurchases}}" /></label>
-      <label>Movement (+2 m / 1 tok) <input type="number" min="0" max="{{movementMaxPurchases}}" class="js-sb-spend" data-field="movementPurchases" value="{{draft.spend.movementPurchases}}" /></label>
-      <label>Extra Attack (+1 / 8 tok, max 3 Attacks total) <input type="number" min="0" max="2" class="js-sb-spend" data-field="extraAttackPurchases" value="{{draft.spend.extraAttackPurchases}}" /></label>
-      <label>Skill Dice (+2 dice / 1 tok) <input type="number" min="0" class="js-sb-spend" data-field="skillDicePurchases" value="{{draft.spend.skillDicePurchases}}" /></label>
-      <label>Additional Bodies (+1 / 2 tok) <input type="number" min="0" class="js-sb-spend" data-field="additionalBodies" value="{{draft.spend.additionalBodies}}" /></label>
+      <div class="sb-stepper">
+        <div class="sb-stepper-name">Attack</div>
+        <div class="sb-stepper-row">
+          <button type="button" class="js-sb-step sb-step-btn" data-field="attackPurchases" data-delta="-1" {{#unless steppers.attack.canMinus}}disabled{{/unless}} aria-label="Decrease Attack">−</button>
+          <span class="sb-stepper-count" aria-live="polite">{{steppers.attack.value}}</span>
+          <button type="button" class="js-sb-step sb-step-btn" data-field="attackPurchases" data-delta="1" {{#unless steppers.attack.canPlus}}disabled{{/unless}} aria-label="Increase Attack">+</button>
+        </div>
+        <div class="sb-stepper-meta">{{steppers.attack.cost}} tok · {{steppers.attack.effect}}</div>
+      </div>
+      <div class="sb-stepper">
+        <div class="sb-stepper-name">Damage</div>
+        <div class="sb-stepper-row">
+          <button type="button" class="js-sb-step sb-step-btn" data-field="damagePurchases" data-delta="-1" {{#unless steppers.damage.canMinus}}disabled{{/unless}} aria-label="Decrease Damage">−</button>
+          <span class="sb-stepper-count" aria-live="polite">{{steppers.damage.value}}</span>
+          <button type="button" class="js-sb-step sb-step-btn" data-field="damagePurchases" data-delta="1" {{#unless steppers.damage.canPlus}}disabled{{/unless}} aria-label="Increase Damage">+</button>
+        </div>
+        <div class="sb-stepper-meta">{{steppers.damage.cost}} tok · {{steppers.damage.effect}}</div>
+      </div>
+      <div class="sb-stepper">
+        <div class="sb-stepper-name">Movement</div>
+        <div class="sb-stepper-row">
+          <button type="button" class="js-sb-step sb-step-btn" data-field="movementPurchases" data-delta="-1" {{#unless steppers.movement.canMinus}}disabled{{/unless}} aria-label="Decrease Movement">−</button>
+          <span class="sb-stepper-count" aria-live="polite">{{steppers.movement.value}}</span>
+          <button type="button" class="js-sb-step sb-step-btn" data-field="movementPurchases" data-delta="1" {{#unless steppers.movement.canPlus}}disabled{{/unless}} aria-label="Increase Movement">+</button>
+        </div>
+        <div class="sb-stepper-meta">{{steppers.movement.cost}} tok · {{steppers.movement.effect}} · max {{movementMaxPurchases}}</div>
+      </div>
+      <div class="sb-stepper">
+        <div class="sb-stepper-name">Extra Attack</div>
+        <div class="sb-stepper-row">
+          <button type="button" class="js-sb-step sb-step-btn" data-field="extraAttackPurchases" data-delta="-1" {{#unless steppers.extraAttack.canMinus}}disabled{{/unless}} aria-label="Decrease Extra Attack">−</button>
+          <span class="sb-stepper-count" aria-live="polite">{{steppers.extraAttack.value}}</span>
+          <button type="button" class="js-sb-step sb-step-btn" data-field="extraAttackPurchases" data-delta="1" {{#unless steppers.extraAttack.canPlus}}disabled{{/unless}} aria-label="Increase Extra Attack">+</button>
+        </div>
+        <div class="sb-stepper-meta">{{steppers.extraAttack.cost}} tok · {{steppers.extraAttack.effect}} · max 2 (3 total)</div>
+      </div>
+      <div class="sb-stepper">
+        <div class="sb-stepper-name">Skill Dice</div>
+        <div class="sb-stepper-row">
+          <button type="button" class="js-sb-step sb-step-btn" data-field="skillDicePurchases" data-delta="-1" {{#unless steppers.skillDice.canMinus}}disabled{{/unless}} aria-label="Decrease Skill Dice">−</button>
+          <span class="sb-stepper-count" aria-live="polite">{{steppers.skillDice.value}}</span>
+          <button type="button" class="js-sb-step sb-step-btn" data-field="skillDicePurchases" data-delta="1" {{#unless steppers.skillDice.canPlus}}disabled{{/unless}} aria-label="Increase Skill Dice">+</button>
+        </div>
+        <div class="sb-stepper-meta">{{steppers.skillDice.cost}} tok · {{steppers.skillDice.effect}}</div>
+      </div>
+      <div class="sb-stepper">
+        <div class="sb-stepper-name">Additional Bodies</div>
+        <div class="sb-stepper-row">
+          <button type="button" class="js-sb-step sb-step-btn" data-field="additionalBodies" data-delta="-1" {{#unless steppers.bodies.canMinus}}disabled{{/unless}} aria-label="Decrease Bodies">−</button>
+          <span class="sb-stepper-count" aria-live="polite">{{steppers.bodies.value}}</span>
+          <button type="button" class="js-sb-step sb-step-btn" data-field="additionalBodies" data-delta="1" {{#unless steppers.bodies.canPlus}}disabled{{/unless}} aria-label="Increase Bodies">+</button>
+        </div>
+        <div class="sb-stepper-meta">{{steppers.bodies.cost}} tok · {{steppers.bodies.effect}}</div>
+      </div>
     </div>
     <div class="sb-preview-line">Attack {{computed.attackDice}}d8 · Damage {{computed.damageDice}}d8 · Move {{computed.movementM}} m · Bond Attacks {{computed.summonAttacks}}/round (shared) · Bodies {{computed.bodyCount}}</div>
   </section>
@@ -163,9 +223,15 @@
         {{/each}}
       </select>
     </label>
-    <label class="sb-field">Special Value purchases (+1 / 2 tok, max Special(4))
-      <input type="number" min="0" max="3" class="js-sb-spend" data-field="specialValuePurchases" value="{{draft.spend.specialValuePurchases}}" />
-    </label>
+    <div class="sb-stepper">
+      <div class="sb-stepper-name">Special Value</div>
+      <div class="sb-stepper-row">
+        <button type="button" class="js-sb-step sb-step-btn" data-field="specialValuePurchases" data-delta="-1" {{#unless steppers.specialValue.canMinus}}disabled{{/unless}} aria-label="Decrease Special Value">−</button>
+        <span class="sb-stepper-count" aria-live="polite">{{steppers.specialValue.value}}</span>
+        <button type="button" class="js-sb-step sb-step-btn" data-field="specialValuePurchases" data-delta="1" {{#unless steppers.specialValue.canPlus}}disabled{{/unless}} aria-label="Increase Special Value">+</button>
+      </div>
+      <div class="sb-stepper-meta">{{steppers.specialValue.cost}} tok · {{steppers.specialValue.effect}} · max Special(4)</div>
+    </div>
     <p class="sb-meta">Current: {{specialDisplay}} · applies once per Round for the whole Bond</p>
     {{/if}}
   </section>
@@ -181,7 +247,11 @@
           {{this.label}} <span class="sb-meta">(owner {{this.ownerRating}})</span>
         </label>
         {{#if this.selected}}
-        <input type="number" min="0" max="{{this.ownerRating}}" class="js-sb-skill-dice" data-skill="{{this.id}}" value="{{this.dice}}" />
+        <div class="sb-stepper-row sb-stepper-row-inline">
+          <button type="button" class="js-sb-step sb-step-btn" data-field="skillDice" data-skill="{{this.id}}" data-delta="-1" {{#unless this.canMinusDice}}disabled{{/unless}} aria-label="Decrease {{this.label}} dice">−</button>
+          <span class="sb-stepper-count" aria-live="polite">{{this.dice}}</span>
+          <button type="button" class="js-sb-step sb-step-btn" data-field="skillDice" data-skill="{{this.id}}" data-delta="1" {{#unless this.canPlusDice}}disabled{{/unless}} aria-label="Increase {{this.label}} dice">+</button>
+        </div>
         {{/if}}
       </div>
       {{/each}}
@@ -195,9 +265,33 @@
     <details class="sb-body" {{#if this.open}}open{{/if}} data-body-index="{{this.index}}">
       <summary>Body {{this.n}} {{#if this.dormant}}(Dormant){{/if}} — HP {{this.hp}} / Armor {{this.armor}} / Evade {{this.evade}}</summary>
       <div class="sb-grid sb-grid-wide">
-        <label>HP purchases (+20 HP / 1 tok) <input type="number" min="0" class="js-sb-body-spend" data-body="{{this.index}}" data-field="hpPurchases" value="{{this.hpPurchases}}" /></label>
-        <label>Armor (+4 / 2 tok) <input type="number" min="0" class="js-sb-body-spend" data-body="{{this.index}}" data-field="armorPurchases" value="{{this.armorPurchases}}" /></label>
-        <label>Evade (+4 / 2 tok) <input type="number" min="0" class="js-sb-body-spend" data-body="{{this.index}}" data-field="evadePurchases" value="{{this.evadePurchases}}" /></label>
+        <div class="sb-stepper">
+          <div class="sb-stepper-name">HP</div>
+          <div class="sb-stepper-row">
+            <button type="button" class="js-sb-step sb-step-btn" data-body="{{this.index}}" data-field="hpPurchases" data-delta="-1" {{#unless this.hpStepper.canMinus}}disabled{{/unless}} aria-label="Decrease HP">−</button>
+            <span class="sb-stepper-count" aria-live="polite">{{this.hpStepper.value}}</span>
+            <button type="button" class="js-sb-step sb-step-btn" data-body="{{this.index}}" data-field="hpPurchases" data-delta="1" {{#unless this.hpStepper.canPlus}}disabled{{/unless}} aria-label="Increase HP">+</button>
+          </div>
+          <div class="sb-stepper-meta">{{this.hpStepper.cost}} tok · {{this.hpStepper.effect}}</div>
+        </div>
+        <div class="sb-stepper">
+          <div class="sb-stepper-name">Armor</div>
+          <div class="sb-stepper-row">
+            <button type="button" class="js-sb-step sb-step-btn" data-body="{{this.index}}" data-field="armorPurchases" data-delta="-1" {{#unless this.armorStepper.canMinus}}disabled{{/unless}} aria-label="Decrease Armor">−</button>
+            <span class="sb-stepper-count" aria-live="polite">{{this.armorStepper.value}}</span>
+            <button type="button" class="js-sb-step sb-step-btn" data-body="{{this.index}}" data-field="armorPurchases" data-delta="1" {{#unless this.armorStepper.canPlus}}disabled{{/unless}} aria-label="Increase Armor">+</button>
+          </div>
+          <div class="sb-stepper-meta">{{this.armorStepper.cost}} tok · {{this.armorStepper.effect}}</div>
+        </div>
+        <div class="sb-stepper">
+          <div class="sb-stepper-name">Evade</div>
+          <div class="sb-stepper-row">
+            <button type="button" class="js-sb-step sb-step-btn" data-body="{{this.index}}" data-field="evadePurchases" data-delta="-1" {{#unless this.evadeStepper.canMinus}}disabled{{/unless}} aria-label="Decrease Evade">−</button>
+            <span class="sb-stepper-count" aria-live="polite">{{this.evadeStepper.value}}</span>
+            <button type="button" class="js-sb-step sb-step-btn" data-body="{{this.index}}" data-field="evadePurchases" data-delta="1" {{#unless this.evadeStepper.canPlus}}disabled{{/unless}} aria-label="Increase Evade">+</button>
+          </div>
+          <div class="sb-stepper-meta">{{this.evadeStepper.cost}} tok · {{this.evadeStepper.effect}}</div>
+        </div>
       </div>
       <div class="sb-sense-row">
         <span class="sb-meta">Shared Senses (2 Tokens each, body-specific)</span>
@@ -221,7 +315,11 @@
             <option value="{{this.templateId}}" data-category="{{this.category}}" title="{{this.reason}}">{{this.name}} · {{this.category}} · {{this.ppCost}} PP · {{this.tokenCost}} tok{{#unless this.legal}} (illegal){{/unless}}</option>
             {{/each}}
           </select>
-          <input type="number" min="1" max="{{@root.maxPowerLevel}}" class="js-sb-power-level" data-body="{{this.index}}" value="1" />
+          <select class="js-sb-power-level" data-body="{{this.index}}">
+            {{#each @root.powerLevels}}
+            <option value="{{this}}">L{{this}}</option>
+            {{/each}}
+          </select>
           <button type="button" class="js-sb-add-power dialog-btn dialog-btn-secondary" data-body="{{this.index}}">Add Power</button>
         </div>
       </div>

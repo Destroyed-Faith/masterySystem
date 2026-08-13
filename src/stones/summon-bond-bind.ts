@@ -11,6 +11,7 @@ import {
 import {
   BASE_SUMMON,
   BOND_STATUS_LABEL,
+  MAX_ARTIFACT_BONUS_TOKENS,
   classifyBondStatus,
   computeSummonBond,
   emptyBondSpend,
@@ -24,6 +25,14 @@ import {
   type SummonMovementMode,
   type SummonSkillId,
 } from './summon-bond-rules.js';
+import {
+  inspectBondSpend,
+  isIllegalBonusTokens,
+  maxAssignableArtifactBonusTokens,
+  safePurchaseInt,
+  sanitizeBonusTokens,
+  sanitizeSpendNumbers,
+} from './summon-bond-spend.js';
 import { evaluateSummonPower } from './summon-power-allowlist.js';
 
 export const DISSOLVE_BOND_CONFIRM =
@@ -400,6 +409,7 @@ export function validateBondRitual(
   bond: SummonBondRecord,
   ownerSkillRatings: Record<string, number> = {},
   ownerMasteryRank = 1,
+  extras?: { maxBonusTokens?: number },
 ): BondRitualValidation {
   const errors: string[] = [];
   const warnings: string[] = [];
@@ -429,14 +439,29 @@ export function validateBondRitual(
     bond.spend.bodies[i] = { ...bond.spend.bodies[i], powerTokenCosts: costs };
   }
 
-  const computed = computeSummonBond({
+  const maxBonus = extras?.maxBonusTokens ?? MAX_ARTIFACT_BONUS_TOKENS;
+  const inspect = inspectBondSpend(bond.spend, {
     boundStoneCount: bond.boundStoneCount,
     bonusTokens: bond.bonusTokens,
     movementMode: bond.movementMode,
-    spend: bond.spend,
+    selectedSkills: bond.selectedSkills,
+    ownerSkillRatings,
+    maxBonusTokens: maxBonus,
+    skillDiceAlloc: bond.skillDiceAlloc,
+  });
+  if (isIllegalBonusTokens(bond.bonusTokens, maxBonus, bond.boundStoneCount)) {
+    errors.push('Artifact bonus Tokens are illegal (must be a multiple of 4 from Artifact Summon Stones, and cannot create a Bond).');
+  }
+
+  const computed = computeSummonBond({
+    boundStoneCount: bond.boundStoneCount,
+    bonusTokens: sanitizeBonusTokens(bond.bonusTokens, maxBonus),
+    movementMode: bond.movementMode,
+    spend: sanitizeSpendNumbers(bond.spend),
   });
   errors.push(...computed.errors);
   warnings.push(...computed.warnings);
+  errors.push(...inspect.reasons);
   errors.push(...validateBondSkillAlloc(bond, ownerSkillRatings));
   errors.push(...validateBondPowers(bond, ownerMasteryRank));
 
@@ -450,9 +475,12 @@ export function validateBondRitual(
     warnings.push('Special key set without Special Access — will be cleared on apply.');
   }
 
+  const uniqueErrors = [...new Set(errors)];
+  errors.length = 0;
+  errors.push(...uniqueErrors);
   const budgetErrors = errors.filter((e) => /Spent \d+ Tokens/.test(e));
   const hardErrors = errors.filter((e) => !budgetErrors.includes(e));
-  const overBudget = computed.tokensRemaining < 0 || budgetErrors.length > 0;
+  const overBudget = computed.tokensRemaining < 0 || budgetErrors.length > 0 || inspect.overBudget;
   const status = classifyBondStatus({
     hardErrors,
     overBudget,
@@ -547,25 +575,43 @@ export async function applyBondRitual(
   const mr = Math.max(1, Math.floor(Number(actor?.system?.mastery?.rank) || 1));
   // Sync power token costs into spend before validate
   const draft = foundryDuplicate(bondDraft);
+  const otherBonds = getSummonBondsFromActor(actor);
+  const maxBonus = maxAssignableArtifactBonusTokens(actor, draft.id, otherBonds);
+  draft.bonusTokens = sanitizeBonusTokens(draft.bonusTokens, maxBonus);
+  draft.spend = sanitizeSpendNumbers(draft.spend);
+  if (draft.boundStoneCount < 1) draft.bonusTokens = 0;
   for (let i = 0; i < draft.spend.bodies.length; i++) {
     const body = draft.bodies[i];
     if (!body) continue;
     draft.spend.bodies[i] = {
       ...draft.spend.bodies[i],
-      powerTokenCosts: (body.powers || []).map((p) => Math.max(0, Math.floor(p.tokenCost || 0))),
+      powerTokenCosts: (body.powers || []).map((p) => safePurchaseInt(p.tokenCost)),
       sharedSenses: (body.sharedSenses || []) as SharedSenseGroup[],
-      hpPurchases: body.hpPurchases ?? draft.spend.bodies[i].hpPurchases,
-      armorPurchases: body.armorPurchases ?? draft.spend.bodies[i].armorPurchases,
-      evadePurchases: body.evadePurchases ?? draft.spend.bodies[i].evadePurchases,
+      hpPurchases: safePurchaseInt(body.hpPurchases ?? draft.spend.bodies[i].hpPurchases),
+      armorPurchases: safePurchaseInt(body.armorPurchases ?? draft.spend.bodies[i].armorPurchases),
+      evadePurchases: safePurchaseInt(body.evadePurchases ?? draft.spend.bodies[i].evadePurchases),
     };
   }
   if (!draft.spend.specialAccess) {
     draft.specialKey = null;
     draft.spend.specialValuePurchases = 0;
   }
-  const validation = validateBondRitual(draft, ownerSkillRatings, mr);
-  if (!validation.ok) {
-    return { bond: null, errors: validation.errors, warnings: validation.warnings };
+  const validation = validateBondRitual(draft, ownerSkillRatings, mr, { maxBonusTokens: maxBonus });
+  const inspect = inspectBondSpend(draft.spend, {
+    boundStoneCount: draft.boundStoneCount,
+    bonusTokens: draft.bonusTokens,
+    movementMode: draft.movementMode,
+    selectedSkills: draft.selectedSkills,
+    ownerSkillRatings,
+    maxBonusTokens: maxBonus,
+    skillDiceAlloc: draft.skillDiceAlloc,
+  });
+  if (!validation.ok || inspect.illegal) {
+    return {
+      bond: null,
+      errors: [...new Set([...validation.errors, ...inspect.reasons])],
+      warnings: validation.warnings,
+    };
   }
 
   let bond = syncBodiesFromSpend(draft);
@@ -681,9 +727,12 @@ export async function setBondBonusTokens(
   const bonds = getSummonBondsFromActor(actor);
   const idx = bonds.findIndex((b) => b.id === bondId);
   if (idx < 0) return null;
+  const maxBonus = maxAssignableArtifactBonusTokens(actor, bondId, bonds);
+  let nextBonus = sanitizeBonusTokens(bonusTokens, maxBonus);
+  if (bonds[idx].boundStoneCount < 1) nextBonus = 0;
   bonds[idx] = recomputeBondDerived({
     ...bonds[idx],
-    bonusTokens: Math.max(0, Math.floor(Number(bonusTokens) || 0)),
+    bonusTokens: nextBonus,
     needsRedistribution: true,
   });
   await persistSummonBonds(actor, bonds);

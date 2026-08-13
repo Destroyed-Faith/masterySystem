@@ -36,6 +36,7 @@ import {
 } from './summon-bond-bind.js';
 import {
   SHARED_SENSE_GROUPS,
+  SUMMON_CAPS,
   SUMMON_ELIGIBLE_SPECIALS,
   SUMMON_MOVEMENT_MODES,
   SUMMON_SKILL_IDS,
@@ -50,6 +51,24 @@ import {
   type SummonMovementMode,
   type SummonSkillId,
 } from './summon-bond-rules.js';
+import {
+  applyBondFieldDelta,
+  applyBodyFieldDelta,
+  applyBonusTokenDelta,
+  applySkillDiceAllocDelta,
+  bodyStepperView,
+  bondStepperView,
+  inspectBondSpend,
+  isIllegalBonusTokens,
+  maxAssignableArtifactBonusTokens,
+  resetIllegalPurchases,
+  safePurchaseInt,
+  sanitizeBonusTokens,
+  sanitizeSpendNumbers,
+  type BondSpendField,
+  type BodySpendField,
+  type SpendClampContext,
+} from './summon-bond-spend.js';
 
 const ATTR_LABELS: Record<StonePoolAttr, string> = {
   might: 'Might',
@@ -281,39 +300,84 @@ export class SummonBondDialog extends BaseDialog {
     this.ensureSpendBodies();
     const ratings = ownerSkillRatingsFromActor(this.actor);
     const mr = Math.max(1, Math.floor(Number((this.actor as any).system?.mastery?.rank) || 1));
-    const computed = computeSummonBond({
+    const otherBonds = getSummonBondsFromActor(this.actor);
+    const maxBonusTokens = maxAssignableArtifactBonusTokens(this.actor, this.draft.id, otherBonds);
+    const spendCtx: SpendClampContext = {
       boundStoneCount: this.draft.boundStoneCount,
       bonusTokens: this.draft.bonusTokens,
       movementMode: this.draft.movementMode,
-      spend: this.draft.spend,
+      selectedSkills: this.draft.selectedSkills,
+      ownerSkillRatings: ratings,
+      maxBonusTokens,
+      skillDiceAlloc: this.draft.skillDiceAlloc,
+    };
+    const inspect = inspectBondSpend(this.draft.spend, spendCtx);
+    const computed = computeSummonBond({
+      boundStoneCount: this.draft.boundStoneCount,
+      bonusTokens: sanitizeBonusTokens(this.draft.bonusTokens, maxBonusTokens),
+      movementMode: this.draft.movementMode,
+      spend: sanitizeSpendNumbers(this.draft.spend),
     });
-    const tokens = tokensSummary(this.draft);
-    const validation = validateBondRitual(this.draft, ratings, mr);
+    const tokens = tokensSummary({
+      ...this.draft,
+      bonusTokens: sanitizeBonusTokens(this.draft.bonusTokens, maxBonusTokens),
+      spend: sanitizeSpendNumbers(this.draft.spend),
+    });
+    const validation = validateBondRitual(this.draft, ratings, mr, { maxBonusTokens });
     const selectedSkills = new Set(this.draft.selectedSkills);
+    const purchasedDice = computed.skillDiceTotal;
     const skillOptions = SUMMON_SKILL_IDS.map((id) => {
       const selected = selectedSkills.has(id);
       const canSelect = selected || selectedSkills.size < tokens.skillSlots;
+      const dice = this.draft.skillDiceAlloc[id] ?? 0;
+      const ownerRating = ratings[id] ?? 0;
       return {
         id,
         label: SKILL_LABELS[id] ?? id,
         selected,
         canSelect,
-        ownerRating: ratings[id] ?? 0,
-        dice: this.draft.skillDiceAlloc[id] ?? 0,
+        ownerRating,
+        dice: Math.min(safePurchaseInt(dice), ownerRating),
+        canMinusDice: applySkillDiceAllocDelta(this.draft.skillDiceAlloc, id, -1, ownerRating, purchasedDice) != null,
+        canPlusDice: applySkillDiceAllocDelta(this.draft.skillDiceAlloc, id, 1, ownerRating, purchasedDice) != null,
       };
     });
+
+    const steppers = {
+      attack: bondStepperView(this.draft.spend, 'attackPurchases', spendCtx, `+${SUMMON_CAPS.attackDiceGain}d8 Attack`),
+      damage: bondStepperView(this.draft.spend, 'damagePurchases', spendCtx, `+${SUMMON_CAPS.damageDiceGain}d8 Damage`),
+      movement: bondStepperView(this.draft.spend, 'movementPurchases', spendCtx, `+${SUMMON_CAPS.movementGainM} m`),
+      extraAttack: bondStepperView(this.draft.spend, 'extraAttackPurchases', spendCtx, '+1 Bond Attack / round'),
+      skillDice: bondStepperView(this.draft.spend, 'skillDicePurchases', spendCtx, `+${SUMMON_CAPS.skillDicePerPurchase} Skill Dice`),
+      bodies: bondStepperView(this.draft.spend, 'additionalBodies', spendCtx, '+1 Body'),
+      specialValue: bondStepperView(this.draft.spend, 'specialValuePurchases', spendCtx, '+1 Special Value'),
+    };
+
+    const assignedBonus = sanitizeBonusTokens(this.draft.bonusTokens, maxBonusTokens);
+    const artifactBonus = {
+      value: assignedBonus,
+      stones: assignedBonus / SUMMON_CAPS.artifactSummonTokensPerStone,
+      maxBonus: maxBonusTokens,
+      maxStones: maxBonusTokens / SUMMON_CAPS.artifactSummonTokensPerStone,
+      canMinus: applyBonusTokenDelta(this.draft.bonusTokens, -1, maxBonusTokens, this.draft.boundStoneCount) != null,
+      canPlus: applyBonusTokenDelta(this.draft.bonusTokens, 1, maxBonusTokens, this.draft.boundStoneCount) != null,
+      detected: maxBonusTokens > 0 || assignedBonus > 0,
+    };
 
     const bodyViews = this.draft.bodies.map((body, index) => ({
       index,
       n: index + 1,
       open: index === 0,
       dormant: !!body.dormant,
-      hp: body.hp,
-      armor: body.armor,
-      evade: body.evade,
+      hp: computed.bodies[index]?.hp ?? body.hp,
+      armor: computed.bodies[index]?.armor ?? body.armor,
+      evade: computed.bodies[index]?.evade ?? body.evade,
       hpPurchases: this.draft.spend.bodies[index]?.hpPurchases ?? 0,
       armorPurchases: this.draft.spend.bodies[index]?.armorPurchases ?? 0,
       evadePurchases: this.draft.spend.bodies[index]?.evadePurchases ?? 0,
+      hpStepper: bodyStepperView(this.draft.spend, index, 'hpPurchases', spendCtx, `+${SUMMON_CAPS.hpGain} HP`),
+      armorStepper: bodyStepperView(this.draft.spend, index, 'armorPurchases', spendCtx, `+${SUMMON_CAPS.armorGain} Armor`),
+      evadeStepper: bodyStepperView(this.draft.spend, index, 'evadePurchases', spendCtx, `+${SUMMON_CAPS.evadeGain} Evade`),
       summonActorId: body.summonActorId,
       senses: SHARED_SENSE_GROUPS.map((s) => ({
         ...s,
@@ -388,10 +452,31 @@ export class SummonBondDialog extends BaseDialog {
       specialOptions,
       specialDisplay,
       maxPowerLevel: maxSummonPowerLevel(mr),
+      powerLevels: Array.from({ length: maxSummonPowerLevel(mr) }, (_, i) => i + 1),
       onlyOneStone: this.draft.stoneAttributes.length <= 1,
       ritualErrors: this.ritualErrors.length ? this.ritualErrors : validation.errors,
       ritualWarnings: this.ritualWarnings.length ? this.ritualWarnings : validation.warnings,
-      canApplyRitual: validation.ok,
+      canApplyRitual: validation.ok && !inspect.illegal,
+      steppers,
+      artifactBonus,
+      illegalSpend: inspect.illegal,
+      illegalReasons: inspect.reasons,
+    };
+  }
+
+  #spendCtx(): SpendClampContext {
+    return {
+      boundStoneCount: this.draft.boundStoneCount,
+      bonusTokens: this.draft.bonusTokens,
+      movementMode: this.draft.movementMode,
+      selectedSkills: this.draft.selectedSkills,
+      ownerSkillRatings: ownerSkillRatingsFromActor(this.actor),
+      skillDiceAlloc: this.draft.skillDiceAlloc,
+      maxBonusTokens: maxAssignableArtifactBonusTokens(
+        this.actor,
+        this.draft.id,
+        getSummonBondsFromActor(this.actor),
+      ),
     };
   }
 
@@ -479,8 +564,6 @@ export class SummonBondDialog extends BaseDialog {
       if (mov) this.draft.movementMode = normalizeMovementMode(mov);
       const timing = (root.querySelector('input[name="sbTiming"]:checked') as HTMLInputElement)?.value;
       if (timing === 'before' || timing === 'after') this.draft.activationTiming = timing;
-      const bonus = Number((root.querySelector('.js-sb-bonus-tokens') as HTMLInputElement)?.value || 0);
-      this.draft.bonusTokens = Math.max(0, Math.floor(bonus));
     };
 
     root.querySelector('.js-sb-browse-img')?.addEventListener('click', (ev) => {
@@ -492,16 +575,95 @@ export class SummonBondDialog extends BaseDialog {
       });
     });
 
-    root.querySelectorAll('.js-sb-spend').forEach((el) => {
-      el.addEventListener('change', () => {
+    root.querySelectorAll('input[name="sbMovement"]').forEach((el) => {
+      el.addEventListener('change', (ev) => {
         readIdentity();
-        const field = (el as HTMLElement).dataset.field as keyof typeof this.draft.spend;
-        const val = Math.max(0, Math.floor(Number((el as HTMLInputElement).value) || 0));
-        (this.draft.spend as any)[field] = val;
+        this.draft.movementMode = normalizeMovementMode((ev.target as HTMLInputElement).value);
+        const maxMove = maxMovementPurchases(this.draft.movementMode);
+        if (this.draft.spend.movementPurchases > maxMove) {
+          this.draft.spend.movementPurchases = maxMove;
+        }
+        this.draft = recomputeBondDerived(this.draft);
+        this.render({ force: true });
+      });
+    });
+
+    root.querySelectorAll('.js-sb-step').forEach((el) => {
+      el.addEventListener('click', () => {
+        const btn = el as HTMLElement;
+        if ((btn as HTMLButtonElement).disabled) return;
+        readIdentity();
+        const field = btn.dataset.field as BondSpendField | BodySpendField | 'bonusTokens' | 'skillDice';
+        const delta = parseInt(String(btn.dataset.delta ?? ''), 10);
+        if (delta !== 1 && delta !== -1) return;
+        const ctx = this.#spendCtx();
+
+        if (field === 'bonusTokens') {
+          const next = applyBonusTokenDelta(
+            this.draft.bonusTokens,
+            delta,
+            ctx.maxBonusTokens ?? 0,
+            this.draft.boundStoneCount,
+          );
+          if (next == null) return;
+          void this.#setBonus(next);
+          return;
+        }
+
+        if (field === 'skillDice') {
+          const skill = btn.dataset.skill as SummonSkillId;
+          if (!skill) return;
+          const ratings = ownerSkillRatingsFromActor(this.actor);
+          const purchased = computeSummonBond({
+            boundStoneCount: this.draft.boundStoneCount,
+            bonusTokens: sanitizeBonusTokens(this.draft.bonusTokens, ctx.maxBonusTokens),
+            movementMode: this.draft.movementMode,
+            spend: sanitizeSpendNumbers(this.draft.spend),
+          }).skillDiceTotal;
+          const nextAlloc = applySkillDiceAllocDelta(
+            this.draft.skillDiceAlloc,
+            skill,
+            delta,
+            ratings[skill] ?? 0,
+            purchased,
+          );
+          if (!nextAlloc) return;
+          this.draft.skillDiceAlloc = nextAlloc;
+          this.render({ force: true });
+          return;
+        }
+
+        const bodyRaw = btn.dataset.body;
+        if (bodyRaw != null && bodyRaw !== '') {
+          const bi = parseInt(bodyRaw, 10);
+          if (!Number.isFinite(bi) || bi < 0) return;
+          const next = applyBodyFieldDelta(this.draft.spend, bi, field as BodySpendField, delta, ctx);
+          if (!next) return;
+          this.draft.spend = next;
+        } else {
+          const next = applyBondFieldDelta(this.draft.spend, field as BondSpendField, delta, ctx);
+          if (!next) return;
+          this.draft.spend = next;
+        }
         this.ensureSpendBodies();
         this.draft = recomputeBondDerived(this.draft);
         this.render({ force: true });
       });
+    });
+
+    root.querySelector('.js-sb-reset-illegal')?.addEventListener('click', () => {
+      readIdentity();
+      this.draft.spend = resetIllegalPurchases(this.draft.spend);
+      this.draft.skillDiceAlloc = {};
+      const ctx = this.#spendCtx();
+      if (isIllegalBonusTokens(this.draft.bonusTokens, ctx.maxBonusTokens ?? 0, this.draft.boundStoneCount)) {
+        this.draft.bonusTokens = 0;
+        void this.#setBonus(0);
+        return;
+      }
+      this.ensureSpendBodies();
+      this.draft = recomputeBondDerived(this.draft);
+      this.render({ force: true });
     });
 
     root.querySelector('.js-sb-special-access')?.addEventListener('change', (ev) => {
@@ -535,28 +697,6 @@ export class SummonBondDialog extends BaseDialog {
       });
     });
 
-    root.querySelectorAll('.js-sb-skill-dice').forEach((el) => {
-      el.addEventListener('change', () => {
-        const skill = (el as HTMLElement).dataset.skill as SummonSkillId;
-        this.draft.skillDiceAlloc[skill] = Math.max(0, Math.floor(Number((el as HTMLInputElement).value) || 0));
-        this.render({ force: true });
-      });
-    });
-
-    root.querySelectorAll('.js-sb-body-spend').forEach((el) => {
-      el.addEventListener('change', () => {
-        readIdentity();
-        const bi = Number((el as HTMLElement).dataset.body);
-        const field = (el as HTMLElement).dataset.field as 'hpPurchases' | 'armorPurchases' | 'evadePurchases';
-        const val = Math.max(0, Math.floor(Number((el as HTMLInputElement).value) || 0));
-        if (!this.draft.spend.bodies[bi]) return;
-        this.draft.spend.bodies[bi][field] = val;
-        this.ensureSpendBodies();
-        this.draft = recomputeBondDerived(this.draft);
-        this.render({ force: true });
-      });
-    });
-
     root.querySelectorAll('.js-sb-body-sense').forEach((el) => {
       el.addEventListener('change', () => {
         const bi = Number((el as HTMLElement).dataset.body);
@@ -576,9 +716,11 @@ export class SummonBondDialog extends BaseDialog {
       btn.addEventListener('click', () => {
         const bi = Number((btn as HTMLElement).dataset.body);
         const sel = root.querySelector(`.js-sb-power-template[data-body="${bi}"]`) as HTMLSelectElement;
-        const lvlEl = root.querySelector(`.js-sb-power-level[data-body="${bi}"]`) as HTMLInputElement;
+        const lvlEl = root.querySelector(`.js-sb-power-level[data-body="${bi}"]`) as HTMLSelectElement;
         const templateId = sel?.value;
-        const level = Math.max(1, Math.min(16, Math.floor(Number(lvlEl?.value) || 1)));
+        const rawLevel = parseInt(String(lvlEl?.value ?? ''), 10);
+        const maxLvl = maxSummonPowerLevel(Math.max(1, Math.floor(Number((this.actor as any).system?.mastery?.rank) || 1)));
+        const level = Number.isFinite(rawLevel) ? Math.max(1, Math.min(maxLvl, rawLevel)) : 1;
         if (!templateId) return;
         const ev = evaluateSummonPower(templateId, level, Math.max(1, Math.floor(Number((this.actor as any).system?.mastery?.rank) || 1)));
         if (!ev.legal) {
@@ -612,13 +754,6 @@ export class SummonBondDialog extends BaseDialog {
     });
     root.querySelectorAll('.js-sb-remove-stone').forEach((btn) => {
       btn.addEventListener('click', () => void this.#removeStone(Number((btn as HTMLElement).dataset.index)));
-    });
-
-    root.querySelector('.js-sb-bonus-tokens')?.addEventListener('change', async (ev) => {
-      const n = Math.max(0, Math.floor(Number((ev.target as HTMLInputElement).value) || 0));
-      const updated = await setBondBonusTokens(this.actor, this.draft.id, n);
-      if (updated) this.draft = structuredCloneBond(updated);
-      this.render({ force: true });
     });
 
     root.querySelector('.js-sb-apply-ritual')?.addEventListener('click', () => {
@@ -710,9 +845,25 @@ export class SummonBondDialog extends BaseDialog {
     this.render({ force: true });
   }
 
+  async #setBonus(n: number): Promise<void> {
+    const updated = await setBondBonusTokens(this.actor, this.draft.id, n);
+    if (updated) this.draft = structuredCloneBond(updated);
+    this.render({ force: true });
+  }
+
   async #applyRitual(): Promise<void> {
     this.ritualErrors = [];
     this.ritualWarnings = [];
+    const ctx = this.#spendCtx();
+    this.draft.spend = sanitizeSpendNumbers(this.draft.spend);
+    this.draft.bonusTokens = sanitizeBonusTokens(this.draft.bonusTokens, ctx.maxBonusTokens);
+    const inspect = inspectBondSpend(this.draft.spend, ctx);
+    if (inspect.illegal) {
+      this.ritualErrors = inspect.reasons;
+      this.render({ force: true });
+      ui.notifications?.warn(inspect.reasons[0] ?? 'Bond Ritual failed: illegal purchases.');
+      return;
+    }
     const ratings = ownerSkillRatingsFromActor(this.actor);
     const result = await applyBondRitual(this.actor, this.draft, ratings);
     if (!result.bond) {

@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.311] - 2026-08-13
+
+### Fixed
+
+- **Summon Bond Ritual:** Bond and Body upgrades are controlled steppers (minus / count / plus). Arbitrary number input is no longer possible. Plus disables when Tokens are insufficient; Movement / Extra Attack / Artifact bonus are hard-capped. Legacy illegal purchases show an error and **Reset illegal purchases** instead of absurd dice previews. Apply stays disabled while the spend is illegal or over budget.
+
 ## [0.9.310] - 2026-08-13
 
 ### Changed

@@ -263,7 +263,7 @@ export const BOND_STATUS_LABEL: Record<BondValidityStatus, string> = {
   invalidUntilFixed: 'Invalid Until Fixed',
 };
 
-function emptyBodySpend(): SummonBodyUpgradeSpend {
+export function emptyBodySpend(): SummonBodyUpgradeSpend {
   return {
     hpPurchases: 0,
     armorPurchases: 0,
@@ -271,6 +271,28 @@ function emptyBodySpend(): SummonBodyUpgradeSpend {
     sharedSenses: [],
     powerTokenCosts: [],
   };
+}
+
+/** Hard sanity cap — no purchase field may exceed this even with huge token pools. */
+export const MAX_PURCHASE_HARD_CAP = 99;
+
+/** Artifact bonus Tokens hard cap (16 Artifact Summon Stones × 4). */
+export const MAX_ARTIFACT_BONUS_TOKENS = 64;
+
+function floorPurchase(raw: unknown): number {
+  const n = typeof raw === 'number' ? raw : parseInt(String(raw ?? ''), 10);
+  if (!Number.isFinite(n) || n < 0) return 0;
+  return Math.min(MAX_PURCHASE_HARD_CAP, Math.floor(n));
+}
+
+function sanitizeBonusForCompute(raw: unknown): { bonus: number; illegal: boolean } {
+  if (raw == null || raw === '') return { bonus: 0, illegal: false };
+  const n = typeof raw === 'number' ? raw : parseInt(String(raw), 10);
+  if (!Number.isFinite(n) || n < 0 || n > MAX_ARTIFACT_BONUS_TOKENS) {
+    return { bonus: 0, illegal: true };
+  }
+  const stepped = Math.floor(Math.floor(n) / SUMMON_CAPS.artifactSummonTokensPerStone) * SUMMON_CAPS.artifactSummonTokensPerStone;
+  return { bonus: stepped, illegal: n % SUMMON_CAPS.artifactSummonTokensPerStone !== 0 };
 }
 
 export function computeSummonBond(opts: {
@@ -282,7 +304,14 @@ export function computeSummonBond(opts: {
   const errors: string[] = [];
   const warnings: string[] = [];
   const stones = Math.max(0, Math.floor(Number(opts.boundStoneCount) || 0));
-  const available = summonTokensFromStones(stones, opts.bonusTokens);
+  const bonusInfo = sanitizeBonusForCompute(opts.bonusTokens);
+  if (bonusInfo.illegal) {
+    errors.push('Artifact bonus Tokens must be a non-negative multiple of 4 and cannot be an arbitrary value.');
+  }
+  if (bonusInfo.bonus > 0 && stones < 1) {
+    errors.push('Artifact bonus Tokens cannot create a Bond. Bind at least one Bound Stone.');
+  }
+  const available = summonTokensFromStones(stones, stones < 1 ? 0 : bonusInfo.bonus);
   const spend = opts.spend;
 
   let tokensSpent = 0;
@@ -290,13 +319,13 @@ export function computeSummonBond(opts: {
     tokensSpent += n;
   };
 
-  const attackPurchases = Math.max(0, Math.floor(spend.attackPurchases || 0));
-  const damagePurchases = Math.max(0, Math.floor(spend.damagePurchases || 0));
-  const movementPurchases = Math.max(0, Math.floor(spend.movementPurchases || 0));
-  const extraAttackPurchases = Math.max(0, Math.floor(spend.extraAttackPurchases || 0));
-  const specialValuePurchases = Math.max(0, Math.floor(spend.specialValuePurchases || 0));
-  const skillDicePurchases = Math.max(0, Math.floor(spend.skillDicePurchases || 0));
-  const additionalBodies = Math.max(0, Math.floor(spend.additionalBodies || 0));
+  const attackPurchases = floorPurchase(spend.attackPurchases);
+  const damagePurchases = floorPurchase(spend.damagePurchases);
+  const movementPurchases = floorPurchase(spend.movementPurchases);
+  const extraAttackPurchases = floorPurchase(spend.extraAttackPurchases);
+  const specialValuePurchases = floorPurchase(spend.specialValuePurchases);
+  const skillDicePurchases = floorPurchase(spend.skillDicePurchases);
+  const additionalBodies = floorPurchase(spend.additionalBodies);
 
   const bondCore =
     attackPurchases * SUMMON_CAPS.attackTokenCost +
@@ -321,11 +350,11 @@ export function computeSummonBond(opts: {
 
   const bodyTokens: number[] = [];
   const bodies: ComputedSummonBody[] = bodySpends.map((b) => {
-    const hpP = Math.max(0, Math.floor(b.hpPurchases || 0));
-    const arP = Math.max(0, Math.floor(b.armorPurchases || 0));
-    const evP = Math.max(0, Math.floor(b.evadePurchases || 0));
+    const hpP = floorPurchase(b.hpPurchases);
+    const arP = floorPurchase(b.armorPurchases);
+    const evP = floorPurchase(b.evadePurchases);
     const senses = Array.from(new Set(b.sharedSenses || []));
-    const powerCosts = (b.powerTokenCosts || []).map((c) => Math.max(0, Math.floor(c || 0)));
+    const powerCosts = (b.powerTokenCosts || []).map((c) => floorPurchase(c));
     const powerTokens = powerCosts.reduce((s, c) => s + c, 0);
     const bodySpent =
       hpP * SUMMON_CAPS.hpTokenCost +
@@ -380,16 +409,29 @@ export function computeSummonBond(opts: {
     errors.push(`Spent ${tokensSpent} Tokens but only ${available} available.`);
   }
 
+  const byTok = (cost: number) => Math.floor(Math.max(0, available) / Math.max(1, cost));
+  const displayAttack = Math.min(attackPurchases, byTok(SUMMON_CAPS.attackTokenCost));
+  const displayDamage = Math.min(damagePurchases, byTok(SUMMON_CAPS.damageTokenCost));
+  const displaySkill = Math.min(skillDicePurchases, byTok(SUMMON_CAPS.skillDiceTokenCost));
+  const maxHp = BASE_SUMMON.hp + byTok(SUMMON_CAPS.hpTokenCost) * SUMMON_CAPS.hpGain;
+  const maxArmor = BASE_SUMMON.armor + byTok(SUMMON_CAPS.armorTokenCost) * SUMMON_CAPS.armorGain;
+  const maxEvade = BASE_SUMMON.evade + byTok(SUMMON_CAPS.evadeTokenCost) * SUMMON_CAPS.evadeGain;
+
   return {
-    attackDice: BASE_SUMMON.attackDice + attackPurchases * SUMMON_CAPS.attackDiceGain,
-    damageDice: BASE_SUMMON.damageDice + damagePurchases * SUMMON_CAPS.damageDiceGain,
+    attackDice: BASE_SUMMON.attackDice + displayAttack * SUMMON_CAPS.attackDiceGain,
+    damageDice: BASE_SUMMON.damageDice + displayDamage * SUMMON_CAPS.damageDiceGain,
     movementM: Math.min(SUMMON_CAPS.maxMovementM, movementM),
     summonAttacks: Math.min(SUMMON_CAPS.maxSummonAttacks, summonAttacks),
     specialValue: Math.min(SUMMON_CAPS.maxSpecialValue, specialValue),
     hasSpecialAccess: !!spend.specialAccess,
-    skillDiceTotal: skillDicePurchases * SUMMON_CAPS.skillDicePerPurchase,
+    skillDiceTotal: displaySkill * SUMMON_CAPS.skillDicePerPurchase,
     bodyCount,
-    bodies,
+    bodies: bodies.map((b) => ({
+      ...b,
+      hp: Math.min(b.hp, maxHp),
+      armor: Math.min(b.armor, maxArmor),
+      evade: Math.min(b.evade, maxEvade),
+    })),
     tokensSpent,
     tokensAvailable: available,
     tokensRemaining: available - tokensSpent,
