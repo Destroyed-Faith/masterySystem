@@ -633,6 +633,7 @@ export interface SummonBondRecord {
   name: string;
   img: string;
   expression: string;
+  creatureType?: string;
   ownerActorId: string;
   boundStoneCount: number;
   stoneAttributes: string[];

@@ -4,6 +4,7 @@
  */
 
 import type { BoundFamiliarRecord } from '../types/actor.js';
+import { normalizeCreatureTypeValue } from '../utils/creature-type.js';
 import {
   applySustainedDelta,
   getActorPoolSpendable,
@@ -86,6 +87,8 @@ export type SummonBondRecord = {
   name: string;
   img: string;
   expression: string;
+  /** Canonical creature-type key from CREATURE_TYPE_OPTIONS. */
+  creatureType: string;
   ownerActorId: string;
   boundStoneCount: number;
   /** Attribute keys used for each bound stone (length === boundStoneCount). */
@@ -109,7 +112,11 @@ export type SummonBondRecord = {
 
 export function getSummonBondsFromActor(actor: any): SummonBondRecord[] {
   const raw = actor?.system?.summonBonds;
-  return Array.isArray(raw) ? (raw as SummonBondRecord[]) : [];
+  if (!Array.isArray(raw)) return [];
+  return (raw as SummonBondRecord[]).map((bond) => {
+    const creatureType = normalizeCreatureTypeValue(bond.creatureType || bond.expression);
+    return { ...bond, creatureType, expression: creatureType };
+  });
 }
 
 export function getFamiliarsFromActor(actor: any): BoundFamiliarRecord[] {
@@ -149,6 +156,7 @@ export function createEmptyBond(opts: {
   movementMode: SummonMovementMode;
   stoneAttributes: StonePoolAttr[];
   expression?: string;
+  creatureType?: string;
 }): SummonBondRecord {
   const stones = Math.max(1, opts.stoneAttributes.length);
   const spend = emptyBondSpend(1);
@@ -163,7 +171,8 @@ export function createEmptyBond(opts: {
     id: newId('bond'),
     name: opts.name.trim() || 'Summon',
     img: opts.img || '',
-    expression: opts.expression || '',
+    expression: normalizeCreatureTypeValue(opts.creatureType || opts.expression),
+    creatureType: normalizeCreatureTypeValue(opts.creatureType || opts.expression),
     ownerActorId: opts.ownerActorId,
     boundStoneCount: stones,
     stoneAttributes: opts.stoneAttributes.slice(0, stones),
@@ -517,6 +526,7 @@ export async function createSummonBondWithStones(
     name: string;
     img?: string;
     expression?: string;
+    creatureType?: string;
     movementMode: SummonMovementMode;
     stoneAttributes: StonePoolAttr[];
     bonusTokens?: number;
@@ -542,7 +552,8 @@ export async function createSummonBondWithStones(
     ownerActorId: actor.id,
     movementMode: opts.movementMode,
     stoneAttributes: attrs,
-    expression: opts.expression,
+    expression: opts.creatureType || opts.expression,
+    creatureType: opts.creatureType || opts.expression,
   });
   // Artifact bonus Tokens cannot create a Bond and are ignored at create.
   bond.bonusTokens = 0;

@@ -257,6 +257,7 @@
     "summon": {
       "templates": ["base", "combatant"],
       "bloodColor": "#4a148c",
+      "creatureType": "",
       "bio": {
         "name": "",
         "summonType": "Summon",

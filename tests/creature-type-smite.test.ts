@@ -4,6 +4,8 @@ import {
   isExorcismValidTarget,
   isRequiemValidTarget,
   isTargetedSpecialValidTarget,
+  normalizeCreatureTypeValue,
+  creatureTypeSelectOptions,
 } from '../src/utils/creature-type';
 
 describe('creature-type / Exorcism–Requiem validity', () => {
@@ -26,5 +28,15 @@ describe('creature-type / Exorcism–Requiem validity', () => {
     expect(isTargetedSpecialValidTarget('exorcism', { system: { creatureType: 'fiend' } })).toBe(true);
     expect(isTargetedSpecialValidTarget('requiem', { system: { creatureType: 'undead' } })).toBe(true);
     expect(isTargetedSpecialValidTarget('exorcism', { system: { creatureType: 'undead' } })).toBe(false);
+  });
+
+  it('normalizes leftover free text onto the catalog and rejects unknown strings', () => {
+    expect(normalizeCreatureTypeValue('beast')).toBe('beast');
+    expect(normalizeCreatureTypeValue('Spirit')).toBe('spirit');
+    expect(normalizeCreatureTypeValue('Tier')).toBe('beast');
+    expect(normalizeCreatureTypeValue('owl spirit construct')).toBe('');
+    const opts = creatureTypeSelectOptions('construct');
+    expect(opts.some((o) => o.value === 'spirit')).toBe(true);
+    expect(opts.find((o) => o.value === 'construct')?.selected).toBe(true);
   });
 });

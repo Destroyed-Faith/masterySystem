@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.317] - 2026-08-13
+
+### Changed
+
+- **Creature Types:** Shared catalog for NPC and Summon (Humanoid, Beast, Spirit, Undead, Fiend, Construct, Elemental, Plant, Dragon, Celestial, Other). Summon Bond UI uses a dropdown instead of free-text Expression. Create Actor writes the selected type onto the summon.
+
 ## [0.9.316] - 2026-08-13
 
 ### Changed

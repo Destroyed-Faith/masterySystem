@@ -10,8 +10,12 @@
     <label class="sb-field">Name
       <input type="text" class="js-sb-name" value="{{draft.name}}" placeholder="Summon name" />
     </label>
-    <label class="sb-field">Expression
-      <input type="text" class="js-sb-expression" value="{{draft.expression}}" placeholder="beast, spirit, construct…" />
+    <label class="sb-field">Creature Type
+      <select class="js-sb-creature-type">
+        {{#each creatureTypeOptions}}
+        <option value="{{this.value}}" {{#if this.selected}}selected{{/if}}>{{this.label}}</option>
+        {{/each}}
+      </select>
     </label>
     <label class="sb-field">Image
       <div class="sb-img-row">
@@ -125,7 +129,13 @@
   <details class="sb-fold" data-fold="identity" {{#if identityOpen}}open{{/if}}>
     <summary>Identity <span class="sb-meta">{{draft.name}}</span></summary>
     <label class="sb-field">Name <input type="text" class="js-sb-name" value="{{draft.name}}" /></label>
-    <label class="sb-field">Expression <input type="text" class="js-sb-expression" value="{{draft.expression}}" /></label>
+    <label class="sb-field">Creature Type
+      <select class="js-sb-creature-type">
+        {{#each creatureTypeOptions}}
+        <option value="{{this.value}}" {{#if this.selected}}selected{{/if}}>{{this.label}}</option>
+        {{/each}}
+      </select>
+    </label>
     <label class="sb-field">Image
       <div class="sb-img-row">
         <input type="text" class="js-sb-img" value="{{draft.img}}" />

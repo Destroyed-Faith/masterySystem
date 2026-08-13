@@ -6,6 +6,7 @@ const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const BaseDialog = HandlebarsApplicationMixin(ApplicationV2) as typeof ApplicationV2;
 
 import { getStoneGemStyle } from '../utils/stone-attribute-ui.js';
+import { creatureTypeSelectOptions, normalizeCreatureTypeValue } from '../utils/creature-type.js';
 import { getFilePickerClass } from '../utils/foundry-v14.js';
 import { evaluateSummonPower, listSummonPowerCatalog } from './summon-power-allowlist.js';
 import {
@@ -171,6 +172,7 @@ export class SummonBondDialog extends BaseDialog {
         name: '',
         img: '',
         expression: '',
+        creatureType: '',
         ownerActorId: (actor as any).id ?? '',
         boundStoneCount: 0,
         stoneAttributes: [],
@@ -291,6 +293,7 @@ export class SummonBondDialog extends BaseDialog {
           name: this.createName,
           img: this.createImg,
           expression: this.createExpression,
+          creatureType: this.createExpression,
           stoneAttributes: stoneChips,
         },
         movementModes: SUMMON_MOVEMENT_MODES.map((m) => ({
@@ -305,6 +308,7 @@ export class SummonBondDialog extends BaseDialog {
         createTokenPreview: summonTokensFromStones(this.createAttrs.length),
         createErrors: this.createErrors,
         canCreate: this.createAttrs.length >= 1 && !!this.createName.trim(),
+        creatureTypeOptions: creatureTypeSelectOptions(this.createExpression),
       };
     }
 
@@ -498,6 +502,7 @@ export class SummonBondDialog extends BaseDialog {
       invalidSkillOptions,
       skillMinRating,
       hasEligibleSelected,
+      creatureTypeOptions: creatureTypeSelectOptions(this.draft.creatureType || this.draft.expression),
       identityOpen: this.identityOpen,
       stonesOpen: this.stonesOpen,
       sensesOpen: this.sensesOpen,
@@ -629,8 +634,9 @@ export class SummonBondDialog extends BaseDialog {
     if (this.mode === 'create') {
       const syncCreateFields = () => {
         this.createName = (root.querySelector('.js-sb-name') as HTMLInputElement)?.value ?? this.createName;
-        this.createExpression =
-          (root.querySelector('.js-sb-expression') as HTMLInputElement)?.value ?? this.createExpression;
+        this.createExpression = normalizeCreatureTypeValue(
+          (root.querySelector('.js-sb-creature-type') as HTMLSelectElement)?.value ?? this.createExpression,
+        );
         this.createImg = (root.querySelector('.js-sb-img') as HTMLInputElement)?.value ?? this.createImg;
         const mov = (root.querySelector('input[name="sbMovement"]:checked') as HTMLInputElement)?.value;
         if (mov) this.createMode = normalizeMovementMode(mov);
@@ -642,8 +648,8 @@ export class SummonBondDialog extends BaseDialog {
         const btn = root.querySelector('.js-sb-create') as HTMLButtonElement | null;
         if (btn) btn.disabled = !(this.createAttrs.length >= 1 && !!this.createName.trim());
       });
-      root.querySelector('.js-sb-expression')?.addEventListener('input', (ev) => {
-        this.createExpression = (ev.target as HTMLInputElement).value;
+      root.querySelector('.js-sb-creature-type')?.addEventListener('change', (ev) => {
+        this.createExpression = normalizeCreatureTypeValue((ev.target as HTMLSelectElement).value);
       });
       root.querySelector('.js-sb-img')?.addEventListener('change', (ev) => {
         this.createImg = (ev.target as HTMLInputElement).value;
@@ -696,8 +702,13 @@ export class SummonBondDialog extends BaseDialog {
     // Ritual listeners
     const readIdentity = () => {
       this.draft.name = (root.querySelector('.js-sb-name') as HTMLInputElement)?.value ?? this.draft.name;
-      this.draft.expression =
-        (root.querySelector('.js-sb-expression') as HTMLInputElement)?.value ?? this.draft.expression;
+      const creatureType = normalizeCreatureTypeValue(
+        (root.querySelector('.js-sb-creature-type') as HTMLSelectElement)?.value ??
+          this.draft.creatureType ??
+          this.draft.expression,
+      );
+      this.draft.creatureType = creatureType;
+      this.draft.expression = creatureType;
       this.draft.img = (root.querySelector('.js-sb-img') as HTMLInputElement)?.value ?? this.draft.img;
       const mov = (root.querySelector('input[name="sbMovement"]:checked') as HTMLInputElement)?.value;
       if (mov) this.draft.movementMode = normalizeMovementMode(mov);
@@ -968,6 +979,7 @@ export class SummonBondDialog extends BaseDialog {
       name: this.createName,
       img: this.createImg,
       expression: this.createExpression,
+      creatureType: this.createExpression,
       movementMode: normalizeMovementMode(this.createMode),
       stoneAttributes: this.createAttrs,
       activationTiming: this.createTiming,

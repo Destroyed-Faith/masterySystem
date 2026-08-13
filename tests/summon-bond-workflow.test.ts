@@ -487,6 +487,23 @@ describe('Summon actor create data', () => {
     expect((data.system as any).notes).toBe('');
     expect((data.system as any).bio.description).toBe('');
     expect((data.system as any).bloodColor).toBe('#4a148c');
+    expect((data.system as any).creatureType).toBe('');
+  });
+
+  it('writes selected creature type onto the summon actor', () => {
+    const bond = createEmptyBond({
+      name: 'Wolf',
+      ownerActorId: 'Actor.fin',
+      movementMode: 'walking',
+      stoneAttributes: ['might'],
+      creatureType: 'beast',
+    });
+    const data = buildSummonActorDataFromBond(bond, bond.bodies[0], {
+      id: 'Actor.fin',
+      system: { mastery: { rank: 2 } },
+    });
+    expect(bond.creatureType).toBe('beast');
+    expect((data.system as any).creatureType).toBe('beast');
   });
 
   it('grants OWNER to GMs and the assigned player of the owner character', () => {

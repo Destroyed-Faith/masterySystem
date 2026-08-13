@@ -28,6 +28,7 @@ import {
   splitNpcInitiativeModifier,
 } from '../utils/npc-initiative.js';
 import { openNpcPrintSheet } from './npc-print.js';
+import { creatureTypeSelectOptions } from '../utils/creature-type.js';
 
 /** Attach Ini malus/bonus split fields for the sheet dropdowns. */
 function withNpcIniUi(combat: Record<string, any> | null | undefined): Record<string, any> {
@@ -316,6 +317,7 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
     const isNpcLike = context.actor?.type === 'npc' || isSummon;
     context.isSummon = isSummon;
     context.npcDamageDiceMin = isSummon ? 1 : 4;
+    context.creatureTypeOptions = creatureTypeSelectOptions(context.system?.creatureType);
 
     if (isNpcLike && context.system) {
       if (context.system.creatureType == null || context.system.creatureType === undefined) {

@@ -280,6 +280,7 @@ export function buildSummonActorDataFromBond(
     system: {
       bloodColor: SUMMON_BLOOD_COLOR,
       mastery: { rank: ownerRank },
+      creatureType: bond.creatureType || bond.expression || '',
       bio: {
         name: bond.name,
         summonType: 'Summon',
@@ -300,7 +301,8 @@ export function buildSummonActorDataFromBond(
         ownerActorId: bond.ownerActorId,
         movementMode: bond.movementMode,
         movementM: bond.movementM,
-        expression: bond.expression || '',
+        expression: bond.creatureType || bond.expression || '',
+        creatureType: bond.creatureType || bond.expression || '',
         activationTiming: bond.activationTiming,
         sharedSenses: senseLines,
         boundStoneCount: bond.boundStoneCount,
