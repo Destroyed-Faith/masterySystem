@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.327] - 2026-08-13
+
+### Changed
+
+- **Rituals tab:** The workshop is the tab. No extra window, no Open / Perform Ritual buttons. Pick a Ritual, place Stones, roll on the sheet.
+- **Minor Magic tab:** Safe Haven Rest sits on this tab. After you rest, the create form on the same page unlocks. Use and Arm Trap stay available anytime.
+
 ## [0.9.326] - 2026-08-13
 
 ### Changed

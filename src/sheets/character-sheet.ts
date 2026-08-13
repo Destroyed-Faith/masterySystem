@@ -45,11 +45,9 @@ import { isLegacyUnarmedItem } from '../utils/unarmed-fallback.js';
 import { loadZoneFromBands, movementPenaltyForLoad, LOAD_ZONE_LABEL, ZONE_WIDTH_COLS } from '../utils/encumbrance.js';
 import { getFilePickerClass } from '../utils/foundry-v14.js';
 import { SummonBondDialog } from '../stones/summon-bond-dialog.js';
-import { RitualWorkshopDialog } from '../stones/ritual-workshop-dialog.js';
-import { MinorMagicDialog } from '../stones/minor-magic-dialog.js';
-import { RITUALS, ritualCategoryLabels } from '../utils/rituals.js';
+import { RitualWorkshopController } from '../stones/ritual-workshop-dialog.js';
+import { MinorMagicPanel } from '../stones/minor-magic-dialog.js';
 import {
-  MINOR_MAGIC_REST_REQUIRED,
   beginMinorMagicRest,
   dismissMinorMagicItem,
   minorMagicSheetView,
@@ -150,6 +148,41 @@ export class MasteryCharacterSheet extends BaseActorSheet {
 
   /** Active tab, preserved across re-renders (see sheet-v2-compat tabs helper). */
   activeTab?: string;
+  #ritualWorkshop?: RitualWorkshopController;
+  #minorMagicPanel?: MinorMagicPanel;
+
+  #getRitualWorkshop(): RitualWorkshopController {
+    if (!this.#ritualWorkshop) {
+      this.#ritualWorkshop = new RitualWorkshopController(this.actor as Actor, {
+        onRefresh: () => this.render(false),
+      });
+    }
+    this.#ritualWorkshop.actor = this.actor as Actor;
+    return this.#ritualWorkshop;
+  }
+
+  #getMinorMagicPanel(): MinorMagicPanel {
+    if (!this.#minorMagicPanel) {
+      this.#minorMagicPanel = new MinorMagicPanel(this.actor as Actor, {
+        onRefresh: () => this.render(false),
+      });
+    }
+    this.#minorMagicPanel.actor = this.actor as Actor;
+    return this.#minorMagicPanel;
+  }
+
+  async openRitualWorkshop(ritualId?: string): Promise<void> {
+    if (ritualId) this.#getRitualWorkshop().select(ritualId);
+    this.activeTab = 'rituals';
+    await this.render(true);
+    (this as any).bringToFront?.();
+  }
+
+  async openMinorMagicPanel(): Promise<void> {
+    this.activeTab = 'minor-magic';
+    await this.render(true);
+    (this as any).bringToFront?.();
+  }
 
   /** Initial tab when the sheet is first opened; subclasses override. */
   protected get _initialTab(): string {
@@ -970,13 +1003,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     });
     context.disadvantagePointsTotal = context.disadvantages.reduce((sum: number, d: any) => sum + (d.points || 0), 0);
 
-    context.ritualCatalogView = RITUALS.map((r) => ({
-      id: r.id,
-      name: r.name,
-      skills: ritualCategoryLabels(r),
-      castingTime: r.castingTime,
-    }));
+    context.ritualWorkshop = this.#getRitualWorkshop().prepareContext();
     context.minorMagicView = minorMagicSheetView(this.actor);
+    context.minorMagicPanel = this.#getMinorMagicPanel().prepareContext();
 
     context.summonBondsView = getSummonBondsFromActor(this.actor).map((b) => {
       const tok = tokensSummary(b);
@@ -2269,27 +2298,13 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       await SummonBondDialog.showRitual(this.actor, id);
       this.render(false);
     });
-    html.off('click.rituals');
-    html.on('click.rituals', '.js-sheet-ritual-workshop', async (ev) => {
-      ev.preventDefault();
-      await RitualWorkshopDialog.show(this.actor as Actor);
-    });
-    html.on('click.rituals', '.js-sheet-ritual-open', async (ev) => {
-      ev.preventDefault();
-      const id = (ev.currentTarget as HTMLElement).dataset.ritualId;
-      await RitualWorkshopDialog.show(this.actor as Actor, id);
-    });
+    const ritualRoot = html.find('.tab.rituals .rw-root').get(0);
+    if (ritualRoot) this.#getRitualWorkshop().bind(ritualRoot);
+
+    const minorRoot = html.find('.tab.minor-magic .mm-root').get(0);
+    if (minorRoot) this.#getMinorMagicPanel().bind(minorRoot);
 
     html.off('click.minorMagic');
-    html.on('click.minorMagic', '.js-sheet-minor-magic-create', async (ev) => {
-      ev.preventDefault();
-      if (!minorMagicSheetView(this.actor).canManage) {
-        (ui as any).notifications?.warn(MINOR_MAGIC_REST_REQUIRED);
-        return;
-      }
-      await MinorMagicDialog.show(this.actor as Actor);
-      this.render(false);
-    });
     html.on('click.minorMagic', '.js-sheet-minor-magic-use', async (ev) => {
       ev.preventDefault();
       const id = (ev.currentTarget as HTMLElement).dataset.itemId;

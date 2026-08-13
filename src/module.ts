@@ -2244,6 +2244,8 @@ async function preloadTemplates() {
 
     // Homepage character import
     'systems/mastery-system/templates/import/character-import-dialog.hbs',
+    'systems/mastery-system/templates/dialogs/ritual-workshop.hbs',
+    'systems/mastery-system/templates/dialogs/minor-magic.hbs',
   ];
   
   try {

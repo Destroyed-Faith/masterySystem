@@ -2051,29 +2051,10 @@
 
     <!-- RITUALS TAB -->
     <div class="tab rituals" data-group="primary" data-tab="rituals">
-      <div class="summons-tab-content rituals-tab-content">
-        <div class="summons-tab-header">
-          <h3><i class="fas fa-book-sparkles"></i> Rituals</h3>
-          <button type="button" class="js-sheet-ritual-workshop dialog-btn dialog-btn-primary">
-            <i class="fas fa-dice-d20"></i> Perform Ritual
-          </button>
-        </div>
-        <p class="summons-tab-hint">Deliberate workings outside combat. Open a Ritual, place the Stones for the declared Raise, then roll. Hover the chips in the workshop for the full rules.</p>
-        {{#if ritualCatalogView.length}}
-        <ul class="summons-bond-list">
-          {{#each ritualCatalogView}}
-          <li class="summons-bond-card">
-            <div class="summons-bond-main">
-              <strong>{{this.name}}</strong>
-              <span class="summons-bond-meta">{{this.skills}} · {{this.castingTime}}</span>
-            </div>
-            <div class="summons-bond-actions">
-              <button type="button" class="js-sheet-ritual-open dialog-btn dialog-btn-primary" data-ritual-id="{{this.id}}">Open</button>
-            </div>
-          </li>
-          {{/each}}
-        </ul>
-        {{/if}}
+      <div class="rituals-tab-embed">
+        {{#with ritualWorkshop}}
+        {{> "systems/mastery-system/templates/dialogs/ritual-workshop.hbs"}}
+        {{/with}}
       </div>
     </div>
 
@@ -2082,11 +2063,16 @@
       <div class="summons-tab-content">
         <div class="summons-tab-header">
           <h3><i class="fas fa-flask"></i> Minor Magic Items</h3>
-          <button type="button" class="js-sheet-minor-magic-create dialog-btn dialog-btn-primary" {{#unless minorMagicView.canManage}}disabled title="Only during a Safe Haven Rest"{{/unless}}>
-            <i class="fas fa-plus"></i> Create Item
+          <button type="button" class="safe-haven-rest dialog-btn dialog-btn-primary" title="Rest at a Safe Haven to create, replace, or dismiss Minor Magic Items">
+            <i class="fas fa-bed"></i> Safe Haven Rest
           </button>
         </div>
-        <p class="summons-tab-hint">Store one use of a purchased Active Power in a potion, grenade, rune, prepared weapon, trap, or charm. Limit {{minorMagicView.held}} / {{minorMagicView.limit}} (Mastery Rank). Create, replace, or dismiss only during a Safe Haven Rest. No Stones.</p>
+        <p class="summons-tab-hint">Store one use of a purchased Active Power. Limit {{minorMagicView.held}} / {{minorMagicView.limit}} (Mastery Rank). Press <strong>Safe Haven Rest</strong> on this tab to create, replace, or dismiss. Use and Arm Trap work anytime. No Stones.</p>
+        <div class="minor-magic-tab-embed">
+          {{#with minorMagicPanel}}
+          {{> "systems/mastery-system/templates/dialogs/minor-magic.hbs"}}
+          {{/with}}
+        </div>
         {{#if minorMagicView.items.length}}
         <ul class="summons-bond-list">
           {{#each minorMagicView.items}}

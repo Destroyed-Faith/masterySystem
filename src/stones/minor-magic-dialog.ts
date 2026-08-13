@@ -1,10 +1,7 @@
 /**
- * Minor Magic Item workshop — pick a purchased Active and a form.
- * Create / replace only during a Safe Haven Rest. No Stones.
+ * Minor Magic Item panel — pick a purchased Active and a form.
+ * Lives on the character sheet tab. Create / replace only during a Safe Haven Rest.
  */
-
-const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
-const BaseDialog = HandlebarsApplicationMixin(ApplicationV2) as typeof ApplicationV2;
 
 import {
   MINOR_MAGIC_FORM_LABELS,
@@ -20,33 +17,26 @@ import {
   type MinorMagicForm,
 } from '../utils/minor-magic-items.js';
 
-export class MinorMagicDialog extends BaseDialog {
-  private actor: Actor;
-  private selectedPowerId = '';
-  private itemForm: MinorMagicForm = 'potion';
-  private itemName = '';
+export class MinorMagicPanel {
+  actor: Actor;
+  selectedPowerId = '';
+  itemForm: MinorMagicForm = 'potion';
+  itemName = '';
+  private onRefresh: () => void | Promise<void>;
 
-  static DEFAULT_OPTIONS = {
-    id: 'mastery-minor-magic',
-    classes: ['mastery-system', 'minor-magic-app'],
-    position: { width: 820, height: 680 },
-    window: { title: 'Minor Magic Items', resizable: true },
-  };
-
-  static PARTS = {
-    content: { template: 'systems/mastery-system/templates/dialogs/minor-magic.hbs' },
-  };
-
-  static async show(actor: Actor, powerId?: string): Promise<void> {
-    const app = new MinorMagicDialog(actor, powerId);
-    await (app as any).render({ force: true });
+  constructor(actor: Actor, opts: { onRefresh: () => void | Promise<void> }) {
+    this.actor = actor;
+    this.onRefresh = opts.onRefresh;
+    this.#ensurePower();
   }
 
-  constructor(actor: Actor, powerId?: string) {
-    super({});
-    this.actor = actor;
-    const powers = listEligibleMinorMagicPowers(actor as any);
-    this.selectedPowerId = powerId && powers.some((p) => p.id === powerId) ? powerId : (powers[0]?.id ?? '');
+  #ensurePower(): void {
+    const powers = listEligibleMinorMagicPowers(this.actor);
+    if (this.selectedPowerId && powers.some((p) => p.id === this.selectedPowerId)) {
+      if (!this.itemName) this.#syncDefaultName();
+      return;
+    }
+    this.selectedPowerId = powers[0]?.id ?? '';
     this.#syncDefaultName();
   }
 
@@ -65,8 +55,9 @@ export class MinorMagicDialog extends BaseDialog {
     return !!this.#selectedPower() && view.remaining > 0 && canManageMinorMagic(this.actor);
   }
 
-  async _prepareContext(_options: any): Promise<any> {
-    const powers = listEligibleMinorMagicPowers(this.actor as any);
+  prepareContext(): Record<string, unknown> {
+    this.#ensurePower();
+    const powers = listEligibleMinorMagicPowers(this.actor);
     const power = this.#selectedPower();
     const snapshot = power ? snapshotPowerForMinorMagic(this.actor, power) : null;
     const view = minorMagicSheetView(this.actor);
@@ -95,7 +86,7 @@ export class MinorMagicDialog extends BaseDialog {
       ruleTips: [
         {
           label: 'Safe Haven',
-          text: 'Create, replace, or dismiss only during a Safe Haven Rest. Empty places in the Mastery Rank limit can only be filled then. Existing items stay and still count, even if someone else carries them.',
+          text: 'Create, replace, or dismiss only during a Safe Haven Rest. Use the Safe Haven Rest button on this tab, then fill empty places. Existing items stay and still count, even if someone else carries them.',
         },
         {
           label: 'What it stores',
@@ -121,22 +112,16 @@ export class MinorMagicDialog extends BaseDialog {
     };
   }
 
-  async #refresh(): Promise<void> {
-    await this.render({ force: true });
-  }
-
-  async _onRender(_context: any, _options: any): Promise<void> {
-    await (super._onRender as any)?.(_context, _options);
-    const root = (this as any).element as HTMLElement;
-    if (!root) return;
-
+  bind(root: HTMLElement): void {
     root.querySelectorAll('.js-mm-tab').forEach((el) => {
-      el.addEventListener('click', () => {
+      el.addEventListener('click', (ev) => {
+        ev.preventDefault();
+        ev.stopPropagation();
         const id = (el as HTMLElement).dataset.id ?? '';
         if (!id || id === this.selectedPowerId) return;
         this.selectedPowerId = id;
         this.#syncDefaultName();
-        void this.#refresh();
+        void this.onRefresh();
       });
     });
 
@@ -145,7 +130,7 @@ export class MinorMagicDialog extends BaseDialog {
       if (MINOR_MAGIC_FORMS.includes(value as MinorMagicForm)) {
         this.itemForm = value as MinorMagicForm;
         this.#syncDefaultName();
-        void this.#refresh();
+        void this.onRefresh();
       }
     });
 
@@ -153,15 +138,16 @@ export class MinorMagicDialog extends BaseDialog {
       this.itemName = (ev.target as HTMLInputElement).value;
     });
 
-    root.querySelector('.js-mm-create')?.addEventListener('click', () => {
-      void this.#create();
+    root.querySelector('.js-mm-create')?.addEventListener('click', (ev) => {
+      ev.preventDefault();
+      ev.stopPropagation();
+      const name = (root.querySelector('.js-mm-name') as HTMLInputElement | null)?.value ?? this.itemName;
+      void this.#create(name);
     });
   }
 
-  async #create(): Promise<void> {
+  async #create(name: string): Promise<void> {
     if (!this.#canCreate()) return;
-    const name = ((this as any).element?.querySelector('.js-mm-name') as HTMLInputElement | null)?.value
-      ?? this.itemName;
     const result = await createMinorMagicItem(this.actor, {
       powerId: this.selectedPowerId,
       form: this.itemForm,
@@ -172,6 +158,19 @@ export class MinorMagicDialog extends BaseDialog {
       return;
     }
     (ui as any).notifications?.info(`${result.item.name} added to inventory.`);
-    await this.close();
+    this.#syncDefaultName();
+    await this.onRefresh();
   }
 }
+
+/** @deprecated Panel is on the sheet now. */
+export const MinorMagicDialog = {
+  async show(actor: Actor): Promise<void> {
+    const sheet = (actor as any).sheet as { openMinorMagicPanel?: () => Promise<void> } | undefined;
+    if (sheet?.openMinorMagicPanel) {
+      await sheet.openMinorMagicPanel();
+      return;
+    }
+    (ui as any).notifications?.warn('Open the character sheet to create a Minor Magic Item.');
+  },
+};

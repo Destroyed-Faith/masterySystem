@@ -1,9 +1,7 @@
 /**
- * Ritual Workshop — ApplicationV2 catalog + declared-raise Skill Check UI.
+ * Ritual Workshop — catalog + declared-raise Skill Check UI.
+ * Lives on the character sheet Rituals tab (no extra window).
  */
-
-const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
-const BaseDialog = HandlebarsApplicationMixin(ApplicationV2) as typeof ApplicationV2;
 
 import { performRitualRoll } from '../combat/ritual-roll-handler.js';
 import { poolSpendableStones } from '../utils/artifact-actor-rules.js';
@@ -57,41 +55,33 @@ function attrLabel(key: string): string {
   return ATTR_LABELS[key as PoolAttr] ?? key.charAt(0).toUpperCase() + key.slice(1);
 }
 
-export class RitualWorkshopDialog extends BaseDialog {
-  private actor: Actor;
-  private selectedId: string;
-  private declaredRaise = 0;
-  private ritualMR: number;
-  private gmMod = 0;
-  private skillKey = '';
-  private attributeKey = '';
-  private placed: string[] = [];
-  private uiScrollTop = 0;
-  private restoreScrollAfterRender = false;
+export class RitualWorkshopController {
+  actor: Actor;
+  selectedId: string;
+  declaredRaise = 0;
+  ritualMR: number;
+  gmMod = 0;
+  skillKey = '';
+  attributeKey = '';
+  placed: string[] = [];
+  uiScrollTop = 0;
+  private onRefresh: () => void | Promise<void>;
 
-  static DEFAULT_OPTIONS = {
-    id: 'mastery-ritual-workshop',
-    classes: ['mastery-system', 'ritual-workshop-app'],
-    position: { width: 960, height: 800 },
-    window: { title: 'Rituals', resizable: true },
-  };
-
-  static PARTS = {
-    content: { template: 'systems/mastery-system/templates/dialogs/ritual-workshop.hbs' },
-  };
-
-  static async show(actor: Actor, ritualId?: string): Promise<void> {
-    const app = new RitualWorkshopDialog(actor, ritualId);
-    await (app as any).render({ force: true });
-  }
-
-  constructor(actor: Actor, ritualId?: string) {
-    super({});
+  constructor(actor: Actor, opts: { onRefresh: () => void | Promise<void>; ritualId?: string }) {
     this.actor = actor;
+    this.onRefresh = opts.onRefresh;
     this.ritualMR = actorMasteryRank(actor);
-    const initial = (ritualId && getRitualById(ritualId)) || RITUALS[0];
+    const initial = (opts.ritualId && getRitualById(opts.ritualId)) || RITUALS[0];
     this.selectedId = initial?.id ?? '';
     this.#applyRitualDefaults(initial, true);
+  }
+
+  select(ritualId: string): void {
+    const ritual = getRitualById(ritualId);
+    if (!ritual) return;
+    this.selectedId = ritual.id;
+    this.declaredRaise = 0;
+    this.#applyRitualDefaults(ritual, true);
   }
 
   #selectedRitual(): RitualDefinition | undefined {
@@ -132,7 +122,7 @@ export class RitualWorkshopDialog extends BaseDialog {
     return !!ritual && this.placed.length === stoneCost && !!this.skillKey && !!this.attributeKey;
   }
 
-  async _prepareContext(_options: any): Promise<any> {
+  prepareContext(): Record<string, unknown> {
     const ritual = this.#selectedRitual();
     const maxRaise = ritual ? ritualMaxRaise(ritual) : 0;
     this.declaredRaise = Math.max(0, Math.min(maxRaise, this.declaredRaise));
@@ -260,54 +250,41 @@ export class RitualWorkshopDialog extends BaseDialog {
     };
   }
 
-  async #refresh(preserveScroll = true): Promise<void> {
-    if (preserveScroll) {
-      const root = (this as any).element as HTMLElement | null;
-      this.uiScrollTop = root?.querySelector('.rw-main')?.scrollTop ?? 0;
-      this.restoreScrollAfterRender = true;
-    } else {
-      this.uiScrollTop = 0;
-      this.restoreScrollAfterRender = false;
-    }
-    await this.render({ force: true });
-  }
-
-  async _onRender(context: any, options: any): Promise<void> {
-    await (super._onRender as any)?.(context, options);
-    const root = (this as any).element as HTMLElement;
-    if (!root) return;
-
-    if (this.restoreScrollAfterRender) {
-      this.restoreScrollAfterRender = false;
-      const main = root.querySelector('.rw-main') as HTMLElement | null;
-      if (main) {
-        const top = this.uiScrollTop;
+  bind(root: HTMLElement): void {
+    const main = root.querySelector('.rw-main') as HTMLElement | null;
+    if (main && this.uiScrollTop) {
+      const top = this.uiScrollTop;
+      main.scrollTop = top;
+      requestAnimationFrame(() => {
         main.scrollTop = top;
-        requestAnimationFrame(() => {
-          main.scrollTop = top;
-        });
-      }
+      });
     }
+
+    const refresh = (preserveScroll = true) => {
+      const current = root.querySelector('.rw-main') as HTMLElement | null;
+      this.uiScrollTop = preserveScroll ? (current?.scrollTop ?? 0) : 0;
+      void this.onRefresh();
+    };
 
     root.querySelectorAll('.js-rw-tab').forEach((el) => {
-      el.addEventListener('click', () => {
+      el.addEventListener('click', (ev) => {
+        ev.preventDefault();
+        ev.stopPropagation();
         const id = (el as HTMLElement).dataset.id ?? '';
         if (!id || id === this.selectedId) return;
-        this.selectedId = id;
-        this.declaredRaise = 0;
-        this.#applyRitualDefaults(this.#selectedRitual(), true);
-        void this.#refresh(false);
+        this.select(id);
+        refresh(false);
       });
     });
 
     root.querySelector('.js-rw-mr')?.addEventListener('change', (ev) => {
       this.ritualMR = Math.max(1, Math.floor(Number((ev.target as HTMLInputElement).value) || 1));
-      void this.#refresh();
+      refresh();
     });
 
     root.querySelector('.js-rw-gm-mod')?.addEventListener('change', (ev) => {
       this.gmMod = Math.floor(Number((ev.target as HTMLInputElement).value) || 0);
-      void this.#refresh();
+      refresh();
     });
 
     root.querySelector('.js-rw-raise')?.addEventListener('change', (ev) => {
@@ -315,23 +292,25 @@ export class RitualWorkshopDialog extends BaseDialog {
       const max = ritual ? ritualMaxRaise(ritual) : 4;
       this.declaredRaise = Math.max(0, Math.min(max, Math.floor(Number((ev.target as HTMLSelectElement).value) || 0)));
       this.#trimPlacedToCost(ritual);
-      void this.#refresh();
+      refresh();
     });
 
     root.querySelector('.js-rw-skill')?.addEventListener('change', (ev) => {
       this.skillKey = (ev.target as HTMLSelectElement).value;
       const attrs = SKILLS[this.skillKey]?.attributes ?? [];
       if (!attrs.includes(this.attributeKey)) this.attributeKey = attrs[0] ?? '';
-      void this.#refresh();
+      refresh();
     });
 
     root.querySelector('.js-rw-attr')?.addEventListener('change', (ev) => {
       this.attributeKey = (ev.target as HTMLSelectElement).value;
-      void this.#refresh();
+      refresh();
     });
 
     root.querySelectorAll('.js-rw-pool-gem').forEach((el) => {
-      el.addEventListener('click', () => {
+      el.addEventListener('click', (ev) => {
+        ev.preventDefault();
+        ev.stopPropagation();
         const ritual = this.#selectedRitual();
         if (!ritual) return;
         const cost = ritualStoneCost(ritual, this.declaredRaise);
@@ -339,20 +318,24 @@ export class RitualWorkshopDialog extends BaseDialog {
         const attr = (el as HTMLElement).dataset.attr;
         if (!attr) return;
         this.placed.push(attr);
-        void this.#refresh();
+        refresh();
       });
     });
 
     root.querySelectorAll('.js-rw-slot-filled').forEach((el) => {
-      el.addEventListener('click', () => {
+      el.addEventListener('click', (ev) => {
+        ev.preventDefault();
+        ev.stopPropagation();
         const index = Number((el as HTMLElement).dataset.index);
         if (!Number.isFinite(index) || index < 0) return;
         this.placed.splice(index, 1);
-        void this.#refresh();
+        refresh();
       });
     });
 
-    root.querySelector('.js-rw-roll')?.addEventListener('click', () => {
+    root.querySelector('.js-rw-roll')?.addEventListener('click', (ev) => {
+      ev.preventDefault();
+      ev.stopPropagation();
       void this.#roll();
     });
   }
@@ -372,6 +355,22 @@ export class RitualWorkshopDialog extends BaseDialog {
       declaredRaises: this.declaredRaise,
       placedAttrs: [...this.placed],
     });
-    await this.close();
+    this.placed = [];
+    await this.onRefresh();
   }
 }
+
+/** Open the character sheet on the Rituals tab (no floating dialog). */
+export async function showRitualWorkshopOnSheet(actor: Actor, ritualId?: string): Promise<void> {
+  const sheet = (actor as any).sheet as { openRitualWorkshop?: (id?: string) => Promise<void> } | undefined;
+  if (sheet?.openRitualWorkshop) {
+    await sheet.openRitualWorkshop(ritualId);
+    return;
+  }
+  (ui as any).notifications?.warn('Open the character sheet to perform a Ritual.');
+}
+
+/** @deprecated Use showRitualWorkshopOnSheet — kept for existing callers. */
+export const RitualWorkshopDialog = {
+  show: showRitualWorkshopOnSheet,
+};

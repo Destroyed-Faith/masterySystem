@@ -955,8 +955,9 @@ export class StonePowersDialog extends BaseDialog {
     this.#bindSummonBondsTab(root);
     root.querySelector('.js-open-ritual-workshop')?.addEventListener('click', async (ev: Event) => {
       ev.preventDefault();
-      const { RitualWorkshopDialog } = await import('./ritual-workshop-dialog.js');
-      await RitualWorkshopDialog.show(this.actor);
+      const { showRitualWorkshopOnSheet } = await import('./ritual-workshop-dialog.js');
+      await showRitualWorkshopOnSheet(this.actor);
+      await (this as any).close?.();
     });
 
     const savePrefsBtn = root.querySelector('.js-save-stone-prefs') as HTMLElement | null;
