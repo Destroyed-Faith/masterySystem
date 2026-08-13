@@ -416,6 +416,18 @@ async function maybeLockStonePowersAfterCombatAction(actor, combat) {
     await lockStonePowersConfigurationForRound(actor, combat);
 }
 export async function spendAttackAction(actor, combat) {
+    if (actor.type === 'summon') {
+        const { resolveSummonBondContext, spendSummonAttack } = await import('../stones/summon-combat.js');
+        const ctx = resolveSummonBondContext(actor);
+        if (ctx) {
+            const res = await spendSummonAttack(ctx.owner, combat, ctx.bond);
+            if (!res.ok) {
+                ui.notifications?.warn(res.reason ?? 'No Summon Attacks remaining for this Bond this Round.');
+                return false;
+            }
+            return true;
+        }
+    }
     const roundState = getRoundState(actor, combat);
     const owner = getActionEconomyActor(actor) ?? actor;
     const stunnedLock = Math.max(0, getStunnedRank(owner));
@@ -479,6 +491,18 @@ export function isNormalMovementReplaced(actor, combat) {
  * Spend a reaction action
  */
 export async function spendReactionAction(actor, combat) {
+    if (actor.type === 'summon') {
+        const { resolveSummonBondContext, spendSummonBondReaction } = await import('../stones/summon-combat.js');
+        const ctx = resolveSummonBondContext(actor);
+        if (ctx) {
+            const res = await spendSummonBondReaction(ctx.owner, combat, ctx.bond);
+            if (!res.ok) {
+                ui.notifications?.warn(res.reason ?? 'Summon Bond may use only one Reaction per Round.');
+                return false;
+            }
+            return true;
+        }
+    }
     const roundState = getRoundState(actor, combat);
     if (roundState.fleeLock) {
         ui.notifications?.warn('Flee: you cannot use Reactions until the start of your next Turn.');
@@ -500,7 +524,30 @@ export async function spendReactionAction(actor, combat) {
  * Dash/Disengage locks the base Attack Action (`baseAttackLocked`).
  * Flee locks all attacks until next Turn.
  */
+function resolveSummonOwnerAndBond(summonActor) {
+    if (!summonActor || summonActor.type !== 'summon')
+        return null;
+    const link = summonActor.system?.summonBond ?? {};
+    const ownerId = link.ownerActorId || summonActor.system?.familiar?.ownerActorId;
+    const bondId = link.bondId || summonActor.system?.familiar?.familiarId;
+    if (!ownerId || !bondId)
+        return null;
+    const owner = game.actors?.get(ownerId);
+    if (!owner)
+        return null;
+    const bonds = Array.isArray(owner.system?.summonBonds) ? owner.system.summonBonds : [];
+    const bond = bonds.find((b) => b.id === bondId);
+    if (!bond)
+        return null;
+    return { owner, bondId, summonAttacks: Math.max(1, Math.floor(Number(bond.summonAttacks) || 1)) };
+}
 export function getAvailableAttackActions(actor, combat) {
+    const summonCtx = resolveSummonOwnerAndBond(actor);
+    if (summonCtx) {
+        const rs = getRoundState(summonCtx.owner, combat);
+        const used = Math.max(0, Math.floor(Number(rs.summonBondUsage?.[summonCtx.bondId]?.attacksUsed) || 0));
+        return Math.max(0, summonCtx.summonAttacks - used);
+    }
     const roundState = getRoundState(actor, combat);
     if (roundState.fleeLock)
         return 0;
@@ -544,6 +591,12 @@ export function getAvailableMovementActions(actor, combat) {
  * Remaining reaction actions this combat round (initiative shop / stones increase `total`).
  */
 export function getAvailableReactionActions(actor, combat) {
+    const summonCtx = resolveSummonOwnerAndBond(actor);
+    if (summonCtx) {
+        const rs = getRoundState(summonCtx.owner, combat);
+        const used = Math.max(0, Math.floor(Number(rs.summonBondUsage?.[summonCtx.bondId]?.reactionsUsed) || 0));
+        return Math.max(0, 1 - used);
+    }
     const roundState = getRoundState(actor, combat);
     return Math.max(0, roundState.reactionActions.total - roundState.reactionActions.used);
 }

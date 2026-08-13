@@ -21,6 +21,9 @@ import { findFirstFit, fitsInGrid, parseInventorySize, rectsOverlap } from '../u
 import { isLegacyUnarmedItem } from '../utils/unarmed-fallback.js';
 import { loadZoneFromBands, movementPenaltyForLoad, LOAD_ZONE_LABEL, ZONE_WIDTH_COLS } from '../utils/encumbrance.js';
 import { getFilePickerClass } from '../utils/foundry-v14.js';
+import { SummonBondDialog } from '../stones/summon-bond-dialog.js';
+import { dissolveSummonBond, getSummonBondsFromActor, tokensSummary, } from '../stones/summon-bond-bind.js';
+import { deleteSummonActor } from '../stones/familiar-actor-factory.js';
 import { buildPostCreationSnapshot } from '../utils/xp-post-creation.js';
 import { resetCharacterForRecreation, listEquippedGeneralArtifacts } from '../utils/reset-character.js';
 import { buildCancelSkillsRedistributeUpdates, buildFinishSkillsRedistributeUpdates, buildStartSkillsRedistributeUpdates, canStartSkillsRedistribute, getCreationSkillBudget, isSkillsRedistributing, validateCreationSkillAllocation, } from '../utils/skills-redistribute.js';
@@ -860,6 +863,21 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             return out;
         });
         context.disadvantagePointsTotal = context.disadvantages.reduce((sum, d) => sum + (d.points || 0), 0);
+        context.summonBondsView = getSummonBondsFromActor(this.actor).map((b) => {
+            const tok = tokensSummary(b);
+            return {
+                id: b.id,
+                name: b.name,
+                movementMode: b.movementMode,
+                movementM: b.movementM,
+                boundStoneCount: b.boundStoneCount,
+                tokensAvailable: tok.available,
+                tokensRemaining: tok.remaining,
+                bodyCount: b.bodies?.length ?? 1,
+                needsRedistribution: !!b.needsRedistribution,
+                hasActor: (b.bodies || []).some((body) => !!body.summonActorId),
+            };
+        });
         // Ensure token image is available
         if (!context.actor.prototypeToken?.texture?.src) {
             context.actor.prototypeToken = context.actor.prototypeToken || {};
@@ -2018,6 +2036,42 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 }
             });
         }
+        html.off('click.summonBonds');
+        html.on('click.summonBonds', '.js-sheet-summon-bond-new', async (ev) => {
+            ev.preventDefault();
+            await SummonBondDialog.showCreate(this.actor);
+            this.render(false);
+        });
+        html.on('click.summonBonds', '.js-sheet-summon-bond-ritual', async (ev) => {
+            ev.preventDefault();
+            const id = ev.currentTarget.dataset.bondId;
+            if (!id)
+                return;
+            await SummonBondDialog.showRitual(this.actor, id);
+            this.render(false);
+        });
+        html.on('click.summonBonds', '.js-sheet-summon-bond-dissolve', async (ev) => {
+            ev.preventDefault();
+            const id = ev.currentTarget.dataset.bondId;
+            if (!id)
+                return;
+            const bond = getSummonBondsFromActor(this.actor).find((b) => b.id === id);
+            if (!bond)
+                return;
+            const confirmed = typeof globalThis.foundry?.applications?.api?.DialogV2?.confirm === 'function'
+                ? await globalThis.foundry.applications.api.DialogV2.confirm({
+                    window: { title: 'Dissolve Summon Bond' },
+                    content: `<p>Dissolve this Summon Bond? Bound Stones return to the owner. Existing summon tokens will be removed. Body actors may be archived or deleted according to system settings.</p><p><strong>${bond.name}</strong></p>`,
+                })
+                : globalThis.confirm?.(`Dissolve this Summon Bond? Bound Stones return to the owner. Existing summon tokens will be removed.\n\n${bond.name}`);
+            if (!confirmed)
+                return;
+            const res = await dissolveSummonBond(this.actor, id, deleteSummonActor);
+            if (res.removed) {
+                ui.notifications?.info(`Dissolved Summon Bond "${res.removed.name}".`);
+            }
+            this.render(false);
+        });
         // Profile image click handlers (work for everyone)
         // Use event delegation to handle clicks even if elements are added later
         const containers = html.find('.profile-img-container');

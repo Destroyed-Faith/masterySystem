@@ -13,8 +13,8 @@
  * - Stage capture never auto-confirms a guessed nearby token; it only cancels
  *   empty clicks / warns out-of-range using client→canvas coordinates.
  */
-import { highlightHexesInRange, clearHexHighlight } from "./utils/hex-highlighting.js";
-import { gridStepsFromMeters, isWithinRangeMeters, measureSceneDistanceBetweenPoints, } from "./utils/grid-range.js";
+import { highlightHexesInRange, clearHexHighlight } from "./utils/hex-highlighting";
+import { gridStepsFromMeters, isWithinRangeMeters, measureSceneDistanceBetweenPoints, } from "./utils/grid-range";
 import { filterPerceivableTargetIds } from "./combat/perception-gate.js";
 import { pickTokenFromPointerEvent, pointerEventIsOnToken, tokenFromEventTarget, } from "./utils/token-pick.js";
 let active = null;

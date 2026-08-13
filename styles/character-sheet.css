@@ -10485,3 +10485,68 @@
   0%, 100% { box-shadow: 0 0 0 0 rgba(168, 68, 47, 0.7); }
   50% { box-shadow: 0 0 0 6px rgba(168, 68, 47, 0); }
 }
+
+/* ===== Summons tab (side bookmark under Disadvantages) ===== */
+.mastery-system.sheet.actor.character .summons-tab-content {
+  padding: 0.5rem 0.25rem 1rem;
+}
+.mastery-system.sheet.actor.character .summons-tab-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+.mastery-system.sheet.actor.character .summons-tab-header h3 {
+  margin: 0;
+  font-family: 'Cormorant Garamond', serif;
+}
+.mastery-system.sheet.actor.character .summons-tab-hint {
+  color: var(--df-text-secondary, #a8a8a8);
+  margin: 0 0 0.75rem;
+  font-size: 0.92em;
+}
+.mastery-system.sheet.actor.character .summons-bond-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.mastery-system.sheet.actor.character .summons-bond-card {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.6rem;
+  padding: 0.65rem 0.8rem;
+  border: 1px solid var(--df-border, rgba(255,255,255,0.12));
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.18);
+}
+.mastery-system.sheet.actor.character .summons-bond-main {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 12rem;
+  flex: 1 1 auto;
+}
+.mastery-system.sheet.actor.character .summons-bond-meta {
+  color: var(--df-text-secondary, #a8a8a8);
+  font-size: 0.88em;
+}
+.mastery-system.sheet.actor.character .summons-bond-badge {
+  display: inline-block;
+  margin-right: 0.35rem;
+  margin-top: 0.2rem;
+  padding: 0.1rem 0.4rem;
+  border-radius: 999px;
+  font-size: 0.75em;
+  background: rgba(139, 69, 24, 0.35);
+}
+.mastery-system.sheet.actor.character .summons-bond-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  align-items: center;
+}

@@ -2,20 +2,44 @@
  * Summons V2 — universal Summon Bond rules (Players Guide / agent.md v0.9.8).
  *
  * Tokens = Bound Stones × 8 (first stone included).
- * One Movement Mode (8–16 m). Bond- vs Body-scoped upgrades.
+ * One Movement Mode (Flying 4–16 m; Walking/Swimming 8–16 m). Bond- vs Body-scoped upgrades.
  * No Familiar / Companion / Host chassis.
  */
 
-export type SummonMovementMode = 'walking' | 'flying' | 'swimming' | 'climbing';
+export type SummonMovementMode = 'walking' | 'flying' | 'swimming';
 
 export type SharedSenseGroup = 'sight' | 'hearing' | 'tasteSmell' | 'touchPressure';
 
-export const SUMMON_MOVEMENT_MODES: { value: SummonMovementMode; label: string }[] = [
-  { value: 'walking', label: 'Walking' },
-  { value: 'flying', label: 'Flying' },
-  { value: 'swimming', label: 'Swimming' },
-  { value: 'climbing', label: 'Climbing' },
+export const SUMMON_MOVEMENT_MODES: {
+  value: SummonMovementMode;
+  label: string;
+  baseM: number;
+  maxM: number;
+}[] = [
+  { value: 'walking', label: 'Walking', baseM: 8, maxM: 16 },
+  { value: 'flying', label: 'Flying', baseM: 4, maxM: 16 },
+  { value: 'swimming', label: 'Swimming', baseM: 8, maxM: 16 },
 ];
+
+/** Base movement meters for a mode (Flying starts lower). */
+export function baseMovementM(mode: SummonMovementMode | string): number {
+  const m = normalizeMovementMode(mode);
+  return m === 'flying' ? 4 : 8;
+}
+
+/** Max +2 m purchases until the 16 m cap. */
+export function maxMovementPurchases(mode: SummonMovementMode | string): number {
+  const base = baseMovementM(mode);
+  return Math.max(0, Math.floor((SUMMON_CAPS.maxMovementM - base) / SUMMON_CAPS.movementGainM));
+}
+
+/** Collapse retired modes (e.g. Climbing) onto Walking. */
+export function normalizeMovementMode(mode: string | undefined): SummonMovementMode {
+  const t = String(mode || '').toLowerCase();
+  if (t === 'flying' || t === 'fly') return 'flying';
+  if (t === 'swimming' || t === 'swim') return 'swimming';
+  return 'walking';
+}
 
 export const SHARED_SENSE_GROUPS: { value: SharedSenseGroup; label: string }[] = [
   { value: 'sight', label: 'Sight' },
@@ -52,7 +76,10 @@ export const BASE_SUMMON = {
 
 export const SUMMON_CAPS = {
   maxMovementM: 16,
+  /** Total Summon Attacks per Bond per Round (1 base + Extra Attack purchases). */
   maxSummonAttacks: 3,
+  /** Extra Attack purchases (each +1 Attack). 1 + 2 = 3 total. */
+  maxExtraAttackPurchases: 2,
   maxSpecialValue: 4,
   /** Normal Bound Stone → Summon Tokens (Players Guide). */
   tokensPerStone: 8,
@@ -153,11 +180,11 @@ export function maxSummonPowerLevel(ownerMasteryRank: number): number {
   return 16;
 }
 
-/** Power Token Cost = ceil(PP / 10). */
+/** Power Token Cost = ceil(PP / 10). Purchased powers have a minimum of 1 Token. */
 export function powerTokenCostFromPp(pp: number): number {
   const n = Math.max(0, Math.floor(Number(pp) || 0));
   if (n <= 0) return 0;
-  return Math.ceil(n / 10);
+  return Math.max(1, Math.ceil(n / 10));
 }
 
 /** Standard reference costs when PP is not available. */
@@ -183,11 +210,7 @@ export function standardPowerTokenCost(
 }
 
 export function legacyMovementTypeToMode(raw: string | undefined): SummonMovementMode {
-  const t = String(raw || '').toLowerCase();
-  if (t === 'flying' || t === 'fly') return 'flying';
-  if (t === 'swimming' || t === 'swim') return 'swimming';
-  if (t === 'climbing' || t === 'climb') return 'climbing';
-  return 'walking';
+  return normalizeMovementMode(raw);
 }
 
 export type ComputedSummonBody = {
@@ -211,8 +234,33 @@ export type ComputedSummonBond = {
   tokensSpent: number;
   tokensAvailable: number;
   tokensRemaining: number;
+  bondUpgradeTokens: number;
+  skillTokens: number;
+  specialTokens: number;
+  extraBodyTokens: number;
+  bodyTokens: number[];
   errors: string[];
   warnings: string[];
+};
+
+export type BondValidityStatus = 'valid' | 'needsRitual' | 'overBudget' | 'invalidUntilFixed';
+
+export function classifyBondStatus(opts: {
+  hardErrors: string[];
+  overBudget: boolean;
+  needsRedistribution: boolean;
+}): BondValidityStatus {
+  if (opts.hardErrors.length) return 'invalidUntilFixed';
+  if (opts.overBudget) return 'overBudget';
+  if (opts.needsRedistribution) return 'needsRitual';
+  return 'valid';
+}
+
+export const BOND_STATUS_LABEL: Record<BondValidityStatus, string> = {
+  valid: 'Valid',
+  needsRitual: 'Needs Ritual',
+  overBudget: 'Over Budget',
+  invalidUntilFixed: 'Invalid Until Fixed',
 };
 
 function emptyBodySpend(): SummonBodyUpgradeSpend {
@@ -250,14 +298,20 @@ export function computeSummonBond(opts: {
   const skillDicePurchases = Math.max(0, Math.floor(spend.skillDicePurchases || 0));
   const additionalBodies = Math.max(0, Math.floor(spend.additionalBodies || 0));
 
-  add(attackPurchases * SUMMON_CAPS.attackTokenCost);
-  add(damagePurchases * SUMMON_CAPS.damageTokenCost);
-  add(movementPurchases * SUMMON_CAPS.movementTokenCost);
-  add(extraAttackPurchases * SUMMON_CAPS.extraAttackTokenCost);
-  if (spend.specialAccess) add(SUMMON_CAPS.specialAccessTokenCost);
-  add(specialValuePurchases * SUMMON_CAPS.specialValueTokenCost);
-  add(skillDicePurchases * SUMMON_CAPS.skillDiceTokenCost);
-  add(additionalBodies * SUMMON_CAPS.extraBodyTokenCost);
+  const bondCore =
+    attackPurchases * SUMMON_CAPS.attackTokenCost +
+    damagePurchases * SUMMON_CAPS.damageTokenCost +
+    movementPurchases * SUMMON_CAPS.movementTokenCost +
+    extraAttackPurchases * SUMMON_CAPS.extraAttackTokenCost;
+  const specialTokens =
+    (spend.specialAccess ? SUMMON_CAPS.specialAccessTokenCost : 0) +
+    specialValuePurchases * SUMMON_CAPS.specialValueTokenCost;
+  const skillTokens = skillDicePurchases * SUMMON_CAPS.skillDiceTokenCost;
+  const extraBodyTokens = additionalBodies * SUMMON_CAPS.extraBodyTokenCost;
+  add(bondCore);
+  add(specialTokens);
+  add(skillTokens);
+  add(extraBodyTokens);
 
   const bodyCount = 1 + additionalBodies;
   const bodySpends: SummonBodyUpgradeSpend[] = [];
@@ -265,6 +319,7 @@ export function computeSummonBond(opts: {
     bodySpends.push(spend.bodies[i] ? { ...spend.bodies[i] } : emptyBodySpend());
   }
 
+  const bodyTokens: number[] = [];
   const bodies: ComputedSummonBody[] = bodySpends.map((b) => {
     const hpP = Math.max(0, Math.floor(b.hpPurchases || 0));
     const arP = Math.max(0, Math.floor(b.armorPurchases || 0));
@@ -272,12 +327,14 @@ export function computeSummonBond(opts: {
     const senses = Array.from(new Set(b.sharedSenses || []));
     const powerCosts = (b.powerTokenCosts || []).map((c) => Math.max(0, Math.floor(c || 0)));
     const powerTokens = powerCosts.reduce((s, c) => s + c, 0);
-
-    add(hpP * SUMMON_CAPS.hpTokenCost);
-    add(arP * SUMMON_CAPS.armorTokenCost);
-    add(evP * SUMMON_CAPS.evadeTokenCost);
-    add(senses.length * SUMMON_CAPS.sharedSenseTokenCost);
-    add(powerTokens);
+    const bodySpent =
+      hpP * SUMMON_CAPS.hpTokenCost +
+      arP * SUMMON_CAPS.armorTokenCost +
+      evP * SUMMON_CAPS.evadeTokenCost +
+      senses.length * SUMMON_CAPS.sharedSenseTokenCost +
+      powerTokens;
+    bodyTokens.push(bodySpent);
+    add(bodySpent);
 
     return {
       hp: BASE_SUMMON.hp + hpP * SUMMON_CAPS.hpGain,
@@ -288,11 +345,24 @@ export function computeSummonBond(opts: {
     };
   });
 
-  const movementM = BASE_SUMMON.movementM + movementPurchases * SUMMON_CAPS.movementGainM;
+  const movementMode = normalizeMovementMode(opts.movementMode);
+  const baseMove = baseMovementM(movementMode);
+  const maxPurchases = maxMovementPurchases(movementMode);
+  if (movementPurchases > maxPurchases) {
+    errors.push(
+      `Movement purchases ${movementPurchases} exceed max ${maxPurchases} for ${movementMode} (base ${baseMove} m → cap ${SUMMON_CAPS.maxMovementM} m).`,
+    );
+  }
+  const movementM = baseMove + movementPurchases * SUMMON_CAPS.movementGainM;
   if (movementM > SUMMON_CAPS.maxMovementM) {
     errors.push(`Movement ${movementM} m exceeds cap ${SUMMON_CAPS.maxMovementM} m.`);
   }
 
+  if (extraAttackPurchases > SUMMON_CAPS.maxExtraAttackPurchases) {
+    errors.push(
+      `Extra Attack purchases ${extraAttackPurchases} exceed max ${SUMMON_CAPS.maxExtraAttackPurchases} (${SUMMON_CAPS.maxSummonAttacks} Summon Attacks total).`,
+    );
+  }
   const summonAttacks = BASE_SUMMON.summonAttacks + extraAttackPurchases;
   if (summonAttacks > SUMMON_CAPS.maxSummonAttacks) {
     errors.push(`Summon Attacks ${summonAttacks} exceed cap ${SUMMON_CAPS.maxSummonAttacks}.`);
@@ -310,10 +380,6 @@ export function computeSummonBond(opts: {
     errors.push(`Spent ${tokensSpent} Tokens but only ${available} available.`);
   }
 
-  if (!SUMMON_MOVEMENT_MODES.some((m) => m.value === opts.movementMode)) {
-    errors.push(`Invalid movement mode: ${opts.movementMode}`);
-  }
-
   return {
     attackDice: BASE_SUMMON.attackDice + attackPurchases * SUMMON_CAPS.attackDiceGain,
     damageDice: BASE_SUMMON.damageDice + damagePurchases * SUMMON_CAPS.damageDiceGain,
@@ -327,6 +393,11 @@ export function computeSummonBond(opts: {
     tokensSpent,
     tokensAvailable: available,
     tokensRemaining: available - tokensSpent,
+    bondUpgradeTokens: bondCore + extraBodyTokens,
+    skillTokens,
+    specialTokens,
+    extraBodyTokens,
+    bodyTokens,
     errors,
     warnings,
   };

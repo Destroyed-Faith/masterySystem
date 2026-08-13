@@ -177,14 +177,55 @@ export async function placeFamiliarToken(
   }
 }
 
+export async function deleteSummonSceneTokens(summonActorId: string | undefined): Promise<void> {
+  if (!summonActorId) return;
+  const scenes = (game as any).scenes;
+  if (!scenes) return;
+  for (const scene of scenes) {
+    const tokens = (scene.tokens?.contents ?? scene.tokens ?? []) as any[];
+    const ids = tokens
+      .filter((t: any) => (t.actorId ?? t.actor?.id) === summonActorId)
+      .map((t: any) => t.id)
+      .filter(Boolean);
+    if (!ids.length) continue;
+    try {
+      await scene.deleteEmbeddedDocuments('Token', ids);
+    } catch (err) {
+      console.warn('Mastery System | Could not remove summon tokens', err);
+    }
+  }
+}
+
 export async function deleteSummonActor(summonActorId: string | undefined): Promise<void> {
   if (!summonActorId) return;
+  await deleteSummonSceneTokens(summonActorId);
   const actor = (game as any).actors?.get(summonActorId);
   if (!actor) return;
   try {
     await actor.delete();
   } catch (err) {
     console.warn('Mastery System | Could not delete summon actor', err);
+  }
+}
+
+/** Bond is source of truth — overwrite body actors on Ritual Apply. */
+export async function syncSummonBodyActorsFromBond(bond: SummonBondRecord, ownerActor: any): Promise<void> {
+  for (const body of bond.bodies || []) {
+    if (!body.summonActorId) continue;
+    const a = (game as any).actors?.get(body.summonActorId);
+    if (!a) continue;
+    const data = buildSummonActorDataFromBond(bond, body, ownerActor);
+    try {
+      await a.update({
+        name: (data as any).name,
+        img: (data as any).img,
+        prototypeToken: (data as any).prototypeToken,
+        system: (data as any).system,
+        flags: (data as any).flags,
+      });
+    } catch (err) {
+      console.warn('Mastery System | Failed to sync summon actor from Bond', err);
+    }
   }
 }
 
@@ -223,9 +264,19 @@ export function buildSummonActorDataFromBond(
         bodyId: body.id,
         ownerActorId: bond.ownerActorId,
         movementMode: bond.movementMode,
+        movementM: bond.movementM,
+        expression: bond.expression || '',
+        activationTiming: bond.activationTiming,
         sharedSenses: senseLines,
         boundStoneCount: bond.boundStoneCount,
         dormant: !!body.dormant,
+        attackDice: bond.attackDice,
+        damageDice: bond.damageDice,
+        specialKey: bond.specialKey ?? null,
+        specialValue: bond.specialValue,
+        selectedSkills: bond.selectedSkills ?? [],
+        skillDiceAlloc: bond.skillDiceAlloc ?? {},
+        powers: body.powers ?? [],
       },
       health: {
         bars: [{ name: 'Healthy', max: body.hp, current: body.hp, penalty: 0 }],
@@ -246,9 +297,19 @@ export function buildSummonActorDataFromBond(
           : [],
       },
       attackValues: [],
-      attackSlots: bond.summonAttacks,
+      /** Display only — Bond Action Economy is shared; do not treat this as per-body APR. */
+      attackSlots: 1,
       npcMovementSlots: 1,
-      notes: senseLines.length ? `Shared senses: ${senseLines.join(', ')}` : '',
+      notes: [
+        senseLines.length ? `Shared senses: ${senseLines.join(', ')}` : '',
+        `Bond attacks/round: ${bond.summonAttacks} (shared). Timing: ${bond.activationTiming} owner.`,
+        (body.powers || []).length
+          ? `Powers: ${(body.powers || []).map((p) => `${p.templateId} L${p.level}`).join(', ')}`
+          : '',
+      ]
+        .filter(Boolean)
+        .join(' '),
+      notesPowers: (body.powers || []).map((p) => `${p.templateId} L${p.level}`),
     },
     flags: {
       'mastery-system': {

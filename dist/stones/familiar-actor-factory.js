@@ -149,9 +149,32 @@ export async function placeFamiliarToken(summonActor, ownerActor) {
         return null;
     }
 }
+export async function deleteSummonSceneTokens(summonActorId) {
+    if (!summonActorId)
+        return;
+    const scenes = game.scenes;
+    if (!scenes)
+        return;
+    for (const scene of scenes) {
+        const tokens = (scene.tokens?.contents ?? scene.tokens ?? []);
+        const ids = tokens
+            .filter((t) => (t.actorId ?? t.actor?.id) === summonActorId)
+            .map((t) => t.id)
+            .filter(Boolean);
+        if (!ids.length)
+            continue;
+        try {
+            await scene.deleteEmbeddedDocuments('Token', ids);
+        }
+        catch (err) {
+            console.warn('Mastery System | Could not remove summon tokens', err);
+        }
+    }
+}
 export async function deleteSummonActor(summonActorId) {
     if (!summonActorId)
         return;
+    await deleteSummonSceneTokens(summonActorId);
     const actor = game.actors?.get(summonActorId);
     if (!actor)
         return;
@@ -160,6 +183,29 @@ export async function deleteSummonActor(summonActorId) {
     }
     catch (err) {
         console.warn('Mastery System | Could not delete summon actor', err);
+    }
+}
+/** Bond is source of truth — overwrite body actors on Ritual Apply. */
+export async function syncSummonBodyActorsFromBond(bond, ownerActor) {
+    for (const body of bond.bodies || []) {
+        if (!body.summonActorId)
+            continue;
+        const a = game.actors?.get(body.summonActorId);
+        if (!a)
+            continue;
+        const data = buildSummonActorDataFromBond(bond, body, ownerActor);
+        try {
+            await a.update({
+                name: data.name,
+                img: data.img,
+                prototypeToken: data.prototypeToken,
+                system: data.system,
+                flags: data.flags,
+            });
+        }
+        catch (err) {
+            console.warn('Mastery System | Failed to sync summon actor from Bond', err);
+        }
     }
 }
 /** Build a world summon actor from a V2 Summon Bond body. */
@@ -193,9 +239,19 @@ export function buildSummonActorDataFromBond(bond, body, ownerActor) {
                 bodyId: body.id,
                 ownerActorId: bond.ownerActorId,
                 movementMode: bond.movementMode,
+                movementM: bond.movementM,
+                expression: bond.expression || '',
+                activationTiming: bond.activationTiming,
                 sharedSenses: senseLines,
                 boundStoneCount: bond.boundStoneCount,
                 dormant: !!body.dormant,
+                attackDice: bond.attackDice,
+                damageDice: bond.damageDice,
+                specialKey: bond.specialKey ?? null,
+                specialValue: bond.specialValue,
+                selectedSkills: bond.selectedSkills ?? [],
+                skillDiceAlloc: bond.skillDiceAlloc ?? {},
+                powers: body.powers ?? [],
             },
             health: {
                 bars: [{ name: 'Healthy', max: body.hp, current: body.hp, penalty: 0 }],
@@ -216,9 +272,19 @@ export function buildSummonActorDataFromBond(bond, body, ownerActor) {
                     : [],
             },
             attackValues: [],
-            attackSlots: bond.summonAttacks,
+            /** Display only — Bond Action Economy is shared; do not treat this as per-body APR. */
+            attackSlots: 1,
             npcMovementSlots: 1,
-            notes: senseLines.length ? `Shared senses: ${senseLines.join(', ')}` : '',
+            notes: [
+                senseLines.length ? `Shared senses: ${senseLines.join(', ')}` : '',
+                `Bond attacks/round: ${bond.summonAttacks} (shared). Timing: ${bond.activationTiming} owner.`,
+                (body.powers || []).length
+                    ? `Powers: ${(body.powers || []).map((p) => `${p.templateId} L${p.level}`).join(', ')}`
+                    : '',
+            ]
+                .filter(Boolean)
+                .join(' '),
+            notesPowers: (body.powers || []).map((p) => `${p.templateId} L${p.level}`),
         },
         flags: {
             'mastery-system': {

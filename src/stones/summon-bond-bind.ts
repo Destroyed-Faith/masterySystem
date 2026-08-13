@@ -10,18 +10,24 @@ import {
 } from './familiar-bind.js';
 import {
   BASE_SUMMON,
+  BOND_STATUS_LABEL,
+  classifyBondStatus,
   computeSummonBond,
   emptyBondSpend,
   legacyMovementTypeToMode,
-  maxSummonPowerLevel,
-  standardPowerTokenCost,
+  normalizeMovementMode,
   summonSkillSlots,
   summonTokensFromStones,
+  type BondValidityStatus,
   type SharedSenseGroup,
   type SummonBondUpgradeSpend,
   type SummonMovementMode,
   type SummonSkillId,
 } from './summon-bond-rules.js';
+import { evaluateSummonPower } from './summon-power-allowlist.js';
+
+export const DISSOLVE_BOND_CONFIRM =
+  'Dissolve this Summon Bond? Bound Stones return to the owner. Existing summon tokens will be removed. Body actors may be archived or deleted according to system settings.';
 
 export type StonePoolAttr =
   | 'might'
@@ -289,6 +295,10 @@ export function tokensSummary(bond: SummonBondRecord): {
   spent: number;
   remaining: number;
   skillSlots: number;
+  bondSpent: number;
+  skillsSpent: number;
+  specialSpent: number;
+  bodySpent: number[];
 } {
   const computed = computeSummonBond({
     boundStoneCount: bond.boundStoneCount,
@@ -301,6 +311,10 @@ export function tokensSummary(bond: SummonBondRecord): {
     spent: computed.tokensSpent,
     remaining: computed.tokensRemaining,
     skillSlots: summonSkillSlots(bond.boundStoneCount),
+    bondSpent: computed.bondUpgradeTokens + computed.specialTokens,
+    skillsSpent: computed.skillTokens,
+    specialSpent: computed.specialTokens,
+    bodySpent: computed.bodyTokens,
   };
 }
 
@@ -359,8 +373,28 @@ export type BondRitualValidation = {
   ok: boolean;
   errors: string[];
   warnings: string[];
+  hardErrors: string[];
+  overBudget: boolean;
+  status: BondValidityStatus;
+  statusLabel: string;
   computed: ReturnType<typeof computeSummonBond>;
 };
+
+export function validateBondPowers(
+  bond: SummonBondRecord,
+  ownerMasteryRank = 1,
+): string[] {
+  const errors: string[] = [];
+  for (const body of bond.bodies || []) {
+    for (const p of body.powers || []) {
+      const ev = evaluateSummonPower(p.templateId, p.level, ownerMasteryRank);
+      if (!ev.legal) {
+        errors.push(`${body.id}: ${ev.name} L${p.level} — ${ev.reason}`);
+      }
+    }
+  }
+  return errors;
+}
 
 export function validateBondRitual(
   bond: SummonBondRecord,
@@ -371,11 +405,30 @@ export function validateBondRitual(
   const warnings: string[] = [];
   if (!bond.name?.trim()) errors.push('Name is required.');
   if (bond.boundStoneCount < 1 || bond.stoneAttributes.length < 1) {
-    errors.push('A Summon Bond requires at least 1 Bound Stone.');
+    errors.push('A Summon Bond requires at least 1 Bound Stone. Artifact bonus Tokens cannot create a Bond.');
   }
   if (bond.stoneAttributes.length !== bond.boundStoneCount) {
     errors.push('stoneAttributes length must equal boundStoneCount.');
   }
+  const rawMode = String(bond.movementMode || '');
+  if (/climb/i.test(rawMode)) {
+    warnings.push('Legacy Climbing mode was collapsed to Walking.');
+  }
+  bond.movementMode = normalizeMovementMode(bond.movementMode);
+
+  // Sync power token costs from allowlist evaluation (source of truth).
+  for (let i = 0; i < bond.spend.bodies.length; i++) {
+    const body = bond.bodies[i];
+    if (!body) continue;
+    const costs = (body.powers || []).map((p) => {
+      const ev = evaluateSummonPower(p.templateId, p.level, ownerMasteryRank);
+      p.tokenCost = ev.tokenCost;
+      p.category = ev.category;
+      return ev.tokenCost;
+    });
+    bond.spend.bodies[i] = { ...bond.spend.bodies[i], powerTokenCosts: costs };
+  }
+
   const computed = computeSummonBond({
     boundStoneCount: bond.boundStoneCount,
     bonusTokens: bond.bonusTokens,
@@ -385,47 +438,37 @@ export function validateBondRitual(
   errors.push(...computed.errors);
   warnings.push(...computed.warnings);
   errors.push(...validateBondSkillAlloc(bond, ownerSkillRatings));
+  errors.push(...validateBondPowers(bond, ownerMasteryRank));
 
   if (bond.spend.specialAccess && !bond.specialKey) {
     errors.push('Special Access requires selecting an eligible Special.');
+  }
+  if (bond.spend.specialAccess && computed.summonAttacks < 1) {
+    errors.push('Special Access requires at least 1 Bond Attack Action.');
   }
   if (!bond.spend.specialAccess && bond.specialKey) {
     warnings.push('Special key set without Special Access — will be cleared on apply.');
   }
 
-  const maxLvl = maxSummonPowerLevel(ownerMasteryRank);
-  for (const body of bond.bodies) {
-    for (const p of body.powers || []) {
-      if (p.level > maxLvl) {
-        errors.push(`Power ${p.templateId} L${p.level} exceeds max Summon Power Level ${maxLvl}.`);
-      }
-      const expected =
-        p.tokenCost ||
-        standardPowerTokenCost(
-          (p.category as any) || 'active',
-          p.level,
-        );
-    }
-  }
-
-  // Ensure body power token costs are reflected in spend.bodies[*].powerTokenCosts
-  for (let i = 0; i < bond.spend.bodies.length; i++) {
-    const body = bond.bodies[i];
-    if (!body) continue;
-    const costs = (body.powers || []).map((p) => Math.max(0, Math.floor(p.tokenCost || 0)));
-    bond.spend.bodies[i] = { ...bond.spend.bodies[i], powerTokenCosts: costs };
-  }
-  const recomputed = computeSummonBond({
-    boundStoneCount: bond.boundStoneCount,
-    bonusTokens: bond.bonusTokens,
-    movementMode: bond.movementMode,
-    spend: bond.spend,
+  const budgetErrors = errors.filter((e) => /Spent \d+ Tokens/.test(e));
+  const hardErrors = errors.filter((e) => !budgetErrors.includes(e));
+  const overBudget = computed.tokensRemaining < 0 || budgetErrors.length > 0;
+  const status = classifyBondStatus({
+    hardErrors,
+    overBudget,
+    needsRedistribution: !!bond.needsRedistribution,
   });
-  if (recomputed.errors.length && !errors.includes(recomputed.errors[0])) {
-    errors.push(...recomputed.errors.filter((e) => !errors.includes(e)));
-  }
 
-  return { ok: errors.length === 0, errors, warnings, computed: recomputed };
+  return {
+    ok: hardErrors.length === 0 && !overBudget,
+    errors,
+    warnings,
+    hardErrors,
+    overBudget,
+    status,
+    statusLabel: BOND_STATUS_LABEL[status],
+    computed,
+  };
 }
 
 /** Create a new Summon Bond, debit Bound Stones from the owner's pool, clear legacy familiars. */
@@ -462,7 +505,8 @@ export async function createSummonBondWithStones(
     stoneAttributes: attrs,
     expression: opts.expression,
   });
-  bond.bonusTokens = Math.max(0, Math.floor(Number(opts.bonusTokens) || 0));
+  // Artifact bonus Tokens cannot create a Bond and are ignored at create.
+  bond.bonusTokens = 0;
   bond.activationTiming = opts.activationTiming ?? 'after';
   bond.needsRedistribution = true;
   bond = recomputeBondDerived(bond);
@@ -545,6 +589,12 @@ export async function applyBondRitual(
   bond = recomputeBondDerived(bond);
 
   await upsertSummonBond(actor, bond);
+  try {
+    const { syncSummonBodyActorsFromBond } = await import('./familiar-actor-factory.js');
+    await syncSummonBodyActorsFromBond(bond, actor);
+  } catch (err) {
+    console.warn('Mastery System | Bond Ritual actor sync failed', err);
+  }
   return { bond, errors: [], warnings: validation.warnings };
 }
 

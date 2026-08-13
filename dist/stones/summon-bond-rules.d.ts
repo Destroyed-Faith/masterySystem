@@ -2,15 +2,23 @@
  * Summons V2 — universal Summon Bond rules (Players Guide / agent.md v0.9.8).
  *
  * Tokens = Bound Stones × 8 (first stone included).
- * One Movement Mode (8–16 m). Bond- vs Body-scoped upgrades.
+ * One Movement Mode (Flying 4–16 m; Walking/Swimming 8–16 m). Bond- vs Body-scoped upgrades.
  * No Familiar / Companion / Host chassis.
  */
-export type SummonMovementMode = 'walking' | 'flying' | 'swimming' | 'climbing';
+export type SummonMovementMode = 'walking' | 'flying' | 'swimming';
 export type SharedSenseGroup = 'sight' | 'hearing' | 'tasteSmell' | 'touchPressure';
 export declare const SUMMON_MOVEMENT_MODES: {
     value: SummonMovementMode;
     label: string;
+    baseM: number;
+    maxM: number;
 }[];
+/** Base movement meters for a mode (Flying starts lower). */
+export declare function baseMovementM(mode: SummonMovementMode | string): number;
+/** Max +2 m purchases until the 16 m cap. */
+export declare function maxMovementPurchases(mode: SummonMovementMode | string): number;
+/** Collapse retired modes (e.g. Climbing) onto Walking. */
+export declare function normalizeMovementMode(mode: string | undefined): SummonMovementMode;
 export declare const SHARED_SENSE_GROUPS: {
     value: SharedSenseGroup;
     label: string;
@@ -29,7 +37,10 @@ export declare const BASE_SUMMON: {
 };
 export declare const SUMMON_CAPS: {
     readonly maxMovementM: 16;
+    /** Total Summon Attacks per Bond per Round (1 base + Extra Attack purchases). */
     readonly maxSummonAttacks: 3;
+    /** Extra Attack purchases (each +1 Attack). 1 + 2 = 3 total. */
+    readonly maxExtraAttackPurchases: 2;
     readonly maxSpecialValue: 4;
     /** Normal Bound Stone → Summon Tokens (Players Guide). */
     readonly tokensPerStone: 8;
@@ -91,7 +102,7 @@ export declare function summonTokensFromStones(boundStoneCount: number, bonusTok
 export declare function summonSkillSlots(boundStoneCount: number): number;
 /** Max Power Level by owner Mastery Rank. */
 export declare function maxSummonPowerLevel(ownerMasteryRank: number): number;
-/** Power Token Cost = ceil(PP / 10). */
+/** Power Token Cost = ceil(PP / 10). Purchased powers have a minimum of 1 Token. */
 export declare function powerTokenCostFromPp(pp: number): number;
 /** Standard reference costs when PP is not available. */
 export declare function standardPowerTokenCost(powerType: 'active' | 'passive' | 'reaction' | 'activeBuff' | 'movement', powerLevel: number, movementPp?: number): number;
@@ -116,9 +127,21 @@ export type ComputedSummonBond = {
     tokensSpent: number;
     tokensAvailable: number;
     tokensRemaining: number;
+    bondUpgradeTokens: number;
+    skillTokens: number;
+    specialTokens: number;
+    extraBodyTokens: number;
+    bodyTokens: number[];
     errors: string[];
     warnings: string[];
 };
+export type BondValidityStatus = 'valid' | 'needsRitual' | 'overBudget' | 'invalidUntilFixed';
+export declare function classifyBondStatus(opts: {
+    hardErrors: string[];
+    overBudget: boolean;
+    needsRedistribution: boolean;
+}): BondValidityStatus;
+export declare const BOND_STATUS_LABEL: Record<BondValidityStatus, string>;
 export declare function computeSummonBond(opts: {
     boundStoneCount: number;
     bonusTokens?: number;

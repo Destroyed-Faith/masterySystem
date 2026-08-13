@@ -5,7 +5,7 @@
  * - Bond Special applies at most once per Round.
  * - Summons cannot use Stones / Artifacts / unbought Powers.
  */
-import type { SummonBondRecord } from './summon-bond-bind.js';
+import { type SummonBondRecord, type SummonBodyRecord } from './summon-bond-bind.js';
 export type SummonBondRoundUsage = {
     bondId: string;
     attacksUsed: number;
@@ -33,4 +33,11 @@ export declare function summonActorMayUseStonesOrArtifacts(actor: any): boolean;
 export declare function bodyHasPurchasedPower(bond: SummonBondRecord, bodyId: string, templateId: string): boolean;
 /** Extra bodies never increase the Bond attack budget by themselves. */
 export declare function bondAttackBudgetFromBodies(bond: SummonBondRecord): number;
+export type SummonBondContext = {
+    owner: Actor;
+    bond: SummonBondRecord;
+    body: SummonBodyRecord;
+};
+/** Resolve Bond + owner from a summon body actor. */
+export declare function resolveSummonBondContext(summonActor: any): SummonBondContext | null;
 //# sourceMappingURL=summon-combat.d.ts.map

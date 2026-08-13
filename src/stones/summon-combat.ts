@@ -7,7 +7,7 @@
  */
 
 import { getRoundState, setRoundState, type RoundState } from '../combat/action-economy.js';
-import type { SummonBondRecord } from './summon-bond-bind.js';
+import { getSummonBondsFromActor, type SummonBondRecord, type SummonBodyRecord } from './summon-bond-bind.js';
 
 export type SummonBondRoundUsage = {
   bondId: string;
@@ -106,4 +106,27 @@ export function bodyHasPurchasedPower(bond: SummonBondRecord, bodyId: string, te
 /** Extra bodies never increase the Bond attack budget by themselves. */
 export function bondAttackBudgetFromBodies(bond: SummonBondRecord): number {
   return Math.max(1, Math.floor(Number(bond.summonAttacks) || 1));
+}
+
+export type SummonBondContext = {
+  owner: Actor;
+  bond: SummonBondRecord;
+  body: SummonBodyRecord;
+};
+
+/** Resolve Bond + owner from a summon body actor. */
+export function resolveSummonBondContext(summonActor: any): SummonBondContext | null {
+  if (!summonActor || summonActor.type !== 'summon') return null;
+  const link = summonActor.system?.summonBond ?? {};
+  const ownerId = link.ownerActorId || summonActor.system?.familiar?.ownerActorId;
+  const bondId = link.bondId || summonActor.system?.familiar?.familiarId;
+  if (!ownerId || !bondId) return null;
+  const owner = (game as any).actors?.get(ownerId);
+  if (!owner) return null;
+  const bond = getSummonBondsFromActor(owner).find((b) => b.id === bondId);
+  if (!bond) return null;
+  const body =
+    bond.bodies.find((b) => b.id === link.bodyId || b.summonActorId === summonActor.id) ?? bond.bodies[0];
+  if (!body) return null;
+  return { owner, bond, body };
 }

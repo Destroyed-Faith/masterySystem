@@ -229,13 +229,6 @@ export declare function isNormalMovementReplaced(actor: Actor, combat: Combat | 
  * Spend a reaction action
  */
 export declare function spendReactionAction(actor: Actor, combat: Combat | null): Promise<boolean>;
-/**
- * Get available attack actions (remaining count).
- * Stunned(X) locks X attack actions for the current round — the total is
- * clamped before subtracting `used`, never going below 0.
- * Dash/Disengage locks the base Attack Action (`baseAttackLocked`).
- * Flee locks all attacks until next Turn.
- */
 export declare function getAvailableAttackActions(actor: Actor, combat: Combat | null): number;
 /** Apply Dash / Disengage / Flee side-effects after spending Movement. */
 export declare function applyBasicMovementManeuverFlags(actor: Actor, combat: Combat | null, maneuverId: string): Promise<void>;

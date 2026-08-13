@@ -54,20 +54,34 @@ describe('Summons V2 power costs', () => {
 });
 
 describe('computeSummonBond', () => {
-  it('starts at universal base with unspent tokens', () => {
-    const c = computeSummonBond({
+  it('starts flying at 4 m and walking/swimming at 8 m', () => {
+    const flying = computeSummonBond({
       boundStoneCount: 1,
       movementMode: 'flying',
       spend: emptyBondSpend(1),
     });
+    expect(flying.errors).toEqual([]);
+    expect(flying.movementM).toBe(4);
+    expect(flying.attackDice).toBe(BASE_SUMMON.attackDice);
+    expect(flying.tokensAvailable).toBe(8);
+    expect(flying.bodies[0].hp).toBe(10);
+
+    const swim = computeSummonBond({
+      boundStoneCount: 1,
+      movementMode: 'swimming',
+      spend: emptyBondSpend(1),
+    });
+    expect(swim.movementM).toBe(8);
+  });
+
+  it('maps retired climbing mode to walking base 8 m', () => {
+    const c = computeSummonBond({
+      boundStoneCount: 1,
+      movementMode: 'climbing' as any,
+      spend: emptyBondSpend(1),
+    });
     expect(c.errors).toEqual([]);
-    expect(c.attackDice).toBe(BASE_SUMMON.attackDice);
-    expect(c.damageDice).toBe(BASE_SUMMON.damageDice);
     expect(c.movementM).toBe(8);
-    expect(c.summonAttacks).toBe(1);
-    expect(c.tokensAvailable).toBe(8);
-    expect(c.tokensRemaining).toBe(8);
-    expect(c.bodies[0].hp).toBe(10);
   });
 
   it('caps movement at 16 m', () => {

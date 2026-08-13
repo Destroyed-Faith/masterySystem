@@ -12,6 +12,7 @@ import {
   summonActorMayUseStonesOrArtifacts,
 } from '../src/stones/summon-combat';
 import {
+  DISSOLVE_BOND_CONFIRM,
   bondStoneAssignments,
   createEmptyBond,
   migrateFamiliarToBond,
@@ -251,7 +252,7 @@ describe('Summon spend recompute', () => {
       movementMode: 'flying',
       stoneAttributes: ['wits'],
     });
-    bond.spend.movementPurchases = 2; // +4 m → 12
+    bond.spend.movementPurchases = 2; // Flying base 4 + 4 m → 8
     bond.spend.skillDicePurchases = 2; // 2 tok
     bond.spend.bodies[0].sharedSenses = ['sight']; // 2 tok
     bond.spend.bodies[0].evadePurchases = 1; // 2 tok
@@ -263,9 +264,195 @@ describe('Summon spend recompute', () => {
     });
     expect(c.errors).toEqual([]);
     expect(c.tokensRemaining).toBe(0);
-    expect(c.movementM).toBe(12);
+    expect(c.movementM).toBe(8);
     const done = recomputeBondDerived({ ...bond, needsRedistribution: false });
-    expect(done.movementM).toBe(12);
+    expect(done.movementM).toBe(8);
     expect(done.bodies[0].evade).toBe(8);
   });
 });
+
+describe('Summon acceptance — rules, budget, action economy', () => {
+  it('1. Flying Owl: 8 tokens, 4 m base, 2× movement → 8 m + skill/sight/evade', () => {
+    const spend = emptyBondSpend(1);
+    spend.movementPurchases = 2;
+    spend.skillDicePurchases = 2;
+    spend.bodies[0].sharedSenses = ['sight'];
+    spend.bodies[0].evadePurchases = 1;
+    const c = computeSummonBond({ boundStoneCount: 1, movementMode: 'flying', spend });
+    expect(c.tokensAvailable).toBe(8);
+    expect(c.movementM).toBe(8);
+    expect(c.tokensRemaining).toBe(0);
+    expect(c.errors).toEqual([]);
+    expect(c.summonAttacks).toBe(1);
+  });
+
+  it('2. Two stones + additional body: 16 tokens, bodies do not add attacks', () => {
+    const spend = emptyBondSpend(1);
+    spend.additionalBodies = 1;
+    const c = computeSummonBond({ boundStoneCount: 2, movementMode: 'walking', spend });
+    expect(c.tokensAvailable).toBe(16);
+    expect(c.bodyCount).toBe(2);
+    expect(c.summonAttacks).toBe(1);
+    expect(bondAttackBudgetFromBodies({ ...createEmptyBond({
+      name: 'X', ownerActorId: 'A', movementMode: 'walking', stoneAttributes: ['might', 'might'],
+    }), summonAttacks: c.summonAttacks } as any)).toBe(1);
+  });
+
+  it('3. Extra Attack is Bond-scoped; 3 bodies + 1 extra = 2 attacks', () => {
+    const spend = emptyBondSpend(1);
+    spend.additionalBodies = 2;
+    spend.extraAttackPurchases = 1;
+    const c = computeSummonBond({ boundStoneCount: 3, movementMode: 'walking', spend });
+    expect(c.bodyCount).toBe(3);
+    expect(c.summonAttacks).toBe(2);
+    expect(c.tokensSpent).toBe(2 * 2 + 8);
+  });
+
+  it('4. Artifact bonus is +4 on an existing Bond and cannot create one', () => {
+    expect(artifactSummonBonusTokens(1)).toBe(4);
+    expect(summonTokensFromStones(0, 4)).toBe(4);
+    const v = validateBondRitual({
+      ...createEmptyBond({
+        name: 'Nope',
+        ownerActorId: 'A',
+        movementMode: 'walking',
+        stoneAttributes: ['might'],
+      }),
+      boundStoneCount: 0,
+      stoneAttributes: [],
+      bonusTokens: 4,
+    });
+    expect(v.ok).toBe(false);
+    expect(v.errors.some((e) => /at least 1 Bound Stone/.test(e))).toBe(true);
+  });
+
+  it('5–6. Ritual redistribute + adding a stone raises tokens; skill slots follow Bound Stones only', () => {
+    const bond = createEmptyBond({
+      name: 'Owl',
+      ownerActorId: 'A',
+      movementMode: 'flying',
+      stoneAttributes: ['wits'],
+    });
+    expect(tokensSummary(bond).skillSlots).toBe(2);
+    bond.stoneAttributes = ['wits', 'agility'];
+    bond.boundStoneCount = 2;
+    bond.bonusTokens = 4;
+    bond.needsRedistribution = true;
+    const tok = tokensSummary(bond);
+    expect(tok.available).toBe(20);
+    expect(tok.skillSlots).toBe(3);
+    const v = validateBondRitual(bond);
+    expect(v.status).toBe('needsRitual');
+  });
+
+  it('7. Removing a stone with leftover spend → Over Budget / Needs Ritual', () => {
+    const bond = createEmptyBond({
+      name: 'Owl',
+      ownerActorId: 'A',
+      movementMode: 'walking',
+      stoneAttributes: ['might', 'might'],
+    });
+    bond.spend.attackPurchases = 4; // 8 tok
+    bond.spend.damagePurchases = 2; // 4 tok
+    bond.boundStoneCount = 1;
+    bond.stoneAttributes = ['might'];
+    bond.needsRedistribution = true;
+    const v = validateBondRitual(bond);
+    expect(v.overBudget).toBe(true);
+    expect(v.ok).toBe(false);
+    expect(v.status).toBe('overBudget');
+  });
+
+  it('8. Dissolve confirmation copy is exported', () => {
+    expect(DISSOLVE_BOND_CONFIRM).toMatch(/Bound Stones return/);
+    expect(DISSOLVE_BOND_CONFIRM).toMatch(/tokens will be removed/);
+  });
+
+  it('9. Owner MR too low for power → Invalid Until Fixed', () => {
+    const bond = createEmptyBond({
+      name: 'Owl',
+      ownerActorId: 'A',
+      movementMode: 'flying',
+      stoneAttributes: ['wits', 'wits', 'wits', 'wits'],
+    });
+    bond.bodies[0].powers = [{ templateId: 'ab-armor', level: 8, tokenCost: 16, category: 'activeBuff' }];
+    const v = validateBondRitual(bond, {}, 1);
+    expect(v.ok).toBe(false);
+    expect(v.status).toBe('invalidUntilFixed');
+    expect(v.hardErrors.some((e) => /exceeds owner MR/.test(e))).toBe(true);
+  });
+
+  it('10. Skill dice over owner rating blocks apply', () => {
+    const bond = createEmptyBond({
+      name: 'Owl',
+      ownerActorId: 'A',
+      movementMode: 'flying',
+      stoneAttributes: ['wits'],
+    });
+    bond.spend.skillDicePurchases = 2;
+    bond.selectedSkills = ['perception'];
+    bond.skillDiceAlloc = { perception: 4 };
+    const v = validateBondRitual(bond, { perception: 2 });
+    expect(v.ok).toBe(false);
+    expect(v.errors.some((e) => /perception/.test(e))).toBe(true);
+  });
+
+  it('11–12. Movement over 16 m blocked for walking and flying', () => {
+    const walk = emptyBondSpend(1);
+    walk.movementPurchases = 5;
+    const cw = computeSummonBond({ boundStoneCount: 10, movementMode: 'walking', spend: walk });
+    expect(cw.errors.some((e) => /Movement/.test(e))).toBe(true);
+
+    const fly = emptyBondSpend(1);
+    fly.movementPurchases = 7;
+    const cf = computeSummonBond({ boundStoneCount: 10, movementMode: 'flying', spend: fly });
+    expect(cf.errors.some((e) => /Movement/.test(e))).toBe(true);
+    expect(cf.movementM).toBe(SUMMON_CAPS.maxMovementM);
+  });
+
+  it('13. Special Value over Special(4) blocked', () => {
+    const spend = emptyBondSpend(1);
+    spend.specialAccess = true;
+    spend.specialValuePurchases = 4;
+    const c = computeSummonBond({ boundStoneCount: 4, movementMode: 'walking', spend });
+    expect(c.errors.some((e) => /Special/.test(e))).toBe(true);
+  });
+
+  it('14. Extra Attack over max 3 total attacks blocked', () => {
+    const spend = emptyBondSpend(1);
+    spend.extraAttackPurchases = 3;
+    const c = computeSummonBond({ boundStoneCount: 8, movementMode: 'walking', spend });
+    expect(c.errors.some((e) => /Extra Attack|Summon Attacks/.test(e))).toBe(true);
+    expect(c.summonAttacks).toBe(SUMMON_CAPS.maxSummonAttacks);
+  });
+
+  it('token breakdown splits bond / skills / bodies', () => {
+    const spend = emptyBondSpend(1);
+    spend.attackPurchases = 1;
+    spend.skillDicePurchases = 2;
+    spend.bodies[0].hpPurchases = 1;
+    const c = computeSummonBond({ boundStoneCount: 2, movementMode: 'walking', spend });
+    expect(c.bondUpgradeTokens).toBe(2);
+    expect(c.skillTokens).toBe(2);
+    expect(c.bodyTokens[0]).toBe(1);
+  });
+
+  it('Special Access without a key is invalid; special is Bond-scoped', () => {
+    const bond = createEmptyBond({
+      name: 'Pack',
+      ownerActorId: 'A',
+      movementMode: 'walking',
+      stoneAttributes: ['might', 'might', 'might', 'might'],
+    });
+    bond.spend.additionalBodies = 3;
+    bond.spend.specialAccess = true;
+    bond.specialKey = null;
+    const v = validateBondRitual(bond);
+    expect(v.ok).toBe(false);
+    bond.specialKey = 'challenge';
+    const v2 = validateBondRitual(bond);
+    expect(v2.computed.summonAttacks).toBe(1);
+    expect(v2.computed.bodyCount).toBe(4);
+  });
+});
+

@@ -531,10 +531,20 @@ export interface SummonBondLink {
   bondId: string;
   bodyId: string;
   ownerActorId: string;
-  movementMode: 'walking' | 'flying' | 'swimming' | 'climbing';
+  movementMode: 'walking' | 'flying' | 'swimming';
+  movementM?: number;
+  expression?: string;
+  activationTiming?: 'before' | 'after';
   sharedSenses: string[];
   boundStoneCount: number;
   dormant: boolean;
+  attackDice?: number;
+  damageDice?: number;
+  specialKey?: string | null;
+  specialValue?: number;
+  selectedSkills?: string[];
+  skillDiceAlloc?: Record<string, number>;
+  powers?: SummonPowerRef[];
 }
 
 export interface SummonData {
@@ -627,7 +637,7 @@ export interface SummonBondRecord {
   boundStoneCount: number;
   stoneAttributes: string[];
   bonusTokens: number;
-  movementMode: 'walking' | 'flying' | 'swimming' | 'climbing';
+  movementMode: 'walking' | 'flying' | 'swimming';
   movementM: number;
   attackDice: number;
   damageDice: number;

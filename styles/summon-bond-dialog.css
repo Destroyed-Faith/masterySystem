@@ -46,20 +46,40 @@
 }
 .sb-stone-chip button { border: none; background: transparent; cursor: pointer; }
 
-.sb-pool-row { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-bottom: 0.5rem; }
-.sb-pool-gem {
-  display: inline-flex; flex-direction: column; align-items: center; gap: 0.1rem;
-  border: 1px solid var(--sb-line); border-radius: 6px; padding: 0.25rem;
-  background: transparent; cursor: pointer;
+.sb-img-row {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
 }
-.sb-pool-gem.is-empty { opacity: 0.4; cursor: not-allowed; }
-.sb-pool-count { font-size: 0.75em; color: var(--sb-muted); }
+.sb-img-row input[type="text"] { flex: 1 1 auto; }
+.sb-img-row .js-sb-browse-img { flex: 0 0 auto; white-space: nowrap; }
+
+.sb-pool-row { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.5rem; }
+.sb-pool-gem {
+  display: inline-flex; flex-direction: column; align-items: center; gap: 0.2rem;
+  border: 1px solid var(--sb-line); border-radius: 8px; padding: 0.4rem 0.65rem;
+  min-width: 5.5rem;
+  background: rgba(255, 248, 240, 0.55);
+  cursor: pointer;
+}
+.sb-pool-gem.is-empty { opacity: 0.35; cursor: not-allowed; }
+.sb-pool-label { font-size: 0.85rem; font-weight: 600; color: var(--sb-ink); }
+.sb-pool-count { font-size: 0.8em; color: var(--sb-muted); font-variant-numeric: tabular-nums; }
+.sb-pool-gem .ms-stone-gem-chip {
+  width: 1.35rem;
+  height: 1.35rem;
+}
 
 .sb-token-bar { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: flex-end; }
 .sb-token-stat { display: flex; flex-direction: column; min-width: 4.5rem; }
 .sb-token-stat span { color: var(--sb-muted); font-size: 0.8em; }
 .sb-token-stat strong { font-size: 1.2rem; }
 .sb-token-stat strong.is-over { color: var(--sb-error); }
+.sb-status-valid strong { color: var(--sb-ok); }
+.sb-status-needsRitual strong { color: var(--sb-warn); }
+.sb-status-overBudget strong,
+.sb-status-invalidUntilFixed strong { color: var(--sb-error); }
+.sb-powers li.is-invalid { color: var(--sb-error); }
 .sb-warn { color: var(--sb-warn); margin: 0.25rem 0 0; flex-basis: 100%; }
 
 .sb-grid {
@@ -68,7 +88,11 @@
   gap: 0.5rem;
   margin-bottom: 0.5rem;
 }
-.sb-grid label { display: flex; flex-direction: column; gap: 0.2rem; font-size: 0.85em; }
+.sb-grid-wide {
+  grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+}
+.sb-grid label { display: flex; flex-direction: column; gap: 0.2rem; font-size: 0.9em; }
+.sb-grid input[type="number"] { min-width: 5rem; }
 
 .sb-preview-line {
   padding: 0.4rem 0.5rem;

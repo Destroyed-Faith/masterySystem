@@ -221,6 +221,7 @@
     <a class="item" data-tab="powers"><i class="fas fa-magic"></i> Powers</a>
     <a class="item" data-tab="equipment"><i class="fas fa-shield-alt"></i> Equipment</a>
     <a class="item" data-tab="disadvantages"><i class="fas fa-exclamation-triangle"></i> Disadvantages</a>
+    <a class="item" data-tab="summons"><i class="fas fa-paw"></i> Summons</a>
   </nav>
 
   <!-- Sheet Body -->
@@ -2014,6 +2015,39 @@
         <p><i class="fas fa-info-circle"></i> You must take at least <strong>{{creation.disadvantagePointsMin}}</strong> and at most <strong>{{creation.disadvantagePointsMax}}</strong> points of disadvantages to finalize creation. Total points set your starting Reroll Points.</p>
       </div>
       {{/unless}}
+    </div>
+
+    <!-- SUMMONS TAB -->
+    <div class="tab summons" data-group="primary" data-tab="summons">
+      <div class="summons-tab-content">
+        <div class="summons-tab-header">
+          <h3><i class="fas fa-paw"></i> Summon Bonds</h3>
+          <button type="button" class="js-sheet-summon-bond-new dialog-btn dialog-btn-primary">
+            <i class="fas fa-plus"></i> New Summon Bond
+          </button>
+        </div>
+        <p class="summons-tab-hint">Bind Attribute Stones to create a Summon Bond (8 Tokens per Bound Stone). Spend Tokens in the Bond Ritual on Movement, Attack/Damage, Bodies, Skills, Specials, and Powers.</p>
+        {{#if summonBondsView.length}}
+        <ul class="summons-bond-list">
+          {{#each summonBondsView}}
+          <li class="summons-bond-card" data-bond-id="{{this.id}}">
+            <div class="summons-bond-main">
+              <strong>{{this.name}}</strong>
+              <span class="summons-bond-meta">{{this.movementMode}} {{this.movementM}} m · {{this.boundStoneCount}} stones · {{this.tokensAvailable}} Tokens ({{this.tokensRemaining}} left) · {{this.bodyCount}} bodies</span>
+              {{#if this.needsRedistribution}}<span class="summons-bond-badge">Needs redistrib</span>{{/if}}
+              {{#if this.hasActor}}<span class="summons-bond-badge">Actor ready</span>{{/if}}
+            </div>
+            <div class="summons-bond-actions">
+              <button type="button" class="js-sheet-summon-bond-ritual dialog-btn dialog-btn-primary" data-bond-id="{{this.id}}">Bond Ritual</button>
+              <button type="button" class="js-sheet-summon-bond-dissolve dialog-btn dialog-btn-secondary" data-bond-id="{{this.id}}">Dissolve</button>
+            </div>
+          </li>
+          {{/each}}
+        </ul>
+        {{else}}
+        <p class="empty-message">No Summon Bonds yet. Create one to bind stones and open the Bond Ritual token shop.</p>
+        {{/if}}
+      </div>
     </div>
     
   </section>

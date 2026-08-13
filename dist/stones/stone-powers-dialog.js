@@ -471,7 +471,7 @@ export class StonePowersDialog extends BaseDialog {
                 const confirmed = typeof globalThis.foundry?.applications?.api?.DialogV2?.confirm === 'function'
                     ? await globalThis.foundry.applications.api.DialogV2.confirm({
                         window: { title: 'Dissolve Summon Bond' },
-                        content: `<p>Release <strong>${bond.name}</strong>? Bound Stones return to your pool.</p>`,
+                        content: `<p>Dissolve this Summon Bond? Bound Stones return to the owner. Existing summon tokens will be removed. Body actors may be archived or deleted according to system settings.</p><p><strong>${bond.name}</strong></p>`,
                     })
                     : globalThis.confirm?.(`Dissolve ${bond.name}?`);
                 if (!confirmed)

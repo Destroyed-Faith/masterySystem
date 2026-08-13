@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.310] - 2026-08-13
+
+### Changed
+
+- **Summons V2:** Bond-level action economy (shared attacks/reaction, Extra Attack is Bond-scoped), token status (Valid / Needs Ritual / Over Budget / Invalid Until Fixed), canonical power allowlist with `ceil(PP/10)` costs, actor sync on Ritual Apply, and safer Dissolve (stones back, scene tokens removed). Summons tab on the character sheet; Flying base 4 m; no Climbing.
+
 ## [0.9.309] - 2026-08-12
 
 ### Fixed

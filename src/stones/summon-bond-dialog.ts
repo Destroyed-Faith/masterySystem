@@ -6,7 +6,8 @@ const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const BaseDialog = HandlebarsApplicationMixin(ApplicationV2) as typeof ApplicationV2;
 
 import { getStoneGemStyle } from '../utils/stone-attribute-ui.js';
-import { ALL_POWER_TEMPLATES } from '../utils/powers/templates/index.js';
+import { getFilePickerClass } from '../utils/foundry-v14.js';
+import { evaluateSummonPower, listSummonPowerCatalog } from './summon-power-allowlist.js';
 import {
   createSummonActorForBondBody,
   deleteSummonActor,
@@ -17,6 +18,7 @@ import {
   addBoundStonesToBond,
   applyBondRitual,
   createSummonBondWithStones,
+  DISSOLVE_BOND_CONFIRM,
   dissolveSummonBond,
   getSummonBondsFromActor,
   ownerSkillRatingsFromActor,
@@ -37,15 +39,27 @@ import {
   SUMMON_ELIGIBLE_SPECIALS,
   SUMMON_MOVEMENT_MODES,
   SUMMON_SKILL_IDS,
+  baseMovementM,
   computeSummonBond,
   emptyBondSpend,
+  maxMovementPurchases,
   maxSummonPowerLevel,
-  standardPowerTokenCost,
+  normalizeMovementMode,
   summonTokensFromStones,
   type SharedSenseGroup,
   type SummonMovementMode,
   type SummonSkillId,
 } from './summon-bond-rules.js';
+
+const ATTR_LABELS: Record<StonePoolAttr, string> = {
+  might: 'Might',
+  agility: 'Agility',
+  vitality: 'Vitality',
+  intellect: 'Intellect',
+  resolve: 'Resolve',
+  influence: 'Influence',
+  wits: 'Wits',
+};
 
 type DialogMode = 'create' | 'ritual';
 
@@ -187,22 +201,58 @@ export class SummonBondDialog extends BaseDialog {
     this.draft = syncBodiesFromSpend(this.draft);
   }
 
-  async _prepareContext(_options: any): Promise<any> {
+  #poolGemsForCreate(): Array<{
+    attr: StonePoolAttr;
+    label: string;
+    spendable: number;
+    available: boolean;
+    fill: string;
+    stroke: string;
+  }> {
     const spendable = getActorPoolSpendable(this.actor);
-    const poolGems = STONE_POOL_ATTRS.map((attr) => {
+    const reserved: Partial<Record<StonePoolAttr, number>> = {};
+    for (const a of this.createAttrs) reserved[a] = (reserved[a] ?? 0) + 1;
+    return STONE_POOL_ATTRS.map((attr) => {
+      const style = getStoneGemStyle(attr) ?? { fill: '#888888', stroke: '#aaaaaa' };
+      const free = Math.max(0, (spendable[attr] ?? 0) - (reserved[attr] ?? 0));
+      return {
+        attr,
+        label: ATTR_LABELS[attr],
+        spendable: free,
+        available: free > 0,
+        fill: style.fill,
+        stroke: style.stroke,
+      };
+    }).filter((g) => (spendable[g.attr] ?? 0) > 0 || (reserved[g.attr] ?? 0) > 0);
+  }
+
+  #poolGemsForRitual(): Array<{
+    attr: StonePoolAttr;
+    label: string;
+    spendable: number;
+    available: boolean;
+    fill: string;
+    stroke: string;
+  }> {
+    const spendable = getActorPoolSpendable(this.actor);
+    return STONE_POOL_ATTRS.map((attr) => {
       const style = getStoneGemStyle(attr) ?? { fill: '#888888', stroke: '#aaaaaa' };
       const n = spendable[attr] ?? 0;
       return {
         attr,
-        label: attr.slice(0, 3).toUpperCase(),
+        label: ATTR_LABELS[attr],
         spendable: n,
         available: n > 0,
         fill: style.fill,
         stroke: style.stroke,
       };
-    });
+    }).filter((g) => g.spendable > 0);
+  }
 
+  async _prepareContext(_options: any): Promise<any> {
     if (this.mode === 'create') {
+      const poolGems = this.#poolGemsForCreate();
+      const stoneChips = this.createAttrs.map((attr) => ATTR_LABELS[attr] ?? attr);
       return {
         isCreate: true,
         isRitual: false,
@@ -210,11 +260,12 @@ export class SummonBondDialog extends BaseDialog {
           name: this.createName,
           img: this.createImg,
           expression: this.createExpression,
-          stoneAttributes: this.createAttrs,
+          stoneAttributes: stoneChips,
         },
         movementModes: SUMMON_MOVEMENT_MODES.map((m) => ({
           ...m,
           selected: m.value === this.createMode,
+          hint: `base ${m.baseM} m, max ${m.maxM} m`,
         })),
         timingBefore: this.createTiming === 'before',
         timingAfter: this.createTiming === 'after',
@@ -226,6 +277,7 @@ export class SummonBondDialog extends BaseDialog {
       };
     }
 
+    this.draft.movementMode = normalizeMovementMode(this.draft.movementMode);
     this.ensureSpendBodies();
     const ratings = ownerSkillRatingsFromActor(this.actor);
     const mr = Math.max(1, Math.floor(Number((this.actor as any).system?.mastery?.rank) || 1));
@@ -267,20 +319,28 @@ export class SummonBondDialog extends BaseDialog {
         ...s,
         checked: (this.draft.spend.bodies[index]?.sharedSenses || []).includes(s.value),
       })),
-      powers: (body.powers || []).map((p) => ({
-        ...p,
-        name: ALL_POWER_TEMPLATES.find((t) => t.templateId === p.templateId)?.name ?? p.templateId,
-      })),
+      powers: (body.powers || []).map((p) => {
+        const ev = evaluateSummonPower(p.templateId, p.level, mr);
+        return {
+          ...p,
+          name: ev.name,
+          legal: ev.legal,
+          reason: ev.reason,
+          ppCost: ev.ppCost,
+          tokenCost: ev.tokenCost,
+        };
+      }),
     }));
 
-    const powerCatalog = ALL_POWER_TEMPLATES
-      .filter((t) => ['active', 'passive', 'reaction', 'activeBuff', 'movement'].includes(t.category))
-      .map((t) => ({
-        templateId: t.templateId,
-        name: t.name,
-        category: t.category,
-      }))
-      .sort((a, b) => a.name.localeCompare(b.name));
+    const powerCatalog = listSummonPowerCatalog(mr, 1).map((ev) => ({
+      templateId: ev.templateId,
+      name: ev.name,
+      category: ev.category,
+      ppCost: ev.ppCost,
+      tokenCost: ev.tokenCost,
+      legal: ev.legal,
+      reason: ev.reason,
+    }));
 
     const specialOptions = SUMMON_ELIGIBLE_SPECIALS.map((s) => ({
       ...s,
@@ -293,18 +353,34 @@ export class SummonBondDialog extends BaseDialog {
         ? `${this.draft.specialKey}(${sv})`
         : 'None';
 
+    const stoneChips = this.draft.stoneAttributes.map((attr) => ATTR_LABELS[attr as StonePoolAttr] ?? attr);
+    const moveMaxPurchases = maxMovementPurchases(this.draft.movementMode);
+
     return {
       isCreate: false,
       isRitual: true,
-      draft: this.draft,
+      draft: { ...this.draft, stoneAttributeLabels: stoneChips },
+      stoneChips,
       movementModes: SUMMON_MOVEMENT_MODES.map((m) => ({
         ...m,
         selected: m.value === this.draft.movementMode,
+        hint: `base ${m.baseM} m, max ${m.maxM} m`,
       })),
+      movementBaseM: baseMovementM(this.draft.movementMode),
+      movementMaxPurchases: moveMaxPurchases,
       timingBefore: this.draft.activationTiming === 'before',
       timingAfter: this.draft.activationTiming === 'after',
-      poolGems,
-      tokens: { ...tokens, over: tokens.remaining < 0 },
+      poolGems: this.#poolGemsForRitual(),
+      tokens: {
+        ...tokens,
+        over: tokens.remaining < 0,
+        bodySpentViews: (tokens.bodySpent || []).map((n, i) => ({
+          label: String.fromCharCode(65 + i),
+          spent: n,
+        })),
+      },
+      bondStatus: validation.status,
+      bondStatusLabel: validation.statusLabel,
       computed,
       skillOptions,
       bodyViews,
@@ -327,18 +403,38 @@ export class SummonBondDialog extends BaseDialog {
     root.querySelector('.js-sb-cancel')?.addEventListener('click', () => this.#close(null));
 
     if (this.mode === 'create') {
-      root.querySelector('.js-sb-name')?.addEventListener('change', (ev) => {
+      const syncCreateFields = () => {
+        this.createName = (root.querySelector('.js-sb-name') as HTMLInputElement)?.value ?? this.createName;
+        this.createExpression =
+          (root.querySelector('.js-sb-expression') as HTMLInputElement)?.value ?? this.createExpression;
+        this.createImg = (root.querySelector('.js-sb-img') as HTMLInputElement)?.value ?? this.createImg;
+        const mov = (root.querySelector('input[name="sbMovement"]:checked') as HTMLInputElement)?.value;
+        if (mov) this.createMode = normalizeMovementMode(mov);
+        const timing = (root.querySelector('input[name="sbTiming"]:checked') as HTMLInputElement)?.value;
+        if (timing === 'before' || timing === 'after') this.createTiming = timing;
+      };
+      root.querySelector('.js-sb-name')?.addEventListener('input', (ev) => {
         this.createName = (ev.target as HTMLInputElement).value;
+        const btn = root.querySelector('.js-sb-create') as HTMLButtonElement | null;
+        if (btn) btn.disabled = !(this.createAttrs.length >= 1 && !!this.createName.trim());
       });
-      root.querySelector('.js-sb-expression')?.addEventListener('change', (ev) => {
+      root.querySelector('.js-sb-expression')?.addEventListener('input', (ev) => {
         this.createExpression = (ev.target as HTMLInputElement).value;
       });
       root.querySelector('.js-sb-img')?.addEventListener('change', (ev) => {
         this.createImg = (ev.target as HTMLInputElement).value;
       });
+      root.querySelector('.js-sb-browse-img')?.addEventListener('click', (ev) => {
+        ev.preventDefault();
+        void this.#browseImage((path) => {
+          this.createImg = path;
+          const input = root.querySelector('.js-sb-img') as HTMLInputElement | null;
+          if (input) input.value = path;
+        });
+      });
       root.querySelectorAll('input[name="sbMovement"]').forEach((el) => {
         el.addEventListener('change', (ev) => {
-          this.createMode = (ev.target as HTMLInputElement).value as SummonMovementMode;
+          this.createMode = normalizeMovementMode((ev.target as HTMLInputElement).value);
         });
       });
       root.querySelectorAll('input[name="sbTiming"]').forEach((el) => {
@@ -349,7 +445,13 @@ export class SummonBondDialog extends BaseDialog {
       root.querySelectorAll('.js-sb-add-create-stone').forEach((btn) => {
         btn.addEventListener('click', () => {
           const attr = (btn as HTMLElement).dataset.attr as StonePoolAttr;
-          if (attr) this.createAttrs.push(attr);
+          if (!attr) return;
+          const gem = this.#poolGemsForCreate().find((g) => g.attr === attr);
+          if (!gem?.available) {
+            ui.notifications?.warn(`No free ${ATTR_LABELS[attr] ?? attr} stones left to bind.`);
+            return;
+          }
+          this.createAttrs.push(attr);
           this.render({ force: true });
         });
       });
@@ -360,7 +462,10 @@ export class SummonBondDialog extends BaseDialog {
           this.render({ force: true });
         });
       });
-      root.querySelector('.js-sb-create')?.addEventListener('click', () => void this.#doCreate());
+      root.querySelector('.js-sb-create')?.addEventListener('click', () => {
+        syncCreateFields();
+        void this.#doCreate();
+      });
       return;
     }
 
@@ -371,12 +476,21 @@ export class SummonBondDialog extends BaseDialog {
         (root.querySelector('.js-sb-expression') as HTMLInputElement)?.value ?? this.draft.expression;
       this.draft.img = (root.querySelector('.js-sb-img') as HTMLInputElement)?.value ?? this.draft.img;
       const mov = (root.querySelector('input[name="sbMovement"]:checked') as HTMLInputElement)?.value;
-      if (mov) this.draft.movementMode = mov as SummonMovementMode;
+      if (mov) this.draft.movementMode = normalizeMovementMode(mov);
       const timing = (root.querySelector('input[name="sbTiming"]:checked') as HTMLInputElement)?.value;
       if (timing === 'before' || timing === 'after') this.draft.activationTiming = timing;
       const bonus = Number((root.querySelector('.js-sb-bonus-tokens') as HTMLInputElement)?.value || 0);
       this.draft.bonusTokens = Math.max(0, Math.floor(bonus));
     };
+
+    root.querySelector('.js-sb-browse-img')?.addEventListener('click', (ev) => {
+      ev.preventDefault();
+      void this.#browseImage((path) => {
+        this.draft.img = path;
+        const input = root.querySelector('.js-sb-img') as HTMLInputElement | null;
+        if (input) input.value = path;
+      });
+    });
 
     root.querySelectorAll('.js-sb-spend').forEach((el) => {
       el.addEventListener('change', () => {
@@ -464,13 +578,16 @@ export class SummonBondDialog extends BaseDialog {
         const sel = root.querySelector(`.js-sb-power-template[data-body="${bi}"]`) as HTMLSelectElement;
         const lvlEl = root.querySelector(`.js-sb-power-level[data-body="${bi}"]`) as HTMLInputElement;
         const templateId = sel?.value;
-        const category = (sel?.selectedOptions[0]?.dataset.category || 'active') as any;
         const level = Math.max(1, Math.min(16, Math.floor(Number(lvlEl?.value) || 1)));
         if (!templateId) return;
-        const tokenCost = standardPowerTokenCost(category, level);
+        const ev = evaluateSummonPower(templateId, level, Math.max(1, Math.floor(Number((this.actor as any).system?.mastery?.rank) || 1)));
+        if (!ev.legal) {
+          ui.notifications?.warn(ev.reason);
+          return;
+        }
         const body = this.draft.bodies[bi];
         if (!body) return;
-        body.powers = [...(body.powers || []), { templateId, level, tokenCost, category }];
+        body.powers = [...(body.powers || []), { templateId, level, tokenCost: ev.tokenCost, category: ev.category }];
         this.ensureSpendBodies();
         this.draft = recomputeBondDerived(this.draft);
         this.render({ force: true });
@@ -531,13 +648,31 @@ export class SummonBondDialog extends BaseDialog {
     });
   }
 
+  async #browseImage(onPick: (path: string) => void): Promise<void> {
+    const FilePickerClass = getFilePickerClass();
+    if (!FilePickerClass) {
+      ui.notifications?.error('File picker is not available in this Foundry version.');
+      return;
+    }
+    const current =
+      this.mode === 'create' ? this.createImg : this.draft.img || '';
+    const fp = new FilePickerClass({
+      type: 'image',
+      current: current || 'icons/',
+      callback: (path: string) => {
+        if (path) onPick(path);
+      },
+    });
+    await fp.browse();
+  }
+
   async #doCreate(): Promise<void> {
     this.createErrors = [];
     const result = await createSummonBondWithStones(this.actor, {
       name: this.createName,
       img: this.createImg,
       expression: this.createExpression,
-      movementMode: this.createMode,
+      movementMode: normalizeMovementMode(this.createMode),
       stoneAttributes: this.createAttrs,
       activationTiming: this.createTiming,
     });
@@ -614,9 +749,9 @@ export class SummonBondDialog extends BaseDialog {
       typeof (globalThis as any).foundry?.applications?.api?.DialogV2?.confirm === 'function'
         ? await (globalThis as any).foundry.applications.api.DialogV2.confirm({
             window: { title: 'Dissolve Summon Bond' },
-            content: `<p>Release <strong>${this.draft.name}</strong>? Bound Stones return to your pool. Summon actors are deleted.</p>`,
+            content: `<p>${DISSOLVE_BOND_CONFIRM}</p><p><strong>${this.draft.name}</strong></p>`,
           })
-        : (globalThis as any).confirm?.(`Dissolve ${this.draft.name}? Bound Stones return to your pool.`);
+        : (globalThis as any).confirm?.(`${DISSOLVE_BOND_CONFIRM}\n\n${this.draft.name}`);
     if (!confirmed) return;
 
     const res = await dissolveSummonBond(this.actor, this.draft.id, deleteSummonActor);

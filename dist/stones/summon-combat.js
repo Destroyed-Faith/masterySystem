@@ -6,6 +6,7 @@
  * - Summons cannot use Stones / Artifacts / unbought Powers.
  */
 import { getRoundState, setRoundState } from '../combat/action-economy.js';
+import { getSummonBondsFromActor } from './summon-bond-bind.js';
 function usageMap(rs) {
     const raw = rs.summonBondUsage;
     return raw && typeof raw === 'object' ? { ...raw } : {};
@@ -74,5 +75,25 @@ export function bodyHasPurchasedPower(bond, bodyId, templateId) {
 /** Extra bodies never increase the Bond attack budget by themselves. */
 export function bondAttackBudgetFromBodies(bond) {
     return Math.max(1, Math.floor(Number(bond.summonAttacks) || 1));
+}
+/** Resolve Bond + owner from a summon body actor. */
+export function resolveSummonBondContext(summonActor) {
+    if (!summonActor || summonActor.type !== 'summon')
+        return null;
+    const link = summonActor.system?.summonBond ?? {};
+    const ownerId = link.ownerActorId || summonActor.system?.familiar?.ownerActorId;
+    const bondId = link.bondId || summonActor.system?.familiar?.familiarId;
+    if (!ownerId || !bondId)
+        return null;
+    const owner = game.actors?.get(ownerId);
+    if (!owner)
+        return null;
+    const bond = getSummonBondsFromActor(owner).find((b) => b.id === bondId);
+    if (!bond)
+        return null;
+    const body = bond.bodies.find((b) => b.id === link.bodyId || b.summonActorId === summonActor.id) ?? bond.bodies[0];
+    if (!body)
+        return null;
+    return { owner, bond, body };
 }
 //# sourceMappingURL=summon-combat.js.map

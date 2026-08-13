@@ -3,7 +3,8 @@
  * Canonical workflow — do not use the legacy Familiar editor for creation.
  */
 import type { BoundFamiliarRecord } from '../types/actor.js';
-import { computeSummonBond, type SharedSenseGroup, type SummonBondUpgradeSpend, type SummonMovementMode, type SummonSkillId } from './summon-bond-rules.js';
+import { computeSummonBond, type BondValidityStatus, type SharedSenseGroup, type SummonBondUpgradeSpend, type SummonMovementMode, type SummonSkillId } from './summon-bond-rules.js';
+export declare const DISSOLVE_BOND_CONFIRM = "Dissolve this Summon Bond? Bound Stones return to the owner. Existing summon tokens will be removed. Body actors may be archived or deleted according to system settings.";
 export type StonePoolAttr = 'might' | 'agility' | 'vitality' | 'intellect' | 'resolve' | 'influence' | 'wits';
 export declare const STONE_POOL_ATTRS: StonePoolAttr[];
 export type SummonPowerRef = {
@@ -74,6 +75,10 @@ export declare function tokensSummary(bond: SummonBondRecord): {
     spent: number;
     remaining: number;
     skillSlots: number;
+    bondSpent: number;
+    skillsSpent: number;
+    specialSpent: number;
+    bodySpent: number[];
 };
 export declare function bondStoneAssignments(bond: SummonBondRecord): Record<string, number>;
 export declare function syncBodiesFromSpend(bond: SummonBondRecord): SummonBondRecord;
@@ -81,8 +86,13 @@ export type BondRitualValidation = {
     ok: boolean;
     errors: string[];
     warnings: string[];
+    hardErrors: string[];
+    overBudget: boolean;
+    status: BondValidityStatus;
+    statusLabel: string;
     computed: ReturnType<typeof computeSummonBond>;
 };
+export declare function validateBondPowers(bond: SummonBondRecord, ownerMasteryRank?: number): string[];
 export declare function validateBondRitual(bond: SummonBondRecord, ownerSkillRatings?: Record<string, number>, ownerMasteryRank?: number): BondRitualValidation;
 /** Create a new Summon Bond, debit Bound Stones from the owner's pool, clear legacy familiars. */
 export declare function createSummonBondWithStones(actor: any, opts: {

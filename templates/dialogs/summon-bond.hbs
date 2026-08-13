@@ -1,7 +1,7 @@
 <div class="summon-bond-dialog">
   <header class="sb-header">
     <h3 class="sb-title">{{#if isCreate}}Create Summon Bond{{else}}Bond Ritual — {{draft.name}}{{/if}}</h3>
-    <p class="sb-subtitle">Bound Stones × 8 = Summon Tokens. Artifact Summon Stones add +4 Tokens each (bonus only).</p>
+    <p class="sb-subtitle">Bound Stones × 8 = Summon Tokens. Artifact Summon Stones add +4 Tokens each (bonus only). Bond Ritual takes 1 hour.</p>
   </header>
 
   {{#if isCreate}}
@@ -13,13 +13,16 @@
     <label class="sb-field">Expression
       <input type="text" class="js-sb-expression" value="{{draft.expression}}" placeholder="beast, spirit, construct…" />
     </label>
-    <label class="sb-field">Image path
-      <input type="text" class="js-sb-img" value="{{draft.img}}" placeholder="icons/creatures/…" />
+    <label class="sb-field">Image
+      <div class="sb-img-row">
+        <input type="text" class="js-sb-img" value="{{draft.img}}" placeholder="icons/creatures/…" />
+        <button type="button" class="js-sb-browse-img dialog-btn dialog-btn-secondary" title="Browse files"><i class="fas fa-folder-open"></i> Browse</button>
+      </div>
     </label>
     <fieldset class="sb-field">
       <legend>Permanent Movement Mode</legend>
       {{#each movementModes}}
-      <label class="sb-radio"><input type="radio" name="sbMovement" value="{{this.value}}" {{#if this.selected}}checked{{/if}} /> {{this.label}} (base 8 m, max 16 m)</label>
+      <label class="sb-radio"><input type="radio" name="sbMovement" value="{{this.value}}" {{#if this.selected}}checked{{/if}} /> {{this.label}} ({{this.hint}})</label>
       {{/each}}
     </fieldset>
     <fieldset class="sb-field">
@@ -31,7 +34,7 @@
 
   <section class="sb-section">
     <h4>Bound Stones <span class="sb-meta">(each → 8 Tokens)</span></h4>
-    <p class="sb-hint">Click a pool gem to add a Bound Stone. Stones leave your usable pool until the Bond is dissolved.</p>
+    <p class="sb-hint">Click a free pool gem to bind it. Counts show stones still available after your current selection. You cannot bind more stones than you have free.</p>
     <ul class="sb-stone-list">
       {{#each draft.stoneAttributes}}
       <li class="sb-stone-chip" data-index="{{@index}}">
@@ -40,14 +43,19 @@
       </li>
       {{/each}}
     </ul>
+    {{#if poolGems.length}}
     <div class="sb-pool-row">
       {{#each poolGems}}
-      <button type="button" class="js-sb-add-create-stone sb-pool-gem {{#unless this.available}}is-empty{{/unless}}" data-attr="{{this.attr}}" {{#unless this.available}}disabled{{/unless}} title="{{this.attr}}: {{this.spendable}} free">
-        <span class="ms-stone-gem-chip is-filled" style="--stone-fill: {{this.fill}}; --stone-stroke: {{this.stroke}};">{{this.label}}</span>
-        <span class="sb-pool-count">{{this.spendable}}</span>
+      <button type="button" class="js-sb-add-create-stone sb-pool-gem {{#unless this.available}}is-empty{{/unless}}" data-attr="{{this.attr}}" {{#unless this.available}}disabled{{/unless}} title="{{this.label}}: {{this.spendable}} free">
+        <span class="ms-stone-gem-chip is-filled" style="--stone-fill: {{this.fill}}; --stone-stroke: {{this.stroke}};"></span>
+        <span class="sb-pool-label">{{this.label}}</span>
+        <span class="sb-pool-count">{{this.spendable}} free</span>
       </button>
       {{/each}}
     </div>
+    {{else}}
+    <p class="sb-warn">No free Attribute Stones in your pool.</p>
+    {{/if}}
     <p class="sb-budget">Preview: <strong>{{createStoneCount}}</strong> Bound Stones → <strong>{{createTokenPreview}}</strong> Tokens</p>
     {{#if createErrors.length}}
     <ul class="sb-errors">{{#each createErrors}}<li>{{this}}</li>{{/each}}</ul>
@@ -61,12 +69,18 @@
 
   {{#if isRitual}}
   <section class="sb-section sb-token-bar">
-    <div class="sb-token-stat"><span>Available</span><strong>{{tokens.available}}</strong></div>
-    <div class="sb-token-stat"><span>Spent</span><strong>{{tokens.spent}}</strong></div>
+    <div class="sb-token-stat"><span>Total</span><strong>{{tokens.available}}</strong></div>
+    <div class="sb-token-stat"><span>Bond spent</span><strong>{{tokens.bondSpent}}</strong></div>
+    <div class="sb-token-stat"><span>Skills spent</span><strong>{{tokens.skillsSpent}}</strong></div>
+    {{#each tokens.bodySpentViews}}
+    <div class="sb-token-stat"><span>Body {{this.label}} spent</span><strong>{{this.spent}}</strong></div>
+    {{/each}}
     <div class="sb-token-stat"><span>Remaining</span><strong class="{{#if tokens.over}}is-over{{/if}}">{{tokens.remaining}}</strong></div>
     <div class="sb-token-stat"><span>Skill Slots</span><strong>{{tokens.skillSlots}}</strong></div>
+    <div class="sb-token-stat sb-status sb-status-{{bondStatus}}"><span>Status</span><strong>{{bondStatusLabel}}</strong></div>
+    <p class="sb-hint">Bond Ritual takes 1 hour. Attacks and Powers share one Bond Action Economy (Bodies do not get their own Attack Actions). Extra Attack is a Bond upgrade (max 3 Attacks total).</p>
     {{#if draft.needsRedistribution}}
-    <p class="sb-warn">Tokens need redistribution — apply the Bond Ritual when finished.</p>
+    <p class="sb-warn">Needs Ritual — apply the Bond Ritual when the spend is legal.</p>
     {{/if}}
   </section>
 
@@ -74,11 +88,16 @@
     <h4>Identity</h4>
     <label class="sb-field">Name <input type="text" class="js-sb-name" value="{{draft.name}}" /></label>
     <label class="sb-field">Expression <input type="text" class="js-sb-expression" value="{{draft.expression}}" /></label>
-    <label class="sb-field">Image <input type="text" class="js-sb-img" value="{{draft.img}}" /></label>
+    <label class="sb-field">Image
+      <div class="sb-img-row">
+        <input type="text" class="js-sb-img" value="{{draft.img}}" />
+        <button type="button" class="js-sb-browse-img dialog-btn dialog-btn-secondary" title="Browse files"><i class="fas fa-folder-open"></i> Browse</button>
+      </div>
+    </label>
     <fieldset class="sb-field">
       <legend>Movement Mode</legend>
       {{#each movementModes}}
-      <label class="sb-radio"><input type="radio" name="sbMovement" value="{{this.value}}" {{#if this.selected}}checked{{/if}} /> {{this.label}}</label>
+      <label class="sb-radio"><input type="radio" name="sbMovement" value="{{this.value}}" {{#if this.selected}}checked{{/if}} /> {{this.label}} ({{this.hint}})</label>
       {{/each}}
     </fieldset>
     <fieldset class="sb-field">
@@ -91,21 +110,27 @@
   <section class="sb-section">
     <h4>Bound Stones</h4>
     <ul class="sb-stone-list">
-      {{#each draft.stoneAttributes}}
+      {{#each stoneChips}}
       <li class="sb-stone-chip" data-index="{{@index}}">
         <span>{{this}}</span>
         <button type="button" class="js-sb-remove-stone" data-index="{{@index}}" {{#if @root.onlyOneStone}}disabled title="Keep at least one stone"{{/if}}>✕</button>
       </li>
       {{/each}}
     </ul>
+    {{#if poolGems.length}}
+    <p class="sb-hint">Add more Bound Stones from your free pool (each +8 Tokens; requires redistributing).</p>
     <div class="sb-pool-row">
       {{#each poolGems}}
-      <button type="button" class="js-sb-add-stone sb-pool-gem {{#unless this.available}}is-empty{{/unless}}" data-attr="{{this.attr}}" {{#unless this.available}}disabled{{/unless}}>
-        <span class="ms-stone-gem-chip is-filled" style="--stone-fill: {{this.fill}}; --stone-stroke: {{this.stroke}};">{{this.label}}</span>
-        <span class="sb-pool-count">{{this.spendable}}</span>
+      <button type="button" class="js-sb-add-stone sb-pool-gem" data-attr="{{this.attr}}" title="{{this.label}}: {{this.spendable}} free">
+        <span class="ms-stone-gem-chip is-filled" style="--stone-fill: {{this.fill}}; --stone-stroke: {{this.stroke}};"></span>
+        <span class="sb-pool-label">{{this.label}}</span>
+        <span class="sb-pool-count">{{this.spendable}} free</span>
       </button>
       {{/each}}
     </div>
+    {{else}}
+    <p class="sb-meta">No additional free stones in your pool.</p>
+    {{/if}}
     <label class="sb-field">Artifact bonus Tokens
       <input type="number" min="0" step="4" class="js-sb-bonus-tokens" value="{{draft.bonusTokens}}" />
       <span class="sb-meta">(+4 per Artifact Summon Stone; cannot create a Bond)</span>
@@ -113,16 +138,17 @@
   </section>
 
   <section class="sb-section">
-    <h4>Bond Upgrades</h4>
-    <div class="sb-grid">
+    <h4>Bond Upgrades <span class="sb-meta">(shared by all bodies)</span></h4>
+    <p class="sb-hint">Movement lives here — not on the body. Base {{movementBaseM}} m; each purchase +2 m (max 16 m / {{movementMaxPurchases}} purchases).</p>
+    <div class="sb-grid sb-grid-wide">
       <label>Attack (+2d8 / 2 tok) <input type="number" min="0" class="js-sb-spend" data-field="attackPurchases" value="{{draft.spend.attackPurchases}}" /></label>
       <label>Damage (+1d8 / 2 tok) <input type="number" min="0" class="js-sb-spend" data-field="damagePurchases" value="{{draft.spend.damagePurchases}}" /></label>
-      <label>Movement (+2 m / 1 tok, max 16) <input type="number" min="0" max="4" class="js-sb-spend" data-field="movementPurchases" value="{{draft.spend.movementPurchases}}" /></label>
-      <label>Extra Attack (+1 / 8 tok, max 3) <input type="number" min="0" max="2" class="js-sb-spend" data-field="extraAttackPurchases" value="{{draft.spend.extraAttackPurchases}}" /></label>
+      <label>Movement (+2 m / 1 tok) <input type="number" min="0" max="{{movementMaxPurchases}}" class="js-sb-spend" data-field="movementPurchases" value="{{draft.spend.movementPurchases}}" /></label>
+      <label>Extra Attack (+1 / 8 tok, max 3 Attacks total) <input type="number" min="0" max="2" class="js-sb-spend" data-field="extraAttackPurchases" value="{{draft.spend.extraAttackPurchases}}" /></label>
       <label>Skill Dice (+2 dice / 1 tok) <input type="number" min="0" class="js-sb-spend" data-field="skillDicePurchases" value="{{draft.spend.skillDicePurchases}}" /></label>
       <label>Additional Bodies (+1 / 2 tok) <input type="number" min="0" class="js-sb-spend" data-field="additionalBodies" value="{{draft.spend.additionalBodies}}" /></label>
     </div>
-    <div class="sb-preview-line">Attack {{computed.attackDice}}d8 · Damage {{computed.damageDice}}d8 · Move {{computed.movementM}} m · Attacks {{computed.summonAttacks}} · Bodies {{computed.bodyCount}}</div>
+    <div class="sb-preview-line">Attack {{computed.attackDice}}d8 · Damage {{computed.damageDice}}d8 · Move {{computed.movementM}} m · Bond Attacks {{computed.summonAttacks}}/round (shared) · Bodies {{computed.bodyCount}}</div>
   </section>
 
   <section class="sb-section">
@@ -163,12 +189,13 @@
   </section>
 
   <section class="sb-section">
-    <h4>Bodies</h4>
+    <h4>Bodies <span class="sb-meta">(per-body HP / Armor / Evade / Senses / Powers)</span></h4>
+    <p class="sb-hint">These purchases apply to each body separately. Movement is under Bond Upgrades above.</p>
     {{#each bodyViews}}
     <details class="sb-body" {{#if this.open}}open{{/if}} data-body-index="{{this.index}}">
       <summary>Body {{this.n}} {{#if this.dormant}}(Dormant){{/if}} — HP {{this.hp}} / Armor {{this.armor}} / Evade {{this.evade}}</summary>
-      <div class="sb-grid">
-        <label>HP purchases (+20 / 1 tok) <input type="number" min="0" class="js-sb-body-spend" data-body="{{this.index}}" data-field="hpPurchases" value="{{this.hpPurchases}}" /></label>
+      <div class="sb-grid sb-grid-wide">
+        <label>HP purchases (+20 HP / 1 tok) <input type="number" min="0" class="js-sb-body-spend" data-body="{{this.index}}" data-field="hpPurchases" value="{{this.hpPurchases}}" /></label>
         <label>Armor (+4 / 2 tok) <input type="number" min="0" class="js-sb-body-spend" data-body="{{this.index}}" data-field="armorPurchases" value="{{this.armorPurchases}}" /></label>
         <label>Evade (+4 / 2 tok) <input type="number" min="0" class="js-sb-body-spend" data-body="{{this.index}}" data-field="evadePurchases" value="{{this.evadePurchases}}" /></label>
       </div>
@@ -182,7 +209,8 @@
         <h5>Powers <span class="sb-meta">(1 Token per started 10 PP · max L{{@root.maxPowerLevel}})</span></h5>
         <ul>
           {{#each this.powers}}
-          <li>{{this.name}} L{{this.level}} ({{this.tokenCost}} tok)
+          <li class="{{#unless this.legal}}is-invalid{{/unless}}">{{this.name}} L{{this.level}} · {{this.ppCost}} PP · {{this.tokenCost}} tok
+            {{#unless this.legal}}<span class="sb-meta"> — {{this.reason}}</span>{{/unless}}
             <button type="button" class="js-sb-remove-power" data-body="{{../index}}" data-power-idx="{{@index}}">✕</button>
           </li>
           {{/each}}
@@ -190,7 +218,7 @@
         <div class="sb-power-add">
           <select class="js-sb-power-template" data-body="{{this.index}}">
             {{#each @root.powerCatalog}}
-            <option value="{{this.templateId}}" data-category="{{this.category}}">{{this.name}} ({{this.category}})</option>
+            <option value="{{this.templateId}}" data-category="{{this.category}}" title="{{this.reason}}">{{this.name}} · {{this.category}} · {{this.ppCost}} PP · {{this.tokenCost}} tok{{#unless this.legal}} (illegal){{/unless}}</option>
             {{/each}}
           </select>
           <input type="number" min="1" max="{{@root.maxPowerLevel}}" class="js-sb-power-level" data-body="{{this.index}}" value="1" />
