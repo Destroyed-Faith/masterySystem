@@ -273,6 +273,15 @@ button.mm-gem:hover {
   font-size: 0.82rem;
 }
 
+.mm-rest-hint {
+  margin: 0;
+  padding: 0.4rem 0.55rem;
+  border-radius: 6px;
+  background: rgba(196, 163, 90, 0.12);
+  color: #e6d3a8;
+  font-size: 0.88rem;
+}
+
 .mm-create {
   align-self: flex-end;
   min-width: 8.5rem;

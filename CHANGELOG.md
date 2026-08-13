@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.326] - 2026-08-13
+
+### Changed
+
+- **Minor Magic Items:** Creating no longer burns a Stone. Create, replace, or dismiss only during a Safe Haven Rest. Empty places in the Mastery Rank limit fill only then. Existing items still count if given away. Use and Arm Trap stay available anytime.
+
 ## [0.9.325] - 2026-08-13
 
 ### Added

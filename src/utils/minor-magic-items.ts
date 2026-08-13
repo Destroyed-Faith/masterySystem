@@ -2,13 +2,12 @@
  * Minor Magic Items — store one use of a purchased Active Power in a
  * temporary object (potion, grenade, rune, prepared weapon, trap, charm).
  *
- * Prototype: snapshot + inventory gear + stone hold. Combat resolution
- * of the stored Power comes in a later pass.
+ * Create / replace / dismiss only during a Safe Haven Rest. No Stones.
+ * Combat resolution of the stored Power comes in a later pass.
  */
 
 import { findFirstFit, parseInventorySize } from './inventory-grid.js';
 import { ZONE_WIDTH_COLS } from './encumbrance.js';
-import { poolSpendableStones } from './artifact-actor-rules.js';
 import { resolvePowerCategoryFromItem } from './power-catalog.js';
 import { getPowerDefinitionRank } from './power-definition-rank.js';
 import { getAttackAttributeForPowerTreeOrSchool } from './power-roll-attribute.js';
@@ -17,7 +16,7 @@ import type { AoeSpec, PowerLevelRow, PowerSpecial, RangeSpec } from '../types/i
 
 export const MINOR_MAGIC_FLAG = 'minorMagic';
 export const MINOR_MAGIC_LEDGER_FLAG = 'minorMagicLedger';
-export const MINOR_MAGIC_STONE_COST = 1;
+export const MINOR_MAGIC_REST_FLAG = 'minorMagicRest';
 
 export const MINOR_MAGIC_FORMS = [
   'potion',
@@ -47,18 +46,6 @@ const FORM_ICONS: Record<MinorMagicForm, string> = {
   trap: 'icons/svg/item-bag.svg',
   charm: 'icons/svg/aura.svg',
 };
-
-const POOL_ATTRS = [
-  'might',
-  'agility',
-  'vitality',
-  'intellect',
-  'resolve',
-  'influence',
-  'wits',
-] as const;
-
-export type MinorMagicStoneAttr = (typeof POOL_ATTRS)[number];
 
 export interface MinorMagicAttackPool {
   attribute: string;
@@ -94,7 +81,6 @@ export interface MinorMagicItemFlag {
   creatorId: string;
   creatorName: string;
   form: MinorMagicForm;
-  stoneAttr: string;
   released?: boolean;
   armedAsTrap?: boolean;
   trapTrigger?: string;
@@ -102,85 +88,76 @@ export interface MinorMagicItemFlag {
 }
 
 export interface MinorMagicLedger {
-  heldByAttr: Record<string, number>;
-  pendingByAttr: Record<string, number>;
-  items: Record<string, { attr: string }>;
+  itemIds: string[];
 }
 
 export function emptyMinorMagicLedger(): MinorMagicLedger {
-  return { heldByAttr: {}, pendingByAttr: {}, items: {} };
+  return { itemIds: [] };
 }
 
 export function normalizeMinorMagicLedger(raw: unknown): MinorMagicLedger {
   const src = raw && typeof raw === 'object' ? (raw as Partial<MinorMagicLedger>) : {};
-  const heldByAttr: Record<string, number> = {};
-  const pendingByAttr: Record<string, number> = {};
-  const items: Record<string, { attr: string }> = {};
-  if (src.heldByAttr && typeof src.heldByAttr === 'object') {
-    for (const [k, v] of Object.entries(src.heldByAttr)) {
-      const n = Math.max(0, Math.floor(Number(v) || 0));
-      if (n > 0) heldByAttr[k] = n;
-    }
+  const itemIds: string[] = [];
+  const seen = new Set<string>();
+  const fromList = Array.isArray(src.itemIds) ? src.itemIds : [];
+  const fromLegacy = src && typeof (src as { items?: unknown }).items === 'object'
+    ? Object.keys((src as { items: Record<string, unknown> }).items)
+    : [];
+  for (const id of [...fromList, ...fromLegacy]) {
+    const key = String(id || '').trim();
+    if (!key || seen.has(key)) continue;
+    seen.add(key);
+    itemIds.push(key);
   }
-  if (src.pendingByAttr && typeof src.pendingByAttr === 'object') {
-    for (const [k, v] of Object.entries(src.pendingByAttr)) {
-      const n = Math.max(0, Math.floor(Number(v) || 0));
-      if (n > 0) pendingByAttr[k] = n;
-    }
-  }
-  if (src.items && typeof src.items === 'object') {
-    for (const [id, row] of Object.entries(src.items)) {
-      const attr = String((row as { attr?: string })?.attr || '').trim();
-      if (id && attr) items[id] = { attr };
-    }
-  }
-  return { heldByAttr, pendingByAttr, items };
+  return { itemIds };
 }
 
 export function countHeldMinorMagicItems(ledger: MinorMagicLedger): number {
-  return Object.keys(ledger.items).length;
+  return ledger.itemIds.length;
 }
 
-export function applyCreateToLedger(
-  ledger: MinorMagicLedger,
-  itemId: string,
-  attr: string,
-): MinorMagicLedger {
-  const next = structuredClone(ledger);
-  next.items[itemId] = { attr };
-  next.heldByAttr[attr] = (next.heldByAttr[attr] ?? 0) + 1;
-  return next;
+export function applyCreateToLedger(ledger: MinorMagicLedger, itemId: string): MinorMagicLedger {
+  const id = String(itemId || '').trim();
+  if (!id || ledger.itemIds.includes(id)) return { itemIds: [...ledger.itemIds] };
+  return { itemIds: [...ledger.itemIds, id] };
 }
 
 export function applyReleaseToLedger(
   ledger: MinorMagicLedger,
   itemId: string,
 ): MinorMagicLedger | null {
-  const row = ledger.items[itemId];
-  if (!row) return null;
-  const next = structuredClone(ledger);
-  delete next.items[itemId];
-  const held = Math.max(0, (next.heldByAttr[row.attr] ?? 0) - 1);
-  if (held > 0) next.heldByAttr[row.attr] = held;
-  else delete next.heldByAttr[row.attr];
-  next.pendingByAttr[row.attr] = (next.pendingByAttr[row.attr] ?? 0) + 1;
-  return next;
+  const id = String(itemId || '').trim();
+  if (!id || !ledger.itemIds.includes(id)) return null;
+  return { itemIds: ledger.itemIds.filter((existing) => existing !== id) };
 }
 
-/** Safe Haven: pending stones return; held stones stay burned. */
-export function applySafeHavenToLedger(ledger: MinorMagicLedger): {
-  ledger: MinorMagicLedger;
-  restoreByAttr: Record<string, number>;
-} {
-  const restoreByAttr = { ...ledger.pendingByAttr };
-  return {
-    ledger: {
-      heldByAttr: { ...ledger.heldByAttr },
-      pendingByAttr: {},
-      items: { ...ledger.items },
-    },
-    restoreByAttr,
-  };
+export function canManageMinorMagic(actor: any): boolean {
+  return actor?.getFlag?.('mastery-system', MINOR_MAGIC_REST_FLAG) === true;
+}
+
+export async function beginMinorMagicRest(actor: {
+  setFlag?: (scope: string, key: string, value: unknown) => Promise<unknown>;
+}): Promise<void> {
+  await actor.setFlag?.('mastery-system', MINOR_MAGIC_REST_FLAG, true);
+}
+
+export async function endMinorMagicRest(actor: {
+  getFlag?: (scope: string, key: string) => unknown;
+  unsetFlag?: (scope: string, key: string) => Promise<unknown>;
+}): Promise<void> {
+  if (actor.getFlag?.('mastery-system', MINOR_MAGIC_REST_FLAG) !== true) return;
+  await actor.unsetFlag?.('mastery-system', MINOR_MAGIC_REST_FLAG);
+}
+
+export async function endMinorMagicRestForCombat(combat: { combatants?: Iterable<any> }): Promise<void> {
+  const seen = new Set<string>();
+  for (const combatant of combat?.combatants ?? []) {
+    const actor = combatant?.actor;
+    const id = String(actor?.id || '');
+    if (!id || seen.has(id)) continue;
+    seen.add(id);
+    await endMinorMagicRest(actor);
+  }
 }
 
 export function isMinorMagicForm(value: string): value is MinorMagicForm {
@@ -441,23 +418,18 @@ export async function setActorMinorMagicLedger(
   await actor.setFlag?.('mastery-system', MINOR_MAGIC_LEDGER_FLAG, ledger);
 }
 
-function canCreateMinorMagic(
-  actor: any,
-  power: any,
-  form: MinorMagicForm,
-  stoneAttr: string,
-): string | null {
+export const MINOR_MAGIC_REST_REQUIRED =
+  'Create, replace, or dismiss Minor Magic Items only during a Safe Haven Rest.';
+
+function canCreateMinorMagic(actor: any, power: any, form: MinorMagicForm): string | null {
+  if (!canManageMinorMagic(actor)) return MINOR_MAGIC_REST_REQUIRED;
   if (!isEligibleMinorMagicPower(power)) {
     return 'Only a purchased Active Power can be stored.';
   }
   if (!isMinorMagicForm(form)) return 'Choose a form for the item.';
-  if (!POOL_ATTRS.includes(stoneAttr as MinorMagicStoneAttr)) return 'Place 1 Stone to create the item.';
   const ledger = getActorMinorMagicLedger(actor);
   if (countHeldMinorMagicItems(ledger) >= minorMagicLimit(actor)) {
-    return `You may maintain ${minorMagicLimit(actor)} Minor Magic Item(s) (Mastery Rank).`;
-  }
-  if (poolSpendableStones(actor, stoneAttr) < MINOR_MAGIC_STONE_COST) {
-    return `Need 1 spendable ${stoneAttr} Stone.`;
+    return `You may maintain ${minorMagicLimit(actor)} Minor Magic Item(s) (Mastery Rank). Empty places fill only during a Safe Haven Rest.`;
   }
   if (!findInventorySlotForMinorMagic(actor)) {
     return 'No space in inventory for a 1×1 item.';
@@ -469,9 +441,8 @@ export function validateCreateMinorMagic(
   actor: any,
   power: any,
   form: MinorMagicForm,
-  stoneAttr: string,
 ): string | null {
-  return canCreateMinorMagic(actor, power, form, stoneAttr);
+  return canCreateMinorMagic(actor, power, form);
 }
 
 function itemDescription(form: MinorMagicForm, snapshot: MinorMagicSnapshot): string {
@@ -485,11 +456,11 @@ function itemDescription(form: MinorMagicForm, snapshot: MinorMagicSnapshot): st
 
 export async function createMinorMagicItem(
   actor: any,
-  opts: { powerId: string; form: MinorMagicForm; name?: string; stoneAttr: string },
+  opts: { powerId: string; form: MinorMagicForm; name?: string },
 ): Promise<{ ok: true; item: any } | { ok: false; error: string }> {
   const power = actor.items?.get?.(opts.powerId);
   if (!power) return { ok: false, error: 'Choose an Active Power to store.' };
-  const err = canCreateMinorMagic(actor, power, opts.form, opts.stoneAttr);
+  const err = canCreateMinorMagic(actor, power, opts.form);
   if (err) return { ok: false, error: err };
 
   const slot = findInventorySlotForMinorMagic(actor);
@@ -501,7 +472,6 @@ export async function createMinorMagicItem(
     creatorId: String(actor.id || ''),
     creatorName: String(actor.name || ''),
     form: opts.form,
-    stoneAttr: opts.stoneAttr,
     snapshot,
   };
 
@@ -534,11 +504,7 @@ export async function createMinorMagicItem(
 
   if (!created?.id) return { ok: false, error: 'Could not create the item.' };
 
-  const current = Math.max(0, Number(actor.system?.stonePools?.[opts.stoneAttr]?.current) || 0);
-  const ledger = applyCreateToLedger(getActorMinorMagicLedger(actor), created.id, opts.stoneAttr);
-  await actor.update({
-    [`system.stonePools.${opts.stoneAttr}.current`]: Math.max(0, current - MINOR_MAGIC_STONE_COST),
-  });
+  const ledger = applyCreateToLedger(getActorMinorMagicLedger(actor), created.id);
   await setActorMinorMagicLedger(actor, ledger);
 
   return { ok: true, item: created };
@@ -604,7 +570,7 @@ export function buildMinorMagicChatHtml(
     .map((line) => `<li>${line}</li>`)
     .join('');
   if (mode === 'dismiss') {
-    return `<div class="minor-magic-chat"><h4>Dismissed ${itemName}</h4><p>The ${formLabel} loses its magic and no longer counts against the creator’s limit. The burned Stone returns on the next Safe Haven Rest.</p></div>`;
+    return `<div class="minor-magic-chat"><h4>Dismissed ${itemName}</h4><p>The ${formLabel} loses its magic and no longer counts against the creator’s limit. An empty place can only be filled during a Safe Haven Rest.</p></div>`;
   }
   const heading =
     mode === 'trap'
@@ -619,7 +585,7 @@ export function buildMinorMagicChatHtml(
       <p>${formLabel} — stored ${flag.snapshot.powerName} (creator: ${flag.creatorName || 'unknown'}).</p>
       ${trapLine}
       <ul>${lines}</ul>
-      <p><em>Prototype:</em> the stored Power is recorded. Full attack / trap resolution comes next. The item is spent and no longer counts against the creator’s limit. The burned Stone returns on the next Safe Haven Rest.</p>
+      <p><em>Prototype:</em> the stored Power is recorded. Full attack / trap resolution comes next. The item is spent and no longer counts against the creator’s limit. An empty place can only be filled during a Safe Haven Rest.</p>
     </div>
   `;
 }
@@ -646,6 +612,7 @@ export async function dismissMinorMagicItem(
   actor: any,
   item: any,
 ): Promise<{ ok: true } | { ok: false; error: string }> {
+  if (!canManageMinorMagic(actor)) return { ok: false, error: MINOR_MAGIC_REST_REQUIRED };
   const result = await consumeMinorMagicItem(actor, item, 'dismiss');
   if (!result.ok) return result;
   const ChatMessage = (globalThis as any).ChatMessage;
@@ -667,28 +634,11 @@ export async function onMinorMagicItemDeleted(item: any): Promise<void> {
   await releaseOnCreator(creator, item.id);
 }
 
-export async function restoreMinorMagicStonesOnSafeHaven(actor: any): Promise<Record<string, unknown>> {
-  const { ledger, restoreByAttr } = applySafeHavenToLedger(getActorMinorMagicLedger(actor));
-  const updates: Record<string, unknown> = {};
-  for (const [attr, n] of Object.entries(restoreByAttr)) {
-    if (n <= 0) continue;
-    const pool = actor.system?.stonePools?.[attr];
-    if (!pool) continue;
-    const max = Math.max(0, Number(pool.max) || 0);
-    const sustained = Math.max(0, Number(pool.sustained) || 0);
-    const held = ledger.heldByAttr[attr] ?? 0;
-    const effectiveMax = Math.max(0, max - sustained - held);
-    const current = Math.max(0, Number(pool.current) || 0);
-    updates[`system.stonePools.${attr}.current`] = Math.min(effectiveMax, current + n);
-  }
-  await setActorMinorMagicLedger(actor, ledger);
-  return updates;
-}
-
 export function minorMagicSheetView(actor: any): {
   limit: number;
   held: number;
   remaining: number;
+  canManage: boolean;
   items: Array<{
     id: string;
     name: string;
@@ -712,5 +662,11 @@ export function minorMagicSheetView(actor: any): {
       actionCost: flag.snapshot.actionCost,
     };
   });
-  return { limit, held, remaining: Math.max(0, limit - held), items };
+  return {
+    limit,
+    held,
+    remaining: Math.max(0, limit - held),
+    canManage: canManageMinorMagic(actor),
+    items,
+  };
 }

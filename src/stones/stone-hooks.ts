@@ -16,6 +16,7 @@ import {
 } from '../combat/action-economy.js';
 import { clearMasteryActiveBuffsForCombatants } from '../utils/active-buffs.js';
 import { runMasteryCombatRoundAdvancePipeline } from '../combat/stone-powers-flow.js';
+import { endMinorMagicRestForCombat } from '../utils/minor-magic-items.js';
 
 /**
  * Initialize stone system hooks
@@ -24,6 +25,11 @@ export function initializeStoneHooks(): void {
   // Hook: Combat started - initialize round state
   Hooks.on('combatStart', async (combat: Combat) => {
     await initializeCombatRoundState(combat);
+    try {
+      await endMinorMagicRestForCombat(combat);
+    } catch (err) {
+      console.warn('Mastery System | endMinorMagicRestForCombat failed', err);
+    }
   });
   
   // Hook: Combat turn/round changes

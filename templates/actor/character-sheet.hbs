@@ -2082,11 +2082,11 @@
       <div class="summons-tab-content">
         <div class="summons-tab-header">
           <h3><i class="fas fa-flask"></i> Minor Magic Items</h3>
-          <button type="button" class="js-sheet-minor-magic-create dialog-btn dialog-btn-primary">
+          <button type="button" class="js-sheet-minor-magic-create dialog-btn dialog-btn-primary" {{#unless minorMagicView.canManage}}disabled title="Only during a Safe Haven Rest"{{/unless}}>
             <i class="fas fa-plus"></i> Create Item
           </button>
         </div>
-        <p class="summons-tab-hint">Store one use of a purchased Active Power in a potion, grenade, rune, prepared weapon, trap, or charm. Limit {{minorMagicView.held}} / {{minorMagicView.limit}} (Mastery Rank). The burned Stone returns on the next Safe Haven Rest after the item is used or dismissed.</p>
+        <p class="summons-tab-hint">Store one use of a purchased Active Power in a potion, grenade, rune, prepared weapon, trap, or charm. Limit {{minorMagicView.held}} / {{minorMagicView.limit}} (Mastery Rank). Create, replace, or dismiss only during a Safe Haven Rest. No Stones.</p>
         {{#if minorMagicView.items.length}}
         <ul class="summons-bond-list">
           {{#each minorMagicView.items}}
@@ -2099,13 +2099,15 @@
             <div class="summons-bond-actions">
               <button type="button" class="js-sheet-minor-magic-use dialog-btn dialog-btn-primary" data-item-id="{{this.id}}">Use</button>
               <button type="button" class="js-sheet-minor-magic-trap dialog-btn" data-item-id="{{this.id}}">Arm Trap</button>
+              {{#if ../minorMagicView.canManage}}
               <button type="button" class="js-sheet-minor-magic-dismiss dialog-btn" data-item-id="{{this.id}}">Dismiss</button>
+              {{/if}}
             </div>
           </li>
           {{/each}}
         </ul>
         {{else}}
-        <p class="summons-tab-hint">No Minor Magic Items yet. Create one to place a 1×1 consumable in inventory.</p>
+        <p class="summons-tab-hint">{{#if minorMagicView.canManage}}No Minor Magic Items yet. Create one to place a 1×1 consumable in inventory.{{else}}No Minor Magic Items yet. Empty places can only be filled during a Safe Haven Rest.{{/if}}</p>
         {{/if}}
       </div>
     </div>

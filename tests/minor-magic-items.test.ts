@@ -2,14 +2,16 @@ import { describe, expect, it } from 'vitest';
 import {
   applyCreateToLedger,
   applyReleaseToLedger,
-  applySafeHavenToLedger,
+  canManageMinorMagic,
   countHeldMinorMagicItems,
   defaultMinorMagicName,
   emptyMinorMagicLedger,
   isEligibleMinorMagicPower,
   minorMagicLimit,
+  normalizeMinorMagicLedger,
   snapshotPowerForMinorMagic,
   snapshotSummaryLines,
+  validateCreateMinorMagic,
 } from '../src/utils/minor-magic-items';
 
 function powerItem(overrides: Record<string, unknown> = {}) {
@@ -74,35 +76,42 @@ describe('limit and ledger', () => {
     expect(minorMagicLimit(actorStub(3))).toBe(3);
   });
 
-  it('create counts against the limit until release', () => {
+  it('create counts against the limit until release, including given-away items', () => {
     let ledger = emptyMinorMagicLedger();
-    ledger = applyCreateToLedger(ledger, 'item-a', 'might');
-    ledger = applyCreateToLedger(ledger, 'item-b', 'intellect');
+    ledger = applyCreateToLedger(ledger, 'item-a');
+    ledger = applyCreateToLedger(ledger, 'item-b');
     expect(countHeldMinorMagicItems(ledger)).toBe(2);
-    expect(ledger.heldByAttr.might).toBe(1);
-    expect(ledger.heldByAttr.intellect).toBe(1);
 
     const released = applyReleaseToLedger(ledger, 'item-a');
     expect(released).not.toBeNull();
     expect(countHeldMinorMagicItems(released!)).toBe(1);
-    expect(released!.heldByAttr.might).toBeUndefined();
-    expect(released!.pendingByAttr.might).toBe(1);
+    expect(released!.itemIds).toEqual(['item-b']);
   });
 
-  it('Safe Haven restores pending stones and keeps held stones burned', () => {
-    let ledger = applyCreateToLedger(emptyMinorMagicLedger(), 'item-a', 'might');
-    ledger = applyReleaseToLedger(ledger, 'item-a')!;
-    ledger = applyCreateToLedger(ledger, 'item-b', 'might');
-
-    const rest = applySafeHavenToLedger(ledger);
-    expect(rest.restoreByAttr.might).toBe(1);
-    expect(rest.ledger.pendingByAttr).toEqual({});
-    expect(rest.ledger.heldByAttr.might).toBe(1);
-    expect(countHeldMinorMagicItems(rest.ledger)).toBe(1);
+  it('reads the old stone ledger shape as item ids', () => {
+    const ledger = normalizeMinorMagicLedger({
+      items: { 'item-a': { attr: 'might' }, 'item-b': { attr: 'intellect' } },
+    });
+    expect(ledger.itemIds).toEqual(['item-a', 'item-b']);
   });
 
   it('releasing an unknown item is a no-op', () => {
     expect(applyReleaseToLedger(emptyMinorMagicLedger(), 'missing')).toBeNull();
+  });
+
+  it('create and dismiss require a Safe Haven Rest window', () => {
+    const actor = {
+      ...actorStub(2),
+      getFlag: () => undefined,
+    };
+    expect(canManageMinorMagic(actor)).toBe(false);
+    expect(validateCreateMinorMagic(actor, powerItem(), 'potion')).toMatch(/Safe Haven Rest/);
+
+    const resting = {
+      ...actor,
+      getFlag: (_scope: string, key: string) => (key === 'minorMagicRest' ? true : undefined),
+    };
+    expect(canManageMinorMagic(resting)).toBe(true);
   });
 });
 

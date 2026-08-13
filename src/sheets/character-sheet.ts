@@ -49,9 +49,10 @@ import { RitualWorkshopDialog } from '../stones/ritual-workshop-dialog.js';
 import { MinorMagicDialog } from '../stones/minor-magic-dialog.js';
 import { RITUALS, ritualCategoryLabels } from '../utils/rituals.js';
 import {
+  MINOR_MAGIC_REST_REQUIRED,
+  beginMinorMagicRest,
   dismissMinorMagicItem,
   minorMagicSheetView,
-  restoreMinorMagicStonesOnSafeHaven,
   useMinorMagicItem,
 } from '../utils/minor-magic-items.js';
 import {
@@ -2282,6 +2283,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     html.off('click.minorMagic');
     html.on('click.minorMagic', '.js-sheet-minor-magic-create', async (ev) => {
       ev.preventDefault();
+      if (!minorMagicSheetView(this.actor).canManage) {
+        (ui as any).notifications?.warn(MINOR_MAGIC_REST_REQUIRED);
+        return;
+      }
       await MinorMagicDialog.show(this.actor as Actor);
       this.render(false);
     });
@@ -4700,12 +4705,11 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       console.warn('Mastery System | Safe Haven blood raise flag clear failed', err);
     }
 
-    const minorMagicStoneUpdates = await restoreMinorMagicStonesOnSafeHaven(this.actor);
-    Object.assign(updates, minorMagicStoneUpdates);
-
     await this.actor.update(updates);
+    await beginMinorMagicRest(this.actor);
+    this.activeTab = 'minor-magic';
     (ui as any).notifications?.info(
-      'Safe Haven Rest: HP, Stress, Scars, Stones, Mastery Charges, Skills, Reroll Points and Echo uses fully restored.',
+      'Safe Haven Rest: HP, Stress, Scars, Stones, Mastery Charges, Skills, Reroll Points and Echo uses fully restored. You may create, replace, or dismiss Minor Magic Items.',
     );
     this.render();
   }

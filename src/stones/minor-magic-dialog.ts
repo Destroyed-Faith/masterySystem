@@ -1,57 +1,35 @@
 /**
- * Minor Magic Item workshop — pick a purchased Active, a form, and 1 Stone.
+ * Minor Magic Item workshop — pick a purchased Active and a form.
+ * Create / replace only during a Safe Haven Rest. No Stones.
  */
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const BaseDialog = HandlebarsApplicationMixin(ApplicationV2) as typeof ApplicationV2;
 
-import { poolSpendableStones } from '../utils/artifact-actor-rules.js';
-import { getStoneGemStyle } from '../utils/stone-attribute-ui.js';
 import {
   MINOR_MAGIC_FORM_LABELS,
   MINOR_MAGIC_FORMS,
-  MINOR_MAGIC_STONE_COST,
+  MINOR_MAGIC_REST_REQUIRED,
+  canManageMinorMagic,
   createMinorMagicItem,
   defaultMinorMagicName,
   listEligibleMinorMagicPowers,
-  minorMagicLimit,
   minorMagicSheetView,
   snapshotPowerForMinorMagic,
   snapshotSummaryLines,
   type MinorMagicForm,
 } from '../utils/minor-magic-items.js';
 
-const POOL_ATTRS = [
-  'might',
-  'agility',
-  'vitality',
-  'intellect',
-  'resolve',
-  'influence',
-  'wits',
-] as const;
-
-const ATTR_LABELS: Record<(typeof POOL_ATTRS)[number], string> = {
-  might: 'Might',
-  agility: 'Agility',
-  vitality: 'Vitality',
-  intellect: 'Intellect',
-  resolve: 'Resolve',
-  influence: 'Influence',
-  wits: 'Wits',
-};
-
 export class MinorMagicDialog extends BaseDialog {
   private actor: Actor;
   private selectedPowerId = '';
   private itemForm: MinorMagicForm = 'potion';
   private itemName = '';
-  private placed: string[] = [];
 
   static DEFAULT_OPTIONS = {
     id: 'mastery-minor-magic',
     classes: ['mastery-system', 'minor-magic-app'],
-    position: { width: 820, height: 720 },
+    position: { width: 820, height: 680 },
     window: { title: 'Minor Magic Items', resizable: true },
   };
 
@@ -84,7 +62,7 @@ export class MinorMagicDialog extends BaseDialog {
 
   #canCreate(): boolean {
     const view = minorMagicSheetView(this.actor);
-    return !!this.#selectedPower() && this.placed.length === MINOR_MAGIC_STONE_COST && view.remaining > 0;
+    return !!this.#selectedPower() && view.remaining > 0 && canManageMinorMagic(this.actor);
   }
 
   async _prepareContext(_options: any): Promise<any> {
@@ -92,34 +70,6 @@ export class MinorMagicDialog extends BaseDialog {
     const power = this.#selectedPower();
     const snapshot = power ? snapshotPowerForMinorMagic(this.actor, power) : null;
     const view = minorMagicSheetView(this.actor);
-
-    const placedCount: Record<string, number> = {};
-    for (const attr of this.placed) placedCount[attr] = (placedCount[attr] ?? 0) + 1;
-
-    const pools = POOL_ATTRS.map((attr) => {
-      const style = getStoneGemStyle(attr) ?? { fill: '#888888', stroke: '#aaaaaa' };
-      const spendable = Math.max(0, poolSpendableStones(this.actor, attr) - (placedCount[attr] ?? 0));
-      return {
-        attr,
-        label: ATTR_LABELS[attr],
-        spendable,
-        gemSlots: Array.from({ length: spendable }, (_, index) => ({
-          attr,
-          index,
-          fill: style.fill,
-          stroke: style.stroke,
-        })),
-      };
-    }).filter((p) => p.spendable > 0 || (placedCount[p.attr] ?? 0) > 0);
-
-    const placedAttr = this.placed[0];
-    const slot = placedAttr
-      ? {
-          filled: true,
-          label: ATTR_LABELS[placedAttr as (typeof POOL_ATTRS)[number]] ?? placedAttr,
-          gemStyle: getStoneGemStyle(placedAttr) ?? { fill: '#888888', stroke: '#aaaaaa' },
-        }
-      : { filled: false };
 
     return {
       tabs: powers.map((p) => ({
@@ -139,13 +89,17 @@ export class MinorMagicDialog extends BaseDialog {
       limit: view.limit,
       held: view.held,
       remaining: view.remaining,
-      pools,
-      slot,
+      canManage: view.canManage,
       canCreate: this.#canCreate(),
+      restHint: view.canManage ? '' : MINOR_MAGIC_REST_REQUIRED,
       ruleTips: [
         {
+          label: 'Safe Haven',
+          text: 'Create, replace, or dismiss only during a Safe Haven Rest. Empty places in the Mastery Rank limit can only be filled then. Existing items stay and still count, even if someone else carries them.',
+        },
+        {
           label: 'What it stores',
-          text: 'One use of a single Active Power you purchased and advanced. Artifact Powers, granted Powers, Active Buffs, and temporary Powers cannot be stored.',
+          text: 'One use of a single Active Power you purchased and advanced. Artifact Powers, granted Powers, Active Buffs, and temporary Powers cannot be stored. No Stones, currency, or special materials.',
         },
         {
           label: 'Snapshot',
@@ -153,15 +107,11 @@ export class MinorMagicDialog extends BaseDialog {
         },
         {
           label: 'Form',
-          text: 'Potion, grenade, rune, prepared weapon, trap, or charm is flavor only. The stored Power does not change. A Single Target Power stays Single Target even if you call it a grenade.',
+          text: 'Potion, grenade, rune, prepared weapon, trap, or charm is flavor only. Any object named in the description must be present, but gives no mechanical benefit. A Single Target Power stays Single Target even if you call it a grenade.',
         },
         {
           label: 'Limit',
-          text: `You may maintain a number of Minor Magic Items equal to your Mastery Rank (${view.limit}). Items still count if given away, until used, triggered, destroyed, or dismissed.`,
-        },
-        {
-          label: 'Stone',
-          text: 'Creating burns 1 Stone of any color. That Stone cannot return on a Safe Haven Rest while the item exists. After it is used, triggered, destroyed, or dismissed, the Stone returns on the next Safe Haven Rest.',
+          text: `You may maintain a number of Minor Magic Items equal to your Mastery Rank (${view.limit}).`,
         },
         {
           label: 'Attack',
@@ -203,21 +153,6 @@ export class MinorMagicDialog extends BaseDialog {
       this.itemName = (ev.target as HTMLInputElement).value;
     });
 
-    root.querySelectorAll('.js-mm-pool-gem').forEach((el) => {
-      el.addEventListener('click', () => {
-        if (this.placed.length >= MINOR_MAGIC_STONE_COST) return;
-        const attr = (el as HTMLElement).dataset.attr;
-        if (!attr) return;
-        this.placed = [attr];
-        void this.#refresh();
-      });
-    });
-
-    root.querySelector('.js-mm-slot-filled')?.addEventListener('click', () => {
-      this.placed = [];
-      void this.#refresh();
-    });
-
     root.querySelector('.js-mm-create')?.addEventListener('click', () => {
       void this.#create();
     });
@@ -231,7 +166,6 @@ export class MinorMagicDialog extends BaseDialog {
       powerId: this.selectedPowerId,
       form: this.itemForm,
       name,
-      stoneAttr: this.placed[0],
     });
     if (!result.ok) {
       (ui as any).notifications?.warn(result.error);
