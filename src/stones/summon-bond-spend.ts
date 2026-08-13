@@ -10,6 +10,7 @@ import {
   computeSummonBond,
   emptyBodySpend,
   emptyBondSpend,
+  isSummonSkillEligible,
   maxMovementPurchases,
   normalizeMovementMode,
   type SummonBondUpgradeSpend,
@@ -34,6 +35,7 @@ export type SpendClampContext = {
   movementMode: SummonMovementMode | string;
   selectedSkills?: string[];
   ownerSkillRatings?: Record<string, number>;
+  ownerMasteryRank?: number;
   /** Detected Artifact Summon Stone bonus cap (multiple of 4). */
   maxBonusTokens?: number;
   skillDiceAlloc?: Record<string, number>;
@@ -166,10 +168,14 @@ export function skillDicePurchaseCap(
   selectedSkills: string[],
   ratings: Record<string, number> | undefined,
   remainingIfSkillPurchasesZero: number,
+  ownerMasteryRank = 1,
 ): number {
   const byTokens = Math.max(0, Math.floor(remainingIfSkillPurchasesZero));
-  if (!selectedSkills.length) return byTokens;
-  const capacity = selectedSkills.reduce((sum, id) => {
+  const eligible = (selectedSkills || []).filter((id) =>
+    isSummonSkillEligible(ratings?.[id] ?? 0, ownerMasteryRank),
+  );
+  if (!eligible.length) return 0;
+  const capacity = eligible.reduce((sum, id) => {
     return sum + safePurchaseInt(ratings?.[id] ?? 0, 99);
   }, 0);
   return Math.min(byTokens, Math.floor(capacity / SUMMON_CAPS.skillDicePerPurchase));
@@ -220,7 +226,12 @@ export function applyBondFieldDelta(
   if (field === 'skillDicePurchases' && delta > 0) {
     const without = { ...next, skillDicePurchases: 0 };
     const remainingIfZero = tokensRemainingFor(without, ctx);
-    const cap = skillDicePurchaseCap(ctx.selectedSkills ?? [], ctx.ownerSkillRatings, remainingIfZero);
+    const cap = skillDicePurchaseCap(
+      ctx.selectedSkills ?? [],
+      ctx.ownerSkillRatings,
+      remainingIfZero,
+      ctx.ownerMasteryRank ?? 1,
+    );
     if (nextVal > cap) return null;
   }
   next[field] = nextVal;
@@ -358,9 +369,21 @@ export function inspectBondSpend(
   if ((ctx.selectedSkills ?? []).length) {
     const withoutSkill = { ...sanitized, skillDicePurchases: 0 };
     const remainingIfZero = tokensRemainingFor(withoutSkill, ctx);
-    const cap = skillDicePurchaseCap(ctx.selectedSkills ?? [], ctx.ownerSkillRatings, remainingIfZero);
+    const cap = skillDicePurchaseCap(
+      ctx.selectedSkills ?? [],
+      ctx.ownerSkillRatings,
+      remainingIfZero,
+      ctx.ownerMasteryRank ?? 1,
+    );
     if (sanitized.skillDicePurchases > cap) {
       reasons.push(`Skill Dice purchases ${sanitized.skillDicePurchases} exceed capacity ${cap}.`);
+    }
+  }
+
+  const mr = ctx.ownerMasteryRank ?? 1;
+  for (const skill of ctx.selectedSkills ?? []) {
+    if (!isSummonSkillEligible(ctx.ownerSkillRatings?.[skill] ?? 0, mr)) {
+      reasons.push(`${skill}: Owner skill too low. Needs MR × 2.`);
     }
   }
 

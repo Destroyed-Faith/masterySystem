@@ -1,5 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { computeSummonBond, emptyBondSpend, maxMovementPurchases, SUMMON_CAPS } from '../src/stones/summon-bond-rules';
+import {
+  computeSummonBond,
+  emptyBondSpend,
+  isSummonSkillEligible,
+  maxMovementPurchases,
+  SUMMON_CAPS,
+  summonSkillMaxRating,
+  summonSkillMinRating,
+} from '../src/stones/summon-bond-rules';
 import {
   applyBondFieldDelta,
   applyBodyFieldDelta,
@@ -218,6 +226,62 @@ describe('legacy illegal purchases', () => {
     bond.bonusTokens = 7;
     const v = validateBondRitual(bond, {}, 1, { maxBonusTokens: 4 });
     expect(v.ok).toBe(false);
+  });
+});
+
+describe('Summon Skill eligibility', () => {
+  it('requires owner Rating >= MR × 2 and caps at MR × 4', () => {
+    expect(summonSkillMinRating(2)).toBe(4);
+    expect(summonSkillMaxRating(2)).toBe(8);
+    expect(isSummonSkillEligible(0, 2)).toBe(false);
+    expect(isSummonSkillEligible(3, 2)).toBe(false);
+    expect(isSummonSkillEligible(4, 2)).toBe(true);
+    expect(isSummonSkillEligible(4, 3)).toBe(false);
+    expect(isSummonSkillEligible(6, 3)).toBe(true);
+  });
+
+  it('cannot buy Skill Dice without an eligible selected skill', () => {
+    const spend = emptyBondSpend(1);
+    expect(applyBondFieldDelta(spend, 'skillDicePurchases', 1, ctx({ boundStoneCount: 2 }))).toBeNull();
+    expect(
+      applyBondFieldDelta(
+        spend,
+        'skillDicePurchases',
+        1,
+        ctx({
+          boundStoneCount: 2,
+          selectedSkills: ['perception'],
+          ownerSkillRatings: { perception: 0 },
+          ownerMasteryRank: 2,
+        }),
+      ),
+    ).toBeNull();
+    expect(
+      applyBondFieldDelta(
+        spend,
+        'skillDicePurchases',
+        1,
+        ctx({
+          boundStoneCount: 2,
+          selectedSkills: ['perception'],
+          ownerSkillRatings: { perception: 4 },
+          ownerMasteryRank: 2,
+        }),
+      )?.skillDicePurchases,
+    ).toBe(1);
+  });
+
+  it('blocks Apply when a selected skill falls below the new MR threshold', () => {
+    const bond = createEmptyBond({
+      name: 'Owl',
+      ownerActorId: 'A',
+      movementMode: 'flying',
+      stoneAttributes: ['wits'],
+    });
+    bond.selectedSkills = ['perception'];
+    const v = validateBondRitual(bond, { perception: 4 }, 3);
+    expect(v.ok).toBe(false);
+    expect(v.errors.some((e) => /Owner skill too low\. Needs MR × 2/.test(e))).toBe(true);
   });
 });
 

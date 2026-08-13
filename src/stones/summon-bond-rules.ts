@@ -162,6 +162,24 @@ export function summonTokensFromStones(boundStoneCount: number, bonusTokens = 0)
   return stones * SUMMON_CAPS.tokensPerStone + bonus;
 }
 
+/** Minimum owner Rating for a Summon Skill: MR × 2. */
+export function summonSkillMinRating(ownerMasteryRank: number): number {
+  const mr = Math.max(1, Math.floor(Number(ownerMasteryRank) || 1));
+  return mr * 2;
+}
+
+/** Owner skill cap: MR × 4. */
+export function summonSkillMaxRating(ownerMasteryRank: number): number {
+  const mr = Math.max(1, Math.floor(Number(ownerMasteryRank) || 1));
+  return mr * 4;
+}
+
+/** A skill is eligible only if the owner Rating is at least MR × 2. */
+export function isSummonSkillEligible(ownerRating: number, ownerMasteryRank: number): boolean {
+  const rating = Math.max(0, Math.floor(Number(ownerRating) || 0));
+  return rating >= summonSkillMinRating(ownerMasteryRank);
+}
+
 /** Selected skill slots by Bound Stones (bonus tokens do not increase this). */
 export function summonSkillSlots(boundStoneCount: number): number {
   const stones = Math.max(0, Math.floor(Number(boundStoneCount) || 0));

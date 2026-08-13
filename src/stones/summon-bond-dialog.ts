@@ -43,9 +43,11 @@ import {
   baseMovementM,
   computeSummonBond,
   emptyBondSpend,
+  isSummonSkillEligible,
   maxMovementPurchases,
   maxSummonPowerLevel,
   normalizeMovementMode,
+  summonSkillMinRating,
   summonTokensFromStones,
   type SharedSenseGroup,
   type SummonMovementMode,
@@ -112,6 +114,8 @@ export class SummonBondDialog extends BaseDialog {
   private uiScrollTop = 0;
   private uiWindowScrollTop = 0;
   private openBodyIndexes = new Set<number>([0]);
+  private identityOpen = false;
+  private stonesOpen = false;
   private restoreUiAfterRender = false;
 
   static DEFAULT_OPTIONS = {
@@ -312,6 +316,7 @@ export class SummonBondDialog extends BaseDialog {
       movementMode: this.draft.movementMode,
       selectedSkills: this.draft.selectedSkills,
       ownerSkillRatings: ratings,
+      ownerMasteryRank: mr,
       maxBonusTokens,
       skillDiceAlloc: this.draft.skillDiceAlloc,
     };
@@ -330,22 +335,35 @@ export class SummonBondDialog extends BaseDialog {
     const validation = validateBondRitual(this.draft, ratings, mr, { maxBonusTokens });
     const selectedSkills = new Set(this.draft.selectedSkills);
     const purchasedDice = computed.skillDiceTotal;
-    const skillOptions = SUMMON_SKILL_IDS.map((id) => {
+    const skillMinRating = summonSkillMinRating(mr);
+    const eligibleSelectedCount = this.draft.selectedSkills.filter((id) =>
+      isSummonSkillEligible(ratings[id] ?? 0, mr),
+    ).length;
+    const allSkillRows = SUMMON_SKILL_IDS.map((id) => {
       const selected = selectedSkills.has(id);
-      const canSelect = selected || selectedSkills.size < tokens.skillSlots;
-      const dice = this.draft.skillDiceAlloc[id] ?? 0;
       const ownerRating = ratings[id] ?? 0;
+      const eligible = isSummonSkillEligible(ownerRating, mr);
+      const canSelect = eligible && (selected || eligibleSelectedCount < tokens.skillSlots);
+      const dice = Math.min(safePurchaseInt(this.draft.skillDiceAlloc[id] ?? 0), ownerRating);
       return {
         id,
         label: SKILL_LABELS[id] ?? id,
         selected,
+        eligible,
         canSelect,
         ownerRating,
-        dice: Math.min(safePurchaseInt(dice), ownerRating),
-        canMinusDice: applySkillDiceAllocDelta(this.draft.skillDiceAlloc, id, -1, ownerRating, purchasedDice) != null,
-        canPlusDice: applySkillDiceAllocDelta(this.draft.skillDiceAlloc, id, 1, ownerRating, purchasedDice) != null,
+        dice,
+        canMinusDice:
+          eligible &&
+          applySkillDiceAllocDelta(this.draft.skillDiceAlloc, id, -1, ownerRating, purchasedDice) != null,
+        canPlusDice:
+          eligible &&
+          applySkillDiceAllocDelta(this.draft.skillDiceAlloc, id, 1, ownerRating, purchasedDice) != null,
       };
     });
+    const skillOptions = allSkillRows.filter((s) => s.eligible);
+    const invalidSkillOptions = allSkillRows.filter((s) => s.selected && !s.eligible);
+    const hasEligibleSelected = eligibleSelectedCount > 0;
 
     const steppers = {
       attack: bondStepperView(this.draft.spend, 'attackPurchases', spendCtx, `+${SUMMON_CAPS.attackDiceGain}d8 Attack`),
@@ -473,6 +491,11 @@ export class SummonBondDialog extends BaseDialog {
       bondStatusLabel: validation.statusLabel,
       computed,
       skillOptions,
+      invalidSkillOptions,
+      skillMinRating,
+      hasEligibleSelected,
+      identityOpen: this.identityOpen,
+      stonesOpen: this.stonesOpen,
       bodyViews,
       powerCatalog,
       specialOptions,
@@ -497,6 +520,7 @@ export class SummonBondDialog extends BaseDialog {
       movementMode: this.draft.movementMode,
       selectedSkills: this.draft.selectedSkills,
       ownerSkillRatings: ownerSkillRatingsFromActor(this.actor),
+      ownerMasteryRank: Math.max(1, Math.floor(Number((this.actor as any).system?.mastery?.rank) || 1)),
       skillDiceAlloc: this.draft.skillDiceAlloc,
       maxBonusTokens: maxAssignableArtifactBonusTokens(
         this.actor,
@@ -532,6 +556,8 @@ export class SummonBondDialog extends BaseDialog {
     this.openBodyIndexes = new Set(
       Array.from(root.querySelectorAll<HTMLElement>('.sb-body[open]')).map((el) => Number(el.dataset.bodyIndex)),
     );
+    this.identityOpen = !!root.querySelector('.sb-fold[data-fold="identity"][open]');
+    this.stonesOpen = !!root.querySelector('.sb-fold[data-fold="stones"][open]');
   }
 
   #restoreUi(): void {
@@ -771,6 +797,13 @@ export class SummonBondDialog extends BaseDialog {
         readIdentity();
         const skill = (el as HTMLElement).dataset.skill as SummonSkillId;
         const checked = (el as HTMLInputElement).checked;
+        const ratings = ownerSkillRatingsFromActor(this.actor);
+        const mr = Math.max(1, Math.floor(Number((this.actor as any).system?.mastery?.rank) || 1));
+        if (checked && !isSummonSkillEligible(ratings[skill] ?? 0, mr)) {
+          (el as HTMLInputElement).checked = false;
+          ui.notifications?.warn(`Owner skill too low. Needs MR × 2.`);
+          return;
+        }
         const set = new Set(this.draft.selectedSkills);
         if (checked) set.add(skill);
         else {

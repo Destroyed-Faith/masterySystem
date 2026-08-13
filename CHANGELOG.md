@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.313] - 2026-08-13
+
+### Changed
+
+- **Summon Bond Ritual:** Identity and Bound Stones are collapsed by default. The page starts at Bond Upgrades, with Bodies directly underneath.
+- **Summon Skills:** Only owner skills at Rating ≥ MR × 2 are selectable. Rating 0 / below-threshold skills are hidden. Previously selected skills that fall below the threshold stay visible as invalid and block Apply.
+
 ## [0.9.312] - 2026-08-13
 
 ### Fixed

@@ -15,8 +15,10 @@ import {
   classifyBondStatus,
   computeSummonBond,
   emptyBondSpend,
+  isSummonSkillEligible,
   legacyMovementTypeToMode,
   normalizeMovementMode,
+  summonSkillMinRating,
   summonSkillSlots,
   summonTokensFromStones,
   type BondValidityStatus,
@@ -250,11 +252,19 @@ export function recomputeBondDerived(bond: SummonBondRecord): SummonBondRecord {
 export function validateBondSkillAlloc(
   bond: SummonBondRecord,
   ownerSkillRatings: Record<string, number>,
+  ownerMasteryRank = 1,
 ): string[] {
   const errors: string[] = [];
   const slots = summonSkillSlots(bond.boundStoneCount);
   if (bond.selectedSkills.length > slots) {
     errors.push(`Selected ${bond.selectedSkills.length} skills but only ${slots} slots (from Bound Stones).`);
+  }
+  const minRating = summonSkillMinRating(ownerMasteryRank);
+  for (const skill of bond.selectedSkills || []) {
+    const rating = Math.max(0, Math.floor(Number(ownerSkillRatings[skill]) || 0));
+    if (!isSummonSkillEligible(rating, ownerMasteryRank)) {
+      errors.push(`${skill}: Owner skill too low. Needs MR × 2.`);
+    }
   }
   let diceSum = 0;
   for (const [skill, dice] of Object.entries(bond.skillDiceAlloc || {})) {
@@ -446,6 +456,7 @@ export function validateBondRitual(
     movementMode: bond.movementMode,
     selectedSkills: bond.selectedSkills,
     ownerSkillRatings,
+    ownerMasteryRank,
     maxBonusTokens: maxBonus,
     skillDiceAlloc: bond.skillDiceAlloc,
   });
@@ -462,7 +473,7 @@ export function validateBondRitual(
   errors.push(...computed.errors);
   warnings.push(...computed.warnings);
   errors.push(...inspect.reasons);
-  errors.push(...validateBondSkillAlloc(bond, ownerSkillRatings));
+  errors.push(...validateBondSkillAlloc(bond, ownerSkillRatings, ownerMasteryRank));
   errors.push(...validateBondPowers(bond, ownerMasteryRank));
 
   if (bond.spend.specialAccess && !bond.specialKey) {
@@ -603,6 +614,7 @@ export async function applyBondRitual(
     movementMode: draft.movementMode,
     selectedSkills: draft.selectedSkills,
     ownerSkillRatings,
+    ownerMasteryRank: mr,
     maxBonusTokens: maxBonus,
     skillDiceAlloc: draft.skillDiceAlloc,
   });

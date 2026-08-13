@@ -99,8 +99,8 @@
     {{/if}}
   </section>
 
-  <section class="sb-section">
-    <h4>Identity</h4>
+  <details class="sb-fold" data-fold="identity" {{#if identityOpen}}open{{/if}}>
+    <summary>Identity <span class="sb-meta">{{draft.name}}</span></summary>
     <label class="sb-field">Name <input type="text" class="js-sb-name" value="{{draft.name}}" /></label>
     <label class="sb-field">Expression <input type="text" class="js-sb-expression" value="{{draft.expression}}" /></label>
     <label class="sb-field">Image
@@ -120,10 +120,10 @@
       <label class="sb-radio"><input type="radio" name="sbTiming" value="before" {{#if timingBefore}}checked{{/if}} /> Before owner</label>
       <label class="sb-radio"><input type="radio" name="sbTiming" value="after" {{#if timingAfter}}checked{{/if}} /> After owner</label>
     </fieldset>
-  </section>
+  </details>
 
-  <section class="sb-section">
-    <h4>Bound Stones</h4>
+  <details class="sb-fold" data-fold="stones" {{#if stonesOpen}}open{{/if}}>
+    <summary>Bound Stones <span class="sb-meta">{{draft.boundStoneCount}} × 8 = {{tokens.boundTotal}} Tokens</span></summary>
     <ul class="sb-stone-list">
       {{#each stoneChips}}
       <li class="sb-stone-chip" data-index="{{@index}}">
@@ -160,7 +160,7 @@
     {{else}}
     <p class="sb-meta">No Artifact Summon Stones on this character. If an artifact grants them, +4 Tokens per stone appear in the pool at the top.</p>
     {{/if}}
-  </section>
+  </details>
 
   <section class="sb-section">
     <h4>Bond Upgrades <span class="sb-meta">(shared by all bodies · spend from the Token pool above)</span></h4>
@@ -202,7 +202,7 @@
         </div>
         <div class="sb-stepper-meta">{{steppers.extraAttack.cost}} tok · {{steppers.extraAttack.effect}} · max 2 (3 total)</div>
       </div>
-      <div class="sb-stepper">
+      <div class="sb-stepper {{#unless hasEligibleSelected}}is-locked{{/unless}}">
         <div class="sb-stepper-name">Skill Dice</div>
         <div class="sb-stepper-row">
           <button type="button" class="js-sb-step sb-step-btn" data-field="skillDicePurchases" data-delta="-1" {{#unless steppers.skillDice.canMinus}}disabled{{/unless}} aria-label="Decrease Skill Dice">−</button>
@@ -222,63 +222,6 @@
       </div>
     </div>
     <div class="sb-preview-line">Attack {{computed.attackDice}}d8 · Damage {{computed.damageDice}}d8 · Move {{computed.movementM}} m · Bond Attacks {{computed.summonAttacks}}/round (shared) · Bodies {{computed.bodyCount}}</div>
-  </section>
-
-  <section class="sb-section">
-    <h4>Special Access</h4>
-    <label class="sb-check {{#unless canAffordSpecialAccess}}is-disabled{{/unless}}">
-      <input type="checkbox" class="js-sb-special-access" {{#if draft.spend.specialAccess}}checked{{/if}} {{#unless canAffordSpecialAccess}}disabled{{/unless}} />
-      Unlock Special Access (4 Tokens → Special(1))
-      {{#unless canAffordSpecialAccess}}<span class="sb-meta"> — need 4, {{tokens.remaining}} left</span>{{/unless}}
-    </label>
-    {{#if draft.spend.specialAccess}}
-    <label class="sb-field">Special
-      <select class="js-sb-special-key">
-        <option value="">— choose —</option>
-        {{#each specialOptions}}
-        <option value="{{this.id}}" {{#if this.selected}}selected{{/if}}>{{this.label}}</option>
-        {{/each}}
-      </select>
-    </label>
-    <div class="sb-stepper">
-      <div class="sb-stepper-name">Special Value</div>
-      <div class="sb-stepper-row">
-        <button type="button" class="js-sb-step sb-step-btn" data-field="specialValuePurchases" data-delta="-1" {{#unless steppers.specialValue.canMinus}}disabled{{/unless}} aria-label="Decrease Special Value">−</button>
-        <span class="sb-stepper-count" aria-live="polite">{{steppers.specialValue.value}}</span>
-        <button type="button" class="js-sb-step sb-step-btn" data-field="specialValuePurchases" data-delta="1" {{#unless steppers.specialValue.canPlus}}disabled{{/unless}} aria-label="Increase Special Value">+</button>
-      </div>
-      <div class="sb-stepper-meta">{{steppers.specialValue.cost}} tok · {{steppers.specialValue.effect}} · max Special(4)</div>
-    </div>
-    <p class="sb-meta">Current: {{specialDisplay}} · applies once per Round for the whole Bond</p>
-    {{/if}}
-  </section>
-
-  <section class="sb-section">
-    <h4>Summon Skills</h4>
-    <p class="sb-hint">The Bond can use some of <strong>your</strong> skills. Bound Stones give {{tokens.skillSlots}} skill slots — tick that many skills below. Ticking a skill is free and only chooses which skills the Bond may use.</p>
-    <p class="sb-hint">To roll those skills, buy <strong>Skill Dice</strong> under Bond Upgrades (1 Token → 2 dice), then assign the dice here with + / −. A skill cannot have more dice than your own Rating.</p>
-    {{#if computed.skillDiceTotal}}
-    <p class="sb-preview-line">Purchased Skill Dice: {{computed.skillDiceTotal}} · Assigned: {{skillDiceAssigned}} · Still to assign: {{skillDiceUnassigned}}</p>
-    {{else}}
-    <p class="sb-meta">No Skill Dice purchased yet. The checkboxes only pick skills; they do not spend Tokens.</p>
-    {{/if}}
-    <div class="sb-skill-list">
-      {{#each skillOptions}}
-      <div class="sb-skill-row">
-        <label class="sb-check">
-          <input type="checkbox" class="js-sb-skill-select" data-skill="{{this.id}}" {{#if this.selected}}checked{{/if}} {{#unless this.canSelect}}disabled{{/unless}} />
-          {{this.label}} <span class="sb-meta">(owner {{this.ownerRating}})</span>
-        </label>
-        {{#if this.selected}}
-        <div class="sb-stepper-row sb-stepper-row-inline">
-          <button type="button" class="js-sb-step sb-step-btn" data-field="skillDice" data-skill="{{this.id}}" data-delta="-1" {{#unless this.canMinusDice}}disabled{{/unless}} aria-label="Decrease {{this.label}} dice">−</button>
-          <span class="sb-stepper-count" aria-live="polite">{{this.dice}}</span>
-          <button type="button" class="js-sb-step sb-step-btn" data-field="skillDice" data-skill="{{this.id}}" data-delta="1" {{#unless this.canPlusDice}}disabled{{/unless}} aria-label="Increase {{this.label}} dice">+</button>
-        </div>
-        {{/if}}
-      </div>
-      {{/each}}
-    </div>
   </section>
 
   <section class="sb-section">
@@ -359,6 +302,80 @@
       </div>
     </details>
     {{/each}}
+  </section>
+
+  <section class="sb-section">
+    <h4>Special Access</h4>
+    <label class="sb-check {{#unless canAffordSpecialAccess}}is-disabled{{/unless}}">
+      <input type="checkbox" class="js-sb-special-access" {{#if draft.spend.specialAccess}}checked{{/if}} {{#unless canAffordSpecialAccess}}disabled{{/unless}} />
+      Unlock Special Access (4 Tokens → Special(1))
+      {{#unless canAffordSpecialAccess}}<span class="sb-meta"> — need 4, {{tokens.remaining}} left</span>{{/unless}}
+    </label>
+    {{#if draft.spend.specialAccess}}
+    <label class="sb-field">Special
+      <select class="js-sb-special-key">
+        <option value="">— choose —</option>
+        {{#each specialOptions}}
+        <option value="{{this.id}}" {{#if this.selected}}selected{{/if}}>{{this.label}}</option>
+        {{/each}}
+      </select>
+    </label>
+    <div class="sb-stepper">
+      <div class="sb-stepper-name">Special Value</div>
+      <div class="sb-stepper-row">
+        <button type="button" class="js-sb-step sb-step-btn" data-field="specialValuePurchases" data-delta="-1" {{#unless steppers.specialValue.canMinus}}disabled{{/unless}} aria-label="Decrease Special Value">−</button>
+        <span class="sb-stepper-count" aria-live="polite">{{steppers.specialValue.value}}</span>
+        <button type="button" class="js-sb-step sb-step-btn" data-field="specialValuePurchases" data-delta="1" {{#unless steppers.specialValue.canPlus}}disabled{{/unless}} aria-label="Increase Special Value">+</button>
+      </div>
+      <div class="sb-stepper-meta">{{steppers.specialValue.cost}} tok · {{steppers.specialValue.effect}} · max Special(4)</div>
+    </div>
+    <p class="sb-meta">Current: {{specialDisplay}} · applies once per Round for the whole Bond</p>
+    {{/if}}
+  </section>
+
+  <section class="sb-section">
+    <h4>Summon Skills</h4>
+    <p class="sb-hint">Only skills you have trained to at least <strong>MR × 2</strong> ({{skillMinRating}}) can be given to the Bond. Tick up to {{tokens.skillSlots}}. Then buy Skill Dice under Bond Upgrades and assign them here (max = your Rating).</p>
+    {{#if computed.skillDiceTotal}}
+    <p class="sb-preview-line">Purchased Skill Dice: {{computed.skillDiceTotal}} · Assigned: {{skillDiceAssigned}} · Still to assign: {{skillDiceUnassigned}}</p>
+    {{else}}
+    <p class="sb-meta">{{#if hasEligibleSelected}}Buy Skill Dice under Bond Upgrades, then assign them here.{{else}}Select an eligible skill first, then Skill Dice can be bought.{{/if}}</p>
+    {{/if}}
+    {{#if skillOptions.length}}
+    <div class="sb-skill-list">
+      {{#each skillOptions}}
+      <div class="sb-skill-row">
+        <label class="sb-check">
+          <input type="checkbox" class="js-sb-skill-select" data-skill="{{this.id}}" {{#if this.selected}}checked{{/if}} {{#unless this.canSelect}}disabled{{/unless}} />
+          {{this.label}} <span class="sb-meta">(owner {{this.ownerRating}})</span>
+        </label>
+        {{#if this.selected}}
+        <div class="sb-stepper-row sb-stepper-row-inline">
+          <button type="button" class="js-sb-step sb-step-btn" data-field="skillDice" data-skill="{{this.id}}" data-delta="-1" {{#unless this.canMinusDice}}disabled{{/unless}} aria-label="Decrease {{this.label}} dice">−</button>
+          <span class="sb-stepper-count" aria-live="polite">{{this.dice}}</span>
+          <button type="button" class="js-sb-step sb-step-btn" data-field="skillDice" data-skill="{{this.id}}" data-delta="1" {{#unless this.canPlusDice}}disabled{{/unless}} aria-label="Increase {{this.label}} dice">+</button>
+        </div>
+        {{/if}}
+      </div>
+      {{/each}}
+    </div>
+    {{else}}
+    <p class="sb-warn">No eligible skills. Raise an owner skill to at least MR × 2 to make it available to this Summon.</p>
+    {{/if}}
+    {{#if invalidSkillOptions.length}}
+    <div class="sb-invalid-skills">
+      <h5>Invalid Selected Skills</h5>
+      {{#each invalidSkillOptions}}
+      <div class="sb-skill-row is-invalid">
+        <label class="sb-check">
+          <input type="checkbox" class="js-sb-skill-select" data-skill="{{this.id}}" checked />
+          {{this.label}} <span class="sb-meta">(owner {{this.ownerRating}})</span>
+        </label>
+        <span class="sb-warn">Owner skill too low. Needs MR × 2.</span>
+      </div>
+      {{/each}}
+    </div>
+    {{/if}}
   </section>
 
   {{#if ritualErrors.length}}
