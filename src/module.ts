@@ -12,6 +12,7 @@ import { initializeTokenActionSelector } from './token-action-selector.js';
 import { refreshRadialMenuActionLabelsIfOpenForActor } from './token-radial-menu.js';
 import { initializeTurnIndicator } from './turn-indicator.js';
 import { initializeBloodPoolHooks } from './utils/blood-pool.js';
+import { initializeInitiativeOrder } from './combat/initiative-roll.js';
 import { handleRadialMenuOpened, handleRadialMenuClosed } from './radial-menu/rendering.js';
 import { registerAttackRollClickHandler } from './chat/attack-roll-handler.js';
 import { registerDamageCardChatHooks } from './dice/damage-dialog.js';
@@ -896,6 +897,7 @@ Hooks.once('init', async function() {
   // Initialize turn indicator (blue ring around active combatant)
   initializeTurnIndicator();
   initializeBloodPoolHooks();
+  initializeInitiativeOrder();
 
   // Register radial menu hooks for hover preview suppression
   Hooks.on('masterySystem.radialMenuOpened', handleRadialMenuOpened);

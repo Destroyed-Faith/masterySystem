@@ -1,54 +1,88 @@
 /**
- * Canonical Ritual skill-check flow (Players Guide 9625+).
- * Margin raises after roll; stones sealed on success.
+ * Ritual skill-check flow: declared Raises, Base TN = 8 × Ritual MR,
+ * stones Sealed on the attempt (success or failure).
  */
 
 import { masteryRoll } from '../dice/roll-handler.js';
 import {
   RITUALS,
-  RITUAL_SKILLS_BY_CATEGORY,
+  appliedRitualEffects,
+  calculateRitualRaiseTN,
   calculateRitualTN,
-  countRitualRaises,
   eligibleSkillsForRitual,
+  resolveRitualDeclaredOutcome,
+  ritualMaxRaise,
+  ritualStoneCost,
   type RitualDefinition,
 } from '../utils/rituals.js';
 import { SKILLS, SKILL_CATEGORIES } from '../utils/skills.js';
 import { getEquippedPhysicalSkillPenaltyDice } from '../utils/equipment-modifiers.js';
 
 function skillKeyFromDisplayName(name: string): string | null {
-  const entry = Object.entries(SKILLS).find(
-    ([, def]) => def.name.toLowerCase() === name.toLowerCase(),
-  );
+  const entry = Object.entries(SKILLS).find(([, def]) => def.name.toLowerCase() === name.toLowerCase());
   return entry ? entry[0] : null;
+}
+
+function availableStones(system: any): { ready: number; exhausted: number; available: number } {
+  const ready = Math.max(0, Number(system.stones?.ready) || 0);
+  const exhausted = Math.max(0, Number(system.stones?.exhausted) || 0);
+  return { ready, exhausted, available: ready + exhausted };
+}
+
+async function sealRitualStones(actor: Actor, cost: number): Promise<boolean> {
+  const system = (actor as any).system;
+  const { ready, exhausted, available } = availableStones(system);
+  if (available < cost) return false;
+  const fromReady = Math.min(ready, cost);
+  const fromExhausted = cost - fromReady;
+  const sealed = Math.max(0, Number(system.stones?.sealed) || 0) + cost;
+  await (actor as any).update({
+    'system.stones.ready': ready - fromReady,
+    'system.stones.exhausted': exhausted - fromExhausted,
+    'system.stones.sealed': sealed,
+  });
+  return true;
 }
 
 export async function showRitualRollDialog(actor: Actor): Promise<void> {
   const system = (actor as any).system;
   const masteryRank = system.mastery?.rank || 2;
-  const spendable =
-    Math.max(0, Number(system.stones?.ready) || 0) +
-    Math.max(0, Number(system.stones?.exhausted) || 0);
+  const { available } = availableStones(system);
 
   const ritualOptions = RITUALS.map(
-    (r) => `<option value="${r.name}">${r.name} (${r.stoneCost} stone${r.stoneCost === 1 ? '' : 's'})</option>`,
+    (r) =>
+      `<option value="${r.id}">${r.name} (${r.stoneCost} stone${r.stoneCost === 1 ? '' : 's'})</option>`,
   ).join('');
+
+  const first = RITUALS[0];
+  const firstMax = first ? ritualMaxRaise(first) : 4;
+  const raiseOptions = Array.from({ length: firstMax + 1 }, (_, i) => {
+    const cost = first ? ritualStoneCost(first, i) : 1;
+    const extra = first && cost !== first.stoneCost ? ` · ${cost} stones` : '';
+    return `<option value="${i}">Raise ${i}${extra}</option>`;
+  }).join('');
 
   const content = `
     <form class="mastery-dialog-form ritual-roll-form">
       <div class="md-group">
         <label class="md-label">Ritual</label>
-        <select name="ritualName" class="md-select">${ritualOptions}</select>
+        <select name="ritualId" class="md-select">${ritualOptions}</select>
       </div>
+      <p class="md-sublabel ritual-requirement"></p>
       <div class="md-group">
-        <label class="md-label">Ritual MR <span class="md-sublabel">(target / scene — TN = 8 × MR)</span></label>
+        <label class="md-label">Ritual MR <span class="md-sublabel">(target / creator / artifact / scene — not your MR)</span></label>
         <input type="number" name="ritualMR" value="${masteryRank}" min="1" max="16" step="1" class="md-input" />
       </div>
       <div class="md-group">
-        <label class="md-label">GM Modifier <span class="md-sublabel">(±4 steps)</span></label>
+        <label class="md-label">Declared Raise</label>
+        <select name="declaredRaise" class="md-select">${raiseOptions}</select>
+      </div>
+      <div class="md-group">
+        <label class="md-label">Situational TN <span class="md-sublabel">(rushed +4, extra Augury +4, …)</span></label>
         <input type="number" name="gmModifier" value="0" step="4" class="md-input" />
       </div>
       <div class="md-group">
-        <label class="md-label">Skill</label>
+        <label class="md-label">Skill <span class="md-sublabel">(must fit how you perform the Ritual)</span></label>
         <select name="skillKey" class="md-select ritual-skill-select"></select>
       </div>
       <div class="md-group">
@@ -56,10 +90,11 @@ export async function showRitualRollDialog(actor: Actor): Promise<void> {
         <select name="attributeKey" class="md-select ritual-attr-select"></select>
       </div>
       <div class="md-final-tn">
-        Ritual TN: <strong><span class="ritual-tn-display">${calculateRitualTN(masteryRank)}</span></strong>
-        · Pool stones: ${spendable}
+        Base TN: <strong><span class="ritual-base-tn">${calculateRitualTN(masteryRank)}</span></strong>
+        · Raise TN: <strong><span class="ritual-raise-tn">${calculateRitualTN(masteryRank)}</span></strong>
+        · Stones: <span class="ritual-stone-cost">${first?.stoneCost ?? 1}</span> / ${available} available
       </div>
-      <p class="md-sublabel">Raises are counted after the roll. No Raises may be declared beforehand.</p>
+      <p class="md-sublabel">Stones are Sealed when you roll — even if the Ritual fails. They return after a Safe Haven Rest.</p>
     </form>
   `;
 
@@ -72,20 +107,25 @@ export async function showRitualRollDialog(actor: Actor): Promise<void> {
           roll: {
             label: '<i class="fas fa-dice-d20"></i> Roll',
             callback: async (html: JQuery) => {
-              const ritualName = html.find('[name="ritualName"]').val() as string;
-              const ritual = RITUALS.find((r) => r.name === ritualName);
+              const ritualId = html.find('[name="ritualId"]').val() as string;
+              const ritual = RITUALS.find((r) => r.id === ritualId);
               if (!ritual) return;
               const ritualMR = Math.max(1, parseInt(html.find('[name="ritualMR"]').val() as string) || 1);
               const gmMod = parseInt(html.find('[name="gmModifier"]').val() as string) || 0;
+              const declaredRaises = Math.max(
+                0,
+                Math.min(ritualMaxRaise(ritual), parseInt(html.find('[name="declaredRaise"]').val() as string) || 0),
+              );
               const skillKey = html.find('[name="skillKey"]').val() as string;
               const attributeKey = html.find('[name="attributeKey"]').val() as string;
-              const tn = calculateRitualTN(ritualMR, gmMod);
+              const baseTn = calculateRitualTN(ritualMR, gmMod);
               await performRitualRoll(actor, ritual, {
                 skillKey,
                 attributeKey,
-                tn,
+                baseTn,
                 ritualMR,
                 gmMod,
+                declaredRaises,
               });
               resolve();
             },
@@ -99,9 +139,13 @@ export async function showRitualRollDialog(actor: Actor): Promise<void> {
             $html.closest('.window-app.dialog').addClass('mastery-system mastery-roll-dialog');
           }, 0);
 
+          const currentRitual = (): RitualDefinition | undefined => {
+            const id = $html.find('[name="ritualId"]').val() as string;
+            return RITUALS.find((r) => r.id === id);
+          };
+
           const refreshSkills = () => {
-            const ritualName = $html.find('[name="ritualName"]').val() as string;
-            const ritual = RITUALS.find((r) => r.name === ritualName);
+            const ritual = currentRitual();
             const $skill = $html.find('[name="skillKey"]');
             $skill.empty();
             if (!ritual) return;
@@ -119,26 +163,44 @@ export async function showRitualRollDialog(actor: Actor): Promise<void> {
             $attr.empty();
             if (!def?.attributes) return;
             for (const attr of def.attributes) {
-              $attr.append(
-                `<option value="${attr}">${attr.charAt(0).toUpperCase() + attr.slice(1)}</option>`,
-              );
+              $attr.append(`<option value="${attr}">${attr.charAt(0).toUpperCase() + attr.slice(1)}</option>`);
             }
           };
 
-          const refreshTn = () => {
+          const refreshRaisesAndTn = () => {
+            const ritual = currentRitual();
             const mr = Math.max(1, parseInt($html.find('[name="ritualMR"]').val() as string) || 1);
             const mod = parseInt($html.find('[name="gmModifier"]').val() as string) || 0;
-            $html.find('.ritual-tn-display').text(String(calculateRitualTN(mr, mod)));
+            const baseTn = calculateRitualTN(mr, mod);
+            const $raise = $html.find('[name="declaredRaise"]');
+            const prev = parseInt($raise.val() as string) || 0;
+            if (ritual) {
+              const max = ritualMaxRaise(ritual);
+              $raise.empty();
+              for (let i = 0; i <= max; i++) {
+                const cost = ritualStoneCost(ritual, i);
+                const extra = cost !== ritual.stoneCost ? ` · ${cost} stones` : '';
+                $raise.append(`<option value="${i}"${i === Math.min(prev, max) ? ' selected' : ''}>Raise ${i}${extra}</option>`);
+              }
+              const declared = Math.min(max, parseInt($raise.val() as string) || 0);
+              $html.find('.ritual-requirement').text(ritual.requirement || ritual.description);
+              $html.find('.ritual-stone-cost').text(String(ritualStoneCost(ritual, declared)));
+              $html.find('.ritual-raise-tn').text(String(calculateRitualRaiseTN(baseTn, declared)));
+            }
+            $html.find('.ritual-base-tn').text(String(baseTn));
           };
 
-          $html.find('[name="ritualName"]').on('change', refreshSkills);
+          $html.find('[name="ritualId"]').on('change', () => {
+            refreshSkills();
+            refreshRaisesAndTn();
+          });
           $html.find('[name="skillKey"]').on('change', refreshAttrs);
-          $html.find('[name="ritualMR"], [name="gmModifier"]').on('input change', refreshTn);
+          $html.find('[name="ritualMR"], [name="gmModifier"], [name="declaredRaise"]').on('input change', refreshRaisesAndTn);
           refreshSkills();
-          refreshTn();
+          refreshRaisesAndTn();
         },
       },
-      { width: 520, resizable: true } as any,
+      { width: 560, resizable: true } as any,
     );
     dialog.render(true);
   });
@@ -150,9 +212,10 @@ async function performRitualRoll(
   opts: {
     skillKey: string;
     attributeKey: string;
-    tn: number;
+    baseTn: number;
     ritualMR: number;
     gmMod: number;
+    declaredRaises: number;
   },
 ): Promise<void> {
   const system = (actor as any).system;
@@ -163,11 +226,16 @@ async function performRitualRoll(
     return;
   }
 
-  const ready = Math.max(0, Number(system.stones?.ready) || 0);
-  if (ready < ritual.stoneCost) {
-    ui.notifications?.warn(
-      `Need ${ritual.stoneCost} ready stone(s) for ${ritual.name} (have ${ready}).`,
-    );
+  const cost = ritualStoneCost(ritual, opts.declaredRaises);
+  const { available } = availableStones(system);
+  if (available < cost) {
+    ui.notifications?.warn(`Need ${cost} available stone(s) for ${ritual.name} (have ${available}).`);
+    return;
+  }
+
+  const sealed = await sealRitualStones(actor, cost);
+  if (!sealed) {
+    ui.notifications?.warn(`Need ${cost} available stone(s) for ${ritual.name}.`);
     return;
   }
 
@@ -177,51 +245,51 @@ async function performRitualRoll(
     if (pen > 0) numDice = Math.max(1, numDice - pen);
   }
 
+  const raiseTn = calculateRitualRaiseTN(opts.baseTn, opts.declaredRaises);
   const result = await masteryRoll({
     numDice,
     keepDice: masteryRank,
     skill: 0,
-    tn: opts.tn,
-    normalTn: opts.tn,
+    tn: raiseTn,
+    normalTn: opts.baseTn,
+    declaredRaiseSlots: opts.declaredRaises,
     label: `Ritual: ${ritual.name}`,
-    flavor: `Ritual MR ${opts.ritualMR}, TN ${opts.tn}${opts.gmMod ? ` (GM ${opts.gmMod >= 0 ? '+' : ''}${opts.gmMod})` : ''}. Skill: ${skillDef.name}.`,
+    flavor: `Ritual MR ${opts.ritualMR}, Base TN ${opts.baseTn}, Raise ${opts.declaredRaises} (TN ${raiseTn})${opts.gmMod ? ` · situational ${opts.gmMod >= 0 ? '+' : ''}${opts.gmMod}` : ''}. Skill: ${skillDef.name}.`,
     actorId: (actor as any).id,
     skillKey: opts.skillKey,
     isSkillRoll: true,
     rollKind: 'skill',
-    raiseModel: 'margin',
+    raiseModel: 'power',
     autoFailIntent: 'skill',
     checkContext: { skillKey: opts.skillKey },
   });
 
-  const raises = countRitualRaises(result.total, opts.tn);
-  const outcomeIdx = Math.min(raises, ritual.raises.length - 1);
-  const outcomeText = ritual.raises[Math.max(0, outcomeIdx)] ?? ritual.raises[0];
+  const resolved = resolveRitualDeclaredOutcome({
+    rollTotal: result.total,
+    baseTn: opts.baseTn,
+    declaredRaises: opts.declaredRaises,
+  });
+  const effects = resolved.success ? appliedRitualEffects(ritual, resolved.appliedRaise) : [];
+  const heading = resolved.success
+    ? resolved.kind === 'raise0' && opts.declaredRaises > 0
+      ? `${ritual.name} — Success (Raise 0 only)`
+      : `${ritual.name} — Success (Raise ${resolved.appliedRaise})`
+    : `${ritual.name} — Failure`;
 
-  if (result.success) {
-    const sealed = Math.max(0, Number(system.stones?.sealed) || 0) + ritual.stoneCost;
-    const newReady = ready - ritual.stoneCost;
-    await (actor as any).update({
-      'system.stones.ready': newReady,
-      'system.stones.sealed': sealed,
-    });
-  }
+  const effectHtml = effects.length
+    ? `<ol class="ritual-raise-effects">${effects.map((t, i) => `<li><strong>Raise ${i}:</strong> ${t}</li>`).join('')}</ol>`
+    : '';
 
   await ChatMessage.create({
     speaker: ChatMessage.getSpeaker({ actor }),
     content: `
       <div class="ritual-roll-outcome">
-        <h4>${ritual.name} — ${result.success ? 'Success' : 'Failure'}</h4>
-        <p><strong>Raises:</strong> ${raises}</p>
-        ${
-          result.success
-            ? `<p><strong>Effect:</strong> ${outcomeText}</p>
-               <p><em>${ritual.stoneCost} stone(s) sealed until Safe Haven Rest.</em></p>`
-            : `<p><em>Ritual failed — no stones sealed.</em></p>`
-        }
+        <h4>${heading}</h4>
+        <p>Base TN ${opts.baseTn} · declared Raise ${opts.declaredRaises} (TN ${raiseTn}) · roll ${result.total}</p>
+        ${effectHtml}
+        <p><em>${cost} stone(s) Sealed until Safe Haven Rest${ritual.id === 'ritual-word-of-recall' ? ' (or until the mark is used or dismissed, then a Safe Haven Rest)' : ''}.</em></p>
+        ${!resolved.success ? '<p><em>The Ritual does not produce its intended effect. The GM may apply a fitting consequence.</em></p>' : ''}
       </div>
     `,
   } as any);
 }
-
-void RITUAL_SKILLS_BY_CATEGORY;

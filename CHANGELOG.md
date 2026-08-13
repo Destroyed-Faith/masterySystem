@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.321] - 2026-08-13
+
+### Changed
+
+- **Rituals:** Perform Ritual now uses declared Raises (Base TN = 8 × Ritual MR, Raise TN = Base + declared × 4). Meet Base but miss Raise TN → Raise 0 only. Extra margin does not unlock undeclared Raises. Stones are Sealed on the attempt, including failure. Catalog replaced with the current Players Guide list (Detect Magic through Last Light). Raise Dead is not a standard ritual. Any Stone color may pay.
+
+## [0.9.320] - 2026-08-13
+
+### Fixed
+
+- **Initiative can be negative:** A bad roll plus Heavy / equipment no longer snaps back to 0 in the Initiative Shop. The leftover score (and turn order) keeps the minus. Shop purchases still require a pool at least as large as the cost.
+
+### Changed
+
+- **Initiative ties:** Player (character) acts before NPC/summon. Player vs player uses Agility, then Wits, then Intellect, then Resolve.
+
 ## [0.9.319] - 2026-08-13
 
 ### Fixed

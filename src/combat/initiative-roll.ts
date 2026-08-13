@@ -281,32 +281,73 @@ export async function executeInitiativePhase(combat: Combat): Promise<void> {
   await syncCombatTurnToHighestInitiativeFirst(combat);
 }
 
+function isPlayerCombatant(combatant: any): boolean {
+  return combatant?.actor?.type === 'character';
+}
+
+function initiativeAttrValue(combatant: any, key: 'agility' | 'wits' | 'intellect' | 'resolve'): number {
+  return Math.floor(Number(combatant?.actor?.system?.attributes?.[key]?.value) || 0);
+}
+
 /**
- * Index of the combatant who should act first: highest initiative (desc).
- * Tie-break: lexicographically smaller combatant id (deterministic; avoids implicit player-first ordering).
- * Non-defeated beats defeated at equal initiative.
+ * Sort compare: lower result acts first.
+ * Higher initiative first. Ties: player (character) before NPC/summon.
+ * Player vs player (or any remaining tie): Agility, then Wits, then Intellect, then Resolve.
+ */
+export function compareInitiativeCombatants(a: any, b: any): number {
+  const aDefeated = !!a?.defeated;
+  const bDefeated = !!b?.defeated;
+  if (aDefeated !== bDefeated) return aDefeated ? 1 : -1;
+
+  const ia = Number.isFinite(Number(a?.initiative)) ? Number(a.initiative) : Number.NEGATIVE_INFINITY;
+  const ib = Number.isFinite(Number(b?.initiative)) ? Number(b.initiative) : Number.NEGATIVE_INFINITY;
+  if (ia !== ib) return ib - ia;
+
+  const aPlayer = isPlayerCombatant(a);
+  const bPlayer = isPlayerCombatant(b);
+  if (aPlayer !== bPlayer) return aPlayer ? -1 : 1;
+
+  for (const key of ['agility', 'wits', 'intellect', 'resolve'] as const) {
+    const av = initiativeAttrValue(a, key);
+    const bv = initiativeAttrValue(b, key);
+    if (av !== bv) return bv - av;
+  }
+
+  const aid = String(a?.id ?? '');
+  const bid = String(b?.id ?? '');
+  if (aid === bid) return 0;
+  return aid < bid ? -1 : 1;
+}
+
+/** Remaining shop score after purchases. May be negative — do not clamp to 0. */
+export function remainingInitiativeAfterShop(pool: number, cost: number): number {
+  const raw = Number(pool);
+  const p = Number.isFinite(raw) ? Math.floor(raw) : 0;
+  const c = Math.max(0, Math.floor(Number(cost) || 0));
+  return p - c;
+}
+
+/**
+ * Index of the combatant who should act first (same rules as combat sort).
  */
 export function findTurnIndexHighestInitiativeFirst(combat: Combat): number {
   const turns: any[] = Array.isArray(combat.turns) ? [...combat.turns] : [];
   if (!turns.length) return Math.max(0, Number(combat.turn) || 0);
 
-  const candidateBeatsBest = (best: any, cand: any): boolean => {
-    const bd = !!best?.defeated;
-    const cd = !!cand?.defeated;
-    if (!bd && cd) return false;
-    if (bd && !cd) return true;
-    const bi = Number(best?.initiative ?? -Infinity);
-    const ci = Number(cand?.initiative ?? -Infinity);
-    if (ci > bi) return true;
-    if (ci < bi) return false;
-    return String(cand.id ?? '') < String(best.id ?? '');
-  };
-
   let bestIdx = 0;
   for (let i = 1; i < turns.length; i++) {
-    if (candidateBeatsBest(turns[bestIdx], turns[i])) bestIdx = i;
+    if (compareInitiativeCombatants(turns[bestIdx], turns[i]) > 0) bestIdx = i;
   }
   return bestIdx;
+}
+
+/** Foundry turn order uses the same Mastery tie-break as the first-actor sync. */
+export function initializeInitiativeOrder(): void {
+  const CombatClass = (globalThis as any).CONFIG?.Combat?.documentClass;
+  if (!CombatClass?.prototype) return;
+  CombatClass.prototype._sortCombatants = function sortMasteryCombatants(a: any, b: any): number {
+    return compareInitiativeCombatants(a, b);
+  };
 }
 
 /** After `setupTurns()`, ensure `combat.turn` points at highest-initiative combatant (Mastery first-actor rule). */

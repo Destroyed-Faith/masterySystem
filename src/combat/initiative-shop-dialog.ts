@@ -3,7 +3,11 @@
  */
 
 import { INITIATIVE_SHOP } from '../utils/constants.js';
-import { InitiativeRollBreakdown, getCombatReflexesInitiativeLimits } from './initiative-roll.js';
+import {
+  InitiativeRollBreakdown,
+  getCombatReflexesInitiativeLimits,
+  remainingInitiativeAfterShop,
+} from './initiative-roll.js';
 import { resetRoundState } from './action-economy.js';
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -83,11 +87,10 @@ export class InitiativeShopDialog extends BaseDialog {
   }
 
   private getShopPool(): number {
-    return (
-      this.context.diceTotal +
-      this.crSpent +
-      (this.context.equipmentInitiativeModifier ?? 0)
-    );
+    const crInRoll = Number(this.context.combatReflexesSpent) || 0;
+    const total = Number(this.context.totalInitiative);
+    const base = (Number.isFinite(total) ? total : 0) - crInRoll;
+    return base + this.crSpent;
   }
 
   protected async _prepareContext(_options: any): Promise<any> {
@@ -108,7 +111,7 @@ export class InitiativeShopDialog extends BaseDialog {
 
     const totalCost = this.calculateTotalCost();
     const totalInitiative = this.getShopPool();
-    const remainingInitiative = Math.max(0, totalInitiative - totalCost);
+    const remainingInitiative = remainingInitiativeAfterShop(totalInitiative, totalCost);
 
     return {
       actor,
@@ -230,7 +233,7 @@ export class InitiativeShopDialog extends BaseDialog {
   private async confirmPurchases(): Promise<void> {
     const totalPool = this.getShopPool();
     const totalCost = this.calculateTotalCost();
-    const remainingInitiative = Math.max(0, totalPool - totalCost);
+    const remainingInitiative = remainingInitiativeAfterShop(totalPool, totalCost);
 
     await this.combatant.update({ initiative: remainingInitiative });
     await this.combatant.setFlag('mastery-system', 'msInitiativeValue', remainingInitiative);
