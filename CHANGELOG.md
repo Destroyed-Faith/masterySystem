@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.318] - 2026-08-13
+
+### Changed
+
+- **Summon Bond Ritual:** Create Actor stays Create until a live actor exists (Foundry document id on the body, never the name). Then Create greys out and **Update Actor** appears. A stale id (actor deleted) falls back to Create. Skill Dice moved from Upgrades into **Summon Skills** — buy the pool there (1 Token → 2 dice), then assign those dice to ticked skills.
+
 ## [0.9.317] - 2026-08-13
 
 ### Changed

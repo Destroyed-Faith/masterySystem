@@ -235,15 +235,6 @@
         </div>
         <div class="sb-stepper-meta">{{steppers.extraAttack.cost}} tok · {{steppers.extraAttack.effect}} · max 2 (3 total)</div>
       </div>
-      <div class="sb-stepper {{#unless hasEligibleSelected}}is-locked{{/unless}}">
-        <div class="sb-stepper-name">Skill Dice</div>
-        <div class="sb-stepper-row">
-          <button type="button" class="js-sb-step sb-step-btn" data-field="skillDicePurchases" data-delta="-1" {{#unless steppers.skillDice.canMinus}}disabled{{/unless}} aria-label="Decrease Skill Dice">−</button>
-          <span class="sb-stepper-count" aria-live="polite">{{steppers.skillDice.value}}</span>
-          <button type="button" class="js-sb-step sb-step-btn" data-field="skillDicePurchases" data-delta="1" {{#unless steppers.skillDice.canPlus}}disabled{{/unless}} aria-label="Increase Skill Dice">+</button>
-        </div>
-        <div class="sb-stepper-meta">{{steppers.skillDice.cost}} tok · {{steppers.skillDice.effect}}</div>
-      </div>
       <div class="sb-stepper">
         <div class="sb-stepper-name">Additional Bodies</div>
         <div class="sb-stepper-row">
@@ -359,9 +350,10 @@
           <button type="button" class="js-sb-add-power dialog-btn dialog-btn-secondary" data-body="{{this.index}}" {{#unless @root.canAddPower}}disabled{{/unless}}>Add Power</button>
         </div>
         <div class="sb-body-actions">
-          {{#if this.summonActorId}}
+          {{#if this.hasLiveActor}}
           <button type="button" class="js-sb-open-actor dialog-btn dialog-btn-secondary" data-body="{{this.index}}">Open Actor</button>
           <button type="button" class="js-sb-place-token dialog-btn dialog-btn-secondary" data-body="{{this.index}}">Place Token</button>
+          <button type="button" class="js-sb-update-actor dialog-btn dialog-btn-secondary" data-body="{{this.index}}">Update Actor</button>
           {{else}}
           <button type="button" class="js-sb-create-actor dialog-btn dialog-btn-secondary" data-body="{{this.index}}">Create Actor</button>
           {{/if}}
@@ -392,9 +384,10 @@
         <button type="button" class="js-sb-add-power dialog-btn dialog-btn-secondary" data-body="{{this.index}}" {{#unless @root.canAddPower}}disabled{{/unless}}>Add Power</button>
       </div>
       <div class="sb-body-actions">
-        {{#if this.summonActorId}}
+        {{#if this.hasLiveActor}}
         <button type="button" class="js-sb-open-actor dialog-btn dialog-btn-secondary" data-body="{{this.index}}">Open Actor</button>
         <button type="button" class="js-sb-place-token dialog-btn dialog-btn-secondary" data-body="{{this.index}}">Place Token</button>
+        <button type="button" class="js-sb-update-actor dialog-btn dialog-btn-secondary" data-body="{{this.index}}">Update Actor</button>
         {{else}}
         <button type="button" class="js-sb-create-actor dialog-btn dialog-btn-secondary" data-body="{{this.index}}">Create Actor</button>
         {{/if}}
@@ -406,11 +399,20 @@
 
   <details class="sb-fold sb-fold-card" data-fold="skills" {{#if skillsOpen}}open{{/if}}>
     <summary>Summon Skills <span class="sb-meta">{{tokens.skillSlots}} slots · MR × 2 ({{skillMinRating}})</span></summary>
-    <p class="sb-hint">Only skills you have trained to at least <strong>MR × 2</strong> ({{skillMinRating}}) can be given to the Bond. Tick up to {{tokens.skillSlots}}. Then buy Skill Dice under Upgrades and assign them here (max = your Rating).</p>
+    <p class="sb-hint">Only skills you have trained to at least <strong>MR × 2</strong> ({{skillMinRating}}) can be given to the Bond. Tick up to {{tokens.skillSlots}}. Buy Skill Dice here (1 Token → 2 dice), then assign those dice to the ticked skills (max = your Rating). That is the summon’s skill pool.</p>
+    <div class="sb-stepper sb-stepper-skill-dice {{#unless hasEligibleSelected}}is-locked{{/unless}}">
+      <div class="sb-stepper-name">Skill Dice</div>
+      <div class="sb-stepper-row">
+        <button type="button" class="js-sb-step sb-step-btn" data-field="skillDicePurchases" data-delta="-1" {{#unless steppers.skillDice.canMinus}}disabled{{/unless}} aria-label="Decrease Skill Dice">−</button>
+        <span class="sb-stepper-count" aria-live="polite">{{steppers.skillDice.value}}</span>
+        <button type="button" class="js-sb-step sb-step-btn" data-field="skillDicePurchases" data-delta="1" {{#unless steppers.skillDice.canPlus}}disabled{{/unless}} aria-label="Increase Skill Dice">+</button>
+      </div>
+      <div class="sb-stepper-meta">{{steppers.skillDice.cost}} tok · {{steppers.skillDice.effect}}</div>
+    </div>
     {{#if computed.skillDiceTotal}}
     <p class="sb-preview-line">Purchased Skill Dice: {{computed.skillDiceTotal}} · Assigned: {{skillDiceAssigned}} · Still to assign: {{skillDiceUnassigned}}</p>
     {{else}}
-    <p class="sb-meta">{{#if hasEligibleSelected}}Buy Skill Dice under Upgrades, then assign them here.{{else}}Select an eligible skill first, then Skill Dice can be bought.{{/if}}</p>
+    <p class="sb-meta">{{#if hasEligibleSelected}}Buy Skill Dice above, then assign them to a ticked skill.{{else}}Select an eligible skill first, then Skill Dice can be bought.{{/if}}</p>
     {{/if}}
     {{#if skillOptions.length}}
     <div class="sb-skill-list">
@@ -457,7 +459,8 @@
   {{/if}}
 
   <div class="sb-actions">
-    <button type="button" class="js-sb-create-actor dialog-btn dialog-btn-secondary" data-body="{{createActorBodyIndex}}" {{#unless canCreateActor}}disabled title="Every body already has an actor"{{/unless}}>Create Actor</button>
+    <button type="button" class="js-sb-create-actor dialog-btn dialog-btn-secondary" data-body="{{createActorBodyIndex}}" {{#unless canCreateActor}}disabled title="Every body already has a summon actor"{{/unless}}>Create Actor</button>
+    <button type="button" class="js-sb-update-actor dialog-btn dialog-btn-secondary" data-body="-1" {{#unless canUpdateActor}}disabled title="No summon actor exists yet"{{/unless}}>Update Actor</button>
     <button type="button" class="js-sb-apply-ritual dialog-btn dialog-btn-primary" {{#unless canApplyRitual}}disabled{{/unless}}>Apply Bond Ritual</button>
     <button type="button" class="js-sb-dissolve dialog-btn dialog-btn-danger">Dissolve Bond</button>
     <button type="button" class="js-sb-cancel dialog-btn dialog-btn-secondary">Close</button>

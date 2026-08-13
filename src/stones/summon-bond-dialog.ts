@@ -12,7 +12,9 @@ import { evaluateSummonPower, listSummonPowerCatalog } from './summon-power-allo
 import {
   createSummonActorForBondBody,
   deleteSummonActor,
+  getLiveSummonActor,
   placeFamiliarToken,
+  updateSummonActorForBondBody,
 } from './familiar-actor-factory.js';
 import { getActorPoolSpendable } from './familiar-bind.js';
 import {
@@ -416,6 +418,7 @@ export class SummonBondDialog extends BaseDialog {
       armorStepper: bodyStepperView(this.draft.spend, index, 'armorPurchases', spendCtx, `+${SUMMON_CAPS.armorGain} Armor`),
       evadeStepper: bodyStepperView(this.draft.spend, index, 'evadePurchases', spendCtx, `+${SUMMON_CAPS.evadeGain} Evade`),
       summonActorId: body.summonActorId,
+      hasLiveActor: !!getLiveSummonActor(body.summonActorId),
       senses: SHARED_SENSE_GROUPS.map((s) => {
         const checked = (this.draft.spend.bodies[index]?.sharedSenses || []).includes(s.value);
         return {
@@ -529,8 +532,9 @@ export class SummonBondDialog extends BaseDialog {
           evade: b.evade,
         })),
       },
-      createActorBodyIndex: bodyViews.find((b) => !b.summonActorId)?.index ?? 0,
-      canCreateActor: bodyViews.some((b) => !b.summonActorId),
+      createActorBodyIndex: bodyViews.find((b) => !b.hasLiveActor)?.index ?? 0,
+      canCreateActor: bodyViews.some((b) => !b.hasLiveActor),
+      canUpdateActor: bodyViews.some((b) => b.hasLiveActor),
       bodyViews,
       powerCatalog,
       specialOptions,
@@ -937,19 +941,20 @@ export class SummonBondDialog extends BaseDialog {
     root.querySelectorAll('.js-sb-create-actor').forEach((btn) => {
       btn.addEventListener('click', () => void this.#createActor(Number((btn as HTMLElement).dataset.body)));
     });
+    root.querySelectorAll('.js-sb-update-actor').forEach((btn) => {
+      btn.addEventListener('click', () => void this.#updateActor(Number((btn as HTMLElement).dataset.body)));
+    });
     root.querySelectorAll('.js-sb-open-actor').forEach((btn) => {
       btn.addEventListener('click', () => {
         const bi = Number((btn as HTMLElement).dataset.body);
-        const id = this.draft.bodies[bi]?.summonActorId;
-        const a = id ? (game as any).actors?.get(id) : null;
+        const a = getLiveSummonActor(this.draft.bodies[bi]?.summonActorId);
         a?.sheet?.render(true);
       });
     });
     root.querySelectorAll('.js-sb-place-token').forEach((btn) => {
       btn.addEventListener('click', async () => {
         const bi = Number((btn as HTMLElement).dataset.body);
-        const id = this.draft.bodies[bi]?.summonActorId;
-        const a = id ? (game as any).actors?.get(id) : null;
+        const a = getLiveSummonActor(this.draft.bodies[bi]?.summonActorId);
         if (a) await placeFamiliarToken(a, this.actor);
       });
     });
@@ -1049,8 +1054,7 @@ export class SummonBondDialog extends BaseDialog {
     this.draft = structuredCloneBond(result.bond);
     // Sync existing summon actors
     for (const body of this.draft.bodies) {
-      if (!body.summonActorId) continue;
-      const a = (game as any).actors?.get(body.summonActorId);
+      const a = getLiveSummonActor(body.summonActorId);
       if (!a) continue;
       try {
         const { buildSummonActorDataFromBond } = await import('./familiar-actor-factory.js');
@@ -1093,11 +1097,42 @@ export class SummonBondDialog extends BaseDialog {
     if (!fresh) return;
     const body = fresh.bodies[bodyIndex] as SummonBodyRecord | undefined;
     if (!body) return;
+    if (getLiveSummonActor(body.summonActorId)) {
+      ui.notifications?.warn('This body already has a summon actor. Use Update Actor.');
+      return;
+    }
     const summon = await createSummonActorForBondBody(fresh, body, this.actor);
     if (!summon) return;
     body.summonActorId = (summon as any).id;
     fresh.bodies[bodyIndex] = body;
     await upsertSummonBond(this.actor, fresh);
+    this.draft = structuredCloneBond(fresh);
+    await this.#refresh();
+  }
+
+  async #updateActor(bodyIndex: number): Promise<void> {
+    await upsertSummonBond(this.actor, this.draft);
+    const fresh = getSummonBondsFromActor(this.actor).find((b) => b.id === this.draft.id);
+    if (!fresh) return;
+    if (!Number.isFinite(bodyIndex) || bodyIndex < 0) {
+      const targets = fresh.bodies.filter((b) => getLiveSummonActor(b.summonActorId));
+      if (!targets.length) {
+        ui.notifications?.warn('No summon actor exists yet. Use Create Actor.');
+        return;
+      }
+      for (const body of targets) {
+        await updateSummonActorForBondBody(fresh, body, this.actor);
+      }
+      ui.notifications?.info(`Updated ${targets.length} summon actor${targets.length === 1 ? '' : 's'}.`);
+      this.draft = structuredCloneBond(fresh);
+      await this.#refresh();
+      return;
+    }
+    const body = fresh.bodies[bodyIndex] as SummonBodyRecord | undefined;
+    if (!body) return;
+    const updated = await updateSummonActorForBondBody(fresh, body, this.actor);
+    if (!updated) return;
+    ui.notifications?.info(`Updated summon actor "${updated.name}".`);
     this.draft = structuredCloneBond(fresh);
     await this.#refresh();
   }

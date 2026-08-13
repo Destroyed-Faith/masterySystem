@@ -278,12 +278,18 @@
 .sb-power-add { display: flex; flex-wrap: wrap; gap: 0.35rem; align-items: center; }
 .sb-power-add select { flex: 1 1 12rem; }
 .sb-power-add input { width: 4rem; flex: 0 0 auto; }
-.sb-body-actions { display: flex; gap: 0.35rem; margin-top: 0.5rem; }
+.sb-body-actions { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.5rem; }
 
 .sb-errors { color: var(--sb-error); margin: 0.5rem 0; padding-left: 1.1rem; }
 .sb-warnings { color: var(--sb-warn); margin: 0.5rem 0; padding-left: 1.1rem; }
 
+.sb-stepper-skill-dice { max-width: 14rem; margin: 0.55rem 0 0.35rem; }
 .sb-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.75rem; }
+.sb-actions .dialog-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  filter: grayscale(0.35);
+}
 .dialog-btn-danger {
   background: #7f1d1d;
   color: #fff;

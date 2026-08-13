@@ -238,11 +238,45 @@ export async function deleteSummonActor(summonActorId: string | undefined): Prom
   }
 }
 
+/** Resolve a summon actor only by stored Foundry document id — never by name. */
+export function getLiveSummonActor(summonActorId: string | undefined | null): any | null {
+  const id = String(summonActorId ?? '').trim();
+  if (!id) return null;
+  return (game as any).actors?.get(id) ?? null;
+}
+
+/** Overwrite one existing body actor. Refuses to create if the id is missing. */
+export async function updateSummonActorForBondBody(
+  bond: SummonBondRecord,
+  body: SummonBodyRecord,
+  ownerActor: any,
+): Promise<any | null> {
+  const existing = getLiveSummonActor(body.summonActorId);
+  if (!existing) {
+    ui.notifications?.warn('No summon actor for this body. Create Actor first.');
+    return null;
+  }
+  const data = buildSummonActorDataFromBond(bond, body, ownerActor);
+  try {
+    await existing.update({
+      name: (data as any).name,
+      img: (data as any).img,
+      prototypeToken: (data as any).prototypeToken,
+      system: (data as any).system,
+      flags: (data as any).flags,
+    });
+    return existing;
+  } catch (err) {
+    console.warn('Mastery System | Failed to update summon actor', err);
+    ui.notifications?.error('Failed to update summon actor.');
+    return null;
+  }
+}
+
 /** Bond is source of truth — overwrite body actors on Ritual Apply. */
 export async function syncSummonBodyActorsFromBond(bond: SummonBondRecord, ownerActor: any): Promise<void> {
   for (const body of bond.bodies || []) {
-    if (!body.summonActorId) continue;
-    const a = (game as any).actors?.get(body.summonActorId);
+    const a = getLiveSummonActor(body.summonActorId);
     if (!a) continue;
     const data = buildSummonActorDataFromBond(bond, body, ownerActor);
     try {
@@ -363,10 +397,8 @@ export async function createSummonActorForBondBody(
   body: SummonBodyRecord,
   ownerActor: any,
 ): Promise<any | null> {
-  if (body.summonActorId) {
-    const existing = (game as any).actors?.get(body.summonActorId);
-    if (existing) return existing;
-  }
+  const existing = getLiveSummonActor(body.summonActorId);
+  if (existing) return existing;
   const folder = await ensureFamiliarsFolder(ownerActor.name ?? 'Owner');
   const data = buildSummonActorDataFromBond(bond, body, ownerActor);
   if (folder) (data as any).folder = folder.id;
