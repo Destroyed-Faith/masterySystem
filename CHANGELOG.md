@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.319] - 2026-08-13
+
+### Fixed
+
+- **Blood pools:** Splatters and puddles were drawn behind the scene map, so hits showed no blood. They now render on the effects/token layer. Any real HP loss on a token (Apply Damage, sheet HP minus) also spawns blood in the actor’s Blood Color.
+
 ## [0.9.318] - 2026-08-13
 
 ### Changed

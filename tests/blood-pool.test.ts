@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   didLoseHealthLevel,
+  hpLostFromHealthUpdate,
   resolveBloodIntensity,
 } from '../src/utils/blood-pool';
 
@@ -55,6 +56,21 @@ describe('didLoseHealthLevel', () => {
         barsAfter: [{ current: 0 }, { current: 0 }, { current: 10 }],
       })
     ).toBe(true);
+  });
+
+  it('sums HP lost across bars and ignores heals', () => {
+    expect(
+      hpLostFromHealthUpdate({
+        barsBefore: [{ current: 10 }, { current: 10 }],
+        barsAfter: [{ current: 7 }, { current: 10 }],
+      }),
+    ).toBe(3);
+    expect(
+      hpLostFromHealthUpdate({
+        barsBefore: [{ current: 4 }, { current: 10 }],
+        barsAfter: [{ current: 10 }, { current: 10 }],
+      }),
+    ).toBe(0);
   });
 
   it('is false for a simple chip inside the same bar', () => {

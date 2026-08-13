@@ -1598,11 +1598,14 @@ export async function applyDamageToTarget(
 
       // Merge tempHP pool updates with bar updates for a single write.
       try {
-        await (target as any).update({
-          ...tempHPConsumption.patch,
-          'system.health.currentBar': barIndex,
-          'system.health.bars': bars
-        });
+        await (target as any).update(
+          {
+            ...tempHPConsumption.patch,
+            'system.health.currentBar': barIndex,
+            'system.health.bars': bars,
+          },
+          { masteryBloodHandled: true },
+        );
       } catch (e) {
         if (mitigated > 0) {
           console.warn('Mastery System | [APPLY DAMAGE] actor.update (bars) failed with mitigation > 0', {

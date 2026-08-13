@@ -38,6 +38,21 @@ export function resolveBloodIntensity(opts: {
   return null;
 }
 
+/** HP actually lost across the wound track (heals do not count). */
+export function hpLostFromHealthUpdate(opts: {
+  barsBefore: Array<{ current?: number }>;
+  barsAfter: Array<{ current?: number }>;
+}): number {
+  const n = Math.max(opts.barsBefore.length, opts.barsAfter.length);
+  let lost = 0;
+  for (let i = 0; i < n; i++) {
+    const before = Math.max(0, Math.floor(Number(opts.barsBefore[i]?.current) || 0));
+    const after = Math.max(0, Math.floor(Number(opts.barsAfter[i]?.current) || 0));
+    lost += Math.max(0, before - after);
+  }
+  return lost;
+}
+
 /** True when at least one health bar went from >0 HP to 0, or currentBar advanced. */
 export function didLoseHealthLevel(opts: {
   oldBarIndex: number;
@@ -90,17 +105,61 @@ function resolveTokenCenter(token: any): { x: number; y: number } | null {
   return null;
 }
 
-function getBackgroundContainer(): any | null {
+function getBloodContainer(): any | null {
   const canvas = (globalThis as any).canvas;
   if (!canvas?.ready) return null;
 
-  const candidates = [canvas.primary, canvas.background, canvas.tiles, canvas.stage];
+  // Same stack as turn rings / range previews — above the map, visible in play.
+  // Never canvas.primary/background at child index 0: that draws behind the scene.
+  const candidates = [
+    canvas.effects,
+    canvas.foreground,
+    canvas.tokens,
+    canvas.interface,
+    canvas.stage,
+  ];
   for (const layer of candidates) {
     if (!layer) continue;
     if (layer.container && typeof layer.container.addChild === 'function') return layer.container;
     if (typeof layer.addChild === 'function') return layer;
   }
   return null;
+}
+
+/** PIXI v7 beginFill/drawEllipse and v8 ellipse/fill. */
+function fillEllipse(
+  g: any,
+  x: number,
+  y: number,
+  rx: number,
+  ry: number,
+  color: number,
+  alpha: number,
+): void {
+  if (typeof g.ellipse === 'function' && typeof g.fill === 'function') {
+    g.ellipse(x, y, rx, ry);
+    g.fill({ color, alpha });
+    return;
+  }
+  if (typeof g.beginFill === 'function' && typeof g.drawEllipse === 'function') {
+    g.beginFill(color, alpha);
+    g.drawEllipse(x, y, rx, ry);
+    g.endFill?.();
+    return;
+  }
+  if (typeof g.circle === 'function' && typeof g.fill === 'function') {
+    g.circle(x, y, (rx + ry) / 2);
+    g.fill({ color, alpha });
+  }
+}
+
+function markBloodGraphic(g: any, token: any, kind: BloodEffectIntensity): void {
+  g.eventMode = 'none';
+  g.interactive = false;
+  g.hitArea = null;
+  (g as any).msBloodPool = true;
+  (g as any).msBloodKind = kind;
+  (g as any).msTokenId = token?.id ?? token?.document?.id;
 }
 
 function seededJitter(seed: number): number {
@@ -302,9 +361,9 @@ function createAnimatedSplatters(
   darkerColor: number
 ): void {
   const PIXI = (globalThis as any).PIXI;
-  const container = getBackgroundContainer();
+  const container = getBloodContainer();
   if (!PIXI?.Graphics || !container) {
-    console.warn('Mastery System | Could not find PIXI/background for blood splatters');
+    console.warn('Mastery System | Could not find PIXI layer for blood splatters');
     return;
   }
 
@@ -322,34 +381,19 @@ function createAnimatedSplatters(
     const ry = rx * (0.65 + Math.abs(seededJitter(i + 4)) * 0.35);
     const rot = seededJitter(i + 8) * 0.8;
 
-    group.beginFill(pixiColor, 0.55);
-    group.drawEllipse(ox, oy, rx, ry);
-    group.endFill();
-    group.beginFill(darkerColor, 0.5);
-    group.drawEllipse(ox + rx * 0.15, oy + ry * 0.1, rx * 0.45, ry * 0.4);
-    group.endFill();
+    fillEllipse(group, ox, oy, rx, ry, pixiColor, 0.55);
+    fillEllipse(group, ox + rx * 0.15, oy + ry * 0.1, rx * 0.45, ry * 0.4, darkerColor, 0.5);
 
-    // Tiny satellite fleck
     if (i % 2 === 0) {
-      group.beginFill(pixiColor, 0.4);
-      group.drawEllipse(ox + rot * 12, oy - ry * 0.8, rx * 0.35, ry * 0.28);
-      group.endFill();
+      fillEllipse(group, ox + rot * 12, oy - ry * 0.8, rx * 0.35, ry * 0.28, pixiColor, 0.4);
     }
   }
 
   group.position.set(center.x, center.y);
   group.alpha = 0.8;
-  (group as any).msBloodPool = true;
-  (group as any).msBloodKind = 'splatter';
-  (group as any).msTokenId = token?.id ?? token?.document?.id;
+  markBloodGraphic(group, token, 'splatter');
 
   container.addChild(group);
-  // Keep splatters below tokens when possible
-  try {
-    container.setChildIndex?.(group, 0);
-  } catch {
-    /* ignore */
-  }
   animateScaleIn(group, 280, 0.25, 1);
 }
 
@@ -362,9 +406,9 @@ function createAnimatedPuddle(
   darkerColor: number
 ): void {
   const PIXI = (globalThis as any).PIXI;
-  const container = getBackgroundContainer();
+  const container = getBloodContainer();
   if (!PIXI?.Graphics || !container) {
-    console.warn('Mastery System | Could not find PIXI/background for blood puddle');
+    console.warn('Mastery System | Could not find PIXI layer for blood puddle');
     return;
   }
 
@@ -373,20 +417,10 @@ function createAnimatedPuddle(
 
   const bloodPool = new PIXI.Graphics();
 
-  // Irregular mega puddle — layered ellipses
-  bloodPool.beginFill(pixiColor, 0.35);
-  bloodPool.drawEllipse(0, gridSize * 0.06, radius, radius * 0.78);
-  bloodPool.endFill();
+  fillEllipse(bloodPool, 0, gridSize * 0.06, radius, radius * 0.78, pixiColor, 0.35);
+  fillEllipse(bloodPool, -radius * 0.12, gridSize * 0.08, radius * 0.78, radius * 0.58, pixiColor, 0.5);
+  fillEllipse(bloodPool, radius * 0.08, gridSize * 0.1, radius * 0.48, radius * 0.36, darkerColor, 0.65);
 
-  bloodPool.beginFill(pixiColor, 0.5);
-  bloodPool.drawEllipse(-radius * 0.12, gridSize * 0.08, radius * 0.78, radius * 0.58);
-  bloodPool.endFill();
-
-  bloodPool.beginFill(darkerColor, 0.65);
-  bloodPool.drawEllipse(radius * 0.08, gridSize * 0.1, radius * 0.48, radius * 0.36);
-  bloodPool.endFill();
-
-  // Edge splatters for the "mega" hit
   const flecks = 5;
   for (let i = 0; i < flecks; i++) {
     const ang = (Math.PI * 2 * i) / flecks + seededJitter(damage + i) * 0.4;
@@ -394,23 +428,14 @@ function createAnimatedPuddle(
     const fx = Math.cos(ang) * dist;
     const fy = Math.sin(ang) * dist * 0.75 + gridSize * 0.05;
     const fr = radius * (0.08 + Math.abs(seededJitter(i + 3)) * 0.08);
-    bloodPool.beginFill(pixiColor, 0.45);
-    bloodPool.drawEllipse(fx, fy, fr, fr * 0.7);
-    bloodPool.endFill();
+    fillEllipse(bloodPool, fx, fy, fr, fr * 0.7, pixiColor, 0.45);
   }
 
   bloodPool.position.set(center.x, center.y);
   bloodPool.alpha = 0.85;
-  (bloodPool as any).msBloodPool = true;
-  (bloodPool as any).msBloodKind = 'puddle';
-  (bloodPool as any).msTokenId = token?.id ?? token?.document?.id;
+  markBloodGraphic(bloodPool, token, 'puddle');
 
   container.addChild(bloodPool);
-  try {
-    container.setChildIndex?.(bloodPool, 0);
-  } catch {
-    /* ignore */
-  }
   animateScaleIn(bloodPool, 420, 0.12, 1);
 }
 
@@ -421,7 +446,16 @@ export function removeBloodPoolsForToken(tokenId: string): void {
   const canvas = (globalThis as any).canvas;
   if (!canvas?.ready) return;
 
-  const layers = [canvas.primary, canvas.background, canvas.tiles, canvas.stage].filter(Boolean);
+  const layers = [
+    canvas.effects,
+    canvas.foreground,
+    canvas.tokens,
+    canvas.interface,
+    canvas.stage,
+    canvas.primary,
+    canvas.background,
+    canvas.tiles,
+  ].filter(Boolean);
 
   for (const layer of layers) {
     if (!layer) continue;
@@ -435,4 +469,91 @@ export function removeBloodPoolsForToken(tokenId: string): void {
       }
     }
   }
+}
+
+function getChangedHealthBars(changes: any): any[] | null {
+  if (Array.isArray(changes?.system?.health?.bars)) return changes.system.health.bars;
+  if (Array.isArray(changes?.['system.health.bars'])) return changes['system.health.bars'];
+  const dotted = (globalThis as any).foundry?.utils?.getProperty?.(changes, 'system.health.bars');
+  return Array.isArray(dotted) ? dotted : null;
+}
+
+function getChangedCurrentBar(changes: any, fallback: number): number {
+  const nested = changes?.system?.health?.currentBar;
+  if (Number.isFinite(Number(nested))) return Number(nested);
+  const flat = changes?.['system.health.currentBar'];
+  if (Number.isFinite(Number(flat))) return Number(flat);
+  const dotted = (globalThis as any).foundry?.utils?.getProperty?.(changes, 'system.health.currentBar');
+  if (Number.isFinite(Number(dotted))) return Number(dotted);
+  return fallback;
+}
+
+function tokensForActor(actor: any): any[] {
+  const fromActor = actor?.getActiveTokens?.() ?? [];
+  if (fromActor.length) return fromActor;
+  const id = String(actor?.id ?? '');
+  if (!id) return [];
+  return (((globalThis as any).canvas?.tokens?.placeables ?? []) as any[]).filter(
+    (t) => t?.actor?.id === id,
+  );
+}
+
+async function showBloodForActor(
+  actor: any,
+  payload: { barDamage: number; healthLevelLost: boolean; bloodColor?: string },
+): Promise<void> {
+  if (!(globalThis as any).canvas?.ready) return;
+  const tokens = tokensForActor(actor);
+  for (const token of tokens) {
+    await showDamageBloodEffect(token, payload);
+  }
+}
+
+/**
+ * Sheet HP minus, token-bar edits, and any other health.bars write.
+ * Combat applyDamageToTarget draws its own FX and passes masteryBloodHandled.
+ */
+export function initializeBloodPoolHooks(): void {
+  const pending = new Map<
+    string,
+    { barDamage: number; healthLevelLost: boolean; bloodColor?: string }
+  >();
+
+  Hooks.on('preUpdateActor', (actor: any, changes: any, options: any) => {
+    try {
+      if (options?.masteryBloodHandled) return;
+      const nextBars = getChangedHealthBars(changes);
+      if (!nextBars) return;
+      const actorId = String(actor?.id ?? '');
+      if (!actorId) return;
+      pending.delete(actorId);
+      const prevBars = actor?.system?.health?.bars;
+      if (!Array.isArray(prevBars)) return;
+      const barDamage = hpLostFromHealthUpdate({ barsBefore: prevBars, barsAfter: nextBars });
+      if (barDamage <= 0) return;
+      const oldBarIndex = Math.max(0, Math.floor(Number(actor.system?.health?.currentBar) || 0));
+      const newBarIndex = Math.max(0, Math.floor(getChangedCurrentBar(changes, oldBarIndex)));
+      pending.set(actorId, {
+        barDamage,
+        healthLevelLost: didLoseHealthLevel({
+          oldBarIndex,
+          newBarIndex,
+          barsBefore: prevBars,
+          barsAfter: nextBars,
+        }),
+        bloodColor: actor.system?.bloodColor,
+      });
+    } catch (err) {
+      console.warn('Mastery System | Blood FX preUpdate failed', err);
+    }
+  });
+
+  Hooks.on('updateActor', (actor: any) => {
+    const actorId = String(actor?.id ?? '');
+    if (!actorId) return;
+    const payload = pending.get(actorId);
+    if (!payload) return;
+    pending.delete(actorId);
+    void showBloodForActor(actor, payload);
+  });
 }
