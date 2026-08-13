@@ -5,6 +5,7 @@ import {
   calculateRitualRaiseTN,
   calculateRitualTN,
   eligibleSkillsForRitual,
+  getRitualById,
   resolveRitualDeclaredOutcome,
   ritualStoneCost,
 } from '../src/utils/rituals';
@@ -63,7 +64,7 @@ describe('resolveRitualDeclaredOutcome', () => {
   });
 
   it('lists Raise 0 through the applied level', () => {
-    const ritual = RITUALS.find((r) => r.id === 'ritual-detect-magic')!;
+    const ritual = RITUALS.find((r) => r.id === 'ritual-read-resonance')!;
     expect(appliedRitualEffects(ritual, 2)).toHaveLength(3);
   });
 });
@@ -71,12 +72,25 @@ describe('resolveRitualDeclaredOutcome', () => {
 describe('Ritual catalog', () => {
   it('includes the Players Guide rituals and not Raise Dead', () => {
     const names = RITUALS.map((r) => r.name);
-    expect(names).toContain('Detect Magic');
+    expect(names).toContain('Read Resonance');
     expect(names).toContain('Threshold Alarm');
     expect(names).toContain('Learn Artifact');
     expect(names).toContain('Forgotten Memory');
+    expect(names).not.toContain('Detect Magic');
+    expect(names).not.toContain('Augury');
+    expect(names).not.toContain('Greater Restoration');
+    expect(names).not.toContain('Commune');
     expect(names).not.toContain('Raise Dead');
     expect(names).not.toContain('Bind Familiar');
+  });
+
+  it('Stone cost follows declared Raise, not a per-ritual list', () => {
+    const ritual = RITUALS.find((r) => r.id === 'ritual-read-resonance')!;
+    expect(ritualStoneCost(ritual, 0)).toBe(1);
+    expect(ritualStoneCost(ritual, 1)).toBe(1);
+    expect(ritualStoneCost(ritual, 2)).toBe(2);
+    expect(ritualStoneCost(ritual, 3)).toBe(2);
+    expect(ritualStoneCost(ritual, 4)).toBe(3);
   });
 
   it('Seal Passage Raise 4 costs 3 Stones', () => {
@@ -96,5 +110,9 @@ describe('Ritual catalog', () => {
 
   it('Stone Powers catalog mirrors the same rituals', () => {
     expect(STONE_RITUALS_CATALOG.map((r) => r.id)).toEqual(RITUALS.map((r) => r.id));
+  });
+
+  it('maps the old Detect Magic id to Read Resonance', () => {
+    expect(getRitualById('ritual-detect-magic')?.id).toBe('ritual-read-resonance');
   });
 });

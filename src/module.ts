@@ -3467,6 +3467,18 @@ Hooks.on('preUpdateItem', async (item: any, changes: any, _options: any, _userId
  * legitimately remove them (full reset, echo re-selection, tree migration) pass
  * `{ masterySystemForceDelete: true }` to bypass this guard.
  */
+Hooks.on('deleteItem', (item: any) => {
+  try {
+    const flag = item?.getFlag?.('mastery-system', 'minorMagic') ?? item?.flags?.['mastery-system']?.minorMagic;
+    if (!flag || flag.released) return;
+    void import('./utils/minor-magic-items.js').then(({ onMinorMagicItemDeleted }) => {
+      void onMinorMagicItemDeleted(item);
+    });
+  } catch {
+    /* ignore */
+  }
+});
+
 Hooks.on('preDeleteItem', (item: any, options: any, _userId: string) => {
   if (options?.masterySystemForceDelete === true) return true;
   if (!item?.parent || item.parent.documentName !== 'Actor') return true;

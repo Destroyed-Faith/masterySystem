@@ -1,0 +1,124 @@
+<div class="rw-root">
+  <nav class="rw-tabs" aria-label="Rituals">
+    {{#each tabs}}
+    <button type="button" class="js-rw-tab rw-tab{{#if this.active}} is-active{{/if}}" data-id="{{this.id}}" {{#if this.active}}aria-current="true"{{/if}}>{{this.name}}</button>
+    {{/each}}
+  </nav>
+
+  <div class="rw-main">
+    {{#if ritual}}
+    <header class="rw-head">
+      <h2>{{ritual.name}}</h2>
+      <p class="rw-desc">{{ritual.description}}</p>
+    </header>
+
+    <div class="rw-tips">
+      {{#each ruleTips}}
+      <span class="rw-tip">{{this.label}}<span class="rw-tip-pop">{{this.text}}</span></span>
+      {{/each}}
+    </div>
+
+    <div class="rw-meta">
+      <span class="rw-chip" title="{{meta.castingTime}}"><span class="rw-chip-k">Time</span> {{meta.castingTime}}</span>
+      <span class="rw-chip" title="{{meta.duration}}"><span class="rw-chip-k">Duration</span> {{meta.duration}}</span>
+      <span class="rw-chip" title="{{meta.categoryLabel}}"><span class="rw-chip-k">Skills</span> {{meta.categoryLabel}}</span>
+      {{#if meta.requirement}}
+      <span class="rw-chip rw-chip-hover" title="{{meta.requirement}}"><span class="rw-chip-k">Requirement</span><span class="rw-tip-pop">{{meta.requirement}}</span></span>
+      {{/if}}
+      {{#if meta.danger}}
+      <span class="rw-chip rw-chip-danger rw-chip-hover"><span class="rw-chip-k">Danger</span><span class="rw-tip-pop">{{meta.danger}}</span></span>
+      {{/if}}
+      {{#if meta.limits}}
+      <span class="rw-chip rw-chip-hover"><span class="rw-chip-k">Limits</span><span class="rw-tip-pop">{{meta.limits}}</span></span>
+      {{/if}}
+      {{#if meta.specialCostNote}}
+      <span class="rw-chip rw-chip-hover"><span class="rw-chip-k">Note</span><span class="rw-tip-pop">{{meta.specialCostNote}}</span></span>
+      {{/if}}
+    </div>
+
+    <table class="rw-raises">
+      <thead>
+        <tr>
+          <th>Raise</th>
+          <th>Effect</th>
+          <th>Stones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each ritual.raises}}
+        <tr>
+          <td>Raise {{this.level}}</td>
+          <td>{{this.text}}</td>
+          <td>{{this.cost}}</td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+
+    <div class="rw-perform">
+      <div class="rw-controls">
+        <label class="rw-field">Ritual MR
+          <input type="number" class="js-rw-mr" min="1" step="1" value="{{ritualMR}}" />
+        </label>
+        <label class="rw-field">Situational TN
+          <input type="number" class="js-rw-gm-mod" step="4" value="{{gmMod}}" />
+        </label>
+        <label class="rw-field">Declared Raise
+          <select class="js-rw-raise">
+            {{#each raiseOptions}}
+            <option value="{{this.level}}" {{#if this.selected}}selected{{/if}}>{{this.label}}</option>
+            {{/each}}
+          </select>
+        </label>
+        <label class="rw-field">Skill
+          <select class="js-rw-skill">
+            {{#each skillOptions}}
+            <option value="{{this.key}}" {{#if this.selected}}selected{{/if}}>{{this.label}}</option>
+            {{/each}}
+          </select>
+        </label>
+        <label class="rw-field">Attribute
+          <select class="js-rw-attr">
+            {{#each attrOptions}}
+            <option value="{{this.key}}" {{#if this.selected}}selected{{/if}}>{{this.label}}</option>
+            {{/each}}
+          </select>
+        </label>
+      </div>
+
+      <div class="rw-tn">
+        <span>Base <strong>{{baseTn}}</strong></span>
+        <span>Raise TN <strong>{{raiseTn}}</strong></span>
+        <span>Stones <strong>{{stoneCost}}</strong></span>
+      </div>
+
+      <div class="rw-pools" aria-label="Available stones">
+        {{#each pools}}
+        <div class="rw-pool">
+          <span class="rw-pool-label">{{this.label}}</span>
+          <div class="rw-pool-gems">
+            {{#each this.gemSlots}}
+            <button type="button" class="js-rw-pool-gem rw-gem" data-attr="{{this.attr}}" title="{{../label}}" style="--gem-fill: {{this.fill}}; --gem-stroke: {{this.stroke}};"></button>
+            {{/each}}
+          </div>
+        </div>
+        {{/each}}
+      </div>
+
+      <div class="rw-slots" aria-label="Stone slots">
+        {{#each slots}}
+        {{#if this.filled}}
+        <button type="button" class="js-rw-slot-filled rw-slot is-filled" data-index="{{this.index}}" title="{{this.label}} — click to return">
+          <span class="rw-gem" style="--gem-fill: {{this.gemStyle.fill}}; --gem-stroke: {{this.gemStyle.stroke}};"></span>
+        </button>
+        {{else}}
+        <span class="rw-slot is-empty" data-index="{{this.index}}"></span>
+        {{/if}}
+        {{/each}}
+      </div>
+
+      <button type="button" class="js-rw-roll rw-roll" {{#unless canRoll}}disabled{{/unless}} title="Place the required Stones first">Roll Ritual</button>
+    </div>
+    {{/if}}
+  </div>
+</div>

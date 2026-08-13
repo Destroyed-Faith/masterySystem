@@ -5,8 +5,8 @@
 
 import {
   RITUALS,
+  ritualCategoryLabels,
   ritualMaxRaise,
-  type RitualDefinition,
 } from '../utils/rituals.js';
 
 export type RitualPoolAttr =
@@ -47,22 +47,11 @@ function repeatSlots(n: number, allow: RitualPoolAttr[]): RitualSlotRule[] {
   return Array.from({ length: Math.max(1, n) }, () => ({ allow: [...allow] }));
 }
 
-function categoryLabel(ritual: RitualDefinition): string {
-  const map: Record<string, string> = {
-    physical: 'Physical',
-    knowledge: 'Knowledge & Craft',
-    social: 'Social',
-    survival: 'Survival',
-    martial: 'Martial',
-  };
-  return ritual.allowedSkillCategories.map((c) => map[c] ?? c).join(', ');
-}
-
 export const STONE_RITUALS_CATALOG: RitualCatalogEntry[] = RITUALS.map((ritual) => ({
   id: ritual.id,
   name: ritual.name,
-  slots: repeatSlots(ritual.stoneCost, ANY_STONE),
-  roll: `Normal Skill Check · ${categoryLabel(ritual)}`,
+  slots: repeatSlots(3, ANY_STONE),
+  roll: `Normal Skill Check · ${ritualCategoryLabels(ritual)}`,
   duration: ritual.duration,
   requirement: ritual.requirement ?? '',
   intro: ritual.description,

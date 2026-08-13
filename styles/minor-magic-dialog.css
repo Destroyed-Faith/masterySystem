@@ -1,0 +1,301 @@
+.application.minor-magic-app .window-content {
+  padding: 0;
+  overflow: hidden;
+  display: flex;
+  background: #20272b;
+  color: #d4c4b0;
+}
+
+.mm-root {
+  display: flex;
+  flex-direction: row;
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+  overflow: hidden;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 14px;
+  line-height: 1.35;
+}
+
+.mm-tabs {
+  flex: 0 0 11.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0.5rem 0.35rem;
+  overflow-y: auto;
+  background: #1b2124;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.mm-tab {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 0.38rem 0.55rem;
+  border: 0;
+  border-left: 3px solid transparent;
+  border-radius: 0 4px 4px 0;
+  background: transparent;
+  color: #a89880;
+  font: inherit;
+  font-size: 0.92rem;
+  cursor: pointer;
+  line-height: 1.25;
+}
+
+.mm-tab:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #f0e6d4;
+}
+
+.mm-tab.is-active {
+  background: #2a3136;
+  border-left-color: #c4a35a;
+  color: #f6efe4;
+  font-weight: 600;
+}
+
+.mm-empty {
+  margin: 0.6rem 0.4rem;
+  color: #8a7a64;
+  font-size: 0.88rem;
+}
+
+.mm-main {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-y: auto;
+  padding: 0.7rem 0.9rem 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.mm-head h2 {
+  margin: 0;
+  font-size: 1.45rem;
+  font-weight: 600;
+  color: #f6efe4;
+  letter-spacing: 0.02em;
+}
+
+.mm-desc {
+  margin: 0.2rem 0 0;
+  color: #a89880;
+}
+
+.mm-tips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.mm-tip {
+  position: relative;
+  padding: 0.12rem 0.45rem;
+  border-radius: 999px;
+  background: #2a3136;
+  color: #c4a35a;
+  font-size: 0.78rem;
+  letter-spacing: 0.03em;
+  cursor: help;
+}
+
+.mm-tip-pop {
+  display: none;
+  position: absolute;
+  left: 0;
+  top: calc(100% + 6px);
+  z-index: 5;
+  width: 16rem;
+  padding: 0.45rem 0.55rem;
+  border-radius: 6px;
+  background: #161b1e;
+  color: #f0e6d4;
+  font-size: 0.82rem;
+  line-height: 1.4;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
+}
+
+.mm-tip:hover .mm-tip-pop {
+  display: block;
+}
+
+.mm-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.mm-chip {
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.22);
+  color: #d4c4b0;
+  font-size: 0.85rem;
+}
+
+.mm-chip-k {
+  margin-right: 0.35rem;
+  color: #8a7a64;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.mm-fields {
+  display: grid;
+  grid-template-columns: 10rem 1fr;
+  gap: 0.45rem 0.6rem;
+}
+
+.mm-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  color: #8a7a64;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.mm-field input,
+.mm-field select {
+  width: 100%;
+  min-height: 1.7rem;
+  padding: 0.15rem 0.35rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 4px;
+  background: #1b2124;
+  color: #f0e6d4;
+  font: inherit;
+  font-size: 0.92rem;
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 400;
+}
+
+.mm-snapshot {
+  margin: 0;
+  padding: 0.45rem 0.7rem 0.45rem 1.3rem;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.18);
+  color: #d4c4b0;
+}
+
+.mm-perform {
+  margin-top: auto;
+  padding-top: 0.55rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.mm-pools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem 0.7rem;
+}
+
+.mm-pool {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.mm-pool-label {
+  color: #8a7a64;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.mm-pool-gems {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+}
+
+.mm-gem {
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--gem-fill, #888);
+  box-shadow: 0 0 0 2px var(--gem-stroke, #aaa) inset, 0 1px 3px rgba(0, 0, 0, 0.45);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+button.mm-gem:hover {
+  filter: brightness(1.15);
+}
+
+.mm-slots {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.mm-slot {
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 1px dashed rgba(255, 255, 255, 0.22);
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.mm-slot.is-filled {
+  border-style: solid;
+  border-color: rgba(196, 163, 90, 0.45);
+  background: #1b2124;
+  cursor: pointer;
+}
+
+.mm-slot .mm-gem {
+  width: 18px;
+  height: 18px;
+  cursor: inherit;
+}
+
+.mm-slot-hint {
+  color: #8a7a64;
+  font-size: 0.82rem;
+}
+
+.mm-create {
+  align-self: flex-end;
+  min-width: 8.5rem;
+  padding: 0.4rem 0.9rem;
+  border: 1px solid #c4a35a;
+  border-radius: 4px;
+  background: #3a3224;
+  color: #f6efe4;
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+}
+
+.mm-create:hover:not(:disabled) {
+  background: #4a4030;
+}
+
+.mm-create:disabled {
+  border-color: rgba(255, 255, 255, 0.12);
+  background: #252b2f;
+  color: #6a6258;
+  cursor: not-allowed;
+  opacity: 0.55;
+}

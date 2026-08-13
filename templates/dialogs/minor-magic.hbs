@@ -1,0 +1,79 @@
+<div class="mm-root">
+  <nav class="mm-tabs" aria-label="Active Powers">
+    {{#if hasPowers}}
+    {{#each tabs}}
+    <button type="button" class="js-mm-tab mm-tab{{#if this.active}} is-active{{/if}}" data-id="{{this.id}}" {{#if this.active}}aria-current="true"{{/if}}>{{this.name}}</button>
+    {{/each}}
+    {{else}}
+    <p class="mm-empty">No purchased Active Powers to store.</p>
+    {{/if}}
+  </nav>
+
+  <div class="mm-main">
+    <header class="mm-head">
+      <h2>Create Minor Magic Item</h2>
+      <p class="mm-desc">Store one use of a purchased Active Power in a temporary object. The form is flavor only.</p>
+    </header>
+
+    <div class="mm-tips">
+      {{#each ruleTips}}
+      <span class="mm-tip">{{this.label}}<span class="mm-tip-pop">{{this.text}}</span></span>
+      {{/each}}
+    </div>
+
+    <div class="mm-meta">
+      <span class="mm-chip"><span class="mm-chip-k">Limit</span> {{held}} / {{limit}}</span>
+      <span class="mm-chip"><span class="mm-chip-k">Stone</span> 1</span>
+      <span class="mm-chip"><span class="mm-chip-k">Size</span> 1×1</span>
+    </div>
+
+    {{#if snapshot}}
+    <div class="mm-fields">
+      <label class="mm-field">Form
+        <select class="js-mm-form">
+          {{#each formOptions}}
+          <option value="{{this.id}}" {{#if this.selected}}selected{{/if}}>{{this.label}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label class="mm-field mm-field-wide">Name
+        <input type="text" class="js-mm-name" value="{{itemName}}" maxlength="80" />
+      </label>
+    </div>
+
+    <ul class="mm-snapshot">
+      {{#each snapshotLines}}
+      <li>{{this}}</li>
+      {{/each}}
+    </ul>
+    {{/if}}
+
+    <div class="mm-perform">
+      <div class="mm-pools" aria-label="Available stones">
+        {{#each pools}}
+        <div class="mm-pool">
+          <span class="mm-pool-label">{{this.label}}</span>
+          <div class="mm-pool-gems">
+            {{#each this.gemSlots}}
+            <button type="button" class="js-mm-pool-gem mm-gem" data-attr="{{this.attr}}" title="{{../label}}" style="--gem-fill: {{this.fill}}; --gem-stroke: {{this.stroke}};"></button>
+            {{/each}}
+          </div>
+        </div>
+        {{/each}}
+      </div>
+
+      <div class="mm-slots" aria-label="Stone slot">
+        {{#if slot.filled}}
+        <button type="button" class="js-mm-slot-filled mm-slot is-filled" title="{{slot.label}} — click to return">
+          <span class="mm-gem" style="--gem-fill: {{slot.gemStyle.fill}}; --gem-stroke: {{slot.gemStyle.stroke}};"></span>
+        </button>
+        {{else}}
+        <span class="mm-slot is-empty"></span>
+        {{/if}}
+        <span class="mm-slot-hint">Place 1 Stone</span>
+      </div>
+
+      <button type="button" class="js-mm-create mm-create" {{#unless canCreate}}disabled{{/unless}} title="Choose a Power and place 1 Stone">Create Item</button>
+    </div>
+  </div>
+</div>

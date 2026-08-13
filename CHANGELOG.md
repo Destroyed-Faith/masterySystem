@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.325] - 2026-08-13
+
+### Added
+
+- **Minor Magic Items:** New character-sheet bookmark under Rituals. Create a 1×1 inventory consumable that stores one use of a purchased Active Power (potion, grenade, rune, prepared weapon, trap, or charm). Creating burns 1 Stone and counts against Mastery Rank until the item is used, armed as a trap, dismissed, or destroyed. The burned Stone returns on the next Safe Haven Rest after the item is gone. Prototype: snapshot + Use / Dismiss chat; full stored-Power combat resolution comes next.
+
+## [0.9.324] - 2026-08-13
+
+### Changed
+
+- **Rituals tab:** Perform Ritual left the Attributes button row. The character sheet now has a Rituals bookmark under Summons. The workshop lists each Ritual as a tab with rulebook text, hover chips for TN / Stones / Time / Limits, and a Roll button that stays locked until the declared Raise’s Stones are placed. Catalog is Read Resonance through Last Light (no Augury, Commune, or Greater Restoration). Stone cost is 1 / 1 / 2 / 2 / 3 by declared Raise.
+
 ## [0.9.323] - 2026-08-13
 
 ### Fixed

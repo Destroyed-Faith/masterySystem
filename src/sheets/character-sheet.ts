@@ -45,6 +45,15 @@ import { isLegacyUnarmedItem } from '../utils/unarmed-fallback.js';
 import { loadZoneFromBands, movementPenaltyForLoad, LOAD_ZONE_LABEL, ZONE_WIDTH_COLS } from '../utils/encumbrance.js';
 import { getFilePickerClass } from '../utils/foundry-v14.js';
 import { SummonBondDialog } from '../stones/summon-bond-dialog.js';
+import { RitualWorkshopDialog } from '../stones/ritual-workshop-dialog.js';
+import { MinorMagicDialog } from '../stones/minor-magic-dialog.js';
+import { RITUALS, ritualCategoryLabels } from '../utils/rituals.js';
+import {
+  dismissMinorMagicItem,
+  minorMagicSheetView,
+  restoreMinorMagicStonesOnSafeHaven,
+  useMinorMagicItem,
+} from '../utils/minor-magic-items.js';
 import {
   dissolveSummonBond,
   getSummonBondsFromActor,
@@ -959,6 +968,14 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       return out;
     });
     context.disadvantagePointsTotal = context.disadvantages.reduce((sum: number, d: any) => sum + (d.points || 0), 0);
+
+    context.ritualCatalogView = RITUALS.map((r) => ({
+      id: r.id,
+      name: r.name,
+      skills: ritualCategoryLabels(r),
+      castingTime: r.castingTime,
+    }));
+    context.minorMagicView = minorMagicSheetView(this.actor);
 
     context.summonBondsView = getSummonBondsFromActor(this.actor).map((b) => {
       const tok = tokensSummary(b);
@@ -2033,7 +2050,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     html.find('.safe-haven-rest').on('click', this.#onSafeHavenRest.bind(this));
     html.find('.gm-restore-health-bar').on('click', this.#onGmRestoreHealthBar.bind(this));
     html.find('.gm-restore-stress-bar').on('click', this.#onGmRestoreStressBar.bind(this));
-    html.find('.perform-ritual-btn').on('click', this.#onPerformRitual.bind(this));
     html.find('.social-combat-btn').on('click', this.#onSocialCombat.bind(this));
     html.find('.gm-award-faith-fracture').on('click', this.#onGmAwardFaithFracture.bind(this));
     html.find('.gm-edit-xp').on('click', this.#onGmEditXp.bind(this));
@@ -2252,6 +2268,53 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       await SummonBondDialog.showRitual(this.actor, id);
       this.render(false);
     });
+    html.off('click.rituals');
+    html.on('click.rituals', '.js-sheet-ritual-workshop', async (ev) => {
+      ev.preventDefault();
+      await RitualWorkshopDialog.show(this.actor as Actor);
+    });
+    html.on('click.rituals', '.js-sheet-ritual-open', async (ev) => {
+      ev.preventDefault();
+      const id = (ev.currentTarget as HTMLElement).dataset.ritualId;
+      await RitualWorkshopDialog.show(this.actor as Actor, id);
+    });
+
+    html.off('click.minorMagic');
+    html.on('click.minorMagic', '.js-sheet-minor-magic-create', async (ev) => {
+      ev.preventDefault();
+      await MinorMagicDialog.show(this.actor as Actor);
+      this.render(false);
+    });
+    html.on('click.minorMagic', '.js-sheet-minor-magic-use', async (ev) => {
+      ev.preventDefault();
+      const id = (ev.currentTarget as HTMLElement).dataset.itemId;
+      const item = id ? this.actor.items.get(id) : null;
+      if (!item) return;
+      const res = await useMinorMagicItem(this.actor, item, 'use');
+      if (!res.ok) (ui as any).notifications?.warn(res.error);
+      this.render(false);
+    });
+    html.on('click.minorMagic', '.js-sheet-minor-magic-trap', async (ev) => {
+      ev.preventDefault();
+      const id = (ev.currentTarget as HTMLElement).dataset.itemId;
+      const item = id ? this.actor.items.get(id) : null;
+      if (!item) return;
+      const trigger = window.prompt?.('Simple trigger for this Trap (prototype):', 'A creature enters the chosen area');
+      if (trigger == null) return;
+      const res = await useMinorMagicItem(this.actor, item, 'trap', trigger.trim() || 'A creature enters the chosen area');
+      if (!res.ok) (ui as any).notifications?.warn(res.error);
+      this.render(false);
+    });
+    html.on('click.minorMagic', '.js-sheet-minor-magic-dismiss', async (ev) => {
+      ev.preventDefault();
+      const id = (ev.currentTarget as HTMLElement).dataset.itemId;
+      const item = id ? this.actor.items.get(id) : null;
+      if (!item) return;
+      const res = await dismissMinorMagicItem(this.actor, item);
+      if (!res.ok) (ui as any).notifications?.warn(res.error);
+      this.render(false);
+    });
+
     html.on('click.summonBonds', '.js-sheet-summon-bond-dissolve', async (ev) => {
       ev.preventDefault();
       const id = (ev.currentTarget as HTMLElement).dataset.bondId;
@@ -4422,12 +4485,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     this.render();
   }
 
-  async #onPerformRitual(event: JQuery.ClickEvent) {
-    event.preventDefault();
-    const { showRitualRollDialog } = await import('../combat/ritual-roll-handler.js');
-    await showRitualRollDialog(this.actor as Actor);
-  }
-
   async #onSocialCombat(event: JQuery.ClickEvent) {
     event.preventDefault();
     const party: Actor[] = [this.actor as Actor];
@@ -4642,6 +4699,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     } catch (err) {
       console.warn('Mastery System | Safe Haven blood raise flag clear failed', err);
     }
+
+    const minorMagicStoneUpdates = await restoreMinorMagicStonesOnSafeHaven(this.actor);
+    Object.assign(updates, minorMagicStoneUpdates);
 
     await this.actor.update(updates);
     (ui as any).notifications?.info(

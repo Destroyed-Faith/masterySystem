@@ -222,6 +222,8 @@
     <a class="item" data-tab="equipment"><i class="fas fa-shield-alt"></i> Equipment</a>
     <a class="item" data-tab="disadvantages"><i class="fas fa-exclamation-triangle"></i> Disadvantages</a>
     <a class="item" data-tab="summons"><i class="fas fa-paw"></i> Summons</a>
+    <a class="item" data-tab="rituals"><i class="fas fa-book-sparkles"></i> Rituals</a>
+    <a class="item" data-tab="minor-magic"><i class="fas fa-flask"></i> Minor Magic</a>
   </nav>
 
   <!-- Sheet Body -->
@@ -1192,9 +1194,6 @@
           <button type="button" class="safe-haven-rest" title="Rest at Safe Haven — restore Skill Points, Vitality save uses, and Reroll Points">
             <i class="fas fa-bed"></i> Safe Haven Rest
           </button>
-          <button type="button" class="perform-ritual-btn" title="Perform a canonical Ritual (margin Raises, stones sealed on success)">
-            <i class="fas fa-book-sparkles"></i> Ritual
-          </button>
           <button type="button" class="social-combat-btn" title="Run a 3-phase Social Combat encounter">
             <i class="fas fa-comments"></i> Social Combat
           </button>
@@ -2046,6 +2045,67 @@
         </ul>
         {{else}}
         <p class="empty-message">No Summon Bonds yet. Create one to bind stones and open the Bond Ritual token shop.</p>
+        {{/if}}
+      </div>
+    </div>
+
+    <!-- RITUALS TAB -->
+    <div class="tab rituals" data-group="primary" data-tab="rituals">
+      <div class="summons-tab-content rituals-tab-content">
+        <div class="summons-tab-header">
+          <h3><i class="fas fa-book-sparkles"></i> Rituals</h3>
+          <button type="button" class="js-sheet-ritual-workshop dialog-btn dialog-btn-primary">
+            <i class="fas fa-dice-d20"></i> Perform Ritual
+          </button>
+        </div>
+        <p class="summons-tab-hint">Deliberate workings outside combat. Open a Ritual, place the Stones for the declared Raise, then roll. Hover the chips in the workshop for the full rules.</p>
+        {{#if ritualCatalogView.length}}
+        <ul class="summons-bond-list">
+          {{#each ritualCatalogView}}
+          <li class="summons-bond-card">
+            <div class="summons-bond-main">
+              <strong>{{this.name}}</strong>
+              <span class="summons-bond-meta">{{this.skills}} · {{this.castingTime}}</span>
+            </div>
+            <div class="summons-bond-actions">
+              <button type="button" class="js-sheet-ritual-open dialog-btn dialog-btn-primary" data-ritual-id="{{this.id}}">Open</button>
+            </div>
+          </li>
+          {{/each}}
+        </ul>
+        {{/if}}
+      </div>
+    </div>
+
+    <!-- MINOR MAGIC ITEMS TAB -->
+    <div class="tab minor-magic" data-group="primary" data-tab="minor-magic">
+      <div class="summons-tab-content">
+        <div class="summons-tab-header">
+          <h3><i class="fas fa-flask"></i> Minor Magic Items</h3>
+          <button type="button" class="js-sheet-minor-magic-create dialog-btn dialog-btn-primary">
+            <i class="fas fa-plus"></i> Create Item
+          </button>
+        </div>
+        <p class="summons-tab-hint">Store one use of a purchased Active Power in a potion, grenade, rune, prepared weapon, trap, or charm. Limit {{minorMagicView.held}} / {{minorMagicView.limit}} (Mastery Rank). The burned Stone returns on the next Safe Haven Rest after the item is used or dismissed.</p>
+        {{#if minorMagicView.items.length}}
+        <ul class="summons-bond-list">
+          {{#each minorMagicView.items}}
+          <li class="summons-bond-card" data-item-id="{{this.id}}">
+            <div class="summons-bond-main">
+              <strong>{{this.name}}</strong>
+              <span class="summons-bond-meta">{{this.formLabel}} · {{this.powerName}} · {{this.actionCost}}</span>
+              <span class="summons-bond-meta">{{this.summary}}</span>
+            </div>
+            <div class="summons-bond-actions">
+              <button type="button" class="js-sheet-minor-magic-use dialog-btn dialog-btn-primary" data-item-id="{{this.id}}">Use</button>
+              <button type="button" class="js-sheet-minor-magic-trap dialog-btn" data-item-id="{{this.id}}">Arm Trap</button>
+              <button type="button" class="js-sheet-minor-magic-dismiss dialog-btn" data-item-id="{{this.id}}">Dismiss</button>
+            </div>
+          </li>
+          {{/each}}
+        </ul>
+        {{else}}
+        <p class="summons-tab-hint">No Minor Magic Items yet. Create one to place a 1×1 consumable in inventory.</p>
         {{/if}}
       </div>
     </div>
