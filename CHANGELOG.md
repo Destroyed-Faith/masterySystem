@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.329] - 2026-08-13
+
+### Changed
+
+- **Consumable Slots layout:** Slots sit left and right of Feet at the same square size. Head, hands, and jewelry are a bit larger; Body is a bit narrower. Extra slots from Mastery Rank 3 sit in a compact row below.
+
 ## [0.9.328] - 2026-08-13
 
 ### Added

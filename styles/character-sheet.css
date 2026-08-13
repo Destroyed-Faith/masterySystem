@@ -9477,7 +9477,7 @@
  *   row 4                         feet
  */
 .df-consumable-panel {
-  margin-top: 12px;
+  margin-top: 4px;
 }
 .df-consumable-panel h4,
 .df-consumable-actions h4 {
@@ -9486,25 +9486,51 @@
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
-.df-consumable-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(72px, 1fr));
+.df-consumable-more {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 8px;
+  margin-top: 8px;
 }
 .df-consumable-slot {
   position: relative;
-  min-height: 72px;
   border: 2px dashed rgba(255, 196, 90, 0.45);
   border-radius: 10px;
   background: rgba(80, 50, 10, 0.28);
   overflow: hidden;
+  justify-self: center;
+  align-self: center;
+  width: min(100%, 4rem);
+  aspect-ratio: 1;
+  min-width: 0;
+  min-height: 0;
 }
 .df-consumable-slot.is-filled {
   border-style: solid;
   border-color: rgba(255, 196, 90, 0.75);
 }
-.df-consumable-panel.is-locked .df-consumable-slot {
+.df-consumable-panel.is-locked .df-consumable-slot,
+.df-consumable-slot.is-locked,
+.df-consumable-more.is-locked .df-consumable-slot {
   opacity: 0.72;
+}
+.df-consumable-slot.slot-consumable-0 {
+  grid-area: cons0;
+}
+.df-consumable-slot.slot-consumable-1 {
+  grid-area: cons1;
+}
+.df-consumable-slot .df-slot-label {
+  left: 4px;
+  top: 3px;
+  font-size: 8px;
+}
+.df-consumable-slot .df-slot-empty {
+  font-size: 10px;
+}
+.df-dropzone.df-consumable-slot {
+  min-height: 0;
 }
 .df-consumable-badge {
   position: absolute;
@@ -9552,14 +9578,14 @@
 }
 
 .df-equipped-grid {
-  --df-paperdoll-square: minmax(56px, 4rem);
-  --df-paperdoll-helm: minmax(48px, 3.25rem);
+  --df-paperdoll-square: minmax(64px, 4.5rem);
+  --df-paperdoll-helm: minmax(56px, 4rem);
   position: relative;
   z-index: 1;
   display: grid;
   grid-template-columns:
     var(--df-paperdoll-square)
-    minmax(72px, 1.55fr)
+    minmax(56px, 1.1fr)
     var(--df-paperdoll-square);
   grid-template-rows:
     var(--df-paperdoll-helm)
@@ -9572,7 +9598,7 @@
     ".         head    .       "
     "amulet    body    ring    "
     "mainhand  body    offhand "
-    ".         feet    .       ";
+    "cons0     feet    cons1   ";
 }
 
 .df-equipped-grid > .df-equip-slot {
@@ -9619,7 +9645,7 @@
   grid-area: head;
   justify-self: center;
   align-self: center;
-  width: min(100%, 3.25rem);
+  width: min(100%, 4rem);
   aspect-ratio: 1;
   max-width: 100%;
   min-width: 0;
@@ -9651,7 +9677,7 @@
   grid-area: feet;
   justify-self: center;
   align-self: center;
-  width: min(100%, 3.25rem);
+  width: min(100%, 4rem);
   aspect-ratio: 1;
   max-width: 100%;
   min-width: 0;

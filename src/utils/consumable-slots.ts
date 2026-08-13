@@ -225,6 +225,28 @@ export function buildConsumableSlotView(actor: any): {
     powerName: string;
     summary: string;
   }>;
+  inlineSlots: Array<{
+    index: number;
+    label: string;
+    empty: boolean;
+    item: any | null;
+    itemId: string;
+    name: string;
+    img: string;
+    powerName: string;
+    summary: string;
+  }>;
+  extraSlots: Array<{
+    index: number;
+    label: string;
+    empty: boolean;
+    item: any | null;
+    itemId: string;
+    name: string;
+    img: string;
+    powerName: string;
+    summary: string;
+  }>;
 } {
   const count = actorConsumableSlotCount(actor);
   const locked = actorParticipatesInActiveCombat(actor);
@@ -248,7 +270,13 @@ export function buildConsumableSlotView(actor: any): {
       summary: flag?.snapshot ? snapshotSummaryLines(flag.snapshot).slice(0, 2).join(' · ') : '',
     };
   });
-  return { count, locked, slots };
+  return {
+    count,
+    locked,
+    slots,
+    inlineSlots: slots.slice(0, 2),
+    extraSlots: slots.slice(2),
+  };
 }
 
 export function equippedConsumableActionRows(actor: any): EquippedConsumableRow[] {

@@ -114,6 +114,8 @@ describe('slot count follows Mastery Rank', () => {
     expect(before.slots[1].empty).toBe(true);
     const after = buildConsumableSlotView(actorStub(3, [item]));
     expect(after.slots).toHaveLength(3);
+    expect(after.inlineSlots).toHaveLength(2);
+    expect(after.extraSlots).toHaveLength(1);
     expect(after.slots.filter((s) => s.empty)).toHaveLength(2);
   });
 

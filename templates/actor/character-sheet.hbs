@@ -1910,12 +1910,8 @@
                   {{/if}}
                 </div>
               {{/each}}
-            </div>
-            <div class="df-consumable-panel{{#if consumableSlots.locked}} is-locked{{/if}}">
-              <h4>{{localize "MASTERY.consumable.title"}}</h4>
-              <div class="df-consumable-grid">
-                {{#each consumableSlots.slots}}
-                <div class="df-consumable-slot df-dropzone{{#unless this.empty}} is-filled{{/unless}}" data-df-drop="consumable-slot" data-slot-index="{{this.index}}" title="{{this.label}}">
+              {{#each consumableSlots.inlineSlots}}
+                <div class="df-consumable-slot df-dropzone slot-consumable-{{this.index}}{{#unless this.empty}} is-filled{{/unless}}{{#if @root.consumableSlots.locked}} is-locked{{/if}}" data-df-drop="consumable-slot" data-slot-index="{{this.index}}" title="{{this.label}}">
                   <div class="df-slot-label">{{this.label}}</div>
                   {{#if this.item}}
                     <div class="df-item-tile item df-draggable-item" data-item-id="{{this.item.id}}" data-inventory-size="{{this.item.system.inventorySize}}" draggable="true" title="{{this.name}}{{#if this.powerName}} — {{this.powerName}}{{/if}}">
@@ -1926,8 +1922,26 @@
                     <div class="df-slot-empty">{{localize "MASTERY.consumable.empty"}}</div>
                   {{/if}}
                 </div>
-                {{/each}}
-              </div>
+              {{/each}}
+            </div>
+            {{#if consumableSlots.extraSlots.length}}
+            <div class="df-consumable-more{{#if consumableSlots.locked}} is-locked{{/if}}">
+              {{#each consumableSlots.extraSlots}}
+                <div class="df-consumable-slot df-dropzone slot-consumable-{{this.index}}{{#unless this.empty}} is-filled{{/unless}}" data-df-drop="consumable-slot" data-slot-index="{{this.index}}" title="{{this.label}}">
+                  <div class="df-slot-label">{{this.label}}</div>
+                  {{#if this.item}}
+                    <div class="df-item-tile item df-draggable-item" data-item-id="{{this.item.id}}" data-inventory-size="{{this.item.system.inventorySize}}" draggable="true" title="{{this.name}}{{#if this.powerName}} — {{this.powerName}}{{/if}}">
+                      <img class="df-item-icon" src="{{this.img}}" />
+                      <span class="df-consumable-badge">{{localize "MASTERY.consumable.badge"}}</span>
+                    </div>
+                  {{else}}
+                    <div class="df-slot-empty">{{localize "MASTERY.consumable.empty"}}</div>
+                  {{/if}}
+                </div>
+              {{/each}}
+            </div>
+            {{/if}}
+            <div class="df-consumable-panel{{#if consumableSlots.locked}} is-locked{{/if}}">
               {{#if consumableSlots.locked}}
               <p class="df-consumable-lock-hint">{{localize "MASTERY.consumable.lockedInCombat"}}</p>
               {{/if}}
