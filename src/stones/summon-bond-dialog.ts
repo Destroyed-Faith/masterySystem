@@ -109,6 +109,10 @@ export class SummonBondDialog extends BaseDialog {
   private ritualErrors: string[] = [];
   private ritualWarnings: string[] = [];
   private resolveClose?: (bond: SummonBondRecord | null) => void;
+  private uiScrollTop = 0;
+  private uiWindowScrollTop = 0;
+  private openBodyIndexes = new Set<number>([0]);
+  private restoreUiAfterRender = false;
 
   static DEFAULT_OPTIONS = {
     id: 'mastery-summon-bond',
@@ -354,6 +358,7 @@ export class SummonBondDialog extends BaseDialog {
     };
 
     const assignedBonus = sanitizeBonusTokens(this.draft.bonusTokens, maxBonusTokens);
+    const remaining = tokens.remaining;
     const artifactBonus = {
       value: assignedBonus,
       stones: assignedBonus / SUMMON_CAPS.artifactSummonTokensPerStone,
@@ -363,11 +368,17 @@ export class SummonBondDialog extends BaseDialog {
       canPlus: applyBonusTokenDelta(this.draft.bonusTokens, 1, maxBonusTokens, this.draft.boundStoneCount) != null,
       detected: maxBonusTokens > 0 || assignedBonus > 0,
     };
+    const skillDiceAssigned = Object.values(this.draft.skillDiceAlloc || {}).reduce(
+      (sum, n) => sum + safePurchaseInt(n),
+      0,
+    );
+    const canAffordSpecialAccess =
+      !!this.draft.spend.specialAccess || remaining >= SUMMON_CAPS.specialAccessTokenCost;
 
     const bodyViews = this.draft.bodies.map((body, index) => ({
       index,
       n: index + 1,
-      open: index === 0,
+      open: this.openBodyIndexes.has(index) || (this.openBodyIndexes.size === 0 && index === 0),
       dormant: !!body.dormant,
       hp: computed.bodies[index]?.hp ?? body.hp,
       armor: computed.bodies[index]?.armor ?? body.armor,
@@ -379,10 +390,14 @@ export class SummonBondDialog extends BaseDialog {
       armorStepper: bodyStepperView(this.draft.spend, index, 'armorPurchases', spendCtx, `+${SUMMON_CAPS.armorGain} Armor`),
       evadeStepper: bodyStepperView(this.draft.spend, index, 'evadePurchases', spendCtx, `+${SUMMON_CAPS.evadeGain} Evade`),
       summonActorId: body.summonActorId,
-      senses: SHARED_SENSE_GROUPS.map((s) => ({
-        ...s,
-        checked: (this.draft.spend.bodies[index]?.sharedSenses || []).includes(s.value),
-      })),
+      senses: SHARED_SENSE_GROUPS.map((s) => {
+        const checked = (this.draft.spend.bodies[index]?.sharedSenses || []).includes(s.value);
+        return {
+          ...s,
+          checked,
+          canAfford: checked || remaining >= SUMMON_CAPS.sharedSenseTokenCost,
+        };
+      }),
       powers: (body.powers || []).map((p) => {
         const ev = evaluateSummonPower(p.templateId, p.level, mr);
         return {
@@ -396,15 +411,19 @@ export class SummonBondDialog extends BaseDialog {
       }),
     }));
 
-    const powerCatalog = listSummonPowerCatalog(mr, 1).map((ev) => ({
-      templateId: ev.templateId,
-      name: ev.name,
-      category: ev.category,
-      ppCost: ev.ppCost,
-      tokenCost: ev.tokenCost,
-      legal: ev.legal,
-      reason: ev.reason,
-    }));
+    const powerCatalog = listSummonPowerCatalog(mr, 1)
+      .map((ev) => ({
+        templateId: ev.templateId,
+        name: ev.name,
+        category: ev.category,
+        ppCost: ev.ppCost,
+        tokenCost: ev.tokenCost,
+        legal: ev.legal,
+        reason: ev.reason,
+        affordable: ev.legal && ev.tokenCost <= remaining,
+      }))
+      .sort((a, b) => Number(b.affordable) - Number(a.affordable));
+    const canAddPower = powerCatalog.some((p) => p.affordable);
 
     const specialOptions = SUMMON_ELIGIBLE_SPECIALS.map((s) => ({
       ...s,
@@ -437,12 +456,19 @@ export class SummonBondDialog extends BaseDialog {
       poolGems: this.#poolGemsForRitual(),
       tokens: {
         ...tokens,
-        over: tokens.remaining < 0,
+        over: remaining < 0,
+        noneLeft: remaining <= 0,
+        boundTotal: this.draft.boundStoneCount * SUMMON_CAPS.tokensPerStone,
+        artifactBonus: assignedBonus,
         bodySpentViews: (tokens.bodySpent || []).map((n, i) => ({
           label: String.fromCharCode(65 + i),
           spent: n,
         })),
       },
+      canAffordSpecialAccess,
+      skillDiceAssigned,
+      skillDiceUnassigned: Math.max(0, computed.skillDiceTotal - skillDiceAssigned),
+      canAddPower,
       bondStatus: validation.status,
       bondStatusLabel: validation.statusLabel,
       computed,
@@ -480,10 +506,63 @@ export class SummonBondDialog extends BaseDialog {
     };
   }
 
+  #remaining(): number {
+    const ctx = this.#spendCtx();
+    return computeSummonBond({
+      boundStoneCount: this.draft.boundStoneCount,
+      bonusTokens: sanitizeBonusTokens(this.draft.bonusTokens, ctx.maxBonusTokens),
+      movementMode: this.draft.movementMode,
+      spend: sanitizeSpendNumbers(this.draft.spend),
+    }).tokensRemaining;
+  }
+
+  #scrollRoots(root: HTMLElement): { inner: HTMLElement | null; frame: HTMLElement | null } {
+    return {
+      inner: root.querySelector('.summon-bond-dialog'),
+      frame: root.querySelector('.window-content'),
+    };
+  }
+
+  #captureUi(): void {
+    const root = (this as any).element as HTMLElement | null;
+    if (!root) return;
+    const { inner, frame } = this.#scrollRoots(root);
+    this.uiScrollTop = inner?.scrollTop ?? 0;
+    this.uiWindowScrollTop = frame?.scrollTop ?? 0;
+    this.openBodyIndexes = new Set(
+      Array.from(root.querySelectorAll<HTMLElement>('.sb-body[open]')).map((el) => Number(el.dataset.bodyIndex)),
+    );
+  }
+
+  #restoreUi(): void {
+    const root = (this as any).element as HTMLElement | null;
+    if (!root) return;
+    const apply = () => {
+      const { inner, frame } = this.#scrollRoots(root);
+      if (inner) inner.scrollTop = this.uiScrollTop;
+      if (frame) frame.scrollTop = this.uiWindowScrollTop;
+    };
+    apply();
+    requestAnimationFrame(() => {
+      apply();
+      requestAnimationFrame(apply);
+    });
+  }
+
+  async #refresh(): Promise<void> {
+    this.#captureUi();
+    this.restoreUiAfterRender = true;
+    await this.render({ force: true });
+  }
+
   async _onRender(context: any, options: any): Promise<void> {
     await (super._onRender as any)?.(context, options);
     const root = (this as any).element as HTMLElement;
     if (!root) return;
+    if (this.restoreUiAfterRender) {
+      this.restoreUiAfterRender = false;
+      this.#restoreUi();
+    }
 
     root.querySelector('.js-sb-cancel')?.addEventListener('click', () => this.#close(null));
 
@@ -584,7 +663,7 @@ export class SummonBondDialog extends BaseDialog {
           this.draft.spend.movementPurchases = maxMove;
         }
         this.draft = recomputeBondDerived(this.draft);
-        this.render({ force: true });
+        void this.#refresh();
       });
     });
 
@@ -629,7 +708,7 @@ export class SummonBondDialog extends BaseDialog {
           );
           if (!nextAlloc) return;
           this.draft.skillDiceAlloc = nextAlloc;
-          this.render({ force: true });
+          void this.#refresh();
           return;
         }
 
@@ -647,7 +726,7 @@ export class SummonBondDialog extends BaseDialog {
         }
         this.ensureSpendBodies();
         this.draft = recomputeBondDerived(this.draft);
-        this.render({ force: true });
+        void this.#refresh();
       });
     });
 
@@ -663,18 +742,24 @@ export class SummonBondDialog extends BaseDialog {
       }
       this.ensureSpendBodies();
       this.draft = recomputeBondDerived(this.draft);
-      this.render({ force: true });
+      void this.#refresh();
     });
 
     root.querySelector('.js-sb-special-access')?.addEventListener('change', (ev) => {
       readIdentity();
-      this.draft.spend.specialAccess = (ev.target as HTMLInputElement).checked;
+      const on = (ev.target as HTMLInputElement).checked;
+      if (on && this.#remaining() < SUMMON_CAPS.specialAccessTokenCost) {
+        (ev.target as HTMLInputElement).checked = false;
+        ui.notifications?.warn(`Special Access costs ${SUMMON_CAPS.specialAccessTokenCost} Tokens.`);
+        return;
+      }
+      this.draft.spend.specialAccess = on;
       if (!this.draft.spend.specialAccess) {
         this.draft.specialKey = null;
         this.draft.spend.specialValuePurchases = 0;
       }
       this.draft = recomputeBondDerived(this.draft);
-      this.render({ force: true });
+      void this.#refresh();
     });
 
     root.querySelector('.js-sb-special-key')?.addEventListener('change', (ev) => {
@@ -693,22 +778,27 @@ export class SummonBondDialog extends BaseDialog {
           delete this.draft.skillDiceAlloc[skill];
         }
         this.draft.selectedSkills = [...set] as SummonSkillId[];
-        this.render({ force: true });
+        void this.#refresh();
       });
     });
 
     root.querySelectorAll('.js-sb-body-sense').forEach((el) => {
-      el.addEventListener('change', () => {
+      el.addEventListener('change', (ev) => {
         const bi = Number((el as HTMLElement).dataset.body);
         const sense = (el as HTMLElement).dataset.sense as SharedSenseGroup;
         const checked = (el as HTMLInputElement).checked;
+        if (checked && this.#remaining() < SUMMON_CAPS.sharedSenseTokenCost) {
+          (ev.target as HTMLInputElement).checked = false;
+          ui.notifications?.warn(`Shared Senses cost ${SUMMON_CAPS.sharedSenseTokenCost} Tokens.`);
+          return;
+        }
         const list = new Set(this.draft.spend.bodies[bi]?.sharedSenses || []);
         if (checked) list.add(sense);
         else list.delete(sense);
         this.draft.spend.bodies[bi].sharedSenses = [...list] as SharedSenseGroup[];
         this.ensureSpendBodies();
         this.draft = recomputeBondDerived(this.draft);
-        this.render({ force: true });
+        void this.#refresh();
       });
     });
 
@@ -727,12 +817,16 @@ export class SummonBondDialog extends BaseDialog {
           ui.notifications?.warn(ev.reason);
           return;
         }
+        if (ev.tokenCost > this.#remaining()) {
+          ui.notifications?.warn(`Need ${ev.tokenCost} Tokens, ${this.#remaining()} left.`);
+          return;
+        }
         const body = this.draft.bodies[bi];
         if (!body) return;
         body.powers = [...(body.powers || []), { templateId, level, tokenCost: ev.tokenCost, category: ev.category }];
         this.ensureSpendBodies();
         this.draft = recomputeBondDerived(this.draft);
-        this.render({ force: true });
+        void this.#refresh();
       });
     });
 
@@ -745,7 +839,7 @@ export class SummonBondDialog extends BaseDialog {
         body.powers = (body.powers || []).filter((_, i) => i !== pi);
         this.ensureSpendBodies();
         this.draft = recomputeBondDerived(this.draft);
-        this.render({ force: true });
+        void this.#refresh();
       });
     });
 
@@ -832,7 +926,7 @@ export class SummonBondDialog extends BaseDialog {
       return;
     }
     this.draft = structuredCloneBond(res.bond);
-    this.render({ force: true });
+    await this.#refresh();
   }
 
   async #removeStone(index: number): Promise<void> {
@@ -842,13 +936,13 @@ export class SummonBondDialog extends BaseDialog {
       return;
     }
     this.draft = structuredCloneBond(res.bond);
-    this.render({ force: true });
+    await this.#refresh();
   }
 
   async #setBonus(n: number): Promise<void> {
     const updated = await setBondBonusTokens(this.actor, this.draft.id, n);
     if (updated) this.draft = structuredCloneBond(updated);
-    this.render({ force: true });
+    await this.#refresh();
   }
 
   async #applyRitual(): Promise<void> {
@@ -860,7 +954,7 @@ export class SummonBondDialog extends BaseDialog {
     const inspect = inspectBondSpend(this.draft.spend, ctx);
     if (inspect.illegal) {
       this.ritualErrors = inspect.reasons;
-      this.render({ force: true });
+      await this.#refresh();
       ui.notifications?.warn(inspect.reasons[0] ?? 'Bond Ritual failed: illegal purchases.');
       return;
     }
@@ -869,7 +963,7 @@ export class SummonBondDialog extends BaseDialog {
     if (!result.bond) {
       this.ritualErrors = result.errors;
       this.ritualWarnings = result.warnings;
-      this.render({ force: true });
+      await this.#refresh();
       ui.notifications?.warn(result.errors[0] ?? 'Bond Ritual failed.');
       return;
     }
@@ -892,7 +986,7 @@ export class SummonBondDialog extends BaseDialog {
       }
     }
     ui.notifications?.info(`Bond Ritual applied for "${this.draft.name}".`);
-    this.render({ force: true });
+    await this.#refresh();
   }
 
   async #dissolve(): Promise<void> {
@@ -926,7 +1020,7 @@ export class SummonBondDialog extends BaseDialog {
     fresh.bodies[bodyIndex] = body;
     await upsertSummonBond(this.actor, fresh);
     this.draft = structuredCloneBond(fresh);
-    this.render({ force: true });
+    await this.#refresh();
   }
 
   #close(bond: SummonBondRecord | null): void {

@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.312] - 2026-08-13
+
+### Fixed
+
+- **Summon Bond Ritual UI:** Keep scroll position when buying upgrades. Sticky **Tokens left** counter shows Bound Stones + Artifact bonus + spent. Special Access, Shared Senses, and Add Power lock when Tokens are insufficient. Clearer copy for Artifact bonus and Summon Skills.
+
 ## [0.9.311] - 2026-08-13
 
 ### Fixed

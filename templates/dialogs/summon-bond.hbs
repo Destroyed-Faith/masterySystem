@@ -68,17 +68,25 @@
   {{/if}}
 
   {{#if isRitual}}
-  <section class="sb-section sb-token-bar">
-    <div class="sb-token-stat"><span>Total</span><strong>{{tokens.available}}</strong></div>
-    <div class="sb-token-stat"><span>Bond spent</span><strong>{{tokens.bondSpent}}</strong></div>
-    <div class="sb-token-stat"><span>Skills spent</span><strong>{{tokens.skillsSpent}}</strong></div>
-    {{#each tokens.bodySpentViews}}
-    <div class="sb-token-stat"><span>Body {{this.label}} spent</span><strong>{{this.spent}}</strong></div>
-    {{/each}}
-    <div class="sb-token-stat"><span>Remaining</span><strong class="{{#if tokens.over}}is-over{{/if}}">{{tokens.remaining}}</strong></div>
-    <div class="sb-token-stat"><span>Skill Slots</span><strong>{{tokens.skillSlots}}</strong></div>
-    <div class="sb-token-stat sb-status sb-status-{{bondStatus}}"><span>Status</span><strong>{{bondStatusLabel}}</strong></div>
-    <p class="sb-hint">Bond Ritual takes 1 hour. Attacks and Powers share one Bond Action Economy (Bodies do not get their own Attack Actions). Extra Attack is a Bond upgrade (max 3 Attacks total).</p>
+  <section class="sb-budget-sticky {{#if tokens.over}}is-over{{else if tokens.noneLeft}}is-empty{{/if}}">
+    <div class="sb-budget-left">
+      <span class="sb-budget-label">Tokens left</span>
+      <strong class="sb-budget-remaining {{#if tokens.over}}is-over{{/if}}">{{tokens.remaining}}</strong>
+      <span class="sb-budget-of">of {{tokens.available}}</span>
+    </div>
+    <div class="sb-budget-breakdown">
+      <div>Bound Stones {{draft.boundStoneCount}} × 8 = <strong>{{tokens.boundTotal}}</strong></div>
+      <div>Artifact bonus = <strong>+{{tokens.artifactBonus}}</strong> <span class="sb-meta">(not a Bond Upgrade — adds to the pool)</span></div>
+      <div>Spent {{tokens.spent}} · Bond {{tokens.bondSpent}} · Skills {{tokens.skillsSpent}}{{#each tokens.bodySpentViews}} · Body {{this.label}} {{this.spent}}{{/each}}</div>
+      <div class="sb-status sb-status-{{bondStatus}}">Status: <strong>{{bondStatusLabel}}</strong> · Skill slots: {{tokens.skillSlots}}</div>
+    </div>
+    {{#if tokens.over}}
+    <p class="sb-warn">Over budget. Reduce purchases until Tokens left is 0 or more.</p>
+    {{else if tokens.noneLeft}}
+    <p class="sb-hint">No Tokens left. Plus buttons and paid options are locked. Use minus to free Tokens.</p>
+    {{else}}
+    <p class="sb-hint">You can still buy anything that costs {{tokens.remaining}} Tokens or less.</p>
+    {{/if}}
     {{#if draft.needsRedistribution}}
     <p class="sb-warn">Needs Ritual — apply the Bond Ritual when the spend is legal.</p>
     {{/if}}
@@ -138,20 +146,25 @@
     {{else}}
     <p class="sb-meta">No additional free stones in your pool.</p>
     {{/if}}
+    {{#if artifactBonus.detected}}
     <div class="sb-stepper sb-stepper-artifact">
-      <div class="sb-stepper-name">Artifact bonus Tokens</div>
+      <div class="sb-stepper-name">Assign Artifact bonus to this Bond</div>
+      <p class="sb-hint">Some artifacts generate extra Summon Tokens (+4 each). Assign them here. They raise <strong>Tokens left</strong> at the top. They are not a Bond Upgrade and cannot create a Bond.</p>
       <div class="sb-stepper-row">
         <button type="button" class="js-sb-step sb-step-btn" data-field="bonusTokens" data-delta="-1" {{#unless artifactBonus.canMinus}}disabled{{/unless}} aria-label="Decrease Artifact bonus">−</button>
         <span class="sb-stepper-count" aria-live="polite">{{artifactBonus.value}}</span>
         <button type="button" class="js-sb-step sb-step-btn" data-field="bonusTokens" data-delta="1" {{#unless artifactBonus.canPlus}}disabled{{/unless}} aria-label="Increase Artifact bonus">+</button>
       </div>
-      <div class="sb-stepper-meta">{{artifactBonus.stones}} / {{artifactBonus.maxStones}} Artifact Summon Stones · +4 Tokens each · cannot create a Bond</div>
+      <div class="sb-stepper-meta">{{artifactBonus.stones}} / {{artifactBonus.maxStones}} Artifact Summon Stones assigned</div>
     </div>
+    {{else}}
+    <p class="sb-meta">No Artifact Summon Stones on this character. If an artifact grants them, +4 Tokens per stone appear in the pool at the top.</p>
+    {{/if}}
   </section>
 
   <section class="sb-section">
-    <h4>Bond Upgrades <span class="sb-meta">(shared by all bodies)</span></h4>
-    <p class="sb-hint">Movement lives here — not on the body. Base {{movementBaseM}} m; each purchase +2 m (max 16 m / {{movementMaxPurchases}} purchases).</p>
+    <h4>Bond Upgrades <span class="sb-meta">(shared by all bodies · spend from the Token pool above)</span></h4>
+    <p class="sb-hint">Every plus spends Tokens from the bar at the top. Movement lives here — not on the body. Base {{movementBaseM}} m; each purchase +2 m (max 16 m / {{movementMaxPurchases}} purchases).</p>
     <div class="sb-grid sb-grid-wide">
       <div class="sb-stepper">
         <div class="sb-stepper-name">Attack</div>
@@ -213,7 +226,11 @@
 
   <section class="sb-section">
     <h4>Special Access</h4>
-    <label class="sb-check"><input type="checkbox" class="js-sb-special-access" {{#if draft.spend.specialAccess}}checked{{/if}} /> Unlock Special Access (4 Tokens → Special(1))</label>
+    <label class="sb-check {{#unless canAffordSpecialAccess}}is-disabled{{/unless}}">
+      <input type="checkbox" class="js-sb-special-access" {{#if draft.spend.specialAccess}}checked{{/if}} {{#unless canAffordSpecialAccess}}disabled{{/unless}} />
+      Unlock Special Access (4 Tokens → Special(1))
+      {{#unless canAffordSpecialAccess}}<span class="sb-meta"> — need 4, {{tokens.remaining}} left</span>{{/unless}}
+    </label>
     {{#if draft.spend.specialAccess}}
     <label class="sb-field">Special
       <select class="js-sb-special-key">
@@ -238,7 +255,13 @@
 
   <section class="sb-section">
     <h4>Summon Skills</h4>
-    <p class="sb-meta">Select up to {{tokens.skillSlots}} skills. Distribute {{computed.skillDiceTotal}} purchased dice (≤ owner Rating).</p>
+    <p class="sb-hint">The Bond can use some of <strong>your</strong> skills. Bound Stones give {{tokens.skillSlots}} skill slots — tick that many skills below. Ticking a skill is free and only chooses which skills the Bond may use.</p>
+    <p class="sb-hint">To roll those skills, buy <strong>Skill Dice</strong> under Bond Upgrades (1 Token → 2 dice), then assign the dice here with + / −. A skill cannot have more dice than your own Rating.</p>
+    {{#if computed.skillDiceTotal}}
+    <p class="sb-preview-line">Purchased Skill Dice: {{computed.skillDiceTotal}} · Assigned: {{skillDiceAssigned}} · Still to assign: {{skillDiceUnassigned}}</p>
+    {{else}}
+    <p class="sb-meta">No Skill Dice purchased yet. The checkboxes only pick skills; they do not spend Tokens.</p>
+    {{/if}}
     <div class="sb-skill-list">
       {{#each skillOptions}}
       <div class="sb-skill-row">
@@ -296,7 +319,10 @@
       <div class="sb-sense-row">
         <span class="sb-meta">Shared Senses (2 Tokens each, body-specific)</span>
         {{#each this.senses}}
-        <label class="sb-check"><input type="checkbox" class="js-sb-body-sense" data-body="{{../index}}" data-sense="{{this.value}}" {{#if this.checked}}checked{{/if}} /> {{this.label}}</label>
+        <label class="sb-check {{#unless this.canAfford}}is-disabled{{/unless}}">
+          <input type="checkbox" class="js-sb-body-sense" data-body="{{../index}}" data-sense="{{this.value}}" {{#if this.checked}}checked{{/if}} {{#unless this.canAfford}}disabled{{/unless}} />
+          {{this.label}}
+        </label>
         {{/each}}
       </div>
       <div class="sb-powers">
@@ -312,7 +338,7 @@
         <div class="sb-power-add">
           <select class="js-sb-power-template" data-body="{{this.index}}">
             {{#each @root.powerCatalog}}
-            <option value="{{this.templateId}}" data-category="{{this.category}}" title="{{this.reason}}">{{this.name}} · {{this.category}} · {{this.ppCost}} PP · {{this.tokenCost}} tok{{#unless this.legal}} (illegal){{/unless}}</option>
+            <option value="{{this.templateId}}" data-category="{{this.category}}" data-cost="{{this.tokenCost}}" title="{{this.reason}}" {{#unless this.affordable}}disabled{{/unless}}>{{this.name}} · {{this.category}} · {{this.ppCost}} PP · {{this.tokenCost}} tok{{#unless this.affordable}} (need {{this.tokenCost}} tok){{/unless}}</option>
             {{/each}}
           </select>
           <select class="js-sb-power-level" data-body="{{this.index}}">
@@ -320,7 +346,7 @@
             <option value="{{this}}">L{{this}}</option>
             {{/each}}
           </select>
-          <button type="button" class="js-sb-add-power dialog-btn dialog-btn-secondary" data-body="{{this.index}}">Add Power</button>
+          <button type="button" class="js-sb-add-power dialog-btn dialog-btn-secondary" data-body="{{this.index}}" {{#unless @root.canAddPower}}disabled{{/unless}}>Add Power</button>
         </div>
       </div>
       <div class="sb-body-actions">
