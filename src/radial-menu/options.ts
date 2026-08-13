@@ -9,6 +9,7 @@ import type { RadialCombatOption, TargetGroup, AoEShape, InnerSegment } from './
 import type { AoeSpec } from '../types/item.js';
 import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
 import {
+  getAvailableAttackActions,
   getMovementRangeBonusMeters,
   getNpcAttackUsesThisRound,
   hasPowerBeenUsedThisRound,
@@ -30,6 +31,7 @@ import { artifactPowersUnlocked } from '../utils/artifact-actor-rules.js';
 import { resolveEquippedWeaponForAttackType } from '../utils/unarmed-fallback.js';
 import { filterCatalog } from '../utils/power-catalog.js';
 import { buildPowerItemFromCatalogEntry } from '../utils/power-item-builder.js';
+import { buildConsumableRadialOptions } from '../utils/consumable-slots.js';
 
 /**
  * True when activating spends an action: legacy `cost.action === true` or
@@ -1158,6 +1160,14 @@ export async function getAllCombatOptionsForActor(actor: any): Promise<RadialCom
     }
   } catch (err) {
     console.warn('Mastery System | Could not build artifact radial options:', err);
+  }
+
+  try {
+    const combat = (globalThis as any).game?.combat ?? null;
+    const available = combat ? getAvailableAttackActions(actor, combat) : 1;
+    options.push(...buildConsumableRadialOptions(actor, { attackActionsAvailable: available }));
+  } catch (err) {
+    console.warn('Mastery System | Could not build consumable radial options:', err);
   }
 
   // Logging

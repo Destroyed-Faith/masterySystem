@@ -884,6 +884,40 @@ Hooks.once('init', async function() {
     if (changed.flags?.['mastery-system'] !== undefined) {
       void refreshRadialMenuActionLabelsIfOpenForActor(actor);
     }
+    if (changed.system?.mastery?.rank !== undefined) {
+      void import('./utils/consumable-slots.js').then(async ({ syncConsumableSlotsToMasteryRank, rankChangeNotification }) => {
+        const names = await syncConsumableSlotsToMasteryRank(actor);
+        if (names.length) {
+          ui.notifications?.info(rankChangeNotification(names));
+        }
+        void refreshRadialMenuActionLabelsIfOpenForActor(actor);
+        const sheet = (actor as any).sheet;
+        if (sheet?.rendered) sheet.render(false);
+      });
+    }
+  });
+
+  const refreshConsumableSurfaces = (item: any) => {
+    const actor = item?.parent;
+    if (!actor || actor.documentName !== 'Actor') return;
+    void refreshRadialMenuActionLabelsIfOpenForActor(actor);
+    const sheet = actor.sheet;
+    if (sheet?.rendered) sheet.render(false);
+  };
+  Hooks.on('updateItem', (item: any, changed: any) => {
+    if (changed.flags?.['mastery-system']?.equipment !== undefined || changed.system?.consumable !== undefined) {
+      refreshConsumableSurfaces(item);
+    }
+  });
+  Hooks.on('createItem', (item: any) => {
+    if (item?.system?.consumable === true || item?.getFlag?.('mastery-system', 'minorMagic')) {
+      refreshConsumableSurfaces(item);
+    }
+  });
+  Hooks.on('deleteItem', (item: any) => {
+    if (item?.system?.consumable === true || item?.flags?.['mastery-system']?.minorMagic) {
+      refreshConsumableSurfaces(item);
+    }
   });
 
   Hooks.on('updateToken', (tokenDoc: any, changed: any) => {
@@ -2871,6 +2905,18 @@ Hooks.once('ready', async function() {
 
   if (migratedIcons > 0) {
     ui.notifications?.info(`Updated ${migratedIcons} item icons.`);
+  }
+});
+
+Hooks.once('ready', async function () {
+  try {
+    const { syncConsumableSlotsToMasteryRank } = await import('./utils/consumable-slots.js');
+    const characters = (game as any).actors?.filter((a: any) => a.type === 'character') || [];
+    for (const actor of characters) {
+      await syncConsumableSlotsToMasteryRank(actor);
+    }
+  } catch (err) {
+    console.warn('Mastery System | consumable slot rank sync on ready failed', err);
   }
 });
 

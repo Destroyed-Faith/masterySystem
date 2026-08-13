@@ -73,6 +73,7 @@ function createRadialOptionSlice(
   // Create the wedge graphics
   const wedge = new PIXI.Graphics();
   
+  const fillAlpha = option.disabled ? 0.28 : 0.6;
   // Draw the wedge as a ring segment (donut slice)
   // Start from inner radius at startAngle
   const innerStartX = Math.cos(startAngle) * MS_OUTER_RING_INNER;
@@ -80,7 +81,7 @@ function createRadialOptionSlice(
   const innerEndX = Math.cos(endAngle) * MS_OUTER_RING_INNER;
   const innerEndY = Math.sin(endAngle) * MS_OUTER_RING_INNER;
   
-  wedge.beginFill(ringColor, 0.6); // Default alpha
+  wedge.beginFill(ringColor, fillAlpha);
   wedge.moveTo(innerStartX, innerStartY);
   // Arc along outer radius
   wedge.arc(0, 0, MS_OUTER_RING_OUTER, startAngle, endAngle);
@@ -123,7 +124,22 @@ function createRadialOptionSlice(
   });
   label.anchor.set(0.5);
   label.position.set(textX, textY);
+  if (option.disabled) label.alpha = 0.45;
   container.addChild(label);
+  const iconSrc = option.item?.img;
+  if (iconSrc && (option.tags || []).includes('consumable')) {
+    try {
+      const icon = PIXI.Sprite.from(iconSrc);
+      icon.anchor.set(0.5);
+      icon.width = 16;
+      icon.height = 16;
+      icon.position.set(textX, textY - 14);
+      icon.alpha = option.disabled ? 0.45 : 1;
+      container.addChild(icon);
+    } catch {
+      /* ignore missing texture */
+    }
+  }
   
   // Make the entire wedge interactive
   container.interactive = true;
@@ -131,7 +147,7 @@ function createRadialOptionSlice(
   
   // Store reference to wedge graphics for hover effects
   (container as any).wedgeGfx = wedge;
-  (container as any).defaultAlpha = 0.6;
+  (container as any).defaultAlpha = fillAlpha;
   
   // Hover: highlight wedge, show range preview, and update info panel
   container.on('pointerover', () => {

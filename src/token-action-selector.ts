@@ -750,8 +750,21 @@ export async function handleChosenCombatOption(token: any, option: RadialCombatO
   }
 
   if (
+    option.costsAction &&
+    (option.consumableItemId || (option.tags || []).includes('consumable')) &&
+    getAvailableAttackActions(actor, combat) <= 0
+  ) {
+    ui.notifications?.warn(
+      game?.i18n?.localize('MASTERY.consumable.noAttackAction') ?? 'No Attack Actions remaining.',
+    );
+    return;
+  }
+
+  if (
     option.source === 'power' &&
     option.item?.id &&
+    !option.consumableItemId &&
+    !(option.tags || []).includes('consumable') &&
     hasPowerBeenUsedThisRound(actor, combat, option.item.id)
   ) {
     ui.notifications?.warn(

@@ -431,26 +431,29 @@ export async function showDamageDialog(
   }
   
   // Method 3: Equipped weapon matching attack type (from attack card flags)
-  if (!isNpcAttackFlow && !weaponForDamage && flags && (flags.attackType === 'melee' || flags.attackType === 'ranged')) {
+  if (!isNpcAttackFlow && !flags?.ignoreWeaponDamage && !weaponForDamage && flags && (flags.attackType === 'melee' || flags.attackType === 'ranged')) {
     weaponForDamage = resolveEquippedWeaponForAttackType(items, flags.attackType);
   }
 
   // Method 4: Virtual unarmed when no equipped weapon (melee only)
-  if (!isNpcAttackFlow && !weaponForDamage) {
+  if (!isNpcAttackFlow && !flags?.ignoreWeaponDamage && !weaponForDamage) {
     const atk =
       flags?.attackType === 'ranged' || flags?.attackType === 'melee'
         ? flags.attackType
         : 'melee';
     weaponForDamage = applyMeleeUnarmedFallback(weaponForDamage, atk);
   }
+  if (flags?.ignoreWeaponDamage) {
+    weaponForDamage = null;
+  }
   // Resolve base damage using helper (returns string directly)
-  const baseDamage = isNpcAttackFlow ? '0' : resolveWeaponBaseDamage(weaponForDamage);
+  const baseDamage = isNpcAttackFlow || flags?.ignoreWeaponDamage ? '0' : resolveWeaponBaseDamage(weaponForDamage);
   
   // Sanitize base damage before use
   const sanitizedBaseDamage = sanitizeDiceNotation(baseDamage);
 
   // Weapon specials should come from the same resolved weapon (only once)
-  const weaponSpecials: string[] = isNpcAttackFlow
+  const weaponSpecials: string[] = isNpcAttackFlow || flags?.ignoreWeaponDamage
     ? []
     : ((weaponForDamage?.system?.specials ?? []) as any[])
         .map(normalizeWeaponSpecial)

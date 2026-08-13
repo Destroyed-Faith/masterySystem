@@ -484,7 +484,8 @@
       "weight": 0,
       "quantity": 1,
       "equipSlots": [],
-      "equipped": false
+      "equipped": false,
+      "consumable": false
     }
   }
 }

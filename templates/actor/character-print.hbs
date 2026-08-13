@@ -324,6 +324,26 @@
       </div>
       {{/each}}
     </div>
+    {{#if consumableSlots.length}}
+    <div class="cp-consumable-head">{{localize "MASTERY.consumable.title"}}</div>
+    <div class="cp-consumable-row">
+      {{#each consumableSlots}}
+      <div class="cp-equip-slot{{#unless this.empty}} cp-equip-slot--filled{{/unless}}">
+        <div class="cp-equip-slot-label">{{this.label}}</div>
+        <div class="cp-equip-token">
+          {{#unless this.empty}}
+            {{#if this.img}}<img class="cp-equip-img" src="{{this.img}}" alt="" />{{/if}}
+            <span class="cp-equip-name">{{this.name}}</span>
+            {{#if this.powerName}}<span class="cp-consumable-power">{{localize "MASTERY.consumable.powerLabel"}}: {{this.powerName}}</span>{{/if}}
+            {{#if this.summary}}<span class="cp-consumable-summary">{{this.summary}}</span>{{/if}}
+          {{else}}
+            <span class="cp-equip-name">{{localize "MASTERY.consumable.empty"}}</span>
+          {{/unless}}
+        </div>
+      </div>
+      {{/each}}
+    </div>
+    {{/if}}
     <div class="cp-encumbrance-head"><span>Not Encumbered</span><span>Encumbered</span><span>Heavily Encumbered</span></div>
     <div class="cp-equip-grid" style="grid-template-columns: repeat({{equipment.cols}}, 1fr);">
       {{#each equipment.cells}}
@@ -486,6 +506,7 @@
                 {{#unless battleCompact}}{{#if effect}}<span class="cp-battle-card-eff">{{effect}}</span>{{/if}}{{/unless}}
                 {{#if attackRoll}}<span class="cp-battle-card-roll"><strong>Attack:</strong> {{attackRoll}}</span>{{/if}}
                 {{#if damageRoll}}{{#if (eq rollKind "heal")}}<span class="cp-battle-card-roll"><strong>Heal:</strong> {{damageRoll}}</span>{{else}}<span class="cp-battle-card-roll"><strong>{{#if rollLabel}}{{rollLabel}}{{else}}Damage{{/if}}:</strong> {{damageRoll}}</span>{{/if}}{{/if}}
+                {{#if fromConsumable}}<span class="cp-power-consumable" title="{{localize "MASTERY.consumable.badge"}}">{{localize "MASTERY.consumable.badge"}}</span>{{/if}}
                 {{#if battleFootnote}}<span class="cp-battle-card-footnote">{{battleFootnote}}</span>{{/if}}
               </span>
             </div>

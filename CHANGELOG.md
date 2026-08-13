@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.328] - 2026-08-13
+
+### Added
+
+- **Consumable Slots:** Each character has one Consumable Slot per Mastery Rank on the equipment paperdoll. Only items marked consumable (including Minor Magic Items) can occupy a slot. Equipped consumables appear as Attack Actions on the sheet, in the radial menu, and on the printable sheet. Use spends the existing Attack Action; a cancelled or failed use does not consume the item. Slots lock during combat. Lowering Mastery Rank unequips overflow items without deleting them.
+
 ## [0.9.327] - 2026-08-13
 
 ### Changed

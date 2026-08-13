@@ -249,6 +249,9 @@ export function getAttackAttribute(
   option: RadialCombatOption,
   attackType: "melee" | "ranged"
 ): string {
+  if (option.storedAttackPool?.attribute) {
+    return String(option.storedAttackPool.attribute).toLowerCase();
+  }
   if (option.source === "power" && option.item) {
     const powerSystem = (option.item.system as any) || {};
     const artifactIsSpell = option.artifactIsSpell === true;
@@ -371,11 +374,11 @@ export async function createAttackCard(
       )
     : null;
 
-  if (isNpcAttack) {
+  if (isNpcAttack || option.ignoreWeaponDamage) {
     weapon = null;
   }
 
-  if (!weapon && !isNpcAttack && attackType === 'melee') {
+  if (!weapon && !isNpcAttack && !option.ignoreWeaponDamage && attackType === 'melee') {
     weapon = createVirtualUnarmedWeapon();
   }
 
@@ -385,7 +388,11 @@ export async function createAttackCard(
   const attribute = getAttackAttribute(attacker, weapon, option, attackType);
   const poolFromNpc = npcAttackDiceCount(npcAttackRow);
   let attributeValue =
-    isNpcAttack && poolFromNpc > 0 ? poolFromNpc : getAttributeValue(attacker, attribute);
+    option.storedAttackPool && Number(option.storedAttackPool.numDice) > 0
+      ? Math.max(0, Math.floor(Number(option.storedAttackPool.numDice)))
+      : isNpcAttack && poolFromNpc > 0
+        ? poolFromNpc
+        : getAttributeValue(attacker, attribute);
   const masteryRank = getMasteryRank(attacker);
 
   // Split-Attack: halve the attack pool (floor) on every strike.
@@ -518,7 +525,9 @@ export async function createAttackCard(
   // Non-spell attack powers are weapon-carried: the wielded weapon's dice roll
   // on top of the power's bonus dice, so the preview can show the real total.
   if (raiseContext && !raiseContext.isSpell) {
-    raiseContext.weaponDamageDice = parseD8Count((weapon?.system as any)?.damage);
+    raiseContext.weaponDamageDice = option.ignoreWeaponDamage
+      ? 0
+      : parseD8Count((weapon?.system as any)?.damage);
   }
 
   const tr =
@@ -569,6 +578,8 @@ export async function createAttackCard(
     selectedPowerLevel: selectedPowerLevel,
     selectedPowerSpecials: selectedPowerSpecials,
     selectedPowerDamage: selectedPowerDamage || "",
+    consumableItemId: option.consumableItemId || null,
+    ignoreWeaponDamage: option.ignoreWeaponDamage === true,
     // Split-attack bookkeeping (both strikes carry the same pairId so the
     // damage dialog and chat handlers can render "Strike 1 of 2" markers and
     // halve the damage pool per strike).

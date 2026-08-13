@@ -488,6 +488,7 @@ export async function createMinorMagicItem(
         weight: 0,
         specials: [],
         baseDamage: '',
+        consumable: true,
       },
       flags: {
         'mastery-system': {

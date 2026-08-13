@@ -1770,6 +1770,22 @@
           {{else}}
           <p class="empty-message">No powers yet. Click "Add Mastery Power" or "Add Spell" to start.</p>
           {{/each}}
+          {{#if equippedConsumableActions.length}}
+          <details class="radial-maneuver-prefs-group powers-by-type-group powers-type-group-details" open>
+            <summary class="radial-maneuver-prefs-group-label powers-type-group-details-summary">
+              <span class="powers-type-group-label-text">{{localize "MASTERY.consumable.attackActions"}}</span>
+            </summary>
+            <ul class="df-consumable-action-list">
+              {{#each equippedConsumableActions}}
+              <li class="df-consumable-action">
+                <img src="{{this.img}}" alt="" />
+                <span class="df-consumable-action-name">{{this.name}}{{#if this.powerName}} <em>({{this.powerName}})</em>{{/if}}</span>
+                <button type="button" class="js-use-equipped-consumable" data-item-id="{{this.itemId}}">{{localize "MASTERY.consumable.use"}}</button>
+              </li>
+              {{/each}}
+            </ul>
+          </details>
+          {{/if}}
         </div>
       </details>
       {{/if}}
@@ -1895,6 +1911,41 @@
                 </div>
               {{/each}}
             </div>
+            <div class="df-consumable-panel{{#if consumableSlots.locked}} is-locked{{/if}}">
+              <h4>{{localize "MASTERY.consumable.title"}}</h4>
+              <div class="df-consumable-grid">
+                {{#each consumableSlots.slots}}
+                <div class="df-consumable-slot df-dropzone{{#unless this.empty}} is-filled{{/unless}}" data-df-drop="consumable-slot" data-slot-index="{{this.index}}" title="{{this.label}}">
+                  <div class="df-slot-label">{{this.label}}</div>
+                  {{#if this.item}}
+                    <div class="df-item-tile item df-draggable-item" data-item-id="{{this.item.id}}" data-inventory-size="{{this.item.system.inventorySize}}" draggable="true" title="{{this.name}}{{#if this.powerName}} — {{this.powerName}}{{/if}}">
+                      <img class="df-item-icon" src="{{this.img}}" />
+                      <span class="df-consumable-badge">{{localize "MASTERY.consumable.badge"}}</span>
+                    </div>
+                  {{else}}
+                    <div class="df-slot-empty">{{localize "MASTERY.consumable.empty"}}</div>
+                  {{/if}}
+                </div>
+                {{/each}}
+              </div>
+              {{#if consumableSlots.locked}}
+              <p class="df-consumable-lock-hint">{{localize "MASTERY.consumable.lockedInCombat"}}</p>
+              {{/if}}
+            </div>
+            {{#if equippedConsumableActions.length}}
+            <div class="df-consumable-actions">
+              <h4>{{localize "MASTERY.consumable.attackActions"}}</h4>
+              <ul class="df-consumable-action-list">
+                {{#each equippedConsumableActions}}
+                <li class="df-consumable-action">
+                  <img src="{{this.img}}" alt="" />
+                  <span class="df-consumable-action-name">{{this.name}}{{#if this.powerName}} <em>({{this.powerName}})</em>{{/if}}</span>
+                  <button type="button" class="js-use-equipped-consumable" data-item-id="{{this.itemId}}">{{localize "MASTERY.consumable.use"}}</button>
+                </li>
+                {{/each}}
+              </ul>
+            </div>
+            {{/if}}
           </div>
           <aside class="df-equip-trash df-dropzone" data-df-drop="equip-trash" title="Drag item here to delete">
             <i class="fas fa-trash-alt" aria-hidden="true"></i>

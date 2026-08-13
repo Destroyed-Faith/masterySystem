@@ -54,6 +54,16 @@ import {
   useMinorMagicItem,
 } from '../utils/minor-magic-items.js';
 import {
+  buildConsumableSlotView,
+  equippedConsumableActionRows,
+  equipConsumableToSlot,
+  isConsumableItem,
+  readConsumableSlotIndex,
+  transferConsumableToActor,
+  useEquippedConsumable,
+  validateUnequipConsumable,
+} from '../utils/consumable-slots.js';
+import {
   dissolveSummonBond,
   getSummonBondsFromActor,
   tokensSummary,
@@ -1038,6 +1048,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     
     // Build Equipment UI Context
     context.equipmentUi = this.#prepareEquipmentUi(context.items);
+    context.consumableSlots = buildConsumableSlotView(this.actor);
+    context.equippedConsumableActions = equippedConsumableActionRows(this.actor);
 
     context.hasProgressionArtifacts = actorHasProgressionArtifacts(this.actor);
     context.hasArtifactEvolution = context.hasProgressionArtifacts;
@@ -1594,6 +1606,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         }
       } else if (isEchoArtifactInventoryHidden(item)) {
         // Echo-bound artifacts belong on the paperdoll only — skip inventory clutter.
+        continue;
+      } else if (readConsumableSlotIndex(item) != null) {
+        // Occupies a Consumable Slot — still owned, but shown in that slot, not the grid.
         continue;
       } else {
         inventoryItems.push(item);
@@ -2310,7 +2325,19 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       const id = (ev.currentTarget as HTMLElement).dataset.itemId;
       const item = id ? this.actor.items.get(id) : null;
       if (!item) return;
-      const res = await useMinorMagicItem(this.actor, item, 'use');
+      const res = readConsumableSlotIndex(item) != null
+        ? await useEquippedConsumable(this.actor, item)
+        : { ok: false as const, error: (globalThis as any).game?.i18n?.localize?.('MASTERY.consumable.notEquipped') || 'Only equipped consumables can be used as an Attack Action.' };
+      if (!res.ok) (ui as any).notifications?.warn(res.error);
+      this.render(false);
+    });
+    html.off('click.consumableUse');
+    html.on('click.consumableUse', '.js-use-equipped-consumable', async (ev) => {
+      ev.preventDefault();
+      const id = (ev.currentTarget as HTMLElement).dataset.itemId;
+      const item = id ? this.actor.items.get(id) : null;
+      if (!item) return;
+      const res = await useEquippedConsumable(this.actor, item);
       if (!res.ok) (ui as any).notifications?.warn(res.error);
       this.render(false);
     });
@@ -7078,6 +7105,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       return true;
     }
 
+    if (target.dataset.dfDrop === 'consumable-slot') {
+      return this.#onDropConsumableSlot(event, data, target);
+    }
+
     // Get dropped item
     let droppedItem: any = null;
     if (data.uuid) {
@@ -7148,6 +7179,53 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     (this as any)._lastDroppedItemId = droppedItem?.id;
     (this as any)._lastDroppedItemName = droppedItem?.name;
     await new Promise(resolve => setTimeout(resolve, 0));
+    await this.render(true, { focus: false });
+    return true;
+  }
+
+  async #onDropConsumableSlot(event: DragEvent, data: any, target: HTMLElement): Promise<boolean> {
+    const index = Math.floor(Number(target.dataset.slotIndex));
+    let droppedItem: any = null;
+    if (data.uuid) {
+      try {
+        droppedItem = await fromUuid(data.uuid);
+      } catch {
+        droppedItem = null;
+      }
+    } else if (data.data?._id) {
+      droppedItem = this.actor.items.get(data.data._id);
+    }
+    if (!droppedItem) {
+      const dragItemId = (window as any).__msDragItemId as string | undefined;
+      if (dragItemId) droppedItem = this.actor.items.get(dragItemId);
+    }
+    if (!droppedItem) {
+      ui.notifications?.warn(
+        (globalThis as any).game?.i18n?.localize?.('MASTERY.consumable.missingItem') || 'Item not found.',
+      );
+      return false;
+    }
+    if (!isConsumableItem(droppedItem)) {
+      ui.notifications?.warn(
+        (globalThis as any).game?.i18n?.localize?.('MASTERY.consumable.notConsumable') ||
+          'Only consumable items can occupy a Consumable Slot.',
+      );
+      return false;
+    }
+    if (!droppedItem.parent || droppedItem.parent.id !== this.actor.id) {
+      const moved = await transferConsumableToActor(this.actor, droppedItem);
+      if (!moved) {
+        ui.notifications?.error(`Could not add ${droppedItem.name} to this character.`);
+        return false;
+      }
+      droppedItem = moved;
+    }
+    const result = await equipConsumableToSlot(this.actor, droppedItem, index);
+    if (!result.ok) {
+      ui.notifications?.warn(result.error);
+      return false;
+    }
+    (this as any)._lastDroppedItemId = droppedItem?.id;
     await this.render(true, { focus: false });
     return true;
   }
@@ -7439,6 +7517,17 @@ export class MasteryCharacterSheet extends BaseActorSheet {
 
     const currentFlags = item.getFlag('mastery-system', 'equipment') || {};
     const newFlags: any = { ...currentFlags };
+    if (readConsumableSlotIndex(item) != null && (dropType === 'stash' || dropType === 'band' || dropType === 'equip-slot')) {
+      const locked = validateUnequipConsumable({ actor: this.actor, item });
+      if (locked) {
+        ui.notifications?.warn(
+          (globalThis as any).game?.i18n?.localize?.('MASTERY.consumable.lockedInCombat') ||
+            'Consumable Slots cannot be changed during combat.',
+        );
+        return;
+      }
+      delete newFlags.consumableSlot;
+    }
     if (dropType === 'stash') {
       newFlags.container = 'stash';
       newFlags.band = null;
@@ -7491,6 +7580,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
           'system.equipped': false
         });
       }
+    } else if (dropType === 'consumable-slot') {
+      const index = Math.floor(Number(target.dataset.slotIndex));
+      const result = await equipConsumableToSlot(this.actor, item, index);
+      if (!result.ok) ui.notifications?.warn(result.error);
     } else if (dropType === 'equip-slot') {
       const slot = target.dataset.slot;
       if (!slot) return;

@@ -1346,6 +1346,35 @@
   margin-bottom: 4px;
 }
 
+.cp-consumable-head {
+  font-size: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin: 4px 0 2px;
+  color: #555;
+}
+
+.cp-consumable-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(22mm, 1fr));
+  gap: 3px;
+  margin-bottom: 4px;
+}
+
+.cp-consumable-power,
+.cp-consumable-summary {
+  display: block;
+  font-size: 6px;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.cp-power-consumable {
+  font-size: 6.5px;
+  text-transform: uppercase;
+  color: #7a4a00;
+}
+
 .cp-equip-slot {
   border: 1px solid #bbb;
   border-radius: 3px;

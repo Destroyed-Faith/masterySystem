@@ -49,6 +49,7 @@ import {
   basicCombatMrTimesTwo,
   buildBasicReactionItems,
 } from '../combat/basic-combat.js';
+import { buildConsumablePrintEntries, buildConsumablePrintSlots } from '../utils/consumable-slots.js';
 
 /** Options for the printable character sheet. */
 export interface CharacterPrintOptions {
@@ -367,6 +368,8 @@ function buildPrintEquipment(allItems: any[]): {
     if (slot) {
       if (!slotMap[slot]) slotMap[slot] = item;
     } else if (isEchoArtifactInventoryHidden(item)) {
+      continue;
+    } else if (flags?.consumableSlot != null && Number.isFinite(Number(flags.consumableSlot))) {
       continue;
     } else {
       carry.push(item);
@@ -825,6 +828,9 @@ export function buildCharacterPrintContext(
         battleActive.push(p);
     }
   }
+  for (const entry of buildConsumablePrintEntries(actor)) {
+    battleActive.push(entry);
+  }
   const battle = {
     movement: battleMovement,
     active: battleActive,
@@ -1083,6 +1089,7 @@ export function buildCharacterPrintContext(
     pageTotal: hasFamiliars ? 6 : 5,
     gear,
     equipment,
+    consumableSlots: buildConsumablePrintSlots(actor),
     technical
   };
 }

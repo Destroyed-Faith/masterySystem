@@ -1021,6 +1021,8 @@ export interface GearData extends BaseItemData {
   quantity: number;
   equipped: boolean;
   equipSlots?: string[];
+  /** Data-level mark: only these items may occupy Consumable Slots. */
+  consumable?: boolean;
 }
 
 

@@ -9476,6 +9476,81 @@
  *   row 3  mainhand    body    offhand
  *   row 4                         feet
  */
+.df-consumable-panel {
+  margin-top: 12px;
+}
+.df-consumable-panel h4,
+.df-consumable-actions h4 {
+  margin: 0 0 6px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.df-consumable-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(72px, 1fr));
+  gap: 8px;
+}
+.df-consumable-slot {
+  position: relative;
+  min-height: 72px;
+  border: 2px dashed rgba(255, 196, 90, 0.45);
+  border-radius: 10px;
+  background: rgba(80, 50, 10, 0.28);
+  overflow: hidden;
+}
+.df-consumable-slot.is-filled {
+  border-style: solid;
+  border-color: rgba(255, 196, 90, 0.75);
+}
+.df-consumable-panel.is-locked .df-consumable-slot {
+  opacity: 0.72;
+}
+.df-consumable-badge {
+  position: absolute;
+  right: 4px;
+  bottom: 4px;
+  font-size: 8px;
+  text-transform: uppercase;
+  background: rgba(0, 0, 0, 0.65);
+  color: #ffc45a;
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+.df-consumable-lock-hint {
+  margin: 6px 0 0;
+  font-size: 11px;
+  opacity: 0.8;
+}
+.df-consumable-actions {
+  margin-top: 12px;
+}
+.df-consumable-action-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.df-consumable-action {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.df-consumable-action img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+.df-consumable-action-name {
+  flex: 1;
+  min-width: 0;
+}
+.df-consumable-action button {
+  flex: 0 0 auto;
+}
+
 .df-equipped-grid {
   --df-paperdoll-square: minmax(56px, 4rem);
   --df-paperdoll-helm: minmax(48px, 3.25rem);
