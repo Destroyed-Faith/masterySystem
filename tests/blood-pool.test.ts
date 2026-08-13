@@ -70,11 +70,13 @@ describe('blood textures', () => {
     expect(BLOOD_TRAIL_TEXTURES).toContain(pickBloodTrailPath(4));
   });
 
-  it('sizes heavy stains larger than light ones', () => {
+  it('keeps stains around one hex, heavy only a little larger', () => {
     const light = bloodSpriteSize({ intensity: 'light', damage: 2, gridSize: 100 });
     const heavy = bloodSpriteSize({ intensity: 'heavy', damage: 8, gridSize: 100 });
     expect(heavy).toBeGreaterThan(light);
-    expect(light).toBeGreaterThan(50);
+    expect(light).toBeGreaterThan(40);
+    expect(light).toBeLessThanOrEqual(80);
+    expect(heavy).toBeLessThanOrEqual(140);
   });
 });
 

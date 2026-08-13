@@ -62,9 +62,9 @@ export const BLOOD_TRAIL_TEXTURES = [
 ] as const;
 
 const GRID_SPAN: Record<BloodEffectIntensity, { base: number; damageDiv: number; cap: number }> = {
-  light: { base: 0.72, damageDiv: 50, cap: 1.05 },
-  medium: { base: 1.15, damageDiv: 36, cap: 1.7 },
-  heavy: { base: 1.7, damageDiv: 22, cap: 2.6 },
+  light: { base: 0.55, damageDiv: 80, cap: 0.75 },
+  medium: { base: 0.8, damageDiv: 50, cap: 1.05 },
+  heavy: { base: 1.05, damageDiv: 40, cap: 1.35 },
 };
 
 /** Map legacy names and pass through the three current intensities. */
@@ -492,14 +492,20 @@ async function createPersistentBloodTile(
   }
 }
 
-function animateScaleIn(graphic: any, durationMs: number, from = 0.15, to = 1): void {
+/**
+ * Pop the stain in without resetting PIXI scale to 1.
+ * width/height already set the display size; scale 1 is the raw 1254px texture.
+ */
+function animateScaleIn(graphic: any, durationMs: number, fromFactor = 0.22): void {
+  const toX = Number(graphic.scale?.x) || 1;
+  const toY = Number(graphic.scale?.y) || toX;
   const ticker = (globalThis as any).canvas?.app?.ticker;
-  if (!ticker || !graphic) {
-    graphic.scale?.set?.(to, to);
+  if (!ticker || !graphic?.scale?.set) {
+    graphic.scale?.set?.(toX, toY);
     return;
   }
 
-  graphic.scale.set(from, from);
+  graphic.scale.set(toX * fromFactor, toY * fromFactor);
   const startAlpha = 0;
   const endAlpha = graphic.alpha ?? 0.75;
   graphic.alpha = startAlpha;
@@ -508,8 +514,8 @@ function animateScaleIn(graphic: any, durationMs: number, from = 0.15, to = 1): 
   const tick = (): void => {
     const t = Math.min(1, (performance.now() - start) / durationMs);
     const e = 1 - Math.pow(1 - t, 3);
-    const s = from + (to - from) * e;
-    graphic.scale.set(s, s);
+    const f = fromFactor + (1 - fromFactor) * e;
+    graphic.scale.set(toX * f, toY * f);
     graphic.alpha = startAlpha + (endAlpha - startAlpha) * e;
     if (t >= 1) ticker.remove(tick);
   };
@@ -551,7 +557,7 @@ async function createTexturedStain(
   markBloodGraphic(sprite, token, intensity);
 
   container.addChild(sprite);
-  animateScaleIn(sprite, intensity === 'heavy' ? 420 : 280, 0.22, 1);
+  animateScaleIn(sprite, intensity === 'heavy' ? 420 : 280, 0.22);
   return true;
 }
 
@@ -588,7 +594,7 @@ async function placeTrailSprite(
   sprite.position.set(position.x, position.y);
   markBloodGraphic(sprite, token, 'trail');
   container.addChild(sprite);
-  animateScaleIn(sprite, 220, 0.35, 1);
+  animateScaleIn(sprite, 220, 0.35);
   return true;
 }
 
@@ -614,7 +620,7 @@ export async function showBloodTrailForToken(
   const color = normalizeBloodColor(actor?.system?.bloodColor);
   const { pixi } = hexToRgb(color);
   const rotation = bloodTrailRotation(dx, dy);
-  const size = gridSize * 1.2;
+  const size = gridSize * 0.9;
 
   for (let i = 0; i < points.length; i++) {
     const path = pickBloodTrailPath(dx + dy * 3 + i * 17 + Number(tokenDoc.x || 0));
@@ -638,9 +644,9 @@ function createFallbackGraphic(
   const g = new PIXI.Graphics();
   const radius =
     intensity === 'heavy'
-      ? gridSize * Math.min(1.4 + damage / 18, 2.4)
+      ? gridSize * Math.min(0.48 + damage / 40, 0.62)
       : intensity === 'medium'
-        ? gridSize * 0.45
+        ? gridSize * 0.38
         : gridSize * 0.22;
   fillEllipse(g, 0, gridSize * 0.05, radius, radius * 0.78, pixiColor, 0.45);
   fillEllipse(g, radius * 0.08, gridSize * 0.08, radius * 0.42, radius * 0.32, darkerColor, 0.55);
@@ -649,7 +655,7 @@ function createFallbackGraphic(
   markBloodGraphic(g, token, intensity);
   pruneOldStains(container);
   container.addChild(g);
-  animateScaleIn(g, 300, 0.18, 1);
+  animateScaleIn(g, 300, 0.18);
 }
 
 /**

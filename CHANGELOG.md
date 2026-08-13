@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.323] - 2026-08-13
+
+### Fixed
+
+- **Blood stain size:** The pop-in animation reset PIXI scale to 1, so each splash drew at the full 1254px texture instead of one hex. Stains now stay on the token’s hex, with only a little spray into neighbors.
+
 ## [0.9.322] - 2026-08-13
 
 ### Changed
