@@ -70,6 +70,7 @@ Version: v0.9.8 (2026-08-01)
 
 - #### [{{ Artwork Credits}}{{ 2}}](#p2)
 - #### [{{ Movement Powers}}{{ 4}}](#p4)
+- #### [{{ Technical Power Names}}{{ 4}}](#p4)
 - #### [{{ Normal Movement Baseline}}{{ 4}}](#p4)
 - #### [{{ Movement Pricing Philosophy}}{{ 4}}](#p4)
 - #### [{{ Movement Restrictions}}{{ 4}}](#p4)
@@ -100,6 +101,18 @@ Movement Powers replace your normal Movement for the round.
 They are used to change **how** you move, **where** you can move, or **what kind of path** you may take.
 
 A Movement Power is not an Attack Action, not an Active Buff, not a Reaction, and not a Special-delivery system.
+
+---
+
+### Technical Power Names
+
+Every catalogue entry uses its heading as its canonical technical Power name.
+
+The technical Power name defines rules identity and data identity. Power Level changes the strength of that Power, not its identity.
+
+A character-facing name is not part of this catalogue and never creates a second mechanical Power.
+
+Foundry must store the technical Power name separately from Power Level and any character-facing label. Rules comparisons use the technical Power name.
 
 ---
 
@@ -191,21 +204,17 @@ Last-second repositioning is handled only by **Reaction: Reposition**, not by Mo
       BASELINES<br>
       Normal Movement = 8 m.<br>
       Ground Dash is the cheapest Movement type because it follows normal ground paths and provokes movement-triggered Reactions normally.<br><br>
-
       PRICING LOGIC<br>
       Ground Dash is valued at roughly 10 PP per meter above normal Movement, but it is hard-capped to avoid extreme high-level movement.<br>
       The listed distance is total Movement, not bonus Movement.<br><br>
-
       DESIGN STRUCTURE<br>
       This Movement replaces your normal Movement for the round.<br>
       You move along legal ground paths.<br>
       You do not ignore terrain, creatures, walls, hazards, zones, elevation, or engagement.<br>
       This Movement provokes movement-triggered Reactions normally.<br><br>
-
       DISTANCE CAP<br>
       Ground Dash scales from normal movement up to a hard cap of 34 m.<br>
       This allows high-level speed without creating 40–50 m default combat movement.<br><br>
-
       NOTES<br>
       This grants no Safe Movement, Teleport, Flight, Damage, Special, Attack Dice, Critical, Armor, Evade, Temporary HP, or other rider.
     </span>
@@ -246,21 +255,17 @@ You commit your Movement to speed, crossing ground faster than a normal combatan
       BASELINES<br>
       Normal Movement = 8 m.<br>
       Safe Movement is premium ground movement because it avoids movement-triggered Reactions.<br><br>
-
       PRICING LOGIC<br>
       Safe Movement is valued at roughly 25 PP per meter because preventing movement-triggered Reactions is a major tactical advantage.<br>
       It is intentionally shorter than Ground Dash.<br><br>
-
       DESIGN STRUCTURE<br>
       This Movement replaces your normal Movement for the round.<br>
       You move along a legal ground path without provoking movement-triggered Reactions.<br>
       You still obey terrain, walls, creatures, hazards, zones, elevation, and movement restrictions.<br>
       This is not Teleport and does not skip intervening spaces.<br><br>
-
       DISTANCE CAP<br>
       Safe Movement scales to a hard cap of 20 m.<br>
       It is not meant to be the fastest Movement type; it is meant to be the safest ground Movement type.<br><br>
-
       NOTES<br>
       This grants no Evade bonus against attacks.<br>
       It does not cancel attacks.<br>
@@ -305,25 +310,20 @@ You move with perfect timing, slipping past openings without giving enemies a cl
       Normal Movement = 8 m.<br>
       Teleport is premium Movement.<br>
       Teleport is valued at roughly 30 PP per meter.<br><br>
-
       PRICING LOGIC<br>
       Teleport is more valuable than Flight because it skips intervening spaces.<br>
       It does not move through the path and therefore does not provoke movement-triggered Reactions through that path.<br>
       It can bypass gaps, hazards, enemies, and many positioning problems, so its distance is tightly capped.<br><br>
-
       DESIGN STRUCTURE<br>
       This Movement replaces your normal Movement for the round.<br>
       You instantly relocate to a visible legal space within range.<br>
       You must end in a legal free space.<br><br>
-
       RESTRICTIONS<br>
       You cannot teleport into solid matter, sealed spaces, occupied spaces, or invalid spaces.<br>
       You must see or clearly know the destination unless a Tree explicitly says otherwise.<br>
       This does not carry allies unless using Movement: Teleport with Ally.<br><br>
-
       DISTANCE CAP<br>
       Teleport scales to a hard cap of 16 m.<br><br>
-
       NOTES<br>
       This grants no Damage, Special, Attack Dice, Critical, Armor, Evade, Temporary HP, defensive Phasing, or other rider.
     </span>
@@ -364,26 +364,21 @@ You fold distance and appear somewhere else without crossing the space between.
       BASELINES<br>
       Teleport is valued at roughly 30 PP per meter.<br>
       Carrying one willing ally is a premium add-on because it moves another creature without using that creature's Movement.<br><br>
-
       PRICING LOGIC<br>
       This Movement is intentionally shorter than normal Teleport.<br>
       Moving an ally is a major tactical advantage, especially for rescue, extraction, engagement, and terrain bypass.<br><br>
-
       DESIGN STRUCTURE<br>
       This Movement replaces your normal Movement for the round.<br>
       You teleport yourself and one willing ally within 2 m to visible legal spaces within range.<br>
       The ally must be willing and within 2 m when you use this Movement.<br>
       Both destinations must be legal free spaces.<br><br>
-
       RESTRICTIONS<br>
       This cannot move unwilling creatures.<br>
       This cannot carry more than one ally.<br>
       This does not carry additional creatures or oversized objects unless a Tree explicitly says otherwise.<br>
       This does not provoke movement-triggered Reactions through the path because it is teleportation.<br><br>
-
       DISTANCE CAP<br>
       Teleport with Ally scales to a hard cap of 12 m.<br><br>
-
       NOTES<br>
       This grants no Damage, Special, Attack Dice, Critical, Armor, Evade, Temporary HP, defensive Phasing, or other rider.
     </span>
@@ -425,24 +420,19 @@ You fold distance around yourself and one nearby ally, pulling them through the 
       Normal Movement = 8 m.<br>
       Flight is premium movement because it ignores many ground-based terrain and elevation limits.<br>
       Flight is valued at roughly 20 PP per meter.<br><br>
-
       PRICING LOGIC<br>
       Flight is cheaper than Teleport because it still follows a path and can be interacted with along that path.<br>
       It is more expensive than Ground Dash because it opens three-dimensional movement and bypasses many ground obstacles.<br><br>
-
       DESIGN STRUCTURE<br>
       This Movement replaces your normal Movement for the round.<br>
       You may fly up to the listed distance.<br>
       This flight lasts only for this Movement unless another rule grants sustained flight or hovering.<br><br>
-
       RESTRICTIONS<br>
       You must end this Movement in a legal space where you can remain safely unless another Power grants sustained flight or hovering.<br>
       Flight does not automatically grant Safe Movement.<br>
       Flight may provoke movement-triggered Reactions normally when relevant.<br><br>
-
       DISTANCE CAP<br>
       Flight scales to a hard cap of 24 m.<br><br>
-
       NOTES<br>
       This grants no Damage, Special, Attack Dice, Critical, Armor, Evade, Temporary HP, defensive Phasing, or other rider.
     </span>
@@ -484,21 +474,17 @@ You lift from the ground and move through the air under your own power.
       Normal Movement = 8 m.<br>
       Leap is burst movement through a jump arc.<br>
       Leap is valued at roughly 15 PP per horizontal meter because it can cross gaps and height, but still needs a legal arc and landing point.<br><br>
-
       DESIGN STRUCTURE<br>
       This Movement replaces your normal Movement for the round.<br>
       You may leap up to the listed distance horizontally, or up to half the listed distance vertically.<br>
       You must have a legal landing point.<br><br>
-
       RESTRICTIONS<br>
       Leap follows an arc unless a Tree explicitly says otherwise.<br>
       It does not pass through walls, ceilings, or solid obstacles.<br>
       It does not ignore hazards in spaces you pass through unless the GM rules your arc avoids them.<br>
       Leap does not automatically prevent movement-triggered Reactions.<br><br>
-
       DISTANCE CAP<br>
       Leap scales to a hard cap of 28 m horizontally or 14 m vertically.<br><br>
-
       NOTES<br>
       This grants no Safe Movement, Teleport, Flight, Damage, Special, Attack Dice, Critical, Armor, Evade, Temporary HP, or other rider.
     </span>
@@ -540,26 +526,21 @@ You launch yourself in a powerful arc, crossing gaps or height that normal movem
       Normal Movement = 8 m.<br>
       Wall Walk is traversal movement that allows movement along walls, ceilings, cliffs, or similar solid surfaces.<br>
       Wall Walk is valued at roughly 12 PP per meter.<br><br>
-
       PRICING LOGIC<br>
       Wall Walk is cheaper than Flight because it still requires a valid surface and follows a path.<br>
       It is more expensive than Ground Dash because it changes which surfaces count as legal movement.<br><br>
-
       DESIGN STRUCTURE<br>
       This Movement replaces your normal Movement for the round.<br>
       You may move along vertical or inverted solid surfaces up to the listed distance.<br>
       You must remain in contact with a valid surface unless another rule says otherwise.<br><br>
-
       RESTRICTIONS<br>
       You must end this Movement on a legal surface you can occupy or hold.<br>
       This does not grant Flight.<br>
       This does not grant Safe Movement.<br>
       This does not let you pass through walls.<br>
       This may provoke movement-triggered Reactions normally.<br><br>
-
       DISTANCE CAP<br>
       Wall Walk scales to a hard cap of 28 m.<br><br>
-
       NOTES<br>
       This grants no Damage, Special, Attack Dice, Critical, Armor, Evade, Temporary HP, defensive Phasing, or other rider.
     </span>
@@ -600,25 +581,20 @@ You cling, crawl, run, or move across surfaces that normal movement cannot use.
       BASELINES<br>
       Burrow is exotic traversal movement.<br>
       It is valued similarly to Teleport in distance because it can bypass encounter geometry, but it is restricted by material.<br><br>
-
       PRICING LOGIC<br>
       Burrow is not slower than Teleport because it is cheaper.<br>
       Instead, Burrow uses the same 1–16 m distance band as Teleport, but it only works through suitable material and has stricter terrain rules.<br><br>
-
       DESIGN STRUCTURE<br>
       This Movement replaces your normal Movement for the round.<br>
       You may move through suitable loose earth, sand, mud, snow, ash, or similar soft material.<br>
       This is not general phasing and does not pass through stone, metal, worked walls, magical barriers, or solid structures unless a Tree explicitly says otherwise.<br><br>
-
       RESTRICTIONS<br>
       You must begin adjacent to or inside suitable burrowable material.<br>
       You must end in a legal space or a legal burrowed position allowed by the GM.<br>
       Burrow does not automatically grant stealth, cover, immunity, defensive Phasing, or protection from attacks.<br>
       Burrow does not allow free attacks from complete safety unless another rule explicitly says so.<br><br>
-
       DISTANCE CAP<br>
       Burrow scales to a hard cap of 16 m.<br><br>
-
       NOTES<br>
       This grants no Damage, Special, Attack Dice, Critical, Armor, Evade, Temporary HP, defensive Phasing, or other rider.
     </span>
@@ -659,27 +635,22 @@ You force your way through soft material beneath or around the battlefield.
       BASELINES<br>
       Phase Passage is traversal phasing, not defensive Phasing.<br>
       It is one of the most restricted Movement types because passing through solid material can bypass encounter geometry completely.<br><br>
-
       PRICING LOGIC<br>
       Phase Passage is not priced as normal distance.<br>
       It is priced by total material thickness passed through during the Movement.<br>
       This is intentionally much more restricted than Teleport or Flight.<br><br>
-
       TRAVERSAL PHASING VS DEFENSIVE PHASING<br>
       Traversal Phasing lets you pass through material.<br>
       Defensive Phasing lets you ignore hits.<br>
       These are separate subsystems.<br>
       This Movement never grants defensive Phasing, never ignores attacks, and never creates or spends Phasing charges.<br><br>
-
       RESTRICTIONS<br>
       You may pass through up to the listed total thickness of solid material during the Movement.<br>
       You must end in a legal free space.<br>
       You cannot remain inside solid material after the Movement ends.<br>
       This cannot bypass magical barriers unless a Tree explicitly says otherwise.<br><br>
-
       MATERIAL CAP<br>
       Phase Passage scales to a hard cap of 8 m total material thickness.<br><br>
-
       NOTES<br>
       This grants no Damage, Special, Attack Dice, Critical, Armor, Evade, Temporary HP, defensive Phasing, or other rider.
     </span>
@@ -720,30 +691,25 @@ You briefly become able to pass through matter, but only as movement, not as pro
       BASELINES<br>
       Trample is offensive movement through contact, not an Attack Action.<br>
       Trample combines limited movement distance with limited fixed contact damage.<br><br>
-
       PRICING LOGIC<br>
       Trample damage is priced conservatively because it can affect multiple creatures along a path.<br>
       It does not use weapon damage, does not make an attack roll, and does not gain offensive riders.<br>
       Targets apply Armor, Damage Reduction, resistance, immunity, and other legal mitigation normally.<br><br>
-
       DESIGN STRUCTURE<br>
       This Movement replaces your normal Movement for the round.<br>
       Move up to the listed distance in a legal path.<br>
       The first time during this Movement that you move through or directly over a creature's space, that creature takes the listed damage.<br>
       Each creature can be damaged by this Movement only once.<br><br>
-
       RESTRICTIONS<br>
       This is not an attack roll.<br>
       This is not weapon damage.<br>
       This cannot generate Raises.<br>
       This does not apply Specials.<br>
       This does not increase Specials.<br>
-      This does not benefit from Critical, Active Buff: Damage, Active Buff: Penetration, or Special Overdrive.<br>
+      This does not benefit from Critical, Active Buff: Damage, Active Buff: Penetration, or Active Buff: Special Increase.<br>
       Trample provokes movement-triggered Reactions normally unless another rule explicitly prevents them.<br><br>
-
       PATH CAP<br>
       Trample movement scales to a hard cap of 24 m.<br><br>
-
       NOTES<br>
       This grants no Attack Dice, Critical, Special, Armor, Evade, Temporary HP, Phasing, or other rider.
     </span>

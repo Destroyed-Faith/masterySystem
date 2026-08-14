@@ -51,51 +51,51 @@
 ---
 - #### [{{ Choose your Powers}}{{ 60}}](#p60)
 ---
-- #### [{{ Languages}}{{ 63}}](#p63)
+- #### [{{ Languages}}{{ 64}}](#p64)
 ---
-- #### [{{ Schticks}}{{ 64}}](#p64)
+- #### [{{ Schticks}}{{ 65}}](#p65)
 ---
-- #### [{{ Playable Echoes}}{{ 67}}](#p67)
+- #### [{{ Playable Echoes}}{{ 68}}](#p68)
 ---
-- #### [{{ Social Combat}}{{ 119}}](#p119)
+- #### [{{ Social Combat}}{{ 121}}](#p121)
 ---
-- #### [{{ Disadvantages}}{{ 122}}](#p122)
+- #### [{{ Disadvantages}}{{ 124}}](#p124)
 ---
-- #### [{{ Finished Character: Alaris}}{{ 131}}](#p131)
+- #### [{{ Finished Character: Alaris}}{{ 133}}](#p133)
 ---
 
 ### Core Rules & Combat
 
 ---
-- #### [{{ Stone Abilities}}{{ 132}}](#p132)
+- #### [{{ Stone Abilities}}{{ 134}}](#p134)
 ---
-- #### [{{ Types of Powers}}{{ 136}}](#p136)
+- #### [{{ Types of Powers}}{{ 138}}](#p138)
 ---
-- #### [{{ Power Tags}}{{ 136}}](#p136)
+- #### [{{ Power Tags}}{{ 138}}](#p138)
 ---
-- #### [{{ Combat Core}}{{ 137}}](#p137)
+- #### [{{ Combat Core}}{{ 139}}](#p139)
 ---
-- #### [{{ Combat Senses}}{{ 140}}](#p140)
+- #### [{{ Combat Senses}}{{ 142}}](#p142)
 ---
-- #### [{{ Initiative}}{{ 153}}](#p153)
+- #### [{{ Initiative}}{{ 155}}](#p155)
 ---
-- #### [{{ Attacks}}{{ 154}}](#p154)
+- #### [{{ Attacks}}{{ 156}}](#p156)
 ---
-- #### [{{ Armor and Shields}}{{ 157}}](#p157)
+- #### [{{ Armor and Shields}}{{ 159}}](#p159)
 ---
-- #### [{{ Attribute Checks Against Effects}}{{ 158}}](#p158)
+- #### [{{ Attribute Checks Against Effects}}{{ 160}}](#p160)
 ---
-- #### [{{ Advantage and Disadvantage}}{{ 159}}](#p159)
+- #### [{{ Advantage and Disadvantage}}{{ 161}}](#p161)
 ---
-- #### [{{ Health & Stress}}{{ 160}}](#p160)
+- #### [{{ Health & Stress}}{{ 162}}](#p162)
 ---
-- #### [{{ Combat Maneuvers}}{{ 165}}](#p165)
+- #### [{{ Combat Maneuvers}}{{ 167}}](#p167)
 ---
-- #### [{{ Rest & Recovery}}{{ 167}}](#p167)
+- #### [{{ Rest & Recovery}}{{ 169}}](#p169)
 ---
-- #### [{{ Progression}}{{ 169}}](#p169)
+- #### [{{ Progression}}{{ 171}}](#p171)
 ---
-- #### [{{ Mastery Rank Progression}}{{ 172}}](#p172)
+- #### [{{ Mastery Rank Progression}}{{ 174}}](#p174)
 ---
 
 }}
@@ -107,21 +107,21 @@
 ### Powers & Magic
 
 ---
-- #### [{{ Special Effects Reference}}{{ 175}}](#p175)
+- #### [{{ Special Effects Reference}}{{ 177}}](#p177)
 ---
-- #### [{{ Equipment}}{{ 178}}](#p178)
+- #### [{{ Equipment}}{{ 180}}](#p180)
 ---
-- #### [{{ Weapons}}{{ 181}}](#p181)
+- #### [{{ Weapons}}{{ 183}}](#p183)
 ---
-- #### [{{ Magic}}{{ 182}}](#p182)
+- #### [{{ Magic}}{{ 184}}](#p184)
 ---
-- #### [{{ Mental Powers}}{{ 184}}](#p184)
+- #### [{{ Mental Powers}}{{ 186}}](#p186)
 ---
-- #### [{{ Powers}}{{ 187}}](#p187)
+- #### [{{ Powers}}{{ 189}}](#p189)
 ---
-- #### [{{ Minor Expressions}}{{ 194}}](#p194)
+- #### [{{ Minor Expressions}}{{ 196}}](#p196)
 ---
-- #### [{{ Minor Expressions Catalogue}}{{ 196}}](#p196)
+- #### [{{ Minor Expressions Catalogue}}{{ 198}}](#p198)
 ---
 
 ### Power Catalogues
@@ -141,25 +141,25 @@
 ### Rituals, Summons & Artifacts
 
 ---
-- #### [{{ Rituals}}{{ 208}}](#p208)
+- #### [{{ Rituals}}{{ 210}}](#p210)
 ---
-- #### [{{ Summons}}{{ 219}}](#p219)
+- #### [{{ Summons}}{{ 221}}](#p221)
 ---
-- #### [{{ Artifacts}}{{ 225}}](#p225)
+- #### [{{ Artifacts}}{{ 233}}](#p233)
 ---
 
 ### Advanced & Optional Systems
 
 ---
-- #### [{{ Player Cheat Sheet}}{{ 227}}](#p227)
+- #### [{{ Player Cheat Sheet}}{{ 235}}](#p235)
 ---
-- #### [{{ Game System Details}}{{ 229}}](#p229)
+- #### [{{ Game System Details}}{{ 237}}](#p237)
 ---
 
 ### Appendix
 
 ---
-- #### [{{ Appendix — Special Descriptions}}{{ 230}}](#p230)
+- #### [{{ Appendix — Special Descriptions}}{{ 238}}](#p238)
 
 }}
 
@@ -280,10 +280,7 @@ Illumara, also known as “The City of the Sacred Flame,” had been the heart o
 The city rested upon a gentle plateau and had been known for its white stone buildings, which gleamed in the sunlight and were adorned with healing symbols and arcane runes.
 The streets of Illumara had been spacious and paved with mosaics depicting Valkath’s symbols healing hands, crystals, and radiant flames representing the flow of magical and restorative energy.
 
-At the center of the city stood the Temple of Enlightenment, a magnificent structure crowned by a great glass dome that captured the sunlight and scattered it across the city in vibrant colors.
-Within the temple burned Valkath’s Heart, an eternal flame revered as a sacred symbol of the goddess’s healing power and arcane wisdom.
-The temple’s priests and priestesses known as the “Keepers of the Flame” had tended to the fire and offered healing rituals and blessings to all who had sought comfort or protection.
-The flame had been considered a living manifestation of Valkath’s blessing and had drawn pilgrims from across the world, seeking both spiritual and physical healing within its radiant glow.
+
 :
 }}
 
@@ -292,6 +289,12 @@ The flame had been considered a living manifestation of Valkath’s blessing and
 
 {{wide
 
+At the center of the city stood the Temple of Enlightenment, a magnificent structure crowned by a great glass dome that captured the sunlight and scattered it across the city in vibrant colors.
+Within the temple burned Valkath’s Heart, an eternal flame revered as a sacred symbol of the goddess’s healing power and arcane wisdom.
+The temple’s priests and priestesses known as the “Keepers of the Flame” had tended to the fire and offered healing rituals and blessings to all who had sought comfort or protection.
+The flame had been considered a living manifestation of Valkath’s blessing and had drawn pilgrims from across the world, seeking both spiritual and physical healing within its radiant glow.
+
+:
 ### Zehrion 
 
 In the southeast lay the vast, desert-like expanse of Zehrion.
@@ -334,10 +337,7 @@ The tower had housed the Guild of Ithkor, a powerful organization that had contr
 Composed of seasoned traders, spies, and diplomats, the guild had adhered to Ithkor’s teachings and had excelled in the arts of deception and manipulation.
 The tower had also contained a vast archive of valuable trade agreements, secret contracts, and intelligence on the continent’s most influential merchants and political leaders — knowledge the guild had wielded with precision and cunning.
 
-The Grand Bazaar had been the center of daily life in Draemir a vast, covered market where merchants from every corner of the world had sold their wares.
-There, visitors could have found rare and exotic goods, and it had been an open secret that more illicit dealings had taken place in the shadowy backstreets.
-Contracts had been sealed in hushed corners over a glass of wine, and it had not been uncommon for the most profitable negotiations to revolve not around price, but information.
-One tradition had endured above all others: every new merchant had tossed a coin into the Bazaar’s Fountain and had whispered a small secret to Ithkor, hoping to earn his favor.
+
 
 :
 
@@ -345,9 +345,13 @@ One tradition had endured above all others: every new merchant had tossed a coin
 
 \page
 {{pageNumber,auto}}
-
-
 {{wide
+The Grand Bazaar had been the center of daily life in Draemir a vast, covered market where merchants from every corner of the world had sold their wares.
+There, visitors could have found rare and exotic goods, and it had been an open secret that more illicit dealings had taken place in the shadowy backstreets.
+Contracts had been sealed in hushed corners over a glass of wine, and it had not been uncommon for the most profitable negotiations to revolve not around price, but information.
+One tradition had endured above all others: every new merchant had tossed a coin into the Bazaar’s Fountain and had whispered a small secret to Ithkor, hoping to earn his favor.
+:
+
 ### Kalgrad 
 Far to the north rose Kalgrad, a harsh land of icy mountains, volcanic craters, and blazing forges.
 Minotaurs and dwarves had defied the cold there. 
@@ -379,7 +383,7 @@ Only those who had endured the trial had been granted the title of Blade of Flam
 ### Morrdrak 
 
 <img
-  src="https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/items/Lantern%20of%20Nethrion_Finale.png"
+  src="https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/Artefacts/StaffOfNethrion_Render.png"
   style="float:right; width:40%; max-width:280px; height:auto; margin:0 0 12px 14px; display:block;"
 />
 
@@ -987,12 +991,15 @@ When **The Pure One**, **The Gemstone**, and **The Shattered One** share the sam
 
 It is rare enough that many die without seeing it and common enough that every culture has a story about what happened the last time.
 
+---
+:
 **Common signs:**
 - animals refuse certain roads  
 - people dream the same symbols  
 - marks itch, burn, or go numb  
 - old wards “hum” as if remembering their purpose
 
+---
 **What most believe:**
 - **The Pure One** reveals what is true  
 - **The Shattered One** reveals what will break  
@@ -1027,7 +1034,6 @@ They walked among mortals rarely, yet their presence was a tangible reminder of 
 Though rarely seen by mortals, they appeared **far more often than the gods themselves**.  
 Kings claimed to dream of them, priests swore to have seen their wings pass over battlefields and cities still carry their sigils as sacred protection.
 
-</div>
 
 
 
@@ -1045,6 +1051,7 @@ Kings claimed to dream of them, priests swore to have seen their wings pass over
 | **Zehrion** | **Korruniel** | *The Voice of the Wind* | Air, Freedom, Storms, Defiance |
 | **Karaveth** | **Uraliel** | *The Keeper of Masks* | Earth, Memory, Secrets, Bargains |
 | **Morrdrak** | **Ezrael** | *The Silent Watcher* | Shadow, Death, Stillness, Passage |
+</div>
 
 
 :::
@@ -1106,11 +1113,7 @@ And so the Eight had found their perfect justification: order was not merely vir
 #### The Ancient Gods
 :
 
-<!--div style="float:right; width:500px; margin:0 0 22px 14px;">
-  <img src="https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/items/moonsword.png" style="width:40%;" />
-</div-->
-
-<img src="https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/items/moonsword.png" style="float:right; width:200px; margin:0px 30px 12px -24px;" />
+<img src="https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/Artefacts/ragged%20cloak.png" style="float:right; width:200px; margin:0px 30px 12px -24px;" />
 
 Above all gods had stood Thyrros, the leader of the pantheon, worshipped equally in all realms.
 Thyrros, god of fate and balance, had possessed the wisdom and strength to end the divine war and had brought the remaining gods to reason.
@@ -1255,7 +1258,7 @@ In the end, the light was lost. The Demon King Agravorn and his mortal ally, the
 
 #### After the War
 :
-<img src="https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/Astralan/sword111.png" style="float:right; width:280px; margin:0 0 12px 14px;" />
+<img src="https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/Artefacts/Sword2%20Design.png" style="float:right; width:280px; margin:0 0 12px 14px;" />
 
 Long years after the war, the world is a dark and hopeless land, ruled by Agravorn's demonic generals and Morlan's undead legions. People live in fear and oppression, without faith in salvation.
 The light is extinguished—or so it seems. The realms, as they were once known, are gone. Everywhere, Agravorn's demonic agents reign. The first King of Kalgrad has become a powerful Lich-King, ruling his undying dominion from the black fortress in the north. His undead legions and demonic warriors govern the lands mercilessly, while his sorcerers drain the life from the earth to sustain the demon rule.
@@ -1299,7 +1302,6 @@ Either the demon behind the mark shows little interest, and the bearer is one da
 
 Over time, people have learned to distinguish the marks from each demonic lord by rumor and legend. Each demon lord leaves a distinct pattern, and some are whispered to be worse than others—marks of Sammael or Beleth are especially feared.
 
-The higher the demon, the more cunning and intelligent it tends to be. Thus, the noble houses often receive such entities from the Red Priests, while peasants are burdened with the mindless soldiers of the abyss. This divide has turned the mark into both a symbol of privilege and horror—envied by some, despised by most.
 
 ---
 :
@@ -1308,6 +1310,9 @@ The higher the demon, the more cunning and intelligent it tends to be. Thus, the
 {{pageNumber,auto}}
 {{wide
 
+The higher the demon, the more cunning and intelligent it tends to be. Thus, the noble houses often receive such entities from the Red Priests, while peasants are burdened with the mindless soldiers of the abyss. This divide has turned the mark into both a symbol of privilege and horror—envied by some, despised by most.
+
+:
 #### The Hidden Flame
 :
 The Hidden Flames and other remnants of resistance once sought more than mere survival.
@@ -1363,13 +1368,13 @@ Over the past decades, the Demon Lords have carved their realms across the lands
   alt="The Mark of Agravorn"
 />
 
-#### **Equilara — The Throne of Shadows**
+#### **Agravorn in Equilara**
 
 Once the beating heart of the empire of the gods, **Equilara** now serves as the seat of the **Throne** itself and of **Agravorn**, the self-proclaimed King of Demons.
 
 Agravorn is the mightiest of the Demon Lords, holding the others in check through sheer force and ancient right.
 
-The Throne is seldom spoken of directly — a power beyond even the Nine, hovering above them all like a dark sun.
+The Throne is seldom spoken of directly, a power beyond even the Nine, hovering above them all like a dark sun.
 
 <div class="df-realm-clear"></div>
 
@@ -1382,7 +1387,7 @@ The Throne is seldom spoken of directly — a power beyond even the Nine, hoveri
   alt="The Mark of Kasbeel"
 />
 
-#### **Astralan (Velenor) — The Rotting Jewel of Kasbeel**
+#### **Kasbeel in Astralan (Velenor)**
 
 **Kasbeel, the Plaguebringer**, rules from the once-radiant city of **Astralan**, now shrouded in sickly mists.
 
@@ -1403,7 +1408,7 @@ The city has become a living organism, pulsing to feed its master’s hunger.
   alt="The Mark of Dagon"
 />
 
-##### **Silverspring — Dagon**
+##### **Dagon in Silverspring**
 
 **Silverspring** lies half-drowned beneath the waters of a vast, unnatural reservoir.
 
@@ -1421,7 +1426,7 @@ They live in precarious stilt-villages above the flooded ruins, whispering praye
   alt="The Mark of Azzael"
 />
 
-##### **Emberstone — Azzael**
+##### **Azzael in Emberstone**
 
 To the south rises **Emberstone**, claimed by **Azzael, the Burning Judge**.
 
@@ -1444,7 +1449,7 @@ Azzael’s zeal burns brighter than reason. Where he rules, only ash and screams
   alt="The Mark of Caim"
 />
 
-#### **The Northern Deep Kingdoms — The Iron Rule of Caim**
+#### **Caim in the Northern Deep Kingdoms**
 
 Far beneath the frozen mountains of the north lie the remnants of the ancient dwarven kingdoms: halls, mines, forge-cities, and deep roads older than most mortal realms.
 
@@ -1473,7 +1478,7 @@ It is the pause between two predators deciding which one can afford to strike fi
   alt="The Mark of Usiel"
 />
 
-#### **Illumara (Astravar) — The Temple of Silence**
+#### **Usiel in Illumara (Astravar)**
 
 Once the city of healing, meditation, and light, **Illumara** has fallen to **Usiel, the Butcher of Hope**.
 
@@ -1492,7 +1497,7 @@ Pilgrims who seek solace find only the echoes of their own hopeless prayers.
   alt="The Mark of Malphas"
 />
 
-#### **Aerithar (Zehrion) — The Web of Ravens**
+#### **Malphas in Aerithar (Zehrion)**
 
 In **Aerithar**, a place of forgotten wisdom and broken academies, rules **Malphas, the Crow-King**.
 
@@ -1511,7 +1516,7 @@ No ruler speaks without his ravens listening.
   alt="The Mark of Flauros"
 />
 
-#### **Morrdrak — The Hidden Voice**
+#### **Flauros in Morrdrak**
 
 The dead lands of **Morrdrak** know no open ruler, yet whispers speak of **Flauros, the Corrupter of Truth**.
 
@@ -1534,7 +1539,7 @@ Few have heard his name spoken aloud, and fewer still remember it correctly.
   alt="The Mark of Beleth"
 />
 
-#### **Beleth — The Realm That Cannot Be Found**
+#### **Beleth in the Realm That Cannot Be Found**
 
 Of **Beleth, the Hidden Demon**, almost nothing is known.
 
@@ -1561,7 +1566,7 @@ It means only that no one has yet discovered what he is doing.
   alt="The Mark of Sammael"
 />
 
-#### **Sammael — The Fallen Warlord**
+#### **Sammael is the Fallen Lord**
 
 Of **Sammael, the Lord of Battles**, little remains but rumor.
 
@@ -1668,17 +1673,21 @@ When someone pays in a tavern, they are not merely paying for beer and a bed.
 
 They are paying to be tolerated for one night.
 
-Markets are no different. Every trade takes place under the shadow of the house. Anyone caught with false coins, stolen goods, or forbidden wares is not treated as a simple thief.
-
-They have challenged the order.
-
-And those who challenge the order die.
 }}
 
 
 \page
 {{pageNumber,auto}}
 {{wide
+
+
+Markets are no different. Every trade takes place under the shadow of the house. Anyone caught with false coins, stolen goods, or forbidden wares is not treated as a simple thief.
+
+They have challenged the order.
+
+And those who challenge the order die.
+
+:
 ### Bloodhounds
 
 To enforce their rule, the Demon Houses rely on more than guards, scribes, and soldiers. Many maintain special hunters and executioners in their service.
@@ -1789,7 +1798,7 @@ At its heart, the system rests on a few core ideas:
 ## The Spirit of Mastery
 
 The Mastery System is built for **fast, tactical, and narrative-rich play**. It is a game where numbers represent potential, but choices define outcomes. 
-You are not just rolling dice — you are gambling with destiny, bending your Attribute Stones to fuel extraordinary feats, and carving your legend into the world.
+You are not just rolling dice, you are gambling with destiny, bending your Attribute Stones to fuel extraordinary feats, and carving your legend into the world.
 
 ---
 In Mastery, **every success feels earned**, and every failure pushes the story forward. It is a system that rewards boldness, creativity, and mastery itself.
@@ -1838,12 +1847,12 @@ Your victories will be small, your sacrifices great yet even the smallest triump
 > **Target Number (TN):** The value you must reach to hit or succeed.  
 > **Evade:** The TN an Attack must reach to hit a creature. For an AoE Attack, one roll is compared separately against the defense of each valid creature in the area.
 > **AoE Attack:** Roll once for the whole area. A Martial AoE compares that result separately against each creature's Evade. A Spell AoE compares the same Spell Roll separately against each creature's Final Spell TN.
-> **Raises:** In combat, Raises are usually declared before rolling and increase TN by +4 each. Some systems, such as Rituals and Echo Cards, count Raises after the roll: every full +4 over TN equals 1 Raise. 
+> **Raises:** Combat Raises and Ritual Raises are declared before rolling and increase the required TN by +4 each. Ordinary Skill Check Raises and Echo Card Raises are counted after the roll unless their own rules say otherwise: every full +4 over the base TN equals 1 Raise.
 > **Penetration(X):** Ignores X points of the target’s Armor.  
 >**Armor (AR):** Reduces the rolled damage of a successful hit. Armor does not reduce Specials, conditions, ongoing damage, or other effect damage unless a rule explicitly says so. 
 > **Damage Reduction (DR):** Reduces all incoming damage of the listed type.  
 > **Action:** You may take 1 Attack Action per turn (Attack, Cast, etc.).  
-> **Reaction:** Special defense actions you may take outside your turn (Parry, Dodge, etc.).  
+> **Reaction:** Special defense actions you may take outside your turn (Guard, Evade, Counterattack, etc.).  
 
 
 
@@ -1888,10 +1897,10 @@ Each decision defines **who you are**, **what drives you**, and **how you face t
 
 #### Step 3 — Choose Powers
 
-*On your sheet: pick your starting Powers and list them in the Powers section with their Rank.*
+*On your sheet: pick your starting Powers and list them in the Powers section with their Power Level.*
 
-> **Powers** —  choose **two Active Powers at Rank 2**.  
-> In addition, choose a number of **Passives equal to your available Passive Slots**, plus **one Reaction** and **one Active Buff Power** at **Rank 4**. A normal **MR 2** starting character chooses **two Passives**; an **MR 1** starting character chooses **one Passive**.
+> **Powers** —  choose **two Active Powers at Power Level 2**.  
+> In addition, choose a number of **Passives equal to your available Passive Slots**, plus **one Reaction** and **one Active Buff Power** at **Power Level 4**. A normal **MR 2** starting character chooses **two Passives**; an **MR 1** starting character chooses **one Passive**.
 
 #### **Step 4 — Languages** 
 *On your sheet: note your **languages** in the designated box or in the background section.*
@@ -2113,7 +2122,7 @@ Mark spent points on that Skill until the next **Safe Haven Rest**.
 
 Each skill starts at **0**.  
 You receive **40 points** to distribute freely across your skills.  
-**Each of these points raises a skill by +1. Later increasing a Skill costs XP equal to the new Skill Rank.**
+**Each of these points raises a skill by +1. Later Skill increases use the Attribute and Skill Costs table in the Progression chapter.**
 
 - At creation, **no single skill may exceed 4**.
 - Long-term cap: A skill’s maximum rating equals **4 × Mastery Rank**.  
@@ -2157,8 +2166,7 @@ All non-combat Skill checks are rolled against a **Target Number (TN)**.
 
 ##### Step 1 — Determine the **Challenge MR** (Target / Opposition)
 
-Before choosing a TN, the GM determines the **Challenge MR**.  
-This is the Mastery Rank of what you are trying to overcome, **not** the character’s MR.
+Before choosing a TN, the GM determines the **Challenge MR**. This is the Mastery Rank of what you are trying to overcome, **not** the character’s MR.
 
 Use:
 - **Target’s MR** (creature, NPC, faction member, specialist, etc.) for opposed or target-based checks.
@@ -2172,9 +2180,7 @@ Use:
 :
 ##### Step 2 — Determine the **Usable Dice Pool**
 
-Before rolling, determine whether the character can use the full Attribute Pool for this Skill.
-
-A Skill must be trained enough for the character’s current Mastery Rank.
+Before rolling, determine whether the character can use the full Attribute Pool for this Skill. A Skill must be trained enough for the character’s current Mastery Rank.
 
 **Full Pool Requirement:**  
 Your Skill Rating must be at least:
@@ -2191,9 +2197,7 @@ If your Skill Rating is **lower than 2 × your Mastery Rank**, roll only **half 
 ---
 
 **Minimum Pool Rule:**  
-You can never roll fewer dice than your **Mastery Rank**.
-
-If halving your Attribute Pool would reduce it below your Mastery Rank, roll a number of dice equal to your Mastery Rank instead.
+You can never roll fewer dice than your **Mastery Rank**. If halving your Attribute Pool would reduce it below your Mastery Rank, roll a number of dice equal to your Mastery Rank instead.
 
 ---
 
@@ -2203,9 +2207,7 @@ You always keep dice equal to your Mastery Rank.
 ---
 
 **Skill Points remain unchanged:**  
-This rule only changes how many Attribute dice you roll.
-
-You may still spend Skill Points from the used Skill after the roll, following the normal Skill Point spending rules.
+This rule only changes how many Attribute dice you roll. You may still spend Skill Points from the used Skill after the roll, following the normal Skill Point spending rules.
 
 ---
 
@@ -2313,9 +2315,9 @@ Examples include:
 
 - Stealth against Perception
 - Tracking against Stealth
-- Deception against Insight
-- Disguise against Perception
-- Escape against Restraint
+- Deception against Investigation or Empathy
+- Deception used as a disguise against Perception
+- Athletics or Acrobatics against Athletics when escaping restraint
 - Hiding tracks against Tracking
 
 ---
@@ -3382,23 +3384,23 @@ A character chooses Powers to define what they can do in combat, how they surviv
 ### Starting Powers
 
 
-At character creation, choose **two Active Powers at Rank 2**.
+At character creation, choose **two Active Powers at Power Level 2**.
 
 ---
-In addition, choose a number of **Passives equal to your available Passive Slots**, plus **one Reaction** and **one Active Buff Power** at **Rank 4**. Characters normally begin at **MR 2** and therefore choose **two Passives**. If the campaign begins at **MR 1**, choose **one Passive** instead.
+In addition, choose a number of **Passives equal to your available Passive Slots**, plus **one Reaction** and **one Active Buff Power** at **Power Level 4**. Characters normally begin at **MR 2** and therefore choose **two Passives**. If the campaign begins at **MR 1**, choose **one Passive** instead.
 
 ---
 
 ### Power Level
 
-Each Power has a **Rank**.
+Each Power has a **Power Level (PL)**.
 
 ---
-A Power’s Rank determines which level of that Power you use.
+A Power's Power Level determines which level of that Power you use.
 
 ---
-If a Power is Rank 1, use its Rank 1 entry.  
-If a Power is Rank 2, use its Rank 2 entry.
+If a Power is Power Level 1, use its Power Level 1 entry.  
+If a Power is Power Level 2, use its Power Level 2 entry.
 
 ---
 Power Level is the only progression value needed for Powers.
@@ -3423,7 +3425,7 @@ Use the Power Catalogues when you need to know:
 - how a Power is built,
 - which templates are available,
 - how Power Points are priced,
-- what each Power Rank grants,
+- what each Power Level grants,
 - how examples are resolved,
 - how Areas of Effect, Autofire, Split-Attack, and other multi-target techniques work,
 - how Powers interact with Armor, Evade, Specials, Damage Reduction, movement, and action economy.
@@ -3436,18 +3438,19 @@ Use the Power Catalogues when you need to know:
 | **Reactions** | Immediate answers to specific triggers: defenses, counters, emergency protection, interception, and trigger-based responses. |
 | **Movement Powers** | Movement replacements: dash, leap, teleport, flight, burrow, wall movement, phase passage, and similar movement options. |
 
-
-{{note
-##### Mentalist Option
-A character may build around Mental Powers by choosing **Telepathy** as a Passive. Telepathy grants Telepathic Access and includes voluntary Mind Links at no additional Power cost. The character may then choose Mental Attack, Mind Illusion, Mind Probe, or Mental Control as Active Powers. A Mental Power's Rank cannot normally exceed the character's Telepathy Rank.
-}}
-
-
----
 }}
 \page
 {{pageNumber,auto}}
 {{wide
+
+{{note
+##### Mentalist Option
+A character may build around Mental Powers by choosing **Passive: Telepathy**. **Passive: Telepathy** grants Telepathic Access and includes voluntary Mind Links at no additional Power cost. The character may then choose Mental Attack, Mind Illusion, Mind Probe, or Mental Control as Active Powers. A Mental Power's Power Level cannot normally exceed the character's **Passive: Telepathy** Power Level.
+}}
+
+
+---
+:
 ### Spells
 
 A Spell is not a separate Power type.
@@ -3492,14 +3495,14 @@ For examples, templates, and detailed build guidance, use the external Power Cat
 
 ## Example: Alaris Chooses Her Powers
 
-Alaris begins at **MR 2** and uses the standard starting package: **two Actives at Rank 2**, plus **two Passives**, **one Active Buff**, and **one Reaction** at Rank 4.
+Alaris begins at **MR 2** and uses the standard starting package: **two Actives at Power Level 2**, plus **two Passives**, **one Active Buff**, and **one Reaction** at Power Level 4.
 
-| **Power** | **Rank** | **Role in the build** |
+| **Power** | **Power Level** | **Role in the build** |
 |:--|:--:|:--|
-| **Melee Single Attack** | **2** | Reliable direct weapon damage. |
-| **Melee Damage - Sundered(4)** | **2** | Damages a target and prepares it for later non-Spell attacks. |
+| **Melee Single Target Attack** | **2** | Reliable direct weapon damage. |
+| **Melee Attack + Sundered** | **2** | Damages a target and prepares it for later non-Spell attacks. |
 | **Passive: Evade** | **4** | Raises her everyday defense against direct attacks. |
-| **Passive: Ghostform** | **4** | Establishes Phasing at the start of combat. |
+| **Passive: Phasing** | **4** | Establishes Phasing at the start of combat. |
 | **Active Buff: Phasing** | **4** | Reinforces that Phasing defense during difficult fights. |
 | **Reaction: Phasing** | **4** | Provides an immediate answer to a decisive hit. |
 
@@ -3705,6 +3708,8 @@ You can choose from the following Echoes:
 
 - **Humans** – Masters of consequence: survivors who turn scarcity into leverage, make ugly deals, improvise with nothing, and pay the price later in Stress, fractures, and relationships.
 
+- **Halflings** – The hunted hearthfolk: nearly extinct survivors whose warmth, memory, and soul-rich blood are prized as demonic delicacies. Most live on the run; others survive in locked cellars and feast-prisons, waiting to be served.
+
 - **Dwarves** – The bastion against Hell: incorruptible stone-hearts who stand where others break, holding the line against demons, preserving what must not fall, and turning endurance into a weapon.
 
 - **Elves** – A rare, burning glare: outsiders between realms whose light cuts through lies and rot, almost myth, almost painful, too bright to be common and too sharp to be safe.
@@ -3772,16 +3777,49 @@ A character normally has **4 Artifact Capacity**.
 
 ---
 
+#### Technical References and Power Identity
+
+The **Artifact Name** is the Echo Artifact's character-facing name. The **Technical Reference** is the mechanical identity used for all rules interactions. **PL** means effective Power Level. The PL and any parenthetical source restriction describe the available profile; they are not part of the Power's identity.
+
+- If a Technical Reference names a catalogue Power, use that Power's complete rules at the listed PL. The Artifact's Range, weapon, target, or delivery restriction applies only when the row explicitly says it overrides the catalogue profile.
+- A Power granted by an Echo Artifact counts as that Power for selection and use limits. You cannot purchase or select a second copy of the same base Technical Reference to create another once-per-round use.
+- If several sources grant the same base Technical Reference anyway, they are one Power with several available profiles. Use the highest currently available and legal PL. If that profile cannot legally be used because its Artifact, weapon, target, Range, Trigger, or other source restriction is unavailable, use the highest remaining legal profile. All copies share the same spent state until the start of the next Round.
+- A later row with the same base Technical Reference at a higher PL is an upgrade. It replaces the earlier Artifact profile and does not grant another Power.
+- Successive stages of one Artifact Function use the same base Technical Reference. Stage numerals such as I, II, and III remain part of the Artifact Name only. Changing PL, capacity, distance, uses, or another parenthetical source-profile value does not create a new base identity.
+- If a Technical Reference lists alternatives separated by a slash and says **choose one**, make that choice when the Artifact is created and record the exact chosen Technical Reference. Later upgrades keep the same choice.
+- **Artifact Active**, **Artifact Active Buff**, and **Artifact Reaction** are Artifact-exclusive Powers. They follow the normal once-per-round Power Use Limit under their exact Technical Reference.
+- **Artifact Function**, **Stone Power Support**, **Stone Pool**, **Sense Option**, **Passive**, and **Ultimate** are not catalogue Powers unless their Technical Reference explicitly names one.
+- A GM-defined Ultimate is unavailable until its action type, trigger, range, AoE, duration, uses, full effect, effective PL if relevant, and final Technical Reference have been written down and approved.
+
+If a summary in an Artifact table conflicts with the referenced catalogue Power, the catalogue Power controls except for an explicit Artifact override.
+
+---
+
+#### Artifact Overlap and Retraining
+
+If an Echo Artifact first grants a Technical Power that the character has already purchased with their own advancement resources, the character may keep the purchased version as a fallback or retrain the purchased Power and its paid upgrades at no additional cost during the next legal retraining or downtime opportunity.
+
+The replacement choices must follow all normal requirements and may not exceed the total advancement value actually paid for the replaced Power and its upgrades.
+
+This retraining grants no bonus XP, Power Points, or other advancement resources. A Power received for free has no refundable or retrainable advancement value.
+
+If the purchased version is retained and the Echo Artifact becomes unavailable, the character falls back to the purchased profile at its own PL. If the purchased version was retrained, the character loses access to the Power while the Artifact is unavailable.
+
+Foundry VTT must never delete, refund, or retrain a purchased Power automatically. It should identify the overlap, combine the source profiles for use tracking, and show the retraining choice to the player and GM.
+
+---
+
 #### Choosing Echo Artifacts
 
 Not every Echo handles Echo Artifacts the same way.
 
-Some Echoes begin with no fixed Echo Artifacts.  
+Some Echoes, including Humans and Halflings, begin with no fixed Echo Artifacts.  
 Others must choose at least one Echo Artifact because their body or bloodline is defined by it.
 
 | **Echo** | **Required Echo Artifacts at Character Creation** | **Maximum Echo Artifacts at Character Creation** | **Free Artifact Capacity Left** |
 |:--|:--:|:--:|:--:|
 | **Human** | 0 | 0 | 4 |
+| **Halfling** | 1 | 1 | 3 |
 | **Dwarf** | 1 | 1 | 3 |
 | **Elf** | 1 | 1 | 3 |
 | **Dragonborn** | 1 | 3 | 1-3 |
@@ -3875,6 +3913,7 @@ If his total had been **15 or lower**, he would **fail**.
 
 ### Humans
 
+<div style="width:60%; margin:left;">
 Humans are the most widespread people in the shattered world of Destroyed Faith. They are adaptable, resilient, and painfully easy to use. Where other Echoes fade into legend, withdraw behind old walls, or carry the burden of stranger blood, humans remain everywhere: in ruined villages, demon-held cities, broken shrines, prison caravans, and forgotten roads.
 
 Once, they lived beneath the order of the gods, serving as priests, soldiers, builders, and keepers of daily life. Now they endure among ruins, rituals, and the weight of things that no longer answer. The cities they built have become strongholds of demons, tyrants, and false faith. Those who are not made into guards, laborers, vessels, or sacrifices learn to hide, flee, obey, or die.
@@ -3883,10 +3922,16 @@ Yet humanity is not easily erased. Again and again, humans gather in hidden encl
 
 Many humans bear a demonic mark, burned into flesh by pact, force, punishment, or inheritance. Some marks whisper. Some wound. Some tempt. A mark may offer strength, but never freely. It is always also a claim a presence that presses closer with every moment of weakness, fear, or surrender.
 
+</div>
+
 Humans endure because they change. Some become willing servants of hell. Some search for lost rites, hidden truths, and fragments of dead faith. Others fight for smaller, fiercer things: family, warmth, loyalty, and the simple refusal to let the darkness take everything.
 
 
+
 :
+
+
+
 | **Echo** | **Creature Type** | **Size** | **Speed** | **Required Echo Artifacts at Character Creation** | **Maximum Echo Artifacts at Character Creation** | **Free Artifact Capacity Left** |
 |:--|:--|:--:|:--:|:--:|:--:|:--:|
 | **Human** | Humanoid | Medium | 8 m | 0 | 0 | 4 |
@@ -3897,7 +3942,7 @@ Humans endure because they change. Some become willing servants of hell. Some se
 :
 
 ---
-![Leandra](https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/NPC%27s/NPC/ElendalFinalnoBg40%25.png) {position:absolute,top:580px,right:40px,width:350px}
+![Leandra](https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/NPC%27s/NPC/ElendalFinalnoBg40%25.png) {position:absolute,top:80px,right:40px,width:350px}
 
 
 }}
@@ -4059,7 +4104,290 @@ You catch what’s coming before it hits storm, cold, heat, bad visibility and a
 \page
 {{pageNumber,auto}}
 {{wide
-### halflings
+
+### Halflings
+
+<div style="width:65%; margin:left;">
+Halflings were once the hearthfolk of Tyhra: gardeners, millers, cooks, ferrymen, peddlers, and keepers of roadside inns. They were rarely rulers and seldom conquerors. Their strength lay in making ordinary life endure, keeping food warm, paths remembered, children hidden, and strangers welcome long enough to become neighbors.
+
+That life ended when the demons discovered what Halflings carried within them.
+
+Something in Halfling flesh preserves the warmth of the old world. Demons call it **Hearthsweet**: a richness of blood, memory, comfort, and mortal joy that they cannot create for themselves. To many demons, a Halfling is not merely prey. It is a delicacy, a status symbol, and a reminder of everything Hell can consume but never truly possess.
+
+The slaughter was systematic. Villages disappeared. Family lines were catalogued. Demon Houses built hidden larders beneath estates and fortresses, where captured Halflings were kept alive, carefully fed, and taken away one by one for private feasts. Some prisoners are found with old bites, missing fingers, ears, or pieces of flesh. Sampled and returned to their cells so that the rest may be saved for later.
+</div>
+Most Halflings alive today are fugitives. They hide beneath false names, inside wagon walls, under ruined floors, in root-cellars, sewers, smugglers' tunnels, and abandoned burrows too small for armored hunters. They travel in tiny family groups, rarely remain anywhere for long, and distrust any settlement with locked kitchens, feast bells or unusually well-stocked underground rooms.
+
+Yet the old hearth has not gone out. Halflings still share food when there is almost none. They remember paths no map records. They can turn a hiding place into a home, a frightened crowd into a family, and a handful of survivors into a community worth protecting.
+
+To play a Halfling is to be living proof that something gentle survived being hunted almost to extinction.  
+You are small because the world made hiding necessary.  
+You are kind because Hell failed to teach you hunger.
+
+| **Echo** | **Creature Type** | **Size** | **Speed** | **Required Echo Artifacts at Character Creation** | **Maximum Echo Artifacts at Character Creation** | **Free Artifact Capacity Left** |
+|:--|:--|:--:|:--:|:--:|:--:|:--:|
+| **Halfling** | Humanoid | Small | 8 m | 0 | 0 | 4 |
+
+---
+:
+##### Echo Burden: The Hunger That Knows You
+
+Demons do not forget the taste of a Halfling.
+
+Once a demon has tasted a Halfling's blood or flesh, it can recognize that same Halfling again. Dirt, perfume, disguise, distance, and ordinary shape-changing may confuse the trail, but they do not erase the memory. The demon may dream of the Halfling, sense when they are near, or teach its servants the signs by which they can be found.
+
+Even demons that have never tasted a Halfling may react to Hearthsweet when blood is spilled, terror breaks restraint, or a Halfling calls openly upon the warmth of their Echo. Hunger sharpens. Attention turns. A creature that had other priorities may suddenly decide that the smallest person in the room is the only one that matters.
+
+Halflings therefore learn an unbearable discipline: survive without becoming memorable to the wrong monster.
+}}
+
+\page
+{{pageNumber,auto}}
+{{wide
+#### Ringchain of Kept Names
+
+![Ringchain](https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/Artefacts/Icons/Ringchain.png){position:absolute,top:60px,right:120px,width:120px}
+ 
+<div style="width:65%; margin:left;">
+The Ringchain of Kept Names is a Halfling Echo Artifact representing family, remembered dead, chosen kin, and the impossible duty of keeping the herd alive.
+
+Each ring on the chain belonged to someone who mattered: a parent, a sibling, a child, a friend, a rescued stranger, or someone who did not make it out. The chain is not a symbol of wealth. It is a record of who must not be forgotten.
+
+
+| Slot | Base Type | Artifact Functions | Binding |
+|---|---|---|---|
+| Amulet | Halfling Ringchain | Not a Target Stone Support / Cleanse / Healing Aura / Single Heal | Echo-bound |
+
+---
+
+The Ringchain of Kept Names occupies the Amulet Slot.
+
+Although it carries rings, those rings are part of this Artifact. They do not occupy the Ring Slot and do not count as separate Ring Artifacts.
+
+A halfling with the Ringchain of Kept Names cannot wear another Amulet Artifact, magical necklace, soul chain, oath mark, curse mark, or similar Amulet-based Artifact.
+
+The Ringchain of Kept Names is Echo-bound and cannot normally be removed, replaced, sold, stolen, or unbound.
+</div>
+
+---
+
+#### Ringchain Base
+
+The Ringchain of Kept Names has no numeric Base Values.
+
+It grants no Armor, Evade, Movement, Weapon Damage, Sense Option, or passive defensive value by itself.
+
+Its power comes entirely from its Level Progression.
+
+The names and rings on the chain are narrative unless a Level Progression entry explicitly grants a mechanical effect.
+
+---
+
+#### Influence Stone Support: Not a Target
+
+The Ringchain of Kept Names contains one Stone Function.
+
+It supports the **Influence Ability: Not a Target** Stone Power.
+
+Stone Power Support never pre-fills Tier 1.
+
+The character must always pay all lower tiers themselves.
+
+If the required lower tiers are not paid, the pre-filled tier has no effect.
+
+This Stone Power Support can be used a number of times per Safe Haven Rest equal to the character's Mastery Rank.
+
+This does not make the halfling invisible, hidden, untargetable, or immune to attacks.
+
+It represents the chain pulling attention away from the one carrying the names, preventing enemies from simply choosing them as easy prey.
+
+---
+}}
+
+\page
+{{pageNumber,auto}}
+{{wide
+#### Healing Aura
+
+Healing Aura uses the normal Active Buff rules.
+
+It uses the character's maintained Active Buff slot.
+
+A character may normally maintain only one Active Buff at a time.
+
+Healing Aura restores HP inside the current Health Level only.
+
+It does not restore lost Health Levels unless another rule explicitly says otherwise.
+
+---
+
+#### Level Progression
+
+| **Artifact Level** | **Artifact Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Technical Reference** |
+|:--:|:--|:--|:--:|:--:|:--:|:--|:--|
+| **1** | **Kept from Sight I** | Stone Power Support | Self | — | Instant | Pre-fill **Tier 2**. Tier 1 must still be paid. | **Influence Ability: Not a Target** (Stone Power Support, Tier 2) |
+| **2** | **Burden Lifted I** | Active, Support | 20 m | None | Instant | Reduce one eligible negative Special on one creature by **6**. | **Ranged Single Target Cleanse (PL 4)** |
+| **3** | **Hearth Circle I** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | At the end of each of your turns, allies inside the aura heal **3d8 HP**. Each creature can be affected only once per Round. | **Active Buff: Healing Aura (PL 4)** |
+| **4** | **Remembered Hands I** | Active, Support | 44 m | None | Instant | Heal one creature for **13d8 HP**. This profile has a pool of **2 Health Levels per Safe Haven Rest**. | **Ranged Single Target Heal (PL 10)** |
+| **5** | **Kept from Sight II** | Stone Power Support | Self | — | Instant | Pre-fill **Tier 3**. Tiers 1 and 2 must still be paid. | **Influence Ability: Not a Target** (Stone Power Support, Tier 3) |
+| **6** | **Burden Lifted II** | Active, Support | 44 m | None | Instant | Reduce one eligible negative Special on one creature by **10**. This replaces Burden Lifted I. | **Ranged Single Target Cleanse (PL 10)** |
+| **7** | **Remembered Hands II** | Active, Support | 68 m | None | Instant | Heal one creature for **19d8 HP**. This profile has a pool of **4 Health Levels per Safe Haven Rest** and replaces Remembered Hands I. | **Ranged Single Target Heal (PL 16)** |
+| **8** | **Hearth Circle II** | Active Buff | Self | Radius 4 m | Mastery Rank Rounds | At the end of each of your turns, allies inside the aura heal **11d8 HP**. Each creature can be affected only once per Round. This replaces Hearth Circle I. | **Active Buff: Healing Aura (PL 16)** |
+| **9** | **Kept from Sight III** | Stone Power Support | Self | — | Instant | Pre-fill **Tier 4**. Tiers 1, 2, and 3 must still be paid. | **Influence Ability: Not a Target** (Stone Power Support, Tier 4) |
+| **10** | **True Ringchain of Kept Names** | Artifact Ultimate | As defined | As defined | As defined | Define the complete final effect with the GM. It is unavailable until its full profile and Technical Reference are recorded. | **Artifact Ultimate: GM-Defined Ringchain Effect** |
+}}
+\page
+{{pageNumber,auto}}
+{{wide
+
+#### Halfling Echo Deck
+
+*"The hearth is not a place. It is whoever still shares the last crust."*  
+**Theme:** Hunted remnants of ordinary joy — fugitives who survive through kinship, hidden paths, quick hands, and the refusal to let Hell turn hunger into identity.
+
+<div class="card-center">
+
+{{card
+###### HEARTH TIES
+  *Trigger: Strangers must trust one another, or a scattered group must act as one.*
+
+---
+**I — SHARE THE LAST CRUMB**
+
+---
+*Skill: Persuasion*  
+You offer food, shelter, truth, or vulnerability and make cooperation safer than suspicion.
+
+:
+**II — FAIR TRADE**
+
+---
+*Skill: Negotiation*  
+You set terms both sides can accept and make breaking them costlier than keeping them.
+
+:
+**III — READ THE EMPTY BOWL**
+
+---
+*Skill: Empathy*  
+You recognize the hunger beneath anger or pride and speak to what they fear losing.
+
+:
+**IV — KEEP THE FIRE TOGETHER**
+
+---
+*Skill: Leadership*  
+You give everyone one task and one reason. Panic becomes a plan.
+
+:
+}}
+
+{{card
+###### TOO SMALL TO KEEP
+  *Trigger: A larger enemy, cage, crowd, or collapsing route tries to contain you.*
+
+---
+**I — THROUGH THE GAP**
+
+---
+*Skill: Acrobatics*  
+You fold, climb, and slip through an opening never meant to be a path.
+
+:
+**II — NOT WORTH SEEING**
+
+---
+*Skill: Concealment*  
+You become part of clutter, shadow, furniture, or crowd until attention moves on.
+
+:
+**III — MOVE WITH THE NOISE**
+
+---
+*Skill: Stealth*  
+You cross the dangerous space inside noise, footsteps, or another creature's distraction.
+
+:
+**IV — KEY IN THE PALM**
+
+---
+*Skill: Sleight of Hand*  
+A latch opens, a key changes hands, or a chain quietly loosens.
+
+:
+}}
+
+{{card
+###### CELLAR-BORN LESSONS
+  *Trigger: You face captivity, scarcity, guarded stores, kitchens, or hidden passages.*
+
+---
+**I — COUNT THE GUARDS**
+
+---
+*Skill: Investigation*  
+You map routines, keys, blind moments, and the mistake repeated each day.
+
+:
+**II — KNOW WHO TAKES BRIBES**
+
+---
+*Skill: Streetwise*  
+You identify who can be moved without alerting the whole structure.
+
+:
+**III — LIVE ON LESS**
+
+---
+*Skill: Survival*  
+You stretch crumbs, water, warmth, and time far beyond expectation.
+
+:
+**IV — KEEP THEM BREATHING**
+
+---
+*Skill: Medicine*  
+You stabilize someone with almost nothing until escape is possible.
+
+:
+}}
+
+{{card
+###### THE HUNGER HUNTS
+  *Trigger: Demons or their servants track, corner, or select someone for consumption.*
+
+---
+**I — SMELL THEM FIRST**
+
+---
+*Skill: Perception*  
+You notice the appetite first: changed breath, a fixed stare, sudden silence.
+
+:
+**II — READ THE OLD FEASTS**
+
+---
+*Skill: Lore*  
+You recall a demon's tastes, feast rites, and the taboo that may interrupt them.
+
+:
+**III — SPOIL THE COURSE**
+
+---
+*Skill: Alchemy*  
+You spoil food, scent, blood, or preparation so the hunters hesitate.
+
+:
+**IV — FOLLOW THE CART BACK**
+
+---
+*Skill: Tracking*  
+You read wheel ruts, kitchen waste, chains, and supply routes to find the missing.
+
+:
+}}
+
+</div>
 
 }}
 
@@ -4118,7 +4446,11 @@ For a dwarf, survival is not enough. Something must remain unbroken — and if n
 {{wide
 #### Stonebound Soles
 
+![DwarfElitaWarrior](https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/Artefacts/Icons/Stonebound%20Soles.png){position:absolute,top:60px,right:120px,width:120px}
+ 
+<div style="width:65%; margin:left;">
 Stonebound Soles are a Dwarf Echo Artifact representing ancestral weight, deep-road memory, and the old bond between dwarven bodies and stone.
+
 
 | Slot | Base Type | Artifact Functions | Binding |
 |---|---|---|---|
@@ -4129,13 +4461,14 @@ Stonebound Soles are a Dwarf Echo Artifact representing ancestral weight, deep-r
 Stonebound Soles occupy the Feet Slot.
 A dwarf with Stonebound Soles cannot wear another Feet Artifact, magical boots, hooves, talons, or similar Feet-based Artifact.
 Stonebound Soles are Echo-bound and cannot normally be removed, replaced, sold, stolen, or unbound.
+</div>
 
 ---
 
 #### Stonebound Soles Base
 
 | Artifact Level | Base Value A: Armor | Base Value B: Tunneling |
-|---:|---:|---:|
+|:---:|:---:|:---:|
 | Level 1 | +1 Armor | — |
 | Level 2 | +1 Armor | — |
 | Level 3 | +2 Armor | — |
@@ -4184,18 +4517,18 @@ Immovable ends when the effect granting it ends.
 {{wide
 ### Level Progression
 
-| **Artifact Level** | **Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
+| **Artifact Level** | **Artifact Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Technical Reference** |
 |:--:|:--|:--|:--:|:--:|:--:|:--|:--|
-| **1** | **Anchoring Stance I** | Active Buff | Self | — | 2 Rounds | You become **Immovable** and gain **40 Temporary HP**. | Immovable + Temporary HP |
-| **2** | **Stone-Sure Step I** | Movement | Self | — | Instant | Move up to **8 m** along a legal ground path. This movement does not provoke movement-triggered Reactions. | Safe Movement |
-| **3** | **Stoneweave Guard I** | Support | Self | — | Special | When you activate an Active Buff that grants Armor as one of its effects, you may increase that Buff's effective Power Level by **+1** and its duration by **+1 round**. The Active Buff cannot exceed Power Level 16. Uses per Safe Haven Rest: half Mastery Rank, rounded up. | Armor Buff Empowerment |
-| **4** | **Anchoring Stance II** | Active Buff | Self | — | 2 Rounds | You become **Immovable** and gain **220 Temporary HP**. | Immovable + Temporary HP |
-| **5** | **Stone-Sure Step II** | Movement | Self | — | Instant | Move up to **14 m** along a legal ground path. This movement does not provoke movement-triggered Reactions. | Safe Movement |
-| **6** | **Stoneweave Guard II** | Support | Self | — | Special | When you activate an Active Buff that grants Armor as one of its effects, you may increase that Buff's effective Power Level by **+2** and its duration by **+2 rounds**. The Active Buff cannot exceed Power Level 16. Uses per Safe Haven Rest: half Mastery Rank, rounded up. | Armor Buff Empowerment |
-| **7** | **Anchoring Stance III** | Active Buff | Self | — | 2 Rounds | You become **Immovable** and gain **400 Temporary HP**. | Immovable + Temporary HP |
-| **8** | **Stone-Sure Step III** | Movement | Self | — | Instant | Move up to **20 m** along a legal ground path. This movement does not provoke movement-triggered Reactions. | Safe Movement |
-| **9** | **Stoneweave Guard III** | Support | Self | — | Special | When you activate an Active Buff that grants Armor as one of its effects, you may increase that Buff's effective Power Level by **+3** and its duration by **+3 rounds**. The Active Buff cannot exceed Power Level 16. Uses per Safe Haven Rest: half Mastery Rank, rounded up. | Armor Buff Empowerment |
-| **10** | **True Stonebound Soles** | Ultimate | Self | — | Special | Stonebound Soles fully awaken. Choose or define one final Armor, Tunneling, Immovable, Safe Movement, or stone-defense effect with GM approval. | True Stonebound Soles |
+| **1** | **Anchoring Stance I** | Artifact Active Buff | Self | — | 2 Rounds | Become **Immovable** and gain **40 Temporary HP**. | **Artifact Active Buff: Immovable + Temporary HP (PL 4)** |
+| **2** | **Stone-Sure Step I** | Movement | Self | — | Instant | Move up to **8 m** along a legal ground path without provoking movement-triggered Reactions. | **Movement: Safe Movement (PL 4)** |
+| **3** | **Stoneweave Guard I** | Artifact Function | Self | — | Special | When you activate an Armor-granting Active Buff, you may increase its effective PL by **+1** and its duration by **+1 round**, to a maximum of PL 16. Uses per Safe Haven Rest: half MR, rounded up. | **Artifact Function: Armor Active Buff Empowerment (+1 PL, +1 round)** |
+| **4** | **Anchoring Stance II** | Artifact Active Buff | Self | — | 2 Rounds | Become **Immovable** and gain **220 Temporary HP**. This replaces Anchoring Stance I. | **Artifact Active Buff: Immovable + Temporary HP (PL 10)** |
+| **5** | **Stone-Sure Step II** | Movement | Self | — | Instant | Move up to **14 m** along a legal ground path without provoking movement-triggered Reactions. This replaces Stone-Sure Step I. | **Movement: Safe Movement (PL 10)** |
+| **6** | **Stoneweave Guard II** | Artifact Function | Self | — | Special | Armor Active Buff Empowerment improves to **+2 PL** and **+2 rounds**, to a maximum of PL 16. Uses per Safe Haven Rest: half MR, rounded up. | **Artifact Function: Armor Active Buff Empowerment (+2 PL, +2 rounds)** |
+| **7** | **Anchoring Stance III** | Artifact Active Buff | Self | — | 2 Rounds | Become **Immovable** and gain **400 Temporary HP**. This replaces Anchoring Stance II. | **Artifact Active Buff: Immovable + Temporary HP (PL 16)** |
+| **8** | **Stone-Sure Step III** | Movement | Self | — | Instant | Move up to **20 m** along a legal ground path without provoking movement-triggered Reactions. This replaces Stone-Sure Step II. | **Movement: Safe Movement (PL 16)** |
+| **9** | **Stoneweave Guard III** | Artifact Function | Self | — | Special | Armor Active Buff Empowerment improves to **+3 PL** and **+3 rounds**, to a maximum of PL 16. Uses per Safe Haven Rest: half MR, rounded up. | **Artifact Function: Armor Active Buff Empowerment (+3 PL, +3 rounds)** |
+| **10** | **True Stonebound Soles** | Artifact Ultimate | As defined | As defined | As defined | Define the complete final effect with the GM. It is unavailable until its full profile and Technical Reference are recorded. | **Artifact Ultimate: GM-Defined Stonebound Soles Effect** |
 }}
 \page
 {{pageNumber,auto}}
@@ -4354,7 +4687,7 @@ You keep control of your center. You do not get thrown, tripped, or panicked.
 \page
 {{pageNumber,auto}}
 {{wide
-![elfen ranger](https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/Artwork/Final-no-bckgr%20(1).png){position:absolute,top:40px,right:0px,width:400px}
+![elfen ranger](https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/Players/Alaris.png){position:absolute,top:40px,right:0px,width:400px}
 
 ### **Elorians** 
 
@@ -4398,8 +4731,12 @@ The Fading cannot be healed by medicine, magic, rest, or ordinary restoration. O
 {{pageNumber,auto}}
 {{wide
 #### Elorian Stride
+![elorianstride](https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/Artefacts/Icons/Elven%20Stride.png){position:absolute,top:60px,right:60px,width:120px}
 
+<div style="width:85%; margin:left;">
 Elorian Stride is an Elorian Echo Artifact representing otherworldly balance, reflex, clinging movement, and focus in combat.
+
+
 
 | Slot | Base Type | Artifact Functions | Binding |
 |---|---|---|---|
@@ -4409,12 +4746,14 @@ Elorian Stride is an Elorian Echo Artifact representing otherworldly balance, re
 
 Elorian Stride occupies the Feet Slot. An Elorian with Elorian Stride cannot wear another Feet Artifact, magical boots, hooves, talons, or similar Feet-based Artifact. Elorian Stride is Echo-bound and cannot normally be removed, replaced, sold, stolen, or unbound.
 
----
+</div>
+
+:
 
 ### Elorian Stride Base
 
 | Artifact Level | Base Value A: Evade | Base Value B: Movement  |
-|---:|---:|---:|
+|:---:|:---:|:---:|
 | Level 1 | +2 Evade | — |
 | Level 2 | +3 Evade | — |
 | Level 3 | +4 Evade | — |
@@ -4436,28 +4775,30 @@ It increases all voluntary movement modes you have, including walking, climbing,
 
 #### Elorian Focus and the Crit Stone Ability
 
-Elorian Focus never grants Critical directly.
-
+Elorian Focus never grants Critical directly. 
 It only supports the **Agility Ability: Crit** Stone Ability by pre-filling one named Tier. All required lower Tiers must still be paid normally. If those lower Tiers are not paid, the pre-filled Tier has no effect.
-
 The Crit Stone Ability then resolves normally and grants **Crit(1)** to the number of attacks listed by the activated Tier.
 
 ---
+}}
 
+\page
+{{pageNumber,auto}}
+{{wide
 ### Level Progression
 
-| **Artifact Level** | **Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
+| **Artifact Level** | **Artifact Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Technical Reference** |
 |:--:|:--|:--|:--:|:--:|:--:|:--|:--|
-| **1** | **Otherworld Reflex I** | Reaction | Self | — | Triggering attack only | Gain **+4 Evade** against the triggering attack. | Otherworld Reflex |
-| **2** | **Elorian Cling I** | Movement | Self | — | Instant | Move up to **10 m** along walls, ceilings, or similar solid surfaces. | Wall Walk |
-| **3** | **Elorian Focus I** | Stone Power Support | Self | — | Instant | Elorian Stride supports the **Agility Ability: Crit** Stone Ability and pre-fills **Tier 2**. You must still pay Tier 1 yourself. If Tier 1 is not paid, the pre-filled Tier 2 has no effect. | Crit Stone Ability |
-| **4** | **Otherworld Reflex II** | Reaction | Self | — | Triggering attack only | Gain **+8 Evade** against the triggering attack. | Otherworld Reflex |
-| **5** | **Elorian Cling II** | Movement | Self | — | Instant | Move up to **25 m** along walls, ceilings, or similar solid surfaces. | Wall Walk |
-| **6** | **Elorian Focus II** | Stone Power Support | Self | — | Instant | Elorian Stride pre-fills **Tier 3** of the **Agility Ability: Crit** Stone Ability. You must still pay Tier 1 and Tier 2 yourself. If Tier 1 and Tier 2 are not paid, the pre-filled Tier 3 has no effect. | Crit Stone Ability |
-| **7** | **Otherworld Reflex III** | Reaction | Self | — | Triggering attack only | Gain **+12 Evade** against the triggering attack. | Otherworld Reflex |
-| **8** | **Elorian Cling III** | Movement | Self | — | Instant | Move up to **28 m** along walls, ceilings, or similar solid surfaces. | Wall Walk |
-| **9** | **Elorian Focus III** | Stone Power Support | Self | — | Instant | Elorian Stride pre-fills **Tier 4** of the **Agility Ability: Crit** Stone Ability. You must still pay Tier 1, Tier 2, and Tier 3 yourself. If Tier 1, Tier 2, and Tier 3 are not paid, the pre-filled Tier 4 has no effect. | Crit Stone Ability |
-| **10** | **True Elorian Stride** | Ultimate | Self | — | Special | Elorian Stride fully awakens. Choose or define one final movement, reflex, clinging, focus, or agility effect with GM approval. | True Elorian Stride |
+| **1** | **Otherworld Reflex I** | Reaction | Self | — | Triggering attack only | Gain **+4 Evade** against the triggering attack. | **Reaction: Evade (PL 2)** |
+| **2** | **Elorian Cling I** | Movement | Self | — | Instant | Move up to **10 m** along walls, ceilings, or similar solid surfaces. | **Movement: Wall Walk (PL 4)** |
+| **3** | **Elorian Focus I** | Stone Power Support | Self | — | Instant | Pre-fill **Tier 2**. Tier 1 must still be paid. | **Agility Ability: Crit** (Stone Power Support, Tier 2) |
+| **4** | **Otherworld Reflex II** | Reaction | Self | — | Triggering attack only | Gain **+8 Evade** against the triggering attack. This replaces Otherworld Reflex I. | **Reaction: Evade (PL 4)** |
+| **5** | **Elorian Cling II** | Movement | Self | — | Instant | Move up to **25 m** along walls, ceilings, or similar solid surfaces. This replaces Elorian Cling I. | **Movement: Wall Walk (PL 10)** |
+| **6** | **Elorian Focus II** | Stone Power Support | Self | — | Instant | Pre-fill **Tier 3**. Tiers 1 and 2 must still be paid. | **Agility Ability: Crit** (Stone Power Support, Tier 3) |
+| **7** | **Otherworld Reflex III** | Reaction | Self | — | Triggering attack only | Gain **+12 Evade** against the triggering attack. This replaces Otherworld Reflex II. | **Reaction: Evade (PL 6)** |
+| **8** | **Elorian Cling III** | Movement | Self | — | Instant | Move up to **28 m** along walls, ceilings, or similar solid surfaces. This replaces Elorian Cling II. | **Movement: Wall Walk (PL 16)** |
+| **9** | **Elorian Focus III** | Stone Power Support | Self | — | Instant | Pre-fill **Tier 4**. Tiers 1, 2, and 3 must still be paid. | **Agility Ability: Crit** (Stone Power Support, Tier 4) |
+| **10** | **True Elorian Stride** | Artifact Ultimate | As defined | As defined | As defined | Define the complete final effect with the GM. It is unavailable until its full profile and Technical Reference are recorded. | **Artifact Ultimate: GM-Defined Elorian Stride Effect** |
 
 
 }}
@@ -4686,9 +5027,7 @@ Sentinels carry a divine Core where a mortal heart should be.
 
 To mortals, this Core is a remnant of the vanished gods: a source of light, command, memory, and judgment. To demons, it is something far more practical. Sentinel Cores are among the most valuable currencies of the fallen world. They can be traded for favor, consumed for power, used in rites, offered as tribute, or displayed as proof that divine order has been broken.
 
-This makes every Sentinel a living treasure.
-
-Worse still, a Sentinel cannot use their true power without revealing something of what they are. When a Sentinel activates their Echo powers, channels stored Stones, or releases divine energy through their Frame, the Core flares. Demons do not simply see this light. They taste it.
+This makes every Sentinel a living treasure. Worse still, a Sentinel cannot use their true power without revealing something of what they are. When a Sentinel activates their Echo powers, channels stored Stones, or releases divine energy through their Frame, the Core flares. Demons do not simply see this light. They taste it.
 
 A Core Flare does not always reveal the Sentinel’s exact location, but it leaves a trace: a scent of heaven, metal, ash, and old command. Lesser demons may become restless. Red Priests may begin searching. Greater demons may recognize the taste and send hunters.
 
@@ -4717,7 +5056,7 @@ Sentinel Echo Artifacts are Echo-bound and cannot normally be removed, replaced,
 ### Shared Sentinel Base Item
 
 | Artifact Level | Base Value A: Armor | Drawbacks |
-|---:|---:|---|
+|:---:|:---:|---|
 | Level 1 | +8 Armor | — |
 | Level 2 | +9 Armor | — |
 | Level 3 | +10 Armor | — |
@@ -4737,29 +5076,42 @@ Sentinels endure through structure, plating, protocols, and stored Stones.
 
 ---
 
+
+![SentinelsYellow](https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/Players/SentineYellow.png){position:absolute,top:580px,right:500px,width:300px}
+
+
+![SentinelsGreen](https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/Players/SentinelGreen.png){position:absolute,top:580px,right:270px,width:300px}
+
+
+![SentinelsRed](https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/Players/SentinelRed.png){position:absolute,top:580px,right:30px,width:300px}
+
 }}
 \page
 {{pageNumber,auto}}
 {{wide
 ### Oracle Frame Level Progression
 
-| **Artifact Level** | **Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
-|---:|---|---|---:|---:|---|---|---|
-| **1** | **Oracle Field I** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | You and allies in the area gain **+4 Armor**. | Armor Aura |
-| **2** | **Oracle Aid I** | Stone Power Support | Self | — | Instant | Oracle Frame supports the **Influence Ability: Aid Roll** Stone Power and pre-fills **Tier 2**. You must still pay Tier 1 yourself. If Tier 1 is not paid, the pre-filled Tier 2 has no effect. | Aid Roll Stone Power |
-| **3** | **Influence Core I** | Stone Pool | Self | — | Passive | After each Safe Haven Rest, Oracle Frame stores **2 Influence Stones**. These Stones may only be used for Oracle Frame's listed Influence Stone functions. | Influence Stones |
-| **4** | **Oracle Field III** | Active Buff Upgrade | Self | Radius 6 m | Mastery Rank Rounds | You and allies in the area gain **+9 Armor**. | Armor Aura |
-| **5** | **Oracle Aid II** | Stone Power Support | Self | — | Instant | Oracle Frame pre-fills **Tier 3** of the **Influence Ability: Aid Roll** Stone Power. You must still pay Tier 1 and Tier 2 yourself. If Tier 1 and Tier 2 are not paid, the pre-filled Tier 3 has no effect. | Aid Roll Stone Power |
-| **6** | **Influence Core II** | Stone Pool | Self | — | Passive | After each Safe Haven Rest, Oracle Frame stores **4 Influence Stones**. These Stones may only be used for Oracle Frame's listed Influence Stone functions. | Influence Stones |
-| **7** | **Oracle Field V** | Active Buff Upgrade | Self | Radius 10 m | Mastery Rank Rounds | You and allies in the area gain **+15 Armor**. | Armor Aura |
-| **8** | **Oracle Aid III** | Stone Power Support | Self | — | Instant | Oracle Frame pre-fills **Tier 4** of the **Influence Ability: Aid Roll** Stone Power. You must still pay Tier 1, Tier 2, and Tier 3 yourself. If Tier 1, Tier 2, and Tier 3 are not paid, the pre-filled Tier 4 has no effect. | Aid Roll Stone Power |
-| **9** | **Influence Core III** | Stone Pool | Self | — | Passive | After each Safe Haven Rest, Oracle Frame stores **8 Influence Stones**. These Stones may only be used for Oracle Frame's listed Influence Stone functions. | Influence Stones |
-| **10** | **True Oracle Frame** | Ultimate | Self | — | Special | Once per Safe Haven Rest, when you use **Aid Roll** through Oracle Frame, you may treat one required lower Tier as already paid. | Aid Roll Stone Power |
+
+The Oracle Frame channels **Influence** through protective fields, coordination, and Aid Roll support.
+
+
+
+| **Artifact Level** | **Artifact Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Technical Reference** |
+|:---:|---|---|:---:|:---:|---|---|---|
+| **1** | **Oracle Field I** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | You and allies in the area gain **+4 Armor**. | **Active Buff: Armor Aura (PL 1)** |
+| **2** | **Oracle Aid I** | Stone Power Support | Self | — | Instant | Pre-fill **Tier 2**. Tier 1 must still be paid. | **Influence Ability: Aid Roll** (Stone Power Support, Tier 2) |
+| **3** | **Influence Core I** | Stone Pool | Self | — | Passive | Store **2 Influence Stones** after each Safe Haven Rest. They may be spent only on Oracle Frame's listed Influence Stone functions. | **Artifact Stone Pool: Influence (2)** |
+| **4** | **Oracle Field III** | Active Buff Upgrade | Self | Radius 6 m | Mastery Rank Rounds | You and allies in the area gain **+9 Armor**. This replaces Oracle Field I. | **Active Buff: Armor Aura (PL 3)** |
+| **5** | **Oracle Aid II** | Stone Power Support | Self | — | Instant | Pre-fill **Tier 3**. Tiers 1 and 2 must still be paid. | **Influence Ability: Aid Roll** (Stone Power Support, Tier 3) |
+| **6** | **Influence Core II** | Stone Pool | Self | — | Passive | The stored pool increases to **4 Influence Stones**. | **Artifact Stone Pool: Influence (4)** |
+| **7** | **Oracle Field V** | Active Buff Upgrade | Self | Radius 10 m | Mastery Rank Rounds | You and allies in the area gain **+14 Armor**. This replaces Oracle Field III. | **Active Buff: Armor Aura (PL 5)** |
+| **8** | **Oracle Aid III** | Stone Power Support | Self | — | Instant | Pre-fill **Tier 4**. Tiers 1, 2, and 3 must still be paid. | **Influence Ability: Aid Roll** (Stone Power Support, Tier 4) |
+| **9** | **Influence Core III** | Stone Pool | Self | — | Passive | The stored pool increases to **8 Influence Stones**. | **Artifact Stone Pool: Influence (8)** |
+| **10** | **True Oracle Frame** | Artifact Ultimate | Self | — | Special | Once per Safe Haven Rest, when using Aid Roll through Oracle Frame, treat one required lower Tier as paid. | **Artifact Ultimate: Aid Roll Tier Bypass** |
 
 ---
 
-![Sentinels](https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/Players/SentineYellow.png){position:absolute,top:580px,right:430px,width:350px}
-
+![SentinelsRed](https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/Artefacts/Icons/Oracle%20Frame.png){position:absolute,top:680px,right:320px,width:200px}
 }}
 \page
 {{pageNumber,auto}}
@@ -4767,44 +5119,50 @@ Sentinels endure through structure, plating, protocols, and stored Stones.
 
 ### Sentinel Frame Level Progression
 
-| **Artifact Level** | **Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
-|---:|---|---|---:|---:|---|---|---|
-| **1** | **Single Heal I** | Active | 8 m | — | Instant | Use a single-target healing Active at **Power Level 4**. | Healing |
-| **2** | **Resolve Core I** | Stone Pool | Self | — | Passive | After each Safe Haven Rest, Sentinel Frame stores **2 Resolve Stones**. These Stones may only be used for Sentinel Frame's listed Resolve Stone functions. | Resolve Stones |
-| **3** | **Healing Support I** | Stone Power Support | Self | — | Instant | Sentinel Frame supports the **Resolve Ability: Healing** Stone Power and pre-fills **Tier 2**. You must still pay Tier 1 yourself. If Tier 1 is not paid, the pre-filled Tier 2 has no effect. | Healing Stone Power |
-| **4** | **Single Heal II** | Active | 8 m | — | Instant | Single Heal improves to **Power Level 10**. | Healing |
-| **5** | **Special Reduction Support I** | Stone Power Support | Self | — | Instant | Sentinel Frame supports the **Resolve Ability: Special Reduction** Stone Power and pre-fills **Tier 3**. You must still pay Tier 1 and Tier 2 yourself. If Tier 1 and Tier 2 are not paid, the pre-filled Tier 3 has no effect. | Special Reduction Stone Power |
-| **6** | **Resolve Core II** | Stone Pool | Self | — | Passive | After each Safe Haven Rest, Sentinel Frame stores **4 Resolve Stones**. These Stones may only be used for Sentinel Frame's listed Resolve Stone functions. | Resolve Stones |
-| **7** | **Single Heal III** | Active | 8 m | — | Instant | Single Heal improves to **Power Level 16**. | Healing |
-| **8** | **Healing Support II** | Stone Power Support | Self | — | Instant | Sentinel Frame pre-fills **Tier 4** of the **Resolve Ability: Healing** Stone Power. You must still pay Tier 1, Tier 2, and Tier 3 yourself. If Tier 1, Tier 2, and Tier 3 are not paid, the pre-filled Tier 4 has no effect. | Healing Stone Power |
-| **9** | **Special Reduction Support II** | Stone Power Support | Self | — | Instant | Sentinel Frame pre-fills **Tier 4** of the **Resolve Ability: Special Reduction** Stone Power. You must still pay Tier 1, Tier 2, and Tier 3 yourself. If Tier 1, Tier 2, and Tier 3 are not paid, the pre-filled Tier 4 has no effect. | Special Reduction Stone Power |
-| **10** | **True Sentinel Frame** | Ultimate | Self | — | Special | Once per Safe Haven Rest, when you use either **Healing** or **Special Reduction** through Sentinel Frame, you may treat one required lower Tier as already paid. | Resolve Stone Power |
+
+The Sentinel Frame channels **Resolve** through healing, stabilization, and Special Reduction support.
+
+
+
+| **Artifact Level** | **Artifact Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Technical Reference** |
+|:---:|---|---|:---:|:---:|---|---|---|
+| **1** | **Single Heal I** | Active, Support | 8 m | None | Instant | Heal one creature for **5d8 HP**. This profile has a pool of **1 Health Level per Safe Haven Rest**. Only the printed Range is overridden to 8 m. | **Ranged Single Target Heal (PL 4; Artifact Range 8 m)** |
+| **2** | **Resolve Core I** | Stone Pool | Self | — | Passive | Store **2 Resolve Stones** after each Safe Haven Rest. They may be spent only on Sentinel Frame's listed Resolve Stone functions. | **Artifact Stone Pool: Resolve (2)** |
+| **3** | **Healing Support I** | Stone Power Support | Self | — | Instant | Pre-fill **Tier 2**. Tier 1 must still be paid. | **Resolve Ability: Healing** (Stone Power Support, Tier 2) |
+| **4** | **Single Heal II** | Active, Support | 8 m | None | Instant | Heal one creature for **13d8 HP**. This profile has a pool of **2 Health Levels per Safe Haven Rest** and replaces Single Heal I. Only the printed Range is overridden to 8 m. | **Ranged Single Target Heal (PL 10; Artifact Range 8 m)** |
+| **5** | **Special Reduction Support I** | Stone Power Support | Self | — | Instant | Pre-fill **Tier 3**. Tiers 1 and 2 must still be paid. | **Resolve Ability: Special Reduction** (Stone Power Support, Tier 3) |
+| **6** | **Resolve Core II** | Stone Pool | Self | — | Passive | The stored pool increases to **4 Resolve Stones**. | **Artifact Stone Pool: Resolve (4)** |
+| **7** | **Single Heal III** | Active, Support | 8 m | None | Instant | Heal one creature for **19d8 HP**. This profile has a pool of **4 Health Levels per Safe Haven Rest** and replaces Single Heal II. Only the printed Range is overridden to 8 m. | **Ranged Single Target Heal (PL 16; Artifact Range 8 m)** |
+| **8** | **Healing Support II** | Stone Power Support | Self | — | Instant | Pre-fill **Tier 4**. Tiers 1, 2, and 3 must still be paid. | **Resolve Ability: Healing** (Stone Power Support, Tier 4) |
+| **9** | **Special Reduction Support II** | Stone Power Support | Self | — | Instant | Pre-fill **Tier 4**. Tiers 1, 2, and 3 must still be paid. | **Resolve Ability: Special Reduction** (Stone Power Support, Tier 4) |
+| **10** | **True Sentinel Frame** | Artifact Ultimate | Self | — | Special | Once per Safe Haven Rest, when using Healing or Special Reduction through Sentinel Frame, treat one required lower Tier as paid. | **Artifact Ultimate: Resolve Stone Tier Bypass** |
 
 ---
-
-![Sentinels](https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/Players/SentinelGreen.png){position:absolute,top:530px,right:430px,width:350px}
+![SentinelsRed](https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/Artefacts/Icons/Sentinel%20Frame.png){position:absolute,top:680px,right:320px,width:200px}
 }}
 \page
 {{pageNumber,auto}}
 {{wide
 ### Judicator Frame Level Progression
 
-| **Artifact Level** | **Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
-|---:|---|---|---:|---:|---|---|---|
-| **1** | **Armor Hasten I** | Active Buff Empowerment | Self | — | Passive | When you activate an Active Buff that grants Armor as one of its effects, you may empower it by **+1 Power Level** and **+1 round**. This cannot raise the Buff above Power Level 16. | Armor Buff Empowerment |
-| **2** | **Wits Core I** | Stone Pool | Self | — | Passive | After each Safe Haven Rest, Judicator Frame stores **2 Wits Stones**. These Stones may only be used for Judicator Frame's listed Wits Stone functions. | Wits Stones |
-| **3** | **Regeneration Support I** | Stone Power Support | Self | — | Instant | Judicator Frame supports the **Regeneration** Stone Power and pre-fills **Tier 2**. You must still pay Tier 1 yourself. If Tier 1 is not paid, the pre-filled Tier 2 has no effect. | Regeneration Stone Power |
-| **4** | **Armor Hasten II** | Active Buff Empowerment | Self | — | Passive | Armor Buff Empowerment improves to **+2 Power Levels** and **+2 rounds**. This cannot raise the Buff above Power Level 16. | Armor Buff Empowerment |
-| **5** | **Wits Core II** | Stone Pool | Self | — | Passive | After each Safe Haven Rest, Judicator Frame stores **4 Wits Stones**. These Stones may only be used for Judicator Frame's listed Wits Stone functions. | Wits Stones |
-| **6** | **Regeneration Support II** | Stone Power Support | Self | — | Instant | Judicator Frame pre-fills **Tier 3** of the **Regeneration** Stone Power. You must still pay Tier 1 and Tier 2 yourself. If Tier 1 and Tier 2 are not paid, the pre-filled Tier 3 has no effect. | Regeneration Stone Power |
-| **7** | **Armor Hasten III** | Active Buff Empowerment | Self | — | Passive | Armor Buff Empowerment improves to **+3 Power Levels** and **+3 rounds**. This cannot raise the Buff above Power Level 16. | Armor Buff Empowerment |
-| **8** | **Wits Core III** | Stone Pool | Self | — | Passive | After each Safe Haven Rest, Judicator Frame stores **8 Wits Stones**. These Stones may only be used for Judicator Frame's listed Wits Stone functions. | Wits Stones |
-| **9** | **Regeneration Support III** | Stone Power Support | Self | — | Instant | Judicator Frame pre-fills **Tier 4** of the **Regeneration** Stone Power. You must still pay Tier 1, Tier 2, and Tier 3 yourself. If Tier 1, Tier 2, and Tier 3 are not paid, the pre-filled Tier 4 has no effect. | Regeneration Stone Power |
-| **10** | **True Judicator Frame** | Ultimate | Self | — | Special | Once per Safe Haven Rest, when you activate an Armor Active Buff through Armor Hasten, you may also use the supported **Regeneration** Stone Power as part of the same activation, paying its normal Stone cost. | Armor / Regeneration |
+The Judicator Frame channels **Wits** through armor protocols, stored Stones, and regeneration support.
+
+
+| **Artifact Level** | **Artifact Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Technical Reference** |
+|:---:|---|---|:---:|:---:|---|---|---|
+| **1** | **Armor Hasten I** | Artifact Function | Self | — | Passive | When you activate an Armor-granting Active Buff, increase its effective PL by **+1** and its duration by **+1 round**, to a maximum of PL 16. | **Artifact Function: Armor Active Buff Empowerment I** |
+| **2** | **Wits Core I** | Stone Pool | Self | — | Passive | Store **2 Wits Stones** after each Safe Haven Rest. They may be spent only on Judicator Frame's listed Wits Stone functions. | **Artifact Stone Pool: Wits (2)** |
+| **3** | **Regeneration Support I** | Stone Power Support | Self | — | Instant | Pre-fill **Tier 2**. Tier 1 must still be paid. | **Wits Ability: Regeneration** (Stone Power Support, Tier 2) |
+| **4** | **Armor Hasten II** | Artifact Function | Self | — | Passive | Armor Active Buff Empowerment improves to **+2 PL** and **+2 rounds**, to a maximum of PL 16. | **Artifact Function: Armor Active Buff Empowerment II** |
+| **5** | **Wits Core II** | Stone Pool | Self | — | Passive | The stored pool increases to **4 Wits Stones**. | **Artifact Stone Pool: Wits (4)** |
+| **6** | **Regeneration Support II** | Stone Power Support | Self | — | Instant | Pre-fill **Tier 3**. Tiers 1 and 2 must still be paid. | **Wits Ability: Regeneration** (Stone Power Support, Tier 3) |
+| **7** | **Armor Hasten III** | Artifact Function | Self | — | Passive | Armor Active Buff Empowerment improves to **+3 PL** and **+3 rounds**, to a maximum of PL 16. | **Artifact Function: Armor Active Buff Empowerment III** |
+| **8** | **Wits Core III** | Stone Pool | Self | — | Passive | The stored pool increases to **8 Wits Stones**. | **Artifact Stone Pool: Wits (8)** |
+| **9** | **Regeneration Support III** | Stone Power Support | Self | — | Instant | Pre-fill **Tier 4**. Tiers 1, 2, and 3 must still be paid. | **Wits Ability: Regeneration** (Stone Power Support, Tier 4) |
+| **10** | **True Judicator Frame** | Artifact Ultimate | Self | — | Instant | Once per Safe Haven Rest, an Armor Active Buff activated through Armor Hasten may also activate the supported Regeneration Stone Power as part of the same activation. Pay Regeneration's normal Stone cost. | **Artifact Ultimate: Armor Buff + Regeneration Link** |
 
 ---
-
-![Sentinels](https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/Players/SentinelRed.png){position:absolute,top:630px,right:430px,width:350px}
+![SentinelsRed](https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/Artefacts/Icons/Judicator%20Frame.png){position:absolute,top:750px,right:320px,width:200px}
 
 }}
 \page
@@ -5045,19 +5403,25 @@ answer finally calls your name.
 {{pageNumber,auto}}
 {{wide
 #### Titan Scars
+![Roderick](https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/Artefacts/Icons/Titan%20Scars.png){position:absolute,top:50px,right:80px,width:200px}
 
+<div style="width:65%; margin:left;">
 Titan Scars are a Titanborn Echo Artifact.  
 They are not worn armor, but ancient scars, stone-like tissue, Titan blood, and broken divine bindings grown into the body.
 
 A Titanborn with Titan Scars cannot wear mundane armor or bind another Body Artifact unless a specific rule explicitly allows it.
 
+
+
 | Slot | Base Type | Artifact Functions | Binding |
 |---|---|---|---|
-| Body | Medium Echo Armor | Medium Armor / Growth Form / Melee Damage Stone Power Support / Remove Scar Stone Power Support | Echo-bound |
+| Body | Medium Echo Armor | Medium Armor / Size + Damage + Armor / Melee Damage Stone Power Support / Remove Scar Stone Power Support | Echo-bound |
 
 Titan Scars occupy the Body Slot.
 
 Titan Scars are Echo-bound and cannot normally be removed, replaced, sold, stolen, unequipped, or unbound.
+
+</div>
 
 ---
 
@@ -5066,7 +5430,7 @@ Titan Scars are Echo-bound and cannot normally be removed, replaced, sold, stole
 Titan Scars use the standard Medium Armor Body baseline.
 
 | Artifact Level | Base Value A: Armor | Drawbacks |
-|---:|---:|---|
+|:---:|:---:|---|
 | Level 1 | +12 Armor | -2 Evade, -4 Initiative, -1d8 Physical Skill Checks |
 | Level 2 | +13 Armor | -2 Evade, -4 Initiative, -1d8 Physical Skill Checks |
 | Level 3 | +14 Armor | -2 Evade, -4 Initiative, -1d8 Physical Skill Checks |
@@ -5089,18 +5453,18 @@ The Armor value already includes the Medium Armor base and the Artifact Armor Bo
 {{wide
 #### Level Progression
 
-| **Artifact Level** | **Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
-|---:|---|---|---:|---:|---|---|---|
-| **1** | **Titan Growth I** | Active Buff | Self | — | Mastery Rank Rounds | You may activate **Growth Form** at **Power Level 4**. Growth Form uses your maintained Active Buff slot. | Growth Form |
-| **2** | **Titan Might I** | Stone Power Support | Self | — | Instant | Titan Scars support the **Might Ability: Melee Damage** Stone Power and pre-fill **Tier 2**. You must still pay Tier 1 yourself. If Tier 1 is not paid, the pre-filled Tier 2 has no effect. | Melee Damage Stone Power |
-| **3** | **Titan Healing I** | Stone Power Support | Self | — | Instant | Titan Scars support the **Vitality Ability: Remove Scar** Stone Power. You must pay the normal Stone cost yourself. | Remove Scar Stone Power |
-| **4** | **Titan Growth II** | Active Buff | Self | — | Mastery Rank Rounds | Growth Form improves to **Power Level 10**. Growth Form uses your maintained Active Buff slot. | Growth Form |
-| **5** | **Titan Might II** | Stone Power Support | Self | — | Instant | Titan Scars pre-fill **Tier 3** of the **Might Ability: Melee Damage** Stone Power. You must still pay Tier 1 and Tier 2 yourself. If Tier 1 and Tier 2 are not paid, the pre-filled Tier 3 has no effect. | Melee Damage Stone Power |
-| **6** | **Titan Healing II** | Stone Power Support | Self | — | Instant | Titan Scars support the **Vitality Ability: Remove Scar** Stone Power. When Remove Scar is used through Titan Scars, it may recover **1 Scarred Health Bar** as written by the Stone Power. You must pay the normal Stone cost yourself. | Remove Scar Stone Power |
-| **7** | **Titan Growth III** | Active Buff | Self | — | Mastery Rank Rounds | Growth Form improves to **Power Level 16**. Growth Form uses your maintained Active Buff slot. | Growth Form |
-| **8** | **Titan Might III** | Stone Power Support | Self | — | Instant | Titan Scars pre-fill **Tier 4** of the **Might Ability: Melee Damage** Stone Power. You must still pay Tier 1, Tier 2, and Tier 3 yourself. If Tier 1, Tier 2, and Tier 3 are not paid, the pre-filled Tier 4 has no effect. | Melee Damage Stone Power |
-| **9** | **Titan Healing III** | Stone Power Support | Self / Touch | — | Instant | Titan Scars support the **Vitality Ability: Remove Scar** Stone Power on yourself or one touched willing creature. You must pay the normal Stone cost yourself. | Remove Scar Stone Power |
-| **10** | **True Titan Scars** | Ultimate / Stone Power Support | Self / Touch | — | Instant | Once per Safe Haven Rest, you may use the **Vitality Ability: Remove Scar** Stone Power through Titan Scars without paying its Stone cost. This free use can recover **1 Scarred Health Bar** and follows all normal Remove Scar limits. | Remove Scar Stone Power |
+| **Artifact Level** | **Artifact Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Technical Reference** |
+|:---:|---|---|:---:|:---:|---|---|---|
+| **1** | **Titan Growth I** | Active Buff | Self | — | Mastery Rank Rounds | Use the normal Active Buff: Size + Damage + Armor profile at PL 4. | **Active Buff: Size + Damage + Armor (PL 4)** |
+| **2** | **Titan Might I** | Stone Power Support | Self | — | Instant | Pre-fill **Tier 2**. Tier 1 must still be paid. | **Might Ability: Melee Damage** (Stone Power Support, Tier 2) |
+| **3** | **Titan Healing I** | Stone Power Support | Self | — | Instant | Use Remove Scar through Titan Scars and pay its normal Stone cost. | **Vitality Ability: Remove Scar** (Stone Power Support) |
+| **4** | **Titan Growth II** | Active Buff | Self | — | Mastery Rank Rounds | Use the normal Active Buff: Size + Damage + Armor profile at PL 10. This replaces Titan Growth I. | **Active Buff: Size + Damage + Armor (PL 10)** |
+| **5** | **Titan Might II** | Stone Power Support | Self | — | Instant | Pre-fill **Tier 3**. Tiers 1 and 2 must still be paid. | **Might Ability: Melee Damage** (Stone Power Support, Tier 3) |
+| **6** | **Titan Healing II** | Stone Power Support | Self | — | Instant | Remove Scar used through Titan Scars may recover **1 Scarred Health Bar**, as written by the Stone Power. Pay its normal Stone cost. | **Vitality Ability: Remove Scar** (Stone Power Support, Scar Recovery) |
+| **7** | **Titan Growth III** | Active Buff | Self | — | Mastery Rank Rounds | Use the normal Active Buff: Size + Damage + Armor profile at PL 16. This replaces Titan Growth II. | **Active Buff: Size + Damage + Armor (PL 16)** |
+| **8** | **Titan Might III** | Stone Power Support | Self | — | Instant | Pre-fill **Tier 4**. Tiers 1, 2, and 3 must still be paid. | **Might Ability: Melee Damage** (Stone Power Support, Tier 4) |
+| **9** | **Titan Healing III** | Stone Power Support | Self / Touch | — | Instant | Use Remove Scar on yourself or one touched willing creature. Pay its normal Stone cost. | **Vitality Ability: Remove Scar** (Stone Power Support, Touch) |
+| **10** | **True Titan Scars** | Artifact Ultimate / Stone Power Support | Self / Touch | — | Instant | Once per Safe Haven Rest, use Remove Scar through Titan Scars without paying its Stone cost. This can recover **1 Scarred Health Bar** and follows all normal limits. | **Artifact Ultimate: Free Vitality Ability: Remove Scar** |
 
 ---
 
@@ -5336,9 +5700,12 @@ The danger is that, for one moment each day, the Dragonborn wants to be found.
 {{wide
 #### Wyrm Scales
 
+
+
 Wyrm Scales are the heaviest form of Dragonborn natural armor. They are not worn, forged, or strapped on. They are the character's body.
 
 A Dragonborn with Wyrm Scales cannot wear mundane armor or another Body Artifact.
+
 
 | Slot | Base Type | Artifact Functions | Binding |
 |---|---|---|---|
@@ -5351,7 +5718,7 @@ Wyrm Scales are Echo-bound and cannot normally be removed or replaced.
 #### Base Item
 
 | Artifact Level | Base Value A: Armor | Drawbacks |
-|---:|---:|---|
+|:---:|:---:|---|
 | Level 1 | +16 Armor | -2 Evade, -2 Initiative, -2d8 Physical Skill Checks |
 | Level 2 | +17 Armor | -2 Evade, -2 Initiative, -2d8 Physical Skill Checks |
 | Level 3 | +18 Armor | -2 Evade, -2 Initiative, -2d8 Physical Skill Checks |
@@ -5365,7 +5732,7 @@ Wyrm Scales are Echo-bound and cannot normally be removed or replaced.
 
 
 
-![Roderick](https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/Players/Final-2-No-Background.png){position:absolute,top:550px,right:230px,width:400px}
+![WyrmArmor](https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/Artefacts/Icons/Wyrm%20Scales.png){position:absolute,top:500px,right:250px,width:300px}
 ---
 }}
 \page
@@ -5373,18 +5740,18 @@ Wyrm Scales are Echo-bound and cannot normally be removed or replaced.
 {{wide
 #### Level Progression
 
-| **Artifact Level** | **Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
-|---:|---|---|---:|---:|---|---|---|
-| **1** | **Dragon Wings I** | Movement | Self | — | Instant | You may fly up to **6 m**. | Flight |
-| **2** | **Wyrm Scales I** | Active Buff | Self | — | Mastery Rank Rounds | You gain **+6 Armor**. | Armor |
-| **3** | **Armor Stone Support I** | Stone Power Support | Self | — | Instant | Wyrm Scales support the Vitality Ability **ARMOR** Stone Power and pre-fill **Tier 2**. You must still pay Tier 1 yourself. If Tier 1 is not paid, the pre-filled Tier 2 has no effect. | ARMOR Stone Power |
-| **4** | **Dragon Wings II** | Movement | Self | — | Instant | You may fly up to **15 m**. | Flight |
-| **5** | **Wyrm Scales II** | Active Buff | Self | — | Mastery Rank Rounds | You gain **+12 Armor**. | Armor |
-| **6** | **Armor Stone Support II** | Stone Power Support | Self | — | Instant | Wyrm Scales pre-fill **Tier 3** of the Vitality Ability **ARMOR** Stone Power. You must still pay Tier 1 and Tier 2 yourself. If Tier 1 and Tier 2 are not paid, the pre-filled Tier 3 has no effect. | ARMOR Stone Power |
-| **7** | **Dragon Wings III** | Movement | Self | — | Instant | You may fly up to **24 m**. | Flight |
-| **8** | **Wyrm Scales III** | Active Buff | Self | — | Mastery Rank Rounds | You gain **+18 Armor**. | Armor |
-| **9** | **Armor Stone Support III** | Stone Power Support | Self | — | Instant | Wyrm Scales pre-fill **Tier 4** of the Vitality Ability **ARMOR** Stone Power. You must still pay Tier 1, Tier 2, and Tier 3 yourself. If Tier 1, Tier 2, and Tier 3 are not paid, the pre-filled Tier 4 has no effect. | ARMOR Stone Power |
-| **10** | **Dragon Transformation** | Ultimate | Self | — | Special | You unlock your **Wyrm Dragon Form**. Choose the shape of this form when this Artifact reaches Level 10. The form occupies a large space, uses the transformation rules below, and grants the listed Dragon Form benefits. | Wyrm Dragon Form |
+| **Artifact Level** | **Artifact Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Technical Reference** |
+|:---:|---|---|:---:|:---:|---|---|---|
+| **1** | **Dragon Wings I** | Movement | Self | — | Instant | Fly up to **6 m**. | **Movement: Flight (PL 4)** |
+| **2** | **Wyrm Scales I** | Artifact Active Buff | Self | — | Mastery Rank Rounds | Gain **+6 Armor**. | **Artifact Active Buff: Armor (PL 4)** |
+| **3** | **Armor Stone Support I** | Stone Power Support | Self | — | Instant | Pre-fill **Tier 2**. Tier 1 must still be paid. | **Vitality Ability: Armor** (Stone Power Support, Tier 2) |
+| **4** | **Dragon Wings II** | Movement | Self | — | Instant | Fly up to **15 m**. This replaces Dragon Wings I. | **Movement: Flight (PL 10)** |
+| **5** | **Wyrm Scales II** | Artifact Active Buff | Self | — | Mastery Rank Rounds | Gain **+12 Armor**. This replaces Wyrm Scales I. | **Artifact Active Buff: Armor (PL 10)** |
+| **6** | **Armor Stone Support II** | Stone Power Support | Self | — | Instant | Pre-fill **Tier 3**. Tiers 1 and 2 must still be paid. | **Vitality Ability: Armor** (Stone Power Support, Tier 3) |
+| **7** | **Dragon Wings III** | Movement | Self | — | Instant | Fly up to **24 m**. This replaces Dragon Wings II. | **Movement: Flight (PL 16)** |
+| **8** | **Wyrm Scales III** | Artifact Active Buff | Self | — | Mastery Rank Rounds | Gain **+18 Armor**. This replaces Wyrm Scales II. | **Artifact Active Buff: Armor (PL 16)** |
+| **9** | **Armor Stone Support III** | Stone Power Support | Self | — | Instant | Pre-fill **Tier 4**. Tiers 1, 2, and 3 must still be paid. | **Vitality Ability: Armor** (Stone Power Support, Tier 4) |
+| **10** | **Dragon Transformation** | Artifact Ultimate | As defined | As defined | As defined | Define the complete Wyrm Dragon Form with the GM. It is unavailable until its full transformation profile and Technical Reference are recorded. | **Artifact Ultimate: GM-Defined Wyrm Dragon Form** |
 }}
 \page
 {{pageNumber,auto}}
@@ -5393,6 +5760,7 @@ Wyrm Scales are Echo-bound and cannot normally be removed or replaced.
 #### Serpent Scales
 
 Serpent Scales are a lighter form of Dragonborn natural armor. They are flexible, smooth, and built for movement rather than brute protection. A Dragonborn with Serpent Scales cannot wear mundane armor or another Body Artifact.
+
 
 | Slot | Base Type | Artifact Functions | Binding |
 |---|---|---|---|
@@ -5405,7 +5773,7 @@ Serpent Scales are Echo-bound and cannot normally be removed or replaced.
 #### Base Item
 
 | Artifact Level | Base Value A: Armor | Drawbacks |
-|---:|---:|---|
+|:---:|:---:|---|
 | Level 1 | +8 Armor | — |
 | Level 2 | +9 Armor | — |
 | Level 3 | +10 Armor | — |
@@ -5417,7 +5785,7 @@ Serpent Scales are Echo-bound and cannot normally be removed or replaced.
 | Level 9 | +16 Armor | — |
 | Level 10 | +18 Armor | — |
 
----
+![SerpentArmor](https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/Artefacts/Icons/Serpent%20Scales.png){position:absolute,top:500px,right:250px,width:300px}
 }}
 \page
 {{pageNumber,auto}}
@@ -5425,18 +5793,18 @@ Serpent Scales are Echo-bound and cannot normally be removed or replaced.
 #### Level Progression
 
 
-| **Artifact Level** | **Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
-|---:|---|---|---:|---:|---|---|---|
-| **1** | **Dragon Wings I** | Movement | Self | — | Instant | You may fly up to **6 m**. | Flight |
-| **2** | **Serpent Evasion I** | Active Buff | Self | — | Mastery Rank Rounds | You gain **+6 Evade**. | Evade |
-| **3** | **Evasion Stone Support I** | Stone Power Support | Self | — | Instant | Serpent Scales support the Agility Ability **EVADE** Stone Power and pre-fill **Tier 2**. You must still pay Tier 1 yourself. If Tier 1 is not paid, the pre-filled Tier 2 has no effect. | EVADE Stone Power |
-| **4** | **Dragon Wings II** | Movement | Self | — | Instant | You may fly up to **15 m**. | Flight |
-| **5** | **Mobility Buff Extension II** | Support | Self | — | Passive | Whenever you activate an Active Buff that grants Evade or Movement as one of its effects, increase that Buff's duration by **+2 rounds**. This does not increase the Buff's value. This does not allow you to maintain a second Active Buff. | Mobility Buff Extension |
-| **6** | **Evasion Stone Support II** | Stone Power Support | Self | — | Instant | Serpent Scales pre-fill **Tier 3** of the Agility Ability **EVADE** Stone Power. You must still pay Tier 1 and Tier 2 yourself. If Tier 1 and Tier 2 are not paid, the pre-filled Tier 3 has no effect. | EVADE Stone Power |
-| **7** | **Dragon Wings III** | Movement | Self | — | Instant | You may fly up to **24 m**. | Flight |
-| **8** | **Mobility Buff Extension III** | Support | Self | — | Passive | Whenever you activate an Active Buff that grants Evade or Movement as one of its effects, increase that Buff's duration by **+3 rounds**. This does not increase the Buff's value. This does not allow you to maintain a second Active Buff. | Mobility Buff Extension |
-| **9** | **Evasion Stone Support III** | Stone Power Support | Self | — | Instant | Serpent Scales pre-fill **Tier 4** of the Agility Ability **EVADE** Stone Power. You must still pay Tier 1, Tier 2, and Tier 3 yourself. If Tier 1, Tier 2, and Tier 3 are not paid, the pre-filled Tier 4 has no effect. | EVADE Stone Power |
-| **10** | **True Serpent Form** | Ultimate | Self | — | Special | Your body becomes perfectly adapted to motion. Choose or define one final mobility, evasion, or light-dragon transformation effect with GM approval. | True Serpent Form |
+| **Artifact Level** | **Artifact Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Technical Reference** |
+|:---:|---|---|:---:|:---:|---|---|---|
+| **1** | **Dragon Wings I** | Movement | Self | — | Instant | Fly up to **6 m**. | **Movement: Flight (PL 4)** |
+| **2** | **Serpent Evasion I** | Artifact Active Buff | Self | — | Mastery Rank Rounds | Gain **+6 Evade**. | **Artifact Active Buff: Evade (PL 4)** |
+| **3** | **Evasion Stone Support I** | Stone Power Support | Self | — | Instant | Pre-fill **Tier 2**. Tier 1 must still be paid. | **Agility Ability: Evade** (Stone Power Support, Tier 2) |
+| **4** | **Dragon Wings II** | Movement | Self | — | Instant | Fly up to **15 m**. This replaces Dragon Wings I. | **Movement: Flight (PL 10)** |
+| **5** | **Mobility Buff Extension II** | Artifact Function | Self | — | Passive | An Active Buff you activate that grants Evade or Movement lasts **+2 rounds**. It gains no value and does not create another maintained Active Buff slot. | **Artifact Function: Evade or Movement Active Buff Extension II** |
+| **6** | **Evasion Stone Support II** | Stone Power Support | Self | — | Instant | Pre-fill **Tier 3**. Tiers 1 and 2 must still be paid. | **Agility Ability: Evade** (Stone Power Support, Tier 3) |
+| **7** | **Dragon Wings III** | Movement | Self | — | Instant | Fly up to **24 m**. This replaces Dragon Wings II. | **Movement: Flight (PL 16)** |
+| **8** | **Mobility Buff Extension III** | Artifact Function | Self | — | Passive | The duration increase becomes **+3 rounds**. This replaces Mobility Buff Extension II. | **Artifact Function: Evade or Movement Active Buff Extension III** |
+| **9** | **Evasion Stone Support III** | Stone Power Support | Self | — | Instant | Pre-fill **Tier 4**. Tiers 1, 2, and 3 must still be paid. | **Agility Ability: Evade** (Stone Power Support, Tier 4) |
+| **10** | **True Serpent Form** | Artifact Ultimate | As defined | As defined | As defined | Define the complete final effect with the GM. It is unavailable until its full profile and Technical Reference are recorded. | **Artifact Ultimate: GM-Defined Serpent Form Effect** |
 
 
 }}
@@ -5444,6 +5812,11 @@ Serpent Scales are Echo-bound and cannot normally be removed or replaced.
 {{pageNumber,auto}}
 {{wide
 ### Dragon Head
+![DragonHead](https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/Artefacts/Icons/Dragon%20Head.png){position:absolute,top:50px,right:80px,width:200px}
+
+<div style="width:65%; margin:left;">
+Dragon Head is a Dragonborn Echo Artifact representing the awakened skull, jaws, senses, breath, and command-presence of the First Dragons.
+
 
 | Slot | Base Type | Artifact Functions | Binding |
 |---|---|---|---|
@@ -5451,12 +5824,12 @@ Serpent Scales are Echo-bound and cannot normally be removed or replaced.
 
 Dragon Head occupies the Head Slot. A Dragonborn with Dragon Head cannot wear another Head Artifact, helmet, mask, crown, or magical headgear. Dragon Head is Echo-bound and cannot normally be removed, replaced, sold, stolen, or unbound.
 
----
+</div>
 
 #### Bite and Head Armor Base
 
 | Artifact Level | Base Value A: Bite Weapon Damage | Base Value B: Head Armor |
-|---:|---:|---:|
+|:---:|:---:|:---:|
 | Level 1 | 1d8 | +1 Armor |
 | Level 2 | 2d8 | +1 Armor |
 | Level 3 | 3d8 | +2 Armor |
@@ -5485,7 +5858,7 @@ Predator Sense is separate from both Base Values and does not scale with Artifac
 Choose one Breath Shape when this Artifact is created.
 
 | Breath Shape | Power Level 4 | Power Level 10 | Power Level 16 |
-|---|---:|---:|---:|
+|---|:---:|:---:|:---:|
 | Cone Breath | Cone 6 m | Cone 10 m | Cone 14 m |
 | Line Breath | Line 12 m x 2 m | Line 20 m x 3 m | Line 28 m x 4 m |
 
@@ -5493,17 +5866,22 @@ Choose one Breath Special when this Artifact is created:
 
 **Ruin, Slow, Corrode, or Blight.**
 
+This choice is permanent. Record the exact Technical Reference as **Artifact Active: Breath Weapon + [chosen Special]**. Breath Weapon I, II, and III are upgrades of that one Power and share one spent state.
+
 Resolve Breath Weapon as a Martial AoE Attack. Make one Attack Roll for the Breath Shape and compare the same final result separately against the **Evade** of each valid non-excluded creature inside it. Each creature whose Evade is met would be hit and may use **Dive for Cover** before the payload is applied. Every creature that remains hit receives the full Breath Weapon payload. A miss against one creature does not affect any other creature in the Breath Shape.
 
 ---
 
-
+}}
+\page
+{{pageNumber,auto}}
+{{wide
 #### Breath Weapon Uses
 
 Breath Weapon can be used a number of times per Safe Haven Rest equal to half the character's Mastery Rank, rounded up.
 
 | Mastery Rank | Breath Weapon Uses per Safe Haven Rest |
-|---:|---:|
+|:---:|:---:|
 | MR 1 | 1 |
 | MR 2 | 1 |
 | MR 3 | 2 |
@@ -5512,26 +5890,26 @@ Breath Weapon can be used a number of times per Safe Haven Rest equal to half th
 | MR 6 | 3 |
 | MR 7 | 4 |
 | MR 8 | 4 |
----
-}}
-\page
-{{pageNumber,auto}}
-{{wide
 
+#### Draconic Recovery
+
+When Dragon Head reaches Artifact Level 3, choose one Attribute for Draconic Recovery. This choice is permanent. Draconic Recovery can be used once per Safe Haven Rest and restores spent Stones only from that Attribute. Draconic Recovery II and III replace the earlier profile; they do not grant additional uses.
+
+:::
 #### Level Progression
 
-| **Artifact Level** | **Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
+| **Artifact Level** | **Artifact Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Technical Reference** |
 |:--:|:--|:--|:--:|:--:|:--:|:--|:--|
-| **1** | **Breath Weapon I** | Active | Self | chosen Breath Shape | Instant | Bite Damage + **8d8 damage** to affected creatures. | chosen Breath Special |
-| **2** | **Draconic Roar I** | Active Buff | Self | Radius 8 m | Mastery Rank Rounds | You and allies in the area gain **+12 Armor**. | Armor Aura |
-| **3** | **Draconic Recovery I** | Stone Refresh | Self | — | Instant | Restore **1 spent Stone** of the chosen Attribute. | Stone Refresh |
-| **4** | **Breath Weapon II** | Active | Self | chosen Breath Shape | Instant | Bite Damage + **16d8 damage** to affected creatures. | chosen Breath Special |
-| **5** | **Draconic Roar II** | Active Buff | Self | Radius 20 m | Mastery Rank Rounds | You and allies in the area gain **+28 Armor**. | Armor Aura |
-| **6** | **Draconic Recovery II** | Stone Refresh | Self | — | Instant | Restore **2 spent Stones** of the chosen Attribute. | Stone Refresh |
-| **7** | **Breath Weapon III** | Active | Self | chosen Breath Shape | Instant | Bite Damage + **24d8 damage** to affected creatures. | chosen Breath Special |
-| **8** | **Draconic Roar III** | Active Buff | Self | Radius 32 m | Mastery Rank Rounds | You and allies in the area gain **+44 Armor**. | Armor Aura |
-| **9** | **Draconic Recovery III** | Stone Refresh | Self | — | Instant | Restore **4 spent Stones** of the chosen Attribute. | Stone Refresh |
-| **10** | **True Dragon Head** | Ultimate | Self | — | Special | Choose or define one final Breath, Bite, Roar, Recovery, or Head effect with GM approval. | True Dragon Head |
+| **1** | **Breath Weapon I** | Artifact Active | Self | Chosen Breath Shape | Instant | Make the written Martial AoE Attack. Each hit takes Bite Damage + **8d8 damage** and the fixed chosen Breath Special. | **Artifact Active: Breath Weapon + Ruin / Slow / Corrode / Blight (PL 4; choose one)** |
+| **2** | **Draconic Roar I** | Active Buff | Self | Radius 8 m | Mastery Rank Rounds | You and allies in the area gain **+12 Armor**. | **Active Buff: Armor Aura (PL 4)** |
+| **3** | **Draconic Recovery I** | Artifact Active, Support | Self | — | Instant | As an Attack Action, once per Safe Haven Rest, restore **1 spent Stone** of the Attribute chosen for Draconic Recovery. | **Artifact Active: Stone Refresh (PL 4)** |
+| **4** | **Breath Weapon II** | Artifact Active | Self | Chosen Breath Shape | Instant | Bite Damage increases to + **16d8 damage**. Use the same Breath Shape and Breath Special. This replaces Breath Weapon I. | **Artifact Active: Breath Weapon + Ruin / Slow / Corrode / Blight (PL 10; same choice)** |
+| **5** | **Draconic Roar II** | Active Buff | Self | Radius 20 m | Mastery Rank Rounds | You and allies in the area gain **+28 Armor**. This replaces Draconic Roar I. | **Active Buff: Armor Aura (PL 10)** |
+| **6** | **Draconic Recovery II** | Artifact Active, Support | Self | — | Instant | As an Attack Action, once per Safe Haven Rest, restore **2 spent Stones** of the chosen Attribute. This replaces Draconic Recovery I. | **Artifact Active: Stone Refresh (PL 10)** |
+| **7** | **Breath Weapon III** | Artifact Active | Self | Chosen Breath Shape | Instant | Bite Damage increases to + **24d8 damage**. Use the same Breath Shape and Breath Special. This replaces Breath Weapon II. | **Artifact Active: Breath Weapon + Ruin / Slow / Corrode / Blight (PL 16; same choice)** |
+| **8** | **Draconic Roar III** | Active Buff | Self | Radius 32 m | Mastery Rank Rounds | You and allies in the area gain **+44 Armor**. This replaces Draconic Roar II. | **Active Buff: Armor Aura (PL 16)** |
+| **9** | **Draconic Recovery III** | Artifact Active, Support | Self | — | Instant | As an Attack Action, once per Safe Haven Rest, restore **4 spent Stones** of the chosen Attribute. This replaces Draconic Recovery II. | **Artifact Active: Stone Refresh (PL 16)** |
+| **10** | **True Dragon Head** | Artifact Ultimate | As defined | As defined | As defined | Define the complete final effect with the GM. It is unavailable until its full profile and Technical Reference are recorded. | **Artifact Ultimate: GM-Defined Dragon Head Effect** |
 
 ---
 
@@ -5543,10 +5921,15 @@ Breath Weapon can be used a number of times per Safe Haven Rest equal to half th
 {{pageNumber,auto}}
 {{wide
 #### Dragon Claws
+![DragonHead](https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/Artefacts/Icons/Dragon%20Claws.png){position:absolute,top:50px,right:80px,width:200px}
+
+<div style="width:65%; margin:left;">
 
 Dragon Claws are a Dragonborn Echo Artifact that turns both hands into natural weapons.
 
 A Dragonborn with Dragon Claws cannot wield another weapon, shield, or hand-based Artifact while using them.
+
+
 
 | Slot | Base Type | Artifact Bonus | Binding |
 |---|---|---|---|
@@ -5556,13 +5939,13 @@ Dragon Claws occupy both hand Slots.
 
 Dragon Claws are Echo-bound and cannot normally be removed or replaced.
 
----
+</div>
 
 #### Claw / Tail Base
 
 
 | Artifact Level | Base Value A: Claw / Tail Damage | Base Value B: Weapon Special | Base Value C: Weapon Special |
-|---:|---:|---|---|
+|:---:|:---:|---|---|
 | Level 1 | 4d8 | — | — |
 | Level 2 | 5d8 | — | — |
 | Level 3 | 6d8 | — | — |
@@ -5574,28 +5957,28 @@ Dragon Claws are Echo-bound and cannot normally be removed or replaced.
 | Level 9 | 15d8 | Penetration (5) | Brutal Impact(5) |
 | Level 10 | 16d8 | Penetration (5)| Brutal Impact(5) |
 
-Claw / Tail Damage is Weapon Damage.
-
+Claw / Tail Damage is Weapon Damage. 
 Penetration and Brutal Impact apply to Claw and Tail attacks granted by this Artifact.
-
 Rending Spiral and Tail Sweep use the current Claw / Tail Weapon Damage.
+
+Rending Spiral uses the canonical **Melee AoE Attack + Lacerate** at the listed PL. Tail Sweep is the Artifact-exclusive **Artifact Active: Melee AoE Attack + Push** and uses only the profile printed in this Artifact.
 
 ---
 
 #### Level Progression
 
-| **Artifact Level** | **Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
+| **Artifact Level** | **Artifact Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Technical Reference** |
 |:--:|:--|:--|:--:|:--:|:--:|:--|:--|
-| **1** | **Damage Support I** | Stone Power Support | Self | - | Instant | Dragon Claws support the **Damage** Might Stone Power. They pre-fill Tier 2. You must still pay Tier 1 yourself. | |
-| **2** | **Rending Spiral I** | Active | Self | Radius 3 m | Instant | Affected creatures take your current **Claw / Tail Weapon Damage**. | Lacerate(3) |
-| **3** | **Tail Sweep I** | Active | Self | Radius 3 m | Instant | Affected creatures take your current **Claw / Tail Weapon Damage** and are pushed **2 m** away from you. | Push |
-| **4** | **Damage Support II** | Stone Power Support | Self | - | Instant | Dragon Claws now pre-fill Tier 3 of the **Damage** Might Stone Power. You must still pay Tier 1 and Tier 2 yourself. |  |
-| **5** | **Rending Spiral II** | Active | Self | Radius 6 m | Instant | Affected creatures take your current **Claw / Tail Weapon Damage**. | Lacerate(5) |
-| **6** | **Tail Sweep II** | Active | Self | Radius 5 m | Instant | Affected creatures take your current **Claw / Tail Weapon Damage** and are pushed **6 m** away from you. | Push |
-| **7** | **Damage Support III** | Stone Power Support | Self | - | Instant | Dragon Claws now pre-fill Tier 4 of the **Damage** Might Stone Power. You must still pay Tier 1, Tier 2, and Tier 3 yourself. |  |
-| **8** | **Rending Spiral III** | Active | Self | Radius 7 m | Instant | Affected creatures take your current **Claw / Tail Weapon Damage**. | Lacerate(7) |
-| **9** | **Tail Sweep III** | Active | Self | Radius 7 m | Instant | Affected creatures take your current **Claw / Tail Weapon Damage** and are pushed **10 m** away from you. | Push |
-| **10** | **True Dragon Claws** | Ultimate | Self | - | Special | Your Dragon Claws fully awaken. Choose or define one final Claw or Tail effect with GM approval. | True Dragon Claws |
+| **1** | **Damage Support I** | Stone Power Support | Self | — | Instant | Pre-fill **Tier 2**. Tier 1 must still be paid. | **Might Ability: Melee Damage** (Stone Power Support, Tier 2) |
+| **2** | **Rending Spiral I** | Active | Self | Radius 3 m | Instant | Use the current Claw / Tail Weapon Damage. Every hit also gains **Lacerate(5)**. | **Melee AoE Attack + Lacerate (PL 4)** |
+| **3** | **Tail Sweep I** | Artifact Active | Self | Radius 3 m | Instant | Every hit takes current Claw / Tail Weapon Damage and is pushed **2 m** directly away from you. | **Artifact Active: Melee AoE Attack + Push (PL 4)** |
+| **4** | **Damage Support II** | Stone Power Support | Self | — | Instant | Pre-fill **Tier 3**. Tiers 1 and 2 must still be paid. | **Might Ability: Melee Damage** (Stone Power Support, Tier 3) |
+| **5** | **Rending Spiral II** | Active | Self | Radius 6 m | Instant | Use the current Claw / Tail Weapon Damage. Every hit also gains **Lacerate(7)**. This replaces Rending Spiral I. | **Melee AoE Attack + Lacerate (PL 10)** |
+| **6** | **Tail Sweep II** | Artifact Active | Self | Radius 5 m | Instant | Every hit takes current Claw / Tail Weapon Damage and is pushed **6 m** directly away from you. This replaces Tail Sweep I. | **Artifact Active: Melee AoE Attack + Push (PL 10)** |
+| **7** | **Damage Support III** | Stone Power Support | Self | — | Instant | Pre-fill **Tier 4**. Tiers 1, 2, and 3 must still be paid. | **Might Ability: Melee Damage** (Stone Power Support, Tier 4) |
+| **8** | **Rending Spiral III** | Active | Self | Radius 7 m | Instant | Use the current Claw / Tail Weapon Damage. Every hit also gains **Lacerate(10)**. This replaces Rending Spiral II. | **Melee AoE Attack + Lacerate (PL 16)** |
+| **9** | **Tail Sweep III** | Artifact Active | Self | Radius 7 m | Instant | Every hit takes current Claw / Tail Weapon Damage and is pushed **10 m** directly away from you. This replaces Tail Sweep II. | **Artifact Active: Melee AoE Attack + Push (PL 16)** |
+| **10** | **True Dragon Claws** | Artifact Ultimate | As defined | As defined | As defined | Define the complete final effect with the GM. It is unavailable until its full profile and Technical Reference are recorded. | **Artifact Ultimate: GM-Defined Dragon Claws Effect** |
 
 ---
 
@@ -5770,7 +6153,6 @@ The Unbound are those responses made flesh. They are not one people, one bloodli
 The Wyld responds.
 
 But not every response wears the same shape.
-
 Some responses become bodies of fang, horn, claw, feather, hunger, and sacred violence. These are the **Beasts**.
 
 Some responses gather in circles, curses, roots, ash, old names, wet earth, and forbidden rites. These are the **Witches**.
@@ -5804,7 +6186,10 @@ The question is whether you can still choose what must be broken.
 |:--|:--:|:--:|
 | Manifestation | Medium | 8 m |
 
----
+}}
+\page
+{{pageNumber,auto}}
+{{wide
 ##### Echo Burden: The Response Takes Over
 
 All Unbound are responses of the Wyld.
@@ -5832,7 +6217,10 @@ The Unbound are commonly divided into three broad responses: Beasts, Witches, an
 Beasts are the body’s response.
 They are the Unbound of transformation, instinct, animal memory, and sacred violence. Their power comes from the great shapes of the wild: wolf, bear, raven, stag, fox, boar, serpent, lynx, and stranger things remembered by old forests. The most famous Beasts are wolves, bears, and ravens, but they are not the only ones. Stags and foxes still appear in old tales, though they are rarer now, and some Beast-shapes are known only in specific regions or blood-soaked places.
 
-:::
+}}
+\page
+{{pageNumber,auto}}
+{{wide
 #### Predator Crown
 
 Predator Crown is a Beast Unbound Echo Artifact representing the awakened hunting mind, bestial senses, fangs, beak, horns, jaws, and violent instinct of the Wyld written into the head.
@@ -5847,7 +6235,7 @@ The chosen shape defines the appearance and narration of the Artifact, but all P
 
 | Slot | Base Type | Artifact Functions | Binding |
 |---|---|---|---|
-| Head | Bestial Head | Bite Damage / Head Armor / Predator Sense Option / Stone Power Support / Counter Damage / Damage Active Buff | Echo-bound |
+| Head | Bestial Head | Bite Damage / Head Armor / Predator Sense Option / Stone Power Support / Reaction: Damage / Active Buff: Damage | Echo-bound |
 
 Predator Crown occupies the Head Slot.
 
@@ -5860,7 +6248,7 @@ Predator Crown is Echo-bound and cannot normally be removed, replaced, sold, sto
 #### Predator Crown Base
 
 | Artifact Level | Base Value A: Bite Damage | Base Value B: Head Armor |
-|---:|---:|---:|
+|:---:|:---:|:---:|
 | Level 1 | 4d8 | +1 Armor |
 | Level 2 | 5d8 | +1 Armor |
 | Level 3 | 6d8 | +2 Armor |
@@ -5914,18 +6302,18 @@ Although Head Artifacts normally follow Head-based Attribute access, Predator Cr
 
 ### Level Progression
 
-| **Artifact Level** | **Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
+| **Artifact Level** | **Artifact Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Technical Reference** |
 |:--:|:--|:--|:--:|:--:|:--:|:--|:--|
-| **1** | **Predator Stone I** | Stone Power Support | Self | — | Instant | Predator Crown supports the chosen Predator Stone Power and pre-fills **Tier 2**. You must still pay Tier 1 yourself. If Tier 1 is not paid, the pre-filled Tier 2 has no effect. | Chosen Predator Stone |
-| **2** | **Retaliatory Bite I** | Reaction | Melee Reach | — | Triggering damage instance only | Use the normal **Reaction: Counter Damage** at **Power Level 4**. This Counter Damage is delivered as a bite, beak, horn, tusk, or similar head-based strike against the triggering enemy if it is within your melee reach. | Counter Damage |
-| **3** | **Red Hunt I** | Active Buff | Self | — | Mastery Rank Rounds | Use the normal **Active Buff: Damage** at **Power Level 4**. While active, your attacks gain the bonus damage listed by that Power. | Damage |
-| **4** | **Predator Stone II** | Stone Power Support | Self | — | Instant | Predator Crown now pre-fills **Tier 3** of the chosen Predator Stone Power. You must still pay Tier 1 and Tier 2 yourself. If the lower tiers are not paid, the pre-filled Tier 3 has no effect. | Chosen Predator Stone |
-| **5** | **Retaliatory Bite II** | Reaction | Melee Reach | — | Triggering damage instance only | Use the normal **Reaction: Counter Damage** at **Power Level 10**. This Counter Damage is delivered as a bite, beak, horn, tusk, or similar head-based strike against the triggering enemy if it is within your melee reach. | Counter Damage |
-| **6** | **Red Hunt II** | Active Buff | Self | — | Mastery Rank Rounds | Use the normal **Active Buff: Damage** at **Power Level 10**. While active, your attacks gain the bonus damage listed by that Power. | Damage |
-| **7** | **Predator Stone III** | Stone Power Support | Self | — | Instant | Predator Crown now pre-fills **Tier 4** of the chosen Predator Stone Power. You must still pay Tier 1, Tier 2, and Tier 3 yourself. If the lower tiers are not paid, the pre-filled Tier 4 has no effect. | Chosen Predator Stone |
-| **8** | **Retaliatory Bite III** | Reaction | Melee Reach | — | Triggering damage instance only | Use the normal **Reaction: Counter Damage** at **Power Level 16**. This Counter Damage is delivered as a bite, beak, horn, tusk, or similar head-based strike against the triggering enemy if it is within your melee reach. | Counter Damage |
-| **9** | **Red Hunt III** | Active Buff | Self | — | Mastery Rank Rounds | Use the normal **Active Buff: Damage** at **Power Level 16**. While active, your attacks gain the bonus damage listed by that Power. | Damage |
-| **10** | **True Predator Crown** | Ultimate | Self | — | Special | Predator Crown fully awakens. Choose or define one final Bite Damage, Counter Damage, Damage Active Buff, Predator Stone, or Beast Shape effect with GM approval. | True Predator Crown |
+| **1** | **Predator Stone I** | Stone Power Support | Self | — | Instant | Pre-fill **Tier 2** of the fixed Predator Stone choice. Tier 1 must still be paid. | **Might Ability: Melee Damage / Wits Ability: Initiative Boost / Intellect Ability: Spell Raises** (choose one, Tier 2) |
+| **2** | **Retaliatory Bite I** | Reaction | Melee Reach | — | Triggering damage instance only | Use Reaction: Damage at PL 4, delivered through the chosen head-based natural strike. The triggering enemy must be within melee reach. | **Reaction: Damage (PL 4; Artifact Delivery Restriction)** |
+| **3** | **Red Hunt I** | Active Buff | Self | — | Mastery Rank Rounds | Use the normal Damage Active Buff profile at PL 4. | **Active Buff: Damage (PL 4)** |
+| **4** | **Predator Stone II** | Stone Power Support | Self | — | Instant | Pre-fill **Tier 3** of the same Predator Stone choice. Tiers 1 and 2 must still be paid. | **Might Ability: Melee Damage / Wits Ability: Initiative Boost / Intellect Ability: Spell Raises** (same choice, Tier 3) |
+| **5** | **Retaliatory Bite II** | Reaction | Melee Reach | — | Triggering damage instance only | Use Reaction: Damage at PL 10 with the same delivery restriction. This replaces Retaliatory Bite I. | **Reaction: Damage (PL 10; Artifact Delivery Restriction)** |
+| **6** | **Red Hunt II** | Active Buff | Self | — | Mastery Rank Rounds | Use the normal Damage Active Buff profile at PL 10. This replaces Red Hunt I. | **Active Buff: Damage (PL 10)** |
+| **7** | **Predator Stone III** | Stone Power Support | Self | — | Instant | Pre-fill **Tier 4** of the same Predator Stone choice. Tiers 1, 2, and 3 must still be paid. | **Might Ability: Melee Damage / Wits Ability: Initiative Boost / Intellect Ability: Spell Raises** (same choice, Tier 4) |
+| **8** | **Retaliatory Bite III** | Reaction | Melee Reach | — | Triggering damage instance only | Use Reaction: Damage at PL 16 with the same delivery restriction. This replaces Retaliatory Bite II. | **Reaction: Damage (PL 16; Artifact Delivery Restriction)** |
+| **9** | **Red Hunt III** | Active Buff | Self | — | Mastery Rank Rounds | Use the normal Damage Active Buff profile at PL 16. This replaces Red Hunt II. | **Active Buff: Damage (PL 16)** |
+| **10** | **True Predator Crown** | Artifact Ultimate | As defined | As defined | As defined | Define the complete final effect with the GM. It is unavailable until its full profile and Technical Reference are recorded. | **Artifact Ultimate: GM-Defined Predator Crown Effect** |
 
 ---
 
@@ -5958,7 +6346,7 @@ The chosen tradition determines the Staff’s Tradition Special, Main Spell, and
 
 | Slot | Base Type | Artifact Functions | Binding |
 |---|---|---|---|
-| Main Hand + Off Hand | Two-Handed Arcane Staff | Weapon Damage / Spell Focus / Tradition Special / Spell Raises Stone Power Support / Special Overdrive / Main Spell | Echo-bound |
+| Main Hand + Off Hand | Two-Handed Arcane Staff | Weapon Damage / Spell Focus / Tradition Special / Spell Raises Stone Power Support / Active Buff: Special Increase / Main Spell | Echo-bound |
 
 Witch Staff occupies both hand Slots.
 
@@ -5974,11 +6362,11 @@ Witch Staff may be used with **Intellect**.
 
 ### Witch Staff Traditions
 
-| Tradition | Staff Name | Tradition Special | Main Spell granted by Staff |
-|---|---|---|---|
-| Root Witch | Root Staff | Slow | Rootbinding | 
-| Ruin Witch | Ruin Staff | Hex | Ruinous Word | 
-| Blight Witch | Blight Staff | Corrode | Blightcall | 
+| Tradition | Staff Name | Tradition Special | Artifact-Facing Main Spell | Technical Main Spell |
+|---|---|---|---|---|
+| Root Witch | Root Staff | Slow | Rootbinding | **Ranged Attack + Slow** |
+| Ruin Witch | Ruin Staff | Hex | Ruinous Word | **Ranged Attack + Hex** |
+| Blight Witch | Blight Staff | Corrode | Blightcall | **Ranged Attack + Corrode** |
 
 The Main Spell is granted by the Staff through its Level Progression.
 
@@ -6009,7 +6397,7 @@ A Blight Staff is swollen with fungus, rust, sour water, corpse-bloom, mold, and
 ### Witch Staff Base
 
 | Artifact Level | Base Value A: Staff Damage | Base Value B: Tradition Special |
-|---:|---:|---|
+|:---:|:---:|---|
 | Level 1 | 4d8 | — |
 | Level 2 | 5d8 | — |
 | Level 3 | 6d8 | — |
@@ -6030,23 +6418,25 @@ Tradition Special is determined by the chosen Witch Tradition.
 ---
 The Tradition Special applies only when the Staff is used for a legal attack or Power that allows the Staff’s Weapon Special to apply.
 
+---
+Covenant Overdrive uses **Active Buff: Special Increase** with the Witch Staff's fixed Tradition Special. Root Staff uses Slow, Ruin Staff uses Hex, and Blight Staff uses Corrode. This Special is fixed when the Witch Tradition is chosen and is not chosen again when the Active Buff is activated.
 
 ---
 
 ### Level Progression
 
-| **Artifact Level** | **Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
+| **Artifact Level** | **Artifact Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Technical Reference** |
 |:--:|:--|:--|:--:|:--:|:--:|:--|:--|
-| **1** | **Witch Stone I** | Stone Power Support | Self | — | Instant | Witch Staff supports the **Intellect Ability: Spell Raises** Stone Power and pre-fills **Tier 2**. You must still pay Tier 1 yourself. If Tier 1 is not paid, the pre-filled Tier 2 has no effect. | Spell Raises |
-| **2** | **Covenant Overdrive I** | Active Buff | Self | — | Mastery Rank Rounds | Use the normal **Active Buff: Special Overdrive** at **Power Level 4**. Choose one eligible **Special(X)** when activating the Buff. | Special Overdrive |
-| **3** | **Main Spell I** | Active, Spell | Spell Range | — | Instant | Use the Staff’s **Main Spell** at **Power Level 4**. The Main Spell uses the Staff’s Tradition Special. | Tradition Special |
-| **4** | **Witch Stone II** | Stone Power Support | Self | — | Instant | Witch Staff now pre-fills **Tier 3** of the **Intellect Ability: Spell Raises** Stone Power. You must still pay Tier 1 and Tier 2 yourself. If the lower tiers are not paid, the pre-filled Tier 3 has no effect. | Spell Raises |
-| **5** | **Covenant Overdrive II** | Active Buff | Self | — | Mastery Rank Rounds | Use the normal **Active Buff: Special Overdrive** at **Power Level 10**. Choose one eligible **Special(X)** when activating the Buff. | Special Overdrive |
-| **6** | **Main Spell II** | Active, Spell | Spell Range | — | Instant | Use the Staff’s **Main Spell** at **Power Level 10**. The Main Spell uses the Staff’s Tradition Special. | Tradition Special |
-| **7** | **Witch Stone III** | Stone Power Support | Self | — | Instant | Witch Staff now pre-fills **Tier 4** of the **Intellect Ability: Spell Raises** Stone Power. You must still pay Tier 1, Tier 2, and Tier 3 yourself. If the lower tiers are not paid, the pre-filled Tier 4 has no effect. | Spell Raises |
-| **8** | **Covenant Overdrive III** | Active Buff | Self | — | Mastery Rank Rounds | Use the normal **Active Buff: Special Overdrive** at **Power Level 16**. Choose one eligible **Special(X)** when activating the Buff. | Special Overdrive |
-| **9** | **Main Spell III** | Active, Spell | Spell Range | — | Instant | Use the Staff’s **Main Spell** at **Power Level 16**. The Main Spell uses the Staff’s Tradition Special. | Tradition Special |
-| **10** | **True Witch Staff** | Ultimate | Self | — | Special | Witch Staff fully awakens. Choose or define one final Root, Ruin, Blight, Spell Raises, Special Overdrive, Main Spell, Paired Spell, or covenant effect with GM approval. | True Witch Staff |
+| **1** | **Witch Stone I** | Stone Power Support | Self | — | Instant | Pre-fill **Tier 2**. Tier 1 must still be paid. | **Intellect Ability: Spell Raises** (Stone Power Support, Tier 2) |
+| **2** | **Covenant Overdrive I** | Active Buff | Self | — | Mastery Rank Rounds | Use Active Buff: Special Increase at PL 4 for the Staff's fixed Tradition Special. It increases only that already existing Special and does not apply it by itself. | **Active Buff: Special Increase + Slow (PL 4)** (Root) / **Active Buff: Special Increase + Hex (PL 4)** (Ruin) / **Active Buff: Special Increase + Corrode (PL 4)** (Blight) |
+| **3** | **Main Spell I** | Active, Spell | 20 m | None | Instant | Use the Main Spell fixed by the Staff's tradition at PL 4. | **Ranged Attack + Slow** (Root) / **Ranged Attack + Hex** (Ruin) / **Ranged Attack + Corrode** (Blight), PL 4 |
+| **4** | **Witch Stone II** | Stone Power Support | Self | — | Instant | Pre-fill **Tier 3**. Tiers 1 and 2 must still be paid. | **Intellect Ability: Spell Raises** (Stone Power Support, Tier 3) |
+| **5** | **Covenant Overdrive II** | Active Buff | Self | — | Mastery Rank Rounds | Use Active Buff: Special Increase at PL 10 for the Staff's fixed Tradition Special. It increases only that already existing Special and does not apply it by itself. This replaces Covenant Overdrive I. | **Active Buff: Special Increase + Slow (PL 10)** (Root) / **Active Buff: Special Increase + Hex (PL 10)** (Ruin) / **Active Buff: Special Increase + Corrode (PL 10)** (Blight) |
+| **6** | **Main Spell II** | Active, Spell | 44 m | None | Instant | Use the same tradition Main Spell at PL 10. This replaces Main Spell I. | **Ranged Attack + Slow** (Root) / **Ranged Attack + Hex** (Ruin) / **Ranged Attack + Corrode** (Blight), PL 10 |
+| **7** | **Witch Stone III** | Stone Power Support | Self | — | Instant | Pre-fill **Tier 4**. Tiers 1, 2, and 3 must still be paid. | **Intellect Ability: Spell Raises** (Stone Power Support, Tier 4) |
+| **8** | **Covenant Overdrive III** | Active Buff | Self | — | Mastery Rank Rounds | Use Active Buff: Special Increase at PL 16 for the Staff's fixed Tradition Special. It increases only that already existing Special and does not apply it by itself. This replaces Covenant Overdrive II. | **Active Buff: Special Increase + Slow (PL 16)** (Root) / **Active Buff: Special Increase + Hex (PL 16)** (Ruin) / **Active Buff: Special Increase + Corrode (PL 16)** (Blight) |
+| **9** | **Main Spell III** | Active, Spell | 68 m | None | Instant | Use the same tradition Main Spell at PL 16. This replaces Main Spell II. | **Ranged Attack + Slow** (Root) / **Ranged Attack + Hex** (Ruin) / **Ranged Attack + Corrode** (Blight), PL 16 |
+| **10** | **True Witch Staff** | Artifact Ultimate | As defined | As defined | As defined | Define the complete final effect with the GM. It is unavailable until its full profile and Technical Reference are recorded. | **Artifact Ultimate: GM-Defined Witch Staff Effect** |
 
 ---
 
@@ -6094,8 +6484,6 @@ Alchemists fit characters who want potions, oils, preparation, resistance, toxin
 
 Their power is preparation, not transformation.
 
-Idea: Artefact Body armor 2 Active Buffs which are used like potions and the vitality support for prolonging the active buffs
-
 #### Alchemist Coat
 
 The Alchemist Coat is a Bane Echo Artifact made from hardened leather, stitched iron, bone plates, sealed vials, black glass, monster sinew, silver hooks, blood tubes, hidden needles, and reinforced potion harnesses.
@@ -6124,7 +6512,7 @@ Alchemist Coat is Echo-bound and cannot normally be removed, replaced, sold, sto
 #### Alchemist Coat Base
 
 | Artifact Level | Base Value A: Medium Armor |
-|---:|---:|
+|:---:|:---:|
 | Level 1 | 12 Armor |
 | Level 2 | 13 Armor |
 | Level 3 | 14 Armor |
@@ -6199,18 +6587,18 @@ If multiple effects extend the same Active Buff, use only the highest duration i
 {{wide
 ### Level Progression
 
-| **Artifact Level** | **Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
+| **Artifact Level** | **Artifact Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Technical Reference** |
 |:--:|:--|:--|:--:|:--:|:--:|:--|:--|
-| **1** | **Red Potion I** | Active Buff | Self | — | Mastery Rank Rounds | Use the normal **Active Buff: Damage** at **Power Level 4**. This Potion may be extended by **Extend Active Buff** if activated this turn. | Damage |
-| **2** | **Alchemist Stone I** | Stone Power Support | Self | — | Instant | Alchemist Coat supports the **Vitality Ability: Extend Active Buff** Stone Power and pre-fills **Tier 2**. You must still pay Tier 1 yourself. If Tier 1 is not paid, the pre-filled Tier 2 has no effect. | Extend Active Buff |
-| **3** | **Black Potion I** | Active Buff | Self | — | Mastery Rank Rounds | Use the normal **Active Buff: Critical** at **Power Level 4**. This Potion may be extended by **Extend Active Buff** if activated this turn. | Critical |
-| **4** | **Red Potion II** | Active Buff | Self | — | Mastery Rank Rounds | Use the normal **Active Buff: Damage** at **Power Level 10**. This Potion may be extended by **Extend Active Buff** if activated this turn. | Damage |
-| **5** | **Alchemist Stone II** | Stone Power Support | Self | — | Instant | Alchemist Coat now pre-fills **Tier 3** of the **Vitality Ability: Extend Active Buff** Stone Power. You must still pay Tier 1 and Tier 2 yourself. If the lower tiers are not paid, the pre-filled Tier 3 has no effect. | Extend Active Buff |
-| **6** | **Black Potion II** | Active Buff | Self | — | Mastery Rank Rounds | Use the normal **Active Buff: Critical** at **Power Level 10**. This Potion may be extended by **Extend Active Buff** if activated this turn. | Critical |
-| **7** | **Red Potion III** | Active Buff | Self | — | Mastery Rank Rounds | Use the normal **Active Buff: Damage** at **Power Level 16**. This Potion may be extended by **Extend Active Buff** if activated this turn. | Damage |
-| **8** | **Alchemist Stone III** | Stone Power Support | Self | — | Instant | Alchemist Coat now pre-fills **Tier 4** of the **Vitality Ability: Extend Active Buff** Stone Power. You must still pay Tier 1, Tier 2, and Tier 3 yourself. If the lower tiers are not paid, the pre-filled Tier 4 has no effect. | Extend Active Buff |
-| **9** | **Black Potion III** | Active Buff | Self | — | Mastery Rank Rounds | Use the normal **Active Buff: Critical** at **Power Level 16**. This Potion may be extended by **Extend Active Buff** if activated this turn. | Critical |
-| **10** | **True Alchemist Coat** | Ultimate | Self | — | Special | Alchemist Coat fully awakens. Choose or define one final Armor, Red Potion, Black Potion, Extend Active Buff, mutagen, vial, or Bane Alchemist effect with GM approval. | True Alchemist Coat |
+| **1** | **Red Potion I** | Active Buff | Self | — | Mastery Rank Rounds | Use the normal Damage Active Buff profile at PL 4. It may be extended by Extend Active Buff if activated this turn. | **Active Buff: Damage (PL 4)** |
+| **2** | **Alchemist Stone I** | Stone Power Support | Self | — | Instant | Pre-fill **Tier 2**. Tier 1 must still be paid. | **Vitality Ability: Extend Active Buff** (Stone Power Support, Tier 2) |
+| **3** | **Black Potion I** | Active Buff | Self | — | Mastery Rank Rounds | Use the normal Critical Active Buff profile at PL 4. It may be extended by Extend Active Buff if activated this turn. | **Active Buff: Critical (PL 4)** |
+| **4** | **Red Potion II** | Active Buff | Self | — | Mastery Rank Rounds | Use the normal Damage Active Buff profile at PL 10. This replaces Red Potion I. | **Active Buff: Damage (PL 10)** |
+| **5** | **Alchemist Stone II** | Stone Power Support | Self | — | Instant | Pre-fill **Tier 3**. Tiers 1 and 2 must still be paid. | **Vitality Ability: Extend Active Buff** (Stone Power Support, Tier 3) |
+| **6** | **Black Potion II** | Active Buff | Self | — | Mastery Rank Rounds | Use the normal Critical Active Buff profile at PL 10. This replaces Black Potion I. | **Active Buff: Critical (PL 10)** |
+| **7** | **Red Potion III** | Active Buff | Self | — | Mastery Rank Rounds | Use the normal Damage Active Buff profile at PL 16. This replaces Red Potion II. | **Active Buff: Damage (PL 16)** |
+| **8** | **Alchemist Stone III** | Stone Power Support | Self | — | Instant | Pre-fill **Tier 4**. Tiers 1, 2, and 3 must still be paid. | **Vitality Ability: Extend Active Buff** (Stone Power Support, Tier 4) |
+| **9** | **Black Potion III** | Active Buff | Self | — | Mastery Rank Rounds | Use the normal Critical Active Buff profile at PL 16. This replaces Black Potion II. | **Active Buff: Critical (PL 16)** |
+| **10** | **True Alchemist Coat** | Artifact Ultimate | As defined | As defined | As defined | Define the complete final effect with the GM. It is unavailable until its full profile and Technical Reference are recorded. | **Artifact Ultimate: GM-Defined Alchemist Coat Effect** |
 
 ---
 }}
@@ -6249,7 +6637,7 @@ They stand between the living world and the things that would harvest it.
 
 | Slot | Base Type | Artifact Functions | Binding |
 |---|---|---|---|
-| Body | Medium Armor | Armor / Thorns Active Buff / Ally Armor Reaction / Special Reduction Stone Power Support | Echo-bound |
+| Body | Medium Armor | Armor / Active Buff: Thorns / Reaction: Ally Armor / Special Reduction Stone Power Support | Echo-bound |
 
 Green Warden Mantle occupies the Body Slot.
 
@@ -6262,7 +6650,7 @@ Green Warden Mantle is Echo-bound and cannot normally be removed, replaced, sold
 ### Green Warden Mantle Base
 
 | Artifact Level | Base Value A: Medium Armor |
-|---:|---:|
+|:---:|:---:|
 | Level 1 | 12 Armor |
 | Level 2 | 13 Armor |
 | Level 3 | 14 Armor |
@@ -6299,13 +6687,13 @@ A Green Warden may have both the Thorns Passive and the Thorns Active.
 {{wide
 ### Green Warden Thorns
 
-Green Warden Mantle grants access to the normal **Thorns Active Buff**.
+Green Warden Mantle grants access to the normal **Active Buff: Thorns**.
 
-The Thorns Active Buff represents thorns, roots, bark splinters, hooked vines, green iron spines, or living brambles striking back at nearby enemies.
+Active Buff: Thorns represents thorns, roots, bark splinters, hooked vines, green iron spines, or living brambles striking back at nearby enemies.
 
 The name is the Artifact's flavour name.
 
-The mechanical Power is the existing **Thorns Active Buff**.
+The mechanical Power is the existing **Active Buff: Thorns**.
 
 ---
 
@@ -6340,18 +6728,18 @@ The character must still pay all required lower tiers normally.
 {{wide
 ### Level Progression
 
-| **Artifact Level** | **Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
+| **Artifact Level** | **Artifact Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Technical Reference** |
 |:--:|:--|:--|:--:|:--:|:--:|:--|:--|
-| **1** | **Thorns I** | Active Buff | Self | Special | Mastery Rank Rounds | Use the normal **Thorns Active Buff** at **Power Level 4**. | Thorns |
-| **2** | **Warden's Guard I** | Reaction | Ally Range | — | Triggering hit or damage instance only | Use the normal **Reaction: Ally Armor** at **Power Level 4**. | Ally Armor |
-| **3** | **Green Warden Stone I** | Stone Power Support | Self | — | Instant | Green Warden Mantle supports the **Resolve Ability: Special Reduction** Stone Power and pre-fills **Tier 2**. You must still pay Tier 1 yourself. If Tier 1 is not paid, the pre-filled Tier 2 has no effect. | Special Reduction |
-| **4** | **Thorns II** | Active Buff | Self | Special | Mastery Rank Rounds | Use the normal **Thorns Active Buff** at **Power Level 10**. | Thorns |
-| **5** | **Warden's Guard II** | Reaction | Ally Range | — | Triggering hit or damage instance only | Use the normal **Reaction: Ally Armor** at **Power Level 10**. | Ally Armor |
-| **6** | **Green Warden Stone II** | Stone Power Support | Self | — | Instant | Green Warden Mantle now pre-fills **Tier 3** of the **Resolve Ability: Special Reduction** Stone Power. You must still pay Tier 1 and Tier 2 yourself. If the lower tiers are not paid, the pre-filled Tier 3 has no effect. | Special Reduction |
-| **7** | **Thorns III** | Active Buff | Self | Special | Mastery Rank Rounds | Use the normal **Thorns Active Buff** at **Power Level 16**. | Thorns |
-| **8** | **Warden's Guard III** | Reaction | Ally Range | — | Triggering hit or damage instance only | Use the normal **Reaction: Ally Armor** at **Power Level 16**. | Ally Armor |
-| **9** | **Green Warden Stone III** | Stone Power Support | Self | — | Instant | Green Warden Mantle now pre-fills **Tier 4** of the **Resolve Ability: Special Reduction** Stone Power. You must still pay Tier 1, Tier 2, and Tier 3 yourself. If the lower tiers are not paid, the pre-filled Tier 4 has no effect. | Special Reduction |
-| **10** | **True Green Warden Mantle** | Ultimate | Self | — | Special | Green Warden Mantle fully awakens. Choose or define one final Armor, Thorns, Ally Armor, Special Reduction, forest protection, root, bark, beast, or Green Warden effect with GM approval. | True Green Warden Mantle |
+| **1** | **Thorns I** | Active Buff | Self | — | Mastery Rank Rounds | Use the normal Active Buff: Thorns profile at PL 4. | **Active Buff: Thorns (PL 4)** |
+| **2** | **Warden's Guard I** | Reaction | 4 m | — | Triggering hit or damage instance only | The triggering ally gains **+7 Armor** against that attack or damage instance. | **Reaction: Ally Armor (PL 4)** |
+| **3** | **Green Warden Stone I** | Stone Power Support | Self | — | Instant | Pre-fill **Tier 2**. Tier 1 must still be paid. | **Resolve Ability: Special Reduction** (Stone Power Support, Tier 2) |
+| **4** | **Thorns II** | Active Buff | Self | — | Mastery Rank Rounds | Use the normal Active Buff: Thorns profile at PL 10. This replaces Thorns I. | **Active Buff: Thorns (PL 10)** |
+| **5** | **Warden's Guard II** | Reaction | 4 m | — | Triggering hit or damage instance only | The triggering ally gains **+19 Armor** against that attack or damage instance. This replaces Warden's Guard I. | **Reaction: Ally Armor (PL 10)** |
+| **6** | **Green Warden Stone II** | Stone Power Support | Self | — | Instant | Pre-fill **Tier 3**. Tiers 1 and 2 must still be paid. | **Resolve Ability: Special Reduction** (Stone Power Support, Tier 3) |
+| **7** | **Thorns III** | Active Buff | Self | — | Mastery Rank Rounds | Use the normal Active Buff: Thorns profile at PL 16. This replaces Thorns II. | **Active Buff: Thorns (PL 16)** |
+| **8** | **Warden's Guard III** | Reaction | 4 m | — | Triggering hit or damage instance only | The triggering ally gains **+31 Armor** against that attack or damage instance. This replaces Warden's Guard II. | **Reaction: Ally Armor (PL 16)** |
+| **9** | **Green Warden Stone III** | Stone Power Support | Self | — | Instant | Pre-fill **Tier 4**. Tiers 1, 2, and 3 must still be paid. | **Resolve Ability: Special Reduction** (Stone Power Support, Tier 4) |
+| **10** | **True Green Warden Mantle** | Artifact Ultimate | As defined | As defined | As defined | Define the complete final effect with the GM. It is unavailable until its full profile and Technical Reference are recorded. | **Artifact Ultimate: GM-Defined Green Warden Mantle Effect** |
 
 ---
 
@@ -6367,7 +6755,7 @@ Thorns push through armor seams.
 
 The world itself remembers how to hurt those who come too close.
 
-Mechanically, Thorns I-III use the normal **Thorns Active Buff** at the listed Power Level.
+Mechanically, Thorns I-III use the normal **Active Buff: Thorns** at the listed Power Level.
 
 ---
 
@@ -6403,7 +6791,7 @@ Where Alchemists survive the hunt by changing their own bodies, and Green Warden
 
 | Slot | Base Type | Artifact Functions | Binding |
 |---|---|---|---|
-| Main Hand + Off Hand | Two-Handed Chain Whip | Whip Damage / Finesse / Reach / Scourge Lash / Snap Chain / Whirling Scourge | Echo-bound |
+| Main Hand + Off Hand | Two-Handed Chain Whip | Whip Damage / Finesse / Reach / Exorcism Lash / Snap Chain / Whirling Scourge | Echo-bound |
 
 Hunter's Scourge occupies both hand Slots.
 
@@ -6418,7 +6806,7 @@ Hunter's Scourge is Echo-bound and cannot normally be removed, replaced, sold, s
 Hunter's Scourge uses the normal **Whip** as its Base Weapon.
 
 | Base Weapon | Damage | Hands | Specials |
-|---|---:|---:|---|
+|---|:---:|:---:|---|
 | Whip | 4d8 | 1 | Finesse, Reach (+1 m) |
 
 Hunter's Scourge turns this weapon into a two-handed Echo Artifact.
@@ -6430,7 +6818,7 @@ It keeps **Finesse** and **Reach (+1 m)** from the Base Weapon.
 ### Hunter's Scourge Damage
 
 | Artifact Level | Base Value A: Scourge Damage | Base Value B: Reach |
-|---:|---:|---:|
+|:---:|:---:|:---:|
 | Level 1 | 4d8 | — |
 | Level 2 | 5d8 | — |
 | Level 3 | 6d8 | — |
@@ -6455,28 +6843,28 @@ Hunter's Scourge keeps the **Finesse** quality.
 {{wide
 ### Level Progression
 
-| **Artifact Level** | **Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
+| **Artifact Level** | **Artifact Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Technical Reference** |
 |:--:|:--|:--|:--:|:--:|:--:|:--|:--|
-| **1** | **Scourge Lash I** | Active | Melee Reach | — | Instant | Use the normal **Melee Targeted Special Attack** at **Power Level 4**. Choose **Exorcism** or **Requiem** when the Power is built. This attack must be made with Hunter's Scourge. | Exorcism or Requiem |
-| **2** | **Snap Chain I** | Reaction | Threat Zone | — | Triggering movement only | Use the normal **Reaction: Counter Damage + Pull** at **Power Level 4**. This Reaction must be made with Hunter's Scourge. | Pull |
-| **3** | **Whirling Scourge I** | Active | Melee Reach | Special | Instant | Use the normal **Melee AoE Targeted Special Attack** at **Power Level 4**. Choose **Exorcism** or **Requiem** when the Power is built. This attack must be made with Hunter's Scourge. | Exorcism or Requiem |
-| **4** | **Scourge Lash II** | Active | Melee Reach | — | Instant | Use the normal **Melee Targeted Special Attack** at **Power Level 10**. Choose **Exorcism** or **Requiem** when the Power is built. This attack must be made with Hunter's Scourge. | Exorcism or Requiem |
-| **5** | **Snap Chain II** | Reaction | Threat Zone | — | Triggering movement only | Use the normal **Reaction: Counter Damage + Pull** at **Power Level 10**. This Reaction must be made with Hunter's Scourge. | Pull |
-| **6** | **Whirling Scourge II** | Active | Melee Reach | Special | Instant | Use the normal **Melee AoE Targeted Special Attack** at **Power Level 10**. Choose **Exorcism** or **Requiem** when the Power is built. This attack must be made with Hunter's Scourge. | Exorcism or Requiem |
-| **7** | **Scourge Lash III** | Active | Melee Reach | — | Instant | Use the normal **Melee Targeted Special Attack** at **Power Level 16**. Choose **Exorcism** or **Requiem** when the Power is built. This attack must be made with Hunter's Scourge. | Exorcism or Requiem |
-| **8** | **Snap Chain III** | Reaction | Threat Zone | — | Triggering movement only | Use the normal **Reaction: Counter Damage + Pull** at **Power Level 16**. This Reaction must be made with Hunter's Scourge. | Pull |
-| **9** | **Whirling Scourge III** | Active | Melee Reach | Special | Instant | Use the normal **Melee AoE Targeted Special Attack** at **Power Level 16**. Choose **Exorcism** or **Requiem** when the Power is built. This attack must be made with Hunter's Scourge. | Exorcism or Requiem |
-| **10** | **True Hunter's Scourge** | Ultimate | Self | — | Special | Hunter's Scourge fully awakens. Choose or define one final Scourge Damage, Reach, Scourge Lash, Snap Chain, Whirling Scourge, demon-hunting, undead-hunting, chain, whip, relic, or Demon Hunter effect with GM approval. | True Hunter's Scourge |
+| **1** | **Exorcism Lash I** | Active | Melee Reach | None | Instant | Attack with Hunter's Scourge. On hit, deal weapon damage; a Fiend also gains **Exorcism(10)**. | **Melee Attack + Exorcism (PL 4)** |
+| **2** | **Snap Chain I** | Artifact Reaction | Threat Zone | — | Triggering movement only | Deal **2d8 damage** to the triggering creature and pull it **4 m** directly toward you. It must be in your Threat Zone when the Reaction resolves. | **Artifact Reaction: Damage + Pull (PL 4)** |
+| **3** | **Whirling Scourge I** | Active | Self | Radius 3 m | Instant | Make one AoE attack with Hunter's Scourge. Every hit takes weapon damage; a Fiend also gains **Exorcism(7)**. | **Melee AoE Attack + Exorcism (PL 4)** |
+| **4** | **Exorcism Lash II** | Active | Melee Reach | None | Instant | Attack with Hunter's Scourge. On hit, deal weapon damage; a Fiend also gains **Exorcism(16)**. This replaces Exorcism Lash I. | **Melee Attack + Exorcism (PL 10)** |
+| **5** | **Snap Chain II** | Artifact Reaction | Threat Zone | — | Triggering movement only | Deal **6d8 damage** to the triggering creature and pull it **8 m** directly toward you. This replaces Snap Chain I. | **Artifact Reaction: Damage + Pull (PL 10)** |
+| **6** | **Whirling Scourge II** | Active | Self | Radius 6 m | Instant | Make one AoE attack with Hunter's Scourge. Every hit takes weapon damage; a Fiend also gains **Exorcism(10)**. This replaces Whirling Scourge I. | **Melee AoE Attack + Exorcism (PL 10)** |
+| **7** | **Exorcism Lash III** | Active | Melee Reach | None | Instant | Attack with Hunter's Scourge. On hit, deal weapon damage; a Fiend also gains **Exorcism(21)**. This replaces Exorcism Lash II. | **Melee Attack + Exorcism (PL 16)** |
+| **8** | **Snap Chain III** | Artifact Reaction | Threat Zone | — | Triggering movement only | Deal **12d8 damage** to the triggering creature and pull it **8 m** directly toward you. This replaces Snap Chain II. | **Artifact Reaction: Damage + Pull (PL 16)** |
+| **9** | **Whirling Scourge III** | Active | Self | Radius 8 m | Instant | Make one AoE attack with Hunter's Scourge. Every hit takes weapon damage; a Fiend also gains **Exorcism(13)**. This replaces Whirling Scourge II. | **Melee AoE Attack + Exorcism (PL 16)** |
+| **10** | **True Hunter's Scourge** | Artifact Ultimate | As defined | As defined | As defined | Define the complete final effect with the GM. It is unavailable until its full profile and Technical Reference are recorded. | **Artifact Ultimate: GM-Defined Hunter's Scourge Effect** |
 
 ---
 
-### Scourge Lash I-III
+### Exorcism Lash I-III
 
 The Demon Hunter strikes one supernatural enemy with the full weight of the hunt.
 
 The chain burns, cracks, hooks, tears, or flashes with old killing rites.
 
-Mechanically, Scourge Lash I-III use the normal **Melee Targeted Special Attack** at the listed Power Level (**Exorcism** or **Requiem**, chosen when the Power is built).
+Mechanically, Exorcism Lash I-III use the normal **Melee Attack + Exorcism** at the listed Power Level.
 
 ---
 
@@ -6486,7 +6874,7 @@ The Demon Hunter refuses to let the monster choose the distance.
 
 When prey crosses the Hunter's Threat Zone, the chain snaps out and drags it back into the killing line.
 
-Mechanically, Snap Chain I-III use the normal **Reaction: Counter Damage + Pull** at the listed Power Level.
+Mechanically, Snap Chain I-III use the Artifact-exclusive **Artifact Reaction: Damage + Pull** at the listed Power Level. This Reaction is not part of the normal Reaction catalogue. It uses the exact damage, Pull distance, Threat Zone trigger, and restrictions printed in the Hunter's Scourge progression.
 
 ---
 
@@ -6496,7 +6884,7 @@ The Demon Hunter turns the chain into a circle of judgment.
 
 Hooks, iron links, silvered edges, weighted heads, and relic knots carve through everything close enough to be caught in the spin.
 
-Mechanically, Whirling Scourge I-III use the normal **Melee AoE Targeted Special Attack** at the listed Power Level (**Exorcism** or **Requiem**, chosen when the Power is built).
+Mechanically, Whirling Scourge I-III use the normal **Melee AoE Attack + Exorcism** at the listed Power Level.
 
 ---
 
@@ -6737,7 +7125,7 @@ Deathless characters still lose Health normally. Deathless characters can still 
 At Level 1, Hollow Crown grants **Deathless Body I**. The first two Health Penalty steps are reduced by two steps.
 
 | Normal Health Penalty | Deathless Body I Penalty |
-|---:|---:|
+|:---:|:---:|
 | 0% | 0% |
 | 10% | 0% |
 | 20% | 0% |
@@ -6749,7 +7137,7 @@ A Deathless character with Deathless Body I can never suffer more than **20% Hea
 At higher levels, Hollow Crown improves Deathless Body.
 
 | Hollow Crown Level | Deathless Body Effect |
-|---:|---|
+|:---:|---|
 | Level 1 | Deathless Body I. Health Penalties are shifted down by 2 steps. Maximum normal Health Penalty: 20%. |
 | Level 4 | Deathless Body II. Health Penalties are shifted down by 3 steps. Maximum normal Health Penalty: 10%. |
 | Level 7 | Deathless Body III. Health Penalties are shifted down by 4 steps. Maximum normal Health Penalty: 0%. |
@@ -6770,7 +7158,7 @@ Life Absorption requires a helpless, willing, dying, freshly dead, sacrificed, r
 The exact method depends on the Deathless. Some drink blood. Some steal breath. Some consume warmth. Some draw the final heartbeat from a dying body. Some kneel in silence beside the dead until the corpse becomes cold and the Deathless becomes whole.
 
 | Hollow Crown Level | Life Absorption |
-|---:|---|
+|:---:|---|
 | Level 2 | Life Absorption I. Restore up to 1 Health Level through a completed Life Absorption. |
 | Level 5 | Life Absorption II. Restore up to 2 Health Levels through a completed Life Absorption. |
 | Level 8 | Life Absorption III. Restore up to 3 Health Levels through a completed Life Absorption. |
@@ -6789,11 +7177,11 @@ The exact method depends on the Deathless. Some drink blood. Some steal breath. 
 Hollow Stillness represents the cold distance between the Deathless and the needs of living flesh. Fear becomes quieter. Pain becomes slower. Poison finds less warmth. Disease finds less purchase. The body is still vulnerable, but it no longer belongs completely to life.
 
 | Hollow Crown Level | Hollow Stillness |
-|---:|---|
-| Level 3 | Hollow Stillness I. Gain a minor bonus or advantage against Fear, Pain, Poison, Disease, Suffocation, Exhaustion, and effects that rely on living flesh, as approved by the GM. |
-| Level 6 | Hollow Stillness II. Improve the bonus or advantage from Hollow Stillness I. |
-| Level 9 | Hollow Stillness III. Further improve the bonus or advantage from Hollow Stillness I. |
-| Level 10 | True Hollow Stillness. The GM may define one final resistance, immunity, or deathless protection appropriate to the character. |
+|:---:|---|
+| Level 3 | Hollow Stillness I. Gain **Advantage** on Attribute Checks to resist Fear, Pain, Poison, Disease, Suffocation, Exhaustion, and effects that explicitly rely on a living body. |
+| Level 6 | Hollow Stillness II. Keep that Advantage and add **+1d8 to the Pool** of those Attribute Checks. |
+| Level 9 | Hollow Stillness III. Keep that Advantage and increase the Pool bonus to **+2d8**. |
+| Level 10 | True Hollow Stillness grants no additional automatic benefit. Any further resistance or immunity must be defined and recorded as part of the True Hollow Crown Ultimate before it can be used. |
 
 Hollow Stillness does not grant blanket immunity unless a specific rule says so. It does not protect against all magic. It does not protect against all mind effects. It does not protect against all divine, demonic, or soul-based effects.
 
@@ -6801,18 +7189,18 @@ Hollow Stillness does not grant blanket immunity unless a specific rule says so.
 
 ### Level Progression
 
-| **Echo Level** | **Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
+| **Artifact Level** | **Artifact Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Technical Reference** |
 |:--:|:--|:--|:--:|:--:|:--:|:--|:--|
-| **1** | **Deathless Body I** | Passive | Self | — | Permanent | Gain the exclusive **Deathless Body** Passive. Health Penalties are shifted down by 2 steps. Maximum normal Health Penalty: 20%. Hollow Crown separately grants Life Sense as a Sense Slot option. | Deathless Body |
-| **2** | **Life Absorption I** | Ritual / Echo Function | Touch | — | Special | You may restore up to **1 Health Level** through completed Life Absorption. You cannot heal through normal healing unless a rule explicitly works on Deathless characters. | Life Absorption |
-| **3** | **Hollow Stillness I** | Passive | Self | — | Permanent | Gain a minor bonus or advantage against Fear, Pain, Poison, Disease, Suffocation, Exhaustion, and effects that rely on living flesh, as approved by the GM. | Hollow Stillness |
-| **4** | **Deathless Body II** | Passive | Self | — | Permanent | Health Penalties are shifted down by 3 steps. Maximum normal Health Penalty: 10%. | Deathless Body |
-| **5** | **Life Absorption II** | Ritual / Echo Function | Touch | — | Special | You may restore up to **2 Health Levels** through completed Life Absorption. | Life Absorption |
-| **6** | **Hollow Stillness II** | Passive | Self | — | Permanent | Improve the bonus or advantage from Hollow Stillness I. | Hollow Stillness |
-| **7** | **Deathless Body III** | Passive | Self | — | Permanent | Health Penalties are shifted down by 4 steps. Maximum normal Health Penalty: 0%. | Deathless Body |
-| **8** | **Life Absorption III** | Ritual / Echo Function | Touch | — | Special | You may restore up to **3 Health Levels** through completed Life Absorption. | Life Absorption |
-| **9** | **Hollow Stillness III** | Passive | Self | — | Permanent | Further improve the bonus or advantage from Hollow Stillness I. | Hollow Stillness |
-| **10** | **True Hollow Crown** | Ultimate | Self | — | Permanent | You suffer no normal Health Penalties and remain functional until Incapacitated. You may restore up to full Health through Life Absorption if the source or ritual is sufficient. Define one final Hollow Crown, Deathless Body, Life Absorption, Hollow Stillness, memory, hunger, crown, grave, or dead-road effect with GM approval. | True Hollow Crown |
+| **1** | **Deathless Body I** | Exclusive Passive | Self | — | Permanent | Shift normal Health Penalties down by 2 steps. Maximum normal Health Penalty: 20%. Hollow Crown separately grants Life Sense as a Sense Slot option. | **Exclusive Passive: Deathless Body I** |
+| **2** | **Life Absorption I** | Ritual / Echo Function | Touch | — | Special | A completed Life Absorption may restore up to **1 Health Level**. | **Echo Function: Life Absorption I** |
+| **3** | **Hollow Stillness I** | Artifact Passive | Self | — | Permanent | Gain **Advantage** on Attribute Checks to resist Fear, Pain, Poison, Disease, Suffocation, Exhaustion, and effects that explicitly rely on a living body. | **Artifact Passive: Hollow Stillness I** |
+| **4** | **Deathless Body II** | Exclusive Passive Upgrade | Self | — | Permanent | Shift normal Health Penalties down by 3 steps. Maximum normal Health Penalty: 10%. This replaces Deathless Body I. | **Exclusive Passive: Deathless Body II** |
+| **5** | **Life Absorption II** | Ritual / Echo Function Upgrade | Touch | — | Special | A completed Life Absorption may restore up to **2 Health Levels**. This replaces Life Absorption I. | **Echo Function: Life Absorption II** |
+| **6** | **Hollow Stillness II** | Artifact Passive Upgrade | Self | — | Permanent | Keep that Advantage and add **+1d8 to the Pool** of those Attribute Checks. This replaces Hollow Stillness I. | **Artifact Passive: Hollow Stillness II** |
+| **7** | **Deathless Body III** | Exclusive Passive Upgrade | Self | — | Permanent | Shift normal Health Penalties down by 4 steps. Maximum normal Health Penalty: 0%. This replaces Deathless Body II. | **Exclusive Passive: Deathless Body III** |
+| **8** | **Life Absorption III** | Ritual / Echo Function Upgrade | Touch | — | Special | A completed Life Absorption may restore up to **3 Health Levels**. This replaces Life Absorption II. | **Echo Function: Life Absorption III** |
+| **9** | **Hollow Stillness III** | Artifact Passive Upgrade | Self | — | Permanent | Keep that Advantage and increase the Pool bonus to **+2d8**. This replaces Hollow Stillness II. | **Artifact Passive: Hollow Stillness III** |
+| **10** | **True Hollow Crown** | Artifact Ultimate | Self | — | Permanent | Suffer no normal Health Penalties and remain functional until Incapacitated. A sufficient completed Life Absorption may restore up to full Health. Define and record any additional final effect before it can be used. | **Artifact Ultimate: True Hollow Crown** |
 
 ---
 }}
@@ -7125,7 +7513,7 @@ This may be addiction, withdrawal, dependency, compulsion, or supernatural need.
 If you are denied the source of your Addiction:
 
 | **Time Without** | **Penalty** |
-|---|---:|
+|---|:---:|
 | 1 day | –2d8 to all Skill Dice Pools |
 | 1 week | –4d8 to all Skill Dice Pools |
 | 1 month | –8d8 to all Skill Dice Pools |
@@ -7179,7 +7567,7 @@ This may be a person, monster, faction, noble house, guild, cult, spirit, divine
 The examples below are not a closed list.
 
 | **Points** | **Threat** | **Examples** |
-|---:|---|---|
+|:---:|---|---|
 | 1 | A limited or personal threat | A bounty hunter, rival, debt collector, betrayed lover, local guard captain |
 | 2 | An organized threat with resources | A cult, noble house, mercenary guild, criminal syndicate, church order |
 | 3 | A powerful or far-reaching threat | A demon lord, archwitch, archangel, ancient spirit, royal inquisition, planar hunter |
@@ -7227,7 +7615,7 @@ They may affect:
 {{pageNumber,auto}}
 {{wide
 | **Example Flaw** | **Points** | **Effect** |
-|---|---:|---|
+|---|:---:|---|
 | One-Eyed | 1 | –1k0 to Ranged Attacks and Perception checks based on sight. |
 | One-Handed | 2 | You cannot dual wield or use a shield and one-handed weapon at the same time. |
 | Heavy Sleeper | 1 | You do not wake from normal noise. You wake only when damaged, physically shaken, or directly disturbed. |
@@ -7325,7 +7713,7 @@ To act **against** your Mental Restriction, make a `Resolve k1` roll.
 No Raises may be declared on this roll.
 
 | **Difficulty** | **TN** | **Meaning** | **Points** |
-|---|---:|---|---:|
+|---|:---:|---|:---:|
 | Easy | 6 | Minor resistance or mild discomfort | 1 |
 | Normal | 10 | Strong internal conflict | 2 |
 | Hard | 14 | Violates a core belief, fear, vow, or identity | 3 |
@@ -7355,7 +7743,7 @@ The GM may spend a Misfortune Token to:
 - or make an already bad situation worse.
 
 | **Points** | **Misfortune Tokens per Session** |
-|---:|---:|
+|:---:|:---:|
 | 1 | `1d8 / 2` |
 | 2 | `1d8` |
 | 3 | `2d8` |
@@ -7581,7 +7969,7 @@ Stones exist in 4 states:
 - **Ready**: available to be used.
 - **Exhausted**: spent during the current combat flow. Exhausted Stones can return through **regeneration**.
 - **Sealed**: locked by Rituals; cannot be regenerated at end of round. It returns only after a **Safe Haven Rest**.
-- **Bound**: Permanently invested (Artifacts, Familiars, Summons, etc.). Bound Stones are not part of your usable pool and do not regenerate. They return to your Stone Pool only when the bond is **broken** or the investment is **released**.
+- **Bound**: Permanently invested (Artifacts, Summons, or similar permanent bonds). Bound Stones are not part of your usable pool and do not regenerate. They return to your Stone Pool only when the bond is **broken** or the investment is **released**.
 
 ---
 
@@ -7673,7 +8061,7 @@ If a Stone Power states “cumulative per combat”, the doubling cost persists 
 | **Stone Ability** | **Tier 1** | **Tier 2** | **Tier 3** | **Tier 4** |
 |:--|:--|:--|:--|:--|
 | **Spell Raises** | Your **Spells** this turn gain **+4** to their roll for the purpose of meeting the **Raise TN** only. | Your **Spells** this turn gain **+8** to their roll for the purpose of meeting the **Raise TN** only. | Your **Spells** this turn gain **+12** to their roll for the purpose of meeting the **Raise TN** only. | Your **Spells** this turn gain **+16** to their roll for the purpose of meeting the **Raise TN** only. |
-| **Spell Resistance** | Until the start of your next turn, Spells that target you increase their Final Spell TN against you by **+4**, including Spell AoEs that include you in their area. | Until the start of your next turn, Spells that target you increase their Final Spell TN against you by **+8**, including Spell AoEs that include you in their area. | Until the start of your next turn, Spells that target you increase their Final Spell TN against you by **+12**, including Spell AoEs that include you in their area. | Until the start of your next turn, Spells that target you increase their Final Spell TN against you by **+16**, including Spell AoEs that include you in their area. |
+| **Spell Resistance** | Until the start of your next turn, Spells that directly target you increase their TN against you by **+4**. Spell Resistance does not increase the TN of AoE Spells that include you in their area. | Until the start of your next turn, Spells that directly target you increase their TN against you by **+8**. Spell Resistance does not increase the TN of AoE Spells that include you in their area. | Until the start of your next turn, Spells that directly target you increase their TN against you by **+12**. Spell Resistance does not increase the TN of AoE Spells that include you in their area. | Until the start of your next turn, Spells that directly target you increase their TN against you by **+16**. Spell Resistance does not increase the TN of AoE Spells that include you in their area. |
 | **Spell Action** | — | Gain **1 additional Attack Action** this round. It may only be used to cast a **Spell**. | Gain **2 additional Attack Actions** this round. They may only be used to cast **Spells**. | Gain **3 additional Attack Actions** this round. They may only be used to cast **Spells**. |
 | **Special Boost** | Increase one eligible Special on your **Spells** this turn by **+2**. | Increase one eligible Special on your **Spells** this turn by **+4**. | Increase one eligible Special on your **Spells** this turn by **+8**. | Increase one eligible Special on your **Spells** this turn by **+12**. |
 
@@ -7953,7 +8341,7 @@ Spell Damage Dice from a Spell Focus count as Spell Damage Dice if they are part
 ### Martial Raise Options
 
 | Cost | Raise Effect |
-|---:|---|
+|:---:|---|
 | 1 Raise | Increase Damage by **+MR Damage Dice**. |
 | 1 Raise | Increase one existing Special by **+MR**. |
 | 1 Raise | Increase Range by **+4 m**. Only if the Power already has Range. |
@@ -7967,7 +8355,7 @@ A Raise cannot add a new Special, Range, or AoE to a Power. No other Martial Rai
 ### Spell Raise Options
 
 | Cost | Raise Effect |
-|---:|---|
+|:---:|---|
 | 1 Raise | Increase Spell Damage by **+1d8 Damage**. |
 | 1 Raise | Increase one existing Special by **+MR**. |
 | 1 Raise | Increase Range by **+4 m**. Only if the Spell already has Range. |
@@ -8297,7 +8685,7 @@ Strong wind, rain, water, smoke, chemicals, sealed spaces, scent masking, lack o
 ### Combat Sense Summary
 
 | Sense | Primary Channel | Range | Best Against | Fails Against |
-|---|---:|---:|---|---|
+|---|:---:|:---:|---|---|
 | **Normal Combat Awareness** | Sight / Hearing / Touch / Smell | 60 m | Ordinary combat | Darkness, Invisibility, smoke, stealth, total cover |
 | **Darkvision** | Sight | 30 m | Ordinary darkness | Invisibility, smoke, fog, walls, magical darkness |
 | **Life Sense** | Supernatural Body Sense | 30 m | Living hidden targets | Undead, constructs, lifeless things |
@@ -8629,7 +9017,7 @@ Initiative is not rolled again at the start of each Round unless a rule explicit
 After rolling Initiative, you may spend points from your Initiative Score.
 
 | **Cost** | **Effect** |
-|---:|---|
+|:---:|---|
 | 4 | Gain +2 m Movement this Round. |
 | 8 | Initiative Swap: choose another willing player. You and that player swap Initiative Scores. |
 | 12 | Gain +1 extra Reaction this Round. Maximum once per Round. |
@@ -8678,7 +9066,7 @@ The Primary Defense Pillars are complete defensive foundations around which a ch
 | **Primary Defense Pillar** | **Stage** | **Function** |
 |:--|:--|:--|
 | **Parry** | Before the Attack Roll | Removes Attack Dice from an eligible direct Attack. If the entire Attack Pool is reduced to 0, the Attack is Fully Parried and does not resolve. |
-| **Evade** | During the Attack Roll | Determines the Target Number an Attack must reach to hit the character. For a Martial AoE, the same Attack Roll is compared separately against each creature's Evade.|
+| **Evade** | During the Attack Roll | Determines the Target Number a direct Attack must reach to hit the character. Evade does not modify the TN of an AoE Attack.|
 | **Armor** | After the Damage Roll | Reduces the rolled damage result before it is applied to the character. |
 | **Absorption** | After actual HP loss | Provides additional real HP and converts actual HP lost into Temporary Colorless Stones. |
 
@@ -9166,6 +9554,23 @@ An adjacent ally may:
 
 
 ---
+:
+
+### Falling Damage
+
+A creature takes **1d8 Damage for every full 4 m fallen**.
+
+| Distance | Damage |
+| -------- | -----: |
+| 0–3 m    |      — |
+| 4–7 m    |    1d8 |
+| 8–11 m   |    2d8 |
+| 12–15 m  |    3d8 |
+| 16–19 m  |    4d8 |
+
+Continue this progression for greater distances.
+
+**Falling Damage ignores Armor.**
 
 }}
 \page
@@ -9269,106 +9674,302 @@ Your Stress Track resets back to **Clear**, and you choose ONE:
 
 }}
 
+\page
+{{pageNumber,auto}}
+{{wide
+### Combat Maneuvers
 
+Combat Maneuvers are the universal combat options available to **all player characters and NPCs**.
 
+They do not need to be learned, purchased, or gained through a Power.
+
+Every combatant knows how to:
+
+* move,
+* make a Basic Attack,
+* and use Basic Reactions.
+
+Powers expand, improve, or replace these basic options, but they are never required for a creature to participate effectively in combat.
+
+This means that even if a character has no suitable Power available, has already used their Powers, or has not purchased additional combat Powers, they still have meaningful Movement, Attack, and Reaction options.
+
+Every character normally has:
+
+* **1 Movement**
+* **1 Attack Action**
+* **1 Reaction**
+
+per round, unless another rule grants additional uses.
+
+Additional Movements, Attack Actions, and Reactions may be gained through Stones, Initiative, Powers, or other explicit effects.
+
+Basic Combat Maneuvers are **not Powers**. They do not become spent after use. If a character gains additional uses of the appropriate action type, the same Basic Combat Maneuver may be used again.
+
+---
+:
+### Basic Attack
+
+Every character can make a normal attack without using an Active Power.
+
+This is called a **Basic Attack**.
+
+### Damage
+
+A Basic Attack deals:
+
+**Weapon Damage + MR × 2d8 Damage**
+
+Apply any eligible Passive, Active Buff, Artifact, weapon, or other effects that normally modify the attack or its damage.
+
+### Basic Attack Rules
+
+**No Power Required:**
+A Basic Attack does not require an Active Power.
+
+**No Power Effects:**
+You may not add damage, Specials, AoE, Split Attack, Autofire, control effects, or other effects belonging to an Active Power unless another rule explicitly allows it.
+
+**Weapon Properties Apply:**
+Normal properties and effects belonging to the weapon itself still apply when appropriate.
+
+**Extra Attacks:**
+If you gain additional Attack Actions through Stones, Initiative, or another effect, you may use them to make additional Basic Attacks.
+
+A Basic Attack is not a Power and does not become spent after use.
+
+---
+}}
 
 \page
 {{pageNumber,auto}}
 {{wide
-## Combat Maneuvers
+### Threatened Ranged Attacks
 
----
-Combat maneuvers add tactical depth to each round.<br>
-Every character can perform <strong>1 Movement</strong>, <strong>1 Attack Action</strong>, and <strong>1 Reaction</strong> per round (unless otherwise stated).<br>
-Maneuvers are divided into <strong>Movements</strong>, <strong>Reactions</strong> (instant responses), and <strong>Actions</strong> (deliberate moves or stances).
+If at least one enemy is within their melee reach and you declare a Ranged Attack or Ranged Power using a bow, crossbow, thrown weapon, or similar ranged weapon, the attack is **Threatened**.
 
----
-:
-#### Basic Attack (No Power)
-When you make an attack <strong>without using a Power</strong>, it is a <strong>Basic Attack</strong>:
-<ul style="margin-top:0; padding-left: 1.2em;">
-  <li><strong>Damage:</strong> Weapon Damage Dice + Passives + Active Buffs.</li>
-  <li><strong>No Power Effects:</strong> You may not add Power effects, riders, or Power-only modifiers.</li>
-  <li><strong>Extra Attacks:</strong> Extra Attacks gained from Stones/Initiative are allowed, but they are also <strong>Basic Attacks</strong> unless you activate a Power.</li>
-</ul>
+You make the Ranged Attack with **Disadvantage**.
 
----
-:
-
-#### Threatened Ranged
-
-If **at least one enemy is within their melee reach**, and you declare a **Ranged Power** (**bow**, **crossbow** or **thrown weapon**), the attack is **Threatened**:
-
-- You make the Ranged Attack with **Disadvantage**.
-- After you declare the attack, **all** enemies within your melee reach may immediately spend their **Reactions**.
-
+After you declare the attack, all enemies within their melee reach may immediately use a legal Reaction if they have a Reaction available.
 
 ---
 :
 ### Movement
-Your <strong>Movement</strong> represents your tactical positioning during your turn.
-<ul style="margin-top:0; padding-left: 1.2em;">
-  <li><strong>Move Distance:</strong> You can move up to your <strong>Speed</strong> (in meters).</li>
-  <li><strong>Draw / Sheathe:</strong> You may draw or sheathe a weapon as part of your Movement.</li>
-  <li><strong>No Splitting:</strong> If you use a <strong>Movement Maneuver</strong> or a <strong>Movement Power</strong> (such as <em>Dash</em>), it uses up your entire Movement and <strong>cannot be split</strong>.</li>
-</ul>
+
+Every character can move without purchasing a Movement Power.
+
+Your normal Movement represents basic tactical positioning during your Turn.
+
+#### Normal Movement
+
+**Move Distance:**
+Move up to your Speed in meters.
+
+**Draw / Sheathe:**
+You may draw or sheathe a weapon as part of your Movement.
+
+**No Splitting:**
+If you use a Movement Maneuver or Movement Power that replaces your Movement, it uses that entire Movement and cannot be split unless a rule explicitly says otherwise.
+
+Movement Powers provide additional or superior movement options such as **Movement: Teleport**, **Movement: Flight**, **Movement: Leap**, **Movement: Safe Movement**, or other specialized movement.
+
+They are not required to move normally.
 
 ---
-:
-#### Movement Options
-<em>(Choose one use of <strong>Movement</strong> per turn, unless a Power says otherwise.)</em>
-
-<ul style="margin-top:0; padding-left: 1.2em;">
-  <li><strong>Move</strong> – Move up to your <strong>Speed</strong> this turn.
-      This movement <strong>provokes Reactions</strong> as normal.</li>
-
-  <li><strong>Dash</strong> – Focus entirely on movement.
-      Move up to <strong>double your normal Speed</strong> this turn.
-      You <strong>cannot perform</strong> your <strong>base Attack Action</strong>, but you may still buy additional attacks using Stones.<br>
-      This movement <strong>provokes Reactions</strong> as normal.</li>
-
-  <li><strong>Disengage</strong> – Withdraw carefully.
-      Move up to your <strong>normal Speed</strong> this turn <strong>without provoking Reactions</strong>.<br>
-      You cannot perform your <strong>base Attack Action</strong> this turn (unless granted by a Stone).</li>
-
-  <li><strong>Quick Load</strong> – Convert movement into reloading.
-      Instead of moving, you may spend your <strong>Movement</strong> to perform <strong>Reload (1)</strong>.
-      You may convert Movement into Reload multiple times in the same turn (if you gain additional Movement), up to a maximum of <strong>your Mastery Rank (MR)</strong> total Reload per turn.
-      You still need <strong>one free hand</strong> and must be able to manipulate the weapon/ammunition.<br>
-      You cannot Quick Load while <strong>Immobilized/Restrained</strong>.</li>
-
-  <li><strong>Stand Up</strong> – Recover from a Prone state.
-      Standing up costs <strong>one Attack Action</strong>, but does <strong>not</strong> limit your movement.
-      You may move normally after standing.<br>
-      Standing up itself does not provoke Reactions; only the movement you take afterward might.</li>
-</ul>
-
----
-
 :
 
 }}
 
 \page
 {{pageNumber,auto}}
-
 {{wide
-#### Escape Rule
-<em>(Leaving combat entirely.)</em>
+### Basic Movement Options
 
-<ul style="margin-top:0; padding-left: 1.2em;">
-  <li>
-    <strong>Flee</strong> – If you choose to escape rather than fight, you move up to <strong>4 × your normal Speed</strong> directly away from danger.<br>
-    You cannot make any <strong>Attacks</strong>, take <strong>Reactions</strong>, or spend <strong>Stones</strong> until the start of your next turn.<br>
-    This movement <strong>provokes Reactions</strong> as normal (unless you used <strong>Disengage</strong> this turn).<br>
-    The GM may immediately transition into a <strong>chase / escape resolution</strong> if appropriate.
-  </li>
-</ul>
+Choose one option whenever you use a normal Movement, unless another rule says otherwise.
+
+#### Move
+
+Move up to your Speed.
+
+This movement provokes movement-triggered Reactions normally.
+
+#### Dash
+
+Focus entirely on movement.
+
+Move up to **double your normal Speed**.
+
+You cannot perform your base Attack Action this Turn, but additional Attack Actions gained through Stones or another explicit source may still be used.
+
+This movement provokes movement-triggered Reactions normally.
+
+#### Disengage
+
+Withdraw carefully.
+
+Move up to your normal Speed without provoking movement-triggered Reactions.
+
+You cannot perform your base Attack Action this Turn unless another effect grants an additional Attack Action.
+
+#### Quick Load
+
+Convert Movement into reloading.
+
+Instead of moving, spend your Movement to perform **Reload (1)**.
+
+If you gain additional Movements, you may use Quick Load multiple times during the same Turn, up to a maximum total Reload equal to your **Mastery Rank**.
+
+You still need one free hand and must be able to manipulate the weapon or ammunition.
+
+You cannot Quick Load while Immobilized or Restrained.
+
+#### Stand Up
+
+Recover from Prone.
+
+Standing up costs **1 Attack Action** but does not consume your Movement.
+
+After standing, you may use your Movement normally.
+
+Standing up itself does not provoke Reactions. Movement taken afterward may provoke normally.
+}}
+
+\page
+{{pageNumber,auto}}
+{{wide
+
+### Basic Attack Actions
+
+Every character can use Basic Attack Actions without purchasing an Active Power.
+
+Using a Basic Attack Action spends **1 Attack Action**.
+
+Basic Attack Actions are not Powers and do not become spent after use.
+
+---
+
+#### Basic Attack
+
+**Requirement:** A Weapon or Natural Weapon capable of making the Attack.
+
+**Effect:** Make a normal Attack.
+
+On hit, deal:
+
+**Weapon Damage + MR × 2d8 Damage**
+
+Eligible Passive, Active Buff, Artifact, weapon, and other effects apply normally.
+
+A Basic Attack cannot add damage, Specials, AoE, Split Attack, Autofire, control effects, or other effects belonging to an Active Power unless another rule explicitly allows it.
+
+If you gain additional Attack Actions, you may use them to make additional Basic Attacks.
 
 ---
 :
-#### Defensive Reactions
-  <strong>Dive for Cover</strong> – After an AoE Attack result has been compared against your defense and would hit you, but before its damage or payload is applied, spend your Reaction to immediately move up to **2 × Mastery Rank meters**.
+#### Grapple
+
+**Range:** Melee Reach
+
+**Check:** Make an **Opposed Hand-to-Hand Skill Check**.
+
+Both creatures use an appropriate physical Attribute Pool and their Hand-to-Hand Skill Pool normally.
+
+If the attacker wins, the target becomes **Grappled**.
+
+**Grappled:** The creature's Speed becomes **0 m** and it cannot voluntarily move away from the grappler.
+
+**Escape:** The Grappled creature may spend **1 Attack Action** to repeat the Opposed Hand-to-Hand Skill Check. If it wins, the Grapple ends.
+
+**Pressure:** While maintaining the Grapple, the grappler may deal **Mastery Rank Damage once per Round**. This damage ignores Armor.
+
+The Grapple also ends if the grappler releases the target or can no longer physically maintain the hold.
+
+
+}}
+
+\page
+{{pageNumber,auto}}
+{{wide
+### Basic Reactions
+
+Every character can use Basic Reactions without purchasing a Reaction Power.
+
+Using a Basic Reaction spends **1 Reaction**.
+
+Basic Reactions are not Powers and do not become spent after use.
+
+If a character gains additional Reactions through Stones, Initiative, or another effect, they may use Basic Reactions again whenever their Trigger occurs.
+
+Reaction Powers provide stronger, more specialized, or more tactical responses, but they are not required to react in combat.
+
+---
+
+#### Guard
+
+**Trigger:** You are hit by an Attack or would take damage.
+
+**Effect:** Gain **+MR × 2 Armor** against the triggering Attack or damage instance.
+
+This Armor is added to your existing Armor and applies only against the triggering event.
+
+---
+
+#### Evade
+
+**Trigger:** You are targeted by an Attack, before the Attack result is finalized.
+
+**Effect:** Gain **+MR × 2 Evade** against the triggering Attack.
+
+This Evade is added to your existing Evade and applies only against the triggering Attack.
+
+---
+
+#### Counterattack
+
+**Trigger:** A creature hits you with an Attack.
+
+**Requirement:** The triggering creature must be a valid target for the weapon or Natural Weapon used for the Counterattack.
+
+**Effect:** Immediately make a normal Attack against the triggering creature.
+
+On hit, deal:
+
+**Weapon Damage + MR × 2d8 Damage**
+
+Counterattack is a Basic Reaction, not an Active Power.
+
+It does not add Active Power damage, Specials, AoE, control effects, or other Power-only effects.
+
+Normal properties belonging to the weapon itself still apply when appropriate.
+
+---
+
+#### Aid
+
+**Trigger:** An ally makes a Skill Check that you can meaningfully assist.
+
+**Requirement:** You must have the same Skill used for the Check and meet that Skill's Full Pool Requirement:
+
+Skill Rating ≥ 2 × your Mastery Rank
+
+**Effect:** The ally gains +4 to the Final Result of that Skill Check.
+
+Only one Aid may affect the same Skill Check.
+
+Aid does not spend Skill Points from the assisting character.
+
+During combat or another structured round sequence, using Aid spends 1 Reaction.
+
+---
+}}
+
+\page
+{{pageNumber,auto}}
+{{wide
+#### Dive for Cover
+
+**Trigger:** You would be hit by an AoE Attack after its shared Attack or Spell Roll has been compared to your defense, but before its damage or payload is applied.
+
+**Effect:** Immediately move up to **2 × Mastery Rank meters**.
 
 If this movement takes you completely outside the AoE, you are not affected by that AoE.
 
@@ -9376,36 +9977,86 @@ If you remain inside the area, you are affected normally.
 
 This movement does not provoke movement-triggered Reactions.
 
-Dive for Cover is available to any creature that would be hit by the AoE, including a creature standing at its center point. If you already spent your Reaction on **Reaction: Evade**, you need another available Reaction to also use Dive for Cover. Dive for Cover cannot be used against Autofire.
-</li>
-</ul>
+Dive for Cover is available to any creature that would be hit by the AoE, including a creature standing at its center point. If you already spent your Reaction on **Reaction: Evade**, you need another available Reaction to also use Dive for Cover.
 
 ---
+}}
 
+\page
+{{pageNumber,auto}}
+{{wide
+### Escape Rule: Flee
 
+If you choose to escape rather than fight, move up to **4 × your normal Speed** directly away from danger.
+
+Until the start of your next Turn:
+
+* you cannot make Attacks,
+* you cannot use Reactions,
+* and you cannot spend Stones.
+
+This movement provokes movement-triggered Reactions normally.
+
+---
+:
+### Pursuit
+
+When a creature uses **Flee** and another creature continues pursuing it, the GM may begin a Pursuit.
+
+A Pursuit is resolved through repeated **Opposed Athletics Skill Checks**.
+
+Track the Pursuit from **0**.
+
+* If the fleeing creature wins a Check, move the Pursuit **+1**.
+* If the pursuing creature wins a Check, move the Pursuit **−1**.
+* A tie causes no change.
+
+At **+2**, the fleeing creature escapes completely.
+
+At **−2**, the pursuer catches the fleeing creature and the Pursuit ends.
+
+Each Check represents one meaningful exchange of the chase, such as sprinting through streets, vaulting obstacles, climbing, cutting through crowds, or gaining ground.
+
+Normal situational rules such as Advantage, Disadvantage, terrain, movement modes, and relevant circumstances may apply.
+
+---
 :
 
-#### Initiative: Delay
-In certain situations, you may delay your turn to react to the flow of combat.
-
-<ul style="margin-top:0; padding-left: 1.2em;">
-  <li><strong>Trigger:</strong> At the start of your turn.</li>
-  <li><strong>Effect:</strong> You skip your turn and may act immediately after any other creature finishes its turn.</li>
-  <li><strong>New Initiative:</strong> Your Initiative permanently changes to the position you delayed into.</li>
-  <li><strong>Delaying into the next round:</strong> If you delay past the round boundary, your delayed turn carries into the next round. You may take it after any creature finishes its turn, but you still may not interrupt another creature’s turn.</li>
-  <li><strong>If you were last to act:</strong> Your new Initiative becomes <em>(highest Initiative + 1)</em>.</li>
-</ul>
-
-<strong>Restrictions:</strong>
-<ul style="margin-top:0; padding-left: 1.2em;">
-  <li>You may not interrupt another creature’s turn.</li>
-  <li>If you delay past your next natural turn, you lose that turn.</li>
-  <li>You cannot delay if <strong>incapacitated</strong> or <strong>surprised</strong>.</li>
-</ul>
-
----
 
 
+
+}}
+
+\page
+{{pageNumber,auto}}
+{{wide
+
+
+### Initiative: Delay
+
+In certain situations, you may delay your Turn to react to the flow of combat.
+
+**Trigger:** At the start of your Turn.
+
+**Effect:** Skip your current Turn. You may then take that Turn immediately after another creature finishes its Turn.
+
+**New Initiative:** Your Initiative permanently changes to the position where you take the delayed Turn.
+
+#### Delaying into the Next Round
+
+If you delay past the round boundary, your delayed Turn carries into the next Round.
+
+You may take it after any creature finishes its Turn, but you may not interrupt another creature's Turn.
+
+If you were last to act, your new Initiative becomes:
+
+**highest Initiative + 1**
+
+#### Restrictions
+
+* You may not interrupt another creature's Turn.
+* If you delay past your next natural Turn, you lose that Turn.
+* You cannot Delay while Incapacitated or Surprised.
 
 
 }}
@@ -9419,6 +10070,15 @@ In certain situations, you may delay your turn to react to the flow of combat.
 
 The Mastery System is balanced around **combat rounds** as the main resource economy.  
 Outside of combat, recovery is **slow, deliberate, and story-driven**.
+
+---
+#### First Aid
+
+After combat, a character may treat another creature with **Medicine**. 
+Make a normal Medicine Skill Check against the injury severity using the normal Skill Check rules.
+On success, remove all remaining **negative Specials caused during that combat** from the treated creature.
+First Aid does not restore HP or Scarred Health Bars unless another rule explicitly says otherwise.
+Each creature may receive First Aid once after a combat.
 
 ---
 
@@ -9463,6 +10123,11 @@ Without magic, your body and spirit heal over **days**, not minutes.
 
 ---
 
+}}
+
+\page
+{{pageNumber,auto}}
+{{wide
 
 #### 3) Safe Haven Rest
 A Safe Haven Rest is a **Night Rest** taken in a **Safe Haven** (secure + comfortable + uninterrupted).
@@ -9507,7 +10172,7 @@ They return only when you complete a **Safe Haven Rest**.
 ---
 
 #### Bound Stones (Do NOT return on rest)
-Stones bound into **Artifacts, Familiars, or similar permanent bonds** remain bound until released or destroyed.
+Stones bound into **Artifacts, Summons, or similar permanent bonds** remain bound until released or destroyed.
 
 
 
@@ -9593,7 +10258,7 @@ They may choose:
 - **Might** +1
 - **Agility** +1
 - **Athletics** +1
-- **Dodge** +1
+- **Defensive Combat** +1
 - **Main Attack Power** +1 Level
 - **Armor Artifact** +1 Level
 
@@ -9935,9 +10600,9 @@ Cleanse can only reduce Specials that list **Cleanse: Yes**. The value of one Cl
 | **Lacerate(X)** | You suffer damage from movement. The first time each turn you move **more than 0 m**, take **X** damage. If you move **more than half your Speed** that turn, take **+X** damage again. If you **Sprint / Dash / otherwise exceed your normal Speed**, take **+X** damage again. | Yes | Yes |
 | **Mark(X)** | After a hit, spend any amount of Mark from the target to set the minimum result of each damage die to the spent Mark value for that damage roll. Then reduce Mark by the amount spent. | Yes | Yes |
 | **Regeneration(X)** | At Tick, heal **X HP**. | Yes | No |
-| **Exorcism(X)** | At Tick, take **X** damage (ignores Armor unless stated). Applies only to **Fiends**. | Yes | Yes |
-| **Requiem(X)** | At Tick, take **X** damage (ignores Armor unless stated). Applies only to **Undead**. | Yes | Yes |
 | **Ruin(X)** | At Tick, take **X** damage. | Yes | Yes |
+| **Exorcism(X)** | **Fiends only.** At Tick, take **X** damage. A non-Fiend cannot receive Exorcism. | Yes | Yes |
+| **Requiem(X)** | **Undead only.** At Tick, take **X** damage. A non-Undead cannot receive Requiem. | Yes | Yes |
 | **Slow(X)** | Your **Speed** is reduced by **X m**. If you do not voluntarily move at least **1 m** during your turn, take **X damage** at the end of your turn. | Yes | Yes |
 | **Soulburn(X)** | All dice pools based on **Wits**, **Influence**, or **Resolve** are reduced by **X**, to a minimum of your **Mastery Rank**. | Yes | Yes |
 | **Sundered(X)** | When hit by a **non-Spell attack**, take **+1d8 bonus damage for every 2 Sundered**, rounded up. | Yes | Yes |
@@ -10412,14 +11077,14 @@ For a Spell that directly targets a creature, add the target’s **Spell Resista
 
 ---
 
-For a Spell with the **AoE** tag, make **one Spell Roll** and compare that same final result separately against the **Final Spell TN** of each valid creature in the area (`Final Spell TN = Spell Base TN + that creature's Spell Resistance`).
+For a Spell with the **AoE** tag, use the **Base Casting TN without adding Spell Resistance**.
 
 ---
-A miss against one creature does not affect any other creature. Every creature that remains hit receives the Spell's full printed payload. Each creature that would be hit may use **Dive for Cover** before payload is applied.
+AoE Spells ignore the individual **Evade** and **Spell Resistance** of all creatures inside their area.
 
 ---
 
-If the casting roll equals or exceeds a creature's Final Spell TN, that creature is successfully affected by the Spell.
+If the casting roll equals or exceeds the applicable Casting TN, the Spell is successfully cast and its effects resolve.
 
 ---
 
@@ -10458,13 +11123,13 @@ Mental Powers offer a complete character path for players who want to communicat
 
 ### Telepathy and Mind Link
 
-**Telepathy** is a Passive. It grants Telepathic Access and includes voluntary **Mind Links** at no additional Power cost.
+**Passive: Telepathy** grants Telepathic Access and includes voluntary **Mind Links** at no additional Power cost.
 
-Mind Link is not purchased separately. Its communication, linked-creature limit, range, shared impressions, shared senses, and willing memory sharing improve with Telepathy Rank.
+Mind Link is not purchased separately. Its communication, linked-creature limit, range, shared impressions, shared senses, and willing memory sharing improve with **Passive: Telepathy** Power Level.
 
 Telepathy alone does not read an unwilling creature's thoughts or memories. It only opens the mental path. Hostile information gathering requires **Mind Probe**.
 
-Mental Attack, Mind Illusion, Mind Probe, and Mental Control cannot normally be used at a higher Rank than the character's Telepathy Rank.
+Mental Attack, Mind Illusion, Mind Probe, and Mental Control cannot normally be used at a higher Power Level than the character's **Passive: Telepathy** Power Level.
 
 ---
 
@@ -10476,17 +11141,17 @@ Mental Attack, Mind Illusion, Mind Probe, and Mental Control are resolved like S
 
 This represents the difficulty of reaching, piercing, shaping, searching, or controlling another creature's mind.
 
-Mental Powers do not count as one level higher. They use their normal Power Rank for scaling, requirements, limits, and Power construction.
+Mental Powers do not count as one level higher. They use their normal Power Level for scaling, requirements, limits, and Power construction.
 
 Only the fixed TN is increased.
 
 ### Mental Power TN
 
-Determine the normal fixed TN for a Power of that Rank, then increase that TN by **+4**.
+Determine the normal fixed TN for a Power of that Power Level, then increase that TN by **+4**.
 
 Example:
 
-If a normal Spell of the same Rank would use **TN 24**, the Mental Power uses **TN 28**.
+If a normal Spell of the same Power Level would use **TN 24**, the Mental Power uses **TN 28**.
 
 If the Mental Power roll fails, the Power fizzles and has no effect.
 
@@ -10543,7 +11208,7 @@ Mind Probe searches a creature's thoughts and memories.
 
 It requires Telepathic Access and uses the normal Mental Power TN increased by **+4**.
 
-On a success, the user learns the kind of information allowed by the Power's current Rank. Lower Ranks reveal emotions, surface thoughts, and immediate intentions. Higher Ranks reach increasingly old, fragmented, suppressed, or protected memories.
+On a success, the user learns the kind of information allowed by the Power's current Power Level. Lower Power Levels reveal emotions, surface thoughts, and immediate intentions. Higher Power Levels reach increasingly old, fragmented, suppressed, or protected memories.
 
 Mind Probe reads the target's remembered understanding rather than objective truth. It cannot discover knowledge the target never possessed, and it cannot make an incorrect belief become correct.
 
@@ -10567,7 +11232,7 @@ Mental Control can affect only creatures whose **Mastery Rank is lower than the 
 
 It cannot be activated during combat and cannot be used to create allied combatants. If a controlled creature becomes a participant in combat, the control ends before it takes its first combat action.
 
-Mental Control may make a weaker creature cooperate, leave an area, ignore an intrusion, open a door, deliver a message, accept a temporary relationship, or pursue another noncombat purpose allowed by the Power's Rank.
+Mental Control may make a weaker creature cooperate, leave an area, ignore an intrusion, open a door, deliver a message, accept a temporary relationship, or pursue another noncombat purpose allowed by the Power's Power Level.
 
 }}
 \page
@@ -10633,6 +11298,8 @@ A specific Power can be used only **once per round**.
 
 After you use a Power, that Power is considered **spent** until the start of the next round.
 
+The Power's identity is its base **Technical Reference**, not its character-facing name, source, or current PL.
+
 This applies to all Power Types:
 
 - Actives
@@ -10694,7 +11361,7 @@ Examples:
 - A **Melee Attack + Push** may be a shield bash, a hammer blow, a gravity pulse, a burst of wind, or a spectral beast strike.
 - A **Mental Attack** may be a psychic lance, a whispered curse, a memory spike, a pressure wave of fear, or a silent scream.
 - A **Mind Illusion** may be a nightmare image, a false wall, a phantom voice, a distorted reflection, a veil of insects, or a hallucinated enemy.
-- A **Heal** may be divine light, blood magic, herbal restoration, ancestral warmth, repairing nanogrowth, or stolen life returned.
+- A **Melee Single Target Heal** or **Ranged Single Target Heal** may be divine light, blood magic, herbal restoration, ancestral warmth, repairing nanogrowth, or stolen life returned.
 
 The mechanics stay the same.
 
@@ -10725,6 +11392,8 @@ Technical Power: **Melee Attack + Push**
 Character Power Name: **Titanbreaker Blow**
 
 A character-facing Power name does not change the Power's mechanics.
+
+Power identity follows the technical name across every source, including purchases, Echo Artifacts, other Artifacts, Trees, and granted abilities. Two character-facing names with the same Technical Reference are the same Power for duplicate selection and the once-per-round Power Use Limit.
 
 If a player describes a Power in a way that sounds stronger than its rules text, use the rules text.
 
@@ -10769,7 +11438,7 @@ Passives are reliable, always-on character identity.
 
 They do not require an action to activate.
 
-A Passive must belong to exactly one Passive Category.  
+A Pure Passive belongs to exactly one Passive Category. A Combined Passive belongs to exactly two approved Passive Categories and counts as both.  
 A Passive Category is a mechanical classification, not flavour text.
 
 Passives are used for stable identity such as:
@@ -10780,10 +11449,14 @@ Passives are used for stable identity such as:
 - Health,
 - Temporary HP,
 - Healing,
-- Awareness,
 - Damage Reduction,
 - Phasing,
-- or approved Special support.
+- Ward,
+- Invisibility,
+- Parry,
+- Absorption,
+- Damage Negation,
+- or approved Summon, Special Aura, or Special support.
 
 Passives may not hide Active effects inside always-on features.
 
@@ -10829,7 +11502,7 @@ Active Buffs may be:
 
 Active Buffs do not apply Specials by default.
 
-Special interaction through an Active Buff is handled only through dedicated entries such as **Special Overdrive**.
+Special interaction through an Active Buff is handled only through dedicated entries such as **Active Buff: Special Increase**.
 
 See: <a href="https://homebrewery.naturalcrit.com/share/-LDVoC64w7wX" target="_blank" rel="noopener noreferrer">Active Buffs</a>
 
@@ -10888,16 +11561,16 @@ It is not added on top of your normal Movement unless the entry explicitly says 
 
 Movement Powers may include movement types such as:
 
-- Ground Dash,
-- Safe Movement,
-- Teleport,
-- Teleport with Ally,
-- Flight,
-- Leap,
-- Wall Walk,
-- Burrow,
-- Phase Passage,
-- or Trample.
+- **Movement: Ground Dash**,
+- **Movement: Safe Movement**,
+- **Movement: Teleport**,
+- **Movement: Teleport with Ally**,
+- **Movement: Flight**,
+- **Movement: Leap**,
+- **Movement: Wall Walk**,
+- **Movement: Burrow**,
+- **Movement: Phase Passage**,
+- or **Movement: Trample**.
 
 See: <a href="http://homebrewery.naturalcrit.com/share/pyfkMUFdD_C7" target="_blank" rel="noopener noreferrer">Movement</a>
 
@@ -11017,7 +11690,7 @@ Minor Expressions grow automatically with the Attribute that unlocks them.
 Each Minor Expression has five possible tiers:
 
 | Attribute Value | Expression Tier |
-|---:|:---:|
+|:---:|:---:|
 | 8 | Tier 8 |
 | 16 | Tier 16 |
 | 24 | Tier 24 |
@@ -11631,18 +12304,9 @@ However, it should never replace an Active Power, Passive, Active Buff, Reaction
 \page
 {{pageNumber,auto}}
 {{wide
-
 ## Rituals
 
-Rituals are deliberate magical workings performed outside the normal flow of combat.
-
-They are not quick combat Powers.  
-They are careful acts of interpretation, binding, cleansing, reaching, asking, opening, sealing, or transformation.
-
-A Ritual is always resolved as a **normal Skill Check**.
-
-Rituals do not use a fixed TN.  
-Instead, the GM determines the **Ritual MR** based on what the Ritual is trying to affect, understand, reach, overcome, cleanse, restore, contact, or reveal.
+Rituals are deliberate supernatural workings performed outside the normal flow of combat. They are not quick combat Powers. They are careful acts of interpretation, binding, cleansing, reaching, opening, sealing, remembering, revealing, or transformation. A Ritual is always resolved as a **normal Skill Check**. Rituals do not use a fixed TN. Instead, the GM determines the **Ritual MR** based on what the Ritual is trying to affect, understand, reach, overcome, cleanse, seal, read, reveal, or transform.
 
 ---
 
@@ -11665,6 +12329,31 @@ Skill Points may be spent after the roll as normal.
 
 ---
 
+### Rituals Are Not Skill Replacements
+
+Rituals do not replace normal Skill Checks.
+
+If a task can reasonably be solved with a mundane Skill Check, use the Skill Check instead.
+
+Rituals should not replace:
+
+- hiding a camp,
+- finding a safe road,
+- following tracks,
+- treating normal post-combat injuries,
+- removing normal combat Specials after a fight,
+- navigating wilderness,
+- making a social promise,
+- or discovering ordinary information through investigation.
+
+Rituals are used when the effect is supernatural, long-lasting, hidden, spiritually significant, or impossible through normal action.
+
+Post-combat treatment of negative Specials is handled by **First Aid**, not by Rituals.
+
+Scarred Health Bars are not restored by Rituals unless a specific rule outside the Ritual system says so.
+
+---
+
 ### Skill Categories
 
 | Category | Skills |
@@ -11676,7 +12365,10 @@ Skill Points may be spent after the roll as normal.
 | **Martial Skills** | Hand-to-Hand, Melee Weapons, Ranged Weapons, Defensive Combat, Combat Reflexes |
 
 ---
-
+}}
+\page
+{{pageNumber,auto}}
+{{wide
 ### Choosing a Skill for a Ritual
 
 When performing a Ritual:
@@ -11691,121 +12383,137 @@ The Skill determines **how** the Ritual is performed.
 Examples:
 
 - A character identifying an old divine relic might use **Lore**, **Occultism**, **Investigation**, or **Engineering**.
-- A character cleansing a Blight wound might use **Medicine**, **Herbalism**, **Empathy**, or **Occultism**.
-- A character reading omens in the wilderness might use **Survival**, **Tracking**, **Weather Sense**, or **Occultism**.
+- A character cleansing corrupted ground might use **Medicine**, **Herbalism**, **Empathy**, or **Occultism**.
+- A character reading strange Resonance in the wilderness might use **Survival**, **Tracking**, **Weather Sense**, or **Occultism**.
 - A character performing a public rite before witnesses might use **Performance**, **Leadership**, **Etiquette**, or **Persuasion**.
 - A character secretly performing a forbidden rite in a city might use **Streetwise**, **Deception**, **Concealment**, or **Sleight of Hand**.
 
 A player may not choose a Skill only because it has the highest rating.  
 The Skill must fit the fictional method.
 
----
-}}
-\page
-{{pageNumber,auto}}
-{{wide
 ### Ritual MR
 
-The **Ritual MR** is the Mastery Rank of the thing being affected, examined, contacted, cleansed, restored, revealed, or overcome.
+The **Ritual MR** is the Mastery Rank of the thing being affected, examined, cleansed, sealed, revealed, read, transformed, or overcome.
 
 Use the most relevant source:
 
 - **Target MR** if the Ritual affects a creature, spirit, corpse, soul, demonic mark, living target, enemy, or similar being.
-- **Creator / Owner MR** if the Ritual affects an item, ward, seal, trap, forged document, magical lock, hidden camp, or constructed magical effect.
+- **Creator / Owner MR** if the Ritual affects an item, ward, seal, trap, forged document, Resonant lock, or constructed supernatural effect.
 - **Artifact Level Tier** if the Ritual targets an Artifact or awakened relic.
-- **Power Tier** if the Ritual targets a Spell, Power, active magical effect, summon, familiar, or similar structured effect.
-- **Scene MR** if the Ritual affects a place, ruin, battlefield, dream, omen, leyline, shrine, corrupted area, sacred site, or unknown magical phenomenon.
+- **Power Tier** if the Ritual targets a Spell, Power, active supernatural effect, Summon, or similar structured effect.
+- **Scene MR** if the Ritual affects a place, ruin, battlefield, dream, leyline, shrine, corrupted area, sacred site, threshold, or unknown supernatural phenomenon.
 
 If multiple sources apply, use the strongest or most narratively important one.
 
-The character’s own Mastery Rank does **not** set the Ritual TN.  
+The character's own Mastery Rank does **not** set the Ritual TN.  
 Higher Mastery Rank makes the character more reliable because they keep more dice.  
 It does not make the Ritual harder by itself.
 
 ---
 
-### Ritual TN
+### Ritual TN and Declared Ritual Raises
 
-Once the Ritual MR is known, set the TN using the normal Skill Check rules.
+Once the Ritual MR is known, set the base TN using the normal Skill Check rules.
 
-**Standard Ritual TN = 8 × Ritual MR**
+**Base Ritual TN = 8 × Ritual MR**
 
-The GM may adjust the TN in **±4 steps** based on the situation.
+Before rolling, the player declares which Ritual Raise Level they attempt.
 
-Common modifiers include:
+Each declared Ritual Raise increases the Raise TN by **+4**.
 
-- prepared ritual space: easier
-- proper tools, symbols, materials, or records: easier
-- strong sympathetic connection to the target: easier
-- enough time and calm conditions: easier
-- rushed casting: harder
-- hostile environment: harder
-- corrupted or unstable magic: harder
-- active resistance: harder
-- missing information: harder
-- powerful concealment, wards, or false traces: harder
+**Ritual Raise TN = Base Ritual TN + (declared Ritual Raises × 4)**
 
----
+A player may declare **Raise 0**.
 
-### Ritual Raises
+A Ritual entry lists which Raise Levels are available.
 
-Ritual Raises are **not declared before the roll**.
-
-After the Ritual Skill Check is rolled, count Raises normally.
-
-Every full **+4 over the TN** is **1 Raise**.
-
-Ritual Raises represent how deeply the Ritual reaches, how much it reveals, how cleanly it works, how far it extends, or how strongly it alters the situation.
-
-Each Ritual entry lists what its Raises can accomplish.
-
-A Ritual can succeed with **0 Raises**.  
-This means the basic effect works, but only at the surface level.
-
----
+Unless a Ritual says otherwise, the maximum Ritual Raise Level is **Raise 4**.
 }}
 \page
 {{pageNumber,auto}}
 {{wide
-### Hidden Truths and Resistant Artifacts
-
-Rituals do not automatically reveal everything.
-
-Powerful items, Artifacts, divine relics, demonic marks, intelligent objects, ancient wards, and spiritually significant places may hide, distort, or selectively reveal information.
-
-An Artifact may only show what it wants to show.  
-A demonic mark may present a false history.  
-A divine relic may conceal its deeper purpose until the bearer proves worthy.  
-A ward may reveal its outer structure while hiding the name of its creator.
-
-The GM may divide information into layers.
-
-Example layers:
-
-| Layer | What it may reveal |
+| Roll Result | Outcome |
 |---|---|
-| **Surface** | Name, visible function, obvious aura, basic category |
-| **Pattern** | Origin, school, creator style, emotional residue |
-| **Structure** | Hidden restrictions, dormant powers, binding logic |
-| **Truth** | Real purpose, true creator, taint, pact, command phrase, awakening condition |
-| **Secret** | Dangerous or protected knowledge the target actively resists revealing |
+| Below Base Ritual TN | The Ritual fails. |
+| Meets Base Ritual TN, but misses Ritual Raise TN | The Ritual succeeds with **Raise 0** only. |
+| Meets Ritual Raise TN | The Ritual succeeds with the declared Raise Level and all lower Raise effects. |
 
-Raises determine how many layers the Ritual reaches.
+Only declared Ritual Raises can take effect.
 
-Some truths may require a later scene, a stronger connection, a specific key, an Artifact bond, or a higher-Raise result.
+Extra margin above the Ritual Raise TN does not unlock higher Raise Levels that were not declared before the roll.
+
+---
+### Ritual Cost
+
+Ritual Stone costs are not listed separately for each Ritual. Instead, the Stone cost is determined by the **declared Ritual Raise Level**.
+
+| Declared Ritual Raise Level | Stone Cost |
+|---:|---:|
+| **Raise 0** | **1 Stone** |
+| **Raise 1** | **1 Stone** |
+| **Raise 2** | **2 Stones** |
+| **Raise 3** | **2 Stones** |
+| **Raise 4** | **3 Stones** |
+
+Standard Player Guide Rituals never cost more than **3 Stones**. Ritual Stone costs are not tied to a specific Attribute. Any available Stone may be used to pay a Ritual cost. The color of the Stone may describe the Ritual's fictional method, but it does not limit whether the Ritual can be performed.
+The Stone cost is paid when the Ritual is attempted. Paid Stones become **Sealed**. Sealed Stones cannot be regenerated through normal Stone recovery. They return only after a **Safe Haven Rest**, unless a Ritual says otherwise.
+If the Ritual fails, the paid Stones remain Sealed. If the Ritual succeeds only with **Raise 0** because the Ritual Raise TN was missed, the full Stone cost of the declared Raise Level still remains Sealed.
+If several characters take part in the same Ritual, the GM may allow participants to contribute Stones to the cost. There is still only one lead character and one Ritual Skill Check.
+
+### Hidden Truths, Resonance, and Artifacts
+
+Rituals do not automatically reveal everything. Some Rituals, especially **Read Resonance**, read the traces left behind when power presses into the world. This trace is called **Resonance**. Resonance is not the same as generic magic.
+
+Resonance may be left behind by:
+
+- Ritual workings,
+- Artifacts and relics,
+- Wards and Seals,
+- demonic influence,
+- divine residue,
+- necrotic or death-bound power,
+- curses and spiritual bindings,
+- possession pressure,
+- planar or Veil disturbances,
+- and other supernatural scene effects.
+
+Reading Resonance does not reveal exact Powers, Stone choices, Stone colors, character builds, Power names, or mechanical values. 
+It shows that something unnatural, awakened, bound, cursed, divine, demonic, ritualized, or spiritually significant has affected the target or area.
 
 ---
 
-### Ritual Cost
+Powerful items, Artifacts, divine relics, demonic marks, intelligent objects, ancient wards, and spiritually significant places may hide, distort, or selectively reveal information.
 
-Most Rituals cost Stones.
+}}
+\page
+{{pageNumber,auto}}
+{{wide
+An Artifact may only show what it wants to show.  
+A demonic mark may present a false history.  
+A divine relic may conceal its deeper purpose until the bearer proves worthy.  
+A ward may reveal its outer structure while hiding the name of its creator.  
+A place may hold Resonance without revealing who caused it.
 
-When you perform a Ritual, the listed Stones become **Sealed**.
+The GM may divide information into layers.
 
-Sealed Stones cannot be regenerated through normal Stone recovery.  
-They return only after a **Safe Haven Rest**, unless a Ritual says otherwise.
+| Layer | What it may reveal |
+|---|---|
+| **Surface** | Whether Resonance is present, broad type, visible function, obvious category |
+| **Pattern** | Strength, age, state, emotional pressure, origin style, repeated structure |
+| **Structure** | Anchor, binding logic, hidden restriction, dormant power, ward logic, seal logic |
+| **Truth** | True source, real purpose, creator, taint, pact, command phrase, awakening condition |
+| **Secret** | Dangerous or protected knowledge the target actively resists revealing |
 
-The Stone cost represents the character burning part of their awakened essence into the working.
+Ritual Raises determine how many layers the Ritual reaches.
+
+A low-Raise result may reveal only that Resonance exists.  
+A higher-Raise result may reveal what kind of Resonance it is, how strong it is, what it clings to, where it leads, or what truth is hidden beneath it.
+
+Some truths may require a later scene, a stronger connection, a specific key, an Artifact bond, a named source, or a higher-Raise result.
+
+A failed or low-Raise Ritual does not prove that no Resonance exists.
+
+It only means no readable Resonance was found at the achieved result.
 
 ---
 
@@ -11813,461 +12521,417 @@ The Stone cost represents the character burning part of their awakened essence i
 
 Rituals are not combat actions.
 
-A Ritual usually takes **10 minutes to 1 hour**, depending on scope, preparation, and the Ritual entry.
+Unless a Ritual says otherwise, a standard Ritual takes **1 Tyhran Hour**.
 
-A rushed Ritual may be allowed by the GM, but should usually increase the TN by at least **+4**.
+A rushed Ritual may be allowed by the GM.  
+A rushed Ritual usually takes **1 Forearm** and increases the TN by at least **+4**.
+
+A Ritual cannot normally be rushed below **1 Forearm**.
 
 A Ritual interrupted before completion usually fails.
 
 ---
-}}
-\page
-{{pageNumber,auto}}
-{{wide
+
 ### Ritual Failure
 
 If the Ritual Skill Check fails, the Ritual does not produce its intended effect.
 
-The GM may apply a fitting consequence, especially if the Ritual involved dangerous magic, hostile entities, corrupted places, ancient relics, demonic marks, the dead, dreams, or the Veil.
+The Stones paid for the Ritual are still Sealed.
+
+The GM may apply a fitting consequence, especially if the Ritual involved dangerous Resonance, hostile entities, corrupted places, ancient relics, demonic marks, the dead, dreams, or the Veil.
 
 Possible consequences include:
 
-- the Stones are still Sealed
-- the caster suffers Stress
-- the result is incomplete or misleading
-- something notices the caster
-- the target becomes harder to affect again
-- a ward reacts
-- a spirit, demon, relic, or place answers incorrectly or dangerously
-- the caster receives only a symbolic impression instead of useful clarity
+- the caster suffers Stress,
+- the result is incomplete or misleading,
+- something notices the caster,
+- the target becomes harder to affect again,
+- a ward reacts,
+- a spirit, demon, relic, or place answers incorrectly or dangerously,
+- the caster receives only a symbolic impression instead of useful clarity.
 
 Failure should create pressure, not shut down the story.
+}}
 
----
+\page
+{{pageNumber,auto}}
 
+{{wide
 ### Ritual Summary
 
 1. Choose the Ritual.
 2. Determine the **Ritual MR** from the target, creator, owner, artifact, power, scene, or phenomenon.
-3. Set the TN using the normal Skill Check rules.
-4. Check the Ritual’s **Allowed Skill Categories**.
-5. The player describes the Ritual method and chooses one fitting Skill from an allowed category.
-6. Roll the Skill normally.
-7. Spend Skill Points normally after the roll.
-8. If the final result meets or exceeds the TN, the Ritual succeeds.
-9. Count every full **+4 over TN** as **1 Raise**.
-10. Apply the Ritual’s effect based on the number of Raises.
-11. Seal the listed Stones until the next Safe Haven Rest.
-
+3. Set the **Base Ritual TN**: `8 × Ritual MR`.
+4. Choose the declared Ritual Raise Level.
+5. Set the **Ritual Raise TN**: `Base Ritual TN + declared Raises × 4`.
+6. Check the Ritual's **Allowed Skill Categories**.
+7. The player describes the Ritual method and chooses one fitting Skill from an allowed category.
+8. Pay and Seal the listed Stones.
+9. Roll the Skill normally.
+10. Spend Skill Points normally after the roll.
+11. If the final result is below the Base Ritual TN, the Ritual fails.
+12. If the final result meets the Base Ritual TN but misses the Ritual Raise TN, apply only the **Raise 0** effect.
+13. If the final result meets the Ritual Raise TN, apply the declared Raise Level and all lower Raise effects.
 }}
-
-
 
 \page
 {{pageNumber,auto}}
-{{wide
 
-### Detect Magic (Ritual)
-*You attune your senses to the lingering pulse of the unseen. The world bleeds color where power flows.*
+{{wide
+### Read Resonance (Ritual)
+
+*You quiet your senses and listen for the pressure left behind when power touched the world.*
 
 ---
 
-**Type:** Ritual  
-**Cost:** 1 Stone   
-**Duration:** Concentration, up to 10 minutes  
-**Requirement:** The caster must focus eyes or hands upon the area or object.  
+**Type:** Ritual    
+**Ritual Time:** 1 Tyhran Hour  
+**Effect Duration:** Concentration, up to 1 Forearm  
+**Requirement:** The caster must focus on an area, object, threshold, corpse, mark, relic, symbol, wound, seal, or visible phenomenon.  
+**Allowed Skill Categories:** Knowledge & Craft, Survival
+
+---
+
+#### Declared Raises and Effects
+
+| Raise Level | Effect |
+|---|---|
+| **Raise 0** | You learn whether readable Resonance is present within **10 meters**. If Resonance is present, you learn its broad type: **Ritual**, **Artifact**, **Ward**, **Seal**, **Demonic**, **Divine**, **Necrotic**, **Cursed**, **Spiritual**, **Planar**, or **Unknown**. |
+| **Raise 1** | You learn the Resonance's rough strength and state: faint, strong, active, dormant, fresh, old, fading, unstable, concealed, or corrupted. You can tell whether a Ritual was worked here, an Artifact was active here, a Ward or Seal is present, or a demonic or divine influence touched the area. |
+| **Raise 2** | You read the Resonance pattern. You learn what kind of thing the Resonance clings to: a place, object, body, threshold, mark, wound, altar, doorway, weapon, blood, name, or spiritual anchor. You may also learn whether the Resonance was created by protection, binding, hunger, command, sacrifice, death, memory, travel, concealment, or corruption. |
+| **Raise 3** | You may trace one Resonance to its nearest source, anchor, exit point, or strongest remaining direction within **100 meters**, if such a trace still exists. This can reveal that a powerful Artifact was carried away, a Ritual was worked from a specific point, a Seal is anchored elsewhere, or a demonic influence entered through a specific mark or threshold. |
+| **Raise 4** | You pierce common masking, false traces, and concealment. You learn the true dominant Resonance beneath the surface layer, unless it is protected by a stronger story-level ward, Artifact will, divine concealment, demonic deception, or specific GM protection. |
+
+---
+
+#### Limits
+Read Resonance does not detect ordinary hidden creatures, mundane traps, mundane locks, normal tracks, or ordinary lies. It does not identify exact Powers, Stone Powers, Stone colors, character builds, Power names, or mechanical values. It does not replace **Learn Artifact**. Read Resonance can reveal that an Artifact is powerful, awakened, cursed, divine, demonic, bound, dormant, or active. To learn what the Artifact does, how it binds, what it costs, what it wants, or how it awakens, use **Learn Artifact**. A failed or low-Raise Read Resonance does not prove that no Resonance exists. It only means no readable Resonance was found at the achieved result.
+
+> **Danger:** Strong Resonance can answer back.  
+> Demonic marks, divine ruins, intelligent Artifacts, death-bound places, and old Seals may notice when someone listens too closely.
+}}
+
+\page
+{{pageNumber,auto}}
+
+{{wide
+### Locate Object (Ritual)
+
+*You close your eyes and trace a pattern in the air. A pull forms within your mind, guiding you toward what you seek.*
+
+---
+
+**Type:** Ritual    
+**Ritual Time:** 1 Tyhran Hour  
+**Effect Duration:** Concentration, up to 1 Forearm  
+**Requirement:** You must have seen or touched the object, or know its precise form.  
+**Allowed Skill Categories:** Survival, Knowledge & Craft
+
+---
+
+#### Declared Raises and Effects
+
+| Raise Level | Effect |
+|---|---|
+| **Raise 0** | You sense the direction of one specific object you describe within **60 meters**, provided no major ward, consecrated barrier, sealed vault, or Resonance-blocking obstruction blocks the link. |
+| **Raise 1** | The range expands to **300 meters**. You can distinguish between multiple similar items and sense which one best matches your mental image. |
+| **Raise 2** | You receive short sensory flashes from the object's immediate environment, such as smell, texture, temperature, pressure, or nearby sound. |
+| **Raise 3** | The Ritual can reach through thin barriers, shallow ground, or up to **2 meters of stone**. Range extends to **1 kilometer**. |
+| **Raise 4** | You glimpse one brief memory tied to the object, such as who last touched it, where it last rested, or what strong emotion clings to it. Range extends to **5 kilometers**, unless a stronger ward blocks the link. |
+
+#### Limits
+Locate Object finds a specific object or a clearly defined object type. It does not replace Tracking, Investigation, Navigation, or ordinary searching when those methods are sufficient. It does not find people unless they are carrying the specific object being located. It does not identify what an Artifact does. Use **Learn Artifact** for that.
+
+> **Danger:** Powerful, cursed, intelligent, or demonic items may notice your search.
+
+---
+
+### Clairvoyance (Ritual)
+
+*You open a window through distance, letting your mind wander where your body cannot.*
+
+---
+
+**Type:** Ritual    
+**Ritual Time:** 1 Tyhran Hour  
+**Effect Duration:** Concentration, up to 1 Forearm  
+**Requirement:** You must name a place you know or a creature familiar to you.  
 **Allowed Skill Categories:** Knowledge & Craft
 
 ---
 
-#### Raises and Effects
+#### Declared Raises and Effects
 
 | Raise Level | Effect |
-|--------------|---------|
-| **Raise 0 (Base Success)** | You perceive faint *auras* of active or latent magic within 10 meters — basic schools (divine, arcane, natural, infernal). |
-| **Raise 1 (+4 over TN)** | You discern **the strength and structure** of each aura, identifying magical traps, wards, or enchantments. |
-| **Raise 2 (+8 over TN)** | You sense **the emotional tone** or **purpose** behind each magic — protection, control, hunger, sorrow. |
-| **Raise 3 (+12 over TN)** | You may **trace the aura’s path** back to its source (the caster, focus, or leyline) within 100 meters. |
-| **Raise 4 (+16 over TN)** | You **pierce veils and illusions**; hidden or masked magics are revealed in their true form, and for 1 round you can see **into the Fade** (the spirit layer between worlds). |
-
-
-> **Danger:** Extended exposure may attract entities that *notice you noticing them*.  
-> The veil between worlds thins wherever your gaze lingers too long.
----
-:
-### Locate Object (Ritual)
-*You close your eyes, tracing a pattern in the air — a pull forms within your mind, guiding you toward what you seek.*
-
----
-
-**Type:** Ritual  
-**Cost:** 1 Stone  
-**Duration:** Concentration, up to 10 minutes  
-**Requirement:** You must have seen or touched the object, or know its precise form.  
-**Allowed Skill Categories:** Survival
-
----
-
-#### Raises and Effects
-
-| Raise Level | Effect |
-|--------------|---------|
-| **Raise 0 (Base Success)** | You sense the **direction** of a specific object you describe within **60 meters**, provided there is no heavy lead, consecrated, or anti-magic barrier in the way. The sensation is like a faint magnetic pull in your chest or mind. |
-| **Raise 1 (+4 over TN)** | The range expands to **300 meters**. You can distinguish between **multiple similar items** (e.g., several swords) and sense which one matches your mental image. |
-| **Raise 2 (+8 over TN)** | You receive **short sensory flashes** — a smell, texture, or surrounding sound — revealing the object’s **immediate environment**. |
-| **Raise 3 (+12 over TN)** | The ritual penetrates thin wards or shallow ground; you can locate the item **through up to 2 meters of stone** or **one divine barrier**. Range extends to **1 kilometer**. |
-| **Raise 4 (+16 over TN)** | The link deepens: you momentarily **see through the object’s “memory”**, perceiving who last touched it or where it was last resting. The range becomes **5 kilometers**, or unlimited if the object shares your Taint or soul signature. |
-
-
-> **Danger:**  
-> Each use of Locate Object briefly binds your mind to the object’s Echoes.  
-> Powerful or cursed items may *notice* your search — and look back.  
-
-
----
-:
-
+|---|---|
+| **Raise 0** | You project your senses to a known location or familiar creature within **1 kilometer**. You can see from that point as though present, though sight is hazy and colorless. |
+| **Raise 1** | The vision becomes clearer and gains sound. You can faintly hear conversations, movement, and nearby environmental noise. |
+| **Raise 2** | You can shift the viewpoint up to **20 meters** around the initial location, or follow the creature slowly at half walking speed. |
+| **Raise 3** | The image becomes vivid and detailed. You may focus on small objects, writings, symbols, faces, or gestures clearly. |
+| **Raise 4** | You may scry across any distance on the same plane. With a strong sympathetic connection and GM approval, the Ritual may glimpse across a planar boundary. After ending the Ritual, your body remains senseless for a brief moment. |
 }}
-
-
-
 \page
 {{pageNumber,auto}}
 {{wide
-### Augury (Ritual)
-*You cast marked stones, whisper prayers, or let blood fall upon sacred ground — asking the world itself for an omen.*
+#### Limits
+Clairvoyance requires a known place or a familiar creature. It does not reveal hidden truths automatically. It does not bypass story-level wards, divine concealment, demonic deception, Artifact will, or specific GM protection. It does not allow you to act through the vision.
+
+> **Danger:** The farther your awareness reaches, the more likely something notices the thread you left behind.
+
+### Threshold Alarm (Ritual)
+
+*You mark a threshold, camp edge, door, window, or boundary so that the place remembers being crossed.*
 
 ---
 
-**Type:** Ritual  
-**Cost:** 1 Stone   
-**Duration:** 10 minutes  
-**Requirement:** A symbolic medium (bones, ink, blood, sand, runes, ashes).  
-**Allowed Skill Categories:** Survival
+**Type:** Ritual   
+**Ritual Time:** 1 Tyhran Hour  
+**Effect Duration:** Until the next Safe Haven Rest or one day, whichever comes first  
+**Requirement:** You must mark or touch the threshold, boundary, or protected entry point.  
+**Allowed Skill Categories:** Knowledge & Craft, Survival, Social
 
 ---
 
-#### Raises and Effects
+#### Declared Raises and Effects
 
 | Raise Level | Effect |
-|--------------|---------|
-| **Raise 0 (Base Success)** | You receive a vague omen about a specific course of action within the next few hours — the feeling of **Weal (good)**, **Woe (bad)**, **Both**, or **Nothing**. |
-| **Raise 1 (+4 over TN)** | The omen becomes *clearer*: you perceive a short sensory flash (sound, scent, or color) that reflects the likely outcome. |
-| **Raise 2 (+8 over TN)** | You sense **which aspect** of your plan carries the danger — whether it stems from violence, deceit, faith, or chance. |
-| **Raise 3 (+12 over TN)** | The ritual draws the attention of a **spiritual Echoes** (god, demon, or ancestor). You may ask one brief follow-up question — the answer arrives as an image, symbol, or emotion. |
-| **Raise 4 (+16 over TN)** | You temporarily step into the flow of fate itself: you witness one **fragment of a future event** related to your question. The vision costs 1 Vitality Stone and leaves a visible mark (white hair, cracked iris, faint sigil). |
+|---|---|
+| **Raise 0** | Ward one doorway, window, tunnel mouth, room boundary, or camp edge. When a creature crosses it, one named wardkeeper within **1 kilometer** receives a clear alarm. This does not block, harm, slow, or reveal the creature. |
+| **Raise 1** | You may name up to **Mastery Rank** creatures who do not trigger the alarm. |
+| **Raise 2** | The alarm can cover a small house, campsite, chamber, or connected room cluster instead of one entry point. The wardkeeper senses the direction of the breach. |
+| **Raise 3** | The alarm conveys the approximate number and size of creatures crossing the threshold. Mundane stealth does not prevent the alarm. |
+| **Raise 4** | The alarm may wake all named allies inside the warded area. It cannot be silenced or bypassed without overcoming the Ritual TN or using a specific countermeasure. |
 
-
-> **Danger:**  
-> The world dislikes being questioned. Each time you perform *Augury* on the same topic within a day, the veil resists.  
-
----
-:
-### Clairvoyance (Ritual)
-*You open a window through space, letting your mind wander where your body cannot.*
+#### Limits
+Threshold Alarm is not a defensive ward. It does not create Armor, Evade, Temporary HP, concealment, a Safe Haven, or a barrier. It does not stop anyone from entering. It only warns.
 
 ---
 
-**Type:** Ritual  
-**Cost:** 2 Stones (Intellect)  
-**Duration:** Concentration, up to 10 minutes  
-**Requirement:** You must name a **place you know** or a **creature familiar** to you.  
-**Allowed Skill Access:** Knowledge & Craft
+### Seal Passage (Ritual)
+
+*You press power into a door, gate, hatch, tunnel, archway, or ancient seam, telling the world that this way is closed.*
 
 ---
 
-#### Raises and Effects
-
-| Raise Level | Effect |
-|--------------|---------|
-| **Raise 0 (Base Success)** | You project your senses to a location or creature within **1 kilometer** that you know. You can *see* from that point as though present, though sight is hazy and colorless. |
-| **Raise 1 (+4 over TN)** | Vision becomes clearer and gains **sound** — you can faintly hear conversations or movement near the focus. |
-| **Raise 2 (+8 over TN)** | You can **shift the viewpoint** up to 20 meters around the initial location or follow the creature slowly (half walking speed). |
-| **Raise 3 (+12 over TN)** | The image becomes vivid and detailed; you may **zoom** or focus on small objects, writings, or faces clearly. |
-| **Raise 4 (+16 over TN)** | You momentarily *pierce distance itself*: you can scry across **any range**, even another plane. However, for 1 round after ending the ritual, your body is senseless and vulnerable. |
-
-
-> **Danger:**  
-> The world resents eyes that wander too far.  
-> Each use of *Clairvoyance* risks leaving a fragment of your awareness behind.  
-
+**Type:** Ritual    
+**Ritual Time:** 1 Tyhran Hour  
+**Effect Duration:** Until broken, opened, dismissed, or overcome  
+**Requirement:** You must touch the passage, seal, door, gate, hatch, or boundary being affected.  
+**Allowed Skill Categories:** Knowledge & Craft
 
 ---
-
-
 }}
-
-
-
 \page
 {{pageNumber,auto}}
 {{wide
+#### Declared Raises and Effects
+
+| Raise Level | Effect |
+|---|---|
+| **Raise 0** | You seal one accessible mundane passage, such as a door, gate, hatch, window, tunnel mouth, or stone seam. The passage closes and locks without needing a key. If you are attempting to open an existing sealed or forgotten passage, you instead confirm whether such a passage or seal truly exists. |
+| **Raise 1** | The sealed passage cannot be opened by mundane keys, latches, or ordinary handling. It must be forced, ritually opened, dismissed by the caster, or overcome with an appropriate check against the Ritual TN. |
+| **Raise 2** | The sealed passage becomes twice as physically durable. If the object has Health, Structure, or a similar value, double that value for the purpose of breaking through. |
+| **Raise 3** | The sealed passage becomes as hard as solid granite for the purpose of forcing, breaking, burning, cutting, or smashing it. |
+| **Raise 4** | You may use this Ritual to open an existing sealed, hidden, or forgotten passage, but only if such a passage truly exists. This mode costs **3 Stones**. It cannot create a new tunnel, doorway, road, or exit where none exists. |
+
+#### Limits
+Seal Passage does not replace Engineering, lockpicking, digging, or breaking objects by mundane means. It creates or breaks a supernatural seal on an existing passage. Opening mode cannot create a passage where none exists.
+
+### Purify Ground (Ritual)
+
+*You cleanse a place where something wrong has soaked into the world.*
+
+---
+
+**Type:** Ritual   
+**Ritual Time:** 1 Tyhran Hour  
+**Effect Duration:** Instant, with lasting consequences as described by the Raise result  
+**Requirement:** You must remain within the area being purified for the full Ritual.  
+**Allowed Skill Categories:** Knowledge & Craft, Survival, Social
+
+---
+
+#### Declared Raises and Effects
+
+| Raise Level | Effect |
+|---|---|
+| **Raise 0** | Purify a small area, such as a room, grave, altar, blood circle, ritual mark, corpse pile, shrine, or battlefield focus, from surface-level necrotic, demonic, infernal, or corrupt ritual residue. |
+| **Raise 1** | Before the residue fades, you learn its broad type and emotional pressure, such as hunger, fear, command, grief, sacrifice, binding, or desecration. |
+| **Raise 2** | You suppress one minor ongoing scene effect caused by the residue, such as whispers, corpse-stirring, nightmare pressure, ritual sickness, or spiritual contamination. |
+| **Raise 3** | You purify a larger connected site, such as a crypt chamber, ruined shrine, small battlefield, ritual cellar, desecrated house, or corrupted grove. |
+| **Raise 4** | You may break one active residue-anchor, lingering desecration, corpse-binding, or demonic trace if the Ritual MR is high enough for the source. The GM may require a specific focus, name, remains, or symbol. |
+
+#### Limits
+Purify Ground does not create a Safe Haven. It does not hide evidence, remove mundane blood, erase tracks, restore destroyed structures, or undo ordinary consequences. It does not replace First Aid. It does not restore HP, lost Health Levels, or Scarred Health Bars.
+
+---
+}}
+\page
+{{pageNumber,auto}}
+{{wide
+### Learn Artifact (Ritual)
+
+*You study a relic until its surface stops being an object and starts becoming a history.*
+
+---
+
+**Type:** Ritual  
+**Ritual Time:** 1 Tyhran Hour  
+**Effect Duration:** Instant  
+**Requirement:** You must hold, touch, examine, or remain close to the Artifact or relic for the full Ritual.  
+**Allowed Skill Categories:** Knowledge & Craft
+
+---
+
+#### Declared Raises and Effects
+
+| Raise Level | Effect |
+|---|---|
+| **Raise 0** | You learn the Artifact's visible category, basic function, occupied Slot, binding status, and whether it is mundane, Resonant, Echo-bound, cursed, awakened, dormant, or unknown. |
+| **Raise 1** | You learn its origin style, creator tradition, previous owner trace, emotional residue, or broad purpose. |
+| **Raise 2** | You learn one hidden restriction, cost, dormant function, binding rule, warning sign, or danger connected to using or bonding with it. |
+| **Raise 3** | You may learn an awakening condition, command phrase, pact mark, curse logic, hidden limitation, or why the Artifact rejects or accepts a bearer. |
+| **Raise 4** | You reach one deeper truth: true creator, true purpose, concealed taint, secret command, hidden price, or a protected memory the Artifact is willing or forced to reveal. |
+
+#### Limits
+Learn Artifact does not force an intelligent Artifact, divine relic, or demonic object to reveal every secret. Powerful relics may reveal only layers the Ritual reaches. Read Resonance may reveal that an Artifact is powerful or strange. Learn Artifact reveals what that Artifact is, how it binds, what it costs, what it wants, or how it awakens.
+
+### Forgotten Memory (Ritual)
+
+*You touch a place or object and listen for the feelings it could not let go.*
+
+---
+
+**Type:** Ritual    
+**Ritual Time:** 1 Tyhran Hour  
+**Effect Duration:** Concentration, up to 1 Forearm  
+**Requirement:** You must touch the object, location, wall, floor, weapon, relic, or remains being read.  
+**Allowed Skill Categories:** Knowledge & Craft, Social
+
+---
+
+#### Declared Raises and Effects
+
+| Raise Level | Effect |
+|---|---|
+| **Raise 0** | You sense the strongest emotional residue tied to the place or object, such as fear, grief, hunger, relief, rage, devotion, betrayal, or hope. |
+| **Raise 1** | You receive one sensory fragment connected to that residue: sound, smell, touch, color, pressure, taste, or a single image. |
+| **Raise 2** | You witness a brief sequence of events around the memory. The sequence is emotional and symbolic, but it shows what kind of event created the residue. |
+| **Raise 3** | You identify one important person, symbol, object, phrase, direction, or relationship connected to the memory. |
+| **Raise 4** | You step into the memory for a brief moment and experience it from within. If the memory is violent, demonic, death-bound, or horrific, the GM may deal Stress equal to the Ritual MR. |
+}}
+\page
+{{pageNumber,auto}}
+{{wide
+#### Limits
+Forgotten Memory does not use the word Echo because Echo refers to playable ancestry. It reads emotional residue, not objective recordings. A memory may be incomplete, symbolic, distorted, or protected. It cannot prove every factual detail of an event. It cannot replace Investigation when ordinary evidence is available.
+
+---
+
 ### Word of Recall (Ritual)
+
 *You etch a hidden mark of return upon a sanctuary, a promise to the world that you will one day come home.*
 
 ---
 
-**Type:** Ritual  
-**Cost:** 2 Stones (Resolve)  
-**Duration:** Permanent until used  
-**Requirement:** The place must be sanctified by you through prayer, blood, or sacrifice.  
-**Allowed Skill Access:** Survival
+**Type:** Ritual   
+**Ritual Time:** 1 Tyhran Hour  
+**Effect Duration:** Permanent until used, dismissed, broken, or removed  
+**Requirement:** The place must be meaningful to you and prepared through prayer, blood, sacrifice, craft, memory, or witness.  
+**Allowed Skill Categories:** Survival, Knowledge & Craft, Social
 
 ---
 
-#### Raises and Effects
+#### Special Cost Rule
+
+The Stones paid for Word of Recall remain Sealed while the mark exists.
+
+They return only after the mark is used, dismissed, broken, or removed, followed by a Safe Haven Rest.
+
+Activating the mark is not a combat action.
+
+Unless a specific rule says otherwise, activating the recall requires at least **1 Forearm** of focus outside combat.
+
+---
+
+#### Declared Raises and Effects
 
 | Raise Level | Effect |
-|--------------|---------|
-| **Raise 0 (Base Success)** | You bind a spiritual mark to a location within your reach. Once, at any later time, you may instantly return to that exact point. The mark fades upon use. |
-| **Raise 1 (+4 over TN)** | You may **bring one willing ally** who stands within 2 meters of you when the recall is activated. |
-| **Raise 2 (+8 over TN)** | The recall becomes **gentler** — allies arrive unharmed and standing; fragile gear and creatures survive the passage safely. |
-| **Raise 3 (+12 over TN)** | The recall **pierces magical interference** and passes through minor wards, barriers, or sanctums. |
-| **Raise 4 (+16 over TN)** | You create a **lasting bond** between yourself and the chosen sanctuary. Once per week, you may return there without consuming the mark. |
+|---|---|
+| **Raise 0** | You bind a spiritual mark to the location. At a later time, you may return to that exact point. The mark fades when used. |
+| **Raise 1** | You may bring one willing ally who stands within **2 meters** of you when the recall is activated. |
+| **Raise 2** | The recall becomes gentler. Willing allies arrive standing, stable, and with fragile gear intact unless the destination itself is dangerous. |
+| **Raise 3** | The recall can pass through minor wards, interference, or sanctum pressure, unless a stronger effect specifically blocks planar or spatial travel. |
+| **Raise 4** | The mark becomes a lasting bond. It may be used once per week without fading, but the Stones remain Sealed while the bond exists. |
 
-
-> **Danger:**  
-> The world never forgets a mark of return.  
-> Some doors, once opened, do not close cleanly — and sometimes, something else remembers the path you left behind.
-
----
-::
-
-### Greater Restoration (Ritual)
-*Your touch calls forth deep harmony that mends what mortal hands cannot.*
-
----
-
-**Type:** Ritual  
-**Cost:** 2 Stones (Resolve)
-**Duration:** Instant  
-**Requirement:** Continuous contact with the target; the ritual cannot be cast on yourself.  
-**Allowed Skill Access:** Knowledge & Craft
-
----
-
-#### Raises and Effects
-
-| Raise Level | Effect |
-|--------------|---------|
-| **Raise 0 (Base Success)** | You cleanse one major affliction from the target — **Curse, Paralysis, Petrification, Blindness, or Exhaustion**. The soul realigns and pain subsides. |
-| **Raise 1 (+4 over TN)** | You may remove **two lesser effects** (e.g., Poison and Fear) or one additional severe condition of the same type. |
-| **Raise 2 (+8 over TN)** | The restoration extends to **one additional creature** within 2 meters. Both feel a surge of warmth and clarity. |
-| **Raise 3 (+12 over TN)** | The ritual cleanses **spiritual ailments** — madness, memory corruption, or lingering spiritual corruption. |
-| **Raise 4 (+16 over TN)** | You channel divine resonance that **purges even ancient or god-born afflictions**. All nearby allies regain inner balance and emotional clarity. |
-
-
-> **Danger:**  
-> The deeper the wound you touch, the more of it lingers within you.  
-> Some healers swear that the Echoes of the cured still whisper in their dreams.
-
+#### Limits
+Word of Recall cannot target a place you have never reached. It cannot create safety at the destination. It cannot be used as a combat escape unless a specific rule explicitly allows it. It cannot bypass story-level seals, divine locks, demonic anchors, or explicit travel bans unless the GM allows it.
 }}
-
-
 
 \page
 {{pageNumber,auto}}
+
 {{wide
-### Commune (Ritual)
-*Your mind reaches into higher planes, calling out to gods, spirits, and forgotten entities — though few still answer.*
-
----
-
-**Type:** Ritual  
-**Cost:** 2 Stones (Resolve or Influence)  
-**Duration:** 10 minutes  
-**Requirement:** A sacred space, relic, or symbol of the entity you wish to contact.  
-**Allowed Skill Access:** Social
-
----
-
-#### Raises and Effects
-
-| Raise Level | Effect |
-|--------------|---------|
-| **Raise 0 (Base Success)** | You send your plea into the higher realms, asking up to **3 questions**. Each may be answered with *Yes*, *No*, or *Unclear*. Most receive only silence — faint Echoes of once-divine voices. |
-| **Raise 1 (+4 over TN)** | You sense a **presence**, ancient and weary. You may ask **1 additional question**, though the reply may come through signs, symbols, or whispers in your dreams. |
-| **Raise 2 (+8 over TN)** | The communication grows deeper; you hear **multiple voices** or feel the pull of forgotten gods struggling to reach you. Answers are **emotionally charged** rather than verbal. |
-| **Raise 3 (+12 over TN)** | A **vision manifests** — fleeting imagery of the divine plane or the entity’s memory. Your questions may be answered through metaphors or recurring symbols. |
-| **Raise 4 (+16 over TN)** | You momentarily **stand in communion** with what remains of divinity. The experience is overwhelming, radiant, and wordless. You leave marked by faint luminescence or an Echoesing tone in your mind. |
-
-
-> **Lore Note:**  
-> The gods no longer speak as they once did.  
-> Their temples lie in silence, their names half-forgotten.  
-> *Commune* remains as a fragment — a ritual Echoes of an age when faith truly bridged worlds.  
-> Most who attempt it today hear only their own hopes reflected back through the veil.
-
----
-
-::
-
-
-}}
-
-
-
-\page
-{{pageNumber,auto}}
-{{wide
-
-### Atonement (Ritual)
-*You kneel beneath silent skies, offering your pain to the world so it may be cleansed.*
-
----
-
-**Type:** Ritual  
-**Cost:** 2 Stones (Resolve or Wits) + symbolic sacrifice (blood, memory, or vow)  
-**Duration:** 1 hour  
-**Requirement:** The ritual must be performed in solitude or before a sacred witness.  
-**Allowed Skill Access:** Social
-
----
-
-#### Raises and Effects
-
-| Raise Level | Effect |
-|--------------|---------|
-| **Raise 0 (Base Success)** | You purge one **minor moral or spiritual stain** — easing guilt, lightening emotional Taint, or ending a personal geas. |
-| **Raise 1 (+4 over TN)** | You may cleanse one **deeper spiritual affliction or lingering corruption**, if the bearer accepts the emotional consequence (sorrow, tears, or confession). |
-| **Raise 2 (+8 over TN)** | The ritual may include **another willing participant**, allowing reconciliation between souls or forgiveness of old bonds. |
-| **Raise 3 (+12 over TN)** | You channel harmony strong enough to cleanse **a group or place** from lingering corruption or despair. |
-| **Raise 4 (+16 over TN)** | The act of atonement resonates through fate itself; divine Echoes acknowledge the sacrifice, granting momentary serenity to all who took part. |
-
-
-> **Lore Note:**  
-> True atonement cannot be bought — only offered.  
-> Many who attempt it fail, not because the gods refuse, but because they never truly meant to let go.
-
----
-
 ### Dreamwalk (Ritual)
-*You step through the mirror of sleep, drifting into another’s dreams to seek truth or solace.*
+
+*You step through the mirror of sleep, drifting into another's dreams to seek truth, warning, or solace.*
 
 ---
 
-**Type:** Ritual  
-**Cost:** 2 Stones (Resolve or Influence)  
-**Duration:** Up to 10 minutes in the dream (1 hour real time)  
-**Requirement:** The target must be asleep and willing — or their soul unguarded.  
-**Allowed Skill Access:** Social
+**Type:** Ritual    
+**Ritual Time:** 1 Tyhran Hour  
+**Effect Duration:** Up to 1 Forearm inside the dream  
+**Requirement:** The target must be asleep and willing, or their soul must be unguarded with GM approval.  
+**Allowed Skill Categories:** Social, Knowledge & Craft
 
 ---
 
-#### Raises and Effects
+#### Declared Raises and Effects
 
 | Raise Level | Effect |
-|--------------|---------|
-| **Raise 0 (Base Success)** | You enter the target’s **dreamscape**, perceiving symbolic visions of their fears, memories, and desires. You may speak within the dream as a guiding voice. |
-| **Raise 1 (+4 over TN)** | You may **interact** with elements of the dream, reshaping scenes or calming nightmares. |
-| **Raise 2 (+8 over TN)** | You can **communicate directly** with the dreamer’s subconscious; simple messages, forgiveness, or warnings may persist after waking. |
-| **Raise 3 (+12 over TN)** | You glimpse **buried memories** or truths the target hides even from themselves. These may be emotional, not factual. |
-| **Raise 4 (+16 over TN)** | You risk full immersion: walking the dream as if real. The dreamer may see you, and what you change Echoes into waking life. |
+|---|---|
+| **Raise 0** | You enter the target's dreamscape, perceiving symbolic visions of their fears, memories, desires, or current emotional state. You may speak within the dream as a guiding voice. |
+| **Raise 1** | You may interact with elements of the dream, reshape minor symbols, calm a nightmare scene, or create a safe image for conversation. |
+| **Raise 2** | You can communicate directly with the dreamer's subconscious. A simple message, warning, apology, or promise may persist after waking. |
+| **Raise 3** | You glimpse buried memories or truths the target hides even from themselves. These are emotional and symbolic, not guaranteed factual records. |
+| **Raise 4** | You risk full immersion, walking the dream as if real. The dreamer may see you clearly. If the dream is hostile, demonic, cursed, or traumatic, the GM may deal Stress equal to the Ritual MR. |
 
-
-> **Lore Note:**  
-> Dreams are sacred reflections of the soul.  
-> To walk within them is an act of intimacy and danger — for every dream you change, changes you in return.
+#### Limits
+Dreamwalk cannot rewrite a mind. It cannot cure trauma by itself. It cannot force a protected target to reveal secrets without appropriate MR, Raise Level, and GM approval. It cannot control the dreamer. It cannot replace Social Skills, therapy, confession, or player choice.
 
 ---
-}}
-
-
-
-\page
-{{pageNumber,auto}}
-{{wide
-
 
 ### Last Light (Ritual)
-*You kindle a flame for the fallen, guiding their soul beyond the veil so it may rest.*
+
+*You kindle a flame for the fallen, guiding what remains beyond the veil so it may rest.*
 
 ---
 
 **Type:** Ritual  
-**Cost:** 1 Stone (Resolve or Intellect) + candle, ash, or token of the deceased  
-**Duration:** 30 minutes  
-**Requirement:** Performed within sight of the body, grave, or relic of the dead.  
-**Allowed Skill Access:** Social
+**Ritual Time:** 1 Tyhran Hour  
+**Effect Duration:** Instant, with lasting consequences as described by the Raise result  
+**Requirement:** Performed within sight of the body, grave, ashes, relic, or death-place of the deceased.  
+**Allowed Skill Categories:** Social, Knowledge & Craft
 
 ---
 
-#### Raises and Effects
+#### Declared Raises and Effects
 
 | Raise Level | Effect |
-|--------------|---------|
-| **Raise 0 (Base Success)** | You perform a rite that **severs the soul’s lingering ties**, ensuring peaceful passage and preventing undeath or spiritual corruption. |
-| **Raise 1 (+4 over TN)** | The ritual **purifies the area** from necrotic influence; lesser undead within 10 meters falter or fade. |
-| **Raise 2 (+8 over TN)** | You may **carry a message** from the living to the dead — a final word, forgiveness, or farewell. |
-| **Raise 3 (+12 over TN)** | The spirit may **manifest briefly**, sharing one vision or phrase before vanishing beyond reach. |
-| **Raise 4 (+16 over TN)** | The rite binds the place itself: the ground becomes **hallowed**, forever resistant to desecration or necromancy. |
-
-
-> **Lore Note:**  
-> The Last Light is not for the dead — it is for those left behind.  
-> Each flame burns a fragment of memory, until grief becomes warmth instead of pain.
-
+|---|---|
+| **Raise 0** | You perform a rite that severs the soul's lingering ties, helping it pass peacefully and preventing ordinary undeath or spiritual corruption from taking hold. |
+| **Raise 1** | The immediate burial area is purified from minor necrotic residue, corpse-stirring, grave whispers, or restless spiritual pressure. |
+| **Raise 2** | You may carry one short message from the living to the dead, such as farewell, forgiveness, warning, or love. |
+| **Raise 3** | If the spirit is willing or able, it may manifest briefly, sharing one phrase, image, emotion, or final impression before passing beyond reach. |
+| **Raise 4** | The grave, body, or death-place becomes hallowed against future desecration or necromantic use unless overcome by a stronger effect. |
 }}
-
-
-
 \page
 {{pageNumber,auto}}
 {{wide
-### Raise Dead (Ritual)
-*You call a soul back across the veil of death, trading your vitality for theirs — a plea the world no longer welcomes.*
-
----
-
-**Type:** Ritual  
-**Cost:** 8 Stones (Resolve or Influence) + rare sacrifice (blood, relic, or life-force)  
-**Duration:** 1 hour  
-**Requirement:** The body must be mostly intact, and death cannot exceed seven days.  
-**Allowed Skill Access:** Knowledge & Craft  
-
----
-
-#### Raises and Effects
-
-| Raise Level | Effect |
-|--------------|---------|
-| **Raise 0 (Base Success)** | The soul returns, fragile and confused. The body awakens with trembling breath, bearing the mark of death in its eyes. The revived creature suffers lingering weakness and memory gaps. |
-| **Raise 1 (+4 over TN)** | The returning soul regains **clarity and vitality** faster, waking with mind and spirit mostly intact. |
-| **Raise 2 (+8 over TN)** | The ritual extends to those dead for up to **one month**, though the process drains your own vitality for days. |
-| **Raise 3 (+12 over TN)** | The return is cleaner: no corruption, no madness. You may restore a creature whose body was damaged or incomplete, if you possess a true relic or soul-bound fragment. |
-| **Raise 4 (+16 over TN)** | You call a spirit from *beyond the known planes*, restoring even those long lost — but something ancient always notices. Shadows whisper your name for nights to come. |
-.
-
-> **Lore Note:**  
-> In this age, no one dares perform this ritual.  
-> The dead are meant to rest,to call them back is an act of blasphemy and hubris.  
-> Once, resurrection was punishable by death; now it is feared for a darker reason.  
-> Those who tear open the veil risk drawing the gaze of the **Lich-King**, ancient stewards of the grave, who despise any soul that refuses to stay buried.  
-> Even whispering the rite’s name invites unease.  
-> Most temples burned their resurrection scripts centuries ago.
-
----
-::
-> ### Edict of the Last Breath  
-> *Issued by the Sanctum of White Ash, Year 243 Before the Sundering*  
-> 
-> “To disturb the silence of the grave is to tear a thread from the Loom of the World.  
-> No soul returns unscarred.  
-> The body may walk, the voice may speak, but the light that once guided it is dimmed forever.”  
-> 
-> Since the fall of the old gods, resurrection has been forbidden across the known realms.  
-> Those who rise again are not wholly themselves — their laughter fades, their dreams grow still,  
-> and the chill of the grave clings to their touch.  
-> Some hear whispers from beneath the soil, others see the world half-veiled, as though part of them never left the dark.  
-> 
-> Priests once said that the dead who return *borrow their warmth from the living.*  
-> Now, no priest dares speak the rite aloud.  
-> For each life recalled, something else slips quietly into the world in its place.
+#### Limits
+Last Light is not resurrection. It cannot call the dead back to life. It does not destroy active undead enemies by itself. It does not create a Safe Haven. It helps the dead pass on and helps prevent ordinary undeath or spiritual corruption from taking hold.
 
 }}
-
-
-
 \page
 {{pageNumber,auto}}
 {{wide
@@ -12331,7 +12995,10 @@ Bonus Summon Tokens granted by a Passive, Artifact, Active Buff, or other explic
 The Base Summon is intentionally simple. Tokens determine whether it becomes a durable guardian, an elite attacker, a scout, a group of weak bodies, or another concept.
 
 ---
-
+}}
+\page
+{{pageNumber,auto}}
+{{wide
 ### One Movement Mode
 
 When the Summon Bond is created, choose exactly **one Movement Mode** that fits its Expression:
@@ -12409,7 +13076,10 @@ It then uses the Bond's Attack, Damage, Movement, Summon Attacks, Special, and S
 HP, Armor, Evade, Attack, and Damage have no separate Summon maximum. Their practical limit is the available Token investment.
 
 ---
-
+}}
+\page
+{{pageNumber,auto}}
+{{wide
 ### Multiple Bodies and Summon Attacks
 
 Additional Bodies do not grant additional Summon Attacks by themselves.
@@ -12417,6 +13087,16 @@ Additional Bodies do not grant additional Summon Attacks by themselves.
 All Bodies share one Summon Activation and the number of Summon Attacks purchased for the Bond.
 
 Each available Summon Attack may be made by any active Body. Several attacks may be made by the same Body or divided between different Bodies.
+
+#### Summon Attack Rolls
+
+Whenever a normal Summon Attack or a purchased Power requires an Attack Roll or Spell Roll, use:
+
+`Summon Attack Roll = Bond Attack Dice k owner's Mastery Rank`
+
+The Keep value can never exceed the number of Bond Attack Dice actually rolled. All Bodies in the Bond use the same Bond Attack Dice and the owner's Mastery Rank for these rolls.
+
+A normal Summon Attack deals the Bond's Damage and may apply the Bond's eligible Special, subject to the once-per-Round Special limit below.
 
 If the Bond has a Special, that Special may apply only **once per Round**, regardless of how many Bodies or Summon Attacks the Bond has.
 
@@ -12506,7 +13186,10 @@ The Bond has bought 4 Skill Dice. It may distribute them as:
 It could instead assign all 4 dice to Perception, but it could not assign 4 dice to Stealth because the owner's Stealth Rating is only 3.
 
 ---
-
+}}
+\page
+{{pageNumber,auto}}
+{{wide
 ### Summon Skill Checks
 
 When a Summon independently performs a selected Skill task, roll its assigned Skill Dice and keep dice equal to the owner's Mastery Rank.
@@ -12556,10 +13239,12 @@ If a Summon needs a special combat ability, it buys a complete existing Power fr
 
 Use the Power's own written PP calculation. The Power keeps its normal Type, requirements, range, duration, trigger, effect, limitations, and action economy.
 
+The table below is a shortcut for the standard Power cost curves. If a Power uses a different written PP calculation, use the Power's written PP value and the general formula above.
+
 #### Standard Power Cost Reference
 
 | **Power Type** | **Summon Token Cost** |
-|---|---:|
+|---|:---:|
 | Active | 3 Tokens per Power Level |
 | Passive | 2 Tokens per Power Level |
 | Reaction | 2 Tokens per Power Level |
@@ -12579,7 +13264,7 @@ A purchased Power is assigned to one specific Body.
 
 The Body must meet every requirement of the Power. A natural attack may satisfy an **Unarmed** requirement, but it is not automatically a Melee Weapon, Ranged Weapon, Spell Focus, shield, or other required item.
 
-A Summon has no normal Attributes. If a Power requires an Attack Roll or Spell Roll, use the Bond's Attack pool. A Power that requires an Attribute, resource, item, or subsystem the Summon does not possess cannot be purchased or used unless an explicit rule provides the missing requirement.
+A Summon has no normal Attributes. If a Power requires an Attack Roll or Spell Roll, roll the Bond's Attack Dice and keep dice equal to the owner's Mastery Rank. The Keep value can never exceed the number of Bond Attack Dice actually rolled. A Power that requires an Attribute, resource, item, or subsystem the Summon does not possess cannot be purchased or used unless an explicit rule provides the missing requirement.
 
 ---
 
@@ -12606,7 +13291,10 @@ The Special applies only when a Summon Attack hits and may apply only once per R
 A canonical Power applies only the Special written in that Power and follows the Power's normal rules. It does not grant permanent Special Access to the Bond's normal attacks.
 
 ---
-
+}}
+\page
+{{pageNumber,auto}}
+{{wide
 ### Bond Ritual and Destroyed Bodies
 
 A Bond Ritual takes **1 hour**.
@@ -12634,19 +13322,18 @@ When the Bond is released through a Bond Ritual, its Bound Stones return to the 
 
 ### Summon Active Buffs
 
-Summon Active Buffs cast by the owner affect only that owner's Summons and use the owner's normal maintained Active Buff slot.
+The dedicated Summon Active Buffs are:
 
-**Summon Damage Aura** uses the normal Damage Active Buff progression.  
-**Summon Armor Aura** uses the normal Armor Active Buff progression.
+- **Active Buff: Summon Damage Aura**
+- **Active Buff: Summon Armor Aura**
 
-Both use the following Summon-only radius:
+They use their complete Power Level profiles, bonuses, radii, restrictions, and timing from the <a href="https://homebrewery.naturalcrit.com/share/-LDVoC64w7wX" target="_blank" rel="noopener noreferrer">Active Buffs catalogue</a>.
 
-| **Power Level** | **Radius** |
-|:--:|:--:|
-| 1-4 | 8 m |
-| 5-8 | 16 m |
-| 9-12 | 24 m |
-| 13-16 | 32 m |
+Do not use the progression or radii of **Active Buff: Damage** or **Active Buff: Armor** for these Powers.
+
+Both affect only the caster's own Summons and use the owner's maintained Active Buff slot. Each Summon must meet all radius and eligibility requirements in the catalogue.
+
+The Bond's maintained Active Buff slot and the owner's maintained Active Buff slot are separate. A Summon Body may benefit from an Active Buff maintained by its Bond and from a Summon Aura maintained by its owner at the same time. The owner may still maintain only one Active Buff at a time, so **Active Buff: Summon Damage Aura** and **Active Buff: Summon Armor Aura** cannot normally be maintained simultaneously.
 
 ---
 }}
@@ -12690,7 +13377,10 @@ Distribute the four Skill Dice as **Perception 2d8** and **Stealth 2d8**, assumi
 The Owl is a complete scout with one Stone. It can observe independently or act as a remote sensory position for its owner.
 
 ---
-
+}}
+\page
+{{pageNumber,auto}}
+{{wide
 ### Great War Bear - 4 Bound Stones
 
 **Concept:** A durable tank and heavy melee attacker.
@@ -12754,7 +13444,10 @@ The Bear is difficult to remove, dangerous in melee, and can pressure one enemy 
 The seven Skeletons occupy separate spaces and may move independently during the shared activation. The Bond still makes no more than three attacks per Round. The remaining Bodies provide presence, positioning, and additional targets without multiplying the action economy.
 
 ---
-
+}}
+\page
+{{pageNumber,auto}}
+{{wide
 ### Shadow Panther - 2 Bound Stones
 
 **Concept:** A fast, elusive predator inspired by an elite magical panther companion.
@@ -12770,7 +13463,7 @@ The seven Skeletons occupy separate spaces and may move independently during the
 | +2d8 Attack | 2 Tokens |
 | +1d8 Damage | 2 Tokens |
 | +4 m Movement | 2 Tokens |
-| Momentum Passive, Power Level 2 | 4 Tokens |
+| Conditional Passive: Damage (Moved 8+ m This Turn), Power Level 2 | 4 Tokens |
 | 4 Summon Skill Dice | 2 Tokens |
 | **Total** | **16 Tokens** |
 
@@ -12785,9 +13478,9 @@ Assign the four Skill Dice to **Stealth 4d8**, assuming the owner has Stealth 4 
 - Damage 2d8
 - 12 m Walking Movement
 - Stealth 4kMR
-- Momentum at Power Level 2
+- Conditional Passive: Damage (Moved 8+ m This Turn) at Power Level 2
 
-After moving at least 8 m, the Panther gains the normal Momentum effect. Its pouncing predator identity therefore comes from a complete canonical Passive rather than an invented Summon-only ability.
+After moving at least 8 m during its turn, the Panther gains **+2d6 Damage** on all damage rolls it makes until the end of that turn. Its pouncing predator identity therefore comes from a complete canonical Passive rather than an invented Summon-only ability.
 
 ---
 
@@ -12803,7 +13496,70 @@ The same Summon system can create:
 No example requires a separate Chassis, class, or private subsystem.
 
 ---
+}}
 
+\page
+{{pageNumber,auto}}
+{{wide
+## Minor Magic Items
+
+Minor Magic Items allow characters to store their own eligible Active Powers in temporary magical objects. A Minor Magic Item may take any appropriate form, such as a potion, grenade, rune, prepared weapon, mechanical trap, or enchanted charm.
+
+The chosen form does not change the stored Power.
+
+### Creating Minor Magic Items
+
+During a Safe Haven Rest, a character may create, replace, or dismiss Minor Magic Items. A character may maintain a number of Minor Magic Items equal to their **Mastery Rank**. Each Minor Magic Item stores one use of a single eligible Active Power and counts against this limit until it is used, triggered, destroyed, or dismissed.
+
+An **eligible Active Power** is an Active Power the creator currently has on their character as one of their own Powers when the item is created. A Power belonging only to another creature cannot be copied. Only Active Powers may be stored. Active Buffs, Passives, Reactions, Movement Powers, Rituals, Stone Abilities, Artifact Functions, and other Power types are not eligible.
+
+The stored Active Power must have an **Instant** duration. A Power with a persistent or duration-based effect cannot be stored, including a persistent zone, barrier, construct, terrain effect, image, aura, or similar ongoing effect.
+
+Minor Magic Items cannot store or reproduce Health Level Recovery, Stone Refresh, Safe Haven Rest resources or uses, or any other resource recovery tied to a Safe Haven Rest. If an otherwise eligible Active Power includes both an allowed immediate effect and one of these excluded effects, the excluded effect is not stored.
+
+Creating a Minor Magic Item requires no Stones, currency, or special materials. Any object or weapon included in its description must be present, but provides no mechanical benefits. An empty place within this limit can only be filled during a Safe Haven Rest. Existing Minor Magic Items may be retained and continue to count against the creator’s limit, even if they are carried by another character.
+
+### Stored Values
+
+The Minor Magic Item records the Power at the moment of its creation, including:
+
+* Its current Power Level.
+* Its purchased Effects and Specials.
+* The creator’s relevant Attack Pool.
+* The creator's relevant Keep value.
+* Its Damage, Healing, Area, Targets, and other Power values.
+
+Later changes to the character or Power do not alter an existing Minor Magic Item.
+
+The recorded Keep value is the Keep value the creator had when the item was created. It remains unchanged even if the creator's Mastery Rank or other values later change.
+
+The item stores and resolves only the pure Active Power. Temporary bonuses, Active Buffs, auras, Artifact Effects, Weapon Damage Dice, Weapon Specials, and other modifiers that are not part of the stored Power are ignored both when the item is created and when it resolves.
+
+If the stored Power requires an attack, the attack is rolled normally using the recorded Attack Pool and recorded Keep value. A Minor Magic Item does not hit automatically.
+
+An offensive Minor Magic Item deals only the Damage of the stored Power. It never adds the Damage Dice or Specials of a weapon used as its physical form. Specials purchased as part of the Power still apply.
+
+A Single Target Power remains Single Target. It does not become an Area Power merely because the Minor Magic Item is described as a grenade or explosive device.
+}}
+
+\page
+{{pageNumber,auto}}
+{{wide
+### Using Minor Magic Items
+
+A Minor Magic Item may be activated directly or prepared as a Trap. Activating or arming it requires the same type of Action as the stored Power.
+
+When prepared as a Trap, the character determines its location, orientation, affected area, and one simple trigger. When that trigger occurs, the stored Power resolves from the Trap’s location using its recorded values.
+
+If several prepared Traps share a trigger and that trigger occurs, all of them trigger. Resolve each Trap separately using its own recorded values. There is no once-per-Round limit on the number of Traps that can trigger at the same time.
+
+Minor Magic Items are an explicit exception to the normal Power Use Limit. Each item is one independent stored use. Using or triggering one item does not mark the creator's or activator's own copy of the Power as used, and it does not spend or prevent the use of another item with the same Technical Reference. Any number of items with the same or different Technical References may therefore be used in the same Round if their Actions or triggers allow it.
+
+After the Power has resolved, the Minor Magic Item loses its magic and no longer counts against the creator’s limit.
+
+> ##### Example: Prepared Crossbow
+>
+> A character stores their **Ranged Single Target Attack** in a loaded crossbow and places it as part of an ambush. When a creature enters the chosen area, the stored Attack Pool is rolled with the Keep value recorded when the Trap was created. On a hit, the Trap deals the Damage and applies the Specials of the stored **Ranged Single Target Attack**. The crossbow’s Weapon Damage Dice and Weapon Specials are not added.
 
 }}
 
@@ -12978,9 +13734,23 @@ Each declared Spell Raise costs **MR** from the Spell's damage dice pool or Spec
 
 The caster chooses where the cost comes from.
 
-**Rituals / Echo Cards**
+**Ritual Raises**
 
-Ritual and Echo Card Raises are counted after the roll.
+Ritual Raises are declared before rolling.
+
+Each declared Ritual Raise increases the required Ritual Raise TN by **+4**.
+
+Pay and Seal the full Stone cost of the declared Ritual Raise Level before rolling.
+
+- Below the Base Ritual TN, the Ritual fails.
+- If the result meets the Base Ritual TN but misses the Ritual Raise TN, apply only the **Raise 0** effect. The full declared Stone cost remains Sealed.
+- If the result meets the Ritual Raise TN, apply the declared Raise effect and all lower Raise effects.
+
+Only declared Ritual Raises can take effect. Extra margin does not unlock undeclared Raise Levels.
+
+**Echo Cards**
+
+Echo Card Raises are counted after the roll unless the card says otherwise.
 
 Every full **+4 over TN** equals **1 Raise**.
 
@@ -13007,6 +13777,8 @@ A Reaction is used outside your Turn when its trigger happens.
 A specific Power can be used only **once per round**.
 
 After you use a Power, it is spent until the start of the next round.
+
+Power identity is determined by the base Technical Reference, not by the character-facing name, source, or current PL.
 
 This applies to Actives, Active Buffs, Reactions, Movement Powers, and other named Power effects.
 
@@ -13043,7 +13815,7 @@ Initiative is not rolled again each round unless a rule explicitly allows it.
 After rolling Initiative, you may spend points from your Initiative Score.
 
 | Cost | Effect |
-|---:|---|
+|:---:|---|
 | 4 | Gain +2 m Movement this Round. |
 | 8 | Initiative Swap with one willing player. |
 | 12 | Gain +1 extra Reaction this Round. Max once per Round. |
@@ -13576,6 +14348,42 @@ Cleanse may reduce Root normally. When Root reaches **0**, it ends.
 
 ---
 
+#### Exorcism(X)
+
+**Type:** Diminishing (X→0)
+
+---
+**Stacking:** Yes
+
+---
+**Cleanse:** Yes
+
+---
+**Valid Target:** Fiend only
+
+---
+**Effect:** Exorcism is a targeted ongoing damage Special. A creature without the **Fiend** tag cannot receive Exorcism. At Tick, a Fiend affected by Exorcism takes **X damage**. Exorcism damage ignores Armor unless a rule says otherwise. At the start of the affected creature's turn, after the Tick, Exorcism decays by **1**. If Exorcism reaches **0**, it ends.
+
+---
+
+#### Requiem(X)
+
+**Type:** Diminishing (X→0)
+
+---
+**Stacking:** Yes
+
+---
+**Cleanse:** Yes
+
+---
+**Valid Target:** Undead only
+
+---
+**Effect:** Requiem is a targeted ongoing damage Special. A creature without the **Undead** tag cannot receive Requiem. At Tick, an Undead creature affected by Requiem takes **X damage**. Requiem damage ignores Armor unless a rule says otherwise. At the start of the affected creature's turn, after the Tick, Requiem decays by **1**. If Requiem reaches **0**, it ends.
+
+---
+
 #### Slow(X)
 
 **Type:** Diminishing (X→0)
@@ -13852,35 +14660,6 @@ Forced movement does not trigger Lacerate unless a Power explicitly says otherwi
 
 ---
 
-#### Exorcism(X)
-
-**Type:** Diminishing
-
----
-**Stacking:** Yes
-
----
-**Cleanse:** Yes
-
----
-**Effect:** Exorcism can be applied only to a creature with the **Fiend** tag. At the start of the affected creature's turn, take **X** damage (ignores Armor unless a rule says otherwise), then reduce X by 1.
-
----
-
-#### Requiem(X)
-
-**Type:** Diminishing
-
----
-**Stacking:** Yes
-
----
-**Cleanse:** Yes
-
----
-**Effect:** Requiem can be applied only to a creature with the **Undead** tag. At the start of the affected creature's turn, take **X** damage (ignores Armor unless a rule says otherwise), then reduce X by 1.
-
----
 }}
 
 \page

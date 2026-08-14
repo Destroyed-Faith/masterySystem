@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.330] - 2026-08-14
+
+### Changed
+
+- **Player's Guide:** Synced to the current Homebrewery source. Technical names and Movement prefixes are aligned; the PP table is a shortcut when written PP differs; Bond and owner Active Buff slots are separate; the Heal example uses Melee or Ranged Single Target Heal.
+- **Movement:** Trample no longer cites Special Overdrive. It cites Active Buff: Special Increase.
+
 ## [0.9.329] - 2026-08-13
 
 ### Changed
