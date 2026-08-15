@@ -66,6 +66,7 @@ import {
   normalizeWeaponNameKey,
 } from './utils/item-icons.js';
 import { actorHasPostCreationSnapshot, resetActorProgressToPostCreation } from './utils/xp-post-creation.js';
+import { openXpHistoryDialog } from './utils/xp-history.js';
 import { getPowerDefinitionRank } from './utils/power-definition-rank.js';
 import { applyMasteryStatusEffects } from './system/status-effects.js';
 import { registerTemplatesCutoverSetting, runTemplatesCutover } from './migrations/templates-cutover.js';
@@ -2149,62 +2150,8 @@ function setupXpManagementInline() {
         ui.notifications?.error('Character not found.');
         return;
       }
-      
-      const xpState = getXpState(actor);
-      const history = xpState.history.slice(-50).reverse(); // Last 50, newest first
-      
-      let historyContent = '<div class="xp-history-dialog">';
-      historyContent += `<h3>XP History: ${actor.name}</h3>`;
-      historyContent += '<table class="xp-history-table"><thead><tr>';
-      historyContent += '<th>Time</th><th>Kind</th><th>Category</th><th>Amount</th><th>Note/Details</th>';
-      historyContent += '</tr></thead><tbody>';
-      
-      if (history.length === 0) {
-        historyContent += '<tr><td colspan="5" class="empty-message">No history entries.</td></tr>';
-      } else {
-        history.forEach((entry: any) => {
-          const date = new Date(entry.ts);
-          const timeStr = date.toLocaleString();
-          const detailsStr = entry.details ? JSON.stringify(entry.details, null, 0).substring(0, 100) : (entry.note || '—');
-          historyContent += `<tr>`;
-          historyContent += `<td>${timeStr}</td>`;
-          historyContent += `<td>${entry.kind}</td>`;
-          historyContent += `<td>${entry.category}</td>`;
-          historyContent += `<td>${entry.amount}</td>`;
-          historyContent += `<td title="${detailsStr.length > 100 ? detailsStr : ''}">${detailsStr.length > 50 ? detailsStr.substring(0, 50) + '...' : detailsStr}</td>`;
-          historyContent += `</tr>`;
-        });
-      }
-      
-      historyContent += '</tbody></table>';
-      
-      if ((game as any).user?.isGM && history.length > 0) {
-        historyContent += '<div class="history-actions">';
-        historyContent += `<button type="button" class="clear-history-btn" data-character-id="${characterId}">Clear History</button>`;
-        historyContent += '</div>';
-      }
-      
-      historyContent += '</div>';
-      
-      new Dialog({
-        title: `XP History: ${actor.name}`,
-        content: historyContent,
-        buttons: {
-          close: {
-            label: 'Close',
-            callback: () => {}
-          }
-        },
-        default: 'close',
-        render: (html: JQuery) => {
-          html.find('.clear-history-btn').on('click', async () => {
-            await actor.update({ 'system.xp.history': [] });
-            ui.notifications?.info(`Cleared XP history for ${actor.name}.`);
-            app.render();
-            html.closest('.dialog').find('.close').click();
-          });
-        }
-      }).render(true);
+
+      openXpHistoryDialog(actor, { onCleared: () => app.render() });
     });
 
     customContainer.find('.reset-progress-xp-btn').on('click', async (event) => {

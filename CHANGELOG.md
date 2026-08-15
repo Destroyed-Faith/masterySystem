@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.334] - 2026-08-15
+
+### Changed
+
+- **XP History:** Each spend is its own row (attribute, skill, power, artifact). Old batched confirms expand when shown. The history window is resizable.
+
 ## [0.9.333] - 2026-08-15
 
 ### Changed

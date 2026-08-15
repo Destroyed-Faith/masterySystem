@@ -594,3 +594,69 @@
 .mastery-xp-management .characters-list {
   overflow-x: auto;
 }
+
+.xp-history-app {
+  min-width: 640px;
+  min-height: 360px;
+}
+
+.xp-history-app .window-content,
+.xp-history-app .dialog-content {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.xp-history-dialog {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  min-height: 0;
+  height: 100%;
+}
+
+.xp-history-hint {
+  margin: 0;
+  font-size: 0.85rem;
+  opacity: 0.8;
+}
+
+.xp-history-table-wrap {
+  flex: 1 1 auto;
+  min-height: 220px;
+  overflow: auto;
+  border: 1px solid #d8d0c6;
+  border-radius: 6px;
+  background: #fff;
+}
+
+.xp-history-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.xp-history-table th,
+.xp-history-table td {
+  padding: 0.4rem 0.55rem;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+  vertical-align: top;
+}
+
+.xp-history-table th {
+  position: sticky;
+  top: 0;
+  background: #f7f4f0;
+  z-index: 1;
+}
+
+.xp-history-table .xp-history-amount {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.xp-history-dialog .history-actions {
+  display: flex;
+  justify-content: flex-end;
+}

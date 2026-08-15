@@ -104,6 +104,7 @@ import {
   calculateSingleSkillPendingXpNet,
   calculateSkillPendingNetCost,
 } from '../progression/progression-hub-actions.js';
+import { appendXpHistory, buildBandedStepEntries, currentXpUser } from '../utils/xp-history.js';
 import type { MinorExpressionAttribute } from '../utils/minor-expressions.js';
 import { isEchoBoundArtifact, isEchoArtifactInventoryHidden } from '../utils/echo-artifact-equip.js';
 // Removed: showWeaponCreationDialog, showArmorCreationDialog, showShieldCreationDialog
@@ -3148,26 +3149,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
   }
 
   /**
-   * Push XP history entry and truncate to last 200 entries
-   */
-  #pushXpHistory(actor: any, entry: any): void {
-    const system = actor.system || {};
-    if (!system.xp) {
-      system.xp = { totalEarned: 0, totalSpent: 0, history: [] };
-    }
-    if (!system.xp.history) {
-      system.xp.history = [];
-    }
-    
-    system.xp.history.push(entry);
-    
-    // Truncate to last 200 entries
-    if (system.xp.history.length > 200) {
-      system.xp.history = system.xp.history.slice(-200);
-    }
-  }
-
-  /**
    * Handle pending attribute increase (XP distribution mode)
    */
   async #onAttributeIncreaseXP(event: JQuery.ClickEvent) {
@@ -3397,68 +3378,11 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     
     const xpState = this.#getXpState(this.actor);
     const totalNetCost = this.#calculateAttributePendingNetCost(this._pendingAttributeChanges);
-    const attributeKeys = ['might', 'agility', 'vitality', 'intellect', 'resolve', 'influence', 'wits'];
-    const attributeChanges: Array<{ attr: string; from: number; to: number; cost: number }> = [];
-
-    for (const attrKey of attributeKeys) {
-      const pending = this._pendingAttributeChanges[attrKey] || 0;
-      if (!pending) continue;
-      const currentValue = this.actor.system.attributes[attrKey]?.value || 0;
-      const newValue = currentValue + pending;
-      let attrCost = 0;
-      if (pending > 0) {
-        for (let i = 0; i < pending; i++) {
-          attrCost += this.#calculateAttributeCost(currentValue + i);
-        }
-      } else {
-        for (let i = 0; i < Math.abs(pending); i++) {
-          const dropFrom = currentValue - i;
-          const baseline = this.#getAttributeXpBaseline(attrKey);
-          if (dropFrom <= baseline) break;
-          attrCost -= this.#calculateAttributeCost(dropFrom - 1);
-        }
-      }
-      attributeChanges.push({ attr: attrKey, from: currentValue, to: newValue, cost: attrCost });
-    }
-
-    const beforeState = {
-      available: xpState.available,
-      totalEarned: xpState.totalEarned,
-      totalSpent: xpState.totalSpent,
-    };
 
     const result = await applyAttributePendingChanges(this.actor, this._pendingAttributeChanges);
     if (!result.ok) {
       (ui as any).notifications?.error(result.error || 'Could not apply attribute changes.');
       return;
-    }
-
-    const user = (game as any).user;
-    if (attributeChanges.length > 0) {
-      const afterXp = this.#getXpState(this.actor);
-      const historyEntry = {
-        ts: Date.now(),
-        userId: user?.id || '',
-        userName: user?.name || 'System',
-        kind: (totalNetCost > 0 ? 'spend' : 'adjust') as 'spend' | 'adjust',
-        category: 'attribute' as const,
-        amount: Math.abs(totalNetCost),
-        details: { changes: attributeChanges, netCost: totalNetCost },
-        note:
-          totalNetCost < 0
-            ? 'refund via attribute decrease'
-            : totalNetCost === 0
-              ? 'attribute redistribution (0 net XP)'
-              : undefined,
-        before: beforeState,
-        after: {
-          available: afterXp.available,
-          totalEarned: afterXp.totalEarned,
-          totalSpent: afterXp.totalSpent,
-        },
-      };
-      this.#pushXpHistory(this.actor, historyEntry);
-      await this.actor.update({ 'system.xp.history': this.actor.system.xp.history });
     }
 
     this._pendingAttributeChanges = {};
@@ -3749,6 +3673,14 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       totalEarned: xpState.totalEarned,
       totalSpent: xpState.totalSpent,
     };
+    const powerLevelsBefore: Record<string, number> = {};
+    const powerNamesBefore: Record<string, string> = {};
+    for (const powerId of Object.keys(this._pendingPowerLevelChanges)) {
+      const item = this.actor.items.get(powerId);
+      if (!item) continue;
+      powerLevelsBefore[powerId] = Number((item.system as any)?.level ?? 1) || 1;
+      powerNamesBefore[powerId] = String(item.name || powerId);
+    }
 
     // Track power changes for history
     const powerChanges: Array<{powerId: string; powerName: string; from: number; to: number; cost: number}> = [];
@@ -3855,30 +3787,25 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       updates['system.xp.history'] = [];
     }
 
-    await this.actor.update(updates);
-
-    // Add history entry
-    const user = (game as any).user;
-    if (Math.abs(netCost) > 0) {
-      const historyEntry = {
-        ts: Date.now(),
-        userId: user?.id || '',
-        userName: user?.name || 'System',
-        kind: (netCost > 0 ? 'spend' : 'adjust') as 'spend' | 'adjust',
-        category: 'power' as const,
-        amount: Math.abs(netCost),
-        details: { changes: powerChanges, netCost },
-        note: netCost < 0 ? 'refund via downgrade' : undefined,
-        before: beforeState,
-        after: {
-          available: newXP,
-          totalEarned: xpState.totalEarned,
-          totalSpent: acct.totalSpent,
-        }
-      };
-      this.#pushXpHistory(this.actor, historyEntry);
-      await this.actor.update({ 'system.xp.history': this.actor.system.xp.history });
+    const powerHistory = buildBandedStepEntries({
+      category: 'power',
+      pendingMap: this._pendingPowerLevelChanges,
+      getCurrent: key => powerLevelsBefore[key] ?? 1,
+      getLabel: key => powerNamesBefore[key] || key,
+      costForTarget: powerLevelCost,
+      before: beforeState,
+      after: {
+        available: newXP,
+        totalEarned: xpState.totalEarned,
+        totalSpent: acct.totalSpent,
+      },
+      user: currentXpUser(),
+    });
+    if (powerHistory.length) {
+      updates['system.xp.history'] = appendXpHistory(this.actor, powerHistory);
     }
+
+    await this.actor.update(updates);
     
     // Clear pending changes
     this._pendingPowerLevelChanges = {};
@@ -5262,29 +5189,25 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       totalSpent: xpState.totalSpent,
     };
 
-    await this.actor.update(updates);
-
-    if (netCost !== 0) {
-      const user = (game as any).user;
-      const historyEntry = {
-        ts: Date.now(),
-        userId: user?.id || '',
-        userName: user?.name || 'System',
-        kind: (netCost > 0 ? 'spend' : 'adjust') as 'spend' | 'adjust',
-        category: 'skill' as const,
-        amount: Math.abs(netCost),
-        details: { changes, netCost },
-        note: netCost < 0 ? 'refund via downgrade' : undefined,
-        before: beforeState,
-        after: {
-          available: availableXP - netCost,
-          totalEarned: xpState.totalEarned,
-          totalSpent: acctSk.totalSpent,
-        }
-      };
-      this.#pushXpHistory(this.actor, historyEntry);
-      await this.actor.update({ 'system.xp.history': this.actor.system.xp.history });
+    const skillHistory = buildBandedStepEntries({
+      category: 'skill',
+      pendingMap: this._pendingSkillRankChanges,
+      getCurrent: key => Number(this.actor.system.skills?.[key] ?? 0) || 0,
+      getLabel: key => SKILLS[key]?.name || key,
+      costForTarget: attributeBandCost,
+      before: beforeState,
+      after: {
+        available: availableXP - netCost,
+        totalEarned: xpState.totalEarned,
+        totalSpent: acctSk.totalSpent,
+      },
+      user: currentXpUser(),
+    });
+    if (skillHistory.length) {
+      updates['system.xp.history'] = appendXpHistory(this.actor, skillHistory);
     }
+
+    await this.actor.update(updates);
     
     this._pendingSkillRankChanges = {};
     await this.render();

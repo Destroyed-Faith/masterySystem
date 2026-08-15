@@ -16,6 +16,11 @@ import { getPowerMinLevel as resolvePowerMinLevel } from '../utils/power-xp-refu
 import { calculateMaxPowerLevel, calculateMaxSkillRank } from '../utils/calculations.js';
 import { SKILLS, SKILL_CATEGORIES } from '../utils/skills.js';
 import * as stepRule from '../utils/xp-step-rule.js';
+import {
+  appendXpHistory,
+  buildBandedStepEntries,
+  currentXpUser,
+} from '../utils/xp-history.js';
 
 export const ATTRIBUTE_KEYS = [
   'might',
@@ -335,6 +340,28 @@ export async function applyAttributePendingChanges(
   updates['system.xp.currentStep.powers'] = [...stepAfter.powers];
   updates['system.xp.currentStep.artifacts'] = [...stepAfter.artifacts];
 
+  const historyEntries = buildBandedStepEntries({
+    category: 'attribute',
+    pendingMap,
+    getCurrent: key => Number((actor.system as any).attributes?.[key]?.value ?? 0) || 0,
+    getLabel: key => ATTR_LABELS[key] || key,
+    costForTarget: attributeBandCost,
+    before: {
+      available: xpState.available,
+      totalEarned: xpState.totalEarned,
+      totalSpent: xpState.totalSpent,
+    },
+    after: {
+      available: acct.pointsXp + acct.pointsXpFree,
+      totalEarned: xpState.totalEarned,
+      totalSpent: acct.totalSpent,
+    },
+    user: currentXpUser(),
+  });
+  if (historyEntries.length) {
+    updates['system.xp.history'] = appendXpHistory(actor, historyEntries);
+  }
+
   await actor.update(updates);
   return { ok: true };
 }
@@ -388,6 +415,28 @@ export async function applySkillPendingChanges(
   updates['system.xp.currentStep.powers'] = [...stepAfter.powers];
   updates['system.xp.currentStep.artifacts'] = [...stepAfter.artifacts];
 
+  const historyEntries = buildBandedStepEntries({
+    category: 'skill',
+    pendingMap,
+    getCurrent: key => Number((actor.system as any).skills?.[key] ?? 0) || 0,
+    getLabel: key => SKILLS[key]?.name || key,
+    costForTarget: attributeBandCost,
+    before: {
+      available: xpState.available,
+      totalEarned: xpState.totalEarned,
+      totalSpent: xpState.totalSpent,
+    },
+    after: {
+      available: acct.pointsXp + acct.pointsXpFree,
+      totalEarned: xpState.totalEarned,
+      totalSpent: acct.totalSpent,
+    },
+    user: currentXpUser(),
+  });
+  if (historyEntries.length) {
+    updates['system.xp.history'] = appendXpHistory(actor, historyEntries);
+  }
+
   await actor.update(updates);
   return { ok: true };
 }
@@ -427,7 +476,31 @@ export async function applyPowerPendingChanges(
   }
 
   const acct = applyXpCost(xpState, netCost);
-  await actor.update({
+  const historyEntries = buildBandedStepEntries({
+    category: 'power',
+    pendingMap,
+    getCurrent: key => {
+      const item = (actor as any).items.get(key);
+      return Number((item?.system as any)?.level ?? 1) || 1;
+    },
+    getLabel: key => {
+      const item = (actor as any).items.get(key);
+      return String(item?.name || key);
+    },
+    costForTarget: powerLevelCost,
+    before: {
+      available: xpState.available,
+      totalEarned: xpState.totalEarned,
+      totalSpent: xpState.totalSpent,
+    },
+    after: {
+      available: acct.pointsXp + acct.pointsXpFree,
+      totalEarned: xpState.totalEarned,
+      totalSpent: acct.totalSpent,
+    },
+    user: currentXpUser(),
+  });
+  const actorUpdates: Record<string, unknown> = {
     'system.points.xp': acct.pointsXp,
     'system.points.xpFree': acct.pointsXpFree,
     'system.xp.totalSpent': acct.totalSpent,
@@ -436,7 +509,11 @@ export async function applyPowerPendingChanges(
     'system.xp.currentStep.skills': [...stepAfter.skills],
     'system.xp.currentStep.powers': [...stepAfter.powers],
     'system.xp.currentStep.artifacts': [...stepAfter.artifacts],
-  });
+  };
+  if (historyEntries.length) {
+    actorUpdates['system.xp.history'] = appendXpHistory(actor, historyEntries);
+  }
+  await actor.update(actorUpdates);
 
   for (const u of itemUpdates) {
     const item = (actor as any).items.get(u.id);

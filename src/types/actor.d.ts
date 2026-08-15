@@ -336,7 +336,7 @@ export interface CharacterData {
       userId: string;
       userName: string;
       kind: "grant" | "spend" | "adjust";
-      category: "xp" | "attribute" | "skill" | "power";
+      category: "xp" | "attribute" | "skill" | "power" | "artifact";
       amount: number;
       note?: string;
       details?: any;

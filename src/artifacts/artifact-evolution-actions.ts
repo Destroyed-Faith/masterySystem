@@ -32,6 +32,7 @@ import {
 } from '../utils/artifact-actor-tree.js';
 import { setRootActorLevels } from '../utils/world-artifact-flag-sync.js';
 import { isBumped, recordBump } from '../utils/xp-step-rule.js';
+import { appendXpHistory, currentXpUser } from '../utils/xp-history.js';
 
 export interface ArtifactEvolutionPath {
   worldItemId: string;
@@ -86,20 +87,44 @@ function actorXpAvailable(actor: Actor): number {
   return regular + free;
 }
 
-async function spendActorXp(actor: Actor, amount: number): Promise<boolean> {
+async function spendActorXp(
+  actor: Actor,
+  amount: number,
+): Promise<{
+  ok: boolean;
+  before?: { available: number; totalEarned: number; totalSpent: number };
+  after?: { available: number; totalEarned: number; totalSpent: number };
+}> {
   const sys = (actor.system as any) || {};
   const free = Math.max(0, Number(sys.points?.xpFree) || 0);
   const regular = Math.max(0, Number(sys.points?.xp) || 0);
-  if (free + regular < amount) return false;
+  const totalEarned = Number(sys.xp?.totalEarned ?? 0) || 0;
+  const totalSpent = Number(sys.xp?.totalSpent ?? 0) || 0;
+  const freeSpent = Number(sys.xp?.freeSpent ?? 0) || 0;
+  if (free + regular < amount) return { ok: false };
   const fromFree = Math.min(free, amount);
   const fromRegular = amount - fromFree;
-  const spent = (sys.xp?.totalSpent ?? 0);
+  const before = {
+    available: free + regular,
+    totalEarned,
+    totalSpent,
+  };
+  const nextSpent = totalSpent + fromRegular;
   await actor.update({
     'system.points.xpFree': free - fromFree,
     'system.points.xp': regular - fromRegular,
-    'system.xp.totalSpent': spent + amount,
+    'system.xp.totalSpent': nextSpent,
+    'system.xp.freeSpent': freeSpent + fromFree,
   });
-  return true;
+  return {
+    ok: true,
+    before,
+    after: {
+      available: free + regular - amount,
+      totalEarned,
+      totalSpent: nextSpent,
+    },
+  };
 }
 
 function readStepArtifacts(actor: Actor): string[] {
@@ -553,10 +578,34 @@ export async function upgradeArtifactForActor(
       return false;
     }
 
-    if (!(await spendActorXp(actor, ARTIFACT_UPGRADE_XP_COST))) {
+    const spend = await spendActorXp(actor, ARTIFACT_UPGRADE_XP_COST);
+    if (!spend.ok) {
       ui.notifications?.warn(`Not enough XP (need ${ARTIFACT_UPGRADE_XP_COST}).`);
       return false;
     }
+
+    const fromLevel = Number((emb.system as any)?.level ?? (currentWorld.system as any)?.level ?? 1) || 1;
+    const user = currentXpUser();
+    const history = appendXpHistory(actor, [
+      {
+        ts: Date.now(),
+        userId: user.userId,
+        userName: user.userName,
+        kind: 'spend',
+        category: 'artifact',
+        amount: ARTIFACT_UPGRADE_XP_COST,
+        note: `${emb.name} ${fromLevel} → ${tl}`,
+        details: {
+          artifactId: embeddedId,
+          name: emb.name,
+          from: fromLevel,
+          to: tl,
+          targetName: tw.name,
+        },
+        before: spend.before,
+        after: spend.after,
+      },
+    ]);
 
     const stepAfter = recordBump(stepNow as any, 'artifact', embeddedId);
     await actor.update({
@@ -564,9 +613,12 @@ export async function upgradeArtifactForActor(
       'system.xp.currentStep.skills': [...stepAfter.skills],
       'system.xp.currentStep.powers': [...stepAfter.powers],
       'system.xp.currentStep.artifacts': [...stepAfter.artifacts],
+      'system.xp.history': history,
     });
   }
 
+  const fromLevelForLog = Number((emb.system as any)?.level ?? (currentWorld.system as any)?.level ?? 1) || 1;
+  const fromNameForLog = String(emb.name || tw.name);
   const equip = emb.getFlag('mastery-system', 'equipment');
   const sys = foundry.utils.duplicate((targetWorld.system as any) || {});
   await emb.update({
@@ -585,6 +637,31 @@ export async function upgradeArtifactForActor(
   };
   levels[A.id] = serializeActorArtifactProgress(nextProg);
   await setRootActorLevels(root, levels);
+
+  if (gmFree) {
+    const user = currentXpUser();
+    await actor.update({
+      'system.xp.history': appendXpHistory(actor, [
+        {
+          ts: Date.now(),
+          userId: user.userId,
+          userName: user.userName,
+          kind: 'adjust',
+          category: 'artifact',
+          amount: 0,
+          note: `GM: ${fromNameForLog} ${fromLevelForLog} → ${tl}`,
+          details: {
+            artifactId: embeddedId,
+            name: fromNameForLog,
+            from: fromLevelForLog,
+            to: tl,
+            targetName: tw.name,
+            gmFree: true,
+          },
+        },
+      ]),
+    });
+  }
 
   ui.notifications?.info(gmFree ? `GM: Evolved to ${tw.name} (no XP spent).` : `Evolved to ${tw.name}.`);
   return true;
