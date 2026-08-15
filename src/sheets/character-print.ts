@@ -23,7 +23,7 @@ import { visibleAbilityRows } from '../utils/artifact-visible-abilities.js';
 import { formatEffectReference } from '../utils/special-effects.js';
 import { STONE_POWERS_BY_ATTRIBUTE } from '../stones/stone-powers.js';
 import { getMinorExpressionDefinition, tierBodyForExpression } from '../utils/minor-expressions.js';
-import { getEchoCard } from '../utils/echos/index.js';
+import { getEchoCard, getLicensedEchoCardIds } from '../utils/echos/index.js';
 import {
   parseInventorySize,
   fitsInGrid,
@@ -926,7 +926,8 @@ export function buildCharacterPrintContext(
   // Printed near Social Combat on page 2. Each card lists its trigger and its
   // four skill-keyed options.
   const echoKey = String(system?.echo?.key ?? '').trim();
-  const echoCards = (Array.isArray(system?.echo?.selectedCardIds) ? system.echo.selectedCardIds : [])
+  const selectedEchoCardIds = Array.isArray(system?.echo?.selectedCardIds) ? system.echo.selectedCardIds : [];
+  const echoCards = getLicensedEchoCardIds(selectedEchoCardIds, masteryRank)
     .map((rawId: any) => {
       const card = getEchoCard(echoKey, String(rawId ?? '').trim());
       if (!card) return null;

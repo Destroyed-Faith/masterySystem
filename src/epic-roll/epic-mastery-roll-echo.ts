@@ -3,7 +3,7 @@
  */
 
 import { countMarginRaises } from '../dice/roll-handler.js';
-import { getCardOption, getEcho, getEchoCard } from '../utils/echos/index.js';
+import { getCardOption, getEcho, getEchoCard, isEchoCardLicensed } from '../utils/echos/index.js';
 import type { EpicMasteryRollSession, EpicParticipantResult } from './epic-mastery-roll-types.js';
 import { submitEpicParticipantResult } from './epic-mastery-roll-roll.js';
 
@@ -26,10 +26,12 @@ export function getEpicEchoCardOffers(actor: Actor, skillKey: string): EpicEchoC
   const selectedCardIds: string[] = Array.isArray(echo.selectedCardIds)
     ? echo.selectedCardIds.filter((id: unknown) => typeof id === 'string')
     : [];
+  const masteryRank = Math.max(1, Number(system?.mastery?.rank) || 1);
   const cardUses = (echo.cardUses || {}) as Record<string, boolean>;
   const offers: EpicEchoCardOffer[] = [];
 
   for (const cardId of selectedCardIds) {
+    if (!isEchoCardLicensed(selectedCardIds, masteryRank, cardId)) continue;
     if (cardUses[cardId] === true) continue;
     const card = getEchoCard(echoKey, cardId);
     if (!card) continue;
@@ -126,6 +128,8 @@ export async function applyEpicEchoCardToResult(
     ? (actor as any).system.echo.selectedCardIds
     : [];
   if (!selectedCardIds.includes(cardId)) return null;
+  const masteryRank = Math.max(1, Number((actor as any).system?.mastery?.rank) || 1);
+  if (!isEchoCardLicensed(selectedCardIds, masteryRank, cardId)) return null;
 
   const cardUses = ((actor as any).system?.echo?.cardUses || {}) as Record<string, boolean>;
   if (cardUses[cardId] === true) return null;

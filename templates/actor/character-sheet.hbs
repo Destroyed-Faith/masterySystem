@@ -278,19 +278,30 @@
 
           <div class="echo-deck-cards">
             <div class="echo-deck-cards-header">
-              <h4>Cards <span class="echo-deck-slots">({{echoView.selectedCardIds.length}} / {{echoView.unlockedCardSlots}})</span></h4>
+              <h4>Cards <span class="echo-deck-slots">({{echoView.unlockedCardSlots}} {{localize "MASTERY.echo.licensedSlots"}} / {{echoView.selectedCardIds.length}})</span></h4>
               {{#if echoView.canAddCard}}
               <button type="button" class="add-echo-card-btn" title="Add another Echo card from your deck">
                 <i class="fas fa-plus"></i> Add Card
               </button>
               {{/if}}
             </div>
+            {{#if echoView.overflowCardCount}}
+            <p class="echo-deck-overflow-hint">{{localize "MASTERY.echo.overflowHint"}}</p>
+            {{/if}}
             {{#each echoView.deck}}
             {{#if this.selected}}
-            <div class="echo-card {{#if this.used}}echo-card-used{{/if}}" data-card-id="{{this.id}}">
+            <div class="echo-card {{#if this.used}}echo-card-used{{/if}} {{#if this.overflow}}echo-card-overflow{{/if}}" data-card-id="{{this.id}}">
               <div class="echo-card-header">
                 <span class="echo-card-name"><strong>{{this.name}}</strong></span>
-                {{#if this.used}}<span class="echo-card-used-label">Used today</span>{{/if}}
+                <span class="echo-card-header-actions">
+                  {{#if this.overflow}}<span class="echo-card-overflow-label" title="{{localize 'MASTERY.echo.unlicensedSlot'}}">{{localize "MASTERY.echo.unlicensedSlot"}}</span>{{/if}}
+                  {{#if this.used}}<span class="echo-card-used-label">Used today</span>{{/if}}
+                  {{#if (userIsGM)}}
+                  <button type="button" class="remove-echo-card-btn" data-card-id="{{this.id}}" title="{{localize 'MASTERY.echo.removeCard'}}">
+                    <i class="fas fa-times"></i> {{localize "MASTERY.echo.removeCard"}}
+                  </button>
+                  {{/if}}
+                </span>
               </div>
               <div class="echo-card-trigger"><em>Trigger:</em> {{this.trigger}}</div>
               <ol class="echo-card-options">
@@ -304,7 +315,8 @@
                       data-card-id="{{../id}}"
                       data-option-id="{{this.id}}"
                       {{#if ../used}}disabled{{/if}}
-                      title="Roll the skill for this option (spends the card for today)">
+                      {{#if ../overflow}}disabled{{/if}}
+                      title="{{#if ../overflow}}{{localize 'MASTERY.echo.unlicensedUse'}}{{else}}Roll the skill for this option (spends the card for today){{/if}}">
                       <i class="fas fa-dice-d20"></i> Use
                     </button>
                   </div>

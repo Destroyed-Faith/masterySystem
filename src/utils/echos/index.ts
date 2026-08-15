@@ -143,17 +143,66 @@ export function isMrPerRest(usage: EchoUsage): boolean {
   return usage === 'mr-per-rest';
 }
 
+/** Mastery Rank that licenses each Echo Card slot (1-based order). */
+export const ECHO_CARD_SLOT_UNLOCK_RANKS = [1, 2, 4, 6] as const;
+
 /**
  * Number of Echo-Card slots unlocked at a given Mastery Rank.
  * Start: 1. +1 at MR 2/4/6. Hard cap at 4 (the full deck).
  */
 export function getUnlockedCardSlots(masteryRank: number): number {
   const mr = Math.max(1, Number(masteryRank) || 1);
-  let slots = 1;
-  if (mr >= 2) slots++;
-  if (mr >= 4) slots++;
-  if (mr >= 6) slots++;
-  return Math.min(slots, 4);
+  return ECHO_CARD_SLOT_UNLOCK_RANKS.filter(rank => mr >= rank).length;
+}
+
+function normalizeSelectedCardIds(selectedCardIds: string[]): string[] {
+  if (!Array.isArray(selectedCardIds)) return [];
+  return selectedCardIds.filter((id): id is string => typeof id === 'string' && id.trim().length > 0);
+}
+
+/**
+ * Cards that currently have a licensed slot.
+ * Extra cards (high-MR start, then a lower rank) stay on the actor until
+ * the GM removes them — they are never auto-deleted.
+ */
+export function getLicensedEchoCardIds(selectedCardIds: string[], masteryRank: number): string[] {
+  const slots = getUnlockedCardSlots(masteryRank);
+  return normalizeSelectedCardIds(selectedCardIds).slice(0, slots);
+}
+
+export function isEchoCardLicensed(
+  selectedCardIds: string[],
+  masteryRank: number,
+  cardId: string
+): boolean {
+  const id = String(cardId || '').trim();
+  if (!id) return false;
+  return getLicensedEchoCardIds(selectedCardIds, masteryRank).includes(id);
+}
+
+/**
+ * Drop one selected Echo Card and its daily-use flag.
+ * Does not change Echo, traits, or other cards.
+ */
+export function removeSelectedEchoCard(
+  selectedCardIds: string[],
+  cardUses: Record<string, boolean>,
+  cardId: string
+): { selectedCardIds: string[]; cardUses: Record<string, boolean>; removed: boolean } {
+  const id = String(cardId || '').trim();
+  const currentIds = Array.isArray(selectedCardIds)
+    ? selectedCardIds.filter((value): value is string => typeof value === 'string')
+    : [];
+  const currentUses = cardUses && typeof cardUses === 'object' ? { ...cardUses } : {};
+  if (!id || !currentIds.includes(id)) {
+    return { selectedCardIds: currentIds, cardUses: currentUses, removed: false };
+  }
+  delete currentUses[id];
+  return {
+    selectedCardIds: currentIds.filter(value => value !== id),
+    cardUses: currentUses,
+    removed: true
+  };
 }
 
 /** True if a trait is currently gated off by Mastery Rank. */

@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.331] - 2026-08-15
+
+### Added
+
+- **Echo Cards:** The GM can remove a card at any time. Extra cards from a higher starting Mastery Rank stay until the GM removes them. Only licensed slots (MR 1 / 2 / 4 / 6) can be used.
+
+### Changed
+
+- **XP Management:** Regular XP and Free XP now explain themselves on hover. Settings CSS is clearer, including the missing Free / deduct / flag / recalc buttons.
+
 ## [0.9.330] - 2026-08-14
 
 ### Changed

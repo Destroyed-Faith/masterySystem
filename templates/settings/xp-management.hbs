@@ -9,7 +9,7 @@
     <div class="tab active" data-tab="characters">
       <div class="xp-management-header">
         <h2><i class="fas fa-coins"></i> Character XP Management</h2>
-        <p class="hint">View XP spending and grant XP allowances to player characters.</p>
+        <p class="hint"><strong>{{localize "MASTERY.xp.regularLabel"}}:</strong> {{localize "MASTERY.xp.regularHint"}} <strong>{{localize "MASTERY.xp.freeLabel"}}:</strong> {{localize "MASTERY.xp.freeHint"}}</p>
       </div>
       
       <!-- Bulk Grant Section -->
@@ -17,18 +17,20 @@
         <h3>Bulk Grant XP</h3>
         <div class="bulk-grant-controls">
           <div class="bulk-grant-group">
-            <label>Regular XP:</label>
-            <input type="number" class="bulk-xp-amount" min="0" value="0" />
-            <button type="button" class="bulk-grant-btn" title="Grant regular XP (once-per-step rule applies) to all characters">
+            <label title="{{localize 'MASTERY.xp.regularHint'}}">{{localize "MASTERY.xp.regularLabel"}}:</label>
+            <input type="number" class="bulk-xp-amount" min="0" value="0" title="{{localize 'MASTERY.xp.regularHint'}}" />
+            <button type="button" class="bulk-grant-btn" title="{{localize 'MASTERY.xp.regularHint'}}">
               <i class="fas fa-gift"></i> Grant to All
             </button>
+            <p class="bulk-grant-help" title="{{localize 'MASTERY.xp.regularHint'}}">{{localize "MASTERY.xp.regularHint"}}</p>
           </div>
           <div class="bulk-grant-group">
-            <label>Free XP:</label>
-            <input type="number" class="bulk-free-xp-amount" min="0" value="0" />
-            <button type="button" class="bulk-grant-free-btn" title="Grant Free XP (spent first, no once-per-step limit) to all characters">
+            <label title="{{localize 'MASTERY.xp.freeHint'}}">{{localize "MASTERY.xp.freeLabel"}}:</label>
+            <input type="number" class="bulk-free-xp-amount" min="0" value="0" title="{{localize 'MASTERY.xp.freeHint'}}" />
+            <button type="button" class="bulk-grant-free-btn" title="{{localize 'MASTERY.xp.freeHint'}}">
               <i class="fas fa-star"></i> Grant Free to All
             </button>
+            <p class="bulk-grant-help" title="{{localize 'MASTERY.xp.freeHint'}}">{{localize "MASTERY.xp.freeHint"}}</p>
           </div>
           {{#if (userIsGM)}}
           <div class="bulk-grant-group bulk-reset-group">
@@ -73,14 +75,14 @@
               <td class="grant-cell">
                 <div class="grant-controls">
                   <div class="grant-group">
-                    <input type="number" class="xp-amount-input" data-character-id="{{this.id}}" min="0" value="0" placeholder="+" title="Grant regular XP (once-per-step rule applies)" />
-                    <button type="button" class="grant-xp-btn" data-character-id="{{this.id}}" title="Grant regular XP (once-per-step rule applies)">
+                    <input type="number" class="xp-amount-input" data-character-id="{{this.id}}" min="0" value="0" placeholder="+" title="{{localize 'MASTERY.xp.regularHint'}}" />
+                    <button type="button" class="grant-xp-btn" data-character-id="{{this.id}}" title="{{localize 'MASTERY.xp.regularHint'}}">
                       <i class="fas fa-plus"></i>
                     </button>
                   </div>
                   <div class="grant-group grant-group-free">
-                    <input type="number" class="free-xp-amount-input" data-character-id="{{this.id}}" min="0" value="0" placeholder="+" title="Grant Free XP (spent first, no once-per-step limit)" />
-                    <button type="button" class="grant-free-xp-btn" data-character-id="{{this.id}}" title="Grant Free XP (spent first, no once-per-step limit)">
+                    <input type="number" class="free-xp-amount-input" data-character-id="{{this.id}}" min="0" value="0" placeholder="+" title="{{localize 'MASTERY.xp.freeHint'}}" />
+                    <button type="button" class="grant-free-xp-btn" data-character-id="{{this.id}}" title="{{localize 'MASTERY.xp.freeHint'}}">
                       <i class="fas fa-star"></i>
                     </button>
                   </div>

@@ -30,7 +30,9 @@ import {
   getEcho,
   getEchoCard,
   getEchoSubChoice,
-  getUnlockedCardSlots
+  getUnlockedCardSlots,
+  isEchoCardLicensed,
+  removeSelectedEchoCard
 } from '../utils/echos/index.js';
 import { CATEGORY_LABELS, CATEGORY_ORDER, CREATION_OFFENSIVE_RANK, CREATION_POWER_REQUIREMENTS, CREATION_POWER_TOTAL, countPowersByCategory, findDuplicatePowerLabel, resolvePowerCategoryFromItem } from '../utils/power-catalog.js';
 import { hasTowerWizardPackage } from '../creation/tower-wizard/tower-wizard-apply.js';
@@ -333,6 +335,41 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       console.error('Mastery System | Failed to open Echo card pick dialog', error);
       ui.notifications?.error('Failed to open Echo card picker');
     }
+  }
+
+  /**
+   * GM only: take an Echo Card off the character at any time.
+   * The slot becomes free; the daily-use flag for that card is cleared.
+   */
+  async #onEchoCardRemove(event: JQuery.ClickEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    if (!(game as any).user?.isGM) {
+      ui.notifications?.warn((game as any).i18n.localize('MASTERY.echo.gmOnlyRemove'));
+      return;
+    }
+    const cardId = String((event.currentTarget as HTMLElement)?.dataset?.cardId || '').trim();
+    const system = (this.actor as any).system;
+    const echo = system?.echo || {};
+    const selectedCardIds: string[] = Array.isArray(echo.selectedCardIds) ? echo.selectedCardIds : [];
+    const cardUses = (echo.cardUses && typeof echo.cardUses === 'object') ? echo.cardUses : {};
+    const card = getEchoCard(echo.key, cardId);
+    const cardName = card?.name || cardId;
+    const next = removeSelectedEchoCard(selectedCardIds, cardUses, cardId);
+    if (!next.removed) {
+      ui.notifications?.warn((game as any).i18n.localize('MASTERY.echo.notFound'));
+      return;
+    }
+    const confirmed = await Dialog.confirm({
+      title: (game as any).i18n.localize('MASTERY.echo.removeCardTitle'),
+      content: (game as any).i18n.format('MASTERY.echo.removeCardConfirm', { name: cardName })
+    });
+    if (!confirmed) return;
+    await this.actor.update({
+      'system.echo.selectedCardIds': next.selectedCardIds,
+      'system.echo.cardUses': next.cardUses
+    });
+    ui.notifications?.info((game as any).i18n.format('MASTERY.echo.removed', { name: cardName }));
   }
 
   /**
@@ -799,17 +836,24 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       : {};
 
     const unlockedCardSlots = echoDef ? getUnlockedCardSlots(masteryRank) : 0;
+    const overflowCardCount = Math.max(0, selectedCardIds.length - unlockedCardSlots);
     const canAddCard = !!echoDef && selectedCardIds.length < unlockedCardSlots;
 
     const deckView = echoDef
-      ? echoDef.deck.map(c => ({
-          id: c.id,
-          name: c.name,
-          trigger: c.trigger,
-          options: c.options,
-          selected: selectedCardIds.includes(c.id),
-          used: cardUses[c.id] === true
-        }))
+      ? echoDef.deck.map(c => {
+          const selected = selectedCardIds.includes(c.id);
+          const licensed = selected && isEchoCardLicensed(selectedCardIds, masteryRank, c.id);
+          return {
+            id: c.id,
+            name: c.name,
+            trigger: c.trigger,
+            options: c.options,
+            selected,
+            licensed,
+            overflow: selected && !licensed,
+            used: cardUses[c.id] === true
+          };
+        })
       : [];
 
     const echoCreationValid = !!echoDef
@@ -826,6 +870,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
           deck: deckView,
           selectedCardIds,
           unlockedCardSlots,
+          overflowCardCount,
           canAddCard,
           creationValid: echoCreationValid
         }
@@ -2451,6 +2496,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         this.#onProfileShow(e, String(imgType));
       });
     }, 100);
+
+    html.find('.remove-echo-card-btn').on('click', this.#onEchoCardRemove.bind(this));
 
     // Everything below here is only needed if the sheet is editable
     if (!this.isEditable) return;
@@ -4456,6 +4503,11 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       ui.notifications?.error('That Echo card is not part of your deck.');
       return;
     }
+    const masteryRank = Math.max(1, Number(system?.mastery?.rank) || 1);
+    if (!isEchoCardLicensed(selectedCardIds, masteryRank, cardId)) {
+      ui.notifications?.warn((game as any).i18n.localize('MASTERY.echo.unlicensedUse'));
+      return;
+    }
     const cardUses = (echo.cardUses || {}) as Record<string, boolean>;
     if (cardUses[cardId] === true) {
       ui.notifications?.warn('Card already used today. It restores on the next Safe Haven Rest.');
@@ -6027,11 +6079,11 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     html.find('select:not(.power-rank-select):not(.attr-creation-select):not(.mastery-rank-select)').prop('disabled', true);
     
     // Disable buttons except creation controls
-    const buttonsToDisable = html.find('button:not(.attr-increase):not(.attr-decrease):not(.skill-increase):not(.skill-decrease):not(.finalize-creation):not(.reset-creation-attributes):not(.force-unlock-creation):not(.reset-character):not(.add-disadvantage-btn):not(.disadvantage-edit-btn):not(.disadvantage-remove-btn):not(.open-tower-wizard-btn):not(.open-manual-combat-package-btn):not(.add-spell-creation-btn):not(.power-rank-select):not(.item-delete):not(.power-toggle-details):not(.power-edit-mechanics):not(.general-items-btn):not(.choose-echo-btn):not(.add-echo-card-btn):not(.echo-card-use-btn):not(.open-languages-btn)');
+    const buttonsToDisable = html.find('button:not(.attr-increase):not(.attr-decrease):not(.skill-increase):not(.skill-decrease):not(.finalize-creation):not(.reset-creation-attributes):not(.force-unlock-creation):not(.reset-character):not(.add-disadvantage-btn):not(.disadvantage-edit-btn):not(.disadvantage-remove-btn):not(.open-tower-wizard-btn):not(.open-manual-combat-package-btn):not(.add-spell-creation-btn):not(.power-rank-select):not(.item-delete):not(.power-toggle-details):not(.power-edit-mechanics):not(.general-items-btn):not(.choose-echo-btn):not(.add-echo-card-btn):not(.remove-echo-card-btn):not(.echo-card-use-btn):not(.open-languages-btn)');
     buttonsToDisable.prop('disabled', true);
     
     // Ensure creation buttons are enabled
-    const creationButtons = html.find('.attr-increase, .attr-decrease, .skill-increase, .skill-decrease, .finalize-creation, .reset-creation-attributes, .force-unlock-creation, .reset-character, .add-disadvantage-btn, .disadvantage-edit-btn, .disadvantage-remove-btn, .open-tower-wizard-btn, .open-manual-combat-package-btn, .add-spell-creation-btn, .item-delete, .general-items-btn, .choose-echo-btn, .add-echo-card-btn, .echo-card-use-btn, .open-languages-btn');
+    const creationButtons = html.find('.attr-increase, .attr-decrease, .skill-increase, .skill-decrease, .finalize-creation, .reset-creation-attributes, .force-unlock-creation, .reset-character, .add-disadvantage-btn, .disadvantage-edit-btn, .disadvantage-remove-btn, .open-tower-wizard-btn, .open-manual-combat-package-btn, .add-spell-creation-btn, .item-delete, .general-items-btn, .choose-echo-btn, .add-echo-card-btn, .remove-echo-card-btn, .echo-card-use-btn, .open-languages-btn');
     creationButtons.prop('disabled', false);
     
     // Also enable power rank selects (they're select elements, not buttons)

@@ -66,6 +66,24 @@
       "printFootnote": "Verbrauchsmaterial — nur gespeicherte Power. Keine Waffenschadenswürfel und keine Waffen-Specials.",
       "powerLabel": "Power"
     },
+    "echo": {
+      "removeCard": "Karte entfernen",
+      "removeCardTitle": "Echo-Karte entfernen",
+      "removeCardConfirm": "<strong>{name}</strong> von diesem Charakter entfernen? Der Slot wird frei.",
+      "removed": "Echo-Karte entfernt: {name}",
+      "gmOnlyRemove": "Nur der GM kann Echo-Karten entfernen.",
+      "notFound": "Diese Echo-Karte liegt nicht auf diesem Charakter.",
+      "licensedSlots": "lizenziert",
+      "unlicensedSlot": "Kein lizenzierter Slot",
+      "unlicensedUse": "Diese Karte hat bei diesem Mastery Rank keinen lizenzierten Slot. Der GM muss sie entfernen.",
+      "overflowHint": "Zusätzliche Karten von einem höheren Start-Mastery-Rank bleiben, bis der GM sie entfernt. Sie können nicht benutzt werden."
+    },
+    "xp": {
+      "regularLabel": "Regular XP",
+      "regularHint": "Session-XP. Pro Upgrade-Step darf jedes Attribut, jeder Skill, jede Power und jedes Artefakt nur einmal steigen. Die Flagge beendet den aktuellen Step.",
+      "freeLabel": "Free XP",
+      "freeHint": "Bonus-XP ohne Step-Limit. Wird vor Regular XP ausgegeben. Für den Start auf höherem Mastery Rank oder freie Verteilung."
+    },
     "reactionDialogTitle": "Reaktion — {defender}",
     "reactionDecline": "Ablehnen (keine Reaktion)",
     "combatStripDrSustained": "DR {pct}% (Dauer, ohne pro-Treffer-Reaktion)",

@@ -2,9 +2,23 @@
  * XP Management Settings Styles (Inline in Settings)
  */
 
+.form-group:has(.mastery-xp-management-inline) {
+  display: block;
+  flex-direction: column;
+  align-items: stretch;
+}
+
 .mastery-xp-management-inline,
 .mastery-xp-management {
   padding: 1rem;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  background: #f7f4f0;
+  border: 1px solid #d8d0c6;
+  border-radius: 8px;
+  color: #1f1a16;
+  box-sizing: border-box;
 }
 
 .mastery-xp-management-inline .xp-management-header,
@@ -55,7 +69,20 @@
 .mastery-xp-management .bulk-grant-group {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 0.5rem;
+  flex: 1 1 280px;
+  min-width: 240px;
+}
+
+.mastery-xp-management-inline .bulk-grant-help,
+.mastery-xp-management .bulk-grant-help {
+  flex: 1 1 100%;
+  margin: 0;
+  color: #5a5048;
+  font-size: 0.78rem;
+  line-height: 1.35;
+  font-weight: 400;
 }
 
 .mastery-xp-management-inline .bulk-grant-group label,
@@ -66,12 +93,16 @@
 }
 
 .mastery-xp-management-inline .bulk-xp-amount,
-.mastery-xp-management .bulk-xp-amount {
+.mastery-xp-management-inline .bulk-free-xp-amount,
+.mastery-xp-management .bulk-xp-amount,
+.mastery-xp-management .bulk-free-xp-amount {
   width: 80px;
   padding: 0.5rem;
   border: 1px solid #ccc;
   border-radius: 4px;
   text-align: center;
+  background: #fff;
+  color: #1f1a16;
 }
 
 .mastery-xp-management-inline .bulk-grant-btn,
@@ -89,6 +120,25 @@
 .mastery-xp-management-inline .bulk-grant-btn:hover,
 .mastery-xp-management .bulk-grant-btn:hover {
   background: linear-gradient(135deg, #a00000 0%, #b00000 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.mastery-xp-management-inline .bulk-grant-free-btn,
+.mastery-xp-management .bulk-grant-free-btn {
+  padding: 0.5rem 1rem;
+  background: linear-gradient(135deg, #8a6a18 0%, #b08920 100%);
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.mastery-xp-management-inline .bulk-grant-free-btn:hover,
+.mastery-xp-management .bulk-grant-free-btn:hover {
+  background: linear-gradient(135deg, #a07c1c 0%, #c49a28 100%);
   transform: translateY(-1px);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
@@ -234,13 +284,17 @@
 }
 
 .mastery-xp-management-inline .xp-amount-input,
-.mastery-xp-management .xp-amount-input {
+.mastery-xp-management-inline .free-xp-amount-input,
+.mastery-xp-management .xp-amount-input,
+.mastery-xp-management .free-xp-amount-input {
   width: 60px;
   padding: 0.4rem;
   border: 1px solid #ccc;
   border-radius: 4px;
   text-align: center;
   font-size: 0.85rem;
+  background: #fff;
+  color: #1f1a16;
 }
 
 .mastery-xp-management-inline .grant-xp-btn,
@@ -259,6 +313,87 @@
   background: #a00000;
   transform: translateY(-1px);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.mastery-xp-management-inline .grant-free-xp-btn,
+.mastery-xp-management .grant-free-xp-btn {
+  padding: 0.4rem 0.6rem;
+  background: #8a6a18;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.mastery-xp-management-inline .grant-free-xp-btn:hover,
+.mastery-xp-management .grant-free-xp-btn:hover {
+  background: #b08920;
+}
+
+.mastery-xp-management-inline .deduct-xp-btn,
+.mastery-xp-management-inline .deduct-free-xp-btn,
+.mastery-xp-management .deduct-xp-btn,
+.mastery-xp-management .deduct-free-xp-btn {
+  padding: 0.4rem 0.6rem;
+  background: #6b3a3a;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.mastery-xp-management-inline .deduct-xp-btn:hover,
+.mastery-xp-management-inline .deduct-free-xp-btn:hover,
+.mastery-xp-management .deduct-xp-btn:hover,
+.mastery-xp-management .deduct-free-xp-btn:hover {
+  background: #8b0000;
+}
+
+.mastery-xp-management-inline .end-xp-step-btn,
+.mastery-xp-management .end-xp-step-btn {
+  padding: 0.28rem 0.4rem;
+  min-width: 1.75rem;
+  background: #3d5a45;
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 0.72rem;
+  line-height: 1;
+}
+
+.mastery-xp-management-inline .end-xp-step-btn:hover,
+.mastery-xp-management .end-xp-step-btn:hover {
+  background: #2f4636;
+}
+
+.mastery-xp-management-inline .recalc-xp-btn,
+.mastery-xp-management .recalc-xp-btn {
+  padding: 0.28rem 0.4rem;
+  min-width: 1.75rem;
+  background: #3a4f6b;
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 0.72rem;
+  line-height: 1;
+}
+
+.mastery-xp-management-inline .recalc-xp-btn:hover:not(:disabled),
+.mastery-xp-management .recalc-xp-btn:hover:not(:disabled) {
+  background: #2c3d54;
+}
+
+.mastery-xp-management-inline .recalc-xp-btn:disabled,
+.mastery-xp-management .recalc-xp-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.mastery-xp-management-inline .xp-cell-free,
+.mastery-xp-management .xp-cell-free {
+  color: #6b4f10;
 }
 
 .mastery-xp-management-inline .empty-message,
@@ -453,4 +588,9 @@
   margin: 0.5rem 0 0;
   font-size: 0.85rem;
   opacity: 0.9;
+}
+
+.mastery-xp-management-inline .characters-list,
+.mastery-xp-management .characters-list {
+  overflow-x: auto;
 }

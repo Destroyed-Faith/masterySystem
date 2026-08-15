@@ -1545,19 +1545,27 @@ function setupXpManagementInline() {
     const characters = (game as any).actors?.filter((actor: any) => actor.type === 'character') || [];
     
     // Build the UI
+    const i18n = (game as any).i18n;
+    const regularHint = i18n.localize('MASTERY.xp.regularHint');
+    const freeHint = i18n.localize('MASTERY.xp.freeHint');
+    const regularLabel = i18n.localize('MASTERY.xp.regularLabel');
+    const freeLabel = i18n.localize('MASTERY.xp.freeLabel');
+
     let htmlContent = '<div class="xp-management-header"><h3><i class="fas fa-coins"></i> Character XP Management</h3>';
-    htmlContent += '<p class="hint">Regular XP: Session-Vergabe (max. +1 pro Attribut/Skill/Power/Artefakt pro Upgrade Step). ';
-    htmlContent += '<strong>Free XP</strong>: frei verteilbar ohne Step-Limit. Die Flagge beendet nur den aktuellen Step — sie ersetzt kein Free XP.</p></div>';
+    htmlContent += `<p class="hint"><strong>${regularLabel}:</strong> ${regularHint} `;
+    htmlContent += `<strong>${freeLabel}:</strong> ${freeHint}</p></div>`;
     
     // Bulk Grant Section
     htmlContent += '<div class="bulk-grant-section"><h4>Bulk Grant XP</h4>';
     htmlContent += '<div class="bulk-grant-controls">';
-    htmlContent += '<div class="bulk-grant-group"><label>Regular XP:</label>';
-    htmlContent += '<input type="number" class="bulk-xp-amount" min="0" value="0" />';
-    htmlContent += '<button type="button" class="bulk-grant-btn" title="Session-XP an alle (Once-per-Step gilt)"><i class="fas fa-gift"></i> Grant to All</button></div>';
-    htmlContent += '<div class="bulk-grant-group"><label>Free XP:</label>';
-    htmlContent += '<input type="number" class="bulk-free-xp-amount" min="0" value="0" />';
-    htmlContent += '<button type="button" class="bulk-grant-free-btn" title="Free XP an alle (frei verteilbar, kein Step-Limit)"><i class="fas fa-star"></i> Grant Free to All</button></div>';
+    htmlContent += `<div class="bulk-grant-group"><label title="${regularHint}">${regularLabel}:</label>`;
+    htmlContent += `<input type="number" class="bulk-xp-amount" min="0" value="0" title="${regularHint}" />`;
+    htmlContent += `<button type="button" class="bulk-grant-btn" title="${regularHint}"><i class="fas fa-gift"></i> Grant to All</button>`;
+    htmlContent += `<p class="bulk-grant-help" title="${regularHint}">${regularHint}</p></div>`;
+    htmlContent += `<div class="bulk-grant-group"><label title="${freeHint}">${freeLabel}:</label>`;
+    htmlContent += `<input type="number" class="bulk-free-xp-amount" min="0" value="0" title="${freeHint}" />`;
+    htmlContent += `<button type="button" class="bulk-grant-free-btn" title="${freeHint}"><i class="fas fa-star"></i> Grant Free to All</button>`;
+    htmlContent += `<p class="bulk-grant-help" title="${freeHint}">${freeHint}</p></div>`;
     htmlContent += '<div class="bulk-grant-group bulk-reset-group"><button type="button" class="bulk-reset-xp-account-btn" title="XP-Konten und History für alle Charaktere auf 0"><i class="fas fa-eraser"></i> Reset XP (All)</button></div>';
     htmlContent += '</div></div>';
     
@@ -1613,11 +1621,11 @@ function setupXpManagementInline() {
         htmlContent += `<td class="xp-cell"><strong>${totalEarned}</strong></td>`;
         htmlContent += `<td class="xp-cell" title="${stepSummary.replace(/"/g, '&quot;')}">${stepTotal}</td>`;
         htmlContent += `<td class="grant-cell"><div class="grant-controls">`;
-        htmlContent += `<div class="grant-group"><input type="number" class="xp-amount-input" data-character-id="${actor.id}" min="0" value="0" placeholder="+" title="Regular XP (Session)" />`;
-        htmlContent += `<button type="button" class="grant-xp-btn" data-character-id="${actor.id}" title="Regular XP vergeben"><i class="fas fa-plus"></i></button>`;
+        htmlContent += `<div class="grant-group"><input type="number" class="xp-amount-input" data-character-id="${actor.id}" min="0" value="0" placeholder="+" title="${regularHint}" />`;
+        htmlContent += `<button type="button" class="grant-xp-btn" data-character-id="${actor.id}" title="${regularHint}"><i class="fas fa-plus"></i></button>`;
         htmlContent += `<button type="button" class="deduct-xp-btn" data-character-id="${actor.id}" title="Reguläre XP zurücknehmen (nur noch nicht ausgegebene)"><i class="fas fa-minus"></i></button></div>`;
-        htmlContent += `<div class="grant-group grant-group-free"><input type="number" class="free-xp-amount-input" data-character-id="${actor.id}" min="0" value="0" placeholder="+" title="Free XP (frei verteilbar)" />`;
-        htmlContent += `<button type="button" class="grant-free-xp-btn" data-character-id="${actor.id}" title="Free XP vergeben — kein Step-Limit"><i class="fas fa-star"></i></button>`;
+        htmlContent += `<div class="grant-group grant-group-free"><input type="number" class="free-xp-amount-input" data-character-id="${actor.id}" min="0" value="0" placeholder="+" title="${freeHint}" />`;
+        htmlContent += `<button type="button" class="grant-free-xp-btn" data-character-id="${actor.id}" title="${freeHint}"><i class="fas fa-star"></i></button>`;
         htmlContent += `<button type="button" class="deduct-free-xp-btn" data-character-id="${actor.id}" title="Free XP zurücknehmen (nur noch nicht ausgegebene)"><i class="fas fa-minus"></i></button></div>`;
         htmlContent += `<div class="xp-row-actions">`;
         htmlContent += `<button type="button" class="end-xp-step-btn" data-character-id="${actor.id}" title="Upgrade Step beenden: +1-Limit-Listen leeren. Erlaubt im nächsten Step erneut +1 auf dasselbe Attribut/Skill — ersetzt kein Free XP."><i class="fas fa-flag-checkered"></i></button>`;

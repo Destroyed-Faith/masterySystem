@@ -19,9 +19,12 @@ import {
   getEcho,
   getEchoCard,
   getEchoSubChoice,
+  getLicensedEchoCardIds,
   getUnlockedCardSlots,
+  isEchoCardLicensed,
   isMrPerRest,
-  isTraitGatedByMr
+  isTraitGatedByMr,
+  removeSelectedEchoCard
 } from '../src/utils/echos/index';
 import { SKILLS } from '../src/utils/skills';
 
@@ -95,6 +98,17 @@ describe('Echo Slot Unlocks', () => {
     expect(getUnlockedCardSlots(7)).toBe(4);
     expect(getUnlockedCardSlots(99)).toBe(4);
   });
+
+  it('keeps overflow cards until they are removed, but only licenses unlocked slots', () => {
+    const held = ['card-a', 'card-b', 'card-c'];
+    expect(getLicensedEchoCardIds(held, 1)).toEqual(['card-a']);
+    expect(getLicensedEchoCardIds(held, 2)).toEqual(['card-a', 'card-b']);
+    expect(isEchoCardLicensed(held, 1, 'card-c')).toBe(false);
+    expect(isEchoCardLicensed(held, 4, 'card-c')).toBe(true);
+    const afterManualRemove = removeSelectedEchoCard(held, {}, 'card-c');
+    expect(afterManualRemove.selectedCardIds).toEqual(['card-a', 'card-b']);
+    expect(isEchoCardLicensed(afterManualRemove.selectedCardIds, 1, 'card-b')).toBe(false);
+  });
 });
 
 describe('Echo Card Usage + Safe-Haven Reset Simulation', () => {
@@ -120,6 +134,35 @@ describe('Echo Card Usage + Safe-Haven Reset Simulation', () => {
     actorEcho.cardUses = {};
     actorEcho.traitUses = buildFreshTraitUses(def.key, null, 3);
     expect(actorEcho.cardUses[def.deck[0].id]).toBeUndefined();
+  });
+
+  it('removeSelectedEchoCard drops the card and its daily-use flag', () => {
+    const def = getEcho('humans')!;
+    const keep = def.deck[0].id;
+    const drop = def.deck[1].id;
+    const result = removeSelectedEchoCard(
+      [keep, drop],
+      { [keep]: false, [drop]: true },
+      drop
+    );
+    expect(result.removed).toBe(true);
+    expect(result.selectedCardIds).toEqual([keep]);
+    expect(result.cardUses[drop]).toBeUndefined();
+    expect(result.cardUses[keep]).toBe(false);
+  });
+
+  it('removeSelectedEchoCard can take the last card', () => {
+    const result = removeSelectedEchoCard(['only-card'], { 'only-card': true }, 'only-card');
+    expect(result.removed).toBe(true);
+    expect(result.selectedCardIds).toEqual([]);
+    expect(result.cardUses).toEqual({});
+  });
+
+  it('removeSelectedEchoCard is a no-op for a card that is not selected', () => {
+    const result = removeSelectedEchoCard(['kept'], { kept: true }, 'missing');
+    expect(result.removed).toBe(false);
+    expect(result.selectedCardIds).toEqual(['kept']);
+    expect(result.cardUses).toEqual({ kept: true });
   });
 
   it('buildFreshTraitUses respects Mastery Rank for mr-per-rest sub-choice traits', () => {

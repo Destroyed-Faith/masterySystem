@@ -66,6 +66,24 @@
       "printFootnote": "Consumable — stored Power only. No weapon dice or weapon Specials.",
       "powerLabel": "Power"
     },
+    "echo": {
+      "removeCard": "Remove Card",
+      "removeCardTitle": "Remove Echo Card",
+      "removeCardConfirm": "Remove <strong>{name}</strong> from this character? The slot becomes free.",
+      "removed": "Removed Echo card: {name}",
+      "gmOnlyRemove": "Only the GM can remove Echo Cards.",
+      "notFound": "That Echo Card is not on this character.",
+      "licensedSlots": "licensed",
+      "unlicensedSlot": "No licensed slot",
+      "unlicensedUse": "This card has no licensed slot at the current Mastery Rank. The GM must remove it.",
+      "overflowHint": "Extra cards from a higher starting Mastery Rank stay until the GM removes them. They cannot be used."
+    },
+    "xp": {
+      "regularLabel": "Regular XP",
+      "regularHint": "Session XP. Each Attribute, Skill, Power, or Artifact may rise only once per Upgrade Step. The flag ends the current step.",
+      "freeLabel": "Free XP",
+      "freeHint": "Bonus XP with no step limit. Spent before Regular XP. Use this for a higher starting Mastery Rank or free redistribution."
+    },
     "reactionDialogTitle": "Reaction — {defender}",
     "reactionDecline": "Decline (no reaction)",
     "combatStripDrSustained": "DR {pct}% (sustained, excludes per-hit reaction bonus)",

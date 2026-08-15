@@ -1958,6 +1958,29 @@
   border-style: dashed;
 }
 
+.mastery-system.sheet.actor.character .echo-deck-overflow-hint {
+  margin: 0 0 4px 0;
+  color: #e8c48a;
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.mastery-system.sheet.actor.character .echo-card.echo-card-overflow {
+  border-style: dashed;
+  border-color: rgba(200, 150, 70, 0.55);
+  opacity: 0.78;
+}
+
+.mastery-system.sheet.actor.character .echo-card-overflow-label {
+  font-size: 10px;
+  padding: 2px 7px;
+  border-radius: 10px;
+  background: rgba(180, 120, 40, 0.28);
+  color: #ffd8a0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
 .mastery-system.sheet.actor.character .echo-card-header {
   display: flex;
   align-items: center;
@@ -1970,6 +1993,28 @@
   color: var(--df-text-primary, #e8e8e8);
   font-family: var(--df-font-head);
   font-size: 16px;
+}
+
+.mastery-system.sheet.actor.character .echo-card-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.mastery-system.sheet.actor.character .remove-echo-card-btn {
+  background: rgba(140, 40, 40, 0.28);
+  border: 1px solid rgba(180, 70, 70, 0.45);
+  color: #f0c8c8;
+  padding: 3px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 11px;
+  font-family: 'Cormorant Garamond', serif;
+}
+
+.mastery-system.sheet.actor.character .remove-echo-card-btn:hover {
+  background: rgba(170, 50, 50, 0.45);
 }
 
 .mastery-system.sheet.actor.character .echo-card-used-label {
