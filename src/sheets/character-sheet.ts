@@ -4547,7 +4547,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     if (!rollOptions) return;
 
     const attributeValue = system.attributes?.[rollOptions.attributeKey]?.value || 0;
-    const masteryRank = system.mastery?.rank || 2;
 
     let numDice = attributeValue;
     let equipPenaltyFlavor = '';

@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.332] - 2026-08-15
+
+### Fixed
+
+- **Build:** Echo Card use no longer redeclares `masteryRank`, so the TypeScript release build succeeds.
+
 ## [0.9.331] - 2026-08-15
 
 ### Added
