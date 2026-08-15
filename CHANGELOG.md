@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.333] - 2026-08-15
+
+### Changed
+
+- **Echo Cards:** Licensed slots are 1 at creation, 2 at Mastery Rank 4, and 3 at Mastery Rank 6. There is no extra card at Rank 2. Maximum is 3 cards.
+
 ## [0.9.332] - 2026-08-15
 
 ### Fixed

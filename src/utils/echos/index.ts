@@ -144,11 +144,11 @@ export function isMrPerRest(usage: EchoUsage): boolean {
 }
 
 /** Mastery Rank that licenses each Echo Card slot (1-based order). */
-export const ECHO_CARD_SLOT_UNLOCK_RANKS = [1, 2, 4, 6] as const;
+export const ECHO_CARD_SLOT_UNLOCK_RANKS = [1, 4, 6] as const;
 
 /**
  * Number of Echo-Card slots unlocked at a given Mastery Rank.
- * Start: 1. +1 at MR 2/4/6. Hard cap at 4 (the full deck).
+ * Start: 1. Second card at MR 4, third at MR 6.
  */
 export function getUnlockedCardSlots(masteryRank: number): number {
   const mr = Math.max(1, Number(masteryRank) || 1);

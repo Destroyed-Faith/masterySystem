@@ -2,7 +2,7 @@
  * Echo System tests.
  *
  * Covers:
- *  - Slot unlocks at Mastery Ranks 1/2/3/4/5/6/7.
+ *  - Slot unlocks: 1 at creation, +1 at MR 4, +1 at MR 6.
  *  - Card-use marking + Safe-Haven reset.
  *  - Sub-choice validation (Elves/Sentinels require, others don't).
  *  - Every card option references an existing SKILLS key.
@@ -79,35 +79,34 @@ describe('Echo Slot Unlocks', () => {
   it('MR 1 yields 1 card slot (creation start)', () => {
     expect(getUnlockedCardSlots(1)).toBe(1);
   });
-  it('MR 2 yields 2 card slots', () => {
-    expect(getUnlockedCardSlots(2)).toBe(2);
+  it('MR 2 and 3 still have only the creation card', () => {
+    expect(getUnlockedCardSlots(2)).toBe(1);
+    expect(getUnlockedCardSlots(3)).toBe(1);
   });
-  it('MR 3 still yields 2 card slots', () => {
-    expect(getUnlockedCardSlots(3)).toBe(2);
+  it('MR 4 yields the second card slot', () => {
+    expect(getUnlockedCardSlots(4)).toBe(2);
   });
-  it('MR 4 yields 3 card slots', () => {
-    expect(getUnlockedCardSlots(4)).toBe(3);
+  it('MR 5 still yields 2 card slots', () => {
+    expect(getUnlockedCardSlots(5)).toBe(2);
   });
-  it('MR 5 still yields 3 card slots', () => {
-    expect(getUnlockedCardSlots(5)).toBe(3);
+  it('MR 6 yields the third card slot', () => {
+    expect(getUnlockedCardSlots(6)).toBe(3);
   });
-  it('MR 6 yields the full 4 card slots', () => {
-    expect(getUnlockedCardSlots(6)).toBe(4);
-  });
-  it('MR 7+ never exceeds 4 card slots', () => {
-    expect(getUnlockedCardSlots(7)).toBe(4);
-    expect(getUnlockedCardSlots(99)).toBe(4);
+  it('MR 7+ stays at 3 card slots', () => {
+    expect(getUnlockedCardSlots(7)).toBe(3);
+    expect(getUnlockedCardSlots(99)).toBe(3);
   });
 
   it('keeps overflow cards until they are removed, but only licenses unlocked slots', () => {
     const held = ['card-a', 'card-b', 'card-c'];
-    expect(getLicensedEchoCardIds(held, 1)).toEqual(['card-a']);
-    expect(getLicensedEchoCardIds(held, 2)).toEqual(['card-a', 'card-b']);
-    expect(isEchoCardLicensed(held, 1, 'card-c')).toBe(false);
-    expect(isEchoCardLicensed(held, 4, 'card-c')).toBe(true);
+    expect(getLicensedEchoCardIds(held, 2)).toEqual(['card-a']);
+    expect(getLicensedEchoCardIds(held, 4)).toEqual(['card-a', 'card-b']);
+    expect(isEchoCardLicensed(held, 2, 'card-b')).toBe(false);
+    expect(isEchoCardLicensed(held, 4, 'card-c')).toBe(false);
+    expect(isEchoCardLicensed(held, 6, 'card-c')).toBe(true);
     const afterManualRemove = removeSelectedEchoCard(held, {}, 'card-c');
     expect(afterManualRemove.selectedCardIds).toEqual(['card-a', 'card-b']);
-    expect(isEchoCardLicensed(afterManualRemove.selectedCardIds, 1, 'card-b')).toBe(false);
+    expect(isEchoCardLicensed(afterManualRemove.selectedCardIds, 2, 'card-b')).toBe(false);
   });
 });
 
