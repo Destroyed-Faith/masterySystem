@@ -732,13 +732,14 @@ export async function downgradeArtifactForActor(
     if (!parentId) {
       return { ok: false, error: `Cannot revert this artifact to level ${want}.` };
     }
-    const parentWorld = resolveWorldItemByNodeId(parentId, folderItems);
+    const parentWorld = resolveWorldItemByNodeId(parentId, folderItems) as any;
     if (!parentWorld) return { ok: false, error: 'Could not resolve the parent artifact node.' };
     const parentLevel = Number((parentWorld.system as any)?.level ?? 1) || 1;
+    const worldAny = world as any;
     drops.push({
       from: level,
       to: parentLevel,
-      fromName: String(world.name || emb.name),
+      fromName: String(worldAny.name || emb.name),
       toName: String(parentWorld.name || ''),
       toNodeId: parentId,
       toWorld: parentWorld,

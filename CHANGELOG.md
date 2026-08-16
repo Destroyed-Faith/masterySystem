@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.336] - 2026-08-16
+
+### Fixed
+
+- **Build:** Artifact history refund compiles. Foundry's `Item` type does not expose `name` without a cast.
+
 ## [0.9.335] - 2026-08-16
 
 ### Added
