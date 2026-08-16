@@ -15,39 +15,61 @@ export interface SceneEncounterToken {
   hidden: boolean;
 }
 
+function asTokenArray(raw: any): any[] {
+  if (!raw) return [];
+  if (Array.isArray(raw)) return raw;
+  if (Array.isArray(raw.contents)) return raw.contents;
+  if (Array.isArray(raw.placeables)) return raw.placeables;
+  if (typeof raw.values === 'function') return Array.from(raw.values());
+  return [];
+}
+
+function readEncounterToken(token: any, isGM: boolean): SceneEncounterToken | null {
+  const doc = token?.document ?? token;
+  const actorId = String(doc?.actorId ?? token?.actorId ?? '');
+  const actor =
+    token?.actor ??
+    doc?.actor ??
+    (actorId && typeof game !== 'undefined' ? (game as any).actors?.get?.(actorId) : null);
+  if (!actor) return null;
+  const hidden = doc?.hidden === true || token?.hidden === true;
+  if (hidden && !isGM) return null;
+  const actorType = String(actor.type ?? '');
+  if (actorType !== 'character' && actorType !== 'npc' && actorType !== 'summon') return null;
+  const tokenId = String(doc?.id ?? token?.id ?? doc?._id ?? token?._id ?? '');
+  if (!tokenId) return null;
+  return {
+    tokenId,
+    actorId: String(actor.id ?? actorId),
+    name: String(doc?.name || token?.name || actor.name || '—'),
+    img: String(doc?.texture?.src || token?.texture?.src || actor.img || 'icons/svg/mystery-man.svg'),
+    actorType,
+    isCharacter: actorType === 'character',
+    hidden,
+  };
+}
+
 export function listSceneEncounterTokens(scene?: any): SceneEncounterToken[] {
   const sc =
     scene ??
     (typeof canvas !== 'undefined' ? (canvas as any)?.scene : null) ??
     (typeof game !== 'undefined' ? (game as any).scenes?.active : null);
-  const raw = sc?.tokens;
-  const tokens: any[] = Array.isArray(raw)
-    ? raw
-    : Array.isArray(raw?.contents)
-      ? raw.contents
-      : typeof raw?.values === 'function'
-        ? Array.from(raw.values())
-        : [];
   const isGM = !!(typeof game !== 'undefined' && game.user?.isGM);
+  const seen = new Set<string>();
   const out: SceneEncounterToken[] = [];
-  for (const token of tokens) {
-    const actor = token?.actor;
-    if (!actor) continue;
-    const hidden = token.hidden === true;
-    if (hidden && !isGM) continue;
-    const actorType = String(actor.type ?? '');
-    if (actorType !== 'character' && actorType !== 'npc' && actorType !== 'summon') continue;
-    out.push({
-      tokenId: String(token.id ?? token._id ?? ''),
-      actorId: String(actor.id ?? token.actorId ?? ''),
-      name: String(token.name || actor.name || '—'),
-      img: String(token.texture?.src || actor.img || 'icons/svg/mystery-man.svg'),
-      actorType,
-      isCharacter: actorType === 'character',
-      hidden,
-    });
+  const sources = [asTokenArray(sc?.tokens), asTokenArray(sc?.tokens?.contents)];
+  if (!scene && typeof canvas !== 'undefined') {
+    sources.push(asTokenArray((canvas as any)?.tokens?.placeables));
   }
-  return out.filter((t) => t.tokenId);
+  for (const list of sources) {
+    for (const token of list) {
+      const row = readEncounterToken(token, isGM);
+      if (!row || seen.has(row.tokenId)) continue;
+      seen.add(row.tokenId);
+      out.push(row);
+    }
+  }
+  return out;
 }
 
 export async function requestStartEncounter(opts: {

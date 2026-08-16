@@ -58,6 +58,7 @@
     },
     "startEncounter": {
       "start": "Start Encounter",
+      "trackerHint": "Open the token picker — not the + button (that only creates empty numbered combats).",
       "lead": "Check tokens on the scene and start combat. As a player you get Passives, Stones, and the Initiative Shop just like a real start.",
       "empty": "No PC or NPC tokens on this scene.",
       "toggleAll": "Toggle all",

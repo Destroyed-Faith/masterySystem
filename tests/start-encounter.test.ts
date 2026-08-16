@@ -44,6 +44,16 @@ describe('listSceneEncounterTokens', () => {
     };
     expect(listSceneEncounterTokens(scene).map((t) => t.name)).toEqual(['Open']);
   });
+
+  it('reads canvas placeables when the scene collection is empty', () => {
+    (globalThis as any).game = { user: { isGM: true } };
+    (globalThis as any).canvas = {
+      scene: { tokens: { contents: [] } },
+      tokens: { placeables: [token({ id: 't9', name: 'Alaris', type: 'character' })] },
+    };
+    expect(listSceneEncounterTokens().map((t) => t.name)).toEqual(['Alaris']);
+    delete (globalThis as any).canvas;
+  });
 });
 
 describe('simulate player encounter', () => {

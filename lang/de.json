@@ -58,6 +58,7 @@
     },
     "startEncounter": {
       "start": "Start Encounter",
+      "trackerHint": "Token-Auswahl öffnen — nicht das Plus (das legt nur leere nummerierte Kämpfe an).",
       "lead": "Token auf der Szene anhaken und den Kampf starten. Als Spieler siehst du Passives, Steine und den Initiative Shop wie bei einem echten Start.",
       "empty": "Keine SC- oder NSC-Token auf dieser Szene.",
       "toggleAll": "Alle umschalten",

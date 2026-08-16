@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.350] - 2026-08-16
+
+### Fixed
+
+- **Start Encounter:** The token picker now opens from the button at the top of the Combat Tracker. Foundry's + still only creates empty numbered combats.
+
 ## [0.9.349] - 2026-08-16
 
 ### Added

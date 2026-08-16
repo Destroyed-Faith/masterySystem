@@ -34,6 +34,7 @@ import {
 } from './import/character-import.js';
 import { CHARACTER_IMPORT_SCHEMA_VERSION } from './import/character-import-types.js';
 import { CombatCarouselApp } from './ui/combat-carousel.js';
+import { StartEncounterDialog } from './ui/start-encounter-dialog.js';
 import { initializeStoneHooks } from './stones/stone-hooks.js';
 import {
   applyPassiveTriggerToCombat,
@@ -472,6 +473,24 @@ Hooks.once('init', async function() {
     }
   });
 
+  function bindStartEncounterClick(): void {
+    const w = window as unknown as { _msStartEncounterClickBound?: boolean };
+    if (w._msStartEncounterClickBound) return;
+    w._msStartEncounterClickBound = true;
+    document.addEventListener(
+      'click',
+      (ev) => {
+        const target = ev.target as HTMLElement | null;
+        if (!target?.closest?.('.ms-start-encounter-btn')) return;
+        ev.preventDefault();
+        ev.stopPropagation();
+        void StartEncounterDialog.open();
+      },
+      true,
+    );
+  }
+  bindStartEncounterClick();
+
   // Hide initiative roll button (d20) and add passive selection button in combat tracker
   // Also add End Turn button for current combatant
   Hooks.on('renderCombatTracker', (_app: any, html: any) => {
@@ -504,19 +523,16 @@ Hooks.once('init', async function() {
 
     $html.find('.ms-start-encounter-bar').remove();
     const startLabel = game.i18n?.localize('MASTERY.startEncounter.start') || 'Start Encounter';
+    const startHint = game.i18n?.localize('MASTERY.startEncounter.trackerHint') || 'Pick PCs and NPCs on the scene';
     const startBar = $(
-      `<div class="ms-start-encounter-bar"><button type="button" class="ms-start-encounter-btn">${startLabel}</button></div>`,
+      `<div class="ms-start-encounter-bar"><button type="button" class="ms-start-encounter-btn" title="${startHint}">${startLabel}</button></div>`,
     );
+    const encountersNav = $html.find('nav.encounters');
     const encounterControlsHost = $html.find('.encounter-controls');
-    if (encounterControlsHost.length) encounterControlsHost.before(startBar);
+    if (encountersNav.length) encountersNav.before(startBar);
+    else if (encounterControlsHost.length) encounterControlsHost.before(startBar);
     else $html.prepend(startBar);
-    startBar.find('.ms-start-encounter-btn').on('click', (ev: JQuery.ClickEvent) => {
-      ev.preventDefault();
-      ev.stopPropagation();
-      void import('./ui/start-encounter-dialog.js').then(({ StartEncounterDialog }) => {
-        StartEncounterDialog.open();
-      });
-    });
+    bindStartEncounterClick();
 
     // Add buttons to each combatant row for passive and initiative dialogs
     $html.find('.combatant').each((_index: number, combatantElement: HTMLElement) => {
