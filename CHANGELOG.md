@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.355] - 2026-08-17
+
+### Fixed
+
+- **Round advance:** After the last End Turn, combat waits until every connected player confirms stones for the new round. Actions, next turn, and next round stay blocked until then. Players without a GM client still get the stone dialog (Join Game As).
+
 ## [0.9.354] - 2026-08-17
 
 ### Fixed

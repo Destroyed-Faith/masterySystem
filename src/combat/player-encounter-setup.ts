@@ -6,19 +6,26 @@
  * reopening after ✕; Join Game As / reload starts a new session.
  */
 
-import { ENCOUNTER_SOCKET, resolveLiveCombat, shouldShowEncounterDialogLocally } from './combat-permissions.js';
+import {
+  ENCOUNTER_SOCKET,
+  canCurrentUserUpdateDocument,
+  resolveLiveCombat,
+  shouldShowEncounterDialogLocally,
+} from './combat-permissions.js';
 import { isCombatantInitiativeConfirmed, isPassiveSelectionLocked, persistCombatantSetupStep } from './encounter-setup-flags.js';
 
 const dismissedThisSession = new Set<string>();
 let pipelineRunning = false;
+let pipelineQueued = false;
 
-function stepKey(combatId: string, actorId: string, step: string): string {
-  return `${combatId}:${actorId}:${step}`;
+function stepKey(combatId: string, actorId: string, step: string, round?: number): string {
+  return round == null ? `${combatId}:${actorId}:${step}` : `${combatId}:${actorId}:${step}:${round}`;
 }
 
 export function clearPlayerEncounterSetupSession(): void {
   dismissedThisSession.clear();
   pipelineRunning = false;
+  pipelineQueued = false;
 }
 
 function dialogAlreadyOpen(id: string): boolean {
@@ -37,7 +44,10 @@ function dialogAlreadyOpen(id: string): boolean {
  * Resume pending setup for every locally owned PC in the active encounter.
  */
 export async function resumePlayerEncounterSetup(combat?: Combat | null): Promise<void> {
-  if (pipelineRunning) return;
+  if (pipelineRunning) {
+    pipelineQueued = true;
+    return;
+  }
   if (typeof game === 'undefined' || !game.user) return;
 
   const live = resolveLiveCombat(combat ?? game.combat);
@@ -59,6 +69,10 @@ export async function resumePlayerEncounterSetup(combat?: Combat | null): Promis
     }
   } finally {
     pipelineRunning = false;
+    if (pipelineQueued) {
+      pipelineQueued = false;
+      void resumePlayerEncounterSetup(live);
+    }
   }
 }
 
@@ -71,7 +85,7 @@ async function runSetupForCombatant(combat: Combat, combatant: Combatant): Promi
   const actorId = String(actor.id);
   const round = Math.max(1, Number(combat.round) || 1);
 
-  if (!isPassiveSelectionLocked(combat, actorId)) {
+  if (round <= 1 && !isPassiveSelectionLocked(combat, actorId)) {
     if (dismissedThisSession.has(stepKey(combatId, actorId, 'passives'))) return;
     if (dialogAlreadyOpen('mastery-passive-selection')) return;
 
@@ -90,15 +104,27 @@ async function runSetupForCombatant(combat: Combat, combatant: Combatant): Promi
     // Players cannot write Combat flags; the GM socket applies the lock. Continue locally.
   }
 
-  const { isStonePowersDone, handleStonePowersComplete } = await import('./stone-powers-flow.js');
+  const { isStonePowersDone } = await import('./stone-round-gate.js');
+  const { handleStonePowersComplete } = await import('./stone-powers-flow.js');
   if (!isStonePowersDone(combat, combatant.id, round)) {
-    if (dismissedThisSession.has(stepKey(combatId, actorId, 'stones'))) return;
+    if (dismissedThisSession.has(stepKey(combatId, actorId, 'stones', round))) return;
     if (dialogAlreadyOpen('mastery-stone-powers')) return;
+
+    if (round > 1) {
+      try {
+        const { syncStonePoolCapsFromAttributes } = await import('./action-economy.js');
+        if (canCurrentUserUpdateDocument(actor)) {
+          await syncStonePoolCapsFromAttributes(actor);
+        }
+      } catch (err) {
+        console.warn('Mastery System | Could not sync stone pools for the new round', err);
+      }
+    }
 
     const { StonePowersDialog } = await import('../stones/stone-powers-dialog.js');
     const confirmed = await StonePowersDialog.showForActor(actor, combatant);
     if (!confirmed) {
-      dismissedThisSession.add(stepKey(combatId, actorId, 'stones'));
+      dismissedThisSession.add(stepKey(combatId, actorId, 'stones', round));
       return;
     }
     await persistCombatantSetupStep(combatant, combat, { stonesDoneRound: round });

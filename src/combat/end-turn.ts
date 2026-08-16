@@ -1,3 +1,5 @@
+import { warnIfPlayerStonesPending } from './stone-round-gate.js';
+
 let requestEndTurnInFlight = false;
 
 /**
@@ -13,6 +15,8 @@ export async function requestEndTurn(): Promise<void> {
     ui.notifications.warn('No active combat!');
     return;
   }
+
+  if (warnIfPlayerStonesPending(combat)) return;
   
   const currentCombatant = combat.combatant;
   if (!currentCombatant) {

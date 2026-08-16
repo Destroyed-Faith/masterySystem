@@ -15,7 +15,10 @@ import {
   clearCombatStoneTurnBonusesForActor,
 } from '../combat/action-economy.js';
 import { clearMasteryActiveBuffsForCombatants } from '../utils/active-buffs.js';
-import { runMasteryCombatRoundAdvancePipeline } from '../combat/stone-powers-flow.js';
+import {
+  runMasteryCombatRoundAdvancePipeline,
+  runPlayerOwnedRoundAdvance,
+} from '../combat/stone-powers-flow.js';
 import { endMinorMagicRestForCombat } from '../utils/minor-magic-items.js';
 import { canCurrentUserUpdateDocument } from '../combat/combat-permissions.js';
 
@@ -61,10 +64,15 @@ export function initializeStoneHooks(): void {
       }
     }
     
-    // Round changed: ein Pfad — Reset, ggf. Regen, dann Stone Powers (Runde 2+)
+    // Round changed: GM resets everyone; players still open their own stone dialogs
+    // (Join Game As has no GM client, so that path is the only prompt).
     if (changes.round !== undefined) {
       const newRound = changes.round;
-      await runMasteryCombatRoundAdvancePipeline(combat, newRound);
+      if (game.user?.isGM) {
+        await runMasteryCombatRoundAdvancePipeline(combat, newRound);
+      } else {
+        await runPlayerOwnedRoundAdvance(combat, newRound);
+      }
     }
   });
   

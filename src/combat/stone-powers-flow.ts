@@ -25,7 +25,9 @@ import {
   resolveLiveCombat,
   shouldShowEncounterDialogLocally,
 } from './combat-permissions.js';
-import { readCombatantSetupStep } from './encounter-setup-flags.js';
+import { isStonePowersDone } from './stone-round-gate.js';
+
+export { arePlayerStonesReadyForRound, isStonePowersDone, warnIfPlayerStonesPending } from './stone-round-gate.js';
 
 interface StonePowersState {
   roundStonesPrompted: Record<number, boolean>;
@@ -70,17 +72,43 @@ async function markStonePowersDone(combat: Combat, combatantId: string, round: n
   await updateStonePowersState(combat, { stonesDone: state.stonesDone });
 }
 
-export function isStonePowersDone(combat: Combat, combatantId: string, round: number): boolean {
-  if (getStonePowersState(combat).stonesDone[combatantId] === round) return true;
-  const combatant = combat.combatants.get(combatantId);
-  return Number(readCombatantSetupStep(combatant, combat)?.stonesDoneRound) === Number(round);
+/**
+ * Join Game As / no GM client: reset + regen owned actors, then open stone dialogs.
+ * The GM path (`runMasteryCombatRoundAdvancePipeline`) already covers this when a GM is present.
+ */
+export async function runPlayerOwnedRoundAdvance(combat: Combat, newRound: number): Promise<void> {
+  if (game.user?.isGM) return;
+  const live = resolveLiveCombat(combat);
+  if (!live) return;
+  combat = live;
+  if (newRound <= 1) {
+    void import('./player-encounter-setup.js').then(({ resumePlayerEncounterSetup }) => {
+      void resumePlayerEncounterSetup(combat);
+    });
+    return;
+  }
+  for (const combatant of combat.combatants) {
+    const actor = combatant.actor;
+    if (!actor || !canCurrentUserUpdateDocument(actor)) continue;
+    try {
+      await resetRoundState(actor, combatant, combat);
+    } catch (err) {
+      console.warn('Mastery System | Player round reset failed', err);
+    }
+  }
+  try {
+    await regenStonesEndOfRound(combat);
+  } catch (err) {
+    console.warn('Mastery System | Player stone regen failed', err);
+  }
+  void import('./player-encounter-setup.js').then(({ resumePlayerEncounterSetup }) => {
+    void resumePlayerEncounterSetup(combat);
+  });
 }
 
 function areAllCombatantsDone(combat: Combat, round: number): boolean {
-  const state = getStonePowersState(combat);
   const allCombatants = Array.from(combat.combatants) as Combatant[];
-
-  return allCombatants.every((combatant: Combatant) => state.stonesDone[combatant.id] === round);
+  return allCombatants.every((combatant: Combatant) => isStonePowersDone(combat, combatant.id, round));
 }
 
 /**

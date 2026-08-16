@@ -301,6 +301,9 @@ async function openMasteryActionRadialMenu(token: any) {
     return;
   }
 
+  const { warnIfPlayerStonesPending } = await import('./combat/stone-round-gate.js');
+  if (warnIfPlayerStonesPending(game.combat)) return;
+
   // Close any existing radial menu
   closeRadialMenu();
 
@@ -742,6 +745,9 @@ export async function handleChosenCombatOption(token: any, option: RadialCombatO
     ui.notifications?.warn('Not in combat!');
     return;
   }
+
+  const { warnIfPlayerStonesPending } = await import('./combat/stone-round-gate.js');
+  if (warnIfPlayerStonesPending(combat)) return;
 
   const actor = token.actor;
   if (!actor) {

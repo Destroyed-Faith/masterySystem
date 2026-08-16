@@ -4,6 +4,7 @@ import {
   isStonePowersConfigurationLocked,
 } from '../combat/action-economy.js';
 import { requestEndTurn } from '../combat/end-turn.js';
+import { warnIfPlayerStonesPending } from '../combat/stone-round-gate.js';
 import { StonePowersDialog } from '../stones/stone-powers-dialog.js';
 import { MASTERY_STATUS_EFFECTS } from '../system/status-effects.js';
 import { hideCarouselHpNumbers } from './combat-carousel-hp.js';
@@ -444,6 +445,7 @@ export class CombatCarouselApp extends BaseCarousel {
         if (CombatCarouselApp._turnNavigationBusy) return;
         const combat = game.combats?.active;
         if (!combat) return;
+        if (warnIfPlayerStonesPending(combat)) return;
         CombatCarouselApp._turnNavigationBusy = true;
         try {
           await combat.nextTurn();
@@ -459,6 +461,7 @@ export class CombatCarouselApp extends BaseCarousel {
         ev.preventDefault();
         const combat = game.combats?.active;
         if (combat) {
+          if (warnIfPlayerStonesPending(combat)) return;
           await combat.nextRound();
         }
       };
