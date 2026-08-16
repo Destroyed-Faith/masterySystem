@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.357] - 2026-08-17
+
+### Fixed
+
+- **Round advance:** Next Turn / Next Round (including the GM combat tracker) now waits for every PC to confirm stones. The warning lists who is still open.
+
 ## [0.9.356] - 2026-08-17
 
 ### Fixed

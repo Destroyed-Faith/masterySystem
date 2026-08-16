@@ -1,12 +1,8 @@
 /**
- * Hold the new round until connected PCs confirm stone assignment.
- * Unattended characters and NPCs do not block the table.
+ * Hold the new round until every PC confirms stone assignment.
+ * NPCs do not block. The GM cannot skip the wait with Next Turn.
  */
 
-import {
-  findConnectedPlayerOwners,
-  shouldShowEncounterDialogLocally,
-} from './combat-permissions.js';
 import { readCombatantSetupStep } from './encounter-setup-flags.js';
 
 export function isStonePowersDone(combat: Combat, combatantId: string, round: number): boolean {
@@ -16,31 +12,59 @@ export function isStonePowersDone(combat: Combat, combatantId: string, round: nu
   return Number(readCombatantSetupStep(combatant, combat)?.stonesDoneRound) === Number(round);
 }
 
-function isStoneGateCombatant(combatant: Combatant): boolean {
-  const actor = combatant.actor as { type?: string } | null;
-  if (!actor || actor.type !== 'character') return false;
-  if (shouldShowEncounterDialogLocally(actor as Actor)) return true;
-  return findConnectedPlayerOwners(actor as Actor).length > 0;
+function isPlayerCharacter(combatant: Combatant): boolean {
+  return combatant.actor?.type === 'character';
+}
+
+export function pendingStoneCombatants(
+  combat: Combat,
+  round: number = Math.max(1, Number(combat.round) || 1),
+): Combatant[] {
+  return (Array.from(combat.combatants) as Combatant[]).filter(
+    (c) => isPlayerCharacter(c) && !isStonePowersDone(combat, c.id, round),
+  );
+}
+
+export function pendingStonePlayerNames(
+  combat: Combat,
+  round: number = Math.max(1, Number(combat.round) || 1),
+): string[] {
+  return pendingStoneCombatants(combat, round).map((c) => {
+    const name = String((c.actor as { name?: string } | null)?.name || (c as { name?: string }).name || '').trim();
+    return name || 'Unbekannt';
+  });
 }
 
 export function arePlayerStonesReadyForRound(
   combat: Combat,
   round: number = Math.max(1, Number(combat.round) || 1),
 ): boolean {
-  const pcs = Array.from(combat.combatants).filter((c) => isStoneGateCombatant(c)) as Combatant[];
-  if (!pcs.length) return true;
-  return pcs.every((c) => isStonePowersDone(combat, c.id, round));
+  return pendingStoneCombatants(combat, round).length === 0;
 }
 
-/** @returns true if actions must wait for stone confirm. */
+function stoneWaitMessage(combat: Combat): string {
+  const names = pendingStonePlayerNames(combat);
+  const who = names.length ? ` Noch offen: ${names.join(', ')}.` : '';
+  return `Neue Runde: alle Spieler müssen ihre Steine bestätigen, bevor jemand den Zug wechselt.${who}`;
+}
+
+/** @returns true if actions / turn advance must wait for stone confirm. */
 export function warnIfPlayerStonesPending(combat: Combat | null | undefined): boolean {
   if (!combat?.started) return false;
   if (arePlayerStonesReadyForRound(combat)) return false;
-  ui.notifications?.warn(
-    'Neue Runde: alle Spieler müssen ihre Steine bestätigen, bevor jemand handelt.',
-  );
+  ui.notifications?.warn(stoneWaitMessage(combat));
   void import('./player-encounter-setup.js').then(({ resumePlayerEncounterSetup }) => {
     void resumePlayerEncounterSetup(combat);
   });
   return true;
+}
+
+/** Blocks Foundry tracker Next Turn / Next Round while PC stones are still open. */
+export function initializeStoneRoundGate(): void {
+  Hooks.on('preUpdateCombat', (combat: Combat, changes: any, _options: any, userId: string) => {
+    if (userId !== game.user?.id) return;
+    if (changes?.turn === undefined && changes?.round === undefined) return;
+    if (warnIfPlayerStonesPending(combat)) return false;
+    return;
+  });
 }

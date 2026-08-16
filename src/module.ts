@@ -59,6 +59,7 @@ import { registerEncounterSocket } from './combat/encounter-socket.js';
 import { canCurrentUserUpdateDocument } from './combat/combat-permissions.js';
 import { initializeSceneControls, initializeTokenHUDButton } from './ui/scene-controls-mastery.js';
 import { initializeStonePowersFlow } from './combat/stone-powers-flow.js';
+import { initializeStoneRoundGate } from './combat/stone-round-gate.js';
 import { registerDivineClashSettings } from './divine-clash/divine-clash-settings.js';
 import { registerEpicMasteryRollSettings } from './epic-roll/epic-mastery-roll-settings.js';
 import { initializeEpicMasteryRoll } from './epic-roll/register-epic-mastery-roll.js';
@@ -315,6 +316,7 @@ Hooks.once('init', async function() {
   
   // Initialize stone powers flow system
   initializeStonePowersFlow();
+  initializeStoneRoundGate();
   
   // Initialize Divine Clash hooks
   initializeDivineClashHooks();
