@@ -1570,43 +1570,37 @@ function setupXpManagementInline() {
     htmlContent += '<div class="bulk-grant-group bulk-reset-group"><button type="button" class="bulk-reset-xp-account-btn" title="XP-Konten und History für alle Charaktere auf 0"><i class="fas fa-eraser"></i> Reset XP (All)</button></div>';
     htmlContent += '</div></div>';
     
-    // Characters Table — new spec: surface the once-per-step bump summary
-    // in place of the legacy `maxAttributeSpend` column.
+    const colCharacter = i18n.localize('MASTERY.xp.colCharacter');
+    const colSpent = i18n.localize('MASTERY.xp.colSpent');
+    const colAvail = i18n.localize('MASTERY.xp.colAvail');
+    const colFree = i18n.localize('MASTERY.xp.colFree');
+    const colEarned = i18n.localize('MASTERY.xp.colEarned');
+    const colActions = i18n.localize('MASTERY.xp.colActions');
+    const spentHint = i18n.localize('MASTERY.xp.spentHint');
+    const availHint = i18n.localize('MASTERY.xp.availHint');
+
     htmlContent += '<div class="characters-list"><table class="xp-table xp-table-compact"><thead><tr>';
-    htmlContent += '<th>Character</th><th>Player</th><th>Spent</th><th>Avail.</th><th>Free Avail.</th><th>Earned</th><th>Step bumps</th><th>Actions</th>';
+    htmlContent += `<th>${colCharacter}</th><th title="${spentHint}">${colSpent}</th><th title="${availHint}">${colAvail}</th><th>${colFree}</th><th>${colEarned}</th><th>${colActions}</th>`;
     htmlContent += '</tr></thead><tbody>';
 
     if (characters.length === 0) {
-      htmlContent += '<tr><td colspan="8" class="empty-message"><i class="fas fa-info-circle"></i> No player characters found.</td></tr>';
+      htmlContent += '<tr><td colspan="6" class="empty-message"><i class="fas fa-info-circle"></i> No player characters found.</td></tr>';
     } else {
-      const sanitize = (input: unknown): string[] =>
-        Array.isArray(input) ? input.map((v) => String(v ?? '')).filter((s) => s.length > 0) : [];
-
       characters.forEach((actor: any) => {
         const system = actor.system || {};
         const points = system.points || {};
         const xp = system.xp || {};
 
         const totalEarned = xp.totalEarned ?? 0;
-        const totalSpent = xp.totalSpent ?? 0;
         const available = points.xp ?? 0;
         const freeAvailable = points.xpFree ?? 0;
         const freeEarned = xp.freeEarned ?? 0;
+        const earnedAll = totalEarned + freeEarned;
+        const availableAll = available + freeAvailable;
+        const spentAll = Math.max(0, earnedAll - availableAll);
+        const freeAvailHint = i18n.format('MASTERY.xp.freeAvailHint', { earned: freeEarned });
+        const earnedHint = i18n.format('MASTERY.xp.earnedHint', { regular: totalEarned, free: freeEarned });
 
-        const stepRaw = xp.currentStep ?? {};
-        const stepAttrs = sanitize(stepRaw.attributes);
-        const stepSkills = sanitize(stepRaw.skills);
-        const stepPowers = sanitize(stepRaw.powers);
-        const stepArtifacts = sanitize(stepRaw.artifacts);
-        const stepTotal = stepAttrs.length + stepSkills.length + stepPowers.length + stepArtifacts.length;
-        const stepSummaryParts: string[] = [];
-        if (stepAttrs.length) stepSummaryParts.push(`Attrs: ${stepAttrs.join(', ')}`);
-        if (stepSkills.length) stepSummaryParts.push(`Skills: ${stepSkills.join(', ')}`);
-        if (stepPowers.length) stepSummaryParts.push(`Powers: ${stepPowers.length}`);
-        if (stepArtifacts.length) stepSummaryParts.push(`Artifacts: ${stepArtifacts.length}`);
-        const stepSummary = stepSummaryParts.length ? stepSummaryParts.join(' | ') : 'No bumps this step';
-
-        const playerName = (game as any).users?.find((u: any) => u.character?.id === actor.id)?.name || 'Unassigned';
         const isGM = (game as any).user?.isGM;
         const hasSnap = actorHasPostCreationSnapshot(actor);
         const resetBtn = isGM
@@ -1615,12 +1609,10 @@ function setupXpManagementInline() {
 
         htmlContent += `<tr data-character-id="${actor.id}">`;
         htmlContent += `<td class="character-cell"><img src="${actor.img}" alt="${actor.name}" class="character-avatar" /><span class="character-name">${actor.name}</span></td>`;
-        htmlContent += `<td class="player-cell">${playerName}</td>`;
-        htmlContent += `<td class="xp-cell"><strong>${totalSpent}</strong></td>`;
-        htmlContent += `<td class="xp-cell"><strong>${available}</strong></td>`;
-        htmlContent += `<td class="xp-cell xp-cell-free" title="Free XP verfügbar (${freeEarned} vergeben gesamt)"><strong>${freeAvailable}</strong></td>`;
-        htmlContent += `<td class="xp-cell"><strong>${totalEarned}</strong></td>`;
-        htmlContent += `<td class="xp-cell" title="${stepSummary.replace(/"/g, '&quot;')}">${stepTotal}</td>`;
+        htmlContent += `<td class="xp-cell" title="${spentHint}"><strong>${spentAll}</strong></td>`;
+        htmlContent += `<td class="xp-cell" title="${availHint}"><strong>${available}</strong></td>`;
+        htmlContent += `<td class="xp-cell xp-cell-free" title="${freeAvailHint}"><strong>${freeAvailable}</strong></td>`;
+        htmlContent += `<td class="xp-cell" title="${earnedHint}"><strong>${earnedAll}</strong></td>`;
         htmlContent += `<td class="grant-cell"><div class="grant-controls">`;
         htmlContent += `<div class="grant-group"><input type="number" class="xp-amount-input" data-character-id="${actor.id}" min="0" value="0" placeholder="+" title="${regularHint}" />`;
         htmlContent += `<button type="button" class="grant-xp-btn" data-character-id="${actor.id}" title="${regularHint}"><i class="fas fa-plus"></i></button>`;

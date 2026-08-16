@@ -40,6 +40,9 @@ export interface XpHistoryRow {
   signedAmount: number;
   what: string;
   note: string;
+  key: string;
+  from?: number;
+  to?: number;
 }
 
 export function currentXpUser(): { userId: string; userName: string } {
@@ -56,7 +59,7 @@ export function appendXpHistory(actor: any, entries: XpHistoryEntry[]): XpHistor
   return prior.length > 200 ? prior.slice(-200) : prior;
 }
 
-function t(key: string, fallback: string, data?: Record<string, string>): string {
+export function localizeXpHistory(key: string, fallback: string, data?: Record<string, string>): string {
   const i18n = (globalThis as any).game?.i18n;
   if (i18n) {
     const raw = data ? i18n.format?.(key, data) : i18n.localize?.(key);
@@ -78,6 +81,22 @@ function prettyKey(raw: string): string {
   const s = String(raw || '').trim();
   if (!s) return '—';
   return s.replace(/[_-]+/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+}
+
+export function historyChangeKey(change: any, details?: any): string {
+  return String(
+    change?.key ||
+      change?.attr ||
+      change?.skillKey ||
+      change?.powerId ||
+      change?.artifactId ||
+      details?.key ||
+      details?.attr ||
+      details?.skillKey ||
+      details?.powerId ||
+      details?.artifactId ||
+      '',
+  ).trim();
 }
 
 function changeLabel(change: any, fallback: string): string {
@@ -122,13 +141,15 @@ function rowFromPlain(entry: XpHistoryEntry): XpHistoryRow {
   let what = '';
   if (entry.category === 'xp' || !entry.category) {
     what = /free/i.test(note)
-      ? t('MASTERY.xp.history.freeXp', 'Free XP')
-      : t('MASTERY.xp.history.regularXp', 'Regular XP');
+      ? localizeXpHistory('MASTERY.xp.history.freeXp', 'Free XP')
+      : localizeXpHistory('MASTERY.xp.history.regularXp', 'Regular XP');
   } else if (entry.details?.name && Number.isFinite(Number(entry.details.from))) {
     what = `${entry.details.name} ${entry.details.from} → ${entry.details.to}`;
   } else {
     what = note || prettyKey(String(entry.category));
   }
+  const from = Number(entry.details?.from);
+  const to = Number(entry.details?.to);
   return {
     ts: Number(entry.ts) || 0,
     kind: String(entry.kind || ''),
@@ -137,6 +158,9 @@ function rowFromPlain(entry: XpHistoryEntry): XpHistoryRow {
     signedAmount: signedForEntry(entry, amount),
     what,
     note,
+    key: historyChangeKey(null, entry.details),
+    from: Number.isFinite(from) ? from : undefined,
+    to: Number.isFinite(to) ? to : undefined,
   };
 }
 
@@ -167,6 +191,9 @@ export function expandHistoryRows(entries: XpHistoryEntry[] | unknown): XpHistor
               signedAmount: cost >= 0 ? -Math.abs(cost) : Math.abs(cost),
               what: `${label} ${v} → ${next}`,
               note: String(rec.note || ''),
+              key: historyChangeKey(change, rec.details),
+              from: v,
+              to: next,
             });
           }
         } else {
@@ -179,6 +206,9 @@ export function expandHistoryRows(entries: XpHistoryEntry[] | unknown): XpHistor
             signedAmount: cost >= 0 ? -Math.abs(cost) : Math.abs(cost),
             what: label,
             note: String(rec.note || ''),
+            key: historyChangeKey(change, rec.details),
+            from: Number.isFinite(from) ? from : undefined,
+            to: Number.isFinite(to) ? to : undefined,
           });
         }
       }
@@ -252,15 +282,15 @@ export function buildBandedStepEntries(opts: {
 function localizeKind(kind: string): string {
   switch (kind) {
     case 'grant':
-      return t('MASTERY.xp.history.kindGrant', 'Grant');
+      return localizeXpHistory('MASTERY.xp.history.kindGrant', 'Grant');
     case 'spend':
-      return t('MASTERY.xp.history.kindSpend', 'Spend');
+      return localizeXpHistory('MASTERY.xp.history.kindSpend', 'Spend');
     case 'adjust':
-      return t('MASTERY.xp.history.kindAdjust', 'Adjust');
+      return localizeXpHistory('MASTERY.xp.history.kindAdjust', 'Adjust');
     case 'step':
-      return t('MASTERY.xp.history.kindStep', 'Step');
+      return localizeXpHistory('MASTERY.xp.history.kindStep', 'Step');
     case 'step-end':
-      return t('MASTERY.xp.history.kindStepEnd', 'Step end');
+      return localizeXpHistory('MASTERY.xp.history.kindStepEnd', 'Step end');
     default:
       return prettyKey(kind);
   }
@@ -269,15 +299,15 @@ function localizeKind(kind: string): string {
 function localizeCategory(category: string): string {
   switch (category) {
     case 'xp':
-      return t('MASTERY.xp.history.categoryXp', 'XP');
+      return localizeXpHistory('MASTERY.xp.history.categoryXp', 'XP');
     case 'attribute':
-      return t('MASTERY.xp.history.categoryAttribute', 'Attribute');
+      return localizeXpHistory('MASTERY.xp.history.categoryAttribute', 'Attribute');
     case 'skill':
-      return t('MASTERY.xp.history.categorySkill', 'Skill');
+      return localizeXpHistory('MASTERY.xp.history.categorySkill', 'Skill');
     case 'power':
-      return t('MASTERY.xp.history.categoryPower', 'Power');
+      return localizeXpHistory('MASTERY.xp.history.categoryPower', 'Power');
     case 'artifact':
-      return t('MASTERY.xp.history.categoryArtifact', 'Artifact');
+      return localizeXpHistory('MASTERY.xp.history.categoryArtifact', 'Artifact');
     default:
       return prettyKey(category);
   }
@@ -288,23 +318,36 @@ function formatSigned(amount: number): string {
   return amount > 0 ? `+${amount}` : `−${Math.abs(amount)}`;
 }
 
-export function renderXpHistoryTableHtml(actorName: string, entries: XpHistoryEntry[]): string {
+export function renderXpHistoryTableHtml(
+  actorName: string,
+  entries: XpHistoryEntry[],
+  options?: { canRefund?: (row: XpHistoryRow) => boolean },
+): string {
   const rows = expandHistoryRows(entries).slice().reverse();
+  const isGM = Boolean((globalThis as any).game?.user?.isGM);
+  const showRefund = isGM && typeof options?.canRefund === 'function';
   let html = '<div class="xp-history-dialog">';
   html += `<p class="xp-history-hint">${escapeXpHistoryHtml(
-    t('MASTERY.xp.history.hint', 'Each row is one XP step. Drag the window corner to resize.'),
+    localizeXpHistory(
+      'MASTERY.xp.history.hint',
+      'Each row is one XP step. Drag the window corner to resize.',
+    ),
   )}</p>`;
   html += '<div class="xp-history-table-wrap"><table class="xp-history-table"><thead><tr>';
-  html += `<th>${escapeXpHistoryHtml(t('MASTERY.xp.history.time', 'Time'))}</th>`;
-  html += `<th>${escapeXpHistoryHtml(t('MASTERY.xp.history.kind', 'Kind'))}</th>`;
-  html += `<th>${escapeXpHistoryHtml(t('MASTERY.xp.history.category', 'Category'))}</th>`;
-  html += `<th>${escapeXpHistoryHtml(t('MASTERY.xp.history.what', 'What'))}</th>`;
-  html += `<th>${escapeXpHistoryHtml(t('MASTERY.xp.history.amount', 'XP'))}</th>`;
-  html += `<th>${escapeXpHistoryHtml(t('MASTERY.xp.history.note', 'Note'))}</th>`;
+  html += `<th>${escapeXpHistoryHtml(localizeXpHistory('MASTERY.xp.history.time', 'Time'))}</th>`;
+  html += `<th>${escapeXpHistoryHtml(localizeXpHistory('MASTERY.xp.history.kind', 'Kind'))}</th>`;
+  html += `<th>${escapeXpHistoryHtml(localizeXpHistory('MASTERY.xp.history.category', 'Category'))}</th>`;
+  html += `<th>${escapeXpHistoryHtml(localizeXpHistory('MASTERY.xp.history.what', 'What'))}</th>`;
+  html += `<th>${escapeXpHistoryHtml(localizeXpHistory('MASTERY.xp.history.amount', 'XP'))}</th>`;
+  html += `<th>${escapeXpHistoryHtml(localizeXpHistory('MASTERY.xp.history.note', 'Note'))}</th>`;
+  if (showRefund) {
+    html += `<th>${escapeXpHistoryHtml(localizeXpHistory('MASTERY.xp.history.refund', 'Refund'))}</th>`;
+  }
   html += '</tr></thead><tbody>';
+  const colSpan = showRefund ? 7 : 6;
   if (rows.length === 0) {
-    html += `<tr><td colspan="6" class="empty-message">${escapeXpHistoryHtml(
-      t('MASTERY.xp.history.empty', 'No history entries.'),
+    html += `<tr><td colspan="${colSpan}" class="empty-message">${escapeXpHistoryHtml(
+      localizeXpHistory('MASTERY.xp.history.empty', 'No history entries.'),
     )}</td></tr>`;
   } else {
     for (const row of rows) {
@@ -316,15 +359,23 @@ export function renderXpHistoryTableHtml(actorName: string, entries: XpHistoryEn
       html += `<td>${escapeXpHistoryHtml(row.what)}</td>`;
       html += `<td class="xp-history-amount">${escapeXpHistoryHtml(formatSigned(row.signedAmount))}</td>`;
       html += `<td>${escapeXpHistoryHtml(row.note || '—')}</td>`;
+      if (showRefund) {
+        if (options!.canRefund!(row)) {
+          html += `<td><button type="button" class="refund-history-btn" data-category="${escapeXpHistoryHtml(row.category)}" data-key="${escapeXpHistoryHtml(row.key)}" data-from="${row.from ?? ''}" data-to="${row.to ?? ''}" data-what="${escapeXpHistoryHtml(row.what)}">${escapeXpHistoryHtml(
+            localizeXpHistory('MASTERY.xp.history.refund', 'Refund'),
+          )}</button></td>`;
+        } else {
+          html += '<td></td>';
+        }
+      }
       html += '</tr>';
     }
   }
   html += '</tbody></table></div>';
-  const isGM = Boolean((globalThis as any).game?.user?.isGM);
   if (isGM && entries.length > 0) {
     html += '<div class="history-actions">';
     html += `<button type="button" class="clear-history-btn">${escapeXpHistoryHtml(
-      t('MASTERY.xp.history.clear', 'Clear History'),
+      localizeXpHistory('MASTERY.xp.history.clear', 'Clear History'),
     )}</button>`;
     html += '</div>';
   }
@@ -333,20 +384,27 @@ export function renderXpHistoryTableHtml(actorName: string, entries: XpHistoryEn
   return html;
 }
 
-export function openXpHistoryDialog(actor: any, options?: { onCleared?: () => void }): void {
+export async function openXpHistoryDialog(actor: any, options?: { onCleared?: () => void }): Promise<void> {
   const DialogCtor = (globalThis as any).Dialog;
   if (!DialogCtor || !actor) return;
+  const { canRefundHistoryRow, planHistoryRefund, refundHistoryRow } = await import(
+    './xp-history-refund.js'
+  );
   const history: XpHistoryEntry[] = Array.isArray(actor.system?.xp?.history)
     ? actor.system.xp.history
     : [];
-  const content = renderXpHistoryTableHtml(String(actor.name || ''), history);
+  const content = renderXpHistoryTableHtml(String(actor.name || ''), history, {
+    canRefund: row => canRefundHistoryRow(actor, row),
+  });
   new DialogCtor(
     {
-      title: t('MASTERY.xp.history.title', 'XP History: {name}', { name: String(actor.name || '') }),
+      title: localizeXpHistory('MASTERY.xp.history.title', 'XP History: {name}', {
+        name: String(actor.name || ''),
+      }),
       content,
       buttons: {
         close: {
-          label: t('MASTERY.xp.history.close', 'Close'),
+          label: localizeXpHistory('MASTERY.xp.history.close', 'Close'),
           callback: () => {},
         },
       },
@@ -357,12 +415,63 @@ export function openXpHistoryDialog(actor: any, options?: { onCleared?: () => vo
           await actor.update({ 'system.xp.history': [] });
           const ui = (globalThis as any).ui;
           ui?.notifications?.info(
-            t('MASTERY.xp.history.cleared', 'Cleared XP history for {name}.', {
+            localizeXpHistory('MASTERY.xp.history.cleared', 'Cleared XP history for {name}.', {
               name: String(actor.name || ''),
             }),
           );
           options?.onCleared?.();
           $html.closest?.('.dialog')?.find?.('.close')?.click?.();
+        });
+        $html.find?.('.refund-history-btn')?.on?.('click', async (event: any) => {
+          const btn = event.currentTarget as HTMLElement;
+          const row = {
+            kind: 'spend',
+            category: String(btn.dataset.category || ''),
+            key: String(btn.dataset.key || ''),
+            from: Number(btn.dataset.from),
+            to: Number(btn.dataset.to),
+            what: String(btn.dataset.what || ''),
+          };
+          const plan = planHistoryRefund(actor, row);
+          if (!plan.refundable) {
+            (globalThis as any).ui?.notifications?.warn(plan.reason || 'This step cannot be refunded.');
+            return;
+          }
+          const confirmed = await DialogCtor.confirm({
+            title: localizeXpHistory('MASTERY.xp.history.refundTitle', 'Refund XP step'),
+            content: `<p>${escapeXpHistoryHtml(
+              localizeXpHistory(
+                'MASTERY.xp.history.refundConfirm',
+                'Refund {label}: {current} → {target} (+{xp} XP)? Later steps on the same thing are undone too.',
+                {
+                  label: plan.label,
+                  current: String(plan.current),
+                  target: String(plan.target),
+                  xp: String(plan.refundXp),
+                },
+              ),
+            )}</p>`,
+            yes: () => true,
+            no: () => false,
+            defaultYes: false,
+          });
+          if (!confirmed) return;
+          const res = await refundHistoryRow(actor, row);
+          const ui = (globalThis as any).ui;
+          if (!res.ok) {
+            ui?.notifications?.error(res.error || 'Refund failed.');
+            return;
+          }
+          ui?.notifications?.info(
+            localizeXpHistory('MASTERY.xp.history.refunded', 'Refunded {xp} XP ({current} → {target}).', {
+              xp: String(plan.refundXp),
+              current: String(plan.current),
+              target: String(plan.target),
+            }),
+          );
+          options?.onCleared?.();
+          $html.closest?.('.dialog')?.find?.('.close')?.click?.();
+          await openXpHistoryDialog(actor, options);
         });
       },
     },

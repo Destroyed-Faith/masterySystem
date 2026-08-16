@@ -47,14 +47,12 @@
         <table class="xp-table xp-table-compact">
           <thead>
             <tr>
-              <th>Character</th>
-              <th>Player</th>
-              <th>Spent</th>
-              <th>Avail.</th>
-              <th>Free Avail.</th>
-              <th>Earned</th>
-              <th>Step bumps</th>
-              <th>Actions</th>
+              <th>{{localize "MASTERY.xp.colCharacter"}}</th>
+              <th title="{{localize 'MASTERY.xp.spentHint'}}">{{localize "MASTERY.xp.colSpent"}}</th>
+              <th title="{{localize 'MASTERY.xp.availHint'}}">{{localize "MASTERY.xp.colAvail"}}</th>
+              <th>{{localize "MASTERY.xp.colFree"}}</th>
+              <th>{{localize "MASTERY.xp.colEarned"}}</th>
+              <th>{{localize "MASTERY.xp.colActions"}}</th>
             </tr>
           </thead>
           <tbody>
@@ -64,14 +62,10 @@
                 <img src="{{this.img}}" alt="{{this.name}}" class="character-avatar" />
                 <span class="character-name">{{this.name}}</span>
               </td>
-              <td class="player-cell">{{this.player}}</td>
-              <td class="xp-cell"><strong>{{this.xp.spent}}</strong></td>
-              <td class="xp-cell"><strong>{{this.xp.available}}</strong></td>
-              <td class="xp-cell xp-cell-free" title="Free XP available ({{this.xp.freeEarned}} granted total)"><strong>{{this.xp.freeAvailable}}</strong></td>
-              <td class="xp-cell"><strong>{{this.xp.totalEarned}}</strong></td>
-              <td class="xp-cell" title="{{this.xp.stepSummary}}">
-                {{this.xp.stepTotal}}
-              </td>
+              <td class="xp-cell" title="{{localize 'MASTERY.xp.spentHint'}}"><strong>{{this.xp.spent}}</strong></td>
+              <td class="xp-cell" title="{{localize 'MASTERY.xp.availHint'}}"><strong>{{this.xp.available}}</strong></td>
+              <td class="xp-cell xp-cell-free" title="{{localize 'MASTERY.xp.freeAvailHint' earned=this.xp.freeEarned}}"><strong>{{this.xp.freeAvailable}}</strong></td>
+              <td class="xp-cell" title="{{localize 'MASTERY.xp.earnedHint' regular=this.xp.regularEarned free=this.xp.freeEarned}}"><strong>{{this.xp.totalEarned}}</strong></td>
               <td class="grant-cell">
                 <div class="grant-controls">
                   <div class="grant-group">

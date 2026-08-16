@@ -83,6 +83,16 @@
       "regularHint": "Session XP. Each Attribute, Skill, Power, or Artifact may rise only once per Upgrade Step. The flag ends the current step.",
       "freeLabel": "Free XP",
       "freeHint": "Bonus XP with no step limit. Spent before Regular XP. Use this for a higher starting Mastery Rank or free redistribution.",
+      "colCharacter": "Character",
+      "colSpent": "Spent",
+      "colAvail": "Avail.",
+      "colFree": "Free",
+      "colEarned": "Earned",
+      "colActions": "Actions",
+      "spentHint": "All XP spent (Regular + Free). Earned minus what is still available.",
+      "availHint": "Regular XP still available.",
+      "freeAvailHint": "Free XP still available ({earned} granted).",
+      "earnedHint": "All XP granted (Regular {regular} + Free {free}).",
       "history": {
         "title": "XP History: {name}",
         "hint": "Each row is one XP step. Drag the window corner to resize.",
@@ -107,7 +117,11 @@
         "categoryPower": "Power",
         "categoryArtifact": "Artifact",
         "regularXp": "Regular XP",
-        "freeXp": "Free XP"
+        "freeXp": "Free XP",
+        "refund": "Refund",
+        "refundTitle": "Refund XP step",
+        "refundConfirm": "Refund {label}: {current} → {target} (+{xp} XP)? Later steps on the same thing are undone too.",
+        "refunded": "Refunded {xp} XP ({current} → {target})."
       }
     },
     "reactionDialogTitle": "Reaction — {defender}",

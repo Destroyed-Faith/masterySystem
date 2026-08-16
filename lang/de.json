@@ -83,6 +83,16 @@
       "regularHint": "Session-XP. Pro Upgrade-Step darf jedes Attribut, jeder Skill, jede Power und jedes Artefakt nur einmal steigen. Die Flagge beendet den aktuellen Step.",
       "freeLabel": "Free XP",
       "freeHint": "Bonus-XP ohne Step-Limit. Wird vor Regular XP ausgegeben. Für den Start auf höherem Mastery Rank oder freie Verteilung.",
+      "colCharacter": "Charakter",
+      "colSpent": "Ausgegeben",
+      "colAvail": "Verfügbar",
+      "colFree": "Free",
+      "colEarned": "Verdient",
+      "colActions": "Aktionen",
+      "spentHint": "Alle ausgegebenen EP (Regular + Free). Verdient minus noch verfügbar.",
+      "availHint": "Noch verfügbare Regular XP.",
+      "freeAvailHint": "Noch verfügbare Free XP ({earned} vergeben).",
+      "earnedHint": "Alle vergebenen EP (Regular {regular} + Free {free}).",
       "history": {
         "title": "EP-Verlauf: {name}",
         "hint": "Jede Zeile ist ein EP-Schritt. Ziehe die Ecke, um das Fenster zu vergrößern.",
@@ -107,7 +117,11 @@
         "categoryPower": "Power",
         "categoryArtifact": "Artefakt",
         "regularXp": "Regular XP",
-        "freeXp": "Free XP"
+        "freeXp": "Free XP",
+        "refund": "Erstatten",
+        "refundTitle": "EP-Schritt erstatten",
+        "refundConfirm": "{label} erstatten: {current} → {target} (+{xp} EP)? Spätere Stufen desselben Dings werden mit zurückgedreht.",
+        "refunded": "{xp} EP erstattet ({current} → {target})."
       }
     },
     "reactionDialogTitle": "Reaktion — {defender}",

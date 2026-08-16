@@ -55,52 +55,24 @@ export class XpManagementSettings extends BaseApplication {
       const xp = system.xp || {};
 
       const totalEarned = xp.totalEarned ?? 0;
-      const totalSpent = xp.totalSpent ?? 0;
       const available = points.xp ?? 0;
       const freeAvailable = points.xpFree ?? 0;
       const freeEarned = xp.freeEarned ?? 0;
-      /**
-       * New spec — once-per-step rule. Surface the current step's bumped
-       * lists for the GM table.
-       */
-      const stepRaw = xp.currentStep ?? {};
-      const sanitize = (input: unknown): string[] =>
-        Array.isArray(input) ? input.map((v) => String(v ?? '')).filter((s) => s.length > 0) : [];
-      const currentStep = {
-        attributes: sanitize(stepRaw.attributes),
-        skills: sanitize(stepRaw.skills),
-        powers: sanitize(stepRaw.powers),
-        artifacts: sanitize(stepRaw.artifacts),
-      };
-      const stepSummary = (() => {
-        const parts: string[] = [];
-        if (currentStep.attributes.length) parts.push(`Attrs: ${currentStep.attributes.join(', ')}`);
-        if (currentStep.skills.length) parts.push(`Skills: ${currentStep.skills.join(', ')}`);
-        if (currentStep.powers.length) parts.push(`Powers: ${currentStep.powers.length}`);
-        if (currentStep.artifacts.length) parts.push(`Artifacts: ${currentStep.artifacts.length}`);
-        return parts.length ? parts.join(' | ') : 'No bumps';
-      })();
-      const stepTotal =
-        currentStep.attributes.length +
-        currentStep.skills.length +
-        currentStep.powers.length +
-        currentStep.artifacts.length;
+      const earnedAll = totalEarned + freeEarned;
+      const spentAll = Math.max(0, earnedAll - (available + freeAvailable));
 
       return {
         id: actor.id,
         name: actor.name,
         img: actor.img,
-        player: (game as any).users?.find((u: any) => u.character?.id === actor.id)?.name || 'Unassigned',
         hasPostCreationSnapshot: actorHasPostCreationSnapshot(actor),
         xp: {
-          spent: totalSpent,
+          spent: spentAll,
           available: available,
           freeAvailable: freeAvailable,
           freeEarned: freeEarned,
-          totalEarned: totalEarned,
-          currentStep,
-          stepSummary,
-          stepTotal,
+          totalEarned: earnedAll,
+          regularEarned: totalEarned,
         }
       };
     });

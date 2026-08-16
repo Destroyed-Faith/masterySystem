@@ -31,7 +31,7 @@ import {
   resolveWorldItemByNodeId,
 } from '../utils/artifact-actor-tree.js';
 import { setRootActorLevels } from '../utils/world-artifact-flag-sync.js';
-import { isBumped, recordBump } from '../utils/xp-step-rule.js';
+import { isBumped, recordBump, undoBump } from '../utils/xp-step-rule.js';
 import { appendXpHistory, currentXpUser } from '../utils/xp-history.js';
 
 export interface ArtifactEvolutionPath {
@@ -665,4 +665,149 @@ export async function upgradeArtifactForActor(
 
   ui.notifications?.info(gmFree ? `GM: Evolved to ${tw.name} (no XP spent).` : `Evolved to ${tw.name}.`);
   return true;
+}
+
+async function refundActorXp(
+  actor: Actor,
+  amount: number,
+): Promise<{
+  before: { available: number; totalEarned: number; totalSpent: number };
+  after: { available: number; totalEarned: number; totalSpent: number };
+}> {
+  const sys = (actor.system as any) || {};
+  const free = Math.max(0, Number(sys.points?.xpFree) || 0);
+  const regular = Math.max(0, Number(sys.points?.xp) || 0);
+  const freeEarned = Number(sys.xp?.freeEarned ?? 0) || 0;
+  const totalEarned = Number(sys.xp?.totalEarned ?? 0) || 0;
+  const totalSpent = Number(sys.xp?.totalSpent ?? 0) || 0;
+  const freeSpent = Number(sys.xp?.freeSpent ?? 0) || 0;
+  const before = { available: free + regular, totalEarned, totalSpent };
+  const toFree = Math.max(0, Math.min(amount, freeEarned - free));
+  const toReg = Math.max(0, amount - toFree);
+  const nextSpent = Math.max(0, totalSpent - toReg);
+  await actor.update({
+    'system.points.xpFree': free + toFree,
+    'system.points.xp': regular + toReg,
+    'system.xp.totalSpent': nextSpent,
+    'system.xp.freeSpent': Math.max(0, freeSpent - toFree),
+  });
+  return {
+    before,
+    after: {
+      available: free + regular + amount,
+      totalEarned,
+      totalSpent: nextSpent,
+    },
+  };
+}
+
+/** Walk the evolution tree back to `targetLevel` and refund 8 XP per dropped level. */
+export async function downgradeArtifactForActor(
+  actor: Actor,
+  embeddedId: string,
+  targetLevel: number,
+): Promise<{ ok: boolean; error?: string }> {
+  const A = actor as any;
+  const emb = A.items?.get?.(embeddedId);
+  if (!emb) return { ok: false, error: 'Artifact not found.' };
+
+  const rootWorldId = emb.getFlag('mastery-system', 'evolutionRootItemId') as string | undefined;
+  const currentNodeId = emb.getFlag('mastery-system', 'evolutionNodeId') as string | undefined;
+  const root = rootWorldId ? (game as any).items?.get(rootWorldId) : undefined;
+  if (!root || !currentNodeId) return { ok: false, error: 'Artifact is not linked to an evolution tree.' };
+
+  const folderItems = getWorldArtifactItemsInFolder(root.folder?.id);
+  const metaMap = collectArtifactNodeMeta(folderItems);
+  const want = Math.max(1, Math.floor(Number(targetLevel) || 1));
+
+  const drops: Array<{ from: number; to: number; fromName: string; toName: string; toNodeId: string; toWorld: any }> = [];
+  let nodeId = currentNodeId;
+  let guard = 0;
+  while (guard++ < 24) {
+    const world = resolveWorldItemByNodeId(nodeId, folderItems);
+    if (!world) return { ok: false, error: 'Could not resolve the current artifact node.' };
+    const level = Number((world.system as any)?.level ?? 1) || 1;
+    if (level <= want) break;
+    const parentId = metaMap.get(nodeId)?.parentIds?.[0];
+    if (!parentId) {
+      return { ok: false, error: `Cannot revert this artifact to level ${want}.` };
+    }
+    const parentWorld = resolveWorldItemByNodeId(parentId, folderItems);
+    if (!parentWorld) return { ok: false, error: 'Could not resolve the parent artifact node.' };
+    const parentLevel = Number((parentWorld.system as any)?.level ?? 1) || 1;
+    drops.push({
+      from: level,
+      to: parentLevel,
+      fromName: String(world.name || emb.name),
+      toName: String(parentWorld.name || ''),
+      toNodeId: parentId,
+      toWorld: parentWorld,
+    });
+    nodeId = parentId;
+  }
+
+  if (!drops.length) return { ok: false, error: 'This artifact step is no longer in effect.' };
+
+  const last = drops[drops.length - 1];
+  if ((Number((last.toWorld.system as any)?.level ?? 1) || 1) > want) {
+    return { ok: false, error: `Cannot revert this artifact to level ${want}.` };
+  }
+
+  const refundAmount = drops.length * ARTIFACT_UPGRADE_XP_COST;
+  const xp = await refundActorXp(actor, refundAmount);
+  const user = currentXpUser();
+  const historyEntries = drops.map((drop, i) => ({
+    ts: Date.now() + i,
+    userId: user.userId,
+    userName: user.userName,
+    kind: 'adjust' as const,
+    category: 'artifact' as const,
+    amount: ARTIFACT_UPGRADE_XP_COST,
+    note: `refund: ${drop.fromName} ${drop.from} → ${drop.to}`,
+    details: {
+      artifactId: embeddedId,
+      name: drop.fromName,
+      from: drop.from,
+      to: drop.to,
+      targetName: drop.toName,
+    },
+    before: xp.before,
+    after: xp.after,
+  }));
+
+  const stepRaw = (actor.system as any)?.xp?.currentStep ?? {};
+  const stepNow = {
+    attributes: Array.isArray(stepRaw.attributes) ? [...stepRaw.attributes] : [],
+    skills: Array.isArray(stepRaw.skills) ? [...stepRaw.skills] : [],
+    powers: Array.isArray(stepRaw.powers) ? [...stepRaw.powers] : [],
+    artifacts: Array.isArray(stepRaw.artifacts) ? [...stepRaw.artifacts] : [],
+  };
+  const stepAfter = undoBump(stepNow as any, 'artifact', embeddedId);
+
+  await actor.update({
+    'system.xp.currentStep.attributes': [...stepAfter.attributes],
+    'system.xp.currentStep.skills': [...stepAfter.skills],
+    'system.xp.currentStep.powers': [...stepAfter.powers],
+    'system.xp.currentStep.artifacts': [...stepAfter.artifacts],
+    'system.xp.history': appendXpHistory(actor, historyEntries),
+  });
+
+  const equip = emb.getFlag('mastery-system', 'equipment');
+  const sys = foundry.utils.duplicate((last.toWorld.system as any) || {});
+  await emb.update({
+    name: last.toWorld.name,
+    img: last.toWorld.img,
+    system: sys,
+  });
+  await emb.setFlag('mastery-system', 'evolutionRootItemId', rootWorldId);
+  await emb.setFlag('mastery-system', 'evolutionNodeId', last.toNodeId);
+  await emb.setFlag('mastery-system', 'artifactActivated', true);
+  if (equip) await emb.setFlag('mastery-system', 'equipment', equip);
+
+  const levels = { ...((root.getFlag('mastery-system', 'actorLevels') || {}) as any) };
+  levels[A.id] = serializeActorArtifactProgress({ nodeId: last.toNodeId, linked: true });
+  await setRootActorLevels(root, levels);
+
+  ui.notifications?.info(`Reverted to ${last.toWorld.name}. Refunded ${refundAmount} XP.`);
+  return { ok: true };
 }

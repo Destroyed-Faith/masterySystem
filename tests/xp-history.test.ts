@@ -37,6 +37,9 @@ describe('expandHistoryRows', () => {
       },
     ]);
     expect(rows.map(r => r.what)).toEqual(['Might 8 → 9', 'Might 9 → 10', 'Wits 6 → 7']);
+    expect(rows.map(r => r.key)).toEqual(['might', 'might', 'wits']);
+    expect(rows[0].from).toBe(8);
+    expect(rows[0].to).toBe(9);
     expect(rows[0].signedAmount).toBe(-attributeBandCost(9));
     expect(rows[1].signedAmount).toBe(-attributeBandCost(10));
     expect(rows[2].signedAmount).toBe(-attributeBandCost(7));
@@ -55,6 +58,9 @@ describe('expandHistoryRows', () => {
     ]);
     expect(rows).toHaveLength(1);
     expect(rows[0].what).toBe('Dragon Claws 1 → 2');
+    expect(rows[0].key).toBe('');
+    expect(rows[0].from).toBe(1);
+    expect(rows[0].to).toBe(2);
     expect(rows[0].signedAmount).toBe(-ARTIFACT_UPGRADE_XP_COST);
     expect(rows[0].category).toBe('artifact');
   });

@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.335] - 2026-08-16
+
+### Added
+
+- **XP History:** The GM can refund a spend row. That step and later steps on the same thing unwind. Refunds use the current cost table.
+
+### Changed
+
+- **XP Management:** The panel follows the Rulebook theme. Player and Step-bump columns are gone. Spent and Earned are Regular plus Free, so a character who spent 24 Free XP shows 24, not 16 / 0.
+
 ## [0.9.334] - 2026-08-15
 
 ### Changed
