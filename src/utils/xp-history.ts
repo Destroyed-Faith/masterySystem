@@ -219,6 +219,88 @@ export function expandHistoryRows(entries: XpHistoryEntry[] | unknown): XpHistor
   return rows;
 }
 
+function actorArtifactItems(actor: any): any[] {
+  const items = actor?.items;
+  if (!items) return [];
+  if (typeof items.filter === 'function') {
+    return Array.from(items.filter((i: any) => i.type === 'artifact'));
+  }
+  if (Array.isArray(items)) return items.filter((i: any) => i.type === 'artifact');
+  if (Array.isArray(items.contents)) {
+    return items.contents.filter((i: any) => i.type === 'artifact');
+  }
+  return [];
+}
+
+function artifactDisplayName(item: any): string {
+  return String(item?.name || 'Artifact').replace(/\s*-\s*Level\s+\S+\s*$/i, '').trim() || 'Artifact';
+}
+
+function artifactSystemLevel(item: any): number {
+  return Math.max(1, Math.floor(Number(item?.system?.level) || 1));
+}
+
+function loggedArtifactNet(rows: XpHistoryRow[], artifactId: string, name: string): number {
+  const stem = name.toLowerCase();
+  let net = 0;
+  for (const row of rows) {
+    if (row.category !== 'artifact') continue;
+    const key = String(row.key || '');
+    const what = String(row.what || '').toLowerCase();
+    const matches = (key && key === artifactId) || (!key && stem && what.includes(stem));
+    if (!matches) continue;
+    const from = Number(row.from);
+    const to = Number(row.to);
+    if (Number.isFinite(from) && Number.isFinite(to)) net += to - from;
+  }
+  return net;
+}
+
+/** Spend rows for artifact levels that exist on the actor but were never logged. */
+export function inferMissingArtifactHistoryEntries(actor: any, existing?: XpHistoryEntry[]): XpHistoryEntry[] {
+  const prior = Array.isArray(existing)
+    ? existing
+    : Array.isArray(actor?.system?.xp?.history)
+      ? actor.system.xp.history
+      : [];
+  const rows = expandHistoryRows(prior);
+  const inferred: XpHistoryEntry[] = [];
+  const note = localizeXpHistory(
+    'MASTERY.xp.history.inferredArtifact',
+    'Inferred from current artifact level',
+  );
+  let ts = Date.now();
+  for (const item of actorArtifactItems(actor)) {
+    const id = String(item?.id || item?._id || '');
+    if (!id) continue;
+    const level = artifactSystemLevel(item);
+    const name = artifactDisplayName(item);
+    const missing = Math.max(0, level - 1 - loggedArtifactNet(rows, id, name));
+    if (!missing) continue;
+    const start = level - missing;
+    for (let i = 0; i < missing; i++) {
+      const from = start + i;
+      const to = from + 1;
+      inferred.push({
+        ts: ts++,
+        kind: 'spend',
+        category: 'artifact',
+        amount: ARTIFACT_STEP_XP,
+        note,
+        details: { key: id, artifactId: id, name, from, to, cost: ARTIFACT_STEP_XP, inferred: true },
+      });
+    }
+  }
+  return inferred;
+}
+
+export function historyEntriesForActor(actor: any): XpHistoryEntry[] {
+  const stored: XpHistoryEntry[] = Array.isArray(actor?.system?.xp?.history)
+    ? [...actor.system.xp.history]
+    : [];
+  return [...stored, ...inferMissingArtifactHistoryEntries(actor, stored)];
+}
+
 export function buildBandedStepEntries(opts: {
   category: 'attribute' | 'skill' | 'power';
   pendingMap: Record<string, number>;
@@ -321,9 +403,10 @@ function formatSigned(amount: number): string {
 export function renderXpHistoryTableHtml(
   actorName: string,
   entries: XpHistoryEntry[],
-  options?: { canRefund?: (row: XpHistoryRow) => boolean },
+  options?: { canRefund?: (row: XpHistoryRow) => boolean; actor?: any },
 ): string {
-  const rows = expandHistoryRows(entries).slice().reverse();
+  const inferred = options?.actor ? inferMissingArtifactHistoryEntries(options.actor, entries) : [];
+  const rows = expandHistoryRows([...entries, ...inferred]).slice().reverse();
   const isGM = Boolean((globalThis as any).game?.user?.isGM);
   const showRefund = isGM && typeof options?.canRefund === 'function';
   let html = '<div class="xp-history-dialog">';
@@ -372,7 +455,7 @@ export function renderXpHistoryTableHtml(
     }
   }
   html += '</tbody></table></div>';
-  if (isGM && entries.length > 0) {
+  if (isGM && (entries.length > 0 || inferred.length > 0)) {
     html += '<div class="history-actions">';
     html += `<button type="button" class="clear-history-btn">${escapeXpHistoryHtml(
       localizeXpHistory('MASTERY.xp.history.clear', 'Clear History'),
@@ -390,10 +473,16 @@ export async function openXpHistoryDialog(actor: any, options?: { onCleared?: ()
   const { canRefundHistoryRow, planHistoryRefund, refundHistoryRow } = await import(
     './xp-history-refund.js'
   );
-  const history: XpHistoryEntry[] = Array.isArray(actor.system?.xp?.history)
-    ? actor.system.xp.history
+  let history: XpHistoryEntry[] = Array.isArray(actor.system?.xp?.history)
+    ? [...actor.system.xp.history]
     : [];
+  const missing = inferMissingArtifactHistoryEntries(actor, history);
+  if (missing.length) {
+    history = appendXpHistory(actor, missing);
+    await actor.update({ 'system.xp.history': history });
+  }
   const content = renderXpHistoryTableHtml(String(actor.name || ''), history, {
+    actor,
     canRefund: row => canRefundHistoryRow(actor, row),
   });
   new DialogCtor(

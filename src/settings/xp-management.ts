@@ -485,6 +485,7 @@ export class XpManagementSettings extends BaseApplication {
                   attributeSpent: result.attributeSpent,
                   skillSpent: result.skillSpent,
                   powerSpent: result.powerSpent,
+                  artifactSpent: result.artifactSpent,
                   totalInvested: result.totalInvested,
                   regularSpent: result.regularSpent,
                   freeSpent: result.freeSpent,

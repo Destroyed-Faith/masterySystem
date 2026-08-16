@@ -5,6 +5,7 @@ import {
   appendXpHistory,
   buildBandedStepEntries,
   expandHistoryRows,
+  inferMissingArtifactHistoryEntries,
 } from '../src/utils/xp-history.js';
 
 describe('expandHistoryRows', () => {
@@ -117,6 +118,90 @@ describe('buildBandedStepEntries', () => {
     expect(entries).toHaveLength(1);
     expect(entries[0].note).toBe('Fireball 2 → 3');
     expect(entries[0].amount).toBe(powerLevelCost(3));
+  });
+});
+
+describe('inferMissingArtifactHistoryEntries', () => {
+  function actorWithArtifacts(artifacts: Array<{ id: string; name: string; level: number }>, history: any[] = []) {
+    const items = artifacts.map(a => ({
+      id: a.id,
+      type: 'artifact',
+      name: a.name,
+      system: { level: a.level },
+    }));
+    return {
+      items: {
+        filter: (fn: (i: any) => boolean) => items.filter(fn),
+      },
+      system: { xp: { history } },
+    };
+  }
+
+  it('synthesizes one 8 XP spend per level above 1', () => {
+    const actor = actorWithArtifacts([{ id: 'art1', name: 'Dragon Claws', level: 3 }]);
+    const missing = inferMissingArtifactHistoryEntries(actor);
+    expect(missing).toHaveLength(2);
+    expect(missing.map(e => `${e.details.from}→${e.details.to}`)).toEqual(['1→2', '2→3']);
+    expect(missing.every(e => e.kind === 'spend' && e.category === 'artifact')).toBe(true);
+    expect(missing.every(e => e.amount === ARTIFACT_UPGRADE_XP_COST)).toBe(true);
+    expect(missing[0].details.artifactId).toBe('art1');
+  });
+
+  it('skips steps that are already in the history log', () => {
+    const actor = actorWithArtifacts(
+      [{ id: 'art1', name: 'Dragon Claws', level: 3 }],
+      [
+        {
+          ts: 1,
+          kind: 'spend',
+          category: 'artifact',
+          amount: ARTIFACT_UPGRADE_XP_COST,
+          details: { artifactId: 'art1', name: 'Dragon Claws', from: 1, to: 2 },
+        },
+      ],
+    );
+    const missing = inferMissingArtifactHistoryEntries(actor);
+    expect(missing).toHaveLength(1);
+    expect(missing[0].details.from).toBe(2);
+    expect(missing[0].details.to).toBe(3);
+  });
+
+  it('does not invent rows when the log already covers the current level', () => {
+    const actor = actorWithArtifacts(
+      [{ id: 'art1', name: 'Dragon Claws', level: 2 }],
+      [
+        {
+          ts: 1,
+          kind: 'spend',
+          category: 'artifact',
+          amount: ARTIFACT_UPGRADE_XP_COST,
+          details: { artifactId: 'art1', name: 'Dragon Claws', from: 1, to: 2 },
+        },
+      ],
+    );
+    expect(inferMissingArtifactHistoryEntries(actor)).toEqual([]);
+  });
+
+  it('matches nameless older log rows by artifact name', () => {
+    const actor = actorWithArtifacts(
+      [{ id: 'art1', name: 'Dragon Claws', level: 2 }],
+      [
+        {
+          ts: 1,
+          kind: 'spend',
+          category: 'artifact',
+          amount: ARTIFACT_UPGRADE_XP_COST,
+          note: 'Dragon Claws 1 → 2',
+          details: { name: 'Dragon Claws', from: 1, to: 2 },
+        },
+      ],
+    );
+    expect(inferMissingArtifactHistoryEntries(actor)).toEqual([]);
+  });
+
+  it('ignores level-1 artifacts', () => {
+    const actor = actorWithArtifacts([{ id: 'art1', name: 'Starter Blade', level: 1 }]);
+    expect(inferMissingArtifactHistoryEntries(actor)).toEqual([]);
   });
 });
 

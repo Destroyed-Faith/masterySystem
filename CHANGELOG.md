@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.337] - 2026-08-16
+
+### Fixed
+
+- **XP History:** Artifact upgrades from before history logging now appear as spend rows (8 XP per level above 1) and can be refunded. Opening history writes the missing rows.
+- **XP Recalc:** Artifact investment is included, so Recalc no longer treats those XP as unspent.
+
 ## [0.9.336] - 2026-08-16
 
 ### Fixed

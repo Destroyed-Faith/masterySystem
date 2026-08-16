@@ -2,8 +2,8 @@
  * Ground-truth XP recalculation.
  *
  * Recomputes a character's *invested* XP directly from the current build
- * (attributes, skills, power levels) measured against the immutable
- * post-creation baseline, then redistributes the two XP pools so that
+ * (attributes, skills, power levels, artifact levels) measured against the
+ * immutable post-creation baseline, then redistributes the two XP pools so that
  * `invested = freeSpent + regularSpent` with the **Free pool spent first**
  * (matching the live spend logic), and derives the correct available XP.
  *
@@ -12,6 +12,7 @@
  * Package Wizard "power upgrade refund" over-refund).
  */
 
+import { ARTIFACT_UPGRADE_XP_COST } from './artifact-actor-rules.js';
 import { attributeBandCost } from './constants.js';
 import { calculatePowersUpgradeRefund } from './power-xp-refund.js';
 import { actorHasPostCreationSnapshot, type PostCreationProgress } from './xp-post-creation.js';
@@ -28,7 +29,8 @@ export interface XpRecalcResult {
   attributeSpent: number;
   skillSpent: number;
   powerSpent: number;
-  /** Total XP invested in the current build (attributes + skills + powers). */
+  artifactSpent: number;
+  /** Total XP invested in the current build (attributes + skills + powers + artifacts). */
   totalInvested: number;
   /** Correct regular spent (after Free pool absorbs as much as possible). */
   regularSpent: number;
@@ -99,6 +101,7 @@ export function computeGroundTruthXp(actor: any): XpRecalcResult {
       attributeSpent: 0,
       skillSpent: 0,
       powerSpent: 0,
+      artifactSpent: 0,
       totalInvested: 0,
       regularSpent: previousSpent,
       freeSpent: previousFreeSpent,
@@ -134,7 +137,14 @@ export function computeGroundTruthXp(actor: any): XpRecalcResult {
   }));
   const powerSpent = calculatePowersUpgradeRefund(powerItems);
 
-  const totalInvested = attributeSpent + skillSpent + powerSpent;
+  const artifactItems = actor.items?.filter?.((i: any) => i.type === 'artifact') ?? [];
+  let artifactSpent = 0;
+  for (const item of artifactItems) {
+    const level = Math.max(1, Math.floor(Number(item?.system?.level) || 1));
+    if (level > 1) artifactSpent += (level - 1) * ARTIFACT_UPGRADE_XP_COST;
+  }
+
+  const totalInvested = attributeSpent + skillSpent + powerSpent + artifactSpent;
 
   // Free pool is spent first, then regular (mirrors the live spend logic).
   const freeSpent = Math.min(freeEarned, totalInvested);
@@ -157,6 +167,7 @@ export function computeGroundTruthXp(actor: any): XpRecalcResult {
     attributeSpent,
     skillSpent,
     powerSpent,
+    artifactSpent,
     totalInvested,
     regularSpent,
     freeSpent,
@@ -185,6 +196,7 @@ export function formatXpRecalcHtml(actorName: string, r: XpRecalcResult): string
     `<tr><td>− Attribute</td><td style="text-align:right;">${r.attributeSpent}</td></tr>` +
     `<tr><td>− Skills</td><td style="text-align:right;">${r.skillSpent}</td></tr>` +
     `<tr><td>− Powers</td><td style="text-align:right;">${r.powerSpent}</td></tr>` +
+    `<tr><td>− Artefakte</td><td style="text-align:right;">${r.artifactSpent}</td></tr>` +
     `<tr style="border-top:1px solid rgba(255,255,255,0.2);"><td>= Investiert (gesamt)</td><td style="text-align:right;"><strong>${r.totalInvested}</strong></td></tr>` +
     `</tbody></table>` +
     `<p class="xp-recalc-result" style="margin:6px 0;">Korrekt: <strong>${r.available}</strong> regulär verfügbar &nbsp;·&nbsp; <strong>${r.freeAvailable}</strong> Free verfügbar &nbsp;(Free zuerst ausgegeben).</p>` +

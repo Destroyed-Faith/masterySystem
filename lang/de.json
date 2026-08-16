@@ -121,7 +121,8 @@
         "refund": "Erstatten",
         "refundTitle": "EP-Schritt erstatten",
         "refundConfirm": "{label} erstatten: {current} → {target} (+{xp} EP)? Spätere Stufen desselben Dings werden mit zurückgedreht.",
-        "refunded": "{xp} EP erstattet ({current} → {target})."
+        "refunded": "{xp} EP erstattet ({current} → {target}).",
+        "inferredArtifact": "Aus aktueller Artefaktstufe ergänzt"
       }
     },
     "reactionDialogTitle": "Reaktion — {defender}",

@@ -121,7 +121,8 @@
         "refund": "Refund",
         "refundTitle": "Refund XP step",
         "refundConfirm": "Refund {label}: {current} → {target} (+{xp} XP)? Later steps on the same thing are undone too.",
-        "refunded": "Refunded {xp} XP ({current} → {target})."
+        "refunded": "Refunded {xp} XP ({current} → {target}).",
+        "inferredArtifact": "Inferred from current artifact level"
       }
     },
     "reactionDialogTitle": "Reaction — {defender}",

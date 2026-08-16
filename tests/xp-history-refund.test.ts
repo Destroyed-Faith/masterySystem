@@ -127,6 +127,21 @@ describe('planHistoryRefund', () => {
     expect(plan.refundXp).toBe(liveRefundXp('power', 5, 2));
   });
 
+  it('can refund an inferred artifact spend using the embedded item id', () => {
+    const plan = planHistoryRefund(attrActor(8), {
+      kind: 'spend',
+      category: 'artifact',
+      key: 'art1',
+      from: 1,
+      to: 2,
+      what: 'Dragon Claws 1 → 2',
+    });
+    expect(plan.refundable).toBe(true);
+    expect(plan.current).toBe(3);
+    expect(plan.target).toBe(1);
+    expect(plan.refundXp).toBe(16);
+  });
+
   it('rejects grants and refunds', () => {
     expect(
       canRefundHistoryRow(attrActor(12), {
