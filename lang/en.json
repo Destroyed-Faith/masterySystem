@@ -56,6 +56,23 @@
     "carousel": {
       "compactHint": "Compact carousel — window or zoom is below 1024×768."
     },
+    "startEncounter": {
+      "start": "Start Encounter",
+      "lead": "Check tokens on the scene and start combat. As a player you get Passives, Stones, and the Initiative Shop just like a real start.",
+      "empty": "No PC or NPC tokens on this scene.",
+      "toggleAll": "Toggle all",
+      "pc": "PC",
+      "npc": "NPC",
+      "openLocally": "Player view: open the dialogs on this client",
+      "cancel": "Cancel",
+      "noneSelected": "Check at least one token.",
+      "noScene": "No active scene.",
+      "needGm": "A GM must be online to create the combat.",
+      "sent": "Start Encounter sent to the GM.",
+      "already": "This combat has already started.",
+      "shopButton": "Initiative Shop",
+      "shopButtonHint": "Reopen the Initiative Shop (same roll if not confirmed yet)."
+    },
     "encounterSetup": {
       "title": "Encounter Setup",
       "passives": "Passives",

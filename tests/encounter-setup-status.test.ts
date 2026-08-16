@@ -40,10 +40,15 @@ describe('buildEncounterSetupStatus', () => {
     expect(status?.rows[2]?.done).toBe(true);
   });
 
-  it('shows open rows when nothing was picked', () => {
+  it('hides pick summaries from players', () => {
     (globalThis as any).game = { user: { isGM: false }, combat: null };
+    expect(buildEncounterSetupStatus(mockCombatant({ passives: [{ name: 'Lean Ward' }] }), null)).toBeNull();
+  });
+
+  it('shows open rows when nothing was picked', () => {
+    (globalThis as any).game = { user: { isGM: true }, combat: null };
     const status = buildEncounterSetupStatus(mockCombatant({}), null);
     expect(status?.rows.every((r) => r.summary === 'noch nichts')).toBe(true);
-    expect(status?.canForce).toBe(false);
+    expect(status?.canForce).toBe(true);
   });
 });

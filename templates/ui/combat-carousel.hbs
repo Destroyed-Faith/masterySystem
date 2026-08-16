@@ -120,6 +120,18 @@
             </button>
           {{/if}}
 
+          {{#if combatant.showInitiativeShopButton}}
+            <button type="button"
+                    class="portrait-stone-powers portrait-initiative-shop js-carousel-initiative-shop"
+                    data-combatant-id="{{combatant.id}}"
+                    data-tooltip="{{localize 'MASTERY.startEncounter.shopButton'}}"
+                    aria-label="{{localize 'MASTERY.startEncounter.shopButton'}}"
+                    title="{{localize 'MASTERY.startEncounter.shopButtonHint'}}">
+              <i class="fas fa-shop" aria-hidden="true"></i>
+              <span>{{localize "MASTERY.encounterSetup.shop"}}</span>
+            </button>
+          {{/if}}
+
           <!-- Status Icons -->
           {{#if combatant.statusIcons}}
             <div class="status-icons">

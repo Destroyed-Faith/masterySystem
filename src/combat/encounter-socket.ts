@@ -32,6 +32,21 @@ async function handleEncounterSocket(payload: any): Promise<void> {
 
   if (userId && userId !== game.user?.id) return;
 
+  if (type === 'playerStartEncounter') {
+    if (!game.user?.isGM) return;
+    try {
+      const { createAndBeginEncounter } = await import('./start-encounter.js');
+      await createAndBeginEncounter({
+        tokenIds: Array.isArray(payload.tokenIds) ? payload.tokenIds.map(String) : [],
+        sceneId: String(payload.sceneId ?? ''),
+        openLocally: false,
+      });
+    } catch (err) {
+      console.error('Mastery System | Player Start Encounter failed', err);
+    }
+    return;
+  }
+
   const combat = resolveLiveCombat(combatId);
   if (!combat || (combatId && combat.id !== combatId)) return;
 

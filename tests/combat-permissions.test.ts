@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   canCurrentUserUpdateDocument,
   findConnectedPlayerOwners,
+  setSimulatePlayerEncounter,
   shouldShowEncounterDialogLocally,
 } from '../src/combat/combat-permissions.js';
 
@@ -16,6 +17,7 @@ function mockActor(owners: string[]): Actor {
 
 describe('combat encounter ownership', () => {
   it('lets a connected player owner take the dialog instead of the GM', () => {
+    setSimulatePlayerEncounter(null);
     (globalThis as any).game = {
       user: { id: 'gm', isGM: true },
       users: {

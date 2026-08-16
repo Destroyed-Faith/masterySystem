@@ -56,6 +56,23 @@
     "carousel": {
       "compactHint": "Kompaktes Carousel — Fenster oder Zoom ist unter 1024×768."
     },
+    "startEncounter": {
+      "start": "Start Encounter",
+      "lead": "Token auf der Szene anhaken und den Kampf starten. Als Spieler siehst du Passives, Steine und den Initiative Shop wie bei einem echten Start.",
+      "empty": "Keine SC- oder NSC-Token auf dieser Szene.",
+      "toggleAll": "Alle umschalten",
+      "pc": "SC",
+      "npc": "NSC",
+      "openLocally": "Spieler-Ansicht: Dialoge bei mir öffnen",
+      "cancel": "Abbrechen",
+      "noneSelected": "Bitte mindestens einen Token anhacken.",
+      "noScene": "Keine aktive Szene.",
+      "needGm": "Ein SL muss online sein, damit der Kampf angelegt wird.",
+      "sent": "Start Encounter an den SL geschickt.",
+      "already": "Dieser Kampf ist schon gestartet.",
+      "shopButton": "Initiative Shop",
+      "shopButtonHint": "Initiative Shop erneut öffnen (gleicher Wurf, wenn noch nicht bestätigt)."
+    },
     "encounterSetup": {
       "title": "Kampf-Setup",
       "passives": "Passives",

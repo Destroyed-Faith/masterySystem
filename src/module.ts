@@ -502,6 +502,22 @@ Hooks.once('init', async function() {
     // Hide all initiative roll buttons
     $html.find('button[data-action="rollInitiative"]').css('display', 'none');
 
+    $html.find('.ms-start-encounter-bar').remove();
+    const startLabel = game.i18n?.localize('MASTERY.startEncounter.start') || 'Start Encounter';
+    const startBar = $(
+      `<div class="ms-start-encounter-bar"><button type="button" class="ms-start-encounter-btn">${startLabel}</button></div>`,
+    );
+    const encounterControlsHost = $html.find('.encounter-controls');
+    if (encounterControlsHost.length) encounterControlsHost.before(startBar);
+    else $html.prepend(startBar);
+    startBar.find('.ms-start-encounter-btn').on('click', (ev: JQuery.ClickEvent) => {
+      ev.preventDefault();
+      ev.stopPropagation();
+      void import('./ui/start-encounter-dialog.js').then(({ StartEncounterDialog }) => {
+        StartEncounterDialog.open();
+      });
+    });
+
     // Add buttons to each combatant row for passive and initiative dialogs
     $html.find('.combatant').each((_index: number, combatantElement: HTMLElement) => {
       const $combatant = $(combatantElement);

@@ -1120,6 +1120,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     context.radialManeuverPrefsDetailsOpen = this._radialManeuverPrefsDetailsOpen === true;
     context.combatSensesPanel = buildCombatSensesPanelContext(this.actor);
     context.encounterSetupStatus = null;
+    context.showInitiativeShopButton = false;
     try {
       const combat = game.combat;
       const combatant = combat
@@ -1128,6 +1129,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       if (combat && combatant && this.actor.type === 'character') {
         const { buildEncounterSetupStatus } = await import('../combat/encounter-setup-status.js');
         context.encounterSetupStatus = buildEncounterSetupStatus(combatant as Combatant, combat);
+        context.showInitiativeShopButton = !!(game.user?.isGM || this.actor.isOwner);
       }
     } catch (err) {
       console.warn('Mastery System | encounter setup status failed', err);
@@ -2231,6 +2233,20 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       if (!kind) return;
       const { forceEncounterDialogForAll } = await import('../combat/encounter-setup-status.js');
       await forceEncounterDialogForAll(kind);
+    });
+
+    html.find('[data-action="openInitiativeShop"]').on('click', async (ev: JQuery.ClickEvent) => {
+      ev.preventDefault();
+      const combat = game.combat;
+      const combatant = combat
+        ? Array.from(combat.combatants).find((c: any) => c.actor?.id === this.actor.id)
+        : null;
+      if (!combat || !combatant) {
+        ui.notifications?.warn(game.i18n?.localize('MASTERY.encounterSetup.noCombat') || 'Kein aktiver Kampf.');
+        return;
+      }
+      const { openInitiativeShopForTrackerRescue } = await import('../combat/initiative-roll.js');
+      await openInitiativeShopForTrackerRescue(combatant as Combatant, combat);
     });
 
     html.find('[data-action="openStonePowers"]').on('click', async (ev: JQuery.ClickEvent) => {

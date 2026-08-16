@@ -265,6 +265,15 @@
   color: #b8a8ff;
 }
 
+.portrait-initiative-shop {
+  background: rgba(233, 69, 96, 0.22);
+  border-color: rgba(233, 69, 96, 0.7);
+}
+
+.portrait-initiative-shop i {
+  color: #ffb3bf;
+}
+
 /* Status Icons */
 .status-icons {
   display: flex;
@@ -668,6 +677,7 @@ body.mastery-carousel-open.mastery-carousel-compact #ui-top {
 .mastery-carousel.is-compact .ms-carousel-reactions,
 .mastery-carousel.is-compact .status-icons,
 .mastery-carousel.is-compact .portrait-stone-powers span,
+.mastery-carousel.is-compact .portrait-initiative-shop span,
 .mastery-carousel.is-compact .portrait-end-turn span,
 .mastery-carousel.is-compact .ms-setup-label,
 .mastery-carousel.is-compact .ms-setup-summary {

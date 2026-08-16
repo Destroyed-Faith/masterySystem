@@ -17,6 +17,7 @@ import {
   ENCOUNTER_SOCKET,
   emitEncounterSocketToPlayerOwners,
   resolveLiveCombat,
+  setSimulatePlayerEncounter,
   shouldShowEncounterDialogLocally,
 } from './combat-permissions.js';
 
@@ -333,6 +334,7 @@ export function initializeEncounterStart(): void {
       clearTimeout(carouselRefreshTimeout);
       carouselRefreshTimeout = null;
     }
+    setSimulatePlayerEncounter(null);
     // Socket cleanup is handled automatically by Foundry
   });
 }

@@ -43,12 +43,33 @@ export function findConnectedPlayerOwners(actor: Actor | null | undefined): Arra
   );
 }
 
+/** When set to a combat id, the local user sees encounter dialogs (player-view test). */
+let simulatePlayerEncounterId: string | null = null;
+
+export function setSimulatePlayerEncounter(combatId: string | null): void {
+  simulatePlayerEncounterId = combatId;
+}
+
+export function getSimulatePlayerEncounterId(): string | null {
+  return simulatePlayerEncounterId;
+}
+
+function isSimulatingPlayerEncounter(): boolean {
+  if (!simulatePlayerEncounterId) return false;
+  const liveId = typeof game !== 'undefined' ? game.combat?.id : null;
+  return !liveId || liveId === simulatePlayerEncounterId;
+}
+
 /**
  * A connected player who owns the actor should see the dialog.
  * The GM only handles it when no such player is online.
+ * Start Encounter (player view) can force local dialogs for the current combat.
  */
 export function shouldShowEncounterDialogLocally(actor: Actor | null | undefined): boolean {
   if (!actor || typeof game === 'undefined' || !game.user) return false;
+  if (isSimulatingPlayerEncounter()) {
+    return !!(game.user.isGM || (actor as any).isOwner);
+  }
   const playerOwners = findConnectedPlayerOwners(actor);
   if (playerOwners.length > 0) {
     return playerOwners.some((u) => u.id === game.user!.id);

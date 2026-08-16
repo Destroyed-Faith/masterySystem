@@ -353,6 +353,8 @@ export class CombatCarouselApp extends BaseCarousel {
         tokenId: tokenId,
         showStonePowersButton:
           actor.type === 'character' && !!(game.user?.isGM || actor.isOwner),
+        showInitiativeShopButton:
+          actor.type === 'character' && !!(game.user?.isGM || actor.isOwner),
         stonePlanLocked:
           actor.type === 'character' && isStonePowersConfigurationLocked(actor, combat),
         setupStatus: buildEncounterSetupStatus(combatant, combat),
@@ -595,6 +597,24 @@ export class CombatCarouselApp extends BaseCarousel {
           await StonePowersDialog.showForActor(actor as Actor, combatant);
         } catch (e) {
           console.error('Mastery System | Carousel Stone Powers failed', e);
+        }
+      };
+    });
+
+    root.querySelectorAll('.js-carousel-initiative-shop').forEach((btn: HTMLElement) => {
+      btn.onclick = async (ev: MouseEvent) => {
+        ev.preventDefault();
+        ev.stopPropagation();
+        const combatantId = btn.dataset.combatantId;
+        if (!combatantId) return;
+        const combat = game.combats?.active;
+        const combatant = combat?.combatants.get(combatantId);
+        if (!combat || !combatant) return;
+        try {
+          const { openInitiativeShopForTrackerRescue } = await import('../combat/initiative-roll.js');
+          await openInitiativeShopForTrackerRescue(combatant, combat);
+        } catch (e) {
+          console.error('Mastery System | Carousel Initiative Shop failed', e);
         }
       };
     });

@@ -113,6 +113,7 @@ export function buildEncounterSetupStatus(
   combatant: Combatant,
   combat: Combat | null = game.combat ?? null,
 ): EncounterSetupStatus | null {
+  if (!game.user?.isGM) return null;
   const actor = combatant.actor;
   if (!actor || actor.type !== 'character') return null;
   const live = resolveLiveCombat(combat);

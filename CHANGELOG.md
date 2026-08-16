@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.349] - 2026-08-16
+
+### Added
+
+- **Start Encounter:** Anyone can start a test combat from the top of the Combat Tracker — pick scene PCs and NPCs, then run the player setup dialogs on this client.
+- **Initiative Shop:** Reopen the shop from the character sheet and the combat carousel after dismissing it, using the same roll if it was not confirmed.
+
+### Changed
+
+- **Encounter setup:** Pick summaries (what was chosen) are GM-only. Players no longer see them on the sheet or carousel.
+
 ## [0.9.348] - 2026-08-16
 
 ### Added

@@ -1,0 +1,32 @@
+<div class="ms-start-encounter">
+  <p class="ms-start-encounter-lead">{{localize "MASTERY.startEncounter.lead"}}</p>
+  {{#unless hasTokens}}
+  <p class="ms-start-encounter-empty">{{localize "MASTERY.startEncounter.empty"}}</p>
+  {{else}}
+  <div class="ms-start-encounter-toolbar">
+    <button type="button" data-action="toggle-all">{{localize "MASTERY.startEncounter.toggleAll"}}</button>
+  </div>
+  <ul class="ms-start-encounter-list">
+    {{#each tokens as |tok|}}
+    <li class="ms-start-encounter-row">
+      <label>
+        <input type="checkbox" name="tokenId" value="{{tok.tokenId}}" checked />
+        <img src="{{tok.img}}" alt="" />
+        <span class="ms-start-encounter-name">{{tok.name}}</span>
+        <span class="ms-start-encounter-type">{{#if tok.isCharacter}}{{localize "MASTERY.startEncounter.pc"}}{{else}}{{localize "MASTERY.startEncounter.npc"}}{{/if}}</span>
+      </label>
+    </li>
+    {{/each}}
+  </ul>
+  {{/unless}}
+  <label class="ms-start-encounter-local">
+    <input type="checkbox" name="openLocally" {{#if openLocally}}checked{{/if}} />
+    {{localize "MASTERY.startEncounter.openLocally"}}
+  </label>
+  <div class="ms-start-encounter-actions">
+    <button type="button" data-action="cancel">{{localize "MASTERY.startEncounter.cancel"}}</button>
+    <button type="button" class="ms-start-encounter-go" data-action="start" {{#unless hasTokens}}disabled{{/unless}}>
+      {{localize "MASTERY.startEncounter.start"}}
+    </button>
+  </div>
+</div>

@@ -2,6 +2,63 @@
  * Combat Tracker Styles for Mastery System
  */
 
+.ms-start-encounter-bar {
+  padding: 6px 8px 4px;
+}
+
+.ms-start-encounter-btn {
+  width: 100%;
+  padding: 6px 10px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+}
+
+.mastery-system.start-encounter-dialog .ms-start-encounter {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px;
+}
+
+.mastery-system.start-encounter-dialog .ms-start-encounter-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 360px;
+  overflow: auto;
+}
+
+.mastery-system.start-encounter-dialog .ms-start-encounter-row label {
+  display: grid;
+  grid-template-columns: 18px 28px 1fr auto;
+  gap: 8px;
+  align-items: center;
+  padding: 4px 0;
+}
+
+.mastery-system.start-encounter-dialog .ms-start-encounter-row img {
+  width: 28px;
+  height: 28px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.mastery-system.start-encounter-dialog .ms-start-encounter-type {
+  opacity: 0.7;
+  font-size: 11px;
+}
+
+.mastery-system.start-encounter-dialog .ms-start-encounter-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.mastery-system.start-encounter-dialog .ms-start-encounter-go {
+  font-weight: 700;
+}
+
 /* Initiative Value Display */
 #combat .combatant .token-name .ms-initiative-value {
   display: inline-block;
