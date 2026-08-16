@@ -429,10 +429,10 @@ function calculateRange(
 
 /**
  * True when the actor has an equipped/bound AND activated weapon-kind artifact
- * (e.g. Dragon Claws). Such artifacts ARE the weapon and provide their own
- * attack option, so the generic "Weapon Attack" maneuver is suppressed to
- * avoid a duplicate. An inactive artifact surfaces no own attack entry, so
- * the generic "Weapon Attack" must stay (it still rolls the artifact's dice).
+ * (e.g. Dragon Claws, Moonlight Greatsword). Those artifacts ARE the weapon.
+ * Basic Attack is suppressed so it does not sit next to Single Attack / the
+ * named artifact swing. An inactive artifact surfaces no own attack entry, so
+ * Basic Attack must stay (it still rolls the artifact's dice).
  */
 function actorHasEquippedWeaponArtifact(actor: any): boolean {
   const items: any[] = actor?.items ? Array.from(actor.items) : [];

@@ -89,6 +89,33 @@ function parseRowAoe(raw: string | undefined): { shape: 'none' | 'radius' | 'con
     return { shape: 'none' };
 }
 
+/** True when the actor already has a power they can fire as an attack (e.g. Single Attack). */
+function actorHasOwnActivePower(actor: any): boolean {
+    const items: any[] = actor?.items ? Array.from(actor.items) : [];
+    return items.some((item) => {
+        if (item?.type !== 'power') return false;
+        if (item.system?.showInRadialMenu === false) return false;
+        const powerType = String(item.system?.powerType || '').toLowerCase();
+        return powerType === 'active';
+    });
+}
+
+/**
+ * Standalone "swing this artifact" radial buttons are only for extra natural
+ * weapons (Dragon Head Bite). Weapon-kind artifacts (Moonlight Greatsword,
+ * Dragon Claws) are the character's weapon — Single Attack / Basic Attack
+ * already roll those dice. Armor / shields (Soul Sigil) are never a weapon
+ * even if a leftover `artifactWeapon` blob is sitting on the item.
+ */
+function shouldEmitArtifactWeaponAttack(sys: any, actorHasActivePower: boolean): boolean {
+    const aw = sys?.artifactWeapon;
+    if (!aw?.damage) return false;
+    const kind = String(sys?.artifactKind || '');
+    if (kind === 'armor' || kind === 'shield') return false;
+    if (kind === 'weapon') return !actorHasActivePower;
+    return true;
+}
+
 function isArtifactEquipped(item: any): boolean {
     if (!item) return false;
     if (getArtifactBindingKind(item) === 'echo') return true;
@@ -133,15 +160,13 @@ export function buildArtifactRadialOptions(actor: any): RadialCombatOption[] {
         const progression: ArtifactLevelProgressionRow[] = Array.isArray(sys.levelProgression)
             ? sys.levelProgression
             : [];
+        const hasOwnActivePower = actorHasOwnActivePower(actor);
 
-        // Artifact / natural weapon → a usable attack that always rolls this
-        // weapon's damage (forcedWeaponItemId). Two flavours:
-        //   • weapon-kind artifact (Dragon Claws): this IS the actor's weapon, so
-        //     it REPLACES the generic "Weapon Attack" (tagged weapon-artifact-attack).
-        //   • naturalWeapon on a non-weapon slot (Dragon Head Bite): an EXTRA
-        //     natural attack alongside the normal weapon.
+        // Extra natural-weapon button only (see shouldEmitArtifactWeaponAttack).
+        // Weapon-kind artifacts stay off the radial when the actor already has
+        // Single Attack / another Active — those powers roll this weapon's dice.
         const aw = sys.artifactWeapon;
-        if (aw && aw.damage) {
+        if (shouldEmitArtifactWeaponAttack(sys, hasOwnActivePower)) {
             const isRangedWeapon = resolveArtifactWeaponKind(aw, sys.baseProfile) === 'ranged';
             const isWeaponKind = sys.artifactKind === 'weapon';
             // Strip the generated " - Level N-M" suffix so the radial shows a

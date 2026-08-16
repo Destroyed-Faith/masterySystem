@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.342] - 2026-08-16
+
+### Fixed
+
+- **Radial menu:** Weapon artifacts no longer add a second basic swing when the character already has an Active (e.g. Single Attack). Armor artifacts such as Soul Sigil never appear as a 1d8 attack.
+
 ## [0.9.341] - 2026-08-16
 
 ### Changed
