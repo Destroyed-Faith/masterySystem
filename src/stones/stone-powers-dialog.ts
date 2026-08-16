@@ -784,7 +784,7 @@ export class StonePowersDialog extends BaseDialog {
           this.resolve(true);
           this.resolve = undefined;
         }
-        await (this as any).close({ closeSource: 'button' });
+        await (this as any).close({ closeSource: 'button', committed: true });
       };
     }
 
@@ -794,10 +794,10 @@ export class StonePowersDialog extends BaseDialog {
       (closeBtn as HTMLElement).onclick = async (ev: MouseEvent) => {
         ev.preventDefault();
         if (this.resolve) {
-          this.resolve(false);
+          this.resolve(true);
           this.resolve = undefined;
         }
-        await (this as any).close({ closeSource: "button" });
+        await (this as any).close({ closeSource: 'button', committed: true });
       };
     }
   }
@@ -1822,15 +1822,39 @@ export class StonePowersDialog extends BaseDialog {
   }
   
   async _onClose(_options: any): Promise<void> {
+    const committed = _options?.committed === true;
     this.#pullSessionPartialsIntoInstance();
-    await this.#flushCompletedStonePaymentsFromAccumulators();
+    if (committed) {
+      await this.#flushCompletedStonePaymentsFromAccumulators();
+      try {
+        const { getActionEconomyActor } = await import('../combat/action-economy.js');
+        const owner = getActionEconomyActor(this.actor) ?? this.actor;
+        const tempHP = Number((owner as any)?.system?.health?.tempHP ?? 0) || 0;
+        if (owner !== this.actor && tempHP > 0) {
+          await (this.actor as any).update?.({ 'system.health.tempHP': tempHP });
+        }
+      } catch {
+        /* best-effort sheet/token sync */
+      }
+      try {
+        const { CombatCarouselApp } = await import('../ui/combat-carousel.js');
+        CombatCarouselApp.refresh();
+      } catch {
+        /* carousel may not be open */
+      }
+      try {
+        void (this.actor as any)?.sheet?.render?.(false);
+      } catch {
+        /* ignore */
+      }
+    }
     this.#clearSessionStoneLanesForOwner();
     this._stoneDragAttribute = null;
     this._stoneReturnAccKey = null;
     this._stoneDndCleanup?.();
     this._stoneDndCleanup = undefined;
     if (this.resolve) {
-      this.resolve(false);
+      this.resolve(committed);
       this.resolve = undefined;
     }
     return super._onClose(_options);

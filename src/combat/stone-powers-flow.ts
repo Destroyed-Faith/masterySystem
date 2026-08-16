@@ -25,6 +25,7 @@ import {
   resolveLiveCombat,
   shouldShowEncounterDialogLocally,
 } from './combat-permissions.js';
+import { readCombatantSetupStep } from './encounter-setup-flags.js';
 
 interface StonePowersState {
   roundStonesPrompted: Record<number, boolean>;
@@ -70,7 +71,9 @@ async function markStonePowersDone(combat: Combat, combatantId: string, round: n
 }
 
 export function isStonePowersDone(combat: Combat, combatantId: string, round: number): boolean {
-  return getStonePowersState(combat).stonesDone[combatantId] === round;
+  if (getStonePowersState(combat).stonesDone[combatantId] === round) return true;
+  const combatant = combat.combatants.get(combatantId);
+  return Number(readCombatantSetupStep(combatant, combat)?.stonesDoneRound) === Number(round);
 }
 
 function areAllCombatantsDone(combat: Combat, round: number): boolean {

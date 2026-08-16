@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.354] - 2026-08-17
+
+### Fixed
+
+- **Encounter setup:** Player confirm now persists on the combatant (Passives / Stones / Shop), not the Combat document. "Übernehmen & schließen" confirms stone spend and continues to the Initiative Shop; window close no longer spends stones.
+
 ## [0.9.353] - 2026-08-17
 
 ### Fixed

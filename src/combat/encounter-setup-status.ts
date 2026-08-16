@@ -5,6 +5,7 @@
 import { getPassiveSlots } from '../powers/passives.js';
 import { INITIATIVE_SHOP } from '../utils/constants.js';
 import { emitEncounterSocketToPlayerOwners, resolveLiveCombat } from './combat-permissions.js';
+import { readCombatantSetupStep } from './encounter-setup-flags.js';
 
 export type EncounterDialogKind = 'passives' | 'stones' | 'initiative';
 
@@ -36,13 +37,14 @@ function cap(s: string): string {
   return s ? s.charAt(0).toUpperCase() + s.slice(1) : s;
 }
 
-function passiveSummary(actor: Actor): { done: boolean; names: string[] } {
+function passiveSummary(actor: Actor, combatant?: Combatant | null): { done: boolean; names: string[] } {
   const combat = resolveLiveCombat(game.combat);
   const actorId = (actor as { id?: string }).id;
   const locked = !!(
     combat &&
     actorId &&
-    (combat.flags as any)?.['mastery-system']?.encounterSetup?.passives?.[actorId]?.locked
+    ((combat.flags as any)?.['mastery-system']?.encounterSetup?.passives?.[actorId]?.locked ||
+      readCombatantSetupStep(combatant, combat)?.passivesLocked)
   );
   const names = getPassiveSlots(actor)
     .map((s) => String(s.passive?.name ?? '').trim())
@@ -78,13 +80,19 @@ function stoneSummary(actor: Actor, combatantId: string, combat: Combat | null):
       parts.push(attr && attr !== '_' ? `${name} (${cap(attr)}×${count || 1})` : name);
     }
   }
-  return { done: doneRound === round, parts };
+  const stepDone = readCombatantSetupStep(
+    combat?.combatants?.get?.(combatantId),
+    combat,
+  )?.stonesDoneRound;
+  return { done: doneRound === round || Number(stepDone) === Number(round), parts };
 }
 
 function shopSummary(combatant: Combatant, combat: Combat | null): { done: boolean; parts: string[] } {
-  const confirmed = !!(combat && (combat.flags as any)?.['mastery-system']?.encounterSetup?.initiativeConfirmed?.[
-    combatant.id
-  ]);
+  const confirmed = !!(
+    combat &&
+    ((combat.flags as any)?.['mastery-system']?.encounterSetup?.initiativeConfirmed?.[combatant.id] ||
+      readCombatantSetupStep(combatant, combat)?.initiativeConfirmed)
+  );
   const shop = combatant.getFlag?.('mastery-system', 'initiativeShop') as
     | {
         extraMovement?: number;
@@ -112,7 +120,7 @@ export function buildEncounterSetupStatus(
   const actor = combatant.actor;
   if (!actor || actor.type !== 'character') return null;
   const live = resolveLiveCombat(combat);
-  const passives = passiveSummary(actor);
+  const passives = passiveSummary(actor, combatant);
   const stones = stoneSummary(actor, combatant.id, live);
   const shop = shopSummary(combatant, live);
 

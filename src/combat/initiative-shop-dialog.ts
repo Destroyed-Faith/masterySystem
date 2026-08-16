@@ -305,17 +305,8 @@ export class InitiativeShopDialog extends BaseDialog {
       });
     }
 
-    if (!game.user?.isGM) {
-      game.socket?.emit('system.mastery-system', {
-        type: 'initiativeConfirmed',
-        combatId: this.combat.id,
-        combatantId: this.combatant.id,
-        finalInitiative: remainingInitiative
-      });
-    } else {
-      const { handleInitiativeConfirmed } = await import('./encounter-start.js');
-      await handleInitiativeConfirmed(this.combat, this.combatant.id, remainingInitiative);
-    }
+    const { handleInitiativeConfirmed } = await import('./encounter-start.js');
+    await handleInitiativeConfirmed(this.combat, this.combatant.id, remainingInitiative);
 
     await this.combatant.unsetFlag('mastery-system', 'pendingInitiativeShop');
 

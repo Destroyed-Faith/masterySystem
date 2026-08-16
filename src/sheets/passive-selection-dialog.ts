@@ -201,7 +201,8 @@ export class PassiveSelectionDialog extends BaseDialog {
 
           if (!passiveId || !slot.classList.contains('empty')) return;
 
-          await slotPassive(actor, slotIndex, passiveId);
+          const { getActionEconomyActor } = await import('../combat/action-economy.js');
+          await slotPassive(getActionEconomyActor(actor) ?? actor, slotIndex, passiveId);
           await (this as any).render({ force: true });
         };
       });
@@ -214,7 +215,8 @@ export class PassiveSelectionDialog extends BaseDialog {
           if (!actor) return;
 
           const slotIndex = Number(btn.dataset.slotIndex ?? 0);
-          await unslotPassive(actor, slotIndex);
+          const { getActionEconomyActor } = await import('../combat/action-economy.js');
+          await unslotPassive(getActionEconomyActor(actor) ?? actor, slotIndex);
           await (this as any).render({ force: true });
         };
       });

@@ -7,6 +7,7 @@
  */
 
 import { ENCOUNTER_SOCKET, resolveLiveCombat, shouldShowEncounterDialogLocally } from './combat-permissions.js';
+import { isCombatantInitiativeConfirmed, isPassiveSelectionLocked, persistCombatantSetupStep } from './encounter-setup-flags.js';
 
 const dismissedThisSession = new Set<string>();
 let pipelineRunning = false;
@@ -65,13 +66,12 @@ async function runSetupForCombatant(combat: Combat, combatant: Combatant): Promi
   const actor = combatant.actor;
   if (!actor?.id) return;
 
-  const { getEncounterSetup, handlePassiveSelectionComplete } = await import('./encounter-start.js');
+  const { handlePassiveSelectionComplete } = await import('./encounter-start.js');
   const combatId = String(combat.id);
   const actorId = String(actor.id);
   const round = Math.max(1, Number(combat.round) || 1);
 
-  let setup = getEncounterSetup(combat);
-  if (!setup.passives[actorId]?.locked) {
+  if (!isPassiveSelectionLocked(combat, actorId)) {
     if (dismissedThisSession.has(stepKey(combatId, actorId, 'passives'))) return;
     if (dialogAlreadyOpen('mastery-passive-selection')) return;
 
@@ -101,6 +101,7 @@ async function runSetupForCombatant(combat: Combat, combatant: Combatant): Promi
       dismissedThisSession.add(stepKey(combatId, actorId, 'stones'));
       return;
     }
+    await persistCombatantSetupStep(combatant, combat, { stonesDoneRound: round });
     if (game.user?.isGM) {
       await handleStonePowersComplete(combat, combatant.id, round);
     } else {
@@ -115,8 +116,7 @@ async function runSetupForCombatant(combat: Combat, combatant: Combatant): Promi
 
   if (round > 1) return;
 
-  setup = getEncounterSetup(combat);
-  if (setup.initiativeConfirmed[combatant.id]) return;
+  if (isCombatantInitiativeConfirmed(combat, combatant.id)) return;
   if (dismissedThisSession.has(stepKey(combatId, actorId, 'shop'))) return;
   if (dialogAlreadyOpen('mastery-initiative-shop')) return;
 

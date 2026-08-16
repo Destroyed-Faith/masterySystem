@@ -17,6 +17,7 @@ import {
   resolveLiveCombat,
   setSimulatePlayerEncounter,
 } from './combat-permissions.js';
+import { findCombatantByActorId, persistCombatantSetupStep } from './encounter-setup-flags.js';
 
 interface EncounterSetupState {
   started: boolean;
@@ -64,6 +65,8 @@ async function updateEncounterSetup(combat: Combat, updates: Partial<EncounterSe
 export async function handlePassiveSelectionComplete(combat: Combat, actorId: string, data: any): Promise<void> {
   const live = resolveLiveCombat(combat);
   if (!live) return;
+  const combatant = findCombatantByActorId(live, actorId);
+  await persistCombatantSetupStep(combatant, live, { passivesLocked: true });
   if (!canCurrentUserUpdateCombat(live)) {
     game.socket?.emit(ENCOUNTER_SOCKET, {
       type: 'passiveSelectionComplete',
@@ -86,11 +89,12 @@ export async function handlePassiveSelectionComplete(combat: Combat, actorId: st
  */
 export async function handleInitiativeConfirmed(combat: Combat, combatantId: string, finalInitiative: number): Promise<void> {
   const setup = getEncounterSetup(combat);
-  
-  // Mark initiative as confirmed
   setup.initiativeConfirmed[combatantId] = true;
-  
-  if (!game.user?.isGM) {
+  const liveForFlag = resolveLiveCombat(combat);
+  const combatant = liveForFlag?.combatants.get(combatantId);
+  await persistCombatantSetupStep(combatant, liveForFlag, { initiativeConfirmed: true });
+
+  if (!canCurrentUserUpdateCombat(liveForFlag)) {
     game.socket?.emit(ENCOUNTER_SOCKET, {
       type: 'initiativeConfirmed',
       combatId: combat.id,
