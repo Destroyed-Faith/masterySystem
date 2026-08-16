@@ -27,21 +27,21 @@ describe('Artifact constants (new spec)', () => {
     expect(ARTIFACT_UPGRADE_XP_COST).toBe(8);
   });
 
-  it('hard caps system level at 16 (matches new MR-gated power cap)', () => {
-    expect(ARTIFACT_MAX_SYSTEM_LEVEL).toBe(16);
+  it('hard caps system level at 10', () => {
+    expect(ARTIFACT_MAX_SYSTEM_LEVEL).toBe(10);
   });
 });
 
 describe('getMaxArtifactSystemLevelForMasteryRank', () => {
-  it('caps by MR using (MR - 1) × 2, hard-capped at ARTIFACT_MAX_SYSTEM_LEVEL', () => {
+  it('caps by MR using (MR - 1) × 2, hard-capped at 10', () => {
     expect(getMaxArtifactSystemLevelForMasteryRank(1)).toBe(0);
     expect(getMaxArtifactSystemLevelForMasteryRank(2)).toBe(2);
     expect(getMaxArtifactSystemLevelForMasteryRank(3)).toBe(4);
     expect(getMaxArtifactSystemLevelForMasteryRank(4)).toBe(6);
     expect(getMaxArtifactSystemLevelForMasteryRank(5)).toBe(8);
     expect(getMaxArtifactSystemLevelForMasteryRank(6)).toBe(10);
-    expect(getMaxArtifactSystemLevelForMasteryRank(7)).toBe(12);
-    expect(getMaxArtifactSystemLevelForMasteryRank(8)).toBe(14);
+    expect(getMaxArtifactSystemLevelForMasteryRank(7)).toBe(10);
+    expect(getMaxArtifactSystemLevelForMasteryRank(8)).toBe(10);
     expect(getMaxArtifactSystemLevelForMasteryRank(99)).toBe(ARTIFACT_MAX_SYSTEM_LEVEL);
   });
 });

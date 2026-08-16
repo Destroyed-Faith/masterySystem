@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.339] - 2026-08-16
+
+### Changed
+
+- **Artifacts:** Maximum level is 10. MR 5 reaches 8, MR 6 and above reach 10.
+
 ## [0.9.338] - 2026-08-16
 
 ### Changed
