@@ -20,17 +20,17 @@
              data-slot-index="{{slot.slotIndex}}">
           <div class="slot-header">
             <span class="slot-number">Slot {{inc slot.slotIndex}} <span class="slot-unlock">(MR {{slot.unlockMasteryRank}}+)</span></span>
+            {{#if slot.passive}}
+              <button type="button" class="js-unslot-passive btn-remove" data-slot-index="{{slot.slotIndex}}" title="Slot leeren">
+                <i class="fas fa-times"></i>
+              </button>
+            {{/if}}
           </div>
           
           {{#if slot.passive}}
             <div class="slot-body">
               <h4>{{slot.passive.name}}</h4>
               <p class="passive-effect">{{slot.passive.description}}</p>
-              <div class="slot-actions">
-                <button class="js-unslot-passive btn-remove" data-slot-index="{{slot.slotIndex}}" title="Remove from slot">
-                  <i class="fas fa-times"></i>
-                </button>
-              </div>
             </div>
           {{else}}
             <div class="slot-body empty-slot">

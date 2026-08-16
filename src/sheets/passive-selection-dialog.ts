@@ -17,6 +17,7 @@ import {
   unslotPassive
 } from '../powers/passives.js';
 import { shouldShowEncounterDialogLocally } from '../combat/combat-permissions.js';
+import { getActionEconomyActor } from '../combat/action-economy.js';
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
 // Type workaround for Mixin
@@ -111,7 +112,9 @@ export class PassiveSelectionDialog extends BaseDialog {
   }
 
   get currentActor(): Actor | null {
-    return this.currentCombatant?.actor ?? null;
+    const raw = this.currentCombatant?.actor ?? null;
+    if (!raw) return null;
+    return getActionEconomyActor(raw) ?? raw;
   }
 
   protected async _prepareContext(_options: any): Promise<any> {
@@ -201,25 +204,26 @@ export class PassiveSelectionDialog extends BaseDialog {
 
           if (!passiveId || !slot.classList.contains('empty')) return;
 
-          const { getActionEconomyActor } = await import('../combat/action-economy.js');
-          await slotPassive(getActionEconomyActor(actor) ?? actor, slotIndex, passiveId);
+          await slotPassive(actor, slotIndex, passiveId);
           await (this as any).render({ force: true });
         };
       });
 
-      // Unslot passive
-      root.querySelectorAll<HTMLElement>('.js-unslot-passive').forEach(btn => {
-        btn.onclick = async (ev) => {
-          ev.preventDefault();
-          const actor = this.currentActor;
-          if (!actor) return;
-
-          const slotIndex = Number(btn.dataset.slotIndex ?? 0);
-          const { getActionEconomyActor } = await import('../combat/action-economy.js');
-          await unslotPassive(getActionEconomyActor(actor) ?? actor, slotIndex);
-          await (this as any).render({ force: true });
-        };
-      });
+      // Capture-phase so the X wins over ApplicationV2 form submit / slot drag.
+      if (!(root as any)._msUnslotBound) {
+        (root as any)._msUnslotBound = true;
+        root.addEventListener(
+          'click',
+          (ev: Event) => {
+            const btn = (ev.target as HTMLElement | null)?.closest?.('.js-unslot-passive') as HTMLElement | null;
+            if (!btn || !root.contains(btn)) return;
+            ev.preventDefault();
+            ev.stopPropagation();
+            void this.#unslotClicked(btn);
+          },
+          true,
+        );
+      }
     }
 
     // Navigation: Next
@@ -260,6 +264,33 @@ export class PassiveSelectionDialog extends BaseDialog {
     }
 
     // Close button removed from footer - use header close button instead
+  }
+
+  async #unslotClicked(btn: HTMLElement): Promise<void> {
+    if (this.readOnly) return;
+    const actor = this.currentActor;
+    if (!actor) return;
+    const slotIndex = Number(btn.dataset.slotIndex ?? 0);
+    try {
+      await unslotPassive(actor, slotIndex);
+    } catch (err) {
+      const actorId = String((actor as { id?: string }).id ?? '');
+      const world = actorId ? (game.actors?.get(actorId) as Actor | undefined) : undefined;
+      if (world && world !== actor) {
+        try {
+          await unslotPassive(world, slotIndex);
+        } catch (err2) {
+          console.error('Mastery System | Could not clear passive slot', err2);
+          ui.notifications?.error('Passive konnte nicht aus dem Slot entfernt werden.');
+          return;
+        }
+      } else {
+        console.error('Mastery System | Could not clear passive slot', err);
+        ui.notifications?.error('Passive konnte nicht aus dem Slot entfernt werden.');
+        return;
+      }
+    }
+    await (this as any).render({ force: true });
   }
 
   private finishOutcome(confirmed: boolean): void {

@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.356] - 2026-08-17
+
+### Fixed
+
+- **Passive slots:** The X on a filled slot now clears it for players. Foundry was dropping `null` on save, and the button could submit the dialog instead of removing the passive.
+
 ## [0.9.355] - 2026-08-17
 
 ### Fixed

@@ -1,9 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import {
   getPassiveSlotCountForMasteryRank,
+  getPassiveSlots,
   getPassiveSlotUnlockRank,
   MAX_PASSIVE_SLOTS,
   PASSIVE_SLOT_UNLOCK_RANKS,
+  unslotPassive,
 } from '../src/powers/passives.js';
 
 describe('passive slot unlocks', () => {
@@ -28,5 +30,27 @@ describe('passive slot unlocks', () => {
     expect(getPassiveSlotUnlockRank(2)).toBe(4);
     expect(getPassiveSlotUnlockRank(3)).toBe(6);
     expect(getPassiveSlotUnlockRank(4)).toBeNull();
+  });
+
+  it('treats empty passive objects as vacant slots', () => {
+    const actor = {
+      system: {
+        mastery: { rank: 2 },
+        passives: { slot0: { passive: {}, active: true } },
+      },
+    } as unknown as Actor;
+    expect(getPassiveSlots(actor)[0]?.passive).toBeNull();
+  });
+
+  it('clears a slot with a Foundry delete key instead of nulling the object', async () => {
+    const updates: Record<string, unknown>[] = [];
+    const actor = {
+      system: { passives: { slot0: { passive: { id: 'p1', name: 'Ward' }, active: true } } },
+      update: async (payload: Record<string, unknown>) => {
+        updates.push(payload);
+      },
+    } as unknown as Actor;
+    await unslotPassive(actor, 0);
+    expect(updates).toEqual([{ 'system.passives.-=slot0': null }]);
   });
 });
