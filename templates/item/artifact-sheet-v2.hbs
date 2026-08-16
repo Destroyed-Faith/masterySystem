@@ -91,20 +91,7 @@
     <div class="artifact-card-section artifact-card-preview">
       <h3 class="artifact-card-head">{{title}}{{#if label}} — {{label}}{{/if}}</h3>
       <p class="artifact-card-preview-hint">{{../labels.nextLevelHint}}</p>
-      {{#if hasBaseValues}}
-      <h4 class="artifact-card-subhead">Base Values</h4>
-      <ul class="artifact-basevalues">
-        {{#each baseValues}}
-        <li>
-          <span class="artifact-bv-slot">{{slot}}</span>
-          <span class="artifact-bv-label">{{label}}</span>
-          {{#if value}}<span class="artifact-bv-value">{{value}}</span>{{/if}}
-        </li>
-        {{/each}}
-      </ul>
-      {{/if}}
       {{#if hasAbilities}}
-      <h4 class="artifact-card-subhead">Abilities</h4>
       <ul class="artifact-abilities">
         {{#each abilities}}
         <li class="artifact-ability">

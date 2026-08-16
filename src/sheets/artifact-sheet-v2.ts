@@ -62,7 +62,8 @@ export class ArtifactSheetV2 extends BaseArtifactSheet {
       : true;
 
     const current = displayFromArtifactSystem(system);
-    const nextPreviews = resolveNextArtifactPreviews(item);
+    const activation = mechanicallyActive ? current : displayFromArtifactSystem(system, { level: 1 });
+    const nextPreviews = mechanicallyActive ? resolveNextArtifactPreviews(item) : [];
     const i18n = (globalThis as any).game?.i18n;
     const loc = (key: string, fallback: string, data?: Record<string, string>) => {
       const raw = data ? i18n?.format?.(key, data) : i18n?.localize?.(key);
@@ -93,10 +94,10 @@ export class ArtifactSheetV2 extends BaseArtifactSheet {
       slotLabel: (ARTIFACT_SLOT_LABELS as any)[slotKey] || '',
       baseProfileLabel: (BASE_PROFILE_LABELS as any)[profileKey] || '',
       currentLevel,
-      baseValues: current.baseValues,
-      abilities: current.abilities,
-      hasAbilities: current.hasAbilities,
-      hasBaseValues: current.hasBaseValues,
+      baseValues: activation.baseValues,
+      abilities: activation.abilities,
+      hasAbilities: activation.hasAbilities,
+      hasBaseValues: activation.hasBaseValues,
     };
     context.nextPreviews = nextPreviews.map((preview) => ({
       ...preview,
@@ -105,7 +106,7 @@ export class ArtifactSheetV2 extends BaseArtifactSheet {
       }),
     }));
     context.hasNextPreview = nextPreviews.length > 0;
-    context.hasActivationPreview = !mechanicallyActive && (current.hasBaseValues || current.hasAbilities);
+    context.hasActivationPreview = !mechanicallyActive && (activation.hasBaseValues || activation.hasAbilities);
     return context;
   }
 

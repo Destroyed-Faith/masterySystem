@@ -42,9 +42,9 @@ function readFlag(item: any, key: string): unknown {
   return item?.flags?.['mastery-system']?.[key];
 }
 
-export function displayFromArtifactSystem(system: any): ArtifactSheetDisplay {
+export function displayFromArtifactSystem(system: any, opts?: { level?: number }): ArtifactSheetDisplay {
   const sys = system || {};
-  const level = clampLevel(sys.currentLevel ?? sys.level);
+  const level = opts?.level != null ? clampLevel(opts.level) : clampLevel(sys.currentLevel ?? sys.level);
   const baseValues: ArtifactSheetBaseValue[] = (Array.isArray(sys.baseValues) ? sys.baseValues : []).map(
     (bv: any) => ({
       slot: String(bv?.slot || '').toUpperCase(),
@@ -77,8 +77,33 @@ function previewLabel(item: any, level: number): string {
   return name || `Level ${level}`;
 }
 
-function sameDisplay(a: ArtifactSheetDisplay, b: ArtifactSheetDisplay): boolean {
-  return JSON.stringify({ b: a.baseValues, a: a.abilities }) === JSON.stringify({ b: b.baseValues, a: b.abilities });
+function abilityKey(ability: ArtifactSheetAbility): string {
+  return `${ability.name}\0${ability.type}\0${ability.effect}\0${ability.special}`;
+}
+
+/** Abilities that appear on `next` but not on the current card. */
+export function newAbilitiesAtNextLevel(
+  current: ArtifactSheetAbility[],
+  next: ArtifactSheetAbility[],
+): ArtifactSheetAbility[] {
+  const have = new Set(current.map(abilityKey));
+  return next.filter((ability) => !have.has(abilityKey(ability)));
+}
+
+function toNextPreview(
+  next: ArtifactSheetDisplay,
+  abilities: ArtifactSheetAbility[],
+  label: string,
+): ArtifactSheetNextPreview | null {
+  if (!abilities.length) return null;
+  return {
+    level: next.level,
+    label,
+    baseValues: [],
+    abilities,
+    hasBaseValues: false,
+    hasAbilities: true,
+  };
 }
 
 function resolveChildWorldItems(item: any): any[] {
@@ -96,23 +121,27 @@ function resolveChildWorldItems(item: any): any[] {
 
 /** Next evolution node(s), or a same-item +1 fallback when the table still has more rows. */
 export function resolveNextArtifactPreviews(item: any): ArtifactSheetNextPreview[] {
+  const current = displayFromArtifactSystem(item?.system);
   const children = resolveChildWorldItems(item);
   if (children.length) {
     return children
       .map((child) => {
-        const display = displayFromArtifactSystem(child?.system);
-        return { ...display, label: previewLabel(child, display.level) };
+        const next = displayFromArtifactSystem(child?.system);
+        return toNextPreview(
+          next,
+          newAbilitiesAtNextLevel(current.abilities, next.abilities),
+          previewLabel(child, next.level),
+        );
       })
-      .filter((p) => p.hasAbilities || p.hasBaseValues);
+      .filter((preview): preview is ArtifactSheetNextPreview => !!preview);
   }
 
-  const current = displayFromArtifactSystem(item?.system);
   if (current.level >= 10) return [];
-  const next = displayFromArtifactSystem({
-    ...(item?.system || {}),
-    level: current.level + 1,
-    currentLevel: current.level + 1,
-  });
-  if (sameDisplay(current, next)) return [];
-  return [{ ...next, label: previewLabel(item, next.level) }];
+  const next = displayFromArtifactSystem(item?.system, { level: current.level + 1 });
+  const preview = toNextPreview(
+    next,
+    newAbilitiesAtNextLevel(current.abilities, next.abilities),
+    previewLabel(item, next.level),
+  );
+  return preview ? [preview] : [];
 }

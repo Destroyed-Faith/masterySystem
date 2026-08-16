@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.341] - 2026-08-16
+
+### Changed
+
+- **Artifact sheet:** Inactive preview is Level 1 only (base values plus the first ability). Next-level preview drops base values and lists only the new ability.
+
 ## [0.9.340] - 2026-08-16
 
 ### Fixed

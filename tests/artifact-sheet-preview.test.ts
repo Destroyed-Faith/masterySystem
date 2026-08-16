@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   displayFromArtifactSystem,
+  newAbilitiesAtNextLevel,
   resolveNextArtifactPreviews,
 } from '../src/utils/artifact-sheet-preview.js';
 
@@ -19,6 +20,25 @@ describe('displayFromArtifactSystem', () => {
     expect(display.baseValues).toEqual([{ slot: 'A', label: 'Weapon Damage', value: '4d8' }]);
     expect(display.abilities.map(a => a.name)).toEqual(['Stormpower I', 'Frost Throw I']);
     expect(display.hasAbilities).toBe(true);
+  });
+
+  it('can force the Level 1 activation card even when the item level is higher', () => {
+    const display = displayFromArtifactSystem({
+      level: 3,
+      currentLevel: 3,
+      baseValues: [{ slot: 'a', label: 'Weapon Damage', value: '5d8' }],
+      levelProgression: [L1, L2, L3],
+    }, { level: 1 });
+    expect(display.level).toBe(1);
+    expect(display.abilities.map(a => a.name)).toEqual(['Stormpower I']);
+  });
+});
+
+describe('newAbilitiesAtNextLevel', () => {
+  it('keeps only abilities that are not already on the current card', () => {
+    const current = displayFromArtifactSystem({ level: 1, levelProgression: [L1, L2, L3] });
+    const next = displayFromArtifactSystem({ level: 2, levelProgression: [L1, L2, L3] });
+    expect(newAbilitiesAtNextLevel(current.abilities, next.abilities).map(a => a.name)).toEqual(['Frost Throw I']);
   });
 });
 
@@ -80,8 +100,9 @@ describe('resolveNextArtifactPreviews', () => {
     const next = resolveNextArtifactPreviews(embedded);
     expect(next).toHaveLength(1);
     expect(next[0].level).toBe(3);
-    expect(next[0].abilities.map(a => a.name)).toEqual(['Stormpower I', 'Frost Throw I', 'Ice Edge I']);
-    expect(next[0].baseValues[0].value).toBe('5d8');
+    expect(next[0].abilities.map(a => a.name)).toEqual(['Ice Edge I']);
+    expect(next[0].hasBaseValues).toBe(false);
+    expect(next[0].baseValues).toEqual([]);
     delete (globalThis as any).game;
   });
 
@@ -97,6 +118,7 @@ describe('resolveNextArtifactPreviews', () => {
     const next = resolveNextArtifactPreviews(item);
     expect(next).toHaveLength(1);
     expect(next[0].level).toBe(3);
-    expect(next[0].abilities.map(a => a.name)).toEqual(['Stormpower I', 'Frost Throw I', 'Ice Edge I']);
+    expect(next[0].abilities.map(a => a.name)).toEqual(['Ice Edge I']);
+    expect(next[0].hasBaseValues).toBe(false);
   });
 });
