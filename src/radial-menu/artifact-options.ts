@@ -100,20 +100,29 @@ function actorHasOwnActivePower(actor: any): boolean {
     });
 }
 
+/** Extra natural attack (Dragon Head Bite) — never a leftover 1d8 on armor / staff / lantern. */
+function isDeclaredNaturalWeapon(sys: any): boolean {
+    const aw = sys?.artifactWeapon;
+    if (sys?.naturalWeapon) return true;
+    if (aw?.isNatural === true || aw?.naturalWeapon === true) return true;
+    const profile = String(sys?.baseProfile || '');
+    const kind = String(sys?.artifactKind || '');
+    if (kind === 'weapon' || kind === 'armor' || kind === 'shield') return false;
+    return (profile === 'headArmor' || profile === 'head') && !!String(aw?.name || '').trim();
+}
+
 /**
- * Standalone "swing this artifact" radial buttons are only for extra natural
- * weapons (Dragon Head Bite). Weapon-kind artifacts (Moonlight Greatsword,
- * Dragon Claws) are the character's weapon — Single Attack / Basic Attack
- * already roll those dice. Armor / shields (Soul Sigil) are never a weapon
- * even if a leftover `artifactWeapon` blob is sitting on the item.
+ * Standalone "swing this artifact" buttons are opt-in:
+ *   • declared natural weapons (Dragon Head Bite) — always, they are extra attacks
+ *   • weapon-kind artifacts — only when the actor has no own Active (no Single Attack)
+ * Everything else (armor, shield, lantern, staff, feet, missing kind, leftover blobs) stays out.
  */
 function shouldEmitArtifactWeaponAttack(sys: any, actorHasActivePower: boolean): boolean {
     const aw = sys?.artifactWeapon;
     if (!aw?.damage) return false;
-    const kind = String(sys?.artifactKind || '');
-    if (kind === 'armor' || kind === 'shield') return false;
-    if (kind === 'weapon') return !actorHasActivePower;
-    return true;
+    if (isDeclaredNaturalWeapon(sys)) return true;
+    if (String(sys?.artifactKind || '') !== 'weapon') return false;
+    return !actorHasActivePower;
 }
 
 function isArtifactEquipped(item: any): boolean {

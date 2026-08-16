@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.343] - 2026-08-16
+
+### Changed
+
+- **Combat Carousel:** Hostile and secret NPCs no longer show exact HP numbers. The bar stays so players can still see how wounded they look.
+
+### Fixed
+
+- **Radial menu:** Leftover weapon blobs on staves, lanterns, feet, and items without a kind no longer create a fake 1d8 attack. Only a declared natural weapon (Dragon Head Bite) still gets its own swing.
+
 ## [0.9.342] - 2026-08-16
 
 ### Fixed

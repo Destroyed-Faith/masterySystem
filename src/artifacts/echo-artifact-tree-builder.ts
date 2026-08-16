@@ -672,6 +672,7 @@ function naturalWeaponProfileAtLevel(def: EchoArtifactDefinition, level: number)
     damage,
     range,
     hands,
+    isNatural: true,
     innateAbilities: [],
     specials: nw.specials || [],
     ...(nw.name ? { name: nw.name } : {}),
@@ -794,7 +795,10 @@ export function buildEchoArtifactTree(def: EchoArtifactDefinition): GeneratedArt
       ...(isWeapon
         ? { artifactWeapon: weaponProfileAtLevel(def, level) }
         : def.naturalWeapon
-          ? { artifactWeapon: naturalWeaponProfileAtLevel(def, level) }
+          ? {
+              naturalWeapon: def.naturalWeapon,
+              artifactWeapon: naturalWeaponProfileAtLevel(def, level),
+            }
           : {}),
       ...(kind === 'shield' ? { artifactShield: shieldProfileAtLevel(def, level) } : {}),
       ...(kind === 'armor' ? { artifactArmor: armorProfileAtLevel(def, level) } : {}),

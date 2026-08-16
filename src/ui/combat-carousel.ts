@@ -6,12 +6,23 @@ import {
 import { requestEndTurn } from '../combat/end-turn.js';
 import { StonePowersDialog } from '../stones/stone-powers-dialog.js';
 import { MASTERY_STATUS_EFFECTS } from '../system/status-effects.js';
+import { hideCarouselHpNumbers } from './combat-carousel-hp.js';
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
 // Type workaround for Mixin
 const BaseCarousel = HandlebarsApplicationMixin(ApplicationV2) as typeof ApplicationV2;
 
 type CarouselHookEntry = { event: string; id: number };
+
+function combatantDisposition(combatant: any, token: any, actor: any): number {
+  const raw =
+    token?.document?.disposition ??
+    token?.disposition ??
+    combatant?.token?.disposition ??
+    actor?.prototypeToken?.disposition ??
+    0;
+  return Number(raw);
+}
 
 export class CombatCarouselApp extends BaseCarousel {
   private static _instance: CombatCarouselApp | null = null;
@@ -324,6 +335,7 @@ export class CombatCarouselApp extends BaseCarousel {
         hpTotalMax,
         tempHP,
         hpSegments,
+        hideHpNumbers: hideCarouselHpNumbers(actor.type, combatantDisposition(combatant, token, actor)),
         stressTotalCurrent,
         stressTotalMax,
         stressSegments,

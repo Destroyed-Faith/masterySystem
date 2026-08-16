@@ -40,19 +40,21 @@
 
           <!-- Segmented HP Bar (one segment per wound level, color-graded) -->
           {{#if combatant.hpSegments.length}}
-            <div class="ms-hp-bar" title="HP: {{combatant.hpTotalCurrent}}/{{combatant.hpTotalMax}}{{#if combatant.tempHP}} (+{{combatant.tempHP}} Temp HP){{/if}}">
+            <div class="ms-hp-bar" title="{{#if combatant.hideHpNumbers}}HP{{else}}HP: {{combatant.hpTotalCurrent}}/{{combatant.hpTotalMax}}{{#if combatant.tempHP}} (+{{combatant.tempHP}} Temp HP){{/if}}{{/if}}">
               <div class="ms-hp-bar-header">
                 <span class="ms-hp-bar-label">HP</span>
+                {{#unless combatant.hideHpNumbers}}
                 <span class="ms-hp-bar-totals">
                   {{combatant.hpTotalCurrent}}/{{combatant.hpTotalMax}}
                   {{#if combatant.tempHP}}<span class="ms-hp-temp" title="Temporary HP">+{{combatant.tempHP}}</span>{{/if}}
                 </span>
+                {{/unless}}
               </div>
               <div class="ms-hp-bar-track">
                 {{#each combatant.hpSegments as |seg|}}
                   <div class="ms-hp-segment ms-hp-severity-{{seg.severity}}"
                        style="flex-basis: {{seg.widthPct}}%"
-                       title="{{seg.name}}: {{seg.current}}/{{seg.max}}">
+                       title="{{#if ../hideHpNumbers}}{{seg.name}}{{else}}{{seg.name}}: {{seg.current}}/{{seg.max}}{{/if}}">
                     {{#if seg.max}}
                       {{#with (divide seg.current seg.max)}}
                         <div class="ms-hp-segment-fill" style="width: {{multiply this 100}}%"></div>
