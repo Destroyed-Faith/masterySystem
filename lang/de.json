@@ -66,6 +66,9 @@
       "printFootnote": "Verbrauchsmaterial — nur gespeicherte Power. Keine Waffenschadenswürfel und keine Waffen-Specials.",
       "powerLabel": "Power"
     },
+    "inventory": {
+      "dropBlocked": "Dieses Feld ist blockiert oder der Gegenstand passt dort nicht hin."
+    },
     "echo": {
       "removeCard": "Karte entfernen",
       "removeCardTitle": "Echo-Karte entfernen",
@@ -195,6 +198,15 @@
       "fontColorClear": "Farbe entfernen",
       "fontColorInvalid": "Bitte eine gültige Hex-Farbe eingeben (z. B. #ff8800).",
       "fontColorUnsupported": "Dieser Editor unterstützt keine Textfarbe."
+    },
+    "artifact": {
+      "sheet": {
+        "inactive": "Inaktiv — über Artefakte aktivieren",
+        "whenActivated": "Bei Aktivierung",
+        "whenActivatedHint": "Diese Werte und Fähigkeiten schalten sich frei, wenn du das Artefakt aktivierst.",
+        "nextLevel": "Als Nächstes: Stufe {level}",
+        "nextLevelHint": "Schaltet frei, wenn du dieses Artefakt steigerst."
+      }
     }
   },
   "TYPES": {

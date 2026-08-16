@@ -1694,6 +1694,26 @@ div.artifact-sheet-v2 .artifact-ability-special {
   color: #d9b066;
 }
 
+.artifact-card-preview {
+  opacity: 0.72;
+  border-style: dashed;
+}
+
+.artifact-card-preview-hint {
+  margin: 0 0 8px;
+  font-size: 0.78rem;
+  font-style: italic;
+  color: var(--df-text-secondary, #b8c0c6);
+}
+
+.artifact-card-subhead {
+  font-size: 0.82rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  margin: 8px 0 4px;
+  color: var(--df-text-secondary, #b8c0c6);
+}
+
 .artifact-card-body {
   display: flex;
   flex-direction: column;

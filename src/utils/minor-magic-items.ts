@@ -6,7 +6,7 @@
  * Combat resolution of the stored Power comes in a later pass.
  */
 
-import { findFirstFit, parseInventorySize } from './inventory-grid.js';
+import { collectInventoryBandRects, findFirstFit } from './inventory-grid.js';
 import { ZONE_WIDTH_COLS } from './encumbrance.js';
 import { resolvePowerCategoryFromItem } from './power-catalog.js';
 import { getPowerDefinitionRank } from './power-definition-rank.js';
@@ -376,21 +376,7 @@ export function snapshotSummaryLines(snapshot: MinorMagicSnapshot): string[] {
 
 function inventoryRectsForBand(actor: { items?: Iterable<any> }, band: string) {
   const items = actor?.items ? Array.from(actor.items as Iterable<any>) : [];
-  return items
-    .map((it) => {
-      const flags = it.getFlag?.('mastery-system', 'equipment') || {};
-      if (flags.container !== 'inventory' || flags.band !== band || !flags.grid?.x || !flags.grid?.y) {
-        return null;
-      }
-      const size = parseInventorySize(it.system?.inventorySize);
-      return {
-        x: flags.grid.x,
-        y: flags.grid.y,
-        w: Math.min(ZONE_WIDTH_COLS, size.w),
-        h: Math.min(9, size.h),
-      };
-    })
-    .filter(Boolean) as Array<{ x: number; y: number; w: number; h: number }>;
+  return collectInventoryBandRects(items, band, { cols: ZONE_WIDTH_COLS, rows: 9 });
 }
 
 export function findInventorySlotForMinorMagic(actor: { items?: Iterable<any> }): {

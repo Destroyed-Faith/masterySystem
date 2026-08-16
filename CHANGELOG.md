@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.340] - 2026-08-16
+
+### Fixed
+
+- **Inventory:** Drag-and-drop treated all three load bands as one 24-column grid and kept equipped items on those cells. Hover marks landed on Normal Load, leftover armor stayed red, and failed drops snapped items to the top-left. Placement is now per-band, equipped items leave the grid, and items stay where you drop them — including Heavy Load.
+
+### Added
+
+- **Artifact sheet:** Inactive artifacts show the L1 card as When activated. Active artifacts show the next tree level in gray.
+
 ## [0.9.339] - 2026-08-16
 
 ### Changed

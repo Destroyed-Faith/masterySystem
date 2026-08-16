@@ -66,6 +66,9 @@
       "printFootnote": "Consumable — stored Power only. No weapon dice or weapon Specials.",
       "powerLabel": "Power"
     },
+    "inventory": {
+      "dropBlocked": "That cell is blocked or the item does not fit there."
+    },
     "echo": {
       "removeCard": "Remove Card",
       "removeCardTitle": "Remove Echo Card",
@@ -195,6 +198,15 @@
       "fontColorClear": "Remove Color",
       "fontColorInvalid": "Enter a valid hex color (e.g. #ff8800).",
       "fontColorUnsupported": "This editor does not support colored text."
+    },
+    "artifact": {
+      "sheet": {
+        "inactive": "Inactive — activate via Artifacts",
+        "whenActivated": "When activated",
+        "whenActivatedHint": "These values and abilities unlock when you activate this artifact.",
+        "nextLevel": "Next: Level {level}",
+        "nextLevelHint": "Unlocked when you raise this artifact."
+      }
     }
   },
   "TYPES": {

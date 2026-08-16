@@ -130,6 +130,8 @@ export function getActorInventoryLoadZone(actor: { items: Iterable<any> }): Load
             ?? item.flags?.['mastery-system']?.equipment
             ?? {};
         if (flags.container !== 'inventory') continue;
+        if (flags.slot) continue;
+        if (flags.consumableSlot != null && Number.isFinite(Number(flags.consumableSlot))) continue;
         const band = flags.band ?? 'not';
         if (band === 'heavy') overloadedCount++;
         else if (band === 'enc') encumberedCount++;

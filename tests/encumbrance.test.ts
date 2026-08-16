@@ -6,13 +6,13 @@ import {
   loadZoneFromBands,
 } from '../src/utils/encumbrance.js';
 
-function mockActor(items: Array<{ band?: string; container?: string }>, healthBars?: Array<{ current: number; max: number; penalty: number }>) {
+function mockActor(items: Array<{ band?: string; container?: string; slot?: string }>, healthBars?: Array<{ current: number; max: number; penalty: number }>) {
   return {
     items: items.map((spec, i) => ({
       id: `item-${i}`,
       getFlag: (_ns: string, key: string) =>
         key === 'equipment'
-          ? { container: spec.container ?? 'inventory', band: spec.band ?? 'not' }
+          ? { container: spec.container ?? 'inventory', band: spec.band ?? 'not', slot: spec.slot }
           : undefined,
     })),
     system: {
@@ -38,6 +38,7 @@ describe('encumbrance load zones', () => {
     expect(getActorInventoryLoadZone(mockActor([{ band: 'heavy' }]))).toBe('overloaded');
     expect(getActorInventoryLoadZone(mockActor([{ band: 'heavy' }, { band: 'enc' }]))).toBe('overloaded');
     expect(getActorInventoryLoadZone(mockActor([{ band: 'enc', container: 'stash' }]))).toBe('normal');
+    expect(getActorInventoryLoadZone(mockActor([{ band: 'heavy', slot: 'body' }]))).toBe('normal');
   });
 });
 

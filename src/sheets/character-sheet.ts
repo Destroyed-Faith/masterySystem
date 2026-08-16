@@ -42,7 +42,7 @@ import { validateTowerWizardCreation } from '../creation/tower-wizard/tower-wiza
 import { getLanguage as getLanguageDef, normalizeKnownLanguages } from '../utils/languages.js';
 import { showLanguagesDialog } from './languages-dialog.js';
 import type { PowerCategory } from '../types/item.js';
-import { findFirstFit, fitsInGrid, parseInventorySize, rectsOverlap } from '../utils/inventory-grid';
+import { collectInventoryBandRects, findFirstFit, fitsInGrid, parseInventorySize, rectsOverlap } from '../utils/inventory-grid';
 import { isLegacyUnarmedItem } from '../utils/unarmed-fallback.js';
 import { loadZoneFromBands, movementPenaltyForLoad, LOAD_ZONE_LABEL, ZONE_WIDTH_COLS } from '../utils/encumbrance.js';
 import { getFilePickerClass } from '../utils/foundry-v14.js';
@@ -1558,7 +1558,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         const h = Math.min(rows, size.h);
         const flags = item?.getFlag?.('mastery-system', 'equipment') || item?.flags?.['mastery-system']?.equipment || {};
         const grid = flags?.grid;
-        if (grid?.x && grid?.y && fitsInGrid(grid.x, grid.y, w, h, cols, rows)) {
+        const hasStoredGrid = !!(grid?.x && grid?.y);
+        if (hasStoredGrid && fitsInGrid(grid.x, grid.y, w, h, cols, rows)) {
           const candidate = { x: grid.x, y: grid.y, w, h };
           const overlaps = rects.some(rect => rectsOverlap(rect, candidate));
           if (!overlaps) {
@@ -1582,10 +1583,15 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             continue;
           }
         }
-        unplaced.push(item);
+        // Keep a stored-but-blocked position as overflow instead of snapping it to the top.
+        unplaced.push({ item, relocate: !hasStoredGrid });
       }
 
-      for (const item of unplaced) {
+      for (const { item, relocate } of unplaced) {
+        if (!relocate) {
+          overflow++;
+          continue;
+        }
         const size = parseInventorySize(item?.system?.inventorySize);
         const w = Math.min(cols, size.w);
         const h = Math.min(rows, size.h);
@@ -2846,6 +2852,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       ev.preventDefault();
       const cellEl = (ev.target as HTMLElement)?.closest?.('.df-cell') as HTMLElement | null;
       if (!cellEl) return;
+      const bandEl = cellEl.closest('.df-enc-band') as HTMLElement | null;
+      const band = bandEl?.dataset?.band;
+      if (band !== 'not' && band !== 'enc' && band !== 'heavy') return;
       const col = Number(cellEl.dataset?.col || 0);
       const row = Number(cellEl.dataset?.row || 0);
       if (!col || !row) return;
@@ -2853,39 +2862,26 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       clearDropHighlight();
 
       const size = resolveDragSize(ev);
-      const BAND_COLS = 24;
+      const BAND_COLS = ZONE_WIDTH_COLS;
       const BAND_ROWS = 9;
       const w = Math.min(BAND_COLS, size.w);
       const h = Math.min(BAND_ROWS, size.h);
-      const candidate = { x: col, y: row, w, h };
-      const debugKey = `${col}:${row}:${w}:${h}`;
-      if ((window as any).__msLastDragoverDebug !== debugKey) {
-        (window as any).__msLastDragoverDebug = debugKey;
-      }
-
-      const items = Array.from(this.actor.items.values()) as any[];
-      const rects = items
-        .filter((it: any) => it.id !== (window as any).__msDragItemId)
-        .map((it: any) => {
-          const flags = it.getFlag?.('mastery-system', 'equipment') || {};
-          if (flags.container !== 'inventory' || !flags.grid?.x || !flags.grid?.y) return null;
-          const s = parseInventorySize(it.system?.inventorySize);
-          return { x: flags.grid.x, y: flags.grid.y, w: Math.min(BAND_COLS, s.w), h: Math.min(BAND_ROWS, s.h) };
-        })
-        .filter(Boolean) as Array<{ x: number; y: number; w: number; h: number }>;
+      const footprintFits = fitsInGrid(col, row, w, h, BAND_COLS, BAND_ROWS);
+      const dragItemId = (window as any).__msDragItemId as string | undefined;
+      const rects = this.#inventoryBandRects(band, dragItemId);
 
       const cellOccupied = (x: number, y: number) =>
         rects.some(rect => rectsOverlap(rect, { x, y, w: 1, h: 1 }));
 
+      const bandCells = html.find(`.df-enc-band[data-band="${band}"] .df-cell`);
       for (let dy = 0; dy < h; dy++) {
         for (let dx = 0; dx < w; dx++) {
           const x = col + dx;
           const y = row + dy;
-          const targetCell = html.find(`.df-enc-band .df-cell[data-col="${x}"][data-row="${y}"]`).first();
+          const targetCell = bandCells.filter(`[data-col="${x}"][data-row="${y}"]`);
           if (targetCell.length > 0) {
-            const outOfBounds = !fitsInGrid(x, y, 1, 1, BAND_COLS, BAND_ROWS);
             const occupied = cellOccupied(x, y);
-            targetCell.addClass(outOfBounds || occupied ? 'df-drop-invalid' : 'df-drop-valid');
+            targetCell.addClass(!footprintFits || occupied ? 'df-drop-invalid' : 'df-drop-valid');
           }
         }
       }
@@ -7287,6 +7283,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
 
     const currentFlags = item.getFlag('mastery-system', 'equipment') || {};
     const newFlags: any = { ...currentFlags, container: 'inventory', slot, band: currentFlags.band || 'not' };
+    delete newFlags.grid;
     await item.update({
       'flags.mastery-system.equipment': newFlags,
       'system.equipped': true
@@ -7457,22 +7454,11 @@ export class MasteryCharacterSheet extends BaseActorSheet {
 
   /** Collect occupied inventory rects for a band (excluding one item id). */
   #inventoryBandRects(band: string, excludeItemId?: string): Array<{ x: number; y: number; w: number; h: number }> {
-    const BAND_COLS = ZONE_WIDTH_COLS;
-    const BAND_ROWS = 9;
-    return (Array.from(this.actor.items.values()) as any[])
-      .filter((it: any) => it.id !== excludeItemId)
-      .map((it: any) => {
-        const flags = it.getFlag?.('mastery-system', 'equipment') || {};
-        if (flags.container !== 'inventory' || flags.band !== band || !flags.grid?.x || !flags.grid?.y) return null;
-        const s = parseInventorySize(it.system?.inventorySize);
-        return {
-          x: flags.grid.x,
-          y: flags.grid.y,
-          w: Math.min(BAND_COLS, s.w),
-          h: Math.min(BAND_ROWS, s.h)
-        };
-      })
-      .filter(Boolean) as Array<{ x: number; y: number; w: number; h: number }>;
+    return collectInventoryBandRects(this.actor.items.values(), band, {
+      excludeItemId,
+      cols: ZONE_WIDTH_COLS,
+      rows: 9,
+    });
   }
 
   /**
@@ -7539,12 +7525,11 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         }
 
         if (!gridPos) {
-          const rects = this.#inventoryBandRects(band, item.id);
-          gridPos = findFirstFit(rects, w, h, BAND_COLS, BAND_ROWS);
-        }
-
-        if (!gridPos) {
-          ui.notifications?.warn('No space for this item in inventory.');
+          const gameI18n = (globalThis as any).game?.i18n;
+          ui.notifications?.warn(
+            gameI18n?.localize?.('MASTERY.inventory.dropBlocked') ||
+              'That cell is blocked or the item does not fit there.',
+          );
           return;
         }
 
