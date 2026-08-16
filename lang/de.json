@@ -53,6 +53,28 @@
       "powerAlreadyUsedThisRound": "Diese Power wurde in dieser Runde bereits genutzt.",
       "reactionUseWhenDamaged": "Reaktions-Powers wählst du bei eingehendem Schaden (Dialog nach Phasing). Sie starten nicht über das Radial in deinem Zug."
     },
+    "carousel": {
+      "compactHint": "Kompaktes Carousel — Fenster oder Zoom ist unter 1024×768."
+    },
+    "encounterSetup": {
+      "title": "Kampf-Setup",
+      "passives": "Passives",
+      "stones": "Steine",
+      "shop": "Shop",
+      "nothingYet": "noch nichts",
+      "confirmed": "Bestätigt",
+      "chosen": "gewählt",
+      "pending": "offen",
+      "open": "Öffnen",
+      "openForPlayer": "Diesen Dialog beim Spieler öffnen",
+      "forceAll": "Alle Spieler:",
+      "forceAllPassives": "Passives bei allen Spielern öffnen",
+      "forceAllStones": "Stone Powers bei allen Spielern öffnen",
+      "forceAllShop": "Initiative Shop bei allen Spielern öffnen",
+      "sentToPlayer": "{name}: {dialog} an den Spieler geschickt.",
+      "gmOnly": "Nur der SL kann Dialoge erzwingen.",
+      "noCombat": "Kein aktiver Kampf."
+    },
     "consumable": {
       "title": "Verbrauchsmaterial-Slots",
       "slotLabel": "Verbrauchsmaterial {n}",

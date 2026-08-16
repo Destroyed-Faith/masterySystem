@@ -49,6 +49,11 @@ import {
 } from './combat/phasing.js';
 import { registerStressBreakdownSettings } from './combat/stress-breakdown.js';
 import { initializeEncounterStart, beginEncounter } from './combat/encounter-start.js';
+import {
+  buildEncounterSetupStatus,
+  forceEncounterDialog,
+  forceEncounterDialogForAll,
+} from './combat/encounter-setup-status.js';
 import { registerEncounterSocket } from './combat/encounter-socket.js';
 import { canCurrentUserUpdateDocument } from './combat/combat-permissions.js';
 import { initializeSceneControls, initializeTokenHUDButton } from './ui/scene-controls-mastery.js';
@@ -551,9 +556,24 @@ Hooks.once('init', async function() {
       const actorIdForPassives = combatant.actor?.id;
       const passivesLocked =
         actorIdForPassives && encSetup?.passives?.[actorIdForPassives]?.locked === true;
-      const passiveTooltip = passivesLocked ? 'Passives ansehen (gesperrt)' : 'Passives wählen / bestätigen';
+      const setupStatus =
+        combatant.actor?.type === 'character' ? buildEncounterSetupStatus(combatant, combat) : null;
+      const setupRowTip = (kind: 'passives' | 'stones' | 'initiative', fallback: string): string => {
+        const row = setupStatus?.rows.find((r) => r.kind === kind);
+        if (!row) return fallback;
+        const forceHint = game.user?.isGM
+          ? ` — ${game.i18n?.localize('MASTERY.encounterSetup.openForPlayer') || 'beim Spieler öffnen'}`
+          : '';
+        return `${row.done ? '✓' : '—'} ${row.label}: ${row.summary}${forceHint}`;
+      };
+      const passiveTooltip = setupRowTip(
+        'passives',
+        passivesLocked ? 'Passives ansehen (gesperrt)' : 'Passives wählen / bestätigen',
+      );
       const passiveBtn = $(
-        '<button type="button" class="combatant-control ms-passive-btn" data-action="selectPassives" data-combatant-id="' +
+        '<button type="button" class="combatant-control ms-passive-btn' +
+          (setupStatus?.rows.find((r) => r.kind === 'passives')?.done ? ' is-setup-done' : '') +
+          '" data-action="selectPassives" data-combatant-id="' +
           combatantId +
           '" data-tooltip="' +
           passiveTooltip +
@@ -564,13 +584,35 @@ Hooks.once('init', async function() {
       $initiativeDiv.append(passiveBtn);
 
       // Add Initiative Shop button
-      const initiativeBtn = $('<button type="button" class="combatant-control ms-initiative-btn" data-action="openInitiativeShop" data-combatant-id="' + combatantId + '" data-tooltip="Initiative Shop" aria-label="Initiative Shop" title="Initiative Shop"><i class="fa-solid fa-shop"></i></button>');
+      const shopTooltip = setupRowTip('initiative', 'Initiative Shop');
+      const initiativeBtn = $(
+        '<button type="button" class="combatant-control ms-initiative-btn' +
+          (setupStatus?.rows.find((r) => r.kind === 'initiative')?.done ? ' is-setup-done' : '') +
+          '" data-action="openInitiativeShop" data-combatant-id="' +
+          combatantId +
+          '" data-tooltip="' +
+          shopTooltip +
+          '" aria-label="Initiative Shop" title="' +
+          shopTooltip +
+          '"><i class="fa-solid fa-shop"></i></button>',
+      );
       $initiativeDiv.append(initiativeBtn);
       
       // Add Stone Powers button (only for characters)
       const actor = combatant.actor;
       if (actor && actor.type === 'character') {
-        const stonePowersBtn = $('<button type="button" class="combatant-control ms-stone-powers-btn" data-action="openStonePowers" data-combatant-id="' + combatantId + '" data-tooltip="Stone Powers" aria-label="Stone Powers" title="Stone Powers"><i class="fa-solid fa-gem"></i></button>');
+        const stoneTooltip = setupRowTip('stones', 'Stone Powers');
+        const stonePowersBtn = $(
+          '<button type="button" class="combatant-control ms-stone-powers-btn' +
+            (setupStatus?.rows.find((r) => r.kind === 'stones')?.done ? ' is-setup-done' : '') +
+            '" data-action="openStonePowers" data-combatant-id="' +
+            combatantId +
+            '" data-tooltip="' +
+            stoneTooltip +
+            '" aria-label="Stone Powers" title="' +
+            stoneTooltip +
+            '"><i class="fa-solid fa-gem"></i></button>',
+        );
         $initiativeDiv.append(stonePowersBtn);
         
         stonePowersBtn.off('click.ms-stone-powers').on('click.ms-stone-powers', async (ev: JQuery.ClickEvent) => {
@@ -581,8 +623,12 @@ Hooks.once('init', async function() {
             ui.notifications?.error('Actor not found');
             return;
           }
-          
+
           try {
+            if (game.user?.isGM) {
+              await forceEncounterDialog('stones', combatant);
+              return;
+            }
             const { StonePowersDialog } = await import('./stones/stone-powers-dialog.js');
             await StonePowersDialog.showForActor(actor, combatant);
           } catch (error) {
@@ -611,6 +657,10 @@ Hooks.once('init', async function() {
         }
 
         try {
+          if (game.user?.isGM && combatant.actor?.type === 'character') {
+            await forceEncounterDialog('passives', combatant);
+            return;
+          }
           const f = (combat.flags as any)?.['mastery-system'] || {};
           const setupEnc = f.encounterSetup;
           const aid = combatant.actor?.id;
@@ -646,6 +696,11 @@ Hooks.once('init', async function() {
             return;
           }
 
+          if (game.user?.isGM && combatant.actor?.type === 'character') {
+            await forceEncounterDialog('initiative', combatant);
+            return;
+          }
+
           const { openInitiativeShopForTrackerRescue } = await import('./combat/initiative-roll.js');
           await openInitiativeShopForTrackerRescue(combatant, combat);
         } catch (error) {
@@ -659,7 +714,7 @@ Hooks.once('init', async function() {
     const encounterControls = $html.find('.encounter-controls');
     if (encounterControls.length > 0) {
       // Remove any existing buttons to prevent duplicates
-      encounterControls.find('.ms-begin-encounter-btn, .ms-passive-selection-btn').remove();
+      encounterControls.find('.ms-begin-encounter-btn, .ms-passive-selection-btn, .ms-force-all-setup').remove();
       
       // Add button to the left control buttons area
       const leftControls = encounterControls.find('.control-buttons.left');
@@ -710,6 +765,26 @@ Hooks.once('init', async function() {
           });
         }
         
+        if (game.user?.isGM) {
+          const forceKinds: Array<{ kind: 'passives' | 'stones' | 'initiative'; icon: string; tipKey: string }> = [
+            { kind: 'passives', icon: 'fa-shield', tipKey: 'MASTERY.encounterSetup.forceAllPassives' },
+            { kind: 'stones', icon: 'fa-gem', tipKey: 'MASTERY.encounterSetup.forceAllStones' },
+            { kind: 'initiative', icon: 'fa-shop', tipKey: 'MASTERY.encounterSetup.forceAllShop' },
+          ];
+          for (const spec of forceKinds) {
+            const tip = game.i18n?.localize(spec.tipKey) || spec.tipKey;
+            const forceBtn = $(
+              `<button type="button" class="inline-control combat-control icon fa-solid ${spec.icon} ms-force-all-setup" data-kind="${spec.kind}" data-tooltip="${tip}" aria-label="${tip}"></button>`,
+            );
+            leftControls.append(forceBtn);
+            forceBtn.off('click.ms-force-all').on('click.ms-force-all', async (ev: JQuery.ClickEvent) => {
+              ev.preventDefault();
+              ev.stopPropagation();
+              await forceEncounterDialogForAll(spec.kind);
+            });
+          }
+        }
+
         // Add "Select Passives" button (legacy, for manual use)
         const passiveBtn = $('<button type="button" class="inline-control combat-control icon fa-solid fa-shield ms-passive-selection-btn" data-action="selectPassives" data-tooltip="Select Passives" aria-label="Select Passives"></button>');
         leftControls.append(passiveBtn);

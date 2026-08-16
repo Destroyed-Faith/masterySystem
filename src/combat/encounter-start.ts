@@ -254,6 +254,21 @@ async function checkAndOpenStonePowersAfterPassives(combat: Combat): Promise<voi
  */
 let carouselRefreshTimeout: number | null = null;
 
+function refreshOpenCharacterSheets(combat: Combat): void {
+  for (const combatant of combat.combatants) {
+    const actor = combatant.actor as { type?: string; sheet?: { rendered?: boolean; render?: (force?: boolean) => unknown } } | undefined;
+    if (!actor || actor.type !== 'character') continue;
+    const sheet = actor.sheet;
+    if (sheet?.rendered) {
+      try {
+        void sheet.render?.(false);
+      } catch {
+        /* best-effort live setup status */
+      }
+    }
+  }
+}
+
 function debouncedCarouselRefresh(delay: number = 150): void {
   if (carouselRefreshTimeout !== null) {
     clearTimeout(carouselRefreshTimeout);
@@ -280,7 +295,7 @@ function debouncedCarouselRefresh(delay: number = 150): void {
  */
 export function initializeEncounterStart(): void {
   // Hook: Update carousel when combat changes (debounced)
-  Hooks.on('updateCombat', (combat: Combat) => {
+  Hooks.on('updateCombat', (combat: Combat, changes: any) => {
     const flags = combat.flags['mastery-system'] || {};
     const setup = flags.encounterSetup;
     
@@ -288,10 +303,14 @@ export function initializeEncounterStart(): void {
     if (setup?.started) {
       debouncedCarouselRefresh(150);
     }
+    const ms = changes?.flags?.['mastery-system'];
+    if (ms?.encounterSetup || ms?.stonePowersState) {
+      refreshOpenCharacterSheets(combat);
+    }
   });
 
   // Hook: Update carousel when combatant changes (debounced)
-  Hooks.on('updateCombatant', (_combatant: Combatant, _changes: any, _options: any, _userId: string) => {
+  Hooks.on('updateCombatant', (_combatant: Combatant, changes: any, _options: any, _userId: string) => {
     const combat = game.combat;
     if (!combat) return;
     
@@ -301,6 +320,9 @@ export function initializeEncounterStart(): void {
     // Only refresh if encounter setup has started
     if (setup?.started) {
       debouncedCarouselRefresh(150);
+    }
+    if (changes?.flags?.['mastery-system']) {
+      refreshOpenCharacterSheets(combat);
     }
   });
 

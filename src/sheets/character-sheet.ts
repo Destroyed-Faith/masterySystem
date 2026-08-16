@@ -1119,6 +1119,19 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     context.radialManeuverPrefsPanel = buildRadialManeuverPrefsContext(context.system);
     context.radialManeuverPrefsDetailsOpen = this._radialManeuverPrefsDetailsOpen === true;
     context.combatSensesPanel = buildCombatSensesPanelContext(this.actor);
+    context.encounterSetupStatus = null;
+    try {
+      const combat = game.combat;
+      const combatant = combat
+        ? Array.from(combat.combatants).find((c: any) => c.actor?.id === this.actor.id)
+        : null;
+      if (combat && combatant && this.actor.type === 'character') {
+        const { buildEncounterSetupStatus } = await import('../combat/encounter-setup-status.js');
+        context.encounterSetupStatus = buildEncounterSetupStatus(combatant as Combatant, combat);
+      }
+    } catch (err) {
+      console.warn('Mastery System | encounter setup status failed', err);
+    }
     if (context.creationComplete) {
       context.powersByTypeGroups = this.#buildPowersByTypeGroups(context.items?.powers || []);
       /* Default: collapsed; open after finalize or when user expanded in this session. */
@@ -2199,6 +2212,27 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     html.find('.reset-creation-attributes').on('click', this.#onResetCreationAttributes.bind(this));
     
     // Stone Powers button handler
+    html.find('[data-action="forceEncounterSetup"]').on('click', async (ev: JQuery.ClickEvent) => {
+      ev.preventDefault();
+      if (!game.user?.isGM) return;
+      const kind = String($(ev.currentTarget).attr('data-kind') || '') as 'passives' | 'stones' | 'initiative';
+      const combat = game.combat;
+      const combatant = combat
+        ? Array.from(combat.combatants).find((c: any) => c.actor?.id === this.actor.id)
+        : null;
+      if (!combatant || !kind) return;
+      const { forceEncounterDialog } = await import('../combat/encounter-setup-status.js');
+      await forceEncounterDialog(kind, combatant as Combatant);
+    });
+    html.find('[data-action="forceEncounterSetupAll"]').on('click', async (ev: JQuery.ClickEvent) => {
+      ev.preventDefault();
+      if (!game.user?.isGM) return;
+      const kind = String($(ev.currentTarget).attr('data-kind') || '') as 'passives' | 'stones' | 'initiative';
+      if (!kind) return;
+      const { forceEncounterDialogForAll } = await import('../combat/encounter-setup-status.js');
+      await forceEncounterDialogForAll(kind);
+    });
+
     html.find('[data-action="openStonePowers"]').on('click', async (ev: JQuery.ClickEvent) => {
       ev.preventDefault();
       

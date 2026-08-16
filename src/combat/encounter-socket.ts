@@ -97,6 +97,18 @@ async function handleEncounterSocket(payload: any): Promise<void> {
       break;
     }
 
+    case 'forceEncounterDialog': {
+      const combatant = combat.combatants.get(combatantId);
+      if (!combatant?.actor || !shouldShowEncounterDialogLocally(combatant.actor)) return;
+      try {
+        const { openEncounterDialogLocally } = await import('./encounter-setup-status.js');
+        await openEncounterDialogLocally(payload.kind, combatant, combat);
+      } catch (err) {
+        console.error('Mastery System | Forced encounter dialog failed', err);
+      }
+      break;
+    }
+
     case 'initiativeConfirmed': {
       if (!game.user?.isGM) return;
       const { handleInitiativeConfirmed } = await import('./encounter-start.js');

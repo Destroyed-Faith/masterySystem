@@ -53,6 +53,28 @@
       "powerAlreadyUsedThisRound": "This power has already been used this round.",
       "reactionUseWhenDamaged": "Reaction powers are chosen when you take damage from an attack (dialog after phasing). They are not fired from the radial during your turn."
     },
+    "carousel": {
+      "compactHint": "Compact carousel — window or zoom is below 1024×768."
+    },
+    "encounterSetup": {
+      "title": "Encounter Setup",
+      "passives": "Passives",
+      "stones": "Stones",
+      "shop": "Shop",
+      "nothingYet": "nothing yet",
+      "confirmed": "Confirmed",
+      "chosen": "chosen",
+      "pending": "open",
+      "open": "Open",
+      "openForPlayer": "Open this dialog for the player",
+      "forceAll": "All players:",
+      "forceAllPassives": "Open Passives for all players",
+      "forceAllStones": "Open Stone Powers for all players",
+      "forceAllShop": "Open Initiative Shop for all players",
+      "sentToPlayer": "{name}: {dialog} sent to the player.",
+      "gmOnly": "Only the GM can force dialogs.",
+      "noCombat": "No active combat."
+    },
     "consumable": {
       "title": "Consumable Slots",
       "slotLabel": "Consumable {n}",

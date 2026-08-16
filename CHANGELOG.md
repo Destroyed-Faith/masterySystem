@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.348] - 2026-08-16
+
+### Added
+
+- **Encounter setup:** Character sheets and the combat carousel show whether each player picked Passives, Stone Powers, and Initiative Shop, plus a short summary of the picks.
+- **Force dialogs:** The GM can open those three dialogs on the owning player — one person or everyone — from the sheet, carousel, and combat tracker.
+
+### Changed
+
+- **Combat Carousel:** Below Foundry's usable 1024×768 window (zoom or short displays) the carousel collapses to a compact strip without portraits so it stays on screen.
+
 ## [0.9.347] - 2026-08-16
 
 ### Fixed

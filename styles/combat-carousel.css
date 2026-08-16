@@ -573,6 +573,58 @@
   background: #ff6666;
 }
 
+.ms-setup-picks {
+  width: 100%;
+  margin-top: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 10px;
+  line-height: 1.2;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.ms-setup-row {
+  display: grid;
+  grid-template-columns: 12px 46px 1fr;
+  align-items: center;
+  gap: 3px;
+  min-width: 0;
+}
+
+.ms-setup-row:has(.ms-setup-force) {
+  grid-template-columns: 12px 46px 1fr 18px;
+}
+
+.ms-setup-row.is-done .ms-setup-mark {
+  color: #7dcea0;
+}
+
+.ms-setup-row.is-open .ms-setup-mark {
+  color: #f5b041;
+}
+
+.ms-setup-summary {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.ms-setup-force {
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+}
+
+.ms-setup-force:hover {
+  color: #ffd54f;
+}
+
 /* ========================================
    UI Adjustments when Carousel is Open
    ======================================== */
@@ -581,5 +633,125 @@
 body.mastery-carousel-open #ui-top {
   margin-top: 22vh;
   transition: margin-top 0.3s;
+}
+
+body.mastery-carousel-open.mastery-carousel-compact #ui-top {
+  margin-top: 76px;
+}
+
+/* ========================================
+   Compact strip (small / zoomed windows)
+   ======================================== */
+
+#mastery-combat-carousel.mastery-carousel-compact {
+  top: 4px !important;
+  width: min(96vw, 1400px) !important;
+  max-width: 96vw !important;
+  height: auto !important;
+  max-height: 72px !important;
+}
+
+.mastery-carousel.is-compact {
+  top: 0 !important;
+  width: 100% !important;
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: 72px !important;
+  padding: 4px 6px !important;
+  gap: 6px;
+  border-radius: 8px;
+}
+
+.mastery-carousel.is-compact .portrait-image,
+.mastery-carousel.is-compact .ms-hp-bar-track,
+.mastery-carousel.is-compact .ms-carousel-combat-strip,
+.mastery-carousel.is-compact .ms-carousel-reactions,
+.mastery-carousel.is-compact .status-icons,
+.mastery-carousel.is-compact .portrait-stone-powers span,
+.mastery-carousel.is-compact .portrait-end-turn span,
+.mastery-carousel.is-compact .ms-setup-label,
+.mastery-carousel.is-compact .ms-setup-summary {
+  display: none !important;
+}
+
+.mastery-carousel.is-compact .carousel-combatants {
+  padding: 0;
+  gap: 0.4rem;
+}
+
+.mastery-carousel.is-compact .carousel-portrait {
+  width: auto;
+  min-width: 88px;
+  max-width: 150px;
+  height: auto;
+  padding: 4px 8px;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px 6px;
+}
+
+.mastery-carousel.is-compact .carousel-portrait:hover {
+  transform: none;
+}
+
+.mastery-carousel.is-compact .initiative-badge {
+  position: static;
+  font-size: 0.65rem;
+  padding: 0.1rem 0.3rem;
+}
+
+.mastery-carousel.is-compact .portrait-name {
+  font-size: 0.75rem;
+  max-width: 90px;
+}
+
+.mastery-carousel.is-compact .ms-hp-bar,
+.mastery-carousel.is-compact .ms-stress-bar {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  background: none;
+  flex-direction: row;
+  gap: 4px;
+}
+
+.mastery-carousel.is-compact .ms-hp-bar-header {
+  font-size: 0.6rem;
+}
+
+.mastery-carousel.is-compact .ms-setup-picks {
+  flex-direction: row;
+  gap: 4px;
+  margin: 0;
+  width: auto;
+}
+
+.mastery-carousel.is-compact .ms-setup-row {
+  grid-template-columns: 12px;
+}
+
+.mastery-carousel.is-compact .ms-setup-row:has(.ms-setup-force) {
+  grid-template-columns: 12px 14px;
+}
+
+.mastery-carousel.is-compact .carousel-controls {
+  flex-direction: row;
+  opacity: 1;
+  gap: 0.25rem;
+}
+
+.mastery-carousel.is-compact .carousel-control-btn {
+  width: 28px;
+  height: 28px;
+  font-size: 0.75rem;
+}
+
+.mastery-carousel.is-compact .portrait-end-turn,
+.mastery-carousel.is-compact .portrait-stone-powers {
+  width: auto;
+  padding: 2px 6px;
+  margin: 0;
+  font-size: 0.7rem;
 }
 

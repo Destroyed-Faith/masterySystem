@@ -7,6 +7,15 @@ import { requestEndTurn } from '../combat/end-turn.js';
 import { StonePowersDialog } from '../stones/stone-powers-dialog.js';
 import { MASTERY_STATUS_EFFECTS } from '../system/status-effects.js';
 import { hideCarouselHpNumbers } from './combat-carousel-hp.js';
+import {
+  applyCarouselCompactClass,
+  isCompactCarouselViewport,
+} from './combat-carousel-layout.js';
+import {
+  buildEncounterSetupStatus,
+  forceEncounterDialog,
+  forceEncounterDialogForAll,
+} from '../combat/encounter-setup-status.js';
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
 // Type workaround for Mixin
@@ -94,7 +103,7 @@ export class CombatCarouselApp extends BaseCarousel {
   async _prepareContext(_options: any): Promise<any> {
     const combat = game.combats?.active;
     if (!combat) {
-      return { active: false };
+      return { active: false, compact: isCompactCarouselViewport() };
     }
 
     // Build combatants array — use Foundry's `combat.turns` order as-is so portrait order
@@ -345,11 +354,13 @@ export class CombatCarouselApp extends BaseCarousel {
         showStonePowersButton:
           actor.type === 'character' && !!(game.user?.isGM || actor.isOwner),
         stonePlanLocked:
-          actor.type === 'character' && isStonePowersConfigurationLocked(actor, combat)
+          actor.type === 'character' && isStonePowersConfigurationLocked(actor, combat),
+        setupStatus: buildEncounterSetupStatus(combatant, combat),
       });
     }
     return {
       active: true,
+      compact: isCompactCarouselViewport(),
       combatants,
       controlsAllowed: game.user?.isGM || false,
       currentRound: combat.round || 1,
@@ -364,6 +375,8 @@ export class CombatCarouselApp extends BaseCarousel {
     
     // Add body class when carousel is rendered
     document.body.classList.add('mastery-carousel-open');
+    this.applyCompactLayout();
+    this.bindCompactViewportWatch();
     if (this.hookEntries.length === 0) {
       this.registerUpdateHooks();
     }
@@ -586,6 +599,30 @@ export class CombatCarouselApp extends BaseCarousel {
       };
     });
 
+    root.querySelectorAll('.js-force-setup').forEach((btn: HTMLElement) => {
+      btn.onclick = async (ev: MouseEvent) => {
+        ev.preventDefault();
+        ev.stopPropagation();
+        const combatantId = btn.dataset.combatantId;
+        const kind = btn.dataset.kind as 'passives' | 'stones' | 'initiative' | undefined;
+        if (!combatantId || !kind) return;
+        const combat = game.combats?.active;
+        const combatant = combat?.combatants.get(combatantId);
+        if (!combatant) return;
+        await forceEncounterDialog(kind, combatant);
+      };
+    });
+
+    root.querySelectorAll('.js-force-all-setup').forEach((btn: HTMLElement) => {
+      btn.onclick = async (ev: MouseEvent) => {
+        ev.preventDefault();
+        ev.stopPropagation();
+        const kind = btn.dataset.kind as 'passives' | 'stones' | 'initiative' | undefined;
+        if (!kind) return;
+        await forceEncounterDialogForAll(kind);
+      };
+    });
+
     // End Turn button (on current combatant card)
     root.querySelectorAll('.js-end-turn').forEach((btn: HTMLElement) => {
       btn.onclick = async (ev: MouseEvent) => {
@@ -600,10 +637,32 @@ export class CombatCarouselApp extends BaseCarousel {
   async _onClose(_options: any): Promise<void> {
     // Remove hooks
     this.unregisterUpdateHooks();
+    this.unbindCompactViewportWatch();
     
     // Remove body class when carousel is closed
     document.body.classList.remove('mastery-carousel-open');
+    document.body.classList.remove('mastery-carousel-compact');
     return super._onClose(_options);
+  }
+
+  private compactViewportHandler: (() => void) | null = null;
+
+  private applyCompactLayout(): void {
+    applyCarouselCompactClass((this as any).element as HTMLElement | undefined, isCompactCarouselViewport());
+  }
+
+  private bindCompactViewportWatch(): void {
+    if (this.compactViewportHandler) return;
+    this.compactViewportHandler = () => this.applyCompactLayout();
+    window.addEventListener('resize', this.compactViewportHandler);
+    window.visualViewport?.addEventListener('resize', this.compactViewportHandler);
+  }
+
+  private unbindCompactViewportWatch(): void {
+    if (!this.compactViewportHandler) return;
+    window.removeEventListener('resize', this.compactViewportHandler);
+    window.visualViewport?.removeEventListener('resize', this.compactViewportHandler);
+    this.compactViewportHandler = null;
   }
 
   /**

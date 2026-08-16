@@ -121,6 +121,34 @@
     </div>
   </header>
 
+  {{#if encounterSetupStatus}}
+  <section class="ms-encounter-setup" aria-label="{{localize 'MASTERY.encounterSetup.title'}}">
+    <div class="ms-encounter-setup-title">{{localize "MASTERY.encounterSetup.title"}}</div>
+    <div class="ms-encounter-setup-rows">
+      {{#each encounterSetupStatus.rows as |row|}}
+      <div class="ms-encounter-setup-row {{#if row.done}}is-done{{else}}is-open{{/if}}" title="{{row.tooltip}}">
+        <span class="ms-setup-mark">{{#if row.done}}✓{{else}}—{{/if}}</span>
+        <strong>{{row.label}}</strong>
+        <span class="ms-setup-summary">{{row.summary}}</span>
+        {{#if ../encounterSetupStatus.canForce}}
+        <button type="button" class="ms-setup-force-btn" data-action="forceEncounterSetup" data-kind="{{row.kind}}" title="{{localize 'MASTERY.encounterSetup.openForPlayer'}}">
+          {{localize "MASTERY.encounterSetup.open"}}
+        </button>
+        {{/if}}
+      </div>
+      {{/each}}
+    </div>
+    {{#if encounterSetupStatus.canForce}}
+    <div class="ms-encounter-setup-all">
+      <span>{{localize "MASTERY.encounterSetup.forceAll"}}</span>
+      <button type="button" class="ms-setup-force-btn" data-action="forceEncounterSetupAll" data-kind="passives">{{localize "MASTERY.encounterSetup.passives"}}</button>
+      <button type="button" class="ms-setup-force-btn" data-action="forceEncounterSetupAll" data-kind="stones">{{localize "MASTERY.encounterSetup.stones"}}</button>
+      <button type="button" class="ms-setup-force-btn" data-action="forceEncounterSetupAll" data-kind="initiative">{{localize "MASTERY.encounterSetup.shop"}}</button>
+    </div>
+    {{/if}}
+  </section>
+  {{/if}}
+
   <!-- Character Creation Banner -->
   {{#unless creationComplete}}
   <div class="creation-banner">

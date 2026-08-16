@@ -1,4 +1,4 @@
-<div class="mastery-carousel {{#if active}}is-active{{/if}}">
+<div class="mastery-carousel {{#if active}}is-active{{/if}} {{#if compact}}is-compact{{/if}}">
   {{#if active}}
     <!-- Left Controls (shown on hover) -->
     <div class="carousel-controls carousel-controls-left">
@@ -29,6 +29,23 @@
 
           <!-- Name -->
           <div class="portrait-name">{{combatant.name}}</div>
+
+          {{#if combatant.setupStatus}}
+          <div class="ms-setup-picks" title="Kampf-Setup">
+            {{#each combatant.setupStatus.rows as |row|}}
+            <div class="ms-setup-row {{#if row.done}}is-done{{else}}is-open{{/if}}" title="{{row.tooltip}}">
+              <span class="ms-setup-mark">{{#if row.done}}✓{{else}}—{{/if}}</span>
+              <span class="ms-setup-label">{{row.label}}</span>
+              <span class="ms-setup-summary">{{row.summary}}</span>
+              {{#if ../setupStatus.canForce}}
+              <button type="button" class="ms-setup-force js-force-setup" data-kind="{{row.kind}}" data-combatant-id="{{../id}}" title="{{localize 'MASTERY.encounterSetup.openForPlayer'}}">
+                <i class="fas fa-share"></i>
+              </button>
+              {{/if}}
+            </div>
+            {{/each}}
+          </div>
+          {{/if}}
 
           {{#if combatant.combatStrip}}
           <div class="ms-carousel-combat-strip" title="{{#if combatant.combatStrip.stripTooltip}}{{combatant.combatStrip.stripTooltip}}{{else}}Aktuelle Kampfwerte (Rüstung / Evade / DR%) — Hover für Herkunft{{/if}}">
@@ -159,6 +176,15 @@
         <i class="fas fa-forward"></i>
       </button>
       {{#if controlsAllowed}}
+        <button type="button" class="carousel-control-btn js-force-all-setup" data-kind="passives" data-tooltip="{{localize 'MASTERY.encounterSetup.forceAllPassives'}}" aria-label="{{localize 'MASTERY.encounterSetup.forceAllPassives'}}">
+          <i class="fas fa-shield"></i>
+        </button>
+        <button type="button" class="carousel-control-btn js-force-all-setup" data-kind="stones" data-tooltip="{{localize 'MASTERY.encounterSetup.forceAllStones'}}" aria-label="{{localize 'MASTERY.encounterSetup.forceAllStones'}}">
+          <i class="fas fa-gem"></i>
+        </button>
+        <button type="button" class="carousel-control-btn js-force-all-setup" data-kind="initiative" data-tooltip="{{localize 'MASTERY.encounterSetup.forceAllShop'}}" aria-label="{{localize 'MASTERY.encounterSetup.forceAllShop'}}">
+          <i class="fas fa-shop"></i>
+        </button>
         <button type="button" class="carousel-control-btn js-end-combat" data-tooltip="End Combat" aria-label="End Combat">
           <i class="fas fa-stop"></i>
         </button>
