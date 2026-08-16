@@ -455,13 +455,6 @@ export function renderXpHistoryTableHtml(
     }
   }
   html += '</tbody></table></div>';
-  if (isGM && (entries.length > 0 || inferred.length > 0)) {
-    html += '<div class="history-actions">';
-    html += `<button type="button" class="clear-history-btn">${escapeXpHistoryHtml(
-      localizeXpHistory('MASTERY.xp.history.clear', 'Clear History'),
-    )}</button>`;
-    html += '</div>';
-  }
   html += '</div>';
   void actorName;
   return html;
@@ -500,17 +493,6 @@ export async function openXpHistoryDialog(actor: any, options?: { onCleared?: ()
       default: 'close',
       render: (html: any) => {
         const $html = (globalThis as any).$ ? (globalThis as any).$(html) : html;
-        $html.find?.('.clear-history-btn')?.on?.('click', async () => {
-          await actor.update({ 'system.xp.history': [] });
-          const ui = (globalThis as any).ui;
-          ui?.notifications?.info(
-            localizeXpHistory('MASTERY.xp.history.cleared', 'Cleared XP history for {name}.', {
-              name: String(actor.name || ''),
-            }),
-          );
-          options?.onCleared?.();
-          $html.closest?.('.dialog')?.find?.('.close')?.click?.();
-        });
         $html.find?.('.refund-history-btn')?.on?.('click', async (event: any) => {
           const btn = event.currentTarget as HTMLElement;
           const row = {

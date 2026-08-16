@@ -80,9 +80,9 @@
     },
     "xp": {
       "regularLabel": "Regular XP",
-      "regularHint": "Session XP. Each Attribute, Skill, Power, or Artifact may rise only once per Upgrade Step. The flag ends the current step.",
+      "regularHint": "Session XP. Each Attribute, Skill, Power, or Artifact may rise only once per session.",
       "freeLabel": "Free XP",
-      "freeHint": "Bonus XP with no step limit. Spent before Regular XP. Use this for a higher starting Mastery Rank or free redistribution.",
+      "freeHint": "Bonus XP with no session limit. Spent before Regular XP. Use this to raise a value again or for a higher starting Mastery Rank.",
       "colCharacter": "Character",
       "colSpent": "Spent",
       "colAvail": "Avail.",

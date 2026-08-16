@@ -3193,7 +3193,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     if (!this.#hasFreeXp()) {
       if (nextPending > 1) {
         (ui as any).notifications?.warn(
-          `${attributeName.charAt(0).toUpperCase() + attributeName.slice(1)} can only be increased by +1 per Upgrade Step. End the current step first to increase it again.`,
+          `${attributeName.charAt(0).toUpperCase() + attributeName.slice(1)} can only be increased by +1 per session. Use Free XP to raise it again.`,
         );
         return;
       }
@@ -3201,7 +3201,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       const step = stepRule.readStep(this.actor);
       if (nextPending > 0 && stepRule.isBumped(step, 'attribute', attributeName)) {
         (ui as any).notifications?.warn(
-          `${attributeName.charAt(0).toUpperCase() + attributeName.slice(1)} was already increased this Upgrade Step. End the current step first to increase it again.`,
+          `${attributeName.charAt(0).toUpperCase() + attributeName.slice(1)} was already increased this session. Use Free XP to raise it again.`,
         );
         return;
       }
@@ -3338,7 +3338,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             'title',
             this.#hasFreeXp()
               ? ''
-              : 'Bereits in diesem Upgrade Step erhöht. GM: Step beenden (Flagge) oder Free XP (★) für freie Verteilung.',
+              : 'Bereits in dieser Sitzung erhöht. Free XP (★) hebt das Limit auf.',
           );
         }
       } else {
@@ -3463,7 +3463,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     if (!this.#hasFreeXp()) {
       if (pending + 1 > 1) {
         (ui as any).notifications?.warn(
-          `${item.name} can only be increased by +1 Level per Upgrade Step. End the current step first to increase it again.`,
+          `${item.name} can only be increased by +1 Level per session. Use Free XP to raise it again.`,
         );
         return;
       }
@@ -3471,7 +3471,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       const step = stepRule.readStep(this.actor);
       if (pending + 1 > 0 && stepRule.isBumped(step, 'power', itemId)) {
         (ui as any).notifications?.warn(
-          `${item.name} was already increased this Upgrade Step. End the current step first to increase it again.`,
+          `${item.name} was already increased this session. Use Free XP to raise it again.`,
         );
         return;
       }
@@ -3615,7 +3615,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             'title',
             this.#hasFreeXp()
               ? ''
-              : 'Bereits in diesem Upgrade Step erhöht. GM: Step beenden (Flagge) oder Free XP (★) für freie Verteilung.',
+              : 'Bereits in dieser Sitzung erhöht. Free XP (★) hebt das Limit auf.',
           );
         }
       } else {
@@ -3760,7 +3760,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       if (pending > 0) {
         if (stepRulePow.isBumped(stepAfterPow, 'power', change.powerId)) {
           (ui as any).notifications?.error(
-            `Step rule: ${change.powerName} was already increased this Upgrade Step. End the current step first.`,
+            `${change.powerName} was already increased this session. Use Free XP to raise it again.`,
           );
           return;
         }
@@ -4892,7 +4892,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     if (!this.#hasFreeXp()) {
       if (pending + 1 > 1) {
         (ui as any).notifications?.warn(
-          `${skillKey} can only be increased by +1 per Upgrade Step. End the current step first to increase it again.`,
+          `${skillKey} can only be increased by +1 per session. Use Free XP to raise it again.`,
         );
         return;
       }
@@ -4900,7 +4900,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       const step = stepRule.readStep(this.actor);
       if (pending + 1 > 0 && stepRule.isBumped(step, 'skill', skillKey)) {
         (ui as any).notifications?.warn(
-          `${skillKey} was already increased this Upgrade Step. End the current step first to increase it again.`,
+          `${skillKey} was already increased this session. Use Free XP to raise it again.`,
         );
         return;
       }
@@ -5032,7 +5032,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             'title',
             this.#hasFreeXp()
               ? ''
-              : 'Bereits in diesem Upgrade Step erhöht. GM: Step beenden (Flagge) oder Free XP (★) für freie Verteilung.',
+              : 'Bereits in dieser Sitzung erhöht. Free XP (★) hebt das Limit auf.',
           );
         }
       } else {
@@ -5158,7 +5158,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       if (change.delta > 0) {
         if (stepRuleSk.isBumped(stepAfterSk, 'skill', change.skillKey)) {
           (ui as any).notifications?.error(
-            `Step rule: ${change.skillKey} was already increased this Upgrade Step. End the current step first.`,
+            `${change.skillKey} was already increased this session. Use Free XP to raise it again.`,
           );
           return;
         }

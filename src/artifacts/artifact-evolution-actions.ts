@@ -87,6 +87,10 @@ function actorXpAvailable(actor: Actor): number {
   return regular + free;
 }
 
+function actorHasFreeXp(actor: Actor): boolean {
+  return Math.max(0, Number((actor.system as any)?.points?.xpFree) || 0) > 0;
+}
+
 async function spendActorXp(
   actor: Actor,
   amount: number,
@@ -180,7 +184,7 @@ export function buildArtifactEvolutionCards(actor: Actor): ArtifactEvolutionCard
     const childItems = getChildWorldItemsForNode(progress.nodeId, folderItems);
 
     const embeddedId = String(emb.id);
-    const alreadyBumped = isBumped(stepState as any, 'artifact', embeddedId);
+    const alreadyBumped = !actorHasFreeXp(actor) && isBumped(stepState as any, 'artifact', embeddedId);
     const bindingKind = getArtifactBindingKind(emb);
     const isEchoBound = bindingKind === 'echo';
     const linked = isArtifactLinkedOnActor(A, emb);
@@ -212,7 +216,7 @@ export function buildArtifactEvolutionCards(actor: Actor): ArtifactEvolutionCard
       } else if (actorXpAvailable(actor) < ARTIFACT_UPGRADE_XP_COST) {
         disabledReason = 'Not enough XP.';
       } else if (alreadyBumped) {
-        disabledReason = 'Already upgraded this Upgrade Step.';
+        disabledReason = 'Already upgraded this session. Use Free XP to raise it again.';
       }
 
       const ch = child as any;
@@ -571,9 +575,10 @@ export async function upgradeArtifactForActor(
       powers: Array.isArray(stepRaw.powers) ? [...stepRaw.powers] : [],
       artifacts: Array.isArray(stepRaw.artifacts) ? [...stepRaw.artifacts] : [],
     };
-    if (isBumped(stepNow as any, 'artifact', embeddedId)) {
+    const unrestricted = actorHasFreeXp(actor);
+    if (!unrestricted && isBumped(stepNow as any, 'artifact', embeddedId)) {
       ui.notifications?.warn(
-        'This artifact was already upgraded this Upgrade Step. End the current step first to upgrade it again.',
+        'This artifact was already upgraded this session. Use Free XP to raise it again.',
       );
       return false;
     }
@@ -607,7 +612,7 @@ export async function upgradeArtifactForActor(
       },
     ]);
 
-    const stepAfter = recordBump(stepNow as any, 'artifact', embeddedId);
+    const stepAfter = unrestricted ? stepNow : recordBump(stepNow as any, 'artifact', embeddedId);
     await actor.update({
       'system.xp.currentStep.attributes': [...stepAfter.attributes],
       'system.xp.currentStep.skills': [...stepAfter.skills],

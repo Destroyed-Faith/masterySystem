@@ -1567,7 +1567,6 @@ function setupXpManagementInline() {
     htmlContent += `<input type="number" class="bulk-free-xp-amount" min="0" value="0" title="${freeHint}" />`;
     htmlContent += `<button type="button" class="bulk-grant-free-btn" title="${freeHint}"><i class="fas fa-star"></i> Grant Free to All</button>`;
     htmlContent += `<p class="bulk-grant-help" title="${freeHint}">${freeHint}</p></div>`;
-    htmlContent += '<div class="bulk-grant-group bulk-reset-group"><button type="button" class="bulk-reset-xp-account-btn" title="XP-Konten und History für alle Charaktere auf 0"><i class="fas fa-eraser"></i> Reset XP (All)</button></div>';
     htmlContent += '</div></div>';
     
     const colCharacter = i18n.localize('MASTERY.xp.colCharacter');
@@ -1621,12 +1620,7 @@ function setupXpManagementInline() {
         htmlContent += `<button type="button" class="grant-free-xp-btn" data-character-id="${actor.id}" title="${freeHint}"><i class="fas fa-star"></i></button>`;
         htmlContent += `<button type="button" class="deduct-free-xp-btn" data-character-id="${actor.id}" title="Free XP zurücknehmen (nur noch nicht ausgegebene)"><i class="fas fa-minus"></i></button></div>`;
         htmlContent += `<div class="xp-row-actions">`;
-        htmlContent += `<button type="button" class="end-xp-step-btn" data-character-id="${actor.id}" title="Upgrade Step beenden: +1-Limit-Listen leeren. Erlaubt im nächsten Step erneut +1 auf dasselbe Attribut/Skill — ersetzt kein Free XP."><i class="fas fa-flag-checkered"></i></button>`;
         htmlContent += `<button type="button" class="history-xp-btn" data-character-id="${actor.id}" title="XP History"><i class="fas fa-history"></i></button>`;
-        if (isGM) {
-          htmlContent += `<button type="button" class="recalc-xp-btn" data-character-id="${actor.id}" title="XP neu berechnen: Verfügbar = Verdient − tatsächlich investierte XP (Attribute/Skills/Powers). Korrigiert fehlerhafte History-Erstattungen."${hasSnap ? '' : ' disabled'}><i class="fas fa-calculator"></i></button>`;
-          htmlContent += `<button type="button" class="reset-xp-account-btn" data-character-id="${actor.id}" title="XP-Konten und History auf 0 (Attribute/Skills bleiben)"><i class="fas fa-eraser"></i></button>`;
-        }
         htmlContent += resetBtn;
         htmlContent += `</div></div></td></tr>`;
       });
@@ -1893,35 +1887,6 @@ function setupXpManagementInline() {
       app.render();
     });
 
-    // End Upgrade Step button — clears the once-per-step bump lists.
-    customContainer.find('.end-xp-step-btn').on('click', async (event) => {
-      const button = $(event.currentTarget);
-      const characterId = button.data('character-id');
-      const actor = (game as any).actors?.get(characterId);
-      if (!actor) {
-        ui.notifications?.error('Character not found.');
-        return;
-      }
-      const isOwner = actor.isOwner || (game as any).user?.isGM;
-      if (!isOwner) {
-        ui.notifications?.warn('Only the owner (or GM) can end this character\'s XP step.');
-        return;
-      }
-      const stepRule = await import('./utils/xp-step-rule.js');
-      const before = stepRule.readStep(actor);
-      await stepRule.endStep(actor);
-      const summary = [
-        `${before.attributes.length} attr`,
-        `${before.skills.length} skill`,
-        `${before.powers.length} power`,
-        `${before.artifacts.length} artifact`,
-      ].join(', ');
-      ui.notifications?.info(
-        `Upgrade Step beendet für ${actor.name} (${summary}). Im neuen Step ist wieder +1 pro Wert möglich. Für freie Verteilung: Free XP (★) vergeben.`,
-      );
-      app.render();
-    });
-
     // Bulk grant
     customContainer.find('.bulk-grant-btn').on('click', async (event) => {
       const amount = parseInt(customContainer.find('.bulk-xp-amount').val() as string) || 0;
@@ -2031,106 +1996,6 @@ function setupXpManagementInline() {
 
       ui.notifications?.info(`Granted ${amount} Free XP to ${updated} characters (frei verteilbar).`);
       app.render();
-    });
-
-    customContainer.find('.bulk-reset-xp-account-btn').on('click', async () => {
-      const { promptResetAllCharactersXpAccounting } = await import('./utils/xp-account-reset.js');
-      promptResetAllCharactersXpAccounting(() => app.render());
-    });
-
-    customContainer.find('.reset-xp-account-btn').on('click', async (event) => {
-      const characterId = $(event.currentTarget).data('character-id');
-      const actor = (game as any).actors?.get(characterId);
-      if (!actor) {
-        ui.notifications?.error('Character not found.');
-        return;
-      }
-      const { promptResetActorXpAccounting } = await import('./utils/xp-account-reset.js');
-      promptResetActorXpAccounting(actor, () => app.render());
-    });
-
-    customContainer.find('.recalc-xp-btn').on('click', async (event) => {
-      const button = $(event.currentTarget);
-      if (button.prop('disabled')) return;
-      if (!(game as any).user?.isGM) {
-        ui.notifications?.warn('Nur der GM kann XP neu berechnen.');
-        return;
-      }
-      const characterId = button.data('character-id');
-      const actor = (game as any).actors?.get(characterId);
-      if (!actor) {
-        ui.notifications?.error('Character not found.');
-        return;
-      }
-      const { computeGroundTruthXp, formatXpRecalcHtml } = await import('./utils/xp-recalc.js');
-      const result = computeGroundTruthXp(actor);
-      if (!result.ok) {
-        ui.notifications?.warn(result.error || 'Neuberechnung nicht möglich.');
-        return;
-      }
-      new Dialog({
-        title: `XP neu berechnen: ${actor.name}`,
-        content: formatXpRecalcHtml(actor.name, result),
-        buttons: {
-          apply: {
-            icon: '<i class="fas fa-calculator"></i>',
-            label: !result.changed
-              ? 'Bereits korrekt'
-              : `Übernehmen (${result.totalDelta > 0 ? '+' : ''}${result.totalDelta} XP)`,
-            callback: async () => {
-              if (!result.changed) return;
-              const xpState = getXpState(actor);
-              const before = {
-                available: xpState.available,
-                totalEarned: xpState.totalEarned,
-                totalSpent: xpState.totalSpent,
-              };
-              await actor.update({
-                'system.points.xp': result.available,
-                'system.points.xpFree': result.freeAvailable,
-                'system.xp.totalSpent': result.regularSpent,
-                'system.xp.freeSpent': result.freeSpent,
-              });
-              const user = (game as any).user;
-              pushXpHistory(actor, {
-                ts: Date.now(),
-                userId: user?.id || '',
-                userName: user?.name || 'GM',
-                kind: 'adjust',
-                category: 'xp',
-                amount: result.totalDelta,
-                note: 'GM recalc: XP pools recomputed from current build (earned − invested, Free spent first).',
-                details: {
-                  recalc: true,
-                  attributeSpent: result.attributeSpent,
-                  skillSpent: result.skillSpent,
-                  powerSpent: result.powerSpent,
-                  artifactSpent: result.artifactSpent,
-                  totalInvested: result.totalInvested,
-                  regularSpent: result.regularSpent,
-                  freeSpent: result.freeSpent,
-                },
-                before,
-                after: {
-                  available: result.available,
-                  totalEarned: result.totalEarned,
-                  totalSpent: result.regularSpent,
-                },
-              });
-              await actor.update({ 'system.xp.history': actor.system.xp.history });
-              ui.notifications?.info(
-                `${actor.name}: XP neu berechnet → ${result.available} regulär / ${result.freeAvailable} Free (gesamt ${result.totalDelta > 0 ? '+' : ''}${result.totalDelta}).`,
-              );
-              app.render();
-            },
-          },
-          cancel: {
-            label: 'Abbrechen',
-            callback: () => {},
-          },
-        },
-        default: result.changed ? 'apply' : 'cancel',
-      }).render(true);
     });
 
     // History button

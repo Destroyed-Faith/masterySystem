@@ -80,9 +80,9 @@
     },
     "xp": {
       "regularLabel": "Regular XP",
-      "regularHint": "Session-XP. Pro Upgrade-Step darf jedes Attribut, jeder Skill, jede Power und jedes Artefakt nur einmal steigen. Die Flagge beendet den aktuellen Step.",
+      "regularHint": "Session-XP. Pro Sitzung darf jedes Attribut, jeder Skill, jede Power und jedes Artefakt nur einmal steigen.",
       "freeLabel": "Free XP",
-      "freeHint": "Bonus-XP ohne Step-Limit. Wird vor Regular XP ausgegeben. Für den Start auf höherem Mastery Rank oder freie Verteilung.",
+      "freeHint": "Bonus-XP ohne Sitzungslimit. Wird vor Regular XP ausgegeben. Damit denselben Wert nochmal steigern oder auf höherem Mastery Rank starten.",
       "colCharacter": "Charakter",
       "colSpent": "Ausgegeben",
       "colAvail": "Verfügbar",

@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.338] - 2026-08-16
+
+### Changed
+
+- **XP Management:** End Upgrade Step, Recalc, Reset XP/History, and Clear History are gone. History refund and Reset to post-creation stay. Free XP still lifts the once-per-session +1 limit.
+
 ## [0.9.337] - 2026-08-16
 
 ### Fixed

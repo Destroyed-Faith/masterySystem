@@ -321,18 +321,10 @@
 .mastery-xp-management-inline .deduct-free-xp-btn,
 .mastery-xp-management .deduct-xp-btn,
 .mastery-xp-management .deduct-free-xp-btn,
-.mastery-xp-management-inline .end-xp-step-btn,
-.mastery-xp-management .end-xp-step-btn,
-.mastery-xp-management-inline .recalc-xp-btn,
-.mastery-xp-management .recalc-xp-btn,
 .mastery-xp-management-inline .history-xp-btn,
 .mastery-xp-management .history-xp-btn,
-.mastery-xp-management-inline .reset-xp-account-btn,
-.mastery-xp-management .reset-xp-account-btn,
 .mastery-xp-management-inline .reset-progress-xp-btn,
 .mastery-xp-management .reset-progress-xp-btn,
-.mastery-xp-management-inline .bulk-reset-xp-account-btn,
-.mastery-xp-management .bulk-reset-xp-account-btn,
 .mastery-xp-management-inline .remove-xp-btn,
 .mastery-xp-management .remove-xp-btn {
   color: var(--xp-text);
@@ -362,27 +354,14 @@
   padding: 0.4rem 0.6rem;
 }
 
-.mastery-xp-management-inline .end-xp-step-btn,
-.mastery-xp-management .end-xp-step-btn,
-.mastery-xp-management-inline .recalc-xp-btn,
-.mastery-xp-management .recalc-xp-btn,
 .mastery-xp-management-inline .history-xp-btn,
 .mastery-xp-management .history-xp-btn,
-.mastery-xp-management-inline .reset-xp-account-btn,
-.mastery-xp-management .reset-xp-account-btn,
 .mastery-xp-management-inline .reset-progress-xp-btn,
 .mastery-xp-management .reset-progress-xp-btn {
   padding: 0.28rem 0.4rem;
   min-width: 1.75rem;
   font-size: 0.72rem;
   line-height: 1;
-  border-radius: 3px;
-}
-
-.mastery-xp-management-inline .bulk-reset-xp-account-btn,
-.mastery-xp-management .bulk-reset-xp-account-btn {
-  padding: 0.35rem 0.65rem;
-  font-size: 0.82rem;
   border-radius: 3px;
 }
 
@@ -397,10 +376,6 @@
 .mastery-xp-management .grant-xp-btn:hover,
 .mastery-xp-management-inline .grant-free-xp-btn:hover,
 .mastery-xp-management .grant-free-xp-btn:hover,
-.mastery-xp-management-inline .end-xp-step-btn:hover,
-.mastery-xp-management .end-xp-step-btn:hover,
-.mastery-xp-management-inline .recalc-xp-btn:hover:not(:disabled),
-.mastery-xp-management .recalc-xp-btn:hover:not(:disabled),
 .mastery-xp-management-inline .history-xp-btn:hover,
 .mastery-xp-management .history-xp-btn:hover {
   border-color: var(--xp-accent);
@@ -412,12 +387,8 @@
 .mastery-xp-management-inline .deduct-free-xp-btn:hover,
 .mastery-xp-management .deduct-xp-btn:hover,
 .mastery-xp-management .deduct-free-xp-btn:hover,
-.mastery-xp-management-inline .reset-xp-account-btn:hover,
-.mastery-xp-management .reset-xp-account-btn:hover,
 .mastery-xp-management-inline .reset-progress-xp-btn:hover:not(:disabled),
 .mastery-xp-management .reset-progress-xp-btn:hover:not(:disabled),
-.mastery-xp-management-inline .bulk-reset-xp-account-btn:hover,
-.mastery-xp-management .bulk-reset-xp-account-btn:hover,
 .mastery-xp-management-inline .remove-xp-btn:hover,
 .mastery-xp-management .remove-xp-btn:hover {
   background: var(--xp-danger);
@@ -425,8 +396,6 @@
   color: #fff;
 }
 
-.mastery-xp-management-inline .recalc-xp-btn:disabled,
-.mastery-xp-management .recalc-xp-btn:disabled,
 .mastery-xp-management-inline .reset-progress-xp-btn:disabled,
 .mastery-xp-management .reset-progress-xp-btn:disabled {
   opacity: 0.4;
@@ -607,13 +576,7 @@
   white-space: nowrap;
 }
 
-.xp-history-dialog .history-actions {
-  display: flex;
-  justify-content: flex-end;
-}
-
-.xp-history-table .refund-history-btn,
-.xp-history-dialog .clear-history-btn {
+.xp-history-table .refund-history-btn {
   padding: 0.15rem 0.45rem;
   font-size: 0.75rem;
   line-height: 1.2;
@@ -624,8 +587,7 @@
   border-radius: 4px;
 }
 
-.xp-history-table .refund-history-btn:hover,
-.xp-history-dialog .clear-history-btn:hover {
+.xp-history-table .refund-history-btn:hover {
   border-color: var(--xp-accent, var(--ms-accent, #aeb5c0));
   color: var(--xp-accent, var(--ms-accent, #aeb5c0));
 }
