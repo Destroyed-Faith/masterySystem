@@ -82,11 +82,13 @@ async function runSetupForCombatant(combat: Combat, combatant: Combatant): Promi
       dismissedThisSession.add(stepKey(combatId, actorId, 'passives'));
       return;
     }
-    await handlePassiveSelectionComplete(combat, actorId, {});
+    try {
+      await handlePassiveSelectionComplete(combat, actorId, {});
+    } catch (err) {
+      console.error('Mastery System | Could not persist passive confirmation', err);
+    }
+    // Players cannot write Combat flags; the GM socket applies the lock. Continue locally.
   }
-
-  setup = getEncounterSetup(combat);
-  if (!setup.passives[actorId]?.locked) return;
 
   const { isStonePowersDone, handleStonePowersComplete } = await import('./stone-powers-flow.js');
   if (!isStonePowersDone(combat, combatant.id, round)) {

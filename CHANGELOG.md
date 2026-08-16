@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.353] - 2026-08-17
+
+### Fixed
+
+- **Encounter setup:** Confirming Passives as a player no longer tries to write the Combat document. The lock is sent to the GM over the socket.
+
 ## [0.9.352] - 2026-08-17
 
 ### Changed

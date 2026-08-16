@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   canCurrentUserCreateCombat,
+  canCurrentUserUpdateCombat,
   canCurrentUserUpdateDocument,
   findConnectedPlayerOwners,
   hasActiveGm,
@@ -94,6 +95,20 @@ describe('combat encounter ownership', () => {
     (globalThis as any).CONFIG.Combat.documentClass.canUserCreate = () => false;
     expect(canCurrentUserCreateCombat()).toBe(false);
     delete (globalThis as any).CONFIG;
+  });
+
+  it('never lets a player write the Combat document', () => {
+    (globalThis as any).game = { user: { id: 'fynn', isGM: false } };
+    const combat = {
+      canUserModify: () => true,
+      isOwner: true,
+      testUserPermission: () => true,
+    };
+    expect(canCurrentUserUpdateDocument(combat)).toBe(true);
+    expect(canCurrentUserUpdateCombat(combat)).toBe(false);
+
+    (globalThis as any).game.user = { id: 'gm', isGM: true };
+    expect(canCurrentUserUpdateCombat(combat)).toBe(true);
   });
 
   it('blocks player updates on documents they do not own', () => {

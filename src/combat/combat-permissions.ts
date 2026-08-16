@@ -18,6 +18,13 @@ export function canCurrentUserUpdateDocument(doc: unknown): boolean {
   return d.isOwner === true;
 }
 
+/** Combat documents are GM-only on the server, even if the client reports ownership. */
+export function canCurrentUserUpdateCombat(combat: unknown): boolean {
+  const user = typeof game !== 'undefined' ? game.user : null;
+  if (!user?.isGM) return false;
+  return canCurrentUserUpdateDocument(combat);
+}
+
 export function listActiveUsers(): Array<{ id: string; isGM?: boolean; active?: boolean }> {
   const raw = typeof game !== 'undefined' ? (game as any).users : null;
   if (!raw) return [];

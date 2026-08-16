@@ -10,6 +10,7 @@ import { CombatCarouselApp } from '../ui/combat-carousel.js';
 import { syncCombatTurnToHighestInitiativeFirst } from './initiative-roll.js';
 import {
   ENCOUNTER_SOCKET,
+  canCurrentUserUpdateCombat,
   canCurrentUserUpdateDocument,
   emitEncounterSocketToPlayerOwners,
   getSimulatePlayerEncounterId,
@@ -51,7 +52,7 @@ export function getEncounterSetup(combat: Combat): EncounterSetupState {
  */
 async function updateEncounterSetup(combat: Combat, updates: Partial<EncounterSetupState>): Promise<void> {
   const live = resolveLiveCombat(combat);
-  if (!live || !canCurrentUserUpdateDocument(live)) return;
+  if (!live || !canCurrentUserUpdateCombat(live)) return;
   const current = getEncounterSetup(live);
   const updated = { ...current, ...updates };
   await live.setFlag('mastery-system', 'encounterSetup', updated);
@@ -63,7 +64,7 @@ async function updateEncounterSetup(combat: Combat, updates: Partial<EncounterSe
 export async function handlePassiveSelectionComplete(combat: Combat, actorId: string, data: any): Promise<void> {
   const live = resolveLiveCombat(combat);
   if (!live) return;
-  if (!game.user?.isGM && !canCurrentUserUpdateDocument(live)) {
+  if (!canCurrentUserUpdateCombat(live)) {
     game.socket?.emit(ENCOUNTER_SOCKET, {
       type: 'passiveSelectionComplete',
       combatId: combat.id,
@@ -146,7 +147,7 @@ export async function ensureEncounterSetupStarted(combat: Combat): Promise<void>
   if (!live) return;
   const setup = getEncounterSetup(live);
   if (setup.started) return;
-  if (!game.user?.isGM && !canCurrentUserUpdateDocument(live)) return;
+  if (!canCurrentUserUpdateCombat(live)) return;
   await updateEncounterSetup(live, { started: true });
 }
 
