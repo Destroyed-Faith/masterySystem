@@ -45,7 +45,8 @@ export interface InitiativeRollBreakdown {
   /** Flat modifier from equipped armor, shield, and weapon (e.g. Heavy). */
   equipmentInitiativeModifier: number;
   masteryRank: number;
-  rollResult: any;
+  /** Present after a local roll; omitted when the shop opens over the socket. */
+  rollResult?: any;
 }
 
 /**
@@ -259,7 +260,7 @@ export async function executeInitiativePhase(combat: Combat): Promise<void> {
     if (!actor) continue;
 
     const breakdown = await rollInitiativeForCombatant(pc, { promptCombatReflexes: false });
-    const shopPayload = {
+    const shopContext = {
       diceTotal: breakdown.diceTotal,
       combatReflexesSpent: breakdown.combatReflexesSpent,
       totalInitiative: breakdown.totalInitiative,
@@ -269,7 +270,7 @@ export async function executeInitiativePhase(combat: Combat): Promise<void> {
 
     if (shouldShowEncounterDialogLocally(actor)) {
       try {
-        await InitiativeShopDialog.showForCombatant(pc, shopPayload, combat);
+        await InitiativeShopDialog.showForCombatant(pc, shopContext, combat);
       } catch (error) {
         console.error('Mastery System | Failed to show Initiative Shop', error);
       }
@@ -279,7 +280,7 @@ export async function executeInitiativePhase(combat: Combat): Promise<void> {
         combatId: combat.id,
         combatantId: pc.id,
         actorId: actor.id,
-        breakdown: shopPayload,
+        breakdown: shopContext,
       });
     }
     await new Promise((r) => setTimeout(r, 500));

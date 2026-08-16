@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.346] - 2026-08-16
+
+### Fixed
+
+- **Build:** Initiative Shop context no longer requires a local `rollResult`, so the release compile succeeds when the shop opens over the socket.
+
 ## [0.9.345] - 2026-08-16
 
 ### Fixed
