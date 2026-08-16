@@ -1,17 +1,12 @@
 /**
  * Encounter Start Flow
- * Orchestrates the one-click "Begin Encounter" setup pipeline
- * 
- * Flow:
- * 1. GM clicks "Begin Encounter" button
- * 2. For all PC combatants: open passive selection (read-only if already done)
- * 3. After passive selection: stone powers (round 1), then initiative (dice + Combat Reflexes + shop) for all combatants
- * 4. Start combat after all PCs confirm initiative (via shop confirm)
+ *
+ * GM starts the encounter (Begin Encounter / Start Combat): mark started,
+ * show the carousel, notify players. Player clients walk Passives → Stones →
+ * Shop themselves. The GM does not auto-open those dialogs.
  */
 
-import { PassiveSelectionDialog } from '../sheets/passive-selection-dialog.js';
 import { CombatCarouselApp } from '../ui/combat-carousel.js';
-import { openStonePowersForAllCombatants } from './stone-powers-flow.js';
 import { syncCombatTurnToHighestInitiativeFirst } from './initiative-roll.js';
 import {
   ENCOUNTER_SOCKET,
@@ -20,7 +15,6 @@ import {
   getSimulatePlayerEncounterId,
   resolveLiveCombat,
   setSimulatePlayerEncounter,
-  shouldShowEncounterDialogLocally,
 } from './combat-permissions.js';
 
 interface EncounterSetupState {
@@ -147,8 +141,18 @@ export async function handleInitiativeConfirmed(combat: Combat, combatantId: str
   }
 }
 
+export async function ensureEncounterSetupStarted(combat: Combat): Promise<void> {
+  const live = resolveLiveCombat(combat);
+  if (!live) return;
+  const setup = getEncounterSetup(live);
+  if (setup.started) return;
+  if (!game.user?.isGM && !canCurrentUserUpdateDocument(live)) return;
+  await updateEncounterSetup(live, { started: true });
+}
+
 /**
- * Begin encounter flow (called by GM)
+ * Begin encounter: mark started, show carousel, tell player owners to set up.
+ * Does not open Passives / Stones / Shop on the GM client.
  */
 export async function beginEncounter(combat: Combat): Promise<void> {
   const canWrite = !!(game.user?.isGM || canCurrentUserUpdateDocument(combat));
@@ -158,98 +162,42 @@ export async function beginEncounter(combat: Combat): Promise<void> {
   }
 
   const setup = getEncounterSetup(combat);
-  
-  // Check if already started
   if (setup.started || combat.round > 0) {
     ui.notifications?.warn('Encounter already initialized');
     return;
   }
 
-  // Mark as started
   await updateEncounterSetup(combat, { started: true });
-  // Show carousel on all clients (only if not already shown)
   const currentSetup = getEncounterSetup(combat);
   if (!currentSetup.carouselShown) {
-    // Show carousel locally for GM
     CombatCarouselApp.open();
-    
-    // Broadcast to all clients
     game.socket?.emit(ENCOUNTER_SOCKET, {
       type: 'msShowCarousel',
       combatId: combat.id
     });
-    
-    // Mark as shown
     await updateEncounterSetup(combat, { carouselShown: true });
   }
 
-  const pcs: Combatant[] = [];
-  for (const combatant of combat.combatants) {
-    if (!combatant.actor || combatant.actor.type !== 'character') continue;
-    pcs.push(combatant);
+  try {
+    const { rollNpcInitiativeOnly } = await import('./initiative-roll.js');
+    await rollNpcInitiativeOnly(combat);
+  } catch (err) {
+    console.error('Mastery System | NPC initiative at encounter start failed', err);
   }
 
-  // Notify connected player-owners immediately, then GM handles unowned PCs.
-  for (const pc of pcs) {
-    const actor = pc.actor;
-    if (!actor) continue;
-    if (shouldShowEncounterDialogLocally(actor)) continue;
+  for (const combatant of combat.combatants) {
+    const actor = combatant.actor;
+    if (!actor || actor.type !== 'character') continue;
     emitEncounterSocketToPlayerOwners(actor, {
       type: 'openPassiveSelection',
       combatId: combat.id,
-      combatantId: pc.id,
+      combatantId: combatant.id,
       actorId: actor.id,
     });
   }
 
-  for (const pc of pcs) {
-    const actor = pc.actor;
-    if (!actor || !shouldShowEncounterDialogLocally(actor)) continue;
-    const localSetup = getEncounterSetup(combat);
-    const isLocked = localSetup.passives[actor.id]?.locked === true;
-    try {
-      const outcome = await PassiveSelectionDialog.showForCombatant(pc, isLocked);
-      if (outcome.confirmed) {
-        await handlePassiveSelectionComplete(combat, actor.id, {});
-      }
-    } catch (err) {
-      console.error('Mastery System | Error in GM passive selection', err);
-    }
-  }
-
-  // Step 2: After all passives are selected, open Stone Powers for all combatants (round 1)
-  // This will be triggered when all PCs have completed passive selection
-  // We check this in a function that monitors passive completion
-  // Don't await - let it run in background
-  checkAndOpenStonePowersAfterPassives(combat).catch(err => {
-    console.error('Mastery System | Error checking for stone powers after passives', err);
-  });
-}
-
-/**
- * Check if all passives are done and open Stone Powers (round 1)
- */
-async function checkAndOpenStonePowersAfterPassives(combat: Combat): Promise<void> {
-  // Wait a bit for all passive selections to complete
-  await new Promise(resolve => setTimeout(resolve, 2000));
-  
-  const setup = getEncounterSetup(combat);
-  const allPCs = Array.from(combat.combatants).filter((c: any) => c.actor?.type === 'character');
-  
-  // Check if all PCs have completed passive selection
-  const allPassivesDone = allPCs.length > 0 && allPCs.every((pc: any) => {
-    const actorId = pc.actor?.id;
-    return setup.passives[actorId]?.locked === true;
-  });
-  
-  if (allPassivesDone) {
-    // Open Stone Powers for all combatants (round 1)
-    // This will automatically open Initiative Shop after all Stone Powers are done
-    await openStonePowersForAllCombatants(combat, 1);
-  } else {
-    // Retry after a delay (in case some players are still selecting)
-    setTimeout(() => checkAndOpenStonePowersAfterPassives(combat), 2000);
-  }
+  const { resumePlayerEncounterSetup } = await import('./player-encounter-setup.js');
+  void resumePlayerEncounterSetup(combat);
 }
 
 /**
@@ -310,6 +258,11 @@ export function initializeEncounterStart(): void {
     if (ms?.encounterSetup || ms?.stonePowersState) {
       refreshOpenCharacterSheets(combat);
     }
+    if (setup?.started || ms?.encounterSetup) {
+      void import('./player-encounter-setup.js').then(({ resumePlayerEncounterSetup }) => {
+        void resumePlayerEncounterSetup(combat);
+      });
+    }
   });
 
   // Hook: Update carousel when combatant changes (debounced)
@@ -337,6 +290,18 @@ export function initializeEncounterStart(): void {
       carouselRefreshTimeout = null;
     }
     setSimulatePlayerEncounter(null);
-    // Socket cleanup is handled automatically by Foundry
+    void import('./player-encounter-setup.js').then(({ clearPlayerEncounterSetupSession }) => {
+      clearPlayerEncounterSetupSession();
+    });
+  });
+
+  Hooks.on('canvasReady', () => {
+    void import('./player-encounter-setup.js').then(({ resumePlayerEncounterSetup }) => {
+      void resumePlayerEncounterSetup();
+    });
+  });
+
+  void import('./player-encounter-setup.js').then(({ resumePlayerEncounterSetup }) => {
+    void resumePlayerEncounterSetup();
   });
 }

@@ -27,7 +27,7 @@ function mockCombatant(opts: {
 }
 
 describe('buildEncounterSetupStatus', () => {
-  it('lists slotted passives and marks shop purchases', () => {
+  it('lists slotted passives and shop purchases without marking them done', () => {
     (globalThis as any).game = { user: { isGM: true }, combat: null };
     const combatant = mockCombatant({
       passives: [{ name: 'Lean Ward' }],
@@ -35,9 +35,32 @@ describe('buildEncounterSetupStatus', () => {
     });
     const status = buildEncounterSetupStatus(combatant, null);
     expect(status?.rows[0]?.summary).toContain('Lean Ward');
-    expect(status?.rows[0]?.done).toBe(true);
+    expect(status?.rows[0]?.done).toBe(false);
     expect(status?.rows[2]?.summary).toMatch(/\+Atk/);
-    expect(status?.rows[2]?.done).toBe(true);
+    expect(status?.rows[2]?.done).toBe(false);
+  });
+
+  it('marks rows done only after explicit confirm', () => {
+    const combat = {
+      id: 'c1',
+      round: 1,
+      flags: {
+        'mastery-system': {
+          encounterSetup: {
+            passives: { a1: { locked: true } },
+            initiativeConfirmed: { c1: true },
+          },
+          stonePowersState: { stonesDone: { c1: 1 } },
+        },
+      },
+    };
+    (globalThis as any).game = {
+      user: { isGM: true },
+      combat,
+      combats: { get: (id: string) => (id === 'c1' ? combat : null) },
+    };
+    const status = buildEncounterSetupStatus(mockCombatant({ actorId: 'a1' }), combat as unknown as Combat);
+    expect(status?.rows.every((r) => r.done)).toBe(true);
   });
 
   it('hides pick summaries from players', () => {

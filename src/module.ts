@@ -58,7 +58,7 @@ import {
 import { registerEncounterSocket } from './combat/encounter-socket.js';
 import { canCurrentUserUpdateDocument } from './combat/combat-permissions.js';
 import { initializeSceneControls, initializeTokenHUDButton } from './ui/scene-controls-mastery.js';
-import { openStonePowersForAllCombatants, initializeStonePowersFlow } from './combat/stone-powers-flow.js';
+import { initializeStonePowersFlow } from './combat/stone-powers-flow.js';
 import { registerDivineClashSettings } from './divine-clash/divine-clash-settings.js';
 import { registerEpicMasteryRollSettings } from './epic-roll/epic-mastery-roll-settings.js';
 import { initializeEpicMasteryRoll } from './epic-roll/register-epic-mastery-roll.js';
@@ -325,19 +325,16 @@ Hooks.once('init', async function() {
   // Initialize combat hooks
   // Register combatStart hook directly here
   Hooks.on('combatStart', async (combat: Combat) => {
-    const msFlags = (combat.flags as any)?.['mastery-system'] || {};
-    if (msFlags.encounterSetup?.started) {
-      CombatCarouselApp.open();
-      return;
-    }
     try {
-      await PassiveSelectionDialog.showForCombat(combat);
-      if (game.user?.isGM) {
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        const initRound = Math.max(1, combat.round ?? 1);
-        await openStonePowersForAllCombatants(combat, initRound);
-      }
+      const { ensureEncounterSetupStarted } = await import('./combat/encounter-start.js');
+      await ensureEncounterSetupStarted(combat);
       CombatCarouselApp.open();
+      if (game.user?.isGM) {
+        const { rollNpcInitiativeOnly } = await import('./combat/initiative-roll.js');
+        await rollNpcInitiativeOnly(combat);
+      }
+      const { resumePlayerEncounterSetup } = await import('./combat/player-encounter-setup.js');
+      void resumePlayerEncounterSetup(combat);
     } catch (error) {
       console.error('Mastery System | Error in combat start sequence', error);
     }

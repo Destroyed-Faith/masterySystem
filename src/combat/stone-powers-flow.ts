@@ -69,6 +69,10 @@ async function markStonePowersDone(combat: Combat, combatantId: string, round: n
   await updateStonePowersState(combat, { stonesDone: state.stonesDone });
 }
 
+export function isStonePowersDone(combat: Combat, combatantId: string, round: number): boolean {
+  return getStonePowersState(combat).stonesDone[combatantId] === round;
+}
+
 function areAllCombatantsDone(combat: Combat, round: number): boolean {
   const state = getStonePowersState(combat);
   const allCombatants = Array.from(combat.combatants) as Combatant[];
@@ -141,7 +145,8 @@ async function openStonePowersForCombatant(combat: Combat, combatant: Combatant,
   }
 
   try {
-    await StonePowersDialog.showForActor(actor, combatant);
+    const confirmed = await StonePowersDialog.showForActor(actor, combatant);
+    if (!confirmed) return;
     if (game.user?.isGM) {
       await markStonePowersDone(combat, combatant.id, round);
     } else {
@@ -154,16 +159,6 @@ async function openStonePowersForCombatant(combat: Combat, combatant: Combatant,
     }
   } catch (error) {
     console.error('Mastery System | Error in stone powers dialog', error);
-    if (game.user?.isGM) {
-      await markStonePowersDone(combat, combatant.id, round);
-    } else {
-      game.socket?.emit(ENCOUNTER_SOCKET, {
-        type: 'stonePowersComplete',
-        combatId: combat.id,
-        combatantId: combatant.id,
-        round,
-      });
-    }
   }
 }
 

@@ -3,8 +3,6 @@
  * owning player — not only the GM. Combat document writes stay on the GM.
  */
 
-import { PassiveSelectionDialog } from '../sheets/passive-selection-dialog.js';
-import { StonePowersDialog } from '../stones/stone-powers-dialog.js';
 import {
   ENCOUNTER_SOCKET,
   resolveLiveCombat,
@@ -27,8 +25,7 @@ async function handleEncounterSocket(payload: any): Promise<void> {
   if (!payload || typeof payload !== 'object') return;
   if (payload.action) return;
 
-  const { type, combatId, combatantId, actorId, userId, data, finalInitiative, breakdown, round } =
-    payload;
+  const { type, combatId, combatantId, actorId, userId, data, finalInitiative, round } = payload;
 
   if (userId && userId !== game.user?.id) return;
 
@@ -51,20 +48,15 @@ async function handleEncounterSocket(payload: any): Promise<void> {
   if (!combat || (combatId && combat.id !== combatId)) return;
 
   switch (type) {
-    case 'openPassiveSelection': {
-      const combatant = combat.combatants.get(combatantId);
-      if (!combatant?.actor || !shouldShowEncounterDialogLocally(combatant.actor)) return;
+    case 'openPassiveSelection':
+    case 'openStonePowers':
+    case 'openInitiativeShop': {
+      if (!shouldShowEncounterDialogLocally(combat.combatants.get(combatantId)?.actor)) return;
       try {
-        const { getEncounterSetup } = await import('./encounter-start.js');
-        const setup = getEncounterSetup(combat);
-        const isLocked = setup.passives[actorId]?.locked === true;
-        const outcome = await PassiveSelectionDialog.showForCombatant(combatant, isLocked);
-        if (outcome.confirmed) {
-          const { handlePassiveSelectionComplete } = await import('./encounter-start.js');
-          await handlePassiveSelectionComplete(combat, actorId, {});
-        }
+        const { resumePlayerEncounterSetup } = await import('./player-encounter-setup.js');
+        await resumePlayerEncounterSetup(combat);
       } catch (err) {
-        console.error('Mastery System | Error in passive selection', err);
+        console.error('Mastery System | Error resuming player encounter setup', err);
       }
       break;
     }
@@ -76,39 +68,10 @@ async function handleEncounterSocket(payload: any): Promise<void> {
       break;
     }
 
-    case 'openStonePowers': {
-      const combatant = combat.combatants.get(combatantId);
-      if (!combatant?.actor || !shouldShowEncounterDialogLocally(combatant.actor)) return;
-      try {
-        await StonePowersDialog.showForActor(combatant.actor, combatant);
-      } catch (err) {
-        console.error('Mastery System | Error in stone powers dialog', err);
-      }
-      game.socket?.emit(ENCOUNTER_SOCKET, {
-        type: 'stonePowersComplete',
-        combatId: combat.id,
-        combatantId,
-        round,
-      });
-      break;
-    }
-
     case 'stonePowersComplete': {
       if (!game.user?.isGM) return;
       const { handleStonePowersComplete } = await import('./stone-powers-flow.js');
       await handleStonePowersComplete(combat, combatantId, Number(round) || combat.round || 1);
-      break;
-    }
-
-    case 'openInitiativeShop': {
-      const combatant = combat.combatants.get(combatantId);
-      if (!combatant?.actor || !shouldShowEncounterDialogLocally(combatant.actor)) return;
-      try {
-        const { InitiativeShopDialog } = await import('./initiative-shop-dialog.js');
-        await InitiativeShopDialog.showForCombatant(combatant, breakdown ?? {}, combat);
-      } catch (err) {
-        console.error('Mastery System | Failed to show Initiative Shop', err);
-      }
       break;
     }
 

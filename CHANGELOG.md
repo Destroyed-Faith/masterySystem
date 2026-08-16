@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.352] - 2026-08-17
+
+### Changed
+
+- **Encounter setup:** After the GM starts combat, each player walks Passives → Stones → Initiative Shop on first scene load. The GM no longer auto-sees those dialogs or player initiative rolls. Closing with X does not confirm a step; only an explicit confirm locks it. Force-open from the sheet, carousel, or tracker still lets the GM inspect.
+
 ## [0.9.351] - 2026-08-17
 
 ### Fixed

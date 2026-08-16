@@ -781,7 +781,7 @@ export class StonePowersDialog extends BaseDialog {
         ev.preventDefault();
         await this.#persistStonePowersRoundPlan();
         if (this.resolve) {
-          this.resolve(false);
+          this.resolve(true);
           this.resolve = undefined;
         }
         await (this as any).close({ closeSource: 'button' });

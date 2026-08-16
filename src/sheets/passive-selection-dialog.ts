@@ -22,7 +22,7 @@ const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 // Type workaround for Mixin
 const BaseDialog = HandlebarsApplicationMixin(ApplicationV2) as typeof ApplicationV2;
 
-export type PassiveSelectionOutcome = { confirmed: boolean };
+export type PassiveSelectionOutcome = { confirmed: boolean; alreadyOpen?: boolean };
 
 export class PassiveSelectionDialog extends BaseDialog {
   private currentIndex: number = 0;
@@ -59,7 +59,7 @@ export class PassiveSelectionDialog extends BaseDialog {
     const existing = foundry.applications.instances.get("mastery-passive-selection") as PassiveSelectionDialog;
     if (existing) {
       existing.bringToFront();
-      return { confirmed: false };
+      return { confirmed: false, alreadyOpen: true };
     }
 
     return new Promise<PassiveSelectionOutcome>((resolve) => {
@@ -78,7 +78,7 @@ export class PassiveSelectionDialog extends BaseDialog {
     const existing = foundry.applications.instances.get("mastery-passive-selection");
     if (existing) {
       (existing as any).bringToFront();
-      return { confirmed: false };
+      return { confirmed: false, alreadyOpen: true };
     }
 
     const pcs = combat.combatants.filter((c: Combatant) =>

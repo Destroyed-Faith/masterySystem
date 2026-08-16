@@ -95,20 +95,22 @@ function isSimulatingPlayerEncounter(): boolean {
 }
 
 /**
- * A connected player who owns the actor should see the dialog.
- * The GM only handles it when no such player is online.
- * Start Encounter (player view) can force local dialogs for the current combat.
+ * Auto-show / socket receive: only the owning player.
+ * The GM never auto-sees player setup (Passives / Stones / Shop), even when
+ * they own the actor or no player is online. Use force-open to inspect.
+ * Start Encounter "player view" can still force local dialogs for the GM.
  */
 export function shouldShowEncounterDialogLocally(actor: Actor | null | undefined): boolean {
   if (!actor || typeof game === 'undefined' || !game.user) return false;
   if (isSimulatingPlayerEncounter()) {
     return !!(game.user.isGM || (actor as any).isOwner);
   }
+  if (game.user.isGM) return false;
   const playerOwners = findConnectedPlayerOwners(actor);
   if (playerOwners.length > 0) {
     return playerOwners.some((u) => u.id === game.user!.id);
   }
-  return !!(game.user.isGM || (actor as any).isOwner);
+  return !!(actor as any).isOwner;
 }
 
 export function emitEncounterSocketToPlayerOwners(

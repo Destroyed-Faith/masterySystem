@@ -60,7 +60,7 @@ export class StartEncounterDialog extends BaseDialog {
     return {
       tokens,
       hasTokens: tokens.length > 0,
-      openLocally: true,
+      openLocally: false,
     };
   }
 

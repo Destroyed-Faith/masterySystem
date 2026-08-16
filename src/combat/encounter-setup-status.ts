@@ -4,12 +4,7 @@
 
 import { getPassiveSlots } from '../powers/passives.js';
 import { INITIATIVE_SHOP } from '../utils/constants.js';
-import {
-  ENCOUNTER_SOCKET,
-  emitEncounterSocketToPlayerOwners,
-  resolveLiveCombat,
-  shouldShowEncounterDialogLocally,
-} from './combat-permissions.js';
+import { emitEncounterSocketToPlayerOwners, resolveLiveCombat } from './combat-permissions.js';
 
 export type EncounterDialogKind = 'passives' | 'stones' | 'initiative';
 
@@ -52,7 +47,7 @@ function passiveSummary(actor: Actor): { done: boolean; names: string[] } {
   const names = getPassiveSlots(actor)
     .map((s) => String(s.passive?.name ?? '').trim())
     .filter(Boolean);
-  return { done: locked || names.length > 0, names };
+  return { done: locked, names };
 }
 
 function stoneSummary(actor: Actor, combatantId: string, combat: Combat | null): {
@@ -83,7 +78,7 @@ function stoneSummary(actor: Actor, combatantId: string, combat: Combat | null):
       parts.push(attr && attr !== '_' ? `${name} (${cap(attr)}×${count || 1})` : name);
     }
   }
-  return { done: doneRound === round || parts.length > 0, parts };
+  return { done: doneRound === round, parts };
 }
 
 function shopSummary(combatant: Combatant, combat: Combat | null): { done: boolean; parts: string[] } {
@@ -106,7 +101,7 @@ function shopSummary(combatant: Combatant, combat: Combat | null): { done: boole
   if (shop?.extraReaction) parts.push('+React');
   if (shop?.removeStress) parts.push('−Stress');
   if (shop?.initiativeSwap) parts.push('Swap');
-  return { done: confirmed || !!shop, parts };
+  return { done: confirmed, parts };
 }
 
 export function buildEncounterSetupStatus(
@@ -189,11 +184,7 @@ export async function forceEncounterDialog(
   const actor = combatant.actor;
   if (!actor || actor.type !== 'character') return;
 
-  if (shouldShowEncounterDialogLocally(actor)) {
-    await openEncounterDialogLocally(kind, combatant, combat);
-    return;
-  }
-
+  await openEncounterDialogLocally(kind, combatant, combat);
   const sent = emitEncounterSocketToPlayerOwners(actor, {
     type: 'forceEncounterDialog',
     combatId: combat.id,
@@ -201,14 +192,12 @@ export async function forceEncounterDialog(
     actorId: actor.id,
     kind,
   });
-  if (sent <= 0) {
-    await openEncounterDialogLocally(kind, combatant, combat);
-    return;
+  if (sent > 0) {
+    const sentTpl = loc('sentToPlayer', '{name}: {dialog} an den Spieler geschickt.');
+    ui.notifications?.info(
+      sentTpl.replace('{name}', String(actor.name ?? '')).replace('{dialog}', kindLabel(kind)),
+    );
   }
-  const sentTpl = loc('sentToPlayer', '{name}: {dialog} an den Spieler geschickt.');
-  ui.notifications?.info(
-    sentTpl.replace('{name}', String(actor.name ?? '')).replace('{dialog}', kindLabel(kind)),
-  );
 }
 
 export async function forceEncounterDialogForAll(kind: EncounterDialogKind): Promise<void> {

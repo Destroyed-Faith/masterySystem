@@ -234,61 +234,42 @@ export async function rollInitiativeForCombatant(
   };
 }
 
-/**
- * Full initiative phase: NPCs auto; PCs with owner/GM get shop; others auto roll without CR prompt.
- */
-export async function executeInitiativePhase(combat: Combat): Promise<void> {
+/** Roll initiative for NPCs / summons / divine only. PCs roll on their own client. */
+export async function rollNpcInitiativeOnly(combat: Combat): Promise<void> {
   if (!game.user?.isGM) return;
-  const { InitiativeShopDialog } = await import('./initiative-shop-dialog.js');
-  const npcs: Combatant[] = [];
-  const pcs: Combatant[] = [];
-
   for (const combatant of combat.combatants) {
     if (!combatant.actor) continue;
     const t = combatant.actor.type;
-    if (t === 'npc' || t === 'summon' || t === 'divine') npcs.push(combatant);
-    else if (t === 'character') pcs.push(combatant);
-  }
-
-  for (const npc of npcs) {
-    await rollInitiativeForCombatant(npc, { promptCombatReflexes: false });
+    if (t !== 'npc' && t !== 'summon' && t !== 'divine') continue;
+    if (combatant.initiative !== null && combatant.initiative !== undefined) continue;
+    await rollInitiativeForCombatant(combatant, { promptCombatReflexes: false });
     await new Promise((r) => setTimeout(r, 200));
   }
+}
 
-  for (const pc of pcs) {
+/**
+ * Full initiative phase: NPCs auto. PCs roll and shop on their own client.
+ */
+export async function executeInitiativePhase(combat: Combat): Promise<void> {
+  if (!game.user?.isGM) return;
+  await rollNpcInitiativeOnly(combat);
+
+  for (const pc of combat.combatants) {
     const actor = pc.actor;
-    if (!actor) continue;
-
-    const breakdown = await rollInitiativeForCombatant(pc, { promptCombatReflexes: false });
-    const shopContext = {
-      diceTotal: breakdown.diceTotal,
-      combatReflexesSpent: breakdown.combatReflexesSpent,
-      totalInitiative: breakdown.totalInitiative,
-      equipmentInitiativeModifier: breakdown.equipmentInitiativeModifier,
-      masteryRank: breakdown.masteryRank,
-    };
-
-    if (shouldShowEncounterDialogLocally(actor)) {
-      try {
-        await InitiativeShopDialog.showForCombatant(pc, shopContext, combat);
-      } catch (error) {
-        console.error('Mastery System | Failed to show Initiative Shop', error);
-      }
-    } else {
-      emitEncounterSocketToPlayerOwners(actor, {
-        type: 'openInitiativeShop',
-        combatId: combat.id,
-        combatantId: pc.id,
-        actorId: actor.id,
-        breakdown: shopContext,
-      });
-    }
-    await new Promise((r) => setTimeout(r, 500));
+    if (!actor || actor.type !== 'character') continue;
+    if (shouldShowEncounterDialogLocally(actor)) continue;
+    emitEncounterSocketToPlayerOwners(actor, {
+      type: 'openInitiativeShop',
+      combatId: combat.id,
+      combatantId: pc.id,
+      actorId: actor.id,
+    });
   }
 
-  // Combatants with null initiative are omitted from `combat.turns`, so the round
-  // appears to advance early (fewer turns per round than combatants). Pin unset values.
+  // Combatants with null initiative are omitted from `combat.turns`. Pin NPCs only —
+  // PCs keep a blank score until they confirm their own shop.
   for (const c of combat.combatants) {
+    if (c.actor?.type === 'character') continue;
     if (c.initiative === null || c.initiative === undefined) {
       await c.update({ initiative: 0 });
     }
@@ -393,7 +374,7 @@ export async function rollInitiativeForAllCombatants(combat: Combat): Promise<vo
 export async function openInitiativeShopForTrackerRescue(
   combatant: Combatant,
   combat: Combat
-): Promise<void> {
+): Promise<boolean> {
   const { InitiativeShopDialog } = await import('./initiative-shop-dialog.js');
 
   const setup = (combat.flags as any)?.['mastery-system']?.encounterSetup;
@@ -403,10 +384,11 @@ export async function openInitiativeShopForTrackerRescue(
     | undefined;
 
   if (!confirmed && pending && typeof pending.diceTotal === 'number') {
-    await InitiativeShopDialog.showForCombatant(combatant, pending, combat);
-    return;
+    const purchases = await InitiativeShopDialog.showForCombatant(combatant, pending, combat);
+    return purchases != null;
   }
 
   const breakdown = await rollInitiativeForCombatant(combatant, { promptCombatReflexes: false });
-  await InitiativeShopDialog.showForCombatant(combatant, breakdown, combat);
+  const purchases = await InitiativeShopDialog.showForCombatant(combatant, breakdown, combat);
+  return purchases != null;
 }

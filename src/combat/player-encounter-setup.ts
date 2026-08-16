@@ -1,0 +1,126 @@
+/**
+ * Player-side encounter setup: Passives → Stones → Initiative Shop.
+ * Opens on first scene/combat load after the GM started the encounter.
+ * Closing with ✕ leaves the step pending; it does not lock or confirm.
+ * A per-session dismiss set prevents the same dialog from immediately
+ * reopening after ✕; Join Game As / reload starts a new session.
+ */
+
+import { ENCOUNTER_SOCKET, resolveLiveCombat, shouldShowEncounterDialogLocally } from './combat-permissions.js';
+
+const dismissedThisSession = new Set<string>();
+let pipelineRunning = false;
+
+function stepKey(combatId: string, actorId: string, step: string): string {
+  return `${combatId}:${actorId}:${step}`;
+}
+
+export function clearPlayerEncounterSetupSession(): void {
+  dismissedThisSession.clear();
+  pipelineRunning = false;
+}
+
+function dialogAlreadyOpen(id: string): boolean {
+  const instances = (foundry as any)?.applications?.instances;
+  const existing = instances?.get?.(id);
+  if (!existing) return false;
+  try {
+    existing.bringToFront?.();
+  } catch {
+    /* ignore */
+  }
+  return true;
+}
+
+/**
+ * Resume pending setup for every locally owned PC in the active encounter.
+ */
+export async function resumePlayerEncounterSetup(combat?: Combat | null): Promise<void> {
+  if (pipelineRunning) return;
+  if (typeof game === 'undefined' || !game.user) return;
+
+  const live = resolveLiveCombat(combat ?? game.combat);
+  if (!live) return;
+
+  const { getEncounterSetup } = await import('./encounter-start.js');
+  const setup = getEncounterSetup(live);
+  if (!setup.started && !(live as any).started) return;
+
+  const pcs = Array.from(live.combatants).filter(
+    (c: any) => c.actor?.type === 'character' && shouldShowEncounterDialogLocally(c.actor),
+  ) as Combatant[];
+  if (!pcs.length) return;
+
+  pipelineRunning = true;
+  try {
+    for (const pc of pcs) {
+      await runSetupForCombatant(live, pc);
+    }
+  } finally {
+    pipelineRunning = false;
+  }
+}
+
+async function runSetupForCombatant(combat: Combat, combatant: Combatant): Promise<void> {
+  const actor = combatant.actor;
+  if (!actor?.id) return;
+
+  const { getEncounterSetup, handlePassiveSelectionComplete } = await import('./encounter-start.js');
+  const combatId = String(combat.id);
+  const actorId = String(actor.id);
+  const round = Math.max(1, Number(combat.round) || 1);
+
+  let setup = getEncounterSetup(combat);
+  if (!setup.passives[actorId]?.locked) {
+    if (dismissedThisSession.has(stepKey(combatId, actorId, 'passives'))) return;
+    if (dialogAlreadyOpen('mastery-passive-selection')) return;
+
+    const { PassiveSelectionDialog } = await import('../sheets/passive-selection-dialog.js');
+    const outcome = await PassiveSelectionDialog.showForCombatant(combatant, false);
+    if (outcome.alreadyOpen) return;
+    if (!outcome.confirmed) {
+      dismissedThisSession.add(stepKey(combatId, actorId, 'passives'));
+      return;
+    }
+    await handlePassiveSelectionComplete(combat, actorId, {});
+  }
+
+  setup = getEncounterSetup(combat);
+  if (!setup.passives[actorId]?.locked) return;
+
+  const { isStonePowersDone, handleStonePowersComplete } = await import('./stone-powers-flow.js');
+  if (!isStonePowersDone(combat, combatant.id, round)) {
+    if (dismissedThisSession.has(stepKey(combatId, actorId, 'stones'))) return;
+    if (dialogAlreadyOpen('mastery-stone-powers')) return;
+
+    const { StonePowersDialog } = await import('../stones/stone-powers-dialog.js');
+    const confirmed = await StonePowersDialog.showForActor(actor, combatant);
+    if (!confirmed) {
+      dismissedThisSession.add(stepKey(combatId, actorId, 'stones'));
+      return;
+    }
+    if (game.user?.isGM) {
+      await handleStonePowersComplete(combat, combatant.id, round);
+    } else {
+      game.socket?.emit(ENCOUNTER_SOCKET, {
+        type: 'stonePowersComplete',
+        combatId: combat.id,
+        combatantId: combatant.id,
+        round,
+      });
+    }
+  }
+
+  if (round > 1) return;
+
+  setup = getEncounterSetup(combat);
+  if (setup.initiativeConfirmed[combatant.id]) return;
+  if (dismissedThisSession.has(stepKey(combatId, actorId, 'shop'))) return;
+  if (dialogAlreadyOpen('mastery-initiative-shop')) return;
+
+  const { openInitiativeShopForTrackerRescue } = await import('./initiative-roll.js');
+  const shopConfirmed = await openInitiativeShopForTrackerRescue(combatant, combat);
+  if (!shopConfirmed) {
+    dismissedThisSession.add(stepKey(combatId, actorId, 'shop'));
+  }
+}
