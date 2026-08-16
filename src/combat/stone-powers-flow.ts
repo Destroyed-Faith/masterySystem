@@ -18,7 +18,13 @@ import {
   resetRoundState,
   syncStonePoolCapsFromAttributes
 } from './action-economy.js';
-const SOCKET_NAME = 'system.mastery-system';
+import {
+  ENCOUNTER_SOCKET,
+  canCurrentUserUpdateDocument,
+  emitEncounterSocketToPlayerOwners,
+  resolveLiveCombat,
+  shouldShowEncounterDialogLocally,
+} from './combat-permissions.js';
 
 interface StonePowersState {
   roundStonesPrompted: Record<number, boolean>;
@@ -46,9 +52,15 @@ function getStonePowersState(combat: Combat): StonePowersState {
 }
 
 async function updateStonePowersState(combat: Combat, updates: Partial<StonePowersState>): Promise<void> {
-  const current = getStonePowersState(combat);
+  const live = resolveLiveCombat(combat);
+  if (!live || !game.user?.isGM) return;
+  const current = getStonePowersState(live);
   const updated = { ...current, ...updates };
-  await combat.setFlag('mastery-system', 'stonePowersState', updated);
+  try {
+    await live.setFlag('mastery-system', 'stonePowersState', updated);
+  } catch (err) {
+    console.warn('Mastery System | Could not persist stonePowersState', err);
+  }
 }
 
 async function markStonePowersDone(combat: Combat, combatantId: string, round: number): Promise<void> {
@@ -73,6 +85,10 @@ function areAllCombatantsDone(combat: Combat, round: number): boolean {
  * `initiativePhaseDoneByRound`.
  */
 export async function runInitiativePhaseAfterStones(combat: Combat, round: number): Promise<void> {
+  if (!game.user?.isGM) return;
+  const live = resolveLiveCombat(combat);
+  if (!live) return;
+  combat = live;
   const state = getStonePowersState(combat);
   if (state.initiativePhaseDoneByRound?.[round]) {
     return;
@@ -111,23 +127,43 @@ async function openStonePowersForCombatant(combat: Combat, combatant: Combatant,
     return;
   }
 
-  const user = game.user;
-  if (!user) {
-    await markStonePowersDone(combat, combatant.id, round);
-    return;
-  }
-
-  if (!user.isGM && !actor.isOwner) {
-    await markStonePowersDone(combat, combatant.id, round);
+  if (!shouldShowEncounterDialogLocally(actor)) {
+    if (game.user?.isGM) {
+      emitEncounterSocketToPlayerOwners(actor, {
+        type: 'openStonePowers',
+        combatId: combat.id,
+        combatantId: combatant.id,
+        actorId: actor.id,
+        round,
+      });
+    }
     return;
   }
 
   try {
     await StonePowersDialog.showForActor(actor, combatant);
-    await markStonePowersDone(combat, combatant.id, round);
+    if (game.user?.isGM) {
+      await markStonePowersDone(combat, combatant.id, round);
+    } else {
+      game.socket?.emit(ENCOUNTER_SOCKET, {
+        type: 'stonePowersComplete',
+        combatId: combat.id,
+        combatantId: combatant.id,
+        round,
+      });
+    }
   } catch (error) {
     console.error('Mastery System | Error in stone powers dialog', error);
-    await markStonePowersDone(combat, combatant.id, round);
+    if (game.user?.isGM) {
+      await markStonePowersDone(combat, combatant.id, round);
+    } else {
+      game.socket?.emit(ENCOUNTER_SOCKET, {
+        type: 'stonePowersComplete',
+        combatId: combat.id,
+        combatantId: combatant.id,
+        round,
+      });
+    }
   }
 }
 
@@ -141,6 +177,10 @@ export async function runMasteryCombatRoundAdvancePipeline(
   combat: Combat,
   newRound: number
 ): Promise<void> {
+  if (!game.user?.isGM) return;
+  const live = resolveLiveCombat(combat);
+  if (!live) return;
+  combat = live;
   await clearStonePowersConfigurationLocksInCombat(combat);
 
   // Wits "Initiative Boost" lasts "this round": remove last round's temporary
@@ -174,6 +214,10 @@ export async function runMasteryCombatRoundAdvancePipeline(
 }
 
 export async function openStonePowersForAllCombatants(combat: Combat, round: number): Promise<void> {
+  if (!game.user?.isGM) return;
+  const live = resolveLiveCombat(combat);
+  if (!live) return;
+  combat = live;
   const state = getStonePowersState(combat);
 
   if (state.roundStonesPrompted[round]) {
@@ -186,6 +230,7 @@ export async function openStonePowersForAllCombatants(combat: Combat, round: num
   for (const c of combat.combatants) {
     const a = c.actor;
     if (!a || a.type !== 'character') continue;
+    if (!canCurrentUserUpdateDocument(a)) continue;
     if (round === 1) {
       await refillStonePoolsFromAttributes(a);
     } else {
@@ -208,23 +253,16 @@ export async function openStonePowersForAllCombatants(combat: Combat, round: num
   }
 }
 
-async function handleStonePowersComplete(combat: Combat, combatantId: string, round: number): Promise<void> {
-  await markStonePowersDone(combat, combatantId, round);
+export async function handleStonePowersComplete(combat: Combat, combatantId: string, round: number): Promise<void> {
+  const live = resolveLiveCombat(combat);
+  if (!live) return;
+  await markStonePowersDone(live, combatantId, round);
 
-  if (areAllCombatantsDone(combat, round)) {
-    await runInitiativePhaseAfterStones(combat, round);
+  if (areAllCombatantsDone(live, round)) {
+    await runInitiativePhaseAfterStones(live, round);
   }
 }
 
 export function initializeStonePowersFlow(): void {
-  game.socket?.on(SOCKET_NAME, async (payload: any) => {
-    const { type, combatId, combatantId, round } = payload;
-
-    if (type !== 'stonePowersComplete') return;
-
-    const combat = game.combat;
-    if (!combat || combat.id !== combatId) return;
-
-    await handleStonePowersComplete(combat, combatantId, round);
-  });
+  // Socket handling lives in registerEncounterSocket (ready).
 }

@@ -12,7 +12,9 @@ import {
 } from './epic-mastery-roll-types.js';
 import {
   applyEpicSkillSpendAndFinalize,
+  canSpendEpicRerollPoint,
   confirmEpicRollWithoutSpend,
+  performEpicParticipantReroll,
   performEpicParticipantRoll,
 } from './epic-mastery-roll-roll.js';
 import {
@@ -87,6 +89,8 @@ class EpicMasteryRollOverlay {
       let selectedSpendAmount = 0;
       let canAddSkillPoints = false;
       let showSkillSpend = false;
+      let showReroll = false;
+      let showFailureActions = false;
       let displayTotal = result?.total ?? 0;
       let displaySuccess = !!result?.success;
 
@@ -121,6 +125,11 @@ class EpicMasteryRollOverlay {
           displaySuccess = preview.success;
           canAddSkillPoints = selectedSpendAmount > 0;
         }
+      }
+
+      if (awaitingSpend && isOwner && result && !result.success) {
+        showFailureActions = true;
+        showReroll = !result.rerolled && canSpendEpicRerollPoint(actor);
       }
 
       const skillAttrs = skillDef?.attributes ?? [];
@@ -201,10 +210,12 @@ class EpicMasteryRollOverlay {
         showResultFrame: showRollResult,
         diceFaces,
         showDiceFaces: diceFaces.length > 0,
-        showFinalMeta: rolled && (!!result?.skillSpent || !!result?.echoCardUsed),
+        showFinalMeta: rolled && (!!result?.skillSpent || !!result?.echoCardUsed || !!result?.rerolled),
         echoCardUsed: result?.echoCardUsed,
         waiting: p.status === 'pending' && !isOwner,
+        showFailureActions,
         showSkillSpend,
+        showReroll,
         skillPackets,
         selectedSpendAmount,
         canAddSkillPoints,
@@ -333,6 +344,23 @@ class EpicMasteryRollOverlay {
         btn.setAttribute('disabled', 'true');
         await applyEpicSkillSpendAndFinalize(this.session, actorId, amount);
         delete this.selectedSpendPackets[actorId];
+      };
+    });
+
+    root.querySelectorAll<HTMLElement>('[data-action="emr-reroll"]').forEach((btn) => {
+      btn.onclick = async (ev) => {
+        ev.preventDefault();
+        if (this.rolling || this.session.status !== 'active' || btn.hasAttribute('disabled')) return;
+        const actorId = btn.dataset.actorId;
+        if (!actorId) return;
+        this.rolling = true;
+        btn.setAttribute('disabled', 'true');
+        try {
+          await performEpicParticipantReroll(this.session, actorId);
+          delete this.selectedSpendPackets[actorId];
+        } finally {
+          this.rolling = false;
+        }
       };
     });
 

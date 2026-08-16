@@ -25,7 +25,6 @@ import { getAllSchticks } from '../utils/schticks';
 import { showEchoCardPickDialog, showEchoCreationDialog } from './character-sheet-echo-dialog.js';
 import { openCharacterPrintSheet } from './character-print.js';
 import {
-  buildFreshTraitUses,
   getCardOption,
   getEcho,
   getEchoCard,
@@ -46,15 +45,20 @@ import { collectInventoryBandRects, findFirstFit, fitsInGrid, parseInventorySize
 import { isLegacyUnarmedItem } from '../utils/unarmed-fallback.js';
 import { loadZoneFromBands, movementPenaltyForLoad, LOAD_ZONE_LABEL, ZONE_WIDTH_COLS } from '../utils/encumbrance.js';
 import { getFilePickerClass } from '../utils/foundry-v14.js';
+import {
+  bindImageUrlBar,
+  buildImageUrlBarHtml,
+  copyDocumentImageLink,
+} from '../ui/image-url-share.js';
 import { SummonBondDialog } from '../stones/summon-bond-dialog.js';
 import { RitualWorkshopController } from '../stones/ritual-workshop-dialog.js';
 import { MinorMagicPanel } from '../stones/minor-magic-dialog.js';
 import {
-  beginMinorMagicRest,
   dismissMinorMagicItem,
   minorMagicSheetView,
   useMinorMagicItem,
 } from '../utils/minor-magic-items.js';
+import { applySafeHavenRest, SAFE_HAVEN_REST_INFO } from '../utils/safe-haven-rest.js';
 import {
   buildConsumableSlotView,
   equippedConsumableActionRows,
@@ -219,6 +223,11 @@ export class MasteryCharacterSheet extends BaseActorSheet {
           label: 'Bogen + Standardmanöver',
           action: 'msPrintSheetWithBasics',
         },
+        {
+          icon: 'fas fa-link',
+          label: 'MASTERY.image.copyLink',
+          action: 'msCopyPictureLink',
+        },
       ],
     },
     form: { submitOnChange: true, closeOnSubmit: false },
@@ -228,6 +237,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       },
       msPrintSheetWithBasics: function (this: any) {
         void openCharacterPrintSheet(this.actor, { includeStandardManeuvers: true });
+      },
+      msCopyPictureLink: function (this: any) {
+        void copyDocumentImageLink(this.actor);
       },
     },
   };
@@ -4605,128 +4617,14 @@ export class MasteryCharacterSheet extends BaseActorSheet {
   async #onSafeHavenRest(event: JQuery.ClickEvent) {
     event.preventDefault();
 
-    // Check if user is owner
     if (!this.actor.isOwner) {
       (ui as any).notifications?.warn('Only the owner can use Safe Haven Rest.');
       return;
     }
 
-    const { SKILLS } = await import('../utils/skills.js');
-    const skillsSpent: Record<string, number> = {};
-
-    // Reset all skills to 0 spent
-    for (const skillKey of Object.keys(SKILLS)) {
-      skillsSpent[skillKey] = 0;
-    }
-
-    // Also reset any existing skills in actor.system.skills
-    const system = (this.actor as any).system;
-    if (system.skills && typeof system.skills === 'object') {
-      for (const skillKey of Object.keys(system.skills)) {
-        if (!skillsSpent.hasOwnProperty(skillKey)) {
-          skillsSpent[skillKey] = 0;
-        }
-      }
-    }
-
-    const faithMax = Math.max(0, Number(system.faithFractures?.maximum) || 0);
-
-    // --- Echo reset -----------------------------------------------------------
-    const echo = system.echo || {};
-    const masteryRank = Math.max(1, Number(system?.mastery?.rank) || 1);
-    const echoUpdates: Record<string, unknown> = {};
-    let echoChanged = false;
-    if (echo && echo.key) {
-      echoUpdates['system.echo.cardUses'] = {};
-      echoUpdates['system.echo.traitUses'] = buildFreshTraitUses(
-        echo.key,
-        echo.subChoiceKey || null,
-        masteryRank
-      );
-      echoChanged = true;
-    }
-
-    // Players Guide ~6998+ Safe Haven Rest:
-    //  • All HP bars topped to max, including Incapacitated.
-    //  • All Stress bars cleared.
-    //  • All Scarred bars cleared.
-    //  • Mastery Charges reset to MR.
-    //  • Sealed / Lost / Bound stones release back to the Stone pool.
-    //  • Stone-Bound forms revert.
-    //  • Skills, Faith Fractures and Echo uses refresh.
-    const updates: Record<string, unknown> = {
-      'system.skillsSpent': skillsSpent,
-      ...(faithMax > 0 ? { 'system.faithFractures.current': faithMax } : {}),
-      ...echoUpdates,
-    };
-
-    // HP bars — restore every bar to its max (including Incapacitated which
-    // is a single box). Tempt-HP and Scarred slots are cleared too.
-    const hpBars = Array.isArray(system?.health?.bars) ? system.health.bars : [];
-    if (hpBars.length > 0) {
-      const restoredBars = hpBars.map((b: any) => ({ ...b, current: b.max }));
-      updates['system.health.bars'] = restoredBars;
-      updates['system.health.currentBar'] = 0;
-      updates['system.health.tempHP'] = 0;
-      // Scarred slots (when present) end at the same time.
-      updates['system.health.scarred'] = 0;
-    }
-
-    // Stress bars — Players Guide ~6493: a Safe Haven Rest fully clears
-    // both the active stress total and the scarred stress reservoir.
-    const stressBars = Array.isArray(system?.stress?.bars) ? system.stress.bars : [];
-    if (stressBars.length > 0) {
-      const restoredStress = stressBars.map((b: any) => ({ ...b, current: b.max }));
-      updates['system.stress.bars'] = restoredStress;
-      updates['system.stress.currentBar'] = 0;
-      updates['system.stress.scarred'] = 0;
-    }
-
-    // Mastery Charges — Players Guide rest chapter: reset to Mastery Rank.
-    if (system?.mastery && Object.prototype.hasOwnProperty.call(system.mastery, 'charges')) {
-      updates['system.mastery.charges'] = masteryRank;
-    }
-
-    // Sealed / Lost / Bound stones — Safe Haven Rest releases all of them.
-    if (system?.stones) {
-      if (Object.prototype.hasOwnProperty.call(system.stones, 'sealed')) {
-        updates['system.stones.sealed'] = 0;
-      }
-      if (Object.prototype.hasOwnProperty.call(system.stones, 'lost')) {
-        updates['system.stones.lost'] = 0;
-      }
-      if (Object.prototype.hasOwnProperty.call(system.stones, 'bound')) {
-        updates['system.stones.bound'] = 0;
-      }
-      if (Object.prototype.hasOwnProperty.call(system.stones, 'bondedFormActive')) {
-        updates['system.stones.bondedFormActive'] = false;
-      }
-    }
-
-    // Status effects — diminishing & timed effects all end on a long rest.
-    if (Array.isArray(system?.statusEffects) && system.statusEffects.length > 0) {
-      updates['system.statusEffects'] = [];
-    }
-
-    // Blood Raise HP loss flag — combat-specific; clear so future healing
-    // is not blocked by the leftover marker.
-    try {
-      if (this.actor.getFlag?.('mastery-system', 'bloodRaiseHpLostThisCombat') != null) {
-        await this.actor.unsetFlag?.('mastery-system', 'bloodRaiseHpLostThisCombat');
-      }
-      if (this.actor.getFlag?.('mastery-system', 'bloodRaiseHpLost') != null) {
-        await this.actor.unsetFlag?.('mastery-system', 'bloodRaiseHpLost');
-      }
-    } catch (err) {
-      console.warn('Mastery System | Safe Haven blood raise flag clear failed', err);
-    }
-
-    await this.actor.update(updates);
-    await beginMinorMagicRest(this.actor);
+    await applySafeHavenRest(this.actor);
     this.activeTab = 'minor-magic';
-    (ui as any).notifications?.info(
-      'Safe Haven Rest: HP, Stress, Scars, Stones, Mastery Charges, Skills, Reroll Points and Echo uses fully restored. You may create, replace, or dismiss Minor Magic Items.',
-    );
+    (ui as any).notifications?.info(SAFE_HAVEN_REST_INFO);
     this.render();
   }
 
@@ -5952,14 +5850,15 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         // Fallback: Create a simple dialog with the image
         const dialog = new Dialog({
           title: this.actor.name,
-          content: `<div style="text-align: center;"><img src="${imgSrc}" style="max-width: 100%; max-height: 80vh; height: auto; border-radius: 4px;" /></div>`,
+          content: `${buildImageUrlBarHtml(imgSrc)}<div style="text-align: center;"><img src="${imgSrc}" style="max-width: 100%; max-height: 80vh; height: auto; border-radius: 4px;" /></div>`,
           buttons: {
             close: {
               label: 'Close',
               callback: () => {}
             }
           },
-          default: 'close'
+          default: 'close',
+          render: (html: JQuery) => bindImageUrlBar(html[0] ?? html.get?.(0), imgSrc),
         } as any);
         await dialog.render(true);
       }
@@ -5970,14 +5869,15 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       try {
         const dialog = new Dialog({
           title: this.actor.name,
-          content: `<div style="text-align: center;"><img src="${imgSrc}" style="max-width: 100%; max-height: 80vh; height: auto; border-radius: 4px;" /></div>`,
+          content: `${buildImageUrlBarHtml(imgSrc)}<div style="text-align: center;"><img src="${imgSrc}" style="max-width: 100%; max-height: 80vh; height: auto; border-radius: 4px;" /></div>`,
           buttons: {
             close: {
               label: 'Close',
               callback: () => {}
             }
           },
-          default: 'close'
+          default: 'close',
+          render: (html: JQuery) => bindImageUrlBar(html[0] ?? html.get?.(0), imgSrc),
         } as any);
         await dialog.render(true);
       } catch (fallbackError) {

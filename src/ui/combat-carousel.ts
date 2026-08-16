@@ -364,8 +364,9 @@ export class CombatCarouselApp extends BaseCarousel {
     
     // Add body class when carousel is rendered
     document.body.classList.add('mastery-carousel-open');
-    // Register hooks for live updates (only once per render)
-    this.registerUpdateHooks();
+    if (this.hookEntries.length === 0) {
+      this.registerUpdateHooks();
+    }
 
     // Portrait click - pan to token; double-click - open actor sheet
     root.querySelectorAll('.carousel-portrait').forEach((portrait: HTMLElement) => {

@@ -61,6 +61,20 @@ export function resolveCalendarFlagDayIndex(
   return null;
 }
 
+/** True when a journal (or create/update payload) is a Tyhra day entry. */
+export function isCalendarJournalSource(source: unknown): boolean {
+  if (!source || typeof source !== 'object') return false;
+  const flags = (source as { flags?: Record<string, unknown> }).flags;
+  const scoped = flags?.[TYHRA_CALENDAR_FLAG_SCOPE];
+  if (scoped && typeof scoped === 'object' && (scoped as { calendar?: unknown }).calendar) {
+    return true;
+  }
+  if (typeof (source as JournalEntry).getFlag === 'function') {
+    return !!(source as JournalEntry).getFlag(TYHRA_CALENDAR_FLAG_SCOPE, 'calendar');
+  }
+  return false;
+}
+
 export function readCalendarFlag(entry: JournalEntry): TyhraCalendarJournalFlagData | null {
   const raw = entry.getFlag(TYHRA_CALENDAR_FLAG_SCOPE, 'calendar');
   if (!raw || typeof raw !== 'object') return null;
@@ -164,6 +178,36 @@ export async function ensureCalendarJournalFolder(year: number): Promise<Folder>
   return yearFolder;
 }
 
+function calendarJournalOwnership(): Record<string, number> {
+  const OWNER = (CONST as any).DOCUMENT_OWNERSHIP_LEVELS?.OWNER ?? 3;
+  const ownership: Record<string, number> = { default: OWNER };
+  for (const user of (game as any).users?.contents ?? []) {
+    ownership[user.id] = OWNER;
+  }
+  return ownership;
+}
+
+/** GM: give every player Owner on existing day journals so they can edit. */
+export async function grantPlayersCalendarJournalOwnership(): Promise<void> {
+  if (!game.user?.isGM) return;
+  const OWNER = (CONST as any).DOCUMENT_OWNERSHIP_LEVELS?.OWNER ?? 3;
+  for (const entry of (game as any).journal?.contents ?? []) {
+    if (!readCalendarFlag(entry as JournalEntry)) continue;
+    const current = ((entry as JournalEntry).ownership ?? {}) as Record<string, number>;
+    const next = calendarJournalOwnership();
+    const sameDefault = Number(current.default) === OWNER;
+    const sameUsers = ((game as any).users?.contents ?? []).every(
+      (user: any) => Number(current[user.id]) === OWNER,
+    );
+    if (sameDefault && sameUsers) continue;
+    try {
+      await (entry as JournalEntry).update({ ownership: next });
+    } catch (err) {
+      logWarn(`Could not grant player ownership on ${(entry as JournalEntry).name}`, err);
+    }
+  }
+}
+
 async function openJournalEntry(entry: JournalEntry): Promise<void> {
   if (entry.sheet?.rendered) {
     entry.sheet.bringToFront();
@@ -172,7 +216,8 @@ async function openJournalEntry(entry: JournalEntry): Promise<void> {
   await entry.sheet?.render(true);
 }
 
-export async function openDayJournal(
+/** Create the day journal if missing. Does not open the sheet. */
+export async function ensureDayJournal(
   input: TyhraDate | { dayIndex: number } | { year: number; dayOfYear: number },
 ): Promise<JournalEntry | null> {
   const date =
@@ -182,24 +227,22 @@ export async function openDayJournal(
         ? getDateFromDayIndex(getDayIndexFromDate(input))
         : input;
 
-  const journalKey = getJournalKey(date);
   const existing = findJournalForDate(date);
-  if (existing) {
-    await openJournalEntry(existing);
-    return existing;
-  }
+  if (existing) return existing;
 
   if (!canUserCreateDayJournals()) {
     ui.notifications?.warn(game.i18n.localize('MASTERY.calendar.noJournalExists'));
     return null;
   }
 
-  const inflight = journalCreationLocks.get(journalKey);
-  if (inflight) {
-    const created = await inflight;
-    if (created) await openJournalEntry(created);
-    return created;
+  if (!game.user?.isGM) {
+    const { requestGmCreateDayJournal } = await import('./tyhra-calendar-socket.js');
+    return requestGmCreateDayJournal(date.dayIndex);
   }
+
+  const journalKey = getJournalKey(date);
+  const inflight = journalCreationLocks.get(journalKey);
+  if (inflight) return inflight;
 
   const promise = (async () => {
     try {
@@ -210,23 +253,10 @@ export async function openDayJournal(
       const flagData = dateToJournalFlagData(date);
       const { pageTitle, html } = buildDayJournalPageContent(date);
 
-      const ownershipLevel = Number(
-        (game as any).settings.get('mastery-system', 'calendarJournalDefaultOwnership'),
-      );
-      const ownership: Record<string, number> = {};
-      if (game.user?.id) ownership[game.user.id] = (CONST as any).DOCUMENT_OWNERSHIP_LEVELS?.OWNER ?? 3;
-      for (const user of (game as any).users?.contents ?? []) {
-        if (user.isGM) {
-          ownership[user.id] = (CONST as any).DOCUMENT_OWNERSHIP_LEVELS?.OWNER ?? 3;
-        } else if (Number.isFinite(ownershipLevel)) {
-          ownership[user.id] = ownershipLevel;
-        }
-      }
-
       const entry = (await (JournalEntry as any).create({
         name: getDayJournalName(date),
         folder: folder.id,
-        ownership,
+        ownership: calendarJournalOwnership(),
         flags: {
           [TYHRA_CALENDAR_FLAG_SCOPE]: {
             calendar: flagData,
@@ -255,7 +285,13 @@ export async function openDayJournal(
   })();
 
   journalCreationLocks.set(journalKey, promise);
-  const entry = await promise;
+  return promise;
+}
+
+export async function openDayJournal(
+  input: TyhraDate | { dayIndex: number } | { year: number; dayOfYear: number },
+): Promise<JournalEntry | null> {
+  const entry = await ensureDayJournal(input);
   if (entry) await openJournalEntry(entry);
   return entry;
 }

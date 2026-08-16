@@ -49,6 +49,8 @@ import {
 } from './combat/phasing.js';
 import { registerStressBreakdownSettings } from './combat/stress-breakdown.js';
 import { initializeEncounterStart, beginEncounter } from './combat/encounter-start.js';
+import { registerEncounterSocket } from './combat/encounter-socket.js';
+import { canCurrentUserUpdateDocument } from './combat/combat-permissions.js';
 import { initializeSceneControls, initializeTokenHUDButton } from './ui/scene-controls-mastery.js';
 import { openStonePowersForAllCombatants, initializeStonePowersFlow } from './combat/stone-powers-flow.js';
 import { registerDivineClashSettings } from './divine-clash/divine-clash-settings.js';
@@ -56,6 +58,7 @@ import { registerEpicMasteryRollSettings } from './epic-roll/epic-mastery-roll-s
 import { initializeEpicMasteryRoll } from './epic-roll/register-epic-mastery-roll.js';
 import { initializeTyhraCalendar } from './calendar/tyhra-calendar-hooks.js';
 import { initializeProseMirrorFontColor } from './editor/prosemirror-font-color.js';
+import { registerImageUrlShareHooks } from './ui/image-url-share.js';
 import { requestEpicMasteryRoll } from './epic-roll/epic-mastery-roll-config-dialog.js';
 import { getActiveEpicMasteryRollSession } from './epic-roll/epic-mastery-roll-session.js';
 import { initializeDivineClashHooks } from './divine-clash/divine-clash-hooks.js';
@@ -71,6 +74,7 @@ import {
 } from './utils/item-icons.js';
 import { actorHasPostCreationSnapshot, resetActorProgressToPostCreation } from './utils/xp-post-creation.js';
 import { openXpHistoryDialog } from './utils/xp-history.js';
+import { confirmAndApplySafeHavenRestToAllCharacters } from './utils/safe-haven-rest.js';
 import { getPowerDefinitionRank } from './utils/power-definition-rank.js';
 import { applyMasteryStatusEffects } from './system/status-effects.js';
 import { registerTemplatesCutoverSetting, runTemplatesCutover } from './migrations/templates-cutover.js';
@@ -322,9 +326,11 @@ Hooks.once('init', async function() {
     }
     try {
       await PassiveSelectionDialog.showForCombat(combat);
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      const initRound = Math.max(1, combat.round ?? 1);
-      await openStonePowersForAllCombatants(combat, initRound);
+      if (game.user?.isGM) {
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        const initRound = Math.max(1, combat.round ?? 1);
+        await openStonePowersForAllCombatants(combat, initRound);
+      }
       CombatCarouselApp.open();
     } catch (error) {
       console.error('Mastery System | Error in combat start sequence', error);
@@ -745,6 +751,7 @@ Hooks.once('init', async function() {
   // stone hooks so the trigger effects are in place when stone-power flows
   // read actor state later in the same event tick.
   Hooks.on('combatStart', async (combat: Combat) => {
+    if (!game.user?.isGM) return;
     try {
       await applyPassiveTriggerToCombat('combatStart', combat);
     } catch (err) {
@@ -758,7 +765,7 @@ Hooks.once('init', async function() {
     try {
       const prevId = (combat as any)?.previous?.combatantId;
       const endingActor = prevId ? (combat as any)?.combatants?.get?.(prevId)?.actor : null;
-      if (endingActor) {
+      if (endingActor && canCurrentUserUpdateDocument(endingActor)) {
         const { processTurnEndMovement } = await import('./combat/movement-tracker.js');
         await processTurnEndMovement(endingActor);
       }
@@ -768,7 +775,7 @@ Hooks.once('init', async function() {
 
     const currentCombatant = (combat as any)?.combatant;
     const turnActor = currentCombatant?.actor;
-    if (!turnActor) return;
+    if (!turnActor || !canCurrentUserUpdateDocument(turnActor)) return;
     try {
       await applyPassiveTrigger(turnActor, 'turnStartSelf', combat);
     } catch (err) {
@@ -797,6 +804,7 @@ Hooks.once('init', async function() {
     }
   });
   Hooks.on('combatEnd', async (combat: Combat) => {
+    if (!game.user?.isGM) return;
     try {
       await clearTempHPSourcesForCombat(combat);
     } catch (err) {
@@ -872,9 +880,11 @@ Hooks.once('init', async function() {
   initializeStoneHooks();
   // Initialize encounter start system
   initializeEncounterStart();
+  registerEncounterSocket();
   initializeEpicMasteryRoll();
   initializeTyhraCalendar();
   initializeProseMirrorFontColor();
+  registerImageUrlShareHooks();
   // Initialize token action selector
   initializeTokenActionSelector();
 
@@ -1572,6 +1582,11 @@ function setupXpManagementInline() {
     htmlContent += `<button type="button" class="bulk-grant-free-btn" title="${freeHint}"><i class="fas fa-star"></i> Grant Free to All</button>`;
     htmlContent += `<p class="bulk-grant-help" title="${freeHint}">${freeHint}</p></div>`;
     htmlContent += '</div></div>';
+
+    htmlContent += '<div class="bulk-grant-section party-rest-section"><h4>Safe Haven Rest</h4>';
+    htmlContent += '<p class="hint">Same rest as the character-sheet button, for every player character at once.</p>';
+    htmlContent += '<button type="button" class="party-safe-haven-btn"><i class="fas fa-bed"></i> Safe Haven Rest — All Characters</button>';
+    htmlContent += '</div>';
     
     const colCharacter = i18n.localize('MASTERY.xp.colCharacter');
     const colSpent = i18n.localize('MASTERY.xp.colSpent');
@@ -2000,6 +2015,10 @@ function setupXpManagementInline() {
 
       ui.notifications?.info(`Granted ${amount} Free XP to ${updated} characters (frei verteilbar).`);
       app.render();
+    });
+
+    customContainer.find('.party-safe-haven-btn').on('click', async () => {
+      await confirmAndApplySafeHavenRestToAllCharacters();
     });
 
     // History button
@@ -2748,6 +2767,7 @@ Hooks.once('ready', async function () {
  * Ready hook - called when Foundry is fully loaded and ready
  */
 Hooks.once('ready', async function() {
+  registerEncounterSocket();
   // Log system version prominently
   const system = (game as any).system;
   try {

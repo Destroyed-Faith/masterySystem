@@ -55,7 +55,7 @@ export function listEpicRollCandidateActors(): Array<{
 }> {
   const actors = (game.actors?.contents ?? []) as Actor[];
   return actors
-    .filter((a: Actor) => a.type === 'character' || a.type === 'npc')
+    .filter((a: Actor) => a.type === 'character')
     .map((a: Actor) => {
       const actor = a as any;
       return {

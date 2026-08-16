@@ -312,6 +312,9 @@ export class InitiativeShopDialog extends BaseDialog {
         combatantId: this.combatant.id,
         finalInitiative: remainingInitiative
       });
+    } else {
+      const { handleInitiativeConfirmed } = await import('./encounter-start.js');
+      await handleInitiativeConfirmed(this.combat, this.combatant.id, remainingInitiative);
     }
 
     await this.combatant.unsetFlag('mastery-system', 'pendingInitiativeShop');

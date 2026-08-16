@@ -30,19 +30,6 @@ import { poolSpendableStones } from '../utils/artifact-actor-rules.js';
 import { countArtifactActivationStones } from '../utils/artifact-stone-bound.js';
 import { getArtifactStoneFunctionStatus } from '../utils/artifact-stone-functions.js';
 import { refreshRadialMenuActionLabelsIfOpenForActor } from '../token-radial-menu.js';
-import {
-  STONE_RITUALS_CATALOG,
-  type RitualCatalogEntry,
-  type RitualPoolAttr
-} from './rituals-catalog.js';
-import { deleteSummonActor } from './familiar-actor-factory.js';
-import {
-  dissolveSummonBond,
-  getSummonBondsFromActor,
-  tokensSummary,
-} from './summon-bond-bind.js';
-import { SummonBondDialog } from './summon-bond-dialog.js';
-import { summonTokensFromStones } from './summon-bond-rules.js';
 
 const STONE_DRAG_MIME = 'application/x-mastery-stone-attribute';
 const STONE_RETURN_MIME = 'application/x-mastery-stone-return-acc';
@@ -402,9 +389,6 @@ export class StonePowersDialog extends BaseDialog {
   private combatant: Combatant | null;
   private resolve?: (success: boolean) => void;
   private _generalAttrSelection: Record<string, string> = {}; // Track selected attribute per generic power
-  private _stonePowersMainTab: 'combat' | 'rituals' | 'summons' = 'combat';
-  /** Fixed-cost ritual slots: ritual id → placed stone attribute per slot (null = empty). */
-  private _ritualStonePlacements = new Map<string, (RitualPoolAttr | null)[]>();
   /** Belegte Lanes: Attribut-Macht `number[]`; General `GenericLaneOcc[]` unter `genericUnifiedAccKey`. */
   private _stoneDropAccumulators = new Map<string, StoneAccumulatorValue>();
   /** Lane des Steins bei Rückzug Pool←Feld (dragstart). */
@@ -457,95 +441,6 @@ export class StonePowersDialog extends BaseDialog {
         }
       }
     }
-  }
-
-  #ritualEnsureSlots(entry: RitualCatalogEntry): (RitualPoolAttr | null)[] {
-    this.#pullSessionPartialsIntoInstance();
-    let arr = this._ritualStonePlacements.get(entry.id);
-    if (!arr || arr.length !== entry.slots.length) {
-      arr = Array(entry.slots.length).fill(null) as (RitualPoolAttr | null)[];
-      this._ritualStonePlacements.set(entry.id, arr);
-    }
-    return arr;
-  }
-
-  /** Erstes erlaubtes Attribut mit mindestens einem freien Pool-Stein (Reihenfolge wie im Ritual-Katalog). */
-  #firstSpendableRitualAttr(allowed: RitualPoolAttr[]): RitualPoolAttr | null {
-    this.#pullSessionPartialsIntoInstance();
-    const poolKeys = getActorStonePoolKeysWithMax(this.actor);
-    for (const a of allowed) {
-      if (!poolKeys.has(a)) continue;
-      if (this.#spendableNetForAttr(a) >= 1) return a;
-    }
-    return null;
-  }
-
-  /** Leeres Ritual-Feld per Klick mit dem nächsten passenden Stein füllen (wie Drop, ohne Drag). */
-  async #autoFillRitualSlot(ritualId: string, slotIndex: number): Promise<void> {
-    this.#pullSessionPartialsIntoInstance();
-    const entry = STONE_RITUALS_CATALOG.find((r) => r.id === ritualId);
-    if (!entry || slotIndex < 0 || slotIndex >= entry.slots.length) return;
-    const placed = this.#ritualEnsureSlots(entry);
-    if (placed[slotIndex]) return;
-    const allowed = entry.slots[slotIndex].allow;
-    const pick = this.#firstSpendableRitualAttr(allowed);
-    if (!pick) {
-      ui.notifications?.warn('Kein freier Stein eines erlaubten Attributs.');
-      return;
-    }
-    placed[slotIndex] = pick;
-    await (this as any).render({ force: true });
-  }
-
-  /** Ritual-Feld leeren (Stein zurück logisch frei — wie Rückzug in den Pool). */
-  #clearRitualSlot(ritualId: string, slotIndex: number): void {
-    this.#pullSessionPartialsIntoInstance();
-    const entry = STONE_RITUALS_CATALOG.find((r) => r.id === ritualId);
-    if (!entry || slotIndex < 0 || slotIndex >= entry.slots.length) return;
-    const placed = this.#ritualEnsureSlots(entry);
-    if (!placed[slotIndex]) return;
-    placed[slotIndex] = null;
-  }
-
-  #bindSummonBondsTab(root: HTMLElement): void {
-    root.querySelector('.js-summon-bond-new')?.addEventListener('click', async (ev: Event) => {
-      ev.preventDefault();
-      await SummonBondDialog.showCreate(this.actor);
-      await (this as any).render({ force: true });
-    });
-
-    root.querySelectorAll('.js-summon-bond-ritual').forEach((btn) => {
-      (btn as HTMLElement).onclick = async (ev: MouseEvent) => {
-        ev.preventDefault();
-        const id = (btn as HTMLElement).dataset.bondId;
-        if (!id) return;
-        await SummonBondDialog.showRitual(this.actor, id);
-        await (this as any).render({ force: true });
-      };
-    });
-
-    root.querySelectorAll('.js-summon-bond-dissolve').forEach((btn) => {
-      (btn as HTMLElement).onclick = async (ev: MouseEvent) => {
-        ev.preventDefault();
-        const id = (btn as HTMLElement).dataset.bondId;
-        if (!id) return;
-        const bond = getSummonBondsFromActor(this.actor).find((b) => b.id === id);
-        if (!bond) return;
-        const confirmed =
-          typeof (globalThis as any).foundry?.applications?.api?.DialogV2?.confirm === 'function'
-            ? await (globalThis as any).foundry.applications.api.DialogV2.confirm({
-                window: { title: 'Dissolve Summon Bond' },
-                content: `<p>Dissolve this Summon Bond? Bound Stones return to the owner. Existing summon tokens will be removed. Body actors may be archived or deleted according to system settings.</p><p><strong>${bond.name}</strong></p>`,
-              })
-            : (globalThis as any).confirm?.(`Dissolve ${bond.name}?`);
-        if (!confirmed) return;
-        const res = await dissolveSummonBond(this.actor, id, deleteSummonActor);
-        if (res.removed) {
-          ui.notifications?.info(`Dissolved Summon Bond "${res.removed.name}".`);
-        }
-        await (this as any).render({ force: true });
-      };
-    });
   }
 
   async _prepareContext(_options: any): Promise<any> {
@@ -625,54 +520,8 @@ export class StonePowersDialog extends BaseDialog {
     const hasCombat = combatActive && !!this.combatant;
     const stonePlanLocked = !!(combat && this.combatant && isStonePowersConfigurationLocked(this.actor, combat));
 
-    const mainTab = this._stonePowersMainTab;
-    const showStonePools = mainTab === 'combat' || mainTab === 'rituals' || mainTab === 'summons';
-    const dragPoolEnabled =
-      mainTab === 'rituals' || (mainTab === 'combat' && !stonePlanLocked);
-    const ritualDragEnabled = mainTab === 'rituals';
-    const tabCombatActive = mainTab === 'combat';
-    const tabRitualsActive = mainTab === 'rituals';
-    const tabSummonsActive = mainTab === 'summons';
-
-    const ritualRows = STONE_RITUALS_CATALOG.map((entry) => {
-      const placed = this.#ritualEnsureSlots(entry);
-      const slotsUi = entry.slots.map((rule, idx) => {
-        const p = placed[idx];
-        if (p) {
-          const style = getStoneGemStyle(p) ?? { fill: '#888888', stroke: '#aaaaaa' };
-          return {
-            slotIndex: idx,
-            state: 'filled' as const,
-            allowedCsv: rule.allow.join(','),
-            placedKey: p,
-            gemStyle: style,
-            allowTitle: rule.allow.join(' or ')
-          };
-        }
-        const canAny = rule.allow.some((a) => this.#spendableNetForAttr(a) >= 1);
-        const state: 'active' | 'locked' = ritualDragEnabled && canAny ? 'active' : 'locked';
-        return {
-          slotIndex: idx,
-          state,
-          allowedCsv: rule.allow.join(','),
-          placedKey: null as RitualPoolAttr | null,
-          gemStyle: null as { fill: string; stroke: string } | null,
-          allowTitle: rule.allow.join(' or ')
-        };
-      });
-      return {
-        id: entry.id,
-        name: entry.name,
-        roll: entry.roll,
-        duration: entry.duration,
-        requirement: entry.requirement,
-        intro: entry.intro,
-        raises: entry.raises,
-        danger: entry.danger,
-        lore: entry.lore,
-        slotsUi
-      };
-    });
+    const showStonePools = true;
+    const dragPoolEnabled = !stonePlanLocked;
     const prefsUseDefaults = !!(system.stonePowersPrefs?.useDefaultsEachRound);
     const user = game.user;
     const canSavePrefs =
@@ -871,23 +720,6 @@ export class StonePowersDialog extends BaseDialog {
 
     const spendableNetAllPoolsCached = totalSpendableNetAllPools();
 
-    const summonBonds = getSummonBondsFromActor(this.actor).map((b) => {
-      const tok = tokensSummary(b);
-      return {
-        id: b.id,
-        name: b.name,
-        movementMode: b.movementMode,
-        movementM: b.movementM,
-        boundStoneCount: b.boundStoneCount,
-        tokensAvailable: tok.available,
-        tokensRemaining: tok.remaining,
-        bodyCount: b.bodies?.length ?? 1,
-        needsRedistribution: !!b.needsRedistribution,
-        hasActor: (b.bodies || []).some((body) => !!body.summonActorId),
-        tokenPreview: summonTokensFromStones(b.boundStoneCount, b.bonusTokens),
-      };
-    });
-
     return {
       actor: this.actor,
       pools,
@@ -902,14 +734,7 @@ export class StonePowersDialog extends BaseDialog {
       /** Ziehen erlaubt sobald Runde nicht gesperrt (auch ohne Kampf — Ausführung nur im Kampf). */
       dragStonesEnabled: !stonePlanLocked,
       dragPoolEnabled,
-      ritualDragEnabled,
-      stonePowersMainTab: mainTab,
       showStonePools,
-      tabCombatActive,
-      tabRitualsActive,
-      tabSummonsActive,
-      ritualRows,
-      summonBonds,
       prefsUseDefaults,
       canSavePrefs,
       showCombatRoundPlanSave,
@@ -941,25 +766,6 @@ export class StonePowersDialog extends BaseDialog {
     this.#bindStoneDragAndDrop(root, appWindow);
     this.#reconcileFilledLaneClasses(appWindow);
     this.#syncAccumulatorGems(appWindow);
-    root.querySelectorAll('.js-stone-powers-tab').forEach((btn) => {
-      const el = btn as HTMLElement;
-      el.onclick = (ev: MouseEvent) => {
-        ev.preventDefault();
-        const tab = el.dataset.tab as 'combat' | 'rituals' | 'summons' | undefined;
-        if (!tab || tab === this._stonePowersMainTab) return;
-        this._stonePowersMainTab = tab;
-        void (this as any).render({ force: true });
-      };
-    });
-
-    this.#bindSummonBondsTab(root);
-    root.querySelector('.js-open-ritual-workshop')?.addEventListener('click', async (ev: Event) => {
-      ev.preventDefault();
-      const { showRitualWorkshopOnSheet } = await import('./ritual-workshop-dialog.js');
-      await showRitualWorkshopOnSheet(this.actor);
-      await (this as any).close?.();
-    });
-
     const savePrefsBtn = root.querySelector('.js-save-stone-prefs') as HTMLElement | null;
     if (savePrefsBtn) {
       savePrefsBtn.onclick = async (ev: MouseEvent) => {
@@ -1215,11 +1021,6 @@ export class StonePowersDialog extends BaseDialog {
         }
       } else if (this.#parseAccKeyPayAttr(accKey) === attr) {
         sum += (val as number[]).length;
-      }
-    }
-    for (const slots of this._ritualStonePlacements.values()) {
-      for (const a of slots) {
-        if (a === attr) sum += 1;
       }
     }
     return sum;
@@ -1503,8 +1304,7 @@ export class StonePowersDialog extends BaseDialog {
     const combat = game.combat;
     const canExecute = !!combat && !!this.combatant;
     const locked = !!(combat && this.combatant && isStonePowersConfigurationLocked(this.actor, combat));
-    const mainTab = this._stonePowersMainTab;
-    const allowDrag = mainTab === 'rituals' || (mainTab === 'combat' && !locked);
+    const allowDrag = !locked;
     const poolKeys = getActorStonePoolKeysWithMax(this.actor);
     let lastDragOverLogKey = '';
 
@@ -1514,7 +1314,7 @@ export class StonePowersDialog extends BaseDialog {
 
     const clearDragOver = () => {
       clearPoolReturnHighlight();
-      bindTarget.querySelectorAll('.ms-stone-drop-slot.is-drag-over, .ms-ritual-drop-slot.is-drag-over').forEach((n) => {
+      bindTarget.querySelectorAll('.ms-stone-drop-slot.is-drag-over').forEach((n) => {
         clearStoneSlotDragOverVisual(n as HTMLElement);
       });
     };
@@ -1652,26 +1452,6 @@ export class StonePowersDialog extends BaseDialog {
         if (!payAttr || poolAttr !== payAttr) {
           return;
         }
-        if (accKeyReturn.startsWith('ritual-slot:')) {
-          const m = /^ritual-slot:([^:]+):(\d+)$/.exec(accKeyReturn);
-          if (!m) {
-            return;
-          }
-          const ritualId = m[1];
-          const slotIndex = Number(m[2]);
-          const entry = STONE_RITUALS_CATALOG.find((r) => r.id === ritualId);
-          if (!entry || !Number.isFinite(slotIndex) || slotIndex < 0 || slotIndex >= entry.slots.length) {
-            return;
-          }
-          const placed = this.#ritualEnsureSlots(entry);
-          const stone = placed[slotIndex];
-          if (!stone || stone !== payAttr) {
-            return;
-          }
-          placed[slotIndex] = null;
-          await (this as any).render({ force: true });
-          return;
-        }
         const laneRm = this._stoneReturnLane;
         if (isGenericUnifiedAccKey(accKeyReturn)) {
           const raw = this.#stoneOccGetRaw(accKeyReturn) as GenericLaneOcc[];
@@ -1713,48 +1493,6 @@ export class StonePowersDialog extends BaseDialog {
       }
       ev.preventDefault();
       clearDragOver();
-
-      const ritualIdDrop = slot.dataset.ritualId;
-      if (ritualIdDrop) {
-        if (!slot.classList.contains('slot-active')) {
-          ui.notifications?.warn(
-            'Dieses Ritual-Feld ist nicht verfügbar (kein passender Stein im Pool oder Feld schon belegt).'
-          );
-          return;
-        }
-        const idxR =
-          slot.dataset.ritualSlotIndex !== undefined && slot.dataset.ritualSlotIndex !== ''
-            ? Number(slot.dataset.ritualSlotIndex)
-            : NaN;
-        const draggedR =
-          this._stoneDragAttribute ||
-          ev.dataTransfer?.getData(STONE_DRAG_MIME) ||
-          ev.dataTransfer?.getData('text/plain') ||
-          msLastDraggedStoneAttribute ||
-          '';
-        const entryDrop = STONE_RITUALS_CATALOG.find((r) => r.id === ritualIdDrop);
-        if (!entryDrop || !Number.isFinite(idxR) || idxR < 0 || idxR >= entryDrop.slots.length) {
-          return;
-        }
-        const ruleDrop = entryDrop.slots[idxR];
-        if (!draggedR || !ruleDrop.allow.includes(draggedR as RitualPoolAttr)) {
-          ui.notifications?.warn('Falscher Stein — Attribut passt nicht zu diesem Ritual-Feld.');
-          return;
-        }
-        if (!poolKeys.has(draggedR)) {
-          ui.notifications?.warn('Dieser Stein gehört zu keinem Pool auf diesem Bogen.');
-          return;
-        }
-        const placedDrop = this.#ritualEnsureSlots(entryDrop);
-        if (placedDrop[idxR]) return;
-        if (this.#spendableNetForAttr(draggedR) < 1) {
-          ui.notifications?.warn('Kein freier Stein dieses Attributs im Pool.');
-          return;
-        }
-        placedDrop[idxR] = draggedR as RitualPoolAttr;
-        await (this as any).render({ force: true });
-        return;
-      }
 
       if (locked) {
         ui.notifications?.warn('Diese Runde ist für Stonepowers gesperrt.');
@@ -1914,25 +1652,6 @@ export class StonePowersDialog extends BaseDialog {
       return { powerId, isGeneric, fixedPayAttr };
     };
 
-    /** Linksklick auf grünes Ritual-Feld: ersten passenden Stein automatisch legen. */
-    const onRitualSlotClick = async (ev: MouseEvent) => {
-      if (ev.button !== 0) return;
-      if (!allowDrag) return;
-      if (this._stonePowersMainTab !== 'rituals') return;
-      const t = ev.target as HTMLElement;
-      if (t.closest('.js-stone-draggable') || t.closest('.js-stone-returnable')) return;
-      if (t.closest('button, a, input, select, textarea, label')) return;
-      const slot = t.closest('.ms-ritual-drop-slot.slot-active') as HTMLElement | null;
-      if (!slot || !bindTarget.contains(slot)) return;
-      ev.preventDefault();
-      ev.stopImmediatePropagation();
-      const ritualId = slot.dataset.ritualId || '';
-      const idxRaw = slot.dataset.ritualSlotIndex;
-      const slotIndex = idxRaw !== undefined && idxRaw !== '' ? Number(idxRaw) : NaN;
-      if (!ritualId || !Number.isFinite(slotIndex)) return;
-      await this.#autoFillRitualSlot(ritualId, slotIndex);
-    };
-
     /** Linksklick auf ganze Power-Karte (inkl. Titel): Slots aus Pools füllen. */
     const onPowerCardClick = async (ev: MouseEvent) => {
       if (ev.button !== 0) return;
@@ -1950,28 +1669,10 @@ export class StonePowersDialog extends BaseDialog {
       await (this as any).render({ force: true });
     };
 
-    /** Rechtsklick: Ritual-Feld leeren (Stein freigeben) oder Kampf-Macht leeren. */
+    /** Rechtsklick: Kampf-Macht leeren. */
     const onPowerCardContextMenu = async (ev: MouseEvent) => {
       if (!allowDrag || locked) return;
       const t = ev.target as HTMLElement;
-
-      if (this._stonePowersMainTab === 'rituals') {
-        const rSlot = t.closest('.ms-ritual-drop-slot.slot-filled') as HTMLElement | null;
-        if (rSlot && bindTarget.contains(rSlot)) {
-          ev.preventDefault();
-          ev.stopPropagation();
-          const ritualId = rSlot.dataset.ritualId || '';
-          const idxRaw = rSlot.dataset.ritualSlotIndex;
-          const slotIndex = idxRaw !== undefined && idxRaw !== '' ? Number(idxRaw) : NaN;
-          if (ritualId && Number.isFinite(slotIndex)) {
-            this.#clearRitualSlot(ritualId, slotIndex);
-            this.#reconcileFilledLaneClasses(bindTarget);
-            this.#syncAccumulatorGems(bindTarget);
-            await (this as any).render({ force: true });
-          }
-          return;
-        }
-      }
 
       if (t.closest('.js-stone-draggable') || t.closest('.js-stone-returnable')) return;
 
@@ -1992,7 +1693,6 @@ export class StonePowersDialog extends BaseDialog {
     bindTarget.addEventListener('dragover', onBindDragOver, useCapture);
     bindTarget.addEventListener('dragleave', onBindDragLeave);
     bindTarget.addEventListener('drop', onBindDrop, useCapture);
-    bindTarget.addEventListener('click', onRitualSlotClick);
     bindTarget.addEventListener('click', onPowerCardClick);
     bindTarget.addEventListener('contextmenu', onPowerCardContextMenu);
 
@@ -2002,7 +1702,6 @@ export class StonePowersDialog extends BaseDialog {
       bindTarget.removeEventListener('dragover', onBindDragOver, useCapture);
       bindTarget.removeEventListener('dragleave', onBindDragLeave);
       bindTarget.removeEventListener('drop', onBindDrop, useCapture);
-      bindTarget.removeEventListener('click', onRitualSlotClick);
       bindTarget.removeEventListener('click', onPowerCardClick);
       bindTarget.removeEventListener('contextmenu', onPowerCardContextMenu);
     };

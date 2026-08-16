@@ -30,6 +30,7 @@ import {
   splitNpcInitiativeModifier,
 } from '../utils/npc-initiative.js';
 import { openNpcPrintSheet } from './npc-print.js';
+import { copyDocumentImageLink } from '../ui/image-url-share.js';
 import { creatureTypeSelectOptions } from '../utils/creature-type.js';
 
 /** Attach Ini malus/bonus split fields for the sheet dropdowns. */
@@ -260,11 +261,19 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
           label: 'Bogen drucken',
           action: 'msNpcPrintSheet',
         },
+        {
+          icon: 'fas fa-link',
+          label: 'MASTERY.image.copyLink',
+          action: 'msCopyPictureLink',
+        },
       ],
     },
     actions: {
       msNpcPrintSheet: function (this: any) {
         void openNpcPrintSheet(this.actor);
+      },
+      msCopyPictureLink: function (this: any) {
+        void copyDocumentImageLink(this.actor);
       },
     },
   };

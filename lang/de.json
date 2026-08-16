@@ -19,6 +19,12 @@
       "health": "Gesundheit",
       "stress": "Stress"
     },
+    "image": {
+      "copyLink": "Bild-Link kopieren",
+      "linkCopied": "Bild-Link kopiert",
+      "noImage": "Kein Bild zum Kopieren",
+      "urlLabel": "Bild-URL"
+    },
     "ui": {
       "addSkill": "Fertigkeit hinzufügen",
       "deleteSkill": "Fertigkeit löschen",
@@ -154,6 +160,8 @@
       "year": "Jahr",
       "disabled": "Der Tyhra-Kalender ist in den Welteinstellungen deaktiviert.",
       "noPermission": "Keine Berechtigung, den Kalender zu öffnen.",
+      "noDatePermission": "Nur der SL kann das Weltdatum ändern.",
+      "needGmToCreate": "Ein SL muss verbunden sein, um ein Tagesjournal anzulegen.",
       "actionFailed": "Kalenderaktion fehlgeschlagen. Details in der Konsole.",
       "settings": {
         "enabled": {
@@ -179,15 +187,15 @@
         },
         "playersCanOpen": {
           "name": "Spieler dürfen Kalender öffnen",
-          "hint": "Nicht-SL-Nutzer dürfen das Kalenderfenster öffnen."
+          "hint": "Spieler können den Tyhra-Kalender immer öffnen."
         },
         "playersCanCreate": {
           "name": "Spieler dürfen Tagesjournale erstellen",
-          "hint": "Nicht-SL-Nutzer dürfen fehlende Tagesjournale per Klick anlegen."
+          "hint": "Spieler können Tagesjournale anlegen und bearbeiten. Fehlt die Foundry-Rechte, legt ein verbundener SL den Eintrag an."
         },
         "journalDefaultOwnership": {
           "name": "Standard-Spielerrechte für Tagesjournale",
-          "hint": "Standard-Berechtigung für Spieler auf neu erstellten Tagesjournalen."
+          "hint": "Neue Tagesjournale gehören allen Spielern, damit sie bearbeitet werden können."
         }
       }
     },

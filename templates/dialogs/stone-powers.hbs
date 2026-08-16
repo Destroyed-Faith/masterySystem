@@ -19,12 +19,6 @@
   </div>
   {{/if}}
 
-  <nav class="stone-powers-tabs-nav" role="tablist" aria-label="Stone Powers Bereiche">
-    <button type="button" role="tab" class="stone-powers-tab js-stone-powers-tab{{#if tabCombatActive}} is-active{{/if}}" data-tab="combat" aria-selected="{{#if tabCombatActive}}true{{else}}false{{/if}}">Combat</button>
-    <button type="button" role="tab" class="stone-powers-tab js-stone-powers-tab{{#if tabRitualsActive}} is-active{{/if}}" data-tab="rituals" aria-selected="{{#if tabRitualsActive}}true{{else}}false{{/if}}">Rituals</button>
-    <button type="button" role="tab" class="stone-powers-tab js-stone-powers-tab{{#if tabSummonsActive}} is-active{{/if}}" data-tab="summons" aria-selected="{{#if tabSummonsActive}}true{{else}}false{{/if}}">Summons</button>
-  </nav>
-
   {{#if showStonePools}}
   <div class="stone-pools-display">
     <div class="stone-pools-header-row">
@@ -70,7 +64,6 @@
   </div>
   {{/if}}
 
-  {{#if tabCombatActive}}
   <div class="powers-list">
     <div class="powers-matrix" role="region" aria-label="Stone powers matrix">
     {{#if generalPowers.length}}
@@ -202,54 +195,6 @@
     {{/each}}
     </div>
   </div>
-  {{/if}}
-
-  {{#if tabRitualsActive}}
-  <div class="stone-rituals-pane" role="tabpanel">
-    <section class="stone-rituals-intro" aria-label="Ritual workshop">
-      <p class="stone-rituals-lead">Rituals live on the character sheet <strong>Rituals</strong> tab (under Summons). Place Stones first, then roll.</p>
-      <button type="button" class="js-open-ritual-workshop dialog-btn dialog-btn-primary">
-        <i class="fas fa-book-sparkles"></i> Open Rituals Tab
-      </button>
-    </section>
-  </div>
-  {{/if}}
-
-  {{#if tabSummonsActive}}
-  <div class="stone-summons-pane" role="tabpanel" aria-label="Summon Bonds">
-    <section class="stone-summons-intro">
-      <p><strong>Summons V2</strong> — Also available on the character sheet under the <strong>Summons</strong> bookmark (next to Disadvantages). Each Bound Stone grants <strong>8 Summon Tokens</strong>.</p>
-      <p class="stone-summons-hint">Artifact Summon Stones grant <strong>+4 bonus Tokens</strong> to an existing Bond (they are not Bound Stones and cannot create a Bond). Bond Ritual: 1 hour. Movement is a Bond upgrade (Flying base 4 m; Walking/Swimming base 8 m).</p>
-    </section>
-
-    <section class="stone-familiar-list-section">
-      <div class="stone-familiar-list-header">
-        <h4 class="stone-summons-subtitle">Summon Bonds</h4>
-        <button type="button" class="js-summon-bond-new dialog-btn dialog-btn-primary">+ New Summon Bond</button>
-      </div>
-      {{#if summonBonds.length}}
-      <ul class="stone-familiar-list">
-        {{#each summonBonds}}
-        <li class="stone-familiar-list-item" data-bond-id="{{this.id}}">
-          <div class="stone-familiar-list-main">
-            <strong>{{this.name}}</strong>
-            <span class="stone-familiar-list-meta">{{this.movementMode}} {{this.movementM}} m · {{this.boundStoneCount}} stones · {{this.tokensAvailable}} Tokens ({{this.tokensRemaining}} left) · {{this.bodyCount}} bodies</span>
-            {{#if this.needsRedistribution}}<span class="stone-familiar-badge">Needs redistrib</span>{{/if}}
-            {{#if this.hasActor}}<span class="stone-familiar-badge">Actor ready</span>{{/if}}
-          </div>
-          <div class="stone-familiar-list-actions">
-            <button type="button" class="js-summon-bond-ritual dialog-btn dialog-btn-primary" data-bond-id="{{this.id}}">Bond Ritual</button>
-            <button type="button" class="js-summon-bond-dissolve dialog-btn dialog-btn-secondary" data-bond-id="{{this.id}}">Dissolve</button>
-          </div>
-        </li>
-        {{/each}}
-      </ul>
-      {{else}}
-      <p class="stone-familiar-empty">No Summon Bonds yet. Create one to bind Stones and open the Bond Ritual token shop.</p>
-      {{/if}}
-    </section>
-  </div>
-  {{/if}}
 
   {{#unless combatStarted}}
   <p class="stone-powers-close-hint">Voll bezahlte Stein-Wellen werden beim <strong>Übernehmen &amp; schließen</strong> abgerechnet (Pools, Kampf-Rundenstatus). Unvollständige Wellen bleiben bis zur nächsten vollen Welle offen.</p>

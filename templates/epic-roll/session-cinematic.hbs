@@ -63,8 +63,9 @@
           <div class="emr-roll-result emr-roll-result-skipped">Skipped</div>
           {{/if}}
 
-          {{#if p.showSkillSpend}}
+          {{#if p.showFailureActions}}
           <div class="emr-skill-spend">
+            {{#if p.showSkillSpend}}
             <div class="emr-skill-packets" role="group" aria-label="Spend skill points by Mastery Rank packet">
               {{#each p.skillPackets as |pkt|}}
               <button
@@ -83,6 +84,12 @@
             <button type="button" class="emr-add-skill-btn" data-action="emr-add-skill" data-actor-id="{{p.actorId}}" {{#unless p.canAddSkillPoints}}disabled{{/unless}}>
               Add Skill Points
             </button>
+            {{/if}}
+            {{#if p.showReroll}}
+            <button type="button" class="emr-reroll-btn" data-action="emr-reroll" data-actor-id="{{p.actorId}}" title="Spend 1 Reroll Point to reroll all dice once" {{#if ../rolling}}disabled{{/if}}>
+              <i class="fas fa-sync-alt"></i> Reroll (1 Reroll Point)
+            </button>
+            {{/if}}
             <button type="button" class="emr-keep-roll-btn" data-action="emr-confirm" data-actor-id="{{p.actorId}}">Keep Roll</button>
           </div>
           {{/if}}
@@ -109,9 +116,10 @@
 
           {{#if p.showFinalMeta}}
           <div class="emr-roll-final-meta">
-            {{#if p.result.skillSpent}}+{{p.result.skillSpent}} skill spent{{/if}}
+            {{#if p.result.rerolled}}Rerolled{{/if}}
+            {{#if p.result.skillSpent}}{{#if p.result.rerolled}} · {{/if}}+{{p.result.skillSpent}} skill spent{{/if}}
             {{#if p.echoCardUsed}}
-            {{#if p.result.skillSpent}} · {{/if}}Echo: {{p.echoCardUsed.cardName}}
+            {{#if p.result.skillSpent}} · {{else if p.result.rerolled}} · {{/if}}Echo: {{p.echoCardUsed.cardName}}
             {{/if}}
           </div>
           {{/if}}

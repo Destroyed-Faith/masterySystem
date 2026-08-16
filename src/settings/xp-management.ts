@@ -5,6 +5,7 @@
 
 import { actorHasPostCreationSnapshot, resetActorProgressToPostCreation } from '../utils/xp-post-creation.js';
 import { openXpHistoryDialog } from '../utils/xp-history.js';
+import { confirmAndApplySafeHavenRestToAllCharacters } from '../utils/safe-haven-rest.js';
 
 // Use ApplicationV2 with HandlebarsApplicationMixin if available, otherwise fall back to Application
 let BaseApplication: any;
@@ -359,6 +360,10 @@ export class XpManagementSettings extends BaseApplication {
       ui.notifications?.info(`Granted ${amount} Free XP to ${updated} characters.`);
 
       this.render();
+    });
+
+    html.find('.party-safe-haven-btn').on('click', async () => {
+      await confirmAndApplySafeHavenRestToAllCharacters();
     });
 
     // History button

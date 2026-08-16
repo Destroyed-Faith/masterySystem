@@ -109,3 +109,27 @@ describe('Tyhra calendar — conversions', () => {
     expect(dayIndexFromParts(0, 360) + 1).toBe(dayIndexFromParts(1, 1));
   });
 });
+
+describe('Tyhra calendar — player access', () => {
+  it('lets players open the calendar and create or edit day journals', async () => {
+    const { canUserOpenCalendar, canUserCreateDayJournals, canUserEditDayJournals } = await import(
+      '../src/calendar/tyhra-calendar-settings.js'
+    );
+    expect(canUserOpenCalendar({ isGM: true })).toBe(true);
+    expect(canUserCreateDayJournals({ isGM: true })).toBe(true);
+    expect(canUserEditDayJournals({ isGM: true })).toBe(true);
+    expect(canUserOpenCalendar({ isGM: false })).toBe(true);
+    expect(canUserCreateDayJournals({ isGM: false })).toBe(true);
+    expect(canUserEditDayJournals({ isGM: false })).toBe(true);
+    expect(canUserOpenCalendar(null as any)).toBe(false);
+  });
+
+  it('detects calendar journal payloads from flags', async () => {
+    const { isCalendarJournalSource } = await import('../src/calendar/tyhra-calendar-journal-service.js');
+    expect(isCalendarJournalSource({ flags: { 'mastery-system': { calendar: { journalKey: 'tyhra:1' } } } })).toBe(
+      true,
+    );
+    expect(isCalendarJournalSource({ flags: { 'mastery-system': {} } })).toBe(false);
+    expect(isCalendarJournalSource({ name: 'Notes' })).toBe(false);
+  });
+});

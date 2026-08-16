@@ -17,6 +17,7 @@ import {
 import { clearMasteryActiveBuffsForCombatants } from '../utils/active-buffs.js';
 import { runMasteryCombatRoundAdvancePipeline } from '../combat/stone-powers-flow.js';
 import { endMinorMagicRestForCombat } from '../utils/minor-magic-items.js';
+import { canCurrentUserUpdateDocument } from '../combat/combat-permissions.js';
 
 /**
  * Initialize stone system hooks
@@ -24,6 +25,7 @@ import { endMinorMagicRestForCombat } from '../utils/minor-magic-items.js';
 export function initializeStoneHooks(): void {
   // Hook: Combat started - initialize round state
   Hooks.on('combatStart', async (combat: Combat) => {
+    if (!game.user?.isGM) return;
     await initializeCombatRoundState(combat);
     try {
       await endMinorMagicRestForCombat(combat);
@@ -42,7 +44,7 @@ export function initializeStoneHooks(): void {
       const prevIdx = (combat.turn - 1 + len) % len;
       const prevCombatant = turns[prevIdx];
       const prevActor = prevCombatant?.actor;
-      if (prevActor) {
+      if (prevActor && canCurrentUserUpdateDocument(prevActor)) {
         try {
           await clearCombatStoneTurnBonusesForActor(prevActor, combat);
         } catch (e) {
@@ -54,7 +56,7 @@ export function initializeStoneHooks(): void {
     if (changes.turn !== undefined) {
       const currentCombatant = combat.combatant;
 
-      if (currentCombatant && currentCombatant.actor) {
+      if (currentCombatant && currentCombatant.actor && canCurrentUserUpdateDocument(currentCombatant.actor)) {
         await resetTurnState(currentCombatant.actor, combat);
       }
     }
@@ -68,6 +70,7 @@ export function initializeStoneHooks(): void {
   
   // Hook: Combat ended - restore stone pools to full
   Hooks.on('deleteCombat', async (combat: Combat, _options: any, _userId: string) => {
+    if (!game.user?.isGM) return;
     await clearStonePowersConfigurationLocksInCombat(combat);
     try {
       await clearMasteryActiveBuffsForCombatants(combat);
@@ -79,6 +82,7 @@ export function initializeStoneHooks(): void {
   
   // Also trigger on explicit combatEnd
   Hooks.on('combatEnd', async (combat: Combat) => {
+    if (!game.user?.isGM) return;
     await clearStonePowersConfigurationLocksInCombat(combat);
     try {
       await clearMasteryActiveBuffsForCombatants(combat);

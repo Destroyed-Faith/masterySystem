@@ -19,6 +19,12 @@
       "health": "Health",
       "stress": "Stress"
     },
+    "image": {
+      "copyLink": "Copy picture link",
+      "linkCopied": "Picture link copied",
+      "noImage": "No image to copy",
+      "urlLabel": "Picture URL"
+    },
     "ui": {
       "addSkill": "Add Skill",
       "deleteSkill": "Delete Skill",
@@ -154,6 +160,8 @@
       "year": "Year",
       "disabled": "The Tyhra calendar is disabled in world settings.",
       "noPermission": "You do not have permission to open the calendar.",
+      "noDatePermission": "Only the GM can change the world date.",
+      "needGmToCreate": "A GM must be connected to create a day journal.",
       "actionFailed": "Calendar action failed. See the console for details.",
       "settings": {
         "enabled": {
@@ -179,15 +187,15 @@
         },
         "playersCanOpen": {
           "name": "Players Can Open Calendar",
-          "hint": "Allow non-GM users to open the Tyhra calendar window."
+          "hint": "Players can always open the Tyhra calendar."
         },
         "playersCanCreate": {
           "name": "Players Can Create Day Journals",
-          "hint": "Allow non-GM users to create missing day journals when clicking a day."
+          "hint": "Players can create and edit day journals. If Foundry blocks journal creation, a connected GM creates the entry."
         },
         "journalDefaultOwnership": {
           "name": "Day Journal Default Player Ownership",
-          "hint": "Default permission level for players on newly created day journals."
+          "hint": "New day journals are owned by all players so they can edit them."
         }
       }
     },

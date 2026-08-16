@@ -1012,6 +1012,15 @@ export async function refillStonePoolsFromAttributes(actor: Actor): Promise<void
     }
   }
   if (Object.keys(updates).length > 0) {
+    const user = typeof game !== 'undefined' ? game.user : null;
+    if (
+      user &&
+      !user.isGM &&
+      typeof (owner as any).canUserModify === 'function' &&
+      !(owner as any).canUserModify(user, 'update')
+    ) {
+      return;
+    }
     await owner.update(updates);
   }
 }

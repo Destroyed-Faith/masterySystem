@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.345] - 2026-08-16
+
+### Fixed
+
+- **Combat start:** Select Passives, Stone Powers, and Initiative Shop open on the owning player, not only the GM. Players no longer try to update NPCs or combat flags they cannot write.
+- **Epic Roll:** A failed check can spend 1 Reroll Point once, including attribute fails with no skill spend.
+
+### Added
+
+- **Images:** Opened pictures show a copyable URL. The three-dot menu has Copy picture link on image popouts and actor sheets.
+- **Safe Haven Rest:** GM button on XP Management and the Mastery scene toolbar rests every character (HP, Stress, Scars, Stones, charges, skills, Reroll Points, Echo uses).
+
+### Changed
+
+- **Calendar:** Players can open the calendar and create or edit day journals. World date stays GM-only.
+- **Stone Powers:** Rituals and Summons tabs are gone; those live on the character sheet.
+- **Epic Roll:** The participant picker lists characters only, not NPCs.
+
 ## [0.9.344] - 2026-08-16
 
 ### Fixed

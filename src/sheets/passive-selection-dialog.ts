@@ -16,6 +16,7 @@ import {
   slotPassive,
   unslotPassive
 } from '../powers/passives.js';
+import { shouldShowEncounterDialogLocally } from '../combat/combat-permissions.js';
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
 // Type workaround for Mixin
@@ -81,7 +82,7 @@ export class PassiveSelectionDialog extends BaseDialog {
     }
 
     const pcs = combat.combatants.filter((c: Combatant) =>
-      c.actor?.type === 'character' && (user.isGM || c.actor?.isOwner)
+      c.actor?.type === 'character' && shouldShowEncounterDialogLocally(c.actor)
     );
 
     if (pcs.length === 0) {

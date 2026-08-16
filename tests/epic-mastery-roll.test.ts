@@ -19,6 +19,11 @@ import {
   getEpicEchoCardOffers,
 } from '../src/epic-roll/epic-mastery-roll-echo.js';
 import { getSkillSpendOptions, buildSkillSpendPackets, sumSelectedPacketSpend } from '../src/epic-roll/epic-mastery-roll-skill-spend.js';
+import {
+  actorEpicRerollPoints,
+  canSpendEpicRerollPoint,
+  shouldStageEpicFailure,
+} from '../src/epic-roll/epic-mastery-roll-roll.js';
 import type { EpicMasteryRollSession } from '../src/epic-roll/epic-mastery-roll-types.js';
 
 function mockActor(overrides: Record<string, unknown> = {}): Actor {
@@ -333,5 +338,64 @@ describe('Epic Mastery Roll summary HTML', () => {
     expect(html).toMatch(/Group Stealth/);
     expect(html).toMatch(/Success/);
     expect(html).toMatch(/Hero/);
+  });
+});
+
+describe('Epic Mastery Roll reroll staging', () => {
+  it('reads remaining Reroll Points from faithFractures.current', () => {
+    const actor = mockActor({
+      system: {
+        mastery: { rank: 4 },
+        attributes: { might: { value: 10 } },
+        skills: { athletics: 8 },
+        faithFractures: { current: 2, maximum: 3 },
+      },
+    });
+    expect(actorEpicRerollPoints(actor)).toEqual({ current: 2, maximum: 3 });
+    expect(canSpendEpicRerollPoint(actor)).toBe(true);
+    expect(canSpendEpicRerollPoint(mockActor({ system: { faithFractures: { current: 0, maximum: 2 } } }))).toBe(
+      false,
+    );
+  });
+
+  it('stages a failure when a Reroll Point remains, even without skill spend', () => {
+    expect(
+      shouldStageEpicFailure({
+        success: false,
+        hasSkillSpend: false,
+        hasRerollPoint: true,
+        alreadyRerolled: false,
+      }),
+    ).toBe(true);
+  });
+
+  it('does not offer a second reroll after one has been used', () => {
+    expect(
+      shouldStageEpicFailure({
+        success: false,
+        hasSkillSpend: false,
+        hasRerollPoint: true,
+        alreadyRerolled: true,
+      }),
+    ).toBe(false);
+    expect(
+      shouldStageEpicFailure({
+        success: false,
+        hasSkillSpend: true,
+        hasRerollPoint: true,
+        alreadyRerolled: true,
+      }),
+    ).toBe(true);
+  });
+
+  it('does not stage a successful roll', () => {
+    expect(
+      shouldStageEpicFailure({
+        success: true,
+        hasSkillSpend: true,
+        hasRerollPoint: true,
+        alreadyRerolled: false,
+      }),
+    ).toBe(false);
   });
 });

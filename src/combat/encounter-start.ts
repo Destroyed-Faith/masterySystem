@@ -13,7 +13,12 @@ import { PassiveSelectionDialog } from '../sheets/passive-selection-dialog.js';
 import { CombatCarouselApp } from '../ui/combat-carousel.js';
 import { openStonePowersForAllCombatants } from './stone-powers-flow.js';
 import { syncCombatTurnToHighestInitiativeFirst } from './initiative-roll.js';
-const SOCKET_NAME = 'system.mastery-system';
+import {
+  ENCOUNTER_SOCKET,
+  emitEncounterSocketToPlayerOwners,
+  resolveLiveCombat,
+  shouldShowEncounterDialogLocally,
+} from './combat-permissions.js';
 
 interface EncounterSetupState {
   started: boolean;
@@ -26,7 +31,7 @@ interface EncounterSetupState {
 /**
  * Get encounter setup state from combat flags
  */
-function getEncounterSetup(combat: Combat): EncounterSetupState {
+export function getEncounterSetup(combat: Combat): EncounterSetupState {
   const flags = combat.flags['mastery-system'] || {};
   const setup = flags.encounterSetup as EncounterSetupState | undefined;
   
@@ -48,47 +53,60 @@ function getEncounterSetup(combat: Combat): EncounterSetupState {
  * Update encounter setup state in combat flags
  */
 async function updateEncounterSetup(combat: Combat, updates: Partial<EncounterSetupState>): Promise<void> {
-  const current = getEncounterSetup(combat);
+  const live = resolveLiveCombat(combat);
+  if (!live || !game.user?.isGM) return;
+  const current = getEncounterSetup(live);
   const updated = { ...current, ...updates };
-  await combat.setFlag('mastery-system', 'encounterSetup', updated);
+  await live.setFlag('mastery-system', 'encounterSetup', updated);
 }
 
 /**
  * Handle passive selection completion for a combatant
  */
-async function handlePassiveSelectionComplete(combat: Combat, actorId: string, data: any): Promise<void> {
-  const setup = getEncounterSetup(combat);
-  
-  // Mark passives as locked for this actor
-  setup.passives[actorId] = {
-    locked: true,
-    data: data || {}
-  };
-  
-  await updateEncounterSetup(combat, { passives: setup.passives });
-  
-  // Notify GM that passives are complete for this actor
+export async function handlePassiveSelectionComplete(combat: Combat, actorId: string, data: any): Promise<void> {
   if (!game.user?.isGM) {
-    // Player: notify GM via socket
-    game.socket?.emit(SOCKET_NAME, {
+    game.socket?.emit(ENCOUNTER_SOCKET, {
       type: 'passiveSelectionComplete',
       combatId: combat.id,
-      actorId: actorId,
-      data: data
+      actorId,
+      data,
     });
+    return;
   }
+
+  const live = resolveLiveCombat(combat);
+  if (!live) return;
+  const setup = getEncounterSetup(live);
+  setup.passives[actorId] = {
+    locked: true,
+    data: data || {},
+  };
+  await updateEncounterSetup(live, { passives: setup.passives });
 }
 
 /**
  * Handle initiative shop confirmation for a combatant
  */
-async function handleInitiativeConfirmed(combat: Combat, combatantId: string, finalInitiative: number): Promise<void> {
+export async function handleInitiativeConfirmed(combat: Combat, combatantId: string, finalInitiative: number): Promise<void> {
   const setup = getEncounterSetup(combat);
   
   // Mark initiative as confirmed
   setup.initiativeConfirmed[combatantId] = true;
   
-  await updateEncounterSetup(combat, { initiativeConfirmed: setup.initiativeConfirmed });
+  if (!game.user?.isGM) {
+    game.socket?.emit(ENCOUNTER_SOCKET, {
+      type: 'initiativeConfirmed',
+      combatId: combat.id,
+      combatantId,
+      finalInitiative,
+    });
+    return;
+  }
+
+  const live = resolveLiveCombat(combat);
+  if (!live) return;
+  await updateEncounterSetup(live, { initiativeConfirmed: setup.initiativeConfirmed });
+  combat = live;
   // Check if all PCs have confirmed (only GM can start combat)
   if (game.user?.isGM) {
     const allPCs = Array.from(combat.combatants).filter((c: any) => c.actor?.type === 'character');
@@ -110,7 +128,7 @@ async function handleInitiativeConfirmed(combat: Combat, combatantId: string, fi
       await new Promise(resolve => setTimeout(resolve, 100));
       
       // Broadcast refresh to all clients
-      game.socket?.emit(SOCKET_NAME, {
+      game.socket?.emit(ENCOUNTER_SOCKET, {
         type: 'msRefreshCarousel',
         combatId: combat.id
       });
@@ -153,7 +171,7 @@ export async function beginEncounter(combat: Combat): Promise<void> {
     CombatCarouselApp.open();
     
     // Broadcast to all clients
-    game.socket?.emit(SOCKET_NAME, {
+    game.socket?.emit(ENCOUNTER_SOCKET, {
       type: 'msShowCarousel',
       combatId: combat.id
     });
@@ -168,41 +186,31 @@ export async function beginEncounter(combat: Combat): Promise<void> {
     pcs.push(combatant);
   }
 
-  // Step 1: Open passive selection for all PCs (via socket to owning clients)
-  // Also handle GM's own characters locally
+  // Notify connected player-owners immediately, then GM handles unowned PCs.
   for (const pc of pcs) {
     const actor = pc.actor;
     if (!actor) continue;
+    if (shouldShowEncounterDialogLocally(actor)) continue;
+    emitEncounterSocketToPlayerOwners(actor, {
+      type: 'openPassiveSelection',
+      combatId: combat.id,
+      combatantId: pc.id,
+      actorId: actor.id,
+    });
+  }
 
-    // Find owning users
-    const owners = (game.users || []).filter((u: any) => (u as any).isGM || actor.testUserPermission(u, 'OWNER'));
-    
-    // Send socket message to each owner
-    for (const owner of owners) {
-      // If this is the GM and they own the character, handle locally
-      if (game.user?.isGM && owner.id === game.user.id) {
-        // Handle locally for GM
-        const localSetup = getEncounterSetup(combat);
-        const isLocked = localSetup.passives[actor.id]?.locked === true;
-        
-        try {
-          const outcome = await PassiveSelectionDialog.showForCombatant(pc, isLocked);
-          if (outcome.confirmed) {
-            await handlePassiveSelectionComplete(combat, actor.id, {});
-          }
-        } catch (err) {
-          console.error('Mastery System | Error in GM passive selection', err);
-        }
-      } else {
-        // Send socket message to player
-        game.socket?.emit(SOCKET_NAME, {
-          type: 'openPassiveSelection',
-          combatId: combat.id,
-          combatantId: pc.id,
-          actorId: actor.id,
-          userId: owner.id
-        });
+  for (const pc of pcs) {
+    const actor = pc.actor;
+    if (!actor || !shouldShowEncounterDialogLocally(actor)) continue;
+    const localSetup = getEncounterSetup(combat);
+    const isLocked = localSetup.passives[actor.id]?.locked === true;
+    try {
+      const outcome = await PassiveSelectionDialog.showForCombatant(pc, isLocked);
+      if (outcome.confirmed) {
+        await handlePassiveSelectionComplete(combat, actor.id, {});
       }
+    } catch (err) {
+      console.error('Mastery System | Error in GM passive selection', err);
     }
   }
 
@@ -242,78 +250,6 @@ async function checkAndOpenStonePowersAfterPassives(combat: Combat): Promise<voi
 }
 
 /**
- * Handle socket messages
- */
-async function handleSocketMessage(payload: any): Promise<void> {
-  const { type, combatId, combatantId, actorId, userId, data, finalInitiative } = payload;
-
-  // Only process messages intended for this user
-  if (userId && userId !== game.user?.id) {
-    return;
-  }
-
-  const combat = game.combat;
-  if (!combat || combat.id !== combatId) {
-    return;
-  }
-
-  switch (type) {
-    case 'openPassiveSelection': {
-      // Open passive selection dialog for the specified combatant
-      const combatant = combat.combatants.get(combatantId);
-      if (!combatant || !combatant.actor) return;
-
-      const setup = getEncounterSetup(combat);
-      const isLocked = setup.passives[actorId]?.locked === true;
-
-      try {
-        const outcome = await PassiveSelectionDialog.showForCombatant(combatant, isLocked);
-        if (outcome.confirmed) {
-          await handlePassiveSelectionComplete(combat, actorId, {});
-        }
-      } catch (err) {
-        console.error('Mastery System | Error in passive selection', err);
-      }
-      break;
-    }
-
-    case 'passiveSelectionComplete': {
-      // GM receives notification that a player completed passive selection
-      if (game.user?.isGM) {
-        await handlePassiveSelectionComplete(combat, actorId, data);
-      }
-      break;
-    }
-
-    case 'initiativeConfirmed': {
-      // GM receives notification that a player confirmed initiative
-      if (game.user?.isGM) {
-        await handleInitiativeConfirmed(combat, combatantId, finalInitiative);
-      }
-      break;
-    }
-
-    case 'msShowCarousel': {
-      // Show carousel on this client
-      const currentCombat = game.combat;
-      if (currentCombat && currentCombat.id === combatId) {
-        CombatCarouselApp.open();
-      }
-      break;
-    }
-
-    case 'msRefreshCarousel': {
-      // Refresh carousel on this client
-      const currentCombat = game.combat;
-      if (currentCombat && currentCombat.id === combatId) {
-        CombatCarouselApp.refresh();
-      }
-      break;
-    }
-  }
-}
-
-/**
  * Debounce helper for carousel refresh
  */
 let carouselRefreshTimeout: number | null = null;
@@ -343,9 +279,6 @@ function debouncedCarouselRefresh(delay: number = 150): void {
  * Initialize encounter start system
  */
 export function initializeEncounterStart(): void {
-  // Register socket handler
-  game.socket?.on(SOCKET_NAME, handleSocketMessage);
-
   // Hook: Update carousel when combat changes (debounced)
   Hooks.on('updateCombat', (combat: Combat) => {
     const flags = combat.flags['mastery-system'] || {};

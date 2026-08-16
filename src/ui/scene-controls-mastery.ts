@@ -5,6 +5,7 @@
 
 import { StonePowersDialog } from '../stones/stone-powers-dialog.js';
 import { startDivineClash, revealDivineClash, endRoundDivineClash, resetDivineClash } from '../divine-clash/divine-clash.js';
+import { confirmAndApplySafeHavenRestToAllCharacters } from '../utils/safe-haven-rest.js';
 
 /**
  * Resolve combatant for active actor
@@ -70,6 +71,23 @@ async function handleDivineClashReset() {
   }
 }
 
+async function handlePartySafeHavenRest() {
+  try {
+    await confirmAndApplySafeHavenRestToAllCharacters();
+  } catch (err) {
+    console.error('Mastery System | [ERROR] Party Safe Haven Rest failed', err);
+    ui.notifications?.error('Safe Haven Rest failed - see console');
+  }
+}
+
+const MASTERY_TOOL_HANDLERS: Record<string, () => void> = {
+  divineClashStart: handleDivineClashStart,
+  divineClashReveal: handleDivineClashReveal,
+  divineClashEndRound: handleDivineClashEndRound,
+  divineClashReset: handleDivineClashReset,
+  safeHavenRestAll: handlePartySafeHavenRest,
+};
+
 /**
  * Initialize scene controls
  */
@@ -100,27 +118,13 @@ export function initializeSceneControls(): void {
         }
         
         const toolName = button.getAttribute('data-tool');
-        if (!toolName || !toolName.startsWith('divineClash')) {
+        const handler = toolName ? MASTERY_TOOL_HANDLERS[toolName] : undefined;
+        if (!handler) {
           return;
         }
         ev.preventDefault();
         ev.stopPropagation();
-        
-        // Call the appropriate handler
-        switch (toolName) {
-          case 'divineClashStart':
-            handleDivineClashStart();
-            break;
-          case 'divineClashReveal':
-            handleDivineClashReveal();
-            break;
-          case 'divineClashEndRound':
-            handleDivineClashEndRound();
-            break;
-          case 'divineClashReset':
-            handleDivineClashReset();
-            break;
-        }
+        handler();
       };
       
       // Store reference to remove later if needed
@@ -187,6 +191,19 @@ export function initializeSceneControls(): void {
           handleDivineClashReset();
         },
         button: true
+      },
+      {
+        name: 'safeHavenRestAll',
+        title: 'Safe Haven Rest — All Characters',
+        icon: 'fas fa-bed',
+        visible: !!(game as any).user?.isGM,
+        onClick: () => {
+          handlePartySafeHavenRest();
+        },
+        activate: () => {
+          handlePartySafeHavenRest();
+        },
+        button: true
       }
     ];
     // Add Mastery group directly to controls object
@@ -226,27 +243,13 @@ export function initializeSceneControls(): void {
         }
         
         const toolName = button.getAttribute('data-tool');
-        if (!toolName || !toolName.startsWith('divineClash')) {
+        const handler = toolName ? MASTERY_TOOL_HANDLERS[toolName] : undefined;
+        if (!handler) {
           return;
         }
         ev.preventDefault();
         ev.stopPropagation();
-        
-        // Call the appropriate handler
-        switch (toolName) {
-          case 'divineClashStart':
-            handleDivineClashStart();
-            break;
-          case 'divineClashReveal':
-            handleDivineClashReveal();
-            break;
-          case 'divineClashEndRound':
-            handleDivineClashEndRound();
-            break;
-          case 'divineClashReset':
-            handleDivineClashReset();
-            break;
-        }
+        handler();
       };
       
       // Store reference to remove later if needed
@@ -282,16 +285,20 @@ export function initializeSceneControls(): void {
         }
         
         // Check if buttons already exist
-        const existingButtons = masteryToolsContainer.querySelectorAll('[data-tool="divineClashStart"], [data-tool="divineClashReveal"], [data-tool="divineClashEndRound"], [data-tool="divineClashReset"]');
+        const existingButtons = masteryToolsContainer.querySelectorAll('[data-tool="divineClashStart"], [data-tool="divineClashReveal"], [data-tool="divineClashEndRound"], [data-tool="divineClashReset"], [data-tool="safeHavenRestAll"]');
         if (existingButtons.length > 0) {
           return true;
         }
         // Create button configs
+        const isGM = !!(game as any).user?.isGM;
         const buttonConfigs = [
           { name: 'divineClashStart', title: 'Divine Clash: Start', icon: 'fas fa-chess', handler: handleDivineClashStart },
           { name: 'divineClashReveal', title: 'Divine Clash: Reveal', icon: 'fas fa-eye', handler: handleDivineClashReveal },
           { name: 'divineClashEndRound', title: 'Divine Clash: End Round', icon: 'fas fa-hourglass-end', handler: handleDivineClashEndRound },
-          { name: 'divineClashReset', title: 'Divine Clash: Reset', icon: 'fas fa-trash', handler: handleDivineClashReset }
+          { name: 'divineClashReset', title: 'Divine Clash: Reset', icon: 'fas fa-trash', handler: handleDivineClashReset },
+          ...(isGM
+            ? [{ name: 'safeHavenRestAll', title: 'Safe Haven Rest — All Characters', icon: 'fas fa-bed', handler: handlePartySafeHavenRest }]
+            : []),
         ];
         
         buttonConfigs.forEach(config => {

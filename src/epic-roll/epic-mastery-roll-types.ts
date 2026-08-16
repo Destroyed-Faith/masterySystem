@@ -53,11 +53,15 @@ export interface EpicParticipantResult {
   raises: number;
   diceSummary: string;
   skipped?: boolean;
-  /** True while the owner may still spend skill points before locking in. */
+  /** True while the owner may still spend skill points or reroll before locking in. */
   awaitingConfirm?: boolean;
   skillKey?: string;
+  /** Attribute used for this check — needed to reroll the same pool. */
+  attributeKey?: string;
   skillSpent?: number;
   raiseTn?: number;
+  /** Already spent a Reroll Point on this Epic Roll. */
+  rerolled?: boolean;
   rollPayload?: EpicRollPayload;
   echoCardUsed?: {
     cardId: string;
@@ -217,8 +221,10 @@ export function participantResultFromRoll(
   payload: EpicRollPayload,
   opts: {
     skillKey?: string;
+    attributeKey?: string;
     awaitingConfirm?: boolean;
     skillSpent?: number;
+    rerolled?: boolean;
   } = {},
 ): EpicParticipantResult {
   return {
@@ -233,7 +239,9 @@ export function participantResultFromRoll(
     diceFaces: buildEpicDiceFaces(rollResult),
     awaitingConfirm: opts.awaitingConfirm,
     skillKey: opts.skillKey,
+    attributeKey: opts.attributeKey,
     skillSpent: opts.skillSpent ?? 0,
+    rerolled: opts.rerolled === true,
     raiseTn: payload.raiseTn,
     rollPayload: payload,
   };

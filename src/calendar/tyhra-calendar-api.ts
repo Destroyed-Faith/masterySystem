@@ -19,6 +19,10 @@ import {
   setCurrentMinute,
 } from './tyhra-calendar-settings.js';
 
+function canChangeWorldDate(): boolean {
+  return game.user?.isGM === true;
+}
+
 export const CALENDAR_DATE_CHANGED_HOOK = 'masterySystem.calendarDateChanged';
 
 function notifyDateChanged(previousDayIndex: number, currentDayIndex: number): void {
@@ -78,6 +82,10 @@ export function createTyhraCalendarApi(): TyhraCalendarApi {
     },
 
     async setCurrentDayIndex(dayIndex: number) {
+      if (!canChangeWorldDate()) {
+        ui.notifications?.warn(game.i18n.localize('MASTERY.calendar.noDatePermission'));
+        return getDateFromDayIndex(getCurrentDayIndex());
+      }
       const prev = getCurrentDayIndex();
       const next = Math.floor(dayIndex);
       await setCurrentDayIndex(next);
@@ -90,6 +98,10 @@ export function createTyhraCalendarApi(): TyhraCalendarApi {
     },
 
     async advanceDays(amount: number) {
+      if (!canChangeWorldDate()) {
+        ui.notifications?.warn(game.i18n.localize('MASTERY.calendar.noDatePermission'));
+        return getDateFromDayIndex(getCurrentDayIndex());
+      }
       const prev = getCurrentDayIndex();
       const next = prev + Math.floor(amount);
       await setCurrentDayIndex(next);
@@ -98,6 +110,10 @@ export function createTyhraCalendarApi(): TyhraCalendarApi {
     },
 
     async advanceHours(amount: number) {
+      if (!canChangeWorldDate()) {
+        ui.notifications?.warn(game.i18n.localize('MASTERY.calendar.noDatePermission'));
+        return;
+      }
       let hour = getCurrentHour();
       let minute = getCurrentMinute();
       let dayIndex = getCurrentDayIndex();

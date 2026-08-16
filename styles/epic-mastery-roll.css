@@ -822,6 +822,28 @@
   cursor: not-allowed;
 }
 
+.emr-reroll-btn {
+  width: 100%;
+  padding: 7px 10px;
+  border-radius: 4px;
+  border: 2px solid rgba(129, 212, 250, 0.75);
+  background: rgba(129, 212, 250, 0.14);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+}
+
+.emr-reroll-btn:hover:not(:disabled) {
+  background: rgba(129, 212, 250, 0.26);
+}
+
+.emr-reroll-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
 .emr-keep-roll-btn {
   width: 100%;
   padding: 5px 8px;

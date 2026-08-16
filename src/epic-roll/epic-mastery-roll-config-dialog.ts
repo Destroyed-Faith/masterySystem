@@ -84,7 +84,10 @@ export class EpicMasteryRollConfigDialog extends BaseDialog {
     this.rollKind = preset.roll.kind;
     if (preset.roll.kind === 'skill') this.skillKey = preset.roll.skillKey;
     if (preset.roll.kind === 'attribute') this.attributeKey = preset.roll.attributeKey;
-    this.selectedIds = [...preset.actorIds];
+    this.selectedIds = [...preset.actorIds].filter((id) => {
+      const actor = game.actors?.get(id);
+      return actor?.type === 'character';
+    });
   }
 
   protected async _prepareContext(_options: unknown): Promise<Record<string, unknown>> {
@@ -233,7 +236,7 @@ export class EpicMasteryRollConfigDialog extends BaseDialog {
       showTn: this.showTn,
       tn: { ...this.tn },
       roll: this.buildRollConfig(),
-      actorIds: [...this.selectedIds],
+      actorIds: [...this.selectedIds].filter((id) => game.actors?.get(id)?.type === 'character'),
     };
 
     const session = await startEpicMasteryRollSession(config);

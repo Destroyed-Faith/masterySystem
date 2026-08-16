@@ -15,6 +15,10 @@ import {
   formatNpcInitiativeSigned,
   getNpcInitiativeModifier,
 } from '../utils/npc-initiative.js';
+import {
+  emitEncounterSocketToPlayerOwners,
+  shouldShowEncounterDialogLocally,
+} from './combat-permissions.js';
 const CR_SKILL_KEY = 'combatReflexes';
 
 function getMasteryRank(actor: any): number {
@@ -233,6 +237,7 @@ export async function rollInitiativeForCombatant(
  * Full initiative phase: NPCs auto; PCs with owner/GM get shop; others auto roll without CR prompt.
  */
 export async function executeInitiativePhase(combat: Combat): Promise<void> {
+  if (!game.user?.isGM) return;
   const { InitiativeShopDialog } = await import('./initiative-shop-dialog.js');
   const npcs: Combatant[] = [];
   const pcs: Combatant[] = [];
@@ -252,18 +257,30 @@ export async function executeInitiativePhase(combat: Combat): Promise<void> {
   for (const pc of pcs) {
     const actor = pc.actor;
     if (!actor) continue;
-    const user = game.user;
-    if (!user) continue;
 
-    if (user.isGM || (actor as any).isOwner) {
-      const breakdown = await rollInitiativeForCombatant(pc, { promptCombatReflexes: false });
+    const breakdown = await rollInitiativeForCombatant(pc, { promptCombatReflexes: false });
+    const shopPayload = {
+      diceTotal: breakdown.diceTotal,
+      combatReflexesSpent: breakdown.combatReflexesSpent,
+      totalInitiative: breakdown.totalInitiative,
+      equipmentInitiativeModifier: breakdown.equipmentInitiativeModifier,
+      masteryRank: breakdown.masteryRank,
+    };
+
+    if (shouldShowEncounterDialogLocally(actor)) {
       try {
-        await InitiativeShopDialog.showForCombatant(pc, breakdown, combat);
+        await InitiativeShopDialog.showForCombatant(pc, shopPayload, combat);
       } catch (error) {
         console.error('Mastery System | Failed to show Initiative Shop', error);
       }
     } else {
-      await rollInitiativeForCombatant(pc, { promptCombatReflexes: false });
+      emitEncounterSocketToPlayerOwners(actor, {
+        type: 'openInitiativeShop',
+        combatId: combat.id,
+        combatantId: pc.id,
+        actorId: actor.id,
+        breakdown: shopPayload,
+      });
     }
     await new Promise((r) => setTimeout(r, 500));
   }

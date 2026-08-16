@@ -126,6 +126,30 @@
   color: var(--xp-text);
 }
 
+.mastery-xp-management-inline .party-rest-section .hint,
+.mastery-xp-management .party-rest-section .hint {
+  margin: 0 0 0.75rem 0;
+  color: var(--xp-muted);
+  font-size: 0.85rem;
+}
+
+.mastery-xp-management-inline .party-safe-haven-btn,
+.mastery-xp-management .party-safe-haven-btn {
+  padding: 0.55rem 1.1rem;
+  background: var(--xp-bg);
+  color: var(--xp-text);
+  border: 1px solid var(--xp-border);
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.mastery-xp-management-inline .party-safe-haven-btn:hover,
+.mastery-xp-management .party-safe-haven-btn:hover {
+  border-color: var(--xp-accent);
+  box-shadow: 0 0 0 1px var(--xp-accent-glow);
+}
+
 .mastery-xp-management-inline .bulk-grant-btn,
 .mastery-xp-management .bulk-grant-btn,
 .mastery-xp-management-inline .bulk-grant-free-btn,
