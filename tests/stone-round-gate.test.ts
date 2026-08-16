@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   arePlayerStonesReadyForRound,
+  assignPendingStonesAsGm,
   pendingStonePlayerNames,
   warnIfPlayerStonesPending,
 } from '../src/combat/stone-round-gate.js';
@@ -102,6 +103,12 @@ describe('arePlayerStonesReadyForRound', () => {
     const fynn = mockCombatant({ id: 'c1', actorId: 'a1', owners: ['fynn'], name: 'Fynn', stonesDoneRound: 1 });
     expect(arePlayerStonesReadyForRound(mockCombat([fynn], 2), 2)).toBe(false);
     expect(arePlayerStonesReadyForRound(mockCombat([fynn], 1), 1)).toBe(true);
+  });
+
+  it('does not let a player assign stones for others', async () => {
+    setGame({ userId: 'fynn', isGM: false });
+    const fynn = mockCombatant({ id: 'c1', actorId: 'a1', owners: ['fynn'], name: 'Fynn' });
+    expect(await assignPendingStonesAsGm(mockCombat([fynn], 2))).toBe(0);
   });
 
   it('blocks the GM even if the player owner is offline', () => {

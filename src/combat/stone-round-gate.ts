@@ -48,15 +48,133 @@ function stoneWaitMessage(combat: Combat): string {
   return `Neue Runde: alle Spieler müssen ihre Steine bestätigen, bevor jemand den Zug wechselt.${who}`;
 }
 
+let gmStonePromptOpen = false;
+
 /** @returns true if actions / turn advance must wait for stone confirm. */
 export function warnIfPlayerStonesPending(combat: Combat | null | undefined): boolean {
   if (!combat?.started) return false;
   if (arePlayerStonesReadyForRound(combat)) return false;
   ui.notifications?.warn(stoneWaitMessage(combat));
-  void import('./player-encounter-setup.js').then(({ resumePlayerEncounterSetup }) => {
-    void resumePlayerEncounterSetup(combat);
-  });
+  if (game.user?.isGM) {
+    void promptGmAssignPendingStones(combat);
+  } else {
+    void import('./player-encounter-setup.js').then(({ resumePlayerEncounterSetup }) => {
+      void resumePlayerEncounterSetup(combat);
+    });
+  }
   return true;
+}
+
+async function promptGmAssignPendingStones(combat: Combat): Promise<void> {
+  if (!game.user?.isGM || gmStonePromptOpen) return;
+  const existingStone = (globalThis as any).foundry?.applications?.instances?.get?.('mastery-stone-powers');
+  if (existingStone) return;
+
+  const pending = pendingStoneCombatants(combat);
+  if (!pending.length) return;
+
+  gmStonePromptOpen = true;
+  try {
+    const choice = await askGmFillPendingStones(pendingStonePlayerNames(combat));
+    if (choice !== 'fill') return;
+    await assignPendingStonesAsGm(combat);
+  } finally {
+    gmStonePromptOpen = false;
+  }
+}
+
+async function askGmFillPendingStones(names: string[]): Promise<'fill' | 'wait'> {
+  const who = names.length ? names.join(', ') : 'Spieler';
+  const content =
+    `<p>Noch nicht alle haben Steine für diese Runde bestätigt.</p>` +
+    `<p><strong>Noch offen: ${who}</strong></p>` +
+    `<p>Du kannst die Steine jetzt für die Spieler verteilen und bestätigen.</p>`;
+
+  const DialogV2 = (globalThis as any).foundry?.applications?.api?.DialogV2;
+  if (typeof DialogV2?.wait === 'function') {
+    const result = await DialogV2.wait({
+      window: { title: 'Steine noch offen' },
+      content,
+      buttons: [
+        { action: 'fill', label: 'Für Spieler ausfüllen', icon: 'fa-solid fa-gem', default: true },
+        { action: 'wait', label: 'Warten', icon: 'fa-solid fa-clock' },
+      ],
+      rejectClose: false,
+    });
+    return result === 'fill' ? 'fill' : 'wait';
+  }
+
+  const DialogCls = (globalThis as any).Dialog;
+  if (typeof DialogCls !== 'function') return 'wait';
+
+  return new Promise((resolve) => {
+    let settled = false;
+    const finish = (value: 'fill' | 'wait') => {
+      if (settled) return;
+      settled = true;
+      resolve(value);
+    };
+    new DialogCls({
+      title: 'Steine noch offen',
+      content,
+      buttons: {
+        fill: {
+          icon: '<i class="fas fa-gem"></i>',
+          label: 'Für Spieler ausfüllen',
+          callback: () => finish('fill'),
+        },
+        wait: {
+          icon: '<i class="fas fa-clock"></i>',
+          label: 'Warten',
+          callback: () => finish('wait'),
+        },
+      },
+      default: 'fill',
+      close: () => finish('wait'),
+    }).render(true);
+  });
+}
+
+/** GM walks each open PC and can confirm stones on their behalf. */
+export async function assignPendingStonesAsGm(combat: Combat): Promise<number> {
+  if (!game.user?.isGM) return 0;
+  const { persistCombatantSetupStep } = await import('./encounter-setup-flags.js');
+  const { handleStonePowersComplete } = await import('./stone-powers-flow.js');
+  const { StonePowersDialog } = await import('../stones/stone-powers-dialog.js');
+  const { canCurrentUserUpdateDocument, resolveLiveCombat } = await import('./combat-permissions.js');
+
+  const live = resolveLiveCombat(combat);
+  if (!live) return 0;
+
+  let confirmedCount = 0;
+  for (const combatant of pendingStoneCombatants(live)) {
+    const actor = combatant.actor;
+    if (!actor) continue;
+    const round = Math.max(1, Number(live.round) || 1);
+    if (round > 1 && canCurrentUserUpdateDocument(actor)) {
+      try {
+        const { syncStonePoolCapsFromAttributes } = await import('./action-economy.js');
+        await syncStonePoolCapsFromAttributes(actor);
+      } catch (err) {
+        console.warn('Mastery System | Could not sync stone pools before GM fill', err);
+      }
+    }
+
+    const confirmed = await StonePowersDialog.showForActor(actor, combatant);
+    if (!confirmed) continue;
+
+    await persistCombatantSetupStep(combatant, live, { stonesDoneRound: round });
+    await handleStonePowersComplete(live, combatant.id, round);
+    confirmedCount += 1;
+  }
+
+  const still = pendingStonePlayerNames(live);
+  if (!still.length) {
+    ui.notifications?.info('Steine für alle Spieler bestätigt. Der Zug kann weitergehen.');
+  } else {
+    ui.notifications?.warn(`Noch offen: ${still.join(', ')}.`);
+  }
+  return confirmedCount;
 }
 
 /** Blocks Foundry tracker Next Turn / Next Round while PC stones are still open. */
