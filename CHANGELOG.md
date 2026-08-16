@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.351] - 2026-08-17
+
+### Fixed
+
+- **Start Encounter:** A player can start the test combat without a second GM client. The old "A GM must be online" check missed active GMs on Foundry's user collection.
+
 ## [0.9.350] - 2026-08-16
 
 ### Fixed

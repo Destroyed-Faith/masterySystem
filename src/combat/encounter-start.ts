@@ -15,7 +15,9 @@ import { openStonePowersForAllCombatants } from './stone-powers-flow.js';
 import { syncCombatTurnToHighestInitiativeFirst } from './initiative-roll.js';
 import {
   ENCOUNTER_SOCKET,
+  canCurrentUserUpdateDocument,
   emitEncounterSocketToPlayerOwners,
+  getSimulatePlayerEncounterId,
   resolveLiveCombat,
   setSimulatePlayerEncounter,
   shouldShowEncounterDialogLocally,
@@ -55,7 +57,7 @@ export function getEncounterSetup(combat: Combat): EncounterSetupState {
  */
 async function updateEncounterSetup(combat: Combat, updates: Partial<EncounterSetupState>): Promise<void> {
   const live = resolveLiveCombat(combat);
-  if (!live || !game.user?.isGM) return;
+  if (!live || !canCurrentUserUpdateDocument(live)) return;
   const current = getEncounterSetup(live);
   const updated = { ...current, ...updates };
   await live.setFlag('mastery-system', 'encounterSetup', updated);
@@ -65,7 +67,9 @@ async function updateEncounterSetup(combat: Combat, updates: Partial<EncounterSe
  * Handle passive selection completion for a combatant
  */
 export async function handlePassiveSelectionComplete(combat: Combat, actorId: string, data: any): Promise<void> {
-  if (!game.user?.isGM) {
+  const live = resolveLiveCombat(combat);
+  if (!live) return;
+  if (!game.user?.isGM && !canCurrentUserUpdateDocument(live)) {
     game.socket?.emit(ENCOUNTER_SOCKET, {
       type: 'passiveSelectionComplete',
       combatId: combat.id,
@@ -74,9 +78,6 @@ export async function handlePassiveSelectionComplete(combat: Combat, actorId: st
     });
     return;
   }
-
-  const live = resolveLiveCombat(combat);
-  if (!live) return;
   const setup = getEncounterSetup(live);
   setup.passives[actorId] = {
     locked: true,
@@ -150,7 +151,8 @@ export async function handleInitiativeConfirmed(combat: Combat, combatantId: str
  * Begin encounter flow (called by GM)
  */
 export async function beginEncounter(combat: Combat): Promise<void> {
-  if (!game.user?.isGM) {
+  const canWrite = !!(game.user?.isGM || canCurrentUserUpdateDocument(combat));
+  if (!canWrite && !getSimulatePlayerEncounterId()) {
     ui.notifications?.warn('Only the GM can begin an encounter');
     return;
   }

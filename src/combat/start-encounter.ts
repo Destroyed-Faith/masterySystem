@@ -3,7 +3,12 @@
  * Players emit to the GM; the GM writes the Combat document.
  */
 
-import { ENCOUNTER_SOCKET, setSimulatePlayerEncounter } from './combat-permissions.js';
+import {
+  ENCOUNTER_SOCKET,
+  canCurrentUserCreateCombat,
+  hasActiveGm,
+  setSimulatePlayerEncounter,
+} from './combat-permissions.js';
 
 export interface SceneEncounterToken {
   tokenId: string;
@@ -90,14 +95,12 @@ export async function requestStartEncounter(opts: {
     return;
   }
 
-  if (game.user?.isGM) {
-    await createAndBeginEncounter({ tokenIds, sceneId, openLocally: opts.openLocally });
-    return;
-  }
-
-  const gmOnline = Array.from((game as any).users ?? []).some((u: any) => u?.isGM && u?.active);
-  if (!gmOnline) {
-    ui.notifications?.warn(loc('needGm', 'Ein SL muss online sein, damit der Kampf angelegt wird.'));
+  if (game.user?.isGM || canCurrentUserCreateCombat() || !hasActiveGm()) {
+    await createAndBeginEncounter({
+      tokenIds,
+      sceneId,
+      openLocally: opts.openLocally || !hasActiveGm(),
+    });
     return;
   }
 
@@ -116,7 +119,6 @@ export async function createAndBeginEncounter(opts: {
   sceneId: string;
   openLocally: boolean;
 }): Promise<Combat | null> {
-  if (!game.user?.isGM) return null;
   const scene = (game as any).scenes?.get?.(opts.sceneId);
   if (!scene) {
     ui.notifications?.error(loc('noScene', 'Keine aktive Szene.'));
@@ -131,7 +133,13 @@ export async function createAndBeginEncounter(opts: {
     const CombatCls = ((CONFIG as any).Combat?.documentClass ?? (globalThis as any).Combat) as {
       create: (data: Record<string, unknown>) => Promise<Combat>;
     };
-    combat = await CombatCls.create({ scene: opts.sceneId });
+    try {
+      combat = await CombatCls.create({ scene: opts.sceneId });
+    } catch (err) {
+      console.error('Mastery System | Could not create combat', err);
+      ui.notifications?.warn(loc('needGm', 'Ein SL muss online sein, damit der Kampf angelegt wird.'));
+      return null;
+    }
   }
   if (!combat) return null;
 
@@ -157,7 +165,13 @@ export async function createAndBeginEncounter(opts: {
     });
   }
   if (toAdd.length) {
-    await combat.createEmbeddedDocuments('Combatant', toAdd);
+    try {
+      await combat.createEmbeddedDocuments('Combatant', toAdd);
+    } catch (err) {
+      console.error('Mastery System | Could not add combatants', err);
+      ui.notifications?.warn(loc('needGm', 'Ein SL muss online sein, damit der Kampf angelegt wird.'));
+      return null;
+    }
   }
 
   const live = (game.combats?.get(combat.id) as Combat | undefined) ?? combat;

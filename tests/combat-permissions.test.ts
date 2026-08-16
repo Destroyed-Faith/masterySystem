@@ -1,7 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import {
+  canCurrentUserCreateCombat,
   canCurrentUserUpdateDocument,
   findConnectedPlayerOwners,
+  hasActiveGm,
+  listActiveUsers,
   setSimulatePlayerEncounter,
   shouldShowEncounterDialogLocally,
 } from '../src/combat/combat-permissions.js';
@@ -47,6 +50,39 @@ describe('combat encounter ownership', () => {
     };
     const actor = mockActor(['fynn']);
     expect(shouldShowEncounterDialogLocally(actor)).toBe(true);
+  });
+
+  it('finds an active GM on Foundry collections, not Array.from map entries', () => {
+    const gm = { id: 'gm', isGM: true, active: true };
+    const player = { id: 'fynn', isGM: false, active: true };
+    (globalThis as any).game = {
+      user: player,
+      users: {
+        contents: [gm, player],
+        values: () => [gm, player][Symbol.iterator](),
+      },
+    };
+    expect(listActiveUsers().map((u) => u.id)).toEqual(['gm', 'fynn']);
+    expect(hasActiveGm()).toBe(true);
+
+    (globalThis as any).game.users = {
+      values: () => [gm, player][Symbol.iterator](),
+    };
+    expect(hasActiveGm()).toBe(true);
+
+    (globalThis as any).game.users = { contents: [player] };
+    expect(hasActiveGm()).toBe(false);
+  });
+
+  it('lets a player create combat when Foundry allows it', () => {
+    (globalThis as any).game = { user: { id: 'fynn', isGM: false } };
+    (globalThis as any).CONFIG = {
+      Combat: { documentClass: { canUserCreate: (u: { id: string }) => u.id === 'fynn' } },
+    };
+    expect(canCurrentUserCreateCombat()).toBe(true);
+    (globalThis as any).CONFIG.Combat.documentClass.canUserCreate = () => false;
+    expect(canCurrentUserCreateCombat()).toBe(false);
+    delete (globalThis as any).CONFIG;
   });
 
   it('blocks player updates on documents they do not own', () => {

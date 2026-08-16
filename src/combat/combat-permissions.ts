@@ -19,13 +19,47 @@ export function canCurrentUserUpdateDocument(doc: unknown): boolean {
 }
 
 export function listActiveUsers(): Array<{ id: string; isGM?: boolean; active?: boolean }> {
-  const raw = (typeof game !== 'undefined' ? (game as any).users : null) as
-    | { contents?: unknown[] }
-    | unknown[]
-    | null;
+  const raw = typeof game !== 'undefined' ? (game as any).users : null;
   if (!raw) return [];
-  const list = Array.isArray(raw) ? raw : Array.isArray(raw.contents) ? raw.contents : [];
-  return list as Array<{ id: string; isGM?: boolean; active?: boolean }>;
+  if (Array.isArray(raw)) return raw;
+  if (Array.isArray(raw.contents)) return raw.contents;
+  if (typeof raw.filter === 'function') {
+    try {
+      const filtered = raw.filter((u: unknown) => !!u && typeof u === 'object' && !Array.isArray(u));
+      if (Array.isArray(filtered) && filtered.length) return filtered;
+    } catch {
+      /* Collection.filter may expect a different signature */
+    }
+  }
+  if (typeof raw.values === 'function') {
+    return Array.from(raw.values()).filter((u: unknown) => !!u && typeof u === 'object' && !Array.isArray(u)) as Array<{
+      id: string;
+      isGM?: boolean;
+      active?: boolean;
+    }>;
+  }
+  return [];
+}
+
+export function hasActiveGm(): boolean {
+  return listActiveUsers().some((u) => !!u?.isGM && !!u?.active);
+}
+
+export function canCurrentUserCreateCombat(): boolean {
+  const user = typeof game !== 'undefined' ? game.user : null;
+  if (!user) return false;
+  if (user.isGM) return true;
+  const CombatCls =
+    (typeof CONFIG !== 'undefined' ? (CONFIG as any).Combat?.documentClass : null) ??
+    (globalThis as any).Combat;
+  if (typeof CombatCls?.canUserCreate === 'function') {
+    try {
+      return !!CombatCls.canUserCreate(user);
+    } catch {
+      return false;
+    }
+  }
+  return false;
 }
 
 export function findConnectedPlayerOwners(actor: Actor | null | undefined): Array<{
