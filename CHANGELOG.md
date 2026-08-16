@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.347] - 2026-08-16
+
+### Fixed
+
+- **Tests:** `getForcedDeletion` no longer throws when Foundry globals are missing, so passive-trigger unit tests run in CI.
+
 ## [0.9.346] - 2026-08-16
 
 ### Fixed

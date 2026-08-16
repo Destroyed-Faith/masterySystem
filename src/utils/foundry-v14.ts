@@ -18,10 +18,12 @@ export function isFoundryV14OrNewer(): boolean {
 
 /** V14 document update operator for deleting nested fields. */
 export function getForcedDeletion(): unknown {
+  if (typeof foundry === 'undefined') return null;
   return (foundry as any)?.data?.operators?.ForcedDeletion ?? null;
 }
 
 /** Namespaced FilePicker implementation (v13+); undefined on very old cores. */
 export function getFilePickerClass(): (new (...args: any[]) => any) | undefined {
+  if (typeof foundry === 'undefined') return undefined;
   return (foundry as any)?.applications?.apps?.FilePicker?.implementation;
 }
