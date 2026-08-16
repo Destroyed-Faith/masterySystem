@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.359] - 2026-08-17
+
+### Added
+
+- **Round advance:** When stones are still open, the GM can fill and confirm them for the pending players from the warning dialog.
+
 ## [0.9.357] - 2026-08-17
 
 ### Fixed
