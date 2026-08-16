@@ -8,6 +8,10 @@ import { ArtifactSheetV2 } from './sheets/artifact-sheet-v2.js';
 // Combat hooks are imported dynamically to avoid build errors if dist/combat doesn't exist yet
 // import { initializeCombatHooks } from '../dist/combat/initiative.js';
 import { calculateStones } from './utils/calculations.js';
+import {
+  NPC_EXTRA_POWERS_UPDATE,
+  preserveNpcExtraPowersInSystemUpdate,
+} from './utils/npc-attack-model.js';
 import { initializeTokenActionSelector } from './token-action-selector.js';
 import { refreshRadialMenuActionLabelsIfOpenForActor } from './token-radial-menu.js';
 import { initializeTurnIndicator } from './turn-indicator.js';
@@ -2162,8 +2166,8 @@ function normalizeHealthBars(health: any): any {
  * Hook to normalize health.bars before actor updates
  * Ensures health.bars is always stored as an array, not an object
  */
-Hooks.on('preUpdateActor', (actor: any, updateData: any, _options: any, _userId: string) => {
-  if (actor.type === 'npc') {
+Hooks.on('preUpdateActor', (actor: any, updateData: any, options: any, _userId: string) => {
+  if (actor.type === 'npc' || actor.type === 'summon') {
     // Normalize main health bars
     if (updateData.system?.health?.bars) {
       updateData.system.health = normalizeHealthBars(updateData.system.health);
@@ -2177,6 +2181,13 @@ Hooks.on('preUpdateActor', (actor: any, updateData: any, _options: any, _userId:
         }
         return phase;
       });
+    }
+
+    // Form submitOnChange replaces `system.phases` as a whole. A click on
+    // "+ Power" can race a stale submit that omits the new extra — keep the
+    // actor's extras unless this write *is* the add/delete.
+    if (updateData.system && !options?.[NPC_EXTRA_POWERS_UPDATE]) {
+      preserveNpcExtraPowersInSystemUpdate(actor.system, updateData.system);
     }
   }
 });

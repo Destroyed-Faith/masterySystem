@@ -17,6 +17,8 @@ import {
   npcHealthHasBars,
   sumNpcAttackSlotsFromPowers,
   sanitizeNpcSystemAttackTargeting,
+  mergeNpcAttackValueLists,
+  NPC_EXTRA_POWERS_UPDATE,
 } from '../utils/npc-attack-model.js';
 import {
   coerceStatusEffectsArray,
@@ -86,9 +88,14 @@ function ensureNpcBaseShape(b: Record<string, any> | null | undefined): Record<s
 
 function newExtraNpcPower(): Record<string, unknown> {
   return {
-    name: '',
+    name: 'Neue Power',
     attackDiceCount: 6,
     damageDiceCount: 4,
+    npcRangeKind: 'melee',
+    npcRangeMeters: 2,
+    npcRangeMinMeters: 0,
+    npcAoeShape: 'none',
+    npcAoeRadiusM: 0,
     npcAttacksPerRound: 1,
     specials: [] as { special?: string; specialValue?: number }[]
   };
@@ -661,11 +668,19 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
               }
             : phase.combat;
         return {
+          ...prev,
           ...phase,
           combat,
           health: ensureNpcHealthState(health),
+          attackValues: mergeNpcAttackValueLists(prev.attackValues, phase.attackValues),
         };
       });
+    }
+    if (data.system.attackValues != null || existingSystem.attackValues != null) {
+      data.system.attackValues = mergeNpcAttackValueLists(
+        existingSystem.attackValues,
+        data.system.attackValues,
+      );
     }
     if (data.system.combat && typeof data.system.combat === 'object') {
       data.system.combat = {
@@ -928,52 +943,58 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
 
   async #onAttackValueAdd(event: JQuery.ClickEvent) {
     event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
     const phaseIndex = $(event.currentTarget).data('phase-index');
 
     const system = (this.actor as any).system;
     const row = newExtraNpcPower();
+    const extraOpt = { [NPC_EXTRA_POWERS_UPDATE]: true };
 
-    if (phaseIndex !== undefined && phaseIndex !== null) {
+    if (phaseIndex !== undefined && phaseIndex !== null && String(phaseIndex) !== '') {
       const pi = Number(phaseIndex);
-      if (!system.phases || !system.phases[pi]) {
+      const phases = dup(coerceNpcPhasesArray(system.phases));
+      if (!Number.isFinite(pi) || !phases[pi]) {
         return;
       }
-      const phases = dup(system.phases);
       const pav = normalizeAttackValuesArray(phases[pi].attackValues);
       pav.push(row);
       phases[pi].attackValues = pav;
-      await (this.actor as any).update({ 'system.phases': phases });
+      await (this.actor as any).update({ 'system.phases': phases }, extraOpt);
     } else {
       const av = normalizeAttackValuesArray(system.attackValues);
       av.push(row);
-      await (this.actor as any).update({ 'system.attackValues': av });
+      await (this.actor as any).update({ 'system.attackValues': av }, extraOpt);
     }
   }
 
   async #onAttackValueDelete(event: JQuery.ClickEvent) {
     event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
     const index = parseInt($(event.currentTarget).data('attack-index') || '0', 10);
     const phaseIndex = $(event.currentTarget).data('phase-index');
 
     const system = (this.actor as any).system;
+    const extraOpt = { [NPC_EXTRA_POWERS_UPDATE]: true };
 
-    if (phaseIndex !== undefined && phaseIndex !== null) {
+    if (phaseIndex !== undefined && phaseIndex !== null && String(phaseIndex) !== '') {
       const pi = Number(phaseIndex);
-      if (!system.phases || !system.phases[pi]) {
+      const phases = dup(coerceNpcPhasesArray(system.phases));
+      if (!Number.isFinite(pi) || !phases[pi]) {
         return;
       }
-      const phases = dup(system.phases);
       const pav = normalizeAttackValuesArray(phases[pi].attackValues);
       if (index >= 0 && index < pav.length) {
         pav.splice(index, 1);
         phases[pi].attackValues = pav;
-        await (this.actor as any).update({ 'system.phases': phases });
+        await (this.actor as any).update({ 'system.phases': phases }, extraOpt);
       }
     } else {
       const av = normalizeAttackValuesArray(system.attackValues);
       if (index >= 0 && index < av.length) {
         av.splice(index, 1);
-        await (this.actor as any).update({ 'system.attackValues': av });
+        await (this.actor as any).update({ 'system.attackValues': av }, extraOpt);
       }
     }
   }

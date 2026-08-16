@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.344] - 2026-08-16
+
+### Fixed
+
+- **NPC sheet:** Extra powers no longer vanish right after **+ Power**. A stale form submit was rewriting the phase list without the new attack.
+
 ## [0.9.343] - 2026-08-16
 
 ### Changed
