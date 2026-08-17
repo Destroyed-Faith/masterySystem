@@ -4,7 +4,11 @@ import {
   isStonePowersConfigurationLocked,
 } from '../combat/action-economy.js';
 import { requestEndTurn } from '../combat/end-turn.js';
-import { warnIfPlayerStonesPending } from '../combat/stone-round-gate.js';
+import {
+  encounterStartBlockers,
+  isEncounterPreparing,
+  warnIfPlayerStonesPending,
+} from '../combat/stone-round-gate.js';
 import { StonePowersDialog } from '../stones/stone-powers-dialog.js';
 import { MASTERY_STATUS_EFFECTS } from '../system/status-effects.js';
 import { hideCarouselHpNumbers } from './combat-carousel-hp.js';
@@ -337,7 +341,7 @@ export class CombatCarouselApp extends BaseCarousel {
         initiative: combatant.initiative ?? 0,
         reactionRemaining: reactSum.remaining,
         reactionTotal: reactSum.total,
-        isCurrent: combatant.id === currentCombatantId,
+        isCurrent: !isEncounterPreparing(combat) && combatant.id === currentCombatantId,
         hidden: combatant.hidden || false,
         defeated: combatant.defeated || false,
         statusIcons: statusIcons.filter((item: any) => item && item.icon),
@@ -361,13 +365,22 @@ export class CombatCarouselApp extends BaseCarousel {
         setupStatus: buildEncounterSetupStatus(combatant, combat),
       });
     }
+    const preparing = isEncounterPreparing(combat);
+    const startBlockers = preparing ? encounterStartBlockers(combat) : [];
+    const startBlockedTpl =
+      game.i18n?.localize('MASTERY.encounterSetup.startBlocked') || 'Noch offen: {list}';
     return {
       active: true,
       compact: isCompactCarouselViewport(),
       combatants,
       controlsAllowed: game.user?.isGM || false,
       currentRound: combat.round || 1,
-      currentTurn: combat.turn || 0
+      currentTurn: combat.turn || 0,
+      preparing,
+      canStartLive: preparing && startBlockers.length === 0,
+      startBlockedReason: startBlockers.length
+        ? startBlockedTpl.replace('{list}', startBlockers.join(', '))
+        : game.i18n?.localize('MASTERY.encounterSetup.startCombat') || 'Kampf starten',
     };
   }
 
@@ -464,6 +477,34 @@ export class CombatCarouselApp extends BaseCarousel {
           if (warnIfPlayerStonesPending(combat)) return;
           await combat.nextRound();
         }
+      };
+    });
+
+    root.querySelectorAll('.js-roll-npc-ini').forEach((btn: HTMLElement) => {
+      btn.onclick = async (ev: MouseEvent) => {
+        ev.preventDefault();
+        if (!game.user?.isGM) return;
+        const combat = game.combats?.active;
+        if (!combat) return;
+        const { rollNpcInitiativeOnly } = await import('../combat/initiative-roll.js');
+        const n = await rollNpcInitiativeOnly(combat, { force: true });
+        CombatCarouselApp.refresh();
+        ui.notifications?.info(
+          (game.i18n?.localize('MASTERY.encounterSetup.npcIniRolled') || 'NSC-Initiative gewürfelt ({n}).').replace(
+            '{n}',
+            String(n),
+          ),
+        );
+      };
+    });
+
+    root.querySelectorAll('.js-start-live-combat').forEach((btn: HTMLElement) => {
+      btn.onclick = async (ev: MouseEvent) => {
+        ev.preventDefault();
+        const combat = game.combats?.active;
+        if (!combat) return;
+        const { launchLiveCombat } = await import('../combat/encounter-start.js');
+        await launchLiveCombat(combat);
       };
     });
 

@@ -1,9 +1,9 @@
 /**
  * Encounter Start Flow
  *
- * GM starts the encounter (Begin Encounter / Start Combat): mark started,
- * show the carousel, notify players. Player clients walk Passives → Stones →
- * Shop themselves. The GM does not auto-open those dialogs.
+ * Prepare Combat: mark setup started, show the carousel, notify players.
+ * Player clients walk Passives → Stones → Shop. The fight does not start yet.
+ * Start Combat (GM): sort by initiative and call Foundry startCombat.
  */
 
 import { CombatCarouselApp } from '../ui/combat-carousel.js';
@@ -18,6 +18,11 @@ import {
   setSimulatePlayerEncounter,
 } from './combat-permissions.js';
 import { findCombatantByActorId, persistCombatantSetupStep } from './encounter-setup-flags.js';
+import {
+  encounterStartBlockers,
+  isLaunchingLiveCombat,
+  setLaunchingLiveCombat,
+} from './stone-round-gate.js';
 
 interface EncounterSetupState {
   started: boolean;
@@ -114,37 +119,82 @@ export async function handleInitiativeConfirmed(combat: Combat, combatantId: str
     const allConfirmed = allPCs.length > 0 && allPCs.every((pc: any) => setup.initiativeConfirmed[pc.id]);
     
     if (allConfirmed) {
-      // All PCs confirmed - re-sort combat by initiative and refresh carousel
-      // Ensure combat is sorted by initiative
-      // Foundry v13: use setupTurns() to re-sort based on current initiative values
-      if ((combat as any).setupTurns) {
-        (combat as any).setupTurns();
-      } else {
-        // Fallback: trigger updateCombat which should sort
-        await combat.update({ turn: combat.turn ?? 0 });
-      }
-
-      await syncCombatTurnToHighestInitiativeFirst(combat);
-      // Small delay to ensure combat sorting is complete
-      await new Promise(resolve => setTimeout(resolve, 100));
-      
-      // Broadcast refresh to all clients
       game.socket?.emit(ENCOUNTER_SOCKET, {
         type: 'msRefreshCarousel',
         combatId: combat.id
       });
-      
-      // Refresh carousel locally
       CombatCarouselApp.refresh();
-      
-      // Start combat if not already started
-      if (combat.round === 0 && !combat.started) {
-        await combat.startCombat();
-        ui.notifications?.info('All players have confirmed initiative. Combat started!');
-      }
+      ui.notifications?.info(
+        game.i18n?.localize('MASTERY.encounterSetup.shopAllDone') ||
+          'Alle Spieler haben den Shop bestätigt. NSC-Ini prüfen, dann Kampf starten.',
+      );
     }
   }
 }
+
+export {
+  encounterStartBlockers,
+  isEncounterPreparing,
+  isLaunchingLiveCombat,
+} from './stone-round-gate.js';
+
+/** GM: roll leftover NPC initiative, sort, then actually start the fight. */
+export async function launchLiveCombat(combat: Combat): Promise<boolean> {
+  if (!game.user?.isGM) {
+    ui.notifications?.warn(game.i18n?.localize('MASTERY.encounterSetup.gmOnly') || 'Nur der SL kann den Kampf starten.');
+    return false;
+  }
+  const live = resolveLiveCombat(combat);
+  if (!live) return false;
+  combat = live;
+  if (combat.started) {
+    ui.notifications?.warn(game.i18n?.localize('MASTERY.encounterSetup.alreadyLive') || 'Der Kampf läuft bereits.');
+    return false;
+  }
+  const blockers = encounterStartBlockers(combat);
+  if (blockers.length) {
+    ui.notifications?.warn(
+      (game.i18n?.localize('MASTERY.encounterSetup.startBlocked') || 'Noch offen: {list}').replace(
+        '{list}',
+        blockers.join(', '),
+      ),
+    );
+    return false;
+  }
+
+  setLaunchingLiveCombat(true);
+  try {
+    try {
+      const { rollNpcInitiativeOnly } = await import('./initiative-roll.js');
+      await rollNpcInitiativeOnly(combat);
+    } catch (err) {
+      console.error('Mastery System | NPC initiative before live start failed', err);
+    }
+
+    if (typeof (combat as any).setupTurns === 'function') {
+      await (combat as any).setupTurns();
+    }
+
+    await combat.startCombat();
+
+    const after = resolveLiveCombat(combat) ?? combat;
+    if (typeof (after as any).setupTurns === 'function') {
+      await (after as any).setupTurns();
+    }
+    await syncCombatTurnToHighestInitiativeFirst(after);
+  } finally {
+    setLaunchingLiveCombat(false);
+  }
+
+  CombatCarouselApp.refresh();
+  ui.notifications?.info(
+    game.i18n?.localize('MASTERY.encounterSetup.combatStarted') ||
+      'Kampf gestartet. Höchste Initiative handelt zuerst.',
+  );
+  return true;
+}
+
+/** Native Foundry Start Combat during prepare is redirected or blocked. */
 
 export async function ensureEncounterSetupStarted(combat: Combat): Promise<void> {
   const live = resolveLiveCombat(combat);
@@ -162,13 +212,13 @@ export async function ensureEncounterSetupStarted(combat: Combat): Promise<void>
 export async function beginEncounter(combat: Combat): Promise<void> {
   const canWrite = !!(game.user?.isGM || canCurrentUserUpdateDocument(combat));
   if (!canWrite && !getSimulatePlayerEncounterId()) {
-    ui.notifications?.warn('Only the GM can begin an encounter');
+    ui.notifications?.warn(game.i18n?.localize('MASTERY.startEncounter.needGm') || 'Nur der SL kann den Kampf vorbereiten.');
     return;
   }
 
   const setup = getEncounterSetup(combat);
   if (setup.started || combat.round > 0) {
-    ui.notifications?.warn('Encounter already initialized');
+    ui.notifications?.warn(game.i18n?.localize('MASTERY.startEncounter.already') || 'Schon in Vorbereitung');
     return;
   }
 
@@ -203,6 +253,10 @@ export async function beginEncounter(combat: Combat): Promise<void> {
 
   const { resumePlayerEncounterSetup } = await import('./player-encounter-setup.js');
   void resumePlayerEncounterSetup(combat);
+  ui.notifications?.info(
+    game.i18n?.localize('MASTERY.encounterSetup.prepareStarted') ||
+      'Vorbereitung gestartet. Spieler wählen Passives, Steine und Shop. Danach „Kampf starten“.',
+  );
 }
 
 /**
@@ -250,6 +304,21 @@ function debouncedCarouselRefresh(delay: number = 150): void {
  * Initialize encounter start system
  */
 export function initializeEncounterStart(): void {
+  Hooks.on('preUpdateCombat', (combat: Combat, changes: any, _options: any, userId: string) => {
+    if (userId !== game.user?.id) return;
+    if (isLaunchingLiveCombat()) return;
+    if (changes?.round === undefined) return;
+    const nextRound = Number(changes.round);
+    if (!(combat.round === 0 && nextRound > 0)) return;
+    const setup = getEncounterSetup(combat);
+    if (!setup.started) {
+      void beginEncounter(combat);
+    } else {
+      void launchLiveCombat(combat);
+    }
+    return false;
+  });
+
   // Hook: Update carousel when combat changes (debounced)
   Hooks.on('updateCombat', (combat: Combat, changes: any) => {
     const flags = combat.flags['mastery-system'] || {};

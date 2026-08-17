@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.361] - 2026-08-17
+
+### Changed
+
+- **Encounter flow:** The tracker button is now Prepare Combat (Passives, Stones, Shop, NPC initiative). The fight stays unstarted until the GM presses Start Combat. Combat then begins with the highest initiative, not the first listed player.
+
 ## [0.9.360] - 2026-08-17
 
 ### Added

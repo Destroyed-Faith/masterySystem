@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest';
 import {
   arePlayerStonesReadyForRound,
   assignPendingStonesAsGm,
+  encounterStartBlockers,
+  isEncounterPreparing,
   pendingStonePlayerNames,
   warnIfPlayerStonesPending,
 } from '../src/combat/stone-round-gate.js';
@@ -36,11 +38,16 @@ function mockCombatant(opts: {
   } as unknown as Combatant;
 }
 
-function mockCombat(combatants: Combatant[], round = 2, stonesDone: Record<string, number> = {}): Combat {
+function mockCombat(
+  combatants: Combatant[],
+  round = 2,
+  stonesDone: Record<string, number> = {},
+  extra: { started?: boolean; setupStarted?: boolean } = {},
+): Combat {
   const list = combatants;
   return {
     id: 'cmb',
-    started: true,
+    started: extra.started ?? true,
     round,
     combatants: {
       [Symbol.iterator]: () => list[Symbol.iterator](),
@@ -48,6 +55,7 @@ function mockCombat(combatants: Combatant[], round = 2, stonesDone: Record<strin
     },
     flags: {
       'mastery-system': {
+        encounterSetup: extra.setupStarted ? { started: true, combatId: 'cmb' } : undefined,
         stonePowersState: { stonesDone, roundStonesPrompted: {}, initiativePhaseDoneByRound: {} },
       },
     },
@@ -120,5 +128,38 @@ describe('arePlayerStonesReadyForRound', () => {
     const fynn = mockCombatant({ id: 'c1', actorId: 'a1', owners: ['fynn'], name: 'Fynn' });
     expect(arePlayerStonesReadyForRound(mockCombat([fynn], 2), 2)).toBe(false);
     expect(pendingStonePlayerNames(mockCombat([fynn], 2), 2)).toEqual(['Fynn']);
+  });
+});
+
+describe('prepare vs start combat', () => {
+  it('treats setup-started but not live as preparing', () => {
+    const combat = mockCombat([], 0, {}, { started: false, setupStarted: true });
+    expect(isEncounterPreparing(combat)).toBe(true);
+    expect(isEncounterPreparing(mockCombat([], 1, {}, { started: true, setupStarted: true }))).toBe(false);
+  });
+
+  it('blocks start while passives, stones, or shop are open', () => {
+    setGame({ userId: 'gm', isGM: true });
+    const finn = mockCombatant({ id: 'c1', actorId: 'a1', owners: ['fynn'], name: 'Finn' });
+    const combat = mockCombat([finn], 0, {}, { started: false, setupStarted: true });
+    expect(encounterStartBlockers(combat)).toEqual(['Finn: Passives', 'Finn: Steine', 'Finn: Shop']);
+    expect(warnIfPlayerStonesPending(combat)).toBe(true);
+  });
+
+  it('allows start when every PC confirmed setup', () => {
+    setGame({ userId: 'gm', isGM: true });
+    const finn = mockCombatant({
+      id: 'c1',
+      actorId: 'a1',
+      owners: ['fynn'],
+      name: 'Finn',
+      stonesDoneRound: 1,
+    });
+    (finn as any).getFlag = (_scope: string, key: string) =>
+      key === 'encounterSetupStep'
+        ? { combatId: 'cmb', passivesLocked: true, stonesDoneRound: 1, initiativeConfirmed: true }
+        : null;
+    const combat = mockCombat([finn], 0, { c1: 1 }, { started: false, setupStarted: true });
+    expect(encounterStartBlockers(combat)).toEqual([]);
   });
 });

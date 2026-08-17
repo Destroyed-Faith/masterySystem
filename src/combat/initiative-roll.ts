@@ -234,17 +234,33 @@ export async function rollInitiativeForCombatant(
   };
 }
 
+/** True when an NPC still needs a real initiative roll (Foundry often seeds 0). */
+export function needsNpcInitiativeRoll(combatant: Combatant, force = false): boolean {
+  const t = combatant.actor?.type;
+  if (t !== 'npc' && t !== 'summon' && t !== 'divine') return false;
+  if (force) return true;
+  if (combatant.getFlag?.('mastery-system', 'npcInitiativeRolled')) return false;
+  const ini = combatant.initiative;
+  return ini == null || Number(ini) === 0;
+}
+
 /** Roll initiative for NPCs / summons / divine only. PCs roll on their own client. */
-export async function rollNpcInitiativeOnly(combat: Combat): Promise<void> {
-  if (!game.user?.isGM) return;
+export async function rollNpcInitiativeOnly(combat: Combat, opts: { force?: boolean } = {}): Promise<number> {
+  if (!game.user?.isGM) return 0;
+  let rolled = 0;
   for (const combatant of combat.combatants) {
     if (!combatant.actor) continue;
-    const t = combatant.actor.type;
-    if (t !== 'npc' && t !== 'summon' && t !== 'divine') continue;
-    if (combatant.initiative !== null && combatant.initiative !== undefined) continue;
+    if (!needsNpcInitiativeRoll(combatant, opts.force === true)) continue;
     await rollInitiativeForCombatant(combatant, { promptCombatReflexes: false });
+    try {
+      await combatant.setFlag('mastery-system', 'npcInitiativeRolled', true);
+    } catch {
+      /* best-effort */
+    }
+    rolled += 1;
     await new Promise((r) => setTimeout(r, 200));
   }
+  return rolled;
 }
 
 /**
@@ -326,11 +342,21 @@ export function remainingInitiativeAfterShop(pool: number, cost: number): number
   return p - c;
 }
 
+function listInitiativeCombatants(combat: Combat): any[] {
+  if (Array.isArray(combat.turns) && combat.turns.length) return [...combat.turns];
+  const bag = combat.combatants as { values?: () => Iterable<any> } | Iterable<any> | undefined;
+  if (!bag) return [];
+  if (typeof (bag as { values?: () => Iterable<any> }).values === 'function') {
+    return Array.from((bag as { values: () => Iterable<any> }).values());
+  }
+  return Array.from(bag as Iterable<any>);
+}
+
 /**
  * Index of the combatant who should act first (same rules as combat sort).
  */
 export function findTurnIndexHighestInitiativeFirst(combat: Combat): number {
-  const turns: any[] = Array.isArray(combat.turns) ? [...combat.turns] : [];
+  const turns = listInitiativeCombatants(combat);
   if (!turns.length) return Math.max(0, Number(combat.turn) || 0);
 
   let bestIdx = 0;
@@ -343,21 +369,28 @@ export function findTurnIndexHighestInitiativeFirst(combat: Combat): number {
 /** Foundry turn order uses the same Mastery tie-break as the first-actor sync. */
 export function initializeInitiativeOrder(): void {
   const CombatClass = (globalThis as any).CONFIG?.Combat?.documentClass;
-  if (!CombatClass?.prototype) return;
-  CombatClass.prototype._sortCombatants = function sortMasteryCombatants(a: any, b: any): number {
-    return compareInitiativeCombatants(a, b);
-  };
+  if (CombatClass?.prototype) {
+    CombatClass.prototype._sortCombatants = function sortMasteryCombatants(a: any, b: any): number {
+      return compareInitiativeCombatants(a, b);
+    };
+  }
+
+  // Foundry startCombat always seeds turn: 0. Put the highest Ini there before the update lands.
+  Hooks.on('combatStart', (combat: Combat, updateData?: { turn?: number }) => {
+    if (!updateData || typeof updateData !== 'object') return;
+    updateData.turn = findTurnIndexHighestInitiativeFirst(combat);
+  });
 }
 
 /** After `setupTurns()`, ensure `combat.turn` points at highest-initiative combatant (Mastery first-actor rule). */
 export async function syncCombatTurnToHighestInitiativeFirst(combat: Combat): Promise<void> {
   try {
-    const turns: any[] = Array.isArray(combat.turns) ? [...combat.turns] : [];
+    const turns = listInitiativeCombatants(combat);
     const desired = findTurnIndexHighestInitiativeFirst(combat);
-    const chosen = turns[desired];
-    if (desired !== combat.turn) {
-      await combat.update({ turn: desired });
-    }
+    const currentId = (combat as any).combatant?.id ?? turns[Number(combat.turn) || 0]?.id;
+    const desiredId = turns[desired]?.id;
+    if (desired === combat.turn && currentId === desiredId) return;
+    await combat.update({ turn: desired });
   } catch (e) {
     console.warn('Mastery System | syncCombatTurnToHighestInitiativeFirst failed', e);
   }

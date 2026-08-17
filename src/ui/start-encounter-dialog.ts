@@ -8,7 +8,7 @@ export class StartEncounterDialog extends BaseDialog {
     id: 'mastery-start-encounter',
     classes: ['mastery-system', 'start-encounter-dialog'],
     position: { width: 520, height: 'auto' },
-    window: { title: 'Start Encounter', icon: 'fa-solid fa-swords', resizable: true },
+    window: { title: 'Kampf vorbereiten', icon: 'fa-solid fa-swords', resizable: true },
     actions: {
       start: function (this: StartEncounterDialog, event: Event) {
         event.preventDefault();

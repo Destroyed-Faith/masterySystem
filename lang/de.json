@@ -57,9 +57,9 @@
       "compactHint": "Kompaktes Carousel — Fenster oder Zoom ist unter 1024×768."
     },
     "startEncounter": {
-      "start": "Start Encounter",
+      "start": "Kampf vorbereiten",
       "trackerHint": "Token-Auswahl öffnen — nicht das Plus (das legt nur leere nummerierte Kämpfe an).",
-      "lead": "Token auf der Szene anhaken und den Kampf starten. Als Spieler siehst du Passives, Steine und den Initiative Shop wie bei einem echten Start.",
+      "lead": "Token auf der Szene anhaken und die Vorbereitung starten (Passives, Steine, Initiative Shop). Der Kampf beginnt erst danach mit „Kampf starten“.",
       "empty": "Keine SC- oder NSC-Token auf dieser Szene.",
       "toggleAll": "Alle umschalten",
       "pc": "SC",
@@ -69,8 +69,8 @@
       "noneSelected": "Bitte mindestens einen Token anhacken.",
       "noScene": "Keine aktive Szene.",
       "needGm": "Ein SL muss online sein, damit der Kampf angelegt wird.",
-      "sent": "Start Encounter an den SL geschickt.",
-      "already": "Dieser Kampf ist schon gestartet.",
+      "sent": "Kampf vorbereiten an den SL geschickt.",
+      "already": "Dieser Kampf ist schon in Vorbereitung oder gestartet.",
       "shopButton": "Initiative Shop",
       "shopButtonHint": "Initiative Shop erneut öffnen (gleicher Wurf, wenn noch nicht bestätigt)."
     },
@@ -91,7 +91,17 @@
       "forceAllShop": "Initiative Shop bei allen Spielern öffnen",
       "sentToPlayer": "{name}: {dialog} an den Spieler geschickt.",
       "gmOnly": "Nur der SL kann Dialoge erzwingen.",
-      "noCombat": "Kein aktiver Kampf."
+      "noCombat": "Kein aktiver Kampf.",
+      "prepareStarted": "Vorbereitung gestartet. Spieler wählen Passives, Steine und Shop. Danach „Kampf starten“.",
+      "preparing": "Vorbereitung — Passives, Steine, Initiative Shop",
+      "rollNpcIni": "NSC-Initiative würfeln",
+      "startCombat": "Kampf starten",
+      "startBlocked": "Noch offen: {list}",
+      "waitForStart": "Erst alle vorbereiten, dann „Kampf starten“ im Karussell.",
+      "shopAllDone": "Alle Spieler haben den Shop bestätigt. NSC-Ini prüfen, dann Kampf starten.",
+      "combatStarted": "Kampf gestartet. Höchste Initiative handelt zuerst.",
+      "npcIniRolled": "NSC-Initiative gewürfelt ({n}).",
+      "alreadyLive": "Der Kampf läuft bereits."
     },
     "consumable": {
       "title": "Verbrauchsmaterial-Slots",

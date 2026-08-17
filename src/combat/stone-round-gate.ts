@@ -3,7 +3,11 @@
  * NPCs do not block. The GM cannot skip the wait with Next Turn.
  */
 
-import { readCombatantSetupStep } from './encounter-setup-flags.js';
+import {
+  isCombatantInitiativeConfirmed,
+  isPassiveSelectionLocked,
+  readCombatantSetupStep,
+} from './encounter-setup-flags.js';
 
 export function isStonePowersDone(combat: Combat, combatantId: string, round: number): boolean {
   const done = (combat.flags as any)?.['mastery-system']?.stonePowersState?.stonesDone?.[combatantId];
@@ -49,10 +53,47 @@ function stoneWaitMessage(combat: Combat): string {
 }
 
 let gmStonePromptOpen = false;
+let launchingLiveCombat = false;
+
+export function setLaunchingLiveCombat(value: boolean): void {
+  launchingLiveCombat = value;
+}
+
+export function isLaunchingLiveCombat(): boolean {
+  return launchingLiveCombat;
+}
+
+export function isEncounterPreparing(combat: Combat | null | undefined): boolean {
+  if (!combat) return false;
+  const setup = (combat.flags as any)?.['mastery-system']?.encounterSetup;
+  return !!setup?.started && !combat.started;
+}
+
+export function encounterStartBlockers(combat: Combat): string[] {
+  const blockers: string[] = [];
+  for (const combatant of Array.from(combat.combatants) as Combatant[]) {
+    const actor = combatant.actor as { type?: string; id?: string; name?: string } | null;
+    if (!actor || actor.type !== 'character') continue;
+    const name = String(actor.name || (combatant as { name?: string }).name || 'Unbekannt');
+    if (!isPassiveSelectionLocked(combat, String(actor.id ?? ''))) blockers.push(`${name}: Passives`);
+    if (!isStonePowersDone(combat, combatant.id, 1)) blockers.push(`${name}: Steine`);
+    if (!isCombatantInitiativeConfirmed(combat, combatant.id)) blockers.push(`${name}: Shop`);
+  }
+  return blockers;
+}
 
 /** @returns true if actions / turn advance must wait for stone confirm. */
 export function warnIfPlayerStonesPending(combat: Combat | null | undefined): boolean {
-  if (!combat?.started) return false;
+  if (!combat) return false;
+  if (isLaunchingLiveCombat()) return false;
+  if (isEncounterPreparing(combat)) {
+    ui.notifications?.warn(
+      game.i18n?.localize('MASTERY.encounterSetup.waitForStart') ||
+        'Erst alle vorbereiten, dann „Kampf starten“ im Karussell.',
+    );
+    return true;
+  }
+  if (!combat.started) return false;
   if (arePlayerStonesReadyForRound(combat)) return false;
   ui.notifications?.warn(stoneWaitMessage(combat));
   if (game.user?.isGM) {

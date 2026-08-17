@@ -49,7 +49,7 @@ import {
   registerPhasingSettings,
 } from './combat/phasing.js';
 import { registerStressBreakdownSettings } from './combat/stress-breakdown.js';
-import { initializeEncounterStart, beginEncounter } from './combat/encounter-start.js';
+import { initializeEncounterStart, beginEncounter, launchLiveCombat } from './combat/encounter-start.js';
 import {
   buildEncounterSetupStatus,
   forceEncounterDialog,
@@ -332,8 +332,14 @@ Hooks.once('init', async function() {
       await ensureEncounterSetupStarted(combat);
       CombatCarouselApp.open();
       if (game.user?.isGM) {
-        const { rollNpcInitiativeOnly } = await import('./combat/initiative-roll.js');
+        const { rollNpcInitiativeOnly, syncCombatTurnToHighestInitiativeFirst } = await import(
+          './combat/initiative-roll.js'
+        );
         await rollNpcInitiativeOnly(combat);
+        if (typeof (combat as any).setupTurns === 'function') {
+          await (combat as any).setupTurns();
+        }
+        await syncCombatTurnToHighestInitiativeFirst(combat);
       }
       const { resumePlayerEncounterSetup } = await import('./combat/player-encounter-setup.js');
       void resumePlayerEncounterSetup(combat);
@@ -374,7 +380,7 @@ Hooks.once('init', async function() {
       const combat = (game as any).combat;
       if (!combat && CombatCarouselApp.instance) {
         closeMasteryCombatCarouselUI();
-      } else if (combat?.started) {
+      } else if (combat?.started || combat?.flags?.['mastery-system']?.encounterSetup?.started) {
         const carousel = CombatCarouselApp.instance as any;
         if (!carousel || !carousel.rendered) {
           CombatCarouselApp.open();
@@ -519,6 +525,20 @@ Hooks.once('init', async function() {
 
     // Hide all initiative roll buttons
     $html.find('button[data-action="rollInitiative"]').css('display', 'none');
+    const trackerCombat = game.combat as Combat | null | undefined;
+    const trackerPreparing = !!(
+      trackerCombat &&
+      !trackerCombat.started &&
+      (trackerCombat.flags as any)?.['mastery-system']?.encounterSetup?.started
+    );
+    const foundryStartLabel = trackerPreparing
+      ? game.i18n?.localize('MASTERY.encounterSetup.startCombat') || 'Kampf starten'
+      : game.i18n?.localize('MASTERY.startEncounter.start') || 'Kampf vorbereiten';
+    $html.find('[data-action="startCombat"]').attr({
+      'data-tooltip': foundryStartLabel,
+      'aria-label': foundryStartLabel,
+      title: foundryStartLabel,
+    });
 
     $html.find('.ms-start-encounter-bar').remove();
     const startLabel = game.i18n?.localize('MASTERY.startEncounter.start') || 'Start Encounter';
@@ -745,7 +765,7 @@ Hooks.once('init', async function() {
     const encounterControls = $html.find('.encounter-controls');
     if (encounterControls.length > 0) {
       // Remove any existing buttons to prevent duplicates
-      encounterControls.find('.ms-begin-encounter-btn, .ms-passive-selection-btn, .ms-force-all-setup').remove();
+      encounterControls.find('.ms-begin-encounter-btn, .ms-start-live-combat-btn, .ms-passive-selection-btn, .ms-force-all-setup').remove();
       
       // Add button to the left control buttons area
       const leftControls = encounterControls.find('.control-buttons.left');
@@ -759,14 +779,35 @@ Hooks.once('init', async function() {
           const setup = flags.encounterSetup;
           const isStarted = setup?.started === true || combat.round > 0;
           
-          const beginBtn = $('<button type="button" class="inline-control combat-control icon fa-solid fa-play ms-begin-encounter-btn" data-action="beginEncounter" data-tooltip="Begin Encounter" aria-label="Begin Encounter"></button>');
+          const prepareLabel = game.i18n?.localize('MASTERY.startEncounter.start') || 'Kampf vorbereiten';
+          const beginBtn = $(`<button type="button" class="inline-control combat-control icon fa-solid fa-list-check ms-begin-encounter-btn" data-action="beginEncounter" data-tooltip="${prepareLabel}" aria-label="${prepareLabel}"></button>`);
           
           if (isStarted) {
             beginBtn.prop('disabled', true).addClass('disabled');
-            beginBtn.attr('data-tooltip', 'Encounter already initialized');
+            beginBtn.attr('data-tooltip', game.i18n?.localize('MASTERY.startEncounter.already') || 'Schon in Vorbereitung');
           }
           
           leftControls.prepend(beginBtn);
+
+          if (setup?.started === true && !combat.started) {
+            const startLiveLabel = game.i18n?.localize('MASTERY.encounterSetup.startCombat') || 'Kampf starten';
+            const startLiveBtn = $(
+              `<button type="button" class="inline-control combat-control icon fa-solid fa-play ms-start-live-combat-btn" data-action="startLiveCombat" data-tooltip="${startLiveLabel}" aria-label="${startLiveLabel}"></button>`,
+            );
+            beginBtn.after(startLiveBtn);
+            startLiveBtn.off('click.ms-start-live').on('click.ms-start-live', async (ev: JQuery.ClickEvent) => {
+              ev.preventDefault();
+              ev.stopPropagation();
+              const live = game.combat;
+              if (!live) return;
+              try {
+                await launchLiveCombat(live);
+              } catch (error) {
+                console.error('Mastery System | Error starting live combat', error);
+                ui.notifications?.error('Kampf starten fehlgeschlagen');
+              }
+            });
+          }
           
           // Add click handler
           beginBtn.off('click.ms-begin').on('click.ms-begin', async (ev: JQuery.ClickEvent) => {
@@ -783,7 +824,7 @@ Hooks.once('init', async function() {
             const flags = combat.flags['mastery-system'] || {};
             const setup = flags.encounterSetup;
             if (setup?.started === true || combat.round > 0) {
-              ui.notifications?.warn('Encounter already initialized');
+              ui.notifications?.warn(game.i18n?.localize('MASTERY.startEncounter.already') || 'Schon in Vorbereitung');
               return;
             }
 

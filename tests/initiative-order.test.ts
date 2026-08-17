@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import {
   compareInitiativeCombatants,
+  findTurnIndexHighestInitiativeFirst,
+  needsNpcInitiativeRoll,
   remainingInitiativeAfterShop,
 } from '../src/combat/initiative-roll';
 
@@ -75,5 +77,48 @@ describe('compareInitiativeCombatants', () => {
     const lowRes = combatant({ id: 'g', initiative: 6, agility: 5, wits: 5, intellect: 5, resolve: 2 });
     const highRes = combatant({ id: 'h', initiative: 6, agility: 5, wits: 5, intellect: 5, resolve: 8 });
     expect(compareInitiativeCombatants(highRes, lowRes)).toBeLessThan(0);
+  });
+
+  it('does not put a negative-ini player first when an NPC rolled higher', () => {
+    const finn = combatant({ id: 'finn', initiative: -2, type: 'character' });
+    const npc = combatant({ id: 'goblin', initiative: 4, type: 'npc' });
+    const combat = { turn: 0, turns: [finn, npc] } as unknown as Combat;
+    expect(findTurnIndexHighestInitiativeFirst(combat)).toBe(1);
+  });
+
+  it('picks the highest Ini from combatants when turns is empty', () => {
+    const finn = combatant({ id: 'finn', initiative: -2, type: 'character' });
+    const npc = combatant({ id: 'goblin', initiative: 4, type: 'npc' });
+    const combat = {
+      turn: 0,
+      turns: [],
+      combatants: { values: () => [finn, npc] },
+    } as unknown as Combat;
+    expect(findTurnIndexHighestInitiativeFirst(combat)).toBe(1);
+  });
+});
+
+describe('needsNpcInitiativeRoll', () => {
+  function npc(opts: { initiative: number | null; rolled?: boolean; type?: string }): Combatant {
+    return {
+      initiative: opts.initiative,
+      actor: { type: opts.type ?? 'npc' },
+      getFlag: (_scope: string, key: string) => (key === 'npcInitiativeRolled' ? !!opts.rolled : null),
+    } as unknown as Combatant;
+  }
+
+  it('treats Foundry seed 0 as unrolled', () => {
+    expect(needsNpcInitiativeRoll(npc({ initiative: 0 }))).toBe(true);
+    expect(needsNpcInitiativeRoll(npc({ initiative: null }))).toBe(true);
+  });
+
+  it('skips after the rolled flag, unless forced', () => {
+    expect(needsNpcInitiativeRoll(npc({ initiative: 0, rolled: true }))).toBe(false);
+    expect(needsNpcInitiativeRoll(npc({ initiative: 3, rolled: true }))).toBe(false);
+    expect(needsNpcInitiativeRoll(npc({ initiative: 3, rolled: true }), true)).toBe(true);
+  });
+
+  it('does not roll player characters', () => {
+    expect(needsNpcInitiativeRoll(npc({ initiative: 0, type: 'character' }))).toBe(false);
   });
 });
