@@ -6,8 +6,8 @@ import type { EpicMasteryRollPreset } from './epic-mastery-roll-types.js';
 
 export function registerEpicMasteryRollSettings(): void {
   game.settings.register('mastery-system', 'epicRollSummaryVisibility', {
-    name: 'Epic Mastery Roll: Summary Visibility',
-    hint: 'Who can see the final Epic Mastery Roll summary in chat.',
+    name: 'Skill Roll: Summary Visibility',
+    hint: 'Who can see the final Skill Roll summary in chat.',
     scope: 'world',
     config: true,
     type: String,
@@ -19,7 +19,7 @@ export function registerEpicMasteryRollSettings(): void {
   });
 
   game.settings.register('mastery-system', 'epicRollRecentPresets', {
-    name: 'Epic Mastery Roll: Recent Presets',
+    name: 'Skill Roll: Recent Presets',
     scope: 'client',
     config: false,
     type: Object,

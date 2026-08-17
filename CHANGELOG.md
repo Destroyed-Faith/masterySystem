@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.375] - 2026-08-18
+
+### Changed
+
+- **Skill Roll:** The group check is labeled Skill Roll (Attribute Roll for attribute checks). Epic Mastery Roll / Epic Roll wording is gone from the chat button, dialog, overlay, and summary.
+
 ## [0.9.374] - 2026-08-18
 
 ### Fixed

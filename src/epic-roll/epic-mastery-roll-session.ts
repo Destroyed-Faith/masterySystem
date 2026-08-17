@@ -7,6 +7,7 @@ import {
   type EpicMasteryRollStartConfig,
   type EpicParticipant,
   type EpicParticipantResult,
+  defaultRollTitleForKind,
   isSessionReadyToComplete,
   mergeParticipantResult,
   skipParticipantInSession,
@@ -69,12 +70,12 @@ export async function startEpicMasteryRollSession(
   config: EpicMasteryRollStartConfig,
 ): Promise<EpicMasteryRollSession | null> {
   if (!game.user?.isGM) {
-    ui.notifications?.warn('Only the GM can start an Epic Mastery Roll.');
+    ui.notifications?.warn('Only the GM can start a Skill Roll.');
     return null;
   }
 
   if (activeSession?.status === 'active') {
-    ui.notifications?.warn('An Epic Mastery Roll is already in progress.');
+    ui.notifications?.warn('A Skill Roll is already in progress.');
     return null;
   }
 
@@ -86,7 +87,7 @@ export async function startEpicMasteryRollSession(
 
   const session: EpicMasteryRollSession = {
     id: randomId(),
-    title: config.title.trim() || 'Epic Mastery Roll',
+    title: config.title.trim() || defaultRollTitleForKind(config.roll.kind),
     flavor: config.flavor.trim(),
     showTn: config.showTn,
     tn: config.tn,

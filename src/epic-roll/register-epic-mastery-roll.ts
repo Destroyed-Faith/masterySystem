@@ -43,8 +43,8 @@ function injectEpicRollButton(controlsEl: HTMLElement | null | undefined): void 
   const button = document.createElement('button');
   button.type = 'button';
   button.className = 'emr-chat-launch';
-  button.title = 'Epic Mastery Roll — group skill / attribute / save check';
-  button.innerHTML = '<i class="fas fa-dice-d20"></i><span>Epic Roll</span>';
+  button.title = 'Skill Roll — group skill or attribute check';
+  button.innerHTML = '<i class="fas fa-dice-d20"></i><span>Skill Roll</span>';
 
   button.addEventListener('click', (ev) => {
     ev.preventDefault();
@@ -100,7 +100,7 @@ export function initializeEpicMasteryRoll(): void {
 function showEpicRollRecentMenu(): void {
   const presets = loadEpicRollRecentPresets();
   if (presets.length === 0) {
-    ui.notifications?.info('No recent Epic Roll presets yet.');
+    ui.notifications?.info('No recent Skill Roll presets yet.');
     return;
   }
 
@@ -117,7 +117,7 @@ function showEpicRollRecentMenu(): void {
 
   new Dialog(
     {
-      title: 'Recent Epic Rolls',
+      title: 'Recent Skill Rolls',
       content: '<p class="emr-recent-hint">Choose a recent configuration to pre-fill the dialog.</p>',
       buttons,
     },

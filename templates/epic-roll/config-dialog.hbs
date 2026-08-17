@@ -44,8 +44,8 @@
       <div class="emr-field">
         <label class="emr-label">Type</label>
         <select name="emr-roll-kind" class="emr-select">
-          <option value="skill" {{#if (eq rollKind "skill")}}selected{{/if}}>Skill Check</option>
-          <option value="attribute" {{#if (eq rollKind "attribute")}}selected{{/if}}>Attribute Check</option>
+          <option value="skill" {{#if (eq rollKind "skill")}}selected{{/if}}>Skill Roll</option>
+          <option value="attribute" {{#if (eq rollKind "attribute")}}selected{{/if}}>Attribute Roll</option>
         </select>
       </div>
 
@@ -77,7 +77,7 @@
       <h3><i class="fas fa-sliders-h"></i> Configuration</h3>
       <div class="emr-field">
         <label class="emr-label">Scene Title</label>
-        <input type="text" name="emr-title" class="emr-input" value="{{title}}" placeholder="Epic Mastery Roll" />
+        <input type="text" name="emr-title" class="emr-input" value="{{title}}" placeholder="Skill Roll" />
       </div>
       <div class="emr-field">
         <label class="emr-label">Flavor / Notes</label>
@@ -126,7 +126,7 @@
 
   <footer class="emr-config-footer">
     <button type="button" class="emr-btn emr-btn-primary" data-action="emr-start">
-      <i class="fas fa-dice-d20"></i> Start Epic Roll
+      <i class="fas fa-dice-d20"></i> Start Skill Roll
     </button>
   </footer>
 </div>

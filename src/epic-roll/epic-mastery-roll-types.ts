@@ -202,6 +202,11 @@ export function skipParticipantInSession(
   return mergeParticipantResult(session, result);
 }
 
+/** Player-facing name for a group roll of this kind. */
+export function defaultRollTitleForKind(kind: EpicRollKind): string {
+  return kind === 'attribute' ? 'Attribute Roll' : 'Skill Roll';
+}
+
 export function rollLabelForConfig(roll: EpicRollConfig): string {
   switch (roll.kind) {
     case 'skill':

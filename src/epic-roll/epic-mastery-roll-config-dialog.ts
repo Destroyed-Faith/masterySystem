@@ -9,6 +9,7 @@ import type {
   EpicMasteryRollStartConfig,
   EpicRollConfig,
   EpicRollKind,
+  defaultRollTitleForKind,
 } from './epic-mastery-roll-types.js';
 import { startEpicMasteryRollSession } from './epic-mastery-roll-session.js';
 import {
@@ -55,7 +56,7 @@ export class EpicMasteryRollConfigDialog extends BaseDialog {
     classes: ['mastery-system', 'epic-mastery-roll-config'],
     position: { width: 920, height: 640 },
     window: {
-      title: 'Epic Mastery Roll',
+      title: 'Skill Roll',
       resizable: true,
     },
   };
@@ -231,7 +232,7 @@ export class EpicMasteryRollConfigDialog extends BaseDialog {
     this.readCustomTnFromDom();
 
     const config: EpicMasteryRollStartConfig = {
-      title: this.sceneTitle.trim() || 'Epic Mastery Roll',
+      title: this.sceneTitle.trim() || defaultRollTitleForKind(this.rollKind),
       flavor: this.flavor.trim(),
       showTn: this.showTn,
       tn: { ...this.tn },
@@ -257,7 +258,7 @@ export class EpicMasteryRollConfigDialog extends BaseDialog {
 
 export function showEpicMasteryRollConfigDialog(preset?: EpicMasteryRollPreset): void {
   if (!game.user?.isGM) {
-    ui.notifications?.warn('Only the GM can start an Epic Mastery Roll.');
+    ui.notifications?.warn('Only the GM can start a Skill Roll.');
     return;
   }
 
