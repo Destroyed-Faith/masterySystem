@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.369] - 2026-08-17
+
+### Fixed
+
+- **Release tests:** Encounter start blockers now expect “Initiative” instead of the retired Shop label.
+
 ## [0.9.368] - 2026-08-17
 
 ### Fixed
