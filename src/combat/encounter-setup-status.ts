@@ -1,5 +1,5 @@
 /**
- * Encounter setup status (passives / stones / initiative shop) plus GM force-open.
+ * Encounter setup status (passives / stones / initiative) plus GM force-open.
  */
 
 import { getPassiveSlots } from '../powers/passives.js';
@@ -86,18 +86,6 @@ function stoneSummary(actor: Actor, combatantId: string, combat: Combat | null):
   return { done: doneRound === round || Number(stepDone) === Number(round), parts };
 }
 
-function shopSummary(combatant: Combatant, combat: Combat | null): { done: boolean; parts: string[] } {
-  const confirmed = !!(
-    combat &&
-    ((combat.flags as any)?.['mastery-system']?.encounterSetup?.initiativeConfirmed?.[combatant.id] ||
-      readCombatantSetupStep(combatant, combat)?.initiativeConfirmed)
-  );
-  const ini = Number(combatant.initiative);
-  const parts: string[] = [];
-  if (Number.isFinite(ini)) parts.push(`Ini ${Math.floor(ini)}`);
-  return { done: confirmed, parts };
-}
-
 export function buildEncounterSetupStatus(
   combatant: Combatant,
   combat: Combat | null = game.combat ?? null,
@@ -108,7 +96,6 @@ export function buildEncounterSetupStatus(
   const live = resolveLiveCombat(combat);
   const passives = passiveSummary(actor, combatant);
   const stones = stoneSummary(actor, combatant.id, live);
-  const shop = shopSummary(combatant, live);
 
   const row = (
     kind: EncounterDialogKind,
@@ -136,7 +123,6 @@ export function buildEncounterSetupStatus(
     rows: [
       row('passives', loc('passives', 'Passives'), passives.done, passives.names, empty),
       row('stones', loc('stones', 'Steine'), stones.done, stones.parts, empty),
-      row('initiative', loc('shop', 'Initiative'), shop.done, shop.parts, empty),
     ],
   };
 }
@@ -213,5 +199,5 @@ export async function forceEncounterDialogForAll(kind: EncounterDialogKind): Pro
 function kindLabel(kind: EncounterDialogKind): string {
   if (kind === 'passives') return loc('passives', 'Passives');
   if (kind === 'stones') return loc('stones', 'Steine');
-  return loc('shop', 'Initiative');
+  return loc('initiative', 'Initiative');
 }

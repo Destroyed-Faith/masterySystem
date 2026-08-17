@@ -789,7 +789,6 @@ Hooks.once('init', async function() {
           const forceKinds: Array<{ kind: 'passives' | 'stones' | 'initiative'; icon: string; tipKey: string }> = [
             { kind: 'passives', icon: 'fa-shield', tipKey: 'MASTERY.encounterSetup.forceAllPassives' },
             { kind: 'stones', icon: 'fa-gem', tipKey: 'MASTERY.encounterSetup.forceAllStones' },
-            { kind: 'initiative', icon: 'fa-shop', tipKey: 'MASTERY.encounterSetup.forceAllShop' },
           ];
           for (const spec of forceKinds) {
             const tip = game.i18n?.localize(spec.tipKey) || spec.tipKey;

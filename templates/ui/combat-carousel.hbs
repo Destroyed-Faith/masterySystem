@@ -38,7 +38,7 @@
           <!-- Initiative Badge -->
           <div class="initiative-badge">{{combatant.initiative}}</div>
 
-          <div class="ms-carousel-reactions" title="Reactions remaining this round (initiative shop / stones may raise total)">
+          <div class="ms-carousel-reactions" title="Reactions remaining this round (stones may raise total)">
             R <strong>{{combatant.reactionRemaining}}</strong>/{{combatant.reactionTotal}}
           </div>
 
@@ -186,9 +186,6 @@
         </button>
         <button type="button" class="carousel-control-btn js-force-all-setup" data-kind="stones" data-tooltip="{{localize 'MASTERY.encounterSetup.forceAllStones'}}" aria-label="{{localize 'MASTERY.encounterSetup.forceAllStones'}}">
           <i class="fas fa-gem"></i>
-        </button>
-        <button type="button" class="carousel-control-btn js-force-all-setup" data-kind="initiative" data-tooltip="{{localize 'MASTERY.encounterSetup.forceAllShop'}}" aria-label="{{localize 'MASTERY.encounterSetup.forceAllShop'}}">
-          <i class="fas fa-shop"></i>
         </button>
         <button type="button" class="carousel-control-btn js-end-combat" data-tooltip="End Combat" aria-label="End Combat">
           <i class="fas fa-stop"></i>

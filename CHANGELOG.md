@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.370] - 2026-08-17
+
+### Removed
+
+- **Carousel Shop / Initiative status:** The leftover Shop button is gone. Initiative is confirmed with Stone Powers, so the extra Initiative setup row no longer blocks Start Combat.
+
 ## [0.9.369] - 2026-08-17
 
 ### Fixed

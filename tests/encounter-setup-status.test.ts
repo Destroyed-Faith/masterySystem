@@ -35,7 +35,7 @@ describe('buildEncounterSetupStatus', () => {
     const status = buildEncounterSetupStatus(combatant, null);
     expect(status?.rows[0]?.summary).toContain('Lean Ward');
     expect(status?.rows[0]?.done).toBe(false);
-    expect(status?.rows[2]?.done).toBe(false);
+    expect(status?.rows).toHaveLength(2);
   });
 
   it('marks rows done only after explicit confirm', () => {

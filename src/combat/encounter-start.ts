@@ -2,7 +2,7 @@
  * Encounter Start Flow
  *
  * Prepare Combat: mark setup started, show the carousel, notify players.
- * Player clients walk Passives → Stones → Shop. The fight does not start yet.
+ * Player clients walk Passives → Stones. The fight does not start yet.
  * Start Combat (GM): sort by initiative and call Foundry startCombat.
  */
 

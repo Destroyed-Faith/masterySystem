@@ -138,11 +138,11 @@ describe('prepare vs start combat', () => {
     expect(isEncounterPreparing(mockCombat([], 1, {}, { started: true, setupStarted: true }))).toBe(false);
   });
 
-  it('blocks start while passives, stones, or initiative exchange are open', () => {
+  it('blocks start while passives or stones are open', () => {
     setGame({ userId: 'gm', isGM: true });
     const finn = mockCombatant({ id: 'c1', actorId: 'a1', owners: ['fynn'], name: 'Finn' });
     const combat = mockCombat([finn], 0, {}, { started: false, setupStarted: true });
-    expect(encounterStartBlockers(combat)).toEqual(['Finn: Passives', 'Finn: Steine', 'Finn: Initiative']);
+    expect(encounterStartBlockers(combat)).toEqual(['Finn: Passives', 'Finn: Steine']);
     expect(warnIfPlayerStonesPending(combat)).toBe(true);
   });
 
@@ -157,7 +157,7 @@ describe('prepare vs start combat', () => {
     });
     (finn as any).getFlag = (_scope: string, key: string) =>
       key === 'encounterSetupStep'
-        ? { combatId: 'cmb', passivesLocked: true, stonesDoneRound: 1, initiativeConfirmed: true }
+        ? { combatId: 'cmb', passivesLocked: true, stonesDoneRound: 1 }
         : null;
     const combat = mockCombat([finn], 0, { c1: 1 }, { started: false, setupStarted: true });
     expect(encounterStartBlockers(combat)).toEqual([]);
