@@ -1,179 +1,160 @@
 /**
  * Stone Regeneration Dialog
- * 
- * Shown at the start of each round for PCs to allocate their
- * Mastery Rank worth of stone regeneration across attributes
+ *
+ * Round 2+: the player chooses which spent stones come back (Mastery Rank points).
+ * Stone Powers opens afterwards.
  */
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
-// Type workaround for Mixin
 const BaseDialog = HandlebarsApplicationMixin(ApplicationV2) as typeof ApplicationV2;
 
-type AttributeKey = 'might' | 'agility' | 'vitality' | 'intellect' | 'resolve' | 'influence';
+type AttributeKey = 'might' | 'agility' | 'vitality' | 'intellect' | 'resolve' | 'influence' | 'wits';
+
+const REGEN_ATTRS: AttributeKey[] = [
+  'might',
+  'agility',
+  'vitality',
+  'intellect',
+  'resolve',
+  'influence',
+  'wits',
+];
 
 export class StoneRegenDialog extends BaseDialog {
   private actor: Actor;
   private regenPoints: number;
   private allocation: Record<AttributeKey, number>;
   private resolve?: (allocation: Record<AttributeKey, number> | null) => void;
-  
+
   static DEFAULT_OPTIONS = {
-    id: "mastery-stone-regen",
-    classes: ["mastery-system", "stone-regen-dialog"],
-    position: { width: 500 },
-    window: { title: "Stone Regeneration", resizable: false }
+    id: 'mastery-stone-regen',
+    classes: ['mastery-system', 'stone-regen-dialog'],
+    position: { width: 520 },
+    window: { title: 'Steine zurückholen', resizable: false },
   };
-  
+
   static PARTS = {
-    content: { template: "systems/mastery-system/templates/dialogs/stone-regen.hbs" }
+    content: { template: 'systems/mastery-system/templates/dialogs/stone-regen.hbs' },
   };
-  
-  /**
-   * Show stone regen dialog for an actor
-   */
+
   static async showForActor(actor: Actor, regenPoints: number): Promise<Record<AttributeKey, number> | null> {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       const app = new StoneRegenDialog(actor, regenPoints, resolve);
       (app as any).render({ force: true });
     });
   }
-  
-  constructor(actor: Actor, regenPoints: number, resolve: (allocation: Record<AttributeKey, number> | null) => void) {
+
+  constructor(
+    actor: Actor,
+    regenPoints: number,
+    resolve: (allocation: Record<AttributeKey, number> | null) => void,
+  ) {
     super({});
     this.actor = actor;
-    this.regenPoints = regenPoints;
+    this.regenPoints = Math.max(0, Math.floor(Number(regenPoints) || 0));
     this.resolve = resolve;
-    
-    // Initialize allocation to 0 for all attributes
     this.allocation = {
       might: 0,
       agility: 0,
       vitality: 0,
       intellect: 0,
       resolve: 0,
-      influence: 0
+      influence: 0,
+      wits: 0,
     };
   }
-  
+
   async _prepareContext(_options: any): Promise<any> {
     const system = (this.actor as any).system;
     const stonePools = system.stonePools || {};
-    
-    const attributes: AttributeKey[] = ['might', 'agility', 'vitality', 'intellect', 'resolve', 'influence'];
-    
-    const pools = attributes.map(attr => {
+    const totalAllocated = Object.values(this.allocation).reduce((sum, val) => sum + val, 0);
+    const remaining = this.regenPoints - totalAllocated;
+
+    const pools = REGEN_ATTRS.map((attr) => {
       const pool = stonePools[attr] || { current: 0, max: 0, sustained: 0 };
-      const effectiveMax = pool.max - (pool.sustained || 0);
-      const canRegen = pool.current < effectiveMax;
-      
+      const max = Number(pool.max) || 0;
+      const current = Number(pool.current) || 0;
+      const sustained = Number(pool.sustained) || 0;
+      const effectiveMax = Math.max(0, max - sustained);
+      const allocated = this.allocation[attr];
+      const room = Math.max(0, effectiveMax - current - allocated);
+      const canRegen = max > 0 && room > 0 && remaining > 0;
       return {
         key: attr,
         name: attr.charAt(0).toUpperCase() + attr.slice(1),
-        current: pool.current,
-        max: pool.max,
-        sustained: pool.sustained || 0,
+        current,
+        max,
+        sustained,
         effectiveMax,
-        allocated: this.allocation[attr],
-        canRegen
+        allocated,
+        canRegen,
+        hidden: max <= 0 && attr === 'wits',
       };
-    });
-    
-    const totalAllocated = Object.values(this.allocation).reduce((sum, val) => sum + val, 0);
-    const remaining = this.regenPoints - totalAllocated;
-    
+    }).filter((p) => !p.hidden);
+
+    const canTakeMore = pools.some((p) => p.canRegen);
     return {
       actor: this.actor,
       regenPoints: this.regenPoints,
       pools,
       totalAllocated,
       remaining,
-      canConfirm: remaining === 0
+      canConfirm: remaining === 0 || !canTakeMore,
     };
   }
-  
+
   async _onRender(_context: any, _options: any): Promise<void> {
     super._onRender?.(_context, _options);
-    
     const root = (this as any).element;
-    
-    // + buttons
+
     root.querySelectorAll('.js-add-point').forEach((btn: HTMLElement) => {
       btn.onclick = async (ev: MouseEvent) => {
         ev.preventDefault();
         const attr = btn.dataset.attribute as AttributeKey;
         if (!attr) return;
-        
         const totalAllocated = Object.values(this.allocation).reduce((sum, val) => sum + val, 0);
         if (totalAllocated >= this.regenPoints) {
-          ui.notifications.warn('All regen points allocated!');
+          ui.notifications.warn('Alle Rückhol-Punkte sind verteilt.');
           return;
         }
-        
         const system = (this.actor as any).system;
         const pool = system.stonePools?.[attr] || { current: 0, max: 0, sustained: 0 };
-        const effectiveMax = pool.max - (pool.sustained || 0);
-        const newValue = pool.current + this.allocation[attr] + 1;
-        
-        if (newValue > effectiveMax) {
-          ui.notifications.warn(`Cannot exceed ${effectiveMax} ${attr} stones!`);
+        const effectiveMax = Math.max(0, (Number(pool.max) || 0) - (Number(pool.sustained) || 0));
+        if (Number(pool.current) + this.allocation[attr] + 1 > effectiveMax) {
+          ui.notifications.warn(`${attr}: Pool ist voll.`);
           return;
         }
-        
         this.allocation[attr]++;
         await (this as any).render({ force: true });
       };
     });
-    
-    // - buttons
+
     root.querySelectorAll('.js-remove-point').forEach((btn: HTMLElement) => {
       btn.onclick = async (ev: MouseEvent) => {
         ev.preventDefault();
         const attr = btn.dataset.attribute as AttributeKey;
         if (!attr) return;
-        
         if (this.allocation[attr] > 0) {
           this.allocation[attr]--;
           await (this as any).render({ force: true });
         }
       };
     });
-    
-    // Confirm button
+
     const confirmBtn = root.querySelector('.js-confirm');
     if (confirmBtn) {
       (confirmBtn as HTMLElement).onclick = async (ev: MouseEvent) => {
         ev.preventDefault();
-        
-        const totalAllocated = Object.values(this.allocation).reduce((sum, val) => sum + val, 0);
-        if (totalAllocated !== this.regenPoints) {
-          ui.notifications.warn(`You must allocate all ${this.regenPoints} regen points!`);
-          return;
-        }
-        
         if (this.resolve) {
           this.resolve(this.allocation);
           this.resolve = undefined;
         }
-        await (this as any).close({ closeSource: "button" });
-      };
-    }
-    
-    // Skip button
-    const skipBtn = root.querySelector('.js-skip');
-    if (skipBtn) {
-      (skipBtn as HTMLElement).onclick = async (ev: MouseEvent) => {
-        ev.preventDefault();
-        
-        if (this.resolve) {
-          this.resolve(null); // No regen
-          this.resolve = undefined;
-        }
-        await (this as any).close({ closeSource: "button" });
+        await (this as any).close({ closeSource: 'button' });
       };
     }
   }
-  
+
   async _onClose(_options: any): Promise<void> {
     if (this.resolve) {
       this.resolve(null);
@@ -182,4 +163,3 @@ export class StoneRegenDialog extends BaseDialog {
     return super._onClose(_options);
   }
 }
-

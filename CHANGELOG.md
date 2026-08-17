@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.373] - 2026-08-18
+
+### Changed
+
+- **Round 2+ stone regen:** Players pick which pools get stones back (Mastery Rank) before Stone Powers. Automatic first-spent refill is gone.
+- **Stone Powers catalog:** All attribute areas stay visible even with an empty or locked pool.
+- **Next Turn:** Hidden until every PC has set stones. Then initiative is re-sorted and the first in order gets the button.
+
 ## [0.9.372] - 2026-08-18
 
 ### Added

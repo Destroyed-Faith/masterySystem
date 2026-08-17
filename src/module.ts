@@ -59,7 +59,7 @@ import { registerEncounterSocket } from './combat/encounter-socket.js';
 import { canCurrentUserUpdateDocument } from './combat/combat-permissions.js';
 import { initializeSceneControls, initializeTokenHUDButton } from './ui/scene-controls-mastery.js';
 import { initializeStonePowersFlow } from './combat/stone-powers-flow.js';
-import { initializeStoneRoundGate } from './combat/stone-round-gate.js';
+import { arePlayerStonesReadyForRound, initializeStoneRoundGate } from './combat/stone-round-gate.js';
 import { registerDivineClashSettings } from './divine-clash/divine-clash-settings.js';
 import { registerEpicMasteryRollSettings } from './epic-roll/epic-mastery-roll-settings.js';
 import { initializeEpicMasteryRoll } from './epic-roll/register-epic-mastery-roll.js';
@@ -586,9 +586,12 @@ Hooks.once('init', async function() {
       updateInitiativeDisplayInTracker(combatant, $html);
       
       // Check if this is the current combatant
-      const isCurrent = combat.combatant?.id === combatantId;
+      const isCurrent =
+        combat.combatant?.id === combatantId &&
+        !!(combat as any).started &&
+        arePlayerStonesReadyForRound(combat);
       
-      // Add End Turn button for current combatant
+      // Add End Turn button for current combatant only after every PC set stones
       if (isCurrent) {
         const endTurnBtn = $('<button type="button" class="combatant-control ms-end-turn-btn" data-action="endTurn" data-combatant-id="' + combatantId + '" data-tooltip="Nächster Eintrag im Initiative-Tracker (ein Zug weiter)." aria-label="Nächster Zug" title="Nächster Zug"><i class="fa-solid fa-forward"></i></button>');
         $initiativeDiv.append(endTurnBtn);

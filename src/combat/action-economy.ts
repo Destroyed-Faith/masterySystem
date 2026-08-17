@@ -1365,47 +1365,46 @@ export async function applyAutomaticStoneRegen(actor: Actor): Promise<void> {
 }
 
 /**
- * Regenerate stones at end of round (automatic; no player allocation dialog).
+ * Apply a player-chosen regen allocation (Mastery Rank stones back into chosen pools).
  */
-export async function regenStonesEndOfRound(combat: Combat): Promise<void> {
-  const user = game.user;
-  if (!user) return;
-
-  const pcCombatants = combat.combatants.filter((c: Combatant) => {
-    const actor = c.actor;
-    return actor && actor.type === 'character' && (user.isGM || actor.isOwner);
-  });
-
-  if (pcCombatants.length === 0) {
-    return;
-  }
-  for (const combatant of pcCombatants) {
-    const actor = combatant.actor;
-    if (!actor) continue;
-
-    const owner = getActionEconomyActor(actor) ?? actor;
-    const system = (owner.system as any);
-    const attributeKeys: AttributeKey[] = [
-      'might',
-      'agility',
-      'vitality',
-      'intellect',
-      'resolve',
-      'influence'
-    ];
-    const canRegen = attributeKeys.some((attr) => {
-      const pool = getStonePool(owner, attr);
-      const sustained = system.stonePools?.[attr]?.sustained || 0;
-      const effectiveMax = pool.max - sustained;
-      return pool.current < effectiveMax;
-    });
-
-    if (!canRegen) {
-      continue;
+export async function applyStoneRegenAllocation(
+  actor: Actor,
+  allocation: Partial<Record<AttributeKey, number>>,
+): Promise<void> {
+  const owner = getActionEconomyActor(actor) ?? actor;
+  const system = (owner.system as any);
+  const updates: Record<string, number> = {};
+  const keys: AttributeKey[] = [
+    'might',
+    'agility',
+    'vitality',
+    'intellect',
+    'resolve',
+    'influence',
+    'wits',
+  ];
+  for (const attr of keys) {
+    const add = Math.max(0, Math.floor(Number(allocation[attr]) || 0));
+    if (!add) continue;
+    const pool = getStonePool(owner, attr);
+    const sustained = Number(system.stonePools?.[attr]?.sustained) || 0;
+    const cap = Math.max(0, pool.max - sustained);
+    const next = Math.min(cap, pool.current + add);
+    if (next !== pool.current) {
+      updates[`system.stonePools.${attr}.current`] = next;
     }
-
-    await applyAutomaticStoneRegen(actor);
   }
+  if (Object.keys(updates).length > 0) {
+    await owner.update(updates);
+  }
+}
+
+/**
+ * Round advance no longer auto-fills pools. Players pick which stones come back
+ * in StoneRegenDialog before Stone Powers.
+ */
+export async function regenStonesEndOfRound(_combat: Combat): Promise<void> {
+  /* interactive regen runs in StoneRegenDialog */
 }
 
 /**

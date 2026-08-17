@@ -4,6 +4,7 @@ import {
 } from '../combat/action-economy.js';
 import { requestEndTurn } from '../combat/end-turn.js';
 import {
+  arePlayerStonesReadyForRound,
   encounterStartBlockers,
   isEncounterPreparing,
   warnIfPlayerStonesPending,
@@ -339,7 +340,10 @@ export class CombatCarouselApp extends BaseCarousel {
         initiative: combatant.initiative ?? 0,
         reactionRemaining: reactSum.remaining,
         reactionTotal: reactSum.total,
-        isCurrent: !isEncounterPreparing(combat) && combatant.id === currentCombatantId,
+        isCurrent:
+          !isEncounterPreparing(combat) &&
+          arePlayerStonesReadyForRound(combat) &&
+          combatant.id === currentCombatantId,
         hidden: combatant.hidden || false,
         defeated: combatant.defeated || false,
         statusIcons: statusIcons.filter((item: any) => item && item.icon),
@@ -358,6 +362,7 @@ export class CombatCarouselApp extends BaseCarousel {
       });
     }
     const preparing = isEncounterPreparing(combat);
+    const stonesReady = arePlayerStonesReadyForRound(combat);
     const startBlockers = preparing ? encounterStartBlockers(combat) : [];
     const startBlockedTpl =
       game.i18n?.localize('MASTERY.encounterSetup.startBlocked') || 'Noch offen: {list}';
@@ -369,6 +374,7 @@ export class CombatCarouselApp extends BaseCarousel {
       currentRound: combat.round || 1,
       currentTurn: combat.turn || 0,
       preparing,
+      stonesReady,
       canStartLive: preparing && startBlockers.length === 0,
       startBlockedReason: startBlockers.length
         ? startBlockedTpl.replace('{list}', startBlockers.join(', '))

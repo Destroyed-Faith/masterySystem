@@ -8,7 +8,7 @@ const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 // Type workaround for Mixin
 const BaseDialog = HandlebarsApplicationMixin(ApplicationV2) as typeof ApplicationV2;
 
-type AttributeKey = 'might' | 'agility' | 'vitality' | 'intellect' | 'resolve' | 'influence';
+type AttributeKey = 'might' | 'agility' | 'vitality' | 'intellect' | 'resolve' | 'influence' | 'wits';
 
 import {
   STONE_POWERS,
@@ -210,11 +210,12 @@ const ALL_STONE_ATTRS: AttributeKey[] = [
   'vitality',
   'intellect',
   'resolve',
-  'influence'
+  'influence',
+  'wits',
 ];
 
-/** Pools shown in the dialog (core six + optional Wits if the actor has a wits pool). */
-const POOL_DISPLAY_ATTRS: (AttributeKey | 'wits')[] = [...ALL_STONE_ATTRS, 'wits'];
+/** Pools shown in the dialog (core six + Wits when the actor has a wits pool). */
+const POOL_DISPLAY_ATTRS: AttributeKey[] = [...ALL_STONE_ATTRS];
 
 type StoneDialogPoolKey = AttributeKey | 'wits' | typeof COLORLESS_STONE_ATTR;
 
@@ -742,8 +743,11 @@ export class StonePowersDialog extends BaseDialog {
     });
 
     const powersByAttribute: Record<string, any[]> = {};
+    for (const attr of [...ALL_STONE_ATTRS, 'wits']) {
+      powersByAttribute[attr] = [];
+    }
     for (const pool of pools) {
-      powersByAttribute[pool.key] = [];
+      if (!powersByAttribute[pool.key]) powersByAttribute[pool.key] = [];
     }
     for (const power of attributeSpecificPowers) {
       const attr = power.attribute as AttributeKey;
@@ -753,15 +757,14 @@ export class StonePowersDialog extends BaseDialog {
     }
 
     const ATTR_MATRIX_COLS = 4;
-    const attributePowerMatrix = pools
-      .map((pool) => {
-        const attr = pool.key as AttributeKey;
-        const defs: StonePower[] | undefined = STONE_POWERS_BY_ATTRIBUTE[attr];
+    const matrixAttrs: AttributeKey[] = [...ALL_STONE_ATTRS];
+    const attributePowerMatrix = matrixAttrs
+      .map((attr) => {
+        const defs: StonePower[] | undefined = STONE_POWERS_BY_ATTRIBUTE[attr as AttributeKey];
         if (!defs?.length) return null;
 
         const preparedMap = new Map((powersByAttribute[attr] || []).map((p: any) => [p.id, p]));
         const cells: any[] = [];
-        // Render every pool power, padding shorter pools to the base column count.
         const cols = Math.max(ATTR_MATRIX_COLS, defs.length);
         for (let i = 0; i < cols; i++) {
           const def = defs[i];
@@ -771,25 +774,20 @@ export class StonePowersDialog extends BaseDialog {
           }
           let p: any = preparedMap.get(def.id);
           if (!p) {
-            p = preparePowerData(def, attr);
+            p = preparePowerData(def, attr as AttributeKey);
           }
           cells.push({
             ...p,
-            effectLong: def.effect || p.description || ''
+            effectLong: def.effect || p.description || '',
           });
         }
 
         return {
           attrKey: attr,
-          cells
+          cells,
         };
       })
-      .filter((row): row is { attrKey: AttributeKey; cells: any[] } => {
-        if (!row) return false;
-        const spendable = spendableForAttr(row.attrKey);
-        const reserved = this.#reservedStonesInDialogForAttr(row.attrKey);
-        return spendable > 0 || reserved > 0;
-      });
+      .filter((row): row is { attrKey: AttributeKey; cells: any[] } => !!row);
 
     const spendableNetAllPoolsCached = totalSpendableNetAllPools();
 
@@ -1172,6 +1170,7 @@ export class StonePowersDialog extends BaseDialog {
   /** General Power: erstes Attribut mit mindestens einem freien Stein (Kern-Attribute; Wits nur für Rituale). */
   #firstGenericAttrWithSpendable(poolKeys: Set<string>): string | null {
     for (const attr of ALL_STONE_ATTRS) {
+      if (attr === 'wits') continue;
       if (!poolKeys.has(attr)) continue;
       if (this.#spendableNetForAttr(attr) > 0) return attr;
     }

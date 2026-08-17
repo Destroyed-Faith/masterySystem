@@ -32,6 +32,7 @@ export { arePlayerStonesReadyForRound, isStonePowersDone, warnIfPlayerStonesPend
 interface StonePowersState {
   roundStonesPrompted: Record<number, boolean>;
   stonesDone: Record<string, number>;
+  regenDone?: Record<string, number>;
   /** Round numbers for which the post-stones initiative phase has finished. */
   initiativePhaseDoneByRound?: Record<number, boolean>;
 }
@@ -44,6 +45,7 @@ function getStonePowersState(combat: Combat): StonePowersState {
     return {
       roundStonesPrompted: {},
       stonesDone: {},
+      regenDone: {},
       initiativePhaseDoneByRound: {}
     };
   }
@@ -70,6 +72,36 @@ async function markStonePowersDone(combat: Combat, combatantId: string, round: n
   const state = getStonePowersState(combat);
   state.stonesDone[combatantId] = round;
   await updateStonePowersState(combat, { stonesDone: state.stonesDone });
+}
+
+async function markStoneRegenDone(combat: Combat, combatantId: string, round: number): Promise<void> {
+  const state = getStonePowersState(combat);
+  const regenDone = { ...(state.regenDone || {}), [combatantId]: round };
+  await updateStonePowersState(combat, { regenDone });
+}
+
+async function promptStoneRegenIfNeeded(combat: Combat, combatant: Combatant, round: number): Promise<boolean> {
+  if (round <= 1) return true;
+  const { isStoneRegenDone, persistCombatantSetupStep } = await import('./encounter-setup-flags.js');
+  if (isStoneRegenDone(combat, combatant.id, round)) return true;
+  const actor = combatant.actor;
+  if (!actor) return true;
+
+  const { getActionEconomyActor, applyStoneRegenAllocation } = await import('./action-economy.js');
+  const owner = getActionEconomyActor(actor) ?? actor;
+  const mr = Math.max(1, Math.floor(Number((owner as any).system?.mastery?.rank) || 2));
+  const { StoneRegenDialog } = await import('../stones/stone-regen-dialog.js');
+  const allocation = await StoneRegenDialog.showForActor(owner, mr);
+  if (!allocation) return false;
+
+  if (canCurrentUserUpdateDocument(actor) || canCurrentUserUpdateDocument(owner)) {
+    await applyStoneRegenAllocation(actor, allocation);
+  }
+  await persistCombatantSetupStep(combatant, combat, { regenDoneRound: round });
+  if (game.user?.isGM) {
+    await markStoneRegenDone(combat, combatant.id, round);
+  }
+  return true;
 }
 
 /**
@@ -144,6 +176,12 @@ export async function runInitiativePhaseAfterStones(combat: Combat, round: numbe
   await updateStonePowersState(combat, {
     initiativePhaseDoneByRound: { ...(s.initiativePhaseDoneByRound || {}), [round]: true }
   });
+  try {
+    const { CombatCarouselApp } = await import('../ui/combat-carousel.js');
+    CombatCarouselApp.refresh();
+  } catch {
+    /* carousel may not be open */
+  }
 }
 
 async function openStonePowersForCombatant(combat: Combat, combatant: Combatant, round: number): Promise<void> {
@@ -173,6 +211,8 @@ async function openStonePowersForCombatant(combat: Combat, combatant: Combatant,
   }
 
   try {
+    const regenOk = await promptStoneRegenIfNeeded(combat, combatant, round);
+    if (!regenOk) return;
     const confirmed = await StonePowersDialog.showForActor(actor, combatant);
     if (!confirmed) return;
     if (game.user?.isGM) {

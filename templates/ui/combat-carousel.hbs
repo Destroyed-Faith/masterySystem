@@ -14,12 +14,14 @@
     </div>
     {{/if}}
     {{#unless preparing}}
+    {{#if stonesReady}}
     <!-- Left Controls (shown on hover) -->
     <div class="carousel-controls carousel-controls-left">
       <button type="button" class="carousel-control-btn js-prev-turn" data-tooltip="Previous Turn" aria-label="Previous Turn">
         <i class="fas fa-chevron-left"></i>
       </button>
     </div>
+    {{/if}}
     {{/unless}}
 
     <!-- Combatants Row -->
@@ -173,12 +175,14 @@
     <!-- Right Controls (shown on hover) -->
     <div class="carousel-controls carousel-controls-right">
       {{#unless preparing}}
+      {{#if stonesReady}}
       <button type="button" class="carousel-control-btn js-next-turn" data-tooltip="Next Turn" aria-label="Next Turn">
         <i class="fas fa-chevron-right"></i>
       </button>
       <button type="button" class="carousel-control-btn js-next-round" data-tooltip="Next Round" aria-label="Next Round">
         <i class="fas fa-forward"></i>
       </button>
+      {{/if}}
       {{/unless}}
       {{#if controlsAllowed}}
         <button type="button" class="carousel-control-btn js-force-all-setup" data-kind="passives" data-tooltip="{{localize 'MASTERY.encounterSetup.forceAllPassives'}}" aria-label="{{localize 'MASTERY.encounterSetup.forceAllPassives'}}">

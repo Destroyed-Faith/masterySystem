@@ -12,6 +12,7 @@ export interface CombatantSetupStep {
   combatId: string;
   passivesLocked?: boolean;
   stonesDoneRound?: number;
+  regenDoneRound?: number;
   initiativeConfirmed?: boolean;
 }
 
@@ -54,6 +55,13 @@ export function findCombatantByActorId(combat: Combat, actorId: string): Combata
 export function isPassiveSelectionLocked(combat: Combat, actorId: string): boolean {
   if ((combat.flags as any)?.['mastery-system']?.encounterSetup?.passives?.[actorId]?.locked) return true;
   return readCombatantSetupStep(findCombatantByActorId(combat, actorId), combat)?.passivesLocked === true;
+}
+
+export function isStoneRegenDone(combat: Combat, combatantId: string, round: number): boolean {
+  const done = (combat.flags as any)?.['mastery-system']?.stonePowersState?.regenDone?.[combatantId];
+  if (Number(done) === Number(round)) return true;
+  const combatant = combat.combatants.get(combatantId);
+  return Number(readCombatantSetupStep(combatant, combat)?.regenDoneRound) === Number(round);
 }
 
 export function isCombatantInitiativeConfirmed(combat: Combat, combatantId: string): boolean {
