@@ -42,13 +42,6 @@
   <div class="stone-pools-display">
     <div class="stone-pools-header-row">
       <h3>Available Stones</h3>
-      {{#if showCombatRoundPlanSave}}
-      <button type="button"
-              class="dialog-btn dialog-btn-stone-save dialog-btn-stone-save-inline js-save-stone-r1-combat-plan"
-              title="Aktuelle Ablagefelder für diese Kampf-Runde als Plan speichern und Dialog schließen. Beim erneuten Öffnen in derselben Runde wird der Plan wiederhergestellt.">
-        <i class="fas fa-floppy-disk"></i> Plan R{{combatRound}} speichern
-      </button>
-      {{/if}}
     </div>
     <div class="pools-grid">
       {{#each pools as |pool|}}
@@ -56,7 +49,7 @@
         <div class="pool-item-header">
           <span class="pool-name">{{pool.name}}</span>
         </div>
-        <div class="pool-gems" data-attribute-key="{{pool.key}}" title="{{pool.name}} — Steine zum Ziehen">
+        <div class="pool-gems{{#unless pool.gemSlots.length}} is-empty{{/unless}}" data-attribute-key="{{pool.key}}" title="{{pool.name}} — Steine zum Ziehen">
           {{#each pool.boundSlots}}
           <span
             class="ms-stone-gem-chip ms-slot-gem-bound is-drag-disabled"

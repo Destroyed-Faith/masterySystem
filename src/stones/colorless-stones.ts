@@ -102,13 +102,18 @@ export async function convertInitiativeToColorlessStones(
   stones: number,
 ): Promise<{ stones: number; remainingInitiative: number } | null> {
   if (!actor || !combatant) return null;
-  const mr = getMasteryRank(actor);
+  const { getActionEconomyActor } = await import('../combat/action-economy.js');
+  const owner = getActionEconomyActor(actor) ?? actor;
+  const mr = getMasteryRank(owner);
   const current = Math.max(0, Math.floor(Number(combatant.initiative) || 0));
   const preview = convertInitiativeToColorlessPreview(current, stones, mr);
   if (preview.stones <= 0) return null;
   await combatant.update?.({ initiative: preview.remainingInitiative });
   await combatant.setFlag?.('mastery-system', 'msInitiativeValue', preview.remainingInitiative);
-  await addTempColorlessStones(actor, preview.stones);
+  await addTempColorlessStones(owner, preview.stones);
+  if (owner !== actor && (owner as { id?: string }).id !== (actor as { id?: string }).id) {
+    await setTempColorlessStones(actor, getTempColorlessStones(owner));
+  }
   return { stones: preview.stones, remainingInitiative: preview.remainingInitiative };
 }
 

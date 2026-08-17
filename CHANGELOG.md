@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.371] - 2026-08-17
+
+### Fixed
+
+- **Colorless Stones:** The Colorless pool is always the eighth slot under Intellect, even when empty, so converted Initiative can be assigned.
+
+### Removed
+
+- **Plan Runde speichern:** The per-round stone plan button and its save/restore are gone. **Standard speichern** stays.
+
 ## [0.9.370] - 2026-08-17
 
 ### Removed

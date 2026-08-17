@@ -44,6 +44,11 @@
   margin-left: 0.25rem;
 }
 
+.stone-powers-dialog .pool-item[data-attribute="colorless"] {
+  border-style: dashed;
+  border-color: rgba(236, 239, 241, 0.35);
+}
+
 .stone-powers-dialog .pool-item[data-attribute="colorless"] .pool-name {
   color: #eceff1;
 }
@@ -180,8 +185,12 @@
   justify-content: center;
   align-items: center;
   gap: 2px;
-  min-height: 14px;
+  min-height: 18px;
   padding: 0;
+}
+
+.stone-powers-dialog .pool-gems.is-empty {
+  min-height: 18px;
 }
 
 .stone-powers-dialog .ms-stone-gem-chip {
