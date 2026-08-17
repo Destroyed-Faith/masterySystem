@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.365] - 2026-08-17
+
+### Fixed
+
+- **Release CI:** GitHub Actions now use Node 24–compatible checkout, setup-node, and gh-release so the ZIP upload no longer dies on “Too many retries”.
+
 ## [0.9.364] - 2026-08-17
 
 ### Added
