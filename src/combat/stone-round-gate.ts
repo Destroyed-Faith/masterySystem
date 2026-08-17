@@ -77,7 +77,7 @@ export function encounterStartBlockers(combat: Combat): string[] {
     const name = String(actor.name || (combatant as { name?: string }).name || 'Unbekannt');
     if (!isPassiveSelectionLocked(combat, String(actor.id ?? ''))) blockers.push(`${name}: Passives`);
     if (!isStonePowersDone(combat, combatant.id, 1)) blockers.push(`${name}: Steine`);
-    if (!isCombatantInitiativeConfirmed(combat, combatant.id)) blockers.push(`${name}: Shop`);
+    if (!isCombatantInitiativeConfirmed(combat, combatant.id)) blockers.push(`${name}: Initiative`);
   }
   return blockers;
 }

@@ -1136,7 +1136,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       if (combat && combatant && this.actor.type === 'character') {
         const { buildEncounterSetupStatus } = await import('../combat/encounter-setup-status.js');
         context.encounterSetupStatus = buildEncounterSetupStatus(combatant as Combatant, combat);
-        context.showInitiativeShopButton = !!(game.user?.isGM || this.actor.isOwner);
+        context.showInitiativeShopButton = false;
       }
     } catch (err) {
       console.warn('Mastery System | encounter setup status failed', err);

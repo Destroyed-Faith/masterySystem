@@ -85,6 +85,12 @@ export function initializeStoneHooks(): void {
     } catch (e) {
       console.warn('Mastery System | Active buff cleanup on deleteCombat failed', e);
     }
+    try {
+      const { clearColorlessStonesForCombat } = await import('./colorless-stones.js');
+      await clearColorlessStonesForCombat(combat);
+    } catch (e) {
+      console.warn('Mastery System | Colorless stone cleanup on deleteCombat failed', e);
+    }
     await restoreStonesAfterCombat(combat);
   });
   
@@ -96,6 +102,12 @@ export function initializeStoneHooks(): void {
       await clearMasteryActiveBuffsForCombatants(combat);
     } catch (e) {
       console.warn('Mastery System | Active buff cleanup on combatEnd failed', e);
+    }
+    try {
+      const { clearColorlessStonesForCombat } = await import('./colorless-stones.js');
+      await clearColorlessStonesForCombat(combat);
+    } catch (e) {
+      console.warn('Mastery System | Colorless stone cleanup on combatEnd failed', e);
     }
     await restoreStonesAfterCombat(combat);
   });

@@ -51,51 +51,51 @@
 ---
 - #### [{{ Choose your Powers}}{{ 60}}](#p60)
 ---
-- #### [{{ Languages}}{{ 64}}](#p64)
+- #### [{{ Languages}}{{ 63}}](#p63)
 ---
-- #### [{{ Schticks}}{{ 65}}](#p65)
+- #### [{{ Schticks}}{{ 64}}](#p64)
 ---
-- #### [{{ Playable Echoes}}{{ 68}}](#p68)
+- #### [{{ Playable Echoes}}{{ 67}}](#p67)
 ---
-- #### [{{ Social Combat}}{{ 121}}](#p121)
+- #### [{{ Social Combat}}{{ 127}}](#p127)
 ---
-- #### [{{ Disadvantages}}{{ 124}}](#p124)
+- #### [{{ Disadvantages}}{{ 130}}](#p130)
 ---
-- #### [{{ Finished Character: Alaris}}{{ 133}}](#p133)
+- #### [{{ Finished Character: Alaris}}{{ 139}}](#p139)
 ---
 
 ### Core Rules & Combat
 
 ---
-- #### [{{ Stone Abilities}}{{ 134}}](#p134)
+- #### [{{ Stone Abilities}}{{ 140}}](#p140)
 ---
-- #### [{{ Types of Powers}}{{ 138}}](#p138)
+- #### [{{ Types of Powers}}{{ 144}}](#p144)
 ---
-- #### [{{ Power Tags}}{{ 138}}](#p138)
+- #### [{{ Power Tags}}{{ 144}}](#p144)
 ---
-- #### [{{ Combat Core}}{{ 139}}](#p139)
+- #### [{{ Combat Core}}{{ 145}}](#p145)
 ---
-- #### [{{ Combat Senses}}{{ 142}}](#p142)
+- #### [{{ Combat Senses}}{{ 148}}](#p148)
 ---
-- #### [{{ Initiative}}{{ 155}}](#p155)
+- #### [{{ Initiative}}{{ 161}}](#p161)
 ---
-- #### [{{ Attacks}}{{ 156}}](#p156)
+- #### [{{ Attacks}}{{ 162}}](#p162)
 ---
-- #### [{{ Armor and Shields}}{{ 159}}](#p159)
+- #### [{{ Armor and Shields}}{{ 165}}](#p165)
 ---
-- #### [{{ Attribute Checks Against Effects}}{{ 160}}](#p160)
+- #### [{{ Attribute Checks Against Effects}}{{ 166}}](#p166)
 ---
-- #### [{{ Advantage and Disadvantage}}{{ 161}}](#p161)
+- #### [{{ Advantage and Disadvantage}}{{ 167}}](#p167)
 ---
-- #### [{{ Health & Stress}}{{ 162}}](#p162)
+- #### [{{ Health & Stress}}{{ 168}}](#p168)
 ---
-- #### [{{ Combat Maneuvers}}{{ 167}}](#p167)
+- #### [{{ Combat Maneuvers}}{{ 173}}](#p173)
 ---
-- #### [{{ Rest & Recovery}}{{ 169}}](#p169)
+- #### [{{ Rest & Recovery}}{{ 181}}](#p181)
 ---
-- #### [{{ Progression}}{{ 171}}](#p171)
+- #### [{{ Progression}}{{ 184}}](#p184)
 ---
-- #### [{{ Mastery Rank Progression}}{{ 174}}](#p174)
+- #### [{{ Mastery Rank Progression}}{{ 187}}](#p187)
 ---
 
 }}
@@ -107,21 +107,21 @@
 ### Powers & Magic
 
 ---
-- #### [{{ Special Effects Reference}}{{ 177}}](#p177)
+- #### [{{ Special Effects Reference}}{{ 190}}](#p190)
 ---
-- #### [{{ Equipment}}{{ 180}}](#p180)
+- #### [{{ Equipment}}{{ 193}}](#p193)
 ---
-- #### [{{ Weapons}}{{ 183}}](#p183)
+- #### [{{ Weapons}}{{ 196}}](#p196)
 ---
-- #### [{{ Magic}}{{ 184}}](#p184)
+- #### [{{ Magic}}{{ 197}}](#p197)
 ---
-- #### [{{ Mental Powers}}{{ 186}}](#p186)
+- #### [{{ Mental Powers}}{{ 199}}](#p199)
 ---
-- #### [{{ Powers}}{{ 189}}](#p189)
+- #### [{{ Powers}}{{ 202}}](#p202)
 ---
-- #### [{{ Minor Expressions}}{{ 196}}](#p196)
+- #### [{{ Minor Expressions}}{{ 209}}](#p209)
 ---
-- #### [{{ Minor Expressions Catalogue}}{{ 198}}](#p198)
+- #### [{{ Minor Expressions Catalogue}}{{ 211}}](#p211)
 ---
 
 ### Power Catalogues
@@ -141,25 +141,25 @@
 ### Rituals, Summons & Artifacts
 
 ---
-- #### [{{ Rituals}}{{ 210}}](#p210)
+- #### [{{ Rituals}}{{ 223}}](#p223)
 ---
-- #### [{{ Summons}}{{ 221}}](#p221)
+- #### [{{ Summons}}{{ 236}}](#p236)
 ---
-- #### [{{ Artifacts}}{{ 233}}](#p233)
+- #### [{{ Artifacts}}{{ 250}}](#p250)
 ---
 
 ### Advanced & Optional Systems
 
 ---
-- #### [{{ Player Cheat Sheet}}{{ 235}}](#p235)
+- #### [{{ Player Cheat Sheet}}{{ 252}}](#p252)
 ---
-- #### [{{ Game System Details}}{{ 237}}](#p237)
+- #### [{{ Game System Details}}{{ 254}}](#p254)
 ---
 
 ### Appendix
 
 ---
-- #### [{{ Appendix — Special Descriptions}}{{ 238}}](#p238)
+- #### [{{ Appendix — Special Descriptions}}{{ 255}}](#p255)
 
 }}
 
@@ -3296,7 +3296,7 @@ Combat Reflexes is the difference between *acting* and merely *responding*.
 
 **Applies to:** Initiative rolls, reacting to sudden threats, fast repositioning windows (if your combat rules allow it).
 
-> **Effect:** Combat Reflexes may be spent once after the Initiative roll. The spent amount increases your Initiative Score before you use the Initiative Shop. You do not spend Combat Reflexes separately for Initiative Order and Initiative Shop.
+> **Effect:** Combat Reflexes may be spent once after the initial Initiative roll. The spent amount increases your Initiative Score before the first Initiative Exchange. You do not spend Combat Reflexes separately for Initiative Order and Initiative Exchange.
 
 ---
 }}
@@ -3445,7 +3445,7 @@ Use the Power Catalogues when you need to know:
 
 {{note
 ##### Mentalist Option
-A character may build around Mental Powers by choosing **Passive: Telepathy**. **Passive: Telepathy** grants Telepathic Access and includes voluntary Mind Links at no additional Power cost. The character may then choose Mental Attack, Mind Illusion, Mind Probe, or Mental Control as Active Powers. A Mental Power's Power Level cannot normally exceed the character's **Passive: Telepathy** Power Level.
+A character may build around Mental Powers by choosing **Telepathy** as a Passive. Telepathy grants Telepathic Access and includes voluntary Mind Links at no additional Power cost. The character may then choose Mental Attack, Mind Illusion, Mind Probe, or Mental Control as Active Powers. A Mental Power's Power Level cannot normally exceed the character's **Passive: Telepathy** Power Level.
 }}
 
 
@@ -3759,6 +3759,18 @@ An Echo should support both the fiction and the ways a character approaches scen
 
 ### Echo Artifacts
 
+<style>
+.artifactTechnicalReference {
+  display: block;
+  margin-top: 2px;
+  font-size: 7px;
+  line-height: 1.1;
+  font-style: italic;
+  font-weight: normal;
+  color: #888;
+}
+</style>
+
 Some Echoes are bound to physical manifestations called **Echo Artifacts**.
 
 An Echo Artifact is not ordinary equipment.  
@@ -3779,7 +3791,7 @@ A character normally has **4 Artifact Capacity**.
 
 #### Technical References and Power Identity
 
-The **Artifact Name** is the Echo Artifact's character-facing name. The **Technical Reference** is the mechanical identity used for all rules interactions. **PL** means effective Power Level. The PL and any parenthetical source restriction describe the available profile; they are not part of the Power's identity.
+The **Artifact Name** is the Echo Artifact's character-facing name. The **Technical Reference** is the mechanical identity used for all rules interactions. In each Level Progression table, it is printed in smaller text directly below the Artifact Name. **PL** means effective Power Level. The PL and any parenthetical source restriction describe the available profile; they are not part of the Power's identity.
 
 - If a Technical Reference names a catalogue Power, use that Power's complete rules at the listed PL. The Artifact's Range, weapon, target, or delivery restriction applies only when the row explicitly says it overrides the catalogue profile.
 - A Power granted by an Echo Artifact counts as that Power for selection and use limits. You cannot purchase or select a second copy of the same base Technical Reference to create another once-per-round use.
@@ -4223,18 +4235,18 @@ It does not restore lost Health Levels unless another rule explicitly says other
 
 #### Level Progression
 
-| **Artifact Level** | **Artifact Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Technical Reference** |
-|:--:|:--|:--|:--:|:--:|:--:|:--|:--|
-| **1** | **Kept from Sight I** | Stone Power Support | Self | — | Instant | Pre-fill **Tier 2**. Tier 1 must still be paid. | **Influence Ability: Not a Target** (Stone Power Support, Tier 2) |
-| **2** | **Burden Lifted I** | Active, Support | 20 m | None | Instant | Reduce one eligible negative Special on one creature by **6**. | **Ranged Single Target Cleanse (PL 4)** |
-| **3** | **Hearth Circle I** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | At the end of each of your turns, allies inside the aura heal **3d8 HP**. Each creature can be affected only once per Round. | **Active Buff: Healing Aura (PL 4)** |
-| **4** | **Remembered Hands I** | Active, Support | 44 m | None | Instant | Heal one creature for **13d8 HP**. This profile has a pool of **2 Health Levels per Safe Haven Rest**. | **Ranged Single Target Heal (PL 10)** |
-| **5** | **Kept from Sight II** | Stone Power Support | Self | — | Instant | Pre-fill **Tier 3**. Tiers 1 and 2 must still be paid. | **Influence Ability: Not a Target** (Stone Power Support, Tier 3) |
-| **6** | **Burden Lifted II** | Active, Support | 44 m | None | Instant | Reduce one eligible negative Special on one creature by **10**. This replaces Burden Lifted I. | **Ranged Single Target Cleanse (PL 10)** |
-| **7** | **Remembered Hands II** | Active, Support | 68 m | None | Instant | Heal one creature for **19d8 HP**. This profile has a pool of **4 Health Levels per Safe Haven Rest** and replaces Remembered Hands I. | **Ranged Single Target Heal (PL 16)** |
-| **8** | **Hearth Circle II** | Active Buff | Self | Radius 4 m | Mastery Rank Rounds | At the end of each of your turns, allies inside the aura heal **11d8 HP**. Each creature can be affected only once per Round. This replaces Hearth Circle I. | **Active Buff: Healing Aura (PL 16)** |
-| **9** | **Kept from Sight III** | Stone Power Support | Self | — | Instant | Pre-fill **Tier 4**. Tiers 1, 2, and 3 must still be paid. | **Influence Ability: Not a Target** (Stone Power Support, Tier 4) |
-| **10** | **True Ringchain of Kept Names** | Artifact Ultimate | As defined | As defined | As defined | Define the complete final effect with the GM. It is unavailable until its full profile and Technical Reference are recorded. | **Artifact Ultimate: GM-Defined Ringchain Effect** |
+| **Artifact Level** | **Artifact Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
+| :--: | :-- | :-- | :--: | :--: | :--: | :-- |
+| **1** | **Kept from Sight I**<span class="artifactTechnicalReference">Influence Ability: Not a Target (Stone Power Support, Tier 2)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Tier 2**. Tier 1 must still be paid. |
+| **2** | **Burden Lifted I**<span class="artifactTechnicalReference">Ranged Single Target Cleanse (PL 4)</span> | Active, Support | 20 m | None | Instant | Reduce one eligible negative Special on one creature by **6**. |
+| **3** | **Hearth Circle I**<span class="artifactTechnicalReference">Active Buff: Healing Aura (PL 4)</span> | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | At the end of each of your turns, allies inside the aura heal **3d8 HP**. Each creature can be affected only once per Round. |
+| **4** | **Remembered Hands I**<span class="artifactTechnicalReference">Ranged Single Target Heal (PL 10)</span> | Active, Support | 44 m | None | Instant | Heal one creature for **13d8 HP**. This profile has a pool of **2 Health Levels per Safe Haven Rest**. |
+| **5** | **Kept from Sight II**<span class="artifactTechnicalReference">Influence Ability: Not a Target (Stone Power Support, Tier 3)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Tier 3**. Tiers 1 and 2 must still be paid. |
+| **6** | **Burden Lifted II**<span class="artifactTechnicalReference">Ranged Single Target Cleanse (PL 10)</span> | Active, Support | 44 m | None | Instant | Reduce one eligible negative Special on one creature by **10**. This replaces Burden Lifted I. |
+| **7** | **Remembered Hands II**<span class="artifactTechnicalReference">Ranged Single Target Heal (PL 16)</span> | Active, Support | 68 m | None | Instant | Heal one creature for **19d8 HP**. This profile has a pool of **4 Health Levels per Safe Haven Rest** and replaces Remembered Hands I. |
+| **8** | **Hearth Circle II**<span class="artifactTechnicalReference">Active Buff: Healing Aura (PL 16)</span> | Active Buff | Self | Radius 4 m | Mastery Rank Rounds | At the end of each of your turns, allies inside the aura heal **11d8 HP**. Each creature can be affected only once per Round. This replaces Hearth Circle I. |
+| **9** | **Kept from Sight III**<span class="artifactTechnicalReference">Influence Ability: Not a Target (Stone Power Support, Tier 4)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Tier 4**. Tiers 1, 2, and 3 must still be paid. |
+| **10** | **True Ringchain of Kept Names**<span class="artifactTechnicalReference">Artifact Ultimate: GM-Defined Ringchain Effect</span> | Artifact Ultimate | As defined | As defined | As defined | Define the complete final effect with the GM. It is unavailable until its full profile and Technical Reference are recorded. |
 }}
 \page
 {{pageNumber,auto}}
@@ -4517,18 +4529,18 @@ Immovable ends when the effect granting it ends.
 {{wide
 ### Level Progression
 
-| **Artifact Level** | **Artifact Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Technical Reference** |
-|:--:|:--|:--|:--:|:--:|:--:|:--|:--|
-| **1** | **Anchoring Stance I** | Artifact Active Buff | Self | — | 2 Rounds | Become **Immovable** and gain **40 Temporary HP**. | **Artifact Active Buff: Immovable + Temporary HP (PL 4)** |
-| **2** | **Stone-Sure Step I** | Movement | Self | — | Instant | Move up to **8 m** along a legal ground path without provoking movement-triggered Reactions. | **Movement: Safe Movement (PL 4)** |
-| **3** | **Stoneweave Guard I** | Artifact Function | Self | — | Special | When you activate an Armor-granting Active Buff, you may increase its effective PL by **+1** and its duration by **+1 round**, to a maximum of PL 16. Uses per Safe Haven Rest: half MR, rounded up. | **Artifact Function: Armor Active Buff Empowerment (+1 PL, +1 round)** |
-| **4** | **Anchoring Stance II** | Artifact Active Buff | Self | — | 2 Rounds | Become **Immovable** and gain **220 Temporary HP**. This replaces Anchoring Stance I. | **Artifact Active Buff: Immovable + Temporary HP (PL 10)** |
-| **5** | **Stone-Sure Step II** | Movement | Self | — | Instant | Move up to **14 m** along a legal ground path without provoking movement-triggered Reactions. This replaces Stone-Sure Step I. | **Movement: Safe Movement (PL 10)** |
-| **6** | **Stoneweave Guard II** | Artifact Function | Self | — | Special | Armor Active Buff Empowerment improves to **+2 PL** and **+2 rounds**, to a maximum of PL 16. Uses per Safe Haven Rest: half MR, rounded up. | **Artifact Function: Armor Active Buff Empowerment (+2 PL, +2 rounds)** |
-| **7** | **Anchoring Stance III** | Artifact Active Buff | Self | — | 2 Rounds | Become **Immovable** and gain **400 Temporary HP**. This replaces Anchoring Stance II. | **Artifact Active Buff: Immovable + Temporary HP (PL 16)** |
-| **8** | **Stone-Sure Step III** | Movement | Self | — | Instant | Move up to **20 m** along a legal ground path without provoking movement-triggered Reactions. This replaces Stone-Sure Step II. | **Movement: Safe Movement (PL 16)** |
-| **9** | **Stoneweave Guard III** | Artifact Function | Self | — | Special | Armor Active Buff Empowerment improves to **+3 PL** and **+3 rounds**, to a maximum of PL 16. Uses per Safe Haven Rest: half MR, rounded up. | **Artifact Function: Armor Active Buff Empowerment (+3 PL, +3 rounds)** |
-| **10** | **True Stonebound Soles** | Artifact Ultimate | As defined | As defined | As defined | Define the complete final effect with the GM. It is unavailable until its full profile and Technical Reference are recorded. | **Artifact Ultimate: GM-Defined Stonebound Soles Effect** |
+| **Artifact Level** | **Artifact Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
+| :--: | :-- | :-- | :--: | :--: | :--: | :-- |
+| **1** | **Anchoring Stance I**<span class="artifactTechnicalReference">Artifact Active Buff: Immovable + Temporary HP (PL 4)</span> | Artifact Active Buff | Self | — | 2 Rounds | Become **Immovable** and gain **40 Temporary HP**. |
+| **2** | **Stone-Sure Step I**<span class="artifactTechnicalReference">Movement: Safe Movement (PL 4)</span> | Movement | Self | — | Instant | Move up to **8 m** along a legal ground path without provoking movement-triggered Reactions. |
+| **3** | **Stoneweave Guard I**<span class="artifactTechnicalReference">Artifact Function: Armor Active Buff Empowerment (+1 PL, +1 round)</span> | Artifact Function | Self | — | Special | When you activate an Armor-granting Active Buff, you may increase its effective PL by **+1** and its duration by **+1 round**, to a maximum of PL 16. Uses per Safe Haven Rest: half MR, rounded up. |
+| **4** | **Anchoring Stance II**<span class="artifactTechnicalReference">Artifact Active Buff: Immovable + Temporary HP (PL 10)</span> | Artifact Active Buff | Self | — | 2 Rounds | Become **Immovable** and gain **220 Temporary HP**. This replaces Anchoring Stance I. |
+| **5** | **Stone-Sure Step II**<span class="artifactTechnicalReference">Movement: Safe Movement (PL 10)</span> | Movement | Self | — | Instant | Move up to **14 m** along a legal ground path without provoking movement-triggered Reactions. This replaces Stone-Sure Step I. |
+| **6** | **Stoneweave Guard II**<span class="artifactTechnicalReference">Artifact Function: Armor Active Buff Empowerment (+2 PL, +2 rounds)</span> | Artifact Function | Self | — | Special | Armor Active Buff Empowerment improves to **+2 PL** and **+2 rounds**, to a maximum of PL 16. Uses per Safe Haven Rest: half MR, rounded up. |
+| **7** | **Anchoring Stance III**<span class="artifactTechnicalReference">Artifact Active Buff: Immovable + Temporary HP (PL 16)</span> | Artifact Active Buff | Self | — | 2 Rounds | Become **Immovable** and gain **400 Temporary HP**. This replaces Anchoring Stance II. |
+| **8** | **Stone-Sure Step III**<span class="artifactTechnicalReference">Movement: Safe Movement (PL 16)</span> | Movement | Self | — | Instant | Move up to **20 m** along a legal ground path without provoking movement-triggered Reactions. This replaces Stone-Sure Step II. |
+| **9** | **Stoneweave Guard III**<span class="artifactTechnicalReference">Artifact Function: Armor Active Buff Empowerment (+3 PL, +3 rounds)</span> | Artifact Function | Self | — | Special | Armor Active Buff Empowerment improves to **+3 PL** and **+3 rounds**, to a maximum of PL 16. Uses per Safe Haven Rest: half MR, rounded up. |
+| **10** | **True Stonebound Soles**<span class="artifactTechnicalReference">Artifact Ultimate: GM-Defined Stonebound Soles Effect</span> | Artifact Ultimate | As defined | As defined | As defined | Define the complete final effect with the GM. It is unavailable until its full profile and Technical Reference are recorded. |
 }}
 \page
 {{pageNumber,auto}}
@@ -4787,18 +4799,18 @@ The Crit Stone Ability then resolves normally and grants **Crit(1)** to the numb
 {{wide
 ### Level Progression
 
-| **Artifact Level** | **Artifact Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Technical Reference** |
-|:--:|:--|:--|:--:|:--:|:--:|:--|:--|
-| **1** | **Otherworld Reflex I** | Reaction | Self | — | Triggering attack only | Gain **+4 Evade** against the triggering attack. | **Reaction: Evade (PL 2)** |
-| **2** | **Elorian Cling I** | Movement | Self | — | Instant | Move up to **10 m** along walls, ceilings, or similar solid surfaces. | **Movement: Wall Walk (PL 4)** |
-| **3** | **Elorian Focus I** | Stone Power Support | Self | — | Instant | Pre-fill **Tier 2**. Tier 1 must still be paid. | **Agility Ability: Crit** (Stone Power Support, Tier 2) |
-| **4** | **Otherworld Reflex II** | Reaction | Self | — | Triggering attack only | Gain **+8 Evade** against the triggering attack. This replaces Otherworld Reflex I. | **Reaction: Evade (PL 4)** |
-| **5** | **Elorian Cling II** | Movement | Self | — | Instant | Move up to **25 m** along walls, ceilings, or similar solid surfaces. This replaces Elorian Cling I. | **Movement: Wall Walk (PL 10)** |
-| **6** | **Elorian Focus II** | Stone Power Support | Self | — | Instant | Pre-fill **Tier 3**. Tiers 1 and 2 must still be paid. | **Agility Ability: Crit** (Stone Power Support, Tier 3) |
-| **7** | **Otherworld Reflex III** | Reaction | Self | — | Triggering attack only | Gain **+12 Evade** against the triggering attack. This replaces Otherworld Reflex II. | **Reaction: Evade (PL 6)** |
-| **8** | **Elorian Cling III** | Movement | Self | — | Instant | Move up to **28 m** along walls, ceilings, or similar solid surfaces. This replaces Elorian Cling II. | **Movement: Wall Walk (PL 16)** |
-| **9** | **Elorian Focus III** | Stone Power Support | Self | — | Instant | Pre-fill **Tier 4**. Tiers 1, 2, and 3 must still be paid. | **Agility Ability: Crit** (Stone Power Support, Tier 4) |
-| **10** | **True Elorian Stride** | Artifact Ultimate | As defined | As defined | As defined | Define the complete final effect with the GM. It is unavailable until its full profile and Technical Reference are recorded. | **Artifact Ultimate: GM-Defined Elorian Stride Effect** |
+| **Artifact Level** | **Artifact Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
+| :--: | :-- | :-- | :--: | :--: | :--: | :-- |
+| **1** | **Otherworld Reflex I**<span class="artifactTechnicalReference">Reaction: Evade (PL 2)</span> | Reaction | Self | — | Triggering attack only | Gain **+4 Evade** against the triggering attack. |
+| **2** | **Elorian Cling I**<span class="artifactTechnicalReference">Movement: Wall Walk (PL 4)</span> | Movement | Self | — | Instant | Move up to **10 m** along walls, ceilings, or similar solid surfaces. |
+| **3** | **Elorian Focus I**<span class="artifactTechnicalReference">Agility Ability: Crit (Stone Power Support, Tier 2)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Tier 2**. Tier 1 must still be paid. |
+| **4** | **Otherworld Reflex II**<span class="artifactTechnicalReference">Reaction: Evade (PL 4)</span> | Reaction | Self | — | Triggering attack only | Gain **+8 Evade** against the triggering attack. This replaces Otherworld Reflex I. |
+| **5** | **Elorian Cling II**<span class="artifactTechnicalReference">Movement: Wall Walk (PL 10)</span> | Movement | Self | — | Instant | Move up to **25 m** along walls, ceilings, or similar solid surfaces. This replaces Elorian Cling I. |
+| **6** | **Elorian Focus II**<span class="artifactTechnicalReference">Agility Ability: Crit (Stone Power Support, Tier 3)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Tier 3**. Tiers 1 and 2 must still be paid. |
+| **7** | **Otherworld Reflex III**<span class="artifactTechnicalReference">Reaction: Evade (PL 6)</span> | Reaction | Self | — | Triggering attack only | Gain **+12 Evade** against the triggering attack. This replaces Otherworld Reflex II. |
+| **8** | **Elorian Cling III**<span class="artifactTechnicalReference">Movement: Wall Walk (PL 16)</span> | Movement | Self | — | Instant | Move up to **28 m** along walls, ceilings, or similar solid surfaces. This replaces Elorian Cling II. |
+| **9** | **Elorian Focus III**<span class="artifactTechnicalReference">Agility Ability: Crit (Stone Power Support, Tier 4)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Tier 4**. Tiers 1, 2, and 3 must still be paid. |
+| **10** | **True Elorian Stride**<span class="artifactTechnicalReference">Artifact Ultimate: GM-Defined Elorian Stride Effect</span> | Artifact Ultimate | As defined | As defined | As defined | Define the complete final effect with the GM. It is unavailable until its full profile and Technical Reference are recorded. |
 
 
 }}
@@ -5096,18 +5108,18 @@ The Oracle Frame channels **Influence** through protective fields, coordination,
 
 
 
-| **Artifact Level** | **Artifact Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Technical Reference** |
-|:---:|---|---|:---:|:---:|---|---|---|
-| **1** | **Oracle Field I** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | You and allies in the area gain **+4 Armor**. | **Active Buff: Armor Aura (PL 1)** |
-| **2** | **Oracle Aid I** | Stone Power Support | Self | — | Instant | Pre-fill **Tier 2**. Tier 1 must still be paid. | **Influence Ability: Aid Roll** (Stone Power Support, Tier 2) |
-| **3** | **Influence Core I** | Stone Pool | Self | — | Passive | Store **2 Influence Stones** after each Safe Haven Rest. They may be spent only on Oracle Frame's listed Influence Stone functions. | **Artifact Stone Pool: Influence (2)** |
-| **4** | **Oracle Field III** | Active Buff Upgrade | Self | Radius 6 m | Mastery Rank Rounds | You and allies in the area gain **+9 Armor**. This replaces Oracle Field I. | **Active Buff: Armor Aura (PL 3)** |
-| **5** | **Oracle Aid II** | Stone Power Support | Self | — | Instant | Pre-fill **Tier 3**. Tiers 1 and 2 must still be paid. | **Influence Ability: Aid Roll** (Stone Power Support, Tier 3) |
-| **6** | **Influence Core II** | Stone Pool | Self | — | Passive | The stored pool increases to **4 Influence Stones**. | **Artifact Stone Pool: Influence (4)** |
-| **7** | **Oracle Field V** | Active Buff Upgrade | Self | Radius 10 m | Mastery Rank Rounds | You and allies in the area gain **+14 Armor**. This replaces Oracle Field III. | **Active Buff: Armor Aura (PL 5)** |
-| **8** | **Oracle Aid III** | Stone Power Support | Self | — | Instant | Pre-fill **Tier 4**. Tiers 1, 2, and 3 must still be paid. | **Influence Ability: Aid Roll** (Stone Power Support, Tier 4) |
-| **9** | **Influence Core III** | Stone Pool | Self | — | Passive | The stored pool increases to **8 Influence Stones**. | **Artifact Stone Pool: Influence (8)** |
-| **10** | **True Oracle Frame** | Artifact Ultimate | Self | — | Special | Once per Safe Haven Rest, when using Aid Roll through Oracle Frame, treat one required lower Tier as paid. | **Artifact Ultimate: Aid Roll Tier Bypass** |
+| **Artifact Level** | **Artifact Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
+| :---: | --- | --- | :---: | :---: | --- | --- |
+| **1** | **Oracle Field I**<span class="artifactTechnicalReference">Active Buff: Armor Aura (PL 1)</span> | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | You and allies in the area gain **+4 Armor**. |
+| **2** | **Oracle Aid I**<span class="artifactTechnicalReference">Influence Ability: Aid Roll (Stone Power Support, Tier 2)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Tier 2**. Tier 1 must still be paid. |
+| **3** | **Influence Core I**<span class="artifactTechnicalReference">Artifact Stone Pool: Influence (2)</span> | Stone Pool | Self | — | Passive | Store **2 Influence Stones** after each Safe Haven Rest. They may be spent only on Oracle Frame's listed Influence Stone functions. |
+| **4** | **Oracle Field III**<span class="artifactTechnicalReference">Active Buff: Armor Aura (PL 3)</span> | Active Buff Upgrade | Self | Radius 6 m | Mastery Rank Rounds | You and allies in the area gain **+9 Armor**. This replaces Oracle Field I. |
+| **5** | **Oracle Aid II**<span class="artifactTechnicalReference">Influence Ability: Aid Roll (Stone Power Support, Tier 3)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Tier 3**. Tiers 1 and 2 must still be paid. |
+| **6** | **Influence Core II**<span class="artifactTechnicalReference">Artifact Stone Pool: Influence (4)</span> | Stone Pool | Self | — | Passive | The stored pool increases to **4 Influence Stones**. |
+| **7** | **Oracle Field V**<span class="artifactTechnicalReference">Active Buff: Armor Aura (PL 5)</span> | Active Buff Upgrade | Self | Radius 10 m | Mastery Rank Rounds | You and allies in the area gain **+14 Armor**. This replaces Oracle Field III. |
+| **8** | **Oracle Aid III**<span class="artifactTechnicalReference">Influence Ability: Aid Roll (Stone Power Support, Tier 4)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Tier 4**. Tiers 1, 2, and 3 must still be paid. |
+| **9** | **Influence Core III**<span class="artifactTechnicalReference">Artifact Stone Pool: Influence (8)</span> | Stone Pool | Self | — | Passive | The stored pool increases to **8 Influence Stones**. |
+| **10** | **True Oracle Frame**<span class="artifactTechnicalReference">Artifact Ultimate: Aid Roll Tier Bypass</span> | Artifact Ultimate | Self | — | Special | Once per Safe Haven Rest, when using Aid Roll through Oracle Frame, treat one required lower Tier as paid. |
 
 ---
 
@@ -5124,18 +5136,18 @@ The Sentinel Frame channels **Resolve** through healing, stabilization, and Spec
 
 
 
-| **Artifact Level** | **Artifact Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Technical Reference** |
-|:---:|---|---|:---:|:---:|---|---|---|
-| **1** | **Single Heal I** | Active, Support | 8 m | None | Instant | Heal one creature for **5d8 HP**. This profile has a pool of **1 Health Level per Safe Haven Rest**. Only the printed Range is overridden to 8 m. | **Ranged Single Target Heal (PL 4; Artifact Range 8 m)** |
-| **2** | **Resolve Core I** | Stone Pool | Self | — | Passive | Store **2 Resolve Stones** after each Safe Haven Rest. They may be spent only on Sentinel Frame's listed Resolve Stone functions. | **Artifact Stone Pool: Resolve (2)** |
-| **3** | **Healing Support I** | Stone Power Support | Self | — | Instant | Pre-fill **Tier 2**. Tier 1 must still be paid. | **Resolve Ability: Healing** (Stone Power Support, Tier 2) |
-| **4** | **Single Heal II** | Active, Support | 8 m | None | Instant | Heal one creature for **13d8 HP**. This profile has a pool of **2 Health Levels per Safe Haven Rest** and replaces Single Heal I. Only the printed Range is overridden to 8 m. | **Ranged Single Target Heal (PL 10; Artifact Range 8 m)** |
-| **5** | **Special Reduction Support I** | Stone Power Support | Self | — | Instant | Pre-fill **Tier 3**. Tiers 1 and 2 must still be paid. | **Resolve Ability: Special Reduction** (Stone Power Support, Tier 3) |
-| **6** | **Resolve Core II** | Stone Pool | Self | — | Passive | The stored pool increases to **4 Resolve Stones**. | **Artifact Stone Pool: Resolve (4)** |
-| **7** | **Single Heal III** | Active, Support | 8 m | None | Instant | Heal one creature for **19d8 HP**. This profile has a pool of **4 Health Levels per Safe Haven Rest** and replaces Single Heal II. Only the printed Range is overridden to 8 m. | **Ranged Single Target Heal (PL 16; Artifact Range 8 m)** |
-| **8** | **Healing Support II** | Stone Power Support | Self | — | Instant | Pre-fill **Tier 4**. Tiers 1, 2, and 3 must still be paid. | **Resolve Ability: Healing** (Stone Power Support, Tier 4) |
-| **9** | **Special Reduction Support II** | Stone Power Support | Self | — | Instant | Pre-fill **Tier 4**. Tiers 1, 2, and 3 must still be paid. | **Resolve Ability: Special Reduction** (Stone Power Support, Tier 4) |
-| **10** | **True Sentinel Frame** | Artifact Ultimate | Self | — | Special | Once per Safe Haven Rest, when using Healing or Special Reduction through Sentinel Frame, treat one required lower Tier as paid. | **Artifact Ultimate: Resolve Stone Tier Bypass** |
+| **Artifact Level** | **Artifact Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
+| :---: | --- | --- | :---: | :---: | --- | --- |
+| **1** | **Single Heal I**<span class="artifactTechnicalReference">Ranged Single Target Heal (PL 4; Artifact Range 8 m)</span> | Active, Support | 8 m | None | Instant | Heal one creature for **5d8 HP**. This profile has a pool of **1 Health Level per Safe Haven Rest**. Only the printed Range is overridden to 8 m. |
+| **2** | **Resolve Core I**<span class="artifactTechnicalReference">Artifact Stone Pool: Resolve (2)</span> | Stone Pool | Self | — | Passive | Store **2 Resolve Stones** after each Safe Haven Rest. They may be spent only on Sentinel Frame's listed Resolve Stone functions. |
+| **3** | **Healing Support I**<span class="artifactTechnicalReference">Resolve Ability: Healing (Stone Power Support, Tier 2)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Tier 2**. Tier 1 must still be paid. |
+| **4** | **Single Heal II**<span class="artifactTechnicalReference">Ranged Single Target Heal (PL 10; Artifact Range 8 m)</span> | Active, Support | 8 m | None | Instant | Heal one creature for **13d8 HP**. This profile has a pool of **2 Health Levels per Safe Haven Rest** and replaces Single Heal I. Only the printed Range is overridden to 8 m. |
+| **5** | **Special Reduction Support I**<span class="artifactTechnicalReference">Resolve Ability: Special Reduction (Stone Power Support, Tier 3)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Tier 3**. Tiers 1 and 2 must still be paid. |
+| **6** | **Resolve Core II**<span class="artifactTechnicalReference">Artifact Stone Pool: Resolve (4)</span> | Stone Pool | Self | — | Passive | The stored pool increases to **4 Resolve Stones**. |
+| **7** | **Single Heal III**<span class="artifactTechnicalReference">Ranged Single Target Heal (PL 16; Artifact Range 8 m)</span> | Active, Support | 8 m | None | Instant | Heal one creature for **19d8 HP**. This profile has a pool of **4 Health Levels per Safe Haven Rest** and replaces Single Heal II. Only the printed Range is overridden to 8 m. |
+| **8** | **Healing Support II**<span class="artifactTechnicalReference">Resolve Ability: Healing (Stone Power Support, Tier 4)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Tier 4**. Tiers 1, 2, and 3 must still be paid. |
+| **9** | **Special Reduction Support II**<span class="artifactTechnicalReference">Resolve Ability: Special Reduction (Stone Power Support, Tier 4)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Tier 4**. Tiers 1, 2, and 3 must still be paid. |
+| **10** | **True Sentinel Frame**<span class="artifactTechnicalReference">Artifact Ultimate: Resolve Stone Tier Bypass</span> | Artifact Ultimate | Self | — | Special | Once per Safe Haven Rest, when using Healing or Special Reduction through Sentinel Frame, treat one required lower Tier as paid. |
 
 ---
 ![SentinelsRed](https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/Artefacts/Icons/Sentinel%20Frame.png){position:absolute,top:680px,right:320px,width:200px}
@@ -5148,18 +5160,18 @@ The Sentinel Frame channels **Resolve** through healing, stabilization, and Spec
 The Judicator Frame channels **Wits** through armor protocols, stored Stones, and regeneration support.
 
 
-| **Artifact Level** | **Artifact Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Technical Reference** |
-|:---:|---|---|:---:|:---:|---|---|---|
-| **1** | **Armor Hasten I** | Artifact Function | Self | — | Passive | When you activate an Armor-granting Active Buff, increase its effective PL by **+1** and its duration by **+1 round**, to a maximum of PL 16. | **Artifact Function: Armor Active Buff Empowerment I** |
-| **2** | **Wits Core I** | Stone Pool | Self | — | Passive | Store **2 Wits Stones** after each Safe Haven Rest. They may be spent only on Judicator Frame's listed Wits Stone functions. | **Artifact Stone Pool: Wits (2)** |
-| **3** | **Regeneration Support I** | Stone Power Support | Self | — | Instant | Pre-fill **Tier 2**. Tier 1 must still be paid. | **Wits Ability: Regeneration** (Stone Power Support, Tier 2) |
-| **4** | **Armor Hasten II** | Artifact Function | Self | — | Passive | Armor Active Buff Empowerment improves to **+2 PL** and **+2 rounds**, to a maximum of PL 16. | **Artifact Function: Armor Active Buff Empowerment II** |
-| **5** | **Wits Core II** | Stone Pool | Self | — | Passive | The stored pool increases to **4 Wits Stones**. | **Artifact Stone Pool: Wits (4)** |
-| **6** | **Regeneration Support II** | Stone Power Support | Self | — | Instant | Pre-fill **Tier 3**. Tiers 1 and 2 must still be paid. | **Wits Ability: Regeneration** (Stone Power Support, Tier 3) |
-| **7** | **Armor Hasten III** | Artifact Function | Self | — | Passive | Armor Active Buff Empowerment improves to **+3 PL** and **+3 rounds**, to a maximum of PL 16. | **Artifact Function: Armor Active Buff Empowerment III** |
-| **8** | **Wits Core III** | Stone Pool | Self | — | Passive | The stored pool increases to **8 Wits Stones**. | **Artifact Stone Pool: Wits (8)** |
-| **9** | **Regeneration Support III** | Stone Power Support | Self | — | Instant | Pre-fill **Tier 4**. Tiers 1, 2, and 3 must still be paid. | **Wits Ability: Regeneration** (Stone Power Support, Tier 4) |
-| **10** | **True Judicator Frame** | Artifact Ultimate | Self | — | Instant | Once per Safe Haven Rest, an Armor Active Buff activated through Armor Hasten may also activate the supported Regeneration Stone Power as part of the same activation. Pay Regeneration's normal Stone cost. | **Artifact Ultimate: Armor Buff + Regeneration Link** |
+| **Artifact Level** | **Artifact Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
+| :---: | --- | --- | :---: | :---: | --- | --- |
+| **1** | **Armor Hasten I**<span class="artifactTechnicalReference">Artifact Function: Armor Active Buff Empowerment I</span> | Artifact Function | Self | — | Passive | When you activate an Armor-granting Active Buff, increase its effective PL by **+1** and its duration by **+1 round**, to a maximum of PL 16. |
+| **2** | **Wits Core I**<span class="artifactTechnicalReference">Artifact Stone Pool: Wits (2)</span> | Stone Pool | Self | — | Passive | Store **2 Wits Stones** after each Safe Haven Rest. They may be spent only on Judicator Frame's listed Wits Stone functions. |
+| **3** | **Regeneration Support I**<span class="artifactTechnicalReference">Wits Ability: Regeneration (Stone Power Support, Tier 2)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Tier 2**. Tier 1 must still be paid. |
+| **4** | **Armor Hasten II**<span class="artifactTechnicalReference">Artifact Function: Armor Active Buff Empowerment II</span> | Artifact Function | Self | — | Passive | Armor Active Buff Empowerment improves to **+2 PL** and **+2 rounds**, to a maximum of PL 16. |
+| **5** | **Wits Core II**<span class="artifactTechnicalReference">Artifact Stone Pool: Wits (4)</span> | Stone Pool | Self | — | Passive | The stored pool increases to **4 Wits Stones**. |
+| **6** | **Regeneration Support II**<span class="artifactTechnicalReference">Wits Ability: Regeneration (Stone Power Support, Tier 3)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Tier 3**. Tiers 1 and 2 must still be paid. |
+| **7** | **Armor Hasten III**<span class="artifactTechnicalReference">Artifact Function: Armor Active Buff Empowerment III</span> | Artifact Function | Self | — | Passive | Armor Active Buff Empowerment improves to **+3 PL** and **+3 rounds**, to a maximum of PL 16. |
+| **8** | **Wits Core III**<span class="artifactTechnicalReference">Artifact Stone Pool: Wits (8)</span> | Stone Pool | Self | — | Passive | The stored pool increases to **8 Wits Stones**. |
+| **9** | **Regeneration Support III**<span class="artifactTechnicalReference">Wits Ability: Regeneration (Stone Power Support, Tier 4)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Tier 4**. Tiers 1, 2, and 3 must still be paid. |
+| **10** | **True Judicator Frame**<span class="artifactTechnicalReference">Artifact Ultimate: Armor Buff + Regeneration Link</span> | Artifact Ultimate | Self | — | Instant | Once per Safe Haven Rest, an Armor Active Buff activated through Armor Hasten may also activate the supported Regeneration Stone Power as part of the same activation. Pay Regeneration's normal Stone cost. |
 
 ---
 ![SentinelsRed](https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/Artefacts/Icons/Judicator%20Frame.png){position:absolute,top:750px,right:320px,width:200px}
@@ -5453,18 +5465,18 @@ The Armor value already includes the Medium Armor base and the Artifact Armor Bo
 {{wide
 #### Level Progression
 
-| **Artifact Level** | **Artifact Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Technical Reference** |
-|:---:|---|---|:---:|:---:|---|---|---|
-| **1** | **Titan Growth I** | Active Buff | Self | — | Mastery Rank Rounds | Use the normal Active Buff: Size + Damage + Armor profile at PL 4. | **Active Buff: Size + Damage + Armor (PL 4)** |
-| **2** | **Titan Might I** | Stone Power Support | Self | — | Instant | Pre-fill **Tier 2**. Tier 1 must still be paid. | **Might Ability: Melee Damage** (Stone Power Support, Tier 2) |
-| **3** | **Titan Healing I** | Stone Power Support | Self | — | Instant | Use Remove Scar through Titan Scars and pay its normal Stone cost. | **Vitality Ability: Remove Scar** (Stone Power Support) |
-| **4** | **Titan Growth II** | Active Buff | Self | — | Mastery Rank Rounds | Use the normal Active Buff: Size + Damage + Armor profile at PL 10. This replaces Titan Growth I. | **Active Buff: Size + Damage + Armor (PL 10)** |
-| **5** | **Titan Might II** | Stone Power Support | Self | — | Instant | Pre-fill **Tier 3**. Tiers 1 and 2 must still be paid. | **Might Ability: Melee Damage** (Stone Power Support, Tier 3) |
-| **6** | **Titan Healing II** | Stone Power Support | Self | — | Instant | Remove Scar used through Titan Scars may recover **1 Scarred Health Bar**, as written by the Stone Power. Pay its normal Stone cost. | **Vitality Ability: Remove Scar** (Stone Power Support, Scar Recovery) |
-| **7** | **Titan Growth III** | Active Buff | Self | — | Mastery Rank Rounds | Use the normal Active Buff: Size + Damage + Armor profile at PL 16. This replaces Titan Growth II. | **Active Buff: Size + Damage + Armor (PL 16)** |
-| **8** | **Titan Might III** | Stone Power Support | Self | — | Instant | Pre-fill **Tier 4**. Tiers 1, 2, and 3 must still be paid. | **Might Ability: Melee Damage** (Stone Power Support, Tier 4) |
-| **9** | **Titan Healing III** | Stone Power Support | Self / Touch | — | Instant | Use Remove Scar on yourself or one touched willing creature. Pay its normal Stone cost. | **Vitality Ability: Remove Scar** (Stone Power Support, Touch) |
-| **10** | **True Titan Scars** | Artifact Ultimate / Stone Power Support | Self / Touch | — | Instant | Once per Safe Haven Rest, use Remove Scar through Titan Scars without paying its Stone cost. This can recover **1 Scarred Health Bar** and follows all normal limits. | **Artifact Ultimate: Free Vitality Ability: Remove Scar** |
+| **Artifact Level** | **Artifact Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
+| :---: | --- | --- | :---: | :---: | --- | --- |
+| **1** | **Titan Growth I**<span class="artifactTechnicalReference">Active Buff: Size + Damage + Armor (PL 4)</span> | Active Buff | Self | — | Mastery Rank Rounds | Use the normal Active Buff: Size + Damage + Armor profile at PL 4. |
+| **2** | **Titan Might I**<span class="artifactTechnicalReference">Might Ability: Melee Damage (Stone Power Support, Tier 2)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Tier 2**. Tier 1 must still be paid. |
+| **3** | **Titan Healing I**<span class="artifactTechnicalReference">Vitality Ability: Remove Scar (Stone Power Support)</span> | Stone Power Support | Self | — | Instant | Use Remove Scar through Titan Scars and pay its normal Stone cost. |
+| **4** | **Titan Growth II**<span class="artifactTechnicalReference">Active Buff: Size + Damage + Armor (PL 10)</span> | Active Buff | Self | — | Mastery Rank Rounds | Use the normal Active Buff: Size + Damage + Armor profile at PL 10. This replaces Titan Growth I. |
+| **5** | **Titan Might II**<span class="artifactTechnicalReference">Might Ability: Melee Damage (Stone Power Support, Tier 3)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Tier 3**. Tiers 1 and 2 must still be paid. |
+| **6** | **Titan Healing II**<span class="artifactTechnicalReference">Vitality Ability: Remove Scar (Stone Power Support, Scar Recovery)</span> | Stone Power Support | Self | — | Instant | Remove Scar used through Titan Scars may recover **1 Scarred Health Bar**, as written by the Stone Power. Pay its normal Stone cost. |
+| **7** | **Titan Growth III**<span class="artifactTechnicalReference">Active Buff: Size + Damage + Armor (PL 16)</span> | Active Buff | Self | — | Mastery Rank Rounds | Use the normal Active Buff: Size + Damage + Armor profile at PL 16. This replaces Titan Growth II. |
+| **8** | **Titan Might III**<span class="artifactTechnicalReference">Might Ability: Melee Damage (Stone Power Support, Tier 4)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Tier 4**. Tiers 1, 2, and 3 must still be paid. |
+| **9** | **Titan Healing III**<span class="artifactTechnicalReference">Vitality Ability: Remove Scar (Stone Power Support, Touch)</span> | Stone Power Support | Self / Touch | — | Instant | Use Remove Scar on yourself or one touched willing creature. Pay its normal Stone cost. |
+| **10** | **True Titan Scars**<span class="artifactTechnicalReference">Artifact Ultimate: Free Vitality Ability: Remove Scar</span> | Artifact Ultimate / Stone Power Support | Self / Touch | — | Instant | Once per Safe Haven Rest, use Remove Scar through Titan Scars without paying its Stone cost. This can recover **1 Scarred Health Bar** and follows all normal limits. |
 
 ---
 
@@ -5740,18 +5752,18 @@ Wyrm Scales are Echo-bound and cannot normally be removed or replaced.
 {{wide
 #### Level Progression
 
-| **Artifact Level** | **Artifact Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Technical Reference** |
-|:---:|---|---|:---:|:---:|---|---|---|
-| **1** | **Dragon Wings I** | Movement | Self | — | Instant | Fly up to **6 m**. | **Movement: Flight (PL 4)** |
-| **2** | **Wyrm Scales I** | Artifact Active Buff | Self | — | Mastery Rank Rounds | Gain **+6 Armor**. | **Artifact Active Buff: Armor (PL 4)** |
-| **3** | **Armor Stone Support I** | Stone Power Support | Self | — | Instant | Pre-fill **Tier 2**. Tier 1 must still be paid. | **Vitality Ability: Armor** (Stone Power Support, Tier 2) |
-| **4** | **Dragon Wings II** | Movement | Self | — | Instant | Fly up to **15 m**. This replaces Dragon Wings I. | **Movement: Flight (PL 10)** |
-| **5** | **Wyrm Scales II** | Artifact Active Buff | Self | — | Mastery Rank Rounds | Gain **+12 Armor**. This replaces Wyrm Scales I. | **Artifact Active Buff: Armor (PL 10)** |
-| **6** | **Armor Stone Support II** | Stone Power Support | Self | — | Instant | Pre-fill **Tier 3**. Tiers 1 and 2 must still be paid. | **Vitality Ability: Armor** (Stone Power Support, Tier 3) |
-| **7** | **Dragon Wings III** | Movement | Self | — | Instant | Fly up to **24 m**. This replaces Dragon Wings II. | **Movement: Flight (PL 16)** |
-| **8** | **Wyrm Scales III** | Artifact Active Buff | Self | — | Mastery Rank Rounds | Gain **+18 Armor**. This replaces Wyrm Scales II. | **Artifact Active Buff: Armor (PL 16)** |
-| **9** | **Armor Stone Support III** | Stone Power Support | Self | — | Instant | Pre-fill **Tier 4**. Tiers 1, 2, and 3 must still be paid. | **Vitality Ability: Armor** (Stone Power Support, Tier 4) |
-| **10** | **Dragon Transformation** | Artifact Ultimate | As defined | As defined | As defined | Define the complete Wyrm Dragon Form with the GM. It is unavailable until its full transformation profile and Technical Reference are recorded. | **Artifact Ultimate: GM-Defined Wyrm Dragon Form** |
+| **Artifact Level** | **Artifact Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
+| :---: | --- | --- | :---: | :---: | --- | --- |
+| **1** | **Dragon Wings I**<span class="artifactTechnicalReference">Movement: Flight (PL 4)</span> | Movement | Self | — | Instant | Fly up to **6 m**. |
+| **2** | **Wyrm Scales I**<span class="artifactTechnicalReference">Artifact Active Buff: Armor (PL 4)</span> | Artifact Active Buff | Self | — | Mastery Rank Rounds | Gain **+6 Armor**. |
+| **3** | **Armor Stone Support I**<span class="artifactTechnicalReference">Vitality Ability: Armor (Stone Power Support, Tier 2)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Tier 2**. Tier 1 must still be paid. |
+| **4** | **Dragon Wings II**<span class="artifactTechnicalReference">Movement: Flight (PL 10)</span> | Movement | Self | — | Instant | Fly up to **15 m**. This replaces Dragon Wings I. |
+| **5** | **Wyrm Scales II**<span class="artifactTechnicalReference">Artifact Active Buff: Armor (PL 10)</span> | Artifact Active Buff | Self | — | Mastery Rank Rounds | Gain **+12 Armor**. This replaces Wyrm Scales I. |
+| **6** | **Armor Stone Support II**<span class="artifactTechnicalReference">Vitality Ability: Armor (Stone Power Support, Tier 3)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Tier 3**. Tiers 1 and 2 must still be paid. |
+| **7** | **Dragon Wings III**<span class="artifactTechnicalReference">Movement: Flight (PL 16)</span> | Movement | Self | — | Instant | Fly up to **24 m**. This replaces Dragon Wings II. |
+| **8** | **Wyrm Scales III**<span class="artifactTechnicalReference">Artifact Active Buff: Armor (PL 16)</span> | Artifact Active Buff | Self | — | Mastery Rank Rounds | Gain **+18 Armor**. This replaces Wyrm Scales II. |
+| **9** | **Armor Stone Support III**<span class="artifactTechnicalReference">Vitality Ability: Armor (Stone Power Support, Tier 4)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Tier 4**. Tiers 1, 2, and 3 must still be paid. |
+| **10** | **Dragon Transformation**<span class="artifactTechnicalReference">Artifact Ultimate: GM-Defined Wyrm Dragon Form</span> | Artifact Ultimate | As defined | As defined | As defined | Define the complete Wyrm Dragon Form with the GM. It is unavailable until its full transformation profile and Technical Reference are recorded. |
 }}
 \page
 {{pageNumber,auto}}
@@ -5793,18 +5805,18 @@ Serpent Scales are Echo-bound and cannot normally be removed or replaced.
 #### Level Progression
 
 
-| **Artifact Level** | **Artifact Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Technical Reference** |
-|:---:|---|---|:---:|:---:|---|---|---|
-| **1** | **Dragon Wings I** | Movement | Self | — | Instant | Fly up to **6 m**. | **Movement: Flight (PL 4)** |
-| **2** | **Serpent Evasion I** | Artifact Active Buff | Self | — | Mastery Rank Rounds | Gain **+6 Evade**. | **Artifact Active Buff: Evade (PL 4)** |
-| **3** | **Evasion Stone Support I** | Stone Power Support | Self | — | Instant | Pre-fill **Tier 2**. Tier 1 must still be paid. | **Agility Ability: Evade** (Stone Power Support, Tier 2) |
-| **4** | **Dragon Wings II** | Movement | Self | — | Instant | Fly up to **15 m**. This replaces Dragon Wings I. | **Movement: Flight (PL 10)** |
-| **5** | **Mobility Buff Extension II** | Artifact Function | Self | — | Passive | An Active Buff you activate that grants Evade or Movement lasts **+2 rounds**. It gains no value and does not create another maintained Active Buff slot. | **Artifact Function: Evade or Movement Active Buff Extension II** |
-| **6** | **Evasion Stone Support II** | Stone Power Support | Self | — | Instant | Pre-fill **Tier 3**. Tiers 1 and 2 must still be paid. | **Agility Ability: Evade** (Stone Power Support, Tier 3) |
-| **7** | **Dragon Wings III** | Movement | Self | — | Instant | Fly up to **24 m**. This replaces Dragon Wings II. | **Movement: Flight (PL 16)** |
-| **8** | **Mobility Buff Extension III** | Artifact Function | Self | — | Passive | The duration increase becomes **+3 rounds**. This replaces Mobility Buff Extension II. | **Artifact Function: Evade or Movement Active Buff Extension III** |
-| **9** | **Evasion Stone Support III** | Stone Power Support | Self | — | Instant | Pre-fill **Tier 4**. Tiers 1, 2, and 3 must still be paid. | **Agility Ability: Evade** (Stone Power Support, Tier 4) |
-| **10** | **True Serpent Form** | Artifact Ultimate | As defined | As defined | As defined | Define the complete final effect with the GM. It is unavailable until its full profile and Technical Reference are recorded. | **Artifact Ultimate: GM-Defined Serpent Form Effect** |
+| **Artifact Level** | **Artifact Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
+| :---: | --- | --- | :---: | :---: | --- | --- |
+| **1** | **Dragon Wings I**<span class="artifactTechnicalReference">Movement: Flight (PL 4)</span> | Movement | Self | — | Instant | Fly up to **6 m**. |
+| **2** | **Serpent Evasion I**<span class="artifactTechnicalReference">Artifact Active Buff: Evade (PL 4)</span> | Artifact Active Buff | Self | — | Mastery Rank Rounds | Gain **+6 Evade**. |
+| **3** | **Evasion Stone Support I**<span class="artifactTechnicalReference">Agility Ability: Evade (Stone Power Support, Tier 2)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Tier 2**. Tier 1 must still be paid. |
+| **4** | **Dragon Wings II**<span class="artifactTechnicalReference">Movement: Flight (PL 10)</span> | Movement | Self | — | Instant | Fly up to **15 m**. This replaces Dragon Wings I. |
+| **5** | **Mobility Buff Extension II**<span class="artifactTechnicalReference">Artifact Function: Evade or Movement Active Buff Extension II</span> | Artifact Function | Self | — | Passive | An Active Buff you activate that grants Evade or Movement lasts **+2 rounds**. It gains no value and does not create another maintained Active Buff slot. |
+| **6** | **Evasion Stone Support II**<span class="artifactTechnicalReference">Agility Ability: Evade (Stone Power Support, Tier 3)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Tier 3**. Tiers 1 and 2 must still be paid. |
+| **7** | **Dragon Wings III**<span class="artifactTechnicalReference">Movement: Flight (PL 16)</span> | Movement | Self | — | Instant | Fly up to **24 m**. This replaces Dragon Wings II. |
+| **8** | **Mobility Buff Extension III**<span class="artifactTechnicalReference">Artifact Function: Evade or Movement Active Buff Extension III</span> | Artifact Function | Self | — | Passive | The duration increase becomes **+3 rounds**. This replaces Mobility Buff Extension II. |
+| **9** | **Evasion Stone Support III**<span class="artifactTechnicalReference">Agility Ability: Evade (Stone Power Support, Tier 4)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Tier 4**. Tiers 1, 2, and 3 must still be paid. |
+| **10** | **True Serpent Form**<span class="artifactTechnicalReference">Artifact Ultimate: GM-Defined Serpent Form Effect</span> | Artifact Ultimate | As defined | As defined | As defined | Define the complete final effect with the GM. It is unavailable until its full profile and Technical Reference are recorded. |
 
 
 }}
@@ -5898,18 +5910,18 @@ When Dragon Head reaches Artifact Level 3, choose one Attribute for Draconic Rec
 :::
 #### Level Progression
 
-| **Artifact Level** | **Artifact Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Technical Reference** |
-|:--:|:--|:--|:--:|:--:|:--:|:--|:--|
-| **1** | **Breath Weapon I** | Artifact Active | Self | Chosen Breath Shape | Instant | Make the written Martial AoE Attack. Each hit takes Bite Damage + **8d8 damage** and the fixed chosen Breath Special. | **Artifact Active: Breath Weapon + Ruin / Slow / Corrode / Blight (PL 4; choose one)** |
-| **2** | **Draconic Roar I** | Active Buff | Self | Radius 8 m | Mastery Rank Rounds | You and allies in the area gain **+12 Armor**. | **Active Buff: Armor Aura (PL 4)** |
-| **3** | **Draconic Recovery I** | Artifact Active, Support | Self | — | Instant | As an Attack Action, once per Safe Haven Rest, restore **1 spent Stone** of the Attribute chosen for Draconic Recovery. | **Artifact Active: Stone Refresh (PL 4)** |
-| **4** | **Breath Weapon II** | Artifact Active | Self | Chosen Breath Shape | Instant | Bite Damage increases to + **16d8 damage**. Use the same Breath Shape and Breath Special. This replaces Breath Weapon I. | **Artifact Active: Breath Weapon + Ruin / Slow / Corrode / Blight (PL 10; same choice)** |
-| **5** | **Draconic Roar II** | Active Buff | Self | Radius 20 m | Mastery Rank Rounds | You and allies in the area gain **+28 Armor**. This replaces Draconic Roar I. | **Active Buff: Armor Aura (PL 10)** |
-| **6** | **Draconic Recovery II** | Artifact Active, Support | Self | — | Instant | As an Attack Action, once per Safe Haven Rest, restore **2 spent Stones** of the chosen Attribute. This replaces Draconic Recovery I. | **Artifact Active: Stone Refresh (PL 10)** |
-| **7** | **Breath Weapon III** | Artifact Active | Self | Chosen Breath Shape | Instant | Bite Damage increases to + **24d8 damage**. Use the same Breath Shape and Breath Special. This replaces Breath Weapon II. | **Artifact Active: Breath Weapon + Ruin / Slow / Corrode / Blight (PL 16; same choice)** |
-| **8** | **Draconic Roar III** | Active Buff | Self | Radius 32 m | Mastery Rank Rounds | You and allies in the area gain **+44 Armor**. This replaces Draconic Roar II. | **Active Buff: Armor Aura (PL 16)** |
-| **9** | **Draconic Recovery III** | Artifact Active, Support | Self | — | Instant | As an Attack Action, once per Safe Haven Rest, restore **4 spent Stones** of the chosen Attribute. This replaces Draconic Recovery II. | **Artifact Active: Stone Refresh (PL 16)** |
-| **10** | **True Dragon Head** | Artifact Ultimate | As defined | As defined | As defined | Define the complete final effect with the GM. It is unavailable until its full profile and Technical Reference are recorded. | **Artifact Ultimate: GM-Defined Dragon Head Effect** |
+| **Artifact Level** | **Artifact Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
+| :--: | :-- | :-- | :--: | :--: | :--: | :-- |
+| **1** | **Breath Weapon I**<span class="artifactTechnicalReference">Artifact Active: Breath Weapon + Ruin / Slow / Corrode / Blight (PL 4; choose one)</span> | Artifact Active | Self | Chosen Breath Shape | Instant | Make the written Martial AoE Attack. Each hit takes Bite Damage + **8d8 damage** and the fixed chosen Breath Special. |
+| **2** | **Draconic Roar I**<span class="artifactTechnicalReference">Active Buff: Armor Aura (PL 4)</span> | Active Buff | Self | Radius 8 m | Mastery Rank Rounds | You and allies in the area gain **+12 Armor**. |
+| **3** | **Draconic Recovery I**<span class="artifactTechnicalReference">Artifact Active: Stone Refresh (PL 4)</span> | Artifact Active, Support | Self | — | Instant | As an Attack Action, once per Safe Haven Rest, restore **1 spent Stone** of the Attribute chosen for Draconic Recovery. |
+| **4** | **Breath Weapon II**<span class="artifactTechnicalReference">Artifact Active: Breath Weapon + Ruin / Slow / Corrode / Blight (PL 10; same choice)</span> | Artifact Active | Self | Chosen Breath Shape | Instant | Bite Damage increases to + **16d8 damage**. Use the same Breath Shape and Breath Special. This replaces Breath Weapon I. |
+| **5** | **Draconic Roar II**<span class="artifactTechnicalReference">Active Buff: Armor Aura (PL 10)</span> | Active Buff | Self | Radius 20 m | Mastery Rank Rounds | You and allies in the area gain **+28 Armor**. This replaces Draconic Roar I. |
+| **6** | **Draconic Recovery II**<span class="artifactTechnicalReference">Artifact Active: Stone Refresh (PL 10)</span> | Artifact Active, Support | Self | — | Instant | As an Attack Action, once per Safe Haven Rest, restore **2 spent Stones** of the chosen Attribute. This replaces Draconic Recovery I. |
+| **7** | **Breath Weapon III**<span class="artifactTechnicalReference">Artifact Active: Breath Weapon + Ruin / Slow / Corrode / Blight (PL 16; same choice)</span> | Artifact Active | Self | Chosen Breath Shape | Instant | Bite Damage increases to + **24d8 damage**. Use the same Breath Shape and Breath Special. This replaces Breath Weapon II. |
+| **8** | **Draconic Roar III**<span class="artifactTechnicalReference">Active Buff: Armor Aura (PL 16)</span> | Active Buff | Self | Radius 32 m | Mastery Rank Rounds | You and allies in the area gain **+44 Armor**. This replaces Draconic Roar II. |
+| **9** | **Draconic Recovery III**<span class="artifactTechnicalReference">Artifact Active: Stone Refresh (PL 16)</span> | Artifact Active, Support | Self | — | Instant | As an Attack Action, once per Safe Haven Rest, restore **4 spent Stones** of the chosen Attribute. This replaces Draconic Recovery II. |
+| **10** | **True Dragon Head**<span class="artifactTechnicalReference">Artifact Ultimate: GM-Defined Dragon Head Effect</span> | Artifact Ultimate | As defined | As defined | As defined | Define the complete final effect with the GM. It is unavailable until its full profile and Technical Reference are recorded. |
 
 ---
 
@@ -5964,21 +5976,24 @@ Rending Spiral and Tail Sweep use the current Claw / Tail Weapon Damage.
 Rending Spiral uses the canonical **Melee AoE Attack + Lacerate** at the listed PL. Tail Sweep is the Artifact-exclusive **Artifact Active: Melee AoE Attack + Push** and uses only the profile printed in this Artifact.
 
 ---
-
+}}
+\page
+{{pageNumber,auto}}
+{{wide
 #### Level Progression
 
-| **Artifact Level** | **Artifact Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Technical Reference** |
-|:--:|:--|:--|:--:|:--:|:--:|:--|:--|
-| **1** | **Damage Support I** | Stone Power Support | Self | — | Instant | Pre-fill **Tier 2**. Tier 1 must still be paid. | **Might Ability: Melee Damage** (Stone Power Support, Tier 2) |
-| **2** | **Rending Spiral I** | Active | Self | Radius 3 m | Instant | Use the current Claw / Tail Weapon Damage. Every hit also gains **Lacerate(5)**. | **Melee AoE Attack + Lacerate (PL 4)** |
-| **3** | **Tail Sweep I** | Artifact Active | Self | Radius 3 m | Instant | Every hit takes current Claw / Tail Weapon Damage and is pushed **2 m** directly away from you. | **Artifact Active: Melee AoE Attack + Push (PL 4)** |
-| **4** | **Damage Support II** | Stone Power Support | Self | — | Instant | Pre-fill **Tier 3**. Tiers 1 and 2 must still be paid. | **Might Ability: Melee Damage** (Stone Power Support, Tier 3) |
-| **5** | **Rending Spiral II** | Active | Self | Radius 6 m | Instant | Use the current Claw / Tail Weapon Damage. Every hit also gains **Lacerate(7)**. This replaces Rending Spiral I. | **Melee AoE Attack + Lacerate (PL 10)** |
-| **6** | **Tail Sweep II** | Artifact Active | Self | Radius 5 m | Instant | Every hit takes current Claw / Tail Weapon Damage and is pushed **6 m** directly away from you. This replaces Tail Sweep I. | **Artifact Active: Melee AoE Attack + Push (PL 10)** |
-| **7** | **Damage Support III** | Stone Power Support | Self | — | Instant | Pre-fill **Tier 4**. Tiers 1, 2, and 3 must still be paid. | **Might Ability: Melee Damage** (Stone Power Support, Tier 4) |
-| **8** | **Rending Spiral III** | Active | Self | Radius 7 m | Instant | Use the current Claw / Tail Weapon Damage. Every hit also gains **Lacerate(10)**. This replaces Rending Spiral II. | **Melee AoE Attack + Lacerate (PL 16)** |
-| **9** | **Tail Sweep III** | Artifact Active | Self | Radius 7 m | Instant | Every hit takes current Claw / Tail Weapon Damage and is pushed **10 m** directly away from you. This replaces Tail Sweep II. | **Artifact Active: Melee AoE Attack + Push (PL 16)** |
-| **10** | **True Dragon Claws** | Artifact Ultimate | As defined | As defined | As defined | Define the complete final effect with the GM. It is unavailable until its full profile and Technical Reference are recorded. | **Artifact Ultimate: GM-Defined Dragon Claws Effect** |
+| **Artifact Level** | **Artifact Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
+| :--: | :-- | :-- | :--: | :--: | :--: | :-- |
+| **1** | **Damage Support I**<span class="artifactTechnicalReference">Might Ability: Melee Damage (Stone Power Support, Tier 2)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Tier 2**. Tier 1 must still be paid. |
+| **2** | **Rending Spiral I**<span class="artifactTechnicalReference">Melee AoE Attack + Lacerate (PL 4)</span> | Active | Self | Radius 3 m | Instant | Use the current Claw / Tail Weapon Damage. Every hit also gains **Lacerate(5)**. |
+| **3** | **Tail Sweep I**<span class="artifactTechnicalReference">Artifact Active: Melee AoE Attack + Push (PL 4)</span> | Artifact Active | Self | Radius 3 m | Instant | Every hit takes current Claw / Tail Weapon Damage and is pushed **2 m** directly away from you. |
+| **4** | **Damage Support II**<span class="artifactTechnicalReference">Might Ability: Melee Damage (Stone Power Support, Tier 3)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Tier 3**. Tiers 1 and 2 must still be paid. |
+| **5** | **Rending Spiral II**<span class="artifactTechnicalReference">Melee AoE Attack + Lacerate (PL 10)</span> | Active | Self | Radius 6 m | Instant | Use the current Claw / Tail Weapon Damage. Every hit also gains **Lacerate(7)**. This replaces Rending Spiral I. |
+| **6** | **Tail Sweep II**<span class="artifactTechnicalReference">Artifact Active: Melee AoE Attack + Push (PL 10)</span> | Artifact Active | Self | Radius 5 m | Instant | Every hit takes current Claw / Tail Weapon Damage and is pushed **6 m** directly away from you. This replaces Tail Sweep I. |
+| **7** | **Damage Support III**<span class="artifactTechnicalReference">Might Ability: Melee Damage (Stone Power Support, Tier 4)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Tier 4**. Tiers 1, 2, and 3 must still be paid. |
+| **8** | **Rending Spiral III**<span class="artifactTechnicalReference">Melee AoE Attack + Lacerate (PL 16)</span> | Active | Self | Radius 7 m | Instant | Use the current Claw / Tail Weapon Damage. Every hit also gains **Lacerate(10)**. This replaces Rending Spiral II. |
+| **9** | **Tail Sweep III**<span class="artifactTechnicalReference">Artifact Active: Melee AoE Attack + Push (PL 16)</span> | Artifact Active | Self | Radius 7 m | Instant | Every hit takes current Claw / Tail Weapon Damage and is pushed **10 m** directly away from you. This replaces Tail Sweep II. |
+| **10** | **True Dragon Claws**<span class="artifactTechnicalReference">Artifact Ultimate: GM-Defined Dragon Claws Effect</span> | Artifact Ultimate | As defined | As defined | As defined | Define the complete final effect with the GM. It is unavailable until its full profile and Technical Reference are recorded. |
 
 ---
 
@@ -6217,6 +6232,9 @@ The Unbound are commonly divided into three broad responses: Beasts, Witches, an
 Beasts are the body’s response.
 They are the Unbound of transformation, instinct, animal memory, and sacred violence. Their power comes from the great shapes of the wild: wolf, bear, raven, stag, fox, boar, serpent, lynx, and stranger things remembered by old forests. The most famous Beasts are wolves, bears, and ravens, but they are not the only ones. Stags and foxes still appear in old tales, though they are rarer now, and some Beast-shapes are known only in specific regions or blood-soaked places.
 
+:::::::::::::::
+Placeholder
+![KristinTheHealer](https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/NPC%27s/NPC/KristinTheHealer.png){position:absolute,top:400px,right:160px,width:500px}
 }}
 \page
 {{pageNumber,auto}}
@@ -6291,33 +6309,25 @@ This choice is permanent.
 - **Might — Melee Damage**
 - **Wits — Initiative Boost**
 - **Intellect — Spell Raises**
-
-Predator Crown supports the chosen Stone Power and pre-fills higher tiers as listed in the Level Progression.
-
-The character must still pay all required lower tiers normally.
-
-Although Head Artifacts normally follow Head-based Attribute access, Predator Crown is an Echo Artifact exception. Its Stones express the Beast’s hunting nature: raw force, killing precision, or the predatory mind reading the moment before violence.
-
 ---
 
 ### Level Progression
 
-| **Artifact Level** | **Artifact Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Technical Reference** |
-|:--:|:--|:--|:--:|:--:|:--:|:--|:--|
-| **1** | **Predator Stone I** | Stone Power Support | Self | — | Instant | Pre-fill **Tier 2** of the fixed Predator Stone choice. Tier 1 must still be paid. | **Might Ability: Melee Damage / Wits Ability: Initiative Boost / Intellect Ability: Spell Raises** (choose one, Tier 2) |
-| **2** | **Retaliatory Bite I** | Reaction | Melee Reach | — | Triggering damage instance only | Use Reaction: Damage at PL 4, delivered through the chosen head-based natural strike. The triggering enemy must be within melee reach. | **Reaction: Damage (PL 4; Artifact Delivery Restriction)** |
-| **3** | **Red Hunt I** | Active Buff | Self | — | Mastery Rank Rounds | Use the normal Damage Active Buff profile at PL 4. | **Active Buff: Damage (PL 4)** |
-| **4** | **Predator Stone II** | Stone Power Support | Self | — | Instant | Pre-fill **Tier 3** of the same Predator Stone choice. Tiers 1 and 2 must still be paid. | **Might Ability: Melee Damage / Wits Ability: Initiative Boost / Intellect Ability: Spell Raises** (same choice, Tier 3) |
-| **5** | **Retaliatory Bite II** | Reaction | Melee Reach | — | Triggering damage instance only | Use Reaction: Damage at PL 10 with the same delivery restriction. This replaces Retaliatory Bite I. | **Reaction: Damage (PL 10; Artifact Delivery Restriction)** |
-| **6** | **Red Hunt II** | Active Buff | Self | — | Mastery Rank Rounds | Use the normal Damage Active Buff profile at PL 10. This replaces Red Hunt I. | **Active Buff: Damage (PL 10)** |
-| **7** | **Predator Stone III** | Stone Power Support | Self | — | Instant | Pre-fill **Tier 4** of the same Predator Stone choice. Tiers 1, 2, and 3 must still be paid. | **Might Ability: Melee Damage / Wits Ability: Initiative Boost / Intellect Ability: Spell Raises** (same choice, Tier 4) |
-| **8** | **Retaliatory Bite III** | Reaction | Melee Reach | — | Triggering damage instance only | Use Reaction: Damage at PL 16 with the same delivery restriction. This replaces Retaliatory Bite II. | **Reaction: Damage (PL 16; Artifact Delivery Restriction)** |
-| **9** | **Red Hunt III** | Active Buff | Self | — | Mastery Rank Rounds | Use the normal Damage Active Buff profile at PL 16. This replaces Red Hunt II. | **Active Buff: Damage (PL 16)** |
-| **10** | **True Predator Crown** | Artifact Ultimate | As defined | As defined | As defined | Define the complete final effect with the GM. It is unavailable until its full profile and Technical Reference are recorded. | **Artifact Ultimate: GM-Defined Predator Crown Effect** |
+| **Artifact Level** | **Artifact Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
+| :--: | :-- | :-- | :--: | :--: | :--: | :-- |
+| **1** | **Predator Stone I**<span class="artifactTechnicalReference">Might Ability: Melee Damage / Wits Ability: Initiative Boost / Intellect Ability: Spell Raises (choose one, Tier 2)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Tier 2** of the fixed Predator Stone choice. Tier 1 must still be paid. |
+| **2** | **Retaliatory Bite I**<span class="artifactTechnicalReference">Reaction: Damage (PL 4; Artifact Delivery Restriction)</span> | Reaction | Melee Reach | — | Triggering damage instance only | Use Reaction: Damage at PL 4, delivered through the chosen head-based natural strike. The triggering enemy must be within melee reach. |
+| **3** | **Red Hunt I**<span class="artifactTechnicalReference">Active Buff: Damage (PL 4)</span> | Active Buff | Self | — | Mastery Rank Rounds | Use the normal Damage Active Buff profile at PL 4. |
+| **4** | **Predator Stone II**<span class="artifactTechnicalReference">Might Ability: Melee Damage / Wits Ability: Initiative Boost / Intellect Ability: Spell Raises (same choice, Tier 3)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Tier 3** of the same Predator Stone choice. Tiers 1 and 2 must still be paid. |
+| **5** | **Retaliatory Bite II**<span class="artifactTechnicalReference">Reaction: Damage (PL 10; Artifact Delivery Restriction)</span> | Reaction | Melee Reach | — | Triggering damage instance only | Use Reaction: Damage at PL 10 with the same delivery restriction. This replaces Retaliatory Bite I. |
+| **6** | **Red Hunt II**<span class="artifactTechnicalReference">Active Buff: Damage (PL 10)</span> | Active Buff | Self | — | Mastery Rank Rounds | Use the normal Damage Active Buff profile at PL 10. This replaces Red Hunt I. |
+| **7** | **Predator Stone III**<span class="artifactTechnicalReference">Might Ability: Melee Damage / Wits Ability: Initiative Boost / Intellect Ability: Spell Raises (same choice, Tier 4)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Tier 4** of the same Predator Stone choice. Tiers 1, 2, and 3 must still be paid. |
+| **8** | **Retaliatory Bite III**<span class="artifactTechnicalReference">Reaction: Damage (PL 16; Artifact Delivery Restriction)</span> | Reaction | Melee Reach | — | Triggering damage instance only | Use Reaction: Damage at PL 16 with the same delivery restriction. This replaces Retaliatory Bite II. |
+| **9** | **Red Hunt III**<span class="artifactTechnicalReference">Active Buff: Damage (PL 16)</span> | Active Buff | Self | — | Mastery Rank Rounds | Use the normal Damage Active Buff profile at PL 16. This replaces Red Hunt II. |
+| **10** | **True Predator Crown**<span class="artifactTechnicalReference">Artifact Ultimate: GM-Defined Predator Crown Effect</span> | Artifact Ultimate | As defined | As defined | As defined | Define the complete final effect with the GM. It is unavailable until its full profile and Technical Reference are recorded. |
 
 ---
-
-
+![DragonHead](https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/Artefacts/Icons/Beasthead.png){position:absolute,top:700px,right:290px,width:230px}
 
 
 
@@ -6325,8 +6335,7 @@ Although Head Artifacts normally follow Head-based Attribute access, Predator Cr
 \page
 {{pageNumber,auto}}
 {{wide
-
-### Witches 
+### Witches
 Witches are the rite’s response.
 They do not simply cast spells. They bind old agreements, speak curses, call roots through stone, rot purity, sour blood, twist luck, and remember names the temples tried to bury. Witch traditions often gather around a dominant working: Root Witches bind, entangle, hold, and awaken the deep green will of the land; Ruin Witches curse, break, hex, and turn certainty into collapse; Blight Witches poison, corrode, wither, and teach flesh, metal, and faith how to decay. A Witch does not force the Wyld. A Witch gives it a shape and pays the price for being heard.
 
@@ -6421,26 +6430,30 @@ The Tradition Special applies only when the Staff is used for a legal attack or 
 ---
 Covenant Overdrive uses **Active Buff: Special Increase** with the Witch Staff's fixed Tradition Special. Root Staff uses Slow, Ruin Staff uses Hex, and Blight Staff uses Corrode. This Special is fixed when the Witch Tradition is chosen and is not chosen again when the Active Buff is activated.
 
----
+![KristinTheHealer](https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/NPC%27s/NPC/KristinTheHealer.png){position:absolute,top:400px,right:160px,width:500px}
 
+}}
+\page
+{{pageNumber,auto}}
+{{wide
 ### Level Progression
 
-| **Artifact Level** | **Artifact Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Technical Reference** |
-|:--:|:--|:--|:--:|:--:|:--:|:--|:--|
-| **1** | **Witch Stone I** | Stone Power Support | Self | — | Instant | Pre-fill **Tier 2**. Tier 1 must still be paid. | **Intellect Ability: Spell Raises** (Stone Power Support, Tier 2) |
-| **2** | **Covenant Overdrive I** | Active Buff | Self | — | Mastery Rank Rounds | Use Active Buff: Special Increase at PL 4 for the Staff's fixed Tradition Special. It increases only that already existing Special and does not apply it by itself. | **Active Buff: Special Increase + Slow (PL 4)** (Root) / **Active Buff: Special Increase + Hex (PL 4)** (Ruin) / **Active Buff: Special Increase + Corrode (PL 4)** (Blight) |
-| **3** | **Main Spell I** | Active, Spell | 20 m | None | Instant | Use the Main Spell fixed by the Staff's tradition at PL 4. | **Ranged Attack + Slow** (Root) / **Ranged Attack + Hex** (Ruin) / **Ranged Attack + Corrode** (Blight), PL 4 |
-| **4** | **Witch Stone II** | Stone Power Support | Self | — | Instant | Pre-fill **Tier 3**. Tiers 1 and 2 must still be paid. | **Intellect Ability: Spell Raises** (Stone Power Support, Tier 3) |
-| **5** | **Covenant Overdrive II** | Active Buff | Self | — | Mastery Rank Rounds | Use Active Buff: Special Increase at PL 10 for the Staff's fixed Tradition Special. It increases only that already existing Special and does not apply it by itself. This replaces Covenant Overdrive I. | **Active Buff: Special Increase + Slow (PL 10)** (Root) / **Active Buff: Special Increase + Hex (PL 10)** (Ruin) / **Active Buff: Special Increase + Corrode (PL 10)** (Blight) |
-| **6** | **Main Spell II** | Active, Spell | 44 m | None | Instant | Use the same tradition Main Spell at PL 10. This replaces Main Spell I. | **Ranged Attack + Slow** (Root) / **Ranged Attack + Hex** (Ruin) / **Ranged Attack + Corrode** (Blight), PL 10 |
-| **7** | **Witch Stone III** | Stone Power Support | Self | — | Instant | Pre-fill **Tier 4**. Tiers 1, 2, and 3 must still be paid. | **Intellect Ability: Spell Raises** (Stone Power Support, Tier 4) |
-| **8** | **Covenant Overdrive III** | Active Buff | Self | — | Mastery Rank Rounds | Use Active Buff: Special Increase at PL 16 for the Staff's fixed Tradition Special. It increases only that already existing Special and does not apply it by itself. This replaces Covenant Overdrive II. | **Active Buff: Special Increase + Slow (PL 16)** (Root) / **Active Buff: Special Increase + Hex (PL 16)** (Ruin) / **Active Buff: Special Increase + Corrode (PL 16)** (Blight) |
-| **9** | **Main Spell III** | Active, Spell | 68 m | None | Instant | Use the same tradition Main Spell at PL 16. This replaces Main Spell II. | **Ranged Attack + Slow** (Root) / **Ranged Attack + Hex** (Ruin) / **Ranged Attack + Corrode** (Blight), PL 16 |
-| **10** | **True Witch Staff** | Artifact Ultimate | As defined | As defined | As defined | Define the complete final effect with the GM. It is unavailable until its full profile and Technical Reference are recorded. | **Artifact Ultimate: GM-Defined Witch Staff Effect** |
+| **Artifact Level** | **Artifact Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
+| :--: | :-- | :-- | :--: | :--: | :--: | :-- |
+| **1** | **Witch Stone I**<span class="artifactTechnicalReference">Intellect Ability: Spell Raises (Stone Power Support, Tier 2)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Tier 2**. Tier 1 must still be paid. |
+| **2** | **Covenant Overdrive I**<span class="artifactTechnicalReference">Active Buff: Special Increase + Slow (PL 4) (Root) / Active Buff: Special Increase + Hex (PL 4) (Ruin) / Active Buff: Special Increase + Corrode (PL 4) (Blight)</span> | Active Buff | Self | — | Mastery Rank Rounds | Use Active Buff: Special Increase at PL 4 for the Staff's fixed Tradition Special. It increases only that already existing Special and does not apply it by itself. |
+| **3** | **Main Spell I**<span class="artifactTechnicalReference">Ranged Attack + Slow (Root) / Ranged Attack + Hex (Ruin) / Ranged Attack + Corrode (Blight), PL 4</span> | Active, Spell | 20 m | None | Instant | Use the Main Spell fixed by the Staff's tradition at PL 4. |
+| **4** | **Witch Stone II**<span class="artifactTechnicalReference">Intellect Ability: Spell Raises (Stone Power Support, Tier 3)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Tier 3**. Tiers 1 and 2 must still be paid. |
+| **5** | **Covenant Overdrive II**<span class="artifactTechnicalReference">Active Buff: Special Increase + Slow (PL 10) (Root) / Active Buff: Special Increase + Hex (PL 10) (Ruin) / Active Buff: Special Increase + Corrode (PL 10) (Blight)</span> | Active Buff | Self | — | Mastery Rank Rounds | Use Active Buff: Special Increase at PL 10 for the Staff's fixed Tradition Special. It increases only that already existing Special and does not apply it by itself. This replaces Covenant Overdrive I. |
+| **6** | **Main Spell II**<span class="artifactTechnicalReference">Ranged Attack + Slow (Root) / Ranged Attack + Hex (Ruin) / Ranged Attack + Corrode (Blight), PL 10</span> | Active, Spell | 44 m | None | Instant | Use the same tradition Main Spell at PL 10. This replaces Main Spell I. |
+| **7** | **Witch Stone III**<span class="artifactTechnicalReference">Intellect Ability: Spell Raises (Stone Power Support, Tier 4)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Tier 4**. Tiers 1, 2, and 3 must still be paid. |
+| **8** | **Covenant Overdrive III**<span class="artifactTechnicalReference">Active Buff: Special Increase + Slow (PL 16) (Root) / Active Buff: Special Increase + Hex (PL 16) (Ruin) / Active Buff: Special Increase + Corrode (PL 16) (Blight)</span> | Active Buff | Self | — | Mastery Rank Rounds | Use Active Buff: Special Increase at PL 16 for the Staff's fixed Tradition Special. It increases only that already existing Special and does not apply it by itself. This replaces Covenant Overdrive II. |
+| **9** | **Main Spell III**<span class="artifactTechnicalReference">Ranged Attack + Slow (Root) / Ranged Attack + Hex (Ruin) / Ranged Attack + Corrode (Blight), PL 16</span> | Active, Spell | 68 m | None | Instant | Use the same tradition Main Spell at PL 16. This replaces Main Spell II. |
+| **10** | **True Witch Staff**<span class="artifactTechnicalReference">Artifact Ultimate: GM-Defined Witch Staff Effect</span> | Artifact Ultimate | As defined | As defined | As defined | Define the complete final effect with the GM. It is unavailable until its full profile and Technical Reference are recorded. |
 
 ---
 
-
+![DragonHead](https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/Artefacts/Icons/Rootstaff.png){position:absolute,top:620px,right:260px,width:280px}
 
 
 
@@ -6587,18 +6600,18 @@ If multiple effects extend the same Active Buff, use only the highest duration i
 {{wide
 ### Level Progression
 
-| **Artifact Level** | **Artifact Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Technical Reference** |
-|:--:|:--|:--|:--:|:--:|:--:|:--|:--|
-| **1** | **Red Potion I** | Active Buff | Self | — | Mastery Rank Rounds | Use the normal Damage Active Buff profile at PL 4. It may be extended by Extend Active Buff if activated this turn. | **Active Buff: Damage (PL 4)** |
-| **2** | **Alchemist Stone I** | Stone Power Support | Self | — | Instant | Pre-fill **Tier 2**. Tier 1 must still be paid. | **Vitality Ability: Extend Active Buff** (Stone Power Support, Tier 2) |
-| **3** | **Black Potion I** | Active Buff | Self | — | Mastery Rank Rounds | Use the normal Critical Active Buff profile at PL 4. It may be extended by Extend Active Buff if activated this turn. | **Active Buff: Critical (PL 4)** |
-| **4** | **Red Potion II** | Active Buff | Self | — | Mastery Rank Rounds | Use the normal Damage Active Buff profile at PL 10. This replaces Red Potion I. | **Active Buff: Damage (PL 10)** |
-| **5** | **Alchemist Stone II** | Stone Power Support | Self | — | Instant | Pre-fill **Tier 3**. Tiers 1 and 2 must still be paid. | **Vitality Ability: Extend Active Buff** (Stone Power Support, Tier 3) |
-| **6** | **Black Potion II** | Active Buff | Self | — | Mastery Rank Rounds | Use the normal Critical Active Buff profile at PL 10. This replaces Black Potion I. | **Active Buff: Critical (PL 10)** |
-| **7** | **Red Potion III** | Active Buff | Self | — | Mastery Rank Rounds | Use the normal Damage Active Buff profile at PL 16. This replaces Red Potion II. | **Active Buff: Damage (PL 16)** |
-| **8** | **Alchemist Stone III** | Stone Power Support | Self | — | Instant | Pre-fill **Tier 4**. Tiers 1, 2, and 3 must still be paid. | **Vitality Ability: Extend Active Buff** (Stone Power Support, Tier 4) |
-| **9** | **Black Potion III** | Active Buff | Self | — | Mastery Rank Rounds | Use the normal Critical Active Buff profile at PL 16. This replaces Black Potion II. | **Active Buff: Critical (PL 16)** |
-| **10** | **True Alchemist Coat** | Artifact Ultimate | As defined | As defined | As defined | Define the complete final effect with the GM. It is unavailable until its full profile and Technical Reference are recorded. | **Artifact Ultimate: GM-Defined Alchemist Coat Effect** |
+| **Artifact Level** | **Artifact Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
+|:--:|:--|:--|:--:|:--:|:--:|:--|
+| **1** | **Red Potion I**<span class="artifactTechnicalReference">Active Buff: Damage (PL 4)</span> | Active Buff | Self | — | Mastery Rank Rounds | Use the normal Damage Active Buff profile at PL 4. It may be extended by Extend Active Buff if activated this turn. |
+| **2** | **Alchemist Stone I**<span class="artifactTechnicalReference">Vitality Ability: Extend Active Buff, Stone Power Support, Tier 2</span> | Stone Power Support | Self | — | Instant | Pre-fill **Tier 2**. Tier 1 must still be paid. |
+| **3** | **Black Potion I**<span class="artifactTechnicalReference">Active Buff: Critical (PL 4)</span> | Active Buff | Self | — | Mastery Rank Rounds | Use the normal Critical Active Buff profile at PL 4. It may be extended by Extend Active Buff if activated this turn. |
+| **4** | **Red Potion II**<span class="artifactTechnicalReference">Active Buff: Damage (PL 10)</span> | Active Buff | Self | — | Mastery Rank Rounds | Use the normal Damage Active Buff profile at PL 10. This replaces Red Potion I. |
+| **5** | **Alchemist Stone II**<span class="artifactTechnicalReference">Vitality Ability: Extend Active Buff, Stone Power Support, Tier 3</span> | Stone Power Support | Self | — | Instant | Pre-fill **Tier 3**. Tiers 1 and 2 must still be paid. |
+| **6** | **Black Potion II**<span class="artifactTechnicalReference">Active Buff: Critical (PL 10)</span> | Active Buff | Self | — | Mastery Rank Rounds | Use the normal Critical Active Buff profile at PL 10. This replaces Black Potion I. |
+| **7** | **Red Potion III**<span class="artifactTechnicalReference">Active Buff: Damage (PL 16)</span> | Active Buff | Self | — | Mastery Rank Rounds | Use the normal Damage Active Buff profile at PL 16. This replaces Red Potion II. |
+| **8** | **Alchemist Stone III**<span class="artifactTechnicalReference">Vitality Ability: Extend Active Buff, Stone Power Support, Tier 4</span> | Stone Power Support | Self | — | Instant | Pre-fill **Tier 4**. Tiers 1, 2, and 3 must still be paid. |
+| **9** | **Black Potion III**<span class="artifactTechnicalReference">Active Buff: Critical (PL 16)</span> | Active Buff | Self | — | Mastery Rank Rounds | Use the normal Critical Active Buff profile at PL 16. This replaces Black Potion II. |
+| **10** | **True Alchemist Coat**<span class="artifactTechnicalReference">Artifact Ultimate: GM-Defined Alchemist Coat Effect</span> | Artifact Ultimate | As defined | As defined | As defined | Define the complete final effect with the GM. It is unavailable until its full profile and Technical Reference are recorded. |
 
 ---
 }}
@@ -6665,7 +6678,10 @@ Green Warden Mantle is Echo-bound and cannot normally be removed, replaced, sold
 Green Warden Mantle uses the normal Medium Armor drawbacks unless another rule explicitly changes them.
 
 ---
-
+}}
+\page
+{{pageNumber,auto}}
+{{wide
 ### Green Warden Passive Access
 
 A Green Warden may choose the **Thorns Passive** during character creation.
@@ -6681,10 +6697,7 @@ The **Thorns Active** is not exclusive. Any character may learn the Thorns Activ
 A Green Warden may have both the Thorns Passive and the Thorns Active.
 
 ---
-}}
-\page
-{{pageNumber,auto}}
-{{wide
+
 ### Green Warden Thorns
 
 Green Warden Mantle grants access to the normal **Active Buff: Thorns**.
@@ -6728,26 +6741,24 @@ The character must still pay all required lower tiers normally.
 {{wide
 ### Level Progression
 
-| **Artifact Level** | **Artifact Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Technical Reference** |
-|:--:|:--|:--|:--:|:--:|:--:|:--|:--|
-| **1** | **Thorns I** | Active Buff | Self | — | Mastery Rank Rounds | Use the normal Active Buff: Thorns profile at PL 4. | **Active Buff: Thorns (PL 4)** |
-| **2** | **Warden's Guard I** | Reaction | 4 m | — | Triggering hit or damage instance only | The triggering ally gains **+7 Armor** against that attack or damage instance. | **Reaction: Ally Armor (PL 4)** |
-| **3** | **Green Warden Stone I** | Stone Power Support | Self | — | Instant | Pre-fill **Tier 2**. Tier 1 must still be paid. | **Resolve Ability: Special Reduction** (Stone Power Support, Tier 2) |
-| **4** | **Thorns II** | Active Buff | Self | — | Mastery Rank Rounds | Use the normal Active Buff: Thorns profile at PL 10. This replaces Thorns I. | **Active Buff: Thorns (PL 10)** |
-| **5** | **Warden's Guard II** | Reaction | 4 m | — | Triggering hit or damage instance only | The triggering ally gains **+19 Armor** against that attack or damage instance. This replaces Warden's Guard I. | **Reaction: Ally Armor (PL 10)** |
-| **6** | **Green Warden Stone II** | Stone Power Support | Self | — | Instant | Pre-fill **Tier 3**. Tiers 1 and 2 must still be paid. | **Resolve Ability: Special Reduction** (Stone Power Support, Tier 3) |
-| **7** | **Thorns III** | Active Buff | Self | — | Mastery Rank Rounds | Use the normal Active Buff: Thorns profile at PL 16. This replaces Thorns II. | **Active Buff: Thorns (PL 16)** |
-| **8** | **Warden's Guard III** | Reaction | 4 m | — | Triggering hit or damage instance only | The triggering ally gains **+31 Armor** against that attack or damage instance. This replaces Warden's Guard II. | **Reaction: Ally Armor (PL 16)** |
-| **9** | **Green Warden Stone III** | Stone Power Support | Self | — | Instant | Pre-fill **Tier 4**. Tiers 1, 2, and 3 must still be paid. | **Resolve Ability: Special Reduction** (Stone Power Support, Tier 4) |
-| **10** | **True Green Warden Mantle** | Artifact Ultimate | As defined | As defined | As defined | Define the complete final effect with the GM. It is unavailable until its full profile and Technical Reference are recorded. | **Artifact Ultimate: GM-Defined Green Warden Mantle Effect** |
+| **Artifact Level** | **Artifact Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
+| :--: | :-- | :-- | :--: | :--: | :--: | :-- |
+| **1** | **Thorns I**<span class="artifactTechnicalReference">Active Buff: Thorns (PL 4)</span> | Active Buff | Self | — | Mastery Rank Rounds | Use the normal Active Buff: Thorns profile at PL 4. |
+| **2** | **Warden's Guard I**<span class="artifactTechnicalReference">Reaction: Ally Armor (PL 4)</span> | Reaction | 4 m | — | Triggering hit or damage instance only | The triggering ally gains **+7 Armor** against that attack or damage instance. |
+| **3** | **Green Warden Stone I**<span class="artifactTechnicalReference">Resolve Ability: Special Reduction (Stone Power Support, Tier 2)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Tier 2**. Tier 1 must still be paid. |
+| **4** | **Thorns II**<span class="artifactTechnicalReference">Active Buff: Thorns (PL 10)</span> | Active Buff | Self | — | Mastery Rank Rounds | Use the normal Active Buff: Thorns profile at PL 10. This replaces Thorns I. |
+| **5** | **Warden's Guard II**<span class="artifactTechnicalReference">Reaction: Ally Armor (PL 10)</span> | Reaction | 4 m | — | Triggering hit or damage instance only | The triggering ally gains **+19 Armor** against that attack or damage instance. This replaces Warden's Guard I. |
+| **6** | **Green Warden Stone II**<span class="artifactTechnicalReference">Resolve Ability: Special Reduction (Stone Power Support, Tier 3)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Tier 3**. Tiers 1 and 2 must still be paid. |
+| **7** | **Thorns III**<span class="artifactTechnicalReference">Active Buff: Thorns (PL 16)</span> | Active Buff | Self | — | Mastery Rank Rounds | Use the normal Active Buff: Thorns profile at PL 16. This replaces Thorns II. |
+| **8** | **Warden's Guard III**<span class="artifactTechnicalReference">Reaction: Ally Armor (PL 16)</span> | Reaction | 4 m | — | Triggering hit or damage instance only | The triggering ally gains **+31 Armor** against that attack or damage instance. This replaces Warden's Guard II. |
+| **9** | **Green Warden Stone III**<span class="artifactTechnicalReference">Resolve Ability: Special Reduction (Stone Power Support, Tier 4)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Tier 4**. Tiers 1, 2, and 3 must still be paid. |
+| **10** | **True Green Warden Mantle**<span class="artifactTechnicalReference">Artifact Ultimate: GM-Defined Green Warden Mantle Effect</span> | Artifact Ultimate | As defined | As defined | As defined | Define the complete final effect with the GM. It is unavailable until its full profile and Technical Reference are recorded. |
 
 ---
 
 ### Thorns I-III
 
-The Warden's body becomes hostile ground.
-
-Roots tighten.
+The Warden's body becomes hostile ground. Roots tighten.
 
 Bark cracks open.
 
@@ -6843,57 +6854,20 @@ Hunter's Scourge keeps the **Finesse** quality.
 {{wide
 ### Level Progression
 
-| **Artifact Level** | **Artifact Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Technical Reference** |
-|:--:|:--|:--|:--:|:--:|:--:|:--|:--|
-| **1** | **Exorcism Lash I** | Active | Melee Reach | None | Instant | Attack with Hunter's Scourge. On hit, deal weapon damage; a Fiend also gains **Exorcism(10)**. | **Melee Attack + Exorcism (PL 4)** |
-| **2** | **Snap Chain I** | Artifact Reaction | Threat Zone | — | Triggering movement only | Deal **2d8 damage** to the triggering creature and pull it **4 m** directly toward you. It must be in your Threat Zone when the Reaction resolves. | **Artifact Reaction: Damage + Pull (PL 4)** |
-| **3** | **Whirling Scourge I** | Active | Self | Radius 3 m | Instant | Make one AoE attack with Hunter's Scourge. Every hit takes weapon damage; a Fiend also gains **Exorcism(7)**. | **Melee AoE Attack + Exorcism (PL 4)** |
-| **4** | **Exorcism Lash II** | Active | Melee Reach | None | Instant | Attack with Hunter's Scourge. On hit, deal weapon damage; a Fiend also gains **Exorcism(16)**. This replaces Exorcism Lash I. | **Melee Attack + Exorcism (PL 10)** |
-| **5** | **Snap Chain II** | Artifact Reaction | Threat Zone | — | Triggering movement only | Deal **6d8 damage** to the triggering creature and pull it **8 m** directly toward you. This replaces Snap Chain I. | **Artifact Reaction: Damage + Pull (PL 10)** |
-| **6** | **Whirling Scourge II** | Active | Self | Radius 6 m | Instant | Make one AoE attack with Hunter's Scourge. Every hit takes weapon damage; a Fiend also gains **Exorcism(10)**. This replaces Whirling Scourge I. | **Melee AoE Attack + Exorcism (PL 10)** |
-| **7** | **Exorcism Lash III** | Active | Melee Reach | None | Instant | Attack with Hunter's Scourge. On hit, deal weapon damage; a Fiend also gains **Exorcism(21)**. This replaces Exorcism Lash II. | **Melee Attack + Exorcism (PL 16)** |
-| **8** | **Snap Chain III** | Artifact Reaction | Threat Zone | — | Triggering movement only | Deal **12d8 damage** to the triggering creature and pull it **8 m** directly toward you. This replaces Snap Chain II. | **Artifact Reaction: Damage + Pull (PL 16)** |
-| **9** | **Whirling Scourge III** | Active | Self | Radius 8 m | Instant | Make one AoE attack with Hunter's Scourge. Every hit takes weapon damage; a Fiend also gains **Exorcism(13)**. This replaces Whirling Scourge II. | **Melee AoE Attack + Exorcism (PL 16)** |
-| **10** | **True Hunter's Scourge** | Artifact Ultimate | As defined | As defined | As defined | Define the complete final effect with the GM. It is unavailable until its full profile and Technical Reference are recorded. | **Artifact Ultimate: GM-Defined Hunter's Scourge Effect** |
+| **Artifact Level** | **Artifact Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
+| :--: | :-- | :-- | :--: | :--: | :--: | :-- |
+| **1** | **Exorcism Lash I**<span class="artifactTechnicalReference">Melee Attack + Exorcism (PL 4)</span> | Active | Melee Reach | None | Instant | Attack with Hunter's Scourge. On hit, deal weapon damage; a Fiend also gains **Exorcism(10)**. |
+| **2** | **Snap Chain I**<span class="artifactTechnicalReference">Artifact Reaction: Damage + Pull (PL 4)</span> | Artifact Reaction | Threat Zone | — | Triggering movement only | Deal **2d8 damage** to the triggering creature and pull it **4 m** directly toward you. It must be in your Threat Zone when the Reaction resolves. |
+| **3** | **Whirling Scourge I**<span class="artifactTechnicalReference">Melee AoE Attack + Exorcism (PL 4)</span> | Active | Self | Radius 3 m | Instant | Make one AoE attack with Hunter's Scourge. Every hit takes weapon damage; a Fiend also gains **Exorcism(7)**. |
+| **4** | **Exorcism Lash II**<span class="artifactTechnicalReference">Melee Attack + Exorcism (PL 10)</span> | Active | Melee Reach | None | Instant | Attack with Hunter's Scourge. On hit, deal weapon damage; a Fiend also gains **Exorcism(16)**. This replaces Exorcism Lash I. |
+| **5** | **Snap Chain II**<span class="artifactTechnicalReference">Artifact Reaction: Damage + Pull (PL 10)</span> | Artifact Reaction | Threat Zone | — | Triggering movement only | Deal **6d8 damage** to the triggering creature and pull it **8 m** directly toward you. This replaces Snap Chain I. |
+| **6** | **Whirling Scourge II**<span class="artifactTechnicalReference">Melee AoE Attack + Exorcism (PL 10)</span> | Active | Self | Radius 6 m | Instant | Make one AoE attack with Hunter's Scourge. Every hit takes weapon damage; a Fiend also gains **Exorcism(10)**. This replaces Whirling Scourge I. |
+| **7** | **Exorcism Lash III**<span class="artifactTechnicalReference">Melee Attack + Exorcism (PL 16)</span> | Active | Melee Reach | None | Instant | Attack with Hunter's Scourge. On hit, deal weapon damage; a Fiend also gains **Exorcism(21)**. This replaces Exorcism Lash II. |
+| **8** | **Snap Chain III**<span class="artifactTechnicalReference">Artifact Reaction: Damage + Pull (PL 16)</span> | Artifact Reaction | Threat Zone | — | Triggering movement only | Deal **12d8 damage** to the triggering creature and pull it **8 m** directly toward you. This replaces Snap Chain II. |
+| **9** | **Whirling Scourge III**<span class="artifactTechnicalReference">Melee AoE Attack + Exorcism (PL 16)</span> | Active | Self | Radius 8 m | Instant | Make one AoE attack with Hunter's Scourge. Every hit takes weapon damage; a Fiend also gains **Exorcism(13)**. This replaces Whirling Scourge II. |
+| **10** | **True Hunter's Scourge**<span class="artifactTechnicalReference">Artifact Ultimate: GM-Defined Hunter's Scourge Effect</span> | Artifact Ultimate | As defined | As defined | As defined | Define the complete final effect with the GM. It is unavailable until its full profile and Technical Reference are recorded. |
 
----
-
-### Exorcism Lash I-III
-
-The Demon Hunter strikes one supernatural enemy with the full weight of the hunt.
-
-The chain burns, cracks, hooks, tears, or flashes with old killing rites.
-
-Mechanically, Exorcism Lash I-III use the normal **Melee Attack + Exorcism** at the listed Power Level.
-
----
-
-### Snap Chain I-III
-
-The Demon Hunter refuses to let the monster choose the distance.
-
-When prey crosses the Hunter's Threat Zone, the chain snaps out and drags it back into the killing line.
-
-Mechanically, Snap Chain I-III use the Artifact-exclusive **Artifact Reaction: Damage + Pull** at the listed Power Level. This Reaction is not part of the normal Reaction catalogue. It uses the exact damage, Pull distance, Threat Zone trigger, and restrictions printed in the Hunter's Scourge progression.
-
----
-
-### Whirling Scourge I-III
-
-The Demon Hunter turns the chain into a circle of judgment.
-
-Hooks, iron links, silvered edges, weighted heads, and relic knots carve through everything close enough to be caught in the spin.
-
-Mechanically, Whirling Scourge I-III use the normal **Melee AoE Attack + Exorcism** at the listed Power Level.
-
----
-
-Hunter's Scourge is tied to the Bane Burden: **The Hollow Hunt**.
-
-When the Demon Hunter loses control, the chain no longer waits for monsters.
-
-It only looks for prey.
-
+![DragonHead](https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/Artefacts/Icons/Chainwhip.png){position:absolute,top:620px,right:260px,width:280px}
 
 }}
 \page
@@ -7189,18 +7163,18 @@ Hollow Stillness does not grant blanket immunity unless a specific rule says so.
 
 ### Level Progression
 
-| **Artifact Level** | **Artifact Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Technical Reference** |
-|:--:|:--|:--|:--:|:--:|:--:|:--|:--|
-| **1** | **Deathless Body I** | Exclusive Passive | Self | — | Permanent | Shift normal Health Penalties down by 2 steps. Maximum normal Health Penalty: 20%. Hollow Crown separately grants Life Sense as a Sense Slot option. | **Exclusive Passive: Deathless Body I** |
-| **2** | **Life Absorption I** | Ritual / Echo Function | Touch | — | Special | A completed Life Absorption may restore up to **1 Health Level**. | **Echo Function: Life Absorption I** |
-| **3** | **Hollow Stillness I** | Artifact Passive | Self | — | Permanent | Gain **Advantage** on Attribute Checks to resist Fear, Pain, Poison, Disease, Suffocation, Exhaustion, and effects that explicitly rely on a living body. | **Artifact Passive: Hollow Stillness I** |
-| **4** | **Deathless Body II** | Exclusive Passive Upgrade | Self | — | Permanent | Shift normal Health Penalties down by 3 steps. Maximum normal Health Penalty: 10%. This replaces Deathless Body I. | **Exclusive Passive: Deathless Body II** |
-| **5** | **Life Absorption II** | Ritual / Echo Function Upgrade | Touch | — | Special | A completed Life Absorption may restore up to **2 Health Levels**. This replaces Life Absorption I. | **Echo Function: Life Absorption II** |
-| **6** | **Hollow Stillness II** | Artifact Passive Upgrade | Self | — | Permanent | Keep that Advantage and add **+1d8 to the Pool** of those Attribute Checks. This replaces Hollow Stillness I. | **Artifact Passive: Hollow Stillness II** |
-| **7** | **Deathless Body III** | Exclusive Passive Upgrade | Self | — | Permanent | Shift normal Health Penalties down by 4 steps. Maximum normal Health Penalty: 0%. This replaces Deathless Body II. | **Exclusive Passive: Deathless Body III** |
-| **8** | **Life Absorption III** | Ritual / Echo Function Upgrade | Touch | — | Special | A completed Life Absorption may restore up to **3 Health Levels**. This replaces Life Absorption II. | **Echo Function: Life Absorption III** |
-| **9** | **Hollow Stillness III** | Artifact Passive Upgrade | Self | — | Permanent | Keep that Advantage and increase the Pool bonus to **+2d8**. This replaces Hollow Stillness II. | **Artifact Passive: Hollow Stillness III** |
-| **10** | **True Hollow Crown** | Artifact Ultimate | Self | — | Permanent | Suffer no normal Health Penalties and remain functional until Incapacitated. A sufficient completed Life Absorption may restore up to full Health. Define and record any additional final effect before it can be used. | **Artifact Ultimate: True Hollow Crown** |
+| **Artifact Level** | **Artifact Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
+| :--: | :-- | :-- | :--: | :--: | :--: | :-- |
+| **1** | **Deathless Body I**<span class="artifactTechnicalReference">Exclusive Passive: Deathless Body I</span> | Exclusive Passive | Self | — | Permanent | Shift normal Health Penalties down by 2 steps. Maximum normal Health Penalty: 20%. Hollow Crown separately grants Life Sense as a Sense Slot option. |
+| **2** | **Life Absorption I**<span class="artifactTechnicalReference">Echo Function: Life Absorption I</span> | Ritual / Echo Function | Touch | — | Special | A completed Life Absorption may restore up to **1 Health Level**. |
+| **3** | **Hollow Stillness I**<span class="artifactTechnicalReference">Artifact Passive: Hollow Stillness I</span> | Artifact Passive | Self | — | Permanent | Gain **Advantage** on Attribute Checks to resist Fear, Pain, Poison, Disease, Suffocation, Exhaustion, and effects that explicitly rely on a living body. |
+| **4** | **Deathless Body II**<span class="artifactTechnicalReference">Exclusive Passive: Deathless Body II</span> | Exclusive Passive Upgrade | Self | — | Permanent | Shift normal Health Penalties down by 3 steps. Maximum normal Health Penalty: 10%. This replaces Deathless Body I. |
+| **5** | **Life Absorption II**<span class="artifactTechnicalReference">Echo Function: Life Absorption II</span> | Ritual / Echo Function Upgrade | Touch | — | Special | A completed Life Absorption may restore up to **2 Health Levels**. This replaces Life Absorption I. |
+| **6** | **Hollow Stillness II**<span class="artifactTechnicalReference">Artifact Passive: Hollow Stillness II</span> | Artifact Passive Upgrade | Self | — | Permanent | Keep that Advantage and add **+1d8 to the Pool** of those Attribute Checks. This replaces Hollow Stillness I. |
+| **7** | **Deathless Body III**<span class="artifactTechnicalReference">Exclusive Passive: Deathless Body III</span> | Exclusive Passive Upgrade | Self | — | Permanent | Shift normal Health Penalties down by 4 steps. Maximum normal Health Penalty: 0%. This replaces Deathless Body II. |
+| **8** | **Life Absorption III**<span class="artifactTechnicalReference">Echo Function: Life Absorption III</span> | Ritual / Echo Function Upgrade | Touch | — | Special | A completed Life Absorption may restore up to **3 Health Levels**. This replaces Life Absorption II. |
+| **9** | **Hollow Stillness III**<span class="artifactTechnicalReference">Artifact Passive: Hollow Stillness III</span> | Artifact Passive Upgrade | Self | — | Permanent | Keep that Advantage and increase the Pool bonus to **+2d8**. This replaces Hollow Stillness II. |
+| **10** | **True Hollow Crown**<span class="artifactTechnicalReference">Artifact Ultimate: True Hollow Crown</span> | Artifact Ultimate | Self | — | Permanent | Suffer no normal Health Penalties and remain functional until Incapacitated. A sufficient completed Life Absorption may restore up to full Health. Define and record any additional final effect before it can be used. |
 
 ---
 }}
@@ -7969,7 +7943,7 @@ Stones exist in 4 states:
 - **Ready**: available to be used.
 - **Exhausted**: spent during the current combat flow. Exhausted Stones can return through **regeneration**.
 - **Sealed**: locked by Rituals; cannot be regenerated at end of round. It returns only after a **Safe Haven Rest**.
-- **Bound**: Permanently invested (Artifacts, Summons, or similar permanent bonds). Bound Stones are not part of your usable pool and do not regenerate. They return to your Stone Pool only when the bond is **broken** or the investment is **released**.
+- **Bound**: Permanently invested (Artifacts, Familiars, Summons, etc.). Bound Stones are not part of your usable pool and do not regenerate. They return to your Stone Pool only when the bond is **broken** or the investment is **released**.
 
 ---
 
@@ -8007,7 +7981,8 @@ If a Stone Power states “cumulative per combat”, the doubling cost persists 
 {{pageNumber,auto}}
 {{wide
 
-####  General Stone Abilities
+
+#### General Stone Abilities
 | **Stone Ability** | **Tier 1** | **Tier 2** | **Tier 3** | **Tier 4** |
 |:--|:--|:--|:--|:--|
 | **Extra Attack** | — | Gain **1 additional Attack Action** this round. | Gain **2 additional Attack Actions** this round. | Gain **3 additional Attack Actions** this round. |
@@ -8016,7 +7991,13 @@ If a Stone Power states “cumulative per combat”, the doubling cost persists 
 | **Exchange Passive** | Swap **1 active Passive** with another Passive you know. | Swap **1 active Passive** with another Passive you know. | Swap **2 active Passives** with other Passives you know. | Swap **2 active Passives** with other Passives you know. |
 
 ---
+:
+#### Temporary Defensive Stone Values
 
+Stone Abilities that grant **Parry**, **Damage Negation**, **Damage Reduction**, or **Ward** create the listed defense if you do not already have it. If you already have that defense, add the listed value to your existing value. All temporary values expire at the start of your next turn. All normal limits and resolution rules still apply.
+
+---
+:
 #### Might Stone Abilities
 
 | **Stone Ability** | **Tier 1** | **Tier 2** | **Tier 3** | **Tier 4** |
@@ -8024,36 +8005,34 @@ If a Stone Power states “cumulative per combat”, the doubling cost persists 
 | **Melee Damage** | Add **+2 Damage Dice** to your next **melee damage roll** this turn. | Add **+4 Damage Dice** to your next **melee damage roll** this turn. | Add **+8 Damage Dice** to your next **melee damage roll** this turn. | Add **+16 Damage Dice** to your next **melee damage roll** this turn. |
 | **Armor** | Gain **+4 Armor** until the start of your next turn. | Gain **+8 Armor** until the start of your next turn. | Gain **+16 Armor** until the start of your next turn. | Gain **+32 Armor** until the start of your next turn. |
 | **Ignore Armor** | All your **melee attacks** this turn ignore **4 Armor**. | All your **melee attacks** this turn ignore **8 Armor**. | All your **melee attacks** this turn ignore **16 Armor**. | All your **melee attacks** this turn ignore **32 Armor**. |
-| **Attack Pool Reduction** | One enemy within **6 m** loses **10% of its Attack Pool** on its next Attack roll this round. | Loses **20% of its Attack Pool**. | Loses **30% of its Attack Pool**. | Loses **40% of its Attack Pool**. |
+| **Parry** | — | Gain **+4 Parry Pool** until the start of your next turn. | Gain **+8 Parry Pool** until the start of your next turn. | Gain **+12 Parry Pool** until the start of your next turn. |
 
 ---
-
+:
 #### Agility Stone Abilities
 | **Stone Ability** | **Tier 1** | **Tier 2** | **Tier 3** | **Tier 4** |
 |:--|:--|:--|:--|:--|
-| **Crit** | **One** of your attacks this round can have **Crit(1)**. You decide which attack **before you roll the attack roll**. | **Two** of your attacks this round can have **Crit(1)**. You decide which attacks **before you roll each attack roll**. | **Three** of your attacks this round can have **Crit(1)**. You decide which attacks **before you roll each attack roll**. | **Four** of your attacks this round can have **Crit(1)**. You decide which attacks **before you roll each attack roll**. |
+| **Crit** | — | **One** of your attacks this round can have **Crit(1)**. You decide which attack **before you roll the Attack Roll**. | **Two** of your attacks this round can have **Crit(1)**. You decide which attacks **before you roll each Attack Roll**. | **Three** of your attacks this round can have **Crit(1)**. You decide which attacks **before you roll each Attack Roll**. |
 | **Evade** | Gain **+8 Evade** until the start of your next turn. | Gain **+16 Evade** until the start of your next turn. | Gain **+24 Evade** until the start of your next turn. | Gain **+32 Evade** until the start of your next turn. |
 | **Safe Movement** | Move up to **4 m**. This movement does not provoke reactions. | Move up to **8 m**. This movement does not provoke reactions. | Move up to **12 m**. This movement does not provoke reactions. | Move up to **16 m**. This movement does not provoke reactions. |
 | **Slip** | Once before the start of your next turn, when an enemy misses you with an attack, you may move **2 m**. | You may move **4 m**. | You may move **6 m**. | You may move **8 m**. |
 
 
 
-####  Vitality Stone Abilities
+}}
+\page
+{{pageNumber,auto}}
+{{wide
+
+#### Vitality Stone Abilities
 | **Stone Ability** | **Tier 1** | **Tier 2** | **Tier 3** | **Tier 4** |
 |:--|:--|:--|:--|:--|
 | **Temporary HP** | Gain **20 Temporary HP** until the start of your next turn. | Gain **40 Temporary HP** until the start of your next turn. | Gain **80 Temporary HP** until the start of your next turn. | Gain **160 Temporary HP** until the start of your next turn. |
-| **Endure Special** | Reduce one negative Special currently affecting you by **2**. | Reduce one negative Special currently affecting you by **4**. | Reduce one negative Special currently affecting you by **8**. | Reduce one negative Special currently affecting you by **12**. |
+| **Damage Negation** | — | Gain **+4 Damage Negation** until the start of your next turn. | Gain **+8 Damage Negation** until the start of your next turn. | Gain **+12 Damage Negation** until the start of your next turn. |
 | **Remove Scar** | Recover **1 Scarred Health Bar**. Burn **1 Vitality Stone**. | Recover **1 Scarred Health Bar**. Burn **1 Vitality Stone**. | Recover **1 Scarred Health Bar**. Burn **1 Vitality Stone**. | Recover **1 Scarred Health Bar**. Burn **1 Vitality Stone**. |
 | **Extend Active Buff** | Increase the duration of one **Active Buff** you activate this turn by **+1 round**. | Increase the duration of one **Active Buff** you activate this turn by **+2 rounds**. | Increase the duration of one **Active Buff** you activate this turn by **+3 rounds**. | Increase the duration of one **Active Buff** you activate this turn by **+4 rounds**. |
 
 
-}}
-
-
-
-\page
-{{pageNumber,auto}}
-{{wide
 
 ---
 :
@@ -8072,20 +8051,29 @@ Special Boost cannot increase any other Special.
 
 ---
 :
-####  Resolve Stone Abilities
+#### Resolve Stone Abilities
 
 | **Stone Ability** | **Tier 1** | **Tier 2** | **Tier 3** | **Tier 4** |
 |:--|:--|:--|:--|:--|
-| **Healing** | You or one ally within **2m** heals **4d8 HP** in their current Health Bar. | You or one ally within **4m** heals **8d8 HP** in their current Health Bar. | You or one ally within **8m** heals **12d8 HP** in their current Health Bar.  | You or one ally within **16m** heals **16d8 HP** in their current Health Bar.  |
-| **Damage Reduction Boost** | — | Increase your existing **Damage Reduction** by **+10%** until the start of your next turn. | Increase it by **+20%** until the start of your next turn. | Increase it by **+30%** until the start of your next turn. |
-| **Special Reduction** | Reduce all incoming Special values against you this round by **2**. | Reduce them by **4**. | Reduce them by **8**. | Reduce them by **12**. |
+| **Healing** | You or one ally within **2 m** heals **4d8 HP** in their current Health Bar. | You or one ally within **4 m** heals **8d8 HP** in their current Health Bar. | You or one ally within **8 m** heals **12d8 HP** in their current Health Bar. | You or one ally within **16 m** heals **16d8 HP** in their current Health Bar. |
+| **Stress Healing** | Remove **1d8 Stress** from yourself or one ally within **2 m**. | Remove **2d8 Stress** from yourself or one ally within **4 m**. | Remove **3d8 Stress** from yourself or one ally within **8 m**. | Remove **4d8 Stress** from yourself or one ally within **16 m**. |
+| **Damage Reduction** | — | Gain **+10% Damage Reduction** until the start of your next turn. | Gain **+20% Damage Reduction** until the start of your next turn. | Gain **+30% Damage Reduction** until the start of your next turn. |
+| **Ward** | Gain **+2 Ward** until the start of your next turn. | Gain **+4 Ward** until the start of your next turn. | Gain **+8 Ward** until the start of your next turn. | Gain **+12 Ward** until the start of your next turn. |
 
 ---
 
-Special Reduction cannot reduce a Special below 0.
+**Stress Healing** follows the normal Stress Healing rules. It cannot restore a completed Stress Bar or reduce Stress below the beginning of the current Stress Bar.
 
 ---
-:
+
+Stone-granted **Ward** follows the normal Ward rules. It applies only to eligible incoming hostile **Special(X)** values. If Ward reduces a Special to **0 or less**, that Special is not applied.
+
+
+}}
+\page
+{{pageNumber,auto}}
+{{wide
+
 #### Influence Stone Abilities
 
 | **Stone Ability** | **Tier 1** | **Tier 2** | **Tier 3** | **Tier 4** |
@@ -8093,30 +8081,23 @@ Special Reduction cannot reduce a Special below 0.
 | **Aid Roll** | One ally within **8 m** gains **+2** to all rolls this round except damage rolls. | One ally within **16 m** gains **+4** to all rolls this round except damage rolls. | One ally within **24 m** gains **+8** to all rolls this round except damage rolls. | One ally within **32 m** gains **+12** to all rolls this round except damage rolls. |
 | **Regeneration** | One ally within **8 m** gains **Regeneration(2)**. | One ally within **16 m** gains **Regeneration(4)**. | One ally within **24 m** gains **Regeneration(6)**. | One ally within **32 m** gains **Regeneration(8)**. |
 | **Passive Swap** | One ally within **8 m** may swap **1 active Passive** with another Passive they know on their next turn. | One ally within **16 m** may swap **1 active Passive** immediately. | Two allies within **24 m** may each swap **1 active Passive** on their next turn. | Two allies within **32 m** may each swap **1 active Passive** immediately. |
-| **Not a Target** | One enemy within **8 m** cannot target you with its next attack this round unless you are the only valid target. | Up to **2 enemies** within **16 m** cannot target you with their next attack this round unless you are the only valid target. | Up to **3 enemies** within **24 m** cannot target you with their next attack this round unless you are the only valid target. | Up to **4 enemies** within **32 m** cannot target you with their next attack this round unless you are the only valid target. |
+| **Not a Target** | — | One enemy within **8 m** cannot target you with its next attack before the start of your next turn unless you are the only valid target. | Up to **2 enemies** within **16 m** cannot target you with their next attack before the start of your next turn unless you are the only valid target. | Up to **3 enemies** within **24 m** cannot target you with their next attack before the start of your next turn unless you are the only valid target. |
 
-}}
-
-
-
-\page
-{{pageNumber,auto}}
-{{wide
-
-
+---
+:
 #### Wits Stone Abilities
 
 Wits expresses awareness, reaction speed, timing, initiative, and acting before the moment fully forms.
 
 | **Stone Ability** | **Tier 1** | **Tier 2** | **Tier 3** | **Tier 4** |
 |:--|:--|:--|:--|:--|
-| **Initiative Boost** | Gain **+4 Initiative** this round. | Gain **+8 Initiative** this round. | Gain **+16 Initiative** this round. | Gain **+32 Initiative** this round. |
+| **Initiative Boost** | Gain Initiative equal to your **Mastery Rank**. | Gain Initiative equal to **2 × your Mastery Rank**. | Gain Initiative equal to **4 × your Mastery Rank**. | Gain Initiative equal to **8 × your Mastery Rank**. |
 | **Phasing** | — | Gain **1 Phasing Charge** until the start of your next turn. | Gain **1 Phasing Charge** until the start of your next turn. | Gain **2 Phasing Charges** until the start of your next turn. |
 | **Read Intent** | Choose **1 creature** you can see. The GM must reveal its planned actions for this round: attacks, movement, defensive options, and support actions. | Choose **1 creature** you can see. The GM must also reveal the expected damage of its planned attacks. | Choose **2 creatures** you can see. The GM must reveal their planned actions and expected damage. | Choose **3 creatures** you can see. The GM must reveal their planned actions, expected damage, movement, defensive options, and support actions. |
 | **Reaction Range** | Increase the range of your Reactions by **+2 m** this round. | Increase it by **+4 m** this round. | Increase it by **+8 m** this round. | Increase it by **+16 m** this round. |
 
+**Initiative Boost** may be activated only during Initiative Exchange at the start of a Round and only **once per combat**, regardless of Tier or source. Add the gained Initiative before converting Initiative into Temporary Colorless Stones. Stones spent on Initiative Boost become Exhausted normally.
 
----
 ::::
 
 ### Last Breath
@@ -8195,7 +8176,7 @@ A **Turn** is one combatant’s moment to act.
 
 Initiative is rolled once at the start of combat.
 
-Initiative Order normally remains fixed for the rest of the combat.
+Initiative Order is established at the start of each Round and remains fixed for that Round.
 Initiative is not rolled again at the start of each Round unless a rule explicitly allows it.
 
 ---
@@ -8859,10 +8840,10 @@ If the check is made against an invisible attacker, the result applies against t
 
 Each combat follows this structure:
 
-1. **Start of Combat**
-   - Roll Initiative.
-   - Resolve the initial Initiative Shop.
-   - Determine Initiative Order.
+1. **Start the Round**
+   - On the first Round only, roll Initiative and spend Combat Reflexes.
+   - Before any creature acts or moves, resolve Initiative Boost and Initiative Exchange.
+   - Determine Initiative Order and lock it for this Round.
 
 2. **Resolve Turns**
    - Creatures act in Initiative Order.
@@ -8873,9 +8854,8 @@ Each combat follows this structure:
    - Regenerate Exhausted Stones as normal.
 
 4. **Start a New Round**
-   - Initiative Order remains unchanged.
-   - Initiative is not rolled again unless a rule explicitly allows it.
-   - Some effects, such as Wits Stone Powers, may reopen the Initiative Shop.
+   - Keep all remaining Initiative Scores.
+   - Return to step 1. Do not roll Initiative again unless a rule explicitly allows it.
 ---
 
 ### Basic Action Kit
@@ -8886,7 +8866,7 @@ At the start of each Round, each character normally has:
 - **1 Attack Action**
 - **1 Reaction**
 
-Some Powers, Items, Stones, or Initiative Shop options may grant additional Movements, Attack Actions, or Reactions.
+Some Powers, Items, or Stones may grant additional Movements, Attack Actions, or Reactions.
 
 ---
 }}
@@ -8924,9 +8904,7 @@ If an effect has Diminishing Stacks, resolve it in this order:
 
 Example:
 
-`Lacerate(4)` deals its start-of-turn effect, then becomes `Lacerate(3)`.
-
-Diminishing Stacks cannot decay below 0.
+`Lacerate(4)` deals its start-of-turn effect, then becomes `Lacerate(3)`. Diminishing Stacks cannot decay below 0.
 
 ---
 
@@ -8938,9 +8916,7 @@ During your Turn, you may use:
 - **1 Attack Action**
 
 You may use them in either order unless a rule says otherwise.
-
 A Movement may be normal Movement or a Movement Power.
-
 An Attack Action may be used to:
 
 - make a weapon attack,
@@ -8955,13 +8931,9 @@ An Attack Action may be used to:
 ### Reactions
 
 A Reaction is used outside your Turn when its trigger occurs.
-
 You normally have **1 Reaction per Round**.
-
 A Reaction is not a second Turn.
-
 A Reaction is not a free Attack Action unless a rule explicitly says so.
-
 If you gain an extra Reaction, you may use it only if a valid trigger occurs.
 
 ---
@@ -8983,9 +8955,7 @@ At the end of your Turn, resolve effects that trigger at the end of your Turn.
 ## Initiative
 
 Initiative represents combat tempo, reaction speed, and the ability to seize openings.
-
 Initiative is rolled once at the **start of combat**.
-
 Roll a number of d8s equal to your **Mastery Rank**.
 
 Keep all dice.
@@ -9000,47 +8970,48 @@ You may spend Combat Reflexes Skill Points like a normal Skill resource after se
 
 ---
 
+The resulting Initiative Score remains in play until it is spent or another rule changes it. It is not reset or rolled again at the start of each Round unless a rule explicitly says so.
+
+---
+
+### Initiative Exchange
+
+At the start of every Round, before any creature has moved, acted, or begun its Turn, resolve Initiative Exchange in this order:
+
+1. On the first Round only, roll Initiative and spend Combat Reflexes.
+2. Any creature that has not used **Initiative Boost** this combat may activate it now.
+3. Each creature may convert any amount of its Initiative into Temporary Colorless Stones.
+4. After all conversions are complete, determine Initiative Order from the remaining Initiative Scores.
+
+The cost of one Temporary Colorless Stone is:
+
+`4 × your current Mastery Rank Initiative`
+
+| **Mastery Rank** | **Initiative per Stone** |
+|:---:|:---:|
+| **MR2** | **8** |
+| **MR3** | **12** |
+| **MR4** | **16** |
+| **MR5** | **20** |
+| **MR6** | **24** |
+| **MR7** | **28** |
+| **MR8** | **32** |
+
+You may buy more than one Stone during the same Initiative Exchange if you can pay the full cost of each Stone. Subtract the cost immediately. Initiative can never drop below **0**.
+
+A Temporary Colorless Stone may pay any part of the normal Stone cost of an unlocked Stone Ability. When spent, it disappears instead of becoming Exhausted. It cannot be burned, sealed, or bound; does not increase a Stone Pool or Mastery Rank; and disappears at the end of combat.
+
+---
+
 ### Initiative Order
 
-After all characters have rolled Initiative and finished spending from the Initiative Shop, remaining Initiative Scores determine turn order.
+After Initiative Exchange, higher Initiative acts first.
 
-Higher Initiative acts first.
+Once the first Turn begins, Initiative Order is locked for the rest of that Round. Changes to Initiative do not reorder the current Round unless a rule explicitly says they do.
 
-Your Initiative Score normally remains fixed for the rest of the combat.
+At the start of the next Round, before anyone moves or acts, resolve Initiative Exchange again and determine a new Initiative Order from the remaining Initiative Scores.
 
-Initiative is not rolled again at the start of each Round unless a rule explicitly allows it.
-
----
-
-### Initiative Shop
-
-After rolling Initiative, you may spend points from your Initiative Score.
-
-| **Cost** | **Effect** |
-|:---:|---|
-| 4 | Gain +2 m Movement this Round. |
-| 8 | Initiative Swap: choose another willing player. You and that player swap Initiative Scores. |
-| 12 | Gain +1 extra Reaction this Round. Maximum once per Round. |
-| 16 | Remove 1d8 Stress from your current Stress Bar. |
-| 20 | Gain +1 extra Attack Action this Round. Maximum once per Round. |
-
-After spending, your remaining Initiative Score determines your place in Initiative Order.
-
-Initiative can never drop below 0.
-
-The Initiative Shop is normally available only immediately after the initial Initiative roll at the start of combat.
-
----
-
-### Additional Initiative Shops
-
-The Initiative Shop does not open automatically at the start of every Round.
-
-Some effects, especially **Wits Stone Powers**, may allow a character to roll Initiative again and reopen the Initiative Shop during combat.
-
-If a rule allows this, follow that rule’s timing and cost.
-
-See **Wits Stone Powers** for additional Initiative Shop access.
+Every creature still receives only one Turn per Round.
 
 ---
 }}
@@ -9141,8 +9112,7 @@ Before an eligible direct Attack is rolled, a character currently using Parry ma
 
 #### 6. Make the Roll
 
-Roll the remaining Attack or Spell Pool, resolve exploding dice, keep the appropriate number of dice, and compare the final result to the applicable Target Number. If the result does not reach the Target Number, the effect misses or fails against that target.
-
+Roll the remaining Attack or Spell Pool, resolve exploding dice, keep the appropriate number of dice, and compare the final result to the applicable Target Number. If the result does not reach the Target Number, the effect misses or fails against that target. 
 For an **AoE Attack**, use the same final roll for every valid creature in the area and compare it separately against that creature's defense. A miss against one creature does not affect any other creature. Each creature that would be hit may use legal Attack-Trigger defenses that modify its own defense before the hit is finalized. After that comparison, a creature that would still be hit may use **Dive for Cover** before damage or payload is applied.
 
 Every creature that remains hit receives the Power's **full printed payload**, including weapon damage when the Power uses a weapon, listed Power damage, listed Specials, and applicable offensive buffs. AoE damage and Specials are not divided or reduced because several creatures were hit.
@@ -9151,11 +9121,6 @@ Every creature that remains hit receives the Power's **full printed payload**, i
 
 After an Attack successfully hits, but before its damage, Specials, or other hit effects are applied, the target may use an eligible Phasing effect. If the hit is ignored through Phasing, no damage is rolled, no Specials are applied, and no other effect requiring the hit is resolved against that target.
 
-#### 8. Resolve Hit Effects
-
-Resolve forced movement, control effects, conditions, and other hit effects according to their individual rules.
-
-A successful Attack, Spell, or AoE does not automatically trigger a second defensive roll. A later Attribute Check occurs only if the effect explicitly grants a break attempt, disbelief attempt, or another separately timed response.
 
 
 }}
@@ -9163,6 +9128,13 @@ A successful Attack, Spell, or AoE does not automatically trigger a second defen
 \page
 {{pageNumber,auto}}
 {{wide
+#### 8. Resolve Hit Effects
+
+Resolve forced movement, control effects, conditions, and other hit effects according to their individual rules.
+
+A successful Attack, Spell, or AoE does not automatically trigger a second defensive roll. A later Attribute Check occurs only if the effect explicitly grants a break attempt, disbelief attempt, or another separately timed response.
+
+
 
 #### 9. Apply Ward to Incoming Specials
 
@@ -9701,7 +9673,7 @@ Every character normally has:
 
 per round, unless another rule grants additional uses.
 
-Additional Movements, Attack Actions, and Reactions may be gained through Stones, Initiative, Powers, or other explicit effects.
+Additional Movements, Attack Actions, and Reactions may be gained through Stones, Powers, or other explicit effects.
 
 Basic Combat Maneuvers are **not Powers**. They do not become spent after use. If a character gains additional uses of the appropriate action type, the same Basic Combat Maneuver may be used again.
 
@@ -9733,7 +9705,7 @@ You may not add damage, Specials, AoE, Split Attack, Autofire, control effects, 
 Normal properties and effects belonging to the weapon itself still apply when appropriate.
 
 **Extra Attacks:**
-If you gain additional Attack Actions through Stones, Initiative, or another effect, you may use them to make additional Basic Attacks.
+If you gain additional Attack Actions through Stones, Powers, or another effect, you may use them to make additional Basic Attacks.
 
 A Basic Attack is not a Power and does not become spent after use.
 
@@ -9770,7 +9742,7 @@ You may draw or sheathe a weapon as part of your Movement.
 **No Splitting:**
 If you use a Movement Maneuver or Movement Power that replaces your Movement, it uses that entire Movement and cannot be split unless a rule explicitly says otherwise.
 
-Movement Powers provide additional or superior movement options such as **Movement: Teleport**, **Movement: Flight**, **Movement: Leap**, **Movement: Safe Movement**, or other specialized movement.
+Movement Powers provide additional or superior movement options such as Teleport, Flight, Leap, Safe Movement, or other specialized movement.
 
 They are not required to move normally.
 
@@ -9897,7 +9869,7 @@ Using a Basic Reaction spends **1 Reaction**.
 
 Basic Reactions are not Powers and do not become spent after use.
 
-If a character gains additional Reactions through Stones, Initiative, or another effect, they may use Basic Reactions again whenever their Trigger occurs.
+If a character gains additional Reactions through Stones, Powers, or another effect, they may use Basic Reactions again whenever their Trigger occurs.
 
 Reaction Powers provide stronger, more specialized, or more tactical responses, but they are not required to react in combat.
 
@@ -10023,42 +9995,6 @@ Normal situational rules such as Advantage, Disadvantage, terrain, movement mode
 :
 
 
-
-
-}}
-
-\page
-{{pageNumber,auto}}
-{{wide
-
-
-### Initiative: Delay
-
-In certain situations, you may delay your Turn to react to the flow of combat.
-
-**Trigger:** At the start of your Turn.
-
-**Effect:** Skip your current Turn. You may then take that Turn immediately after another creature finishes its Turn.
-
-**New Initiative:** Your Initiative permanently changes to the position where you take the delayed Turn.
-
-#### Delaying into the Next Round
-
-If you delay past the round boundary, your delayed Turn carries into the next Round.
-
-You may take it after any creature finishes its Turn, but you may not interrupt another creature's Turn.
-
-If you were last to act, your new Initiative becomes:
-
-**highest Initiative + 1**
-
-#### Restrictions
-
-* You may not interrupt another creature's Turn.
-* If you delay past your next natural Turn, you lose that Turn.
-* You cannot Delay while Incapacitated or Surprised.
-
-
 }}
 
 \page
@@ -10172,7 +10108,7 @@ They return only when you complete a **Safe Haven Rest**.
 ---
 
 #### Bound Stones (Do NOT return on rest)
-Stones bound into **Artifacts, Summons, or similar permanent bonds** remain bound until released or destroyed.
+Stones bound into **Artifacts, Familiars, or similar permanent bonds** remain bound until released or destroyed.
 
 
 
@@ -11123,7 +11059,7 @@ Mental Powers offer a complete character path for players who want to communicat
 
 ### Telepathy and Mind Link
 
-**Passive: Telepathy** grants Telepathic Access and includes voluntary **Mind Links** at no additional Power cost.
+**Telepathy** is a Passive. It grants Telepathic Access and includes voluntary **Mind Links** at no additional Power cost.
 
 Mind Link is not purchased separately. Its communication, linked-creature limit, range, shared impressions, shared senses, and willing memory sharing improve with **Passive: Telepathy** Power Level.
 
@@ -11361,7 +11297,7 @@ Examples:
 - A **Melee Attack + Push** may be a shield bash, a hammer blow, a gravity pulse, a burst of wind, or a spectral beast strike.
 - A **Mental Attack** may be a psychic lance, a whispered curse, a memory spike, a pressure wave of fear, or a silent scream.
 - A **Mind Illusion** may be a nightmare image, a false wall, a phantom voice, a distorted reflection, a veil of insects, or a hallucinated enemy.
-- A **Melee Single Target Heal** or **Ranged Single Target Heal** may be divine light, blood magic, herbal restoration, ancestral warmth, repairing nanogrowth, or stolen life returned.
+- A **Heal** may be divine light, blood magic, herbal restoration, ancestral warmth, repairing nanogrowth, or stolen life returned.
 
 The mechanics stay the same.
 
@@ -11561,16 +11497,16 @@ It is not added on top of your normal Movement unless the entry explicitly says 
 
 Movement Powers may include movement types such as:
 
-- **Movement: Ground Dash**,
-- **Movement: Safe Movement**,
-- **Movement: Teleport**,
-- **Movement: Teleport with Ally**,
-- **Movement: Flight**,
-- **Movement: Leap**,
-- **Movement: Wall Walk**,
-- **Movement: Burrow**,
-- **Movement: Phase Passage**,
-- or **Movement: Trample**.
+- Ground Dash,
+- Safe Movement,
+- Teleport,
+- Teleport with Ally,
+- Flight,
+- Leap,
+- Wall Walk,
+- Burrow,
+- Phase Passage,
+- or Trample.
 
 See: <a href="http://homebrewery.naturalcrit.com/share/pyfkMUFdD_C7" target="_blank" rel="noopener noreferrer">Movement</a>
 
@@ -12400,7 +12336,7 @@ Use the most relevant source:
 - **Target MR** if the Ritual affects a creature, spirit, corpse, soul, demonic mark, living target, enemy, or similar being.
 - **Creator / Owner MR** if the Ritual affects an item, ward, seal, trap, forged document, Resonant lock, or constructed supernatural effect.
 - **Artifact Level Tier** if the Ritual targets an Artifact or awakened relic.
-- **Power Tier** if the Ritual targets a Spell, Power, active supernatural effect, Summon, or similar structured effect.
+- **Power Tier** if the Ritual targets a Spell, Power, active supernatural effect, summon, familiar, or similar structured effect.
 - **Scene MR** if the Ritual affects a place, ruin, battlefield, dream, leyline, shrine, corrupted area, sacred site, threshold, or unknown supernatural phenomenon.
 
 If multiple sources apply, use the strongest or most narratively important one.
@@ -13239,8 +13175,6 @@ If a Summon needs a special combat ability, it buys a complete existing Power fr
 
 Use the Power's own written PP calculation. The Power keeps its normal Type, requirements, range, duration, trigger, effect, limitations, and action economy.
 
-The table below is a shortcut for the standard Power cost curves. If a Power uses a different written PP calculation, use the Power's written PP value and the general formula above.
-
 #### Standard Power Cost Reference
 
 | **Power Type** | **Summon Token Cost** |
@@ -13332,8 +13266,6 @@ They use their complete Power Level profiles, bonuses, radii, restrictions, and 
 Do not use the progression or radii of **Active Buff: Damage** or **Active Buff: Armor** for these Powers.
 
 Both affect only the caster's own Summons and use the owner's maintained Active Buff slot. Each Summon must meet all radius and eligibility requirements in the catalogue.
-
-The Bond's maintained Active Buff slot and the owner's maintained Active Buff slot are separate. A Summon Body may benefit from an Active Buff maintained by its Bond and from a Summon Aura maintained by its owner at the same time. The owner may still maintain only one Active Buff at a time, so **Active Buff: Summon Damage Aura** and **Active Buff: Summon Armor Aura** cannot normally be maintained simultaneously.
 
 ---
 }}
@@ -13559,7 +13491,7 @@ After the Power has resolved, the Minor Magic Item loses its magic and no longer
 
 > ##### Example: Prepared Crossbow
 >
-> A character stores their **Ranged Single Target Attack** in a loaded crossbow and places it as part of an ambush. When a creature enters the chosen area, the stored Attack Pool is rolled with the Keep value recorded when the Trap was created. On a hit, the Trap deals the Damage and applies the Specials of the stored **Ranged Single Target Attack**. The crossbow’s Weapon Damage Dice and Weapon Specials are not added.
+> A character stores their Single Target Attack in a loaded crossbow and places it as part of an ambush. When a creature enters the chosen area, the stored Attack Pool is rolled with the Keep value recorded when the Trap was created. On a hit, the Trap deals the Damage and applies the Specials of the stored Single Target Attack. The crossbow’s Weapon Damage Dice and Weapon Specials are not added.
 
 }}
 
@@ -13804,31 +13736,34 @@ After seeing the roll, you may spend **Combat Reflexes Skill Points**.
 
 `Initiative Score = Initiative Roll + Combat Reflexes spent`
 
-Initiative Order normally remains fixed for the rest of combat.
+The Initiative Score remains in play until it is spent or another rule changes it.
 
-Initiative is not rolled again each round unless a rule explicitly allows it.
+Initiative is not rolled again each Round unless a rule explicitly allows it.
 
 ---
 
-#### **7) Initiative Shop**
+#### **7) Initiative Exchange**
 
-After rolling Initiative, you may spend points from your Initiative Score.
+At the start of each Round, before anyone moves or acts:
 
-| Cost | Effect |
-|:---:|---|
-| 4 | Gain +2 m Movement this Round. |
-| 8 | Initiative Swap with one willing player. |
-| 12 | Gain +1 extra Reaction this Round. Max once per Round. |
-| 16 | Remove 1d8 Stress from your current Stress Bar. |
-| 20 | Gain +1 extra Attack Action this Round. Max once per Round. |
+1. On the first Round only, roll Initiative and spend Combat Reflexes.
+2. Initiative Boost may be activated now, once per combat.
+3. Convert Initiative into Temporary Colorless Stones at **4 × MR Initiative per Stone**.
+4. Determine Initiative Order from the remaining scores and lock it for the Round.
 
-After spending, your remaining Initiative Score determines turn order.
+| MR | Cost per Stone |
+|:---:|:---:|
+| 2 | 8 |
+| 3 | 12 |
+| 4 | 16 |
+| 5 | 20 |
+| 6 | 24 |
+| 7 | 28 |
+| 8 | 32 |
 
-Initiative can never drop below 0.
+Initiative cannot drop below 0 and is not reset between Rounds. Each creature still gets only one Turn per Round.
 
-The Initiative Shop normally opens only once at the start of combat.
-
-Additional Initiative Shops require a rule such as a **Wits Stone Power**.
+Temporary Colorless Stones may pay normal costs for unlocked Stone Abilities. They disappear when spent or at the end of combat and cannot be burned, sealed, or bound.
 
 ---
 

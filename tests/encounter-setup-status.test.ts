@@ -27,16 +27,14 @@ function mockCombatant(opts: {
 }
 
 describe('buildEncounterSetupStatus', () => {
-  it('lists slotted passives and shop purchases without marking them done', () => {
+  it('lists slotted passives without marking them done', () => {
     (globalThis as any).game = { user: { isGM: true }, combat: null };
     const combatant = mockCombatant({
       passives: [{ name: 'Lean Ward' }],
-      shop: { extraAttack: true, extraMovement: 1 },
     });
     const status = buildEncounterSetupStatus(combatant, null);
     expect(status?.rows[0]?.summary).toContain('Lean Ward');
     expect(status?.rows[0]?.done).toBe(false);
-    expect(status?.rows[2]?.summary).toMatch(/\+Atk/);
     expect(status?.rows[2]?.done).toBe(false);
   });
 

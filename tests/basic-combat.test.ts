@@ -33,7 +33,7 @@ describe('basic-combat helpers', () => {
 });
 
 describe('basic combat maneuvers catalog', () => {
-  it('includes Guard/Evade/Counterattack/Quick Load/Flee/Delay and radial prefs cover core basics', () => {
+  it('includes Guard/Evade/Counterattack/Quick Load/Flee and radial prefs cover core basics', () => {
     const ids = new Set(COMBAT_MANEUVERS.map((m) => m.id));
     for (const id of [
       'guard',
@@ -41,14 +41,14 @@ describe('basic combat maneuvers catalog', () => {
       'counterattack',
       'quick-load',
       'flee',
-      'initiative-delay',
       'dive-for-cover',
     ]) {
       expect(ids.has(id)).toBe(true);
     }
+    expect(ids.has('initiative-delay')).toBe(false);
     expect(RADIAL_STANDARD_MANEUVER_IDS).toContain('quick-load');
     expect(RADIAL_STANDARD_MANEUVER_IDS).toContain('flee');
-    expect(RADIAL_STANDARD_MANEUVER_IDS).toContain('initiative-delay');
+    expect(RADIAL_STANDARD_MANEUVER_IDS).not.toContain('initiative-delay');
     expect(RADIAL_STANDARD_MANEUVER_IDS).toContain('weapon-attack');
   });
 

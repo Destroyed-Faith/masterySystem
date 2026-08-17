@@ -6,6 +6,7 @@
 import { SKILLS } from './skills.js';
 import { buildFreshTraitUses } from './echos/index.js';
 import { beginMinorMagicRest } from './minor-magic-items.js';
+import { clearLastBreathOnRest } from '../stones/last-breath.js';
 
 export const SAFE_HAVEN_REST_INFO =
   'Safe Haven Rest: HP, Stress, Scars, Stones, Mastery Charges, Skills, Reroll Points and Echo uses fully restored. You may create, replace, or dismiss Minor Magic Items.';
@@ -99,6 +100,7 @@ export async function applySafeHavenRest(actor: any): Promise<void> {
   }
   await actor.update(updates);
   await beginMinorMagicRest(actor);
+  await clearLastBreathOnRest(actor);
 }
 
 export function listWorldCharacters(): any[] {

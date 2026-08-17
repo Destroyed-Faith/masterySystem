@@ -634,21 +634,6 @@ Hooks.once('init', async function() {
       );
       $initiativeDiv.append(passiveBtn);
 
-      // Add Initiative Shop button
-      const shopTooltip = setupRowTip('initiative', 'Initiative Shop');
-      const initiativeBtn = $(
-        '<button type="button" class="combatant-control ms-initiative-btn' +
-          (setupStatus?.rows.find((r) => r.kind === 'initiative')?.done ? ' is-setup-done' : '') +
-          '" data-action="openInitiativeShop" data-combatant-id="' +
-          combatantId +
-          '" data-tooltip="' +
-          shopTooltip +
-          '" aria-label="Initiative Shop" title="' +
-          shopTooltip +
-          '"><i class="fa-solid fa-shop"></i></button>',
-      );
-      $initiativeDiv.append(initiativeBtn);
-      
       // Add Stone Powers button (only for characters)
       const actor = combatant.actor;
       if (actor && actor.type === 'character') {

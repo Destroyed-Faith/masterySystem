@@ -112,12 +112,9 @@ function areAllCombatantsDone(combat: Combat, round: number): boolean {
 }
 
 /**
- * After stone powers: Round 1 runs the full initiative phase (dice + CR + Initiative Shop
- * for PCs, `setupTurns`, Mastery first-actor sync). Rounds 2+ keep the existing Initiative —
- * per the Players Guide, Initiative is NOT rolled again each round and the Initiative Shop
- * does not reopen automatically (only effects like Wits Stone Powers may allow it). We only
- * re-sync the turn pointer to the highest remaining Initiative. Idempotent per round via
- * `initiativePhaseDoneByRound`.
+ * After stone powers: leftover NPC rolls + sort by remaining Initiative.
+ * PCs already rolled (and maybe converted) inside the Stone Powers dialog.
+ * Idempotent per round via `initiativePhaseDoneByRound`.
  */
 export async function runInitiativePhaseAfterStones(combat: Combat, round: number): Promise<void> {
   if (!game.user?.isGM) return;
@@ -208,25 +205,6 @@ export async function runMasteryCombatRoundAdvancePipeline(
   if (!live) return;
   combat = live;
   await clearStonePowersConfigurationLocksInCombat(combat);
-
-  // Wits "Initiative Boost" lasts "this round": remove last round's temporary
-  // boost from the persisted Initiative before the new round is set up.
-  for (const combatant of combat.combatants) {
-    try {
-      const boost = Number(combatant.getFlag('mastery-system', 'msInitiativeBoostThisRound') ?? 0) || 0;
-      if (boost > 0) {
-        const cur = Number(combatant.initiative ?? 0) || 0;
-        const restored = Math.max(0, cur - boost);
-        await combatant.update({ initiative: restored });
-        await combatant.setFlag('mastery-system', 'msInitiativeValue', restored);
-      }
-      if (boost !== 0) {
-        await combatant.unsetFlag('mastery-system', 'msInitiativeBoostThisRound');
-      }
-    } catch (e) {
-      console.warn('Mastery System | Failed to revert Initiative Boost', e);
-    }
-  }
 
   for (const combatant of combat.combatants) {
     const actor = combatant.actor;

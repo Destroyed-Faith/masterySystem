@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.367] - 2026-08-17
+
+### Added
+
+- **Initiative Exchange:** Convert remaining Initiative into Temporary Colorless Stones at 4 × Mastery Rank. The convert control lives on the Stone Powers dialog. Colorless stones can pay any Stone Ability and vanish when spent or when combat ends.
+- **Last Breath:** Once per Safe Haven Rest, burn 1 Stone to stay up with 1 Wounded box and ignore leftover damage.
+- **Stone Power tables:** Parry, Damage Negation, Ward, and the rest of the published T1–T4 list. Tiers keep scaling past T4 (practical pay wall is T6 / 80 stones). Artifact Support can prefill T5 so Elorian Crit at L7–10 keeps 4 charges.
+
+### Changed
+
+- **Initiative Boost:** Now 1 / 2 / 4 / 8 × Mastery Rank, once per combat, during Initiative Exchange. The bonus stays on the score instead of reverting each round.
+- **Players Guide:** Replaced the stored rules with the current Homebrewery source.
+
+### Removed
+
+- **Initiative Shop, Initiative Swap, and Initiative Delay.** Extra attacks, reactions, and movement now come from Stone Powers. Delay is no longer a maneuver.
+
 ## [0.9.366] - 2026-08-17
 
 ### Added

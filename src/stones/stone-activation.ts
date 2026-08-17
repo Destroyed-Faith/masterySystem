@@ -19,8 +19,9 @@ import {
 } from '../combat/action-economy.js';
 
 // Import canonical stone powers definition
-import { STONE_POWERS, tierForUseIndex, stonePowerSkipsFirstTier, type StonePower } from './stone-powers.js';
+import { STONE_POWERS, resolveStonePowerId, tierForUseIndex, stonePowerSkipsFirstTier, type StonePower } from './stone-powers.js';
 import { getArtifactStoneSupportPrefill } from '../utils/artifact-stone-functions.js';
+import { isInitiativeBoostUsedThisCombat } from './colorless-stones.js';
 
 // Re-export for backward compatibility
 export { STONE_POWERS, type StonePower };
@@ -39,14 +40,19 @@ export async function activateStonePower(options: {
   combatant: Combatant;
   abilityId: string;
   attributeKey?: AttributeKey;
+  colorlessSpent?: number;
 }): Promise<boolean> {
-  const { combatant, abilityId, attributeKey } = options;
+  const { combatant, abilityId, attributeKey, colorlessSpent = 0 } = options;
   const actor = getActionEconomyActor(options.actor) ?? options.actor;
 
   // Get power definition
-  const power = STONE_POWERS[abilityId];
+  const power = STONE_POWERS[resolveStonePowerId(abilityId)];
   if (!power) {
     ui.notifications?.error(`Unknown stone power: ${abilityId}`);
+    return false;
+  }
+  if (power.id === 'wits.initiativeBoost' && isInitiativeBoostUsedThisCombat(combatant)) {
+    ui.notifications?.warn('Initiative Boost may be used only once per combat.');
     return false;
   }
   
@@ -93,7 +99,8 @@ export async function activateStonePower(options: {
     async (_roundState: RoundState) => {
       await power.apply({ actor, combatant, tier, cost });
     },
-    cost
+    cost,
+    colorlessSpent,
   );
 }
 
@@ -104,11 +111,11 @@ export async function activateGenericStonePowerMixed(options: {
   actor: Actor;
   combatant: Combatant;
   abilityId: string;
-  perAttributeStones: Partial<Record<AttributeKey, number>>;
+  perAttributeStones: Partial<Record<AttributeKey | 'colorless', number>>;
 }): Promise<boolean> {
   const { combatant, abilityId, perAttributeStones } = options;
   const actor = getActionEconomyActor(options.actor) ?? options.actor;
-  const power = STONE_POWERS[abilityId];
+  const power = STONE_POWERS[resolveStonePowerId(abilityId)];
   if (!power) {
     ui.notifications?.error(`Unknown stone power: ${abilityId}`);
     return false;

@@ -1,22 +1,18 @@
 /**
  * Canonical Stone Powers Definition — new tier-based spec.
  *
- * Each Stone Power has FOUR fixed tiers. The tier a player gets on a
- * given activation is determined by how many times this power has
- * been used this turn (NOT cumulative across activations):
- *
- *   1st use → 1 stone → Tier 1
- *   2nd use → 2 stones → Tier 2
- *   3rd use → 4 stones → Tier 3
- *   4th use → 8 stones → Tier 4
+ * Each Stone Power has a published T1–T4 table (what the UI shows).
+ * Tiers continue past that — T5 costs 16, T6 costs 32, up to T8.
+ * Dumping every Stone in the game (80) pays through T6 (1+2+4+8+16+32=63).
+ * Extra payment lanes for T5+ are future UI; Artifact Support can already
+ * prefill T5+ so Elorian Crit at L7–10 keeps the old 4-charge effect.
  *
  * Some tiers are intentionally blank (`label === null`). Spending the
  * stones is still required, but no effect triggers — this is the "ramp"
  * mechanic that prevents trivial low-tier spam of the strongest effects.
  *
  * Pool layout: Generic + 7 attribute pools (Might / Agility / Vitality /
- * Intellect / Resolve / Influence / Wits). Most pools have 4 powers;
- * Wits has 5 (Seize the Moment). Total 33.
+ * Intellect / Resolve / Influence / Wits). Every pool has 4 powers. Total 32.
  *
  * Effects live in `apply(ctx)` and write into `roundState.stoneBonuses`
  * or set actor / combatant flags. Cleanup of per-turn bonuses happens
@@ -28,9 +24,12 @@ import {
   setRoundState,
   type AttributeKey,
 } from '../combat/action-economy.js';
-import { getEffectById } from '../utils/special-effects.js';
-import { statusEntryId } from '../system/active-specials.js';
 import { healStressFromBars } from '../utils/calculations.js';
+import {
+  initiativeBoostAmount,
+  isInitiativeBoostUsedThisCombat,
+  markInitiativeBoostUsedThisCombat,
+} from './colorless-stones.js';
 
 export type StonePowerAttribute = AttributeKey | 'generic';
 
@@ -46,7 +45,7 @@ export interface StoneTier {
 export interface StonePowerContext {
   actor: any;
   combatant: any;
-  /** 1..4 — clamped tier number for this activation. */
+  /** 1..8 — activation tier (UI currently shows 1..4). */
   tier: number;
   /** Stone cost of this activation (1 / 2 / 4 / 8 / …). */
   cost: number;
@@ -61,16 +60,38 @@ export interface StonePower {
   description: string;
   /** Compiled multi-tier tooltip — generated on module load. */
   effect: string;
-  /** Tier 1..4 effects. */
+  /** Published Tier 1..4 effects. Higher tiers continue the same scale. */
   tiers: [StoneTier, StoneTier, StoneTier, StoneTier];
   /** Apply the effect for the given tier. */
   apply: (ctx: StonePowerContext) => Promise<void>;
 }
 
+/** Tiers shown in the dialog / Players Guide. */
+export const STONE_TIER_VISIBLE = 4;
+/** Last wave you can fully pay with 80 Stones (1+2+4+8+16+32 = 63). */
+export const STONE_TIER_PRACTICAL_MAX = 6;
+/** Hard cap while the table is still open-ended. */
+export const STONE_TIER_HARD_MAX = 8;
+
 /**
- * Compile the multi-tier tooltip string from the tier table. Tiers with
- * `label === null` are rendered as "—" to make blank ramp steps visible.
+ * Continue a published T1–T4 number sequence past the printed table.
+ * Doubling sequences keep doubling; otherwise the last delta repeats.
  */
+export function scaleStoneTier(seq: readonly number[], tier: number): number {
+  const t = Math.max(1, Math.floor(Number(tier) || 1));
+  if (t <= seq.length) return Number(seq[t - 1]) || 0;
+  if (seq.length === 0) return 0;
+  if (seq.length === 1) return Number(seq[0]) || 0;
+  const a = Number(seq[seq.length - 2]) || 0;
+  const b = Number(seq[seq.length - 1]) || 0;
+  const steps = t - seq.length;
+  if (a > 0 && b > 0 && b % a === 0 && b / a >= 2) {
+    return b * (b / a) ** steps;
+  }
+  return b + (b - a) * steps;
+}
+
+/** Compile the multi-tier tooltip. Blank ramp steps (`label === null`) render as "—". */
 function compileEffectText(name: string, tiers: readonly StoneTier[]): string {
   const lines = tiers.map((t, i) => {
     const tierNum = i + 1;
@@ -108,7 +129,7 @@ const GENERIC_POWERS_RAW: Array<Omit<StonePower, 'effect'>> = [
     ],
     apply: async ({ actor, tier }) => {
       const combat = (game as any).combat;
-      const bonus = [0, 1, 2, 3][tier - 1] ?? 0;
+      const bonus = scaleStoneTier([0, 1, 2, 3], tier);
       if (bonus <= 0) return;
       const roundState = getRoundState(actor, combat);
       roundState.attackActions.total += bonus;
@@ -172,7 +193,7 @@ const GENERIC_POWERS_RAW: Array<Omit<StonePower, 'effect'>> = [
       { label: 'Swap 2', description: 'Swap 2 active Passives with other Passives you know.', value: 2 },
     ],
     apply: async ({ actor, tier }) => {
-      const swaps = tier >= 3 ? 2 : 1;
+      const swaps = Math.ceil(tier / 2);
       const flagKey = 'exchangePassiveSwapsPending';
       const prior = Number((actor as any).getFlag?.('mastery-system', flagKey) ?? 0) || 0;
       await (actor as any).setFlag?.('mastery-system', flagKey, prior + swaps);
@@ -202,7 +223,7 @@ const MIGHT_POWERS_RAW: Array<Omit<StonePower, 'effect'>> = [
     ],
     apply: async ({ actor, tier }) => {
       const combat = (game as any).combat;
-      const dice = [2, 4, 8, 16][tier - 1] ?? 0;
+      const dice = scaleStoneTier([2, 4, 8, 16], tier);
       const roundState = getRoundState(actor, combat);
       const sb = ensureStoneBonuses(roundState);
       sb.meleeDamageBonusDice = (sb.meleeDamageBonusDice ?? 0) + dice;
@@ -229,7 +250,7 @@ const MIGHT_POWERS_RAW: Array<Omit<StonePower, 'effect'>> = [
       const combat = (game as any).combat;
       // Tiers are cumulative TOTALS (+4/+8/+16/+32). SET, don't stack, so
       // ramping +4→+8 yields +8 (not +12).
-      const bonus = [4, 8, 16, 32][tier - 1] ?? 0;
+      const bonus = scaleStoneTier([4, 8, 16, 32], tier);
       const roundState = getRoundState(actor, combat);
       const sb = ensureStoneBonuses(roundState);
       sb.tempArmor = bonus;
@@ -250,7 +271,7 @@ const MIGHT_POWERS_RAW: Array<Omit<StonePower, 'effect'>> = [
     ],
     apply: async ({ actor, tier }) => {
       const combat = (game as any).combat;
-      const bonus = [4, 8, 16, 32][tier - 1] ?? 0;
+      const bonus = scaleStoneTier([4, 8, 16, 32], tier);
       const roundState = getRoundState(actor, combat);
       const sb = ensureStoneBonuses(roundState);
       sb.meleeIgnoreArmor = (sb.meleeIgnoreArmor ?? 0) + bonus;
@@ -261,25 +282,25 @@ const MIGHT_POWERS_RAW: Array<Omit<StonePower, 'effect'>> = [
     },
   },
   {
-    id: 'might.attackPoolReduction',
-    name: 'Attack Pool Reduction',
+    id: 'might.parry',
+    name: 'Parry',
     attribute: 'might',
-    category: 'action',
-    description: 'One enemy within 6 m loses 10%/20%/30%/40% of its Attack Pool on its next Attack roll this round.',
+    category: 'passive',
+    description: 'Gain Parry Pool until the start of your next turn (T2: +4, T3: +8, T4: +12). Creates Parry if you do not have it.',
     tiers: [
-      { label: '−10% Attack Pool', description: 'One enemy within 6 m loses 10% of its Attack Pool on its next Attack roll this round.', value: 10 },
-      { label: '−20% Attack Pool', description: 'One enemy within 6 m loses 20% of its Attack Pool on its next Attack roll this round.', value: 20 },
-      { label: '−30% Attack Pool', description: 'One enemy within 6 m loses 30% of its Attack Pool on its next Attack roll this round.', value: 30 },
-      { label: '−40% Attack Pool', description: 'One enemy within 6 m loses 40% of its Attack Pool on its next Attack roll this round.', value: 40 },
+      { label: null, description: 'No effect — ramp step.' },
+      { label: '+4 Parry Pool', description: 'Gain +4 Parry Pool until the start of your next turn.', value: 4 },
+      { label: '+8 Parry Pool', description: 'Gain +8 Parry Pool until the start of your next turn.', value: 8 },
+      { label: '+12 Parry Pool', description: 'Gain +12 Parry Pool until the start of your next turn.', value: 12 },
     ],
-    apply: async ({ actor, combatant, tier }) => {
-      const pct = [10, 20, 30, 40][tier - 1] ?? 0;
-      // GM-applied: stamp a pending reduction on the combatant flag; the
-      // target combatant must be selected manually for now.
-      await (combatant as any)?.setFlag?.('mastery-system', 'pendingEnemyAttackPoolReductionPct', pct);
-      ui.notifications?.info(
-        `${(actor as any).name}: Attack Pool Reduction — target an enemy within 6 m; they lose ${pct}% of their next Attack Pool.`,
-      );
+    apply: async ({ actor, tier }) => {
+      const combat = (game as any).combat;
+      const bonus = scaleStoneTier([0, 4, 8, 12], tier);
+      if (bonus <= 0) return;
+      const roundState = getRoundState(actor, combat);
+      const sb = ensureStoneBonuses(roundState);
+      sb.tempParryPool = bonus;
+      await setRoundState(actor, roundState);
     },
   },
 ];
@@ -294,16 +315,17 @@ const AGILITY_POWERS_RAW: Array<Omit<StonePower, 'effect'>> = [
     name: 'Crit',
     attribute: 'agility',
     category: 'action',
-    description: 'A number of your attacks this round can have Crit(1). You decide which attacks BEFORE you roll each attack roll.',
+    description: 'A number of your attacks this round can have Crit(1). You decide which attacks BEFORE you roll each attack roll (T2: 1, T3: 2, T4: 3).',
     tiers: [
-      { label: '1 attack: Crit(1)', description: '1 of your attacks this round can have Crit(1). Choose before each attack roll.', value: 1 },
-      { label: '2 attacks: Crit(1)', description: '2 of your attacks this round can have Crit(1). Choose before each attack roll.', value: 2 },
-      { label: '3 attacks: Crit(1)', description: '3 of your attacks this round can have Crit(1). Choose before each attack roll.', value: 3 },
-      { label: '4 attacks: Crit(1)', description: '4 of your attacks this round can have Crit(1). Choose before each attack roll.', value: 4 },
+      { label: null, description: 'No effect — ramp step.' },
+      { label: '1 attack: Crit(1)', description: 'One of your attacks this round can have Crit(1). You decide which attack before you roll the Attack Roll.', value: 1 },
+      { label: '2 attacks: Crit(1)', description: 'Two of your attacks this round can have Crit(1). You decide which attacks before you roll each Attack Roll.', value: 2 },
+      { label: '3 attacks: Crit(1)', description: 'Three of your attacks this round can have Crit(1). You decide which attacks before you roll each Attack Roll.', value: 3 },
     ],
     apply: async ({ actor, tier }) => {
       const combat = (game as any).combat;
-      const charges = [1, 2, 3, 4][tier - 1] ?? 0;
+      const charges = scaleStoneTier([0, 1, 2, 3], tier);
+      if (charges <= 0) return;
       const roundState = getRoundState(actor, combat);
       const sb = ensureStoneBonuses(roundState);
       sb.critRaises = (sb.critRaises ?? 0) + charges;
@@ -324,7 +346,7 @@ const AGILITY_POWERS_RAW: Array<Omit<StonePower, 'effect'>> = [
     ],
     apply: async ({ actor, tier }) => {
       const combat = (game as any).combat;
-      const bonus = [8, 16, 24, 32][tier - 1] ?? 0;
+      const bonus = scaleStoneTier([8, 16, 24, 32], tier);
       const roundState = getRoundState(actor, combat);
       const sb = ensureStoneBonuses(roundState);
       sb.evadeBonus = (sb.evadeBonus ?? 0) + bonus;
@@ -338,14 +360,14 @@ const AGILITY_POWERS_RAW: Array<Omit<StonePower, 'effect'>> = [
     category: 'action',
     description: 'Move some distance without provoking opportunity attacks (4 / 8 / 12 / 16 m).',
     tiers: [
-      { label: 'Move 4 m, no OA', description: 'Move up to 4 m. This movement does not provoke opportunity attacks.', value: 4 },
-      { label: 'Move 8 m, no OA', description: 'Move up to 8 m. This movement does not provoke opportunity attacks.', value: 8 },
-      { label: 'Move 12 m, no OA', description: 'Move up to 12 m. This movement does not provoke opportunity attacks.', value: 12 },
-      { label: 'Move 16 m, no OA', description: 'Move up to 16 m. This movement does not provoke opportunity attacks.', value: 16 },
+      { label: 'Move 4 m, no reactions', description: 'Move up to 4 m. This movement does not provoke reactions.', value: 4 },
+      { label: 'Move 8 m, no reactions', description: 'Move up to 8 m. This movement does not provoke reactions.', value: 8 },
+      { label: 'Move 12 m, no reactions', description: 'Move up to 12 m. This movement does not provoke reactions.', value: 12 },
+      { label: 'Move 16 m, no reactions', description: 'Move up to 16 m. This movement does not provoke reactions.', value: 16 },
     ],
     apply: async ({ actor, tier }) => {
       const combat = (game as any).combat;
-      const meters = [4, 8, 12, 16][tier - 1] ?? 0;
+      const meters = scaleStoneTier([4, 8, 12, 16], tier);
       const roundState = getRoundState(actor, combat);
       roundState.moveBonusMeters = (roundState.moveBonusMeters ?? 0) + meters;
       await setRoundState(actor, roundState);
@@ -366,7 +388,7 @@ const AGILITY_POWERS_RAW: Array<Omit<StonePower, 'effect'>> = [
       { label: 'Slip 8 m on miss', description: 'Once before the start of your next turn, when an enemy misses you with an attack, you may move 8 m.', value: 8 },
     ],
     apply: async ({ actor, tier }) => {
-      const meters = [2, 4, 6, 8][tier - 1] ?? 0;
+      const meters = scaleStoneTier([2, 4, 6, 8], tier);
       await (actor as any).setFlag?.('mastery-system', 'pendingSlipMeters', meters);
     },
   },
@@ -392,7 +414,7 @@ const VITALITY_POWERS_RAW: Array<Omit<StonePower, 'effect'>> = [
     apply: async ({ actor, tier }) => {
       const combat = (game as any).combat;
       // Tiers are cumulative TOTALS (20/40/80/160), not per-wave increments.
-      const hp = [20, 40, 80, 160][tier - 1] ?? 0;
+      const hp = scaleStoneTier([20, 40, 80, 160], tier);
       // Canonical field is `tempHP` (capital P) — the damage pipeline and all
       // health math read/consume that.
       const roundState = getRoundState(actor, combat);
@@ -410,86 +432,25 @@ const VITALITY_POWERS_RAW: Array<Omit<StonePower, 'effect'>> = [
     },
   },
   {
-    id: 'vitality.endureSpecial',
-    name: 'Endure Special',
+    id: 'vitality.damageNegation',
+    name: 'Damage Negation',
     attribute: 'vitality',
-    category: 'action',
-    description: 'Reduce one negative Special currently affecting you (−2 / −4 / −8 / −12).',
+    category: 'passive',
+    description: 'Gain Damage Negation until the start of your next turn (T2: +4, T3: +8, T4: +12). Creates it if you do not have it.',
     tiers: [
-      { label: 'Reduce Special by 2', description: 'Reduce one negative Special currently affecting you by 2.', value: 2 },
-      { label: 'Reduce Special by 4', description: 'Reduce one negative Special currently affecting you by 4.', value: 4 },
-      { label: 'Reduce Special by 8', description: 'Reduce one negative Special currently affecting you by 8.', value: 8 },
-      { label: 'Reduce Special by 12', description: 'Reduce one negative Special currently affecting you by 12.', value: 12 },
+      { label: null, description: 'No effect — ramp step.' },
+      { label: '+4 Damage Negation', description: 'Gain +4 Damage Negation until the start of your next turn.', value: 4 },
+      { label: '+8 Damage Negation', description: 'Gain +8 Damage Negation until the start of your next turn.', value: 8 },
+      { label: '+12 Damage Negation', description: 'Gain +12 Damage Negation until the start of your next turn.', value: 12 },
     ],
     apply: async ({ actor, tier }) => {
-      const reduceBy = [2, 4, 8, 12][tier - 1] ?? 0;
-      const system: any = (actor as any).system ?? {};
-      const list: Array<{ id?: string; name?: string; value?: number | null }> = Array.isArray(system.statusEffects)
-        ? system.statusEffects
-        : [];
-      // Only negative diminishing Specials qualify — Regeneration is the lone
-      // positive one and must never be reduced by the wielder's own power.
-      const candidates = list
-        .map((entry, index) => {
-          const id = statusEntryId(entry);
-          const effect = id ? getEffectById(id) : undefined;
-          const value = Math.max(0, Math.floor(Number(entry?.value ?? 0)));
-          return { index, id, effect, value };
-        })
-        .filter((c) => c.effect?.category === 'diminishing' && c.id !== 'regeneration' && c.value > 0);
-      if (candidates.length === 0) {
-        ui.notifications?.warn(`${(actor as any).name}: Endure Special — no negative Special to reduce.`);
-        return;
-      }
-
-      const applyReduction = async (choice: (typeof candidates)[number]) => {
-        const nextValue = Math.max(0, choice.value - reduceBy);
-        const next = list
-          .map((entry, index) => (index === choice.index ? { ...entry, value: nextValue } : entry))
-          .filter((entry, index) => !(index === choice.index && nextValue <= 0));
-        await (actor as any).update?.({ 'system.statusEffects': next });
-        const label = choice.effect?.name?.replace(/\(X\)/i, '').trim() || choice.id;
-        ui.notifications?.info(
-          nextValue > 0
-            ? `${(actor as any).name}: Endure Special — ${label} ${choice.value} → ${nextValue}.`
-            : `${(actor as any).name}: Endure Special — ${label} removed.`,
-        );
-      };
-
-      const DialogCls = (globalThis as any).Dialog;
-      if (candidates.length === 1 || typeof DialogCls !== 'function') {
-        // No choice needed (or headless environment): reduce the strongest one.
-        const strongest = [...candidates].sort((a, b) => b.value - a.value)[0];
-        await applyReduction(strongest);
-        return;
-      }
-
-      const options = candidates
-        .map((c, i) => {
-          const label = c.effect?.name?.replace(/\(X\)/i, '').trim() || c.id;
-          return `<option value="${i}">${label} (${c.value})</option>`;
-        })
-        .join('');
-      await new Promise<void>((resolve) => {
-        new DialogCls({
-          title: 'Endure Special',
-          content: `<p>Reduce one negative Special by <strong>${reduceBy}</strong>:</p><select name="endure-special" style="width:100%">${options}</select>`,
-          buttons: {
-            ok: {
-              label: 'Reduce',
-              callback: async (html: any) => {
-                const raw = html?.find?.('select[name="endure-special"]')?.val?.();
-                const idx = Math.max(0, Math.min(candidates.length - 1, Number(raw ?? 0) || 0));
-                await applyReduction(candidates[idx]);
-                resolve();
-              },
-            },
-            cancel: { label: 'Cancel', callback: () => resolve() },
-          },
-          default: 'ok',
-          close: () => resolve(),
-        }).render(true);
-      });
+      const combat = (game as any).combat;
+      const bonus = scaleStoneTier([0, 4, 8, 12], tier);
+      if (bonus <= 0) return;
+      const roundState = getRoundState(actor, combat);
+      const sb = ensureStoneBonuses(roundState);
+      sb.tempDamageNegation = bonus;
+      await setRoundState(actor, roundState);
     },
   },
   {
@@ -529,7 +490,7 @@ const VITALITY_POWERS_RAW: Array<Omit<StonePower, 'effect'>> = [
     ],
     apply: async ({ actor, tier }) => {
       const combat = (game as any).combat;
-      const rounds = [1, 2, 3, 4][tier - 1] ?? 0;
+      const rounds = scaleStoneTier([1, 2, 3, 4], tier);
       const roundState = getRoundState(actor, combat);
       const sb = ensureStoneBonuses(roundState);
       // Tiers are TOTALS (+1/+2/+3/+4) — keep the highest, don't stack. The
@@ -554,16 +515,16 @@ const INTELLECT_POWERS_RAW: Array<Omit<StonePower, 'effect'>> = [
     name: 'Spell Raises',
     attribute: 'intellect',
     category: 'action',
-    description: 'All your Spells this turn gain automatic Raises (+1 / +2 / +3 / +4).',
+    description: 'Your Spells this turn gain +4 / +8 / +12 / +16 to their roll for meeting the Raise TN only.',
     tiers: [
-      { label: '+1 Auto Raise', description: 'All your Spells this turn gain +1 automatic Raise.', value: 1 },
-      { label: '+2 Auto Raises', description: 'All your Spells this turn gain +2 automatic Raises.', value: 2 },
-      { label: '+3 Auto Raises', description: 'All your Spells this turn gain +3 automatic Raises.', value: 3 },
-      { label: '+4 Auto Raises', description: 'All your Spells this turn gain +4 automatic Raises.', value: 4 },
+      { label: '+4 Raise TN', description: 'Your Spells this turn gain +4 to their roll for the purpose of meeting the Raise TN only.', value: 4 },
+      { label: '+8 Raise TN', description: 'Your Spells this turn gain +8 to their roll for the purpose of meeting the Raise TN only.', value: 8 },
+      { label: '+12 Raise TN', description: 'Your Spells this turn gain +12 to their roll for the purpose of meeting the Raise TN only.', value: 12 },
+      { label: '+16 Raise TN', description: 'Your Spells this turn gain +16 to their roll for the purpose of meeting the Raise TN only.', value: 16 },
     ],
     apply: async ({ actor, tier }) => {
       const combat = (game as any).combat;
-      const bonus = [4, 8, 12, 16][tier - 1] ?? 0;
+      const bonus = scaleStoneTier([4, 8, 12, 16], tier);
       const roundState = getRoundState(actor, combat);
       const sb = ensureStoneBonuses(roundState);
       sb.spellRaiseTnBonus = (sb.spellRaiseTnBonus ?? 0) + bonus;
@@ -585,7 +546,7 @@ const INTELLECT_POWERS_RAW: Array<Omit<StonePower, 'effect'>> = [
     ],
     apply: async ({ actor, tier }) => {
       const combat = (game as any).combat;
-      const bonus = [4, 8, 12, 16][tier - 1] ?? 0;
+      const bonus = scaleStoneTier([4, 8, 12, 16], tier);
       const roundState = getRoundState(actor, combat);
       const sb = ensureStoneBonuses(roundState);
       sb.spellResistanceBonus = (sb.spellResistanceBonus ?? 0) + bonus;
@@ -605,7 +566,7 @@ const INTELLECT_POWERS_RAW: Array<Omit<StonePower, 'effect'>> = [
       { label: '+3 Spell Actions', description: 'Gain 3 additional Attack Actions this round. They may only be used to cast Spells.', value: 3 },
     ],
     apply: async ({ actor, combatant, tier }) => {
-      const bonus = [0, 1, 2, 3][tier - 1] ?? 0;
+      const bonus = scaleStoneTier([0, 1, 2, 3], tier);
       if (bonus <= 0) return;
       const combat = (game as any).combat;
       const roundState = getRoundState(actor, combat);
@@ -635,7 +596,7 @@ const INTELLECT_POWERS_RAW: Array<Omit<StonePower, 'effect'>> = [
     ],
     apply: async ({ actor, tier }) => {
       const combat = (game as any).combat;
-      const bonus = [2, 4, 8, 12][tier - 1] ?? 0;
+      const bonus = scaleStoneTier([2, 4, 8, 12], tier);
       const roundState = getRoundState(actor, combat);
       const sb = ensureStoneBonuses(roundState);
       sb.spellSpecialBoost = (sb.spellSpecialBoost ?? 0) + bonus;
@@ -664,8 +625,8 @@ const RESOLVE_POWERS_RAW: Array<Omit<StonePower, 'effect'>> = [
       { label: 'Heal 16d8 (16 m)', description: 'You or one ally within 16 m heals 16d8 HP in their current Health Bar.', value: 16 },
     ],
     apply: async ({ actor, tier }) => {
-      const dice = [4, 8, 12, 16][tier - 1] ?? 0;
-      const meters = [2, 4, 8, 16][tier - 1] ?? 0;
+      const dice = scaleStoneTier([4, 8, 12, 16], tier);
+      const meters = scaleStoneTier([2, 4, 8, 16], tier);
       try {
         const roll = await new (Roll as any)(`${dice}d8`).evaluate({ async: true });
         const total = Number(roll?.total) || 0;
@@ -695,8 +656,8 @@ const RESOLVE_POWERS_RAW: Array<Omit<StonePower, 'effect'>> = [
       { label: '−4d8 Stress (16 m)', description: 'Remove 4d8 Stress from yourself or one ally within 16 m.', value: 4 },
     ],
     apply: async ({ actor, tier }) => {
-      const dice = [1, 2, 3, 4][tier - 1] ?? 0;
-      const meters = [2, 4, 8, 16][tier - 1] ?? 0;
+      const dice = scaleStoneTier([1, 2, 3, 4], tier);
+      const meters = scaleStoneTier([2, 4, 8, 16], tier);
       try {
         const roll = await new (Roll as any)(`${dice}d8`).evaluate({ async: true });
         const total = Number(roll?.total) || 0;
@@ -722,22 +683,22 @@ const RESOLVE_POWERS_RAW: Array<Omit<StonePower, 'effect'>> = [
     },
   },
   {
-    id: 'resolve.damageReductionBoost',
-    name: 'Damage Reduction Boost',
+    id: 'resolve.damageReduction',
+    name: 'Damage Reduction',
     attribute: 'resolve',
     category: 'passive',
-    description: 'Increase your existing Damage Reduction until the start of your next turn (T2:+10%, T3:+20%, T4:+30%).',
+    description: 'Gain Damage Reduction until the start of your next turn (T2:+10%, T3:+20%, T4:+30%). Creates it if you do not have it.',
     tiers: [
       { label: null, description: 'No effect — ramp step.' },
-      { label: '+10% DR', description: 'Increase your existing Damage Reduction by +10% until the start of your next turn.', value: 10 },
-      { label: '+20% DR', description: 'Increase your existing Damage Reduction by +20% until the start of your next turn.', value: 20 },
-      { label: '+30% DR', description: 'Increase your existing Damage Reduction by +30% until the start of your next turn.', value: 30 },
+      { label: '+10% DR', description: 'Gain +10% Damage Reduction until the start of your next turn.', value: 10 },
+      { label: '+20% DR', description: 'Gain +20% Damage Reduction until the start of your next turn.', value: 20 },
+      { label: '+30% DR', description: 'Gain +30% Damage Reduction until the start of your next turn.', value: 30 },
     ],
     apply: async ({ actor, tier }) => {
       const combat = (game as any).combat;
       // Tiers are cumulative TOTALS. SET, don't stack, so ramping +10%→+20%
       // yields +20% (not +30%).
-      const pct = [0, 10, 20, 30][tier - 1] ?? 0;
+      const pct = scaleStoneTier([0, 10, 20, 30], tier);
       if (pct <= 0) return;
       const roundState = getRoundState(actor, combat);
       const sb = ensureStoneBonuses(roundState);
@@ -746,23 +707,24 @@ const RESOLVE_POWERS_RAW: Array<Omit<StonePower, 'effect'>> = [
     },
   },
   {
-    id: 'resolve.specialReduction',
-    name: 'Special Reduction',
+    id: 'resolve.ward',
+    name: 'Ward',
     attribute: 'resolve',
     category: 'passive',
-    description: 'Reduce all incoming Special values against you this round (−2 / −4 / −8 / −12). Cannot reduce a Special below 0.',
+    description: 'Gain Ward until the start of your next turn (+2 / +4 / +8 / +12). Creates Ward if you do not have it. Applies only to eligible incoming hostile Special(X).',
     tiers: [
-      { label: '−2 Specials', description: 'Reduce all incoming Special values against you this round by 2.', value: 2 },
-      { label: '−4 Specials', description: 'Reduce all incoming Special values against you this round by 4.', value: 4 },
-      { label: '−8 Specials', description: 'Reduce all incoming Special values against you this round by 8.', value: 8 },
-      { label: '−12 Specials', description: 'Reduce all incoming Special values against you this round by 12.', value: 12 },
+      { label: '+2 Ward', description: 'Gain +2 Ward until the start of your next turn.', value: 2 },
+      { label: '+4 Ward', description: 'Gain +4 Ward until the start of your next turn.', value: 4 },
+      { label: '+8 Ward', description: 'Gain +8 Ward until the start of your next turn.', value: 8 },
+      { label: '+12 Ward', description: 'Gain +12 Ward until the start of your next turn.', value: 12 },
     ],
     apply: async ({ actor, tier }) => {
       const combat = (game as any).combat;
-      const bonus = [2, 4, 8, 12][tier - 1] ?? 0;
+      const bonus = scaleStoneTier([2, 4, 8, 12], tier);
       const roundState = getRoundState(actor, combat);
       const sb = ensureStoneBonuses(roundState);
-      sb.incomingSpecialReduction = (sb.incomingSpecialReduction ?? 0) + bonus;
+      sb.tempWard = bonus;
+      sb.incomingSpecialReduction = bonus;
       await setRoundState(actor, roundState);
     },
   },
@@ -786,8 +748,8 @@ const INFLUENCE_POWERS_RAW: Array<Omit<StonePower, 'effect'>> = [
       { label: 'Ally +12 (32 m)', description: 'One ally within 32 m gains +12 to all rolls this round except damage rolls.', value: 12 },
     ],
     apply: async ({ actor, tier }) => {
-      const bonus = [2, 4, 8, 12][tier - 1] ?? 0;
-      const meters = [8, 16, 24, 32][tier - 1] ?? 0;
+      const bonus = scaleStoneTier([2, 4, 8, 12], tier);
+      const meters = scaleStoneTier([8, 16, 24, 32], tier);
       await (actor as any).setFlag?.('mastery-system', 'pendingAidRoll', { bonus, range: meters });
       ui.notifications?.info(
         `${(actor as any).name}: Aid Roll — choose 1 ally within ${meters} m (+${bonus} to all rolls this round except damage).`,
@@ -807,8 +769,8 @@ const INFLUENCE_POWERS_RAW: Array<Omit<StonePower, 'effect'>> = [
       { label: 'Ally Regen(8) (32 m)', description: 'One ally within 32 m gains Regeneration(8).', value: 8 },
     ],
     apply: async ({ actor, tier }) => {
-      const value = [2, 4, 6, 8][tier - 1] ?? 0;
-      const meters = [8, 16, 24, 32][tier - 1] ?? 0;
+      const value = scaleStoneTier([2, 4, 6, 8], tier);
+      const meters = scaleStoneTier([8, 16, 24, 32], tier);
       await (actor as any).setFlag?.('mastery-system', 'pendingAllyRegeneration', { value, range: meters });
       ui.notifications?.info(
         `${(actor as any).name}: Regeneration — apply Regeneration(${value}) to one ally within ${meters} m.`,
@@ -828,9 +790,9 @@ const INFLUENCE_POWERS_RAW: Array<Omit<StonePower, 'effect'>> = [
       { label: '2 ally swaps (immediate) — 32 m', description: 'Two allies within 32 m may each swap 1 active Passive immediately.', value: 2 },
     ],
     apply: async ({ actor, tier }) => {
-      const allyCount = [1, 1, 2, 2][tier - 1] ?? 0;
-      const meters = [8, 16, 24, 32][tier - 1] ?? 0;
-      const immediate = tier === 2 || tier === 4;
+      const allyCount = Math.ceil(tier / 2);
+      const meters = scaleStoneTier([8, 16, 24, 32], tier);
+      const immediate = tier % 2 === 0;
       await (actor as any).setFlag?.('mastery-system', 'pendingAllyPassiveSwap', {
         allies: allyCount,
         range: meters,
@@ -846,16 +808,17 @@ const INFLUENCE_POWERS_RAW: Array<Omit<StonePower, 'effect'>> = [
     name: 'Not a Target',
     attribute: 'influence',
     category: 'reaction',
-    description: 'Enemies cannot target you with their next attack this round unless you are the only valid target. T1: 1@8 m, T2: 2@16 m, T3: 3@24 m, T4: 4@32 m.',
+    description: 'Enemies cannot target you with their next attack before the start of your next turn unless you are the only valid target. T2: 1@8 m, T3: 2@16 m, T4: 3@24 m.',
     tiers: [
-      { label: '1 enemy @ 8 m', description: 'One enemy within 8 m cannot target you with its next attack this round unless you are the only valid target.', value: 1 },
-      { label: '2 enemies @ 16 m', description: 'Up to 2 enemies within 16 m cannot target you with their next attack this round unless you are the only valid target.', value: 2 },
-      { label: '3 enemies @ 24 m', description: 'Up to 3 enemies within 24 m cannot target you with their next attack this round unless you are the only valid target.', value: 3 },
-      { label: '4 enemies @ 32 m', description: 'Up to 4 enemies within 32 m cannot target you with their next attack this round unless you are the only valid target.', value: 4 },
+      { label: null, description: 'No effect — ramp step.' },
+      { label: '1 enemy @ 8 m', description: 'One enemy within 8 m cannot target you with its next attack before the start of your next turn unless you are the only valid target.', value: 1 },
+      { label: '2 enemies @ 16 m', description: 'Up to 2 enemies within 16 m cannot target you with their next attack before the start of your next turn unless you are the only valid target.', value: 2 },
+      { label: '3 enemies @ 24 m', description: 'Up to 3 enemies within 24 m cannot target you with their next attack before the start of your next turn unless you are the only valid target.', value: 3 },
     ],
     apply: async ({ actor, tier }) => {
-      const enemies = [1, 2, 3, 4][tier - 1] ?? 0;
-      const meters = [8, 16, 24, 32][tier - 1] ?? 0;
+      const enemies = scaleStoneTier([0, 1, 2, 3], tier);
+      const meters = scaleStoneTier([0, 8, 16, 24], tier);
+      if (enemies <= 0) return;
       await (actor as any).setFlag?.('mastery-system', 'pendingNotATarget', { enemies, range: meters });
       ui.notifications?.info(
         `${(actor as any).name}: Not a Target — up to ${enemies} enemy(ies) within ${meters} m cannot target you next attack this round.`,
@@ -874,92 +837,37 @@ const WITS_POWERS_RAW: Array<Omit<StonePower, 'effect'>> = [
     name: 'Initiative Boost',
     attribute: 'wits',
     category: 'reaction',
-    description: 'Gain a flat bonus to Initiative this round (+4 / +8 / +16 / +32).',
+    description:
+      'During Initiative Exchange, once per combat, gain Initiative equal to 1 / 2 / 4 / 8 × your Mastery Rank. Add it before converting Initiative into Temporary Colorless Stones.',
     tiers: [
-      { label: '+4 Initiative', description: 'Gain +4 Initiative this round.', value: 4 },
-      { label: '+8 Initiative', description: 'Gain +8 Initiative this round.', value: 8 },
-      { label: '+16 Initiative', description: 'Gain +16 Initiative this round.', value: 16 },
-      { label: '+32 Initiative', description: 'Gain +32 Initiative this round.', value: 32 },
+      { label: '+1 × MR Initiative', description: 'Gain Initiative equal to your Mastery Rank.', value: 1 },
+      { label: '+2 × MR Initiative', description: 'Gain Initiative equal to 2 × your Mastery Rank.', value: 2 },
+      { label: '+4 × MR Initiative', description: 'Gain Initiative equal to 4 × your Mastery Rank.', value: 4 },
+      { label: '+8 × MR Initiative', description: 'Gain Initiative equal to 8 × your Mastery Rank.', value: 8 },
     ],
     apply: async ({ actor, combatant, tier }) => {
       const combat = (game as any).combat;
-      const bonus = [4, 8, 16, 32][tier - 1] ?? 0;
+      const c = combatant ?? combat?.combatants?.find((x: any) => x.actor?.id === (actor as any).id);
+      if (c && isInitiativeBoostUsedThisCombat(c)) {
+        ui.notifications?.warn(`${(actor as any).name}: Initiative Boost already used this combat.`);
+        return;
+      }
+      const mr = Math.max(2, Math.floor(Number((actor as any)?.system?.mastery?.rank ?? 2) || 2));
+      const bonus = initiativeBoostAmount(tier, mr);
       const roundState = getRoundState(actor, combat);
       const sb = ensureStoneBonuses(roundState);
       sb.initiativeBonus = (sb.initiativeBonus ?? 0) + bonus;
       await setRoundState(actor, roundState);
 
-      // If Initiative has already been rolled (rounds 2+ — Initiative persists
-      // across rounds), apply the flat bonus directly to the persisted score so
-      // the turn order actually changes this round. The round-advance pipeline
-      // reverts it via the `msInitiativeBoostThisRound` flag. In round 1 the
-      // stone phase runs BEFORE the roll — `rollInitiativeForCombatant` folds
-      // `stoneBonuses.initiativeBonus` into the score itself.
-      const c = combatant ?? combat?.combatants?.find((x: any) => x.actor?.id === (actor as any).id);
       if (c && c.initiative !== null && c.initiative !== undefined) {
         const cur = Number(c.initiative) || 0;
         await c.update({ initiative: cur + bonus });
         await c.setFlag('mastery-system', 'msInitiativeValue', cur + bonus);
-        const applied = Number(c.getFlag('mastery-system', 'msInitiativeBoostThisRound') ?? 0) || 0;
-        await c.setFlag('mastery-system', 'msInitiativeBoostThisRound', applied + bonus);
-        ui.notifications?.info(`${(actor as any).name}: +${bonus} Initiative this round (${cur} → ${cur + bonus}).`);
       }
-    },
-  },
-  {
-    id: 'wits.initiativeShop',
-    name: 'Seize the Moment',
-    attribute: 'wits',
-    category: 'action',
-    description:
-      'Roll Initiative again and reopen the Initiative Shop (Players Guide "Additional Initiative Shops"). ' +
-      'The new roll replaces your current Initiative.',
-    tiers: [
-      {
-        label: 'Reroll Initiative + Initiative Shop',
-        description: 'Roll Initiative again and reopen the Initiative Shop. The new score replaces your current Initiative.',
-        value: 1,
-      },
-      {
-        label: 'Reroll Initiative + Initiative Shop',
-        description: 'Same effect — repeated uses in the same round simply cost more Stones.',
-        value: 1,
-      },
-      {
-        label: 'Reroll Initiative + Initiative Shop',
-        description: 'Same effect — repeated uses in the same round simply cost more Stones.',
-        value: 1,
-      },
-      {
-        label: 'Reroll Initiative + Initiative Shop',
-        description: 'Same effect — repeated uses in the same round simply cost more Stones.',
-        value: 1,
-      },
-    ],
-    apply: async ({ actor, combatant }) => {
-      const combat = (game as any).combat;
-      const c = combatant ?? combat?.combatants?.find((x: any) => x.actor?.id === (actor as any).id);
-      if (!c) {
-        ui.notifications?.warn('Seize the Moment: no active encounter / combatant found.');
-        return;
-      }
-      // Audit flag first — visible even if the reroll fails midway.
-      await c.setFlag('mastery-system', 'msInitiativeRerollUsed', Date.now());
-      if (!c.actor || !combat) {
-        ui.notifications?.warn('Seize the Moment: combatant has no actor / no active encounter.');
-        return;
-      }
-      // Fresh roll replaces the old score — clear pending boost bookkeeping so
-      // the round-advance revert cannot corrupt the new value.
-      await c.setFlag('mastery-system', 'msInitiativeBoostThisRound', 0);
-      const { rollInitiativeForCombatant } = await import('../combat/initiative-roll.js');
-      const breakdown = await rollInitiativeForCombatant(c, { promptCombatReflexes: false });
-      try {
-        const { InitiativeShopDialog } = await import('../combat/initiative-shop-dialog.js');
-        await InitiativeShopDialog.showForCombatant(c, breakdown, combat);
-      } catch (e) {
-        console.error('Mastery System | Seize the Moment: Initiative Shop failed', e);
-      }
+      if (c) await markInitiativeBoostUsedThisCombat(c);
+      ui.notifications?.info(
+        `${(actor as any).name}: Initiative Boost +${bonus} (MR ${mr} × ${2 ** (tier - 1)}).`,
+      );
     },
   },
   {
@@ -976,7 +884,7 @@ const WITS_POWERS_RAW: Array<Omit<StonePower, 'effect'>> = [
     ],
     apply: async ({ actor, tier }) => {
       const combat = (game as any).combat;
-      const charges = [0, 1, 1, 2][tier - 1] ?? 0;
+      const charges = tier <= 1 ? 0 : Math.ceil((tier - 1) / 2);
       if (charges <= 0) return;
       const roundState = getRoundState(actor, combat);
       const sb = ensureStoneBonuses(roundState);
@@ -1001,13 +909,13 @@ const WITS_POWERS_RAW: Array<Omit<StonePower, 'effect'>> = [
       { label: '3 creatures: full intent', description: 'Choose 3 creatures you can see. The GM must reveal their planned actions, expected damage, movement, defensive options, and support actions.', value: 3 },
     ],
     apply: async ({ actor, tier }) => {
-      const targets = [1, 1, 2, 3][tier - 1] ?? 0;
-      const detail = [
-        'actions',
-        'actions + expected damage',
-        'actions + expected damage',
-        'actions + expected damage + movement + defensive options + support',
-      ][tier - 1];
+      const targets = scaleStoneTier([1, 1, 2, 3], tier);
+      const detail =
+        tier >= 4
+          ? 'actions + expected damage + movement + defensive options + support'
+          : tier >= 2
+            ? 'actions + expected damage'
+            : 'actions';
       await (actor as any).setFlag?.('mastery-system', 'pendingReadIntent', { targets, detail });
       ui.notifications?.info(
         `${(actor as any).name}: Read Intent — GM, reveal ${targets} creature(s)' ${detail}.`,
@@ -1028,7 +936,7 @@ const WITS_POWERS_RAW: Array<Omit<StonePower, 'effect'>> = [
     ],
     apply: async ({ actor, tier }) => {
       const combat = (game as any).combat;
-      const meters = [2, 4, 8, 16][tier - 1] ?? 0;
+      const meters = scaleStoneTier([2, 4, 8, 16], tier);
       const roundState = getRoundState(actor, combat);
       const sb = ensureStoneBonuses(roundState);
       sb.reactionRangeBonus = (sb.reactionRangeBonus ?? 0) + meters;
@@ -1084,23 +992,50 @@ export const STONE_POWERS_BY_ATTRIBUTE: Record<AttributeKey | 'generic', StonePo
 };
 
 /**
- * Helper — convert a usage count (0-indexed; how many times this turn the
- * power has been activated BEFORE this one) to the matching tier (1..4,
- * clamped). The new spec stops at tier 4; further activations stay at T4.
+ * Convert a usage count (0-indexed; activations this turn BEFORE this one)
+ * to the matching tier. Published UI is T1–T4; the math continues to T8.
  */
 export function tierForUseIndex(usesBefore: number): number {
-  const t = Math.max(1, Math.min(4, Math.floor(usesBefore) + 1));
-  return t;
+  return Math.max(1, Math.min(STONE_TIER_HARD_MAX, Math.floor(usesBefore) + 1));
 }
 
 /**
  * True when a power's Tier 1 is a no-op "ramp step" (label === null), meaning
  * its first real effect is Tier 2. Such powers start one segment higher: the
  * Tier-1 / Anchor field is disabled and the first activation costs 2 stones.
- * Used by Extra Attack, Spell Action, Damage Reduction Boost, and Phasing.
+ * Used by Extra Attack, Spell Action, Damage Reduction, Phasing, Crit,
+ * Parry, Damage Negation, and Not a Target.
  */
 export function stonePowerSkipsFirstTier(powerId: string): boolean {
-  const t0 = STONE_POWERS[powerId]?.tiers?.[0] as StoneTier | undefined;
+  const t0 = STONE_POWERS[resolveStonePowerId(powerId)]?.tiers?.[0] as StoneTier | undefined;
   if (!t0) return false;
   return (t0.label === null || t0.label === undefined) && t0.value === undefined;
 }
+
+/** Retired ids that still resolve to a current Stone Power. */
+export const STONE_POWER_ID_ALIASES: Record<string, string> = {
+  'resolve.damageReductionBoost': 'resolve.damageReduction',
+  'resolve.specialReduction': 'resolve.ward',
+};
+
+/**
+ * Powers whose published table shifted one tier (old T1 became empty).
+ * Artifact Support that prefills T2/T3/T4 is raised by this many tiers
+ * so the stored effect still matches the old numbered tier (L7–10 Crit → T5).
+ */
+export const STONE_POWER_SUPPORT_TIER_SHIFT: Record<string, number> = {
+  'agility.crit': 1,
+  'influence.notATarget': 1,
+};
+
+export function resolveStonePowerId(powerId: string): string {
+  const id = String(powerId || '').trim();
+  return STONE_POWER_ID_ALIASES[id] || id;
+}
+
+/** Retired Stone Power ids that have no successor (cannot auto-remap). */
+export const UNRESOLVED_STONE_POWER_IDS = [
+  'might.attackPoolReduction',
+  'vitality.endureSpecial',
+  'wits.initiativeShop',
+] as const;

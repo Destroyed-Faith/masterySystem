@@ -1,5 +1,5 @@
 /**
- * Player-side encounter setup: Passives → Stones → Initiative Shop.
+ * Player-side encounter setup: Passives → Stones (Initiative Exchange).
  * Opens on first scene/combat load after the GM started the encounter.
  * Closing with ✕ leaves the step pending; it does not lock or confirm.
  * A per-session dismiss set prevents the same dialog from immediately
@@ -12,7 +12,7 @@ import {
   resolveLiveCombat,
   shouldShowEncounterDialogLocally,
 } from './combat-permissions.js';
-import { isCombatantInitiativeConfirmed, isPassiveSelectionLocked, persistCombatantSetupStep } from './encounter-setup-flags.js';
+import { isPassiveSelectionLocked, persistCombatantSetupStep } from './encounter-setup-flags.js';
 
 const dismissedThisSession = new Set<string>();
 let pipelineRunning = false;
@@ -138,17 +138,5 @@ async function runSetupForCombatant(combat: Combat, combatant: Combatant): Promi
         round,
       });
     }
-  }
-
-  if (round > 1) return;
-
-  if (isCombatantInitiativeConfirmed(combat, combatant.id)) return;
-  if (dismissedThisSession.has(stepKey(combatId, actorId, 'shop'))) return;
-  if (dialogAlreadyOpen('mastery-initiative-shop')) return;
-
-  const { openInitiativeShopForTrackerRescue } = await import('./initiative-roll.js');
-  const shopConfirmed = await openInitiativeShopForTrackerRescue(combatant, combat);
-  if (!shopConfirmed) {
-    dismissedThisSession.add(stepKey(combatId, actorId, 'shop'));
   }
 }

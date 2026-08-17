@@ -220,10 +220,16 @@ export interface RoundState {
     extraSpellActions?: number;
     /** Intellect.SpecialBoost — +X to one eligible Special on each spell this turn. */
     spellSpecialBoost?: number;
-    /** Resolve.DamageReductionBoost — additional %DR until next turn (0.10/0.20/0.30). */
+    /** Resolve.Damage Reduction — additional %DR until next turn (creates DR if missing). */
     damageReductionBoostPct?: number;
-    /** Resolve.SpecialReduction — minus to incoming Special values against you this round (floored at 0). */
+    /** Resolve.Ward / legacy Special Reduction — minus to incoming eligible hostile Special(X). */
     incomingSpecialReduction?: number;
+    /** Resolve.Ward — SET total until the start of your next turn. */
+    tempWard?: number;
+    /** Might.Parry — temporary Parry Pool until the start of your next turn. */
+    tempParryPool?: number;
+    /** Vitality.Damage Negation — temporary negation reserve until the start of your next turn. */
+    tempDamageNegation?: number;
     /** Wits.Phasing — phasing charges granted by stone power (consumed by phasing system). */
     phasingChargesFromStones?: number;
     /** Wits.InitiativeBoost — flat bonus to Initiative this round. */
@@ -1082,7 +1088,8 @@ export async function spendStoneAbility(
   attribute: AttributeKey,
   abilityKey: string,
   applyEffect: (roundState: RoundState) => Promise<void>,
-  expectedCost?: number
+  expectedCost?: number,
+  colorlessSpent = 0,
 ): Promise<boolean> {
   // NPCs cannot use stone abilities for action bonuses
   if (!isPC(actor)) {
@@ -1115,10 +1122,20 @@ export async function spendStoneAbility(
   // Get stone pool
   const pool = getStonePool(actor, attribute);
   
+  const colorlessWanted = Math.max(0, Math.floor(Number(colorlessSpent) || 0));
+  let colorlessUsed = 0;
+  try {
+    const { getTempColorlessStones } = await import('../stones/colorless-stones.js');
+    colorlessUsed = Math.min(colorlessWanted, getTempColorlessStones(actor));
+  } catch {
+    colorlessUsed = 0;
+  }
+  const attributeCost = Math.max(0, cost - colorlessUsed);
+
   // Check if enough stones
-  if (pool.current < cost) {
+  if (pool.current < attributeCost) {
     ui.notifications?.warn(
-      `Not enough ${attribute} stones! Need ${cost}, have ${pool.current}`
+      `Not enough ${attribute} stones! Need ${attributeCost}, have ${pool.current}`
     );
     return false;
   }
@@ -1131,7 +1148,13 @@ export async function spendStoneAbility(
     await applyEffect(roundState);
     
     // Deduct stones
-    await setStonePool(actor, attribute, pool.current - cost);
+    if (attributeCost > 0) {
+      await setStonePool(actor, attribute, pool.current - attributeCost);
+    }
+    if (colorlessUsed > 0) {
+      const { spendTempColorlessStones } = await import('../stones/colorless-stones.js');
+      await spendTempColorlessStones(actor, colorlessUsed);
+    }
 
     // Increment usage counter (General Powers: ein Zähler pro Macht, nicht pro Pool-Farbe)
     if (isGenericStoneAbility) {
@@ -1144,8 +1167,10 @@ export async function spendStoneAbility(
     // Stone powers call getRoundState + setRoundState inside apply(); saving this snapshot would
     // overwrite extra attacks / move bonuses / reactions just granted.
     
+    const leftover = pool.current - attributeCost;
+    const colorlessNote = colorlessUsed > 0 ? ` + ${colorlessUsed} colorless` : '';
     ui.notifications?.info(
-      `Spent ${cost} ${attribute} stones. (${pool.current - cost} remaining)`
+      `Spent ${attributeCost} ${attribute} stones${colorlessNote}. (${leftover} ${attribute} remaining)`
     );
     
     return true;
@@ -1164,7 +1189,7 @@ export async function spendGenericStoneAbilityWithPerAttributeDeductions(
   actor: Actor,
   _combatant: Combatant,
   abilityKey: string,
-  perAttributeCounts: Partial<Record<AttributeKey, number>>,
+  perAttributeCounts: Partial<Record<AttributeKey | 'colorless', number>>,
   applyEffect: (roundState: RoundState) => Promise<void>,
   expectedCost?: number
 ): Promise<boolean> {
@@ -1199,6 +1224,13 @@ export async function spendGenericStoneAbilityWithPerAttributeDeductions(
     if (n > 0) counts[attr] = n;
     sum += n;
   }
+  const witsN = Math.max(0, Math.floor(Number(perAttributeCounts.wits) || 0));
+  if (witsN > 0) {
+    counts.wits = witsN;
+    sum += witsN;
+  }
+  const colorlessN = Math.max(0, Math.floor(Number(perAttributeCounts.colorless) || 0));
+  sum += colorlessN;
 
   if (sum !== cost) {
     ui.notifications?.warn(
@@ -1207,7 +1239,16 @@ export async function spendGenericStoneAbilityWithPerAttributeDeductions(
     return false;
   }
 
-  for (const attr of STONE_USAGE_ATTR_KEYS) {
+  if (colorlessN > 0) {
+    const { getTempColorlessStones } = await import('../stones/colorless-stones.js');
+    const have = getTempColorlessStones(actor);
+    if (have < colorlessN) {
+      ui.notifications?.warn(`Not enough colorless stones! Need ${colorlessN}, have ${have}`);
+      return false;
+    }
+  }
+
+  for (const attr of Object.keys(counts) as AttributeKey[]) {
     const n = counts[attr] || 0;
     if (!n) continue;
     const pool = getStonePool(actor, attr);
@@ -1222,11 +1263,15 @@ export async function spendGenericStoneAbilityWithPerAttributeDeductions(
   try {
     await applyEffect(roundState);
 
-    for (const attr of STONE_USAGE_ATTR_KEYS) {
+    for (const attr of Object.keys(counts) as AttributeKey[]) {
       const n = counts[attr] || 0;
       if (!n) continue;
       const pool = getStonePool(actor, attr);
       await setStonePool(actor, attr, pool.current - n);
+    }
+    if (colorlessN > 0) {
+      const { spendTempColorlessStones } = await import('../stones/colorless-stones.js');
+      await spendTempColorlessStones(actor, colorlessN);
     }
 
     await incrementGenericStonePowerUsage(actor, abilityKey, combat);
@@ -1434,10 +1479,6 @@ export async function initializeCombatRoundState(combat: Combat): Promise<void> 
     const flagOwner = getActionEconomyActor(actor) ?? actor;
     await (flagOwner as any).setFlag('mastery-system', 'stoneUsage', {});
     
-    // For PCs: apply initiative shop bonuses if any
-    if (isPC(actor)) {
-      await applyInitiativeShopBonuses(actor, combatant, combat);
-    }
   }
 }
 
@@ -1504,6 +1545,9 @@ export async function clearCombatStoneTurnBonusesForActor(actor: Actor, combat: 
     (sb.spellResistanceBonus ?? 0) !== 0 ||
     (sb.spellSpecialBoost ?? 0) !== 0 ||
     (sb.damageReductionBoostPct ?? 0) !== 0 ||
+    (sb.tempWard ?? 0) !== 0 ||
+    (sb.tempParryPool ?? 0) !== 0 ||
+    (sb.tempDamageNegation ?? 0) !== 0 ||
     (sb.phasingChargesFromStones ?? 0) !== 0 ||
     (sb.extendActiveBuffRounds ?? 0) !== 0;
   if (!changed) return;
@@ -1549,7 +1593,10 @@ export async function clearCombatStoneTurnBonusesForActor(actor: Actor, combat: 
     extraSpellActions: sb.extraSpellActions ?? 0,
     spellSpecialBoost: 0,
     damageReductionBoostPct: 0,
-    incomingSpecialReduction: sb.incomingSpecialReduction ?? 0,
+    incomingSpecialReduction: 0,
+    tempWard: 0,
+    tempParryPool: 0,
+    tempDamageNegation: 0,
     phasingChargesFromStones: 0,
     initiativeBonus: sb.initiativeBonus ?? 0,
     reactionRangeBonus: sb.reactionRangeBonus ?? 0,

@@ -94,12 +94,13 @@ export function computeParryPoolMax(actor: any): {
 export function getParryState(actor: Actor, combat: Combat | null): ParryState | null {
   const rs = getRoundState(actor, combat);
   const p = (rs as RoundState).parry;
-  if (!p?.entered) return null;
+  const stone = Math.max(0, Math.floor(Number(rs.stoneBonuses?.tempParryPool ?? 0) || 0));
+  if (!p?.entered && stone <= 0) return null;
   return {
     entered: true,
-    pool: Math.max(0, Math.floor(Number(p.pool) || 0)),
-    max: Math.max(0, Math.floor(Number(p.max) || 0)),
-    attribute: p.attribute === 'agility' ? 'agility' : 'might',
+    pool: Math.max(0, Math.floor(Number(p?.pool) || 0)) + stone,
+    max: Math.max(0, Math.floor(Number(p?.max) || 0)) + stone,
+    attribute: p?.attribute === 'agility' ? 'agility' : 'might',
   };
 }
 
@@ -201,10 +202,13 @@ export async function applyParryDiceStrip(
   if (strip.spent <= 0) return { ...empty, remainingDice: strip.remainingDice };
 
   const rs = getRoundState(economy, combat);
-  if (rs.parry) {
-    rs.parry = { ...rs.parry, pool: strip.remainingPool };
-    await setRoundState(economy, rs);
-  }
+  const stone = Math.max(0, Math.floor(Number(rs.stoneBonuses?.tempParryPool ?? 0) || 0));
+  const stance = Math.max(0, Math.floor(Number(rs.parry?.pool) || 0));
+  const fromStone = Math.min(stone, strip.spent);
+  const fromStance = Math.max(0, strip.spent - fromStone);
+  if (rs.stoneBonuses) rs.stoneBonuses.tempParryPool = stone - fromStone;
+  if (rs.parry) rs.parry = { ...rs.parry, pool: Math.max(0, stance - fromStance) };
+  await setRoundState(economy, rs);
 
   const defName = String((defender as any).name ?? 'Defender');
   const note = strip.fullyParried

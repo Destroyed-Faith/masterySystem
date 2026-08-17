@@ -332,20 +332,6 @@ export const COMBAT_MANEUVERS: CombatManeuver[] = [
       "Choose **one creature** you can see **or** **one zone/lane**. Until your next turn, when your chosen trigger occurs, you may spend your **Reaction** to immediately make **one Basic Ranged Attack** (no Power; weapon damage + passives + active buffs only). Multiple shots per round if you have additional Reactions, but each shot costs 1 Reaction. **Trigger choices:** the target moves (leaves cover / enters line of sight / enters your zone), or a creature enters your chosen zone.",
   },
 
-  // ========================================
-  // INITIATIVE: DELAY
-  // (Players Guide 6968–6984 — declared at the start of your turn.)
-  // ========================================
-  {
-    id: "initiative-delay",
-    name: "Initiative: Delay",
-    description: "Skip your turn; act after another creature finishes.",
-    slot: "utility",
-    category: "advanced-special",
-    tags: ["initiative", "delay"],
-    effect:
-      "Trigger at the start of your turn: skip and act immediately after any other creature finishes its turn. Your Initiative permanently changes to that position. Delaying past the round boundary carries the turn into the next round; you may take it after any creature's turn but never interrupt one. If you were last to act, your new Initiative becomes (highest Initiative + 1). You cannot delay if Incapacitated or Surprised; if you delay past your next natural turn, you lose that turn.",
-  },
 ];
 
 /**

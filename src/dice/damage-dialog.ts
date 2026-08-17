@@ -14,6 +14,7 @@ import {
   npcSpecialEffectString
 } from '../utils/npc-attack-model.js';
 import { previewTempHPConsumption } from '../combat/passive-triggers.js';
+import { getRoundState } from '../combat/action-economy.js';
 import { applyDefensiveMitigation, countNaturalEights } from '../combat/damage-mitigation.js';
 import { artifactSystemHasSpellFocus } from '../utils/artifact-rules.js';
 import { deriveArtifactWeaponDamage } from '../utils/artifact-base-derive.js';
@@ -1236,6 +1237,31 @@ async function consumeTargetMark(target: Actor, spend: number): Promise<void> {
   }
 }
 
+/** Stone Ward / incoming Special reduction. `null` means the Special is fully blocked. */
+function applyStoneWardToIncomingSpecial(
+  target: Actor,
+  effectId: string | undefined,
+  effectName: string,
+  effectValue: number | null,
+): number | null {
+  if (effectValue == null) return effectValue;
+  const id = String(effectId || effectName || '').toLowerCase();
+  if (id === 'regeneration' || id.includes('regeneration')) return effectValue;
+  try {
+    const combat = (globalThis as any).game?.combat ?? null;
+    const sb = getRoundState(target as any, combat)?.stoneBonuses;
+    const ward = Math.max(
+      0,
+      Math.floor(Number(sb?.tempWard ?? sb?.incomingSpecialReduction ?? 0) || 0),
+    );
+    if (ward <= 0) return effectValue;
+    const next = effectValue - ward;
+    return next > 0 ? next : null;
+  } catch {
+    return effectValue;
+  }
+}
+
 /**
  * Apply status effects from specials to target actor.
  * Challenge uses challenger-bound merge rules (sourceUuid + stack/replace).
@@ -1265,6 +1291,9 @@ async function applyStatusEffectsToTarget(
         const effectName = match[1].trim();
         const effectValue = match[2] ? parseInt(match[2]) : null;
         const effectId = getEffect(effectName)?.id;
+        const wardReduced = applyStoneWardToIncomingSpecial(target, effectId, effectName, effectValue);
+        if (wardReduced === null) continue;
+        const wardedValue = wardReduced;
         const isChallenge =
           effectId === 'challenge' || effectName.toLowerCase() === 'challenge';
 
@@ -1276,8 +1305,8 @@ async function applyStatusEffectsToTarget(
           continue;
         }
 
-        if (isChallenge && effectValue !== null && effectValue > 0) {
-          list = mergeChallengeEntry(list, effectValue, sourceName, sourceUuid);
+        if (isChallenge && wardedValue !== null && wardedValue > 0) {
+          list = mergeChallengeEntry(list, wardedValue, sourceName, sourceUuid);
           continue;
         }
 
@@ -1287,8 +1316,8 @@ async function applyStatusEffectsToTarget(
         );
         if (existingEffect) {
           // Update existing effect (e.g., increase stack)
-          if (effectValue !== null) {
-            existingEffect.value = (existingEffect.value || 0) + effectValue;
+          if (wardedValue !== null) {
+            existingEffect.value = (existingEffect.value || 0) + wardedValue;
           }
           if (effectId && !existingEffect.id) existingEffect.id = effectId;
         } else {
@@ -1296,7 +1325,7 @@ async function applyStatusEffectsToTarget(
           list.push({
             id: effectId,
             name: effectName,
-            value: effectValue,
+            value: wardedValue,
             source: sourceName,
             ...(sourceUuid ? { sourceUuid } : {}),
             timestamp: Date.now()
@@ -1591,6 +1620,14 @@ export async function applyDamageToTarget(
       // as the starting index.
       const bars = [...system.health.bars];
       let barIndex = applyDamageToBars(bars, 0, remaining);
+
+      try {
+        const { maybeApplyLastBreath } = await import('../stones/last-breath.js');
+        const lastBreathBar = await maybeApplyLastBreath(target, bars);
+        if (lastBreathBar != null) barIndex = lastBreathBar;
+      } catch (lastBreathErr) {
+        console.warn('Mastery System | Last Breath failed', lastBreathErr);
+      }
 
       // Clamp barIndex to valid range
       if (barIndex >= bars.length) {

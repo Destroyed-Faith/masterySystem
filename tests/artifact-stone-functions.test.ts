@@ -96,4 +96,15 @@ describe('Artifact Stone Function aggregator — multiple functions per artifact
     expect(records[0].kind).toBe('stonePool');
     expect(records[0].attribute).toBe('might');
   });
+
+  it('raises Crit Stone Power Support by one tier after the table shift', () => {
+    const tree = buildEchoArtifactTree(getEchoArtifact('elorianStride')!);
+    const actorL3 = actorWith(activeItemFromNode(tree.nodes[2], 'Elorian Stride'));
+    // Raw prefill at L3 is T2; Crit's empty T1 shifts that to T3 (old T2 = 2 Crits).
+    expect(getArtifactStoneSupportPrefill(actorL3, 'agility.crit', 'agility')).toBe(3);
+
+    const actorL7 = actorWith(activeItemFromNode(tree.nodes[6], 'Elorian Stride'));
+    // Raw prefill at L7 is T4; Crit's empty T1 shifts that to T5 (old T4 = 4 Crits).
+    expect(getArtifactStoneSupportPrefill(actorL7, 'agility.crit', 'agility')).toBe(5);
+  });
 });

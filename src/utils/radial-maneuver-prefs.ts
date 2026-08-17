@@ -14,7 +14,6 @@ export const RADIAL_STANDARD_MANEUVER_IDS: readonly string[] = [
   'parry-stance',
   'aid',
   'interpose',
-  'initiative-delay',
 ];
 
 export function isStandardRadialManeuverId(id: string): boolean {
@@ -52,7 +51,6 @@ const RADIAL_PREFS_ROWS: Array<{ id: string; name: string; group: string }> = [
   { id: 'parry-stance', name: 'Parry Stance', group: 'Angriff' },
   { id: 'aid', name: 'Aid', group: 'Reaktion' },
   { id: 'interpose', name: 'Interpose', group: 'Reaktion' },
-  { id: 'initiative-delay', name: 'Initiative: Delay', group: 'Initiative' },
 ];
 
 /**

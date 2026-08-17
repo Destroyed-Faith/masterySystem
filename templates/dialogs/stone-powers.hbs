@@ -19,6 +19,25 @@
   </div>
   {{/if}}
 
+  {{#if initiativeExchange.show}}
+  <div class="initiative-exchange-bar{{#if initiativeExchange.locked}} is-locked{{/if}}">
+    <div class="initiative-exchange-copy">
+      <strong>Initiative Exchange</strong>
+      <span>Initiative <b>{{initiativeExchange.initiative}}</b> · {{initiativeExchange.costPerStone}} Ini / Colorless Stone (MR {{initiativeExchange.masteryRank}})</span>
+      {{#if initiativeExchange.boostUsed}}<span class="initiative-exchange-boost-used">Initiative Boost already used this combat.</span>{{/if}}
+    </div>
+    <div class="initiative-exchange-actions">
+      <label class="initiative-exchange-count">
+        Stones
+        <input type="number" class="js-colorless-convert-count" min="0" max="{{initiativeExchange.maxConvert}}" value="{{initiativeExchange.convertCount}}" {{#if initiativeExchange.locked}}disabled{{/if}} />
+      </label>
+      <button type="button" class="dialog-btn dialog-btn-secondary js-convert-initiative-colorless" {{#if initiativeExchange.locked}}disabled{{/if}} {{#unless initiativeExchange.maxConvert}}disabled{{/unless}}>
+        <i class="fas fa-arrows-rotate"></i> Initiative zu Colorless Stones umwandeln
+      </button>
+    </div>
+  </div>
+  {{/if}}
+
   {{#if showStonePools}}
   <div class="stone-pools-display">
     <div class="stone-pools-header-row">

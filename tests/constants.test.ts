@@ -7,7 +7,7 @@ import {
   MAX_POWER_LEVEL,
   HEALTH_BARS_COUNT,
   HEALTH_PENALTIES,
-  INITIATIVE_SHOP,
+  INITIATIVE_PER_COLORLESS_STONE,
   CREATION,
   XP_COSTS,
   attributeBandCost,
@@ -57,26 +57,9 @@ describe('Combat Constants', () => {
   });
 });
 
-describe('Initiative Shop Costs (Player\'s Guide)', () => {
-  it('movement costs 4 per +2m', () => {
-    expect(INITIATIVE_SHOP.MOVEMENT.COST).toBe(4);
-    expect(INITIATIVE_SHOP.MOVEMENT.INCREMENT).toBe(2);
-  });
-
-  it('initiative swap costs 8', () => {
-    expect(INITIATIVE_SHOP.SWAP.COST).toBe(8);
-  });
-
-  it('extra reaction costs 12', () => {
-    expect(INITIATIVE_SHOP.EXTRA_REACTION.COST).toBe(12);
-  });
-
-  it('remove stress costs 16', () => {
-    expect(INITIATIVE_SHOP.REMOVE_STRESS.COST).toBe(16);
-  });
-
-  it('extra attack costs 20', () => {
-    expect(INITIATIVE_SHOP.EXTRA_ATTACK.COST).toBe(20);
+describe('Initiative Exchange (Player\'s Guide)', () => {
+  it('one Temporary Colorless Stone costs 4 × Mastery Rank Initiative', () => {
+    expect(INITIATIVE_PER_COLORLESS_STONE).toBe(4);
   });
 });
 

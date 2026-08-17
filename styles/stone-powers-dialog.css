@@ -8,6 +8,46 @@
   overflow-y: auto;
 }
 
+.stone-powers-dialog .initiative-exchange-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.55rem;
+  padding: 0.45rem 0.6rem;
+  margin-bottom: 0.45rem;
+  border-radius: 6px;
+  border: 1px solid rgba(176, 190, 197, 0.45);
+  background: rgba(236, 239, 241, 0.08);
+}
+
+.stone-powers-dialog .initiative-exchange-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  font-size: 0.88rem;
+}
+
+.stone-powers-dialog .initiative-exchange-boost-used {
+  color: #ffcc80;
+  font-size: 0.8rem;
+}
+
+.stone-powers-dialog .initiative-exchange-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.stone-powers-dialog .initiative-exchange-count input {
+  width: 3.2rem;
+  margin-left: 0.25rem;
+}
+
+.stone-powers-dialog .pool-item[data-attribute="colorless"] .pool-name {
+  color: #eceff1;
+}
+
 .stone-powers-dialog .stone-plan-locked-banner {
   display: flex;
   align-items: flex-start;

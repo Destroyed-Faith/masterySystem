@@ -195,7 +195,7 @@ describe('Echo Artifact tree builder — Sentinel frames map to catalog Powers +
     expect(l2Pick.displayName).toBe('Wyrm Scales');
 
     // ARMOR Stone Power lives in the Might pool since the Vitality pool was
-    // aligned with the rules table (TempHP / Endure Special / Remove Scar /
+    // aligned with the rules table (TempHP / Damage Negation / Remove Scar /
     // Extend Active Buff). Might is slot-legal for Body artifacts.
     const l3 = pick('wyrmScalesHeavy', 3);
     expect(l3.kind).toBe('stoneFunction');

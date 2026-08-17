@@ -3,10 +3,10 @@
  *
  * Coverage:
  *   - Registry shape: 8 pools (generic + 7 attributes), 4 powers each.
- *     Vitality (per rules table): Temporary HP / Endure Special /
+ *     Vitality (per rules table): Temporary HP / Damage Negation /
  *     Remove Scar / Extend Active Buff.
- *   - Each power has exactly 4 tiers; cost-per-tier = 1 / 2 / 4 / 8.
- *   - tierForUseIndex returns the right 1..4 tier (clamped).
+ *   - Each power has exactly 4 published tiers; cost-per-tier = 1 / 2 / 4 / 8.
+ *   - tierForUseIndex continues to T8 (practical pay wall is T6 / 80 stones).
  *   - apply() for every power × every tier runs without throwing on a
  *     mock actor/combatant and writes only into stoneBonuses or flags.
  */
@@ -15,6 +15,9 @@ import { describe, expect, it, vi, beforeEach } from 'vitest';
 import {
   STONE_POWERS,
   STONE_POWERS_BY_ATTRIBUTE,
+  STONE_TIER_HARD_MAX,
+  STONE_TIER_PRACTICAL_MAX,
+  scaleStoneTier,
   stonePowerSkipsFirstTier,
   tierForUseIndex,
   type StonePower,
@@ -51,8 +54,7 @@ function makeMockActor(): MockActor {
       // Canonical Temp-HP field is `tempHP` (capital P) — the damage pipeline
       // and stone powers read/write that spelling.
       health: { tempHP: 0, scarred: 1 },
-      // A negative diminishing Special so `vitality.endureSpecial` has a
-      // candidate to reduce in the generic apply() smoke test.
+      mastery: { rank: 2 },
       statusEffects: [{ id: 'ruin', name: 'Ruin (X)', value: 6 }],
     },
     _flags: {},
@@ -169,16 +171,13 @@ describe('Stone Powers — pool layout (new spec)', () => {
     expect(actualKeys).toEqual([...POOL_KEYS].sort());
   });
 
-  // Wits carries a 5th power ("Seize the Moment") — the rules-sanctioned
-  // "Additional Initiative Shops" access (Players Guide: Wits Stone Powers
-  // may allow rerolling Initiative and reopening the Initiative Shop).
-  it.each(POOL_KEYS)('pool "%s" has the expected number of powers', (poolKey) => {
+  it.each(POOL_KEYS)('pool "%s" has 4 powers', (poolKey) => {
     const powers = (STONE_POWERS_BY_ATTRIBUTE as any)[poolKey] as StonePower[];
-    expect(powers).toHaveLength(poolKey === 'wits' ? 5 : 4);
+    expect(powers).toHaveLength(4);
   });
 
-  it('total registry has 33 powers (wits × 5, others × 4)', () => {
-    expect(Object.keys(STONE_POWERS)).toHaveLength(33);
+  it('total registry has 32 powers (8 pools × 4)', () => {
+    expect(Object.keys(STONE_POWERS)).toHaveLength(32);
   });
 
   it('Resolve pool matches the rules table', () => {
@@ -186,20 +185,24 @@ describe('Stone Powers — pool layout (new spec)', () => {
     expect(ids).toEqual([
       'resolve.healing',
       'resolve.stressHealing',
-      'resolve.damageReductionBoost',
-      'resolve.specialReduction',
+      'resolve.damageReduction',
+      'resolve.ward',
     ]);
   });
 
-  // Rules table: Vitality Stone Abilities are exactly these four.
   it('Vitality pool matches the rules table', () => {
     const ids = STONE_POWERS_BY_ATTRIBUTE.vitality.map((p) => p.id);
     expect(ids).toEqual([
       'vitality.tempHp',
-      'vitality.endureSpecial',
+      'vitality.damageNegation',
       'vitality.removeScar',
       'vitality.extendActiveBuff',
     ]);
+  });
+
+  it('Might pool includes Parry instead of Attack Pool Reduction', () => {
+    const ids = STONE_POWERS_BY_ATTRIBUTE.might.map((p) => p.id);
+    expect(ids).toEqual(['might.meleeDamage', 'might.armor', 'might.ignoreArmor', 'might.parry']);
   });
 
   it('every registry key matches its power.id', () => {
@@ -243,21 +246,47 @@ describe('Cost progression maps to tiers', () => {
     expect(calculateStoneCost(1)).toBe(2);
     expect(calculateStoneCost(2)).toBe(4);
     expect(calculateStoneCost(3)).toBe(8);
+    expect(calculateStoneCost(4)).toBe(16);
+    expect(calculateStoneCost(5)).toBe(32);
   });
 
-  it('tierForUseIndex returns 1..4 clamped', () => {
+  it('tierForUseIndex continues past the printed T4 table', () => {
     expect(tierForUseIndex(0)).toBe(1);
     expect(tierForUseIndex(1)).toBe(2);
     expect(tierForUseIndex(2)).toBe(3);
     expect(tierForUseIndex(3)).toBe(4);
-    // Past T4 stays at T4 — spec stops scaling there.
-    expect(tierForUseIndex(4)).toBe(4);
-    expect(tierForUseIndex(99)).toBe(4);
+    expect(tierForUseIndex(4)).toBe(5);
+    expect(tierForUseIndex(5)).toBe(6);
+    expect(tierForUseIndex(7)).toBe(8);
+    expect(tierForUseIndex(99)).toBe(STONE_TIER_HARD_MAX);
+    expect(STONE_TIER_PRACTICAL_MAX).toBe(6);
   });
 
   it('tierForUseIndex floors negative / NaN inputs to T1', () => {
     expect(tierForUseIndex(-1)).toBe(1);
     expect(tierForUseIndex(-5)).toBe(1);
+  });
+});
+
+describe('scaleStoneTier continues past the printed table', () => {
+  it('returns published T1–T4 values', () => {
+    expect(scaleStoneTier([0, 1, 2, 3], 1)).toBe(0);
+    expect(scaleStoneTier([0, 1, 2, 3], 4)).toBe(3);
+    expect(scaleStoneTier([4, 8, 16, 32], 4)).toBe(32);
+  });
+
+  it('keeps doubling when the last published step doubled', () => {
+    expect(scaleStoneTier([4, 8, 16, 32], 5)).toBe(64);
+    expect(scaleStoneTier([4, 8, 16, 32], 6)).toBe(128);
+    expect(scaleStoneTier([20, 40, 80, 160], 5)).toBe(320);
+    expect(scaleStoneTier([2, 4, 8, 16], 5)).toBe(32);
+  });
+
+  it('repeats the last delta otherwise', () => {
+    expect(scaleStoneTier([0, 1, 2, 3], 5)).toBe(4);
+    expect(scaleStoneTier([8, 16, 24, 32], 5)).toBe(40);
+    expect(scaleStoneTier([0, 4, 8, 12], 5)).toBe(16);
+    expect(scaleStoneTier([2, 4, 8, 12], 5)).toBe(16);
   });
 });
 
@@ -284,13 +313,11 @@ describe('apply() — runs cleanly across every power and tier', () => {
           const removedScar = (actor.system.health?.scarred ?? 1) !== 1;
           const grantedHp = (actor.system.health?.current ?? 0) > 0;
           const tempHpRaised = (actor.system.health?.tempHP ?? 0) > 0;
-          // Endure Special rewrites system.statusEffects (mock starts with Ruin(6)).
           const specialsTouched =
             !Array.isArray(actor.system.statusEffects) ||
             actor.system.statusEffects.length !== 1 ||
             (actor.system.statusEffects[0]?.value ?? 6) !== 6;
-          // For "ramp" tiers (Extra Attack T1/T2, Spell Action T1, Damage Reduction Boost T1, Phasing T1)
-          // the spec says nothing happens — that's expected.
+          // Ramp tiers (label === null) are allowed to touch nothing.
           const isRampTier = power.tiers[tier - 1].label === null;
           const touched =
             sbTouched ||
@@ -322,9 +349,9 @@ describe('Generic powers — Extra Attack', () => {
     expect(actor._roundState.stoneBonuses.extraAttacks).toBe(0);
   });
 
-  it('T2 grants +1, T3 grants +2, T4 grants +3 Attack Actions (Player\'s Guide)', async () => {
+  it('T2 grants +1, T3 grants +2, T4 grants +3, T5 grants +4 Attack Actions', async () => {
     const power = STONE_POWERS['generic.extraAttack'];
-    for (const [tier, expected] of [[2, 1], [3, 2], [4, 3]] as const) {
+    for (const [tier, expected] of [[2, 1], [3, 2], [4, 3], [5, 4]] as const) {
       const actor = makeMockActor();
       await power.apply({ actor: actor as any, combatant: makeMockCombatant() as any, tier, cost: 2 ** (tier - 1) });
       expect(actor._roundState.attackActions.total).toBe(1 + expected);
@@ -375,39 +402,27 @@ describe('Vitality — Temporary HP scales 20/40/80/160', () => {
   });
 });
 
-describe('Vitality — Endure Special reduces one negative Special by 2/4/8/12', () => {
-  it.each([[1, 2, 4], [2, 4, 2], [3, 8, 0], [4, 12, 0]])(
-    'T%i reduces Ruin(6) by %i → %i',
-    async (tier, _reduce, remaining) => {
-      const actor = makeMockActor();
-      await STONE_POWERS['vitality.endureSpecial'].apply({
-        actor: actor as any,
-        combatant: makeMockCombatant() as any,
-        tier,
-        cost: 2 ** (tier - 1),
-      });
-      const list = actor.system.statusEffects as any[];
-      if (remaining > 0) {
-        expect(list).toHaveLength(1);
-        expect(list[0].value).toBe(remaining);
-      } else {
-        // Reduced to 0 ⇒ the Special is removed entirely.
-        expect(list).toHaveLength(0);
-      }
-    },
-  );
-
-  it('never reduces Regeneration (positive Special)', async () => {
+describe('Vitality — Damage Negation ramps at T2', () => {
+  it('T1 is a ramp step (no effect)', async () => {
     const actor = makeMockActor();
-    actor.system.statusEffects = [{ id: 'regeneration', name: 'Regeneration (X)', value: 4 }];
-    await STONE_POWERS['vitality.endureSpecial'].apply({
+    await STONE_POWERS['vitality.damageNegation'].apply({
       actor: actor as any,
       combatant: makeMockCombatant() as any,
-      tier: 4,
-      cost: 8,
+      tier: 1,
+      cost: 1,
     });
-    expect(actor.system.statusEffects).toEqual([{ id: 'regeneration', name: 'Regeneration (X)', value: 4 }]);
-    expect((globalThis as any).ui.notifications.warn).toHaveBeenCalled();
+    expect(actor._roundState.stoneBonuses.tempDamageNegation ?? 0).toBe(0);
+  });
+
+  it.each([[2, 4], [3, 8], [4, 12]])('T%i grants +%i Damage Negation', async (tier, expected) => {
+    const actor = makeMockActor();
+    await STONE_POWERS['vitality.damageNegation'].apply({
+      actor: actor as any,
+      combatant: makeMockCombatant() as any,
+      tier,
+      cost: 2 ** (tier - 1),
+    });
+    expect(actor._roundState.stoneBonuses.tempDamageNegation).toBe(expected);
   });
 });
 
@@ -490,10 +505,10 @@ describe('Resolve — Stress Healing scales 1d8/2d8/3d8/4d8', () => {
   );
 });
 
-describe('Resolve — Damage Reduction Boost ramps at T2', () => {
+describe('Resolve — Damage Reduction ramps at T2', () => {
   it('T1 is a ramp step (no effect)', async () => {
     const actor = makeMockActor();
-    await STONE_POWERS['resolve.damageReductionBoost'].apply({
+    await STONE_POWERS['resolve.damageReduction'].apply({
       actor: actor as any,
       combatant: makeMockCombatant() as any,
       tier: 1,
@@ -504,7 +519,7 @@ describe('Resolve — Damage Reduction Boost ramps at T2', () => {
 
   it.each([[2, 10], [3, 20], [4, 30]])('T%i adds +%i%% DR', async (tier, expected) => {
     const actor = makeMockActor();
-    await STONE_POWERS['resolve.damageReductionBoost'].apply({
+    await STONE_POWERS['resolve.damageReduction'].apply({
       actor: actor as any,
       combatant: makeMockCombatant() as any,
       tier,
@@ -515,11 +530,16 @@ describe('Resolve — Damage Reduction Boost ramps at T2', () => {
 });
 
 describe('stonePowerSkipsFirstTier', () => {
-  it('skips the empty Tier 1 on Phasing, Extra Attack, Spell Action, and DR Boost', () => {
+  it('skips the empty Tier 1 on ramp powers', () => {
     expect(stonePowerSkipsFirstTier('wits.phasing')).toBe(true);
     expect(stonePowerSkipsFirstTier('generic.extraAttack')).toBe(true);
     expect(stonePowerSkipsFirstTier('intellect.spellAction')).toBe(true);
+    expect(stonePowerSkipsFirstTier('resolve.damageReduction')).toBe(true);
     expect(stonePowerSkipsFirstTier('resolve.damageReductionBoost')).toBe(true);
+    expect(stonePowerSkipsFirstTier('agility.crit')).toBe(true);
+    expect(stonePowerSkipsFirstTier('might.parry')).toBe(true);
+    expect(stonePowerSkipsFirstTier('vitality.damageNegation')).toBe(true);
+    expect(stonePowerSkipsFirstTier('influence.notATarget')).toBe(true);
   });
 
   it('does not skip powers that already do something at Tier 1', () => {
@@ -529,13 +549,13 @@ describe('stonePowerSkipsFirstTier', () => {
 });
 
 describe('Wits — Phasing', () => {
-  it('T1 is a ramp step; T2/T3 grant 1 charge and T4 grants 2', async () => {
+  it('T1 is a ramp step; T2/T3 grant 1, T4/T5 grant 2, T6 grants 3', async () => {
     const power = STONE_POWERS['wits.phasing'];
     const t1 = makeMockActor();
     await power.apply({ actor: t1 as any, combatant: makeMockCombatant() as any, tier: 1, cost: 1 });
     expect(t1._roundState.stoneBonuses?.phasingChargesFromStones ?? 0).toBe(0);
 
-    for (const [tier, charges] of [[2, 1], [3, 1], [4, 2]] as const) {
+    for (const [tier, charges] of [[2, 1], [3, 1], [4, 2], [5, 2], [6, 3]] as const) {
       const actor = makeMockActor();
       await power.apply({
         actor: actor as any,
@@ -548,8 +568,8 @@ describe('Wits — Phasing', () => {
   });
 });
 
-describe('Wits — Initiative Boost scales +4/+8/+16/+32', () => {
-  it.each([[1, 4], [2, 8], [3, 16], [4, 32]])('T%i adds +%i initiative', async (tier, expected) => {
+describe('Wits — Initiative Boost is MR × 1/2/4/8 and once per combat', () => {
+  it.each([[1, 2], [2, 4], [3, 8], [4, 16], [5, 32]])('T%i adds +%i initiative at MR2', async (tier, expected) => {
     const actor = makeMockActor();
     const combatant = makeMockCombatant();
     await STONE_POWERS['wits.initiativeBoost'].apply({
@@ -559,42 +579,56 @@ describe('Wits — Initiative Boost scales +4/+8/+16/+32', () => {
       cost: 2 ** (tier - 1),
     });
     expect(actor._roundState.stoneBonuses.initiativeBonus).toBe(expected);
-    // The boost must actually change the persisted Initiative (turn order),
-    // and record itself for the end-of-round revert.
     expect(combatant.initiative).toBe(10 + expected);
     expect(combatant._flags['msInitiativeValue']).toBe(10 + expected);
-    expect(combatant._flags['msInitiativeBoostThisRound']).toBe(expected);
+    expect(combatant._flags['msInitiativeBoostUsed']).toBe(true);
   });
 
-  it('stacking two boosts accumulates the revert bookkeeping', async () => {
+  it('refuses a second activation in the same combat', async () => {
     const actor = makeMockActor();
     const combatant = makeMockCombatant();
     const power = STONE_POWERS['wits.initiativeBoost'];
     await power.apply({ actor: actor as any, combatant: combatant as any, tier: 1, cost: 1 });
     await power.apply({ actor: actor as any, combatant: combatant as any, tier: 2, cost: 2 });
-    expect(combatant.initiative).toBe(10 + 4 + 8);
-    expect(combatant._flags['msInitiativeBoostThisRound']).toBe(12);
+    expect(combatant.initiative).toBe(12);
+    expect(actor._roundState.stoneBonuses.initiativeBonus).toBe(2);
   });
 });
 
-describe('Wits — Seize the Moment (Additional Initiative Shop)', () => {
-  it('is registered as the 5th Wits power', () => {
-    expect(STONE_POWERS['wits.initiativeShop']).toBeDefined();
-    expect(STONE_POWERS_BY_ATTRIBUTE.wits.some((p) => p.id === 'wits.initiativeShop')).toBe(true);
-  });
-
-  it('records the reroll audit flag and bails out safely without a combatant actor', async () => {
+describe('Might — Parry ramps at T2', () => {
+  it.each([[2, 4], [3, 8], [4, 12]])('T%i grants +%i Parry Pool', async (tier, expected) => {
     const actor = makeMockActor();
-    const combatant = makeMockCombatant();
-    // Mock combatant has no `.actor`, so apply() bails out after the audit flag —
-    // exactly the safe path we want outside a real encounter.
-    await STONE_POWERS['wits.initiativeShop'].apply({
+    await STONE_POWERS['might.parry'].apply({
       actor: actor as any,
-      combatant: combatant as any,
+      combatant: makeMockCombatant() as any,
+      tier,
+      cost: 2 ** (tier - 1),
+    });
+    expect(actor._roundState.stoneBonuses.tempParryPool).toBe(expected);
+  });
+});
+
+describe('Agility — Crit ramps at T2', () => {
+  it('T1 is a ramp step', async () => {
+    const actor = makeMockActor();
+    await STONE_POWERS['agility.crit'].apply({
+      actor: actor as any,
+      combatant: makeMockCombatant() as any,
       tier: 1,
       cost: 1,
     });
-    expect(combatant._flags['msInitiativeRerollUsed']).toBeGreaterThan(0);
+    expect(actor._roundState.stoneBonuses.critRaises ?? 0).toBe(0);
+  });
+
+  it.each([[2, 1], [3, 2], [4, 3], [5, 4]])('T%i grants Crit(1) on %i attack(s)', async (tier, expected) => {
+    const actor = makeMockActor();
+    await STONE_POWERS['agility.crit'].apply({
+      actor: actor as any,
+      combatant: makeMockCombatant() as any,
+      tier,
+      cost: 2 ** (tier - 1),
+    });
+    expect(actor._roundState.stoneBonuses.critRaises).toBe(expected);
   });
 });
 

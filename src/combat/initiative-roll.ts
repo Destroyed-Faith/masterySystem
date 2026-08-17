@@ -1,9 +1,8 @@
 /**
  * Initiative Rolling System
  * Rolled ONCE at combat start: Mastery Rank d8 (keep all, 8s explode) + optional Combat
- * Reflexes spend (≤ MR×4, pool-limited). Final score before the Initiative Shop = dice + CR.
- * Initiative persists across rounds; only explicit effects (e.g. Wits Stone Powers) may
- * reroll it and reopen the Initiative Shop.
+ * Reflexes. The score persists until spent (Initiative Exchange → Colorless Stones)
+ * or another rule changes it.
  */
 
 import { masteryRoll } from '../dice/roll-handler.js';
@@ -15,10 +14,6 @@ import {
   formatNpcInitiativeSigned,
   getNpcInitiativeModifier,
 } from '../utils/npc-initiative.js';
-import {
-  emitEncounterSocketToPlayerOwners,
-  shouldShowEncounterDialogLocally,
-} from './combat-permissions.js';
 const CR_SKILL_KEY = 'combatReflexes';
 
 function getMasteryRank(actor: any): number {
@@ -264,26 +259,14 @@ export async function rollNpcInitiativeOnly(combat: Combat, opts: { force?: bool
 }
 
 /**
- * Full initiative phase: NPCs auto. PCs roll and shop on their own client.
+ * After Stone Powers / Initiative Exchange: leftover NPCs roll, then sort.
+ * PCs roll inside the Stone Powers dialog.
  */
 export async function executeInitiativePhase(combat: Combat): Promise<void> {
   if (!game.user?.isGM) return;
   await rollNpcInitiativeOnly(combat);
 
-  for (const pc of combat.combatants) {
-    const actor = pc.actor;
-    if (!actor || actor.type !== 'character') continue;
-    if (shouldShowEncounterDialogLocally(actor)) continue;
-    emitEncounterSocketToPlayerOwners(actor, {
-      type: 'openInitiativeShop',
-      combatId: combat.id,
-      combatantId: pc.id,
-      actorId: actor.id,
-    });
-  }
-
-  // Combatants with null initiative are omitted from `combat.turns`. Pin NPCs only —
-  // PCs keep a blank score until they confirm their own shop.
+  // Combatants with null initiative are omitted from `combat.turns`. Pin leftovers.
   for (const c of combat.combatants) {
     if (c.actor?.type === 'character') continue;
     if (c.initiative === null || c.initiative === undefined) {
@@ -402,26 +385,14 @@ export async function rollInitiativeForAllCombatants(combat: Combat): Promise<vo
 }
 
 /**
- * Open Initiative Shop from combat tracker: reuse pending roll context if shop not confirmed yet (encounter setup rescue).
+ * Tracker / sheet rescue: open Stone Powers (Initiative Exchange lives there now).
  */
 export async function openInitiativeShopForTrackerRescue(
   combatant: Combatant,
   combat: Combat
 ): Promise<boolean> {
-  const { InitiativeShopDialog } = await import('./initiative-shop-dialog.js');
-
-  const setup = (combat.flags as any)?.['mastery-system']?.encounterSetup;
-  const confirmed = setup?.initiativeConfirmed?.[combatant.id] === true;
-  const pending = (await combatant.getFlag('mastery-system', 'pendingInitiativeShop')) as
-    | InitiativeRollBreakdown
-    | undefined;
-
-  if (!confirmed && pending && typeof pending.diceTotal === 'number') {
-    const purchases = await InitiativeShopDialog.showForCombatant(combatant, pending, combat);
-    return purchases != null;
-  }
-
-  const breakdown = await rollInitiativeForCombatant(combatant, { promptCombatReflexes: false });
-  const purchases = await InitiativeShopDialog.showForCombatant(combatant, breakdown, combat);
-  return purchases != null;
+  const actor = combatant.actor;
+  if (!actor) return false;
+  const { StonePowersDialog } = await import('../stones/stone-powers-dialog.js');
+  return StonePowersDialog.showForActor(actor, combatant);
 }

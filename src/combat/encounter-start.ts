@@ -126,7 +126,7 @@ export async function handleInitiativeConfirmed(combat: Combat, combatantId: str
       CombatCarouselApp.refresh();
       ui.notifications?.info(
         game.i18n?.localize('MASTERY.encounterSetup.shopAllDone') ||
-          'Alle Spieler haben den Shop bestätigt. NSC-Ini prüfen, dann Kampf starten.',
+          'Alle Spieler haben die Initiative Exchange bestätigt. NSC-Ini prüfen, dann Kampf starten.',
       );
     }
   }
@@ -255,7 +255,7 @@ export async function beginEncounter(combat: Combat): Promise<void> {
   void resumePlayerEncounterSetup(combat);
   ui.notifications?.info(
     game.i18n?.localize('MASTERY.encounterSetup.prepareStarted') ||
-      'Vorbereitung gestartet. Spieler wählen Passives, Steine und Shop. Danach „Kampf starten“.',
+      'Vorbereitung gestartet. Spieler wählen Passives und Steine (Initiative Exchange). Danach „Kampf starten“.',
   );
 }
 

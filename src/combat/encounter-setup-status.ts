@@ -3,7 +3,6 @@
  */
 
 import { getPassiveSlots } from '../powers/passives.js';
-import { INITIATIVE_SHOP } from '../utils/constants.js';
 import { emitEncounterSocketToPlayerOwners, resolveLiveCombat } from './combat-permissions.js';
 import { readCombatantSetupStep } from './encounter-setup-flags.js';
 
@@ -93,22 +92,9 @@ function shopSummary(combatant: Combatant, combat: Combat | null): { done: boole
     ((combat.flags as any)?.['mastery-system']?.encounterSetup?.initiativeConfirmed?.[combatant.id] ||
       readCombatantSetupStep(combatant, combat)?.initiativeConfirmed)
   );
-  const shop = combatant.getFlag?.('mastery-system', 'initiativeShop') as
-    | {
-        extraMovement?: number;
-        extraAttack?: boolean;
-        extraReaction?: boolean;
-        removeStress?: boolean;
-        initiativeSwap?: boolean;
-      }
-    | undefined;
+  const ini = Number(combatant.initiative);
   const parts: string[] = [];
-  const move = Math.max(0, Math.floor(Number(shop?.extraMovement) || 0));
-  if (move > 0) parts.push(`+${move * INITIATIVE_SHOP.MOVEMENT.INCREMENT}m`);
-  if (shop?.extraAttack) parts.push('+Atk');
-  if (shop?.extraReaction) parts.push('+React');
-  if (shop?.removeStress) parts.push('−Stress');
-  if (shop?.initiativeSwap) parts.push('Swap');
+  if (Number.isFinite(ini)) parts.push(`Ini ${Math.floor(ini)}`);
   return { done: confirmed, parts };
 }
 
@@ -150,7 +136,7 @@ export function buildEncounterSetupStatus(
     rows: [
       row('passives', loc('passives', 'Passives'), passives.done, passives.names, empty),
       row('stones', loc('stones', 'Steine'), stones.done, stones.parts, empty),
-      row('initiative', loc('shop', 'Shop'), shop.done, shop.parts, empty),
+      row('initiative', loc('shop', 'Initiative'), shop.done, shop.parts, empty),
     ],
   };
 }
@@ -227,5 +213,5 @@ export async function forceEncounterDialogForAll(kind: EncounterDialogKind): Pro
 function kindLabel(kind: EncounterDialogKind): string {
   if (kind === 'passives') return loc('passives', 'Passives');
   if (kind === 'stones') return loc('stones', 'Steine');
-  return loc('shop', 'Shop');
+  return loc('shop', 'Initiative');
 }

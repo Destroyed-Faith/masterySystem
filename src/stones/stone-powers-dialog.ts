@@ -16,7 +16,14 @@ import {
   activateStonePower,
   activateGenericStonePowerMixed
 } from './stone-activation.js';
-import { STONE_POWERS_BY_ATTRIBUTE, stonePowerSkipsFirstTier, type StonePower } from './stone-powers.js';
+import {
+  STONE_POWERS_BY_ATTRIBUTE,
+  STONE_POWER_SUPPORT_TIER_SHIFT,
+  STONE_TIER_HARD_MAX,
+  resolveStonePowerId,
+  stonePowerSkipsFirstTier,
+  type StonePower,
+} from './stone-powers.js';
 import {
   getStoneUsageCount,
   getGenericStonePowerUsageCount,
@@ -26,6 +33,16 @@ import {
   getActionEconomyActor
 } from '../combat/action-economy.js';
 import { getStoneGemStyle } from '../utils/stone-attribute-ui.js';
+import {
+  COLORLESS_GEM_STYLE,
+  COLORLESS_STONE_ATTR,
+  colorlessStoneInitiativeCost,
+  convertInitiativeToColorlessStones,
+  getMasteryRank,
+  getTempColorlessStones,
+  isInitiativeBoostUsedThisCombat,
+  maxConvertibleColorlessStones,
+} from './colorless-stones.js';
 import { poolSpendableStones } from '../utils/artifact-actor-rules.js';
 import { countArtifactActivationStones } from '../utils/artifact-stone-bound.js';
 import { getArtifactStoneFunctionStatus } from '../utils/artifact-stone-functions.js';
@@ -34,7 +51,7 @@ import { refreshRadialMenuActionLabelsIfOpenForActor } from '../token-radial-men
 const STONE_DRAG_MIME = 'application/x-mastery-stone-attribute';
 const STONE_RETURN_MIME = 'application/x-mastery-stone-return-acc';
 
-/** Physische Zahlungs-Lanes im Cluster: 1 + 2 + 4 + 8. */
+/** Physische Zahlungs-Lanes im Cluster: 1 + 2 + 4 + 8. T5+ (16/32) is future UI. */
 const STONE_PAYMENT_LANE_COUNT = 15;
 
 /** Segment-Index für Lane: 0=Anchor(1), 1=Mid(2), 2=Quad(4), 3=Oct(8). */
@@ -207,6 +224,7 @@ function getActorStonePoolKeysWithMax(actor: Actor): Set<string> {
     const max = Number(sp[k]?.max) || 0;
     if (max > 0) keys.add(k);
   }
+  if (getTempColorlessStones(owner) > 0) keys.add(COLORLESS_STONE_ATTR);
   return keys;
 }
 
@@ -250,7 +268,8 @@ type StonePayLaneCell = {
 
 /**
  * Lanes pre-filled by Artifact Support Stones for a Stone Power Support of
- * `prefillTier` (2..4).
+ * `prefillTier` (2..8). T5+ support still only needs the player to pay
+ * the anchor; extra 16/32 lanes are future UI.
  *
  * The support covers the tier's wave cost (2^(tier-1) stones) and sits
  * directly above the anchor: tier 2 → lanes [1,2], tier 3 → [1..4],
@@ -421,6 +440,14 @@ export class StonePowersDialog extends BaseDialog {
    * Show stone powers dialog for an actor
    */
   static async showForActor(actor: Actor, combatant?: Combatant | null): Promise<boolean> {
+    if (combatant && (combatant.initiative === null || combatant.initiative === undefined)) {
+      try {
+        const { rollInitiativeForCombatant } = await import('../combat/initiative-roll.js');
+        await rollInitiativeForCombatant(combatant, { promptCombatReflexes: true });
+      } catch (err) {
+        console.warn('Mastery System | Could not roll initiative before Stone Powers', err);
+      }
+    }
     return new Promise(resolve => {
       const app = new StonePowersDialog(actor, combatant || null, resolve);
       (app as any).render({ force: true });
@@ -474,10 +501,14 @@ export class StonePowersDialog extends BaseDialog {
       attr?: string
     ): { tier: number; source: string } | null => {
       let best: { tier: number; source: string } | null = null;
+      const resolvedId = resolveStonePowerId(powerId);
       for (const s of artifactStoneSupports) {
-        if (!s.stonePowerId || s.stonePowerId !== powerId) continue;
+        const supportId = resolveStonePowerId(String(s.stonePowerId || ''));
+        if (!supportId || supportId !== resolvedId) continue;
         if (attr && s.attribute !== attr) continue;
-        if (!best || s.value > best.tier) best = { tier: s.value, source: s.source };
+        const shift = STONE_POWER_SUPPORT_TIER_SHIFT[resolvedId] ?? 0;
+        const tier = Math.min(STONE_TIER_HARD_MAX, Math.max(0, s.value + shift));
+        if (!best || tier > best.tier) best = { tier, source: s.source };
       }
       return best;
     };
@@ -515,6 +546,24 @@ export class StonePowersDialog extends BaseDialog {
         };
       })
       .filter((pool) => pool.max > 0);
+
+    const colorlessHave = getTempColorlessStones(poolOwner);
+    const colorlessReserved = this.#reservedStonesInDialogForAttr(COLORLESS_STONE_ATTR);
+    const colorlessDisplay = Math.max(0, colorlessHave - colorlessReserved);
+    if (colorlessHave > 0 || colorlessReserved > 0) {
+      pools.push({
+        key: COLORLESS_STONE_ATTR,
+        name: 'Colorless',
+        current: colorlessHave,
+        max: colorlessHave,
+        sustained: 0,
+        artifactBound: 0,
+        available: colorlessHave,
+        gemStyle: COLORLESS_GEM_STYLE,
+        gemSlots: Array.from({ length: colorlessDisplay }, (_, i) => ({ index: i })),
+        boundSlots: [],
+      });
+    }
 
     const combatMissingFromTracker = combatActive && !this.combatant;
     const hasCombat = combatActive && !!this.combatant;
@@ -571,7 +620,8 @@ export class StonePowersDialog extends BaseDialog {
       const canAfford = pool.current >= nextCost && hasCombat;
       const gross = spendableForAttr(attrKey);
       const reserved = this.#reservedStonesInDialogForAttr(attrKey);
-      const spendableNet = Math.max(0, gross - reserved);
+      const spendableNet =
+        Math.max(0, gross - reserved) + this.#spendableNetForAttr(COLORLESS_STONE_ATTR);
       const description = power.description || power.effect || '';
       const accKey = `${power.id}:${attrKey}:${usesThisTurn}`;
       const occupied = this.#stoneOccGet(accKey);
@@ -600,6 +650,10 @@ export class StonePowersDialog extends BaseDialog {
         supportTier,
         supportSource: support?.source ?? '',
         supportActive: !!supportLanes,
+        boostUsed:
+          power.id === 'wits.initiativeBoost' &&
+          !!this.combatant &&
+          isInitiativeBoostUsedThisCombat(this.combatant),
         ...laneSegs
       };
     };
@@ -690,8 +744,7 @@ export class StonePowersDialog extends BaseDialog {
 
         const preparedMap = new Map((powersByAttribute[attr] || []).map((p: any) => [p.id, p]));
         const cells: any[] = [];
-        // Wits carries a 5th power (Seize the Moment) — render every pool power,
-        // padding shorter pools to the base column count for grid alignment.
+        // Render every pool power, padding shorter pools to the base column count.
         const cols = Math.max(ATTR_MATRIX_COLS, defs.length);
         for (let i = 0; i < cols; i++) {
           const def = defs[i];
@@ -723,9 +776,26 @@ export class StonePowersDialog extends BaseDialog {
 
     const spendableNetAllPoolsCached = totalSpendableNetAllPools();
 
+    const mr = getMasteryRank(poolOwner);
+    const initiativeScore = Math.max(0, Math.floor(Number(this.combatant?.initiative) || 0));
+    const stoneIniCost = colorlessStoneInitiativeCost(mr);
+    const maxConvert = maxConvertibleColorlessStones(initiativeScore, mr);
+    const exchangeLocked = stonePlanLocked || !this.combatant;
+    const initiativeExchange = {
+      show: !!this.combatant,
+      initiative: initiativeScore,
+      masteryRank: mr,
+      costPerStone: stoneIniCost,
+      maxConvert,
+      convertCount: maxConvert,
+      locked: exchangeLocked,
+      boostUsed: this.combatant ? isInitiativeBoostUsedThisCombat(this.combatant) : false,
+    };
+
     return {
       actor: this.actor,
       pools,
+      initiativeExchange,
       attributePowerMatrix,
       generalPowers,
       defaultGeneralAttrKey,
@@ -775,6 +845,26 @@ export class StonePowersDialog extends BaseDialog {
         ev.preventDefault();
         if (savePrefsBtn.classList.contains('is-disabled')) return;
         await this.#saveStonePowersPrefs(root);
+      };
+    }
+
+    const convertBtn = root.querySelector('.js-convert-initiative-colorless') as HTMLButtonElement | null;
+    if (convertBtn) {
+      convertBtn.onclick = async (ev: MouseEvent) => {
+        ev.preventDefault();
+        if (convertBtn.disabled) return;
+        const input = root.querySelector('.js-colorless-convert-count') as HTMLInputElement | null;
+        const n = Math.max(0, Math.floor(Number(input?.value) || 0));
+        if (!this.combatant || n <= 0) return;
+        const result = await convertInitiativeToColorlessStones(this.actor, this.combatant, n);
+        if (!result) {
+          ui.notifications?.warn('Not enough Initiative to convert.');
+          return;
+        }
+        ui.notifications?.info(
+          `${(this.actor as any).name}: ${result.stones} Colorless Stone(s). Initiative now ${result.remainingInitiative}.`,
+        );
+        await (this as any).render({ force: true });
       };
     }
 
@@ -895,8 +985,11 @@ export class StonePowersDialog extends BaseDialog {
       if (!isGenericLaneOccArray(raw)) return [];
       return raw.map((x) => x.lane).sort((a, b) => a - b);
     }
-    const raw = this.#stoneOccGetRaw(accKey) as number[];
-    return [...raw].sort((a, b) => a - b);
+    const raw = this.#stoneOccGetRaw(accKey);
+    if (isGenericLaneOccArray(raw)) {
+      return raw.map((x) => x.lane).sort((a, b) => a - b);
+    }
+    return [...(raw as number[])].sort((a, b) => a - b);
   }
 
   #stoneOccSet(accKey: string, value: StoneAccumulatorValue): void {
@@ -904,7 +997,7 @@ export class StonePowersDialog extends BaseDialog {
     if (!value.length) {
       this._stoneDropAccumulators.delete(accKey);
       StonePowersDialog._sessionStoneLanes.delete(sk);
-    } else if (isGenericUnifiedAccKey(accKey)) {
+    } else if (isGenericUnifiedAccKey(accKey) || isGenericLaneOccArray(value)) {
       const sorted = [...(value as GenericLaneOcc[])].sort((a, b) => a.lane - b.lane);
       this._stoneDropAccumulators.set(accKey, sorted);
       StonePowersDialog._sessionStoneLanes.set(sk, sorted);
@@ -949,10 +1042,17 @@ export class StonePowersDialog extends BaseDialog {
       }
     } else {
       if (def.attribute !== 'generic' && middle !== def.attribute) return false;
-      const raw = this.#stoneOccGetRaw(accKey) as number[];
+      const raw = this.#stoneOccGetRaw(accKey);
       if (!raw.length) return false;
-      if (raw.length !== nextCost) return false;
-      perAttr[String(middle)] = raw.length;
+      if (isGenericLaneOccArray(raw)) {
+        if (raw.length !== nextCost) return false;
+        for (const { attr } of raw) {
+          perAttr[attr] = (perAttr[attr] || 0) + 1;
+        }
+      } else {
+        if (raw.length !== nextCost) return false;
+        perAttr[String(middle)] = raw.length;
+      }
     }
 
     const combatant = this.combatant || resolveStonePowersCombatant(this.actor, combat);
@@ -970,7 +1070,8 @@ export class StonePowersDialog extends BaseDialog {
       ok = await activateStonePower({
         actor: this.actor,
         combatant,
-        abilityId: powerId
+        abilityId: powerId,
+        colorlessSpent: perAttr[COLORLESS_STONE_ATTR] || 0,
       });
     }
 
@@ -1017,7 +1118,7 @@ export class StonePowersDialog extends BaseDialog {
     let sum = 0;
     for (const [accKey, val] of this._stoneDropAccumulators) {
       if (!val?.length) continue;
-      if (isGenericUnifiedAccKey(accKey)) {
+      if (isGenericUnifiedAccKey(accKey) || isGenericLaneOccArray(val)) {
         if (!isGenericLaneOccArray(val)) continue;
         for (const a of val as GenericLaneOcc[]) {
           if (a.attr === attr) sum += 1;
@@ -1034,6 +1135,9 @@ export class StonePowersDialog extends BaseDialog {
   }
 
   #actorPoolSpendable(attr: string): number {
+    if (attr === COLORLESS_STONE_ATTR) {
+      return getTempColorlessStones(getActionEconomyActor(this.actor) ?? this.actor);
+    }
     // Read from `this.actor` so artifact activation bindings match the sheet /
     // evolution dialog (pool capacity is still derived via the economy actor
     // inside poolSpendableStones).
@@ -1198,7 +1302,7 @@ export class StonePowersDialog extends BaseDialog {
       }
 
       const placeGem = (lane: number, payAttr: string) => {
-        const style = getStoneGemStyle(payAttr);
+        const style = payAttr === COLORLESS_STONE_ATTR ? COLORLESS_GEM_STYLE : getStoneGemStyle(payAttr);
         const fillC = style?.fill ?? '#888888';
         const strokeC = style?.stroke ?? '#aaaaaa';
         let slot = host.querySelector(
@@ -1235,11 +1339,17 @@ export class StonePowersDialog extends BaseDialog {
           placeGem(lane, attr);
         }
       } else if (!isGenericUnifiedAccKey(accKey)) {
-        const payAttrRaw = this.#parseAccKeyPayAttr(accKey);
-        if (!payAttrRaw) continue;
-        const payAttr = payAttrRaw as AttributeKey;
-        for (const lane of [...(lanesVal as number[])].sort((a, b) => a - b)) {
-          placeGem(lane, payAttr);
+        if (isGenericLaneOccArray(lanesVal as StoneAccumulatorValue)) {
+          for (const { lane, attr } of lanesVal as GenericLaneOcc[]) {
+            placeGem(lane, attr);
+          }
+        } else {
+          const payAttrRaw = this.#parseAccKeyPayAttr(accKey);
+          if (!payAttrRaw) continue;
+          const payAttr = payAttrRaw as AttributeKey;
+          for (const lane of [...(lanesVal as number[])].sort((a, b) => a - b)) {
+            placeGem(lane, payAttr);
+          }
         }
       }
     }
@@ -1456,8 +1566,9 @@ export class StonePowersDialog extends BaseDialog {
           return;
         }
         const laneRm = this._stoneReturnLane;
-        if (isGenericUnifiedAccKey(accKeyReturn)) {
-          const raw = this.#stoneOccGetRaw(accKeyReturn) as GenericLaneOcc[];
+        const rawReturn = this.#stoneOccGetRaw(accKeyReturn);
+        if (isGenericUnifiedAccKey(accKeyReturn) || isGenericLaneOccArray(rawReturn)) {
+          const raw = rawReturn as GenericLaneOcc[];
           if (!raw.length || !isGenericLaneOccArray(raw)) {
             return;
           }
@@ -1518,31 +1629,34 @@ export class StonePowersDialog extends BaseDialog {
       const isGeneric =
         slot.dataset.isGeneric === 'true' ||
         slot.getAttribute('data-is-generic') === 'true';
-      let payAttr: AttributeKey;
+      const isColorless = dragged === COLORLESS_STONE_ATTR;
+      let payAttr: AttributeKey | typeof COLORLESS_STONE_ATTR;
       if (isGeneric) {
-        payAttr = dragged as AttributeKey;
+        payAttr = dragged as AttributeKey | typeof COLORLESS_STONE_ATTR;
         if (!powerId || !dragged) {
           return;
         }
-        if (!poolKeys.has(dragged)) {
+        if (!poolKeys.has(dragged) && !isColorless) {
           ui.notifications?.warn('Dieser Stein gehört zu keinem Pool auf diesem Bogen.');
           return;
         }
-        this._generalAttrSelection[powerId] = payAttr;
+        if (!isColorless) this._generalAttrSelection[powerId] = payAttr as AttributeKey;
       } else {
         payAttr = (slot.dataset.payAttribute || '') as AttributeKey;
         if (!powerId || !payAttr) {
           return;
         }
-        if (dragged !== payAttr) {
+        if (dragged !== payAttr && !isColorless) {
           ui.notifications?.warn('Falscher Stein — Attribut passt nicht zu diesem Feld.');
           return;
         }
+        if (isColorless) payAttr = COLORLESS_STONE_ATTR;
       }
 
+      const slotPayAttr = (slot.dataset.payAttribute || payAttr) as AttributeKey;
       const uses = isGeneric
         ? getGenericStonePowerUsageCount(this.actor, powerId, combat)
-        : getStoneUsageCount(this.actor, payAttr, powerId, combat);
+        : getStoneUsageCount(this.actor, slotPayAttr, powerId, combat);
       const laneRaw = slot.dataset.laneIndex;
       const laneIndex = laneRaw !== undefined && laneRaw !== '' ? Number(laneRaw) : NaN;
       if (!Number.isFinite(laneIndex)) {
@@ -1571,7 +1685,7 @@ export class StonePowersDialog extends BaseDialog {
         this.#stoneOccSet(accKey, base);
         paid = base.length;
       } else {
-        accKey = `${powerId}:${payAttr}:${uses}`;
+        accKey = `${powerId}:${slotPayAttr}:${uses}`;
         occ = this.#stoneOccGet(accKey);
         if (occ.includes(laneIndex)) {
           return;
@@ -1579,9 +1693,14 @@ export class StonePowersDialog extends BaseDialog {
         if (!isLaneAllowedBySegmentUnlock(occWithRampSkip(occ, powerId), laneIndex)) {
           return;
         }
-        const nextOcc = [...occ, laneIndex];
-        this.#stoneOccSet(accKey, nextOcc);
-        paid = nextOcc.length;
+        const prev = this.#stoneOccGetRaw(accKey);
+        const asOcc: GenericLaneOcc[] = isGenericLaneOccArray(prev)
+          ? [...prev]
+          : (prev as number[]).map((lane) => ({ lane, attr: slotPayAttr }));
+        asOcc.push({ lane: laneIndex, attr: payAttr });
+        asOcc.sort((a, b) => a.lane - b.lane);
+        this.#stoneOccSet(accKey, asOcc);
+        paid = asOcc.length;
       }
 
       this.#reconcileFilledLaneClasses(bindTarget);
@@ -1829,6 +1948,15 @@ export class StonePowersDialog extends BaseDialog {
     this.#pullSessionPartialsIntoInstance();
     if (committed) {
       await this.#flushCompletedStonePaymentsFromAccumulators();
+      if (this.combatant && game.combat) {
+        try {
+          const { handleInitiativeConfirmed } = await import('../combat/encounter-start.js');
+          const ini = Math.max(0, Math.floor(Number(this.combatant.initiative) || 0));
+          await handleInitiativeConfirmed(game.combat, this.combatant.id, ini);
+        } catch (err) {
+          console.warn('Mastery System | Could not confirm Initiative Exchange', err);
+        }
+      }
       try {
         const { getActionEconomyActor } = await import('../combat/action-economy.js');
         const owner = getActionEconomyActor(this.actor) ?? this.actor;
