@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.372] - 2026-08-18
+
+### Added
+
+- **Stone Powers review:** After confirm, reopening Stones (tracker or carousel) shows the locked assignment for the round so the GM and players can see what was bought.
+
 ## [0.9.371] - 2026-08-17
 
 ### Fixed

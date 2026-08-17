@@ -8,7 +8,15 @@
   {{/if}}
   {{/if}}
 
-  {{#if stonePlanLocked}}
+  {{#if stoneReviewMode}}
+  <div class="stone-plan-locked-banner" role="status">
+    <i class="fas fa-eye" aria-hidden="true"></i>
+    <div class="stone-plan-locked-text">
+      <strong>{{combatLabel}} — nur Ansicht</strong>
+      <span>Diese Steinzuordnung ist für die Runde bestätigt. Du siehst, was verteilt wurde. Steine können nicht verschoben oder neu bezahlt werden.</span>
+    </div>
+  </div>
+  {{else if stonePlanLocked}}
   <div class="stone-plan-locked-banner" role="status">
     <i class="fas fa-lock" aria-hidden="true"></i>
     <div class="stone-plan-locked-text">
@@ -209,11 +217,14 @@
   </div>
 
   {{#unless combatStarted}}
+  {{#unless stoneReviewMode}}
   <p class="stone-powers-close-hint">Voll bezahlte Stein-Wellen werden beim <strong>Übernehmen &amp; schließen</strong> abgerechnet (Pools, Kampf-Rundenstatus). Unvollständige Wellen bleiben bis zur nächsten vollen Welle offen.</p>
+  {{/unless}}
   {{/unless}}
 
   <div class="dialog-footer stone-powers-footer">
     {{#unless combatStarted}}
+    {{#unless stoneReviewMode}}
     <div class="stone-prefs-bar">
       <label class="stone-prefs-label">
         <input type="checkbox" class="js-stone-prefs-use-defaults"
@@ -228,8 +239,15 @@
       </button>
     </div>
     {{/unless}}
+    {{/unless}}
+    {{#if stoneReviewMode}}
+    <button type="button" class="dialog-btn dialog-btn-primary js-close" title="Dialog schließen. Die bestätigte Zuordnung bleibt.">
+      <i class="fas fa-check"></i> Schließen
+    </button>
+    {{else}}
     <button type="button" class="dialog-btn dialog-btn-primary js-close" title="Verbucht voll bezahlte Wellen und schließt den Dialog.">
       <i class="fas fa-check"></i> Übernehmen &amp; schließen
     </button>
+    {{/if}}
   </div>
 </div>

@@ -66,6 +66,34 @@ describe('buildEncounterSetupStatus', () => {
     expect(buildEncounterSetupStatus(mockCombatant({ passives: [{ name: 'Lean Ward' }] }), null)).toBeNull();
   });
 
+  it('summarizes the confirmed stone assignment for the GM', () => {
+    const combat = {
+      id: 'cmb',
+      round: 0,
+      flags: {
+        'mastery-system': {
+          stonePowersState: { stonesDone: { c1: 1 } },
+        },
+      },
+    };
+    (globalThis as any).game = { user: { isGM: true }, combat };
+    const combatant = mockCombatant({ actorId: 'a1' });
+    (combatant.actor as any).items = {
+      get: (id: string) => (id === 'might.parry' ? { name: 'Parry' } : null),
+    };
+    (combatant.actor as any).getFlag = (_scope: string, key: string) =>
+      key === 'stonePowersRoundPlan'
+        ? {
+            combatId: 'cmb',
+            round: 1,
+            lanes: [{ accKey: 'might.parry:might:0', value: [1] }],
+          }
+        : null;
+    const status = buildEncounterSetupStatus(combatant, combat as unknown as Combat);
+    expect(status?.rows[1]?.done).toBe(true);
+    expect(status?.rows[1]?.summary).toContain('Parry');
+  });
+
   it('shows open rows when nothing was picked', () => {
     (globalThis as any).game = { user: { isGM: true }, combat: null };
     const status = buildEncounterSetupStatus(mockCombatant({}), null);

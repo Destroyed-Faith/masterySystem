@@ -3,6 +3,7 @@
  */
 
 import { getPassiveSlots } from '../powers/passives.js';
+import { STONE_POWERS } from '../stones/stone-powers.js';
 import { emitEncounterSocketToPlayerOwners, resolveLiveCombat } from './combat-permissions.js';
 import { readCombatantSetupStep } from './encounter-setup-flags.js';
 
@@ -71,9 +72,14 @@ function stoneSummary(actor: Actor, combatantId: string, combat: Combat | null):
   if (planLive && Array.isArray(plan?.lanes)) {
     for (const lane of plan.lanes) {
       const accKey = String(lane?.accKey ?? '');
-      const [powerId, attr] = accKey.split(':');
+      const last = accKey.lastIndexOf(':');
+      const rest = last > 0 ? accKey.slice(0, last) : accKey;
+      const mid = rest.lastIndexOf(':');
+      const powerId = mid > 0 ? rest.slice(0, mid) : rest;
+      const attr = mid > 0 ? rest.slice(mid + 1) : '';
+      const defName = STONE_POWERS[powerId]?.name;
       const item = powerId ? (actor as any).items?.get?.(powerId) : null;
-      const name = String(item?.name ?? powerId ?? '').trim();
+      const name = String(defName || item?.name || powerId || '').trim();
       const count = Array.isArray(lane.value) ? lane.value.length : 0;
       if (!name) continue;
       parts.push(attr && attr !== '_' ? `${name} (${cap(attr)}×${count || 1})` : name);

@@ -32,6 +32,7 @@ import {
   isStonePowersConfigurationLocked,
   getActionEconomyActor
 } from '../combat/action-economy.js';
+import { isStonePowersDone } from '../combat/stone-round-gate.js';
 import { getStoneGemStyle } from '../utils/stone-attribute-ui.js';
 import {
   COLORLESS_GEM_STYLE,
@@ -151,6 +152,19 @@ const STONE_GENERIC_UNIFIED_MARKER = 'msGenMulti';
 type GenericLaneOcc = { lane: number; attr: string };
 
 type StoneAccumulatorValue = number[] | GenericLaneOcc[];
+
+/** Confirmed assignment for this combat/round — reopen shows it locked. */
+const STONE_POWERS_ROUND_PLAN_FLAG = 'stonePowersRoundPlan';
+
+interface StonePowersRoundPlanStored {
+  combatId: string;
+  round: number;
+  lanes: { accKey: string; value: StoneAccumulatorValue }[];
+}
+
+function encounterStoneRound(combat: Combat | null | undefined): number {
+  return Math.max(1, Number(combat?.round) || 1);
+}
 
 /** `powerId:middle:uses` — powerId darf Punkte (und künftig Doppelpunkte) enthalten. */
 function parseStonePowerAccKey(accKey: string): { powerId: string; middle: string; uses: number } | null {
@@ -426,6 +440,10 @@ export class StonePowersDialog extends BaseDialog {
   private _stoneReturnAccKey: string | null = null;
   /** Pool-Zeile für Rückgabe (bei General-Multi aus data-return-attribute-key). */
   private _stoneReturnPoolAttr: string | null = null;
+  /** Avoid re-hydrating the confirmed plan over in-progress edits on every render. */
+  private _stoneRoundPlanHydratedKey: string | null = null;
+  /** Stones already confirmed this round — show assignment, do not spend again. */
+  private _stoneReviewMode = false;
   /** Scroll im Dialog-Inhalt vor Re-Render merken (Stein setzen sonst springt nach oben). */
   private _stonePowersContentScrollTop = 0;
 
@@ -481,14 +499,15 @@ export class StonePowersDialog extends BaseDialog {
       this._stonePowersContentScrollTop = scrollRoot.scrollTop;
     }
 
-    this.#pullSessionPartialsIntoInstance();
-
     const combat = game.combat;
     const combatActive = !!combat;
     const combatStarted = !!(combat as any)?.started;
     if (!this.combatant && combat) {
       this.combatant = resolveStonePowersCombatant(this.actor, combat);
     }
+    this._stoneReviewMode = this.#isStoneAssignmentReviewMode();
+    await this.#syncStonePowersRoundPlanWithCombat();
+    this.#pullSessionPartialsIntoInstance();
 
     const poolOwner = getActionEconomyActor(this.actor) ?? this.actor;
     const system = (poolOwner as any).system;
@@ -570,7 +589,9 @@ export class StonePowersDialog extends BaseDialog {
 
     const combatMissingFromTracker = combatActive && !this.combatant;
     const hasCombat = combatActive && !!this.combatant;
-    const stonePlanLocked = !!(combat && this.combatant && isStonePowersConfigurationLocked(this.actor, combat));
+    const stoneReviewMode = this.#isStoneAssignmentReviewMode();
+    this._stoneReviewMode = stoneReviewMode;
+    const stonePlanLocked = this.#isStoneDialogLocked();
 
     const showStonePools = true;
     const dragPoolEnabled = !stonePlanLocked;
@@ -606,7 +627,8 @@ export class StonePowersDialog extends BaseDialog {
 
     const preparePowerData = (power: any, attrKey: AttributeKey) => {
       /** Wie im Drop-Handler: `getStoneUsageCount(..., combat)` — auch wenn `combat` null (dann Runde 1 / Zug 0). Nicht `combat ? … : 0`, sonst anderer accKey als beim Drop. */
-      const usesThisTurn = getStoneUsageCount(this.actor, attrKey, power.id, combat);
+      const liveUses = getStoneUsageCount(this.actor, attrKey, power.id, combat);
+      const usesThisTurn = this._stoneReviewMode && liveUses > 0 ? liveUses - 1 : liveUses;
       const rampSkip = rampSkipSegmentsForPower(power.id);
       const leadLockedLanes = rampSkipLeadLanes(power.id);
       const nextCost = calculateStoneCost(usesThisTurn + rampSkip);
@@ -653,7 +675,8 @@ export class StonePowersDialog extends BaseDialog {
     };
 
     const resolveGenericAttrAndStats = (powerId: string) => {
-      const usesThisTurn = getGenericStonePowerUsageCount(this.actor, powerId, combat);
+      const liveUses = getGenericStonePowerUsageCount(this.actor, powerId, combat);
+      const usesThisTurn = this._stoneReviewMode && liveUses > 0 ? liveUses - 1 : liveUses;
       this.#mergeLegacyGenericIntoUnified(powerId, usesThisTurn);
       const unifiedKey = genericUnifiedAccKey(powerId, usesThisTurn);
       const raw = this.#stoneOccGetRaw(unifiedKey) as GenericLaneOcc[];
@@ -798,6 +821,7 @@ export class StonePowersDialog extends BaseDialog {
       combatMissingFromTracker,
       hasCombat,
       stonePlanLocked,
+      stoneReviewMode,
       /** Ziehen erlaubt sobald Runde nicht gesperrt (auch ohne Kampf — Ausführung nur im Kampf). */
       dragStonesEnabled: !stonePlanLocked,
       dragPoolEnabled,
@@ -1110,7 +1134,21 @@ export class StonePowersDialog extends BaseDialog {
   }
 
   #reservedStonesInDialogForAttr(attr: string): number {
+    if (this._stoneReviewMode) return 0;
     return this.#reservedStonesNonFamiliar(attr);
+  }
+
+  #isStoneAssignmentReviewMode(): boolean {
+    const combat = game.combat;
+    if (!combat || !this.combatant) return false;
+    return isStonePowersDone(combat, this.combatant.id, encounterStoneRound(combat));
+  }
+
+  #isStoneDialogLocked(): boolean {
+    const combat = game.combat;
+    if (!combat || !this.combatant) return false;
+    if (this.#isStoneAssignmentReviewMode()) return true;
+    return isStonePowersConfigurationLocked(this.actor, combat);
   }
 
   #actorPoolSpendable(attr: string): number {
@@ -1265,8 +1303,7 @@ export class StonePowersDialog extends BaseDialog {
 
   /** Zeigt Steine in `slot-filled`-Zellen (ein Stein pro Feld, zurück zum Pool ziehbar). */
   #syncAccumulatorGems(root: HTMLElement): void {
-    const combat = game.combat;
-    const locked = !!(combat && this.combatant && isStonePowersConfigurationLocked(this.actor, combat));
+    const locked = this.#isStoneDialogLocked();
     const allowReturnDrag = !locked;
 
     root.querySelectorAll('.ms-stone-slot-fill .ms-slot-gem-partial').forEach((n) => n.remove());
@@ -1308,7 +1345,9 @@ export class StonePowersDialog extends BaseDialog {
         gem.setAttribute('data-return-attribute-key', payAttr);
         gem.title = allowReturnDrag
           ? 'Zurück in den passenden Pool ziehen'
-          : 'Runde gesperrt — Rückgabe nicht möglich';
+          : this._stoneReviewMode
+            ? 'Diese Runde bestätigt — nur Ansicht'
+            : 'Runde gesperrt — Rückgabe nicht möglich';
         gem.draggable = allowReturnDrag;
         gem.classList.toggle('is-drag-disabled', !allowReturnDrag);
         gem.style.background = fillC;
@@ -1398,7 +1437,7 @@ export class StonePowersDialog extends BaseDialog {
 
     const combat = game.combat;
     const canExecute = !!combat && !!this.combatant;
-    const locked = !!(combat && this.combatant && isStonePowersConfigurationLocked(this.actor, combat));
+    const locked = this.#isStoneDialogLocked();
     const allowDrag = !locked;
     const poolKeys = getActorStonePoolKeysWithMax(this.actor);
     let lastDragOverLogKey = '';
@@ -1811,6 +1850,94 @@ export class StonePowersDialog extends BaseDialog {
     };
   }
 
+  #isValidLaneSnapshotValue(accKey: string, v: unknown): v is StoneAccumulatorValue {
+    if (!Array.isArray(v) || v.length === 0) return false;
+    if (isGenericUnifiedAccKey(accKey)) {
+      return isGenericLaneOccArray(v as StoneAccumulatorValue);
+    }
+    return (v as unknown[]).every((n) => typeof n === 'number' && Number.isFinite(n));
+  }
+
+  async #syncStonePowersRoundPlanWithCombat(): Promise<void> {
+    const ownerDoc = (getActionEconomyActor(this.actor) ?? this.actor) as any;
+    const combat = game.combat;
+    let plan = ownerDoc.getFlag('mastery-system', STONE_POWERS_ROUND_PLAN_FLAG) as
+      | StonePowersRoundPlanStored
+      | undefined
+      | null;
+
+    if (
+      plan &&
+      combat &&
+      (String(plan.combatId) !== String(combat.id) || Number(plan.round) !== encounterStoneRound(combat))
+    ) {
+      try {
+        await ownerDoc.unsetFlag('mastery-system', STONE_POWERS_ROUND_PLAN_FLAG);
+      } catch (e) {
+        console.warn('Mastery System | Could not clear stale stone round plan', e);
+      }
+      plan = undefined;
+      this._stoneRoundPlanHydratedKey = null;
+      if (!this._stoneReviewMode) this.#clearSessionStoneLanesForOwner();
+    }
+
+    if (!plan?.lanes?.length) return;
+
+    const hydrateKey = `${plan.combatId}\0${plan.round}`;
+    if (this._stoneRoundPlanHydratedKey === hydrateKey) return;
+
+    const aid = this.#stoneLaneOwnerActorId();
+    if (!aid) return;
+
+    const prefix = `${aid}\0`;
+    for (const k of [...StonePowersDialog._sessionStoneLanes.keys()]) {
+      if (k.startsWith(prefix)) StonePowersDialog._sessionStoneLanes.delete(k);
+    }
+
+    const dup = (foundry as any).utils?.duplicate as ((x: unknown) => unknown) | undefined;
+    for (const row of plan.lanes) {
+      if (!row?.accKey) continue;
+      const raw = dup ? dup(row.value) : JSON.parse(JSON.stringify(row.value));
+      if (!this.#isValidLaneSnapshotValue(row.accKey, raw)) continue;
+      StonePowersDialog._sessionStoneLanes.set(`${aid}\0${row.accKey}`, raw as StoneAccumulatorValue);
+    }
+
+    this._stoneDropAccumulators.clear();
+    this.#pullSessionPartialsIntoInstance();
+    this._stoneRoundPlanHydratedKey = hydrateKey;
+  }
+
+  async #persistStonePowersRoundPlan(): Promise<void> {
+    const combat = game.combat;
+    if (!combat || !this.combatant) return;
+    this.#pullSessionPartialsIntoInstance();
+    const ownerDoc = (getActionEconomyActor(this.actor) ?? this.actor) as any;
+    const aid = this.#stoneLaneOwnerActorId();
+    if (!aid) return;
+
+    const prefix = `${aid}\0`;
+    const lanes: { accKey: string; value: StoneAccumulatorValue }[] = [];
+    const dup = (foundry as any).utils?.duplicate as ((x: unknown) => unknown) | undefined;
+
+    for (const [composite, val] of StonePowersDialog._sessionStoneLanes) {
+      if (!composite.startsWith(prefix)) continue;
+      if (!val || !Array.isArray(val) || val.length === 0) continue;
+      const accKey = composite.slice(prefix.length);
+      const cloned = (dup ? dup(val) : JSON.parse(JSON.stringify(val))) as StoneAccumulatorValue;
+      lanes.push({ accKey, value: cloned });
+    }
+
+    try {
+      await ownerDoc.setFlag('mastery-system', STONE_POWERS_ROUND_PLAN_FLAG, {
+        combatId: combat.id,
+        round: encounterStoneRound(combat),
+        lanes,
+      } as any);
+    } catch (err) {
+      console.warn('Mastery System | Could not persist stone assignment snapshot', err);
+    }
+  }
+
   async #saveStonePowersPrefs(root: HTMLElement): Promise<void> {
     const doc = getActionEconomyActor(this.actor) ?? this.actor;
     const useEl = root.querySelector('.js-stone-prefs-use-defaults') as HTMLInputElement | null;
@@ -1834,7 +1961,11 @@ export class StonePowersDialog extends BaseDialog {
     const committed = _options?.committed === true;
     this.#pullSessionPartialsIntoInstance();
     if (committed) {
-      await this.#flushCompletedStonePaymentsFromAccumulators();
+      const review = this.#isStoneAssignmentReviewMode();
+      if (!review) {
+        await this.#persistStonePowersRoundPlan();
+        await this.#flushCompletedStonePaymentsFromAccumulators();
+      }
       if (this.combatant && game.combat) {
         try {
           const { handleInitiativeConfirmed } = await import('../combat/encounter-start.js');
