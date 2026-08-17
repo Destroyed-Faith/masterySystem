@@ -1,7 +1,6 @@
 import {
   getActionEconomyActor,
   getReactionActionsSummary,
-  isStonePowersConfigurationLocked,
 } from '../combat/action-economy.js';
 import { requestEndTurn } from '../combat/end-turn.js';
 import {
@@ -9,7 +8,6 @@ import {
   isEncounterPreparing,
   warnIfPlayerStonesPending,
 } from '../combat/stone-round-gate.js';
-import { StonePowersDialog } from '../stones/stone-powers-dialog.js';
 import { MASTERY_STATUS_EFFECTS } from '../system/status-effects.js';
 import { hideCarouselHpNumbers } from './combat-carousel-hp.js';
 import {
@@ -356,12 +354,6 @@ export class CombatCarouselApp extends BaseCarousel {
         combatStrip,
         hasToken: !!token,
         tokenId: tokenId,
-        showStonePowersButton:
-          actor.type === 'character' && !!(game.user?.isGM || actor.isOwner),
-        showInitiativeShopButton:
-          actor.type === 'character' && !!(game.user?.isGM || actor.isOwner),
-        stonePlanLocked:
-          actor.type === 'character' && isStonePowersConfigurationLocked(actor, combat),
         setupStatus: buildEncounterSetupStatus(combatant, combat),
       });
     }
@@ -599,70 +591,6 @@ export class CombatCarouselApp extends BaseCarousel {
       };
     });
     
-    // Stone Powers (PC owners + GM)
-    root.querySelectorAll('.js-carousel-stone-powers').forEach((btn: HTMLElement) => {
-      btn.onclick = async (ev: MouseEvent) => {
-        ev.preventDefault();
-        ev.stopPropagation();
-        if ((btn as HTMLButtonElement).disabled) return;
-
-        const combatantId = btn.dataset.combatantId;
-        if (!combatantId) return;
-
-        const combat = game.combats?.active;
-        if (!combat) return;
-
-        const combatant = combat.combatants.get(combatantId);
-        if (!combatant) return;
-
-        // Resolve the TOKEN's actor explicitly. `combatant.actor` can fall back
-        // to the world/prototype actor (default attributes, empty stone pools)
-        // when the token reference is shaky — which made the dialog open empty.
-        // The token document's actor is the same (synthetic, delta-carrying)
-        // actor the character sheet uses, so the carousel now matches the sheet.
-        const tokenDoc =
-          (combatant as any).token ??
-          (combatant.sceneId
-            ? (game as any).scenes?.get(combatant.sceneId)?.tokens?.get((combatant as any).tokenId)
-            : null);
-        const actor = (tokenDoc?.actor ?? combatant.actor) as Actor | undefined;
-        if (!actor || (actor as any).type !== 'character') return;
-
-        // Diagnostic: if the resolved actor has no stone-pool capacity the
-        // dialog will look "dead". Logging the source + pool maxes makes the
-        // unlinked-token vs world-actor mismatch obvious in the console.
-        try {
-          const pools = (actor as any).system?.stonePools ?? {};
-        } catch {
-          /* diagnostic only */
-        }
-
-        try {
-          await StonePowersDialog.showForActor(actor as Actor, combatant);
-        } catch (e) {
-          console.error('Mastery System | Carousel Stone Powers failed', e);
-        }
-      };
-    });
-
-    root.querySelectorAll('.js-carousel-initiative-shop').forEach((btn: HTMLElement) => {
-      btn.onclick = async (ev: MouseEvent) => {
-        ev.preventDefault();
-        ev.stopPropagation();
-        const combatantId = btn.dataset.combatantId;
-        if (!combatantId) return;
-        const combat = game.combats?.active;
-        const combatant = combat?.combatants.get(combatantId);
-        if (!combat || !combatant) return;
-        try {
-          const { openInitiativeShopForTrackerRescue } = await import('../combat/initiative-roll.js');
-          await openInitiativeShopForTrackerRescue(combatant, combat);
-        } catch (e) {
-          console.error('Mastery System | Carousel Initiative Shop failed', e);
-        }
-      };
-    });
-
     root.querySelectorAll('.js-force-setup').forEach((btn: HTMLElement) => {
       btn.onclick = async (ev: MouseEvent) => {
         ev.preventDefault();

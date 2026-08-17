@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.363] - 2026-08-17
+
+### Changed
+
+- **Combat carousel:** Removed the Steine and Shop buttons from player cards. Setup still runs through Prepare Combat and the GM force-open controls.
+
 ## [0.9.362] - 2026-08-17
 
 ### Added
