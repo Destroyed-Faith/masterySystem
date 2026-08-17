@@ -12,7 +12,7 @@
 
 ## Project status
 
-Pre-1.0 public development.
+**Public Beta** (Foundry system `0.9.x`). Playable and iterating toward 1.0 — this is no longer Alpha.
 
 - **Foundry VTT system version** is defined in [`system.json`](system.json) (mirrored in [`package.json`](package.json)).
 - The **Destroyed Faith rulebook** has a separate public version number (independent of the Foundry system).
@@ -47,7 +47,7 @@ Pre-1.0 public development.
    ```
 3. Install, then create a world with this system
 
-Manifest installs receive Foundry update notifications when `system.json` on `main` advances and the `download` URL points at a matching release asset. By project policy, `download` currently uses the `main` branch archive so installs keep working; tagged immutable ZIP installs are optional and described in [`RELEASING.md`](RELEASING.md).
+Manifest installs receive Foundry update notifications when `system.json` on `main` advances and `download` points at the matching GitHub Release ZIP (`mastery-system-X.Y.Z.zip`). See [`RELEASING.md`](RELEASING.md).
 
 ### Self-hosted — development checkout
 
