@@ -360,7 +360,11 @@ export function getRoundState(actor: Actor, combat: Combat | null): RoundState {
   const owner = (getActionEconomyActor(actor) ?? actor) as any;
   const stored = owner.getFlag('mastery-system', 'roundState') as RoundState | undefined;
   const combatId = String((combat as any)?.id ?? '');
-  const round = combat?.round ?? 1;
+  // Prepare phase runs on round 0. Stone purchases made there belong to round 1,
+  // so both writes and reads must normalise to 1 — otherwise every read during
+  // prepare returns a fresh default and the purchases are silently dropped when
+  // Foundry advances the encounter to round 1.
+  const round = Math.max(1, Math.floor(Number(combat?.round ?? 1) || 1));
   const storedCombatId = String(stored?.combatId ?? '');
 
   // Must match encounter AND round — a new combat can start again at round 1 with a clean tracker.
@@ -388,7 +392,7 @@ export function getRoundState(actor: Actor, combat: Combat | null): RoundState {
 
   return {
     combatId: combatId || undefined,
-    round: combat?.round || 1,
+    round,
     turn: combat?.turn || 0,
     isPC,
     ...baseActions,
@@ -1426,19 +1430,21 @@ export async function restoreStonesAfterCombat(combat: Combat): Promise<void> {
 
     const owner = getActionEconomyActor(actor) ?? actor;
     const system = (owner.system as any);
-    const attributeKeys: AttributeKey[] = ['might', 'agility', 'vitality', 'intellect', 'resolve', 'influence'];
     const updates: any = {};
-    
-    for (const attr of attributeKeys) {
+
+    // Same target as the round-1 refill: capacity from the attribute, current
+    // filled up to capacity minus sustained. Artifact-bound stones are not
+    // subtracted here — bindings are deducted when stones are spent
+    // (`poolSpendableStones`), so they stay reserved without shrinking the pool.
+    for (const attr of STONE_POOL_ATTRIBUTE_KEYS) {
       const pool = getStonePool(owner, attr);
       const sustained = (system.stonePools?.[attr]?.sustained || 0);
       const attrValue = Number(system.attributes?.[attr]?.value ?? 0);
-      const maxFromAttr = Math.floor(attrValue / 8);
-      const effectiveMax = Math.max(pool.max, maxFromAttr);
-      const fullCurrent = Math.max(0, effectiveMax - sustained);
-      
-      if (pool.current !== fullCurrent || pool.max !== effectiveMax) {
-        updates[`system.stonePools.${attr}.max`] = effectiveMax;
+      const maxStones = Math.floor(attrValue / 8);
+      const fullCurrent = Math.max(0, maxStones - sustained);
+
+      if (pool.current !== fullCurrent || pool.max !== maxStones) {
+        updates[`system.stonePools.${attr}.max`] = maxStones;
         updates[`system.stonePools.${attr}.current`] = fullCurrent;
       }
     }
@@ -1466,18 +1472,27 @@ export async function restoreStonesAfterCombat(combat: Combat): Promise<void> {
  * Initialize round state for all combatants at combat start
  */
 export async function initializeCombatRoundState(combat: Combat): Promise<void> {
+  const combatId = String((combat as any)?.id ?? '');
   for (const combatant of combat.combatants) {
     const actor = combatant.actor;
     if (!actor) continue;
-    
-    // Reset round state
+
+    const flagOwner = (getActionEconomyActor(actor) ?? actor) as any;
+
+    // Stone Powers for round 1 are bought during the prepare phase, before
+    // Foundry reports `started`. That state must survive combat start.
+    const stored = flagOwner.getFlag?.('mastery-system', 'roundState') as RoundState | undefined;
+    const preparedForThisCombat =
+      !!stored &&
+      String(stored.combatId ?? '') === combatId &&
+      Math.max(1, Math.floor(Number(stored.round) || 1)) <= 1;
+    if (preparedForThisCombat) continue;
+
     const roundState = getRoundState(actor, combat);
     await setRoundState(actor, roundState);
-    
+
     // Reset stone usage (same owner as roundState for unlinked PCs)
-    const flagOwner = getActionEconomyActor(actor) ?? actor;
-    await (flagOwner as any).setFlag('mastery-system', 'stoneUsage', {});
-    
+    await flagOwner.setFlag('mastery-system', 'stoneUsage', {});
   }
 }
 

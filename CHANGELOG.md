@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.374] - 2026-08-18
+
+### Fixed
+
+- **Bought Stone Powers survive Start Combat:** Extra Attack, Spell Action and Extra Reaction were assigned during the prepare phase (round 0) and then wiped when Foundry advanced to round 1, so they never reached the radial menu. Round state and stone usage from the prepare phase now belong to round 1.
+- **Temp HP after combat:** The Temp HP mirror is zeroed for every combatant at combat end, including pools granted by the Vitality stone power or set by hand.
+- **Colorless Stones after combat:** Leftover Temporary Colorless Stones are cleared on the action-economy owner too, so unlinked token PCs no longer keep them.
+
+### Changed
+
+- **End Combat effects:** NPCs lose their ongoing Special Effects and Mastery buffs. Player characters keep theirs — resolving your own stacks after the fight is part of the game.
+- **Stone pools after combat:** All pools (including Wits) refill to attribute capacity minus sustained; artifact-bound stones stay reserved.
+
+### Removed
+
+- **Reactions in the radial menu:** Reaction maneuvers and reaction powers are gone from the radial — they are offered in the Reaction Window when you are attacked.
+- **Artifact Stone Power Supports in the radial:** Support rows such as Soul Shell I only pre-fill Stone Power lanes and no longer appear as clickable entries.
+
 ## [0.9.373] - 2026-08-18
 
 ### Changed

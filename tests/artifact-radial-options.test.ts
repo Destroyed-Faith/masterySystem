@@ -86,8 +86,8 @@ describe('buildArtifactRadialOptions weapon buttons', () => {
     const opts = buildArtifactRadialOptions(actor([sigil]));
     expect(opts.some((o) => o.slot === 'attack')).toBe(false);
     expect(opts.some((o) => o.id.startsWith('artifact-weapon:'))).toBe(false);
-    expect(opts.map((o) => o.name)).toEqual(['Soul Shell I']);
-    expect(opts[0].slot).toBe('utility');
+    // Stone Power Supports only pre-fill Stone Power lanes — nothing to click.
+    expect(opts).toEqual([]);
   });
 
   it('still adds an extra natural-weapon attack on gear (Dragon Head Bite)', () => {

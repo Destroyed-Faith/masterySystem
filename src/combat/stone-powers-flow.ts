@@ -246,11 +246,15 @@ export async function runMasteryCombatRoundAdvancePipeline(
   combat = live;
   await clearStonePowersConfigurationLocksInCombat(combat);
 
+  // Round 1 is reached by leaving the prepare phase (round 0 → 1). Resetting
+  // here would discard the Stone Powers the players just bought (Extra Attack,
+  // Spell Action, …), so only rounds 2+ get a fresh round state.
+  if (newRound <= 1) return;
+
   for (const combatant of combat.combatants) {
     const actor = combatant.actor;
     if (actor) await resetRoundState(actor, combatant, combat);
   }
-  if (newRound <= 1) return;
   await regenStonesEndOfRound(combat);
   if (combat.started) {
     await openStonePowersForAllCombatants(combat, newRound);

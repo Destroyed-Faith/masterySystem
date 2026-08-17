@@ -29,7 +29,14 @@ import { artifactCarriesWeaponProfile } from '../utils/unarmed-fallback.js';
 
 const REACTION_TYPES = new Set(['Reaction']);
 
-type ArtifactRowCategory = 'attack' | 'activeBuff' | 'movement' | 'reaction' | 'utility' | 'passive';
+type ArtifactRowCategory =
+    | 'attack'
+    | 'activeBuff'
+    | 'movement'
+    | 'reaction'
+    | 'utility'
+    | 'support'
+    | 'passive';
 
 /**
  * Classify a Level Progression row `type` into a radial category. The Type
@@ -46,7 +53,9 @@ function classifyArtifactRowType(rowType: string): ArtifactRowCategory {
     if (t.includes('active buff') || t.includes('active-buff') || (t.includes('buff') && !t.includes('debuff'))) {
         return 'activeBuff';
     }
-    if (t.includes('stone') || t.includes('support')) return 'utility';
+    // "Support" / "Stone Power Support" rows (e.g. Soul Shell 1) only pre-fill
+    // Stone Power lanes. There is nothing to click, so they stay out of the radial.
+    if (t.includes('stone') || t.includes('support')) return 'support';
     // Offensive / attack-delivering rows (catalog martial + zone/aoe labels).
     if (
         t.includes('aoe') ||
@@ -216,8 +225,9 @@ export function buildArtifactRadialOptions(actor: any): RadialCombatOption[] {
             const rowType = String(row.type || '').trim();
             const category = classifyArtifactRowType(rowType);
             // Passives are descriptive only; Reactions are surfaced via the
-            // defender-reactions pipeline. Neither belongs in the active radial.
-            if (category === 'passive' || category === 'reaction') continue;
+            // defender-reactions pipeline; Stone Power Supports have no action
+            // at all. None of them belong in the active radial.
+            if (category === 'passive' || category === 'reaction' || category === 'support') continue;
 
             const id = `artifact:${item.id}:${lvl}:${rowType}`;
             const name = row.name || `${item.name} L${lvl}`;

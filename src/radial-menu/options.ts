@@ -754,8 +754,10 @@ export async function getAllCombatOptionsForActor(actor: any): Promise<RadialCom
     
     // Only include combat-usable powers (`activeBuff` is the template category
     // from the catalog — must be accepted alongside kebab-case `active-buff`).
+    // Reactions are never listed here: they are offered contextually in the
+    // Reaction Window when someone attacks, not as a self-triggered action.
     if (
-      !['movement', 'active', 'active-buff', 'activeBuff', 'buff', 'utility', 'reaction'].includes(powerType)
+      !['movement', 'active', 'active-buff', 'activeBuff', 'buff', 'utility'].includes(powerType)
     ) {
       continue;
     }
@@ -991,23 +993,14 @@ export async function getAllCombatOptionsForActor(actor: any): Promise<RadialCom
       continue;
     }
     
-    // Filter out specific reaction maneuvers that should not appear in radial menu
-    // Basic Reactions (Guard/Evade/Counterattack/Dive) live in the Reaction Window, not the radial.
-    // Dodge Stance is retired from the radial (use Evade reaction / other defenses).
+    // Reactions never belong in the radial menu — they are offered in the
+    // Reaction Window while someone attacks you. Dodge Stance is retired too
+    // (use the Evade reaction / other defenses).
     if (
+      maneuver.slot === 'reaction' ||
       maneuver.id === 'readied-action' ||
-      maneuver.id === 'counter-attack' ||
-      maneuver.id === 'counterattack' ||
-      maneuver.id === 'opportunity-attack' ||
-      maneuver.id === 'defensive-roll' ||
-      maneuver.id === 'cover-fire' ||
-      maneuver.id === 'guard' ||
-      maneuver.id === 'evade' ||
-      maneuver.id === 'dive-for-cover' ||
-      maneuver.id === 'parry' ||
-      maneuver.id === 'dodge' ||
       maneuver.id === 'dodge-stance' ||
-      maneuver.id === 'block' ||
+      maneuver.tags?.includes('reaction') ||
       maneuver.tags?.includes('basic-reaction')
     ) {
       continue;

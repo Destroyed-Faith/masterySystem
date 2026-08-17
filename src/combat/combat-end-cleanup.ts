@@ -1,0 +1,103 @@
+/**
+ * Post-combat cleanup that runs on `combatEnd` / `deleteCombat`.
+ *
+ * Encounter-scoped resources always go away:
+ *   - Temporary HP (sourced pools are cleared by `passive-triggers`; the scalar
+ *     mirror is zeroed here so stone-granted / manual Temp HP cannot survive).
+ *   - Temporary Colorless Stones (also on the action-economy owner document).
+ *
+ * Ongoing Special Effects are treated asymmetrically on purpose: NPC-side
+ * creatures are wiped, player characters keep theirs. Players must resolve
+ * their own stacks after the fight — that is part of the rules, not a bug.
+ */
+
+import { getActionEconomyActor } from './action-economy.js';
+import { getCombatActors } from './passive-triggers.js';
+import { deleteAllMasteryActiveBuffEffects } from '../utils/active-buffs.js';
+import { clearTempColorlessStones } from '../stones/colorless-stones.js';
+
+/** Actors whose ongoing effects are cleaned up automatically after the fight. */
+function isNpcSide(actor: any): boolean {
+  return String(actor?.type ?? '') !== 'character';
+}
+
+/** Actor + action-economy owner (differs for unlinked token PCs), deduplicated. */
+function actorWithEconomyOwner(actor: any): any[] {
+  const owner = getActionEconomyActor(actor) ?? actor;
+  if (!owner || owner === actor || String(owner.id ?? '') === String(actor.id ?? '')) {
+    return [actor];
+  }
+  return [actor, owner];
+}
+
+function collectCleanupActors(combat: any): any[] {
+  const out: any[] = [];
+  const seen = new Set<string>();
+  for (const actor of getCombatActors(combat)) {
+    for (const doc of actorWithEconomyOwner(actor)) {
+      const id = String(doc?.id ?? doc?._id ?? '');
+      if (id && seen.has(id)) continue;
+      if (id) seen.add(id);
+      out.push(doc);
+    }
+  }
+  return out;
+}
+
+/** Zero the Temp HP mirror on every combatant — Temp HP never outlives a fight. */
+export async function resetTempHpAfterCombat(combat: any): Promise<void> {
+  for (const actor of collectCleanupActors(combat)) {
+    const current = Math.max(0, Math.floor(Number(actor?.system?.health?.tempHP ?? 0) || 0));
+    if (current <= 0) continue;
+    try {
+      await actor.update?.({ 'system.health.tempHP': 0 });
+    } catch (err) {
+      console.warn('Mastery System | Temp HP reset after combat failed', err);
+    }
+  }
+}
+
+/** Leftover Temporary Colorless Stones vanish when the encounter ends. */
+export async function clearColorlessStonesAfterCombat(combat: any): Promise<void> {
+  for (const actor of collectCleanupActors(combat)) {
+    try {
+      await clearTempColorlessStones(actor);
+    } catch (err) {
+      console.warn('Mastery System | Colorless stone cleanup after combat failed', err);
+    }
+  }
+}
+
+/**
+ * Drop ongoing Special Effects and Mastery active buffs from NPC-side
+ * creatures. Player characters keep both so they have to resolve them
+ * themselves after the encounter.
+ */
+export async function clearNpcOngoingEffectsAfterCombat(combat: any): Promise<void> {
+  for (const actor of getCombatActors(combat)) {
+    if (!isNpcSide(actor)) continue;
+    try {
+      await deleteAllMasteryActiveBuffEffects(actor);
+    } catch (err) {
+      console.warn('Mastery System | NPC active buff cleanup after combat failed', err);
+    }
+    const list = actor?.system?.statusEffects;
+    const hasSpecials = Array.isArray(list)
+      ? list.length > 0
+      : !!list && typeof list === 'object' && Object.keys(list).length > 0;
+    if (!hasSpecials) continue;
+    try {
+      await actor.update?.({ 'system.statusEffects': [] });
+    } catch (err) {
+      console.warn('Mastery System | NPC special effect cleanup after combat failed', err);
+    }
+  }
+}
+
+/** Single entry point for the `combatEnd` / `deleteCombat` hooks (GM only). */
+export async function runCombatEndCleanup(combat: any): Promise<void> {
+  if (!combat) return;
+  await resetTempHpAfterCombat(combat);
+  await clearColorlessStonesAfterCombat(combat);
+  await clearNpcOngoingEffectsAfterCombat(combat);
+}

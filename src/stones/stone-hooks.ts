@@ -14,7 +14,6 @@ import {
   clearStonePowersConfigurationLocksInCombat,
   clearCombatStoneTurnBonusesForActor,
 } from '../combat/action-economy.js';
-import { clearMasteryActiveBuffsForCombatants } from '../utils/active-buffs.js';
 import {
   runMasteryCombatRoundAdvancePipeline,
   runPlayerOwnedRoundAdvance,
@@ -78,39 +77,30 @@ export function initializeStoneHooks(): void {
   
   // Hook: Combat ended - restore stone pools to full
   Hooks.on('deleteCombat', async (combat: Combat, _options: any, _userId: string) => {
-    if (!game.user?.isGM) return;
-    await clearStonePowersConfigurationLocksInCombat(combat);
-    try {
-      await clearMasteryActiveBuffsForCombatants(combat);
-    } catch (e) {
-      console.warn('Mastery System | Active buff cleanup on deleteCombat failed', e);
-    }
-    try {
-      const { clearColorlessStonesForCombat } = await import('./colorless-stones.js');
-      await clearColorlessStonesForCombat(combat);
-    } catch (e) {
-      console.warn('Mastery System | Colorless stone cleanup on deleteCombat failed', e);
-    }
-    await restoreStonesAfterCombat(combat);
+    await finishCombat(combat, 'deleteCombat');
   });
   
   // Also trigger on explicit combatEnd
   Hooks.on('combatEnd', async (combat: Combat) => {
-    if (!game.user?.isGM) return;
-    await clearStonePowersConfigurationLocksInCombat(combat);
-    try {
-      await clearMasteryActiveBuffsForCombatants(combat);
-    } catch (e) {
-      console.warn('Mastery System | Active buff cleanup on combatEnd failed', e);
-    }
-    try {
-      const { clearColorlessStonesForCombat } = await import('./colorless-stones.js');
-      await clearColorlessStonesForCombat(combat);
-    } catch (e) {
-      console.warn('Mastery System | Colorless stone cleanup on combatEnd failed', e);
-    }
-    await restoreStonesAfterCombat(combat);
+    await finishCombat(combat, 'combatEnd');
   });
+}
+
+/**
+ * Post-encounter cleanup: locks, Temp HP, Colorless Stones, NPC-side ongoing
+ * effects, then refill the stone pools. Runs for whichever of `combatEnd` /
+ * `deleteCombat` Foundry emits first; every step is idempotent.
+ */
+async function finishCombat(combat: Combat, hook: string): Promise<void> {
+  if (!game.user?.isGM) return;
+  await clearStonePowersConfigurationLocksInCombat(combat);
+  try {
+    const { runCombatEndCleanup } = await import('../combat/combat-end-cleanup.js');
+    await runCombatEndCleanup(combat);
+  } catch (e) {
+    console.warn(`Mastery System | Combat end cleanup on ${hook} failed`, e);
+  }
+  await restoreStonesAfterCombat(combat);
 }
 
 // Legacy functions removed - now handled by action-economy.ts

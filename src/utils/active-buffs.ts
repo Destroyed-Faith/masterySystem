@@ -434,13 +434,3 @@ export async function deleteAllMasteryActiveBuffEffects(actor: Actor): Promise<v
     console.warn('Mastery System | deleteAllMasteryActiveBuffEffects failed', err);
   }
 }
-
-/** Strip buff effects from every combatant when an encounter ends. */
-export async function clearMasteryActiveBuffsForCombatants(combat: Combat): Promise<void> {
-  for (const c of combat.combatants) {
-    const a = c.actor as Actor | undefined;
-    if (!a) continue;
-    await deleteAllMasteryActiveBuffEffects(a);
-  }
-}
-
