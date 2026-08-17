@@ -115,6 +115,13 @@ import { isEchoBoundArtifact, isEchoArtifactInventoryHidden } from '../utils/ech
 // Replaced with General Items Storage and Store dialogs
 
 import { bindManualSheetTabs, bindEditImage } from './sheet-v2-compat.js';
+import {
+  buildCharacterStatusRows,
+  reduceCharacterStatusRow,
+  removeCharacterStatusRow,
+} from './character-status-panel.js';
+import { canCurrentUserUpdateDocument } from '../combat/combat-permissions.js';
+import { coerceStatusEffectsArray } from '../system/active-specials.js';
 
 // ApplicationV2 actor sheet base (Foundry v13+): DocumentSheetV2 form handling
 // + Handlebars part rendering.
@@ -1180,6 +1187,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     
     // Intentionally no icon strip on Attributes (was confusing vs. Powers-tab buff list).
     context.statusEffects = [];
+    const statusRows = buildCharacterStatusRows(this.actor);
+    context.characterStatusRows = statusRows;
+    context.hasCharacterStatusRows = statusRows.length > 0;
+    context.canEditCharacterStatus = canCurrentUserUpdateDocument(this.actor);
     
     // Passive slotting happens exclusively in combat (Combat-Start dialog).
     // The character-sheet "Passive Slots" manager was removed: it implied a
@@ -2213,7 +2224,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     html.find('.finalize-creation').on('click', this.#onFinalizeCreation.bind(this));
     html.find('.reset-creation-attributes').on('click', this.#onResetCreationAttributes.bind(this));
     
-    // Stone Powers button handler
+    html.find('.js-character-status-remove').on('click', this.#onRemoveCharacterStatus.bind(this));
+    html.find('.js-character-status-reduce').on('click', this.#onReduceCharacterStatus.bind(this));
+
     html.find('[data-action="forceEncounterSetup"]').on('click', async (ev: JQuery.ClickEvent) => {
       ev.preventDefault();
       if (!game.user?.isGM) return;
@@ -4706,6 +4719,35 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     this.render();
   }
 
+  async #onRemoveCharacterStatus(event: JQuery.ClickEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    if (!canCurrentUserUpdateDocument(this.actor)) return;
+    const btn = event.currentTarget as HTMLElement;
+    const kind = String(btn.dataset.statusKind ?? '');
+    const index = Number(btn.dataset.effectIndex ?? -1);
+    const rows = buildCharacterStatusRows(this.actor);
+    const row =
+      kind === 'tempHP'
+        ? rows.find((r) => r.kind === 'tempHP')
+        : rows.find((r) => r.kind === 'special' && r.index === index);
+    if (!row) return;
+    await removeCharacterStatusRow(this.actor, row);
+  }
+
+  async #onReduceCharacterStatus(event: JQuery.ClickEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    if (!canCurrentUserUpdateDocument(this.actor)) return;
+    const btn = event.currentTarget as HTMLElement;
+    const index = Number(btn.dataset.effectIndex ?? -1);
+    const steps = Math.max(1, Number(btn.dataset.steps ?? 1) || 1);
+    const rows = buildCharacterStatusRows(this.actor);
+    const row = rows.find((r) => r.kind === 'special' && r.index === index);
+    if (!row) return;
+    await reduceCharacterStatusRow(this.actor, row, steps);
+  }
+
   /**
    * GM: directly edit the character's available XP from the header bar.
    * Sets `system.points.xp` and keeps the accounting invariant
@@ -6968,6 +7010,20 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       console.error('Mastery System | Failed to finalize character creation', error);
       ui.notifications?.error('Failed to finalize character creation.');
     }
+  }
+
+  /** Status UI is button-driven — never let an empty form submit wipe it. */
+  _prepareSubmitData(event: any, form: any, formData: any, updateData?: any): any {
+    const data = super._prepareSubmitData(event, form, formData, updateData);
+    if (!data?.system || !Object.prototype.hasOwnProperty.call(data.system, 'statusEffects')) {
+      return data;
+    }
+    const submitted = coerceStatusEffectsArray(data.system.statusEffects);
+    data.system.statusEffects =
+      submitted.length > 0
+        ? submitted
+        : coerceStatusEffectsArray((this.actor as any).system?.statusEffects);
+    return data;
   }
 
   /** @override */

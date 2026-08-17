@@ -4740,6 +4740,7 @@
 
 /* Status + Rettungswürfe: gleiches Panel-Theme wie Kampfwerte (kein helles Grau) */
 .mastery-system.sheet.actor.npc .status-effects-panel,
+.mastery-system.sheet.actor.character .status-effects-panel,
 .mastery-system.sheet.actor.npc .saves-panel {
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid var(--df-border-primary, #3a3f44);
@@ -4748,7 +4749,12 @@
   box-shadow: 0 1px 0 rgba(255, 255, 255, 0.04) inset;
 }
 
+.mastery-system.sheet.actor.character .character-status-panel {
+  margin: 8px 12px 0;
+}
+
 .mastery-system.sheet.actor.npc .status-effects-panel h3,
+.mastery-system.sheet.actor.character .status-effects-panel h3,
 .mastery-system.sheet.actor.npc .saves-panel h3 {
   margin: 0 0 10px 0;
   font-size: 0.82rem;
@@ -4760,13 +4766,15 @@
   padding-bottom: 8px;
 }
 
-.mastery-system.sheet.actor.npc .status-effects-list {
+.mastery-system.sheet.actor.npc .status-effects-list,
+.mastery-system.sheet.actor.character .status-effects-list {
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
 
-.mastery-system.sheet.actor.npc .status-effect-item {
+.mastery-system.sheet.actor.npc .status-effect-item,
+.mastery-system.sheet.actor.character .status-effect-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -4777,7 +4785,8 @@
   border-left: 3px solid rgba(201, 162, 39, 0.75);
 }
 
-.mastery-system.sheet.actor.npc .status-effect-item .effect-name {
+.mastery-system.sheet.actor.npc .status-effect-item .effect-name,
+.mastery-system.sheet.actor.character .status-effect-item .effect-name {
   display: flex;
   align-items: center;
   gap: 6px;
@@ -4786,16 +4795,19 @@
   color: #f0ebe3;
 }
 
-.mastery-system.sheet.actor.npc .status-effect-item .effect-name i {
+.mastery-system.sheet.actor.npc .status-effect-item .effect-name i,
+.mastery-system.sheet.actor.character .status-effect-item .effect-name i {
   color: #c9a227;
 }
 
-.mastery-system.sheet.actor.npc .status-effect-item .effect-value {
+.mastery-system.sheet.actor.npc .status-effect-item .effect-value,
+.mastery-system.sheet.actor.character .status-effect-item .effect-value {
   color: #ffe9a8;
   font-weight: 700;
 }
 
-.mastery-system.sheet.actor.npc .status-effect-item .effect-actions {
+.mastery-system.sheet.actor.npc .status-effect-item .effect-actions,
+.mastery-system.sheet.actor.character .status-effect-item .effect-actions {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -4804,7 +4816,9 @@
 }
 
 .mastery-system.sheet.actor.npc .status-effect-item .effect-reduce,
-.mastery-system.sheet.actor.npc .status-effect-item .effect-remove {
+.mastery-system.sheet.actor.npc .status-effect-item .effect-remove,
+.mastery-system.sheet.actor.character .status-effect-item .effect-reduce,
+.mastery-system.sheet.actor.character .status-effect-item .effect-remove {
   background: rgba(0, 0, 0, 0.35);
   border: 1px solid rgba(255, 255, 255, 0.15);
   color: rgba(255, 255, 255, 0.85);
@@ -4817,18 +4831,21 @@
   transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
 }
 
-.mastery-system.sheet.actor.npc .status-effect-item .effect-reduce:hover {
+.mastery-system.sheet.actor.npc .status-effect-item .effect-reduce:hover,
+.mastery-system.sheet.actor.character .status-effect-item .effect-reduce:hover {
   background: rgba(201, 162, 39, 0.35);
   border-color: rgba(201, 162, 39, 0.55);
   color: #fff;
 }
 
-.mastery-system.sheet.actor.npc .status-effect-item .effect-remove:hover {
+.mastery-system.sheet.actor.npc .status-effect-item .effect-remove:hover,
+.mastery-system.sheet.actor.character .status-effect-item .effect-remove:hover {
   background: rgba(139, 0, 0, 0.45);
   color: #fff;
 }
 
-.mastery-system.sheet.actor.npc .no-status-effects {
+.mastery-system.sheet.actor.npc .no-status-effects,
+.mastery-system.sheet.actor.character .no-status-effects {
   padding: 10px;
   text-align: center;
   color: rgba(255, 255, 255, 0.45);

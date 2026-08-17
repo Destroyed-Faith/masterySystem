@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.362] - 2026-08-17
+
+### Added
+
+- **Character sheet:** A Status panel lists active specials and leftover Temp HP. Owners and the GM can reduce stacks or clear an effect, matching the NPC sheet.
+
 ## [0.9.361] - 2026-08-17
 
 ### Changed
