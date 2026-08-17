@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.366] - 2026-08-17
+
+### Added
+
+- **Minor Magic Items:** Equipped Artifact Actives can be stored, but only up to Artifact Level 6 (Basic / Improved). If the Artifact is higher, the Improved stage is snapshotted. Greater, Ultimate, buffs, reactions, and granted Powers stay out.
+
+### Fixed
+
+- **Release CI:** Publish the ZIP with the GitHub CLI and retries instead of the Node upload action that died on “Too many retries” after tests passed.
+
 ## [0.9.365] - 2026-08-17
 
 ### Fixed

@@ -73,13 +73,25 @@ jobs:
             --zip "$ZIP"
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v3.0.2
-        with:
-          files: dist-release/mastery-system-${{ steps.tag_version.outputs.VERSION }}.zip
-          body_path: release_notes.md
-          draft: false
-          prerelease: false
-          make_latest: true
-          generate_release_notes: false
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="${{ steps.tag_version.outputs.TAG }}"
+          VERSION="${{ steps.tag_version.outputs.VERSION }}"
+          ZIP="dist-release/mastery-system-${VERSION}.zip"
+          for attempt in 1 2 3 4 5 6; do
+            if gh release view "$TAG" >/dev/null 2>&1; then
+              if gh release upload "$TAG" "$ZIP" --clobber; then
+                exit 0
+              fi
+            elif gh release create "$TAG" "$ZIP" \
+              --title "$TAG" \
+              --notes-file release_notes.md \
+              --latest; then
+              exit 0
+            fi
+            echo "Release publish attempt ${attempt} failed; retrying..."
+            sleep $((attempt * 8))
+          done
+          echo "Could not publish GitHub release after retries."
+          exit 1

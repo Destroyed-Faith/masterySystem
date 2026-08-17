@@ -12,6 +12,7 @@ import {
   defaultMinorMagicName,
   listEligibleMinorMagicPowers,
   minorMagicSheetView,
+  resolveMinorMagicPower,
   snapshotPowerForMinorMagic,
   snapshotSummaryLines,
   type MinorMagicForm,
@@ -41,8 +42,7 @@ export class MinorMagicPanel {
   }
 
   #selectedPower(): any | null {
-    if (!this.selectedPowerId) return null;
-    return (this.actor as any).items?.get?.(this.selectedPowerId) ?? null;
+    return resolveMinorMagicPower(this.actor, this.selectedPowerId);
   }
 
   #syncDefaultName(): void {
@@ -90,7 +90,7 @@ export class MinorMagicPanel {
         },
         {
           label: 'What it stores',
-          text: 'One use of a single Active Power you purchased and advanced. Artifact Powers, granted Powers, Active Buffs, and temporary Powers cannot be stored. No Stones, currency, or special materials.',
+          text: 'One use of a single Active Power you purchased and advanced, or an Artifact Active at Artifact Level 6 or lower (Basic or Improved). If the Artifact is higher, the Improved stage is stored. Greater and Ultimate Artifact Powers, granted Powers, Active Buffs, and temporary Powers cannot be stored. No Stones, currency, or special materials.',
         },
         {
           label: 'Snapshot',

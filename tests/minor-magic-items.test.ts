@@ -7,8 +7,10 @@ import {
   defaultMinorMagicName,
   emptyMinorMagicLedger,
   isEligibleMinorMagicPower,
+  listEligibleMinorMagicPowers,
   minorMagicLimit,
   normalizeMinorMagicLedger,
+  resolveMinorMagicPower,
   snapshotPowerForMinorMagic,
   snapshotSummaryLines,
   validateCreateMinorMagic,
@@ -56,17 +58,79 @@ function actorStub(rank = 2) {
   };
 }
 
+function actorWithItems(items: any[], rank = 2) {
+  const map = new Map(items.map((it) => [it.id, it]));
+  return {
+    ...actorStub(rank),
+    items: {
+      [Symbol.iterator]: () => items[Symbol.iterator](),
+      get: (id: string) => map.get(id),
+    },
+  };
+}
+
+function artifactItem(overrides: Record<string, unknown> = {}) {
+  return {
+    id: 'art-1',
+    type: 'artifact',
+    name: 'Dragon Head',
+    system: {
+      currentLevel: 8,
+      equipped: true,
+      binding: 'bound',
+      levelProgression: [
+        { level: 1, name: 'Breath I', type: 'Active', effect: 'Fire', range: '8m' },
+        { level: 4, name: 'Breath II', type: 'Active', effect: 'More fire', range: '12m', powerTemplateId: 'active-melee-damage-t3', chosenSpecialKey: 'bleed' },
+        { level: 7, name: 'Breath III', type: 'Active', effect: 'Great fire', range: '16m' },
+        { level: 2, name: 'Roar', type: 'Active Buff', effect: 'Fear' },
+        { level: 3, name: 'Recovery', type: 'Passive', effect: 'Heal' },
+      ],
+    },
+    getFlag: (_scope: string, key: string) => (key === 'artifactActivated' ? true : undefined),
+    ...overrides,
+  };
+}
+
 describe('eligibility', () => {
   it('accepts a purchased Active Power', () => {
     expect(isEligibleMinorMagicPower(powerItem())).toBe(true);
   });
 
-  it('rejects Active Buffs, reactions, and artifact-granted powers', () => {
+  it('rejects Active Buffs, reactions, and granted powers', () => {
     expect(isEligibleMinorMagicPower(powerItem({ system: { category: 'activeBuff', powerType: 'buff' } }))).toBe(false);
     expect(isEligibleMinorMagicPower(powerItem({ system: { category: 'reaction', powerType: 'reaction' } }))).toBe(false);
-    expect(isEligibleMinorMagicPower(powerItem({ system: { ...powerItem().system, fromArtifact: true } }))).toBe(false);
     expect(isEligibleMinorMagicPower(powerItem({ system: { ...powerItem().system, granted: true } }))).toBe(false);
     expect(isEligibleMinorMagicPower({ type: 'gear', system: {} })).toBe(false);
+  });
+
+  it('accepts Artifact Actives at level 6 or lower and rejects Greater / Ultimate rows', () => {
+    expect(
+      isEligibleMinorMagicPower(
+        powerItem({ system: { ...powerItem().system, fromArtifact: true, artifactRowLevel: 6 } }),
+      ),
+    ).toBe(true);
+    expect(
+      isEligibleMinorMagicPower(
+        powerItem({ system: { ...powerItem().system, fromArtifact: true, artifactRowLevel: 7 } }),
+      ),
+    ).toBe(false);
+    expect(
+      isEligibleMinorMagicPower(
+        powerItem({ system: { ...powerItem().system, fromArtifact: true, artifactRowLevel: 10 } }),
+      ),
+    ).toBe(false);
+  });
+
+  it('lists equipped Artifact Actives capped at Artifact Level 6', () => {
+    const actor = actorWithItems([powerItem(), artifactItem()]);
+    const listed = listEligibleMinorMagicPowers(actor);
+    expect(listed.map((p) => p.name)).toEqual(['Breath II', 'Single Attack']);
+    const breath = listed.find((p) => p.name === 'Breath II');
+    expect(breath.system.artifactRowLevel).toBe(4);
+    expect(breath.system.rank).toBe(10);
+    expect(resolveMinorMagicPower(actor, breath.id)?.name).toBe('Breath II');
+    expect(listed.some((p) => p.name === 'Breath III')).toBe(false);
+    expect(listed.some((p) => p.name === 'Roar')).toBe(false);
   });
 });
 
@@ -152,6 +216,18 @@ describe('snapshot', () => {
     const snap = snapshotPowerForMinorMagic(actor, power);
     expect(snap.attackPool.attribute).toBe('intellect');
     expect(snap.attackPool.numDice).toBe(12);
+  });
+
+  it('snapshots an Artifact Active at the Improved (level 6) stage, not Greater', () => {
+    const actor = actorWithItems([artifactItem()]);
+    const breath = listEligibleMinorMagicPowers(actor).find((p) => p.name === 'Breath II');
+    expect(breath).toBeTruthy();
+    const snap = snapshotPowerForMinorMagic(actor, breath);
+    expect(snap.powerName).toBe('Breath II');
+    expect(snap.powerLevel).toBe(10);
+    expect(snap.templateId).toBe('active-melee-damage-t3');
+    expect(snap.chosenSpecialKey).toBe('bleed');
+    expect(snap.damage).toMatch(/d8/);
   });
 });
 

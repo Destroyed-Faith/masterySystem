@@ -8,15 +8,21 @@
 
 import { collectInventoryBandRects, findFirstFit } from './inventory-grid.js';
 import { ZONE_WIDTH_COLS } from './encumbrance.js';
+import { artifactPowersUnlocked, isArtifactEquippedOnActor } from './artifact-actor-rules.js';
+import { artifactLevelToTemplateRank } from './artifact-spell-pick.js';
+import { resolveFullLevelProgression, visibleAbilityRows } from './artifact-visible-abilities.js';
 import { resolvePowerCategoryFromItem } from './power-catalog.js';
 import { getPowerDefinitionRank } from './power-definition-rank.js';
 import { getAttackAttributeForPowerTreeOrSchool } from './power-roll-attribute.js';
 import { renderAoe, renderDuration, renderRange, renderSpecials } from './power-rendering.js';
-import type { AoeSpec, PowerLevelRow, PowerSpecial, RangeSpec } from '../types/item.js';
+import { getTemplate } from './powers/index.js';
+import type { ArtifactLevelProgressionRow, AoeSpec, PowerLevelRow, PowerSpecial, RangeSpec } from '../types/item.js';
 
 export const MINOR_MAGIC_FLAG = 'minorMagic';
 export const MINOR_MAGIC_LEDGER_FLAG = 'minorMagicLedger';
 export const MINOR_MAGIC_REST_FLAG = 'minorMagicRest';
+/** Artifact Actives may be stored only at Basic / Improved (row level ≤ 6). */
+export const MINOR_MAGIC_ARTIFACT_LEVEL_CAP = 6;
 
 export const MINOR_MAGIC_FORMS = [
   'potion',
@@ -194,19 +200,50 @@ export function minorMagicLimit(actor: { system?: { mastery?: { rank?: unknown }
   return actorMasteryRank(actor);
 }
 
+function readSourceFlag(item: {
+  system?: Record<string, unknown>;
+  getFlag?: (scope: string, key: string) => unknown;
+}): string {
+  const sys = item.system || {};
+  const fromSys = String(sys.source || sys.grantedBy || '').toLowerCase();
+  if (fromSys) return fromSys;
+  try {
+    return String(item.getFlag?.('mastery-system', 'source') || '').toLowerCase();
+  } catch {
+    return '';
+  }
+}
+
+function isArtifactSourcedPower(item: {
+  system?: Record<string, unknown>;
+  getFlag?: (scope: string, key: string) => unknown;
+}): boolean {
+  const sys = item.system || {};
+  if (sys.fromArtifact === true) return true;
+  return readSourceFlag(item) === 'artifact';
+}
+
+function artifactRowLevelOf(item: { system?: Record<string, unknown> }): number | null {
+  const raw = Number((item.system as { artifactRowLevel?: unknown } | undefined)?.artifactRowLevel);
+  if (!Number.isFinite(raw) || raw <= 0) return null;
+  return Math.floor(raw);
+}
+
 function isBlockedSourcePower(item: {
   system?: Record<string, unknown>;
   getFlag?: (scope: string, key: string) => unknown;
 }): boolean {
   const sys = item.system || {};
-  if (sys.fromArtifact === true || sys.granted === true || sys.temporary === true) return true;
-  const source = String(sys.source || sys.grantedBy || '').toLowerCase();
-  if (['artifact', 'granted', 'buff', 'temporary', 'summon'].includes(source)) return true;
+  if (isArtifactSourcedPower(item)) {
+    const rowLevel = artifactRowLevelOf(item);
+    return rowLevel != null && rowLevel > MINOR_MAGIC_ARTIFACT_LEVEL_CAP;
+  }
+  if (sys.granted === true || sys.temporary === true) return true;
+  const source = readSourceFlag(item);
+  if (['granted', 'buff', 'temporary', 'summon'].includes(source)) return true;
   try {
     const flag = item.getFlag?.('mastery-system', 'granted') ?? item.getFlag?.('mastery-system', 'temporary');
     if (flag === true) return true;
-    const srcFlag = String(item.getFlag?.('mastery-system', 'source') || '').toLowerCase();
-    if (['artifact', 'granted', 'buff', 'temporary'].includes(srcFlag)) return true;
   } catch {
     /* ignore */
   }
@@ -226,11 +263,115 @@ export function isEligibleMinorMagicPower(item: {
   return true;
 }
 
+/** Offensive / Active artifact rows only — not buffs, movement, reactions, or functions. */
+function isArtifactActiveForMinorMagic(rowType: string): boolean {
+  const t = String(rowType || '').trim().toLowerCase();
+  if (!t) return false;
+  if (t.includes('reaction') || t.includes('movement')) return false;
+  if (t.includes('active buff') || t.includes('active-buff') || (t.includes('buff') && !t.includes('debuff'))) {
+    return false;
+  }
+  if (t.includes('stone') || t.includes('support') || t.includes('passive')) return false;
+  if (
+    t.includes('aoe') ||
+    t.includes('attack') ||
+    t.includes('zone') ||
+    t.includes('barrier') ||
+    t.includes('damage') ||
+    t === 'melee' ||
+    t === 'ranged' ||
+    t.startsWith('melee ') ||
+    t.startsWith('ranged ')
+  ) {
+    return true;
+  }
+  return t.startsWith('active') || t === 'ultimate';
+}
+
+function buildSyntheticPowerFromArtifactRow(
+  artifact: { id?: string; name?: string },
+  row: ArtifactLevelProgressionRow,
+  slotIndex: number,
+): any {
+  const templateId = String(row.powerTemplateId || '').trim();
+  const tpl = templateId ? getTemplate(templateId) : undefined;
+  const plKey = artifactLevelToTemplateRank(Number(row.level) || 1);
+  const pl = Number(plKey);
+  let levels: Record<string, PowerLevelRow> | undefined;
+  if (tpl?.levels) {
+    let levelRow = tpl.levels[plKey];
+    if (levelRow && row.chosenSpecialKey) {
+      const specials = (levelRow.specials || []).map((s) =>
+        s.key === 'SPECIAL' ? { ...s, key: row.chosenSpecialKey! } : s,
+      );
+      levelRow = { ...levelRow, specials };
+    }
+    if (levelRow) levels = { [plKey]: levelRow };
+  }
+
+  return {
+    id: `artifact:${artifact.id}:${slotIndex}`,
+    type: 'power',
+    name: row.name || `${artifact.name} L${row.level}`,
+    system: {
+      category: 'active',
+      powerType: 'active',
+      fromArtifact: true,
+      source: 'artifact',
+      artifactRowLevel: Number(row.level) || 1,
+      artifactItemId: artifact.id,
+      rank: pl,
+      level: pl,
+      templateId,
+      templateName: tpl?.templateName || row.name || artifact.name,
+      isSpell: row.isSpell === true,
+      castingAttribute: row.castingAttribute || '',
+      chosenSpecial: row.chosenSpecialKey ? { key: row.chosenSpecialKey } : undefined,
+      cost: tpl?.cost ?? { action: 'attack' },
+      newCost: tpl?.cost,
+      levels,
+      range: row.range,
+      aoe: row.aoe,
+      duration: row.duration,
+      effect: row.effect,
+      specials: row.special ? [row.special] : [],
+    },
+  };
+}
+
+export function listEligibleArtifactMinorMagicPowers(actor: any): any[] {
+  const items = actor?.items ? Array.from(actor.items as Iterable<any>) : [];
+  const out: any[] = [];
+  for (const item of items) {
+    if (item?.type !== 'artifact') continue;
+    if (!isArtifactEquippedOnActor(item)) continue;
+    if (!artifactPowersUnlocked(actor, item)) continue;
+    const sys = (item.system as any) || {};
+    const currentLevel = Number(sys.currentLevel) || Number(sys.level) || 1;
+    const cappedLevel = Math.min(currentLevel, MINOR_MAGIC_ARTIFACT_LEVEL_CAP);
+    const progression = resolveFullLevelProgression(sys.levelProgression, sys.progressionPicks);
+    const rows = visibleAbilityRows(progression, cappedLevel);
+    rows.forEach((row, slotIndex) => {
+      const lvl = Number(row.level) || 1;
+      if (lvl > MINOR_MAGIC_ARTIFACT_LEVEL_CAP) return;
+      if (!isArtifactActiveForMinorMagic(row.type)) return;
+      out.push(buildSyntheticPowerFromArtifactRow(item, row, slotIndex));
+    });
+  }
+  return out;
+}
+
 export function listEligibleMinorMagicPowers(actor: any): any[] {
   const items = actor?.items ? Array.from(actor.items as Iterable<any>) : [];
-  return items
-    .filter((it) => isEligibleMinorMagicPower(it))
-    .sort((a, b) => String(a.name || '').localeCompare(String(b.name || '')));
+  const purchased = items.filter((it) => isEligibleMinorMagicPower(it) && !isArtifactSourcedPower(it));
+  const artifact = listEligibleArtifactMinorMagicPowers(actor);
+  return [...purchased, ...artifact].sort((a, b) => String(a.name || '').localeCompare(String(b.name || '')));
+}
+
+export function resolveMinorMagicPower(actor: any, powerId: string): any | null {
+  const id = String(powerId || '').trim();
+  if (!id) return null;
+  return listEligibleMinorMagicPowers(actor).find((p) => String(p.id) === id) ?? null;
 }
 
 export function readMinorMagicFlag(item: {
@@ -410,7 +551,7 @@ export const MINOR_MAGIC_REST_REQUIRED =
 function canCreateMinorMagic(actor: any, power: any, form: MinorMagicForm): string | null {
   if (!canManageMinorMagic(actor)) return MINOR_MAGIC_REST_REQUIRED;
   if (!isEligibleMinorMagicPower(power)) {
-    return 'Only a purchased Active Power can be stored.';
+    return 'Only a purchased Active Power or an Artifact Active (up to Artifact Level 6) can be stored.';
   }
   if (!isMinorMagicForm(form)) return 'Choose a form for the item.';
   const ledger = getActorMinorMagicLedger(actor);
@@ -444,7 +585,7 @@ export async function createMinorMagicItem(
   actor: any,
   opts: { powerId: string; form: MinorMagicForm; name?: string },
 ): Promise<{ ok: true; item: any } | { ok: false; error: string }> {
-  const power = actor.items?.get?.(opts.powerId);
+  const power = resolveMinorMagicPower(actor, opts.powerId);
   if (!power) return { ok: false, error: 'Choose an Active Power to store.' };
   const err = canCreateMinorMagic(actor, power, opts.form);
   if (err) return { ok: false, error: err };
