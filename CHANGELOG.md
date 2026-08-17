@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.368] - 2026-08-17
+
+### Fixed
+
+- **Release build:** Colorless stone pool typing and the leftover Initiative Shop button handler so `tsc` passes.
+
 ## [0.9.367] - 2026-08-17
 
 ### Added

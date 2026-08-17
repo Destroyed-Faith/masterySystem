@@ -211,6 +211,21 @@ const ALL_STONE_ATTRS: AttributeKey[] = [
 /** Pools shown in the dialog (core six + optional Wits if the actor has a wits pool). */
 const POOL_DISPLAY_ATTRS: (AttributeKey | 'wits')[] = [...ALL_STONE_ATTRS, 'wits'];
 
+type StoneDialogPoolKey = AttributeKey | 'wits' | typeof COLORLESS_STONE_ATTR;
+
+type StoneDialogPoolRow = {
+  key: StoneDialogPoolKey;
+  name: string;
+  current: number;
+  max: number;
+  sustained: number;
+  artifactBound: number;
+  available: number;
+  gemStyle: { fill: string; stroke: string };
+  gemSlots: Array<{ index: number }>;
+  boundSlots: Array<{ index: number }>;
+};
+
 function poolDisplayName(key: string): string {
   if (key === 'wits') return 'Wits';
   return key.charAt(0).toUpperCase() + key.slice(1);
@@ -515,7 +530,7 @@ export class StonePowersDialog extends BaseDialog {
     const availablePowers = getAvailableStonePowers(this.actor);
     
     // Filter pools to only show those with max > 0 (includes optional Wits)
-    const pools = POOL_DISPLAY_ATTRS.map((attr) => {
+    const pools: StoneDialogPoolRow[] = POOL_DISPLAY_ATTRS.map((attr) => {
         const pool = stonePools[attr];
         const current = pool?.current ?? pool?.value ?? 0;
         const max = pool?.max ?? pool?.maximum ?? 0;

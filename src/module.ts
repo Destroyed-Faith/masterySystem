@@ -707,43 +707,6 @@ Hooks.once('init', async function() {
           ui.notifications?.error('Failed to open passive selection dialog');
         }
       });
-
-      initiativeBtn.off('click.ms-initiative').on('click.ms-initiative', async (ev: JQuery.ClickEvent) => {
-        ev.preventDefault();
-        ev.stopPropagation();
-        
-        const combat = game.combat;
-        if (!combat) {
-          ui.notifications?.warn('No active combat encounter');
-          return;
-        }
-
-        const combatant = combat.combatants.get(combatantId);
-        if (!combatant) {
-          console.error('Mastery System | [COMBAT TRACKER DEBUG] Combatant not found', { combatantId });
-          ui.notifications?.error('Combatant not found');
-          return;
-        }
-
-        try {
-          const actor = combatant.actor;
-          if (!actor) {
-            ui.notifications?.error('Actor not found');
-            return;
-          }
-
-          if (game.user?.isGM && combatant.actor?.type === 'character') {
-            await forceEncounterDialog('initiative', combatant);
-            return;
-          }
-
-          const { openInitiativeShopForTrackerRescue } = await import('./combat/initiative-roll.js');
-          await openInitiativeShopForTrackerRescue(combatant, combat);
-        } catch (error) {
-          console.error('Mastery System | [COMBAT TRACKER DEBUG] Error showing initiative shop', error);
-          ui.notifications?.error('Failed to open initiative shop');
-        }
-      });
     });
 
     // Add "Begin Encounter" and "Select Passives" buttons to encounter controls
