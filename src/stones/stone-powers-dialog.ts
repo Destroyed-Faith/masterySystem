@@ -564,7 +564,9 @@ export class StonePowersDialog extends BaseDialog {
     const preparePowerData = (power: any, attrKey: AttributeKey) => {
       /** Wie im Drop-Handler: `getStoneUsageCount(..., combat)` — auch wenn `combat` null (dann Runde 1 / Zug 0). Nicht `combat ? … : 0`, sonst anderer accKey als beim Drop. */
       const usesThisTurn = getStoneUsageCount(this.actor, attrKey, power.id, combat);
-      const nextCost = calculateStoneCost(usesThisTurn);
+      const rampSkip = rampSkipSegmentsForPower(power.id);
+      const leadLockedLanes = rampSkipLeadLanes(power.id);
+      const nextCost = calculateStoneCost(usesThisTurn + rampSkip);
       const pool = getStonePool(this.actor, attrKey);
       const canAfford = pool.current >= nextCost && hasCombat;
       const gross = spendableForAttr(attrKey);
@@ -582,7 +584,8 @@ export class StonePowersDialog extends BaseDialog {
         stonePlanLocked,
         occupied,
         `${power.id}/${attrKey}`,
-        supportLanes
+        supportLanes,
+        leadLockedLanes
       );
 
       return {
@@ -1573,7 +1576,7 @@ export class StonePowersDialog extends BaseDialog {
         if (occ.includes(laneIndex)) {
           return;
         }
-        if (!isLaneAllowedBySegmentUnlock(occ, laneIndex)) {
+        if (!isLaneAllowedBySegmentUnlock(occWithRampSkip(occ, powerId), laneIndex)) {
           return;
         }
         const nextOcc = [...occ, laneIndex];

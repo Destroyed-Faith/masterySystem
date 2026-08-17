@@ -15,6 +15,7 @@ import { describe, expect, it, vi, beforeEach } from 'vitest';
 import {
   STONE_POWERS,
   STONE_POWERS_BY_ATTRIBUTE,
+  stonePowerSkipsFirstTier,
   tierForUseIndex,
   type StonePower,
 } from '../src/stones/stone-powers';
@@ -173,11 +174,21 @@ describe('Stone Powers — pool layout (new spec)', () => {
   // may allow rerolling Initiative and reopening the Initiative Shop).
   it.each(POOL_KEYS)('pool "%s" has the expected number of powers', (poolKey) => {
     const powers = (STONE_POWERS_BY_ATTRIBUTE as any)[poolKey] as StonePower[];
-    expect(powers).toHaveLength(poolKey === 'wits' ? 5 : poolKey === 'resolve' ? 3 : 4);
+    expect(powers).toHaveLength(poolKey === 'wits' ? 5 : 4);
   });
 
-  it('total registry has 32 powers (resolve × 3, wits × 5, others × 4)', () => {
-    expect(Object.keys(STONE_POWERS)).toHaveLength(32);
+  it('total registry has 33 powers (wits × 5, others × 4)', () => {
+    expect(Object.keys(STONE_POWERS)).toHaveLength(33);
+  });
+
+  it('Resolve pool matches the rules table', () => {
+    const ids = STONE_POWERS_BY_ATTRIBUTE.resolve.map((p) => p.id);
+    expect(ids).toEqual([
+      'resolve.healing',
+      'resolve.stressHealing',
+      'resolve.damageReductionBoost',
+      'resolve.specialReduction',
+    ]);
   });
 
   // Rules table: Vitality Stone Abilities are exactly these four.
@@ -452,6 +463,33 @@ describe('Intellect — Spell Resistance scales +4/+8/+12/+16', () => {
   });
 });
 
+describe('Resolve — Stress Healing scales 1d8/2d8/3d8/4d8', () => {
+  it.each([[1, 1, 2], [2, 2, 4], [3, 3, 8], [4, 4, 16]])(
+    'T%i rolls %id8 and reaches %i m',
+    async (tier, dice, meters) => {
+      const actor = makeMockActor();
+      actor.system.stress = {
+        currentBar: 1,
+        bars: [
+          { name: 'S1', current: 12, max: 12 },
+          { name: 'S2', current: 4, max: 12 },
+        ],
+      };
+      await STONE_POWERS['resolve.stressHealing'].apply({
+        actor: actor as any,
+        combatant: makeMockCombatant() as any,
+        tier,
+        cost: 2 ** (tier - 1),
+      });
+      const pending = actor._flags.pendingStressHealing;
+      expect(pending.dice).toBe(dice);
+      expect(pending.range).toBe(meters);
+      expect(pending.amount).toBe(dice * 4);
+      expect(actor.system.stress.bars[1].current).toBeGreaterThan(4);
+    },
+  );
+});
+
 describe('Resolve — Damage Reduction Boost ramps at T2', () => {
   it('T1 is a ramp step (no effect)', async () => {
     const actor = makeMockActor();
@@ -473,6 +511,40 @@ describe('Resolve — Damage Reduction Boost ramps at T2', () => {
       cost: 2 ** (tier - 1),
     });
     expect(actor._roundState.stoneBonuses.damageReductionBoostPct).toBe(expected);
+  });
+});
+
+describe('stonePowerSkipsFirstTier', () => {
+  it('skips the empty Tier 1 on Phasing, Extra Attack, Spell Action, and DR Boost', () => {
+    expect(stonePowerSkipsFirstTier('wits.phasing')).toBe(true);
+    expect(stonePowerSkipsFirstTier('generic.extraAttack')).toBe(true);
+    expect(stonePowerSkipsFirstTier('intellect.spellAction')).toBe(true);
+    expect(stonePowerSkipsFirstTier('resolve.damageReductionBoost')).toBe(true);
+  });
+
+  it('does not skip powers that already do something at Tier 1', () => {
+    expect(stonePowerSkipsFirstTier('wits.initiativeBoost')).toBe(false);
+    expect(stonePowerSkipsFirstTier('wits.reactionRange')).toBe(false);
+  });
+});
+
+describe('Wits — Phasing', () => {
+  it('T1 is a ramp step; T2/T3 grant 1 charge and T4 grants 2', async () => {
+    const power = STONE_POWERS['wits.phasing'];
+    const t1 = makeMockActor();
+    await power.apply({ actor: t1 as any, combatant: makeMockCombatant() as any, tier: 1, cost: 1 });
+    expect(t1._roundState.stoneBonuses?.phasingChargesFromStones ?? 0).toBe(0);
+
+    for (const [tier, charges] of [[2, 1], [3, 1], [4, 2]] as const) {
+      const actor = makeMockActor();
+      await power.apply({
+        actor: actor as any,
+        combatant: makeMockCombatant() as any,
+        tier,
+        cost: 2 ** (tier - 1),
+      });
+      expect(actor._roundState.stoneBonuses.phasingChargesFromStones).toBe(charges);
+    }
   });
 });
 

@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.364] - 2026-08-17
+
+### Added
+
+- **Resolve stones:** Stress Healing (1d8–4d8, 2–16 m) is now a full Resolve stone power.
+
+### Fixed
+
+- **Stone Powers:** Ramp powers without a Tier-1 effect (Phasing, Spell Action, Damage Reduction Boost) now open on the two-stone wave instead of a single yellow slot.
+
 ## [0.9.363] - 2026-08-17
 
 ### Changed

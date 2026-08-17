@@ -15,8 +15,8 @@
  * mechanic that prevents trivial low-tier spam of the strongest effects.
  *
  * Pool layout: Generic + 7 attribute pools (Might / Agility / Vitality /
- * Intellect / Resolve / Influence / Wits). Every pool has exactly 4
- * powers ⇒ 32 powers total.
+ * Intellect / Resolve / Influence / Wits). Most pools have 4 powers;
+ * Wits has 5 (Seize the Moment). Total 33.
  *
  * Effects live in `apply(ctx)` and write into `roundState.stoneBonuses`
  * or set actor / combatant flags. Cleanup of per-turn bonuses happens
@@ -30,6 +30,7 @@ import {
 } from '../combat/action-economy.js';
 import { getEffectById } from '../utils/special-effects.js';
 import { statusEntryId } from '../system/active-specials.js';
+import { healStressFromBars } from '../utils/calculations.js';
 
 export type StonePowerAttribute = AttributeKey | 'generic';
 
@@ -680,6 +681,47 @@ const RESOLVE_POWERS_RAW: Array<Omit<StonePower, 'effect'>> = [
     },
   },
   {
+    id: 'resolve.stressHealing',
+    name: 'Stress Healing',
+    attribute: 'resolve',
+    category: 'action',
+    description:
+      'Remove Stress from yourself or one ally within range. ' +
+      'T1: 1d8@2 m, T2: 2d8@4 m, T3: 3d8@8 m, T4: 4d8@16 m.',
+    tiers: [
+      { label: '−1d8 Stress (2 m)', description: 'Remove 1d8 Stress from yourself or one ally within 2 m.', value: 1 },
+      { label: '−2d8 Stress (4 m)', description: 'Remove 2d8 Stress from yourself or one ally within 4 m.', value: 2 },
+      { label: '−3d8 Stress (8 m)', description: 'Remove 3d8 Stress from yourself or one ally within 8 m.', value: 3 },
+      { label: '−4d8 Stress (16 m)', description: 'Remove 4d8 Stress from yourself or one ally within 16 m.', value: 4 },
+    ],
+    apply: async ({ actor, tier }) => {
+      const dice = [1, 2, 3, 4][tier - 1] ?? 0;
+      const meters = [2, 4, 8, 16][tier - 1] ?? 0;
+      try {
+        const roll = await new (Roll as any)(`${dice}d8`).evaluate({ async: true });
+        const total = Number(roll?.total) || 0;
+        const stress = (actor as any)?.system?.stress;
+        if (Array.isArray(stress?.bars) && stress.bars.length) {
+          const healed = healStressFromBars(stress.bars, stress.currentBar ?? 0, total);
+          await (actor as any).update?.({
+            'system.stress.bars': healed.bars,
+            'system.stress.currentBar': healed.currentBar,
+          });
+        }
+        await (actor as any).setFlag?.('mastery-system', 'pendingStressHealing', {
+          amount: total,
+          dice,
+          range: meters,
+        });
+        ui.notifications?.info(
+          `${(actor as any).name}: Stress Healing rolled ${total} (${dice}d8). Apply to self or one ally within ${meters} m.`,
+        );
+      } catch {
+        ui.notifications?.warn('Stress Healing: roll failed.');
+      }
+    },
+  },
+  {
     id: 'resolve.damageReductionBoost',
     name: 'Damage Reduction Boost',
     attribute: 'resolve',
@@ -1055,8 +1097,7 @@ export function tierForUseIndex(usesBefore: number): number {
  * True when a power's Tier 1 is a no-op "ramp step" (label === null), meaning
  * its first real effect is Tier 2. Such powers start one segment higher: the
  * Tier-1 / Anchor field is disabled and the first activation costs 2 stones.
- * Currently this is only Extra Attack — the deliberate exception so an extra
- * Attack Action can't be bought for a single stone.
+ * Used by Extra Attack, Spell Action, Damage Reduction Boost, and Phasing.
  */
 export function stonePowerSkipsFirstTier(powerId: string): boolean {
   const t0 = STONE_POWERS[powerId]?.tiers?.[0] as StoneTier | undefined;
