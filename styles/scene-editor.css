@@ -1,0 +1,135 @@
+/**
+ * Mastery Scene Editor — namespaced so it cannot restyle Foundry chrome.
+ */
+
+.ms-scene-editor-toggle {
+  position: fixed;
+  top: 72px;
+  right: 18px;
+  z-index: 120;
+  min-width: 11.5rem;
+  padding: 0.55rem 0.9rem;
+  border: 2px solid #e94560;
+  border-radius: 8px;
+  background: #16213e;
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
+}
+
+.ms-scene-editor-toggle:hover {
+  background: #1f2d52;
+}
+
+.ms-scene-editor-toggle.is-active {
+  background: #e94560;
+  border-color: #ff6b81;
+}
+
+.ms-scene-editor-toggle i {
+  margin-right: 0.4rem;
+}
+
+#mastery-scene-editor-toolbar {
+  position: fixed !important;
+  top: 118px;
+  right: 18px;
+  z-index: 119;
+  width: auto !important;
+  height: auto !important;
+  max-width: min(28rem, 42vw);
+  pointer-events: none;
+}
+
+#mastery-scene-editor-toolbar .window-content,
+#mastery-scene-editor-toolbar .ms-se-toolbar {
+  pointer-events: auto;
+}
+
+.ms-se-toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.45rem;
+  background: rgba(10, 14, 28, 0.92);
+  border: 1px solid #0f3460;
+  border-radius: 8px;
+  color: #e9e9e9;
+  font-size: 0.72rem;
+}
+
+.ms-se-tools,
+.ms-se-context,
+.ms-se-suggestion,
+.ms-se-layers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+.ms-se-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.22rem 0.4rem;
+  border: 1px solid #0f3460;
+  border-radius: 4px;
+  background: #16213e;
+  color: #e9e9e9;
+  cursor: pointer;
+}
+
+.ms-se-btn.is-small {
+  padding: 0.18rem 0.32rem;
+}
+
+.ms-se-btn.is-active,
+.ms-se-btn:hover {
+  border-color: #e94560;
+  background: #1f2d52;
+}
+
+.ms-se-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.ms-se-layer {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  opacity: 0.7;
+}
+
+.ms-se-layer.is-on {
+  opacity: 1;
+  color: #ffd54f;
+}
+
+.ms-se-status {
+  padding: 0.15rem 0.3rem;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.ms-se-status.is-dirty,
+.ms-se-status.is-stale,
+.ms-se-status.is-background-changed {
+  color: #ffb74d;
+}
+
+.ms-se-status.is-analyzing {
+  color: #4dd0e1;
+}
+
+.ms-se-status.is-saved,
+.ms-se-status.is-analyzed {
+  color: #81c784;
+}
+
+body.game .ms-scene-editor-toggle {
+  display: block;
+}

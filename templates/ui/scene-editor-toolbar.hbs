@@ -1,0 +1,79 @@
+<div class="ms-se-toolbar">
+  <div class="ms-se-tools">
+    {{#each tools}}
+    <button type="button" class="ms-se-btn{{#if active}} is-active{{/if}}" data-tool="{{id}}" title="{{label}}">
+      <i class="fas {{icon}}"></i><span>{{label}}</span>
+    </button>
+    {{/each}}
+  </div>
+
+  <div class="ms-se-tools">
+    {{#each snapModes}}
+    <button type="button" class="ms-se-btn is-small{{#if active}} is-active{{/if}}" data-snap="{{id}}" title="{{label}}">{{label}}</button>
+    {{/each}}
+  </div>
+
+  <div class="ms-se-tools">
+    <button type="button" class="ms-se-btn js-analyze" {{#if analyzing}}disabled{{/if}} title="{{localize 'MASTERY.sceneEditor.analyzeMap'}}">
+      <i class="fas fa-magnifying-glass-chart"></i><span>{{localize "MASTERY.sceneEditor.analyzeMap"}}</span>
+    </button>
+    <button type="button" class="ms-se-btn js-analyze-region" title="{{localize 'MASTERY.sceneEditor.analyzeRegion'}}">
+      <i class="fas fa-crop"></i>
+    </button>
+    {{#if analyzing}}
+    <button type="button" class="ms-se-btn js-cancel-analyze" title="{{localize 'MASTERY.sceneEditor.cancelAnalyze'}}">
+      <i class="fas fa-stop"></i>
+    </button>
+    {{/if}}
+    <button type="button" class="ms-se-btn js-undo" {{#unless canUndo}}disabled{{/unless}} title="{{localize 'MASTERY.sceneEditor.undo'}}">
+      <i class="fas fa-rotate-left"></i>
+    </button>
+    <button type="button" class="ms-se-btn js-redo" {{#unless canRedo}}disabled{{/unless}} title="{{localize 'MASTERY.sceneEditor.redo'}}">
+      <i class="fas fa-rotate-right"></i>
+    </button>
+    <button type="button" class="ms-se-btn js-save" title="{{localize 'MASTERY.sceneEditor.save'}}">
+      <i class="fas fa-floppy-disk"></i>
+    </button>
+    <button type="button" class="ms-se-btn js-export" title="{{localize 'MASTERY.sceneEditor.exportJson'}}">
+      <i class="fas fa-file-export"></i>
+    </button>
+    <button type="button" class="ms-se-btn js-import" title="{{localize 'MASTERY.sceneEditor.importJson'}}">
+      <i class="fas fa-file-import"></i>
+    </button>
+  </div>
+
+  <div class="ms-se-layers" title="{{localize 'MASTERY.sceneEditor.analysisView'}}">
+    {{#each layers}}
+    <label class="ms-se-layer{{#if on}} is-on{{/if}}">
+      <input type="checkbox" data-layer="{{id}}" {{#if on}}checked{{/if}} />
+      {{label}}
+    </label>
+    {{/each}}
+  </div>
+
+  {{#if context.show}}
+  <div class="ms-se-context">
+    <button type="button" class="ms-se-btn js-to-wall">{{localize "MASTERY.sceneEditor.toolWall"}}</button>
+    <button type="button" class="ms-se-btn js-to-door">{{localize "MASTERY.sceneEditor.toolDoor"}}</button>
+    <button type="button" class="ms-se-btn js-to-window">{{localize "MASTERY.sceneEditor.toolWindow"}}</button>
+    {{#if context.isDoor}}
+    <button type="button" class="ms-se-btn js-door-open">{{localize "MASTERY.sceneEditor.open"}}</button>
+    <button type="button" class="ms-se-btn js-door-close">{{localize "MASTERY.sceneEditor.close"}}</button>
+    <button type="button" class="ms-se-btn js-door-lock">{{localize "MASTERY.sceneEditor.lock"}}</button>
+    {{/if}}
+    <button type="button" class="ms-se-btn js-delete">{{localize "MASTERY.sceneEditor.delete"}}</button>
+    <button type="button" class="ms-se-btn js-advanced">{{localize "MASTERY.sceneEditor.advanced"}}</button>
+  </div>
+  {{/if}}
+
+  {{#if suggestion.show}}
+  <div class="ms-se-suggestion">
+    <span>{{suggestion.kind}} · {{suggestion.confidence}}% · {{suggestion.origin}}</span>
+    <button type="button" class="ms-se-btn js-accept">{{localize "MASTERY.sceneEditor.accept"}}</button>
+    <button type="button" class="ms-se-btn js-reject">{{localize "MASTERY.sceneEditor.reject"}}</button>
+    <button type="button" class="ms-se-btn js-accept-all">{{localize "MASTERY.sceneEditor.acceptAll"}}</button>
+  </div>
+  {{/if}}
+
+  <div class="ms-se-status is-{{statusKey}}">{{status}}</div>
+</div>

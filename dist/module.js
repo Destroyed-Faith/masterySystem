@@ -36,6 +36,7 @@ import { registerEncounterSocket } from './combat/encounter-socket.js';
 import { canCurrentUserUpdateDocument } from './combat/combat-permissions.js';
 import { findShutdownCombat } from './combat/combat-shutdown.js';
 import { initializeSceneControls, initializeTokenHUDButton } from './ui/scene-controls-mastery.js';
+import { initializeSceneEditor } from './scene-editor/register.js';
 import { initializeStonePowersFlow } from './combat/stone-powers-flow.js';
 import { arePlayerStonesReadyForRound, initializeStoneRoundGate } from './combat/stone-round-gate.js';
 import { registerDivineClashSettings } from './divine-clash/divine-clash-settings.js';
@@ -205,6 +206,7 @@ Hooks.once('init', async function () {
     // Initialize scene controls
     initializeSceneControls();
     initializeTokenHUDButton();
+    initializeSceneEditor();
     // GM-only "Encounter erzeugen" button in the Actors directory header.
     Hooks.on('renderActorDirectory', (_app, html) => {
         if (!game.user?.isGM)

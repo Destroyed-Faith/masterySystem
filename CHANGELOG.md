@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.384] - 2026-08-18
+
+### Added
+
+- **Mastery Scene Editor:** A GM-only map authoring mode. A large **EDIT SCENE** button appears at the top right of a loaded scene; **FINISH EDITING** leaves it. Players never see the button, overlays, suggestions or hints. Activating the editor does not start combat, move tokens or create lights.
+- **Manual walls, doors and windows:** Draw chained walls, drag endpoints or whole segments, insert a door or window into an existing wall without gaps, or draw one freely. Convert type from the context bar; open, close or lock a door. Magnetic snap is the default (grid and free are one click or a held modifier away). Undo / redo cover the session.
+- **Local map analysis:** Conservative edge detection produces unconfirmed suggestions only. Hints and ignore regions steer a full-map or region re-run. Accepting a suggestion writes a native Foundry wall.
+- **Persistence per map:** Editor data lives in `flags.mastery-system.sceneEditor` (`schemaVersion: 1`). Confirmed geometry is native `WallDocument`. JSON export / import uses 0–1 coordinates; import never deletes existing walls unless Replace is confirmed.
+
 ## [0.9.383] - 2026-08-18
 
 ### Changed
