@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.382] - 2026-08-18
+
+### Added
+
+- **Shut Down Combat in the carousel top bar:** The bar above the portraits now stays visible for the GM for the whole encounter instead of disappearing once combat runs. It shows the round, during preparation the NPC initiative and Start Combat buttons, between rounds the open players and Start Round N — and always the Shut Down Combat button. Every encounter control is within reach of the carousel; the trip to the combat tracker sidebar is no longer needed. The sidebar button stays where it is.
+
+### Verified
+
+- **Colorless Stones cannot be regenerated:** They are temporary, come only from Initiative Exchange, and are dropped when combat ends and again when the next encounter is prepared. Stone Recovery never offers them (the recovery pools are the seven attributes), the end-of-combat refill only touches attribute pools, and `applyStoneRegenAllocation` ignores a `colorless` entry outright — now covered by a test so it stays that way.
+
 ## [0.9.381] - 2026-08-18
 
 ### Fixed

@@ -368,30 +368,40 @@ export class CombatCarouselApp extends BaseCarousel {
     const startBlockedTpl =
       game.i18n?.localize('MASTERY.encounterSetup.startBlocked') || 'Noch offen: {list}';
     const round = Math.max(1, Number(combat.round) || 1);
+    const isGM = game.user?.isGM || false;
+    const fill = (key: string, fallback: string) =>
+      (game.i18n?.localize(key) || fallback).replace('{n}', String(round));
     // Between rounds the carousel used to go silent for the GM: turn controls are
-    // held back until every PC set stones, and the prepare bar is long gone. This
-    // bar takes its place, names who is missing, and re-sends their dialog.
-    const roundGate = {
-      show: !preparing && !!(combat as any).started && !stonesReady,
-      round,
-      label: (
-        game.i18n?.localize('MASTERY.encounterSetup.startRound') || 'Runde {n} starten'
-      ).replace('{n}', String(round)),
-      waiting: (
-        game.i18n?.localize('MASTERY.encounterSetup.roundWaiting') || 'Runde {n} — Steine offen'
-      ).replace('{n}', String(round)),
-      pendingList: pendingStonePlayerNames(combat, round).join(', '),
+    // held back until every PC set stones, and the prepare bar is long gone. The
+    // top bar now stays put — it names the round, says who is missing, and keeps
+    // the round start and the shutdown within reach, so the GM never has to walk
+    // over to the encounter sidebar.
+    const roundGateOpen = !preparing && !!(combat as any).started && !stonesReady;
+    const pendingList = roundGateOpen ? pendingStonePlayerNames(combat, round).join(', ') : '';
+    const topBar = {
+      show: preparing || roundGateOpen || isGM,
+      isRoundGate: roundGateOpen,
+      label: preparing
+        ? game.i18n?.localize('MASTERY.encounterSetup.preparing') || 'Vorbereitung'
+        : roundGateOpen
+          ? fill('MASTERY.encounterSetup.roundWaiting', 'Runde {n} — Steine noch offen') +
+            (pendingList ? ` — ${pendingList}` : '')
+          : fill('MASTERY.encounterSetup.roundLine', 'Runde {n}'),
+      showPrepareButtons: preparing && isGM,
+      showStartRound: roundGateOpen && isGM,
+      startRoundLabel: fill('MASTERY.encounterSetup.startRound', 'Runde {n} starten'),
+      showShutdown: isGM,
     };
     return {
       active: true,
       compact: isCompactCarouselViewport(),
       combatants,
-      controlsAllowed: game.user?.isGM || false,
+      controlsAllowed: isGM,
       currentRound: combat.round || 1,
       currentTurn: combat.turn || 0,
       preparing,
       stonesReady,
-      roundGate,
+      topBar,
       canStartLive: preparing && startBlockers.length === 0,
       startBlockedReason: startBlockers.length
         ? startBlockedTpl.replace('{list}', startBlockers.join(', '))
@@ -520,6 +530,14 @@ export class CombatCarouselApp extends BaseCarousel {
         if (!combat) return;
         const { launchLiveCombat } = await import('../combat/encounter-start.js');
         await launchLiveCombat(combat);
+      };
+    });
+
+    root.querySelectorAll('.js-shutdown-combat').forEach((btn: HTMLElement) => {
+      btn.onclick = async (ev: MouseEvent) => {
+        ev.preventDefault();
+        const { shutDownCombat } = await import('../combat/combat-shutdown.js');
+        await shutDownCombat();
       };
     });
 

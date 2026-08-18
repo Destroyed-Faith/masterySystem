@@ -23,6 +23,25 @@ describe('applyStoneRegenAllocation', () => {
     expect(updates['system.stonePools.vitality.current']).toBeUndefined();
   });
 
+  it('ignores Colorless: temporary stones are never recovered', async () => {
+    const updates: Record<string, number> = {};
+    const actor = {
+      type: 'npc',
+      system: {
+        stonePools: {
+          might: { current: 0, max: 4, sustained: 0 },
+          colorless: { current: 0, max: 4, sustained: 0 },
+        },
+      },
+      update: async (u: Record<string, number>) => {
+        Object.assign(updates, u);
+      },
+    };
+    await applyStoneRegenAllocation(actor as unknown as Actor, { colorless: 3 } as any);
+    expect(updates['system.stonePools.colorless.current']).toBeUndefined();
+    expect(Object.keys(updates)).toHaveLength(0);
+  });
+
   it('does not exceed pool max minus sustained', async () => {
     const updates: Record<string, number> = {};
     const actor = {

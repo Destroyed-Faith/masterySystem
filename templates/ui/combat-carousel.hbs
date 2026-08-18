@@ -1,9 +1,9 @@
-<div class="mastery-carousel {{#if active}}is-active{{/if}} {{#if compact}}is-compact{{/if}} {{#if preparing}}is-preparing{{/if}} {{#if roundGate.show}}is-preparing{{/if}}">
+<div class="mastery-carousel {{#if active}}is-active{{/if}} {{#if compact}}is-compact{{/if}} {{#if topBar.show}}is-preparing{{/if}}">
   {{#if active}}
-    {{#if preparing}}
-    <div class="ms-carousel-prepare-bar">
-      <span class="ms-carousel-prepare-label">{{localize "MASTERY.encounterSetup.preparing"}}</span>
-      {{#if controlsAllowed}}
+    {{#if topBar.show}}
+    <div class="ms-carousel-prepare-bar{{#if topBar.isRoundGate}} is-round-gate{{/if}}">
+      <span class="ms-carousel-prepare-label">{{topBar.label}}</span>
+      {{#if topBar.showPrepareButtons}}
       <button type="button" class="ms-carousel-prepare-btn js-roll-npc-ini" title="{{localize 'MASTERY.encounterSetup.rollNpcIni'}}">
         <i class="fas fa-dice"></i> {{localize "MASTERY.encounterSetup.rollNpcIni"}}
       </button>
@@ -11,16 +11,14 @@
         <i class="fas fa-play"></i> {{localize "MASTERY.encounterSetup.startCombat"}}
       </button>
       {{/if}}
-    </div>
-    {{/if}}
-    {{#if roundGate.show}}
-    <div class="ms-carousel-prepare-bar is-round-gate">
-      <span class="ms-carousel-prepare-label">
-        {{roundGate.waiting}}{{#if roundGate.pendingList}} — {{roundGate.pendingList}}{{/if}}
-      </span>
-      {{#if controlsAllowed}}
+      {{#if topBar.showStartRound}}
       <button type="button" class="ms-carousel-prepare-btn is-start js-start-round" title="{{localize 'MASTERY.encounterSetup.startRoundHint'}}">
-        <i class="fas fa-play"></i> {{roundGate.label}}
+        <i class="fas fa-play"></i> {{topBar.startRoundLabel}}
+      </button>
+      {{/if}}
+      {{#if topBar.showShutdown}}
+      <button type="button" class="ms-carousel-prepare-btn is-shutdown js-shutdown-combat" title="{{localize 'MASTERY.combatShutdown.hint'}}">
+        <i class="fas fa-power-off"></i> {{localize "MASTERY.combatShutdown.button"}}
       </button>
       {{/if}}
     </div>

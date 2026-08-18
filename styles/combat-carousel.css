@@ -73,6 +73,17 @@
   color: #fff;
 }
 
+.ms-carousel-prepare-btn.is-shutdown {
+  background: #2b0d13;
+  border-color: #8a2233;
+  color: #ffb3bf;
+}
+
+.ms-carousel-prepare-btn.is-shutdown:hover {
+  background: #8a2233;
+  color: #fff;
+}
+
 .ms-carousel-prepare-btn:disabled {
   opacity: 0.45;
   cursor: not-allowed;
