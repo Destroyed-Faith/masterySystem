@@ -5,6 +5,35 @@
 import { t } from './i18n.js';
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const BaseToolbar = HandlebarsApplicationMixin(ApplicationV2);
+const TOOLBAR_POS_KEY = 'mastery-system.sceneEditor.toolbarPos';
+function readToolbarPos() {
+    try {
+        const raw = localStorage.getItem(TOOLBAR_POS_KEY);
+        if (!raw)
+            return null;
+        const parsed = JSON.parse(raw);
+        const left = Number(parsed.left);
+        const top = Number(parsed.top);
+        if (!Number.isFinite(left) || !Number.isFinite(top))
+            return null;
+        return { left, top };
+    }
+    catch {
+        return null;
+    }
+}
+function writeToolbarPos(pos) {
+    localStorage.setItem(TOOLBAR_POS_KEY, JSON.stringify(pos));
+}
+function clampToolbarPos(el, left, top) {
+    const pad = 8;
+    const w = el.offsetWidth || 240;
+    const h = el.offsetHeight || 120;
+    return {
+        left: Math.max(pad, Math.min(left, window.innerWidth - w - pad)),
+        top: Math.max(pad, Math.min(top, window.innerHeight - h - pad)),
+    };
+}
 const TOOLS = [
     { id: 'select', icon: 'fa-arrow-pointer', labelKey: 'toolSelect', fallback: 'Select' },
     { id: 'wall', icon: 'fa-minus', labelKey: 'toolWall', fallback: 'Wall' },
@@ -15,6 +44,8 @@ const TOOLS = [
 ];
 export class SceneEditorToolbarApp extends BaseToolbar {
     editor;
+    #pos = readToolbarPos();
+    #dragging = false;
     constructor(editor) {
         super({});
         this.editor = editor;
@@ -35,6 +66,8 @@ export class SceneEditorToolbarApp extends BaseToolbar {
         content: { template: 'systems/mastery-system/templates/ui/scene-editor-toolbar.hbs' },
     };
     refresh() {
+        if (this.#dragging)
+            return;
         if (this.rendered)
             void this.render({ force: false });
     }
@@ -86,6 +119,8 @@ export class SceneEditorToolbarApp extends BaseToolbar {
         const root = this.element;
         if (!root)
             return;
+        this.#applySavedPosition(root);
+        this.#bindDrag(root);
         root.querySelectorAll('[data-tool]').forEach((btn) => {
             btn.onclick = () => this.editor.setTool(btn.dataset.tool);
         });
@@ -125,6 +160,65 @@ export class SceneEditorToolbarApp extends BaseToolbar {
                 void this.editor.rejectSuggestions([id]);
         });
         this.bind(root, '.js-accept-all', () => this.editor.acceptAll());
+    }
+    #applySavedPosition(root) {
+        if (!this.#pos)
+            return;
+        const pos = clampToolbarPos(root, this.#pos.left, this.#pos.top);
+        this.#pos = pos;
+        root.classList.add('is-placed');
+        root.style.left = `${pos.left}px`;
+        root.style.top = `${pos.top}px`;
+        root.style.right = 'auto';
+    }
+    #bindDrag(root) {
+        const handle = root.querySelector('.js-se-drag');
+        if (!handle || handle._msSeDragBound)
+            return;
+        handle._msSeDragBound = true;
+        let offsetX = 0;
+        let offsetY = 0;
+        const onMove = (ev) => {
+            if (!this.#dragging)
+                return;
+            this.#pos = clampToolbarPos(root, ev.clientX - offsetX, ev.clientY - offsetY);
+            root.classList.add('is-placed');
+            root.style.left = `${this.#pos.left}px`;
+            root.style.top = `${this.#pos.top}px`;
+            root.style.right = 'auto';
+        };
+        const onUp = (ev) => {
+            if (!this.#dragging)
+                return;
+            this.#dragging = false;
+            handle.releasePointerCapture?.(ev.pointerId);
+            window.removeEventListener('pointermove', onMove);
+            window.removeEventListener('pointerup', onUp);
+            if (this.#pos)
+                writeToolbarPos(this.#pos);
+        };
+        handle.addEventListener('pointerdown', (ev) => {
+            if (ev.button !== 0)
+                return;
+            ev.preventDefault();
+            ev.stopPropagation();
+            const box = root.getBoundingClientRect();
+            this.#dragging = true;
+            offsetX = ev.clientX - box.left;
+            offsetY = ev.clientY - box.top;
+            handle.setPointerCapture?.(ev.pointerId);
+            window.addEventListener('pointermove', onMove);
+            window.addEventListener('pointerup', onUp);
+        });
+        handle.addEventListener('dblclick', (ev) => {
+            ev.preventDefault();
+            this.#pos = null;
+            localStorage.removeItem(TOOLBAR_POS_KEY);
+            root.classList.remove('is-placed');
+            root.style.left = '';
+            root.style.top = '';
+            root.style.right = '';
+        });
     }
     bind(root, sel, fn) {
         const el = root.querySelector(sel);

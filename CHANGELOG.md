@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.385] - 2026-08-18
+
+### Changed
+
+- **Scene Editor launch button:** The floating **EDIT SCENE** control no longer sits on the map. It is the first item in the left scene-control menu — icon plus a short label, full name in the tooltip — so the canvas stays clear.
+- **Movable tool palette:** The editor toolbar can be dragged by the grip at the top and remembers its place in the browser. Double-click the grip to send it back to the default corner.
+
 ## [0.9.384] - 2026-08-18
 
 ### Added

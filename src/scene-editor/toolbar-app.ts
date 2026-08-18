@@ -10,6 +10,38 @@ import type { AnalysisLayerVisibility, EditorTool, SnapMode } from './types.js';
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const BaseToolbar = HandlebarsApplicationMixin(ApplicationV2) as typeof ApplicationV2;
 
+const TOOLBAR_POS_KEY = 'mastery-system.sceneEditor.toolbarPos';
+
+type ToolbarPos = { left: number; top: number };
+
+function readToolbarPos(): ToolbarPos | null {
+  try {
+    const raw = localStorage.getItem(TOOLBAR_POS_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as Partial<ToolbarPos>;
+    const left = Number(parsed.left);
+    const top = Number(parsed.top);
+    if (!Number.isFinite(left) || !Number.isFinite(top)) return null;
+    return { left, top };
+  } catch {
+    return null;
+  }
+}
+
+function writeToolbarPos(pos: ToolbarPos): void {
+  localStorage.setItem(TOOLBAR_POS_KEY, JSON.stringify(pos));
+}
+
+function clampToolbarPos(el: HTMLElement, left: number, top: number): ToolbarPos {
+  const pad = 8;
+  const w = el.offsetWidth || 240;
+  const h = el.offsetHeight || 120;
+  return {
+    left: Math.max(pad, Math.min(left, window.innerWidth - w - pad)),
+    top: Math.max(pad, Math.min(top, window.innerHeight - h - pad)),
+  };
+}
+
 const TOOLS: Array<{ id: EditorTool; icon: string; labelKey: string; fallback: string }> = [
   { id: 'select', icon: 'fa-arrow-pointer', labelKey: 'toolSelect', fallback: 'Select' },
   { id: 'wall', icon: 'fa-minus', labelKey: 'toolWall', fallback: 'Wall' },
@@ -20,6 +52,9 @@ const TOOLS: Array<{ id: EditorTool; icon: string; labelKey: string; fallback: s
 ];
 
 export class SceneEditorToolbarApp extends BaseToolbar {
+  #pos: ToolbarPos | null = readToolbarPos();
+  #dragging = false;
+
   constructor(private readonly editor: SceneEditorController) {
     super({});
   }
@@ -42,6 +77,7 @@ export class SceneEditorToolbarApp extends BaseToolbar {
   };
 
   refresh(): void {
+    if (this.#dragging) return;
     if ((this as any).rendered) void (this as any).render({ force: false });
   }
 
@@ -93,6 +129,8 @@ export class SceneEditorToolbarApp extends BaseToolbar {
   protected async _onRender(_context: any, _options: any): Promise<void> {
     const root = (this as any).element as HTMLElement;
     if (!root) return;
+    this.#applySavedPosition(root);
+    this.#bindDrag(root);
     root.querySelectorAll<HTMLElement>('[data-tool]').forEach((btn) => {
       btn.onclick = () => this.editor.setTool(btn.dataset.tool as EditorTool);
     });
@@ -130,6 +168,66 @@ export class SceneEditorToolbarApp extends BaseToolbar {
       if (id) void this.editor.rejectSuggestions([id]);
     });
     this.bind(root, '.js-accept-all', () => this.editor.acceptAll());
+  }
+
+  #applySavedPosition(root: HTMLElement): void {
+    if (!this.#pos) return;
+    const pos = clampToolbarPos(root, this.#pos.left, this.#pos.top);
+    this.#pos = pos;
+    root.classList.add('is-placed');
+    root.style.left = `${pos.left}px`;
+    root.style.top = `${pos.top}px`;
+    root.style.right = 'auto';
+  }
+
+  #bindDrag(root: HTMLElement): void {
+    const handle = root.querySelector<HTMLElement>('.js-se-drag');
+    if (!handle || (handle as any)._msSeDragBound) return;
+    (handle as any)._msSeDragBound = true;
+
+    let offsetX = 0;
+    let offsetY = 0;
+
+    const onMove = (ev: PointerEvent) => {
+      if (!this.#dragging) return;
+      this.#pos = clampToolbarPos(root, ev.clientX - offsetX, ev.clientY - offsetY);
+      root.classList.add('is-placed');
+      root.style.left = `${this.#pos.left}px`;
+      root.style.top = `${this.#pos.top}px`;
+      root.style.right = 'auto';
+    };
+
+    const onUp = (ev: PointerEvent) => {
+      if (!this.#dragging) return;
+      this.#dragging = false;
+      handle.releasePointerCapture?.(ev.pointerId);
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerup', onUp);
+      if (this.#pos) writeToolbarPos(this.#pos);
+    };
+
+    handle.addEventListener('pointerdown', (ev) => {
+      if (ev.button !== 0) return;
+      ev.preventDefault();
+      ev.stopPropagation();
+      const box = root.getBoundingClientRect();
+      this.#dragging = true;
+      offsetX = ev.clientX - box.left;
+      offsetY = ev.clientY - box.top;
+      handle.setPointerCapture?.(ev.pointerId);
+      window.addEventListener('pointermove', onMove);
+      window.addEventListener('pointerup', onUp);
+    });
+
+    handle.addEventListener('dblclick', (ev) => {
+      ev.preventDefault();
+      this.#pos = null;
+      localStorage.removeItem(TOOLBAR_POS_KEY);
+      root.classList.remove('is-placed');
+      root.style.left = '';
+      root.style.top = '';
+      root.style.right = '';
+    });
   }
 
   private bind(root: HTMLElement, sel: string, fn: () => unknown): void {

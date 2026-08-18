@@ -193,9 +193,11 @@ export class SceneEditorController {
     const on = this.active;
     btn.classList.toggle('is-active', on);
     btn.innerHTML = on
-      ? `<i class="fas fa-check"></i> ${t('stop', 'FINISH EDITING')}`
-      : `<i class="fas fa-vector-square"></i> ${t('start', 'EDIT SCENE')}`;
-    btn.title = on ? t('stopHint', 'Leave the scene editor.') : t('startHint', 'Prepare walls, doors and windows on this map.');
+      ? `<i class="fas fa-check"></i><span class="ms-se-toggle-label">${t('stopShort', 'Done')}</span>`
+      : `<i class="fas fa-vector-square"></i><span class="ms-se-toggle-label">${t('startShort', 'Scene')}</span>`;
+    btn.title = on
+      ? t('stop', 'FINISH EDITING') + ' — ' + t('stopHint', 'Leave the scene editor.')
+      : t('start', 'EDIT SCENE') + ' — ' + t('startHint', 'Prepare walls, doors and windows on this map.');
   }
 
   setTool(tool: EditorTool): void {

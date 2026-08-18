@@ -1,4 +1,8 @@
 <div class="ms-se-toolbar">
+  <div class="ms-se-drag js-se-drag" title="{{localize 'MASTERY.sceneEditor.moveToolbar'}}">
+    <i class="fas fa-grip-lines"></i>
+    <span>{{localize "MASTERY.sceneEditor.moveToolbar"}}</span>
+  </div>
   <div class="ms-se-tools">
     {{#each tools}}
     <button type="button" class="ms-se-btn{{#if active}} is-active{{/if}}" data-tool="{{id}}" title="{{label}}">

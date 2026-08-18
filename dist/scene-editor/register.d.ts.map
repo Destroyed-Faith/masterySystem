@@ -1,1 +1,1 @@
-{"version":3,"file":"register.d.ts","sourceRoot":"","sources":["../../src/scene-editor/register.ts"],"names":[],"mappings":"AAAA;;GAEG;AA+BH,wBAAgB,qBAAqB,IAAI,IAAI,CAiC5C"}
+{"version":3,"file":"register.d.ts","sourceRoot":"","sources":["../../src/scene-editor/register.ts"],"names":[],"mappings":"AAAA;;;GAGG;AAIH,eAAO,MAAM,sBAAsB,2BAA2B,CAAC;AA0C/D,wBAAgB,qBAAqB,IAAI,IAAI,CAoC5C"}

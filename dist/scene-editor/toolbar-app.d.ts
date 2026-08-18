@@ -6,6 +6,7 @@ import type { SceneEditorController } from './controller.js';
 declare const ApplicationV2: typeof import("@league-of-foundry-developers/foundry-vtt-types/src/foundry/client/applications/api/application.mjs").default;
 declare const BaseToolbar: typeof ApplicationV2;
 export declare class SceneEditorToolbarApp extends BaseToolbar {
+    #private;
     private readonly editor;
     constructor(editor: SceneEditorController);
     static DEFAULT_OPTIONS: {
