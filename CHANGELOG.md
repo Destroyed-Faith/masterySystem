@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.376] - 2026-08-18
+
+### Fixed
+
+- **Confirming stones always counts:** Pressing "Übernehmen & schließen" now registers the round confirmation no matter how the dialog was opened (player setup, GM fill, setup status row, forced dialog). Confirming from the status row used to pay the stones without marking the step, so the GM could not start the encounter although every player had pressed the button.
+- **No double payment:** The stone assignment was snapshotted before it was paid, so reopening the dialog restored an already paid wave and charged it again — "Not enough might stones! Need 1, have 0" or "Initiative Boost may be used only once per combat". Paid waves are now kept as a separate receipt and can never be charged twice.
+- **No phantom stones:** Each wave carries its own key in the DOM, so a restored assignment can no longer be painted into the lanes of the next wave (it looked assigned while the overview correctly said it was not).
+- **Scroll position in the Stone Powers dialog:** Placing a stone keeps the view where it was; the scroll position was read from the window frame instead of the scrolling dialog content.
+- **Stale Colorless Stones:** Leftovers from a fight that ended without cleanup are dropped when a new encounter is prepared, so Colorless Stones only ever come from Initiative Exchange.
+
+### Changed
+
+- **Attribute labels:** Every row of power cards is labeled with its attribute (Might, Agility, …); the generic row reads General.
+- **All stone pools visible:** All seven attribute pools plus Colorless are always shown. Empty or locked pools are dimmed and state the reason, e.g. "Attribut unter 8 — kein Steinpool" or "an Artefakt-Aktivierung gebunden".
+- **Colorless Stones are spent last:** Click-fill only reaches for Colorless Stones when no attribute pool has a free stone left — for General Powers and attribute powers alike.
+
 ## [0.9.375] - 2026-08-18
 
 ### Changed

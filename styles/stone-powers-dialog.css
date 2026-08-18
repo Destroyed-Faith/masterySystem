@@ -179,6 +179,21 @@
   gap: 0.15rem;
 }
 
+/* Pools stay visible when empty or locked; the reason sits under the name. */
+.stone-powers-dialog .pool-item.is-blocked {
+  border-style: dashed;
+  opacity: 0.62;
+}
+
+.stone-powers-dialog .pool-blocked-reason {
+  font-size: 0.62rem;
+  line-height: 1.1;
+  color: rgba(255, 255, 255, 0.55);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .stone-powers-dialog .pool-gems {
   display: flex;
   flex-wrap: wrap;
@@ -279,6 +294,14 @@
 .stone-powers-dialog .ms-stone-drop-slot .ms-slot-gem-partial.js-stone-returnable.is-drag-disabled {
   cursor: not-allowed;
   pointer-events: none;
+}
+
+/* Already charged this round: visible, but no longer removable. */
+.stone-powers-dialog .ms-stone-drop-slot .ms-slot-gem-partial.is-paid {
+  cursor: default;
+  pointer-events: none;
+  outline: 1px solid rgba(102, 187, 106, 0.9);
+  outline-offset: 1px;
 }
 
 .stone-powers-dialog .pool-gems.is-pool-drag-over {
@@ -726,10 +749,26 @@
   overflow: visible;
 }
 
+.stone-powers-dialog .power-group.is-general .powers-attr-label {
+  padding: 0.16rem 0.3rem 0;
+  margin: 0;
+}
+
 .stone-powers-dialog .powers-matrix {
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
+}
+
+/* Which attribute a row of power cards belongs to (Might, Agility, …). */
+.stone-powers-dialog .powers-attr-label {
+  padding: 0 0.24rem;
+  margin: 0.1rem 0 -0.15rem;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.62);
 }
 
 .stone-powers-dialog .power-card-placeholder {

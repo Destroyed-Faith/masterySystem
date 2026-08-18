@@ -94,6 +94,32 @@ export async function clearNpcOngoingEffectsAfterCombat(combat: any): Promise<vo
   }
 }
 
+/**
+ * Fresh encounter: drop leftovers from a fight that ended without cleanup
+ * (crash, no GM online, world from before the cleanup existed). Colorless
+ * Stones only ever come from Initiative Exchange, so anything present before
+ * the first conversion is stale, and a stale stone assignment snapshot would
+ * otherwise reappear in the Stone Powers dialog.
+ *
+ * Runs at encounter preparation, never at `combatStart` — round-1 stones are
+ * bought during the prepare phase and must survive.
+ */
+export async function clearStaleStoneStateBeforeEncounter(combat: any): Promise<void> {
+  if (!combat) return;
+  for (const actor of collectCleanupActors(combat)) {
+    try {
+      await clearTempColorlessStones(actor);
+    } catch (err) {
+      console.warn('Mastery System | Colorless stone reset before encounter failed', err);
+    }
+    try {
+      await actor.unsetFlag?.('mastery-system', 'stonePowersRoundPlan');
+    } catch (err) {
+      console.warn('Mastery System | Could not clear stale stone assignment snapshot', err);
+    }
+  }
+}
+
 /** Single entry point for the `combatEnd` / `deleteCombat` hooks (GM only). */
 export async function runCombatEndCleanup(combat: any): Promise<void> {
   if (!combat) return;

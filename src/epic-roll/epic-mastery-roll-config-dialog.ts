@@ -9,8 +9,8 @@ import type {
   EpicMasteryRollStartConfig,
   EpicRollConfig,
   EpicRollKind,
-  defaultRollTitleForKind,
 } from './epic-mastery-roll-types.js';
+import { defaultRollTitleForKind } from './epic-mastery-roll-types.js';
 import { startEpicMasteryRollSession } from './epic-mastery-roll-session.js';
 import {
   listEpicRollCandidateActors,

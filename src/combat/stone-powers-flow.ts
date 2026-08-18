@@ -301,6 +301,35 @@ export async function openStonePowersForAllCombatants(combat: Combat, round: num
   }
 }
 
+/**
+ * Register a confirmed stone assignment, whichever way the dialog was opened
+ * (player pipeline, GM fill, setup status row, forced dialog). Writes the
+ * combatant step so it survives without a GM client, then lets the GM own the
+ * Combat flag. Round 0 (prepare phase) counts as round 1, matching
+ * `encounterStartBlockers`.
+ */
+export async function confirmStonePowersForCombatant(
+  combat: Combat | null | undefined,
+  combatant: Combatant | null | undefined
+): Promise<void> {
+  if (!combat || !combatant) return;
+  const live = resolveLiveCombat(combat) ?? combat;
+  const round = Math.max(1, Number(live.round) || 1);
+  const { persistCombatantSetupStep } = await import('./encounter-setup-flags.js');
+  await persistCombatantSetupStep(combatant, live, { stonesDoneRound: round });
+
+  if (game.user?.isGM) {
+    await handleStonePowersComplete(live, combatant.id, round);
+  } else {
+    game.socket?.emit(ENCOUNTER_SOCKET, {
+      type: 'stonePowersComplete',
+      combatId: live.id,
+      combatantId: combatant.id,
+      round,
+    });
+  }
+}
+
 export async function handleStonePowersComplete(combat: Combat, combatantId: string, round: number): Promise<void> {
   const live = resolveLiveCombat(combat);
   if (!live) return;

@@ -223,6 +223,16 @@ export async function beginEncounter(combat: Combat): Promise<void> {
   }
 
   await updateEncounterSetup(combat, { started: true });
+
+  if (game.user?.isGM) {
+    try {
+      const { clearStaleStoneStateBeforeEncounter } = await import('./combat-end-cleanup.js');
+      await clearStaleStoneStateBeforeEncounter(combat);
+    } catch (err) {
+      console.warn('Mastery System | Could not clear stale stone state before encounter', err);
+    }
+  }
+
   const currentSetup = getEncounterSetup(combat);
   if (!currentSetup.carouselShown) {
     CombatCarouselApp.open();
