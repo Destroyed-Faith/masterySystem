@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.378] - 2026-08-18
+
+### Added
+
+- **Shut Down Combat in the encounter sidebar:** A GM button below "Prepare Combat" in the combat tracker, offered as long as any combat exists — no matter whether the carousel is open, the setup flow is stuck, or the combat belongs to another scene. It deletes the combat document (the one operation that cannot be refused) and therefore runs the regular end-of-combat cleanup: stone pools refill, Colorless Stones and Temp HP are dropped. `endCombat()` is only the fallback, and a failure now reports instead of doing nothing silently. The carousel's End Combat button takes the same path.
+
 ## [0.9.377] - 2026-08-18
 
 ### Changed

@@ -74,6 +74,17 @@
       "shopButton": "Initiative",
       "shopButtonHint": "Initiative-Austausch erneut öffnen (gleicher Wurf, wenn noch nicht bestätigt)."
     },
+    "combatShutdown": {
+      "button": "Kampf abbrechen",
+      "hint": "Kampf sofort beenden — auch wenn die Vorbereitung feststeckt.",
+      "confirmTitle": "Kampf abbrechen",
+      "confirmContent": "Beendet den Kampf für alle. Steinpools werden aufgefüllt, farblose Steine und Temp HP entfernt. Laufende Effekte der Spielercharaktere bleiben.",
+      "confirmRound": "Runde",
+      "done": "Kampf abgebrochen. Steine sind wieder aufgefüllt.",
+      "noCombat": "Kein Kampf vorhanden.",
+      "gmOnly": "Nur der SL kann den Kampf abbrechen.",
+      "failed": "Kampf konnte nicht abgebrochen werden — siehe Konsole."
+    },
     "encounterSetup": {
       "title": "Kampf-Setup",
       "passives": "Passives",

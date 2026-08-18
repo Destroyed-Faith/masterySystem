@@ -506,16 +506,12 @@ export class CombatCarouselApp extends BaseCarousel {
       };
     });
 
-    // Combat controls - End Combat
+    // Combat controls - End Combat (same path as the tracker shutdown button)
     root.querySelectorAll('.js-end-combat').forEach((btn: HTMLElement) => {
       btn.onclick = async (ev: MouseEvent) => {
         ev.preventDefault();
-        if (game.user?.isGM) {
-          const combat = game.combats?.active;
-          if (combat) {
-            await combat.endCombat();
-          }
-        }
+        const { shutDownCombat } = await import('../combat/combat-shutdown.js');
+        await shutDownCombat();
       };
     });
 

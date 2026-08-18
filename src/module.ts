@@ -57,6 +57,7 @@ import {
 } from './combat/encounter-setup-status.js';
 import { registerEncounterSocket } from './combat/encounter-socket.js';
 import { canCurrentUserUpdateDocument } from './combat/combat-permissions.js';
+import { findShutdownCombat } from './combat/combat-shutdown.js';
 import { initializeSceneControls, initializeTokenHUDButton } from './ui/scene-controls-mastery.js';
 import { initializeStonePowersFlow } from './combat/stone-powers-flow.js';
 import { arePlayerStonesReadyForRound, initializeStoneRoundGate } from './combat/stone-round-gate.js';
@@ -496,6 +497,27 @@ Hooks.once('init', async function() {
   }
   bindStartEncounterClick();
 
+  function bindShutdownCombatClick(): void {
+    const w = window as unknown as { _msShutdownCombatClickBound?: boolean };
+    if (w._msShutdownCombatClickBound) return;
+    w._msShutdownCombatClickBound = true;
+    document.addEventListener(
+      'click',
+      (ev) => {
+        const target = ev.target as HTMLElement | null;
+        if (!target?.closest?.('.ms-shutdown-combat-btn')) return;
+        ev.preventDefault();
+        ev.stopPropagation();
+        void (async () => {
+          const { shutDownCombat } = await import('./combat/combat-shutdown.js');
+          await shutDownCombat();
+        })();
+      },
+      true,
+    );
+  }
+  bindShutdownCombatClick();
+
   // Hide initiative roll button (d20) and add passive selection button in combat tracker
   // Also add End Turn button for current combatant
   Hooks.on('renderCombatTracker', (_app: any, html: any) => {
@@ -543,8 +565,19 @@ Hooks.once('init', async function() {
     $html.find('.ms-start-encounter-bar').remove();
     const startLabel = game.i18n?.localize('MASTERY.startEncounter.start') || 'Start Encounter';
     const startHint = game.i18n?.localize('MASTERY.startEncounter.trackerHint') || 'Pick PCs and NPCs on the scene';
+    // Escape hatch for a wedged encounter: always offered to a GM as long as any
+    // combat exists, no matter what state the carousel or the setup flow is in.
+    const shutdownLabel =
+      game.i18n?.localize('MASTERY.combatShutdown.button') || 'Kampf abbrechen';
+    const shutdownHint =
+      game.i18n?.localize('MASTERY.combatShutdown.hint') ||
+      'Kampf sofort beenden und Steine auffüllen.';
+    const shutdownBtn =
+      game.user?.isGM && findShutdownCombat()
+        ? `<button type="button" class="ms-shutdown-combat-btn" title="${shutdownHint}"><i class="fas fa-power-off"></i> ${shutdownLabel}</button>`
+        : '';
     const startBar = $(
-      `<div class="ms-start-encounter-bar"><button type="button" class="ms-start-encounter-btn" title="${startHint}">${startLabel}</button></div>`,
+      `<div class="ms-start-encounter-bar"><button type="button" class="ms-start-encounter-btn" title="${startHint}">${startLabel}</button>${shutdownBtn}</div>`,
     );
     const encountersNav = $html.find('nav.encounters');
     const encounterControlsHost = $html.find('.encounter-controls');
