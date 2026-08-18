@@ -1,85 +1,38 @@
 /**
- * Summon actor sheet — read-focused statblock for Summons V2 Bond bodies.
+ * Summon actor sheet — NPC sheet foundation, no phases, always Friendly.
  */
-import { MasteryCharacterSheet } from './character-sheet.js';
-import { getSharedSenseLabel } from '../stones/familiar-bind.js';
-export class MasterySummonSheet extends MasteryCharacterSheet {
+import { MasteryNpcSheet } from './npc-sheet.js';
+export class MasterySummonSheet extends MasteryNpcSheet {
     /** @override */
     static DEFAULT_OPTIONS = {
-        classes: ['summon'],
-        position: { width: 520, height: 640 },
+        ...MasteryNpcSheet.DEFAULT_OPTIONS,
+        classes: ['npc', 'summon'],
+        position: { width: 720, height: 820 },
     };
     /** @override */
     static PARTS = {
         body: {
-            template: 'systems/mastery-system/templates/actor/summon-sheet.hbs',
+            template: 'systems/mastery-system/templates/actor/npc-sheet.hbs',
         },
     };
+    get title() {
+        const name = String(this.document?.name ?? '').trim();
+        return name ? `Summon: ${name}` : 'Summon';
+    }
     /**
      * ApplicationV2 unions `classes` across the inheritance chain; strip the
      * parent's `character` class so character-sheet CSS never applies here.
+     * Keep `npc` so the Summon sheet shares the NPC CSS foundation.
      * @override
      */
     _initializeApplicationOptions(options) {
         const opts = super._initializeApplicationOptions(options);
         opts.classes = (opts.classes || []).filter((c) => c !== 'character');
+        if (!opts.classes.includes('npc'))
+            opts.classes.push('npc');
+        if (!opts.classes.includes('summon'))
+            opts.classes.push('summon');
         return opts;
-    }
-    async _prepareContext(options) {
-        const context = await super._prepareContext(options);
-        const system = this.actor.system ?? {};
-        const bondLink = system.summonBond ?? {};
-        const familiar = system.familiar ?? {};
-        const ownerId = bondLink.ownerActorId || familiar.ownerActorId || '';
-        const owner = ownerId ? game.actors?.get(ownerId) : null;
-        const senseGroups = (bondLink.sharedSenses ?? familiar.sharedSenses ?? []);
-        const specials = system.npcBaseAttack?.specials ?? [];
-        const special0 = specials[0];
-        const specialDisplay = special0?.special && special0?.specialValue
-            ? `${special0.special}(${special0.specialValue})`
-            : '';
-        const powers = Array.isArray(system.notesPowers)
-            ? system.notesPowers
-            : [];
-        const stats = {
-            hp: system.health?.bars?.[0]?.max ?? system.health?.maximum ?? 0,
-            armor: system.combat?.armor ?? 0,
-            evade: system.combat?.evade ?? 0,
-            speed: system.combat?.speed ?? 0,
-            attack: system.npcBaseAttack?.attackDiceCount
-                ? `${system.npcBaseAttack.attackDiceCount}d8`
-                : '—',
-            damage: system.npcBaseAttack?.damageDiceCount
-                ? `${system.npcBaseAttack.damageDiceCount}d8`
-                : '—',
-        };
-        return {
-            ...context,
-            familiar,
-            familiarStats: stats,
-            movementMode: bondLink.movementMode || familiar.movementType || 'walking',
-            expression: system.bio?.description?.match(/Expression: ([^.]+)/)?.[1] ?? '',
-            sharedSenseLabels: senseGroups.map((g) => getSharedSenseLabel(g)),
-            ownerName: owner?.name ?? 'Unknown',
-            ownerActorId: ownerId,
-            boundStoneCount: bondLink.boundStoneCount ?? familiar.boundStoneCount ?? 0,
-            summonAttacks: system.attackSlots ?? 1,
-            specialDisplay,
-            dormant: !!bondLink.dormant,
-            powerLabels: powers,
-        };
-    }
-    activateListeners(html) {
-        super.activateListeners(html);
-        html.find('[data-action="open-owner"]').on('click', (ev) => {
-            ev.preventDefault();
-            const system = this.actor.system ?? {};
-            const ownerId = system.summonBond?.ownerActorId || system.familiar?.ownerActorId;
-            if (!ownerId)
-                return;
-            const owner = game.actors?.get(ownerId);
-            owner?.sheet?.render(true);
-        });
     }
 }
 //# sourceMappingURL=summon-sheet.js.map

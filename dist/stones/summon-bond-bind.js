@@ -2,8 +2,10 @@
  * Summon Bond create / release / stone accounting (V2).
  * Canonical workflow — do not use the legacy Familiar editor for creation.
  */
+import { normalizeCreatureTypeValue } from '../utils/creature-type.js';
 import { applySustainedDelta, getActorPoolSpendable, } from './familiar-bind.js';
-import { BASE_SUMMON, BOND_STATUS_LABEL, classifyBondStatus, computeSummonBond, emptyBondSpend, legacyMovementTypeToMode, normalizeMovementMode, summonSkillSlots, summonTokensFromStones, } from './summon-bond-rules.js';
+import { BASE_SUMMON, BOND_STATUS_LABEL, MAX_ARTIFACT_BONUS_TOKENS, classifyBondStatus, computeSummonBond, emptyBondSpend, isSummonSkillEligible, legacyMovementTypeToMode, normalizeMovementMode, summonSkillMinRating, summonSkillSlots, summonTokensFromStones, } from './summon-bond-rules.js';
+import { inspectBondSpend, isIllegalBonusTokens, maxAssignableArtifactBonusTokens, safePurchaseInt, sanitizeBonusTokens, sanitizeSpendNumbers, } from './summon-bond-spend.js';
 import { evaluateSummonPower } from './summon-power-allowlist.js';
 export const DISSOLVE_BOND_CONFIRM = 'Dissolve this Summon Bond? Bound Stones return to the owner. Existing summon tokens will be removed. Body actors may be archived or deleted according to system settings.';
 export const STONE_POOL_ATTRS = [
@@ -17,7 +19,12 @@ export const STONE_POOL_ATTRS = [
 ];
 export function getSummonBondsFromActor(actor) {
     const raw = actor?.system?.summonBonds;
-    return Array.isArray(raw) ? raw : [];
+    if (!Array.isArray(raw))
+        return [];
+    return raw.map((bond) => {
+        const creatureType = normalizeCreatureTypeValue(bond.creatureType || bond.expression);
+        return { ...bond, creatureType, expression: creatureType };
+    });
 }
 export function getFamiliarsFromActor(actor) {
     const raw = actor?.system?.familiars;
@@ -61,7 +68,8 @@ export function createEmptyBond(opts) {
         id: newId('bond'),
         name: opts.name.trim() || 'Summon',
         img: opts.img || '',
-        expression: opts.expression || '',
+        expression: normalizeCreatureTypeValue(opts.creatureType || opts.expression),
+        creatureType: normalizeCreatureTypeValue(opts.creatureType || opts.expression),
         ownerActorId: opts.ownerActorId,
         boundStoneCount: stones,
         stoneAttributes: opts.stoneAttributes.slice(0, stones),
@@ -145,11 +153,18 @@ export function recomputeBondDerived(bond) {
         bodies: bodies.slice(0, Math.max(computed.bodyCount, bodies.length)),
     };
 }
-export function validateBondSkillAlloc(bond, ownerSkillRatings) {
+export function validateBondSkillAlloc(bond, ownerSkillRatings, ownerMasteryRank = 1) {
     const errors = [];
     const slots = summonSkillSlots(bond.boundStoneCount);
     if (bond.selectedSkills.length > slots) {
         errors.push(`Selected ${bond.selectedSkills.length} skills but only ${slots} slots (from Bound Stones).`);
+    }
+    const minRating = summonSkillMinRating(ownerMasteryRank);
+    for (const skill of bond.selectedSkills || []) {
+        const rating = Math.max(0, Math.floor(Number(ownerSkillRatings[skill]) || 0));
+        if (!isSummonSkillEligible(rating, ownerMasteryRank)) {
+            errors.push(`${skill}: Owner skill too low. Needs MR × 2.`);
+        }
     }
     let diceSum = 0;
     for (const [skill, dice] of Object.entries(bond.skillDiceAlloc || {})) {
@@ -270,7 +285,7 @@ export function validateBondPowers(bond, ownerMasteryRank = 1) {
     }
     return errors;
 }
-export function validateBondRitual(bond, ownerSkillRatings = {}, ownerMasteryRank = 1) {
+export function validateBondRitual(bond, ownerSkillRatings = {}, ownerMasteryRank = 1, extras) {
     const errors = [];
     const warnings = [];
     if (!bond.name?.trim())
@@ -299,15 +314,30 @@ export function validateBondRitual(bond, ownerSkillRatings = {}, ownerMasteryRan
         });
         bond.spend.bodies[i] = { ...bond.spend.bodies[i], powerTokenCosts: costs };
     }
-    const computed = computeSummonBond({
+    const maxBonus = extras?.maxBonusTokens ?? MAX_ARTIFACT_BONUS_TOKENS;
+    const inspect = inspectBondSpend(bond.spend, {
         boundStoneCount: bond.boundStoneCount,
         bonusTokens: bond.bonusTokens,
         movementMode: bond.movementMode,
-        spend: bond.spend,
+        selectedSkills: bond.selectedSkills,
+        ownerSkillRatings,
+        ownerMasteryRank,
+        maxBonusTokens: maxBonus,
+        skillDiceAlloc: bond.skillDiceAlloc,
+    });
+    if (isIllegalBonusTokens(bond.bonusTokens, maxBonus, bond.boundStoneCount)) {
+        errors.push('Artifact bonus Tokens are illegal (must be a multiple of 4 from Artifact Summon Stones, and cannot create a Bond).');
+    }
+    const computed = computeSummonBond({
+        boundStoneCount: bond.boundStoneCount,
+        bonusTokens: sanitizeBonusTokens(bond.bonusTokens, maxBonus),
+        movementMode: bond.movementMode,
+        spend: sanitizeSpendNumbers(bond.spend),
     });
     errors.push(...computed.errors);
     warnings.push(...computed.warnings);
-    errors.push(...validateBondSkillAlloc(bond, ownerSkillRatings));
+    errors.push(...inspect.reasons);
+    errors.push(...validateBondSkillAlloc(bond, ownerSkillRatings, ownerMasteryRank));
     errors.push(...validateBondPowers(bond, ownerMasteryRank));
     if (bond.spend.specialAccess && !bond.specialKey) {
         errors.push('Special Access requires selecting an eligible Special.');
@@ -318,9 +348,12 @@ export function validateBondRitual(bond, ownerSkillRatings = {}, ownerMasteryRan
     if (!bond.spend.specialAccess && bond.specialKey) {
         warnings.push('Special key set without Special Access — will be cleared on apply.');
     }
+    const uniqueErrors = [...new Set(errors)];
+    errors.length = 0;
+    errors.push(...uniqueErrors);
     const budgetErrors = errors.filter((e) => /Spent \d+ Tokens/.test(e));
     const hardErrors = errors.filter((e) => !budgetErrors.includes(e));
-    const overBudget = computed.tokensRemaining < 0 || budgetErrors.length > 0;
+    const overBudget = computed.tokensRemaining < 0 || budgetErrors.length > 0 || inspect.overBudget;
     const status = classifyBondStatus({
         hardErrors,
         overBudget,
@@ -359,7 +392,8 @@ export async function createSummonBondWithStones(actor, opts) {
         ownerActorId: actor.id,
         movementMode: opts.movementMode,
         stoneAttributes: attrs,
-        expression: opts.expression,
+        expression: opts.creatureType || opts.expression,
+        creatureType: opts.creatureType || opts.expression,
     });
     // Artifact bonus Tokens cannot create a Bond and are ignored at create.
     bond.bonusTokens = 0;
@@ -394,26 +428,46 @@ export async function applyBondRitual(actor, bondDraft, ownerSkillRatings = {}) 
     const mr = Math.max(1, Math.floor(Number(actor?.system?.mastery?.rank) || 1));
     // Sync power token costs into spend before validate
     const draft = foundryDuplicate(bondDraft);
+    const otherBonds = getSummonBondsFromActor(actor);
+    const maxBonus = maxAssignableArtifactBonusTokens(actor, draft.id, otherBonds);
+    draft.bonusTokens = sanitizeBonusTokens(draft.bonusTokens, maxBonus);
+    draft.spend = sanitizeSpendNumbers(draft.spend);
+    if (draft.boundStoneCount < 1)
+        draft.bonusTokens = 0;
     for (let i = 0; i < draft.spend.bodies.length; i++) {
         const body = draft.bodies[i];
         if (!body)
             continue;
         draft.spend.bodies[i] = {
             ...draft.spend.bodies[i],
-            powerTokenCosts: (body.powers || []).map((p) => Math.max(0, Math.floor(p.tokenCost || 0))),
+            powerTokenCosts: (body.powers || []).map((p) => safePurchaseInt(p.tokenCost)),
             sharedSenses: (body.sharedSenses || []),
-            hpPurchases: body.hpPurchases ?? draft.spend.bodies[i].hpPurchases,
-            armorPurchases: body.armorPurchases ?? draft.spend.bodies[i].armorPurchases,
-            evadePurchases: body.evadePurchases ?? draft.spend.bodies[i].evadePurchases,
+            hpPurchases: safePurchaseInt(body.hpPurchases ?? draft.spend.bodies[i].hpPurchases),
+            armorPurchases: safePurchaseInt(body.armorPurchases ?? draft.spend.bodies[i].armorPurchases),
+            evadePurchases: safePurchaseInt(body.evadePurchases ?? draft.spend.bodies[i].evadePurchases),
         };
     }
     if (!draft.spend.specialAccess) {
         draft.specialKey = null;
         draft.spend.specialValuePurchases = 0;
     }
-    const validation = validateBondRitual(draft, ownerSkillRatings, mr);
-    if (!validation.ok) {
-        return { bond: null, errors: validation.errors, warnings: validation.warnings };
+    const validation = validateBondRitual(draft, ownerSkillRatings, mr, { maxBonusTokens: maxBonus });
+    const inspect = inspectBondSpend(draft.spend, {
+        boundStoneCount: draft.boundStoneCount,
+        bonusTokens: draft.bonusTokens,
+        movementMode: draft.movementMode,
+        selectedSkills: draft.selectedSkills,
+        ownerSkillRatings,
+        ownerMasteryRank: mr,
+        maxBonusTokens: maxBonus,
+        skillDiceAlloc: draft.skillDiceAlloc,
+    });
+    if (!validation.ok || inspect.illegal) {
+        return {
+            bond: null,
+            errors: [...new Set([...validation.errors, ...inspect.reasons])],
+            warnings: validation.warnings,
+        };
     }
     let bond = syncBodiesFromSpend(draft);
     const computed = computeSummonBond({
@@ -517,9 +571,13 @@ export async function setBondBonusTokens(actor, bondId, bonusTokens) {
     const idx = bonds.findIndex((b) => b.id === bondId);
     if (idx < 0)
         return null;
+    const maxBonus = maxAssignableArtifactBonusTokens(actor, bondId, bonds);
+    let nextBonus = sanitizeBonusTokens(bonusTokens, maxBonus);
+    if (bonds[idx].boundStoneCount < 1)
+        nextBonus = 0;
     bonds[idx] = recomputeBondDerived({
         ...bonds[idx],
-        bonusTokens: Math.max(0, Math.floor(Number(bonusTokens) || 0)),
+        bonusTokens: nextBonus,
         needsRedistribution: true,
     });
     await persistSummonBonds(actor, bonds);

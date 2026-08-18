@@ -42,11 +42,15 @@ export interface EpicParticipantResult {
     raises: number;
     diceSummary: string;
     skipped?: boolean;
-    /** True while the owner may still spend skill points before locking in. */
+    /** True while the owner may still spend skill points or reroll before locking in. */
     awaitingConfirm?: boolean;
     skillKey?: string;
+    /** Attribute used for this check — needed to reroll the same pool. */
+    attributeKey?: string;
     skillSpent?: number;
     raiseTn?: number;
+    /** Already spent a Reroll Point on this Epic Roll. */
+    rerolled?: boolean;
     rollPayload?: EpicRollPayload;
     echoCardUsed?: {
         cardId: string;
@@ -106,10 +110,14 @@ export declare function mergeParticipantResult(session: EpicMasteryRollSession, 
     staged?: boolean;
 }): EpicMasteryRollSession;
 export declare function skipParticipantInSession(session: EpicMasteryRollSession, actorId: string): EpicMasteryRollSession;
+/** Player-facing name for a group roll of this kind. */
+export declare function defaultRollTitleForKind(kind: EpicRollKind): string;
 export declare function rollLabelForConfig(roll: EpicRollConfig): string;
 export declare function participantResultFromRoll(actorId: string, actorName: string, label: string, rollResult: MasteryRollResult, payload: EpicRollPayload, opts?: {
     skillKey?: string;
+    attributeKey?: string;
     awaitingConfirm?: boolean;
     skillSpent?: number;
+    rerolled?: boolean;
 }): EpicParticipantResult;
 //# sourceMappingURL=epic-mastery-roll-types.d.ts.map

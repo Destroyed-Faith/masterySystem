@@ -1,10 +1,10 @@
 /**
  * Option Collection and Parsing for Radial Menu
  */
-import { getAvailableManeuvers } from '../system/combat-maneuvers';
+import { getAvailableManeuvers } from '../system/combat-maneuvers.js';
 import { isManeuverHiddenFromActorRadial } from '../utils/radial-maneuver-prefs.js';
 import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
-import { getMovementRangeBonusMeters, getNpcAttackUsesThisRound, hasPowerBeenUsedThisRound, } from '../combat/action-economy.js';
+import { getAvailableAttackActions, getMovementRangeBonusMeters, getNpcAttackUsesThisRound, hasPowerBeenUsedThisRound, } from '../combat/action-economy.js';
 import { formatNpcAttackSpecialsLine, npcAttackDiceCount, npcAttacksPerRoundCap, npcAttackUsageKey, npcDamageDiceFormula, resolveNpcAttackList, resolveNpcAttackTargeting, } from '../utils/npc-attack-model.js';
 import { logNpcAttackListDump, logNpcTargeting } from '../utils/npc-targeting-debug.js';
 import { resolvePowerMechanics } from '../utils/power-mechanics.js';
@@ -14,6 +14,7 @@ import { artifactPowersUnlocked } from '../utils/artifact-actor-rules.js';
 import { resolveEquippedWeaponForAttackType } from '../utils/unarmed-fallback.js';
 import { filterCatalog } from '../utils/power-catalog.js';
 import { buildPowerItemFromCatalogEntry } from '../utils/power-item-builder.js';
+import { buildConsumableRadialOptions } from '../utils/consumable-slots.js';
 /**
  * True when activating spends an action: legacy `cost.action === true` or
  * string `attack` / `full` / `utility` (e.g. catalog active buffs).
@@ -386,10 +387,10 @@ function calculateRange(actor, optionId, slot, rangeStr, levelData) {
 }
 /**
  * True when the actor has an equipped/bound AND activated weapon-kind artifact
- * (e.g. Dragon Claws). Such artifacts ARE the weapon and provide their own
- * attack option, so the generic "Weapon Attack" maneuver is suppressed to
- * avoid a duplicate. An inactive artifact surfaces no own attack entry, so
- * the generic "Weapon Attack" must stay (it still rolls the artifact's dice).
+ * (e.g. Dragon Claws, Moonlight Greatsword). Those artifacts ARE the weapon.
+ * Basic Attack is suppressed so it does not sit next to Single Attack / the
+ * named artifact swing. An inactive artifact surfaces no own attack entry, so
+ * Basic Attack must stay (it still rolls the artifact's dice).
  */
 function actorHasEquippedWeaponArtifact(actor) {
     const items = actor?.items ? Array.from(actor.items) : [];
@@ -684,7 +685,9 @@ export async function getAllCombatOptionsForActor(actor) {
             continue;
         // Only include combat-usable powers (`activeBuff` is the template category
         // from the catalog — must be accepted alongside kebab-case `active-buff`).
-        if (!['movement', 'active', 'active-buff', 'activeBuff', 'buff', 'utility', 'reaction'].includes(powerType)) {
+        // Reactions are never listed here: they are offered contextually in the
+        // Reaction Window when someone attacks, not as a self-triggered action.
+        if (!['movement', 'active', 'active-buff', 'activeBuff', 'buff', 'utility'].includes(powerType)) {
             continue;
         }
         const combat = game.combat;
@@ -902,22 +905,13 @@ export async function getAllCombatOptionsForActor(actor) {
         if (maneuver.id === 'charge' || maneuver.id === 'flee-you-fools' || maneuver.id === 'tactical-retreat') {
             continue;
         }
-        // Filter out specific reaction maneuvers that should not appear in radial menu
-        // Basic Reactions (Guard/Evade/Counterattack/Dive) live in the Reaction Window, not the radial.
-        // Dodge Stance is retired from the radial (use Evade reaction / other defenses).
-        if (maneuver.id === 'readied-action' ||
-            maneuver.id === 'counter-attack' ||
-            maneuver.id === 'counterattack' ||
-            maneuver.id === 'opportunity-attack' ||
-            maneuver.id === 'defensive-roll' ||
-            maneuver.id === 'cover-fire' ||
-            maneuver.id === 'guard' ||
-            maneuver.id === 'evade' ||
-            maneuver.id === 'dive-for-cover' ||
-            maneuver.id === 'parry' ||
-            maneuver.id === 'dodge' ||
+        // Reactions never belong in the radial menu — they are offered in the
+        // Reaction Window while someone attacks you. Dodge Stance is retired too
+        // (use the Evade reaction / other defenses).
+        if (maneuver.slot === 'reaction' ||
+            maneuver.id === 'readied-action' ||
             maneuver.id === 'dodge-stance' ||
-            maneuver.id === 'block' ||
+            maneuver.tags?.includes('reaction') ||
             maneuver.tags?.includes('basic-reaction')) {
             continue;
         }
@@ -1046,6 +1040,14 @@ export async function getAllCombatOptionsForActor(actor) {
     }
     catch (err) {
         console.warn('Mastery System | Could not build artifact radial options:', err);
+    }
+    try {
+        const combat = globalThis.game?.combat ?? null;
+        const available = combat ? getAvailableAttackActions(actor, combat) : 1;
+        options.push(...buildConsumableRadialOptions(actor, { attackActionsAvailable: available }));
+    }
+    catch (err) {
+        console.warn('Mastery System | Could not build consumable radial options:', err);
     }
     // Logging
     return options;

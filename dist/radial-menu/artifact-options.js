@@ -42,8 +42,10 @@ function classifyArtifactRowType(rowType) {
     if (t.includes('active buff') || t.includes('active-buff') || (t.includes('buff') && !t.includes('debuff'))) {
         return 'activeBuff';
     }
+    // "Support" / "Stone Power Support" rows (e.g. Soul Shell 1) only pre-fill
+    // Stone Power lanes. There is nothing to click, so they stay out of the radial.
     if (t.includes('stone') || t.includes('support'))
-        return 'utility';
+        return 'support';
     // Offensive / attack-delivering rows (catalog martial + zone/aoe labels).
     if (t.includes('aoe') ||
         t.includes('attack') ||
@@ -87,6 +89,47 @@ function parseRowAoe(raw) {
         return { shape: 'radius', radiusM };
     }
     return { shape: 'none' };
+}
+/** True when the actor already has a power they can fire as an attack (e.g. Single Attack). */
+function actorHasOwnActivePower(actor) {
+    const items = actor?.items ? Array.from(actor.items) : [];
+    return items.some((item) => {
+        if (item?.type !== 'power')
+            return false;
+        if (item.system?.showInRadialMenu === false)
+            return false;
+        const powerType = String(item.system?.powerType || '').toLowerCase();
+        return powerType === 'active';
+    });
+}
+/** Extra natural attack (Dragon Head Bite) — never a leftover 1d8 on armor / staff / lantern. */
+function isDeclaredNaturalWeapon(sys) {
+    const aw = sys?.artifactWeapon;
+    if (sys?.naturalWeapon)
+        return true;
+    if (aw?.isNatural === true || aw?.naturalWeapon === true)
+        return true;
+    const profile = String(sys?.baseProfile || '');
+    const kind = String(sys?.artifactKind || '');
+    if (kind === 'weapon' || kind === 'armor' || kind === 'shield')
+        return false;
+    return (profile === 'headArmor' || profile === 'head') && !!String(aw?.name || '').trim();
+}
+/**
+ * Standalone "swing this artifact" buttons are opt-in:
+ *   • declared natural weapons (Dragon Head Bite) — always, they are extra attacks
+ *   • weapon-kind artifacts — only when the actor has no own Active (no Single Attack)
+ * Everything else (armor, shield, lantern, staff, feet, missing kind, leftover blobs) stays out.
+ */
+function shouldEmitArtifactWeaponAttack(sys, actorHasActivePower) {
+    const aw = sys?.artifactWeapon;
+    if (!aw?.damage)
+        return false;
+    if (isDeclaredNaturalWeapon(sys))
+        return true;
+    if (String(sys?.artifactKind || '') !== 'weapon')
+        return false;
+    return !actorHasActivePower;
 }
 function isArtifactEquipped(item) {
     if (!item)
@@ -141,14 +184,12 @@ export function buildArtifactRadialOptions(actor) {
         const progression = Array.isArray(sys.levelProgression)
             ? sys.levelProgression
             : [];
-        // Artifact / natural weapon → a usable attack that always rolls this
-        // weapon's damage (forcedWeaponItemId). Two flavours:
-        //   • weapon-kind artifact (Dragon Claws): this IS the actor's weapon, so
-        //     it REPLACES the generic "Weapon Attack" (tagged weapon-artifact-attack).
-        //   • naturalWeapon on a non-weapon slot (Dragon Head Bite): an EXTRA
-        //     natural attack alongside the normal weapon.
+        const hasOwnActivePower = actorHasOwnActivePower(actor);
+        // Extra natural-weapon button only (see shouldEmitArtifactWeaponAttack).
+        // Weapon-kind artifacts stay off the radial when the actor already has
+        // Single Attack / another Active — those powers roll this weapon's dice.
         const aw = sys.artifactWeapon;
-        if (aw && aw.damage) {
+        if (shouldEmitArtifactWeaponAttack(sys, hasOwnActivePower)) {
             const isRangedWeapon = resolveArtifactWeaponKind(aw, sys.baseProfile) === 'ranged';
             const isWeaponKind = sys.artifactKind === 'weapon';
             // Strip the generated " - Level N-M" suffix so the radial shows a
@@ -187,8 +228,9 @@ export function buildArtifactRadialOptions(actor) {
             const rowType = String(row.type || '').trim();
             const category = classifyArtifactRowType(rowType);
             // Passives are descriptive only; Reactions are surfaced via the
-            // defender-reactions pipeline. Neither belongs in the active radial.
-            if (category === 'passive' || category === 'reaction')
+            // defender-reactions pipeline; Stone Power Supports have no action
+            // at all. None of them belong in the active radial.
+            if (category === 'passive' || category === 'reaction' || category === 'support')
                 continue;
             const id = `artifact:${item.id}:${lvl}:${rowType}`;
             const name = row.name || `${item.name} L${lvl}`;

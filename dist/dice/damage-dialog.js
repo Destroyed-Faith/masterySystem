@@ -9,6 +9,7 @@ import { resolveEquippedWeaponForAttackType } from '../utils/equipment-modifiers
 import { applyMeleeUnarmedFallback, artifactToVirtualWeapon } from '../utils/unarmed-fallback.js';
 import { getNpcAttackByIndex, npcDamageDiceFormula, npcSpecialEffectString } from '../utils/npc-attack-model.js';
 import { previewTempHPConsumption } from '../combat/passive-triggers.js';
+import { getRoundState } from '../combat/action-economy.js';
 import { applyDefensiveMitigation, countNaturalEights } from '../combat/damage-mitigation.js';
 import { artifactSystemHasSpellFocus } from '../utils/artifact-rules.js';
 import { deriveArtifactWeaponDamage } from '../utils/artifact-base-derive.js';
@@ -344,22 +345,25 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
         weaponForDamage = items.find((item) => item.id === weaponId);
     }
     // Method 3: Equipped weapon matching attack type (from attack card flags)
-    if (!isNpcAttackFlow && !weaponForDamage && flags && (flags.attackType === 'melee' || flags.attackType === 'ranged')) {
+    if (!isNpcAttackFlow && !flags?.ignoreWeaponDamage && !weaponForDamage && flags && (flags.attackType === 'melee' || flags.attackType === 'ranged')) {
         weaponForDamage = resolveEquippedWeaponForAttackType(items, flags.attackType);
     }
     // Method 4: Virtual unarmed when no equipped weapon (melee only)
-    if (!isNpcAttackFlow && !weaponForDamage) {
+    if (!isNpcAttackFlow && !flags?.ignoreWeaponDamage && !weaponForDamage) {
         const atk = flags?.attackType === 'ranged' || flags?.attackType === 'melee'
             ? flags.attackType
             : 'melee';
         weaponForDamage = applyMeleeUnarmedFallback(weaponForDamage, atk);
     }
+    if (flags?.ignoreWeaponDamage) {
+        weaponForDamage = null;
+    }
     // Resolve base damage using helper (returns string directly)
-    const baseDamage = isNpcAttackFlow ? '0' : resolveWeaponBaseDamage(weaponForDamage);
+    const baseDamage = isNpcAttackFlow || flags?.ignoreWeaponDamage ? '0' : resolveWeaponBaseDamage(weaponForDamage);
     // Sanitize base damage before use
     const sanitizedBaseDamage = sanitizeDiceNotation(baseDamage);
     // Weapon specials should come from the same resolved weapon (only once)
-    const weaponSpecials = isNpcAttackFlow
+    const weaponSpecials = isNpcAttackFlow || flags?.ignoreWeaponDamage
         ? []
         : (weaponForDamage?.system?.specials ?? [])
             .map(normalizeWeaponSpecial)
@@ -1060,6 +1064,26 @@ async function consumeTargetMark(target, spend) {
         console.warn('Mastery System | consumeTargetMark failed', err);
     }
 }
+/** Stone Ward / incoming Special reduction. `null` means the Special is fully blocked. */
+function applyStoneWardToIncomingSpecial(target, effectId, effectName, effectValue) {
+    if (effectValue == null)
+        return effectValue;
+    const id = String(effectId || effectName || '').toLowerCase();
+    if (id === 'regeneration' || id.includes('regeneration'))
+        return effectValue;
+    try {
+        const combat = globalThis.game?.combat ?? null;
+        const sb = getRoundState(target, combat)?.stoneBonuses;
+        const ward = Math.max(0, Math.floor(Number(sb?.tempWard ?? sb?.incomingSpecialReduction ?? 0) || 0));
+        if (ward <= 0)
+            return effectValue;
+        const next = effectValue - ward;
+        return next > 0 ? next : null;
+    }
+    catch {
+        return effectValue;
+    }
+}
 /**
  * Apply status effects from specials to target actor.
  * Challenge uses challenger-bound merge rules (sourceUuid + stack/replace).
@@ -1084,22 +1108,26 @@ async function applyStatusEffectsToTarget(target, specialsUsed, attacker) {
                 const effectName = match[1].trim();
                 const effectValue = match[2] ? parseInt(match[2]) : null;
                 const effectId = getEffect(effectName)?.id;
+                const wardReduced = applyStoneWardToIncomingSpecial(target, effectId, effectName, effectValue);
+                if (wardReduced === null)
+                    continue;
+                const wardedValue = wardReduced;
                 const isChallenge = effectId === 'challenge' || effectName.toLowerCase() === 'challenge';
                 // Exorcism / Requiem: tag-gated; invalid creatures never receive the Special.
                 if ((effectId === 'exorcism' || effectId === 'requiem') &&
                     !isTargetedSpecialValidTarget(effectId, target)) {
                     continue;
                 }
-                if (isChallenge && effectValue !== null && effectValue > 0) {
-                    list = mergeChallengeEntry(list, effectValue, sourceName, sourceUuid);
+                if (isChallenge && wardedValue !== null && wardedValue > 0) {
+                    list = mergeChallengeEntry(list, wardedValue, sourceName, sourceUuid);
                     continue;
                 }
                 // Check if effect already exists (match by canonical id when known).
                 const existingEffect = list.find((e) => (effectId && e.id === effectId) || e.name === effectName);
                 if (existingEffect) {
                     // Update existing effect (e.g., increase stack)
-                    if (effectValue !== null) {
-                        existingEffect.value = (existingEffect.value || 0) + effectValue;
+                    if (wardedValue !== null) {
+                        existingEffect.value = (existingEffect.value || 0) + wardedValue;
                     }
                     if (effectId && !existingEffect.id)
                         existingEffect.id = effectId;
@@ -1109,7 +1137,7 @@ async function applyStatusEffectsToTarget(target, specialsUsed, attacker) {
                     list.push({
                         id: effectId,
                         name: effectName,
-                        value: effectValue,
+                        value: wardedValue,
                         source: sourceName,
                         ...(sourceUuid ? { sourceUuid } : {}),
                         timestamp: Date.now()
@@ -1333,6 +1361,15 @@ export async function applyDamageToTarget(target, damage, attacker, count8s = 0,
             // as the starting index.
             const bars = [...system.health.bars];
             let barIndex = applyDamageToBars(bars, 0, remaining);
+            try {
+                const { maybeApplyLastBreath } = await import('../stones/last-breath.js');
+                const lastBreathBar = await maybeApplyLastBreath(target, bars);
+                if (lastBreathBar != null)
+                    barIndex = lastBreathBar;
+            }
+            catch (lastBreathErr) {
+                console.warn('Mastery System | Last Breath failed', lastBreathErr);
+            }
             // Clamp barIndex to valid range
             if (barIndex >= bars.length) {
                 barIndex = bars.length - 1;
@@ -1344,8 +1381,8 @@ export async function applyDamageToTarget(target, damage, attacker, count8s = 0,
                 await target.update({
                     ...tempHPConsumption.patch,
                     'system.health.currentBar': barIndex,
-                    'system.health.bars': bars
-                });
+                    'system.health.bars': bars,
+                }, { masteryBloodHandled: true });
             }
             catch (e) {
                 if (mitigated > 0) {
@@ -1379,7 +1416,7 @@ export async function applyDamageToTarget(target, damage, attacker, count8s = 0,
                 throw e;
             }
         }
-        // Blood FX under the hit token: splatters for HP chips, mega puddle on health-level loss.
+        // Blood FX under the hit token: light/medium stains for chips, heavy pool on level loss.
         if (barDamage > 0 && globalThis.canvas?.ready) {
             try {
                 const { didLoseHealthLevel, showDamageBloodEffect } = await import('../utils/blood-pool.js');

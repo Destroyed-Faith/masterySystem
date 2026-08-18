@@ -3,6 +3,7 @@
  */
 import { SKILLS } from '../utils/skills.js';
 import { buildDifficultyPresets } from '../dice/roll-context-build.js';
+import { defaultRollTitleForKind } from './epic-mastery-roll-types.js';
 import { startEpicMasteryRollSession } from './epic-mastery-roll-session.js';
 import { listEpicRollCandidateActors, saveEpicRollRecentPreset, } from './epic-mastery-roll-settings.js';
 import { resolveActorPortraitSrc, portraitFallbackSrc } from './epic-mastery-roll-portraits.js';
@@ -39,7 +40,7 @@ export class EpicMasteryRollConfigDialog extends BaseDialog {
         classes: ['mastery-system', 'epic-mastery-roll-config'],
         position: { width: 920, height: 640 },
         window: {
-            title: 'Epic Mastery Roll',
+            title: 'Skill Roll',
             resizable: true,
         },
     };
@@ -68,7 +69,10 @@ export class EpicMasteryRollConfigDialog extends BaseDialog {
             this.skillKey = preset.roll.skillKey;
         if (preset.roll.kind === 'attribute')
             this.attributeKey = preset.roll.attributeKey;
-        this.selectedIds = [...preset.actorIds];
+        this.selectedIds = [...preset.actorIds].filter((id) => {
+            const actor = game.actors?.get(id);
+            return actor?.type === 'character';
+        });
     }
     async _prepareContext(_options) {
         const allActors = listEpicRollCandidateActors();
@@ -201,12 +205,12 @@ export class EpicMasteryRollConfigDialog extends BaseDialog {
     async startSession() {
         this.readCustomTnFromDom();
         const config = {
-            title: this.sceneTitle.trim() || 'Epic Mastery Roll',
+            title: this.sceneTitle.trim() || defaultRollTitleForKind(this.rollKind),
             flavor: this.flavor.trim(),
             showTn: this.showTn,
             tn: { ...this.tn },
             roll: this.buildRollConfig(),
-            actorIds: [...this.selectedIds],
+            actorIds: [...this.selectedIds].filter((id) => game.actors?.get(id)?.type === 'character'),
         };
         const session = await startEpicMasteryRollSession(config);
         if (!session)
@@ -224,7 +228,7 @@ export class EpicMasteryRollConfigDialog extends BaseDialog {
 }
 export function showEpicMasteryRollConfigDialog(preset) {
     if (!game.user?.isGM) {
-        ui.notifications?.warn('Only the GM can start an Epic Mastery Roll.');
+        ui.notifications?.warn('Only the GM can start a Skill Roll.');
         return;
     }
     const existing = foundry.applications.instances.get('mastery-epic-roll-config');

@@ -32,11 +32,29 @@ export declare function getActiveEchoTraits(echoKey: string | undefined | null, 
 export declare function buildFreshTraitUses(echoKey: string | undefined | null, subChoiceKey: string | undefined | null, masteryRank: number): Record<string, number>;
 /** Usage kinds that follow the \u201cMastery Rank per Safe Haven Rest\u201d pattern. */
 export declare function isMrPerRest(usage: EchoUsage): boolean;
+/** Mastery Rank that licenses each Echo Card slot (1-based order). */
+export declare const ECHO_CARD_SLOT_UNLOCK_RANKS: readonly [1, 4, 6];
 /**
  * Number of Echo-Card slots unlocked at a given Mastery Rank.
- * Start: 1. +1 at MR 2/4/6. Hard cap at 4 (the full deck).
+ * Start: 1. Second card at MR 4, third at MR 6.
  */
 export declare function getUnlockedCardSlots(masteryRank: number): number;
+/**
+ * Cards that currently have a licensed slot.
+ * Extra cards (high-MR start, then a lower rank) stay on the actor until
+ * the GM removes them — they are never auto-deleted.
+ */
+export declare function getLicensedEchoCardIds(selectedCardIds: string[], masteryRank: number): string[];
+export declare function isEchoCardLicensed(selectedCardIds: string[], masteryRank: number, cardId: string): boolean;
+/**
+ * Drop one selected Echo Card and its daily-use flag.
+ * Does not change Echo, traits, or other cards.
+ */
+export declare function removeSelectedEchoCard(selectedCardIds: string[], cardUses: Record<string, boolean>, cardId: string): {
+    selectedCardIds: string[];
+    cardUses: Record<string, boolean>;
+    removed: boolean;
+};
 /** True if a trait is currently gated off by Mastery Rank. */
 export declare function isTraitGatedByMr(usage: EchoUsage, masteryRank: number): boolean;
 //# sourceMappingURL=index.d.ts.map

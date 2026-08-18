@@ -458,7 +458,7 @@ const WYRM_SCALES_HEAVY = {
     // L1 Dragon Wings → movement-flight; L2 Wyrm Scales → ab-armor;
     // L3 Armor Stone Support → might.armor (the ARMOR stone power lives in the
     // Might pool; the old vitality.armor was removed when Vitality was aligned
-    // with the rules table: TempHP / Endure Special / Remove Scar / Extend Active Buff).
+    // with the rules table: TempHP / Damage Negation / Remove Scar / Extend Active Buff).
     progressionPickSpecs: {
         1: { name: 'Dragon Wings', templateId: 'movement-flight' },
         2: { name: 'Wyrm Scales', templateId: 'ab-armor' },

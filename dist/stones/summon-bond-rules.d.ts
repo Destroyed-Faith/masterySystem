@@ -98,6 +98,12 @@ export type SummonBondUpgradeSpend = {
     bodies: SummonBodyUpgradeSpend[];
 };
 export declare function summonTokensFromStones(boundStoneCount: number, bonusTokens?: number): number;
+/** Minimum owner Rating for a Summon Skill: MR × 2. */
+export declare function summonSkillMinRating(ownerMasteryRank: number): number;
+/** Owner skill cap: MR × 4. */
+export declare function summonSkillMaxRating(ownerMasteryRank: number): number;
+/** A skill is eligible only if the owner Rating is at least MR × 2. */
+export declare function isSummonSkillEligible(ownerRating: number, ownerMasteryRank: number): boolean;
 /** Selected skill slots by Bound Stones (bonus tokens do not increase this). */
 export declare function summonSkillSlots(boundStoneCount: number): number;
 /** Max Power Level by owner Mastery Rank. */
@@ -142,6 +148,11 @@ export declare function classifyBondStatus(opts: {
     needsRedistribution: boolean;
 }): BondValidityStatus;
 export declare const BOND_STATUS_LABEL: Record<BondValidityStatus, string>;
+export declare function emptyBodySpend(): SummonBodyUpgradeSpend;
+/** Hard sanity cap — no purchase field may exceed this even with huge token pools. */
+export declare const MAX_PURCHASE_HARD_CAP = 99;
+/** Artifact bonus Tokens hard cap (16 Artifact Summon Stones × 4). */
+export declare const MAX_ARTIFACT_BONUS_TOKENS = 64;
 export declare function computeSummonBond(opts: {
     boundStoneCount: number;
     bonusTokens?: number;

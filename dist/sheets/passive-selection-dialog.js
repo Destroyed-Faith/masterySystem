@@ -7,6 +7,8 @@
  * Migrated to Foundry VTT v13 ApplicationV2 + HandlebarsApplicationMixin
  */
 import { getPassiveSlots, getAvailablePassives, getSlottedPassiveIds, getPassiveSlotCountForMasteryRank, MAX_PASSIVE_SLOTS, slotPassive, unslotPassive } from '../powers/passives.js';
+import { shouldShowEncounterDialogLocally } from '../combat/combat-permissions.js';
+import { getActionEconomyActor } from '../combat/action-economy.js';
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 // Type workaround for Mixin
 const BaseDialog = HandlebarsApplicationMixin(ApplicationV2);
@@ -38,7 +40,7 @@ export class PassiveSelectionDialog extends BaseDialog {
         const existing = foundry.applications.instances.get("mastery-passive-selection");
         if (existing) {
             existing.bringToFront();
-            return { confirmed: false };
+            return { confirmed: false, alreadyOpen: true };
         }
         return new Promise((resolve) => {
             const app = new PassiveSelectionDialog([combatant], resolve, readOnly);
@@ -55,9 +57,9 @@ export class PassiveSelectionDialog extends BaseDialog {
         const existing = foundry.applications.instances.get("mastery-passive-selection");
         if (existing) {
             existing.bringToFront();
-            return { confirmed: false };
+            return { confirmed: false, alreadyOpen: true };
         }
-        const pcs = combat.combatants.filter((c) => c.actor?.type === 'character' && (user.isGM || c.actor?.isOwner));
+        const pcs = combat.combatants.filter((c) => c.actor?.type === 'character' && shouldShowEncounterDialogLocally(c.actor));
         if (pcs.length === 0) {
             return { confirmed: false };
         }
@@ -76,7 +78,10 @@ export class PassiveSelectionDialog extends BaseDialog {
         return this.pcs[this.currentIndex] ?? null;
     }
     get currentActor() {
-        return this.currentCombatant?.actor ?? null;
+        const raw = this.currentCombatant?.actor ?? null;
+        if (!raw)
+            return null;
+        return getActionEconomyActor(raw) ?? raw;
     }
     async _prepareContext(_options) {
         const actor = this.currentActor;
@@ -165,18 +170,18 @@ export class PassiveSelectionDialog extends BaseDialog {
                     await this.render({ force: true });
                 };
             });
-            // Unslot passive
-            root.querySelectorAll('.js-unslot-passive').forEach(btn => {
-                btn.onclick = async (ev) => {
-                    ev.preventDefault();
-                    const actor = this.currentActor;
-                    if (!actor)
+            // Capture-phase so the X wins over ApplicationV2 form submit / slot drag.
+            if (!root._msUnslotBound) {
+                root._msUnslotBound = true;
+                root.addEventListener('click', (ev) => {
+                    const btn = ev.target?.closest?.('.js-unslot-passive');
+                    if (!btn || !root.contains(btn))
                         return;
-                    const slotIndex = Number(btn.dataset.slotIndex ?? 0);
-                    await unslotPassive(actor, slotIndex);
-                    await this.render({ force: true });
-                };
-            });
+                    ev.preventDefault();
+                    ev.stopPropagation();
+                    void this.#unslotClicked(btn);
+                }, true);
+            }
         }
         // Navigation: Next
         const nextBtn = root.querySelector('.js-next-character');
@@ -214,6 +219,37 @@ export class PassiveSelectionDialog extends BaseDialog {
             };
         }
         // Close button removed from footer - use header close button instead
+    }
+    async #unslotClicked(btn) {
+        if (this.readOnly)
+            return;
+        const actor = this.currentActor;
+        if (!actor)
+            return;
+        const slotIndex = Number(btn.dataset.slotIndex ?? 0);
+        try {
+            await unslotPassive(actor, slotIndex);
+        }
+        catch (err) {
+            const actorId = String(actor.id ?? '');
+            const world = actorId ? game.actors?.get(actorId) : undefined;
+            if (world && world !== actor) {
+                try {
+                    await unslotPassive(world, slotIndex);
+                }
+                catch (err2) {
+                    console.error('Mastery System | Could not clear passive slot', err2);
+                    ui.notifications?.error('Passive konnte nicht aus dem Slot entfernt werden.');
+                    return;
+                }
+            }
+            else {
+                console.error('Mastery System | Could not clear passive slot', err);
+                ui.notifications?.error('Passive konnte nicht aus dem Slot entfernt werden.');
+                return;
+            }
+        }
+        await this.render({ force: true });
     }
     finishOutcome(confirmed) {
         if (this._outcomeResolved)

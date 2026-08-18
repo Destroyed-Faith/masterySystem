@@ -74,4 +74,9 @@ export declare function resetArtifactActivationForActor(actor: Actor, rootWorldI
 export declare function releaseAllArtifactActivationStones(actor: Actor): Promise<number>;
 /** Upgrade an artifact one tree step — costs 8 XP (unless `gmFree`). */
 export declare function upgradeArtifactForActor(actor: Actor, rootWorldId: string, embeddedId: string, targetWorldItemId: string, targetNodeId: string, options?: UpgradeArtifactOptions): Promise<boolean>;
+/** Walk the evolution tree back to `targetLevel` and refund 8 XP per dropped level. */
+export declare function downgradeArtifactForActor(actor: Actor, embeddedId: string, targetLevel: number): Promise<{
+    ok: boolean;
+    error?: string;
+}>;
 //# sourceMappingURL=artifact-evolution-actions.d.ts.map

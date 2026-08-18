@@ -13,7 +13,6 @@ export const RADIAL_STANDARD_MANEUVER_IDS = [
     'parry-stance',
     'aid',
     'interpose',
-    'initiative-delay',
 ];
 export function isStandardRadialManeuverId(id) {
     return RADIAL_STANDARD_MANEUVER_IDS.includes(id);
@@ -39,7 +38,6 @@ const RADIAL_PREFS_ROWS = [
     { id: 'parry-stance', name: 'Parry Stance', group: 'Angriff' },
     { id: 'aid', name: 'Aid', group: 'Reaktion' },
     { id: 'interpose', name: 'Interpose', group: 'Reaktion' },
-    { id: 'initiative-delay', name: 'Initiative: Delay', group: 'Initiative' },
 ];
 /**
  * Data for the character sheet collapsible panel (checkbox = hide from radial).

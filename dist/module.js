@@ -8,9 +8,12 @@ import { ArtifactSheetV2 } from './sheets/artifact-sheet-v2.js';
 // Combat hooks are imported dynamically to avoid build errors if dist/combat doesn't exist yet
 // import { initializeCombatHooks } from '../dist/combat/initiative.js';
 import { calculateStones } from './utils/calculations.js';
+import { NPC_EXTRA_POWERS_UPDATE, preserveNpcExtraPowersInSystemUpdate, } from './utils/npc-attack-model.js';
 import { initializeTokenActionSelector } from './token-action-selector.js';
 import { refreshRadialMenuActionLabelsIfOpenForActor } from './token-radial-menu.js';
 import { initializeTurnIndicator } from './turn-indicator.js';
+import { initializeBloodPoolHooks } from './utils/blood-pool.js';
+import { initializeInitiativeOrder } from './combat/initiative-roll.js';
 import { handleRadialMenuOpened, handleRadialMenuClosed } from './radial-menu/rendering.js';
 import { registerAttackRollClickHandler } from './chat/attack-roll-handler.js';
 import { registerDamageCardChatHooks } from './dice/damage-dialog.js';
@@ -22,18 +25,25 @@ import { showCharacterImportDialog } from './import/character-import-dialog.js';
 import { importMasteryCharacter, importMasteryCharacterFromJson, validateCharacterImportDocument, validateCharacterImportJson, parseCharacterImportJson, } from './import/character-import.js';
 import { CHARACTER_IMPORT_SCHEMA_VERSION } from './import/character-import-types.js';
 import { CombatCarouselApp } from './ui/combat-carousel.js';
+import { StartEncounterDialog } from './ui/start-encounter-dialog.js';
 import { initializeStoneHooks } from './stones/stone-hooks.js';
 import { applyPassiveTriggerToCombat, applyPassiveTrigger, applyBuffTriggersOnActivate, clearTempHPSourcesForBuffEffect, clearTempHPSourcesForCombat, } from './combat/passive-triggers.js';
 import { clearPhasingForCombat, removeAugmentCharges, registerPhasingSettings, } from './combat/phasing.js';
 import { registerStressBreakdownSettings } from './combat/stress-breakdown.js';
-import { initializeEncounterStart, beginEncounter } from './combat/encounter-start.js';
+import { initializeEncounterStart, beginEncounter, launchLiveCombat } from './combat/encounter-start.js';
+import { buildEncounterSetupStatus, forceEncounterDialog, forceEncounterDialogForAll, } from './combat/encounter-setup-status.js';
+import { registerEncounterSocket } from './combat/encounter-socket.js';
+import { canCurrentUserUpdateDocument } from './combat/combat-permissions.js';
+import { findShutdownCombat } from './combat/combat-shutdown.js';
 import { initializeSceneControls, initializeTokenHUDButton } from './ui/scene-controls-mastery.js';
-import { openStonePowersForAllCombatants, initializeStonePowersFlow } from './combat/stone-powers-flow.js';
+import { initializeStonePowersFlow } from './combat/stone-powers-flow.js';
+import { arePlayerStonesReadyForRound, initializeStoneRoundGate } from './combat/stone-round-gate.js';
 import { registerDivineClashSettings } from './divine-clash/divine-clash-settings.js';
 import { registerEpicMasteryRollSettings } from './epic-roll/epic-mastery-roll-settings.js';
 import { initializeEpicMasteryRoll } from './epic-roll/register-epic-mastery-roll.js';
 import { initializeTyhraCalendar } from './calendar/tyhra-calendar-hooks.js';
 import { initializeProseMirrorFontColor } from './editor/prosemirror-font-color.js';
+import { registerImageUrlShareHooks } from './ui/image-url-share.js';
 import { requestEpicMasteryRoll } from './epic-roll/epic-mastery-roll-config-dialog.js';
 import { getActiveEpicMasteryRollSession } from './epic-roll/epic-mastery-roll-session.js';
 import { initializeDivineClashHooks } from './divine-clash/divine-clash-hooks.js';
@@ -42,6 +52,8 @@ import { seedGeneralItemsStorage } from './utils/seed-general-items.js';
 import { seedArtifactLibrary, forceRefreshEchoArtifactLibrary } from './utils/seed-artifact-library.js';
 import { getEchoArtifactIcon, getItemIcon, getItemIconHintFromCreateData, getItemIconHintFromItem, normalizeWeaponNameKey, } from './utils/item-icons.js';
 import { actorHasPostCreationSnapshot, resetActorProgressToPostCreation } from './utils/xp-post-creation.js';
+import { openXpHistoryDialog } from './utils/xp-history.js';
+import { confirmAndApplySafeHavenRestToAllCharacters } from './utils/safe-haven-rest.js';
 import { getPowerDefinitionRank } from './utils/power-definition-rank.js';
 import { applyMasteryStatusEffects } from './system/status-effects.js';
 import { registerTemplatesCutoverSetting, runTemplatesCutover } from './migrations/templates-cutover.js';
@@ -233,6 +245,7 @@ Hooks.once('init', async function () {
     });
     // Initialize stone powers flow system
     initializeStonePowersFlow();
+    initializeStoneRoundGate();
     // Initialize Divine Clash hooks
     initializeDivineClashHooks();
     // Initialize Artifact Awakening system
@@ -240,17 +253,20 @@ Hooks.once('init', async function () {
     // Initialize combat hooks
     // Register combatStart hook directly here
     Hooks.on('combatStart', async (combat) => {
-        const msFlags = combat.flags?.['mastery-system'] || {};
-        if (msFlags.encounterSetup?.started) {
-            CombatCarouselApp.open();
-            return;
-        }
         try {
-            await PassiveSelectionDialog.showForCombat(combat);
-            await new Promise((resolve) => setTimeout(resolve, 1000));
-            const initRound = Math.max(1, combat.round ?? 1);
-            await openStonePowersForAllCombatants(combat, initRound);
+            const { ensureEncounterSetupStarted } = await import('./combat/encounter-start.js');
+            await ensureEncounterSetupStarted(combat);
             CombatCarouselApp.open();
+            if (game.user?.isGM) {
+                const { rollNpcInitiativeOnly, syncCombatTurnToHighestInitiativeFirst } = await import('./combat/initiative-roll.js');
+                await rollNpcInitiativeOnly(combat);
+                if (typeof combat.setupTurns === 'function') {
+                    await combat.setupTurns();
+                }
+                await syncCombatTurnToHighestInitiativeFirst(combat);
+            }
+            const { resumePlayerEncounterSetup } = await import('./combat/player-encounter-setup.js');
+            void resumePlayerEncounterSetup(combat);
         }
         catch (error) {
             console.error('Mastery System | Error in combat start sequence', error);
@@ -288,7 +304,7 @@ Hooks.once('init', async function () {
             if (!combat && CombatCarouselApp.instance) {
                 closeMasteryCombatCarouselUI();
             }
-            else if (combat?.started) {
+            else if (combat?.started || combat?.flags?.['mastery-system']?.encounterSetup?.started) {
                 const carousel = CombatCarouselApp.instance;
                 if (!carousel || !carousel.rendered) {
                     CombatCarouselApp.open();
@@ -379,6 +395,39 @@ Hooks.once('init', async function () {
             carousel.render({ force: false });
         }
     });
+    function bindStartEncounterClick() {
+        const w = window;
+        if (w._msStartEncounterClickBound)
+            return;
+        w._msStartEncounterClickBound = true;
+        document.addEventListener('click', (ev) => {
+            const target = ev.target;
+            if (!target?.closest?.('.ms-start-encounter-btn'))
+                return;
+            ev.preventDefault();
+            ev.stopPropagation();
+            void StartEncounterDialog.open();
+        }, true);
+    }
+    bindStartEncounterClick();
+    function bindShutdownCombatClick() {
+        const w = window;
+        if (w._msShutdownCombatClickBound)
+            return;
+        w._msShutdownCombatClickBound = true;
+        document.addEventListener('click', (ev) => {
+            const target = ev.target;
+            if (!target?.closest?.('.ms-shutdown-combat-btn'))
+                return;
+            ev.preventDefault();
+            ev.stopPropagation();
+            void (async () => {
+                const { shutDownCombat } = await import('./combat/combat-shutdown.js');
+                await shutDownCombat();
+            })();
+        }, true);
+    }
+    bindShutdownCombatClick();
     // Hide initiative roll button (d20) and add passive selection button in combat tracker
     // Also add End Turn button for current combatant
     Hooks.on('renderCombatTracker', (_app, html) => {
@@ -412,6 +461,39 @@ Hooks.once('init', async function () {
         }
         // Hide all initiative roll buttons
         $html.find('button[data-action="rollInitiative"]').css('display', 'none');
+        const trackerCombat = game.combat;
+        const trackerPreparing = !!(trackerCombat &&
+            !trackerCombat.started &&
+            trackerCombat.flags?.['mastery-system']?.encounterSetup?.started);
+        const foundryStartLabel = trackerPreparing
+            ? game.i18n?.localize('MASTERY.encounterSetup.startCombat') || 'Kampf starten'
+            : game.i18n?.localize('MASTERY.startEncounter.start') || 'Kampf vorbereiten';
+        $html.find('[data-action="startCombat"]').attr({
+            'data-tooltip': foundryStartLabel,
+            'aria-label': foundryStartLabel,
+            title: foundryStartLabel,
+        });
+        $html.find('.ms-start-encounter-bar').remove();
+        const startLabel = game.i18n?.localize('MASTERY.startEncounter.start') || 'Start Encounter';
+        const startHint = game.i18n?.localize('MASTERY.startEncounter.trackerHint') || 'Pick PCs and NPCs on the scene';
+        // Escape hatch for a wedged encounter: always offered to a GM as long as any
+        // combat exists, no matter what state the carousel or the setup flow is in.
+        const shutdownLabel = game.i18n?.localize('MASTERY.combatShutdown.button') || 'Kampf abbrechen';
+        const shutdownHint = game.i18n?.localize('MASTERY.combatShutdown.hint') ||
+            'Kampf sofort beenden und Steine auffüllen.';
+        const shutdownBtn = game.user?.isGM && findShutdownCombat()
+            ? `<button type="button" class="ms-shutdown-combat-btn" title="${shutdownHint}"><i class="fas fa-power-off"></i> ${shutdownLabel}</button>`
+            : '';
+        const startBar = $(`<div class="ms-start-encounter-bar"><button type="button" class="ms-start-encounter-btn" title="${startHint}">${startLabel}</button>${shutdownBtn}</div>`);
+        const encountersNav = $html.find('nav.encounters');
+        const encounterControlsHost = $html.find('.encounter-controls');
+        if (encountersNav.length)
+            encountersNav.before(startBar);
+        else if (encounterControlsHost.length)
+            encounterControlsHost.before(startBar);
+        else
+            $html.prepend(startBar);
+        bindStartEncounterClick();
         // Add buttons to each combatant row for passive and initiative dialogs
         $html.find('.combatant').each((_index, combatantElement) => {
             const $combatant = $(combatantElement);
@@ -440,8 +522,10 @@ Hooks.once('init', async function () {
             // Pass $html so the function can find the combatant in the rendered HTML
             updateInitiativeDisplayInTracker(combatant, $html);
             // Check if this is the current combatant
-            const isCurrent = combat.combatant?.id === combatantId;
-            // Add End Turn button for current combatant
+            const isCurrent = combat.combatant?.id === combatantId &&
+                !!combat.started &&
+                arePlayerStonesReadyForRound(combat);
+            // Add End Turn button for current combatant only after every PC set stones
             if (isCurrent) {
                 const endTurnBtn = $('<button type="button" class="combatant-control ms-end-turn-btn" data-action="endTurn" data-combatant-id="' + combatantId + '" data-tooltip="Nächster Eintrag im Initiative-Tracker (ein Zug weiter)." aria-label="Nächster Zug" title="Nächster Zug"><i class="fa-solid fa-forward"></i></button>');
                 $initiativeDiv.append(endTurnBtn);
@@ -456,8 +540,20 @@ Hooks.once('init', async function () {
             const encSetup = msFlagsRow.encounterSetup;
             const actorIdForPassives = combatant.actor?.id;
             const passivesLocked = actorIdForPassives && encSetup?.passives?.[actorIdForPassives]?.locked === true;
-            const passiveTooltip = passivesLocked ? 'Passives ansehen (gesperrt)' : 'Passives wählen / bestätigen';
-            const passiveBtn = $('<button type="button" class="combatant-control ms-passive-btn" data-action="selectPassives" data-combatant-id="' +
+            const setupStatus = combatant.actor?.type === 'character' ? buildEncounterSetupStatus(combatant, combat) : null;
+            const setupRowTip = (kind, fallback) => {
+                const row = setupStatus?.rows.find((r) => r.kind === kind);
+                if (!row)
+                    return fallback;
+                const forceHint = game.user?.isGM
+                    ? ` — ${game.i18n?.localize('MASTERY.encounterSetup.openForPlayer') || 'beim Spieler öffnen'}`
+                    : '';
+                return `${row.done ? '✓' : '—'} ${row.label}: ${row.summary}${forceHint}`;
+            };
+            const passiveTooltip = setupRowTip('passives', passivesLocked ? 'Passives ansehen (gesperrt)' : 'Passives wählen / bestätigen');
+            const passiveBtn = $('<button type="button" class="combatant-control ms-passive-btn' +
+                (setupStatus?.rows.find((r) => r.kind === 'passives')?.done ? ' is-setup-done' : '') +
+                '" data-action="selectPassives" data-combatant-id="' +
                 combatantId +
                 '" data-tooltip="' +
                 passiveTooltip +
@@ -465,13 +561,19 @@ Hooks.once('init', async function () {
                 passiveTooltip +
                 '"><i class="fa-solid fa-shield"></i></button>');
             $initiativeDiv.append(passiveBtn);
-            // Add Initiative Shop button
-            const initiativeBtn = $('<button type="button" class="combatant-control ms-initiative-btn" data-action="openInitiativeShop" data-combatant-id="' + combatantId + '" data-tooltip="Initiative Shop" aria-label="Initiative Shop" title="Initiative Shop"><i class="fa-solid fa-shop"></i></button>');
-            $initiativeDiv.append(initiativeBtn);
             // Add Stone Powers button (only for characters)
             const actor = combatant.actor;
             if (actor && actor.type === 'character') {
-                const stonePowersBtn = $('<button type="button" class="combatant-control ms-stone-powers-btn" data-action="openStonePowers" data-combatant-id="' + combatantId + '" data-tooltip="Stone Powers" aria-label="Stone Powers" title="Stone Powers"><i class="fa-solid fa-gem"></i></button>');
+                const stoneTooltip = setupRowTip('stones', 'Stone Powers');
+                const stonePowersBtn = $('<button type="button" class="combatant-control ms-stone-powers-btn' +
+                    (setupStatus?.rows.find((r) => r.kind === 'stones')?.done ? ' is-setup-done' : '') +
+                    '" data-action="openStonePowers" data-combatant-id="' +
+                    combatantId +
+                    '" data-tooltip="' +
+                    stoneTooltip +
+                    '" aria-label="Stone Powers" title="' +
+                    stoneTooltip +
+                    '"><i class="fa-solid fa-gem"></i></button>');
                 $initiativeDiv.append(stonePowersBtn);
                 stonePowersBtn.off('click.ms-stone-powers').on('click.ms-stone-powers', async (ev) => {
                     ev.preventDefault();
@@ -481,6 +583,10 @@ Hooks.once('init', async function () {
                         return;
                     }
                     try {
+                        if (game.user?.isGM) {
+                            await forceEncounterDialog('stones', combatant);
+                            return;
+                        }
                         const { StonePowersDialog } = await import('./stones/stone-powers-dialog.js');
                         await StonePowersDialog.showForActor(actor, combatant);
                     }
@@ -506,6 +612,10 @@ Hooks.once('init', async function () {
                     return;
                 }
                 try {
+                    if (game.user?.isGM && combatant.actor?.type === 'character') {
+                        await forceEncounterDialog('passives', combatant);
+                        return;
+                    }
                     const f = combat.flags?.['mastery-system'] || {};
                     const setupEnc = f.encounterSetup;
                     const aid = combatant.actor?.id;
@@ -517,40 +627,12 @@ Hooks.once('init', async function () {
                     ui.notifications?.error('Failed to open passive selection dialog');
                 }
             });
-            initiativeBtn.off('click.ms-initiative').on('click.ms-initiative', async (ev) => {
-                ev.preventDefault();
-                ev.stopPropagation();
-                const combat = game.combat;
-                if (!combat) {
-                    ui.notifications?.warn('No active combat encounter');
-                    return;
-                }
-                const combatant = combat.combatants.get(combatantId);
-                if (!combatant) {
-                    console.error('Mastery System | [COMBAT TRACKER DEBUG] Combatant not found', { combatantId });
-                    ui.notifications?.error('Combatant not found');
-                    return;
-                }
-                try {
-                    const actor = combatant.actor;
-                    if (!actor) {
-                        ui.notifications?.error('Actor not found');
-                        return;
-                    }
-                    const { openInitiativeShopForTrackerRescue } = await import('./combat/initiative-roll.js');
-                    await openInitiativeShopForTrackerRescue(combatant, combat);
-                }
-                catch (error) {
-                    console.error('Mastery System | [COMBAT TRACKER DEBUG] Error showing initiative shop', error);
-                    ui.notifications?.error('Failed to open initiative shop');
-                }
-            });
         });
         // Add "Begin Encounter" and "Select Passives" buttons to encounter controls
         const encounterControls = $html.find('.encounter-controls');
         if (encounterControls.length > 0) {
             // Remove any existing buttons to prevent duplicates
-            encounterControls.find('.ms-begin-encounter-btn, .ms-passive-selection-btn').remove();
+            encounterControls.find('.ms-begin-encounter-btn, .ms-start-live-combat-btn, .ms-passive-selection-btn, .ms-force-all-setup').remove();
             // Add button to the left control buttons area
             const leftControls = encounterControls.find('.control-buttons.left');
             if (leftControls.length > 0) {
@@ -561,12 +643,32 @@ Hooks.once('init', async function () {
                     const flags = combat.flags['mastery-system'] || {};
                     const setup = flags.encounterSetup;
                     const isStarted = setup?.started === true || combat.round > 0;
-                    const beginBtn = $('<button type="button" class="inline-control combat-control icon fa-solid fa-play ms-begin-encounter-btn" data-action="beginEncounter" data-tooltip="Begin Encounter" aria-label="Begin Encounter"></button>');
+                    const prepareLabel = game.i18n?.localize('MASTERY.startEncounter.start') || 'Kampf vorbereiten';
+                    const beginBtn = $(`<button type="button" class="inline-control combat-control icon fa-solid fa-list-check ms-begin-encounter-btn" data-action="beginEncounter" data-tooltip="${prepareLabel}" aria-label="${prepareLabel}"></button>`);
                     if (isStarted) {
                         beginBtn.prop('disabled', true).addClass('disabled');
-                        beginBtn.attr('data-tooltip', 'Encounter already initialized');
+                        beginBtn.attr('data-tooltip', game.i18n?.localize('MASTERY.startEncounter.already') || 'Schon in Vorbereitung');
                     }
                     leftControls.prepend(beginBtn);
+                    if (setup?.started === true && !combat.started) {
+                        const startLiveLabel = game.i18n?.localize('MASTERY.encounterSetup.startCombat') || 'Kampf starten';
+                        const startLiveBtn = $(`<button type="button" class="inline-control combat-control icon fa-solid fa-play ms-start-live-combat-btn" data-action="startLiveCombat" data-tooltip="${startLiveLabel}" aria-label="${startLiveLabel}"></button>`);
+                        beginBtn.after(startLiveBtn);
+                        startLiveBtn.off('click.ms-start-live').on('click.ms-start-live', async (ev) => {
+                            ev.preventDefault();
+                            ev.stopPropagation();
+                            const live = game.combat;
+                            if (!live)
+                                return;
+                            try {
+                                await launchLiveCombat(live);
+                            }
+                            catch (error) {
+                                console.error('Mastery System | Error starting live combat', error);
+                                ui.notifications?.error('Kampf starten fehlgeschlagen');
+                            }
+                        });
+                    }
                     // Add click handler
                     beginBtn.off('click.ms-begin').on('click.ms-begin', async (ev) => {
                         ev.preventDefault();
@@ -580,7 +682,7 @@ Hooks.once('init', async function () {
                         const flags = combat.flags['mastery-system'] || {};
                         const setup = flags.encounterSetup;
                         if (setup?.started === true || combat.round > 0) {
-                            ui.notifications?.warn('Encounter already initialized');
+                            ui.notifications?.warn(game.i18n?.localize('MASTERY.startEncounter.already') || 'Schon in Vorbereitung');
                             return;
                         }
                         try {
@@ -591,6 +693,22 @@ Hooks.once('init', async function () {
                             ui.notifications?.error('Failed to begin encounter');
                         }
                     });
+                }
+                if (game.user?.isGM) {
+                    const forceKinds = [
+                        { kind: 'passives', icon: 'fa-shield', tipKey: 'MASTERY.encounterSetup.forceAllPassives' },
+                        { kind: 'stones', icon: 'fa-gem', tipKey: 'MASTERY.encounterSetup.forceAllStones' },
+                    ];
+                    for (const spec of forceKinds) {
+                        const tip = game.i18n?.localize(spec.tipKey) || spec.tipKey;
+                        const forceBtn = $(`<button type="button" class="inline-control combat-control icon fa-solid ${spec.icon} ms-force-all-setup" data-kind="${spec.kind}" data-tooltip="${tip}" aria-label="${tip}"></button>`);
+                        leftControls.append(forceBtn);
+                        forceBtn.off('click.ms-force-all').on('click.ms-force-all', async (ev) => {
+                            ev.preventDefault();
+                            ev.stopPropagation();
+                            await forceEncounterDialogForAll(spec.kind);
+                        });
+                    }
                 }
                 // Add "Select Passives" button (legacy, for manual use)
                 const passiveBtn = $('<button type="button" class="inline-control combat-control icon fa-solid fa-shield ms-passive-selection-btn" data-action="selectPassives" data-tooltip="Select Passives" aria-label="Select Passives"></button>');
@@ -631,6 +749,8 @@ Hooks.once('init', async function () {
     // stone hooks so the trigger effects are in place when stone-power flows
     // read actor state later in the same event tick.
     Hooks.on('combatStart', async (combat) => {
+        if (!game.user?.isGM)
+            return;
         try {
             await applyPassiveTriggerToCombat('combatStart', combat);
         }
@@ -645,7 +765,7 @@ Hooks.once('init', async function () {
         try {
             const prevId = combat?.previous?.combatantId;
             const endingActor = prevId ? combat?.combatants?.get?.(prevId)?.actor : null;
-            if (endingActor) {
+            if (endingActor && canCurrentUserUpdateDocument(endingActor)) {
                 const { processTurnEndMovement } = await import('./combat/movement-tracker.js');
                 await processTurnEndMovement(endingActor);
             }
@@ -655,7 +775,7 @@ Hooks.once('init', async function () {
         }
         const currentCombatant = combat?.combatant;
         const turnActor = currentCombatant?.actor;
-        if (!turnActor)
+        if (!turnActor || !canCurrentUserUpdateDocument(turnActor))
             return;
         try {
             await applyPassiveTrigger(turnActor, 'turnStartSelf', combat);
@@ -689,6 +809,8 @@ Hooks.once('init', async function () {
         }
     });
     Hooks.on('combatEnd', async (combat) => {
+        if (!game.user?.isGM)
+            return;
         try {
             await clearTempHPSourcesForCombat(combat);
         }
@@ -777,9 +899,11 @@ Hooks.once('init', async function () {
     initializeStoneHooks();
     // Initialize encounter start system
     initializeEncounterStart();
+    registerEncounterSocket();
     initializeEpicMasteryRoll();
     initializeTyhraCalendar();
     initializeProseMirrorFontColor();
+    registerImageUrlShareHooks();
     // Initialize token action selector
     initializeTokenActionSelector();
     // Keep radial inner labels (Move / Atk / … counts) in sync when round state changes elsewhere (e.g. chat roll)
@@ -793,6 +917,42 @@ Hooks.once('init', async function () {
         if (changed.flags?.['mastery-system'] !== undefined) {
             void refreshRadialMenuActionLabelsIfOpenForActor(actor);
         }
+        if (changed.system?.mastery?.rank !== undefined) {
+            void import('./utils/consumable-slots.js').then(async ({ syncConsumableSlotsToMasteryRank, rankChangeNotification }) => {
+                const names = await syncConsumableSlotsToMasteryRank(actor);
+                if (names.length) {
+                    ui.notifications?.info(rankChangeNotification(names));
+                }
+                void refreshRadialMenuActionLabelsIfOpenForActor(actor);
+                const sheet = actor.sheet;
+                if (sheet?.rendered)
+                    sheet.render(false);
+            });
+        }
+    });
+    const refreshConsumableSurfaces = (item) => {
+        const actor = item?.parent;
+        if (!actor || actor.documentName !== 'Actor')
+            return;
+        void refreshRadialMenuActionLabelsIfOpenForActor(actor);
+        const sheet = actor.sheet;
+        if (sheet?.rendered)
+            sheet.render(false);
+    };
+    Hooks.on('updateItem', (item, changed) => {
+        if (changed.flags?.['mastery-system']?.equipment !== undefined || changed.system?.consumable !== undefined) {
+            refreshConsumableSurfaces(item);
+        }
+    });
+    Hooks.on('createItem', (item) => {
+        if (item?.system?.consumable === true || item?.getFlag?.('mastery-system', 'minorMagic')) {
+            refreshConsumableSurfaces(item);
+        }
+    });
+    Hooks.on('deleteItem', (item) => {
+        if (item?.system?.consumable === true || item?.flags?.['mastery-system']?.minorMagic) {
+            refreshConsumableSurfaces(item);
+        }
     });
     Hooks.on('updateToken', (tokenDoc, changed) => {
         const ms = changed.actorData?.flags?.['mastery-system'] ?? changed.flags?.['mastery-system'];
@@ -804,6 +964,8 @@ Hooks.once('init', async function () {
     });
     // Initialize turn indicator (blue ring around active combatant)
     initializeTurnIndicator();
+    initializeBloodPoolHooks();
+    initializeInitiativeOrder();
     // Register radial menu hooks for hover preview suppression
     Hooks.on('masterySystem.radialMenuOpened', handleRadialMenuOpened);
     Hooks.on('masterySystem.radialMenuClosed', handleRadialMenuClosed);
@@ -1380,56 +1542,58 @@ function setupXpManagementInline() {
         // Get all player characters
         const characters = game.actors?.filter((actor) => actor.type === 'character') || [];
         // Build the UI
+        const i18n = game.i18n;
+        const regularHint = i18n.localize('MASTERY.xp.regularHint');
+        const freeHint = i18n.localize('MASTERY.xp.freeHint');
+        const regularLabel = i18n.localize('MASTERY.xp.regularLabel');
+        const freeLabel = i18n.localize('MASTERY.xp.freeLabel');
         let htmlContent = '<div class="xp-management-header"><h3><i class="fas fa-coins"></i> Character XP Management</h3>';
-        htmlContent += '<p class="hint">Regular XP: Session-Vergabe (max. +1 pro Attribut/Skill/Power/Artefakt pro Upgrade Step). ';
-        htmlContent += '<strong>Free XP</strong>: frei verteilbar ohne Step-Limit. Die Flagge beendet nur den aktuellen Step — sie ersetzt kein Free XP.</p></div>';
+        htmlContent += `<p class="hint"><strong>${regularLabel}:</strong> ${regularHint} `;
+        htmlContent += `<strong>${freeLabel}:</strong> ${freeHint}</p></div>`;
         // Bulk Grant Section
         htmlContent += '<div class="bulk-grant-section"><h4>Bulk Grant XP</h4>';
         htmlContent += '<div class="bulk-grant-controls">';
-        htmlContent += '<div class="bulk-grant-group"><label>Regular XP:</label>';
-        htmlContent += '<input type="number" class="bulk-xp-amount" min="0" value="0" />';
-        htmlContent += '<button type="button" class="bulk-grant-btn" title="Session-XP an alle (Once-per-Step gilt)"><i class="fas fa-gift"></i> Grant to All</button></div>';
-        htmlContent += '<div class="bulk-grant-group"><label>Free XP:</label>';
-        htmlContent += '<input type="number" class="bulk-free-xp-amount" min="0" value="0" />';
-        htmlContent += '<button type="button" class="bulk-grant-free-btn" title="Free XP an alle (frei verteilbar, kein Step-Limit)"><i class="fas fa-star"></i> Grant Free to All</button></div>';
-        htmlContent += '<div class="bulk-grant-group bulk-reset-group"><button type="button" class="bulk-reset-xp-account-btn" title="XP-Konten und History für alle Charaktere auf 0"><i class="fas fa-eraser"></i> Reset XP (All)</button></div>';
+        htmlContent += `<div class="bulk-grant-group"><label title="${regularHint}">${regularLabel}:</label>`;
+        htmlContent += `<input type="number" class="bulk-xp-amount" min="0" value="0" title="${regularHint}" />`;
+        htmlContent += `<button type="button" class="bulk-grant-btn" title="${regularHint}"><i class="fas fa-gift"></i> Grant to All</button>`;
+        htmlContent += `<p class="bulk-grant-help" title="${regularHint}">${regularHint}</p></div>`;
+        htmlContent += `<div class="bulk-grant-group"><label title="${freeHint}">${freeLabel}:</label>`;
+        htmlContent += `<input type="number" class="bulk-free-xp-amount" min="0" value="0" title="${freeHint}" />`;
+        htmlContent += `<button type="button" class="bulk-grant-free-btn" title="${freeHint}"><i class="fas fa-star"></i> Grant Free to All</button>`;
+        htmlContent += `<p class="bulk-grant-help" title="${freeHint}">${freeHint}</p></div>`;
         htmlContent += '</div></div>';
-        // Characters Table — new spec: surface the once-per-step bump summary
-        // in place of the legacy `maxAttributeSpend` column.
+        htmlContent += '<div class="bulk-grant-section party-rest-section"><h4>Safe Haven Rest</h4>';
+        htmlContent += '<p class="hint">Same rest as the character-sheet button, for every player character at once.</p>';
+        htmlContent += '<button type="button" class="party-safe-haven-btn"><i class="fas fa-bed"></i> Safe Haven Rest — All Characters</button>';
+        htmlContent += '</div>';
+        const colCharacter = i18n.localize('MASTERY.xp.colCharacter');
+        const colSpent = i18n.localize('MASTERY.xp.colSpent');
+        const colAvail = i18n.localize('MASTERY.xp.colAvail');
+        const colFree = i18n.localize('MASTERY.xp.colFree');
+        const colEarned = i18n.localize('MASTERY.xp.colEarned');
+        const colActions = i18n.localize('MASTERY.xp.colActions');
+        const spentHint = i18n.localize('MASTERY.xp.spentHint');
+        const availHint = i18n.localize('MASTERY.xp.availHint');
         htmlContent += '<div class="characters-list"><table class="xp-table xp-table-compact"><thead><tr>';
-        htmlContent += '<th>Character</th><th>Player</th><th>Spent</th><th>Avail.</th><th>Free Avail.</th><th>Earned</th><th>Step bumps</th><th>Actions</th>';
+        htmlContent += `<th>${colCharacter}</th><th title="${spentHint}">${colSpent}</th><th title="${availHint}">${colAvail}</th><th>${colFree}</th><th>${colEarned}</th><th>${colActions}</th>`;
         htmlContent += '</tr></thead><tbody>';
         if (characters.length === 0) {
-            htmlContent += '<tr><td colspan="8" class="empty-message"><i class="fas fa-info-circle"></i> No player characters found.</td></tr>';
+            htmlContent += '<tr><td colspan="6" class="empty-message"><i class="fas fa-info-circle"></i> No player characters found.</td></tr>';
         }
         else {
-            const sanitize = (input) => Array.isArray(input) ? input.map((v) => String(v ?? '')).filter((s) => s.length > 0) : [];
             characters.forEach((actor) => {
                 const system = actor.system || {};
                 const points = system.points || {};
                 const xp = system.xp || {};
                 const totalEarned = xp.totalEarned ?? 0;
-                const totalSpent = xp.totalSpent ?? 0;
                 const available = points.xp ?? 0;
                 const freeAvailable = points.xpFree ?? 0;
                 const freeEarned = xp.freeEarned ?? 0;
-                const stepRaw = xp.currentStep ?? {};
-                const stepAttrs = sanitize(stepRaw.attributes);
-                const stepSkills = sanitize(stepRaw.skills);
-                const stepPowers = sanitize(stepRaw.powers);
-                const stepArtifacts = sanitize(stepRaw.artifacts);
-                const stepTotal = stepAttrs.length + stepSkills.length + stepPowers.length + stepArtifacts.length;
-                const stepSummaryParts = [];
-                if (stepAttrs.length)
-                    stepSummaryParts.push(`Attrs: ${stepAttrs.join(', ')}`);
-                if (stepSkills.length)
-                    stepSummaryParts.push(`Skills: ${stepSkills.join(', ')}`);
-                if (stepPowers.length)
-                    stepSummaryParts.push(`Powers: ${stepPowers.length}`);
-                if (stepArtifacts.length)
-                    stepSummaryParts.push(`Artifacts: ${stepArtifacts.length}`);
-                const stepSummary = stepSummaryParts.length ? stepSummaryParts.join(' | ') : 'No bumps this step';
-                const playerName = game.users?.find((u) => u.character?.id === actor.id)?.name || 'Unassigned';
+                const earnedAll = totalEarned + freeEarned;
+                const availableAll = available + freeAvailable;
+                const spentAll = Math.max(0, earnedAll - availableAll);
+                const freeAvailHint = i18n.format('MASTERY.xp.freeAvailHint', { earned: freeEarned });
+                const earnedHint = i18n.format('MASTERY.xp.earnedHint', { regular: totalEarned, free: freeEarned });
                 const isGM = game.user?.isGM;
                 const hasSnap = actorHasPostCreationSnapshot(actor);
                 const resetBtn = isGM
@@ -1437,26 +1601,19 @@ function setupXpManagementInline() {
                     : '';
                 htmlContent += `<tr data-character-id="${actor.id}">`;
                 htmlContent += `<td class="character-cell"><img src="${actor.img}" alt="${actor.name}" class="character-avatar" /><span class="character-name">${actor.name}</span></td>`;
-                htmlContent += `<td class="player-cell">${playerName}</td>`;
-                htmlContent += `<td class="xp-cell"><strong>${totalSpent}</strong></td>`;
-                htmlContent += `<td class="xp-cell"><strong>${available}</strong></td>`;
-                htmlContent += `<td class="xp-cell xp-cell-free" title="Free XP verfügbar (${freeEarned} vergeben gesamt)"><strong>${freeAvailable}</strong></td>`;
-                htmlContent += `<td class="xp-cell"><strong>${totalEarned}</strong></td>`;
-                htmlContent += `<td class="xp-cell" title="${stepSummary.replace(/"/g, '&quot;')}">${stepTotal}</td>`;
+                htmlContent += `<td class="xp-cell" title="${spentHint}"><strong>${spentAll}</strong></td>`;
+                htmlContent += `<td class="xp-cell" title="${availHint}"><strong>${available}</strong></td>`;
+                htmlContent += `<td class="xp-cell xp-cell-free" title="${freeAvailHint}"><strong>${freeAvailable}</strong></td>`;
+                htmlContent += `<td class="xp-cell" title="${earnedHint}"><strong>${earnedAll}</strong></td>`;
                 htmlContent += `<td class="grant-cell"><div class="grant-controls">`;
-                htmlContent += `<div class="grant-group"><input type="number" class="xp-amount-input" data-character-id="${actor.id}" min="0" value="0" placeholder="+" title="Regular XP (Session)" />`;
-                htmlContent += `<button type="button" class="grant-xp-btn" data-character-id="${actor.id}" title="Regular XP vergeben"><i class="fas fa-plus"></i></button>`;
+                htmlContent += `<div class="grant-group"><input type="number" class="xp-amount-input" data-character-id="${actor.id}" min="0" value="0" placeholder="+" title="${regularHint}" />`;
+                htmlContent += `<button type="button" class="grant-xp-btn" data-character-id="${actor.id}" title="${regularHint}"><i class="fas fa-plus"></i></button>`;
                 htmlContent += `<button type="button" class="deduct-xp-btn" data-character-id="${actor.id}" title="Reguläre XP zurücknehmen (nur noch nicht ausgegebene)"><i class="fas fa-minus"></i></button></div>`;
-                htmlContent += `<div class="grant-group grant-group-free"><input type="number" class="free-xp-amount-input" data-character-id="${actor.id}" min="0" value="0" placeholder="+" title="Free XP (frei verteilbar)" />`;
-                htmlContent += `<button type="button" class="grant-free-xp-btn" data-character-id="${actor.id}" title="Free XP vergeben — kein Step-Limit"><i class="fas fa-star"></i></button>`;
+                htmlContent += `<div class="grant-group grant-group-free"><input type="number" class="free-xp-amount-input" data-character-id="${actor.id}" min="0" value="0" placeholder="+" title="${freeHint}" />`;
+                htmlContent += `<button type="button" class="grant-free-xp-btn" data-character-id="${actor.id}" title="${freeHint}"><i class="fas fa-star"></i></button>`;
                 htmlContent += `<button type="button" class="deduct-free-xp-btn" data-character-id="${actor.id}" title="Free XP zurücknehmen (nur noch nicht ausgegebene)"><i class="fas fa-minus"></i></button></div>`;
                 htmlContent += `<div class="xp-row-actions">`;
-                htmlContent += `<button type="button" class="end-xp-step-btn" data-character-id="${actor.id}" title="Upgrade Step beenden: +1-Limit-Listen leeren. Erlaubt im nächsten Step erneut +1 auf dasselbe Attribut/Skill — ersetzt kein Free XP."><i class="fas fa-flag-checkered"></i></button>`;
                 htmlContent += `<button type="button" class="history-xp-btn" data-character-id="${actor.id}" title="XP History"><i class="fas fa-history"></i></button>`;
-                if (isGM) {
-                    htmlContent += `<button type="button" class="recalc-xp-btn" data-character-id="${actor.id}" title="XP neu berechnen: Verfügbar = Verdient − tatsächlich investierte XP (Attribute/Skills/Powers). Korrigiert fehlerhafte History-Erstattungen."${hasSnap ? '' : ' disabled'}><i class="fas fa-calculator"></i></button>`;
-                    htmlContent += `<button type="button" class="reset-xp-account-btn" data-character-id="${actor.id}" title="XP-Konten und History auf 0 (Attribute/Skills bleiben)"><i class="fas fa-eraser"></i></button>`;
-                }
                 htmlContent += resetBtn;
                 htmlContent += `</div></div></td></tr>`;
             });
@@ -1697,32 +1854,6 @@ function setupXpManagementInline() {
             ui.notifications?.info(`${actor.name}: ${amount} Free XP zurückgenommen${note}.`);
             app.render();
         });
-        // End Upgrade Step button — clears the once-per-step bump lists.
-        customContainer.find('.end-xp-step-btn').on('click', async (event) => {
-            const button = $(event.currentTarget);
-            const characterId = button.data('character-id');
-            const actor = game.actors?.get(characterId);
-            if (!actor) {
-                ui.notifications?.error('Character not found.');
-                return;
-            }
-            const isOwner = actor.isOwner || game.user?.isGM;
-            if (!isOwner) {
-                ui.notifications?.warn('Only the owner (or GM) can end this character\'s XP step.');
-                return;
-            }
-            const stepRule = await import('./utils/xp-step-rule.js');
-            const before = stepRule.readStep(actor);
-            await stepRule.endStep(actor);
-            const summary = [
-                `${before.attributes.length} attr`,
-                `${before.skills.length} skill`,
-                `${before.powers.length} power`,
-                `${before.artifacts.length} artifact`,
-            ].join(', ');
-            ui.notifications?.info(`Upgrade Step beendet für ${actor.name} (${summary}). Im neuen Step ist wieder +1 pro Wert möglich. Für freie Verteilung: Free XP (★) vergeben.`);
-            app.render();
-        });
         // Bulk grant
         customContainer.find('.bulk-grant-btn').on('click', async (event) => {
             const amount = parseInt(customContainer.find('.bulk-xp-amount').val()) || 0;
@@ -1815,101 +1946,8 @@ function setupXpManagementInline() {
             ui.notifications?.info(`Granted ${amount} Free XP to ${updated} characters (frei verteilbar).`);
             app.render();
         });
-        customContainer.find('.bulk-reset-xp-account-btn').on('click', async () => {
-            const { promptResetAllCharactersXpAccounting } = await import('./utils/xp-account-reset.js');
-            promptResetAllCharactersXpAccounting(() => app.render());
-        });
-        customContainer.find('.reset-xp-account-btn').on('click', async (event) => {
-            const characterId = $(event.currentTarget).data('character-id');
-            const actor = game.actors?.get(characterId);
-            if (!actor) {
-                ui.notifications?.error('Character not found.');
-                return;
-            }
-            const { promptResetActorXpAccounting } = await import('./utils/xp-account-reset.js');
-            promptResetActorXpAccounting(actor, () => app.render());
-        });
-        customContainer.find('.recalc-xp-btn').on('click', async (event) => {
-            const button = $(event.currentTarget);
-            if (button.prop('disabled'))
-                return;
-            if (!game.user?.isGM) {
-                ui.notifications?.warn('Nur der GM kann XP neu berechnen.');
-                return;
-            }
-            const characterId = button.data('character-id');
-            const actor = game.actors?.get(characterId);
-            if (!actor) {
-                ui.notifications?.error('Character not found.');
-                return;
-            }
-            const { computeGroundTruthXp, formatXpRecalcHtml } = await import('./utils/xp-recalc.js');
-            const result = computeGroundTruthXp(actor);
-            if (!result.ok) {
-                ui.notifications?.warn(result.error || 'Neuberechnung nicht möglich.');
-                return;
-            }
-            new Dialog({
-                title: `XP neu berechnen: ${actor.name}`,
-                content: formatXpRecalcHtml(actor.name, result),
-                buttons: {
-                    apply: {
-                        icon: '<i class="fas fa-calculator"></i>',
-                        label: !result.changed
-                            ? 'Bereits korrekt'
-                            : `Übernehmen (${result.totalDelta > 0 ? '+' : ''}${result.totalDelta} XP)`,
-                        callback: async () => {
-                            if (!result.changed)
-                                return;
-                            const xpState = getXpState(actor);
-                            const before = {
-                                available: xpState.available,
-                                totalEarned: xpState.totalEarned,
-                                totalSpent: xpState.totalSpent,
-                            };
-                            await actor.update({
-                                'system.points.xp': result.available,
-                                'system.points.xpFree': result.freeAvailable,
-                                'system.xp.totalSpent': result.regularSpent,
-                                'system.xp.freeSpent': result.freeSpent,
-                            });
-                            const user = game.user;
-                            pushXpHistory(actor, {
-                                ts: Date.now(),
-                                userId: user?.id || '',
-                                userName: user?.name || 'GM',
-                                kind: 'adjust',
-                                category: 'xp',
-                                amount: result.totalDelta,
-                                note: 'GM recalc: XP pools recomputed from current build (earned − invested, Free spent first).',
-                                details: {
-                                    recalc: true,
-                                    attributeSpent: result.attributeSpent,
-                                    skillSpent: result.skillSpent,
-                                    powerSpent: result.powerSpent,
-                                    totalInvested: result.totalInvested,
-                                    regularSpent: result.regularSpent,
-                                    freeSpent: result.freeSpent,
-                                },
-                                before,
-                                after: {
-                                    available: result.available,
-                                    totalEarned: result.totalEarned,
-                                    totalSpent: result.regularSpent,
-                                },
-                            });
-                            await actor.update({ 'system.xp.history': actor.system.xp.history });
-                            ui.notifications?.info(`${actor.name}: XP neu berechnet → ${result.available} regulär / ${result.freeAvailable} Free (gesamt ${result.totalDelta > 0 ? '+' : ''}${result.totalDelta}).`);
-                            app.render();
-                        },
-                    },
-                    cancel: {
-                        label: 'Abbrechen',
-                        callback: () => { },
-                    },
-                },
-                default: result.changed ? 'apply' : 'cancel',
-            }).render(true);
+        customContainer.find('.party-safe-haven-btn').on('click', async () => {
+            await confirmAndApplySafeHavenRestToAllCharacters();
         });
         // History button
         customContainer.find('.history-xp-btn').on('click', async (event) => {
@@ -1920,56 +1958,7 @@ function setupXpManagementInline() {
                 ui.notifications?.error('Character not found.');
                 return;
             }
-            const xpState = getXpState(actor);
-            const history = xpState.history.slice(-50).reverse(); // Last 50, newest first
-            let historyContent = '<div class="xp-history-dialog">';
-            historyContent += `<h3>XP History: ${actor.name}</h3>`;
-            historyContent += '<table class="xp-history-table"><thead><tr>';
-            historyContent += '<th>Time</th><th>Kind</th><th>Category</th><th>Amount</th><th>Note/Details</th>';
-            historyContent += '</tr></thead><tbody>';
-            if (history.length === 0) {
-                historyContent += '<tr><td colspan="5" class="empty-message">No history entries.</td></tr>';
-            }
-            else {
-                history.forEach((entry) => {
-                    const date = new Date(entry.ts);
-                    const timeStr = date.toLocaleString();
-                    const detailsStr = entry.details ? JSON.stringify(entry.details, null, 0).substring(0, 100) : (entry.note || '—');
-                    historyContent += `<tr>`;
-                    historyContent += `<td>${timeStr}</td>`;
-                    historyContent += `<td>${entry.kind}</td>`;
-                    historyContent += `<td>${entry.category}</td>`;
-                    historyContent += `<td>${entry.amount}</td>`;
-                    historyContent += `<td title="${detailsStr.length > 100 ? detailsStr : ''}">${detailsStr.length > 50 ? detailsStr.substring(0, 50) + '...' : detailsStr}</td>`;
-                    historyContent += `</tr>`;
-                });
-            }
-            historyContent += '</tbody></table>';
-            if (game.user?.isGM && history.length > 0) {
-                historyContent += '<div class="history-actions">';
-                historyContent += `<button type="button" class="clear-history-btn" data-character-id="${characterId}">Clear History</button>`;
-                historyContent += '</div>';
-            }
-            historyContent += '</div>';
-            new Dialog({
-                title: `XP History: ${actor.name}`,
-                content: historyContent,
-                buttons: {
-                    close: {
-                        label: 'Close',
-                        callback: () => { }
-                    }
-                },
-                default: 'close',
-                render: (html) => {
-                    html.find('.clear-history-btn').on('click', async () => {
-                        await actor.update({ 'system.xp.history': [] });
-                        ui.notifications?.info(`Cleared XP history for ${actor.name}.`);
-                        app.render();
-                        html.closest('.dialog').find('.close').click();
-                    });
-                }
-            }).render(true);
+            openXpHistoryDialog(actor, { onCleared: () => app.render() });
         });
         customContainer.find('.reset-progress-xp-btn').on('click', async (event) => {
             const button = $(event.currentTarget);
@@ -2044,6 +2033,8 @@ async function preloadTemplates() {
         'systems/mastery-system/templates/artifacts/progression-hub-dialog.hbs',
         // Homepage character import
         'systems/mastery-system/templates/import/character-import-dialog.hbs',
+        'systems/mastery-system/templates/dialogs/ritual-workshop.hbs',
+        'systems/mastery-system/templates/dialogs/minor-magic.hbs',
     ];
     try {
         await foundry.applications.handlebars.loadTemplates(templatePaths);
@@ -2106,8 +2097,8 @@ function normalizeHealthBars(health) {
  * Hook to normalize health.bars before actor updates
  * Ensures health.bars is always stored as an array, not an object
  */
-Hooks.on('preUpdateActor', (actor, updateData, _options, _userId) => {
-    if (actor.type === 'npc') {
+Hooks.on('preUpdateActor', (actor, updateData, options, _userId) => {
+    if (actor.type === 'npc' || actor.type === 'summon') {
         // Normalize main health bars
         if (updateData.system?.health?.bars) {
             updateData.system.health = normalizeHealthBars(updateData.system.health);
@@ -2120,6 +2111,12 @@ Hooks.on('preUpdateActor', (actor, updateData, _options, _userId) => {
                 }
                 return phase;
             });
+        }
+        // Form submitOnChange replaces `system.phases` as a whole. A click on
+        // "+ Power" can race a stale submit that omits the new extra — keep the
+        // actor's extras unless this write *is* the add/delete.
+        if (updateData.system && !options?.[NPC_EXTRA_POWERS_UPDATE]) {
+            preserveNpcExtraPowersInSystemUpdate(actor.system, updateData.system);
         }
     }
 });
@@ -2641,10 +2638,23 @@ Hooks.once('ready', async function () {
         ui.notifications?.info(`Updated ${migratedIcons} item icons.`);
     }
 });
+Hooks.once('ready', async function () {
+    try {
+        const { syncConsumableSlotsToMasteryRank } = await import('./utils/consumable-slots.js');
+        const characters = game.actors?.filter((a) => a.type === 'character') || [];
+        for (const actor of characters) {
+            await syncConsumableSlotsToMasteryRank(actor);
+        }
+    }
+    catch (err) {
+        console.warn('Mastery System | consumable slot rank sync on ready failed', err);
+    }
+});
 /**
  * Ready hook - called when Foundry is fully loaded and ready
  */
 Hooks.once('ready', async function () {
+    registerEncounterSocket();
     // Log system version prominently
     const system = game.system;
     try {
@@ -3213,6 +3223,19 @@ Hooks.on('preUpdateItem', async (item, changes, _options, _userId) => {
  * legitimately remove them (full reset, echo re-selection, tree migration) pass
  * `{ masterySystemForceDelete: true }` to bypass this guard.
  */
+Hooks.on('deleteItem', (item) => {
+    try {
+        const flag = item?.getFlag?.('mastery-system', 'minorMagic') ?? item?.flags?.['mastery-system']?.minorMagic;
+        if (!flag || flag.released)
+            return;
+        void import('./utils/minor-magic-items.js').then(({ onMinorMagicItemDeleted }) => {
+            void onMinorMagicItemDeleted(item);
+        });
+    }
+    catch {
+        /* ignore */
+    }
+});
 Hooks.on('preDeleteItem', (item, options, _userId) => {
     if (options?.masterySystemForceDelete === true)
         return true;

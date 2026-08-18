@@ -3,8 +3,8 @@
  * Allows GM to view character XP spending and grant XP allowances
  */
 import { actorHasPostCreationSnapshot, resetActorProgressToPostCreation } from '../utils/xp-post-creation.js';
-import { promptResetActorXpAccounting, promptResetAllCharactersXpAccounting, } from '../utils/xp-account-reset.js';
-import { computeGroundTruthXp, formatXpRecalcHtml } from '../utils/xp-recalc.js';
+import { openXpHistoryDialog } from '../utils/xp-history.js';
+import { confirmAndApplySafeHavenRestToAllCharacters } from '../utils/safe-haven-rest.js';
 // Use ApplicationV2 with HandlebarsApplicationMixin if available, otherwise fall back to Application
 let BaseApplication;
 if (foundry?.applications?.api?.ApplicationV2 && foundry?.applications?.api?.HandlebarsApplicationMixin) {
@@ -45,53 +45,23 @@ export class XpManagementSettings extends BaseApplication {
             const points = system.points || {};
             const xp = system.xp || {};
             const totalEarned = xp.totalEarned ?? 0;
-            const totalSpent = xp.totalSpent ?? 0;
             const available = points.xp ?? 0;
             const freeAvailable = points.xpFree ?? 0;
             const freeEarned = xp.freeEarned ?? 0;
-            /**
-             * New spec — once-per-step rule. Surface the current step's bumped
-             * lists for the GM table.
-             */
-            const stepRaw = xp.currentStep ?? {};
-            const sanitize = (input) => Array.isArray(input) ? input.map((v) => String(v ?? '')).filter((s) => s.length > 0) : [];
-            const currentStep = {
-                attributes: sanitize(stepRaw.attributes),
-                skills: sanitize(stepRaw.skills),
-                powers: sanitize(stepRaw.powers),
-                artifacts: sanitize(stepRaw.artifacts),
-            };
-            const stepSummary = (() => {
-                const parts = [];
-                if (currentStep.attributes.length)
-                    parts.push(`Attrs: ${currentStep.attributes.join(', ')}`);
-                if (currentStep.skills.length)
-                    parts.push(`Skills: ${currentStep.skills.join(', ')}`);
-                if (currentStep.powers.length)
-                    parts.push(`Powers: ${currentStep.powers.length}`);
-                if (currentStep.artifacts.length)
-                    parts.push(`Artifacts: ${currentStep.artifacts.length}`);
-                return parts.length ? parts.join(' | ') : 'No bumps';
-            })();
-            const stepTotal = currentStep.attributes.length +
-                currentStep.skills.length +
-                currentStep.powers.length +
-                currentStep.artifacts.length;
+            const earnedAll = totalEarned + freeEarned;
+            const spentAll = Math.max(0, earnedAll - (available + freeAvailable));
             return {
                 id: actor.id,
                 name: actor.name,
                 img: actor.img,
-                player: game.users?.find((u) => u.character?.id === actor.id)?.name || 'Unassigned',
                 hasPostCreationSnapshot: actorHasPostCreationSnapshot(actor),
                 xp: {
-                    spent: totalSpent,
+                    spent: spentAll,
                     available: available,
                     freeAvailable: freeAvailable,
                     freeEarned: freeEarned,
-                    totalEarned: totalEarned,
-                    currentStep,
-                    stepSummary,
-                    stepTotal,
+                    totalEarned: earnedAll,
+                    regularEarned: totalEarned,
                 }
             };
         });
@@ -338,6 +308,9 @@ export class XpManagementSettings extends BaseApplication {
             ui.notifications?.info(`Granted ${amount} Free XP to ${updated} characters.`);
             this.render();
         });
+        html.find('.party-safe-haven-btn').on('click', async () => {
+            await confirmAndApplySafeHavenRestToAllCharacters();
+        });
         // History button
         html.find('.history-xp-btn').on('click', async (event) => {
             const button = $(event.currentTarget);
@@ -347,180 +320,7 @@ export class XpManagementSettings extends BaseApplication {
                 ui.notifications?.error('Character not found.');
                 return;
             }
-            const xpState = getXpState(actor);
-            const history = xpState.history.slice(-50).reverse(); // Last 50, newest first
-            let historyContent = '<div class="xp-history-dialog">';
-            historyContent += `<h3>XP History: ${actor.name}</h3>`;
-            historyContent += '<table class="xp-history-table"><thead><tr>';
-            historyContent += '<th>Time</th><th>Kind</th><th>Category</th><th>Amount</th><th>Note/Details</th>';
-            historyContent += '</tr></thead><tbody>';
-            if (history.length === 0) {
-                historyContent += '<tr><td colspan="5" class="empty-message">No history entries.</td></tr>';
-            }
-            else {
-                history.forEach((entry) => {
-                    const date = new Date(entry.ts);
-                    const timeStr = date.toLocaleString();
-                    const detailsStr = entry.details ? JSON.stringify(entry.details, null, 0).substring(0, 100) : (entry.note || '—');
-                    historyContent += `<tr>`;
-                    historyContent += `<td>${timeStr}</td>`;
-                    historyContent += `<td>${entry.kind}</td>`;
-                    historyContent += `<td>${entry.category}</td>`;
-                    historyContent += `<td>${entry.amount}</td>`;
-                    historyContent += `<td title="${detailsStr.length > 100 ? detailsStr : ''}">${detailsStr.length > 50 ? detailsStr.substring(0, 50) + '...' : detailsStr}</td>`;
-                    historyContent += `</tr>`;
-                });
-            }
-            historyContent += '</tbody></table>';
-            if (game.user?.isGM && history.length > 0) {
-                historyContent += '<div class="history-actions">';
-                historyContent += `<button type="button" class="clear-history-btn" data-character-id="${characterId}">Clear History</button>`;
-                historyContent += '</div>';
-            }
-            historyContent += '</div>';
-            new Dialog({
-                title: `XP History: ${actor.name}`,
-                content: historyContent,
-                buttons: {
-                    close: {
-                        label: 'Close',
-                        callback: () => { }
-                    }
-                },
-                default: 'close',
-                render: (html) => {
-                    html.find('.clear-history-btn').on('click', async () => {
-                        await actor.update({ 'system.xp.history': [] });
-                        ui.notifications?.info(`Cleared XP history for ${actor.name}.`);
-                        this.render();
-                        html.closest('.dialog').find('.close').click();
-                    });
-                }
-            }).render(true);
-        });
-        /**
-         * New spec — End the current Upgrade Step. Clears the once-per-step
-         * bump lists so the next click of "+" on each Attribute / Skill /
-         * Power / Artifact is allowed again.
-         */
-        html.find('.end-xp-step-btn').on('click', async (event) => {
-            const button = $(event.currentTarget);
-            const characterId = button.data('character-id');
-            const actor = game.actors?.get(characterId);
-            if (!actor) {
-                ui.notifications?.error('Character not found.');
-                return;
-            }
-            const isOwner = actor.isOwner || game.user?.isGM;
-            if (!isOwner) {
-                ui.notifications?.warn('Only the owner (or GM) can end this character\'s XP step.');
-                return;
-            }
-            const stepRule = await import('../utils/xp-step-rule.js');
-            const before = stepRule.readStep(actor);
-            await stepRule.endStep(actor);
-            const summary = [
-                `${before.attributes.length} attr`,
-                `${before.skills.length} skill`,
-                `${before.powers.length} power`,
-                `${before.artifacts.length} artifact`,
-            ].join(', ');
-            ui.notifications?.info(`XP step ended for ${actor.name} (${summary}).`);
-            this.render();
-        });
-        html.find('.bulk-reset-xp-account-btn').on('click', () => {
-            promptResetAllCharactersXpAccounting(() => this.render());
-        });
-        html.find('.reset-xp-account-btn').on('click', async (event) => {
-            const button = $(event.currentTarget);
-            const characterId = button.data('character-id');
-            const actor = game.actors?.get(characterId);
-            if (!actor) {
-                ui.notifications?.error('Character not found.');
-                return;
-            }
-            promptResetActorXpAccounting(actor, () => this.render());
-        });
-        html.find('.recalc-xp-btn').on('click', async (event) => {
-            const button = $(event.currentTarget);
-            if (button.prop('disabled'))
-                return;
-            if (!game.user?.isGM) {
-                ui.notifications?.warn('Nur der GM kann XP neu berechnen.');
-                return;
-            }
-            const characterId = button.data('character-id');
-            const actor = game.actors?.get(characterId);
-            if (!actor) {
-                ui.notifications?.error('Character not found.');
-                return;
-            }
-            const result = computeGroundTruthXp(actor);
-            if (!result.ok) {
-                ui.notifications?.warn(result.error || 'Neuberechnung nicht möglich.');
-                return;
-            }
-            new Dialog({
-                title: `XP neu berechnen: ${actor.name}`,
-                content: formatXpRecalcHtml(actor.name, result),
-                buttons: {
-                    apply: {
-                        icon: '<i class="fas fa-calculator"></i>',
-                        label: !result.changed
-                            ? 'Bereits korrekt'
-                            : `Übernehmen (${result.totalDelta > 0 ? '+' : ''}${result.totalDelta} XP)`,
-                        callback: async () => {
-                            if (!result.changed)
-                                return;
-                            const xpState = getXpState(actor);
-                            const before = {
-                                available: xpState.available,
-                                totalEarned: xpState.totalEarned,
-                                totalSpent: xpState.totalSpent,
-                            };
-                            await actor.update({
-                                'system.points.xp': result.available,
-                                'system.points.xpFree': result.freeAvailable,
-                                'system.xp.totalSpent': result.regularSpent,
-                                'system.xp.freeSpent': result.freeSpent,
-                            });
-                            const user = game.user;
-                            pushXpHistory(actor, {
-                                ts: Date.now(),
-                                userId: user?.id || '',
-                                userName: user?.name || 'GM',
-                                kind: 'adjust',
-                                category: 'xp',
-                                amount: result.totalDelta,
-                                note: 'GM recalc: XP pools recomputed from current build (earned − invested, Free spent first).',
-                                details: {
-                                    recalc: true,
-                                    attributeSpent: result.attributeSpent,
-                                    skillSpent: result.skillSpent,
-                                    powerSpent: result.powerSpent,
-                                    totalInvested: result.totalInvested,
-                                    regularSpent: result.regularSpent,
-                                    freeSpent: result.freeSpent,
-                                },
-                                before,
-                                after: {
-                                    available: result.available,
-                                    totalEarned: result.totalEarned,
-                                    totalSpent: result.regularSpent,
-                                },
-                            });
-                            await actor.update({ 'system.xp.history': actor.system.xp.history });
-                            ui.notifications?.info(`${actor.name}: XP neu berechnet → ${result.available} regulär / ${result.freeAvailable} Free (gesamt ${result.totalDelta > 0 ? '+' : ''}${result.totalDelta}).`);
-                            this.render();
-                        },
-                    },
-                    cancel: {
-                        label: 'Abbrechen',
-                        callback: () => { },
-                    },
-                },
-                default: result.changed ? 'apply' : 'cancel',
-            }).render(true);
+            openXpHistoryDialog(actor, { onCleared: () => this.render() });
         });
         html.find('.reset-progress-xp-btn').on('click', async (event) => {
             const button = $(event.currentTarget);

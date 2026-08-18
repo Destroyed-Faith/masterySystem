@@ -56,6 +56,10 @@ import {
   type StoneRecoveryPoolInput,
 } from './stone-recovery.js';
 import { isStoneRegenDone } from '../combat/encounter-setup-flags.js';
+import {
+  combatReflexesInitiativeState,
+  stepCombatReflexesInitiative,
+} from '../combat/combat-reflexes.js';
 import { poolSpendableStones } from '../utils/artifact-actor-rules.js';
 import { countArtifactActivationStones } from '../utils/artifact-stone-bound.js';
 import { getArtifactStoneFunctionStatus } from '../utils/artifact-stone-functions.js';
@@ -525,6 +529,8 @@ export class StonePowersDialog extends BaseDialog {
   private _recoveryActive = false;
   /** Guard against a second click while the recovery is being written. */
   private _recoveryCommitting = false;
+  /** Stones staged for the Initiative Exchange (the convert button spends them). */
+  private _colorlessConvertCount: number | null = null;
 
   static DEFAULT_OPTIONS = {
     id: "mastery-stone-powers",
@@ -892,16 +898,32 @@ export class StonePowersDialog extends BaseDialog {
     const initiativeScore = Math.max(0, Math.floor(Number(this.combatant?.initiative) || 0));
     const stoneIniCost = colorlessStoneInitiativeCost(mr);
     const maxConvert = maxConvertibleColorlessStones(initiativeScore, mr);
-    const exchangeLocked = stonePlanLocked || !this.combatant;
+    const exchangeLocked = stonePlanLocked || !this.combatant || recovery.active;
+    const convertCount = Math.max(0, Math.min(maxConvert, this._colorlessConvertCount ?? maxConvert));
+    this._colorlessConvertCount = convertCount;
+    const cr = combatReflexesInitiativeState(this.actor, this.combatant, mr);
     const initiativeExchange = {
       show: !!this.combatant,
       initiative: initiativeScore,
       masteryRank: mr,
       costPerStone: stoneIniCost,
       maxConvert,
-      convertCount: maxConvert,
+      convertCount,
+      canConvertMore: !exchangeLocked && convertCount < maxConvert,
+      canConvertLess: !exchangeLocked && convertCount > 0,
       locked: exchangeLocked,
       boostUsed: this.combatant ? isInitiativeBoostUsedThisCombat(this.combatant) : false,
+      combatReflexes: {
+        // Skill points into Initiative, straight in this row — the roll no
+        // longer stops for a popup nobody had context for.
+        show: (this.actor as any).type === 'character' && cr.rating > 0,
+        used: cr.usedThisRound,
+        addable: cr.addable,
+        remainingPool: cr.remainingPool,
+        capPerRoll: cr.capPerRoll,
+        canAdd: !exchangeLocked && cr.canAdd,
+        canRemove: !exchangeLocked && cr.canRemove,
+      },
     };
 
     return {
@@ -1110,6 +1132,63 @@ export class StonePowersDialog extends BaseDialog {
     }
   }
 
+  /** Combat Reflexes steppers and the staged stone count of the exchange row. */
+  #bindInitiativeExchangeControls(root: HTMLElement): void {
+    const stepConvert = async (delta: number) => {
+      const mr = getMasteryRank(getActionEconomyActor(this.actor) ?? this.actor);
+      const max = maxConvertibleColorlessStones(
+        Math.max(0, Math.floor(Number(this.combatant?.initiative) || 0)),
+        mr,
+      );
+      const current = Math.max(0, Math.min(max, Number(this._colorlessConvertCount ?? max)));
+      const next = Math.max(0, Math.min(max, current + delta));
+      if (next === current) return;
+      this._colorlessConvertCount = next;
+      await this.#renderKeepingScroll();
+    };
+
+    (root.querySelector('.js-convert-count-add') as HTMLButtonElement | null)?.addEventListener(
+      'click',
+      (ev) => {
+        ev.preventDefault();
+        void stepConvert(1);
+      },
+    );
+    (root.querySelector('.js-convert-count-remove') as HTMLButtonElement | null)?.addEventListener(
+      'click',
+      (ev) => {
+        ev.preventDefault();
+        void stepConvert(-1);
+      },
+    );
+
+    const stepCr = async (delta: number) => {
+      if (!this.combatant) return;
+      const mr = getMasteryRank(getActionEconomyActor(this.actor) ?? this.actor);
+      const next = await stepCombatReflexesInitiative(this.actor, this.combatant, delta, mr);
+      if (next === null) {
+        ui.notifications?.warn(
+          delta > 0
+            ? 'No Combat Reflexes left to add this round.'
+            : 'Nothing to take back — those points are already spent.',
+        );
+        return;
+      }
+      // The score changed, so the exchange maximum moves with it.
+      this._colorlessConvertCount = null;
+      await this.#renderKeepingScroll();
+    };
+
+    (root.querySelector('.js-cr-add') as HTMLButtonElement | null)?.addEventListener('click', (ev) => {
+      ev.preventDefault();
+      void stepCr(1);
+    });
+    (root.querySelector('.js-cr-remove') as HTMLButtonElement | null)?.addEventListener('click', (ev) => {
+      ev.preventDefault();
+      void stepCr(-1);
+    });
+  }
+
   /** Scroll position of the template root (the element that actually scrolls). */
   #rememberStonePowersScroll(): void {
     const scrollRoot = getStonePowersScrollRoot(this as any);
@@ -1163,13 +1242,14 @@ export class StonePowersDialog extends BaseDialog {
       };
     }
 
+    this.#bindInitiativeExchangeControls(root);
+
     const convertBtn = root.querySelector('.js-convert-initiative-colorless') as HTMLButtonElement | null;
     if (convertBtn) {
       convertBtn.onclick = async (ev: MouseEvent) => {
         ev.preventDefault();
         if (convertBtn.disabled) return;
-        const input = root.querySelector('.js-colorless-convert-count') as HTMLInputElement | null;
-        const n = Math.max(0, Math.floor(Number(input?.value) || 0));
+        const n = Math.max(0, Math.floor(Number(this._colorlessConvertCount) || 0));
         if (!this.combatant || n <= 0) return;
         const result = await convertInitiativeToColorlessStones(this.actor, this.combatant, n);
         if (!result) {
@@ -1179,6 +1259,7 @@ export class StonePowersDialog extends BaseDialog {
         ui.notifications?.info(
           `${(this.actor as any).name}: ${result.stones} Colorless Stone(s). Initiative now ${result.remainingInitiative}.`,
         );
+        this._colorlessConvertCount = null;
         await this.#renderKeepingScroll();
       };
     }

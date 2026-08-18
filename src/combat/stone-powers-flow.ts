@@ -343,6 +343,42 @@ export async function confirmStonePowersForCombatant(
   }
 }
 
+/**
+ * "Start Round N" from the carousel. Re-opens Stone Powers for every PC that
+ * still owes an assignment (locally for the GM's own actors, over the socket for
+ * the owning players) and runs the initiative phase as soon as nobody is left.
+ * The round advance already does this once; a GM needs a way to repeat it when a
+ * player closed the dialog or joined late.
+ */
+export async function promptPendingStoneAssignments(combat: Combat): Promise<void> {
+  if (!game.user?.isGM) return;
+  const live = resolveLiveCombat(combat);
+  if (!live) return;
+  const round = Math.max(1, Number(live.round) || 1);
+
+  const { pendingStoneCombatants, pendingStonePlayerNames } = await import('./stone-round-gate.js');
+  const pending = pendingStoneCombatants(live, round);
+  for (const combatant of pending) {
+    await openStonePowersForCombatant(live, combatant, round);
+    await new Promise((resolve) => setTimeout(resolve, 200));
+  }
+
+  if (areAllCombatantsDone(live, round)) {
+    await runInitiativePhaseAfterStones(live, round);
+    ui.notifications?.info(`Runde ${round}: alle Steine gesetzt, Initiative sortiert.`);
+  } else {
+    const still = pendingStonePlayerNames(live, round);
+    if (still.length) ui.notifications?.info(`Runde ${round} — Steine offen: ${still.join(', ')}.`);
+  }
+
+  try {
+    const { CombatCarouselApp } = await import('../ui/combat-carousel.js');
+    CombatCarouselApp.refresh();
+  } catch {
+    /* carousel may not be open */
+  }
+}
+
 export async function handleStonePowersComplete(combat: Combat, combatantId: string, round: number): Promise<void> {
   const live = resolveLiveCombat(combat);
   if (!live) return;

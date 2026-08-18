@@ -16,8 +16,12 @@ export declare const CALENDAR_SETTINGS: {
 declare const SETTING_SCOPE = "mastery-system";
 export declare function registerTyhraCalendarSettings(): void;
 export declare function isCalendarEnabled(): boolean;
+/** Any logged-in user may open the calendar window. */
 export declare function canUserOpenCalendar(user?: any): boolean;
+/** Any logged-in user may create missing day journals (GM socket if needed). */
 export declare function canUserCreateDayJournals(user?: any): boolean;
+/** Players edit day journals; world date stays GM-only. */
+export declare function canUserEditDayJournals(user?: any): boolean;
 export declare function getCurrentDayIndex(): number;
 export declare function getCurrentHour(): number;
 export declare function getCurrentMinute(): number;

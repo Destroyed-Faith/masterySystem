@@ -45,7 +45,9 @@ export class TyhraCalendarApplication extends BaseDialog {
     static async #open(options = {}) {
         const viewOptions = { ...options };
         if (viewOptions.year === undefined && viewOptions.monthIndex === undefined) {
-            await syncCurrentDayToLatestJournalEntry();
+            if (game.user?.isGM) {
+                await syncCurrentDayToLatestJournalEntry();
+            }
             const current = getDateFromDayIndex(getCurrentDayIndex());
             viewOptions.year = current.year;
             viewOptions.monthIndex = getMonthIndexForDate(current);
@@ -176,19 +178,21 @@ export class TyhraCalendarApplication extends BaseDialog {
                     break;
                 }
                 case 'prev-day':
-                    await api.advanceDays(-1);
-                    await this.render(false);
-                    break;
                 case 'next-day':
-                    await api.advanceDays(1);
-                    await this.render(false);
-                    break;
                 case 'prev-hour':
-                    await api.advanceHours(-1);
-                    await this.render(false);
-                    break;
                 case 'next-hour':
-                    await api.advanceHours(1);
+                    if (game.user?.isGM !== true) {
+                        ui.notifications?.warn(game.i18n.localize('MASTERY.calendar.noDatePermission'));
+                        return;
+                    }
+                    if (action === 'prev-day')
+                        await api.advanceDays(-1);
+                    else if (action === 'next-day')
+                        await api.advanceDays(1);
+                    else if (action === 'prev-hour')
+                        await api.advanceHours(-1);
+                    else
+                        await api.advanceHours(1);
                     await this.render(false);
                     break;
                 case 'open-day':

@@ -1,56 +1,86 @@
 /**
- * Creature type helpers (Exorcism / Requiem validity, NPC typing).
+ * Creature type catalog (NPC + Summon). No free text — pick from this list.
  *
  * Exorcism(X) applies only to Fiends; Requiem(X) only to Undead (Rules).
- * NPCs set `system.creatureType`; aliases like "Dämon" / "demon" map to fiend.
  */
 export const CREATURE_TYPE_OPTIONS = [
     { value: '', label: '— Creature Type —' },
     { value: 'humanoid', label: 'Humanoid' },
-    { value: 'undead', label: 'Undead' },
-    { value: 'fiend', label: 'Dämon / Fiend' },
     { value: 'beast', label: 'Beast' },
+    { value: 'spirit', label: 'Spirit' },
+    { value: 'undead', label: 'Undead' },
+    { value: 'fiend', label: 'Fiend' },
     { value: 'construct', label: 'Construct' },
     { value: 'elemental', label: 'Elemental' },
+    { value: 'plant', label: 'Plant' },
+    { value: 'dragon', label: 'Dragon' },
+    { value: 'celestial', label: 'Celestial' },
     { value: 'other', label: 'Other' },
 ];
+const CREATURE_TYPE_KEYS = new Set(CREATURE_TYPE_OPTIONS.map((o) => o.value).filter((v) => v !== ''));
+export function isCreatureTypeKey(value) {
+    return CREATURE_TYPE_KEYS.has(value);
+}
+export function creatureTypeLabel(value) {
+    const key = normalizeCreatureTypeValue(value);
+    const hit = CREATURE_TYPE_OPTIONS.find((o) => o.value === key);
+    return hit?.label || key || '—';
+}
+export function creatureTypeSelectOptions(selected) {
+    const key = normalizeCreatureTypeValue(selected);
+    return CREATURE_TYPE_OPTIONS.map((o) => ({
+        value: o.value,
+        label: o.label,
+        selected: o.value === key,
+    }));
+}
+/** Map a stored key or leftover free-text to a catalog key. */
+export function normalizeCreatureTypeValue(raw) {
+    const value = String(raw ?? '')
+        .trim()
+        .toLowerCase();
+    if (!value)
+        return '';
+    if (isCreatureTypeKey(value))
+        return value;
+    if (value === 'untot' ||
+        value === 'zombie' ||
+        value === 'skeleton' ||
+        value === 'vampire' ||
+        value === 'geist' ||
+        value === 'ghost') {
+        return 'undead';
+    }
+    if (value === 'demon' ||
+        value === 'daemon' ||
+        value === 'devil' ||
+        value === 'dämon' ||
+        value === 'daemonisch' ||
+        value === 'infernal') {
+        return 'fiend';
+    }
+    if (value === 'human' || value === 'mensch')
+        return 'humanoid';
+    if (value === 'animal' || value === 'tier')
+        return 'beast';
+    if (value === 'golem' || value === 'konstrukt')
+        return 'construct';
+    if (value === 'elementar')
+        return 'elemental';
+    if (value === 'pflanze')
+        return 'plant';
+    if (value === 'drache')
+        return 'dragon';
+    if (value === 'angel' || value === 'engel')
+        return 'celestial';
+    if (value === 'sonstige')
+        return 'other';
+    return '';
+}
 /** Normalize free-text / sheet values to a canonical creature-type key. */
 export function resolveCreatureType(actor) {
     const sys = actor?.system;
-    const raw = String(sys?.creatureType ?? sys?.bio?.type ?? '')
-        .trim()
-        .toLowerCase();
-    if (!raw)
-        return '';
-    if (raw === 'undead' ||
-        raw === 'untot' ||
-        raw === 'zombie' ||
-        raw === 'skeleton' ||
-        raw === 'vampire' ||
-        raw === 'geist' ||
-        raw === 'ghost') {
-        return 'undead';
-    }
-    if (raw === 'fiend' ||
-        raw === 'demon' ||
-        raw === 'daemon' ||
-        raw === 'devil' ||
-        raw === 'dämon' ||
-        raw === 'daemonisch' ||
-        raw === 'infernal') {
-        return 'fiend';
-    }
-    if (raw === 'humanoid' || raw === 'human' || raw === 'mensch')
-        return 'humanoid';
-    if (raw === 'beast' || raw === 'animal' || raw === 'tier')
-        return 'beast';
-    if (raw === 'construct' || raw === 'golem' || raw === 'konstrukt')
-        return 'construct';
-    if (raw === 'elemental' || raw === 'elementar')
-        return 'elemental';
-    if (raw === 'other' || raw === 'sonstige')
-        return 'other';
-    return raw;
+    return normalizeCreatureTypeValue(sys?.creatureType ?? sys?.bio?.type ?? '');
 }
 /** True when Exorcism(X) may be applied (Fiend only). */
 export function isExorcismValidTarget(actor) {

@@ -26,7 +26,7 @@ export interface ArtifactStonePoolOption {
 }
 export declare const ARTIFACT_UPGRADE_XP_COST = 8;
 export declare const ARTIFACT_LINK_STONE_COST = 1;
-export declare const ARTIFACT_MAX_SYSTEM_LEVEL = 16;
+export declare const ARTIFACT_MAX_SYSTEM_LEVEL = 10;
 /**
  * New spec: flat Artifact Capacity. Every character can bind up to four
  * Artifacts at the same time, regardless of Mastery Rank. Echo Artifacts
@@ -41,8 +41,8 @@ export declare const ARTIFACT_CAPACITY_DEFAULT = 4;
 export declare function getArtifactCapacityForMasteryRank(_masteryRank?: number): number;
 /**
  * Max artifact system.level the actor may reach:
- *   `(MR - 1) × 2`, capped at `ARTIFACT_MAX_SYSTEM_LEVEL` (16).
- *   MR 1 → 0 (no link / no upgrades).
+ *   `(MR - 1) × 2`, capped at `ARTIFACT_MAX_SYSTEM_LEVEL` (10).
+ *   MR 1 → 0 (no link / no upgrades). MR 6+ → 10.
  */
 export declare function getMaxArtifactSystemLevelForMasteryRank(masteryRank: number): number;
 /**

@@ -7,14 +7,15 @@
 
 import { masteryRoll } from '../dice/roll-handler.js';
 import { getRoundState } from './action-economy.js';
-import { calculateMaxSkillRank } from '../utils/calculations.js';
 import { getEquippedEquipmentInitiativeModifier } from '../utils/equipment-modifiers.js';
 import { readManualAdjustments } from '../utils/manual-adjustments.js';
 import {
   formatNpcInitiativeSigned,
   getNpcInitiativeModifier,
 } from '../utils/npc-initiative.js';
-const CR_SKILL_KEY = 'combatReflexes';
+import { resetCombatReflexesRoundUsage } from './combat-reflexes.js';
+
+export { getCombatReflexesInitiativeLimits } from './combat-reflexes.js';
 
 function getMasteryRank(actor: any): number {
   if (!actor || !actor.system) return 2;
@@ -23,7 +24,10 @@ function getMasteryRank(actor: any): number {
 }
 
 export interface InitiativeRollOptions {
-  /** If false, no dialog; CR spend is 0 (e.g. non-owner client). */
+  /**
+   * Kept for callers; Combat Reflexes are no longer asked for at roll time.
+   * The points are added in the Initiative Exchange row of Stone Powers.
+   */
   promptCombatReflexes?: boolean;
 }
 
@@ -45,30 +49,14 @@ export interface InitiativeRollBreakdown {
 }
 
 /**
- * Limits for spending Combat Reflexes on initiative (used by Initiative Shop dropdown).
- */
-export function getCombatReflexesInitiativeLimits(
-  actor: any,
-  masteryRank: number
-): { maxThisRoll: number; remainingPool: number; capPerRoll: number } {
-  const rating = Number(actor?.system?.skills?.[CR_SKILL_KEY] ?? 0);
-  const spent = Number(actor?.system?.skillsSpent?.[CR_SKILL_KEY] ?? 0);
-  const remainingPool = Math.max(0, rating - spent);
-  const capPerRoll = calculateMaxSkillRank(masteryRank);
-  const maxThisRoll = Math.min(capPerRoll, remainingPool);
-  return { maxThisRoll, remainingPool, capPerRoll };
-}
-
-/**
- * Roll initiative for one combatant (dice + optional CR). Sets combatant.initiative to the pre-shop total.
- * NPCs: dice only. PCs: may prompt to spend CR (owner/GM).
+ * Roll initiative for one combatant: Mastery Rank d8 plus the flat modifiers.
+ * Combat Reflexes are added afterwards in the Initiative Exchange row, so the
+ * roll no longer interrupts with a popup.
  */
 export async function rollInitiativeForCombatant(
   combatant: Combatant,
-  options: InitiativeRollOptions = {}
+  _options: InitiativeRollOptions = {}
 ): Promise<InitiativeRollBreakdown> {
-  /** CR wird im Initiative-Shop per Dropdown gesetzt (kein separates Popup). */
-  const { promptCombatReflexes = false } = options;
   const actor = combatant.actor;
   if (!actor) {
     console.error('Mastery System | Cannot roll initiative: combatant has no actor');
@@ -139,47 +127,11 @@ export async function rollInitiativeForCombatant(
 
   const diceTotal = rollResult.total;
 
-  let combatReflexesSpent = 0;
   const isPc = actor.type === 'character';
-  const user = game.user;
-  const mayPromptCr =
-    isPc &&
-    promptCombatReflexes &&
-    user &&
-    (user.isGM || (actor as any).isOwner);
-
-  if (mayPromptCr) {
-    const { maxThisRoll } = getCombatReflexesInitiativeLimits(actor, masteryRank);
-    if (maxThisRoll > 0) {
-      combatReflexesSpent = await new Promise<number>((resolve) => {
-        new Dialog({
-          title: 'Combat Reflexes (Initiative)',
-          content: `<form><div class="form-group">
-<label>Combat Reflexes to add to initiative (0–${maxThisRoll})</label>
-<input type="number" name="cr" min="0" max="${maxThisRoll}" value="0" step="1"/>
-</div></form>`,
-          buttons: {
-            apply: {
-              label: 'Apply',
-              callback: (html: JQuery) => {
-                const raw = Number(html.find('[name="cr"]').val());
-                const v = Number.isFinite(raw) ? Math.max(0, Math.min(maxThisRoll, Math.floor(raw))) : 0;
-                resolve(v);
-              }
-            },
-            none: { label: 'None', callback: () => resolve(0) }
-          },
-          default: 'apply'
-        }).render(true);
-      });
-    }
-    if (combatReflexesSpent > 0) {
-      const prevSpent = Number((actor.system as any)?.skillsSpent?.[CR_SKILL_KEY] ?? 0);
-      await actor.update({
-        [`system.skillsSpent.${CR_SKILL_KEY}`]: prevSpent + combatReflexesSpent
-      });
-    }
-  }
+  // A fresh roll replaces the score, so points added for the previous score are
+  // gone with it — the per-round budget starts over.
+  const combatReflexesSpent = 0;
+  await resetCombatReflexesRoundUsage(combatant);
 
   // Wits "Initiative Boost" stone power chosen BEFORE this roll (stone phase
   // precedes the initiative phase): fold it into the score here. The boost is

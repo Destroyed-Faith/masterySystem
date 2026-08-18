@@ -35,11 +35,29 @@
       {{#if initiativeExchange.boostUsed}}<span class="initiative-exchange-boost-used">Initiative Boost already used this combat.</span>{{/if}}
     </div>
     <div class="initiative-exchange-actions">
-      <label class="initiative-exchange-count">
-        Stones
-        <input type="number" class="js-colorless-convert-count" min="0" max="{{initiativeExchange.maxConvert}}" value="{{initiativeExchange.convertCount}}" {{#if initiativeExchange.locked}}disabled{{/if}} />
-      </label>
-      <button type="button" class="dialog-btn dialog-btn-secondary js-convert-initiative-colorless" {{#if initiativeExchange.locked}}disabled{{/if}} {{#unless initiativeExchange.maxConvert}}disabled{{/unless}}>
+      {{#if initiativeExchange.combatReflexes.show}}
+      <div class="initiative-exchange-stepper" title="Combat Reflexes: 1 skill point = +1 Initiative. Cap {{initiativeExchange.combatReflexes.capPerRoll}} per roll, {{initiativeExchange.combatReflexes.remainingPool}} left in the pool.">
+        <span class="initiative-exchange-stepper-label">Combat Reflexes</span>
+        <button type="button" class="initiative-exchange-btn js-cr-remove" {{#unless initiativeExchange.combatReflexes.canRemove}}disabled{{/unless}} aria-label="One Combat Reflexes point back">
+          <i class="fas fa-minus"></i>
+        </button>
+        <span class="initiative-exchange-value">+{{initiativeExchange.combatReflexes.used}}</span>
+        <button type="button" class="initiative-exchange-btn js-cr-add" {{#unless initiativeExchange.combatReflexes.canAdd}}disabled{{/unless}} aria-label="One Combat Reflexes point into Initiative">
+          <i class="fas fa-plus"></i>
+        </button>
+      </div>
+      {{/if}}
+      <div class="initiative-exchange-stepper" title="Colorless Stones to buy for {{initiativeExchange.costPerStone}} Initiative each (max {{initiativeExchange.maxConvert}}).">
+        <span class="initiative-exchange-stepper-label">Stones</span>
+        <button type="button" class="initiative-exchange-btn js-convert-count-remove" {{#unless initiativeExchange.canConvertLess}}disabled{{/unless}} aria-label="One stone less">
+          <i class="fas fa-minus"></i>
+        </button>
+        <span class="initiative-exchange-value">{{initiativeExchange.convertCount}}</span>
+        <button type="button" class="initiative-exchange-btn js-convert-count-add" {{#unless initiativeExchange.canConvertMore}}disabled{{/unless}} aria-label="One stone more">
+          <i class="fas fa-plus"></i>
+        </button>
+      </div>
+      <button type="button" class="dialog-btn dialog-btn-secondary js-convert-initiative-colorless" {{#if initiativeExchange.locked}}disabled{{/if}} {{#unless initiativeExchange.convertCount}}disabled{{/unless}}>
         <i class="fas fa-arrows-rotate"></i> Initiative zu Colorless Stones umwandeln
       </button>
     </div>

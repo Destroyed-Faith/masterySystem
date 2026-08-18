@@ -1,3 +1,4 @@
+import { warnIfPlayerStonesPending } from './stone-round-gate.js';
 let requestEndTurnInFlight = false;
 /**
  * Request to advance the active encounter one turn (same as Foundry's next turn).
@@ -11,6 +12,8 @@ export async function requestEndTurn() {
         ui.notifications.warn('No active combat!');
         return;
     }
+    if (warnIfPlayerStonesPending(combat))
+        return;
     const currentCombatant = combat.combatant;
     if (!currentCombatant) {
         ui.notifications.warn('No current combatant!');

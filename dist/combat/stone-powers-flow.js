@@ -8,7 +8,9 @@
 import { StonePowersDialog } from '../stones/stone-powers-dialog.js';
 import { executeInitiativePhase, syncCombatTurnToHighestInitiativeFirst, } from './initiative-roll.js';
 import { clearStonePowersConfigurationLocksInCombat, regenStonesEndOfRound, refillStonePoolsFromAttributes, resetRoundState, syncStonePoolCapsFromAttributes } from './action-economy.js';
-const SOCKET_NAME = 'system.mastery-system';
+import { ENCOUNTER_SOCKET, canCurrentUserUpdateDocument, emitEncounterSocketToPlayerOwners, resolveLiveCombat, shouldShowEncounterDialogLocally, } from './combat-permissions.js';
+import { isStonePowersDone } from './stone-round-gate.js';
+export { arePlayerStonesReadyForRound, isStonePowersDone, warnIfPlayerStonesPending } from './stone-round-gate.js';
 function getStonePowersState(combat) {
     const flags = combat.flags['mastery-system'] || {};
     const state = flags.stonePowersState;
@@ -16,6 +18,7 @@ function getStonePowersState(combat) {
         return {
             roundStonesPrompted: {},
             stonesDone: {},
+            regenDone: {},
             initiativePhaseDoneByRound: {}
         };
     }
@@ -25,29 +28,112 @@ function getStonePowersState(combat) {
     };
 }
 async function updateStonePowersState(combat, updates) {
-    const current = getStonePowersState(combat);
+    const live = resolveLiveCombat(combat);
+    if (!live || !game.user?.isGM)
+        return;
+    const current = getStonePowersState(live);
     const updated = { ...current, ...updates };
-    await combat.setFlag('mastery-system', 'stonePowersState', updated);
+    try {
+        await live.setFlag('mastery-system', 'stonePowersState', updated);
+    }
+    catch (err) {
+        console.warn('Mastery System | Could not persist stonePowersState', err);
+    }
 }
 async function markStonePowersDone(combat, combatantId, round) {
     const state = getStonePowersState(combat);
     state.stonesDone[combatantId] = round;
     await updateStonePowersState(combat, { stonesDone: state.stonesDone });
 }
-function areAllCombatantsDone(combat, round) {
+async function markStoneRegenDone(combat, combatantId, round) {
     const state = getStonePowersState(combat);
-    const allCombatants = Array.from(combat.combatants);
-    return allCombatants.every((combatant) => state.stonesDone[combatant.id] === round);
+    const regenDone = { ...(state.regenDone || {}), [combatantId]: round };
+    await updateStonePowersState(combat, { regenDone });
 }
 /**
- * After stone powers: Round 1 runs the full initiative phase (dice + CR + Initiative Shop
- * for PCs, `setupTurns`, Mastery first-actor sync). Rounds 2+ keep the existing Initiative —
- * per the Players Guide, Initiative is NOT rolled again each round and the Initiative Shop
- * does not reopen automatically (only effects like Wits Stone Powers may allow it). We only
- * re-sync the turn pointer to the highest remaining Initiative. Idempotent per round via
- * `initiativePhaseDoneByRound`.
+ * Register a finished Stone Recovery for the round. Mirrors
+ * `confirmStonePowersForCombatant`: the combatant step is written locally so it
+ * survives without a GM client, the Combat flag stays GM-owned.
+ */
+export async function confirmStoneRecoveryForCombatant(combat, combatant) {
+    if (!combat || !combatant)
+        return;
+    const live = resolveLiveCombat(combat) ?? combat;
+    const round = Math.max(1, Number(live.round) || 1);
+    const { persistCombatantSetupStep } = await import('./encounter-setup-flags.js');
+    await persistCombatantSetupStep(combatant, live, { regenDoneRound: round });
+    if (game.user?.isGM) {
+        await markStoneRegenDone(live, combatant.id, round);
+    }
+    else {
+        game.socket?.emit(ENCOUNTER_SOCKET, {
+            type: 'stoneRecoveryComplete',
+            combatId: live.id,
+            combatantId: combatant.id,
+            round,
+        });
+    }
+}
+export async function handleStoneRecoveryComplete(combat, combatantId, round) {
+    const live = resolveLiveCombat(combat);
+    if (!live)
+        return;
+    await markStoneRegenDone(live, combatantId, round);
+}
+/**
+ * Join Game As / no GM client: reset + regen owned actors, then open stone dialogs.
+ * The GM path (`runMasteryCombatRoundAdvancePipeline`) already covers this when a GM is present.
+ */
+export async function runPlayerOwnedRoundAdvance(combat, newRound) {
+    if (game.user?.isGM)
+        return;
+    const live = resolveLiveCombat(combat);
+    if (!live)
+        return;
+    combat = live;
+    if (newRound <= 1) {
+        void import('./player-encounter-setup.js').then(({ resumePlayerEncounterSetup }) => {
+            void resumePlayerEncounterSetup(combat);
+        });
+        return;
+    }
+    for (const combatant of combat.combatants) {
+        const actor = combatant.actor;
+        if (!actor || !canCurrentUserUpdateDocument(actor))
+            continue;
+        try {
+            await resetRoundState(actor, combatant, combat);
+        }
+        catch (err) {
+            console.warn('Mastery System | Player round reset failed', err);
+        }
+    }
+    try {
+        await regenStonesEndOfRound(combat);
+    }
+    catch (err) {
+        console.warn('Mastery System | Player stone regen failed', err);
+    }
+    void import('./player-encounter-setup.js').then(({ resumePlayerEncounterSetup }) => {
+        void resumePlayerEncounterSetup(combat);
+    });
+}
+function areAllCombatantsDone(combat, round) {
+    const allCombatants = Array.from(combat.combatants);
+    return allCombatants.every((combatant) => isStonePowersDone(combat, combatant.id, round));
+}
+/**
+ * After stone powers: leftover NPC rolls + sort by remaining Initiative.
+ * PCs already rolled (and maybe converted) inside the Stone Powers dialog.
+ * Idempotent per round via `initiativePhaseDoneByRound`.
  */
 export async function runInitiativePhaseAfterStones(combat, round) {
+    if (!game.user?.isGM)
+        return;
+    const live = resolveLiveCombat(combat);
+    if (!live)
+        return;
+    combat = live;
     const state = getStonePowersState(combat);
     if (state.initiativePhaseDoneByRound?.[round]) {
         return;
@@ -71,6 +157,13 @@ export async function runInitiativePhaseAfterStones(combat, round) {
     await updateStonePowersState(combat, {
         initiativePhaseDoneByRound: { ...(s.initiativePhaseDoneByRound || {}), [round]: true }
     });
+    try {
+        const { CombatCarouselApp } = await import('../ui/combat-carousel.js');
+        CombatCarouselApp.refresh();
+    }
+    catch {
+        /* carousel may not be open */
+    }
 }
 async function openStonePowersForCombatant(combat, combatant, round) {
     const actor = combatant.actor;
@@ -83,22 +176,38 @@ async function openStonePowersForCombatant(combat, combatant, round) {
         await markStonePowersDone(combat, combatant.id, round);
         return;
     }
-    const user = game.user;
-    if (!user) {
-        await markStonePowersDone(combat, combatant.id, round);
-        return;
-    }
-    if (!user.isGM && !actor.isOwner) {
-        await markStonePowersDone(combat, combatant.id, round);
+    if (!shouldShowEncounterDialogLocally(actor)) {
+        if (game.user?.isGM) {
+            emitEncounterSocketToPlayerOwners(actor, {
+                type: 'openStonePowers',
+                combatId: combat.id,
+                combatantId: combatant.id,
+                actorId: actor.id,
+                round,
+            });
+        }
         return;
     }
     try {
-        await StonePowersDialog.showForActor(actor, combatant);
-        await markStonePowersDone(combat, combatant.id, round);
+        // Round 2+ recovery happens inside the Stone Powers dialog: it locks the
+        // power matrix until the player confirmed which stones come back.
+        const confirmed = await StonePowersDialog.showForActor(actor, combatant);
+        if (!confirmed)
+            return;
+        if (game.user?.isGM) {
+            await markStonePowersDone(combat, combatant.id, round);
+        }
+        else {
+            game.socket?.emit(ENCOUNTER_SOCKET, {
+                type: 'stonePowersComplete',
+                combatId: combat.id,
+                combatantId: combatant.id,
+                round,
+            });
+        }
     }
     catch (error) {
         console.error('Mastery System | Error in stone powers dialog', error);
-        await markStonePowersDone(combat, combatant.id, round);
     }
 }
 /**
@@ -108,39 +217,35 @@ async function openStonePowersForCombatant(combat, combatant, round) {
  * Encounter-Flow.
  */
 export async function runMasteryCombatRoundAdvancePipeline(combat, newRound) {
+    if (!game.user?.isGM)
+        return;
+    const live = resolveLiveCombat(combat);
+    if (!live)
+        return;
+    combat = live;
     await clearStonePowersConfigurationLocksInCombat(combat);
-    // Wits "Initiative Boost" lasts "this round": remove last round's temporary
-    // boost from the persisted Initiative before the new round is set up.
-    for (const combatant of combat.combatants) {
-        try {
-            const boost = Number(combatant.getFlag('mastery-system', 'msInitiativeBoostThisRound') ?? 0) || 0;
-            if (boost > 0) {
-                const cur = Number(combatant.initiative ?? 0) || 0;
-                const restored = Math.max(0, cur - boost);
-                await combatant.update({ initiative: restored });
-                await combatant.setFlag('mastery-system', 'msInitiativeValue', restored);
-            }
-            if (boost !== 0) {
-                await combatant.unsetFlag('mastery-system', 'msInitiativeBoostThisRound');
-            }
-        }
-        catch (e) {
-            console.warn('Mastery System | Failed to revert Initiative Boost', e);
-        }
-    }
+    // Round 1 is reached by leaving the prepare phase (round 0 → 1). Resetting
+    // here would discard the Stone Powers the players just bought (Extra Attack,
+    // Spell Action, …), so only rounds 2+ get a fresh round state.
+    if (newRound <= 1)
+        return;
     for (const combatant of combat.combatants) {
         const actor = combatant.actor;
         if (actor)
             await resetRoundState(actor, combatant, combat);
     }
-    if (newRound <= 1)
-        return;
     await regenStonesEndOfRound(combat);
     if (combat.started) {
         await openStonePowersForAllCombatants(combat, newRound);
     }
 }
 export async function openStonePowersForAllCombatants(combat, round) {
+    if (!game.user?.isGM)
+        return;
+    const live = resolveLiveCombat(combat);
+    if (!live)
+        return;
+    combat = live;
     const state = getStonePowersState(combat);
     if (state.roundStonesPrompted[round]) {
         return;
@@ -151,6 +256,8 @@ export async function openStonePowersForAllCombatants(combat, round) {
     for (const c of combat.combatants) {
         const a = c.actor;
         if (!a || a.type !== 'character')
+            continue;
+        if (!canCurrentUserUpdateDocument(a))
             continue;
         if (round === 1) {
             await refillStonePoolsFromAttributes(a);
@@ -171,21 +278,79 @@ export async function openStonePowersForAllCombatants(combat, round) {
         await runInitiativePhaseAfterStones(combat, round);
     }
 }
-async function handleStonePowersComplete(combat, combatantId, round) {
-    await markStonePowersDone(combat, combatantId, round);
-    if (areAllCombatantsDone(combat, round)) {
-        await runInitiativePhaseAfterStones(combat, round);
+/**
+ * Register a confirmed stone assignment, whichever way the dialog was opened
+ * (player pipeline, GM fill, setup status row, forced dialog). Writes the
+ * combatant step so it survives without a GM client, then lets the GM own the
+ * Combat flag. Round 0 (prepare phase) counts as round 1, matching
+ * `encounterStartBlockers`.
+ */
+export async function confirmStonePowersForCombatant(combat, combatant) {
+    if (!combat || !combatant)
+        return;
+    const live = resolveLiveCombat(combat) ?? combat;
+    const round = Math.max(1, Number(live.round) || 1);
+    const { persistCombatantSetupStep } = await import('./encounter-setup-flags.js');
+    await persistCombatantSetupStep(combatant, live, { stonesDoneRound: round });
+    if (game.user?.isGM) {
+        await handleStonePowersComplete(live, combatant.id, round);
+    }
+    else {
+        game.socket?.emit(ENCOUNTER_SOCKET, {
+            type: 'stonePowersComplete',
+            combatId: live.id,
+            combatantId: combatant.id,
+            round,
+        });
+    }
+}
+/**
+ * "Start Round N" from the carousel. Re-opens Stone Powers for every PC that
+ * still owes an assignment (locally for the GM's own actors, over the socket for
+ * the owning players) and runs the initiative phase as soon as nobody is left.
+ * The round advance already does this once; a GM needs a way to repeat it when a
+ * player closed the dialog or joined late.
+ */
+export async function promptPendingStoneAssignments(combat) {
+    if (!game.user?.isGM)
+        return;
+    const live = resolveLiveCombat(combat);
+    if (!live)
+        return;
+    const round = Math.max(1, Number(live.round) || 1);
+    const { pendingStoneCombatants, pendingStonePlayerNames } = await import('./stone-round-gate.js');
+    const pending = pendingStoneCombatants(live, round);
+    for (const combatant of pending) {
+        await openStonePowersForCombatant(live, combatant, round);
+        await new Promise((resolve) => setTimeout(resolve, 200));
+    }
+    if (areAllCombatantsDone(live, round)) {
+        await runInitiativePhaseAfterStones(live, round);
+        ui.notifications?.info(`Runde ${round}: alle Steine gesetzt, Initiative sortiert.`);
+    }
+    else {
+        const still = pendingStonePlayerNames(live, round);
+        if (still.length)
+            ui.notifications?.info(`Runde ${round} — Steine offen: ${still.join(', ')}.`);
+    }
+    try {
+        const { CombatCarouselApp } = await import('../ui/combat-carousel.js');
+        CombatCarouselApp.refresh();
+    }
+    catch {
+        /* carousel may not be open */
+    }
+}
+export async function handleStonePowersComplete(combat, combatantId, round) {
+    const live = resolveLiveCombat(combat);
+    if (!live)
+        return;
+    await markStonePowersDone(live, combatantId, round);
+    if (areAllCombatantsDone(live, round)) {
+        await runInitiativePhaseAfterStones(live, round);
     }
 }
 export function initializeStonePowersFlow() {
-    game.socket?.on(SOCKET_NAME, async (payload) => {
-        const { type, combatId, combatantId, round } = payload;
-        if (type !== 'stonePowersComplete')
-            return;
-        const combat = game.combat;
-        if (!combat || combat.id !== combatId)
-            return;
-        await handleStonePowersComplete(combat, combatantId, round);
-    });
+    // Socket handling lives in registerEncounterSocket (ready).
 }
 //# sourceMappingURL=stone-powers-flow.js.map

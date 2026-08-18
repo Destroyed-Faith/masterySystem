@@ -4,6 +4,23 @@ export interface GridRect {
     w: number;
     h: number;
 }
+export interface EquipmentGridFlags {
+    container?: string | null;
+    band?: string | null;
+    slot?: string | null;
+    grid?: {
+        x?: number;
+        y?: number;
+    } | null;
+    consumableSlot?: unknown;
+}
+/** True when the item currently occupies carry-grid cells (not equipped, stash, or a consumable slot). */
+export declare function occupiesInventoryGrid(flags: EquipmentGridFlags | null | undefined, band?: string): boolean;
+export declare function collectInventoryBandRects(items: Iterable<any>, band: string, opts?: {
+    excludeItemId?: string;
+    cols?: number;
+    rows?: number;
+}): GridRect[];
 export declare function parseInventorySize(size: string | undefined): {
     w: number;
     h: number;

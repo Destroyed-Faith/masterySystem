@@ -4,7 +4,7 @@
 import { SKILLS } from '../utils/skills.js';
 import { getSkillRollDicePool } from '../dice/roll-context-build.js';
 import { buildEpicDiceFaces, countResolvedParticipants, rollLabelForConfig, } from './epic-mastery-roll-types.js';
-import { applyEpicSkillSpendAndFinalize, confirmEpicRollWithoutSpend, performEpicParticipantRoll, } from './epic-mastery-roll-roll.js';
+import { applyEpicSkillSpendAndFinalize, canSpendEpicRerollPoint, confirmEpicRollWithoutSpend, performEpicParticipantReroll, performEpicParticipantRoll, } from './epic-mastery-roll-roll.js';
 import { buildSkillSpendPackets, getSkillSpendOptions, sumSelectedPacketSpend, totalsAfterSkillSpend, } from './epic-mastery-roll-skill-spend.js';
 import { applyEpicEchoCardToResult, getEpicEchoCardOffers, } from './epic-mastery-roll-echo.js';
 import { portraitFallbackSrc, resolveActorPortraitSrc } from './epic-mastery-roll-portraits.js';
@@ -54,6 +54,8 @@ class EpicMasteryRollOverlay {
             let selectedSpendAmount = 0;
             let canAddSkillPoints = false;
             let showSkillSpend = false;
+            let showReroll = false;
+            let showFailureActions = false;
             let displayTotal = result?.total ?? 0;
             let displaySuccess = !!result?.success;
             if (awaitingSpend && result?.rollPayload && result.skillKey && actor && isOwner && !result.success) {
@@ -76,6 +78,10 @@ class EpicMasteryRollOverlay {
                     displaySuccess = preview.success;
                     canAddSkillPoints = selectedSpendAmount > 0;
                 }
+            }
+            if (awaitingSpend && isOwner && result && !result.success) {
+                showFailureActions = true;
+                showReroll = !result.rerolled && canSpendEpicRerollPoint(actor);
             }
             const skillAttrs = skillDef?.attributes ?? [];
             const multiAttribute = isSkillRoll && skillAttrs.length > 1;
@@ -145,10 +151,12 @@ class EpicMasteryRollOverlay {
                 showResultFrame: showRollResult,
                 diceFaces,
                 showDiceFaces: diceFaces.length > 0,
-                showFinalMeta: rolled && (!!result?.skillSpent || !!result?.echoCardUsed),
+                showFinalMeta: rolled && (!!result?.skillSpent || !!result?.echoCardUsed || !!result?.rerolled),
                 echoCardUsed: result?.echoCardUsed,
                 waiting: p.status === 'pending' && !isOwner,
+                showFailureActions,
                 showSkillSpend,
+                showReroll,
                 skillPackets,
                 selectedSpendAmount,
                 canAddSkillPoints,
@@ -273,6 +281,25 @@ class EpicMasteryRollOverlay {
                 btn.setAttribute('disabled', 'true');
                 await applyEpicSkillSpendAndFinalize(this.session, actorId, amount);
                 delete this.selectedSpendPackets[actorId];
+            };
+        });
+        root.querySelectorAll('[data-action="emr-reroll"]').forEach((btn) => {
+            btn.onclick = async (ev) => {
+                ev.preventDefault();
+                if (this.rolling || this.session.status !== 'active' || btn.hasAttribute('disabled'))
+                    return;
+                const actorId = btn.dataset.actorId;
+                if (!actorId)
+                    return;
+                this.rolling = true;
+                btn.setAttribute('disabled', 'true');
+                try {
+                    await performEpicParticipantReroll(this.session, actorId);
+                    delete this.selectedSpendPackets[actorId];
+                }
+                finally {
+                    this.rolling = false;
+                }
             };
         });
         root.querySelectorAll('[data-action="emr-confirm"]').forEach((btn) => {

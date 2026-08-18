@@ -33,10 +33,12 @@ export function getPassiveSlots(actor) {
     const slots = [];
     for (let i = 0; i < slotCount; i++) {
         const slotData = passives[`slot${i}`] || {};
+        const raw = slotData.passive;
+        const hasPassive = !!(raw && (raw.id || raw.name));
         slots.push({
             slotIndex: i,
-            passive: slotData.passive || null,
-            active: slotData.active || false,
+            passive: hasPassive ? raw : null,
+            active: hasPassive && !!slotData.active,
             unlockMasteryRank: getPassiveSlotUnlockRank(i) ?? 1,
         });
     }
@@ -149,16 +151,10 @@ export async function activatePassive(actor, slotIndex) {
  * Remove a passive from a slot
  */
 export async function unslotPassive(actor, slotIndex) {
-    const system = actor.system;
-    if (!system.passives) {
-        system.passives = {};
-    }
     const slotKey = `slot${slotIndex}`;
-    system.passives[slotKey] = {
-        passive: null,
-        active: false
-    };
-    await actor.update({ 'system.passives': system.passives });
+    // Foundry diffs drop `null` on object replace, so the old passive would stay.
+    // The `-=` key deletes the slot on the document the player actually owns.
+    await actor.update({ [`system.passives.-=${slotKey}`]: null });
 }
 /**
  * Get count of active passives

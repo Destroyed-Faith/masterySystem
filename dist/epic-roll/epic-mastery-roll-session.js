@@ -1,7 +1,7 @@
 /**
  * Epic Mastery Roll — GM-authoritative session manager.
  */
-import { isSessionReadyToComplete, mergeParticipantResult, skipParticipantInSession, } from './epic-mastery-roll-types.js';
+import { defaultRollTitleForKind, isSessionReadyToComplete, mergeParticipantResult, skipParticipantInSession, } from './epic-mastery-roll-types.js';
 import { broadcastEpicMasteryRollCancel, broadcastEpicMasteryRollStart, broadcastEpicMasteryRollState, } from './epic-mastery-roll-socket.js';
 import { postEpicMasteryRollSummary } from './epic-mastery-roll-chat.js';
 import { closeEpicMasteryRollApp, openEpicMasteryRollApp } from './epic-mastery-roll-app.js';
@@ -46,11 +46,11 @@ export function getActiveEpicMasteryRollSession() {
 }
 export async function startEpicMasteryRollSession(config) {
     if (!game.user?.isGM) {
-        ui.notifications?.warn('Only the GM can start an Epic Mastery Roll.');
+        ui.notifications?.warn('Only the GM can start a Skill Roll.');
         return null;
     }
     if (activeSession?.status === 'active') {
-        ui.notifications?.warn('An Epic Mastery Roll is already in progress.');
+        ui.notifications?.warn('A Skill Roll is already in progress.');
         return null;
     }
     const participants = buildParticipants(config.actorIds);
@@ -60,7 +60,7 @@ export async function startEpicMasteryRollSession(config) {
     }
     const session = {
         id: randomId(),
-        title: config.title.trim() || 'Epic Mastery Roll',
+        title: config.title.trim() || defaultRollTitleForKind(config.roll.kind),
         flavor: config.flavor.trim(),
         showTn: config.showTn,
         tn: config.tn,

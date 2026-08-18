@@ -3,7 +3,8 @@
  */
 import { exposeTyhraCalendarApi } from './tyhra-calendar-api.js';
 import { TyhraCalendarApplication } from './tyhra-calendar-application.js';
-import { invalidateJournalIndexCache } from './tyhra-calendar-journal-service.js';
+import { grantPlayersCalendarJournalOwnership, invalidateJournalIndexCache, } from './tyhra-calendar-journal-service.js';
+import { registerTyhraCalendarSocket } from './tyhra-calendar-socket.js';
 import { registerTyhraCalendarSettings, canUserOpenCalendar, isCalendarEnabled } from './tyhra-calendar-settings.js';
 function injectJournalSidebarButton(html) {
     if (!isCalendarEnabled() || !canUserOpenCalendar())
@@ -12,7 +13,9 @@ function injectJournalSidebarButton(html) {
     if (!root)
         return;
     const headerActions = root.querySelector('.directory-header .header-actions') ??
-        root.querySelector('.header-actions');
+        root.querySelector('.header-actions') ??
+        root.querySelector('.directory-header') ??
+        root.querySelector('header');
     if (!headerActions || headerActions.querySelector('.df-calendar-launch'))
         return;
     const button = document.createElement('button');
@@ -29,6 +32,10 @@ function injectJournalSidebarButton(html) {
 export function initializeTyhraCalendar() {
     registerTyhraCalendarSettings();
     exposeTyhraCalendarApi();
+    registerTyhraCalendarSocket();
+    Hooks.once('ready', () => {
+        void grantPlayersCalendarJournalOwnership();
+    });
     Hooks.on('renderJournalDirectory', (_app, html) => {
         injectJournalSidebarButton(html);
     });

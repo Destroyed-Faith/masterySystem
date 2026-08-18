@@ -181,7 +181,11 @@ export function getRoundState(actor, combat) {
     const owner = (getActionEconomyActor(actor) ?? actor);
     const stored = owner.getFlag('mastery-system', 'roundState');
     const combatId = String(combat?.id ?? '');
-    const round = combat?.round ?? 1;
+    // Prepare phase runs on round 0. Stone purchases made there belong to round 1,
+    // so both writes and reads must normalise to 1 — otherwise every read during
+    // prepare returns a fresh default and the purchases are silently dropped when
+    // Foundry advances the encounter to round 1.
+    const round = Math.max(1, Math.floor(Number(combat?.round ?? 1) || 1));
     const storedCombatId = String(stored?.combatId ?? '');
     // Must match encounter AND round — a new combat can start again at round 1 with a clean tracker.
     if (stored &&
@@ -203,7 +207,7 @@ export function getRoundState(actor, combat) {
     };
     return {
         combatId: combatId || undefined,
-        round: combat?.round || 1,
+        round,
         turn: combat?.turn || 0,
         isPC,
         ...baseActions,
@@ -737,6 +741,13 @@ export async function refillStonePoolsFromAttributes(actor) {
         }
     }
     if (Object.keys(updates).length > 0) {
+        const user = typeof game !== 'undefined' ? game.user : null;
+        if (user &&
+            !user.isGM &&
+            typeof owner.canUserModify === 'function' &&
+            !owner.canUserModify(user, 'update')) {
+            return;
+        }
         await owner.update(updates);
     }
 }
@@ -787,7 +798,7 @@ export async function setStonePool(actor, attribute, current) {
  * @param applyEffect Function to apply the ability effect (adds actions/bonuses to roundState)
  * @returns true if successful, false if failed
  */
-export async function spendStoneAbility(actor, _combatant, attribute, abilityKey, applyEffect, expectedCost) {
+export async function spendStoneAbility(actor, _combatant, attribute, abilityKey, applyEffect, expectedCost, colorlessSpent = 0) {
     // NPCs cannot use stone abilities for action bonuses
     if (!isPC(actor)) {
         ui.notifications?.warn('NPCs cannot use stone abilities for action bonuses');
@@ -813,9 +824,19 @@ export async function spendStoneAbility(actor, _combatant, attribute, abilityKey
         : calculateStoneCost(uses);
     // Get stone pool
     const pool = getStonePool(actor, attribute);
+    const colorlessWanted = Math.max(0, Math.floor(Number(colorlessSpent) || 0));
+    let colorlessUsed = 0;
+    try {
+        const { getTempColorlessStones } = await import('../stones/colorless-stones.js');
+        colorlessUsed = Math.min(colorlessWanted, getTempColorlessStones(actor));
+    }
+    catch {
+        colorlessUsed = 0;
+    }
+    const attributeCost = Math.max(0, cost - colorlessUsed);
     // Check if enough stones
-    if (pool.current < cost) {
-        ui.notifications?.warn(`Not enough ${attribute} stones! Need ${cost}, have ${pool.current}`);
+    if (pool.current < attributeCost) {
+        ui.notifications?.warn(`Not enough ${attribute} stones! Need ${attributeCost}, have ${pool.current}`);
         return false;
     }
     // Get round state
@@ -824,7 +845,13 @@ export async function spendStoneAbility(actor, _combatant, attribute, abilityKey
     try {
         await applyEffect(roundState);
         // Deduct stones
-        await setStonePool(actor, attribute, pool.current - cost);
+        if (attributeCost > 0) {
+            await setStonePool(actor, attribute, pool.current - attributeCost);
+        }
+        if (colorlessUsed > 0) {
+            const { spendTempColorlessStones } = await import('../stones/colorless-stones.js');
+            await spendTempColorlessStones(actor, colorlessUsed);
+        }
         // Increment usage counter (General Powers: ein Zähler pro Macht, nicht pro Pool-Farbe)
         if (isGenericStoneAbility) {
             await incrementGenericStonePowerUsage(actor, abilityKey, combat);
@@ -835,7 +862,9 @@ export async function spendStoneAbility(actor, _combatant, attribute, abilityKey
         // Do not call setRoundState(actor, roundState) here: `roundState` is the pre-effect snapshot.
         // Stone powers call getRoundState + setRoundState inside apply(); saving this snapshot would
         // overwrite extra attacks / move bonuses / reactions just granted.
-        ui.notifications?.info(`Spent ${cost} ${attribute} stones. (${pool.current - cost} remaining)`);
+        const leftover = pool.current - attributeCost;
+        const colorlessNote = colorlessUsed > 0 ? ` + ${colorlessUsed} colorless` : '';
+        ui.notifications?.info(`Spent ${attributeCost} ${attribute} stones${colorlessNote}. (${leftover} ${attribute} remaining)`);
         return true;
     }
     catch (error) {
@@ -876,11 +905,26 @@ export async function spendGenericStoneAbilityWithPerAttributeDeductions(actor, 
             counts[attr] = n;
         sum += n;
     }
+    const witsN = Math.max(0, Math.floor(Number(perAttributeCounts.wits) || 0));
+    if (witsN > 0) {
+        counts.wits = witsN;
+        sum += witsN;
+    }
+    const colorlessN = Math.max(0, Math.floor(Number(perAttributeCounts.colorless) || 0));
+    sum += colorlessN;
     if (sum !== cost) {
         ui.notifications?.warn(`Stone payment mismatch for ${abilityKey}: need ${cost} stones across pools, allocation sums to ${sum}`);
         return false;
     }
-    for (const attr of STONE_USAGE_ATTR_KEYS) {
+    if (colorlessN > 0) {
+        const { getTempColorlessStones } = await import('../stones/colorless-stones.js');
+        const have = getTempColorlessStones(actor);
+        if (have < colorlessN) {
+            ui.notifications?.warn(`Not enough colorless stones! Need ${colorlessN}, have ${have}`);
+            return false;
+        }
+    }
+    for (const attr of Object.keys(counts)) {
         const n = counts[attr] || 0;
         if (!n)
             continue;
@@ -893,12 +937,16 @@ export async function spendGenericStoneAbilityWithPerAttributeDeductions(actor, 
     const roundState = getRoundState(actor, combat);
     try {
         await applyEffect(roundState);
-        for (const attr of STONE_USAGE_ATTR_KEYS) {
+        for (const attr of Object.keys(counts)) {
             const n = counts[attr] || 0;
             if (!n)
                 continue;
             const pool = getStonePool(actor, attr);
             await setStonePool(actor, attr, pool.current - n);
+        }
+        if (colorlessN > 0) {
+            const { spendTempColorlessStones } = await import('../stones/colorless-stones.js');
+            await spendTempColorlessStones(actor, colorlessN);
         }
         await incrementGenericStonePowerUsage(actor, abilityKey, combat);
         ui.notifications?.info(`Spent ${cost} stones (generic power, mixed pools).`);
@@ -982,44 +1030,43 @@ export async function applyAutomaticStoneRegen(actor) {
     }
 }
 /**
- * Regenerate stones at end of round (automatic; no player allocation dialog).
+ * Apply a player-chosen regen allocation (Mastery Rank stones back into chosen pools).
  */
-export async function regenStonesEndOfRound(combat) {
-    const user = game.user;
-    if (!user)
-        return;
-    const pcCombatants = combat.combatants.filter((c) => {
-        const actor = c.actor;
-        return actor && actor.type === 'character' && (user.isGM || actor.isOwner);
-    });
-    if (pcCombatants.length === 0) {
-        return;
-    }
-    for (const combatant of pcCombatants) {
-        const actor = combatant.actor;
-        if (!actor)
+export async function applyStoneRegenAllocation(actor, allocation) {
+    const owner = getActionEconomyActor(actor) ?? actor;
+    const system = owner.system;
+    const updates = {};
+    const keys = [
+        'might',
+        'agility',
+        'vitality',
+        'intellect',
+        'resolve',
+        'influence',
+        'wits',
+    ];
+    for (const attr of keys) {
+        const add = Math.max(0, Math.floor(Number(allocation[attr]) || 0));
+        if (!add)
             continue;
-        const owner = getActionEconomyActor(actor) ?? actor;
-        const system = owner.system;
-        const attributeKeys = [
-            'might',
-            'agility',
-            'vitality',
-            'intellect',
-            'resolve',
-            'influence'
-        ];
-        const canRegen = attributeKeys.some((attr) => {
-            const pool = getStonePool(owner, attr);
-            const sustained = system.stonePools?.[attr]?.sustained || 0;
-            const effectiveMax = pool.max - sustained;
-            return pool.current < effectiveMax;
-        });
-        if (!canRegen) {
-            continue;
+        const pool = getStonePool(owner, attr);
+        const sustained = Number(system.stonePools?.[attr]?.sustained) || 0;
+        const cap = Math.max(0, pool.max - sustained);
+        const next = Math.min(cap, pool.current + add);
+        if (next !== pool.current) {
+            updates[`system.stonePools.${attr}.current`] = next;
         }
-        await applyAutomaticStoneRegen(actor);
     }
+    if (Object.keys(updates).length > 0) {
+        await owner.update(updates);
+    }
+}
+/**
+ * Round advance no longer auto-fills pools. Players pick which stones come back
+ * in the Stone Recovery step of the Stone Powers dialog.
+ */
+export async function regenStonesEndOfRound(_combat) {
+    /* interactive recovery runs in the Stone Powers dialog */
 }
 /**
  * Restore all stone pools to max after combat
@@ -1038,17 +1085,19 @@ export async function restoreStonesAfterCombat(combat) {
             continue;
         const owner = getActionEconomyActor(actor) ?? actor;
         const system = owner.system;
-        const attributeKeys = ['might', 'agility', 'vitality', 'intellect', 'resolve', 'influence'];
         const updates = {};
-        for (const attr of attributeKeys) {
+        // Same target as the round-1 refill: capacity from the attribute, current
+        // filled up to capacity minus sustained. Artifact-bound stones are not
+        // subtracted here — bindings are deducted when stones are spent
+        // (`poolSpendableStones`), so they stay reserved without shrinking the pool.
+        for (const attr of STONE_POOL_ATTRIBUTE_KEYS) {
             const pool = getStonePool(owner, attr);
             const sustained = (system.stonePools?.[attr]?.sustained || 0);
             const attrValue = Number(system.attributes?.[attr]?.value ?? 0);
-            const maxFromAttr = Math.floor(attrValue / 8);
-            const effectiveMax = Math.max(pool.max, maxFromAttr);
-            const fullCurrent = Math.max(0, effectiveMax - sustained);
-            if (pool.current !== fullCurrent || pool.max !== effectiveMax) {
-                updates[`system.stonePools.${attr}.max`] = effectiveMax;
+            const maxStones = Math.floor(attrValue / 8);
+            const fullCurrent = Math.max(0, maxStones - sustained);
+            if (pool.current !== fullCurrent || pool.max !== maxStones) {
+                updates[`system.stonePools.${attr}.max`] = maxStones;
                 updates[`system.stonePools.${attr}.current`] = fullCurrent;
             }
         }
@@ -1075,20 +1124,24 @@ export async function restoreStonesAfterCombat(combat) {
  * Initialize round state for all combatants at combat start
  */
 export async function initializeCombatRoundState(combat) {
+    const combatId = String(combat?.id ?? '');
     for (const combatant of combat.combatants) {
         const actor = combatant.actor;
         if (!actor)
             continue;
-        // Reset round state
+        const flagOwner = (getActionEconomyActor(actor) ?? actor);
+        // Stone Powers for round 1 are bought during the prepare phase, before
+        // Foundry reports `started`. That state must survive combat start.
+        const stored = flagOwner.getFlag?.('mastery-system', 'roundState');
+        const preparedForThisCombat = !!stored &&
+            String(stored.combatId ?? '') === combatId &&
+            Math.max(1, Math.floor(Number(stored.round) || 1)) <= 1;
+        if (preparedForThisCombat)
+            continue;
         const roundState = getRoundState(actor, combat);
         await setRoundState(actor, roundState);
         // Reset stone usage (same owner as roundState for unlinked PCs)
-        const flagOwner = getActionEconomyActor(actor) ?? actor;
         await flagOwner.setFlag('mastery-system', 'stoneUsage', {});
-        // For PCs: apply initiative shop bonuses if any
-        if (isPC(actor)) {
-            await applyInitiativeShopBonuses(actor, combatant, combat);
-        }
     }
 }
 /**
@@ -1150,6 +1203,9 @@ export async function clearCombatStoneTurnBonusesForActor(actor, combat) {
         (sb.spellResistanceBonus ?? 0) !== 0 ||
         (sb.spellSpecialBoost ?? 0) !== 0 ||
         (sb.damageReductionBoostPct ?? 0) !== 0 ||
+        (sb.tempWard ?? 0) !== 0 ||
+        (sb.tempParryPool ?? 0) !== 0 ||
+        (sb.tempDamageNegation ?? 0) !== 0 ||
         (sb.phasingChargesFromStones ?? 0) !== 0 ||
         (sb.extendActiveBuffRounds ?? 0) !== 0;
     if (!changed)
@@ -1197,7 +1253,10 @@ export async function clearCombatStoneTurnBonusesForActor(actor, combat) {
         extraSpellActions: sb.extraSpellActions ?? 0,
         spellSpecialBoost: 0,
         damageReductionBoostPct: 0,
-        incomingSpecialReduction: sb.incomingSpecialReduction ?? 0,
+        incomingSpecialReduction: 0,
+        tempWard: 0,
+        tempParryPool: 0,
+        tempDamageNegation: 0,
         phasingChargesFromStones: 0,
         initiativeBonus: sb.initiativeBonus ?? 0,
         reactionRangeBonus: sb.reactionRangeBonus ?? 0,

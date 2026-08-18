@@ -28,24 +28,8 @@ export declare const HEALTH_PENALTIES: number[];
  */
 export declare const HEALTH_PENALTY_FRACTIONS: number[];
 export declare const MAX_MASTERY_RANK = 8;
-export declare const INITIATIVE_SHOP: {
-    MOVEMENT: {
-        COST: number;
-        INCREMENT: number;
-    };
-    SWAP: {
-        COST: number;
-    };
-    EXTRA_REACTION: {
-        COST: number;
-    };
-    REMOVE_STRESS: {
-        COST: number;
-    };
-    EXTRA_ATTACK: {
-        COST: number;
-    };
-};
+/** Initiative spent per Temporary Colorless Stone = this × Mastery Rank. */
+export declare const INITIATIVE_PER_COLORLESS_STONE = 4;
 export declare const CREATION: {
     ATTRIBUTE_DISTRIBUTION: readonly number[];
     ATTRIBUTE_ALLOWED_VALUES: readonly number[];

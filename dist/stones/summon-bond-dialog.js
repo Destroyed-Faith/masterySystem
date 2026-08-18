@@ -4,12 +4,14 @@
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const BaseDialog = HandlebarsApplicationMixin(ApplicationV2);
 import { getStoneGemStyle } from '../utils/stone-attribute-ui.js';
+import { creatureTypeSelectOptions, normalizeCreatureTypeValue } from '../utils/creature-type.js';
 import { getFilePickerClass } from '../utils/foundry-v14.js';
 import { evaluateSummonPower, listSummonPowerCatalog } from './summon-power-allowlist.js';
-import { createSummonActorForBondBody, deleteSummonActor, placeFamiliarToken, } from './familiar-actor-factory.js';
+import { createSummonActorForBondBody, deleteSummonActor, getLiveSummonActor, placeFamiliarToken, updateSummonActorForBondBody, } from './familiar-actor-factory.js';
 import { getActorPoolSpendable } from './familiar-bind.js';
 import { addBoundStonesToBond, applyBondRitual, createSummonBondWithStones, DISSOLVE_BOND_CONFIRM, dissolveSummonBond, getSummonBondsFromActor, ownerSkillRatingsFromActor, removeBoundStonesFromBond, recomputeBondDerived, setBondBonusTokens, syncBodiesFromSpend, tokensSummary, upsertSummonBond, validateBondRitual, STONE_POOL_ATTRS, } from './summon-bond-bind.js';
-import { SHARED_SENSE_GROUPS, SUMMON_ELIGIBLE_SPECIALS, SUMMON_MOVEMENT_MODES, SUMMON_SKILL_IDS, baseMovementM, computeSummonBond, emptyBondSpend, maxMovementPurchases, maxSummonPowerLevel, normalizeMovementMode, summonTokensFromStones, } from './summon-bond-rules.js';
+import { SHARED_SENSE_GROUPS, SUMMON_CAPS, SUMMON_ELIGIBLE_SPECIALS, SUMMON_MOVEMENT_MODES, SUMMON_SKILL_IDS, baseMovementM, computeSummonBond, emptyBondSpend, isSummonSkillEligible, maxMovementPurchases, maxSummonPowerLevel, normalizeMovementMode, summonSkillMinRating, summonTokensFromStones, } from './summon-bond-rules.js';
+import { applyBondFieldDelta, applyBodyFieldDelta, applyBonusTokenDelta, applySkillDiceAllocDelta, bodyStepperView, bondStepperView, inspectBondSpend, isIllegalBonusTokens, maxAssignableArtifactBonusTokens, resetIllegalPurchases, safePurchaseInt, sanitizeBonusTokens, sanitizeSpendNumbers, } from './summon-bond-spend.js';
 const ATTR_LABELS = {
     might: 'Might',
     agility: 'Agility',
@@ -45,10 +47,20 @@ export class SummonBondDialog extends BaseDialog {
     ritualErrors = [];
     ritualWarnings = [];
     resolveClose;
+    uiScrollTop = 0;
+    uiWindowScrollTop = 0;
+    openBodyIndexes = new Set([0]);
+    identityOpen = false;
+    stonesOpen = false;
+    sensesOpen = false;
+    powersOpen = false;
+    specialOpen = false;
+    skillsOpen = false;
+    restoreUiAfterRender = false;
     static DEFAULT_OPTIONS = {
         id: 'mastery-summon-bond',
         classes: ['mastery-system', 'summon-bond-dialog-app'],
-        position: { width: 720, height: 820 },
+        position: { width: 800, height: 820 },
         window: { title: 'Summon Bond Ritual', resizable: true },
     };
     static PARTS = {
@@ -86,6 +98,7 @@ export class SummonBondDialog extends BaseDialog {
                 name: '',
                 img: '',
                 expression: '',
+                creatureType: '',
                 ownerActorId: actor.id ?? '',
                 boundStoneCount: 0,
                 stoneAttributes: [],
@@ -189,6 +202,7 @@ export class SummonBondDialog extends BaseDialog {
                     name: this.createName,
                     img: this.createImg,
                     expression: this.createExpression,
+                    creatureType: this.createExpression,
                     stoneAttributes: stoneChips,
                 },
                 movementModes: SUMMON_MOVEMENT_MODES.map((m) => ({
@@ -203,49 +217,111 @@ export class SummonBondDialog extends BaseDialog {
                 createTokenPreview: summonTokensFromStones(this.createAttrs.length),
                 createErrors: this.createErrors,
                 canCreate: this.createAttrs.length >= 1 && !!this.createName.trim(),
+                creatureTypeOptions: creatureTypeSelectOptions(this.createExpression),
             };
         }
         this.draft.movementMode = normalizeMovementMode(this.draft.movementMode);
         this.ensureSpendBodies();
         const ratings = ownerSkillRatingsFromActor(this.actor);
         const mr = Math.max(1, Math.floor(Number(this.actor.system?.mastery?.rank) || 1));
-        const computed = computeSummonBond({
+        const otherBonds = getSummonBondsFromActor(this.actor);
+        const maxBonusTokens = maxAssignableArtifactBonusTokens(this.actor, this.draft.id, otherBonds);
+        const spendCtx = {
             boundStoneCount: this.draft.boundStoneCount,
             bonusTokens: this.draft.bonusTokens,
             movementMode: this.draft.movementMode,
-            spend: this.draft.spend,
+            selectedSkills: this.draft.selectedSkills,
+            ownerSkillRatings: ratings,
+            ownerMasteryRank: mr,
+            maxBonusTokens,
+            skillDiceAlloc: this.draft.skillDiceAlloc,
+        };
+        const inspect = inspectBondSpend(this.draft.spend, spendCtx);
+        const computed = computeSummonBond({
+            boundStoneCount: this.draft.boundStoneCount,
+            bonusTokens: sanitizeBonusTokens(this.draft.bonusTokens, maxBonusTokens),
+            movementMode: this.draft.movementMode,
+            spend: sanitizeSpendNumbers(this.draft.spend),
         });
-        const tokens = tokensSummary(this.draft);
-        const validation = validateBondRitual(this.draft, ratings, mr);
+        const tokens = tokensSummary({
+            ...this.draft,
+            bonusTokens: sanitizeBonusTokens(this.draft.bonusTokens, maxBonusTokens),
+            spend: sanitizeSpendNumbers(this.draft.spend),
+        });
+        const validation = validateBondRitual(this.draft, ratings, mr, { maxBonusTokens });
         const selectedSkills = new Set(this.draft.selectedSkills);
-        const skillOptions = SUMMON_SKILL_IDS.map((id) => {
+        const purchasedDice = computed.skillDiceTotal;
+        const skillMinRating = summonSkillMinRating(mr);
+        const eligibleSelectedCount = this.draft.selectedSkills.filter((id) => isSummonSkillEligible(ratings[id] ?? 0, mr)).length;
+        const allSkillRows = SUMMON_SKILL_IDS.map((id) => {
             const selected = selectedSkills.has(id);
-            const canSelect = selected || selectedSkills.size < tokens.skillSlots;
+            const ownerRating = ratings[id] ?? 0;
+            const eligible = isSummonSkillEligible(ownerRating, mr);
+            const canSelect = eligible && (selected || eligibleSelectedCount < tokens.skillSlots);
+            const dice = Math.min(safePurchaseInt(this.draft.skillDiceAlloc[id] ?? 0), ownerRating);
             return {
                 id,
                 label: SKILL_LABELS[id] ?? id,
                 selected,
+                eligible,
                 canSelect,
-                ownerRating: ratings[id] ?? 0,
-                dice: this.draft.skillDiceAlloc[id] ?? 0,
+                ownerRating,
+                dice,
+                canMinusDice: eligible &&
+                    applySkillDiceAllocDelta(this.draft.skillDiceAlloc, id, -1, ownerRating, purchasedDice) != null,
+                canPlusDice: eligible &&
+                    applySkillDiceAllocDelta(this.draft.skillDiceAlloc, id, 1, ownerRating, purchasedDice) != null,
             };
         });
+        const skillOptions = allSkillRows.filter((s) => s.eligible);
+        const invalidSkillOptions = allSkillRows.filter((s) => s.selected && !s.eligible);
+        const hasEligibleSelected = eligibleSelectedCount > 0;
+        const steppers = {
+            attack: bondStepperView(this.draft.spend, 'attackPurchases', spendCtx, `+${SUMMON_CAPS.attackDiceGain}d8 Attack`),
+            damage: bondStepperView(this.draft.spend, 'damagePurchases', spendCtx, `+${SUMMON_CAPS.damageDiceGain}d8 Damage`),
+            movement: bondStepperView(this.draft.spend, 'movementPurchases', spendCtx, `+${SUMMON_CAPS.movementGainM} m`),
+            extraAttack: bondStepperView(this.draft.spend, 'extraAttackPurchases', spendCtx, '+1 Bond Attack / round'),
+            skillDice: bondStepperView(this.draft.spend, 'skillDicePurchases', spendCtx, `+${SUMMON_CAPS.skillDicePerPurchase} Skill Dice`),
+            bodies: bondStepperView(this.draft.spend, 'additionalBodies', spendCtx, '+1 Body'),
+            specialValue: bondStepperView(this.draft.spend, 'specialValuePurchases', spendCtx, '+1 Special Value'),
+        };
+        const assignedBonus = sanitizeBonusTokens(this.draft.bonusTokens, maxBonusTokens);
+        const remaining = tokens.remaining;
+        const artifactBonus = {
+            value: assignedBonus,
+            stones: assignedBonus / SUMMON_CAPS.artifactSummonTokensPerStone,
+            maxBonus: maxBonusTokens,
+            maxStones: maxBonusTokens / SUMMON_CAPS.artifactSummonTokensPerStone,
+            canMinus: applyBonusTokenDelta(this.draft.bonusTokens, -1, maxBonusTokens, this.draft.boundStoneCount) != null,
+            canPlus: applyBonusTokenDelta(this.draft.bonusTokens, 1, maxBonusTokens, this.draft.boundStoneCount) != null,
+            detected: maxBonusTokens > 0 || assignedBonus > 0,
+        };
+        const skillDiceAssigned = Object.values(this.draft.skillDiceAlloc || {}).reduce((sum, n) => sum + safePurchaseInt(n), 0);
+        const canAffordSpecialAccess = !!this.draft.spend.specialAccess || remaining >= SUMMON_CAPS.specialAccessTokenCost;
         const bodyViews = this.draft.bodies.map((body, index) => ({
             index,
             n: index + 1,
-            open: index === 0,
+            open: this.openBodyIndexes.has(index) || (this.openBodyIndexes.size === 0 && index === 0),
             dormant: !!body.dormant,
-            hp: body.hp,
-            armor: body.armor,
-            evade: body.evade,
+            hp: computed.bodies[index]?.hp ?? body.hp,
+            armor: computed.bodies[index]?.armor ?? body.armor,
+            evade: computed.bodies[index]?.evade ?? body.evade,
             hpPurchases: this.draft.spend.bodies[index]?.hpPurchases ?? 0,
             armorPurchases: this.draft.spend.bodies[index]?.armorPurchases ?? 0,
             evadePurchases: this.draft.spend.bodies[index]?.evadePurchases ?? 0,
+            hpStepper: bodyStepperView(this.draft.spend, index, 'hpPurchases', spendCtx, `+${SUMMON_CAPS.hpGain} HP`),
+            armorStepper: bodyStepperView(this.draft.spend, index, 'armorPurchases', spendCtx, `+${SUMMON_CAPS.armorGain} Armor`),
+            evadeStepper: bodyStepperView(this.draft.spend, index, 'evadePurchases', spendCtx, `+${SUMMON_CAPS.evadeGain} Evade`),
             summonActorId: body.summonActorId,
-            senses: SHARED_SENSE_GROUPS.map((s) => ({
-                ...s,
-                checked: (this.draft.spend.bodies[index]?.sharedSenses || []).includes(s.value),
-            })),
+            hasLiveActor: !!getLiveSummonActor(body.summonActorId),
+            senses: SHARED_SENSE_GROUPS.map((s) => {
+                const checked = (this.draft.spend.bodies[index]?.sharedSenses || []).includes(s.value);
+                return {
+                    ...s,
+                    checked,
+                    canAfford: checked || remaining >= SUMMON_CAPS.sharedSenseTokenCost,
+                };
+            }),
             powers: (body.powers || []).map((p) => {
                 const ev = evaluateSummonPower(p.templateId, p.level, mr);
                 return {
@@ -258,7 +334,8 @@ export class SummonBondDialog extends BaseDialog {
                 };
             }),
         }));
-        const powerCatalog = listSummonPowerCatalog(mr, 1).map((ev) => ({
+        const powerCatalog = listSummonPowerCatalog(mr, 1)
+            .map((ev) => ({
             templateId: ev.templateId,
             name: ev.name,
             category: ev.category,
@@ -266,7 +343,10 @@ export class SummonBondDialog extends BaseDialog {
             tokenCost: ev.tokenCost,
             legal: ev.legal,
             reason: ev.reason,
-        }));
+            affordable: ev.legal && ev.tokenCost <= remaining,
+        }))
+            .sort((a, b) => Number(b.affordable) - Number(a.affordable));
+        const canAddPower = powerCatalog.some((p) => p.affordable);
         const specialOptions = SUMMON_ELIGIBLE_SPECIALS.map((s) => ({
             ...s,
             selected: this.draft.specialKey === s.id,
@@ -294,38 +374,150 @@ export class SummonBondDialog extends BaseDialog {
             poolGems: this.#poolGemsForRitual(),
             tokens: {
                 ...tokens,
-                over: tokens.remaining < 0,
+                over: remaining < 0,
+                noneLeft: remaining <= 0,
+                boundTotal: this.draft.boundStoneCount * SUMMON_CAPS.tokensPerStone,
+                artifactBonus: assignedBonus,
                 bodySpentViews: (tokens.bodySpent || []).map((n, i) => ({
                     label: String.fromCharCode(65 + i),
                     spent: n,
                 })),
             },
+            canAffordSpecialAccess,
+            skillDiceAssigned,
+            skillDiceUnassigned: Math.max(0, computed.skillDiceTotal - skillDiceAssigned),
+            canAddPower,
             bondStatus: validation.status,
             bondStatusLabel: validation.statusLabel,
             computed,
             skillOptions,
+            invalidSkillOptions,
+            skillMinRating,
+            hasEligibleSelected,
+            creatureTypeOptions: creatureTypeSelectOptions(this.draft.creatureType || this.draft.expression),
+            identityOpen: this.identityOpen,
+            stonesOpen: this.stonesOpen,
+            sensesOpen: this.sensesOpen,
+            powersOpen: this.powersOpen,
+            specialOpen: this.specialOpen,
+            skillsOpen: this.skillsOpen,
+            multiBody: computed.bodyCount > 1,
+            previewStats: {
+                attack: `${computed.attackDice}d8`,
+                damage: `${computed.damageDice}d8`,
+                move: `${computed.movementM} m`,
+                attacks: `${computed.summonAttacks}/rd`,
+                bodies: computed.bodyCount,
+                special: specialDisplay,
+                showSpecial: !!this.draft.spend.specialAccess && !!this.draft.specialKey,
+                hp: bodyViews[0]?.hp ?? 10,
+                armor: bodyViews[0]?.armor ?? 0,
+                evade: bodyViews[0]?.evade ?? 4,
+                multiBody: computed.bodyCount > 1,
+                bodyRows: bodyViews.map((b) => ({
+                    n: b.n,
+                    hp: b.hp,
+                    armor: b.armor,
+                    evade: b.evade,
+                })),
+            },
+            createActorBodyIndex: bodyViews.find((b) => !b.hasLiveActor)?.index ?? 0,
+            canCreateActor: bodyViews.some((b) => !b.hasLiveActor),
+            canUpdateActor: bodyViews.some((b) => b.hasLiveActor),
             bodyViews,
             powerCatalog,
             specialOptions,
             specialDisplay,
             maxPowerLevel: maxSummonPowerLevel(mr),
+            powerLevels: Array.from({ length: maxSummonPowerLevel(mr) }, (_, i) => i + 1),
             onlyOneStone: this.draft.stoneAttributes.length <= 1,
             ritualErrors: this.ritualErrors.length ? this.ritualErrors : validation.errors,
             ritualWarnings: this.ritualWarnings.length ? this.ritualWarnings : validation.warnings,
-            canApplyRitual: validation.ok,
+            canApplyRitual: validation.ok && !inspect.illegal,
+            steppers,
+            artifactBonus,
+            illegalSpend: inspect.illegal,
+            illegalReasons: inspect.reasons,
         };
+    }
+    #spendCtx() {
+        return {
+            boundStoneCount: this.draft.boundStoneCount,
+            bonusTokens: this.draft.bonusTokens,
+            movementMode: this.draft.movementMode,
+            selectedSkills: this.draft.selectedSkills,
+            ownerSkillRatings: ownerSkillRatingsFromActor(this.actor),
+            ownerMasteryRank: Math.max(1, Math.floor(Number(this.actor.system?.mastery?.rank) || 1)),
+            skillDiceAlloc: this.draft.skillDiceAlloc,
+            maxBonusTokens: maxAssignableArtifactBonusTokens(this.actor, this.draft.id, getSummonBondsFromActor(this.actor)),
+        };
+    }
+    #remaining() {
+        const ctx = this.#spendCtx();
+        return computeSummonBond({
+            boundStoneCount: this.draft.boundStoneCount,
+            bonusTokens: sanitizeBonusTokens(this.draft.bonusTokens, ctx.maxBonusTokens),
+            movementMode: this.draft.movementMode,
+            spend: sanitizeSpendNumbers(this.draft.spend),
+        }).tokensRemaining;
+    }
+    #scrollRoots(root) {
+        return {
+            inner: root.querySelector('.summon-bond-dialog'),
+            frame: root.querySelector('.window-content'),
+        };
+    }
+    #captureUi() {
+        const root = this.element;
+        if (!root)
+            return;
+        const { inner, frame } = this.#scrollRoots(root);
+        this.uiScrollTop = inner?.scrollTop ?? 0;
+        this.uiWindowScrollTop = frame?.scrollTop ?? 0;
+        this.openBodyIndexes = new Set(Array.from(root.querySelectorAll('.sb-body[open]')).map((el) => Number(el.dataset.bodyIndex)));
+        this.identityOpen = !!root.querySelector('.sb-fold[data-fold="identity"][open]');
+        this.stonesOpen = !!root.querySelector('.sb-fold[data-fold="stones"][open]');
+        this.sensesOpen = !!root.querySelector('.sb-fold[data-fold="senses"][open]');
+        this.powersOpen = !!root.querySelector('.sb-fold[data-fold="powers"][open]');
+        this.specialOpen = !!root.querySelector('.sb-fold[data-fold="special"][open]');
+        this.skillsOpen = !!root.querySelector('.sb-fold[data-fold="skills"][open]');
+    }
+    #restoreUi() {
+        const root = this.element;
+        if (!root)
+            return;
+        const apply = () => {
+            const { inner, frame } = this.#scrollRoots(root);
+            if (inner)
+                inner.scrollTop = this.uiScrollTop;
+            if (frame)
+                frame.scrollTop = this.uiWindowScrollTop;
+        };
+        apply();
+        requestAnimationFrame(() => {
+            apply();
+            requestAnimationFrame(apply);
+        });
+    }
+    async #refresh() {
+        this.#captureUi();
+        this.restoreUiAfterRender = true;
+        await this.render({ force: true });
     }
     async _onRender(context, options) {
         await super._onRender?.(context, options);
         const root = this.element;
         if (!root)
             return;
+        if (this.restoreUiAfterRender) {
+            this.restoreUiAfterRender = false;
+            this.#restoreUi();
+        }
         root.querySelector('.js-sb-cancel')?.addEventListener('click', () => this.#close(null));
         if (this.mode === 'create') {
             const syncCreateFields = () => {
                 this.createName = root.querySelector('.js-sb-name')?.value ?? this.createName;
-                this.createExpression =
-                    root.querySelector('.js-sb-expression')?.value ?? this.createExpression;
+                this.createExpression = normalizeCreatureTypeValue(root.querySelector('.js-sb-creature-type')?.value ?? this.createExpression);
                 this.createImg = root.querySelector('.js-sb-img')?.value ?? this.createImg;
                 const mov = root.querySelector('input[name="sbMovement"]:checked')?.value;
                 if (mov)
@@ -340,8 +532,8 @@ export class SummonBondDialog extends BaseDialog {
                 if (btn)
                     btn.disabled = !(this.createAttrs.length >= 1 && !!this.createName.trim());
             });
-            root.querySelector('.js-sb-expression')?.addEventListener('input', (ev) => {
-                this.createExpression = ev.target.value;
+            root.querySelector('.js-sb-creature-type')?.addEventListener('change', (ev) => {
+                this.createExpression = normalizeCreatureTypeValue(ev.target.value);
             });
             root.querySelector('.js-sb-img')?.addEventListener('change', (ev) => {
                 this.createImg = ev.target.value;
@@ -395,8 +587,11 @@ export class SummonBondDialog extends BaseDialog {
         // Ritual listeners
         const readIdentity = () => {
             this.draft.name = root.querySelector('.js-sb-name')?.value ?? this.draft.name;
-            this.draft.expression =
-                root.querySelector('.js-sb-expression')?.value ?? this.draft.expression;
+            const creatureType = normalizeCreatureTypeValue(root.querySelector('.js-sb-creature-type')?.value ??
+                this.draft.creatureType ??
+                this.draft.expression);
+            this.draft.creatureType = creatureType;
+            this.draft.expression = creatureType;
             this.draft.img = root.querySelector('.js-sb-img')?.value ?? this.draft.img;
             const mov = root.querySelector('input[name="sbMovement"]:checked')?.value;
             if (mov)
@@ -404,8 +599,6 @@ export class SummonBondDialog extends BaseDialog {
             const timing = root.querySelector('input[name="sbTiming"]:checked')?.value;
             if (timing === 'before' || timing === 'after')
                 this.draft.activationTiming = timing;
-            const bonus = Number(root.querySelector('.js-sb-bonus-tokens')?.value || 0);
-            this.draft.bonusTokens = Math.max(0, Math.floor(bonus));
         };
         root.querySelector('.js-sb-browse-img')?.addEventListener('click', (ev) => {
             ev.preventDefault();
@@ -416,26 +609,104 @@ export class SummonBondDialog extends BaseDialog {
                     input.value = path;
             });
         });
-        root.querySelectorAll('.js-sb-spend').forEach((el) => {
-            el.addEventListener('change', () => {
+        root.querySelectorAll('input[name="sbMovement"]').forEach((el) => {
+            el.addEventListener('change', (ev) => {
                 readIdentity();
-                const field = el.dataset.field;
-                const val = Math.max(0, Math.floor(Number(el.value) || 0));
-                this.draft.spend[field] = val;
+                this.draft.movementMode = normalizeMovementMode(ev.target.value);
+                const maxMove = maxMovementPurchases(this.draft.movementMode);
+                if (this.draft.spend.movementPurchases > maxMove) {
+                    this.draft.spend.movementPurchases = maxMove;
+                }
+                this.draft = recomputeBondDerived(this.draft);
+                void this.#refresh();
+            });
+        });
+        root.querySelectorAll('.js-sb-step').forEach((el) => {
+            el.addEventListener('click', () => {
+                const btn = el;
+                if (btn.disabled)
+                    return;
+                readIdentity();
+                const field = btn.dataset.field;
+                const delta = parseInt(String(btn.dataset.delta ?? ''), 10);
+                if (delta !== 1 && delta !== -1)
+                    return;
+                const ctx = this.#spendCtx();
+                if (field === 'bonusTokens') {
+                    const next = applyBonusTokenDelta(this.draft.bonusTokens, delta, ctx.maxBonusTokens ?? 0, this.draft.boundStoneCount);
+                    if (next == null)
+                        return;
+                    void this.#setBonus(next);
+                    return;
+                }
+                if (field === 'skillDice') {
+                    const skill = btn.dataset.skill;
+                    if (!skill)
+                        return;
+                    const ratings = ownerSkillRatingsFromActor(this.actor);
+                    const purchased = computeSummonBond({
+                        boundStoneCount: this.draft.boundStoneCount,
+                        bonusTokens: sanitizeBonusTokens(this.draft.bonusTokens, ctx.maxBonusTokens),
+                        movementMode: this.draft.movementMode,
+                        spend: sanitizeSpendNumbers(this.draft.spend),
+                    }).skillDiceTotal;
+                    const nextAlloc = applySkillDiceAllocDelta(this.draft.skillDiceAlloc, skill, delta, ratings[skill] ?? 0, purchased);
+                    if (!nextAlloc)
+                        return;
+                    this.draft.skillDiceAlloc = nextAlloc;
+                    void this.#refresh();
+                    return;
+                }
+                const bodyRaw = btn.dataset.body;
+                if (bodyRaw != null && bodyRaw !== '') {
+                    const bi = parseInt(bodyRaw, 10);
+                    if (!Number.isFinite(bi) || bi < 0)
+                        return;
+                    const next = applyBodyFieldDelta(this.draft.spend, bi, field, delta, ctx);
+                    if (!next)
+                        return;
+                    this.draft.spend = next;
+                }
+                else {
+                    const next = applyBondFieldDelta(this.draft.spend, field, delta, ctx);
+                    if (!next)
+                        return;
+                    this.draft.spend = next;
+                }
                 this.ensureSpendBodies();
                 this.draft = recomputeBondDerived(this.draft);
-                this.render({ force: true });
+                void this.#refresh();
             });
+        });
+        root.querySelector('.js-sb-reset-illegal')?.addEventListener('click', () => {
+            readIdentity();
+            this.draft.spend = resetIllegalPurchases(this.draft.spend);
+            this.draft.skillDiceAlloc = {};
+            const ctx = this.#spendCtx();
+            if (isIllegalBonusTokens(this.draft.bonusTokens, ctx.maxBonusTokens ?? 0, this.draft.boundStoneCount)) {
+                this.draft.bonusTokens = 0;
+                void this.#setBonus(0);
+                return;
+            }
+            this.ensureSpendBodies();
+            this.draft = recomputeBondDerived(this.draft);
+            void this.#refresh();
         });
         root.querySelector('.js-sb-special-access')?.addEventListener('change', (ev) => {
             readIdentity();
-            this.draft.spend.specialAccess = ev.target.checked;
+            const on = ev.target.checked;
+            if (on && this.#remaining() < SUMMON_CAPS.specialAccessTokenCost) {
+                ev.target.checked = false;
+                ui.notifications?.warn(`Special Access costs ${SUMMON_CAPS.specialAccessTokenCost} Tokens.`);
+                return;
+            }
+            this.draft.spend.specialAccess = on;
             if (!this.draft.spend.specialAccess) {
                 this.draft.specialKey = null;
                 this.draft.spend.specialValuePurchases = 0;
             }
             this.draft = recomputeBondDerived(this.draft);
-            this.render({ force: true });
+            void this.#refresh();
         });
         root.querySelector('.js-sb-special-key')?.addEventListener('change', (ev) => {
             this.draft.specialKey = ev.target.value || null;
@@ -445,6 +716,13 @@ export class SummonBondDialog extends BaseDialog {
                 readIdentity();
                 const skill = el.dataset.skill;
                 const checked = el.checked;
+                const ratings = ownerSkillRatingsFromActor(this.actor);
+                const mr = Math.max(1, Math.floor(Number(this.actor.system?.mastery?.rank) || 1));
+                if (checked && !isSummonSkillEligible(ratings[skill] ?? 0, mr)) {
+                    el.checked = false;
+                    ui.notifications?.warn(`Owner skill too low. Needs MR × 2.`);
+                    return;
+                }
                 const set = new Set(this.draft.selectedSkills);
                 if (checked)
                     set.add(skill);
@@ -453,35 +731,19 @@ export class SummonBondDialog extends BaseDialog {
                     delete this.draft.skillDiceAlloc[skill];
                 }
                 this.draft.selectedSkills = [...set];
-                this.render({ force: true });
-            });
-        });
-        root.querySelectorAll('.js-sb-skill-dice').forEach((el) => {
-            el.addEventListener('change', () => {
-                const skill = el.dataset.skill;
-                this.draft.skillDiceAlloc[skill] = Math.max(0, Math.floor(Number(el.value) || 0));
-                this.render({ force: true });
-            });
-        });
-        root.querySelectorAll('.js-sb-body-spend').forEach((el) => {
-            el.addEventListener('change', () => {
-                readIdentity();
-                const bi = Number(el.dataset.body);
-                const field = el.dataset.field;
-                const val = Math.max(0, Math.floor(Number(el.value) || 0));
-                if (!this.draft.spend.bodies[bi])
-                    return;
-                this.draft.spend.bodies[bi][field] = val;
-                this.ensureSpendBodies();
-                this.draft = recomputeBondDerived(this.draft);
-                this.render({ force: true });
+                void this.#refresh();
             });
         });
         root.querySelectorAll('.js-sb-body-sense').forEach((el) => {
-            el.addEventListener('change', () => {
+            el.addEventListener('change', (ev) => {
                 const bi = Number(el.dataset.body);
                 const sense = el.dataset.sense;
                 const checked = el.checked;
+                if (checked && this.#remaining() < SUMMON_CAPS.sharedSenseTokenCost) {
+                    ev.target.checked = false;
+                    ui.notifications?.warn(`Shared Senses cost ${SUMMON_CAPS.sharedSenseTokenCost} Tokens.`);
+                    return;
+                }
                 const list = new Set(this.draft.spend.bodies[bi]?.sharedSenses || []);
                 if (checked)
                     list.add(sense);
@@ -490,7 +752,7 @@ export class SummonBondDialog extends BaseDialog {
                 this.draft.spend.bodies[bi].sharedSenses = [...list];
                 this.ensureSpendBodies();
                 this.draft = recomputeBondDerived(this.draft);
-                this.render({ force: true });
+                void this.#refresh();
             });
         });
         root.querySelectorAll('.js-sb-add-power').forEach((btn) => {
@@ -499,12 +761,18 @@ export class SummonBondDialog extends BaseDialog {
                 const sel = root.querySelector(`.js-sb-power-template[data-body="${bi}"]`);
                 const lvlEl = root.querySelector(`.js-sb-power-level[data-body="${bi}"]`);
                 const templateId = sel?.value;
-                const level = Math.max(1, Math.min(16, Math.floor(Number(lvlEl?.value) || 1)));
+                const rawLevel = parseInt(String(lvlEl?.value ?? ''), 10);
+                const maxLvl = maxSummonPowerLevel(Math.max(1, Math.floor(Number(this.actor.system?.mastery?.rank) || 1)));
+                const level = Number.isFinite(rawLevel) ? Math.max(1, Math.min(maxLvl, rawLevel)) : 1;
                 if (!templateId)
                     return;
                 const ev = evaluateSummonPower(templateId, level, Math.max(1, Math.floor(Number(this.actor.system?.mastery?.rank) || 1)));
                 if (!ev.legal) {
                     ui.notifications?.warn(ev.reason);
+                    return;
+                }
+                if (ev.tokenCost > this.#remaining()) {
+                    ui.notifications?.warn(`Need ${ev.tokenCost} Tokens, ${this.#remaining()} left.`);
                     return;
                 }
                 const body = this.draft.bodies[bi];
@@ -513,7 +781,7 @@ export class SummonBondDialog extends BaseDialog {
                 body.powers = [...(body.powers || []), { templateId, level, tokenCost: ev.tokenCost, category: ev.category }];
                 this.ensureSpendBodies();
                 this.draft = recomputeBondDerived(this.draft);
-                this.render({ force: true });
+                void this.#refresh();
             });
         });
         root.querySelectorAll('.js-sb-remove-power').forEach((btn) => {
@@ -526,7 +794,7 @@ export class SummonBondDialog extends BaseDialog {
                 body.powers = (body.powers || []).filter((_, i) => i !== pi);
                 this.ensureSpendBodies();
                 this.draft = recomputeBondDerived(this.draft);
-                this.render({ force: true });
+                void this.#refresh();
             });
         });
         root.querySelectorAll('.js-sb-add-stone').forEach((btn) => {
@@ -534,13 +802,6 @@ export class SummonBondDialog extends BaseDialog {
         });
         root.querySelectorAll('.js-sb-remove-stone').forEach((btn) => {
             btn.addEventListener('click', () => void this.#removeStone(Number(btn.dataset.index)));
-        });
-        root.querySelector('.js-sb-bonus-tokens')?.addEventListener('change', async (ev) => {
-            const n = Math.max(0, Math.floor(Number(ev.target.value) || 0));
-            const updated = await setBondBonusTokens(this.actor, this.draft.id, n);
-            if (updated)
-                this.draft = structuredCloneBond(updated);
-            this.render({ force: true });
         });
         root.querySelector('.js-sb-apply-ritual')?.addEventListener('click', () => {
             readIdentity();
@@ -550,19 +811,20 @@ export class SummonBondDialog extends BaseDialog {
         root.querySelectorAll('.js-sb-create-actor').forEach((btn) => {
             btn.addEventListener('click', () => void this.#createActor(Number(btn.dataset.body)));
         });
+        root.querySelectorAll('.js-sb-update-actor').forEach((btn) => {
+            btn.addEventListener('click', () => void this.#updateActor(Number(btn.dataset.body)));
+        });
         root.querySelectorAll('.js-sb-open-actor').forEach((btn) => {
             btn.addEventListener('click', () => {
                 const bi = Number(btn.dataset.body);
-                const id = this.draft.bodies[bi]?.summonActorId;
-                const a = id ? game.actors?.get(id) : null;
+                const a = getLiveSummonActor(this.draft.bodies[bi]?.summonActorId);
                 a?.sheet?.render(true);
             });
         });
         root.querySelectorAll('.js-sb-place-token').forEach((btn) => {
             btn.addEventListener('click', async () => {
                 const bi = Number(btn.dataset.body);
-                const id = this.draft.bodies[bi]?.summonActorId;
-                const a = id ? game.actors?.get(id) : null;
+                const a = getLiveSummonActor(this.draft.bodies[bi]?.summonActorId);
                 if (a)
                     await placeFamiliarToken(a, this.actor);
             });
@@ -591,6 +853,7 @@ export class SummonBondDialog extends BaseDialog {
             name: this.createName,
             img: this.createImg,
             expression: this.createExpression,
+            creatureType: this.createExpression,
             movementMode: normalizeMovementMode(this.createMode),
             stoneAttributes: this.createAttrs,
             activationTiming: this.createTiming,
@@ -614,7 +877,7 @@ export class SummonBondDialog extends BaseDialog {
             return;
         }
         this.draft = structuredCloneBond(res.bond);
-        this.render({ force: true });
+        await this.#refresh();
     }
     async #removeStone(index) {
         const res = await removeBoundStonesFromBond(this.actor, this.draft.id, [index]);
@@ -623,26 +886,40 @@ export class SummonBondDialog extends BaseDialog {
             return;
         }
         this.draft = structuredCloneBond(res.bond);
-        this.render({ force: true });
+        await this.#refresh();
+    }
+    async #setBonus(n) {
+        const updated = await setBondBonusTokens(this.actor, this.draft.id, n);
+        if (updated)
+            this.draft = structuredCloneBond(updated);
+        await this.#refresh();
     }
     async #applyRitual() {
         this.ritualErrors = [];
         this.ritualWarnings = [];
+        const ctx = this.#spendCtx();
+        this.draft.spend = sanitizeSpendNumbers(this.draft.spend);
+        this.draft.bonusTokens = sanitizeBonusTokens(this.draft.bonusTokens, ctx.maxBonusTokens);
+        const inspect = inspectBondSpend(this.draft.spend, ctx);
+        if (inspect.illegal) {
+            this.ritualErrors = inspect.reasons;
+            await this.#refresh();
+            ui.notifications?.warn(inspect.reasons[0] ?? 'Bond Ritual failed: illegal purchases.');
+            return;
+        }
         const ratings = ownerSkillRatingsFromActor(this.actor);
         const result = await applyBondRitual(this.actor, this.draft, ratings);
         if (!result.bond) {
             this.ritualErrors = result.errors;
             this.ritualWarnings = result.warnings;
-            this.render({ force: true });
+            await this.#refresh();
             ui.notifications?.warn(result.errors[0] ?? 'Bond Ritual failed.');
             return;
         }
         this.draft = structuredCloneBond(result.bond);
         // Sync existing summon actors
         for (const body of this.draft.bodies) {
-            if (!body.summonActorId)
-                continue;
-            const a = game.actors?.get(body.summonActorId);
+            const a = getLiveSummonActor(body.summonActorId);
             if (!a)
                 continue;
             try {
@@ -659,7 +936,7 @@ export class SummonBondDialog extends BaseDialog {
             }
         }
         ui.notifications?.info(`Bond Ritual applied for "${this.draft.name}".`);
-        this.render({ force: true });
+        await this.#refresh();
     }
     async #dissolve() {
         const confirmed = typeof globalThis.foundry?.applications?.api?.DialogV2?.confirm === 'function'
@@ -686,6 +963,10 @@ export class SummonBondDialog extends BaseDialog {
         const body = fresh.bodies[bodyIndex];
         if (!body)
             return;
+        if (getLiveSummonActor(body.summonActorId)) {
+            ui.notifications?.warn('This body already has a summon actor. Use Update Actor.');
+            return;
+        }
         const summon = await createSummonActorForBondBody(fresh, body, this.actor);
         if (!summon)
             return;
@@ -693,7 +974,36 @@ export class SummonBondDialog extends BaseDialog {
         fresh.bodies[bodyIndex] = body;
         await upsertSummonBond(this.actor, fresh);
         this.draft = structuredCloneBond(fresh);
-        this.render({ force: true });
+        await this.#refresh();
+    }
+    async #updateActor(bodyIndex) {
+        await upsertSummonBond(this.actor, this.draft);
+        const fresh = getSummonBondsFromActor(this.actor).find((b) => b.id === this.draft.id);
+        if (!fresh)
+            return;
+        if (!Number.isFinite(bodyIndex) || bodyIndex < 0) {
+            const targets = fresh.bodies.filter((b) => getLiveSummonActor(b.summonActorId));
+            if (!targets.length) {
+                ui.notifications?.warn('No summon actor exists yet. Use Create Actor.');
+                return;
+            }
+            for (const body of targets) {
+                await updateSummonActorForBondBody(fresh, body, this.actor);
+            }
+            ui.notifications?.info(`Updated ${targets.length} summon actor${targets.length === 1 ? '' : 's'}.`);
+            this.draft = structuredCloneBond(fresh);
+            await this.#refresh();
+            return;
+        }
+        const body = fresh.bodies[bodyIndex];
+        if (!body)
+            return;
+        const updated = await updateSummonActorForBondBody(fresh, body, this.actor);
+        if (!updated)
+            return;
+        ui.notifications?.info(`Updated summon actor "${updated.name}".`);
+        this.draft = structuredCloneBond(fresh);
+        await this.#refresh();
     }
     #close(bond) {
         this.resolveClose?.(bond);

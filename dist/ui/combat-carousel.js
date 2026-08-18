@@ -1,10 +1,21 @@
-import { getActionEconomyActor, getReactionActionsSummary, isStonePowersConfigurationLocked, } from '../combat/action-economy.js';
+import { getActionEconomyActor, getReactionActionsSummary, } from '../combat/action-economy.js';
 import { requestEndTurn } from '../combat/end-turn.js';
-import { StonePowersDialog } from '../stones/stone-powers-dialog.js';
+import { arePlayerStonesReadyForRound, encounterStartBlockers, isEncounterPreparing, pendingStonePlayerNames, warnIfPlayerStonesPending, } from '../combat/stone-round-gate.js';
 import { MASTERY_STATUS_EFFECTS } from '../system/status-effects.js';
+import { hideCarouselHpNumbers } from './combat-carousel-hp.js';
+import { applyCarouselCompactClass, isCompactCarouselViewport, } from './combat-carousel-layout.js';
+import { buildEncounterSetupStatus, forceEncounterDialog, forceEncounterDialogForAll, } from '../combat/encounter-setup-status.js';
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 // Type workaround for Mixin
 const BaseCarousel = HandlebarsApplicationMixin(ApplicationV2);
+function combatantDisposition(combatant, token, actor) {
+    const raw = token?.document?.disposition ??
+        token?.disposition ??
+        combatant?.token?.disposition ??
+        actor?.prototypeToken?.disposition ??
+        0;
+    return Number(raw);
+}
 export class CombatCarouselApp extends BaseCarousel {
     static _instance = null;
     /** Prevents double `nextTurn` / `previousTurn` from rapid clicks on carousel controls. */
@@ -67,7 +78,7 @@ export class CombatCarouselApp extends BaseCarousel {
     async _prepareContext(_options) {
         const combat = game.combats?.active;
         if (!combat) {
-            return { active: false };
+            return { active: false, compact: isCompactCarouselViewport() };
         }
         // Build combatants array — use Foundry's `combat.turns` order as-is so portrait order
         // matches `combat.turn` / `nextTurn`. Re-sorting here broke alignment with the tracker.
@@ -271,7 +282,9 @@ export class CombatCarouselApp extends BaseCarousel {
                 initiative: combatant.initiative ?? 0,
                 reactionRemaining: reactSum.remaining,
                 reactionTotal: reactSum.total,
-                isCurrent: combatant.id === currentCombatantId,
+                isCurrent: !isEncounterPreparing(combat) &&
+                    arePlayerStonesReadyForRound(combat) &&
+                    combatant.id === currentCombatantId,
                 hidden: combatant.hidden || false,
                 defeated: combatant.defeated || false,
                 statusIcons: statusIcons.filter((item) => item && item.icon),
@@ -279,22 +292,45 @@ export class CombatCarouselApp extends BaseCarousel {
                 hpTotalMax,
                 tempHP,
                 hpSegments,
+                hideHpNumbers: hideCarouselHpNumbers(actor.type, combatantDisposition(combatant, token, actor)),
                 stressTotalCurrent,
                 stressTotalMax,
                 stressSegments,
                 combatStrip,
                 hasToken: !!token,
                 tokenId: tokenId,
-                showStonePowersButton: actor.type === 'character' && !!(game.user?.isGM || actor.isOwner),
-                stonePlanLocked: actor.type === 'character' && isStonePowersConfigurationLocked(actor, combat)
+                setupStatus: buildEncounterSetupStatus(combatant, combat),
             });
         }
+        const preparing = isEncounterPreparing(combat);
+        const stonesReady = arePlayerStonesReadyForRound(combat);
+        const startBlockers = preparing ? encounterStartBlockers(combat) : [];
+        const startBlockedTpl = game.i18n?.localize('MASTERY.encounterSetup.startBlocked') || 'Noch offen: {list}';
+        const round = Math.max(1, Number(combat.round) || 1);
+        // Between rounds the carousel used to go silent for the GM: turn controls are
+        // held back until every PC set stones, and the prepare bar is long gone. This
+        // bar takes its place, names who is missing, and re-sends their dialog.
+        const roundGate = {
+            show: !preparing && !!combat.started && !stonesReady,
+            round,
+            label: (game.i18n?.localize('MASTERY.encounterSetup.startRound') || 'Runde {n} starten').replace('{n}', String(round)),
+            waiting: (game.i18n?.localize('MASTERY.encounterSetup.roundWaiting') || 'Runde {n} — Steine offen').replace('{n}', String(round)),
+            pendingList: pendingStonePlayerNames(combat, round).join(', '),
+        };
         return {
             active: true,
+            compact: isCompactCarouselViewport(),
             combatants,
             controlsAllowed: game.user?.isGM || false,
             currentRound: combat.round || 1,
-            currentTurn: combat.turn || 0
+            currentTurn: combat.turn || 0,
+            preparing,
+            stonesReady,
+            roundGate,
+            canStartLive: preparing && startBlockers.length === 0,
+            startBlockedReason: startBlockers.length
+                ? startBlockedTpl.replace('{list}', startBlockers.join(', '))
+                : game.i18n?.localize('MASTERY.encounterSetup.startCombat') || 'Kampf starten',
         };
     }
     async _onRender(_context, _options) {
@@ -302,8 +338,11 @@ export class CombatCarouselApp extends BaseCarousel {
         const root = this.element;
         // Add body class when carousel is rendered
         document.body.classList.add('mastery-carousel-open');
-        // Register hooks for live updates (only once per render)
-        this.registerUpdateHooks();
+        this.applyCompactLayout();
+        this.bindCompactViewportWatch();
+        if (this.hookEntries.length === 0) {
+            this.registerUpdateHooks();
+        }
         // Portrait click - pan to token; double-click - open actor sheet
         root.querySelectorAll('.carousel-portrait').forEach((portrait) => {
             portrait.onclick = async (_ev) => {
@@ -368,6 +407,8 @@ export class CombatCarouselApp extends BaseCarousel {
                 const combat = game.combats?.active;
                 if (!combat)
                     return;
+                if (warnIfPlayerStonesPending(combat))
+                    return;
                 CombatCarouselApp._turnNavigationBusy = true;
                 try {
                     await combat.nextTurn();
@@ -383,20 +424,52 @@ export class CombatCarouselApp extends BaseCarousel {
                 ev.preventDefault();
                 const combat = game.combats?.active;
                 if (combat) {
+                    if (warnIfPlayerStonesPending(combat))
+                        return;
                     await combat.nextRound();
                 }
             };
         });
-        // Combat controls - End Combat
+        root.querySelectorAll('.js-roll-npc-ini').forEach((btn) => {
+            btn.onclick = async (ev) => {
+                ev.preventDefault();
+                if (!game.user?.isGM)
+                    return;
+                const combat = game.combats?.active;
+                if (!combat)
+                    return;
+                const { rollNpcInitiativeOnly } = await import('../combat/initiative-roll.js');
+                const n = await rollNpcInitiativeOnly(combat, { force: true });
+                CombatCarouselApp.refresh();
+                ui.notifications?.info((game.i18n?.localize('MASTERY.encounterSetup.npcIniRolled') || 'NSC-Initiative gewürfelt ({n}).').replace('{n}', String(n)));
+            };
+        });
+        root.querySelectorAll('.js-start-live-combat').forEach((btn) => {
+            btn.onclick = async (ev) => {
+                ev.preventDefault();
+                const combat = game.combats?.active;
+                if (!combat)
+                    return;
+                const { launchLiveCombat } = await import('../combat/encounter-start.js');
+                await launchLiveCombat(combat);
+            };
+        });
+        root.querySelectorAll('.js-start-round').forEach((btn) => {
+            btn.onclick = async (ev) => {
+                ev.preventDefault();
+                const combat = game.combats?.active;
+                if (!combat)
+                    return;
+                const { promptPendingStoneAssignments } = await import('../combat/stone-powers-flow.js');
+                await promptPendingStoneAssignments(combat);
+            };
+        });
+        // Combat controls - End Combat (same path as the tracker shutdown button)
         root.querySelectorAll('.js-end-combat').forEach((btn) => {
             btn.onclick = async (ev) => {
                 ev.preventDefault();
-                if (game.user?.isGM) {
-                    const combat = game.combats?.active;
-                    if (combat) {
-                        await combat.endCombat();
-                    }
-                }
+                const { shutDownCombat } = await import('../combat/combat-shutdown.js');
+                await shutDownCombat();
             };
         });
         // Portrait controls - Toggle Defeated
@@ -470,49 +543,29 @@ export class CombatCarouselApp extends BaseCarousel {
                 }
             };
         });
-        // Stone Powers (PC owners + GM)
-        root.querySelectorAll('.js-carousel-stone-powers').forEach((btn) => {
+        root.querySelectorAll('.js-force-setup').forEach((btn) => {
             btn.onclick = async (ev) => {
                 ev.preventDefault();
                 ev.stopPropagation();
-                if (btn.disabled)
-                    return;
                 const combatantId = btn.dataset.combatantId;
-                if (!combatantId)
+                const kind = btn.dataset.kind;
+                if (!combatantId || !kind)
                     return;
                 const combat = game.combats?.active;
-                if (!combat)
-                    return;
-                const combatant = combat.combatants.get(combatantId);
+                const combatant = combat?.combatants.get(combatantId);
                 if (!combatant)
                     return;
-                // Resolve the TOKEN's actor explicitly. `combatant.actor` can fall back
-                // to the world/prototype actor (default attributes, empty stone pools)
-                // when the token reference is shaky — which made the dialog open empty.
-                // The token document's actor is the same (synthetic, delta-carrying)
-                // actor the character sheet uses, so the carousel now matches the sheet.
-                const tokenDoc = combatant.token ??
-                    (combatant.sceneId
-                        ? game.scenes?.get(combatant.sceneId)?.tokens?.get(combatant.tokenId)
-                        : null);
-                const actor = (tokenDoc?.actor ?? combatant.actor);
-                if (!actor || actor.type !== 'character')
+                await forceEncounterDialog(kind, combatant);
+            };
+        });
+        root.querySelectorAll('.js-force-all-setup').forEach((btn) => {
+            btn.onclick = async (ev) => {
+                ev.preventDefault();
+                ev.stopPropagation();
+                const kind = btn.dataset.kind;
+                if (!kind)
                     return;
-                // Diagnostic: if the resolved actor has no stone-pool capacity the
-                // dialog will look "dead". Logging the source + pool maxes makes the
-                // unlinked-token vs world-actor mismatch obvious in the console.
-                try {
-                    const pools = actor.system?.stonePools ?? {};
-                }
-                catch {
-                    /* diagnostic only */
-                }
-                try {
-                    await StonePowersDialog.showForActor(actor, combatant);
-                }
-                catch (e) {
-                    console.error('Mastery System | Carousel Stone Powers failed', e);
-                }
+                await forceEncounterDialogForAll(kind);
             };
         });
         // End Turn button (on current combatant card)
@@ -527,9 +580,29 @@ export class CombatCarouselApp extends BaseCarousel {
     async _onClose(_options) {
         // Remove hooks
         this.unregisterUpdateHooks();
+        this.unbindCompactViewportWatch();
         // Remove body class when carousel is closed
         document.body.classList.remove('mastery-carousel-open');
+        document.body.classList.remove('mastery-carousel-compact');
         return super._onClose(_options);
+    }
+    compactViewportHandler = null;
+    applyCompactLayout() {
+        applyCarouselCompactClass(this.element, isCompactCarouselViewport());
+    }
+    bindCompactViewportWatch() {
+        if (this.compactViewportHandler)
+            return;
+        this.compactViewportHandler = () => this.applyCompactLayout();
+        window.addEventListener('resize', this.compactViewportHandler);
+        window.visualViewport?.addEventListener('resize', this.compactViewportHandler);
+    }
+    unbindCompactViewportWatch() {
+        if (!this.compactViewportHandler)
+            return;
+        window.removeEventListener('resize', this.compactViewportHandler);
+        window.visualViewport?.removeEventListener('resize', this.compactViewportHandler);
+        this.compactViewportHandler = null;
     }
     /**
      * Register hooks for live HP/Stress updates

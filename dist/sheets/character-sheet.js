@@ -9,7 +9,7 @@ import { DISADVANTAGES, getDisadvantageDefinition, calculateDisadvantagePoints, 
 import { getAllSchticks } from '../utils/schticks.js';
 import { showEchoCardPickDialog, showEchoCreationDialog } from './character-sheet-echo-dialog.js';
 import { openCharacterPrintSheet } from './character-print.js';
-import { buildFreshTraitUses, getCardOption, getEcho, getEchoCard, getEchoSubChoice, getUnlockedCardSlots } from '../utils/echos/index.js';
+import { getCardOption, getEcho, getEchoCard, getEchoSubChoice, getUnlockedCardSlots, isEchoCardLicensed, removeSelectedEchoCard } from '../utils/echos/index.js';
 import { CATEGORY_LABELS, CATEGORY_ORDER, CREATION_OFFENSIVE_RANK, CREATION_POWER_REQUIREMENTS, CREATION_POWER_TOTAL, countPowersByCategory, resolvePowerCategoryFromItem } from '../utils/power-catalog.js';
 import { hasTowerWizardPackage } from '../creation/tower-wizard/tower-wizard-apply.js';
 import { showTowerWizardDialog } from '../creation/tower-wizard/tower-wizard-dialog.js';
@@ -17,11 +17,17 @@ import { showPowerCreationDialog } from './character-sheet-power-dialog.js';
 import { validateTowerWizardCreation } from '../creation/tower-wizard/tower-wizard-validation.js';
 import { getLanguage as getLanguageDef, normalizeKnownLanguages } from '../utils/languages.js';
 import { showLanguagesDialog } from './languages-dialog.js';
-import { findFirstFit, fitsInGrid, parseInventorySize, rectsOverlap } from '../utils/inventory-grid.js';
+import { collectInventoryBandRects, findFirstFit, fitsInGrid, parseInventorySize, rectsOverlap } from '../utils/inventory-grid.js';
 import { isLegacyUnarmedItem } from '../utils/unarmed-fallback.js';
 import { loadZoneFromBands, movementPenaltyForLoad, LOAD_ZONE_LABEL, ZONE_WIDTH_COLS } from '../utils/encumbrance.js';
 import { getFilePickerClass } from '../utils/foundry-v14.js';
+import { bindImageUrlBar, buildImageUrlBarHtml, copyDocumentImageLink, } from '../ui/image-url-share.js';
 import { SummonBondDialog } from '../stones/summon-bond-dialog.js';
+import { RitualWorkshopController } from '../stones/ritual-workshop-dialog.js';
+import { MinorMagicPanel } from '../stones/minor-magic-dialog.js';
+import { dismissMinorMagicItem, minorMagicSheetView, useMinorMagicItem, } from '../utils/minor-magic-items.js';
+import { applySafeHavenRest, SAFE_HAVEN_REST_INFO } from '../utils/safe-haven-rest.js';
+import { buildConsumableSlotView, equippedConsumableActionRows, equipConsumableToSlot, isConsumableItem, readConsumableSlotIndex, transferConsumableToActor, useEquippedConsumable, validateUnequipConsumable, } from '../utils/consumable-slots.js';
 import { dissolveSummonBond, getSummonBondsFromActor, tokensSummary, } from '../stones/summon-bond-bind.js';
 import { deleteSummonActor } from '../stones/familiar-actor-factory.js';
 import { buildPostCreationSnapshot } from '../utils/xp-post-creation.js';
@@ -40,10 +46,14 @@ import { getActiveBuffs } from '../utils/active-buffs.js';
 import { buildArtifactEvolutionCards } from '../artifacts/artifact-evolution-actions.js';
 import { actorHasProgressionArtifacts } from '../utils/artifact-tree-grant.js';
 import { applyAttributePendingChanges, calculateAttributePendingNetCost, calculatePowerPendingNetCost, calculateSingleSkillPendingXpNet, calculateSkillPendingNetCost, } from '../progression/progression-hub-actions.js';
+import { appendXpHistory, buildBandedStepEntries, currentXpUser } from '../utils/xp-history.js';
 import { isEchoBoundArtifact, isEchoArtifactInventoryHidden } from '../utils/echo-artifact-equip.js';
 // Removed: showWeaponCreationDialog, showArmorCreationDialog, showShieldCreationDialog
 // Replaced with General Items Storage and Store dialogs
 import { bindManualSheetTabs, bindEditImage } from './sheet-v2-compat.js';
+import { buildCharacterStatusRows, reduceCharacterStatusRow, removeCharacterStatusRow, } from './character-status-panel.js';
+import { canCurrentUserUpdateDocument } from '../combat/combat-permissions.js';
+import { coerceStatusEffectsArray } from '../system/active-specials.js';
 // ApplicationV2 actor sheet base (Foundry v13+): DocumentSheetV2 form handling
 // + Handlebars part rendering.
 const BaseActorSheet = foundry.applications.api.HandlebarsApplicationMixin(foundry.applications.sheets.ActorSheetV2);
@@ -86,6 +96,38 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     }
     /** Active tab, preserved across re-renders (see sheet-v2-compat tabs helper). */
     activeTab;
+    #ritualWorkshop;
+    #minorMagicPanel;
+    #getRitualWorkshop() {
+        if (!this.#ritualWorkshop) {
+            this.#ritualWorkshop = new RitualWorkshopController(this.actor, {
+                onRefresh: () => this.render(false),
+            });
+        }
+        this.#ritualWorkshop.actor = this.actor;
+        return this.#ritualWorkshop;
+    }
+    #getMinorMagicPanel() {
+        if (!this.#minorMagicPanel) {
+            this.#minorMagicPanel = new MinorMagicPanel(this.actor, {
+                onRefresh: () => this.render(false),
+            });
+        }
+        this.#minorMagicPanel.actor = this.actor;
+        return this.#minorMagicPanel;
+    }
+    async openRitualWorkshop(ritualId) {
+        if (ritualId)
+            this.#getRitualWorkshop().select(ritualId);
+        this.activeTab = 'rituals';
+        await this.render(true);
+        this.bringToFront?.();
+    }
+    async openMinorMagicPanel() {
+        this.activeTab = 'minor-magic';
+        await this.render(true);
+        this.bringToFront?.();
+    }
     /** Initial tab when the sheet is first opened; subclasses override. */
     get _initialTab() {
         return 'attributes';
@@ -107,6 +149,11 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                     label: 'Bogen + Standardmanöver',
                     action: 'msPrintSheetWithBasics',
                 },
+                {
+                    icon: 'fas fa-link',
+                    label: 'MASTERY.image.copyLink',
+                    action: 'msCopyPictureLink',
+                },
             ],
         },
         form: { submitOnChange: true, closeOnSubmit: false },
@@ -116,6 +163,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             },
             msPrintSheetWithBasics: function () {
                 void openCharacterPrintSheet(this.actor, { includeStandardManeuvers: true });
+            },
+            msCopyPictureLink: function () {
+                void copyDocumentImageLink(this.actor);
             },
         },
     };
@@ -219,6 +269,41 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             console.error('Mastery System | Failed to open Echo card pick dialog', error);
             ui.notifications?.error('Failed to open Echo card picker');
         }
+    }
+    /**
+     * GM only: take an Echo Card off the character at any time.
+     * The slot becomes free; the daily-use flag for that card is cleared.
+     */
+    async #onEchoCardRemove(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        if (!game.user?.isGM) {
+            ui.notifications?.warn(game.i18n.localize('MASTERY.echo.gmOnlyRemove'));
+            return;
+        }
+        const cardId = String(event.currentTarget?.dataset?.cardId || '').trim();
+        const system = this.actor.system;
+        const echo = system?.echo || {};
+        const selectedCardIds = Array.isArray(echo.selectedCardIds) ? echo.selectedCardIds : [];
+        const cardUses = (echo.cardUses && typeof echo.cardUses === 'object') ? echo.cardUses : {};
+        const card = getEchoCard(echo.key, cardId);
+        const cardName = card?.name || cardId;
+        const next = removeSelectedEchoCard(selectedCardIds, cardUses, cardId);
+        if (!next.removed) {
+            ui.notifications?.warn(game.i18n.localize('MASTERY.echo.notFound'));
+            return;
+        }
+        const confirmed = await Dialog.confirm({
+            title: game.i18n.localize('MASTERY.echo.removeCardTitle'),
+            content: game.i18n.format('MASTERY.echo.removeCardConfirm', { name: cardName })
+        });
+        if (!confirmed)
+            return;
+        await this.actor.update({
+            'system.echo.selectedCardIds': next.selectedCardIds,
+            'system.echo.cardUses': next.cardUses
+        });
+        ui.notifications?.info(game.i18n.format('MASTERY.echo.removed', { name: cardName }));
     }
     /**
      * Combat Senses — manual grants and darkvision (explicit update; avoids form sync loops).
@@ -666,16 +751,23 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             ? { ...rawEcho.cardUses }
             : {};
         const unlockedCardSlots = echoDef ? getUnlockedCardSlots(masteryRank) : 0;
+        const overflowCardCount = Math.max(0, selectedCardIds.length - unlockedCardSlots);
         const canAddCard = !!echoDef && selectedCardIds.length < unlockedCardSlots;
         const deckView = echoDef
-            ? echoDef.deck.map(c => ({
-                id: c.id,
-                name: c.name,
-                trigger: c.trigger,
-                options: c.options,
-                selected: selectedCardIds.includes(c.id),
-                used: cardUses[c.id] === true
-            }))
+            ? echoDef.deck.map(c => {
+                const selected = selectedCardIds.includes(c.id);
+                const licensed = selected && isEchoCardLicensed(selectedCardIds, masteryRank, c.id);
+                return {
+                    id: c.id,
+                    name: c.name,
+                    trigger: c.trigger,
+                    options: c.options,
+                    selected,
+                    licensed,
+                    overflow: selected && !licensed,
+                    used: cardUses[c.id] === true
+                };
+            })
             : [];
         const echoCreationValid = !!echoDef
             && (!echoDef.subChoices?.length || !!rawEcho.subChoiceKey)
@@ -690,6 +782,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 deck: deckView,
                 selectedCardIds,
                 unlockedCardSlots,
+                overflowCardCount,
                 canAddCard,
                 creationValid: echoCreationValid
             }
@@ -863,6 +956,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             return out;
         });
         context.disadvantagePointsTotal = context.disadvantages.reduce((sum, d) => sum + (d.points || 0), 0);
+        context.ritualWorkshop = this.#getRitualWorkshop().prepareContext();
+        context.minorMagicView = minorMagicSheetView(this.actor);
+        context.minorMagicPanel = this.#getMinorMagicPanel().prepareContext();
         context.summonBondsView = getSummonBondsFromActor(this.actor).map((b) => {
             const tok = tokensSummary(b);
             return {
@@ -891,6 +987,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         }
         // Build Equipment UI Context
         context.equipmentUi = this.#prepareEquipmentUi(context.items);
+        context.consumableSlots = buildConsumableSlotView(this.actor);
+        context.equippedConsumableActions = equippedConsumableActionRows(this.actor);
         context.hasProgressionArtifacts = actorHasProgressionArtifacts(this.actor);
         context.hasArtifactEvolution = context.hasProgressionArtifacts;
         const spendablePts = context.system?.points ?? {};
@@ -899,6 +997,22 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         context.radialManeuverPrefsPanel = buildRadialManeuverPrefsContext(context.system);
         context.radialManeuverPrefsDetailsOpen = this._radialManeuverPrefsDetailsOpen === true;
         context.combatSensesPanel = buildCombatSensesPanelContext(this.actor);
+        context.encounterSetupStatus = null;
+        context.showInitiativeShopButton = false;
+        try {
+            const combat = game.combat;
+            const combatant = combat
+                ? Array.from(combat.combatants).find((c) => c.actor?.id === this.actor.id)
+                : null;
+            if (combat && combatant && this.actor.type === 'character') {
+                const { buildEncounterSetupStatus } = await import('../combat/encounter-setup-status.js');
+                context.encounterSetupStatus = buildEncounterSetupStatus(combatant, combat);
+                context.showInitiativeShopButton = false;
+            }
+        }
+        catch (err) {
+            console.warn('Mastery System | encounter setup status failed', err);
+        }
         if (context.creationComplete) {
             context.powersByTypeGroups = this.#buildPowersByTypeGroups(context.items?.powers || []);
             /* Default: collapsed; open after finalize or when user expanded in this session. */
@@ -944,6 +1058,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         }
         // Intentionally no icon strip on Attributes (was confusing vs. Powers-tab buff list).
         context.statusEffects = [];
+        const statusRows = buildCharacterStatusRows(this.actor);
+        context.characterStatusRows = statusRows;
+        context.hasCharacterStatusRows = statusRows.length > 0;
+        context.canEditCharacterStatus = canCurrentUserUpdateDocument(this.actor);
         // Passive slotting happens exclusively in combat (Combat-Start dialog).
         // The character-sheet "Passive Slots" manager was removed: it implied a
         // false pre-selection outside combat and was unrelated to the in-combat
@@ -1327,7 +1445,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 const h = Math.min(rows, size.h);
                 const flags = item?.getFlag?.('mastery-system', 'equipment') || item?.flags?.['mastery-system']?.equipment || {};
                 const grid = flags?.grid;
-                if (grid?.x && grid?.y && fitsInGrid(grid.x, grid.y, w, h, cols, rows)) {
+                const hasStoredGrid = !!(grid?.x && grid?.y);
+                if (hasStoredGrid && fitsInGrid(grid.x, grid.y, w, h, cols, rows)) {
                     const candidate = { x: grid.x, y: grid.y, w, h };
                     const overlaps = rects.some(rect => rectsOverlap(rect, candidate));
                     if (!overlaps) {
@@ -1352,9 +1471,14 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                         continue;
                     }
                 }
-                unplaced.push(item);
+                // Keep a stored-but-blocked position as overflow instead of snapping it to the top.
+                unplaced.push({ item, relocate: !hasStoredGrid });
             }
-            for (const item of unplaced) {
+            for (const { item, relocate } of unplaced) {
+                if (!relocate) {
+                    overflow++;
+                    continue;
+                }
                 const size = parseInventorySize(item?.system?.inventorySize);
                 const w = Math.min(cols, size.w);
                 const h = Math.min(rows, size.h);
@@ -1421,6 +1545,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             }
             else if (isEchoArtifactInventoryHidden(item)) {
                 // Echo-bound artifacts belong on the paperdoll only — skip inventory clutter.
+                continue;
+            }
+            else if (readConsumableSlotIndex(item) != null) {
+                // Occupies a Consumable Slot — still owned, but shown in that slot, not the grid.
                 continue;
             }
             else {
@@ -1858,7 +1986,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         html.find('.safe-haven-rest').on('click', this.#onSafeHavenRest.bind(this));
         html.find('.gm-restore-health-bar').on('click', this.#onGmRestoreHealthBar.bind(this));
         html.find('.gm-restore-stress-bar').on('click', this.#onGmRestoreStressBar.bind(this));
-        html.find('.perform-ritual-btn').on('click', this.#onPerformRitual.bind(this));
         html.find('.social-combat-btn').on('click', this.#onSocialCombat.bind(this));
         html.find('.gm-award-faith-fracture').on('click', this.#onGmAwardFaithFracture.bind(this));
         html.find('.gm-edit-xp').on('click', this.#onGmEditXp.bind(this));
@@ -1891,7 +2018,45 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         html.find('.skill-decrease').on('click', this.#onCreationSkillDecrease.bind(this));
         html.find('.finalize-creation').on('click', this.#onFinalizeCreation.bind(this));
         html.find('.reset-creation-attributes').on('click', this.#onResetCreationAttributes.bind(this));
-        // Stone Powers button handler
+        html.find('.js-character-status-remove').on('click', this.#onRemoveCharacterStatus.bind(this));
+        html.find('.js-character-status-reduce').on('click', this.#onReduceCharacterStatus.bind(this));
+        html.find('[data-action="forceEncounterSetup"]').on('click', async (ev) => {
+            ev.preventDefault();
+            if (!game.user?.isGM)
+                return;
+            const kind = String($(ev.currentTarget).attr('data-kind') || '');
+            const combat = game.combat;
+            const combatant = combat
+                ? Array.from(combat.combatants).find((c) => c.actor?.id === this.actor.id)
+                : null;
+            if (!combatant || !kind)
+                return;
+            const { forceEncounterDialog } = await import('../combat/encounter-setup-status.js');
+            await forceEncounterDialog(kind, combatant);
+        });
+        html.find('[data-action="forceEncounterSetupAll"]').on('click', async (ev) => {
+            ev.preventDefault();
+            if (!game.user?.isGM)
+                return;
+            const kind = String($(ev.currentTarget).attr('data-kind') || '');
+            if (!kind)
+                return;
+            const { forceEncounterDialogForAll } = await import('../combat/encounter-setup-status.js');
+            await forceEncounterDialogForAll(kind);
+        });
+        html.find('[data-action="openInitiativeShop"]').on('click', async (ev) => {
+            ev.preventDefault();
+            const combat = game.combat;
+            const combatant = combat
+                ? Array.from(combat.combatants).find((c) => c.actor?.id === this.actor.id)
+                : null;
+            if (!combat || !combatant) {
+                ui.notifications?.warn(game.i18n?.localize('MASTERY.encounterSetup.noCombat') || 'Kein aktiver Kampf.');
+                return;
+            }
+            const { openInitiativeShopForTrackerRescue } = await import('../combat/initiative-roll.js');
+            await openInitiativeShopForTrackerRescue(combatant, combat);
+        });
         html.find('[data-action="openStonePowers"]').on('click', async (ev) => {
             ev.preventDefault();
             // Get current combatant if in combat
@@ -2050,6 +2215,63 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             await SummonBondDialog.showRitual(this.actor, id);
             this.render(false);
         });
+        const ritualRoot = html.find('.tab.rituals .rw-root').get(0);
+        if (ritualRoot)
+            this.#getRitualWorkshop().bind(ritualRoot);
+        const minorRoot = html.find('.tab.minor-magic .mm-root').get(0);
+        if (minorRoot)
+            this.#getMinorMagicPanel().bind(minorRoot);
+        html.off('click.minorMagic');
+        html.on('click.minorMagic', '.js-sheet-minor-magic-use', async (ev) => {
+            ev.preventDefault();
+            const id = ev.currentTarget.dataset.itemId;
+            const item = id ? this.actor.items.get(id) : null;
+            if (!item)
+                return;
+            const res = readConsumableSlotIndex(item) != null
+                ? await useEquippedConsumable(this.actor, item)
+                : { ok: false, error: globalThis.game?.i18n?.localize?.('MASTERY.consumable.notEquipped') || 'Only equipped consumables can be used as an Attack Action.' };
+            if (!res.ok)
+                ui.notifications?.warn(res.error);
+            this.render(false);
+        });
+        html.off('click.consumableUse');
+        html.on('click.consumableUse', '.js-use-equipped-consumable', async (ev) => {
+            ev.preventDefault();
+            const id = ev.currentTarget.dataset.itemId;
+            const item = id ? this.actor.items.get(id) : null;
+            if (!item)
+                return;
+            const res = await useEquippedConsumable(this.actor, item);
+            if (!res.ok)
+                ui.notifications?.warn(res.error);
+            this.render(false);
+        });
+        html.on('click.minorMagic', '.js-sheet-minor-magic-trap', async (ev) => {
+            ev.preventDefault();
+            const id = ev.currentTarget.dataset.itemId;
+            const item = id ? this.actor.items.get(id) : null;
+            if (!item)
+                return;
+            const trigger = window.prompt?.('Simple trigger for this Trap (prototype):', 'A creature enters the chosen area');
+            if (trigger == null)
+                return;
+            const res = await useMinorMagicItem(this.actor, item, 'trap', trigger.trim() || 'A creature enters the chosen area');
+            if (!res.ok)
+                ui.notifications?.warn(res.error);
+            this.render(false);
+        });
+        html.on('click.minorMagic', '.js-sheet-minor-magic-dismiss', async (ev) => {
+            ev.preventDefault();
+            const id = ev.currentTarget.dataset.itemId;
+            const item = id ? this.actor.items.get(id) : null;
+            if (!item)
+                return;
+            const res = await dismissMinorMagicItem(this.actor, item);
+            if (!res.ok)
+                ui.notifications?.warn(res.error);
+            this.render(false);
+        });
         html.on('click.summonBonds', '.js-sheet-summon-bond-dissolve', async (ev) => {
             ev.preventDefault();
             const id = ev.currentTarget.dataset.bondId;
@@ -2134,6 +2356,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 this.#onProfileShow(e, String(imgType));
             });
         }, 100);
+        html.find('.remove-echo-card-btn').on('click', this.#onEchoCardRemove.bind(this));
         // Everything below here is only needed if the sheet is editable
         if (!this.isEditable)
             return;
@@ -2475,42 +2698,33 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             const cellEl = ev.target?.closest?.('.df-cell');
             if (!cellEl)
                 return;
+            const bandEl = cellEl.closest('.df-enc-band');
+            const band = bandEl?.dataset?.band;
+            if (band !== 'not' && band !== 'enc' && band !== 'heavy')
+                return;
             const col = Number(cellEl.dataset?.col || 0);
             const row = Number(cellEl.dataset?.row || 0);
             if (!col || !row)
                 return;
             clearDropHighlight();
             const size = resolveDragSize(ev);
-            const BAND_COLS = 24;
+            const BAND_COLS = ZONE_WIDTH_COLS;
             const BAND_ROWS = 9;
             const w = Math.min(BAND_COLS, size.w);
             const h = Math.min(BAND_ROWS, size.h);
-            const candidate = { x: col, y: row, w, h };
-            const debugKey = `${col}:${row}:${w}:${h}`;
-            if (window.__msLastDragoverDebug !== debugKey) {
-                window.__msLastDragoverDebug = debugKey;
-            }
-            const items = Array.from(this.actor.items.values());
-            const rects = items
-                .filter((it) => it.id !== window.__msDragItemId)
-                .map((it) => {
-                const flags = it.getFlag?.('mastery-system', 'equipment') || {};
-                if (flags.container !== 'inventory' || !flags.grid?.x || !flags.grid?.y)
-                    return null;
-                const s = parseInventorySize(it.system?.inventorySize);
-                return { x: flags.grid.x, y: flags.grid.y, w: Math.min(BAND_COLS, s.w), h: Math.min(BAND_ROWS, s.h) };
-            })
-                .filter(Boolean);
+            const footprintFits = fitsInGrid(col, row, w, h, BAND_COLS, BAND_ROWS);
+            const dragItemId = window.__msDragItemId;
+            const rects = this.#inventoryBandRects(band, dragItemId);
             const cellOccupied = (x, y) => rects.some(rect => rectsOverlap(rect, { x, y, w: 1, h: 1 }));
+            const bandCells = html.find(`.df-enc-band[data-band="${band}"] .df-cell`);
             for (let dy = 0; dy < h; dy++) {
                 for (let dx = 0; dx < w; dx++) {
                     const x = col + dx;
                     const y = row + dy;
-                    const targetCell = html.find(`.df-enc-band .df-cell[data-col="${x}"][data-row="${y}"]`).first();
+                    const targetCell = bandCells.filter(`[data-col="${x}"][data-row="${y}"]`);
                     if (targetCell.length > 0) {
-                        const outOfBounds = !fitsInGrid(x, y, 1, 1, BAND_COLS, BAND_ROWS);
                         const occupied = cellOccupied(x, y);
-                        targetCell.addClass(outOfBounds || occupied ? 'df-drop-invalid' : 'df-drop-valid');
+                        targetCell.addClass(!footprintFits || occupied ? 'df-drop-invalid' : 'df-drop-valid');
                     }
                 }
             }
@@ -2739,23 +2953,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         return { pointsXp: regular, pointsXpFree: free, totalSpent: Math.max(0, totalSpent), freeSpent: Math.max(0, freeSpent) };
     }
     /**
-     * Push XP history entry and truncate to last 200 entries
-     */
-    #pushXpHistory(actor, entry) {
-        const system = actor.system || {};
-        if (!system.xp) {
-            system.xp = { totalEarned: 0, totalSpent: 0, history: [] };
-        }
-        if (!system.xp.history) {
-            system.xp.history = [];
-        }
-        system.xp.history.push(entry);
-        // Truncate to last 200 entries
-        if (system.xp.history.length > 200) {
-            system.xp.history = system.xp.history.slice(-200);
-        }
-    }
-    /**
      * Handle pending attribute increase (XP distribution mode)
      */
     async #onAttributeIncreaseXP(event) {
@@ -2796,13 +2993,13 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         // Free-XP phase is exempt from the once-per-step "+1" cap.
         if (!this.#hasFreeXp()) {
             if (nextPending > 1) {
-                ui.notifications?.warn(`${attributeName.charAt(0).toUpperCase() + attributeName.slice(1)} can only be increased by +1 per Upgrade Step. End the current step first to increase it again.`);
+                ui.notifications?.warn(`${attributeName.charAt(0).toUpperCase() + attributeName.slice(1)} can only be increased by +1 per session. Use Free XP to raise it again.`);
                 return;
             }
             const stepRule = await import('../utils/xp-step-rule.js');
             const step = stepRule.readStep(this.actor);
             if (nextPending > 0 && stepRule.isBumped(step, 'attribute', attributeName)) {
-                ui.notifications?.warn(`${attributeName.charAt(0).toUpperCase() + attributeName.slice(1)} was already increased this Upgrade Step. End the current step first to increase it again.`);
+                ui.notifications?.warn(`${attributeName.charAt(0).toUpperCase() + attributeName.slice(1)} was already increased this session. Use Free XP to raise it again.`);
                 return;
             }
         }
@@ -2917,7 +3114,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 if (wouldExceedStepCap) {
                     increaseBtn.attr('title', this.#hasFreeXp()
                         ? ''
-                        : 'Bereits in diesem Upgrade Step erhöht. GM: Step beenden (Flagge) oder Free XP (★) für freie Verteilung.');
+                        : 'Bereits in dieser Sitzung erhöht. Free XP (★) hebt das Limit auf.');
                 }
             }
             else {
@@ -2955,66 +3152,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         }
         const xpState = this.#getXpState(this.actor);
         const totalNetCost = this.#calculateAttributePendingNetCost(this._pendingAttributeChanges);
-        const attributeKeys = ['might', 'agility', 'vitality', 'intellect', 'resolve', 'influence', 'wits'];
-        const attributeChanges = [];
-        for (const attrKey of attributeKeys) {
-            const pending = this._pendingAttributeChanges[attrKey] || 0;
-            if (!pending)
-                continue;
-            const currentValue = this.actor.system.attributes[attrKey]?.value || 0;
-            const newValue = currentValue + pending;
-            let attrCost = 0;
-            if (pending > 0) {
-                for (let i = 0; i < pending; i++) {
-                    attrCost += this.#calculateAttributeCost(currentValue + i);
-                }
-            }
-            else {
-                for (let i = 0; i < Math.abs(pending); i++) {
-                    const dropFrom = currentValue - i;
-                    const baseline = this.#getAttributeXpBaseline(attrKey);
-                    if (dropFrom <= baseline)
-                        break;
-                    attrCost -= this.#calculateAttributeCost(dropFrom - 1);
-                }
-            }
-            attributeChanges.push({ attr: attrKey, from: currentValue, to: newValue, cost: attrCost });
-        }
-        const beforeState = {
-            available: xpState.available,
-            totalEarned: xpState.totalEarned,
-            totalSpent: xpState.totalSpent,
-        };
         const result = await applyAttributePendingChanges(this.actor, this._pendingAttributeChanges);
         if (!result.ok) {
             ui.notifications?.error(result.error || 'Could not apply attribute changes.');
             return;
-        }
-        const user = game.user;
-        if (attributeChanges.length > 0) {
-            const afterXp = this.#getXpState(this.actor);
-            const historyEntry = {
-                ts: Date.now(),
-                userId: user?.id || '',
-                userName: user?.name || 'System',
-                kind: (totalNetCost > 0 ? 'spend' : 'adjust'),
-                category: 'attribute',
-                amount: Math.abs(totalNetCost),
-                details: { changes: attributeChanges, netCost: totalNetCost },
-                note: totalNetCost < 0
-                    ? 'refund via attribute decrease'
-                    : totalNetCost === 0
-                        ? 'attribute redistribution (0 net XP)'
-                        : undefined,
-                before: beforeState,
-                after: {
-                    available: afterXp.available,
-                    totalEarned: afterXp.totalEarned,
-                    totalSpent: afterXp.totalSpent,
-                },
-            };
-            this.#pushXpHistory(this.actor, historyEntry);
-            await this.actor.update({ 'system.xp.history': this.actor.system.xp.history });
         }
         this._pendingAttributeChanges = {};
         if (totalNetCost > 0) {
@@ -3078,13 +3219,13 @@ export class MasteryCharacterSheet extends BaseActorSheet {
          */
         if (!this.#hasFreeXp()) {
             if (pending + 1 > 1) {
-                ui.notifications?.warn(`${item.name} can only be increased by +1 Level per Upgrade Step. End the current step first to increase it again.`);
+                ui.notifications?.warn(`${item.name} can only be increased by +1 Level per session. Use Free XP to raise it again.`);
                 return;
             }
             const stepRule = await import('../utils/xp-step-rule.js');
             const step = stepRule.readStep(this.actor);
             if (pending + 1 > 0 && stepRule.isBumped(step, 'power', itemId)) {
-                ui.notifications?.warn(`${item.name} was already increased this Upgrade Step. End the current step first to increase it again.`);
+                ui.notifications?.warn(`${item.name} was already increased this session. Use Free XP to raise it again.`);
                 return;
             }
         }
@@ -3206,7 +3347,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 if (wouldExceedStepCap) {
                     increaseBtn.attr('title', this.#hasFreeXp()
                         ? ''
-                        : 'Bereits in diesem Upgrade Step erhöht. GM: Step beenden (Flagge) oder Free XP (★) für freie Verteilung.');
+                        : 'Bereits in dieser Sitzung erhöht. Free XP (★) hebt das Limit auf.');
                 }
             }
             else {
@@ -3258,6 +3399,15 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             totalEarned: xpState.totalEarned,
             totalSpent: xpState.totalSpent,
         };
+        const powerLevelsBefore = {};
+        const powerNamesBefore = {};
+        for (const powerId of Object.keys(this._pendingPowerLevelChanges)) {
+            const item = this.actor.items.get(powerId);
+            if (!item)
+                continue;
+            powerLevelsBefore[powerId] = Number(item.system?.level ?? 1) || 1;
+            powerNamesBefore[powerId] = String(item.name || powerId);
+        }
         // Track power changes for history
         const powerChanges = [];
         const cap = this.#getMaxPurchasablePowerLevel();
@@ -3329,7 +3479,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             const pending = this._pendingPowerLevelChanges[change.powerId] || 0;
             if (pending > 0) {
                 if (stepRulePow.isBumped(stepAfterPow, 'power', change.powerId)) {
-                    ui.notifications?.error(`Step rule: ${change.powerName} was already increased this Upgrade Step. End the current step first.`);
+                    ui.notifications?.error(`${change.powerName} was already increased this session. Use Free XP to raise it again.`);
                     return;
                 }
                 stepAfterPow = stepRulePow.recordBump(stepAfterPow, 'power', change.powerId);
@@ -3353,29 +3503,24 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             updates['system.xp.totalEarned'] = xpState.totalEarned;
             updates['system.xp.history'] = [];
         }
-        await this.actor.update(updates);
-        // Add history entry
-        const user = game.user;
-        if (Math.abs(netCost) > 0) {
-            const historyEntry = {
-                ts: Date.now(),
-                userId: user?.id || '',
-                userName: user?.name || 'System',
-                kind: (netCost > 0 ? 'spend' : 'adjust'),
-                category: 'power',
-                amount: Math.abs(netCost),
-                details: { changes: powerChanges, netCost },
-                note: netCost < 0 ? 'refund via downgrade' : undefined,
-                before: beforeState,
-                after: {
-                    available: newXP,
-                    totalEarned: xpState.totalEarned,
-                    totalSpent: acct.totalSpent,
-                }
-            };
-            this.#pushXpHistory(this.actor, historyEntry);
-            await this.actor.update({ 'system.xp.history': this.actor.system.xp.history });
+        const powerHistory = buildBandedStepEntries({
+            category: 'power',
+            pendingMap: this._pendingPowerLevelChanges,
+            getCurrent: key => powerLevelsBefore[key] ?? 1,
+            getLabel: key => powerNamesBefore[key] || key,
+            costForTarget: powerLevelCost,
+            before: beforeState,
+            after: {
+                available: newXP,
+                totalEarned: xpState.totalEarned,
+                totalSpent: acct.totalSpent,
+            },
+            user: currentXpUser(),
+        });
+        if (powerHistory.length) {
+            updates['system.xp.history'] = appendXpHistory(this.actor, powerHistory);
         }
+        await this.actor.update(updates);
         // Clear pending changes
         this._pendingPowerLevelChanges = {};
         // Show notification
@@ -3921,6 +4066,11 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             ui.notifications?.error('That Echo card is not part of your deck.');
             return;
         }
+        const masteryRank = Math.max(1, Number(system?.mastery?.rank) || 1);
+        if (!isEchoCardLicensed(selectedCardIds, masteryRank, cardId)) {
+            ui.notifications?.warn(game.i18n.localize('MASTERY.echo.unlicensedUse'));
+            return;
+        }
         const cardUses = (echo.cardUses || {});
         if (cardUses[cardId] === true) {
             ui.notifications?.warn('Card already used today. It restores on the next Safe Haven Rest.');
@@ -3956,7 +4106,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         if (!rollOptions)
             return;
         const attributeValue = system.attributes?.[rollOptions.attributeKey]?.value || 0;
-        const masteryRank = system.mastery?.rank || 2;
         let numDice = attributeValue;
         let equipPenaltyFlavor = '';
         if (skillDef.category === SKILL_CATEGORIES.PHYSICAL) {
@@ -3988,11 +4137,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             [`system.echo.cardUses.${cardId}`]: true
         });
         this.render();
-    }
-    async #onPerformRitual(event) {
-        event.preventDefault();
-        const { showRitualRollDialog } = await import('../combat/ritual-roll-handler.js');
-        await showRitualRollDialog(this.actor);
     }
     async #onSocialCombat(event) {
         event.preventDefault();
@@ -4077,108 +4221,13 @@ export class MasteryCharacterSheet extends BaseActorSheet {
      */
     async #onSafeHavenRest(event) {
         event.preventDefault();
-        // Check if user is owner
         if (!this.actor.isOwner) {
             ui.notifications?.warn('Only the owner can use Safe Haven Rest.');
             return;
         }
-        const { SKILLS } = await import('../utils/skills.js');
-        const skillsSpent = {};
-        // Reset all skills to 0 spent
-        for (const skillKey of Object.keys(SKILLS)) {
-            skillsSpent[skillKey] = 0;
-        }
-        // Also reset any existing skills in actor.system.skills
-        const system = this.actor.system;
-        if (system.skills && typeof system.skills === 'object') {
-            for (const skillKey of Object.keys(system.skills)) {
-                if (!skillsSpent.hasOwnProperty(skillKey)) {
-                    skillsSpent[skillKey] = 0;
-                }
-            }
-        }
-        const faithMax = Math.max(0, Number(system.faithFractures?.maximum) || 0);
-        // --- Echo reset -----------------------------------------------------------
-        const echo = system.echo || {};
-        const masteryRank = Math.max(1, Number(system?.mastery?.rank) || 1);
-        const echoUpdates = {};
-        let echoChanged = false;
-        if (echo && echo.key) {
-            echoUpdates['system.echo.cardUses'] = {};
-            echoUpdates['system.echo.traitUses'] = buildFreshTraitUses(echo.key, echo.subChoiceKey || null, masteryRank);
-            echoChanged = true;
-        }
-        // Players Guide ~6998+ Safe Haven Rest:
-        //  • All HP bars topped to max, including Incapacitated.
-        //  • All Stress bars cleared.
-        //  • All Scarred bars cleared.
-        //  • Mastery Charges reset to MR.
-        //  • Sealed / Lost / Bound stones release back to the Stone pool.
-        //  • Stone-Bound forms revert.
-        //  • Skills, Faith Fractures and Echo uses refresh.
-        const updates = {
-            'system.skillsSpent': skillsSpent,
-            ...(faithMax > 0 ? { 'system.faithFractures.current': faithMax } : {}),
-            ...echoUpdates,
-        };
-        // HP bars — restore every bar to its max (including Incapacitated which
-        // is a single box). Tempt-HP and Scarred slots are cleared too.
-        const hpBars = Array.isArray(system?.health?.bars) ? system.health.bars : [];
-        if (hpBars.length > 0) {
-            const restoredBars = hpBars.map((b) => ({ ...b, current: b.max }));
-            updates['system.health.bars'] = restoredBars;
-            updates['system.health.currentBar'] = 0;
-            updates['system.health.tempHP'] = 0;
-            // Scarred slots (when present) end at the same time.
-            updates['system.health.scarred'] = 0;
-        }
-        // Stress bars — Players Guide ~6493: a Safe Haven Rest fully clears
-        // both the active stress total and the scarred stress reservoir.
-        const stressBars = Array.isArray(system?.stress?.bars) ? system.stress.bars : [];
-        if (stressBars.length > 0) {
-            const restoredStress = stressBars.map((b) => ({ ...b, current: b.max }));
-            updates['system.stress.bars'] = restoredStress;
-            updates['system.stress.currentBar'] = 0;
-            updates['system.stress.scarred'] = 0;
-        }
-        // Mastery Charges — Players Guide rest chapter: reset to Mastery Rank.
-        if (system?.mastery && Object.prototype.hasOwnProperty.call(system.mastery, 'charges')) {
-            updates['system.mastery.charges'] = masteryRank;
-        }
-        // Sealed / Lost / Bound stones — Safe Haven Rest releases all of them.
-        if (system?.stones) {
-            if (Object.prototype.hasOwnProperty.call(system.stones, 'sealed')) {
-                updates['system.stones.sealed'] = 0;
-            }
-            if (Object.prototype.hasOwnProperty.call(system.stones, 'lost')) {
-                updates['system.stones.lost'] = 0;
-            }
-            if (Object.prototype.hasOwnProperty.call(system.stones, 'bound')) {
-                updates['system.stones.bound'] = 0;
-            }
-            if (Object.prototype.hasOwnProperty.call(system.stones, 'bondedFormActive')) {
-                updates['system.stones.bondedFormActive'] = false;
-            }
-        }
-        // Status effects — diminishing & timed effects all end on a long rest.
-        if (Array.isArray(system?.statusEffects) && system.statusEffects.length > 0) {
-            updates['system.statusEffects'] = [];
-        }
-        // Blood Raise HP loss flag — combat-specific; clear so future healing
-        // is not blocked by the leftover marker.
-        try {
-            if (this.actor.getFlag?.('mastery-system', 'bloodRaiseHpLostThisCombat') != null) {
-                await this.actor.unsetFlag?.('mastery-system', 'bloodRaiseHpLostThisCombat');
-            }
-            if (this.actor.getFlag?.('mastery-system', 'bloodRaiseHpLost') != null) {
-                await this.actor.unsetFlag?.('mastery-system', 'bloodRaiseHpLost');
-            }
-        }
-        catch (err) {
-            console.warn('Mastery System | Safe Haven blood raise flag clear failed', err);
-        }
-        await this.actor.update(updates);
-        ui.notifications?.info('Safe Haven Rest: HP, Stress, Scars, Stones, Mastery Charges, Skills, Reroll Points and Echo uses fully restored.');
+        await applySafeHavenRest(this.actor);
+        this.activeTab = 'minor-magic';
+        ui.notifications?.info(SAFE_HAVEN_REST_INFO);
         this.render();
     }
     /**
@@ -4204,6 +4253,36 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         await this.actor.update({ 'system.faithFractures.current': cur + 1 });
         ui.notifications?.info(`${this.actor.name}: +1 Reroll Point (${cur + 1}/${max}).`);
         this.render();
+    }
+    async #onRemoveCharacterStatus(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        if (!canCurrentUserUpdateDocument(this.actor))
+            return;
+        const btn = event.currentTarget;
+        const kind = String(btn.dataset.statusKind ?? '');
+        const index = Number(btn.dataset.effectIndex ?? -1);
+        const rows = buildCharacterStatusRows(this.actor);
+        const row = kind === 'tempHP'
+            ? rows.find((r) => r.kind === 'tempHP')
+            : rows.find((r) => r.kind === 'special' && r.index === index);
+        if (!row)
+            return;
+        await removeCharacterStatusRow(this.actor, row);
+    }
+    async #onReduceCharacterStatus(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        if (!canCurrentUserUpdateDocument(this.actor))
+            return;
+        const btn = event.currentTarget;
+        const index = Number(btn.dataset.effectIndex ?? -1);
+        const steps = Math.max(1, Number(btn.dataset.steps ?? 1) || 1);
+        const rows = buildCharacterStatusRows(this.actor);
+        const row = rows.find((r) => r.kind === 'special' && r.index === index);
+        if (!row)
+            return;
+        await reduceCharacterStatusRow(this.actor, row, steps);
     }
     /**
      * GM: directly edit the character's available XP from the header bar.
@@ -4321,13 +4400,13 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         // Once-per-step rule (skipped during the Free-XP phase).
         if (!this.#hasFreeXp()) {
             if (pending + 1 > 1) {
-                ui.notifications?.warn(`${skillKey} can only be increased by +1 per Upgrade Step. End the current step first to increase it again.`);
+                ui.notifications?.warn(`${skillKey} can only be increased by +1 per session. Use Free XP to raise it again.`);
                 return;
             }
             const stepRule = await import('../utils/xp-step-rule.js');
             const step = stepRule.readStep(this.actor);
             if (pending + 1 > 0 && stepRule.isBumped(step, 'skill', skillKey)) {
-                ui.notifications?.warn(`${skillKey} was already increased this Upgrade Step. End the current step first to increase it again.`);
+                ui.notifications?.warn(`${skillKey} was already increased this session. Use Free XP to raise it again.`);
                 return;
             }
         }
@@ -4442,7 +4521,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 if (wouldExceedStepCap) {
                     plusBtn.attr('title', this.#hasFreeXp()
                         ? ''
-                        : 'Bereits in diesem Upgrade Step erhöht. GM: Step beenden (Flagge) oder Free XP (★) für freie Verteilung.');
+                        : 'Bereits in dieser Sitzung erhöht. Free XP (★) hebt das Limit auf.');
                 }
             }
             else {
@@ -4552,7 +4631,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 continue;
             if (change.delta > 0) {
                 if (stepRuleSk.isBumped(stepAfterSk, 'skill', change.skillKey)) {
-                    ui.notifications?.error(`Step rule: ${change.skillKey} was already increased this Upgrade Step. End the current step first.`);
+                    ui.notifications?.error(`${change.skillKey} was already increased this session. Use Free XP to raise it again.`);
                     return;
                 }
                 stepAfterSk = stepRuleSk.recordBump(stepAfterSk, 'skill', change.skillKey);
@@ -4580,28 +4659,24 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             totalEarned: xpState.totalEarned,
             totalSpent: xpState.totalSpent,
         };
-        await this.actor.update(updates);
-        if (netCost !== 0) {
-            const user = game.user;
-            const historyEntry = {
-                ts: Date.now(),
-                userId: user?.id || '',
-                userName: user?.name || 'System',
-                kind: (netCost > 0 ? 'spend' : 'adjust'),
-                category: 'skill',
-                amount: Math.abs(netCost),
-                details: { changes, netCost },
-                note: netCost < 0 ? 'refund via downgrade' : undefined,
-                before: beforeState,
-                after: {
-                    available: availableXP - netCost,
-                    totalEarned: xpState.totalEarned,
-                    totalSpent: acctSk.totalSpent,
-                }
-            };
-            this.#pushXpHistory(this.actor, historyEntry);
-            await this.actor.update({ 'system.xp.history': this.actor.system.xp.history });
+        const skillHistory = buildBandedStepEntries({
+            category: 'skill',
+            pendingMap: this._pendingSkillRankChanges,
+            getCurrent: key => Number(this.actor.system.skills?.[key] ?? 0) || 0,
+            getLabel: key => SKILLS[key]?.name || key,
+            costForTarget: attributeBandCost,
+            before: beforeState,
+            after: {
+                available: availableXP - netCost,
+                totalEarned: xpState.totalEarned,
+                totalSpent: acctSk.totalSpent,
+            },
+            user: currentXpUser(),
+        });
+        if (skillHistory.length) {
+            updates['system.xp.history'] = appendXpHistory(this.actor, skillHistory);
         }
+        await this.actor.update(updates);
         this._pendingSkillRankChanges = {};
         await this.render();
     }
@@ -5289,14 +5364,15 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 // Fallback: Create a simple dialog with the image
                 const dialog = new Dialog({
                     title: this.actor.name,
-                    content: `<div style="text-align: center;"><img src="${imgSrc}" style="max-width: 100%; max-height: 80vh; height: auto; border-radius: 4px;" /></div>`,
+                    content: `${buildImageUrlBarHtml(imgSrc)}<div style="text-align: center;"><img src="${imgSrc}" style="max-width: 100%; max-height: 80vh; height: auto; border-radius: 4px;" /></div>`,
                     buttons: {
                         close: {
                             label: 'Close',
                             callback: () => { }
                         }
                     },
-                    default: 'close'
+                    default: 'close',
+                    render: (html) => bindImageUrlBar(html[0] ?? html.get?.(0), imgSrc),
                 });
                 await dialog.render(true);
             }
@@ -5308,14 +5384,15 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             try {
                 const dialog = new Dialog({
                     title: this.actor.name,
-                    content: `<div style="text-align: center;"><img src="${imgSrc}" style="max-width: 100%; max-height: 80vh; height: auto; border-radius: 4px;" /></div>`,
+                    content: `${buildImageUrlBarHtml(imgSrc)}<div style="text-align: center;"><img src="${imgSrc}" style="max-width: 100%; max-height: 80vh; height: auto; border-radius: 4px;" /></div>`,
                     buttons: {
                         close: {
                             label: 'Close',
                             callback: () => { }
                         }
                     },
-                    default: 'close'
+                    default: 'close',
+                    render: (html) => bindImageUrlBar(html[0] ?? html.get?.(0), imgSrc),
                 });
                 await dialog.render(true);
             }
@@ -5334,10 +5411,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         html.find('input[name="name"], textarea').prop('disabled', true);
         html.find('select:not(.power-rank-select):not(.attr-creation-select):not(.mastery-rank-select)').prop('disabled', true);
         // Disable buttons except creation controls
-        const buttonsToDisable = html.find('button:not(.attr-increase):not(.attr-decrease):not(.skill-increase):not(.skill-decrease):not(.finalize-creation):not(.reset-creation-attributes):not(.force-unlock-creation):not(.reset-character):not(.add-disadvantage-btn):not(.disadvantage-edit-btn):not(.disadvantage-remove-btn):not(.open-tower-wizard-btn):not(.open-manual-combat-package-btn):not(.add-spell-creation-btn):not(.power-rank-select):not(.item-delete):not(.power-toggle-details):not(.power-edit-mechanics):not(.general-items-btn):not(.choose-echo-btn):not(.add-echo-card-btn):not(.echo-card-use-btn):not(.open-languages-btn)');
+        const buttonsToDisable = html.find('button:not(.attr-increase):not(.attr-decrease):not(.skill-increase):not(.skill-decrease):not(.finalize-creation):not(.reset-creation-attributes):not(.force-unlock-creation):not(.reset-character):not(.add-disadvantage-btn):not(.disadvantage-edit-btn):not(.disadvantage-remove-btn):not(.open-tower-wizard-btn):not(.open-manual-combat-package-btn):not(.add-spell-creation-btn):not(.power-rank-select):not(.item-delete):not(.power-toggle-details):not(.power-edit-mechanics):not(.general-items-btn):not(.choose-echo-btn):not(.add-echo-card-btn):not(.remove-echo-card-btn):not(.echo-card-use-btn):not(.open-languages-btn)');
         buttonsToDisable.prop('disabled', true);
         // Ensure creation buttons are enabled
-        const creationButtons = html.find('.attr-increase, .attr-decrease, .skill-increase, .skill-decrease, .finalize-creation, .reset-creation-attributes, .force-unlock-creation, .reset-character, .add-disadvantage-btn, .disadvantage-edit-btn, .disadvantage-remove-btn, .open-tower-wizard-btn, .open-manual-combat-package-btn, .add-spell-creation-btn, .item-delete, .general-items-btn, .choose-echo-btn, .add-echo-card-btn, .echo-card-use-btn, .open-languages-btn');
+        const creationButtons = html.find('.attr-increase, .attr-decrease, .skill-increase, .skill-decrease, .finalize-creation, .reset-creation-attributes, .force-unlock-creation, .reset-character, .add-disadvantage-btn, .disadvantage-edit-btn, .disadvantage-remove-btn, .open-tower-wizard-btn, .open-manual-combat-package-btn, .add-spell-creation-btn, .item-delete, .general-items-btn, .choose-echo-btn, .add-echo-card-btn, .remove-echo-card-btn, .echo-card-use-btn, .open-languages-btn');
         creationButtons.prop('disabled', false);
         // Also enable power rank selects (they're select elements, not buttons)
         html.find('.power-rank-select').prop('disabled', false);
@@ -6266,6 +6343,19 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             ui.notifications?.error('Failed to finalize character creation.');
         }
     }
+    /** Status UI is button-driven — never let an empty form submit wipe it. */
+    _prepareSubmitData(event, form, formData, updateData) {
+        const data = super._prepareSubmitData(event, form, formData, updateData);
+        if (!data?.system || !Object.prototype.hasOwnProperty.call(data.system, 'statusEffects')) {
+            return data;
+        }
+        const submitted = coerceStatusEffectsArray(data.system.statusEffects);
+        data.system.statusEffects =
+            submitted.length > 0
+                ? submitted
+                : coerceStatusEffectsArray(this.actor.system?.statusEffects);
+        return data;
+    }
     /** @override */
     async _onSubmitForm(formConfig, event) {
         // Block updates if creation is incomplete
@@ -6316,6 +6406,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             // No equipment drop zone — delegate to ActorSheetV2 (item creation / sorting).
             await super._onDrop(event);
             return true;
+        }
+        if (target.dataset.dfDrop === 'consumable-slot') {
+            return this.#onDropConsumableSlot(event, data, target);
         }
         // Get dropped item
         let droppedItem = null;
@@ -6386,6 +6479,51 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         this._lastDroppedItemId = droppedItem?.id;
         this._lastDroppedItemName = droppedItem?.name;
         await new Promise(resolve => setTimeout(resolve, 0));
+        await this.render(true, { focus: false });
+        return true;
+    }
+    async #onDropConsumableSlot(event, data, target) {
+        const index = Math.floor(Number(target.dataset.slotIndex));
+        let droppedItem = null;
+        if (data.uuid) {
+            try {
+                droppedItem = await fromUuid(data.uuid);
+            }
+            catch {
+                droppedItem = null;
+            }
+        }
+        else if (data.data?._id) {
+            droppedItem = this.actor.items.get(data.data._id);
+        }
+        if (!droppedItem) {
+            const dragItemId = window.__msDragItemId;
+            if (dragItemId)
+                droppedItem = this.actor.items.get(dragItemId);
+        }
+        if (!droppedItem) {
+            ui.notifications?.warn(globalThis.game?.i18n?.localize?.('MASTERY.consumable.missingItem') || 'Item not found.');
+            return false;
+        }
+        if (!isConsumableItem(droppedItem)) {
+            ui.notifications?.warn(globalThis.game?.i18n?.localize?.('MASTERY.consumable.notConsumable') ||
+                'Only consumable items can occupy a Consumable Slot.');
+            return false;
+        }
+        if (!droppedItem.parent || droppedItem.parent.id !== this.actor.id) {
+            const moved = await transferConsumableToActor(this.actor, droppedItem);
+            if (!moved) {
+                ui.notifications?.error(`Could not add ${droppedItem.name} to this character.`);
+                return false;
+            }
+            droppedItem = moved;
+        }
+        const result = await equipConsumableToSlot(this.actor, droppedItem, index);
+        if (!result.ok) {
+            ui.notifications?.warn(result.error);
+            return false;
+        }
+        this._lastDroppedItemId = droppedItem?.id;
         await this.render(true, { focus: false });
         return true;
     }
@@ -6468,6 +6606,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         }
         const currentFlags = item.getFlag('mastery-system', 'equipment') || {};
         const newFlags = { ...currentFlags, container: 'inventory', slot, band: currentFlags.band || 'not' };
+        delete newFlags.grid;
         await item.update({
             'flags.mastery-system.equipment': newFlags,
             'system.equipped': true
@@ -6638,23 +6777,11 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     }
     /** Collect occupied inventory rects for a band (excluding one item id). */
     #inventoryBandRects(band, excludeItemId) {
-        const BAND_COLS = ZONE_WIDTH_COLS;
-        const BAND_ROWS = 9;
-        return Array.from(this.actor.items.values())
-            .filter((it) => it.id !== excludeItemId)
-            .map((it) => {
-            const flags = it.getFlag?.('mastery-system', 'equipment') || {};
-            if (flags.container !== 'inventory' || flags.band !== band || !flags.grid?.x || !flags.grid?.y)
-                return null;
-            const s = parseInventorySize(it.system?.inventorySize);
-            return {
-                x: flags.grid.x,
-                y: flags.grid.y,
-                w: Math.min(BAND_COLS, s.w),
-                h: Math.min(BAND_ROWS, s.h)
-            };
-        })
-            .filter(Boolean);
+        return collectInventoryBandRects(this.actor.items.values(), band, {
+            excludeItemId,
+            cols: ZONE_WIDTH_COLS,
+            rows: 9,
+        });
     }
     /**
      * Helper: Update item equipment flags based on drop target
@@ -6671,6 +6798,15 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         }
         const currentFlags = item.getFlag('mastery-system', 'equipment') || {};
         const newFlags = { ...currentFlags };
+        if (readConsumableSlotIndex(item) != null && (dropType === 'stash' || dropType === 'band' || dropType === 'equip-slot')) {
+            const locked = validateUnequipConsumable({ actor: this.actor, item });
+            if (locked) {
+                ui.notifications?.warn(globalThis.game?.i18n?.localize?.('MASTERY.consumable.lockedInCombat') ||
+                    'Consumable Slots cannot be changed during combat.');
+                return;
+            }
+            delete newFlags.consumableSlot;
+        }
         if (dropType === 'stash') {
             newFlags.container = 'stash';
             newFlags.band = null;
@@ -6707,11 +6843,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                     }
                 }
                 if (!gridPos) {
-                    const rects = this.#inventoryBandRects(band, item.id);
-                    gridPos = findFirstFit(rects, w, h, BAND_COLS, BAND_ROWS);
-                }
-                if (!gridPos) {
-                    ui.notifications?.warn('No space for this item in inventory.');
+                    const gameI18n = globalThis.game?.i18n;
+                    ui.notifications?.warn(gameI18n?.localize?.('MASTERY.inventory.dropBlocked') ||
+                        'That cell is blocked or the item does not fit there.');
                     return;
                 }
                 newFlags.grid = gridPos;
@@ -6720,6 +6854,12 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                     'system.equipped': false
                 });
             }
+        }
+        else if (dropType === 'consumable-slot') {
+            const index = Math.floor(Number(target.dataset.slotIndex));
+            const result = await equipConsumableToSlot(this.actor, item, index);
+            if (!result.ok)
+                ui.notifications?.warn(result.error);
         }
         else if (dropType === 'equip-slot') {
             const slot = target.dataset.slot;

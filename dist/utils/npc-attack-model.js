@@ -149,6 +149,68 @@ function sanitizeAttackValuesList(raw) {
         return raw;
     return list.map((row) => row && typeof row === 'object' ? sanitizeNpcAttackTargetingFields(row) : row);
 }
+function asAttackValueRows(raw) {
+    if (raw == null)
+        return [];
+    if (Array.isArray(raw))
+        return raw.filter((row) => row && typeof row === 'object');
+    if (typeof raw === 'object')
+        return coerceNpcPhasesArray(raw).filter((row) => row && typeof row === 'object');
+    return [];
+}
+/**
+ * Form submit must not change extra-power list length. Add/delete are
+ * button-driven; a stale submitOnChange (old form without the new row, or
+ * still containing a deleted row) would otherwise look like extras "collapsed".
+ *
+ * Length always comes from `existing` (including `[]`). Overlay submitted
+ * fields onto those rows by index. Callers that *are* the add/delete write
+ * should skip this merge (see `msNpcExtraPowers` update option).
+ */
+export function mergeNpcAttackValueLists(existing, submitted) {
+    const existingPresent = existing != null;
+    const ex = asAttackValueRows(existing);
+    const sub = asAttackValueRows(submitted);
+    if (!existingPresent) {
+        return sub.map((row) => sanitizeNpcAttackTargetingFields({ ...row }));
+    }
+    return ex.map((row, i) => {
+        const overlay = sub[i] && typeof sub[i] === 'object' ? sub[i] : null;
+        return sanitizeNpcAttackTargetingFields(overlay ? { ...row, ...overlay } : { ...row });
+    });
+}
+/** Foundry `actor.update` option: this write *is* the extras add/delete. */
+export const NPC_EXTRA_POWERS_UPDATE = 'msNpcExtraPowers';
+/**
+ * Keep extra-power rows when a form submit replaces `system.phases` /
+ * `system.attackValues` without the latest button-driven rows.
+ */
+export function preserveNpcExtraPowersInSystemUpdate(currentSystem, updateSystem) {
+    if (!updateSystem || typeof updateSystem !== 'object')
+        return;
+    const current = currentSystem && typeof currentSystem === 'object' ? currentSystem : {};
+    if (Object.prototype.hasOwnProperty.call(updateSystem, 'attackValues')) {
+        updateSystem.attackValues = mergeNpcAttackValueLists(current.attackValues, updateSystem.attackValues);
+    }
+    if (!Object.prototype.hasOwnProperty.call(updateSystem, 'phases') || updateSystem.phases == null) {
+        return;
+    }
+    const currentPhases = coerceNpcPhasesArray(current.phases);
+    const wasArray = Array.isArray(updateSystem.phases);
+    const updatePhases = coerceNpcPhasesArray(updateSystem.phases);
+    const merged = updatePhases.map((phase, i) => {
+        if (!phase || typeof phase !== 'object')
+            return phase;
+        const prev = currentPhases[i] || {};
+        return {
+            ...phase,
+            attackValues: mergeNpcAttackValueLists(prev.attackValues, phase.attackValues),
+        };
+    });
+    updateSystem.phases = wasArray
+        ? merged
+        : Object.fromEntries(merged.map((phase, i) => [String(i), phase]));
+}
 /**
  * Sanitize all NPC attack targeting on a `system` blob (sheet submit / updates).
  * Coerces object-shaped `phases` to a real array so combat and sheet share one shape.

@@ -14,13 +14,13 @@
  */
 import { ARTIFACT_SLOT_LABELS, BASE_PROFILE_LABELS, } from '../utils/artifact-rules.js';
 import { isArtifactLinkedOnActor } from '../utils/artifact-actor-rules.js';
-import { visibleAbilityRows } from '../utils/artifact-visible-abilities.js';
+import { displayFromArtifactSystem, resolveNextArtifactPreviews, } from '../utils/artifact-sheet-preview.js';
 const BaseArtifactSheet = foundry.applications.api.HandlebarsApplicationMixin(foundry.applications.sheets.ItemSheetV2);
 export class ArtifactSheetV2 extends BaseArtifactSheet {
     /** @override */
     static DEFAULT_OPTIONS = {
         classes: ['mastery-system', 'sheet', 'item', 'artifact-sheet-v2'],
-        position: { width: 460, height: 'auto' },
+        position: { width: 520, height: 'auto' },
         window: { resizable: true },
         form: { submitOnChange: false, closeOnSubmit: false },
     };
@@ -41,39 +41,47 @@ export class ArtifactSheetV2 extends BaseArtifactSheet {
         const mechanicallyActive = parentActor
             ? isArtifactLinkedOnActor(parentActor, item)
             : true;
-        const baseValueRows = mechanicallyActive
-            ? (Array.isArray(system.baseValues) ? system.baseValues : []).map((bv) => ({
-                slot: String(bv.slot || '').toUpperCase(),
-                label: bv.label || '',
-                value: bv.value != null && bv.value !== '' ? String(bv.value) : bv.note || '',
-            }))
-            : [];
-        const visibleRows = mechanicallyActive
-            ? visibleAbilityRows(Array.isArray(system.levelProgression) ? system.levelProgression : [], currentLevel)
-            : [];
-        const abilities = visibleRows.map((row) => ({
-            level: Number(row.level) || 1,
-            name: row.name || '',
-            type: row.type || '',
-            effect: row.effect || '',
-            special: row.special || '',
-            unlocked: true,
-        }));
+        const current = displayFromArtifactSystem(system);
+        const activation = mechanicallyActive ? current : displayFromArtifactSystem(system, { level: 1 });
+        const nextPreviews = mechanicallyActive ? resolveNextArtifactPreviews(item) : [];
+        const i18n = globalThis.game?.i18n;
+        const loc = (key, fallback, data) => {
+            const raw = data ? i18n?.format?.(key, data) : i18n?.localize?.(key);
+            if (typeof raw === 'string' && raw && raw !== key)
+                return raw;
+            if (!data)
+                return fallback;
+            return fallback.replace(/\{(\w+)\}/g, (_, k) => data[k] ?? '');
+        };
         context.item = item;
         context.system = system;
         context.cssClass = item.isOwner ? 'editable' : 'locked';
         context.isEditable = this.isEditable;
         context.isGM = !!game.user?.isGM;
         context.mechanicallyActive = mechanicallyActive;
+        context.labels = {
+            inactive: loc('MASTERY.artifact.sheet.inactive', 'Inactive — activate via Artifacts'),
+            whenActivated: loc('MASTERY.artifact.sheet.whenActivated', 'When activated'),
+            whenActivatedHint: loc('MASTERY.artifact.sheet.whenActivatedHint', 'These values and abilities unlock when you activate this artifact.'),
+            nextLevelHint: loc('MASTERY.artifact.sheet.nextLevelHint', 'Unlocked when you raise this artifact.'),
+        };
         context.summary = {
             slotLabel: ARTIFACT_SLOT_LABELS[slotKey] || '',
             baseProfileLabel: BASE_PROFILE_LABELS[profileKey] || '',
             currentLevel,
-            baseValues: baseValueRows,
-            abilities,
-            hasAbilities: abilities.length > 0,
-            hasBaseValues: baseValueRows.length > 0,
+            baseValues: activation.baseValues,
+            abilities: activation.abilities,
+            hasAbilities: activation.hasAbilities,
+            hasBaseValues: activation.hasBaseValues,
         };
+        context.nextPreviews = nextPreviews.map((preview) => ({
+            ...preview,
+            title: loc('MASTERY.artifact.sheet.nextLevel', 'Next: Level {level}', {
+                level: String(preview.level),
+            }),
+        }));
+        context.hasNextPreview = nextPreviews.length > 0;
+        context.hasActivationPreview = !mechanicallyActive && (activation.hasBaseValues || activation.hasAbilities);
         return context;
     }
     /** @override */

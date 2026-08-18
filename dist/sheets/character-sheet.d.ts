@@ -17,6 +17,8 @@ export declare class MasteryCharacterSheet extends BaseActorSheet {
     private _pendingSkillRankChanges;
     /** Active tab, preserved across re-renders (see sheet-v2-compat tabs helper). */
     activeTab?: string;
+    openRitualWorkshop(ritualId?: string): Promise<void>;
+    openMinorMagicPanel(): Promise<void>;
     /** Initial tab when the sheet is first opened; subclasses override. */
     protected get _initialTab(): string;
     /** @override */
@@ -56,6 +58,8 @@ export declare class MasteryCharacterSheet extends BaseActorSheet {
     _onRender(context: any, options: any): Promise<void>;
     /** @override */
     activateListeners(html: JQuery): void;
+    /** Status UI is button-driven — never let an empty form submit wipe it. */
+    _prepareSubmitData(event: any, form: any, formData: any, updateData?: any): any;
     /** @override */
     _onSubmitForm(formConfig: any, event: Event): Promise<any>;
     /**

@@ -21,7 +21,7 @@ import { visibleAbilityRows } from '../utils/artifact-visible-abilities.js';
 import { formatEffectReference } from '../utils/special-effects.js';
 import { STONE_POWERS_BY_ATTRIBUTE } from '../stones/stone-powers.js';
 import { getMinorExpressionDefinition, tierBodyForExpression } from '../utils/minor-expressions.js';
-import { getEchoCard } from '../utils/echos/index.js';
+import { getEchoCard, getLicensedEchoCardIds } from '../utils/echos/index.js';
 import { parseInventorySize, fitsInGrid, rectsOverlap, findFirstFit, } from '../utils/inventory-grid.js';
 import { normalizeSlotKey } from '../utils/equip-slots.js';
 import { isEchoArtifactInventoryHidden } from '../utils/echo-artifact-equip.js';
@@ -33,6 +33,7 @@ import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
 import { buildPrintCombatPreview, buildPrintCombatPreviewForArtifactRow, buildArtifactRowSpellPrintMeta, buildSpellPrintMeta } from './character-print-combat.js';
 import { buildCombatSensesDisplayContext } from '../combat/combat-sense-collection.js';
 import { basicAttackMrDamageFormula, basicCombatMrTimesTwo, buildBasicReactionItems, } from '../combat/basic-combat.js';
+import { buildConsumablePrintEntries, buildConsumablePrintSlots } from '../utils/consumable-slots.js';
 /** Human-readable label per Stone Function kind (technical summary). */
 const STONE_FN_KIND_LABEL = {
     stonePool: 'Stone Pool',
@@ -339,6 +340,9 @@ function buildPrintEquipment(allItems) {
                 slotMap[slot] = item;
         }
         else if (isEchoArtifactInventoryHidden(item)) {
+            continue;
+        }
+        else if (flags?.consumableSlot != null && Number.isFinite(Number(flags.consumableSlot))) {
             continue;
         }
         else {
@@ -774,6 +778,9 @@ export function buildCharacterPrintContext(actor, options = {}) {
                 battleActive.push(p);
         }
     }
+    for (const entry of buildConsumablePrintEntries(actor)) {
+        battleActive.push(entry);
+    }
     const battle = {
         movement: battleMovement,
         active: battleActive,
@@ -871,7 +878,8 @@ export function buildCharacterPrintContext(actor, options = {}) {
     // Printed near Social Combat on page 2. Each card lists its trigger and its
     // four skill-keyed options.
     const echoKey = String(system?.echo?.key ?? '').trim();
-    const echoCards = (Array.isArray(system?.echo?.selectedCardIds) ? system.echo.selectedCardIds : [])
+    const selectedEchoCardIds = Array.isArray(system?.echo?.selectedCardIds) ? system.echo.selectedCardIds : [];
+    const echoCards = getLicensedEchoCardIds(selectedEchoCardIds, masteryRank)
         .map((rawId) => {
         const card = getEchoCard(echoKey, String(rawId ?? '').trim());
         if (!card)
@@ -1027,6 +1035,7 @@ export function buildCharacterPrintContext(actor, options = {}) {
         pageTotal: hasFamiliars ? 6 : 5,
         gear,
         equipment,
+        consumableSlots: buildConsumablePrintSlots(actor),
         technical
     };
 }

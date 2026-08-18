@@ -8,7 +8,7 @@
  *
  * Surfaces:
  *   - `getArtifactStoneSupportPrefill(actor, powerId, poolAttribute?)`
- *       → tier (0..4) the matching Stone Power Support prefills.
+ *       → tier (0..8) the matching Stone Power Support prefills.
  *   - `getArtifactStoneFunctionStatus(actor)`
  *       → list of `{kind, attribute, level, value, source, stonePowerId?}`.
  *   - `getArtifactStonePoolExtraByAttribute(actor)` → per-attribute extra
@@ -23,6 +23,7 @@
  */
 import { getStonePoolStoredStones, getStonePowerSupportPrefillTier, getStoneRefreshAmount, getStoneBatteryCapacity, } from './artifact-rules.js';
 import { isArtifactMechanicallyActive } from './artifact-actor-rules.js';
+import { resolveStonePowerId, STONE_POWER_SUPPORT_TIER_SHIFT, STONE_TIER_HARD_MAX, } from '../stones/stone-powers.js';
 function resolveStoneFunction(item) {
     const sys = item?.system || {};
     const fn = sys.stoneFunction;
@@ -141,22 +142,26 @@ export function getArtifactStoneBatteryCapacityByAttribute(actor) {
  *     equal the pool attribute (for attribute-scoped pools).
  *
  * Returns 0 when no matching Support exists, otherwise the prefill tier
- * (1..4). The activation pipeline interprets this as "the first
+ * (1..8). The activation pipeline interprets this as "the first
  * activation of `powerId` acts as if it had been used `prefill-1` times
- * already this turn".
+ * already this turn". Shifted tables (Crit, Not a Target) can land on T5.
  */
 export function getArtifactStoneSupportPrefill(actor, powerId, poolAttribute) {
     if (!actor || !powerId)
         return 0;
     const supports = getArtifactStoneFunctions(actor).filter((r) => r.kind === 'stonePowerSupport');
     let best = 0;
+    const resolvedId = resolveStonePowerId(powerId);
     for (const s of supports) {
-        if (!s.stonePowerId || s.stonePowerId !== powerId)
+        const supportId = resolveStonePowerId(String(s.stonePowerId || ''));
+        if (!supportId || supportId !== resolvedId)
             continue;
         if (poolAttribute && s.attribute !== poolAttribute)
             continue;
-        if (s.value > best)
-            best = s.value;
+        const shift = STONE_POWER_SUPPORT_TIER_SHIFT[resolvedId] ?? 0;
+        const value = Math.min(STONE_TIER_HARD_MAX, Math.max(0, s.value + shift));
+        if (value > best)
+            best = value;
     }
     return best;
 }

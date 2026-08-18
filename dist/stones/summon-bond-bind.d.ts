@@ -32,6 +32,8 @@ export type SummonBondRecord = {
     name: string;
     img: string;
     expression: string;
+    /** Canonical creature-type key from CREATURE_TYPE_OPTIONS. */
+    creatureType: string;
     ownerActorId: string;
     boundStoneCount: number;
     /** Attribute keys used for each bound stone (length === boundStoneCount). */
@@ -62,11 +64,12 @@ export declare function createEmptyBond(opts: {
     movementMode: SummonMovementMode;
     stoneAttributes: StonePoolAttr[];
     expression?: string;
+    creatureType?: string;
 }): SummonBondRecord;
 /** Migrate a V1 familiar record into a V2 bond stub (tokens unspent for redistribution). */
 export declare function migrateFamiliarToBond(familiar: BoundFamiliarRecord, ownerActorId: string): SummonBondRecord;
 export declare function recomputeBondDerived(bond: SummonBondRecord): SummonBondRecord;
-export declare function validateBondSkillAlloc(bond: SummonBondRecord, ownerSkillRatings: Record<string, number>): string[];
+export declare function validateBondSkillAlloc(bond: SummonBondRecord, ownerSkillRatings: Record<string, number>, ownerMasteryRank?: number): string[];
 export declare function persistSummonBonds(actor: any, bonds: SummonBondRecord[]): Promise<void>;
 export declare function bindSummonBond(actor: any, bond: SummonBondRecord): Promise<SummonBondRecord | null>;
 export declare function releaseSummonBond(actor: any, bondId: string): Promise<SummonBondRecord | null>;
@@ -93,12 +96,15 @@ export type BondRitualValidation = {
     computed: ReturnType<typeof computeSummonBond>;
 };
 export declare function validateBondPowers(bond: SummonBondRecord, ownerMasteryRank?: number): string[];
-export declare function validateBondRitual(bond: SummonBondRecord, ownerSkillRatings?: Record<string, number>, ownerMasteryRank?: number): BondRitualValidation;
+export declare function validateBondRitual(bond: SummonBondRecord, ownerSkillRatings?: Record<string, number>, ownerMasteryRank?: number, extras?: {
+    maxBonusTokens?: number;
+}): BondRitualValidation;
 /** Create a new Summon Bond, debit Bound Stones from the owner's pool, clear legacy familiars. */
 export declare function createSummonBondWithStones(actor: any, opts: {
     name: string;
     img?: string;
     expression?: string;
+    creatureType?: string;
     movementMode: SummonMovementMode;
     stoneAttributes: StonePoolAttr[];
     bonusTokens?: number;

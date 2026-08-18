@@ -106,6 +106,10 @@ export function getActorInventoryLoadZone(actor) {
             ?? {};
         if (flags.container !== 'inventory')
             continue;
+        if (flags.slot)
+            continue;
+        if (flags.consumableSlot != null && Number.isFinite(Number(flags.consumableSlot)))
+            continue;
         const band = flags.band ?? 'not';
         if (band === 'heavy')
             overloadedCount++;

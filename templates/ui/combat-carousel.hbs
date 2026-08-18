@@ -1,4 +1,4 @@
-<div class="mastery-carousel {{#if active}}is-active{{/if}} {{#if compact}}is-compact{{/if}} {{#if preparing}}is-preparing{{/if}}">
+<div class="mastery-carousel {{#if active}}is-active{{/if}} {{#if compact}}is-compact{{/if}} {{#if preparing}}is-preparing{{/if}} {{#if roundGate.show}}is-preparing{{/if}}">
   {{#if active}}
     {{#if preparing}}
     <div class="ms-carousel-prepare-bar">
@@ -9,6 +9,18 @@
       </button>
       <button type="button" class="ms-carousel-prepare-btn is-start js-start-live-combat" {{#unless canStartLive}}disabled{{/unless}} title="{{startBlockedReason}}">
         <i class="fas fa-play"></i> {{localize "MASTERY.encounterSetup.startCombat"}}
+      </button>
+      {{/if}}
+    </div>
+    {{/if}}
+    {{#if roundGate.show}}
+    <div class="ms-carousel-prepare-bar is-round-gate">
+      <span class="ms-carousel-prepare-label">
+        {{roundGate.waiting}}{{#if roundGate.pendingList}} — {{roundGate.pendingList}}{{/if}}
+      </span>
+      {{#if controlsAllowed}}
+      <button type="button" class="ms-carousel-prepare-btn is-start js-start-round" title="{{localize 'MASTERY.encounterSetup.startRoundHint'}}">
+        <i class="fas fa-play"></i> {{roundGate.label}}
       </button>
       {{/if}}
     </div>

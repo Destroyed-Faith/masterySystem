@@ -3,8 +3,8 @@
  */
 export function registerEpicMasteryRollSettings() {
     game.settings.register('mastery-system', 'epicRollSummaryVisibility', {
-        name: 'Epic Mastery Roll: Summary Visibility',
-        hint: 'Who can see the final Epic Mastery Roll summary in chat.',
+        name: 'Skill Roll: Summary Visibility',
+        hint: 'Who can see the final Skill Roll summary in chat.',
         scope: 'world',
         config: true,
         type: String,
@@ -15,7 +15,7 @@ export function registerEpicMasteryRollSettings() {
         default: 'all',
     });
     game.settings.register('mastery-system', 'epicRollRecentPresets', {
-        name: 'Epic Mastery Roll: Recent Presets',
+        name: 'Skill Roll: Recent Presets',
         scope: 'client',
         config: false,
         type: Object,
@@ -38,7 +38,7 @@ export async function saveEpicRollRecentPreset(preset) {
 export function listEpicRollCandidateActors() {
     const actors = (game.actors?.contents ?? []);
     return actors
-        .filter((a) => a.type === 'character' || a.type === 'npc')
+        .filter((a) => a.type === 'character')
         .map((a) => {
         const actor = a;
         return {

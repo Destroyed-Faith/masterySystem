@@ -36,12 +36,53 @@
 .stone-powers-dialog .initiative-exchange-actions {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 0.45rem;
 }
 
-.stone-powers-dialog .initiative-exchange-count input {
-  width: 3.2rem;
-  margin-left: 0.25rem;
+.stone-powers-dialog .initiative-exchange-stepper {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0.12rem 0.3rem;
+  border-radius: 5px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(0, 0, 0, 0.25);
+}
+
+.stone-powers-dialog .initiative-exchange-stepper-label {
+  font-size: 0.66rem;
+  margin-right: 0.15rem;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.stone-powers-dialog .initiative-exchange-btn {
+  width: 1.1rem;
+  height: 1.1rem;
+  padding: 0;
+  line-height: 1;
+  font-size: 0.6rem;
+  border-radius: 3px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  cursor: pointer;
+}
+
+.stone-powers-dialog .initiative-exchange-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.stone-powers-dialog .initiative-exchange-btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.stone-powers-dialog .initiative-exchange-value {
+  min-width: 1.4rem;
+  text-align: center;
+  font-size: 0.7rem;
+  font-weight: 700;
 }
 
 .stone-powers-dialog .pool-item[data-attribute="colorless"] {

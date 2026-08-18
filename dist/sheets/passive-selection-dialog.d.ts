@@ -10,8 +10,10 @@ declare const ApplicationV2: typeof import("@league-of-foundry-developers/foundr
 declare const BaseDialog: typeof ApplicationV2;
 export type PassiveSelectionOutcome = {
     confirmed: boolean;
+    alreadyOpen?: boolean;
 };
 export declare class PassiveSelectionDialog extends BaseDialog {
+    #private;
     private currentIndex;
     private pcs;
     private resolve?;

@@ -1,12 +1,15 @@
 /**
  * Initiative Rolling System
  * Rolled ONCE at combat start: Mastery Rank d8 (keep all, 8s explode) + optional Combat
- * Reflexes spend (≤ MR×4, pool-limited). Final score before the Initiative Shop = dice + CR.
- * Initiative persists across rounds; only explicit effects (e.g. Wits Stone Powers) may
- * reroll it and reopen the Initiative Shop.
+ * Reflexes. The score persists until spent (Initiative Exchange → Colorless Stones)
+ * or another rule changes it.
  */
+export { getCombatReflexesInitiativeLimits } from './combat-reflexes.js';
 export interface InitiativeRollOptions {
-    /** If false, no dialog; CR spend is 0 (e.g. non-owner client). */
+    /**
+     * Kept for callers; Combat Reflexes are no longer asked for at roll time.
+     * The points are added in the Initiative Exchange row of Stone Powers.
+     */
     promptCombatReflexes?: boolean;
 }
 /**
@@ -22,37 +25,46 @@ export interface InitiativeRollBreakdown {
     /** Flat modifier from equipped armor, shield, and weapon (e.g. Heavy). */
     equipmentInitiativeModifier: number;
     masteryRank: number;
-    rollResult: any;
+    /** Present after a local roll; omitted when the shop opens over the socket. */
+    rollResult?: any;
 }
 /**
- * Limits for spending Combat Reflexes on initiative (used by Initiative Shop dropdown).
+ * Roll initiative for one combatant: Mastery Rank d8 plus the flat modifiers.
+ * Combat Reflexes are added afterwards in the Initiative Exchange row, so the
+ * roll no longer interrupts with a popup.
  */
-export declare function getCombatReflexesInitiativeLimits(actor: any, masteryRank: number): {
-    maxThisRoll: number;
-    remainingPool: number;
-    capPerRoll: number;
-};
+export declare function rollInitiativeForCombatant(combatant: Combatant, _options?: InitiativeRollOptions): Promise<InitiativeRollBreakdown>;
+/** True when an NPC still needs a real initiative roll (Foundry often seeds 0). */
+export declare function needsNpcInitiativeRoll(combatant: Combatant, force?: boolean): boolean;
+/** Roll initiative for NPCs / summons / divine only. PCs roll on their own client. */
+export declare function rollNpcInitiativeOnly(combat: Combat, opts?: {
+    force?: boolean;
+}): Promise<number>;
 /**
- * Roll initiative for one combatant (dice + optional CR). Sets combatant.initiative to the pre-shop total.
- * NPCs: dice only. PCs: may prompt to spend CR (owner/GM).
- */
-export declare function rollInitiativeForCombatant(combatant: Combatant, options?: InitiativeRollOptions): Promise<InitiativeRollBreakdown>;
-/**
- * Full initiative phase: NPCs auto; PCs with owner/GM get shop; others auto roll without CR prompt.
+ * After Stone Powers / Initiative Exchange: leftover NPCs roll, then sort.
+ * PCs roll inside the Stone Powers dialog.
  */
 export declare function executeInitiativePhase(combat: Combat): Promise<void>;
 /**
- * Index of the combatant who should act first: highest initiative (desc).
- * Tie-break: lexicographically smaller combatant id (deterministic; avoids implicit player-first ordering).
- * Non-defeated beats defeated at equal initiative.
+ * Sort compare: lower result acts first.
+ * Higher initiative first. Ties: player (character) before NPC/summon.
+ * Player vs player (or any remaining tie): Agility, then Wits, then Intellect, then Resolve.
+ */
+export declare function compareInitiativeCombatants(a: any, b: any): number;
+/** Remaining shop score after purchases. May be negative — do not clamp to 0. */
+export declare function remainingInitiativeAfterShop(pool: number, cost: number): number;
+/**
+ * Index of the combatant who should act first (same rules as combat sort).
  */
 export declare function findTurnIndexHighestInitiativeFirst(combat: Combat): number;
+/** Foundry turn order uses the same Mastery tie-break as the first-actor sync. */
+export declare function initializeInitiativeOrder(): void;
 /** After `setupTurns()`, ensure `combat.turn` points at highest-initiative combatant (Mastery first-actor rule). */
 export declare function syncCombatTurnToHighestInitiativeFirst(combat: Combat): Promise<void>;
 /** @deprecated Prefer executeInitiativePhase; kept for compatibility. */
 export declare function rollInitiativeForAllCombatants(combat: Combat): Promise<void>;
 /**
- * Open Initiative Shop from combat tracker: reuse pending roll context if shop not confirmed yet (encounter setup rescue).
+ * Tracker / sheet rescue: open Stone Powers (Initiative Exchange lives there now).
  */
-export declare function openInitiativeShopForTrackerRescue(combatant: Combatant, combat: Combat): Promise<void>;
+export declare function openInitiativeShopForTrackerRescue(combatant: Combatant, combat: Combat): Promise<boolean>;
 //# sourceMappingURL=initiative-roll.d.ts.map

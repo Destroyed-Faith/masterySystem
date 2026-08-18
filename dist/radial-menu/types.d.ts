@@ -70,6 +70,18 @@ export interface RadialCombatOption {
      * (e.g. `npc-attack-root-0`). Used for per-round spend tracking.
      */
     npcAttackUsageKey?: string;
+    /** Equipped consumable item id when this option is a Consumable Slot Attack Action. */
+    consumableItemId?: string;
+    /** Frozen creator attack pool from a Minor Magic snapshot. */
+    storedAttackPool?: {
+        attribute: string;
+        numDice: number;
+        keepDice: number;
+    } | null;
+    /** Consumables never add weapon damage dice or weapon Specials. */
+    ignoreWeaponDamage?: boolean;
+    /** Greyed when no Attack Actions remain (existing economy). */
+    disabled?: boolean;
 }
 /**
  * Inner segment definition

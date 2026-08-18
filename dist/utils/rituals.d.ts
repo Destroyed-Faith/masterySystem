@@ -1,75 +1,58 @@
 /**
- * Ritual System.
+ * Ritual System — out-of-combat Skill Checks.
  *
- * Source: Players Guide 8954–9171.
- *
- *   • Rituals are out-of-combat Skill Checks against
- *     **TN = 8 × Ritual MR** (the MR of the *target*, not the caster).
- *     The GM may shift the TN in **±4 steps** for situational modifiers.
- *   • Each Ritual lists one or more **Allowed Skill Categories** rather
- *     than a fixed Skill / Attribute.  The player picks any single Skill
- *     from one of the listed categories that fits the described method
- *     (GM has final approval).
- *   • Raises are counted **after** the roll: every full +4 over TN = 1
- *     Raise.  A Ritual can succeed with 0 Raises (basic effect only).
- *   • Costs come out of the caster's Stone Pool and are **Sealed** until
- *     the next Safe Haven Rest.
+ * Base Ritual TN = 8 × Ritual MR (target / creator / artifact / power / scene).
+ * Player declares Raise Level before the roll.
+ * Ritual Raise TN = Base + declared Raises × 4.
+ * Fail below Base. Meet Base but miss Raise TN → Raise 0 only.
+ * Meet Raise TN → declared level and all lower Raise effects.
+ * Stones are Sealed on the attempt (success or failure) until Safe Haven Rest.
+ * Any Stone color may pay the cost.
  */
 export type RitualSkillCategory = 'physical' | 'knowledge' | 'social' | 'survival' | 'martial';
 export interface RitualDefinition {
+    id: string;
     name: string;
     description: string;
-    /** Number of Stones consumed (Sealed) when the Ritual succeeds. */
     stoneCost: number;
-    /**
-     * Skill Categories the player may choose from. The chosen Skill must
-     * match the described method.
-     */
+    /** Overrides stoneCost at a declared Raise (Seal Passage Raise 4 = 3). */
+    stoneCostAtDeclaredRaise?: Partial<Record<number, number>>;
     allowedSkillCategories: RitualSkillCategory[];
-    /**
-     * Per-Raise narrative outcomes (`raises[i]` = effect at i Raises over TN).
-     */
+    /** `raises[i]` = effect at Raise i (0–4). */
     raises: string[];
-    /** Casting time descriptor (Players Guide 9122–9126). */
+    maxRaise?: number;
     castingTime: string;
-    /** Default duration descriptor for the Ritual's effect. */
     duration: string;
-    /**
-     * @deprecated Single-attribute hint kept for migration. The runtime now
-     * uses `allowedSkillCategories` + a player-chosen Skill.
-     */
+    requirement?: string;
+    danger?: string;
+    limits?: string;
+    specialCostNote?: string;
+    /** @deprecated Kept for old callers. */
     attribute?: string;
 }
-/**
- * Skills available per category (Players Guide 8980–8986).  Used by the
- * skill-picker to filter Skills the player may choose for a given Ritual.
- */
+export declare const RITUAL_CATEGORY_LABELS: Record<RitualSkillCategory, string>;
+/** Raise 0-1 = 1 Stone, Raise 2-3 = 2, Raise 4 = 3. */
+export declare const RITUAL_STONE_COST_BY_RAISE: readonly [1, 1, 2, 2, 3];
+export declare function ritualCategoryLabels(ritual: RitualDefinition): string;
 export declare const RITUAL_SKILLS_BY_CATEGORY: Record<RitualSkillCategory, readonly string[]>;
-/**
- * Standard Ritual TN: `8 × Ritual MR`.  GMs may shift by ±4 per modifier.
- *
- * @param ritualMR  MR of the *target* (creature, item, place, …) — not the caster.
- * @param modifier  Optional flat ±4 step modifier (positive = harder).
- */
 export declare function calculateRitualTN(ritualMR: number, modifier?: number): number;
-/**
- * Count Raises from a Ritual roll result.  Every full +4 over TN = 1 Raise;
- * failure = 0 Raises.
- */
-export declare function countRitualRaises(rollTotal: number, tn: number): number;
-/**
- * Return all Skills that may be chosen for a Ritual based on its allowed
- * categories.  De-duplicates across categories.
- */
+export declare function calculateRitualRaiseTN(baseTn: number, declaredRaises: number): number;
+export declare function ritualStoneCost(ritual: RitualDefinition, declaredRaises: number): number;
+export declare function ritualMaxRaise(ritual: RitualDefinition): number;
+export type RitualDeclaredOutcome = {
+    success: boolean;
+    appliedRaise: number;
+    kind: 'fail' | 'raise0' | 'full';
+};
+/** Declared-raise resolution: fail / Raise 0 only / full declared level. */
+export declare function resolveRitualDeclaredOutcome(opts: {
+    rollTotal: number;
+    baseTn: number;
+    declaredRaises: number;
+}): RitualDeclaredOutcome;
+export declare function appliedRitualEffects(ritual: RitualDefinition, appliedRaise: number): string[];
 export declare function eligibleSkillsForRitual(ritual: RitualDefinition): string[];
-/**
- * Core ritual catalog.  The catalog intentionally stays small — Players
- * Guide 9180+ lists the canonical Rituals (Detect Magic, Locate Object,
- * Augury, …); add more entries here as they ship.
- */
 export declare const RITUALS: RitualDefinition[];
-/**
- * Convenience: look up a Ritual by name (case-insensitive).
- */
 export declare function getRitualByName(name: string): RitualDefinition | undefined;
+export declare function getRitualById(id: string): RitualDefinition | undefined;
 //# sourceMappingURL=rituals.d.ts.map

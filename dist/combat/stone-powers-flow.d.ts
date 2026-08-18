@@ -5,13 +5,23 @@
  * Round advance (Runde 2+): Regeneration muss vor Stone Powers laufen — siehe
  * `runMasteryCombatRoundAdvancePipeline` (ein Hook-Pfad, keine Race mit zweitem updateCombat).
  */
+export { arePlayerStonesReadyForRound, isStonePowersDone, warnIfPlayerStonesPending } from './stone-round-gate.js';
 /**
- * After stone powers: Round 1 runs the full initiative phase (dice + CR + Initiative Shop
- * for PCs, `setupTurns`, Mastery first-actor sync). Rounds 2+ keep the existing Initiative —
- * per the Players Guide, Initiative is NOT rolled again each round and the Initiative Shop
- * does not reopen automatically (only effects like Wits Stone Powers may allow it). We only
- * re-sync the turn pointer to the highest remaining Initiative. Idempotent per round via
- * `initiativePhaseDoneByRound`.
+ * Register a finished Stone Recovery for the round. Mirrors
+ * `confirmStonePowersForCombatant`: the combatant step is written locally so it
+ * survives without a GM client, the Combat flag stays GM-owned.
+ */
+export declare function confirmStoneRecoveryForCombatant(combat: Combat | null | undefined, combatant: Combatant | null | undefined): Promise<void>;
+export declare function handleStoneRecoveryComplete(combat: Combat, combatantId: string, round: number): Promise<void>;
+/**
+ * Join Game As / no GM client: reset + regen owned actors, then open stone dialogs.
+ * The GM path (`runMasteryCombatRoundAdvancePipeline`) already covers this when a GM is present.
+ */
+export declare function runPlayerOwnedRoundAdvance(combat: Combat, newRound: number): Promise<void>;
+/**
+ * After stone powers: leftover NPC rolls + sort by remaining Initiative.
+ * PCs already rolled (and maybe converted) inside the Stone Powers dialog.
+ * Idempotent per round via `initiativePhaseDoneByRound`.
  */
 export declare function runInitiativePhaseAfterStones(combat: Combat, round: number): Promise<void>;
 /**
@@ -22,5 +32,22 @@ export declare function runInitiativePhaseAfterStones(combat: Combat, round: num
  */
 export declare function runMasteryCombatRoundAdvancePipeline(combat: Combat, newRound: number): Promise<void>;
 export declare function openStonePowersForAllCombatants(combat: Combat, round: number): Promise<void>;
+/**
+ * Register a confirmed stone assignment, whichever way the dialog was opened
+ * (player pipeline, GM fill, setup status row, forced dialog). Writes the
+ * combatant step so it survives without a GM client, then lets the GM own the
+ * Combat flag. Round 0 (prepare phase) counts as round 1, matching
+ * `encounterStartBlockers`.
+ */
+export declare function confirmStonePowersForCombatant(combat: Combat | null | undefined, combatant: Combatant | null | undefined): Promise<void>;
+/**
+ * "Start Round N" from the carousel. Re-opens Stone Powers for every PC that
+ * still owes an assignment (locally for the GM's own actors, over the socket for
+ * the owning players) and runs the initiative phase as soon as nobody is left.
+ * The round advance already does this once; a GM needs a way to repeat it when a
+ * player closed the dialog or joined late.
+ */
+export declare function promptPendingStoneAssignments(combat: Combat): Promise<void>;
+export declare function handleStonePowersComplete(combat: Combat, combatantId: string, round: number): Promise<void>;
 export declare function initializeStonePowersFlow(): void;
 //# sourceMappingURL=stone-powers-flow.d.ts.map

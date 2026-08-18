@@ -8,7 +8,7 @@
  *
  * Surfaces:
  *   - `getArtifactStoneSupportPrefill(actor, powerId, poolAttribute?)`
- *       → tier (0..4) the matching Stone Power Support prefills.
+ *       → tier (0..8) the matching Stone Power Support prefills.
  *   - `getArtifactStoneFunctionStatus(actor)`
  *       → list of `{kind, attribute, level, value, source, stonePowerId?}`.
  *   - `getArtifactStonePoolExtraByAttribute(actor)` → per-attribute extra
@@ -54,9 +54,9 @@ export declare function getArtifactStoneBatteryCapacityByAttribute(actor: any): 
  *     equal the pool attribute (for attribute-scoped pools).
  *
  * Returns 0 when no matching Support exists, otherwise the prefill tier
- * (1..4). The activation pipeline interprets this as "the first
+ * (1..8). The activation pipeline interprets this as "the first
  * activation of `powerId` acts as if it had been used `prefill-1` times
- * already this turn".
+ * already this turn". Shifted tables (Crit, Not a Target) can land on T5.
  */
 export declare function getArtifactStoneSupportPrefill(actor: any, powerId: string, poolAttribute?: string): number;
 /**

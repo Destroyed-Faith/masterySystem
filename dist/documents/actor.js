@@ -780,7 +780,7 @@ export class MasteryActor extends Actor {
             });
         }
         // Stone Powers — Might "Armor" (+4/8/16/32 flat Armor) and Resolve
-        // "Damage Reduction Boost" (+% DR) store round-scoped bonuses on the
+        // "Damage Reduction" (+% DR) store round-scoped bonuses on the
         // action-economy round state. Surface them on Armor Total / DR % (and the
         // breakdowns) so the sheet, carousel AND the damage pipeline agree with
         // what actually applies during the round.

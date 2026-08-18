@@ -142,10 +142,16 @@ export interface RoundState {
         extraSpellActions?: number;
         /** Intellect.SpecialBoost — +X to one eligible Special on each spell this turn. */
         spellSpecialBoost?: number;
-        /** Resolve.DamageReductionBoost — additional %DR until next turn (0.10/0.20/0.30). */
+        /** Resolve.Damage Reduction — additional %DR until next turn (creates DR if missing). */
         damageReductionBoostPct?: number;
-        /** Resolve.SpecialReduction — minus to incoming Special values against you this round (floored at 0). */
+        /** Resolve.Ward / legacy Special Reduction — minus to incoming eligible hostile Special(X). */
         incomingSpecialReduction?: number;
+        /** Resolve.Ward — SET total until the start of your next turn. */
+        tempWard?: number;
+        /** Might.Parry — temporary Parry Pool until the start of your next turn. */
+        tempParryPool?: number;
+        /** Vitality.Damage Negation — temporary negation reserve until the start of your next turn. */
+        tempDamageNegation?: number;
         /** Wits.Phasing — phasing charges granted by stone power (consumed by phasing system). */
         phasingChargesFromStones?: number;
         /** Wits.InitiativeBoost — flat bonus to Initiative this round. */
@@ -313,12 +319,12 @@ export declare function setStonePool(actor: Actor, attribute: AttributeKey, curr
  * @param applyEffect Function to apply the ability effect (adds actions/bonuses to roundState)
  * @returns true if successful, false if failed
  */
-export declare function spendStoneAbility(actor: Actor, _combatant: Combatant, attribute: AttributeKey, abilityKey: string, applyEffect: (roundState: RoundState) => Promise<void>, expectedCost?: number): Promise<boolean>;
+export declare function spendStoneAbility(actor: Actor, _combatant: Combatant, attribute: AttributeKey, abilityKey: string, applyEffect: (roundState: RoundState) => Promise<void>, expectedCost?: number, colorlessSpent?: number): Promise<boolean>;
 /**
  * General-Stonepower mit Aufteilung auf mehrere Pool-Farben (wie im Dialog pro Lane).
  * Summe pro Attribut muss exakt `calculateStoneCost(uses)` ergeben.
  */
-export declare function spendGenericStoneAbilityWithPerAttributeDeductions(actor: Actor, _combatant: Combatant, abilityKey: string, perAttributeCounts: Partial<Record<AttributeKey, number>>, applyEffect: (roundState: RoundState) => Promise<void>, expectedCost?: number): Promise<boolean>;
+export declare function spendGenericStoneAbilityWithPerAttributeDeductions(actor: Actor, _combatant: Combatant, abilityKey: string, perAttributeCounts: Partial<Record<AttributeKey | 'colorless', number>>, applyEffect: (roundState: RoundState) => Promise<void>, expectedCost?: number): Promise<boolean>;
 /**
  * End-of-round stone regen: Mastery Rank stones, automatic.
  * Each stone goes to the next pool that can accept it, in order of attribute value (highest first);
@@ -326,9 +332,14 @@ export declare function spendGenericStoneAbilityWithPerAttributeDeductions(actor
  */
 export declare function applyAutomaticStoneRegen(actor: Actor): Promise<void>;
 /**
- * Regenerate stones at end of round (automatic; no player allocation dialog).
+ * Apply a player-chosen regen allocation (Mastery Rank stones back into chosen pools).
  */
-export declare function regenStonesEndOfRound(combat: Combat): Promise<void>;
+export declare function applyStoneRegenAllocation(actor: Actor, allocation: Partial<Record<AttributeKey, number>>): Promise<void>;
+/**
+ * Round advance no longer auto-fills pools. Players pick which stones come back
+ * in the Stone Recovery step of the Stone Powers dialog.
+ */
+export declare function regenStonesEndOfRound(_combat: Combat): Promise<void>;
 /**
  * Restore all stone pools to max after combat
  */

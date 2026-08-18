@@ -20,6 +20,16 @@ export declare class SummonBondDialog extends BaseDialog {
     private ritualErrors;
     private ritualWarnings;
     private resolveClose?;
+    private uiScrollTop;
+    private uiWindowScrollTop;
+    private openBodyIndexes;
+    private identityOpen;
+    private stonesOpen;
+    private sensesOpen;
+    private powersOpen;
+    private specialOpen;
+    private skillsOpen;
+    private restoreUiAfterRender;
     static DEFAULT_OPTIONS: {
         id: string;
         classes: string[];

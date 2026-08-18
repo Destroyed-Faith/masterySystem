@@ -43,6 +43,10 @@ export declare class CombatCarouselApp extends BaseCarousel {
     _prepareContext(_options: any): Promise<any>;
     _onRender(_context: any, _options: any): Promise<void>;
     _onClose(_options: any): Promise<void>;
+    private compactViewportHandler;
+    private applyCompactLayout;
+    private bindCompactViewportWatch;
+    private unbindCompactViewportWatch;
     /**
      * Register hooks for live HP/Stress updates
      */

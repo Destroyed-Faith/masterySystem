@@ -73,6 +73,10 @@ export function skipParticipantInSession(session, actorId) {
     };
     return mergeParticipantResult(session, result);
 }
+/** Player-facing name for a group roll of this kind. */
+export function defaultRollTitleForKind(kind) {
+    return kind === 'attribute' ? 'Attribute Roll' : 'Skill Roll';
+}
 export function rollLabelForConfig(roll) {
     switch (roll.kind) {
         case 'skill':
@@ -96,7 +100,9 @@ export function participantResultFromRoll(actorId, actorName, label, rollResult,
         diceFaces: buildEpicDiceFaces(rollResult),
         awaitingConfirm: opts.awaitingConfirm,
         skillKey: opts.skillKey,
+        attributeKey: opts.attributeKey,
         skillSpent: opts.skillSpent ?? 0,
+        rerolled: opts.rerolled === true,
         raiseTn: payload.raiseTn,
         rollPayload: payload,
     };

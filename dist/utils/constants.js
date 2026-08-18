@@ -44,25 +44,8 @@ export const HEALTH_PENALTIES = [0, -1, -2, -4, -5, -6];
 export const HEALTH_PENALTY_FRACTIONS = [0, 0.1, 0.2, 0.4, 0.5, 1];
 // Mastery ranks
 export const MAX_MASTERY_RANK = 8;
-// Initiative Shop costs
-export const INITIATIVE_SHOP = {
-    MOVEMENT: {
-        COST: 4,
-        INCREMENT: 2 // +2m per purchase
-    },
-    SWAP: {
-        COST: 8 // Initiative swap (with consenting player)
-    },
-    EXTRA_REACTION: {
-        COST: 12 // +1 reaction (max 1x/round)
-    },
-    REMOVE_STRESS: {
-        COST: 16 // Remove 1d8 Stress
-    },
-    EXTRA_ATTACK: {
-        COST: 20 // +1 attack (max 1x/round)
-    }
-};
+/** Initiative spent per Temporary Colorless Stone = this × Mastery Rank. */
+export const INITIATIVE_PER_COLORLESS_STONE = 4;
 // Character Creation
 export const CREATION = {
     ATTRIBUTE_DISTRIBUTION: [8, 8, 6, 6, 4, 4, 2],

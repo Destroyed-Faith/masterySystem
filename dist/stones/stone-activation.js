@@ -8,8 +8,9 @@
  */
 import { spendStoneAbility, spendGenericStoneAbilityWithPerAttributeDeductions, getActionEconomyActor, getStoneUsageCount, getGenericStonePowerUsageCount, calculateStoneCost } from '../combat/action-economy.js';
 // Import canonical stone powers definition
-import { STONE_POWERS, tierForUseIndex, stonePowerSkipsFirstTier } from './stone-powers.js';
+import { STONE_POWERS, resolveStonePowerId, tierForUseIndex, stonePowerSkipsFirstTier } from './stone-powers.js';
 import { getArtifactStoneSupportPrefill } from '../utils/artifact-stone-functions.js';
+import { isInitiativeBoostUsedThisCombat } from './colorless-stones.js';
 // Re-export for backward compatibility
 export { STONE_POWERS };
 /**
@@ -22,12 +23,16 @@ export { STONE_POWERS };
  * @returns true if successful, false if failed (insufficient stones, etc.)
  */
 export async function activateStonePower(options) {
-    const { combatant, abilityId, attributeKey } = options;
+    const { combatant, abilityId, attributeKey, colorlessSpent = 0 } = options;
     const actor = getActionEconomyActor(options.actor) ?? options.actor;
     // Get power definition
-    const power = STONE_POWERS[abilityId];
+    const power = STONE_POWERS[resolveStonePowerId(abilityId)];
     if (!power) {
         ui.notifications?.error(`Unknown stone power: ${abilityId}`);
+        return false;
+    }
+    if (power.id === 'wits.initiativeBoost' && isInitiativeBoostUsedThisCombat(combatant)) {
+        ui.notifications?.warn('Initiative Boost may be used only once per combat.');
         return false;
     }
     // Determine which attribute pool to use
@@ -66,7 +71,7 @@ export async function activateStonePower(options) {
     // Use the action economy system to handle stone spending
     return await spendStoneAbility(actor, combatant, poolAttribute, abilityId, async (_roundState) => {
         await power.apply({ actor, combatant, tier, cost });
-    }, cost);
+    }, cost, colorlessSpent);
 }
 /**
  * General-Macht aktivieren, wenn die Zahlung über mehrere Stein-Pools verteilt ist (Dialog-Lanes).
@@ -74,7 +79,7 @@ export async function activateStonePower(options) {
 export async function activateGenericStonePowerMixed(options) {
     const { combatant, abilityId, perAttributeStones } = options;
     const actor = getActionEconomyActor(options.actor) ?? options.actor;
-    const power = STONE_POWERS[abilityId];
+    const power = STONE_POWERS[resolveStonePowerId(abilityId)];
     if (!power) {
         ui.notifications?.error(`Unknown stone power: ${abilityId}`);
         return false;

@@ -44,6 +44,7 @@
 import { getPassiveSlots } from '../powers/passives.js';
 import { resolvePowerMechanics, isSanctionedPhasingName } from '../utils/power-mechanics.js';
 import { grantPhasingCharges, augmentPhasingCharges, } from './phasing.js';
+import { getForcedDeletion } from '../utils/foundry-v14.js';
 let _testRoller = null;
 /**
  * Replace the dice-roller for tests. Pass `null` to restore Foundry's
@@ -150,9 +151,15 @@ function buildSourcesPatch(nextSources, previousKeys, nextTempHP) {
         'system.health.tempHP': nextTempHP,
     };
     const nextKeySet = new Set(Object.keys(nextSources));
+    const forcedDeletion = getForcedDeletion();
     for (const k of previousKeys) {
         if (!nextKeySet.has(k)) {
-            patch[`${FLAG_BASE}.-=${k}`] = null;
+            if (forcedDeletion != null) {
+                patch[`${FLAG_BASE}.${k}`] = forcedDeletion;
+            }
+            else {
+                patch[`${FLAG_BASE}.-=${k}`] = null;
+            }
         }
     }
     for (const [k, v] of Object.entries(nextSources)) {

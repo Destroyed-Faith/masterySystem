@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.380] - 2026-08-18
+
+### Added
+
+- **Start Round button between rounds:** The carousel used to go blank for the GM after a round ended — the turn arrows stay hidden until every player confirmed stones, and the preparation bar is long gone. A bar now takes that spot naming the round and who is still open, with a **Start Round N** button for the GM that re-sends the Stone Powers dialog to those players and sorts initiative as soon as nobody is left. Useful when a player closed the dialog or joined late.
+
+### Changed
+
+- **Combat Reflexes moved into Initiative Exchange:** The popup right after the initiative roll is gone; it asked for a decision before the player could see the roll, the score, or the stones. The exchange row now carries a plus/minus stepper: one skill point buys one Initiative on the spot, minus gives it back. Undo is limited to the points put in this round and needs Initiative left to take back, since the score may already have been converted into stones. The per-roll cap from the Mastery Rank still holds and survives reopening the dialog; a new roll starts the budget over.
+- **Stone count as stepper:** The number field for Initiative Exchange is plus/minus as well, with the conversion itself still on its own button.
+
 ## [0.9.379] - 2026-08-18
 
 ### Changed

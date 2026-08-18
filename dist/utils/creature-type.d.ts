@@ -1,8 +1,7 @@
 /**
- * Creature type helpers (Exorcism / Requiem validity, NPC typing).
+ * Creature type catalog (NPC + Summon). No free text — pick from this list.
  *
  * Exorcism(X) applies only to Fiends; Requiem(X) only to Undead (Rules).
- * NPCs set `system.creatureType`; aliases like "Dämon" / "demon" map to fiend.
  */
 export declare const CREATURE_TYPE_OPTIONS: readonly [{
     readonly value: "";
@@ -11,14 +10,17 @@ export declare const CREATURE_TYPE_OPTIONS: readonly [{
     readonly value: "humanoid";
     readonly label: "Humanoid";
 }, {
+    readonly value: "beast";
+    readonly label: "Beast";
+}, {
+    readonly value: "spirit";
+    readonly label: "Spirit";
+}, {
     readonly value: "undead";
     readonly label: "Undead";
 }, {
     readonly value: "fiend";
-    readonly label: "Dämon / Fiend";
-}, {
-    readonly value: "beast";
-    readonly label: "Beast";
+    readonly label: "Fiend";
 }, {
     readonly value: "construct";
     readonly label: "Construct";
@@ -26,10 +28,28 @@ export declare const CREATURE_TYPE_OPTIONS: readonly [{
     readonly value: "elemental";
     readonly label: "Elemental";
 }, {
+    readonly value: "plant";
+    readonly label: "Plant";
+}, {
+    readonly value: "dragon";
+    readonly label: "Dragon";
+}, {
+    readonly value: "celestial";
+    readonly label: "Celestial";
+}, {
     readonly value: "other";
     readonly label: "Other";
 }];
 export type CreatureTypeValue = (typeof CREATURE_TYPE_OPTIONS)[number]['value'];
+export declare function isCreatureTypeKey(value: string): value is Exclude<CreatureTypeValue, ''>;
+export declare function creatureTypeLabel(value: string | null | undefined): string;
+export declare function creatureTypeSelectOptions(selected?: string | null): Array<{
+    value: string;
+    label: string;
+    selected: boolean;
+}>;
+/** Map a stored key or leftover free-text to a catalog key. */
+export declare function normalizeCreatureTypeValue(raw: string | null | undefined): CreatureTypeValue;
 /** Normalize free-text / sheet values to a canonical creature-type key. */
 export declare function resolveCreatureType(actor: {
     system?: any;

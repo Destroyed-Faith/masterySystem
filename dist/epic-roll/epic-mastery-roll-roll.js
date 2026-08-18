@@ -58,6 +58,11 @@ function tnSpecFromSession(session) {
         raises: session.tn.raises,
     };
 }
+export function shouldStageEpicFailure(opts) {
+    if (opts.success)
+        return false;
+    return opts.hasSkillSpend || (opts.hasRerollPoint && !opts.alreadyRerolled);
+}
 export async function buildEpicRollContext(session, actor, attributeKeyOverride) {
     const stoneBonusRaises = await resolveStoneBonusRaises(actor);
     const tnSpec = tnSpecFromSession(session);
@@ -72,6 +77,7 @@ export async function buildEpicRollContext(session, actor, attributeKeyOverride)
         return {
             label: built.label,
             skillKey: session.roll.skillKey,
+            attributeKey,
             isSkillRoll: !!built.rollOptions.isSkillRoll,
             baseModifier: built.rollOptions.baseModifier ?? 0,
             raiseTn: built.rollOptions.raiseTn ?? tnSpec.baseTN + tnSpec.raises * 4,
@@ -85,13 +91,24 @@ export async function buildEpicRollContext(session, actor, attributeKeyOverride)
         return null;
     return {
         label: built.label,
+        attributeKey: session.roll.kind === 'attribute' ? session.roll.attributeKey : built.attributeKey,
         isSkillRoll: false,
         baseModifier: built.rollOptions.baseModifier ?? 0,
         raiseTn: built.rollOptions.raiseTn ?? tnSpec.baseTN + tnSpec.raises * 4,
         rollOptions: built.rollOptions,
     };
 }
-export async function executeEpicParticipantRoll(session, actorId, attributeKeyOverride) {
+export function actorEpicRerollPoints(actor) {
+    const system = actor?.system;
+    return {
+        current: Math.max(0, Math.floor(Number(system?.faithFractures?.current) || 0)),
+        maximum: Math.max(0, Math.floor(Number(system?.faithFractures?.maximum) || 0)),
+    };
+}
+export function canSpendEpicRerollPoint(actor) {
+    return actorEpicRerollPoints(actor).current >= 1;
+}
+export async function executeEpicParticipantRoll(session, actorId, attributeKeyOverride, opts) {
     const actor = game.actors?.get(actorId);
     if (!actor) {
         ui.notifications?.error('Actor not found.');
@@ -102,7 +119,16 @@ export async function executeEpicParticipantRoll(session, actorId, attributeKeyO
         return null;
     }
     const participant = session.participants.find((p) => p.actorId === actorId);
-    if (!participant || participant.status !== 'pending') {
+    const previous = session.results[actorId];
+    const isReroll = opts?.reroll === true;
+    if (!participant)
+        return null;
+    if (isReroll) {
+        if (participant.status !== 'awaiting_spend' || previous?.rerolled || previous?.success) {
+            return null;
+        }
+    }
+    else if (participant.status !== 'pending') {
         return null;
     }
     const ctx = await buildEpicRollContext(session, actor, attributeKeyOverride);
@@ -122,15 +148,23 @@ export async function executeEpicParticipantRoll(session, actorId, attributeKeyO
         baseModifier: ctx.baseModifier,
         raiseTn: ctx.raiseTn,
     };
-    let awaitingConfirm = false;
-    if (ctx.isSkillRoll && ctx.skillKey && !rollResult.success) {
-        const { options } = getSkillSpendOptions(actor, ctx.skillKey, rollResult, ctx.baseModifier);
-        awaitingConfirm = options.length > 0;
-    }
+    const hasSkillSpend = !rollResult.success &&
+        !!ctx.isSkillRoll &&
+        !!ctx.skillKey &&
+        getSkillSpendOptions(actor, ctx.skillKey, rollResult, ctx.baseModifier).options.length > 0;
+    const awaitingConfirm = shouldStageEpicFailure({
+        success: !!rollResult.success,
+        hasSkillSpend,
+        hasRerollPoint: canSpendEpicRerollPoint(actor),
+        alreadyRerolled: isReroll || previous?.rerolled === true,
+    });
+    const usedAttribute = ctx.attributeKey || attributeKeyOverride || previous?.attributeKey;
     return participantResultFromRoll(actorId, actor.name ?? participant.actorName, ctx.label, rollResult, payload, {
         skillKey: ctx.skillKey,
+        attributeKey: usedAttribute,
         awaitingConfirm,
         skillSpent: 0,
+        rerolled: isReroll || previous?.rerolled === true,
     });
 }
 export async function submitEpicParticipantResult(sessionId, result, opts) {
@@ -147,6 +181,38 @@ export async function performEpicParticipantRoll(session, actorId, attributeKeyO
     const result = await executeEpicParticipantRoll(session, actorId, attributeKeyOverride);
     if (!result)
         return null;
+    const staged = result.awaitingConfirm === true;
+    await submitEpicParticipantResult(session.id, result, { staged });
+    return result;
+}
+export async function performEpicParticipantReroll(session, actorId) {
+    const actor = game.actors?.get(actorId);
+    if (!actor) {
+        ui.notifications?.error('Actor not found.');
+        return null;
+    }
+    if (!game.user?.isGM && !actor.isOwner) {
+        ui.notifications?.warn('You do not own this actor.');
+        return null;
+    }
+    const draft = session.results[actorId];
+    const participant = session.participants.find((p) => p.actorId === actorId);
+    if (!draft || draft.success || draft.rerolled || participant?.status !== 'awaiting_spend') {
+        return null;
+    }
+    if (!canSpendEpicRerollPoint(actor)) {
+        ui.notifications?.warn('No Reroll Points left.');
+        return null;
+    }
+    const { current } = actorEpicRerollPoints(actor);
+    await actor.update({ 'system.faithFractures.current': current - 1 });
+    const result = await executeEpicParticipantRoll(session, actorId, draft.attributeKey, {
+        reroll: true,
+    });
+    if (!result) {
+        await actor.update({ 'system.faithFractures.current': current });
+        return null;
+    }
     const staged = result.awaitingConfirm === true;
     await submitEpicParticipantResult(session.id, result, { staged });
     return result;
@@ -178,7 +244,9 @@ export async function applyEpicSkillSpendAndFinalize(session, actorId, spendAmou
     };
     const finalized = participantResultFromRoll(actorId, draft.actorName, draft.label, rollResult, draft.rollPayload, {
         skillKey: draft.skillKey,
+        attributeKey: draft.attributeKey,
         skillSpent: spendAmount,
+        rerolled: draft.rerolled === true,
         awaitingConfirm: false,
     });
     await finalizeEpicParticipantResult(session, finalized);

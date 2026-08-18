@@ -7,6 +7,7 @@ import {
   arePlayerStonesReadyForRound,
   encounterStartBlockers,
   isEncounterPreparing,
+  pendingStonePlayerNames,
   warnIfPlayerStonesPending,
 } from '../combat/stone-round-gate.js';
 import { MASTERY_STATUS_EFFECTS } from '../system/status-effects.js';
@@ -366,6 +367,21 @@ export class CombatCarouselApp extends BaseCarousel {
     const startBlockers = preparing ? encounterStartBlockers(combat) : [];
     const startBlockedTpl =
       game.i18n?.localize('MASTERY.encounterSetup.startBlocked') || 'Noch offen: {list}';
+    const round = Math.max(1, Number(combat.round) || 1);
+    // Between rounds the carousel used to go silent for the GM: turn controls are
+    // held back until every PC set stones, and the prepare bar is long gone. This
+    // bar takes its place, names who is missing, and re-sends their dialog.
+    const roundGate = {
+      show: !preparing && !!(combat as any).started && !stonesReady,
+      round,
+      label: (
+        game.i18n?.localize('MASTERY.encounterSetup.startRound') || 'Runde {n} starten'
+      ).replace('{n}', String(round)),
+      waiting: (
+        game.i18n?.localize('MASTERY.encounterSetup.roundWaiting') || 'Runde {n} — Steine offen'
+      ).replace('{n}', String(round)),
+      pendingList: pendingStonePlayerNames(combat, round).join(', '),
+    };
     return {
       active: true,
       compact: isCompactCarouselViewport(),
@@ -375,6 +391,7 @@ export class CombatCarouselApp extends BaseCarousel {
       currentTurn: combat.turn || 0,
       preparing,
       stonesReady,
+      roundGate,
       canStartLive: preparing && startBlockers.length === 0,
       startBlockedReason: startBlockers.length
         ? startBlockedTpl.replace('{list}', startBlockers.join(', '))
@@ -503,6 +520,16 @@ export class CombatCarouselApp extends BaseCarousel {
         if (!combat) return;
         const { launchLiveCombat } = await import('../combat/encounter-start.js');
         await launchLiveCombat(combat);
+      };
+    });
+
+    root.querySelectorAll('.js-start-round').forEach((btn: HTMLElement) => {
+      btn.onclick = async (ev: MouseEvent) => {
+        ev.preventDefault();
+        const combat = game.combats?.active;
+        if (!combat) return;
+        const { promptPendingStoneAssignments } = await import('../combat/stone-powers-flow.js');
+        await promptPendingStoneAssignments(combat);
       };
     });
 

@@ -185,6 +185,9 @@ function weaponHasFinesse(weapon) {
  * - Otherwise: Might for melee, Agility for ranged (weapon or maneuver).
  */
 export function getAttackAttribute(_actor, weapon, option, attackType) {
+    if (option.storedAttackPool?.attribute) {
+        return String(option.storedAttackPool.attribute).toLowerCase();
+    }
     if (option.source === "power" && option.item) {
         const powerSystem = option.item.system || {};
         const artifactIsSpell = option.artifactIsSpell === true;
@@ -287,10 +290,10 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
     const npcAttackRow = isNpcAttack
         ? getNpcAttackByIndex(attacker.system, option.npcAttackIndex ?? 0, option.npcPhaseIndex)
         : null;
-    if (isNpcAttack) {
+    if (isNpcAttack || option.ignoreWeaponDamage) {
         weapon = null;
     }
-    if (!weapon && !isNpcAttack && attackType === 'melee') {
+    if (!weapon && !isNpcAttack && !option.ignoreWeaponDamage && attackType === 'melee') {
         weapon = createVirtualUnarmedWeapon();
     }
     // Virtual unarmed has no embedded item id — omit weaponId so damage dialog uses fallback.
@@ -298,7 +301,11 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
     // Determine attack attribute
     const attribute = getAttackAttribute(attacker, weapon, option, attackType);
     const poolFromNpc = npcAttackDiceCount(npcAttackRow);
-    let attributeValue = isNpcAttack && poolFromNpc > 0 ? poolFromNpc : getAttributeValue(attacker, attribute);
+    let attributeValue = option.storedAttackPool && Number(option.storedAttackPool.numDice) > 0
+        ? Math.max(0, Math.floor(Number(option.storedAttackPool.numDice)))
+        : isNpcAttack && poolFromNpc > 0
+            ? poolFromNpc
+            : getAttributeValue(attacker, attribute);
     const masteryRank = getMasteryRank(attacker);
     // Split-Attack: halve the attack pool (floor) on every strike.
     if (split) {
@@ -404,7 +411,9 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
     // Non-spell attack powers are weapon-carried: the wielded weapon's dice roll
     // on top of the power's bonus dice, so the preview can show the real total.
     if (raiseContext && !raiseContext.isSpell) {
-        raiseContext.weaponDamageDice = parseD8Count(weapon?.system?.damage);
+        raiseContext.weaponDamageDice = option.ignoreWeaponDamage
+            ? 0
+            : parseD8Count(weapon?.system?.damage);
     }
     const tr = attackType === "ranged"
         ? evaluateThreatenedRanged(attackerToken, option)
@@ -450,6 +459,8 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
         selectedPowerLevel: selectedPowerLevel,
         selectedPowerSpecials: selectedPowerSpecials,
         selectedPowerDamage: selectedPowerDamage || "",
+        consumableItemId: option.consumableItemId || null,
+        ignoreWeaponDamage: option.ignoreWeaponDamage === true,
         // Split-attack bookkeeping (both strikes carry the same pairId so the
         // damage dialog and chat handlers can render "Strike 1 of 2" markers and
         // halve the damage pool per strike).

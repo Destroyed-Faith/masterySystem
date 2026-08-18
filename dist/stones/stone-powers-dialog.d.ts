@@ -16,9 +16,6 @@ export declare class StonePowersDialog extends BaseDialog {
     private combatant;
     private resolve?;
     private _generalAttrSelection;
-    private _stonePowersMainTab;
-    /** Fixed-cost ritual slots: ritual id → placed stone attribute per slot (null = empty). */
-    private _ritualStonePlacements;
     /** Belegte Lanes: Attribut-Macht `number[]`; General `GenericLaneOcc[]` unter `genericUnifiedAccKey`. */
     private _stoneDropAccumulators;
     /** Lane des Steins bei Rückzug Pool←Feld (dragstart). */
@@ -31,10 +28,26 @@ export declare class StonePowersDialog extends BaseDialog {
     private _stoneReturnAccKey;
     /** Pool-Zeile für Rückgabe (bei General-Multi aus data-return-attribute-key). */
     private _stoneReturnPoolAttr;
-    /** Verhindert, dass jeder Render den Session-Steinplan aus dem Flag neu überschreibt (ungespeicherte UI ging verloren). */
+    /** Avoid re-hydrating the confirmed plan over in-progress edits on every render. */
     private _stoneRoundPlanHydratedKey;
+    /** Stones already confirmed this round — show assignment, do not spend again. */
+    private _stoneReviewMode;
+    /** Waves paid in this combat round: displayed, never charged again. */
+    private _stonePaidLanes;
+    /** True while a render triggered from `_onRender` is still pending. */
+    private _stoneRenderQueued;
     /** Scroll im Dialog-Inhalt vor Re-Render merken (Stein setzen sonst springt nach oben). */
     private _stonePowersContentScrollTop;
+    /** Stone Recovery (round 2+): stones the player takes back, per pool. */
+    private _recoveryAlloc;
+    /** Round the current recovery belongs to — a new round starts from scratch. */
+    private _recoveryRound;
+    /** Recovery still open: the power matrix below stays locked. */
+    private _recoveryActive;
+    /** Guard against a second click while the recovery is being written. */
+    private _recoveryCommitting;
+    /** Stones staged for the Initiative Exchange (the convert button spends them). */
+    private _colorlessConvertCount;
     static DEFAULT_OPTIONS: {
         id: string;
         classes: string[];

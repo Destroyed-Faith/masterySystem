@@ -48,6 +48,10 @@
   color: #a8dadc;
 }
 
+.ms-carousel-prepare-bar.is-round-gate {
+  color: #ffd166;
+}
+
 .ms-carousel-prepare-label {
   flex: 1 1 auto;
   font-weight: 600;

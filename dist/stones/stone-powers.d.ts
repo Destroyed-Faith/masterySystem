@@ -1,22 +1,18 @@
 /**
  * Canonical Stone Powers Definition — new tier-based spec.
  *
- * Each Stone Power has FOUR fixed tiers. The tier a player gets on a
- * given activation is determined by how many times this power has
- * been used this turn (NOT cumulative across activations):
- *
- *   1st use → 1 stone → Tier 1
- *   2nd use → 2 stones → Tier 2
- *   3rd use → 4 stones → Tier 3
- *   4th use → 8 stones → Tier 4
+ * Each Stone Power has a published T1–T4 table (what the UI shows).
+ * Tiers continue past that — T5 costs 16, T6 costs 32, up to T8.
+ * Dumping every Stone in the game (80) pays through T6 (1+2+4+8+16+32=63).
+ * Extra payment lanes for T5+ are future UI; Artifact Support can already
+ * prefill T5+ so Elorian Crit at L7–10 keeps the old 4-charge effect.
  *
  * Some tiers are intentionally blank (`label === null`). Spending the
  * stones is still required, but no effect triggers — this is the "ramp"
  * mechanic that prevents trivial low-tier spam of the strongest effects.
  *
  * Pool layout: Generic + 7 attribute pools (Might / Agility / Vitality /
- * Intellect / Resolve / Influence / Wits). Every pool has exactly 4
- * powers ⇒ 32 powers total.
+ * Intellect / Resolve / Influence / Wits). Every pool has 4 powers. Total 32.
  *
  * Effects live in `apply(ctx)` and write into `roundState.stoneBonuses`
  * or set actor / combatant flags. Cleanup of per-turn bonuses happens
@@ -35,7 +31,7 @@ export interface StoneTier {
 export interface StonePowerContext {
     actor: any;
     combatant: any;
-    /** 1..4 — clamped tier number for this activation. */
+    /** 1..8 — activation tier (UI currently shows 1..4). */
     tier: number;
     /** Stone cost of this activation (1 / 2 / 4 / 8 / …). */
     cost: number;
@@ -49,25 +45,46 @@ export interface StonePower {
     description: string;
     /** Compiled multi-tier tooltip — generated on module load. */
     effect: string;
-    /** Tier 1..4 effects. */
+    /** Published Tier 1..4 effects. Higher tiers continue the same scale. */
     tiers: [StoneTier, StoneTier, StoneTier, StoneTier];
     /** Apply the effect for the given tier. */
     apply: (ctx: StonePowerContext) => Promise<void>;
 }
+/** Tiers shown in the dialog / Players Guide. */
+export declare const STONE_TIER_VISIBLE = 4;
+/** Last wave you can fully pay with 80 Stones (1+2+4+8+16+32 = 63). */
+export declare const STONE_TIER_PRACTICAL_MAX = 6;
+/** Hard cap while the table is still open-ended. */
+export declare const STONE_TIER_HARD_MAX = 8;
+/**
+ * Continue a published T1–T4 number sequence past the printed table.
+ * Doubling sequences keep doubling; otherwise the last delta repeats.
+ */
+export declare function scaleStoneTier(seq: readonly number[], tier: number): number;
 export declare const STONE_POWERS: Record<string, StonePower>;
 export declare const STONE_POWERS_BY_ATTRIBUTE: Record<AttributeKey | 'generic', StonePower[]>;
 /**
- * Helper — convert a usage count (0-indexed; how many times this turn the
- * power has been activated BEFORE this one) to the matching tier (1..4,
- * clamped). The new spec stops at tier 4; further activations stay at T4.
+ * Convert a usage count (0-indexed; activations this turn BEFORE this one)
+ * to the matching tier. Published UI is T1–T4; the math continues to T8.
  */
 export declare function tierForUseIndex(usesBefore: number): number;
 /**
  * True when a power's Tier 1 is a no-op "ramp step" (label === null), meaning
  * its first real effect is Tier 2. Such powers start one segment higher: the
  * Tier-1 / Anchor field is disabled and the first activation costs 2 stones.
- * Currently this is only Extra Attack — the deliberate exception so an extra
- * Attack Action can't be bought for a single stone.
+ * Used by Extra Attack, Spell Action, Damage Reduction, Phasing, Crit,
+ * Parry, Damage Negation, and Not a Target.
  */
 export declare function stonePowerSkipsFirstTier(powerId: string): boolean;
+/** Retired ids that still resolve to a current Stone Power. */
+export declare const STONE_POWER_ID_ALIASES: Record<string, string>;
+/**
+ * Powers whose published table shifted one tier (old T1 became empty).
+ * Artifact Support that prefills T2/T3/T4 is raised by this many tiers
+ * so the stored effect still matches the old numbered tier (L7–10 Crit → T5).
+ */
+export declare const STONE_POWER_SUPPORT_TIER_SHIFT: Record<string, number>;
+export declare function resolveStonePowerId(powerId: string): string;
+/** Retired Stone Power ids that have no successor (cannot auto-remap). */
+export declare const UNRESOLVED_STONE_POWER_IDS: readonly ["might.attackPoolReduction", "vitality.endureSpecial", "wits.initiativeShop"];
 //# sourceMappingURL=stone-powers.d.ts.map

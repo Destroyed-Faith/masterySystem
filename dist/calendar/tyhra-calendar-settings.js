@@ -65,7 +65,7 @@ export function registerTyhraCalendarSettings() {
         name: 'MASTERY.calendar.settings.playersCanOpen.name',
         hint: 'MASTERY.calendar.settings.playersCanOpen.hint',
         scope: 'world',
-        config: true,
+        config: false,
         type: Boolean,
         default: true,
     });
@@ -73,35 +73,33 @@ export function registerTyhraCalendarSettings() {
         name: 'MASTERY.calendar.settings.playersCanCreate.name',
         hint: 'MASTERY.calendar.settings.playersCanCreate.hint',
         scope: 'world',
-        config: true,
+        config: false,
         type: Boolean,
-        default: false,
+        default: true,
     });
     game.settings.register(SETTING_SCOPE, CALENDAR_SETTINGS.journalDefaultOwnership, {
         name: 'MASTERY.calendar.settings.journalDefaultOwnership.name',
         hint: 'MASTERY.calendar.settings.journalDefaultOwnership.hint',
         scope: 'world',
-        config: true,
+        config: false,
         type: Number,
-        default: CONST.DOCUMENT_OWNERSHIP_LEVELS?.OBSERVER ?? 2,
+        default: CONST.DOCUMENT_OWNERSHIP_LEVELS?.OWNER ?? 3,
     });
 }
 export function isCalendarEnabled() {
     return game.settings.get(SETTING_SCOPE, CALENDAR_SETTINGS.enabled) !== false;
 }
+/** Any logged-in user may open the calendar window. */
 export function canUserOpenCalendar(user = game.user) {
-    if (!user)
-        return false;
-    if (user.isGM)
-        return true;
-    return game.settings.get(SETTING_SCOPE, CALENDAR_SETTINGS.playersCanOpen) === true;
+    return !!user;
 }
+/** Any logged-in user may create missing day journals (GM socket if needed). */
 export function canUserCreateDayJournals(user = game.user) {
-    if (!user)
-        return false;
-    if (user.isGM)
-        return true;
-    return game.settings.get(SETTING_SCOPE, CALENDAR_SETTINGS.playersCanCreate) === true;
+    return !!user;
+}
+/** Players edit day journals; world date stays GM-only. */
+export function canUserEditDayJournals(user = game.user) {
+    return !!user;
 }
 export function getCurrentDayIndex() {
     return Number(game.settings.get(SETTING_SCOPE, CALENDAR_SETTINGS.currentDayIndex)) || 0;

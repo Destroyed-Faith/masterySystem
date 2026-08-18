@@ -1116,6 +1116,18 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
                     console.warn('Mastery System | miss reaction window failed', missReactErr);
                 }
             }
+            if (flags.consumableItemId && spentActionOnRoll) {
+                try {
+                    const { consumeEquippedConsumableAfterSuccess } = await import('../utils/consumable-slots.js');
+                    const owner = actorToRefund ?? freshAttacker;
+                    const item = owner?.items?.get?.(flags.consumableItemId);
+                    if (item)
+                        await consumeEquippedConsumableAfterSuccess(owner, item);
+                }
+                catch (consumeErr) {
+                    console.warn('Mastery System | consumable consume after attack roll failed', consumeErr);
+                }
+            }
         }
         catch (error) {
             if (spentActionOnRoll && actorToRefund) {

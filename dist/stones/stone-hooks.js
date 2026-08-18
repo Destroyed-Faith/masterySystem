@@ -7,15 +7,24 @@
  * - Post-combat full restore
  */
 import { resetTurnState, restoreStonesAfterCombat, initializeCombatRoundState, clearStonePowersConfigurationLocksInCombat, clearCombatStoneTurnBonusesForActor, } from '../combat/action-economy.js';
-import { clearMasteryActiveBuffsForCombatants } from '../utils/active-buffs.js';
-import { runMasteryCombatRoundAdvancePipeline } from '../combat/stone-powers-flow.js';
+import { runMasteryCombatRoundAdvancePipeline, runPlayerOwnedRoundAdvance, } from '../combat/stone-powers-flow.js';
+import { endMinorMagicRestForCombat } from '../utils/minor-magic-items.js';
+import { canCurrentUserUpdateDocument } from '../combat/combat-permissions.js';
 /**
  * Initialize stone system hooks
  */
 export function initializeStoneHooks() {
     // Hook: Combat started - initialize round state
     Hooks.on('combatStart', async (combat) => {
+        if (!game.user?.isGM)
+            return;
         await initializeCombatRoundState(combat);
+        try {
+            await endMinorMagicRestForCombat(combat);
+        }
+        catch (err) {
+            console.warn('Mastery System | endMinorMagicRestForCombat failed', err);
+        }
     });
     // Hook: Combat turn/round changes
     Hooks.on('updateCombat', async (combat, changes, _options, _userId) => {
@@ -27,7 +36,7 @@ export function initializeStoneHooks() {
             const prevIdx = (combat.turn - 1 + len) % len;
             const prevCombatant = turns[prevIdx];
             const prevActor = prevCombatant?.actor;
-            if (prevActor) {
+            if (prevActor && canCurrentUserUpdateDocument(prevActor)) {
                 try {
                     await clearCombatStoneTurnBonusesForActor(prevActor, combat);
                 }
@@ -38,38 +47,48 @@ export function initializeStoneHooks() {
         }
         if (changes.turn !== undefined) {
             const currentCombatant = combat.combatant;
-            if (currentCombatant && currentCombatant.actor) {
+            if (currentCombatant && currentCombatant.actor && canCurrentUserUpdateDocument(currentCombatant.actor)) {
                 await resetTurnState(currentCombatant.actor, combat);
             }
         }
-        // Round changed: ein Pfad — Reset, ggf. Regen, dann Stone Powers (Runde 2+)
+        // Round changed: GM resets everyone; players still open their own stone dialogs
+        // (Join Game As has no GM client, so that path is the only prompt).
         if (changes.round !== undefined) {
             const newRound = changes.round;
-            await runMasteryCombatRoundAdvancePipeline(combat, newRound);
+            if (game.user?.isGM) {
+                await runMasteryCombatRoundAdvancePipeline(combat, newRound);
+            }
+            else {
+                await runPlayerOwnedRoundAdvance(combat, newRound);
+            }
         }
     });
     // Hook: Combat ended - restore stone pools to full
     Hooks.on('deleteCombat', async (combat, _options, _userId) => {
-        await clearStonePowersConfigurationLocksInCombat(combat);
-        try {
-            await clearMasteryActiveBuffsForCombatants(combat);
-        }
-        catch (e) {
-            console.warn('Mastery System | Active buff cleanup on deleteCombat failed', e);
-        }
-        await restoreStonesAfterCombat(combat);
+        await finishCombat(combat, 'deleteCombat');
     });
     // Also trigger on explicit combatEnd
     Hooks.on('combatEnd', async (combat) => {
-        await clearStonePowersConfigurationLocksInCombat(combat);
-        try {
-            await clearMasteryActiveBuffsForCombatants(combat);
-        }
-        catch (e) {
-            console.warn('Mastery System | Active buff cleanup on combatEnd failed', e);
-        }
-        await restoreStonesAfterCombat(combat);
+        await finishCombat(combat, 'combatEnd');
     });
+}
+/**
+ * Post-encounter cleanup: locks, Temp HP, Colorless Stones, NPC-side ongoing
+ * effects, then refill the stone pools. Runs for whichever of `combatEnd` /
+ * `deleteCombat` Foundry emits first; every step is idempotent.
+ */
+async function finishCombat(combat, hook) {
+    if (!game.user?.isGM)
+        return;
+    await clearStonePowersConfigurationLocksInCombat(combat);
+    try {
+        const { runCombatEndCleanup } = await import('../combat/combat-end-cleanup.js');
+        await runCombatEndCleanup(combat);
+    }
+    catch (e) {
+        console.warn(`Mastery System | Combat end cleanup on ${hook} failed`, e);
+    }
+    await restoreStonesAfterCombat(combat);
 }
 // Legacy functions removed - now handled by action-economy.ts
 //# sourceMappingURL=stone-hooks.js.map
