@@ -1405,10 +1405,10 @@ export async function applyStoneRegenAllocation(
 
 /**
  * Round advance no longer auto-fills pools. Players pick which stones come back
- * in StoneRegenDialog before Stone Powers.
+ * in the Stone Recovery step of the Stone Powers dialog.
  */
 export async function regenStonesEndOfRound(_combat: Combat): Promise<void> {
-  /* interactive regen runs in StoneRegenDialog */
+  /* interactive recovery runs in the Stone Powers dialog */
 }
 
 /**

@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.379] - 2026-08-18
+
+### Changed
+
+- **Stone Recovery replaces the separate recovery dialog:** From round 2 the Stone Powers dialog opens on its recovery step instead of putting a second window in front of it. The bar sits under Available Stones, pools with room get plus/minus controls, and the power matrix below is locked — drag, click-fill and Confirm are all inactive — until **Recovery Done** is pressed. The recovered stones then show up in the pools right where they are about to be spent.
+- **Only pools that can take a stone back are offered:** Full pools, pools tied up by Sustain, and attributes without a pool no longer show recovery controls. With no room anywhere the step is skipped instead of blocking the round behind a choice that does not exist; when the pools cannot hold the rest, the bar says so and lets the player finish.
+- **English wording:** The step is called Stone Recovery, the button Recovery Done.
+
+### Removed
+
+- **Stone regeneration dialog:** `StoneRegenDialog` and its template are gone; the round flow no longer opens a dialog before Stone Powers.
+
 ## [0.9.378] - 2026-08-18
 
 ### Added

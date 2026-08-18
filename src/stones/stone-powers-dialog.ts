@@ -50,6 +50,12 @@ import {
   shouldSettleStoneWave,
   stonePoolBlockedReason,
 } from './stone-payment-rules.js';
+import {
+  clampStoneRecoveryAllocation,
+  planStoneRecovery,
+  type StoneRecoveryPoolInput,
+} from './stone-recovery.js';
+import { isStoneRegenDone } from '../combat/encounter-setup-flags.js';
 import { poolSpendableStones } from '../utils/artifact-actor-rules.js';
 import { countArtifactActivationStones } from '../utils/artifact-stone-bound.js';
 import { getArtifactStoneFunctionStatus } from '../utils/artifact-stone-functions.js';
@@ -251,6 +257,31 @@ type StoneDialogPoolRow = {
   boundSlots: Array<{ index: number }>;
   blocked: boolean;
   blockedReason: string;
+  /** Stone Recovery controls — only on pools that can actually take a stone back. */
+  recoverShow?: boolean;
+  recoverAlloc?: number;
+  recoverSpace?: number;
+  recoverCanAdd?: boolean;
+  recoverCanRemove?: boolean;
+};
+
+/** Summary of the recovery step rendered above the power matrix. */
+type StoneRecoveryContext = {
+  active: boolean;
+  points: number;
+  allocated: number;
+  remaining: number;
+  saturated: boolean;
+  canFinish: boolean;
+};
+
+const STONE_RECOVERY_INACTIVE: StoneRecoveryContext = {
+  active: false,
+  points: 0,
+  allocated: 0,
+  remaining: 0,
+  saturated: false,
+  canFinish: false,
 };
 
 function poolDisplayName(key: string): string {
@@ -486,6 +517,14 @@ export class StonePowersDialog extends BaseDialog {
   private _stoneRenderQueued = false;
   /** Scroll im Dialog-Inhalt vor Re-Render merken (Stein setzen sonst springt nach oben). */
   private _stonePowersContentScrollTop = 0;
+  /** Stone Recovery (round 2+): stones the player takes back, per pool. */
+  private _recoveryAlloc: Record<string, number> = {};
+  /** Round the current recovery belongs to — a new round starts from scratch. */
+  private _recoveryRound = 0;
+  /** Recovery still open: the power matrix below stays locked. */
+  private _recoveryActive = false;
+  /** Guard against a second click while the recovery is being written. */
+  private _recoveryCommitting = false;
 
   static DEFAULT_OPTIONS = {
     id: "mastery-stone-powers",
@@ -640,8 +679,11 @@ export class StonePowersDialog extends BaseDialog {
     this._stoneReviewMode = stoneReviewMode;
     const stonePlanLocked = this.#isStoneDialogLocked();
 
+    const recovery = this.#buildStoneRecovery(combat, pools);
+    this._recoveryActive = recovery.active;
+
     const showStonePools = true;
-    const dragPoolEnabled = !stonePlanLocked;
+    const dragPoolEnabled = !stonePlanLocked && !recovery.active;
     const prefsUseDefaults = !!(system.stonePowersPrefs?.useDefaultsEachRound);
     const user = game.user;
     const canSavePrefs =
@@ -875,8 +917,9 @@ export class StonePowersDialog extends BaseDialog {
       hasCombat,
       stonePlanLocked,
       stoneReviewMode,
+      recovery,
       /** Ziehen erlaubt sobald Runde nicht gesperrt (auch ohne Kampf — Ausführung nur im Kampf). */
-      dragStonesEnabled: !stonePlanLocked,
+      dragStonesEnabled: !stonePlanLocked && !recovery.active,
       dragPoolEnabled,
       showStonePools,
       prefsUseDefaults,
@@ -885,6 +928,188 @@ export class StonePowersDialog extends BaseDialog {
     };
   }
   
+  /** Stones a Mastery Rank buys back at the start of a round. */
+  #stoneRecoveryPoints(): number {
+    const owner = getActionEconomyActor(this.actor) ?? this.actor;
+    return Math.max(1, Math.floor(Number((owner as any).system?.mastery?.rank) || 2));
+  }
+
+  /** Attribute pools as recovery input — Colorless is temporary and never regenerates. */
+  #recoveryPoolInputs(pools: StoneDialogPoolRow[]): StoneRecoveryPoolInput[] {
+    return pools
+      .filter((pool) => pool.key !== COLORLESS_STONE_ATTR)
+      .map((pool) => ({
+        key: String(pool.key),
+        max: pool.max,
+        current: pool.current,
+        sustained: pool.sustained,
+      }));
+  }
+
+  /**
+   * Recovery is owed from round 2 on, until the player confirms it. Round 1
+   * pools start full, and a confirmed assignment (review mode) is history.
+   */
+  #isStoneRecoveryPending(combat: any): boolean {
+    if (!combat || !this.combatant) return false;
+    if (this._stoneReviewMode) return false;
+    const round = Math.floor(Number(combat.round) || 0);
+    if (round <= 1) return false;
+    return !isStoneRegenDone(combat, this.combatant.id, round);
+  }
+
+  /**
+   * Recovery rows for the Available Stones area. Pools that cannot take a stone
+   * back get no controls — a plus button that can never be pressed is noise.
+   * With no room anywhere the step is skipped entirely instead of blocking the
+   * round behind a choice that does not exist.
+   */
+  #buildStoneRecovery(combat: any, pools: StoneDialogPoolRow[]): StoneRecoveryContext {
+    for (const pool of pools) {
+      pool.recoverShow = false;
+      pool.recoverAlloc = 0;
+      pool.recoverSpace = 0;
+      pool.recoverCanAdd = false;
+      pool.recoverCanRemove = false;
+    }
+    if (!this.#isStoneRecoveryPending(combat)) return STONE_RECOVERY_INACTIVE;
+
+    const round = Math.floor(Number(combat.round) || 0);
+    if (this._recoveryRound !== round) {
+      this._recoveryRound = round;
+      this._recoveryAlloc = {};
+    }
+
+    const inputs = this.#recoveryPoolInputs(pools);
+    const plan = planStoneRecovery(inputs, this._recoveryAlloc, this.#stoneRecoveryPoints());
+    if (!plan.rows.length) return STONE_RECOVERY_INACTIVE;
+
+    const byKey = new Map(plan.rows.map((row) => [row.key, row]));
+    for (const pool of pools) {
+      const row = byKey.get(String(pool.key));
+      if (!row) continue;
+      pool.recoverShow = true;
+      pool.recoverAlloc = row.allocated;
+      pool.recoverSpace = row.space;
+      pool.recoverCanAdd = row.canAdd;
+      pool.recoverCanRemove = row.canRemove;
+    }
+
+    return {
+      active: true,
+      points: plan.points,
+      allocated: plan.allocated,
+      remaining: plan.remaining,
+      saturated: plan.saturated,
+      canFinish: plan.canFinish,
+    };
+  }
+
+  /** Current recovery plan, rebuilt from live pool numbers (handlers, commit). */
+  #currentRecoveryPlan(): {
+    inputs: StoneRecoveryPoolInput[];
+    plan: ReturnType<typeof planStoneRecovery>;
+  } {
+    const owner = getActionEconomyActor(this.actor) ?? this.actor;
+    const stonePools = ((owner as any).system?.stonePools || {}) as Record<string, any>;
+    const inputs: StoneRecoveryPoolInput[] = POOL_DISPLAY_ATTRS.map((attr) => {
+      const pool = stonePools[attr];
+      return {
+        key: attr,
+        max: Number(pool?.max ?? pool?.maximum ?? 0) || 0,
+        current: Number(pool?.current ?? pool?.value ?? 0) || 0,
+        sustained: Number(pool?.sustained ?? 0) || 0,
+      };
+    });
+    return {
+      inputs,
+      plan: planStoneRecovery(inputs, this._recoveryAlloc, this.#stoneRecoveryPoints()),
+    };
+  }
+
+  #changeStoneRecovery(attr: string, delta: number): boolean {
+    const { plan } = this.#currentRecoveryPlan();
+    const row = plan.rows.find((r) => r.key === attr);
+    if (!row) return false;
+    if (delta > 0) {
+      if (!row.canAdd) return false;
+      this._recoveryAlloc[attr] = row.allocated + 1;
+      return true;
+    }
+    if (!row.canRemove) return false;
+    const next = row.allocated - 1;
+    if (next > 0) this._recoveryAlloc[attr] = next;
+    else delete this._recoveryAlloc[attr];
+    return true;
+  }
+
+  /** Write the recovery to the pools and unlock the power matrix for the round. */
+  async #commitStoneRecovery(): Promise<void> {
+    if (!this._recoveryActive || this._recoveryCommitting) return;
+    const combat = game.combat;
+    if (!combat || !this.combatant) return;
+
+    const { inputs, plan } = this.#currentRecoveryPlan();
+    if (!plan.canFinish) {
+      ui.notifications?.warn(`Stone Recovery: assign ${plan.remaining} more stone(s) first.`);
+      return;
+    }
+
+    this._recoveryCommitting = true;
+    try {
+      const allocation = clampStoneRecoveryAllocation(inputs, this._recoveryAlloc, plan.points);
+      const total = Object.values(allocation).reduce((sum, n) => sum + n, 0);
+      const { canCurrentUserUpdateDocument } = await import('../combat/combat-permissions.js');
+      const owner = getActionEconomyActor(this.actor) ?? this.actor;
+      if (total > 0 && (canCurrentUserUpdateDocument(this.actor) || canCurrentUserUpdateDocument(owner))) {
+        const { applyStoneRegenAllocation } = await import('../combat/action-economy.js');
+        await applyStoneRegenAllocation(this.actor, allocation as any);
+      }
+      const { confirmStoneRecoveryForCombatant } = await import('../combat/stone-powers-flow.js');
+      await confirmStoneRecoveryForCombatant(combat, this.combatant);
+      this._recoveryActive = false;
+      this._recoveryAlloc = {};
+      ui.notifications?.info(
+        total > 0
+          ? `Stone Recovery: ${total} stone(s) back in your pools.`
+          : 'Stone Recovery done — no stones were taken back.',
+      );
+    } catch (err) {
+      console.error('Mastery System | Stone Recovery failed', err);
+      ui.notifications?.error('Stone Recovery failed — see the console.');
+    } finally {
+      this._recoveryCommitting = false;
+    }
+    await this.#renderKeepingScroll();
+  }
+
+  #bindStoneRecoveryControls(root: HTMLElement): void {
+    root.querySelectorAll('.js-recover-add').forEach((btn: Element) => {
+      (btn as HTMLElement).onclick = async (ev: MouseEvent) => {
+        ev.preventDefault();
+        const attr = (btn as HTMLElement).dataset.attribute || '';
+        if (this.#changeStoneRecovery(attr, 1)) await this.#renderKeepingScroll();
+      };
+    });
+
+    root.querySelectorAll('.js-recover-remove').forEach((btn: Element) => {
+      (btn as HTMLElement).onclick = async (ev: MouseEvent) => {
+        ev.preventDefault();
+        const attr = (btn as HTMLElement).dataset.attribute || '';
+        if (this.#changeStoneRecovery(attr, -1)) await this.#renderKeepingScroll();
+      };
+    });
+
+    const doneBtn = root.querySelector('.js-recovery-done') as HTMLButtonElement | null;
+    if (doneBtn) {
+      doneBtn.onclick = async (ev: MouseEvent) => {
+        ev.preventDefault();
+        if (doneBtn.disabled) return;
+        await this.#commitStoneRecovery();
+      };
+    }
+  }
+
   /** Scroll position of the template root (the element that actually scrolls). */
   #rememberStonePowersScroll(): void {
     const scrollRoot = getStonePowersScrollRoot(this as any);
@@ -920,7 +1145,13 @@ export class StonePowersDialog extends BaseDialog {
     }
 
     const appWindow = ((this as any).element as HTMLElement | undefined) ?? root;
-    this.#bindStoneDragAndDrop(root, appWindow);
+    if (this._recoveryActive) {
+      // Recovery first: no stone may move into a power while pools are still
+      // being refilled, so the drag/drop and click-fill handlers stay unbound.
+      this.#bindStoneRecoveryControls(root);
+    } else {
+      this.#bindStoneDragAndDrop(root, appWindow);
+    }
     this.#reconcileFilledLaneClasses(appWindow);
     this.#syncAccumulatorGems(appWindow);
     const savePrefsBtn = root.querySelector('.js-save-stone-prefs') as HTMLElement | null;
@@ -957,6 +1188,10 @@ export class StonePowersDialog extends BaseDialog {
     if (closeBtn) {
       (closeBtn as HTMLElement).onclick = async (ev: MouseEvent) => {
         ev.preventDefault();
+        if (this._recoveryActive) {
+          ui.notifications?.warn('Finish Stone Recovery first, then assign your stones.');
+          return;
+        }
         // `_onClose` resolves the caller's promise once payment and the round
         // confirmation are done, so the flow does not run in parallel with it.
         await (this as any).close({ closeSource: 'button', committed: true });

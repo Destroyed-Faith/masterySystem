@@ -75,6 +75,13 @@ async function handleEncounterSocket(payload: any): Promise<void> {
       break;
     }
 
+    case 'stoneRecoveryComplete': {
+      if (!game.user?.isGM) return;
+      const { handleStoneRecoveryComplete } = await import('./stone-powers-flow.js');
+      await handleStoneRecoveryComplete(combat, combatantId, Number(round) || combat.round || 1);
+      break;
+    }
+
     case 'forceEncounterDialog': {
       const combatant = combat.combatants.get(combatantId);
       if (!combatant?.actor || !shouldShowEncounterDialogLocally(combatant.actor)) return;

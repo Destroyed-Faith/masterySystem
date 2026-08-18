@@ -119,24 +119,8 @@ async function runSetupForCombatant(combat: Combat, combatant: Combatant): Promi
       } catch (err) {
         console.warn('Mastery System | Could not sync stone pools for the new round', err);
       }
-      const { isStoneRegenDone } = await import('./encounter-setup-flags.js');
-      if (!isStoneRegenDone(combat, combatant.id, round)) {
-        if (dismissedThisSession.has(stepKey(combatId, actorId, 'regen', round))) return;
-        if (dialogAlreadyOpen('mastery-stone-regen')) return;
-        const { getActionEconomyActor, applyStoneRegenAllocation } = await import('./action-economy.js');
-        const owner = getActionEconomyActor(actor) ?? actor;
-        const mr = Math.max(1, Math.floor(Number((owner as any).system?.mastery?.rank) || 2));
-        const { StoneRegenDialog } = await import('../stones/stone-regen-dialog.js');
-        const allocation = await StoneRegenDialog.showForActor(owner, mr);
-        if (!allocation) {
-          dismissedThisSession.add(stepKey(combatId, actorId, 'regen', round));
-          return;
-        }
-        if (canCurrentUserUpdateDocument(actor) || canCurrentUserUpdateDocument(owner)) {
-          await applyStoneRegenAllocation(actor, allocation);
-        }
-        await persistCombatantSetupStep(combatant, combat, { regenDoneRound: round });
-      }
+      // Stone Recovery lives inside the Stone Powers dialog from here on: it
+      // opens locked on the recovery step and unlocks the powers afterwards.
     }
 
     const { StonePowersDialog } = await import('../stones/stone-powers-dialog.js');

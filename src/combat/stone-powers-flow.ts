@@ -80,28 +80,41 @@ async function markStoneRegenDone(combat: Combat, combatantId: string, round: nu
   await updateStonePowersState(combat, { regenDone });
 }
 
-async function promptStoneRegenIfNeeded(combat: Combat, combatant: Combatant, round: number): Promise<boolean> {
-  if (round <= 1) return true;
-  const { isStoneRegenDone, persistCombatantSetupStep } = await import('./encounter-setup-flags.js');
-  if (isStoneRegenDone(combat, combatant.id, round)) return true;
-  const actor = combatant.actor;
-  if (!actor) return true;
+/**
+ * Register a finished Stone Recovery for the round. Mirrors
+ * `confirmStonePowersForCombatant`: the combatant step is written locally so it
+ * survives without a GM client, the Combat flag stays GM-owned.
+ */
+export async function confirmStoneRecoveryForCombatant(
+  combat: Combat | null | undefined,
+  combatant: Combatant | null | undefined
+): Promise<void> {
+  if (!combat || !combatant) return;
+  const live = resolveLiveCombat(combat) ?? combat;
+  const round = Math.max(1, Number(live.round) || 1);
+  const { persistCombatantSetupStep } = await import('./encounter-setup-flags.js');
+  await persistCombatantSetupStep(combatant, live, { regenDoneRound: round });
 
-  const { getActionEconomyActor, applyStoneRegenAllocation } = await import('./action-economy.js');
-  const owner = getActionEconomyActor(actor) ?? actor;
-  const mr = Math.max(1, Math.floor(Number((owner as any).system?.mastery?.rank) || 2));
-  const { StoneRegenDialog } = await import('../stones/stone-regen-dialog.js');
-  const allocation = await StoneRegenDialog.showForActor(owner, mr);
-  if (!allocation) return false;
-
-  if (canCurrentUserUpdateDocument(actor) || canCurrentUserUpdateDocument(owner)) {
-    await applyStoneRegenAllocation(actor, allocation);
-  }
-  await persistCombatantSetupStep(combatant, combat, { regenDoneRound: round });
   if (game.user?.isGM) {
-    await markStoneRegenDone(combat, combatant.id, round);
+    await markStoneRegenDone(live, combatant.id, round);
+  } else {
+    game.socket?.emit(ENCOUNTER_SOCKET, {
+      type: 'stoneRecoveryComplete',
+      combatId: live.id,
+      combatantId: combatant.id,
+      round,
+    });
   }
-  return true;
+}
+
+export async function handleStoneRecoveryComplete(
+  combat: Combat,
+  combatantId: string,
+  round: number
+): Promise<void> {
+  const live = resolveLiveCombat(combat);
+  if (!live) return;
+  await markStoneRegenDone(live, combatantId, round);
 }
 
 /**
@@ -211,8 +224,8 @@ async function openStonePowersForCombatant(combat: Combat, combatant: Combatant,
   }
 
   try {
-    const regenOk = await promptStoneRegenIfNeeded(combat, combatant, round);
-    if (!regenOk) return;
+    // Round 2+ recovery happens inside the Stone Powers dialog: it locks the
+    // power matrix until the player confirmed which stones come back.
     const confirmed = await StonePowersDialog.showForActor(actor, combatant);
     if (!confirmed) return;
     if (game.user?.isGM) {

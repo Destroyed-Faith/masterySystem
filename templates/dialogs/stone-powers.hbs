@@ -47,17 +47,45 @@
   {{/if}}
 
   {{#if showStonePools}}
-  <div class="stone-pools-display">
+  <div class="stone-pools-display{{#if recovery.active}} is-recovery{{/if}}">
     <div class="stone-pools-header-row">
       <h3>Available Stones</h3>
     </div>
+    {{#if recovery.active}}
+    <div class="stone-recovery-bar" role="region" aria-label="Stone Recovery">
+      <div class="stone-recovery-copy">
+        <strong>Stone Recovery</strong>
+        <span>Pick which spent stones come back — <b>{{recovery.points}}</b> (Mastery Rank). Pools without room are hidden.</span>
+        {{#if recovery.saturated}}<span class="stone-recovery-note">All pools are full — the remaining {{recovery.remaining}} stone(s) are lost.</span>{{/if}}
+      </div>
+      <div class="stone-recovery-actions">
+        <span class="stone-recovery-count{{#if recovery.remaining}} is-open{{/if}}">
+          {{recovery.allocated}} / {{recovery.points}}
+        </span>
+        <button type="button" class="dialog-btn dialog-btn-primary js-recovery-done" {{#unless recovery.canFinish}}disabled title="Assign all recovery stones first."{{/unless}}>
+          <i class="fas fa-check"></i> Recovery Done
+        </button>
+      </div>
+    </div>
+    {{/if}}
     <div class="pools-grid">
       {{#each pools as |pool|}}
-      <div class="pool-item{{#if pool.blocked}} is-blocked{{/if}}" data-attribute="{{pool.key}}">
+      <div class="pool-item{{#if pool.blocked}} is-blocked{{/if}}{{#if pool.recoverShow}} is-recoverable{{/if}}" data-attribute="{{pool.key}}">
         <div class="pool-item-header">
           <span class="pool-name">{{pool.name}}</span>
           {{#if pool.blockedReason}}<span class="pool-blocked-reason" title="{{pool.blockedReason}}">{{pool.blockedReason}}</span>{{/if}}
         </div>
+        {{#if pool.recoverShow}}
+        <div class="pool-recovery" title="{{pool.name}}: {{pool.recoverSpace}} spent stone(s) can come back">
+          <button type="button" class="pool-recovery-btn js-recover-remove" data-attribute="{{pool.key}}" {{#unless pool.recoverCanRemove}}disabled{{/unless}} aria-label="Recover one less">
+            <i class="fas fa-minus"></i>
+          </button>
+          <span class="pool-recovery-value">+{{pool.recoverAlloc}}</span>
+          <button type="button" class="pool-recovery-btn js-recover-add" data-attribute="{{pool.key}}" {{#unless pool.recoverCanAdd}}disabled{{/unless}} aria-label="Recover one more">
+            <i class="fas fa-plus"></i>
+          </button>
+        </div>
+        {{/if}}
         <div class="pool-gems{{#unless pool.gemSlots.length}} is-empty{{/unless}}" data-attribute-key="{{pool.key}}" title="{{pool.name}} — Steine zum Ziehen">
           {{#each pool.boundSlots}}
           <span
@@ -85,7 +113,7 @@
   </div>
   {{/if}}
 
-  <div class="powers-list">
+  <div class="powers-list{{#if recovery.active}} is-recovery-locked{{/if}}" {{#if recovery.active}}aria-disabled="true" title="Finish Stone Recovery first."{{/if}}>
     <div class="powers-matrix" role="region" aria-label="Stone powers matrix">
     {{#if generalPowers.length}}
     <div class="power-group is-general" role="region" aria-label="General Powers">
@@ -248,7 +276,7 @@
       <i class="fas fa-check"></i> Schließen
     </button>
     {{else}}
-    <button type="button" class="dialog-btn dialog-btn-primary js-close" title="Verbucht voll bezahlte Wellen und schließt den Dialog.">
+    <button type="button" class="dialog-btn dialog-btn-primary js-close" {{#if recovery.active}}disabled title="Finish Stone Recovery first."{{else}}title="Verbucht voll bezahlte Wellen und schließt den Dialog."{{/if}}>
       <i class="fas fa-check"></i> Übernehmen &amp; schließen
     </button>
     {{/if}}
