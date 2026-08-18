@@ -45,6 +45,7 @@ import {
   maxConvertibleColorlessStones,
 } from './colorless-stones.js';
 import {
+  orderPowersRampFirst,
   pickStoneFillAttribute,
   shouldSettleStoneWave,
   stonePoolBlockedReason,
@@ -744,7 +745,10 @@ export class StonePowersDialog extends BaseDialog {
     };
     
     // Separate generic and attribute-specific powers
-    const genericPowers = availablePowers.filter(p => p.attribute === 'generic');
+    const genericPowers = orderPowersRampFirst(
+      availablePowers.filter(p => p.attribute === 'generic'),
+      (p) => stonePowerSkipsFirstTier(p.id)
+    );
     const attributeSpecificPowers = availablePowers.filter(p => p.attribute !== 'generic');
     
     const generalPowers = genericPowers.map((power) => {
@@ -807,8 +811,9 @@ export class StonePowersDialog extends BaseDialog {
     const matrixAttrs: AttributeKey[] = [...ALL_STONE_ATTRS];
     const attributePowerMatrix = matrixAttrs
       .map((attr) => {
-        const defs: StonePower[] | undefined = STONE_POWERS_BY_ATTRIBUTE[attr as AttributeKey];
-        if (!defs?.length) return null;
+        const rawDefs: StonePower[] | undefined = STONE_POWERS_BY_ATTRIBUTE[attr as AttributeKey];
+        if (!rawDefs?.length) return null;
+        const defs = orderPowersRampFirst(rawDefs, (def) => stonePowerSkipsFirstTier(def.id));
 
         const preparedMap = new Map((powersByAttribute[attr] || []).map((p: any) => [p.id, p]));
         const cells: any[] = [];

@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.377] - 2026-08-18
+
+### Changed
+
+- **Power row order:** Every row leads with the power whose first activation costs 2 stones (the ramp power, e.g. Parry for Might, Extra Attack for General), so the disabled Anchor lane sits at the start of the row instead of somewhere in the middle. The remaining cards keep their order.
+
 ## [0.9.376] - 2026-08-18
 
 ### Fixed

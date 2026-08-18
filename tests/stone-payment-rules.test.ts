@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  orderPowersRampFirst,
   pickStoneFillAttribute,
   shouldSettleStoneWave,
   stonePoolBlockedReason,
@@ -58,6 +59,24 @@ describe('wave settlement guard', () => {
 
   it('ignores waves whose usage level no longer matches', () => {
     expect(shouldSettleStoneWave({ ...base, currentUses: 1 })).toBe(false);
+  });
+});
+
+describe('power row order', () => {
+  const row = ['meleeDamage', 'armor', 'ignoreArmor', 'parry'];
+  const isRamp = (id: string) => id === 'parry';
+
+  it('puts the 2-stone ramp power first and keeps the rest in order', () => {
+    expect(orderPowersRampFirst(row, isRamp)).toEqual([
+      'parry',
+      'meleeDamage',
+      'armor',
+      'ignoreArmor',
+    ]);
+  });
+
+  it('leaves a row without a ramp power untouched', () => {
+    expect(orderPowersRampFirst(row, () => false)).toEqual(row);
   });
 });
 

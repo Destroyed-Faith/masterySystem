@@ -46,6 +46,24 @@ export function shouldSettleStoneWave(args: {
   return Number(args.currentUses) === Number(args.usesInKey);
 }
 
+/**
+ * Card order inside a power row. Every row holds exactly one ramp power whose
+ * Tier 1 is a no-op, so its first activation costs 2 stones and its Anchor lane
+ * renders disabled. It leads the row so the dead lane sits in one corner
+ * instead of somewhere in the middle. The remaining cards keep their order.
+ */
+export function orderPowersRampFirst<T>(
+  powers: readonly T[],
+  skipsFirstTier: (power: T) => boolean
+): T[] {
+  const lead: T[] = [];
+  const rest: T[] = [];
+  for (const power of powers) {
+    (skipsFirstTier(power) ? lead : rest).push(power);
+  }
+  return [...lead, ...rest];
+}
+
 /** Why a visible pool has nothing to drag right now (empty string = usable). */
 export function stonePoolBlockedReason(pool: {
   max: number;
