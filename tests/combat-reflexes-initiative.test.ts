@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import {
   combatReflexesInitiativeState,
-  getCombatReflexesInitiativeLimits,
-  stepCombatReflexesInitiative,
+  combatReflexesRoundSpends,
+  spendCombatReflexesUse,
+  undoCombatReflexesUse,
 } from '../src/combat/combat-reflexes';
 
 const makeActor = (rating: number, spent: number) => {
@@ -10,15 +11,14 @@ const makeActor = (rating: number, spent: number) => {
     type: 'character',
     system: { skills: { combatReflexes: rating }, skillsSpent: { combatReflexes: spent } },
     update: async (data: Record<string, unknown>) => {
-      const next = Number(data['system.skillsSpent.combatReflexes']);
-      actor.system.skillsSpent.combatReflexes = next;
+      actor.system.skillsSpent.combatReflexes = Number(data['system.skillsSpent.combatReflexes']);
     },
   };
   return actor;
 };
 
-const makeCombatant = (initiative: number, used = 0) => {
-  const flags: Record<string, unknown> = { msCrInitiativeThisRound: used };
+const makeCombatant = (initiative: number, roundSpends: number[] = []) => {
+  const flags: Record<string, unknown> = { msCrInitiativeSpends: roundSpends };
   const combatant: any = {
     initiative,
     getFlag: (_scope: string, key: string) => flags[key],
@@ -32,76 +32,106 @@ const makeCombatant = (initiative: number, used = 0) => {
   return combatant;
 };
 
-describe('combat reflexes limits', () => {
-  it('caps at the pool that is left', () => {
-    const limits = getCombatReflexesInitiativeLimits(makeActor(5, 3), 4);
-    expect(limits.remainingPool).toBe(2);
-    expect(limits.maxThisRoll).toBe(2);
+describe('combat reflexes use boxes', () => {
+  it('splits a full rating into four boxes of one Mastery Rank each', () => {
+    const state = combatReflexesInitiativeState(makeActor(8, 0), makeCombatant(12), 2);
+    expect(state.pointsPerUse).toBe(2);
+    expect(state.boxes.map((box) => box.size)).toEqual([2, 2, 2, 2]);
+    expect(state.nextUse).toBe(2);
+    expect(state.boxes[0]!.canSpend).toBe(true);
+    expect(state.boxes[1]!.canSpend).toBe(false);
   });
 
-  it('caps at the mastery rank per roll', () => {
-    const limits = getCombatReflexesInitiativeLimits(makeActor(20, 0), 2);
-    expect(limits.maxThisRoll).toBe(limits.capPerRoll);
-  });
-});
-
-describe('combat reflexes exchange state', () => {
-  it('subtracts what was already added this round from the per-roll cap', () => {
-    const state = combatReflexesInitiativeState(makeActor(10, 2), makeCombatant(14, 2), 2);
-    expect(state.usedThisRound).toBe(2);
-    expect(state.addable).toBe(state.capPerRoll - 2);
-    expect(state.canRemove).toBe(true);
+  it('leaves the last boxes short or empty on a partial rating', () => {
+    const state = combatReflexesInitiativeState(makeActor(5, 0), makeCombatant(12), 2);
+    expect(state.boxes.map((box) => box.size)).toEqual([2, 2, 1, 0]);
+    expect(state.boxes[3]!.unavailable).toBe(true);
   });
 
-  it('offers no undo when nothing was added this round', () => {
-    const state = combatReflexesInitiativeState(makeActor(10, 0), makeCombatant(14, 0), 2);
-    expect(state.canRemove).toBe(false);
-    expect(state.canAdd).toBe(true);
+  it('caps the rating at four uses', () => {
+    const state = combatReflexesInitiativeState(makeActor(99, 0), makeCombatant(12), 3);
+    expect(state.rating).toBe(12);
+    expect(state.boxes.map((box) => box.size)).toEqual([3, 3, 3, 3]);
   });
 
-  it('offers no undo once the initiative was spent away', () => {
-    const state = combatReflexesInitiativeState(makeActor(10, 3), makeCombatant(0, 3), 2);
-    expect(state.canRemove).toBe(false);
+  it('crosses off spent boxes from the left', () => {
+    const state = combatReflexesInitiativeState(makeActor(8, 4), makeCombatant(12), 2);
+    expect(state.boxes.map((box) => box.spent)).toEqual([true, true, false, false]);
+    expect(state.boxes[2]!.canSpend).toBe(true);
+    expect(state.remainingPool).toBe(4);
   });
 
-  it('has nothing to add with an empty pool', () => {
-    const state = combatReflexesInitiativeState(makeActor(3, 3), makeCombatant(9, 0), 2);
-    expect(state.addable).toBe(0);
-    expect(state.canAdd).toBe(false);
+  it('has nothing left to tick once all four uses are gone', () => {
+    const state = combatReflexesInitiativeState(makeActor(8, 8), makeCombatant(20), 2);
+    expect(state.canSpend).toBe(false);
+    expect(state.nextUse).toBe(0);
   });
 });
 
-describe('stepping combat reflexes into initiative', () => {
-  it('spends one skill point for one initiative', async () => {
-    const actor = makeActor(4, 0);
-    const combatant = makeCombatant(11);
-    const next = await stepCombatReflexesInitiative(actor, combatant, 1, 2);
-    expect(next).toBe(12);
-    expect(actor.system.skillsSpent.combatReflexes).toBe(1);
-    expect(combatant.getFlag('mastery-system', 'msCrInitiativeThisRound')).toBe(1);
-    expect(combatant.getFlag('mastery-system', 'msInitiativeValue')).toBe(12);
+describe('taking a use back', () => {
+  it('offers the undo only for a use taken this round', () => {
+    const fromThisRound = combatReflexesInitiativeState(makeActor(8, 2), makeCombatant(14, [2]), 2);
+    expect(fromThisRound.canUndo).toBe(true);
+    expect(fromThisRound.boxes[0]!.canUndo).toBe(true);
+
+    const fromEarlier = combatReflexesInitiativeState(makeActor(8, 2), makeCombatant(14, []), 2);
+    expect(fromEarlier.canUndo).toBe(false);
   });
 
-  it('gives the point back', async () => {
-    const actor = makeActor(4, 2);
-    const combatant = makeCombatant(13, 2);
-    const next = await stepCombatReflexesInitiative(actor, combatant, -1, 2);
-    expect(next).toBe(12);
-    expect(actor.system.skillsSpent.combatReflexes).toBe(1);
-    expect(combatant.getFlag('mastery-system', 'msCrInitiativeThisRound')).toBe(1);
+  it('offers no undo once the initiative went into stones', () => {
+    const state = combatReflexesInitiativeState(makeActor(8, 2), makeCombatant(1, [2]), 2);
+    expect(state.canUndo).toBe(false);
+  });
+});
+
+describe('spending a use', () => {
+  it('applies the Mastery Rank as initiative and records the use', async () => {
+    const actor = makeActor(8, 0);
+    const combatant = makeCombatant(11);
+    expect(await spendCombatReflexesUse(actor, combatant, 2)).toBe(13);
+    expect(actor.system.skillsSpent.combatReflexes).toBe(2);
+    expect(combatReflexesRoundSpends(combatant)).toEqual([2]);
+    expect(combatant.getFlag('mastery-system', 'msInitiativeValue')).toBe(13);
   });
 
-  it('refuses to add without pool', async () => {
-    const actor = makeActor(2, 2);
+  it('spends only what a short box holds', async () => {
+    const actor = makeActor(5, 4);
     const combatant = makeCombatant(11);
-    expect(await stepCombatReflexesInitiative(actor, combatant, 1, 2)).toBeNull();
+    expect(await spendCombatReflexesUse(actor, combatant, 2)).toBe(12);
+    expect(actor.system.skillsSpent.combatReflexes).toBe(5);
+  });
+
+  it('refuses a fifth use', async () => {
+    const actor = makeActor(8, 8);
+    const combatant = makeCombatant(11);
+    expect(await spendCombatReflexesUse(actor, combatant, 2)).toBeNull();
     expect(combatant.initiative).toBe(11);
   });
 
-  it('refuses to undo points that were never added this round', async () => {
-    const actor = makeActor(4, 1);
-    const combatant = makeCombatant(11, 0);
-    expect(await stepCombatReflexesInitiative(actor, combatant, -1, 2)).toBeNull();
-    expect(actor.system.skillsSpent.combatReflexes).toBe(1);
+  it('gives back exactly the last use', async () => {
+    const actor = makeActor(8, 4);
+    const combatant = makeCombatant(15, [2, 2]);
+    expect(await undoCombatReflexesUse(actor, combatant, 2)).toBe(13);
+    expect(actor.system.skillsSpent.combatReflexes).toBe(2);
+    expect(combatReflexesRoundSpends(combatant)).toEqual([2]);
+  });
+
+  it('refuses to undo a use from an earlier round', async () => {
+    const actor = makeActor(8, 2);
+    const combatant = makeCombatant(13, []);
+    expect(await undoCombatReflexesUse(actor, combatant, 2)).toBeNull();
+    expect(actor.system.skillsSpent.combatReflexes).toBe(2);
+  });
+
+  it('survives a full spend and undo cycle', async () => {
+    const actor = makeActor(8, 0);
+    const combatant = makeCombatant(10);
+    for (let i = 0; i < 4; i += 1) await spendCombatReflexesUse(actor, combatant, 2);
+    expect(combatant.initiative).toBe(18);
+    expect(await spendCombatReflexesUse(actor, combatant, 2)).toBeNull();
+    for (let i = 0; i < 4; i += 1) await undoCombatReflexesUse(actor, combatant, 2);
+    expect(combatant.initiative).toBe(10);
+    expect(actor.system.skillsSpent.combatReflexes).toBe(0);
+    expect(combatReflexesRoundSpends(combatant)).toEqual([]);
   });
 });

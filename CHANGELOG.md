@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.381] - 2026-08-18
+
+### Fixed
+
+- **Combat Reflexes follows the skill rule:** A skill is not a pool of loose points — it has four uses per Safe Haven Rest and each use applies the full Mastery Rank. 0.9.380 let players tick single points, which allowed eight small boosts at MR 2 instead of four. The Initiative Exchange row now shows the same four boxes as the sheet and the printout: the rating (capped at MR × 4) fills them from the left, the next box is highlighted and clickable, spent boxes are crossed off, boxes the rating never reaches stay dashed and empty. One click applies that box's points as Initiative.
+- **Taking a use back:** The undo arrow next to the boxes returns the last use taken this round, and only while the Initiative it produced is still there — once it went into Colorless Stones there is nothing to pull back. Uses from earlier rounds are final, and rolling initiative again voids the round's record because the roll replaces the score. The four uses return with the Safe Haven Rest.
+
 ## [0.9.380] - 2026-08-18
 
 ### Added

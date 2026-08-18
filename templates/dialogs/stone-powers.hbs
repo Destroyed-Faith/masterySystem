@@ -36,14 +36,19 @@
     </div>
     <div class="initiative-exchange-actions">
       {{#if initiativeExchange.combatReflexes.show}}
-      <div class="initiative-exchange-stepper" title="Combat Reflexes: 1 skill point = +1 Initiative. Cap {{initiativeExchange.combatReflexes.capPerRoll}} per roll, {{initiativeExchange.combatReflexes.remainingPool}} left in the pool.">
+      <div class="initiative-exchange-uses" title="Combat Reflexes: 4 uses per Safe Haven Rest, each use applies {{initiativeExchange.combatReflexes.pointsPerUse}} points (Mastery Rank) as Initiative. {{initiativeExchange.combatReflexes.remainingPool}} points left.">
         <span class="initiative-exchange-stepper-label">Combat Reflexes</span>
-        <button type="button" class="initiative-exchange-btn js-cr-remove" {{#unless initiativeExchange.combatReflexes.canRemove}}disabled{{/unless}} aria-label="One Combat Reflexes point back">
-          <i class="fas fa-minus"></i>
+        {{#each initiativeExchange.combatReflexes.boxes}}
+        <button type="button"
+                class="cr-use-box{{#if spent}} is-spent{{/if}}{{#if unavailable}} is-unavailable{{/if}}{{#if canSpend}} is-next{{/if}}{{#if canUndo}} is-undoable{{/if}} js-cr-box"
+                data-cr-action="spend"
+                {{#unless canSpend}}disabled{{/unless}}
+                aria-label="Combat Reflexes use, {{size}} points">
+          {{#if unavailable}}—{{else}}{{#if spent}}<i class="fas fa-xmark"></i>{{else}}{{remaining}}{{/if}}{{/if}}
         </button>
-        <span class="initiative-exchange-value">+{{initiativeExchange.combatReflexes.used}}</span>
-        <button type="button" class="initiative-exchange-btn js-cr-add" {{#unless initiativeExchange.combatReflexes.canAdd}}disabled{{/unless}} aria-label="One Combat Reflexes point into Initiative">
-          <i class="fas fa-plus"></i>
+        {{/each}}
+        <button type="button" class="initiative-exchange-btn js-cr-box" data-cr-action="undo" {{#unless initiativeExchange.combatReflexes.canUndo}}disabled{{/unless}} title="Take back the last use from this round" aria-label="Take back the last Combat Reflexes use">
+          <i class="fas fa-rotate-left"></i>
         </button>
       </div>
       {{/if}}

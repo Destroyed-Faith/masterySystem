@@ -78,6 +78,58 @@
   cursor: default;
 }
 
+/* Four use boxes per skill, as on the sheet: one use applies the Mastery Rank. */
+.stone-powers-dialog .initiative-exchange-uses {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0.12rem 0.3rem;
+  border-radius: 5px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(0, 0, 0, 0.25);
+}
+
+.stone-powers-dialog .cr-use-box {
+  width: 1.35rem;
+  height: 1.35rem;
+  padding: 0;
+  line-height: 1;
+  font-size: 0.68rem;
+  font-weight: 700;
+  border-radius: 3px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+  cursor: default;
+}
+
+.stone-powers-dialog .cr-use-box.is-next {
+  border-color: #ffd166;
+  box-shadow: 0 0 4px rgba(255, 209, 102, 0.55);
+  cursor: pointer;
+}
+
+.stone-powers-dialog .cr-use-box.is-next:hover {
+  background: rgba(255, 209, 102, 0.25);
+}
+
+.stone-powers-dialog .cr-use-box.is-spent {
+  color: rgba(255, 255, 255, 0.55);
+  background: rgba(233, 69, 96, 0.25);
+  border-color: rgba(233, 69, 96, 0.6);
+}
+
+.stone-powers-dialog .cr-use-box.is-undoable {
+  border-color: rgba(168, 218, 220, 0.8);
+}
+
+.stone-powers-dialog .cr-use-box.is-unavailable {
+  color: rgba(255, 255, 255, 0.3);
+  border-style: dashed;
+  border-color: rgba(255, 255, 255, 0.18);
+  background: transparent;
+}
+
 .stone-powers-dialog .initiative-exchange-value {
   min-width: 1.4rem;
   text-align: center;

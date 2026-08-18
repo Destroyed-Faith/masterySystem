@@ -15,7 +15,7 @@ import { COLORLESS_GEM_STYLE, COLORLESS_STONE_ATTR, colorlessStoneInitiativeCost
 import { orderPowersRampFirst, pickStoneFillAttribute, shouldSettleStoneWave, stonePoolBlockedReason, } from './stone-payment-rules.js';
 import { clampStoneRecoveryAllocation, planStoneRecovery, } from './stone-recovery.js';
 import { isStoneRegenDone } from '../combat/encounter-setup-flags.js';
-import { combatReflexesInitiativeState, stepCombatReflexesInitiative, } from '../combat/combat-reflexes.js';
+import { combatReflexesInitiativeState, spendCombatReflexesUse, undoCombatReflexesUse, } from '../combat/combat-reflexes.js';
 import { poolSpendableStones } from '../utils/artifact-actor-rules.js';
 import { countArtifactActivationStones } from '../utils/artifact-stone-bound.js';
 import { getArtifactStoneFunctionStatus } from '../utils/artifact-stone-functions.js';
@@ -735,15 +735,17 @@ export class StonePowersDialog extends BaseDialog {
             locked: exchangeLocked,
             boostUsed: this.combatant ? isInitiativeBoostUsedThisCombat(this.combatant) : false,
             combatReflexes: {
-                // Skill points into Initiative, straight in this row — the roll no
-                // longer stops for a popup nobody had context for.
+                // Four use boxes like on the sheet: one use applies the Mastery Rank.
+                // The roll no longer stops for a popup nobody had context for.
                 show: this.actor.type === 'character' && cr.rating > 0,
-                used: cr.usedThisRound,
-                addable: cr.addable,
+                pointsPerUse: cr.pointsPerUse,
                 remainingPool: cr.remainingPool,
-                capPerRoll: cr.capPerRoll,
-                canAdd: !exchangeLocked && cr.canAdd,
-                canRemove: !exchangeLocked && cr.canRemove,
+                nextUse: cr.nextUse,
+                canUndo: cr.canUndo && !exchangeLocked,
+                boxes: cr.boxes.map((box) => ({
+                    ...box,
+                    canSpend: box.canSpend && !exchangeLocked,
+                })),
             },
         };
         return {
@@ -968,29 +970,31 @@ export class StonePowersDialog extends BaseDialog {
             ev.preventDefault();
             void stepConvert(-1);
         });
-        const stepCr = async (delta) => {
-            if (!this.combatant)
-                return;
-            const mr = getMasteryRank(getActionEconomyActor(this.actor) ?? this.actor);
-            const next = await stepCombatReflexesInitiative(this.actor, this.combatant, delta, mr);
-            if (next === null) {
-                ui.notifications?.warn(delta > 0
-                    ? 'No Combat Reflexes left to add this round.'
-                    : 'Nothing to take back — those points are already spent.');
-                return;
-            }
-            // The score changed, so the exchange maximum moves with it.
-            this._colorlessConvertCount = null;
-            await this.#renderKeepingScroll();
-        };
-        root.querySelector('.js-cr-add')?.addEventListener('click', (ev) => {
-            ev.preventDefault();
-            void stepCr(1);
+        root.querySelectorAll('.js-cr-box').forEach((el) => {
+            const box = el;
+            box.addEventListener('click', (ev) => {
+                ev.preventDefault();
+                void this.#clickCombatReflexesBox(box.dataset.crAction === 'undo');
+            });
         });
-        root.querySelector('.js-cr-remove')?.addEventListener('click', (ev) => {
-            ev.preventDefault();
-            void stepCr(-1);
-        });
+    }
+    /** Tick or un-tick a Combat Reflexes use box. */
+    async #clickCombatReflexesBox(undo) {
+        if (!this.combatant)
+            return;
+        const mr = getMasteryRank(getActionEconomyActor(this.actor) ?? this.actor);
+        const next = undo
+            ? await undoCombatReflexesUse(this.actor, this.combatant, mr)
+            : await spendCombatReflexesUse(this.actor, this.combatant, mr);
+        if (next === null) {
+            ui.notifications?.warn(undo
+                ? 'Nothing to take back — that use is not from this round, or its Initiative is already spent.'
+                : 'No Combat Reflexes uses left until the next Safe Haven Rest.');
+            return;
+        }
+        // The score changed, so the exchange maximum moves with it.
+        this._colorlessConvertCount = null;
+        await this.#renderKeepingScroll();
     }
     /** Scroll position of the template root (the element that actually scrolls). */
     #rememberStonePowersScroll() {
