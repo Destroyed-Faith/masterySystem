@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.383] - 2026-08-18
+
+### Changed
+
+- **Passive selection without the header block:** Portrait, character name, the "Character 1 of 1" counter and the "Passive slots at MR 2" note are gone. None of it was needed — every slot card already says which Mastery Rank unlocks it — and together they ate the vertical room the slot grid needs. Who the dialog is for now stands in the window bar: "Combat: Select Passives for <Name>", with a step counter when the GM walks through several characters.
+- **Passive selection scrolls:** The content is capped at 80% of the window height and scrolls, with the button row pinned to the bottom. On a smaller screen the slot grid plus the passive list used to run past the bottom edge, so Previous / Confirm could not be reached. The window is resizable now as well.
+
 ## [0.9.382] - 2026-08-18
 
 ### Added

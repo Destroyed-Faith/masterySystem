@@ -11,8 +11,6 @@ import {
   getPassiveSlots,
   getAvailablePassives,
   getSlottedPassiveIds,
-  getPassiveSlotCountForMasteryRank,
-  MAX_PASSIVE_SLOTS,
   slotPassive,
   unslotPassive
 } from '../powers/passives.js';
@@ -36,7 +34,7 @@ export class PassiveSelectionDialog extends BaseDialog {
     id: "mastery-passive-selection",
     classes: ["mastery-system", "passive-selection"],
     position: { width: 800 },
-    window: { title: "Combat: Select Passives", resizable: false }
+    window: { title: "Combat: Select Passives", resizable: true }
   };
 
   static PARTS = {
@@ -117,15 +115,22 @@ export class PassiveSelectionDialog extends BaseDialog {
     return getActionEconomyActor(raw) ?? raw;
   }
 
+  /**
+   * Who this is for belongs in the window bar, not in a header block above the
+   * slots — that block cost the vertical room the slot grid needs.
+   */
+  get title(): string {
+    const name = String((this.currentActor as { name?: string } | null)?.name ?? '').trim();
+    const step = this.pcs.length > 1 ? ` (${this.currentIndex + 1}/${this.pcs.length})` : '';
+    return name ? `Combat: Select Passives for ${name}${step}` : 'Combat: Select Passives';
+  }
+
   protected async _prepareContext(_options: any): Promise<any> {
     const actor = this.currentActor;
     if (!actor) return {};
 
     const slots = getPassiveSlots(actor);
     const available = getAvailablePassives(actor);
-    const masteryRank = (actor.system as any).mastery?.rank ?? 2;
-    const maxPassiveSlots = getPassiveSlotCountForMasteryRank(masteryRank);
-
     const slottedIds = getSlottedPassiveIds(actor);
     const selectablePassives = available.filter((p: any) => !slottedIds.has(String(p.id)));
 
@@ -133,11 +138,6 @@ export class PassiveSelectionDialog extends BaseDialog {
       actor,
       slots,
       availablePassives: selectablePassives,
-      masteryRank,
-      maxPassiveSlots,
-      maxPassiveSlotsTotal: MAX_PASSIVE_SLOTS,
-      currentIndex: this.currentIndex + 1,
-      total: this.pcs.length,
       isFirst: this.currentIndex === 0,
       isLast: this.currentIndex === this.pcs.length - 1,
       isGM: game.user?.isGM ?? false,
@@ -147,6 +147,11 @@ export class PassiveSelectionDialog extends BaseDialog {
 
   protected async _onRender(_context: any, _options: any): Promise<void> {
     const root = (this as any).element as HTMLElement;
+
+    // Stepping to the next character re-renders the content only, so the frame
+    // keeps the old name unless it is written here.
+    const titleEl = root.querySelector?.('.window-title') as HTMLElement | null;
+    if (titleEl) titleEl.textContent = this.title;
 
     // If read-only, disable all interactive elements
     if (this.readOnly) {

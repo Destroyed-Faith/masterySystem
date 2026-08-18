@@ -48,6 +48,11 @@ export declare class PassiveSelectionDialog extends BaseDialog {
     constructor(pcs: Combatant[], resolve: (outcome: PassiveSelectionOutcome) => void, readOnly?: boolean);
     get currentCombatant(): Combatant | null;
     get currentActor(): Actor | null;
+    /**
+     * Who this is for belongs in the window bar, not in a header block above the
+     * slots — that block cost the vertical room the slot grid needs.
+     */
+    get title(): string;
     protected _prepareContext(_options: any): Promise<any>;
     protected _onRender(_context: any, _options: any): Promise<void>;
     private finishOutcome;

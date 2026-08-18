@@ -6,7 +6,7 @@
  *
  * Migrated to Foundry VTT v13 ApplicationV2 + HandlebarsApplicationMixin
  */
-import { getPassiveSlots, getAvailablePassives, getSlottedPassiveIds, getPassiveSlotCountForMasteryRank, MAX_PASSIVE_SLOTS, slotPassive, unslotPassive } from '../powers/passives.js';
+import { getPassiveSlots, getAvailablePassives, getSlottedPassiveIds, slotPassive, unslotPassive } from '../powers/passives.js';
 import { shouldShowEncounterDialogLocally } from '../combat/combat-permissions.js';
 import { getActionEconomyActor } from '../combat/action-economy.js';
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
@@ -22,7 +22,7 @@ export class PassiveSelectionDialog extends BaseDialog {
         id: "mastery-passive-selection",
         classes: ["mastery-system", "passive-selection"],
         position: { width: 800 },
-        window: { title: "Combat: Select Passives", resizable: false }
+        window: { title: "Combat: Select Passives", resizable: true }
     };
     static PARTS = {
         content: { template: "systems/mastery-system/templates/dialogs/passive-selection.hbs" }
@@ -83,25 +83,27 @@ export class PassiveSelectionDialog extends BaseDialog {
             return null;
         return getActionEconomyActor(raw) ?? raw;
     }
+    /**
+     * Who this is for belongs in the window bar, not in a header block above the
+     * slots — that block cost the vertical room the slot grid needs.
+     */
+    get title() {
+        const name = String(this.currentActor?.name ?? '').trim();
+        const step = this.pcs.length > 1 ? ` (${this.currentIndex + 1}/${this.pcs.length})` : '';
+        return name ? `Combat: Select Passives for ${name}${step}` : 'Combat: Select Passives';
+    }
     async _prepareContext(_options) {
         const actor = this.currentActor;
         if (!actor)
             return {};
         const slots = getPassiveSlots(actor);
         const available = getAvailablePassives(actor);
-        const masteryRank = actor.system.mastery?.rank ?? 2;
-        const maxPassiveSlots = getPassiveSlotCountForMasteryRank(masteryRank);
         const slottedIds = getSlottedPassiveIds(actor);
         const selectablePassives = available.filter((p) => !slottedIds.has(String(p.id)));
         return {
             actor,
             slots,
             availablePassives: selectablePassives,
-            masteryRank,
-            maxPassiveSlots,
-            maxPassiveSlotsTotal: MAX_PASSIVE_SLOTS,
-            currentIndex: this.currentIndex + 1,
-            total: this.pcs.length,
             isFirst: this.currentIndex === 0,
             isLast: this.currentIndex === this.pcs.length - 1,
             isGM: game.user?.isGM ?? false,
@@ -110,6 +112,11 @@ export class PassiveSelectionDialog extends BaseDialog {
     }
     async _onRender(_context, _options) {
         const root = this.element;
+        // Stepping to the next character re-renders the content only, so the frame
+        // keeps the old name unless it is written here.
+        const titleEl = root.querySelector?.('.window-title');
+        if (titleEl)
+            titleEl.textContent = this.title;
         // If read-only, disable all interactive elements
         if (this.readOnly) {
             root.classList.add('read-only');

@@ -81,29 +81,20 @@
    Passive Selection Dialog
    ======================================== */
 
+/* Scrolls as a whole, with the buttons pinned: on a small screen the slot grid
+   and the passive list together are taller than the window, and a footer that
+   scrolls out of reach leaves the player unable to confirm. */
 .passive-selection-overlay {
   padding: 0;
-}
-
-.passive-selection-overlay .passive-limit {
-  background: rgba(233, 69, 96, 0.2);
-  padding: 0.75rem 1rem;
-  border-radius: 8px;
-  border: 1px solid #e94560;
-}
-
-.passive-selection-overlay .passive-limit p {
-  margin: 0;
-  font-size: 1.1rem;
-}
-
-.passive-selection-overlay .passive-limit strong {
-  color: #e94560;
-  font-size: 1.3rem;
+  max-height: 80vh;
+  overflow-y: auto;
 }
 
 .passive-selection-overlay .overlay-footer {
   flex-wrap: wrap;
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
 }
 
 .passive-selection-overlay .passive-footer-hint {
@@ -119,7 +110,7 @@
 
 .passive-slots-section,
 .available-passives-section {
-  padding: 1.5rem;
+  padding: 1rem 1.25rem;
 }
 
 .passive-slots-section h3,
