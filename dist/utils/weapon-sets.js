@@ -8,7 +8,7 @@ import { consumeMovementAction, getActionEconomyActor, getAvailableMovementActio
 import { canCurrentUserUpdateDocument } from '../combat/combat-permissions.js';
 import { actorParticipatesInActiveCombat } from './consumable-slots.js';
 import { isEchoBoundArtifact } from './echo-artifact-equip.js';
-import { keepsInventoryGridWhenEquipped, migrateActorAmmunition, normalizeAmmoWeaponSetHands, requiresAmmunition, } from './ammunition.js';
+import { migrateActorAmmunition, normalizeAmmoWeaponSetHands, requiresAmmunition, } from './ammunition.js';
 export const WEAPON_SWAP_ID = 'weapon-swap';
 export const WEAPON_SETS_FLAG = 'weaponSets';
 export const WEAPON_SETS_SCHEMA = 1;
@@ -280,14 +280,8 @@ function equipmentUpdate(item, patch) {
         next.weaponSetPrepared = true;
     else
         delete next.weaponSetPrepared;
-    if (keepsInventoryGridWhenEquipped(item) && !patch.prepared && patch.equipped && flags.grid) {
-        next.grid = flags.grid;
-        next.keepInventoryGrid = true;
-    }
-    else {
-        delete next.grid;
-        delete next.keepInventoryGrid;
-    }
+    delete next.grid;
+    delete next.keepInventoryGrid;
     return {
         _id: item.id,
         'flags.mastery-system.equipment': next,

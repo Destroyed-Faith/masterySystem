@@ -39,7 +39,7 @@ describe('encumbrance load zones', () => {
     expect(getActorInventoryLoadZone(mockActor([{ band: 'heavy' }, { band: 'enc' }]))).toBe('overloaded');
     expect(getActorInventoryLoadZone(mockActor([{ band: 'enc', container: 'stash' }]))).toBe('normal');
     expect(getActorInventoryLoadZone(mockActor([{ band: 'heavy', slot: 'body' }]))).toBe('normal');
-    expect(getActorInventoryLoadZone(mockActor([{ band: 'enc', slot: 'offhand', keepInventoryGrid: true }]))).toBe('encumbered');
+    expect(getActorInventoryLoadZone(mockActor([{ band: 'enc', slot: 'offhand', keepInventoryGrid: true }]))).toBe('normal');
     expect(getActorInventoryLoadZone(mockActor([{ band: 'heavy', weaponSetPrepared: true }]))).toBe('normal');
   });
 });

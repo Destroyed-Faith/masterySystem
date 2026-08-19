@@ -18,6 +18,7 @@ export declare function isAmmunitionItem(item: any): boolean;
 export declare function isAmmoContainer(item: any): boolean;
 export declare function getAmmunitionType(item: any): AmmunitionType;
 export declare function ammunitionTypesMatch(a: any, b: any): boolean;
+export declare function canLoadAmmunitionOnto(ammo: any, container: any): boolean;
 export declare function getAmmoMaxStack(item: any): number;
 export declare function getAmmoQuantity(item: any): number;
 export declare function getQuiverCapacity(item: any): number;
@@ -25,7 +26,7 @@ export declare function getQuiverCurrent(item: any): number;
 export declare function getQuiverFreeSpace(item: any): number;
 export declare function formatAmmunitionDisplay(current: number, capacity: number): string;
 export declare function quiverAmmunitionLabel(item: any): string;
-export declare function keepsInventoryGridWhenEquipped(item: any): boolean;
+export declare function keepsInventoryGridWhenEquipped(_item: any): boolean;
 export declare function occupiesInventoryGridWhileEquipped(flags: {
     slot?: unknown;
     keepInventoryGrid?: unknown;

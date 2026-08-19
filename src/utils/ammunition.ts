@@ -112,6 +112,10 @@ export function ammunitionTypesMatch(a: any, b: any): boolean {
   return !!left && left === right;
 }
 
+export function canLoadAmmunitionOnto(ammo: any, container: any): boolean {
+  return isAmmunitionItem(ammo) && isAmmoContainer(container) && ammunitionTypesMatch(ammo, container);
+}
+
 export function getAmmoMaxStack(item: any): number {
   const raw = Number(item?.system?.maxStack);
   if (Number.isFinite(raw) && raw > 0) return Math.floor(raw);
@@ -148,8 +152,8 @@ export function quiverAmmunitionLabel(item: any): string {
   return formatAmmunitionDisplay(getQuiverCurrent(item), getQuiverCapacity(item));
 }
 
-export function keepsInventoryGridWhenEquipped(item: any): boolean {
-  return isAmmoContainer(item);
+export function keepsInventoryGridWhenEquipped(_item: any): boolean {
+  return false;
 }
 
 export function occupiesInventoryGridWhileEquipped(flags: {

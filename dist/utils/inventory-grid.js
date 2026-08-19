@@ -6,7 +6,7 @@ export function occupiesInventoryGrid(flags, band) {
         return false;
     if (flags.container !== 'inventory')
         return false;
-    if (flags.slot && flags.keepInventoryGrid !== true)
+    if (flags.slot)
         return false;
     if (flags.consumableSlot != null && Number.isFinite(Number(flags.consumableSlot)))
         return false;

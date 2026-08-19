@@ -17,7 +17,7 @@ import { showPowerCreationDialog } from './character-sheet-power-dialog.js';
 import { validateTowerWizardCreation } from '../creation/tower-wizard/tower-wizard-validation.js';
 import { getLanguage as getLanguageDef, normalizeKnownLanguages } from '../utils/languages.js';
 import { showLanguagesDialog } from './languages-dialog.js';
-import { collectInventoryBandRects, findFirstFit, fitsInGrid, parseInventorySize, rectsOverlap } from '../utils/inventory-grid.js';
+import { collectInventoryBandRects, findFirstFit, fitsInGrid, occupiesInventoryGrid, parseInventorySize, rectsOverlap } from '../utils/inventory-grid.js';
 import { isLegacyUnarmedItem } from '../utils/unarmed-fallback.js';
 import { loadZoneFromBands, movementPenaltyForLoad, LOAD_ZONE_LABEL, ZONE_WIDTH_COLS } from '../utils/encumbrance.js';
 import { getFilePickerClass } from '../utils/foundry-v14.js';
@@ -36,7 +36,7 @@ import { buildCancelSkillsRedistributeUpdates, buildFinishSkillsRedistributeUpda
 import { getDefaultInventorySizeForItemData } from '../utils/seed-general-items.js';
 import { getNormalizedEquipSlots, normalizeSlotKey } from '../utils/equip-slots.js';
 import { canMarkTwoHandedGrip, ensureWeaponSets, isHiddenInInactiveWeaponSet, isNaturallyTwoHandedItem, peekWeaponSets, swapWeaponSet, syncActiveWeaponSetFromHands, } from '../utils/weapon-sets.js';
-import { findAmmoContainerFromDropPath, isAmmoContainer, isAmmunitionItem, keepsInventoryGridWhenEquipped, loadAmmunitionIntoContainer, quiverAmmunitionLabel, requiresAmmunition, validateHandEquip, } from '../utils/ammunition.js';
+import { canLoadAmmunitionOnto, findAmmoContainerFromDropPath, isAmmoContainer, isAmmunitionItem, loadAmmunitionIntoContainer, quiverAmmunitionLabel, requiresAmmunition, validateHandEquip, } from '../utils/ammunition.js';
 import { attributeBandCost, powerLevelCost } from '../utils/constants.js';
 import { calculateMaxPowerLevel, calculateMaxSkillRank } from '../utils/calculations.js';
 import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
@@ -1544,15 +1544,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 if (!slotMap[slot]) {
                     slotMap[slot] = item;
                 }
-                if (keepsInventoryGridWhenEquipped(item) && flags.keepInventoryGrid === true && flags.grid?.x && flags.grid?.y) {
-                    inventoryItems.push(item);
-                    if (band === 'enc')
-                        encItems.push(item);
-                    else if (band === 'heavy')
-                        heavyItems.push(item);
-                    else
-                        notItems.push(item);
-                }
             }
             else if (isHiddenInInactiveWeaponSet(this.actor, item)) {
                 // Prepared on the inactive weapon set — still on the character, not in the grid.
@@ -2763,6 +2754,21 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             if (!col || !row)
                 return;
             clearDropHighlight();
+            const dragItem = this.#resolveDraggedActorOrWorldItem();
+            const hoverItem = this.#itemAtInventoryCell(band, col, row);
+            if (canLoadAmmunitionOnto(dragItem, hoverItem)) {
+                const flags = hoverItem.getFlag?.('mastery-system', 'equipment') || {};
+                const size = parseInventorySize(hoverItem?.system?.inventorySize);
+                const ox = Number(flags.grid?.x || col);
+                const oy = Number(flags.grid?.y || row);
+                const bandCells = html.find(`.df-enc-band[data-band="${band}"] .df-cell`);
+                for (let dy = 0; dy < size.h; dy++) {
+                    for (let dx = 0; dx < size.w; dx++) {
+                        bandCells.filter(`[data-col="${ox + dx}"][data-row="${oy + dy}"]`).addClass('df-drop-valid');
+                    }
+                }
+                return;
+            }
             const size = resolveDragSize(ev);
             const BAND_COLS = ZONE_WIDTH_COLS;
             const BAND_ROWS = 9;
@@ -6505,7 +6511,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 if (droppedItem) {
                     await this.#tryWireDroppedArtifact(droppedItem, sourceWorldItem);
                     if (isAmmunitionItem(droppedItem)) {
-                        const quiver = findAmmoContainerFromDropPath(this.actor, dropPath);
+                        const quiver = this.#resolveAmmoDropTarget(event, target, dropPath);
                         if (quiver && quiver.id !== droppedItem.id) {
                             await loadAmmunitionIntoContainer(this.actor, droppedItem, quiver);
                             this._lastDroppedItemId = quiver.id;
@@ -6542,7 +6548,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             }
         }
         if (isAmmunitionItem(droppedItem)) {
-            const quiver = findAmmoContainerFromDropPath(this.actor, dropPath);
+            const quiver = this.#resolveAmmoDropTarget(event, target, dropPath);
             if (quiver && quiver.id !== droppedItem.id) {
                 const result = await loadAmmunitionIntoContainer(this.actor, droppedItem, quiver);
                 if (result.reason === 'busy')
@@ -6708,13 +6714,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         }
         const currentFlags = item.getFlag('mastery-system', 'equipment') || {};
         const newFlags = { ...currentFlags, container: 'inventory', slot, band: currentFlags.band || 'not' };
-        if (keepsInventoryGridWhenEquipped(item) && currentFlags.grid) {
-            newFlags.keepInventoryGrid = true;
-        }
-        else {
-            delete newFlags.grid;
-            delete newFlags.keepInventoryGrid;
-        }
+        delete newFlags.grid;
+        delete newFlags.keepInventoryGrid;
         if (isNaturallyTwoHandedItem(item))
             newFlags.twoHanded = true;
         else
@@ -6897,6 +6898,44 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             cols: ZONE_WIDTH_COLS,
             rows: 9,
         });
+    }
+    #resolveDraggedActorOrWorldItem() {
+        const id = window.__msDragItemId;
+        if (!id)
+            return null;
+        return this.actor.items.get(id) || globalThis.game?.items?.get?.(id) || null;
+    }
+    #resolveAmmoDropTarget(event, target, dropPath) {
+        const dropCell = this.#resolveDropCell(event);
+        const dropBand = dropCell?.closest?.('.df-enc-band');
+        const cellItem = dropCell && dropBand
+            ? this.#itemAtInventoryCell(String(dropBand.dataset?.band || ''), Number(dropCell.dataset?.col || 0), Number(dropCell.dataset?.row || 0))
+            : null;
+        if (isAmmoContainer(cellItem))
+            return cellItem;
+        const slotItem = target?.dataset?.dfDrop === 'equip-slot'
+            ? this.#getItemInEquipSlot(String(target.dataset.slot || ''))
+            : null;
+        if (isAmmoContainer(slotItem))
+            return slotItem;
+        return findAmmoContainerFromDropPath(this.actor, dropPath);
+    }
+    #itemAtInventoryCell(band, col, row) {
+        for (const item of this.actor.items.values()) {
+            const flags = item.getFlag?.('mastery-system', 'equipment') || {};
+            if (!occupiesInventoryGrid(flags, band))
+                continue;
+            const size = parseInventorySize(item?.system?.inventorySize);
+            const rect = {
+                x: Number(flags.grid?.x || 0),
+                y: Number(flags.grid?.y || 0),
+                w: size.w,
+                h: size.h,
+            };
+            if (rectsOverlap(rect, { x: col, y: row, w: 1, h: 1 }))
+                return item;
+        }
+        return null;
     }
     /**
      * Helper: Update item equipment flags based on drop target

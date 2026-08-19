@@ -67,22 +67,41 @@
   max-width: 64px;
 }
 
+.application.mastery-system.sheet.actor.character .mastery-rank-select,
 .mastery-system.sheet.actor.character .mastery-rank-select {
   width: 100%;
-  background: rgba(0, 0, 0, 0.25);
+  color-scheme: dark;
+  background-color: #1b2124;
   border: 1px solid var(--df-border-primary, #3a3f44);
   border-radius: 3px;
-  color: var(--df-text-primary, #d0d0d0);
+  color: #f2f2f2;
   font-size: 14px;
   font-weight: 700;
   text-align: center;
+  text-align-last: center;
   padding: 1px 2px;
   cursor: pointer;
   font-family: 'Cormorant Garamond', serif;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.application.mastery-system.sheet.actor.character .mastery-rank-select option,
+.mastery-system.sheet.actor.character .mastery-rank-select option {
+  background-color: #1b2124;
+  color: #f2f2f2;
+}
+
+.ms-theme-rulebook .mastery-system.sheet.actor.character .mastery-rank-select,
+.ms-theme-rulebook .mastery-system.sheet.actor.npc .mastery-rank-select {
+  background-color: #1b2124;
+  color: #f2f2f2;
+  padding: 1px 2px;
 }
 
 .mastery-system.sheet.actor.character .mastery-rank-select:hover {
   border-color: var(--df-border-highlight, rgba(255, 255, 255, 0.25));
+  background-color: #14181b;
 }
 
 .mastery-system.sheet.actor.character .rank-stone-hint {
@@ -4103,21 +4122,30 @@
   line-height: 1;
 }
 
+.application.mastery-system.sheet.actor.npc .mastery-rank-select,
 .mastery-system.sheet.actor.npc .mastery-rank-select {
   width: 100%;
-  background: rgba(0, 0, 0, 0.3);
+  color-scheme: dark;
+  background-color: #1b2124;
   border: 1px solid var(--df-border-primary, #3a3f44);
   border-radius: 3px;
-  color: var(--df-text-primary, #d0d0d0);
+  color: #f2f2f2;
   font-size: 14px;
   font-weight: 700;
   text-align: center;
+  text-align-last: center;
   padding: 2px 4px;
   cursor: pointer;
 }
 
+.application.mastery-system.sheet.actor.npc .mastery-rank-select option,
+.mastery-system.sheet.actor.npc .mastery-rank-select option {
+  background-color: #1b2124;
+  color: #f2f2f2;
+}
+
 .mastery-system.sheet.actor.npc .mastery-rank-select:hover {
-  background: rgba(0, 0, 0, 0.5);
+  background-color: #14181b;
   border-color: var(--df-border-highlight, #5a6168);
 }
 
@@ -8518,7 +8546,7 @@
 
 .mastery-system.sheet.actor.character.creation-incomplete input,
 .mastery-system.sheet.actor.character.creation-incomplete textarea,
-.mastery-system.sheet.actor.character.creation-incomplete select {
+.mastery-system.sheet.actor.character.creation-incomplete select:not(.mastery-rank-select):not(.attr-creation-select) {
   opacity: 0.6;
   pointer-events: none;
 }

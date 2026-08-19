@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.389] - 2026-08-19
+
+### Fixed
+
+- **Loading ammunition onto a quiver:** Dragging Arrows or Bolts onto a matching quiver no longer paints the occupied cells red. The quiver footprint highlights as a valid load target.
+- **Equipped quivers leave the inventory grid:** Putting a quiver into a hand slot removes it from the carry grid, same as other equipped items.
+- **Mastery Rank dropdown contrast:** The MR select next to the sheet portraits uses a dark background and light text so the current rank stays readable.
+
 ## [0.9.388] - 2026-08-19
 
 ### Added

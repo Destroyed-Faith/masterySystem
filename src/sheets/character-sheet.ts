@@ -41,7 +41,7 @@ import { validateTowerWizardCreation } from '../creation/tower-wizard/tower-wiza
 import { getLanguage as getLanguageDef, normalizeKnownLanguages } from '../utils/languages.js';
 import { showLanguagesDialog } from './languages-dialog.js';
 import type { PowerCategory } from '../types/item.js';
-import { collectInventoryBandRects, findFirstFit, fitsInGrid, parseInventorySize, rectsOverlap } from '../utils/inventory-grid';
+import { collectInventoryBandRects, findFirstFit, fitsInGrid, occupiesInventoryGrid, parseInventorySize, rectsOverlap } from '../utils/inventory-grid';
 import { isLegacyUnarmedItem } from '../utils/unarmed-fallback.js';
 import { loadZoneFromBands, movementPenaltyForLoad, LOAD_ZONE_LABEL, ZONE_WIDTH_COLS } from '../utils/encumbrance.js';
 import { getFilePickerClass } from '../utils/foundry-v14.js';
@@ -98,10 +98,10 @@ import {
   syncActiveWeaponSetFromHands,
 } from '../utils/weapon-sets.js';
 import {
+  canLoadAmmunitionOnto,
   findAmmoContainerFromDropPath,
   isAmmoContainer,
   isAmmunitionItem,
-  keepsInventoryGridWhenEquipped,
   loadAmmunitionIntoContainer,
   quiverAmmunitionLabel,
   requiresAmmunition,
@@ -1713,12 +1713,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         if (!slotMap[slot]) {
           slotMap[slot] = item;
         }
-        if (keepsInventoryGridWhenEquipped(item) && flags.keepInventoryGrid === true && flags.grid?.x && flags.grid?.y) {
-          inventoryItems.push(item);
-          if (band === 'enc') encItems.push(item);
-          else if (band === 'heavy') heavyItems.push(item);
-          else notItems.push(item);
-        }
       } else if (isHiddenInInactiveWeaponSet(this.actor, item)) {
         // Prepared on the inactive weapon set — still on the character, not in the grid.
         continue;
@@ -3002,6 +2996,22 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       if (!col || !row) return;
 
       clearDropHighlight();
+
+      const dragItem = this.#resolveDraggedActorOrWorldItem();
+      const hoverItem = this.#itemAtInventoryCell(band, col, row);
+      if (canLoadAmmunitionOnto(dragItem, hoverItem)) {
+        const flags = hoverItem.getFlag?.('mastery-system', 'equipment') || {};
+        const size = parseInventorySize(hoverItem?.system?.inventorySize);
+        const ox = Number(flags.grid?.x || col);
+        const oy = Number(flags.grid?.y || row);
+        const bandCells = html.find(`.df-enc-band[data-band="${band}"] .df-cell`);
+        for (let dy = 0; dy < size.h; dy++) {
+          for (let dx = 0; dx < size.w; dx++) {
+            bandCells.filter(`[data-col="${ox + dx}"][data-row="${oy + dy}"]`).addClass('df-drop-valid');
+          }
+        }
+        return;
+      }
 
       const size = resolveDragSize(ev);
       const BAND_COLS = ZONE_WIDTH_COLS;
@@ -7193,7 +7203,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         if (droppedItem) {
           await this.#tryWireDroppedArtifact(droppedItem, sourceWorldItem);
           if (isAmmunitionItem(droppedItem)) {
-            const quiver = findAmmoContainerFromDropPath(this.actor, dropPath);
+            const quiver = this.#resolveAmmoDropTarget(event, target, dropPath);
             if (quiver && quiver.id !== droppedItem.id) {
               await loadAmmunitionIntoContainer(this.actor, droppedItem, quiver);
               (this as any)._lastDroppedItemId = quiver.id;
@@ -7230,7 +7240,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     }
 
     if (isAmmunitionItem(droppedItem)) {
-      const quiver = findAmmoContainerFromDropPath(this.actor, dropPath);
+      const quiver = this.#resolveAmmoDropTarget(event, target, dropPath);
       if (quiver && quiver.id !== droppedItem.id) {
         const result = await loadAmmunitionIntoContainer(this.actor, droppedItem, quiver);
         if (result.reason === 'busy') return false;
@@ -7403,12 +7413,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
 
     const currentFlags = item.getFlag('mastery-system', 'equipment') || {};
     const newFlags: any = { ...currentFlags, container: 'inventory', slot, band: currentFlags.band || 'not' };
-    if (keepsInventoryGridWhenEquipped(item) && currentFlags.grid) {
-      newFlags.keepInventoryGrid = true;
-    } else {
-      delete newFlags.grid;
-      delete newFlags.keepInventoryGrid;
-    }
+    delete newFlags.grid;
+    delete newFlags.keepInventoryGrid;
     if (isNaturallyTwoHandedItem(item)) newFlags.twoHanded = true;
     else delete newFlags.twoHanded;
     await item.update({
@@ -7589,6 +7595,46 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       cols: ZONE_WIDTH_COLS,
       rows: 9,
     });
+  }
+
+  #resolveDraggedActorOrWorldItem(): any | null {
+    const id = (window as any).__msDragItemId as string | undefined;
+    if (!id) return null;
+    return this.actor.items.get(id) || (globalThis as any).game?.items?.get?.(id) || null;
+  }
+
+  #resolveAmmoDropTarget(event: DragEvent | undefined, target: HTMLElement | null, dropPath: HTMLElement[]): any | null {
+    const dropCell = this.#resolveDropCell(event);
+    const dropBand = dropCell?.closest?.('.df-enc-band') as HTMLElement | undefined;
+    const cellItem = dropCell && dropBand
+      ? this.#itemAtInventoryCell(
+          String(dropBand.dataset?.band || ''),
+          Number(dropCell.dataset?.col || 0),
+          Number(dropCell.dataset?.row || 0),
+        )
+      : null;
+    if (isAmmoContainer(cellItem)) return cellItem;
+    const slotItem = target?.dataset?.dfDrop === 'equip-slot'
+      ? this.#getItemInEquipSlot(String(target.dataset.slot || ''))
+      : null;
+    if (isAmmoContainer(slotItem)) return slotItem;
+    return findAmmoContainerFromDropPath(this.actor, dropPath);
+  }
+
+  #itemAtInventoryCell(band: string, col: number, row: number): any | null {
+    for (const item of this.actor.items.values()) {
+      const flags = (item as any).getFlag?.('mastery-system', 'equipment') || {};
+      if (!occupiesInventoryGrid(flags, band)) continue;
+      const size = parseInventorySize((item as any)?.system?.inventorySize);
+      const rect = {
+        x: Number(flags.grid?.x || 0),
+        y: Number(flags.grid?.y || 0),
+        w: size.w,
+        h: size.h,
+      };
+      if (rectsOverlap(rect, { x: col, y: row, w: 1, h: 1 })) return item;
+    }
+    return null;
   }
 
   /**

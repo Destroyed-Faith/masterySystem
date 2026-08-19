@@ -12,7 +12,7 @@ export interface EquipmentGridFlags {
   grid?: { x?: number; y?: number } | null;
   consumableSlot?: unknown;
   weaponSetPrepared?: boolean;
-  /** Equipped quivers stay on the carry grid. */
+  /** Legacy: equipped items no longer occupy the carry grid. */
   keepInventoryGrid?: boolean;
 }
 
@@ -24,7 +24,7 @@ export function occupiesInventoryGrid(
   if (!flags) return false;
   if (flags.weaponSetPrepared === true) return false;
   if (flags.container !== 'inventory') return false;
-  if (flags.slot && flags.keepInventoryGrid !== true) return false;
+  if (flags.slot) return false;
   if (flags.consumableSlot != null && Number.isFinite(Number(flags.consumableSlot))) return false;
   const x = Number(flags.grid?.x || 0);
   const y = Number(flags.grid?.y || 0);

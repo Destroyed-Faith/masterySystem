@@ -16,7 +16,6 @@ import { canCurrentUserUpdateDocument } from '../combat/combat-permissions.js';
 import { actorParticipatesInActiveCombat } from './consumable-slots.js';
 import { isEchoBoundArtifact } from './echo-artifact-equip.js';
 import {
-  keepsInventoryGridWhenEquipped,
   migrateActorAmmunition,
   normalizeAmmoWeaponSetHands,
   requiresAmmunition,
@@ -317,13 +316,8 @@ function equipmentUpdate(
   else delete next.twoHanded;
   if (patch.prepared) next.weaponSetPrepared = true;
   else delete next.weaponSetPrepared;
-  if (keepsInventoryGridWhenEquipped(item) && !patch.prepared && patch.equipped && flags.grid) {
-    next.grid = flags.grid;
-    next.keepInventoryGrid = true;
-  } else {
-    delete next.grid;
-    delete next.keepInventoryGrid;
-  }
+  delete next.grid;
+  delete next.keepInventoryGrid;
   return {
     _id: item.id,
     'flags.mastery-system.equipment': next,

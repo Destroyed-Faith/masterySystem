@@ -6,6 +6,7 @@ vi.mock('../src/token-radial-menu.js', () => ({
 
 import {
   attackUsesAmmunitionWeapon,
+  canLoadAmmunitionOnto,
   consumeAmmunitionForAttack,
   countAmmunitionShotsForOption,
   evaluateAmmunitionAttack,
@@ -442,5 +443,14 @@ describe('item classification', () => {
     expect(isAmmunitionItem(arrowQuiver('q'))).toBe(false);
     expect(requiresAmmunition(bow())).toBe(true);
     expect(requiresAmmunition(crossbow())).toBe(true);
+  });
+
+  it('allows loading only matching ammunition onto a quiver', () => {
+    const stack = arrows('a', 12);
+    const boltStack = bolts('b', 12);
+    const quiver = arrowQuiver('q');
+    expect(canLoadAmmunitionOnto(stack, quiver)).toBe(true);
+    expect(canLoadAmmunitionOnto(boltStack, quiver)).toBe(false);
+    expect(canLoadAmmunitionOnto(stack, stack)).toBe(false);
   });
 });

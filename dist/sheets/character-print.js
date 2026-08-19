@@ -350,9 +350,6 @@ function buildPrintEquipment(allItems) {
         if (slot) {
             if (!slotMap[slot])
                 slotMap[slot] = item;
-            if (item?.system?.ammoContainer === true && flags?.keepInventoryGrid === true && flags?.grid?.x && flags?.grid?.y) {
-                carry.push(item);
-            }
         }
         else if (flags?.weaponSetPrepared === true) {
             continue;
