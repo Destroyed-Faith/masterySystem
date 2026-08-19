@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.387] - 2026-08-19
+
+### Changed
+
+- **Weaponslots I / II:** The sheet switches above the paperdoll hands now read **Weaponslots I** and **II** (German: **Waffenslots**) instead of **[1] [2]**.
+- **Inactive set stays prepared:** Switching Weaponslots no longer drops the hidden weapons into the inventory grid. They stay on the character, unequipped and out of sight, until you put them away or swap them back into your hands.
+
 ## [0.9.386] - 2026-08-19
 
 ### Added

@@ -104,6 +104,8 @@ export function getActorInventoryLoadZone(actor) {
         const flags = item.getFlag?.('mastery-system', 'equipment')
             ?? item.flags?.['mastery-system']?.equipment
             ?? {};
+        if (flags.weaponSetPrepared === true)
+            continue;
         if (flags.container !== 'inventory')
             continue;
         if (flags.slot)

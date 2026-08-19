@@ -9529,10 +9529,19 @@
 .df-weapon-set-switches {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   margin: 0 0 8px;
   position: relative;
   z-index: 2;
+}
+
+.df-weapon-set-heading {
+  margin-right: 2px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--df-text-secondary, #a0a0a0);
 }
 
 .df-weapon-set-switch {

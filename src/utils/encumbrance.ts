@@ -129,6 +129,7 @@ export function getActorInventoryLoadZone(actor: { items: Iterable<any> }): Load
             item.getFlag?.('mastery-system', 'equipment')
             ?? item.flags?.['mastery-system']?.equipment
             ?? {};
+        if (flags.weaponSetPrepared === true) continue;
         if (flags.container !== 'inventory') continue;
         if (flags.slot) continue;
         if (flags.consumableSlot != null && Number.isFinite(Number(flags.consumableSlot))) continue;

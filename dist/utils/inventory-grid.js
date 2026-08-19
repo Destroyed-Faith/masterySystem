@@ -2,6 +2,8 @@
 export function occupiesInventoryGrid(flags, band) {
     if (!flags)
         return false;
+    if (flags.weaponSetPrepared === true)
+        return false;
     if (flags.container !== 'inventory')
         return false;
     if (flags.slot)

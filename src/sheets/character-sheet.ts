@@ -91,6 +91,7 @@ import { getNormalizedEquipSlots, normalizeSlotKey } from '../utils/equip-slots.
 import {
   canMarkTwoHandedGrip,
   ensureWeaponSets,
+  isHiddenInInactiveWeaponSet,
   peekWeaponSets,
   swapWeaponSet,
   syncActiveWeaponSetFromHands,
@@ -1701,6 +1702,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         if (!slotMap[slot]) {
           slotMap[slot] = item;
         }
+      } else if (isHiddenInInactiveWeaponSet(this.actor, item)) {
+        // Prepared on the inactive weapon set — still on the character, not in the grid.
+        continue;
       } else if (isEchoArtifactInventoryHidden(item)) {
         // Echo-bound artifacts belong on the paperdoll only — skip inventory clutter.
         continue;
@@ -1812,14 +1816,17 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       }),
       weaponSets: {
         active: weaponSets.active,
-        buttons: ([1, 2] as const).map((index) => ({
-          index,
-          label: String(index),
-          active: weaponSets.active === index,
-          title:
-            (globalThis as any).game?.i18n?.format?.('MASTERY.weaponSets.switchTitle', { n: index }) ||
-            `Weapon Set ${index}`,
-        })),
+        buttons: ([1, 2] as const).map((index) => {
+          const roman = index === 2 ? 'II' : 'I';
+          return {
+            index,
+            label: roman,
+            active: weaponSets.active === index,
+            title:
+              (globalThis as any).game?.i18n?.format?.('MASTERY.weaponSets.switchTitle', { n: roman }) ||
+              `Weaponslots ${roman}`,
+          };
+        }),
       },
     };
   }
@@ -7556,6 +7563,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       newFlags.band = null;
       newFlags.slot = null;
       delete newFlags.twoHanded;
+      delete newFlags.weaponSetPrepared;
       await item.update({
         'flags.mastery-system.equipment': newFlags,
         'system.equipped': false
@@ -7568,6 +7576,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         newFlags.band = band;
         newFlags.slot = null;
         delete newFlags.twoHanded;
+        delete newFlags.weaponSetPrepared;
         const BAND_COLS = ZONE_WIDTH_COLS;
         const BAND_ROWS = 9;
         const size = parseInventorySize(item?.system?.inventorySize);

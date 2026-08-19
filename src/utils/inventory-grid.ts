@@ -11,6 +11,7 @@ export interface EquipmentGridFlags {
   slot?: string | null;
   grid?: { x?: number; y?: number } | null;
   consumableSlot?: unknown;
+  weaponSetPrepared?: boolean;
 }
 
 /** True when the item currently occupies carry-grid cells (not equipped, stash, or a consumable slot). */
@@ -19,6 +20,7 @@ export function occupiesInventoryGrid(
   band?: string
 ): boolean {
   if (!flags) return false;
+  if (flags.weaponSetPrepared === true) return false;
   if (flags.container !== 'inventory') return false;
   if (flags.slot) return false;
   if (flags.consumableSlot != null && Number.isFinite(Number(flags.consumableSlot))) return false;

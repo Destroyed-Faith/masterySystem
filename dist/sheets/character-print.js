@@ -339,6 +339,9 @@ function buildPrintEquipment(allItems) {
             if (!slotMap[slot])
                 slotMap[slot] = item;
         }
+        else if (flags?.weaponSetPrepared === true) {
+            continue;
+        }
         else if (isEchoArtifactInventoryHidden(item)) {
             continue;
         }

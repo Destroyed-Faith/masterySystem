@@ -1975,6 +1975,7 @@
             <h4>Equipped</h4>
             {{#if equipmentUi.weaponSets}}
             <div class="df-weapon-set-switches" role="group" aria-label="{{localize 'MASTERY.weaponSets.groupLabel'}}">
+              <span class="df-weapon-set-heading">{{localize "MASTERY.weaponSets.groupLabel"}}</span>
               {{#each equipmentUi.weaponSets.buttons}}
               <button type="button" class="df-weapon-set-switch{{#if this.active}} is-active{{/if}}" data-action="switchWeaponSet" data-weapon-set="{{this.index}}" title="{{this.title}}" aria-pressed="{{#if this.active}}true{{else}}false{{/if}}">{{this.label}}</button>
               {{/each}}

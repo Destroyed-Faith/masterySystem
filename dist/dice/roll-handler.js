@@ -2,7 +2,7 @@
  * Dice rolling handler for Mastery System
  * Implements Roll & Keep with exploding 8s
  */
-import { EXPLODE_VALUE, RAISE_INCREMENT } from '../utils/constants';
+import { EXPLODE_VALUE, RAISE_INCREMENT } from '../utils/constants.js';
 import { resolveRaiseOutcome } from '../combat/raise-resolution.js';
 import { finalizeRolledPool } from './pool-finalize.js';
 import { manualKindFromRollKind, manualRollBonusForKind, readManualAdjustments, } from '../utils/manual-adjustments.js';

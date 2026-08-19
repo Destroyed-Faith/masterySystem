@@ -1,6 +1,6 @@
-import { WEAPONS, masteryWeaponCatalogKey } from './weapons';
-import { BASE_ARMOR, BASE_SHIELDS } from './equipment';
-import { getItemIcon, normalizeWeaponNameKey } from './item-icons';
+import { WEAPONS, masteryWeaponCatalogKey } from './weapons.js';
+import { BASE_ARMOR, BASE_SHIELDS } from './equipment.js';
+import { getItemIcon, normalizeWeaponNameKey } from './item-icons.js';
 const STORAGE_FOLDER_NAME = 'General Items Storage';
 const GEAR_ITEMS = [
     { name: 'Backpack', inventorySize: '2x3' },

@@ -5,8 +5,8 @@
  * - When user clicks any valid target (token OR ring/overlay area), fires hook with attacker/target ids + option, then ends targeting
  * - Does NOT create chat messages, roll dice, or execute attacks directly
  */
-import { highlightHexesInRange, clearHexHighlight } from "./utils/hex-highlighting";
-import { gridStepsFromMeters, isWithinRangeMeters } from "./utils/grid-range";
+import { highlightHexesInRange, clearHexHighlight } from "./utils/hex-highlighting.js";
+import { gridStepsFromMeters, isWithinRangeMeters } from "./utils/grid-range.js";
 import { tokenIsHostileTo } from "./combat/threatened-ranged.js";
 import { filterPerceivableTargetIds } from "./combat/perception-gate.js";
 import { pickTokenFromPointerEvent, pointerEventIsOnToken, } from "./utils/token-pick.js";

@@ -44,6 +44,40 @@ export function emptyWeaponSetsState() {
 export function isTwoHandedSet(set) {
     return !!set.mainhand && set.mainhand === set.offhand;
 }
+export function weaponSetAssignedIds(state) {
+    const ids = new Set();
+    for (const hands of [state.sets[1], state.sets[2]]) {
+        if (hands?.mainhand)
+            ids.add(hands.mainhand);
+        if (hands?.offhand)
+            ids.add(hands.offhand);
+    }
+    return ids;
+}
+export function isItemAssignedToWeaponSet(actor, itemId) {
+    if (!itemId)
+        return false;
+    return weaponSetAssignedIds(peekWeaponSets(actor)).has(String(itemId));
+}
+/** Inactive-set items stay prepared on the character — hidden, not in the carry grid. */
+export function isWeaponSetPreparedFlags(flags) {
+    return flags?.weaponSetPrepared === true;
+}
+export function isWeaponSetPreparedItem(item) {
+    return isWeaponSetPreparedFlags(getItemEquipmentFlags(item));
+}
+/** True when an item belongs to a weapon set and must not appear in inventory. */
+export function isHiddenInInactiveWeaponSet(actor, item) {
+    const id = item?.id != null ? String(item.id) : '';
+    if (!id)
+        return false;
+    if (isWeaponSetPreparedItem(item))
+        return true;
+    if (!isItemAssignedToWeaponSet(actor, id))
+        return false;
+    const slot = getItemEquipmentFlags(item).slot;
+    return !slot && item?.system?.equipped !== true;
+}
 export function isNaturallyTwoHandedItem(item) {
     if (!item)
         return false;
@@ -226,6 +260,10 @@ function equipmentUpdate(item, patch) {
         next.twoHanded = true;
     else
         delete next.twoHanded;
+    if (patch.prepared)
+        next.weaponSetPrepared = true;
+    else
+        delete next.weaponSetPrepared;
     delete next.grid;
     return {
         _id: item.id,
@@ -263,7 +301,7 @@ export async function applyWeaponSetHands(actor, set) {
             continue;
         if (isEchoBoundArtifact(held))
             continue;
-        queue(held, { slot: null, equipped: false, twoHanded: false });
+        queue(held, { slot: null, equipped: false, twoHanded: false, prepared: true });
     }
     if (desiredMain) {
         const item = byId.get(desiredMain);

@@ -2,11 +2,11 @@
  * Character Sheet for Mastery System
  * Main player character sheet with tabs for attributes, skills, powers, etc.
  */
-import { SKILLS, SKILL_CATEGORIES } from '../utils/skills';
+import { SKILLS, SKILL_CATEGORIES } from '../utils/skills.js';
 import { getEquippedPhysicalSkillPenaltyDice } from '../utils/equipment-modifiers.js';
 import { buildSkillRollPoolPreview, getSkillRollDicePool, isSkillFullPoolReady, reducedSkillAttributePool, skillFullPoolThreshold, } from '../dice/roll-context-build.js';
-import { DISADVANTAGES, getDisadvantageDefinition, calculateDisadvantagePoints, validateDisadvantageSelection, detailsForMentalRestrictionsDialog, detailsForPhysicalScarsDialog } from '../system/disadvantages';
-import { getAllSchticks } from '../utils/schticks';
+import { DISADVANTAGES, getDisadvantageDefinition, calculateDisadvantagePoints, validateDisadvantageSelection, detailsForMentalRestrictionsDialog, detailsForPhysicalScarsDialog } from '../system/disadvantages.js';
+import { getAllSchticks } from '../utils/schticks.js';
 import { showEchoCardPickDialog, showEchoCreationDialog } from './character-sheet-echo-dialog.js';
 import { openCharacterPrintSheet } from './character-print.js';
 import { getCardOption, getEcho, getEchoCard, getEchoSubChoice, getUnlockedCardSlots, isEchoCardLicensed, removeSelectedEchoCard } from '../utils/echos/index.js';
@@ -17,7 +17,7 @@ import { showPowerCreationDialog } from './character-sheet-power-dialog.js';
 import { validateTowerWizardCreation } from '../creation/tower-wizard/tower-wizard-validation.js';
 import { getLanguage as getLanguageDef, normalizeKnownLanguages } from '../utils/languages.js';
 import { showLanguagesDialog } from './languages-dialog.js';
-import { collectInventoryBandRects, findFirstFit, fitsInGrid, parseInventorySize, rectsOverlap } from '../utils/inventory-grid';
+import { collectInventoryBandRects, findFirstFit, fitsInGrid, parseInventorySize, rectsOverlap } from '../utils/inventory-grid.js';
 import { isLegacyUnarmedItem } from '../utils/unarmed-fallback.js';
 import { loadZoneFromBands, movementPenaltyForLoad, LOAD_ZONE_LABEL, ZONE_WIDTH_COLS } from '../utils/encumbrance.js';
 import { getFilePickerClass } from '../utils/foundry-v14.js';
@@ -33,14 +33,14 @@ import { deleteSummonActor } from '../stones/familiar-actor-factory.js';
 import { buildPostCreationSnapshot } from '../utils/xp-post-creation.js';
 import { resetCharacterForRecreation, listEquippedGeneralArtifacts } from '../utils/reset-character.js';
 import { buildCancelSkillsRedistributeUpdates, buildFinishSkillsRedistributeUpdates, buildStartSkillsRedistributeUpdates, canStartSkillsRedistribute, getCreationSkillBudget, isSkillsRedistributing, validateCreationSkillAllocation, } from '../utils/skills-redistribute.js';
-import { getDefaultInventorySizeForItemData } from '../utils/seed-general-items';
+import { getDefaultInventorySizeForItemData } from '../utils/seed-general-items.js';
 import { getNormalizedEquipSlots, normalizeSlotKey } from '../utils/equip-slots.js';
-import { canMarkTwoHandedGrip, ensureWeaponSets, peekWeaponSets, swapWeaponSet, syncActiveWeaponSetFromHands, } from '../utils/weapon-sets.js';
-import { attributeBandCost, powerLevelCost } from '../utils/constants';
+import { canMarkTwoHandedGrip, ensureWeaponSets, isHiddenInInactiveWeaponSet, peekWeaponSets, swapWeaponSet, syncActiveWeaponSetFromHands, } from '../utils/weapon-sets.js';
+import { attributeBandCost, powerLevelCost } from '../utils/constants.js';
 import { calculateMaxPowerLevel, calculateMaxSkillRank } from '../utils/calculations.js';
 import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
 import { getPowerMinLevel as resolvePowerMinLevel } from '../utils/power-xp-refund.js';
-import { matchesMasteryWeaponCatalog } from '../utils/weapons';
+import { matchesMasteryWeaponCatalog } from '../utils/weapons.js';
 import { buildRadialManeuverPrefsContext } from '../utils/radial-maneuver-prefs.js';
 import { buildCombatSensesPanelContext, normalizeCombatSensesData } from '../combat/combat-sense-collection.js';
 import { getActiveBuffs } from '../utils/active-buffs.js';
@@ -1544,6 +1544,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                     slotMap[slot] = item;
                 }
             }
+            else if (isHiddenInInactiveWeaponSet(this.actor, item)) {
+                // Prepared on the inactive weapon set — still on the character, not in the grid.
+                continue;
+            }
             else if (isEchoArtifactInventoryHidden(item)) {
                 // Echo-bound artifacts belong on the paperdoll only — skip inventory clutter.
                 continue;
@@ -1656,13 +1660,16 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             }),
             weaponSets: {
                 active: weaponSets.active,
-                buttons: [1, 2].map((index) => ({
-                    index,
-                    label: String(index),
-                    active: weaponSets.active === index,
-                    title: globalThis.game?.i18n?.format?.('MASTERY.weaponSets.switchTitle', { n: index }) ||
-                        `Weapon Set ${index}`,
-                })),
+                buttons: [1, 2].map((index) => {
+                    const roman = index === 2 ? 'II' : 'I';
+                    return {
+                        index,
+                        label: roman,
+                        active: weaponSets.active === index,
+                        title: globalThis.game?.i18n?.format?.('MASTERY.weaponSets.switchTitle', { n: roman }) ||
+                            `Weaponslots ${roman}`,
+                    };
+                }),
             },
         };
     }
@@ -6867,6 +6874,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             newFlags.band = null;
             newFlags.slot = null;
             delete newFlags.twoHanded;
+            delete newFlags.weaponSetPrepared;
             await item.update({
                 'flags.mastery-system.equipment': newFlags,
                 'system.equipped': false
@@ -6880,6 +6888,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 newFlags.band = band;
                 newFlags.slot = null;
                 delete newFlags.twoHanded;
+                delete newFlags.weaponSetPrepared;
                 const BAND_COLS = ZONE_WIDTH_COLS;
                 const BAND_ROWS = 9;
                 const size = parseInventorySize(item?.system?.inventorySize);

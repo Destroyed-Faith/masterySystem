@@ -1,7 +1,7 @@
 /**
  * Info Panel for Radial Menu
  */
-import { getSegmentIdForOption } from './options';
+import { getSegmentIdForOption } from './options.js';
 import { artifactToVirtualWeapon, isVirtualUnarmedWeapon, resolveEquippedWeaponForAttackType, } from '../utils/unarmed-fallback.js';
 /**
  * Convert world coordinates to screen coordinates

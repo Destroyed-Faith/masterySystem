@@ -13,9 +13,9 @@
  * keep this dialog empty.
  */
 // Types are available globally in Foundry VTT
-import { seedGeneralItemsStorage } from '../utils/seed-general-items';
-import { getItemIcon } from '../utils/item-icons';
-import { matchesMasteryWeaponCatalog } from '../utils/weapons';
+import { seedGeneralItemsStorage } from '../utils/seed-general-items.js';
+import { getItemIcon } from '../utils/item-icons.js';
+import { matchesMasteryWeaponCatalog } from '../utils/weapons.js';
 import { normalizeSlotKey } from '../utils/equip-slots.js';
 import { isEchoArtifactInventoryHidden } from '../utils/echo-artifact-equip.js';
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
@@ -215,6 +215,9 @@ export class GeneralItemsStorageDialog extends BaseDialog {
                 if (!slotMap[slot]) {
                     slotMap[slot] = item;
                 }
+            }
+            else if (flags.weaponSetPrepared === true) {
+                continue;
             }
             else if (isEchoArtifactInventoryHidden(item)) {
                 continue;

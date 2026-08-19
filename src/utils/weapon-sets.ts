@@ -74,6 +74,39 @@ export function isTwoHandedSet(set: WeaponSetHands): boolean {
   return !!set.mainhand && set.mainhand === set.offhand;
 }
 
+export function weaponSetAssignedIds(state: WeaponSetsState): Set<string> {
+  const ids = new Set<string>();
+  for (const hands of [state.sets[1], state.sets[2]]) {
+    if (hands?.mainhand) ids.add(hands.mainhand);
+    if (hands?.offhand) ids.add(hands.offhand);
+  }
+  return ids;
+}
+
+export function isItemAssignedToWeaponSet(actor: any, itemId: string | null | undefined): boolean {
+  if (!itemId) return false;
+  return weaponSetAssignedIds(peekWeaponSets(actor)).has(String(itemId));
+}
+
+/** Inactive-set items stay prepared on the character — hidden, not in the carry grid. */
+export function isWeaponSetPreparedFlags(flags: { weaponSetPrepared?: unknown } | null | undefined): boolean {
+  return flags?.weaponSetPrepared === true;
+}
+
+export function isWeaponSetPreparedItem(item: any): boolean {
+  return isWeaponSetPreparedFlags(getItemEquipmentFlags(item));
+}
+
+/** True when an item belongs to a weapon set and must not appear in inventory. */
+export function isHiddenInInactiveWeaponSet(actor: any, item: any): boolean {
+  const id = item?.id != null ? String(item.id) : '';
+  if (!id) return false;
+  if (isWeaponSetPreparedItem(item)) return true;
+  if (!isItemAssignedToWeaponSet(actor, id)) return false;
+  const slot = getItemEquipmentFlags(item).slot;
+  return !slot && item?.system?.equipped !== true;
+}
+
 export function isNaturallyTwoHandedItem(item: any): boolean {
   if (!item) return false;
   const sys = item.system || {};
@@ -250,7 +283,10 @@ export async function syncActiveWeaponSetFromHands(actor: any): Promise<WeaponSe
   return next;
 }
 
-function equipmentUpdate(item: any, patch: { slot: string | null; equipped: boolean; twoHanded?: boolean }): Record<string, unknown> {
+function equipmentUpdate(
+  item: any,
+  patch: { slot: string | null; equipped: boolean; twoHanded?: boolean; prepared?: boolean },
+): Record<string, unknown> {
   const flags = getItemEquipmentFlags(item);
   const next: Record<string, unknown> = {
     ...flags,
@@ -260,6 +296,8 @@ function equipmentUpdate(item: any, patch: { slot: string | null; equipped: bool
   };
   if (patch.twoHanded) next.twoHanded = true;
   else delete next.twoHanded;
+  if (patch.prepared) next.weaponSetPrepared = true;
+  else delete next.weaponSetPrepared;
   delete next.grid;
   return {
     _id: item.id,
@@ -281,7 +319,7 @@ export async function applyWeaponSetHands(actor: any, set: WeaponSetHands): Prom
   const updates: Record<string, unknown>[] = [];
   const seen = new Set<string>();
 
-  const queue = (item: any, patch: { slot: string | null; equipped: boolean; twoHanded?: boolean }) => {
+  const queue = (item: any, patch: { slot: string | null; equipped: boolean; twoHanded?: boolean; prepared?: boolean }) => {
     const id = String(item.id);
     if (seen.has(id)) return;
     seen.add(id);
@@ -295,7 +333,7 @@ export async function applyWeaponSetHands(actor: any, set: WeaponSetHands): Prom
     const id = String(held.id);
     if (desiredIds.has(id)) continue;
     if (isEchoBoundArtifact(held)) continue;
-    queue(held, { slot: null, equipped: false, twoHanded: false });
+    queue(held, { slot: null, equipped: false, twoHanded: false, prepared: true });
   }
 
   if (desiredMain) {

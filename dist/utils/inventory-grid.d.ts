@@ -13,6 +13,7 @@ export interface EquipmentGridFlags {
         y?: number;
     } | null;
     consumableSlot?: unknown;
+    weaponSetPrepared?: boolean;
 }
 /** True when the item currently occupies carry-grid cells (not equipped, stash, or a consumable slot). */
 export declare function occupiesInventoryGrid(flags: EquipmentGridFlags | null | undefined, band?: string): boolean;

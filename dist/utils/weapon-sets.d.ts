@@ -32,6 +32,15 @@ export type SwapWeaponSetResult = {
 };
 export declare function emptyWeaponSetsState(): WeaponSetsState;
 export declare function isTwoHandedSet(set: WeaponSetHands): boolean;
+export declare function weaponSetAssignedIds(state: WeaponSetsState): Set<string>;
+export declare function isItemAssignedToWeaponSet(actor: any, itemId: string | null | undefined): boolean;
+/** Inactive-set items stay prepared on the character — hidden, not in the carry grid. */
+export declare function isWeaponSetPreparedFlags(flags: {
+    weaponSetPrepared?: unknown;
+} | null | undefined): boolean;
+export declare function isWeaponSetPreparedItem(item: any): boolean;
+/** True when an item belongs to a weapon set and must not appear in inventory. */
+export declare function isHiddenInInactiveWeaponSet(actor: any, item: any): boolean;
 export declare function isNaturallyTwoHandedItem(item: any): boolean;
 export declare function isVersatileItem(item: any): boolean;
 export declare function canMarkTwoHandedGrip(item: any): boolean;

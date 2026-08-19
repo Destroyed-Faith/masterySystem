@@ -338,6 +338,30 @@ describe('weapon set apply + swap', () => {
     expect(shield.system.equipped).toBe(false);
     expect(sword.getFlag('mastery-system', 'equipment').slot).toBeNull();
     expect(shield.getFlag('mastery-system', 'equipment').slot).toBeNull();
+    expect(sword.getFlag('mastery-system', 'equipment').weaponSetPrepared).toBe(true);
+    expect(shield.getFlag('mastery-system', 'equipment').weaponSetPrepared).toBe(true);
+    expect(peekWeaponSets(actor).sets[1]).toEqual({ mainhand: 'sword', offhand: 'shield' });
+  });
+
+  it('keeps the inactive set prepared instead of sending it to inventory', async () => {
+    const { occupiesInventoryGrid } = await import('../src/utils/inventory-grid.js');
+    const { isHiddenInInactiveWeaponSet } = await import('../src/utils/weapon-sets.js');
+    const sword = makeItem('sword', { type: 'weapon', equipped: true, slot: 'mainhand' });
+    const bow = makeItem('bow', { type: 'weapon', equipped: false, slot: null, hands: 2 });
+    const actor = makeActor([sword, bow], {
+      schemaVersion: 1,
+      active: 1,
+      sets: {
+        1: { mainhand: 'sword', offhand: null },
+        2: { mainhand: 'bow', offhand: 'bow' },
+      },
+    });
+    await swapWeaponSet(actor, 2);
+    expect(isHiddenInInactiveWeaponSet(actor, sword)).toBe(true);
+    expect(occupiesInventoryGrid(sword.getFlag('mastery-system', 'equipment'))).toBe(false);
+    expect(sword.system.equipped).toBe(false);
+    expect(bow.system.equipped).toBe(true);
+    expect(peekWeaponSets(actor).sets[1].mainhand).toBe('sword');
   });
 
   it('rapid clicks while a swap is in progress do not start a second apply', async () => {

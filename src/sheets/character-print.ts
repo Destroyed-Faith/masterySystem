@@ -367,6 +367,8 @@ function buildPrintEquipment(allItems: any[]): {
     }
     if (slot) {
       if (!slotMap[slot]) slotMap[slot] = item;
+    } else if (flags?.weaponSetPrepared === true) {
+      continue;
     } else if (isEchoArtifactInventoryHidden(item)) {
       continue;
     } else if (flags?.consumableSlot != null && Number.isFinite(Number(flags.consumableSlot))) {
