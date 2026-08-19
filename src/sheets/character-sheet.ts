@@ -7103,8 +7103,24 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     return data;
   }
 
+  /** Local Minor Magic controls must not submit / re-render the actor sheet. */
+  #isLocalMinorMagicField(event?: Event): boolean {
+    const target = event?.target as HTMLElement | null;
+    return !!target?.closest?.('.js-mm-name, .mm-root .js-mm-form');
+  }
+
+  /** @override */
+  _onChangeForm(formConfig: any, event: Event) {
+    if (this.#isLocalMinorMagicField(event)) return;
+    return super._onChangeForm?.(formConfig, event);
+  }
+
   /** @override */
   async _onSubmitForm(formConfig: any, event: Event) {
+    if (this.#isLocalMinorMagicField(event)) {
+      event?.preventDefault?.();
+      return;
+    }
     // Block updates if creation is incomplete
     const creationComplete = (this.actor as any).system?.creation?.complete !== false;
     if (!creationComplete && !(game as any).user?.isGM) {

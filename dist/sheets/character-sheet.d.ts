@@ -61,6 +61,8 @@ export declare class MasteryCharacterSheet extends BaseActorSheet {
     /** Status UI is button-driven — never let an empty form submit wipe it. */
     _prepareSubmitData(event: any, form: any, formData: any, updateData?: any): any;
     /** @override */
+    _onChangeForm(formConfig: any, event: Event): any;
+    /** @override */
     _onSubmitForm(formConfig: any, event: Event): Promise<any>;
     /**
      * Handle drag and drop for equipment

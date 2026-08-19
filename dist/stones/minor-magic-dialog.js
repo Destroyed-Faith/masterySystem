@@ -104,6 +104,7 @@ export class MinorMagicPanel {
             });
         });
         root.querySelector('.js-mm-form')?.addEventListener('change', (ev) => {
+            ev.stopPropagation();
             const value = ev.target.value;
             if (MINOR_MAGIC_FORMS.includes(value)) {
                 this.itemForm = value;
@@ -111,8 +112,16 @@ export class MinorMagicPanel {
                 void this.onRefresh();
             }
         });
-        root.querySelector('.js-mm-name')?.addEventListener('change', (ev) => {
-            this.itemName = ev.target.value;
+        const nameInput = root.querySelector('.js-mm-name');
+        const keepLocalNameEdit = (ev) => {
+            ev.stopPropagation();
+            if (ev.target instanceof HTMLInputElement)
+                this.itemName = ev.target.value;
+        };
+        nameInput?.addEventListener('input', keepLocalNameEdit);
+        nameInput?.addEventListener('change', keepLocalNameEdit);
+        nameInput?.addEventListener('keydown', (ev) => {
+            ev.stopPropagation();
         });
         root.querySelector('.js-mm-create')?.addEventListener('click', (ev) => {
             ev.preventDefault();

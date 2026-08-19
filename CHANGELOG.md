@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.391] - 2026-08-19
+
+### Fixed
+
+- **Minor Magic item name:** Typing in the name field no longer re-renders the sheet and restores the old title. Backspace and delete work again when correcting a typo.
+
 ## [0.9.390] - 2026-08-19
 
 ### Fixed

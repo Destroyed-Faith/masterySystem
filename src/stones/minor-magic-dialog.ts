@@ -126,6 +126,7 @@ export class MinorMagicPanel {
     });
 
     root.querySelector('.js-mm-form')?.addEventListener('change', (ev) => {
+      ev.stopPropagation();
       const value = (ev.target as HTMLSelectElement).value;
       if (MINOR_MAGIC_FORMS.includes(value as MinorMagicForm)) {
         this.itemForm = value as MinorMagicForm;
@@ -134,8 +135,15 @@ export class MinorMagicPanel {
       }
     });
 
-    root.querySelector('.js-mm-name')?.addEventListener('change', (ev) => {
-      this.itemName = (ev.target as HTMLInputElement).value;
+    const nameInput = root.querySelector('.js-mm-name') as HTMLInputElement | null;
+    const keepLocalNameEdit = (ev: Event) => {
+      ev.stopPropagation();
+      if (ev.target instanceof HTMLInputElement) this.itemName = ev.target.value;
+    };
+    nameInput?.addEventListener('input', keepLocalNameEdit);
+    nameInput?.addEventListener('change', keepLocalNameEdit);
+    nameInput?.addEventListener('keydown', (ev) => {
+      ev.stopPropagation();
     });
 
     root.querySelector('.js-mm-create')?.addEventListener('click', (ev) => {
