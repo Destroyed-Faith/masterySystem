@@ -3,6 +3,7 @@
  */
 import { getSegmentIdForOption } from './options.js';
 import { artifactToVirtualWeapon, isVirtualUnarmedWeapon, resolveEquippedWeaponForAttackType, } from '../utils/unarmed-fallback.js';
+import { getActiveAmmoPair, quiverAmmunitionLabel, requiresAmmunition } from '../utils/ammunition.js';
 /**
  * Convert world coordinates to screen coordinates
  */
@@ -156,6 +157,12 @@ export function showRadialInfoPanel(token, option) {
     }
     if (specialText) {
         infoHTML += `<div class="ms-info-special"><strong>Special Effect:</strong> ${specialText}</div>`;
+    }
+    if (option.slot === 'attack' && token.actor) {
+        const pair = getActiveAmmoPair(token.actor);
+        if (pair && requiresAmmunition(pair.weapon)) {
+            infoHTML += `<div class="ms-info-ammo"><strong>${quiverAmmunitionLabel(pair.quiver)}</strong></div>`;
+        }
     }
     infoHTML += `<div class="ms-info-desc">${option.description || 'No description available'}</div>`;
     info.innerHTML = infoHTML;

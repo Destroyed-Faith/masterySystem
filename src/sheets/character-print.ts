@@ -347,12 +347,24 @@ function buildPrintEquipment(allItems: any[]): {
       !isLegacyUnarmedItem(i),
   );
 
-  const tile = (item: any) => ({
-    name: String(item?.name ?? ''),
-    img: absImg(item?.img),
-    qty: num(item?.system?.quantity, 1),
-    isGear: String(item?.type) === 'gear',
-  });
+  const tile = (item: any) => {
+    const ammoContainer = item?.system?.ammoContainer === true;
+    const current = Math.max(0, Math.floor(Number(item?.system?.currentAmmunition) || 0));
+    const capacity = Math.max(0, Math.floor(Number(item?.system?.capacity) || 0));
+    const i18n = (globalThis as any).game?.i18n;
+    const ammoLabel = ammoContainer
+      ? (i18n?.format?.('MASTERY.ammunition.display', { current, max: capacity })
+        || `Ammunition: ${current}/${capacity}`)
+      : '';
+    return {
+      name: String(item?.name ?? ''),
+      img: absImg(item?.img),
+      qty: num(item?.system?.quantity, 1),
+      isGear: String(item?.type) === 'gear' && !ammoContainer,
+      isAmmo: item?.system?.ammunition === true,
+      ammoLabel,
+    };
+  };
 
   // Split into paperdoll slots vs. carried inventory (same rules as live sheet).
   const slotMap: Record<string, any> = {};
@@ -367,6 +379,9 @@ function buildPrintEquipment(allItems: any[]): {
     }
     if (slot) {
       if (!slotMap[slot]) slotMap[slot] = item;
+      if (item?.system?.ammoContainer === true && flags?.keepInventoryGrid === true && flags?.grid?.x && flags?.grid?.y) {
+        carry.push(item);
+      }
     } else if (flags?.weaponSetPrepared === true) {
       continue;
     } else if (isEchoArtifactInventoryHidden(item)) {

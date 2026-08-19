@@ -190,7 +190,9 @@ export async function executeAttackRollFromCard(
     // Disable button during roll
     button.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Rolling...');
     let spentActionOnRoll = false;
+    let spentAmmoOnRoll = false;
     let actorToRefund: any = null;
+    let actorForAmmo: any = null;
     let markedPowerIdForRoll: string | null = null;
     let markedNpcAttackIdForRoll: string | null = null;
 
@@ -254,6 +256,33 @@ export async function executeAttackRollFromCard(
             String(flags.npcAttackOptionId),
           );
           markedNpcAttackIdForRoll = String(flags.npcAttackOptionId);
+        }
+      }
+
+      if (!isFaithReroll && flags.attackType === 'ranged' && flags.isSpell !== true) {
+        const ammo = await import('../utils/ammunition.js');
+        if (ammo.findEquippedAmmunitionWeapon(freshAttacker)) {
+          const check = ammo.evaluateAmmunitionAttack(freshAttacker, 1);
+          if (!check.ok) {
+            ammo.warnAmmunitionAttack(check.reason);
+            resetRollButton();
+            if (spentActionOnRoll && actorToRefund) {
+              const { refundAttackAction } = await import('../combat/action-economy.js');
+              await refundAttackAction(actorToRefund, (game as any).combat);
+            }
+            return;
+          }
+          const consumedAmmo = await ammo.consumeAmmunitionForAttack(freshAttacker, 1);
+          if (!consumedAmmo.ok) {
+            resetRollButton();
+            if (spentActionOnRoll && actorToRefund) {
+              const { refundAttackAction } = await import('../combat/action-economy.js');
+              await refundAttackAction(actorToRefund, (game as any).combat);
+            }
+            return;
+          }
+          spentAmmoOnRoll = true;
+          actorForAmmo = freshAttacker;
         }
       }
       
@@ -382,6 +411,10 @@ export async function executeAttackRollFromCard(
               if (spentActionOnRoll && actorToRefund) {
                 const { refundAttackAction } = await import('../combat/action-economy.js');
                 await refundAttackAction(actorToRefund, (game as any).combat);
+              }
+              if (spentAmmoOnRoll && actorForAmmo) {
+                const { refundAmmunitionForAttack } = await import('../utils/ammunition.js');
+                await refundAmmunitionForAttack(actorForAmmo, 1);
               }
               return;
             }
@@ -1301,6 +1334,14 @@ export async function executeAttackRollFromCard(
       }
       
     } catch (error) {
+      if (spentAmmoOnRoll && actorForAmmo) {
+        try {
+          const { refundAmmunitionForAttack } = await import('../utils/ammunition.js');
+          await refundAmmunitionForAttack(actorForAmmo, 1);
+        } catch {
+          /* ignore */
+        }
+      }
       if (spentActionOnRoll && actorToRefund) {
         try {
           const {

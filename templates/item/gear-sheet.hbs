@@ -35,6 +35,34 @@
         <label>Quantity</label>
         <input type="number" name="system.quantity" value="{{system.quantity}}" data-dtype="Number" min="0" step="1" />
       </div>
+      {{#if system.ammunition}}
+      <div class="form-group">
+        <label>{{localize "MASTERY.ammunition.label"}}</label>
+        <input type="text" name="system.ammunitionType" value="{{system.ammunitionType}}" />
+      </div>
+      <div class="form-group">
+        <label>Max stack</label>
+        <input type="number" name="system.maxStack" value="{{system.maxStack}}" data-dtype="Number" min="1" step="1" />
+      </div>
+      {{/if}}
+      {{#if system.ammoContainer}}
+      <div class="form-group">
+        <label>{{localize "MASTERY.ammunition.label"}}</label>
+        <div>{{localize "MASTERY.ammunition.display" current=system.currentAmmunition max=system.capacity}}</div>
+      </div>
+      <div class="form-group">
+        <label>{{localize "MASTERY.ammunition.capacity"}}</label>
+        <input type="number" name="system.capacity" value="{{system.capacity}}" data-dtype="Number" min="1" step="1" />
+      </div>
+      <div class="form-group">
+        <label>{{localize "MASTERY.ammunition.label"}} (current)</label>
+        <input type="number" name="system.currentAmmunition" value="{{system.currentAmmunition}}" data-dtype="Number" min="0" step="1" />
+      </div>
+      <div class="form-group">
+        <label>{{localize "MASTERY.ammunition.label"}} type</label>
+        <input type="text" name="system.ammunitionType" value="{{system.ammunitionType}}" />
+      </div>
+      {{/if}}
     </div>
   </section>
 </div>

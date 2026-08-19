@@ -1,6 +1,6 @@
 export async function showWeaponCreationDialog(actor) {
     // Dynamic import to avoid build issues
-    const { getWeaponsByHands, getWeaponsByType } = await import('../utils/weapons.js');
+    const { getWeaponsByHands, getWeaponsByType, getWeapon } = await import('../utils/weapons.js');
     const oneHanded = getWeaponsByHands(1);
     const twoHanded = getWeaponsByHands(2);
     const ranged = getWeaponsByType('ranged');
@@ -103,6 +103,8 @@ export async function showWeaponCreationDialog(actor) {
                         rangeText = m ? m[1] : rangedAbility.replace(/^ranged\s*/i, '').trim() || '8/16/32m';
                     }
                     const hands = parseInt(option.dataset.hands || '1', 10);
+                    const catalog = getWeapon(weaponName);
+                    const needsAmmo = catalog?.requiresAmmunition === true;
                     const itemData = {
                         name: weaponName,
                         type: 'weapon',
@@ -117,7 +119,10 @@ export async function showWeaponCreationDialog(actor) {
                             hands,
                             innateAbilities: abilities,
                             description: option.dataset.description || '',
-                            equipSlots: hands === 2 ? ['mainhand'] : ['mainhand', 'offhand']
+                            equipSlots: needsAmmo || hands !== 2 ? ['mainhand', 'offhand'] : ['mainhand'],
+                            ...(needsAmmo
+                                ? { requiresAmmunition: true, ammunitionType: catalog.ammunitionType }
+                                : {}),
                         }
                     };
                     const createdItems = await actor.createEmbeddedDocuments('Item', [itemData]);

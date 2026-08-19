@@ -319,6 +319,7 @@
           {{#if this.item}}
             {{#if this.item.img}}<img class="cp-equip-img" src="{{this.item.img}}" alt="" />{{/if}}
             <span class="cp-equip-name">{{this.item.name}}</span>
+            {{#if this.item.ammoLabel}}<span class="cp-equip-ammo">{{this.item.ammoLabel}}</span>{{/if}}
           {{/if}}
         </div>
       </div>
@@ -352,7 +353,7 @@
         <div class="cp-grid-tile" title="{{this.item.name}}">
           {{#if this.item.img}}<img class="cp-grid-img" src="{{this.item.img}}" alt="" />{{/if}}
           <span class="cp-grid-name">{{this.item.name}}</span>
-          {{#if this.item.isGear}}<span class="cp-grid-qty">x{{this.item.qty}}</span>{{/if}}
+          {{#if this.item.ammoLabel}}<span class="cp-grid-qty">{{this.item.ammoLabel}}</span>{{else if this.item.isAmmo}}<span class="cp-grid-qty">x{{this.item.qty}}</span>{{else if this.item.isGear}}<span class="cp-grid-qty">x{{this.item.qty}}</span>{{/if}}
         </div>
         {{/if}}
       </div>

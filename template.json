@@ -459,7 +459,9 @@
       "hands": 1,
       "innateAbilities": [],
       "equipSlots": ["mainhand", "offhand"],
-      "equipped": false
+      "equipped": false,
+      "requiresAmmunition": false,
+      "ammunitionType": ""
     },
     "armor": {
       "templates": ["base"],
@@ -485,7 +487,13 @@
       "quantity": 1,
       "equipSlots": [],
       "equipped": false,
-      "consumable": false
+      "consumable": false,
+      "ammunition": false,
+      "ammunitionType": "",
+      "maxStack": 0,
+      "ammoContainer": false,
+      "capacity": 0,
+      "currentAmmunition": 0
     }
   }
 }

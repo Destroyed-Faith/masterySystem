@@ -363,6 +363,21 @@
       "replaceTitle": "Szenengeometrie ersetzen?",
       "replaceBody": "Löscht die aktuellen Wände und schreibt den Import an ihre Stelle."
     },
+    "ammunition": {
+      "arrows": "Pfeile",
+      "bolts": "Bolzen",
+      "arrowQuiver": "Pfeilköcher",
+      "boltQuiver": "Bolzenköcher",
+      "label": "Munition",
+      "display": "Munition: {current}/{max}",
+      "capacity": "Kapazität",
+      "quiverFull": "Der Köcher ist voll.",
+      "incompatibleAmmunition": "Diese Munition passt nicht in diesen Köcher.",
+      "compatibleQuiverRequired": "Ein passender Köcher wird benötigt.",
+      "emptyQuiver": "Der ausgerüstete Köcher ist leer.",
+      "notEnoughAmmunition": "Nicht genug Munition für diesen Angriff.",
+      "invalidHandCombination": "Diese Kombination kann nicht zusammen ausgerüstet werden."
+    },
     "weaponSets": {
       "groupLabel": "Waffenslots",
       "actionName": "Waffenwechsel",

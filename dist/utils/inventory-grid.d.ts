@@ -14,6 +14,8 @@ export interface EquipmentGridFlags {
     } | null;
     consumableSlot?: unknown;
     weaponSetPrepared?: boolean;
+    /** Equipped quivers stay on the carry grid. */
+    keepInventoryGrid?: boolean;
 }
 /** True when the item currently occupies carry-grid cells (not equipped, stash, or a consumable slot). */
 export declare function occupiesInventoryGrid(flags: EquipmentGridFlags | null | undefined, band?: string): boolean;

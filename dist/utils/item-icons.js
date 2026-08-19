@@ -39,6 +39,10 @@ const GEAR_ICONS = {
     soap: `${ICON_BASE}/gear/Soap.png`,
     // --- Ammunition container → Arrow.png (quiver) ---
     'quiver or bolt case': `${ICON_BASE}/weapons/Arrow.png`,
+    'arrow quiver': `${ICON_BASE}/weapons/Arrow.png`,
+    'bolt quiver': `${ICON_BASE}/weapons/Bolts.png`,
+    arrows: `${ICON_BASE}/weapons/Arrow.png`,
+    bolts: `${ICON_BASE}/weapons/Bolts.png`,
     // --- No matching PNG: only Foundry core paths used elsewhere in this system (no 404) ---
     backpack: 'icons/svg/item-bag.svg',
     'bit and bridle': 'icons/svg/item-bag.svg',
@@ -94,6 +98,7 @@ const WEAPON_ICONS = {
     'light crossbow': `${ICON_BASE}/weapons/Shortbow.png`,
     'heavy crossbow': `${ICON_BASE}/weapons/Shortbow.png`,
     arrows: `${ICON_BASE}/weapons/Arrow.png`,
+    bolts: `${ICON_BASE}/weapons/Bolts.png`,
     'crossbow bolts': `${ICON_BASE}/weapons/Bolts.png`,
     /**
      * One-handed blades (no separate Longsword.png yet — art is a medium blade).

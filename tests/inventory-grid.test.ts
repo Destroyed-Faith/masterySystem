@@ -38,6 +38,7 @@ describe('inventory grid occupancy', () => {
   it('treats equipped and consumable-slot items as off the carry grid', () => {
     expect(occupiesInventoryGrid({ container: 'inventory', band: 'not', grid: { x: 1, y: 1 } })).toBe(true);
     expect(occupiesInventoryGrid({ container: 'inventory', band: 'not', slot: 'body', grid: { x: 1, y: 1 } })).toBe(false);
+    expect(occupiesInventoryGrid({ container: 'inventory', band: 'not', slot: 'offhand', keepInventoryGrid: true, grid: { x: 1, y: 1 } })).toBe(true);
     expect(occupiesInventoryGrid({ container: 'inventory', band: 'not', weaponSetPrepared: true, grid: { x: 1, y: 1 } })).toBe(false);
     expect(occupiesInventoryGrid({ container: 'inventory', band: 'not', consumableSlot: 0, grid: { x: 2, y: 2 } })).toBe(false);
     expect(occupiesInventoryGrid({ container: 'stash', band: 'not', grid: { x: 1, y: 1 } })).toBe(false);

@@ -108,7 +108,7 @@ export function getActorInventoryLoadZone(actor) {
             continue;
         if (flags.container !== 'inventory')
             continue;
-        if (flags.slot)
+        if (flags.slot && flags.keepInventoryGrid !== true)
             continue;
         if (flags.consumableSlot != null && Number.isFinite(Number(flags.consumableSlot)))
             continue;

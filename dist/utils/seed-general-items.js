@@ -1,6 +1,7 @@
 import { WEAPONS, masteryWeaponCatalogKey } from './weapons.js';
 import { BASE_ARMOR, BASE_SHIELDS } from './equipment.js';
 import { getItemIcon, normalizeWeaponNameKey } from './item-icons.js';
+import { migrateItemAmmunitionFields } from './ammunition.js';
 const STORAGE_FOLDER_NAME = 'General Items Storage';
 const GEAR_ITEMS = [
     { name: 'Backpack', inventorySize: '2x3' },
@@ -31,7 +32,6 @@ const GEAR_ITEMS = [
     { name: 'Pole, 10’ wooden', inventorySize: '1x4' },
     { name: 'Quill', inventorySize: '1x1' },
     { name: 'Quill Knife', inventorySize: '1x1' },
-    { name: 'Quiver or Bolt case', inventorySize: '2x2' },
     { name: 'Rations, Dry, one week', inventorySize: '2x2' },
     { name: 'Rope, Hemp 50 ft.', inventorySize: '2x2' },
     { name: 'Rope, Silk 50 ft.', inventorySize: '2x2' },
@@ -52,7 +52,14 @@ const GEAR_ITEMS = [
     { name: 'Wineskin/Waterskin', inventorySize: '1x2' },
     { name: 'Winter blanket', inventorySize: '3x2' }
 ];
-const GEAR_SIZE_BY_NAME = Object.fromEntries(GEAR_ITEMS.map(item => [item.name.toLowerCase(), item.inventorySize]));
+const GEAR_SIZE_BY_NAME = {
+    ...Object.fromEntries(GEAR_ITEMS.map(item => [item.name.toLowerCase(), item.inventorySize])),
+    arrows: '1x2',
+    bolts: '1x1',
+    'crossbow bolts': '1x1',
+    'arrow quiver': '2x2',
+    'bolt quiver': '2x2',
+};
 const ARMOR_SIZES = {
     light: '2x4',
     medium: '4x4',
@@ -63,17 +70,23 @@ const SHIELD_SIZES = {
     medium: '2x3',
     tower: '3x4'
 };
-/** Ammunition stored as `weapon` items so they appear under Weapons in storage. */
-const AMMO_WEAPON_ITEMS = [
-    { name: 'Arrows', inventorySize: '1x2' },
-    { name: 'Crossbow Bolts', inventorySize: '1x1' }
+const AMMO_STACK_ITEMS = [
+    { name: 'Arrows', ammunitionType: 'arrow', inventorySize: '1x2', quantity: 24, maxStack: 24 },
+    { name: 'Bolts', ammunitionType: 'bolt', inventorySize: '1x1', quantity: 24, maxStack: 24 },
+];
+const AMMO_CONTAINER_ITEMS = [
+    { name: 'Arrow Quiver', ammunitionType: 'arrow', inventorySize: '2x2', capacity: 24 },
+    { name: 'Bolt Quiver', ammunitionType: 'bolt', inventorySize: '2x2', capacity: 24 },
 ];
 const WEAPON_INVENTORY_OVERRIDES = {
     unarmed: '1x1',
     rapier: '1x3',
     spear: '1x4',
     arrows: '1x2',
-    'crossbow bolts': '1x1'
+    bolts: '1x1',
+    'crossbow bolts': '1x1',
+    'arrow quiver': '2x2',
+    'bolt quiver': '2x2',
 };
 function isRangedWeapon(innateAbilities) {
     return (innateAbilities || []).some(ability => ability.toLowerCase().includes('ranged'));
@@ -174,30 +187,62 @@ export async function seedGeneralItemsStorage() {
                 innateAbilities: weapon.innateAbilities,
                 specials,
                 equipped: false,
-                equipSlots: weapon.hands === 2 ? ['mainhand'] : ['mainhand', 'offhand'],
+                equipSlots: weapon.requiresAmmunition
+                    ? ['mainhand', 'offhand']
+                    : weapon.hands === 2
+                        ? ['mainhand']
+                        : ['mainhand', 'offhand'],
+                ...(weapon.requiresAmmunition
+                    ? { requiresAmmunition: true, ammunitionType: weapon.ammunitionType }
+                    : {}),
                 ...(weapon.price !== undefined && { price: weapon.price })
             }
         });
     }
-    for (const ammo of AMMO_WEAPON_ITEMS) {
+    for (const ammo of AMMO_STACK_ITEMS) {
         if (existingNames.has(ammo.name))
             continue;
         itemsToCreate.push({
             name: ammo.name,
-            type: 'weapon',
+            type: 'gear',
             folder: folder.id,
-            img: getItemIcon(ammo.name, 'weapon') || 'icons/svg/item-bag.svg',
+            img: getItemIcon(ammo.name, 'gear') || getItemIcon(ammo.name, 'weapon') || 'icons/svg/item-bag.svg',
             system: {
                 description: '',
                 inventorySize: ammo.inventorySize,
-                weaponType: 'melee',
-                damage: '—',
-                range: '0m',
-                hands: 1,
-                innateAbilities: [],
-                specials: [],
+                weight: 0,
+                quantity: ammo.quantity,
+                maxStack: ammo.maxStack,
                 equipped: false,
-                equipSlots: []
+                equipSlots: [],
+                ammunition: true,
+                ammunitionType: ammo.ammunitionType,
+                ammoContainer: false,
+                capacity: 0,
+                currentAmmunition: 0,
+            }
+        });
+    }
+    for (const quiver of AMMO_CONTAINER_ITEMS) {
+        if (existingNames.has(quiver.name))
+            continue;
+        itemsToCreate.push({
+            name: quiver.name,
+            type: 'gear',
+            folder: folder.id,
+            img: getItemIcon(quiver.name, 'gear') || 'icons/svg/item-bag.svg',
+            system: {
+                description: '',
+                inventorySize: quiver.inventorySize,
+                weight: 0,
+                quantity: 1,
+                equipped: false,
+                equipSlots: ['mainhand', 'offhand'],
+                ammunition: false,
+                ammunitionType: quiver.ammunitionType,
+                ammoContainer: true,
+                capacity: quiver.capacity,
+                currentAmmunition: 0,
             }
         });
     }
@@ -240,8 +285,18 @@ export async function seedGeneralItemsStorage() {
             }
         });
     }
+    for (const item of existingItems) {
+        const patch = migrateItemAmmunitionFields(item);
+        if (!patch)
+            continue;
+        try {
+            await item.update(patch);
+        }
+        catch (err) {
+            console.warn('Mastery System | Could not repair ammunition fields on', item.name, err);
+        }
+    }
     if (itemsToCreate.length === 0) {
-        // Items already exist, silently return
         return [];
     }
     const createdItems = await Item.createDocuments(itemsToCreate, { render: false });
@@ -250,8 +305,6 @@ export async function seedGeneralItemsStorage() {
     }
     if (!createdItems || createdItems.length === 0) {
         console.warn('Mastery System | Seeding completed but no items were created.');
-    }
-    else {
     }
     return createdItems ?? [];
 }

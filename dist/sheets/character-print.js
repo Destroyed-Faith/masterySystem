@@ -306,12 +306,24 @@ function buildPrintEquipment(allItems) {
     const rows = PRINT_GRID_ROWS;
     const equipmentItems = allItems.filter((i) => ['weapon', 'armor', 'shield', 'gear', 'artifact'].includes(String(i?.type)) &&
         !isLegacyUnarmedItem(i));
-    const tile = (item) => ({
-        name: String(item?.name ?? ''),
-        img: absImg(item?.img),
-        qty: num(item?.system?.quantity, 1),
-        isGear: String(item?.type) === 'gear',
-    });
+    const tile = (item) => {
+        const ammoContainer = item?.system?.ammoContainer === true;
+        const current = Math.max(0, Math.floor(Number(item?.system?.currentAmmunition) || 0));
+        const capacity = Math.max(0, Math.floor(Number(item?.system?.capacity) || 0));
+        const i18n = globalThis.game?.i18n;
+        const ammoLabel = ammoContainer
+            ? (i18n?.format?.('MASTERY.ammunition.display', { current, max: capacity })
+                || `Ammunition: ${current}/${capacity}`)
+            : '';
+        return {
+            name: String(item?.name ?? ''),
+            img: absImg(item?.img),
+            qty: num(item?.system?.quantity, 1),
+            isGear: String(item?.type) === 'gear' && !ammoContainer,
+            isAmmo: item?.system?.ammunition === true,
+            ammoLabel,
+        };
+    };
     // Split into paperdoll slots vs. carried inventory (same rules as live sheet).
     const slotMap = {};
     const carry = [];
@@ -338,6 +350,9 @@ function buildPrintEquipment(allItems) {
         if (slot) {
             if (!slotMap[slot])
                 slotMap[slot] = item;
+            if (item?.system?.ammoContainer === true && flags?.keepInventoryGrid === true && flags?.grid?.x && flags?.grid?.y) {
+                carry.push(item);
+            }
         }
         else if (flags?.weaponSetPrepared === true) {
             continue;

@@ -133,7 +133,9 @@ export const WEAPONS = [
         hands: 2,
         innateAbilities: ['Ranged (8/16/32m)', 'Light'],
         special: 'Expose(4)',
-        description: 'A compact bow for mobility.'
+        description: 'A compact bow for mobility.',
+        requiresAmmunition: true,
+        ammunitionType: 'arrow',
     },
     {
         name: 'Longbow',
@@ -141,7 +143,9 @@ export const WEAPONS = [
         hands: 2,
         innateAbilities: ['Ranged (8/16/32m)', 'Set'],
         special: 'Penetration(2), Expose(4)',
-        description: 'A powerful bow that rewards a planted shot.'
+        description: 'A powerful bow that rewards a planted shot.',
+        requiresAmmunition: true,
+        ammunitionType: 'arrow',
     },
     {
         name: 'Light Crossbow',
@@ -149,7 +153,9 @@ export const WEAPONS = [
         hands: 2,
         innateAbilities: ['Ranged (8/16/32m)', 'Load'],
         special: 'Penetration(4), Precision(2)',
-        description: 'A lighter crossbow; must be loaded between shots.'
+        description: 'A lighter crossbow; must be loaded between shots.',
+        requiresAmmunition: true,
+        ammunitionType: 'bolt',
     },
     {
         name: 'Heavy Crossbow',
@@ -157,7 +163,9 @@ export const WEAPONS = [
         hands: 2,
         innateAbilities: ['Ranged (8/16/32m)', 'Load'],
         special: 'Penetration(4), Precision(4)',
-        description: 'A devastating crossbow; slow to reload.'
+        description: 'A devastating crossbow; slow to reload.',
+        requiresAmmunition: true,
+        ammunitionType: 'bolt',
     },
     {
         name: 'Whip',

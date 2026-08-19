@@ -1918,9 +1918,13 @@
               {{#each equipmentUi.inventory.notCells}}
                 <div class="df-cell {{#if this.occupied}}df-cell--occupied{{/if}} {{#if this.item}}df-cell--item{{/if}}" data-col="{{this.col}}" data-row="{{this.row}}" style="grid-column: {{this.col}} / span {{default this.spanW 1}}; grid-row: {{this.row}} / span {{default this.spanH 1}};">
                   {{#if this.item}}
-                    <div class="df-item-tile item df-draggable-item" data-item-id="{{this.item.id}}" data-inventory-size="{{this.item.system.inventorySize}}" draggable="true" title="{{this.item.name}}">
+                    <div class="df-item-tile item df-draggable-item" data-item-id="{{this.item.id}}" data-inventory-size="{{this.item.system.inventorySize}}" draggable="true" title="{{this.item.name}}{{#if this.item.system.ammoContainer}} — {{localize 'MASTERY.ammunition.display' current=this.item.system.currentAmmunition max=this.item.system.capacity}}{{/if}}">
                       <img class="df-item-icon" src="{{this.item.img}}" />
-                      {{#if (eq this.item.type "gear")}}
+                      {{#if this.item.system.ammoContainer}}
+                        <div class="df-item-ammo">{{localize "MASTERY.ammunition.display" current=this.item.system.currentAmmunition max=this.item.system.capacity}}</div>
+                      {{else if this.item.system.ammunition}}
+                        <div class="df-item-qty">{{default this.item.system.quantity 1}}</div>
+                      {{else if (eq this.item.type "gear")}}
                         <div class="df-item-qty">{{default this.item.system.quantity 1}}</div>
                       {{/if}}
                     </div>
@@ -1935,9 +1939,13 @@
               {{#each equipmentUi.inventory.encCells}}
                 <div class="df-cell {{#if this.occupied}}df-cell--occupied{{/if}} {{#if this.item}}df-cell--item{{/if}}" data-col="{{this.col}}" data-row="{{this.row}}" style="grid-column: {{this.col}} / span {{default this.spanW 1}}; grid-row: {{this.row}} / span {{default this.spanH 1}};">
                   {{#if this.item}}
-                    <div class="df-item-tile item df-draggable-item" data-item-id="{{this.item.id}}" data-inventory-size="{{this.item.system.inventorySize}}" draggable="true" title="{{this.item.name}}">
+                    <div class="df-item-tile item df-draggable-item" data-item-id="{{this.item.id}}" data-inventory-size="{{this.item.system.inventorySize}}" draggable="true" title="{{this.item.name}}{{#if this.item.system.ammoContainer}} — {{localize 'MASTERY.ammunition.display' current=this.item.system.currentAmmunition max=this.item.system.capacity}}{{/if}}">
                       <img class="df-item-icon" src="{{this.item.img}}" />
-                      {{#if (eq this.item.type "gear")}}
+                      {{#if this.item.system.ammoContainer}}
+                        <div class="df-item-ammo">{{localize "MASTERY.ammunition.display" current=this.item.system.currentAmmunition max=this.item.system.capacity}}</div>
+                      {{else if this.item.system.ammunition}}
+                        <div class="df-item-qty">{{default this.item.system.quantity 1}}</div>
+                      {{else if (eq this.item.type "gear")}}
                         <div class="df-item-qty">{{default this.item.system.quantity 1}}</div>
                       {{/if}}
                     </div>
@@ -1952,9 +1960,13 @@
               {{#each equipmentUi.inventory.heavyCells}}
                 <div class="df-cell {{#if this.occupied}}df-cell--occupied{{/if}} {{#if this.item}}df-cell--item{{/if}}" data-col="{{this.col}}" data-row="{{this.row}}" style="grid-column: {{this.col}} / span {{default this.spanW 1}}; grid-row: {{this.row}} / span {{default this.spanH 1}};">
                   {{#if this.item}}
-                    <div class="df-item-tile item df-draggable-item" data-item-id="{{this.item.id}}" data-inventory-size="{{this.item.system.inventorySize}}" draggable="true" title="{{this.item.name}}">
+                    <div class="df-item-tile item df-draggable-item" data-item-id="{{this.item.id}}" data-inventory-size="{{this.item.system.inventorySize}}" draggable="true" title="{{this.item.name}}{{#if this.item.system.ammoContainer}} — {{localize 'MASTERY.ammunition.display' current=this.item.system.currentAmmunition max=this.item.system.capacity}}{{/if}}">
                       <img class="df-item-icon" src="{{this.item.img}}" />
-                      {{#if (eq this.item.type "gear")}}
+                      {{#if this.item.system.ammoContainer}}
+                        <div class="df-item-ammo">{{localize "MASTERY.ammunition.display" current=this.item.system.currentAmmunition max=this.item.system.capacity}}</div>
+                      {{else if this.item.system.ammunition}}
+                        <div class="df-item-qty">{{default this.item.system.quantity 1}}</div>
+                      {{else if (eq this.item.type "gear")}}
                         <div class="df-item-qty">{{default this.item.system.quantity 1}}</div>
                       {{/if}}
                     </div>
@@ -1986,8 +1998,11 @@
                 <div class="df-equip-slot df-dropzone slot-{{this.key}}" data-df-drop="equip-slot" data-slot="{{this.key}}">
                   <div class="df-slot-label">{{this.label}}</div>
                   {{#if this.item}}
-                    <div class="df-item-tile item df-draggable-item" data-item-id="{{this.item.id}}" data-inventory-size="{{this.item.system.inventorySize}}" draggable="true" title="{{this.item.name}}">
+                    <div class="df-item-tile item df-draggable-item" data-item-id="{{this.item.id}}" data-inventory-size="{{this.item.system.inventorySize}}" draggable="true" title="{{this.item.name}}{{#if this.ammoLabel}} — {{this.ammoLabel}}{{/if}}">
                       <img class="df-item-icon" src="{{this.item.img}}" />
+                      {{#if this.ammoLabel}}
+                        <div class="df-item-ammo">{{this.ammoLabel}}</div>
+                      {{/if}}
                       {{#if this.artifactMeta}}
                       <div class="df-artifact-badge {{#unless this.artifactMeta.linked}}df-artifact-badge--inactive{{/unless}} {{#if this.artifactMeta.unwired}}df-artifact-badge--unwired{{/if}}"
                         data-action="openProgressionArtifacts" role="button" tabindex="0"

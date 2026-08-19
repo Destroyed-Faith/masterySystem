@@ -92,10 +92,21 @@ import {
   canMarkTwoHandedGrip,
   ensureWeaponSets,
   isHiddenInInactiveWeaponSet,
+  isNaturallyTwoHandedItem,
   peekWeaponSets,
   swapWeaponSet,
   syncActiveWeaponSetFromHands,
 } from '../utils/weapon-sets.js';
+import {
+  findAmmoContainerFromDropPath,
+  isAmmoContainer,
+  isAmmunitionItem,
+  keepsInventoryGridWhenEquipped,
+  loadAmmunitionIntoContainer,
+  quiverAmmunitionLabel,
+  requiresAmmunition,
+  validateHandEquip,
+} from '../utils/ammunition.js';
 import { XP_COSTS, attributeBandCost, powerLevelCost } from '../utils/constants';
 import { calculateMaxPowerLevel, calculateMaxSkillRank } from '../utils/calculations.js';
 import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
@@ -1702,6 +1713,12 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         if (!slotMap[slot]) {
           slotMap[slot] = item;
         }
+        if (keepsInventoryGridWhenEquipped(item) && flags.keepInventoryGrid === true && flags.grid?.x && flags.grid?.y) {
+          inventoryItems.push(item);
+          if (band === 'enc') encItems.push(item);
+          else if (band === 'heavy') heavyItems.push(item);
+          else notItems.push(item);
+        }
       } else if (isHiddenInInactiveWeaponSet(this.actor, item)) {
         // Prepared on the inactive weapon set — still on the character, not in the grid.
         continue;
@@ -1751,7 +1768,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       if (twoHandItem && !slotMap['mainhand']) slotMap['mainhand'] = twoHandItem;
     } else {
       const mainItem = slotMap['mainhand'];
-      if (mainItem && Number((mainItem.system as any)?.hands) >= 2 && !slotMap['offhand']) {
+      if (mainItem && isNaturallyTwoHandedItem(mainItem) && !slotMap['offhand']) {
         slotMap['offhand'] = mainItem;
       }
     }
@@ -1811,6 +1828,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         return {
           ...def,
           item,
+          ammoLabel: quiverAmmunitionLabel(item),
           artifactMeta: mapArtifactMeta(item),
         };
       }),
@@ -7134,6 +7152,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       return this.#onDropConsumableSlot(event, data, target);
     }
 
+    const dropPath = (event.composedPath?.() || [event.target]) as HTMLElement[];
+
     // Get dropped item
     let droppedItem: any = null;
     if (data.uuid) {
@@ -7172,6 +7192,16 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         droppedItem = itemsArray[itemsArray.length - 1];
         if (droppedItem) {
           await this.#tryWireDroppedArtifact(droppedItem, sourceWorldItem);
+          if (isAmmunitionItem(droppedItem)) {
+            const quiver = findAmmoContainerFromDropPath(this.actor, dropPath);
+            if (quiver && quiver.id !== droppedItem.id) {
+              await loadAmmunitionIntoContainer(this.actor, droppedItem, quiver);
+              (this as any)._lastDroppedItemId = quiver.id;
+              await new Promise(resolve => setTimeout(resolve, 0));
+              await this.render(true, { focus: false });
+              return true;
+            }
+          }
           // New item created, now set flags
           await this.#updateItemEquipmentFlags(droppedItem, target, event);
           (this as any)._lastDroppedItemId = droppedItem?.id;
@@ -7196,6 +7226,17 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         console.error('Mastery System | [Equipment Drop] Failed to create embedded item', error);
         ui.notifications?.error(`Could not add ${droppedItem.name} to this character.`);
         return false;
+      }
+    }
+
+    if (isAmmunitionItem(droppedItem)) {
+      const quiver = findAmmoContainerFromDropPath(this.actor, dropPath);
+      if (quiver && quiver.id !== droppedItem.id) {
+        const result = await loadAmmunitionIntoContainer(this.actor, droppedItem, quiver);
+        if (result.reason === 'busy') return false;
+        (this as any)._lastDroppedItemId = quiver.id;
+        await this.render(true, { focus: false });
+        return result.ok;
       }
     }
 
@@ -7299,7 +7340,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       return false;
     }
 
-    if (slot === 'offhand' && item.type === 'weapon') {
+    if (slot === 'offhand' && item.type === 'weapon' && !requiresAmmunition(item)) {
       const mainhandItem = this.#getItemInEquipSlot('mainhand');
       if (mainhandItem?.id === item.id && canMarkTwoHandedGrip(item)) {
         const flags = item.getFlag('mastery-system', 'equipment') || {};
@@ -7314,15 +7355,29 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       return false;
     }
 
-    if (slot === 'mainhand' && item.type === 'weapon' && (item.system as any)?.hands === 2) {
+    if ((slot === 'mainhand' || slot === 'offhand') && (requiresAmmunition(item) || isAmmoContainer(item) || requiresAmmunition(this.#getItemInEquipSlot(slot === 'mainhand' ? 'offhand' : 'mainhand')))) {
+      const check = validateHandEquip(this.actor, item, slot);
+      if (!check.ok) {
+        ui.notifications?.warn(check.message);
+        return false;
+      }
+    }
+
+    if (slot === 'mainhand' && isNaturallyTwoHandedItem(item)) {
       const offhandItem = this.#getItemInEquipSlot('offhand');
-      if (offhandItem) {
+      if (offhandItem && offhandItem.id !== item.id) {
         ui.notifications?.warn('Cannot equip 2-handed weapon while offhand is occupied.');
         return false;
       }
     } else if (slot === 'offhand' && item.type === 'shield') {
       const mainhandItem = this.#getItemInEquipSlot('mainhand');
-      if (mainhandItem && mainhandItem.type === 'weapon' && (mainhandItem.system as any)?.hands === 2) {
+      if (mainhandItem && requiresAmmunition(mainhandItem)) {
+        const check = validateHandEquip(this.actor, item, 'offhand');
+        if (!check.ok) {
+          ui.notifications?.warn(check.message);
+          return false;
+        }
+      } else if (mainhandItem && isNaturallyTwoHandedItem(mainhandItem)) {
         ui.notifications?.warn('Cannot equip shield while 2-handed weapon is equipped.');
         return false;
       }
@@ -7348,8 +7403,13 @@ export class MasteryCharacterSheet extends BaseActorSheet {
 
     const currentFlags = item.getFlag('mastery-system', 'equipment') || {};
     const newFlags: any = { ...currentFlags, container: 'inventory', slot, band: currentFlags.band || 'not' };
-    delete newFlags.grid;
-    if (Number((item.system as any)?.hands) >= 2) newFlags.twoHanded = true;
+    if (keepsInventoryGridWhenEquipped(item) && currentFlags.grid) {
+      newFlags.keepInventoryGrid = true;
+    } else {
+      delete newFlags.grid;
+      delete newFlags.keepInventoryGrid;
+    }
+    if (isNaturallyTwoHandedItem(item)) newFlags.twoHanded = true;
     else delete newFlags.twoHanded;
     await item.update({
       'flags.mastery-system.equipment': newFlags,
@@ -7417,7 +7477,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
           const item = this.#itemFromInventoryTileContextTarget(target);
           return (
             !!item &&
-            item.type !== 'weapon' &&
+            (item.type !== 'weapon' || requiresAmmunition(item)) &&
             !!getNormalizedEquipSlots(item)?.includes('offhand')
           );
         },
@@ -7455,7 +7515,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         condition: (target: unknown) => {
           const item = this.#itemFromInventoryTileContextTarget(target);
           if (!item || !getNormalizedEquipSlots(item)?.includes(key)) return false;
-          if (key === 'offhand' && item.type === 'weapon') return false;
+          if (key === 'offhand' && item.type === 'weapon' && !requiresAmmunition(item)) return false;
           return true;
         },
         callback: async (target: unknown) => {
@@ -7564,6 +7624,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       newFlags.slot = null;
       delete newFlags.twoHanded;
       delete newFlags.weaponSetPrepared;
+      delete newFlags.keepInventoryGrid;
       await item.update({
         'flags.mastery-system.equipment': newFlags,
         'system.equipped': false
@@ -7577,6 +7638,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         newFlags.slot = null;
         delete newFlags.twoHanded;
         delete newFlags.weaponSetPrepared;
+        delete newFlags.keepInventoryGrid;
         const BAND_COLS = ZONE_WIDTH_COLS;
         const BAND_ROWS = 9;
         const size = parseInventorySize(item?.system?.inventorySize);

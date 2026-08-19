@@ -131,7 +131,7 @@ export function getActorInventoryLoadZone(actor: { items: Iterable<any> }): Load
             ?? {};
         if (flags.weaponSetPrepared === true) continue;
         if (flags.container !== 'inventory') continue;
-        if (flags.slot) continue;
+        if (flags.slot && flags.keepInventoryGrid !== true) continue;
         if (flags.consumableSlot != null && Number.isFinite(Number(flags.consumableSlot))) continue;
         const band = flags.band ?? 'not';
         if (band === 'heavy') overloadedCount++;

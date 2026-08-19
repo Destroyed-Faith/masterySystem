@@ -1,6 +1,6 @@
 export async function showWeaponCreationDialog(actor: Actor): Promise<void> {
   // Dynamic import to avoid build issues
-  const { getWeaponsByHands, getWeaponsByType } = await import('../utils/weapons.js' as any);
+  const { getWeaponsByHands, getWeaponsByType, getWeapon } = await import('../utils/weapons.js' as any);
   
   const oneHanded = getWeaponsByHands(1);
   const twoHanded = getWeaponsByHands(2);
@@ -112,6 +112,8 @@ export async function showWeaponCreationDialog(actor: Actor): Promise<void> {
           }
 
           const hands = parseInt(option.dataset.hands || '1', 10);
+          const catalog = getWeapon(weaponName);
+          const needsAmmo = catalog?.requiresAmmunition === true;
           const itemData = {
             name: weaponName,
             type: 'weapon',
@@ -126,7 +128,10 @@ export async function showWeaponCreationDialog(actor: Actor): Promise<void> {
               hands,
               innateAbilities: abilities,
               description: option.dataset.description || '',
-              equipSlots: hands === 2 ? ['mainhand'] : ['mainhand', 'offhand']
+              equipSlots: needsAmmo || hands !== 2 ? ['mainhand', 'offhand'] : ['mainhand'],
+              ...(needsAmmo
+                ? { requiresAmmunition: true, ammunitionType: catalog.ammunitionType }
+                : {}),
             }
           };
           

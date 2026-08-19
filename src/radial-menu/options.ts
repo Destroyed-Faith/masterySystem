@@ -32,6 +32,7 @@ import { resolveEquippedWeaponForAttackType } from '../utils/unarmed-fallback.js
 import { filterCatalog } from '../utils/power-catalog.js';
 import { buildPowerItemFromCatalogEntry } from '../utils/power-item-builder.js';
 import { buildConsumableRadialOptions } from '../utils/consumable-slots.js';
+import { getActiveAmmoPair, quiverAmmunitionLabel } from '../utils/ammunition.js';
 
 /**
  * True when activating spends an action: legacy `cost.action === true` or
@@ -1072,10 +1073,12 @@ export async function getAllCombatOptionsForActor(actor: any): Promise<RadialCom
     !hasEquippedWeaponArtifact &&
     !isManeuverHiddenFromActorRadial(actor, 'weapon-attack')
   ) {
+    const ammoPair = getActiveAmmoPair(actor);
+    const ammoNote = ammoPair ? ` ${quiverAmmunitionLabel(ammoPair.quiver)}` : '';
     allManeuvers.push({
       id: 'weapon-attack',
       name: 'Basic Attack',
-      description: 'Weapon Damage + MR × 2d8. No Active Power effects.',
+      description: `Weapon Damage + MR × 2d8. No Active Power effects.${ammoNote}`,
       slot: 'attack',
       source: 'maneuver',
       range: calculateRange(actor, 'weapon-attack', 'attack', undefined, undefined),

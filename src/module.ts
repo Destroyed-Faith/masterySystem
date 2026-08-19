@@ -3246,7 +3246,14 @@ Hooks.once('ready', async function() {
           hands: def.hands,
           innateAbilities: def.innateAbilities || [],
           specials,
-          equipSlots: def.hands === 2 ? ['mainhand'] : ['mainhand', 'offhand']
+          equipSlots: def.requiresAmmunition
+            ? ['mainhand', 'offhand']
+            : def.hands === 2
+              ? ['mainhand']
+              : ['mainhand', 'offhand'],
+          ...(def.requiresAmmunition
+            ? { requiresAmmunition: true, ammunitionType: def.ammunitionType }
+            : {}),
         });
         if (!merged.inventorySize) {
           merged.inventorySize =

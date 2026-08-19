@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.388] - 2026-08-19
+
+### Added
+
+- **Ammunition and quivers:** Bows and crossbows now fire from a matching quiver in the other hand of the active Weaponslot. Loose Arrows and Bolts stack to 24 in the inventory grid; drag a stack onto a quiver to load it. New storage items: Arrows, Bolts, Arrow Quiver, Bolt Quiver. Empty quivers start at 0/24. Capacity is per quiver, so later magical quivers can hold more without a code change.
+
+### Changed
+
+- **Ammo bows no longer clone into both hands:** A Longbow or crossbow occupies one hand. The other hand may be empty while you set the pair up, or it must hold a compatible quiver. A shield, a second weapon, or the wrong quiver is refused with a localized warning. Two-handed melee weapons and thrown weapons stay as they were.
+
+### Fixed
+
+- **Attacks spend quiver shots, not inventory stacks:** A committed roll consumes one shot from the equipped quiver of the active set, hit or miss. Targeting cancel spends nothing. Split attacks check and spend per actual roll. The inactive set and loose stacks are never used automatically.
+
 ## [0.9.387] - 2026-08-19
 
 ### Changed

@@ -8,6 +8,7 @@ import { consumeMovementAction, getActionEconomyActor, getAvailableMovementActio
 import { canCurrentUserUpdateDocument } from '../combat/combat-permissions.js';
 import { actorParticipatesInActiveCombat } from './consumable-slots.js';
 import { isEchoBoundArtifact } from './echo-artifact-equip.js';
+import { keepsInventoryGridWhenEquipped, migrateActorAmmunition, normalizeAmmoWeaponSetHands, requiresAmmunition, } from './ammunition.js';
 export const WEAPON_SWAP_ID = 'weapon-swap';
 export const WEAPON_SETS_FLAG = 'weaponSets';
 export const WEAPON_SETS_SCHEMA = 1;
@@ -81,6 +82,8 @@ export function isHiddenInInactiveWeaponSet(actor, item) {
 export function isNaturallyTwoHandedItem(item) {
     if (!item)
         return false;
+    if (requiresAmmunition(item))
+        return false;
     const sys = item.system || {};
     if (Number(sys.hands) >= 2)
         return true;
@@ -125,10 +128,10 @@ export function readHandsFromEquippedItems(actor) {
         return { mainhand: mainId, offhand: mainId };
     }
     const offId = off?.id ? String(off.id) : null;
-    if (mainId && getItemEquipmentFlags(main).twoHanded === true) {
+    if (mainId && getItemEquipmentFlags(main).twoHanded === true && !requiresAmmunition(main)) {
         return { mainhand: mainId, offhand: mainId };
     }
-    if (mainId && offId === mainId) {
+    if (mainId && offId === mainId && !requiresAmmunition(main)) {
         return { mainhand: mainId, offhand: mainId };
     }
     return { mainhand: mainId, offhand: offId };
@@ -209,14 +212,27 @@ export async function persistWeaponSets(actor, state) {
 export async function ensureWeaponSets(actor) {
     const raw = readStoredState(actor);
     if (isInitializedWeaponSets(raw)) {
+        try {
+            await migrateActorAmmunition(actor);
+        }
+        catch {
+            /* field repair is best-effort */
+        }
         const pruned = pruneWeaponSetRefs(raw, validItemIds(actor));
-        const changed = pruned.sets[1].mainhand !== raw.sets[1].mainhand ||
-            pruned.sets[1].offhand !== raw.sets[1].offhand ||
-            pruned.sets[2].mainhand !== raw.sets[2].mainhand ||
-            pruned.sets[2].offhand !== raw.sets[2].offhand;
+        const normalized = {
+            ...pruned,
+            sets: {
+                1: normalizeAmmoWeaponSetHands(actor, pruned.sets[1]),
+                2: normalizeAmmoWeaponSetHands(actor, pruned.sets[2]),
+            },
+        };
+        const changed = normalized.sets[1].mainhand !== raw.sets[1].mainhand ||
+            normalized.sets[1].offhand !== raw.sets[1].offhand ||
+            normalized.sets[2].mainhand !== raw.sets[2].mainhand ||
+            normalized.sets[2].offhand !== raw.sets[2].offhand;
         if (changed)
-            await persistWeaponSets(actor, pruned);
-        return pruned;
+            await persistWeaponSets(actor, normalized);
+        return normalized;
     }
     const initial = buildInitialWeaponSets(readHandsFromEquippedItems(actor));
     await persistWeaponSets(actor, initial);
@@ -264,7 +280,14 @@ function equipmentUpdate(item, patch) {
         next.weaponSetPrepared = true;
     else
         delete next.weaponSetPrepared;
-    delete next.grid;
+    if (keepsInventoryGridWhenEquipped(item) && !patch.prepared && patch.equipped && flags.grid) {
+        next.grid = flags.grid;
+        next.keepInventoryGrid = true;
+    }
+    else {
+        delete next.grid;
+        delete next.keepInventoryGrid;
+    }
     return {
         _id: item.id,
         'flags.mastery-system.equipment': next,

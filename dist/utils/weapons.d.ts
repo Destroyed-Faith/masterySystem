@@ -11,6 +11,9 @@ export interface WeaponDefinition {
     special: string;
     description?: string;
     price?: number;
+    /** When set, this catalog weapon needs a matching quiver to fire. */
+    requiresAmmunition?: boolean;
+    ammunitionType?: 'arrow' | 'bolt';
 }
 /**
  * Canonical weapon table — align item.system with this for stock weapons.

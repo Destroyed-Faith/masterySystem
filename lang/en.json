@@ -363,6 +363,21 @@
       "replaceTitle": "Replace scene geometry?",
       "replaceBody": "This deletes the current walls and writes the import in their place."
     },
+    "ammunition": {
+      "arrows": "Arrows",
+      "bolts": "Bolts",
+      "arrowQuiver": "Arrow Quiver",
+      "boltQuiver": "Bolt Quiver",
+      "label": "Ammunition",
+      "display": "Ammunition: {current}/{max}",
+      "capacity": "Capacity",
+      "quiverFull": "The quiver is full.",
+      "incompatibleAmmunition": "That ammunition does not fit this quiver.",
+      "compatibleQuiverRequired": "A compatible quiver is required.",
+      "emptyQuiver": "The equipped quiver is empty.",
+      "notEnoughAmmunition": "Not enough ammunition for this attack.",
+      "invalidHandCombination": "That hand combination is not allowed."
+    },
     "weaponSets": {
       "groupLabel": "Weaponslots",
       "actionName": "Weapon Swap",

@@ -1398,6 +1398,8 @@ export async function handleChosenCombatOption(token: any, option: RadialCombatO
     option.range > 4;
 
   if (isRangedAttack) {
+    const { gateAmmunitionAttack } = await import('./utils/ammunition.js');
+    if (!gateAmmunitionAttack(actor, option)) return;
     if (option.costsAction) {
       const atkAvail = getAvailableAttackActions(actor, combat);
       if (atkAvail <= 0) {

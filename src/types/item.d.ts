@@ -892,6 +892,8 @@ export interface ArtifactWeaponProfile {
   hands: number;
   innateAbilities: string[];
   specials: ArtifactWeaponSpecialRef[];
+  requiresAmmunition?: boolean;
+  ammunitionType?: string;
 }
 
 export interface ArtifactArmorProfile {
@@ -992,6 +994,9 @@ export interface WeaponData extends BaseItemData {
   innateAbilities: string[];
   /** Non-empty = may be equipped only to these paperdoll slots. Empty/missing = not equippable. */
   equipSlots?: string[];
+  /** When true, this weapon fires only with a matching quiver in the other hand. */
+  requiresAmmunition?: boolean;
+  ammunitionType?: string;
 }
 
 // === Armor Data ===
@@ -1023,6 +1028,15 @@ export interface GearData extends BaseItemData {
   equipSlots?: string[];
   /** Data-level mark: only these items may occupy Consumable Slots. */
   consumable?: boolean;
+  /** Loose ammunition stack (Arrows / Bolts). */
+  ammunition?: boolean;
+  ammunitionType?: string;
+  /** Max shots in one inventory stack. 0 / missing = no stack cap (non-ammo gear). */
+  maxStack?: number;
+  /** Quiver / bolt case: stores a count, not nested items. */
+  ammoContainer?: boolean;
+  capacity?: number;
+  currentAmmunition?: number;
 }
 
 
