@@ -8,6 +8,7 @@
 import { collectInventoryBandRects, findFirstFit } from './inventory-grid.js';
 import { ZONE_WIDTH_COLS } from './encumbrance.js';
 import { artifactPowersUnlocked, isArtifactEquippedOnActor } from './artifact-actor-rules.js';
+import { isItemAssignedToWeaponSet, isWeaponSetPreparedItem } from './weapon-sets.js';
 import { artifactLevelToTemplateRank } from './artifact-spell-pick.js';
 import { resolveFullLevelProgression, visibleAbilityRows } from './artifact-visible-abilities.js';
 import { resolvePowerCategoryFromItem } from './power-catalog.js';
@@ -185,6 +186,19 @@ export function isEligibleMinorMagicPower(item) {
         return false;
     return true;
 }
+/**
+ * Minor Magic may store a power from an artifact that is worn now or prepared
+ * on either Weaponslot. Inventory-only artifacts stay excluded.
+ */
+export function isArtifactAvailableForMinorMagic(actor, item) {
+    if (!item || item.type !== 'artifact')
+        return false;
+    if (isArtifactEquippedOnActor(item))
+        return true;
+    if (isWeaponSetPreparedItem(item))
+        return true;
+    return isItemAssignedToWeaponSet(actor, item.id);
+}
 /** Offensive / Active artifact rows only — not buffs, movement, reactions, or functions. */
 function isArtifactActiveForMinorMagic(rowType) {
     const t = String(rowType || '').trim().toLowerCase();
@@ -260,7 +274,7 @@ export function listEligibleArtifactMinorMagicPowers(actor) {
     for (const item of items) {
         if (item?.type !== 'artifact')
             continue;
-        if (!isArtifactEquippedOnActor(item))
+        if (!isArtifactAvailableForMinorMagic(actor, item))
             continue;
         if (!artifactPowersUnlocked(actor, item))
             continue;

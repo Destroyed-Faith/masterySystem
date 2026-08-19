@@ -7,6 +7,7 @@ import {
   defaultMinorMagicName,
   emptyMinorMagicLedger,
   isEligibleMinorMagicPower,
+  isArtifactAvailableForMinorMagic,
   listEligibleMinorMagicPowers,
   minorMagicLimit,
   normalizeMinorMagicLedger,
@@ -64,16 +65,23 @@ function actorWithItems(items: any[], rank = 2) {
     ...actorStub(rank),
     items: {
       [Symbol.iterator]: () => items[Symbol.iterator](),
+      values: () => items.values(),
       get: (id: string) => map.get(id),
     },
   };
 }
 
 function artifactItem(overrides: Record<string, unknown> = {}) {
+  const { equipment, system: systemOverrides, getFlag: getFlagOverride, ...rest } = overrides as {
+    equipment?: Record<string, unknown>;
+    system?: Record<string, unknown>;
+    getFlag?: (scope: string, key: string) => unknown;
+  };
   return {
     id: 'art-1',
     type: 'artifact',
     name: 'Dragon Head',
+    ...rest,
     system: {
       currentLevel: 8,
       equipped: true,
@@ -85,9 +93,13 @@ function artifactItem(overrides: Record<string, unknown> = {}) {
         { level: 2, name: 'Roar', type: 'Active Buff', effect: 'Fear' },
         { level: 3, name: 'Recovery', type: 'Passive', effect: 'Heal' },
       ],
+      ...systemOverrides,
     },
-    getFlag: (_scope: string, key: string) => (key === 'artifactActivated' ? true : undefined),
-    ...overrides,
+    getFlag: getFlagOverride ?? ((_scope: string, key: string) => {
+      if (key === 'artifactActivated') return true;
+      if (key === 'equipment') return equipment;
+      return undefined;
+    }),
   };
 }
 
@@ -131,6 +143,50 @@ describe('eligibility', () => {
     expect(resolveMinorMagicPower(actor, breath.id)?.name).toBe('Breath II');
     expect(listed.some((p) => p.name === 'Breath III')).toBe(false);
     expect(listed.some((p) => p.name === 'Roar')).toBe(false);
+  });
+
+  it('lists Artifact Actives from either Weaponslot, even when that set is not in hand', () => {
+    const prepared = artifactItem({
+      system: { equipped: false },
+      equipment: { container: 'inventory', band: 'not', weaponSetPrepared: true },
+    });
+    const actor = actorWithItems([prepared]);
+    expect(isArtifactAvailableForMinorMagic(actor, prepared)).toBe(true);
+    expect(listEligibleMinorMagicPowers(actor).map((p) => p.name)).toEqual(['Breath II']);
+  });
+
+  it('does not list Artifact Actives that are only sitting in inventory', () => {
+    const loose = artifactItem({
+      system: { equipped: false },
+      equipment: { container: 'inventory', band: 'not', grid: { x: 1, y: 1 } },
+    });
+    const actor = actorWithItems([loose]);
+    expect(isArtifactAvailableForMinorMagic(actor, loose)).toBe(false);
+    expect(listEligibleMinorMagicPowers(actor)).toEqual([]);
+  });
+
+  it('lists Artifact Actives assigned to Weaponslot II while Weaponslot I is active', () => {
+    const item = artifactItem({
+      id: 'art-slot-2',
+      system: { equipped: false },
+    });
+    const base = actorWithItems([item]);
+    const actor = {
+      ...base,
+      getFlag: (_scope: string, key: string) =>
+        key === 'weaponSets'
+          ? {
+              schemaVersion: 1,
+              active: 1,
+              sets: {
+                1: { mainhand: null, offhand: null },
+                2: { mainhand: 'art-slot-2', offhand: null },
+              },
+            }
+          : undefined,
+    };
+    expect(isArtifactAvailableForMinorMagic(actor, item)).toBe(true);
+    expect(listEligibleMinorMagicPowers(actor).map((p) => p.name)).toEqual(['Breath II']);
   });
 });
 

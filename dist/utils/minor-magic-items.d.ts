@@ -91,6 +91,11 @@ export declare function isEligibleMinorMagicPower(item: {
     system?: Record<string, unknown>;
     getFlag?: (scope: string, key: string) => unknown;
 }): boolean;
+/**
+ * Minor Magic may store a power from an artifact that is worn now or prepared
+ * on either Weaponslot. Inventory-only artifacts stay excluded.
+ */
+export declare function isArtifactAvailableForMinorMagic(actor: any, item: any): boolean;
 export declare function listEligibleArtifactMinorMagicPowers(actor: any): any[];
 export declare function listEligibleMinorMagicPowers(actor: any): any[];
 export declare function resolveMinorMagicPower(actor: any, powerId: string): any | null;

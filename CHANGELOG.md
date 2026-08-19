@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.390] - 2026-08-19
+
+### Fixed
+
+- **Minor Magic from either Weaponslot:** Artifact Actives can be stored as potions and other Minor Magic Items whether the artifact sits in Weaponslot I or II. Switching the active set no longer hides those powers. Artifacts that are only in the inventory stay excluded.
+
 ## [0.9.389] - 2026-08-19
 
 ### Fixed
