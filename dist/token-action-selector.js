@@ -5,14 +5,14 @@
  *
  * Uses a PIXI-based radial menu for visual option selection
  */
-import { openRadialMenuForActor, getAllCombatOptionsForActor, closeRadialMenu } from './token-radial-menu.js';
-import { getSegmentIdForOption } from './radial-menu/options.js';
-import { startMeleeTargeting, collectMeleeBurstHostileTokenIds } from './melee-targeting.js';
+import { openRadialMenuForActor, getAllCombatOptionsForActor, closeRadialMenu } from './token-radial-menu';
+import { getSegmentIdForOption } from './radial-menu/options';
+import { startMeleeTargeting, collectMeleeBurstHostileTokenIds } from './melee-targeting';
 import { promptMeleeAoePrimaryChoice } from './melee-aoe-primary-dialog.js';
 import { extractMeleeAoePowerBonusD8 } from './utils/power-mechanics.js';
-import { startRangedTargeting } from './ranged-targeting.js';
-import { startUtilitySingleTargetMode, startUtilityRadiusMode } from './utility-targeting.js';
-import { getRoundState, getMovementRangeBonusMeters, getAvailableAttackActions, getAvailableMovementActions, consumeAttackAction, consumeMovementAction, spendMovementPowerAction, isNormalMovementReplaced, refundAttackAction, markPowerUsedThisRound, markNpcAttackUsedThisRound, canUseNpcAttackThisRound, hasPowerBeenUsedThisRound } from './combat/action-economy.js';
+import { startRangedTargeting } from './ranged-targeting';
+import { startUtilitySingleTargetMode, startUtilityRadiusMode } from './utility-targeting';
+import { getRoundState, getMovementRangeBonusMeters, getAvailableAttackActions, getAvailableMovementActions, consumeAttackAction, consumeMovementAction, spendMovementPowerAction, isNormalMovementReplaced, refundAttackAction, markPowerUsedThisRound, markNpcAttackUsedThisRound, canUseNpcAttackThisRound, hasPowerBeenUsedThisRound } from './combat/action-economy';
 import { gridStepsFromMeters, gridStepsBetweenCenters, masteryPowerMaxSteps, measureSceneDistanceBetweenPoints, metersToSceneDistance } from './utils/grid-range.js';
 import { eventWorldPoint, resolveOverlayContainer, snapWorldTopLeft, } from './utils/grid-snap.js';
 import { highlightHexesInRange, highlightHexesWithinStepsFromPoint, clearHexHighlight, collectHexKeysInRangeForToken, highlightTabuHexesOnLayer } from './utils/hex-highlighting.js';
@@ -583,6 +583,18 @@ export function endGuidedMovement(success) {
  * @param option - The chosen option (power or maneuver)
  */
 export async function handleChosenCombatOption(token, option) {
+    const isWeaponSwap = option.id === 'weapon-swap' || option.maneuver?.id === 'weapon-swap';
+    if (isWeaponSwap) {
+        const actor = token?.actor;
+        if (!actor) {
+            ui.notifications?.warn('No actor found for token!');
+            return;
+        }
+        closeRadialMenu();
+        const { swapWeaponSet } = await import('./utils/weapon-sets.js');
+        await swapWeaponSet(actor);
+        return;
+    }
     // Check combat exists
     const combat = game.combat;
     if (!combat) {

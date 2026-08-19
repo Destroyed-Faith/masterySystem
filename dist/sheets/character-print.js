@@ -705,6 +705,13 @@ export function buildCharacterPrintContext(actor, options = {}) {
             phase: 'Movement',
             baseline: true,
         },
+        {
+            name: globalThis.game?.i18n?.localize?.('MASTERY.weaponSets.actionName') || 'Weapon Swap',
+            effect: globalThis.game?.i18n?.localize?.('MASTERY.weaponSets.actionDescription') ||
+                'Switch to the other prepared Weapon Set. Costs a Movement Action in combat.',
+            phase: 'Movement',
+            baseline: true,
+        },
     ];
     const battleActive = [];
     const battleBuffs = [];

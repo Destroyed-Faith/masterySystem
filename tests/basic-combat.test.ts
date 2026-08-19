@@ -40,6 +40,7 @@ describe('basic combat maneuvers catalog', () => {
       'evade',
       'counterattack',
       'quick-load',
+      'weapon-swap',
       'flee',
       'dive-for-cover',
     ]) {
@@ -47,6 +48,7 @@ describe('basic combat maneuvers catalog', () => {
     }
     expect(ids.has('initiative-delay')).toBe(false);
     expect(RADIAL_STANDARD_MANEUVER_IDS).toContain('quick-load');
+    expect(RADIAL_STANDARD_MANEUVER_IDS).toContain('weapon-swap');
     expect(RADIAL_STANDARD_MANEUVER_IDS).toContain('flee');
     expect(RADIAL_STANDARD_MANEUVER_IDS).not.toContain('initiative-delay');
     expect(RADIAL_STANDARD_MANEUVER_IDS).toContain('weapon-attack');

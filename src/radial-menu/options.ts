@@ -978,6 +978,7 @@ export async function getAllCombatOptionsForActor(actor: any): Promise<RadialCom
     'dash',
     'disengage',
     'quick-load',
+    'weapon-swap',
     'stand-up',
     'flee',
   ];
@@ -1029,10 +1030,19 @@ export async function getAllCombatOptionsForActor(actor: any): Promise<RadialCom
       continue;
     }
 
+    const maneuverName =
+      maneuver.id === 'weapon-swap'
+        ? ((globalThis as any).game?.i18n?.localize?.('MASTERY.weaponSets.actionName') || maneuver.name)
+        : maneuver.name;
+    const maneuverDescription =
+      maneuver.id === 'weapon-swap'
+        ? ((globalThis as any).game?.i18n?.localize?.('MASTERY.weaponSets.actionDescription') || maneuver.description)
+        : (maneuver.description || (maneuver.effect || ''));
+
     const maneuverOption: RadialCombatOption = {
       id: maneuver.id,
-      name: maneuver.name,
-      description: maneuver.description || (maneuver.effect || ''),
+      name: maneuverName,
+      description: maneuverDescription || (maneuver.effect || ''),
       slot: maneuver.slot,
       source: 'maneuver',
       range: maneuverRange,

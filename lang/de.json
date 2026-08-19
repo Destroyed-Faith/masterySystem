@@ -363,6 +363,14 @@
       "replaceTitle": "Szenengeometrie ersetzen?",
       "replaceBody": "Löscht die aktuellen Wände und schreibt den Import an ihre Stelle."
     },
+    "weaponSets": {
+      "groupLabel": "Waffensets",
+      "actionName": "Waffenwechsel",
+      "actionDescription": "Wechsle zum anderen vorbereiteten Waffenset.",
+      "switchTitle": "Waffenset {n}",
+      "noMovement": "Keine Movement Action verfügbar, um das Waffenset zu wechseln.",
+      "movementReplaced": "Eine Movement Power hat die normale Bewegung in dieser Runde bereits ersetzt."
+    },
     "artifact": {
       "sheet": {
         "inactive": "Inaktiv — über Artefakte aktivieren",

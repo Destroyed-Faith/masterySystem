@@ -739,6 +739,19 @@ export function endGuidedMovement(success: boolean): void {
  * @param option - The chosen option (power or maneuver)
  */
 export async function handleChosenCombatOption(token: any, option: RadialCombatOption) {
+  const isWeaponSwap = option.id === 'weapon-swap' || option.maneuver?.id === 'weapon-swap';
+  if (isWeaponSwap) {
+    const actor = token?.actor;
+    if (!actor) {
+      ui.notifications?.warn('No actor found for token!');
+      return;
+    }
+    closeRadialMenu();
+    const { swapWeaponSet } = await import('./utils/weapon-sets.js');
+    await swapWeaponSet(actor);
+    return;
+  }
+
   // Check combat exists
   const combat = game.combat;
   if (!combat) {

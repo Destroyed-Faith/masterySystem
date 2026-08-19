@@ -9526,6 +9526,39 @@
   min-width: 0;
 }
 
+.df-weapon-set-switches {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: 0 0 8px;
+  position: relative;
+  z-index: 2;
+}
+
+.df-weapon-set-switch {
+  min-width: 1.65rem;
+  height: 1.4rem;
+  padding: 0 0.4rem;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.4);
+  color: var(--df-text-primary, #d0d0d0);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.df-weapon-set-switch:hover {
+  border-color: var(--df-accent, #c9a227);
+}
+
+.df-weapon-set-switch.is-active {
+  background: var(--df-accent, #c9a227);
+  border-color: var(--df-accent, #c9a227);
+  color: #1a1408;
+}
+
 .df-equip-trash {
   flex: 0 0 48px;
   display: flex;

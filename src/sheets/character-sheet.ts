@@ -88,6 +88,13 @@ import {
 } from '../utils/skills-redistribute.js';
 import { getDefaultInventorySizeForItemData } from '../utils/seed-general-items';
 import { getNormalizedEquipSlots, normalizeSlotKey } from '../utils/equip-slots.js';
+import {
+  canMarkTwoHandedGrip,
+  ensureWeaponSets,
+  peekWeaponSets,
+  swapWeaponSet,
+  syncActiveWeaponSetFromHands,
+} from '../utils/weapon-sets.js';
 import { XP_COSTS, attributeBandCost, powerLevelCost } from '../utils/constants';
 import { calculateMaxPowerLevel, calculateMaxSkillRank } from '../utils/calculations.js';
 import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
@@ -1732,6 +1739,19 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       { key: 'ring', label: 'Ring' }
     ];
 
+    const weaponSets = peekWeaponSets(this.actor);
+    const activeHands = weaponSets.sets[weaponSets.active] || { mainhand: null, offhand: null };
+    if (activeHands.mainhand && activeHands.mainhand === activeHands.offhand) {
+      const twoHandItem = equipmentItems.find((it: any) => it.id === activeHands.mainhand);
+      if (twoHandItem && !slotMap['offhand']) slotMap['offhand'] = twoHandItem;
+      if (twoHandItem && !slotMap['mainhand']) slotMap['mainhand'] = twoHandItem;
+    } else {
+      const mainItem = slotMap['mainhand'];
+      if (mainItem && Number((mainItem.system as any)?.hands) >= 2 && !slotMap['offhand']) {
+        slotMap['offhand'] = mainItem;
+      }
+    }
+
     // Players Guide 7575–7579: Load zone & movement penalty.
     // Map the legacy 3-band (Normal / Encumbered / Overloaded) representation
     // onto the canonical 24 × 9 / Zone-1-2-3 model so the load and the
@@ -1790,6 +1810,17 @@ export class MasteryCharacterSheet extends BaseActorSheet {
           artifactMeta: mapArtifactMeta(item),
         };
       }),
+      weaponSets: {
+        active: weaponSets.active,
+        buttons: ([1, 2] as const).map((index) => ({
+          index,
+          label: String(index),
+          active: weaponSets.active === index,
+          title:
+            (globalThis as any).game?.i18n?.format?.('MASTERY.weaponSets.switchTitle', { n: index }) ||
+            `Weapon Set ${index}`,
+        })),
+      },
     };
   }
 
@@ -2085,6 +2116,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     // is wired by DocumentSheetV2 via DEFAULT_OPTIONS.form.)
 
     void this.#mountBattleSensesArea(html);
+    void ensureWeaponSets(this.actor);
 
     if (!this.#attributeBaselinesMigrationDone) {
       this.#attributeBaselinesMigrationDone = true;
@@ -2274,6 +2306,16 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       
       const { StonePowersDialog } = await import('../stones/stone-powers-dialog.js');
       await StonePowersDialog.showForActor(this.actor, combatant);
+    });
+
+    html.on('click', '[data-action="switchWeaponSet"]', async (ev: JQuery.ClickEvent) => {
+      ev.preventDefault();
+      ev.stopPropagation();
+      if (!canCurrentUserUpdateDocument(this.actor)) return;
+      const raw = Number((ev.currentTarget as HTMLElement)?.dataset?.weaponSet);
+      const target = raw === 2 ? 2 : raw === 1 ? 1 : null;
+      if (!target) return;
+      await swapWeaponSet(this.actor, target);
     });
 
     html.find('[data-action="openArtifactEvolution"]').on('click', async (ev: JQuery.ClickEvent) => {
@@ -7251,6 +7293,16 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     }
 
     if (slot === 'offhand' && item.type === 'weapon') {
+      const mainhandItem = this.#getItemInEquipSlot('mainhand');
+      if (mainhandItem?.id === item.id && canMarkTwoHandedGrip(item)) {
+        const flags = item.getFlag('mastery-system', 'equipment') || {};
+        await item.update({
+          'flags.mastery-system.equipment': { ...flags, slot: 'mainhand', twoHanded: true },
+          'system.equipped': true,
+        });
+        await syncActiveWeaponSetFromHands(this.actor);
+        return true;
+      }
       ui.notifications?.warn('Weapons can only be equipped in the main hand. Use the off hand for a shield.');
       return false;
     }
@@ -7290,10 +7342,15 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     const currentFlags = item.getFlag('mastery-system', 'equipment') || {};
     const newFlags: any = { ...currentFlags, container: 'inventory', slot, band: currentFlags.band || 'not' };
     delete newFlags.grid;
+    if (Number((item.system as any)?.hands) >= 2) newFlags.twoHanded = true;
+    else delete newFlags.twoHanded;
     await item.update({
       'flags.mastery-system.equipment': newFlags,
       'system.equipped': true
     });
+    if (slot === 'mainhand' || slot === 'offhand') {
+      await syncActiveWeaponSetFromHands(this.actor);
+    }
     return true;
   }
 
@@ -7498,16 +7555,19 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       newFlags.container = 'stash';
       newFlags.band = null;
       newFlags.slot = null;
+      delete newFlags.twoHanded;
       await item.update({
         'flags.mastery-system.equipment': newFlags,
         'system.equipped': false
       });
+      await syncActiveWeaponSetFromHands(this.actor);
     } else if (dropType === 'band') {
       const band = target.dataset.band;
       if (band === 'not' || band === 'enc' || band === 'heavy') {
         newFlags.container = 'inventory';
         newFlags.band = band;
         newFlags.slot = null;
+        delete newFlags.twoHanded;
         const BAND_COLS = ZONE_WIDTH_COLS;
         const BAND_ROWS = 9;
         const size = parseInventorySize(item?.system?.inventorySize);
@@ -7544,6 +7604,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
           'flags.mastery-system.equipment': newFlags,
           'system.equipped': false
         });
+        await syncActiveWeaponSetFromHands(this.actor);
       }
     } else if (dropType === 'consumable-slot') {
       const index = Math.floor(Number(target.dataset.slotIndex));

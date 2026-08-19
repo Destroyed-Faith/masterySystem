@@ -1973,6 +1973,13 @@
         <aside class="df-equipment-side">
           <div class="df-equipped-panel">
             <h4>Equipped</h4>
+            {{#if equipmentUi.weaponSets}}
+            <div class="df-weapon-set-switches" role="group" aria-label="{{localize 'MASTERY.weaponSets.groupLabel'}}">
+              {{#each equipmentUi.weaponSets.buttons}}
+              <button type="button" class="df-weapon-set-switch{{#if this.active}} is-active{{/if}}" data-action="switchWeaponSet" data-weapon-set="{{this.index}}" title="{{this.title}}" aria-pressed="{{#if this.active}}true{{else}}false{{/if}}">{{this.label}}</button>
+              {{/each}}
+            </div>
+            {{/if}}
             <div class="df-equipped-grid">
               {{#each equipmentUi.equipSlots}}
                 <div class="df-equip-slot df-dropzone slot-{{this.key}}" data-df-drop="equip-slot" data-slot="{{this.key}}">

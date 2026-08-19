@@ -1065,6 +1065,12 @@ Hooks.once('init', async function() {
     if (item?.system?.consumable === true || item?.flags?.['mastery-system']?.minorMagic) {
       refreshConsumableSurfaces(item);
     }
+    const parent = item?.parent;
+    if (parent?.documentName === 'Actor') {
+      void import('./utils/weapon-sets.js').then(({ pruneDeletedWeaponSetRefs }) => {
+        void pruneDeletedWeaponSetRefs(parent);
+      });
+    }
   });
 
   Hooks.on('updateToken', (tokenDoc: any, changed: any) => {
@@ -2892,6 +2898,18 @@ Hooks.once('ready', async function () {
     }
   } catch (err) {
     console.warn('Mastery System | consumable slot rank sync on ready failed', err);
+  }
+});
+
+Hooks.once('ready', async function () {
+  try {
+    const { ensureWeaponSets } = await import('./utils/weapon-sets.js');
+    const characters = (game as any).actors?.filter((a: any) => a.type === 'character') || [];
+    for (const actor of characters) {
+      await ensureWeaponSets(actor);
+    }
+  } catch (err) {
+    console.warn('Mastery System | weapon set init on ready failed', err);
   }
 });
 

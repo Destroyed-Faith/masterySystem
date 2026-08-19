@@ -2,11 +2,11 @@
  * Character Sheet for Mastery System
  * Main player character sheet with tabs for attributes, skills, powers, etc.
  */
-import { SKILLS, SKILL_CATEGORIES } from '../utils/skills.js';
+import { SKILLS, SKILL_CATEGORIES } from '../utils/skills';
 import { getEquippedPhysicalSkillPenaltyDice } from '../utils/equipment-modifiers.js';
 import { buildSkillRollPoolPreview, getSkillRollDicePool, isSkillFullPoolReady, reducedSkillAttributePool, skillFullPoolThreshold, } from '../dice/roll-context-build.js';
-import { DISADVANTAGES, getDisadvantageDefinition, calculateDisadvantagePoints, validateDisadvantageSelection, detailsForMentalRestrictionsDialog, detailsForPhysicalScarsDialog } from '../system/disadvantages.js';
-import { getAllSchticks } from '../utils/schticks.js';
+import { DISADVANTAGES, getDisadvantageDefinition, calculateDisadvantagePoints, validateDisadvantageSelection, detailsForMentalRestrictionsDialog, detailsForPhysicalScarsDialog } from '../system/disadvantages';
+import { getAllSchticks } from '../utils/schticks';
 import { showEchoCardPickDialog, showEchoCreationDialog } from './character-sheet-echo-dialog.js';
 import { openCharacterPrintSheet } from './character-print.js';
 import { getCardOption, getEcho, getEchoCard, getEchoSubChoice, getUnlockedCardSlots, isEchoCardLicensed, removeSelectedEchoCard } from '../utils/echos/index.js';
@@ -17,7 +17,7 @@ import { showPowerCreationDialog } from './character-sheet-power-dialog.js';
 import { validateTowerWizardCreation } from '../creation/tower-wizard/tower-wizard-validation.js';
 import { getLanguage as getLanguageDef, normalizeKnownLanguages } from '../utils/languages.js';
 import { showLanguagesDialog } from './languages-dialog.js';
-import { collectInventoryBandRects, findFirstFit, fitsInGrid, parseInventorySize, rectsOverlap } from '../utils/inventory-grid.js';
+import { collectInventoryBandRects, findFirstFit, fitsInGrid, parseInventorySize, rectsOverlap } from '../utils/inventory-grid';
 import { isLegacyUnarmedItem } from '../utils/unarmed-fallback.js';
 import { loadZoneFromBands, movementPenaltyForLoad, LOAD_ZONE_LABEL, ZONE_WIDTH_COLS } from '../utils/encumbrance.js';
 import { getFilePickerClass } from '../utils/foundry-v14.js';
@@ -33,13 +33,14 @@ import { deleteSummonActor } from '../stones/familiar-actor-factory.js';
 import { buildPostCreationSnapshot } from '../utils/xp-post-creation.js';
 import { resetCharacterForRecreation, listEquippedGeneralArtifacts } from '../utils/reset-character.js';
 import { buildCancelSkillsRedistributeUpdates, buildFinishSkillsRedistributeUpdates, buildStartSkillsRedistributeUpdates, canStartSkillsRedistribute, getCreationSkillBudget, isSkillsRedistributing, validateCreationSkillAllocation, } from '../utils/skills-redistribute.js';
-import { getDefaultInventorySizeForItemData } from '../utils/seed-general-items.js';
+import { getDefaultInventorySizeForItemData } from '../utils/seed-general-items';
 import { getNormalizedEquipSlots, normalizeSlotKey } from '../utils/equip-slots.js';
-import { attributeBandCost, powerLevelCost } from '../utils/constants.js';
+import { canMarkTwoHandedGrip, ensureWeaponSets, peekWeaponSets, swapWeaponSet, syncActiveWeaponSetFromHands, } from '../utils/weapon-sets.js';
+import { attributeBandCost, powerLevelCost } from '../utils/constants';
 import { calculateMaxPowerLevel, calculateMaxSkillRank } from '../utils/calculations.js';
 import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
 import { getPowerMinLevel as resolvePowerMinLevel } from '../utils/power-xp-refund.js';
-import { matchesMasteryWeaponCatalog } from '../utils/weapons.js';
+import { matchesMasteryWeaponCatalog } from '../utils/weapons';
 import { buildRadialManeuverPrefsContext } from '../utils/radial-maneuver-prefs.js';
 import { buildCombatSensesPanelContext, normalizeCombatSensesData } from '../combat/combat-sense-collection.js';
 import { getActiveBuffs } from '../utils/active-buffs.js';
@@ -1582,6 +1583,21 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             { key: 'amulet', label: 'Amulet' },
             { key: 'ring', label: 'Ring' }
         ];
+        const weaponSets = peekWeaponSets(this.actor);
+        const activeHands = weaponSets.sets[weaponSets.active] || { mainhand: null, offhand: null };
+        if (activeHands.mainhand && activeHands.mainhand === activeHands.offhand) {
+            const twoHandItem = equipmentItems.find((it) => it.id === activeHands.mainhand);
+            if (twoHandItem && !slotMap['offhand'])
+                slotMap['offhand'] = twoHandItem;
+            if (twoHandItem && !slotMap['mainhand'])
+                slotMap['mainhand'] = twoHandItem;
+        }
+        else {
+            const mainItem = slotMap['mainhand'];
+            if (mainItem && Number(mainItem.system?.hands) >= 2 && !slotMap['offhand']) {
+                slotMap['offhand'] = mainItem;
+            }
+        }
         // Players Guide 7575–7579: Load zone & movement penalty.
         // Map the legacy 3-band (Normal / Encumbered / Overloaded) representation
         // onto the canonical 24 × 9 / Zone-1-2-3 model so the load and the
@@ -1638,6 +1654,16 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                     artifactMeta: mapArtifactMeta(item),
                 };
             }),
+            weaponSets: {
+                active: weaponSets.active,
+                buttons: [1, 2].map((index) => ({
+                    index,
+                    label: String(index),
+                    active: weaponSets.active === index,
+                    title: globalThis.game?.i18n?.format?.('MASTERY.weaponSets.switchTitle', { n: index }) ||
+                        `Weapon Set ${index}`,
+                })),
+            },
         };
     }
     /**
@@ -1896,6 +1922,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         // (ApplicationV2: no super.activateListeners — form change/submit handling
         // is wired by DocumentSheetV2 via DEFAULT_OPTIONS.form.)
         void this.#mountBattleSensesArea(html);
+        void ensureWeaponSets(this.actor);
         if (!this.#attributeBaselinesMigrationDone) {
             this.#attributeBaselinesMigrationDone = true;
             void this.#migrateAttributeBaselinesIfNeeded();
@@ -2067,6 +2094,17 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             }
             const { StonePowersDialog } = await import('../stones/stone-powers-dialog.js');
             await StonePowersDialog.showForActor(this.actor, combatant);
+        });
+        html.on('click', '[data-action="switchWeaponSet"]', async (ev) => {
+            ev.preventDefault();
+            ev.stopPropagation();
+            if (!canCurrentUserUpdateDocument(this.actor))
+                return;
+            const raw = Number(ev.currentTarget?.dataset?.weaponSet);
+            const target = raw === 2 ? 2 : raw === 1 ? 1 : null;
+            if (!target)
+                return;
+            await swapWeaponSet(this.actor, target);
         });
         html.find('[data-action="openArtifactEvolution"]').on('click', async (ev) => {
             ev.preventDefault();
@@ -6572,6 +6610,16 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             return false;
         }
         if (slot === 'offhand' && item.type === 'weapon') {
+            const mainhandItem = this.#getItemInEquipSlot('mainhand');
+            if (mainhandItem?.id === item.id && canMarkTwoHandedGrip(item)) {
+                const flags = item.getFlag('mastery-system', 'equipment') || {};
+                await item.update({
+                    'flags.mastery-system.equipment': { ...flags, slot: 'mainhand', twoHanded: true },
+                    'system.equipped': true,
+                });
+                await syncActiveWeaponSetFromHands(this.actor);
+                return true;
+            }
             ui.notifications?.warn('Weapons can only be equipped in the main hand. Use the off hand for a shield.');
             return false;
         }
@@ -6607,10 +6655,17 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         const currentFlags = item.getFlag('mastery-system', 'equipment') || {};
         const newFlags = { ...currentFlags, container: 'inventory', slot, band: currentFlags.band || 'not' };
         delete newFlags.grid;
+        if (Number(item.system?.hands) >= 2)
+            newFlags.twoHanded = true;
+        else
+            delete newFlags.twoHanded;
         await item.update({
             'flags.mastery-system.equipment': newFlags,
             'system.equipped': true
         });
+        if (slot === 'mainhand' || slot === 'offhand') {
+            await syncActiveWeaponSetFromHands(this.actor);
+        }
         return true;
     }
     /**
@@ -6811,10 +6866,12 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             newFlags.container = 'stash';
             newFlags.band = null;
             newFlags.slot = null;
+            delete newFlags.twoHanded;
             await item.update({
                 'flags.mastery-system.equipment': newFlags,
                 'system.equipped': false
             });
+            await syncActiveWeaponSetFromHands(this.actor);
         }
         else if (dropType === 'band') {
             const band = target.dataset.band;
@@ -6822,6 +6879,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 newFlags.container = 'inventory';
                 newFlags.band = band;
                 newFlags.slot = null;
+                delete newFlags.twoHanded;
                 const BAND_COLS = ZONE_WIDTH_COLS;
                 const BAND_ROWS = 9;
                 const size = parseInventorySize(item?.system?.inventorySize);
@@ -6853,6 +6911,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                     'flags.mastery-system.equipment': newFlags,
                     'system.equipped': false
                 });
+                await syncActiveWeaponSetFromHands(this.actor);
             }
         }
         else if (dropType === 'consumable-slot') {

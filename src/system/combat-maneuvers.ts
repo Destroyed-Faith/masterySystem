@@ -129,6 +129,16 @@ export const COMBAT_MANEUVERS: CombatManeuver[] = [
       "Instead of moving, spend your Movement to perform **Reload (1)**. Additional Movements may Quick Load again, up to a total Reload equal to your **Mastery Rank**. Requires a free hand. Cannot Quick Load while Immobilized or Restrained.",
   },
   {
+    id: "weapon-swap",
+    name: "Weapon Swap",
+    description: "Switch to your other prepared Weapon Set.",
+    slot: "movement",
+    category: "movement",
+    tags: ["movement", "basic", "weapon-swap"],
+    effect:
+      "Activate the prepared Weapon Set that is not currently in your hands. In combat this costs your Movement Action. Out of combat it is free. The inactive set may be empty.",
+  },
+  {
     id: "stand-up",
     name: "Stand Up",
     description: "Recover from Prone (costs 1 Attack Action).",

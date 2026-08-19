@@ -5,7 +5,7 @@ GM-only authoring tool for preparing a scene map. Foundry keeps movement, vision
 ## Open it
 
 1. Load a scene as Game Master.
-2. Click **EDIT SCENE** at the top of the left scene-control menu. Players never see the button.
+2. Open the **Scenes** sidebar on the right and click **EDIT SCENE** next to Create Scene / Create Folder. Players never see the button.
 3. **FINISH EDITING** leaves the mode. Confirmed walls stay. Hints and suggestions stay on the scene.
 
 Activating the editor does not start combat, move tokens or create lights.

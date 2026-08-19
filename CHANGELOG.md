@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.386] - 2026-08-19
+
+### Added
+
+- **Weapon Sets and Weapon Swap:** Characters keep two prepared hand configurations. Compact **[1] [2]** switches sit above the paperdoll hands; the general Movement Action **Weapon Swap** toggles the inactive set. Both use one shared swap. In combat a successful switch spends a Movement Action; out of combat it is free. Only the active set is equipped. Existing characters migrate current hands into Set 1, with Set 2 empty.
+
+### Changed
+
+- **Scene Editor launch button:** **EDIT SCENE** is no longer in the left scene-control menu. It sits in the right Scenes sidebar, next to **Create Scene** / **Create Folder**, with the full label. Players still never see it.
+
 ## [0.9.385] - 2026-08-18
 
 ### Changed

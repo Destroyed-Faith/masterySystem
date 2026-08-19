@@ -363,6 +363,14 @@
       "replaceTitle": "Replace scene geometry?",
       "replaceBody": "This deletes the current walls and writes the import in their place."
     },
+    "weaponSets": {
+      "groupLabel": "Weapon Sets",
+      "actionName": "Weapon Swap",
+      "actionDescription": "Switch to your other prepared Weapon Set.",
+      "switchTitle": "Weapon Set {n}",
+      "noMovement": "No Movement Action available to switch Weapon Sets.",
+      "movementReplaced": "A Movement Power already replaced your normal Movement this round."
+    },
     "artifact": {
       "sheet": {
         "inactive": "Inactive — activate via Artifacts",

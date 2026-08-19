@@ -1,30 +1,80 @@
 /**
- * Hooks and the GM toggle. The button lives at the top of Foundry's scene
- * control menu — never as a free-floating overlay on the map.
+ * Hooks and the GM toggle. The button sits in the right Scenes sidebar,
+ * next to Create Scene / Create Folder — not in the left scene-control menu.
  */
 
 import { getSceneEditor } from './controller.js';
 
 export const SCENE_EDITOR_BUTTON_ID = 'ms-scene-editor-toggle';
 
-function sceneControlsRoot(html?: HTMLElement | JQuery | null): HTMLElement | null {
-  if (html instanceof HTMLElement) return html.id === 'scene-controls' ? html : html.querySelector('#scene-controls') ?? html;
+function asElement(html?: HTMLElement | JQuery | null): HTMLElement | null {
+  if (html instanceof HTMLElement) return html;
   if (html && typeof (html as JQuery).get === 'function') {
-    const el = (html as JQuery).get(0) as HTMLElement | undefined;
-    if (!el) return document.querySelector('#scene-controls');
-    return el.id === 'scene-controls' ? el : el.querySelector('#scene-controls') ?? el;
+    return ((html as JQuery).get(0) as HTMLElement | undefined) ?? null;
   }
-  return document.querySelector('#scene-controls');
+  return null;
+}
+
+function isScenesRoot(el: HTMLElement): boolean {
+  return el.id === 'scenes' || el.dataset?.tab === 'scenes' || el.classList.contains('scenes-sidebar');
+}
+
+function scenesRoot(html?: HTMLElement | JQuery | null): HTMLElement | null {
+  const el = asElement(html);
+  if (el) {
+    if (isScenesRoot(el)) return el;
+    return el.querySelector<HTMLElement>('#scenes, .sidebar-tab[data-tab="scenes"]') ?? el;
+  }
+  return (
+    document.querySelector<HTMLElement>('#scenes') ??
+    document.querySelector<HTMLElement>('.sidebar-tab[data-tab="scenes"]') ??
+    document.querySelector<HTMLElement>('[data-tab="scenes"].directory')
+  );
+}
+
+function isScenesTab(app: any, html?: HTMLElement | JQuery | null): boolean {
+  if (app?.tabName === 'scenes' || app?.id === 'scenes' || app?.tabName === 'scene') return true;
+  const el = asElement(html);
+  return !!(el && (isScenesRoot(el) || el.querySelector?.('#scenes, .sidebar-tab[data-tab="scenes"]')));
 }
 
 function removeButton(): void {
   document.getElementById(SCENE_EDITOR_BUTTON_ID)?.remove();
 }
 
+function insertToggle(root: HTMLElement, btn: HTMLButtonElement): boolean {
+  const createFolder = root.querySelector<HTMLElement>(
+    'button[data-action="createFolder"], button.create-folder',
+  );
+  if (createFolder) {
+    createFolder.after(btn);
+    return true;
+  }
+  const createScene = root.querySelector<HTMLElement>(
+    'button[data-action="createEntry"], button[data-action="createDocument"], button.create-entry, button.create-document',
+  );
+  if (createScene) {
+    createScene.after(btn);
+    return true;
+  }
+  const host =
+    root.querySelector('.directory-header .header-actions') ??
+    root.querySelector('.directory-header .action-buttons') ??
+    root.querySelector('.header-actions') ??
+    root.querySelector('.action-buttons') ??
+    root.querySelector('.directory-footer') ??
+    root.querySelector('[data-application-part="footer"]') ??
+    root.querySelector('[data-application-part="header"]') ??
+    root.querySelector('.directory-header');
+  if (!host) return false;
+  host.appendChild(btn);
+  return true;
+}
+
 function injectToggle(html?: HTMLElement | JQuery | null): void {
   removeButton();
   if (!game.user?.isGM) return;
-  const root = sceneControlsRoot(html);
+  const root = scenesRoot(html);
   if (!root) return;
 
   const btn = document.createElement('button');
@@ -39,24 +89,26 @@ function injectToggle(html?: HTMLElement | JQuery | null): void {
     else await editor.activate();
   });
 
-  const layers =
-    root.querySelector('#scene-layers') ??
-    root.querySelector('.scene-control')?.parentElement ??
-    root;
-  layers.insertBefore(btn, layers.firstChild);
+  if (!insertToggle(root, btn)) {
+    btn.remove();
+    return;
+  }
   getSceneEditor().refreshButton();
 }
 
 export function initializeSceneEditor(): void {
-  Hooks.on('renderSceneControls', (_app: unknown, html: HTMLElement | JQuery) => {
+  Hooks.on('renderSceneDirectory', (_app: unknown, html: HTMLElement | JQuery) => {
     injectToggle(html);
+  });
+
+  Hooks.on('renderSidebarTab', (app: any, html: HTMLElement | JQuery) => {
+    if (isScenesTab(app, html)) injectToggle(html);
   });
 
   Hooks.on('canvasReady', () => {
     const editor = getSceneEditor();
     if (editor.active) void editor.reattach();
     else editor.teardownCanvas();
-    injectToggle();
   });
 
   Hooks.on('canvasTearDown', () => {
