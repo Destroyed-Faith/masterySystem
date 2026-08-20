@@ -16,6 +16,8 @@ import { getEchoArtifactRules, listSelectableEchoArtifacts, listEchoArtifactsInV
 import { grantEchoArtifactTreeToActor, seedArtifactLibrary } from '../utils/seed-artifact-library.js';
 import { buildEchoArtifactTree } from '../artifacts/echo-artifact-tree-builder.js';
 import { dedupeEchoArtifactsOnActor, equipEchoArtifact, getEchoArtifactKey, isEchoBoundArtifact, } from '../utils/echo-artifact-equip.js';
+import { scheduleCenterLegacyDialog } from '../utils/legacy-dialog-resize.js';
+import { normalizeKnownLanguages } from '../utils/languages.js';
 function formatEchoSlot(slot) {
     const labels = {
         bothHands: 'both hands',
@@ -199,6 +201,8 @@ export async function showEchoCreationDialog(actor) {
                             return false;
                         }
                         const traitUses = buildFreshTraitUses(echoKey, subChoiceKey || null, masteryRank);
+                        const inCreation = actor.system?.creation?.complete === false;
+                        const nextLanguages = normalizeKnownLanguages(actor.system?.languages?.known, echoKey, { replaceExtras: inCreation }).cleaned;
                         await actor.update({
                             'system.echo': {
                                 key: echoKey,
@@ -208,7 +212,8 @@ export async function showEchoCreationDialog(actor) {
                                 cardUses: {},
                                 traitUses
                             },
-                            'system.bio.echo': def.name
+                            'system.bio.echo': def.name,
+                            'system.languages.known': nextLanguages,
                         });
                         // Remove any previously-created echo-bound artifacts so we always
                         // reflect the latest selection (in case the player re-opens the dialog).
@@ -294,10 +299,11 @@ export async function showEchoCreationDialog(actor) {
             render: (htmlRaw) => {
                 const html = (htmlRaw instanceof HTMLElement) ? $(htmlRaw) : $(htmlRaw);
                 setTimeout(() => {
-                    const dlg = html.closest('.window-app.dialog');
+                    const dlg = html.closest('.window-app.dialog, .window-app, .application');
                     if (dlg.length) {
                         dlg.addClass('mastery-system echo-creation-dialog');
                         dlg.css({
+                            position: 'fixed',
                             height: 'auto',
                             'min-height': '320px',
                             'max-height': '92vh',
@@ -314,6 +320,7 @@ export async function showEchoCreationDialog(actor) {
                             });
                         }
                     }
+                    scheduleCenterLegacyDialog(html, dialog);
                 }, 0);
                 const $echo = html.find('#ec-echo');
                 const $preview = html.find('#ec-preview');
@@ -518,9 +525,16 @@ export async function showEchoCreationDialog(actor) {
                     }
                     $cardPreview.html(renderCardPreview(def, cardId));
                 };
-                $echo.on('change', refreshForEcho);
+                $echo.on('change', () => {
+                    refreshForEcho();
+                    scheduleCenterLegacyDialog(html, dialog);
+                });
                 refreshForEcho();
+                scheduleCenterLegacyDialog(html, dialog);
             }
+        }, {
+            classes: ['dialog', 'mastery-system', 'echo-creation-dialog'],
+            width: 860,
         });
         dialog.render(true);
     });
@@ -595,10 +609,11 @@ export async function showEchoCardPickDialog(actor) {
             render: (htmlRaw) => {
                 const html = (htmlRaw instanceof HTMLElement) ? $(htmlRaw) : $(htmlRaw);
                 setTimeout(() => {
-                    const dlg = html.closest('.window-app.dialog');
+                    const dlg = html.closest('.window-app.dialog, .window-app, .application');
                     if (dlg.length) {
                         dlg.addClass('mastery-system echo-card-pick-dialog');
                         dlg.css({
+                            position: 'fixed',
                             height: 'auto',
                             'min-height': '320px',
                             'max-height': '92vh',
@@ -615,6 +630,7 @@ export async function showEchoCardPickDialog(actor) {
                             });
                         }
                     }
+                    scheduleCenterLegacyDialog(html, dialog);
                 }, 0);
                 const $options = html.find('#ecp-card-options');
                 const $preview = html.find('#ecp-card-preview');
@@ -629,6 +645,9 @@ export async function showEchoCardPickDialog(actor) {
                 $options.on('change', 'input[name="cardId"]', paintPreview);
                 paintPreview();
             }
+        }, {
+            classes: ['dialog', 'mastery-system', 'echo-card-pick-dialog'],
+            width: 820,
         });
         dialog.render(true);
     });

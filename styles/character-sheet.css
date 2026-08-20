@@ -5780,12 +5780,49 @@
   margin: 0;
   padding: 0;
   opacity: 0;
-  cursor: pointer;
+  pointer-events: none;
   border: none;
-  border-radius: 50%;
-  z-index: 3;
-  -webkit-appearance: none;
-  appearance: none;
+}
+
+.mastery-system.sheet.actor.character .attr-creation-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 2px;
+  min-width: 52px;
+  padding: 4px;
+  background: var(--df-bg-header, #1b2124);
+  border: 1px solid var(--df-border-primary, #3a3f44);
+  border-radius: 8px;
+  box-shadow: 0 8px 20px var(--df-shadow, rgba(0, 0, 0, 0.55));
+}
+
+.mastery-system.sheet.actor.character .attr-creation-menu-item {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 4px 0;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--df-text-primary, #f0f0f0);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: center;
+  cursor: pointer;
+}
+
+.mastery-system.sheet.actor.character .attr-creation-menu-item:hover,
+.mastery-system.sheet.actor.character .attr-creation-menu-item.is-current {
+  background: rgba(201, 162, 39, 0.18);
+  color: #f6e7b0;
 }
 
 .mastery-system.sheet.actor.character .attr-creation-hint {
@@ -11108,61 +11145,210 @@
 }
 
 /* --- Languages picker ------------------------------------------------------
-   The opener used to render as an unstyled default button and looked
-   inactive — make it a clearly clickable control, and pulse it while the
-   character-creation language pick is still missing. */
+   Match the Echo-tab rulebook chrome (gold/dark) instead of Foundry red. */
+.mastery-system.sheet.actor.character .languages-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
 .mastery-system.sheet .languages-row {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   flex-wrap: wrap;
 }
 
-.mastery-system.sheet .language-tag {
+.mastery-system.sheet .languages-list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.mastery-system.sheet .language-tag,
+.mastery-system.sheet .language-empty {
   display: inline-block;
-  padding: 1px 8px;
-  margin: 1px 2px 1px 0;
+  padding: 2px 10px;
   border-radius: 10px;
-  background: rgba(120, 46, 34, 0.15);
-  border: 1px solid rgba(120, 46, 34, 0.45);
-  font-size: 11px;
+  background: rgba(201, 162, 39, 0.12);
+  border: 1px solid rgba(201, 162, 39, 0.4);
+  color: #f6e7b0;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 12px;
   white-space: nowrap;
 }
 
 .mastery-system.sheet .open-languages-btn {
   flex: 0 0 auto;
   width: auto;
-  padding: 2px 10px;
-  border: 1px solid #782e22;
+  padding: 4px 12px;
+  border: 1px solid var(--df-border-primary, #3a3f44);
   border-radius: 4px;
-  background: rgba(120, 46, 34, 0.12);
-  color: inherit;
+  background: var(--df-accent-subtle, rgba(255, 255, 255, 0.12));
+  color: var(--df-text-primary, #d0d0d0);
+  font-family: 'Cormorant Garamond', Georgia, serif;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.15s ease, box-shadow 0.15s ease;
+  transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .mastery-system.sheet .open-languages-btn:hover {
-  background: rgba(120, 46, 34, 0.28);
-  box-shadow: 0 0 6px rgba(120, 46, 34, 0.6);
+  background: var(--df-accent, rgba(255, 255, 255, 0.2));
+  border-color: var(--df-border-highlight, rgba(255, 255, 255, 0.3));
 }
 
 .mastery-system.sheet .open-languages-btn i {
   margin-right: 4px;
 }
 
-/* Pick still missing during character creation: make the button impossible
-   to overlook. */
 .mastery-system.sheet .open-languages-btn.needs-pick {
-  background: #782e22;
-  color: #fff;
-  border-color: #a8442f;
+  background: rgba(201, 162, 39, 0.22);
+  color: #f6e7b0;
+  border-color: rgba(201, 162, 39, 0.65);
   animation: ms-languages-pulse 1.6s ease-in-out infinite;
 }
 
 @keyframes ms-languages-pulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(168, 68, 47, 0.7); }
-  50% { box-shadow: 0 0 0 6px rgba(168, 68, 47, 0); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(201, 162, 39, 0.55); }
+  50% { box-shadow: 0 0 0 6px rgba(201, 162, 39, 0); }
+}
+
+/* Languages dialog — same dark chrome as Echo / disadvantage pickers */
+.window-app.dialog.mastery-system.languages-picker-dialog,
+.application.mastery-system.languages-picker-dialog {
+  background: #161a1d;
+  border: 1px solid var(--df-border-primary, #3a3f44);
+  color: var(--df-text-primary, #d0d0d0);
+  box-shadow: 0 12px 38px rgba(0, 0, 0, 0.6);
+  border-radius: 8px;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+}
+
+.mastery-system.languages-picker-dialog .window-header {
+  background: linear-gradient(to bottom, var(--df-bg-panel, #2a3136), var(--df-bg-primary, #20272B));
+  border-bottom: 2px solid var(--df-border-primary, #3a3f44);
+  color: var(--df-text-primary, #d0d0d0);
+}
+
+.mastery-system.languages-picker-dialog .window-title {
+  color: var(--df-text-primary, #f0f0f0);
+  font-family: var(--df-font-head, 'Laviossa', serif);
+  font-size: 15px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.mastery-system.languages-picker-dialog .window-content {
+  overflow-y: auto;
+  background: #161a1d;
+  color: var(--df-text-primary, #d0d0d0);
+  padding: 14px 16px 10px;
+}
+
+.mastery-system.languages-picker-dialog .languages-dialog {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.mastery-system.languages-picker-dialog .lang-intro {
+  margin: 0;
+  padding: 10px 12px;
+  background: var(--df-bg-panel, #2a3136);
+  border: 1px solid var(--df-border-primary, #3a3f44);
+  border-radius: 8px;
+  color: var(--df-text-primary, #d0d0d0);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.mastery-system.languages-picker-dialog .lang-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: min(56vh, 480px);
+  overflow-y: auto;
+}
+
+.mastery-system.languages-picker-dialog .lang-row {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 10px;
+  background: var(--df-bg-panel, #2a3136);
+  border: 1px solid var(--df-border-primary, #3a3f44);
+  border-radius: 6px;
+}
+
+.mastery-system.languages-picker-dialog .lang-row.is-locked {
+  opacity: 0.92;
+  border-color: rgba(201, 162, 39, 0.35);
+}
+
+.mastery-system.languages-picker-dialog .lang-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  color: var(--df-text-primary, #f0f0f0);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.mastery-system.languages-picker-dialog .lang-row.is-locked .lang-label {
+  cursor: default;
+}
+
+.mastery-system.languages-picker-dialog .lang-name {
+  font-family: var(--df-font-head, 'Laviossa', serif);
+  letter-spacing: 0.03em;
+}
+
+.mastery-system.languages-picker-dialog .lang-flag {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-weight: 400;
+  font-size: 12px;
+  color: #f6e7b0;
+}
+
+.mastery-system.languages-picker-dialog .lang-description {
+  margin: 0 0 0 22px;
+  color: var(--df-text-muted, #b8b8b8);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.mastery-system.languages-picker-dialog .dialog-buttons {
+  display: flex;
+  gap: 8px;
+  padding-top: 8px;
+}
+
+.mastery-system.languages-picker-dialog .dialog-button {
+  flex: 1 1 auto;
+  background: var(--df-bg-header, #1b2124);
+  border: 1px solid var(--df-border-primary, #3a3f44);
+  color: var(--df-text-primary, #f0f0f0);
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-weight: 700;
+}
+
+.mastery-system.languages-picker-dialog .dialog-button.default {
+  background: rgba(201, 162, 39, 0.18);
+  border-color: rgba(201, 162, 39, 0.55);
+  color: #f6e7b0;
+}
+
+.mastery-system.languages-picker-dialog .dialog-button:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.mastery-system.languages-picker-dialog .dialog-button.default:hover {
+  background: rgba(201, 162, 39, 0.3);
 }
 
 /* ===== Summons tab (side bookmark under Disadvantages) ===== */

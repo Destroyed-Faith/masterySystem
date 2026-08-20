@@ -145,6 +145,37 @@
   background: rgba(139, 0, 0, 0.12);
 }
 
+.tower-wizard-app button.tower-wizard-defense-card {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.tower-wizard-defense-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.tower-wizard-defense-name {
+  flex: 0 0 auto;
+  margin: 0;
+  padding: 0 4px 0 12px;
+  color: #f6e7b0;
+  font-family: var(--df-font-head, 'Laviossa', serif);
+  font-size: 1.55rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  line-height: 1.15;
+  text-align: right;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
 .tower-wizard-card-title {
   display: block;
   width: 100%;

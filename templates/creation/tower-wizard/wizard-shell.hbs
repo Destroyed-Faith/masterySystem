@@ -24,9 +24,12 @@
       <h3>{{copy.defense.question}}</h3>
       <div class="tower-wizard-cards">
         {{#each defensePackagesWithEcho}}
-        <button type="button" class="tower-wizard-card js-tw-select-defense{{#if (eq ../selection.defenseId this.id)}} is-selected{{/if}}{{#if this.echoConflict}} has-echo-conflict{{/if}}{{#if this.echoRecommended}} is-echo-recommended{{/if}}" data-defense-id="{{this.id}}">
-          <span class="tower-wizard-card-title">{{this.label}}</span>
-          <span class="tower-wizard-card-text">{{this.explanation}}</span>
+        <button type="button" class="tower-wizard-card tower-wizard-defense-card js-tw-select-defense{{#if (eq ../selection.defenseId this.id)}} is-selected{{/if}}{{#if this.echoConflict}} has-echo-conflict{{/if}}{{#if this.echoRecommended}} is-echo-recommended{{/if}}" data-defense-id="{{this.id}}">
+          <span class="tower-wizard-defense-copy">
+            <span class="tower-wizard-card-title">{{this.label}}</span>
+            <span class="tower-wizard-card-text">{{this.explanation}}</span>
+          </span>
+          <span class="tower-wizard-defense-name">{{this.mechanicLabel}}</span>
           {{#if this.echoRecommended}}<span class="tower-wizard-chip">{{../copy.echo.defenseRecommended}}</span>{{/if}}
           {{#if this.echoConflict}}<span class="tower-wizard-warn">{{../copy.echo.defenseConflict}}: {{this.echoConflict.artifactName}} ({{this.echoConflict.displayName}})</span>{{/if}}
           {{#if this.warning}}<span class="tower-wizard-warn">{{this.warning}}</span>{{/if}}
@@ -74,11 +77,11 @@
     <section class="tower-wizard-step">
       <h3>{{copy.passive2.heading}}</h3>
       <p class="tower-wizard-prose">{{passive2Subtitle}}</p>
-      {{#if defensePackagePreview}}
+      {{#if secondPassivePreviewRows.length}}
       <div class="tower-wizard-package-preview">
         <h4>{{copy.passive2.alreadySelected}}</h4>
         <ul class="tower-wizard-package-preview-list">
-          {{#each defensePackagePreview.rows}}
+          {{#each secondPassivePreviewRows}}
           <li class="tower-wizard-package-preview-row">
             <span class="tower-wizard-package-preview-key">{{this.label}}</span>
             <span class="tower-wizard-package-preview-value">{{this.value}}</span>
@@ -98,10 +101,7 @@
           <button type="button" class="tower-wizard-passive-card js-tw-select-passive2{{#if (eq ../../../selection.secondPassiveTemplateId this.id)}} is-selected{{/if}}" data-passive-id="{{this.id}}">
             <span class="chip-label">{{this.label}}</span>
             <span class="chip-mechanical">{{this.hint}}</span>
-            {{#if this.whenToUse}}<span class="tower-wizard-card-meta">{{../../copy.passive2.whenToUse}}: {{this.whenToUse}}</span>{{/if}}
-            {{#if this.powerName}}<span class="tower-wizard-card-power">{{../../copy.passive2.powerLabel}}: {{this.powerName}}</span>{{/if}}
             {{#if this.mechanicsPreview}}<span class="tower-wizard-card-meta">{{this.mechanicsPreview}}</span>{{/if}}
-            {{#if this.warning}}<span class="tower-wizard-warn">{{this.warning}}</span>{{/if}}
           </button>
           {{/each}}
         </div>
@@ -224,8 +224,6 @@
           <button type="button" class="tower-wizard-passive-card js-tw-select-special-focus{{#if this.isSelected}} is-selected{{/if}}" data-pick-id="{{this.pickId}}" data-template-id="{{this.templateId}}" data-special="{{this.special}}">
             <span class="chip-label">{{this.playerTitle}}</span>
             <span class="chip-mechanical">{{this.explanation}}</span>
-            <span class="tower-wizard-card-meta">{{../../copy.offenseSpecial.whenToUse}}: {{this.whenToUse}}</span>
-            <span class="tower-wizard-card-power">{{../../copy.offenseSpecial.powerLabel}}: {{this.powerName}}</span>
             {{#if this.mechanicsPreview}}<span class="tower-wizard-card-meta">{{this.mechanicsPreview}}</span>{{/if}}
           </button>
           {{/each}}
@@ -399,6 +397,7 @@
             {{#if this.hasCatalogOverride}}<span class="tower-wizard-chip">{{../copy.review.customPower}}</span>{{/if}}
           </div>
           <div class="tower-wizard-review-power-actions">
+            {{#unless this.locked}}
             <button type="button" class="tower-wizard-btn js-tw-change-power" data-grant-key="{{this.grantKey}}">{{../copy.review.changePower}}</button>
             {{#if this.hasCatalogOverride}}
             <button type="button" class="tower-wizard-btn js-tw-reset-power" data-grant-key="{{this.grantKey}}">{{../copy.review.resetPower}}</button>
@@ -407,6 +406,9 @@
             <button type="button" class="tower-wizard-btn js-tw-reset-power" data-grant-key="{{this.grantKey}}">{{../copy.review.resetPower}}</button>
             {{/if}}
             {{/if}}
+            {{else}}
+            <span class="tower-wizard-chip">Locked</span>
+            {{/unless}}
           </div>
         </div>
         {{#if this.showSpellConfig}}

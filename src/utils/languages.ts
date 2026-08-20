@@ -56,9 +56,9 @@ export const LANGUAGES: LanguageDefinition[] = [
         description: 'Ancient tongue of the Titan-born.',
     },
     {
-        key: 'elvish',
-        name: 'Elvish',
-        description: 'Fluid and timeless, carried by wind and memory.',
+        key: 'elorian',
+        name: 'Elorian',
+        description: 'Fluid and timeless, carried by wind and memory of Eloria.',
     },
     {
         key: 'draconic',
@@ -67,11 +67,38 @@ export const LANGUAGES: LanguageDefinition[] = [
     },
 ];
 
+/** Legacy keys still stored on older actors. */
+const LANGUAGE_ALIASES: Readonly<Record<string, string>> = {
+    elvish: 'elorian',
+};
+
+/**
+ * Echoes whose extra language is fixed at creation and cannot be swapped.
+ * Humans, Unbound, and Titanborn still pick freely.
+ */
+export const ECHO_LOCKED_LANGUAGES: Readonly<Record<string, string>> = {
+    elorians: 'elorian',
+    dragonborn: 'draconic',
+    dwarfs: 'dwarvish',
+    sentinels: 'celestial',
+};
+
+/** Canonicalize a stored language key (aliases + lowercase). */
+export function resolveLanguageKey(key: string): string {
+    const lc = String(key || '').toLowerCase();
+    return LANGUAGE_ALIASES[lc] ?? lc;
+}
+
+export function getEchoLockedLanguage(echoKey?: string | null): string | null {
+    if (!echoKey) return null;
+    return ECHO_LOCKED_LANGUAGES[String(echoKey).toLowerCase()] ?? null;
+}
+
 /** Look up a language by key. */
 export function getLanguage(key: string): LanguageDefinition | undefined {
     if (!key) return undefined;
-    const lc = String(key).toLowerCase();
-    return LANGUAGES.find((l) => l.key === lc);
+    const resolved = resolveLanguageKey(key);
+    return LANGUAGES.find((l) => l.key === resolved);
 }
 
 /** Picker options ordered with the Common Tongue first. */
@@ -100,27 +127,43 @@ export const STARTING_PICKED_LANGUAGES = 1;
  * unknown keys stripped) plus a flag indicating whether the count of
  * non-Common picks matches the creation rule (`STARTING_PICKED_LANGUAGES`).
  */
-export function normalizeKnownLanguages(known: unknown): {
+export function normalizeKnownLanguages(
+    known: unknown,
+    echoKey?: string | null,
+    options?: { replaceExtras?: boolean },
+): {
     cleaned: string[];
     pickedNonCommon: number;
     creationValid: boolean;
+    lockedKey: string | null;
 } {
+    const lockedKey = getEchoLockedLanguage(echoKey);
     const raw = Array.isArray(known) ? known : [];
     const seen = new Set<string>();
     const cleaned: string[] = [COMMON_LANGUAGE_KEY];
     seen.add(COMMON_LANGUAGE_KEY);
-    for (const entry of raw) {
-        if (typeof entry !== 'string') continue;
-        const lc = entry.toLowerCase();
-        if (seen.has(lc)) continue;
-        if (!getLanguage(lc)) continue;
-        cleaned.push(lc);
-        seen.add(lc);
+    if (lockedKey && options?.replaceExtras) {
+        cleaned.push(lockedKey);
+        seen.add(lockedKey);
+    } else {
+        for (const entry of raw) {
+            if (typeof entry !== 'string') continue;
+            const lc = resolveLanguageKey(entry);
+            if (seen.has(lc)) continue;
+            if (!getLanguage(lc)) continue;
+            cleaned.push(lc);
+            seen.add(lc);
+        }
+        if (lockedKey && !seen.has(lockedKey)) {
+            cleaned.push(lockedKey);
+            seen.add(lockedKey);
+        }
     }
     const pickedNonCommon = cleaned.filter((k) => k !== COMMON_LANGUAGE_KEY).length;
     return {
         cleaned,
         pickedNonCommon,
         creationValid: pickedNonCommon >= STARTING_PICKED_LANGUAGES,
+        lockedKey,
     };
 }

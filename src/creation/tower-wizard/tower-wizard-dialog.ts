@@ -185,6 +185,9 @@ export class TowerWizardDialog extends BaseDialog {
             : [];
 
         const defensePackagePreview = buildDefensePackagePreview(this.selection);
+        const secondPassivePreviewRows = (defensePackagePreview?.rows ?? []).filter((row) =>
+            row.label === 'Main Defense' || row.label === 'Passive 1' || row.label === 'Passive Category',
+        );
         const passive2Subtitle = copy.passive2.subtitleForCategory();
 
         const selectedPickIds = new Set((this.selection.offenseActivePicks ?? []).map((p) => p.pickId));
@@ -238,6 +241,7 @@ export class TowerWizardDialog extends BaseDialog {
             defensePackages: TOWER_WIZARD_DEFENSE_PACKAGES,
             passive1Variants,
             defensePackagePreview,
+            secondPassivePreviewRows,
             secondPassiveIntentGroups: passiveIntentGroups,
             passive2Subtitle,
             offenseSpecialGroups,
@@ -700,6 +704,7 @@ export class TowerWizardDialog extends BaseDialog {
 
         root.find('.js-tw-change-power').on('click', async (ev) => {
             const grantKey = String($(ev.currentTarget).data('grant-key') || '') as PackageGrantKey;
+            if (grantKey === 'offense-0' && !this.selection.manualBuildMode) return;
             await this.#openPowerPicker(grantKey);
         });
 

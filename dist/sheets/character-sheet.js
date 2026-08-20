@@ -805,7 +805,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
          */
         {
             const knownRaw = context.system?.languages?.known ?? ['common'];
-            const norm = normalizeKnownLanguages(knownRaw);
+            const echoKey = String(context.system?.echo?.key || '');
+            const norm = normalizeKnownLanguages(knownRaw, echoKey);
             context.languagesView = {
                 list: norm.cleaned
                     .map((key) => getLanguageDef(key))
@@ -2060,22 +2061,21 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         this.#updateSkillXPUI();
         // Character Creation mode buttons
         html.find('.attr-creation-select').on('change', this.#onCreationAttributeChange.bind(this));
+        html.find('.attribute-value--creation').attr({ tabindex: 0, role: 'button' });
+        html.find('.attribute-value--creation').on('click', (ev) => {
+            ev.preventDefault();
+            ev.stopPropagation();
+            const wrap = ev.currentTarget;
+            const select = wrap.querySelector('select.attr-creation-select');
+            if (!select)
+                return;
+            this.#toggleAttrCreationMenu(wrap, select);
+        });
         html.find('.attribute-value--creation').on('keydown', (ev) => {
             if (ev.key !== 'Enter' && ev.key !== ' ' && ev.key !== 'ArrowDown')
                 return;
-            const select = ev.currentTarget.querySelector('select.attr-creation-select');
-            if (!select)
-                return;
             ev.preventDefault();
-            try {
-                if (typeof select.showPicker === 'function')
-                    select.showPicker();
-                else
-                    select.focus();
-            }
-            catch {
-                select.focus();
-            }
+            ev.currentTarget.click();
         });
         html.find('.skill-increase').on('click', this.#onCreationSkillIncrease.bind(this));
         html.find('.skill-decrease').on('click', this.#onCreationSkillDecrease.bind(this));
@@ -5715,6 +5715,44 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             default: 'cancel'
         }).render(true);
     }
+    #toggleAttrCreationMenu(wrap, select) {
+        const existing = wrap.querySelector('.attr-creation-menu');
+        document.querySelectorAll('.attr-creation-menu').forEach((el) => el.remove());
+        document.querySelectorAll('.attribute-value--creation.is-picking').forEach((el) => {
+            el.classList.remove('is-picking');
+        });
+        if (existing)
+            return;
+        const menu = document.createElement('div');
+        menu.className = 'attr-creation-menu';
+        menu.setAttribute('role', 'listbox');
+        for (const opt of Array.from(select.options)) {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = `attr-creation-menu-item${opt.selected ? ' is-current' : ''}`;
+            btn.dataset.value = opt.value;
+            btn.textContent = opt.textContent || opt.value;
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                select.value = opt.value;
+                select.dispatchEvent(new Event('change', { bubbles: true }));
+                menu.remove();
+                wrap.classList.remove('is-picking');
+            });
+            menu.appendChild(btn);
+        }
+        wrap.classList.add('is-picking');
+        wrap.appendChild(menu);
+        const onDoc = (e) => {
+            if (wrap.contains(e.target))
+                return;
+            menu.remove();
+            wrap.classList.remove('is-picking');
+            document.removeEventListener('mousedown', onDoc, true);
+        };
+        window.setTimeout(() => document.addEventListener('mousedown', onDoc, true), 0);
+    }
     /**
      * Character Creation: Attribute value changed via select dropdown
      */
@@ -6337,7 +6375,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             ui.notifications?.error('Pick at least one Echo start card before finalizing.');
             return;
         }
-        const langNorm = normalizeKnownLanguages(system.languages?.known);
+        const langNorm = normalizeKnownLanguages(system.languages?.known, system.echo?.key);
         if (!langNorm.creationValid) {
             ui.notifications?.error('Pick at least one additional language (besides Common) before finalizing.');
             return;
@@ -6365,7 +6403,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         const updateData = {
             'system.creation.complete': true,
             'system.faithFractures.current': disadvantagePoints,
-            'system.faithFractures.maximum': disadvantagePoints
+            'system.faithFractures.maximum': disadvantagePoints,
+            'system.languages.known': langNorm.cleaned,
         };
         // Always persist full per-rank schtick rows (merged 1..MR) so actor data matches the sheet after finalize
         updateData['system.schticks.ranks'] = schticksRows;

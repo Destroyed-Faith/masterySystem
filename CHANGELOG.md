@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.396] - 2026-08-20
+
+### Added
+
+- **Combat Package Wizard defenses:** Parry and Damage Negation are now main-defense options alongside Armor, Evade, Damage Reduction, and Phasing.
+- **Second Passive options:** Parry, Damage Negation, and Invisibility can be chosen as the second Passive.
+
+### Changed
+
+- **Creation attribute picker:** The 8 / 6 / 4 / 2 menu under the circle is centered instead of left-squeezed.
+- **Echo dialogs:** Choose Echo and larger Echo cards (Elorian, Titanborn, and so on) open centered on the Foundry view.
+- **Languages:** Elvish is now Elorian. Elorian, Sentinel, Dragonborn, and Dwarf lock their Echo language; everyone else still picks freely. The language picker uses the same dark rulebook chrome as the sheet.
+- **Combat Package Wizard copy:** Step 1 shows the mechanic name large on the right. Step 3 groups are named after the mechanic (Armor, Temporary HP, Regeneration, and so on) with one sentence plus the numbers. Specials show the real name, for example Mark (5). The Single Attack on review stays locked.
+
 ## [0.9.395] - 2026-08-20
 
 ### Fixed

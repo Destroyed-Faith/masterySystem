@@ -394,6 +394,29 @@ export const REACTION_TEMPLATES: PowerTemplate[] = [
         }),
     },
     {
+        templateId: 'reaction-damage-negation',
+        templateName: 'Damage Negation',
+        name: 'Reaction: Damage Negation',
+        subfamily: 'damage-negation',
+        category: 'reaction',
+        tags: [],
+        fluff: 'Spend extra Damage Negation dice against one incoming hit.',
+        trigger: 'When you would take damage',
+        cost: { action: 'reaction' },
+        roll: { kind: 'none' },
+        levels: buildLevels((lvl) => {
+            const extra = lvl >= 12 ? 4 : lvl >= 8 ? 3 : lvl >= 4 ? 2 : 0;
+            const empty = extra === 0;
+            return reactionRow({
+                range: SELF,
+                effectText: empty
+                    ? '—'
+                    : `If you currently have **Damage Negation from a Passive**, spend up to **${extra} additional Negation Dice** against the triggering damage instance (shared half-pool cap).`,
+                mechanics: empty ? {} : {},
+            });
+        }),
+    },
+    {
         templateId: 'reaction-riposte',
         templateName: 'Riposte',
         name: 'Reaction: Riposte',

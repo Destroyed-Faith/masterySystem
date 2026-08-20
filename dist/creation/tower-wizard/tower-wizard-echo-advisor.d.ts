@@ -25,6 +25,7 @@ export interface TowerWizardEchoContext {
 }
 export interface DefensePackageEchoView {
     id: DefensePackageId;
+    mechanicLabel: string;
     label: string;
     explanation: string;
     warning?: string;

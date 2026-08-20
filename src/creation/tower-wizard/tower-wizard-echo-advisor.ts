@@ -33,6 +33,8 @@ const ACTIVE_BUFF_DEFENSE_AXIS: Record<string, DefensePackageId> = {
     'ab-evade-temp-hp': 'evade',
     'ab-immovable-temp-hp': 'armor',
     'ab-armor-aura': 'armor',
+    'ab-reinforced-parry': 'parry',
+    'ab-reinforced-damage-negation': 'damage-negation',
 };
 
 const ALL_DEFENSE_PACKAGES: DefensePackageId[] = [
@@ -40,9 +42,11 @@ const ALL_DEFENSE_PACKAGES: DefensePackageId[] = [
     'evade',
     'damage-reduction',
     'phasing',
+    'parry',
+    'damage-negation',
 ];
 
-const PREMIUM_ALTERNATIVES: DefensePackageId[] = ['phasing', 'damage-reduction'];
+const PREMIUM_ALTERNATIVES: DefensePackageId[] = ['phasing', 'damage-reduction', 'parry', 'damage-negation'];
 
 export interface EchoArtifactActiveBuff {
     artifactKey: string;
@@ -64,6 +68,7 @@ export interface TowerWizardEchoContext {
 
 export interface DefensePackageEchoView {
     id: DefensePackageId;
+    mechanicLabel: string;
     label: string;
     explanation: string;
     warning?: string;
@@ -182,6 +187,7 @@ export function buildDefensePackagesWithEcho(ctx: TowerWizardEchoContext): Defen
         const pkg = getDefensePackage(id)!;
         return {
             id,
+            mechanicLabel: pkg.mechanicLabel,
             label: pkg.label,
             explanation: pkg.explanation,
             warning: pkg.warning,

@@ -5,7 +5,13 @@
 import type { CastingAttribute, SpellResolution } from '../../types/item.js';
 import type { PowerGrantSpec } from '../../utils/power-item-builder.js';
 
-export type DefensePackageId = 'armor' | 'evade' | 'damage-reduction' | 'phasing';
+export type DefensePackageId =
+    | 'armor'
+    | 'evade'
+    | 'damage-reduction'
+    | 'phasing'
+    | 'parry'
+    | 'damage-negation';
 
 export type OffensePackageId =
     | 'lacerate-push'
@@ -175,6 +181,8 @@ export interface GuidedBuildSummary {
 
 export interface TowerWizardDefensePackage {
     id: DefensePackageId;
+    /** Short mechanical name shown large on the card (Armor, Evade, …). */
+    mechanicLabel: string;
     label: string;
     explanation: string;
     warning?: string;
@@ -300,6 +308,8 @@ export interface ReviewPowerRow {
     rank: number;
     category: string;
     hasCatalogOverride: boolean;
+    /** Guided Core Attack (Single Attack) cannot be swapped. */
+    locked?: boolean;
     showResetToDefault?: boolean;
     spec: PowerGrantSpec;
     variantOptions?: Array<{ id: OffenseActiveVariant; label: string }>;

@@ -60,23 +60,29 @@ describe('tower-wizard-packages', () => {
         expect(allIds).not.toContain('passive-heightened-senses');
         expect(labels).not.toContain('Reinforce your Main Defense');
         expect(labels).not.toContain('Add Awareness / Utility');
-        expect(labels).toContain('Add Avoidance');
-        expect(labels).toContain('Add a Premium Defense');
+        expect(labels).toContain('Evade');
+        expect(labels).toContain('Damage Reduction');
+        expect(labels).toContain('Phasing');
         expect(allIds).toContain('passive-evade');
         expect(allIds).toContain('passive-damage-reduction');
         expect(allIds).toContain('passive-temp-hp');
+        expect(allIds).toContain('passive-parry');
+        expect(allIds).toContain('passive-damage-negation');
+        expect(allIds).toContain('passive-invisibility');
         expect(allIds).not.toContain('passive-special-aura');
         expect(allIds).not.toContain('passive-ambusher');
+        expect(allIds).not.toContain('extend-buff-damage-reduction');
     });
 
-    it('guided passive 2 uses player-facing titles for sustain and offense', () => {
+    it('guided passive 2 uses mechanic names for sustain and offense', () => {
         const groups = getSecondPassiveIntentGroups('armor', 'passive-fortified-frame');
-        const sustain = groups.find((g) => g.intentLabel === 'Add Healing or Combat Recovery');
-        const offense = groups.find((g) => g.intentLabel === 'Add More Damage');
-        expect(sustain?.passives.find((p) => p.id === 'passive-blood-feast')?.label).toBe('Heal through violence');
+        const sustain = groups.find((g) => g.intentLabel === 'Healing and Combat Recovery');
+        const offense = groups.find((g) => g.intentLabel === 'More Damage');
+        expect(sustain?.passives.find((p) => p.id === 'passive-blood-feast')?.label).toBe('Blood Feast');
         expect(sustain?.passives.find((p) => p.id === 'passive-battle-trance')?.powerName).toBe('Battle Trance');
-        expect(offense?.passives.find((p) => p.id === 'passive-momentum')?.label).toBe('Build offensive pressure');
-        expect(offense?.passives.find((p) => p.id === 'passive-killing-intent')?.label).toBe('Punish priority targets');
+        expect(sustain?.passives.find((p) => p.id === 'passive-regeneration')?.label).toBe('Regeneration');
+        expect(offense?.passives.find((p) => p.id === 'passive-momentum')?.label).toBe('Momentum');
+        expect(offense?.passives.find((p) => p.id === 'passive-killing-intent')?.label).toBe('Killing Intent');
     });
 
     it('armor Passive 1 variants include fortified frame and conditional options', () => {
@@ -92,15 +98,17 @@ describe('tower-wizard-packages', () => {
         expect(variants[0]?.isLocked).toBe(true);
     });
 
-    it('second passive intent groups show premium defense with card warnings for armor builds', () => {
+    it('second passive intent groups list DR, Phasing, Parry, and Negation by name', () => {
         const groups = getSecondPassiveIntentGroups('armor', 'passive-fortified-frame');
-        const premium = groups.find((g) => g.intentLabel === 'Add a Premium Defense');
-        expect(premium).toBeDefined();
-        expect(premium?.intentHint).toMatch(/powerful defensive subsystem/i);
-        const dr = premium?.passives.find((p) => p.id === 'passive-damage-reduction');
-        const ghost = premium?.passives.find((p) => p.id === 'passive-ghostform');
-        expect(dr?.warning).toMatch(/Premium subsystem/i);
-        expect(ghost?.warning).toMatch(/Premium subsystem/i);
+        const dr = groups.find((g) => g.intentLabel === 'Damage Reduction');
+        const phasing = groups.find((g) => g.intentLabel === 'Phasing');
+        const parry = groups.find((g) => g.intentLabel === 'Parry');
+        const negation = groups.find((g) => g.intentLabel === 'Damage Negation');
+        expect(dr?.passives.some((p) => p.id === 'passive-damage-reduction')).toBe(true);
+        expect(phasing?.passives.some((p) => p.id === 'passive-ghostform')).toBe(true);
+        expect(parry?.passives.some((p) => p.id === 'passive-parry')).toBe(true);
+        expect(negation?.passives.some((p) => p.id === 'passive-damage-negation')).toBe(true);
+        expect(dr?.passives.find((p) => p.id === 'passive-damage-reduction')?.warning).toBeUndefined();
     });
 
     it('guided step order includes Passive 1 variant after defense', () => {
@@ -129,7 +137,10 @@ describe('tower-wizard-packages', () => {
         expect(groups.some((g) => g.label === 'Focus one enemy')).toBe(true);
         expect(groups.some((g) => g.label === 'Apply pressure over time')).toBe(true);
         const lacerate = groups.flatMap((g) => g.cards).find((c) => c.powerName === 'Lacerate');
-        expect(lacerate?.playerTitle).toMatch(/bleed/i);
+        const mark = groups.flatMap((g) => g.cards).find((c) => c.powerName === 'Mark');
+        expect(lacerate?.playerTitle).toMatch(/Lacerate/i);
+        expect(mark?.playerTitle).toMatch(/Mark a Priority Target — Mark/);
+        expect(mark?.mechanicsPreview).toMatch(/Mark \(/);
         expect(groups.some((g) => g.label === 'Advanced control')).toBe(true);
     });
 
@@ -151,7 +162,9 @@ describe('tower-wizard-packages', () => {
         expect(review.guidedBuildSummary?.slots.length).toBeGreaterThan(4);
         expect(review.guidedBuildSummary?.rotationSteps).toHaveLength(5);
         expect(review.offenseReviewRows[0]?.role).toBe('Core Attack');
+        expect(review.offenseReviewRows[0]?.locked).toBe(true);
         expect(review.offenseReviewRows[1]?.role).toBe('Special Attack');
+        expect(review.offenseReviewRows[1]?.locked).toBe(false);
     });
 
     it('buildPackageGrantSpecs uses the selected Passive 1 variant', () => {

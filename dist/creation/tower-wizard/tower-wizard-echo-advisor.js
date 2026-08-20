@@ -29,14 +29,18 @@ const ACTIVE_BUFF_DEFENSE_AXIS = {
     'ab-evade-temp-hp': 'evade',
     'ab-immovable-temp-hp': 'armor',
     'ab-armor-aura': 'armor',
+    'ab-reinforced-parry': 'parry',
+    'ab-reinforced-damage-negation': 'damage-negation',
 };
 const ALL_DEFENSE_PACKAGES = [
     'armor',
     'evade',
     'damage-reduction',
     'phasing',
+    'parry',
+    'damage-negation',
 ];
-const PREMIUM_ALTERNATIVES = ['phasing', 'damage-reduction'];
+const PREMIUM_ALTERNATIVES = ['phasing', 'damage-reduction', 'parry', 'damage-negation'];
 function echoLabelForKey(echoKey) {
     const key = String(echoKey || '').trim().toLowerCase();
     if (!key)
@@ -136,6 +140,7 @@ export function buildDefensePackagesWithEcho(ctx) {
         const pkg = getDefensePackage(id);
         return {
             id,
+            mechanicLabel: pkg.mechanicLabel,
             label: pkg.label,
             explanation: pkg.explanation,
             warning: pkg.warning,

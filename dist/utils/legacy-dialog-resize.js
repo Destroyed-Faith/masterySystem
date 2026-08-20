@@ -22,6 +22,42 @@ export function syncLegacyDialogContentHeight(root) {
         overflowY: 'auto',
     });
 }
+export function findLegacyDialogRoot(html) {
+    if (!html?.length)
+        return html;
+    const found = html.closest('.window-app.dialog, .window-app, .application.dialog, .application');
+    return found.length ? found : html;
+}
+/** After a dialog has its real size, pin it to the center of the game view. */
+export function centerLegacyDialogOnViewport(root, app) {
+    if (!root?.length)
+        return;
+    const el = root[0];
+    const rect = el.getBoundingClientRect();
+    const w = rect.width;
+    const h = rect.height;
+    if (w < 8 || h < 8)
+        return;
+    const left = Math.max(8, Math.round((window.innerWidth - w) / 2));
+    const top = Math.max(8, Math.round((window.innerHeight - h) / 2));
+    root.css({
+        position: 'fixed',
+        margin: '0',
+    });
+    if (typeof app?.setPosition === 'function') {
+        app.setPosition({ left, top });
+        return;
+    }
+    root.css({
+        left: `${left}px`,
+        top: `${top}px`,
+    });
+}
+/** Wait for layout, then center. Use after content is injected or resized. */
+export function scheduleCenterLegacyDialog(html, app) {
+    const run = () => centerLegacyDialogOnViewport(findLegacyDialogRoot(html), app);
+    requestAnimationFrame(() => requestAnimationFrame(run));
+}
 /** Keep a legacy dialog as a floating overlay and (re)center it in the viewport. */
 export function placeLegacyDialogOverlay(root, width, height) {
     if (!root?.length)

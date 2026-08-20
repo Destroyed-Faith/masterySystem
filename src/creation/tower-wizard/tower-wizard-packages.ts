@@ -619,10 +619,16 @@ export function catalogMechanicsText(entry: CatalogEntry, rank: number): string 
     const sp = specials
         .map((s) => {
             const key = String(s.key ?? '').trim();
-            if (!key || key === 'special') return '';
-            if (s.value != null) return `${key}(${s.value})`;
-            if (s.rank != null) return `${key}(${s.rank})`;
-            return key;
+            const chosen = entry.chosenSpecial?.key;
+            if (!key) return '';
+            const resolved = key.toLowerCase() === 'special'
+                ? String(chosen || '').trim()
+                : key;
+            if (!resolved) return '';
+            const name = resolved.charAt(0).toUpperCase() + resolved.slice(1);
+            if (s.value != null) return `${name} (${s.value})`;
+            if (s.rank != null) return `${name} (${s.rank})`;
+            return name;
         })
         .filter(Boolean)
         .join(', ');
@@ -1010,9 +1016,9 @@ export const WIZARD_OFFENSIVE_ACTIVE_BUFFS = getOffensiveActiveBuffOptions();
 export const TOWER_WIZARD_DEFENSE_PACKAGES: TowerWizardDefensePackage[] = [
     {
         id: 'armor',
-        label: 'I want to reduce incoming hits with armor, guard, or toughness.',
-        explanation:
-            'You are not impossible to hit, but attacks that connect hurt less. This is the simplest and most reliable defensive style.',
+        mechanicLabel: 'Armor',
+        label: 'Hits still land, but they hurt less.',
+        explanation: 'Flat Armor against incoming attacks. The simplest, most reliable defense.',
         grants: {
             passive1: def('passive-fortified-frame', DEF_RANK),
             activeBuff: def('ab-armor', DEF_RANK),
@@ -1021,9 +1027,9 @@ export const TOWER_WIZARD_DEFENSE_PACKAGES: TowerWizardDefensePackage[] = [
     },
     {
         id: 'evade',
-        label: 'I want to survive by being hard to hit.',
-        explanation:
-            'You survive through dodging, speed, and reflexes. Works well with offensive Powers that make enemies easier to hit.',
+        mechanicLabel: 'Evade',
+        label: 'Survive by being hard to hit.',
+        explanation: 'Enemies miss more often. You dodge instead of soaking hits.',
         grants: {
             passive1: def('passive-evade', DEF_RANK),
             activeBuff: def('ab-evade', DEF_RANK),
@@ -1032,11 +1038,9 @@ export const TOWER_WIZARD_DEFENSE_PACKAGES: TowerWizardDefensePackage[] = [
     },
     {
         id: 'damage-reduction',
-        label: 'I want to reduce incoming damage by percentage.',
-        explanation:
-            'Damage Reduction is powerful, but it is a committed defensive path. Your Passive, Active Buff, and Reaction all support it together.',
-        warning:
-            'Damage Reduction is not a single bonus. It is a defensive package. The wizard locks this package together so the character works correctly.',
+        mechanicLabel: 'Damage Reduction',
+        label: 'Cut a percentage off incoming damage.',
+        explanation: 'Percentage Damage Reduction on hits that get through.',
         grants: {
             passive1: def('passive-damage-reduction', DEF_RANK),
             activeBuff: def('ab-damage-reduction', DEF_RANK),
@@ -1045,15 +1049,35 @@ export const TOWER_WIZARD_DEFENSE_PACKAGES: TowerWizardDefensePackage[] = [
     },
     {
         id: 'phasing',
-        label: 'I want to ignore a few hits completely.',
-        explanation:
-            'Phasing lets you ignore a limited number of hits per combat. It is very strong, but limited.',
-        warning:
-            'Phasing is not normal damage reduction. It prevents a limited number of hits. Once those uses are gone, you need your other defenses.',
+        mechanicLabel: 'Phasing',
+        label: 'Ignore a few hits completely.',
+        explanation: 'A limited number of hits per combat simply miss you.',
         grants: {
             passive1: def('passive-ghostform', DEF_RANK),
             activeBuff: def('ab-phasing', DEF_RANK),
             reaction: def('reaction-phasing', DEF_RANK),
+        },
+    },
+    {
+        id: 'parry',
+        mechanicLabel: 'Parry',
+        label: 'Spend a pool to strip Attack Dice before they roll.',
+        explanation: 'Enter Parry instead of attacking and spend pool 1:1 to remove Attack Dice.',
+        grants: {
+            passive1: def('passive-parry', DEF_RANK),
+            activeBuff: def('ab-reinforced-parry', DEF_RANK),
+            reaction: def('reaction-riposte', DEF_RANK),
+        },
+    },
+    {
+        id: 'damage-negation',
+        mechanicLabel: 'Damage Negation',
+        label: 'Spend a combat reserve of Damage Dice before damage is rolled.',
+        explanation: 'A closed reserve of Damage Dice you spend to cancel incoming damage.',
+        grants: {
+            passive1: def('passive-damage-negation', DEF_RANK),
+            activeBuff: def('ab-reinforced-damage-negation', DEF_RANK),
+            reaction: def('reaction-damage-negation', DEF_RANK),
         },
     },
 ];
@@ -1082,6 +1106,8 @@ const PASSIVE1_VARIANT_IDS: Record<DefensePackageId, readonly string[]> = {
     ],
     'damage-reduction': ['passive-damage-reduction'],
     phasing: ['passive-ghostform'],
+    parry: ['passive-parry'],
+    'damage-negation': ['passive-damage-negation'],
 };
 
 const PASSIVE1_VARIANT_COPY: Record<string, { description: string; mechanicsPreview: string }> = {
@@ -1157,6 +1183,14 @@ const PASSIVE1_VARIANT_COPY: Record<string, { description: string; mechanicsPrev
         description: 'Phasing is a closed premium defensive subsystem. It lets you ignore a limited number of hits and is normally taken as a full package.',
         mechanicsPreview: 'Gain Phasing charges at combat start.',
     },
+    'passive-parry': {
+        description: 'A Parry pool you spend to strip Attack Dice before the roll.',
+        mechanicsPreview: 'Maximum Parry Pool while you Parry instead of attacking.',
+    },
+    'passive-damage-negation': {
+        description: 'A combat reserve of Damage Dice spent before damage is rolled.',
+        mechanicsPreview: 'Combat reserve of Negation Dice; spend at most half the pool.',
+    },
 };
 
 const DEFENSE_MAIN_LABEL: Record<DefensePackageId, string> = {
@@ -1164,39 +1198,35 @@ const DEFENSE_MAIN_LABEL: Record<DefensePackageId, string> = {
     evade: 'Evade',
     'damage-reduction': 'Damage Reduction',
     phasing: 'Phasing',
+    parry: 'Parry',
+    'damage-negation': 'Damage Negation',
 };
 
-const PREMIUM_PASSIVE2_GROUP_WARNING =
-    'These are specialized defensive subsystems. Use them deliberately as your second Passive.';
-
 const PASSIVE2_INTENT_LABELS: Record<SecondPassiveBucket, { label: string; intentHint?: string; warning?: string }> = {
-    evade: {
-        label: 'Add Evade',
-        intentHint: 'Add avoidance as your second defensive layer.',
-    },
-    premium: {
-        label: 'Add Premium Defense',
-        intentHint: 'Add a specialized defensive subsystem as your second Passive. These options are stronger identity choices and should be used deliberately.',
-        warning: PREMIUM_PASSIVE2_GROUP_WARNING,
-    },
-    'health-temp-hp': {
-        label: 'Add Health and Temporary HP',
-    },
-    sustain: {
-        label: 'Add Sustain',
-    },
-    offense: {
-        label: 'Add Offense',
-    },
-    advanced: {
-        label: 'Advanced / Other',
-    },
+    armor: { label: 'Armor' },
+    evade: { label: 'Evade' },
+    parry: { label: 'Parry' },
+    'damage-reduction': { label: 'Damage Reduction' },
+    'damage-negation': { label: 'Damage Negation' },
+    phasing: { label: 'Phasing' },
+    invisibility: { label: 'Invisibility' },
+    health: { label: 'Increase Maximum Health' },
+    'temporary-hp': { label: 'Temporary HP' },
+    sustain: { label: 'Healing and Combat Recovery' },
+    offense: { label: 'More Damage' },
+    advanced: { label: 'Advanced / Other' },
 };
 
 const PASSIVE2_BUCKET_ORDER: readonly SecondPassiveBucket[] = [
+    'armor',
     'evade',
-    'premium',
-    'health-temp-hp',
+    'parry',
+    'damage-reduction',
+    'damage-negation',
+    'phasing',
+    'invisibility',
+    'health',
+    'temporary-hp',
     'sustain',
     'offense',
     'advanced',
@@ -1218,7 +1248,10 @@ export function isValidPassive1Variant(defenseId: DefensePackageId, templateId: 
 
 export function getPassive1VariantOptions(defenseId: DefensePackageId): Passive1VariantOption[] {
     const defaultId = getDefaultPassive1TemplateId(defenseId);
-    const locked = defenseId === 'damage-reduction' || defenseId === 'phasing';
+    const locked = defenseId === 'damage-reduction'
+        || defenseId === 'phasing'
+        || defenseId === 'parry'
+        || defenseId === 'damage-negation';
     const ids = PASSIVE1_VARIANT_IDS[defenseId] ?? [];
     return ids
         .filter((id) => findCatalogEntry(id))
@@ -1736,7 +1769,10 @@ export function buildReviewPowerRows(selection: TowerWizardSelection): ReviewPow
                 label: playerFacingVariantLabel(id, spec),
             })),
             override: spellOverride,
-            showSpellConfig: resolved.category === 'active' && activeTemplateCanBeSpell(spec.templateId),
+            showSpellConfig: key !== 'offense-0'
+                && resolved.category === 'active'
+                && activeTemplateCanBeSpell(spec.templateId),
+            locked: selectionUsesGuidedOffenseFlow(selection) && key === 'offense-0',
         };
     });
 }

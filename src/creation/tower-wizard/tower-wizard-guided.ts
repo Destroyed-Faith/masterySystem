@@ -62,13 +62,17 @@ function catalogMechanicsText(entry: CatalogEntry, rank: number): string {
     const dice = row.effect?.dice ? String(row.effect.dice).trim() : '';
     if (dice && !text.includes(dice)) text = text ? `${text} (${dice})` : dice;
     const specials = Array.isArray(row.specials) ? row.specials : [];
+    const chosen = entry.chosenSpecial?.key;
     const sp = specials
         .map((s) => {
-            const key = String(s.key ?? '').trim();
-            if (!key || key === 'special') return '';
-            if (s.value != null) return `${key}(${s.value})`;
-            if (s.rank != null) return `${key}(${s.rank})`;
-            return key;
+            const raw = String(s.key ?? '').trim();
+            if (!raw) return '';
+            const resolved = raw.toLowerCase() === 'special' ? String(chosen || '').trim() : raw;
+            if (!resolved) return '';
+            const name = resolved.charAt(0).toUpperCase() + resolved.slice(1);
+            if (s.value != null) return `${name} (${s.value})`;
+            if (s.rank != null) return `${name} (${s.rank})`;
+            return name;
         })
         .filter(Boolean)
         .join(', ');
@@ -131,124 +135,114 @@ const GUIDED_HIDDEN_PASSIVE2 = new Set([
 
 const GUIDED_PASSIVE2_WRAPPERS: Record<string, GuidedPassiveWrapper> = {
     'passive-regeneration': {
-        playerTitle: 'Regenerate each round',
+        playerTitle: 'Regeneration',
         powerName: 'Regeneration',
-        explanation: 'You regain HP automatically during the fight.',
-        whenToUse: 'Choose this when you want steady healing without attacking.',
+        explanation: 'You regain Health automatically each round.',
     },
     'passive-battle-trance': {
-        playerTitle: 'Recover while fighting',
+        playerTitle: 'Battle Trance',
         powerName: 'Battle Trance',
-        explanation: 'You gain recovery through staying active in battle.',
-        whenToUse: 'Choose this when you plan to attack every round.',
+        explanation: 'You recover by staying active in the fight.',
     },
     'passive-blood-feast': {
-        playerTitle: 'Heal through violence',
+        playerTitle: 'Blood Feast',
         powerName: 'Blood Feast',
-        explanation: 'You regain HP by hurting enemies or feeding off combat momentum.',
-        whenToUse: 'Choose this when your plan is to stay on the attack.',
+        explanation: 'You heal by dealing damage.',
     },
     'passive-stillness-recovery': {
-        playerTitle: 'Recover stamina',
+        playerTitle: 'Stamina Recovery',
         powerName: 'Stamina Recovery',
-        explanation: 'You regain or preserve stamina during combat.',
-        whenToUse: 'Choose this when you need to keep acting without running out of steam.',
+        explanation: 'You recover stamina during combat.',
     },
     'passive-momentum': {
-        playerTitle: 'Build offensive pressure',
+        playerTitle: 'Momentum',
         powerName: 'Momentum',
-        explanation: 'You become more dangerous as the fight develops.',
-        whenToUse: 'Choose this when you want damage to ramp up over several rounds.',
+        explanation: 'Your damage ramps up as the fight continues.',
     },
     'passive-killing-intent': {
-        playerTitle: 'Punish priority targets',
+        playerTitle: 'Killing Intent',
         powerName: 'Killing Intent',
-        explanation: 'You deal better damage when focusing the right enemy.',
-        whenToUse: 'Choose this when you plan to focus one target at a time.',
+        explanation: 'You deal more damage to a focused target.',
     },
     'passive-evade': {
-        playerTitle: 'Dodge attacks more often',
+        playerTitle: 'Evade',
         powerName: 'Evade',
-        explanation: 'Enemies miss you more often on their attacks.',
-        whenToUse: 'Choose this to add avoidance on top of your main defense.',
+        explanation: 'Enemies miss you more often.',
     },
     'passive-flowing-step': {
-        playerTitle: 'Move and dodge fluidly',
+        playerTitle: 'Flowing Step',
         powerName: 'Flowing Step',
-        explanation: 'You combine movement with improved avoidance.',
-        whenToUse: 'Choose this for a mobile, hard-to-pin-down fighter.',
+        explanation: 'Movement plus Evade while you stay mobile.',
     },
     'passive-duelist-footwork': {
-        playerTitle: 'Duelist footwork',
+        playerTitle: 'Duelist Footwork',
         powerName: 'Duelist Footwork',
-        explanation: 'You excel at avoiding attacks in one-on-one fights.',
-        whenToUse: 'Choose this when you expect to trade blows with single enemies.',
+        explanation: 'Extra Evade in one-on-one fights.',
     },
     'passive-evade-temp-hp': {
-        playerTitle: 'Dodge and absorb hits',
-        powerName: 'Evade / Temporary HP',
-        explanation: 'You combine avoidance with a protective HP buffer.',
-        whenToUse: 'Choose this when you want both dodging and extra staying power.',
+        playerTitle: 'Evade + Temporary HP',
+        powerName: 'Evade + Temporary HP',
+        explanation: 'Evade plus Temporary HP that absorbs damage first.',
     },
     'passive-evade-healing': {
-        playerTitle: 'Dodge and recover',
-        powerName: 'Evade / Healing',
-        explanation: 'You avoid attacks and regain HP during the fight.',
-        whenToUse: 'Choose this for a slippery fighter who also sustains.',
+        playerTitle: 'Evade + Healing',
+        powerName: 'Evade + Healing',
+        explanation: 'Evade plus combat healing.',
     },
     'passive-damage-reduction': {
-        playerTitle: 'Reduce incoming damage',
+        playerTitle: 'Damage Reduction',
         powerName: 'Damage Reduction',
-        explanation: 'You flatly reduce damage that gets through your defenses.',
-        whenToUse: 'Choose this for a premium defensive layer against heavy hitters.',
+        explanation: 'Percentage reduction on incoming damage.',
     },
     'passive-ghostform': {
-        playerTitle: 'Phase through limited hits',
-        powerName: 'Ghostform',
-        explanation: 'You can ignore a limited number of hits each fight.',
-        whenToUse: 'Choose this when you want a powerful phasing defense.',
+        playerTitle: 'Phasing',
+        powerName: 'Phasing',
+        explanation: 'Ignore a limited number of hits each combat.',
+    },
+    'passive-parry': {
+        playerTitle: 'Parry',
+        powerName: 'Parry',
+        explanation: 'Spend a Parry pool to strip Attack Dice before they roll.',
+    },
+    'passive-damage-negation': {
+        playerTitle: 'Damage Negation',
+        powerName: 'Damage Negation',
+        explanation: 'Spend a combat reserve of Damage Dice before damage is rolled.',
+    },
+    'passive-invisibility': {
+        playerTitle: 'Invisibility',
+        powerName: 'Invisibility',
+        explanation: 'Blocks Normal Combat Awareness and, at higher ranks, chosen Special Senses.',
     },
     'passive-temp-hp': {
-        playerTitle: 'Gain a protective HP buffer',
-        powerName: 'Temporary Hit Points',
-        explanation: 'You start fights or rounds with extra HP that absorbs damage first.',
-        whenToUse: 'Choose this when you want a cushion before real HP is touched.',
+        playerTitle: 'Temporary HP',
+        powerName: 'Temporary HP',
+        explanation: 'Extra HP that absorbs damage before your real Health.',
     },
     'passive-deep-vitality': {
-        playerTitle: 'Increase maximum health',
-        powerName: 'Deep Vitality',
-        explanation: 'You have more maximum HP and can take more punishment.',
-        whenToUse: 'Choose this when you want raw staying power.',
+        playerTitle: 'Increase Maximum Health',
+        powerName: 'Increase Maximum Health',
+        explanation: 'More maximum Health so you can take more punishment.',
     },
     'passive-armor-temp-hp': {
-        playerTitle: 'Armor and a HP buffer',
-        powerName: 'Armor / Temporary HP',
-        explanation: 'You combine extra Armor with temporary HP protection.',
-        whenToUse: 'Choose this when you want layered physical defense.',
+        playerTitle: 'Armor + Temporary HP',
+        powerName: 'Armor + Temporary HP',
+        explanation: 'Flat Armor plus Temporary HP.',
     },
     'passive-armor-health': {
-        playerTitle: 'Armor and more health',
-        powerName: 'Armor / Health',
-        explanation: 'You combine extra Armor with increased maximum HP.',
-        whenToUse: 'Choose this for a durable front-line build.',
+        playerTitle: 'Armor + Health',
+        powerName: 'Armor + Health',
+        explanation: 'Flat Armor plus more maximum Health.',
     },
     'passive-health-healing': {
-        playerTitle: 'More health and healing',
-        powerName: 'Health / Healing',
-        explanation: 'You have more HP and recover during combat.',
-        whenToUse: 'Choose this when you want to outlast enemies through sustain.',
+        playerTitle: 'Health + Healing',
+        powerName: 'Health + Healing',
+        explanation: 'More maximum Health plus combat healing.',
     },
     'passive-health-temp-hp': {
-        playerTitle: 'More health and a buffer',
-        powerName: 'Health / Temporary HP',
-        explanation: 'You combine increased HP with temporary HP protection.',
-        whenToUse: 'Choose this for maximum raw durability.',
-    },
-    'extend-buff-damage-reduction': {
-        playerTitle: 'Extend damage reduction buff',
-        powerName: 'DR Buff Extension',
-        explanation: 'Your damage-reduction buff lasts longer when maintained.',
-        whenToUse: 'Choose this only if you already use a damage-reduction Active Buff.',
+        playerTitle: 'Health + Temporary HP',
+        powerName: 'Health + Temporary HP',
+        explanation: 'More maximum Health plus Temporary HP.',
     },
 };
 
@@ -256,37 +250,30 @@ export const GUIDED_PASSIVE2_BUCKET_LABELS: Record<
     SecondPassiveBucket,
     { label: string; intentHint?: string; warning?: string }
 > = {
-    evade: {
-        label: 'Add Avoidance',
-        intentHint: 'Become harder to hit in addition to your main defense.',
-    },
-    premium: {
-        label: 'Add a Premium Defense',
-        intentHint: 'Add a powerful defensive subsystem such as Damage Reduction or Ghostform. These are strong identity choices.',
-        warning: 'These are specialized defensive subsystems. Use them deliberately as your second Passive.',
-    },
-    'health-temp-hp': {
-        label: 'Add More HP or a Buffer',
-        intentHint: 'Increase your staying power with more Health or a protective HP buffer.',
-    },
-    sustain: {
-        label: 'Add Healing or Combat Recovery',
-        intentHint: 'Recover during combat. This can mean healing every round or healing through aggressive play.',
-    },
-    offense: {
-        label: 'Add More Damage',
-        intentHint: 'Increase your offensive pressure.',
-    },
-    advanced: {
-        label: 'Advanced / Other',
-        intentHint: 'Only choose these if you know exactly why your character needs them.',
-    },
+    armor: { label: 'Armor' },
+    evade: { label: 'Evade' },
+    parry: { label: 'Parry' },
+    'damage-reduction': { label: 'Damage Reduction' },
+    'damage-negation': { label: 'Damage Negation' },
+    phasing: { label: 'Phasing' },
+    invisibility: { label: 'Invisibility' },
+    health: { label: 'Increase Maximum Health' },
+    'temporary-hp': { label: 'Temporary HP' },
+    sustain: { label: 'Healing and Combat Recovery' },
+    offense: { label: 'More Damage' },
+    advanced: { label: 'Advanced / Other' },
 };
 
 const PASSIVE2_BUCKET_ORDER: readonly SecondPassiveBucket[] = [
+    'armor',
     'evade',
-    'premium',
-    'health-temp-hp',
+    'parry',
+    'damage-reduction',
+    'damage-negation',
+    'phasing',
+    'invisibility',
+    'health',
+    'temporary-hp',
     'sustain',
     'offense',
     'advanced',
@@ -306,17 +293,17 @@ const SPECIAL_FOCUS_PURPOSE_GROUPS: Array<{
         specials: [
             {
                 specialKey: 'mark',
-                playerTitle: 'Mark a priority target',
+                playerTitle: 'Mark a Priority Target — Mark',
                 powerName: 'Mark',
-                explanation: 'Use Mark when you want to focus pressure on one enemy.',
-                whenToUse: 'Best when your party can pile onto one target.',
+                explanation: 'Focus pressure on one enemy when the party can pile onto that target.',
+                whenToUse: '',
             },
             {
                 specialKey: 'expose',
-                playerTitle: 'Open an enemy to more damage',
+                playerTitle: 'Open an Enemy to More Damage — Expose',
                 powerName: 'Expose',
-                explanation: 'Use Expose when you want your attacks or your party\'s attacks to punish that target harder.',
-                whenToUse: 'Best when you want coordinated burst damage.',
+                explanation: 'Make the target take more damage so the party can burst it down.',
+                whenToUse: '',
             },
         ],
     },
@@ -327,10 +314,10 @@ const SPECIAL_FOCUS_PURPOSE_GROUPS: Array<{
         specials: [
             {
                 specialKey: 'corrode',
-                playerTitle: 'Break enemy Armor',
+                playerTitle: 'Break Enemy Armor — Corrode',
                 powerName: 'Corrode',
-                explanation: 'Use Corrode against armored enemies or defensive monsters.',
-                whenToUse: 'Best against heavily armored foes.',
+                explanation: 'Strip Armor from heavily defended enemies.',
+                whenToUse: '',
             },
         ],
     },
@@ -341,17 +328,17 @@ const SPECIAL_FOCUS_PURPOSE_GROUPS: Array<{
         specials: [
             {
                 specialKey: 'slow',
-                playerTitle: 'Stop enemies from moving freely',
+                playerTitle: 'Stop Free Movement — Slow',
                 powerName: 'Slow',
-                explanation: 'Use Slow to stop enemies from reaching allies, escaping, or controlling the battlefield.',
-                whenToUse: 'Best when positioning matters.',
+                explanation: 'Keep enemies from reaching allies, escaping, or controlling space.',
+                whenToUse: '',
             },
             {
                 specialKey: 'root',
-                playerTitle: 'Hold an enemy in place',
+                playerTitle: 'Hold an Enemy in Place — Root',
                 powerName: 'Root',
-                explanation: 'Use Root to stop an enemy from moving at all for a time.',
-                whenToUse: 'Best when you need to pin down a key target.',
+                explanation: 'Pin a key target so it cannot move.',
+                whenToUse: '',
             },
         ],
     },
@@ -362,17 +349,17 @@ const SPECIAL_FOCUS_PURPOSE_GROUPS: Array<{
         specials: [
             {
                 specialKey: 'lacerate',
-                playerTitle: 'Make enemies bleed out over time',
+                playerTitle: 'Bleed Them Out — Lacerate',
                 powerName: 'Lacerate',
-                explanation: 'Use Lacerate when you want steady damage pressure after the hit.',
-                whenToUse: 'Best for long fights where damage adds up.',
+                explanation: 'Ongoing damage after the hit in longer fights.',
+                whenToUse: '',
             },
             {
                 specialKey: 'blight',
-                playerTitle: 'Poison or corrupt the enemy',
+                playerTitle: 'Poison or Corrupt — Blight',
                 powerName: 'Blight',
-                explanation: 'Use Blight when you want a poisonous or corrupting pressure effect.',
-                whenToUse: 'Best when you want damage that keeps ticking.',
+                explanation: 'Damage that keeps ticking after you hit.',
+                whenToUse: '',
             },
         ],
     },
@@ -383,24 +370,24 @@ const SPECIAL_FOCUS_PURPOSE_GROUPS: Array<{
         specials: [
             {
                 specialKey: 'hex',
-                playerTitle: 'Curse the enemy',
+                playerTitle: 'Curse the Enemy — Hex',
                 powerName: 'Hex',
-                explanation: 'Use Hex when you want to weaken an enemy through a curse-like effect.',
-                whenToUse: 'Best against tough single targets.',
+                explanation: 'Weaken a tough single target with a curse.',
+                whenToUse: '',
             },
             {
                 specialKey: 'weaken',
-                playerTitle: 'Reduce enemy strength',
+                playerTitle: 'Reduce Enemy Strength — Weaken',
                 powerName: 'Weaken',
-                explanation: 'Use Weaken when you want the enemy to hit or act less effectively.',
-                whenToUse: 'Best when you need to blunt an enemy\'s offense.',
+                explanation: 'Make the enemy hit or act less effectively.',
+                whenToUse: '',
             },
             {
                 specialKey: 'challenge',
-                playerTitle: 'Force them to face you',
+                playerTitle: 'Force Them to Face You — Challenge',
                 powerName: 'Challenge',
-                explanation: 'Use Challenge when you want enemies to lose Attack Dice unless they include you as a target.',
-                whenToUse: 'Best when you want to punish attacks aimed at your allies.',
+                explanation: 'Enemies lose Attack Dice unless they include you as a target.',
+                whenToUse: '',
             },
         ],
     },
@@ -412,31 +399,31 @@ const SPECIAL_FOCUS_PURPOSE_GROUPS: Array<{
         specials: [
             {
                 specialKey: 'push',
-                playerTitle: 'Push enemies around',
+                playerTitle: 'Push Enemies Around — Push',
                 powerName: 'Push',
                 explanation: 'Force enemies into bad positions or away from allies.',
-                whenToUse: 'Situational — for battlefield control experts.',
+                whenToUse: '',
             },
             {
                 specialKey: 'pull',
-                playerTitle: 'Pull enemies closer',
+                playerTitle: 'Pull Enemies Closer — Pull',
                 powerName: 'Pull',
-                explanation: 'Drag enemies where you want them on the battlefield.',
-                whenToUse: 'Situational — for battlefield control experts.',
+                explanation: 'Drag enemies where you want them.',
+                whenToUse: '',
             },
             {
                 specialKey: 'disarm',
-                playerTitle: 'Disarm enemies',
+                playerTitle: 'Disarm Enemies — Disarm',
                 powerName: 'Disarm',
                 explanation: 'Strip or hinder an enemy\'s weapon.',
-                whenToUse: 'Situational — when disarming matters to your concept.',
+                whenToUse: '',
             },
             {
                 specialKey: 'stun',
-                playerTitle: 'Stun enemies',
+                playerTitle: 'Stun Enemies — Stun',
                 powerName: 'Stun',
-                explanation: 'Briefly stop an enemy from acting effectively.',
-                whenToUse: 'Situational — for precise control builds.',
+                explanation: 'Briefly stop an enemy from acting.',
+                whenToUse: '',
             },
         ],
     },
@@ -475,9 +462,10 @@ export const GUIDED_DELIVERY_OPTIONS: GuidedDeliveryOption[] = [
 export function isPassiveHiddenFromGuidedPassive2(templateId: string): boolean {
     if (GUIDED_HIDDEN_PASSIVE2.has(templateId)) return true;
     if (templateId.startsWith('conditional-passive-')) return true;
+    if (templateId.startsWith('extend-buff-') || templateId.startsWith('empower-buff-')) return true;
     if (GUIDED_PASSIVE2_WRAPPERS[templateId]) return false;
     const bucket = secondPassiveBucketFor(templateId);
-    return bucket === 'advanced' || bucket === 'offense';
+    return bucket === 'advanced';
 }
 
 function catalogEntryHasRank(entry: CatalogEntry, rank: number): boolean {
@@ -507,7 +495,6 @@ export function wrapGuidedPassive2Card(templateId: string): SecondPassiveOption 
             label: wrapper.playerTitle,
             hint: wrapper.explanation,
             powerName,
-            whenToUse: wrapper.whenToUse,
             mechanicsPreview,
             warning: secondPassiveCardWarning(templateId),
         };
@@ -691,6 +678,10 @@ export function getDefensiveActiveBuffChoiceBody(defenseId: DefensePackageId): s
             return 'Your Buff improves your damage reduction.';
         case 'phasing':
             return 'Your Buff helps you ignore limited hits.';
+        case 'parry':
+            return 'Your Buff restores spent Parry during the fight.';
+        case 'damage-negation':
+            return 'Your Buff adds extra Negation Dice each round.';
         default:
             return 'Your Buff improves your main defense.';
     }

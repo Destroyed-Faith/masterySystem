@@ -17,7 +17,10 @@ const CATEGORY_DISPLAY_LABEL = {
     evade: 'Evade',
     initiative: 'Initiative',
     'damage-reduction': 'Damage Reduction',
+    'damage-negation': 'Damage Negation',
     phasing: 'Phasing',
+    parry: 'Parry',
+    invisibility: 'Invisibility',
     'temporary-hp': 'Temporary HP',
     regeneration: 'Regeneration',
     healing: 'Healing',
@@ -41,6 +44,9 @@ const PASSIVE_TEMPLATE_CATEGORIES = {
     'passive-temp-hp': ['temporary-hp'],
     'passive-regeneration': ['regeneration'],
     'passive-ghostform': ['phasing'],
+    'passive-parry': ['parry'],
+    'passive-damage-negation': ['damage-negation'],
+    'passive-invisibility': ['invisibility'],
     'passive-killing-intent': ['damage'],
     'passive-deep-vitality': ['health'],
     'passive-heightened-senses': ['awareness'],
@@ -83,7 +89,10 @@ const SUBFAMILY_DEFAULT_CATEGORY = {
     armor: 'armor',
     evade: 'evade',
     'damage-reduction': 'damage-reduction',
+    'damage-negation': 'damage-negation',
     phasing: 'phasing',
+    parry: 'parry',
+    invisibility: 'invisibility',
     'temp-hp': 'temporary-hp',
     regen: 'regeneration',
     health: 'health',
@@ -105,8 +114,14 @@ export function inferPassiveCategoriesFromTemplateId(templateId) {
     const cats = new Set();
     if (id.includes('damage-reduction'))
         cats.add('damage-reduction');
+    if (id.includes('damage-negation') || id.includes('negation'))
+        cats.add('damage-negation');
     if (id.includes('ghostform') || id.includes('phasing'))
         cats.add('phasing');
+    if (id.includes('passive-parry') || id.endsWith('-parry'))
+        cats.add('parry');
+    if (id.includes('invisibility'))
+        cats.add('invisibility');
     if (id.includes('fortified') || id.includes('stone-stance') || id.includes('surrounded-bulwark') || id.includes('-armor-') || id.startsWith('passive-armor') || id.includes('conditional-passive-armor')) {
         cats.add('armor');
     }
@@ -226,10 +241,16 @@ export function getPassiveCategoryConflictMessage(passive1TemplateId, passive2Te
 }
 export function secondPassiveBucketFor(templateId) {
     const c = new Set(getNormalizedPassiveCategories(templateId));
-    if (c.has('damage-reduction') && c.size === 1)
-        return 'premium';
-    if (c.has('phasing') && c.size === 1)
-        return 'premium';
+    if (c.has('damage-reduction'))
+        return 'damage-reduction';
+    if (c.has('phasing'))
+        return 'phasing';
+    if (c.has('damage-negation'))
+        return 'damage-negation';
+    if (c.has('parry'))
+        return 'parry';
+    if (c.has('invisibility'))
+        return 'invisibility';
     if (c.has('special-aura'))
         return 'offense';
     if (c.has('damage')) {
@@ -239,20 +260,17 @@ export function secondPassiveBucketFor(templateId) {
     }
     if (c.has('evade'))
         return 'evade';
-    if (c.has('health') || c.has('temporary-hp'))
-        return 'health-temp-hp';
+    if (c.has('armor'))
+        return 'armor';
+    if (c.has('health'))
+        return 'health';
+    if (c.has('temporary-hp'))
+        return 'temporary-hp';
     if (c.has('regeneration') || c.has('recovery') || c.has('healing'))
         return 'sustain';
     return 'advanced';
 }
-export function secondPassiveCardWarning(templateId) {
-    const cats = getNormalizedPassiveCategories(templateId);
-    if (cats.includes('damage-reduction')) {
-        return 'Premium subsystem. Usually chosen as a main defense, but legal as Passive 2 if it does not duplicate your Passive 1 category.';
-    }
-    if (cats.includes('phasing')) {
-        return 'Premium subsystem. Ignores limited hits. Usually chosen as a main defense, but legal as Passive 2 if it does not duplicate your Passive 1 category.';
-    }
+export function secondPassiveCardWarning(_templateId) {
     return undefined;
 }
 //# sourceMappingURL=tower-wizard-passive-categories.js.map

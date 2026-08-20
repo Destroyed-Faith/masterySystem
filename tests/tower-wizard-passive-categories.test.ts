@@ -39,10 +39,15 @@ describe('tower-wizard-passive-categories', () => {
         expect(msg).toMatch(/both Passives use Armor/i);
     });
 
-    it('secondPassiveBucketFor assigns premium, evade, sustain, and offense buckets', () => {
-        expect(secondPassiveBucketFor('passive-damage-reduction')).toBe('premium');
-        expect(secondPassiveBucketFor('passive-ghostform')).toBe('premium');
+    it('secondPassiveBucketFor assigns named mechanic buckets', () => {
+        expect(secondPassiveBucketFor('passive-damage-reduction')).toBe('damage-reduction');
+        expect(secondPassiveBucketFor('passive-ghostform')).toBe('phasing');
+        expect(secondPassiveBucketFor('passive-parry')).toBe('parry');
+        expect(secondPassiveBucketFor('passive-damage-negation')).toBe('damage-negation');
+        expect(secondPassiveBucketFor('passive-invisibility')).toBe('invisibility');
         expect(secondPassiveBucketFor('passive-evade')).toBe('evade');
+        expect(secondPassiveBucketFor('passive-deep-vitality')).toBe('health');
+        expect(secondPassiveBucketFor('passive-temp-hp')).toBe('temporary-hp');
         expect(secondPassiveBucketFor('passive-regeneration')).toBe('sustain');
         expect(secondPassiveBucketFor('passive-killing-intent')).toBe('offense');
         expect(secondPassiveBucketFor('passive-special-aura')).toBe('offense');

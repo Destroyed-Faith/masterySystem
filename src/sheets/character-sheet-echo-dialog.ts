@@ -38,6 +38,8 @@ import {
   getEchoArtifactKey,
   isEchoBoundArtifact,
 } from '../utils/echo-artifact-equip.js';
+import { scheduleCenterLegacyDialog } from '../utils/legacy-dialog-resize.js';
+import { normalizeKnownLanguages } from '../utils/languages.js';
 
 function formatEchoSlot(slot: string): string {
   const labels: Record<string, string> = {
@@ -239,6 +241,13 @@ export async function showEchoCreationDialog(actor: Actor): Promise<void> {
 
             const traitUses = buildFreshTraitUses(echoKey, subChoiceKey || null, masteryRank);
 
+            const inCreation = (actor as any).system?.creation?.complete === false;
+            const nextLanguages = normalizeKnownLanguages(
+              (actor as any).system?.languages?.known,
+              echoKey,
+              { replaceExtras: inCreation },
+            ).cleaned;
+
             await (actor as any).update({
               'system.echo': {
                 key: echoKey,
@@ -248,7 +257,8 @@ export async function showEchoCreationDialog(actor: Actor): Promise<void> {
                 cardUses: {},
                 traitUses
               },
-              'system.bio.echo': def.name
+              'system.bio.echo': def.name,
+              'system.languages.known': nextLanguages,
             });
 
             // Remove any previously-created echo-bound artifacts so we always
@@ -340,10 +350,11 @@ export async function showEchoCreationDialog(actor: Actor): Promise<void> {
         const html = (htmlRaw instanceof HTMLElement) ? $(htmlRaw) : $(htmlRaw);
 
         setTimeout(() => {
-          const dlg = html.closest('.window-app.dialog');
+          const dlg = html.closest('.window-app.dialog, .window-app, .application');
           if (dlg.length) {
             dlg.addClass('mastery-system echo-creation-dialog');
             dlg.css({
+              position: 'fixed',
               height: 'auto',
               'min-height': '320px',
               'max-height': '92vh',
@@ -360,6 +371,7 @@ export async function showEchoCreationDialog(actor: Actor): Promise<void> {
               });
             }
           }
+          scheduleCenterLegacyDialog(html, dialog);
         }, 0);
 
         const $echo = html.find('#ec-echo');
@@ -595,10 +607,17 @@ export async function showEchoCreationDialog(actor: Actor): Promise<void> {
           $cardPreview.html(renderCardPreview(def, cardId));
         };
 
-        $echo.on('change', refreshForEcho);
+        $echo.on('change', () => {
+          refreshForEcho();
+          scheduleCenterLegacyDialog(html, dialog);
+        });
 
         refreshForEcho();
+        scheduleCenterLegacyDialog(html, dialog);
       }
+    }, {
+      classes: ['dialog', 'mastery-system', 'echo-creation-dialog'],
+      width: 860,
     });
     dialog.render(true);
   });
@@ -679,10 +698,11 @@ export async function showEchoCardPickDialog(actor: Actor): Promise<void> {
       render: (htmlRaw: any) => {
         const html = (htmlRaw instanceof HTMLElement) ? $(htmlRaw) : $(htmlRaw);
         setTimeout(() => {
-          const dlg = html.closest('.window-app.dialog');
+          const dlg = html.closest('.window-app.dialog, .window-app, .application');
           if (dlg.length) {
             dlg.addClass('mastery-system echo-card-pick-dialog');
             dlg.css({
+              position: 'fixed',
               height: 'auto',
               'min-height': '320px',
               'max-height': '92vh',
@@ -699,6 +719,7 @@ export async function showEchoCardPickDialog(actor: Actor): Promise<void> {
               });
             }
           }
+          scheduleCenterLegacyDialog(html, dialog);
         }, 0);
         const $options = html.find('#ecp-card-options');
         const $preview = html.find('#ecp-card-preview');
@@ -710,6 +731,9 @@ export async function showEchoCardPickDialog(actor: Actor): Promise<void> {
         $options.on('change', 'input[name="cardId"]', paintPreview);
         paintPreview();
       }
+    }, {
+      classes: ['dialog', 'mastery-system', 'echo-card-pick-dialog'],
+      width: 820,
     });
     dialog.render(true);
   });

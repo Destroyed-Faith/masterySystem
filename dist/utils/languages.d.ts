@@ -22,6 +22,14 @@ export interface LanguageDefinition {
     isCommon?: boolean;
 }
 export declare const LANGUAGES: LanguageDefinition[];
+/**
+ * Echoes whose extra language is fixed at creation and cannot be swapped.
+ * Humans, Unbound, and Titanborn still pick freely.
+ */
+export declare const ECHO_LOCKED_LANGUAGES: Readonly<Record<string, string>>;
+/** Canonicalize a stored language key (aliases + lowercase). */
+export declare function resolveLanguageKey(key: string): string;
+export declare function getEchoLockedLanguage(echoKey?: string | null): string | null;
 /** Look up a language by key. */
 export declare function getLanguage(key: string): LanguageDefinition | undefined;
 /** Picker options ordered with the Common Tongue first. */
@@ -43,9 +51,12 @@ export declare const STARTING_PICKED_LANGUAGES = 1;
  * unknown keys stripped) plus a flag indicating whether the count of
  * non-Common picks matches the creation rule (`STARTING_PICKED_LANGUAGES`).
  */
-export declare function normalizeKnownLanguages(known: unknown): {
+export declare function normalizeKnownLanguages(known: unknown, echoKey?: string | null, options?: {
+    replaceExtras?: boolean;
+}): {
     cleaned: string[];
     pickedNonCommon: number;
     creationValid: boolean;
+    lockedKey: string | null;
 };
 //# sourceMappingURL=languages.d.ts.map

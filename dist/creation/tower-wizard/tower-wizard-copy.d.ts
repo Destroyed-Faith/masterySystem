@@ -16,11 +16,11 @@ export declare const TOWER_WIZARD_COPY: {
         readonly mechanics: "Mechanical preview";
     };
     readonly passive2: {
-        readonly heading: "What should your second Passive help with?";
-        readonly body: "Your first Passive already defines your main defense. Your second Passive must come from a different category.";
+        readonly heading: "What should your second Passive do?";
+        readonly body: "Your first Passive is your main defense. Pick a second Passive from a different category.";
         readonly subtitleForCategory: () => string;
         readonly alreadySelected: "Already selected";
-        readonly nowChoose: "Choose a category, then pick a Passive.";
+        readonly nowChoose: "Pick one:";
         readonly whenToUse: "When to use it";
         readonly powerLabel: "Power";
     };

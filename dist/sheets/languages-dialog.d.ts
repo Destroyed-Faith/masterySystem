@@ -4,10 +4,9 @@
  * Source: Players Guide 3100–3127 ("Choose a Language").
  *
  * Every character speaks the **Common Tongue**. At creation they pick
- * **one additional language** from the canon list. After creation the
- * GM may grant extras (story hooks, downtime, mentor NPCs); the dialog
- * therefore allows multi-select but flags the "1 extra at creation"
- * threshold for the validation banner.
+ * **one additional language** from the canon list — unless their Echo
+ * locks that slot (Elorian, Dragonborn, Dwarf, Sentinel). After creation
+ * the GM may grant extras; the locked Echo language still cannot be removed.
  */
 /**
  * Open the language picker for the supplied actor. Persists the chosen

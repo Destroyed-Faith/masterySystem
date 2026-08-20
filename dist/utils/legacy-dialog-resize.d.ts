@@ -14,6 +14,21 @@ export interface LegacyDialogResizeOptions {
     onResize?: () => void;
 }
 export declare function syncLegacyDialogContentHeight(root: JQuery): void;
+export declare function findLegacyDialogRoot(html: JQuery): JQuery;
+/** After a dialog has its real size, pin it to the center of the game view. */
+export declare function centerLegacyDialogOnViewport(root: JQuery, app?: {
+    setPosition?: (pos: {
+        left?: number;
+        top?: number;
+    }) => unknown;
+}): void;
+/** Wait for layout, then center. Use after content is injected or resized. */
+export declare function scheduleCenterLegacyDialog(html: JQuery, app?: {
+    setPosition?: (pos: {
+        left?: number;
+        top?: number;
+    }) => unknown;
+}): void;
 /** Keep a legacy dialog as a floating overlay and (re)center it in the viewport. */
 export declare function placeLegacyDialogOverlay(root: JQuery, width: number, height: number): void;
 export declare function attachLegacyDialogResizeHandle(root: JQuery, options?: LegacyDialogResizeOptions): void;
