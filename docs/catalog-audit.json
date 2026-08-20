@@ -1,8 +1,8 @@
 {
-  "version": "0.9.399",
-  "generatedAt": "2026-08-20T11:20:14.143Z",
+  "version": "0.9.400",
+  "generatedAt": "2026-08-20T11:57:16.213Z",
   "summary": {
-    "correct": 205,
+    "correct": 214,
     "corrected": 3,
     "missing": 0,
     "obsolete": 0,
@@ -648,6 +648,13 @@
     },
     {
       "category": "artifact",
+      "id": "alchemistCoat",
+      "name": "Alchemist Coat",
+      "status": "correct",
+      "notes": "Present in echo catalog (curated expected list)"
+    },
+    {
+      "category": "artifact",
       "id": "dragonClaws",
       "name": "Dragon Claws",
       "status": "correct",
@@ -683,6 +690,13 @@
     },
     {
       "category": "artifact",
+      "id": "greenWardenMantle",
+      "name": "Green Warden Mantle",
+      "status": "correct",
+      "notes": "Present in echo catalog (curated expected list)"
+    },
+    {
+      "category": "artifact",
       "id": "heartOfWinter",
       "name": "Heart of Winter",
       "status": "correct",
@@ -694,6 +708,13 @@
       "name": "Heartseeker",
       "status": "correct",
       "notes": "Present in general catalog; referenced in docs/Rules/artefacts.md"
+    },
+    {
+      "category": "artifact",
+      "id": "huntersScourge",
+      "name": "Hunter's Scourge",
+      "status": "correct",
+      "notes": "Present in echo catalog (curated expected list)"
     },
     {
       "category": "artifact",
@@ -727,6 +748,27 @@
       "category": "artifact",
       "id": "oracleFrame",
       "name": "Oracle Frame",
+      "status": "correct",
+      "notes": "Present in echo catalog (curated expected list)"
+    },
+    {
+      "category": "artifact",
+      "id": "predatorCrownIntellect",
+      "name": "Predator Crown",
+      "status": "correct",
+      "notes": "Present in echo catalog (curated expected list)"
+    },
+    {
+      "category": "artifact",
+      "id": "predatorCrownMight",
+      "name": "Predator Crown",
+      "status": "correct",
+      "notes": "Present in echo catalog (curated expected list)"
+    },
+    {
+      "category": "artifact",
+      "id": "predatorCrownWits",
+      "name": "Predator Crown",
       "status": "correct",
       "notes": "Present in echo catalog (curated expected list)"
     },
@@ -778,6 +820,27 @@
       "name": "Titan Scars",
       "status": "correct",
       "notes": "7 attribute variants in ECHO_ARTIFACTS (Might/Agility/…); Rules example family"
+    },
+    {
+      "category": "artifact",
+      "id": "witchStaffBlight",
+      "name": "Blight Staff",
+      "status": "correct",
+      "notes": "Present in echo catalog (curated expected list)"
+    },
+    {
+      "category": "artifact",
+      "id": "witchStaffRoot",
+      "name": "Root Staff",
+      "status": "correct",
+      "notes": "Present in echo catalog (curated expected list)"
+    },
+    {
+      "category": "artifact",
+      "id": "witchStaffRuin",
+      "name": "Ruin Staff",
+      "status": "correct",
+      "notes": "Present in echo catalog (curated expected list)"
     },
     {
       "category": "artifact",

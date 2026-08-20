@@ -7,8 +7,8 @@
 
   <div class="disadvantage-fields">
     {{#each disadvantage.fields as |field|}}
-    <div class="form-group">
-      <label for="{{field.name}}">{{field.label}}{{#if field.required}} <span class="required">*</span>{{/if}}</label>
+    <div class="form-group disadvantage-field">
+      <label class="disadvantage-field-label" for="{{field.name}}">{{field.label}}{{#if field.required}} <span class="required">*</span>{{/if}}</label>
 
       {{#if (eq field.type "select")}}
       <select name="{{field.name}}" id="{{field.name}}" {{#if field.required}}required{{/if}}>
@@ -95,8 +95,8 @@
   </div>
 
   {{#if disadvantage.examplePresets}}
-  <div class="form-group disadvantage-preset-row">
-    <label for="disadvantage-example-preset">Examples <span class="preset-hint">(optional — fills the text field below)</span></label>
+  <div class="form-group disadvantage-field disadvantage-preset-row">
+    <label class="disadvantage-field-label" for="disadvantage-example-preset">Examples <span class="preset-hint">(optional — fills the text field below)</span></label>
     <select id="disadvantage-example-preset" class="js-disadvantage-example-preset">
       <option value="">— Choose to insert text —</option>
       {{#each disadvantage.examplePresets as |ex i|}}
@@ -108,8 +108,8 @@
 
   <div class="disadvantage-fields">
     {{#each disadvantage.fields as |field|}}
-    <div class="form-group">
-      <label for="{{field.name}}">{{field.label}}{{#if field.required}} <span class="required">*</span>{{/if}}</label>
+    <div class="form-group disadvantage-field">
+      <label class="disadvantage-field-label" for="{{field.name}}">{{field.label}}{{#if field.required}} <span class="required">*</span>{{/if}}</label>
 
       {{#if (eq field.type "select")}}
       <select name="{{field.name}}" id="{{field.name}}" {{#if field.required}}required{{/if}}>

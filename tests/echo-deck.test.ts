@@ -194,11 +194,26 @@ describe('Echo Sub-Choice Validation', () => {
     expect(def.subChoices!.length).toBe(3);
   });
 
-  it('Humans / Dwarfs / Dragonborn / Unbound have no sub-choices', () => {
-    for (const key of ['humans', 'dwarfs', 'dragonborn', 'unbound']) {
+  it('Humans / Dwarfs / Dragonborn have no sub-choices', () => {
+    for (const key of ['humans', 'dwarfs', 'dragonborn']) {
       const def = getEcho(key)!;
       expect(def.subChoices === undefined || def.subChoices.length === 0).toBe(true);
     }
+  });
+
+  it('Unbound requires one Response identity (Beast, three Witches, three Banes)', () => {
+    const def = getEcho('unbound')!;
+    expect(def.subChoices).toBeDefined();
+    expect(def.subChoices!.map((s) => s.key)).toEqual([
+      'beast',
+      'witch-root',
+      'witch-ruin',
+      'witch-blight',
+      'bane-alchemist',
+      'bane-greenwarden',
+      'bane-relic-hunter',
+    ]);
+    expect(def.speed).toBe(8);
   });
 
   it('Titanborn offer a Titan Stone Affinity sub-choice per Attribute (7)', () => {

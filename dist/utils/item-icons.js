@@ -169,6 +169,15 @@ const ECHO_ARTIFACT_ICONS = {
     sentinelFrame: `${ECHO_ARTIFACT_ICON_BASE}/Sentinel Frame.png`,
     judicatorFrame: `${ECHO_ARTIFACT_ICON_BASE}/Judicator Frame.png`,
     oracleFrame: `${ECHO_ARTIFACT_ICON_BASE}/Oracle Frame.png`,
+    predatorCrownMight: `${ECHO_ARTIFACT_ICON_BASE}/Predator Crown.png`,
+    predatorCrownWits: `${ECHO_ARTIFACT_ICON_BASE}/Predator Crown.png`,
+    predatorCrownIntellect: `${ECHO_ARTIFACT_ICON_BASE}/Predator Crown.png`,
+    witchStaffRoot: `${ECHO_ARTIFACT_ICON_BASE}/Root Staff.png`,
+    witchStaffRuin: `${ECHO_ARTIFACT_ICON_BASE}/Ruin Staff.png`,
+    witchStaffBlight: `${ECHO_ARTIFACT_ICON_BASE}/Blight Staff.png`,
+    alchemistCoat: `${ECHO_ARTIFACT_ICON_BASE}/Alchemist Coat.png`,
+    greenWardenMantle: `${ECHO_ARTIFACT_ICON_BASE}/Green Warden Mantle.png`,
+    huntersScourge: `${ECHO_ARTIFACT_ICON_BASE}/Hunter's Scourge.png`,
 };
 /** General (bound) Artifact key → custom icon under `assets/icons/items/general-artifacts/`. */
 const GENERAL_ARTIFACT_ICONS = {

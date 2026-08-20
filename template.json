@@ -192,7 +192,8 @@
       },
       "creation": {
         "complete": false,
-        "skillsRedistributing": false
+        "skillsRedistributing": false,
+        "equipmentReviewed": false
       },
       "echo": {
         "key": "",
@@ -200,7 +201,8 @@
         "veiledFormKey": "",
         "selectedCardIds": [],
         "cardUses": {},
-        "traitUses": {}
+        "traitUses": {},
+        "unboundShape": ""
       },
       "disadvantages": [],
       "minorExpressions": [],

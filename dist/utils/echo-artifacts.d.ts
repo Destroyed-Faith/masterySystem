@@ -12,7 +12,7 @@
  *   • Dragonborn: 1 required, 3 maximum.   (Dragon Claws, Dragon Head, and one
  *                  of Wyrm Scales / Serpent Scales — the two body armors are
  *                  mutually exclusive.)
- *   • Unbound:    0 required, 0 maximum.
+ *   • Unbound:    1 required, 1 maximum.   (one identity artifact)
  *
  * Each entry below describes:
  *   • `key`           — stable id used by flags / picker lookups.

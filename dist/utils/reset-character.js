@@ -219,6 +219,7 @@ export async function resetCharacterForRecreation(actor, options) {
     // Creation gate flipped back to incomplete.
     updates['system.creation.complete'] = false;
     updates['system.creation.disadvantagesReviewed'] = false;
+    updates['system.creation.equipmentReviewed'] = false;
     // Echo structured data fully cleared.
     updates['system.echo.key'] = '';
     updates['system.echo.subChoiceKey'] = '';
@@ -226,6 +227,7 @@ export async function resetCharacterForRecreation(actor, options) {
     updates['system.echo.selectedCardIds'] = [];
     updates['system.echo.cardUses'] = {};
     updates['system.echo.traitUses'] = {};
+    updates['system.echo.unboundShape'] = '';
     // Echo narrative + bio text cleared. (Name/img live on the actor
     // document, not in system.bio, so they are untouched.)
     updates['system.bio.echo'] = '';

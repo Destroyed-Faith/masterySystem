@@ -18,6 +18,7 @@ import { buildEchoArtifactTree } from '../artifacts/echo-artifact-tree-builder.j
 import { dedupeEchoArtifactsOnActor, equipEchoArtifact, getEchoArtifactKey, isEchoBoundArtifact, } from '../utils/echo-artifact-equip.js';
 import { scheduleCenterLegacyDialog } from '../utils/legacy-dialog-resize.js';
 import { normalizeKnownLanguages } from '../utils/languages.js';
+import { UNBOUND_IDENTITY_GROUPS, UNBOUND_PREDATOR_SHAPES, UNBOUND_PREDATOR_STONES, getUnboundIdentity, resolveUnboundArtifactKey, unboundIdentitiesInGroup, } from '../utils/echos/unbound-identities.js';
 function formatEchoSlot(slot) {
     const labels = {
         bothHands: 'both hands',
@@ -67,6 +68,65 @@ function renderSubChoiceRows(def, currentKey) {
       </label>
     `;
     }).join('');
+}
+function renderUnboundIdentityBoard(currentKey) {
+    return UNBOUND_IDENTITY_GROUPS.map((group) => {
+        const cards = unboundIdentitiesInGroup(group)
+            .map((id) => {
+            const checked = currentKey === id.key;
+            return `
+          <label class="unbound-identity-card${checked ? ' is-selected' : ''}">
+            <input type="radio" name="subChoiceKey" value="${esc(id.key)}"${checked ? ' checked' : ''} />
+            <span class="unbound-identity-art unbound-identity-art-${esc(group.toLowerCase())}" aria-hidden="true">
+              <i class="fas ${group === 'Beasts' ? 'fa-paw' : group === 'Witches' ? 'fa-hat-wizard' : 'fa-crosshairs'}"></i>
+              <em>Art coming</em>
+            </span>
+            <span class="unbound-identity-body">
+              <strong class="unbound-identity-name">${esc(id.name)}</strong>
+              <span class="unbound-identity-artifact">${esc(id.artifactName)} · ${esc(id.slotLabel)}</span>
+              <span class="unbound-identity-summary">${esc(id.summary)}</span>
+              <span class="unbound-identity-tech">${esc(id.technical)}</span>
+            </span>
+          </label>
+        `;
+        })
+            .join('');
+        return `
+      <section class="unbound-identity-group">
+        <h3 class="unbound-identity-group-title">${esc(group)}</h3>
+        <div class="unbound-identity-grid">${cards}</div>
+      </section>
+    `;
+    }).join('');
+}
+function renderUnboundPredatorExtras(currentShape, currentStone) {
+    const shapeOpts = UNBOUND_PREDATOR_SHAPES.map((shape) => `<option value="${esc(shape)}"${currentShape === shape ? ' selected' : ''}>${esc(shape)}</option>`).join('');
+    const stones = UNBOUND_PREDATOR_STONES.map((stone, idx) => {
+        const checked = currentStone === stone.key || (idx === 0 && !currentStone);
+        return `
+      <label class="echo-pick-row">
+        <input type="radio" name="unboundPredatorStone" value="${esc(stone.key)}"${checked ? ' checked' : ''} />
+        <span class="echo-pick-body">
+          <strong class="echo-pick-name">${esc(stone.label)}</strong>
+        </span>
+      </label>
+    `;
+    }).join('');
+    return `
+    <div class="unbound-predator-extras">
+      <div class="echo-form-group unbound-predator-shape">
+        <label class="echo-form-label" for="unboundPredatorShape">Predator Shape <span class="echo-form-hint">(appearance — another Beast shape needs GM approval)</span></label>
+        <select name="unboundPredatorShape" id="unboundPredatorShape" class="echo-form-select">
+          <option value="">-- Choose a Predator Shape --</option>
+          ${shapeOpts}
+        </select>
+      </div>
+      <div class="echo-form-group unbound-predator-stone">
+        <label class="echo-form-label">Predator Stone <span class="echo-form-hint">(permanent)</span></label>
+        <div class="echo-pick-list">${stones}</div>
+      </div>
+    </div>
+  `;
 }
 function renderCardPickRows(def, selectedId, inputName, availableIds) {
     const cards = availableIds
@@ -132,6 +192,12 @@ export async function showEchoCreationDialog(actor) {
         <div id="ec-subchoice-options" class="echo-form-radios echo-pick-list"></div>
       </div>
 
+      <div class="echo-form-group" id="ec-unbound-group" style="display:none;">
+        <label class="echo-form-label">Unbound Response <span class="echo-form-hint">(choose one as your base character)</span></label>
+        <div id="ec-unbound-identities" class="unbound-identity-board"></div>
+        <div id="ec-unbound-extras" class="unbound-identity-extras" style="display:none;"></div>
+      </div>
+
       <div class="echo-form-group" id="ec-veiled-group" style="display:none;">
         <label class="echo-form-label">Veiled Form <span class="echo-form-hint">(appearance only \u2014 no mechanical benefit)</span></label>
         <select name="veiledFormKey" id="ec-veiled" class="echo-form-select">
@@ -175,6 +241,17 @@ export async function showEchoCreationDialog(actor) {
                             ui.notifications?.warn(`Please choose a ${def.subChoiceLabel || 'sub-choice'}.`);
                             return false;
                         }
+                        const unboundIdentity = echoKey === 'unbound' ? getUnboundIdentity(subChoiceKey) : undefined;
+                        const unboundShape = unboundIdentity?.extras === 'predator'
+                            ? String($html.find('[name="unboundPredatorShape"]').val() || '').trim()
+                            : '';
+                        const unboundStone = unboundIdentity?.extras === 'predator'
+                            ? String($html.find('input[name="unboundPredatorStone"]:checked').val() || '')
+                            : '';
+                        if (unboundIdentity?.extras === 'predator' && !unboundStone) {
+                            ui.notifications?.warn('Please choose a Predator Stone path.');
+                            return false;
+                        }
                         const veiledFormKey = def.veiledForm
                             ? String($html.find('#ec-veiled').val() || '')
                             : '';
@@ -190,11 +267,18 @@ export async function showEchoCreationDialog(actor) {
                         }
                         // Echo Artifact validation + creation
                         const selectedArtifactKeys = [];
-                        $html.find('input[name="echoArtifactKey"]:checked').each(function () {
-                            const v = String($(this).val() || '');
-                            if (v)
-                                selectedArtifactKeys.push(v);
-                        });
+                        if (echoKey === 'unbound') {
+                            const autoKey = resolveUnboundArtifactKey(subChoiceKey, unboundStone);
+                            if (autoKey)
+                                selectedArtifactKeys.push(autoKey);
+                        }
+                        else {
+                            $html.find('input[name="echoArtifactKey"]:checked').each(function () {
+                                const v = String($(this).val() || '');
+                                if (v)
+                                    selectedArtifactKeys.push(v);
+                            });
+                        }
                         const artifactError = validateEchoArtifactSelection(echoKey, selectedArtifactKeys);
                         if (artifactError) {
                             ui.notifications?.warn(artifactError);
@@ -210,9 +294,10 @@ export async function showEchoCreationDialog(actor) {
                                 veiledFormKey: veiledFormKey || '',
                                 selectedCardIds: [startCardId],
                                 cardUses: {},
-                                traitUses
+                                traitUses,
+                                unboundShape: unboundShape || '',
                             },
-                            'system.bio.echo': def.name,
+                            'system.bio.echo': unboundIdentity ? `${def.name} — ${unboundIdentity.name}` : def.name,
                             'system.languages.known': nextLanguages,
                         });
                         // Remove any previously-created echo-bound artifacts so we always
@@ -284,7 +369,7 @@ export async function showEchoCreationDialog(actor) {
                             }
                         }
                         await dedupeEchoArtifactsOnActor(actor);
-                        ui.notifications?.info(`Echo set to ${def.name}${grantedCount ? ` (+${grantedCount} Echo Artifact${grantedCount === 1 ? '' : 's'})` : ''}. Ab MR2: 1 Stone zum Aktivieren über Artifacts.`);
+                        ui.notifications?.info(`Echo set to ${def.name}${unboundIdentity ? ` — ${unboundIdentity.name}` : ''}${grantedCount ? ` (+${grantedCount} Echo Artifact${grantedCount === 1 ? '' : 's'})` : ''}. Ab MR2: 1 Stone zum Aktivieren über Artifacts.`);
                         return true;
                     }
                 },
@@ -333,6 +418,9 @@ export async function showEchoCreationDialog(actor) {
                 const $artifactHint = html.find('#ec-artifact-hint');
                 const $artifactOptions = html.find('#ec-artifact-options');
                 const $artifactPreview = html.find('#ec-artifact-preview');
+                const $unboundGroup = html.find('#ec-unbound-group');
+                const $unboundIdentities = html.find('#ec-unbound-identities');
+                const $unboundExtras = html.find('#ec-unbound-extras');
                 const $cardGroup = html.find('#ec-card-group');
                 const $cardOptions = html.find('#ec-card-options');
                 const $cardPreview = html.find('#ec-card-preview');
@@ -476,6 +564,9 @@ export async function showEchoCreationDialog(actor) {
                     $preview.empty();
                     $subGroup.hide();
                     $subOptions.empty();
+                    $unboundGroup.hide();
+                    $unboundIdentities.empty();
+                    $unboundExtras.hide().empty();
                     $veiledGroup.hide();
                     $veiled.empty().append('<option value="">-- Choose another Echo\'s appearance --</option>');
                     $artifactGroup.hide();
@@ -487,7 +578,32 @@ export async function showEchoCreationDialog(actor) {
                     if (!def)
                         return;
                     $preview.html(renderTraitsPreview(def));
-                    if (def.subChoices?.length) {
+                    if (def.key === 'unbound') {
+                        const currentSub = currentEcho.key === def.key ? String(currentEcho.subChoiceKey || '') : '';
+                        const currentShape = currentEcho.key === def.key ? String(currentEcho.unboundShape || '') : '';
+                        const currentStone = currentEcho.key === def.key
+                            ? Array.from(actor.items)
+                                .filter((it) => it.type === 'artifact' && isEchoBoundArtifact(it))
+                                .map((it) => getEchoArtifactKey(it))
+                                .find((k) => UNBOUND_PREDATOR_STONES.some((s) => s.artifactKey === k)) || ''
+                            : '';
+                        $unboundIdentities.html(renderUnboundIdentityBoard(currentSub));
+                        const refreshUnboundExtras = () => {
+                            const picked = String($unboundIdentities.find('input[name="subChoiceKey"]:checked').val() || '');
+                            const identity = getUnboundIdentity(picked);
+                            if (identity?.extras !== 'predator') {
+                                $unboundExtras.hide().empty();
+                                return;
+                            }
+                            const stoneFromArtifact = UNBOUND_PREDATOR_STONES.find((s) => s.artifactKey === currentStone)?.key || '';
+                            $unboundExtras.html(renderUnboundPredatorExtras(currentShape, stoneFromArtifact));
+                            $unboundExtras.show();
+                        };
+                        $unboundIdentities.off('change.unboundId').on('change.unboundId', 'input[name="subChoiceKey"]', refreshUnboundExtras);
+                        refreshUnboundExtras();
+                        $unboundGroup.show();
+                    }
+                    else if (def.subChoices?.length) {
                         $subLabel.text(`${def.subChoiceLabel || 'Sub-choice'} (choose 1)`);
                         const currentSub = currentEcho.key === def.key ? String(currentEcho.subChoiceKey || '') : '';
                         $subOptions.html(renderSubChoiceRows(def, currentSub));
@@ -506,7 +622,12 @@ export async function showEchoCreationDialog(actor) {
                         $veiled.append(veiledOpts);
                         $veiledGroup.show();
                     }
-                    refreshArtifactOptions();
+                    if (def.key !== 'unbound') {
+                        refreshArtifactOptions();
+                    }
+                    else {
+                        $artifactGroup.hide();
+                    }
                     const currentCard = currentEcho.key === def.key
                         ? String((Array.isArray(currentEcho.selectedCardIds) ? currentEcho.selectedCardIds[0] : '') || '')
                         : '';

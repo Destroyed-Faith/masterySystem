@@ -57,7 +57,7 @@ import { getEchoArtifactIcon } from '../utils/item-icons.js';
  * output (base values, powers, slot/profile, etc.) changes so the world seeder
  * can detect stale library copies and refresh them in place.
  */
-export const ECHO_ARTIFACT_SEED_VERSION = 41;
+export const ECHO_ARTIFACT_SEED_VERSION = 42;
 
 const ARTIFACT_LEVELS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] as const;
 const ALL_POWER_LEVEL_KEYS: PowerLevelKey[] = [
@@ -168,6 +168,31 @@ function lorKethGiantWeightForLevel(level: number): string {
   if (l < 7) return '';
   if (l >= 10) return 'True Giant Weight';
   return 'Giant Weight';
+}
+
+/** Unbound weapon / bite / staff / scourge — 4d8 L1 … 12d8 L9, 14d8 L10. */
+function unboundGuideDamageForLevel(level: number): string {
+  const l = clampLevel(level);
+  return `${l >= 10 ? 14 : l + 3}d8`;
+}
+
+/** Witch Tradition Special — 2 at L4–5, 3 at L6–7, 4 at L8–9, 5 at L10. */
+function witchTraditionSpecialForLevel(level: number): number {
+  const l = clampLevel(level);
+  if (l >= 10) return 5;
+  if (l >= 8) return 4;
+  if (l >= 6) return 3;
+  return 2;
+}
+
+/** Hunter's Scourge extra Reach beyond the Whip's +1 m. */
+function huntersScourgeExtraReachForLevel(level: number): string {
+  const l = clampLevel(level);
+  if (l < 4) return '';
+  if (l >= 10) return '+4 m';
+  if (l >= 8) return '+3 m';
+  if (l >= 6) return '+2 m';
+  return '+1 m';
 }
 
 /** A single Base Value slot on an echo artifact, with an exact per-level value. */
@@ -286,6 +311,84 @@ const BASE_VALUE_TABLES: Record<string, BaseValueSpec[]> = {
       unlock: 4,
       valueAt: (l) => scentOfBloodTierForLevel(l),
       note: 'Detect from L4, Locate from L7, Identify at L10.',
+    },
+  ],
+  ...Object.fromEntries(
+    ['predatorCrownMight', 'predatorCrownWits', 'predatorCrownIntellect'].map((key) => [
+      key,
+      [
+        { slot: 'a', type: 'weaponDamage', label: 'Bite Damage', unlock: 1, valueAt: (l: number) => unboundGuideDamageForLevel(l) },
+        { slot: 'b', type: 'headArmor', label: 'Head Armor', unlock: 1, valueAt: (l: number) => minorArmorForLevel(l) },
+        {
+          slot: 'c',
+          type: 'sense',
+          label: 'Predator Sense',
+          unlock: 1,
+          valueAt: () => '20 m',
+          note: 'Sense Slot option. Does not scale with Artifact Level.',
+        },
+      ] as BaseValueSpec[],
+    ]),
+  ),
+  ...Object.fromEntries(
+    [
+      ['witchStaffRoot', 'Slow'],
+      ['witchStaffRuin', 'Hex'],
+      ['witchStaffBlight', 'Corrode'],
+    ].map(([key, special]) => [
+      key,
+      [
+        { slot: 'a', type: 'weaponDamage', label: 'Staff Damage', unlock: 1, valueAt: (l: number) => unboundGuideDamageForLevel(l) },
+        {
+          slot: 'b',
+          type: 'spellFocus',
+          label: 'Spell Focus',
+          unlock: 1,
+          valueAt: (l: number) => spellFocusForLevel(l, 'twoHandedWeapon'),
+          note: 'Spell Focus from Level 1. May be used with Intellect.',
+        },
+        {
+          slot: 'c',
+          type: 'weaponSpecial',
+          label: special,
+          unlock: 4,
+          valueAt: (l: number) => witchTraditionSpecialForLevel(l),
+          note: `Tradition Special (${special}) applies only on a legal Staff attack or Power.`,
+        },
+      ] as BaseValueSpec[],
+    ]),
+  ),
+  alchemistCoat: [
+    {
+      slot: 'a',
+      type: 'bodyArmor',
+      label: 'Medium Armor',
+      armorWeightClass: 'medium',
+      unlock: 1,
+      valueAt: (l) => bodyArmorBonusForLevel(l),
+      note: 'Medium Armor: Evade −2, Initiative −4, −1d8 Physical Skills.',
+    },
+  ],
+  greenWardenMantle: [
+    {
+      slot: 'a',
+      type: 'bodyArmor',
+      label: 'Medium Armor',
+      armorWeightClass: 'medium',
+      unlock: 1,
+      valueAt: (l) => bodyArmorBonusForLevel(l),
+      note: 'Medium Armor: Evade −2, Initiative −4, −1d8 Physical Skills.',
+    },
+  ],
+  huntersScourge: [
+    { slot: 'a', type: 'weaponDamage', label: 'Scourge Damage', unlock: 1, valueAt: (l) => unboundGuideDamageForLevel(l) },
+    {
+      slot: 'b',
+      type: 'weaponSpecial',
+      label: 'Reach',
+      unlock: 4,
+      valueAt: (l) => huntersScourgeExtraReachForLevel(l),
+      note: 'Keeps Whip Finesse and Reach (+1 m). Extra reach from Level 4.',
     },
   ],
 
@@ -618,11 +721,12 @@ function weaponProfileAtLevel(def: EchoArtifactDefinition, level: number): Recor
   const table = BASE_VALUE_TABLES[def.key] || [];
   const hasSpellFocus = table.some((b) => b.type === 'spellFocus');
   const dmgBv = table.find((b) => b.type === 'weaponDamage');
-  // Spell Focus weapons deal no normal weapon damage — their value boosts Spells.
-  const damage = hasSpellFocus
-    ? '0'
-    : dmgBv
-      ? String(dmgBv.valueAt(level))
+  // Pure Spell Focus weapons (no weaponDamage row) deal no weapon damage.
+  // Witch Staffs carry both Staff Damage and Spell Focus.
+  const damage = dmgBv
+    ? String(dmgBv.valueAt(level))
+    : hasSpellFocus
+      ? '0'
       : weaponDamageForLevel(level, def.baseProfile);
   const isRanged =
     def.baseProfile === 'oneHandedWeaponRanged' || def.baseProfile === 'twoHandedWeaponRanged';
@@ -636,6 +740,18 @@ function weaponProfileAtLevel(def: EchoArtifactDefinition, level: number): Recor
     innateAbilities: [] as string[],
     specials: [] as Array<{ specialId: string; value?: number }>,
   };
+  if (def.key === 'huntersScourge') {
+    const reachBv = table.find((b) => b.type === 'weaponSpecial' && b.label === 'Reach');
+    const extra = reachBv && level >= reachBv.unlock ? String(reachBv.valueAt(level) || '') : '';
+    const reachLabel = extra ? `Reach (+1 m, ${extra})` : 'Reach (+1 m)';
+    return {
+      ...base,
+      weaponType: 'melee',
+      hands: 2,
+      innateAbilities: ['Finesse', reachLabel],
+      specials: [{ specialId: 'finesse' }, { specialId: 'reach', value: 1 }],
+    };
+  }
   if (def.key === 'heartseeker') {
     const precBv = table.find((b) => b.type === 'weaponSpecial' && b.label === 'Precision');
     const artifactPrec =

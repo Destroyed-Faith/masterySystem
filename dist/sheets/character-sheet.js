@@ -31,6 +31,8 @@ import { buildConsumableSlotView, equippedConsumableActionRows, equipConsumableT
 import { dissolveSummonBond, getSummonBondsFromActor, tokensSummary, } from '../stones/summon-bond-bind.js';
 import { deleteSummonActor } from '../stones/familiar-actor-factory.js';
 import { buildPostCreationSnapshot } from '../utils/xp-post-creation.js';
+import { nextCreationGuideTab } from '../utils/creation-tab-guide.js';
+import { findLegacyDialogRoot, scheduleCenterLegacyDialog } from '../utils/legacy-dialog-resize.js';
 import { resetCharacterForRecreation, listEquippedGeneralArtifacts } from '../utils/reset-character.js';
 import { buildCancelSkillsRedistributeUpdates, buildFinishSkillsRedistributeUpdates, buildStartSkillsRedistributeUpdates, canStartSkillsRedistribute, getCreationSkillBudget, isSkillsRedistributing, validateCreationSkillAllocation, } from '../utils/skills-redistribute.js';
 import { getDefaultInventorySizeForItemData } from '../utils/seed-general-items.js';
@@ -906,6 +908,16 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 echoCreationValid &&
                 context.languagesView?.creationValid !== false
         };
+        context.creationGuideTab = nextCreationGuideTab({
+            creationComplete: context.creationComplete,
+            attributesDone: attributeDistributionValid,
+            echoDone: echoCreationValid && context.languagesView?.creationValid !== false,
+            skillsDone: skillPointsSpent === skillPointsConfig &&
+                validateCreationSkillAllocation(context.system).ok,
+            powersDone: categoriesValid,
+            equipmentReviewed: context.system.creation?.equipmentReviewed === true,
+            disadvantagesDone: disadvantagesValid,
+        });
         context.isGM = !!game.user?.isGM;
         context.canEditMasteryRank =
             context.isGM || (!context.creationComplete && this.actor.isOwner);
@@ -2265,14 +2277,19 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 }
             }
         });
-        // Mark disadvantages as reviewed when user visits the disadvantages tab
+        // Mark creation-tour tabs as reviewed when the player opens them.
         if (!creationComplete) {
-            // Use event delegation for tab clicks
             html.on('click', 'a[data-tab="disadvantages"]', async () => {
                 const system = this.actor.system;
                 if (!system.creation?.disadvantagesReviewed) {
                     await this.actor.update({ 'system.creation.disadvantagesReviewed': true });
-                    // Re-render to update the banner
+                    this.render();
+                }
+            });
+            html.on('click', 'a[data-tab="equipment"]', async () => {
+                const system = this.actor.system;
+                if (!system.creation?.equipmentReviewed) {
+                    await this.actor.update({ 'system.creation.equipmentReviewed': true });
                     this.render();
                 }
             });
@@ -5499,23 +5516,27 @@ export class MasteryCharacterSheet extends BaseActorSheet {
      * Only disable non-creation fields, allow creation controls
      */
     #lockSheetForCreation(html) {
-        html.find('input[name="name"], textarea').prop('disabled', true);
-        html.find('select:not(.power-rank-select):not(.attr-creation-select):not(.mastery-rank-select)').prop('disabled', true);
+        // ApplicationV2 `activateListeners` receives the whole `.application` root.
+        // Never disable Foundry window chrome (Close / Copy / Toggle Controls) or
+        // those clicks fall through to the header drag handle.
+        const $scope = html.find('.window-content').length ? html.find('.window-content') : html;
+        $scope.find('input[name="name"], textarea').prop('disabled', true);
+        $scope.find('select:not(.power-rank-select):not(.attr-creation-select):not(.mastery-rank-select)').prop('disabled', true);
         // Disable buttons except creation controls
-        const buttonsToDisable = html.find('button:not(.attr-increase):not(.attr-decrease):not(.skill-increase):not(.skill-decrease):not(.finalize-creation):not(.reset-creation-attributes):not(.force-unlock-creation):not(.reset-character):not(.add-disadvantage-btn):not(.disadvantage-edit-btn):not(.disadvantage-remove-btn):not(.open-tower-wizard-btn):not(.open-manual-combat-package-btn):not(.add-spell-creation-btn):not(.power-rank-select):not(.item-delete):not(.power-toggle-details):not(.power-edit-mechanics):not(.general-items-btn):not(.choose-echo-btn):not(.add-echo-card-btn):not(.remove-echo-card-btn):not(.echo-card-use-btn):not(.open-languages-btn)');
+        const buttonsToDisable = $scope.find('button:not(.header-control):not(.attr-increase):not(.attr-decrease):not(.skill-increase):not(.skill-decrease):not(.finalize-creation):not(.reset-creation-attributes):not(.force-unlock-creation):not(.reset-character):not(.add-disadvantage-btn):not(.disadvantage-edit-btn):not(.disadvantage-remove-btn):not(.open-tower-wizard-btn):not(.open-manual-combat-package-btn):not(.add-spell-creation-btn):not(.power-rank-select):not(.item-delete):not(.power-toggle-details):not(.power-edit-mechanics):not(.general-items-btn):not(.choose-echo-btn):not(.add-echo-card-btn):not(.remove-echo-card-btn):not(.echo-card-use-btn):not(.open-languages-btn)');
         buttonsToDisable.prop('disabled', true);
         // Ensure creation buttons are enabled
-        const creationButtons = html.find('.attr-increase, .attr-decrease, .skill-increase, .skill-decrease, .finalize-creation, .reset-creation-attributes, .force-unlock-creation, .reset-character, .add-disadvantage-btn, .disadvantage-edit-btn, .disadvantage-remove-btn, .open-tower-wizard-btn, .open-manual-combat-package-btn, .add-spell-creation-btn, .item-delete, .general-items-btn, .choose-echo-btn, .add-echo-card-btn, .remove-echo-card-btn, .echo-card-use-btn, .open-languages-btn');
+        const creationButtons = $scope.find('.attr-increase, .attr-decrease, .skill-increase, .skill-decrease, .finalize-creation, .reset-creation-attributes, .force-unlock-creation, .reset-character, .add-disadvantage-btn, .disadvantage-edit-btn, .disadvantage-remove-btn, .open-tower-wizard-btn, .open-manual-combat-package-btn, .add-spell-creation-btn, .item-delete, .general-items-btn, .choose-echo-btn, .add-echo-card-btn, .remove-echo-card-btn, .echo-card-use-btn, .open-languages-btn');
         creationButtons.prop('disabled', false);
         // Also enable power rank selects (they're select elements, not buttons)
-        html.find('.power-rank-select').prop('disabled', false);
-        html.find('.mastery-rank-select').prop('disabled', false);
-        html.find('.power-radial-checkbox').prop('disabled', false);
-        html.find('.power-display-name-input').prop('disabled', false);
+        $scope.find('.power-rank-select').prop('disabled', false);
+        $scope.find('.mastery-rank-select').prop('disabled', false);
+        $scope.find('.power-radial-checkbox').prop('disabled', false);
+        $scope.find('.power-display-name-input').prop('disabled', false);
         // Double-check all creation buttons are enabled
-        const addDisadvantageBtn = html.find('.add-disadvantage-btn');
-        const addPowerCreationBtn = html.find('.open-tower-wizard-btn');
-        const addSpellCreationBtn = html.find('.add-spell-creation-btn');
+        const addDisadvantageBtn = $scope.find('.add-disadvantage-btn');
+        const addPowerCreationBtn = $scope.find('.open-tower-wizard-btn');
+        const addSpellCreationBtn = $scope.find('.add-spell-creation-btn');
         if (addDisadvantageBtn.length > 0) {
             addDisadvantageBtn.prop('disabled', false);
         }
@@ -5532,14 +5553,15 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         }
         else {
         }
-        const generalItemsBtn = html.find('.general-items-btn');
+        const generalItemsBtn = $scope.find('.general-items-btn');
         if (generalItemsBtn.length > 0) {
             generalItemsBtn.prop('disabled', false);
         }
-        const languagesBtn = html.find('.open-languages-btn');
+        const languagesBtn = $scope.find('.open-languages-btn');
         if (languagesBtn.length > 0) {
             languagesBtn.prop('disabled', false);
         }
+        html.find('.window-header button, .window-header .header-control, .header-control').prop('disabled', false);
         // Add CSS class for styling
         html.addClass('creation-incomplete');
     }
@@ -5988,13 +6010,14 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             label: `${d.name} (${Array.isArray(d.basePoints) ? d.basePoints.join('/') : d.basePoints} pts)`
         }));
         const content = `
-      <form class="disadvantage-selection-form">
-        <div class="form-group">
-          <label>Select Disadvantage</label>
-          <select name="disadvantageId" id="disadvantageId" class="echo-form-select">
+      <form class="mastery-system disadvantage-selection-form">
+        <div class="disadvantage-field">
+          <label class="disadvantage-field-label" for="disadvantageId">Select Disadvantage</label>
+          <select name="disadvantageId" id="disadvantageId" class="disadvantage-field-control">
             <option value="">-- Select a Disadvantage --</option>
             ${disadvantageOptions.map(opt => `<option value="${opt.value}">${opt.label}</option>`).join('')}
           </select>
+          <p class="disadvantage-field-hint">Pick a type, then Configure to write the details.</p>
         </div>
         ${disadvantageOptions.length === 0 ? '<p class="disadvantage-empty-warn">No disadvantages available. Please check the console.</p>' : ''}
       </form>
@@ -6002,9 +6025,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         const dialog = new Dialog({
             title: 'Add Disadvantage',
             content,
-            width: 440,
-            height: 320,
-            resizable: true,
             buttons: {
                 configure: {
                     label: 'Configure',
@@ -6030,11 +6050,19 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                     }
                 }
             },
-            default: 'configure'
+            default: 'configure',
+            render: (htmlRaw) => {
+                this.#setupDisadvantageDialogChrome(dialog, 'selection', htmlRaw);
+                scheduleCenterLegacyDialog($(htmlRaw instanceof HTMLElement ? htmlRaw : htmlRaw), dialog);
+            }
+        }, {
+            classes: ['dialog', 'mastery-system', 'disadvantage-selection-dialog'],
+            width: 480,
+            height: 280,
+            resizable: true,
         });
         try {
             await dialog.render(true);
-            this.#setupDisadvantageDialogChrome(dialog, 'selection');
         }
         catch (error) {
             console.error('Mastery System | ERROR rendering dialog:', error);
@@ -6092,10 +6120,32 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     }
     /**
      * Apply disadvantage dialog styling only to this Dialog's shell.
-     * Do not use $(innerHtml).closest('.application') — in v13 that can match Foundry's root UI and break the whole layout.
+     * Foundry 14 `dialog.element` is an HTMLElement, not jQuery — wrap it before adding classes.
+     * Prefer `.window-app.dialog` / `.application.dialog`; never climb to a generic `#interface` application.
      */
-    #setupDisadvantageDialogChrome(dialog, kind) {
-        const shell = dialog.element;
+    #resolveDisadvantageDialogShell(dialog, htmlRaw) {
+        const raw = dialog?.element;
+        if (raw instanceof HTMLElement) {
+            const $el = $(raw);
+            if ($el.is('.window-app, .application.dialog, .application'))
+                return $el;
+        }
+        else if (raw) {
+            const $el = $(raw);
+            if ($el?.length && $el.is('.window-app, .application.dialog, .application'))
+                return $el;
+        }
+        if (htmlRaw) {
+            const html = htmlRaw instanceof HTMLElement ? $(htmlRaw) : $(htmlRaw);
+            const found = html.closest('.window-app.dialog, .application.dialog, .window-app');
+            if (found.length)
+                return found;
+            return findLegacyDialogRoot(html);
+        }
+        return $();
+    }
+    #setupDisadvantageDialogChrome(dialog, kind, htmlRaw) {
+        const shell = this.#resolveDisadvantageDialogShell(dialog, htmlRaw);
         if (!shell?.length)
             return;
         shell.removeClass('theme-light').addClass('themed theme-dark');
@@ -6214,9 +6264,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         const configDialog = new Dialog({
             title: `${editIndex !== undefined ? 'Edit' : 'Add'} ${def.name}`,
             content,
-            width: 600,
-            height: 560,
-            resizable: true,
             buttons: {
                 save: {
                     icon: '<i class="fas fa-check"></i>',
@@ -6296,11 +6343,20 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                     callback: () => { }
                 }
             },
-            default: 'save'
+            default: 'save',
+            render: (htmlRaw) => {
+                const html = htmlRaw instanceof HTMLElement ? $(htmlRaw) : $(htmlRaw);
+                this.#wireDisadvantageExamplePresets(html, def);
+                this.#setupDisadvantageDialogChrome(configDialog, 'config', html);
+                scheduleCenterLegacyDialog(html, configDialog);
+            }
+        }, {
+            classes: ['dialog', 'mastery-system', 'disadvantage-config-dialog-styled'],
+            width: 600,
+            height: 560,
+            resizable: true,
         });
         await configDialog.render(true);
-        this.#wireDisadvantageExamplePresets(configDialog.element, def);
-        this.#setupDisadvantageDialogChrome(configDialog, 'config');
     }
     /**
      * Finalize Character Creation

@@ -175,7 +175,7 @@ describe('catalog: no leftover artifact swings next to Single Attack', () => {
       }
       const opts = buildArtifactRadialOptions(actor([item, single]));
       const swings = opts.filter((o) => o.id.startsWith('artifact-weapon:'));
-      if (tree.echoArtifactKey === 'dragonHead') {
+      if (tree.echoArtifactKey === 'dragonHead' || String(tree.echoArtifactKey || '').startsWith('predatorCrown')) {
         expect(swings.map((o) => o.name), tree.folderName).toEqual(['Bite']);
       } else {
         expect(swings, tree.folderName).toEqual([]);

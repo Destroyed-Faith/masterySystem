@@ -240,6 +240,7 @@ export function buildActorSystemFromPayload(payload: CharacterImportPayload): Re
       importSource: 'homepage',
       importSchemaVersion: 1,
       disadvantagesReviewed: disadvantages.length > 0,
+      equipmentReviewed: payload.creationComplete !== false,
     },
     conditions: [],
     notes: {

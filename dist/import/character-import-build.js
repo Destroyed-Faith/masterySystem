@@ -198,6 +198,7 @@ export function buildActorSystemFromPayload(payload) {
             importSource: 'homepage',
             importSchemaVersion: 1,
             disadvantagesReviewed: disadvantages.length > 0,
+            equipmentReviewed: payload.creationComplete !== false,
         },
         conditions: [],
         notes: {

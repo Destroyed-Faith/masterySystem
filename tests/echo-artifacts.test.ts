@@ -8,7 +8,7 @@ import {
     listSelectableEchoArtifacts,
 } from '../src/utils/echo-artifacts.js';
 
-const KNOWN_ECHOES = ['dwarfs', 'elorians', 'titanborn', 'dragonborn', 'sentinels'];
+const KNOWN_ECHOES = ['dwarfs', 'elorians', 'titanborn', 'dragonborn', 'sentinels', 'unbound'];
 
 describe('Echo Artifact catalog — shape & coverage', () => {
     it('contains a non-empty registry', () => {
@@ -99,6 +99,20 @@ describe('Echo Artifact catalog — lookups', () => {
         expect(getEchoArtifact('wyrmScales')?.key).toBe('wyrmScalesHeavy');
         expect(getEchoArtifact('wyrmScalesMedium')?.key).toBe('wyrmScalesHeavy');
         expect(getEchoArtifact('serpentScales')?.key).toBe('wyrmScalesLight');
+    });
+
+    it('Unbound grants exactly one identity artifact', () => {
+        const rule = getEchoArtifactRules('unbound');
+        expect(rule.requiredAtCreation).toBe(1);
+        expect(rule.maxAtCreation).toBe(1);
+        expect(listSelectableEchoArtifacts('unbound', 'witch-root').map((d) => d.key)).toEqual([
+            'witchStaffRoot',
+        ]);
+        expect(listSelectableEchoArtifacts('unbound', 'beast').map((d) => d.key)).toEqual([
+            'predatorCrownMight',
+            'predatorCrownWits',
+            'predatorCrownIntellect',
+        ]);
     });
 
     it('Dragonborn pick exactly one of two body armor variants', () => {

@@ -12,7 +12,7 @@
  *   • Dragonborn: 1 required, 3 maximum.   (Dragon Claws, Dragon Head, and one
  *                  of Wyrm Scales / Serpent Scales — the two body armors are
  *                  mutually exclusive.)
- *   • Unbound:    0 required, 0 maximum.
+ *   • Unbound:    1 required, 1 maximum.   (one identity artifact)
  *
  * Each entry below describes:
  *   • `key`           — stable id used by flags / picker lookups.
@@ -40,6 +40,11 @@ import type {
 } from '../types/item.js';
 import { resolvePickFromUi, tierFromSpecialKey, type MartialDelivery } from './artifact-power-pick.js';
 import { catalogSpecialTierForTemplate } from './artifact-catalog-pick.js';
+import {
+  UNBOUND_ECHO_ARTIFACTS,
+  UNBOUND_ECHO_ARTIFACT_KEYS,
+  UNBOUND_PREDATOR_CROWN_KEYS,
+} from './echo-artifacts-unbound.js';
 
 /**
  * Authoring shorthand for an Echo Artifact's single canonical Stone Function.
@@ -1616,6 +1621,7 @@ export const ECHO_ARTIFACTS: Record<string, EchoArtifactDefinition> = {
   sentinelFrame: SENTINEL_FRAME,
   judicatorFrame: JUDICATOR_FRAME,
   oracleFrame: ORACLE_FRAME,
+  ...UNBOUND_ECHO_ARTIFACTS,
 };
 
 /** Per-Echo character-creation rules. */
@@ -1674,7 +1680,13 @@ export const ECHO_ARTIFACT_RULES: Record<string, EchoArtifactRules> = {
     availableKeys: ['dragonClaws', 'dragonHead', 'wyrmScalesHeavy', 'wyrmScalesLight'],
     exclusiveGroups: [['wyrmScalesHeavy', 'wyrmScalesLight']],
   },
-  unbound: { echoKey: 'unbound', requiredAtCreation: 0, maxAtCreation: 0, availableKeys: [] },
+  unbound: {
+    echoKey: 'unbound',
+    requiredAtCreation: 1,
+    maxAtCreation: 1,
+    availableKeys: UNBOUND_ECHO_ARTIFACT_KEYS,
+    exclusiveGroups: [UNBOUND_PREDATOR_CROWN_KEYS],
+  },
 };
 
 /** Lookup an Echo Artifact by key (legacy aliases resolve to current variant keys). */

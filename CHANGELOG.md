@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.400] - 2026-08-20
+
+### Added
+
+- **Character creation tabs:** The next unfinished tab (Attributes → Echo → Skills → Powers → Equipment → Disadvantages) glows gold like the XP buttons. Summons, Rituals, and Minor Magic stay quiet.
+- **Unbound Responses:** Choose Beast, a Witch Tradition, or a Bane Call as the base character. Each identity grants its Echo Artifact (Predator Crown, Witch Staff, Alchemist Coat, Green Warden Mantle, or Hunter's Scourge) with the Player's Guide technical names. Item art is a placeholder until the icons arrive.
+
+### Fixed
+
+- **Disadvantage dialogs:** Add and Configure use the dark Echo-style rulebook chrome again in Foundry 14, instead of the default Foundry form.
+- **In-progress character sheet:** Close, Copy, and Toggle Controls in the window bar stay clickable. Creation lock no longer disables Foundry's header buttons, so those clicks no longer turn into a window drag.
+
 ## [0.9.399] - 2026-08-20
 
 ### Changed
