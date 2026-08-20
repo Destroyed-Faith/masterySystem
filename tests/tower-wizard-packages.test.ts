@@ -145,19 +145,50 @@ describe('tower-wizard-packages', () => {
         expect(resolveGuidedCoreAttackPick('melee')?.pick.templateId).toBe('active-melee-weapon-single');
         expect(resolveGuidedCoreAttackPick('ranged')?.pick.templateId).toBe('active-ranged-weapon-single');
         expect(resolveGuidedCoreAttackPick('spell')?.coreIsSpell).toBe(true);
-        expect(GUIDED_DELIVERY_OPTIONS).toHaveLength(4);
+        expect(GUIDED_DELIVERY_OPTIONS.map((o) => o.id)).toEqual(['melee', 'ranged', 'spell']);
     });
 
     it('guided special focus groups use tactical purpose labels', () => {
         const groups = getGuidedSpecialFocusGroups('melee');
         expect(groups.some((g) => g.label === 'Focus one enemy')).toBe(true);
         expect(groups.some((g) => g.label === 'Apply pressure over time')).toBe(true);
-        const lacerate = groups.flatMap((g) => g.cards).find((c) => c.powerName === 'Lacerate');
-        const mark = groups.flatMap((g) => g.cards).find((c) => c.powerName === 'Mark');
-        expect(lacerate?.playerTitle).toMatch(/Lacerate/i);
+        const cards = groups.flatMap((g) => g.cards);
+        const lacerate = cards.find((c) => c.powerName === 'Lacerate');
+        const mark = cards.find((c) => c.powerName === 'Mark');
+        const ruin = cards.find((c) => c.powerName === 'Ruin');
+        const sundered = cards.find((c) => c.powerName === 'Sundered');
+        expect(lacerate?.playerTitle).toMatch(/Punish Movement — Lacerate/i);
+        expect(groups.find((g) => g.cards.includes(lacerate!))?.label).toBe('Control movement');
+        expect(ruin?.playerTitle).toMatch(/Ongoing Damage — Ruin/i);
+        expect(sundered?.playerTitle).toMatch(/Sundered/i);
         expect(mark?.playerTitle).toMatch(/Mark a Priority Target — Mark/);
         expect(mark?.mechanicsPreview).toMatch(/Mark \(/);
+        expect(cards.some((c) => c.powerName === 'Hex')).toBe(false);
+        expect(cards.some((c) => c.powerName === 'Disarm')).toBe(false);
+        expect(cards.some((c) => c.powerName === 'Stun')).toBe(false);
+        expect(cards.some((c) => c.powerName === 'Healing')).toBe(true);
+        expect(cards.some((c) => c.powerName === 'Cleanse')).toBe(true);
+        expect(cards.some((c) => /dispel/i.test(c.powerName))).toBe(false);
+        expect(groups.some((g) => g.label === 'Help allies')).toBe(true);
         expect(groups.some((g) => g.label === 'Advanced control')).toBe(true);
+    });
+
+    it('melee and ranged share the same specials; spells swap Sundered for Hex', () => {
+        const names = (mode: 'melee' | 'ranged' | 'spell') =>
+            getGuidedSpecialFocusGroups(mode).flatMap((g) => g.cards.map((c) => c.powerName)).sort();
+        expect(names('melee')).toEqual(names('ranged'));
+        expect(names('melee')).toContain('Sundered');
+        expect(names('melee')).not.toContain('Hex');
+        expect(names('spell')).toContain('Hex');
+        expect(names('spell')).not.toContain('Sundered');
+        expect(names('spell')).toContain('Weaken');
+        expect(names('spell')).toContain('Challenge');
+        expect(names('spell')).toContain('Lacerate');
+        expect(names('spell')).toContain('Ruin');
+        expect(names('melee')).toContain('Healing');
+        expect(names('melee')).toContain('Cleanse');
+        expect(names('spell')).toContain('Healing');
+        expect(names('spell')).toContain('Cleanse');
     });
 
     it('guided package review includes build summary', () => {

@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.399] - 2026-08-20
+
+### Changed
+
+- **Combat Package Step 6:** Specials match the attack style. Melee and Ranged share the same list, including Sundered. Spells get Hex instead of Sundered. Lacerate is movement damage under Control Movement. Ruin is the ongoing-damage option. Healing and Cleanse are in Help allies. Disarm, Stun, Dispel, and Natural Weapon are gone.
+
 ## [0.9.398] - 2026-08-20
 
 ### Changed

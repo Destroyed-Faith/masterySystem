@@ -298,8 +298,24 @@ const SPECIAL_FOCUS_PURPOSE_GROUPS = [
                 specialKey: 'expose',
                 playerTitle: 'Open an Enemy to More Damage — Expose',
                 powerName: 'Expose',
-                explanation: 'Make the target take more damage so the party can burst it down.',
+                explanation: 'Lower the target\'s Evade so the party can burst it down.',
                 whenToUse: '',
+            },
+            {
+                specialKey: 'sundered',
+                playerTitle: 'More Damage for Everyone — Sundered',
+                powerName: 'Sundered',
+                explanation: 'Anyone who hits this target with a non-Spell attack deals extra damage.',
+                whenToUse: '',
+                modes: ['melee', 'ranged'],
+            },
+            {
+                specialKey: 'hex',
+                playerTitle: 'More Spell Damage — Hex',
+                powerName: 'Hex',
+                explanation: 'Spells that hit this target deal extra damage.',
+                whenToUse: '',
+                modes: ['spell'],
             },
         ],
     },
@@ -320,7 +336,7 @@ const SPECIAL_FOCUS_PURPOSE_GROUPS = [
     {
         id: 'control-movement',
         label: 'Control movement',
-        explanation: 'Use this when you want to control where enemies can go.',
+        explanation: 'Use this when you want to control where enemies can go, or punish them for moving.',
         specials: [
             {
                 specialKey: 'slow',
@@ -336,6 +352,13 @@ const SPECIAL_FOCUS_PURPOSE_GROUPS = [
                 explanation: 'Pin a key target so it cannot move.',
                 whenToUse: '',
             },
+            {
+                specialKey: 'lacerate',
+                playerTitle: 'Punish Movement — Lacerate',
+                powerName: 'Lacerate',
+                explanation: 'The target takes damage when it chooses to move.',
+                whenToUse: '',
+            },
         ],
     },
     {
@@ -344,17 +367,17 @@ const SPECIAL_FOCUS_PURPOSE_GROUPS = [
         explanation: 'Use this when you want continuing pressure instead of only one hit.',
         specials: [
             {
-                specialKey: 'lacerate',
-                playerTitle: 'Bleed Them Out — Lacerate',
-                powerName: 'Lacerate',
-                explanation: 'Ongoing damage after the hit in longer fights.',
+                specialKey: 'ruin',
+                playerTitle: 'Ongoing Damage — Ruin',
+                powerName: 'Ruin',
+                explanation: 'The target takes damage at Tick. Ruin ignores Armor.',
                 whenToUse: '',
             },
             {
                 specialKey: 'blight',
                 playerTitle: 'Poison or Corrupt — Blight',
                 powerName: 'Blight',
-                explanation: 'Damage that keeps ticking after you hit.',
+                explanation: 'Healing the target receives is reduced, and it takes Stress over time.',
                 whenToUse: '',
             },
         ],
@@ -365,17 +388,10 @@ const SPECIAL_FOCUS_PURPOSE_GROUPS = [
         explanation: 'Use this when you want enemies to become less effective.',
         specials: [
             {
-                specialKey: 'hex',
-                playerTitle: 'Curse the Enemy — Hex',
-                powerName: 'Hex',
-                explanation: 'Weaken a tough single target with a curse.',
-                whenToUse: '',
-            },
-            {
                 specialKey: 'weaken',
                 playerTitle: 'Reduce Enemy Strength — Weaken',
                 powerName: 'Weaken',
-                explanation: 'Make the enemy hit or act less effectively.',
+                explanation: 'The target loses dice from Might, Agility, and Intellect pools.',
                 whenToUse: '',
             },
             {
@@ -383,6 +399,27 @@ const SPECIAL_FOCUS_PURPOSE_GROUPS = [
                 playerTitle: 'Force Them to Face You — Challenge',
                 powerName: 'Challenge',
                 explanation: 'Enemies lose Attack Dice unless they include you as a target.',
+                whenToUse: '',
+            },
+        ],
+    },
+    {
+        id: 'support-allies',
+        label: 'Help allies',
+        explanation: 'Use this when you want to restore allies instead of pressuring an enemy.',
+        specials: [
+            {
+                specialKey: 'heal',
+                playerTitle: 'Restore Hit Points — Healing',
+                powerName: 'Healing',
+                explanation: 'Heal one creature. Your Special Attack slot becomes recovery instead of a rider.',
+                whenToUse: '',
+            },
+            {
+                specialKey: 'cleanse',
+                playerTitle: 'Clear a Negative Effect — Cleanse',
+                powerName: 'Cleanse',
+                explanation: 'Remove one negative effect from one creature.',
                 whenToUse: '',
             },
         ],
@@ -407,28 +444,14 @@ const SPECIAL_FOCUS_PURPOSE_GROUPS = [
                 explanation: 'Drag enemies where you want them.',
                 whenToUse: '',
             },
-            {
-                specialKey: 'disarm',
-                playerTitle: 'Disarm Enemies — Disarm',
-                powerName: 'Disarm',
-                explanation: 'Strip or hinder an enemy\'s weapon.',
-                whenToUse: '',
-            },
-            {
-                specialKey: 'stun',
-                playerTitle: 'Stun Enemies — Stun',
-                powerName: 'Stun',
-                explanation: 'Briefly stop an enemy from acting.',
-                whenToUse: '',
-            },
         ],
     },
 ];
-const ADVANCED_SPECIAL_TEMPLATE_IDS = {
+const DEDICATED_SPECIAL_TEMPLATE_IDS = {
     push: (d) => findCatalogEntry(`active-${d}-control-push-pull`) ? `active-${d}-control-push-pull` : null,
     pull: (d) => findCatalogEntry(`active-${d}-control-push-pull`) ? `active-${d}-control-push-pull` : null,
-    disarm: (d) => findCatalogEntry(`active-${d}-control-pull-disarm`) ? `active-${d}-control-pull-disarm` : null,
-    stun: (d) => findCatalogEntry(`active-${d}-damage-stunned`) ? `active-${d}-damage-stunned` : null,
+    heal: (d) => findCatalogEntry(`active-${d}-single-heal`) ? `active-${d}-single-heal` : null,
+    cleanse: (d) => findCatalogEntry(`active-${d}-single-cleanse`) ? `active-${d}-single-cleanse` : null,
 };
 export const GUIDED_DELIVERY_OPTIONS = [
     {
@@ -445,11 +468,6 @@ export const GUIDED_DELIVERY_OPTIONS = [
         id: 'spell',
         label: 'Spell',
         explanation: 'You attack primarily through spells.',
-    },
-    {
-        id: 'natural',
-        label: 'Natural Weapon',
-        explanation: 'You attack with claws, bite, horns, tail, or another Echo/natural weapon.',
     },
 ];
 export function isPassiveHiddenFromGuidedPassive2(templateId) {
@@ -547,6 +565,18 @@ export function guidedDeliveryToCombatDelivery(mode) {
         return 'ranged';
     return 'melee';
 }
+function effectiveSpecialMode(mode) {
+    if (mode === 'spell')
+        return 'spell';
+    if (mode === 'ranged')
+        return 'ranged';
+    return 'melee';
+}
+function specialAllowedForMode(spec, mode) {
+    if (!spec.modes?.length)
+        return true;
+    return spec.modes.includes(effectiveSpecialMode(mode));
+}
 export function resolveGuidedCoreAttackPick(mode) {
     const delivery = guidedDeliveryToCombatDelivery(mode);
     let templateId;
@@ -576,11 +606,11 @@ export function resolveGuidedCoreAttackPick(mode) {
     };
 }
 function findGuidedSpecialCatalogEntry(delivery, specialKey, actorEchoKey) {
-    const controlTemplateId = ADVANCED_SPECIAL_TEMPLATE_IDS[specialKey]?.(delivery);
-    if (controlTemplateId) {
-        const controlEntry = findCatalogEntry(controlTemplateId);
-        if (controlEntry && catalogEntryHasRank(controlEntry, OFF_RANK) && echoAllowsEntry(controlEntry, actorEchoKey)) {
-            return controlEntry;
+    const dedicatedTemplateId = DEDICATED_SPECIAL_TEMPLATE_IDS[specialKey]?.(delivery);
+    if (dedicatedTemplateId) {
+        const dedicatedEntry = findCatalogEntry(dedicatedTemplateId);
+        if (dedicatedEntry && catalogEntryHasRank(dedicatedEntry, OFF_RANK) && echoAllowsEntry(dedicatedEntry, actorEchoKey)) {
+            return dedicatedEntry;
         }
     }
     const tiers = [4, 3, 5, 6];
@@ -612,6 +642,8 @@ export function getGuidedSpecialFocusGroups(deliveryMode, actorEchoKey, selected
     for (const purpose of SPECIAL_FOCUS_PURPOSE_GROUPS) {
         const cards = [];
         for (const spec of purpose.specials) {
+            if (!specialAllowedForMode(spec, deliveryMode))
+                continue;
             const pick = resolveGuidedSpecialPick(deliveryMode, spec.specialKey, actorEchoKey);
             if (!pick)
                 continue;
