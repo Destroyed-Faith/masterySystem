@@ -683,6 +683,13 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             };
             attrCreationSelect[ex] = { s2: can(2), s4: can(4), s6: can(6), s8: can(8) };
         }
+        const attrCreationOk = {};
+        for (const ex of attributeKeys) {
+            const cur = Number(attrs[ex]?.value);
+            const max = attrTierMax[cur] ?? 0;
+            const used = assignedValues.filter((v) => v === cur).length;
+            attrCreationOk[ex] = max > 0 && used <= max;
+        }
         // Calculate skill points spent
         let skillPointsSpent = 0;
         for (const skillValue of Object.values(context.system.skills || {})) {
@@ -862,6 +869,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             attrCount4: count4,
             attrCount2: count2,
             attrCreationSelect,
+            attrCreationOk,
             attributeDistributionValid,
             skillPointsRemaining: skillPointsConfig - skillPointsSpent,
             skillPointsSpent,
@@ -2052,6 +2060,28 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         this.#updateSkillXPUI();
         // Character Creation mode buttons
         html.find('.attr-creation-select').on('change', this.#onCreationAttributeChange.bind(this));
+        html.find('.attribute-value--creation').attr({ tabindex: 0, role: 'button' });
+        html.find('.attribute-value--creation').on('click', (ev) => {
+            const select = ev.currentTarget.querySelector('select.attr-creation-select');
+            if (!select)
+                return;
+            ev.preventDefault();
+            try {
+                if (typeof select.showPicker === 'function')
+                    select.showPicker();
+                else
+                    select.focus();
+            }
+            catch {
+                select.focus();
+            }
+        });
+        html.find('.attribute-value--creation').on('keydown', (ev) => {
+            if (ev.key !== 'Enter' && ev.key !== ' ' && ev.key !== 'ArrowDown')
+                return;
+            ev.preventDefault();
+            ev.currentTarget.click();
+        });
         html.find('.skill-increase').on('click', this.#onCreationSkillIncrease.bind(this));
         html.find('.skill-decrease').on('click', this.#onCreationSkillDecrease.bind(this));
         html.find('.finalize-creation').on('click', this.#onFinalizeCreation.bind(this));

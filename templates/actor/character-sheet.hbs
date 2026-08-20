@@ -527,7 +527,7 @@
         {{#unless creationComplete}}
         <p class="attr-creation-hint">
           <i class="fas fa-hand-pointer"></i>
-          Tipp: Die Werte <strong>8 / 6 / 4 / 2</strong> wählst du über die <strong>Dropdowns (<i class="fas fa-caret-down"></i>)</strong> in jeder Attribut-Karte — das sind keine Boni.
+          Tipp: Klick auf das <strong>runde Feld</strong>, um <strong>8 / 6 / 4 / 2</strong> zu wählen. <strong>Grün</strong> passt, <strong>Rot</strong> muss noch verteilt werden.
         </p>
         {{/unless}}
         
@@ -540,11 +540,11 @@
               <div class="attribute-card-header">
                 <h4 class="attribute-name"><i class="fas fa-dumbbell"></i> Might</h4>
                 <div class="attribute-value-with-button">
+                  {{#if ../creationComplete}}
                   <div class="attribute-value">
                     <span class="attribute-base-value">{{default value 0}}</span>
                     <span class="attribute-pending-change" data-attribute="might" style="display: none;"><span class="pending-delta"></span></span>
                   </div>
-                  {{#if ../creationComplete}}
                   <div class="attribute-controls attribute-controls-vertical">
                     <button type="button" class="attr-increase-xp" data-attribute="might" title="Increase Attribute (Pending)">
                       <i class="fas fa-plus"></i>
@@ -554,12 +554,16 @@
                     </button>
                   </div>
                   {{else}}
-                  <select class="attr-creation-select" title="Attributwert auswählen (Dropdown)" aria-label="Attributwert auswählen" data-attribute="might">
-                    {{#if @root.creation.attrCreationSelect.might.s2}}<option value="2" {{#if (eq value 2)}}selected{{/if}}>2</option>{{/if}}
-                    {{#if @root.creation.attrCreationSelect.might.s4}}<option value="4" {{#if (eq value 4)}}selected{{/if}}>4</option>{{/if}}
-                    {{#if @root.creation.attrCreationSelect.might.s6}}<option value="6" {{#if (eq value 6)}}selected{{/if}}>6</option>{{/if}}
-                    {{#if @root.creation.attrCreationSelect.might.s8}}<option value="8" {{#if (eq value 8)}}selected{{/if}}>8</option>{{/if}}
-                  </select>
+                  <div class="attribute-value attribute-value--creation {{#if @root.creation.attrCreationOk.might}}is-ok{{else}}is-open{{/if}}">
+                    <span class="attribute-base-value">{{default value 0}}</span>
+                    <i class="fas fa-caret-down attribute-creation-handle" aria-hidden="true"></i>
+                    <select class="attr-creation-select" title="Attributwert auswählen" aria-label="Might-Wert auswählen" data-attribute="might">
+                      {{#if @root.creation.attrCreationSelect.might.s2}}<option value="2" {{#if (eq value 2)}}selected{{/if}}>2</option>{{/if}}
+                      {{#if @root.creation.attrCreationSelect.might.s4}}<option value="4" {{#if (eq value 4)}}selected{{/if}}>4</option>{{/if}}
+                      {{#if @root.creation.attrCreationSelect.might.s6}}<option value="6" {{#if (eq value 6)}}selected{{/if}}>6</option>{{/if}}
+                      {{#if @root.creation.attrCreationSelect.might.s8}}<option value="8" {{#if (eq value 8)}}selected{{/if}}>8</option>{{/if}}
+                    </select>
+                  </div>
                   {{/if}}
                 </div>
               </div>
@@ -587,11 +591,11 @@
               <div class="attribute-card-header">
                 <h4 class="attribute-name"><i class="fas fa-running"></i> Agility</h4>
                 <div class="attribute-value-with-button">
+                  {{#if ../creationComplete}}
                   <div class="attribute-value">
                     <span class="attribute-base-value">{{default value 0}}</span>
                     <span class="attribute-pending-change" data-attribute="agility" style="display: none;"><span class="pending-delta"></span></span>
                   </div>
-                  {{#if ../creationComplete}}
                   <div class="attribute-controls attribute-controls-vertical">
                     <button type="button" class="attr-increase-xp" data-attribute="agility" title="Increase Attribute (Pending)">
                       <i class="fas fa-plus"></i>
@@ -601,12 +605,16 @@
                     </button>
                   </div>
                   {{else}}
-                  <select class="attr-creation-select" title="Attributwert auswählen (Dropdown)" aria-label="Attributwert auswählen" data-attribute="agility">
-                    {{#if @root.creation.attrCreationSelect.agility.s2}}<option value="2" {{#if (eq value 2)}}selected{{/if}}>2</option>{{/if}}
-                    {{#if @root.creation.attrCreationSelect.agility.s4}}<option value="4" {{#if (eq value 4)}}selected{{/if}}>4</option>{{/if}}
-                    {{#if @root.creation.attrCreationSelect.agility.s6}}<option value="6" {{#if (eq value 6)}}selected{{/if}}>6</option>{{/if}}
-                    {{#if @root.creation.attrCreationSelect.agility.s8}}<option value="8" {{#if (eq value 8)}}selected{{/if}}>8</option>{{/if}}
-                  </select>
+                  <div class="attribute-value attribute-value--creation {{#if @root.creation.attrCreationOk.agility}}is-ok{{else}}is-open{{/if}}">
+                    <span class="attribute-base-value">{{default value 0}}</span>
+                    <i class="fas fa-caret-down attribute-creation-handle" aria-hidden="true"></i>
+                    <select class="attr-creation-select" title="Attributwert auswählen" aria-label="Agility-Wert auswählen" data-attribute="agility">
+                      {{#if @root.creation.attrCreationSelect.agility.s2}}<option value="2" {{#if (eq value 2)}}selected{{/if}}>2</option>{{/if}}
+                      {{#if @root.creation.attrCreationSelect.agility.s4}}<option value="4" {{#if (eq value 4)}}selected{{/if}}>4</option>{{/if}}
+                      {{#if @root.creation.attrCreationSelect.agility.s6}}<option value="6" {{#if (eq value 6)}}selected{{/if}}>6</option>{{/if}}
+                      {{#if @root.creation.attrCreationSelect.agility.s8}}<option value="8" {{#if (eq value 8)}}selected{{/if}}>8</option>{{/if}}
+                    </select>
+                  </div>
                   {{/if}}
                 </div>
               </div>
@@ -633,11 +641,11 @@
               <div class="attribute-card-header">
                 <h4 class="attribute-name"><i class="fas fa-heart"></i> Vitality</h4>
                 <div class="attribute-value-with-button">
+                  {{#if ../creationComplete}}
                   <div class="attribute-value">
                     <span class="attribute-base-value">{{default value 0}}</span>
                     <span class="attribute-pending-change" data-attribute="vitality" style="display: none;"><span class="pending-delta"></span></span>
                   </div>
-                  {{#if ../creationComplete}}
                   <div class="attribute-controls attribute-controls-vertical">
                     <button type="button" class="attr-increase-xp" data-attribute="vitality" title="Increase Attribute (Pending)">
                       <i class="fas fa-plus"></i>
@@ -647,12 +655,16 @@
                     </button>
                   </div>
                   {{else}}
-                  <select class="attr-creation-select" title="Attributwert auswählen (Dropdown)" aria-label="Attributwert auswählen" data-attribute="vitality">
-                    {{#if @root.creation.attrCreationSelect.vitality.s2}}<option value="2" {{#if (eq value 2)}}selected{{/if}}>2</option>{{/if}}
-                    {{#if @root.creation.attrCreationSelect.vitality.s4}}<option value="4" {{#if (eq value 4)}}selected{{/if}}>4</option>{{/if}}
-                    {{#if @root.creation.attrCreationSelect.vitality.s6}}<option value="6" {{#if (eq value 6)}}selected{{/if}}>6</option>{{/if}}
-                    {{#if @root.creation.attrCreationSelect.vitality.s8}}<option value="8" {{#if (eq value 8)}}selected{{/if}}>8</option>{{/if}}
-                  </select>
+                  <div class="attribute-value attribute-value--creation {{#if @root.creation.attrCreationOk.vitality}}is-ok{{else}}is-open{{/if}}">
+                    <span class="attribute-base-value">{{default value 0}}</span>
+                    <i class="fas fa-caret-down attribute-creation-handle" aria-hidden="true"></i>
+                    <select class="attr-creation-select" title="Attributwert auswählen" aria-label="Vitality-Wert auswählen" data-attribute="vitality">
+                      {{#if @root.creation.attrCreationSelect.vitality.s2}}<option value="2" {{#if (eq value 2)}}selected{{/if}}>2</option>{{/if}}
+                      {{#if @root.creation.attrCreationSelect.vitality.s4}}<option value="4" {{#if (eq value 4)}}selected{{/if}}>4</option>{{/if}}
+                      {{#if @root.creation.attrCreationSelect.vitality.s6}}<option value="6" {{#if (eq value 6)}}selected{{/if}}>6</option>{{/if}}
+                      {{#if @root.creation.attrCreationSelect.vitality.s8}}<option value="8" {{#if (eq value 8)}}selected{{/if}}>8</option>{{/if}}
+                    </select>
+                  </div>
                   {{/if}}
                 </div>
               </div>
@@ -673,11 +685,11 @@
               <div class="attribute-card-header">
                 <h4 class="attribute-name"><i class="fas fa-brain"></i> Wits</h4>
                 <div class="attribute-value-with-button">
+                  {{#if ../creationComplete}}
                   <div class="attribute-value">
                     <span class="attribute-base-value">{{default value 0}}</span>
                     <span class="attribute-pending-change" data-attribute="wits" style="display: none;"><span class="pending-delta"></span></span>
                   </div>
-                  {{#if ../creationComplete}}
                   <div class="attribute-controls attribute-controls-vertical">
                     <button type="button" class="attr-increase-xp" data-attribute="wits" title="Increase Attribute (Pending)">
                       <i class="fas fa-plus"></i>
@@ -687,12 +699,16 @@
                     </button>
                   </div>
                   {{else}}
-                  <select class="attr-creation-select" title="Attributwert auswählen (Dropdown)" aria-label="Attributwert auswählen" data-attribute="wits">
-                    {{#if @root.creation.attrCreationSelect.wits.s2}}<option value="2" {{#if (eq value 2)}}selected{{/if}}>2</option>{{/if}}
-                    {{#if @root.creation.attrCreationSelect.wits.s4}}<option value="4" {{#if (eq value 4)}}selected{{/if}}>4</option>{{/if}}
-                    {{#if @root.creation.attrCreationSelect.wits.s6}}<option value="6" {{#if (eq value 6)}}selected{{/if}}>6</option>{{/if}}
-                    {{#if @root.creation.attrCreationSelect.wits.s8}}<option value="8" {{#if (eq value 8)}}selected{{/if}}>8</option>{{/if}}
-                  </select>
+                  <div class="attribute-value attribute-value--creation {{#if @root.creation.attrCreationOk.wits}}is-ok{{else}}is-open{{/if}}">
+                    <span class="attribute-base-value">{{default value 0}}</span>
+                    <i class="fas fa-caret-down attribute-creation-handle" aria-hidden="true"></i>
+                    <select class="attr-creation-select" title="Attributwert auswählen" aria-label="Wits-Wert auswählen" data-attribute="wits">
+                      {{#if @root.creation.attrCreationSelect.wits.s2}}<option value="2" {{#if (eq value 2)}}selected{{/if}}>2</option>{{/if}}
+                      {{#if @root.creation.attrCreationSelect.wits.s4}}<option value="4" {{#if (eq value 4)}}selected{{/if}}>4</option>{{/if}}
+                      {{#if @root.creation.attrCreationSelect.wits.s6}}<option value="6" {{#if (eq value 6)}}selected{{/if}}>6</option>{{/if}}
+                      {{#if @root.creation.attrCreationSelect.wits.s8}}<option value="8" {{#if (eq value 8)}}selected{{/if}}>8</option>{{/if}}
+                    </select>
+                  </div>
                   {{/if}}
                 </div>
               </div>
@@ -724,11 +740,11 @@
               <div class="attribute-card-header">
                 <h4 class="attribute-name"><i class="fas fa-book"></i> Intellect</h4>
                 <div class="attribute-value-with-button">
+                  {{#if ../creationComplete}}
                   <div class="attribute-value">
                     <span class="attribute-base-value">{{default value 0}}</span>
                     <span class="attribute-pending-change" data-attribute="intellect" style="display: none;"><span class="pending-delta"></span></span>
                   </div>
-                  {{#if ../creationComplete}}
                   <div class="attribute-controls">
                     <button type="button" class="attr-decrease-xp" data-attribute="intellect" title="Decrease Attribute (Pending)" disabled>
                       <i class="fas fa-minus"></i>
@@ -738,12 +754,16 @@
                     </button>
                   </div>
                   {{else}}
-                  <select class="attr-creation-select" title="Attributwert auswählen (Dropdown)" aria-label="Attributwert auswählen" data-attribute="intellect">
-                    {{#if @root.creation.attrCreationSelect.intellect.s2}}<option value="2" {{#if (eq value 2)}}selected{{/if}}>2</option>{{/if}}
-                    {{#if @root.creation.attrCreationSelect.intellect.s4}}<option value="4" {{#if (eq value 4)}}selected{{/if}}>4</option>{{/if}}
-                    {{#if @root.creation.attrCreationSelect.intellect.s6}}<option value="6" {{#if (eq value 6)}}selected{{/if}}>6</option>{{/if}}
-                    {{#if @root.creation.attrCreationSelect.intellect.s8}}<option value="8" {{#if (eq value 8)}}selected{{/if}}>8</option>{{/if}}
-                  </select>
+                  <div class="attribute-value attribute-value--creation {{#if @root.creation.attrCreationOk.intellect}}is-ok{{else}}is-open{{/if}}">
+                    <span class="attribute-base-value">{{default value 0}}</span>
+                    <i class="fas fa-caret-down attribute-creation-handle" aria-hidden="true"></i>
+                    <select class="attr-creation-select" title="Attributwert auswählen" aria-label="Intellect-Wert auswählen" data-attribute="intellect">
+                      {{#if @root.creation.attrCreationSelect.intellect.s2}}<option value="2" {{#if (eq value 2)}}selected{{/if}}>2</option>{{/if}}
+                      {{#if @root.creation.attrCreationSelect.intellect.s4}}<option value="4" {{#if (eq value 4)}}selected{{/if}}>4</option>{{/if}}
+                      {{#if @root.creation.attrCreationSelect.intellect.s6}}<option value="6" {{#if (eq value 6)}}selected{{/if}}>6</option>{{/if}}
+                      {{#if @root.creation.attrCreationSelect.intellect.s8}}<option value="8" {{#if (eq value 8)}}selected{{/if}}>8</option>{{/if}}
+                    </select>
+                  </div>
                   {{/if}}
                 </div>
               </div>
@@ -770,11 +790,11 @@
               <div class="attribute-card-header">
                 <h4 class="attribute-name"><i class="fas fa-mountain"></i> Resolve</h4>
                 <div class="attribute-value-with-button">
+                  {{#if ../creationComplete}}
                   <div class="attribute-value">
                     <span class="attribute-base-value">{{default value 0}}</span>
                     <span class="attribute-pending-change" data-attribute="resolve" style="display: none;"><span class="pending-delta"></span></span>
                   </div>
-                  {{#if ../creationComplete}}
                   <div class="attribute-controls">
                     <button type="button" class="attr-decrease-xp" data-attribute="resolve" title="Decrease Attribute (Pending)" disabled>
                       <i class="fas fa-minus"></i>
@@ -784,12 +804,16 @@
                     </button>
                   </div>
                   {{else}}
-                  <select class="attr-creation-select" title="Attributwert auswählen (Dropdown)" aria-label="Attributwert auswählen" data-attribute="resolve">
-                    {{#if @root.creation.attrCreationSelect.resolve.s2}}<option value="2" {{#if (eq value 2)}}selected{{/if}}>2</option>{{/if}}
-                    {{#if @root.creation.attrCreationSelect.resolve.s4}}<option value="4" {{#if (eq value 4)}}selected{{/if}}>4</option>{{/if}}
-                    {{#if @root.creation.attrCreationSelect.resolve.s6}}<option value="6" {{#if (eq value 6)}}selected{{/if}}>6</option>{{/if}}
-                    {{#if @root.creation.attrCreationSelect.resolve.s8}}<option value="8" {{#if (eq value 8)}}selected{{/if}}>8</option>{{/if}}
-                  </select>
+                  <div class="attribute-value attribute-value--creation {{#if @root.creation.attrCreationOk.resolve}}is-ok{{else}}is-open{{/if}}">
+                    <span class="attribute-base-value">{{default value 0}}</span>
+                    <i class="fas fa-caret-down attribute-creation-handle" aria-hidden="true"></i>
+                    <select class="attr-creation-select" title="Attributwert auswählen" aria-label="Resolve-Wert auswählen" data-attribute="resolve">
+                      {{#if @root.creation.attrCreationSelect.resolve.s2}}<option value="2" {{#if (eq value 2)}}selected{{/if}}>2</option>{{/if}}
+                      {{#if @root.creation.attrCreationSelect.resolve.s4}}<option value="4" {{#if (eq value 4)}}selected{{/if}}>4</option>{{/if}}
+                      {{#if @root.creation.attrCreationSelect.resolve.s6}}<option value="6" {{#if (eq value 6)}}selected{{/if}}>6</option>{{/if}}
+                      {{#if @root.creation.attrCreationSelect.resolve.s8}}<option value="8" {{#if (eq value 8)}}selected{{/if}}>8</option>{{/if}}
+                    </select>
+                  </div>
                   {{/if}}
                 </div>
               </div>
@@ -816,11 +840,11 @@
               <div class="attribute-card-header">
                 <h4 class="attribute-name"><i class="fas fa-users"></i> Influence</h4>
                 <div class="attribute-value-with-button">
+                  {{#if ../creationComplete}}
                   <div class="attribute-value">
                     <span class="attribute-base-value">{{default value 0}}</span>
                     <span class="attribute-pending-change" data-attribute="influence" style="display: none;"><span class="pending-delta"></span></span>
                   </div>
-                  {{#if ../creationComplete}}
                   <div class="attribute-controls">
                     <button type="button" class="attr-decrease-xp" data-attribute="influence" title="Decrease Attribute (Pending)" disabled>
                       <i class="fas fa-minus"></i>
@@ -830,12 +854,16 @@
                     </button>
                   </div>
                   {{else}}
-                  <select class="attr-creation-select" title="Attributwert auswählen (Dropdown)" aria-label="Attributwert auswählen" data-attribute="influence">
-                    {{#if @root.creation.attrCreationSelect.influence.s2}}<option value="2" {{#if (eq value 2)}}selected{{/if}}>2</option>{{/if}}
-                    {{#if @root.creation.attrCreationSelect.influence.s4}}<option value="4" {{#if (eq value 4)}}selected{{/if}}>4</option>{{/if}}
-                    {{#if @root.creation.attrCreationSelect.influence.s6}}<option value="6" {{#if (eq value 6)}}selected{{/if}}>6</option>{{/if}}
-                    {{#if @root.creation.attrCreationSelect.influence.s8}}<option value="8" {{#if (eq value 8)}}selected{{/if}}>8</option>{{/if}}
-                  </select>
+                  <div class="attribute-value attribute-value--creation {{#if @root.creation.attrCreationOk.influence}}is-ok{{else}}is-open{{/if}}">
+                    <span class="attribute-base-value">{{default value 0}}</span>
+                    <i class="fas fa-caret-down attribute-creation-handle" aria-hidden="true"></i>
+                    <select class="attr-creation-select" title="Attributwert auswählen" aria-label="Influence-Wert auswählen" data-attribute="influence">
+                      {{#if @root.creation.attrCreationSelect.influence.s2}}<option value="2" {{#if (eq value 2)}}selected{{/if}}>2</option>{{/if}}
+                      {{#if @root.creation.attrCreationSelect.influence.s4}}<option value="4" {{#if (eq value 4)}}selected{{/if}}>4</option>{{/if}}
+                      {{#if @root.creation.attrCreationSelect.influence.s6}}<option value="6" {{#if (eq value 6)}}selected{{/if}}>6</option>{{/if}}
+                      {{#if @root.creation.attrCreationSelect.influence.s8}}<option value="8" {{#if (eq value 8)}}selected{{/if}}>8</option>{{/if}}
+                    </select>
+                  </div>
                   {{/if}}
                 </div>
               </div>

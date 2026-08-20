@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.393] - 2026-08-20
+
+### Changed
+
+- **Attribute creation:** The extra dropdown next to each circle is gone. Click the round field to pick 8 / 6 / 4 / 2. A green or red ring shows whether that slot still needs assigning.
+- **Echo dialogs:** Choose Echo and Add Card use the same dark rulebook chrome as the character sheet.
+
 ## [0.9.392] - 2026-08-20
 
 ### Changed
