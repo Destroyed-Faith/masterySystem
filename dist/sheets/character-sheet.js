@@ -2011,6 +2011,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         if (!creationComplete) {
             this.#lockSheetForCreation(html);
         }
+        this.#silenceFoundryButtonTooltips(html);
         this.#bindMasteryRankSelect(html);
         html.find('.minor-expressions-open').on('click', async (ev) => {
             ev.preventDefault();
@@ -5564,6 +5565,24 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         html.find('.window-header button, .window-header .header-control, .header-control').prop('disabled', false);
         // Add CSS class for styling
         html.addClass('creation-incomplete');
+    }
+    /**
+     * Foundry's tooltip sits under the cursor. On titled sheet buttons that
+     * produces a hover loop (active/inactive flicker) and eats the click —
+     * bad for recording General Items / Add Disadvantage. Drop those infos
+     * and dismiss any tooltip already opening.
+     */
+    #silenceFoundryButtonTooltips(html) {
+        const actionButtons = html.find('.general-items-btn, .add-disadvantage-btn, .store-btn, .choose-echo-btn, .open-languages-btn, .open-tower-wizard-btn, .open-manual-combat-package-btn, .finalize-creation, .reset-creation-attributes, .progression-hub-btn, .artifact-evolution-btn');
+        actionButtons.removeAttr('title').removeAttr('data-tooltip');
+        html
+            .find('button, .sheet-tabs .item')
+            .off('pointerenter.ms-no-tooltip')
+            .on('pointerenter.ms-no-tooltip', () => {
+            const tooltip = game.tooltip;
+            tooltip?.deactivate?.();
+            tooltip?.clear?.();
+        });
     }
     /**
      * Force unlock creation (GM only)

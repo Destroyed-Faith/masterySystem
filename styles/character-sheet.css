@@ -5295,8 +5295,13 @@
 }
 
 /* ========== Tooltips ========== */
-.mastery-system [title] {
-  position: relative;
+/* Foundry parks #tooltip under the cursor. If it can receive pointer
+   events, titled buttons flicker hover on/off and clicks never land. */
+#tooltip,
+#tooltip.active,
+aside#tooltip,
+.locked-tooltip {
+  pointer-events: none !important;
 }
 
 /* ========== Combat Statistics ========== */
@@ -5349,7 +5354,6 @@
 }
 
 .mastery-system.sheet.actor.character .combat-stat-card:hover {
-  transform: translateY(-3px);
   box-shadow: 0 6px 16px var(--df-shadow, rgba(0, 0, 0, 0.5));
   border-color: var(--df-border-highlight, rgba(255, 255, 255, 0.2));
   background: var(--df-bg-header, #1b2124);
@@ -8998,7 +9002,7 @@
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -9007,7 +9011,6 @@
 .mastery-system.sheet.actor.character .add-disadvantage-btn:hover {
   background: var(--df-bg-header, #1b2124);
   border-color: var(--df-border-highlight, rgba(255, 255, 255, 0.2));
-  transform: translateY(-2px);
   box-shadow: 0 4px 12px var(--df-shadow, rgba(0,0,0,0.5));
   color: var(--df-text-primary, #d0d0d0);
 }
@@ -9289,7 +9292,7 @@
   font-weight: 600;
   font-size: 0.9rem;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -9300,7 +9303,6 @@
 .mastery-system.sheet.actor.character .store-btn:hover:not(:disabled) {
   background: linear-gradient(135deg, #a00000 0%, #b00000 100%);
   border-color: #a00000;
-  transform: translateY(-1px);
   box-shadow: 0 4px 8px rgba(139, 0, 0, 0.3);
 }
 

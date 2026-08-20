@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.401] - 2026-08-20
+
+### Fixed
+
+- **Character sheet buttons:** Foundry's hover info no longer sits on the cursor over General Items, Add Disadvantage, and the other creation buttons. That tooltip was flickering the button active/inactive and eating the click.
+
 ## [0.9.400] - 2026-08-20
 
 ### Added

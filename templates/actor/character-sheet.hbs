@@ -160,7 +160,7 @@
         <i class="fas fa-undo"></i> Reset attributes
       </button>
       {{#if creation.canFinalize}}
-      <button type="button" class="finalize-creation" title="Finalize character creation">
+      <button type="button" class="finalize-creation">
         <i class="fas fa-check-circle"></i> Finalize Character Creation
       </button>
       {{else}}
@@ -274,12 +274,12 @@
 
   <!-- Tabs Navigation (Right Side Bookmarks) -->
   <nav class="sheet-tabs tabs" data-group="primary">
-    <a class="item{{#if (eq creationGuideTab "attributes")}} creation-tab-hint{{/if}}" data-tab="attributes"{{#if (eq creationGuideTab "attributes")}} title="Creation: finish Attributes next"{{/if}}><i class="fas fa-fist-raised"></i> Attributes</a>
-    <a class="item{{#if (eq creationGuideTab "echo")}} creation-tab-hint{{/if}}" data-tab="echo"{{#if (eq creationGuideTab "echo")}} title="Creation: finish Echo next"{{/if}}><i class="fas fa-mask"></i> Echo</a>
-    <a class="item{{#if (eq creationGuideTab "skills")}} creation-tab-hint{{/if}}" data-tab="skills"{{#if (eq creationGuideTab "skills")}} title="Creation: finish Skills next"{{/if}}><i class="fas fa-cogs"></i> Skills</a>
-    <a class="item{{#if (eq creationGuideTab "powers")}} creation-tab-hint{{/if}}" data-tab="powers"{{#if (eq creationGuideTab "powers")}} title="Creation: finish Powers next"{{/if}}><i class="fas fa-magic"></i> Powers</a>
-    <a class="item{{#if (eq creationGuideTab "equipment")}} creation-tab-hint{{/if}}" data-tab="equipment"{{#if (eq creationGuideTab "equipment")}} title="Creation: check Equipment next"{{/if}}><i class="fas fa-shield-alt"></i> Equipment</a>
-    <a class="item{{#if (eq creationGuideTab "disadvantages")}} creation-tab-hint{{/if}}" data-tab="disadvantages"{{#if (eq creationGuideTab "disadvantages")}} title="Creation: finish Disadvantages next"{{/if}}><i class="fas fa-exclamation-triangle"></i> Disadvantages</a>
+    <a class="item{{#if (eq creationGuideTab "attributes")}} creation-tab-hint{{/if}}" data-tab="attributes"><i class="fas fa-fist-raised"></i> Attributes</a>
+    <a class="item{{#if (eq creationGuideTab "echo")}} creation-tab-hint{{/if}}" data-tab="echo"><i class="fas fa-mask"></i> Echo</a>
+    <a class="item{{#if (eq creationGuideTab "skills")}} creation-tab-hint{{/if}}" data-tab="skills"><i class="fas fa-cogs"></i> Skills</a>
+    <a class="item{{#if (eq creationGuideTab "powers")}} creation-tab-hint{{/if}}" data-tab="powers"><i class="fas fa-magic"></i> Powers</a>
+    <a class="item{{#if (eq creationGuideTab "equipment")}} creation-tab-hint{{/if}}" data-tab="equipment"><i class="fas fa-shield-alt"></i> Equipment</a>
+    <a class="item{{#if (eq creationGuideTab "disadvantages")}} creation-tab-hint{{/if}}" data-tab="disadvantages"><i class="fas fa-exclamation-triangle"></i> Disadvantages</a>
     <a class="item" data-tab="summons"><i class="fas fa-paw"></i> Summons</a>
     <a class="item" data-tab="rituals"><i class="fas fa-book-sparkles"></i> Rituals</a>
     <a class="item" data-tab="minor-magic"><i class="fas fa-flask"></i> Minor Magic</a>
@@ -296,7 +296,7 @@
         <div class="creation-echo-section">
           <div class="creation-echo-header">
             <h4><i class="fas fa-mask"></i> Echo</h4>
-            <button type="button" class="choose-echo-btn" title="Choose or change your Echo, Sub-choice (if any), Veiled Form (Dragonborn), and your Echo cards">
+            <button type="button" class="choose-echo-btn">
               <i class="fas fa-mask"></i> {{#if echoView}}Change Echo{{else}}Choose Echo{{/if}}
             </button>
             {{#if echoView}}
@@ -401,7 +401,7 @@
                 <span class="language-empty">Common Tongue</span>
               {{/if}}
             </span>
-            <button type="button" class="open-languages-btn{{#unless languagesView.creationValid}} needs-pick{{/unless}}" title="Pick the languages your character speaks">
+            <button type="button" class="open-languages-btn{{#unless languagesView.creationValid}} needs-pick{{/unless}}">
               <i class="fas fa-language"></i> Pick Languages
             </button>
           </div>
@@ -1485,10 +1485,10 @@
           <h3><i class="fas fa-shield-alt"></i> Combat Package Wizard</h3>
           <p>Choose your defensive foundation and offensive style. Every character gets <strong>2 Passive (R4)</strong>, <strong>1 Active Buff (R4)</strong>, <strong>1 Reaction (R4)</strong>, and <strong>2 Active (R2)</strong> — no Movement Power.</p>
           <div class="combat-package-actions">
-            <button type="button" class="open-tower-wizard-btn" title="Open the guided Combat Package Wizard">
+            <button type="button" class="open-tower-wizard-btn">
               <i class="fas fa-magic"></i> Combat Package Wizard
             </button>
-            <button type="button" class="open-manual-combat-package-btn" title="Pick all six Powers yourself on the review page">
+            <button type="button" class="open-manual-combat-package-btn">
               <i class="fas fa-list-check"></i> Manual Combat Package
             </button>
           </div>
@@ -1687,10 +1687,10 @@
       <div class="post-creation-wizard-bar">
         <p>Rebuild your combat package (2 Passive R4, 1 Active Buff R4, 1 Reaction R4, 2 Active R2). Power upgrade XP on replaced Powers is refunded.</p>
         <div class="combat-package-actions">
-          <button type="button" class="open-tower-wizard-btn" title="Open the guided Combat Package Wizard">
+          <button type="button" class="open-tower-wizard-btn">
             <i class="fas fa-magic"></i> Combat Package Wizard
           </button>
-          <button type="button" class="open-manual-combat-package-btn" title="Pick all six Powers yourself on the review page">
+          <button type="button" class="open-manual-combat-package-btn">
             <i class="fas fa-list-check"></i> Manual Combat Package
           </button>
           {{#if (userIsGM)}}
@@ -1907,21 +1907,21 @@
       <div class="equipment-overview">
         <h3 style="width: 225px !important;"><i class="fas fa-shield-alt"></i> Equipment</h3>
         <div class="equipment-controls equipment-controls--row">
-          <button type="button" class="general-items-btn" title="Open General Items Storage">
+          <button type="button" class="general-items-btn" aria-label="Open General Items Storage">
             <i class="fas fa-box"></i> General Items
           </button>
           {{#if creationComplete}}
-          <button type="button" class="progression-hub-btn stone-powers-btn-header{{#if hasSpendableXp}} xp-available{{/if}}" data-action="openProgressionHub" data-expand-section="artifacts" title="Progression — activate and upgrade artifacts">
+          <button type="button" class="progression-hub-btn stone-powers-btn-header{{#if hasSpendableXp}} xp-available{{/if}}" data-action="openProgressionHub" data-expand-section="artifacts">
             <i class="fas fa-layer-group"></i> Progression
           </button>
           {{/if}}
           {{#if hasProgressionArtifacts}}
-          <button type="button" class="artifact-evolution-btn stone-powers-btn-header{{#if hasSpendableXp}} xp-available{{/if}}" data-action="openArtifactEvolution" title="Echo &amp; Artifact Progression — activate and upgrade">
+          <button type="button" class="artifact-evolution-btn stone-powers-btn-header{{#if hasSpendableXp}} xp-available{{/if}}" data-action="openArtifactEvolution">
             <i class="fas fa-project-diagram"></i> Artifacts
           </button>
           {{/if}}
           {{#if (userIsGM)}}
-          <button type="button" class="store-btn" title="Open Store (GM Only)">
+          <button type="button" class="store-btn" aria-label="Open Store (GM Only)">
             <i class="fas fa-store"></i> Store
           </button>
           {{/if}}
@@ -2122,7 +2122,7 @@
       
       {{#unless creationComplete}}
       <div class="disadvantages-creation-controls">
-        <button type="button" class="add-disadvantage-btn" title="Add Disadvantage">
+        <button type="button" class="add-disadvantage-btn" aria-label="Add Disadvantage">
           <i class="fas fa-plus"></i> Add Disadvantage
         </button>
       </div>
@@ -2130,7 +2130,7 @@
       {{#if (userIsGM)}}
       <div class="disadvantages-gm-controls disadvantages-creation-controls">
         <p class="hint gm-disadvantages-hint"><i class="fas fa-user-shield"></i> GM: Add, edit, or remove disadvantages (max 8 points total).</p>
-        <button type="button" class="add-disadvantage-btn" title="Add Disadvantage (GM)">
+        <button type="button" class="add-disadvantage-btn" aria-label="Add Disadvantage">
           <i class="fas fa-plus"></i> Add Disadvantage
         </button>
       </div>
