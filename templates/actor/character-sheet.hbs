@@ -240,39 +240,37 @@
   </div>
   {{/if}}
 
+  {{#if hasCharacterStatusRows}}
   <div class="status-effects-panel character-status-panel" aria-label="Active status">
     <h3 class="character-status-title"><i class="fas fa-bolt"></i> Status</h3>
     <div class="status-effects-list">
-      {{#if hasCharacterStatusRows}}
-        {{#each characterStatusRows as |effect|}}
-        <div class="status-effect-item" data-status-kind="{{effect.kind}}" data-effect-index="{{effect.index}}">
-          <span class="effect-name">
-            <i class="fas fa-exclamation-triangle"></i>
-            {{effect.name}}
-            {{#if effect.hasValue}}
-              <span class="effect-value">({{effect.value}})</span>
-            {{/if}}
-          </span>
-          {{#if @root.canEditCharacterStatus}}
-          <div class="effect-actions">
-            {{#if effect.canReduce}}
-            <button type="button" class="js-character-status-reduce effect-reduce" data-status-kind="{{effect.kind}}" data-effect-index="{{effect.index}}" data-steps="1" title="−1 Stufe">−1</button>
-            <button type="button" class="js-character-status-reduce effect-reduce" data-status-kind="{{effect.kind}}" data-effect-index="{{effect.index}}" data-steps="2" title="−2 Stufen">−2</button>
-            <button type="button" class="js-character-status-reduce effect-reduce" data-status-kind="{{effect.kind}}" data-effect-index="{{effect.index}}" data-steps="3" title="−3 Stufen">−3</button>
-            <button type="button" class="js-character-status-reduce effect-reduce" data-status-kind="{{effect.kind}}" data-effect-index="{{effect.index}}" data-steps="4" title="−4 Stufen">−4</button>
-            {{/if}}
-            <button type="button" class="js-character-status-remove effect-remove" data-status-kind="{{effect.kind}}" data-effect-index="{{effect.index}}" title="Status entfernen">
-              <i class="fas fa-times"></i>
-            </button>
-          </div>
+      {{#each characterStatusRows as |effect|}}
+      <div class="status-effect-item" data-status-kind="{{effect.kind}}" data-effect-index="{{effect.index}}">
+        <span class="effect-name">
+          <i class="fas fa-exclamation-triangle"></i>
+          {{effect.name}}
+          {{#if effect.hasValue}}
+            <span class="effect-value">({{effect.value}})</span>
           {{/if}}
+        </span>
+        {{#if @root.canEditCharacterStatus}}
+        <div class="effect-actions">
+          {{#if effect.canReduce}}
+          <button type="button" class="js-character-status-reduce effect-reduce" data-status-kind="{{effect.kind}}" data-effect-index="{{effect.index}}" data-steps="1" title="−1 Stufe">−1</button>
+          <button type="button" class="js-character-status-reduce effect-reduce" data-status-kind="{{effect.kind}}" data-effect-index="{{effect.index}}" data-steps="2" title="−2 Stufen">−2</button>
+          <button type="button" class="js-character-status-reduce effect-reduce" data-status-kind="{{effect.kind}}" data-effect-index="{{effect.index}}" data-steps="3" title="−3 Stufen">−3</button>
+          <button type="button" class="js-character-status-reduce effect-reduce" data-status-kind="{{effect.kind}}" data-effect-index="{{effect.index}}" data-steps="4" title="−4 Stufen">−4</button>
+          {{/if}}
+          <button type="button" class="js-character-status-remove effect-remove" data-status-kind="{{effect.kind}}" data-effect-index="{{effect.index}}" title="Status entfernen">
+            <i class="fas fa-times"></i>
+          </button>
         </div>
-        {{/each}}
-      {{else}}
-        <div class="no-status-effects">Keine aktiven Effekte</div>
-      {{/if}}
+        {{/if}}
+      </div>
+      {{/each}}
     </div>
   </div>
+  {{/if}}
 
   <!-- Tabs Navigation (Right Side Bookmarks) -->
   <nav class="sheet-tabs tabs" data-group="primary">
@@ -364,7 +362,7 @@
                   {{/if}}
                 </span>
               </div>
-              <div class="echo-card-trigger"><em>Trigger:</em> {{this.trigger}}</div>
+              <div class="echo-card-blurb">{{this.trigger}}</div>
               <ol class="echo-card-options">
                 {{#each this.options}}
                 <li class="echo-card-option">

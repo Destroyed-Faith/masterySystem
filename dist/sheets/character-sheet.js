@@ -1008,7 +1008,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 : null;
             if (combat && combatant && this.actor.type === 'character') {
                 const { buildEncounterSetupStatus } = await import('../combat/encounter-setup-status.js');
-                context.encounterSetupStatus = buildEncounterSetupStatus(combatant, combat);
+                const setupStatus = buildEncounterSetupStatus(combatant, combat);
+                const hasOpenSetup = !!setupStatus?.rows?.some((row) => !row.done);
+                context.encounterSetupStatus = hasOpenSetup ? setupStatus : null;
                 context.showInitiativeShopButton = false;
             }
         }

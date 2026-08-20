@@ -89,7 +89,7 @@ export const TITANBORN_ECHO = {
         {
             id: 'giantblood-portent',
             name: 'Giantblood Portent',
-            trigger: 'You face a crossroads choice and the old blood pulls you toward a path.',
+            trigger: 'The old blood pulls at a crossroads \u2014 recall the pattern, spot the lever, test the price, or feel who will crack.',
             options: [
                 {
                     id: 'remember-the-pattern',
@@ -120,7 +120,7 @@ export const TITANBORN_ECHO = {
         {
             id: 'break-the-barrier',
             name: 'Break the Barrier',
-            trigger: 'Something \u201cshouldn\u2019t move\u201d but you decide it will.',
+            trigger: 'What should not move, will \u2014 raw force, timed impact, a shadow\u2019s angle, or endurance that does not stop.',
             options: [
                 {
                     id: 'raw-force',
@@ -151,7 +151,7 @@ export const TITANBORN_ECHO = {
         {
             id: 'weight-of-the-sky',
             name: 'Weight of the Sky',
-            trigger: 'A long ordeal hits the group and you choose to be the anchor that keeps everyone moving.',
+            trigger: 'Be the anchor through a long ordeal \u2014 set the pace, carry the burden, keep them alive, or read the storm.',
             options: [
                 {
                     id: 'set-the-pace',
@@ -182,7 +182,7 @@ export const TITANBORN_ECHO = {
         {
             id: 'harmony-of-the-old-war',
             name: 'Harmony of the Old War',
-            trigger: 'The group is about to fracture and you step in to align them.',
+            trigger: 'Hold the group together \u2014 one plan, hard terms, painful honesty, or the human reason they fight.',
             options: [
                 {
                     id: 'speak-back-to-one-plan',

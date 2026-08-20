@@ -15,7 +15,7 @@ export const UNBOUND_ECHO: EchoDefinition = {
     {
       id: 'hunger-shapes-the-path',
       name: 'Hunger Shapes the Path',
-      trigger: 'You pursue what you need and the world refuses to give it freely.',
+      trigger: 'Take what the world withholds \u2014 follow the trace, read the land, find the pattern, or make do and move.',
       options: [
         {
           id: 'follow-the-trace',
@@ -46,7 +46,7 @@ export const UNBOUND_ECHO: EchoDefinition = {
     {
       id: 'wear-the-world',
       name: 'Wear the World',
-      trigger: 'You must vanish, blend, or become part of the scene before it swallows you.',
+      trigger: 'Vanish before the scene swallows you \u2014 become still, move unseen, slip the gap, or take what you need.',
       options: [
         {
           id: 'become-still',
@@ -77,7 +77,7 @@ export const UNBOUND_ECHO: EchoDefinition = {
     {
       id: 'the-room-is-territory',
       name: 'The Room Is Territory',
-      trigger: 'You enter a tense scene and someone must yield ground first.',
+      trigger: 'Someone yields first \u2014 show teeth, set the pace, know the undercurrent, or claim the right.',
       options: [
         {
           id: 'show-teeth',
@@ -108,7 +108,7 @@ export const UNBOUND_ECHO: EchoDefinition = {
     {
       id: 'speak-like-a-mask',
       name: 'Speak Like a Mask',
-      trigger: 'You must steer perception to survive the next minute.',
+      trigger: 'Steer perception to survive the next minute \u2014 sell the role, give a story, turn them gently, or touch the real fear.',
       options: [
         {
           id: 'make-it-believable',

@@ -39,6 +39,16 @@ import {
   isEchoBoundArtifact,
 } from '../utils/echo-artifact-equip.js';
 
+function formatEchoSlot(slot: string): string {
+  const labels: Record<string, string> = {
+    bothHands: 'both hands',
+    head: 'head',
+    body: 'body',
+    feet: 'feet',
+  };
+  return labels[slot] ?? slot;
+}
+
 /** Small HTML-escape helper used in dialog content (inline strings). */
 function esc(s: string | undefined | null): string {
   return String(s ?? '').replace(/[&<>"']/g, ch => ({
@@ -52,17 +62,6 @@ function esc(s: string | undefined | null): string {
 
 /** Render the traits preview for a given Echo (used in the picker sidebar). */
 function renderTraitsPreview(def: EchoDefinition): string {
-  const subBlock = def.subChoices?.length
-    ? `
-      <div class="echo-subchoice-preview">
-        <div class="echo-subchoice-heading">${esc(def.subChoiceLabel || 'Sub-choice')} (choose 1):</div>
-        <ul>
-          ${def.subChoices.map(sc => `<li><strong>${esc(sc.name)}</strong>: ${esc(sc.trait.effect)}</li>`).join('')}
-        </ul>
-      </div>
-    `
-    : '';
-
   const veiledBlock = def.veiledForm
     ? `<div class="echo-veiled-preview"><strong>Veiled Form (required):</strong> Pick another Echo\u2019s appearance below. Appearance only \u2014 no Traits, Size, or other mechanics from that Echo.</div>`
     : '';
@@ -71,10 +70,51 @@ function renderTraitsPreview(def: EchoDefinition): string {
     <div class="echo-traits-preview">
       <div class="echo-meta"><strong>Type:</strong> ${esc(def.creatureType)} \u00b7 <strong>Size:</strong> ${esc(def.size)} \u00b7 <strong>Speed:</strong> ${def.speed} m</div>
       ${veiledBlock}
-      ${subBlock}
       <div class="echo-summary">${esc(def.summary)}</div>
     </div>
   `;
+}
+
+function renderSubChoiceRows(def: EchoDefinition, currentKey: string): string {
+  return (def.subChoices ?? []).map((sc, idx) => {
+    const checked = currentKey === sc.key || (idx === 0 && !currentKey);
+    const flavor = sc.trait.flavor
+      ? `<div class="echo-pick-flavor">${esc(sc.trait.flavor)}</div>`
+      : '';
+    return `
+      <label class="echo-pick-row">
+        <input type="radio" name="subChoiceKey" value="${esc(sc.key)}"${checked ? ' checked' : ''} />
+        <span class="echo-pick-body">
+          <strong class="echo-pick-name">${esc(sc.name)}</strong>
+          ${flavor}
+          <div class="echo-pick-effect">${esc(sc.trait.effect)}</div>
+        </span>
+      </label>
+    `;
+  }).join('');
+}
+
+function renderCardPickRows(
+  def: EchoDefinition,
+  selectedId: string,
+  inputName: string,
+  availableIds?: string[],
+): string {
+  const cards = availableIds
+    ? def.deck.filter((c) => availableIds.includes(c.id))
+    : def.deck;
+  return cards.map((c, idx) => {
+    const checked = selectedId === c.id || (idx === 0 && !selectedId);
+    return `
+      <label class="echo-pick-row">
+        <input type="radio" name="${esc(inputName)}" value="${esc(c.id)}"${checked ? ' checked' : ''} />
+        <span class="echo-pick-body">
+          <strong class="echo-pick-name">${esc(c.name)}</strong>
+          <div class="echo-pick-effect">${esc(c.trigger)}</div>
+        </span>
+      </label>
+    `;
+  }).join('');
 }
 
 /** Render the card preview (4 options) for one card id on the chosen Echo. */
@@ -82,11 +122,13 @@ function renderCardPreview(def: EchoDefinition, cardId: string): string {
   const card = def.deck.find(c => c.id === cardId);
   if (!card) return '';
   const opts = card.options.map(o => `
-    <li><strong>${esc(o.label)}</strong> \u2014 <em>Skill: ${esc(o.skill)}</em><br/>${esc(o.description)}</li>
+    <li>
+      <div class="echo-card-option-head"><strong>${esc(o.label)}</strong> <em>Skill: ${esc(o.skill)}</em></div>
+      <div class="echo-card-option-desc">${esc(o.description)}</div>
+    </li>
   `).join('');
   return `
     <div class="echo-card-preview">
-      <div class="echo-card-trigger"><em>Trigger:</em> ${esc(card.trigger)}</div>
       <ol class="echo-card-options">${opts}</ol>
     </div>
   `;
@@ -122,7 +164,7 @@ export async function showEchoCreationDialog(actor: Actor): Promise<void> {
 
       <div class="echo-form-group" id="ec-subchoice-group" style="display:none;">
         <label class="echo-form-label" id="ec-subchoice-label">Sub-choice</label>
-        <div id="ec-subchoice-options" class="echo-form-radios"></div>
+        <div id="ec-subchoice-options" class="echo-form-radios echo-pick-list"></div>
       </div>
 
       <div class="echo-form-group" id="ec-veiled-group" style="display:none;">
@@ -134,15 +176,13 @@ export async function showEchoCreationDialog(actor: Actor): Promise<void> {
 
       <div class="echo-form-group" id="ec-artifact-group" style="display:none;">
         <label class="echo-form-label">Echo Artifacts <span class="echo-form-hint" id="ec-artifact-hint"></span></label>
-        <div id="ec-artifact-options" class="echo-form-checks"></div>
+        <div id="ec-artifact-options" class="echo-form-checks echo-pick-list"></div>
         <div class="echo-artifact-preview" id="ec-artifact-preview"></div>
       </div>
 
       <div class="echo-form-group" id="ec-card-group" style="display:none;">
-        <label class="echo-form-label">Start Card <span class="echo-form-hint">(1 from the deck)</span></label>
-        <select name="startCardId" id="ec-card" class="echo-form-select">
-          <option value="">-- Choose your first card --</option>
-        </select>
+        <label class="echo-form-label">Start Card <span class="echo-form-hint">(choose 1 from the deck)</span></label>
+        <div id="ec-card-options" class="echo-pick-list"></div>
         <div class="echo-card-preview-container" id="ec-card-preview"></div>
       </div>
     </form>
@@ -178,7 +218,7 @@ export async function showEchoCreationDialog(actor: Actor): Promise<void> {
               (ui as any).notifications?.warn('Please choose a Veiled Form.');
               return false;
             }
-            const startCardId = String($html.find('#ec-card').val() || '');
+            const startCardId = String($html.find('input[name="startCardId"]:checked').val() || '');
             const startCard = getEchoCard(echoKey, startCardId);
             if (!startCard) {
               (ui as any).notifications?.warn('Please choose a start card.');
@@ -306,7 +346,7 @@ export async function showEchoCreationDialog(actor: Actor): Promise<void> {
             dlg.css({
               height: 'auto',
               'min-height': '320px',
-              'max-height': '90vh',
+              'max-height': '92vh',
               width: 'auto',
               'min-width': '760px',
               'max-width': '1100px'
@@ -315,7 +355,7 @@ export async function showEchoCreationDialog(actor: Actor): Promise<void> {
             if (contentEl.length) {
               contentEl.css({
                 height: 'auto',
-                'max-height': 'calc(90vh - 100px)',
+                'max-height': 'calc(92vh - 96px)',
                 'overflow-y': 'auto'
               });
             }
@@ -334,7 +374,7 @@ export async function showEchoCreationDialog(actor: Actor): Promise<void> {
         const $artifactOptions = html.find('#ec-artifact-options');
         const $artifactPreview = html.find('#ec-artifact-preview');
         const $cardGroup = html.find('#ec-card-group');
-        const $card = html.find('#ec-card');
+        const $cardOptions = html.find('#ec-card-options');
         const $cardPreview = html.find('#ec-card-preview');
 
         const renderWyrmVariantTable = (defs: EchoArtifactDefinition[]): string => {
@@ -446,9 +486,14 @@ export async function showEchoCreationDialog(actor: Actor): Promise<void> {
           const rows = defs
             .map(
               (d, idx) => `
-              <label class="echo-form-check-row">
+              <label class="echo-pick-row">
                 <input type="${inputType}" name="echoArtifactKey" value="${esc(d.key)}"${idx === 0 && rules.maxAtCreation === 1 ? ' checked' : ''} />
-                <span><strong>${esc(d.name)}</strong> <em>(${esc(d.slot)})</em> \u2014 ${esc(d.description)}</span>
+                <span class="echo-pick-body">
+                  <strong class="echo-pick-name">${esc(d.name)}</strong>
+                  <em class="echo-pick-slot">${esc(formatEchoSlot(d.slot))}</em>
+                  <div class="echo-pick-effect">${esc(d.description)}</div>
+                  ${d.restriction ? `<div class="echo-pick-restriction">${esc(d.restriction)}</div>` : ''}
+                </span>
               </label>
             `,
             )
@@ -493,7 +538,7 @@ export async function showEchoCreationDialog(actor: Actor): Promise<void> {
           $artifactOptions.empty();
           $artifactPreview.empty();
           $cardGroup.hide();
-          $card.empty().append('<option value="">-- Choose your first card --</option>');
+          $cardOptions.empty();
           $cardPreview.empty();
 
           if (!def) return;
@@ -501,14 +546,9 @@ export async function showEchoCreationDialog(actor: Actor): Promise<void> {
           $preview.html(renderTraitsPreview(def));
 
           if (def.subChoices?.length) {
-            $subLabel.text(def.subChoiceLabel || 'Sub-choice');
-            const radios = def.subChoices.map((sc, idx) => `
-              <label class="echo-form-radio-row">
-                <input type="radio" name="subChoiceKey" value="${esc(sc.key)}"${idx === 0 && !currentEcho.subChoiceKey ? ' checked' : ''}${currentEcho.key === def.key && currentEcho.subChoiceKey === sc.key ? ' checked' : ''} />
-                <span><strong>${esc(sc.name)}</strong> \u2014 ${esc(sc.trait.effect)}</span>
-              </label>
-            `).join('');
-            $subOptions.html(radios);
+            $subLabel.text(`${def.subChoiceLabel || 'Sub-choice'} (choose 1)`);
+            const currentSub = currentEcho.key === def.key ? String(currentEcho.subChoiceKey || '') : '';
+            $subOptions.html(renderSubChoiceRows(def, currentSub));
             $subOptions.off('change.echoArtifact').on(
               'change.echoArtifact',
               'input[name="subChoiceKey"]',
@@ -531,17 +571,23 @@ export async function showEchoCreationDialog(actor: Actor): Promise<void> {
 
           refreshArtifactOptions();
 
-          const cardOpts = def.deck.map(c => `
-            <option value="${esc(c.id)}">${esc(c.name)}</option>
-          `).join('');
-          $card.append(cardOpts);
+          const currentCard = currentEcho.key === def.key
+            ? String((Array.isArray(currentEcho.selectedCardIds) ? currentEcho.selectedCardIds[0] : '') || '')
+            : '';
+          $cardOptions.html(renderCardPickRows(def, currentCard, 'startCardId'));
+          $cardOptions.off('change.echoCard').on(
+            'change.echoCard',
+            'input[name="startCardId"]',
+            refreshCardPreview,
+          );
           $cardGroup.show();
+          refreshCardPreview();
         };
 
         const refreshCardPreview = () => {
           const key = String($echo.val() || '');
           const def = getEcho(key);
-          const cardId = String($card.val() || '');
+          const cardId = String($cardOptions.find('input[name="startCardId"]:checked').val() || '');
           if (!def || !cardId) {
             $cardPreview.empty();
             return;
@@ -550,7 +596,6 @@ export async function showEchoCreationDialog(actor: Actor): Promise<void> {
         };
 
         $echo.on('change', refreshForEcho);
-        $card.on('change', refreshCardPreview);
 
         refreshForEcho();
       }
@@ -587,15 +632,13 @@ export async function showEchoCardPickDialog(actor: Actor): Promise<void> {
     return;
   }
 
-  const options = available.map(c => `<option value="${esc(c.id)}">${esc(c.name)}</option>`).join('');
   const content = `
     <form class="mastery-system echo-card-pick-form">
       <div class="echo-form-group">
         <label class="echo-form-label">Card <span class="echo-form-hint">(${selected.length + 1} / ${unlocked})</span></label>
-        <select name="cardId" id="ecp-card" class="echo-form-select">
-          <option value="">-- Choose a card --</option>
-          ${options}
-        </select>
+        <div id="ecp-card-options" class="echo-pick-list">
+          ${renderCardPickRows(def, '', 'cardId', available.map((c) => c.id))}
+        </div>
         <div class="echo-card-preview-container" id="ecp-card-preview"></div>
       </div>
     </form>
@@ -611,7 +654,7 @@ export async function showEchoCardPickDialog(actor: Actor): Promise<void> {
           label: 'Add',
           callback: async (htmlCb: any) => {
             const $html = (htmlCb instanceof HTMLElement) ? $(htmlCb) : $(htmlCb as any);
-            const cardId = String($html.find('#ecp-card').val() || '');
+            const cardId = String($html.find('input[name="cardId"]:checked').val() || '');
             if (!cardId) {
               (ui as any).notifications?.warn('Please select a card.');
               return false;
@@ -642,7 +685,7 @@ export async function showEchoCardPickDialog(actor: Actor): Promise<void> {
             dlg.css({
               height: 'auto',
               'min-height': '320px',
-              'max-height': '90vh',
+              'max-height': '92vh',
               width: 'auto',
               'min-width': '720px',
               'max-width': '1100px'
@@ -651,19 +694,21 @@ export async function showEchoCardPickDialog(actor: Actor): Promise<void> {
             if (contentEl.length) {
               contentEl.css({
                 height: 'auto',
-                'max-height': 'calc(90vh - 100px)',
+                'max-height': 'calc(92vh - 96px)',
                 'overflow-y': 'auto'
               });
             }
           }
         }, 0);
-        const $card = html.find('#ecp-card');
+        const $options = html.find('#ecp-card-options');
         const $preview = html.find('#ecp-card-preview');
-        $card.on('change', () => {
-          const cardId = String($card.val() || '');
+        const paintPreview = () => {
+          const cardId = String($options.find('input[name="cardId"]:checked').val() || '');
           if (!cardId) { $preview.empty(); return; }
           $preview.html(renderCardPreview(def, cardId));
-        });
+        };
+        $options.on('change', 'input[name="cardId"]', paintPreview);
+        paintPreview();
       }
     });
     dialog.render(true);

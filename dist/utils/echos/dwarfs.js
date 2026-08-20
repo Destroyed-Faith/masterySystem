@@ -12,7 +12,7 @@ export const DWARFS_ECHO = {
         {
             id: 'unbreakable-terms',
             name: 'Unbreakable Terms',
-            trigger: 'A deal, order, or demand would corner you or your people.',
+            trigger: 'Refuse the corner \u2014 draw the line, make it costly, rally the room, or invoke the old rules.',
             options: [
                 {
                     id: 'draw-the-line',
@@ -43,7 +43,7 @@ export const DWARFS_ECHO = {
         {
             id: 'grudge-ledger',
             name: 'Grudge Ledger',
-            trigger: 'Someone betrays you, breaks an oath, desecrates what matters, or escapes justice.',
+            trigger: 'Hunt the one who broke faith \u2014 find the crack, ask the alley, put it in words, or trap them with truth.',
             options: [
                 {
                     id: 'find-the-crack',
@@ -74,7 +74,7 @@ export const DWARFS_ECHO = {
         {
             id: 'stone-remembers',
             name: 'Stone Remembers',
-            trigger: 'You study old stonework, ruins, tunnels, or carved halls to learn what happened and what still matters.',
+            trigger: 'Read what the stone still holds \u2014 ancestral tales, structure, forge-work, or the rune under the dust.',
             options: [
                 {
                     id: 'ancestral-tales',
@@ -105,7 +105,7 @@ export const DWARFS_ECHO = {
         {
             id: 'anchor-stance',
             name: 'Anchor Stance',
-            trigger: 'You refuse to yield when pressure hits, physically or socially, and you hold the line.',
+            trigger: 'Hold when pressure hits \u2014 plant your feet, become the wall, quiet footing, or never lose your center.',
             options: [
                 {
                     id: 'plant-your-feet',

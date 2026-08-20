@@ -12,7 +12,7 @@ export const ELORIANS_ECHO = {
         {
             id: 'mask-of-the-fair',
             name: 'Mask of the Fair',
-            trigger: 'You must navigate a social space where belonging is weapon and danger is etiquette.',
+            trigger: 'Courtesy as a weapon \u2014 belong in any court, bend the story, hold the room, or turn minds without force.',
             options: [
                 {
                     id: 'speak-their-rules',
@@ -43,7 +43,7 @@ export const ELORIANS_ECHO = {
         {
             id: 'twilight-read',
             name: 'Twilight Read',
-            trigger: 'A person, place, or conversation feels layered and you try to read what is really going on.',
+            trigger: 'See through the mask \u2014 read motive, pulse, leverage, or desire in a layered moment.',
             options: [
                 {
                     id: 'follow-the-thread',
@@ -74,7 +74,7 @@ export const ELORIANS_ECHO = {
         {
             id: 'echo-of-ages',
             name: 'Echo of Ages',
-            trigger: 'You encounter an ancient name, symbol, melody, artifact, or spell pattern that feels older than this era.',
+            trigger: 'Old Eloria still speaks \u2014 recall forgotten history, wards, body-memory, or the geometry of lost roads.',
             options: [
                 {
                     id: 'remember-the-old-story',
@@ -105,7 +105,7 @@ export const ELORIANS_ECHO = {
         {
             id: 'unseen-grace',
             name: 'Unseen Grace',
-            trigger: 'You move or act in a tense space while trying to stay subtle, elegant, and hard to pin down.',
+            trigger: 'Move as if you were never there \u2014 keep your center, vanish, blend, or take with a light touch.',
             options: [
                 {
                     id: 'never-lose-your-center',

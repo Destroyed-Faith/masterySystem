@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.392] - 2026-08-20
+
+### Changed
+
+- **GM character sheet:** Status and encounter-setup blocks stay hidden unless something is actually open or active.
+- **Echo picker:** Sentinel, Titanborn, and Dragonborn choices stay as selectable lists instead of repeated run-on text. The dialog and card list scroll.
+- **Echo cards:** Each card shows a short description of what it does, not a Trigger label. Elorian blurbs are clearer.
+
 ## [0.9.391] - 2026-08-19
 
 ### Fixed

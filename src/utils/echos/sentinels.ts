@@ -54,7 +54,7 @@ export const SENTINELS_ECHO: EchoDefinition = {
     {
       id: 'lawkeepers-gaze',
       name: 'Lawkeeper\u2019s Gaze',
-      trigger: 'You confront lies, crimes, or broken oaths in public and demand an answer.',
+      trigger: 'Demand an answer in public \u2014 make consequences felt, restore order, set terms, or strip excuses with rite.',
       options: [
         {
           id: 'speak-the-verdict',
@@ -85,7 +85,7 @@ export const SENTINELS_ECHO: EchoDefinition = {
     {
       id: 'protocol-override',
       name: 'Protocol Override',
-      trigger: 'Your directive clashes with the moment and you must bend the situation without breaking your purpose.',
+      trigger: 'Bend the moment without breaking purpose \u2014 isolate the fact, reframe the ask, feed a story, or press the fault line.',
       options: [
         {
           id: 'trace-the-facts',
@@ -116,7 +116,7 @@ export const SENTINELS_ECHO: EchoDefinition = {
     {
       id: 'divine-diagnostic',
       name: 'Divine Diagnostic',
-      trigger: 'You examine a wound, device, ward, or scene for hidden failure, corruption, or the one detail that explains it all.',
+      trigger: 'Find the hidden failure \u2014 map the mechanism, read origin, sense corruption, or stabilize the subject.',
       options: [
         {
           id: 'run-the-schema',
@@ -147,7 +147,7 @@ export const SENTINELS_ECHO: EchoDefinition = {
     {
       id: 'mandate-trail',
       name: 'Mandate Trail',
-      trigger: 'You pursue a threat, keep a patrol line, or predict where trouble will break next.',
+      trigger: 'Keep the line and predict the break \u2014 hold the route, follow traces, lock down camp, or time the weather.',
       options: [
         {
           id: 'hold-the-route',

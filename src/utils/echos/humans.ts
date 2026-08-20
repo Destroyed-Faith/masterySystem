@@ -15,7 +15,7 @@ export const HUMANS_ECHO: EchoDefinition = {
     {
       id: 'refuse-to-give-up',
       name: 'Refuse to Give Up',
-      trigger: 'You would be taken out of the scene (overwhelmed, restrained, or removed from the conflict).',
+      trigger: 'Stay in the scene when you should be out \u2014 one more breath, make them hesitate, a dirty exit, or hard terms.',
       options: [
         {
           id: 'one-more-breath',
@@ -47,7 +47,7 @@ export const HUMANS_ECHO: EchoDefinition = {
     {
       id: 'desperate-bargain',
       name: 'Desperate Bargain',
-      trigger: 'You have no clean options left and still need a win, right now.',
+      trigger: 'Win with no clean options \u2014 name your price, sweeten the lie, make it personal, or play the room.',
       options: [
         {
           id: 'name-your-price',
@@ -78,7 +78,7 @@ export const HUMANS_ECHO: EchoDefinition = {
     {
       id: 'scraprunner-instinct',
       name: 'Scraprunner Instinct',
-      trigger: 'You try to solve a problem with whatever is at hand \u2014 junk, broken gear, stolen parts, improvised tools.',
+      trigger: 'Solve it with junk and nerve \u2014 quick hands, body as tool, do it quiet, or force it through.',
       options: [
         {
           id: 'quick-hands-quick-fix',
@@ -110,8 +110,7 @@ export const HUMANS_ECHO: EchoDefinition = {
     {
       id: 'hard-road-lessons',
       name: 'Hard Road Lessons',
-      trigger:
-        'The day turns ugly \u2014 travel, pursuit, hostile ground, scarcity, or the kind of risk you only learn by surviving it.',
+      trigger: 'Survive the ugly day \u2014 follow signs, stay alive, calm the beast, or read the sky.',
       options: [
         {
           id: 'follow-the-signs',

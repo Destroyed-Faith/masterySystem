@@ -43,6 +43,7 @@ export interface EchoCardOption {
 export interface EchoCard {
     id: string;
     name: string;
+    /** Short description of what the card does (shown as fluff, not as a trigger). */
     trigger: string;
     options: [EchoCardOption, EchoCardOption, EchoCardOption, EchoCardOption];
 }

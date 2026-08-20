@@ -51,6 +51,8 @@ describe('Echo Catalog', () => {
       expect(def.deck.length).toBe(4);
       for (const card of def.deck) {
         expect(card.options.length).toBe(4);
+        expect(card.trigger.length).toBeGreaterThan(20);
+        expect(card.trigger.toLowerCase()).not.toContain('trigger:');
         for (const opt of card.options) {
           expect(opt.id).toBeTruthy();
           expect(opt.label).toBeTruthy();

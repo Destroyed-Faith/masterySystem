@@ -1925,6 +1925,9 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
+  max-height: min(62vh, 720px);
+  overflow-y: auto;
+  padding-right: 4px;
 }
 
 .mastery-system.sheet.actor.character .echo-deck-cards-header {
@@ -2046,12 +2049,18 @@
   letter-spacing: 0.5px;
 }
 
-.mastery-system.sheet.actor.character .echo-card-trigger {
+.mastery-system.sheet.actor.character .echo-card-trigger,
+.mastery-system.sheet.actor.character .echo-card-blurb {
   color: var(--df-text-secondary, #a0a0a0);
   font-size: 13px;
   font-family: 'Cormorant Garamond', serif;
   margin-bottom: 8px;
   line-height: 1.45;
+}
+
+.mastery-system.sheet.actor.character .echo-card-blurb {
+  color: var(--df-text-primary, #c8c8c8);
+  font-style: italic;
 }
 
 .mastery-system.sheet.actor.character .echo-card-trigger em {
@@ -10675,6 +10684,130 @@
 
 .mastery-system.sheet.actor.character .df-item-tile {
   position: relative;
+}
+
+/* Echo creation / card-pick dialogs */
+.mastery-system.echo-creation-dialog .window-content,
+.mastery-system.echo-card-pick-dialog .window-content {
+  overflow-y: auto;
+}
+
+.mastery-system.echo-creation-form,
+.mastery-system.echo-card-pick-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.mastery-system .echo-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.mastery-system .echo-form-label {
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.mastery-system .echo-form-hint {
+  font-weight: 400;
+  opacity: 0.75;
+}
+
+.mastery-system .echo-traits-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.18);
+}
+
+.mastery-system .echo-summary {
+  line-height: 1.45;
+}
+
+.mastery-system .echo-pick-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  max-height: min(42vh, 420px);
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.mastery-system .echo-pick-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.03);
+  cursor: pointer;
+}
+
+.mastery-system .echo-pick-row:has(input:checked) {
+  border-color: rgba(201, 162, 39, 0.65);
+  background: rgba(201, 162, 39, 0.08);
+}
+
+.mastery-system .echo-pick-row input {
+  margin-top: 0.2rem;
+  flex: 0 0 auto;
+}
+
+.mastery-system .echo-pick-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.mastery-system .echo-pick-name {
+  font-size: 14px;
+}
+
+.mastery-system .echo-pick-slot {
+  font-size: 11px;
+  opacity: 0.75;
+}
+
+.mastery-system .echo-pick-flavor {
+  font-style: italic;
+  opacity: 0.85;
+  font-size: 12px;
+}
+
+.mastery-system .echo-pick-effect,
+.mastery-system .echo-pick-restriction,
+.mastery-system .echo-card-blurb {
+  line-height: 1.45;
+  font-size: 12px;
+}
+
+.mastery-system .echo-pick-restriction {
+  opacity: 0.8;
+}
+
+.mastery-system .echo-card-preview {
+  margin-top: 0.4rem;
+}
+
+.mastery-system .echo-card-preview .echo-card-options {
+  margin: 0.35rem 0 0;
+  padding-left: 1.15rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.mastery-system .echo-card-preview .echo-card-option-desc {
+  line-height: 1.4;
+  opacity: 0.9;
 }
 
 /* Echo creation dialog — Wyrm Scales variant comparison table */

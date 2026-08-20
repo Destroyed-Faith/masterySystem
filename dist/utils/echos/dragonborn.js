@@ -13,7 +13,7 @@ export const DRAGONBORN_ECHO = {
         {
             id: 'melody-bound-memory',
             name: 'Melody-Bound Memory',
-            trigger: 'A relic, ruin, name, or moment of dawn/dusk stirs something old and you need a truth that was buried.',
+            trigger: 'A buried truth stirs \u2014 hear the unseen thread, name the age, read the work, or make a key detail real.',
             options: [
                 {
                     id: 'hear-the-chord',
@@ -44,7 +44,7 @@ export const DRAGONBORN_ECHO = {
         {
             id: 'the-hidden-nest',
             name: 'The Hidden Nest',
-            trigger: 'You must move unseen, find safety, or keep others alive while hunters, Sentinels, or fate closes in.',
+            trigger: 'Stay unseen while hunters close in \u2014 find shelter, read the pursuit, steal the weather, or turn the wild.',
             options: [
                 {
                     id: 'find-shelter',
@@ -75,7 +75,7 @@ export const DRAGONBORN_ECHO = {
         {
             id: 'make-them-look-away',
             name: 'Make Them Look Away',
-            trigger: 'Someone is about to notice the wrong detail, ask the wrong question, or spread the wrong rumor.',
+            trigger: 'Kill the wrong question \u2014 feed a story, guide the talk, move the gossip, or hide behind ritual.',
             options: [
                 {
                     id: 'feed-them-a-story',
@@ -106,7 +106,7 @@ export const DRAGONBORN_ECHO = {
         {
             id: 'oath-of-the-last',
             name: 'Oath of the Last',
-            trigger: 'The group fractures, fear spreads, or a vow must be spoken to keep the line alive.',
+            trigger: 'Keep the line alive when fear spreads \u2014 command, bind terms, name the cost, or speak to the real need.',
             options: [
                 {
                     id: 'speak-as-command',
