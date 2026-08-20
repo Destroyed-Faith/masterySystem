@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.397] - 2026-08-20
+
+### Changed
+
+- **Manual Combat Package:** The extra Package Powers list is gone. Defense, second Passive, and Offense above it are the only rows.
+
+### Fixed
+
+- **Release catalog audit:** Damage Negation Reaction is registered so the install ZIP can publish.
+
 ## [0.9.396] - 2026-08-20
 
 ### Added

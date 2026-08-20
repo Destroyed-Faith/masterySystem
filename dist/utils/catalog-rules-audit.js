@@ -81,6 +81,7 @@ export const RULES_EXPECTED_REACTIONS = [
     { rulesName: 'Reposition', id: 'reaction-reposition' },
     { rulesName: 'Reactive Cleanse', id: 'reaction-reactive-cleanse' },
     { rulesName: 'Riposte', id: 'reaction-riposte' },
+    { rulesName: 'Damage Negation', id: 'reaction-damage-negation' },
     { rulesName: 'Reflection', id: 'reaction-parry-reflection' },
     { rulesName: 'Reactive Overload', id: 'reaction-reactive-overload' },
     // Catalog expansion (CHANGELOG / agent intercept patterns); keep tracked.

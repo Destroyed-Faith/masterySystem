@@ -91,7 +91,6 @@ export declare const TOWER_WIZARD_COPY: {
         readonly whatYouBuilt: "What you built";
         readonly simpleRotation: "Simple rotation";
         readonly manualIntro: "Choose each Power below from the catalog. You need all six before you can apply.";
-        readonly powers: "Package Powers";
         readonly mainDefensePackage: "Main Defense Package";
         readonly secondPassive: "Second Passive";
         readonly defense: "Defense";

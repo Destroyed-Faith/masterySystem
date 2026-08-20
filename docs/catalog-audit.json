@@ -1,8 +1,8 @@
 {
-  "version": "0.9.396",
-  "generatedAt": "2026-08-20T10:04:32.726Z",
+  "version": "0.9.397",
+  "generatedAt": "2026-08-20T10:16:42.914Z",
   "summary": {
-    "correct": 204,
+    "correct": 205,
     "corrected": 3,
     "missing": 0,
     "obsolete": 0,
@@ -1366,6 +1366,13 @@
       "name": "Reaction: Counter Damage + Push",
       "status": "correct",
       "notes": "Matches Rules entry"
+    },
+    {
+      "category": "reaction",
+      "id": "reaction-damage-negation",
+      "name": "Reaction: Damage Negation",
+      "status": "correct",
+      "notes": "Matches curated RULES_EXPECTED manifest"
     },
     {
       "category": "reaction",

@@ -108,7 +108,6 @@ export const TOWER_WIZARD_COPY = {
         whatYouBuilt: 'What you built',
         simpleRotation: 'Simple rotation',
         manualIntro: 'Choose each Power below from the catalog. You need all six before you can apply.',
-        powers: 'Package Powers',
         mainDefensePackage: 'Main Defense Package',
         secondPassive: 'Second Passive',
         defense: 'Defense',
