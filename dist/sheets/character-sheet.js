@@ -2060,8 +2060,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         this.#updateSkillXPUI();
         // Character Creation mode buttons
         html.find('.attr-creation-select').on('change', this.#onCreationAttributeChange.bind(this));
-        html.find('.attribute-value--creation').attr({ tabindex: 0, role: 'button' });
-        html.find('.attribute-value--creation').on('click', (ev) => {
+        html.find('.attribute-value--creation').on('keydown', (ev) => {
+            if (ev.key !== 'Enter' && ev.key !== ' ' && ev.key !== 'ArrowDown')
+                return;
             const select = ev.currentTarget.querySelector('select.attr-creation-select');
             if (!select)
                 return;
@@ -2075,12 +2076,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             catch {
                 select.focus();
             }
-        });
-        html.find('.attribute-value--creation').on('keydown', (ev) => {
-            if (ev.key !== 'Enter' && ev.key !== ' ' && ev.key !== 'ArrowDown')
-                return;
-            ev.preventDefault();
-            ev.currentTarget.click();
         });
         html.find('.skill-increase').on('click', this.#onCreationSkillIncrease.bind(this));
         html.find('.skill-decrease').on('click', this.#onCreationSkillDecrease.bind(this));
@@ -5953,15 +5948,15 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             label: `${d.name} (${Array.isArray(d.basePoints) ? d.basePoints.join('/') : d.basePoints} pts)`
         }));
         const content = `
-      <form>
+      <form class="disadvantage-selection-form">
         <div class="form-group">
-          <label>Select Disadvantage:</label>
-          <select name="disadvantageId" id="disadvantageId">
+          <label>Select Disadvantage</label>
+          <select name="disadvantageId" id="disadvantageId" class="echo-form-select">
             <option value="">-- Select a Disadvantage --</option>
             ${disadvantageOptions.map(opt => `<option value="${opt.value}">${opt.label}</option>`).join('')}
           </select>
         </div>
-        ${disadvantageOptions.length === 0 ? '<p style="color: #8b0000; font-weight: 600;">No disadvantages available. Please check the console.</p>' : ''}
+        ${disadvantageOptions.length === 0 ? '<p class="disadvantage-empty-warn">No disadvantages available. Please check the console.</p>' : ''}
       </form>
     `;
         const dialog = new Dialog({

@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.395] - 2026-08-20
+
+### Fixed
+
+- **Creation attribute circles:** Vitality, Intellect, Resolve, and Influence now open the 8 / 6 / 4 / 2 picker when you click the round field.
+
+### Changed
+
+- **Disadvantage dialogs:** Add and Configure use the same dark rulebook chrome as the character sheet.
+
 ## [0.9.394] - 2026-08-20
 
 ### Fixed
