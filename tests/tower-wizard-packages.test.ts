@@ -74,15 +74,31 @@ describe('tower-wizard-packages', () => {
         expect(allIds).not.toContain('extend-buff-damage-reduction');
     });
 
-    it('guided passive 2 uses mechanic names for sustain and offense', () => {
-        const groups = getSecondPassiveIntentGroups('armor', 'passive-fortified-frame');
-        const sustain = groups.find((g) => g.intentLabel === 'Healing and Combat Recovery');
-        const offense = groups.find((g) => g.intentLabel === 'More Damage');
-        expect(sustain?.passives.find((p) => p.id === 'passive-blood-feast')?.label).toBe('Blood Feast');
-        expect(sustain?.passives.find((p) => p.id === 'passive-battle-trance')?.powerName).toBe('Battle Trance');
-        expect(sustain?.passives.find((p) => p.id === 'passive-regeneration')?.label).toBe('Regeneration');
-        expect(offense?.passives.find((p) => p.id === 'passive-momentum')?.label).toBe('Momentum');
-        expect(offense?.passives.find((p) => p.id === 'passive-killing-intent')?.label).toBe('Killing Intent');
+    it('guided passive 2 uses technical names and rulebook values', () => {
+        const groups = getSecondPassiveIntentGroups('evade', 'passive-evade');
+        const armor = groups.find((g) => g.intentLabel === 'Armor');
+        const healing = groups.find((g) => g.intentLabel === 'Healing');
+        const damage = groups.find((g) => g.intentLabel === 'Damage');
+
+        expect(armor?.passives.map((p) => p.id)[0]).toBe('passive-fortified-frame');
+        expect(armor?.passives.find((p) => p.id === 'passive-fortified-frame')?.label).toBe('Armor');
+        expect(armor?.passives.find((p) => p.id === 'passive-armor-healing')?.label).toBe('Armor + Healing');
+        expect(armor?.passives.some((p) => p.id === 'passive-echo-armor-value')).toBe(false);
+        expect(armor?.passives.find((p) => p.id === 'passive-fortified-frame')?.mechanicsPreview).toMatch(/\+5 Armor/);
+        expect(armor?.passives.find((p) => p.id === 'passive-armor-healing')?.mechanicsPreview).toMatch(/\+3 Armor/);
+        expect(armor?.passives.find((p) => p.id === 'passive-armor-healing')?.mechanicsPreview).toMatch(/heal 5 HP/);
+
+        expect(healing?.passives.find((p) => p.id === 'passive-regeneration')?.label).toBe('Healing');
+        expect(healing?.passives.find((p) => p.id === 'passive-blood-feast')?.label).toBe('Healing (Wounded or Worse)');
+        expect(healing?.passives.find((p) => p.id === 'passive-battle-trance')?.label).toBe('Healing (Adjacent to Enemy)');
+        expect(healing?.passives.find((p) => p.id === 'passive-stillness-recovery')?.label).toBe('Healing (Moved 0 m Last Turn)');
+        expect(healing?.passives.find((p) => p.id === 'passive-regeneration')?.mechanicsPreview).toMatch(/heal 10 HP/);
+        expect(healing?.passives.find((p) => p.id === 'passive-blood-feast')?.mechanicsPreview).toMatch(/heal 20 HP/);
+
+        expect(damage?.passives.find((p) => p.id === 'passive-killing-intent')?.label).toBe('Damage');
+        expect(damage?.passives.find((p) => p.id === 'passive-momentum')?.label).toBe('Damage (Moved 8+ m This Turn)');
+        expect(damage?.passives.find((p) => p.id === 'passive-killing-intent')?.mechanicsPreview).toMatch(/\+2d6 Damage/);
+        expect(damage?.passives.find((p) => p.id === 'passive-momentum')?.mechanicsPreview).toMatch(/\+4d6 Damage/);
     });
 
     it('armor Passive 1 variants include fortified frame and conditional options', () => {

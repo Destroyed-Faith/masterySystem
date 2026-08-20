@@ -57,7 +57,7 @@ export const CREATION_POWER_TOTAL = 6;
 export const CREATION_DEFENSIVE_RANK = 4;
 /** Offensive Actives start at Rank 2. */
 export const CREATION_OFFENSIVE_RANK = 2;
-/** Mastery Rank set when the combat package is applied. */
+/** Import fallback only. New characters start at MR 2; package Powers use the MR power-level cap (MR 2 → Level 4). */
 export const CREATION_MASTERY_RANK = 4;
 /** @deprecated Use CREATION_OFFENSIVE_RANK — only Actives are Rank 2 at creation. */
 export const CREATION_POWERS_AT_RANK_2 = 2;

@@ -24,6 +24,10 @@ import {
   canSpendEpicRerollPoint,
   shouldStageEpicFailure,
 } from '../src/epic-roll/epic-mastery-roll-roll.js';
+import {
+  isEpicRollPlayerCharacter,
+  listEpicRollCandidatesFrom,
+} from '../src/epic-roll/epic-mastery-roll-settings.js';
 import type { EpicMasteryRollSession } from '../src/epic-roll/epic-mastery-roll-types.js';
 
 function mockActor(overrides: Record<string, unknown> = {}): Actor {
@@ -49,6 +53,38 @@ function mockActor(overrides: Record<string, unknown> = {}): Actor {
   };
   return { ...base, ...overrides } as unknown as Actor;
 }
+
+describe('Skill Roll participant filter', () => {
+  it('accepts character sheets and rejects NPC, summon, and other actors', () => {
+    expect(isEpicRollPlayerCharacter(mockActor())).toBe(true);
+    expect(isEpicRollPlayerCharacter(mockActor({ type: 'npc', name: 'Guard' }))).toBe(false);
+    expect(isEpicRollPlayerCharacter(mockActor({ type: 'summon', name: 'Familiar' }))).toBe(false);
+    expect(isEpicRollPlayerCharacter(mockActor({ type: 'divine', name: 'God' }))).toBe(false);
+    expect(isEpicRollPlayerCharacter({ id: 'x', name: 'Legacy', type: 'Actor' })).toBe(false);
+    expect(isEpicRollPlayerCharacter(null)).toBe(false);
+  });
+
+  it('rejects a character document that still uses the NPC sheet', () => {
+    expect(
+      isEpicRollPlayerCharacter(
+        mockActor({
+          flags: { core: { sheetClass: 'mastery-system.MasteryNpcSheet' } },
+        }),
+      ),
+    ).toBe(false);
+  });
+
+  it('lists only character sheets from a mixed actor directory', () => {
+    const rows = listEpicRollCandidatesFrom([
+      mockActor({ id: 'pc1', name: 'Fin', type: 'character' }),
+      mockActor({ id: 'npc1', name: 'Bandit', type: 'npc' }),
+      mockActor({ id: 'sum1', name: 'Wolf', type: 'summon' }),
+      mockActor({ id: 'pc2', name: 'Alaris', type: 'character' }),
+    ]);
+    expect(rows.map((r) => r.id)).toEqual(['pc2', 'pc1']);
+    expect(rows.every((r) => r.type === 'character')).toBe(true);
+  });
+});
 
 describe('buildDifficultyPresets', () => {
   it('uses 8 × challenge MR as standard TN', () => {

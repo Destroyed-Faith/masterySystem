@@ -865,6 +865,7 @@ describe('extractMeleeAoePowerBonusD8', () => {
 describe('isSanctionedPhasingName', () => {
   it('matches slot display names with Passive: prefix for Ghostform', () => {
     expect(isSanctionedPhasingName('Passive: Ghostform', 'passive')).toBe(true);
+    expect(isSanctionedPhasingName('Passive: Phasing', 'passive')).toBe(true);
     expect(isSanctionedPhasingName('ghostform', 'passive')).toBe(true);
   });
   it('matches Active Buff: for Ghost Mantle', () => {

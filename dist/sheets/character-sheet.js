@@ -403,8 +403,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         const newRank = parseInt($select.val());
         const system = this.actor.system;
         const masteryRank = system.mastery?.rank || 2;
-        if (newRank > masteryRank) {
-            ui.notifications?.error(`Power rank cannot exceed Mastery Rank ${masteryRank}`);
+        const maxPowerLevel = calculateMaxPowerLevel(masteryRank);
+        if (newRank > maxPowerLevel) {
+            ui.notifications?.error(`Power Level cannot exceed ${maxPowerLevel} at Mastery Rank ${masteryRank}`);
             const item = this.actor.items.get(itemId);
             if (item) {
                 const currentRank = item.system.rank || item.system.level || 1;
@@ -1167,7 +1168,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             }
         }
         // Save scroll positions for all tabs and the main window before rendering.
-        // ApplicationV2 sheets scroll primarily via `.window-content` (see character-sheet.css).
+        // Character sheets scroll `.sheet-body` so the header stays put; other
+        // ApplicationV2 sheets still scroll `.window-content`.
         const scrollPositions = {};
         if ($el && $el.length > 0) {
             // Save scroll position for each tab
@@ -6381,10 +6383,11 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             return;
         }
         void echoSubChoice;
-        // Validate power ranks don't exceed Mastery Rank
-        const invalidPowers = powers.filter((p) => (p.system?.level || 1) > masteryRank);
+        // Power Level cap is by Mastery Rank (MR 1–2 → 4, …, MR 5+ → 16). MR 2 may keep Level 4 Powers.
+        const maxPowerLevel = calculateMaxPowerLevel(masteryRank);
+        const invalidPowers = powers.filter((p) => (p.system?.level || 1) > maxPowerLevel);
         if (invalidPowers.length > 0) {
-            ui.notifications?.error(`Power ranks cannot exceed Mastery Rank ${masteryRank}. Invalid: ${invalidPowers.map((p) => p.name).join(', ')}`);
+            ui.notifications?.error(`Power Level cannot exceed ${maxPowerLevel} at Mastery Rank ${masteryRank}. Invalid: ${invalidPowers.map((p) => p.name).join(', ')}`);
             return;
         }
         // Validate schticks per rank
@@ -6402,6 +6405,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         // Sync Faith Fractures: Disadvantage Points = Starting Faith Fractures (both current and maximum)
         const updateData = {
             'system.creation.complete': true,
+            'system.mastery.rank': masteryRank,
             'system.faithFractures.current': disadvantagePoints,
             'system.faithFractures.maximum': disadvantagePoints,
             'system.languages.known': langNorm.cleaned,

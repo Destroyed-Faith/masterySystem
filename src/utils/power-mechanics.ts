@@ -268,10 +268,12 @@ const DR_SANCTIONED_POWER_NAMES: Record<'passive' | 'buff' | 'reaction', string>
  * three names may declare `phasing` / `triggers.combatStart.phasingCharges`.
  */
 const PHASING_SANCTIONED_POWER_NAMES: Record<'passive' | 'buff' | 'reaction', string> = {
-  passive: 'ghostform',
+  passive: 'phasing',
   buff: 'ghost mantle',
   reaction: 'ghost slip',
 };
+
+const PHASING_PASSIVE_ALIASES = new Set(['phasing', 'ghostform']);
 
 function normalizePowerName(name: string): string {
   return String(name || '').trim().toLowerCase();
@@ -339,6 +341,9 @@ export function isSanctionedPhasingName(
   const expected = PHASING_SANCTIONED_POWER_NAMES[sourceKind];
   const raw = normalizePowerName(powerName);
   const stripped = stripBuffPrefixForDrName(powerName);
+  if (sourceKind === 'passive') {
+    return PHASING_PASSIVE_ALIASES.has(raw) || PHASING_PASSIVE_ALIASES.has(stripped);
+  }
   return raw === expected || stripped === expected;
 }
 

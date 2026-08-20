@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+## [0.9.398] - 2026-08-20
+
+### Changed
+
+- **Character sheet:** Portrait, Token, Mastery Rank, and Skill Points stay visible while you scroll Skills or any other tab.
+- **Combat Package Step 3:** Second Passive cards use the technical names from Rules/passives.md. Healing and Damage replace flavor titles. Armor starts with the base Armor passive. Echo Armor and artifact-only passives stay out.
+
+### Fixed
+
+- **Skill Roll participants:** Only character sheets appear. NPC, summon, and other actor types cannot be added or started.
+- **Creation Mastery Rank:** Finalize keeps the entered rank (default MR 2). Package Powers at Level 4 are legal at MR 2 — the cap is the Power Level table, not “MR must be 4”.
+- **Passive values:** Armor, Healing, and Damage passives now use the rulebook tables at each Power Level. Echo Armor and artifact-only passives are gone from the wizard.
+
 ## [0.9.397] - 2026-08-20
 
 ### Changed

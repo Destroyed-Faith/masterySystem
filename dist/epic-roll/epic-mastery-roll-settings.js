@@ -35,19 +35,54 @@ export async function saveEpicRollRecentPreset(preset) {
     const next = [preset, ...filtered].slice(0, 5);
     await game.settings.set('mastery-system', 'epicRollRecentPresets', next);
 }
-export function listEpicRollCandidateActors() {
-    const actors = (game.actors?.contents ?? []);
-    return actors
-        .filter((a) => a.type === 'character')
+function actorDocumentType(actor) {
+    return String(actor.type ?? actor._source?.type ?? '')
+        .trim()
+        .toLowerCase();
+}
+/**
+ * Skill Roll participants: player character sheets only.
+ * NPC sheets, summons, and generic/other actor types never qualify.
+ */
+export function isEpicRollPlayerCharacter(actor) {
+    if (!actor || typeof actor !== 'object')
+        return false;
+    const a = actor;
+    if (actorDocumentType(a) !== 'character')
+        return false;
+    const sheetClass = String(a.flags?.core?.sheetClass ?? (typeof a.getFlag === 'function' ? a.getFlag('core', 'sheetClass') : '') ?? '');
+    if (/MasteryNpcSheet|MasterySummonSheet|\bNpcSheet\b|\bSummonSheet\b/i.test(sheetClass)) {
+        return false;
+    }
+    return true;
+}
+function worldActors() {
+    const col = game.actors;
+    if (!col)
+        return [];
+    if (typeof col.filter === 'function') {
+        return col.filter(() => true);
+    }
+    if (Array.isArray(col.contents))
+        return col.contents;
+    return [];
+}
+export function listEpicRollCandidatesFrom(actors) {
+    return Array.from(actors)
+        .filter((a) => isEpicRollPlayerCharacter(a))
         .map((a) => {
         const actor = a;
         return {
-            id: String(actor.id),
+            id: String(actor.id ?? ''),
             name: String(actor.name ?? 'Unknown'),
-            type: String(actor.type),
+            type: 'character',
             img: String(actor.img ?? ''),
         };
     })
+        .filter((row) => row.id)
         .sort((a, b) => a.name.localeCompare(b.name));
+}
+export function listEpicRollCandidateActors() {
+    return listEpicRollCandidatesFrom(worldActors());
 }
 //# sourceMappingURL=epic-mastery-roll-settings.js.map

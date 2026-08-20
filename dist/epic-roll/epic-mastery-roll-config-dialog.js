@@ -5,7 +5,7 @@ import { SKILLS } from '../utils/skills.js';
 import { buildDifficultyPresets } from '../dice/roll-context-build.js';
 import { defaultRollTitleForKind } from './epic-mastery-roll-types.js';
 import { startEpicMasteryRollSession } from './epic-mastery-roll-session.js';
-import { listEpicRollCandidateActors, saveEpicRollRecentPreset, } from './epic-mastery-roll-settings.js';
+import { isEpicRollPlayerCharacter, listEpicRollCandidateActors, saveEpicRollRecentPreset, } from './epic-mastery-roll-settings.js';
 import { resolveActorPortraitSrc, portraitFallbackSrc } from './epic-mastery-roll-portraits.js';
 const ATTRIBUTES = ['might', 'agility', 'vitality', 'intellect', 'resolve', 'influence', 'wits'];
 const CHALLENGE_MR_MIN = 2;
@@ -69,10 +69,7 @@ export class EpicMasteryRollConfigDialog extends BaseDialog {
             this.skillKey = preset.roll.skillKey;
         if (preset.roll.kind === 'attribute')
             this.attributeKey = preset.roll.attributeKey;
-        this.selectedIds = [...preset.actorIds].filter((id) => {
-            const actor = game.actors?.get(id);
-            return actor?.type === 'character';
-        });
+        this.selectedIds = [...preset.actorIds].filter((id) => isEpicRollPlayerCharacter(game.actors?.get(id)));
     }
     async _prepareContext(_options) {
         const allActors = listEpicRollCandidateActors();
@@ -210,7 +207,7 @@ export class EpicMasteryRollConfigDialog extends BaseDialog {
             showTn: this.showTn,
             tn: { ...this.tn },
             roll: this.buildRollConfig(),
-            actorIds: [...this.selectedIds].filter((id) => game.actors?.get(id)?.type === 'character'),
+            actorIds: [...this.selectedIds].filter((id) => isEpicRollPlayerCharacter(game.actors?.get(id))),
         };
         const session = await startEpicMasteryRollSession(config);
         if (!session)

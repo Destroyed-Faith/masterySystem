@@ -1,6 +1,6 @@
 {
-  "version": "0.9.397",
-  "generatedAt": "2026-08-20T10:16:42.914Z",
+  "version": "0.9.398",
+  "generatedAt": "2026-08-20T10:55:31.965Z",
   "summary": {
     "correct": 205,
     "corrected": 3,
@@ -469,7 +469,7 @@
       "id": "ab-cleanse-maintenance",
       "name": "Active Buff: Cleanse Maintenance",
       "status": "correct",
-      "notes": "Matches Rules entry"
+      "notes": "Matches curated RULES_EXPECTED manifest"
     },
     {
       "category": "activeBuff",
@@ -511,7 +511,7 @@
       "id": "ab-growth-form",
       "name": "Active Buff: Growth Form",
       "status": "correct",
-      "notes": "Matches Rules entry"
+      "notes": "Matches curated RULES_EXPECTED manifest"
     },
     {
       "category": "activeBuff",
@@ -539,7 +539,7 @@
       "id": "ab-intensified-absorption",
       "name": "Active Buff: Intensified Absorption",
       "status": "correct",
-      "notes": "Matches Rules entry"
+      "notes": "Matches curated RULES_EXPECTED manifest"
     },
     {
       "category": "activeBuff",
@@ -574,14 +574,14 @@
       "id": "ab-reinforced-parry",
       "name": "Active Buff: Reinforced Parry",
       "status": "correct",
-      "notes": "Matches Rules entry"
+      "notes": "Matches curated RULES_EXPECTED manifest"
     },
     {
       "category": "activeBuff",
       "id": "ab-special-overdrive",
       "name": "Active Buff: Special Overdrive",
       "status": "correct",
-      "notes": "Matches Rules entry"
+      "notes": "Matches curated RULES_EXPECTED manifest"
     },
     {
       "category": "activeBuff",
@@ -1020,28 +1020,28 @@
     {
       "category": "passive",
       "id": "passive-ambusher",
-      "name": "Passive: Ambusher",
+      "name": "Passive: Damage (Target Cannot Perceive You)",
       "status": "correct",
       "notes": "Matches Rules entry"
     },
     {
       "category": "passive",
       "id": "passive-armor-healing",
-      "name": "Passive: Armor / Healing",
+      "name": "Passive: Armor + Healing",
       "status": "correct",
       "notes": "Matches Rules entry"
     },
     {
       "category": "passive",
       "id": "passive-armor-health",
-      "name": "Passive: Armor / Health",
+      "name": "Passive: Armor + Health",
       "status": "correct",
       "notes": "Matches Rules entry"
     },
     {
       "category": "passive",
       "id": "passive-armor-temp-hp",
-      "name": "Passive: Armor / Temporary HP",
+      "name": "Passive: Armor + Temporary HP",
       "status": "correct",
       "notes": "Matches Rules entry"
     },
@@ -1062,35 +1062,35 @@
     {
       "category": "passive",
       "id": "passive-battle-trance",
-      "name": "Passive: Battle Trance",
+      "name": "Passive: Healing (Adjacent to Enemy)",
       "status": "correct",
       "notes": "Matches Rules entry"
     },
     {
       "category": "passive",
       "id": "passive-blood-feast",
-      "name": "Passive: Blood Feast",
+      "name": "Passive: Healing (Wounded or Worse)",
       "status": "correct",
       "notes": "Matches Rules entry"
     },
     {
       "category": "passive",
       "id": "passive-bloodlust",
-      "name": "Passive: Bloodlust",
+      "name": "Passive: Damage (Affected by Lacerate)",
       "status": "correct",
       "notes": "Matches Rules entry"
     },
     {
       "category": "passive",
       "id": "passive-bound-host",
-      "name": "Passive: Bound Host",
+      "name": "Passive: Summon Tokens",
       "status": "correct",
       "notes": "Matches Rules entry"
     },
     {
       "category": "passive",
       "id": "passive-damage-healing",
-      "name": "Passive: Damage / Healing",
+      "name": "Passive: Damage + Healing",
       "status": "correct",
       "notes": "Matches Rules entry"
     },
@@ -1111,21 +1111,21 @@
     {
       "category": "passive",
       "id": "passive-damage-temp-hp",
-      "name": "Passive: Damage / Temporary HP",
+      "name": "Passive: Damage + Temporary HP",
       "status": "correct",
       "notes": "Matches Rules entry"
     },
     {
       "category": "passive",
       "id": "passive-deep-vitality",
-      "name": "Passive: Deep Vitality",
+      "name": "Passive: Health",
       "status": "correct",
       "notes": "Matches Rules entry"
     },
     {
       "category": "passive",
       "id": "passive-duelist-footwork",
-      "name": "Passive: Duelist Footwork",
+      "name": "Passive: Evade (Exactly 1 Adjacent Enemy)",
       "status": "correct",
       "notes": "Matches Rules entry"
     },
@@ -1146,63 +1146,63 @@
     {
       "category": "passive",
       "id": "passive-evade-damage",
-      "name": "Passive: Evade / Damage",
+      "name": "Passive: Evade + Damage",
       "status": "correct",
       "notes": "Matches Rules entry"
     },
     {
       "category": "passive",
       "id": "passive-evade-healing",
-      "name": "Passive: Evade / Healing",
+      "name": "Passive: Evade + Healing",
       "status": "correct",
       "notes": "Matches Rules entry"
     },
     {
       "category": "passive",
       "id": "passive-evade-temp-hp",
-      "name": "Passive: Evade / Temporary HP",
+      "name": "Passive: Evade + Temporary HP",
       "status": "correct",
       "notes": "Matches Rules entry"
     },
     {
       "category": "passive",
       "id": "passive-executioner",
-      "name": "Passive: Executioner",
+      "name": "Passive: Damage (Target Injured or Worse)",
       "status": "correct",
       "notes": "Matches Rules entry"
     },
     {
       "category": "passive",
       "id": "passive-flowing-step",
-      "name": "Passive: Flowing Step",
+      "name": "Passive: Evade (Moved 8+ m This Turn)",
       "status": "correct",
       "notes": "Matches Rules entry"
     },
     {
       "category": "passive",
       "id": "passive-fortified-frame",
-      "name": "Passive: Fortified Frame",
+      "name": "Passive: Armor",
       "status": "correct",
       "notes": "Matches Rules entry"
     },
     {
       "category": "passive",
       "id": "passive-ghostform",
-      "name": "Passive: Ghostform",
+      "name": "Passive: Phasing",
       "status": "correct",
       "notes": "Matches Rules entry"
     },
     {
       "category": "passive",
       "id": "passive-health-healing",
-      "name": "Passive: Health / Healing",
+      "name": "Passive: Health + Healing",
       "status": "correct",
       "notes": "Matches Rules entry"
     },
     {
       "category": "passive",
       "id": "passive-health-temp-hp",
-      "name": "Passive: Health / Temporary HP",
+      "name": "Passive: Health + Temporary HP",
       "status": "correct",
       "notes": "Matches Rules entry"
     },
@@ -1230,14 +1230,14 @@
     {
       "category": "passive",
       "id": "passive-killing-intent",
-      "name": "Passive: Killing Intent",
+      "name": "Passive: Damage",
       "status": "correct",
       "notes": "Matches Rules entry"
     },
     {
       "category": "passive",
       "id": "passive-momentum",
-      "name": "Passive: Momentum",
+      "name": "Passive: Damage (Moved 8+ m This Turn)",
       "status": "correct",
       "notes": "Matches Rules entry"
     },
@@ -1251,7 +1251,7 @@
     {
       "category": "passive",
       "id": "passive-regeneration",
-      "name": "Passive: Regeneration",
+      "name": "Passive: Healing",
       "status": "correct",
       "notes": "Matches Rules entry"
     },
@@ -1260,7 +1260,7 @@
       "id": "passive-special-aura",
       "name": "Passive: Special Aura",
       "status": "correct",
-      "notes": "Matches Rules entry"
+      "notes": "Matches curated RULES_EXPECTED manifest"
     },
     {
       "category": "passive",
@@ -1272,42 +1272,42 @@
     {
       "category": "passive",
       "id": "passive-stillness-recovery",
-      "name": "Passive: Stillness Recovery",
+      "name": "Passive: Healing (Moved 0 m Last Turn)",
       "status": "correct",
       "notes": "Matches Rules entry"
     },
     {
       "category": "passive",
       "id": "passive-stone-stance",
-      "name": "Passive: Stone Stance",
+      "name": "Passive: Armor (Moved 0 m Last Turn)",
       "status": "correct",
       "notes": "Matches Rules entry"
     },
     {
       "category": "passive",
       "id": "passive-surrounded-bulwark",
-      "name": "Passive: Surrounded Bulwark",
+      "name": "Passive: Armor (Adjacent to 2+ Enemies)",
       "status": "correct",
       "notes": "Matches Rules entry"
     },
     {
       "category": "passive",
       "id": "passive-telepathy-mind-link",
-      "name": "Passive: Telepathy / Mind Link",
+      "name": "Passive: Telepathy",
       "status": "correct",
-      "notes": "Matches curated RULES_EXPECTED manifest"
+      "notes": "Matches Rules entry"
     },
     {
       "category": "passive",
       "id": "passive-temp-hp",
-      "name": "Passive: Temporary Hit Points",
+      "name": "Passive: Temporary HP",
       "status": "correct",
       "notes": "Matches Rules entry"
     },
     {
       "category": "passive",
       "id": "passive-thornhide",
-      "name": "Passive: Thornhide",
+      "name": "Passive: Thorns",
       "status": "correct",
       "notes": "Matches Rules entry"
     },
@@ -1372,7 +1372,7 @@
       "id": "reaction-damage-negation",
       "name": "Reaction: Damage Negation",
       "status": "correct",
-      "notes": "Matches curated RULES_EXPECTED manifest"
+      "notes": "Matches Rules entry"
     },
     {
       "category": "reaction",
@@ -1428,7 +1428,7 @@
       "id": "reaction-reactive-overload",
       "name": "Reaction: Reactive Overload",
       "status": "correct",
-      "notes": "Matches Rules entry"
+      "notes": "Matches curated RULES_EXPECTED manifest"
     },
     {
       "category": "reaction",
@@ -1449,14 +1449,14 @@
       "id": "reaction-riposte",
       "name": "Reaction: Riposte",
       "status": "correct",
-      "notes": "Matches Rules entry"
+      "notes": "Matches curated RULES_EXPECTED manifest"
     },
     {
       "category": "reaction",
       "id": "reaction-special-increase",
       "name": "Reaction: Special Increase",
       "status": "correct",
-      "notes": "Matches Rules entry"
+      "notes": "Matches curated RULES_EXPECTED manifest"
     },
     {
       "category": "reaction",

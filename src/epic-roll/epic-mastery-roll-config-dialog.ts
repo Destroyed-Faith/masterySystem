@@ -13,6 +13,7 @@ import type {
 import { defaultRollTitleForKind } from './epic-mastery-roll-types.js';
 import { startEpicMasteryRollSession } from './epic-mastery-roll-session.js';
 import {
+  isEpicRollPlayerCharacter,
   listEpicRollCandidateActors,
   saveEpicRollRecentPreset,
 } from './epic-mastery-roll-settings.js';
@@ -85,10 +86,9 @@ export class EpicMasteryRollConfigDialog extends BaseDialog {
     this.rollKind = preset.roll.kind;
     if (preset.roll.kind === 'skill') this.skillKey = preset.roll.skillKey;
     if (preset.roll.kind === 'attribute') this.attributeKey = preset.roll.attributeKey;
-    this.selectedIds = [...preset.actorIds].filter((id) => {
-      const actor = game.actors?.get(id);
-      return actor?.type === 'character';
-    });
+    this.selectedIds = [...preset.actorIds].filter((id) =>
+      isEpicRollPlayerCharacter(game.actors?.get(id)),
+    );
   }
 
   protected async _prepareContext(_options: unknown): Promise<Record<string, unknown>> {
@@ -237,7 +237,9 @@ export class EpicMasteryRollConfigDialog extends BaseDialog {
       showTn: this.showTn,
       tn: { ...this.tn },
       roll: this.buildRollConfig(),
-      actorIds: [...this.selectedIds].filter((id) => game.actors?.get(id)?.type === 'character'),
+      actorIds: [...this.selectedIds].filter((id) =>
+        isEpicRollPlayerCharacter(game.actors?.get(id)),
+      ),
     };
 
     const session = await startEpicMasteryRollSession(config);

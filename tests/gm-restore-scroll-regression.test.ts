@@ -3,10 +3,24 @@ import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 const sheetSrc = readFileSync(resolve('src/sheets/character-sheet.ts'), 'utf8');
+const sheetCss = readFileSync(resolve('styles/character-sheet.css'), 'utf8');
 const chatCss = readFileSync(resolve('styles/chat.css'), 'utf8');
 const editorSrc = readFileSync(resolve('src/editor/prosemirror-font-color.ts'), 'utf8');
 
 describe('GM restore scroll + chat composer', () => {
+  it('keeps the character header fixed and scrolls only the sheet body', () => {
+    expect(sheetCss).toMatch(
+      /\.application\.mastery-system\.sheet\.actor\.character \.window-content \{[\s\S]*?overflow:\s*hidden;/,
+    );
+    expect(sheetCss).toMatch(
+      /\.mastery-system\.sheet\.actor\.character \.sheet-body \{[\s\S]*?min-height:\s*0;[\s\S]*?overflow-y:\s*auto;/,
+    );
+    expect(sheetCss).not.toMatch(/min-height:\s*calc\(100vh - 200px\)/);
+    expect(sheetSrc).toMatch(/system\.mastery\.rank': masteryRank/);
+    expect(sheetSrc).toMatch(/calculateMaxPowerLevel\(masteryRank\)/);
+    expect(sheetSrc).not.toMatch(/Power ranks cannot exceed Mastery Rank/);
+  });
+
   it('preserves ApplicationV2 window-content scroll across sheet re-renders', () => {
     expect(sheetSrc).toContain("scrollPositions['window-content']");
     expect(sheetSrc).toMatch(/windowContent\.scrollTop\(scrollPositions\['window-content'\]\)/);

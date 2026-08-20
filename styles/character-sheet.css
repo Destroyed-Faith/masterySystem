@@ -466,11 +466,12 @@
 /* ========== Sheet Body ========== */
 .mastery-system.sheet.actor.character .sheet-body {
   position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
   overflow-y: auto;
   padding: 15px;
   padding-right: 50px; /* Space for tabs */
   background: var(--df-bg-primary, #20272B);
-  min-height: calc(100vh - 200px);
 }
 
 .mastery-system.sheet.actor.character form {
@@ -9375,6 +9376,16 @@
     color: #000;
     border-bottom: 2px solid #000;
   }
+
+  .application.mastery-system.sheet.actor.character .window-content,
+  .application.mastery-system.sheet.actor.character .window-content > *,
+  .mastery-system.sheet.actor.character .character-sheet-root,
+  .mastery-system.sheet.actor.character .sheet-body {
+    display: block;
+    overflow: visible;
+    height: auto;
+    min-height: 0;
+  }
   
   .mastery-system button,
   .mastery-system .item-controls {
@@ -11142,6 +11153,36 @@
    attack rows — became unscrollable. Restore the V1 behavior. */
 .application.mastery-system.sheet .window-content {
   overflow-y: auto;
+}
+
+/* Character sheet: keep portrait / MR / SP in place. Only `.sheet-body` scrolls. */
+.application.mastery-system.sheet.actor.character .window-content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  padding: 0;
+}
+
+.application.mastery-system.sheet.actor.character .window-content > *,
+.mastery-system.sheet.actor.character .character-sheet-root {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+.mastery-system.sheet.actor.character .sheet-header,
+.mastery-system.sheet.actor.character .ms-encounter-setup,
+.mastery-system.sheet.actor.character .creation-banner,
+.mastery-system.sheet.actor.character .gm-character-tools,
+.mastery-system.sheet.actor.character .combat-stats-panel,
+.mastery-system.sheet.actor.character .character-status-panel {
+  flex-shrink: 0;
 }
 
 /* --- Languages picker ------------------------------------------------------

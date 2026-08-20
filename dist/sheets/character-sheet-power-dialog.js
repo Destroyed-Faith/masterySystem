@@ -17,6 +17,7 @@
  * Every Spell resolves as a Spell Attack (caster roll vs Casting TN / Evade);
  * saving throws were removed from the rules.
  */
+import { calculateMaxPowerLevel } from '../utils/calculations.js';
 import { calculateBaseTN } from '../combat/spell-roll-handler.js';
 import { renderPowerLevelTable } from '../utils/power-rendering.js';
 import { setupPowerCatalogDialogChrome } from '../utils/legacy-dialog-resize.js';
@@ -43,7 +44,8 @@ export async function showPowerCreationDialog(actor, options) {
     }
     const masteryRank = system?.mastery?.rank || 2;
     const actorEchoKey = system?.echo?.key || null;
-    const maxSpellLevel = masteryRank * 2;
+    const maxPowerLevel = calculateMaxPowerLevel(masteryRank);
+    const maxSpellLevel = maxPowerLevel;
     const categoryOptions = CATEGORY_ORDER.map((c) => `<option value="${c}"${options?.presetCategory === c ? ' selected' : ''}>${CATEGORY_LABELS[c]}</option>`).join('');
     const rankOptions = Array.from({ length: 16 }, (_, i) => i + 1)
         .map((r) => `<option value="${r}">Rank ${r}</option>`)
@@ -159,7 +161,7 @@ export async function showPowerCreationDialog(actor, options) {
                         ? ($html.find('#pc-resolution').val() || 'spellAttack')
                         : undefined;
                     if (isSpell && rank > maxSpellLevel) {
-                        ui.notifications?.error(`Spell Level ${rank} exceeds Max Spell Level for this character (MR ${masteryRank} × 2 = ${maxSpellLevel}).`);
+                        ui.notifications?.error(`Spell Level ${rank} exceeds Max Power Level ${maxSpellLevel} at Mastery Rank ${masteryRank}.`);
                         return false;
                     }
                     const itemData = buildPowerItemFromCatalogEntry(entry, rank, { isSpell, castingAttribute, spellResolution });
@@ -191,8 +193,8 @@ export async function showPowerCreationDialog(actor, options) {
                             ui.notifications?.error('All starting Powers must be Rank 2 during character creation.');
                             return false;
                         }
-                        if (rank > masteryRank) {
-                            ui.notifications?.error(`Power rank cannot exceed Mastery Rank ${masteryRank} during character creation.`);
+                        if (rank > maxPowerLevel) {
+                            ui.notifications?.error(`Power Level cannot exceed ${maxPowerLevel} at Mastery Rank ${masteryRank}.`);
                             return false;
                         }
                     }

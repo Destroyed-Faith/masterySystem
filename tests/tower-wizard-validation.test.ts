@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import {
     isValidSecondPassiveForDefense,
@@ -91,5 +93,32 @@ describe('tower-wizard-validation', () => {
             },
         };
         expect(validateTowerWizardCreation(actor as any)).toMatch(/exactly 2 Active/i);
+    });
+
+    it('allows finalize at Mastery Rank 2 when package Powers sit at the MR 2 cap (Level 4 / 2)', () => {
+        const actor = {
+            system: {
+                creation: { towerWizardPackageId: 'armor__direct-damage' },
+                mastery: { rank: 2 },
+            },
+            items: {
+                filter: (fn: (i: unknown) => boolean) =>
+                    [
+                        mockPowerItem('passive', 4, 'passive-fortified-frame'),
+                        mockPowerItem('passive', 4, 'passive-temp-hp'),
+                        mockPowerItem('activeBuff', 4, 'ab-armor'),
+                        mockPowerItem('reaction', 4, 'reaction-riposte'),
+                        mockPowerItem('active', 2, 'active-melee-weapon-single'),
+                        mockPowerItem('active', 2, 'active-melee-weapon-special'),
+                    ].filter(fn),
+            },
+        };
+        expect(validateTowerWizardCreation(actor as any)).toBeNull();
+    });
+
+    it('does not overwrite the entered Mastery Rank when applying a combat package', () => {
+        const src = readFileSync(resolve('src/creation/tower-wizard/tower-wizard-apply.ts'), 'utf8');
+        expect(src).not.toMatch(/system\.mastery\.rank/);
+        expect(src).not.toMatch(/CREATION_MASTERY_RANK/);
     });
 });

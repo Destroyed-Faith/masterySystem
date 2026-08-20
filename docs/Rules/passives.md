@@ -74,13 +74,13 @@ Version: v0.9.8 (2026-07-31)
 - #### [{{ Conditional Passives}}{{ 13}}](#p13)
 - #### [{{ Combined Passives}}{{ 21}}](#p21)
 - #### [{{ Conditional Combined Passives}}{{ 30}}](#p30)
-- #### [{{ Passive Special Aura}}{{ 42}}](#p42)
+- #### [{{ Passive: Special Aura + Blight / Challenge / Corrode / Disoriented / Expose / Hex / Lacerate / Mark / Ruin / Slow / Soulburn / Sundered / Weaken}}{{ 42}}](#p42)
 - #### [{{ Ward Passives}}{{ 45}}](#p45)
-- #### [{{ Telepathy}}{{ 47}}](#p47)
-- #### [{{ Bound Host}}{{ 48}}](#p48)
-- #### [{{ Thornhide}}{{ 49}}](#p49)
-- #### [{{ Passive Invisibility}}{{ 50}}](#p50)
-- #### [{{ Initiative}}{{ 51}}](#p51)
+- #### [{{ Passive: Telepathy}}{{ 47}}](#p47)
+- #### [{{ Passive: Summon Tokens}}{{ 48}}](#p48)
+- #### [{{ Passive: Thorns}}{{ 49}}](#p49)
+- #### [{{ Passive: Invisibility}}{{ 50}}](#p50)
+- #### [{{ Passive: Initiative}}{{ 51}}](#p51)
 - #### [{{ Parry Passives}}{{ 52}}](#p52)
 - #### [{{ Absorption Passives}}{{ 55}}](#p55)
 - #### [{{ Damage Negation Passives}}{{ 59}}](#p59)
@@ -97,6 +97,20 @@ Passives represent reliable, always-available parts of a character’s combat id
 They require no Action, Movement, Reaction, or activation roll. A Passive provides its effect while it is slotted, unless its own entry states an additional condition or requirement.
 
 Passives are selected before combat and cannot normally be changed during combat.
+
+### Technical Power Names
+
+Every catalogue entry uses its heading as its canonical technical Power name.
+
+The technical Power name defines rules identity and data identity. Power Level changes the strength of that Power, not its identity.
+
+A character-facing name is not part of this catalogue and never creates a second mechanical Power.
+
+Combined Passives use `+` between their two categories. Slashes are reserved for alternatives from which one option must be chosen when learning the Power.
+
+For a Conditional Passive, the condition in parentheses is part of the technical Power name.
+
+Foundry VTT must store the technical Power name separately from Power Level, category or categories, condition, chosen option, and any character-facing label. Rules comparisons use the technical Power name and category data, not the character-facing label.
 
 ---
 ::
@@ -243,7 +257,7 @@ Passives may not normally generate Stones.
 
 **Absorption is the explicit exception:** the dedicated Absorption subsystem may generate short-lived **Temporary Colorless Stones** from eligible actual HP loss.
 
-**Bound Host is the explicit Summon exception:** it may grant bonus Summon Tokens to Summon Bonds that already exist. It does not create a Summon Bond, add Summon Bodies, or grant Extra Attacks.
+**Passive: Summon Tokens** is the explicit Summon exception: it may grant bonus Summon Tokens to Summon Bonds that already exist. It does not create a Summon Bond, add Summon Bodies, or grant Extra Attacks.
 
 A Passive may never use the **Spell** or **Charged** tag.
 
@@ -292,8 +306,8 @@ Every character has one Sense Slot. Additional Sense Options increase the choice
 
 ## Passive Catalog
 
-<h3 id="fortified-frame-passive">
-  Fortified Frame (Passive: Armor)
+<h3 id="passive-armor">
+  Passive: Armor
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
@@ -344,8 +358,8 @@ Your body learns to carry steel as if it were a second skin.
 
 ---
 
-<h3 id="damage-reduction-passive">
-  Damage Reduction (Passive: Damage Reduction)
+<h3 id="passive-damage-reduction">
+  Passive: Damage Reduction
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
@@ -403,8 +417,8 @@ This is the only accepted Damage Reduction passive. If a build wants Damage Redu
 
 {{wide
 
-<h3 id="evade-passive">
-  Evade (Passive: Evade)
+<h3 id="passive-evade">
+  Passive: Evade
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
@@ -455,8 +469,8 @@ You are not faster in one moment. You are harder to catch in every moment.
 
 ---
 
-<h3 id="temporary-hit-points-passive">
-  Temporary Hit Points (Passive: Temporary HP)
+<h3 id="passive-temporary-hp">
+  Passive: Temporary HP
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
@@ -512,8 +526,8 @@ A reserve layer of protection that exists only at the moment battle begins.
 
 {{wide
 
-<h3 id="regeneration-passive">
-  Regeneration (Passive: Healing)
+<h3 id="passive-healing">
+  Passive: Healing
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
@@ -570,8 +584,8 @@ Your body steadily reclaims lost vitality while the fight continues.
 
 {{wide
 
-<h3 id="ghostform-passive">
-  Ghostform (Passive: Phasing)
+<h3 id="passive-phasing">
+  Passive: Phasing
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
@@ -631,8 +645,8 @@ Your body no longer fully agrees to be where the world says it is.
 
 {{wide
 
-<h3 id="killing-intent-passive">
-  Killing Intent (Passive: Damage)
+<h3 id="passive-damage">
+  Passive: Damage
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
@@ -688,8 +702,8 @@ Your blows carry more weight because your intent no longer wavers.
 
 {{wide
 
-<h3 id="deep-vitality-passive">
-  Deep Vitality (Passive: Health)
+<h3 id="passive-health">
+  Passive: Health
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
@@ -754,8 +768,8 @@ A Conditional Passive must have a clear trigger or state that can realistically 
 
 ## Conditional Armor Passives
 
-<h3 id="stone-stance-passive">
-  Stone Stance (Passive: Armor)
+<h3 id="conditional-passive-armor-no-movement">
+  Conditional Passive: Armor (Moved 0 m Last Turn)
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
@@ -791,8 +805,8 @@ You become hardest to break when you refuse to yield even a step.
 
 ---
 
-<h3 id="surrounded-bulwark-passive">
-  Surrounded Bulwark (Passive: Armor)
+<h3 id="conditional-passive-armor-adjacent-enemies">
+  Conditional Passive: Armor (Adjacent to 2+ Enemies)
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
@@ -834,8 +848,8 @@ A single enemy can test you. A crowd only gives you something to brace against.
 
 ## Conditional Evade Passives
 
-<h3 id="flowing-step-passive">
-  Flowing Step (Passive: Evade)
+<h3 id="conditional-passive-evade-movement">
+  Conditional Passive: Evade (Moved 8+ m This Turn)
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
@@ -871,8 +885,8 @@ You are safest when you refuse to become a fixed point.
 
 ---
 
-<h3 id="duelist-footwork-passive">
-  Duelist Footwork (Passive: Evade)
+<h3 id="conditional-passive-evade-single-enemy">
+  Conditional Passive: Evade (Exactly 1 Adjacent Enemy)
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
@@ -914,8 +928,8 @@ You do not dodge the battlefield. You reduce it to a duel.
 
 ## Conditional Damage Passives
 
-<h3 id="momentum-passive">
-  Momentum (Passive: Damage)
+<h3 id="conditional-passive-damage-movement">
+  Conditional Passive: Damage (Moved 8+ m This Turn)
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
@@ -956,8 +970,8 @@ Speed becomes weight. Weight becomes impact.
 {{pageNumber,auto}}
 {{wide
 
-<h3 id="ambusher-passive">
-  Ambusher (Passive: Damage)
+<h3 id="conditional-passive-damage-unperceived">
+  Conditional Passive: Damage (Target Cannot Perceive You)
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
@@ -998,8 +1012,8 @@ The wound arrives before the enemy understands where you are.
 {{pageNumber,auto}}
 {{wide
 
-<h3 id="bloodlust-passive">
-  Bloodlust (Passive: Damage)
+<h3 id="conditional-passive-damage-lacerate">
+  Conditional Passive: Damage (Affected by Lacerate)
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
@@ -1040,8 +1054,8 @@ Your own blood teaches your hands to stop hesitating.
 {{pageNumber,auto}}
 {{wide
 
-<h3 id="executioner-passive">
-  Executioner (Passive: Damage)
+<h3 id="conditional-passive-damage-injured-target">
+  Conditional Passive: Damage (Target Injured or Worse)
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
@@ -1080,8 +1094,8 @@ You do not waste strength on enemies who have not started dying.
 {{pageNumber,auto}}
 {{wide
 
-<h3 id="blood-feast-passive">
-  Blood Feast (Passive: Healing)
+<h3 id="conditional-passive-healing-wounded">
+  Conditional Passive: Healing (Wounded or Worse)
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
@@ -1117,8 +1131,8 @@ Pain opens the hunger that keeps you standing.
 
 ---
 
-<h3 id="battle-trance-passive">
-  Battle Trance (Passive: Healing)
+<h3 id="conditional-passive-healing-adjacent-enemy">
+  Conditional Passive: Healing (Adjacent to Enemy)
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
@@ -1159,8 +1173,8 @@ The closer death stands, the clearer your body remembers how to live.
 {{pageNumber,auto}}
 {{wide
 
-<h3 id="stillness-recovery-passive">
-  Stillness Recovery (Passive: Healing)
+<h3 id="conditional-passive-healing-no-movement">
+  Conditional Passive: Healing (Moved 0 m Last Turn)
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
@@ -1213,7 +1227,7 @@ For loadout and stacking purposes, a Combined Passive counts as **both included 
 
 Example:
 
-> **Passive: Armor / Temporary HP** counts as both **Armor** and **Temporary HP**.  
+> **Passive: Armor + Temporary HP** counts as both **Armor** and **Temporary HP**.  
 > You cannot also benefit from another active **Armor** Passive or another active **Temporary HP** Passive at the same time.
 
 ## Combined Passive Rules
@@ -1255,7 +1269,7 @@ Combined Passives may not use:
 
 
 <h3 id="passive-armor-temporary-hp">
-  Passive: Armor / Temporary HP
+  Passive: Armor + Temporary HP
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
@@ -1273,22 +1287,22 @@ Combined Passives may not use:
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Passive: Armor / Temporary HP | Self | — | Permanent / Start of Combat | Gain **+1 Armor**. At the start of combat, gain **5 Temporary HP**. |
-| **2** | Passive: Armor / Temporary HP | Self | — | Permanent / Start of Combat | Gain **+1 Armor**. At the start of combat, gain **10 Temporary HP**. |
-| **3** | Passive: Armor / Temporary HP | Self | — | Permanent / Start of Combat | Gain **+2 Armor**. At the start of combat, gain **15 Temporary HP**. |
-| **4** | Passive: Armor / Temporary HP | Self | — | Permanent / Start of Combat | Gain **+3 Armor**. At the start of combat, gain **20 Temporary HP**. |
-| **5** | Passive: Armor / Temporary HP | Self | — | Permanent / Start of Combat | Gain **+3 Armor**. At the start of combat, gain **25 Temporary HP**. |
-| **6** | Passive: Armor / Temporary HP | Self | — | Permanent / Start of Combat | Gain **+4 Armor**. At the start of combat, gain **30 Temporary HP**. |
-| **7** | Passive: Armor / Temporary HP | Self | — | Permanent / Start of Combat | Gain **+5 Armor**. At the start of combat, gain **35 Temporary HP**. |
-| **8** | Passive: Armor / Temporary HP | Self | — | Permanent / Start of Combat | Gain **+5 Armor**. At the start of combat, gain **40 Temporary HP**. |
-| **9** | Passive: Armor / Temporary HP | Self | — | Permanent / Start of Combat | Gain **+6 Armor**. At the start of combat, gain **45 Temporary HP**. |
-| **10** | Passive: Armor / Temporary HP | Self | — | Permanent / Start of Combat | Gain **+7 Armor**. At the start of combat, gain **50 Temporary HP**. |
-| **11** | Passive: Armor / Temporary HP | Self | — | Permanent / Start of Combat | Gain **+7 Armor**. At the start of combat, gain **55 Temporary HP**. |
-| **12** | Passive: Armor / Temporary HP | Self | — | Permanent / Start of Combat | Gain **+8 Armor**. At the start of combat, gain **60 Temporary HP**. |
-| **13** | Passive: Armor / Temporary HP | Self | — | Permanent / Start of Combat | Gain **+9 Armor**. At the start of combat, gain **65 Temporary HP**. |
-| **14** | Passive: Armor / Temporary HP | Self | — | Permanent / Start of Combat | Gain **+9 Armor**. At the start of combat, gain **70 Temporary HP**. |
-| **15** | Passive: Armor / Temporary HP | Self | — | Permanent / Start of Combat | Gain **+10 Armor**. At the start of combat, gain **75 Temporary HP**. |
-| **16** | Passive: Armor / Temporary HP | Self | — | Permanent / Start of Combat | Gain **+11 Armor**. At the start of combat, gain **80 Temporary HP**. |
+| **1** | Passive: Armor + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+1 Armor**. At the start of combat, gain **5 Temporary HP**. |
+| **2** | Passive: Armor + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+1 Armor**. At the start of combat, gain **10 Temporary HP**. |
+| **3** | Passive: Armor + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+2 Armor**. At the start of combat, gain **15 Temporary HP**. |
+| **4** | Passive: Armor + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+3 Armor**. At the start of combat, gain **20 Temporary HP**. |
+| **5** | Passive: Armor + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+3 Armor**. At the start of combat, gain **25 Temporary HP**. |
+| **6** | Passive: Armor + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+4 Armor**. At the start of combat, gain **30 Temporary HP**. |
+| **7** | Passive: Armor + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+5 Armor**. At the start of combat, gain **35 Temporary HP**. |
+| **8** | Passive: Armor + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+5 Armor**. At the start of combat, gain **40 Temporary HP**. |
+| **9** | Passive: Armor + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+6 Armor**. At the start of combat, gain **45 Temporary HP**. |
+| **10** | Passive: Armor + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+7 Armor**. At the start of combat, gain **50 Temporary HP**. |
+| **11** | Passive: Armor + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+7 Armor**. At the start of combat, gain **55 Temporary HP**. |
+| **12** | Passive: Armor + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+8 Armor**. At the start of combat, gain **60 Temporary HP**. |
+| **13** | Passive: Armor + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+9 Armor**. At the start of combat, gain **65 Temporary HP**. |
+| **14** | Passive: Armor + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+9 Armor**. At the start of combat, gain **70 Temporary HP**. |
+| **15** | Passive: Armor + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+10 Armor**. At the start of combat, gain **75 Temporary HP**. |
+| **16** | Passive: Armor + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+11 Armor**. At the start of combat, gain **80 Temporary HP**. |
 
 ---
 }}
@@ -1298,7 +1312,7 @@ Combined Passives may not use:
 
 {{wide
 <h3 id="passive-armor-healing">
-  Passive: Armor / Healing
+  Passive: Armor + Healing
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
@@ -1316,27 +1330,27 @@ Combined Passives may not use:
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Passive: Armor / Healing | Self | — | Permanent | Gain **+1 Armor**. At the start of your turn, heal **1 HP**. |
-| **2** | Passive: Armor / Healing | Self | — | Permanent | Gain **+1 Armor**. At the start of your turn, heal **2 HP**. |
-| **3** | Passive: Armor / Healing | Self | — | Permanent | Gain **+2 Armor**. At the start of your turn, heal **3 HP**. |
-| **4** | Passive: Armor / Healing | Self | — | Permanent | Gain **+3 Armor**. At the start of your turn, heal **5 HP**. |
-| **5** | Passive: Armor / Healing | Self | — | Permanent | Gain **+3 Armor**. At the start of your turn, heal **6 HP**. |
-| **6** | Passive: Armor / Healing | Self | — | Permanent | Gain **+4 Armor**. At the start of your turn, heal **7 HP**. |
-| **7** | Passive: Armor / Healing | Self | — | Permanent | Gain **+5 Armor**. At the start of your turn, heal **8 HP**. |
-| **8** | Passive: Armor / Healing | Self | — | Permanent | Gain **+5 Armor**. At the start of your turn, heal **10 HP**. |
-| **9** | Passive: Armor / Healing | Self | — | Permanent | Gain **+6 Armor**. At the start of your turn, heal **11 HP**. |
-| **10** | Passive: Armor / Healing | Self | — | Permanent | Gain **+7 Armor**. At the start of your turn, heal **12 HP**. |
-| **11** | Passive: Armor / Healing | Self | — | Permanent | Gain **+7 Armor**. At the start of your turn, heal **13 HP**. |
-| **12** | Passive: Armor / Healing | Self | — | Permanent | Gain **+8 Armor**. At the start of your turn, heal **15 HP**. |
-| **13** | Passive: Armor / Healing | Self | — | Permanent | Gain **+9 Armor**. At the start of your turn, heal **16 HP**. |
-| **14** | Passive: Armor / Healing | Self | — | Permanent | Gain **+9 Armor**. At the start of your turn, heal **17 HP**. |
-| **15** | Passive: Armor / Healing | Self | — | Permanent | Gain **+10 Armor**. At the start of your turn, heal **18 HP**. |
-| **16** | Passive: Armor / Healing | Self | — | Permanent | Gain **+11 Armor**. At the start of your turn, heal **20 HP**. |
+| **1** | Passive: Armor + Healing | Self | — | Permanent | Gain **+1 Armor**. At the start of your turn, heal **1 HP**. |
+| **2** | Passive: Armor + Healing | Self | — | Permanent | Gain **+1 Armor**. At the start of your turn, heal **2 HP**. |
+| **3** | Passive: Armor + Healing | Self | — | Permanent | Gain **+2 Armor**. At the start of your turn, heal **3 HP**. |
+| **4** | Passive: Armor + Healing | Self | — | Permanent | Gain **+3 Armor**. At the start of your turn, heal **5 HP**. |
+| **5** | Passive: Armor + Healing | Self | — | Permanent | Gain **+3 Armor**. At the start of your turn, heal **6 HP**. |
+| **6** | Passive: Armor + Healing | Self | — | Permanent | Gain **+4 Armor**. At the start of your turn, heal **7 HP**. |
+| **7** | Passive: Armor + Healing | Self | — | Permanent | Gain **+5 Armor**. At the start of your turn, heal **8 HP**. |
+| **8** | Passive: Armor + Healing | Self | — | Permanent | Gain **+5 Armor**. At the start of your turn, heal **10 HP**. |
+| **9** | Passive: Armor + Healing | Self | — | Permanent | Gain **+6 Armor**. At the start of your turn, heal **11 HP**. |
+| **10** | Passive: Armor + Healing | Self | — | Permanent | Gain **+7 Armor**. At the start of your turn, heal **12 HP**. |
+| **11** | Passive: Armor + Healing | Self | — | Permanent | Gain **+7 Armor**. At the start of your turn, heal **13 HP**. |
+| **12** | Passive: Armor + Healing | Self | — | Permanent | Gain **+8 Armor**. At the start of your turn, heal **15 HP**. |
+| **13** | Passive: Armor + Healing | Self | — | Permanent | Gain **+9 Armor**. At the start of your turn, heal **16 HP**. |
+| **14** | Passive: Armor + Healing | Self | — | Permanent | Gain **+9 Armor**. At the start of your turn, heal **17 HP**. |
+| **15** | Passive: Armor + Healing | Self | — | Permanent | Gain **+10 Armor**. At the start of your turn, heal **18 HP**. |
+| **16** | Passive: Armor + Healing | Self | — | Permanent | Gain **+11 Armor**. At the start of your turn, heal **20 HP**. |
 
 ---
 
 <h3 id="passive-armor-health">
-  Passive: Armor / Health
+  Passive: Armor + Health
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
@@ -1356,22 +1370,22 @@ Combined Passives may not use:
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Passive: Armor / Health | Self | — | Permanent | Gain **+1 Armor**. |
-| **2** | Passive: Armor / Health | Self | — | Permanent | Gain **+1 Armor**. |
-| **3** | Passive: Armor / Health | Self | — | Permanent | Gain **+2 Armor**. |
-| **4** | Passive: Armor / Health | Self | — | Permanent | Gain **+3 Armor** and **+1 Wounded Health Bar**. |
-| **5** | Passive: Armor / Health | Self | — | Permanent | Gain **+3 Armor** and **+1 Wounded Health Bar**. |
-| **6** | Passive: Armor / Health | Self | — | Permanent | Gain **+4 Armor** and **+1 Wounded Health Bar**. |
-| **7** | Passive: Armor / Health | Self | — | Permanent | Gain **+5 Armor** and **+1 Wounded Health Bar**. |
-| **8** | Passive: Armor / Health | Self | — | Permanent | Gain **+5 Armor**, **+1 Wounded Health Bar**, and **+1 Injured Health Bar**. |
-| **9** | Passive: Armor / Health | Self | — | Permanent | Gain **+6 Armor**, **+1 Wounded Health Bar**, and **+1 Injured Health Bar**. |
-| **10** | Passive: Armor / Health | Self | — | Permanent | Gain **+7 Armor**, **+1 Wounded Health Bar**, and **+1 Injured Health Bar**. |
-| **11** | Passive: Armor / Health | Self | — | Permanent | Gain **+7 Armor**, **+1 Wounded Health Bar**, and **+1 Injured Health Bar**. |
-| **12** | Passive: Armor / Health | Self | — | Permanent | Gain **+8 Armor**, **+1 Wounded Health Bar**, **+1 Injured Health Bar**, and **+1 Bruised Health Bar**. |
-| **13** | Passive: Armor / Health | Self | — | Permanent | Gain **+9 Armor**, **+1 Wounded Health Bar**, **+1 Injured Health Bar**, and **+1 Bruised Health Bar**. |
-| **14** | Passive: Armor / Health | Self | — | Permanent | Gain **+9 Armor**, **+1 Wounded Health Bar**, **+1 Injured Health Bar**, and **+1 Bruised Health Bar**. |
-| **15** | Passive: Armor / Health | Self | — | Permanent | Gain **+10 Armor**, **+1 Wounded Health Bar**, **+1 Injured Health Bar**, and **+1 Bruised Health Bar**. |
-| **16** | Passive: Armor / Health | Self | — | Permanent | Gain **+11 Armor**, **+1 Wounded Health Bar**, **+1 Injured Health Bar**, and **+1 Bruised Health Bar**. |
+| **1** | Passive: Armor + Health | Self | — | Permanent | Gain **+1 Armor**. |
+| **2** | Passive: Armor + Health | Self | — | Permanent | Gain **+1 Armor**. |
+| **3** | Passive: Armor + Health | Self | — | Permanent | Gain **+2 Armor**. |
+| **4** | Passive: Armor + Health | Self | — | Permanent | Gain **+3 Armor** and **+1 Wounded Health Bar**. |
+| **5** | Passive: Armor + Health | Self | — | Permanent | Gain **+3 Armor** and **+1 Wounded Health Bar**. |
+| **6** | Passive: Armor + Health | Self | — | Permanent | Gain **+4 Armor** and **+1 Wounded Health Bar**. |
+| **7** | Passive: Armor + Health | Self | — | Permanent | Gain **+5 Armor** and **+1 Wounded Health Bar**. |
+| **8** | Passive: Armor + Health | Self | — | Permanent | Gain **+5 Armor**, **+1 Wounded Health Bar**, and **+1 Injured Health Bar**. |
+| **9** | Passive: Armor + Health | Self | — | Permanent | Gain **+6 Armor**, **+1 Wounded Health Bar**, and **+1 Injured Health Bar**. |
+| **10** | Passive: Armor + Health | Self | — | Permanent | Gain **+7 Armor**, **+1 Wounded Health Bar**, and **+1 Injured Health Bar**. |
+| **11** | Passive: Armor + Health | Self | — | Permanent | Gain **+7 Armor**, **+1 Wounded Health Bar**, and **+1 Injured Health Bar**. |
+| **12** | Passive: Armor + Health | Self | — | Permanent | Gain **+8 Armor**, **+1 Wounded Health Bar**, **+1 Injured Health Bar**, and **+1 Bruised Health Bar**. |
+| **13** | Passive: Armor + Health | Self | — | Permanent | Gain **+9 Armor**, **+1 Wounded Health Bar**, **+1 Injured Health Bar**, and **+1 Bruised Health Bar**. |
+| **14** | Passive: Armor + Health | Self | — | Permanent | Gain **+9 Armor**, **+1 Wounded Health Bar**, **+1 Injured Health Bar**, and **+1 Bruised Health Bar**. |
+| **15** | Passive: Armor + Health | Self | — | Permanent | Gain **+10 Armor**, **+1 Wounded Health Bar**, **+1 Injured Health Bar**, and **+1 Bruised Health Bar**. |
+| **16** | Passive: Armor + Health | Self | — | Permanent | Gain **+11 Armor**, **+1 Wounded Health Bar**, **+1 Injured Health Bar**, and **+1 Bruised Health Bar**. |
 
 }}
 
@@ -1381,7 +1395,7 @@ Combined Passives may not use:
 {{wide
 
 <h3 id="passive-evade-temporary-hp">
-  Passive: Evade / Temporary HP
+  Passive: Evade + Temporary HP
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
@@ -1399,22 +1413,22 @@ Combined Passives may not use:
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Passive: Evade / Temporary HP | Self | — | Permanent / Start of Combat | Gain **+1 Evade**. At the start of combat, gain **5 Temporary HP**. |
-| **2** | Passive: Evade / Temporary HP | Self | — | Permanent / Start of Combat | Gain **+2 Evade**. At the start of combat, gain **10 Temporary HP**. |
-| **3** | Passive: Evade / Temporary HP | Self | — | Permanent / Start of Combat | Gain **+3 Evade**. At the start of combat, gain **15 Temporary HP**. |
-| **4** | Passive: Evade / Temporary HP | Self | — | Permanent / Start of Combat | Gain **+4 Evade**. At the start of combat, gain **20 Temporary HP**. |
-| **5** | Passive: Evade / Temporary HP | Self | — | Permanent / Start of Combat | Gain **+5 Evade**. At the start of combat, gain **25 Temporary HP**. |
-| **6** | Passive: Evade / Temporary HP | Self | — | Permanent / Start of Combat | Gain **+6 Evade**. At the start of combat, gain **30 Temporary HP**. |
-| **7** | Passive: Evade / Temporary HP | Self | — | Permanent / Start of Combat | Gain **+7 Evade**. At the start of combat, gain **35 Temporary HP**. |
-| **8** | Passive: Evade / Temporary HP | Self | — | Permanent / Start of Combat | Gain **+8 Evade**. At the start of combat, gain **40 Temporary HP**. |
-| **9** | Passive: Evade / Temporary HP | Self | — | Permanent / Start of Combat | Gain **+9 Evade**. At the start of combat, gain **45 Temporary HP**. |
-| **10** | Passive: Evade / Temporary HP | Self | — | Permanent / Start of Combat | Gain **+10 Evade**. At the start of combat, gain **50 Temporary HP**. |
-| **11** | Passive: Evade / Temporary HP | Self | — | Permanent / Start of Combat | Gain **+11 Evade**. At the start of combat, gain **55 Temporary HP**. |
-| **12** | Passive: Evade / Temporary HP | Self | — | Permanent / Start of Combat | Gain **+12 Evade**. At the start of combat, gain **60 Temporary HP**. |
-| **13** | Passive: Evade / Temporary HP | Self | — | Permanent / Start of Combat | Gain **+13 Evade**. At the start of combat, gain **65 Temporary HP**. |
-| **14** | Passive: Evade / Temporary HP | Self | — | Permanent / Start of Combat | Gain **+14 Evade**. At the start of combat, gain **70 Temporary HP**. |
-| **15** | Passive: Evade / Temporary HP | Self | — | Permanent / Start of Combat | Gain **+15 Evade**. At the start of combat, gain **75 Temporary HP**. |
-| **16** | Passive: Evade / Temporary HP | Self | — | Permanent / Start of Combat | Gain **+16 Evade**. At the start of combat, gain **80 Temporary HP**. |
+| **1** | Passive: Evade + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+1 Evade**. At the start of combat, gain **5 Temporary HP**. |
+| **2** | Passive: Evade + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+2 Evade**. At the start of combat, gain **10 Temporary HP**. |
+| **3** | Passive: Evade + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+3 Evade**. At the start of combat, gain **15 Temporary HP**. |
+| **4** | Passive: Evade + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+4 Evade**. At the start of combat, gain **20 Temporary HP**. |
+| **5** | Passive: Evade + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+5 Evade**. At the start of combat, gain **25 Temporary HP**. |
+| **6** | Passive: Evade + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+6 Evade**. At the start of combat, gain **30 Temporary HP**. |
+| **7** | Passive: Evade + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+7 Evade**. At the start of combat, gain **35 Temporary HP**. |
+| **8** | Passive: Evade + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+8 Evade**. At the start of combat, gain **40 Temporary HP**. |
+| **9** | Passive: Evade + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+9 Evade**. At the start of combat, gain **45 Temporary HP**. |
+| **10** | Passive: Evade + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+10 Evade**. At the start of combat, gain **50 Temporary HP**. |
+| **11** | Passive: Evade + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+11 Evade**. At the start of combat, gain **55 Temporary HP**. |
+| **12** | Passive: Evade + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+12 Evade**. At the start of combat, gain **60 Temporary HP**. |
+| **13** | Passive: Evade + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+13 Evade**. At the start of combat, gain **65 Temporary HP**. |
+| **14** | Passive: Evade + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+14 Evade**. At the start of combat, gain **70 Temporary HP**. |
+| **15** | Passive: Evade + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+15 Evade**. At the start of combat, gain **75 Temporary HP**. |
+| **16** | Passive: Evade + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+16 Evade**. At the start of combat, gain **80 Temporary HP**. |
 
 ---
 }}
@@ -1424,7 +1438,7 @@ Combined Passives may not use:
 
 {{wide
 <h3 id="passive-evade-healing">
-  Passive: Evade / Healing
+  Passive: Evade + Healing
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
@@ -1442,27 +1456,27 @@ Combined Passives may not use:
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Passive: Evade / Healing | Self | — | Permanent | Gain **+1 Evade**. At the start of your turn, heal **1 HP**. |
-| **2** | Passive: Evade / Healing | Self | — | Permanent | Gain **+2 Evade**. At the start of your turn, heal **2 HP**. |
-| **3** | Passive: Evade / Healing | Self | — | Permanent | Gain **+3 Evade**. At the start of your turn, heal **3 HP**. |
-| **4** | Passive: Evade / Healing | Self | — | Permanent | Gain **+4 Evade**. At the start of your turn, heal **5 HP**. |
-| **5** | Passive: Evade / Healing | Self | — | Permanent | Gain **+5 Evade**. At the start of your turn, heal **6 HP**. |
-| **6** | Passive: Evade / Healing | Self | — | Permanent | Gain **+6 Evade**. At the start of your turn, heal **7 HP**. |
-| **7** | Passive: Evade / Healing | Self | — | Permanent | Gain **+7 Evade**. At the start of your turn, heal **8 HP**. |
-| **8** | Passive: Evade / Healing | Self | — | Permanent | Gain **+8 Evade**. At the start of your turn, heal **10 HP**. |
-| **9** | Passive: Evade / Healing | Self | — | Permanent | Gain **+9 Evade**. At the start of your turn, heal **11 HP**. |
-| **10** | Passive: Evade / Healing | Self | — | Permanent | Gain **+10 Evade**. At the start of your turn, heal **12 HP**. |
-| **11** | Passive: Evade / Healing | Self | — | Permanent | Gain **+11 Evade**. At the start of your turn, heal **13 HP**. |
-| **12** | Passive: Evade / Healing | Self | — | Permanent | Gain **+12 Evade**. At the start of your turn, heal **15 HP**. |
-| **13** | Passive: Evade / Healing | Self | — | Permanent | Gain **+13 Evade**. At the start of your turn, heal **16 HP**. |
-| **14** | Passive: Evade / Healing | Self | — | Permanent | Gain **+14 Evade**. At the start of your turn, heal **17 HP**. |
-| **15** | Passive: Evade / Healing | Self | — | Permanent | Gain **+15 Evade**. At the start of your turn, heal **18 HP**. |
-| **16** | Passive: Evade / Healing | Self | — | Permanent | Gain **+16 Evade**. At the start of your turn, heal **20 HP**. |
+| **1** | Passive: Evade + Healing | Self | — | Permanent | Gain **+1 Evade**. At the start of your turn, heal **1 HP**. |
+| **2** | Passive: Evade + Healing | Self | — | Permanent | Gain **+2 Evade**. At the start of your turn, heal **2 HP**. |
+| **3** | Passive: Evade + Healing | Self | — | Permanent | Gain **+3 Evade**. At the start of your turn, heal **3 HP**. |
+| **4** | Passive: Evade + Healing | Self | — | Permanent | Gain **+4 Evade**. At the start of your turn, heal **5 HP**. |
+| **5** | Passive: Evade + Healing | Self | — | Permanent | Gain **+5 Evade**. At the start of your turn, heal **6 HP**. |
+| **6** | Passive: Evade + Healing | Self | — | Permanent | Gain **+6 Evade**. At the start of your turn, heal **7 HP**. |
+| **7** | Passive: Evade + Healing | Self | — | Permanent | Gain **+7 Evade**. At the start of your turn, heal **8 HP**. |
+| **8** | Passive: Evade + Healing | Self | — | Permanent | Gain **+8 Evade**. At the start of your turn, heal **10 HP**. |
+| **9** | Passive: Evade + Healing | Self | — | Permanent | Gain **+9 Evade**. At the start of your turn, heal **11 HP**. |
+| **10** | Passive: Evade + Healing | Self | — | Permanent | Gain **+10 Evade**. At the start of your turn, heal **12 HP**. |
+| **11** | Passive: Evade + Healing | Self | — | Permanent | Gain **+11 Evade**. At the start of your turn, heal **13 HP**. |
+| **12** | Passive: Evade + Healing | Self | — | Permanent | Gain **+12 Evade**. At the start of your turn, heal **15 HP**. |
+| **13** | Passive: Evade + Healing | Self | — | Permanent | Gain **+13 Evade**. At the start of your turn, heal **16 HP**. |
+| **14** | Passive: Evade + Healing | Self | — | Permanent | Gain **+14 Evade**. At the start of your turn, heal **17 HP**. |
+| **15** | Passive: Evade + Healing | Self | — | Permanent | Gain **+15 Evade**. At the start of your turn, heal **18 HP**. |
+| **16** | Passive: Evade + Healing | Self | — | Permanent | Gain **+16 Evade**. At the start of your turn, heal **20 HP**. |
 
 ---
 
 <h3 id="passive-evade-damage">
-  Passive: Evade / Damage
+  Passive: Evade + Damage
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
@@ -1480,22 +1494,22 @@ Combined Passives may not use:
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Passive: Evade / Damage | Self | — | Permanent | Gain **+1 Evade**. |
-| **2** | Passive: Evade / Damage | Self | — | Permanent | Gain **+2 Evade**. |
-| **3** | Passive: Evade / Damage | Self | — | Permanent | Gain **+3 Evade**. |
-| **4** | Passive: Evade / Damage | Self | — | Permanent | Gain **+4 Evade** and **+1d6 Damage** on all damage rolls you make. |
-| **5** | Passive: Evade / Damage | Self | — | Permanent | Gain **+5 Evade** and **+1d6 Damage** on all damage rolls you make. |
-| **6** | Passive: Evade / Damage | Self | — | Permanent | Gain **+6 Evade** and **+1d6 Damage** on all damage rolls you make. |
-| **7** | Passive: Evade / Damage | Self | — | Permanent | Gain **+7 Evade** and **+1d6 Damage** on all damage rolls you make. |
-| **8** | Passive: Evade / Damage | Self | — | Permanent | Gain **+8 Evade** and **+2d6 Damage** on all damage rolls you make. |
-| **9** | Passive: Evade / Damage | Self | — | Permanent | Gain **+9 Evade** and **+2d6 Damage** on all damage rolls you make. |
-| **10** | Passive: Evade / Damage | Self | — | Permanent | Gain **+10 Evade** and **+2d6 Damage** on all damage rolls you make. |
-| **11** | Passive: Evade / Damage | Self | — | Permanent | Gain **+11 Evade** and **+2d6 Damage** on all damage rolls you make. |
-| **12** | Passive: Evade / Damage | Self | — | Permanent | Gain **+12 Evade** and **+3d6 Damage** on all damage rolls you make. |
-| **13** | Passive: Evade / Damage | Self | — | Permanent | Gain **+13 Evade** and **+3d6 Damage** on all damage rolls you make. |
-| **14** | Passive: Evade / Damage | Self | — | Permanent | Gain **+14 Evade** and **+3d6 Damage** on all damage rolls you make. |
-| **15** | Passive: Evade / Damage | Self | — | Permanent | Gain **+15 Evade** and **+3d6 Damage** on all damage rolls you make. |
-| **16** | Passive: Evade / Damage | Self | — | Permanent | Gain **+16 Evade** and **+4d6 Damage** on all damage rolls you make. |
+| **1** | Passive: Evade + Damage | Self | — | Permanent | Gain **+1 Evade**. |
+| **2** | Passive: Evade + Damage | Self | — | Permanent | Gain **+2 Evade**. |
+| **3** | Passive: Evade + Damage | Self | — | Permanent | Gain **+3 Evade**. |
+| **4** | Passive: Evade + Damage | Self | — | Permanent | Gain **+4 Evade** and **+1d6 Damage** on all damage rolls you make. |
+| **5** | Passive: Evade + Damage | Self | — | Permanent | Gain **+5 Evade** and **+1d6 Damage** on all damage rolls you make. |
+| **6** | Passive: Evade + Damage | Self | — | Permanent | Gain **+6 Evade** and **+1d6 Damage** on all damage rolls you make. |
+| **7** | Passive: Evade + Damage | Self | — | Permanent | Gain **+7 Evade** and **+1d6 Damage** on all damage rolls you make. |
+| **8** | Passive: Evade + Damage | Self | — | Permanent | Gain **+8 Evade** and **+2d6 Damage** on all damage rolls you make. |
+| **9** | Passive: Evade + Damage | Self | — | Permanent | Gain **+9 Evade** and **+2d6 Damage** on all damage rolls you make. |
+| **10** | Passive: Evade + Damage | Self | — | Permanent | Gain **+10 Evade** and **+2d6 Damage** on all damage rolls you make. |
+| **11** | Passive: Evade + Damage | Self | — | Permanent | Gain **+11 Evade** and **+2d6 Damage** on all damage rolls you make. |
+| **12** | Passive: Evade + Damage | Self | — | Permanent | Gain **+12 Evade** and **+3d6 Damage** on all damage rolls you make. |
+| **13** | Passive: Evade + Damage | Self | — | Permanent | Gain **+13 Evade** and **+3d6 Damage** on all damage rolls you make. |
+| **14** | Passive: Evade + Damage | Self | — | Permanent | Gain **+14 Evade** and **+3d6 Damage** on all damage rolls you make. |
+| **15** | Passive: Evade + Damage | Self | — | Permanent | Gain **+15 Evade** and **+3d6 Damage** on all damage rolls you make. |
+| **16** | Passive: Evade + Damage | Self | — | Permanent | Gain **+16 Evade** and **+4d6 Damage** on all damage rolls you make. |
 
 }}
 
@@ -1505,7 +1519,7 @@ Combined Passives may not use:
 {{wide
 
 <h3 id="passive-damage-healing">
-  Passive: Damage / Healing
+  Passive: Damage + Healing
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
@@ -1523,22 +1537,22 @@ Combined Passives may not use:
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Passive: Damage / Healing | Self | — | Permanent | At the start of your turn, heal **1 HP**. |
-| **2** | Passive: Damage / Healing | Self | — | Permanent | At the start of your turn, heal **2 HP**. |
-| **3** | Passive: Damage / Healing | Self | — | Permanent | At the start of your turn, heal **3 HP**. |
-| **4** | Passive: Damage / Healing | Self | — | Permanent | Gain **+1d6 Damage** on all damage rolls you make. At the start of your turn, heal **5 HP**. |
-| **5** | Passive: Damage / Healing | Self | — | Permanent | Gain **+1d6 Damage** on all damage rolls you make. At the start of your turn, heal **6 HP**. |
-| **6** | Passive: Damage / Healing | Self | — | Permanent | Gain **+1d6 Damage** on all damage rolls you make. At the start of your turn, heal **7 HP**. |
-| **7** | Passive: Damage / Healing | Self | — | Permanent | Gain **+1d6 Damage** on all damage rolls you make. At the start of your turn, heal **8 HP**. |
-| **8** | Passive: Damage / Healing | Self | — | Permanent | Gain **+2d6 Damage** on all damage rolls you make. At the start of your turn, heal **10 HP**. |
-| **9** | Passive: Damage / Healing | Self | — | Permanent | Gain **+2d6 Damage** on all damage rolls you make. At the start of your turn, heal **11 HP**. |
-| **10** | Passive: Damage / Healing | Self | — | Permanent | Gain **+2d6 Damage** on all damage rolls you make. At the start of your turn, heal **12 HP**. |
-| **11** | Passive: Damage / Healing | Self | — | Permanent | Gain **+2d6 Damage** on all damage rolls you make. At the start of your turn, heal **13 HP**. |
-| **12** | Passive: Damage / Healing | Self | — | Permanent | Gain **+3d6 Damage** on all damage rolls you make. At the start of your turn, heal **15 HP**. |
-| **13** | Passive: Damage / Healing | Self | — | Permanent | Gain **+3d6 Damage** on all damage rolls you make. At the start of your turn, heal **16 HP**. |
-| **14** | Passive: Damage / Healing | Self | — | Permanent | Gain **+3d6 Damage** on all damage rolls you make. At the start of your turn, heal **17 HP**. |
-| **15** | Passive: Damage / Healing | Self | — | Permanent | Gain **+3d6 Damage** on all damage rolls you make. At the start of your turn, heal **18 HP**. |
-| **16** | Passive: Damage / Healing | Self | — | Permanent | Gain **+4d6 Damage** on all damage rolls you make. At the start of your turn, heal **20 HP**. |
+| **1** | Passive: Damage + Healing | Self | — | Permanent | At the start of your turn, heal **1 HP**. |
+| **2** | Passive: Damage + Healing | Self | — | Permanent | At the start of your turn, heal **2 HP**. |
+| **3** | Passive: Damage + Healing | Self | — | Permanent | At the start of your turn, heal **3 HP**. |
+| **4** | Passive: Damage + Healing | Self | — | Permanent | Gain **+1d6 Damage** on all damage rolls you make. At the start of your turn, heal **5 HP**. |
+| **5** | Passive: Damage + Healing | Self | — | Permanent | Gain **+1d6 Damage** on all damage rolls you make. At the start of your turn, heal **6 HP**. |
+| **6** | Passive: Damage + Healing | Self | — | Permanent | Gain **+1d6 Damage** on all damage rolls you make. At the start of your turn, heal **7 HP**. |
+| **7** | Passive: Damage + Healing | Self | — | Permanent | Gain **+1d6 Damage** on all damage rolls you make. At the start of your turn, heal **8 HP**. |
+| **8** | Passive: Damage + Healing | Self | — | Permanent | Gain **+2d6 Damage** on all damage rolls you make. At the start of your turn, heal **10 HP**. |
+| **9** | Passive: Damage + Healing | Self | — | Permanent | Gain **+2d6 Damage** on all damage rolls you make. At the start of your turn, heal **11 HP**. |
+| **10** | Passive: Damage + Healing | Self | — | Permanent | Gain **+2d6 Damage** on all damage rolls you make. At the start of your turn, heal **12 HP**. |
+| **11** | Passive: Damage + Healing | Self | — | Permanent | Gain **+2d6 Damage** on all damage rolls you make. At the start of your turn, heal **13 HP**. |
+| **12** | Passive: Damage + Healing | Self | — | Permanent | Gain **+3d6 Damage** on all damage rolls you make. At the start of your turn, heal **15 HP**. |
+| **13** | Passive: Damage + Healing | Self | — | Permanent | Gain **+3d6 Damage** on all damage rolls you make. At the start of your turn, heal **16 HP**. |
+| **14** | Passive: Damage + Healing | Self | — | Permanent | Gain **+3d6 Damage** on all damage rolls you make. At the start of your turn, heal **17 HP**. |
+| **15** | Passive: Damage + Healing | Self | — | Permanent | Gain **+3d6 Damage** on all damage rolls you make. At the start of your turn, heal **18 HP**. |
+| **16** | Passive: Damage + Healing | Self | — | Permanent | Gain **+4d6 Damage** on all damage rolls you make. At the start of your turn, heal **20 HP**. |
 
 ---
 }}
@@ -1548,7 +1562,7 @@ Combined Passives may not use:
 
 {{wide
 <h3 id="passive-damage-temporary-hp">
-  Passive: Damage / Temporary HP
+  Passive: Damage + Temporary HP
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
@@ -1566,22 +1580,22 @@ Combined Passives may not use:
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Passive: Damage / Temporary HP | Self | — | Permanent / Start of Combat | At the start of combat, gain **5 Temporary HP**. |
-| **2** | Passive: Damage / Temporary HP | Self | — | Permanent / Start of Combat | At the start of combat, gain **10 Temporary HP**. |
-| **3** | Passive: Damage / Temporary HP | Self | — | Permanent / Start of Combat | At the start of combat, gain **15 Temporary HP**. |
-| **4** | Passive: Damage / Temporary HP | Self | — | Permanent / Start of Combat | Gain **+1d6 Damage** on all damage rolls you make. At the start of combat, gain **20 Temporary HP**. |
-| **5** | Passive: Damage / Temporary HP | Self | — | Permanent / Start of Combat | Gain **+1d6 Damage** on all damage rolls you make. At the start of combat, gain **25 Temporary HP**. |
-| **6** | Passive: Damage / Temporary HP | Self | — | Permanent / Start of Combat | Gain **+1d6 Damage** on all damage rolls you make. At the start of combat, gain **30 Temporary HP**. |
-| **7** | Passive: Damage / Temporary HP | Self | — | Permanent / Start of Combat | Gain **+1d6 Damage** on all damage rolls you make. At the start of combat, gain **35 Temporary HP**. |
-| **8** | Passive: Damage / Temporary HP | Self | — | Permanent / Start of Combat | Gain **+2d6 Damage** on all damage rolls you make. At the start of combat, gain **40 Temporary HP**. |
-| **9** | Passive: Damage / Temporary HP | Self | — | Permanent / Start of Combat | Gain **+2d6 Damage** on all damage rolls you make. At the start of combat, gain **45 Temporary HP**. |
-| **10** | Passive: Damage / Temporary HP | Self | — | Permanent / Start of Combat | Gain **+2d6 Damage** on all damage rolls you make. At the start of combat, gain **50 Temporary HP**. |
-| **11** | Passive: Damage / Temporary HP | Self | — | Permanent / Start of Combat | Gain **+2d6 Damage** on all damage rolls you make. At the start of combat, gain **55 Temporary HP**. |
-| **12** | Passive: Damage / Temporary HP | Self | — | Permanent / Start of Combat | Gain **+3d6 Damage** on all damage rolls you make. At the start of combat, gain **60 Temporary HP**. |
-| **13** | Passive: Damage / Temporary HP | Self | — | Permanent / Start of Combat | Gain **+3d6 Damage** on all damage rolls you make. At the start of combat, gain **65 Temporary HP**. |
-| **14** | Passive: Damage / Temporary HP | Self | — | Permanent / Start of Combat | Gain **+3d6 Damage** on all damage rolls you make. At the start of combat, gain **70 Temporary HP**. |
-| **15** | Passive: Damage / Temporary HP | Self | — | Permanent / Start of Combat | Gain **+3d6 Damage** on all damage rolls you make. At the start of combat, gain **75 Temporary HP**. |
-| **16** | Passive: Damage / Temporary HP | Self | — | Permanent / Start of Combat | Gain **+4d6 Damage** on all damage rolls you make. At the start of combat, gain **80 Temporary HP**. |
+| **1** | Passive: Damage + Temporary HP | Self | — | Permanent / Start of Combat | At the start of combat, gain **5 Temporary HP**. |
+| **2** | Passive: Damage + Temporary HP | Self | — | Permanent / Start of Combat | At the start of combat, gain **10 Temporary HP**. |
+| **3** | Passive: Damage + Temporary HP | Self | — | Permanent / Start of Combat | At the start of combat, gain **15 Temporary HP**. |
+| **4** | Passive: Damage + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+1d6 Damage** on all damage rolls you make. At the start of combat, gain **20 Temporary HP**. |
+| **5** | Passive: Damage + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+1d6 Damage** on all damage rolls you make. At the start of combat, gain **25 Temporary HP**. |
+| **6** | Passive: Damage + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+1d6 Damage** on all damage rolls you make. At the start of combat, gain **30 Temporary HP**. |
+| **7** | Passive: Damage + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+1d6 Damage** on all damage rolls you make. At the start of combat, gain **35 Temporary HP**. |
+| **8** | Passive: Damage + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+2d6 Damage** on all damage rolls you make. At the start of combat, gain **40 Temporary HP**. |
+| **9** | Passive: Damage + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+2d6 Damage** on all damage rolls you make. At the start of combat, gain **45 Temporary HP**. |
+| **10** | Passive: Damage + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+2d6 Damage** on all damage rolls you make. At the start of combat, gain **50 Temporary HP**. |
+| **11** | Passive: Damage + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+2d6 Damage** on all damage rolls you make. At the start of combat, gain **55 Temporary HP**. |
+| **12** | Passive: Damage + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+3d6 Damage** on all damage rolls you make. At the start of combat, gain **60 Temporary HP**. |
+| **13** | Passive: Damage + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+3d6 Damage** on all damage rolls you make. At the start of combat, gain **65 Temporary HP**. |
+| **14** | Passive: Damage + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+3d6 Damage** on all damage rolls you make. At the start of combat, gain **70 Temporary HP**. |
+| **15** | Passive: Damage + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+3d6 Damage** on all damage rolls you make. At the start of combat, gain **75 Temporary HP**. |
+| **16** | Passive: Damage + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+4d6 Damage** on all damage rolls you make. At the start of combat, gain **80 Temporary HP**. |
 
 }}
 
@@ -1591,7 +1605,7 @@ Combined Passives may not use:
 {{wide
 
 <h3 id="passive-health-healing">
-  Passive: Health / Healing
+  Passive: Health + Healing
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
@@ -1611,22 +1625,22 @@ Combined Passives may not use:
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Passive: Health / Healing | Self | — | Permanent | At the start of your turn, heal **1 HP**. |
-| **2** | Passive: Health / Healing | Self | — | Permanent | At the start of your turn, heal **2 HP**. |
-| **3** | Passive: Health / Healing | Self | — | Permanent | At the start of your turn, heal **3 HP**. |
-| **4** | Passive: Health / Healing | Self | — | Permanent | Gain **+1 Wounded Health Bar**. At the start of your turn, heal **5 HP**. |
-| **5** | Passive: Health / Healing | Self | — | Permanent | Gain **+1 Wounded Health Bar**. At the start of your turn, heal **6 HP**. |
-| **6** | Passive: Health / Healing | Self | — | Permanent | Gain **+1 Wounded Health Bar**. At the start of your turn, heal **7 HP**. |
-| **7** | Passive: Health / Healing | Self | — | Permanent | Gain **+1 Wounded Health Bar**. At the start of your turn, heal **8 HP**. |
-| **8** | Passive: Health / Healing | Self | — | Permanent | Gain **+1 Wounded Health Bar** and **+1 Injured Health Bar**. At the start of your turn, heal **10 HP**. |
-| **9** | Passive: Health / Healing | Self | — | Permanent | Gain **+1 Wounded Health Bar** and **+1 Injured Health Bar**. At the start of your turn, heal **11 HP**. |
-| **10** | Passive: Health / Healing | Self | — | Permanent | Gain **+1 Wounded Health Bar** and **+1 Injured Health Bar**. At the start of your turn, heal **12 HP**. |
-| **11** | Passive: Health / Healing | Self | — | Permanent | Gain **+1 Wounded Health Bar** and **+1 Injured Health Bar**. At the start of your turn, heal **13 HP**. |
-| **12** | Passive: Health / Healing | Self | — | Permanent | Gain **+1 Wounded Health Bar**, **+1 Injured Health Bar**, and **+1 Bruised Health Bar**. At the start of your turn, heal **15 HP**. |
-| **13** | Passive: Health / Healing | Self | — | Permanent | Gain **+1 Wounded Health Bar**, **+1 Injured Health Bar**, and **+1 Bruised Health Bar**. At the start of your turn, heal **16 HP**. |
-| **14** | Passive: Health / Healing | Self | — | Permanent | Gain **+1 Wounded Health Bar**, **+1 Injured Health Bar**, and **+1 Bruised Health Bar**. At the start of your turn, heal **17 HP**. |
-| **15** | Passive: Health / Healing | Self | — | Permanent | Gain **+1 Wounded Health Bar**, **+1 Injured Health Bar**, and **+1 Bruised Health Bar**. At the start of your turn, heal **18 HP**. |
-| **16** | Passive: Health / Healing | Self | — | Permanent | Gain **+1 Wounded Health Bar**, **+1 Injured Health Bar**, and **+1 Bruised Health Bar**. At the start of your turn, heal **20 HP**. |
+| **1** | Passive: Health + Healing | Self | — | Permanent | At the start of your turn, heal **1 HP**. |
+| **2** | Passive: Health + Healing | Self | — | Permanent | At the start of your turn, heal **2 HP**. |
+| **3** | Passive: Health + Healing | Self | — | Permanent | At the start of your turn, heal **3 HP**. |
+| **4** | Passive: Health + Healing | Self | — | Permanent | Gain **+1 Wounded Health Bar**. At the start of your turn, heal **5 HP**. |
+| **5** | Passive: Health + Healing | Self | — | Permanent | Gain **+1 Wounded Health Bar**. At the start of your turn, heal **6 HP**. |
+| **6** | Passive: Health + Healing | Self | — | Permanent | Gain **+1 Wounded Health Bar**. At the start of your turn, heal **7 HP**. |
+| **7** | Passive: Health + Healing | Self | — | Permanent | Gain **+1 Wounded Health Bar**. At the start of your turn, heal **8 HP**. |
+| **8** | Passive: Health + Healing | Self | — | Permanent | Gain **+1 Wounded Health Bar** and **+1 Injured Health Bar**. At the start of your turn, heal **10 HP**. |
+| **9** | Passive: Health + Healing | Self | — | Permanent | Gain **+1 Wounded Health Bar** and **+1 Injured Health Bar**. At the start of your turn, heal **11 HP**. |
+| **10** | Passive: Health + Healing | Self | — | Permanent | Gain **+1 Wounded Health Bar** and **+1 Injured Health Bar**. At the start of your turn, heal **12 HP**. |
+| **11** | Passive: Health + Healing | Self | — | Permanent | Gain **+1 Wounded Health Bar** and **+1 Injured Health Bar**. At the start of your turn, heal **13 HP**. |
+| **12** | Passive: Health + Healing | Self | — | Permanent | Gain **+1 Wounded Health Bar**, **+1 Injured Health Bar**, and **+1 Bruised Health Bar**. At the start of your turn, heal **15 HP**. |
+| **13** | Passive: Health + Healing | Self | — | Permanent | Gain **+1 Wounded Health Bar**, **+1 Injured Health Bar**, and **+1 Bruised Health Bar**. At the start of your turn, heal **16 HP**. |
+| **14** | Passive: Health + Healing | Self | — | Permanent | Gain **+1 Wounded Health Bar**, **+1 Injured Health Bar**, and **+1 Bruised Health Bar**. At the start of your turn, heal **17 HP**. |
+| **15** | Passive: Health + Healing | Self | — | Permanent | Gain **+1 Wounded Health Bar**, **+1 Injured Health Bar**, and **+1 Bruised Health Bar**. At the start of your turn, heal **18 HP**. |
+| **16** | Passive: Health + Healing | Self | — | Permanent | Gain **+1 Wounded Health Bar**, **+1 Injured Health Bar**, and **+1 Bruised Health Bar**. At the start of your turn, heal **20 HP**. |
 
 ---
 }}
@@ -1636,7 +1650,7 @@ Combined Passives may not use:
 
 {{wide
 <h3 id="passive-health-temporary-hp">
-  Passive: Health / Temporary HP
+  Passive: Health + Temporary HP
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
@@ -1656,22 +1670,22 @@ Combined Passives may not use:
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Passive: Health / Temporary HP | Self | — | Permanent / Start of Combat | At the start of combat, gain **5 Temporary HP**. |
-| **2** | Passive: Health / Temporary HP | Self | — | Permanent / Start of Combat | At the start of combat, gain **10 Temporary HP**. |
-| **3** | Passive: Health / Temporary HP | Self | — | Permanent / Start of Combat | At the start of combat, gain **15 Temporary HP**. |
-| **4** | Passive: Health / Temporary HP | Self | — | Permanent / Start of Combat | Gain **+1 Wounded Health Bar**. At the start of combat, gain **20 Temporary HP**. |
-| **5** | Passive: Health / Temporary HP | Self | — | Permanent / Start of Combat | Gain **+1 Wounded Health Bar**. At the start of combat, gain **25 Temporary HP**. |
-| **6** | Passive: Health / Temporary HP | Self | — | Permanent / Start of Combat | Gain **+1 Wounded Health Bar**. At the start of combat, gain **30 Temporary HP**. |
-| **7** | Passive: Health / Temporary HP | Self | — | Permanent / Start of Combat | Gain **+1 Wounded Health Bar**. At the start of combat, gain **35 Temporary HP**. |
-| **8** | Passive: Health / Temporary HP | Self | — | Permanent / Start of Combat | Gain **+1 Wounded Health Bar** and **+1 Injured Health Bar**. At the start of combat, gain **40 Temporary HP**. |
-| **9** | Passive: Health / Temporary HP | Self | — | Permanent / Start of Combat | Gain **+1 Wounded Health Bar** and **+1 Injured Health Bar**. At the start of combat, gain **45 Temporary HP**. |
-| **10** | Passive: Health / Temporary HP | Self | — | Permanent / Start of Combat | Gain **+1 Wounded Health Bar** and **+1 Injured Health Bar**. At the start of combat, gain **50 Temporary HP**. |
-| **11** | Passive: Health / Temporary HP | Self | — | Permanent / Start of Combat | Gain **+1 Wounded Health Bar** and **+1 Injured Health Bar**. At the start of combat, gain **55 Temporary HP**. |
-| **12** | Passive: Health / Temporary HP | Self | — | Permanent / Start of Combat | Gain **+1 Wounded Health Bar**, **+1 Injured Health Bar**, and **+1 Bruised Health Bar**. At the start of combat, gain **60 Temporary HP**. |
-| **13** | Passive: Health / Temporary HP | Self | — | Permanent / Start of Combat | Gain **+1 Wounded Health Bar**, **+1 Injured Health Bar**, and **+1 Bruised Health Bar**. At the start of combat, gain **65 Temporary HP**. |
-| **14** | Passive: Health / Temporary HP | Self | — | Permanent / Start of Combat | Gain **+1 Wounded Health Bar**, **+1 Injured Health Bar**, and **+1 Bruised Health Bar**. At the start of combat, gain **70 Temporary HP**. |
-| **15** | Passive: Health / Temporary HP | Self | — | Permanent / Start of Combat | Gain **+1 Wounded Health Bar**, **+1 Injured Health Bar**, and **+1 Bruised Health Bar**. At the start of combat, gain **75 Temporary HP**. |
-| **16** | Passive: Health / Temporary HP | Self | — | Permanent / Start of Combat | Gain **+1 Wounded Health Bar**, **+1 Injured Health Bar**, and **+1 Bruised Health Bar**. At the start of combat, gain **80 Temporary HP**. |
+| **1** | Passive: Health + Temporary HP | Self | — | Permanent / Start of Combat | At the start of combat, gain **5 Temporary HP**. |
+| **2** | Passive: Health + Temporary HP | Self | — | Permanent / Start of Combat | At the start of combat, gain **10 Temporary HP**. |
+| **3** | Passive: Health + Temporary HP | Self | — | Permanent / Start of Combat | At the start of combat, gain **15 Temporary HP**. |
+| **4** | Passive: Health + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+1 Wounded Health Bar**. At the start of combat, gain **20 Temporary HP**. |
+| **5** | Passive: Health + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+1 Wounded Health Bar**. At the start of combat, gain **25 Temporary HP**. |
+| **6** | Passive: Health + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+1 Wounded Health Bar**. At the start of combat, gain **30 Temporary HP**. |
+| **7** | Passive: Health + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+1 Wounded Health Bar**. At the start of combat, gain **35 Temporary HP**. |
+| **8** | Passive: Health + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+1 Wounded Health Bar** and **+1 Injured Health Bar**. At the start of combat, gain **40 Temporary HP**. |
+| **9** | Passive: Health + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+1 Wounded Health Bar** and **+1 Injured Health Bar**. At the start of combat, gain **45 Temporary HP**. |
+| **10** | Passive: Health + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+1 Wounded Health Bar** and **+1 Injured Health Bar**. At the start of combat, gain **50 Temporary HP**. |
+| **11** | Passive: Health + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+1 Wounded Health Bar** and **+1 Injured Health Bar**. At the start of combat, gain **55 Temporary HP**. |
+| **12** | Passive: Health + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+1 Wounded Health Bar**, **+1 Injured Health Bar**, and **+1 Bruised Health Bar**. At the start of combat, gain **60 Temporary HP**. |
+| **13** | Passive: Health + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+1 Wounded Health Bar**, **+1 Injured Health Bar**, and **+1 Bruised Health Bar**. At the start of combat, gain **65 Temporary HP**. |
+| **14** | Passive: Health + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+1 Wounded Health Bar**, **+1 Injured Health Bar**, and **+1 Bruised Health Bar**. At the start of combat, gain **70 Temporary HP**. |
+| **15** | Passive: Health + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+1 Wounded Health Bar**, **+1 Injured Health Bar**, and **+1 Bruised Health Bar**. At the start of combat, gain **75 Temporary HP**. |
+| **16** | Passive: Health + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+1 Wounded Health Bar**, **+1 Injured Health Bar**, and **+1 Bruised Health Bar**. At the start of combat, gain **80 Temporary HP**. |
 
 
 }}
@@ -1693,7 +1707,7 @@ For loadout and stacking purposes, a Conditional Combined Passive counts as **bo
 
 Example:
 
-> **Conditional Passive: Armor / Healing** counts as both **Armor** and **Healing**.  
+> **Conditional Passive: Armor + Healing** counts as both **Armor** and **Healing**.  
 > You cannot also benefit from another active **Armor** Passive or another active **Healing** Passive at the same time.
 
 ## Conditional Combined Passive Rules
@@ -1762,8 +1776,8 @@ If the condition is true, gain the listed Health Bars for that combat. These Hea
 
 ## Conditional Combined Passive Catalog
 
-<h3 id="conditional-passive-armor-temporary-hp">
-  Conditional Passive: Armor / Temporary HP
+<h3 id="conditional-passive-armor-temporary-hp-adjacent-ally">
+  Conditional Passive: Armor + Temporary HP (Adjacent to Ally)
   <span class="tooltip">🛈
     <span class="tooltiptext">
       CATEGORIES<br>
@@ -1824,8 +1838,8 @@ If the condition is true, gain the listed Health Bars for that combat. These Hea
 {{pageNumber,auto}}
 
 {{wide
-<h3 id="conditional-passive-armor-healing">
-  Conditional Passive: Armor / Healing
+<h3 id="conditional-passive-armor-healing-no-movement">
+  Conditional Passive: Armor + Healing (Moved 0 m Last Turn)
   <span class="tooltip">🛈
     <span class="tooltiptext">
       CATEGORIES<br>
@@ -1885,8 +1899,8 @@ If the condition is true, gain the listed Health Bars for that combat. These Hea
 {{pageNumber,auto}}
 
 {{wide
-<h3 id="conditional-passive-armor-health">
-  Conditional Passive: Armor / Health
+<h3 id="conditional-passive-armor-health-adjacent-ally">
+  Conditional Passive: Armor + Health (Adjacent to Ally)
   <span class="tooltip">🛈
     <span class="tooltiptext">
       CATEGORIES<br>
@@ -1935,8 +1949,8 @@ If the condition is true, gain the listed Health Bars for that combat. These Hea
 
 {{wide
 
-<h3 id="conditional-passive-evade-temporary-hp">
-  Conditional Passive: Evade / Temporary HP
+<h3 id="conditional-passive-evade-temporary-hp-movement">
+  Conditional Passive: Evade + Temporary HP (Moved 8+ m)
   <span class="tooltip">🛈
     <span class="tooltiptext">
       CATEGORIES<br>
@@ -1997,8 +2011,8 @@ If the condition is true, gain the listed Health Bars for that combat. These Hea
 {{pageNumber,auto}}
 
 {{wide
-<h3 id="conditional-passive-evade-healing">
-  Conditional Passive: Evade / Healing
+<h3 id="conditional-passive-evade-healing-movement">
+  Conditional Passive: Evade + Healing (Moved 8+ m Last Turn)
   <span class="tooltip">🛈
     <span class="tooltiptext">
       CATEGORIES<br>
@@ -2057,8 +2071,8 @@ If the condition is true, gain the listed Health Bars for that combat. These Hea
 {{pageNumber,auto}}
 
 {{wide
-<h3 id="conditional-passive-evade-damage">
-  Conditional Passive: Evade / Damage
+<h3 id="conditional-passive-evade-damage-movement">
+  Conditional Passive: Evade + Damage (Moved 8+ m This Turn)
   <span class="tooltip">🛈
     <span class="tooltiptext">
       CATEGORIES<br>
@@ -2117,8 +2131,8 @@ If the condition is true, gain the listed Health Bars for that combat. These Hea
 {{pageNumber,auto}}
 
 {{wide
-<h3 id="conditional-passive-damage-healing">
-  Conditional Passive: Damage / Healing
+<h3 id="conditional-passive-damage-healing-lacerate">
+  Conditional Passive: Damage + Healing (Affected by Lacerate)
   <span class="tooltip">🛈
     <span class="tooltiptext">
       CATEGORIES<br>
@@ -2178,8 +2192,8 @@ If the condition is true, gain the listed Health Bars for that combat. These Hea
 {{pageNumber,auto}}
 
 {{wide
-<h3 id="conditional-passive-damage-temporary-hp">
-  Conditional Passive: Damage / Temporary HP
+<h3 id="conditional-passive-damage-temporary-hp-movement">
+  Conditional Passive: Damage + Temporary HP (Moved 8+ m)
   <span class="tooltip">🛈
     <span class="tooltiptext">
       CATEGORIES<br>
@@ -2240,8 +2254,8 @@ If the condition is true, gain the listed Health Bars for that combat. These Hea
 {{pageNumber,auto}}
 
 {{wide
-<h3 id="conditional-passive-health-healing">
-  Conditional Passive: Health / Healing
+<h3 id="conditional-passive-health-healing-wounded">
+  Conditional Passive: Health + Healing (Wounded or Worse)
   <span class="tooltip">🛈
     <span class="tooltiptext">
       CATEGORIES<br>
@@ -2307,8 +2321,8 @@ If the condition is true, gain the listed Health Bars for that combat. These Hea
 {{pageNumber,auto}}
 
 {{wide
-<h3 id="conditional-passive-health-temporary-hp">
-  Conditional Passive: Health / Temporary HP
+<h3 id="conditional-passive-health-temporary-hp-adjacent-ally">
+  Conditional Passive: Health + Temporary HP (Adjacent to Ally at Combat Start)
   <span class="tooltip">🛈
     <span class="tooltiptext">
       CATEGORIES<br>
@@ -2386,11 +2400,11 @@ If the creature leaves the aura, the increase immediately ends.
 
 Multiple Special Auras affecting the same Special do not stack. Only the strongest applicable aura applies.
 
-#### Example — Weaken Aura
+#### Example: Passive: Special Aura + Weaken
 
 A creature inside the aura is affected by **Weaken(4)**. The Passive Special Aura increases it to **Weaken(5)** while that creature remains inside the aura. When it leaves, the Special returns to its normal current value. The aura never applies Weaken to an unaffected creature.
 
-#### Example — Soulburn Aura
+#### Example: Passive: Special Aura + Soulburn
 
 A creature inside the aura is affected by **Soulburn(6)**. The aura treats it as **Soulburn(7)** while the creature remains inside. The +1 increase ends immediately when the creature leaves the aura.
 
@@ -2507,7 +2521,7 @@ The aura is always centered on the user.
 
 {{wide
 <h3 id="passive-special-aura">
-  Passive: Special Aura
+  Passive: Special Aura + Blight / Challenge / Corrode / Disoriented / Expose / Hex / Lacerate / Mark / Ruin / Slow / Soulburn / Sundered / Weaken
   <span class="tooltip">🛈
     <span class="tooltiptext">
       CATEGORIES<br>
@@ -2549,6 +2563,8 @@ The aura is always centered on the user.
 
 Choose one eligible diminishing **Special(X)** when you take this Passive.
 
+The learned Power's technical name is **Passive: Special Aura + the chosen Special**.
+
 While a creature inside your aura is already affected by that Special, increase that Special by **+1 step**.
 
 This aura does not apply the Special by itself.
@@ -2564,19 +2580,19 @@ Multiple Special Auras affecting the same Special do not stack. Only the stronge
 | **1** | Passive | Self | — | Permanent | — |
 | **2** | Passive | Self | — | Permanent | — |
 | **3** | Passive | Self | — | Permanent | — |
-| **4** | Passive | Self | 2 m radius | Permanent | Chosen eligible **Special(X)** gains **+1 step** while affecting a creature inside the aura. |
-| **5** | Passive | Self | 3 m radius | Permanent | Chosen eligible **Special(X)** gains **+1 step** while affecting a creature inside the aura. |
-| **6** | Passive | Self | 4 m radius | Permanent | Chosen eligible **Special(X)** gains **+1 step** while affecting a creature inside the aura. |
-| **7** | Passive | Self | 5 m radius | Permanent | Chosen eligible **Special(X)** gains **+1 step** while affecting a creature inside the aura. |
-| **8** | Passive | Self | 5 m radius | Permanent | Chosen eligible **Special(X)** gains **+1 step** while affecting a creature inside the aura. |
-| **9** | Passive | Self | 5 m radius | Permanent | Chosen eligible **Special(X)** gains **+1 step** while affecting a creature inside the aura. |
-| **10** | Passive | Self | 6 m radius | Permanent | Chosen eligible **Special(X)** gains **+1 step** while affecting a creature inside the aura. |
-| **11** | Passive | Self | 6 m radius | Permanent | Chosen eligible **Special(X)** gains **+1 step** while affecting a creature inside the aura. |
-| **12** | Passive | Self | 6 m radius | Permanent | Chosen eligible **Special(X)** gains **+1 step** while affecting a creature inside the aura. |
-| **13** | Passive | Self | 7 m radius | Permanent | Chosen eligible **Special(X)** gains **+1 step** while affecting a creature inside the aura. |
-| **14** | Passive | Self | 7 m radius | Permanent | Chosen eligible **Special(X)** gains **+1 step** while affecting a creature inside the aura. |
-| **15** | Passive | Self | 7 m radius | Permanent | Chosen eligible **Special(X)** gains **+1 step** while affecting a creature inside the aura. |
-| **16** | Passive | Self | 8 m radius | Permanent | Chosen eligible **Special(X)** gains **+1 step** while affecting a creature inside the aura. |
+| **4** | Passive | Self | 2 m radius | Permanent | The **Special(X)** chosen when you learned this Power gains **+1 step** while affecting a creature inside the aura. |
+| **5** | Passive | Self | 3 m radius | Permanent | The **Special(X)** chosen when you learned this Power gains **+1 step** while affecting a creature inside the aura. |
+| **6** | Passive | Self | 4 m radius | Permanent | The **Special(X)** chosen when you learned this Power gains **+1 step** while affecting a creature inside the aura. |
+| **7** | Passive | Self | 5 m radius | Permanent | The **Special(X)** chosen when you learned this Power gains **+1 step** while affecting a creature inside the aura. |
+| **8** | Passive | Self | 5 m radius | Permanent | The **Special(X)** chosen when you learned this Power gains **+1 step** while affecting a creature inside the aura. |
+| **9** | Passive | Self | 5 m radius | Permanent | The **Special(X)** chosen when you learned this Power gains **+1 step** while affecting a creature inside the aura. |
+| **10** | Passive | Self | 6 m radius | Permanent | The **Special(X)** chosen when you learned this Power gains **+1 step** while affecting a creature inside the aura. |
+| **11** | Passive | Self | 6 m radius | Permanent | The **Special(X)** chosen when you learned this Power gains **+1 step** while affecting a creature inside the aura. |
+| **12** | Passive | Self | 6 m radius | Permanent | The **Special(X)** chosen when you learned this Power gains **+1 step** while affecting a creature inside the aura. |
+| **13** | Passive | Self | 7 m radius | Permanent | The **Special(X)** chosen when you learned this Power gains **+1 step** while affecting a creature inside the aura. |
+| **14** | Passive | Self | 7 m radius | Permanent | The **Special(X)** chosen when you learned this Power gains **+1 step** while affecting a creature inside the aura. |
+| **15** | Passive | Self | 7 m radius | Permanent | The **Special(X)** chosen when you learned this Power gains **+1 step** while affecting a creature inside the aura. |
+| **16** | Passive | Self | 8 m radius | Permanent | The **Special(X)** chosen when you learned this Power gains **+1 step** while affecting a creature inside the aura. |
 
 }}
 
@@ -2596,8 +2612,8 @@ They do not grant Armor, Evade, Damage Reduction, Phasing, Temporary HP, Healing
 
 ---
 
-<h3 id="spell-resistance-passive">
-  Spell Resistance (Passive: Ward)
+<h3 id="passive-spell-resistance">
+  Passive: Spell Resistance
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
@@ -2659,8 +2675,8 @@ Your body, mind, soul, or warding pattern rejects hostile spell structure.
 \page
 {{pageNumber,auto}}
 {{wide
-<h3 id="ward-passive">
-  Ward (Passive: Ward)
+<h3 id="passive-ward">
+  Passive: Ward
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
@@ -2762,7 +2778,7 @@ Ward does not reduce Specials already affecting you.
 \page
 {{pageNumber,auto}}
 {{wide
-## Telepathy (Passive)
+## Passive: Telepathy
 
 Telepathy is a Passive mental utility category.
 
@@ -2784,8 +2800,8 @@ A willing creature may accept or leave a Mind Link without a Check.
 
 A Mind Link allows only the communication and voluntary sharing listed by the Passive's current level. A willing creature never reveals more than it chooses to share.
 
-<h3 id="telepathy-passive">
-  Telepathy (Passive)
+<h3 id="passive-telepathy">
+  Passive: Telepathy
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
@@ -2836,8 +2852,8 @@ A passive mental connection that grants Telepathic Access and allows voluntary M
 {{pageNumber,auto}}
 {{wide
 
-<h3 id="bound-host-passive">
-  Bound Host (Passive: Summon)
+<h3 id="passive-summon-tokens">
+  Passive: Summon Tokens
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
@@ -2920,8 +2936,8 @@ They may be spent on:
 {{pageNumber,auto}}
 {{wide
 
-<h3 id="thornhide-passive">
-  Thornhide (Passive)
+<h3 id="passive-thorns">
+  Passive: Thorns
   <span class="tooltip">🛈
     <span class="tooltiptext">
       CATEGORY<br>
@@ -2953,7 +2969,7 @@ They may be spent on:
       L15 target 300 PP → Thorns 10d8 = 300 PP exactly on target.<br>
       L16 target 320 PP → Thorns 10d8 = 300 PP below target.<br><br>
       NOTES<br>
-      Thornhide is intentionally capped by final HP damage taken. It reflects damage only and never reflects Specials. It does not make attacks, does not trigger on-hit effects, does not benefit from Crit, and cannot trigger Thorns. This Passive uses the Damage category and therefore competes with other Damage Passives.
+      Passive: Thorns is intentionally capped by final HP damage taken. It reflects damage only and never reflects Specials. It does not make attacks, does not trigger on-hit effects, does not benefit from Crit, and cannot trigger Thorns. This Passive uses the Damage category and therefore competes with other Damage Passives.
     </span>
   </span>
 </h3>
@@ -2983,9 +2999,9 @@ When you take final HP damage from a direct attack, Spell, or Power, the source 
 
 Thorns damage cannot exceed the final HP damage you took from the triggering effect.
 
-If the triggering effect deals no final HP damage to you, Thornhide deals no damage.
+If the triggering effect deals no final HP damage to you, Passive: Thorns deals no damage.
 
-Thornhide follows all normal Thorns rules.
+Passive: Thorns follows all normal Thorns rules.
 
 }}
 
@@ -2994,7 +3010,7 @@ Thornhide follows all normal Thorns rules.
 {{pageNumber,auto}}
 {{wide
 <h3 id="passive-invisibility">
-  Passive Invisibility (Passive)
+  Passive: Invisibility
   <span class="tooltip">🛈
     <span class="tooltiptext">
       CATEGORY<br>
@@ -3003,17 +3019,17 @@ Thornhide follows all normal Thorns rules.
 BASELINES<br>
       Passive curve = 20 PP at Level 1, +20 PP per level after that.<br>
       Invisibility is a premium defensive axis based on perception, sense blocking, and target denial.<br>
-      Passive Invisibility grants a stable Invisibility Bonus and may block Special Combat Senses at higher levels.<br><br>
+      Passive: Invisibility grants a stable Invisibility Bonus and may block Special Combat Senses at higher levels.<br><br>
 
  DESIGN STRUCTURE<br>
-      Passive Invisibility does not reduce damage.<br>
-      Passive Invisibility does not increase Evade.<br>
-      Passive Invisibility does not grant Armor, Damage Reduction, Phasing, Temporary HP, or Healing.<br>
+      Passive: Invisibility does not reduce damage.<br>
+      Passive: Invisibility does not increase Evade.<br>
+      Passive: Invisibility does not grant Armor, Damage Reduction, Phasing, Temporary HP, or Healing.<br>
       Instead, it increases the Perception TN required to locate, target, or read the invisible creature.<br><br>
 
  PROGRESSION<br>
-      The Passive Invisibility Bonus is capped at +10 and stretched across Levels 1–16.<br>
-      Passive Invisibility always blocks Normal Combat Awareness.<br>
+      The Invisibility Bonus from Passive: Invisibility is capped at +10 and stretched across Levels 1–16.<br>
+      Passive: Invisibility always blocks Normal Combat Awareness.<br>
       At higher levels, it also blocks selected Special Combat Senses.<br><br>
       LEVEL-BY-LEVEL STRUCTURE<br>
       L1 → +1 Invisibility Bonus, blocks Normal Combat Awareness.<br>
@@ -3066,7 +3082,7 @@ The Invisibility Bonus increases the Perception TN required to locate, target, o
 
 Your current Invisibility Bonus may be reduced by **Cloak Disruption**.
 
-Passive Invisibility may stack with **Active Buff: Invisibility**. If both are active, add both Invisibility Bonuses together and combine their blocked Combat Senses.
+Passive: Invisibility may stack with **Active Buff: Invisibility**. If both are active, add both Invisibility Bonuses together and combine their blocked Combat Senses.
 
 
 }}
@@ -3076,8 +3092,8 @@ Passive Invisibility may stack with **Active Buff: Invisibility**. If both are a
 {{pageNumber,auto}}
 {{wide
 
-<h3 id="initiative-passive">
-  Initiative
+<h3 id="passive-initiative">
+  Passive: Initiative
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
@@ -3298,8 +3314,8 @@ Any Attack Dice that remain are rolled normally against the character's Evade.
 {{pageNumber,auto}}
 {{wide
 
-<h3 id="parry-passive">
-  Parry (Passive: Parry)
+<h3 id="passive-parry">
+  Passive: Parry
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
@@ -3574,8 +3590,8 @@ Absorption may not appear as a secondary rider on another Passive.
 \page
 {{pageNumber,auto}}
 {{wide
-<h3 id="absorption-passive">
-  Absorption (Passive: Absorption)
+<h3 id="passive-absorption">
+  Passive: Absorption
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
@@ -3930,8 +3946,8 @@ unless a dedicated Damage Negation entry explicitly states otherwise.
 {{pageNumber,auto}}
 {{wide
 
-<h3 id="damage-negation-passive">
-  Damage Negation (Passive: Damage Negation)
+<h3 id="passive-damage-negation">
+  Passive: Damage Negation
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>

@@ -67,38 +67,38 @@ Version: v0.9.8 (2026-07-31)
 # Summary
 
 - #### [{{ Artwork Credits}}{{ 2}}](#p2)
-- #### [{{ Martial Actives — Numeric Specials}}{{ 4}}](#p4)
-- #### [{{ Root Template Rule}}{{ 4}}](#p4)
-- #### [{{ Start PP 3 Templates}}{{ 5}}](#p5)
-- #### [{{ Start PP 4 Templates}}{{ 6}}](#p6)
-- #### [{{ Start PP 6 Templates}}{{ 8}}](#p8)
-- #### [{{ Start PP 8 Templates}}{{ 11}}](#p11)
-- #### [{{ Martial AoE Attack Rules}}{{ 13}}](#p13)
-- #### [{{ AoE Start PP 3 Templates}}{{ 14}}](#p14)
-- #### [{{ AoE Start PP 6 and Root Templates}}{{ 18}}](#p18)
-- #### [{{ Persistent Diminishing Zones}}{{ 22}}](#p22)
-- #### [{{ Control Specials}}{{ 28}}](#p28)
-- #### [{{ Support Actives}}{{ 35}}](#p35)
-- #### [{{ Active Constructs and Terrain}}{{ 49}}](#p49)
-- #### [{{ Barrier Actives}}{{ 56}}](#p56)
-- #### [{{ Immovable}}{{ 57}}](#p57)
-- #### [{{ Illusion Fields and Power Images}}{{ 59}}](#p59)
-- #### [{{ Hard Control}}{{ 63}}](#p63)
-- #### [{{ Weapon Attack Templates}}{{ 66}}](#p66)
-- #### [{{ Targeted Diminishing Specials}}{{ 81}}](#p81)
-- #### [{{ Mental Powers}}{{ 86}}](#p86)
+- #### [{{ Martial Attacks + Numeric Specials}}{{ 4}}](#p4)
+- #### [{{ Root Attack Rule}}{{ 4}}](#p4)
+- #### [{{ Attacks + Blight}}{{ 6}}](#p6)
+- #### [{{ Attacks + Lacerate / Mark / Ruin / Slow}}{{ 7}}](#p7)
+- #### [{{ Attacks + Challenge / Corrode / Hex / Sundered / Root}}{{ 9}}](#p9)
+- #### [{{ Attacks + Disoriented / Expose / Soulburn / Weaken}}{{ 12}}](#p12)
+- #### [{{ Martial AoE Attack Rules}}{{ 14}}](#p14)
+- #### [{{ AoE Attacks + Numeric Specials}}{{ 15}}](#p15)
+- #### [{{ Persistent Diminishing Zones}}{{ 23}}](#p23)
+- #### [{{ Control Specials}}{{ 29}}](#p29)
+- #### [{{ Support Actives}}{{ 36}}](#p36)
+- #### [{{ Active Constructs and Terrain}}{{ 50}}](#p50)
+- #### [{{ Barrier Actives}}{{ 57}}](#p57)
+- #### [{{ Illusion Fields and Power Images}}{{ 58}}](#p58)
+- #### [{{ Hard Control}}{{ 62}}](#p62)
+- #### [{{ Weapon Attack Powers}}{{ 65}}](#p65)
+- #### [{{ Targeted Diminishing Specials}}{{ 80}}](#p80)
+- #### [{{ Mental Powers}}{{ 85}}](#p85)
 
 }}
 \page
 {{pageNumber,auto}}
 {{wide
-## Martial Actives — Special-First Damage + Numeric Specials
+## Martial Attacks + Numeric Specials
 
-> **Current Start PP 8 Group:** Disoriented, Expose, Soulburn, and Weaken use the dedicated Start PP 8 templates in this catalogue.
+Every catalogue entry uses a mechanical technical name. When a technical name lists several Specials separated by slashes, choose one of them when learning the Power. That choice becomes part of the Power's technical name and cannot be changed later.
 
-> **Targeted Start PP 2 Specials:** Exorcism and Requiem use dedicated targeted templates later in this catalogue.
+> **Base Cost 8 Specials:** Disoriented, Expose, Soulburn, and Weaken use the dedicated 8 PP Special-cost progression in this catalogue.
 
-> **Root:** Root uses **Start PP 6 × T(X)** pricing but follows its own Until Broken rules. Root has a minimum applied value of **Root(2)** and never uses Root(1).
+> **Base Cost 2 Targeted Specials:** Exorcism and Requiem use dedicated targeted progressions later in this catalogue.
+
+> **Root:** Root uses **6 × T(X) PP** pricing but follows its own Until Broken rules. Root has a minimum applied value of **Root(2)** and never uses Root(1).
 
 > **Scaling Rule:** These templates are Special-first Martial Actives.  
 > The Special is the primary scaling component. Damage is the secondary rider.  
@@ -106,17 +106,17 @@ Version: v0.9.8 (2026-07-31)
 > Unused PP may be ignored if spending it would block later Special scaling or require adding a second rider.
 
 > **Triangular Special Formula:**  
-> Special Cost = Start PP × T(X)  
+> Special Cost = Base Cost × T(X)  
 > T(X) = X × (X + 1) / 2
 
-### Root Template Rule
+### Root Attack Rule
 
-Root is priced through the **Start PP 6** curve, but it is not a standard Diminishing Special.
+Root has a **6 PP Base Cost**, but it is not a standard Diminishing Special.
 
-When a Start PP 6 template is built as Root:
+When a Special-first attack is built with Root:
 
 - the applied value can never be lower than **Root(2)**,
-- Root uses **Start PP 6 × T(X)** pricing,
+- Root uses **6 × T(X) PP** pricing,
 - the target's Speed becomes **0 m** and it cannot move voluntarily,
 - at the start of the affected creature's Turn, reduce Root by that creature's **Mastery Rank**,
 - and the creature may additionally spend an Action, Movement Action, or Reaction on a Vitality Attribute Check against **TN 8 × source MR**; success reduces Root by 1, plus 1 per Raise.
@@ -124,7 +124,7 @@ When a Start PP 6 template is built as Root:
 If the budget of a template cannot support Root(2), Root is unavailable at that Level. Root is not inserted into Persistent Zone templates unless a dedicated rule explicitly permits repeated Root application.
 
 
-### Special-First Damage Anchor Rule
+### Special-First Attack Scaling
 
 These templates are Special-first Martial Actives.
 
@@ -139,22 +139,13 @@ From Level 5 onward:
 
 This prevents filler damage from turning a Special template into a Damage template.
 
----
-:
+}}
+\page
+{{pageNumber,auto}}
+{{wide
+### Example: Melee Attack + Blight
 
----
-:
-### Example — Building a Special-First Martial Active
-
-A player wants to create a melee blight strike.
-
-They choose:
-
-- **Melee Active**
-- **Damage + Start PP 3 Special**
-- **Blight** as the Special
-
-At Level 4, the template gives:
+A player selects **Melee Attack + Blight** at Level 4. The Power gives:
 
 - Range: **Melee Reach**
 - Damage: **+1d8 damage**
@@ -180,18 +171,17 @@ If the attack misses, neither the damage nor the Special applies.
 
 ---
 :
-<h3 id="melee-damage-start-pp-3-special">
-  Melee — Damage + Start PP 3 Special
+<h3 id="melee-attack-blight">
+  Melee Attack + Blight
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
       Active curve = 30 PP per level<br>
       +1d8 Damage = 15 PP<br>
       Damage is a minor rider in this template<br>
-      Start PP 3 Diminishing Special<br>
+      Special base cost = 3 PP<br>
       Special Cost = 3 × T(X)<br>
       T(X) = X × (X + 1) / 2<br><br>
-
       SPECIAL COSTS<br>
       Blight(1) = 3 PP<br>
       Blight(2) = 9 PP<br>
@@ -210,14 +200,12 @@ If the attack misses, neither the damage nor the Special applies.
       Blight(15) = 360 PP<br>
       Blight(16) = 408 PP<br>
       Blight(17) = 459 PP<br><br>
-
       SCALING RULE<br>
       This is a Blight-first Martial Active.<br>
       Blight is the primary scaling axis.<br>
       Damage remains fixed at +1d8 and is only a low damage rider.<br>
       Blight may stay the same or increase, but it may never decrease.<br>
       Damage is not used to fill all leftover PP.<br><br>
-
       CALCULATION<br>
       L1 → Target 30 PP: Damage +1d8 (15) + Blight(3) (18) = 33 PP ≈ 30 target<br>
       L2 → Target 60 PP: Damage +1d8 (15) + Blight(5) (45) = 60 PP<br>
@@ -235,7 +223,6 @@ If the attack misses, neither the damage nor the Special applies.
       L14 → Target 420 PP: Damage +1d8 (15) + Blight(16) (408) = 423 PP ≈ 420 target<br>
       L15 → Target 450 PP: Damage +1d8 (15) + Blight(16) (408) = 423 PP<br>
       L16 → Target 480 PP: Damage +1d8 (15) + Blight(17) (459) = 474 PP<br><br>
-
       NOTES<br>
       This version intentionally keeps damage low.<br>
       Blight continues scaling beyond Blight(10).<br>
@@ -273,8 +260,8 @@ A close-range martial strike that focuses on applying a high Blight value, with 
 
 ---
 :
-<h3 id="ranged-damage-start-pp-3-special">
-  Ranged — Damage + Start PP 3 Special
+<h3 id="ranged-attack-blight">
+  Ranged Attack + Blight
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
@@ -283,10 +270,9 @@ A close-range martial strike that focuses on applying a high Blight value, with 
       Damage is a minor rider in this template<br>
       Range progression = +4 m per level<br>
       Range cost = +5 PP per +4 m after 8 m<br>
-      Start PP 3 Diminishing Special<br>
+      Special base cost = 3 PP<br>
       Special Cost = 3 × T(X)<br>
       T(X) = X × (X + 1) / 2<br><br>
-
       RANGE COSTS<br>
       8 m = 0 PP<br>
       12 m = 5 PP<br>
@@ -304,7 +290,6 @@ A close-range martial strike that focuses on applying a high Blight value, with 
       60 m = 65 PP<br>
       64 m = 70 PP<br>
       68 m = 75 PP<br><br>
-
       SPECIAL COSTS<br>
       Blight(1) = 3 PP<br>
       Blight(2) = 9 PP<br>
@@ -321,7 +306,6 @@ A close-range martial strike that focuses on applying a high Blight value, with 
       Blight(13) = 273 PP<br>
       Blight(14) = 315 PP<br>
       Blight(15) = 360 PP<br><br>
-
       SCALING RULE<br>
       This is a Blight-first Ranged Martial Active.<br>
       Blight is the primary scaling axis.<br>
@@ -329,7 +313,6 @@ A close-range martial strike that focuses on applying a high Blight value, with 
       Damage remains fixed at +1d8 and is only a low damage rider.<br>
       Blight may stay the same or increase, but it may never decrease.<br>
       Damage is not used to fill all leftover PP.<br><br>
-
       CALCULATION<br>
       L1 → Target 30 PP: Range 8 m (0) + Damage +1d8 (15) + Blight(2) (9) = 24 PP<br>
       L2 → Target 60 PP: Range 12 m (5) + Damage +1d8 (15) + Blight(4) (30) = 50 PP<br>
@@ -347,7 +330,6 @@ A close-range martial strike that focuses on applying a high Blight value, with 
       L14 → Target 420 PP: Range 60 m (65) + Damage +1d8 (15) + Blight(14) (315) = 395 PP<br>
       L15 → Target 450 PP: Range 64 m (70) + Damage +1d8 (15) + Blight(15) (360) = 445 PP<br>
       L16 → Target 480 PP: Range 68 m (75) + Damage +1d8 (15) + Blight(15) (360) = 450 PP<br><br>
-
       NOTES<br>
       This version intentionally keeps damage low.<br>
       Blight continues scaling beyond Blight(10).<br>
@@ -390,18 +372,17 @@ A ranged martial attack that focuses on applying a high Blight value, with damag
 
 ---
 :
-<h3 id="melee-damage-start-pp-4-special">
-  Melee — Damage + Start PP 4 Special
+<h3 id="melee-attack-standard-diminishing-special">
+  Melee Attack + Lacerate / Mark / Ruin / Slow
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
       Active curve = 30 PP per level<br>
       +1d8 Damage = 15 PP<br>
       Damage is a minor rider in this template<br>
-      Start PP 4 Diminishing Special<br>
+      Special base cost = 4 PP<br>
       Special Cost = 4 × T(X)<br>
       T(X) = X × (X + 1) / 2<br><br>
-
       SPECIAL COSTS<br>
       Special(1) = 4 PP<br>
       Special(2) = 12 PP<br>
@@ -417,14 +398,12 @@ A ranged martial attack that focuses on applying a high Blight value, with damag
       Special(12) = 312 PP<br>
       Special(13) = 364 PP<br>
       Special(14) = 420 PP<br><br>
-
       SCALING RULE<br>
       This is a Special-first Martial Active.<br>
       Lacerate, Mark, Ruin, and Slow are the primary scaling axis.<br>
       Damage remains fixed at +1d8 and is only a low damage rider.<br>
       Special may stay the same or increase, but it may never decrease.<br>
       Damage is not used to fill all leftover PP.<br><br>
-
       CALCULATION<br>
       L1 → Target 30 PP: Damage +1d8 (15) + Special(2) (12) = 27 PP<br>
       L2 → Target 60 PP: Damage +1d8 (15) + Special(4) (40) = 55 PP<br>
@@ -442,7 +421,6 @@ A ranged martial attack that focuses on applying a high Blight value, with damag
       L14 → Target 420 PP: Damage +1d8 (15) + Special(13) (364) = 379 PP<br>
       L15 → Target 450 PP: Damage +1d8 (15) + Special(14) (420) = 435 PP<br>
       L16 → Target 480 PP: Damage +1d8 (15) + Special(14) (420) = 435 PP<br><br>
-
       NOTES<br>
       This version intentionally keeps damage low.<br>
       The Special continues scaling beyond the old Special(9) stopping point.<br>
@@ -481,8 +459,8 @@ This template covers Lacerate, Mark, Ruin, and Slow.
 
 ---
 :
-<h3 id="ranged-damage-start-pp-4-special">
-  Ranged — Damage + Start PP 4 Special
+<h3 id="ranged-attack-standard-diminishing-special">
+  Ranged Attack + Lacerate / Mark / Ruin / Slow
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
@@ -491,10 +469,9 @@ This template covers Lacerate, Mark, Ruin, and Slow.
       Damage is a minor rider in this template<br>
       Range progression = +4 m per level<br>
       Range cost = +5 PP per +4 m after 8 m<br>
-      Start PP 4 Diminishing Special<br>
+      Special base cost = 4 PP<br>
       Special Cost = 4 × T(X)<br>
       T(X) = X × (X + 1) / 2<br><br>
-
       RANGE COSTS<br>
       8 m = 0 PP<br>
       12 m = 5 PP<br>
@@ -512,7 +489,6 @@ This template covers Lacerate, Mark, Ruin, and Slow.
       60 m = 65 PP<br>
       64 m = 70 PP<br>
       68 m = 75 PP<br><br>
-
       SPECIAL COSTS<br>
       Special(1) = 4 PP<br>
       Special(2) = 12 PP<br>
@@ -527,7 +503,6 @@ This template covers Lacerate, Mark, Ruin, and Slow.
       Special(11) = 264 PP<br>
       Special(12) = 312 PP<br>
       Special(13) = 364 PP<br><br>
-
       SCALING RULE<br>
       This is a Special-first Ranged Martial Active.<br>
       Lacerate, Mark, Ruin, and Slow are the primary scaling axis.<br>
@@ -535,7 +510,6 @@ This template covers Lacerate, Mark, Ruin, and Slow.
       Damage remains fixed at +1d8 and is only a low damage rider.<br>
       Special may stay the same or increase, but it may never decrease.<br>
       Damage is not used to fill all leftover PP.<br><br>
-
       CALCULATION<br>
       L1 → Target 30 PP: Range 8 m (0) + Damage +1d8 (15) + Special(2) (12) = 27 PP<br>
       L2 → Target 60 PP: Range 12 m (5) + Damage +1d8 (15) + Special(4) (40) = 60 PP<br>
@@ -553,7 +527,6 @@ This template covers Lacerate, Mark, Ruin, and Slow.
       L14 → Target 420 PP: Range 60 m (65) + Damage +1d8 (15) + Special(12) (312) = 392 PP<br>
       L15 → Target 450 PP: Range 64 m (70) + Damage +1d8 (15) + Special(13) (364) = 449 PP<br>
       L16 → Target 480 PP: Range 68 m (75) + Damage +1d8 (15) + Special(13) (364) = 454 PP<br><br>
-
       NOTES<br>
       This version intentionally keeps damage low.<br>
       The Special continues scaling beyond the old Special(9) stopping point.<br>
@@ -598,17 +571,9 @@ This template covers Lacerate, Mark, Ruin, and Slow.
 
 ---
 :
-### Example — Marking Shot
+### Example: Ranged Attack + Mark
 
-A player creates a ranged Power called **Hunter's Marking Shot**.
-
-They choose:
-
-- **Ranged Active**
-- **Damage + Start PP 4 Special**
-- **Mark** as the Special
-
-At Level 6, the template gives:
+A player selects **Ranged Attack + Mark** at Level 6. The Power gives:
 
 - Range: **28 m**
 - Damage: **+1d8 damage**
@@ -632,14 +597,14 @@ The template remains Mark-first.
 
 ---
 :
-<h3 id="melee-damage-start-pp-6-special">
-  Melee — Damage + Start PP 6 Special
+<h3 id="melee-attack-heavy-diminishing-special">
+  Melee Attack + Challenge / Corrode / Hex / Sundered / Root
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
       Active curve = 30 PP per level<br>
       +1d8 Damage = 15 PP<br>
-      Start PP 6 Special<br>
+      Special base cost = 6 PP<br>
       Special Cost = 6 × T(X)<br>
       T(X) = X × (X + 1) / 2<br><br>
       SPECIAL COSTS<br>
@@ -665,12 +630,12 @@ The template remains Mark-first.
       L14 → Target 420 PP: Damage +2d8 (30) + Special(10) (330) = 360 PP<br>
       L15 → Target 450 PP: Damage +2d8 (30) + Special(11) (396) = 426 PP<br>
       L16 → Target 480 PP: Damage +2d8 (30) + Special(11) (396) = 426 PP<br><br>
-      NOTES — Melee Martial Active. Covers Challenge, Corrode, Hex, Sundered, and Root. Root uses the same Start PP 6 pricing but follows its dedicated minimum, decay, and breaking rules. This group is heavy and should remain clearly Special-first.
+      NOTES — Melee Martial Active. Covers Challenge, Corrode, Hex, Sundered, and Root. Root uses the same 6 PP Base Cost but follows its dedicated minimum, decay, and breaking rules. This group is heavy and should remain clearly Special-first.
     </span>
   </span>
 </h3>
 
-A close-range martial strike that deals damage and applies a heavy Start PP 6 Special.
+A close-range martial attack that deals damage and applies Challenge, Corrode, Hex, Sundered, or Root.
 
 ---
 :
@@ -703,8 +668,8 @@ A close-range martial strike that deals damage and applies a heavy Start PP 6 Sp
 \page
 {{pageNumber,auto}}
 {{wide
-<h3 id="ranged-damage-start-pp-6-special">
-  Ranged — Damage + Start PP 6 Special
+<h3 id="ranged-attack-heavy-diminishing-special">
+  Ranged Attack + Challenge / Corrode / Hex / Sundered / Root
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
@@ -712,7 +677,7 @@ A close-range martial strike that deals damage and applies a heavy Start PP 6 Sp
       +1d8 Damage = 15 PP<br>
       Range progression = +4 m per level<br>
       Range cost = +5 PP per +4 m after 8 m<br>
-      Start PP 6 Special<br>
+      Special base cost = 6 PP<br>
       Special Cost = 6 × T(X)<br>
       T(X) = X × (X + 1) / 2<br><br>
       SPECIAL COSTS<br>
@@ -744,7 +709,7 @@ A close-range martial strike that deals damage and applies a heavy Start PP 6 Sp
   </span>
 </h3>
 
-A ranged martial attack that deals damage and applies a heavy Start PP 6 Special.
+A ranged martial attack that deals damage and applies Challenge, Corrode, Hex, Sundered, or Root.
 
 ---
 :
@@ -778,17 +743,9 @@ A ranged martial attack that deals damage and applies a heavy Start PP 6 Special
 
 ---
 :
-### Example — Hex Strike
+### Example: Melee Attack + Hex
 
-A player creates a melee Power called **Hex Strike**.
-
-They choose:
-
-- **Melee Active**
-- **Damage + Start PP 6 Special**
-- **Hex** as the Special
-
-At Level 10, the template gives:
+A player selects **Melee Attack + Hex** at Level 10. The Power gives:
 
 - Range: **Melee Reach**
 - Damage: **+2d8 damage**
@@ -801,34 +758,31 @@ On a hit:
 - the target takes weapon damage plus **+2d8 damage**,
 - the target gains **Hex(9)**.
 
-Because Hex is a Start PP 6 Special, it is more expensive than Blight or Mark.  
+Because Hex has a 6 PP Base Cost, it is more expensive than Blight or Mark.  
 The Power therefore has less damage and slower Special scaling than cheaper Special templates.
 
 }}
 \page
 {{pageNumber,auto}}
 {{wide
-<h3 id="melee-damage-start-pp-8-special">
-  Melee — Damage + Start PP 8 Special
+<h3 id="melee-attack-pool-reduction-special">
+  Melee Attack + Disoriented / Expose / Soulburn / Weaken
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
       Active curve = 30 PP per level<br>
       +1d8 Damage = 15 PP<br>
       Melee Reach = 0 PP<br>
-      Start PP 8 Diminishing Special<br>
+      Special base cost = 8 PP<br>
       Special Cost = 8 × T(X)<br>
       T(X) = X × (X + 1) / 2<br><br>
-
       VALID SPECIALS<br>
       Disoriented(X), Expose(X), Soulburn(X), Weaken(X).<br><br>
-
       SCALING RULE<br>
       This is a high-impact Special-first Martial Active.<br>
       The Special is the primary axis. Damage is held low so the next Special increase is not delayed.<br>
       Damage and Special may stay the same or increase, but they may never decrease.<br>
       Unused PP may remain unused.<br><br>
-
       CALCULATION<br>
       L1 → Target 30 PP: Damage +1d8 (15) + Special(1) (8) = 23 PP<br>
       L2 → Target 60 PP: Damage +1d8 (15) + Special(3) (48) = 63 PP<br>
@@ -848,13 +802,13 @@ The Power therefore has less damage and slower Special scaling than cheaper Spec
       L16 → Target 480 PP: Damage +2d8 (30) + Special(10) (440) = 470 PP<br><br>
       NOTES<br>
       Weaken and Soulburn reduce dice pools, not Attributes or Keep.<br>
-      Disoriented and Expose use the same Start PP 8 curve.<br>
+      Disoriented and Expose use the same 8 PP Base Cost curve.<br>
       All flat pool reductions apply before percentage-based Health penalties, and the final Pool cannot fall below Mastery Rank.
     </span>
   </span>
 </h3>
 
-A close-range martial attack that applies one high-impact Start PP 8 Diminishing Special.
+A close-range martial attack that applies Disoriented, Expose, Soulburn, or Weaken.
 
 ---
 :
@@ -887,8 +841,8 @@ A close-range martial attack that applies one high-impact Start PP 8 Diminishing
 \page
 {{pageNumber,auto}}
 {{wide
-<h3 id="ranged-damage-start-pp-8-special">
-  Ranged — Damage + Start PP 8 Special
+<h3 id="ranged-attack-pool-reduction-special">
+  Ranged Attack + Disoriented / Expose / Soulburn / Weaken
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
@@ -896,19 +850,16 @@ A close-range martial attack that applies one high-impact Start PP 8 Diminishing
       +1d8 Damage = 15 PP<br>
       Range progression = +4 m per level<br>
       Range cost = +5 PP per +4 m after 8 m<br>
-      Start PP 8 Diminishing Special<br>
+      Special base cost = 8 PP<br>
       Special Cost = 8 × T(X)<br>
       T(X) = X × (X + 1) / 2<br><br>
-
       VALID SPECIALS<br>
       Disoriented(X), Expose(X), Soulburn(X), Weaken(X).<br><br>
-
       SCALING RULE<br>
       This is a high-impact Special-first Martial Active.<br>
       The Special is the primary axis. Damage is held low so the next Special increase is not delayed.<br>
       Damage and Special may stay the same or increase, but they may never decrease.<br>
       Unused PP may remain unused.<br><br>
-
       CALCULATION<br>
       L1 → Target 30 PP: Range 8 m (0) + Damage +1d8 (15) + Special(1) (8) = 23 PP<br>
       L2 → Target 60 PP: Range 12 m (5) + Damage +2d8 (30) + Special(2) (24) = 59 PP<br>
@@ -928,13 +879,13 @@ A close-range martial attack that applies one high-impact Start PP 8 Diminishing
       L16 → Target 480 PP: Range 68 m (75) + Damage +2d8 (30) + Special(9) (360) = 465 PP<br><br>
       NOTES<br>
       Weaken and Soulburn reduce dice pools, not Attributes or Keep.<br>
-      Disoriented and Expose use the same Start PP 8 curve.<br>
+      Disoriented and Expose use the same 8 PP Base Cost curve.<br>
       All flat pool reductions apply before percentage-based Health penalties, and the final Pool cannot fall below Mastery Rank.
     </span>
   </span>
 </h3>
 
-A ranged martial attack that applies one high-impact Start PP 8 Diminishing Special.
+A ranged martial attack that applies Disoriented, Expose, Soulburn, or Weaken.
 
 ---
 :
@@ -1054,7 +1005,7 @@ To resolve a Martial AoE Active:
 
 ---
 :
-### Example — Melee AoE Weapon Sweep
+### Example: Melee AoE Attack
 
 A character uses a Melee AoE with **Radius 3 m** and **weapon damage + 4d8 damage**.
 
@@ -1068,7 +1019,7 @@ The two creatures that would be hit may use Dive for Cover before damage is appl
 
 ---
 :
-### Example — Ranged AoE Blight Shot
+### Example: Ranged AoE Attack + Blight
 
 A character places a Ranged AoE with **Blight(6)**. The same Attack Roll is compared separately against every creature inside the radius. Every creature that is hit and remains inside after any Dive for Cover gains the full **Blight(6)**. A creature that is missed does not gain Blight, but its miss does not protect any other creature.
 
@@ -1077,8 +1028,8 @@ A character places a Ranged AoE with **Blight(6)**. The same Attack Roll is comp
 \page
 {{pageNumber,auto}}
 {{wide
-<h3 id="melee-aoe-damage-start-pp-3-special">
-  Melee AoE — Damage + Start PP 3 Special
+<h3 id="melee-aoe-attack-blight">
+  Melee AoE Attack + Blight
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
@@ -1086,7 +1037,7 @@ A character places a Ranged AoE with **Blight(6)**. The same Attack Roll is comp
       Melee AoE Range = Self; no Range cost<br>
       Weapon Damage is the baseline damage of the attack and is not priced again<br>
       Instant Attack AoE costs: Radius 1/2/3/4/5/6/7/8 m = 0/20/50/80/120/165/220/280 PP<br>
-      Special Cost = Start PP 3 × T(X), T(X) = X × (X + 1) / 2<br><br>
+      Special Cost = 3 × T(X), T(X) = X × (X + 1) / 2<br><br>
       DESIGN STRUCTURE<br>
       Eligible Specials: Blight.<br>
       AoE pays for coverage through Radius. The Special uses its normal printed value and normal Special cost: it is not halved and does not pay an extra Diminishing step.<br>
@@ -1149,8 +1100,8 @@ A self-centered martial AoE that spreads a virulent Blight through a weapon-driv
 \page
 {{pageNumber,auto}}
 {{wide
-<h3 id="ranged-aoe-damage-start-pp-3-special">
-  Ranged AoE — Damage + Start PP 3 Special
+<h3 id="ranged-aoe-attack-blight">
+  Ranged AoE Attack + Blight
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
@@ -1158,7 +1109,7 @@ A self-centered martial AoE that spreads a virulent Blight through a weapon-driv
       Ranged AoE Range = 8 m +4 m per level; Range costs +5 PP per +4 m after 8 m<br>
       Weapon Damage is the baseline damage of the attack and is not priced again<br>
       Instant Attack AoE costs: Radius 1/2/3/4/5/6/7/8 m = 0/20/50/80/120/165/220/280 PP<br>
-      Special Cost = Start PP 3 × T(X), T(X) = X × (X + 1) / 2<br><br>
+      Special Cost = 3 × T(X), T(X) = X × (X + 1) / 2<br><br>
       DESIGN STRUCTURE<br>
       Eligible Specials: Blight.<br>
       AoE pays for coverage through Radius. The Special uses its normal printed value and normal Special cost: it is not halved and does not pay an extra Diminishing step.<br>
@@ -1221,8 +1172,8 @@ A ranged martial AoE that spreads a virulent Blight through a weapon-driven area
 \page
 {{pageNumber,auto}}
 {{wide
-<h3 id="melee-aoe-damage-start-pp-4-special">
-  Melee AoE — Damage + Start PP 4 Special
+<h3 id="melee-aoe-attack-standard-diminishing-special">
+  Melee AoE Attack + Lacerate / Mark / Ruin / Slow
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
@@ -1230,7 +1181,7 @@ A ranged martial AoE that spreads a virulent Blight through a weapon-driven area
       Melee AoE Range = Self; no Range cost<br>
       Weapon Damage is the baseline damage of the attack and is not priced again<br>
       Instant Attack AoE costs: Radius 1/2/3/4/5/6/7/8 m = 0/20/50/80/120/165/220/280 PP<br>
-      Special Cost = Start PP 4 × T(X), T(X) = X × (X + 1) / 2<br><br>
+      Special Cost = 4 × T(X), T(X) = X × (X + 1) / 2<br><br>
       DESIGN STRUCTURE<br>
       Eligible Specials: Lacerate / Slow / Ruin / Mark.<br>
       AoE pays for coverage through Radius. The Special uses its normal printed value and normal Special cost: it is not halved and does not pay an extra Diminishing step.<br>
@@ -1293,8 +1244,8 @@ A self-centered martial AoE that carries a standard numeric Special through a we
 \page
 {{pageNumber,auto}}
 {{wide
-<h3 id="ranged-aoe-damage-start-pp-4-special">
-  Ranged AoE — Damage + Start PP 4 Special
+<h3 id="ranged-aoe-attack-standard-diminishing-special">
+  Ranged AoE Attack + Lacerate / Mark / Ruin / Slow
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
@@ -1302,7 +1253,7 @@ A self-centered martial AoE that carries a standard numeric Special through a we
       Ranged AoE Range = 8 m +4 m per level; Range costs +5 PP per +4 m after 8 m<br>
       Weapon Damage is the baseline damage of the attack and is not priced again<br>
       Instant Attack AoE costs: Radius 1/2/3/4/5/6/7/8 m = 0/20/50/80/120/165/220/280 PP<br>
-      Special Cost = Start PP 4 × T(X), T(X) = X × (X + 1) / 2<br><br>
+      Special Cost = 4 × T(X), T(X) = X × (X + 1) / 2<br><br>
       DESIGN STRUCTURE<br>
       Eligible Specials: Lacerate / Slow / Ruin / Mark.<br>
       AoE pays for coverage through Radius. The Special uses its normal printed value and normal Special cost: it is not halved and does not pay an extra Diminishing step.<br>
@@ -1365,8 +1316,8 @@ A ranged martial AoE that carries a standard numeric Special through a weapon-dr
 \page
 {{pageNumber,auto}}
 {{wide
-<h3 id="melee-aoe-damage-start-pp-6-special">
-  Melee AoE — Damage + Start PP 6 Special
+<h3 id="melee-aoe-attack-heavy-diminishing-special">
+  Melee AoE Attack + Challenge / Corrode / Hex / Sundered / Root
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
@@ -1374,7 +1325,7 @@ A ranged martial AoE that carries a standard numeric Special through a weapon-dr
       Melee AoE Range = Self; no Range cost<br>
       Weapon Damage is the baseline damage of the attack and is not priced again<br>
       Instant Attack AoE costs: Radius 1/2/3/4/5/6/7/8 m = 0/20/50/80/120/165/220/280 PP<br>
-      Special Cost = Start PP 6 × T(X), T(X) = X × (X + 1) / 2<br><br>
+      Special Cost = 6 × T(X), T(X) = X × (X + 1) / 2<br><br>
       DESIGN STRUCTURE<br>
       Eligible Specials: Challenge / Corrode / Hex / Sundered / Root.<br>
       AoE pays for coverage through Radius. The Special uses its normal printed value and normal Special cost: it is not halved and does not pay an extra Diminishing step.<br>
@@ -1438,8 +1389,8 @@ A self-centered martial AoE that delivers a heavy numeric Special through a weap
 \page
 {{pageNumber,auto}}
 {{wide
-<h3 id="ranged-aoe-damage-start-pp-6-special">
-  Ranged AoE — Damage + Start PP 6 Special
+<h3 id="ranged-aoe-attack-heavy-diminishing-special">
+  Ranged AoE Attack + Challenge / Corrode / Hex / Sundered / Root
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
@@ -1447,7 +1398,7 @@ A self-centered martial AoE that delivers a heavy numeric Special through a weap
       Ranged AoE Range = 8 m +4 m per level; Range costs +5 PP per +4 m after 8 m<br>
       Weapon Damage is the baseline damage of the attack and is not priced again<br>
       Instant Attack AoE costs: Radius 1/2/3/4/5/6/7/8 m = 0/20/50/80/120/165/220/280 PP<br>
-      Special Cost = Start PP 6 × T(X), T(X) = X × (X + 1) / 2<br><br>
+      Special Cost = 6 × T(X), T(X) = X × (X + 1) / 2<br><br>
       DESIGN STRUCTURE<br>
       Eligible Specials: Challenge / Corrode / Hex / Sundered / Root.<br>
       AoE pays for coverage through Radius. The Special uses its normal printed value and normal Special cost: it is not halved and does not pay an extra Diminishing step.<br>
@@ -1511,8 +1462,8 @@ A ranged martial AoE that delivers a heavy numeric Special through a weapon-driv
 \page
 {{pageNumber,auto}}
 {{wide
-<h3 id="melee-aoe-damage-start-pp-8-special">
-  Melee AoE — Damage + Start PP 8 Special
+<h3 id="melee-aoe-attack-pool-reduction-special">
+  Melee AoE Attack + Disoriented / Expose / Soulburn / Weaken
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
@@ -1520,7 +1471,7 @@ A ranged martial AoE that delivers a heavy numeric Special through a weapon-driv
       Melee AoE Range = Self; no Range cost<br>
       Weapon Damage is the baseline damage of the attack and is not priced again<br>
       Instant Attack AoE costs: Radius 1/2/3/4/5/6/7/8 m = 0/20/50/80/120/165/220/280 PP<br>
-      Special Cost = Start PP 8 × T(X), T(X) = X × (X + 1) / 2<br><br>
+      Special Cost = 8 × T(X), T(X) = X × (X + 1) / 2<br><br>
       DESIGN STRUCTURE<br>
       Eligible Specials: Disoriented / Expose / Soulburn / Weaken.<br>
       AoE pays for coverage through Radius. The Special uses its normal printed value and normal Special cost: it is not halved and does not pay an extra Diminishing step.<br>
@@ -1583,8 +1534,8 @@ A self-centered martial AoE that delivers a premium reduction Special through a 
 \page
 {{pageNumber,auto}}
 {{wide
-<h3 id="ranged-aoe-damage-start-pp-8-special">
-  Ranged AoE — Damage + Start PP 8 Special
+<h3 id="ranged-aoe-attack-pool-reduction-special">
+  Ranged AoE Attack + Disoriented / Expose / Soulburn / Weaken
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
@@ -1592,7 +1543,7 @@ A self-centered martial AoE that delivers a premium reduction Special through a 
       Ranged AoE Range = 8 m +4 m per level; Range costs +5 PP per +4 m after 8 m<br>
       Weapon Damage is the baseline damage of the attack and is not priced again<br>
       Instant Attack AoE costs: Radius 1/2/3/4/5/6/7/8 m = 0/20/50/80/120/165/220/280 PP<br>
-      Special Cost = Start PP 8 × T(X), T(X) = X × (X + 1) / 2<br><br>
+      Special Cost = 8 × T(X), T(X) = X × (X + 1) / 2<br><br>
       DESIGN STRUCTURE<br>
       Eligible Specials: Disoriented / Expose / Soulburn / Weaken.<br>
       AoE pays for coverage through Radius. The Special uses its normal printed value and normal Special cost: it is not halved and does not pay an extra Diminishing step.<br>
@@ -1655,7 +1606,7 @@ A ranged martial AoE that delivers a premium reduction Special through a weapon-
 \page
 {{pageNumber,auto}}
 {{wide
-## Area Actives — Persistent Diminishing Zones
+## Ranged Persistent Zones + Diminishing Specials
 
 > **Design Rule:** These Powers are **Ranged Persistent AoE Zones**.  
 > They create an ongoing area within range that applies a numeric Special to affected creatures.  
@@ -1711,7 +1662,7 @@ The persistent part of the Power is multiplied:
 
 AoE Specials cost one Diminishing step higher than their printed value.
 
-**AoE Special(X) = Start PP × T(X+1)**  
+**AoE Special(X) = Base Cost × T(X+1)**  
 **T(X) = X × (X + 1) / 2**
 
 ---
@@ -1759,12 +1710,12 @@ It does not gain the Special again, because it has already been affected by that
 {{pageNumber,auto}}
 {{wide
 
-## Persistent Blight Zone
+## Ranged Persistent Zone + Blight
 
 ---
 :
-<h3 id="ranged-persistent-zone-start-pp-3-special">
-  Ranged Persistent Zone — Start PP 3 Special
+<h3 id="ranged-persistent-zone-blight">
+  Ranged Persistent Zone + Blight
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
@@ -1773,12 +1724,10 @@ It does not gain the Special again, because it has already been affected by that
       Duration = 4 Rounds<br>
       Duration Multiplier = ×2<br>
       Range is not multiplied<br>
-      Start PP 3 Diminishing Special<br>
+      Special base cost = 3 PP<br>
       AoE Special Cost = 3 × T(X+1)<br><br>
-
       SPECIALS<br>
       Blight<br><br>
-
       AOE Blight COSTS<br>
       Blight(1) = 9 PP<br>
       Blight(2) = 18 PP<br>
@@ -1788,20 +1737,17 @@ It does not gain the Special again, because it has already been affected by that
       Blight(6) = 84 PP<br>
       Blight(7) = 108 PP<br>
       Blight(8) = 135 PP<br><br>
-
       AOE COSTS<br>
       Radius 2 m = 20 PP<br>
       Radius 3 m = 50 PP<br>
       Radius 4 m = 90 PP<br>
       Radius 5 m = 140 PP<br>
       Radius 6 m = 200 PP<br><br>
-
       SCALING RULE<br>
       This is a Blight-first Persistent Zone.<br>
       The zone lasts 4 Rounds.<br>
       Range, Radius, and Blight may stay the same or increase, but they may never decrease.<br>
       Damage is omitted because the persistent Special is the payload.<br><br>
-
       CALCULATION<br>
       L1 → Target 30 PP: not enough budget for a 4-Round zone<br>
       L2 → Target 60 PP: not enough budget for a 4-Round zone<br>
@@ -1819,7 +1765,6 @@ It does not gain the Special again, because it has already been affected by that
       L14 → Target 420 PP: Range 60 m (65) + [(Radius 3 m (50) + Blight(7) (108)) ×2] = 381 PP<br>
       L15 → Target 450 PP: Range 64 m (70) + [(Radius 3 m (50) + Blight(8) (135)) ×2] = 440 PP<br>
       L16 → Target 480 PP: Range 68 m (75) + [(Radius 3 m (50) + Blight(8) (135)) ×2] = 445 PP<br><br>
-
       NOTES<br>
       This template begins functioning at Level 3 because a 4-Round persistent zone is expensive.<br>
       Radius remains conservative because the zone lasts for multiple Rounds.
@@ -1859,12 +1804,12 @@ A ranged persistent poison cloud that remains on the battlefield for 4 Rounds.
 {{pageNumber,auto}}
 {{wide
 
-## Persistent Standard Special Zone
+## Ranged Persistent Zone + Lacerate / Mark / Ruin / Slow
 
 ---
 :
-<h3 id="ranged-persistent-zone-start-pp-4-special">
-  Ranged Persistent Zone — Start PP 4 Special
+<h3 id="ranged-persistent-zone-standard-diminishing-special">
+  Ranged Persistent Zone + Lacerate / Mark / Ruin / Slow
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
@@ -1873,12 +1818,10 @@ A ranged persistent poison cloud that remains on the battlefield for 4 Rounds.
       Duration = 4 Rounds<br>
       Duration Multiplier = ×2<br>
       Range is not multiplied<br>
-      Start PP 4 Diminishing Special<br>
+      Special base cost = 4 PP<br>
       AoE Special Cost = 4 × T(X+1)<br><br>
-
       SPECIALS<br>
       Lacerate / Mark / Ruin / Slow<br><br>
-
       AOE SPECIAL COSTS<br>
       Special(1) = 12 PP<br>
       Special(2) = 24 PP<br>
@@ -1888,14 +1831,12 @@ A ranged persistent poison cloud that remains on the battlefield for 4 Rounds.
       Special(6) = 112 PP<br>
       Special(7) = 144 PP<br>
       Special(8) = 180 PP<br><br>
-
       SCALING RULE<br>
       This is a persistent Standard Special Zone.<br>
       Lacerate, Mark, Ruin, and Slow are the primary scaling axis.<br>
       Range is paid once and is not multiplied by duration.<br>
       Radius and Special are multiplied by the 4-Round duration multiplier.<br>
       Radius and Special may stay the same or increase, but they may never decrease.<br><br>
-
       CALCULATION<br>
       L1 → Target 30 PP: not enough budget for a 4-Round zone<br>
       L2 → Target 60 PP: not enough budget for a 4-Round zone<br>
@@ -1913,7 +1854,6 @@ A ranged persistent poison cloud that remains on the battlefield for 4 Rounds.
       L14 → Target 420 PP: Range 60 m (65) + [(Radius 3 m (50) + Special(6) (112)) ×2] = 389 PP<br>
       L15 → Target 450 PP: Range 64 m (70) + [(Radius 3 m (50) + Special(6) (112)) ×2] = 394 PP<br>
       L16 → Target 480 PP: Range 68 m (75) + [(Radius 4 m (90) + Special(6) (112)) ×2] = 479 PP<br><br>
-
       NOTES<br>
       Covers persistent wound fields, slowing terrain, ruin zones, or marking fields.<br>
       Radius 4 m is reached only at Level 16 because the 4-Round duration heavily taxes the budget.
@@ -1954,12 +1894,12 @@ This template covers Lacerate, Mark, Ruin, and Slow.
 {{pageNumber,auto}}
 {{wide
 
-## Persistent Heavy Special Zone
+## Ranged Persistent Zone + Challenge / Corrode / Hex / Sundered
 
 ---
 :
-<h3 id="ranged-persistent-zone-start-pp-6-special">
-  Ranged Persistent Zone — Start PP 6 Special
+<h3 id="ranged-persistent-zone-heavy-diminishing-special">
+  Ranged Persistent Zone + Challenge / Corrode / Hex / Sundered
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
@@ -1968,20 +1908,16 @@ This template covers Lacerate, Mark, Ruin, and Slow.
       Duration = 4 Rounds<br>
       Duration Multiplier = ×2<br>
       Range is not multiplied<br>
-      Start PP 6 Special<br>
+      Special base cost = 6 PP<br>
       AoE Special Cost = 6 × T(X+1)<br><br>
-
       SPECIALS<br>
       Challenge / Corrode / Hex / Sundered<br><br>
-
-
       AOE SPECIAL COSTS<br>
       Special(1) = 18 PP<br>
       Special(2) = 36 PP<br>
       Special(3) = 60 PP<br>
       Special(4) = 90 PP<br>
       Special(5) = 126 PP<br><br>
-
       CALCULATION<br>
       L1 → Target 30 PP: not enough budget for a 4-Round zone<br>
       L2 → Target 60 PP: not enough budget for a 4-Round zone<br>
@@ -1999,7 +1935,6 @@ This template covers Lacerate, Mark, Ruin, and Slow.
       L14 → Target 420 PP: Range 60 m (65) + [(Radius 3 m (50) + Special(5) (126)) ×2] = 417 PP<br>
       L15 → Target 450 PP: Range 64 m (70) + [(Radius 3 m (50) + Special(5) (126)) ×2] = 422 PP<br>
       L16 → Target 480 PP: Range 68 m (75) + [(Radius 3 m (50) + Special(5) (126)) ×2] = 427 PP<br><br>
-
       NOTES<br>
       Heavy Specials stay intentionally narrow and low-value when converted into 4-Round zones.<br>
       Radius stays at 3 m at high levels because the heavy Special payload and duration consume most of the budget.
@@ -2007,7 +1942,7 @@ This template covers Lacerate, Mark, Ruin, and Slow.
   </span>
 </h3>
 
-A ranged persistent area that applies a heavy Start PP 6 Special for 4 Rounds.
+A ranged persistent area that applies Challenge, Corrode, Hex, or Sundered for 4 Rounds.
 
 ---
 :
@@ -2038,21 +1973,19 @@ A ranged persistent area that applies a heavy Start PP 6 Special for 4 Rounds.
 \page
 {{pageNumber,auto}}
 {{wide
-## Persistent Pool-Reduction Special Zone
+## Ranged Persistent Zone + Disoriented / Expose / Soulburn / Weaken
 
-<h3 id="ranged-persistent-zone-start-pp-8-special">
-  Ranged Persistent Zone — Start PP 8 Special
+<h3 id="ranged-persistent-zone-pool-reduction-special">
+  Ranged Persistent Zone + Disoriented / Expose / Soulburn / Weaken
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
       Active curve = 30 PP per level<br>
       Range progression = +4 m per level; +5 PP per step after 8 m<br>
       Duration = 4 Rounds; persistent payload multiplier ×2<br>
-      Start PP 8 AoE Special(X) = 8 × T(X+1)<br><br>
-
+      AoE Special(X) = 8 × T(X+1)<br><br>
       VALID SPECIALS<br>
       Disoriented(X), Expose(X), Soulburn(X), Weaken(X).<br><br>
-
       CALCULATION<br>
       L3 → Target 90 PP: Range 16 m (10) + [(Radius 2 m (20) + Special(1) (24)) ×2] = 98 PP<br>
       L4 → Target 120 PP: Range 20 m (15) + [(Radius 2 m (20) + Special(1) (24)) ×2] = 103 PP<br>
@@ -2069,7 +2002,7 @@ A ranged persistent area that applies a heavy Start PP 6 Special for 4 Rounds.
       L15 → Target 450 PP: Range 64 m (70) + [(Radius 3 m (50) + Special(4) (120)) ×2] = 410 PP<br>
       L16 → Target 480 PP: Range 68 m (75) + [(Radius 3 m (50) + Special(4) (120)) ×2] = 415 PP<br><br>
       NOTES<br>
-      Levels 1–2 have no version because a legal persistent Start PP 8 zone does not fit the curve cleanly.<br>
+      Levels 1–2 have no version because a legal persistent zone with these Specials does not fit the curve cleanly.<br>
       The zone applies the full printed value whenever a creature becomes affected under the Persistent Zone rules.
     </span>
   </span>
@@ -2102,7 +2035,7 @@ A persistent battlefield zone that weakens perception, defense, physical perform
 \page
 {{pageNumber,auto}}
 {{wide
-## Martial Actives — Control Specials
+## Martial Attacks + Control Specials
 
 > **Design Rule:** These Powers are **Control-first Martial Actives**.  
 > The Control effect is the primary scaling axis.  
@@ -2209,9 +2142,9 @@ It creates tactical pressure, but it should not become stronger by writing Disar
 
 If the Power needs to scale, scale the delivery around it instead.
 
-### Example — Control Add-on Resolution
+### Example: Push + Prone Resolution
 
-A character uses a Level 5 Knockback Power.
+A character uses **Melee Attack + Push + Prone** at Level 5.
 
 The Power includes:
 
@@ -2230,8 +2163,8 @@ The Power scales because the Push distance increases by level.
 \page
 {{pageNumber,auto}}
 {{wide
-<h3 id="melee-control-push-pull">
-  Melee — Control: Push / Pull
+<h3 id="melee-attack-push-pull">
+  Melee Attack + Push / Pull
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
@@ -2240,7 +2173,6 @@ The Power scales because the Push distance increases by level.
       No Range cost<br>
       Forced Movement cost = 30 PP per 2 m<br>
       Damage is omitted in this template because Forced Movement uses the curve cleanly by itself.<br><br>
-
       FORCED MOVEMENT COSTS<br>
       Push/Pull 2 m = 30 PP<br>
       Push/Pull 4 m = 60 PP<br>
@@ -2258,13 +2190,11 @@ The Power scales because the Push distance increases by level.
       Push/Pull 28 m = 420 PP<br>
       Push/Pull 30 m = 450 PP<br>
       Push/Pull 32 m = 480 PP<br><br>
-
       SCALING RULE<br>
       This is a Control-first Martial Active.<br>
       Push/Pull distance is the primary scaling axis.<br>
       Damage is omitted because adding damage would either overfill early levels or distort the clean distance curve.<br>
       Push/Pull distance may stay the same or increase, but it may never decrease.<br><br>
-
       CALCULATION<br>
       L1 → Target 30 PP: Push/Pull 2 m (30) + Damage — (0) = 30 PP<br>
       L2 → Target 60 PP: Push/Pull 4 m (60) + Damage — (0) = 60 PP<br>
@@ -2282,7 +2212,6 @@ The Power scales because the Push distance increases by level.
       L14 → Target 420 PP: Push/Pull 28 m (420) + Damage — (0) = 420 PP<br>
       L15 → Target 450 PP: Push/Pull 30 m (450) + Damage — (0) = 450 PP<br>
       L16 → Target 480 PP: Push/Pull 32 m (480) + Damage — (0) = 480 PP<br><br>
-
       NOTES<br>
       Push and Pull use the same cost structure.<br>
       This template intentionally has no damage rider.<br>
@@ -2320,8 +2249,8 @@ A close-range martial control technique that forces the target away from you or 
 
 ---
 :
-<h3 id="ranged-control-push-pull">
-  Ranged — Control: Push / Pull
+<h3 id="ranged-attack-push-pull">
+  Ranged Attack + Push / Pull
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
@@ -2331,7 +2260,6 @@ A close-range martial control technique that forces the target away from you or 
       Range cost = +5 PP per +4 m after 8 m<br>
       Forced Movement cost = 30 PP per 2 m<br>
       Damage is omitted in this template because Range and Forced Movement are the primary costs.<br><br>
-
       RANGE COSTS<br>
       8 m = 0 PP<br>
       12 m = 5 PP<br>
@@ -2349,7 +2277,6 @@ A close-range martial control technique that forces the target away from you or 
       60 m = 65 PP<br>
       64 m = 70 PP<br>
       68 m = 75 PP<br><br>
-
       FORCED MOVEMENT COSTS<br>
       Push/Pull 2 m = 30 PP<br>
       Push/Pull 4 m = 60 PP<br>
@@ -2364,14 +2291,12 @@ A close-range martial control technique that forces the target away from you or 
       Push/Pull 22 m = 330 PP<br>
       Push/Pull 24 m = 360 PP<br>
       Push/Pull 26 m = 390 PP<br><br>
-
       SCALING RULE<br>
       This is a Control-first Ranged Martial Active.<br>
       Range is paid as a fixed cost each level.<br>
       Push/Pull distance is the primary scaling axis after Range.<br>
       Damage is omitted because adding damage would make the forced movement progression uneven.<br>
       Push/Pull distance may stay the same or increase, but it may never decrease.<br><br>
-
       CALCULATION<br>
       L1 → Target 30 PP: Range 8 m (0) + Push/Pull 2 m (30) + Damage — (0) = 30 PP<br>
       L2 → Target 60 PP: Range 12 m (5) + Push/Pull 2 m (30) + Damage — (0) = 35 PP<br>
@@ -2389,7 +2314,6 @@ A close-range martial control technique that forces the target away from you or 
       L14 → Target 420 PP: Range 60 m (65) + Push/Pull 22 m (330) + Damage — (0) = 395 PP<br>
       L15 → Target 450 PP: Range 64 m (70) + Push/Pull 24 m (360) + Damage — (0) = 430 PP<br>
       L16 → Target 480 PP: Range 68 m (75) + Push/Pull 26 m (390) + Damage — (0) = 465 PP<br><br>
-
       NOTES<br>
       Push and Pull use the same cost structure.<br>
       The Ranged version trails behind Melee because it pays Range every level.<br>
@@ -2429,7 +2353,7 @@ A ranged martial control technique that forces the target away from the impact p
 \page
 {{pageNumber,auto}}
 {{wide
-## Control Combination Trees
+## Martial Attacks + Combined Control Specials
 
 > **Design Rule:** These Powers combine one **scaling control axis** with one **fixed control add-on**.  
 > Push / Pull provides the scaling value.  
@@ -2495,9 +2419,9 @@ Examples:
 \page
 {{pageNumber,auto}}
 {{wide
-### Example — Push + Prone
+### Example: Push + Prone
 
-A character uses a Level 5 Knockback Power.
+A character uses **Melee Attack + Push + Prone** at Level 5.
 
 The Power includes:
 
@@ -2515,9 +2439,9 @@ Prone remains a fixed add-on.
 
 ---
 
-### Example — Pull + Disarm
+### Example: Pull + Disarm
 
-A character uses a Level 6 Hooking Disarm Power.
+A character uses **Melee Attack + Pull + Disarm** at Level 6.
 
 The Power includes:
 
@@ -2538,16 +2462,14 @@ Disarm remains a fixed add-on.
 {{pageNumber,auto}}
 {{wide
 
-## Hooking Disarm
+## Martial Attacks + Pull + Disarm
 
-**Hooking Disarm = Pull + Disarm**
-
-The target is drawn toward the source and loses grip on one held item.
+These Powers pull the target and apply Disarm.
 
 ---
 :
-<h3 id="melee-control-pull-disarm">
-  Melee — Control: Pull + Disarm
+<h3 id="melee-attack-pull-disarm">
+  Melee Attack + Pull + Disarm
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
@@ -2557,14 +2479,12 @@ The target is drawn toward the source and loses grip on one held item.
       Pull cost = 30 PP per 2 m<br>
       Disarm = fixed 60 PP<br>
       Damage is omitted in this template.<br><br>
-
       SCALING RULE<br>
       This is a Control Combination Martial Active.<br>
       Disarm is the fixed add-on.<br>
       Pull distance is the scaling axis.<br>
       Pull distance may stay the same or increase, but it may never decrease.<br>
       Disarm does not scale as Disarm(X).<br><br>
-
       CALCULATION<br>
       L1 → Target 30 PP: Not enough budget for Disarm (60 PP), so no effect<br>
       L2 → Target 60 PP: Disarm (60) + Pull — (0) = 60 PP<br>
@@ -2582,7 +2502,6 @@ The target is drawn toward the source and loses grip on one held item.
       L14 → Target 420 PP: Disarm (60) + Pull 24 m (360) = 420 PP<br>
       L15 → Target 450 PP: Disarm (60) + Pull 26 m (390) = 450 PP<br>
       L16 → Target 480 PP: Disarm (60) + Pull 28 m (420) = 480 PP<br><br>
-
       NOTES<br>
       This template begins functioning at Level 2 because Disarm costs 60 PP.<br>
       From Level 3 onward, Pull distance becomes the scaling axis.<br>
@@ -2620,8 +2539,8 @@ A close-range martial technique that hooks the target, drags it toward you, and 
 
 ---
 :
-<h3 id="ranged-control-pull-disarm">
-  Ranged — Control: Pull + Disarm
+<h3 id="ranged-attack-pull-disarm">
+  Ranged Attack + Pull + Disarm
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
@@ -2632,7 +2551,6 @@ A close-range martial technique that hooks the target, drags it toward you, and 
       Pull cost = 30 PP per 2 m<br>
       Disarm = fixed 60 PP<br>
       Damage is omitted in this template.<br><br>
-
       RANGE COSTS<br>
       8 m = 0 PP<br>
       12 m = 5 PP<br>
@@ -2650,7 +2568,6 @@ A close-range martial technique that hooks the target, drags it toward you, and 
       60 m = 65 PP<br>
       64 m = 70 PP<br>
       68 m = 75 PP<br><br>
-
       SCALING RULE<br>
       This is a Control Combination Ranged Martial Active.<br>
       Range is paid every level.<br>
@@ -2658,7 +2575,6 @@ A close-range martial technique that hooks the target, drags it toward you, and 
       Pull distance is the scaling axis after Range.<br>
       Pull distance may stay the same or increase, but it may never decrease.<br>
       Disarm does not scale as Disarm(X).<br><br>
-
       CALCULATION<br>
       L1 → Target 30 PP: Range 8 m (0) + Disarm unavailable = no effect<br>
       L2 → Target 60 PP: Range 12 m (5) + Disarm (60) = 65 PP, above target, so no effect<br>
@@ -2676,7 +2592,6 @@ A close-range martial technique that hooks the target, drags it toward you, and 
       L14 → Target 420 PP: Range 60 m (65) + Disarm (60) + Pull 18 m (270) = 395 PP<br>
       L15 → Target 450 PP: Range 64 m (70) + Disarm (60) + Pull 20 m (300) = 430 PP<br>
       L16 → Target 480 PP: Range 68 m (75) + Disarm (60) + Pull 22 m (330) = 465 PP<br><br>
-
       NOTES<br>
       The Ranged version begins functioning at Level 3 because it must pay Range in addition to Disarm.<br>
       From Level 4 onward, Pull distance becomes the scaling axis.<br>
@@ -2717,16 +2632,14 @@ A ranged martial technique that drags the target toward the source and strips on
 {{pageNumber,auto}}
 {{wide
 
-## Knockback
+## Martial Attacks + Push + Prone
 
-**Knockback = Push + Prone**
-
-The target is forced away from the source and knocked prone.
+These Powers push the target and apply Prone.
 
 ---
 :
-<h3 id="melee-control-push-prone">
-  Melee — Control: Push + Prone
+<h3 id="melee-attack-push-prone">
+  Melee Attack + Push + Prone
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
@@ -2736,14 +2649,12 @@ The target is forced away from the source and knocked prone.
       Push cost = 30 PP per 2 m<br>
       Prone = fixed 60 PP<br>
       Damage is omitted in this template.<br><br>
-
       SCALING RULE<br>
       This is a Control Combination Martial Active.<br>
       Prone is the fixed add-on.<br>
       Push distance is the scaling axis.<br>
       Push distance may stay the same or increase, but it may never decrease.<br>
       Prone does not scale as Prone(X).<br><br>
-
       CALCULATION<br>
       L1 → Target 30 PP: Not enough budget for Prone (60 PP), so no effect<br>
       L2 → Target 60 PP: Prone (60) + Push — (0) = 60 PP<br>
@@ -2761,7 +2672,6 @@ The target is forced away from the source and knocked prone.
       L14 → Target 420 PP: Prone (60) + Push 24 m (360) = 420 PP<br>
       L15 → Target 450 PP: Prone (60) + Push 26 m (390) = 450 PP<br>
       L16 → Target 480 PP: Prone (60) + Push 28 m (420) = 480 PP<br><br>
-
       NOTES<br>
       This template begins functioning at Level 2 because Prone costs 60 PP.<br>
       From Level 3 onward, Push distance becomes the scaling axis.<br>
@@ -2799,8 +2709,8 @@ A close-range martial technique that slams the target away and knocks it prone.
 
 ---
 :
-<h3 id="ranged-control-push-prone">
-  Ranged — Control: Push + Prone
+<h3 id="ranged-attack-push-prone">
+  Ranged Attack + Push + Prone
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
@@ -2811,7 +2721,6 @@ A close-range martial technique that slams the target away and knocks it prone.
       Push cost = 30 PP per 2 m<br>
       Prone = fixed 60 PP<br>
       Damage is omitted in this template.<br><br>
-
       RANGE COSTS<br>
       8 m = 0 PP<br>
       12 m = 5 PP<br>
@@ -2829,7 +2738,6 @@ A close-range martial technique that slams the target away and knocks it prone.
       60 m = 65 PP<br>
       64 m = 70 PP<br>
       68 m = 75 PP<br><br>
-
       SCALING RULE<br>
       This is a Control Combination Ranged Martial Active.<br>
       Range is paid every level.<br>
@@ -2837,7 +2745,6 @@ A close-range martial technique that slams the target away and knocks it prone.
       Push distance is the scaling axis after Range.<br>
       Push distance may stay the same or increase, but it may never decrease.<br>
       Prone does not scale as Prone(X).<br><br>
-
       CALCULATION<br>
       L1 → Target 30 PP: Range 8 m (0) + Prone unavailable = no effect<br>
       L2 → Target 60 PP: Range 12 m (5) + Prone (60) = 65 PP, above target, so no effect<br>
@@ -2855,7 +2762,6 @@ A close-range martial technique that slams the target away and knocks it prone.
       L14 → Target 420 PP: Range 60 m (65) + Prone (60) + Push 18 m (270) = 395 PP<br>
       L15 → Target 450 PP: Range 64 m (70) + Prone (60) + Push 20 m (300) = 430 PP<br>
       L16 → Target 480 PP: Range 68 m (75) + Prone (60) + Push 22 m (330) = 465 PP<br><br>
-
       NOTES<br>
       The Ranged version begins functioning at Level 3 because it must pay Range in addition to Prone.<br>
       From Level 4 onward, Push distance becomes the scaling axis.<br>
@@ -2895,7 +2801,7 @@ A ranged martial technique that slams the target away from the impact point and 
 \page
 {{pageNumber,auto}}
 {{wide
-## Support Actives — Heal and Cleanse
+## Support Actives + Heal / Cleanse
 
 > **Design Rule:** These Powers are **Support Actives**.  
 > They restore HP, remove negative creature effects, or convert removed hostile pressure into a bonus.
@@ -2910,8 +2816,7 @@ If a Support Active is used on an unwilling creature or a contested target, the 
 
 ### Support Resolution
 
-When using a
- Support Active, choose a valid target within the Power's listed Range.
+When using a Support Active, choose a valid target within the Power's listed Range.
 
 If the Power is single-target, it affects one valid creature.
 
@@ -2987,13 +2892,13 @@ Those require Dispel or a dedicated rule.
 
 Pure Cleanse is the reliable removal version.
 
-Cleanse Absorption is the conversion version. It removes negative Special value and grants an Absorption Bonus only if the full Cleanse value is spent.
+**Ranged Single Target Cleanse + Damage / Speed / Armor / Evade Absorption** is the conversion version. It removes negative Special value and grants the chosen Absorption Bonus only if the full Cleanse value is spent.
 
 Cleanse Maintenance is not a normal Active. It is an Active Buff. It protects only the user over time and cannot split its Cleanse value unless a specific entry says otherwise.
 
-Pure Cleanse is not replaced by Cleanse Absorption.
+Pure Cleanse is not replaced by **Ranged Single Target Cleanse + Damage / Speed / Armor / Evade Absorption**.
 Pure Cleanse is the reliable removal tool.
-Cleanse Absorption is the conditional reward tool.
+**Ranged Single Target Cleanse + Damage / Speed / Armor / Evade Absorption** is the conditional reward tool.
 Cleanse Maintenance is the self-only upkeep tool.
 
 }}
@@ -3005,8 +2910,8 @@ Cleanse Maintenance is the self-only upkeep tool.
 
 ---
 :
-<h3 id="melee-single-target-heal-active">
-  Melee Single Target Heal (Active, Support)
+<h3 id="melee-single-target-heal">
+  Melee Single Target Heal
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
@@ -3018,7 +2923,6 @@ Cleanse Maintenance is the self-only upkeep tool.
       Duration = Instant<br>
       Healing = 15 PP per +1d8 Healing<br>
       Health Level Recovery = 30 PP per restored Health Level per Safe Haven Rest<br><br>
-
       DESIGN STRUCTURE<br>
       This is a Heal-first Support Active with a limited Health Level Recovery pool.<br>
       Normal Healing restores HP inside the target's current Health Level.<br>
@@ -3026,19 +2930,16 @@ Cleanse Maintenance is the self-only upkeep tool.
       The Health Level Recovery pool may be spent across multiple uses of this Power.<br>
       Health Level Recovery cannot raise a creature above its normal maximum Health Level structure.<br>
       Health Level Recovery does not restore HP by itself. HP recovery comes only from the Healing dice.<br><br>
-
       HEALTH LEVEL RECOVERY COST<br>
       Restore 1 Health Level per Safe Haven Rest = 30 PP<br>
       Restore 2 Health Levels per Safe Haven Rest = 60 PP<br>
       Restore 3 Health Levels per Safe Haven Rest = 90 PP<br>
       Restore 4 Health Levels per Safe Haven Rest = 120 PP<br><br>
-
       SCALING RULE<br>
       First subtract the Health Level Recovery cost from the level's Active PP budget.<br>
       Spend the remaining PP on Healing dice at 15 PP per +1d8 Healing.<br>
       Healing may stay the same or increase, but it may never decrease.<br>
       Unused PP remains unused.<br><br>
-
       CALCULATION<br>
       L1 → Target 30 PP: Health Level Recovery 0 (0), Heal 2d8 (30) = 30 PP<br>
       L2 → Target 60 PP: Health Level Recovery 0 (0), Heal 4d8 (60) = 60 PP<br>
@@ -3056,7 +2957,6 @@ Cleanse Maintenance is the self-only upkeep tool.
       L14 → Target 420 PP: Health Level Recovery 3 (90), Heal 22d8 (330) = 420 PP<br>
       L15 → Target 450 PP: Health Level Recovery 4 (120), Heal 22d8 (330) = 450 PP<br>
       L16 → Target 480 PP: Health Level Recovery 4 (120), Heal 24d8 (360) = 480 PP<br><br>
-
       NOTES<br>
       This Power is intentionally weaker in raw HP Healing than a pure Healing-only Active.<br>
       The lost Healing dice pay for the Health Level Recovery pool.<br>
@@ -3090,8 +2990,8 @@ A close-range restorative Active that heals one creature you can touch or reach.
 
 ---
 :
-<h3 id="ranged-single-target-heal-active">
-  Ranged Single Target Heal (Active, Support)
+<h3 id="ranged-single-target-heal">
+  Ranged Single Target Heal
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
@@ -3104,7 +3004,6 @@ A close-range restorative Active that heals one creature you can touch or reach.
       Duration = Instant<br>
       Healing = 15 PP per +1d8 Healing<br>
       Health Level Recovery = 30 PP per restored Health Level per Safe Haven Rest<br><br>
-
       DESIGN STRUCTURE<br>
       This is a ranged Heal-first Support Active with a limited Health Level Recovery pool.<br>
       Normal Healing restores HP inside the target's current Health Level.<br>
@@ -3112,20 +3011,17 @@ A close-range restorative Active that heals one creature you can touch or reach.
       The Health Level Recovery pool may be spent across multiple uses of this Power.<br>
       Health Level Recovery cannot raise a creature above its normal maximum Health Level structure.<br>
       Health Level Recovery does not restore HP by itself. HP recovery comes only from the Healing dice.<br><br>
-
       HEALTH LEVEL RECOVERY COST<br>
       Restore 1 Health Level per Safe Haven Rest = 30 PP<br>
       Restore 2 Health Levels per Safe Haven Rest = 60 PP<br>
       Restore 3 Health Levels per Safe Haven Rest = 90 PP<br>
       Restore 4 Health Levels per Safe Haven Rest = 120 PP<br><br>
-
       SCALING RULE<br>
       First pay Range.<br>
       Then subtract the Health Level Recovery cost from the remaining level budget.<br>
       Spend the remaining PP on Healing dice at 15 PP per +1d8 Healing.<br>
       Healing may stay the same or increase, but it may never decrease.<br>
       Unused PP remains unused.<br><br>
-
       CALCULATION<br>
       L1 → Target 30 PP: Range 8 m (0), Health Level Recovery 0 (0), Heal 2d8 (30) = 30 PP<br>
       L2 → Target 60 PP: Range 12 m (5), Health Level Recovery 0 (0), Heal 3d8 (45) = 50 PP<br>
@@ -3143,7 +3039,6 @@ A close-range restorative Active that heals one creature you can touch or reach.
       L14 → Target 420 PP: Range 60 m (65), Health Level Recovery 3 (90), Heal 17d8 (255) = 410 PP<br>
       L15 → Target 450 PP: Range 64 m (70), Health Level Recovery 4 (120), Heal 17d8 (255) = 445 PP<br>
       L16 → Target 480 PP: Range 68 m (75), Health Level Recovery 4 (120), Heal 19d8 (285) = 480 PP<br><br>
-
       NOTES<br>
       This Power is weaker in raw HP Healing than a pure Healing-only ranged Active because Range and Health Level Recovery are both paid from the same Active budget.<br>
       This Power does not Cleanse, does not grant Temporary HP, and does not grant an Absorption Bonus.
@@ -3178,8 +3073,8 @@ A ranged restorative Active that heals one creature within range.
 {{pageNumber,auto}}
 
 {{wide
-<h3 id="melee-aoe-heal-active">
-  Melee AoE Heal (Active, Support)
+<h3 id="melee-aoe-heal">
+  Melee AoE Heal
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
@@ -3190,26 +3085,22 @@ A ranged restorative Active that heals one creature within range.
       Duration = Instant<br>
       Healing = 15 PP per +1d8 Healing<br>
       Health Level Recovery = 30 PP per restored Health Level per Safe Haven Rest<br><br>
-
       AOE COSTS<br>
       Radius 2 m = 20 PP<br>
       Radius 3 m = 50 PP<br>
       Radius 4 m = 90 PP<br><br>
-
       DESIGN STRUCTURE<br>
       This is a self-centered AoE Heal-first Support Active with a limited Health Level Recovery pool.<br>
       HP Healing applies to all affected creatures.<br>
       Health Level Recovery may be applied to only one affected creature per use.<br>
       The Health Level Recovery pool may be spent across multiple uses of this Power.<br>
       Health Level Recovery does not restore HP by itself. HP recovery comes only from the Healing dice.<br><br>
-
       SCALING RULE<br>
       First pay AoE radius.<br>
       Then subtract the Health Level Recovery cost from the remaining level budget.<br>
       Spend the remaining PP on Healing dice at 15 PP per +1d8 Healing.<br>
       Healing and AoE may stay the same or increase, but they may never decrease.<br>
       Unused PP remains unused.<br><br>
-
       CALCULATION<br>
       L1 → Target 30 PP: Radius 2 m (20), Health Level Recovery 0 (0), Heal 1d8 (15) = 35 PP [minimum function exception]<br>
       L2 → Target 60 PP: Radius 2 m (20), Health Level Recovery 0 (0), Heal 2d8 (30) = 50 PP<br>
@@ -3227,7 +3118,6 @@ A ranged restorative Active that heals one creature within range.
       L14 → Target 420 PP: Radius 4 m (90), Health Level Recovery 3 (90), Heal 16d8 (240) = 420 PP<br>
       L15 → Target 450 PP: Radius 4 m (90), Health Level Recovery 4 (120), Heal 16d8 (240) = 450 PP<br>
       L16 → Target 480 PP: Radius 4 m (90), Health Level Recovery 4 (120), Heal 18d8 (270) = 480 PP<br><br>
-
       NOTES<br>
       Radius 5 m is not reached in this version because the Health Level Recovery pool consumes part of the Active budget.<br>
       This keeps Healing from dropping at later levels.<br>
@@ -3263,8 +3153,8 @@ A self-centered restorative area Active that heals nearby creatures.
 {{pageNumber,auto}}
 
 {{wide
-<h3 id="ranged-aoe-heal-active">
-  Ranged AoE Heal (Active, Support)
+<h3 id="ranged-aoe-heal">
+  Ranged AoE Heal
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
@@ -3276,25 +3166,21 @@ A self-centered restorative area Active that heals nearby creatures.
       Duration = Instant<br>
       Healing = 15 PP per +1d8 Healing<br>
       Health Level Recovery = 30 PP per restored Health Level per Safe Haven Rest<br><br>
-
       AOE COSTS<br>
       Radius 2 m = 20 PP<br>
       Radius 3 m = 50 PP<br><br>
-
       DESIGN STRUCTURE<br>
       This is a ranged AoE Heal-first Support Active with a limited Health Level Recovery pool.<br>
       HP Healing applies to all affected creatures.<br>
       Health Level Recovery may be applied to only one affected creature per use.<br>
       The Health Level Recovery pool may be spent across multiple uses of this Power.<br>
       Health Level Recovery does not restore HP by itself. HP recovery comes only from the Healing dice.<br><br>
-
       SCALING RULE<br>
       First pay Range and AoE radius.<br>
       Then subtract the Health Level Recovery cost from the remaining level budget.<br>
       Spend the remaining PP on Healing dice at 15 PP per +1d8 Healing.<br>
       Healing, Range, and AoE may stay the same or increase, but they may never decrease.<br>
       Unused PP remains unused.<br><br>
-
       CALCULATION<br>
       L1 → Target 30 PP: Range 8 m (0), Radius 2 m (20), Health Level Recovery 0 (0), Heal 1d8 (15) = 35 PP [minimum function exception]<br>
       L2 → Target 60 PP: Range 12 m (5), Radius 2 m (20), Health Level Recovery 0 (0), Heal 2d8 (30) = 55 PP<br>
@@ -3312,7 +3198,6 @@ A self-centered restorative area Active that heals nearby creatures.
       L14 → Target 420 PP: Range 60 m (65), Radius 3 m (50), Health Level Recovery 3 (90), Heal 14d8 (210) = 415 PP<br>
       L15 → Target 450 PP: Range 64 m (70), Radius 3 m (50), Health Level Recovery 4 (120), Heal 14d8 (210) = 450 PP<br>
       L16 → Target 480 PP: Range 68 m (75), Radius 3 m (50), Health Level Recovery 4 (120), Heal 15d8 (225) = 470 PP<br><br>
-
       NOTES<br>
       Radius 4 m and Radius 5 m are not reached in this version because Range and Health Level Recovery consume part of the Active budget.<br>
       This keeps Healing from dropping at later levels.<br>
@@ -3348,8 +3233,8 @@ A ranged restorative area Active that heals creatures in a radius around a targe
 {{pageNumber,auto}}
 
 {{wide
-<h3 id="melee-health-level-heal-active">
-  Melee Health Level Heal (Active, Support)
+<h3 id="melee-single-target-health-level-heal">
+  Melee Single Target Health Level Heal
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
@@ -3360,19 +3245,16 @@ A ranged restorative area Active that heals creatures in a radius around a targe
       AoE = none<br>
       Duration = Instant<br>
       Health Level Recovery = 30 PP per restored Health Level per Safe Haven Rest<br><br>
-
       DESIGN STRUCTURE<br>
       This is a pure Health Level Recovery Support Active.<br>
       It restores lost Health Levels but does not restore HP.<br>
       The recovery is tracked as a pool per Safe Haven Rest.<br>
       The pool may be spent across multiple uses of this Power.<br>
       Health Level Recovery cannot raise a creature above its normal maximum Health Level structure.<br><br>
-
       SCALING RULE<br>
       Spend the full Active budget on Health Level Recovery.<br>
       Each restored Health Level per Safe Haven Rest costs 30 PP.<br>
       This Power gains exactly 1 Health Level Recovery per Power level.<br><br>
-
       CALCULATION<br>
       L1 → Target 30 PP: Restore 1 Health Level (30) = 30 PP<br>
       L2 → Target 60 PP: Restore 2 Health Levels (60) = 60 PP<br>
@@ -3390,7 +3272,6 @@ A ranged restorative area Active that heals creatures in a radius around a targe
       L14 → Target 420 PP: Restore 14 Health Levels (420) = 420 PP<br>
       L15 → Target 450 PP: Restore 15 Health Levels (450) = 450 PP<br>
       L16 → Target 480 PP: Restore 16 Health Levels (480) = 480 PP<br><br>
-
       NOTES<br>
       This Power does not heal HP.<br>
       It exists so a dedicated healer can specialize in structural recovery instead of direct HP Healing.<br>
@@ -3426,8 +3307,8 @@ A close-range restorative Active that repairs lost Health Levels without restori
 {{pageNumber,auto}}
 
 {{wide
-<h3 id="ranged-health-level-heal-active">
-  Ranged Health Level Heal (Active, Support)
+<h3 id="ranged-single-target-health-level-heal">
+  Ranged Single Target Health Level Heal
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
@@ -3439,20 +3320,17 @@ A close-range restorative Active that repairs lost Health Levels without restori
       AoE = none<br>
       Duration = Instant<br>
       Health Level Recovery = 30 PP per restored Health Level per Safe Haven Rest<br><br>
-
       DESIGN STRUCTURE<br>
       This is a pure ranged Health Level Recovery Support Active.<br>
       It restores lost Health Levels but does not restore HP.<br>
       The recovery is tracked as a pool per Safe Haven Rest.<br>
       The pool may be spent across multiple uses of this Power.<br>
       Health Level Recovery cannot raise a creature above its normal maximum Health Level structure.<br><br>
-
       SCALING RULE<br>
       First pay Range.<br>
       Spend the remaining Active budget on Health Level Recovery.<br>
       Each restored Health Level per Safe Haven Rest costs 30 PP.<br>
       Unused PP remains unused.<br><br>
-
       CALCULATION<br>
       L1 → Target 30 PP: Range 8 m (0), Restore 1 Health Level (30) = 30 PP<br>
       L2 → Target 60 PP: Range 12 m (5), Restore 1 Health Level (30) = 35 PP<br>
@@ -3470,7 +3348,6 @@ A close-range restorative Active that repairs lost Health Levels without restori
       L14 → Target 420 PP: Range 60 m (65), Restore 11 Health Levels (330) = 395 PP<br>
       L15 → Target 450 PP: Range 64 m (70), Restore 12 Health Levels (360) = 430 PP<br>
       L16 → Target 480 PP: Range 68 m (75), Restore 13 Health Levels (390) = 465 PP<br><br>
-
       NOTES<br>
       This Power restores fewer Health Levels than the melee version because printed Range is paid every level.<br>
       This Power does not heal HP.<br>
@@ -3510,8 +3387,8 @@ A ranged restorative Active that repairs lost Health Levels without restoring HP
 
 ---
 {{wide
-<h3 id="melee-single-target-cleanse-active">
-  Melee Single Target Cleanse (Active, Support)
+<h3 id="melee-single-target-cleanse">
+  Melee Single Target Cleanse
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
@@ -3523,7 +3400,6 @@ A ranged restorative Active that repairs lost Health Levels without restoring HP
       Duration = Instant<br>
       Cleanse(X) = 4 × T(X) PP<br>
       T(X) = X × (X + 1) / 2<br><br>
-
       CLEANSE COSTS<br>
       Cleanse(1) = 4 PP<br>
       Cleanse(2) = 12 PP<br>
@@ -3540,19 +3416,16 @@ A ranged restorative Active that repairs lost Health Levels without restoring HP
       Cleanse(13) = 364 PP<br>
       Cleanse(14) = 420 PP<br>
       Cleanse(15) = 480 PP<br><br>
-
       CLEANSE RULE<br>
       Cleanse(X) reduces one eligible negative Special on the target by X.<br>
       The Cleanse value cannot be split across several Specials.<br>
       If a Special is reduced to 0, it is removed.<br>
       Cleanse reduces the chosen Special value, not PP value.<br>
       Cleanse does not remove battlefield objects, Barriers, Walls, Images, Summons, Illusion Fields, Persistent Zones, terrain effects, constructs, objects, or ongoing non-creature effects.<br><br>
-
       SCALING RULE<br>
       Spend the Active budget on Cleanse strength.<br>
       Cleanse may stay the same or increase, but it may never decrease.<br>
       Unused PP remains unused.<br><br>
-
       CALCULATION<br>
       L1 → Target 30 PP: Cleanse(3) (24) = 24 PP<br>
       L2 → Target 60 PP: Cleanse(5) (60) = 60 PP<br>
@@ -3570,7 +3443,6 @@ A ranged restorative Active that repairs lost Health Levels without restoring HP
       L14 → Target 420 PP: Cleanse(14) (420) = 420 PP<br>
       L15 → Target 450 PP: Cleanse(14) (420) = 420 PP<br>
       L16 → Target 480 PP: Cleanse(15) (480) = 480 PP<br><br>
-
       NOTES<br>
       This is the pure melee removal version.<br>
       It has no Healing, no Health Level Recovery, no Temporary HP, and no Absorption Bonus.
@@ -3605,8 +3477,8 @@ A close-range support Active that removes negative Special value from one creatu
 {{pageNumber,auto}}
 
 {{wide
-<h3 id="ranged-single-target-cleanse-active">
-  Ranged Single Target Cleanse (Active, Support)
+<h3 id="ranged-single-target-cleanse">
+  Ranged Single Target Cleanse
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
@@ -3619,7 +3491,6 @@ A close-range support Active that removes negative Special value from one creatu
       Duration = Instant<br>
       Cleanse(X) = 4 × T(X) PP<br>
       T(X) = X × (X + 1) / 2<br><br>
-
       RANGE COSTS<br>
       8 m = 0 PP<br>
       12 m = 5 PP<br>
@@ -3637,7 +3508,6 @@ A close-range support Active that removes negative Special value from one creatu
       60 m = 65 PP<br>
       64 m = 70 PP<br>
       68 m = 75 PP<br><br>
-
       CLEANSE COSTS<br>
       Cleanse(1) = 4 PP<br>
       Cleanse(2) = 12 PP<br>
@@ -3652,20 +3522,17 @@ A close-range support Active that removes negative Special value from one creatu
       Cleanse(11) = 264 PP<br>
       Cleanse(12) = 312 PP<br>
       Cleanse(13) = 364 PP<br><br>
-
       CLEANSE RULE<br>
       Cleanse(X) reduces one eligible negative Special on the target by X.<br>
       The Cleanse value cannot be split across several Specials.<br>
       If a Special is reduced to 0, it is removed.<br>
       Cleanse reduces the chosen Special value, not PP value.<br>
       Cleanse does not remove battlefield objects, Barriers, Walls, Images, Summons, Illusion Fields, Persistent Zones, terrain effects, constructs, objects, or ongoing non-creature effects.<br><br>
-
       SCALING RULE<br>
       First pay Range.<br>
       Spend the remaining Active budget on Cleanse strength.<br>
       Cleanse may stay the same or increase, but it may never decrease.<br>
       Unused PP remains unused.<br><br>
-
       CALCULATION<br>
       L1 → Target 30 PP: Range 8 m (0), Cleanse(3) (24) = 24 PP<br>
       L2 → Target 60 PP: Range 12 m (5), Cleanse(4) (40) = 45 PP<br>
@@ -3683,7 +3550,6 @@ A close-range support Active that removes negative Special value from one creatu
       L14 → Target 420 PP: Range 60 m (65), Cleanse(12) (312) = 377 PP<br>
       L15 → Target 450 PP: Range 64 m (70), Cleanse(13) (364) = 434 PP<br>
       L16 → Target 480 PP: Range 68 m (75), Cleanse(13) (364) = 439 PP<br><br>
-
       NOTES<br>
       This Power restores less Cleanse value than the melee version because printed Range is paid every level.<br>
       It has no Healing, no Health Level Recovery, no Temporary HP, and no Absorption Bonus.
@@ -3718,8 +3584,8 @@ A ranged support Active that removes negative Special value from one creature wi
 {{pageNumber,auto}}
 
 {{wide
-<h3 id="melee-aoe-cleanse-active">
-  Melee AoE Cleanse (Active, Support)
+<h3 id="melee-aoe-cleanse">
+  Melee AoE Cleanse
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
@@ -3730,27 +3596,23 @@ A ranged support Active that removes negative Special value from one creature wi
       Duration = Instant<br>
       Cleanse(X) = 4 × T(X) PP<br>
       T(X) = X × (X + 1) / 2<br><br>
-
       AOE COSTS<br>
       Radius 2 m = 20 PP<br>
       Radius 3 m = 50 PP<br>
       Radius 4 m = 90 PP<br>
       Radius 5 m = 140 PP<br><br>
-
       CLEANSE RULE<br>
       Cleanse(X) reduces one eligible negative Special on each affected creature by X.<br>
       On each affected creature, choose one eligible negative Special. The Cleanse value cannot be split.<br>
       If a Special is reduced to 0, it is removed.<br>
       Cleanse reduces the chosen Special value, not PP value.<br>
       Cleanse does not remove battlefield objects, Barriers, Walls, Images, Summons, Illusion Fields, Persistent Zones, terrain effects, constructs, objects, or ongoing non-creature effects.<br><br>
-
       SCALING RULE<br>
       First pay AoE radius.<br>
       Spend the remaining Active budget on Cleanse strength.<br>
       Cleanse and AoE may stay the same or increase, but they may never decrease.<br>
       If increasing Radius would force Cleanse to decrease, the Radius increase is delayed.<br>
       Unused PP remains unused.<br><br>
-
       CALCULATION<br>
       L1 → Target 30 PP: Radius 2 m (20), Cleanse(1) (4) = 24 PP<br>
       L2 → Target 60 PP: Radius 2 m (20), Cleanse(4) (40) = 60 PP<br>
@@ -3768,7 +3630,6 @@ A ranged support Active that removes negative Special value from one creature wi
       L14 → Target 420 PP: Radius 5 m (140), Cleanse(11) (264) = 404 PP<br>
       L15 → Target 450 PP: Radius 5 m (140), Cleanse(11) (264) = 404 PP<br>
       L16 → Target 480 PP: Radius 5 m (140), Cleanse(12) (312) = 452 PP<br><br>
-
       NOTES<br>
       This is the self-centered area removal version.<br>
       AoE Cleanse is weaker in raw Cleanse value than single-target Cleanse because Radius is paid from the same Active budget.<br>
@@ -3804,8 +3665,8 @@ A self-centered support Active that removes negative Special value from affected
 {{pageNumber,auto}}
 
 {{wide
-<h3 id="ranged-aoe-cleanse-active">
-  Ranged AoE Cleanse (Active, Support)
+<h3 id="ranged-aoe-cleanse">
+  Ranged AoE Cleanse
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
@@ -3817,7 +3678,6 @@ A self-centered support Active that removes negative Special value from affected
       Duration = Instant<br>
       Cleanse(X) = 4 × T(X) PP<br>
       T(X) = X × (X + 1) / 2<br><br>
-
       RANGE COSTS<br>
       8 m = 0 PP<br>
       12 m = 5 PP<br>
@@ -3835,27 +3695,23 @@ A self-centered support Active that removes negative Special value from affected
       60 m = 65 PP<br>
       64 m = 70 PP<br>
       68 m = 75 PP<br><br>
-
       AOE COSTS<br>
       Radius 2 m = 20 PP<br>
       Radius 3 m = 50 PP<br>
       Radius 4 m = 90 PP<br>
       Radius 5 m = 140 PP<br><br>
-
       CLEANSE RULE<br>
       Cleanse(X) reduces one eligible negative Special on each affected creature by X.<br>
       On each affected creature, choose one eligible negative Special. The Cleanse value cannot be split.<br>
       If a Special is reduced to 0, it is removed.<br>
       Cleanse reduces the chosen Special value, not PP value.<br>
       Cleanse does not remove battlefield objects, Barriers, Walls, Images, Summons, Illusion Fields, Persistent Zones, terrain effects, constructs, objects, or ongoing non-creature effects.<br><br>
-
       SCALING RULE<br>
       First pay Range and AoE radius.<br>
       Spend the remaining Active budget on Cleanse strength.<br>
       Cleanse, Range, and AoE may stay the same or increase, but they may never decrease.<br>
       If increasing Radius would force Cleanse to decrease, the Radius increase is delayed.<br>
       Unused PP remains unused.<br><br>
-
       CALCULATION<br>
       L1 → Target 30 PP: Range 8 m (0), Radius 2 m (20), Cleanse(1) (4) = 24 PP<br>
       L2 → Target 60 PP: Range 12 m (5), Radius 2 m (20), Cleanse(3) (24) = 49 PP<br>
@@ -3873,7 +3729,6 @@ A self-centered support Active that removes negative Special value from affected
       L14 → Target 420 PP: Range 60 m (65), Radius 4 m (90), Cleanse(11) (264) = 419 PP<br>
       L15 → Target 450 PP: Range 64 m (70), Radius 4 m (90), Cleanse(11) (264) = 424 PP<br>
       L16 → Target 480 PP: Range 68 m (75), Radius 5 m (140), Cleanse(11) (264) = 479 PP<br><br>
-
       NOTES<br>
       This is the ranged area removal version.<br>
       It pays Range and Radius before buying Cleanse, so its Cleanse value is lower than the melee area version.<br>
@@ -3913,8 +3768,8 @@ A ranged area support Active that removes negative Special value from affected c
 ## Heal + Cleanse
 
 {{wide
-<h3 id="melee-heal-cleanse-mixed-active">
-  Melee Heal + Cleanse (Active, Support)
+<h3 id="melee-single-target-heal-cleanse">
+  Melee Single Target Heal + Cleanse
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
@@ -3925,11 +3780,10 @@ A ranged area support Active that removes negative Special value from affected c
       AoE = none<br>
       Duration = Instant<br>
       Healing = 15 PP per +1d8 Healing<br>
-      Cleanse Tier = Start PP 4 Diminishing Tier<br>
+      Cleanse base cost = 4 PP<br>
       Cleanse(X) = 4 x T(X) PP<br>
       T(X) = X x (X + 1) / 2<br>
       Health Level Recovery = 30 PP per restored Health Level per Safe Haven Rest<br><br>
-
       CLEANSE COSTS<br>
       Cleanse(1) = 4 PP<br>
       Cleanse(2) = 12 PP<br>
@@ -3940,7 +3794,6 @@ A ranged area support Active that removes negative Special value from affected c
       Cleanse(7) = 112 PP<br>
       Cleanse(8) = 144 PP<br>
       Cleanse(9) = 180 PP<br><br>
-
       DESIGN STRUCTURE<br>
       This is a hybrid stabilization Power.<br>
       It combines HP Healing, Cleanse, and a limited Health Level Recovery pool.<br>
@@ -3951,23 +3804,19 @@ A ranged area support Active that removes negative Special value from affected c
       Health Level Recovery restores lost Health Levels and is tracked as a pool per Safe Haven Rest.<br>
       The Health Level Recovery pool may be spent across multiple uses of this Power.<br>
       Health Level Recovery does not restore HP by itself. HP recovery comes only from the Healing dice.<br><br>
-
       TARGET RULE<br>
       Healing, Cleanse, and Health Level Recovery all affect the same target.<br>
       You cannot heal one creature and cleanse another creature with the same use of this Power.<br><br>
-
       HEALTH LEVEL RECOVERY<br>
       L1 to L7 = no Health Level Recovery<br>
       L8 to L14 = restore 1 Health Level per Safe Haven Rest = 30 PP<br>
       L15 to L16 = restore 2 Health Levels per Safe Haven Rest = 60 PP<br><br>
-
       SCALING RULE<br>
       First subtract the Health Level Recovery cost from the level's Active PP budget.<br>
       Then buy Cleanse and Healing from the remaining budget.<br>
       Healing may stay the same or increase, but it may never decrease.<br>
       Cleanse may stay the same or increase, but it may never decrease.<br>
       Unused PP remains unused.<br><br>
-
       CALCULATION<br>
       L1: Target 30 PP, Health Level Recovery 0 (0), Cleanse(2) (12), Heal 1d8 (15) = 27 PP<br>
       L2: Target 60 PP, Health Level Recovery 0 (0), Cleanse(3) (24), Heal 2d8 (30) = 54 PP<br>
@@ -3985,7 +3834,6 @@ A ranged area support Active that removes negative Special value from affected c
       L14: Target 420 PP, Health Level Recovery 1 (30), Cleanse(9) (180), Heal 14d8 (210) = 420 PP<br>
       L15: Target 450 PP, Health Level Recovery 2 (60), Cleanse(9) (180), Heal 14d8 (210) = 450 PP<br>
       L16: Target 480 PP, Health Level Recovery 2 (60), Cleanse(9) (180), Heal 16d8 (240) = 480 PP<br><br>
-
       NOTES<br>
       This Power is intentionally weaker than a pure Heal Active and weaker than a pure Cleanse Active.<br>
       It pays for three support axes from one Active budget: Healing, Cleanse, and Health Level Recovery.<br>
@@ -4022,8 +3870,8 @@ A close-range hybrid support Active that heals one creature and removes negative
 {{pageNumber,auto}}
 
 {{wide
-<h3 id="ranged-heal-cleanse-mixed-active">
-  Ranged Heal + Cleanse (Active, Support)
+<h3 id="ranged-single-target-heal-cleanse">
+  Ranged Single Target Heal + Cleanse
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
@@ -4035,12 +3883,11 @@ A close-range hybrid support Active that heals one creature and removes negative
       AoE = none<br>
       Duration = Instant<br>
       Healing = 15 PP per +1d8 Healing<br>
-      Cleanse Tier = Start PP 4 Diminishing Tier<br>
+      Cleanse base cost = 4 PP<br>
       Cleanse(X) = 4 x T(X) PP<br>
       T(X) = X x (X + 1) / 2<br>
       Health Level Recovery = 30 PP per restored Health Level per Safe Haven Rest<br><br>
-
-      RANGE COSTS<br>
+ RANGE COSTS<br>
       8 m = 0 PP<br>
       12 m = 5 PP<br>
       16 m = 10 PP<br>
@@ -4078,16 +3925,13 @@ A close-range hybrid support Active that heals one creature and removes negative
       Health Level Recovery restores lost Health Levels and is tracked as a pool per Safe Haven Rest.<br>
       The Health Level Recovery pool may be spent across multiple uses of this Power.<br>
       Health Level Recovery does not restore HP by itself. HP recovery comes only from the Healing dice.<br><br>
-
       TARGET RULE<br>
       Healing, Cleanse, and Health Level Recovery all affect the same target.<br>
       You cannot heal one creature and cleanse another creature with the same use of this Power.<br><br>
-
       HEALTH LEVEL RECOVERY<br>
       L1 to L7 = no Health Level Recovery<br>
       L8 to L14 = restore 1 Health Level per Safe Haven Rest = 30 PP<br>
       L15 to L16 = restore 2 Health Levels per Safe Haven Rest = 60 PP<br><br>
-
       SCALING RULE<br>
       First pay Range.<br>
       Then subtract the Health Level Recovery cost from the remaining level budget.<br>
@@ -4095,7 +3939,6 @@ A close-range hybrid support Active that heals one creature and removes negative
       Healing may stay the same or increase, but it may never decrease.<br>
       Cleanse may stay the same or increase, but it may never decrease.<br>
       Unused PP remains unused.<br><br>
-
       CALCULATION<br>
       L1: Target 30 PP, Range 8 m (0), Health Level Recovery 0 (0), Cleanse(2) (12), Heal 1d8 (15) = 27 PP<br>
       L2: Target 60 PP, Range 12 m (5), Health Level Recovery 0 (0), Cleanse(3) (24), Heal 2d8 (30) = 59 PP<br>
@@ -4113,7 +3956,6 @@ A close-range hybrid support Active that heals one creature and removes negative
       L14: Target 420 PP, Range 60 m (65), Health Level Recovery 1 (30), Cleanse(8) (144), Heal 11d8 (165) = 404 PP<br>
       L15: Target 450 PP, Range 64 m (70), Health Level Recovery 2 (60), Cleanse(8) (144), Heal 11d8 (165) = 439 PP<br>
       L16: Target 480 PP, Range 68 m (75), Health Level Recovery 2 (60), Cleanse(8) (144), Heal 13d8 (195) = 474 PP<br><br>
-
       NOTES<br>
       This Power is weaker than the melee version because Range is paid every level.<br>
       This Power is intentionally weaker than a pure Heal Active and weaker than a pure Cleanse Active.<br>
@@ -4151,8 +3993,8 @@ A ranged hybrid support Active that heals one creature and removes negative Spec
 {{wide
 
 
-<h3 id="cleanse-absorption-active-support">
-  Cleanse Absorption (Active, Support)
+<h3 id="ranged-single-target-cleanse-absorption">
+  Ranged Single Target Cleanse + Damage / Speed / Armor / Evade Absorption
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
@@ -4164,7 +4006,6 @@ A ranged hybrid support Active that heals one creature and removes negative Spec
       Cleanse(X) = 4 × T(X) PP<br>
       T(X) = X × (X + 1) / 2<br>
       Absorption Duration = until the end of combat<br><br>
-
       CLEANSE COSTS<br>
       Cleanse(3) = 4 × T(3) = 24 PP<br>
       Cleanse(4) = 4 × T(4) = 40 PP<br>
@@ -4172,16 +4013,14 @@ A ranged hybrid support Active that heals one creature and removes negative Spec
       Cleanse(6) = 4 × T(6) = 84 PP<br>
       Cleanse(7) = 4 × T(7) = 112 PP<br>
       Cleanse(8) = 4 × T(8) = 144 PP<br><br>
-
       DESIGN STRUCTURE<br>
-      This is a fixed Support Active progression from the Cleanse Absorption catalogue.<br>
+      This is the fixed progression for Ranged Single Target Cleanse + Damage / Speed / Armor / Evade Absorption.<br>
       It is not an Active Buff and does not occupy the maintained Active Buff slot.<br>
       Each version has exactly one Absorption type: Damage, Speed, Armor, or Evade.<br>
       The Absorption type is chosen when the Power is created or learned.<br>
       The Cleanse value applies to exactly one eligible negative Special.<br>
       Absorption triggers only if the full listed Cleanse value is actually spent.<br>
       Absorption Bonuses can stack, including repeated bonuses of the same Absorption type.<br><br>
-
       CALCULATION<br>
       L1 → Target 30 PP: no version = 0 PP<br>
       L2 → Target 60 PP: no version = 0 PP<br>
@@ -4199,7 +4038,6 @@ A ranged hybrid support Active that heals one creature and removes negative Spec
       L14 → Target 420 PP: Range 24 m (20) + Cleanse(8) (144) + Absorption Bonus V (catalogue milestone) = fixed catalogue progression<br>
       L15 → Target 450 PP: Range 24 m (20) + Cleanse(8) (144) + Absorption Bonus VI (catalogue milestone) = fixed catalogue progression<br>
       L16 → Target 480 PP: Range 24 m (20) + Cleanse(8) (144) + Absorption Bonus VII (catalogue milestone) = fixed catalogue progression<br><br>
-
       NOTES<br>
       Do not rebuild this Power by adding the full standalone Cleanse cost and the full standalone bonus cost together.<br>
       The Absorption Bonus is conditional and only triggers when one chosen eligible Special is reduced by the full Cleanse value.<br>
@@ -4210,7 +4048,7 @@ A ranged hybrid support Active that heals one creature and removes negative Spec
   </span>
 </h3>
 
-You draw hostile pressure out of a creature and turn the released force into strength, speed, protection, or evasion.
+This Power cleanses one creature and converts the fully spent Cleanse value into one chosen Absorption type: Damage, Speed, Armor, or Evade.
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
 |:--:|:--|:--:|:--:|:--:|:--|:--|
@@ -4639,8 +4477,8 @@ They trade direct damage for position, protection, delay, and battlefield contro
 :
 ---
 :
-<h3 id="ranged-barrier-active-4-rounds">
-  Ranged Barrier — 4 Rounds
+<h3 id="ranged-barrier">
+  Ranged Barrier
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
@@ -4651,12 +4489,10 @@ They trade direct damage for position, protection, delay, and battlefield contro
       Duration = 4 Rounds<br>
       4-Round persistent multiplier = ×2<br>
       Barrier HP = 1 PP per 1 HP<br><br>
-
       FORMULA<br>
       Final Cost = Range Cost + [(Radius Cost + Barrier HP) × 2]<br>
       Range is paid normally and is not multiplied.<br>
       Radius and Barrier HP are persistent payload and are multiplied by duration.<br><br>
-
       RANGE COSTS<br>
       12 m = 5 PP<br>
       16 m = 10 PP<br>
@@ -4673,12 +4509,10 @@ They trade direct damage for position, protection, delay, and battlefield contro
       60 m = 65 PP<br>
       64 m = 70 PP<br>
       68 m = 75 PP<br><br>
-
       AOE COSTS<br>
       Radius 2 m = 20 PP<br>
       Radius 3 m = 50 PP<br>
       Radius 4 m = 90 PP<br><br>
-
       DESIGN RULE<br>
       This version is recalculated on curve with non-decreasing Barrier HP.<br>
       Range is paid first.<br>
@@ -4687,11 +4521,9 @@ They trade direct damage for position, protection, delay, and battlefield contro
       Barrier HP may stay the same or increase, but it may never decrease.<br>
       Radius may stay the same or increase, but it may never decrease.<br>
       Unused PP may remain unused if spending it would cause HP flicker later.<br><br>
-
       DISPEL RULE<br>
       Dispel compares directly against Power Level.<br>
       A Dispel removes Powers of equal or lower Level.<br><br>
-
       CALCULATION<br>
       L1 → Target 30 PP: no effect = 0 PP<br>
       L2 → Target 60 PP: Range 12 m (5) + [(Radius 2 m (20) + 10 HP (10)) × 2] = 65 PP ≈ 60 target<br>
@@ -4709,7 +4541,6 @@ They trade direct damage for position, protection, delay, and battlefield contro
       L14 → Target 420 PP: Range 60 m (65) + [(Radius 4 m (90) + 90 HP (90)) × 2] = 425 PP ≈ 420 target<br>
       L15 → Target 450 PP: Range 64 m (70) + [(Radius 4 m (90) + 102 HP (102)) × 2] = 454 PP ≈ 450 target<br>
       L16 → Target 480 PP: Range 68 m (75) + [(Radius 4 m (90) + 115 HP (115)) × 2] = 485 PP ≈ 480 target<br><br>
-
       NOTES<br>
       The earlier version reduced Barrier HP when the radius increased.<br>
       This corrected version delays and anchors Barrier HP so it never decreases.<br>
@@ -4741,192 +4572,6 @@ A ranged protective barrier that creates a temporary area of cover and obstructi
 | **15** | Active | 64 m | Radius 4 m | 4 Rounds | Create a Barrier with **102 HP**. | — |
 | **16** | Active | 68 m | Radius 4 m | 4 Rounds | Create a Barrier with **115 HP**. | — |
 }}
-
-\page
-{{pageNumber,auto}}
-{{wide
-
-## Immovable
-
-Immovable is a fixed defensive control-state.
-
-It does not scale as Immovable(X).
-
-A creature with Immovable cannot be forcibly moved or knocked down by standard control effects.
-
----
-
-### Immovable Cost
-
-| **Effect** | **Cost** | **Duration** |
-|---|:--:|:--:|
-| **Immovable** | **80 PP** | Buff Duration / listed Duration |
-
----
-
-### Immovable Effect
-
-While Immovable, you are immune to:
-
-- **Push**
-- **Pull**
-- **Prone**
-- forced movement from non-legendary sources
-- forced repositioning caused by standard Martial or Spell Powers
-
-Immovable does not prevent:
-
-- teleportation that does not physically move the target,
-- being carried by collapsing terrain,
-- falling if the ground disappears,
-- voluntary movement,
-- Root,
-- Stun,
-- Slow,
-- Grapple-like restraints,
-- or GM-defined environmental disasters.
-
----
-
-### Immovable Design Rule
-
-Immovable is a **fixed defensive rider**.
-
-It may appear on:
-
-- Active Buffs,
-- Reactions,
-- defensive stance Powers,
-- barrier-like or anchoring Powers.
-
-It should not be used as a full 16-level scaling Power by itself unless combined with another clear scaling axis such as:
-
-- Armor,
-- Temporary HP,
-- Barrier HP,
-- Radius,
-- Duration,
-- or ally protection.
-
-Immovable does not replace Damage Reduction, Phasing, Armor, Evade, or Temporary HP.
-
-}}
-
-\page
-{{pageNumber,auto}}
-{{wide
-
-
-## Anchoring Stance
-
-**Anchoring Stance = Immovable + Temporary HP**
-
-You anchor yourself against forced movement and gain temporary stability.
-
----
-:
-<h3 id="active-buff-immovable-temporary-hp">
-  Active Buff — Immovable + Temporary HP
-  <span class="tooltip">🛈
-    <span class="tooltiptext">
-      BASELINES<br>
-      Active Buff curve = 30 PP per level<br>
-      Immovable = fixed 80 PP<br>
-      Temporary HP = 1 PP per Temporary HP<br>
-      Duration = 2 Rounds<br><br>
-
-      SCALING RULE<br>
-      This is a defensive Active Buff.<br>
-      Immovable is a fixed defensive rider.<br>
-      Temporary HP is the scaling axis.<br>
-      Immovable does not scale as Immovable(X).<br>
-      Temporary HP may stay the same or increase, but it may never decrease.<br><br>
-
-      CALCULATION<br>
-      L1 → Target 30 PP: Not enough budget for Immovable (80 PP), so no effect<br>
-      L2 → Target 60 PP: Not enough budget for Immovable (80 PP), so no effect<br>
-      L3 → Target 90 PP: Immovable (80) + Temporary HP 10 = 90 PP<br>
-      L4 → Target 120 PP: Immovable (80) + Temporary HP 40 = 120 PP<br>
-      L5 → Target 150 PP: Immovable (80) + Temporary HP 70 = 150 PP<br>
-      L6 → Target 180 PP: Immovable (80) + Temporary HP 100 = 180 PP<br>
-      L7 → Target 210 PP: Immovable (80) + Temporary HP 130 = 210 PP<br>
-      L8 → Target 240 PP: Immovable (80) + Temporary HP 160 = 240 PP<br>
-      L9 → Target 270 PP: Immovable (80) + Temporary HP 190 = 270 PP<br>
-      L10 → Target 300 PP: Immovable (80) + Temporary HP 220 = 300 PP<br>
-      L11 → Target 330 PP: Immovable (80) + Temporary HP 250 = 330 PP<br>
-      L12 → Target 360 PP: Immovable (80) + Temporary HP 280 = 360 PP<br>
-      L13 → Target 390 PP: Immovable (80) + Temporary HP 310 = 390 PP<br>
-      L14 → Target 420 PP: Immovable (80) + Temporary HP 340 = 420 PP<br>
-      L15 → Target 450 PP: Immovable (80) + Temporary HP 370 = 450 PP<br>
-      L16 → Target 480 PP: Immovable (80) + Temporary HP 400 = 480 PP<br><br>
-
-      NOTES<br>
-      This Power begins functioning at Level 3 because Immovable costs 80 PP.<br>
-      Immovable remains fixed at every level.<br>
-      Temporary HP is the only scaling value.
-    </span>
-  </span>
-</h3>
-
-A defensive Active Buff that anchors the character in place and makes them harder to remove from position.
-
----
-:
-**Requirement:** None
-
----
-:
-| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
-|:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active Buff | Self | — | — | — |
-| **2** | Active Buff | Self | — | — | — |
-| **3** | Active Buff | Self | — | 2 Rounds | You become **Immovable** and gain **10 Temporary HP**. |
-| **4** | Active Buff | Self | — | 2 Rounds | You become **Immovable** and gain **40 Temporary HP**. |
-| **5** | Active Buff | Self | — | 2 Rounds | You become **Immovable** and gain **70 Temporary HP**. |
-| **6** | Active Buff | Self | — | 2 Rounds | You become **Immovable** and gain **100 Temporary HP**. |
-| **7** | Active Buff | Self | — | 2 Rounds | You become **Immovable** and gain **130 Temporary HP**. |
-| **8** | Active Buff | Self | — | 2 Rounds | You become **Immovable** and gain **160 Temporary HP**. |
-| **9** | Active Buff | Self | — | 2 Rounds | You become **Immovable** and gain **190 Temporary HP**. |
-| **10** | Active Buff | Self | — | 2 Rounds | You become **Immovable** and gain **220 Temporary HP**. |
-| **11** | Active Buff | Self | — | 2 Rounds | You become **Immovable** and gain **250 Temporary HP**. |
-| **12** | Active Buff | Self | — | 2 Rounds | You become **Immovable** and gain **280 Temporary HP**. |
-| **13** | Active Buff | Self | — | 2 Rounds | You become **Immovable** and gain **310 Temporary HP**. |
-| **14** | Active Buff | Self | — | 2 Rounds | You become **Immovable** and gain **340 Temporary HP**. |
-| **15** | Active Buff | Self | — | 2 Rounds | You become **Immovable** and gain **370 Temporary HP**. |
-| **16** | Active Buff | Self | — | 2 Rounds | You become **Immovable** and gain **400 Temporary HP**. |
-
----
-:
-
-### Example — Anchoring Stance
-
-A character activates **Anchoring Stance**.
-
-For **2 Rounds**, the character becomes **Immovable**.
-
-While Immovable, the character cannot be moved by standard Push, Pull, Prone, or forced movement effects.
-
-The character also gains the listed Temporary HP.
-
-Example:
-
-A Level 6 Anchoring Stance gives:
-
-- **Immovable**
-- **100 Temporary HP**
-- Duration: **2 Rounds**
-
-An enemy hits the character with a Push effect.
-
-The damage is resolved normally, but the Push does not move the character.
-
-If the enemy deals damage, that damage is applied to the Temporary HP first.
-
-When the Duration ends, Immovable ends and any remaining Temporary HP from this Power is lost.
-
-}}
-
-
 
 \page
 {{pageNumber,auto}}
@@ -5091,24 +4736,22 @@ If the illusion causes a real mechanical penalty, pay for that penalty separatel
 {{pageNumber,auto}}
 {{wide
 
-## Ranged Images
+## Ranged Power Image
 
 ---
 :
-<h3 id="ranged-images-active">
-  Ranged Images — 4 Rounds
+<h3 id="ranged-power-image">
+  Ranged Power Image
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
       Active curve = 30 PP per level<br>
-      Ranged Images use printed Range and Image Size<br>
+      Ranged Power Image uses printed Range and Image Size<br>
       Duration = 4 Rounds<br>
       Duration Multiplier = ×2<br>
       Range is not multiplied<br><br>
-
       FORMULA<br>
       Final Cost = Range Cost + [(Image Size Cost + Image Tier Cost) ×2]<br><br>
-
       RANGE COSTS<br>
       8 m = 0 PP<br>
       12 m = 5 PP<br>
@@ -5126,7 +4769,6 @@ If the illusion causes a real mechanical penalty, pay for that penalty separatel
       60 m = 65 PP<br>
       64 m = 70 PP<br>
       68 m = 75 PP<br><br>
-
       IMAGE SIZE COSTS<br>
       Single Small Image = 0 PP<br>
       Single Human-Sized Image = 10 PP<br>
@@ -5134,7 +4776,6 @@ If the illusion causes a real mechanical penalty, pay for that penalty separatel
       Radius 3 m = 50 PP<br>
       Radius 4 m = 90 PP<br>
       Radius 5 m = 140 PP<br><br>
-
       IMAGE TIER COSTS<br>
       Image I = 10 PP<br>
       Image II = 20 PP<br>
@@ -5143,14 +4784,12 @@ If the illusion causes a real mechanical penalty, pay for that penalty separatel
       Image V = 80 PP<br>
       Image VI = 110 PP<br>
       Image VII = 145 PP<br><br>
-
       SCALING RULE<br>
       This is an Illusion-first Active.<br>
       Image Tier is the primary scaling axis.<br>
       Image Size is the secondary scaling axis.<br>
       Images do not create real matter, damage, barriers, terrain, summons, or Specials.<br>
       Image Tier and Image Size may stay the same or increase, but they may never decrease.<br><br>
-
       CALCULATION<br>
       L1 → Range 8 m (0) + [(Single Small Image (0) + Image I (10)) ×2] = 20 PP<br>
       L2 → Range 12 m (5) + [(Single Human-Sized Image (10) + Image I (10)) ×2] = 45 PP<br>
@@ -5168,7 +4807,6 @@ If the illusion causes a real mechanical penalty, pay for that penalty separatel
       L14 → Range 60 m (65) + [(Radius 3 m (50) + Image VI (110)) ×2] = 385 PP<br>
       L15 → Range 64 m (70) + [(Radius 4 m (90) + Image VI (110)) ×2] = 470 PP above target, so Radius 3 m is retained = 390 PP<br>
       L16 → Range 68 m (75) + [(Radius 3 m (50) + Image VII (145)) ×2] = 465 PP<br><br>
-
       NOTES<br>
       Images begin as simple visual illusions and scale into multi-sense and battlefield-scale illusions.<br>
       Radius increases are delayed because the illusion lasts 4 Rounds.<br>
@@ -5210,7 +4848,7 @@ A ranged illusion Active that creates false sensory information for 4 Rounds.
 {{pageNumber,auto}}
 {{wide
 
-## Martial Actives — Hard Control
+## Martial Attacks + Hard Control
 
 > **Design Rule:** Hard Control effects remove or deny major parts of a creature's turn.  
 > Because of that, they are not normal Diminishing Specials and cannot be chosen through standard Damage + Special templates.
@@ -5308,16 +4946,14 @@ For this reason:
 {{pageNumber,auto}}
 {{wide
 
-## Stunning Strike
+## Martial Attacks + Stunned
 
-**Stunning Strike = Damage + Stunned**
-
-The target is struck with enough force, precision, or supernatural pressure to briefly lose its ability to attack.
+These Powers deal damage and apply Stunned.
 
 ---
 :
-<h3 id="melee-damage-stunned">
-  Melee — Damage + Stunned
+<h3 id="melee-attack-stunned">
+  Melee Attack + Stunned
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
@@ -5326,19 +4962,16 @@ The target is struck with enough force, precision, or supernatural pressure to b
       No Range cost<br>
       +1d8 Damage = 15 PP<br>
       Stunned = fixed 120 PP<br><br>
-
       HARD CONTROL RULE<br>
       Stunned is a fixed Hard Control add-on.<br>
       It does not scale as Stunned(X).<br>
       Stunned causes the target to lose its next Attack Action and prevents Reactions until the start of its next turn.<br>
       Stunned does not remove movement and does not prevent Defense Rolls.<br><br>
-
       SCALING RULE<br>
       This is a Damage + Hard Control Martial Active.<br>
       Stunned is the fixed add-on.<br>
       Damage is the scaling axis after Stunned becomes available.<br>
       Damage may stay the same or increase, but it may never decrease.<br><br>
-
       CALCULATION<br>
       L1 → Target 30 PP: Not enough budget for Stunned (120 PP), so no Stun version exists<br>
       L2 → Target 60 PP: Not enough budget for Stunned (120 PP), so no Stun version exists<br>
@@ -5356,7 +4989,6 @@ The target is struck with enough force, precision, or supernatural pressure to b
       L14 → Target 420 PP: Stunned (120) + Damage +20d8 (300) = 420 PP<br>
       L15 → Target 450 PP: Stunned (120) + Damage +22d8 (330) = 450 PP<br>
       L16 → Target 480 PP: Stunned (120) + Damage +24d8 (360) = 480 PP<br><br>
-
       NOTES<br>
       This template begins functioning at Level 4 because Stunned costs 120 PP.<br>
       From Level 5 onward, damage becomes the scaling axis.<br>
@@ -5395,8 +5027,8 @@ A close-range martial technique that staggers the target and briefly denies its 
 
 ---
 :
-<h3 id="ranged-damage-stunned">
-  Ranged — Damage + Stunned
+<h3 id="ranged-attack-stunned">
+  Ranged Attack + Stunned
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
@@ -5406,7 +5038,6 @@ A close-range martial technique that staggers the target and briefly denies its 
       Range cost = +5 PP per +4 m after 8 m<br>
       +1d8 Damage = 15 PP<br>
       Stunned = fixed 120 PP<br><br>
-
       RANGE COSTS<br>
       8 m = 0 PP<br>
       12 m = 5 PP<br>
@@ -5424,20 +5055,17 @@ A close-range martial technique that staggers the target and briefly denies its 
       60 m = 65 PP<br>
       64 m = 70 PP<br>
       68 m = 75 PP<br><br>
-
       HARD CONTROL RULE<br>
       Stunned is a fixed Hard Control add-on.<br>
       It does not scale as Stunned(X).<br>
       Stunned causes the target to lose its next Attack Action and prevents Reactions until the start of its next turn.<br>
       Stunned does not remove movement and does not prevent Defense Rolls.<br><br>
-
       SCALING RULE<br>
       This is a Damage + Hard Control Ranged Martial Active.<br>
       Range is paid every level.<br>
       Stunned is the fixed add-on.<br>
       Damage is the scaling axis after Range and Stunned are paid.<br>
       Damage may stay the same or increase, but it may never decrease.<br><br>
-
       CALCULATION<br>
       L1 → Target 30 PP: Not enough budget for Stunned (120 PP), so no Stun version exists<br>
       L2 → Target 60 PP: Range 12 m (5) + Stunned (120) = 125 PP above target, so no effect<br>
@@ -5455,7 +5083,6 @@ A close-range martial technique that staggers the target and briefly denies its 
       L14 → Target 420 PP: Range 60 m (65) + Stunned (120) + Damage +15d8 (225) = 410 PP<br>
       L15 → Target 450 PP: Range 64 m (70) + Stunned (120) + Damage +17d8 (255) = 445 PP<br>
       L16 → Target 480 PP: Range 68 m (75) + Stunned (120) + Damage +19d8 (285) = 480 PP<br><br>
-
       NOTES<br>
       This template begins functioning at Level 5 because Ranged Powers must also pay Range.<br>
       The Ranged version trails behind Melee because it pays Range every level.<br>
@@ -5498,7 +5125,7 @@ A ranged martial technique that staggers the target from a distance and briefly 
 {{pageNumber,auto}}
 {{wide
 
-## Active Powers — Weapon Attack Templates
+## Weapon Attack Powers
 
 > **Design Rule:** These Powers are basic weapon-based Active attack templates.  
 > They are used to model clean weapon attacks, AoE weapon attacks, Split Attacks, Split AoE attacks, and Autofire.
@@ -5530,11 +5157,11 @@ It is added to the Power's bonus damage.
 
 ---
 
-### Single Weapon Attack Rule
+### Single Target Attack Rule
 
-A Single Weapon Attack is resolved as one normal weapon attack.
+A Single Target Attack is resolved as one normal weapon attack.
 
-To use a Single Weapon Attack:
+To use a Single Target Attack:
 
 1. Choose one valid target within the Power's Range.
 2. Roll the normal Attack Pool for the weapon or unarmed attack used.
@@ -5542,7 +5169,7 @@ To use a Single Weapon Attack:
 4. If the attack hits, roll the listed Damage Pool.
 5. The target takes the full weapon damage and the Power's listed bonus damage.
 
-A Single Weapon Attack has only one target.
+A Single Target Attack has only one target.
 
 It does not split damage.  
 It does not create an AoE.  
@@ -5554,11 +5181,11 @@ It does not hit additional creatures unless another rule says so.
 {{pageNumber,auto}}
 {{wide
 
-### AoE Weapon Attack Rule
+### AoE Attack Rule
 
-An AoE Weapon Attack is one attack that affects an area.
+An AoE Attack is one attack that affects an area.
 
-When you use an AoE Weapon Attack:
+When you use an AoE Attack:
 
 1. Choose the AoE placement.
 2. Roll **one Attack Roll** for the entire AoE.
@@ -5568,7 +5195,7 @@ When you use an AoE Weapon Attack:
 6. A creature that would still be hit may use **Dive for Cover** before damage or payload is applied.
 7. Every creature that remains hit receives the Power's **full printed payload**.
 
-For an AoE Weapon Attack, full payload includes:
+For an AoE Attack, full payload includes:
 
 - full weapon damage,
 - the Power's full listed bonus damage,
@@ -5581,7 +5208,7 @@ Damage and Specials are not divided or reduced because several creatures were hi
 
 ### Melee AoE Placement
 
-A Melee AoE Weapon Attack is centered on the attacker.
+A Melee AoE Attack is centered on the attacker.
 
 The attacker is the center of the AoE. Every valid creature around the attacker within the listed Radius is checked against the same Attack Roll. The attacker does not hit themselves unless the Power explicitly says so.
 
@@ -5589,7 +5216,7 @@ The attacker is the center of the AoE. Every valid creature around the attacker 
 
 ### Ranged AoE Placement
 
-A Ranged AoE Weapon Attack is centered on a chosen target point within the Power's printed Range.
+A Ranged AoE Attack is centered on a chosen target point within the Power's printed Range.
 
 Every valid creature inside the listed Radius is checked separately against the same Attack Roll. The center point determines placement only and does not determine whether any creature is hit.
 
@@ -5691,7 +5318,7 @@ Additional Autofire targets require **no target-count Raises**. Normal Raises ma
 {{pageNumber,auto}}
 {{wide
 
-### Example — Single Weapon Attack
+### Example: Single Target Attack
 
 A character uses a Level 4 Ranged Single Attack.
 
@@ -5709,9 +5336,9 @@ No other creature is affected.
 
 ---
 
-### Example — Melee AoE Weapon Attack
+### Example: Melee AoE Attack
 
-A character uses a Level 6 Melee AoE Weapon Attack:
+A character uses **Melee AoE Attack** at Level 6:
 
 > Range: **Self**  
 > AoE: **Radius 4 m**  
@@ -5732,9 +5359,9 @@ A miss against one creature does not change the result against any other creatur
 {{pageNumber,auto}}
 {{wide
 
-### Example — Ranged AoE Weapon Attack
+### Example: Ranged AoE Attack
 
-A character uses a Level 5 Ranged AoE Weapon Attack:
+A character uses **Ranged AoE Attack** at Level 5:
 
 > Range: **24 m**  
 > AoE: **Radius 4 m**  
@@ -5832,12 +5459,12 @@ Autofire uses no target-count Raises, and Dive for Cover cannot be used against 
 {{pageNumber,auto}}
 {{wide
 
-## Single Weapon Attack
+## Single Target Attacks
 
 ---
 :
-<h3 id="melee-single-weapon-attack">
-  Melee Single Attack
+<h3 id="melee-single-target-attack">
+  Melee Single Target Attack
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
@@ -5845,7 +5472,6 @@ Autofire uses no target-count Raises, and Dive for Cover cannot be used against 
       Melee Range = Melee Reach<br>
       No Range cost<br>
       +1d8 Damage = 15 PP<br><br>
-
       CALCULATION<br>
       L1 → +2d8 Damage (30) = 30 PP<br>
       L2 → +4d8 Damage (60) = 60 PP<br>
@@ -5863,7 +5489,6 @@ Autofire uses no target-count Raises, and Dive for Cover cannot be used against 
       L14 → +28d8 Damage (420) = 420 PP<br>
       L15 → +30d8 Damage (450) = 450 PP<br>
       L16 → +32d8 Damage (480) = 480 PP<br><br>
-
       NOTES<br>
       This is the clean melee weapon attack template.<br>
       It makes one melee weapon attack and adds the listed bonus damage to normal weapon damage.
@@ -5900,8 +5525,8 @@ A clean melee weapon attack with no Special, rider, movement, or secondary effec
 
 ---
 :
-<h3 id="ranged-single-weapon-attack">
-  Ranged Single Attack
+<h3 id="ranged-single-target-attack">
+  Ranged Single Target Attack
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
@@ -5910,7 +5535,6 @@ A clean melee weapon attack with no Special, rider, movement, or secondary effec
       Range progression = +4 m per level<br>
       Range cost = +5 PP per +4 m after 8 m<br>
       +1d8 Damage = 15 PP<br><br>
-
       CALCULATION<br>
       L1 → Range 8 m (0) + +2d8 Damage (30) = 30 PP<br>
       L2 → Range 12 m (5) + +3d8 Damage (45) = 50 PP<br>
@@ -5928,7 +5552,6 @@ A clean melee weapon attack with no Special, rider, movement, or secondary effec
       L14 → Range 60 m (65) + +23d8 Damage (345) = 410 PP<br>
       L15 → Range 64 m (70) + +25d8 Damage (375) = 445 PP<br>
       L16 → Range 68 m (75) + +27d8 Damage (405) = 480 PP<br><br>
-
       NOTES<br>
       This is the clean ranged weapon attack template.<br>
       It pays Range every level, so its bonus damage trails behind the melee version.
@@ -5969,12 +5592,12 @@ A clean ranged weapon attack with no Special, rider, movement, or secondary effe
 {{pageNumber,auto}}
 {{wide
 
-## AoE Weapon Attack
+## AoE Attacks
 
 ---
 :
-<h3 id="melee-aoe-weapon-attack">
-  Melee AoE Weapon Attack
+<h3 id="melee-aoe-attack">
+  Melee AoE Attack
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
@@ -6042,8 +5665,8 @@ A self-centered weapon sweep that hits everything around the attacker.
 \page
 {{pageNumber,auto}}
 {{wide
-<h3 id="ranged-aoe-weapon-attack">
-  Ranged AoE Weapon Attack
+<h3 id="ranged-aoe-attack">
+  Ranged AoE Attack
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
@@ -6121,12 +5744,10 @@ A ranged weapon attack that detonates across an area.
       No Range cost<br>
       Split Attack = 30 PP per additional attack<br>
       +1d8 Damage = 15 PP<br><br>
-
       ATTACK COUNT<br>
       L1–6 → up to 2 attacks<br>
       L7–12 → up to 3 attacks<br>
       L13–16 → up to 4 attacks<br><br>
-
       NOTES<br>
       Split Attack does not multiply damage.<br>
       The attacker splits the Attack Pool before rolling.<br>
@@ -6181,12 +5802,10 @@ A melee technique that divides one attack sequence between multiple targets.
       Range cost = +5 PP per +4 m after 8 m<br>
       Split Attack = 30 PP per additional attack<br>
       +1d8 Damage = 15 PP<br><br>
-
       ATTACK COUNT<br>
       L1–6 → up to 2 attacks<br>
       L7–12 → up to 3 attacks<br>
       L13–16 → up to 4 attacks<br><br>
-
       NOTES<br>
       Split Attack does not multiply damage.<br>
       The Ranged version pays Range every level, so its bonus damage trails behind the melee version.
@@ -6316,7 +5935,7 @@ A ranged weapon attack that walks a burst through an ordered line of targets.
 
 - **Exorcism(X):** can be applied only to a creature with the **Fiend** tag.
 - **Requiem(X):** can be applied only to a creature with the **Undead** tag.
-- **Cost:** Start PP **2 × T(X)**.
+- **Cost:** **2 × T(X) PP**.
 - **Tick:** at the start of the affected creature's Turn, take **X damage**, then reduce X by 1.
 - **Stacking:** normal Diminishing stacking.
 - **Cleanse:** Yes.
@@ -6329,13 +5948,13 @@ A creature without the required tag cannot receive the Special at all.
 \page
 {{pageNumber,auto}}
 {{wide
-<h3 id="melee-targeted-special-attack">
-  Melee Targeted Special Attack
+<h3 id="melee-attack-exorcism-requiem">
+  Melee Attack + Exorcism / Requiem
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
       Active curve = 30 PP per level<br>
-      Exorcism(X) and Requiem(X) each use Start PP 2 × T(X)<br>
+      Exorcism(X) and Requiem(X) each cost 2 × T(X) PP<br>
       Weapon Damage is the baseline delivery and is not priced again<br>
 <br>      DESIGN STRUCTURE<br>
       Choose either Exorcism or Requiem when the Power is built. That choice is fixed for that Power.<br>
@@ -6397,13 +6016,13 @@ A targeted weapon strike against one supernatural creature type.
 \page
 {{pageNumber,auto}}
 {{wide
-<h3 id="ranged-targeted-special-attack">
-  Ranged Targeted Special Attack
+<h3 id="ranged-attack-exorcism-requiem">
+  Ranged Attack + Exorcism / Requiem
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
       Active curve = 30 PP per level<br>
-      Exorcism(X) and Requiem(X) each use Start PP 2 × T(X)<br>
+      Exorcism(X) and Requiem(X) each cost 2 × T(X) PP<br>
       Weapon Damage is the baseline delivery and is not priced again<br>
       Range progression = +4 m per level; Range cost = +5 PP per +4 m after 8 m<br>
 <br>      DESIGN STRUCTURE<br>
@@ -6466,13 +6085,13 @@ A targeted weapon strike against one supernatural creature type.
 \page
 {{pageNumber,auto}}
 {{wide
-<h3 id="melee-aoe-targeted-special-attack">
-  Melee AoE Targeted Special Attack
+<h3 id="melee-aoe-attack-exorcism-requiem">
+  Melee AoE Attack + Exorcism / Requiem
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
       Active curve = 30 PP per level<br>
-      Exorcism(X) and Requiem(X) each use Start PP 2 × T(X)<br>
+      Exorcism(X) and Requiem(X) each cost 2 × T(X) PP<br>
       Weapon Damage is the baseline delivery and is not priced again<br>
       Instant Attack AoE costs: Radius 1/2/3/4/5/6/7/8 m = 0/20/50/80/120/165/220/280 PP<br>
 <br>      DESIGN STRUCTURE<br>
@@ -6536,13 +6155,13 @@ A targeted area attack against one supernatural creature type.
 \page
 {{pageNumber,auto}}
 {{wide
-<h3 id="ranged-aoe-targeted-special-attack">
-  Ranged AoE Targeted Special Attack
+<h3 id="ranged-aoe-attack-exorcism-requiem">
+  Ranged AoE Attack + Exorcism / Requiem
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
       Active curve = 30 PP per level<br>
-      Exorcism(X) and Requiem(X) each use Start PP 2 × T(X)<br>
+      Exorcism(X) and Requiem(X) each cost 2 × T(X) PP<br>
       Weapon Damage is the baseline delivery and is not priced again<br>
       Range progression = +4 m per level; Range cost = +5 PP per +4 m after 8 m<br>
       Instant Attack AoE costs: Radius 1/2/3/4/5/6/7/8 m = 0/20/50/80/120/165/220/280 PP<br>
@@ -6700,8 +6319,8 @@ Mental Attack does not grant an automatic Intellect or Wits Attribute Check afte
 \page
 {{pageNumber,auto}}
 {{wide
-<h3 id="mental-attack-active">
-  Mental Attack (Active, Mental)
+<h3 id="mental-attack">
+  Mental Attack
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
@@ -6712,7 +6331,6 @@ Mental Attack does not grant an automatic Intellect or Wits Attribute Check afte
       Mental Damage = 30 PP per +1d8 Mental Damage<br>
       Mental Damage ignores Armor<br>
       Mental Attack does not target Evade<br><br>
-
       DESIGN STRUCTURE<br>
       This is a premium damage axis.<br>
       It is expensive because it bypasses Armor and uses mental defenses instead of physical defenses.<br>
@@ -6782,8 +6400,8 @@ If a creature spends an Action to inspect the Mind Illusion, physically interact
 \page
 {{pageNumber,auto}}
 {{wide
-<h3 id="mind-illusion-active">
-  Mind Illusion (Active, Mental)
+<h3 id="mind-illusion">
+  Mind Illusion
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
@@ -6791,13 +6409,11 @@ If a creature spends an Action to inspect the Mind Illusion, physically interact
       Active curve = 30 PP per level<br>
       Requires Telepathic Access<br>
       Resolved like a Spell against fixed TN<br>
-
       DESIGN STRUCTURE<br>
       Mind Illusions scale through affected creatures, affected senses, believability, and complexity.<br>
       They are inspired by mental images and sense-affecting illusion structures.<br>
       They do not create real battlefield objects.<br>
       They do not control the target's actions.<br><br>
-
       SENSE MODEL<br>
       Basic senses include sight, hearing, smell, touch, taste, pain, temperature, direction, balance, and emotional impression.<br>
       A Mind Illusion may affect only the senses listed by its level.
@@ -6875,8 +6491,8 @@ Mind Probe does not alter memories, create beliefs, control actions, or deal dam
 
 ---
 
-<h3 id="mind-probe-active">
-  Mind Probe (Active, Mental)
+<h3 id="mind-probe">
+  Mind Probe
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
@@ -6884,7 +6500,6 @@ Mind Probe does not alter memories, create beliefs, control actions, or deal dam
       Active curve = 30 PP per level<br>
       Requires Telepathic Access<br>
       Resolved like a Spell against fixed TN +4<br><br>
-
       DESIGN STRUCTURE<br>
       Mind Probe is a fixed qualitative Mental Active.<br>
       Its full budget is spent on information depth, precision, memory age, and access to difficult memories.<br>
@@ -6955,8 +6570,8 @@ If a controlled creature becomes a participant in combat, the Mental Control end
 
 ---
 
-<h3 id="mental-control-active">
-  Mental Control (Active, Mental, Noncombat)
+<h3 id="mental-control">
+  Mental Control
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>

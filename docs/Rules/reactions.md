@@ -69,26 +69,26 @@ Version: v0.9.8 (2026-07-31)
 - #### [{{ Reactions}}{{ 4}}](#p4)
 - #### [{{ Reaction Rules}}{{ 4}}](#p4)
 - #### [{{ Pure Defense}}{{ 7}}](#p7)
-- #### [{{ Armor}}{{ 7}}](#p7)
-- #### [{{ Evade}}{{ 8}}](#p8)
-- #### [{{ Temporary HP}}{{ 8}}](#p8)
+- #### [{{ Reaction: Armor}}{{ 7}}](#p7)
+- #### [{{ Reaction: Evade}}{{ 8}}](#p8)
+- #### [{{ Reaction: Temporary HP}}{{ 8}}](#p8)
 - #### [{{ Defensive Combinations}}{{ 9}}](#p9)
 - #### [{{ Ally Protection}}{{ 11}}](#p11)
 - #### [{{ Restricted Utility}}{{ 14}}](#p14)
-- #### [{{ Reposition}}{{ 15}}](#p15)
-- #### [{{ Reactive Cleanse}}{{ 15}}](#p15)
+- #### [{{ Reaction: Reposition}}{{ 15}}](#p15)
+- #### [{{ Reaction: Cleanse}}{{ 15}}](#p15)
 - #### [{{ Closed Premium}}{{ 16}}](#p16)
-- #### [{{ Damage Reduction}}{{ 16}}](#p16)
-- #### [{{ Phasing}}{{ 17}}](#p17)
+- #### [{{ Reaction: Damage Reduction}}{{ 16}}](#p16)
+- #### [{{ Reaction: Phasing}}{{ 17}}](#p17)
 - #### [{{ Counter Effects}}{{ 18}}](#p18)
-- #### [{{ Counter Damage}}{{ 19}}](#p19)
-- #### [{{ Counter Damage + Push}}{{ 20}}](#p20)
-- #### [{{ Special Increase}}{{ 21}}](#p21)
-- #### [{{ Initiative Gain}}{{ 22}}](#p22)
-- #### [{{ Riposte}}{{ 23}}](#p23)
-- #### [{{ Reflection}}{{ 24}}](#p24)
+- #### [{{ Reaction: Damage}}{{ 19}}](#p19)
+- #### [{{ Reaction: Damage + Push}}{{ 20}}](#p20)
+- #### [{{ Reaction: Special Increase + Blight / Challenge / Corrode / Disoriented / Expose / Hex / Lacerate / Mark / Ruin / Slow / Soulburn / Sundered / Weaken}}{{ 21}}](#p21)
+- #### [{{ Reaction: Initiative}}{{ 22}}](#p22)
+- #### [{{ Reaction: Parry + Weapon Damage}}{{ 23}}](#p23)
+- #### [{{ Reaction: Parry + Attack Reflection}}{{ 24}}](#p24)
 - #### [{{ Absorption Reaction}}{{ 26}}](#p26)
-- #### [{{ Reactive Overload}}{{ 27}}](#p27)
+- #### [{{ Reaction: Absorption Damage Multiplier}}{{ 27}}](#p27)
 
 }}
 \page
@@ -110,11 +110,25 @@ A Reaction is built from two parts:
 
 When a Reaction entry offers more than one Allowed Trigger, choose one of those Triggers when the Reaction Effect is learned.
 
-That choice becomes part of the Reaction.
+That choice becomes part of the Reaction's configuration, but not its technical Reaction Effect name.
 
 There is no universal Opportunity Attack rule.
 
 A creature may use a Reaction only when the Trigger belonging to that Reaction occurs.
+
+### Technical Reaction Identity
+
+Every catalogue entry uses its heading as its canonical technical Reaction Effect name.
+
+The technical Reaction Effect name defines rules identity and data identity. Power Level or a dedicated Mastery Rank progression changes the strength of that Reaction Effect, not its identity.
+
+A character-facing name is not part of this catalogue and never creates a second Reaction Effect.
+
+The chosen Allowed Trigger is stored separately. It does not change the technical Reaction Effect name and does not create a separate copy of that Reaction Effect.
+
+If a technical name lists alternatives separated by slashes, choose one when learning the Reaction Effect. The chosen option replaces the slash list in that character's configured technical name. All configured variants still share the same base Reaction Effect for duplicate rules unless an explicit rule says otherwise.
+
+Foundry VTT must store the technical Reaction Effect name separately from Power Level, chosen Trigger, chosen option, base Reaction Effect, and any character-facing label. Duplicate rules compare the base Reaction Effect, not the chosen Trigger or character-facing label.
 
 ---
 ::
@@ -201,12 +215,12 @@ Standard defensive Reactions may use:
 * Temporary HP
 * Ally Protection
 * Reposition
-* Reactive Cleanse
+* Reaction: Cleanse
 
 Standard counter effects may use:
 
-* Counter Damage
-* Counter Damage + Push
+* Reaction: Damage
+* Reaction: Damage + Push
 * Special Increase
 
 Counter Effects are not Attack Actions.
@@ -225,21 +239,21 @@ Some Reactions belong to dedicated subsystems and may break one narrow general r
 
 These include:
 
-* Damage Reduction
-* Phasing
-* Initiative Gain
-* Riposte
-* Reflection
-* Reactive Overload
+* Reaction: Damage Reduction
+* Reaction: Phasing
+* Reaction: Initiative
+* Reaction: Parry + Weapon Damage
+* Reaction: Parry + Attack Reflection
+* Reaction: Absorption Damage Multiplier
 
 Each dedicated Reaction follows only the exception written in its own entry.
 
 For example:
 
-* Riposte may use Weapon Damage after a fully parried melee Attack.
-* Reflection may return a fully intercepted Attack through the Parry subsystem.
-* Reactive Overload may multiply eligible actual HP loss for Absorption calculations.
-* Initiative Gain may change Initiative Order during combat.
+* Reaction: Parry + Weapon Damage may use Weapon Damage after a fully parried melee Attack.
+* Reaction: Parry + Attack Reflection may return a fully intercepted Attack through the Parry subsystem.
+* Reaction: Absorption Damage Multiplier may multiply eligible actual HP loss for Absorption calculations.
+* Reaction: Initiative may change Initiative Order during combat.
 
 These exceptions do not create general permission for other Reactions to copy those effects.
 
@@ -496,7 +510,7 @@ They are still narrow, immediate answers to a specific trigger.
 
 A Defensive Combination Reaction may not include:
 
-- Attack Dice, Critical, Specials, Counter Damage, hard control, movement or offensive riders.
+- Attack Dice, Critical, Specials, Reaction: Damage, hard control, movement or offensive riders.
 
 Damage Reduction and Phasing remain closed premium Reaction entries and may not be combined with any other axis.
 
@@ -946,8 +960,8 @@ You recover position only after the immediate danger has resolved.
 ---
 
 
-<h3 id="reaction-reactive-cleanse">
-  Reaction: Reactive Cleanse
+<h3 id="reaction-cleanse">
+  Reaction: Cleanse
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
@@ -1205,9 +1219,9 @@ It does not trigger on-hit effects.
 It does not apply Specials.  
 It does not increase Specials.  
 It does not benefit from Critical.  
-It does not benefit from Active Buff: Damage, Active Buff: Penetration, Active Buff: Critical, or Active Buff: Special Overdrive.
+It does not benefit from Active Buff: Damage, Active Buff: Penetration, Active Buff: Critical, or Active Buff: Special Increase.
 
-Counter Damage is fixed Reaction damage.
+Reaction: Damage is fixed Reaction damage.
 
 The triggering creature applies Armor, Damage Reduction, resistance, immunity, and any other legal damage mitigation normally.
 
@@ -1220,37 +1234,37 @@ Unless an entry says otherwise, a Counter Effect using the Hit Trigger requires 
 {{pageNumber,auto}}
 {{wide
 
-<h3 id="reaction-counter-damage">
-  Reaction: Counter Damage
+<h3 id="reaction-damage">
+  Reaction: Damage
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
       Reaction curve = 20 PP at Level 1, +20 PP per level after that.<br>
-      Counter Damage = 20 PP per 1d8 damage.<br><br>
+      Reaction: Damage = 20 PP per 1d8 damage.<br><br>
 
       DESIGN STRUCTURE<br>
-      This is a retaliatory Reaction with exactly one axis: fixed Counter Damage.<br>
-      Counter Damage is intentionally priced higher than normal damage because it does not require an attack roll and happens outside your turn.<br>
+      This is a retaliatory Reaction with exactly one axis: fixed Reaction: Damage.<br>
+      Reaction: Damage is intentionally priced higher than normal damage because it does not require an attack roll and happens outside your turn.<br>
       The damage applies only to the triggering creature.<br>
       The triggering creature applies Armor, Damage Reduction, resistance, immunity, and other legal mitigation normally.<br><br>
 
       LEVEL-BY-LEVEL CALCULATION<br>
-      L1 target 20 PP → 1d8 Counter Damage = 20 PP, exactly on target.<br>
-      L2 target 40 PP → 2d8 Counter Damage = 40 PP, exactly on target.<br>
-      L3 target 60 PP → 3d8 Counter Damage = 60 PP, exactly on target.<br>
-      L4 target 80 PP → 4d8 Counter Damage = 80 PP, exactly on target.<br>
-      L5 target 100 PP → 5d8 Counter Damage = 100 PP, exactly on target.<br>
-      L6 target 120 PP → 6d8 Counter Damage = 120 PP, exactly on target.<br>
-      L7 target 140 PP → 7d8 Counter Damage = 140 PP, exactly on target.<br>
-      L8 target 160 PP → 8d8 Counter Damage = 160 PP, exactly on target.<br>
-      L9 target 180 PP → 9d8 Counter Damage = 180 PP, exactly on target.<br>
-      L10 target 200 PP → 10d8 Counter Damage = 200 PP, exactly on target.<br>
-      L11 target 220 PP → 11d8 Counter Damage = 220 PP, exactly on target.<br>
-      L12 target 240 PP → 12d8 Counter Damage = 240 PP, exactly on target.<br>
-      L13 target 260 PP → 13d8 Counter Damage = 260 PP, exactly on target.<br>
-      L14 target 280 PP → 14d8 Counter Damage = 280 PP, exactly on target.<br>
-      L15 target 300 PP → 15d8 Counter Damage = 300 PP, exactly on target.<br>
-      L16 target 320 PP → 16d8 Counter Damage = 320 PP, exactly on target.<br><br>
+      L1 target 20 PP → 1d8 Reaction: Damage = 20 PP, exactly on target.<br>
+      L2 target 40 PP → 2d8 Reaction: Damage = 40 PP, exactly on target.<br>
+      L3 target 60 PP → 3d8 Reaction: Damage = 60 PP, exactly on target.<br>
+      L4 target 80 PP → 4d8 Reaction: Damage = 80 PP, exactly on target.<br>
+      L5 target 100 PP → 5d8 Reaction: Damage = 100 PP, exactly on target.<br>
+      L6 target 120 PP → 6d8 Reaction: Damage = 120 PP, exactly on target.<br>
+      L7 target 140 PP → 7d8 Reaction: Damage = 140 PP, exactly on target.<br>
+      L8 target 160 PP → 8d8 Reaction: Damage = 160 PP, exactly on target.<br>
+      L9 target 180 PP → 9d8 Reaction: Damage = 180 PP, exactly on target.<br>
+      L10 target 200 PP → 10d8 Reaction: Damage = 200 PP, exactly on target.<br>
+      L11 target 220 PP → 11d8 Reaction: Damage = 220 PP, exactly on target.<br>
+      L12 target 240 PP → 12d8 Reaction: Damage = 240 PP, exactly on target.<br>
+      L13 target 260 PP → 13d8 Reaction: Damage = 260 PP, exactly on target.<br>
+      L14 target 280 PP → 14d8 Reaction: Damage = 280 PP, exactly on target.<br>
+      L15 target 300 PP → 15d8 Reaction: Damage = 300 PP, exactly on target.<br>
+      L16 target 320 PP → 16d8 Reaction: Damage = 320 PP, exactly on target.<br><br>
 
       NOTES<br>
       This is not an Attack Action.<br>
@@ -1300,21 +1314,21 @@ If you choose Threat Zone Movement Trigger, the triggering creature must be with
 {{pageNumber,auto}}
 {{wide
 
-<h3 id="reaction-counter-damage-push">
-  Reaction: Counter Damage + Push
+<h3 id="reaction-damage-push">
+  Reaction: Damage + Push
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
       Reaction curve = 20 PP at Level 1, +20 PP per level after that.<br>
-      Counter Damage = 20 PP per 1d8 damage.<br>
+      Reaction: Damage = 20 PP per 1d8 damage.<br>
       Push 2 m = 20 PP.<br>
       Push 4 m = 40 PP.<br>
       Push 6 m = 60 PP.<br>
       Push 8 m = 80 PP.<br><br>
 
       DESIGN STRUCTURE<br>
-      This is a retaliatory Reaction with exactly two axes: fixed Counter Damage and Push.<br>
-      Counter Damage is intentionally priced higher than normal damage because it does not require an attack roll and happens outside your turn.<br>
+      This is a retaliatory Reaction with exactly two axes: fixed Reaction: Damage and Push.<br>
+      Reaction: Damage is intentionally priced higher than normal damage because it does not require an attack roll and happens outside your turn.<br>
       Push is the secondary axis and represents a forceful rebound, shield-bash, shockwave, repulsion ward, kinetic discharge, or similar effect.<br>
       The triggering creature applies Armor, Damage Reduction, resistance, immunity, and other legal mitigation normally against the damage.<br><br>
 
@@ -1324,7 +1338,7 @@ If you choose Threat Zone Movement Trigger, the triggering creature must be with
       L4–5 → Push 4 m.<br>
       L6–7 → Push 6 m.<br>
       L8–16 → Push 8 m.<br>
-      After Push reaches 8 m, later levels increase only Counter Damage.<br><br>
+      After Push reaches 8 m, later levels increase only Reaction: Damage.<br><br>
 
       LEVEL-BY-LEVEL CALCULATION<br>
       L1 target 20 PP → 1d8 damage (20) = 20 PP, exactly on target. Push has not unlocked yet.<br>
@@ -1394,7 +1408,7 @@ If you choose Threat Zone Movement Trigger, the triggering creature must be with
 {{wide
 
 <h3 id="reaction-special-increase">
-  Reaction: Special Increase
+  Reaction: Special Increase + Blight / Challenge / Corrode / Disoriented / Expose / Hex / Lacerate / Mark / Ruin / Slow / Soulburn / Sundered / Weaken
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
@@ -1405,6 +1419,8 @@ If you choose Threat Zone Movement Trigger, the triggering creature must be with
 
       CORE RULES<br>
       Choose one eligible Special(X) when you take this Reaction.<br>
+      The learned Reaction's technical name is Reaction: Special Increase + the chosen Special.<br>
+      All Special Increase variants share the same base Reaction Effect for duplicate rules.<br>
       The chosen Special must be numeric, diminishing, and able to increase meaningfully by +1 or more.<br>
       This Reaction can only trigger when a creature within 2 m hits you with an attack and is already affected by the chosen Special(X).<br>
       If the triggering creature is not already affected by the chosen Special, this Reaction has no effect.<br>
@@ -1441,7 +1457,7 @@ If you choose Threat Zone Movement Trigger, the triggering creature must be with
       L16 target 320 PP → third Special Increase milestone: increase one existing chosen Special on the triggering creature by +3.<br><br>
 
       DESIGN NOTE<br>
-      This Reaction is intentionally narrower than Active Buff: Special Overdrive.<br>
+      This Reaction is intentionally narrower than Active Buff: Special Increase.<br>
       It can only affect the triggering creature, only if that creature hits you, and only if the chosen Special is already present.<br>
       It does not add damage, defense, movement, push, control, or any other rider.<br>
       Unused PP remains unused instead of being converted into filler bonuses.<br><br>
@@ -1456,6 +1472,10 @@ If you choose Threat Zone Movement Trigger, the triggering creature must be with
 </h3>
 
 The enemy drives an existing condition deeper into itself by triggering your prepared punishment.
+
+The learned Reaction's technical name is **Reaction: Special Increase + the chosen Special**.
+
+All Special Increase variants share the same base **Reaction: Special Increase** identity for duplicate rules.
 
 **Allowed Triggers:** Hit Trigger.
 
@@ -1486,8 +1506,8 @@ The triggering creature must be within **2 m** and already affected by your chos
 {{pageNumber,auto}}
 {{wide
 
-<h3 id="reaction-initiative-gain">
-  Reaction: Initiative Gain
+<h3 id="reaction-initiative">
+  Reaction: Initiative
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
@@ -1495,7 +1515,7 @@ The triggering creature must be within **2 m** and already affected by your chos
       +1 Initiative = 10 PP.<br><br>
 
   DESIGN STRUCTURE<br>
-  This is a pure Initiative Reaction with exactly one mechanical axis: Initiative Gain.<br>
+  This is a pure Initiative Reaction with exactly one mechanical axis: Reaction: Initiative.<br>
   The Reaction triggers when the user is targeted by an attack.<br>
   The Initiative is gained after the triggering attack fully resolves.<br><br>
 
@@ -1518,11 +1538,11 @@ The triggering creature must be within **2 m** and already affected by your chos
   L16 target 320 PP → +32 Initiative = 320 PP.<br><br>
 
   INITIATIVE ORDER<br>
-  Initiative Gain immediately increases the user's Initiative Score.<br>
+  Reaction: Initiative immediately increases the user's Initiative Score.<br>
   If the user has not yet taken their Turn this Round, update their position in the remaining Initiative Order.<br>
   If the new position would already have passed, the user acts immediately after the current Turn.<br>
   If the user has already taken their Turn this Round, the new position applies from the next Round onward.<br>
-  Initiative Gain can never grant a second Turn in the same Round.<br><br>
+  Reaction: Initiative can never grant a second Turn in the same Round.<br><br>
 
   NOTES<br>
   This Reaction does not affect the triggering attack.<br>
@@ -1560,19 +1580,19 @@ You seize the pressure of an incoming attack and turn it into immediate combat m
 
 ---
 
-### Initiative Gain Rules
+### Reaction: Initiative Rules
 
-Initiative Gain costs your Reaction for the Round.
+Reaction: Initiative costs your Reaction for the Round.
 
 The triggering attack resolves completely before Initiative is gained.
 
-Initiative Gain does not modify, interrupt, prevent, or otherwise affect the triggering attack.
+Reaction: Initiative does not modify, interrupt, prevent, or otherwise affect the triggering attack.
 
 Add the gained Initiative to your current Initiative Score.
 
 Initiative gained through this Reaction remains part of your Initiative Score until it is spent or changed by another rule.
 
-Initiative Gain does not open the Initiative Shop.
+Reaction: Initiative does not open the Initiative Shop.
 
 The gained Initiative may be spent only when another rule explicitly opens the Initiative Shop.
 
@@ -1584,13 +1604,13 @@ If your new Initiative position would already have passed, take your Turn immedi
 
 If you have already taken your Turn during the current Round, your new Initiative position applies from the beginning of the next Round.
 
-Initiative Gain can never grant a second Turn during the same Round.
+Reaction: Initiative can never grant a second Turn during the same Round.
 
 If several creatures have the same Initiative Score, resolve the tie using the normal Initiative tie rules.
 
-A character cannot learn or benefit from **Reaction: Initiative Gain** more than once.
+A character cannot learn or benefit from **Reaction: Initiative** more than once.
 
-If several sources grant Reaction: Initiative Gain, use only the highest available version.
+If several sources grant Reaction: Initiative, use only the highest available version.
 
 Duplicate sources do not stack and do not grant additional uses.
 
@@ -1601,43 +1621,43 @@ Duplicate sources do not stack and do not grant additional uses.
 {{pageNumber,auto}}
 {{wide
 
-<h3 id="reaction-riposte">
-  Reaction: Riposte
+<h3 id="reaction-parry-weapon-damage">
+  Reaction: Parry + Weapon Damage
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
       Reaction curve = 20 PP per Level.<br>
-      Standard Counter Damage = 1d8 damage per Power Level.<br><br>
+      Standard Reaction: Damage = 1d8 damage per Power Level.<br><br>
 
 
   DEDICATED PARRY EXCEPTION<br>
-  Riposte deals Weapon Damage plus 1d8 damage per Power Level as a dedicated Parry exception.<br>
+  Reaction: Parry + Weapon Damage deals Weapon Damage plus 1d8 damage per Power Level as a dedicated Parry exception.<br>
   It may be used multiple times per Round if the character has additional Reactions available.<br><br>
 
   REQUIREMENTS<br>
-  Requires the Parry Passive and a suitable melee weapon or natural weapon.<br>
+  Requires Passive: Parry and a suitable melee weapon or natural weapon.<br>
   You must currently be Parrying.<br><br>
 
   TRIGGER<br>
   After you reduce all Attack Dice of a direct melee Attack to 0 by spending Parry.<br>
-  The triggering creature must be within your Melee Reach when Riposte resolves.<br><br>
+  The triggering creature must be within your Melee Reach when Reaction: Parry + Weapon Damage resolves.<br><br>
 
   RESOLUTION<br>
-  Riposte deals Weapon Damage + 1d8 damage per Power Level.<br>
+  Reaction: Parry + Weapon Damage deals Weapon Damage + 1d8 damage per Power Level.<br>
   No Attack Roll is made.<br>
-  Riposte cannot generate Raises or Critical.<br>
-  Riposte does not count as an Attack Action.<br>
-  Riposte does not trigger on-hit effects.<br>
-  Riposte does not apply or increase Specials.<br><br>
+  Reaction: Parry + Weapon Damage cannot generate Raises or Critical.<br>
+  Reaction: Parry + Weapon Damage does not count as an Attack Action.<br>
+  Reaction: Parry + Weapon Damage does not trigger on-hit effects.<br>
+  Reaction: Parry + Weapon Damage does not apply or increase Specials.<br><br>
 
   MULTIPLE USES<br>
-  Riposte may be used multiple times during the same Round.<br>
+  Reaction: Parry + Weapon Damage may be used multiple times during the same Round.<br>
   Each use costs 1 Reaction.<br>
-  Riposte does not grant additional Reactions.<br><br>
+  Reaction: Parry + Weapon Damage does not grant additional Reactions.<br><br>
 
   NOTES<br>
   Weapon Damage means the normal base Damage Dice of the weapon or natural weapon used to parry.<br>
-  Damage bonuses from Attack Powers, Active Buffs, Stones, Specials, or other offensive riders do not apply unless they explicitly include Riposte.<br>
+  Damage bonuses from Attack Powers, Active Buffs, Stones, Specials, or other offensive riders do not apply unless they explicitly include Reaction: Parry + Weapon Damage.<br>
   The target applies Armor, Damage Reduction, resistance, immunity, and other legal mitigation normally.
 </span>
 
@@ -1649,7 +1669,7 @@ You turn a completely intercepted strike aside and immediately answer with your 
 
 ---
 
-**Requirement:** Parry Passive and a suitable melee weapon or natural weapon
+**Requirement:** **Passive: Parry** and a suitable melee weapon or natural weapon
 
 **Trigger:** After you reduce all Attack Dice of a direct melee Attack to **0** by spending Parry.
 
@@ -1657,7 +1677,7 @@ The triggering creature must be within your **Melee Reach** when this Reaction r
 
 No Attack Roll is made.
 
-Riposte may be used multiple times during the same Round, but every use costs **1 Reaction**. Riposte does not grant additional Reactions.
+Reaction: Parry + Weapon Damage may be used multiple times during the same Round, but every use costs **1 Reaction**. Reaction: Parry + Weapon Damage does not grant additional Reactions.
 
 | **Level** | **Type**        | **Trigger**                |  **Range**  | **AoE** | **Effect**                            |
 | :-------: | :-------------- | :------------------------- | :---------: | :-----: | :------------------------------------ |
@@ -1682,38 +1702,40 @@ Riposte may be used multiple times during the same Round, but every use costs **
 \page
 {{pageNumber,auto}}
 {{wide
-## Parry Reflection
+<h3 id="reaction-parry-attack-reflection">
+  Reaction: Parry + Attack Reflection
+</h3>
 
-Parry Reflection is a premium extension of the Parry subsystem.
+Reaction: Parry + Attack Reflection is a premium extension of the Parry subsystem.
 
-It does not function as an independent defensive ability. A character can use Reflection only while Parrying and only after completely neutralizing an eligible Attack through the expenditure of Parry.
+It does not function as an independent defensive ability. A character can use Attack Reflection only while Parrying and only after completely neutralizing an eligible Attack through the expenditure of Parry.
 
-Reflection represents catching, redirecting, reversing, or otherwise turning an incoming Attack back upon its source.
+Attack Reflection represents catching, redirecting, reversing, or otherwise turning an incoming Attack back upon its source.
 
-Unlike **Riposte**, which creates a separate counterattack using the character's own weapon, Reflection returns the original Attack itself.
+Unlike **Reaction: Parry + Weapon Damage**, which creates a separate counterattack using the character's own weapon, Attack Reflection returns the original Attack itself.
 
 ---
 
-### Reflection Requirements
+#### Attack Reflection Requirements
 
-To use Reflection:
+To use Attack Reflection:
 
-* You must have the **Parry Passive**.
+* You must have **Passive: Parry**.
 * You must currently be Parrying.
 * The triggering Attack must target only you.
 * The Attack must be eligible for Parry.
 * You must reduce all Attack Dice of the triggering Attack to **0** by spending Parry.
 * The Attack must have an identifiable source that can legally receive the reflected effect.
 
-Reflection cannot be used merely because an Attack deals no damage after Armor, Damage Reduction, resistance, immunity, Temporary HP, or another defensive effect.
+Attack Reflection cannot be used merely because an Attack deals no damage after Armor, Damage Reduction, resistance, immunity, Temporary HP, or another defensive effect.
 
 The Attack must be completely neutralized through Parry.
 
 ---
 
-### Resolving Reflection
+#### Resolving Attack Reflection
 
-After reducing all Attack Dice of an eligible Attack to 0 through Parry, you may spend **1 Reaction** to use Reflection.
+After reducing all Attack Dice of an eligible Attack to 0 through Parry, you may spend **1 Reaction** to use Attack Reflection.
 
 The original Attack is redirected back upon its source.
 
@@ -1721,17 +1743,17 @@ The original Attack is redirected back upon its source.
 * The source suffers the Damage Dice and direct damage effects originally intended for you.
 * The reflected Attack cannot generate new Raises or a new Critical result.
 * The source applies its own Armor, Damage Reduction, resistance, immunity, and other legal mitigation normally.
-* Reflection does not grant additional Reactions.
+* Attack Reflection does not grant additional Reactions.
 
-Reflection and Riposte cannot both be used against the same triggering Attack.
+Attack Reflection and Reaction: Parry + Weapon Damage cannot both be used against the same triggering Attack.
 
 ---
 
-### Reflection Limitations
+#### Attack Reflection Limitations
 
-Reflection works only against direct single-target Attacks that target only you.
+Attack Reflection works only against direct single-target Attacks that target only you.
 
-Reflection does not affect:
+Attack Reflection does not affect:
 
 * Area Effects
 * Attacks that target multiple creatures
@@ -1742,14 +1764,14 @@ Reflection does not affect:
 * damage without an identifiable source
 * effects that cannot legally affect their own source
 
-Additional Reactions do not bypass Reflection's per-Combat use limit.
+Additional Reactions do not bypass Attack Reflection's per-Combat use limit.
 
 ---
 }}
 \page
 {{pageNumber,auto}}
 {{wide
-**Requirement:** Parry Passive
+**Requirement:** **Passive: Parry**
 
 **Trigger:** After you reduce all Attack Dice of a direct Attack that targets only you to **0** by spending Parry.
 
@@ -1759,9 +1781,9 @@ No new Attack Roll is made.
 
 The source suffers the Damage Dice and direct damage effects originally intended for you and applies its own legal defenses normally.
 
-Reflection and Riposte cannot both be used against the same triggering Attack.
+Attack Reflection and Reaction: Parry + Weapon Damage cannot both be used against the same triggering Attack.
 
-Reflection may be used a number of times per Combat equal to **half your Mastery Rank, rounded down, minimum 1**. This grants **1 use at MR 1–3**, **2 uses at MR 4–5**, **3 uses at MR 6–7**, and **4 uses at MR 8**.
+Attack Reflection may be used a number of times per Combat equal to **half your Mastery Rank, rounded down, minimum 1**. This grants **1 use at MR 1–3**, **2 uses at MR 4–5**, **3 uses at MR 6–7**, and **4 uses at MR 8**.
 
 | **Mastery Rank** | **Type**        | **Trigger**                    |  **Cost**  | **Uses per Combat** | **Effect**                                           |
 | :--------------: | :-------------- | :----------------------------- | :--------: | :-----------------: | :--------------------------------------------------- |
@@ -1786,13 +1808,13 @@ The Absorption Reaction allows a character to draw an exceptional amount of powe
 
 The Reaction does not increase the damage suffered and does not prevent any part of it. Instead, the actual HP lost from the triggering damage instance counts multiple times when calculating Absorbed Damage.
 
-This Reaction requires the **Absorption Passive**.
+This Reaction requires **Passive: Absorption**.
 
-Without the Absorption Passive, it has no effect.
+Without **Passive: Absorption**, it has no effect.
 
 ---
 
-### Reactive Overload
+### Reaction: Absorption Damage Multiplier
 
 After a hostile damage instance has been completely resolved, determine how many actual HP were removed from the character's Health Bars.
 
@@ -1820,7 +1842,7 @@ Normally, the character records 18 Absorbed Damage and generates:
 * 2 Temporary Colorless Stones,
 * with 2 Absorbed Damage carried over.
 
-If the character uses a version of Reactive Overload that causes the HP loss to count twice, the 18 actual HP count as 36 Absorbed Damage.
+If the character uses a version of Reaction: Absorption Damage Multiplier that causes the HP loss to count twice, the 18 actual HP count as 36 Absorbed Damage.
 
 The character generates:
 
@@ -1836,13 +1858,13 @@ The character still loses only 18 actual HP.
 {{pageNumber,auto}}
 {{wide
 
-<h3 id="reaction-reactive-overload">
-  Reactive Overload
+<h3 id="reaction-absorption-damage-multiplier">
+  Reaction: Absorption Damage Multiplier
   <span class="tooltip">🛈
     <span class="tooltiptext">
       ABSORPTION SUBSYSTEM<br>
-      Reactive Overload is a closed premium Absorption Reaction.<br>
-      It requires the Absorption Passive and has no effect without it.<br><br>
+      Reaction: Absorption Damage Multiplier is a closed premium Absorption Reaction.<br>
+      It requires Passive: Absorption and has no effect without it.<br><br>
   ALLOWED TRIGGER<br>
   Damage Trigger only.<br>
   Trigger after an eligible hostile damage instance removes actual HP from one or more of your Health Bars.<br><br>
@@ -1861,7 +1883,7 @@ The character still loses only 18 actual HP.
   ELIGIBLE DAMAGE<br>
   Only actual HP removed from Health Bars counts.<br>
   Damage applied to Temporary HP does not count.<br>
-  Damage prevented by Evade, Parry, Armor, Damage Reduction, Phasing, Reflection, resistance, immunity, or another defense does not count.<br>
+  Damage prevented by Evade, Parry, Armor, Damage Reduction, Phasing, Attack Reflection, resistance, immunity, or another defense does not count.<br>
   Self-inflicted damage, HP costs, damage from your own Powers, and damage intentionally caused by a willing ally do not count.<br><br>
 
   RESOLUTION<br>
@@ -1874,7 +1896,7 @@ The character still loses only 18 actual HP.
   It applies only to the triggering damage instance.<br><br>
 
   NOTES<br>
-  Reactive Overload consumes 1 Reaction.<br>
+  Reaction: Absorption Damage Multiplier consumes 1 Reaction.<br>
   A character may normally use it only once per Round.<br>
   Unused PP is intentionally ignored because Absorption is a closed premium milestone subsystem.
 </span>
@@ -1887,7 +1909,7 @@ You accept a devastating wound without resistance and force your body to extract
 
 ---
 
-**Requirement:** Absorption Passive
+**Requirement:** **Passive: Absorption**
 
 **Allowed Trigger:** Damage Trigger
 

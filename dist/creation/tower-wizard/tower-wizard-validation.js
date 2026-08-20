@@ -1,7 +1,7 @@
 /**
  * Tower Wizard — validation for selections and finalize.
  */
-import { CATEGORY_LABELS, CATEGORY_ORDER, activeTemplateCanBeSpell, findCatalogEntry, TOWER_WIZARD_DEFENSIVE_RANK, TOWER_WIZARD_MASTERY_RANK, TOWER_WIZARD_OFFENSIVE_RANK, TOWER_WIZARD_POWER_REQUIREMENTS, TOWER_WIZARD_POWER_TOTAL, countPowersByCategory, findDuplicatePowerLabel, resolvePowerCategoryFromItem, } from '../../utils/power-catalog.js';
+import { CATEGORY_LABELS, CATEGORY_ORDER, activeTemplateCanBeSpell, findCatalogEntry, TOWER_WIZARD_DEFENSIVE_RANK, TOWER_WIZARD_OFFENSIVE_RANK, TOWER_WIZARD_POWER_REQUIREMENTS, TOWER_WIZARD_POWER_TOTAL, countPowersByCategory, findDuplicatePowerLabel, resolvePowerCategoryFromItem, } from '../../utils/power-catalog.js';
 import { buildPackageGrantSpecs, buildPackageGrantSpecsFromOverrides, buildPackageReview, catalogEntryMatchesGrantKey, getDefensePackage, getDefaultPassive1TemplateId, getOffensePackage, grantKeyCategory, isManualBuildMode, isValidPassive1Variant, isValidReplacementActiveBuffId, resolveGrant, resolvePassive1TemplateId, selectionUsesCatalogOffense, } from './tower-wizard-packages.js';
 import { getPassiveCategoryConflictMessage, isAllowedSecondPassive, } from './tower-wizard-passive-categories.js';
 import { collectEchoAdvisorWarnings, } from './tower-wizard-echo-advisor.js';
@@ -202,10 +202,6 @@ export function validateTowerWizardCreation(actor) {
     }
     if (defensive !== 4 || offensive !== 2) {
         return 'Invalid rank mix for combat package.';
-    }
-    const mr = Number(system.mastery?.rank ?? 0);
-    if (mr < TOWER_WIZARD_MASTERY_RANK) {
-        return `Mastery Rank must be at least ${TOWER_WIZARD_MASTERY_RANK} for this package.`;
     }
     return null;
 }

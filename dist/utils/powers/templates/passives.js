@@ -22,26 +22,28 @@
  */
 import { buildLevels, passiveRow } from './_shared.js';
 // ─── Per-spec progression tables ─────────────────────────────────────────
-/** Fortified Frame — unconditional Armor (+2 per level). */
-const ARMOR_UNCOND = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32];
-/** Conditional Armor / Evade curve (Stone Stance, Flowing Step, …; 7.5 PP / +1). */
-const ARMOR_COND = [2, 5, 8, 10, 13, 16, 18, 21, 24, 26, 29, 32, 34, 37, 40, 42];
-const EVADE_COND = ARMOR_COND;
+/** Fortified Frame — unconditional Armor (Rules/passives.md, 15 PP per +1). */
+const ARMOR_UNCOND = [1, 3, 4, 5, 7, 8, 9, 11, 12, 13, 15, 16, 17, 19, 20, 21];
+/** Conditional Armor (Stone Stance / Surrounded Bulwark; 7.5 PP / +1). */
+const ARMOR_COND = [3, 5, 8, 10, 13, 16, 19, 21, 24, 27, 29, 32, 35, 37, 40, 43];
+/** Conditional Evade (Flowing Step / Duelist Footwork; 5 PP / +1). */
+const EVADE_COND = [4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48, 52, 56, 60, 64];
 /** Unconditional Evade curve (10 PP / +1). */
 const EVADE_UNCOND = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32];
 /** Initiative curve (10 PP / +1 Initiative). */
 const INITIATIVE_UNCOND = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32];
 /** Temporary HP curve (2 PP / 1 THP). */
 const TEMP_HP_UNCOND = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160];
-/** Regeneration / unconditional Healing curve (4 PP / 1 HP). */
-const HEAL_UNCOND = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80];
-/** Conditional Healing curve (Blood Feast / Battle Trance / Stillness Recovery; 3 PP / 1 HP). */
-const HEAL_COND = [6, 13, 20, 26, 33, 40, 46, 53, 60, 66, 73, 80, 86, 93, 100, 106];
-/** Killing Intent — unconditional Damage (+1d6 per level). */
-const DMG_KILLING_INTENT = ['+1d6', '+2d6', '+3d6', '+4d6', '+5d6', '+6d6', '+7d6', '+8d6',
-    '+9d6', '+10d6', '+11d6', '+12d6', '+13d6', '+14d6', '+15d6', '+16d6'];
+/** Regeneration / unconditional Healing (Rules: 8 PP per HP). */
+const HEAL_UNCOND = [2, 5, 7, 10, 12, 15, 17, 20, 22, 25, 27, 30, 32, 35, 37, 40];
+/** Conditional Healing (Blood Feast / Battle Trance / Stillness Recovery; 4 PP per HP). */
+const HEAL_COND = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80];
+/** Killing Intent — unconditional Damage (banded; L1 empty, L4 = +2d6). */
+const DMG_KILLING_INTENT = ['', '+1d6', '+1d6', '+2d6', '+2d6', '+3d6', '+3d6', '+4d6',
+    '+4d6', '+5d6', '+5d6', '+6d6', '+6d6', '+7d6', '+7d6', '+8d6'];
 /** Conditional Damage dice (Momentum, Ambusher, …; +1d6 per level). */
-const DMG_COND = DMG_KILLING_INTENT;
+const DMG_COND = ['+1d6', '+2d6', '+3d6', '+4d6', '+5d6', '+6d6', '+7d6', '+8d6',
+    '+9d6', '+10d6', '+11d6', '+12d6', '+13d6', '+14d6', '+15d6', '+16d6'];
 /** Ward: Spell Resistance passive curve (15 PP / +1). */
 const WARD_SPELL_RESISTANCE = [1, 2, 4, 5, 6, 8, 9, 10, 12, 13, 14, 16, 17, 18, 20, 21];
 /** Ward: incoming Special reduction (plateaus per Rules/passive.md). */
@@ -207,9 +209,12 @@ const COMB_DMG_BANDED = ['', '', '', '+2d6', '+2d6', '+3d6', '+3d6', '+4d6', '+4
 const CC_HALF = [1, 2, 4, 5, 6, 8, 9, 10, 12, 13, 14, 16, 17, 18, 20, 21];
 const CC_HEAL = [3, 6, 10, 13, 16, 20, 23, 26, 30, 33, 36, 40, 43, 46, 50, 53];
 const CC_DMG_BANDED = ['', '+1d6', '+2d6', '+2d6', '+3d6', '+4d6', '+4d6', '+5d6', '+6d6', '+6d6', '+7d6', '+8d6', '+8d6', '+9d6', '+10d6', '+10d6'];
-const COMB_ARMOR_THP = { armor: COMB_AXIS, thp: THP_5 };
-const COMB_ARMOR_HEAL = { armor: COMB_AXIS, heal: COMB_HEAL };
-const COMB_ARMOR_HEALTH = { armor: COMB_AXIS };
+/** Rules/passives.md Armor + Healing / Armor + Temporary HP / Armor + Health. */
+const COMB_ARMOR_HALF = [1, 1, 2, 3, 3, 4, 5, 5, 6, 7, 7, 8, 9, 9, 10, 11];
+const COMB_ARMOR_HEAL_HP = [1, 2, 3, 5, 6, 7, 8, 10, 11, 12, 13, 15, 16, 17, 18, 20];
+const COMB_ARMOR_THP = { armor: COMB_ARMOR_HALF, thp: THP_5 };
+const COMB_ARMOR_HEAL = { armor: COMB_ARMOR_HALF, heal: COMB_ARMOR_HEAL_HP };
+const COMB_ARMOR_HEALTH = { armor: COMB_ARMOR_HALF };
 const COMB_EVADE_THP = { evade: COMB_AXIS, thp: THP_5 };
 const COMB_EVADE_HEAL = { evade: COMB_AXIS, heal: COMB_HEAL };
 const COMB_EVADE_DMG = { evade: COMB_AXIS, dmg: COMB_DMG_BANDED };
@@ -370,7 +375,7 @@ const RETIRED_AWARENESS_PASSIVE_IDS = new Set([
 const RAW_PASSIVE_TEMPLATES = [
     // ─── Base unconditional (Armor / DR / Evade / THP / Healing / Phasing / Damage / Health) ───
     basePassive({
-        id: 'passive-fortified-frame', name: 'Fortified Frame', subfamily: 'armor',
+        id: 'passive-fortified-frame', name: 'Armor', subfamily: 'armor',
         fluff: 'Your body learns to carry steel as if it were a second skin.',
         perLevel: (lvl) => ({
             text: `Gain **+${ARMOR_UNCOND[lvl - 1]} Armor**.`,
@@ -405,7 +410,7 @@ const RAW_PASSIVE_TEMPLATES = [
         }),
     }),
     basePassive({
-        id: 'passive-temp-hp', name: 'Temporary Hit Points', subfamily: 'temp-hp',
+        id: 'passive-temp-hp', name: 'Temporary HP', subfamily: 'temp-hp',
         fluff: 'A reserve layer of protection that exists only at the moment battle begins.',
         perLevel: (lvl) => ({
             text: `At the start of combat, gain **${TEMP_HP_UNCOND[lvl - 1]} Temporary HP**.`,
@@ -413,7 +418,7 @@ const RAW_PASSIVE_TEMPLATES = [
         }),
     }),
     basePassive({
-        id: 'passive-regeneration', name: 'Regeneration', subfamily: 'regen',
+        id: 'passive-regeneration', name: 'Healing', subfamily: 'regen',
         fluff: 'Your body steadily reclaims lost vitality while the fight continues.',
         perLevel: (lvl) => ({
             text: `At the start of your turn, heal **${HEAL_UNCOND[lvl - 1]} HP**.`,
@@ -421,7 +426,7 @@ const RAW_PASSIVE_TEMPLATES = [
         }),
     }),
     basePassive({
-        id: 'passive-ghostform', name: 'Ghostform', subfamily: 'phasing',
+        id: 'passive-ghostform', name: 'Phasing', subfamily: 'phasing',
         fluff: 'Your body no longer fully agrees to be where the world says it is.',
         perLevel: (lvl) => {
             const charges = phasingCharges(lvl);
@@ -434,7 +439,7 @@ const RAW_PASSIVE_TEMPLATES = [
         },
     }),
     basePassive({
-        id: 'passive-killing-intent', name: 'Killing Intent', subfamily: 'damage',
+        id: 'passive-killing-intent', name: 'Damage', subfamily: 'damage',
         fluff: 'Your blows carry more weight because your intent no longer wavers.',
         perLevel: (lvl) => {
             const dice = DMG_KILLING_INTENT[lvl - 1];
@@ -445,7 +450,7 @@ const RAW_PASSIVE_TEMPLATES = [
         },
     }),
     basePassive({
-        id: 'passive-deep-vitality', name: 'Deep Vitality', subfamily: 'health',
+        id: 'passive-deep-vitality', name: 'Health', subfamily: 'health',
         fluff: 'Your body does not merely endure more punishment. It learns to fail more slowly.',
         perLevel: (lvl) => ({
             text: `Gain ${healthBarText(deepVitalityBars(lvl))}.`,
@@ -486,7 +491,7 @@ const RAW_PASSIVE_TEMPLATES = [
     }),
     // ─── Conditional base passives (Armor / Evade / Damage / Healing) ───
     basePassive({
-        id: 'passive-stone-stance', name: 'Stone Stance', subfamily: 'armor',
+        id: 'passive-stone-stance', name: 'Armor (Moved 0 m Last Turn)', subfamily: 'armor',
         fluff: 'You become hardest to break when you refuse to yield even a step.',
         perLevel: (lvl) => ({
             text: `If you moved **0 m** on your last turn, gain **+${ARMOR_COND[lvl - 1]} Armor** until the start of your next turn.`,
@@ -494,7 +499,7 @@ const RAW_PASSIVE_TEMPLATES = [
         }),
     }),
     basePassive({
-        id: 'passive-surrounded-bulwark', name: 'Surrounded Bulwark', subfamily: 'armor',
+        id: 'passive-surrounded-bulwark', name: 'Armor (Adjacent to 2+ Enemies)', subfamily: 'armor',
         fluff: 'A single enemy can test you. A crowd only gives you something to brace against.',
         perLevel: (lvl) => ({
             text: `While adjacent to at least **two enemies**, gain **+${ARMOR_COND[lvl - 1]} Armor**.`,
@@ -502,7 +507,7 @@ const RAW_PASSIVE_TEMPLATES = [
         }),
     }),
     basePassive({
-        id: 'passive-flowing-step', name: 'Flowing Step', subfamily: 'evade',
+        id: 'passive-flowing-step', name: 'Evade (Moved 8+ m This Turn)', subfamily: 'evade',
         fluff: 'You are safest when you refuse to become a fixed point.',
         perLevel: (lvl) => ({
             text: `If you moved at least **8 m** on your turn, gain **+${EVADE_COND[lvl - 1]} Evade** until the start of your next turn.`,
@@ -510,7 +515,7 @@ const RAW_PASSIVE_TEMPLATES = [
         }),
     }),
     basePassive({
-        id: 'passive-duelist-footwork', name: 'Duelist Footwork', subfamily: 'evade',
+        id: 'passive-duelist-footwork', name: 'Evade (Exactly 1 Adjacent Enemy)', subfamily: 'evade',
         fluff: 'You do not dodge the battlefield. You reduce it to a duel.',
         perLevel: (lvl) => ({
             text: `While exactly **one enemy** is adjacent to you, gain **+${EVADE_COND[lvl - 1]} Evade**.`,
@@ -518,7 +523,7 @@ const RAW_PASSIVE_TEMPLATES = [
         }),
     }),
     basePassive({
-        id: 'passive-momentum', name: 'Momentum', subfamily: 'damage',
+        id: 'passive-momentum', name: 'Damage (Moved 8+ m This Turn)', subfamily: 'damage',
         fluff: 'Speed becomes weight. Weight becomes impact.',
         perLevel: (lvl) => ({
             text: `If you moved at least **8 m** this turn, gain **${DMG_COND[lvl - 1]} Damage** on all damage rolls you make until the end of your turn.`,
@@ -526,7 +531,7 @@ const RAW_PASSIVE_TEMPLATES = [
         }),
     }),
     basePassive({
-        id: 'passive-ambusher', name: 'Ambusher', subfamily: 'damage',
+        id: 'passive-ambusher', name: 'Damage (Target Cannot Perceive You)', subfamily: 'damage',
         fluff: 'The wound arrives before the enemy understands where you are.',
         perLevel: (lvl) => ({
             text: `Against a target that cannot see or otherwise perceive you, gain **${DMG_COND[lvl - 1]} Damage** on damage rolls you make.`,
@@ -534,7 +539,7 @@ const RAW_PASSIVE_TEMPLATES = [
         }),
     }),
     basePassive({
-        id: 'passive-bloodlust', name: 'Bloodlust', subfamily: 'damage',
+        id: 'passive-bloodlust', name: 'Damage (Affected by Lacerate)', subfamily: 'damage',
         fluff: 'Your own blood teaches your hands to stop hesitating.',
         perLevel: (lvl) => ({
             text: `While you are affected by **Lacerate**, gain **${DMG_COND[lvl - 1]} Damage** on all damage rolls you make.`,
@@ -542,7 +547,7 @@ const RAW_PASSIVE_TEMPLATES = [
         }),
     }),
     basePassive({
-        id: 'passive-executioner', name: 'Executioner', subfamily: 'damage',
+        id: 'passive-executioner', name: 'Damage (Target Injured or Worse)', subfamily: 'damage',
         fluff: 'You do not waste strength on enemies who have not started dying.',
         perLevel: (lvl) => ({
             text: `Against targets that are **Injured or worse**, gain **${DMG_COND[lvl - 1]} Damage** on damage rolls you make.`,
@@ -550,7 +555,7 @@ const RAW_PASSIVE_TEMPLATES = [
         }),
     }),
     basePassive({
-        id: 'passive-blood-feast', name: 'Blood Feast', subfamily: 'recovery',
+        id: 'passive-blood-feast', name: 'Healing (Wounded or Worse)', subfamily: 'recovery',
         fluff: 'Pain opens the hunger that keeps you standing.',
         perLevel: (lvl) => ({
             text: `At the start of your turn, if you are **Wounded or worse**, heal **${HEAL_COND[lvl - 1]} HP**.`,
@@ -558,7 +563,7 @@ const RAW_PASSIVE_TEMPLATES = [
         }),
     }),
     basePassive({
-        id: 'passive-battle-trance', name: 'Battle Trance', subfamily: 'recovery',
+        id: 'passive-battle-trance', name: 'Healing (Adjacent to Enemy)', subfamily: 'recovery',
         fluff: 'The closer death stands, the clearer your body remembers how to live.',
         perLevel: (lvl) => ({
             text: `At the start of your turn, if at least one enemy is adjacent to you, heal **${HEAL_COND[lvl - 1]} HP**.`,
@@ -566,7 +571,7 @@ const RAW_PASSIVE_TEMPLATES = [
         }),
     }),
     basePassive({
-        id: 'passive-stillness-recovery', name: 'Stillness Recovery', subfamily: 'recovery',
+        id: 'passive-stillness-recovery', name: 'Healing (Moved 0 m Last Turn)', subfamily: 'recovery',
         fluff: 'Breath returns where motion ends.',
         perLevel: (lvl) => ({
             text: `At the start of your turn, if you moved **0 m** on your last turn, heal **${HEAL_COND[lvl - 1]} HP**.`,
@@ -575,7 +580,7 @@ const RAW_PASSIVE_TEMPLATES = [
     }),
     // ─── Combined (unconditional) ────────────────────────────────────────
     basePassive({
-        id: 'passive-armor-temp-hp', name: 'Armor / Temporary HP', subfamily: 'combined',
+        id: 'passive-armor-temp-hp', name: 'Armor + Temporary HP', subfamily: 'combined',
         fluff: 'Hardened frame plus a renewing buffer.',
         perLevel: (lvl) => {
             const thp = COMB_ARMOR_THP.thp[lvl - 1];
@@ -593,7 +598,7 @@ const RAW_PASSIVE_TEMPLATES = [
         },
     }),
     basePassive({
-        id: 'passive-armor-healing', name: 'Armor / Healing', subfamily: 'combined',
+        id: 'passive-armor-healing', name: 'Armor + Healing', subfamily: 'combined',
         fluff: 'You are hard to hurt, and you mend what still lands.',
         perLevel: (lvl) => {
             const heal = COMB_ARMOR_HEAL.heal[lvl - 1];
@@ -611,7 +616,7 @@ const RAW_PASSIVE_TEMPLATES = [
         },
     }),
     basePassive({
-        id: 'passive-armor-health', name: 'Armor / Health', subfamily: 'combined',
+        id: 'passive-armor-health', name: 'Armor + Health', subfamily: 'combined',
         fluff: 'Tough skin, deep reserves.',
         perLevel: (lvl) => {
             const arm = COMB_ARMOR_HEALTH.armor[lvl - 1];
@@ -625,7 +630,7 @@ const RAW_PASSIVE_TEMPLATES = [
         },
     }),
     basePassive({
-        id: 'passive-evade-temp-hp', name: 'Evade / Temporary HP', subfamily: 'combined',
+        id: 'passive-evade-temp-hp', name: 'Evade + Temporary HP', subfamily: 'combined',
         fluff: 'Slip what you can; buffer what you can’t.',
         perLevel: (lvl) => {
             const thp = COMB_EVADE_THP.thp[lvl - 1];
@@ -643,7 +648,7 @@ const RAW_PASSIVE_TEMPLATES = [
         },
     }),
     basePassive({
-        id: 'passive-evade-healing', name: 'Evade / Healing', subfamily: 'combined',
+        id: 'passive-evade-healing', name: 'Evade + Healing', subfamily: 'combined',
         fluff: 'Hard to hit, quick to mend.',
         perLevel: (lvl) => {
             const heal = COMB_EVADE_HEAL.heal[lvl - 1];
@@ -661,7 +666,7 @@ const RAW_PASSIVE_TEMPLATES = [
         },
     }),
     basePassive({
-        id: 'passive-evade-damage', name: 'Evade / Damage', subfamily: 'combined',
+        id: 'passive-evade-damage', name: 'Evade + Damage', subfamily: 'combined',
         fluff: 'Nimble fighter, dangerous strikes.',
         perLevel: (lvl) => {
             const ev = COMB_EVADE_DMG.evade[lvl - 1];
@@ -679,7 +684,7 @@ const RAW_PASSIVE_TEMPLATES = [
         },
     }),
     basePassive({
-        id: 'passive-damage-healing', name: 'Damage / Healing', subfamily: 'combined',
+        id: 'passive-damage-healing', name: 'Damage + Healing', subfamily: 'combined',
         fluff: 'You hurt them; you mend yourself.',
         perLevel: (lvl) => {
             const dmg = COMB_DMG_HEAL.dmg[lvl - 1];
@@ -695,7 +700,7 @@ const RAW_PASSIVE_TEMPLATES = [
         },
     }),
     basePassive({
-        id: 'passive-damage-temp-hp', name: 'Damage / Temporary HP', subfamily: 'combined',
+        id: 'passive-damage-temp-hp', name: 'Damage + Temporary HP', subfamily: 'combined',
         fluff: 'Your aggression steels you against retaliation.',
         perLevel: (lvl) => {
             const dmg = COMB_DMG_THP.dmg[lvl - 1];
@@ -741,7 +746,7 @@ const RAW_PASSIVE_TEMPLATES = [
         },
     }),
     basePassive({
-        id: 'passive-health-healing', name: 'Health / Healing', subfamily: 'combined',
+        id: 'passive-health-healing', name: 'Health + Healing', subfamily: 'combined',
         fluff: 'Deep reserves that refill themselves.',
         perLevel: (lvl) => {
             const bars = combinedHealthBars(lvl);
@@ -755,7 +760,7 @@ const RAW_PASSIVE_TEMPLATES = [
         },
     }),
     basePassive({
-        id: 'passive-health-temp-hp', name: 'Health / Temporary HP', subfamily: 'combined',
+        id: 'passive-health-temp-hp', name: 'Health + Temporary HP', subfamily: 'combined',
         fluff: 'More life, more buffer.',
         perLevel: (lvl) => {
             const bars = combinedHealthBars(lvl);
@@ -975,7 +980,7 @@ const RAW_PASSIVE_TEMPLATES = [
     }),
     // ─── New catalog lines from Rules/ (2026-07) ─────────────────────────
     basePassive({
-        id: 'passive-telepathy-mind-link', name: 'Telepathy / Mind Link', subfamily: 'telepathy',
+        id: 'passive-telepathy-mind-link', name: 'Telepathy', subfamily: 'telepathy',
         passiveType: 'Passive',
         fluff: 'You open silent Mind Links and grant Telepathic Access for Mental Powers.',
         perLevel: (lvl) => ({
@@ -985,7 +990,7 @@ const RAW_PASSIVE_TEMPLATES = [
         }),
     }),
     basePassive({
-        id: 'passive-bound-host', name: 'Bound Host', subfamily: 'summon',
+        id: 'passive-bound-host', name: 'Summon Tokens', subfamily: 'summon',
         passiveType: 'Passive, Summon',
         fluff: 'Extra Summon Tokens for bonds you already unlocked — never new summons from nothing.',
         perLevel: (lvl) => ({
@@ -994,7 +999,7 @@ const RAW_PASSIVE_TEMPLATES = [
         }),
     }),
     basePassive({
-        id: 'passive-thornhide', name: 'Thornhide', subfamily: 'damage',
+        id: 'passive-thornhide', name: 'Thorns', subfamily: 'damage',
         passiveType: 'Passive',
         fluff: 'When final HP damage lands on you, thorns bite back — capped by that loss.',
         perLevel: (lvl) => {

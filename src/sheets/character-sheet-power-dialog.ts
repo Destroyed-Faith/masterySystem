@@ -23,6 +23,7 @@ import type {
     PowerCategory,
     SpellResolution,
 } from '../types/item.js';
+import { calculateMaxPowerLevel } from '../utils/calculations.js';
 import { calculateBaseTN } from '../combat/spell-roll-handler.js';
 import { renderPowerLevelTable } from '../utils/power-rendering.js';
 import { setupPowerCatalogDialogChrome } from '../utils/legacy-dialog-resize.js';
@@ -74,7 +75,8 @@ export async function showPowerCreationDialog(
     }
     const masteryRank = system?.mastery?.rank || 2;
     const actorEchoKey = (system?.echo?.key as string | undefined) || null;
-    const maxSpellLevel = masteryRank * 2;
+    const maxPowerLevel = calculateMaxPowerLevel(masteryRank);
+    const maxSpellLevel = maxPowerLevel;
 
     const categoryOptions = CATEGORY_ORDER.map(
         (c) => `<option value="${c}"${options?.presetCategory === c ? ' selected' : ''}>${CATEGORY_LABELS[c]}</option>`,
@@ -200,7 +202,7 @@ export async function showPowerCreationDialog(
 
                     if (isSpell && rank > maxSpellLevel) {
                         ui.notifications?.error(
-                            `Spell Level ${rank} exceeds Max Spell Level for this character (MR ${masteryRank} × 2 = ${maxSpellLevel}).`,
+                            `Spell Level ${rank} exceeds Max Power Level ${maxSpellLevel} at Mastery Rank ${masteryRank}.`,
                         );
                         return false;
                     }
@@ -242,8 +244,8 @@ export async function showPowerCreationDialog(
                             ui.notifications?.error('All starting Powers must be Rank 2 during character creation.');
                             return false;
                         }
-                        if (rank > masteryRank) {
-                            ui.notifications?.error(`Power rank cannot exceed Mastery Rank ${masteryRank} during character creation.`);
+                        if (rank > maxPowerLevel) {
+                            ui.notifications?.error(`Power Level cannot exceed ${maxPowerLevel} at Mastery Rank ${masteryRank}.`);
                             return false;
                         }
                     }

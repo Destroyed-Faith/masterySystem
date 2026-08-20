@@ -2,7 +2,7 @@
  * Tower Wizard — apply package to actor.
  */
 import { applyXpCost, getXpState } from '../../progression/progression-hub-actions.js';
-import { CREATION_MASTERY_RANK, CREATION_POWER_TOTAL, } from '../../utils/power-catalog.js';
+import { CREATION_POWER_TOTAL } from '../../utils/power-catalog.js';
 import { grantPowerSpecs } from '../../utils/power-item-builder.js';
 import { calculatePowersUpgradeRefund } from '../../utils/power-xp-refund.js';
 import { buildPackageGrantSpecs, buildPackageGrantSpecsFromOverrides, buildManualPackageReview, buildPackageReview, isManualBuildMode, } from './tower-wizard-packages.js';
@@ -53,9 +53,6 @@ export async function applyTowerWizardPackage(actor, selection, options) {
     const updateData = {
         'system.creation.towerWizardPackageId': review.packageId,
     };
-    if (inCreation) {
-        updateData['system.mastery.rank'] = CREATION_MASTERY_RANK;
-    }
     if (refundXp > 0) {
         const xpState = getXpState(actor);
         const acct = applyXpCost(xpState, -refundXp);

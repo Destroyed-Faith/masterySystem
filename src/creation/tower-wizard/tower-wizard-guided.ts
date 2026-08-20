@@ -124,6 +124,7 @@ const GUIDED_HIDDEN_PASSIVE2 = new Set([
     'conditional-passive-health-healing',
     'conditional-passive-health-temp-hp',
     'passive-initiative',
+    'passive-echo-armor-value',
     'empower-buff-damage',
     'empower-buff-armor',
     'empower-buff-evade',
@@ -134,60 +135,90 @@ const GUIDED_HIDDEN_PASSIVE2 = new Set([
 ]);
 
 const GUIDED_PASSIVE2_WRAPPERS: Record<string, GuidedPassiveWrapper> = {
+    'passive-fortified-frame': {
+        playerTitle: 'Armor',
+        powerName: 'Armor',
+        explanation: 'Permanent Armor.',
+    },
+    'passive-armor-healing': {
+        playerTitle: 'Armor + Healing',
+        powerName: 'Armor + Healing',
+        explanation: 'Permanent Armor plus start-of-turn Healing.',
+    },
+    'passive-armor-health': {
+        playerTitle: 'Armor + Health',
+        powerName: 'Armor + Health',
+        explanation: 'Permanent Armor plus extra Health Bars.',
+    },
+    'passive-armor-temp-hp': {
+        playerTitle: 'Armor + Temporary HP',
+        powerName: 'Armor + Temporary HP',
+        explanation: 'Permanent Armor plus Temporary HP at combat start.',
+    },
+    'passive-stone-stance': {
+        playerTitle: 'Armor (Moved 0 m Last Turn)',
+        powerName: 'Armor (Moved 0 m Last Turn)',
+        explanation: 'Armor only if you moved 0 m on your last turn.',
+    },
+    'passive-surrounded-bulwark': {
+        playerTitle: 'Armor (Adjacent to 2+ Enemies)',
+        powerName: 'Armor (Adjacent to 2+ Enemies)',
+        explanation: 'Armor while at least two enemies are adjacent.',
+    },
     'passive-regeneration': {
-        playerTitle: 'Regeneration',
-        powerName: 'Regeneration',
-        explanation: 'You regain Health automatically each round.',
+        playerTitle: 'Healing',
+        powerName: 'Healing',
+        explanation: 'At the start of your turn, heal HP.',
     },
     'passive-battle-trance': {
-        playerTitle: 'Battle Trance',
-        powerName: 'Battle Trance',
-        explanation: 'You recover by staying active in the fight.',
+        playerTitle: 'Healing (Adjacent to Enemy)',
+        powerName: 'Healing (Adjacent to Enemy)',
+        explanation: 'Start-of-turn Healing while at least one enemy is adjacent.',
     },
     'passive-blood-feast': {
-        playerTitle: 'Blood Feast',
-        powerName: 'Blood Feast',
-        explanation: 'You heal by dealing damage.',
+        playerTitle: 'Healing (Wounded or Worse)',
+        powerName: 'Healing (Wounded or Worse)',
+        explanation: 'Start-of-turn Healing while you are Wounded or worse.',
     },
     'passive-stillness-recovery': {
-        playerTitle: 'Stamina Recovery',
-        powerName: 'Stamina Recovery',
-        explanation: 'You recover stamina during combat.',
-    },
-    'passive-momentum': {
-        playerTitle: 'Momentum',
-        powerName: 'Momentum',
-        explanation: 'Your damage ramps up as the fight continues.',
+        playerTitle: 'Healing (Moved 0 m Last Turn)',
+        powerName: 'Healing (Moved 0 m Last Turn)',
+        explanation: 'Start-of-turn Healing if you moved 0 m on your last turn.',
     },
     'passive-killing-intent': {
-        playerTitle: 'Killing Intent',
-        powerName: 'Killing Intent',
-        explanation: 'You deal more damage to a focused target.',
+        playerTitle: 'Damage',
+        powerName: 'Damage',
+        explanation: 'Extra Damage on all damage rolls you make.',
+    },
+    'passive-momentum': {
+        playerTitle: 'Damage (Moved 8+ m This Turn)',
+        powerName: 'Damage (Moved 8+ m This Turn)',
+        explanation: 'Extra Damage after you move at least 8 m this turn.',
     },
     'passive-evade': {
         playerTitle: 'Evade',
         powerName: 'Evade',
-        explanation: 'Enemies miss you more often.',
+        explanation: 'Permanent Evade.',
     },
     'passive-flowing-step': {
-        playerTitle: 'Flowing Step',
-        powerName: 'Flowing Step',
-        explanation: 'Movement plus Evade while you stay mobile.',
+        playerTitle: 'Evade (Moved 8+ m This Turn)',
+        powerName: 'Evade (Moved 8+ m This Turn)',
+        explanation: 'Evade after you move at least 8 m on your turn.',
     },
     'passive-duelist-footwork': {
-        playerTitle: 'Duelist Footwork',
-        powerName: 'Duelist Footwork',
-        explanation: 'Extra Evade in one-on-one fights.',
+        playerTitle: 'Evade (Exactly 1 Adjacent Enemy)',
+        powerName: 'Evade (Exactly 1 Adjacent Enemy)',
+        explanation: 'Evade while exactly one enemy is adjacent.',
     },
     'passive-evade-temp-hp': {
         playerTitle: 'Evade + Temporary HP',
         powerName: 'Evade + Temporary HP',
-        explanation: 'Evade plus Temporary HP that absorbs damage first.',
+        explanation: 'Permanent Evade plus Temporary HP at combat start.',
     },
     'passive-evade-healing': {
         playerTitle: 'Evade + Healing',
         powerName: 'Evade + Healing',
-        explanation: 'Evade plus combat healing.',
+        explanation: 'Permanent Evade plus start-of-turn Healing.',
     },
     'passive-damage-reduction': {
         playerTitle: 'Damage Reduction',
@@ -217,32 +248,22 @@ const GUIDED_PASSIVE2_WRAPPERS: Record<string, GuidedPassiveWrapper> = {
     'passive-temp-hp': {
         playerTitle: 'Temporary HP',
         powerName: 'Temporary HP',
-        explanation: 'Extra HP that absorbs damage before your real Health.',
+        explanation: 'Temporary HP at the start of combat, before real Health.',
     },
     'passive-deep-vitality': {
-        playerTitle: 'Increase Maximum Health',
-        powerName: 'Increase Maximum Health',
-        explanation: 'More maximum Health so you can take more punishment.',
-    },
-    'passive-armor-temp-hp': {
-        playerTitle: 'Armor + Temporary HP',
-        powerName: 'Armor + Temporary HP',
-        explanation: 'Flat Armor plus Temporary HP.',
-    },
-    'passive-armor-health': {
-        playerTitle: 'Armor + Health',
-        powerName: 'Armor + Health',
-        explanation: 'Flat Armor plus more maximum Health.',
+        playerTitle: 'Health',
+        powerName: 'Health',
+        explanation: 'Extra Health Bars.',
     },
     'passive-health-healing': {
         playerTitle: 'Health + Healing',
         powerName: 'Health + Healing',
-        explanation: 'More maximum Health plus combat healing.',
+        explanation: 'Extra Health Bars plus start-of-turn Healing.',
     },
     'passive-health-temp-hp': {
         playerTitle: 'Health + Temporary HP',
         powerName: 'Health + Temporary HP',
-        explanation: 'More maximum Health plus Temporary HP.',
+        explanation: 'Extra Health Bars plus Temporary HP at combat start.',
     },
 };
 
@@ -259,10 +280,43 @@ export const GUIDED_PASSIVE2_BUCKET_LABELS: Record<
     invisibility: { label: 'Invisibility' },
     health: { label: 'Increase Maximum Health' },
     'temporary-hp': { label: 'Temporary HP' },
-    sustain: { label: 'Healing and Combat Recovery' },
-    offense: { label: 'More Damage' },
+    sustain: { label: 'Healing' },
+    offense: { label: 'Damage' },
     advanced: { label: 'Advanced / Other' },
 };
+
+const PASSIVE2_CARD_ORDER: Partial<Record<SecondPassiveBucket, readonly string[]>> = {
+    armor: [
+        'passive-fortified-frame',
+        'passive-armor-healing',
+        'passive-armor-health',
+        'passive-armor-temp-hp',
+        'passive-stone-stance',
+        'passive-surrounded-bulwark',
+    ],
+    sustain: [
+        'passive-regeneration',
+        'passive-health-healing',
+        'passive-evade-healing',
+        'passive-battle-trance',
+        'passive-blood-feast',
+        'passive-stillness-recovery',
+    ],
+    offense: [
+        'passive-killing-intent',
+        'passive-momentum',
+    ],
+};
+
+function sortPassive2Cards(bucket: SecondPassiveBucket, passives: SecondPassiveOption[]): SecondPassiveOption[] {
+    const order = PASSIVE2_CARD_ORDER[bucket];
+    if (!order) return [...passives].sort((a, b) => a.label.localeCompare(b.label));
+    const indexOf = (id: string) => {
+        const i = order.indexOf(id);
+        return i === -1 ? order.length : i;
+    };
+    return [...passives].sort((a, b) => indexOf(a.id) - indexOf(b.id) || a.label.localeCompare(b.label));
+}
 
 const PASSIVE2_BUCKET_ORDER: readonly SecondPassiveBucket[] = [
     'armor',
@@ -463,6 +517,8 @@ export function isPassiveHiddenFromGuidedPassive2(templateId: string): boolean {
     if (GUIDED_HIDDEN_PASSIVE2.has(templateId)) return true;
     if (templateId.startsWith('conditional-passive-')) return true;
     if (templateId.startsWith('extend-buff-') || templateId.startsWith('empower-buff-')) return true;
+    const entry = findCatalogEntry(templateId);
+    if (entry?.tags.includes('artifact-only')) return true;
     if (GUIDED_PASSIVE2_WRAPPERS[templateId]) return false;
     const bucket = secondPassiveBucketFor(templateId);
     return bucket === 'advanced';
@@ -543,7 +599,7 @@ export function getGuidedSecondPassiveIntentGroups(
             intentLabel: meta.label,
             intentHint: meta.intentHint,
             warning: meta.warning,
-            passives: passives.sort((a, b) => a.label.localeCompare(b.label)),
+            passives: sortPassive2Cards(bucket, passives),
         });
     }
     return groups;

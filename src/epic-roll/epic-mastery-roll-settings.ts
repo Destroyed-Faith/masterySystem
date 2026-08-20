@@ -47,23 +47,68 @@ export async function saveEpicRollRecentPreset(preset: EpicMasteryRollPreset): P
   await game.settings.set('mastery-system', 'epicRollRecentPresets', next);
 }
 
-export function listEpicRollCandidateActors(): Array<{
+type EpicRollActorRow = {
   id: string;
   name: string;
   type: string;
   img: string;
-}> {
-  const actors = (game.actors?.contents ?? []) as Actor[];
-  return actors
-    .filter((a: Actor) => a.type === 'character')
-    .map((a: Actor) => {
-      const actor = a as any;
+};
+
+function actorDocumentType(actor: { type?: unknown; _source?: { type?: unknown } }): string {
+  return String(actor.type ?? actor._source?.type ?? '')
+    .trim()
+    .toLowerCase();
+}
+
+/**
+ * Skill Roll participants: player character sheets only.
+ * NPC sheets, summons, and generic/other actor types never qualify.
+ */
+export function isEpicRollPlayerCharacter(actor: unknown): boolean {
+  if (!actor || typeof actor !== 'object') return false;
+  const a = actor as {
+    type?: unknown;
+    _source?: { type?: unknown };
+    flags?: { core?: { sheetClass?: unknown } };
+    getFlag?: (scope: string, key: string) => unknown;
+  };
+  if (actorDocumentType(a) !== 'character') return false;
+
+  const sheetClass = String(
+    a.flags?.core?.sheetClass ?? (typeof a.getFlag === 'function' ? a.getFlag('core', 'sheetClass') : '') ?? '',
+  );
+  if (/MasteryNpcSheet|MasterySummonSheet|\bNpcSheet\b|\bSummonSheet\b/i.test(sheetClass)) {
+    return false;
+  }
+  return true;
+}
+
+function worldActors(): Actor[] {
+  const col = game.actors as { filter?: (fn: (a: Actor) => boolean) => Actor[]; contents?: Actor[] } | undefined;
+  if (!col) return [];
+  if (typeof col.filter === 'function') {
+    return col.filter(() => true);
+  }
+  if (Array.isArray(col.contents)) return col.contents;
+  return [];
+}
+
+export function listEpicRollCandidatesFrom(actors: Iterable<unknown>): EpicRollActorRow[] {
+  return Array.from(actors)
+    .filter((a): a is Actor => isEpicRollPlayerCharacter(a))
+    .map((a) => {
+      const actor = a as Actor & { id?: string; name?: string; img?: string };
       return {
-        id: String(actor.id),
+        id: String(actor.id ?? ''),
         name: String(actor.name ?? 'Unknown'),
-        type: String(actor.type),
+        type: 'character',
         img: String(actor.img ?? ''),
       };
     })
+    .filter((row) => row.id)
     .sort((a, b) => a.name.localeCompare(b.name));
+}
+
+export function listEpicRollCandidateActors(): EpicRollActorRow[] {
+  return listEpicRollCandidatesFrom(worldActors());
 }

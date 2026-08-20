@@ -8,7 +8,6 @@ import {
     activeTemplateCanBeSpell,
     findCatalogEntry,
     TOWER_WIZARD_DEFENSIVE_RANK,
-    TOWER_WIZARD_MASTERY_RANK,
     TOWER_WIZARD_OFFENSIVE_RANK,
     TOWER_WIZARD_POWER_REQUIREMENTS,
     TOWER_WIZARD_POWER_TOTAL,
@@ -246,11 +245,6 @@ export function validateTowerWizardCreation(actor: Actor): string | null {
 
     if (defensive !== 4 || offensive !== 2) {
         return 'Invalid rank mix for combat package.';
-    }
-
-    const mr = Number(system.mastery?.rank ?? 0);
-    if (mr < TOWER_WIZARD_MASTERY_RANK) {
-        return `Mastery Rank must be at least ${TOWER_WIZARD_MASTERY_RANK} for this package.`;
     }
 
     return null;

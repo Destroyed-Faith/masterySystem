@@ -203,7 +203,7 @@ const PASSIVE_SUBFAMILY_LABELS: Record<string, string> = {
     'damage-reduction': 'Damage Reduction',
     evade: 'Evade',
     'temp-hp': 'Temporary HP',
-    regen: 'Regeneration',
+    regen: 'Healing',
     phasing: 'Phasing',
     health: 'Health',
     recovery: 'Recovery',
@@ -1212,8 +1212,8 @@ const PASSIVE2_INTENT_LABELS: Record<SecondPassiveBucket, { label: string; inten
     invisibility: { label: 'Invisibility' },
     health: { label: 'Increase Maximum Health' },
     'temporary-hp': { label: 'Temporary HP' },
-    sustain: { label: 'Healing and Combat Recovery' },
-    offense: { label: 'More Damage' },
+    sustain: { label: 'Healing' },
+    offense: { label: 'Damage' },
     advanced: { label: 'Advanced / Other' },
 };
 

@@ -5,6 +5,7 @@ import { defaultRollTitleForKind, isSessionReadyToComplete, mergeParticipantResu
 import { broadcastEpicMasteryRollCancel, broadcastEpicMasteryRollStart, broadcastEpicMasteryRollState, } from './epic-mastery-roll-socket.js';
 import { postEpicMasteryRollSummary } from './epic-mastery-roll-chat.js';
 import { closeEpicMasteryRollApp, openEpicMasteryRollApp } from './epic-mastery-roll-app.js';
+import { isEpicRollPlayerCharacter } from './epic-mastery-roll-settings.js';
 let activeSession = null;
 /** Sessions closed by GM — ignore late state broadcasts that would reopen the overlay. */
 const dismissedEpicRollSessionIds = new Set();
@@ -22,7 +23,7 @@ function buildParticipants(actorIds) {
     const participants = [];
     for (const actorId of actorIds) {
         const actor = game.actors?.get(actorId);
-        if (!actor)
+        if (!isEpicRollPlayerCharacter(actor))
             continue;
         participants.push({
             actorId,

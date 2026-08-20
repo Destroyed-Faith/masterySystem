@@ -19,6 +19,7 @@ import {
 } from './epic-mastery-roll-socket.js';
 import { postEpicMasteryRollSummary } from './epic-mastery-roll-chat.js';
 import { closeEpicMasteryRollApp, openEpicMasteryRollApp } from './epic-mastery-roll-app.js';
+import { isEpicRollPlayerCharacter } from './epic-mastery-roll-settings.js';
 
 let activeSession: EpicMasteryRollSession | null = null;
 /** Sessions closed by GM — ignore late state broadcasts that would reopen the overlay. */
@@ -41,7 +42,7 @@ function buildParticipants(actorIds: string[]): EpicParticipant[] {
   const participants: EpicParticipant[] = [];
   for (const actorId of actorIds) {
     const actor = game.actors?.get(actorId);
-    if (!actor) continue;
+    if (!isEpicRollPlayerCharacter(actor)) continue;
     participants.push({
       actorId,
       actorName: actor.name ?? 'Unknown',
