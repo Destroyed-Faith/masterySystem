@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.394] - 2026-08-20
+
+### Fixed
+
+- **Creation Attr box:** The 8 / 6 / 4 counters in the header now fit inside a wider Attr box instead of overflowing.
+
 ## [0.9.393] - 2026-08-20
 
 ### Changed

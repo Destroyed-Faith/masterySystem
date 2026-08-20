@@ -5818,6 +5818,8 @@
   display: flex;
   gap: 4px;
   font-size: 10px;
+  flex-wrap: nowrap;
+  white-space: nowrap;
 }
 
 .mastery-system.sheet.actor.character .attr-dist-item {
@@ -6388,6 +6390,12 @@
 .mastery-system.sheet.actor.character .points-box.creation-points {
   min-width: 60px;
   max-width: 70px;
+}
+
+.mastery-system.sheet.actor.character .points-box.creation-points-attr {
+  min-width: 148px;
+  max-width: 168px;
+  padding: 3px 8px;
 }
 
 .mastery-system.sheet.actor.character .points-box.creation-points .points-label {
