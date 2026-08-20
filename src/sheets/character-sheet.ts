@@ -76,7 +76,7 @@ import {
 } from '../stones/summon-bond-bind.js';
 import { deleteSummonActor } from '../stones/familiar-actor-factory.js';
 import { buildPostCreationSnapshot } from '../utils/xp-post-creation.js';
-import { nextCreationGuideTab } from '../utils/creation-tab-guide.js';
+import { creationGuideFlags } from '../utils/creation-tab-guide.js';
 import { findLegacyDialogRoot, scheduleCenterLegacyDialog } from '../utils/legacy-dialog-resize.js';
 import { resetCharacterForRecreation, listEquippedGeneralArtifacts } from '../utils/reset-character.js';
 import {
@@ -1041,7 +1041,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                    echoCreationValid &&
                    context.languagesView?.creationValid !== false
     };
-    context.creationGuideTab = nextCreationGuideTab({
+    context.creationGuideTabs = creationGuideFlags({
       creationComplete: context.creationComplete,
       attributesDone: attributeDistributionValid,
       echoDone: echoCreationValid && context.languagesView?.creationValid !== false,

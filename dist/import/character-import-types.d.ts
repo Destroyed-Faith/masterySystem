@@ -21,6 +21,17 @@ export interface CharacterImportEcho {
     subChoiceKey?: string;
     veiledFormKey?: string;
     selectedCardIds?: string[];
+    /** Unbound Beast: free-text predator shape (e.g. `Wolf`). */
+    unboundShape?: string;
+    /** Unbound Beast: predator stone path key — resolves the Echo Artifact. */
+    predatorStone?: string;
+    /**
+     * Echo Artifact catalog keys chosen at creation (e.g. `stoneboundSoles`).
+     * These are granted echo-bound and auto-equipped, exactly like the in-game
+     * Echo dialog. Unbound characters may omit this — the artifact is resolved
+     * from `subChoiceKey` / `predatorStone`.
+     */
+    artifactKeys?: string[];
 }
 export interface CharacterImportArtifact {
     /** Catalog key, e.g. `moonlightGreatsword`, `dragonClaws`. */

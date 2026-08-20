@@ -1,0 +1,53 @@
+{
+  "languages": [
+    {
+      "key": "common",
+      "name": "Common Tongue",
+      "description": "Spoken by all civilized nations; born from the Echoes of the First War.",
+      "isCommon": true
+    },
+    {
+      "key": "arcane",
+      "name": "Arcane",
+      "description": "Language of runes, sigils, and scholars of the old world."
+    },
+    {
+      "key": "infernal",
+      "name": "Infernal",
+      "description": "The whispered bargains of hell."
+    },
+    {
+      "key": "celestial",
+      "name": "Celestial",
+      "description": "Hymns of the divine and long-fallen angels."
+    },
+    {
+      "key": "dwarvish",
+      "name": "Dwarvish",
+      "description": "Forged words of stone and steel."
+    },
+    {
+      "key": "first",
+      "name": "The First",
+      "description": "Ancient tongue of the Titan-born."
+    },
+    {
+      "key": "elorian",
+      "name": "Elorian",
+      "description": "Fluid and timeless, carried by wind and memory of Eloria."
+    },
+    {
+      "key": "draconic",
+      "name": "Draconic",
+      "description": "The primal roar of flame, wave, and storm."
+    }
+  ],
+  "echoLockedLanguages": {
+    "elorians": "elorian",
+    "dragonborn": "draconic",
+    "dwarfs": "dwarvish",
+    "sentinels": "celestial"
+  },
+  "commonLanguageKey": "common",
+  "startingPickedLanguages": 1
+}

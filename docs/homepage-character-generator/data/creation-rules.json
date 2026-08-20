@@ -1,0 +1,22 @@
+{
+  "attributeDistribution": [
+    8,
+    8,
+    6,
+    6,
+    4,
+    4,
+    2
+  ],
+  "attributeAllowedValues": [
+    2,
+    4,
+    6,
+    8
+  ],
+  "skillPoints": 40,
+  "maxAttributeAtCreation": 8,
+  "maxSkillAtCreation": 4,
+  "minDisadvantagePoints": 0,
+  "maxDisadvantagePoints": 8
+}

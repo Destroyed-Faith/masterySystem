@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { nextCreationGuideTab, type CreationGuideState } from '../src/utils/creation-tab-guide.js';
+import {
+  creationGuideFlags,
+  pendingCreationGuideTabs,
+  type CreationGuideState,
+} from '../src/utils/creation-tab-guide.js';
 
 function state(overrides: Partial<CreationGuideState> = {}): CreationGuideState {
   return {
@@ -14,23 +18,42 @@ function state(overrides: Partial<CreationGuideState> = {}): CreationGuideState 
   };
 }
 
-describe('nextCreationGuideTab', () => {
-  it('returns null after creation is complete', () => {
-    expect(nextCreationGuideTab(state({ creationComplete: true }))).toBeNull();
+describe('pendingCreationGuideTabs', () => {
+  it('returns no tabs after creation is complete', () => {
+    expect(pendingCreationGuideTabs(state({ creationComplete: true }))).toEqual([]);
   });
 
-  it('walks the required tabs in order and skips summons/rituals/minor magic', () => {
-    expect(nextCreationGuideTab(state())).toBe('attributes');
-    expect(nextCreationGuideTab(state({ attributesDone: true }))).toBe('echo');
-    expect(nextCreationGuideTab(state({ attributesDone: true, echoDone: true }))).toBe('skills');
-    expect(nextCreationGuideTab(state({ attributesDone: true, echoDone: true, skillsDone: true }))).toBe('powers');
+  it('highlights every unfinished required tab, including Equipment and Disadvantages', () => {
+    expect(pendingCreationGuideTabs(state())).toEqual([
+      'attributes',
+      'echo',
+      'skills',
+      'powers',
+      'equipment',
+      'disadvantages',
+    ]);
+  });
+
+  it('drops a tab once that step is done and never hints summons/rituals/minor magic', () => {
+    expect(pendingCreationGuideTabs(state({ attributesDone: true }))).toEqual([
+      'echo',
+      'skills',
+      'powers',
+      'equipment',
+      'disadvantages',
+    ]);
     expect(
-      nextCreationGuideTab(
-        state({ attributesDone: true, echoDone: true, skillsDone: true, powersDone: true }),
+      pendingCreationGuideTabs(
+        state({
+          attributesDone: true,
+          echoDone: true,
+          skillsDone: true,
+          powersDone: true,
+        }),
       ),
-    ).toBe('equipment');
+    ).toEqual(['equipment', 'disadvantages']);
     expect(
-      nextCreationGuideTab(
+      pendingCreationGuideTabs(
         state({
           attributesDone: true,
           echoDone: true,
@@ -39,9 +62,9 @@ describe('nextCreationGuideTab', () => {
           equipmentReviewed: true,
         }),
       ),
-    ).toBe('disadvantages');
+    ).toEqual(['disadvantages']);
     expect(
-      nextCreationGuideTab(
+      pendingCreationGuideTabs(
         state({
           attributesDone: true,
           echoDone: true,
@@ -51,6 +74,15 @@ describe('nextCreationGuideTab', () => {
           disadvantagesDone: true,
         }),
       ),
-    ).toBeNull();
+    ).toEqual([]);
+  });
+});
+
+describe('creationGuideFlags', () => {
+  it('flags Equipment and Disadvantages while they are still open', () => {
+    expect(creationGuideFlags(state()).equipment).toBe(true);
+    expect(creationGuideFlags(state()).disadvantages).toBe(true);
+    expect(creationGuideFlags(state({ equipmentReviewed: true })).equipment).toBe(false);
+    expect(creationGuideFlags(state({ disadvantagesDone: true })).disadvantages).toBe(false);
   });
 });

@@ -1,0 +1,1175 @@
+{
+  "order": [
+    "humans",
+    "dwarfs",
+    "elorians",
+    "sentinels",
+    "titanborn",
+    "dragonborn",
+    "unbound"
+  ],
+  "cardSlotUnlockRanks": [
+    1,
+    4,
+    6
+  ],
+  "echoes": {
+    "humans": {
+      "key": "humans",
+      "name": "Humans",
+      "tagline": "Every human is a question the world hasn’t answered yet.",
+      "theme": "Masters of bad options — they survive by making deals, adapting fast and paying the price later.",
+      "summary": "The most widespread people of the shattered world. Adaptable, resilient, painfully easy to use. Bearers of demonic marks, keepers of small fires in dark places.",
+      "creatureType": "Humanoid",
+      "size": "medium",
+      "speed": 10,
+      "coreTraits": [],
+      "deck": [
+        {
+          "id": "refuse-to-give-up",
+          "name": "Refuse to Give Up",
+          "trigger": "Stay in the scene when you should be out — one more breath, make them hesitate, a dirty exit, or hard terms.",
+          "options": [
+            {
+              "id": "one-more-breath",
+              "label": "I — One More Breath",
+              "skill": "leadership",
+              "description": "You steady yourself and keep moving, one last push to stay in the scene when anyone else would fold."
+            },
+            {
+              "id": "make-them-hesitate",
+              "label": "II — Make Them Hesitate",
+              "skill": "intimidation",
+              "description": "It’s hopeless — but you surge one last time and force the other side to hesitate."
+            },
+            {
+              "id": "dirty-exit",
+              "label": "III — Dirty Exit",
+              "skill": "streetwise",
+              "description": "You’ve been here too often. You slip out by exploiting patterns, people, chaos, and weaknesses."
+            },
+            {
+              "id": "hard-terms",
+              "label": "IV — Hard Terms",
+              "skill": "negotiation",
+              "description": "You force structure into chaos: conditions, leverage, and a controlled de-escalation — on your terms."
+            }
+          ]
+        },
+        {
+          "id": "desperate-bargain",
+          "name": "Desperate Bargain",
+          "trigger": "Win with no clean options — name your price, sweeten the lie, make it personal, or play the room.",
+          "options": [
+            {
+              "id": "name-your-price",
+              "label": "I — Name Your Price",
+              "skill": "negotiation",
+              "description": "You state what you’ll give and what you demand — so the bargain has teeth."
+            },
+            {
+              "id": "sweeten-the-lie",
+              "label": "II — Sweeten the Lie",
+              "skill": "deception",
+              "description": "You wrap the deal in half-truths, plausible deniability, and a story they want to believe."
+            },
+            {
+              "id": "make-it-personal",
+              "label": "III — Make It Personal",
+              "skill": "persuasion",
+              "description": "You push the one argument that hits the heart: duty, fear, love, shame, or hope."
+            },
+            {
+              "id": "play-the-room",
+              "label": "IV — Play the Room",
+              "skill": "performance",
+              "description": "You turn the moment into a scene — timing, tone, audience — so the bargain becomes inevitable."
+            }
+          ]
+        },
+        {
+          "id": "scraprunner-instinct",
+          "name": "Scraprunner Instinct",
+          "trigger": "Solve it with junk and nerve — quick hands, body as tool, do it quiet, or force it through.",
+          "options": [
+            {
+              "id": "quick-hands-quick-fix",
+              "label": "I — Quick Hands, Quick Fix",
+              "skill": "sleightOfHand",
+              "description": "You patch, swap, or palm the missing piece fast enough that nobody can stop you."
+            },
+            {
+              "id": "make-it-move",
+              "label": "II — Make It Move",
+              "skill": "acrobatics",
+              "description": "You use your body as the tool — balance, timing, and momentum to turn a bad setup into a working solution."
+            },
+            {
+              "id": "do-it-quiet",
+              "label": "III — Do It Quiet",
+              "skill": "stealth",
+              "description": "You improvise without drawing eyes: no noise, no obvious traces, no attention."
+            },
+            {
+              "id": "force-it-through",
+              "label": "IV — Force It Through",
+              "skill": "athletics",
+              "description": "You brute the solution into place — bend, pry, drag, wedge — until reality gives in."
+            }
+          ]
+        },
+        {
+          "id": "hard-road-lessons",
+          "name": "Hard Road Lessons",
+          "trigger": "Survive the ugly day — follow signs, stay alive, calm the beast, or read the sky.",
+          "options": [
+            {
+              "id": "follow-the-signs",
+              "label": "I — Follow the Signs",
+              "skill": "tracking",
+              "description": "You read the ground, the breaks, the rhythm — finding where they went and how close they are."
+            },
+            {
+              "id": "stay-alive-anyway",
+              "label": "II — Stay Alive Anyway",
+              "skill": "survival",
+              "description": "Shelter, warmth, water, food — whatever the land gives, you take, without wasting time."
+            },
+            {
+              "id": "calm-the-beast",
+              "label": "III — Calm the Beast",
+              "skill": "animalHandling",
+              "description": "You steady a mount, silence an animal, or keep panic from turning into catastrophe."
+            },
+            {
+              "id": "read-the-sky",
+              "label": "IV — Read the Sky",
+              "skill": "weatherSense",
+              "description": "You catch what’s coming before it hits — storm, cold, heat, bad visibility — and adjust in time."
+            }
+          ]
+        }
+      ]
+    },
+    "dwarfs": {
+      "key": "dwarfs",
+      "name": "Dwarfs",
+      "tagline": "Stone does not kneel. Neither do we.",
+      "theme": "Last bastions of a broken war — incorruptible, stubborn, and built to hold the line when everything else falls.",
+      "summary": "A dying, proud people hated by the powers of Hell. Their flesh resists demonic marks; their souls do not open willingly. Guardians of old crafts, buried names, and weapons fit to wound Hell.",
+      "creatureType": "Humanoid",
+      "size": "medium",
+      "speed": 9,
+      "coreTraits": [],
+      "deck": [
+        {
+          "id": "unbreakable-terms",
+          "name": "Unbreakable Terms",
+          "trigger": "Refuse the corner — draw the line, make it costly, rally the room, or invoke the old rules.",
+          "options": [
+            {
+              "id": "draw-the-line",
+              "label": "I — Draw the Line",
+              "skill": "negotiation",
+              "description": "You set a boundary that cannot be “misunderstood” and force the other side to answer it."
+            },
+            {
+              "id": "make-it-costly",
+              "label": "II — Make It Costly",
+              "skill": "intimidation",
+              "description": "You remind them what refusal will cost. Not loudly. Clearly."
+            },
+            {
+              "id": "rally-the-room",
+              "label": "III — Rally the Room",
+              "skill": "leadership",
+              "description": "You rally your comrades, lock in their resolve, and turn doubt into a united stance."
+            },
+            {
+              "id": "old-rules-apply",
+              "label": "IV — The Old Rules Apply",
+              "skill": "etiquette",
+              "description": "You invoke rank, rite, and precedent. The room remembers how to behave."
+            }
+          ]
+        },
+        {
+          "id": "grudge-ledger",
+          "name": "Grudge Ledger",
+          "trigger": "Hunt the one who broke faith — find the crack, ask the alley, put it in words, or trap them with truth.",
+          "options": [
+            {
+              "id": "find-the-crack",
+              "label": "I — Find the Crack",
+              "skill": "investigation",
+              "description": "You pick at details until the weak point shows. A name, a pattern, a mistake."
+            },
+            {
+              "id": "ask-the-right-alley",
+              "label": "II — Ask the Right Alley",
+              "skill": "streetwise",
+              "description": "You know where rumors are born and who sells truth for cheap."
+            },
+            {
+              "id": "put-it-in-words",
+              "label": "III — Put It in Words",
+              "skill": "persuasion",
+              "description": "You turn anger into a case that others can follow."
+            },
+            {
+              "id": "set-a-trap-with-truth",
+              "label": "IV — Set a Trap with Truth",
+              "skill": "deception",
+              "description": "You bait them with what they want and watch them walk into it."
+            }
+          ]
+        },
+        {
+          "id": "stone-remembers",
+          "name": "Stone Remembers",
+          "trigger": "Read what the stone still holds — ancestral tales, structure, forge-work, or the rune under the dust.",
+          "options": [
+            {
+              "id": "ancestral-tales",
+              "label": "I — Ancestral Tales",
+              "skill": "lore",
+              "description": "You recognize names, symbols, and patterns that most have forgotten."
+            },
+            {
+              "id": "see-the-structure",
+              "label": "II — See the Structure",
+              "skill": "engineering",
+              "description": "You read weight, stress, and design. You know what holds and what will fail."
+            },
+            {
+              "id": "hands-of-the-forge",
+              "label": "III — Hands of the Forge",
+              "skill": "crafting",
+              "description": "You judge materials and work. You can repair, reinforce, or reshape what is there."
+            },
+            {
+              "id": "rune-under-the-dust",
+              "label": "IV — Rune Under the Dust",
+              "skill": "occultism",
+              "description": "You sense the hidden layer. Wards, bindings, curses, old divine traces."
+            }
+          ]
+        },
+        {
+          "id": "anchor-stance",
+          "name": "Anchor Stance",
+          "trigger": "Hold when pressure hits — plant your feet, become the wall, quiet footing, or never lose your center.",
+          "options": [
+            {
+              "id": "plant-your-feet",
+              "label": "I — Plant Your Feet",
+              "skill": "athletics",
+              "description": "You brace, push back, and stay where you are meant to be."
+            },
+            {
+              "id": "part-of-the-wall",
+              "label": "II — Become Part of the Wall",
+              "skill": "concealment",
+              "description": "You go still and unreadable. Hard to notice, harder to move."
+            },
+            {
+              "id": "quiet-footing",
+              "label": "III — Quiet Footing",
+              "skill": "stealth",
+              "description": "You reposition without giving them a clean angle on you."
+            },
+            {
+              "id": "never-off-balance",
+              "label": "IV — Never Off Balance",
+              "skill": "acrobatics",
+              "description": "You keep control of your center. You do not get thrown, tripped, or panicked."
+            }
+          ]
+        }
+      ]
+    },
+    "elorians": {
+      "key": "elorians",
+      "name": "Elorians",
+      "tagline": "We were not made for this world — and yet we are still here.",
+      "theme": "Lingering light of a lost world — outsiders between realms, carrying memories, dreams and beauty that no longer belong here.",
+      "summary": "Children of the Otherworld, Eloria. Stranded when the Four Stone Gates were sealed. Demonic marks catch like thorns in them, never fully sinking — but that resistance is its own private war.",
+      "creatureType": "Humanoid",
+      "size": "medium",
+      "speed": 12,
+      "coreTraits": [],
+      "deck": [
+        {
+          "id": "mask-of-the-fair",
+          "name": "Mask of the Fair",
+          "trigger": "Courtesy as a weapon — belong in any court, bend the story, hold the room, or turn minds without force.",
+          "options": [
+            {
+              "id": "speak-their-rules",
+              "label": "I — Speak Their Rules",
+              "skill": "etiquette",
+              "description": "You act like you belong and make it costly to question you."
+            },
+            {
+              "id": "soften-the-truth",
+              "label": "II — Soften the Truth",
+              "skill": "deception",
+              "description": "You bend the story just enough to pass without breaking it."
+            },
+            {
+              "id": "capture-the-room",
+              "label": "III — Capture the Room",
+              "skill": "performance",
+              "description": "You choose tone and timing. People follow your rhythm instead of their doubts."
+            },
+            {
+              "id": "turn-them-gently",
+              "label": "IV — Turn Them Gently",
+              "skill": "persuasion",
+              "description": "You guide their thinking without force and make them feel it was their idea."
+            }
+          ]
+        },
+        {
+          "id": "twilight-read",
+          "name": "Twilight Read",
+          "trigger": "See through the mask — read motive, pulse, leverage, or desire in a layered moment.",
+          "options": [
+            {
+              "id": "follow-the-thread",
+              "label": "I — Follow the Thread",
+              "skill": "investigation",
+              "description": "You connect details into motive, pattern, and opportunity."
+            },
+            {
+              "id": "hear-the-heartbeat",
+              "label": "II — Hear the Heartbeat",
+              "skill": "empathy",
+              "description": "You sense what they hide behind poise, fear, or pride."
+            },
+            {
+              "id": "frame-the-deal",
+              "label": "III — Frame the Deal",
+              "skill": "negotiation",
+              "description": "You set terms and leverage that reveal what they truly value."
+            },
+            {
+              "id": "draw-them-close",
+              "label": "IV — Draw Them Close",
+              "skill": "seduction",
+              "description": "You pull attention into intimacy and turn desire into access."
+            }
+          ]
+        },
+        {
+          "id": "echo-of-ages",
+          "name": "Echo of Ages",
+          "trigger": "Old Eloria still speaks — recall forgotten history, wards, body-memory, or the geometry of lost roads.",
+          "options": [
+            {
+              "id": "remember-the-old-story",
+              "label": "I — Remember the Old Story",
+              "skill": "lore",
+              "description": "You recall fragments of history, courts, and forbidden names that still carry weight."
+            },
+            {
+              "id": "read-the-hidden-layer",
+              "label": "II — Read the Hidden Layer",
+              "skill": "occultism",
+              "description": "You recognize wards, bindings, and the invisible rules beneath the surface."
+            },
+            {
+              "id": "body-memory",
+              "label": "III — Body Memory",
+              "skill": "medicine",
+              "description": "You notice what age did to flesh and bone. Old wounds, old rituals, old methods."
+            },
+            {
+              "id": "trace-the-way-it-moved",
+              "label": "IV — Trace the Way It Moved",
+              "skill": "navigation",
+              "description": "You read routes, patterns, and the geometry of places as if the world still followed Eloria’s design."
+            }
+          ]
+        },
+        {
+          "id": "unseen-grace",
+          "name": "Unseen Grace",
+          "trigger": "Move as if you were never there — keep your center, vanish, blend, or take with a light touch.",
+          "options": [
+            {
+              "id": "never-lose-your-center",
+              "label": "I — Never Lose Your Center",
+              "skill": "acrobatics",
+              "description": "You keep control through pressure. Balance, timing, and calm motion carry you through."
+            },
+            {
+              "id": "step-between-attention",
+              "label": "II — Step Between Attention",
+              "skill": "stealth",
+              "description": "You move when eyes blink and noise rises. You pass without becoming a target."
+            },
+            {
+              "id": "become-part-of-the-scene",
+              "label": "III — Become Part of the Scene",
+              "skill": "concealment",
+              "description": "You choose the angle and the cover that makes you simply not worth noticing."
+            },
+            {
+              "id": "light-touch-clean-result",
+              "label": "IV — Light Touch, Clean Result",
+              "skill": "sleightOfHand",
+              "description": "You take, plant, swap, or free something small without breaking the flow of the moment."
+            }
+          ]
+        }
+      ]
+    },
+    "sentinels": {
+      "key": "sentinels",
+      "name": "Sentinels",
+      "tagline": "Verdicts in motion, built for gods that no longer answer.",
+      "theme": "Haunted protocols of dead gods — living verdicts with a divine core, still executing orders in a world where the issuing authority is gone.",
+      "summary": "Divinely-forged engines of judgment: ancient, deathless, built for obedience. Their radiant divine cores are hunted by demons. Some remain, some doubt, some chose to defend mortals instead of ruling them.",
+      "creatureType": "Humanoid",
+      "size": "medium",
+      "speed": 10,
+      "coreTraits": [],
+      "subChoiceLabel": "Order Protocol",
+      "subChoices": [
+        {
+          "key": "judicators",
+          "name": "Judicators — Sentence Engine",
+          "trait": {
+            "id": "sentence-engine",
+            "name": "Sentence Engine",
+            "effect": "Mastery Rank per Safe Haven Rest: when you openly pronounce a Verdict on a target you can see (guilty, condemned, spared, warned), your next roll against that target this scene that succeeds gains +1 Raise. Cannot turn a failure into a success.",
+            "flavor": "Law made sharp.",
+            "usage": "mr-per-rest"
+          }
+        },
+        {
+          "key": "sentinels",
+          "name": "Sentinels — Bulwark Overdrive",
+          "trait": {
+            "id": "bulwark-overdrive",
+            "name": "Bulwark Overdrive",
+            "effect": "Mastery Rank per Safe Haven Rest: as a reaction when you would take damage (or at the start of your turn), increase your Armor by your Mastery Rank until the start of your next turn.",
+            "flavor": "A wall that remembers how to hold.",
+            "usage": "mr-per-rest"
+          }
+        },
+        {
+          "key": "oracles",
+          "name": "Oracles — Oracular Overclock",
+          "trait": {
+            "id": "oracular-overclock",
+            "name": "Oracular Overclock",
+            "effect": "Mastery Rank per Safe Haven Rest: after you roll Occultism, Investigation, Lore, Engineering, or any spell/arcane roll, you may mark 1 Stress to reroll one die. A die can’t be rerolled twice.",
+            "flavor": "The gods are gone. The signal remains.",
+            "usage": "mr-per-rest"
+          }
+        }
+      ],
+      "deck": [
+        {
+          "id": "lawkeepers-gaze",
+          "name": "Lawkeeper’s Gaze",
+          "trigger": "Demand an answer in public — make consequences felt, restore order, set terms, or strip excuses with rite.",
+          "options": [
+            {
+              "id": "speak-the-verdict",
+              "label": "I — Speak the Verdict",
+              "skill": "intimidation",
+              "description": "You make the room feel the weight of consequences."
+            },
+            {
+              "id": "call-them-to-order",
+              "label": "II — Call Them to Order",
+              "skill": "leadership",
+              "description": "You stabilize the moment and force a clear sequence: who speaks, who answers, what happens next."
+            },
+            {
+              "id": "set-the-terms",
+              "label": "III — Set the Terms",
+              "skill": "negotiation",
+              "description": "You frame the exchange as conditions and obligations, not pleading."
+            },
+            {
+              "id": "invoke-protocol",
+              "label": "IV — Invoke Protocol",
+              "skill": "etiquette",
+              "description": "You use rank, rite, and procedure to strip them of excuses."
+            }
+          ]
+        },
+        {
+          "id": "protocol-override",
+          "name": "Protocol Override",
+          "trigger": "Bend the moment without breaking purpose — isolate the fact, reframe the ask, feed a story, or press the fault line.",
+          "options": [
+            {
+              "id": "trace-the-facts",
+              "label": "I — Trace the Facts",
+              "skill": "investigation",
+              "description": "You isolate the key variable that makes the whole scene change."
+            },
+            {
+              "id": "rewrite-the-ask",
+              "label": "II — Rewrite the Ask",
+              "skill": "persuasion",
+              "description": "You reframe intent so compliance becomes the “reasonable” choice."
+            },
+            {
+              "id": "feed-them-the-story",
+              "label": "III — Feed Them the Story",
+              "skill": "deception",
+              "description": "You give them a version they can accept while you keep control."
+            },
+            {
+              "id": "read-the-fault-line",
+              "label": "IV — Read the Fault Line",
+              "skill": "empathy",
+              "description": "You identify what they fear, crave, or hide, then press exactly there."
+            }
+          ]
+        },
+        {
+          "id": "divine-diagnostic",
+          "name": "Divine Diagnostic",
+          "trigger": "Find the hidden failure — map the mechanism, read origin, sense corruption, or stabilize the subject.",
+          "options": [
+            {
+              "id": "run-the-schema",
+              "label": "I — Run the Schema",
+              "skill": "engineering",
+              "description": "You map the mechanism and identify the failure point."
+            },
+            {
+              "id": "read-the-record",
+              "label": "II — Read the Record",
+              "skill": "lore",
+              "description": "You recognize origin, maker, rite, and intended function."
+            },
+            {
+              "id": "sense-the-interference",
+              "label": "III — Sense the Interference",
+              "skill": "occultism",
+              "description": "You detect divine or demonic distortion and where it is anchored."
+            },
+            {
+              "id": "stabilize-the-subject",
+              "label": "IV — Stabilize the Subject",
+              "skill": "medicine",
+              "description": "You prevent the situation from worsening and set a clean procedure to fix it."
+            }
+          ]
+        },
+        {
+          "id": "mandate-trail",
+          "name": "Mandate Trail",
+          "trigger": "Keep the line and predict the break — hold the route, follow traces, lock down camp, or time the weather.",
+          "options": [
+            {
+              "id": "hold-the-route",
+              "label": "I — Hold the Route",
+              "skill": "navigation",
+              "description": "You pick the safest, fastest path and cut off detours."
+            },
+            {
+              "id": "follow-the-signs",
+              "label": "II — Follow the Signs",
+              "skill": "tracking",
+              "description": "You read traces, habits, and direction like a report written in dust."
+            },
+            {
+              "id": "secure-the-ground",
+              "label": "III — Secure the Ground",
+              "skill": "survival",
+              "description": "You lock down shelter, supplies, and watch so your mission can continue."
+            },
+            {
+              "id": "listen-to-the-sky",
+              "label": "IV — Listen to the Sky",
+              "skill": "weatherSense",
+              "description": "You time the move to the coming shift and avoid the worst moment to strike."
+            }
+          ]
+        }
+      ]
+    },
+    "titanborn": {
+      "key": "titanborn",
+      "name": "Titanborn",
+      "tagline": "The blood remembers.",
+      "theme": "Blood of bound giants — mortal vessels of ancient fury and purpose, wrestling with the pull toward greatness, catastrophe, and the unfinished war of their ancestors.",
+      "summary": "Awakened fury of the godless age. Where others break, Titanborn endure. Where others retreat, they advance. Their greatest struggle is often against the ancient hunger within them, the part that does not want the war to end.",
+      "creatureType": "Humanoid",
+      "size": "medium",
+      "speed": 12,
+      "coreTraits": [],
+      "subChoiceLabel": "Titan Stone Affinity",
+      "subChoices": [
+        {
+          "key": "might",
+          "name": "Might Affinity",
+          "trait": {
+            "id": "titan-stone-might",
+            "name": "Titan Stone: Might",
+            "effect": "Your Titan Stone Pool feeds Might: after each Safe Haven Rest, Titan Scars gift you 2 / 4 / 8 Might Stones at Stages I / II / III (Artifact Levels 2 / 5 / 8).",
+            "usage": "passive"
+          }
+        },
+        {
+          "key": "agility",
+          "name": "Agility Affinity",
+          "trait": {
+            "id": "titan-stone-agility",
+            "name": "Titan Stone: Agility",
+            "effect": "Your Titan Stone Pool feeds Agility: after each Safe Haven Rest, Titan Scars gift you 2 / 4 / 8 Agility Stones at Stages I / II / III (Artifact Levels 2 / 5 / 8).",
+            "usage": "passive"
+          }
+        },
+        {
+          "key": "vitality",
+          "name": "Vitality Affinity",
+          "trait": {
+            "id": "titan-stone-vitality",
+            "name": "Titan Stone: Vitality",
+            "effect": "Your Titan Stone Pool feeds Vitality: after each Safe Haven Rest, Titan Scars gift you 2 / 4 / 8 Vitality Stones at Stages I / II / III (Artifact Levels 2 / 5 / 8).",
+            "usage": "passive"
+          }
+        },
+        {
+          "key": "intellect",
+          "name": "Intellect Affinity",
+          "trait": {
+            "id": "titan-stone-intellect",
+            "name": "Titan Stone: Intellect",
+            "effect": "Your Titan Stone Pool feeds Intellect: after each Safe Haven Rest, Titan Scars gift you 2 / 4 / 8 Intellect Stones at Stages I / II / III (Artifact Levels 2 / 5 / 8).",
+            "usage": "passive"
+          }
+        },
+        {
+          "key": "resolve",
+          "name": "Resolve Affinity",
+          "trait": {
+            "id": "titan-stone-resolve",
+            "name": "Titan Stone: Resolve",
+            "effect": "Your Titan Stone Pool feeds Resolve: after each Safe Haven Rest, Titan Scars gift you 2 / 4 / 8 Resolve Stones at Stages I / II / III (Artifact Levels 2 / 5 / 8).",
+            "usage": "passive"
+          }
+        },
+        {
+          "key": "influence",
+          "name": "Influence Affinity",
+          "trait": {
+            "id": "titan-stone-influence",
+            "name": "Titan Stone: Influence",
+            "effect": "Your Titan Stone Pool feeds Influence: after each Safe Haven Rest, Titan Scars gift you 2 / 4 / 8 Influence Stones at Stages I / II / III (Artifact Levels 2 / 5 / 8).",
+            "usage": "passive"
+          }
+        },
+        {
+          "key": "wits",
+          "name": "Wits Affinity",
+          "trait": {
+            "id": "titan-stone-wits",
+            "name": "Titan Stone: Wits",
+            "effect": "Your Titan Stone Pool feeds Wits: after each Safe Haven Rest, Titan Scars gift you 2 / 4 / 8 Wits Stones at Stages I / II / III (Artifact Levels 2 / 5 / 8).",
+            "usage": "passive"
+          }
+        }
+      ],
+      "deck": [
+        {
+          "id": "giantblood-portent",
+          "name": "Giantblood Portent",
+          "trigger": "The old blood pulls at a crossroads — recall the pattern, spot the lever, test the price, or feel who will crack.",
+          "options": [
+            {
+              "id": "remember-the-pattern",
+              "label": "I — Remember the Pattern",
+              "skill": "lore",
+              "description": "You recall how this kind of story ends and what it costs."
+            },
+            {
+              "id": "see-the-lever",
+              "label": "II — See the Lever",
+              "skill": "investigation",
+              "description": "You spot the one detail that changes everything."
+            },
+            {
+              "id": "take-the-measure",
+              "label": "III — Take the Measure",
+              "skill": "negotiation",
+              "description": "You test motives, prices, and hidden terms before you commit."
+            },
+            {
+              "id": "feel-the-fault",
+              "label": "IV — Feel the Fault",
+              "skill": "empathy",
+              "description": "You sense who is about to crack, lie, or betray."
+            }
+          ]
+        },
+        {
+          "id": "break-the-barrier",
+          "name": "Break the Barrier",
+          "trigger": "What should not move, will — raw force, timed impact, a shadow’s angle, or endurance that does not stop.",
+          "options": [
+            {
+              "id": "raw-force",
+              "label": "I — Raw Force",
+              "skill": "athletics",
+              "description": "You bend, pry, lift, and push until it gives."
+            },
+            {
+              "id": "control-the-impact",
+              "label": "II — Control the Impact",
+              "skill": "acrobatics",
+              "description": "You apply strength with timing so you do not overcommit or get punished for it."
+            },
+            {
+              "id": "through-the-crowd",
+              "label": "III — Through the Crowd",
+              "skill": "stealth",
+              "description": "You reposition like a shadow despite your presence, taking the angle they never covered."
+            },
+            {
+              "id": "hold-the-line",
+              "label": "IV — Hold the Line",
+              "skill": "survival",
+              "description": "You keep going under pain, cold, fire, and exhaustion. You do not stop."
+            }
+          ]
+        },
+        {
+          "id": "weight-of-the-sky",
+          "name": "Weight of the Sky",
+          "trigger": "Be the anchor through a long ordeal — set the pace, carry the burden, keep them alive, or read the storm.",
+          "options": [
+            {
+              "id": "set-the-pace",
+              "label": "I — Set the Pace",
+              "skill": "navigation",
+              "description": "You pick the route and timing that preserves strength and avoids the worst."
+            },
+            {
+              "id": "carry-the-burden",
+              "label": "II — Carry the Burden",
+              "skill": "athletics",
+              "description": "You take the heavy share and make it possible for others to continue."
+            },
+            {
+              "id": "keep-them-alive",
+              "label": "III — Keep Them Alive",
+              "skill": "survival",
+              "description": "Shelter, heat, water, food. You make the land pay its share."
+            },
+            {
+              "id": "read-the-storm",
+              "label": "IV — Read the Storm",
+              "skill": "weatherSense",
+              "description": "You adjust before the weather becomes a killer."
+            }
+          ]
+        },
+        {
+          "id": "harmony-of-the-old-war",
+          "name": "Harmony of the Old War",
+          "trigger": "Hold the group together — one plan, hard terms, painful honesty, or the human reason they fight.",
+          "options": [
+            {
+              "id": "speak-back-to-one-plan",
+              "label": "I — Speak Them Back to One Plan",
+              "skill": "leadership",
+              "description": "You impose calm purpose and give everyone something to follow."
+            },
+            {
+              "id": "trade-peace-for-terms",
+              "label": "II — Trade Peace for Terms",
+              "skill": "negotiation",
+              "description": "You find the compromise that avoids collapse."
+            },
+            {
+              "id": "say-what-hurts",
+              "label": "III — Say What Hurts",
+              "skill": "intimidation",
+              "description": "You force honesty by making the cost of division obvious."
+            },
+            {
+              "id": "touch-the-human-part",
+              "label": "IV — Touch the Human Part",
+              "skill": "persuasion",
+              "description": "You remind them what they are protecting and why it matters."
+            }
+          ]
+        }
+      ]
+    },
+    "dragonborn": {
+      "key": "dragonborn",
+      "name": "Dragonborn",
+      "tagline": "We were erased. We remember.",
+      "theme": "Hidden heirs of dragons living in human skins.",
+      "summary": "Dragonborn survive by disappearing in plain sight. At creation you must pick a Veiled Form — another Echo’s appearance only; you remain Dragonborn for all mechanics.",
+      "creatureType": "Humanoid",
+      "size": "medium",
+      "speed": 8,
+      "veiledForm": true,
+      "coreTraits": [],
+      "deck": [
+        {
+          "id": "melody-bound-memory",
+          "name": "Melody-Bound Memory",
+          "trigger": "A buried truth stirs — hear the unseen thread, name the age, read the work, or make a key detail real.",
+          "options": [
+            {
+              "id": "hear-the-chord",
+              "label": "I — Hear the Chord",
+              "skill": "occultism",
+              "description": "You sense the unseen thread and what it is tied to."
+            },
+            {
+              "id": "name-the-age",
+              "label": "II — Name the Age",
+              "skill": "lore",
+              "description": "You place it in the right era, clan, and story."
+            },
+            {
+              "id": "read-the-work",
+              "label": "III — Read the Work",
+              "skill": "engineering",
+              "description": "You understand how it was built and where it can be bypassed."
+            },
+            {
+              "id": "make-it-real",
+              "label": "IV — Make It Real",
+              "skill": "crafting",
+              "description": "You recreate the key detail: a seal, a proof, a workable replica."
+            }
+          ]
+        },
+        {
+          "id": "the-hidden-nest",
+          "name": "The Hidden Nest",
+          "trigger": "Stay unseen while hunters close in — find shelter, read the pursuit, steal the weather, or turn the wild.",
+          "options": [
+            {
+              "id": "find-shelter",
+              "label": "I — Find Shelter",
+              "skill": "survival",
+              "description": "You pick the safest place and the safest time to stop."
+            },
+            {
+              "id": "read-the-pursuit",
+              "label": "II — Read the Pursuit",
+              "skill": "tracking",
+              "description": "You learn how close they are, and how they will approach."
+            },
+            {
+              "id": "steal-the-weather",
+              "label": "III — Steal the Weather",
+              "skill": "weatherSense",
+              "description": "You choose the window where nature covers your mistakes."
+            },
+            {
+              "id": "turn-the-wild",
+              "label": "IV — Turn the Wild",
+              "skill": "animalHandling",
+              "description": "You use beasts, noise, and instinct to draw danger away."
+            }
+          ]
+        },
+        {
+          "id": "make-them-look-away",
+          "name": "Make Them Look Away",
+          "trigger": "Kill the wrong question — feed a story, guide the talk, move the gossip, or hide behind ritual.",
+          "options": [
+            {
+              "id": "feed-them-a-story",
+              "label": "I — Feed Them a Story",
+              "skill": "deception",
+              "description": "You give them a version that ends the curiosity."
+            },
+            {
+              "id": "guide-the-conversation",
+              "label": "II — Guide the Conversation",
+              "skill": "persuasion",
+              "description": "You redirect attention without raising alarms."
+            },
+            {
+              "id": "move-the-gossip",
+              "label": "III — Move the Gossip",
+              "skill": "streetwise",
+              "description": "You shift the rumor through the right mouths and alleys."
+            },
+            {
+              "id": "hide-behind-ritual",
+              "label": "IV — Hide Behind Ritual",
+              "skill": "etiquette",
+              "description": "You use protocol, titles, and social rules to shut doors politely."
+            }
+          ]
+        },
+        {
+          "id": "oath-of-the-last",
+          "name": "Oath of the Last",
+          "trigger": "Keep the line alive when fear spreads — command, bind terms, name the cost, or speak to the real need.",
+          "options": [
+            {
+              "id": "speak-as-command",
+              "label": "I — Speak as Command",
+              "skill": "leadership",
+              "description": "You make people stand together long enough to act."
+            },
+            {
+              "id": "bind-it-in-terms",
+              "label": "II — Bind It in Terms",
+              "skill": "negotiation",
+              "description": "You turn intent into obligation and clear commitments."
+            },
+            {
+              "id": "remind-them-of-cost",
+              "label": "III — Remind Them of Cost",
+              "skill": "intimidation",
+              "description": "You make the consequences feel real and immediate."
+            },
+            {
+              "id": "name-the-real-need",
+              "label": "IV — Name the Real Need",
+              "skill": "empathy",
+              "description": "You identify what breaks them and offer the one thing that holds."
+            }
+          ]
+        }
+      ]
+    },
+    "unbound": {
+      "key": "unbound",
+      "name": "Unbound",
+      "tagline": "The Wyld does not name us. It uses us.",
+      "theme": "Living answers without a stable self. You survive by adapting, masking, and turning pressure into motion.",
+      "summary": "The world’s reaction when something is forced to become what it was never meant to be. Beasts, Witches, and Banes — not one people, one response. Not gentle, not evil — corrective, instinctive, made to oppose what does not belong.",
+      "creatureType": "Manifestation",
+      "size": "medium",
+      "speed": 8,
+      "coreTraits": [
+        {
+          "id": "the-response-takes-over",
+          "name": "The Response Takes Over",
+          "effect": "When an Unbound is pushed too far, the response may take over. The Beast becomes the shape that hunts. The Witch becomes the curse that speaks through flesh. The Bane becomes the weapon that can no longer stop hunting. Powerful, useful, and never fully theirs.",
+          "flavor": "Echo Burden",
+          "usage": "passive"
+        }
+      ],
+      "subChoiceLabel": "Unbound Response",
+      "subChoices": [
+        {
+          "key": "beast",
+          "name": "Beast",
+          "trait": {
+            "id": "beast-response",
+            "name": "Beast",
+            "effect": "The body's response. Predator Crown occupies the Head Slot. Choose a Predator Shape and one Predator Stone path (Might, Wits, or Intellect).",
+            "flavor": "Fang, horn, claw, feather, hunger.",
+            "usage": "passive"
+          }
+        },
+        {
+          "key": "witch-root",
+          "name": "Root Witch",
+          "trait": {
+            "id": "root-witch",
+            "name": "Root Staff",
+            "effect": "Rootbinding is Ranged Attack + Slow. Covenant Overdrive uses Active Buff: Special Increase + Slow. Witch Staff occupies both hands.",
+            "flavor": "Buried wood, grave roots, old circles.",
+            "usage": "passive"
+          }
+        },
+        {
+          "key": "witch-ruin",
+          "name": "Ruin Witch",
+          "trait": {
+            "id": "ruin-witch",
+            "name": "Ruin Staff",
+            "effect": "Ruinous Word is Ranged Attack + Hex. Covenant Overdrive uses Active Buff: Special Increase + Hex. Witch Staff occupies both hands.",
+            "flavor": "Blackened wood, ash, erased names.",
+            "usage": "passive"
+          }
+        },
+        {
+          "key": "witch-blight",
+          "name": "Blight Witch",
+          "trait": {
+            "id": "blight-witch",
+            "name": "Blight Staff",
+            "effect": "Blightcall is Ranged Attack + Corrode. Covenant Overdrive uses Active Buff: Special Increase + Corrode. Witch Staff occupies both hands.",
+            "flavor": "Fungus, rust, living decay.",
+            "usage": "passive"
+          }
+        },
+        {
+          "key": "bane-alchemist",
+          "name": "Bane Alchemist",
+          "trait": {
+            "id": "bane-alchemist",
+            "name": "Alchemist Coat",
+            "effect": "Medium Armor. Red Potion is Active Buff: Damage. Black Potion is Active Buff: Critical. Alchemist Stone supports Vitality Ability: Extend Active Buff.",
+            "flavor": "Preparation, not transformation.",
+            "usage": "passive"
+          }
+        },
+        {
+          "key": "bane-greenwarden",
+          "name": "Bane Greenwarden",
+          "trait": {
+            "id": "bane-greenwarden",
+            "name": "Green Warden Mantle",
+            "effect": "Medium Armor. Thorns is Active Buff: Thorns. Warden's Guard is Reaction: Ally Armor. Green Warden Stone supports Resolve Ability: Special Reduction.",
+            "flavor": "Bark, thorn, patient violence.",
+            "usage": "passive"
+          }
+        },
+        {
+          "key": "bane-relic-hunter",
+          "name": "Bane Relic Hunter",
+          "trait": {
+            "id": "bane-relic-hunter",
+            "name": "Hunter's Scourge",
+            "effect": "Two-handed chain-whip. Exorcism Lash is Melee Attack + Exorcism. Snap Chain is Artifact Reaction: Damage + Pull. Whirling Scourge is Melee AoE Attack + Exorcism.",
+            "flavor": "Pull the monster close.",
+            "usage": "passive"
+          }
+        }
+      ],
+      "deck": [
+        {
+          "id": "hunger-shapes-the-path",
+          "name": "Hunger Shapes the Path",
+          "trigger": "Take what the world withholds — follow the trace, read the land, find the pattern, or make do and move.",
+          "options": [
+            {
+              "id": "follow-the-trace",
+              "label": "I — Follow the Trace",
+              "skill": "tracking",
+              "description": "You find the freshest sign and keep it in your hands."
+            },
+            {
+              "id": "read-the-land",
+              "label": "II — Read the Land",
+              "skill": "navigation",
+              "description": "You choose the route that the world least wants you to take."
+            },
+            {
+              "id": "find-the-pattern",
+              "label": "III — Find the Pattern",
+              "skill": "investigation",
+              "description": "You notice the repeating detail that reveals where the truth is hiding."
+            },
+            {
+              "id": "make-do-and-move",
+              "label": "IV — Make Do and Move",
+              "skill": "survival",
+              "description": "You improvise shelter, leverage, or a way through with what is available."
+            }
+          ]
+        },
+        {
+          "id": "wear-the-world",
+          "name": "Wear the World",
+          "trigger": "Vanish before the scene swallows you — become still, move unseen, slip the gap, or take what you need.",
+          "options": [
+            {
+              "id": "become-still",
+              "label": "I — Become Still",
+              "skill": "concealment",
+              "description": "You pick the perfect place to be forgotten."
+            },
+            {
+              "id": "move-unseen",
+              "label": "II — Move Unseen",
+              "skill": "stealth",
+              "description": "You cross attention without giving it a handle."
+            },
+            {
+              "id": "slip-the-gap",
+              "label": "III — Slip the Gap",
+              "skill": "acrobatics",
+              "description": "You pass where bodies should not pass."
+            },
+            {
+              "id": "take-what-you-need",
+              "label": "IV — Take What You Need",
+              "skill": "sleightOfHand",
+              "description": "You steal seconds, objects, or small truths without starting a fight."
+            }
+          ]
+        },
+        {
+          "id": "the-room-is-territory",
+          "name": "The Room Is Territory",
+          "trigger": "Someone yields first — show teeth, set the pace, know the undercurrent, or claim the right.",
+          "options": [
+            {
+              "id": "show-teeth",
+              "label": "I — Show Teeth",
+              "skill": "intimidation",
+              "description": "You make consequences feel close and real."
+            },
+            {
+              "id": "set-the-pace",
+              "label": "II — Set the Pace",
+              "skill": "leadership",
+              "description": "You force order onto chaos so people follow a sequence you control."
+            },
+            {
+              "id": "know-the-undercurrent",
+              "label": "III — Know the Undercurrent",
+              "skill": "streetwise",
+              "description": "You spot who truly runs this space and what they fear losing."
+            },
+            {
+              "id": "claim-the-right",
+              "label": "IV — Claim the Right",
+              "skill": "etiquette",
+              "description": "You use rule, rank, and ritual to corner them into behaving."
+            }
+          ]
+        },
+        {
+          "id": "speak-like-a-mask",
+          "name": "Speak Like a Mask",
+          "trigger": "Steer perception to survive the next minute — sell the role, give a story, turn them gently, or touch the real fear.",
+          "options": [
+            {
+              "id": "make-it-believable",
+              "label": "I — Make It Believable",
+              "skill": "performance",
+              "description": "You sell a role so well that doubt feels rude."
+            },
+            {
+              "id": "give-them-a-story",
+              "label": "II — Give Them a Story",
+              "skill": "deception",
+              "description": "You provide the version they can accept while you keep the truth."
+            },
+            {
+              "id": "turn-them-gently",
+              "label": "III — Turn Them Gently",
+              "skill": "persuasion",
+              "description": "You guide them to the choice that keeps you alive."
+            },
+            {
+              "id": "touch-the-real-fear",
+              "label": "IV — Touch the Real Fear",
+              "skill": "empathy",
+              "description": "You find what they actually feel, then speak to that instead of their words."
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

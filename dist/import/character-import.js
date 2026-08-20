@@ -4,10 +4,13 @@
 import { repairArtifactEvolutionLinks } from '../utils/artifact-echo-repair.js';
 import { getWorldArtifactItemsInFolder, resolveWorldItemByNodeId, } from '../utils/artifact-actor-tree.js';
 import { grantArtifactTreeToActor } from '../utils/artifact-tree-grant.js';
-import { findEchoArtifactRootInWorld } from '../utils/seed-artifact-library.js';
+import { findEchoArtifactRootInWorld, grantEchoArtifactTreeToActor, seedArtifactLibrary, } from '../utils/seed-artifact-library.js';
+import { buildEchoArtifactTree } from '../artifacts/echo-artifact-tree-builder.js';
+import { dedupeEchoArtifactsOnActor, equipEchoArtifact, getEchoArtifactKey, } from '../utils/echo-artifact-equip.js';
+import { listSelectableEchoArtifacts, validateEchoArtifactSelection, } from '../utils/echo-artifacts.js';
 import { upsertRootActorProgress } from '../utils/world-artifact-flag-sync.js';
 import { grantPowerSpecs } from '../utils/power-item-builder.js';
-import { buildActorCreateDataFromPayload, buildGearItemData, resolvePowerGrantSpecs, } from './character-import-build.js';
+import { buildActorCreateDataFromPayload, buildGearItemData, resolveEchoArtifactImportKeys, resolvePowerGrantSpecs, } from './character-import-build.js';
 import { CHARACTER_IMPORT_EXPORT_KIND, FOUNDRY_ACTOR_IMPORT_EXPORT_KIND, } from './character-import-types.js';
 import { parseCharacterImportJson, validateCharacterImportDocument, validateCharacterImportJson, } from './character-import-validation.js';
 function deepClone(value) {
@@ -107,6 +110,68 @@ async function importArtifactSpec(actor, spec) {
         }
     }
 }
+/**
+ * Grant + equip the Echo Artifacts picked at creation. Mirrors the Echo
+ * dialog's confirm path: prefer the seeded Builder-Tree root (seeding the
+ * library on demand — import is GM-only), fall back to a single Level-1 item,
+ * then auto-equip echo-bound.
+ */
+async function importEchoArtifacts(actor, payload, warnings) {
+    const echoKey = String(payload.echo?.key ?? '');
+    const keys = resolveEchoArtifactImportKeys(payload);
+    if (!echoKey || keys.length === 0)
+        return;
+    const selectionError = validateEchoArtifactSelection(echoKey, keys);
+    if (selectionError) {
+        warnings.push(`Echo artifacts: ${selectionError}`);
+    }
+    const availableDefs = listSelectableEchoArtifacts(echoKey, payload.echo?.subChoiceKey || null);
+    const fallbackDocs = [];
+    const grantedItems = [];
+    for (const key of keys) {
+        const def = availableDefs.find((d) => d.key === key);
+        if (!def) {
+            warnings.push(`Echo artifact "${key}" is not selectable for echo "${echoKey}" — skipped.`);
+            continue;
+        }
+        const actorHasEchoKey = () => Array.from(actor.items).some((it) => it.type === 'artifact' && getEchoArtifactKey(it) === key);
+        let granted = null;
+        try {
+            granted = await grantEchoArtifactTreeToActor(actor, def.key);
+            if (!granted) {
+                await seedArtifactLibrary();
+                granted = await grantEchoArtifactTreeToActor(actor, def.key);
+            }
+        }
+        catch (err) {
+            console.warn('[mastery-system] import: tree grant failed, falling back to single item', err);
+        }
+        if (granted) {
+            grantedItems.push(granted);
+        }
+        else if (!actorHasEchoKey()) {
+            const rootNode = buildEchoArtifactTree(def).nodes[0];
+            fallbackDocs.push(foundry.utils.duplicate(rootNode.itemData));
+        }
+    }
+    if (fallbackDocs.length > 0) {
+        const created = await actor.createEmbeddedDocuments('Item', fallbackDocs);
+        if (Array.isArray(created))
+            grantedItems.push(...created);
+    }
+    for (const item of grantedItems) {
+        try {
+            await equipEchoArtifact(actor, item);
+            if (item.getFlag?.('mastery-system', 'artifactActivated') !== true) {
+                await item.setFlag('mastery-system', 'artifactActivated', false);
+            }
+        }
+        catch (err) {
+            console.warn('[mastery-system] import: failed to auto-equip echo artifact', err);
+        }
+    }
+    await dedupeEchoArtifactsOnActor(actor);
+}
 async function importCharacterPayload(payload, warnings) {
     const specs = resolvePowerGrantSpecs(payload);
     if (!specs || specs.length === 0) {
@@ -121,6 +186,13 @@ async function importCharacterPayload(payload, warnings) {
     if (gear.length > 0) {
         const gearItems = gear.map((g) => buildGearItemData(g));
         await actor.createEmbeddedDocuments('Item', gearItems);
+    }
+    try {
+        await importEchoArtifacts(actor, payload, warnings);
+    }
+    catch (err) {
+        const msg = err instanceof Error ? err.message : String(err);
+        warnings.push(`Echo artifacts: ${msg}`);
     }
     for (const art of payload.artifacts ?? []) {
         try {

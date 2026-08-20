@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.402] - 2026-08-20
+
+### Added
+
+- **Character import (homepage):** The Import Character button now understands the homepage generator's export directly. Echo Artifacts from the file are granted echo-bound and auto-equipped (Dwarfs' Stonebound Soles, Sentinel frames, Titan Scars, Dragonborn picks), Unbound characters get their identity artifact resolved from the chosen path and predator stone, and the actor receives the same Echo display name, trait uses, echo-locked languages, and Combat Package bookkeeping as the in-game creation dialogs.
+
+### Changed
+
+- **Character creation tabs:** Every unfinished required tab glows at once (Attributes, Echo, Skills, Powers, Equipment, Disadvantages). Equipment and Disadvantages stay highlighted until that step is done, not only after the earlier tabs.
+
 ## [0.9.401] - 2026-08-20
 
 ### Fixed

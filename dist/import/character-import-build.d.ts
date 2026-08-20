@@ -6,6 +6,12 @@ import { type PowerGrantSpec } from '../utils/power-item-builder.js';
 import type { CharacterImportArtifact, CharacterImportAttributeKey, CharacterImportDisadvantage, CharacterImportGearItem, CharacterImportPayload } from './character-import-types.js';
 export declare function normalizeImportAttributes(raw: Partial<Record<CharacterImportAttributeKey, number>> | undefined): Record<CharacterImportAttributeKey, number>;
 export declare function isKnownArtifactImportKey(key: string): boolean;
+/**
+ * Echo Artifact keys to grant echo-bound (same resolution as the Echo dialog):
+ * Unbound resolves from identity + predator stone; everyone else uses the
+ * explicit `echo.artifactKeys` list.
+ */
+export declare function resolveEchoArtifactImportKeys(payload: CharacterImportPayload): string[];
 export declare function resolvePowerGrantSpecs(payload: CharacterImportPayload): PowerGrantSpec[] | null;
 export declare function buildPowerItemsFromGrantSpecs(specs: PowerGrantSpec[]): Record<string, unknown>[];
 export declare function buildGearItemData(gear: CharacterImportGearItem): Record<string, unknown>;

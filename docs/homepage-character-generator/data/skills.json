@@ -1,0 +1,304 @@
+{
+  "categories": {
+    "AWARENESS": "Perception",
+    "PHYSICAL": "Physical",
+    "KNOWLEDGE_CRAFT": "Knowledge & Craft",
+    "SOCIAL": "Social",
+    "SURVIVAL": "Survival",
+    "MARTIAL": "Martial"
+  },
+  "skills": {
+    "athletics": {
+      "name": "Athletics",
+      "attributes": [
+        "might"
+      ],
+      "category": "Physical",
+      "description": "“Endurance is the courage of the body.”\n\nRaw power and control — climbing, swimming, holding fast when others fall.\nRoll: Might (or Agility) keep Mastery · Opposed by: Environment\nTypical Raises: more weight, less equipment, speed, silence."
+    },
+    "acrobatics": {
+      "name": "Acrobatics",
+      "attributes": [
+        "agility"
+      ],
+      "category": "Physical",
+      "description": "“Grace is control disguised as freedom.”\n\nBalance, agility, and precision in motion — rolling under blades, rafters, catching yourself before the fall.\nRoll: Agility keep Mastery · Opposed by: Environment\nTypical Raises: more weight, less equipment, speed, silence."
+    },
+    "stealth": {
+      "name": "Stealth",
+      "attributes": [
+        "agility"
+      ],
+      "category": "Physical",
+      "description": "“To disappear, you must first accept being unseen.”\n\nSilence and shadow — sightlines, sound, and rhythm. Patience made physical.\nRoll: Agility keep Mastery · Opposed by: Perception\nTypical Raises: brighter light, faster movement, closer distance, multiple observers, open ground, while acting."
+    },
+    "concealment": {
+      "name": "Concealment",
+      "attributes": [
+        "wits"
+      ],
+      "category": "Physical",
+      "description": "“Stillness is the loudest form of patience.”\n\nBecome part of the environment — choosing where to vanish rather than how. Calm over motion.\nRoll: Wits keep Mastery · Opposed by: Perception or Intuition\nTypical Raises: poor cover, shifting light, leaving no trace, hiding equipment, resisting search, longer duration."
+    },
+    "ride": {
+      "name": "Ride",
+      "attributes": [
+        "agility"
+      ],
+      "category": "Physical",
+      "description": "“Trust is the rein that guides every mount.”\n\nConnection between rider and steed — balance, communication, unity in motion.\nRoll: Agility keep Mastery · Opposed by: Animal’s Instinct or Environment\nTypical Raises: obstacles/jumps, high speed, rough terrain, panic, mounted combat, hands-free."
+    },
+    "sleightOfHand": {
+      "name": "Sleight of Hand",
+      "attributes": [
+        "agility"
+      ],
+      "category": "Physical",
+      "description": "“A heartbeat of distraction is a lifetime of opportunity.”\n\nDexterity refined into deception — theft, traps, planting or swapping with steady hands.\nRoll: Agility keep Mastery · Opposed by: Perception or Reflex\nTypical Raises: larger object, direct observation, time pressure, multiple items, one-handed use."
+    },
+    "lore": {
+      "name": "Lore",
+      "attributes": [
+        "intellect"
+      ],
+      "category": "Knowledge & Craft",
+      "description": "“Stories are the bones of the world.”\n\nMemory of history, faith, myth, and forgotten tongues — truth that survives in fragments.\nRoll: Intellect keep Mastery · Opposed by: Deception or Uncertainty (GM)\nTypical Raises: rare topic, ancient language, foreign culture, obscure religion, fragmented sources."
+    },
+    "alchemy": {
+      "name": "Alchemy",
+      "attributes": [
+        "intellect"
+      ],
+      "category": "Knowledge & Craft",
+      "description": "“Every leaf remembers what it was made to heal.”\n\nMixing, boiling, and binding natural essences — medicine and poison a heartbeat apart.\nRoll: Intellect keep Mastery · Opposed by: Complexity or Purity of Materials\nTypical Raises: rare herbs, dangerous terrain, short time, large quantity, complex/toxic mixtures."
+    },
+    "crafting": {
+      "name": "Crafting",
+      "attributes": [
+        "might"
+      ],
+      "category": "Knowledge & Craft",
+      "description": "“Creation is memory made solid.”\n\nHard, resisting materials — wood, stone, metal, bone. Forging, framing, heavy repairs, toolmaking.\nRoll: Might keep Mastery · Opposed by: Material quality or Design complexity\nTypical Raises: fine detail, poor tools, limited materials, large scale, hostile conditions, time."
+    },
+    "artisanry": {
+      "name": "Artisanry",
+      "attributes": [
+        "intellect"
+      ],
+      "category": "Knowledge & Craft",
+      "description": "“The finest work is technique turned into beauty.”\n\nSoft goods and fine precision — textiles, jewelry, pottery finishing, dyes, decorative work.\nRoll: Intellect keep Mastery · Opposed by: Pattern complexity or Material delicacy\nTypical Raises: fragile materials, ultra-fine detail, complex patterns, rare pigments, rushed work."
+    },
+    "engineering": {
+      "name": "Engineering",
+      "attributes": [
+        "intellect"
+      ],
+      "category": "Knowledge & Craft",
+      "description": "“Every structure is a prayer to logic.”\n\nApplied intellect — machines, fortifications, bending matter through design.\nRoll: Intellect keep Mastery · Opposed by: Complexity or Environmental stress\nTypical Raises: complex mechanisms, unstable materials, siege scale, limited tools, time pressure."
+    },
+    "medicine": {
+      "name": "Medicine",
+      "attributes": [
+        "intellect"
+      ],
+      "category": "Knowledge & Craft",
+      "description": "“To heal is to borrow time from death.”\n\nStudy of life’s fragility — steady hands and the courage to oppose injury and disease.\nRoll: Intellect keep Mastery · Opposed by: Injury severity or Disease virulence\nTypical Raises: severe wound, lack of tools, multiple patients, limited time, infection/poison."
+    },
+    "navigation": {
+      "name": "Navigation",
+      "attributes": [
+        "wits"
+      ],
+      "category": "Knowledge & Craft",
+      "description": "“The world is a map that only patience can read.”\n\nGuide through land, sea, or stars — wind, current, landmarks, and omen.\nRoll: Wits keep Mastery · Opposed by: Weather or Terrain Difficulty\nTypical Raises: poor visibility, bad weather, no landmarks, magical interference, long distance."
+    },
+    "occultism": {
+      "name": "Occultism",
+      "attributes": [
+        "resolve"
+      ],
+      "category": "Knowledge & Craft",
+      "description": "“The veil remembers every whisper.”\n\nHidden truths — Echoes of gods, forbidden magic, rituals between will, word, and memory.\nRoll: Resolve keep Mastery · Opposed by: Deception\nTypical Raises: ancient script, fragmented ritual, false leads, divine/demonic interference, unstable magic."
+    },
+    "persuasion": {
+      "name": "Persuasion",
+      "attributes": [
+        "influence"
+      ],
+      "category": "Social",
+      "description": "“A steady voice can move mountains where force cannot.”\n\nTurn intent into agreement through patience, empathy, and rhetoric — guide, don’t dominate.\nRoll: Influence keep Mastery · Opposed by: Deception\nTypical Raises: hostile audience, complex request, limited time, conflicting interests, moral resistance."
+    },
+    "deception": {
+      "name": "Deception",
+      "attributes": [
+        "influence"
+      ],
+      "category": "Social",
+      "description": "“Truth is only the lie we agree upon.”\n\nMisdirection — weave truth and falsehood until neither can be told apart.\nRoll: Influence keep Mastery · Opposed by: Empathy\nTypical Raises: skeptical target, extended lie, partial truth, multiple listeners, prior suspicion."
+    },
+    "intimidation": {
+      "name": "Intimidation",
+      "attributes": [
+        "might"
+      ],
+      "category": "Social",
+      "description": "“Fear is the most honest language.”\n\nProject dominance — presence that bends others without a blow.\nRoll: Might keep Mastery · Opposed by: Leadership\nTypical Raises: fearless target, public setting, armed opponents, multiple targets, moral resistance."
+    },
+    "leadership": {
+      "name": "Leadership",
+      "attributes": [
+        "resolve"
+      ],
+      "category": "Social",
+      "description": "“To lead is to bear the weight of every step behind you.”\n\nCommand by conviction — unite voices, restore courage, turn chaos into purpose.\nRoll: Resolve keep Mastery · Opposed by: Intimidation\nTypical Raises: chaotic situation, low morale, mixed loyalties, split groups, high stress."
+    },
+    "performance": {
+      "name": "Performance",
+      "attributes": [
+        "influence"
+      ],
+      "category": "Social",
+      "description": "“A lie told with beauty becomes truth for a heartbeat.”\n\nChannel emotion into expression — voice, movement, or art that moves an audience.\nRoll: Influence keep Mastery · Opposed by: Empathy\nTypical Raises: hostile/distracted crowd, poor acoustics, large audience, improvised act, duration."
+    },
+    "streetwise": {
+      "name": "Streetwise",
+      "attributes": [
+        "wits"
+      ],
+      "category": "Social",
+      "description": "“Every city speaks. You just have to know which alleys whisper.”\n\nRead society’s undercurrents — rumor, greed, survival, and the unspoken laws of the street.\nRoll: Wits keep Mastery · Opposed by: Deception or Authority\nTypical Raises: foreign district, high surveillance, secret networks, rival gangs, misinformation."
+    },
+    "empathy": {
+      "name": "Empathy",
+      "attributes": [
+        "resolve"
+      ],
+      "category": "Social",
+      "description": "“The eyes reveal what the mouth conceals.”\n\nListen between words — feel deceit, faltering faith, and the pain that shapes choices.\nRoll: Resolve keep Mastery · Opposed by: Deception or Performance\nTypical Raises: evasive subject, strong emotion, conflicting signals, group interaction, brief contact."
+    },
+    "negotiation": {
+      "name": "Negotiation",
+      "attributes": [
+        "resolve"
+      ],
+      "category": "Social",
+      "description": "“A deal is a battlefield with smiles.”\n\nReach terms under pressure — leverage, compromises, hidden costs. Changes outcomes, not just minds.\nRoll: Resolve keep Mastery · Opposed by: Negotiation or Deception (bad faith)\nTypical Raises: scarce goods, complex terms, asymmetric information, hostile counterparty."
+    },
+    "seduction": {
+      "name": "Seduction",
+      "attributes": [
+        "influence"
+      ],
+      "category": "Social",
+      "description": "“Desire is a door — the question is who holds the key.”\n\nDraw someone toward you through allure, tension, and carefully chosen vulnerability.\nRoll: Influence keep Mastery · Opposed by: Empathy or Resolve\nTypical Raises: guarded target, moral barrier, high-stakes setting, reputational risk, wards."
+    },
+    "investigation": {
+      "name": "Investigation",
+      "attributes": [
+        "intellect"
+      ],
+      "category": "Social",
+      "description": "“Clues don’t speak — until you learn their language.”\n\nExtract truth from fragments — crime scenes, timelines, documents, archives.\nRoll: Intellect keep Mastery · Opposed by: Deception or Investigation (counter-analysis)\nTypical Raises: contaminated evidence, coded text, forged records, time pressure, misleading testimony."
+    },
+    "etiquette": {
+      "name": "Etiquette",
+      "attributes": [
+        "influence"
+      ],
+      "category": "Social",
+      "description": "“In the right room, one wrong word is a weapon.”\n\nFormal society — titles, rituals, hierarchy, courts and clergy. Signal belonging.\nRoll: Influence keep Mastery · Opposed by: Empathy, Deception, or Etiquette\nTypical Raises: foreign customs, strict hierarchy, hostile court, obscure ritual, public scrutiny."
+    },
+    "perception": {
+      "name": "Perception",
+      "attributes": [
+        "wits",
+        "intellect",
+        "resolve"
+      ],
+      "category": "Perception",
+      "description": "“Awareness is the thin line between hunter and prey.”\n\nDiscipline of awareness — notice danger and meaning before they become obvious. Choose a Focus when you roll:\n• Wits — Immediate Senses (ambush, movement, sound)\n• Intellect — Patterns & Analysis (traps, tracks, forensic detail)\n• Resolve — Presence & Occult (intent, glamours, wrongness)\nOpposed by Stealth/Concealment (or Deception/Intimidation/Occultism by Focus)."
+    },
+    "survival": {
+      "name": "Survival",
+      "attributes": [
+        "vitality"
+      ],
+      "category": "Survival",
+      "description": "“The world provides for those who respect its cruelty.”\n\nShelter, warmth, and courage when nothing else remains — learn the land’s rhythm.\nRoll: Vitality keep Mastery · Opposed by: Environment\nTypical Raises: harsh terrain, lack of tools, group survival, extreme weather, scarce resources."
+    },
+    "animalHandling": {
+      "name": "Animal Handling",
+      "attributes": [
+        "resolve"
+      ],
+      "category": "Survival",
+      "description": "“Trust is the oldest magic between man and beast.”\n\nCalm fear, guide strength, speak without words — patience as much as skill.\nRoll: Resolve keep Mastery · Opposed by: Creature’s Resolve\nTypical Raises: frightened/injured beast, unfamiliar species, groups, combat conditions."
+    },
+    "tracking": {
+      "name": "Tracking",
+      "attributes": [
+        "wits"
+      ],
+      "category": "Survival",
+      "description": "“Every step leaves a story written in dust and silence.”\n\nRead signs left behind — where someone went, how fast, and what they feared.\nRoll: Wits keep Mastery · Opposed by: Stealth or Survival\nTypical Raises: mixed tracks, long duration, weather, false trails, night pursuit, high speed."
+    },
+    "herbalism": {
+      "name": "Herbalism",
+      "attributes": [
+        "intellect"
+      ],
+      "category": "Survival",
+      "description": "“The earth hides generosity beneath patience.”\n\nDraw sustenance from the land — food, herbs, soil and bark; poison vs healing.\nRoll: Intellect keep Mastery · Opposed by: Environment\nTypical Raises: rare ingredients, hostile terrain, limited daylight, dangerous flora."
+    },
+    "weatherSense": {
+      "name": "Weather Sense",
+      "attributes": [
+        "wits"
+      ],
+      "category": "Survival",
+      "description": "“The sky remembers every storm.”\n\nRead temperature, scent, and sound — clouds whisper intent; the wind carries warnings.\nRoll: Wits keep Mastery · Opposed by: None (Environmental TN)\nTypical Raises: magical storms, rapid climate shifts, mountain/sea, long-range forecast."
+    },
+    "handToHand": {
+      "name": "Hand-to-Hand",
+      "attributes": [
+        "might",
+        "agility"
+      ],
+      "category": "Martial",
+      "description": "“A weapon is a convenience — the body is the truth.”\n\nUnarmed combat, grappling, and improvised violence at arm’s length.\nSpend Skill Points after an unarmed attack or grapple/control check to add a flat bonus to the result."
+    },
+    "meleeWeapons": {
+      "name": "Melee Weapons",
+      "attributes": [
+        "might"
+      ],
+      "category": "Martial",
+      "description": "“Steel remembers the will that wields it.”\n\nBlades, axes, hammers, polearms — timing, reach, and decisive pressure.\nSpend Skill Points after a melee attack roll to add a flat bonus to the result."
+    },
+    "rangedWeapons": {
+      "name": "Ranged Weapons",
+      "attributes": [
+        "agility"
+      ],
+      "category": "Martial",
+      "description": "“Patience is the space between heartbeat and flight.”\n\nBows, crossbows, firearms, thrown weapons — breath, stability, the right second to release.\nSpend Skill Points after a ranged attack roll to add a flat bonus to the result."
+    },
+    "defensiveCombat": {
+      "name": "Defensive Combat",
+      "attributes": [
+        "agility",
+        "vitality"
+      ],
+      "category": "Martial",
+      "description": "“Survival is the art of not being where the blade lands.”\n\nParries, shields, footwork, and evasive instincts under pressure.\nWhen targeted by an attack, spend Skill Points to raise Evade against that single attack only."
+    },
+    "combatReflexes": {
+      "name": "Combat Reflexes",
+      "attributes": [
+        "agility"
+      ],
+      "category": "Martial",
+      "description": "“The first move is not speed — it’s noticing the opening.”\n\nExplosive reaction and timing under pressure.\nSpend once after the Initiative roll to increase your Initiative Score before the Initiative Shop."
+    }
+  }
+}

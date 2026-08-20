@@ -1,0 +1,243 @@
+{
+  "stepOrder": [
+    "defense",
+    "defensePassiveVariant",
+    "passive2",
+    "activeBuffChoice",
+    "offensiveBuff",
+    "offenseDelivery",
+    "offenseSpecial",
+    "offense",
+    "weakenSave",
+    "delivery",
+    "review"
+  ],
+  "hiddenOffenseIds": [
+    "ruin",
+    "weaken-save"
+  ],
+  "defensePackages": [
+    {
+      "id": "armor",
+      "mechanicLabel": "Armor",
+      "label": "Hits still land, but they hurt less.",
+      "explanation": "Flat Armor against incoming attacks. The simplest, most reliable defense.",
+      "grants": {
+        "passive1": {
+          "templateId": "passive-fortified-frame",
+          "rank": 4
+        },
+        "activeBuff": {
+          "templateId": "ab-armor",
+          "rank": 4
+        },
+        "reaction": {
+          "templateId": "reaction-armor",
+          "rank": 4
+        }
+      }
+    },
+    {
+      "id": "evade",
+      "mechanicLabel": "Evade",
+      "label": "Survive by being hard to hit.",
+      "explanation": "Enemies miss more often. You dodge instead of soaking hits.",
+      "grants": {
+        "passive1": {
+          "templateId": "passive-evade",
+          "rank": 4
+        },
+        "activeBuff": {
+          "templateId": "ab-evade",
+          "rank": 4
+        },
+        "reaction": {
+          "templateId": "reaction-evade",
+          "rank": 4
+        }
+      }
+    },
+    {
+      "id": "damage-reduction",
+      "mechanicLabel": "Damage Reduction",
+      "label": "Cut a percentage off incoming damage.",
+      "explanation": "Percentage Damage Reduction on hits that get through.",
+      "grants": {
+        "passive1": {
+          "templateId": "passive-damage-reduction",
+          "rank": 4
+        },
+        "activeBuff": {
+          "templateId": "ab-damage-reduction",
+          "rank": 4
+        },
+        "reaction": {
+          "templateId": "reaction-damage-reduction",
+          "rank": 4
+        }
+      }
+    },
+    {
+      "id": "phasing",
+      "mechanicLabel": "Phasing",
+      "label": "Ignore a few hits completely.",
+      "explanation": "A limited number of hits per combat simply miss you.",
+      "grants": {
+        "passive1": {
+          "templateId": "passive-ghostform",
+          "rank": 4
+        },
+        "activeBuff": {
+          "templateId": "ab-phasing",
+          "rank": 4
+        },
+        "reaction": {
+          "templateId": "reaction-phasing",
+          "rank": 4
+        }
+      }
+    },
+    {
+      "id": "parry",
+      "mechanicLabel": "Parry",
+      "label": "Spend a pool to strip Attack Dice before they roll.",
+      "explanation": "Enter Parry instead of attacking and spend pool 1:1 to remove Attack Dice.",
+      "grants": {
+        "passive1": {
+          "templateId": "passive-parry",
+          "rank": 4
+        },
+        "activeBuff": {
+          "templateId": "ab-reinforced-parry",
+          "rank": 4
+        },
+        "reaction": {
+          "templateId": "reaction-riposte",
+          "rank": 4
+        }
+      }
+    },
+    {
+      "id": "damage-negation",
+      "mechanicLabel": "Damage Negation",
+      "label": "Spend a combat reserve of Damage Dice before damage is rolled.",
+      "explanation": "A closed reserve of Damage Dice you spend to cancel incoming damage.",
+      "grants": {
+        "passive1": {
+          "templateId": "passive-damage-negation",
+          "rank": 4
+        },
+        "activeBuff": {
+          "templateId": "ab-reinforced-damage-negation",
+          "rank": 4
+        },
+        "reaction": {
+          "templateId": "reaction-damage-negation",
+          "rank": 4
+        }
+      }
+    }
+  ],
+  "offensePackages": [
+    {
+      "id": "lacerate-push",
+      "label": "I want to move enemies around and punish movement.",
+      "explanation": "Lacerate punishes enemies for moving. Push forces enemies into bad positions. Together they create a simple control plan.",
+      "warning": "This package works best when you understand positioning.",
+      "catalogAvailable": true
+    },
+    {
+      "id": "ruin",
+      "label": "I want enemies to take damage over time.",
+      "explanation": "Ruin is simple and self-contained. You hit the enemy, the enemy takes ongoing damage, and the effect keeps applying pressure.",
+      "catalogAvailable": false
+    },
+    {
+      "id": "slow",
+      "label": "I want to slow enemies down.",
+      "explanation": "Slow makes enemies slower and punishes standing still.",
+      "catalogAvailable": true
+    },
+    {
+      "id": "expose",
+      "label": "I want enemies to be easier to hit.",
+      "explanation": "Expose reduces enemy Evade. This helps you and your allies hit fast, slippery, or hard-to-hit enemies.",
+      "catalogAvailable": true
+    },
+    {
+      "id": "corrode-damage",
+      "label": "I want to break armor and then hit hard.",
+      "explanation": "Corrode reduces Armor. It is a setup tool. It becomes useful when you follow up with meaningful damage.",
+      "warning": "Do not choose Corrode alone. Corrode wants a damage follow-up.",
+      "catalogAvailable": true
+    },
+    {
+      "id": "mark",
+      "label": "I want my group to focus one important enemy.",
+      "explanation": "Mark helps identify and pressure a priority target.",
+      "catalogAvailable": true
+    },
+    {
+      "id": "hex-spell",
+      "label": "I want to curse enemies so Spells hit harder.",
+      "explanation": "Hex supports Spell damage. Follow up with a Spell or weapon attack of your choice on the review step.",
+      "warning": "Hex is weak without a damage follow-up.",
+      "catalogAvailable": true
+    },
+    {
+      "id": "weaken-save",
+      "label": "I want to cut enemy dice pools (Weaken).",
+      "explanation": "Weaken removes dice from Might / Agility / Intellect pools. Pair it with follow-up attacks that use those Attributes.",
+      "warning": "Weaken does not reduce Attributes, Keep, or Damage Pools — only rolled pools.",
+      "catalogAvailable": false
+    },
+    {
+      "id": "direct-damage",
+      "label": "I just want a reliable attack.",
+      "explanation": "This is the simplest offensive option. You hit the enemy and deal damage without extra condition tracking.",
+      "catalogAvailable": true
+    }
+  ],
+  "offensiveActiveBuffs": [
+    {
+      "id": "ab-damage",
+      "label": "Flat damage on every attack",
+      "explanation": "The simplest offensive buff — your weapon and power hits deal extra damage every time they land.",
+      "groupLabel": "Raw damage",
+      "rankPreview": "Your attacks deal +9d8 damage while the buff is active.",
+      "durationNote": "Lasts for your Mastery Rank in rounds. Costs your Attack action to activate."
+    },
+    {
+      "id": "ab-penetration",
+      "label": "Ignore enemy Armor",
+      "explanation": "Best against heavily armored targets. Your attacks treat part of their Armor as gone.",
+      "groupLabel": "Armor break",
+      "rankPreview": "Your attacks gain Penetration(17) while the buff is active.",
+      "durationNote": "Lasts for your Mastery Rank in rounds. Costs your Attack action to activate."
+    },
+    {
+      "id": "ab-damage-penetration",
+      "label": "Damage and Armor penetration",
+      "explanation": "A hybrid buff for sustained pressure — hit harder and punch through Armor at the same time.",
+      "groupLabel": "Armor break",
+      "rankPreview": "Your attacks deal +4d8 damage and gain Penetration(9) while the buff is active.",
+      "durationNote": "Lasts for your Mastery Rank in rounds. Costs your Attack action to activate."
+    },
+    {
+      "id": "ab-critical",
+      "label": "Critical subsystem",
+      "explanation": "Your maintained offensive buff grants Critical(1–4) at milestone ranks. No bonus damage, penetration, or other filler — Critical only.",
+      "groupLabel": "Critical hits",
+      "rankPreview": "Your attacks gain Critical(1) (1 Critical attack per Round; Attack Dice explode on 7–8).",
+      "durationNote": "Lasts for your Mastery Rank in rounds. Costs your Attack action to activate."
+    },
+    {
+      "id": "ab-special-overdrive",
+      "label": "Boost a Special on your attacks",
+      "explanation": "Pick a Special you already use (Mark, Lacerate, Slow, …) and make it hit harder while the buff lasts.",
+      "groupLabel": "Special effects",
+      "rankPreview": "Choose one eligible Special(X). While the buff is active, any such Special you apply is increased by +1.",
+      "durationNote": "Lasts for your Mastery Rank in rounds. Costs your Attack action to activate."
+    }
+  ]
+}

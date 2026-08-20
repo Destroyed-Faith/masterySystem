@@ -20,6 +20,12 @@ import {
 } from '../utils/power-item-builder.js';
 import { getGeneralArtifact } from '../utils/general-artifacts.js';
 import { ECHO_ARTIFACTS } from '../utils/echo-artifacts.js';
+import { buildFreshTraitUses, getEcho } from '../utils/echos/index.js';
+import {
+  getUnboundIdentity,
+  resolveUnboundArtifactKey,
+} from '../utils/echos/unbound-identities.js';
+import { normalizeKnownLanguages } from '../utils/languages.js';
 import {
   calculateDisadvantagePoints,
   getDisadvantageDefinition,
@@ -50,6 +56,30 @@ export function isKnownArtifactImportKey(key: string): boolean {
   const k = String(key || '').trim();
   if (!k) return false;
   return !!getGeneralArtifact(k) || k in ECHO_ARTIFACTS;
+}
+
+/**
+ * Echo Artifact keys to grant echo-bound (same resolution as the Echo dialog):
+ * Unbound resolves from identity + predator stone; everyone else uses the
+ * explicit `echo.artifactKeys` list.
+ */
+export function resolveEchoArtifactImportKeys(payload: CharacterImportPayload): string[] {
+  const echo = payload.echo;
+  if (!echo?.key) return [];
+  if (echo.key === 'unbound') {
+    const autoKey = resolveUnboundArtifactKey(echo.subChoiceKey, echo.predatorStone ?? null);
+    return autoKey ? [autoKey] : [];
+  }
+  if (!Array.isArray(echo.artifactKeys)) return [];
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const raw of echo.artifactKeys) {
+    const key = String(raw ?? '').trim();
+    if (!key || seen.has(key)) continue;
+    seen.add(key);
+    out.push(key);
+  }
+  return out;
 }
 
 export function resolvePowerGrantSpecs(payload: CharacterImportPayload): PowerGrantSpec[] | null {
@@ -209,21 +239,41 @@ export function buildActorSystemFromPayload(payload: CharacterImportPayload): Re
   const minorExpressions = normalizeMinorExpressionIds(payload.minorExpressions, masteryRank);
   const faithPts = disadvantagePointsTotal(disadvantages);
 
+  // Same derivations as the in-game Echo dialog: display name (incl. Unbound
+  // identity), fresh trait uses, and echo-locked languages.
+  const echoKey = String(echo.key ?? '');
+  const echoDef = getEcho(echoKey);
+  const unboundIdentity = echoKey === 'unbound' ? getUnboundIdentity(echo.subChoiceKey) : undefined;
+  const bioEcho = echoDef
+    ? unboundIdentity
+      ? `${echoDef.name} — ${unboundIdentity.name}`
+      : echoDef.name
+    : echoKey;
+  const traitUses = echoDef
+    ? buildFreshTraitUses(echoKey, echo.subChoiceKey || null, masteryRank)
+    : {};
+  const knownLanguages = normalizeKnownLanguages(
+    Array.isArray(payload.languages?.known) ? [...payload.languages!.known!] : ['common'],
+    echoKey || null,
+    { replaceExtras: false },
+  ).cleaned;
+
   return {
     bio: {
       name: String(payload.name || '').trim(),
-      echo: String(echo.key ?? ''),
+      echo: bioEcho,
       concept: String(payload.bio?.concept ?? ''),
       appearance: String(payload.bio?.appearance ?? ''),
       notes: String(payload.bio?.notes ?? ''),
     },
     echo: {
-      key: String(echo.key ?? ''),
+      key: echoKey,
       subChoiceKey: String(echo.subChoiceKey ?? ''),
       veiledFormKey: String(echo.veiledFormKey ?? ''),
       selectedCardIds: Array.isArray(echo.selectedCardIds) ? [...echo.selectedCardIds] : [],
       cardUses: {},
-      traitUses: {},
+      traitUses,
+      unboundShape: String(echo.unboundShape ?? ''),
     },
     attributes: attributeBlock,
     stonePools,
@@ -233,7 +283,7 @@ export function buildActorSystemFromPayload(payload: CharacterImportPayload): Re
     disadvantages,
     minorExpressions,
     languages: {
-      known: Array.isArray(payload.languages?.known) ? [...payload.languages!.known!] : ['common'],
+      known: knownLanguages,
     },
     creation: {
       complete: payload.creationComplete !== false,
@@ -241,6 +291,12 @@ export function buildActorSystemFromPayload(payload: CharacterImportPayload): Re
       importSchemaVersion: 1,
       disadvantagesReviewed: disadvantages.length > 0,
       equipmentReviewed: payload.creationComplete !== false,
+      // Same bookkeeping as applyTowerWizardPackage, so post-import rebuilds
+      // recognise the package the character was created with.
+      towerWizardPackageId:
+        payload.combatPackage?.offenseActivePicks?.length === 2
+          ? `${payload.combatPackage.defenseId}__${payload.combatPackage.offenseActivePicks[0].pickId}__${payload.combatPackage.offenseActivePicks[1].pickId}`
+          : '',
     },
     conditions: [],
     notes: {

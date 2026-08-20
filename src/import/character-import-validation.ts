@@ -23,9 +23,11 @@ import {
   isKnownMinorExpressionId,
   isKnownSkillKey,
   normalizeDisadvantageEntries,
+  resolveEchoArtifactImportKeys,
   resolvePowerGrantSpecs,
   validateArtifactImportSpec,
 } from './character-import-build.js';
+import { ECHO_ARTIFACTS, validateEchoArtifactSelection } from '../utils/echo-artifacts.js';
 import type { CharacterImportDisadvantage } from './character-import-types.js';
 import { getMinorExpressionDefinition } from '../utils/minor-expressions.js';
 import { getDisadvantageDefinition } from '../system/disadvantages.js';
@@ -204,6 +206,19 @@ function validateCharacterPayload(payload: CharacterImportPayload): CharacterImp
     for (const art of payload.artifacts) {
       const artErr = validateArtifactImportSpec(art);
       if (artErr) errors.push(artErr);
+    }
+  }
+
+  if (payload.echo?.key) {
+    const echoArtifactKeys = resolveEchoArtifactImportKeys(payload);
+    for (const key of echoArtifactKeys) {
+      if (!(key in ECHO_ARTIFACTS)) {
+        errors.push(`Unknown echo artifact key "${key}".`);
+      }
+    }
+    const selectionError = validateEchoArtifactSelection(payload.echo.key, echoArtifactKeys);
+    if (selectionError) {
+      warnings.push(`Echo artifacts: ${selectionError}`);
     }
   }
 

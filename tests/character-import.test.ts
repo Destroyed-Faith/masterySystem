@@ -4,6 +4,7 @@ import {
   buildPowerItemsFromGrantSpecs,
   isKnownArtifactImportKey,
   normalizeImportAttributes,
+  resolveEchoArtifactImportKeys,
   resolvePowerGrantSpecs,
 } from '../src/import/character-import-build.js';
 import {
@@ -122,5 +123,68 @@ describe('character-import build', () => {
   it('knows moonlight greatsword artifact key', () => {
     expect(isKnownArtifactImportKey('moonlightGreatsword')).toBe(true);
     expect(isKnownArtifactImportKey('notReal')).toBe(false);
+  });
+
+  it('applies echo details like the in-game dialog', () => {
+    const data = buildActorCreateDataFromPayload({
+      ...alarisPayload,
+      echo: {
+        key: 'dwarfs',
+        selectedCardIds: ['dwarf-start-1'],
+        artifactKeys: ['stoneboundSoles'],
+      },
+      languages: { known: ['common'] },
+    } as any);
+    const system = data.system as any;
+    expect(system.echo.key).toBe('dwarfs');
+    expect(system.echo.selectedCardIds).toEqual(['dwarf-start-1']);
+    expect(system.bio.echo.length).toBeGreaterThan(0);
+    expect(typeof system.echo.traitUses).toBe('object');
+    // Echo-locked language is enforced even when the payload omits it.
+    expect(system.languages.known).toContain('common');
+  });
+
+  it('resolves explicit echo artifact keys', () => {
+    const keys = resolveEchoArtifactImportKeys({
+      ...alarisPayload,
+      echo: { key: 'dwarfs', artifactKeys: ['stoneboundSoles', 'stoneboundSoles'] },
+    } as any);
+    expect(keys).toEqual(['stoneboundSoles']);
+  });
+
+  it('resolves the Unbound artifact from identity + predator stone', () => {
+    const witchKeys = resolveEchoArtifactImportKeys({
+      ...alarisPayload,
+      echo: { key: 'unbound', subChoiceKey: 'bane-greenwarden' },
+    } as any);
+    expect(witchKeys).toEqual(['greenWardenMantle']);
+  });
+
+  it('sets unboundShape and towerWizardPackageId bookkeeping', () => {
+    const data = buildActorCreateDataFromPayload({
+      ...alarisPayload,
+      powers: undefined,
+      echo: { key: 'unbound', subChoiceKey: 'bane-greenwarden', unboundShape: 'Wolf' },
+      combatPackage: {
+        defenseId: 'evade',
+        secondPassiveTemplateId: 'passive-temp-hp',
+        activeBuffMode: 'defensive',
+        offenseActivePicks: [
+          { pickId: 'active-melee-weapon-single', templateId: 'active-melee-weapon-single' },
+          {
+            pickId: 'active-melee-damage-t4::ruin',
+            templateId: 'active-melee-damage-t4',
+            special: 'ruin',
+          },
+        ],
+        delivery: 'melee',
+        weakenSave: null,
+      },
+    } as any);
+    const system = data.system as any;
+    expect(system.echo.unboundShape).toBe('Wolf');
+    expect(system.creation.towerWizardPackageId).toBe(
+      'evade__active-melee-weapon-single__active-melee-damage-t4::ruin',
+    );
   });
 });

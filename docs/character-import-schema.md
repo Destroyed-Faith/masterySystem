@@ -88,6 +88,7 @@ Compact build description. The module expands **power templates** from the catal
 | `masteryRank` | no | Default `4` at creation |
 | `img` | no | Portrait path/URL |
 | `bio`, `echo`, `skills`, `disadvantages`, `minorExpressions` | no | Copied into `actor.system` |
+| `languages.known` | no | Language keys; echo-locked languages are enforced on import |
 | `artifacts` | no | Catalog keys + level 1–10 |
 | `equipment.gear` | no | Simple gear items |
 | `creationComplete` | no | Default `true` |
@@ -110,6 +111,33 @@ Use **plain totals**, not `{ value, stones }`:
 ```
 
 Missing attributes default to **2**. Stone pools and health/stress bars are computed by Foundry on import.
+
+### Echo
+
+```json
+"echo": {
+  "key": "dwarfs",
+  "subChoiceKey": "",
+  "veiledFormKey": "",
+  "selectedCardIds": ["dwarf-start-1"],
+  "artifactKeys": ["stoneboundSoles"]
+}
+```
+
+| Field | Notes |
+|--------|-------|
+| `key` | Echo key (`humans`, `dwarfs`, `elorians`, `sentinels`, `titanborn`, `dragonborn`, `unbound`) |
+| `subChoiceKey` | Lineage / order / affinity / Unbound identity |
+| `veiledFormKey` | Dragonborn only |
+| `selectedCardIds` | Start card id(s) from the Echo deck |
+| `artifactKeys` | Echo Artifact catalog keys — granted **echo-bound** and auto-equipped |
+| `unboundShape` | Unbound Beast: free-text predator shape |
+| `predatorStone` | Unbound Beast: stone path key — the Echo Artifact is resolved automatically |
+
+The import derives `bio.echo` (display name incl. Unbound identity), fresh
+`traitUses`, and echo-locked languages the same way the in-game Echo dialog does.
+Unbound characters do not need `artifactKeys` — the artifact follows from the
+identity (and `predatorStone` for Beasts).
 
 ### Skills
 

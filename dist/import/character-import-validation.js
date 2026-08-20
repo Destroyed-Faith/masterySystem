@@ -4,7 +4,8 @@
 import { validateTowerWizardSelection } from '../creation/tower-wizard/tower-wizard-validation.js';
 import { findCatalogEntry, CREATION_POWER_TOTAL } from '../utils/power-catalog.js';
 import { CHARACTER_IMPORT_ATTRIBUTE_KEYS, CHARACTER_IMPORT_EXPORT_KIND, CHARACTER_IMPORT_SCHEMA_VERSION, CHARACTER_IMPORT_SYSTEM_ID, FOUNDRY_ACTOR_IMPORT_EXPORT_KIND, } from './character-import-types.js';
-import { disadvantagePointsTotal, expectedPowerCount, isKnownMinorExpressionId, isKnownSkillKey, normalizeDisadvantageEntries, resolvePowerGrantSpecs, validateArtifactImportSpec, } from './character-import-build.js';
+import { disadvantagePointsTotal, expectedPowerCount, isKnownMinorExpressionId, isKnownSkillKey, normalizeDisadvantageEntries, resolveEchoArtifactImportKeys, resolvePowerGrantSpecs, validateArtifactImportSpec, } from './character-import-build.js';
+import { ECHO_ARTIFACTS, validateEchoArtifactSelection } from '../utils/echo-artifacts.js';
 import { getMinorExpressionDefinition } from '../utils/minor-expressions.js';
 import { getDisadvantageDefinition } from '../system/disadvantages.js';
 function isPlainObject(v) {
@@ -169,6 +170,18 @@ function validateCharacterPayload(payload) {
             const artErr = validateArtifactImportSpec(art);
             if (artErr)
                 errors.push(artErr);
+        }
+    }
+    if (payload.echo?.key) {
+        const echoArtifactKeys = resolveEchoArtifactImportKeys(payload);
+        for (const key of echoArtifactKeys) {
+            if (!(key in ECHO_ARTIFACTS)) {
+                errors.push(`Unknown echo artifact key "${key}".`);
+            }
+        }
+        const selectionError = validateEchoArtifactSelection(payload.echo.key, echoArtifactKeys);
+        if (selectionError) {
+            warnings.push(`Echo artifacts: ${selectionError}`);
         }
     }
     errors.push(...validateSkillsAndExpressions(payload));
