@@ -957,6 +957,11 @@ export interface ArtifactData extends BaseItemData {
    * remembers which innate is the free pick so the editor can swap it.
    */
   freeTrait?: string;
+  /**
+   * Hard To-Hit attribute for attacks with this artifact weapon.
+   * Empty or `default` keeps the inferred pool (Finesse → Agility, tree, Might/Agility).
+   */
+  attackAttribute?: string;
   /** Base Values that define what the artifact physically is (max per slot). */
   baseValues?: ArtifactBaseValue[];
   /** Optional Stone Function — at most one per artifact. */

@@ -3,6 +3,7 @@
  * Creates melee/ranged attack chat cards with proper flags for the roll handler
  */
 import { getAttackAttributeForPowerTreeOrSchool } from "../utils/power-roll-attribute.js";
+import { normalizeArtifactAttackAttribute } from "../utils/artifact-node-options.js";
 import { resolveEquippedWeaponForAttackType } from "../utils/equipment-modifiers.js";
 import { artifactToVirtualWeapon, createVirtualUnarmedWeapon, isVirtualUnarmedWeapon } from "../utils/unarmed-fallback.js";
 import { evaluateThreatenedRanged } from "./threatened-ranged.js";
@@ -204,6 +205,13 @@ export function weaponHasFinesse(weapon) {
  * - Powers: attribute from mastery tree / spell school (`system.tree`) via fixed list; if unknown tree, fall back to `roll.attribute`.
  * - Otherwise: Might for melee, Agility for ranged (weapon or maneuver).
  */
+function attackAttributeOverrideFromWeapon(weapon) {
+    if (!weapon)
+        return null;
+    const sys = weapon.system || {};
+    return (normalizeArtifactAttackAttribute(sys.attackAttribute) ||
+        normalizeArtifactAttackAttribute(sys.artifactWeapon?.attackAttribute));
+}
 function resolveWeaponForAttribute(actor, weapon, option, attackType) {
     if (weapon)
         return weapon;
@@ -222,6 +230,7 @@ function resolveWeaponForAttribute(actor, weapon, option, attackType) {
 }
 export function getAttackAttribute(actor, weapon, option, attackType) {
     const resolvedWeapon = resolveWeaponForAttribute(actor, weapon, option, attackType);
+    const attributeOverride = attackAttributeOverrideFromWeapon(resolvedWeapon);
     if (option.storedAttackPool?.attribute) {
         return String(option.storedAttackPool.attribute).toLowerCase();
     }
@@ -234,6 +243,9 @@ export function getAttackAttribute(actor, weapon, option, attackType) {
         }
         if (powerSystem.isSpell && powerSystem.castingAttribute) {
             return String(powerSystem.castingAttribute).toLowerCase();
+        }
+        if (attributeOverride) {
+            return attributeOverride;
         }
         // Non-spell attack powers are weapon-carried (they roll the equipped
         // weapon's dice), so a Finesse weapon swaps the To-Hit to Agility even
@@ -252,6 +264,9 @@ export function getAttackAttribute(actor, weapon, option, attackType) {
     }
     if (option.source === "npc-attack") {
         return attackType === "ranged" ? "agility" : "might";
+    }
+    if (attributeOverride) {
+        return attributeOverride;
     }
     if (weaponHasFinesse(resolvedWeapon)) {
         return "agility";

@@ -436,6 +436,7 @@
       "baseProfile": "",
       "baseTypeKey": "",
       "freeTrait": "",
+      "attackAttribute": "default",
       "baseValues": [],
       "stoneFunction": null,
       "binding": "unbound",

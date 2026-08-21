@@ -32,6 +32,15 @@
         </select>
         <p class="node-editor-hint">Every weapon artifact may pick <strong>one</strong> weapon property for free on top of its base type's innate abilities — e.g. a Greatsword artifact with <em>Finesse</em>. Only Finesse, Light, Versatile, Reach, Balanced and Defensive are eligible (Spell Focus is too strong). This is the only way to add an innate ability; everything else the artifact has comes from its Base Type. Only editable on the root (Level 1-1) node; child levels inherit it.</p>
       </div>
+      <div class="form-group node-editor-span2 node-attack-attribute-row" data-profile="weapon">
+        <label>Attack Attribute <span class="node-editor-hint-inline">(To-Hit pool)</span></label>
+        <select id="node-spec-attack-attribute" {{#unless isLineageRoot}}disabled{{/unless}}>
+          {{#each attackAttributeOptions as |opt|}}
+          <option value="{{opt.key}}" {{#if (eq ../attackAttribute opt.key)}}selected{{/if}}>{{opt.label}}</option>
+          {{/each}}
+        </select>
+        <p class="node-editor-hint"><strong>Default</strong> keeps the normal guess (Finesse → Agility, otherwise the power tree or melee Might / ranged Agility). Set Might, Agility, Intellect, or another attribute to force that pool on every weapon attack with this artifact. Only editable on the root (Level 1-1) node; child levels inherit it.</p>
+      </div>
       <div class="node-editor-grid">
         <div class="form-group">
           <label>Slot</label>

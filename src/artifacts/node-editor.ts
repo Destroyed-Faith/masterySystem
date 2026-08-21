@@ -25,7 +25,9 @@ import {
   getArtifactSpecialSelectOptions,
   getArtifactTreeWeaponDamagePresets,
   getArtifactWeaponInnateOptions,
-  ARTIFACT_FREE_TRAIT_OPTIONS
+  ARTIFACT_FREE_TRAIT_OPTIONS,
+  ARTIFACT_ATTACK_ATTRIBUTE_OPTIONS,
+  normalizeArtifactAttackAttribute,
 } from '../utils/artifact-node-options.js';
 import {
   isMartialDamageTemplateId,
@@ -562,6 +564,9 @@ export class NodeEditor extends BaseDialog {
     const freeTrait = String(system.freeTrait || '').trim();
     data.freeTrait = freeTrait;
     data.freeTraitOptions = [...ARTIFACT_FREE_TRAIT_OPTIONS];
+    const attackAttribute = normalizeArtifactAttackAttribute(system.attackAttribute) || 'default';
+    data.attackAttribute = attackAttribute;
+    data.attackAttributeOptions = [...ARTIFACT_ATTACK_ATTRIBUTE_OPTIONS];
     const innatesForRows = (weapon.innateAbilities || []).filter(
       (a: string) => String(a).trim() !== freeTrait || lineage.lockedInnateSet.has(String(a).trim()),
     );
@@ -578,7 +583,7 @@ export class NodeEditor extends BaseDialog {
     data.isLineageRoot = lineage.isLineageRoot;
     data.lineageHint = lineage.isLineageRoot
       ? ''
-      : 'Tree child: item type, weapon type, hands, gear slot, and armor/shield type match the root node. Inherited innates/specials are locked — the base kit (and the Free Trait) is defined on the root node.';
+      : 'Tree child: item type, weapon type, hands, gear slot, and armor/shield type match the root node. Inherited innates/specials are locked — the base kit, Free Trait, and Attack Attribute are defined on the root node.';
 
     // ---- New Artifact spec block ----
     const specSlot = String(system.slot || '') as ArtifactSlotKey | '';
@@ -1530,6 +1535,12 @@ export class NodeEditor extends BaseDialog {
     if (!ARTIFACT_FREE_TRAIT_OPTIONS.includes(freeTrait)) freeTrait = '';
     if (freeTrait && !innateAbilities.includes(freeTrait)) innateAbilities.push(freeTrait);
 
+    const prevAttackAttribute = String((this.item.system as any).attackAttribute || '').trim();
+    const attackAttributeRaw = lineage.isLineageRoot
+      ? String(html.find('#node-spec-attack-attribute').val() || '').trim()
+      : prevAttackAttribute;
+    const attackAttribute = normalizeArtifactAttackAttribute(attackAttributeRaw) || 'default';
+
     const artifactWeapon: ArtifactWeaponProfile = {
       weaponType,
       damage,
@@ -1731,6 +1742,7 @@ export class NodeEditor extends BaseDialog {
       'system.baseProfile': specBaseProfile,
       'system.baseTypeKey': String(html.find('#node-spec-base-type').val() || '').trim(),
       'system.freeTrait': freeTrait,
+      'system.attackAttribute': attackAttribute,
       'system.baseValues': baseValues,
       'system.stoneFunction': stoneFunction,
       'system.progressionPicks': progressionPicks,

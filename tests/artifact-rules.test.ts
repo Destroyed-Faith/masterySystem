@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import {
+    ARTIFACT_ATTACK_ATTRIBUTE_OPTIONS,
     ARTIFACT_FREE_TRAIT_OPTIONS,
     getArtifactWeaponInnateOptions,
+    normalizeArtifactAttackAttribute,
 } from '../src/utils/artifact-node-options';
 import {
     ARTIFACT_SLOT_KEYS,
@@ -282,5 +284,17 @@ describe('Free Trait options', () => {
         for (const trait of ARTIFACT_FREE_TRAIT_OPTIONS) {
             expect(catalog).toContain(trait);
         }
+    });
+});
+
+describe('Attack Attribute override', () => {
+    it('treats empty and default as inferred', () => {
+        expect(normalizeArtifactAttackAttribute('')).toBeNull();
+        expect(normalizeArtifactAttackAttribute('default')).toBeNull();
+        expect(normalizeArtifactAttackAttribute('Intellect')).toBe('intellect');
+    });
+
+    it('starts the dropdown on Default', () => {
+        expect(ARTIFACT_ATTACK_ATTRIBUTE_OPTIONS[0]).toEqual({ key: 'default', label: 'Default' });
     });
 });

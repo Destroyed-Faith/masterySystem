@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.407] - 2026-08-21
+
+### Added
+
+- **Artifact Attack Attribute:** Weapon artifacts have a To-Hit dropdown next to Free Trait. Default keeps the normal guess. Set Might, Agility, Intellect, or another attribute to force that pool on every weapon attack with the item.
+
 ## [0.9.406] - 2026-08-21
 
 ### Fixed

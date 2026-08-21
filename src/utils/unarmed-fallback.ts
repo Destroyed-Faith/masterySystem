@@ -132,6 +132,7 @@ export function artifactToVirtualWeapon(artifact: any): any | null {
       hands: Number.isFinite(Number(w?.hands)) ? Number(w.hands) : (basics?.hands ?? 0),
       innateAbilities,
       freeTrait,
+      attackAttribute: String(sys.attackAttribute || '').trim(),
       description: sys.description || '',
       equipSlots: [],
       fromArtifact: true,

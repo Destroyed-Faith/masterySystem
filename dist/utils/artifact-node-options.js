@@ -143,6 +143,34 @@ export const ARTIFACT_FREE_TRAIT_OPTIONS = [
     'Balanced',
     'Defensive',
 ];
+/** Hard To-Hit attribute on a weapon artifact. Empty / `default` = infer as usual. */
+export const ARTIFACT_ATTACK_ATTRIBUTE_KEYS = [
+    'might',
+    'agility',
+    'vitality',
+    'intellect',
+    'resolve',
+    'influence',
+    'wits',
+];
+export const ARTIFACT_ATTACK_ATTRIBUTE_OPTIONS = [
+    { key: 'default', label: 'Default' },
+    { key: 'might', label: 'Might' },
+    { key: 'agility', label: 'Agility' },
+    { key: 'vitality', label: 'Vitality' },
+    { key: 'intellect', label: 'Intellect' },
+    { key: 'resolve', label: 'Resolve' },
+    { key: 'influence', label: 'Influence' },
+    { key: 'wits', label: 'Wits' },
+];
+export function normalizeArtifactAttackAttribute(raw) {
+    const v = String(raw ?? '').trim().toLowerCase();
+    if (!v || v === 'default')
+        return null;
+    return ARTIFACT_ATTACK_ATTRIBUTE_KEYS.includes(v)
+        ? v
+        : null;
+}
 /** Innate lines: catalog table + all keys from WEAPON_PROPERTIES. */
 export function getArtifactWeaponInnateOptions() {
     const set = new Set();

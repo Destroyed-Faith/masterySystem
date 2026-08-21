@@ -81,6 +81,7 @@ export async function syncArtifactInheritedFromParent(parentItem) {
             'system.bonuses.specials': [...(parentBonuses.specials || [])],
             'system.stoneFunction': parentSystem.stoneFunction ?? null,
             'system.freeTrait': String(parentSystem.freeTrait || '').trim(),
+            'system.attackAttribute': String(parentSystem.attackAttribute || 'default').trim() || 'default',
             'system.progressionPicks': inheritedPicks,
             'system.levelProgression': inheritedProgression,
             'system.powers': []

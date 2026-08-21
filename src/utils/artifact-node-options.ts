@@ -158,6 +158,38 @@ export const ARTIFACT_FREE_TRAIT_OPTIONS: readonly string[] = [
   'Defensive',
 ];
 
+/** Hard To-Hit attribute on a weapon artifact. Empty / `default` = infer as usual. */
+export const ARTIFACT_ATTACK_ATTRIBUTE_KEYS = [
+  'might',
+  'agility',
+  'vitality',
+  'intellect',
+  'resolve',
+  'influence',
+  'wits',
+] as const;
+
+export type ArtifactAttackAttributeKey = (typeof ARTIFACT_ATTACK_ATTRIBUTE_KEYS)[number];
+
+export const ARTIFACT_ATTACK_ATTRIBUTE_OPTIONS: ReadonlyArray<{ key: string; label: string }> = [
+  { key: 'default', label: 'Default' },
+  { key: 'might', label: 'Might' },
+  { key: 'agility', label: 'Agility' },
+  { key: 'vitality', label: 'Vitality' },
+  { key: 'intellect', label: 'Intellect' },
+  { key: 'resolve', label: 'Resolve' },
+  { key: 'influence', label: 'Influence' },
+  { key: 'wits', label: 'Wits' },
+];
+
+export function normalizeArtifactAttackAttribute(raw: unknown): ArtifactAttackAttributeKey | null {
+  const v = String(raw ?? '').trim().toLowerCase();
+  if (!v || v === 'default') return null;
+  return (ARTIFACT_ATTACK_ATTRIBUTE_KEYS as readonly string[]).includes(v)
+    ? (v as ArtifactAttackAttributeKey)
+    : null;
+}
+
 /** Innate lines: catalog table + all keys from WEAPON_PROPERTIES. */
 export function getArtifactWeaponInnateOptions(): string[] {
   const set = new Set<string>();

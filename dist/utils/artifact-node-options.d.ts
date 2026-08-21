@@ -30,6 +30,14 @@ export declare function getArtifactPowerCatalogOptions(): ArtifactPowerCatalogGr
  * Load) and delivery modes (Ranged, Thrown, Set) are not pickable here.
  */
 export declare const ARTIFACT_FREE_TRAIT_OPTIONS: readonly string[];
+/** Hard To-Hit attribute on a weapon artifact. Empty / `default` = infer as usual. */
+export declare const ARTIFACT_ATTACK_ATTRIBUTE_KEYS: readonly ["might", "agility", "vitality", "intellect", "resolve", "influence", "wits"];
+export type ArtifactAttackAttributeKey = (typeof ARTIFACT_ATTACK_ATTRIBUTE_KEYS)[number];
+export declare const ARTIFACT_ATTACK_ATTRIBUTE_OPTIONS: ReadonlyArray<{
+    key: string;
+    label: string;
+}>;
+export declare function normalizeArtifactAttackAttribute(raw: unknown): ArtifactAttackAttributeKey | null;
 /** Innate lines: catalog table + all keys from WEAPON_PROPERTIES. */
 export declare function getArtifactWeaponInnateOptions(): string[];
 /** Damage dice presets (matches former artifact builder). */

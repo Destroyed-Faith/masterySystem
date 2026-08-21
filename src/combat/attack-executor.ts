@@ -5,6 +5,7 @@
 
 import type { RadialCombatOption } from "../token-radial-menu";
 import { getAttackAttributeForPowerTreeOrSchool } from "../utils/power-roll-attribute.js";
+import { normalizeArtifactAttackAttribute } from "../utils/artifact-node-options.js";
 import { resolveEquippedWeaponForAttackType } from "../utils/equipment-modifiers.js";
 import { artifactToVirtualWeapon, createVirtualUnarmedWeapon, isVirtualUnarmedWeapon } from "../utils/unarmed-fallback.js";
 import { evaluateThreatenedRanged } from "./threatened-ranged.js";
@@ -257,6 +258,15 @@ export function weaponHasFinesse(weapon: any | null): boolean {
  * - Powers: attribute from mastery tree / spell school (`system.tree`) via fixed list; if unknown tree, fall back to `roll.attribute`.
  * - Otherwise: Might for melee, Agility for ranged (weapon or maneuver).
  */
+function attackAttributeOverrideFromWeapon(weapon: any | null): string | null {
+  if (!weapon) return null;
+  const sys = (weapon.system as any) || {};
+  return (
+    normalizeArtifactAttackAttribute(sys.attackAttribute) ||
+    normalizeArtifactAttackAttribute(sys.artifactWeapon?.attackAttribute)
+  );
+}
+
 function resolveWeaponForAttribute(
   actor: any,
   weapon: any | null,
@@ -282,6 +292,7 @@ export function getAttackAttribute(
   attackType: "melee" | "ranged"
 ): string {
   const resolvedWeapon = resolveWeaponForAttribute(actor, weapon, option, attackType);
+  const attributeOverride = attackAttributeOverrideFromWeapon(resolvedWeapon);
   if (option.storedAttackPool?.attribute) {
     return String(option.storedAttackPool.attribute).toLowerCase();
   }
@@ -294,6 +305,9 @@ export function getAttackAttribute(
     }
     if (powerSystem.isSpell && powerSystem.castingAttribute) {
       return String(powerSystem.castingAttribute).toLowerCase();
+    }
+    if (attributeOverride) {
+      return attributeOverride;
     }
     // Non-spell attack powers are weapon-carried (they roll the equipped
     // weapon's dice), so a Finesse weapon swaps the To-Hit to Agility even
@@ -313,6 +327,10 @@ export function getAttackAttribute(
 
   if (option.source === "npc-attack") {
     return attackType === "ranged" ? "agility" : "might";
+  }
+
+  if (attributeOverride) {
+    return attributeOverride;
   }
 
   if (weaponHasFinesse(resolvedWeapon)) {

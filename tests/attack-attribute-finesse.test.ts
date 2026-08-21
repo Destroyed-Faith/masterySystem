@@ -61,4 +61,33 @@ describe('artifact Free Trait Finesse', () => {
     };
     expect(getAttackAttribute({}, weapon, finessePower, 'melee')).toBe('might');
   });
+
+  it('hard Attack Attribute override beats Default, Finesse, and the power tree', () => {
+    const artifact = {
+      id: 'moon',
+      name: 'Moonlight Greatsword',
+      type: 'artifact',
+      system: {
+        equipped: true,
+        binding: 'bound',
+        freeTrait: 'Finesse',
+        attackAttribute: 'intellect',
+        artifactWeapon: { weaponType: 'melee', damage: '5d8', innateAbilities: ['Finesse'] },
+        baseProfile: 'twoHandedWeapon',
+        currentLevel: 1,
+      },
+    };
+    const virtual = artifactToVirtualWeapon(artifact);
+    expect(virtual?.system.attackAttribute).toBe('intellect');
+    expect(getAttackAttribute({ items: [artifact] }, virtual, finessePower, 'melee')).toBe('intellect');
+    expect(getAttackAttribute({ items: [artifact] }, null, finessePower, 'melee')).toBe('intellect');
+  });
+
+  it('Default Attack Attribute keeps the inferred pool', () => {
+    const weapon = {
+      type: 'weapon',
+      system: { innateAbilities: ['Heavy'], attackAttribute: 'default', weaponType: 'melee' },
+    };
+    expect(getAttackAttribute({}, weapon, finessePower, 'melee')).toBe('might');
+  });
 });

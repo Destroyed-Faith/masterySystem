@@ -284,6 +284,14 @@ function resolveAttackAttribute(
   if (sys.isSpell && sys.castingAttribute) {
     return capAttr(String(sys.castingAttribute).toLowerCase());
   }
+  const forced =
+    weapon?.system?.attackAttribute ||
+    (weapon?.type === 'artifact' ? weapon.system?.attackAttribute : '') ||
+    weapon?.system?.artifactWeapon?.attackAttribute;
+  const forcedKey = String(forced || '').trim().toLowerCase();
+  if (forcedKey && forcedKey !== 'default') {
+    return capAttr(forcedKey);
+  }
   if (weapon) {
     const sysW = weapon.system ?? {};
     const innate = [
