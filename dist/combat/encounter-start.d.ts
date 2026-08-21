@@ -34,7 +34,8 @@ export declare function launchLiveCombat(combat: Combat): Promise<boolean>;
 export declare function ensureEncounterSetupStarted(combat: Combat): Promise<void>;
 /**
  * Begin encounter: mark started, show carousel, tell player owners to set up.
- * Does not open Passives / Stones / Shop on the GM client.
+ * The GM sees Passives / Stones locally when no player owner is connected.
+ * NPCs do not roll initiative here — only via „Initiative würfeln“.
  */
 export declare function beginEncounter(combat: Combat): Promise<void>;
 /**

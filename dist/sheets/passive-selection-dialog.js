@@ -269,6 +269,20 @@ export class PassiveSelectionDialog extends BaseDialog {
     }
     async _closeExplicit() {
         this.finishOutcome(true);
+        try {
+            const { handlePassiveSelectionComplete } = await import('../combat/encounter-start.js');
+            const combat = typeof game !== 'undefined' ? game.combat : null;
+            if (combat) {
+                for (const pc of this.pcs) {
+                    const actorId = String(pc.actor?.id ?? '');
+                    if (actorId)
+                        await handlePassiveSelectionComplete(combat, actorId, {});
+                }
+            }
+        }
+        catch (err) {
+            console.error('Mastery System | Could not persist passive confirmation', err);
+        }
         await super.close({ closeSource: 'button', committed: true });
     }
     async close(options) {

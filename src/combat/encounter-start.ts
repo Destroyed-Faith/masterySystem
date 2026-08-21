@@ -164,13 +164,6 @@ export async function launchLiveCombat(combat: Combat): Promise<boolean> {
 
   setLaunchingLiveCombat(true);
   try {
-    try {
-      const { rollNpcInitiativeOnly } = await import('./initiative-roll.js');
-      await rollNpcInitiativeOnly(combat);
-    } catch (err) {
-      console.error('Mastery System | NPC initiative before live start failed', err);
-    }
-
     if (typeof (combat as any).setupTurns === 'function') {
       await (combat as any).setupTurns();
     }
@@ -207,7 +200,8 @@ export async function ensureEncounterSetupStarted(combat: Combat): Promise<void>
 
 /**
  * Begin encounter: mark started, show carousel, tell player owners to set up.
- * Does not open Passives / Stones / Shop on the GM client.
+ * The GM sees Passives / Stones locally when no player owner is connected.
+ * NPCs do not roll initiative here — only via „Initiative würfeln“.
  */
 export async function beginEncounter(combat: Combat): Promise<void> {
   const canWrite = !!(game.user?.isGM || canCurrentUserUpdateDocument(combat));
@@ -243,13 +237,6 @@ export async function beginEncounter(combat: Combat): Promise<void> {
     await updateEncounterSetup(combat, { carouselShown: true });
   }
 
-  try {
-    const { rollNpcInitiativeOnly } = await import('./initiative-roll.js');
-    await rollNpcInitiativeOnly(combat);
-  } catch (err) {
-    console.error('Mastery System | NPC initiative at encounter start failed', err);
-  }
-
   for (const combatant of combat.combatants) {
     const actor = combatant.actor;
     if (!actor || actor.type !== 'character') continue;
@@ -265,7 +252,7 @@ export async function beginEncounter(combat: Combat): Promise<void> {
   void resumePlayerEncounterSetup(combat);
   ui.notifications?.info(
     game.i18n?.localize('MASTERY.encounterSetup.prepareStarted') ||
-      'Vorbereitung gestartet. Spieler wählen Passives und Steine (Initiative Exchange). Danach „Kampf starten“.',
+      'Vorbereitung gestartet. Passives und Steine bestätigen, NSC-Initiative würfeln, dann „Kampf starten“.',
   );
 }
 
@@ -311,9 +298,39 @@ function debouncedCarouselRefresh(delay: number = 150): void {
 }
 
 /**
+ * Foundry "Enter Combat" only adds combatants. Start the Mastery setup
+ * (carousel, passives, stones) as soon as the first combatant lands.
+ */
+let beginEncounterDebounce: number | null = null;
+
+function scheduleBeginEncounterFromFoundry(combat: Combat | null | undefined): void {
+  if (!combat || !game.user?.isGM || combat.started) return;
+  const setup = getEncounterSetup(combat);
+  if (setup.started) return;
+  if (beginEncounterDebounce !== null) {
+    window.clearTimeout(beginEncounterDebounce);
+  }
+  beginEncounterDebounce = window.setTimeout(() => {
+    beginEncounterDebounce = null;
+    const live = resolveLiveCombat(combat) ?? game.combat;
+    if (!live || live.started) return;
+    if (getEncounterSetup(live).started) return;
+    if (!Array.from(live.combatants ?? []).length) return;
+    void beginEncounter(live);
+  }, 200);
+}
+
+/**
  * Initialize encounter start system
  */
 export function initializeEncounterStart(): void {
+  Hooks.on('createCombatant', (combatant: Combatant) => {
+    const parent = (combatant as { parent?: Combat; combat?: Combat }).parent
+      ?? (combatant as { combat?: Combat }).combat
+      ?? game.combat;
+    scheduleBeginEncounterFromFoundry(parent ?? null);
+  });
+
   Hooks.on('preUpdateCombat', (combat: Combat, changes: any, _options: any, userId: string) => {
     if (userId !== game.user?.id) return;
     if (isLaunchingLiveCombat()) return;

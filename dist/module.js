@@ -260,8 +260,7 @@ Hooks.once('init', async function () {
             await ensureEncounterSetupStarted(combat);
             CombatCarouselApp.open();
             if (game.user?.isGM) {
-                const { rollNpcInitiativeOnly, syncCombatTurnToHighestInitiativeFirst } = await import('./combat/initiative-roll.js');
-                await rollNpcInitiativeOnly(combat);
+                const { syncCombatTurnToHighestInitiativeFirst } = await import('./combat/initiative-roll.js');
                 if (typeof combat.setupTurns === 'function') {
                     await combat.setupTurns();
                 }

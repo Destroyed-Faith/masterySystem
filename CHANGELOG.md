@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.403] - 2026-08-21
+
+### Changed
+
+- **Enter Combat:** Right-click Enter Combat now opens the carousel and starts encounter setup immediately. NPC initiative no longer rolls until you press Roll Initiative. The GM can confirm Passives and Stones for a character when no player is connected, so the start button can go green without switching users.
+
 ## [0.9.402] - 2026-08-20
 
 ### Added
