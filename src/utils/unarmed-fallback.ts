@@ -111,6 +111,13 @@ export function artifactToVirtualWeapon(artifact: any): any | null {
   const damage =
     derived ??
     (typeof w?.damage === 'string' && w.damage.trim().length > 0 ? w.damage.trim() : '1d8');
+  const innateAbilities = Array.isArray(w?.innateAbilities)
+    ? w.innateAbilities.map((x: unknown) => String(x))
+    : [];
+  const freeTrait = String(sys.freeTrait || '').trim();
+  if (freeTrait && !innateAbilities.some((a: string) => a.trim() === freeTrait)) {
+    innateAbilities.push(freeTrait);
+  }
 
   return {
     id: artifact.id,
@@ -123,7 +130,8 @@ export function artifactToVirtualWeapon(artifact: any): any | null {
       specials,
       equipped: true,
       hands: Number.isFinite(Number(w?.hands)) ? Number(w.hands) : (basics?.hands ?? 0),
-      innateAbilities: Array.isArray(w?.innateAbilities) ? w.innateAbilities : [],
+      innateAbilities,
+      freeTrait,
       description: sys.description || '',
       equipSlots: [],
       fromArtifact: true,

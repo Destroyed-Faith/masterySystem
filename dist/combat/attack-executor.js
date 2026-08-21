@@ -169,11 +169,31 @@ export function getTargetSpellResistance(targetActor) {
         + stoneBonus);
 }
 /** True when the wielded weapon (real or artifact-virtual) has the Finesse innate. */
-function weaponHasFinesse(weapon) {
+export function weaponHasFinesse(weapon) {
     if (!weapon)
         return false;
-    const innateAbilities = weapon.system?.innateAbilities || [];
-    return innateAbilities.some((a) => String(a).toLowerCase().includes("finesse"));
+    const sys = weapon.system || {};
+    const lines = [];
+    if (Array.isArray(sys.innateAbilities))
+        lines.push(...sys.innateAbilities);
+    if (Array.isArray(sys.artifactWeapon?.innateAbilities)) {
+        lines.push(...sys.artifactWeapon.innateAbilities);
+    }
+    if (sys.freeTrait)
+        lines.push(sys.freeTrait);
+    if (sys.artifactWeapon?.freeTrait)
+        lines.push(sys.artifactWeapon.freeTrait);
+    if (lines.some((a) => String(a).toLowerCase().includes("finesse")))
+        return true;
+    const specials = [];
+    if (Array.isArray(sys.specials))
+        specials.push(...sys.specials);
+    if (Array.isArray(sys.artifactWeapon?.specials))
+        specials.push(...sys.artifactWeapon.specials);
+    return specials.some((s) => {
+        const id = s && typeof s === "object" ? s.specialId : s;
+        return String(id ?? "").toLowerCase().includes("finesse");
+    });
 }
 /**
  * Determine which attribute to use for attack rolls.
@@ -184,7 +204,24 @@ function weaponHasFinesse(weapon) {
  * - Powers: attribute from mastery tree / spell school (`system.tree`) via fixed list; if unknown tree, fall back to `roll.attribute`.
  * - Otherwise: Might for melee, Agility for ranged (weapon or maneuver).
  */
-export function getAttackAttribute(_actor, weapon, option, attackType) {
+function resolveWeaponForAttribute(actor, weapon, option, attackType) {
+    if (weapon)
+        return weapon;
+    if (!actor || option.source === "npc-attack")
+        return null;
+    const items = collectActorItems(actor);
+    const forcedWeaponItemId = option.forcedWeaponItemId;
+    if (forcedWeaponItemId) {
+        const forcedItem = items.find((i) => i.id === forcedWeaponItemId);
+        if (forcedItem?.type === "artifact")
+            return artifactToVirtualWeapon(forcedItem);
+        if (forcedItem?.type === "weapon")
+            return forcedItem;
+    }
+    return resolveWeaponForAttack(items, attackType);
+}
+export function getAttackAttribute(actor, weapon, option, attackType) {
+    const resolvedWeapon = resolveWeaponForAttribute(actor, weapon, option, attackType);
     if (option.storedAttackPool?.attribute) {
         return String(option.storedAttackPool.attribute).toLowerCase();
     }
@@ -201,7 +238,7 @@ export function getAttackAttribute(_actor, weapon, option, attackType) {
         // Non-spell attack powers are weapon-carried (they roll the equipped
         // weapon's dice), so a Finesse weapon swaps the To-Hit to Agility even
         // when the mastery tree would default to Might.
-        if (!artifactIsSpell && powerSystem.isSpell !== true && weaponHasFinesse(weapon)) {
+        if (!artifactIsSpell && powerSystem.isSpell !== true && weaponHasFinesse(resolvedWeapon)) {
             return "agility";
         }
         const fromTreeOrSchool = getAttackAttributeForPowerTreeOrSchool(powerSystem.tree);
@@ -216,7 +253,7 @@ export function getAttackAttribute(_actor, weapon, option, attackType) {
     if (option.source === "npc-attack") {
         return attackType === "ranged" ? "agility" : "might";
     }
-    if (weaponHasFinesse(weapon)) {
+    if (weaponHasFinesse(resolvedWeapon)) {
         return "agility";
     }
     return attackType === "ranged" ? "agility" : "might";

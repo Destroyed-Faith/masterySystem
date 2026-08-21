@@ -256,18 +256,24 @@ function resolveAttackAttribute(actor, weapon, sys, attackType, items) {
     if (sys.isSpell && sys.castingAttribute) {
         return capAttr(String(sys.castingAttribute).toLowerCase());
     }
+    if (weapon) {
+        const sysW = weapon.system ?? {};
+        const innate = [
+            ...(Array.isArray(sysW.innateAbilities) ? sysW.innateAbilities : []),
+            ...(Array.isArray(sysW.artifactWeapon?.innateAbilities) ? sysW.artifactWeapon.innateAbilities : []),
+            sysW.freeTrait,
+            weapon.type === 'artifact' ? weapon.system?.freeTrait : '',
+        ];
+        if (innate.some((a) => String(a).toLowerCase().includes('finesse'))) {
+            return 'Agility';
+        }
+    }
     const fromTree = getAttackAttributeForPowerTreeOrSchool(sys.tree);
     if (fromTree)
         return capAttr(fromTree);
     const attr = sys.roll?.attribute || sys.attribute;
     if (attr)
         return capAttr(String(attr).toLowerCase());
-    if (weapon) {
-        const innate = weapon.system?.innateAbilities || [];
-        if (innate.some((a) => String(a).toLowerCase().includes('finesse'))) {
-            return 'Agility';
-        }
-    }
     return attackType === 'ranged' ? 'Agility' : 'Might';
 }
 function capAttr(key) {

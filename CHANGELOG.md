@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.406] - 2026-08-21
+
+### Fixed
+
+- **Artifact Free Trait Finesse:** Picking Finesse on a weapon artifact (Moonlight Greatsword and any other) now makes To-Hit roll Agility. The attack used to ignore the Free Trait field and keep the power tree's Might.
+
 ## [0.9.405] - 2026-08-21
 
 ### Changed
