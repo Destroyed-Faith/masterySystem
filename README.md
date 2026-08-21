@@ -31,7 +31,10 @@
 
 **Official links**
 
+- Website: https://destroyedfaith.com/
+- YouTube: https://www.youtube.com/@destroyed-faith
 - Repository: https://github.com/Destroyed-Faith/masterySystem
+- Releases: https://github.com/Destroyed-Faith/masterySystem/releases
 - Issues: https://github.com/Destroyed-Faith/masterySystem/issues
 
 ---

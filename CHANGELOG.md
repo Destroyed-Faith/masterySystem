@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.405] - 2026-08-21
+
+### Changed
+
+- **Public manifest:** `system.json` is now the permanent Foundry / Forge identity for Mastery System / Destroyed Faith — homepage, YouTube, Setup artwork, world background, and GitHub releases. Future releases only need a version bump.
+
 ## [0.9.404] - 2026-08-21
 
 ### Changed

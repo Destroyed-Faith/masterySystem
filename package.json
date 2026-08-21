@@ -1,6 +1,6 @@
 {
   "name": "mastery-system",
-  "version": "0.9.404",
+  "version": "0.9.405",
   "description": "Foundry VTT system for Mastery System / Destroyed Faith",
   "main": "dist/module.js",
   "scripts": {
@@ -15,6 +15,7 @@
     "audit:dr-phasing": "node scripts/audit-dr-phasing-exclusivity.js",
     "audit:passive-runtime": "node scripts/audit-passive-runtime.js",
     "fix:tree-special-keys": "node scripts/fix-tree-special-keys.js",
+    "version:set": "node scripts/set-release-version.mjs",
     "release:validate": "node scripts/validate-release-version.mjs",
     "release:package": "node scripts/package-release.mjs",
     "release:check": "npm run release:validate && npm run build && npm test && npm run audit:catalog && npm run release:package",

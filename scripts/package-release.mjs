@@ -125,22 +125,33 @@ if (existsSync(join(root, 'packs'))) {
   });
 }
 
+function isPackageLocalPath(p) {
+  if (!p || typeof p !== 'string') return false;
+  if (/^[a-z][a-z0-9+.-]*:/i.test(p)) return false;
+  return true;
+}
+
 // Verify system.json paths exist in staging.
 const stagedSys = readJson(join(stage, 'system.json'));
 const required = new Set();
-required.add(stagedSys.template || 'template.json');
-required.add(stagedSys.license || 'LICENSE.md');
-required.add(stagedSys.readme || 'README.md');
-required.add(stagedSys.changelog || 'CHANGELOG.md');
-if (stagedSys.logo) required.add(stagedSys.logo);
-if (stagedSys.banner) required.add(stagedSys.banner);
-for (const esm of stagedSys.esmodules || []) required.add(esm);
-for (const style of stagedSys.styles || []) required.add(style);
-for (const lang of stagedSys.languages || []) if (lang.path) required.add(lang.path);
-for (const pack of stagedSys.packs || []) if (pack.path) required.add(pack.path);
+if (isPackageLocalPath(stagedSys.template)) required.add(stagedSys.template);
+if (isPackageLocalPath(stagedSys.license)) required.add(stagedSys.license);
+if (isPackageLocalPath(stagedSys.readme)) required.add(stagedSys.readme);
+if (isPackageLocalPath(stagedSys.changelog)) required.add(stagedSys.changelog);
+if (isPackageLocalPath(stagedSys.logo)) required.add(stagedSys.logo);
+if (isPackageLocalPath(stagedSys.banner)) required.add(stagedSys.banner);
+if (isPackageLocalPath(stagedSys.background)) required.add(stagedSys.background);
+for (const esm of stagedSys.esmodules || []) if (isPackageLocalPath(esm)) required.add(esm);
+for (const style of stagedSys.styles || []) if (isPackageLocalPath(style)) required.add(style);
+for (const lang of stagedSys.languages || []) {
+  if (isPackageLocalPath(lang.path)) required.add(lang.path);
+}
+for (const pack of stagedSys.packs || []) {
+  if (isPackageLocalPath(pack.path)) required.add(pack.path);
+}
 for (const media of stagedSys.media || []) {
-  if (media.url) required.add(media.url);
-  if (media.thumbnail) required.add(media.thumbnail);
+  if (isPackageLocalPath(media.url)) required.add(media.url);
+  if (isPackageLocalPath(media.thumbnail)) required.add(media.thumbnail);
 }
 
 const missing = [...required].filter((p) => !existsSync(join(stage, p)));

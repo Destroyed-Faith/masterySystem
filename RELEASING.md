@@ -35,13 +35,13 @@ The ZIP contains only runtime files (`system.json`, `template.json`, `dist/**/*.
 
 `system.json` `download` must point at a GitHub Release asset (`mastery-system-X.Y.Z.zip`). Branch archives (`main.zip`) are too large/unreliable for Forge/Bazaar.
 
-1. On `main`, bump **both** `package.json` and `system.json` to `X.Y.Z`
+1. On `main`, set the version in one place:
+   ```
+   npm run version:set -- X.Y.Z
+   ```
+   That updates `package.json`, `system.json` `version` + `download`, and `docs/catalog-audit.json`. Branding, homepage, and media stay untouched.
 2. Add `## [X.Y.Z] - YYYY-MM-DD` to `CHANGELOG.md`
-3. Set `system.json` `download` to:
-   ```
-   https://github.com/Destroyed-Faith/masterySystem/releases/download/vX.Y.Z/mastery-system-X.Y.Z.zip
-   ```
-   Keep `manifest` as:
+3. Keep `manifest` as:
    ```
    https://raw.githubusercontent.com/Destroyed-Faith/masterySystem/main/system.json
    ```

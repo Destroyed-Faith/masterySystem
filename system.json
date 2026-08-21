@@ -1,11 +1,9 @@
 {
   "id": "mastery-system",
+  "type": "system",
   "title": "Mastery System / Destroyed Faith",
-  "description": "A dark fantasy tabletop RPG system featuring Roll & Keep dice mechanics, Attribute Stones, Mastery Ranks, and divine power progression.",
-  "version": "0.9.404",
-  "template": "template.json",
-  "logo": "assets/logo.png",
-  "banner": "assets/banner.jpg",
+  "description": "A classless dark-fantasy tabletop RPG powered by the Mastery System. Build characters freely, master Stones and Powers, perform rituals, summon allies, and play through a deeply integrated Foundry VTT experience.<p><a href=\"https://destroyedfaith.com/\">Official Website</a> · <a href=\"https://www.youtube.com/@destroyed-faith\">YouTube</a></p>",
+  "version": "0.9.405",
   "compatibility": {
     "minimum": "14",
     "verified": "14"
@@ -13,17 +11,31 @@
   "authors": [
     {
       "name": "Daniel Rodrigo Navarro Melendo",
-      "url": "https://github.com/Destroyed-Faith/masterySystem"
+      "url": "https://destroyedfaith.com/"
     }
   ],
   "media": [
     {
       "type": "setup",
-      "url": "assets/banner.jpg",
-      "thumbnail": "assets/logo.png",
-      "caption": "Mastery System / Destroyed Faith"
+      "url": "assets/DestroyedFaithMainPicture.png",
+      "thumbnail": "assets/Destroyed Faith Logo grey.png",
+      "caption": "Destroyed Faith – Mastery System"
+    },
+    {
+      "type": "icon",
+      "url": "https://raw.githubusercontent.com/Destroyed-Faith/masterySystem/main/assets/Destroyed%20Faith%20Logo%20grey.png",
+      "caption": "Destroyed Faith"
+    },
+    {
+      "type": "cover",
+      "url": "https://raw.githubusercontent.com/Destroyed-Faith/masterySystem/main/assets/Destroyed%20Faith%20Banner%20Grey%20Small.png",
+      "caption": "Destroyed Faith – Mastery System"
     }
   ],
+  "background": "assets/banner.jpg",
+  "logo": "assets/logo.png",
+  "banner": "assets/banner.jpg",
+  "template": "template.json",
   "esmodules": [
     "dist/module.js"
   ],
@@ -97,15 +109,19 @@
   },
   "socket": true,
   "initiative": "1d20 + @combat.initiative",
+  "grid": {
+    "distance": 1,
+    "units": "m"
+  },
   "gridDistance": 1,
   "gridUnits": "m",
   "primaryTokenAttribute": "health",
   "secondaryTokenAttribute": "stress",
-  "url": "https://github.com/Destroyed-Faith/masterySystem",
+  "url": "https://destroyedfaith.com/",
   "manifest": "https://raw.githubusercontent.com/Destroyed-Faith/masterySystem/main/system.json",
-  "download": "https://github.com/Destroyed-Faith/masterySystem/releases/download/v0.9.404/mastery-system-0.9.404.zip",
+  "download": "https://github.com/Destroyed-Faith/masterySystem/releases/download/v0.9.405/mastery-system-0.9.405.zip",
   "license": "LICENSE.md",
   "readme": "README.md",
   "bugs": "https://github.com/Destroyed-Faith/masterySystem/issues",
-  "changelog": "CHANGELOG.md"
+  "changelog": "https://github.com/Destroyed-Faith/masterySystem/releases"
 }
