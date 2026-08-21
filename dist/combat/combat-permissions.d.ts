@@ -20,9 +20,9 @@ export declare function findConnectedPlayerOwners(actor: Actor | null | undefine
 export declare function setSimulatePlayerEncounter(combatId: string | null): void;
 export declare function getSimulatePlayerEncounterId(): string | null;
 /**
- * Auto-show / socket receive: the owning player when they are online.
- * If no player owner is connected, the GM runs the setup for that character
- * (Passives / Stones) so a fight can start without switching users.
+ * Auto-show / socket receive: only the owning player.
+ * The GM never gets Passives / Stones automatically — they open those
+ * with the per-character buttons when they need to intervene.
  */
 export declare function shouldShowEncounterDialogLocally(actor: Actor | null | undefined): boolean;
 export declare function emitEncounterSocketToPlayerOwners(actor: Actor | null | undefined, payload: Record<string, unknown>): number;

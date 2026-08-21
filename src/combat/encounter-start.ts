@@ -200,7 +200,8 @@ export async function ensureEncounterSetupStarted(combat: Combat): Promise<void>
 
 /**
  * Begin encounter: mark started, show carousel, tell player owners to set up.
- * The GM sees Passives / Stones locally when no player owner is connected.
+ * Passives / Stones auto-open only on the owning player. The GM opens them
+ * from the character buttons when they need to step in.
  * NPCs do not roll initiative here — only via „Initiative würfeln“.
  */
 export async function beginEncounter(combat: Combat): Promise<void> {
@@ -402,7 +403,42 @@ export function initializeEncounterStart(): void {
     });
   });
 
+  const pushPendingSetupToUser = (user: { id?: string; isGM?: boolean } | null | undefined): void => {
+    if (!user?.id || user.isGM || !game.user?.isGM) return;
+    const live = game.combat;
+    if (!live) return;
+    const setup = getEncounterSetup(live);
+    if (!setup.started && !(live as { started?: boolean }).started) return;
+    for (const combatant of live.combatants) {
+      const actor = combatant.actor;
+      if (!actor || actor.type !== 'character') continue;
+      if (
+        typeof (actor as any).testUserPermission !== 'function' ||
+        !(actor as any).testUserPermission(user, 'OWNER')
+      ) {
+        continue;
+      }
+      game.socket?.emit(ENCOUNTER_SOCKET, {
+        type: 'openPassiveSelection',
+        combatId: live.id,
+        combatantId: combatant.id,
+        actorId: actor.id,
+        userId: user.id,
+      });
+    }
+  };
+
+  Hooks.on('userConnected', (user: { id?: string; isGM?: boolean }) => {
+    pushPendingSetupToUser(user);
+  });
+  Hooks.on('updateUser', (user: { id?: string; isGM?: boolean }, changes: { active?: boolean }) => {
+    if (changes?.active === true) pushPendingSetupToUser(user);
+  });
+
   void import('./player-encounter-setup.js').then(({ resumePlayerEncounterSetup }) => {
     void resumePlayerEncounterSetup();
+    window.setTimeout(() => {
+      void resumePlayerEncounterSetup();
+    }, 400);
   });
 }

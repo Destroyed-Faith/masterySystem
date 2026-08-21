@@ -89,9 +89,9 @@ function isSimulatingPlayerEncounter() {
     return !liveId || liveId === simulatePlayerEncounterId;
 }
 /**
- * Auto-show / socket receive: the owning player when they are online.
- * If no player owner is connected, the GM runs the setup for that character
- * (Passives / Stones) so a fight can start without switching users.
+ * Auto-show / socket receive: only the owning player.
+ * The GM never gets Passives / Stones automatically — they open those
+ * with the per-character buttons when they need to intervene.
  */
 export function shouldShowEncounterDialogLocally(actor) {
     if (!actor || typeof game === 'undefined' || !game.user)
@@ -99,10 +99,9 @@ export function shouldShowEncounterDialogLocally(actor) {
     if (isSimulatingPlayerEncounter()) {
         return !!(game.user.isGM || actor.isOwner);
     }
+    if (game.user.isGM)
+        return false;
     const playerOwners = findConnectedPlayerOwners(actor);
-    if (game.user.isGM) {
-        return playerOwners.length === 0;
-    }
     if (playerOwners.length > 0) {
         return playerOwners.some((u) => u.id === game.user.id);
     }

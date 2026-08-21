@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.404] - 2026-08-21
+
+### Changed
+
+- **Encounter dialogs:** Passives and Stones open automatically only for the owning player. The GM no longer gets those dialogs on Enter Combat; they open them from the character buttons when they need to step in. A player who joins after setup started (Join Game As) still gets the dialogs.
+
 ## [0.9.403] - 2026-08-21
 
 ### Changed

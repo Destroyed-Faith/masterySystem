@@ -39,7 +39,7 @@ describe('combat encounter ownership', () => {
     expect(shouldShowEncounterDialogLocally(actor)).toBe(true);
   });
 
-  it('lets the GM run setup when no player owner is online', () => {
+  it('never auto-opens setup dialogs for the GM', () => {
     (globalThis as any).game = {
       user: { id: 'gm', isGM: true },
       users: {
@@ -50,7 +50,10 @@ describe('combat encounter ownership', () => {
       },
     };
     const actor = mockActor(['fynn', 'gm']);
-    expect(shouldShowEncounterDialogLocally(actor)).toBe(true);
+    expect(shouldShowEncounterDialogLocally(actor)).toBe(false);
+
+    (globalThis as any).game.users.contents[1].active = true;
+    expect(shouldShowEncounterDialogLocally(actor)).toBe(false);
   });
 
   it('shows setup dialogs to a non-GM owner after Join Game As', () => {

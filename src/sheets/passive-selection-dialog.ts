@@ -80,9 +80,11 @@ export class PassiveSelectionDialog extends BaseDialog {
       return { confirmed: false, alreadyOpen: true };
     }
 
-    const pcs = combat.combatants.filter((c: Combatant) =>
-      c.actor?.type === 'character' && shouldShowEncounterDialogLocally(c.actor)
-    );
+    const pcs = combat.combatants.filter((c: Combatant) => {
+      if (c.actor?.type !== 'character') return false;
+      if (user.isGM) return true;
+      return shouldShowEncounterDialogLocally(c.actor);
+    });
 
     if (pcs.length === 0) {
       return { confirmed: false };
