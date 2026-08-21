@@ -4675,6 +4675,60 @@
   filter: brightness(1.12);
 }
 
+.mastery-system.sheet.actor.npc .npc-reactions-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.mastery-system.sheet.actor.npc .npc-reactions-slots,
+.mastery-system.sheet.actor.npc .npc-reactions-rank {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  color: #c8c4bc;
+}
+
+.mastery-system.sheet.actor.npc .npc-reactions-slots input,
+.mastery-system.sheet.actor.npc .npc-reactions-rank select {
+  width: 3.4rem;
+}
+
+.mastery-system.sheet.actor.npc .npc-reactions-standard,
+.mastery-system.sheet.actor.npc .npc-reactions-catalog {
+  margin: 8px 0 10px;
+  font-size: 0.78rem;
+}
+
+.mastery-system.sheet.actor.npc .npc-reactions-standard-row,
+.mastery-system.sheet.actor.npc .npc-reactions-catalog-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+.mastery-system.sheet.actor.npc .npc-reactions-catalog summary {
+  cursor: pointer;
+  color: #c9a227;
+  font-weight: 700;
+}
+
+.mastery-system.sheet.actor.npc .npc-reactions-catalog-filter {
+  width: 100%;
+  margin: 8px 0 6px;
+}
+
+.mastery-system.sheet.actor.npc .npc-reaction-source-tag {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  opacity: 0.65;
+}
+
 .mastery-system.sheet.actor.npc .phase-add-btn {
   border-radius: 6px;
   border: 1px solid rgba(255, 255, 255, 0.15);

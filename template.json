@@ -252,6 +252,8 @@
       "npcActivePhaseIndex": 0,
       "attackSlots": 1,
       "npcMovementSlots": 1,
+      "npcReactionSlots": 0,
+      "npcReactions": [],
       "conditions": [],
       "statusEffects": [],
       "notes": ""
@@ -319,6 +321,8 @@
       "attackValues": [],
       "attackSlots": 1,
       "npcMovementSlots": 1,
+      "npcReactionSlots": 0,
+      "npcReactions": [],
       "notes": ""
     }
   },

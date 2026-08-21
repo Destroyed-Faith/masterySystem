@@ -10,6 +10,7 @@
 import { healStressFromBars } from '../utils/calculations.js';
 import { getStunnedRank } from '../system/auto-fail.js';
 import { sumNpcAttackSlotsFromPowers } from '../utils/npc-attack-model.js';
+import { npcReactionSlotsForEconomy } from '../utils/npc-reactions.js';
 
 /** NPC ATK total = sum of Angriffe/Runde copies (falls back to attackSlots). */
 function npcAttackSlotsForEconomy(owner: any): number {
@@ -35,6 +36,22 @@ function reconcileNpcAttackActions(owner: any, state: RoundState): RoundState {
   return {
     ...state,
     attackActions: { total: slots, used },
+  };
+}
+
+function reconcileNpcReactionActions(owner: any, state: RoundState): RoundState {
+  if (!owner || (owner.type !== 'npc' && owner.type !== 'summon')) return state;
+  const slots = npcReactionSlotsForEconomy(owner);
+  const used = Math.min(Math.max(0, Math.floor(Number(state.reactionActions?.used) || 0)), slots);
+  if (
+    Math.floor(Number(state.reactionActions?.total) || 0) === slots &&
+    Math.floor(Number(state.reactionActions?.used) || 0) === used
+  ) {
+    return state;
+  }
+  return {
+    ...state,
+    reactionActions: { total: slots, used },
   };
 }
 export type AttributeKey =
@@ -379,7 +396,7 @@ export function getRoundState(actor: Actor, combat: Combat | null): RoundState {
     storedCombatId === combatId
   ) {
     // NPC ATK label / spend budget must follow live Angriffe/Runde edits.
-    return reconcileNpcAttackActions(owner, stored);
+    return reconcileNpcReactionActions(owner, reconcileNpcAttackActions(owner, stored));
   }
 
   // Create default state
@@ -389,10 +406,12 @@ export function getRoundState(actor: Actor, combat: Combat | null): RoundState {
     owner.type === 'npc'
       ? Math.max(1, Math.min(10, Math.floor(Number(owner.system?.npcMovementSlots) || 1)))
       : 1;
+  const npcReactSlots =
+    owner.type === 'npc' || owner.type === 'summon' ? npcReactionSlotsForEconomy(owner) : 1;
   const baseActions = {
     movementActions: { total: npcMoveSlots, used: 0 },
     attackActions: { total: npcAttackSlots, used: 0 },
-    reactionActions: { total: 1, used: 0 }
+    reactionActions: { total: npcReactSlots, used: 0 }
   };
 
   return {
@@ -877,9 +896,11 @@ export function getAvailableMovementActions(actor: Actor, combat: Combat | null)
 export function getAvailableReactionActions(actor: Actor, combat: Combat | null): number {
   const summonCtx = resolveSummonOwnerAndBond(actor);
   if (summonCtx) {
+    const slots = npcReactionSlotsForEconomy(actor);
+    if (slots <= 0) return 0;
     const rs = getRoundState(summonCtx.owner, combat);
     const used = Math.max(0, Math.floor(Number((rs as any).summonBondUsage?.[summonCtx.bondId]?.reactionsUsed) || 0));
-    return Math.max(0, 1 - used);
+    return Math.max(0, slots - used);
   }
   const roundState = getRoundState(actor, combat);
   return Math.max(0, roundState.reactionActions.total - roundState.reactionActions.used);
@@ -1669,7 +1690,7 @@ export async function resetRoundState(actor: Actor, combatant: Combatant, combat
     isPC,
     movementActions: { total: isPC ? 1 : npcMoveSlots, used: 0 },
     attackActions: { total: isPC ? 1 : npcSlots, used: 0 },
-    reactionActions: { total: 1, used: 0 },
+    reactionActions: { total: isPC ? 1 : npcReactionSlotsForEconomy(actor), used: 0 },
     moveBonusMeters: 0,
     usedPowerIdsThisRound: [],
     npcAttackUsesThisRound: {},

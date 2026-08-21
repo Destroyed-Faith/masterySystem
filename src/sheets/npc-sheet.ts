@@ -32,6 +32,15 @@ import {
 import { openNpcPrintSheet } from './npc-print.js';
 import { copyDocumentImageLink } from '../ui/image-url-share.js';
 import { creatureTypeSelectOptions } from '../utils/creature-type.js';
+import {
+  NPC_STANDARD_REACTIONS,
+  clampNpcReactionSlots,
+  coerceNpcReactionsArray,
+  listNpcCatalogReactions,
+  newCatalogNpcReaction,
+  newCustomNpcReaction,
+  newStandardNpcReaction,
+} from '../utils/npc-reactions.js';
 
 /** Attach Ini malus/bonus split fields for the sheet dropdowns. */
 function withNpcIniUi(combat: Record<string, any> | null | undefined): Record<string, any> {
@@ -341,6 +350,8 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
         context.system.creatureType = String(context.system.bio?.type ?? '');
       }
       context.system.npcBaseAttack = ensureNpcBaseShape(context.system.npcBaseAttack);
+      context.system.npcReactions = coerceNpcReactionsArray(context.system.npcReactions);
+      context.system.npcReactionSlots = clampNpcReactionSlots(context.system.npcReactionSlots);
 
       if (isSummon) {
         context.system.phases = null;
@@ -358,6 +369,8 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
             combat: withNpcIniUi(phase?.combat),
             npcBaseAttack: ensureNpcBaseShape(phase?.npcBaseAttack),
             health: ensureNpcHealthState(phase?.health ?? context.system.health),
+            npcReactions: coerceNpcReactionsArray(phase?.npcReactions),
+            npcReactionSlots: clampNpcReactionSlots(phase?.npcReactionSlots),
           }));
         }
       }
@@ -370,6 +383,8 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
 
     if (isNpcLike && context.system) {
       (context as any).npcSpecialSelectGroups = buildNpcSpecialSelectGroups();
+      (context as any).npcCatalogReactions = listNpcCatalogReactions();
+      (context as any).npcStandardReactions = NPC_STANDARD_REACTIONS;
       // Token disposition for Threatened Ranged / targeting (Foundry: -1 / 0 / 1).
       // Prefer the placed token when editing an unlinked token actor.
       const actorDoc = context.actor as any;
@@ -399,7 +414,9 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
           npcBaseAttack: normalizeNpcAttackRowForContext(ph.npcBaseAttack),
           attackValues: Array.isArray(ph.attackValues)
             ? ph.attackValues.map((r: any) => normalizeNpcAttackRowForContext(r))
-            : ph.attackValues
+            : ph.attackValues,
+          npcReactions: coerceNpcReactionsArray(ph.npcReactions),
+          npcReactionSlots: clampNpcReactionSlots(ph.npcReactionSlots),
         }));
       }
       // NPC ATK = Summe der Angriffe/Runde-Kopien. Summons keep Bond attackSlots.
@@ -682,6 +699,8 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
           combat,
           health: ensureNpcHealthState(health),
           attackValues: mergeNpcAttackValueLists(prev.attackValues, phase.attackValues),
+          npcReactions: coerceNpcReactionsArray(phase.npcReactions ?? prev.npcReactions),
+          npcReactionSlots: clampNpcReactionSlots(phase.npcReactionSlots ?? prev.npcReactionSlots),
         };
       });
     }
@@ -691,6 +710,12 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
         data.system.attackValues,
       );
     }
+    data.system.npcReactions = coerceNpcReactionsArray(
+      data.system.npcReactions ?? existingSystem.npcReactions,
+    );
+    data.system.npcReactionSlots = clampNpcReactionSlots(
+      data.system.npcReactionSlots ?? existingSystem.npcReactionSlots,
+    );
     if (data.system.combat && typeof data.system.combat === 'object') {
       data.system.combat = {
         ...data.system.combat,
@@ -890,6 +915,24 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
 
     html.find('.npc-power-special-add').on('click', this.#onNpcPowerSpecialAdd.bind(this));
     html.find('.npc-power-special-del').on('click', this.#onNpcPowerSpecialDel.bind(this));
+
+    html.find('.npc-reaction-add-custom').on('click', this.#onNpcReactionAddCustom.bind(this));
+    html.find('.npc-reaction-add-standard').on('click', this.#onNpcReactionAddStandard.bind(this));
+    html.find('.npc-reaction-add-catalog').on('click', this.#onNpcReactionAddCatalog.bind(this));
+    html.find('.npc-reaction-delete').on('click', this.#onNpcReactionDelete.bind(this));
+    html.find('.npc-reaction-catalog-filter').on('input', (ev: JQuery.TriggeredEvent) => {
+      const input = ev.currentTarget as HTMLInputElement;
+      const term = String(input.value || '').trim().toLowerCase();
+      const select = input
+        .closest('.npc-reactions-catalog')
+        ?.querySelector('select.npc-reaction-catalog-select') as HTMLSelectElement | null;
+      if (!select) return;
+      for (const opt of Array.from(select.options)) {
+        if (!opt.value) continue;
+        const label = String(opt.dataset.label || opt.textContent || '').toLowerCase();
+        opt.hidden = term.length > 0 && !label.includes(term);
+      }
+    });
   }
 
   /**
@@ -1035,6 +1078,20 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
       return;
     }
 
+    if (scope === 'reaction') {
+      const ri = Number($t.data('reaction-index'));
+      if (!Number.isFinite(ri)) return;
+      await this.#mutateNpcReactions(phaseRaw, (rows) => {
+        if (!rows[ri]) return rows;
+        const next = dup(rows);
+        const row = dup(next[ri]);
+        row.specials = [...(row.specials || []), entry];
+        next[ri] = row;
+        return next;
+      });
+      return;
+    }
+
     if (scope === 'extra') {
       const ai = Number(attackRaw);
       if (!Number.isFinite(ai)) return;
@@ -1089,6 +1146,21 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
       return;
     }
 
+    if (scope === 'reaction') {
+      const ri = Number($t.data('reaction-index'));
+      if (!Number.isFinite(ri)) return;
+      await this.#mutateNpcReactions(phaseRaw, (rows) => {
+        if (!rows[ri] || !Array.isArray(rows[ri].specials) || si >= rows[ri].specials.length) return rows;
+        const next = dup(rows);
+        const row = dup(next[ri]);
+        row.specials = [...(row.specials || [])];
+        row.specials.splice(si, 1);
+        next[ri] = row;
+        return next;
+      });
+      return;
+    }
+
     if (scope === 'extra') {
       const ai = Number(attackRaw);
       if (!Number.isFinite(ai)) return;
@@ -1112,6 +1184,98 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
         await (this.actor as any).update({ 'system.attackValues': av });
       }
     }
+  }
+
+  #npcMasteryRank(): number {
+    return Math.max(1, Math.floor(Number((this.actor as any).system?.mastery?.rank) || 2));
+  }
+
+  async #mutateNpcReactions(
+    phaseRaw: unknown,
+    mutator: (rows: any[]) => any[],
+    extra?: Record<string, unknown>,
+  ): Promise<void> {
+    const system = (this.actor as any).system;
+    const phaseIndex =
+      phaseRaw !== undefined && phaseRaw !== null && String(phaseRaw) !== ''
+        ? Number(phaseRaw)
+        : null;
+    if (phaseIndex != null && Number.isFinite(phaseIndex)) {
+      const phases = dup(coerceNpcPhasesArray(system.phases));
+      if (!phases[phaseIndex]) return;
+      const rows = mutator(coerceNpcReactionsArray(phases[phaseIndex].npcReactions));
+      phases[phaseIndex].npcReactions = rows;
+      if (extra?.slots != null) phases[phaseIndex].npcReactionSlots = extra.slots;
+      else if (clampNpcReactionSlots(phases[phaseIndex].npcReactionSlots) <= 0 && rows.length > 0) {
+        phases[phaseIndex].npcReactionSlots = 1;
+      }
+      await (this.actor as any).update({ 'system.phases': phases });
+      return;
+    }
+    const rows = mutator(coerceNpcReactionsArray(system.npcReactions));
+    const patch: Record<string, unknown> = { 'system.npcReactions': rows };
+    if (extra?.slots != null) patch['system.npcReactionSlots'] = extra.slots;
+    else if (clampNpcReactionSlots(system.npcReactionSlots) <= 0 && rows.length > 0) {
+      patch['system.npcReactionSlots'] = 1;
+    }
+    await (this.actor as any).update(patch);
+  }
+
+  async #onNpcReactionAddCustom(event: JQuery.ClickEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    const phaseRaw = $(event.currentTarget).data('phase-index');
+    const row = newCustomNpcReaction(this.#npcMasteryRank());
+    await this.#mutateNpcReactions(phaseRaw, (rows) => [...rows, row]);
+  }
+
+  async #onNpcReactionAddStandard(event: JQuery.ClickEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    const btn = event.currentTarget as HTMLElement;
+    const wrap = btn.closest('.npc-reactions-standard');
+    const select = wrap?.querySelector('select.npc-reaction-standard-select') as HTMLSelectElement | null;
+    const basicId = String(select?.value || '').trim();
+    const row = newStandardNpcReaction(basicId);
+    if (!row) return;
+    const phaseRaw = $(btn).data('phase-index');
+    await this.#mutateNpcReactions(phaseRaw, (rows) => {
+      if (rows.some((r) => r.source === 'basic' && r.basicId === row.basicId)) return rows;
+      return [...rows, row];
+    });
+  }
+
+  async #onNpcReactionAddCatalog(event: JQuery.ClickEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    const btn = event.currentTarget as HTMLElement;
+    const wrap = btn.closest('.npc-reactions-catalog');
+    const select = wrap?.querySelector('select.npc-reaction-catalog-select') as HTMLSelectElement | null;
+    const rankEl = wrap?.querySelector('select.npc-reaction-catalog-rank') as HTMLSelectElement | null;
+    const templateId = String(select?.value || '').trim();
+    const row = newCatalogNpcReaction(templateId, this.#npcMasteryRank());
+    if (!row) return;
+    const rankN = Math.floor(Number(rankEl?.value));
+    if (Number.isFinite(rankN) && rankN >= 1) row.rank = Math.min(16, rankN);
+    const phaseRaw = $(btn).data('phase-index');
+    await this.#mutateNpcReactions(phaseRaw, (rows) => {
+      if (rows.some((r) => r.source === 'catalog' && r.templateId === row.templateId)) return rows;
+      return [...rows, row];
+    });
+  }
+
+  async #onNpcReactionDelete(event: JQuery.ClickEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    const $t = $(event.currentTarget);
+    const index = parseInt(String($t.data('reaction-index') ?? '-1'), 10);
+    if (index < 0) return;
+    await this.#mutateNpcReactions($t.data('phase-index'), (rows) => {
+      if (index >= rows.length) return rows;
+      const next = [...rows];
+      next.splice(index, 1);
+      return next;
+    });
   }
 
   async #onPhaseAdd(event: JQuery.ClickEvent) {
@@ -1138,6 +1302,8 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
         combat: { ...defaultCombat, ...(dup(system.combat) || {}) },
         npcBaseAttack: dup(system.npcBaseAttack) || defaultAttack,
         attackValues: Array.isArray(system.attackValues) ? dup(system.attackValues) : [],
+        npcReactions: coerceNpcReactionsArray(system.npcReactions),
+        npcReactionSlots: clampNpcReactionSlots(system.npcReactionSlots),
         statusEffects: [],
       });
       await (this.actor as any).update({
@@ -1159,6 +1325,8 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
         : Array.isArray(system.attackValues)
           ? dup(system.attackValues)
           : [],
+      npcReactions: coerceNpcReactionsArray(prev.npcReactions ?? system.npcReactions),
+      npcReactionSlots: clampNpcReactionSlots(prev.npcReactionSlots ?? system.npcReactionSlots),
       statusEffects: [],
     });
     await (this.actor as any).update({ 'system.phases': phases });

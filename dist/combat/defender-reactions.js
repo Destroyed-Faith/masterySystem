@@ -11,6 +11,7 @@ import { buildArtifactReactionOptions } from '../radial-menu/artifact-options.js
 import { getPrimaryTokenForActor } from '../utils/mechanics-adjacency.js';
 import { distanceBetweenTokensMeters } from './threatened-ranged.js';
 import { buildBasicReactionItems, isBasicReactionItem } from './basic-combat.js';
+import { actorParticipatesInReactions, materializeNpcReactionPowers, } from '../utils/npc-reactions.js';
 /**
  * Reaction Evade vs a known attack total.
  * Hit rule is attack ≥ Evade, so the reaction negates only when
@@ -53,6 +54,11 @@ export function getEligibleReactionPowers(defender, combat) {
     if (!defender || !combat)
         return [];
     const owner = defenderActorForEconomy(defender);
+    if (owner.type === 'npc' || owner.type === 'summon') {
+        if (!actorParticipatesInReactions(owner))
+            return [];
+        return materializeNpcReactionPowers(owner);
+    }
     const items = owner.items;
     if (!items)
         return [];
@@ -250,17 +256,19 @@ export function collectReactionWindowEntries(params) {
     const { defender, attacker, combat } = params;
     const out = [];
     const economyDef = defenderActorForEconomy(defender);
-    const defSummary = getReactionActionsSummary(economyDef, combat);
-    const defPowers = dedupeInitiativeGainReactions(getEligibleReactionPowers(economyDef, combat));
-    out.push({
-        actor: economyDef,
-        name: String(defender.name ?? 'Defender'),
-        remaining: defSummary.remaining,
-        total: defSummary.total,
-        powers: defPowers,
-        role: 'defender',
-        distanceM: 0,
-    });
+    if (actorParticipatesInReactions(economyDef)) {
+        const defSummary = getReactionActionsSummary(economyDef, combat);
+        const defPowers = dedupeInitiativeGainReactions(getEligibleReactionPowers(economyDef, combat));
+        out.push({
+            actor: economyDef,
+            name: String(defender.name ?? 'Defender'),
+            remaining: defSummary.remaining,
+            total: defSummary.total,
+            powers: defPowers,
+            role: 'defender',
+            distanceM: 0,
+        });
+    }
     const seenActorIds = new Set([
         String(economyDef.id ?? ''),
         String(defender.id ?? ''),
@@ -294,12 +302,16 @@ export function collectReactionWindowEntries(params) {
                     continue;
                 seenActorIds.add(allyId);
                 seenActorIds.add(otherId);
+                if (!actorParticipatesInReactions(economyAlly))
+                    continue;
                 const summary = getReactionActionsSummary(economyAlly, combat);
                 if (summary.remaining <= 0)
                     continue;
-                const allyPowers = getEligibleReactionPowers(economyAlly, combat).filter(isAllyReactionPower);
-                // Basic Interpose — take half damage for an adjacent ally (≤2 m).
-                const powersForAlly = dist <= 2.05 ? [...allyPowers, buildInterposeReactionItem()] : allyPowers;
+                const allyPowers = getEligibleReactionPowers(economyAlly, combat).filter((p) => isAllyReactionPower(p) || p?.basicReaction === 'interpose');
+                const isPcAlly = economyAlly.type === 'character';
+                const powersForAlly = dist <= 2.05 && isPcAlly
+                    ? [...allyPowers, buildInterposeReactionItem()]
+                    : allyPowers;
                 if (!powersForAlly.length)
                     continue;
                 out.push({
@@ -350,6 +362,10 @@ export function collectReactionWindowEntries(params) {
                     continue;
                 }
                 seenActorIds.add(oppActorId);
+                if (!actorParticipatesInReactions(economyOpp)) {
+                    oppDebug.push({ tokenId: tid, name, skip: 'npc-reactions-not-configured', actorId: oppActorId });
+                    continue;
+                }
                 const summary = getReactionActionsSummary(economyOpp, combat);
                 const offensivePowers = summary.remaining > 0
                     ? getEligibleReactionPowers(economyOpp, combat).filter(isThreatenedRangedOffensiveReaction)

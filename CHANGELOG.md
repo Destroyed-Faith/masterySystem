@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.409] - 2026-08-21
+
+### Changed
+
+- **NPC Reactions:** NPCs and summons no longer get automatic Guard / Evade / Counterattack prompts. Add a Reactions block on the sheet (under extra powers) to opt in: slots per round, standard maneuvers, a hidden catalog picker, or custom specials. Unconfigured NPCs stay out of the Reaction Window and the combat-strip R counter.
+
 ## [0.9.408] - 2026-08-21
 
 ### Changed

@@ -8,6 +8,7 @@
  * full payload as the primary (weapon + power damage + specials), not splash-only.
  */
 import { getActionEconomyActor, getRoundState, spendReactionAction, } from './action-economy.js';
+import { actorParticipatesInReactions } from '../utils/npc-reactions.js';
 import { getTargetEvade, getTargetSpellResistance } from './attack-executor.js';
 import { RAISE_INCREMENT } from '../utils/constants.js';
 /** Resolve a burst token id to a canvas actor (handles scene / placeable quirks). */
@@ -64,6 +65,8 @@ export function diveForCoverDistanceM(actor) {
  * @returns true when the creature escaped (→ not affected by the AoE).
  */
 export async function promptDiveForCoverEscape(defender, tok) {
+    if (!actorParticipatesInReactions(defender))
+        return false;
     const combat = game.combat;
     const economyDef = getActionEconomyActor(defender) ?? defender;
     const rsReact = getRoundState(economyDef, combat);

@@ -437,6 +437,17 @@ export interface NpcBaseAttack extends Partial<AttackValue> {
   specials?: NpcAttackSpecialEntry[];
 }
 
+/** Opt-in NPC Reaction: standard maneuver, catalog template, or custom specials. */
+export interface NpcReactionRow {
+  id?: string;
+  name?: string;
+  source?: 'basic' | 'catalog' | 'custom';
+  basicId?: string;
+  templateId?: string;
+  rank?: number;
+  specials?: NpcAttackSpecialEntry[];
+}
+
 // Phase structure for Boss NPCs
 export interface BossPhase {
   name: string; // e.g., "Phase 1", "Phase 2"
@@ -449,6 +460,9 @@ export interface BossPhase {
   attackValues?: AttackValue[];
   /** Basis-Waffenangriff (immer verfügbar); attackValues = weitere Powers. */
   npcBaseAttack?: NpcBaseAttack;
+  /** Opt-in Reactions for this phase (0 = none). */
+  npcReactionSlots?: number;
+  npcReactions?: NpcReactionRow[];
   statusEffects?: StatusEffect[];
   divineCombat?: {
     startingPool: number;
@@ -499,6 +513,10 @@ export interface NpcData {
   attackSlots?: number;
   /** Movement actions per round in combat (default 1). */
   npcMovementSlots?: number;
+  /** Reactions per round. Default 0 — NPCs do not react unless configured. */
+  npcReactionSlots?: number;
+  /** Configured Reaction rows (standard / catalog / custom). Empty = no reactions. */
+  npcReactions?: NpcReactionRow[];
   conditions: any[];
   statusEffects?: StatusEffect[];
   notes: string;

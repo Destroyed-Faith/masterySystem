@@ -16,6 +16,10 @@ import { buildArtifactReactionOptions } from '../radial-menu/artifact-options.js
 import { getPrimaryTokenForActor } from '../utils/mechanics-adjacency.js';
 import { distanceBetweenTokensMeters } from './threatened-ranged.js';
 import { buildBasicReactionItems, isBasicReactionItem } from './basic-combat.js';
+import {
+  actorParticipatesInReactions,
+  materializeNpcReactionPowers,
+} from '../utils/npc-reactions.js';
 
 export interface DefenderReactionMitigation {
   /** Extra flat armor for this damage instance only. */
@@ -102,6 +106,10 @@ function defenderActorForEconomy(defender: Actor): Actor {
 export function getEligibleReactionPowers(defender: Actor, combat: Combat | null): any[] {
   if (!defender || !combat) return [];
   const owner = defenderActorForEconomy(defender) as Actor;
+  if ((owner as any).type === 'npc' || (owner as any).type === 'summon') {
+    if (!actorParticipatesInReactions(owner)) return [];
+    return materializeNpcReactionPowers(owner);
+  }
   const items = (owner as any).items;
   if (!items) return [];
   const out: any[] = [];
@@ -308,17 +316,19 @@ export function collectReactionWindowEntries(params: {
   const { defender, attacker, combat } = params;
   const out: ReactionWindowActorEntry[] = [];
   const economyDef = defenderActorForEconomy(defender);
-  const defSummary = getReactionActionsSummary(economyDef, combat);
-  const defPowers = dedupeInitiativeGainReactions(getEligibleReactionPowers(economyDef, combat));
-  out.push({
-    actor: economyDef,
-    name: String((defender as any).name ?? 'Defender'),
-    remaining: defSummary.remaining,
-    total: defSummary.total,
-    powers: defPowers,
-    role: 'defender',
-    distanceM: 0,
-  });
+  if (actorParticipatesInReactions(economyDef)) {
+    const defSummary = getReactionActionsSummary(economyDef, combat);
+    const defPowers = dedupeInitiativeGainReactions(getEligibleReactionPowers(economyDef, combat));
+    out.push({
+      actor: economyDef,
+      name: String((defender as any).name ?? 'Defender'),
+      remaining: defSummary.remaining,
+      total: defSummary.total,
+      powers: defPowers,
+      role: 'defender',
+      distanceM: 0,
+    });
+  }
 
   const seenActorIds = new Set<string>([
     String((economyDef as any).id ?? ''),
@@ -351,12 +361,17 @@ export function collectReactionWindowEntries(params: {
         seenActorIds.add(allyId);
         seenActorIds.add(otherId);
 
+        if (!actorParticipatesInReactions(economyAlly)) continue;
         const summary = getReactionActionsSummary(economyAlly, combat);
         if (summary.remaining <= 0) continue;
-        const allyPowers = getEligibleReactionPowers(economyAlly, combat).filter(isAllyReactionPower);
-        // Basic Interpose — take half damage for an adjacent ally (≤2 m).
+        const allyPowers = getEligibleReactionPowers(economyAlly, combat).filter((p) =>
+          isAllyReactionPower(p) || p?.basicReaction === 'interpose',
+        );
+        const isPcAlly = (economyAlly as any).type === 'character';
         const powersForAlly =
-          dist <= 2.05 ? [...allyPowers, buildInterposeReactionItem()] : allyPowers;
+          dist <= 2.05 && isPcAlly
+            ? [...allyPowers, buildInterposeReactionItem()]
+            : allyPowers;
         if (!powersForAlly.length) continue;
 
         out.push({
@@ -408,6 +423,11 @@ export function collectReactionWindowEntries(params: {
           continue;
         }
         seenActorIds.add(oppActorId);
+
+        if (!actorParticipatesInReactions(economyOpp)) {
+          oppDebug.push({ tokenId: tid, name, skip: 'npc-reactions-not-configured', actorId: oppActorId });
+          continue;
+        }
 
         const summary = getReactionActionsSummary(economyOpp, combat);
         const offensivePowers =

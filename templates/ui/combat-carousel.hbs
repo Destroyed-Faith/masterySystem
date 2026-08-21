@@ -50,9 +50,11 @@
           <!-- Initiative Badge -->
           <div class="initiative-badge">{{combatant.initiative}}</div>
 
+          {{#if combatant.reactionTotal}}
           <div class="ms-carousel-reactions" title="Reactions remaining this round (stones may raise total)">
             R <strong>{{combatant.reactionRemaining}}</strong>/{{combatant.reactionTotal}}
           </div>
+          {{/if}}
 
           <!-- Name -->
           <div class="portrait-name">{{combatant.name}}</div>

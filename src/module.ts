@@ -2231,6 +2231,7 @@ async function preloadTemplates() {
     'systems/mastery-system/templates/actor/partials/combat-senses-config.hbs',
     'systems/mastery-system/templates/actor/partials/npc-attack-targeting.hbs',
     'systems/mastery-system/templates/actor/partials/npc-combat-ini.hbs',
+    'systems/mastery-system/templates/actor/partials/npc-reactions.hbs',
     'systems/mastery-system/templates/actor/character-print.hbs',
     'systems/mastery-system/templates/actor/npc-print.hbs',
     'systems/mastery-system/templates/actor/npc-sheet.hbs',

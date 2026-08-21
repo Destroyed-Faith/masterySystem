@@ -1,0 +1,113 @@
+<div class="attack-values-panel npc-section npc-reactions-section">
+  <div class="attack-values-header">
+    <h3 class="npc-section__title"><i class="fas fa-reply"></i> Reactions</h3>
+    <div class="npc-reactions-toolbar">
+      <label class="npc-reactions-slots" title="Reactions pro Runde. 0 = keine Reactions im Kampf.">
+        / Runde
+        <input type="number" name="{{path}}.npcReactionSlots" value="{{default slots 0}}" min="0" max="10" step="1" data-dtype="Number"/>
+      </label>
+      <button type="button" class="npc-reaction-add-custom" data-phase-index="{{phaseIndex}}" title="Eigene Reaction mit Specials">
+        <i class="fas fa-plus"></i> Eigene
+      </button>
+    </div>
+  </div>
+  <p class="hint">Standard-NSCs haben keine Reactions. Nur wenn du hier etwas einträgst, erscheint der NSC im Reaction-Fenster.</p>
+
+  <div class="npc-reactions-standard">
+    <label>Standardmanöver</label>
+    <div class="npc-reactions-standard-row">
+      <select class="npc-reaction-standard-select">
+        <option value="">— auswählen —</option>
+        {{#each @root.npcStandardReactions as |std|}}
+        <option value="{{std.id}}">{{std.name}}</option>
+        {{/each}}
+      </select>
+      <button type="button" class="npc-reaction-add-standard" data-phase-index="{{phaseIndex}}">Hinzufügen</button>
+    </div>
+  </div>
+
+  <details class="npc-reactions-catalog">
+    <summary>Katalog-Reactions einblenden</summary>
+    <div class="npc-reactions-catalog-body">
+      <input type="search" class="npc-reaction-catalog-filter" placeholder="Filtern…" />
+      <div class="npc-reactions-catalog-row">
+        <select class="npc-reaction-catalog-select">
+          <option value="">— Katalog —</option>
+          {{#each @root.npcCatalogReactions as |cat|}}
+          <option value="{{cat.templateId}}" data-label="{{cat.name}}">{{cat.name}}</option>
+          {{/each}}
+        </select>
+        <label class="npc-reactions-rank">
+          Stufe
+          <select class="npc-reaction-catalog-rank" data-dtype="Number">
+            {{#each (range 1 16)}}
+            <option value="{{this}}" {{#if (eq this 4)}}selected{{/if}}>{{this}}</option>
+            {{/each}}
+          </select>
+        </label>
+        <button type="button" class="npc-reaction-add-catalog" data-phase-index="{{phaseIndex}}">Hinzufügen</button>
+      </div>
+    </div>
+  </details>
+
+  <div class="attack-values-list npc-reactions-list">
+    {{#if rows}}
+      {{#each rows as |rx index|}}
+      <div class="npc-attack-card npc-reaction-card" data-reaction-index="{{index}}" data-phase-index="{{../phaseIndex}}">
+        <div class="npc-attack-card__head">
+          <input type="hidden" name="{{../path}}.npcReactions.{{index}}.id" value="{{rx.id}}"/>
+          <input type="hidden" name="{{../path}}.npcReactions.{{index}}.source" value="{{rx.source}}"/>
+          <input type="hidden" name="{{../path}}.npcReactions.{{index}}.basicId" value="{{rx.basicId}}"/>
+          <input type="hidden" name="{{../path}}.npcReactions.{{index}}.templateId" value="{{rx.templateId}}"/>
+          <input type="text" class="npc-attack-name" name="{{../path}}.npcReactions.{{index}}.name" value="{{rx.name}}" placeholder="Reaction-Name"/>
+          {{#if (eq rx.source "catalog")}}
+          <label class="npc-reactions-rank">
+            Stufe
+            <select name="{{../path}}.npcReactions.{{index}}.rank" data-dtype="Number">
+              {{#each (range 1 16)}}
+              <option value="{{this}}" {{#if (eqNum rx.rank this)}}selected{{/if}}>{{this}}</option>
+              {{/each}}
+            </select>
+          </label>
+          {{/if}}
+          <span class="npc-reaction-source-tag">{{rx.source}}</span>
+          <button type="button" class="npc-reaction-delete npc-attack-delete" data-reaction-index="{{index}}" data-phase-index="{{../phaseIndex}}" title="Entfernen">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
+        {{#if (eq rx.source "custom")}}
+        <div class="npc-attack-specials-block">
+          <div class="npc-attack-specials-header">
+            <span>Specials</span>
+            <button type="button" class="npc-power-special-add" data-scope="reaction" data-phase-index="{{../phaseIndex}}" data-reaction-index="{{index}}"><i class="fas fa-plus"></i></button>
+          </div>
+          {{#each rx.specials as |sp si|}}
+          <div class="npc-attack-special-row">
+            <select name="{{../../path}}.npcReactions.{{../index}}.specials.{{si}}.special" class="special-select">
+              <option value="">—</option>
+              {{#each @root.npcSpecialSelectGroups as |grp|}}
+              <optgroup label="{{grp.label}}">
+                {{#each grp.options as |opt|}}
+                <option value="{{opt.value}}" {{#if (eq sp.special opt.value)}}selected{{/if}}>{{opt.label}}</option>
+                {{/each}}
+              </optgroup>
+              {{/each}}
+            </select>
+            <select name="{{../../path}}.npcReactions.{{../index}}.specials.{{si}}.specialValue" data-dtype="Number">
+              <option value="">—</option>
+              {{#each (range 1 10)}}
+              <option value="{{this}}" {{#if (eqNum sp.specialValue this)}}selected{{/if}}>{{this}}</option>
+              {{/each}}
+            </select>
+            <button type="button" class="npc-power-special-del" data-scope="reaction" data-phase-index="{{../../phaseIndex}}" data-reaction-index="{{../index}}" data-special-index="{{si}}" title="Entfernen"><i class="fas fa-trash"></i></button>
+          </div>
+          {{/each}}
+        </div>
+        {{/if}}
+      </div>
+      {{/each}}
+    {{else}}
+      <div class="no-attack-values">Keine Reactions — dieser NSC reagiert im Kampf nicht.</div>
+    {{/if}}
+  </div>
+</div>

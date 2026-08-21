@@ -13,6 +13,7 @@ import {
   getRoundState,
   spendReactionAction,
 } from './action-economy.js';
+import { actorParticipatesInReactions } from '../utils/npc-reactions.js';
 import { getTargetEvade, getTargetSpellResistance } from './attack-executor.js';
 import { RAISE_INCREMENT } from '../utils/constants.js';
 
@@ -72,6 +73,7 @@ export function diveForCoverDistanceM(actor: any): number {
  * @returns true when the creature escaped (→ not affected by the AoE).
  */
 export async function promptDiveForCoverEscape(defender: any, tok: any | null): Promise<boolean> {
+  if (!actorParticipatesInReactions(defender)) return false;
   const combat = (game as any).combat as Combat | null;
   const economyDef = getActionEconomyActor(defender) ?? defender;
   const rsReact = getRoundState(economyDef, combat);

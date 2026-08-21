@@ -702,7 +702,7 @@ async function executeReactionSpend(params: {
     return { state, note: 'Could not spend Reaction.' };
   }
 
-  if (!isBasicReactionItem(power)) {
+  if (!isBasicReactionItem(power) && !power?.npcConfiguredReaction) {
     await markPowerUsedThisRound(economy, combat, power.id);
   }
 
@@ -715,6 +715,16 @@ async function executeReactionSpend(params: {
   });
 
   let note = '';
+  const npcSpecials = Array.isArray(power?.npcReactionSpecials) ? power.npcReactionSpecials : [];
+  if (npcSpecials.length && attacker) {
+    try {
+      const { applyNpcReactionSpecialsToTarget } = await import('../utils/npc-reactions.js');
+      await applyNpcReactionSpecialsToTarget(attacker, npcSpecials.map(String), actor);
+      note += ` <em>(Specials: ${npcSpecials.join(', ')}.)</em>`;
+    } catch (err) {
+      console.warn('Mastery System | NPC reaction specials failed', err);
+    }
+  }
   const mech = mechanicsOf(power);
   const isCounterattack = power?.basicReaction === 'counterattack';
 
@@ -1388,6 +1398,9 @@ export async function runInteractiveReactionWindow(params: {
   const { defender, attacker, combat, rawDamage, hit } = params;
   if (!defender || !combat) return empty;
 
+  const { actorParticipatesInReactions } = await import('../utils/npc-reactions.js');
+  const defenderMayReact = actorParticipatesInReactions(defender);
+
   const oppIds = (params.opportunityEnemyTokenIds ?? [])
     .map((id) => String(id || '').trim())
     .filter(Boolean);
@@ -1433,6 +1446,14 @@ export async function runInteractiveReactionWindow(params: {
   const mustShowOpportunityCard =
     oppIds.length > 0 && (phase === 'others' || phase === 'opportunity');
   if (!actionable.length) {
+    if (phase === 'defender' && !defenderMayReact && !mustShowOpportunityCard) {
+      return {
+        mitigation: state.mitigation,
+        eventId: state.eventId,
+        spentActorIds: state.spentActorIds,
+        used: state.used,
+      };
+    }
     if (!mustShowOpportunityCard && (params.silentIfEmpty || phase === 'others')) {
       return {
         mitigation: state.mitigation,

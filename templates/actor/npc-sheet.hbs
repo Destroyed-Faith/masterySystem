@@ -345,6 +345,12 @@
             {{/if}}
           </div>
         </div>
+
+        {{> "systems/mastery-system/templates/actor/partials/npc-reactions.hbs"
+          path=(concat "system.phases." phaseIndex)
+          slots=phase.npcReactionSlots
+          rows=phase.npcReactions
+          phaseIndex=phaseIndex}}
       </div>
       {{/each}}
     {{else}}
@@ -559,6 +565,12 @@
         </div>
       </div>
       {{/unless}}
+
+      {{> "systems/mastery-system/templates/actor/partials/npc-reactions.hbs"
+        path="system"
+        slots=system.npcReactionSlots
+        rows=system.npcReactions
+        phaseIndex=""}}
     {{/if}}
 
     {{!-- Notes --}}
