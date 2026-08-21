@@ -6,7 +6,7 @@ import { getSegmentIdForOption } from './options.js';
 import { showRangePreview, clearRangePreview, resolveHoverPreviewMeters } from './range-preview.js';
 import { showRadialInfoPanel, hideRadialInfoPanel } from './info-panel.js';
 import { handleChosenCombatOption } from '../token-action-selector.js';
-import { getRoundState } from '../combat/action-economy.js';
+import { getAvailableActiveBuffActions, getRoundState } from '../combat/action-economy.js';
 /**
  * Foundry v13: When the radial menu spawns under the mouse cursor, PIXI can
  * immediately fire pointerover for whichever slice is "under" the cursor.
@@ -329,9 +329,10 @@ export function renderInnerSegments(root, getCurrentSegmentId, setCurrentSegment
                         remaining = roundState.movementActions.total - roundState.movementActions.used;
                         break;
                     case 'attack':
-                    case 'active-buff':
-                        // Both Attack and Buff use the shared attack pool
                         remaining = roundState.attackActions.total - roundState.attackActions.used;
+                        break;
+                    case 'active-buff':
+                        remaining = getAvailableActiveBuffActions(actor, combat);
                         break;
                     case 'utility':
                         // Utility also uses attack pool
@@ -483,8 +484,10 @@ export function refreshInnerSegmentsVisual(root, getCurrentSegmentId, token) {
                             remaining = roundState.movementActions.total - roundState.movementActions.used;
                             break;
                         case 'attack':
-                        case 'active-buff':
                             remaining = roundState.attackActions.total - roundState.attackActions.used;
+                            break;
+                        case 'active-buff':
+                            remaining = getAvailableActiveBuffActions(actor, combat);
                             break;
                         case 'utility':
                             remaining = roundState.attackActions.total - roundState.attackActions.used;

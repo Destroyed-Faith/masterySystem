@@ -562,6 +562,25 @@ export function getAvailableAttackActions(actor, combat) {
     const n = Math.max(0, effectiveTotal - roundState.attackActions.used);
     return n;
 }
+/** Remaining Active Buff activations this round: always 1 or 0. */
+export function remainingActiveBuffActions(usedThisRound, attackActionsAvailable) {
+    if (usedThisRound)
+        return 0;
+    if (attackActionsAvailable <= 0)
+        return 0;
+    return 1;
+}
+export function getAvailableActiveBuffActions(actor, combat) {
+    const roundState = getRoundState(actor, combat);
+    return remainingActiveBuffActions(roundState.activeBuffUsedThisRound, getAvailableAttackActions(actor, combat));
+}
+export async function markActiveBuffUsedThisRound(actor, combat) {
+    const roundState = getRoundState(actor, combat);
+    if (roundState.activeBuffUsedThisRound)
+        return;
+    roundState.activeBuffUsedThisRound = true;
+    await setRoundState(actor, roundState);
+}
 /** Apply Dash / Disengage / Flee side-effects after spending Movement. */
 export async function applyBasicMovementManeuverFlags(actor, combat, maneuverId) {
     const id = String(maneuverId || '');

@@ -55,6 +55,11 @@ export interface RoundState {
      */
     movementPowerUsedThisRound?: boolean;
     /**
+     * One Active Buff activation per round. The radial Buff slice shows 1 or 0
+     * regardless of how many Attack Actions remain.
+     */
+    activeBuffUsedThisRound?: boolean;
+    /**
      * Dash / Disengage: base Attack Action locked this Turn (stone extras still ok).
      */
     baseAttackLocked?: boolean;
@@ -236,6 +241,10 @@ export declare function isNormalMovementReplaced(actor: Actor, combat: Combat | 
  */
 export declare function spendReactionAction(actor: Actor, combat: Combat | null): Promise<boolean>;
 export declare function getAvailableAttackActions(actor: Actor, combat: Combat | null): number;
+/** Remaining Active Buff activations this round: always 1 or 0. */
+export declare function remainingActiveBuffActions(usedThisRound: boolean | undefined, attackActionsAvailable: number): number;
+export declare function getAvailableActiveBuffActions(actor: Actor, combat: Combat | null): number;
+export declare function markActiveBuffUsedThisRound(actor: Actor, combat: Combat | null): Promise<void>;
 /** Apply Dash / Disengage / Flee side-effects after spending Movement. */
 export declare function applyBasicMovementManeuverFlags(actor: Actor, combat: Combat | null, maneuverId: string): Promise<void>;
 export declare function isFleeLocked(actor: Actor, combat: Combat | null): boolean;

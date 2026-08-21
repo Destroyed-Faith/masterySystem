@@ -21,6 +21,8 @@ import {
   getAvailableMovementActions,
   consumeAttackAction,
   consumeMovementAction,
+  getAvailableActiveBuffActions,
+  markActiveBuffUsedThisRound,
   spendMovementPowerAction,
   isNormalMovementReplaced,
   refundAttackAction,
@@ -813,6 +815,16 @@ export async function handleChosenCombatOption(token: any, option: RadialCombatO
   const isActiveBuff = segmentId === 'active-buff';
   
   if (isActiveBuff && option.source === 'power' && option.item) {
+    if (getAvailableActiveBuffActions(actor, combat) <= 0) {
+      const attacksLeft = getAvailableAttackActions(actor, combat);
+      ui.notifications?.warn(
+        attacksLeft <= 0
+          ? 'No Actions left this round.'
+          : 'Already used your Active Buff this round.',
+      );
+      return;
+    }
+
     // Check and consume attack action if needed (active buffs cost an action)
     if (option.costsAction) {
       const available = getAvailableAttackActions(actor, combat);
@@ -841,6 +853,7 @@ export async function handleChosenCombatOption(token: any, option: RadialCombatO
         await refundAttackAction(actor, combat);
       }
       if (ok) {
+        await markActiveBuffUsedThisRound(actor, combat);
         // NOTE: deliberately not marking the artifact item "used this round" —
         // a single artifact item carries several rows, and the per-item guard
         // would otherwise block the actor's other artifact abilities (Bite,
@@ -875,6 +888,7 @@ export async function handleChosenCombatOption(token: any, option: RadialCombatO
       console.warn('Mastery System | [RADIAL FLOW] active buff: refunded attack (activation failed)');
     }
     if (success) {
+      await markActiveBuffUsedThisRound(actor, combat);
       if (option.item?.id) {
         await markPowerUsedThisRound(actor, combat, option.item.id);
       }

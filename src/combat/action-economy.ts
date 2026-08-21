@@ -135,6 +135,11 @@ export interface RoundState {
    */
   movementPowerUsedThisRound?: boolean;
   /**
+   * One Active Buff activation per round. The radial Buff slice shows 1 or 0
+   * regardless of how many Attack Actions remain.
+   */
+  activeBuffUsedThisRound?: boolean;
+  /**
    * Dash / Disengage: base Attack Action locked this Turn (stone extras still ok).
    */
   baseAttackLocked?: boolean;
@@ -806,6 +811,31 @@ export function getAvailableAttackActions(actor: Actor, combat: Combat | null): 
   const effectiveTotal = Math.max(0, roundState.attackActions.total - stunnedLock - baseLock);
   const n = Math.max(0, effectiveTotal - roundState.attackActions.used);
   return n;
+}
+
+/** Remaining Active Buff activations this round: always 1 or 0. */
+export function remainingActiveBuffActions(
+  usedThisRound: boolean | undefined,
+  attackActionsAvailable: number,
+): number {
+  if (usedThisRound) return 0;
+  if (attackActionsAvailable <= 0) return 0;
+  return 1;
+}
+
+export function getAvailableActiveBuffActions(actor: Actor, combat: Combat | null): number {
+  const roundState = getRoundState(actor, combat);
+  return remainingActiveBuffActions(
+    roundState.activeBuffUsedThisRound,
+    getAvailableAttackActions(actor, combat),
+  );
+}
+
+export async function markActiveBuffUsedThisRound(actor: Actor, combat: Combat | null): Promise<void> {
+  const roundState = getRoundState(actor, combat);
+  if (roundState.activeBuffUsedThisRound) return;
+  roundState.activeBuffUsedThisRound = true;
+  await setRoundState(actor, roundState);
 }
 
 /** Apply Dash / Disengage / Flee side-effects after spending Movement. */

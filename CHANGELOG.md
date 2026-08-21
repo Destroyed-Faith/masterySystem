@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.408] - 2026-08-21
+
+### Changed
+
+- **Radial Buff:** The Active Buff slice always shows 1 or 0. You can activate at most one Active Buff per round, even if you still have leftover Attack Actions.
+
 ## [0.9.407] - 2026-08-21
 
 ### Added

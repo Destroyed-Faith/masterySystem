@@ -12,7 +12,7 @@ import { promptMeleeAoePrimaryChoice } from './melee-aoe-primary-dialog.js';
 import { extractMeleeAoePowerBonusD8 } from './utils/power-mechanics.js';
 import { startRangedTargeting } from './ranged-targeting.js';
 import { startUtilitySingleTargetMode, startUtilityRadiusMode } from './utility-targeting.js';
-import { getRoundState, getMovementRangeBonusMeters, getAvailableAttackActions, getAvailableMovementActions, consumeAttackAction, consumeMovementAction, spendMovementPowerAction, isNormalMovementReplaced, refundAttackAction, markPowerUsedThisRound, markNpcAttackUsedThisRound, canUseNpcAttackThisRound, hasPowerBeenUsedThisRound } from './combat/action-economy.js';
+import { getRoundState, getMovementRangeBonusMeters, getAvailableAttackActions, getAvailableMovementActions, consumeAttackAction, consumeMovementAction, getAvailableActiveBuffActions, markActiveBuffUsedThisRound, spendMovementPowerAction, isNormalMovementReplaced, refundAttackAction, markPowerUsedThisRound, markNpcAttackUsedThisRound, canUseNpcAttackThisRound, hasPowerBeenUsedThisRound } from './combat/action-economy.js';
 import { gridStepsFromMeters, gridStepsBetweenCenters, masteryPowerMaxSteps, measureSceneDistanceBetweenPoints, metersToSceneDistance } from './utils/grid-range.js';
 import { eventWorldPoint, resolveOverlayContainer, snapWorldTopLeft, } from './utils/grid-snap.js';
 import { highlightHexesInRange, highlightHexesWithinStepsFromPoint, clearHexHighlight, collectHexKeysInRangeForToken, highlightTabuHexesOnLayer } from './utils/hex-highlighting.js';
@@ -639,6 +639,13 @@ export async function handleChosenCombatOption(token, option) {
     const segmentId = getSegmentIdForOption(option);
     const isActiveBuff = segmentId === 'active-buff';
     if (isActiveBuff && option.source === 'power' && option.item) {
+        if (getAvailableActiveBuffActions(actor, combat) <= 0) {
+            const attacksLeft = getAvailableAttackActions(actor, combat);
+            ui.notifications?.warn(attacksLeft <= 0
+                ? 'No Actions left this round.'
+                : 'Already used your Active Buff this round.');
+            return;
+        }
         // Check and consume attack action if needed (active buffs cost an action)
         if (option.costsAction) {
             const available = getAvailableAttackActions(actor, combat);
@@ -664,6 +671,7 @@ export async function handleChosenCombatOption(token, option) {
                 await refundAttackAction(actor, combat);
             }
             if (ok) {
+                await markActiveBuffUsedThisRound(actor, combat);
                 // NOTE: deliberately not marking the artifact item "used this round" —
                 // a single artifact item carries several rows, and the per-item guard
                 // would otherwise block the actor's other artifact abilities (Bite,
@@ -698,6 +706,7 @@ export async function handleChosenCombatOption(token, option) {
             console.warn('Mastery System | [RADIAL FLOW] active buff: refunded attack (activation failed)');
         }
         if (success) {
+            await markActiveBuffUsedThisRound(actor, combat);
             if (option.item?.id) {
                 await markPowerUsedThisRound(actor, combat, option.item.id);
             }
