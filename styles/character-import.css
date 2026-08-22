@@ -1,4 +1,10 @@
 /* Homepage character import dialog */
+/* The dialog content can outgrow the window (long validation output,
+   large textarea) — scroll instead of hiding the action buttons. */
+.character-import-app .window-content {
+  overflow-y: auto;
+}
+
 .character-import-app .ci-root {
   display: flex;
   flex-direction: column;

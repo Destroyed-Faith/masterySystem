@@ -82,6 +82,36 @@ describe('character-import validation', () => {
     expect(result.ok).toBe(false);
     expect(result.errors.some((e) => /6 powers/i.test(e))).toBe(true);
   });
+
+  it('accepts zero disadvantages (they are optional at creation)', () => {
+    for (const disadvantages of [[], undefined]) {
+      const result = validateCharacterImportDocument({
+        schemaVersion: 1,
+        exportKind: 'mastery-character-import',
+        systemId: 'mastery-system',
+        character: { ...alarisPayload, disadvantages },
+      });
+      expect(result.ok).toBe(true);
+      expect(result.errors).toHaveLength(0);
+    }
+  });
+
+  it('still rejects more than 8 disadvantage points', () => {
+    const result = validateCharacterImportDocument({
+      schemaVersion: 1,
+      exportKind: 'mastery-character-import',
+      systemId: 'mastery-system',
+      character: {
+        ...alarisPayload,
+        disadvantages: [
+          { id: 'hunted', points: 5, details: {} },
+          { id: 'addiction', points: 5, details: {} },
+        ],
+      },
+    });
+    expect(result.ok).toBe(false);
+    expect(result.errors.some((e) => /maximum is 8/i.test(e))).toBe(true);
+  });
 });
 
 describe('character-import build', () => {

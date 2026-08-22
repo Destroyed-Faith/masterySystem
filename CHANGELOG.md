@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.410] - 2026-08-22
+
+### Fixed
+
+- **Character Import:** Homepage imports may now have zero disadvantages (0–8 points). The Import Character dialog scrolls so Validate stays reachable.
+
 ## [0.9.409] - 2026-08-21
 
 ### Changed

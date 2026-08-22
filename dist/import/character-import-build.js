@@ -241,7 +241,9 @@ export function buildActorSystemFromPayload(payload) {
             complete: payload.creationComplete !== false,
             importSource: 'homepage',
             importSchemaVersion: 1,
-            disadvantagesReviewed: disadvantages.length > 0,
+            // Zero disadvantages are a valid creation choice; complete imports
+            // count as reviewed either way.
+            disadvantagesReviewed: payload.creationComplete !== false || disadvantages.length > 0,
             equipmentReviewed: payload.creationComplete !== false,
             // Same bookkeeping as applyTowerWizardPackage, so post-import rebuilds
             // recognise the package the character was created with.

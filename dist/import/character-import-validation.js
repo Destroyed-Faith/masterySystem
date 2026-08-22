@@ -46,7 +46,6 @@ function validatePowerGrantSpecs(specs) {
     return errors;
 }
 const CREATION_SKILL_POINTS = 40;
-const MIN_DISADVANTAGE_POINTS = 2;
 const MAX_DISADVANTAGE_POINTS = 8;
 function validateSkillsAndExpressions(payload) {
     const errors = [];
@@ -105,19 +104,12 @@ function validateSkillsAndExpressions(payload) {
                 }
             }
         }
+        // Zero disadvantages are allowed at creation — only enforce the maximum.
         const normalized = normalizeDisadvantageEntries(payload.disadvantages);
         const pts = disadvantagePointsTotal(normalized);
-        if (payload.creationComplete !== false) {
-            if (pts < MIN_DISADVANTAGE_POINTS) {
-                errors.push(`Disadvantages sum to ${pts} points; at least ${MIN_DISADVANTAGE_POINTS} required at creation.`);
-            }
-            if (pts > MAX_DISADVANTAGE_POINTS) {
-                errors.push(`Disadvantages sum to ${pts} points; maximum is ${MAX_DISADVANTAGE_POINTS}.`);
-            }
+        if (payload.creationComplete !== false && pts > MAX_DISADVANTAGE_POINTS) {
+            errors.push(`Disadvantages sum to ${pts} points; maximum is ${MAX_DISADVANTAGE_POINTS}.`);
         }
-    }
-    else if (payload.creationComplete !== false) {
-        errors.push(`No disadvantages provided — creation requires ${MIN_DISADVANTAGE_POINTS}–${MAX_DISADVANTAGE_POINTS} disadvantage points.`);
     }
     return errors;
 }

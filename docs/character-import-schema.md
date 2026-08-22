@@ -158,7 +158,7 @@ Optional `skillsSpent` uses the same shape (tracks consumable uses per Safe Have
 
 ### Disadvantages
 
-At creation you need **2–8 disadvantage points** (= starting **Faith Fractures**).
+At creation you may take **0–8 disadvantage points** (= starting **Faith Fractures**). Disadvantages are optional.
 
 **Shorthand** (catalog id only — empty `details`, base points):
 
