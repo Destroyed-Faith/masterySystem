@@ -264,18 +264,42 @@ export async function applyNpcReactionSpecialsToTarget(
   target: any,
   specials: string[],
   sourceActor: any,
-): Promise<void> {
-  if (!target || !specials?.length) return;
+): Promise<string[]> {
+  const limitNotes: string[] = [];
+  if (!target || !specials?.length) return limitNotes;
   const list: any[] = Array.isArray(target.system?.statusEffects)
     ? [...target.system.statusEffects]
     : [];
   const sourceName = String(sourceActor?.name ?? 'NPC');
+  const combat = (globalThis as any).game?.combat ?? null;
+  const {
+    actorMasteryRank,
+    clampSpecialApplication,
+    formatApplicationLimitNote,
+    specialRoundAppsUpdate,
+  } = await import('../combat/special-application.js');
+  let workingApps: ReturnType<typeof clampSpecialApplication>['nextApps'] = null;
+  let appsUpdate: Record<string, unknown> = {};
   for (const raw of specials) {
     const match = String(raw || '').match(/^([^(]+)(?:\((\d+)\))?$/);
     if (!match) continue;
     const effectName = match[1].trim();
-    const effectValue = match[2] ? parseInt(match[2], 10) : null;
+    let effectValue = match[2] ? parseInt(match[2], 10) : null;
     const effectId = getEffect(effectName)?.id;
+    if (effectValue != null && effectValue > 0 && effectId) {
+      const clamp = clampSpecialApplication(target, effectId, effectValue, combat, workingApps);
+      if (clamp.nextApps) {
+        workingApps = clamp.nextApps;
+        appsUpdate = specialRoundAppsUpdate(clamp.nextApps);
+      }
+      if (clamp.ignored > 0) {
+        limitNotes.push(
+          formatApplicationLimitNote(effectId, clamp.ignored, clamp.limit, actorMasteryRank(target)),
+        );
+      }
+      effectValue = clamp.applied;
+      if (effectValue <= 0) continue;
+    }
     const existing = list.find((e: any) => (effectId && e.id === effectId) || e.name === effectName);
     if (existing) {
       if (effectValue != null) existing.value = (existing.value || 0) + effectValue;
@@ -290,7 +314,8 @@ export async function applyNpcReactionSpecialsToTarget(
       });
     }
   }
-  await target.update?.({ 'system.statusEffects': list });
+  await target.update?.({ 'system.statusEffects': list, ...appsUpdate });
+  return limitNotes;
 }
 
 export function newCustomNpcReaction(masteryRank: number): NpcReactionRow {

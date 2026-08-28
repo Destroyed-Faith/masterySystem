@@ -13,8 +13,10 @@
  * Movement-based ticks (Lacerate, Slow end-of-turn damage) are resolved from
  * movement tracking, not here. Value-based maluses (Corrode, Expose, Slow speed,
  * Soulburn, Weaken, Disoriented, Challenge) are applied in `prepareDerivedData`
- * / roll builders and only decay here. Cleanse Maintenance (Ward / Active Buff)
- * reduces exactly one eligible Special after Tick + Decay.
+ * / roll builders and only decay here. After Ticks, Natural Special Recovery
+ * reduces negative Diminishing Specials by a total equal to Mastery Rank.
+ * Cleanse Maintenance (Ward / Active Buff) then reduces one eligible Special
+ * after Decay.
  *
  * Runs GM-side only so a single client mutates the actor.
  */
@@ -24,6 +26,11 @@ import { getEffectById } from '../utils/special-effects.js';
 import { statusEntryId } from '../system/active-specials.js';
 import { applyCleanseToList } from '../system/pool-reduction.js';
 import { buildActorMechanicsBreakdown } from '../utils/power-mechanics.js';
+import {
+  applyNaturalRecoveryToValue,
+  formatNaturalRecoveryNote,
+  resolveNaturalRecoveryPlan,
+} from './special-application.js';
 
 interface StatusEffectEntry {
   id?: string;
@@ -48,7 +55,7 @@ export async function processTurnStartStatusTick(actor: any): Promise<string> {
   let blightStress = 0;
   let regenHeal = 0;
   const notes: string[] = [];
-  const next: StatusEffectEntry[] = [];
+  const working: StatusEffectEntry[] = [];
   const masteryRank = Math.max(1, Math.floor(Number(system?.mastery?.rank) || 1));
 
   for (const entry of list) {
@@ -60,7 +67,7 @@ export async function processTurnStartStatusTick(actor: any): Promise<string> {
       const value = Math.max(0, Math.floor(Number(entry.value ?? 0)));
       const reduced = Math.max(0, value - masteryRank);
       if (reduced > 0) {
-        next.push({ ...entry, id, value: reduced });
+        working.push({ ...entry, id, value: reduced });
         notes.push(`Root(${value}) → Root(${reduced}) (−${masteryRank} MR)`);
       } else if (value > 0) {
         notes.push('Root ended');
@@ -70,13 +77,13 @@ export async function processTurnStartStatusTick(actor: any): Promise<string> {
 
     // Non-diminishing (timed / until-used / instant) entries are left untouched.
     if (!effect || effect.category !== 'diminishing') {
-      next.push(entry);
+      working.push(entry);
       continue;
     }
 
     const value = Math.max(0, Math.floor(Number(entry.value ?? 0)));
 
-    // Tick (before decay).
+    // Tick (before Natural Recovery and Decay).
     if (value > 0) {
       switch (id) {
         case 'ruin':
@@ -104,7 +111,44 @@ export async function processTurnStartStatusTick(actor: any): Promise<string> {
       }
     }
 
-    // Decay X → X − 1; drop at 0.
+    working.push({ ...entry, id, value });
+  }
+
+  const recoverPlan = resolveNaturalRecoveryPlan(
+    actor,
+    working.map((e) => ({
+      id: statusEntryId(e) || '',
+      value: Math.max(0, Math.floor(Number(e.value ?? 0))),
+    })),
+    (globalThis as any).game?.combat ?? null,
+    masteryRank,
+  );
+  for (const step of recoverPlan) {
+    let left = step.reduced;
+    for (let i = 0; i < working.length && left > 0; i++) {
+      if (statusEntryId(working[i]) !== step.id) continue;
+      const entry = working[i]!;
+      const before = Math.max(0, Math.floor(Number(entry.value ?? 0)));
+      const { after, reduced } = applyNaturalRecoveryToValue(before, left);
+      left -= reduced;
+      if (after > 0) working[i] = { ...entry, value: after };
+      else {
+        working.splice(i, 1);
+        i -= 1;
+      }
+    }
+    notes.push(formatNaturalRecoveryNote(step.id, step.before, step.after, step.reduced));
+  }
+
+  const next: StatusEffectEntry[] = [];
+  for (const entry of working) {
+    const id = statusEntryId(entry);
+    const effect = id ? getEffectById(id) : undefined;
+    if (!effect || effect.category !== 'diminishing') {
+      next.push(entry);
+      continue;
+    }
+    const value = Math.max(0, Math.floor(Number(entry.value ?? 0)));
     const decayed = value - 1;
     if (decayed > 0) {
       next.push({ ...entry, id, value: decayed });

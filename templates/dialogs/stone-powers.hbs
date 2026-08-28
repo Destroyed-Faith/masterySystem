@@ -69,6 +69,49 @@
   </div>
   {{/if}}
 
+  {{#if naturalRecovery.show}}
+  <div class="natural-recovery-bar{{#if naturalRecovery.locked}} is-locked{{/if}}">
+    <div class="natural-recovery-copy">
+      <strong>{{naturalRecovery.title}}</strong>
+      <span>{{naturalRecovery.hint}}</span>
+    </div>
+    <div class="natural-recovery-actions">
+      <span class="natural-recovery-count{{#if naturalRecovery.remaining}} is-open{{/if}}">
+        {{naturalRecovery.allocated}} / {{naturalRecovery.masteryRank}}
+      </span>
+      <button type="button"
+              class="natural-recovery-pick js-nsr-skip{{#if naturalRecovery.skipped}} is-selected{{/if}}"
+              {{#if naturalRecovery.locked}}disabled{{/if}}>
+        {{naturalRecovery.noneLabel}}
+      </button>
+    </div>
+    <div class="natural-recovery-rows">
+      {{#each naturalRecovery.options}}
+      <div class="natural-recovery-row">
+        <span class="natural-recovery-label">{{this.label}}</span>
+        <div class="natural-recovery-stepper">
+          <button type="button"
+                  class="natural-recovery-step js-nsr-remove"
+                  data-special-id="{{this.id}}"
+                  {{#unless this.canRemove}}disabled{{/unless}}
+                  aria-label="One less">
+            <i class="fas fa-minus"></i>
+          </button>
+          <span class="natural-recovery-value">{{this.allocated}}</span>
+          <button type="button"
+                  class="natural-recovery-step js-nsr-add"
+                  data-special-id="{{this.id}}"
+                  {{#unless this.canAdd}}disabled{{/unless}}
+                  aria-label="One more">
+            <i class="fas fa-plus"></i>
+          </button>
+        </div>
+      </div>
+      {{/each}}
+    </div>
+  </div>
+  {{/if}}
+
   {{#if showStonePools}}
   <div class="stone-pools-display{{#if recovery.active}} is-recovery{{/if}}">
     <div class="stone-pools-header-row">

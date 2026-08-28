@@ -171,9 +171,9 @@ describe('status-tick Tick + Decay engine', () => {
     expect(summary).toMatch(/Ruin\(3\)/);
     // 20 - 3 = 17 on first bar
     expect(actor.system.health.bars[0].current).toBe(17);
-    // Decayed 3 → 2
+    // Tick 3, Natural Recovery −1 MR → 2, Decay → 1
     expect(actor.system.statusEffects).toEqual([
-      expect.objectContaining({ id: 'ruin', value: 2 }),
+      expect.objectContaining({ id: 'ruin', value: 1 }),
     ]);
   });
 
@@ -182,9 +182,7 @@ describe('status-tick Tick + Decay engine', () => {
     const actor = makeActor([{ id: 'blight', value: 2 }]);
     await processTurnStartStatusTick(actor);
     expect(actor.system.stress.bars[0].current).toBe(8);
-    expect(actor.system.statusEffects[0]).toEqual(
-      expect.objectContaining({ id: 'blight', value: 1 }),
-    );
+    expect(actor.system.statusEffects).toEqual([]);
   });
 
   it('heals with Regeneration', async () => {
@@ -208,9 +206,90 @@ describe('status-tick Tick + Decay engine', () => {
     await processTurnStartStatusTick(actor);
     // Ignite → Ruin: 20 - 2 = 18 damage applied
     expect(actor.system.health.bars[0].current).toBe(18);
-    expect(actor.system.statusEffects[0]).toEqual(
-      expect.objectContaining({ id: 'ruin', value: 1 }),
+    expect(actor.system.statusEffects).toEqual([]);
+  });
+
+  it('reduces one negative Diminishing Special by Mastery Rank after Ticks', async () => {
+    const { processTurnStartStatusTick } = await import('../src/combat/status-tick');
+    const actor = makeActor(
+      [
+        { id: 'regeneration', value: 6 },
+        { id: 'slow', value: 2 },
+        { id: 'ruin', value: 5 },
+      ],
+      { hpBar: 10 },
     );
+    actor.system.mastery = { rank: 2 };
+    const summary = await processTurnStartStatusTick(actor);
+    expect(summary).toMatch(/Natural Recovery/);
+    expect(summary).toMatch(/Ruin\(5\) → Ruin\(3\)/);
+    expect(actor.system.statusEffects).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ id: 'regeneration', value: 5 }),
+        expect.objectContaining({ id: 'slow', value: 1 }),
+        expect.objectContaining({ id: 'ruin', value: 2 }),
+      ]),
+    );
+  });
+
+  it('applies a stored Stone Powers split across several Specials', async () => {
+    const { processTurnStartStatusTick } = await import('../src/combat/status-tick');
+    const actor = makeActor(
+      [
+        { id: 'regeneration', value: 6 },
+        { id: 'slow', value: 2 },
+        { id: 'ruin', value: 5 },
+      ],
+      { hpBar: 10 },
+    );
+    actor.system.mastery = { rank: 2 };
+    actor.flags = {
+      'mastery-system': {
+        naturalSpecialRecovery: { combatId: 'c1', round: 1, chosen: true, allocations: { slow: 1, ruin: 1 } },
+      },
+    };
+    (globalThis as any).game.combat = { id: 'c1', round: 1 };
+    const summary = await processTurnStartStatusTick(actor);
+    expect(summary).toMatch(/Natural Recovery/);
+    expect(summary).toMatch(/Slow\(2\) → Slow\(1\)/);
+    expect(summary).toMatch(/Ruin\(5\) → Ruin\(4\)/);
+    expect(actor.system.statusEffects).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ id: 'regeneration', value: 5 }),
+        expect.objectContaining({ id: 'ruin', value: 3 }),
+      ]),
+    );
+    expect(actor.system.statusEffects.find((e: any) => e.id === 'slow')).toBeUndefined();
+  });
+
+  it('honors a stored Stone Powers choice over the highest remaining Special', async () => {
+    const { processTurnStartStatusTick } = await import('../src/combat/status-tick');
+    const actor = makeActor(
+      [
+        { id: 'regeneration', value: 6 },
+        { id: 'slow', value: 2 },
+        { id: 'ruin', value: 5 },
+      ],
+      { hpBar: 10 },
+    );
+    actor.system.mastery = { rank: 2 };
+    actor.flags = {
+      'mastery-system': {
+        naturalSpecialRecovery: { combatId: 'c1', round: 1, chosen: true, specialId: 'slow' },
+      },
+    };
+    (globalThis as any).game.combat = { id: 'c1', round: 1 };
+    const summary = await processTurnStartStatusTick(actor);
+    expect(summary).toMatch(/Natural Recovery/);
+    expect(summary).toMatch(/Slow/);
+    expect(summary).not.toMatch(/Ruin\(5\) → Ruin\(3\)/);
+    expect(actor.system.statusEffects).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ id: 'regeneration', value: 5 }),
+        expect.objectContaining({ id: 'ruin', value: 4 }),
+      ]),
+    );
+    expect(actor.system.statusEffects.find((e: any) => e.id === 'slow')).toBeUndefined();
   });
 
   it('is inert for a non-GM client', async () => {

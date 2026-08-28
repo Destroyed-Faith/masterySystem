@@ -242,10 +242,16 @@ export async function resolveAoeFullPayloadOnTarget(params: {
   const details = Array.isArray(damageResult.rollDetails)
     ? (damageResult.rollDetails as string[]).map((l) => `<li>${String(l)}</li>`).join('')
     : '';
+  const limitNotes = Array.isArray((damageResult as any).applicationLimitNotes)
+    ? ((damageResult as any).applicationLimitNotes as string[])
+    : [];
+  const limitHtml = limitNotes.length
+    ? `<p class="mastery-damage-special-limit">${limitNotes.join('<br>')}</p>`
+    : '';
   const aoeContent =
     `<div class="mastery-system-damage"><h3><i class="fas fa-sword"></i> AoE Damage: ${damageResult.totalDamage}</h3>` +
     (details ? `<ul class="mastery-damage-roll-list">${details}</ul>` : '') +
-    `<p><strong>Target:</strong> ${defender.name}</p><p><em>— applying…</em></p></div>`;
+    `<p><strong>Target:</strong> ${defender.name}</p>${limitHtml}<p><em>— applying…</em></p></div>`;
   const aoeRolls = Array.isArray(damageResult.damageChatRolls)
     ? damageResult.damageChatRolls
         .map((r: any) => (typeof r?.toJSON === 'function' ? r.toJSON() : r))
@@ -316,7 +322,7 @@ export async function resolveAoeFullPayloadOnTarget(params: {
           content:
             `<div class="mastery-system-damage"><h3><i class="fas fa-sword"></i> AoE Damage: ${damageResult.totalDamage}</h3>` +
             (details ? `<ul class="mastery-damage-roll-list">${details}</ul>` : '') +
-            `<p><strong>Target:</strong> ${defender.name}</p><p>${mitLine}</p></div>`,
+            `<p><strong>Target:</strong> ${defender.name}</p>${limitHtml}<p>${mitLine}</p></div>`,
         });
       }
     } catch {

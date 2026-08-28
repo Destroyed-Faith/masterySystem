@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.411] - 2026-08-28
+
+### Added
+
+- **Special Application Limit:** A creature may receive at most 4 × Mastery Rank new points of the same Diminishing Special in one combat Round. Excess is ignored and announced on the applying chat message.
+- **Natural Special Recovery:** After Ticks at turn start, a creature reduces negative Diminishing Specials by a total equal to its Mastery Rank. Characters assign the split in the Stone Powers dialog; unused reduction is lost.
+
 ## [0.9.410] - 2026-08-22
 
 ### Fixed

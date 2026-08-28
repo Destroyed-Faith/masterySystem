@@ -378,6 +378,14 @@
       "notEnoughAmmunition": "Not enough ammunition for this attack.",
       "invalidHandCombination": "That hand combination is not allowed."
     },
+    "specials": {
+      "applicationLimit": "{name}: {ignored} new point(s) ignored — Round limit {limit} (4 × MR {rank}) already reached.",
+      "naturalRecovery": "Natural Recovery −{reduced} MR → {name}({before}) → {name}({after})",
+      "naturalRecoveryEnded": "Natural Recovery −{reduced} MR → {name} ended",
+      "naturalRecoveryPick": "Natural Special Recovery",
+      "naturalRecoveryHint": "At the start of your turn, after Ticks, reduce negative Diminishing Specials by a total of your Mastery Rank ({rank}). Distribute freely. Unused reduction is lost.",
+      "naturalRecoveryNone": "None"
+    },
     "weaponSets": {
       "groupLabel": "Weaponslots",
       "actionName": "Weapon Swap",

@@ -34,6 +34,8 @@ export interface DamageResult {
     passiveDamage: number;
     raiseDamage: number;
     specialsUsed: string[];
+    /** Overflow from the per-Round Diminishing Special application limit. */
+    applicationLimitNotes?: string[];
     totalDamage: number;
     /** One line per rolled pool (base / power / passive / each raise d8) for chat */
     rollDetails?: string[];

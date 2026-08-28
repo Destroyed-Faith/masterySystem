@@ -20,6 +20,7 @@ import { poolSpendableStones } from '../utils/artifact-actor-rules.js';
 import { countArtifactActivationStones } from '../utils/artifact-stone-bound.js';
 import { getArtifactStoneFunctionStatus } from '../utils/artifact-stone-functions.js';
 import { refreshRadialMenuActionLabelsIfOpenForActor } from '../token-radial-menu.js';
+import { actorMasteryRank, changeNaturalRecoveryAllocation, listNaturalRecoveryOptions, matchingNaturalRecoveryChoice, naturalRecoveryAllocatedTotal, setNaturalRecoverySkipped, } from '../combat/special-application.js';
 const STONE_DRAG_MIME = 'application/x-mastery-stone-attribute';
 const STONE_RETURN_MIME = 'application/x-mastery-stone-return-acc';
 /** Physische Zahlungs-Lanes im Cluster: 1 + 2 + 4 + 8. T5+ (16/32) is future UI. */
@@ -768,7 +769,39 @@ export class StonePowersDialog extends BaseDialog {
             showStonePools,
             prefsUseDefaults,
             canSavePrefs,
-            combatLabel: combat ? `Runde ${combat.round}` : ''
+            combatLabel: combat ? `Runde ${combat.round}` : '',
+            naturalRecovery: this.#naturalRecoveryContext(combat, stonePlanLocked),
+        };
+    }
+    #naturalRecoveryContext(combat, locked) {
+        const options = listNaturalRecoveryOptions(this.actor, combat);
+        const choice = matchingNaturalRecoveryChoice(this.actor, combat);
+        const masteryRank = actorMasteryRank(this.actor);
+        const allocated = options.reduce((sum, row) => sum + row.allocated, 0);
+        const skipped = choice?.chosen === true && naturalRecoveryAllocatedTotal(choice.allocations) <= 0;
+        const show = !!this.combatant &&
+            this.actor.type === 'character' &&
+            (options.length > 0 || skipped);
+        const i18n = game?.i18n;
+        const title = i18n?.localize?.('MASTERY.specials.naturalRecoveryPick') || 'Natural Special Recovery';
+        const fallbackHint = `At the start of your turn, after Ticks, reduce negative Diminishing Specials by a total of your Mastery Rank (${masteryRank}). Distribute freely. Unused reduction is lost.`;
+        const hint = i18n?.format?.('MASTERY.specials.naturalRecoveryHint', { rank: masteryRank }) || fallbackHint;
+        const noneLabel = i18n?.localize?.('MASTERY.specials.naturalRecoveryNone') || 'None';
+        return {
+            show,
+            locked,
+            masteryRank,
+            allocated,
+            remaining: Math.max(0, masteryRank - allocated),
+            options: options.map((row) => ({
+                ...row,
+                canAdd: row.canAdd && !locked,
+                canRemove: row.canRemove && !locked,
+            })),
+            skipped,
+            title: title === 'MASTERY.specials.naturalRecoveryPick' ? 'Natural Special Recovery' : title,
+            hint: hint === 'MASTERY.specials.naturalRecoveryHint' ? fallbackHint : hint,
+            noneLabel: noneLabel === 'MASTERY.specials.naturalRecoveryNone' ? 'None' : noneLabel,
         };
     }
     /** Stones a Mastery Rank buys back at the start of a round. */
@@ -951,6 +984,44 @@ export class StonePowersDialog extends BaseDialog {
         }
     }
     /** Combat Reflexes steppers and the staged stone count of the exchange row. */
+    #bindNaturalRecoveryControls(root) {
+        root.querySelectorAll('.js-nsr-add, .js-nsr-remove').forEach((el) => {
+            const btn = el;
+            btn.addEventListener('click', (ev) => {
+                ev.preventDefault();
+                if (btn.disabled)
+                    return;
+                const delta = btn.classList.contains('js-nsr-add') ? 1 : -1;
+                void this.#changeNaturalRecovery(btn.dataset.specialId ?? '', delta);
+            });
+        });
+        const skip = root.querySelector('.js-nsr-skip');
+        if (skip) {
+            skip.addEventListener('click', (ev) => {
+                ev.preventDefault();
+                if (skip.disabled)
+                    return;
+                void this.#skipNaturalRecovery();
+            });
+        }
+    }
+    async #changeNaturalRecovery(specialId, delta) {
+        const combat = game.combat;
+        if (!combat || this.#isStoneDialogLocked())
+            return;
+        const id = String(specialId || '').trim();
+        if (!id)
+            return;
+        await changeNaturalRecoveryAllocation(this.actor, combat, id, delta);
+        await this.#renderKeepingScroll();
+    }
+    async #skipNaturalRecovery() {
+        const combat = game.combat;
+        if (!combat || this.#isStoneDialogLocked())
+            return;
+        await setNaturalRecoverySkipped(this.actor, combat);
+        await this.#renderKeepingScroll();
+    }
     #bindInitiativeExchangeControls(root) {
         const stepConvert = async (delta) => {
             const mr = getMasteryRank(getActionEconomyActor(this.actor) ?? this.actor);
@@ -1046,6 +1117,7 @@ export class StonePowersDialog extends BaseDialog {
             };
         }
         this.#bindInitiativeExchangeControls(root);
+        this.#bindNaturalRecoveryControls(root);
         const convertBtn = root.querySelector('.js-convert-initiative-colorless');
         if (convertBtn) {
             convertBtn.onclick = async (ev) => {

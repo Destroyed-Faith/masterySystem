@@ -378,6 +378,14 @@
       "notEnoughAmmunition": "Nicht genug Munition für diesen Angriff.",
       "invalidHandCombination": "Diese Kombination kann nicht zusammen ausgerüstet werden."
     },
+    "specials": {
+      "applicationLimit": "{name}: {ignored} neue Punkt(e) ignoriert — Rundenlimit {limit} (4 × MR {rank}) bereits erreicht.",
+      "naturalRecovery": "Natürliche Erholung −{reduced} MR → {name}({before}) → {name}({after})",
+      "naturalRecoveryEnded": "Natürliche Erholung −{reduced} MR → {name} beendet",
+      "naturalRecoveryPick": "Natürliche Special-Erholung",
+      "naturalRecoveryHint": "Zu Zugbeginn, nach den Ticks, reduzierst du negative Diminishing Specials um insgesamt deine Mastery Rank ({rank}). Die Verteilung ist frei. Ungenutzte Reduktion verfällt.",
+      "naturalRecoveryNone": "Keine"
+    },
     "weaponSets": {
       "groupLabel": "Waffenslots",
       "actionName": "Waffenwechsel",

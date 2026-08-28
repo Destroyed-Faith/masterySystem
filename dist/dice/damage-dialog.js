@@ -1089,6 +1089,7 @@ function applyStoneWardToIncomingSpecial(target, effectId, effectName, effectVal
  * Challenge uses challenger-bound merge rules (sourceUuid + stack/replace).
  */
 async function applyStatusEffectsToTarget(target, specialsUsed, attacker) {
+    const limitNotes = [];
     try {
         // Get current status effects from target
         const system = target.system;
@@ -1098,8 +1099,12 @@ async function applyStatusEffectsToTarget(target, specialsUsed, attacker) {
         let list = Array.isArray(system.statusEffects) ? [...system.statusEffects] : [];
         const { getEffect } = await import('../utils/special-effects.js');
         const { mergeChallengeEntry } = await import('../system/pool-reduction.js');
+        const { actorMasteryRank, clampSpecialApplication, formatApplicationLimitNote, specialRoundAppsUpdate, } = await import('../combat/special-application.js');
         const sourceName = String(attacker?.name ?? 'combat');
         const sourceUuid = attacker ? String(attacker.uuid ?? attacker.id ?? '') || null : null;
+        const combat = globalThis.game?.combat ?? null;
+        let workingApps = null;
+        let appsUpdate = {};
         // Add new status effects from specials
         for (const specialName of specialsUsed) {
             // Parse special name like "Lacerate(3)" to extract name and value
@@ -1111,12 +1116,25 @@ async function applyStatusEffectsToTarget(target, specialsUsed, attacker) {
                 const wardReduced = applyStoneWardToIncomingSpecial(target, effectId, effectName, effectValue);
                 if (wardReduced === null)
                     continue;
-                const wardedValue = wardReduced;
+                let wardedValue = wardReduced;
                 const isChallenge = effectId === 'challenge' || effectName.toLowerCase() === 'challenge';
                 // Exorcism / Requiem: tag-gated; invalid creatures never receive the Special.
                 if ((effectId === 'exorcism' || effectId === 'requiem') &&
                     !isTargetedSpecialValidTarget(effectId, target)) {
                     continue;
+                }
+                if (wardedValue !== null && wardedValue > 0 && effectId) {
+                    const clamp = clampSpecialApplication(target, effectId, wardedValue, combat, workingApps);
+                    if (clamp.nextApps) {
+                        workingApps = clamp.nextApps;
+                        appsUpdate = specialRoundAppsUpdate(clamp.nextApps);
+                    }
+                    if (clamp.ignored > 0) {
+                        limitNotes.push(formatApplicationLimitNote(effectId, clamp.ignored, clamp.limit, actorMasteryRank(target)));
+                    }
+                    wardedValue = clamp.applied;
+                    if (wardedValue <= 0)
+                        continue;
                 }
                 if (isChallenge && wardedValue !== null && wardedValue > 0) {
                     list = mergeChallengeEntry(list, wardedValue, sourceName, sourceUuid);
@@ -1146,7 +1164,7 @@ async function applyStatusEffectsToTarget(target, specialsUsed, attacker) {
             }
         }
         // Update target actor
-        await target.update({ 'system.statusEffects': list });
+        await target.update({ 'system.statusEffects': list, ...appsUpdate });
         // Reactive Cleanse — status surface (not the attack Reaction Window).
         try {
             const { maybeOfferReactiveCleanseChat } = await import('../combat/reaction-followups.js');
@@ -1159,6 +1177,7 @@ async function applyStatusEffectsToTarget(target, specialsUsed, attacker) {
     catch (error) {
         console.error('Mastery System | [APPLY STATUS EFFECTS] Error applying status effects', error);
     }
+    return limitNotes;
 }
 /** Exported for AoE secondary hits (power dice only, same mitigation pipeline). */
 export async function applyDamageToTargetFromAoe(target, damage, attacker, count8s = 0, attackContext) {
@@ -2103,8 +2122,11 @@ skipApply = false) {
             return false;
         return true;
     });
+    let applicationLimitNotes = [];
     if (statusSpecials.length > 0 && target) {
-        await applyStatusEffectsToTarget(target, statusSpecials, attacker);
+        applicationLimitNotes = await applyStatusEffectsToTarget(target, statusSpecials, attacker);
+        for (const note of applicationLimitNotes)
+            rollDetails.push(note);
     }
     for (const note of conditionalSpecialsUsed)
         specialsUsed.push(note);
@@ -2140,6 +2162,7 @@ skipApply = false) {
         passiveDamage: passiveDamageRolled,
         raiseDamage,
         specialsUsed,
+        applicationLimitNotes: applicationLimitNotes.length ? applicationLimitNotes : undefined,
         totalDamage: appliedDamage,
         rollDetails: rollDetails.length ? rollDetails : undefined,
         damageChatRolls: damageChatRolls.length ? damageChatRolls : undefined,

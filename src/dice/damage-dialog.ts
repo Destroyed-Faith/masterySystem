@@ -168,6 +168,8 @@ export interface DamageResult {
   passiveDamage: number;
   raiseDamage: number;
   specialsUsed: string[];
+  /** Overflow from the per-Round Diminishing Special application limit. */
+  applicationLimitNotes?: string[];
   totalDamage: number;
   /** One line per rolled pool (base / power / passive / each raise d8) for chat */
   rollDetails?: string[];
@@ -1270,7 +1272,8 @@ async function applyStatusEffectsToTarget(
   target: Actor,
   specialsUsed: string[],
   attacker?: Actor | null,
-): Promise<void> {
+): Promise<string[]> {
+  const limitNotes: string[] = [];
   try {
     // Get current status effects from target
     const system = (target as any).system;
@@ -1280,9 +1283,18 @@ async function applyStatusEffectsToTarget(
     let list: any[] = Array.isArray(system.statusEffects) ? [...system.statusEffects] : [];
     const { getEffect } = await import('../utils/special-effects.js');
     const { mergeChallengeEntry } = await import('../system/pool-reduction.js');
+    const {
+      actorMasteryRank,
+      clampSpecialApplication,
+      formatApplicationLimitNote,
+      specialRoundAppsUpdate,
+    } = await import('../combat/special-application.js');
     const sourceName = String((attacker as any)?.name ?? 'combat');
     const sourceUuid = attacker ? String((attacker as any).uuid ?? (attacker as any).id ?? '') || null : null;
-    
+    const combat = (globalThis as any).game?.combat ?? null;
+    let workingApps: import('../combat/special-application.js').SpecialRoundApps | null = null;
+    let appsUpdate: Record<string, unknown> = {};
+
     // Add new status effects from specials
     for (const specialName of specialsUsed) {
       // Parse special name like "Lacerate(3)" to extract name and value
@@ -1293,7 +1305,7 @@ async function applyStatusEffectsToTarget(
         const effectId = getEffect(effectName)?.id;
         const wardReduced = applyStoneWardToIncomingSpecial(target, effectId, effectName, effectValue);
         if (wardReduced === null) continue;
-        const wardedValue = wardReduced;
+        let wardedValue = wardReduced;
         const isChallenge =
           effectId === 'challenge' || effectName.toLowerCase() === 'challenge';
 
@@ -1303,6 +1315,21 @@ async function applyStatusEffectsToTarget(
           !isTargetedSpecialValidTarget(effectId, target)
         ) {
           continue;
+        }
+
+        if (wardedValue !== null && wardedValue > 0 && effectId) {
+          const clamp = clampSpecialApplication(target, effectId, wardedValue, combat, workingApps);
+          if (clamp.nextApps) {
+            workingApps = clamp.nextApps;
+            appsUpdate = specialRoundAppsUpdate(clamp.nextApps);
+          }
+          if (clamp.ignored > 0) {
+            limitNotes.push(
+              formatApplicationLimitNote(effectId, clamp.ignored, clamp.limit, actorMasteryRank(target)),
+            );
+          }
+          wardedValue = clamp.applied;
+          if (wardedValue <= 0) continue;
         }
 
         if (isChallenge && wardedValue !== null && wardedValue > 0) {
@@ -1335,7 +1362,7 @@ async function applyStatusEffectsToTarget(
     }
     
     // Update target actor
-    await (target as any).update({ 'system.statusEffects': list });
+    await (target as any).update({ 'system.statusEffects': list, ...appsUpdate });
 
     // Reactive Cleanse — status surface (not the attack Reaction Window).
     try {
@@ -1351,6 +1378,7 @@ async function applyStatusEffectsToTarget(
   } catch (error) {
     console.error('Mastery System | [APPLY STATUS EFFECTS] Error applying status effects', error);
   }
+  return limitNotes;
 }
 
 /**
@@ -2437,8 +2465,10 @@ async function calculateDamageResult(
     if (/\(buff damage\)/i.test(s)) return false;
     return true;
   });
+  let applicationLimitNotes: string[] = [];
   if (statusSpecials.length > 0 && target) {
-    await applyStatusEffectsToTarget(target, statusSpecials, attacker);
+    applicationLimitNotes = await applyStatusEffectsToTarget(target, statusSpecials, attacker);
+    for (const note of applicationLimitNotes) rollDetails.push(note);
   }
 
   for (const note of conditionalSpecialsUsed) specialsUsed.push(note);
@@ -2483,6 +2513,7 @@ async function calculateDamageResult(
     passiveDamage: passiveDamageRolled,
     raiseDamage,
     specialsUsed,
+    applicationLimitNotes: applicationLimitNotes.length ? applicationLimitNotes : undefined,
     totalDamage: appliedDamage,
     rollDetails: rollDetails.length ? rollDetails : undefined,
     damageChatRolls: damageChatRolls.length ? damageChatRolls : undefined,

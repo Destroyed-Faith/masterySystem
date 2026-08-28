@@ -719,8 +719,9 @@ async function executeReactionSpend(params: {
   if (npcSpecials.length && attacker) {
     try {
       const { applyNpcReactionSpecialsToTarget } = await import('../utils/npc-reactions.js');
-      await applyNpcReactionSpecialsToTarget(attacker, npcSpecials.map(String), actor);
+      const limitNotes = await applyNpcReactionSpecialsToTarget(attacker, npcSpecials.map(String), actor);
       note += ` <em>(Specials: ${npcSpecials.join(', ')}.)</em>`;
+      if (limitNotes.length) note += ` <em>${limitNotes.join(' ')}</em>`;
     } catch (err) {
       console.warn('Mastery System | NPC reaction specials failed', err);
     }

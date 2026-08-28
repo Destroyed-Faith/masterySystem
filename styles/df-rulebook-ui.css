@@ -1282,6 +1282,11 @@
   margin: 2px 0;
 }
 
+#chat-log .mastery-system-damage .mastery-damage-special-limit {
+  color: var(--df-text-secondary);
+  font-style: italic;
+}
+
 /* ========================================
    Mastery System Info Cards
    ======================================== */

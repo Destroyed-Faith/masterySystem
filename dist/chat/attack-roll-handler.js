@@ -1279,11 +1279,18 @@ function buildDamageChatContent(damageResult, target) {
             .map((line) => `<li>${esc(line)}</li>`)
             .join('')}</ul></div>`
         : '';
+    const limitNotes = Array.isArray(damageResult.applicationLimitNotes)
+        ? damageResult.applicationLimitNotes
+        : [];
+    const limitHtml = limitNotes.length
+        ? `<p class="mastery-damage-special-limit">${limitNotes.map((n) => esc(n)).join('<br>')}</p>`
+        : '';
     return `<div class="mastery-system-damage">
       <h3><i class="fas fa-sword"></i> Damage: ${damageResult.totalDamage}</h3>
       ${rollsHtml}
       <p class="mastery-damage-summary">${damageText}</p>
       <p><strong>Target:</strong> ${target.name}</p>
+      ${limitHtml}
       ${buildMitigationHtml(damageResult)}
     </div>`;
 }

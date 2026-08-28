@@ -44,7 +44,7 @@ export declare function actorParticipatesInReactions(actor: any): boolean;
 export declare function npcReactionSlotsForEconomy(actor: any): number;
 /** Synthetic reaction powers for a configured NPC / summon. */
 export declare function materializeNpcReactionPowers(actor: any): any[];
-export declare function applyNpcReactionSpecialsToTarget(target: any, specials: string[], sourceActor: any): Promise<void>;
+export declare function applyNpcReactionSpecialsToTarget(target: any, specials: string[], sourceActor: any): Promise<string[]>;
 export declare function newCustomNpcReaction(masteryRank: number): NpcReactionRow;
 export declare function newStandardNpcReaction(basicId: string): NpcReactionRow | null;
 export declare function newCatalogNpcReaction(templateId: string, masteryRank: number): NpcReactionRow | null;
