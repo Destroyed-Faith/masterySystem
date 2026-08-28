@@ -178,6 +178,7 @@ describe('equip validation', () => {
     const transferred = itemDataForConsumableTransfer(foreign);
     const flag = (transferred.flags as any)['mastery-system'].minorMagic;
     expect(flag.creatorId).toBe('other-actor');
+    expect(flag.instanceId).toBe('gift');
     expect(flag.snapshot.attackPool.numDice).toBe(7);
     expect(flag.snapshot.damage).toBe('4d8');
     expect((transferred as any)._id).toBeUndefined();

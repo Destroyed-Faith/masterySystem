@@ -3,6 +3,7 @@ import {
   orderPowersRampFirst,
   pickStoneFillAttribute,
   shouldSettleStoneWave,
+  stoneDialogSectionStartsOpen,
   stonePoolBlockedReason,
 } from '../src/stones/stone-payment-rules';
 
@@ -77,6 +78,37 @@ describe('power row order', () => {
 
   it('leaves a row without a ramp power untouched', () => {
     expect(orderPowersRampFirst(row, () => false)).toEqual(row);
+  });
+});
+
+describe('dialog section expand/collapse', () => {
+  it('opens a section that still has freely spendable stones', () => {
+    expect(stoneDialogSectionStartsOpen({ sectionHasSpendable: true })).toBe(true);
+  });
+
+  it('collapses a section with nothing left to place', () => {
+    expect(stoneDialogSectionStartsOpen({ sectionHasSpendable: false })).toBe(false);
+  });
+
+  it('stays open when stones are already assigned there this round', () => {
+    expect(
+      stoneDialogSectionStartsOpen({ sectionHasSpendable: false, sectionHasAssigned: true }),
+    ).toBe(true);
+  });
+
+  it('lets a manual toggle override the default', () => {
+    expect(
+      stoneDialogSectionStartsOpen({
+        sectionHasSpendable: false,
+        userOverride: true,
+      }),
+    ).toBe(true);
+    expect(
+      stoneDialogSectionStartsOpen({
+        sectionHasSpendable: true,
+        userOverride: false,
+      }),
+    ).toBe(false);
   });
 });
 

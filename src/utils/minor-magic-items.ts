@@ -87,6 +87,8 @@ export interface MinorMagicSnapshot {
 export interface MinorMagicItemFlag {
   creatorId: string;
   creatorName: string;
+  /** Stable id that survives being given to another character. */
+  instanceId?: string;
   form: MinorMagicForm;
   released?: boolean;
   armedAsTrap?: boolean;
@@ -96,10 +98,15 @@ export interface MinorMagicItemFlag {
 
 export interface MinorMagicLedger {
   itemIds: string[];
+  /** Display names for given-away items (keyed by instance id). */
+  labels?: Record<string, string>;
 }
 
+/** Delete option: the item is moving to another actor, not being spent. */
+export const MINOR_MAGIC_TRANSFER_DELETE = 'masterySystemMinorMagicTransfer';
+
 export function emptyMinorMagicLedger(): MinorMagicLedger {
-  return { itemIds: [] };
+  return { itemIds: [], labels: {} };
 }
 
 export function normalizeMinorMagicLedger(raw: unknown): MinorMagicLedger {
@@ -116,17 +123,64 @@ export function normalizeMinorMagicLedger(raw: unknown): MinorMagicLedger {
     seen.add(key);
     itemIds.push(key);
   }
-  return { itemIds };
+  const labels: Record<string, string> = {};
+  if (src.labels && typeof src.labels === 'object') {
+    for (const [key, value] of Object.entries(src.labels)) {
+      const id = String(key || '').trim();
+      const name = String(value || '').trim();
+      if (id && name) labels[id] = name;
+    }
+  }
+  return { itemIds, labels };
+}
+
+export function ledgerKeyForMinorMagic(
+  flag: Pick<MinorMagicItemFlag, 'instanceId'> | null | undefined,
+  itemId?: string,
+): string {
+  return String(flag?.instanceId || itemId || '').trim();
+}
+
+export function newMinorMagicInstanceId(fallback?: string): string {
+  const utils = (globalThis as any).foundry?.utils;
+  if (typeof utils?.randomID === 'function') return String(utils.randomID());
+  return String(fallback || `mm-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`);
+}
+
+export function prepareMinorMagicFlagForTransfer(
+  flag: MinorMagicItemFlag,
+  sourceItemId: string,
+): MinorMagicItemFlag {
+  return {
+    ...flag,
+    instanceId: ledgerKeyForMinorMagic(flag, sourceItemId) || newMinorMagicInstanceId(sourceItemId),
+    released: false,
+  };
+}
+
+export function shouldReleaseMinorMagicOnDelete(
+  flag: MinorMagicItemFlag | null | undefined,
+  options?: Record<string, unknown> | null,
+): boolean {
+  if (!flag || flag.released) return false;
+  if (options?.[MINOR_MAGIC_TRANSFER_DELETE] === true) return false;
+  return true;
 }
 
 export function countHeldMinorMagicItems(ledger: MinorMagicLedger): number {
   return ledger.itemIds.length;
 }
 
-export function applyCreateToLedger(ledger: MinorMagicLedger, itemId: string): MinorMagicLedger {
+export function applyCreateToLedger(
+  ledger: MinorMagicLedger,
+  itemId: string,
+  label?: string,
+): MinorMagicLedger {
   const id = String(itemId || '').trim();
-  if (!id || ledger.itemIds.includes(id)) return { itemIds: [...ledger.itemIds] };
-  return { itemIds: [...ledger.itemIds, id] };
+  const labels = { ...(ledger.labels || {}) };
+  if (label && id) labels[id] = label;
+  if (!id || ledger.itemIds.includes(id)) return { itemIds: [...ledger.itemIds], labels };
+  return { itemIds: [...ledger.itemIds, id], labels };
 }
 
 export function applyReleaseToLedger(
@@ -135,7 +189,9 @@ export function applyReleaseToLedger(
 ): MinorMagicLedger | null {
   const id = String(itemId || '').trim();
   if (!id || !ledger.itemIds.includes(id)) return null;
-  return { itemIds: ledger.itemIds.filter((existing) => existing !== id) };
+  const labels = { ...(ledger.labels || {}) };
+  delete labels[id];
+  return { itemIds: ledger.itemIds.filter((existing) => existing !== id), labels };
 }
 
 export function canManageMinorMagic(actor: any): boolean {
@@ -607,9 +663,11 @@ export async function createMinorMagicItem(
 
   const snapshot = snapshotPowerForMinorMagic(actor, power);
   const name = String(opts.name || '').trim() || defaultMinorMagicName(opts.form, snapshot.powerName);
+  const instanceId = newMinorMagicInstanceId();
   const flag: MinorMagicItemFlag = {
     creatorId: String(actor.id || ''),
     creatorName: String(actor.name || ''),
+    instanceId,
     form: opts.form,
     snapshot,
   };
@@ -644,14 +702,14 @@ export async function createMinorMagicItem(
 
   if (!created?.id) return { ok: false, error: 'Could not create the item.' };
 
-  const ledger = applyCreateToLedger(getActorMinorMagicLedger(actor), created.id);
+  const ledger = applyCreateToLedger(getActorMinorMagicLedger(actor), instanceId, name);
   await setActorMinorMagicLedger(actor, ledger);
 
   return { ok: true, item: created };
 }
 
-async function releaseOnCreator(creator: any, itemId: string): Promise<boolean> {
-  const next = applyReleaseToLedger(getActorMinorMagicLedger(creator), itemId);
+async function releaseOnCreator(creator: any, ledgerKey: string): Promise<boolean> {
+  const next = applyReleaseToLedger(getActorMinorMagicLedger(creator), ledgerKey);
   if (!next) return false;
   await setActorMinorMagicLedger(creator, next);
   return true;
@@ -671,7 +729,7 @@ export async function releaseMinorMagicItem(
   if (!flag) return { ok: false, error: 'Not a Minor Magic Item.' };
   if (flag.released) return { ok: true };
   const creator = await resolveCreator(flag, actor);
-  await releaseOnCreator(creator, item.id);
+  await releaseOnCreator(creator, ledgerKeyForMinorMagic(flag, item.id));
   try {
     await item.update?.({ 'flags.mastery-system.minorMagic.released': true });
   } catch {
@@ -765,19 +823,23 @@ export async function dismissMinorMagicItem(
   return { ok: true };
 }
 
-export async function onMinorMagicItemDeleted(item: any): Promise<void> {
+export async function onMinorMagicItemDeleted(
+  item: any,
+  options?: Record<string, unknown> | null,
+): Promise<void> {
   const flag = readMinorMagicFlag(item);
-  if (!flag || flag.released) return;
+  if (!flag || !shouldReleaseMinorMagicOnDelete(flag, options)) return;
   const parent = item.parent;
   const creator = await resolveCreator(flag, parent);
   if (!creator) return;
-  await releaseOnCreator(creator, item.id);
+  await releaseOnCreator(creator, ledgerKeyForMinorMagic(flag, item.id));
 }
 
 export function minorMagicSheetView(actor: any): {
   limit: number;
   held: number;
   remaining: number;
+  givenAway: number;
   canManage: boolean;
   items: Array<{
     id: string;
@@ -786,13 +848,17 @@ export function minorMagicSheetView(actor: any): {
     powerName: string;
     summary: string;
     actionCost: string;
+    givenAway?: boolean;
+    canGive?: boolean;
   }>;
 } {
   const ledger = getActorMinorMagicLedger(actor);
   const limit = minorMagicLimit(actor);
   const held = countHeldMinorMagicItems(ledger);
+  const localKeys = new Set<string>();
   const items = listMinorMagicItemsOnActor(actor).map((it) => {
     const flag = readMinorMagicFlag(it)!;
+    localKeys.add(ledgerKeyForMinorMagic(flag, it.id));
     return {
       id: it.id,
       name: it.name,
@@ -800,12 +866,28 @@ export function minorMagicSheetView(actor: any): {
       powerName: flag.snapshot.powerName,
       summary: snapshotSummaryLines(flag.snapshot).slice(0, 3).join(' · '),
       actionCost: flag.snapshot.actionCost,
+      givenAway: false,
+      canGive: true,
     };
   });
+  for (const key of ledger.itemIds) {
+    if (localKeys.has(key)) continue;
+    items.push({
+      id: key,
+      name: ledger.labels?.[key] || 'Minor Magic Item',
+      formLabel: 'Given away',
+      powerName: '',
+      summary: 'Carried by another character — still counts against your limit until it is used or dismissed.',
+      actionCost: '',
+      givenAway: true,
+      canGive: false,
+    });
+  }
   return {
     limit,
     held,
     remaining: Math.max(0, limit - held),
+    givenAway: Math.max(0, held - localKeys.size),
     canManage: canManageMinorMagic(actor),
     items,
   };

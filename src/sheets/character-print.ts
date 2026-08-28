@@ -14,6 +14,7 @@
  */
 
 import { SKILLS } from '../utils/skills.js';
+import { buildSkillUseBoxes } from '../utils/skill-use-boxes.js';
 import type { ArtifactLevelProgressionRow } from '../types/item.js';
 import { resolvePowerCategoryFromItem } from '../utils/power-catalog.js';
 import { getArtifactStoneFunctionStatus } from '../utils/artifact-stone-functions.js';
@@ -875,15 +876,7 @@ export function buildCharacterPrintContext(
       .map((sk) => {
         const def = SKILLS[sk]!;
         const rank = num(system?.skills?.[sk]);
-        // Skills are used in Mastery-Rank jumps: up to 4 uses per Safe Haven
-        // Rest. Spend the skill rank across the 4 boxes left to right, each
-        // box taking min(MR, remaining); once depleted the boxes read 0.
-        let remaining = Math.max(0, rank);
-        const uses = Array.from({ length: 4 }, () => {
-          const v = Math.min(masteryRank, remaining);
-          remaining -= v;
-          return v;
-        });
+        const uses = buildSkillUseBoxes(rank, 0, masteryRank).map((box) => box.size);
         return {
           key: sk,
           name: def.name,

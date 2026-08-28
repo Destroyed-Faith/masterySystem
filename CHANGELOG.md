@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.413] - 2026-08-28
+
+### Changed
+
+- **Stone Powers:** Attribute headings (Might, Agility, …) are collapsible. Rows with no freely spendable stones of that attribute start collapsed; you can still open them. Ramp powers no longer show a fake Tier-1 drop slot — they start at 2 stones.
+- **Skill Use Boxes:** The four boxes behind each skill now follow the current Mastery Rank (MR 2 → 2 per box, MR 3 → 3 per box). All four fill only when the full MR × 4 pool is invested.
+- **Minor Magic:** Items can be given to other characters (Give button or drag). They still count against the creator’s Mastery Rank limit until used or dismissed.
+
 ## [0.9.412] - 2026-08-28
 
 ### Fixed

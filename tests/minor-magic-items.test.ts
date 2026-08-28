@@ -6,6 +6,9 @@ import {
   countHeldMinorMagicItems,
   defaultMinorMagicName,
   emptyMinorMagicLedger,
+  ledgerKeyForMinorMagic,
+  prepareMinorMagicFlagForTransfer,
+  shouldReleaseMinorMagicOnDelete,
   isEligibleMinorMagicPower,
   isArtifactAvailableForMinorMagic,
   listEligibleMinorMagicPowers,
@@ -217,6 +220,21 @@ describe('limit and ledger', () => {
 
   it('releasing an unknown item is a no-op', () => {
     expect(applyReleaseToLedger(emptyMinorMagicLedger(), 'missing')).toBeNull();
+  });
+
+  it('keeps the creator slot when the item is given away', () => {
+    const flag = {
+      creatorId: 'act-1',
+      creatorName: 'Hero',
+      instanceId: 'mm-1',
+      form: 'potion' as const,
+      snapshot: { powerName: 'Heal' } as any,
+    };
+    expect(shouldReleaseMinorMagicOnDelete(flag, { masterySystemMinorMagicTransfer: true })).toBe(false);
+    expect(shouldReleaseMinorMagicOnDelete(flag, {})).toBe(true);
+    const moved = prepareMinorMagicFlagForTransfer({ ...flag, instanceId: undefined }, 'old-item');
+    expect(moved.instanceId).toBe('old-item');
+    expect(ledgerKeyForMinorMagic(moved, 'new-item')).toBe('old-item');
   });
 
   it('create and dismiss require a Safe Haven Rest window', () => {

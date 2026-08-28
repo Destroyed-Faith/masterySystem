@@ -5,7 +5,13 @@
  * from the actor's current Mastery Rank (no parallel inventory).
  */
 
-import { readMinorMagicFlag, snapshotSummaryLines, type MinorMagicSnapshot } from './minor-magic-items.js';
+import {
+  MINOR_MAGIC_TRANSFER_DELETE,
+  prepareMinorMagicFlagForTransfer,
+  readMinorMagicFlag,
+  snapshotSummaryLines,
+  type MinorMagicSnapshot,
+} from './minor-magic-items.js';
 
 export const CONSUMABLE_SLOT_FLAG = 'consumableSlot';
 
@@ -94,6 +100,10 @@ export function itemDataForConsumableTransfer(source: any): Record<string, unkno
   delete equipment.consumableSlot;
   delete equipment.slot;
   ms.equipment = equipment;
+  const minor = readMinorMagicFlag(source);
+  if (minor) {
+    ms.minorMagic = prepareMinorMagicFlagForTransfer(minor, String(source.id || ''));
+  }
   return data;
 }
 
@@ -523,7 +533,9 @@ export async function transferConsumableToActor(targetActor: any, sourceItem: an
   const [created] = await targetActor.createEmbeddedDocuments('Item', [data]);
   const sourceActor = sourceItem.parent;
   if (sourceActor?.deleteEmbeddedDocuments && sourceItem.id) {
-    await sourceActor.deleteEmbeddedDocuments('Item', [sourceItem.id]);
+    await sourceActor.deleteEmbeddedDocuments('Item', [sourceItem.id], {
+      [MINOR_MAGIC_TRANSFER_DELETE]: true,
+    } as any);
   }
   return created ?? null;
 }

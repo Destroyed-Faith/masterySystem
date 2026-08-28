@@ -1388,11 +1388,10 @@
                   {{/if}}
                 </div>
                 {{#if @root.creationComplete}}{{#unless @root.skillsRedistributing}}
-                <div class="skill-use-boxes" title="{{this.remaining}}/{{this.value}} uses remaining">
-                  <span class="skill-use-box {{#if (gte this.value 1)}}{{#if (gte this.remaining 1)}}available{{else}}spent{{/if}}{{else}}locked{{/if}}"></span>
-                  <span class="skill-use-box {{#if (gte this.value 2)}}{{#if (gte this.remaining 2)}}available{{else}}spent{{/if}}{{else}}locked{{/if}}"></span>
-                  <span class="skill-use-box {{#if (gte this.value 3)}}{{#if (gte this.remaining 3)}}available{{else}}spent{{/if}}{{else}}locked{{/if}}"></span>
-                  <span class="skill-use-box {{#if (gte this.value 4)}}{{#if (gte this.remaining 4)}}available{{else}}spent{{/if}}{{else}}locked{{/if}}"></span>
+                <div class="skill-use-boxes" title="4 uses / Safe Haven Rest — each use spends {{this.pointsPerUse}} (Mastery Rank). All four boxes fill only at {{this.pointsPerUse}} × 4 points.">
+                  {{#each this.useBoxes}}
+                  <span class="skill-use-box {{this.state}}" title="{{#if this.unavailable}}No points reach this box{{else}}{{#if this.spent}}Spent ({{this.size}}){{else}}{{this.remaining}} left — spend {{this.size}}{{/if}}{{/if}}">{{#unless this.unavailable}}{{#if this.spent}}0{{else}}{{this.remaining}}{{/if}}{{/unless}}</span>
+                  {{/each}}
                 </div>
                 {{/unless}}{{/if}}
               </div>
@@ -2264,7 +2263,7 @@
             <i class="fas fa-bed"></i> Safe Haven Rest
           </button>
         </div>
-        <p class="summons-tab-hint">Store one use of a purchased Active Power. Limit {{minorMagicView.held}} / {{minorMagicView.limit}} (Mastery Rank). Press <strong>Safe Haven Rest</strong> on this tab to create, replace, or dismiss. Use and Arm Trap work anytime. No Stones.</p>
+        <p class="summons-tab-hint">Store one use of a purchased Active Power. Limit {{minorMagicView.held}} / {{minorMagicView.limit}} (Mastery Rank).{{#if minorMagicView.givenAway}} {{minorMagicView.givenAway}} given to other characters — still count.{{/if}} Press <strong>Safe Haven Rest</strong> on this tab to create, replace, or dismiss. Drag or Give to hand an item to someone else. Use and Arm Trap work anytime. No Stones.</p>
         <div class="minor-magic-tab-embed">
           {{#with minorMagicPanel}}
           {{> "systems/mastery-system/templates/dialogs/minor-magic.hbs"}}
@@ -2280,11 +2279,14 @@
               <span class="summons-bond-meta">{{this.summary}}</span>
             </div>
             <div class="summons-bond-actions">
+              {{#unless this.givenAway}}
               <button type="button" class="js-sheet-minor-magic-use dialog-btn dialog-btn-primary" data-item-id="{{this.id}}">Use</button>
               <button type="button" class="js-sheet-minor-magic-trap dialog-btn" data-item-id="{{this.id}}">Arm Trap</button>
+              <button type="button" class="js-sheet-minor-magic-give dialog-btn" data-item-id="{{this.id}}">Give</button>
               {{#if ../minorMagicView.canManage}}
               <button type="button" class="js-sheet-minor-magic-dismiss dialog-btn" data-item-id="{{this.id}}">Dismiss</button>
               {{/if}}
+              {{/unless}}
             </div>
           </li>
           {{/each}}

@@ -5794,11 +5794,17 @@ aside#tooltip,
 }
 
 .mastery-system.sheet.actor.character .skill-use-box {
-  width: 14px;
-  height: 14px;
+  width: 18px;
+  height: 18px;
   border-radius: 2px;
   border: 2px solid var(--df-border-primary, #3a3f44);
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.62rem;
+  font-weight: 700;
+  line-height: 1;
+  color: #fff;
   transition: all 0.2s ease;
 }
 
@@ -5811,12 +5817,14 @@ aside#tooltip,
 .mastery-system.sheet.actor.character .skill-use-box.spent {
   background: transparent;
   border-color: var(--ms-accent, #c0392b);
-  opacity: 0.4;
+  color: var(--ms-accent, #c0392b);
+  opacity: 0.45;
 }
 
 .mastery-system.sheet.actor.character .skill-use-box.locked {
   background: transparent;
   border-color: var(--df-border-primary, #3a3f44);
+  color: transparent;
   opacity: 0.2;
 }
 

@@ -15,11 +15,12 @@
  */
 
 import { calculateMaxSkillRank } from '../utils/calculations.js';
+import { buildSkillUseBoxes, SKILL_USE_BOX_COUNT } from '../utils/skill-use-boxes.js';
 
 export const CR_SKILL_KEY = 'combatReflexes';
 
 /** Uses per Safe Haven Rest — the four boxes next to every skill. */
-export const SKILL_USE_BOXES = 4;
+export const SKILL_USE_BOXES = SKILL_USE_BOX_COUNT;
 
 /** Amounts put into initiative this round, newest last; used for un-ticking. */
 const CR_ROUND_FLAG = 'msCrInitiativeSpends';
@@ -110,15 +111,7 @@ export function combatReflexesInitiativeState(
   const initiative = Math.max(0, Math.floor(Number(combatant?.initiative) || 0));
   const canUndoRound = lastRoundSpend > 0 && initiative >= lastRoundSpend;
 
-  let ratingLeft = rating;
-  let spentLeft = spent;
-  const raw = Array.from({ length: SKILL_USE_BOXES }, () => {
-    const size = Math.min(pointsPerUse, Math.max(0, ratingLeft));
-    ratingLeft -= size;
-    const used = Math.min(size, Math.max(0, spentLeft));
-    spentLeft -= used;
-    return { size, used, remaining: size - used };
-  });
+  const raw = buildSkillUseBoxes(rating, spent, masteryRank);
 
   const spendIndex = raw.findIndex((box) => box.remaining > 0);
   // The box a click gives back is the rightmost one with points spent in it.

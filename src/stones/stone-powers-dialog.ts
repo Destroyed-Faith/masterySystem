@@ -48,6 +48,7 @@ import {
   orderPowersRampFirst,
   pickStoneFillAttribute,
   shouldSettleStoneWave,
+  stoneDialogSectionStartsOpen,
   stonePoolBlockedReason,
 } from './stone-payment-rules.js';
 import {
@@ -146,8 +147,8 @@ function nextStoneSegmentToFill(occupied: number[]): number | null {
 /**
  * Some powers have a no-op Tier 1 "ramp step" (e.g. Extra Attack), so their
  * first real activation is Tier 2 = the Mid segment (2 stones). Such powers
- * skip the leading segment(s): the Anchor renders disabled and the first
- * payable wave is the Mid segment.
+ * skip the leading segment(s): the Anchor is omitted and the first payable
+ * wave is the Mid segment.
  */
 function rampSkipSegmentsForPower(powerId: string): number {
   return stonePowerSkipsFirstTier(powerId) ? 1 : 0;
@@ -335,7 +336,7 @@ function resolveStonePowersCombatant(actor: Actor, combat: Combat): Combatant | 
   return null;
 }
 
-type DropSlotState = 'done' | 'filled' | 'active' | 'locked' | 'support' | 'disabled';
+type DropSlotState = 'done' | 'filled' | 'active' | 'locked' | 'support' | 'empty';
 
 /**
  * Wert für Attribut-Selektoren `[data-power-id="…"]` in querySelector.
@@ -403,9 +404,8 @@ function buildStonePaymentLanes(
   const laneState = (laneIndex: number): DropSlotState => {
     if (laneIndex < 0 || laneIndex >= STONE_PAYMENT_LANE_COUNT) return 'locked';
     if (o.has(laneIndex)) return 'filled';
-    // Disabled lead lane of a ramp power (e.g. Extra Attack Tier 1): greyed,
-    // not droppable — the player must start in the next (Tier 2) segment.
-    if (leadLocked.has(laneIndex)) return 'disabled';
+    // Ramp power (e.g. Extra Attack): unused Tier-1 lane is omitted, not droppable.
+    if (leadLocked.has(laneIndex)) return 'empty';
     // Artifact "Stone Power Support" pre-fills lanes above the anchor with
     // Artifact Support Stones (free, artifact-provided). They are purely
     // visual: not in the `occupied` player set, so they never participate in
@@ -540,6 +540,8 @@ export class StonePowersDialog extends BaseDialog {
   private _recoveryCommitting = false;
   /** Stones staged for the Initiative Exchange (the convert button spends them). */
   private _colorlessConvertCount: number | null = null;
+  /** Player toggles for attribute / General sections in this dialog session. */
+  private _sectionOpenOverride: Record<string, boolean> = {};
 
   static DEFAULT_OPTIONS = {
     id: "mastery-stone-powers",
@@ -775,6 +777,7 @@ export class StonePowersDialog extends BaseDialog {
           power.id === 'wits.initiativeBoost' &&
           !!this.combatant &&
           isInitiativeBoostUsedThisCombat(this.combatant),
+        hideLeadSegment: rampSkip > 0,
         ...laneSegs
       };
     };
@@ -811,7 +814,7 @@ export class StonePowersDialog extends BaseDialog {
     const generalPowers = genericPowers.map((power) => {
       const { attrKey, usesThisTurn } = resolveGenericAttrAndStats(power.id);
       // Ramp powers (no Tier 1, e.g. Extra Attack) start one segment higher:
-      // first activation = Tier 2 (2 stones), Anchor disabled.
+      // first activation = Tier 2 (2 stones), Anchor omitted.
       const rampSkip = rampSkipSegmentsForPower(power.id);
       const leadLockedLanes = rampSkipLeadLanes(power.id);
       const nextCost = calculateStoneCost(usesThisTurn + rampSkip);
@@ -846,6 +849,7 @@ export class StonePowersDialog extends BaseDialog {
         supportTier,
         supportSource: support?.source ?? '',
         supportActive: !!supportLanes,
+        hideLeadSegment: rampSkip > 0,
         ...laneSegs
       };
     });
@@ -891,17 +895,36 @@ export class StonePowersDialog extends BaseDialog {
           });
         }
 
+        const hasSpendable = this.#sectionHasSpendable(attr, pools);
         return {
           attrKey: attr,
           attrName: poolDisplayName(attr),
           cells,
+          hasSpendable,
+          sectionOpen: stoneDialogSectionStartsOpen({
+            sectionHasSpendable: hasSpendable,
+            sectionHasAssigned: this.#sectionHasAssigned(attr),
+            userOverride: this._sectionOpenOverride[attr],
+          }),
         };
       })
       .filter(
-        (row): row is { attrKey: AttributeKey; attrName: string; cells: any[] } => !!row
+        (row): row is {
+          attrKey: AttributeKey;
+          attrName: string;
+          cells: any[];
+          hasSpendable: boolean;
+          sectionOpen: boolean;
+        } => !!row
       );
 
     const spendableNetAllPoolsCached = totalSpendableNetAllPools();
+    const generalHasSpendable = spendableNetAllPoolsCached > 0;
+    const generalSectionOpen = stoneDialogSectionStartsOpen({
+      sectionHasSpendable: generalHasSpendable,
+      sectionHasAssigned: this.#sectionHasAssigned('general'),
+      userOverride: this._sectionOpenOverride.general,
+    });
 
     const mr = getMasteryRank(poolOwner);
     const initiativeScore = Math.max(0, Math.floor(Number(this.combatant?.initiative) || 0));
@@ -943,6 +966,8 @@ export class StonePowersDialog extends BaseDialog {
       initiativeExchange,
       attributePowerMatrix,
       generalPowers,
+      generalHasSpendable,
+      generalSectionOpen,
       defaultGeneralAttrKey,
       combatActive,
       combatStarted,
@@ -1330,6 +1355,7 @@ export class StonePowersDialog extends BaseDialog {
 
     this.#bindInitiativeExchangeControls(root);
     this.#bindNaturalRecoveryControls(root);
+    this.#bindSectionToggles(root);
 
     const convertBtn = root.querySelector('.js-convert-initiative-colorless') as HTMLButtonElement | null;
     if (convertBtn) {
@@ -1655,6 +1681,46 @@ export class StonePowersDialog extends BaseDialog {
   /** Brutto-Pool minus bereits im Dialog reservierte Steine dieser Farbe. */
   #spendableNetForAttr(attr: string): number {
     return Math.max(0, this.#actorPoolSpendable(attr) - this.#reservedStonesInDialogForAttr(attr));
+  }
+
+  /** Freely distributable stones left in this attribute's pool (or any pool for General). */
+  #sectionHasSpendable(sectionKey: string, pools: StoneDialogPoolRow[]): boolean {
+    if (sectionKey === 'general') {
+      return pools.some((p) => Math.max(0, p.available - this.#reservedStonesInDialogForAttr(String(p.key))) > 0);
+    }
+    const pool = pools.find((p) => p.key === sectionKey);
+    if (!pool) return false;
+    return Math.max(0, pool.available - this.#reservedStonesInDialogForAttr(sectionKey)) > 0;
+  }
+
+  /** Stones already sitting on a power in this section (open wave or paid receipt). */
+  #sectionHasAssigned(sectionKey: string): boolean {
+    this.#pullSessionPartialsIntoInstance();
+    const matches = (accKey: string): boolean => {
+      const powerId = stonePowerAccKeyPowerId(accKey);
+      if (!powerId) return false;
+      const def = STONE_POWERS[powerId];
+      if (!def) return false;
+      if (sectionKey === 'general') return def.attribute === 'generic';
+      return def.attribute === sectionKey;
+    };
+    for (const [accKey, val] of this._stoneDropAccumulators) {
+      if (val?.length && matches(accKey)) return true;
+    }
+    for (const [accKey, val] of this._stonePaidLanes) {
+      if (val?.length && matches(accKey)) return true;
+    }
+    return false;
+  }
+
+  #bindSectionToggles(root: HTMLElement): void {
+    root.querySelectorAll<HTMLDetailsElement>('details.power-group[data-section]').forEach((el) => {
+      el.addEventListener('toggle', () => {
+        const key = el.dataset.section || '';
+        if (!key) return;
+        this._sectionOpenOverride[key] = el.open;
+      });
+    });
   }
 
   /**
@@ -2324,7 +2390,7 @@ export class StonePowersDialog extends BaseDialog {
       if (!allowDrag || locked) return;
       const t = ev.target as HTMLElement;
       if (t.closest('.js-stone-draggable') || t.closest('.js-stone-returnable')) return;
-      if (t.closest('button, a, input, select, textarea, label')) return;
+      if (t.closest('button, a, input, select, textarea, label, summary, .js-stone-section-toggle')) return;
       const resolved = resolvePowerCardContext(t);
       if (!resolved) return;
 

@@ -55,7 +55,9 @@ import { RitualWorkshopController } from '../stones/ritual-workshop-dialog.js';
 import { MinorMagicPanel } from '../stones/minor-magic-dialog.js';
 import {
   dismissMinorMagicItem,
+  findInventorySlotForMinorMagic,
   minorMagicSheetView,
+  readMinorMagicFlag,
   useMinorMagicItem,
 } from '../utils/minor-magic-items.js';
 import { applySafeHavenRest, SAFE_HAVEN_REST_INFO } from '../utils/safe-haven-rest.js';
@@ -111,6 +113,7 @@ import {
 } from '../utils/ammunition.js';
 import { XP_COSTS, attributeBandCost, powerLevelCost } from '../utils/constants';
 import { calculateMaxPowerLevel, calculateMaxSkillRank } from '../utils/calculations.js';
+import { buildSkillUseBoxes } from '../utils/skill-use-boxes.js';
 import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
 import { getPowerMinLevel as resolvePowerMinLevel } from '../utils/power-xp-refund.js';
 import { matchesMasteryWeaponCatalog } from '../utils/weapons';
@@ -2003,6 +2006,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
    */
   #prepareSkills(skillValues: Record<string, number> = {}, skillsSpent: Record<string, number> = {}) {
     const skillsByCategory: Record<string, any[]> = {};
+    const masteryRank = Math.max(
+      1,
+      Math.floor(Number((this.actor as any).system?.mastery?.rank) || 2)
+    );
     
     // Group skills by category
     for (const [key, definition] of Object.entries(SKILLS)) {
@@ -2014,6 +2021,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       const value = skillValues[key] || 0;
       const spent = skillsSpent[key] || 0;
       const remaining = Math.max(0, value - spent);
+      const useBoxes = buildSkillUseBoxes(value, spent, masteryRank);
       
       const rollPools = definition.attributes.map((attributeKey: string) =>
         buildSkillRollPoolPreview(this.actor as Actor, key, attributeKey, value),
@@ -2029,7 +2037,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         rollPools,
         value,
         spent,
-        remaining
+        remaining,
+        useBoxes,
+        pointsPerUse: masteryRank,
       });
     }
     
@@ -2596,6 +2606,14 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       const res = await dismissMinorMagicItem(this.actor, item);
       if (!res.ok) (ui as any).notifications?.warn(res.error);
       this.render(false);
+    });
+    html.on('click.minorMagic', '.js-sheet-minor-magic-give', async (ev) => {
+      ev.preventDefault();
+      const id = (ev.currentTarget as HTMLElement).dataset.itemId;
+      const item = id ? this.actor.items.get(id) : null;
+      if (!item) return;
+      const given = await this.#giveMinorMagicItem(item);
+      if (given) this.render(false);
     });
 
     html.on('click.summonBonds', '.js-sheet-summon-bond-dissolve', async (ev) => {
@@ -7266,6 +7284,61 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     return !!target?.closest?.('.js-mm-name, .mm-root .js-mm-form');
   }
 
+  async #giveMinorMagicItem(item: any): Promise<boolean> {
+    const user = (globalThis as any).game?.user;
+    const actors = Array.from(((globalThis as any).game?.actors ?? []) as Iterable<any>).filter((a: any) => {
+      if (a?.type !== 'character' || a.id === this.actor.id) return false;
+      return !!user?.isGM || !!a.isOwner;
+    });
+    if (!actors.length) {
+      ui.notifications?.warn('No other character you can give this to.');
+      return false;
+    }
+    const options = actors
+      .map((a: any) => `<option value="${a.id}">${a.name}</option>`)
+      .join('');
+    const DialogV2 = (globalThis as any).foundry?.applications?.api?.DialogV2;
+    let targetId = '';
+    if (typeof DialogV2?.prompt === 'function') {
+      targetId = await DialogV2.prompt({
+        window: { title: `Give ${item.name}` },
+        content: `<form class="mastery-dialog-form"><label class="md-label">Give to</label><select name="target" class="md-select">${options}</select></form>`,
+        ok: {
+          label: 'Give',
+          callback: (_event: unknown, button: any) =>
+            String(button?.form?.elements?.target?.value || ''),
+        },
+      });
+    } else {
+      targetId = String(actors[0]?.id || '');
+    }
+    const target = actors.find((a: any) => a.id === targetId);
+    if (!target) return false;
+    const slot = findInventorySlotForMinorMagic(target);
+    if (!slot) {
+      ui.notifications?.warn(`${target.name} has no inventory space for a 1×1 item.`);
+      return false;
+    }
+    const moved = await transferConsumableToActor(target, item);
+    if (!moved) {
+      ui.notifications?.error(`Could not give ${item.name} to ${target.name}.`);
+      return false;
+    }
+    try {
+      await moved.update?.({
+        'flags.mastery-system.equipment': {
+          container: 'inventory',
+          band: slot.band,
+          grid: { x: slot.x, y: slot.y },
+        },
+      });
+    } catch {
+      /* item is on the other sheet even if the grid stamp fails */
+    }
+    ui.notifications?.info(`${item.name} given to ${target.name}. It still counts against your Minor Magic limit.`);
+    return true;
+  }
+
   /** @override */
   _onChangeForm(formConfig: any, event: Event) {
     if (this.#isLocalMinorMagicField(event)) return;
@@ -7326,6 +7399,22 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       || null;
     const target = resolvedTarget as HTMLElement | null;
     if (!target) {
+      if (data.uuid) {
+        try {
+          const src = await fromUuid(data.uuid);
+          if (readMinorMagicFlag(src) && src.parent && src.parent.id !== this.actor.id) {
+            const moved = await transferConsumableToActor(this.actor, src);
+            if (!moved) {
+              ui.notifications?.error(`Could not give ${src.name} to this character.`);
+              return false;
+            }
+            await this.render(true, { focus: false });
+            return true;
+          }
+        } catch {
+          /* fall through to the default drop */
+        }
+      }
       // No equipment drop zone — delegate to ActorSheetV2 (item creation / sorting).
       await super._onDrop(event);
       return true;
@@ -7396,19 +7485,29 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       return true;
     }
 
-    // World/compendium item dropped on sheet - create embedded copy first
+    // World/compendium item dropped on sheet - create embedded copy first.
+    // Minor Magic Items move (they keep counting on the creator) instead of copying.
     if (!droppedItem.parent || droppedItem.parent.id !== this.actor.id) {
       const sourceWorldItem = droppedItem;
-      const itemData = this.#sanitizeItemDataForActorEmbed(droppedItem.toObject());
-      try {
-        const [created] = await this.actor.createEmbeddedDocuments('Item', [itemData], { render: false });
-        if (!created) return false;
-        droppedItem = created;
-        await this.#tryWireDroppedArtifact(created, sourceWorldItem);
-      } catch (error) {
-        console.error('Mastery System | [Equipment Drop] Failed to create embedded item', error);
-        ui.notifications?.error(`Could not add ${droppedItem.name} to this character.`);
-        return false;
+      if (readMinorMagicFlag(droppedItem) && droppedItem.parent) {
+        const moved = await transferConsumableToActor(this.actor, droppedItem);
+        if (!moved) {
+          ui.notifications?.error(`Could not give ${droppedItem.name} to this character.`);
+          return false;
+        }
+        droppedItem = moved;
+      } else {
+        const itemData = this.#sanitizeItemDataForActorEmbed(droppedItem.toObject());
+        try {
+          const [created] = await this.actor.createEmbeddedDocuments('Item', [itemData], { render: false });
+          if (!created) return false;
+          droppedItem = created;
+          await this.#tryWireDroppedArtifact(created, sourceWorldItem);
+        } catch (error) {
+          console.error('Mastery System | [Equipment Drop] Failed to create embedded item', error);
+          ui.notifications?.error(`Could not add ${droppedItem.name} to this character.`);
+          return false;
+        }
       }
     }
 
