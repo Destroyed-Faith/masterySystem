@@ -542,7 +542,7 @@ export class StonePowersDialog extends BaseDialog {
             gemSlots: Array.from({ length: colorlessDisplay }, (_, i) => ({ index: i })),
             boundSlots: [],
             blocked: colorlessDisplay <= 0,
-            blockedReason: colorlessDisplay > 0 ? '' : 'Initiative umwandeln, um Colorless Stones zu erhalten',
+            blockedReason: colorlessDisplay > 0 ? '' : 'Convert Initiative to get Colorless Stones',
         });
         const combatMissingFromTracker = combatActive && !this.combatant;
         const hasCombat = combatActive && !!this.combatant;

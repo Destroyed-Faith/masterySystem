@@ -85,6 +85,17 @@ async function runSetupForCombatant(combat: Combat, combatant: Combatant): Promi
   const actorId = String(actor.id);
   const round = Math.max(1, Number(combat.round) || 1);
 
+  if (round <= 1 && !(combat as any).started) {
+    try {
+      const { refillStonePoolsFromAttributes } = await import('./action-economy.js');
+      if (canCurrentUserUpdateDocument(actor)) {
+        await refillStonePoolsFromAttributes(actor);
+      }
+    } catch (err) {
+      console.warn('Mastery System | Round-1 stone refill during setup failed', err);
+    }
+  }
+
   if (round <= 1 && !isPassiveSelectionLocked(combat, actorId)) {
     if (dismissedThisSession.has(stepKey(combatId, actorId, 'passives'))) return;
     if (dialogAlreadyOpen('mastery-passive-selection')) return;

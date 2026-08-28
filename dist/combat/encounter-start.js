@@ -180,6 +180,20 @@ export async function beginEncounter(combat) {
         catch (err) {
             console.warn('Mastery System | Could not clear stale stone state before encounter', err);
         }
+        try {
+            const { refillStonePoolsFromAttributes } = await import('./action-economy.js');
+            for (const combatant of combat.combatants) {
+                const actor = combatant.actor;
+                if (!actor || actor.type !== 'character')
+                    continue;
+                if (!canCurrentUserUpdateDocument(actor))
+                    continue;
+                await refillStonePoolsFromAttributes(actor);
+            }
+        }
+        catch (err) {
+            console.warn('Mastery System | Round-1 stone refill before encounter failed', err);
+        }
     }
     const currentSetup = getEncounterSetup(combat);
     if (!currentSetup.carouselShown) {

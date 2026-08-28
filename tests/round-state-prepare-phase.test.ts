@@ -108,4 +108,26 @@ describe('round state across the prepare phase', () => {
     expect(state.round).toBe(1);
     expect(actor.getFlag('mastery-system', 'stoneUsage')).toEqual({});
   });
+
+  it('refills leftover empty pools when combat starts without a prepare spend', async () => {
+    const actor = mockActor('a3');
+    actor.system = {
+      attributes: { might: { value: 16 } },
+      stonePools: { might: { current: 0, max: 2, sustained: 0 } },
+    };
+    actor.update = async (patch) => {
+      for (const [k, v] of Object.entries(patch)) {
+        const parts = k.split('.');
+        let obj: any = actor;
+        for (let i = 0; i < parts.length - 1; i++) {
+          if (obj[parts[i]] == null) obj[parts[i]] = {};
+          obj = obj[parts[i]];
+        }
+        obj[parts[parts.length - 1]] = v;
+      }
+    };
+    const combat = setupGame([actor], 1);
+    await initializeCombatRoundState(combat as any);
+    expect((actor.system as any).stonePools.might.current).toBe(2);
+  });
 });

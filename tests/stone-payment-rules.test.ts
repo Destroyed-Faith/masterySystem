@@ -83,7 +83,7 @@ describe('power row order', () => {
 describe('pool blocked reason', () => {
   it('explains a missing pool', () => {
     expect(stonePoolBlockedReason({ max: 0, available: 0, sustained: 0, artifactBound: 0 })).toBe(
-      'Attribut unter 8 — kein Steinpool',
+      'Attribute below 8 — no stone pool',
     );
   });
 
@@ -93,13 +93,13 @@ describe('pool blocked reason', () => {
 
   it('names artifact bindings and sustain before the generic case', () => {
     expect(stonePoolBlockedReason({ max: 2, available: 0, sustained: 0, artifactBound: 2 })).toBe(
-      'an Artefakt-Aktivierung gebunden',
+      'bound to an artifact activation',
     );
     expect(stonePoolBlockedReason({ max: 2, available: 0, sustained: 2, artifactBound: 0 })).toBe(
-      'durch Sustain gebunden',
+      'bound by Sustain',
     );
     expect(stonePoolBlockedReason({ max: 2, available: 0, sustained: 0, artifactBound: 0 })).toBe(
-      'diese Runde verbraucht',
+      'spent this round',
     );
   });
 });

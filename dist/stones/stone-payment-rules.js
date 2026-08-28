@@ -54,13 +54,13 @@ export function orderPowersRampFirst(powers, skipsFirstTier) {
 /** Why a visible pool has nothing to drag right now (empty string = usable). */
 export function stonePoolBlockedReason(pool) {
     if (pool.max <= 0)
-        return 'Attribut unter 8 — kein Steinpool';
+        return 'Attribute below 8 — no stone pool';
     if (pool.available > 0)
         return '';
     if (pool.artifactBound > 0)
-        return 'an Artefakt-Aktivierung gebunden';
+        return 'bound to an artifact activation';
     if (pool.sustained > 0)
-        return 'durch Sustain gebunden';
-    return 'diese Runde verbraucht';
+        return 'bound by Sustain';
+    return 'spent this round';
 }
 //# sourceMappingURL=stone-payment-rules.js.map

@@ -102,12 +102,16 @@ export class MasteryActor extends Actor {
             // `c.actor` here would lazily build synthetic token actors while
             // THIS actor is itself mid-construction (ActorDelta), recursing
             // into prepareData until the call stack overflows on scene load.
-            const inActiveCombat = !!(game as any).combat?.active &&
-              (game as any).combat.combatants?.some((c: any) => c.actorId === (this as any).id);
+            // Only a *started* fight treats 0 as spent. `combat.active` is true
+            // as soon as the token is on the tracker (prepare / round 0), which
+            // used to lock leftover empty pools as "spent this round".
+            const combat = (game as any).combat;
+            const inLiveCombat = !!combat?.started &&
+              combat.combatants?.some((c: any) => c.actorId === (this as any).id);
             if (current === undefined || current === null) {
               system.stonePools[attrKey].current = effectiveMax;
-            } else if (current === 0 && maxStones > 0 && sustained === 0 && !inActiveCombat) {
-              // Refill empty pools only out of combat (in combat, 0 means spent — regen is end-of-round)
+            } else if (current === 0 && maxStones > 0 && sustained === 0 && !inLiveCombat) {
+              // Refill empty pools out of combat and during prepare (round 1 starts full).
               system.stonePools[attrKey].current = effectiveMax;
             } else {
               system.stonePools[attrKey].current = Math.max(0, Math.min(current, effectiveMax));

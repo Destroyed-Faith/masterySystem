@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.412] - 2026-08-28
+
+### Fixed
+
+- **Stone Powers:** Pool blocked reasons are in English. Empty leftover pools no longer show as "spent this round" when a fight is just starting — Round 1 refills to full during prepare and on a cold combat start.
+
 ## [0.9.411] - 2026-08-28
 
 ### Added

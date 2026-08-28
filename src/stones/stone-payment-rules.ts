@@ -71,9 +71,9 @@ export function stonePoolBlockedReason(pool: {
   sustained: number;
   artifactBound: number;
 }): string {
-  if (pool.max <= 0) return 'Attribut unter 8 — kein Steinpool';
+  if (pool.max <= 0) return 'Attribute below 8 — no stone pool';
   if (pool.available > 0) return '';
-  if (pool.artifactBound > 0) return 'an Artefakt-Aktivierung gebunden';
-  if (pool.sustained > 0) return 'durch Sustain gebunden';
-  return 'diese Runde verbraucht';
+  if (pool.artifactBound > 0) return 'bound to an artifact activation';
+  if (pool.sustained > 0) return 'bound by Sustain';
+  return 'spent this round';
 }

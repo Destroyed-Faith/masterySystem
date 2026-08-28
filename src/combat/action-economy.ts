@@ -1539,6 +1539,14 @@ export async function initializeCombatRoundState(combat: Combat): Promise<void> 
       Math.max(1, Math.floor(Number(stored.round) || 1)) <= 1;
     if (preparedForThisCombat) continue;
 
+    // No prepare-phase spend for this combat — fill pools so a cold start
+    // does not inherit leftover 0s as "spent this round".
+    try {
+      await refillStonePoolsFromAttributes(flagOwner);
+    } catch (err) {
+      console.warn('Mastery System | Round-1 stone refill at combat start failed', err);
+    }
+
     const roundState = getRoundState(actor, combat);
     await setRoundState(actor, roundState);
 
