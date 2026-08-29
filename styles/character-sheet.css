@@ -4757,6 +4757,24 @@
   color: rgba(255, 255, 255, 0.5);
 }
 
+.mastery-system.sheet.actor.npc .npc-dice-input {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.mastery-system.sheet.actor.npc .npc-dice-input input[type="number"] {
+  flex: 1;
+  min-width: 0;
+}
+
+.mastery-system.sheet.actor.npc .npc-dice-suffix {
+  flex: 0 0 auto;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.55);
+}
+
 .mastery-system.sheet.actor.npc .npc-attack-field input,
 .mastery-system.sheet.actor.npc .npc-attack-field select {
   width: 100%;

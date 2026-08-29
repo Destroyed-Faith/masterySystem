@@ -229,7 +229,7 @@ export function normalizeConcept(raw?: Partial<EncounterConcept> | null): Encoun
   merged.kitMode = merged.kitMode === 'distinct' ? 'distinct' : 'identical';
   merged.weaponProfile = conceptWeaponProfile(merged);
   merged.attackShape = merged.attackShape === 'single-and-aoe' ? 'single-and-aoe' : 'free';
-  merged.baseDamageDice = clamp(Math.round(Number(merged.baseDamageDice) || 0), 0, 24);
+  merged.baseDamageDice = clamp(Math.round(Number(merged.baseDamageDice) || 0), 0, 80);
   merged.hpOverride = Math.max(0, Math.round(Number(merged.hpOverride) || 0));
   merged.armorOverride = Math.max(0, Math.round(Number(merged.armorOverride) || 0));
   merged.evadeOverride = Math.max(0, Math.round(Number(merged.evadeOverride) || 0));
@@ -677,7 +677,7 @@ export function buildPowerCycle(
   });
 
   const profile = conceptWeaponProfile(concept);
-  const damageOverride = clamp(Math.round(Number(concept.baseDamageDice) || 0), 0, 24);
+  const damageOverride = clamp(Math.round(Number(concept.baseDamageDice) || 0), 0, 80);
   for (const entry of entries) {
     if (entry.isSummon) continue;
     // Every NPC attack deals 1d8 Stress on hit.

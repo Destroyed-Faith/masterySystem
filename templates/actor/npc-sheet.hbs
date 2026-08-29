@@ -234,21 +234,17 @@
               </div>
               <div class="npc-attack-field">
                 <label>Attack (Pool)</label>
-                <select name="system.phases.{{phaseIndex}}.npcBaseAttack.attackDiceCount" data-dtype="Number">
-                  <option value="">—</option>
-                  {{#each (range 2 24)}}
-                  <option value="{{this}}" {{#if (eqNum phase.npcBaseAttack.attackDiceCount this)}}selected{{/if}}>{{this}}d8</option>
-                  {{/each}}
-                </select>
+                <div class="npc-dice-input">
+                  <input type="number" name="system.phases.{{phaseIndex}}.npcBaseAttack.attackDiceCount" value="{{default phase.npcBaseAttack.attackDiceCount 6}}" min="1" max="80" step="1" data-dtype="Number" title="Attack pool (1–80 d8)"/>
+                  <span class="npc-dice-suffix">d8</span>
+                </div>
               </div>
               <div class="npc-attack-field">
                 <label>Damage</label>
-                <select name="system.phases.{{phaseIndex}}.npcBaseAttack.damageDiceCount" data-dtype="Number">
-                  <option value="">—</option>
-                  {{#each (range 4 16)}}
-                  <option value="{{this}}" {{#if (eqNum phase.npcBaseAttack.damageDiceCount this)}}selected{{/if}}>{{this}}d8</option>
-                  {{/each}}
-                </select>
+                <div class="npc-dice-input">
+                  <input type="number" name="system.phases.{{phaseIndex}}.npcBaseAttack.damageDiceCount" value="{{default phase.npcBaseAttack.damageDiceCount 4}}" min="1" max="80" step="1" data-dtype="Number" title="Damage (1–80 d8)"/>
+                  <span class="npc-dice-suffix">d8</span>
+                </div>
               </div>
             </div>
             {{> "systems/mastery-system/templates/actor/partials/npc-attack-targeting.hbs" path=(concat "system.phases." phaseIndex ".npcBaseAttack") atk=phase.npcBaseAttack}}
@@ -301,21 +297,17 @@
                 <div class="npc-attack-card__grid npc-attack-card__grid--simple">
                   <div class="npc-attack-field">
                     <label>Attack (Pool)</label>
-                    <select name="system.phases.{{../phaseIndex}}.attackValues.{{index}}.attackDiceCount" data-dtype="Number">
-                      <option value="">—</option>
-                      {{#each (range 2 24)}}
-                      <option value="{{this}}" {{#if (eqNum attack.attackDiceCount this)}}selected{{/if}}>{{this}}d8</option>
-                      {{/each}}
-                    </select>
+                    <div class="npc-dice-input">
+                      <input type="number" name="system.phases.{{../phaseIndex}}.attackValues.{{index}}.attackDiceCount" value="{{default attack.attackDiceCount 6}}" min="1" max="80" step="1" data-dtype="Number" title="Attack pool (1–80 d8)"/>
+                      <span class="npc-dice-suffix">d8</span>
+                    </div>
                   </div>
                   <div class="npc-attack-field">
                     <label>Damage</label>
-                    <select name="system.phases.{{../phaseIndex}}.attackValues.{{index}}.damageDiceCount" data-dtype="Number">
-                      <option value="">—</option>
-                      {{#each (range 4 16)}}
-                      <option value="{{this}}" {{#if (eqNum attack.damageDiceCount this)}}selected{{/if}}>{{this}}d8</option>
-                      {{/each}}
-                    </select>
+                    <div class="npc-dice-input">
+                      <input type="number" name="system.phases.{{../phaseIndex}}.attackValues.{{index}}.damageDiceCount" value="{{default attack.damageDiceCount 4}}" min="1" max="80" step="1" data-dtype="Number" title="Damage (1–80 d8)"/>
+                      <span class="npc-dice-suffix">d8</span>
+                    </div>
                   </div>
                 </div>
                 {{> "systems/mastery-system/templates/actor/partials/npc-attack-targeting.hbs" path=(concat "system.phases." ../phaseIndex ".attackValues." index) atk=attack}}
@@ -451,22 +443,18 @@
               <input type="text" name="system.npcBaseAttack.name" value="{{default system.npcBaseAttack.name 'Waffenangriff'}}" placeholder="Waffenangriff"/>
             </div>
             <div class="npc-attack-field">
-                    <label>Attack (Pool)</label>
-              <select name="system.npcBaseAttack.attackDiceCount" data-dtype="Number">
-                <option value="">—</option>
-                {{#each (range 2 24)}}
-                <option value="{{this}}" {{#if (eqNum ../system.npcBaseAttack.attackDiceCount this)}}selected{{/if}}>{{this}}d8</option>
-                {{/each}}
-              </select>
+              <label>Attack (Pool)</label>
+              <div class="npc-dice-input">
+                <input type="number" name="system.npcBaseAttack.attackDiceCount" value="{{default system.npcBaseAttack.attackDiceCount 6}}" min="1" max="80" step="1" data-dtype="Number" title="Attack pool (1–80 d8)"/>
+                <span class="npc-dice-suffix">d8</span>
+              </div>
             </div>
             <div class="npc-attack-field">
-                    <label>Damage</label>
-              <select name="system.npcBaseAttack.damageDiceCount" data-dtype="Number">
-                <option value="">—</option>
-                {{#each (range npcDamageDiceMin 16)}}
-                <option value="{{this}}" {{#if (eqNum ../system.npcBaseAttack.damageDiceCount this)}}selected{{/if}}>{{this}}d8</option>
-                {{/each}}
-              </select>
+              <label>Damage</label>
+              <div class="npc-dice-input">
+                <input type="number" name="system.npcBaseAttack.damageDiceCount" value="{{default system.npcBaseAttack.damageDiceCount 4}}" min="1" max="80" step="1" data-dtype="Number" title="Damage (1–80 d8)"/>
+                <span class="npc-dice-suffix">d8</span>
+              </div>
             </div>
           </div>
           {{> "systems/mastery-system/templates/actor/partials/npc-attack-targeting.hbs" path="system.npcBaseAttack" atk=system.npcBaseAttack}}
@@ -520,21 +508,17 @@
               <div class="npc-attack-card__grid npc-attack-card__grid--simple">
                 <div class="npc-attack-field">
                   <label>Attack (Pool)</label>
-                  <select name="system.attackValues.{{index}}.attackDiceCount" data-dtype="Number">
-                    <option value="">—</option>
-                    {{#each (range 2 24)}}
-                    <option value="{{this}}" {{#if (eqNum attack.attackDiceCount this)}}selected{{/if}}>{{this}}d8</option>
-                    {{/each}}
-                  </select>
+                  <div class="npc-dice-input">
+                    <input type="number" name="system.attackValues.{{index}}.attackDiceCount" value="{{default attack.attackDiceCount 6}}" min="1" max="80" step="1" data-dtype="Number" title="Attack pool (1–80 d8)"/>
+                    <span class="npc-dice-suffix">d8</span>
+                  </div>
                 </div>
                 <div class="npc-attack-field">
                   <label>Damage</label>
-                  <select name="system.attackValues.{{index}}.damageDiceCount" data-dtype="Number">
-                    <option value="">—</option>
-                    {{#each (range 4 16)}}
-                    <option value="{{this}}" {{#if (eqNum attack.damageDiceCount this)}}selected{{/if}}>{{this}}d8</option>
-                    {{/each}}
-                  </select>
+                  <div class="npc-dice-input">
+                    <input type="number" name="system.attackValues.{{index}}.damageDiceCount" value="{{default attack.damageDiceCount 4}}" min="1" max="80" step="1" data-dtype="Number" title="Damage (1–80 d8)"/>
+                    <span class="npc-dice-suffix">d8</span>
+                  </div>
                 </div>
               </div>
               {{> "systems/mastery-system/templates/actor/partials/npc-attack-targeting.hbs" path=(concat "system.attackValues." index) atk=attack}}

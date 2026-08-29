@@ -157,7 +157,7 @@
         </label>
         <label class="encounter-gen-field">
           <span class="encounter-gen-label-tip" tabindex="0">{{copy.concept.baseDamage}}<span class="encounter-gen-tooltip" role="tooltip">{{copy.concept.baseDamageHint}}</span></span>
-          <input type="number" class="js-eg-concept" data-field="baseDamageDice" min="0" max="24" value="{{concept.baseDamageDice}}"/>
+          <input type="number" class="js-eg-concept" data-field="baseDamageDice" min="0" max="80" value="{{concept.baseDamageDice}}"/>
         </label>
       </div>
 
@@ -376,8 +376,8 @@
               <td>—</td>
               <td>—</td>
               {{else}}
-              <td><input type="number" class="js-eg-cycle" data-phase="{{@../index}}" data-slot="{{this.cycleIndex}}" data-field="attackDiceCount" value="{{this.attackDiceCount}}" min="2" max="24"/></td>
-              <td><input type="number" class="js-eg-cycle" data-phase="{{@../index}}" data-slot="{{this.cycleIndex}}" data-field="damageDiceCount" value="{{this.damageDiceCount}}" min="0" max="24"/></td>
+              <td><input type="number" class="js-eg-cycle" data-phase="{{@../index}}" data-slot="{{this.cycleIndex}}" data-field="attackDiceCount" value="{{this.attackDiceCount}}" min="1" max="80"/></td>
+              <td><input type="number" class="js-eg-cycle" data-phase="{{@../index}}" data-slot="{{this.cycleIndex}}" data-field="damageDiceCount" value="{{this.damageDiceCount}}" min="0" max="80"/></td>
               <td>
                 {{#if this.special}}
                 <input type="number" class="js-eg-cycle encounter-gen-input--small" data-phase="{{@../index}}" data-slot="{{this.cycleIndex}}" data-field="specialValue" value="{{this.specialValue}}" min="0" max="8"/>

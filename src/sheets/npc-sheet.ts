@@ -145,8 +145,10 @@ function normalizeNpcAttackRowForContext(row: Record<string, any> | null | undef
       continue;
     }
     const n = Math.floor(Number(raw));
-    if (Number.isFinite(n) && n > 0) (o as any)[k] = n;
-    else if (k === 'npcStressD8') (o as any)[k] = 1;
+    if (Number.isFinite(n) && n > 0) {
+      (o as any)[k] =
+        k === 'attackDiceCount' || k === 'damageDiceCount' ? Math.min(80, n) : n;
+    } else if (k === 'npcStressD8') (o as any)[k] = 1;
     else delete (o as any)[k];
   }
   {

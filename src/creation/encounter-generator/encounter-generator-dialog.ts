@@ -514,7 +514,9 @@ export class EncounterGeneratorDialog extends BaseDialog {
       } else if (field === 'attacksPerRound') {
         entry.attacksPerRound = Math.min(5, Math.max(1, Math.floor(Number(el.val()) || 1)));
       } else if (field in entry) {
-        (entry as any)[field] = Math.max(0, Math.floor(Number(el.val()) || 0));
+        let n = Math.max(0, Math.floor(Number(el.val()) || 0));
+        if (field === 'attackDiceCount' || field === 'damageDiceCount') n = Math.min(80, n);
+        (entry as any)[field] = n;
       } else {
         return;
       }
