@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.419] - 2026-08-29
+
+### Changed
+
+- **Add Power:** After creation, Combat Package Wizard / Manual Combat Package are gone. Players buy a new Power at Level 1 (1 XP) from a clearer picker that hides Powers they already have. The Powers list stays expanded.
+
 ## [0.9.418] - 2026-08-29
 
 ### Changed

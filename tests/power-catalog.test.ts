@@ -11,6 +11,8 @@ import {
     powerIdentityKeyFromEntry,
     findTemplateById,
     isDispelCatalogEntry,
+    labelPowerSubfamily,
+    powerSubfamilyHint,
 } from '../src/utils/power-catalog';
 
 describe('Power Catalog (Templates refactor)', () => {
@@ -212,6 +214,13 @@ describe('Power Catalog (Templates refactor)', () => {
         expect(levels['16'].effect?.text).toContain('Critical(4)');
         expect(levels['4'].mechanics?.critical).toBe(1);
         expect(levels['1'].mechanics?.critical).toBeUndefined();
+    });
+
+    it('uses player-facing names for Active subfamilies', () => {
+        expect(labelPowerSubfamily('damage-single')).toBe('Single-Target Special Attack');
+        expect(labelPowerSubfamily('weapon-attack')).toBe('Weapon Attack');
+        expect(powerSubfamilyHint('damage-single')).toMatch(/not your weapon/i);
+        expect(powerSubfamilyHint('weapon-attack')).toMatch(/equipped weapon/i);
     });
 
     it('excludes dispel actives from the catalog (cleanse replaces dispel at the table)', () => {

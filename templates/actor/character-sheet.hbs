@@ -1491,11 +1491,15 @@
       <!-- Buttons always visible -->
       <div class="powers-overview">
         {{#if creationComplete}}
-        <div class="power-level-distribution-controls" style="width: 230px;">
-          <button type="button" class="confirm-power-level-changes" id="confirm-power-level-changes-btn" disabled style="width: 200px;">
+        <button type="button" class="add-power-btn" title="Buy a new Power at Level 1">
+          <i class="fas fa-plus"></i> Add Power
+          <span class="add-power-cost">1 XP</span>
+        </button>
+        <div class="power-level-distribution-controls">
+          <button type="button" class="confirm-power-level-changes" id="confirm-power-level-changes-btn" disabled>
             <i class="fas fa-check"></i> Confirm Changes
           </button>
-          <button type="button" class="cancel-power-level-changes" id="cancel-power-level-changes-btn" disabled style="width: 200px;">
+          <button type="button" class="cancel-power-level-changes" id="cancel-power-level-changes-btn" disabled>
             <i class="fas fa-times"></i> Cancel
           </button>
         </div>
@@ -1708,30 +1712,14 @@
       {{/unless}}
       
       {{#if creationComplete}}
-      <div class="post-creation-wizard-bar">
-        <p>Rebuild your combat package (2 Passive R4, 1 Active Buff R4, 1 Reaction R4, 2 Active R2). Power upgrade XP on replaced Powers is refunded.</p>
-        <div class="combat-package-actions">
-          <button type="button" class="open-tower-wizard-btn">
-            <i class="fas fa-magic"></i> Combat Package Wizard
-          </button>
-          <button type="button" class="open-manual-combat-package-btn">
-            <i class="fas fa-list-check"></i> Manual Combat Package
-          </button>
-          {{#if (userIsGM)}}
-          <button type="button" class="gm-add-power-btn" title="GM: add a single normal Power from the catalog (e.g. to restore a deleted Power)">
-            <i class="fas fa-plus"></i> Add Power (GM)
-          </button>
-          {{/if}}
-        </div>
-      </div>
-      <!-- Powers List (Normal Mode): collapsible + grouped by power type (same UX pattern as Token-Radial Standard-Manöver). -->
-      <details class="powers-list-details powers-list-section"{{#if powersListDetailsOpen}} open{{/if}}>
+      <!-- Powers List (Normal Mode): always expanded, grouped by type. -->
+      <details class="powers-list-details powers-list-section" open>
         <summary class="radial-maneuver-prefs-summary powers-list-details-summary">
-          <i class="fas fa-bolt"></i> Powers <span class="powers-list-details-sub">({{items.powers.length}} — nach Typ, alle Gruppen aufklappen)</span>
+          <i class="fas fa-bolt"></i> Powers <span class="powers-list-details-sub">({{items.powers.length}})</span>
         </summary>
         <div class="radial-maneuver-prefs-body powers-list-details-body">
           {{#each powersByTypeGroups}}
-          <details class="radial-maneuver-prefs-group powers-by-type-group powers-type-group-details"{{#if @root.powersGroupsExpanded}} open{{/if}}>
+          <details class="radial-maneuver-prefs-group powers-by-type-group powers-type-group-details" open>
             <summary class="radial-maneuver-prefs-group-label powers-type-group-details-summary">
               <i class="fas fa-grip-lines-vertical powers-type-group-handle" aria-hidden="true"></i>
               <span class="powers-type-group-label-text">{{this.groupLabel}}</span>

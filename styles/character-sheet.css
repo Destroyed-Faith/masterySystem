@@ -7213,6 +7213,72 @@ aside#tooltip,
   white-space: nowrap;
 }
 
+.window-app.dialog.mastery-system.power-catalog-dialog,
+.mastery-system.power-catalog-dialog {
+  background: #1b2124;
+  color: #d8d8d8;
+}
+
+.window-app.dialog.mastery-system.power-catalog-dialog .window-content,
+.mastery-system.power-catalog-dialog .window-content {
+  background: #20272b;
+  color: #d8d8d8;
+}
+
+.mastery-system.power-creation-dialog .power-form-label,
+.mastery-system.power-catalog-dialog .power-form-label {
+  color: #ececec;
+}
+
+.mastery-system.power-creation-dialog .power-form-select,
+.mastery-system.power-catalog-dialog .power-form-select,
+.mastery-system.power-catalog-dialog .power-form-input,
+.window-app.dialog.mastery-system.power-catalog-dialog select.power-form-select {
+  background: #14181b;
+  border-color: #3a3f44;
+  color: #f2f2f2;
+}
+
+.mastery-system.power-creation-dialog .power-form-select:hover,
+.mastery-system.power-catalog-dialog .power-form-select:hover,
+.mastery-system.power-catalog-dialog .power-form-input:focus,
+.mastery-system.power-creation-dialog .power-form-select:focus {
+  border-color: #c9a227;
+  box-shadow: 0 0 0 2px rgba(201, 162, 39, 0.22);
+}
+
+.mastery-system.power-catalog-dialog .power-catalog-filters {
+  background: rgba(0, 0, 0, 0.28);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.mastery-system.power-catalog-dialog .power-catalog-count,
+.window-app.dialog.mastery-system.power-catalog-dialog .pc-spell-rules-hint {
+  color: #b8b8b8 !important;
+}
+
+.mastery-system.power-catalog-dialog .pc-subfamily-hint,
+.mastery-system.power-catalog-dialog .pc-purchase-copy,
+.mastery-system.power-catalog-dialog .pc-purchase-have {
+  margin: 4px 0 0;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  color: #b8b8b8;
+}
+
+.mastery-system.power-catalog-dialog .pc-purchase-bar {
+  padding: 10px 12px;
+  border: 1px solid rgba(201, 162, 39, 0.35);
+  border-radius: 8px;
+  background: rgba(201, 162, 39, 0.08);
+}
+
+.mastery-system.power-catalog-dialog .pc-purchase-cost {
+  margin: 6px 0 0;
+  font-size: 1rem;
+  color: #f3e6b8;
+}
+
 .mastery-system.power-catalog-dialog .power-form-checkbox {
   width: 1rem;
   height: 1rem;
@@ -8369,9 +8435,44 @@ aside#tooltip,
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
   margin-bottom: 1.5rem;
   padding-bottom: 1rem;
   border-bottom: 2px solid var(--df-border-primary, #3a3f44);
+}
+
+.mastery-system.sheet.actor.character .add-power-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border: 1px solid rgba(201, 162, 39, 0.45);
+  border-radius: 8px;
+  background: linear-gradient(to bottom, #3a4248, #2a3136);
+  color: #f3e6b8;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.mastery-system.sheet.actor.character .add-power-btn:hover {
+  border-color: rgba(201, 162, 39, 0.75);
+  background: linear-gradient(to bottom, #454e55, #323940);
+  color: #fff6d0;
+}
+
+.mastery-system.sheet.actor.character .add-power-btn .add-power-cost {
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: rgba(201, 162, 39, 0.2);
+  font-size: 11px;
+  letter-spacing: 0.03em;
+}
+
+.mastery-system.sheet.actor.character .power-level-distribution-controls {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
 }
 
 .mastery-system.sheet.actor.character .powers-overview h3 {

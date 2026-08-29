@@ -50,6 +50,50 @@ export const CATEGORY_LABELS: Record<PowerCategory, string> = {
     passive: 'Passive',
 };
 
+/** Player-facing names for catalog subfamilies (not raw keys like `damage-single`). */
+export const SUBFAMILY_LABELS: Record<string, string> = {
+    'damage-single': 'Single-Target Special Attack',
+    'damage-aoe': 'Area Special Attack',
+    'weapon-attack': 'Weapon Attack',
+    'weapon-single': 'Weapon Attack',
+    control: 'Control & Movement',
+    'hard-control': 'Hard Control',
+    'persistent-zone': 'Zones & Persistent Effects',
+    mixed: 'Mixed Effects',
+    barrier: 'Barrier',
+    illusion: 'Illusion',
+    'support-heal': 'Heal',
+    'support-cleanse': 'Cleanse',
+    'support-dispel': 'Dispel',
+};
+
+export const SUBFAMILY_HINTS: Record<string, string> = {
+    'damage-single': 'One target. Damage and Special come from the Power itself, not your weapon.',
+    'damage-aoe': 'Hits an area. Damage and Special come from the Power itself, not your weapon.',
+    'weapon-attack': 'Uses your equipped weapon’s damage dice and weapon Specials.',
+    'weapon-single': 'Uses your equipped weapon’s damage dice and weapon Specials.',
+    control: 'Locks down or repositions a target.',
+    'hard-control': 'Stronger lock-down that spends more of the Power’s budget on control.',
+    'persistent-zone': 'Leaves a zone or lasting field on the map.',
+    mixed: 'Combines damage, support, or other riders in one Power.',
+    barrier: 'Creates a wall, cover, or protective field.',
+    illusion: 'Fakes presence, concealment, or a false effect.',
+};
+
+export function labelPowerSubfamily(key: string): string {
+    const k = String(key || '').trim();
+    if (!k) return '';
+    if (SUBFAMILY_LABELS[k]) return SUBFAMILY_LABELS[k];
+    return k
+        .split('-')
+        .map((part) => (part.length ? part[0].toUpperCase() + part.slice(1) : part))
+        .join(' ');
+}
+
+export function powerSubfamilyHint(key: string): string {
+    return SUBFAMILY_HINTS[String(key || '').trim()] || '';
+}
+
 /**
  * Requirements for character creation per category.
  *

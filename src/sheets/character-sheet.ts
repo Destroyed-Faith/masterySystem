@@ -392,17 +392,11 @@ export class MasteryCharacterSheet extends BaseActorSheet {
   }
 
   /**
-   * GM-only: add a single normal Power from the full catalog (recovery tool for
-   * an accidentally deleted Power). Opens the catalog picker, which creates the
-   * Power as an embedded Item on this actor without touching the rest of the
-   * combat package.
+   * Buy a single catalog Power at Level 1 (post-creation). Same picker for
+   * players and GM; XP is charged on the character.
    */
-  async #onGmAddPower(event: JQuery.ClickEvent) {
+  async #onAddPower(event: JQuery.ClickEvent) {
     event.preventDefault();
-    if (!(game as any).user?.isGM) {
-      ui.notifications?.warn('Only the GM can add a Power directly.');
-      return;
-    }
     try {
       await showPowerCreationDialog(this.actor);
       this.render();
@@ -1261,9 +1255,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     }
     if (context.creationComplete) {
       context.powersByTypeGroups = this.#buildPowersByTypeGroups(context.items?.powers || []);
-      /* Default: collapsed; open after finalize or when user expanded in this session. */
-      context.powersListDetailsOpen = this._powersListDetailsOpen === true;
-      context.powersGroupsExpanded = this._powersListDetailsOpen === true;
+      context.powersListDetailsOpen = true;
+      context.powersGroupsExpanded = true;
     } else {
       context.powersByTypeGroups = [];
       context.powersListDetailsOpen = false;
@@ -2791,7 +2784,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     // Power/Spell creation buttons (always visible)
     html.find('.open-tower-wizard-btn').on('click', this.#onOpenTowerWizard.bind(this));
     html.find('.open-manual-combat-package-btn').on('click', this.#onOpenManualCombatPackage.bind(this));
-    html.find('.gm-add-power-btn').on('click', this.#onGmAddPower.bind(this));
+    html.find('.add-power-btn, .gm-add-power-btn').on('click', this.#onAddPower.bind(this));
 
     // Echo creation / deck interactions
     html.find('.choose-echo-btn').on('click', this.#onEchoChoose.bind(this));
@@ -6224,7 +6217,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     $scope.find('select:not(.power-rank-select):not(.attr-creation-select):not(.mastery-rank-select)').prop('disabled', true);
     
     // Disable buttons except creation controls
-    const buttonsToDisable = $scope.find('button:not(.header-control):not(.sheet-gm-menu-toggle):not(.attr-increase):not(.attr-decrease):not(.skill-increase):not(.skill-decrease):not(.finalize-creation):not(.reset-creation-attributes):not(.force-unlock-creation):not(.reset-character):not(.add-disadvantage-btn):not(.disadvantage-edit-btn):not(.disadvantage-remove-btn):not(.open-tower-wizard-btn):not(.open-manual-combat-package-btn):not(.add-spell-creation-btn):not(.power-rank-select):not(.item-delete):not(.power-toggle-details):not(.power-edit-mechanics):not(.general-items-btn):not(.choose-echo-btn):not(.add-echo-card-btn):not(.remove-echo-card-btn):not(.echo-card-use-btn):not(.open-languages-btn)');
+    const buttonsToDisable = $scope.find('button:not(.header-control):not(.sheet-gm-menu-toggle):not(.attr-increase):not(.attr-decrease):not(.skill-increase):not(.skill-decrease):not(.finalize-creation):not(.reset-creation-attributes):not(.force-unlock-creation):not(.reset-character):not(.add-disadvantage-btn):not(.disadvantage-edit-btn):not(.disadvantage-remove-btn):not(.open-tower-wizard-btn):not(.open-manual-combat-package-btn):not(.add-power-btn):not(.add-spell-creation-btn):not(.power-rank-select):not(.item-delete):not(.power-toggle-details):not(.power-edit-mechanics):not(.general-items-btn):not(.choose-echo-btn):not(.add-echo-card-btn):not(.remove-echo-card-btn):not(.echo-card-use-btn):not(.open-languages-btn)');
     buttonsToDisable.prop('disabled', true);
     
     // Ensure creation buttons are enabled
