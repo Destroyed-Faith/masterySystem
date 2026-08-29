@@ -407,6 +407,7 @@
       "drag": "Drag to move"
     },
     "sheet": {
+      "gmMenu": "GM Tools",
       "tabs": {
         "nav": "Character sheet sections",
         "attributes": "Attributes",

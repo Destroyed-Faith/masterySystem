@@ -120,6 +120,28 @@
         {{/if}}
       </div>
     </div>
+    {{#if (userIsGM)}}
+    <div class="sheet-gm-menu">
+      <button type="button" class="sheet-gm-menu-toggle" aria-expanded="false" aria-haspopup="true" aria-label="{{localize 'MASTERY.sheet.gmMenu'}}" title="{{localize 'MASTERY.sheet.gmMenu'}}">
+        <i class="fas fa-ellipsis-vertical fa-ellipsis-v" aria-hidden="true"></i>
+      </button>
+      <div class="sheet-gm-menu-list" hidden>
+        {{#if canStartSkillsRedistribute}}
+        <button type="button" class="start-skills-redistribute" title="Reset skills to 0 and pick 10 skills at 4 each (+ sets 4). Only when the character has no XP yet.">
+          <i class="fas fa-rotate"></i> Redistribute Skills
+        </button>
+        {{/if}}
+        {{#unless creationComplete}}
+        <button type="button" class="force-unlock-creation" title="GM Only: Force unlock character creation">
+          <i class="fas fa-unlock"></i> Force Unlock
+        </button>
+        {{/unless}}
+        <button type="button" class="reset-character" title="Wipe this character back to creation (keeps name + portrait; earned XP returned to the player's pool). Destructive, requires double confirmation.">
+          <i class="fas fa-trash-restore-alt"></i> Reset Character
+        </button>
+      </div>
+    </div>
+    {{/if}}
     </div>
   </header>
   <nav class="sheet-tabs tabs" data-group="primary" aria-label="{{localize 'MASTERY.sheet.tabs.nav'}}">
@@ -208,33 +230,9 @@
         Remaining: Attributes ({{#if creation.attributeDistributionValid}}done{{else}}{{creation.attrCount8}}/2×8, {{creation.attrCount6}}/2×6, {{creation.attrCount4}}/2×4, {{creation.attrCount2}}/1×2{{/if}}), Skills ({{creation.skillPointsRemaining}} remaining), Powers ({{creation.powersSelected}}/{{creation.powersRequired}}){{#unless creation.disadvantagesValid}}, Disadvantages ({{creation.disadvantagePoints}}/{{creation.disadvantagePointsMin}}–{{creation.disadvantagePointsMax}} pts){{/unless}}{{#unless creation.echoCreationValid}}, Echo (not chosen){{/unless}}{{#unless creation.languagesCreationValid}}, Languages (need 1+ besides Common){{/unless}}.
       </span>
       {{/if}}
-      {{#if (userIsGM)}}
-      <button type="button" class="force-unlock-creation" title="GM Only: Force unlock character creation">
-        <i class="fas fa-unlock"></i> Force Unlock
-      </button>
-      <button type="button" class="reset-character" title="GM Only: Wipe this character back to creation (keeps name + portrait; earned XP returned to pool)">
-        <i class="fas fa-trash-restore-alt"></i> Reset Character
-      </button>
-      {{/if}}
     </div>
   </div>
   {{/unless}}
-
-  {{#if creationComplete}}
-  {{#if (userIsGM)}}
-  <div class="gm-character-tools">
-    <span class="gm-character-tools-label"><i class="fas fa-user-shield"></i> GM Tools</span>
-    {{#if canStartSkillsRedistribute}}
-    <button type="button" class="start-skills-redistribute" title="Reset skills to 0 and pick 10 skills at 4 each (+ sets 4). Only when the character has no XP yet.">
-      <i class="fas fa-rotate"></i> Redistribute Skills
-    </button>
-    {{/if}}
-    <button type="button" class="reset-character" title="Wipe this character back to creation (keeps name + portrait; earned XP returned to the player's pool). Destructive, requires double confirmation.">
-      <i class="fas fa-trash-restore-alt"></i> Reset Character
-    </button>
-  </div>
-  {{/if}}
-  {{/if}}
 
   <!-- Compact Combat Stats Panel — always visible on every tab so the current
        Armor / Evade / DR% / Initiative / HP / Stress values are at-a-glance.

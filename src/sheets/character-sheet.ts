@@ -206,6 +206,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
   /** Last pointer-down on equipment tile (for click vs drag distinction). */
   #itemInfoPointerDown: { itemId: string; x: number; y: number } | null = null;
   #equipSlotFillMenuAbort: AbortController | null = null;
+  #sheetGmMenuAbort: AbortController | null = null;
   private _pendingAttributeChanges: Record<string, number> = {}; // Signed pending attribute deltas (XP mode)
   private _pendingPowerLevelChanges: Record<string, number> = {}; // Track pending power level increases
   private _pendingSkillRankChanges: Record<string, number> = {}; // Track pending skill rank changes (signed)
@@ -261,7 +262,44 @@ export class MasteryCharacterSheet extends BaseActorSheet {
 
   async close(options?: any): Promise<this> {
     this.#closeEquipSlotFillMenu();
+    this.#sheetGmMenuAbort?.abort();
+    this.#sheetGmMenuAbort = null;
     return super.close(options);
+  }
+
+  #bindSheetGmMenu(html: JQuery): void {
+    this.#sheetGmMenuAbort?.abort();
+    this.#sheetGmMenuAbort = null;
+    const menu = html.find('.sheet-gm-menu')[0] as HTMLElement | undefined;
+    if (!menu) return;
+    const toggle = menu.querySelector('.sheet-gm-menu-toggle') as HTMLButtonElement | null;
+    const list = menu.querySelector('.sheet-gm-menu-list') as HTMLElement | null;
+    if (!toggle || !list) return;
+
+    const setOpen = (open: boolean) => {
+      menu.classList.toggle('is-open', open);
+      toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+      list.hidden = !open;
+    };
+
+    toggle.addEventListener('click', (ev) => {
+      ev.preventDefault();
+      ev.stopPropagation();
+      setOpen(list.hidden);
+    });
+    list.addEventListener('click', (ev) => {
+      if ((ev.target as HTMLElement | null)?.closest('button')) setOpen(false);
+    });
+
+    const abort = new AbortController();
+    this.#sheetGmMenuAbort = abort;
+    const dismiss = (ev: Event) => {
+      if (ev.type === 'keydown' && (ev as KeyboardEvent).key !== 'Escape') return;
+      if (ev.type === 'pointerdown' && menu.contains(ev.target as Node)) return;
+      setOpen(false);
+    };
+    document.addEventListener('pointerdown', dismiss, { capture: true, signal: abort.signal });
+    document.addEventListener('keydown', dismiss, { signal: abort.signal });
   }
 
   /** Initial tab when the sheet is first opened; subclasses override. */
@@ -2212,6 +2250,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       void this.#migrateAttributeBaselinesIfNeeded();
     }
     
+    this.#bindSheetGmMenu(html);
+
     // Character Creation buttons
     const unlockButton = html.find('.force-unlock-creation');
     if (unlockButton.length > 0) {
@@ -6184,11 +6224,11 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     $scope.find('select:not(.power-rank-select):not(.attr-creation-select):not(.mastery-rank-select)').prop('disabled', true);
     
     // Disable buttons except creation controls
-    const buttonsToDisable = $scope.find('button:not(.header-control):not(.attr-increase):not(.attr-decrease):not(.skill-increase):not(.skill-decrease):not(.finalize-creation):not(.reset-creation-attributes):not(.force-unlock-creation):not(.reset-character):not(.add-disadvantage-btn):not(.disadvantage-edit-btn):not(.disadvantage-remove-btn):not(.open-tower-wizard-btn):not(.open-manual-combat-package-btn):not(.add-spell-creation-btn):not(.power-rank-select):not(.item-delete):not(.power-toggle-details):not(.power-edit-mechanics):not(.general-items-btn):not(.choose-echo-btn):not(.add-echo-card-btn):not(.remove-echo-card-btn):not(.echo-card-use-btn):not(.open-languages-btn)');
+    const buttonsToDisable = $scope.find('button:not(.header-control):not(.sheet-gm-menu-toggle):not(.attr-increase):not(.attr-decrease):not(.skill-increase):not(.skill-decrease):not(.finalize-creation):not(.reset-creation-attributes):not(.force-unlock-creation):not(.reset-character):not(.add-disadvantage-btn):not(.disadvantage-edit-btn):not(.disadvantage-remove-btn):not(.open-tower-wizard-btn):not(.open-manual-combat-package-btn):not(.add-spell-creation-btn):not(.power-rank-select):not(.item-delete):not(.power-toggle-details):not(.power-edit-mechanics):not(.general-items-btn):not(.choose-echo-btn):not(.add-echo-card-btn):not(.remove-echo-card-btn):not(.echo-card-use-btn):not(.open-languages-btn)');
     buttonsToDisable.prop('disabled', true);
     
     // Ensure creation buttons are enabled
-    const creationButtons = $scope.find('.attr-increase, .attr-decrease, .skill-increase, .skill-decrease, .finalize-creation, .reset-creation-attributes, .force-unlock-creation, .reset-character, .add-disadvantage-btn, .disadvantage-edit-btn, .disadvantage-remove-btn, .open-tower-wizard-btn, .open-manual-combat-package-btn, .add-spell-creation-btn, .item-delete, .general-items-btn, .choose-echo-btn, .add-echo-card-btn, .remove-echo-card-btn, .echo-card-use-btn, .open-languages-btn');
+    const creationButtons = $scope.find('.attr-increase, .attr-decrease, .skill-increase, .skill-decrease, .finalize-creation, .reset-creation-attributes, .force-unlock-creation, .reset-character, .sheet-gm-menu-toggle, .add-disadvantage-btn, .disadvantage-edit-btn, .disadvantage-remove-btn, .open-tower-wizard-btn, .open-manual-combat-package-btn, .add-spell-creation-btn, .item-delete, .general-items-btn, .choose-echo-btn, .add-echo-card-btn, .remove-echo-card-btn, .echo-card-use-btn, .open-languages-btn');
     creationButtons.prop('disabled', false);
     
     // Also enable power rank selects (they're select elements, not buttons)

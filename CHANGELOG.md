@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.418] - 2026-08-29
+
+### Changed
+
+- **Character sheet:** Tab icons are larger and stretch across the full rail. GM Tools left the banner and sit as a three-dot menu in the header, GM-only.
+
 ## [0.9.417] - 2026-08-29
 
 ### Changed

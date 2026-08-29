@@ -407,6 +407,7 @@
       "drag": "Ziehen zum Verschieben"
     },
     "sheet": {
+      "gmMenu": "SL-Werkzeuge",
       "tabs": {
         "nav": "Charakterbogen-Bereiche",
         "attributes": "Attribute",

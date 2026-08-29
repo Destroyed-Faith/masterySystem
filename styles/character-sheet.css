@@ -30,7 +30,7 @@
   min-height: 0;
   max-height: none;
   overflow: visible;
-  z-index: 4;
+  z-index: 14;
 }
 
 /* Theme-aware header styling - using new df-* variables */
@@ -224,6 +224,61 @@
   text-align: center;
   line-height: 1.2;
   font-family: 'Cormorant Garamond', serif;
+}
+
+.mastery-system.sheet.actor.character .sheet-gm-menu {
+  position: relative;
+  flex: 0 0 auto;
+  align-self: flex-start;
+  margin-top: 4px;
+  z-index: 20;
+}
+
+.mastery-system.sheet.actor.character .sheet-gm-menu-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.28);
+  color: #d8d8d8;
+  cursor: pointer;
+}
+
+.mastery-system.sheet.actor.character .sheet-gm-menu-toggle:hover,
+.mastery-system.sheet.actor.character .sheet-gm-menu-toggle:focus-visible,
+.mastery-system.sheet.actor.character .sheet-gm-menu.is-open .sheet-gm-menu-toggle {
+  background: rgba(0, 0, 0, 0.45);
+  border-color: rgba(255, 255, 255, 0.28);
+  color: #fff;
+}
+
+.mastery-system.sheet.actor.character .sheet-gm-menu-list {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 6px);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 220px;
+  padding: 6px;
+  background: #16191c;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 8px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.5);
+}
+
+.mastery-system.sheet.actor.character .sheet-gm-menu-list[hidden] {
+  display: none;
+}
+
+.mastery-system.sheet.actor.character .sheet-gm-menu-list button {
+  width: 100%;
+  justify-content: flex-start;
+  text-align: left;
 }
 
 .mastery-system.sheet.actor.character .character-name-box {
@@ -499,11 +554,12 @@
   flex-direction: row;
   flex-wrap: nowrap;
   align-items: flex-end;
-  justify-content: flex-start;
+  justify-content: stretch;
+  align-self: stretch;
   gap: 6px;
   width: auto;
   margin: -4px 12px -16px;
-  padding: 7px 10px 18px;
+  padding: 8px 10px 20px;
   background: linear-gradient(to bottom, #2f363b, #252c31);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 12px;
@@ -519,9 +575,10 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 34px;
-  height: 34px;
-  flex: 0 0 34px;
+  width: auto;
+  height: 46px;
+  flex: 1 1 0;
+  min-width: 0;
   padding: 0;
   margin: 0;
   text-align: center;
@@ -530,9 +587,9 @@
   background: linear-gradient(to bottom, #3a4248, #2a3136);
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 8px;
-  transition: transform 0.16s ease, width 0.16s ease, height 0.16s ease, margin 0.16s ease, background 0.16s ease, color 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
+  transition: transform 0.16s ease, height 0.16s ease, margin 0.16s ease, background 0.16s ease, color 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease, flex-grow 0.16s ease;
   text-decoration: none;
-  font-size: 14px;
+  font-size: 18px;
   font-weight: 500;
   transform: translateY(0);
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.35);
@@ -591,14 +648,14 @@
 }
 
 .mastery-system.sheet.actor.character .sheet-tabs .item.active {
-  width: 42px;
-  height: 46px;
-  flex: 0 0 42px;
-  margin-bottom: -14px;
+  width: auto;
+  height: 58px;
+  flex: 1.2 1 0;
+  margin-bottom: -16px;
   background: var(--df-bg-primary, #20272B);
   color: #f3f3f3;
   font-weight: bold;
-  font-size: 16px;
+  font-size: 21px;
   transform: none;
   border-color: rgba(255, 255, 255, 0.28);
   border-bottom-color: var(--df-bg-primary, #20272B);
