@@ -452,6 +452,17 @@
       "character": "Character",
       "npc": "NPC",
       "summon": "Summon"
+    },
+    "Item": {
+      "artifact": "Artifact",
+      "weapon": "Weapon",
+      "armor": "Armor",
+      "shield": "Shield",
+      "gear": "Gear",
+      "power": "Power",
+      "echo": "Echo",
+      "condition": "Condition",
+      "schtick": "Schtick"
     }
   }
 }

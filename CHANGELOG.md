@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.420] - 2026-08-29
+
+### Fixed
+
+- **Safe Haven Rest:** The left Mastery toolbar button opened the confirm dialog many times per click. It now opens once.
+- **Add Power:** Dropdowns use dark text-on-field colors so Category / Kind / Power stay readable.
+- **Artifact sheet:** The window title is just the artifact name, not `TYPES.Item.artifact:`.
+
 ## [0.9.419] - 2026-08-29
 
 ### Changed

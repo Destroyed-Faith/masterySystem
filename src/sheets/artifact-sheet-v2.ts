@@ -68,6 +68,10 @@ export class ArtifactSheetV2 extends BaseArtifactSheet {
     body: { template: 'systems/mastery-system/templates/item/artifact-sheet-v2.hbs' },
   };
 
+  get title(): string {
+    return String(this.item?.name || 'Artifact');
+  }
+
   /** @override */
   async _prepareContext(_options?: any) {
     const context: any = {};

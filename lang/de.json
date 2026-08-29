@@ -452,6 +452,17 @@
       "character": "Charakter",
       "npc": "NPC",
       "summon": "Beschwörung"
+    },
+    "Item": {
+      "artifact": "Artefakt",
+      "weapon": "Waffe",
+      "armor": "Rüstung",
+      "shield": "Schild",
+      "gear": "Ausrüstung",
+      "power": "Power",
+      "echo": "Echo",
+      "condition": "Zustand",
+      "schtick": "Schtick"
     }
   }
 }

@@ -7214,9 +7214,11 @@ aside#tooltip,
 }
 
 .window-app.dialog.mastery-system.power-catalog-dialog,
+.application.dialog.mastery-system.power-catalog-dialog,
 .mastery-system.power-catalog-dialog {
   background: #1b2124;
   color: #d8d8d8;
+  color-scheme: dark;
 }
 
 .window-app.dialog.mastery-system.power-catalog-dialog .window-content,
@@ -7233,9 +7235,20 @@ aside#tooltip,
 .mastery-system.power-creation-dialog .power-form-select,
 .mastery-system.power-catalog-dialog .power-form-select,
 .mastery-system.power-catalog-dialog .power-form-input,
-.window-app.dialog.mastery-system.power-catalog-dialog select.power-form-select {
-  background: #14181b;
+.window-app.dialog.mastery-system.power-catalog-dialog select.power-form-select,
+.application.dialog.mastery-system.power-catalog-dialog select.power-form-select {
+  color-scheme: dark;
+  background-color: #1b2124;
+  background-image: none;
   border-color: #3a3f44;
+  color: #f2f2f2;
+}
+
+.window-app.dialog.mastery-system.power-catalog-dialog select.power-form-select option,
+.application.dialog.mastery-system.power-catalog-dialog select.power-form-select option,
+.mastery-system.power-catalog-dialog .power-form-select option,
+.mastery-system.power-creation-dialog .power-form-select option {
+  background-color: #1b2124;
   color: #f2f2f2;
 }
 

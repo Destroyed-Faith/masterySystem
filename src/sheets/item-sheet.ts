@@ -28,6 +28,10 @@ export class MasteryItemSheet extends BaseItemSheet {
     body: { template: 'systems/mastery-system/templates/item/gear-sheet.hbs' },
   };
 
+  get title(): string {
+    return String(this.item?.name || 'Item');
+  }
+
   /** Resolve the per-type template (V1 `get template()` equivalent). @override */
   _configureRenderParts(options: any) {
     const parts = super._configureRenderParts(options);
