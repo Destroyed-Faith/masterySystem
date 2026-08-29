@@ -7,14 +7,14 @@
  * stack). Tracking is internal — overflow is announced on the applying chat
  * message, not as a sheet counter.
  *
- * Natural Recovery: after Ticks at the start of the creature's Turn, reduce
- * one or more negative Diminishing Specials by a total equal to Mastery
- * Rank. The creature chooses the split. A Special that reaches 0 ends.
- * Unused reduction is lost. Player characters assign the points in the
- * Stone Powers dialog; that plan is stored and applied at turn start.
+ * Natural Recovery: after Ticks at the start of the creature's Turn, the
+ * creature chooses *one* negative Diminishing Special and reduces it by
+ * Mastery Rank (minimum 0). Unused reduction is lost and cannot move to
+ * another Special. A stored Stone Powers plan still applies at turn start;
+ * otherwise the HUD applies the choice. A Special that reaches 0 ends.
  */
 import { getEffectBaseName, getEffectById } from '../utils/special-effects.js';
-import { readActiveSpecials } from '../system/active-specials.js';
+import { readActiveSpecials, statusEntryId } from '../system/active-specials.js';
 export const SPECIAL_ROUND_APPS_FLAG = 'specialRoundApps';
 export const NATURAL_RECOVERY_FLAG = 'naturalSpecialRecovery';
 export const SPECIAL_APPLICATION_LIMIT_PER_MR = 4;
@@ -41,9 +41,24 @@ export function isDiminishingSpecialId(id) {
 }
 /** Regeneration is diminishing but beneficial — Natural Recovery never targets it. */
 export function isNegativeDiminishingSpecialId(id) {
-    if (!isDiminishingSpecialId(id))
+    if (!id)
         return false;
-    return String(id) !== 'regeneration';
+    const effect = getEffectById(id);
+    if (!effect || effect.category !== 'diminishing')
+        return false;
+    return effect.polarity !== 'positive';
+}
+/** Negative diminishing Specials with a live stack — the HUD token source. */
+export function listHudDiminishingSpecials(actor) {
+    const rows = new Map();
+    for (const s of readActiveSpecials(actor)) {
+        if (!isNegativeDiminishingSpecialId(s.id) || s.value <= 0)
+            continue;
+        rows.set(s.id, (rows.get(s.id) ?? 0) + s.value);
+    }
+    return [...rows.entries()]
+        .map(([id, value]) => ({ id, value, label: specialDisplayName(id) }))
+        .sort((a, b) => a.label.localeCompare(b.label) || a.id.localeCompare(b.id));
 }
 export function specialDisplayName(id) {
     const effect = getEffectById(id);
@@ -149,26 +164,18 @@ function eligibleRecoveryValues(entries) {
     }
     return rows;
 }
-/** Spend up to `budget` highest-first when no player plan exists (NPCs / no dialog). */
+/** Spend the full MR on one Special (highest stack). Leftover is lost. */
 export function greedyNaturalRecoveryPlan(entries, masteryRank) {
     const budget = Math.max(0, Math.floor(Number(masteryRank) || 0));
     if (budget <= 0)
         return [];
-    const eligible = [...eligibleRecoveryValues(entries).entries()]
-        .map(([id, value]) => ({ id, value }))
-        .sort((a, b) => b.value - a.value || a.id.localeCompare(b.id));
-    const steps = [];
-    let left = budget;
-    for (const e of eligible) {
-        if (left <= 0)
-            break;
-        const { after, reduced } = applyNaturalRecoveryToValue(e.value, left);
-        if (reduced <= 0)
-            continue;
-        steps.push({ id: e.id, before: e.value, after, reduced });
-        left -= reduced;
-    }
-    return steps;
+    const pick = pickNaturalRecoveryTarget([...eligibleRecoveryValues(entries).entries()].map(([id, value]) => ({ id, value })));
+    if (!pick)
+        return [];
+    const { after, reduced } = applyNaturalRecoveryToValue(pick.value, budget);
+    if (reduced <= 0)
+        return [];
+    return [{ id: pick.id, before: pick.value, after, reduced }];
 }
 export function clampNaturalRecoveryAllocations(entries, allocations, masteryRank) {
     const values = eligibleRecoveryValues(entries);
@@ -325,8 +332,8 @@ export async function changeNaturalRecoveryAllocation(actor, combat, specialId, 
     await setNaturalRecoveryAllocations(actor, combat, current, true);
 }
 /**
- * Player split from Stone Powers wins for this Round. Otherwise leftover MR
- * is spent highest-first (NPCs / no dialog). An explicit skip spends nothing.
+ * A stored Stone Powers plan (or skip) wins for this Round. With no plan the
+ * HUD applies one Special after Ticks — the tick engine does not auto-spend.
  */
 export function resolveNaturalRecoveryPlan(actor, entries, combat, masteryRank) {
     const rank = Math.max(0, Math.floor(Number(masteryRank) || 0));
@@ -336,6 +343,108 @@ export function resolveNaturalRecoveryPlan(actor, entries, combat, masteryRank) 
             return [];
         return planFromAllocations(entries, choice.allocations, rank);
     }
-    return greedyNaturalRecoveryPlan(entries, rank);
+    return [];
+}
+function isSameActor(actor, other) {
+    if (!actor || !other)
+        return false;
+    if (actor === other)
+        return true;
+    const aId = String(actor.id ?? actor._id ?? '');
+    const bId = String(other.id ?? other._id ?? '');
+    if (aId && bId && aId === bId)
+        return true;
+    const aUuid = String(actor.uuid ?? '');
+    const bUuid = String(other.uuid ?? '');
+    return !!aUuid && !!bUuid && aUuid === bUuid;
+}
+export function isCurrentCombatantActor(actor, combat) {
+    return isSameActor(actor, combat?.combatant?.actor);
+}
+export function isNaturalRecoveryUsed(actor, combat) {
+    return matchingNaturalRecoveryChoice(actor, combat)?.chosen === true;
+}
+export function isNaturalRecoveryAvailable(actor, combat) {
+    if (!actor || !combat?.id || combat.started === false)
+        return false;
+    if (!isCurrentCombatantActor(actor, combat))
+        return false;
+    if (isNaturalRecoveryUsed(actor, combat))
+        return false;
+    if (actorMasteryRank(actor) <= 0)
+        return false;
+    return listHudDiminishingSpecials(actor).length > 0;
+}
+function reduceSpecialEntries(list, specialId, amount) {
+    const reduce = Math.max(0, Math.floor(Number(amount) || 0));
+    let before = 0;
+    let left = reduce;
+    const next = [];
+    for (const entry of list) {
+        const id = statusEntryId(entry);
+        const match = !!id && id === specialId && isNegativeDiminishingSpecialId(id);
+        const value = Math.max(0, Math.floor(Number(entry.value ?? 0)));
+        if (!match) {
+            next.push(entry);
+            continue;
+        }
+        before += value;
+        if (left <= 0) {
+            if (value > 0)
+                next.push({ ...entry, id: specialId, value });
+            continue;
+        }
+        const { after, reduced } = applyNaturalRecoveryToValue(value, left);
+        left -= reduced;
+        if (after > 0)
+            next.push({ ...entry, id: specialId, value: after });
+    }
+    const after = Math.max(0, before - (reduce - left));
+    return { next, before, after, reduced: before - after };
+}
+/**
+ * Apply Natural Special Recovery to exactly one Special (full Mastery Rank).
+ * Writes `system.statusEffects` and marks the turn as used.
+ */
+export async function applyNaturalSpecialRecovery(actor, specialId, combat) {
+    if (!actor || !specialId)
+        return { ok: false, reason: 'missing' };
+    if (!combat?.id)
+        return { ok: false, reason: 'no-combat' };
+    if (!isNaturalRecoveryAvailable(actor, combat))
+        return { ok: false, reason: 'unavailable' };
+    if (!isNegativeDiminishingSpecialId(specialId))
+        return { ok: false, reason: 'not-eligible' };
+    const rank = actorMasteryRank(actor);
+    const system = actor.system;
+    const list = Array.isArray(system?.statusEffects) ? system.statusEffects : [];
+    const { next, before, after, reduced } = reduceSpecialEntries(list, specialId, rank);
+    if (reduced <= 0)
+        return { ok: false, reason: 'empty' };
+    const choice = {
+        ...emptyNaturalRecoveryChoice(combat),
+        chosen: true,
+        allocations: { [specialId]: reduced },
+    };
+    const update = {
+        'system.statusEffects': next,
+        [`flags.mastery-system.${NATURAL_RECOVERY_FLAG}`]: choice,
+    };
+    if (typeof actor.update === 'function') {
+        await actor.update(update);
+    }
+    else {
+        actor.system = actor.system || {};
+        actor.system.statusEffects = next;
+        actor.flags = actor.flags || {};
+        actor.flags['mastery-system'] = { ...(actor.flags['mastery-system'] || {}), [NATURAL_RECOVERY_FLAG]: choice };
+    }
+    const name = specialDisplayName(specialId);
+    return { ok: true, id: specialId, name, before, after, reduced };
+}
+export function formatNaturalRecoveryChat(result) {
+    if (!result.ok || !result.name)
+        return '';
+    return locFormat('naturalRecoveryChat', { name: result.name, reduced: result.reduced }, `Natural Special Recovery: ${result.name} reduced by ${result.reduced}.`);
 }
 //# sourceMappingURL=special-application.js.map

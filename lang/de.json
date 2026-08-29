@@ -387,8 +387,14 @@
       "naturalRecovery": "Natürliche Erholung −{reduced} MR → {name}({before}) → {name}({after})",
       "naturalRecoveryEnded": "Natürliche Erholung −{reduced} MR → {name} beendet",
       "naturalRecoveryPick": "Natürliche Special-Erholung",
-      "naturalRecoveryHint": "Zu Zugbeginn, nach den Ticks, reduzierst du negative Diminishing Specials um insgesamt deine Mastery Rank ({rank}). Die Verteilung ist frei. Ungenutzte Reduktion verfällt.",
-      "naturalRecoveryNone": "Keine"
+      "naturalRecoveryHint": "Zu Zugbeginn, nach den Ticks, wählst du ein negatives Diminishing Special. Reduziere es um deine Mastery Rank ({rank}). Ungenutzte Reduktion verfällt.",
+      "naturalRecoveryNone": "Keine",
+      "naturalRecoveryHud": "Natürliche Special-Erholung: Wähle ein Special — MR {rank}",
+      "naturalRecoveryConfirm": "{name} um {rank} reduzieren?",
+      "naturalRecoveryYes": "Ja",
+      "naturalRecoveryNo": "Nein",
+      "naturalRecoveryChat": "Natürliche Special-Erholung: {name} um {reduced} reduziert.",
+      "autoArrange": "Auto-Anordnen"
     },
     "knownNpcs": {
       "title": "Wichtige NSCs",

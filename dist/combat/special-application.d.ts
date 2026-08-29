@@ -7,11 +7,11 @@
  * stack). Tracking is internal — overflow is announced on the applying chat
  * message, not as a sheet counter.
  *
- * Natural Recovery: after Ticks at the start of the creature's Turn, reduce
- * one or more negative Diminishing Specials by a total equal to Mastery
- * Rank. The creature chooses the split. A Special that reaches 0 ends.
- * Unused reduction is lost. Player characters assign the points in the
- * Stone Powers dialog; that plan is stored and applied at turn start.
+ * Natural Recovery: after Ticks at the start of the creature's Turn, the
+ * creature chooses *one* negative Diminishing Special and reduces it by
+ * Mastery Rank (minimum 0). Unused reduction is lost and cannot move to
+ * another Special. A stored Stone Powers plan still applies at turn start;
+ * otherwise the HUD applies the choice. A Special that reaches 0 ends.
  */
 export declare const SPECIAL_ROUND_APPS_FLAG = "specialRoundApps";
 export declare const NATURAL_RECOVERY_FLAG = "naturalSpecialRecovery";
@@ -32,6 +32,13 @@ export declare function specialApplicationLimit(masteryRank: number): number;
 export declare function isDiminishingSpecialId(id: string | undefined | null): boolean;
 /** Regeneration is diminishing but beneficial — Natural Recovery never targets it. */
 export declare function isNegativeDiminishingSpecialId(id: string | undefined | null): boolean;
+export interface HudDiminishingSpecial {
+    id: string;
+    value: number;
+    label: string;
+}
+/** Negative diminishing Specials with a live stack — the HUD token source. */
+export declare function listHudDiminishingSpecials(actor: any): HudDiminishingSpecial[];
 export declare function specialDisplayName(id: string): string;
 export declare function emptySpecialRoundApps(combat?: {
     id?: string;
@@ -74,7 +81,7 @@ export interface NaturalRecoveryStep {
     after: number;
     reduced: number;
 }
-/** Spend up to `budget` highest-first when no player plan exists (NPCs / no dialog). */
+/** Spend the full MR on one Special (highest stack). Leftover is lost. */
 export declare function greedyNaturalRecoveryPlan(entries: Array<{
     id: string;
     value: number;
@@ -130,8 +137,8 @@ export declare function changeNaturalRecoveryAllocation(actor: any, combat: {
     round?: number;
 } | null | undefined, specialId: string, delta: number): Promise<void>;
 /**
- * Player split from Stone Powers wins for this Round. Otherwise leftover MR
- * is spent highest-first (NPCs / no dialog). An explicit skip spends nothing.
+ * A stored Stone Powers plan (or skip) wins for this Round. With no plan the
+ * HUD applies one Special after Ticks — the tick engine does not auto-spend.
  */
 export declare function resolveNaturalRecoveryPlan(actor: any, entries: Array<{
     id: string;
@@ -140,4 +147,43 @@ export declare function resolveNaturalRecoveryPlan(actor: any, entries: Array<{
     id?: string;
     round?: number;
 } | null | undefined, masteryRank: number): NaturalRecoveryStep[];
+export declare function isCurrentCombatantActor(actor: any, combat?: {
+    combatant?: {
+        actor?: unknown;
+    } | null;
+} | null): boolean;
+export declare function isNaturalRecoveryUsed(actor: any, combat?: {
+    id?: string;
+    round?: number;
+} | null): boolean;
+export declare function isNaturalRecoveryAvailable(actor: any, combat?: {
+    id?: string;
+    round?: number;
+    combatant?: {
+        actor?: unknown;
+    } | null;
+    started?: boolean;
+} | null): boolean;
+export interface NaturalRecoveryApplyResult {
+    ok: boolean;
+    reason?: string;
+    id?: string;
+    name?: string;
+    before?: number;
+    after?: number;
+    reduced?: number;
+}
+/**
+ * Apply Natural Special Recovery to exactly one Special (full Mastery Rank).
+ * Writes `system.statusEffects` and marks the turn as used.
+ */
+export declare function applyNaturalSpecialRecovery(actor: any, specialId: string, combat?: {
+    id?: string;
+    round?: number;
+    combatant?: {
+        actor?: unknown;
+    } | null;
+    started?: boolean;
+} | null): Promise<NaturalRecoveryApplyResult>;
+export declare function formatNaturalRecoveryChat(result: NaturalRecoveryApplyResult): string;
 //# sourceMappingURL=special-application.d.ts.map

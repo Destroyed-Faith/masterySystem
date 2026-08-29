@@ -14,6 +14,8 @@
  * Example: { specialId: "lacerate", value: 3 } instead of "Lacerate(3)"
  */
 export type EffectCategory = 'diminishing' | 'timed' | 'untilUsed' | 'instant' | 'support' | 'multiAttack';
+/** Harmful vs beneficial. Diminishing Specials default to negative when omitted. */
+export type EffectPolarity = 'negative' | 'positive';
 export interface SpecialEffect {
     id: string;
     name: string;
@@ -33,6 +35,8 @@ export interface SpecialEffect {
     startPP?: number;
     /** True if the effect uses the Charged tag by default (multi-attack riders) */
     charged?: boolean;
+    /** Beneficial diminishing Specials (Regeneration) set `positive`. */
+    polarity?: EffectPolarity;
 }
 /**
  * Special Effect Reference (what Powers should store)

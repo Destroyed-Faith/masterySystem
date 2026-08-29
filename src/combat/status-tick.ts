@@ -13,8 +13,9 @@
  * Movement-based ticks (Lacerate, Slow end-of-turn damage) are resolved from
  * movement tracking, not here. Value-based maluses (Corrode, Expose, Slow speed,
  * Soulburn, Weaken, Disoriented, Challenge) are applied in `prepareDerivedData`
- * / roll builders and only decay here. After Ticks, Natural Special Recovery
- * reduces negative Diminishing Specials by a total equal to Mastery Rank.
+ * / roll builders and only decay here. After Ticks, a stored Natural Special
+ * Recovery plan (Stone Powers) reduces one or more negative Diminishing
+ * Specials. Without a plan the HUD applies one Special by full Mastery Rank.
  * Cleanse Maintenance (Ward / Active Buff) then reduces one eligible Special
  * after Decay.
  *

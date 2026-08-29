@@ -11,6 +11,9 @@ import {
   listNaturalRecoveryOptions,
   pickNaturalRecoveryTarget,
   remainingSpecialApplication,
+  applyNaturalSpecialRecovery,
+  isNaturalRecoveryAvailable,
+  listHudDiminishingSpecials,
   resolveNaturalRecoveryPlan,
   setNaturalRecoveryAllocations,
   setNaturalRecoverySkipped,
@@ -126,7 +129,6 @@ describe('natural special recovery', () => {
       ),
     ).toEqual([
       { id: 'blight', before: 1, after: 0, reduced: 1 },
-      { id: 'slow', before: 1, after: 0, reduced: 1 },
     ]);
   });
 
@@ -191,13 +193,88 @@ describe('natural special recovery', () => {
     expect(resolveNaturalRecoveryPlan(actor, [{ id: 'ruin', value: 4 }], combat, 2)).toEqual([]);
   });
 
-  it('falls back to a highest-first spend when no choice was stored', () => {
+  it('defers to the HUD when no Stone Powers plan was stored', () => {
     const actor = { system: { statusEffects: [{ id: 'slow', value: 2 }, { id: 'ruin', value: 5 }] } };
     expect(resolveNaturalRecoveryPlan(actor, [
       { id: 'slow', value: 2 },
       { id: 'ruin', value: 5 },
-    ], { id: 'c1', round: 1 }, 2)).toEqual([
-      { id: 'ruin', before: 5, after: 3, reduced: 2 },
+    ], { id: 'c1', round: 1 }, 2)).toEqual([]);
+  });
+
+  it('lists only negative diminishing Specials for the HUD', () => {
+    const actor = {
+      system: {
+        statusEffects: [
+          { id: 'challenge', value: 6 },
+          { id: 'root', value: 3 },
+          { id: 'prone', value: 1 },
+          { id: 'stunned', value: 1 },
+          { id: 'regeneration', value: 4 },
+        ],
+      },
+    };
+    expect(listHudDiminishingSpecials(actor)).toEqual([
+      { id: 'challenge', value: 6, label: 'Challenge' },
+    ]);
+  });
+
+  it('applies full MR to one Special and loses leftover', async () => {
+    const combat = { id: 'c1', round: 1, started: true, combatant: { actor: null as any } };
+    const actor: any = {
+      id: 'a1',
+      uuid: 'Actor.a1',
+      system: {
+        mastery: { rank: 3 },
+        statusEffects: [{ id: 'challenge', value: 7 }, { id: 'blight', value: 5 }],
+      },
+      flags: {},
+      update: async (u: any) => {
+        actor.system.statusEffects = u['system.statusEffects'];
+        actor.flags = actor.flags || {};
+        actor.flags['mastery-system'] = {
+          ...(actor.flags['mastery-system'] || {}),
+          naturalSpecialRecovery: u['flags.mastery-system.naturalSpecialRecovery'],
+        };
+      },
+    };
+    combat.combatant.actor = actor;
+
+    const first = await applyNaturalSpecialRecovery(actor, 'challenge', combat);
+    expect(first).toMatchObject({ ok: true, before: 7, after: 4, reduced: 3 });
+    expect(actor.system.statusEffects).toEqual([
+      expect.objectContaining({ id: 'challenge', value: 4 }),
+      expect.objectContaining({ id: 'blight', value: 5 }),
+    ]);
+
+    const again = await applyNaturalSpecialRecovery(actor, 'blight', combat);
+    expect(again.ok).toBe(false);
+    expect(isNaturalRecoveryAvailable(actor, combat)).toBe(false);
+    expect(actor.system.statusEffects.find((e: any) => e.id === 'blight')?.value).toBe(5);
+  });
+
+  it('cannot transfer leftover MR onto a second Special', async () => {
+    const combat = { id: 'c1', round: 1, started: true, combatant: { actor: null as any } };
+    const actor: any = {
+      id: 'a1',
+      uuid: 'Actor.a1',
+      system: {
+        mastery: { rank: 3 },
+        statusEffects: [{ id: 'challenge', value: 2 }, { id: 'blight', value: 5 }],
+      },
+      flags: {},
+      update: async (u: any) => {
+        actor.system.statusEffects = u['system.statusEffects'];
+        actor.flags['mastery-system'] = {
+          naturalSpecialRecovery: u['flags.mastery-system.naturalSpecialRecovery'],
+        };
+      },
+    };
+    actor.flags = {};
+    combat.combatant.actor = actor;
+    const result = await applyNaturalSpecialRecovery(actor, 'challenge', combat);
+    expect(result).toMatchObject({ ok: true, before: 2, after: 0, reduced: 2 });
+    expect(actor.system.statusEffects).toEqual([
+      expect.objectContaining({ id: 'blight', value: 5 }),
     ]);
   });
 

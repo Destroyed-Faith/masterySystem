@@ -22,6 +22,9 @@ export type EffectCategory =
   | 'support'
   | 'multiAttack';
 
+/** Harmful vs beneficial. Diminishing Specials default to negative when omitted. */
+export type EffectPolarity = 'negative' | 'positive';
+
 export interface SpecialEffect {
   id: string; // Unique identifier (e.g., "lacerate", "ruin", "slow")
   name: string; // Display name (e.g., "Lacerate(X)")
@@ -41,6 +44,8 @@ export interface SpecialEffect {
   startPP?: number;
   /** True if the effect uses the Charged tag by default (multi-attack riders) */
   charged?: boolean;
+  /** Beneficial diminishing Specials (Regeneration) set `positive`. */
+  polarity?: EffectPolarity;
 }
 
 /**
@@ -199,7 +204,8 @@ export const DIMINISHING_EFFECTS: SpecialEffect[] = [
     hasValue: true,
     dispellable: false,
     pricing: '3 × T(X)',
-    startPP: 3
+    startPP: 3,
+    polarity: 'positive',
   },
   {
     id: 'ruin',

@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.425] - 2026-08-29
+
+### Added
+
+- **Combat HUD:** A personal diminishing-special token tray sits left of the macro bar during combat. It shows one 1er token per stack point, can be rearranged, and applies Natural Special Recovery (one Special, full MR) after Ticks.
+
 ## [0.9.424] - 2026-08-29
 
 ### Changed

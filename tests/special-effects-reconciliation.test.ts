@@ -171,9 +171,9 @@ describe('status-tick Tick + Decay engine', () => {
     expect(summary).toMatch(/Ruin\(3\)/);
     // 20 - 3 = 17 on first bar
     expect(actor.system.health.bars[0].current).toBe(17);
-    // Tick 3, Natural Recovery −1 MR → 2, Decay → 1
+    // Tick 3, no HUD recovery plan, Decay → 2
     expect(actor.system.statusEffects).toEqual([
-      expect.objectContaining({ id: 'ruin', value: 1 }),
+      expect.objectContaining({ id: 'ruin', value: 2 }),
     ]);
   });
 
@@ -182,7 +182,9 @@ describe('status-tick Tick + Decay engine', () => {
     const actor = makeActor([{ id: 'blight', value: 2 }]);
     await processTurnStartStatusTick(actor);
     expect(actor.system.stress.bars[0].current).toBe(8);
-    expect(actor.system.statusEffects).toEqual([]);
+    expect(actor.system.statusEffects).toEqual([
+      expect.objectContaining({ id: 'blight', value: 1 }),
+    ]);
   });
 
   it('heals with Regeneration', async () => {
@@ -204,12 +206,14 @@ describe('status-tick Tick + Decay engine', () => {
     const { processTurnStartStatusTick } = await import('../src/combat/status-tick');
     const actor = makeActor([{ id: 'ignite', value: 2 }]);
     await processTurnStartStatusTick(actor);
-    // Ignite → Ruin: 20 - 2 = 18 damage applied
+    // Ignite → Ruin: 20 - 2 = 18 damage applied, then Decay 2 → 1
     expect(actor.system.health.bars[0].current).toBe(18);
-    expect(actor.system.statusEffects).toEqual([]);
+    expect(actor.system.statusEffects).toEqual([
+      expect.objectContaining({ id: 'ruin', value: 1 }),
+    ]);
   });
 
-  it('reduces one negative Diminishing Special by Mastery Rank after Ticks', async () => {
+  it('does not auto-spend Natural Recovery without a stored plan', async () => {
     const { processTurnStartStatusTick } = await import('../src/combat/status-tick');
     const actor = makeActor(
       [
@@ -221,13 +225,12 @@ describe('status-tick Tick + Decay engine', () => {
     );
     actor.system.mastery = { rank: 2 };
     const summary = await processTurnStartStatusTick(actor);
-    expect(summary).toMatch(/Natural Recovery/);
-    expect(summary).toMatch(/Ruin\(5\) → Ruin\(3\)/);
+    expect(summary).not.toMatch(/Natural Recovery/);
     expect(actor.system.statusEffects).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ id: 'regeneration', value: 5 }),
         expect.objectContaining({ id: 'slow', value: 1 }),
-        expect.objectContaining({ id: 'ruin', value: 2 }),
+        expect.objectContaining({ id: 'ruin', value: 4 }),
       ]),
     );
   });

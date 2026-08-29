@@ -54,6 +54,7 @@ import { registerMisfortuneTokenSettings } from './system/misfortune-tokens.js';
 import { registerUnluckSettings } from './system/unluck.js';
 import { registerKnownNpcSettings } from './system/known-npcs.js';
 import { initializeKnownNpcsBar } from './ui/known-npcs-bar.js';
+import { initializeSpecialTokenArea, registerSpecialTokenAreaSettings } from './ui/special-token-area.js';
 import { initializeEncounterStart, beginEncounter, launchLiveCombat } from './combat/encounter-start.js';
 import {
   buildEncounterSetupStatus,
@@ -175,6 +176,7 @@ function registerAllMasteryInitSettings(): void {
   registerMisfortuneTokenSettings();
   registerUnluckSettings();
   registerKnownNpcSettings();
+  registerSpecialTokenAreaSettings();
 }
 
 /**
@@ -286,6 +288,7 @@ Hooks.once('init', async function() {
   initializeTokenHUDButton();
   initializeSceneEditor();
   initializeKnownNpcsBar();
+  initializeSpecialTokenArea();
 
   // GM-only "Encounter erzeugen" button in the Actors directory header.
   Hooks.on('renderActorDirectory', (_app: any, html: any) => {

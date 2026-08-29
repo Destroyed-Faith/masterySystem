@@ -152,7 +152,8 @@ export const DIMINISHING_EFFECTS = [
         hasValue: true,
         dispellable: false,
         pricing: '3 × T(X)',
-        startPP: 3
+        startPP: 3,
+        polarity: 'positive',
     },
     {
         id: 'ruin',
@@ -199,7 +200,7 @@ export const DIMINISHING_EFFECTS = [
         id: 'requiem',
         name: 'Requiem(X)',
         category: 'diminishing',
-        description: 'Can be applied only to a creature with the Undead tag. At the start of the affected creature\'s turn, take X damage (ignores Armor unless a rule says otherwise), then reduce X by 1. Cleanse: Yes.',
+        description: 'Can be applied only to a creature with the Deathless tag. At the start of the affected creature\'s turn, take X damage (ignores Armor unless a rule says otherwise), then reduce X by 1. Cleanse: Yes.',
         duration: 'Diminishing (X→0)',
         stacking: 'Yes',
         removal: 'Cleanse.',

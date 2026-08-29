@@ -387,8 +387,14 @@
       "naturalRecovery": "Natural Recovery −{reduced} MR → {name}({before}) → {name}({after})",
       "naturalRecoveryEnded": "Natural Recovery −{reduced} MR → {name} ended",
       "naturalRecoveryPick": "Natural Special Recovery",
-      "naturalRecoveryHint": "At the start of your turn, after Ticks, reduce negative Diminishing Specials by a total of your Mastery Rank ({rank}). Distribute freely. Unused reduction is lost.",
-      "naturalRecoveryNone": "None"
+      "naturalRecoveryHint": "At the start of your turn, after Ticks, choose one negative Diminishing Special. Reduce it by your Mastery Rank ({rank}). Unused reduction is lost.",
+      "naturalRecoveryNone": "None",
+      "naturalRecoveryHud": "Natural Special Recovery: Choose one Special — MR {rank}",
+      "naturalRecoveryConfirm": "Reduce {name} by {rank}?",
+      "naturalRecoveryYes": "Yes",
+      "naturalRecoveryNo": "No",
+      "naturalRecoveryChat": "Natural Special Recovery: {name} reduced by {reduced}.",
+      "autoArrange": "Auto Arrange"
     },
     "knownNpcs": {
       "title": "Important NPCs",
