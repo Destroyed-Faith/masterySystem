@@ -22,6 +22,7 @@ import { countArtifactActivationStones, artifactBindingNamesByAttr } from '../ut
 import { isArtifactMechanicallyActive } from '../utils/artifact-actor-rules.js';
 import { visibleAbilityRows } from '../utils/artifact-visible-abilities.js';
 import { formatEffectReference } from '../utils/special-effects.js';
+import { specialApplicationLimit } from '../combat/special-application.js';
 import { STONE_POWERS_BY_ATTRIBUTE } from '../stones/stone-powers.js';
 import { getMinorExpressionDefinition, tierBodyForExpression } from '../utils/minor-expressions.js';
 import { getEchoCard, getLicensedEchoCardIds } from '../utils/echos/index.js';
@@ -1059,9 +1060,12 @@ export function buildCharacterPrintContext(
     g.isGeneral ? totalFreeStones > 0 : g.freeStones > 0,
   );
 
+  const iniStoneCost = Math.max(4, masteryRank * 4);
   const technical = {
     stonePowerGroups,
     hasStonePowers: stonePowerGroups.length > 0,
+    iniStoneCost,
+    colorlessBoxes: Array.from({ length: 10 }, (_, i) => i + 1),
   };
 
   return {
@@ -1069,6 +1073,8 @@ export function buildCharacterPrintContext(
     player: resolvePlayerName(actor),
     echo: resolveEchoName(actor, system),
     masteryRank,
+    specialRecovery: masteryRank,
+    specialCap: specialApplicationLimit(masteryRank),
     faithFractures: {
       current: num(system?.faithFractures?.current),
       maximum: num(system?.faithFractures?.maximum, 8)

@@ -1,6 +1,16 @@
 <div class="{{cssClass}}">
   {{!-- Sheet Header --}}
   <header class="sheet-header">
+    <div class="npc-name-row">
+      <div class="character-name-box">
+        {{#if editable}}
+          <input name="name" type="text" value="{{actor.name}}" placeholder="{{#if isSummon}}Summon Name{{else}}NPC Name{{/if}}" />
+        {{else}}
+          <h1>{{actor.name}}</h1>
+        {{/if}}
+      </div>
+    </div>
+    <div class="npc-header-main">
     <div class="portrait-section">
       <div class="profile-img-wrapper">
         <div class="profile-img-container {{#unless editable}}locked{{/unless}}" data-image-type="portrait">
@@ -49,16 +59,8 @@
           <option value="8" {{#if (eq system.mastery.rank 8)}}selected{{/if}}>8</option>
         </select>
       </div>
-      
-      <div class="character-name-box">
-        {{#if editable}}
-          <input name="name" type="text" value="{{actor.name}}" placeholder="{{#if isSummon}}Summon Name{{else}}NPC Name{{/if}}" />
-        {{else}}
-          <h1>{{actor.name}}</h1>
-        {{/if}}
-      </div>
       <div class="npc-creature-type-box" title="Creature type (Requiem vs Deathless / Exorcism vs Fiend)">
-        <label>Typ</label>
+        <label>Type</label>
         <select name="system.creatureType" class="npc-creature-type-select">
           {{#each creatureTypeOptions}}
           <option value="{{this.value}}" {{#if this.selected}}selected{{/if}}>{{this.label}}</option>
@@ -67,13 +69,13 @@
       </div>
       {{#if isSummon}}
       <div class="npc-disposition-box" title="Summons are always Friendly">
-        <label>Seite</label>
+        <label>Side</label>
         <span class="npc-disposition-locked">Friendly</span>
         <input type="hidden" name="prototypeToken.disposition" value="1" data-dtype="Number" />
       </div>
       {{else}}
-      <div class="npc-disposition-box" title="Token-Seite: Friendly / Neutral / Hostile — steuert Threatened Ranged, Targeting, Aura-Farbe">
-        <label>Seite</label>
+      <div class="npc-disposition-box" title="Token side: Friendly / Neutral / Hostile — controls Threatened Ranged, targeting, and aura color">
+        <label>Side</label>
         <select name="prototypeToken.disposition" class="npc-disposition-select" data-dtype="Number">
           {{#each npcDispositionOptions as |opt|}}
           <option value="{{opt.value}}" {{#if opt.selected}}selected{{/if}}>{{opt.label}}</option>
@@ -89,6 +91,7 @@
         </button>
       </div>
       {{/if}}
+    </div>
     </div>
   </header>
 
@@ -179,11 +182,18 @@
           <h3 class="npc-section__title"><i class="fas fa-heart"></i> HP</h3>
           <div class="health-display">
             {{#each phase.health.bars as |bar index|}}
-            <div class="health-bar {{#if (eq phase.health.currentBar index)}}active{{/if}}">
+            <div class="health-bar npc-hp-row {{#if (eq phase.health.currentBar index)}}active{{/if}}">
               {{!-- Use block-param phaseIndex (not ../phaseIndex): nested #each breaks ../ lookup and orphaned HP on submit. --}}
-              <input type="number" name="system.phases.{{phaseIndex}}.health.bars.{{index}}.current" value="{{bar.current}}" data-dtype="Number"/> /
-              <input type="number" name="system.phases.{{phaseIndex}}.health.bars.{{index}}.max" value="{{bar.max}}" data-dtype="Number"/>
-              <span class="bar-penalty">({{bar.penalty}})</span>
+              <label class="npc-hp-field" title="Current HP on this bar">
+                <span>Current</span>
+                <input type="number" name="system.phases.{{phaseIndex}}.health.bars.{{index}}.current" value="{{bar.current}}" data-dtype="Number"/>
+              </label>
+              <span class="npc-hp-sep">/</span>
+              <label class="npc-hp-field" title="Maximum HP on this bar">
+                <span>Max</span>
+                <input type="number" name="system.phases.{{phaseIndex}}.health.bars.{{index}}.max" value="{{bar.max}}" data-dtype="Number"/>
+              </label>
+              <input type="hidden" name="system.phases.{{phaseIndex}}.health.bars.{{index}}.penalty" value="{{default bar.penalty 0}}" data-dtype="Number"/>
             </div>
             {{/each}}
           </div>
@@ -392,10 +402,17 @@
         <h3 class="npc-section__title"><i class="fas fa-heart"></i> HP</h3>
         <div class="health-display">
           {{#each system.health.bars as |bar index|}}
-          <div class="health-bar {{#if (eq ../system.health.currentBar index)}}active{{/if}}">
-            <input type="number" name="system.health.bars.{{index}}.current" value="{{bar.current}}" data-dtype="Number"/> / 
-            <input type="number" name="system.health.bars.{{index}}.max" value="{{bar.max}}" data-dtype="Number"/>
-            <span class="bar-penalty">({{bar.penalty}})</span>
+          <div class="health-bar npc-hp-row {{#if (eq ../system.health.currentBar index)}}active{{/if}}">
+              <label class="npc-hp-field" title="Current HP on this bar">
+              <span>Current</span>
+              <input type="number" name="system.health.bars.{{index}}.current" value="{{bar.current}}" data-dtype="Number"/>
+            </label>
+            <span class="npc-hp-sep">/</span>
+            <label class="npc-hp-field" title="Maximum HP on this bar">
+              <span>Max</span>
+              <input type="number" name="system.health.bars.{{index}}.max" value="{{bar.max}}" data-dtype="Number"/>
+            </label>
+            <input type="hidden" name="system.health.bars.{{index}}.penalty" value="{{default bar.penalty 0}}" data-dtype="Number"/>
           </div>
           {{/each}}
         </div>

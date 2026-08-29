@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.424] - 2026-08-29
+
+### Changed
+
+- **Print sheets:** Battle page keeps a small Status Tokens pocket under Movement, next to Combat Senses. Combat Senses and Passives are tighter so the pocket fits. NPC print has the same compact drop zone. Faint reminder: Tick, Natural Recovery (MR), and 4 × MR application cap.
+
+### Fixed
+
+- **NPC sheet:** HP fields are labeled Current / Max. The leftover `(0)` health-bar penalty is no longer shown. The name sits on its own row above Portrait / Token. Side and Type labels are English.
+- **Character print:** Stone Powers page has an Initiative Exchange strip — leftover Ini and Colorless Stone boxes sit above the pools so you can convert and then spend.
+
 ## [0.9.423] - 2026-08-29
 
 ### Changed

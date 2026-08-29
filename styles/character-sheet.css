@@ -4229,14 +4229,26 @@
 
 .mastery-system.sheet.actor.npc .sheet-header {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 8px 15px;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  padding: 10px 15px 12px;
   background: linear-gradient(to bottom, var(--df-bg-panel, #2a3136), var(--df-bg-primary, #20272B));
   color: var(--df-text-primary, #d0d0d0);
   border-bottom: 2px solid var(--df-border-primary, #3a3f44);
-  min-height: 80px;
-  max-height: 80px;
+  min-height: 0;
+  max-height: none;
+}
+
+.mastery-system.sheet.actor.npc .npc-name-row {
+  width: 100%;
+}
+
+.mastery-system.sheet.actor.npc .npc-header-main {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
 }
 
 .mastery-system.sheet.actor.npc .portrait-section {
@@ -4331,18 +4343,19 @@
 }
 
 .mastery-system.sheet.actor.npc .character-name-box {
-  flex: 2;
+  width: 100%;
+  flex: none;
 }
 
 .mastery-system.sheet.actor.npc .character-name-box input {
   width: 100%;
-  background: transparent;
-  border: none;
-  border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+  background: rgba(0, 0, 0, 0.28);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 4px;
   color: #fff;
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 700;
-  padding: 5px 0;
+  padding: 6px 10px;
   transition: border-color 0.3s;
 }
 
@@ -4796,6 +4809,32 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
   color: #fff;
   border-radius: 4px;
+}
+
+.mastery-system.sheet.actor.npc .health-panel .npc-hp-row {
+  display: flex;
+  align-items: end;
+  gap: 8px;
+}
+
+.mastery-system.sheet.actor.npc .health-panel .npc-hp-field {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.mastery-system.sheet.actor.npc .health-panel .npc-hp-field span {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.mastery-system.sheet.actor.npc .health-panel .npc-hp-sep {
+  padding-bottom: 6px;
+  color: rgba(255, 255, 255, 0.45);
 }
 
 .mastery-system.sheet.actor.npc .health-panel .health-bar input {

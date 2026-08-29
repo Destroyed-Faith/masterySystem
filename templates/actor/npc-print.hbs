@@ -101,6 +101,16 @@
   </section>
   {{/if}}
 
+  <section class="np-block np-token-tray" aria-label="Status and Special tokens">
+    <h2 class="np-section-title">Status Tokens</h2>
+    <div class="np-token-tray-drop">
+      <p class="np-token-tray-rules">
+        Start of turn: Tick, Natural Recovery {{specialRecovery}} (MR, not Regen), Decay 1.
+        Same Special this Round: max {{specialCap}} (4 × MR).
+      </p>
+    </div>
+  </section>
+
   <footer class="np-page-footer">{{pageLabel}} · Seite {{pageIndex}}/{{pageTotal}}</footer>
 </section>
 {{/each}}

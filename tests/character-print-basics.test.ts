@@ -37,6 +37,8 @@ describe('character print standard maneuvers', () => {
     expect(reactionNames).not.toContain('Evade');
     expect(reactionNames).not.toContain('Counterattack');
     expect(ctx.battle?.includeStandardManeuvers).toBe(false);
+    expect(ctx.specialRecovery).toBe(2);
+    expect(ctx.specialCap).toBe(8);
   });
 
   it('seeds Basic Attack + three Basic Reactions when requested', () => {

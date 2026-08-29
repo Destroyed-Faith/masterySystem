@@ -39,6 +39,8 @@ describe('buildNpcPrintContext', () => {
     const page = ctx.pages[0];
     expect(page.name).toBe('Wache');
     expect(page.masteryRank).toBe(3);
+    expect(page.specialRecovery).toBe(3);
+    expect(page.specialCap).toBe(12);
     expect(page.castingTn).toBe(24);
     expect(page.creatureType).toBe('Humanoid');
     expect(page.hasPhases).toBe(false);

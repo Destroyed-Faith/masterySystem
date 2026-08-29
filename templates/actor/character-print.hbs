@@ -390,6 +390,23 @@
 
   <h2 class="cp-section-title">Stone Powers <span class="cp-subtle">available — General + attribute pools</span></h2>
 
+  <div class="cp-block cp-ini-exchange">
+    <h3 class="cp-block-title">Initiative Exchange <span class="cp-subtle">{{technical.iniStoneCost}} Initiative = 1 Colorless Stone (4 × MR {{masteryRank}})</span></h3>
+    <div class="cp-ini-exchange-row">
+      <div class="cp-ini-exchange-field">
+        <span class="cp-ini-exchange-label">Initiative left</span>
+        <span class="cp-ini-writein"></span>
+      </div>
+      <div class="cp-ini-exchange-field cp-ini-exchange-field--stones">
+        <span class="cp-ini-exchange-label">Colorless Stones</span>
+        <span class="cp-ini-exchange-boxes">
+          {{#each technical.colorlessBoxes}}<span class="cp-use-box"></span>{{/each}}
+        </span>
+      </div>
+    </div>
+    <p class="cp-ini-exchange-hint">Tick a box when you convert leftover Initiative, or when you gain a Colorless Stone another way. Spend those stones on the powers below — Colorless can pay any pool.</p>
+  </div>
+
   {{!-- Stone Powers — available pools only (0-stone pools hidden) --}}
   <div class="cp-block cp-tech-stone">
     <h3 class="cp-block-title">Available Stone Powers</h3>
@@ -468,11 +485,12 @@
 
   <h2 class="cp-section-title cp-battle-title">Battle Sheet <span class="cp-subtle">plan your rotation — tick each step as you spend it</span></h2>
 
-  {{!-- One rotation line, vertically centered:
+  {{!-- One rotation line, top-aligned so leftover space sits below for tokens:
         Movement → [Attack Action: Active | Active Buffs] → Reactions --}}
   <div class="cp-battle-flow">
 
     <div class="cp-battle-col cp-battle-col-movement">
+      <div class="cp-battle-col-spacer" aria-hidden="true"></div>
       <div class="cp-battle-col-title">Movement</div>
       <div class="cp-battle-cards cp-battle-cards-stack">
         {{#each battle.movement}}
@@ -544,6 +562,7 @@
     <div class="cp-battle-arrow">&#8596;</div>
 
     <div class="cp-battle-col cp-battle-col-reactions">
+      <div class="cp-battle-col-spacer" aria-hidden="true"></div>
       <div class="cp-battle-col-title">Reactions</div>
       {{#if battle.hasReactions}}
       <div class="cp-battle-cards cp-battle-cards-stack">
@@ -568,8 +587,18 @@
 
   </div>
 
-  {{!-- Combat Senses (under Movement) + Passives — same row, compact battle cards --}}
+  {{!-- Token pocket under Movement, then Combat Senses + Passives --}}
   <div class="cp-battle-secondary">
+    <section class="cp-status-tray" aria-label="Status and Special tokens">
+      <div class="cp-status-tray-head">Status Tokens</div>
+      <div class="cp-status-tray-drop">
+        <p class="cp-status-tray-rules">
+          Start of turn: Tick, Natural Recovery {{specialRecovery}} (MR, not Regen), Decay 1.
+          Same Special this Round: max {{specialCap}} (4 × MR).
+        </p>
+      </div>
+    </section>
+
     <div class="cp-battle-col-senses">
       <div class="cp-battle-group-title">Combat Senses</div>
       <div class="cp-battle-sense-cards">

@@ -16,6 +16,7 @@ import {
   resolveNpcAttackList,
   sumNpcAttackSlotsFromPowers,
 } from '../utils/npc-attack-model.js';
+import { specialApplicationLimit } from '../combat/special-application.js';
 
 const PRINT_TEMPLATE = 'systems/mastery-system/templates/actor/npc-print.hbs';
 const PRINT_CSS = 'systems/mastery-system/styles/npc-print.css';
@@ -233,6 +234,8 @@ export function buildNpcPrintContext(actor: any): Record<string, unknown> {
     return {
       name,
       masteryRank,
+      specialRecovery: masteryRank,
+      specialCap: specialApplicationLimit(masteryRank),
       castingTn,
       creatureType,
       faction,
