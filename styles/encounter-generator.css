@@ -364,3 +364,57 @@
 .encounter-gen-label-tip:focus-within .encounter-gen-tooltip {
   display: block;
 }
+
+.encounter-gen-preview {
+  margin-top: 16px;
+  padding: 10px 12px;
+  border: 1px solid var(--df-accent, #b8863b);
+  border-radius: 8px;
+  background: rgba(184, 134, 59, 0.12);
+}
+
+.encounter-gen-preview h4 {
+  margin-top: 0;
+  border-bottom: none;
+}
+
+.encounter-gen-preview ul {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.encounter-gen-reactions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 8px 0 12px;
+}
+
+.encounter-gen-reaction-row {
+  display: grid;
+  grid-template-columns: minmax(160px, 220px) minmax(180px, 1fr);
+  gap: 12px;
+  align-items: end;
+}
+
+.encounter-gen-kit-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0 0 12px;
+}
+
+.encounter-gen-kit-tab {
+  padding: 5px 12px;
+  border: 1px solid var(--df-border, #3a3a42);
+  border-radius: 6px;
+  background: var(--df-bg-elevated, #24242c);
+  color: inherit;
+  cursor: pointer;
+}
+
+.encounter-gen-kit-tab.is-active {
+  border-color: var(--df-accent, #b8863b);
+  background: var(--df-accent-bg, rgba(184, 134, 59, 0.18));
+  font-weight: 600;
+}

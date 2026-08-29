@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.421] - 2026-08-29
+
+### Changed
+
+- **Encounter Generator:** You can set how many Hauptgegner to create (identical copies or separate kits), pick two-handed / one-hand / ranged loadouts, lock 1 single + 1 AoE per round, type 1–2 reactions, and see or override HP, armor/MR, evade, and base damage before generating.
+
 ## [0.9.420] - 2026-08-29
 
 ### Fixed

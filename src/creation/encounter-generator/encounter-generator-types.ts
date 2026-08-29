@@ -173,6 +173,28 @@ export type AddPressure = 'harassment' | 'noticeable' | 'dangerous' | 'lethal';
 
 export type SpawnPattern = 'continuous' | 'burst' | 'phase-start' | 'triggered';
 
+/** One kit copied N times, or a separate kit per Hauptgegner. */
+export type BossKitMode = 'identical' | 'distinct';
+
+export type WeaponProfile = 'one-hand' | 'two-hand' | 'ranged';
+
+/** Shortcut for “one single + one AoE each round”, or free cycle fields. */
+export type AttackShape = 'free' | 'single-and-aoe';
+
+export type EncounterReactionKind =
+  | 'none'
+  | 'guard'
+  | 'evade'
+  | 'counterattack'
+  | 'dive-for-cover'
+  | 'interpose'
+  | 'custom';
+
+export interface EncounterReactionDraft {
+  kind: EncounterReactionKind;
+  name: string;
+}
+
 export interface AddsConcept {
   enabled: boolean;
   durability: AddDurability;
@@ -205,6 +227,25 @@ export interface EncounterConcept {
   adds: AddsConcept;
   /** Environmental style: zone/arena actions per round. */
   environmentActionsPerRound: number;
+  /** How many Hauptgegner to create (1–6). */
+  bossCount: number;
+  /** Identical copies vs separately edited kits. */
+  kitMode: BossKitMode;
+  weaponProfile: WeaponProfile;
+  attackShape: AttackShape;
+  /**
+   * 0 = derive from budget. Otherwise every non-summon cycle row uses this
+   * many exploding d8 for damage.
+   */
+  baseDamageDice: number;
+  /** 0 = derive. Otherwise total HP per Hauptgegner (split across phases). */
+  hpOverride: number;
+  /** 0 = derive. Combat armor is MR — this also sets MR (1–8). */
+  armorOverride: number;
+  /** 0 = derive. Intended evade (realized via MR + agility). */
+  evadeOverride: number;
+  /** Up to two reactions written onto the NPC (standard maneuvers or custom). */
+  reactions: EncounterReactionDraft[];
 }
 
 /** One entry of a boss power cycle — maps 1:1 onto an NPC attack row. */
@@ -302,12 +343,25 @@ export interface EnvironmentPlan {
   description: string;
 }
 
+/** One Hauptgegner kit (shared when identical, one per actor when distinct). */
+export interface BossKitPlan {
+  id: string;
+  name: string;
+  phasePlans: PhasePlan[];
+  boss: EnemyStatBlock;
+  reactions: EncounterReactionDraft[];
+}
+
 /** The full concept-driven encounter project. */
 export interface EncounterProjectPlan {
   concept: EncounterConcept;
   difficulty: Difficulty;
   boss: EnemyStatBlock;
   phasePlans: PhasePlan[];
+  /** Always ≥1. Identical mode keeps a single kit that is copied at apply. */
+  kits: BossKitPlan[];
+  bossCount: number;
+  kitMode: BossKitMode;
   adds: AddsPlan | null;
   environment: EnvironmentPlan | null;
   tactics: string[];

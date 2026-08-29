@@ -15,6 +15,8 @@ import {
   defaultConcept,
   deriveAddsPlan,
   deriveConceptPlan,
+  multiBossPacking,
+  normalizeConcept,
   primarySpecialOptions,
 } from '../src/creation/encounter-generator/encounter-generator-concept.js';
 import { buildThreatReport } from '../src/creation/encounter-generator/encounter-generator-threat.js';
@@ -24,6 +26,8 @@ import {
   buildProjectBossSystem,
   buildProjectEnvironmentSystem,
   buildSummaryHtml,
+  conceptReactionsToNpcRows,
+  listEncounterBossPayloads,
 } from '../src/creation/encounter-generator/encounter-generator-apply.js';
 import type {
   EncounterConcept,
@@ -199,6 +203,75 @@ describe('deriveConceptPlan', () => {
     expect(p3.stat.damageDiceCount).toBeGreaterThanOrEqual(p1.stat.damageDiceCount);
     expect(p3.stat.armor).toBeLessThanOrEqual(p1.stat.armor);
     expect(p3.addsActive).toBe(false);
+  });
+
+  it('fills missing multi-boss loadout fields on older concepts', () => {
+    const normalized = normalizeConcept({ rank: 'major', style: 'martial' } as any);
+    expect(normalized.bossCount).toBe(1);
+    expect(normalized.kitMode).toBe('identical');
+    expect(normalized.weaponProfile).toBe('one-hand');
+    expect(normalized.reactions).toHaveLength(2);
+    expect(multiBossPacking(3).hpEach).toBeLessThan(1);
+    expect(multiBossPacking(3).dmgEach).toBeLessThan(1);
+  });
+
+  it('creates N identical Hauptgegner with a mixed single+AoE loadout', () => {
+    const party = testParty();
+    const concept = normalizeConcept({
+      ...defaultConcept(),
+      rank: 'standard',
+      style: 'martial',
+      primarySpecial: 'lacerate',
+      bossCount: 3,
+      kitMode: 'identical',
+      weaponProfile: 'two-hand',
+      attackShape: 'single-and-aoe',
+      baseDamageDice: 4,
+      hpOverride: 90,
+      armorOverride: 4,
+      reactions: [
+        { kind: 'guard', name: '' },
+        { kind: 'counterattack', name: '' },
+      ],
+    });
+    const plan = deriveConceptPlan(party, concept, seededRng(53));
+    expect(plan.bossCount).toBe(3);
+    expect(plan.kitMode).toBe('identical');
+    expect(plan.kits).toHaveLength(1);
+    expect(plan.phasePlans.reduce((s, p) => s + p.stat.hp, 0)).toBe(90);
+    expect(plan.boss.mr).toBe(4);
+    expect(plan.phasePlans[0].stat.armor).toBe(4);
+    const cycle = plan.phasePlans[0].cycle.filter((c) => !c.isSummon);
+    expect(cycle).toHaveLength(2);
+    expect(cycle.some((c) => !!c.aoe)).toBe(true);
+    expect(cycle.some((c) => !c.aoe)).toBe(true);
+    expect(cycle.every((c) => c.damageDiceCount === 4)).toBe(true);
+    expect(cycle.filter((c) => c.rangeKind === 'melee').every((c) => c.rangeMeters === 2)).toBe(true);
+
+    const payloads = listEncounterBossPayloads('Zweihand-Wache', plan);
+    expect(payloads).toHaveLength(3);
+    expect(payloads.map((p) => p.name)).toEqual([
+      'Zweihand-Wache 1',
+      'Zweihand-Wache 2',
+      'Zweihand-Wache 3',
+    ]);
+    const rows = conceptReactionsToNpcRows(plan.concept.reactions);
+    expect(rows).toHaveLength(2);
+    expect(rows.map((r) => r.basicId)).toEqual(['guard', 'counterattack']);
+    expect(payloads[0].system.npcReactionSlots).toBe(2);
+    expect(Array.isArray(payloads[0].system.npcReactions)).toBe(true);
+  });
+
+  it('distinct kits start as separate editable copies', () => {
+    const party = testParty();
+    const plan = deriveConceptPlan(
+      party,
+      normalizeConcept({ ...defaultConcept(), bossCount: 2, kitMode: 'distinct' }),
+      seededRng(59),
+    );
+    expect(plan.kits).toHaveLength(2);
+    expect(plan.kits[0].phasePlans).not.toBe(plan.kits[1].phasePlans);
+    expect(listEncounterBossPayloads('Duell', plan)).toHaveLength(2);
   });
 
   it('mythic hybrid (Samael) gets distinct phase themes', () => {

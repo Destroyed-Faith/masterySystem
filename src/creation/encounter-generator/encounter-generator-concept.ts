@@ -32,11 +32,16 @@ import type {
   AddDesign,
   AddsConcept,
   AddsPlan,
+  AttackShape,
+  BossKitMode,
+  BossKitPlan,
   CombatStyle,
   CyclePowerEntry,
   Difficulty,
   EncounterConcept,
   EncounterProjectPlan,
+  EncounterReactionDraft,
+  EncounterReactionKind,
   EnemyPhaseStat,
   EnemyRank,
   EnemyStatBlock,
@@ -45,6 +50,7 @@ import type {
   PhasePlan,
   SecondaryStyle,
   TargetingMode,
+  WeaponProfile,
 } from './encounter-generator-types.js';
 import { ALL_SPECIAL_EFFECTS, getEffectBaseName } from '../../utils/special-effects.js';
 import { filterCatalog, type CatalogEntry } from '../../utils/power-catalog.js';
@@ -117,6 +123,87 @@ export function specialLabel(specialId: string | null): string {
 
 function clamp(value: number, lo: number, hi: number): number {
   return Math.max(lo, Math.min(hi, value));
+}
+
+const REACTION_KINDS: EncounterReactionKind[] = [
+  'none',
+  'guard',
+  'evade',
+  'counterattack',
+  'dive-for-cover',
+  'interpose',
+  'custom',
+];
+
+export function emptyReactions(): EncounterReactionDraft[] {
+  return [
+    { kind: 'none', name: '' },
+    { kind: 'none', name: '' },
+  ];
+}
+
+export function normalizeReactions(raw: unknown): EncounterReactionDraft[] {
+  const list = Array.isArray(raw) ? raw : [];
+  return emptyReactions().map((fallback, i) => {
+    const row = list[i];
+    if (!row || typeof row !== 'object') return fallback;
+    const kindRaw = String((row as EncounterReactionDraft).kind || 'none') as EncounterReactionKind;
+    const kind = REACTION_KINDS.includes(kindRaw) ? kindRaw : 'custom';
+    return { kind, name: String((row as EncounterReactionDraft).name || '').trim() };
+  });
+}
+
+/** Per-boss share of a solo-boss HP / damage budget when N Hauptgegner share the fight. */
+export function multiBossPacking(bossCount: number): { hpEach: number; dmgEach: number } {
+  const n = clamp(Math.round(bossCount) || 1, 1, 6);
+  if (n <= 1) return { hpEach: 1, dmgEach: 1 };
+  return {
+    hpEach: (0.7 + 0.3 * n) / n,
+    dmgEach: (0.65 + 0.35 * n) / n,
+  };
+}
+
+function conceptWeaponProfile(concept: EncounterConcept): WeaponProfile {
+  const p = concept.weaponProfile;
+  return p === 'two-hand' || p === 'ranged' ? p : 'one-hand';
+}
+
+function wantsMeleeWeapon(concept: EncounterConcept): boolean {
+  if (conceptWeaponProfile(concept) === 'ranged') return false;
+  return concept.style === 'martial' || concept.style === 'hybrid';
+}
+
+export function normalizeConcept(raw?: Partial<EncounterConcept> | null): EncounterConcept {
+  const base = defaultConcept();
+  const src = raw && typeof raw === 'object' ? raw : {};
+  const merged: EncounterConcept = {
+    ...base,
+    ...src,
+    adds: { ...base.adds, ...(src.adds || {}) },
+  };
+  if (merged.attackShape === 'single-and-aoe') {
+    merged.targeting = 'mixed';
+    merged.actionsPerRound = 2;
+    merged.cycleLength = 2;
+  }
+  merged.bossCount = clamp(Math.round(Number(merged.bossCount) || 1), 1, 6);
+  merged.kitMode = merged.kitMode === 'distinct' ? 'distinct' : 'identical';
+  merged.weaponProfile = conceptWeaponProfile(merged);
+  merged.attackShape = merged.attackShape === 'single-and-aoe' ? 'single-and-aoe' : 'free';
+  merged.baseDamageDice = clamp(Math.round(Number(merged.baseDamageDice) || 0), 0, 16);
+  merged.hpOverride = Math.max(0, Math.round(Number(merged.hpOverride) || 0));
+  merged.armorOverride = Math.max(0, Math.round(Number(merged.armorOverride) || 0));
+  merged.evadeOverride = Math.max(0, Math.round(Number(merged.evadeOverride) || 0));
+  merged.environmentActionsPerRound = clamp(
+    Math.round(Number(merged.environmentActionsPerRound) || 2),
+    1,
+    4,
+  );
+  merged.actionsPerRound = clamp(Math.round(Number(merged.actionsPerRound) || 1), 1, 6);
+  merged.phaseCount = clamp(Math.round(Number(merged.phaseCount) || 1), 1, 5);
+  merged.cycleLength = clamp(Math.round(Number(merged.cycleLength) || 2), 2, 6);
+  merged.reactions = normalizeReactions(merged.reactions);
+  return merged;
 }
 
 // ─── Add pressure targets (in party health levels per round) ─────────────
@@ -326,7 +413,8 @@ function buildSlotLayout(concept: EncounterConcept): CyclePick[] {
   const length = clamp(Math.round(concept.cycleLength) || 3, 2, 6);
   const tier = RANK_TIER[concept.rank];
   const special = concept.primarySpecial !== 'none' ? concept.primarySpecial : null;
-  const melee = concept.style === 'martial';
+  const melee = wantsMeleeWeapon(concept) || concept.style === 'martial';
+  const twoHand = conceptWeaponProfile(concept) === 'two-hand';
   const picks: CyclePick[] = [];
 
   const wantsControlSlot = concept.secondaryStyle === 'control';
@@ -368,7 +456,7 @@ function buildSlotLayout(concept: EncounterConcept): CyclePick[] {
     if (aoeSlots(slot) && aoeEntries.length > 0) {
       picks.push({
         entry: aoeEntries[aoeIdx % aoeEntries.length],
-        fallbackName: 'Flächenschlag',
+        fallbackName: twoHand ? 'Rundumschlag' : 'Flächenschlag',
         isAoe: true,
         isControl: false,
         isSummon: false,
@@ -379,7 +467,11 @@ function buildSlotLayout(concept: EncounterConcept): CyclePick[] {
     const pool = singleEntries.length > 0 ? singleEntries : singleFallback;
     picks.push({
       entry: pool.length > 0 ? pool[singleIdx % pool.length] : null,
-      fallbackName: melee ? 'Schwerer Hieb' : 'Zerstörerischer Strahl',
+      fallbackName: melee
+        ? twoHand
+          ? 'Zweihandschlag'
+          : 'Schwerer Hieb'
+        : 'Zerstörerischer Strahl',
       isAoe: false,
       isControl: false,
       isSummon: false,
@@ -541,6 +633,26 @@ export function buildPowerCycle(
     signature.note = [signature.note, `Verursacht zusätzlich ${stressD8}d8 Stress bei Treffer.`]
       .filter(Boolean)
       .join(' ');
+  }
+
+  const profile = conceptWeaponProfile(concept);
+  const damageOverride = clamp(Math.round(Number(concept.baseDamageDice) || 0), 0, 16);
+  for (const entry of entries) {
+    if (entry.isSummon) continue;
+    if (profile === 'ranged') {
+      entry.rangeKind = 'ranged';
+      entry.rangeMeters = Math.max(12, entry.rangeMeters || 16);
+    } else if (entry.rangeKind === 'melee') {
+      entry.rangeMeters = profile === 'two-hand' ? 2 : 1;
+    }
+    if (damageOverride > 0) {
+      entry.damageDiceCount = damageOverride;
+    } else if (profile === 'two-hand' && concept.style === 'martial') {
+      entry.damageDiceCount = clamp(Math.round(entry.damageDiceCount * 1.15), 1, 16);
+    }
+    if (profile === 'two-hand' && entry.rangeKind === 'melee') {
+      entry.note = [entry.note, 'Zweihandwaffe.'].filter(Boolean).join(' ');
+    }
   }
 
   assignAttacksPerRound(
@@ -753,18 +865,34 @@ function deriveEnvironmentPlan(
 
 export function deriveConceptPlan(
   party: PartyMetrics,
-  concept: EncounterConcept,
+  conceptInput: EncounterConcept,
   rng: Rng = Math.random,
 ): EncounterProjectPlan {
+  const concept = normalizeConcept(conceptInput);
   const difficulty = RANK_TO_DIFFICULTY[concept.rank];
   const params = DIFFICULTY_PARAMS[difficulty];
   const rankFactor = RANK_BUDGET_FACTOR[concept.rank];
   const notes: string[] = [];
+  const packing = multiBossPacking(concept.bossCount);
 
   // Boss defensive frame (like the classic model, biased by rank).
   const bossMrBase = clamp(party.medianMR + RANK_MR_OFFSET[concept.rank], 1, 8);
   const desiredEvade = quantile(party.pooledAttackTotals, 1 - params.partyHitRateVsBoss);
-  const { mr, agility, realizedEvade } = evadeToMrAgility(desiredEvade, bossMrBase);
+  const derivedFrame = evadeToMrAgility(desiredEvade, bossMrBase);
+  let mr = derivedFrame.mr;
+  let realizedEvade = derivedFrame.realizedEvade;
+  if (concept.armorOverride > 0) {
+    mr = clamp(concept.armorOverride, 1, 8);
+    if (concept.evadeOverride <= 0) realizedEvade = mr * 4;
+    notes.push(`Rüstung/MR manuell auf ${mr} gesetzt (Kampf-Rüstung = MR).`);
+  }
+  if (concept.evadeOverride > 0) {
+    realizedEvade = concept.evadeOverride;
+    notes.push(`Ausweichen manuell auf ${concept.evadeOverride} gesetzt.`);
+  }
+  const evadeExtra = Math.max(0, Math.round(realizedEvade - mr * 4));
+  const agility = Math.max(2, Math.min(80, evadeExtra * 8));
+  realizedEvade = mr * 4 + Math.floor(agility / 8);
   const armor = mr;
 
   // Encounter round budget (damage AFTER party mitigation, whole group).
@@ -791,7 +919,7 @@ export function deriveConceptPlan(
   }
 
   const actionsPerRound = clamp(Math.round(concept.actionsPerRound) || 3, 1, 6);
-  const perActionBudget = bossBudget / actionsPerRound;
+  const perActionBudget = (bossBudget * packing.dmgEach) / actionsPerRound;
 
   // Total HP: party focus-DPS × target TTK (rank-scaled + realism pad).
   // Real table hits (raises / exploding) run hotter than weaponDamageMean, so
@@ -815,7 +943,16 @@ export function deriveConceptPlan(
   const hpFromHitFloor = Math.round(
     avgHitAfterArmor * minHitsPerPhase * Math.max(1, concept.phaseCount),
   );
-  const totalHp = Math.max(concept.phaseCount, hpFromDps, hpFromHitFloor);
+  let totalHp = Math.max(concept.phaseCount, hpFromDps, hpFromHitFloor);
+  if (concept.hpOverride > 0) {
+    totalHp = Math.max(concept.phaseCount, concept.hpOverride);
+    notes.push(`HP manuell auf ${totalHp} pro Hauptgegner gesetzt.`);
+  } else if (concept.bossCount > 1) {
+    totalHp = Math.max(concept.phaseCount, Math.round(totalHp * packing.hpEach));
+    notes.push(
+      `${concept.bossCount} Hauptgegner teilen sich das Encounter-Budget — Werte gelten pro Gegner.`,
+    );
+  }
 
   // Phases: own budget + own cycle per phase.
   const themes = phaseThemes(concept);
@@ -878,8 +1015,36 @@ export function deriveConceptPlan(
   if (concept.style === 'martial') {
     tactics.push('Druck auf EIN Ziel halten; Schwäche: Distanz, Mobilität, Verteidigungs-Reaktionen.');
   }
+  if (conceptWeaponProfile(concept) === 'two-hand') {
+    tactics.push('Zweihandwaffen: Reichweite 2 m, höherer Einzelschaden, eine Fläche plus ein Einzelziel wenn so gewählt.');
+  }
   if (adds) {
     tactics.push(`Spawnen: ${adds.spawnPerRound}/Runde bis max. ${adds.maxActive} aktiv${adds.summonCostsBossAction ? ' (kostet je 1 Boss-Aktion)' : ''}.`);
+  }
+  const liveReactions = concept.reactions.filter((r) => r.kind !== 'none');
+  if (liveReactions.length) {
+    tactics.push(
+      `Reaktionen (${liveReactions.length}): ${liveReactions
+        .map((r) => r.name || r.kind)
+        .join(', ')}.`,
+    );
+  }
+
+  const kitCount = concept.kitMode === 'distinct' ? concept.bossCount : 1;
+  const kits: BossKitPlan[] = [];
+  for (let i = 0; i < kitCount; i++) {
+    const clonedPhases: PhasePlan[] =
+      i === 0 ? phasePlans : (JSON.parse(JSON.stringify(phasePlans)) as PhasePlan[]);
+    const clonedBoss: EnemyStatBlock =
+      i === 0 ? boss : (JSON.parse(JSON.stringify({ ...boss, id: `boss-${i}` })) as EnemyStatBlock);
+    if (i > 0) clonedBoss.id = `boss-${i}`;
+    kits.push({
+      id: `kit-${i}`,
+      name: kitCount > 1 ? `Hauptgegner ${i + 1}` : 'Hauptgegner',
+      phasePlans: clonedPhases,
+      boss: clonedBoss,
+      reactions: normalizeReactions(concept.reactions),
+    });
   }
 
   return {
@@ -887,6 +1052,9 @@ export function deriveConceptPlan(
     difficulty,
     boss,
     phasePlans,
+    kits,
+    bossCount: concept.bossCount,
+    kitMode: concept.kitMode,
     adds,
     environment,
     tactics,
@@ -930,6 +1098,15 @@ export function defaultConcept(): EncounterConcept {
     cycleStyle: 'fixed',
     adds: defaultAdds(),
     environmentActionsPerRound: 2,
+    bossCount: 1,
+    kitMode: 'identical',
+    weaponProfile: 'one-hand',
+    attackShape: 'free',
+    baseDamageDice: 0,
+    hpOverride: 0,
+    armorOverride: 0,
+    evadeOverride: 0,
+    reactions: emptyReactions(),
   };
 }
 
@@ -1113,6 +1290,60 @@ export const RANK_OPTIONS: Array<LabeledOption<EnemyRank>> = [
     label: 'Mythic',
     description: 'Höchste Stufe — sehr langer, unnachgiebiger Kampf mit maximalem Encounter-Budget.',
   },
+];
+
+export const KIT_MODE_OPTIONS: Array<LabeledOption<BossKitMode>> = [
+  {
+    value: 'identical',
+    label: 'Alle gleich',
+    description: 'Jeder Hauptgegner bekommt dasselbe Kit — Angriffe, Werte, Reaktionen.',
+  },
+  {
+    value: 'distinct',
+    label: 'Unterschiedliche Kits',
+    description: 'Jeder Hauptgegner startet gleich, du passt Angriffe und Werte danach einzeln an.',
+  },
+];
+
+export const WEAPON_PROFILE_OPTIONS: Array<LabeledOption<WeaponProfile>> = [
+  {
+    value: 'one-hand',
+    label: 'Einhand',
+    description: 'Nahkampf 1 m — normale Waffenprofile.',
+  },
+  {
+    value: 'two-hand',
+    label: 'Zweihand',
+    description: 'Nahkampf 2 m, etwas höherer Waffenschaden, martialische Hiebe.',
+  },
+  {
+    value: 'ranged',
+    label: 'Fernkampf',
+    description: 'Distanzangriffe (ab 12 m) statt Nahkampf.',
+  },
+];
+
+export const ATTACK_SHAPE_OPTIONS: Array<LabeledOption<AttackShape>> = [
+  {
+    value: 'free',
+    label: 'Frei (Aktionen + Zielmuster)',
+    description: 'Cycle und Aktionen bleiben, wie du sie oben einstellst.',
+  },
+  {
+    value: 'single-and-aoe',
+    label: '1 Einzel + 1 Fläche / Runde',
+    description: 'Zwei Angriffe pro Runde: ein Einzelziel und eine Fläche.',
+  },
+];
+
+export const REACTION_KIND_OPTIONS: Array<LabeledOption<EncounterReactionKind>> = [
+  { value: 'none', label: 'Keine', description: 'Dieser Reaktions-Slot bleibt leer.' },
+  { value: 'guard', label: 'Guard', description: '+MR × 2 Rüstung gegen den auslösenden Treffer.' },
+  { value: 'evade', label: 'Evade', description: '+MR × 2 Ausweichen gegen den auslösenden Angriff.' },
+  { value: 'counterattack', label: 'Counterattack', description: 'Basisangriff gegen die Kreatur, die dich getroffen hat.' },
+  { value: 'dive-for-cover', label: 'Dive for Cover', description: '2 × MR m bewegen, um eine Fläche zu verlassen.' },
+  { value: 'interpose', label: 'Interpose', description: 'Nimmt die Hälfte des Schadens eines benachbarten Verbündeten.' },
+  { value: 'custom', label: 'Eigene Reaktion', description: 'Name frei eingeben — landet als Custom-Reaktion auf dem NSC.' },
 ];
 
 export const CYCLE_STYLE_OPTIONS: Array<LabeledOption<EncounterConcept['cycleStyle']>> = [

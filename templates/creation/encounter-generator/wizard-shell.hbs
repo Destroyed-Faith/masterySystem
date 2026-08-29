@@ -55,7 +55,20 @@
       <p class="encounter-gen-note">{{presetDescription}}</p>
       {{/if}}
 
+      <h4>{{copy.concept.groupHeading}}</h4>
       <div class="encounter-gen-form">
+        <label class="encounter-gen-field">
+          <span class="encounter-gen-label-tip" tabindex="0">{{copy.concept.bossCount}}<span class="encounter-gen-tooltip" role="tooltip">{{copy.concept.bossCountHint}}</span></span>
+          <input type="number" class="js-eg-concept" data-field="bossCount" min="1" max="6" value="{{concept.bossCount}}"/>
+        </label>
+        <label class="encounter-gen-field">
+          <span class="encounter-gen-label-tip" tabindex="0">{{copy.concept.kitMode}}<span class="encounter-gen-tooltip" role="tooltip">{{copy.concept.kitModeHint}}</span></span>
+          <select class="js-eg-concept" data-field="kitMode">
+            {{#each kitModeOptions}}
+            <option value="{{this.value}}"{{#if this.selected}} selected{{/if}} title="{{this.description}}">{{this.label}}</option>
+            {{/each}}
+          </select>
+        </label>
         <label class="encounter-gen-field">
           <span class="encounter-gen-label-tip" tabindex="0">{{copy.concept.rank}}<span class="encounter-gen-tooltip" role="tooltip">{{copy.concept.rankHint}}</span></span>
           <select class="js-eg-concept" data-field="rank">
@@ -123,6 +136,85 @@
         </label>
         {{/if}}
       </div>
+
+      <h4>{{copy.concept.loadoutHeading}}</h4>
+      <div class="encounter-gen-form">
+        <label class="encounter-gen-field">
+          <span class="encounter-gen-label-tip" tabindex="0">{{copy.concept.weaponProfile}}<span class="encounter-gen-tooltip" role="tooltip">{{copy.concept.weaponProfileHint}}</span></span>
+          <select class="js-eg-concept" data-field="weaponProfile">
+            {{#each weaponProfileOptions}}
+            <option value="{{this.value}}"{{#if this.selected}} selected{{/if}} title="{{this.description}}">{{this.label}}</option>
+            {{/each}}
+          </select>
+        </label>
+        <label class="encounter-gen-field">
+          <span class="encounter-gen-label-tip" tabindex="0">{{copy.concept.attackShape}}<span class="encounter-gen-tooltip" role="tooltip">{{copy.concept.attackShapeHint}}</span></span>
+          <select class="js-eg-concept" data-field="attackShape">
+            {{#each attackShapeOptions}}
+            <option value="{{this.value}}"{{#if this.selected}} selected{{/if}} title="{{this.description}}">{{this.label}}</option>
+            {{/each}}
+          </select>
+        </label>
+        <label class="encounter-gen-field">
+          <span class="encounter-gen-label-tip" tabindex="0">{{copy.concept.baseDamage}}<span class="encounter-gen-tooltip" role="tooltip">{{copy.concept.baseDamageHint}}</span></span>
+          <input type="number" class="js-eg-concept" data-field="baseDamageDice" min="0" max="16" value="{{concept.baseDamageDice}}"/>
+        </label>
+      </div>
+
+      <h4>{{copy.concept.valuesHeading}}</h4>
+      <p class="encounter-gen-note">{{copy.concept.valuesHint}}</p>
+      <div class="encounter-gen-form">
+        <label class="encounter-gen-field">
+          <span class="encounter-gen-label-tip" tabindex="0">{{copy.concept.hpOverride}}<span class="encounter-gen-tooltip" role="tooltip">0 = automatisch</span></span>
+          <input type="number" class="js-eg-concept" data-field="hpOverride" min="0" max="9999" value="{{concept.hpOverride}}"/>
+        </label>
+        <label class="encounter-gen-field">
+          <span class="encounter-gen-label-tip" tabindex="0">{{copy.concept.armorOverride}}<span class="encounter-gen-tooltip" role="tooltip">Kampf-Rüstung = MR (1–8). 0 = automatisch.</span></span>
+          <input type="number" class="js-eg-concept" data-field="armorOverride" min="0" max="8" value="{{concept.armorOverride}}"/>
+        </label>
+        <label class="encounter-gen-field">
+          <span class="encounter-gen-label-tip" tabindex="0">{{copy.concept.evadeOverride}}<span class="encounter-gen-tooltip" role="tooltip">0 = automatisch</span></span>
+          <input type="number" class="js-eg-concept" data-field="evadeOverride" min="0" max="40" value="{{concept.evadeOverride}}"/>
+        </label>
+      </div>
+
+      <h4>{{copy.concept.reactionsHeading}}</h4>
+      <p class="encounter-gen-note">{{copy.concept.reactionsBody}}</p>
+      <div class="encounter-gen-reactions">
+        {{#each reactionRows}}
+        <div class="encounter-gen-reaction-row">
+          <label class="encounter-gen-field">
+            <span>{{this.label}}</span>
+            <select class="js-eg-reaction" data-index="{{this.index}}" data-field="kind">
+              {{#each this.kindOptions}}
+              <option value="{{this.value}}"{{#if this.selected}} selected{{/if}} title="{{this.description}}">{{this.label}}</option>
+              {{/each}}
+            </select>
+          </label>
+          {{#if this.showName}}
+          <label class="encounter-gen-field encounter-gen-field--wide">
+            <span>Name</span>
+            <input type="text" class="js-eg-reaction" data-index="{{this.index}}" data-field="name" value="{{this.name}}" placeholder="z.B. Schildwall"/>
+          </label>
+          {{/if}}
+        </div>
+        {{/each}}
+      </div>
+
+      {{#if conceptPreview}}
+      <div class="encounter-gen-preview">
+        <h4>{{copy.concept.previewHeading}}</h4>
+        <ul>
+          <li>{{conceptPreview.countLabel}}</li>
+          <li>HP <strong>{{conceptPreview.hp}}</strong> · Rüstung/MR <strong>{{conceptPreview.armor}}</strong> · Ausweichen <strong>{{conceptPreview.evade}}</strong></li>
+          <li>{{conceptPreview.attacks}}</li>
+          <li>{{conceptPreview.reactions}}</li>
+        </ul>
+        <p class="encounter-gen-note">{{copy.concept.previewNote}}</p>
+      </div>
+      {{else}}
+      <p class="encounter-gen-note">{{copy.concept.previewNone}}</p>
+      {{/if}}
     </section>
     {{/if}}
 
@@ -192,6 +284,46 @@
     <section class="encounter-gen-step">
       <h3>{{copy.review.heading}}</h3>
       <p class="encounter-gen-prose">{{copy.review.body}}</p>
+
+      {{#if review.showKits}}
+      <div class="encounter-gen-kit-bar">
+        {{#each review.kitTabs}}
+        <button type="button" class="encounter-gen-kit-tab js-eg-kit-tab{{#if this.active}} is-active{{/if}}" data-kit="{{this.index}}">{{this.name}}</button>
+        {{/each}}
+      </div>
+      <label class="encounter-gen-field encounter-gen-field--wide">
+        <span>{{copy.review.kitName}}</span>
+        <input type="text" class="js-eg-kit-name" value="{{review.activeKitName}}"/>
+      </label>
+      {{else}}
+      {{#if review.copiesLabel}}
+      <p class="encounter-gen-note">{{review.copiesLabel}}</p>
+      {{/if}}
+      {{/if}}
+
+      {{#if review.reactions.length}}
+      <h4>{{copy.review.reactionsHeading}}</h4>
+      <div class="encounter-gen-reactions">
+        {{#each review.reactions}}
+        <div class="encounter-gen-reaction-row">
+          <label class="encounter-gen-field">
+            <span>{{this.label}}</span>
+            <select class="js-eg-review-reaction" data-index="{{this.index}}" data-field="kind">
+              {{#each this.kindOptions}}
+              <option value="{{this.value}}"{{#if this.selected}} selected{{/if}} title="{{this.description}}">{{this.label}}</option>
+              {{/each}}
+            </select>
+          </label>
+          {{#if this.showName}}
+          <label class="encounter-gen-field encounter-gen-field--wide">
+            <span>Name</span>
+            <input type="text" class="js-eg-review-reaction" data-index="{{this.index}}" data-field="name" value="{{this.name}}"/>
+          </label>
+          {{/if}}
+        </div>
+        {{/each}}
+      </div>
+      {{/if}}
 
       {{#each review.phases}}
       <div class="encounter-gen-statblock">

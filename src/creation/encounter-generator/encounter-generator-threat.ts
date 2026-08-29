@@ -40,6 +40,10 @@ export function buildThreatReport(
   const phase1 = plan.phasePlans[0];
   const cycle = phase1?.cycle.filter((c) => !c.isSummon) ?? [];
   const mr = plan.boss.mr;
+  const bodies =
+    plan.kitMode === 'distinct'
+      ? Math.max(1, plan.kits?.length || plan.bossCount || 1)
+      : Math.max(1, plan.bossCount || plan.concept?.bossCount || 1);
 
   const evades = party.members.map((m) => m.evade);
   const lowEvade = evades.length ? Math.min(...evades) : party.avgEvade;
@@ -91,7 +95,7 @@ export function buildThreatReport(
     ? cycle.reduce((a, c) => a + rowHit(c) * (c.special ? c.specialValue : 0) * rowTargets(c), 0) /
       cycle.length
     : 0;
-  let persistentPerRound = avgSpecialPerAction * damageActions;
+  let persistentPerRound = avgSpecialPerAction * damageActions * bodies;
   if (plan.environment?.special) {
     persistentPerRound += plan.environment.specialValue * 1.5; // ~1-2 PCs in zones
   }
@@ -108,8 +112,9 @@ export function buildThreatReport(
   const p90Hits = p90Total >= party.avgEvade ? damageActions : Math.round(damageActions * burstHit);
   const burstPerHitRaw = burstDice * EXPLODING_D8_MEAN * 1.3; // ~p90 of the dice
   const burst =
-    p90Hits * Math.max(0, (burstPerHitRaw - party.avgArmor) * (1 - drFraction)) +
-    p90Hits * avgSpecialValue;
+    (p90Hits * Math.max(0, (burstPerHitRaw - party.avgArmor) * (1 - drFraction)) +
+      p90Hits * avgSpecialValue) *
+    bodies;
 
   // Expected group damage per round (boss + adds + environment). AoE rows
   // multiply their per-target damage across ~2 affected PCs.
@@ -120,7 +125,7 @@ export function buildThreatReport(
         return a + rowHit(c) * (dmg + spec) * rowTargets(c);
       }, 0) / cycle.length
     : hitAvg * (afterArmorPerHit + avgSpecialValue);
-  const bossGroupDamage = damageActions * avgDamagePerAction;
+  const bossGroupDamage = damageActions * avgDamagePerAction * bodies;
   const addsRound3Attacks = plan.adds ? plan.adds.projectedAttacks[2] ?? 0 : 0;
   const addsGroupDamage = plan.adds ? addsRound3Attacks * plan.adds.design.threatPerAction : 0;
   let envGroupDamage = 0;
@@ -136,7 +141,7 @@ export function buildThreatReport(
   for (let r = 0; r < 5; r++) {
     const addActions = plan.adds ? plan.adds.projectedAttacks[r] ?? 0 : 0;
     const envActions = plan.environment?.actionsPerRound ?? 0;
-    enemyActionsByRound.push(actions + addActions + envActions);
+    enemyActionsByRound.push(actions * bodies + addActions + envActions);
   }
 
   // Expected duration: party DPS vs total enemy HP; adds soak player actions.
@@ -149,7 +154,7 @@ export function buildThreatReport(
     partyDps += hr * dmg * m.attacksPerRound;
   }
   partyDps = Math.max(1, partyDps);
-  const totalBossHp = plan.boss.phases.reduce((a, p) => a + p.hp, 0);
+  const totalBossHp = plan.boss.phases.reduce((a, p) => a + p.hp, 0) * bodies;
   const bossFocusShare = plan.adds ? 0.6 : plan.environment ? 0.85 : 1;
   const expectedDuration = totalBossHp / (partyDps * bossFocusShare);
 
@@ -160,7 +165,8 @@ export function buildThreatReport(
   );
   const lowestHlSize = Math.max(1, lowestPc.effectiveHP / Math.max(1, lowestPc.barCount));
   const hitLowest = hitRate(totals, lowestPc.evade ?? party.avgEvade);
-  const round1Expected = damageActions * hitLowest * afterArmorPerHit + hitLowest * avgSpecialValue * damageActions;
+  const round1Expected =
+    (damageActions * hitLowest * afterArmorPerHit + hitLowest * avgSpecialValue * damageActions) * bodies;
   const round1HL = round1Expected / lowestHlSize;
 
   // ── Warnings / recommendations ────────────────────────────────────────
@@ -196,8 +202,13 @@ export function buildThreatReport(
   }
   if (expectedDuration > 9) {
     warnings.push(`Erwartete Kampfdauer ~${Math.round(expectedDuration)} Runden — ggf. HP senken.`);
-  } else if (expectedDuration < 2.5) {
+  } else   if (expectedDuration < 2.5) {
     warnings.push(`Erwartete Kampfdauer unter 3 Runden — der Boss fällt evtl. um, bevor die Mechanik greift.`);
+  }
+  if (bodies > 1) {
+    warnings.push(
+      `${bodies} Hauptgegner handeln unabhängig — Action Economy und Fokus-Druck sind höher als bei einem einzelnen Boss.`,
+    );
   }
 
   return {

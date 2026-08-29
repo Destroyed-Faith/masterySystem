@@ -7,9 +7,11 @@
  */
 
 import type {
+  BossKitPlan,
   CyclePowerEntry,
   EncounterPlan,
   EncounterProjectPlan,
+  EncounterReactionDraft,
   EncounterSelection,
   EnemyPhaseStat,
   EnemyStatBlock,
@@ -17,6 +19,7 @@ import type {
   ThreatReport,
 } from './encounter-generator-types.js';
 import { specialLabel } from './encounter-generator-concept.js';
+import { NPC_STANDARD_REACTIONS, newNpcReactionId } from '../../utils/npc-reactions.js';
 
 declare const Folder: any;
 declare const Actor: any;
@@ -252,11 +255,56 @@ function tacticsHtml(plan: EncounterProjectPlan): string {
   return lines.join('');
 }
 
+export function conceptReactionsToNpcRows(reactions: EncounterReactionDraft[] | undefined): Record<string, unknown>[] {
+  return (reactions ?? [])
+    .filter((r) => r.kind && r.kind !== 'none')
+    .map((r) => {
+      if (r.kind === 'custom') {
+        return {
+          id: newNpcReactionId(),
+          name: r.name.trim() || 'Reaktion',
+          source: 'custom',
+          specials: [],
+        };
+      }
+      const std = NPC_STANDARD_REACTIONS.find((s) => s.id === r.kind);
+      return {
+        id: newNpcReactionId(),
+        name: r.name.trim() || std?.name || r.kind,
+        source: 'basic',
+        basicId: r.kind,
+        specials: [],
+      };
+    });
+}
+
+function applyReactionsToSystem(
+  system: Record<string, unknown>,
+  reactions: EncounterReactionDraft[] | undefined,
+): void {
+  const rows = conceptReactionsToNpcRows(reactions);
+  system.npcReactionSlots = rows.length;
+  system.npcReactions = rows;
+  const phases = system.phases;
+  if (Array.isArray(phases)) {
+    for (const phase of phases) {
+      if (phase && typeof phase === 'object') {
+        (phase as Record<string, unknown>).npcReactionSlots = rows.length;
+        (phase as Record<string, unknown>).npcReactions = rows;
+      }
+    }
+  }
+}
+
 /** Build the boss actor `system` payload from a concept plan. */
-export function buildProjectBossSystem(plan: EncounterProjectPlan): Record<string, unknown> {
-  const boss = plan.boss;
-  const primary = plan.phasePlans[0];
-  const primaryRows = primary.cycle.map(cycleEntryToAttackRow);
+export function buildProjectBossSystem(
+  plan: EncounterProjectPlan,
+  kit?: BossKitPlan,
+): Record<string, unknown> {
+  const boss = kit?.boss ?? plan.boss;
+  const phasePlans = kit?.phasePlans ?? plan.phasePlans;
+  const primary = phasePlans[0];
+  const primaryRows = (primary?.cycle ?? []).map(cycleEntryToAttackRow);
 
   const attributes = {
     might: { value: 2, stones: 0 },
@@ -270,7 +318,7 @@ export function buildProjectBossSystem(plan: EncounterProjectPlan): Record<strin
 
   const primaryAprSum = Math.max(
     1,
-    primary.cycle
+    (primary?.cycle ?? [])
       .filter((c) => !c.isSummon)
       .reduce((s, c) => s + Math.min(5, Math.max(1, Math.floor(Number(c.attacksPerRound) || 1))), 0),
   );
@@ -289,8 +337,8 @@ export function buildProjectBossSystem(plan: EncounterProjectPlan): Record<strin
     bio: { description: tacticsHtml(plan) },
   };
 
-  if (plan.phasePlans.length > 1) {
-    system.phases = plan.phasePlans.map((phase) => {
+  if (phasePlans.length > 1) {
+    system.phases = phasePlans.map((phase) => {
       const rows = phase.cycle.map(cycleEntryToAttackRow);
       return {
         name: phase.name,
@@ -303,7 +351,30 @@ export function buildProjectBossSystem(plan: EncounterProjectPlan): Record<strin
     });
   }
 
+  applyReactionsToSystem(system, kit?.reactions ?? plan.concept.reactions);
   return system;
+}
+
+/** Actors that will be written into the Boss folder. */
+export function listEncounterBossPayloads(
+  folderName: string,
+  plan: EncounterProjectPlan,
+): Array<{ name: string; system: Record<string, unknown> }> {
+  const trimmed = folderName.trim() || 'Encounter';
+  const count = Math.max(1, Math.round(plan.bossCount || plan.concept.bossCount || 1));
+  if (plan.kitMode === 'distinct' && Array.isArray(plan.kits) && plan.kits.length > 1) {
+    return plan.kits.map((kit, index) => ({
+      name: String(kit.name || '').trim() || `${trimmed} ${index + 1}`,
+      system: buildProjectBossSystem(plan, kit),
+    }));
+  }
+  const kit = plan.kits?.[0];
+  const system = buildProjectBossSystem(plan, kit);
+  if (count <= 1) return [{ name: trimmed, system }];
+  return Array.from({ length: count }, (_, index) => ({
+    name: `${trimmed} ${index + 1}`,
+    system,
+  }));
 }
 
 /** Build the add prototype actor `system` payload. */
@@ -432,6 +503,7 @@ export function buildNpcSheetHtml(name: string, plan: EncounterProjectPlan): str
   parts.push('<h3>Seite 1 — Werte &amp; Defensive</h3>');
   parts.push('<table><tbody>');
   parts.push(`<tr><td>Mastery Rank</td><td>${boss.mr}</td></tr>`);
+  parts.push(`<tr><td>Hauptgegner</td><td>${Math.max(1, plan.bossCount || 1)}× ${plan.kitMode === 'distinct' ? 'eigene Kits' : 'identisch'}</td></tr>`);
   parts.push(`<tr><td>Aktionen/Runde</td><td>${plan.phasePlans[0].actionsPerRound}</td></tr>`);
   parts.push(`<tr><td>Bewegung</td><td>${boss.speed} m</td></tr>`);
   for (const p of plan.phasePlans) {
@@ -468,6 +540,8 @@ export function buildSummaryHtml(
   parts.push(
     `<p>Rank: <strong>${plan.concept.rank}</strong> · Style: <strong>${plan.concept.style}</strong>` +
     ` · Primary Special: <strong>${plan.concept.primarySpecial === 'none' ? '—' : specialLabel(plan.concept.primarySpecial)}</strong>` +
+    ` · Hauptgegner: <strong>${Math.max(1, plan.bossCount || 1)}</strong>` +
+    ` (${plan.kitMode === 'distinct' ? 'unterschiedliche Kits' : 'gleiche Kits'})` +
     ` · Phasen: <strong>${plan.phasePlans.length}</strong> · Gruppe: ${party.size} Charaktere (Median MR ${party.medianMR})</p>`,
   );
 
@@ -566,13 +640,15 @@ export async function applyEncounterProject(
   };
 
   const docs: Record<string, unknown>[] = [];
-  docs.push({
-    name: trimmed,
-    type: 'npc',
-    folder: bossFolder?.id ?? root.id,
-    system: buildProjectBossSystem(plan),
-    flags: { 'mastery-system': { encounter: { ...flag, role: 'boss', phases: plan.phasePlans.length } } },
-  });
+  for (const payload of listEncounterBossPayloads(trimmed, plan)) {
+    docs.push({
+      name: payload.name,
+      type: 'npc',
+      folder: bossFolder?.id ?? root.id,
+      system: payload.system,
+      flags: { 'mastery-system': { encounter: { ...flag, role: 'boss', phases: plan.phasePlans.length } } },
+    });
+  }
 
   const addSystem = buildProjectAddSystem(plan);
   if (addSystem && addsFolder) {
