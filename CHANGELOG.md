@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.422] - 2026-08-29
+
+### Fixed
+
+- **Encounter Generator:** Archetype presets include the new loadout fields so the production build (and the release ZIP) succeeds.
+
 ## [0.9.421] - 2026-08-29
 
 ### Changed

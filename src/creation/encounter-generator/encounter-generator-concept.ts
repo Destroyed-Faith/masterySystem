@@ -1115,7 +1115,7 @@ export const ARCHETYPE_PRESETS: ArchetypePreset[] = [
     id: 'ruin-spellcaster',
     label: 'Ruin Spellcaster',
     description: 'Verlässlicher, rüstungsignorierender Druck über Ruin.',
-    concept: {
+    concept: normalizeConcept({
       rank: 'major',
       style: 'spell',
       primarySpecial: 'ruin',
@@ -1127,13 +1127,13 @@ export const ARCHETYPE_PRESETS: ArchetypePreset[] = [
       cycleStyle: 'fixed',
       adds: defaultAdds(),
       environmentActionsPerRound: 2,
-    },
+    }),
   },
   {
     id: 'burning-portal',
     label: 'Das brennende Zaubertor',
     description: 'Phasen- und Umgebungskampf: Zonen tragen das Budget.',
-    concept: {
+    concept: normalizeConcept({
       rank: 'major',
       style: 'environmental',
       primarySpecial: 'ruin',
@@ -1145,13 +1145,13 @@ export const ARCHETYPE_PRESETS: ArchetypePreset[] = [
       cycleStyle: 'phase-based',
       adds: defaultAdds({ enabled: true, durability: 'light', pressure: 'noticeable', targetActive: 2, spawnPerRound: 1, spawnPattern: 'phase-start' }),
       environmentActionsPerRound: 2,
-    },
+    }),
   },
   {
     id: 'red-priest',
     label: 'Der rote Priester',
     description: 'Summoner: die Hunde-Action-Economy ist die Bedrohung.',
-    concept: {
+    concept: normalizeConcept({
       rank: 'standard',
       style: 'summoner',
       primarySpecial: 'ruin',
@@ -1163,13 +1163,13 @@ export const ARCHETYPE_PRESETS: ArchetypePreset[] = [
       cycleStyle: 'conditional',
       adds: defaultAdds({ enabled: true, durability: 'minion', pressure: 'dangerous', targetActive: 6, maxActive: 6, spawnPerRound: 2, spawnPattern: 'continuous', summonCostsBossAction: true }),
       environmentActionsPerRound: 2,
-    },
+    }),
   },
   {
     id: 'kerkermeister',
     label: 'Der Kerkermeister',
     description: 'Martial Attrition Striker: Lacerate, Single-Target-Druck.',
-    concept: {
+    concept: normalizeConcept({
       rank: 'major',
       style: 'martial',
       primarySpecial: 'lacerate',
@@ -1181,13 +1181,13 @@ export const ARCHETYPE_PRESETS: ArchetypePreset[] = [
       cycleStyle: 'fixed',
       adds: defaultAdds(),
       environmentActionsPerRound: 2,
-    },
+    }),
   },
   {
     id: 'samael',
     label: 'Samael (Mythic)',
     description: 'Drei Profile hintereinander: Kontrolle → Direktkampf → Eskalation.',
-    concept: {
+    concept: normalizeConcept({
       rank: 'mythic',
       style: 'hybrid',
       primarySpecial: 'ruin',
@@ -1199,7 +1199,7 @@ export const ARCHETYPE_PRESETS: ArchetypePreset[] = [
       cycleStyle: 'phase-based',
       adds: defaultAdds({ enabled: true, durability: 'standard', pressure: 'noticeable', targetActive: 2, spawnPerRound: 1, spawnPattern: 'phase-start' }),
       environmentActionsPerRound: 2,
-    },
+    }),
   },
 ];
 
