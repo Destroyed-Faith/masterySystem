@@ -1636,7 +1636,7 @@
                             <td class="power-aoe-cell">{{renderAoe this.aoe}}</td>
                             <td class="power-duration-cell">{{renderDuration this.duration}}</td>
                             <td class="power-effect-cell">{{mdInline this.effect.text}}</td>
-                            <td class="power-specials-cell">{{powerSpecials this.specials}}</td>
+                            <td class="power-specials-cell">{{powerSpecials this.specials ../../this.system.chosenSpecial.key}}</td>
                             {{#if (or (eq ../../this.system.category 'reaction') ../../this.system.trigger)}}
                             <td class="power-trigger-cell">{{default this.trigger ../../this.system.trigger '—'}}</td>
                             {{/if}}
@@ -1832,7 +1832,7 @@
                           <td class="power-aoe-cell">{{renderAoe this.aoe}}</td>
                           <td class="power-duration-cell">{{renderDuration this.duration}}</td>
                           <td class="power-effect-cell">{{mdInline this.effect.text}}</td>
-                          <td class="power-specials-cell">{{powerSpecials this.specials}}</td>
+                          <td class="power-specials-cell">{{powerSpecials this.specials ../../this.system.chosenSpecial.key}}</td>
                           {{#if (or (eq ../../this.system.category 'reaction') ../../this.system.trigger)}}
                           <td class="power-trigger-cell">{{default this.trigger ../../this.system.trigger '—'}}</td>
                           {{/if}}

@@ -386,6 +386,21 @@
       "naturalRecoveryHint": "At the start of your turn, after Ticks, reduce negative Diminishing Specials by a total of your Mastery Rank ({rank}). Distribute freely. Unused reduction is lost.",
       "naturalRecoveryNone": "None"
     },
+    "knownNpcs": {
+      "title": "Important NPCs",
+      "expand": "Show important NPCs",
+      "collapse": "Hide important NPCs",
+      "release": "Show to players",
+      "hide": "Hide from players",
+      "search": "Search NPCs",
+      "gmHint": "Released NPCs appear on the player portrait bar with name. Players can click a portrait to enlarge it.",
+      "gmOnly": "Only the GM can choose which NPCs players see.",
+      "openFailed": "Important NPCs menu could not be opened.",
+      "emptyWorld": "No NPC actors in this world.",
+      "hiddenHeading": "Not shown to players",
+      "sheetLabel": "Players",
+      "sheetHint": "Show this NPC’s portrait and name on the player bar"
+    },
     "weaponSets": {
       "groupLabel": "Weaponslots",
       "actionName": "Weapon Swap",
@@ -400,7 +415,8 @@
         "whenActivated": "When activated",
         "whenActivatedHint": "These values and abilities unlock when you activate this artifact.",
         "nextLevel": "Next: Level {level}",
-        "nextLevelHint": "Unlocked when you raise this artifact."
+        "nextLevelHint": "Unlocked when you raise this artifact.",
+        "imgAlt": "Alternative image"
       }
     }
   },

@@ -1,6 +1,11 @@
 <div class="artifact-sheet-v2 {{cssClass}}">
   <header class="artifact-card-header">
-    <img class="profile-img" src="{{item.img}}" title="{{item.name}}" height="56" width="56"/>
+    <img class="profile-img" src="{{item.img}}" title="{{item.name}}" height="56" width="56" data-action="popout-img"/>
+    {{#if imgAlt}}
+    <img class="profile-img profile-img-alt" src="{{imgAlt}}" title="{{labels.imgAlt}}" height="56" width="56" data-action="popout-img-alt"/>
+    {{else if isGM}}
+    <button type="button" class="artifact-card-img-alt-add" data-action="edit-img-alt" title="{{labels.imgAlt}}">+</button>
+    {{/if}}
     <div class="artifact-card-title">
       <h1 class="artifact-card-name">{{item.name}}</h1>
       <div class="artifact-summary-meta">

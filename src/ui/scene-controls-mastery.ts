@@ -6,6 +6,8 @@
 import { StonePowersDialog } from '../stones/stone-powers-dialog.js';
 import { startDivineClash, revealDivineClash, endRoundDivineClash, resetDivineClash } from '../divine-clash/divine-clash.js';
 import { confirmAndApplySafeHavenRestToAllCharacters } from '../utils/safe-haven-rest.js';
+import { UnluckGmDialog } from './unluck-gm-dialog.js';
+import { KnownNpcsGmDialog } from './known-npcs-gm-dialog.js';
 
 /**
  * Resolve combatant for active actor
@@ -80,12 +82,40 @@ async function handlePartySafeHavenRest() {
   }
 }
 
+async function handleUnluckMenu() {
+  if (!game.user?.isGM) {
+    ui.notifications?.warn('Only the GM can open the Unluck menu');
+    return;
+  }
+  try {
+    await UnluckGmDialog.open();
+  } catch (err) {
+    console.error('Mastery System | [ERROR] Unluck menu failed', err);
+    ui.notifications?.error('Unluck menu failed - see console');
+  }
+}
+
+async function handleKnownNpcsMenu() {
+  if (!game.user?.isGM) {
+    ui.notifications?.warn('Only the GM can choose which NPCs players see');
+    return;
+  }
+  try {
+    await KnownNpcsGmDialog.open();
+  } catch (err) {
+    console.error('Mastery System | [ERROR] Important NPCs menu failed', err);
+    ui.notifications?.error('Important NPCs menu failed - see console');
+  }
+}
+
 const MASTERY_TOOL_HANDLERS: Record<string, () => void> = {
   divineClashStart: handleDivineClashStart,
   divineClashReveal: handleDivineClashReveal,
   divineClashEndRound: handleDivineClashEndRound,
   divineClashReset: handleDivineClashReset,
   safeHavenRestAll: handlePartySafeHavenRest,
+  unluckMenu: handleUnluckMenu,
+  knownNpcsMenu: handleKnownNpcsMenu,
 };
 
 /**
@@ -204,6 +234,32 @@ export function initializeSceneControls(): void {
           handlePartySafeHavenRest();
         },
         button: true
+      },
+      {
+        name: 'unluckMenu',
+        title: 'Unluck / Misfortune',
+        icon: 'fas fa-cloud-moon',
+        visible: !!(game as any).user?.isGM,
+        onClick: () => {
+          handleUnluckMenu();
+        },
+        activate: () => {
+          handleUnluckMenu();
+        },
+        button: true
+      },
+      {
+        name: 'knownNpcsMenu',
+        title: 'Important NPCs',
+        icon: 'fas fa-id-badge',
+        visible: !!(game as any).user?.isGM,
+        onClick: () => {
+          handleKnownNpcsMenu();
+        },
+        activate: () => {
+          handleKnownNpcsMenu();
+        },
+        button: true
       }
     ];
     // Add Mastery group directly to controls object
@@ -285,7 +341,7 @@ export function initializeSceneControls(): void {
         }
         
         // Check if buttons already exist
-        const existingButtons = masteryToolsContainer.querySelectorAll('[data-tool="divineClashStart"], [data-tool="divineClashReveal"], [data-tool="divineClashEndRound"], [data-tool="divineClashReset"], [data-tool="safeHavenRestAll"]');
+        const existingButtons = masteryToolsContainer.querySelectorAll('[data-tool="divineClashStart"], [data-tool="divineClashReveal"], [data-tool="divineClashEndRound"], [data-tool="divineClashReset"], [data-tool="safeHavenRestAll"], [data-tool="unluckMenu"], [data-tool="knownNpcsMenu"]');
         if (existingButtons.length > 0) {
           return true;
         }
@@ -297,7 +353,11 @@ export function initializeSceneControls(): void {
           { name: 'divineClashEndRound', title: 'Divine Clash: End Round', icon: 'fas fa-hourglass-end', handler: handleDivineClashEndRound },
           { name: 'divineClashReset', title: 'Divine Clash: Reset', icon: 'fas fa-trash', handler: handleDivineClashReset },
           ...(isGM
-            ? [{ name: 'safeHavenRestAll', title: 'Safe Haven Rest — All Characters', icon: 'fas fa-bed', handler: handlePartySafeHavenRest }]
+            ? [
+                { name: 'safeHavenRestAll', title: 'Safe Haven Rest — All Characters', icon: 'fas fa-bed', handler: handlePartySafeHavenRest },
+                { name: 'unluckMenu', title: 'Unluck / Misfortune', icon: 'fas fa-cloud-moon', handler: handleUnluckMenu },
+                { name: 'knownNpcsMenu', title: 'Important NPCs', icon: 'fas fa-id-badge', handler: handleKnownNpcsMenu },
+              ]
             : []),
         ];
         

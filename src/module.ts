@@ -8,6 +8,7 @@ import { ArtifactSheetV2 } from './sheets/artifact-sheet-v2.js';
 // Combat hooks are imported dynamically to avoid build errors if dist/combat doesn't exist yet
 // import { initializeCombatHooks } from '../dist/combat/initiative.js';
 import { calculateStones } from './utils/calculations.js';
+import { renderSpecials } from './utils/power-rendering.js';
 import {
   NPC_EXTRA_POWERS_UPDATE,
   preserveNpcExtraPowersInSystemUpdate,
@@ -49,6 +50,10 @@ import {
   registerPhasingSettings,
 } from './combat/phasing.js';
 import { registerStressBreakdownSettings } from './combat/stress-breakdown.js';
+import { registerMisfortuneTokenSettings } from './system/misfortune-tokens.js';
+import { registerUnluckSettings } from './system/unluck.js';
+import { registerKnownNpcSettings } from './system/known-npcs.js';
+import { initializeKnownNpcsBar } from './ui/known-npcs-bar.js';
 import { initializeEncounterStart, beginEncounter, launchLiveCombat } from './combat/encounter-start.js';
 import {
   buildEncounterSetupStatus,
@@ -167,6 +172,9 @@ function registerAllMasteryInitSettings(): void {
   registerSpeed8mMigrationSetting();
   registerSummonV2MigrationSetting();
   registerStressBreakdownSettings();
+  registerMisfortuneTokenSettings();
+  registerUnluckSettings();
+  registerKnownNpcSettings();
 }
 
 /**
@@ -277,6 +285,7 @@ Hooks.once('init', async function() {
   initializeSceneControls();
   initializeTokenHUDButton();
   initializeSceneEditor();
+  initializeKnownNpcsBar();
 
   // GM-only "Encounter erzeugen" button in the Actors directory header.
   Hooks.on('renderActorDirectory', (_app: any, html: any) => {
@@ -1337,20 +1346,10 @@ function registerHandlebarsHelpersImmediate() {
     return damage;
   });
 
-  // Helper to format specials display
-  Handlebars.registerHelper('powerSpecials', function(specials: string[] | any[]) {
-    if (!specials || !Array.isArray(specials) || specials.length === 0) return '—';
-    // Support both old (string[]) and new (PowerSpecial[]) structures
-    if (typeof specials[0] === 'string') {
-      return specials.join(', ');
-    }
-    // New structure: PowerSpecial[]
-    return specials.map((spec: any) => {
-      if (spec.value !== undefined) {
-        return `${spec.key}(${spec.value})`;
-      }
-      return spec.key;
-    }).join(', ');
+  // Helper to format specials display — Ruin(3), Root(2), not a bare "ruin"
+  Handlebars.registerHelper('powerSpecials', function (specials: string[] | any[], chosenKey?: string) {
+    const key = typeof chosenKey === 'string' ? chosenKey : undefined;
+    return renderSpecials(specials, key);
   });
 
   // Helper to render RangeSpec
@@ -2254,6 +2253,9 @@ async function preloadTemplates() {
     'systems/mastery-system/templates/import/character-import-dialog.hbs',
     'systems/mastery-system/templates/dialogs/ritual-workshop.hbs',
     'systems/mastery-system/templates/dialogs/minor-magic.hbs',
+    'systems/mastery-system/templates/ui/unluck-gm-dialog.hbs',
+    'systems/mastery-system/templates/ui/known-npcs-bar.hbs',
+    'systems/mastery-system/templates/ui/known-npcs-gm-dialog.hbs',
   ];
   
   try {
@@ -2910,6 +2912,15 @@ Hooks.once('ready', async function () {
     }
   } catch (err) {
     console.warn('Mastery System | weapon set init on ready failed', err);
+  }
+});
+
+Hooks.once('ready', async function () {
+  try {
+    const { maybeAutoRollUnluckOnReady } = await import('./ui/unluck-gm-dialog.js');
+    await maybeAutoRollUnluckOnReady();
+  } catch (err) {
+    console.warn('Mastery System | Unluck auto-roll on ready failed', err);
   }
 });
 

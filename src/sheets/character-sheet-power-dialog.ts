@@ -480,7 +480,7 @@ function renderEntryDetails(entry: CatalogEntry, $description: JQuery, $levelTab
     $description.text(raw.description || raw.fluff || '');
     if (raw.levels && typeof raw.levels === 'object' && !Array.isArray(raw.levels)) {
         const showTrigger = raw.category === 'reaction' || Object.values(raw.levels).some((l: any) => l?.trigger);
-        $levelTable.html(renderPowerLevelTable(raw.levels, showTrigger));
+        $levelTable.html(renderPowerLevelTable(raw.levels, showTrigger, entry.chosenSpecial?.key));
     } else {
         $levelTable.empty();
     }

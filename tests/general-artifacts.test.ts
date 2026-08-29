@@ -10,7 +10,7 @@ import {
   resolveFullLevelProgression,
 } from '../src/utils/artifact-visible-abilities.js';
 import { buildEchoProgressionPicks } from '../src/utils/echo-artifacts.js';
-import { getEchoArtifactIcon } from '../src/utils/item-icons.js';
+import { getEchoArtifactAltIcon, getEchoArtifactIcon } from '../src/utils/item-icons.js';
 
 /**
  * The Level Progression the tree builder actually emits for a general artifact:
@@ -559,35 +559,51 @@ describe('Shadowgrave Armor', () => {
     expect(sys.stoneFunction.stonePowerId).toBe('vitality.tempHp');
   });
 
-  it('Deathly Reprisal is a Reaction (L2/5/8)', () => {
+  it('builds its three lines from standard Powers (Shadow Shell + Reprisal + Hands)', () => {
     const def = getGeneralArtifact('shadowgraveArmor')!;
+    const picks = buildEchoProgressionPicks(def) as any[];
+    expect(picks[0].kind).toBe('stoneFunction');
+    expect(picks[1]).toMatchObject({
+      kind: 'power',
+      powerTemplateId: 'reaction-counter-damage-push',
+    });
+    expect(picks[2]).toMatchObject({
+      kind: 'power',
+      powerTemplateId: 'active-ranged-aoe-damage-t5',
+      delivery: 'ranged-aoe',
+      chosenSpecial: { key: 'root', tier: 5 },
+    });
+    expect(picks.every((p: any) => p.kind !== 'authored')).toBe(true);
+
+    const byLevel = new Map(resolvedProgression(def).map((r: any) => [r.level, r]));
+    for (const lvl of [1, 4, 7]) expect((byLevel.get(lvl) as any).name).toMatch(/Shadow Shell/);
     for (const lvl of [2, 5, 8]) {
-      const row = def.levelProgression[lvl - 1];
+      const row = byLevel.get(lvl) as any;
       expect(row.name).toMatch(/Deathly Reprisal/);
       expect(row.type).toBe('Reaction');
     }
-    const reprisal = sysAt(tree, 5).powers.find((p: any) => /Deathly Reprisal/.test(p.name));
-    expect(reprisal.category).toBe('reaction');
-  });
-
-  it('Hands of the Grave is a ranged AoE control Active (L3/6/9)', () => {
-    const def = getGeneralArtifact('shadowgraveArmor')!;
-    const ranges = { 3: '20 m', 6: '44 m', 9: '68 m' } as Record<number, string>;
-    const radii = { 3: 'Radius 3 m', 6: 'Radius 5 m', 9: 'Radius 7 m' } as Record<number, string>;
+    const ranges = { 3: '20m', 6: '44m', 9: '68m' } as Record<number, string>;
+    const radii = { 3: 'Radius 3m', 6: 'Radius 5m', 9: 'Radius 7m' } as Record<number, string>;
     for (const lvl of [3, 6, 9]) {
-      const row = def.levelProgression[lvl - 1];
+      const row = byLevel.get(lvl) as any;
       expect(row.name).toMatch(/Hands of the Grave/);
-      expect(row.type).toBe('Active');
+      expect(row.type).toBe('Ranged AoE');
       expect(row.range).toBe(ranges[lvl]);
       expect(row.aoe).toBe(radii[lvl]);
+      expect(row.special).toMatch(/root/i);
     }
+    expect((byLevel.get(10) as any).name).toBe('True Shadowgrave Armor');
+
+    const reprisal = sysAt(tree, 5).powers.find((p: any) => /Deathly Reprisal/.test(p.name));
+    expect(reprisal.category).toBe('reaction');
     const hands = sysAt(tree, 6).powers.find((p: any) => /Hands of the Grave/.test(p.name));
     expect(hands.category).toBe('active');
   });
 
   it('no longer defines the old "Grave Call" melee active', () => {
     const def = getGeneralArtifact('shadowgraveArmor')!;
-    expect(def.levelProgression.some((r) => /Grave Call/.test(r.name))).toBe(false);
+    const names = resolvedProgression(def).map((r: any) => r.name).join(' ');
+    expect(names).not.toMatch(/Grave Call/);
   });
 });
 
@@ -601,6 +617,15 @@ describe('Staff of the Dark', () => {
     // Gear kind → the radial menu never builds a weapon attack for it.
     expect(sys.artifactKind).toBe('gear');
     expect(sys.artifactWeapon).toBeUndefined();
+  });
+
+  it('uses the Nethrion staff render and the combined magic alternative image', () => {
+    expect(getEchoArtifactIcon('staffOfTheDark')).toMatch(/StaffOfNethrion_Render\.png/);
+    expect(tree.nodes[0].itemData.img).toBe(getEchoArtifactIcon('staffOfTheDark'));
+    expect(getEchoArtifactAltIcon('staffOfTheDark')).toMatch(/StaffOfNethrion_RenderMagic\.png/);
+    for (const node of tree.nodes) {
+      expect((node.itemData.system as any).imgAlt).toBe(getEchoArtifactAltIcon('staffOfTheDark'));
+    }
   });
 
   it('Spell Focus Bonus scales +3d8 (L1) → +12d8 (L10), 1:1 one-handed weapon damage', () => {
@@ -620,6 +645,52 @@ describe('Staff of the Dark', () => {
     expect(baseValue(tree, 10, 'Hex').value).toBe(5);
   });
 
+  it('builds its three lines from catalog Spells (Melee AoE Hex + Ranged Single + Ruin)', () => {
+    const def = getGeneralArtifact('staffOfTheDark')!;
+    const picks = buildEchoProgressionPicks(def) as any[];
+    expect(picks[0]).toMatchObject({
+      kind: 'power',
+      powerTemplateId: 'active-melee-aoe-damage-t5',
+      delivery: 'melee-aoe',
+      chosenSpecial: { key: 'hex', tier: 5 },
+      isSpell: true,
+    });
+    expect(picks[1]).toMatchObject({
+      kind: 'power',
+      powerTemplateId: 'active-ranged-weapon-single',
+      isSpell: true,
+    });
+    expect(picks[2]).toMatchObject({
+      kind: 'power',
+      powerTemplateId: 'active-ranged-damage-t4',
+      delivery: 'ranged-single',
+      chosenSpecial: { key: 'ruin', tier: 4 },
+      isSpell: true,
+    });
+    expect(picks.every((p: any) => p.kind !== 'authored')).toBe(true);
+
+    const byLevel = new Map(resolvedProgression(def).map((r: any) => [r.level, r]));
+    for (const lvl of [1, 4, 7]) {
+      const row = byLevel.get(lvl) as any;
+      expect(row.name).toMatch(/Might of the Dark/);
+      expect(row.type).toBe('Melee AoE');
+      expect(row.special).toMatch(/hex/i);
+    }
+    for (const lvl of [2, 5, 8]) {
+      const row = byLevel.get(lvl) as any;
+      expect(row.name).toMatch(/Life Taken/);
+      expect(row.type).toBe('Ranged');
+      expect(row.effect).toMatch(/7d8|17d8|27d8/);
+    }
+    for (const lvl of [3, 6, 9]) {
+      const row = byLevel.get(lvl) as any;
+      expect(row.name).toMatch(/Vision of the End/);
+      expect(row.special).toMatch(/ruin/i);
+      expect(row.special).not.toMatch(/soulburn/i);
+    }
+    expect((byLevel.get(10) as any).name).toBe('True Staff of the Dark');
+  });
+
   it('Life Taken is a spell active', () => {
     const lifeTaken = sysAt(tree, 5).powers.find((p: any) => /Life Taken/.test(p.name));
     expect(lifeTaken).toBeTruthy();
@@ -627,18 +698,21 @@ describe('Staff of the Dark', () => {
     expect(lifeTaken.category).toBe('active');
   });
 
-  it('Vision of the End is an Active Spell with Soulburn', () => {
+  it('Vision of the End is an Active Spell with Ruin', () => {
     const vision = sysAt(tree, 6).powers.find((p: any) => /Vision of the End/.test(p.name));
     expect(vision).toBeTruthy();
     expect(vision.category).toBe('active');
     expect(vision.tags).toContain('spell');
   });
 
-  it('Might of the Dark is the Level 1 Active Spell (Hex)', () => {
+  it('Might of the Dark is a Melee AoE Hex Spell', () => {
     const might = sysAt(tree, 1).powers.find((p: any) => /Might of the Dark/.test(p.name));
     expect(might).toBeTruthy();
     expect(might.category).toBe('active');
     expect(might.tags).toContain('spell');
+    const row = sysAt(tree, 1).levelProgression.find((r: any) => /Might of the Dark/.test(r.name));
+    expect(row.type).toBe('Melee AoE');
+    expect(row.special).toMatch(/hex/i);
   });
 });
 
@@ -665,6 +739,15 @@ describe('Starfallen Forceshield', () => {
 describe('Lantern of the Hollow Star', () => {
   const tree = buildEchoArtifactTree(getGeneralArtifact('lanternOfTheHollowStar')!);
 
+  it('uses the Nethrion lantern render and the combined magic alternative image', () => {
+    expect(getEchoArtifactIcon('lanternOfTheHollowStar')).toMatch(/Lantern%20of%20Nethrion\.png/);
+    expect(tree.nodes[0].itemData.img).toBe(getEchoArtifactIcon('lanternOfTheHollowStar'));
+    expect(getEchoArtifactAltIcon('lanternOfTheHollowStar')).toBe(getEchoArtifactAltIcon('staffOfTheDark'));
+    for (const node of tree.nodes) {
+      expect((node.itemData.system as any).imgAlt).toBe(getEchoArtifactAltIcon('lanternOfTheHollowStar'));
+    }
+  });
+
   it('occupies the amulet slot with no Base Values at any level', () => {
     const sys = sysAt(tree, 1);
     expect(sys.slot).toBe('amulet');
@@ -675,18 +758,21 @@ describe('Lantern of the Hollow Star', () => {
     }
   });
 
-  it('carries a Resolve Stone Battery function from L1', () => {
-    expect(sysAt(tree, 1).stoneFunction).toEqual({
-      kind: 'stoneBattery',
-      attribute: 'resolve',
-    });
+  it('carries three Resolve Stone Functions: Battery, Pool, Recovery', () => {
+    const picks = sysAt(tree, 3).progressionPicks;
+    expect(picks.map((p: any) => [p.level, p.kind, p.stoneFunction?.kind, p.displayName])).toEqual([
+      [1, 'stoneFunction', 'stoneBattery', 'Stone Battery'],
+      [2, 'stoneFunction', 'stonePool', 'Resolve Pool'],
+      [3, 'stoneFunction', 'stoneRefresh', 'Recovery'],
+    ]);
   });
 
-  it('progression covers Stone Battery / Lantern Glow / Soul Reserve stages', () => {
+  it('progression is Battery / Resolve Pool / Recovery — not Glow or Soul Reserve', () => {
     const l3 = sysAt(tree, 3).levelProgression.map((r: any) => r.name);
-    expect(l3).toEqual(['Stone Battery I', 'Lantern Glow I', 'Soul Reserve I']);
+    expect(l3).toEqual(['Stone Battery I', 'Resolve Pool I', 'Recovery I']);
     const l10 = sysAt(tree, 10).levelProgression.map((r: any) => r.name);
-    expect(l10).toEqual(['Stone Battery III', 'Lantern Glow III', 'Soul Reserve III', 'True Hollow Star']);
+    expect(l10).toEqual(['Stone Battery III', 'Resolve Pool III', 'Recovery III', 'True Hollow Star']);
+    expect(l3.join(' ')).not.toMatch(/Glow|Soul Reserve/i);
   });
 });
 

@@ -4,6 +4,22 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.414] - 2026-08-29
+
+### Added
+
+- **Unluck / Misfortune:** Session-start Unluck is rolled automatically for the GM (Rank 1 = 1d8/2, Rank 2 = 1d8, Rank 3 = 2d8). A GM menu on the Mastery scene toolbar shows the pool, last rolls, spend reasons, and Start / Roll again / New session.
+- **Important NPCs:** Players get a portrait bar (name + click-to-enlarge). The GM releases who appears, from the Mastery toolbar or the NPC sheet.
+- **Artifact Progression:** Artifact cards are spaced and show flavor + abilities at the top. Upgrade (level 2+, 8 XP) is disabled when you do not have the XP.
+- **Artifact alternative image:** Every artifact can carry a second portrait (`imgAlt`). Staff of the Dark and Lantern of the Hollow Star use the Nethrion renders, plus the combined magic picture as the alternative.
+
+### Fixed
+
+- **Power tables:** Expanded power preview now shows the real Special and its rank (`Ruin(3)`, `Root(2)`), not a lowercase name without parentheses.
+- **Lantern of the Hollow Star:** Three Stone Functions as written — L1 Resolve Battery, L2 fixed Resolve Pool, L3 Recovery. Glow / Soul Reserve extra tracks are gone.
+- **Shadowgrave Armor:** L2 Deathly Reprisal is the Counter Damage + Push Reaction. L3 Hands of the Grave is the Ranged AoE Special with Root. Both are catalog Powers, not authored extras.
+- **Staff of the Dark:** All three lines are catalog Spells — Might of the Dark is Melee AoE Hex, Life Taken is Ranged Single Attack, Vision of the End is Ranged Single Ruin (Soulburn is gone).
+
 ## [0.9.413] - 2026-08-28
 
 ### Changed

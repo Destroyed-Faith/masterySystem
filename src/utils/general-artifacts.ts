@@ -181,104 +181,23 @@ const SHADOWGRAVE_ARMOR: GeneralArtifactDefinition = {
     attribute: 'vitality',
     stonePowerId: 'vitality.tempHp',
     level: 1,
+    name: 'Shadow Shell',
   },
   baseValues: [
     { slot: 'a', label: 'Hybrid Defense', note: '4\u20139 Armor and +4 to +13 Evade across levels. True Shadowgrave Armor at L10.' },
   ],
+  // The three Level Progression lines are standard, not authored:
+  //   L1 Shadow Shell      → Temporary HP Stone Power Support (from `stoneFunction`),
+  //   L2 Deathly Reprisal  → Counter Damage + Push Reaction (stages I/II/III @ L2/5/8),
+  //   L3 Hands of the Grave → Ranged AoE Special (Root). Extra damage dice are 0;
+  //      the payload is Root. Stages I/II/III @ L3/6/9.
+  // The 1–9 rows derive from these picks; only the bespoke L10 Ultimate
+  // ("True Shadowgrave Armor") is authored verbatim below.
+  progressionPickSpecs: {
+    2: { templateId: 'reaction-counter-damage-push', name: 'Deathly Reprisal' },
+    3: { delivery: 'ranged-aoe', special: 'root', name: 'Hands of the Grave' },
+  },
   levelProgression: [
-    {
-      level: 1,
-      name: 'Shadow Shell I',
-      type: 'Stone Power Support',
-      range: 'Self',
-      duration: 'Instant',
-      effect:
-        'Shadowgrave Armor supports the Temporary HP Stone Power and pre-fills Tier 2. You must still pay Tier 1 yourself. If Tier 1 is not paid, the pre-filled Tier 2 has no effect.',
-      special: 'Temporary HP Stone Power',
-    },
-    {
-      level: 2,
-      name: 'Deathly Reprisal I',
-      type: 'Reaction',
-      range: 'Self',
-      duration: 'Triggering melee attack only',
-      effect:
-        'When a creature hits you with a melee attack, deal 2d8 damage to the triggering creature and push it 4 m. The triggering creature applies Armor, Damage Reduction, resistance, immunity, and other legal mitigation normally.',
-      special: 'Counter Damage + Push',
-    },
-    {
-      level: 3,
-      name: 'Hands of the Grave I',
-      type: 'Active',
-      range: '20 m',
-      aoe: 'Radius 3 m',
-      duration: 'Instant',
-      effect:
-        'Spectral hands claw out of the ground at a target point within range. Affected creatures take no damage and suffer Root(2). Hands of the Grave does not push, knock Prone, or create difficult terrain.',
-      special: 'Root(2)',
-    },
-    {
-      level: 4,
-      name: 'Shadow Shell II',
-      type: 'Stone Power Support',
-      range: 'Self',
-      duration: 'Instant',
-      effect:
-        'Shadowgrave Armor pre-fills Tier 3 of the Temporary HP Stone Power. You must still pay Tier 1 and Tier 2 yourself. If Tier 1 and Tier 2 are not paid, the pre-filled Tier 3 has no effect.',
-      special: 'Temporary HP Stone Power',
-    },
-    {
-      level: 5,
-      name: 'Deathly Reprisal II',
-      type: 'Reaction',
-      range: 'Self',
-      duration: 'Triggering melee attack only',
-      effect:
-        'When a creature hits you with a melee attack, deal 6d8 damage to the triggering creature and push it 8 m. The triggering creature applies Armor, Damage Reduction, resistance, immunity, and other legal mitigation normally.',
-      special: 'Counter Damage + Push',
-    },
-    {
-      level: 6,
-      name: 'Hands of the Grave II',
-      type: 'Active',
-      range: '44 m',
-      aoe: 'Radius 5 m',
-      duration: 'Instant',
-      effect:
-        'Spectral hands claw out of the ground at a target point within range. Affected creatures take no damage and suffer Root(4). Hands of the Grave does not push, knock Prone, or create difficult terrain.',
-      special: 'Root(4)',
-    },
-    {
-      level: 7,
-      name: 'Shadow Shell III',
-      type: 'Stone Power Support',
-      range: 'Self',
-      duration: 'Instant',
-      effect:
-        'Shadowgrave Armor pre-fills Tier 4 of the Temporary HP Stone Power. You must still pay Tier 1, Tier 2, and Tier 3 yourself. If the lower tiers are not paid, the pre-filled Tier 4 has no effect.',
-      special: 'Temporary HP Stone Power',
-    },
-    {
-      level: 8,
-      name: 'Deathly Reprisal III',
-      type: 'Reaction',
-      range: 'Self',
-      duration: 'Triggering melee attack only',
-      effect:
-        'When a creature hits you with a melee attack, deal 12d8 damage to the triggering creature and push it 8 m. The triggering creature applies Armor, Damage Reduction, resistance, immunity, and other legal mitigation normally.',
-      special: 'Counter Damage + Push',
-    },
-    {
-      level: 9,
-      name: 'Hands of the Grave III',
-      type: 'Active',
-      range: '68 m',
-      aoe: 'Radius 7 m',
-      duration: 'Instant',
-      effect:
-        'Spectral hands claw out of the ground at a target point within range. Affected creatures take no damage and suffer Root(5). Hands of the Grave does not push, knock Prone, or create difficult terrain.',
-      special: 'Root(5)',
-    },
     {
       level: 10,
       name: 'True Shadowgrave Armor',
@@ -322,88 +241,34 @@ const STAFF_OF_THE_DARK: GeneralArtifactDefinition = {
       note: 'Hex(2) from L4, Hex(3) from L6, Hex(4) from L8, Hex(5) at L10. Applies only if the Spell can legally carry it.',
     },
   ],
+  // The three Level Progression lines are standard catalog Spells, not authored:
+  //   L1 Might of the Dark → Melee AoE Special (Hex) around the caster
+  //   L2 Life Taken        → Ranged Single Attack (7 / 17 / 27 d8 extra, no Special)
+  //   L3 Vision of the End → Ranged Single Special (Ruin; Soulburn is gone)
+  // Only the bespoke L10 Ultimate is authored verbatim below.
+  progressionPickSpecs: {
+    1: {
+      delivery: 'melee-aoe',
+      special: 'hex',
+      name: 'Might of the Dark',
+      isSpell: true,
+      castingAttribute: 'resolve',
+    },
+    2: {
+      templateId: 'active-ranged-weapon-single',
+      name: 'Life Taken',
+      isSpell: true,
+      castingAttribute: 'resolve',
+    },
+    3: {
+      delivery: 'ranged-single',
+      special: 'ruin',
+      name: 'Vision of the End',
+      isSpell: true,
+      castingAttribute: 'resolve',
+    },
+  },
   levelProgression: [
-    {
-      level: 1,
-      name: 'Might of the Dark I',
-      type: 'Active, Spell',
-      range: '20 m',
-      duration: 'Instant',
-      effect: 'Deal Staff Weapon Damage + 2d8 damage on hit.',
-      special: 'Hex(4)',
-    },
-    {
-      level: 2,
-      name: 'Life Taken I',
-      type: 'Active, Spell',
-      range: '20 m',
-      duration: 'Instant',
-      effect:
-        'Roll Staff Weapon Damage + 7d8 damage on hit. Split the total in half, rounded down. One half is dealt as damage. One willing creature within 20 m heals HP equal to the other half.',
-    },
-    {
-      level: 3,
-      name: 'Vision of the End I',
-      type: 'Active, Spell',
-      range: '20 m',
-      duration: 'Instant',
-      effect: 'Deal Staff Weapon Damage + 3d8 damage on hit.',
-      special: 'Soulburn(3)',
-    },
-    {
-      level: 4,
-      name: 'Might of the Dark II',
-      type: 'Active, Spell',
-      range: '44 m',
-      duration: 'Instant',
-      effect: 'Deal Staff Weapon Damage + 2d8 damage on hit.',
-      special: 'Hex(8)',
-    },
-    {
-      level: 5,
-      name: 'Life Taken II',
-      type: 'Active, Spell',
-      range: '44 m',
-      duration: 'Instant',
-      effect:
-        'Roll Staff Weapon Damage + 17d8 damage on hit. Split the total in half, rounded down. One half is dealt as damage. One willing creature within 44 m heals HP equal to the other half.',
-    },
-    {
-      level: 6,
-      name: 'Vision of the End II',
-      type: 'Active, Spell',
-      range: '44 m',
-      duration: 'Instant',
-      effect: 'Deal Staff Weapon Damage + 3d8 damage on hit.',
-      special: 'Soulburn(7)',
-    },
-    {
-      level: 7,
-      name: 'Might of the Dark III',
-      type: 'Active, Spell',
-      range: '68 m',
-      duration: 'Instant',
-      effect: 'Deal Staff Weapon Damage + 2d8 damage on hit.',
-      special: 'Hex(10)',
-    },
-    {
-      level: 8,
-      name: 'Life Taken III',
-      type: 'Active, Spell',
-      range: '68 m',
-      duration: 'Instant',
-      effect:
-        'Roll Staff Weapon Damage + 27d8 damage on hit. Split the total in half, rounded down. One half is dealt as damage. One willing creature within 68 m heals HP equal to the other half.',
-    },
-    {
-      level: 9,
-      name: 'Vision of the End III',
-      type: 'Active, Spell',
-      range: '68 m',
-      duration: 'Instant',
-      effect: 'Deal Staff Weapon Damage + 3d8 damage on hit.',
-      special: 'Soulburn(9)',
-    },
     {
       level: 10,
       name: 'True Staff of the Dark',
@@ -547,109 +412,21 @@ const LANTERN_OF_THE_HOLLOW_STAR: GeneralArtifactDefinition = {
   slot: 'amulet',
   baseProfile: 'lantern',
   description:
-    'A bound Amulet Artifact shaped like a black lantern filled with pale inner fire. It is not a shield. It grants no Armor, no Evade, no Weapon Damage, and no Base Value \u2014 all of its power is written into its Level Progression.',
+    'A bound Amulet Artifact shaped like a black lantern filled with pale inner fire. It is not a shield. It grants no Armor, no Evade, no Weapon Damage, and no Base Value \u2014 all of its power is written into its three Stone Functions. It is one of the eight Artifacts in the world that may carry three Stone Functions at once.',
   restriction:
     'The Lantern of the Hollow Star occupies the Amulet Slot. A character with the Lantern of the Hollow Star cannot bind another Amulet Artifact at the same time.',
-  stoneFunction: {
-    kind: 'stoneBattery',
-    attribute: 'resolve',
-    level: 1,
+  // Three Stone Functions — not two authored extras. This is one of the eight
+  // artifacts allowed to do that:
+  //   L1 Stone Battery → Resolve battery (10 / 20 / 40)
+  //   L2 Resolve Pool  → fixed Resolve stones after each Safe Haven Rest (2 / 4 / 8)
+  //   L3 Recovery      → Restore spent Resolve stones (1 / 2 / 4)
+  progressionPickSpecs: {
+    1: { name: 'Stone Battery', stoneFunction: { kind: 'stoneBattery', attribute: 'resolve' } },
+    2: { name: 'Resolve Pool', stoneFunction: { kind: 'stonePool', attribute: 'resolve' } },
+    3: { name: 'Recovery', stoneFunction: { kind: 'stoneRefresh', attribute: 'resolve' } },
   },
   baseValues: [],
   levelProgression: [
-    {
-      level: 1,
-      name: 'Stone Battery I',
-      type: 'Stone Battery',
-      range: 'Self',
-      duration: 'Passive',
-      effect:
-        'The Lantern is a Stone Battery with a capacity of 10 Stones. It starts empty. It does not refill after a Safe Haven Rest. It can only be charged through GM-approved sources.',
-      special: 'Stone Battery',
-    },
-    {
-      level: 2,
-      name: 'Lantern Glow I',
-      type: 'Support',
-      range: 'Self',
-      aoe: 'Radius 8 m',
-      duration: 'Passive',
-      effect:
-        'The Lantern sheds pale light in the area. The light may reveal magical darkness, hidden deathly traces, spirit marks, or similar supernatural traces if the GM allows it.',
-      special: 'Lantern Light',
-    },
-    {
-      level: 3,
-      name: 'Soul Reserve I',
-      type: 'Resource Support',
-      range: 'Self',
-      duration: 'Passive',
-      effect:
-        'Once per Safe Haven Rest, you may spend 1 Stone from the Lantern Battery for a Power you use, ignoring the Artifact\u2019s normal Slot-function restriction.',
-      special: 'Free Stone',
-    },
-    {
-      level: 4,
-      name: 'Stone Battery II',
-      type: 'Stone Battery',
-      range: 'Self',
-      duration: 'Passive',
-      effect:
-        'The Lantern Battery capacity increases to 20 Stones. It starts empty. It does not refill after a Safe Haven Rest. It can only be charged through GM-approved sources.',
-      special: 'Stone Battery',
-    },
-    {
-      level: 5,
-      name: 'Lantern Glow II',
-      type: 'Support',
-      range: 'Self',
-      aoe: 'Radius 16 m',
-      duration: 'Passive',
-      effect:
-        'The Lantern sheds pale light in the area. The light may reveal stronger magical darkness, deathly traces, spirit marks, cursed residue, or similar supernatural traces if the GM allows it.',
-      special: 'Lantern Light',
-    },
-    {
-      level: 6,
-      name: 'Soul Reserve II',
-      type: 'Resource Support',
-      range: 'Self',
-      duration: 'Passive',
-      effect:
-        'Twice per Safe Haven Rest, you may spend 1 Stone from the Lantern Battery for a Power you use, ignoring the Artifact\u2019s normal Slot-function restriction.',
-      special: 'Free Stone',
-    },
-    {
-      level: 7,
-      name: 'Stone Battery III',
-      type: 'Stone Battery',
-      range: 'Self',
-      duration: 'Passive',
-      effect:
-        'The Lantern Battery capacity increases to 40 Stones. It starts empty. It does not refill after a Safe Haven Rest. It can only be charged through GM-approved sources.',
-      special: 'Stone Battery',
-    },
-    {
-      level: 8,
-      name: 'Lantern Glow III',
-      type: 'Support',
-      range: 'Self',
-      aoe: 'Radius 24 m',
-      duration: 'Passive',
-      effect:
-        'The Lantern sheds pale light in the area. The light may reveal magical darkness, deathly traces, spirit marks, cursed residue, hidden undead, or similar supernatural traces if the GM allows it.',
-      special: 'Lantern Light',
-    },
-    {
-      level: 9,
-      name: 'Soul Reserve III',
-      type: 'Resource Support',
-      range: 'Self',
-      duration: 'Passive',
-      effect:
-        'Three times per Safe Haven Rest, you may spend 1 Stone from the Lantern Battery for a Power you use, ignoring the Artifact\u2019s normal Slot-function restriction.',
-      special: 'Free Stone',
-    },
     {
       level: 10,
       name: 'True Hollow Star',
@@ -657,7 +434,7 @@ const LANTERN_OF_THE_HOLLOW_STAR: GeneralArtifactDefinition = {
       range: 'Self',
       duration: 'Special',
       effect:
-        'The Lantern fully awakens. Choose or define one final Stone Battery, soul reserve, lantern light, or stored-stone effect with GM approval.',
+        'The Lantern fully awakens. Choose or define one final Stone Battery, Resolve Pool, Recovery, or stored-stone effect with GM approval.',
       special: 'True Hollow Star',
     },
   ],

@@ -446,7 +446,8 @@
       "binding": "unbound",
       "echoKey": "",
       "currentLevel": 1,
-      "levelProgression": []
+      "levelProgression": [],
+      "imgAlt": ""
     },
     "condition": {
       "templates": ["base"],

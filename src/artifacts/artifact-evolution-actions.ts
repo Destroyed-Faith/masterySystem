@@ -53,6 +53,8 @@ export interface UpgradeArtifactOptions {
 export interface ArtifactEvolutionCard {
   embeddedId: string;
   displayName: string;
+  img: string;
+  flavor: string;
   rootWorldId: string;
   folderId: string;
   masteryRank: number;
@@ -70,14 +72,39 @@ export interface ArtifactEvolutionCard {
   isEchoBound: boolean;
   linkDisabledReason: string;
   canActivate: boolean;
+  canUpgrade: boolean;
+  upgradeDisabledReason: string;
   nextUpgrade: ArtifactEvolutionPath | null;
   nextGmUpgrade: ArtifactEvolutionPath | null;
   baseValues: Array<{ label: string; value: string }>;
   abilities: Array<{ name: string; type: string; effect: string }>;
   hasBaseValues: boolean;
   hasAbilities: boolean;
+  openAbilities: boolean;
   activationStoneAttr: string;
   activationStoneLabel: string;
+}
+
+/** Flavor line from lore / description (embedded first, then world root). */
+export function artifactFlavorText(...items: unknown[]): string {
+  for (const item of items) {
+    const sys = (item as { system?: { lore?: unknown; description?: unknown } } | null)?.system;
+    const lore = String(sys?.lore || '').trim();
+    if (lore) return lore;
+    const description = String(sys?.description || '').trim();
+    if (description) return description;
+  }
+  return '';
+}
+
+export function artifactUpgradeBlockReason(
+  paths: Array<{ disabledReason?: string }>,
+  opts?: { atMax?: boolean },
+): string {
+  if (paths.some((p) => !String(p.disabledReason || '').trim())) return '';
+  const first = paths.find((p) => String(p.disabledReason || '').trim());
+  if (first?.disabledReason) return String(first.disabledReason);
+  return opts?.atMax ? 'Max level for current Mastery Rank.' : 'No further branches from this node.';
 }
 
 function actorXpAvailable(actor: Actor): number {
@@ -137,7 +164,10 @@ function readStepArtifacts(actor: Actor): string[] {
 }
 
 /** Build evolution cards for every tree-linked embedded artifact on the actor. */
-export function buildArtifactEvolutionCards(actor: Actor): ArtifactEvolutionCard[] {
+export function buildArtifactEvolutionCards(
+  actor: Actor,
+  opts?: { xpAvailable?: number },
+): ArtifactEvolutionCard[] {
   const A = actor as any;
   const items: any[] = Array.from(A.items.filter((i: any) => i.type === 'artifact'));
   const cards: ArtifactEvolutionCard[] = [];
@@ -153,6 +183,8 @@ export function buildArtifactEvolutionCards(actor: Actor): ArtifactEvolutionCard
     artifacts: stepArtifacts,
   };
   const stones = Math.max(0, Number((actor.system as any)?.stones?.current) || 0);
+  const xpAvailable =
+    opts?.xpAvailable != null ? Math.max(0, Math.floor(Number(opts.xpAvailable) || 0)) : actorXpAvailable(actor);
 
   for (const emb of items) {
     const rootWorldId = emb.getFlag('mastery-system', 'evolutionRootItemId') as string | undefined;
@@ -188,7 +220,7 @@ export function buildArtifactEvolutionCards(actor: Actor): ArtifactEvolutionCard
     const bindingKind = getArtifactBindingKind(emb);
     const isEchoBound = bindingKind === 'echo';
     const linked = isArtifactLinkedOnActor(A, emb);
-    const display = summarizeEmbeddedArtifactDisplay(emb, linked);
+    const display = summarizeEmbeddedArtifactDisplay(emb, true);
 
     let linkDisabledReason = '';
     if (linked) {
@@ -213,8 +245,8 @@ export function buildArtifactEvolutionCards(actor: Actor): ArtifactEvolutionCard
         disabledReason = 'Mastery Rank 2+ required.';
       } else if (tl > maxSys) {
         disabledReason = `Your MR allows artifact level up to ${maxSys} only.`;
-      } else if (actorXpAvailable(actor) < ARTIFACT_UPGRADE_XP_COST) {
-        disabledReason = 'Not enough XP.';
+      } else if (xpAvailable < ARTIFACT_UPGRADE_XP_COST) {
+        disabledReason = `Not enough XP (${ARTIFACT_UPGRADE_XP_COST} needed for level 2+).`;
       } else if (alreadyBumped) {
         disabledReason = 'Already upgraded this session. Use Free XP to raise it again.';
       }
@@ -232,6 +264,8 @@ export function buildArtifactEvolutionCards(actor: Actor): ArtifactEvolutionCard
 
     const nextUpgrade = paths.find((p) => !p.disabledReason) || null;
     const nextGmUpgrade = paths.find((p) => !p.gmDisabledReason) || null;
+    const atMaxTierForMr = linked && currentSysLevel >= maxSys && maxSys >= 1;
+    const upgradeDisabledReason = artifactUpgradeBlockReason(paths, { atMax: atMaxTierForMr });
 
     const activationStoneAttr =
       (emb.getFlag?.('mastery-system', 'artifactActivationStoneAttr') as string | undefined) || '';
@@ -243,6 +277,8 @@ export function buildArtifactEvolutionCards(actor: Actor): ArtifactEvolutionCard
     cards.push({
       embeddedId,
       displayName: rw.name?.replace(/\s*-\s*Level\s*1-1\s*$/i, '').trim() || emb.name,
+      img: String(emb.img || rw.img || ''),
+      flavor: artifactFlavorText(emb, rw),
       rootWorldId: rw.id,
       folderId,
       masteryRank,
@@ -252,20 +288,23 @@ export function buildArtifactEvolutionCards(actor: Actor): ArtifactEvolutionCard
       progress,
       currentSystemLevel: currentSysLevel,
       currentLabel: labels.get(progress.nodeId) || `Level ${currentSysLevel}`,
-      xp: actorXpAvailable(actor),
+      xp: xpAvailable,
       stones,
       paths,
-      atMaxTierForMr: linked && currentSysLevel >= maxSys && maxSys >= 1,
+      atMaxTierForMr,
       bindingKind,
       isEchoBound,
       linkDisabledReason,
       canActivate: !linked && !linkDisabledReason,
+      canUpgrade: linked && !!nextUpgrade,
+      upgradeDisabledReason,
       nextUpgrade: linked ? nextUpgrade : null,
       nextGmUpgrade: linked ? nextGmUpgrade : null,
       baseValues: display.baseValues,
       abilities: display.abilities,
       hasBaseValues: display.hasBaseValues,
       hasAbilities: display.hasAbilities,
+      openAbilities: linked && display.hasAbilities && display.abilities.length <= 3,
       activationStoneAttr,
       activationStoneLabel,
     });

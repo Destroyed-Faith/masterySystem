@@ -23,6 +23,8 @@ import {
   displayFromArtifactSystem,
   resolveNextArtifactPreviews,
 } from '../utils/artifact-sheet-preview.js';
+import { openFoundryImagePopout } from '../ui/image-url-share.js';
+import { getFilePickerClass } from '../utils/foundry-v14.js';
 
 const BaseArtifactSheet: any = foundry.applications.api.HandlebarsApplicationMixin(
   foundry.applications.sheets.ItemSheetV2,
@@ -89,7 +91,9 @@ export class ArtifactSheetV2 extends BaseArtifactSheet {
         'MASTERY.artifact.sheet.nextLevelHint',
         'Unlocked when you raise this artifact.',
       ),
+      imgAlt: loc('MASTERY.artifact.sheet.imgAlt', 'Alternative image'),
     };
+    context.imgAlt = String((system as any).imgAlt || '').trim();
     context.summary = {
       slotLabel: (ARTIFACT_SLOT_LABELS as any)[slotKey] || '',
       baseProfileLabel: (BASE_PROFILE_LABELS as any)[profileKey] || '',
@@ -114,7 +118,35 @@ export class ArtifactSheetV2 extends BaseArtifactSheet {
   async _onRender(context: any, options: any): Promise<void> {
     await super._onRender?.(context, options);
     const root = this.element as HTMLElement | null;
-    if (!root || !game.user?.isGM) return;
+    if (!root) return;
+    const item: any = this.item;
+    const title = String(item.name || 'Artifact');
+    const imgAlt = String((item.system as ArtifactData)?.imgAlt || '').trim();
+
+    root.querySelector('[data-action="popout-img"]')?.addEventListener('click', (ev: Event) => {
+      ev.preventDefault();
+      void openFoundryImagePopout(String(item.img || ''), title);
+    });
+    root.querySelector('[data-action="popout-img-alt"]')?.addEventListener('click', (ev: Event) => {
+      ev.preventDefault();
+      if (imgAlt) void openFoundryImagePopout(imgAlt, `${title} — Alternative`);
+    });
+    root.querySelector('[data-action="edit-img-alt"]')?.addEventListener('click', (ev: Event) => {
+      ev.preventDefault();
+      if (!item.canUserModify?.((game as any).user, 'update')) return;
+      const FilePickerImpl = getFilePickerClass();
+      if (!FilePickerImpl) return;
+      const fp = new FilePickerImpl({
+        type: 'image',
+        current: imgAlt,
+        callback: (path: string) => {
+          void item.update({ 'system.imgAlt': path });
+        },
+      });
+      fp.browse();
+    });
+
+    if (!game.user?.isGM) return;
     const btn = root.querySelector?.('[data-action="open-node-editor"]');
     if (!btn) return;
     btn.addEventListener('click', async (ev: Event) => {

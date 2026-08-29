@@ -36,7 +36,9 @@ import type {
   ArtifactSlotKey,
   ArtifactLevelProgressionRow,
   ArtifactStoneFunctionKind,
+  CastingAttribute,
   PowerLevelKey,
+  SpellResolution,
 } from '../types/item.js';
 import { resolvePickFromUi, tierFromSpecialKey, type MartialDelivery } from './artifact-power-pick.js';
 import { catalogSpecialTierForTemplate } from './artifact-catalog-pick.js';
@@ -107,6 +109,10 @@ export interface EchoArtifactProgressionPickSpec {
   stageTemplateIds?: [string, string, string];
   /** Full row names per stage when `stageTemplateIds` is set (length 3). */
   stageNames?: [string, string, string];
+  /** Cast this line as a Spell (Intellect / Resolve). */
+  isSpell?: boolean;
+  castingAttribute?: CastingAttribute;
+  spellResolution?: SpellResolution;
 }
 
 export interface EchoArtifactBaseValueHint {
@@ -132,6 +138,11 @@ export interface EchoArtifactDefinition {
   requiresSubChoice?: string;
   baseValues: EchoArtifactBaseValueHint[];
   levelProgression: ArtifactLevelProgressionRow[];
+  /**
+   * Optional alternative / combined portrait (stored on `system.imgAlt`).
+   * When omitted, the tree builder still copies a catalog alt icon if one exists.
+   */
+  imgAlt?: string;
   /** Free-text restriction note (e.g. "occupies both hand slots"). */
   restriction?: string;
   /**
@@ -1807,6 +1818,9 @@ export function buildEchoProgressionPicks(
   stageNumerals?: string[];
   stageTemplateIds?: [string, string, string];
   stageNames?: [string, string, string];
+  isSpell?: boolean;
+  castingAttribute?: CastingAttribute;
+  spellResolution?: SpellResolution;
 }[] {
   const picks: {
     level: 1 | 2 | 3;
@@ -1821,6 +1835,9 @@ export function buildEchoProgressionPicks(
     stageNumerals?: string[];
     stageTemplateIds?: [string, string, string];
     stageNames?: [string, string, string];
+    isSpell?: boolean;
+    castingAttribute?: CastingAttribute;
+    spellResolution?: SpellResolution;
   }[] = [
     { level: 1, kind: 'none' },
     { level: 2, kind: 'none' },
@@ -1848,6 +1865,9 @@ export function buildEchoProgressionPicks(
       ...(spec.stageNumerals ? { stageNumerals: spec.stageNumerals } : {}),
       ...(spec.stageTemplateIds ? { stageTemplateIds: spec.stageTemplateIds } : {}),
       ...(spec.stageNames ? { stageNames: spec.stageNames } : {}),
+      ...(spec.isSpell ? { isSpell: true } : {}),
+      ...(spec.castingAttribute ? { castingAttribute: spec.castingAttribute } : {}),
+      ...(spec.spellResolution ? { spellResolution: spec.spellResolution } : {}),
     };
     if (spec.stoneFunction) {
       const sfSpec = spec.stoneFunction;

@@ -92,10 +92,17 @@
 
     <details class="ph-section" data-section="artifacts" {{#if expandArtifacts}}open{{/if}}>
       <summary><i class="fas fa-project-diagram"></i> Artifacts</summary>
-      <p class="ae-intro">
-        MR 2+ — <strong>{{constants.linkStone}} Stone</strong> to activate, then {{constants.upXp}} XP per level.
-        Max = (MR − 1) × 2 (cap {{constants.maxLevel}}).
-      </p>
+      <div class="ae-rules">
+        <p class="ae-rules-lead">
+          Each artifact below is its own card: what it is, what it currently does, then activate or upgrade.
+        </p>
+        <ul class="ae-rules-facts">
+          <li><strong>Activate</strong> at MR 2+ for {{constants.linkStone}} Stone</li>
+          <li><strong>Level 2+</strong> costs {{constants.upXp}} XP per upgrade (button locks without XP)</li>
+          <li>Max level (MR − 1) × 2, cap {{constants.maxLevel}} · one upgrade per step</li>
+          <li class="{{#if capacity.full}}ae-warn{{/if}}">Capacity {{capacity.bound}} / {{capacity.max}}{{#if capacity.full}} — full{{/if}}</li>
+        </ul>
+      </div>
 
       {{#if hub.unwiredArtifacts.length}}
       <section class="ph-unwired">
@@ -112,18 +119,53 @@
       {{/if}}
 
       {{#if cards.length}}
+      <div class="ae-card-list">
       {{#each cards}}
       <section class="ae-card" data-emb-id="{{embeddedId}}">
         <header class="ae-card-head">
-          <h3 class="ae-card-title">{{displayName}}</h3>
+          {{#if img}}<img class="ae-card-thumb" src="{{img}}" alt="" />{{/if}}
+          <div class="ae-card-head-copy">
+            <h3 class="ae-card-title">{{displayName}}</h3>
+            {{#if flavor}}<p class="ae-card-flavor">{{flavor}}</p>{{/if}}
+          </div>
           <span class="ae-card-badge">
             L{{currentSystemLevel}}
             {{#unless linked}}· inaktiv{{else}}· aktiv{{/unless}}
           </span>
         </header>
-        <p class="ae-card-meta">
-          MR {{masteryRank}} · max L{{maxSystemLevel}} · Stones <strong>{{stones}}</strong> · XP <strong>{{xp}}</strong>
-        </p>
+        <ul class="ae-stat-chips">
+          <li>MR {{masteryRank}}</li>
+          <li>max L{{maxSystemLevel}}</li>
+          <li>XP {{xp}}</li>
+          <li>Stones {{stones}}</li>
+          {{#if isEchoBound}}<li class="ae-tag-echo">Echo</li>{{/if}}
+        </ul>
+
+        {{#if hasAbilities}}
+        <details class="ae-details" {{#if openAbilities}}open{{/if}}>
+          <summary>{{#if linked}}Current abilities{{else}}What it does when activated{{/if}}</summary>
+          <ul class="ae-ability-list">
+            {{#each abilities}}
+            <li>
+              <strong>{{name}}</strong>
+              {{#if type}}<span class="ae-ability-type">{{type}}</span>{{/if}}
+              {{#if effect}}<p class="ae-ability-effect">{{effect}}</p>{{/if}}
+            </li>
+            {{/each}}
+          </ul>
+        </details>
+        {{/if}}
+
+        {{#if hasBaseValues}}
+        <details class="ae-details">
+          <summary>Base values</summary>
+          <ul class="ae-stat-list">
+            {{#each baseValues}}
+            <li><strong>{{label}}</strong>{{#if value}}: {{value}}{{/if}}</li>
+            {{/each}}
+          </ul>
+        </details>
+        {{/if}}
 
         {{#unless linked}}
           {{#if canLinkRules}}
@@ -157,43 +199,46 @@
             <p class="ae-muted">Mastery Rank 2+ required to activate.</p>
           {{/if}}
         {{else}}
-          <details class="ae-details" {{#if paths.length}}open{{/if}}>
-            <summary>Evolution</summary>
-            {{#if paths.length}}
-            <div class="ae-upgrade-row">
-              <label class="ae-field-label" for="ae-path-{{embeddedId}}">Pfad</label>
-              <select id="ae-path-{{embeddedId}}" class="ae-path-select" data-emb-id="{{embeddedId}}">
-                {{#each paths}}
-                <option value="{{nodeId}}" data-world-id="{{worldItemId}}"
-                  data-gm-disabled="{{#if gmDisabledReason}}1{{/if}}"
-                  {{#if disabledReason}}{{#unless @root.isGM}}disabled{{/unless}}{{/if}}
-                  {{#if gmDisabledReason}}{{#if @root.isGM}}disabled{{/if}}{{/if}}
-                  title="{{#if @root.isGM}}{{#if gmDisabledReason}}{{gmDisabledReason}}{{else}}{{#if disabledReason}}{{disabledReason}}{{/if}}{{/if}}{{else}}{{#if disabledReason}}{{disabledReason}}{{/if}}{{/if}}">
-                  {{label}} (L{{targetLevel}}{{#unless @root.isGM}}, {{@root.constants.upXp}} XP{{/unless}}){{#if disabledReason}}{{#unless @root.isGM}} — {{disabledReason}}{{/unless}}{{/if}}
-                </option>
-                {{/each}}
-              </select>
-              <button type="button" class="ae-btn ae-btn-primary" data-action="ae-upgrade-selected"
-                data-root-id="{{rootWorldId}}" data-emb-id="{{embeddedId}}">
-                Upgraden
-              </button>
-              {{#if @root.isGM}}
-              <button type="button" class="ae-btn ae-btn-gm" data-action="ae-gm-upgrade-selected"
-                data-root-id="{{rootWorldId}}" data-emb-id="{{embeddedId}}"
-                title="Evolution ohne XP — ignoriert MR-Cap und Upgrade-Step-Regel">
-                GM: Upgraden (ohne XP)
-              </button>
-              {{/if}}
-            </div>
-            {{else if atMaxTierForMr}}
-            <p class="ae-muted">Max level for current Mastery Rank.</p>
-            {{else}}
-            <p class="ae-muted">No further branches from this node.</p>
+          {{#if paths.length}}
+          <div class="ae-upgrade-row">
+            <label class="ae-field-label" for="ae-path-{{embeddedId}}">Pfad</label>
+            <select id="ae-path-{{embeddedId}}" class="ae-path-select" data-emb-id="{{embeddedId}}">
+              {{#each paths}}
+              <option value="{{nodeId}}" data-world-id="{{worldItemId}}"
+                data-gm-disabled="{{#if gmDisabledReason}}1{{/if}}"
+                {{#if disabledReason}}{{#unless @root.isGM}}disabled{{/unless}}{{/if}}
+                {{#if gmDisabledReason}}{{#if @root.isGM}}disabled{{/if}}{{/if}}
+                title="{{#if @root.isGM}}{{#if gmDisabledReason}}{{gmDisabledReason}}{{else}}{{#if disabledReason}}{{disabledReason}}{{/if}}{{/if}}{{else}}{{#if disabledReason}}{{disabledReason}}{{/if}}{{/if}}">
+                {{label}} (L{{targetLevel}}{{#unless @root.isGM}}, {{@root.constants.upXp}} XP{{/unless}}){{#if disabledReason}}{{#unless @root.isGM}} — {{disabledReason}}{{/unless}}{{/if}}
+              </option>
+              {{/each}}
+            </select>
+            <button type="button" class="ae-btn ae-btn-primary" data-action="ae-upgrade-selected"
+              data-root-id="{{rootWorldId}}" data-emb-id="{{embeddedId}}"
+              {{#unless canUpgrade}}disabled title="{{upgradeDisabledReason}}"{{/unless}}>
+              Upgraden ({{@root.constants.upXp}} XP)
+            </button>
+            {{#if @root.isGM}}
+            <button type="button" class="ae-btn ae-btn-gm" data-action="ae-gm-upgrade-selected"
+              data-root-id="{{rootWorldId}}" data-emb-id="{{embeddedId}}"
+              {{#unless nextGmUpgrade}}disabled{{/unless}}
+              title="Evolution ohne XP — ignoriert MR-Cap und Upgrade-Step-Regel">
+              GM: Upgraden (ohne XP)
+            </button>
             {{/if}}
-          </details>
+          </div>
+          {{#unless canUpgrade}}
+          <p class="ae-path-reason">{{upgradeDisabledReason}}</p>
+          {{/unless}}
+          {{else if atMaxTierForMr}}
+          <p class="ae-muted">Max level for current Mastery Rank.</p>
+          {{else}}
+          <p class="ae-muted">No further branches from this node.</p>
+          {{/if}}
         {{/unless}}
       </section>
       {{/each}}
+      </div>
       {{else}}
       {{#unless hasUnwiredArtifacts}}
       <p class="ae-empty">No artifacts on this actor.</p>

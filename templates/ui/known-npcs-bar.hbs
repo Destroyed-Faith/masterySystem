@@ -1,0 +1,19 @@
+<div class="known-npcs {{#if collapsed}}is-collapsed{{/if}}" data-has-npcs="{{hasNpcs}}">
+  <button type="button" class="known-npcs-toggle" data-action="toggle" title="{{#if collapsed}}{{expandLabel}}{{else}}{{collapseLabel}}{{/if}}" aria-label="{{#if collapsed}}{{expandLabel}}{{else}}{{collapseLabel}}{{/if}}">
+    <i class="fas fa-id-badge"></i>
+    <span>{{title}}</span>
+    <i class="fas {{#if collapsed}}fa-chevron-right{{else}}fa-chevron-left{{/if}}"></i>
+  </button>
+  {{#unless collapsed}}
+  <ul class="known-npcs-list">
+    {{#each npcs}}
+    <li>
+      <button type="button" class="known-npcs-card" data-action="portrait" data-actor-id="{{actorId}}" title="{{name}}">
+        <img src="{{img}}" alt="{{name}}" />
+        <span class="known-npcs-name">{{name}}</span>
+      </button>
+    </li>
+    {{/each}}
+  </ul>
+  {{/unless}}
+</div>

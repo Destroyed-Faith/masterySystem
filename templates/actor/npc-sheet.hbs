@@ -81,6 +81,14 @@
         </select>
       </div>
       {{/if}}
+      {{#if canReleaseKnownNpc}}
+      <div class="npc-known-release-box" title="{{localize "MASTERY.knownNpcs.sheetHint"}}">
+        <label>{{localize "MASTERY.knownNpcs.sheetLabel"}}</label>
+        <button type="button" class="npc-known-release-btn {{#if knownNpcReleased}}is-on{{/if}}" data-action="toggle-known-npc">
+          {{#if knownNpcReleased}}{{localize "MASTERY.knownNpcs.hide"}}{{else}}{{localize "MASTERY.knownNpcs.release"}}{{/if}}
+        </button>
+      </div>
+      {{/if}}
     </div>
   </header>
 

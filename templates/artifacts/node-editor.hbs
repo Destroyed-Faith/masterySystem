@@ -4,6 +4,19 @@
     <p class="node-editor-hint node-editor-span2 node-lineage-hint">{{lineageHint}}</p>
     {{/if}}
 
+    <div class="form-group node-editor-span2 node-img-alt-row">
+      <label>Alternative Image</label>
+      <div class="node-img-alt-controls">
+        {{#if imgAlt}}
+        <img class="node-img-alt-preview" src="{{imgAlt}}" alt="" data-action="pick-img-alt" />
+        {{else}}
+        <button type="button" class="node-img-alt-empty" data-action="pick-img-alt">Choose image</button>
+        {{/if}}
+        <input type="text" id="node-img-alt" value="{{imgAlt}}" placeholder="Optional showcase / combined art" />
+      </div>
+      <p class="node-editor-hint">Second portrait on the item. Click the preview to pick a file, or paste a URL. Child nodes inherit this from the root when you save.</p>
+    </div>
+
     <!-- New Artifact Spec fields: Slot, Base Profile, Base Values, Stone Function -->
     <div class="node-editor-span2 node-spec-row" style="border-top:1px dashed var(--color-border-light-primary,#888);padding-top:8px;">
       <h4 class="node-profile-title">Artifact Spec (Slot, Base Profile, Base Values, Stone Function)</h4>

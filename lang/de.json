@@ -386,6 +386,21 @@
       "naturalRecoveryHint": "Zu Zugbeginn, nach den Ticks, reduzierst du negative Diminishing Specials um insgesamt deine Mastery Rank ({rank}). Die Verteilung ist frei. Ungenutzte Reduktion verfällt.",
       "naturalRecoveryNone": "Keine"
     },
+    "knownNpcs": {
+      "title": "Wichtige NSCs",
+      "expand": "Wichtige NSCs einblenden",
+      "collapse": "Wichtige NSCs ausblenden",
+      "release": "Für Spieler freigeben",
+      "hide": "Vor Spielern verbergen",
+      "search": "NSCs suchen",
+      "gmHint": "Freigegebene NSCs erscheinen mit Porträt und Name in der Spielerleiste. Ein Klick öffnet das Porträt groß.",
+      "gmOnly": "Nur der Spielleiter entscheidet, welche NSCs die Spieler sehen.",
+      "openFailed": "Das Menü für wichtige NSCs konnte nicht geöffnet werden.",
+      "emptyWorld": "In dieser Welt gibt es keine NSC-Akteure.",
+      "hiddenHeading": "Für Spieler nicht sichtbar",
+      "sheetLabel": "Spieler",
+      "sheetHint": "Porträt und Name dieses NSC in der Spielerleiste zeigen"
+    },
     "weaponSets": {
       "groupLabel": "Waffenslots",
       "actionName": "Waffenwechsel",
@@ -400,7 +415,8 @@
         "whenActivated": "Bei Aktivierung",
         "whenActivatedHint": "Diese Werte und Fähigkeiten schalten sich frei, wenn du das Artefakt aktivierst.",
         "nextLevel": "Als Nächstes: Stufe {level}",
-        "nextLevelHint": "Schaltet frei, wenn du dieses Artefakt steigerst."
+        "nextLevelHint": "Schaltet frei, wenn du dieses Artefakt steigerst.",
+        "imgAlt": "Alternatives Bild"
       }
     }
   },

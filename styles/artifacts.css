@@ -324,6 +324,31 @@
 .node-editor-form .node-editor-span2 {
   grid-column: 1 / -1;
 }
+.node-editor-form .node-img-alt-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.node-editor-form .node-img-alt-preview {
+  width: 48px;
+  height: 48px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid var(--color-border-light-primary, #888);
+  cursor: pointer;
+}
+.node-editor-form .node-img-alt-empty {
+  width: 48px;
+  height: 48px;
+  border: 1px dashed var(--color-border-light-primary, #888);
+  border-radius: 6px;
+  font-size: 0.7rem;
+  line-height: 1.15;
+  cursor: pointer;
+}
+.node-editor-form .node-img-alt-controls input {
+  flex: 1;
+}
 
 .node-editor-form .form-group {
   display: flex;
@@ -1575,9 +1600,195 @@
   opacity: 0.75;
 }
 
-/* Reuse artifact evolution card styles inside the hub */
+/* Shared artifact cards — hub + dedicated evolution dialog */
+.artifact-evolution-dialog .ae-rules,
+.progression-hub-dialog .ae-rules {
+  margin: 0 0 1.1rem;
+  padding: 0.7rem 0.8rem;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.18);
+}
+
+.artifact-evolution-dialog .ae-rules-lead,
+.progression-hub-dialog .ae-rules-lead {
+  margin: 0 0 0.45rem;
+  font-size: 0.88rem;
+  line-height: 1.4;
+  color: var(--df-text-primary, #e8eaed);
+}
+
+.artifact-evolution-dialog .ae-rules-facts,
+.progression-hub-dialog .ae-rules-facts {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.8rem;
+  color: var(--df-text-secondary, #a8b0b8);
+}
+
+.artifact-evolution-dialog .ae-card-list,
+.progression-hub-dialog .ae-card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.35rem;
+}
+
+.artifact-evolution-dialog .ae-card,
 .progression-hub-dialog .ae-card {
-  margin-top: 8px;
+  margin: 0;
+  border: 1px solid var(--df-border-primary, #3a3f44);
+  border-radius: 10px;
+  padding: 0.85rem 0.95rem 1rem;
+  background: var(--df-bg-panel, #1e2428);
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.artifact-evolution-dialog .ae-card-head,
+.progression-hub-dialog .ae-card-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.7rem;
+}
+
+.artifact-evolution-dialog .ae-card-thumb,
+.progression-hub-dialog .ae-card-thumb {
+  width: 2.75rem;
+  height: 2.75rem;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid var(--df-border-primary, #3a3f44);
+  flex: 0 0 auto;
+}
+
+.artifact-evolution-dialog .ae-card-head-copy,
+.progression-hub-dialog .ae-card-head-copy {
+  min-width: 0;
+  flex: 1;
+}
+
+.artifact-evolution-dialog .ae-card-title,
+.progression-hub-dialog .ae-card-title {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.artifact-evolution-dialog .ae-card-flavor,
+.progression-hub-dialog .ae-card-flavor {
+  margin: 0.28rem 0 0;
+  font-size: 0.84rem;
+  line-height: 1.4;
+  color: var(--df-text-secondary, #b0b8bc);
+}
+
+.artifact-evolution-dialog .ae-card-badge,
+.progression-hub-dialog .ae-card-badge {
+  flex: 0 0 auto;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  color: var(--df-text-secondary, #a0a0a0);
+  padding: 0.15rem 0.4rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.artifact-evolution-dialog .ae-stat-chips,
+.progression-hub-dialog .ae-stat-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.artifact-evolution-dialog .ae-stat-chips li,
+.progression-hub-dialog .ae-stat-chips li {
+  padding: 0.15rem 0.45rem;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.28);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 0.75rem;
+  color: var(--df-text-secondary, #c0c6cc);
+}
+
+.artifact-evolution-dialog .ae-stat-chips .ae-tag-echo,
+.progression-hub-dialog .ae-stat-chips .ae-tag-echo {
+  color: #e8c547;
+  border-color: rgba(201, 162, 39, 0.45);
+}
+
+.progression-hub-dialog .ae-details {
+  margin-top: 0;
+  font-size: 0.88rem;
+}
+
+.progression-hub-dialog .ae-details summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--df-text-secondary, #b0b8bc);
+}
+
+.progression-hub-dialog .ae-activate-row,
+.progression-hub-dialog .ae-upgrade-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 8px;
+}
+
+.progression-hub-dialog .ae-btn {
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--df-border-primary, #3a3f44);
+  background: var(--df-bg-body, #14181b);
+  color: var(--df-text-primary, #e8eaed);
+  cursor: pointer;
+  font-size: 0.88rem;
+}
+
+.progression-hub-dialog .ae-btn:hover:not(:disabled) {
+  border-color: var(--df-border-highlight, rgba(255, 255, 255, 0.2));
+}
+
+.progression-hub-dialog .ae-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.progression-hub-dialog .ae-btn-primary {
+  border-color: #4a7ab8;
+}
+
+.progression-hub-dialog .ae-btn-gm {
+  border-color: #9a7b2e;
+  color: #e8c547;
+  font-size: 0.8rem;
+}
+
+.progression-hub-dialog .ae-path-reason,
+.progression-hub-dialog .ae-muted {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--df-text-secondary, #8a9399);
+}
+
+.progression-hub-dialog .ae-ability-list,
+.progression-hub-dialog .ae-stat-list {
+  margin: 0.35rem 0 0;
+  padding: 0 0 0 16px;
+  font-size: 0.86rem;
+}
+
+.progression-hub-dialog .ae-ability-effect {
+  margin: 2px 0 0;
+  font-size: 0.82rem;
+  color: var(--df-text-secondary, #b0b8bc);
 }
 
 /* Builder: actor allocation row */
@@ -1666,6 +1877,22 @@ div.artifact-sheet-v2 .artifact-ability-special {
   border: 1px solid var(--df-border-primary, #3a3f44);
   border-radius: 6px;
   object-fit: cover;
+  cursor: pointer;
+}
+.artifact-card-header .profile-img-alt {
+  box-shadow: 0 0 0 1px rgba(180, 150, 80, 0.35);
+}
+.artifact-card-img-alt-add {
+  flex: 0 0 auto;
+  width: 56px;
+  height: 56px;
+  border: 1px dashed var(--df-border-primary, #3a3f44);
+  border-radius: 6px;
+  background: var(--df-bg-header, #1b2124);
+  color: var(--df-text-secondary, #b8c0c6);
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
 }
 .artifact-card-title { min-width: 0; }
 .artifact-card-name {

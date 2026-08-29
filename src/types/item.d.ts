@@ -745,7 +745,7 @@ export type ArtifactBaseValueType =
   | 'sense'
   | 'minorFeature';
 
-/** Stone Function variant on an artifact (max 1 per artifact). */
+/** Stone Function variant on an artifact (most artifacts: 1; rare artifacts such as the Lantern: up to 3). */
 export type ArtifactStoneFunctionKind =
   | 'stonePowerSupport'
   | 'stonePool'
@@ -976,6 +976,11 @@ export interface ArtifactData extends BaseItemData {
   currentLevel?: number;
   /** Authored Level Progression — rows for levels 1..10. */
   levelProgression?: ArtifactLevelProgressionRow[];
+  /**
+   * Optional second portrait (combined / showcase art). Shown next to the
+   * item icon; click opens it as a full picture. Empty = none.
+   */
+  imgAlt?: string;
 }
 
 // === Condition Data ===

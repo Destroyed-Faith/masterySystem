@@ -1,0 +1,262 @@
+/* Player portrait bar + GM release dialog for important NPCs */
+
+#mastery-known-npcs-bar,
+.known-npcs-bar {
+  position: fixed !important;
+  left: 5.6rem !important;
+  top: 4.75rem !important;
+  z-index: 90 !important;
+  width: auto !important;
+  height: auto !important;
+  margin: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  border: 0 !important;
+  pointer-events: none;
+}
+
+.known-npcs-bar .known-npcs {
+  pointer-events: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.4rem;
+  max-height: calc(100vh - 10rem);
+}
+
+.known-npcs-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.28rem 0.55rem;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(12, 16, 22, 0.88);
+  color: #eceff1;
+  font-size: 0.78rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.known-npcs-toggle:hover {
+  background: rgba(32, 40, 52, 0.94);
+}
+
+.known-npcs-list {
+  list-style: none;
+  margin: 0;
+  padding: 0.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  overflow: auto;
+  max-height: calc(100vh - 13rem);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(8, 10, 14, 0.78);
+  backdrop-filter: blur(8px);
+}
+
+.known-npcs-card {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 11.5rem;
+  padding: 0.2rem 0.4rem 0.2rem 0.2rem;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: #eceff1;
+  text-align: left;
+  cursor: pointer;
+}
+
+.known-npcs-card:hover {
+  background: rgba(255, 204, 128, 0.16);
+}
+
+.known-npcs-card img {
+  width: 2.6rem;
+  height: 2.6rem;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 204, 128, 0.75);
+  background: #111;
+}
+
+.known-npcs-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.known-npcs-gm {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.known-npcs-gm-hint {
+  margin: 0;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.known-npcs-gm-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.known-npcs-gm-toolbar label {
+  flex: 1;
+}
+
+.known-npcs-gm-toolbar input {
+  width: 100%;
+}
+
+.known-npcs-gm-count {
+  min-width: 1.8rem;
+  text-align: center;
+  font-weight: 700;
+  color: #ffcc80;
+}
+
+.known-npcs-gm-empty {
+  margin: 0;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.known-npcs-gm-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  max-height: 28rem;
+  overflow: auto;
+}
+
+.known-npcs-gm-split {
+  margin: 0.35rem 0 0;
+  font-size: 0.72rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.known-npcs-gm-row {
+  display: grid;
+  grid-template-columns: 2.4rem minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.45rem 0.55rem;
+  padding: 0.35rem 0.45rem;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.22);
+}
+
+.known-npcs-gm-row.is-released {
+  grid-template-columns: 2.4rem minmax(0, 1fr) auto auto;
+  border: 1px solid rgba(255, 204, 128, 0.28);
+}
+
+.known-npcs-gm-row img {
+  width: 2.4rem;
+  height: 2.4rem;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.known-npcs-gm-copy {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.known-npcs-gm-copy strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.known-npcs-gm-copy span {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.known-npcs-gm-order {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.known-npcs-gm button {
+  padding: 0.28rem 0.5rem;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  cursor: pointer;
+}
+
+.known-npcs-gm button:hover:not(:disabled) {
+  background: rgba(255, 204, 128, 0.22);
+}
+
+.known-npcs-gm button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.known-npcs-gm-release {
+  background: rgba(46, 125, 50, 0.7) !important;
+  border-color: rgba(46, 125, 50, 0.95) !important;
+}
+
+.known-npcs-gm-hide {
+  background: rgba(183, 28, 28, 0.65) !important;
+  border-color: rgba(183, 28, 28, 0.9) !important;
+}
+
+.known-npcs-gm .sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+}
+
+.mastery-system.sheet.actor.npc .npc-known-release-box {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 7.5rem;
+}
+
+.mastery-system.sheet.actor.npc .npc-known-release-box label {
+  font-size: 0.68rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--df-text-secondary, #9aa0a6);
+}
+
+.mastery-system.sheet.actor.npc .npc-known-release-btn {
+  padding: 6px 8px;
+  border-radius: 4px;
+  border: 1px solid var(--df-border-primary, #3a3f44);
+  background: rgba(0, 0, 0, 0.35);
+  color: var(--df-text-primary, #d0d0d0);
+  cursor: pointer;
+}
+
+.mastery-system.sheet.actor.npc .npc-known-release-btn.is-on {
+  background: rgba(46, 125, 50, 0.45);
+  border-color: rgba(129, 199, 132, 0.7);
+}

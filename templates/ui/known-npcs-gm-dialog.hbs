@@ -1,0 +1,42 @@
+<div class="known-npcs-gm">
+  <p class="known-npcs-gm-hint">{{hint}}</p>
+  <div class="known-npcs-gm-toolbar">
+    <label>
+      <span class="sr-only">{{searchLabel}}</span>
+      <input type="search" name="known-npc-filter" value="{{filter}}" placeholder="{{searchLabel}}" />
+    </label>
+    <span class="known-npcs-gm-count">{{releasedCount}}</span>
+  </div>
+
+  {{#unless hasNpcs}}
+  <p class="known-npcs-gm-empty">{{empty}}</p>
+  {{else}}
+  <ul class="known-npcs-gm-list">
+    {{#each npcs}}
+    {{#if firstHidden}}
+    <li class="known-npcs-gm-split">{{../hiddenHeading}}</li>
+    {{/if}}
+    <li class="known-npcs-gm-row {{#if released}}is-released{{/if}}" data-actor-id="{{actorId}}">
+      <img src="{{img}}" alt="{{name}}" />
+      <div class="known-npcs-gm-copy">
+        <strong>{{name}}</strong>
+        {{#if faction}}<span>{{faction}}</span>{{/if}}
+      </div>
+      {{#if released}}
+      <div class="known-npcs-gm-order">
+        <button type="button" data-action="up" data-actor-id="{{actorId}}" {{#unless canUp}}disabled{{/unless}} aria-label="Up">
+          <i class="fas fa-arrow-up"></i>
+        </button>
+        <button type="button" data-action="down" data-actor-id="{{actorId}}" {{#unless canDown}}disabled{{/unless}} aria-label="Down">
+          <i class="fas fa-arrow-down"></i>
+        </button>
+      </div>
+      <button type="button" class="known-npcs-gm-hide" data-action="hide" data-actor-id="{{actorId}}">{{../hideLabel}}</button>
+      {{else}}
+      <button type="button" class="known-npcs-gm-release" data-action="release" data-actor-id="{{actorId}}">{{../releaseLabel}}</button>
+      {{/if}}
+    </li>
+    {{/each}}
+  </ul>
+  {{/unless}}
+</div>

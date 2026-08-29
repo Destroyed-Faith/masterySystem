@@ -92,6 +92,7 @@ import {
   getArtifactBaseTypeGroups,
   resolveArtifactBaseType,
 } from '../utils/artifact-base-type-catalog.js';
+import { getFilePickerClass } from '../utils/foundry-v14.js';
 
 // Use V1 Application for reliable template rendering in v13
 const BaseDialog: any = (foundry as any)?.appv1?.Application || (Application as any);
@@ -544,6 +545,7 @@ export class NodeEditor extends BaseDialog {
     const weaponDamagePreset = coerceTreeDamage(damageStr);
 
     data.item = this.item;
+    data.imgAlt = String(system.imgAlt || '').trim();
     data.level = system.level || 1;
     data.artifactKind = artifactKind;
     data.gearSlot = gearSlot;
@@ -838,6 +840,24 @@ export class NodeEditor extends BaseDialog {
 
   activateListeners(html: JQuery): void {
     super.activateListeners(html);
+
+    html.find('[data-action="pick-img-alt"]').on('click', (ev) => {
+      ev.preventDefault();
+      const FilePickerImpl = getFilePickerClass();
+      if (!FilePickerImpl) return;
+      const current = String(html.find('#node-img-alt').val() || '').trim();
+      const fp = new FilePickerImpl({
+        type: 'image',
+        current,
+        callback: (path: string) => {
+          html.find('#node-img-alt').val(path);
+          const preview = html.find('.node-img-alt-preview');
+          if (path) preview.attr('src', path).removeClass('is-empty');
+          else preview.attr('src', '').addClass('is-empty');
+        },
+      });
+      fp.browse();
+    });
 
     const { isLineageRoot } = resolveLineageForItem(this.item);
 
@@ -1748,6 +1768,7 @@ export class NodeEditor extends BaseDialog {
       'system.progressionPicks': progressionPicks,
       'system.levelProgression': levelProgression,
       'system.powers': [],
+      'system.imgAlt': String(html.find('#node-img-alt').val() || '').trim(),
       'system.binding': specBinding,
       ...(equipSlots ? { 'system.equipSlots': equipSlots } : {})
     };

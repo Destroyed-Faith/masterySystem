@@ -2040,7 +2040,7 @@ Shadowgrave Armor is a bound Body Artifact formed from living shadow, grave-cold
 
 | Slot | Base Type | Artifact Functions | Binding |
 |---|---|---|---|
-| Body | Shadow Armor | Hybrid Defense / Temporary HP Stone Support / Grave Control / Counter Reaction | Bound |
+| Body | Shadow Armor | Hybrid Defense / Temporary HP Stone Support / Hands of the Grave / Deathly Reprisal | Bound |
 
 Shadowgrave Armor occupies the Body Slot. The bearer cannot wear another Body Artifact or mundane armor while Shadowgrave Armor is bound.
 Shadowgrave Armor does not grant Damage Reduction. Shadowgrave Armor does not grant Phasing.
@@ -2072,14 +2072,14 @@ Shadowgrave Armor does not grant Damage Reduction. Shadowgrave Armor does not gr
 | **Artifact Level** | **Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
 |:--:|:--|:--|:--:|:--:|:--:|:--|:--|
 | **1** | **Shadow Shell I** | Stone Power Support | Self | — | Instant | Shadowgrave Armor supports the **Temporary HP Stone Power** and pre-fills **Tier 2**. You must still pay Tier 1 yourself. If Tier 1 is not paid, the pre-filled Tier 2 has no effect. | Temporary HP Stone Power |
-| **2** | **Grave Call I** | Defensive Active | Melee Reach | — | Instant | Make a melee control attack. On hit, the target takes **no damage**, is pushed **4 m**, and falls **Prone**. | Push + Prone |
-| **3** | **Deathly Reprisal I** | Reaction | Self | — | Triggering attack only | When a creature hits you with a melee attack, deal **2d8 damage** to the triggering creature and push it **4 m**. The triggering creature applies Armor, Damage Reduction, resistance, immunity, and other legal mitigation normally. | Counter Damage + Push |
+| **2** | **Deathly Reprisal I** | Reaction | Self | — | Triggering attack only | When a creature within 2 m hits you with an attack, deal **2d8 damage** to the triggering creature and push it **4 m**. The triggering creature applies Armor, Damage Reduction, resistance, immunity, and other legal mitigation normally. | Counter Damage + Push |
+| **3** | **Hands of the Grave I** | Active | 20 m | Radius 3 m | Instant | Spectral hands claw out of the ground at a target point. This is the catalog **Ranged AoE Special** (Root). Extra damage dice are 0 — the payload is **Root(3)**. | Root(3) |
 | **4** | **Shadow Shell II** | Stone Power Support | Self | — | Instant | Shadowgrave Armor now pre-fills **Tier 3** of the Temporary HP Stone Power. You must still pay Tier 1 and Tier 2 yourself. If Tier 1 and Tier 2 are not paid, the pre-filled Tier 3 has no effect. | Temporary HP Stone Power |
-| **5** | **Grave Call II** | Defensive Active | Melee Reach | — | Instant | Make a melee control attack. On hit, the target takes **no damage**, is pushed **16 m**, and falls **Prone**. | Push + Prone |
-| **6** | **Deathly Reprisal II** | Reaction | Self | — | Triggering attack only | When a creature hits you with a melee attack, deal **6d8 damage** to the triggering creature and push it **8 m**. The triggering creature applies Armor, Damage Reduction, resistance, immunity, and other legal mitigation normally. | Counter Damage + Push |
+| **5** | **Deathly Reprisal II** | Reaction | Self | — | Triggering attack only | When a creature within 2 m hits you with an attack, deal **6d8 damage** to the triggering creature and push it **8 m**. The triggering creature applies Armor, Damage Reduction, resistance, immunity, and other legal mitigation normally. | Counter Damage + Push |
+| **6** | **Hands of the Grave II** | Active | 44 m | Radius 5 m | Instant | Spectral hands claw out of the ground at a target point. Catalog **Ranged AoE Special** (Root). Extra damage dice are 0 — the payload is **Root(6)**. | Root(6) |
 | **7** | **Shadow Shell III** | Stone Power Support | Self | — | Instant | Shadowgrave Armor now pre-fills **Tier 4** of the Temporary HP Stone Power. You must still pay Tier 1, Tier 2, and Tier 3 yourself. If the lower tiers are not paid, the pre-filled Tier 4 has no effect. | Temporary HP Stone Power |
-| **8** | **Grave Call III** | Defensive Active | Melee Reach | — | Instant | Make a melee control attack. On hit, the target takes **no damage**, is pushed **28 m**, and falls **Prone**. | Push + Prone |
-| **9** | **Deathly Reprisal III** | Reaction | Self | — | Triggering attack only | When a creature hits you with a melee attack, deal **12d8 damage** to the triggering creature and push it **8 m**. The triggering creature applies Armor, Damage Reduction, resistance, immunity, and other legal mitigation normally. | Counter Damage + Push |
+| **8** | **Deathly Reprisal III** | Reaction | Self | — | Triggering attack only | When a creature within 2 m hits you with an attack, deal **12d8 damage** to the triggering creature and push it **8 m**. The triggering creature applies Armor, Damage Reduction, resistance, immunity, and other legal mitigation normally. | Counter Damage + Push |
+| **9** | **Hands of the Grave III** | Active | 68 m | Radius 7 m | Instant | Spectral hands claw out of the ground at a target point. Catalog **Ranged AoE Special** (Root). Extra damage dice are 0 — the payload is **Root(7)**. | Root(7) |
 | **10** | **True Shadowgrave Armor** | Ultimate | Self | — | Special | Shadowgrave Armor fully awakens. Choose or define one final Shadowgrave effect with GM approval. | True Shadowgrave Armor |
 
 }}
@@ -2122,15 +2122,15 @@ The Staff of the Dark occupies one hand Slot. The Staff of the Dark may be used 
 
 | **Artifact Level** | **Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
 |:--:|:--|:--|:--:|:--:|:--:|:--|:--|
-| **1** | **Might of the Dark I** | Active, Spell | 20 m | — | Instant | Deal **Staff Weapon Damage + 2d8 damage** on hit. | **Hex(4)** |
-| **2** | **Life Taken I** | Active, Spell | 20 m | — | Instant | Roll **Staff Weapon Damage + 7d8 damage** on hit. Split the total in half, rounded down. One half is dealt as damage. One willing creature within **20 m** heals HP equal to the other half. | — |
-| **3** | **Vision of the End I** | Active, Spell | 20 m | — | Instant | Deal **Staff Weapon Damage + 3d8 damage** on hit. | **Soulburn(3)** |
-| **4** | **Might of the Dark II** | Active, Spell | 44 m | — | Instant | Deal **Staff Weapon Damage + 2d8 damage** on hit. | **Hex(8)** |
-| **5** | **Life Taken II** | Active, Spell | 44 m | — | Instant | Roll **Staff Weapon Damage + 17d8 damage** on hit. Split the total in half, rounded down. One half is dealt as damage. One willing creature within **44 m** heals HP equal to the other half. | — |
-| **6** | **Vision of the End II** | Active, Spell | 44 m | — | Instant | Deal **Staff Weapon Damage + 3d8 damage** on hit. | **Soulburn(7)** |
-| **7** | **Might of the Dark III** | Active, Spell | 68 m | — | Instant | Deal **Staff Weapon Damage + 2d8 damage** on hit. | **Hex(10)** |
-| **8** | **Life Taken III** | Active, Spell | 68 m | — | Instant | Roll **Staff Weapon Damage + 27d8 damage** on hit. Split the total in half, rounded down. One half is dealt as damage. One willing creature within **68 m** heals HP equal to the other half. | — |
-| **9** | **Vision of the End III** | Active, Spell | 68 m | — | Instant | Deal **Staff Weapon Damage + 3d8 damage** on hit. | **Soulburn(9)** |
+| **1** | **Might of the Dark I** | Active, Spell | Self | Radius 3 m | Instant | Catalog **Melee AoE Special** (Hex). Extra damage dice are 0 — every creature in the area suffers **Hex(4)**. | **Hex(4)** |
+| **2** | **Life Taken I** | Active, Spell | 20 m | — | Instant | Catalog **Ranged Single Attack**. On hit, deal Staff Weapon Damage + **7d8 damage**. | — |
+| **3** | **Vision of the End I** | Active, Spell | 20 m | — | Instant | Catalog **Ranged Single Special** (Ruin). | **Ruin** |
+| **4** | **Might of the Dark II** | Active, Spell | Self | Radius 6 m | Instant | Catalog **Melee AoE Special** (Hex). Extra damage dice are 0 — every creature in the area suffers **Hex(6)**. | **Hex(6)** |
+| **5** | **Life Taken II** | Active, Spell | 44 m | — | Instant | Catalog **Ranged Single Attack**. On hit, deal Staff Weapon Damage + **17d8 damage**. | — |
+| **6** | **Vision of the End II** | Active, Spell | 44 m | — | Instant | Catalog **Ranged Single Special** (Ruin). | **Ruin** |
+| **7** | **Might of the Dark III** | Active, Spell | Self | Radius 7 m | Instant | Catalog **Melee AoE Special** (Hex). Extra damage dice are 0 — every creature in the area suffers **Hex(8)**. | **Hex(8)** |
+| **8** | **Life Taken III** | Active, Spell | 68 m | — | Instant | Catalog **Ranged Single Attack**. On hit, deal Staff Weapon Damage + **27d8 damage**. | — |
+| **9** | **Vision of the End III** | Active, Spell | 68 m | — | Instant | Catalog **Ranged Single Special** (Ruin). | **Ruin** |
 | **10** | **True Staff of the Dark** | Ultimate | Self | — | Special | The Staff of the Dark fully awakens. Choose or define one final Staff of the Dark effect with GM approval. | True Staff of the Dark |
 
 }}
@@ -2201,7 +2201,9 @@ It grants no Armor, no Evade, no Weapon Damage, and no Base Value.
 
 | Slot | Base Type | Artifact Functions | Binding |
 |---|---|---|---|
-| Amulet | Lantern | Stone Battery / Lantern Functions | Bound |
+| Amulet | Lantern | Stone Battery / Resolve Pool / Recovery | Bound |
+
+The Lantern is one of the eight Artifacts that may carry **three Stone Functions** at once.
 
 The Lantern of the Hollow Star occupies the Amulet Slot.
 
@@ -2226,16 +2228,16 @@ All of its power is written into its Level Progression.
 
 | **Artifact Level** | **Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
 |:--:|:--|:--|:--:|:--:|:--:|:--|:--|
-| **1** | **Stone Battery I** | Stone Battery | Self | — | Passive | The Lantern is a **Stone Battery** with a capacity of **10 Stones**. It starts empty. It does not refill after a Safe Haven Rest. It can only be charged through GM-approved sources. | Stone Battery |
-| **2** | **Lantern Glow I** | Support | Self | Radius 8 m | Passive | The Lantern sheds pale light in the area. The light may reveal magical darkness, hidden deathly traces, spirit marks, or similar supernatural traces if the GM allows it. | Lantern Light |
-| **3** | **Soul Reserve I** | Resource Support | Self | — | Passive | Once per Safe Haven Rest, you may spend **1 Stone** from the Lantern Battery for a Power you use, ignoring the Artifact's normal Slot-function restriction. | Free Stone |
-| **4** | **Stone Battery II** | Stone Battery | Self | — | Passive | The Lantern Battery capacity increases to **20 Stones**. It starts empty. It does not refill after a Safe Haven Rest. It can only be charged through GM-approved sources. | Stone Battery |
-| **5** | **Lantern Glow II** | Support | Self | Radius 16 m | Passive | The Lantern sheds pale light in the area. The light may reveal stronger magical darkness, deathly traces, spirit marks, cursed residue, or similar supernatural traces if the GM allows it. | Lantern Light |
-| **6** | **Soul Reserve II** | Resource Support | Self | — | Passive | Twice per Safe Haven Rest, you may spend **1 Stone** from the Lantern Battery for a Power you use, ignoring the Artifact's normal Slot-function restriction. | Free Stone |
-| **7** | **Stone Battery III** | Stone Battery | Self | — | Passive | The Lantern Battery capacity increases to **40 Stones**. It starts empty. It does not refill after a Safe Haven Rest. It can only be charged through GM-approved sources. | Stone Battery |
-| **8** | **Lantern Glow III** | Support | Self | Radius 24 m | Passive | The Lantern sheds pale light in the area. The light may reveal magical darkness, deathly traces, spirit marks, cursed residue, hidden undead, or similar supernatural traces if the GM allows it. | Lantern Light |
-| **9** | **Soul Reserve III** | Resource Support | Self | — | Passive | Three times per Safe Haven Rest, you may spend **1 Stone** from the Lantern Battery for a Power you use, ignoring the Artifact's normal Slot-function restriction. | Free Stone |
-| **10** | **True Hollow Star** | Ultimate | Self | — | Special | The Lantern fully awakens. Choose or define one final Stone Battery, soul reserve, lantern light, or stored-stone effect with GM approval. | True Hollow Star |
+| **1** | **Stone Battery I** | Stone Battery | Self | — | Passive | Gain a **Resolve Stone Battery** (capacity **10**). | Stone Battery |
+| **2** | **Resolve Pool I** | Stone Pool | Self | — | Passive | After each Safe Haven Rest, store **2 Resolve Stones**. These Stones may only be used for this Artifact's listed Resolve Stone functions. | Stone Pool |
+| **3** | **Recovery I** | Stone Refresh | Self | — | Instant | Restore **1** spent Resolve Stone. | Stone Refresh |
+| **4** | **Stone Battery II** | Stone Battery | Self | — | Passive | Gain a **Resolve Stone Battery** (capacity **20**). | Stone Battery |
+| **5** | **Resolve Pool II** | Stone Pool | Self | — | Passive | After each Safe Haven Rest, store **4 Resolve Stones**. These Stones may only be used for this Artifact's listed Resolve Stone functions. | Stone Pool |
+| **6** | **Recovery II** | Stone Refresh | Self | — | Instant | Restore **2** spent Resolve Stones. | Stone Refresh |
+| **7** | **Stone Battery III** | Stone Battery | Self | — | Passive | Gain a **Resolve Stone Battery** (capacity **40**). | Stone Battery |
+| **8** | **Resolve Pool III** | Stone Pool | Self | — | Passive | After each Safe Haven Rest, store **8 Resolve Stones**. These Stones may only be used for this Artifact's listed Resolve Stone functions. | Stone Pool |
+| **9** | **Recovery III** | Stone Refresh | Self | — | Instant | Restore **4** spent Resolve Stones. | Stone Refresh |
+| **10** | **True Hollow Star** | Ultimate | Self | — | Special | The Lantern fully awakens. Choose or define one final Stone Battery, Resolve Pool, Recovery, or stored-stone effect with GM approval. | True Hollow Star |
 
 
 }}

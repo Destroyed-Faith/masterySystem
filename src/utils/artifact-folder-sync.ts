@@ -117,7 +117,8 @@ export async function syncArtifactInheritedFromParent(parentItem: Item): Promise
       'system.attackAttribute': String(parentSystem.attackAttribute || 'default').trim() || 'default',
       'system.progressionPicks': inheritedPicks,
       'system.levelProgression': inheritedProgression,
-      'system.powers': []
+      'system.powers': [],
+      'system.imgAlt': String(parentSystem.imgAlt || '').trim(),
     };
 
     const inferredSlots = inferArtifactEquipSlots({

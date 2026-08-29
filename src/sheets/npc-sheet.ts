@@ -41,6 +41,8 @@ import {
   newCustomNpcReaction,
   newStandardNpcReaction,
 } from '../utils/npc-reactions.js';
+import { isKnownNpcReleased, toggleKnownNpc } from '../system/known-npcs.js';
+import { KnownNpcsBar } from '../ui/known-npcs-bar.js';
 
 /** Attach Ini malus/bonus split fields for the sheet dropdowns. */
 function withNpcIniUi(combat: Record<string, any> | null | undefined): Record<string, any> {
@@ -284,6 +286,10 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
       msCopyPictureLink: function (this: any) {
         void copyDocumentImageLink(this.actor);
       },
+      'toggle-known-npc': function (this: any, event: Event) {
+        event.preventDefault();
+        void this.#onToggleKnownNpc();
+      },
     },
   };
 
@@ -404,6 +410,8 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
         { value: 0, label: 'Neutral', selected: disposition === 0 },
         { value: 1, label: 'Friendly', selected: disposition === 1 },
       ];
+      (context as any).canReleaseKnownNpc = !isSummon && !!(game as any).user?.isGM;
+      (context as any).knownNpcReleased = isKnownNpcReleased(String(actorDoc?.id || ''));
       context.system.npcBaseAttack = normalizeNpcAttackRowForContext(context.system.npcBaseAttack);
       if (Array.isArray(context.system.attackValues)) {
         context.system.attackValues = context.system.attackValues.map((r: any) => normalizeNpcAttackRowForContext(r));
@@ -1346,6 +1354,14 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
       phases.splice(phaseIndex, 1);
       await (this.actor as any).update({ 'system.phases': phases });
     }
+  }
+
+  async #onToggleKnownNpc(): Promise<void> {
+    if (!(game as any).user?.isGM) return;
+    if (String((this.actor as any)?.type || '') !== 'npc') return;
+    await toggleKnownNpc(String((this.actor as any).id || ''));
+    await KnownNpcsBar.refresh();
+    await (this as any).render(false);
   }
 
 }

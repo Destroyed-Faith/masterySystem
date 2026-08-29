@@ -1,0 +1,61 @@
+<div class="unluck-gm">
+  <div class="unluck-gm-pool">
+    <div class="unluck-gm-pool-copy">
+      <strong>Misfortune Tokens</strong>
+      <span>Spend 1 to complicate a scene. Do not turn a success into a failure.</span>
+    </div>
+    <div class="unluck-gm-pool-actions">
+      <button type="button" data-action="token-remove" {{#unless tokens}}disabled{{/unless}} aria-label="One token less">
+        <i class="fas fa-minus"></i>
+      </button>
+      <span class="unluck-gm-count">{{tokens}}</span>
+      <button type="button" data-action="token-add" aria-label="One token more">
+        <i class="fas fa-plus"></i>
+      </button>
+    </div>
+  </div>
+
+  <div class="unluck-gm-session">
+    {{#if sessionRolled}}
+    <p>This session already rolled Unluck (<strong>+{{sessionAdded}}</strong> tokens). Start Session again only if you want another roll.</p>
+    {{else}}
+    <p>Start the session to roll Unluck automatically for every character who has it.</p>
+    {{/if}}
+    <div class="unluck-gm-session-actions">
+      <button type="button" class="unluck-gm-primary" data-action="start-session">
+        <i class="fas fa-dice"></i> {{#if sessionRolled}}Roll again{{else}}Start Session — Roll Unluck{{/if}}
+      </button>
+      {{#if sessionRolled}}
+      <button type="button" data-action="clear-session">New session</button>
+      {{/if}}
+    </div>
+  </div>
+
+  <section class="unluck-gm-chars">
+    <h3>Characters with Unluck</h3>
+    {{#unless hasUnluck}}
+    <p class="unluck-gm-empty">No character has Unluck.</p>
+    {{else}}
+    <ul>
+      {{#each characters}}
+      <li>
+        <strong>{{name}}</strong>
+        <span>Rank {{rank}} · {{formula}}</span>
+        {{#if hasLast}}<span class="unluck-gm-last">Last roll {{lastDice}} → {{lastTokens}} token(s)</span>{{/if}}
+      </li>
+      {{/each}}
+    </ul>
+    {{/unless}}
+  </section>
+
+  <section class="unluck-gm-spend">
+    <h3>Spend 1 token</h3>
+    <div class="unluck-gm-spend-grid">
+      {{#each spendReasons}}
+      <button type="button" data-action="spend" data-reason="{{id}}" {{#unless ../tokens}}disabled{{/unless}}>
+        {{label}}
+      </button>
+      {{/each}}
+    </div>
+  </section>
+</div>

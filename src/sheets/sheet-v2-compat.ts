@@ -66,7 +66,7 @@ export function bindManualSheetTabs(
  * FilePicker and stores the chosen path on the document.
  */
 export function bindEditImage(root: HTMLElement, document: any): void {
-  root.querySelectorAll<HTMLElement>('[data-edit="img"]').forEach((el) => {
+  root.querySelectorAll<HTMLElement>('[data-edit="img"], [data-edit="system.imgAlt"]').forEach((el) => {
     el.addEventListener('click', (ev) => {
       ev.preventDefault();
       if (!document?.canUserModify?.((game as any).user, 'update')) return;

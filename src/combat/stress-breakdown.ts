@@ -17,15 +17,14 @@ import {
   resetStressBarsToClear,
 } from '../utils/calculations.js';
 import { calculateDisadvantagePoints } from '../system/disadvantages.js';
+import { addMisfortuneTokens, registerMisfortuneTokenSettings } from '../system/misfortune-tokens.js';
 import type { HealthBar } from '../types/actor.js';
 
 const FLAG_SCOPE = 'mastery-system';
 const FLAG_PENDING = 'stressBreakdownPending';
 const FLAG_VIRTUE_KEEP = 'stressBreakdownVirtueKeep';
-const MISFORTUNE_SETTING = 'misfortuneTokens';
 
 let hooksRegistered = false;
-let settingsRegistered = false;
 
 function escHtml(s: string): string {
   return String(s)
@@ -47,44 +46,7 @@ function userMayActForActor(actor: any): boolean {
 }
 
 export function registerStressBreakdownSettings(): void {
-  if (settingsRegistered) return;
-  const g = globalThis as any;
-  if (!g.game?.settings?.register) return;
-  try {
-    g.game.settings.register(FLAG_SCOPE, MISFORTUNE_SETTING, {
-      name: 'Misfortune Tokens (GM)',
-      hint: 'Tokens from Stress Breakdown “Push It Down”. Spend to force a reroll, add a complication, or worsen a failure (max 1 per roll).',
-      scope: 'world',
-      config: true,
-      type: Number,
-      default: 0,
-    });
-    settingsRegistered = true;
-  } catch (err) {
-    console.warn('Mastery System | misfortuneTokens setting register failed', err);
-  }
-}
-
-async function getMisfortuneTokens(): Promise<number> {
-  const g = globalThis as any;
-  try {
-    return Math.max(0, Math.floor(Number(g.game?.settings?.get?.(FLAG_SCOPE, MISFORTUNE_SETTING)) || 0));
-  } catch {
-    return 0;
-  }
-}
-
-async function addMisfortuneTokens(amount: number): Promise<number> {
-  const g = globalThis as any;
-  const add = Math.max(0, Math.floor(Number(amount) || 0));
-  const cur = await getMisfortuneTokens();
-  const next = cur + add;
-  try {
-    await g.game?.settings?.set?.(FLAG_SCOPE, MISFORTUNE_SETTING, next);
-  } catch (err) {
-    console.warn('Mastery System | misfortuneTokens set failed', err);
-  }
-  return next;
+  registerMisfortuneTokenSettings();
 }
 
 async function resetActorStressTrack(actor: any): Promise<void> {

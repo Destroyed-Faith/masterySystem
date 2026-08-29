@@ -48,7 +48,7 @@ export class ProgressionHubDialog extends BaseDialog {
   static DEFAULT_OPTIONS = {
     id: 'progression-hub-dialog',
     classes: ['mastery-system', 'progression-hub-dialog'],
-    position: { width: 620, height: 720 },
+    position: { width: 700, height: 760 },
     window: {
       title: 'Progression',
       resizable: true,
@@ -99,7 +99,9 @@ export class ProgressionHubDialog extends BaseDialog {
       remainingAfterPending,
       hasFreeXpPhase: hasFreeXp(this.actor),
       capacity: hub.artifactCapacity,
-      cards: buildArtifactEvolutionCards(this.actor),
+      cards: buildArtifactEvolutionCards(this.actor, {
+        xpAvailable: Math.max(0, remainingAfterPending),
+      }),
       hasUnwiredArtifacts: hub.unwiredArtifacts.length > 0,
       constants: {
         linkStone: ARTIFACT_LINK_STONE_COST,

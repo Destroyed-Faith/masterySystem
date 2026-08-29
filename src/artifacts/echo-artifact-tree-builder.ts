@@ -50,14 +50,14 @@ import {
   getMinorMovementBaselineB,
   getPaperdollSlotsForArtifact,
 } from '../utils/artifact-rules.js';
-import { getEchoArtifactIcon } from '../utils/item-icons.js';
+import { getEchoArtifactAltIcon, getEchoArtifactIcon } from '../utils/item-icons.js';
 
 /**
  * Content version of the generated trees. Bump this whenever the generator's
  * output (base values, powers, slot/profile, etc.) changes so the world seeder
  * can detect stale library copies and refresh them in place.
  */
-export const ECHO_ARTIFACT_SEED_VERSION = 42;
+export const ECHO_ARTIFACT_SEED_VERSION = 46;
 
 const ARTIFACT_LEVELS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] as const;
 const ALL_POWER_LEVEL_KEYS: PowerLevelKey[] = [
@@ -649,7 +649,7 @@ function buildEmbeddedPower(
   };
   const tags: string[] = [];
   const lowType = String(row.type || '').toLowerCase();
-  if (lowType.includes('spell')) tags.push('spell');
+  if (lowType.includes('spell') || row.isSpell) tags.push('spell');
   if (lowType.includes('stone')) tags.push('stone-function');
   return {
     id: `${echoArtifactKey}-pw-${row.level}`,
@@ -853,6 +853,7 @@ export function buildEchoArtifactTree(def: EchoArtifactDefinition): GeneratedArt
   const isGeneral = !def.echoKey;
   const kind = deriveArtifactKind(def.baseProfile);
   const img = getEchoArtifactIcon(def.key) ?? iconForKind(kind);
+  const imgAlt = String(def.imgAlt || getEchoArtifactAltIcon(def.key) || '').trim();
   const paperdollOverride = (def as GeneralArtifactDefinition).paperdollSlots;
   const paperdoll =
     paperdollOverride && paperdollOverride.length > 0
@@ -906,6 +907,7 @@ export function buildEchoArtifactTree(def: EchoArtifactDefinition): GeneratedArt
       description: def.restriction ? `${def.description}\n\n${def.restriction}` : def.description,
       bonuses: { attack: 0, damage: '', defense: 0, specials: [] },
       requirements: { stones: 0, masteryRank: 1 },
+      imgAlt,
       powers,
       inventorySize: '1x1',
       ...(isWeapon
