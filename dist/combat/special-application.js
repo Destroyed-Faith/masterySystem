@@ -13,7 +13,7 @@
  * another Special. A stored Stone Powers plan still applies at turn start;
  * otherwise the HUD applies the choice. A Special that reaches 0 ends.
  */
-import { getEffectBaseName, getEffectById } from '../utils/special-effects.js';
+import { getEffect, getEffectBaseName, getEffectById } from '../utils/special-effects.js';
 import { readActiveSpecials, statusEntryId } from '../system/active-specials.js';
 export const SPECIAL_ROUND_APPS_FLAG = 'specialRoundApps';
 export const NATURAL_RECOVERY_FLAG = 'naturalSpecialRecovery';
@@ -48,21 +48,43 @@ export function isNegativeDiminishingSpecialId(id) {
         return false;
     return effect.polarity !== 'positive';
 }
+/**
+ * HUD tokens: catalog negative diminishing, plus unknown valued stacks
+ * that are not a known timed / until-used / positive effect.
+ */
+export function isHudTokenSpecialId(id, name) {
+    if (isNegativeDiminishingSpecialId(id))
+        return true;
+    const effect = (id && getEffectById(id)) || (name ? getEffect(name) : undefined);
+    if (effect)
+        return effect.category === 'diminishing' && effect.polarity !== 'positive';
+    return !!(id || name);
+}
 /** Negative diminishing Specials with a live stack — the HUD token source. */
 export function listHudDiminishingSpecials(actor) {
     const rows = new Map();
     for (const s of readActiveSpecials(actor)) {
-        if (!isNegativeDiminishingSpecialId(s.id) || s.value <= 0)
+        if (s.value <= 0 || !isHudTokenSpecialId(s.id))
             continue;
-        rows.set(s.id, (rows.get(s.id) ?? 0) + s.value);
+        const prev = rows.get(s.id);
+        rows.set(s.id, {
+            value: (prev?.value ?? 0) + s.value,
+            label: prev?.label || specialDisplayName(s.id),
+        });
     }
     return [...rows.entries()]
-        .map(([id, value]) => ({ id, value, label: specialDisplayName(id) }))
+        .map(([id, row]) => ({ id, value: row.value, label: row.label }))
         .sort((a, b) => a.label.localeCompare(b.label) || a.id.localeCompare(b.id));
 }
 export function specialDisplayName(id) {
     const effect = getEffectById(id);
-    return effect ? getEffectBaseName(effect.name) : id;
+    if (effect)
+        return getEffectBaseName(effect.name);
+    return String(id || '')
+        .split(/[-_\s]+/)
+        .filter(Boolean)
+        .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+        .join(' ') || id;
 }
 export function emptySpecialRoundApps(combat) {
     return {

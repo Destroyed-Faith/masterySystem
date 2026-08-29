@@ -1,5 +1,10 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, afterEach } from 'vitest';
 import { listHudDiminishingSpecials } from '../src/combat/special-application.js';
+import {
+  actorInCombat,
+  resolveCombatantActor,
+  resolveSpecialTokenHudActor,
+} from '../src/ui/special-token-area.js';
 import { specialTokenAsset, SPECIAL_TOKEN_FALLBACK } from '../src/ui/special-token-assets.js';
 import {
   SPECIAL_TOKEN_STACK_MAX,
@@ -107,5 +112,76 @@ describe('special token views', () => {
   it('uses the Challenge 1er art as the fallback for every Special', () => {
     expect(specialTokenAsset('blight')).toBe(SPECIAL_TOKEN_FALLBACK);
     expect(specialTokenAsset('challenge')).toBe(SPECIAL_TOKEN_FALLBACK);
+  });
+
+  it('builds three Sundered tokens from the actor stack', () => {
+    const specials = listHudDiminishingSpecials({
+      system: { statusEffects: [{ id: 'sundered', value: 3 }] },
+    });
+    const { tokens } = syncSpecialTokenViews(specials, {});
+    expect(specials).toEqual([{ id: 'sundered', value: 3, label: 'Sundered' }]);
+    expect(tokens).toHaveLength(3);
+    expect(tokens.every((t) => t.specialId === 'sundered')).toBe(true);
+  });
+});
+
+describe('special token HUD actor restore', () => {
+  afterEach(() => {
+    delete (globalThis as any).game;
+    delete (globalThis as any).canvas;
+  });
+
+  it('finds an actor by combatant actorId after a character switch', () => {
+    const oda = {
+      id: 'oda',
+      uuid: 'Actor.oda',
+      isOwner: true,
+      system: { statusEffects: [{ id: 'sundered', value: 3 }] },
+    };
+    const combat = {
+      started: true,
+      round: 2,
+      combatants: [{ actorId: 'oda' }],
+      combatant: { actorId: 'oda' },
+    };
+    const actors = { get: (id: string) => (id === 'oda' ? oda : null) };
+    expect(resolveCombatantActor(combat.combatants[0], actors)).toBe(oda);
+    expect(actorInCombat(oda, combat, actors)).toBe(true);
+
+    (globalThis as any).game = {
+      combat,
+      actors,
+      user: { isGM: false, character: oda },
+    };
+    (globalThis as any).canvas = { tokens: { controlled: [] } };
+    expect(resolveSpecialTokenHudActor()).toBe(oda);
+    expect(listHudDiminishingSpecials(resolveSpecialTokenHudActor())).toHaveLength(1);
+  });
+
+  it('prefers the controlled combatant when the assigned character is someone else', () => {
+    const other = {
+      id: 'other',
+      uuid: 'Actor.other',
+      isOwner: true,
+      system: { statusEffects: [] },
+    };
+    const oda = {
+      id: 'oda',
+      uuid: 'Actor.oda',
+      isOwner: true,
+      system: { statusEffects: [{ id: 'sundered', value: 3 }] },
+    };
+    const combat = {
+      started: true,
+      combatants: [{ actorId: 'other', actor: other }, { actorId: 'oda', actor: oda }],
+      combatant: { actorId: 'other', actor: other },
+    };
+    (globalThis as any).game = {
+      combat,
+      actors: { get: (id: string) => (id === 'oda' ? oda : id === 'other' ? other : null) },
+      user: { isGM: false, character: other },
+    };
+    (globalThis as any).canvas = { tokens: { controlled: [{ actor: oda }] } };
+    expect(resolveSpecialTokenHudActor()).toBe(oda);
   });
 });

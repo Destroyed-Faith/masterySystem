@@ -73,6 +73,7 @@ describe('active-specials readers', () => {
     expect(statusEntryId({ id: 'ruin' })).toBe('ruin');
     expect(statusEntryId({ id: 'ignite' })).toBe('ruin');
     expect(statusEntryId({ name: 'Bleeding' })).toBe('lacerate');
+    expect(statusEntryId({ name: 'Sundered' })).toBe('sundered');
     expect(statusEntryId({})).toBeUndefined();
   });
 

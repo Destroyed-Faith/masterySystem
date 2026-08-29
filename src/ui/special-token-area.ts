@@ -103,27 +103,72 @@ async function writeActorLayout(actorUuid: string, layout: SpecialTokenLayoutMap
 }
 
 function liveCombat(): any {
-  return (globalThis as any).game?.combat ?? null;
+  const g = (globalThis as any).game;
+  return g?.combat ?? g?.combats?.active ?? null;
 }
 
-function combatIsActive(combat: any): boolean {
+function collectionList(raw: any): any[] {
+  if (!raw) return [];
+  if (Array.isArray(raw)) return raw;
+  if (Array.isArray(raw.contents)) return raw.contents;
+  if (typeof raw.values === 'function') return Array.from(raw.values());
+  return [];
+}
+
+export function combatIsActive(combat: any): boolean {
   if (!combat) return false;
   if (combat.started === false) return false;
   if (combat.started === true) return true;
-  return Number(combat.round) > 0 || combat.combatant != null;
+  return Number(combat.round) > 0 || combat.combatant != null || collectionList(combat.combatants).length > 0;
 }
 
-function actorInCombat(actor: any, combat: any): boolean {
+export function sameHudActor(a: any, b: any): boolean {
+  if (!a || !b) return false;
+  if (a === b) return true;
+  const aId = String(a.id ?? a._id ?? '');
+  const bId = String(b.id ?? b._id ?? '');
+  if (aId && bId && aId === bId) return true;
+  const aUuid = String(a.uuid ?? '');
+  const bUuid = String(b.uuid ?? '');
+  return !!aUuid && !!bUuid && aUuid === bUuid;
+}
+
+export function resolveCombatantActor(combatant: any, actors?: any): any | null {
+  if (!combatant) return null;
+  if (combatant.actor) return combatant.actor;
+  if (combatant.token?.actor) return combatant.token.actor;
+  const id = String(combatant.actorId ?? '');
+  if (id && actors?.get) return actors.get(id) ?? null;
+  return null;
+}
+
+export function actorInCombat(actor: any, combat: any, actors?: any): boolean {
   if (!actor || !combat) return false;
-  const combatants = combat.combatants;
-  const list = Array.isArray(combatants)
-    ? combatants
-    : combatants?.contents ?? (typeof combatants?.values === 'function' ? Array.from(combatants.values()) : []);
-  return list.some((c: any) => {
-    const a = c?.actor;
-    if (!a) return false;
-    return a === actor || a.id === actor.id || a.uuid === actor.uuid;
+  const actorId = String(actor.id ?? actor._id ?? '');
+  return collectionList(combat.combatants).some((c: any) => {
+    if (actorId && String(c?.actorId ?? '') === actorId) return true;
+    return sameHudActor(resolveCombatantActor(c, actors), actor);
   });
+}
+
+function ownedByUser(actor: any, user: any): boolean {
+  if (!actor || !user) return false;
+  if (user.isGM) return true;
+  if (actor.isOwner === true) return true;
+  if (typeof actor.testUserPermission === 'function') {
+    try {
+      return !!actor.testUserPermission(user, 'OWNER');
+    } catch {
+      return false;
+    }
+  }
+  return false;
+}
+
+function pickPreferredActor(candidates: any[]): any | null {
+  const live = candidates.filter(Boolean);
+  if (!live.length) return null;
+  return live.find((a) => listHudDiminishingSpecials(a).length > 0) ?? live[0] ?? null;
 }
 
 export function resolveSpecialTokenHudActor(): any | null {
@@ -132,25 +177,23 @@ export function resolveSpecialTokenHudActor(): any | null {
   if (!combatIsActive(combat)) return null;
   const user = g.game?.user;
   if (!user) return null;
+  const actors = g.game?.actors;
 
-  if (user.isGM) {
-    const controlled = g.canvas?.tokens?.controlled?.[0]?.actor;
-    if (controlled && actorInCombat(controlled, combat)) return controlled;
-    return combat.combatant?.actor ?? null;
-  }
+  const controlled = collectionList(g.canvas?.tokens?.controlled)
+    .map((t: any) => t?.actor)
+    .filter((a: any) => a && ownedByUser(a, user) && actorInCombat(a, combat, actors));
 
   const assigned = user.character;
-  if (assigned && actorInCombat(assigned, combat)) return assigned;
+  const assignedOk = assigned && actorInCombat(assigned, combat, actors) ? assigned : null;
 
-  const combatants = combat.combatants;
-  const list = Array.isArray(combatants)
-    ? combatants
-    : combatants?.contents ?? (typeof combatants?.values === 'function' ? Array.from(combatants.values()) : []);
-  for (const c of list) {
-    const a = c?.actor;
-    if (a && a.isOwner && actorInCombat(a, combat)) return a;
-  }
-  return null;
+  const ownedCombatants = collectionList(combat.combatants)
+    .map((c: any) => resolveCombatantActor(c, actors))
+    .filter((a: any) => a && ownedByUser(a, user));
+
+  const current = resolveCombatantActor(combat.combatant, actors);
+  const currentOk = current && (user.isGM || ownedByUser(current, user)) ? current : null;
+
+  return pickPreferredActor([...controlled, assignedOk, currentOk, ...ownedCombatants]);
 }
 
 function unbindHooks(): void {
@@ -442,9 +485,15 @@ export function initializeSpecialTokenArea(): void {
   removeRoot();
 
   const refresh = () => scheduleRefresh();
-  bindHook('ready', refresh);
+  bindHook('ready', () => {
+    refresh();
+    window.setTimeout(refresh, 250);
+    window.setTimeout(refresh, 1000);
+  });
   bindHook('combatStart', refresh);
+  bindHook('createCombat', refresh);
   bindHook('updateCombat', refresh);
+  bindHook('updateCombatant', refresh);
   bindHook('combatEnd', () => {
     removeRoot();
   });
@@ -452,19 +501,31 @@ export function initializeSpecialTokenArea(): void {
     removeRoot();
   });
   bindHook('updateActor', (doc: any, changes: any) => {
-    if (changes?.system?.statusEffects !== undefined || changes?.['system.statusEffects'] !== undefined) {
+    if (
+      changes?.system?.statusEffects !== undefined ||
+      changes?.['system.statusEffects'] !== undefined ||
+      changes?.system !== undefined
+    ) {
       refresh();
       return;
     }
     const actor = resolveSpecialTokenHudActor();
-    if (actor && (doc === actor || doc?.id === actor.id || doc?.uuid === actor.uuid)) refresh();
+    if (actor && sameHudActor(doc, actor)) refresh();
   });
+  bindHook('updateUser', refresh);
   bindHook('controlToken', refresh);
   bindHook('canvasReady', refresh);
+  bindHook('renderHotbar', () => {
+    const el = rootEl();
+    if (el) placeRoot(el);
+    else refresh();
+  });
 
   resizeHandler = () => {
     const el = rootEl();
     if (el) placeRoot(el);
   };
   window.addEventListener('resize', resizeHandler);
+
+  if ((globalThis as any).game?.ready) refresh();
 }

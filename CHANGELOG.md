@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.426] - 2026-08-29
+
+### Fixed
+
+- **Combat HUD:** Switching character, logging back in, or joining a fight already in progress rebuilds the token tray from the actor’s Specials (e.g. Sundered 3 → three tokens).
+
 ## [0.9.425] - 2026-08-29
 
 ### Added

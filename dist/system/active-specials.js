@@ -8,6 +8,13 @@
  * single normalized view.
  */
 import { getEffect, getEffectById, canonicalSpecialId } from '../utils/special-effects.js';
+function slugSpecialName(name) {
+    return String(name || '')
+        .replace(/\(X\)/gi, '')
+        .trim()
+        .toLowerCase()
+        .replace(/\s+/g, '-');
+}
 /** Resolve the canonical special id for a stored status entry. */
 export function statusEntryId(entry) {
     if (entry?.id) {
@@ -20,14 +27,15 @@ export function statusEntryId(entry) {
         const byName = getEffect(entry.name);
         if (byName)
             return byName.id;
+        const slug = slugSpecialName(entry.name);
+        if (slug)
+            return slug;
     }
     return undefined;
 }
 /** Normalized list of a creature's active Specials (id + value). */
 export function readActiveSpecials(actor) {
-    const list = actor?.system?.statusEffects;
-    if (!Array.isArray(list))
-        return [];
+    const list = coerceStatusEffectsArray(actor?.system?.statusEffects);
     const out = [];
     for (const entry of list) {
         const id = statusEntryId(entry);

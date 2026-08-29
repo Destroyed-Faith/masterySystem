@@ -291,7 +291,29 @@ export const TIMED_EFFECTS = [
         hasValue: false,
         dispellable: false,
         pricing: '120 PP'
-    }
+    },
+    {
+        id: 'grounded',
+        name: 'Grounded',
+        category: 'timed',
+        description: 'You cannot fly or hover. The effect lasts until cleared.',
+        duration: 'Until cleared',
+        stacking: 'No',
+        removal: 'Ends when the source ends or is cleared.',
+        hasValue: false,
+        dispellable: false,
+    },
+    {
+        id: 'paralyzed',
+        name: 'Paralyzed',
+        category: 'timed',
+        description: 'You cannot take Movement or Attack Actions until the effect ends.',
+        duration: 'Until cleared',
+        stacking: 'No',
+        removal: 'Ends when the source ends or is cleared.',
+        hasValue: false,
+        dispellable: false,
+    },
 ];
 /**
  * Until Broken / Until Used Effects — persist until consumed or internal counter reaches 0.

@@ -32,6 +32,11 @@ export declare function specialApplicationLimit(masteryRank: number): number;
 export declare function isDiminishingSpecialId(id: string | undefined | null): boolean;
 /** Regeneration is diminishing but beneficial — Natural Recovery never targets it. */
 export declare function isNegativeDiminishingSpecialId(id: string | undefined | null): boolean;
+/**
+ * HUD tokens: catalog negative diminishing, plus unknown valued stacks
+ * that are not a known timed / until-used / positive effect.
+ */
+export declare function isHudTokenSpecialId(id: string | undefined | null, name?: string | null): boolean;
 export interface HudDiminishingSpecial {
     id: string;
     value: number;

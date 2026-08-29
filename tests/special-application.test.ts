@@ -218,6 +218,26 @@ describe('natural special recovery', () => {
     ]);
   });
 
+  it('rebuilds Sundered stacks after a reload-shaped statusEffects object', () => {
+    const actor = {
+      system: {
+        statusEffects: {
+          0: { id: 'sundered', name: 'Sundered(X)', value: 3 },
+        },
+      },
+    };
+    expect(listHudDiminishingSpecials(actor)).toEqual([
+      { id: 'sundered', value: 3, label: 'Sundered' },
+    ]);
+  });
+
+  it('resolves a name-only Sundered entry to three HUD tokens', () => {
+    const actor = { system: { statusEffects: [{ name: 'Sundered', value: 3 }] } };
+    expect(listHudDiminishingSpecials(actor)).toEqual([
+      { id: 'sundered', value: 3, label: 'Sundered' },
+    ]);
+  });
+
   it('applies full MR to one Special and loses leftover', async () => {
     const combat = { id: 'c1', round: 1, started: true, combatant: { actor: null as any } };
     const actor: any = {

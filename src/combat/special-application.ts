@@ -14,7 +14,7 @@
  * otherwise the HUD applies the choice. A Special that reaches 0 ends.
  */
 
-import { getEffectBaseName, getEffectById } from '../utils/special-effects.js';
+import { getEffect, getEffectBaseName, getEffectById } from '../utils/special-effects.js';
 import { readActiveSpecials, statusEntryId } from '../system/active-specials.js';
 
 export const SPECIAL_ROUND_APPS_FLAG = 'specialRoundApps';
@@ -66,6 +66,17 @@ export function isNegativeDiminishingSpecialId(id: string | undefined | null): b
   return effect.polarity !== 'positive';
 }
 
+/**
+ * HUD tokens: catalog negative diminishing, plus unknown valued stacks
+ * that are not a known timed / until-used / positive effect.
+ */
+export function isHudTokenSpecialId(id: string | undefined | null, name?: string | null): boolean {
+  if (isNegativeDiminishingSpecialId(id)) return true;
+  const effect = (id && getEffectById(id)) || (name ? getEffect(name) : undefined);
+  if (effect) return effect.category === 'diminishing' && effect.polarity !== 'positive';
+  return !!(id || name);
+}
+
 export interface HudDiminishingSpecial {
   id: string;
   value: number;
@@ -74,19 +85,28 @@ export interface HudDiminishingSpecial {
 
 /** Negative diminishing Specials with a live stack — the HUD token source. */
 export function listHudDiminishingSpecials(actor: any): HudDiminishingSpecial[] {
-  const rows = new Map<string, number>();
+  const rows = new Map<string, { value: number; label: string }>();
   for (const s of readActiveSpecials(actor)) {
-    if (!isNegativeDiminishingSpecialId(s.id) || s.value <= 0) continue;
-    rows.set(s.id, (rows.get(s.id) ?? 0) + s.value);
+    if (s.value <= 0 || !isHudTokenSpecialId(s.id)) continue;
+    const prev = rows.get(s.id);
+    rows.set(s.id, {
+      value: (prev?.value ?? 0) + s.value,
+      label: prev?.label || specialDisplayName(s.id),
+    });
   }
   return [...rows.entries()]
-    .map(([id, value]) => ({ id, value, label: specialDisplayName(id) }))
+    .map(([id, row]) => ({ id, value: row.value, label: row.label }))
     .sort((a, b) => a.label.localeCompare(b.label) || a.id.localeCompare(b.id));
 }
 
 export function specialDisplayName(id: string): string {
   const effect = getEffectById(id);
-  return effect ? getEffectBaseName(effect.name) : id;
+  if (effect) return getEffectBaseName(effect.name);
+  return String(id || '')
+    .split(/[-_\s]+/)
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ') || id;
 }
 
 export function emptySpecialRoundApps(combat?: { id?: string; round?: number } | null): SpecialRoundApps {
