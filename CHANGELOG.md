@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.428] - 2026-08-29
+
+### Fixed
+
+- **Combat carousel:** Portrait cards stay pinned to the top of the rail. They can grow downward; Next Turn and the side icons stay aligned to the card header instead of sliding down with the extra height.
+
 ## [0.9.427] - 2026-08-29
 
 ### Changed

@@ -18,11 +18,12 @@
   border-radius: 0 0 12px 12px;
   padding: 1rem;
   display: none;
-  align-items: center;
+  align-items: flex-start;
   gap: 1rem;
   width: 50vw !important;
-  height: 30vh !important;
+  height: auto !important;
   min-height: 180px !important;
+  overflow: visible !important;
   margin: 0 !important;
 }
 
@@ -98,6 +99,7 @@
   width: 50vw !important;
   height: auto !important;
   max-width: 50vw !important;
+  overflow: visible !important;
   margin: 0 !important;
   border: none !important;
   box-shadow: none !important;
@@ -108,6 +110,7 @@
   margin: 0 !important;
   background: transparent !important;
   border: none !important;
+  overflow: visible !important;
 }
 
 /* ========================================
@@ -116,9 +119,10 @@
 
 .carousel-combatants {
   display: flex;
+  align-items: flex-start;
   gap: 0.75rem;
   overflow-x: auto;
-  overflow-y: hidden;
+  overflow-y: visible;
   flex: 1;
   scrollbar-width: thin;
   scrollbar-color: #e94560 rgba(255, 255, 255, 0.1);
@@ -150,8 +154,9 @@
 .carousel-portrait {
   position: relative;
   flex-shrink: 0;
+  align-self: flex-start;
   width: 160px;
-  height: 100%;
+  height: auto;
   background: rgba(15, 52, 96, 0.6);
   border: 2px solid rgba(233, 69, 96, 0.3);
   border-radius: 8px;
@@ -161,14 +166,13 @@
   align-items: center;
   gap: 0.4rem;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: border-color 0.2s, box-shadow 0.2s, opacity 0.2s;
   opacity: 0.8;
 }
 
 .carousel-portrait:hover {
   opacity: 1;
   border-color: #e94560;
-  transform: translateY(-4px);
   box-shadow: 0 4px 12px rgba(233, 69, 96, 0.4);
 }
 
@@ -259,7 +263,7 @@
 .portrait-end-turn {
   width: 100%;
   padding: 0.5rem;
-  margin-top: auto;
+  margin-top: 0.15rem;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -558,7 +562,10 @@
 .carousel-controls {
   display: flex;
   flex-direction: column;
+  align-self: flex-start;
+  flex-shrink: 0;
   gap: 0.5rem;
+  padding-top: 0.75rem;
   opacity: 0;
   transition: opacity 0.3s;
 }
