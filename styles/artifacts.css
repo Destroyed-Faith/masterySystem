@@ -2015,10 +2015,36 @@ div.artifact-sheet-v2 .artifact-ability-special {
 .artifact-card-footer {
   display: flex;
   justify-content: flex-end;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+}
+.artifact-card-actions {
+  justify-content: flex-start;
+}
+.artifact-card-path {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.78rem;
+  color: var(--df-text-secondary, #b8c0c6);
+}
+.artifact-card-path select {
+  max-width: 12rem;
+}
+.artifact-card-action-reason {
+  flex: 1 1 100%;
+  margin: 0;
+  font-size: 0.78rem;
+  color: #ffcc80;
 }
 .artifact-card-edit {
   width: auto;
   font-size: 0.82rem;
   padding: 3px 10px;
+}
+.artifact-card-upgrade:not(:disabled) {
+  border-color: rgba(255, 204, 128, 0.55);
+  background: rgba(255, 204, 128, 0.14);
 }
 

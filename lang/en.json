@@ -399,7 +399,8 @@
       "emptyWorld": "No NPC actors in this world.",
       "hiddenHeading": "Not shown to players",
       "sheetLabel": "Players",
-      "sheetHint": "Show this NPC’s portrait and name on the player bar"
+      "sheetHint": "Show this NPC’s portrait and name on the player bar",
+      "drag": "Drag to move"
     },
     "weaponSets": {
       "groupLabel": "Weaponslots",
@@ -411,12 +412,19 @@
     },
     "artifact": {
       "sheet": {
-        "inactive": "Inactive — activate via Artifacts",
+        "inactive": "Inactive — activate here or via Artifacts",
         "whenActivated": "When activated",
         "whenActivatedHint": "These values and abilities unlock when you activate this artifact.",
         "nextLevel": "Next: Level {level}",
         "nextLevelHint": "Unlocked when you raise this artifact.",
-        "imgAlt": "Alternative image"
+        "imgAlt": "Alternative image",
+        "upgrade": "Upgrade ({xp} XP)",
+        "upgradeGm": "GM: Upgrade (no XP)",
+        "activate": "Activate ({n} Stone)",
+        "choosePool": "Stone pool",
+        "path": "Path",
+        "unwired": "This artifact is not linked to its evolution tree yet.",
+        "wire": "Link to world tree"
       }
     }
   },

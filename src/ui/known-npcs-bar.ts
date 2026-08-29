@@ -4,12 +4,15 @@
 
 import { resolveActorPortraitSrc } from '../epic-roll/epic-mastery-roll-portraits.js';
 import {
+  clampKnownNpcsBarPosition,
   collectReleasedKnownNpcs,
   isKnownNpcReleased,
   readKnownNpcIds,
   readKnownNpcsBarCollapsed,
+  readKnownNpcsBarPosition,
   removeKnownNpc,
   setKnownNpcsBarCollapsed,
+  setKnownNpcsBarPosition,
 } from '../system/known-npcs.js';
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
@@ -109,7 +112,94 @@ export class KnownNpcsBar extends BaseBar {
       title: loc('MASTERY.knownNpcs.title', 'Important NPCs'),
       expandLabel: loc('MASTERY.knownNpcs.expand', 'Show important NPCs'),
       collapseLabel: loc('MASTERY.knownNpcs.collapse', 'Hide important NPCs'),
+      dragLabel: loc('MASTERY.knownNpcs.drag', 'Drag to move'),
     };
+  }
+
+  async _onRender(context: any, options: any): Promise<void> {
+    await super._onRender?.(context, options);
+    this.applyStoredPosition();
+    this.#bindDragHandle();
+  }
+
+  applyStoredPosition(): void {
+    this.#applyPosition();
+  }
+
+  #rootElement(): HTMLElement | null {
+    return ((this as any).element as HTMLElement | null) ?? null;
+  }
+
+  #applyPosition(): void {
+    const el = this.#rootElement();
+    if (!el) return;
+    const apply = () => {
+      const next = clampKnownNpcsBarPosition(
+        readKnownNpcsBarPosition(),
+        { width: window.innerWidth, height: window.innerHeight },
+        { width: el.offsetWidth, height: el.offsetHeight },
+      );
+      el.style.left = `${next.x}px`;
+      el.style.top = `${next.y}px`;
+    };
+    apply();
+    if (!el.offsetWidth || !el.offsetHeight) requestAnimationFrame(apply);
+  }
+
+  #bindDragHandle(): void {
+    const handle = this.#rootElement()?.querySelector?.('.known-npcs-handle') as HTMLElement | null;
+    if (!handle) return;
+    handle.onpointerdown = (event) => this.#onDragPointerDown(event);
+  }
+
+  #onDragPointerDown(event: PointerEvent): void {
+    if (event.button !== 0) return;
+    const el = this.#rootElement();
+    if (!el) return;
+    event.preventDefault();
+    event.stopPropagation();
+    const startX = event.clientX;
+    const startY = event.clientY;
+    const origin = el.getBoundingClientRect();
+    const handle = event.currentTarget as HTMLElement | null;
+    try {
+      handle?.setPointerCapture?.(event.pointerId);
+    } catch {
+      /* ignore */
+    }
+    el.classList.add('is-dragging');
+
+    const move = (ev: PointerEvent) => {
+      const next = clampKnownNpcsBarPosition(
+        { x: origin.left + ev.clientX - startX, y: origin.top + ev.clientY - startY },
+        { width: window.innerWidth, height: window.innerHeight },
+        { width: el.offsetWidth, height: el.offsetHeight },
+      );
+      el.style.left = `${next.x}px`;
+      el.style.top = `${next.y}px`;
+    };
+    const stop = (ev: PointerEvent) => {
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', stop);
+      window.removeEventListener('pointercancel', stop);
+      el.classList.remove('is-dragging');
+      try {
+        handle?.releasePointerCapture?.(ev.pointerId);
+      } catch {
+        /* ignore */
+      }
+      const box = el.getBoundingClientRect();
+      void setKnownNpcsBarPosition(
+        clampKnownNpcsBarPosition(
+          { x: box.left, y: box.top },
+          { width: window.innerWidth, height: window.innerHeight },
+          { width: el.offsetWidth, height: el.offsetHeight },
+        ),
+      );
+    };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', stop);
+    window.addEventListener('pointercancel', stop);
   }
 
   async #toggleCollapsed(): Promise<void> {
@@ -125,6 +215,9 @@ export function initializeKnownNpcsBar(): void {
 
   Hooks.once('ready', refresh);
   Hooks.on('canvasReady', refresh);
+  window.addEventListener('resize', () => {
+    KnownNpcsBar.instance?.applyStoredPosition();
+  });
 
   Hooks.on('updateSetting', (setting: any) => {
     const key = String(setting?.key ?? '');

@@ -5,7 +5,16 @@
 
 export const KNOWN_NPCS_SETTING = 'knownNpcs';
 export const KNOWN_NPCS_COLLAPSED_SETTING = 'knownNpcsBarCollapsed';
+export const KNOWN_NPCS_POSITION_SETTING = 'knownNpcsBarPosition';
 export const FLAG_SCOPE = 'mastery-system';
+
+export interface KnownNpcsBarPosition {
+  x: number;
+  y: number;
+}
+
+export const DEFAULT_KNOWN_NPCS_BAR_POSITION: KnownNpcsBarPosition = { x: 90, y: 76 };
+const BAR_EDGE_PAD = 8;
 
 export interface KnownNpcsState {
   ids: string[];
@@ -35,6 +44,29 @@ export function sanitizeKnownNpcIds(raw: unknown): string[] {
     out.push(id);
   }
   return out;
+}
+
+export function sanitizeKnownNpcsBarPosition(raw: unknown): KnownNpcsBarPosition {
+  const obj = raw && typeof raw === 'object' ? (raw as { x?: unknown; y?: unknown }) : {};
+  const x = Number(obj.x);
+  const y = Number(obj.y);
+  if (!Number.isFinite(x) || !Number.isFinite(y)) return { ...DEFAULT_KNOWN_NPCS_BAR_POSITION };
+  return { x: Math.round(x), y: Math.round(y) };
+}
+
+export function clampKnownNpcsBarPosition(
+  pos: KnownNpcsBarPosition,
+  viewport: { width: number; height: number },
+  size: { width: number; height: number },
+): KnownNpcsBarPosition {
+  const width = Math.max(0, Number(size.width) || 0);
+  const height = Math.max(0, Number(size.height) || 0);
+  const maxX = Math.max(BAR_EDGE_PAD, (Number(viewport.width) || 0) - width - BAR_EDGE_PAD);
+  const maxY = Math.max(BAR_EDGE_PAD, (Number(viewport.height) || 0) - height - BAR_EDGE_PAD);
+  return {
+    x: Math.min(maxX, Math.max(BAR_EDGE_PAD, pos.x)),
+    y: Math.min(maxY, Math.max(BAR_EDGE_PAD, pos.y)),
+  };
 }
 
 function actorById(actors: { get?: (id: string) => any } | Iterable<any> | null | undefined, id: string): any {
@@ -125,6 +157,17 @@ export function registerKnownNpcSettings(): void {
   } catch (err) {
     console.warn('Mastery System | knownNpcsBarCollapsed setting register failed', err);
   }
+  try {
+    g.game.settings.register(FLAG_SCOPE, KNOWN_NPCS_POSITION_SETTING, {
+      name: 'Important NPCs bar position',
+      scope: 'client',
+      config: false,
+      type: Object,
+      default: DEFAULT_KNOWN_NPCS_BAR_POSITION,
+    });
+  } catch (err) {
+    console.warn('Mastery System | knownNpcsBarPosition setting register failed', err);
+  }
 }
 
 export function readKnownNpcIds(): string[] {
@@ -202,4 +245,24 @@ export async function setKnownNpcsBarCollapsed(collapsed: boolean): Promise<void
   } catch (err) {
     console.warn('Mastery System | knownNpcsBarCollapsed set failed', err);
   }
+}
+
+export function readKnownNpcsBarPosition(): KnownNpcsBarPosition {
+  const g = globalThis as any;
+  try {
+    return sanitizeKnownNpcsBarPosition(g.game?.settings?.get?.(FLAG_SCOPE, KNOWN_NPCS_POSITION_SETTING));
+  } catch {
+    return { ...DEFAULT_KNOWN_NPCS_BAR_POSITION };
+  }
+}
+
+export async function setKnownNpcsBarPosition(pos: KnownNpcsBarPosition): Promise<KnownNpcsBarPosition> {
+  const next = sanitizeKnownNpcsBarPosition(pos);
+  const g = globalThis as any;
+  try {
+    await g.game?.settings?.set?.(FLAG_SCOPE, KNOWN_NPCS_POSITION_SETTING, next);
+  } catch (err) {
+    console.warn('Mastery System | knownNpcsBarPosition set failed', err);
+  }
+  return next;
 }

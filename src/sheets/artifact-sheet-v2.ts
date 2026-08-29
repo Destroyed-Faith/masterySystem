@@ -18,17 +18,41 @@ import {
   ARTIFACT_SLOT_LABELS,
   BASE_PROFILE_LABELS,
 } from '../utils/artifact-rules.js';
-import { isArtifactLinkedOnActor } from '../utils/artifact-actor-rules.js';
+import {
+  ARTIFACT_LINK_STONE_COST,
+  ARTIFACT_UPGRADE_XP_COST,
+  isArtifactLinkedOnActor,
+  listArtifactSpendableStonePools,
+  usesStonePoolEconomy,
+} from '../utils/artifact-actor-rules.js';
 import {
   displayFromArtifactSystem,
   resolveNextArtifactPreviews,
 } from '../utils/artifact-sheet-preview.js';
+import { buildArtifactEvolutionCards } from '../artifacts/artifact-evolution-actions.js';
 import { openFoundryImagePopout } from '../ui/image-url-share.js';
 import { getFilePickerClass } from '../utils/foundry-v14.js';
 
 const BaseArtifactSheet: any = foundry.applications.api.HandlebarsApplicationMixin(
   foundry.applications.sheets.ItemSheetV2,
 );
+
+function readChosenPath(
+  wrap: Element | null,
+  btn: HTMLElement,
+): { worldId: string; nodeId: string } | null {
+  const pathSel = wrap?.querySelector<HTMLSelectElement | HTMLInputElement>('.artifact-sheet-path-select');
+  const worldId = String(
+    (pathSel instanceof HTMLSelectElement
+      ? pathSel.selectedOptions[0]?.dataset.worldId
+      : pathSel?.dataset.worldId) ||
+      btn.dataset.worldId ||
+      '',
+  );
+  const nodeId = String(pathSel?.value || btn.dataset.nodeId || '');
+  if (!worldId || !nodeId) return null;
+  return { worldId, nodeId };
+}
 
 export class ArtifactSheetV2 extends BaseArtifactSheet {
   /** @override */
@@ -81,7 +105,7 @@ export class ArtifactSheetV2 extends BaseArtifactSheet {
     context.isGM = !!game.user?.isGM;
     context.mechanicallyActive = mechanicallyActive;
     context.labels = {
-      inactive: loc('MASTERY.artifact.sheet.inactive', 'Inactive — activate via Artifacts'),
+      inactive: loc('MASTERY.artifact.sheet.inactive', 'Inactive — activate here or via Artifacts'),
       whenActivated: loc('MASTERY.artifact.sheet.whenActivated', 'When activated'),
       whenActivatedHint: loc(
         'MASTERY.artifact.sheet.whenActivatedHint',
@@ -92,6 +116,20 @@ export class ArtifactSheetV2 extends BaseArtifactSheet {
         'Unlocked when you raise this artifact.',
       ),
       imgAlt: loc('MASTERY.artifact.sheet.imgAlt', 'Alternative image'),
+      upgrade: loc('MASTERY.artifact.sheet.upgrade', 'Upgrade ({xp} XP)', {
+        xp: String(ARTIFACT_UPGRADE_XP_COST),
+      }),
+      upgradeGm: loc('MASTERY.artifact.sheet.upgradeGm', 'GM: Upgrade (no XP)'),
+      activate: loc('MASTERY.artifact.sheet.activate', 'Activate ({n} Stone)', {
+        n: String(ARTIFACT_LINK_STONE_COST),
+      }),
+      choosePool: loc('MASTERY.artifact.sheet.choosePool', 'Stone pool'),
+      path: loc('MASTERY.artifact.sheet.path', 'Path'),
+      unwired: loc(
+        'MASTERY.artifact.sheet.unwired',
+        'This artifact is not linked to its evolution tree yet.',
+      ),
+      wire: loc('MASTERY.artifact.sheet.wire', 'Link to world tree'),
     };
     context.imgAlt = String((system as any).imgAlt || '').trim();
     context.summary = {
@@ -111,6 +149,35 @@ export class ArtifactSheetV2 extends BaseArtifactSheet {
     }));
     context.hasNextPreview = nextPreviews.length > 0;
     context.hasActivationPreview = !mechanicallyActive && (activation.hasBaseValues || activation.hasAbilities);
+
+    const card = parentActor
+      ? buildArtifactEvolutionCards(parentActor).find((c) => c.embeddedId === item.id)
+      : undefined;
+    const usesPools = parentActor ? usesStonePoolEconomy(parentActor) : false;
+    const defaultPath = card?.nextUpgrade || card?.nextGmUpgrade || card?.paths?.[0] || null;
+    context.actorActions = parentActor
+      ? {
+          show: true,
+          isOwner: !!parentActor.isOwner,
+          unwired: !card,
+          linked: !!card?.linked,
+          canActivate: !!card?.canActivate,
+          canUpgrade: !!card?.canUpgrade,
+          linkDisabledReason: card?.linkDisabledReason || '',
+          upgradeDisabledReason: card?.upgradeDisabledReason || '',
+          rootWorldId: card?.rootWorldId || '',
+          embeddedId: item.id,
+          paths: card?.paths ?? [],
+          hasPaths: !!(card?.paths?.length),
+          manyPaths: (card?.paths?.length ?? 0) > 1,
+          selectedWorldId: defaultPath?.worldItemId || '',
+          selectedNodeId: defaultPath?.nodeId || '',
+          usesStonePools: usesPools,
+          stonePools: usesPools ? listArtifactSpendableStonePools(parentActor) : [],
+          nextGmUpgrade: !!card?.nextGmUpgrade,
+        }
+      : { show: false };
+
     return context;
   }
 
@@ -144,6 +211,86 @@ export class ArtifactSheetV2 extends BaseArtifactSheet {
         },
       });
       fp.browse();
+    });
+
+    const parentActor = item.parent?.documentName === 'Actor' ? item.parent : null;
+    const refresh = async () => {
+      await (this as any).render({ force: true });
+    };
+
+    root.querySelector('[data-action="sheet-activate"]')?.addEventListener('click', async (ev: Event) => {
+      ev.preventDefault();
+      if (!parentActor?.isOwner) return;
+      const btn = ev.currentTarget as HTMLElement;
+      const wrap = btn.closest('.artifact-card-actions');
+      const poolSel = wrap?.querySelector<HTMLSelectElement>('.artifact-sheet-pool-select');
+      const { linkArtifactForActor } = await import('../artifacts/artifact-evolution-actions.js');
+      const ok = await linkArtifactForActor(
+        parentActor,
+        String(btn.dataset.rootId || ''),
+        String(btn.dataset.embId || item.id),
+        poolSel?.value || undefined,
+      );
+      if (ok) await refresh();
+    });
+
+    root.querySelector('[data-action="sheet-upgrade"]')?.addEventListener('click', async (ev: Event) => {
+      ev.preventDefault();
+      if (!parentActor?.isOwner) return;
+      const btn = ev.currentTarget as HTMLElement;
+      const chosen = readChosenPath(btn.closest('.artifact-card-actions'), btn);
+      if (!chosen) {
+        ui.notifications?.warn('Choose a valid upgrade path.');
+        return;
+      }
+      const { upgradeArtifactForActor } = await import('../artifacts/artifact-evolution-actions.js');
+      const ok = await upgradeArtifactForActor(
+        parentActor,
+        String(btn.dataset.rootId || ''),
+        String(btn.dataset.embId || item.id),
+        chosen.worldId,
+        chosen.nodeId,
+      );
+      if (ok) await refresh();
+    });
+
+    root.querySelector('[data-action="sheet-gm-upgrade"]')?.addEventListener('click', async (ev: Event) => {
+      ev.preventDefault();
+      if (!game.user?.isGM || !parentActor) return;
+      const btn = ev.currentTarget as HTMLElement;
+      const chosen = readChosenPath(btn.closest('.artifact-card-actions'), btn);
+      if (!chosen) {
+        ui.notifications?.warn('Choose a valid upgrade path.');
+        return;
+      }
+      const confirmed = await (Dialog as any).confirm({
+        title: 'GM: Upgrade artifact (no XP)',
+        content:
+          `<p><strong>${item.name}</strong> along this path?</p>` +
+          '<p>No XP is spent. Mastery Rank cap and the once-per-step rule do not apply.</p>',
+        yes: () => true,
+        no: () => false,
+        defaultYes: false,
+      });
+      if (!confirmed) return;
+      const { upgradeArtifactForActor } = await import('../artifacts/artifact-evolution-actions.js');
+      const ok = await upgradeArtifactForActor(
+        parentActor,
+        String(btn.dataset.rootId || ''),
+        String(btn.dataset.embId || item.id),
+        chosen.worldId,
+        chosen.nodeId,
+        { gmFree: true },
+      );
+      if (ok) await refresh();
+    });
+
+    root.querySelector('[data-action="sheet-wire"]')?.addEventListener('click', async (ev: Event) => {
+      ev.preventDefault();
+      if (!game.user?.isGM || !parentActor) return;
+      const { wireEmbeddedArtifactToWorldTree } = await import('../utils/artifact-tree-grant.js');
+      const wire = await wireEmbeddedArtifactToWorldTree(parentActor, item, { notify: true });
+      if (wire?.ok) await refresh();
     });
 
     if (!game.user?.isGM) return;

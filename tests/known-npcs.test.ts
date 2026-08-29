@@ -1,8 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import {
+  clampKnownNpcsBarPosition,
   collectReleasedKnownNpcs,
+  DEFAULT_KNOWN_NPCS_BAR_POSITION,
   listNpcsForGmDialog,
   sanitizeKnownNpcIds,
+  sanitizeKnownNpcsBarPosition,
   toKnownNpcView,
 } from '../src/system/known-npcs';
 
@@ -38,5 +41,19 @@ describe('known NPC roster', () => {
     expect(
       toKnownNpcView({ id: 's', type: 'summon', name: 'Wolf', img: 'w.png' }),
     ).toBeNull();
+  });
+});
+
+describe('known NPC bar position', () => {
+  it('falls back to the default when the stored value is junk', () => {
+    expect(sanitizeKnownNpcsBarPosition(null)).toEqual(DEFAULT_KNOWN_NPCS_BAR_POSITION);
+    expect(sanitizeKnownNpcsBarPosition({ x: 'nope', y: 12 })).toEqual(DEFAULT_KNOWN_NPCS_BAR_POSITION);
+    expect(sanitizeKnownNpcsBarPosition({ x: 140.8, y: 33.2 })).toEqual({ x: 141, y: 33 });
+  });
+
+  it('keeps the bar inside the viewport', () => {
+    expect(
+      clampKnownNpcsBarPosition({ x: -40, y: 9999 }, { width: 800, height: 600 }, { width: 180, height: 80 }),
+    ).toEqual({ x: 8, y: 512 });
   });
 });

@@ -52,7 +52,7 @@
         "range": "Self",
         "aoe": "",
         "duration": "Instant",
-        "effect": "Supports the Agility Ability: Crit Stone Power and pre-fills Tier 2. You must still pay Tier 1 yourself. If Tier 1 is not paid, the pre-filled Tier 2 has no effect.",
+        "effect": "Supports the Agility Ability: Crit Stone Power and pre-fills Tier 3. You must still pay Tier 2 yourself. If Tier 2 is not paid, the pre-filled Tier 3 has no effect.",
         "special": "agility.crit"
       }
     ],
@@ -564,7 +564,7 @@
               "kind": "instant"
             },
             "effect": {
-              "text": "Supports the Agility Ability: Crit Stone Power and pre-fills Tier 2. You must still pay Tier 1 yourself. If Tier 1 is not paid, the pre-filled Tier 2 has no effect."
+              "text": "Supports the Agility Ability: Crit Stone Power and pre-fills Tier 3. You must still pay Tier 2 yourself. If Tier 2 is not paid, the pre-filled Tier 3 has no effect."
             },
             "specials": [],
             "lvl": 3

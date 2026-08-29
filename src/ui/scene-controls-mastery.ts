@@ -4,7 +4,6 @@
  */
 
 import { StonePowersDialog } from '../stones/stone-powers-dialog.js';
-import { startDivineClash, revealDivineClash, endRoundDivineClash, resetDivineClash } from '../divine-clash/divine-clash.js';
 import { confirmAndApplySafeHavenRestToAllCharacters } from '../utils/safe-haven-rest.js';
 import { UnluckGmDialog } from './unluck-gm-dialog.js';
 import { KnownNpcsGmDialog } from './known-npcs-gm-dialog.js';
@@ -16,61 +15,6 @@ function resolveCombatant(actor: Actor): Combatant | null {
   if (!game.combat) return null;
   
   return game.combat.combatants.find((c: Combatant) => c.actor?.id === (actor as any).id) || null;
-}
-
-/**
- * Handler functions for Divine Clash buttons
- */
-async function handleDivineClashStart() {
-  if (!game.user?.isGM) {
-    ui.notifications?.warn('Only the GM can start Divine Clash');
-    return;
-  }
-  try {
-    await startDivineClash();
-  } catch (err) {
-    console.error('Mastery System | [ERROR] Divine Clash Start failed', err);
-    ui.notifications?.error('Divine Clash Start failed - see console');
-  }
-}
-
-async function handleDivineClashReveal() {
-  if (!game.user?.isGM) {
-    ui.notifications?.warn('Only the GM can reveal Divine Clash');
-    return;
-  }
-  try {
-    await revealDivineClash();
-  } catch (err) {
-    console.error('Mastery System | [ERROR] Divine Clash Reveal failed', err);
-    ui.notifications?.error('Divine Clash Reveal failed - see console');
-  }
-}
-
-async function handleDivineClashEndRound() {
-  if (!game.user?.isGM) {
-    ui.notifications?.warn('Only the GM can end a round');
-    return;
-  }
-  try {
-    await endRoundDivineClash();
-  } catch (err) {
-    console.error('Mastery System | [ERROR] Divine Clash End Round failed', err);
-    ui.notifications?.error('Divine Clash End Round failed - see console');
-  }
-}
-
-async function handleDivineClashReset() {
-  if (!game.user?.isGM) {
-    ui.notifications?.warn('Only the GM can reset Divine Clash');
-    return;
-  }
-  try {
-    await resetDivineClash();
-  } catch (err) {
-    console.error('Mastery System | [ERROR] Divine Clash Reset failed', err);
-    ui.notifications?.error('Divine Clash Reset failed - see console');
-  }
 }
 
 async function handlePartySafeHavenRest() {
@@ -109,10 +53,6 @@ async function handleKnownNpcsMenu() {
 }
 
 const MASTERY_TOOL_HANDLERS: Record<string, () => void> = {
-  divineClashStart: handleDivineClashStart,
-  divineClashReveal: handleDivineClashReveal,
-  divineClashEndRound: handleDivineClashEndRound,
-  divineClashReset: handleDivineClashReset,
   safeHavenRestAll: handlePartySafeHavenRest,
   unluckMenu: handleUnluckMenu,
   knownNpcsMenu: handleKnownNpcsMenu,
@@ -122,7 +62,6 @@ const MASTERY_TOOL_HANDLERS: Record<string, () => void> = {
  * Initialize scene controls
  */
 export function initializeSceneControls(): void {
-  // Set up event delegation for Divine Clash buttons as soon as DOM is ready
   Hooks.once('ready', () => {
     const setupEventDelegation = () => {
       const sceneControls = document.querySelector('#scene-controls');
@@ -133,7 +72,7 @@ export function initializeSceneControls(): void {
       }
       
       // Remove any existing listeners to avoid duplicates
-      const existingListener = (sceneControls as any)._divineClashClickHandler;
+      const existingListener = (sceneControls as any)._masteryToolClickHandler;
       if (existingListener) {
         sceneControls.removeEventListener('click', existingListener);
       }
@@ -158,7 +97,7 @@ export function initializeSceneControls(): void {
       };
       
       // Store reference to remove later if needed
-      (sceneControls as any)._divineClashClickHandler = clickHandler;
+      (sceneControls as any)._masteryToolClickHandler = clickHandler;
       
       // Add event listener with capture to ensure we catch it before Foundry
       sceneControls.addEventListener('click', clickHandler, true);
@@ -174,54 +113,6 @@ export function initializeSceneControls(): void {
     // Create tool definitions with detailed logging
     // In Foundry V13, tools with button: true need both onClick and activate
     const tools = [
-      {
-        name: 'divineClashStart',
-        title: 'Divine Clash: Start',
-        icon: 'fas fa-chess',
-        onClick: () => {
-          handleDivineClashStart();
-        },
-        activate: () => {
-          handleDivineClashStart();
-        },
-        button: true
-      },
-      {
-        name: 'divineClashReveal',
-        title: 'Divine Clash: Reveal',
-        icon: 'fas fa-eye',
-        onClick: () => {
-          handleDivineClashReveal();
-        },
-        activate: () => {
-          handleDivineClashReveal();
-        },
-        button: true
-      },
-      {
-        name: 'divineClashEndRound',
-        title: 'Divine Clash: End Round',
-        icon: 'fas fa-hourglass-end',
-        onClick: () => {
-          handleDivineClashEndRound();
-        },
-        activate: () => {
-          handleDivineClashEndRound();
-        },
-        button: true
-      },
-      {
-        name: 'divineClashReset',
-        title: 'Divine Clash: Reset',
-        icon: 'fas fa-trash',
-        onClick: () => {
-          handleDivineClashReset();
-        },
-        activate: () => {
-          handleDivineClashReset();
-        },
-        button: true
-      },
       {
         name: 'safeHavenRestAll',
         title: 'Safe Haven Rest — All Characters',
@@ -275,8 +166,7 @@ export function initializeSceneControls(): void {
       // Ensure the control group is visible and accessible
       restricted: false
     };
-    // Set up event delegation for Divine Clash buttons
-    // This ensures handlers work even if buttons are re-rendered by Foundry
+    // Event delegation so handlers keep working if Foundry re-renders the tools
     const setupEventDelegation = () => {
       const sceneControls = document.querySelector('#scene-controls');
       if (!sceneControls) {
@@ -284,7 +174,7 @@ export function initializeSceneControls(): void {
       }
       
       // Remove any existing listeners to avoid duplicates
-      const existingListener = (sceneControls as any)._divineClashClickHandler;
+      const existingListener = (sceneControls as any)._masteryToolClickHandler;
       if (existingListener) {
         sceneControls.removeEventListener('click', existingListener);
       }
@@ -309,7 +199,7 @@ export function initializeSceneControls(): void {
       };
       
       // Store reference to remove later if needed
-      (sceneControls as any)._divineClashClickHandler = clickHandler;
+      (sceneControls as any)._masteryToolClickHandler = clickHandler;
       
       // Add event listener with capture to ensure we catch it before Foundry
       sceneControls.addEventListener('click', clickHandler, true);
@@ -341,25 +231,18 @@ export function initializeSceneControls(): void {
         }
         
         // Check if buttons already exist
-        const existingButtons = masteryToolsContainer.querySelectorAll('[data-tool="divineClashStart"], [data-tool="divineClashReveal"], [data-tool="divineClashEndRound"], [data-tool="divineClashReset"], [data-tool="safeHavenRestAll"], [data-tool="unluckMenu"], [data-tool="knownNpcsMenu"]');
+        const existingButtons = masteryToolsContainer.querySelectorAll('[data-tool="safeHavenRestAll"], [data-tool="unluckMenu"], [data-tool="knownNpcsMenu"]');
         if (existingButtons.length > 0) {
           return true;
         }
-        // Create button configs
         const isGM = !!(game as any).user?.isGM;
-        const buttonConfigs = [
-          { name: 'divineClashStart', title: 'Divine Clash: Start', icon: 'fas fa-chess', handler: handleDivineClashStart },
-          { name: 'divineClashReveal', title: 'Divine Clash: Reveal', icon: 'fas fa-eye', handler: handleDivineClashReveal },
-          { name: 'divineClashEndRound', title: 'Divine Clash: End Round', icon: 'fas fa-hourglass-end', handler: handleDivineClashEndRound },
-          { name: 'divineClashReset', title: 'Divine Clash: Reset', icon: 'fas fa-trash', handler: handleDivineClashReset },
-          ...(isGM
-            ? [
-                { name: 'safeHavenRestAll', title: 'Safe Haven Rest — All Characters', icon: 'fas fa-bed', handler: handlePartySafeHavenRest },
-                { name: 'unluckMenu', title: 'Unluck / Misfortune', icon: 'fas fa-cloud-moon', handler: handleUnluckMenu },
-                { name: 'knownNpcsMenu', title: 'Important NPCs', icon: 'fas fa-id-badge', handler: handleKnownNpcsMenu },
-              ]
-            : []),
-        ];
+        const buttonConfigs = isGM
+          ? [
+              { name: 'safeHavenRestAll', title: 'Safe Haven Rest — All Characters', icon: 'fas fa-bed', handler: handlePartySafeHavenRest },
+              { name: 'unluckMenu', title: 'Unluck / Misfortune', icon: 'fas fa-cloud-moon', handler: handleUnluckMenu },
+              { name: 'knownNpcsMenu', title: 'Important NPCs', icon: 'fas fa-id-badge', handler: handleKnownNpcsMenu },
+            ]
+          : [];
         
         buttonConfigs.forEach(config => {
           const btn = document.createElement('button');

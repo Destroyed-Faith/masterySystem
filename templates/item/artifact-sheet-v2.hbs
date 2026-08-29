@@ -114,7 +114,83 @@
     {{/each}}
   </section>
 
-  {{#if isGM}}
+  {{#if actorActions.show}}
+  <footer class="artifact-card-footer artifact-card-actions">
+    {{#if actorActions.unwired}}
+    <p class="artifact-card-action-reason">{{labels.unwired}}</p>
+    {{#if isGM}}
+    <button type="button" class="artifact-card-edit" data-action="sheet-wire">
+      <i class="fas fa-link"></i> {{labels.wire}}
+    </button>
+    {{/if}}
+    {{else if actorActions.linked}}
+    {{#if actorActions.hasPaths}}
+    {{#if actorActions.manyPaths}}
+    <label class="artifact-card-path">
+      <span>{{labels.path}}</span>
+      <select class="artifact-sheet-path-select">
+        {{#each actorActions.paths}}
+        <option value="{{nodeId}}" data-world-id="{{worldItemId}}"
+          {{#if disabledReason}}{{#unless @root.isGM}}disabled{{/unless}}{{/if}}
+          {{#if gmDisabledReason}}{{#if @root.isGM}}disabled{{/if}}{{/if}}>
+          {{label}} (L{{targetLevel}})
+        </option>
+        {{/each}}
+      </select>
+    </label>
+    {{else}}
+    {{#each actorActions.paths}}
+    <input type="hidden" class="artifact-sheet-path-select" value="{{nodeId}}" data-world-id="{{worldItemId}}" />
+    {{/each}}
+    {{/if}}
+    <button type="button" class="artifact-card-edit artifact-card-upgrade" data-action="sheet-upgrade"
+      data-root-id="{{actorActions.rootWorldId}}" data-emb-id="{{actorActions.embeddedId}}"
+      data-world-id="{{actorActions.selectedWorldId}}" data-node-id="{{actorActions.selectedNodeId}}"
+      {{#unless actorActions.canUpgrade}}disabled title="{{actorActions.upgradeDisabledReason}}"{{/unless}}
+      {{#unless actorActions.isOwner}}disabled{{/unless}}>
+      <i class="fas fa-arrow-up"></i> {{labels.upgrade}}
+    </button>
+    {{#if isGM}}
+    <button type="button" class="artifact-card-edit" data-action="sheet-gm-upgrade"
+      data-root-id="{{actorActions.rootWorldId}}" data-emb-id="{{actorActions.embeddedId}}"
+      data-world-id="{{actorActions.selectedWorldId}}" data-node-id="{{actorActions.selectedNodeId}}"
+      {{#unless actorActions.nextGmUpgrade}}disabled{{/unless}}>
+      {{labels.upgradeGm}}
+    </button>
+    {{/if}}
+    {{#unless actorActions.canUpgrade}}
+    <p class="artifact-card-action-reason">{{actorActions.upgradeDisabledReason}}</p>
+    {{/unless}}
+    {{/if}}
+    {{else}}
+    {{#if actorActions.usesStonePools}}
+    <label class="artifact-card-path">
+      <span>{{labels.choosePool}}</span>
+      <select class="artifact-sheet-pool-select">
+        <option value="">—</option>
+        {{#each actorActions.stonePools}}
+        <option value="{{key}}" {{#unless canSpend}}disabled{{/unless}}>{{label}} ({{spendable}})</option>
+        {{/each}}
+      </select>
+    </label>
+    {{/if}}
+    <button type="button" class="artifact-card-edit artifact-card-upgrade" data-action="sheet-activate"
+      data-root-id="{{actorActions.rootWorldId}}" data-emb-id="{{actorActions.embeddedId}}"
+      {{#unless actorActions.canActivate}}disabled title="{{actorActions.linkDisabledReason}}"{{/unless}}
+      {{#unless actorActions.isOwner}}disabled{{/unless}}>
+      <i class="fas fa-bolt"></i> {{labels.activate}}
+    </button>
+    {{#if actorActions.linkDisabledReason}}
+    <p class="artifact-card-action-reason">{{actorActions.linkDisabledReason}}</p>
+    {{/if}}
+    {{/if}}
+    {{#if isGM}}
+    <button type="button" class="artifact-card-edit" data-action="open-node-editor" title="Edit this artifact in the Node Editor (GM only).">
+      <i class="fas fa-pen"></i> Edit in Node Editor
+    </button>
+    {{/if}}
+  </footer>
+  {{else if isGM}}
   <footer class="artifact-card-footer">
     <button type="button" class="artifact-card-edit" data-action="open-node-editor" title="Edit this artifact in the Node Editor (GM only).">
       <i class="fas fa-pen"></i> Edit in Node Editor

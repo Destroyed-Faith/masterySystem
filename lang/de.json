@@ -399,7 +399,8 @@
       "emptyWorld": "In dieser Welt gibt es keine NSC-Akteure.",
       "hiddenHeading": "Für Spieler nicht sichtbar",
       "sheetLabel": "Spieler",
-      "sheetHint": "Porträt und Name dieses NSC in der Spielerleiste zeigen"
+      "sheetHint": "Porträt und Name dieses NSC in der Spielerleiste zeigen",
+      "drag": "Ziehen zum Verschieben"
     },
     "weaponSets": {
       "groupLabel": "Waffenslots",
@@ -411,12 +412,19 @@
     },
     "artifact": {
       "sheet": {
-        "inactive": "Inaktiv — über Artefakte aktivieren",
+        "inactive": "Inaktiv — hier oder über Artefakte aktivieren",
         "whenActivated": "Bei Aktivierung",
         "whenActivatedHint": "Diese Werte und Fähigkeiten schalten sich frei, wenn du das Artefakt aktivierst.",
         "nextLevel": "Als Nächstes: Stufe {level}",
         "nextLevelHint": "Schaltet frei, wenn du dieses Artefakt steigerst.",
-        "imgAlt": "Alternatives Bild"
+        "imgAlt": "Alternatives Bild",
+        "upgrade": "Upgrade ({xp} XP)",
+        "upgradeGm": "SL: Upgrade (ohne XP)",
+        "activate": "Aktivieren ({n} Stone)",
+        "choosePool": "Stone-Pool",
+        "path": "Pfad",
+        "unwired": "Dieses Artefakt ist noch nicht mit seinem Evolutionsbaum verbunden.",
+        "wire": "Mit World-Tree verbinden"
       }
     }
   },

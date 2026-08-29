@@ -1,9 +1,14 @@
 <div class="known-npcs {{#if collapsed}}is-collapsed{{/if}}" data-has-npcs="{{hasNpcs}}">
-  <button type="button" class="known-npcs-toggle" data-action="toggle" title="{{#if collapsed}}{{expandLabel}}{{else}}{{collapseLabel}}{{/if}}" aria-label="{{#if collapsed}}{{expandLabel}}{{else}}{{collapseLabel}}{{/if}}">
-    <i class="fas fa-id-badge"></i>
-    <span>{{title}}</span>
-    <i class="fas {{#if collapsed}}fa-chevron-right{{else}}fa-chevron-left{{/if}}"></i>
-  </button>
+  <div class="known-npcs-chrome">
+    <button type="button" class="known-npcs-handle" title="{{dragLabel}}" aria-label="{{dragLabel}}">
+      <i class="fas fa-grip-vertical"></i>
+    </button>
+    <button type="button" class="known-npcs-toggle" data-action="toggle" title="{{#if collapsed}}{{expandLabel}}{{else}}{{collapseLabel}}{{/if}}" aria-label="{{#if collapsed}}{{expandLabel}}{{else}}{{collapseLabel}}{{/if}}">
+      <i class="fas fa-id-badge"></i>
+      <span>{{title}}</span>
+      <i class="fas {{#if collapsed}}fa-chevron-right{{else}}fa-chevron-left{{/if}}"></i>
+    </button>
+  </div>
   {{#unless collapsed}}
   <ul class="known-npcs-list">
     {{#each npcs}}

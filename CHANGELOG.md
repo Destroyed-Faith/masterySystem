@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.415] - 2026-08-29
+
+### Added
+
+- **Artifact sheet:** Double-clicking an artifact on a character now has the same Activate / Upgrade (8 XP) buttons as Artifact Evolution, including the GM free upgrade.
+
+### Changed
+
+- **Scene toolbar:** Divine Clash Start / Reveal / End Round / Reset are removed from the Mastery sidemenu while that feature is being rebuilt. Safe Haven, Unluck, and Important NPCs stay.
+- **Important NPCs:** The player bar has a grip handle so you can drag it anywhere. The position is remembered per client.
+- **Elorian Focus:** Descriptions match Crit as it works now — first real tier is 2 stones. Focus I / II / III pre-fill Crit T3 / T4 / T5; you still pay from Tier 2 up, not a fake Tier 1.
+
 ## [0.9.414] - 2026-08-29
 
 ### Added

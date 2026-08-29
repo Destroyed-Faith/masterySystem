@@ -286,11 +286,11 @@
         {
           "level": 3,
           "name": "Elorian Focus I",
-          "type": "Support Stone Power",
+          "type": "Stone Power Support",
           "range": "Self",
-          "duration": "Until used",
-          "effect": "Spend 1 Ready Stone to gain Crit(2).",
-          "special": "Crit"
+          "duration": "Instant",
+          "effect": "Supports the Agility Ability: Crit Stone Power and pre-fills Tier 3. You must still pay Tier 2 yourself. If Tier 2 is not paid, the pre-filled Tier 3 has no effect.",
+          "special": "agility.crit"
         },
         {
           "level": 4,
@@ -313,11 +313,11 @@
         {
           "level": 6,
           "name": "Elorian Focus II",
-          "type": "Support Stone Power",
+          "type": "Stone Power Support",
           "range": "Self",
-          "duration": "Until used",
-          "effect": "Spend 1 Ready Stone to gain Crit(3).",
-          "special": "Crit"
+          "duration": "Instant",
+          "effect": "Supports the Agility Ability: Crit Stone Power and pre-fills Tier 4. You must still pay Tiers 2, 3 yourself. If Tiers 2, 3 are not paid, the pre-filled Tier 4 has no effect.",
+          "special": "agility.crit"
         },
         {
           "level": 7,
@@ -340,11 +340,11 @@
         {
           "level": 9,
           "name": "Elorian Focus III",
-          "type": "Support Stone Power",
+          "type": "Stone Power Support",
           "range": "Self",
-          "duration": "Until used",
-          "effect": "Spend 1 Ready Stone to gain Crit(4).",
-          "special": "Crit"
+          "duration": "Instant",
+          "effect": "Supports the Agility Ability: Crit Stone Power and pre-fills Tier 5. You must still pay Tiers 2, 3, 4 yourself. If Tiers 2, 3, 4 are not paid, the pre-filled Tier 5 has no effect.",
+          "special": "agility.crit"
         },
         {
           "level": 10,
