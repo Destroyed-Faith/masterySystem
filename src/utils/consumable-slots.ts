@@ -5,6 +5,7 @@
  * from the actor's current Mastery Rank (no parallel inventory).
  */
 
+import { isCarriedUnequippedItem } from './inventory-grid.js';
 import {
   MINOR_MAGIC_TRANSFER_DELETE,
   prepareMinorMagicFlagForTransfer,
@@ -135,6 +136,18 @@ export function listEquippedConsumableItems(actor: { items?: Iterable<any> }): A
     rows.push({ index, item });
   }
   return rows.sort((a, b) => a.index - b.index);
+}
+
+/** Unequipped inventory items that may occupy a Consumable Slot. */
+export function listCarriedConsumableItems(items: Iterable<any> | null | undefined): any[] {
+  const out: any[] = [];
+  for (const item of items ?? []) {
+    if (!isCarriedUnequippedItem(item)) continue;
+    if (!isConsumableItem(item)) continue;
+    out.push(item);
+  }
+  out.sort((a, b) => String(a?.name || '').localeCompare(String(b?.name || '')));
+  return out;
 }
 
 export function itemOccupyingConsumableSlot(actor: { items?: Iterable<any> }, index: number): any | null {

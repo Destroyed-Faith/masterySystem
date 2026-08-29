@@ -139,7 +139,10 @@
       "powerLabel": "Power"
     },
     "inventory": {
-      "dropBlocked": "Dieses Feld ist blockiert oder der Gegenstand passt dort nicht hin."
+      "dropBlocked": "Dieses Feld ist blockiert oder der Gegenstand passt dort nicht hin.",
+      "slotFillTitle": "Einlegen in {slot}",
+      "slotFillEmpty": "Keine passenden Gegenstände im Inventar",
+      "slotFillHint": "Rechtsklick, um einen Gegenstand aus dem Inventar zu wählen"
     },
     "echo": {
       "removeCard": "Karte entfernen",
@@ -207,6 +210,7 @@
     "calendar": {
       "title": "Tyhra-Kalender",
       "openCalendar": "Tyhra-Kalender öffnen",
+      "launchLabel": "Kalender",
       "today": "Heute",
       "previousMonth": "Vorheriger Monat",
       "nextMonth": "Nächster Monat",

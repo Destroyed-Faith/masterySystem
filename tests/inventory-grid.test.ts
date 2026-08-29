@@ -4,6 +4,7 @@ import {
   collectInventoryBandRects,
   findFirstFit,
   fitsInGrid,
+  isCarriedUnequippedItem,
   occupiesInventoryGrid,
   parseInventorySize,
   rectsOverlap,
@@ -81,5 +82,15 @@ describe('inventory grid occupancy', () => {
   it('parseInventorySize reads WxH', () => {
     expect(parseInventorySize('2x3')).toEqual({ w: 2, h: 3 });
     expect(parseInventorySize(undefined)).toEqual({ w: 1, h: 1 });
+  });
+
+  it('isCarriedUnequippedItem excludes paperdoll, consumable, and prepared set items', () => {
+    expect(isCarriedUnequippedItem(item({ id: 'bag', grid: { x: 1, y: 1 } }))).toBe(true);
+    expect(isCarriedUnequippedItem(item({ id: 'helm', slot: 'head' }))).toBe(false);
+    expect(isCarriedUnequippedItem(item({ id: 'potion', consumableSlot: 0 }))).toBe(false);
+    expect(isCarriedUnequippedItem({
+      id: 'set-sword',
+      getFlag: () => ({ container: 'inventory', weaponSetPrepared: true }),
+    })).toBe(false);
   });
 });

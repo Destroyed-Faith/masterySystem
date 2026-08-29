@@ -36,6 +36,22 @@ export const MINOR_MAGIC_FORMS = [
 
 export type MinorMagicForm = (typeof MINOR_MAGIC_FORMS)[number];
 
+/** True for a PC assigned to a player — not GM-only character sheets or NPCs. */
+export function isPlayerCharacterActor(actor: any): boolean {
+  if (!actor || String(actor.type || '') !== 'character') return false;
+  if (actor.hasPlayerOwner === true) return true;
+  const actorId = String(actor.id || '').trim();
+  if (!actorId) return false;
+  const users = (globalThis as any).game?.users;
+  const list = users && typeof users[Symbol.iterator] === 'function' ? Array.from(users) : [];
+  return list.some((u: any) => {
+    if (u?.isGM) return false;
+    const assigned = u?.character;
+    const assignedId = String(assigned?.id || assigned || '').trim();
+    return assignedId === actorId;
+  });
+}
+
 export const MINOR_MAGIC_FORM_LABELS: Record<MinorMagicForm, string> = {
   potion: 'Potion',
   grenade: 'Grenade',

@@ -7,6 +7,9 @@
  * (or unset for slots that no longer exist) by the
  * `paperdoll-slot-canonical` migration and by `normalizeSlotKey()`.
  */
+
+import { isCarriedUnequippedItem } from './inventory-grid.js';
+
 export const PAPERDOLL_SLOT_KEYS = [
   'mainhand',
   'offhand',
@@ -145,4 +148,26 @@ export function inferArtifactEquipSlots(system: {
     return null;
   }
   return null;
+}
+
+/** Unequipped inventory / stash items that may occupy this paperdoll slot. */
+export function listCarriedItemsForPaperdollSlot(
+  items: Iterable<any> | null | undefined,
+  slotKey: string,
+  opts?: { allowOffhandWeapon?: (item: any) => boolean },
+): any[] {
+  const slot = normalizeSlotKey(slotKey);
+  if (!slot) return [];
+  const out: any[] = [];
+  for (const item of items ?? []) {
+    if (!isCarriedUnequippedItem(item)) continue;
+    const allowed = getNormalizedEquipSlots(item);
+    if (!allowed?.includes(slot)) continue;
+    if (slot === 'offhand' && String(item?.type || '') === 'weapon' && !opts?.allowOffhandWeapon?.(item)) {
+      continue;
+    }
+    out.push(item);
+  }
+  out.sort((a, b) => String(a?.name || '').localeCompare(String(b?.name || '')));
+  return out;
 }

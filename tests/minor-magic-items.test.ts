@@ -10,6 +10,7 @@ import {
   prepareMinorMagicFlagForTransfer,
   shouldReleaseMinorMagicOnDelete,
   isEligibleMinorMagicPower,
+  isPlayerCharacterActor,
   isArtifactAvailableForMinorMagic,
   listEligibleMinorMagicPowers,
   minorMagicLimit,
@@ -302,6 +303,19 @@ describe('snapshot', () => {
     expect(snap.templateId).toBe('active-melee-damage-t3');
     expect(snap.chosenSpecialKey).toBe('bleed');
     expect(snap.damage).toMatch(/d8/);
+  });
+});
+
+describe('player character recipients', () => {
+  it('keeps assigned player characters and drops NPCs and GM-only sheets', () => {
+    expect(isPlayerCharacterActor({ id: 'pc1', type: 'character', hasPlayerOwner: true })).toBe(true);
+    expect(isPlayerCharacterActor({ id: 'npc1', type: 'npc', hasPlayerOwner: false })).toBe(false);
+    expect(isPlayerCharacterActor({ id: 'gm-pc', type: 'character', hasPlayerOwner: false })).toBe(false);
+    (globalThis as any).game = {
+      users: [{ isGM: false, character: { id: 'linked' } }, { isGM: true, character: { id: 'gm-pc' } }],
+    };
+    expect(isPlayerCharacterActor({ id: 'linked', type: 'character', hasPlayerOwner: false })).toBe(true);
+    delete (globalThis as any).game;
   });
 });
 

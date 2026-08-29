@@ -56,6 +56,7 @@ import { MinorMagicPanel } from '../stones/minor-magic-dialog.js';
 import {
   dismissMinorMagicItem,
   findInventorySlotForMinorMagic,
+  isPlayerCharacterActor,
   minorMagicSheetView,
   readMinorMagicFlag,
   useMinorMagicItem,
@@ -66,8 +67,11 @@ import {
   equippedConsumableActionRows,
   equipConsumableToSlot,
   isConsumableItem,
+  itemOccupyingConsumableSlot,
+  listCarriedConsumableItems,
   readConsumableSlotIndex,
   transferConsumableToActor,
+  unequipConsumable,
   useEquippedConsumable,
   validateUnequipConsumable,
 } from '../utils/consumable-slots.js';
@@ -91,7 +95,7 @@ import {
   validateCreationSkillAllocation,
 } from '../utils/skills-redistribute.js';
 import { getDefaultInventorySizeForItemData } from '../utils/seed-general-items';
-import { getNormalizedEquipSlots, normalizeSlotKey } from '../utils/equip-slots.js';
+import { getNormalizedEquipSlots, listCarriedItemsForPaperdollSlot, normalizeSlotKey } from '../utils/equip-slots.js';
 import {
   canMarkTwoHandedGrip,
   ensureWeaponSets,
@@ -163,6 +167,28 @@ function isEchoLockedItem(item: any): boolean {
   return isEchoBoundArtifact(item);
 }
 
+const EQUIP_SLOT_FILL_MENU_ID = 'df-equip-slot-fill-menu';
+
+function localizeSheet(key: string, fallback: string, data?: Record<string, string>): string {
+  const i18n = (globalThis as any).game?.i18n;
+  const raw = data
+    ? i18n?.format?.(key, data)
+    : i18n?.localize?.(key);
+  if (typeof raw === 'string' && raw && raw !== key) return raw;
+  if (!data) return fallback;
+  return Object.entries(data).reduce((text, [k, v]) => text.replace(`{${k}}`, v), fallback);
+}
+
+function escapeSheetHtml(value: string): string {
+  const fn = (globalThis as any).foundry?.utils?.escapeHTML;
+  if (typeof fn === 'function') return fn(value);
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
 export class MasteryCharacterSheet extends BaseActorSheet {
   /** Preserves <details open> for Token-Radial prefs across re-renders (checkbox updates call render). */
   private _radialManeuverPrefsDetailsOpen?: boolean;
@@ -179,6 +205,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
 
   /** Last pointer-down on equipment tile (for click vs drag distinction). */
   #itemInfoPointerDown: { itemId: string; x: number; y: number } | null = null;
+  #equipSlotFillMenuAbort: AbortController | null = null;
   private _pendingAttributeChanges: Record<string, number> = {}; // Signed pending attribute deltas (XP mode)
   private _pendingPowerLevelChanges: Record<string, number> = {}; // Track pending power level increases
   private _pendingSkillRankChanges: Record<string, number> = {}; // Track pending skill rank changes (signed)
@@ -230,6 +257,11 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     this.activeTab = 'minor-magic';
     await this.render(true);
     (this as any).bringToFront?.();
+  }
+
+  async close(options?: any): Promise<this> {
+    this.#closeEquipSlotFillMenu();
+    return super.close(options);
   }
 
   /** Initial tab when the sheet is first opened; subclasses override. */
@@ -1451,6 +1483,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       console.warn('Mastery System | Failed to bind sheet drag & drop', e);
     }
 
+    this.#closeEquipSlotFillMenu();
     this.activateListeners($(root));
   }
 
@@ -2769,12 +2802,26 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     const invEquipSelector =
       '.tab.equipment .df-enc-band .df-draggable-item';
     const ContextMenuCls = (foundry as any).applications?.ux?.ContextMenu;
-    if (ContextMenuCls) {
-      const rootEl = (html as any)?.[0] ?? (this.element as any) ?? document.body;
+    const rootEl = ((html as any)?.[0] ?? (this.element as any) ?? null) as HTMLElement | null;
+    if (ContextMenuCls && rootEl) {
       new ContextMenuCls(rootEl, invEquipSelector, this.#inventoryEquipContextMenuEntries(), {
         eventName: 'contextmenu',
         jQuery: false
       } as any);
+    }
+    if (rootEl) {
+      rootEl.removeEventListener('contextmenu', this.#onEquipSlotContextMenu, true);
+      rootEl.addEventListener('contextmenu', this.#onEquipSlotContextMenu, true);
+      const hint = localizeSheet(
+        'MASTERY.inventory.slotFillHint',
+        'Right-click to choose an item from inventory',
+      );
+      html.find('.df-equip-slot, .df-consumable-slot').each((_, el) => {
+        const node = el as HTMLElement;
+        const existing = String(node.getAttribute('title') || '').trim();
+        if (existing.includes(hint)) return;
+        node.setAttribute('title', existing ? `${existing} — ${hint}` : hint);
+      });
     }
 
     if (!(window as any).__msGlobalDropDebugBound) {
@@ -7285,13 +7332,12 @@ export class MasteryCharacterSheet extends BaseActorSheet {
   }
 
   async #giveMinorMagicItem(item: any): Promise<boolean> {
-    const user = (globalThis as any).game?.user;
     const actors = Array.from(((globalThis as any).game?.actors ?? []) as Iterable<any>).filter((a: any) => {
-      if (a?.type !== 'character' || a.id === this.actor.id) return false;
-      return !!user?.isGM || !!a.isOwner;
+      if (a.id === this.actor.id) return false;
+      return isPlayerCharacterActor(a);
     });
     if (!actors.length) {
-      ui.notifications?.warn('No other character you can give this to.');
+      ui.notifications?.warn('No other player character you can give this to.');
       return false;
     }
     const options = actors
@@ -7697,6 +7743,121 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       await syncActiveWeaponSetFromHands(this.actor);
     }
     return true;
+  }
+
+  #onEquipSlotContextMenu = (ev: MouseEvent): void => {
+    if (!this.isEditable || !this.actor.isOwner) return;
+    const target = ev.target as HTMLElement | null;
+    const slotEl = target?.closest?.('.df-equip-slot, .df-consumable-slot') as HTMLElement | null;
+    const root = this.element as HTMLElement | null;
+    if (!slotEl || !root?.contains(slotEl)) return;
+    ev.preventDefault();
+    ev.stopPropagation();
+    ev.stopImmediatePropagation();
+    this.#openEquipSlotFillMenu(ev, slotEl);
+  };
+
+  #closeEquipSlotFillMenu(): void {
+    document.getElementById(EQUIP_SLOT_FILL_MENU_ID)?.remove();
+    this.#equipSlotFillMenuAbort?.abort();
+    this.#equipSlotFillMenuAbort = null;
+  }
+
+  #openEquipSlotFillMenu(event: MouseEvent, slotEl: HTMLElement): void {
+    this.#closeEquipSlotFillMenu();
+
+    const isConsumable = slotEl.classList.contains('df-consumable-slot');
+    const slotKey = String(slotEl.dataset.slot || '').trim();
+    const slotIndex = Math.floor(Number(slotEl.dataset.slotIndex));
+    const slotLabel =
+      (slotEl.querySelector('.df-slot-label') as HTMLElement | null)?.textContent?.trim() ||
+      (isConsumable ? `Consumable ${slotIndex + 1}` : slotKey);
+    const locked = isConsumable && slotEl.classList.contains('is-locked');
+    const items = locked
+      ? []
+      : isConsumable
+        ? listCarriedConsumableItems(this.actor.items)
+        : listCarriedItemsForPaperdollSlot(this.actor.items, slotKey, {
+            allowOffhandWeapon: (item) => requiresAmmunition(item),
+          });
+
+    const menu = document.createElement('div');
+    menu.id = EQUIP_SLOT_FILL_MENU_ID;
+    menu.className = 'df-equip-slot-fill-menu';
+    menu.setAttribute('role', 'menu');
+    const title = localizeSheet('MASTERY.inventory.slotFillTitle', 'Place into {slot}', { slot: slotLabel });
+    const emptyText = locked
+      ? localizeSheet('MASTERY.consumable.lockedInCombat', 'Consumable Slots cannot be changed during combat.')
+      : localizeSheet('MASTERY.inventory.slotFillEmpty', 'No matching items in inventory');
+    const rows = items.map((item) => {
+      const id = String(item?.id || '');
+      const name = String(item?.name || id);
+      const img = String(item?.img || 'icons/svg/item-bag.svg');
+      return `<button type="button" class="df-equip-slot-fill-menu__item" role="menuitem" data-item-id="${escapeSheetHtml(id)}">
+        <img src="${escapeSheetHtml(img)}" alt="">
+        <span>${escapeSheetHtml(name)}</span>
+      </button>`;
+    });
+    menu.innerHTML = `<div class="df-equip-slot-fill-menu__title">${escapeSheetHtml(title)}</div>${
+      rows.length ? rows.join('') : `<div class="df-equip-slot-fill-menu__empty">${escapeSheetHtml(emptyText)}</div>`
+    }`;
+
+    const pad = 8;
+    const left = Math.max(pad, event.clientX);
+    const top = Math.max(pad, event.clientY);
+    menu.style.left = `${left}px`;
+    menu.style.top = `${top}px`;
+    document.body.appendChild(menu);
+
+    const rect = menu.getBoundingClientRect();
+    const maxLeft = Math.max(pad, window.innerWidth - rect.width - pad);
+    const maxTop = Math.max(pad, window.innerHeight - rect.height - pad);
+    menu.style.left = `${Math.min(left, maxLeft)}px`;
+    menu.style.top = `${Math.min(top, maxTop)}px`;
+
+    menu.addEventListener('click', async (clickEv) => {
+      const button = (clickEv.target as HTMLElement | null)?.closest?.('[data-item-id]') as HTMLElement | null;
+      if (!button) return;
+      clickEv.preventDefault();
+      clickEv.stopPropagation();
+      const item = this.actor.items.get(button.dataset.itemId || '');
+      this.#closeEquipSlotFillMenu();
+      if (!item) return;
+      if (isConsumable) {
+        if (!Number.isFinite(slotIndex)) return;
+        const occupant = itemOccupyingConsumableSlot(this.actor, slotIndex);
+        if (occupant && occupant.id !== item.id) {
+          const cleared = await unequipConsumable(this.actor, occupant);
+          if (!cleared.ok) {
+            ui.notifications?.warn(cleared.error);
+            return;
+          }
+        }
+        const result = await equipConsumableToSlot(this.actor, item, slotIndex);
+        if (!result.ok) {
+          ui.notifications?.warn(result.error);
+          return;
+        }
+        await this.render(true, { focus: false });
+        return;
+      }
+      if (!slotKey) return;
+      if (await this.#applyEquipToSlot(item, slotKey)) {
+        await this.render(true, { focus: false });
+      }
+    });
+
+    const abort = new AbortController();
+    this.#equipSlotFillMenuAbort = abort;
+    const dismiss = (ev: Event) => {
+      if (ev.type === 'keydown' && (ev as KeyboardEvent).key !== 'Escape') return;
+      if (ev.type === 'pointerdown' && menu.contains(ev.target as Node)) return;
+      this.#closeEquipSlotFillMenu();
+    };
+    document.addEventListener('pointerdown', dismiss, { capture: true, signal: abort.signal });
+    document.addEventListener('keydown', dismiss, { signal: abort.signal });
+    window.addEventListener('resize', dismiss, { signal: abort.signal });
+    window.addEventListener('blur', dismiss, { signal: abort.signal });
   }
 
   /**

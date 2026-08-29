@@ -16,6 +16,22 @@ export interface EquipmentGridFlags {
   keepInventoryGrid?: boolean;
 }
 
+export function readEquipmentFlags(item: any): EquipmentGridFlags {
+  if (typeof item?.getFlag === 'function') {
+    return ((item.getFlag('mastery-system', 'equipment') || {}) as EquipmentGridFlags);
+  }
+  return ((item?.flags?.['mastery-system']?.equipment || {}) as EquipmentGridFlags);
+}
+
+/** Carried item that is not on the paperdoll, in a consumable slot, or a prepared weapon-set piece. */
+export function isCarriedUnequippedItem(item: any): boolean {
+  const flags = readEquipmentFlags(item);
+  if (String(flags.slot || '').trim()) return false;
+  if (flags.consumableSlot != null && Number.isFinite(Number(flags.consumableSlot))) return false;
+  if (flags.weaponSetPrepared === true) return false;
+  return true;
+}
+
 /** True when the item currently occupies carry-grid cells (not equipped, stash, or a consumable slot). */
 export function occupiesInventoryGrid(
   flags: EquipmentGridFlags | null | undefined,

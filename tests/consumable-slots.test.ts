@@ -19,6 +19,7 @@ import {
   isConsumableCombatOption,
   isConsumableItem,
   itemDataForConsumableTransfer,
+  listCarriedConsumableItems,
   listEquippedConsumableItems,
   readConsumableSlotIndex,
   shouldConsumeConsumableOnUse,
@@ -182,6 +183,13 @@ describe('equip validation', () => {
     expect(flag.snapshot.attackPool.numDice).toBe(7);
     expect(flag.snapshot.damage).toBe('4d8');
     expect((transferred as any)._id).toBeUndefined();
+  });
+
+  it('lists unequipped consumables for slot-fill, not already slotted items', () => {
+    const bag = consumableItem('bag', null);
+    const worn = consumableItem('worn', 0);
+    const sword = { id: 'w1', name: 'Sword', type: 'weapon', system: { consumable: false }, flags: {} };
+    expect(listCarriedConsumableItems([bag, worn, sword]).map((item) => item.id)).toEqual(['bag']);
   });
 });
 

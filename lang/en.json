@@ -139,7 +139,10 @@
       "powerLabel": "Power"
     },
     "inventory": {
-      "dropBlocked": "That cell is blocked or the item does not fit there."
+      "dropBlocked": "That cell is blocked or the item does not fit there.",
+      "slotFillTitle": "Place into {slot}",
+      "slotFillEmpty": "No matching items in inventory",
+      "slotFillHint": "Right-click to choose an item from inventory"
     },
     "echo": {
       "removeCard": "Remove Card",
@@ -207,6 +210,7 @@
     "calendar": {
       "title": "Tyhra Calendar",
       "openCalendar": "Open Tyhra Calendar",
+      "launchLabel": "Calendar",
       "today": "Today",
       "previousMonth": "Previous Month",
       "nextMonth": "Next Month",

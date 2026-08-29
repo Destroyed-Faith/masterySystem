@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.416] - 2026-08-29
+
+### Added
+
+- **Equipment slots:** Right-click Head, Ring, Offhand, Consumable, Feet, and the other paperdoll slots to pick a matching inventory item. Drag-and-drop still works.
+
+### Changed
+
+- **Calendar:** The Journal sidebar control is a labeled button (Kalender / Calendar), not a small unmarked icon.
+- **Character sheet tabs:** The right-side bookmarks sit in two columns and stay on screen on short monitors. Disadvantages is labeled Dis Ads.
+- **Minor Magic Give:** The recipient list is only player characters, not NPCs or GM-only character sheets.
+
 ## [0.9.415] - 2026-08-29
 
 ### Added

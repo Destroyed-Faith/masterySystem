@@ -17,25 +17,34 @@ function injectJournalSidebarButton(html: HTMLElement | JQuery): void {
   const root = html instanceof HTMLElement ? html : (html as JQuery)[0];
   if (!root) return;
 
-  const headerActions =
-    root.querySelector('.directory-header .header-actions') ??
-    root.querySelector('.header-actions') ??
+  if (root.querySelector('.df-calendar-launch')) return;
+
+  const header =
     root.querySelector('.directory-header') ??
     root.querySelector('header');
-  if (!headerActions || headerActions.querySelector('.df-calendar-launch')) return;
+  const headerActions =
+    root.querySelector('.directory-header .header-actions') ??
+    root.querySelector('.header-actions');
 
+  const label = game.i18n.localize('MASTERY.calendar.launchLabel');
+  const title = game.i18n.localize('MASTERY.calendar.openCalendar');
   const button = document.createElement('button');
   button.type = 'button';
   button.className = 'df-calendar-launch';
-  button.title = game.i18n.localize('MASTERY.calendar.openCalendar');
-  button.innerHTML = '<i class="fas fa-calendar-days"></i>';
+  button.title = title;
+  button.setAttribute('aria-label', title);
+  button.innerHTML = `<i class="fas fa-calendar-days" aria-hidden="true"></i><span>${label}</span>`;
 
   button.addEventListener('click', (ev) => {
     ev.preventDefault();
     (game as any).masterySystem?.calendar?.open?.();
   });
 
-  headerActions.prepend(button);
+  if (header) {
+    header.insertAdjacentElement('afterend', button);
+    return;
+  }
+  headerActions?.prepend(button);
 }
 
 export function initializeTyhraCalendar(): void {

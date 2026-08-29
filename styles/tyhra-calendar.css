@@ -238,22 +238,36 @@
   opacity: 0.7;
 }
 
-/* Journal sidebar launch button */
+/* Journal sidebar launch button — full-width so it reads as a control, not an icon */
 .df-calendar-launch {
-  width: 28px;
-  height: 28px;
-  line-height: 28px;
-  text-align: center;
-  background: transparent;
-  border: none;
-  color: var(--color-text-light-highlight, #f0f0e0);
-  opacity: 0.75;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  width: calc(100% - 0.7rem);
+  margin: 0.35rem 0.35rem 0.15rem;
+  padding: 0.42rem 0.7rem;
+  border: 1px solid rgba(201, 162, 39, 0.7);
+  border-radius: 5px;
+  background: rgba(201, 162, 39, 0.22);
+  color: #f4e6b8;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  line-height: 1.2;
   cursor: pointer;
+  flex: 0 0 auto;
+}
+
+.df-calendar-launch i {
+  font-size: 0.95rem;
 }
 
 .df-calendar-launch:hover {
-  opacity: 1;
-  color: #c9a227;
+  background: rgba(201, 162, 39, 0.38);
+  border-color: #e0c04a;
+  color: #fff8dc;
 }
 
 @media (max-width: 760px) {
