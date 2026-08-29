@@ -6,9 +6,9 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
-  min-width: 148px;
-  max-width: min(420px, calc(100vw - 24px));
-  padding: 5px 6px 6px;
+  min-width: 188px;
+  max-width: min(500px, calc(100vw - 24px));
+  padding: 7px 8px 8px;
   background: rgba(18, 16, 14, 0.72);
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 6px;
@@ -56,15 +56,16 @@
 
 #mastery-special-token-area .sta-board {
   position: relative;
-  min-height: 72px;
-  min-width: 136px;
-  height: 80px;
+  min-height: 92px;
+  min-width: 168px;
+  height: 104px;
+  perspective: 220px;
 }
 
 #mastery-special-token-area .sta-token {
   position: absolute;
-  width: 36px;
-  height: 36px;
+  width: 46px;
+  height: 46px;
   padding: 0;
   margin: 0;
   border: 0;
@@ -87,6 +88,23 @@
   height: 100%;
   object-fit: contain;
   pointer-events: none;
+}
+
+#mastery-special-token-area .sta-token.is-flipping {
+  z-index: 80;
+  animation: sta-coin-flip 0.72s ease-in-out;
+}
+
+@keyframes sta-coin-flip {
+  0% {
+    transform: translateY(0) rotateY(0deg);
+  }
+  45% {
+    transform: translateY(-30px) rotateY(540deg);
+  }
+  100% {
+    transform: translateY(0) rotateY(1080deg);
+  }
 }
 
 #mastery-special-token-area .sta-confirm {
@@ -114,6 +132,6 @@
 
 @media (max-width: 1100px) {
   #mastery-special-token-area .sta-board {
-    height: 96px;
+    height: 118px;
   }
 }

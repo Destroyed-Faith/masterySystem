@@ -11,7 +11,11 @@ const ROOT_ID = 'mastery-special-token-area';
 const boundHooks = [];
 let resizeHandler = null;
 let refreshTimer = 0;
+let clickTimer = 0;
+let lastClickTokenId = '';
 let pointerSession = null;
+const TOKEN_SIZE_PX = 46;
+const DOUBLE_CLICK_MS = 380;
 function loc(key, fallback) {
     const raw = globalThis.game?.i18n?.localize?.(`MASTERY.specials.${key}`);
     return raw && raw !== `MASTERY.specials.${key}` ? raw : fallback;
@@ -146,11 +150,13 @@ function ownedByUser(actor, user) {
     }
     return false;
 }
-function pickPreferredActor(candidates) {
-    const live = candidates.filter(Boolean);
-    if (!live.length)
-        return null;
-    return live.find((a) => listHudDiminishingSpecials(a).length > 0) ?? live[0] ?? null;
+function firstOf(candidates) {
+    return candidates.find(Boolean) ?? null;
+}
+/** The personal coin tray is for that user's creature — never a player character on the GM client. */
+export function isGmTokenHudActor(actor) {
+    const type = String(actor?.type || '');
+    return type === 'npc' || type === 'summon';
 }
 export function resolveSpecialTokenHudActor() {
     const g = globalThis;
@@ -161,17 +167,25 @@ export function resolveSpecialTokenHudActor() {
     if (!user)
         return null;
     const actors = g.game?.actors;
-    const controlled = collectionList(g.canvas?.tokens?.controlled)
-        .map((t) => t?.actor)
-        .filter((a) => a && ownedByUser(a, user) && actorInCombat(a, combat, actors));
-    const assigned = user.character;
-    const assignedOk = assigned && actorInCombat(assigned, combat, actors) ? assigned : null;
-    const ownedCombatants = collectionList(combat.combatants)
-        .map((c) => resolveCombatantActor(c, actors))
-        .filter((a) => a && ownedByUser(a, user));
     const current = resolveCombatantActor(combat.combatant, actors);
-    const currentOk = current && (user.isGM || ownedByUser(current, user)) ? current : null;
-    return pickPreferredActor([...controlled, assignedOk, currentOk, ...ownedCombatants]);
+    if (user.isGM) {
+        const controlled = collectionList(g.canvas?.tokens?.controlled)
+            .map((t) => t?.actor)
+            .find((a) => a && actorInCombat(a, combat, actors) && isGmTokenHudActor(a));
+        if (controlled)
+            return controlled;
+        if (current && isGmTokenHudActor(current))
+            return current;
+        return null;
+    }
+    const controlledOwned = collectionList(g.canvas?.tokens?.controlled)
+        .map((t) => t?.actor)
+        .find((a) => a && ownedByUser(a, user) && actorInCombat(a, combat, actors));
+    const assigned = user.character && actorInCombat(user.character, combat, actors) ? user.character : null;
+    const ownedCombatant = collectionList(combat.combatants)
+        .map((c) => resolveCombatantActor(c, actors))
+        .find((a) => a && ownedByUser(a, user));
+    return firstOf([controlledOwned, assigned, ownedCombatant]);
 }
 function unbindHooks() {
     const HooksRef = globalThis.Hooks;
@@ -339,7 +353,7 @@ function onTokenPointerMove(ev, token, board) {
     session.dragging = true;
     token.classList.add('is-dragging');
     const boardRect = board.getBoundingClientRect();
-    const rel = clampTokenToArea(session.originLeft + dx, session.originTop + dy, boardRect.width, boardRect.height);
+    const rel = clampTokenToArea(session.originLeft + dx, session.originTop + dy, boardRect.width, boardRect.height, TOKEN_SIZE_PX);
     token.style.left = `${(rel.x * 100).toFixed(2)}%`;
     token.style.top = `${(rel.y * 100).toFixed(2)}%`;
 }
@@ -359,17 +373,37 @@ async function onTokenPointerUp(ev, actor, layout, token, board) {
         const boardRect = board.getBoundingClientRect();
         const dx = ev.clientX - session.startX;
         const dy = ev.clientY - session.startY;
-        const rel = clampTokenToArea(session.originLeft + dx, session.originTop + dy, boardRect.width, boardRect.height);
+        const rel = clampTokenToArea(session.originLeft + dx, session.originTop + dy, boardRect.width, boardRect.height, TOKEN_SIZE_PX);
         const next = moveTokenInLayout(layout, session.tokenId, rel.x, rel.y);
         token.style.zIndex = String(next[session.tokenId]?.z ?? 1);
         const uuid = String(actor.uuid || actor.id || '');
         await writeActorLayout(uuid, next);
         return;
     }
-    const combat = liveCombat();
-    if (!isNaturalRecoveryAvailable(actor, combat) || !canCurrentUserUpdateDocument(actor))
+    if (lastClickTokenId === session.tokenId && clickTimer) {
+        window.clearTimeout(clickTimer);
+        clickTimer = 0;
+        lastClickTokenId = '';
+        flipToken(token);
         return;
-    showRecoveryConfirm(actor, session.specialId);
+    }
+    lastClickTokenId = session.tokenId;
+    if (clickTimer)
+        window.clearTimeout(clickTimer);
+    clickTimer = window.setTimeout(() => {
+        clickTimer = 0;
+        lastClickTokenId = '';
+        const combat = liveCombat();
+        if (!isNaturalRecoveryAvailable(actor, combat) || !canCurrentUserUpdateDocument(actor))
+            return;
+        showRecoveryConfirm(actor, session.specialId);
+    }, DOUBLE_CLICK_MS);
+}
+function flipToken(token) {
+    token.classList.remove('is-flipping');
+    void token.offsetWidth;
+    token.classList.add('is-flipping');
+    window.setTimeout(() => token.classList.remove('is-flipping'), 800);
 }
 function showRecoveryConfirm(actor, specialId) {
     const el = rootEl();
@@ -442,18 +476,17 @@ export function initializeSpecialTokenArea() {
     bindHook('deleteCombat', () => {
         removeRoot();
     });
-    bindHook('updateActor', (doc, changes) => {
-        if (changes?.system?.statusEffects !== undefined ||
-            changes?.['system.statusEffects'] !== undefined ||
-            changes?.system !== undefined) {
-            refresh();
-            return;
-        }
-        const actor = resolveSpecialTokenHudActor();
-        if (actor && sameHudActor(doc, actor))
-            refresh();
+    bindHook('updateActor', () => {
+        refresh();
     });
-    bindHook('updateUser', refresh);
+    bindHook('updateUser', () => {
+        removeRoot();
+        refresh();
+    });
+    bindHook('userConnected', () => {
+        removeRoot();
+        refresh();
+    });
     bindHook('controlToken', refresh);
     bindHook('canvasReady', refresh);
     bindHook('renderHotbar', () => {

@@ -1,1 +1,1 @@
-{"version":3,"file":"end-turn.d.ts","sourceRoot":"","sources":["../../src/combat/end-turn.ts"],"names":[],"mappings":"AAIA;;;GAGG;AACH,wBAAsB,cAAc,IAAI,OAAO,CAAC,IAAI,CAAC,CAqCpD"}
+{"version":3,"file":"end-turn.d.ts","sourceRoot":"","sources":["../../src/combat/end-turn.ts"],"names":[],"mappings":"AAIA,uEAAuE;AACvE,wBAAgB,mBAAmB,CAAC,KAAK,EAAE,GAAG,EAAE,IAAI,EAAE,GAAG,GAAG,OAAO,CAMlE;AAED;;;GAGG;AACH,wBAAsB,cAAc,IAAI,OAAO,CAAC,IAAI,CAAC,CAoCpD"}

@@ -184,4 +184,54 @@ describe('special token HUD actor restore', () => {
     (globalThis as any).canvas = { tokens: { controlled: [{ actor: oda }] } };
     expect(resolveSpecialTokenHudActor()).toBe(oda);
   });
+
+  it('does not show a player character tray to the GM on an NPC turn', () => {
+    const oda = {
+      id: 'oda',
+      uuid: 'Actor.oda',
+      type: 'character',
+      system: { statusEffects: [{ id: 'sundered', value: 2 }] },
+    };
+    const npc = {
+      id: 'npc1',
+      uuid: 'Actor.npc1',
+      type: 'npc',
+      system: { statusEffects: [] },
+    };
+    const combat = {
+      started: true,
+      combatants: [{ actorId: 'oda', actor: oda }, { actorId: 'npc1', actor: npc }],
+      combatant: { actorId: 'npc1', actor: npc },
+    };
+    (globalThis as any).game = {
+      combat,
+      actors: { get: (id: string) => (id === 'oda' ? oda : id === 'npc1' ? npc : null) },
+      user: { isGM: true, character: null },
+    };
+    (globalThis as any).canvas = { tokens: { controlled: [] } };
+    expect(resolveSpecialTokenHudActor()).toBe(npc);
+    expect(listHudDiminishingSpecials(resolveSpecialTokenHudActor())).toEqual([]);
+  });
+
+  it('does not keep Oda’s coins after switching back to the GM account', () => {
+    const oda = {
+      id: 'oda',
+      uuid: 'Actor.oda',
+      type: 'character',
+      isOwner: true,
+      system: { statusEffects: [{ id: 'sundered', value: 2 }] },
+    };
+    const combat = {
+      started: true,
+      combatants: [{ actorId: 'oda', actor: oda }],
+      combatant: { actorId: 'oda', actor: oda },
+    };
+    (globalThis as any).game = {
+      combat,
+      actors: { get: (id: string) => (id === 'oda' ? oda : null) },
+      user: { isGM: true, character: oda },
+    };
+    (globalThis as any).canvas = { tokens: { controlled: [{ actor: oda }] } };
+    expect(resolveSpecialTokenHudActor()).toBeNull();
+  });
 });

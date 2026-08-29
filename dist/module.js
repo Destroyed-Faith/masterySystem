@@ -538,8 +538,9 @@ Hooks.once('init', async function () {
             const isCurrent = combat.combatant?.id === combatantId &&
                 !!combat.started &&
                 arePlayerStonesReadyForRound(combat);
-            // Add End Turn button for current combatant only after every PC set stones
-            if (isCurrent) {
+            // Add End Turn button for current combatant only after every PC set stones.
+            // Players never see it on NPCs — they cannot use it and it only confuses.
+            if (isCurrent && (game.user?.isGM || (combatant.actor && combatant.actor.type !== 'npc' && combatant.actor.isOwner))) {
                 const endTurnBtn = $('<button type="button" class="combatant-control ms-end-turn-btn" data-action="endTurn" data-combatant-id="' + combatantId + '" data-tooltip="Nächster Eintrag im Initiative-Tracker (ein Zug weiter)." aria-label="Nächster Zug" title="Nächster Zug"><i class="fa-solid fa-forward"></i></button>');
                 $initiativeDiv.append(endTurnBtn);
                 endTurnBtn.off('click.ms-end-turn').on('click.ms-end-turn', async (ev) => {

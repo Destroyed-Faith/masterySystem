@@ -2,7 +2,7 @@ import {
   getActionEconomyActor,
   getReactionActionsSummary,
 } from '../combat/action-economy.js';
-import { requestEndTurn } from '../combat/end-turn.js';
+import { canViewerSeeEndTurn, requestEndTurn } from '../combat/end-turn.js';
 import {
   arePlayerStonesReadyForRound,
   encounterStartBlockers,
@@ -345,6 +345,11 @@ export class CombatCarouselApp extends BaseCarousel {
           !isEncounterPreparing(combat) &&
           arePlayerStonesReadyForRound(combat) &&
           combatant.id === currentCombatantId,
+        showEndTurn:
+          !isEncounterPreparing(combat) &&
+          arePlayerStonesReadyForRound(combat) &&
+          combatant.id === currentCombatantId &&
+          canViewerSeeEndTurn(actor, game.user),
         hidden: combatant.hidden || false,
         defeated: combatant.defeated || false,
         statusIcons: statusIcons.filter((item: any) => item && item.icon),

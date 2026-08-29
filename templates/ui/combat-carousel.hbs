@@ -155,7 +155,7 @@
           {{/if}}
 
           <!-- Advance initiative one step (next combatant) -->
-          {{#if combatant.isCurrent}}
+          {{#if combatant.showEndTurn}}
             <button type="button" class="portrait-end-turn js-end-turn" data-tooltip="Nächster Eintrag im Initiative-Tracker (ein Zug weiter)." aria-label="Nächster Zug">
               <i class="fas fa-forward"></i>
               <span>Nächster Zug</span>

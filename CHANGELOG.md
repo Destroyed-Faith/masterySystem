@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.427] - 2026-08-29
+
+### Changed
+
+- **Combat carousel:** Players no longer see Next Turn on NPC portraits.
+- **Combat HUD:** The token tray is a bit larger. Double-click a coin to flip it.
+
+### Fixed
+
+- **Combat HUD:** Switching back to the GM account no longer keeps a player’s coin tray. The GM only sees coins for NPCs or summons they actually run.
+
 ## [0.9.426] - 2026-08-29
 
 ### Fixed

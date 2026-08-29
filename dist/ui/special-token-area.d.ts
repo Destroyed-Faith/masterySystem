@@ -7,6 +7,8 @@ export declare function combatIsActive(combat: any): boolean;
 export declare function sameHudActor(a: any, b: any): boolean;
 export declare function resolveCombatantActor(combatant: any, actors?: any): any | null;
 export declare function actorInCombat(actor: any, combat: any, actors?: any): boolean;
+/** The personal coin tray is for that user's creature — never a player character on the GM client. */
+export declare function isGmTokenHudActor(actor: any): boolean;
 export declare function resolveSpecialTokenHudActor(): any | null;
 export declare function refreshSpecialTokenArea(): Promise<void>;
 export declare function initializeSpecialTokenArea(): void;
