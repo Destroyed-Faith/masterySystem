@@ -406,6 +406,20 @@
       "sheetHint": "Porträt und Name dieses NSC in der Spielerleiste zeigen",
       "drag": "Ziehen zum Verschieben"
     },
+    "sheet": {
+      "tabs": {
+        "nav": "Charakterbogen-Bereiche",
+        "attributes": "Attribute",
+        "echo": "Echo",
+        "skills": "Skills",
+        "powers": "Powers",
+        "equipment": "Equipment",
+        "disadvantages": "Nachteile",
+        "summons": "Beschwörungen",
+        "rituals": "Rituale",
+        "minorMagic": "Minor Magic"
+      }
+    },
     "weaponSets": {
       "groupLabel": "Waffenslots",
       "actionName": "Waffenwechsel",

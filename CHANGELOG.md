@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.417] - 2026-08-29
+
+### Changed
+
+- **Character sheet tabs:** The side bookmarks are gone. Icon cards sit on a raised rail under Portrait / Token / MR / XP / Rerolls / Name; hover shows the name, and the active tab is larger and hangs into the sheet.
+
 ## [0.9.416] - 2026-08-29
 
 ### Added

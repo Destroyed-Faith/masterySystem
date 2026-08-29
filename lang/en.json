@@ -406,6 +406,20 @@
       "sheetHint": "Show this NPC’s portrait and name on the player bar",
       "drag": "Drag to move"
     },
+    "sheet": {
+      "tabs": {
+        "nav": "Character sheet sections",
+        "attributes": "Attributes",
+        "echo": "Echo",
+        "skills": "Skills",
+        "powers": "Powers",
+        "equipment": "Equipment",
+        "disadvantages": "Disadvantages",
+        "summons": "Summons",
+        "rituals": "Rituals",
+        "minorMagic": "Minor Magic"
+      }
+    },
     "weaponSets": {
       "groupLabel": "Weaponslots",
       "actionName": "Weapon Swap",

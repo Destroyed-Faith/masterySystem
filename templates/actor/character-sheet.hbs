@@ -2,6 +2,7 @@
   
   <!-- Header -->
   <header class="sheet-header">
+    <div class="sheet-header-main">
     <div class="portrait-section">
       <div class="profile-img-wrapper">
         <div class="profile-img-container {{#unless editable}}locked{{/unless}}" data-image-type="portrait">
@@ -119,7 +120,46 @@
         {{/if}}
       </div>
     </div>
+    </div>
   </header>
+  <nav class="sheet-tabs tabs" data-group="primary" aria-label="{{localize 'MASTERY.sheet.tabs.nav'}}">
+      <a class="item{{#if creationGuideTabs.attributes}} creation-tab-hint{{/if}}" data-tab="attributes" aria-label="{{localize 'MASTERY.sheet.tabs.attributes'}}">
+        <i class="fas fa-fist-raised" aria-hidden="true"></i>
+        <span class="sheet-tab-label">{{localize "MASTERY.sheet.tabs.attributes"}}</span>
+      </a>
+      <a class="item{{#if creationGuideTabs.echo}} creation-tab-hint{{/if}}" data-tab="echo" aria-label="{{localize 'MASTERY.sheet.tabs.echo'}}">
+        <i class="fas fa-mask" aria-hidden="true"></i>
+        <span class="sheet-tab-label">{{localize "MASTERY.sheet.tabs.echo"}}</span>
+      </a>
+      <a class="item{{#if creationGuideTabs.skills}} creation-tab-hint{{/if}}" data-tab="skills" aria-label="{{localize 'MASTERY.sheet.tabs.skills'}}">
+        <i class="fas fa-list-check" aria-hidden="true"></i>
+        <span class="sheet-tab-label">{{localize "MASTERY.sheet.tabs.skills"}}</span>
+      </a>
+      <a class="item{{#if creationGuideTabs.powers}} creation-tab-hint{{/if}}" data-tab="powers" aria-label="{{localize 'MASTERY.sheet.tabs.powers'}}">
+        <i class="fas fa-wand-sparkles" aria-hidden="true"></i>
+        <span class="sheet-tab-label">{{localize "MASTERY.sheet.tabs.powers"}}</span>
+      </a>
+      <a class="item{{#if creationGuideTabs.equipment}} creation-tab-hint{{/if}}" data-tab="equipment" aria-label="{{localize 'MASTERY.sheet.tabs.equipment'}}">
+        <i class="fas fa-shield-alt" aria-hidden="true"></i>
+        <span class="sheet-tab-label">{{localize "MASTERY.sheet.tabs.equipment"}}</span>
+      </a>
+      <a class="item{{#if creationGuideTabs.disadvantages}} creation-tab-hint{{/if}}" data-tab="disadvantages" aria-label="{{localize 'MASTERY.sheet.tabs.disadvantages'}}">
+        <i class="fas fa-exclamation-triangle" aria-hidden="true"></i>
+        <span class="sheet-tab-label">{{localize "MASTERY.sheet.tabs.disadvantages"}}</span>
+      </a>
+      <a class="item" data-tab="summons" aria-label="{{localize 'MASTERY.sheet.tabs.summons'}}">
+        <i class="fas fa-paw" aria-hidden="true"></i>
+        <span class="sheet-tab-label">{{localize "MASTERY.sheet.tabs.summons"}}</span>
+      </a>
+      <a class="item" data-tab="rituals" aria-label="{{localize 'MASTERY.sheet.tabs.rituals'}}">
+        <i class="fas fa-scroll" aria-hidden="true"></i>
+        <span class="sheet-tab-label">{{localize "MASTERY.sheet.tabs.rituals"}}</span>
+      </a>
+      <a class="item" data-tab="minor-magic" aria-label="{{localize 'MASTERY.sheet.tabs.minorMagic'}}">
+        <i class="fas fa-flask" aria-hidden="true"></i>
+        <span class="sheet-tab-label">{{localize "MASTERY.sheet.tabs.minorMagic"}}</span>
+      </a>
+    </nav>
 
   {{#if encounterSetupStatus}}
   <section class="ms-encounter-setup" aria-label="{{localize 'MASTERY.encounterSetup.title'}}">
@@ -271,19 +311,6 @@
     </div>
   </div>
   {{/if}}
-
-  <!-- Tabs Navigation (Right Side Bookmarks) -->
-  <nav class="sheet-tabs tabs" data-group="primary">
-    <a class="item{{#if creationGuideTabs.attributes}} creation-tab-hint{{/if}}" data-tab="attributes" title="Attributes"><i class="fas fa-fist-raised"></i> Attributes</a>
-    <a class="item{{#if creationGuideTabs.echo}} creation-tab-hint{{/if}}" data-tab="echo" title="Echo"><i class="fas fa-mask"></i> Echo</a>
-    <a class="item{{#if creationGuideTabs.skills}} creation-tab-hint{{/if}}" data-tab="skills" title="Skills"><i class="fas fa-cogs"></i> Skills</a>
-    <a class="item{{#if creationGuideTabs.powers}} creation-tab-hint{{/if}}" data-tab="powers" title="Powers"><i class="fas fa-magic"></i> Powers</a>
-    <a class="item{{#if creationGuideTabs.equipment}} creation-tab-hint{{/if}}" data-tab="equipment" title="Equipment"><i class="fas fa-shield-alt"></i> Equipment</a>
-    <a class="item{{#if creationGuideTabs.disadvantages}} creation-tab-hint{{/if}}" data-tab="disadvantages" title="Disadvantages"><i class="fas fa-exclamation-triangle"></i> Dis Ads</a>
-    <a class="item" data-tab="summons" title="Summons"><i class="fas fa-paw"></i> Summons</a>
-    <a class="item" data-tab="rituals" title="Rituals"><i class="fas fa-book-sparkles"></i> Rituals</a>
-    <a class="item" data-tab="minor-magic" title="Minor Magic"><i class="fas fa-flask"></i> Minor Magic</a>
-  </nav>
 
   <!-- Sheet Body -->
   <section class="sheet-body">
