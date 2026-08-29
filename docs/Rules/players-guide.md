@@ -10538,7 +10538,7 @@ Cleanse can only reduce Specials that list **Cleanse: Yes**. The value of one Cl
 | **Regeneration(X)** | At Tick, heal **X HP**. | Yes | No |
 | **Ruin(X)** | At Tick, take **X** damage. | Yes | Yes |
 | **Exorcism(X)** | **Fiends only.** At Tick, take **X** damage. A non-Fiend cannot receive Exorcism. | Yes | Yes |
-| **Requiem(X)** | **Undead only.** At Tick, take **X** damage. A non-Undead cannot receive Requiem. | Yes | Yes |
+| **Requiem(X)** | **Deathless only.** At Tick, take **X** damage. A non-Deathless cannot receive Requiem. | Yes | Yes |
 | **Slow(X)** | Your **Speed** is reduced by **X m**. If you do not voluntarily move at least **1 m** during your turn, take **X damage** at the end of your turn. | Yes | Yes |
 | **Soulburn(X)** | All dice pools based on **Wits**, **Influence**, or **Resolve** are reduced by **X**, to a minimum of your **Mastery Rank**. | Yes | Yes |
 | **Sundered(X)** | When hit by a **non-Spell attack**, take **+1d8 bonus damage for every 2 Sundered**, rounded up. | Yes | Yes |
@@ -14312,10 +14312,10 @@ Cleanse may reduce Root normally. When Root reaches **0**, it ends.
 **Cleanse:** Yes
 
 ---
-**Valid Target:** Undead only
+**Valid Target:** Deathless only
 
 ---
-**Effect:** Requiem is a targeted ongoing damage Special. A creature without the **Undead** tag cannot receive Requiem. At Tick, an Undead creature affected by Requiem takes **X damage**. Requiem damage ignores Armor unless a rule says otherwise. At the start of the affected creature's turn, after the Tick, Requiem decays by **1**. If Requiem reaches **0**, it ends.
+**Effect:** Requiem is a targeted ongoing damage Special. A creature without the **Deathless** tag cannot receive Requiem. At Tick, a Deathless creature affected by Requiem takes **X damage**. Requiem damage ignores Armor unless a rule says otherwise. At the start of the affected creature's turn, after the Tick, Requiem decays by **1**. If Requiem reaches **0**, it ends.
 
 ---
 

@@ -62,6 +62,8 @@ function formatRangeLine(atk: AttackValue): string {
       ? `Range Short ≤${shortM} / Long ≤${longM} m`
       : `Range Long ≤${longM} m`;
   }
+  const aoeM = Math.floor(num(atk.npcAoeRadiusM, 0));
+  if (aoeM >= 2) return 'Melee around self';
   const reach = Math.floor(num(atk.npcRangeMeters, 2));
   return `Melee ${reach > 0 ? reach : 2} m`;
 }

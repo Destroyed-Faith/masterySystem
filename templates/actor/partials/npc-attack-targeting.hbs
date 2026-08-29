@@ -34,6 +34,12 @@
       </select>
     </div>
     {{else}}
+    {{#if atk.npcAoeRadiusM}}
+    <div class="npc-attack-field npc-attack-field--hint">
+      <span class="npc-attack-inline-hint">Melee AoE: around self (no extra reach)</span>
+    </div>
+    <input type="hidden" name="{{path}}.npcRangeMeters" value="0" data-dtype="Number"/>
+    {{else}}
     <div class="npc-attack-field">
       <label>Reach</label>
       <select name="{{path}}.npcRangeMeters" data-dtype="Number" class="npc-range-reach" title="Melee reach (1–8 m)">
@@ -42,6 +48,7 @@
         {{/each}}
       </select>
     </div>
+    {{/if}}
     <input type="hidden" name="{{path}}.npcRangeMinMeters" value="0" data-dtype="Number"/>
     {{/if}}
   </div>
@@ -89,8 +96,7 @@
     </div>
     <div class="npc-attack-field">
       <label>Stress (d8)</label>
-      <select name="{{path}}.npcStressD8" data-dtype="Number" data-tooltip="Stress damage on hit">
-        <option value="" {{#unless atk.npcStressD8}}selected{{/unless}}>—</option>
+      <select name="{{path}}.npcStressD8" data-dtype="Number" data-tooltip="Stress damage on hit. NPC attacks default to 1d8.">
         {{#each (range 1 4)}}
         <option value="{{this}}" {{#if (eqNum ../atk.npcStressD8 this)}}selected{{/if}}>{{this}}d8</option>
         {{/each}}

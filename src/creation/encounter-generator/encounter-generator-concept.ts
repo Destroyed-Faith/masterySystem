@@ -11,8 +11,8 @@
  *     per action,
  *   - an environment plan for environmental encounters.
  *
- * Engine reality (see encounter-generator-types.ts): NPC evade = MR*4 +
- * floor(agility/8), NPC armor = MR, per-phase attack rows are honored.
+ * Engine reality (see encounter-generator-types.ts): NPC evade / armor are
+ * the sheet combat fields (not MR). Per-phase attack rows are honored.
  */
 
 import {
@@ -76,7 +76,33 @@ export const RANK_BUDGET_FACTOR: Record<EnemyRank, number> = {
  * Sheet-mean party DPS undercounts real table damage (raises, exploding keep,
  * multi-power turns). Without this pad, bosses melt in 1–3 hits.
  */
-const BOSS_HP_REALISM_FACTOR = 2.4;
+const BOSS_HP_REALISM_FACTOR = 1.7;
+
+/** Extra sheet armor on top of party average (NPC armor is the sheet field). */
+const RANK_ARMOR_BONUS: Record<EnemyRank, number> = {
+  minor: 0,
+  standard: 2,
+  major: 4,
+  mythic: 6,
+};
+
+/** Diminishing special X — a rank, not leftover damage budget. */
+const RANK_SPECIAL_VALUE: Record<EnemyRank, number> = {
+  minor: 2,
+  standard: 3,
+  major: 4,
+  mythic: 4,
+};
+
+/** Soft cap on generated damage dice (exploding d8). Attack pools may go higher. */
+const RANK_DAMAGE_DICE_CAP: Record<EnemyRank, number> = {
+  minor: 6,
+  standard: 8,
+  major: 10,
+  mythic: 12,
+};
+
+const ATTACK_DICE_MAX = 24;
 
 const RANK_MR_OFFSET: Record<EnemyRank, number> = {
   minor: -1,
@@ -84,6 +110,19 @@ const RANK_MR_OFFSET: Record<EnemyRank, number> = {
   major: 1,
   mythic: 1,
 };
+
+/** Enemies may sit at most one Mastery Rank above the party's median. */
+export const MAX_ENEMY_MR_ABOVE_PARTY = 1;
+
+export function partyEnemyMrCap(partyMedianMR: number): number {
+  const party = clamp(Math.round(Number(partyMedianMR) || 1), 1, 8);
+  return clamp(party + MAX_ENEMY_MR_ABOVE_PARTY, 1, 8);
+}
+
+export function capEnemyMr(partyMedianMR: number, desiredMr: number): number {
+  const desired = clamp(Math.round(Number(desiredMr) || 1), 1, 8);
+  return Math.min(desired, partyEnemyMrCap(partyMedianMR));
+}
 
 /** Preferred catalog tier per rank (Active damage templates come in T3..T6). */
 const RANK_TIER: Record<EnemyRank, number> = {
@@ -190,7 +229,7 @@ export function normalizeConcept(raw?: Partial<EncounterConcept> | null): Encoun
   merged.kitMode = merged.kitMode === 'distinct' ? 'distinct' : 'identical';
   merged.weaponProfile = conceptWeaponProfile(merged);
   merged.attackShape = merged.attackShape === 'single-and-aoe' ? 'single-and-aoe' : 'free';
-  merged.baseDamageDice = clamp(Math.round(Number(merged.baseDamageDice) || 0), 0, 16);
+  merged.baseDamageDice = clamp(Math.round(Number(merged.baseDamageDice) || 0), 0, 24);
   merged.hpOverride = Math.max(0, Math.round(Number(merged.hpOverride) || 0));
   merged.armorOverride = Math.max(0, Math.round(Number(merged.armorOverride) || 0));
   merged.evadeOverride = Math.max(0, Math.round(Number(merged.evadeOverride) || 0));
@@ -281,8 +320,10 @@ export function deriveAddsPlan(
 
   // Defensive stats: adds are hittable (85% party hit rate like old minions).
   const desiredEvade = quantile(party.pooledAttackTotals, 1 - 0.85);
-  const minionMr = clamp(party.medianMR - 1, 1, 8);
-  const { mr, realizedEvade } = evadeToMrAgility(desiredEvade, minionMr);
+  const minionMr = capEnemyMr(party.medianMR, party.medianMR - 1);
+  const raw = evadeToMrAgility(desiredEvade, minionMr, partyEnemyMrCap(party.medianMR));
+  const mr = capEnemyMr(party.medianMR, raw.mr);
+  const realizedEvade = Math.max(1, Math.round(desiredEvade));
   const armor = mr;
 
   // Durability → HP from real player damage against these defenses.
@@ -430,7 +471,9 @@ function buildSlotLayout(concept: EncounterConcept): CyclePick[] {
     tier,
   );
   const singleFallback = pickEntries({ special, subfamily: 'damage-single', melee }, tier);
-  const aoeEntries = pickEntries({ special, subfamily: 'damage-aoe' }, tier);
+  const aoeEntries = melee
+    ? pickEntries({ special, subfamily: 'weapon-attack', melee: true }, tier)
+    : pickEntries({ special, subfamily: 'damage-aoe' }, tier);
   const controlEntries = [
     ...pickEntries({ subfamily: 'control' }, tier),
     ...pickEntries({ subfamily: 'hard-control' }, tier),
@@ -518,16 +561,16 @@ export function buildPowerCycle(
   const drFraction = clamp(party.avgDrPct / 100, 0, 0.95);
 
   const attackDice = clamp(
-    solveAttackDiceForHitRate(party.avgEvade, bossMr, hitTarget, 2, 16, 1200, rng),
+    solveAttackDiceForHitRate(party.avgEvade, bossMr, hitTarget, 2, ATTACK_DICE_MAX, 1200, rng),
     2,
-    16,
+    ATTACK_DICE_MAX,
   );
   // AoE attacks use one roll compared separately against each creature's Evade.
   // Price AoE pools against the same party Evade target as direct attacks.
   const attackDiceAoe = clamp(
-    solveAttackDiceForHitRate(party.avgEvade, bossMr, hitTarget, 2, 16, 1200, rng),
+    solveAttackDiceForHitRate(party.avgEvade, bossMr, hitTarget, 2, ATTACK_DICE_MAX, 1200, rng),
     2,
-    16,
+    ATTACK_DICE_MAX,
   );
 
   const entries: CyclePowerEntry[] = [];
@@ -560,34 +603,46 @@ export function buildPowerCycle(
     const specialCut = pick.isControl ? 0 : share;
     const directTarget = budget * (1 - specialCut) * aoeFactor;
     const rawPerHit = directTarget / (1 - drFraction) + party.avgArmor;
-    const damageDiceCount = clamp(Math.round(rawPerHit / EXPLODING_D8_MEAN), 1, 16);
+    const damageDiceCount = clamp(
+      Math.round(rawPerHit / EXPLODING_D8_MEAN),
+      1,
+      RANK_DAMAGE_DICE_CAP[concept.rank],
+    );
 
     let special: string | null = null;
     let specialValue = 0;
     if (pick.isControl) {
       special = 'root';
-      specialValue = clamp(Math.round(2 + bossMr / 2) + specialBonus, 1, 8);
+      specialValue = clamp(RANK_SPECIAL_VALUE[concept.rank] + specialBonus, 1, 5);
     } else if (specialId && specialCut > 0) {
       special = specialId;
-      const base = Math.round((budget * specialCut) * (pick.isAoe ? 0.6 : 1));
-      specialValue = clamp(base + specialBonus, 1, 12);
+      const aoeTrim = pick.isAoe ? -1 : 0;
+      specialValue = clamp(RANK_SPECIAL_VALUE[concept.rank] + specialBonus + aoeTrim, 1, 5);
     }
 
-    const rangeKind: 'melee' | 'ranged' = pick.entry
-      ? entryRangeKind(pick.entry)
-      : concept.style === 'martial'
-        ? 'melee'
+    const forceMelee = wantsMeleeWeapon(concept) || concept.style === 'martial';
+    const rangeKind: 'melee' | 'ranged' = forceMelee
+      ? 'melee'
+      : pick.entry
+        ? entryRangeKind(pick.entry)
         : 'ranged';
     const row = (pick.entry?.raw as any)?.levels?.['4'];
-    const rangeMeters = rangeKind === 'melee' ? 2 : Math.max(8, Number(row?.range?.m) || 16);
+    const rangeMeters = rangeKind === 'melee'
+      ? pick.isAoe
+        ? 0
+        : conceptWeaponProfile(concept) === 'two-hand' ? 2 : 1
+      : Math.max(8, Number(row?.range?.m) || 16);
     const rawAoe = row?.aoe;
     const aoe = pick.isAoe
       ? {
-          shape: (rawAoe?.shape === 'cone' || rawAoe?.shape === 'line' ? rawAoe.shape : 'radius') as
-            | 'radius'
-            | 'cone'
-            | 'line',
-          radiusM: Math.max(2, Number(rawAoe?.radiusM ?? rawAoe?.m) || 4),
+          shape: (rangeKind === 'melee'
+            ? 'radius'
+            : rawAoe?.shape === 'cone' || rawAoe?.shape === 'line'
+              ? rawAoe.shape
+              : 'radius') as 'radius' | 'cone' | 'line',
+          radiusM: rangeKind === 'melee'
+            ? 3
+            : Math.max(2, Number(rawAoe?.radiusM ?? rawAoe?.m) || 4),
         }
       : null;
 
@@ -621,34 +676,26 @@ export function buildPowerCycle(
     });
   });
 
-  // Signature attack: the boss's main strike additionally inflicts Stress
-  // (1d8, major/mythic 2d8). Only ONE attack in the cycle carries it —
-  // prefer the first direct single-target damage row.
-  const stressD8 = concept.rank === 'major' || concept.rank === 'mythic' ? 2 : 1;
-  const signature =
-    entries.find((e) => !e.isSummon && !e.aoe && e.damageDiceCount > 0 && e.special !== 'root') ??
-    entries.find((e) => !e.isSummon && e.damageDiceCount > 0);
-  if (signature) {
-    signature.stressD8 = stressD8;
-    signature.note = [signature.note, `Verursacht zusätzlich ${stressD8}d8 Stress bei Treffer.`]
-      .filter(Boolean)
-      .join(' ');
-  }
-
   const profile = conceptWeaponProfile(concept);
-  const damageOverride = clamp(Math.round(Number(concept.baseDamageDice) || 0), 0, 16);
+  const damageOverride = clamp(Math.round(Number(concept.baseDamageDice) || 0), 0, 24);
   for (const entry of entries) {
     if (entry.isSummon) continue;
+    // Every NPC attack deals 1d8 Stress on hit.
+    entry.stressD8 = 1;
     if (profile === 'ranged') {
       entry.rangeKind = 'ranged';
       entry.rangeMeters = Math.max(12, entry.rangeMeters || 16);
     } else if (entry.rangeKind === 'melee') {
-      entry.rangeMeters = profile === 'two-hand' ? 2 : 1;
+      entry.rangeMeters = entry.aoe ? 0 : profile === 'two-hand' ? 2 : 1;
     }
     if (damageOverride > 0) {
       entry.damageDiceCount = damageOverride;
     } else if (profile === 'two-hand' && concept.style === 'martial') {
-      entry.damageDiceCount = clamp(Math.round(entry.damageDiceCount * 1.15), 1, 16);
+      entry.damageDiceCount = clamp(
+        Math.round(entry.damageDiceCount * 1.15),
+        1,
+        RANK_DAMAGE_DICE_CAP[concept.rank],
+      );
     }
     if (profile === 'two-hand' && entry.rangeKind === 'melee') {
       entry.note = [entry.note, 'Zweihandwaffe.'].filter(Boolean).join(' ');
@@ -666,7 +713,7 @@ export function buildPowerCycle(
 /**
  * Fill `attacksPerRound` (1–5) so powers can actually spend the boss's
  * action budget: each non-summon power starts at 1, leftover actions go to
- * the signature (stress) row — or by weight when the cycle is weighted.
+ * the first attack row — or by weight when the cycle is weighted.
  */
 function assignAttacksPerRound(
   entries: CyclePowerEntry[],
@@ -875,16 +922,24 @@ export function deriveConceptPlan(
   const notes: string[] = [];
   const packing = multiBossPacking(concept.bossCount);
 
-  // Boss defensive frame (like the classic model, biased by rank).
-  const bossMrBase = clamp(party.medianMR + RANK_MR_OFFSET[concept.rank], 1, 8);
-  const desiredEvade = quantile(party.pooledAttackTotals, 1 - params.partyHitRateVsBoss);
-  const derivedFrame = evadeToMrAgility(desiredEvade, bossMrBase);
-  let mr = derivedFrame.mr;
-  let realizedEvade = derivedFrame.realizedEvade;
+  // Defensive frame: sheet evade/armor are what combat uses. MR is only Keep.
+  // Never more than one rank above the party — Major/Mythic raise budget, not MR.
+  const desiredMr = clamp(party.medianMR + RANK_MR_OFFSET[concept.rank], 1, 8);
+  const mr = capEnemyMr(party.medianMR, desiredMr);
+  if (desiredMr > mr) {
+    notes.push(
+      `Vorsicht: Gegner-MR bleibt bei ${mr} (höchstens Gruppen-MR ${party.medianMR} + 1). Höher geht nicht.`,
+    );
+  } else if (mr >= partyEnemyMrCap(party.medianMR)) {
+    notes.push(
+      `Vorsicht: Gegner-MR sitzt am Maximum (${mr} = Gruppen-MR ${party.medianMR} + 1).`,
+    );
+  }
+  let realizedEvade = Math.round(quantile(party.pooledAttackTotals, 1 - params.partyHitRateVsBoss));
+  let armor = Math.max(0, Math.round(party.avgArmor + RANK_ARMOR_BONUS[concept.rank]));
   if (concept.armorOverride > 0) {
-    mr = clamp(concept.armorOverride, 1, 8);
-    if (concept.evadeOverride <= 0) realizedEvade = mr * 4;
-    notes.push(`Rüstung/MR manuell auf ${mr} gesetzt (Kampf-Rüstung = MR).`);
+    armor = Math.max(0, concept.armorOverride);
+    notes.push(`Rüstung manuell auf ${armor} gesetzt.`);
   }
   if (concept.evadeOverride > 0) {
     realizedEvade = concept.evadeOverride;
@@ -892,8 +947,6 @@ export function deriveConceptPlan(
   }
   const evadeExtra = Math.max(0, Math.round(realizedEvade - mr * 4));
   const agility = Math.max(2, Math.min(80, evadeExtra * 8));
-  realizedEvade = mr * 4 + Math.floor(agility / 8);
-  const armor = mr;
 
   // Encounter round budget (damage AFTER party mitigation, whole group).
   const baselineActions = clamp(Math.round(party.size * params.bossSlotFactor), 1, 6);
@@ -1283,12 +1336,12 @@ export const RANK_OPTIONS: Array<LabeledOption<EnemyRank>> = [
   {
     value: 'major',
     label: 'Major Encounter',
-    description: 'Schwerer Setpiece-Boss — mehr HP/Phasen, härtere Treffer, längerer Kampf.',
+    description: 'Schwerer Setpiece-Boss — mehr HP/Phasen, härtere Treffer. MR höchstens Gruppen-MR + 1.',
   },
   {
     value: 'mythic',
     label: 'Mythic',
-    description: 'Höchste Stufe — sehr langer, unnachgiebiger Kampf mit maximalem Encounter-Budget.',
+    description: 'Höchste Stufe — langer, harter Kampf. MR bleibt trotzdem höchstens Gruppen-MR + 1.',
   },
 ];
 

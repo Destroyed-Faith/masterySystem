@@ -246,8 +246,11 @@
         "npcIsSpell": false,
         "npcAttacksPerRound": 1,
         "npcSplitAttack": false,
-        "npcStressD8": 0,
+        "npcStressD8": 1,
         "specials": []
+      },
+      "creation": {
+        "complete": true
       },
       "npcActivePhaseIndex": 0,
       "attackSlots": 1,
@@ -315,8 +318,11 @@
         "npcIsSpell": false,
         "npcAttacksPerRound": 1,
         "npcSplitAttack": false,
-        "npcStressD8": 0,
+        "npcStressD8": 1,
         "specials": []
+      },
+      "creation": {
+        "complete": true
       },
       "attackValues": [],
       "attackSlots": 1,

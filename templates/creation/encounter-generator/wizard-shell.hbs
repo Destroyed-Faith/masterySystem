@@ -157,20 +157,21 @@
         </label>
         <label class="encounter-gen-field">
           <span class="encounter-gen-label-tip" tabindex="0">{{copy.concept.baseDamage}}<span class="encounter-gen-tooltip" role="tooltip">{{copy.concept.baseDamageHint}}</span></span>
-          <input type="number" class="js-eg-concept" data-field="baseDamageDice" min="0" max="16" value="{{concept.baseDamageDice}}"/>
+          <input type="number" class="js-eg-concept" data-field="baseDamageDice" min="0" max="24" value="{{concept.baseDamageDice}}"/>
         </label>
       </div>
 
       <h4>{{copy.concept.valuesHeading}}</h4>
       <p class="encounter-gen-note">{{copy.concept.valuesHint}}</p>
+      <p class="encounter-gen-caution">{{mrRule}}</p>
       <div class="encounter-gen-form">
         <label class="encounter-gen-field">
           <span class="encounter-gen-label-tip" tabindex="0">{{copy.concept.hpOverride}}<span class="encounter-gen-tooltip" role="tooltip">0 = automatisch</span></span>
           <input type="number" class="js-eg-concept" data-field="hpOverride" min="0" max="9999" value="{{concept.hpOverride}}"/>
         </label>
         <label class="encounter-gen-field">
-          <span class="encounter-gen-label-tip" tabindex="0">{{copy.concept.armorOverride}}<span class="encounter-gen-tooltip" role="tooltip">Kampf-Rüstung = MR (1–8). 0 = automatisch.</span></span>
-          <input type="number" class="js-eg-concept" data-field="armorOverride" min="0" max="8" value="{{concept.armorOverride}}"/>
+          <span class="encounter-gen-label-tip" tabindex="0">{{copy.concept.armorOverride}}<span class="encounter-gen-tooltip" role="tooltip">Echte Rüstung auf dem NSC (nicht MR). 0 = automatisch aus der Gruppe.</span></span>
+          <input type="number" class="js-eg-concept" data-field="armorOverride" min="0" max="40" value="{{concept.armorOverride}}"/>
         </label>
         <label class="encounter-gen-field">
           <span class="encounter-gen-label-tip" tabindex="0">{{copy.concept.evadeOverride}}<span class="encounter-gen-tooltip" role="tooltip">0 = automatisch</span></span>
@@ -206,9 +207,10 @@
         <h4>{{copy.concept.previewHeading}}</h4>
         <ul>
           <li>{{conceptPreview.countLabel}}</li>
-          <li>HP <strong>{{conceptPreview.hp}}</strong> · Rüstung/MR <strong>{{conceptPreview.armor}}</strong> · Ausweichen <strong>{{conceptPreview.evade}}</strong></li>
+          <li>MR <strong>{{conceptPreview.mr}}</strong> · HP <strong>{{conceptPreview.hp}}</strong> · Rüstung <strong>{{conceptPreview.armor}}</strong> · Ausweichen <strong>{{conceptPreview.evade}}</strong></li>
           <li>{{conceptPreview.attacks}}</li>
           <li>{{conceptPreview.reactions}}</li>
+          <li class="encounter-gen-caution-line">{{conceptPreview.mrCaution}}</li>
         </ul>
         <p class="encounter-gen-note">{{copy.concept.previewNote}}</p>
       </div>
@@ -328,7 +330,7 @@
       {{#each review.phases}}
       <div class="encounter-gen-statblock">
         <div class="encounter-gen-statblock-head">
-          {{this.name}} · {{this.actionsPerRound}} Aktionen/Runde
+          {{this.name}} · MR {{@root.review.mr}} · {{this.actionsPerRound}} Aktionen/Runde
           {{#unless this.addsActive}}<span class="encounter-gen-tag">keine neuen Adds</span>{{/unless}}
         </div>
         {{#if this.changes}}
@@ -374,11 +376,11 @@
               <td>—</td>
               <td>—</td>
               {{else}}
-              <td><input type="number" class="js-eg-cycle" data-phase="{{@../index}}" data-slot="{{this.cycleIndex}}" data-field="attackDiceCount" value="{{this.attackDiceCount}}" min="2" max="16"/></td>
-              <td><input type="number" class="js-eg-cycle" data-phase="{{@../index}}" data-slot="{{this.cycleIndex}}" data-field="damageDiceCount" value="{{this.damageDiceCount}}" min="0" max="16"/></td>
+              <td><input type="number" class="js-eg-cycle" data-phase="{{@../index}}" data-slot="{{this.cycleIndex}}" data-field="attackDiceCount" value="{{this.attackDiceCount}}" min="2" max="24"/></td>
+              <td><input type="number" class="js-eg-cycle" data-phase="{{@../index}}" data-slot="{{this.cycleIndex}}" data-field="damageDiceCount" value="{{this.damageDiceCount}}" min="0" max="24"/></td>
               <td>
                 {{#if this.special}}
-                <input type="number" class="js-eg-cycle encounter-gen-input--small" data-phase="{{@../index}}" data-slot="{{this.cycleIndex}}" data-field="specialValue" value="{{this.specialValue}}" min="0" max="16"/>
+                <input type="number" class="js-eg-cycle encounter-gen-input--small" data-phase="{{@../index}}" data-slot="{{this.cycleIndex}}" data-field="specialValue" value="{{this.specialValue}}" min="0" max="8"/>
                 {{this.specialText}}
                 {{else}}—{{/if}}
               </td>

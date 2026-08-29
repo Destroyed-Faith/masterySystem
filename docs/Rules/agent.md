@@ -1745,7 +1745,7 @@ Diminishing effects use **Start PP × T(X)** pricing.
 | **Mark(X)** | **4** | X = spendable damage-floor value | After a hit, spend any amount of Mark to set the minimum result of each damage die to the amount spent for that damage roll, then reduce Mark by that amount. | Yes |
 | **Regeneration(X)** | **3** | X = healing on Tick | At Tick, heal **X HP**. | No |
 | **Exorcism(X)** | **2** | X = damage on Tick (Fiend only) | At Tick, take **X** damage (ignores Armor unless stated). Applies only to **Fiends**. | Yes |
-| **Requiem(X)** | **2** | X = damage on Tick (Undead only) | At Tick, take **X** damage (ignores Armor unless stated). Applies only to **Undead**. | Yes |
+| **Requiem(X)** | **2** | X = damage on Tick (Deathless only) | At Tick, take **X** damage (ignores Armor unless stated). Applies only to **Deathless**. | Yes |
 | **Ruin(X)** | **4** | X = damage on Tick | At Tick, take **X** damage. | Yes |
 | **Slow(X)** | **4** | X = Speed reduction in meters | Your Speed is reduced by **X m**. If you do not voluntarily move at least 1 m during your turn, take **X damage** at the end of your turn. | Yes |
 | **Soulburn(X)** | **8** | X = dice removed from Wits, Influence, and Resolve pools | Whenever you build a pool based on **Wits**, **Influence**, or **Resolve**, remove **X dice**. | Yes |

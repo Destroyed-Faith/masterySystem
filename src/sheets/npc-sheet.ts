@@ -95,6 +95,8 @@ function ensureNpcBaseShape(b: Record<string, any> | null | undefined): Record<s
   const o = b && typeof b === 'object' ? dup(b) : {};
   if (!Array.isArray(o.specials)) o.specials = [];
   if (o.name == null || o.name === '') o.name = 'Waffenangriff';
+  const stress = Math.floor(Number(o.npcStressD8));
+  o.npcStressD8 = Number.isFinite(stress) && stress >= 1 ? Math.min(4, stress) : 1;
   return o;
 }
 
@@ -109,6 +111,7 @@ function newExtraNpcPower(): Record<string, unknown> {
     npcAoeShape: 'none',
     npcAoeRadiusM: 0,
     npcAttacksPerRound: 1,
+    npcStressD8: 1,
     specials: [] as { special?: string; specialValue?: number }[]
   };
 }
@@ -143,7 +146,12 @@ function normalizeNpcAttackRowForContext(row: Record<string, any> | null | undef
     }
     const n = Math.floor(Number(raw));
     if (Number.isFinite(n) && n > 0) (o as any)[k] = n;
+    else if (k === 'npcStressD8') (o as any)[k] = 1;
     else delete (o as any)[k];
+  }
+  {
+    const n = Math.floor(Number(o.npcStressD8));
+    o.npcStressD8 = Number.isFinite(n) && n >= 1 ? Math.min(4, n) : 1;
   }
   // Short band may be 0 (= derive from Long) — keep it for the select.
   {
@@ -190,13 +198,6 @@ function normalizeNpcAttackRowForContext(row: Record<string, any> | null | undef
   } else {
     // Persist explicit melee so empty FormData can't leave a stale "ranged" flag.
     o.npcRangeKind = 'melee';
-    // Reach: 1–8 m (default 2 when empty / when coming from Fern 12–24).
-    const reachRaw = Math.floor(Number(o.npcRangeMeters));
-    if (Number.isFinite(reachRaw) && reachRaw >= 1 && reachRaw <= 8) {
-      o.npcRangeMeters = reachRaw;
-    } else {
-      o.npcRangeMeters = 2;
-    }
     delete o.npcRangeMinMeters;
   }
   // AoE is driven only by radius (≥ 2 m). Stale npcAoeShape alone must not keep AoE on.
@@ -209,6 +210,16 @@ function normalizeNpcAttackRowForContext(row: Record<string, any> | null | undef
   } else {
     o.npcAoeRadiusM = 0;
     o.npcAoeShape = 'none';
+  }
+  if (o.npcRangeKind === 'melee') {
+    if (hasAoe) {
+      // Melee burst is around self — no extra reach band.
+      o.npcRangeMeters = 0;
+    } else {
+      const reachRaw = Math.floor(Number(o.npcRangeMeters));
+      o.npcRangeMeters =
+        Number.isFinite(reachRaw) && reachRaw >= 1 && reachRaw <= 8 ? reachRaw : 2;
+    }
   }
   return o;
 }
@@ -347,6 +358,7 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
     const isSummon = context.actor?.type === 'summon';
     const isNpcLike = context.actor?.type === 'npc' || isSummon;
     context.isSummon = isSummon;
+    context.editable = this.isEditable;
     context.npcDamageDiceMin = isSummon ? 1 : 4;
     context.creatureTypeOptions = creatureTypeSelectOptions(context.system?.creatureType);
 

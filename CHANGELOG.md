@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Changed
+
+- **Encounter Generator:** Suggested specials stay around 3–4 (not 12), martial AoE is a 2 m melee swing with a 3 m radius (not a 16 m blast), armor is the real sheet value (party armor + rank, not MR), damage dice are capped by rank, attack pools can go to 24, and HP is less padded.
+- **Encounter Generator:** Enemy MR is never more than one rank above the party. The preview shows MR separately from armor and warns when the cap is reached.
+- **NPC sheet:** Attack pool goes to 24d8. Every NPC attack defaults to 1d8 Stress. Melee AoE is around self (no extra reach). Creature type **Undead** is now **Deathless**; Requiem targets Deathless (old Undead values still count). Generated NPCs can be renamed.
+
 ## [0.9.422] - 2026-08-29
 
 ### Fixed

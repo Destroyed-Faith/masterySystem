@@ -5934,7 +5934,7 @@ A ranged weapon attack that walks a burst through an ordered line of targets.
 **Exorcism(X)** and **Requiem(X)** are separate Diminishing Specials with the same pricing:
 
 - **Exorcism(X):** can be applied only to a creature with the **Fiend** tag.
-- **Requiem(X):** can be applied only to a creature with the **Undead** tag.
+- **Requiem(X):** can be applied only to a creature with the **Deathless** tag.
 - **Cost:** **2 × T(X) PP**.
 - **Tick:** at the start of the affected creature's Turn, take **X damage**, then reduce X by 1.
 - **Stacking:** normal Diminishing stacking.

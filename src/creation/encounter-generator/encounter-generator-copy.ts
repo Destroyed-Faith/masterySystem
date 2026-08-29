@@ -68,7 +68,7 @@ export const ENCOUNTER_GENERATOR_COPY = {
       slots: 'Angriffe/Runde',
       mr: 'MR',
     },
-    note: 'Hinweis: Ausweichen wird in-engine aus MR und Beweglichkeit erzeugt; Ruestung entspricht der MR. Phasen-Wechsel steuerst du im NSC-Bogen (aktive Phase).',
+    note: 'Hinweis: Ruestung und Ausweichen sind die Werte auf dem NSC-Bogen. Phasen-Wechsel steuerst du dort (aktive Phase).',
   },
 
   name: {
@@ -97,9 +97,12 @@ export const ENCOUNTER_GENERATOR_COPY = {
     baseDamage: 'Basis-Schaden (W8)',
     baseDamageHint: '0 = Generator. Sonst jeder Waffen-/Zauber-Angriff nutzt genau so viele explodierende W8.',
     valuesHeading: 'Werte vorher sehen / überschreiben',
-    valuesHint: '0 = automatisch aus der Gruppe. Gesetzte Werte gelten pro Hauptgegner. Kampf-Rüstung ist die MR.',
+    valuesHint: '0 = automatisch aus der Gruppe. Gesetzte Werte gelten pro Hauptgegner. Rüstung und Ausweichen sind die echten Sheet-Werte — nicht die MR.',
+    mrRule: 'Gegner-MR höchstens Gruppen-MR + 1.',
+    mrCaution: (enemyMr: number, partyMr: number, cap: number) =>
+      `Vorsicht: Gegner-MR ist ${enemyMr}. Maximum für diese Gruppe ist ${cap} (MR ${partyMr} + 1). Höher geht nicht.`,
     hpOverride: 'HP',
-    armorOverride: 'Rüstung / MR',
+    armorOverride: 'Rüstung',
     evadeOverride: 'Ausweichen',
     reactionsHeading: 'Reaktionen (1–2)',
     reactionsBody: 'Leer lassen oder Standard-Manöver / eigenen Namen wählen. Stehen auf jedem erzeugten Hauptgegner.',

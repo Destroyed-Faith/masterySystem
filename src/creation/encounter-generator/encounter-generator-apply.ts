@@ -205,6 +205,10 @@ function cycleEntryToAttackRow(entry: CyclePowerEntry): Record<string, unknown> 
     const maxM = Math.min(24, Math.max(12, Math.round(entry.rangeMeters || 24)));
     row.npcRangeMeters = maxM;
     row.npcRangeMinMeters = 12;
+  } else if (entry.aoe) {
+    row.npcRangeKind = 'melee';
+    row.npcRangeMeters = 0;
+    row.npcRangeMinMeters = 0;
   } else if (entry.rangeMeters != null) {
     row.npcRangeMeters = Math.min(8, Math.max(1, Math.round(entry.rangeMeters || 2)));
   }
@@ -212,8 +216,8 @@ function cycleEntryToAttackRow(entry: CyclePowerEntry): Record<string, unknown> 
     row.npcAoeShape = entry.aoe.shape;
     row.npcAoeRadiusM = Math.max(2, Math.round(entry.aoe.radiusM));
   }
-  if (entry.stressD8 && entry.stressD8 > 0) {
-    row.npcStressD8 = Math.max(1, Math.round(entry.stressD8));
+  if (!entry.isSummon) {
+    row.npcStressD8 = Math.max(1, Math.round(entry.stressD8 ?? 1));
   }
   if (!entry.isSummon && entry.isSpell) {
     row.npcIsSpell = true;
@@ -325,7 +329,7 @@ export function buildProjectBossSystem(
 
   const system: Record<string, unknown> = {
     attributes,
-    mastery: { rank: boss.mr, points: 0, experience: 0 },
+    mastery: { rank: Math.max(1, Math.min(8, Math.round(boss.mr))), points: 0, experience: 0 },
     health: projectHealthBlock(primary.stat.hp),
     combat: projectCombatBlock(primary.stat, boss.speed),
     npcBaseAttack: primaryRows[0] ?? { name: 'Angriff', attackDiceCount: 4, damageDiceCount: 3, specials: [] },
@@ -335,6 +339,7 @@ export function buildProjectBossSystem(
     npcMovementSlots: Math.max(0, Math.round(boss.movementSlots)),
     npcActivePhaseIndex: 0,
     bio: { description: tacticsHtml(plan) },
+    creation: { complete: true },
   };
 
   if (phasePlans.length > 1) {
@@ -400,7 +405,7 @@ export function buildProjectAddSystem(plan: EncounterProjectPlan): Record<string
       influence: { value: 2, stones: 0 },
       wits: { value: 2, stones: 0 },
     },
-    mastery: { rank: d.mr, points: 0, experience: 0 },
+    mastery: { rank: Math.max(1, Math.min(8, Math.round(d.mr))), points: 0, experience: 0 },
     health: projectHealthBlock(d.hp),
     combat: projectCombatBlock(stat, 8),
     npcBaseAttack: {

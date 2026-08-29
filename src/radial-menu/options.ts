@@ -74,6 +74,8 @@ function buildNpcAttackDescription(atk: any): string {
         ? `Range Short ≤${shortM} / Long ≤${maxM} m`
         : `Range Long ≤${maxM} m`,
     );
+  } else if (hasAoe) {
+    parts.push('Melee around self');
   } else {
     const reachM = meters > 0 ? Math.min(8, Math.max(1, meters)) : 2;
     parts.push(`Melee ${reachM} m`);

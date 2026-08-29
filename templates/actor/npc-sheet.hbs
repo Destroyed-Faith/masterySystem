@@ -57,7 +57,7 @@
           <h1>{{actor.name}}</h1>
         {{/if}}
       </div>
-      <div class="npc-creature-type-box" title="Creature type (Smite vs Undead / Fiend)">
+      <div class="npc-creature-type-box" title="Creature type (Requiem vs Deathless / Exorcism vs Fiend)">
         <label>Typ</label>
         <select name="system.creatureType" class="npc-creature-type-select">
           {{#each creatureTypeOptions}}
@@ -236,7 +236,7 @@
                 <label>Attack (Pool)</label>
                 <select name="system.phases.{{phaseIndex}}.npcBaseAttack.attackDiceCount" data-dtype="Number">
                   <option value="">—</option>
-                  {{#each (range 2 16)}}
+                  {{#each (range 2 24)}}
                   <option value="{{this}}" {{#if (eqNum phase.npcBaseAttack.attackDiceCount this)}}selected{{/if}}>{{this}}d8</option>
                   {{/each}}
                 </select>
@@ -303,7 +303,7 @@
                     <label>Attack (Pool)</label>
                     <select name="system.phases.{{../phaseIndex}}.attackValues.{{index}}.attackDiceCount" data-dtype="Number">
                       <option value="">—</option>
-                      {{#each (range 2 16)}}
+                      {{#each (range 2 24)}}
                       <option value="{{this}}" {{#if (eqNum attack.attackDiceCount this)}}selected{{/if}}>{{this}}d8</option>
                       {{/each}}
                     </select>
@@ -454,7 +454,7 @@
                     <label>Attack (Pool)</label>
               <select name="system.npcBaseAttack.attackDiceCount" data-dtype="Number">
                 <option value="">—</option>
-                {{#each (range 2 16)}}
+                {{#each (range 2 24)}}
                 <option value="{{this}}" {{#if (eqNum ../system.npcBaseAttack.attackDiceCount this)}}selected{{/if}}>{{this}}d8</option>
                 {{/each}}
               </select>
@@ -522,7 +522,7 @@
                   <label>Attack (Pool)</label>
                   <select name="system.attackValues.{{index}}.attackDiceCount" data-dtype="Number">
                     <option value="">—</option>
-                    {{#each (range 2 16)}}
+                    {{#each (range 2 24)}}
                     <option value="{{this}}" {{#if (eqNum attack.attackDiceCount this)}}selected{{/if}}>{{this}}d8</option>
                     {{/each}}
                   </select>

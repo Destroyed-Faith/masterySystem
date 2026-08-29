@@ -229,6 +229,7 @@ export class EncounterGeneratorDialog extends BaseDialog {
     const showKits = plan.kitMode === 'distinct' && (plan.kits?.length ?? 0) > 1;
     const kitIndex = Math.max(0, Math.min(this.selectedKitIndex, Math.max(0, (plan.kits?.length ?? 1) - 1)));
     return {
+      mr: plan.boss.mr,
       phases,
       showKits,
       copiesLabel: !showKits && plan.bossCount > 1
@@ -287,6 +288,9 @@ export class EncounterGeneratorDialog extends BaseDialog {
     const previewPhase = previewPlan?.phasePlans[0];
     const previewDamage = previewPhase?.cycle.filter((row) => !row.isSummon) ?? [];
     const previewReactions = (previewPlan?.concept.reactions ?? c.reactions).filter((r) => r.kind !== 'none');
+    const partyMr = Math.max(1, Math.round(this.party?.medianMR || metrics?.medianMR || 1));
+    const mrCap = Math.min(8, partyMr + 1);
+    const enemyMr = previewPlan?.boss.mr ?? 0;
     const conceptPreview = previewPhase
       ? {
           countLabel:
@@ -294,6 +298,7 @@ export class EncounterGeneratorDialog extends BaseDialog {
               ? `${c.bossCount}× ${c.kitMode === 'distinct' ? 'eigene Kits' : 'gleiche Hauptgegner'}`
               : '1 Hauptgegner',
           hp: previewPlan!.phasePlans.reduce((sum, p) => sum + p.stat.hp, 0),
+          mr: enemyMr,
           armor: previewPhase.stat.armor,
           evade: previewPhase.stat.evade,
           attacks: previewDamage
@@ -306,6 +311,7 @@ export class EncounterGeneratorDialog extends BaseDialog {
           reactions: previewReactions.length
             ? `Reaktionen: ${previewReactions.map((r) => r.name || r.kind).join(', ')}`
             : 'Keine Reaktionen',
+          mrCaution: copy.concept.mrCaution(enemyMr, partyMr, mrCap),
         }
       : null;
 
@@ -328,6 +334,7 @@ export class EncounterGeneratorDialog extends BaseDialog {
       weaponProfileOptions: selectOptions(WEAPON_PROFILE_OPTIONS, c.weaponProfile),
       attackShapeOptions: selectOptions(ATTACK_SHAPE_OPTIONS, c.attackShape),
       reactionRows: this.#reactionEditorRows(c.reactions),
+      mrRule: copy.concept.mrRule,
       conceptPreview,
       isEnvironmental: c.style === 'environmental',
       adds: c.adds,

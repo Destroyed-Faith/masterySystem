@@ -2294,9 +2294,13 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     // Passive slotting is handled exclusively by the in-combat dialog; the
     // character-sheet passive-slot manager (and its handlers) were removed.
 
-    // Check if creation is incomplete - don't lock, just disable non-creation fields
+    // Check if creation is incomplete - don't lock, just disable non-creation fields.
+    // NPCs / summons inherit `creation.complete: false` from the actor template
+    // but are not in chargen — locking them disables the name field.
+    const actorType = String((this.actor as any)?.type || '');
+    const isNpcLike = actorType === 'npc' || actorType === 'summon';
     const creationComplete = (this.actor as any).system?.creation?.complete !== false;
-    if (!creationComplete) {
+    if (!isNpcLike && !creationComplete) {
       this.#lockSheetForCreation(html);
     }
 

@@ -93,6 +93,10 @@ describe('evadeToMrAgility', () => {
     const r = evadeToMrAgility(4, 4);
     expect(r.realizedEvade).toBe(16);
   });
+  it('respects an explicit MR ceiling (party + 1)', () => {
+    const r = evadeToMrAgility(30, 4, 3);
+    expect(r.mr).toBe(3);
+  });
 });
 
 describe('damageDiceForTarget', () => {

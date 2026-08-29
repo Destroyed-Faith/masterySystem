@@ -6,9 +6,8 @@
  * then writes them as `npc` actors into a new, named folder.
  *
  * Engine reality this model is built on (see src/documents/actor.ts):
- *   - NPC effective evade in combat = `MR * 4 + floor(agility / 8)` (the flat
- *     `combat.evade` field is NOT read by the to-hit pipeline).
- *   - NPC effective armor in combat = `MR` (no equipped items).
+ *   - NPC evade / armor in combat = the sheet `combat.evade` / `combat.armor`
+ *     fields (per-phase for bosses). MR does not become armor.
  *   - NPC HP = explicit `health.bars` (never recomputed from vitality).
  *   - Per-phase attack/damage dice ARE honored via resolveNpcAttackList; the
  *     active phase is `npcActivePhaseIndex`.
@@ -240,7 +239,7 @@ export interface EncounterConcept {
   baseDamageDice: number;
   /** 0 = derive. Otherwise total HP per Hauptgegner (split across phases). */
   hpOverride: number;
-  /** 0 = derive. Combat armor is MR — this also sets MR (1–8). */
+  /** 0 = derive. Sheet armor (not MR). */
   armorOverride: number;
   /** 0 = derive. Intended evade (realized via MR + agility). */
   evadeOverride: number;

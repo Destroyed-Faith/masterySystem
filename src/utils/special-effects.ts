@@ -250,7 +250,7 @@ export const DIMINISHING_EFFECTS: SpecialEffect[] = [
     name: 'Requiem(X)',
     category: 'diminishing',
     description:
-      'Can be applied only to a creature with the Undead tag. At the start of the affected creature\'s turn, take X damage (ignores Armor unless a rule says otherwise), then reduce X by 1. Cleanse: Yes.',
+      'Can be applied only to a creature with the Deathless tag. At the start of the affected creature\'s turn, take X damage (ignores Armor unless a rule says otherwise), then reduce X by 1. Cleanse: Yes.',
     duration: 'Diminishing (X→0)',
     stacking: 'Yes',
     removal: 'Cleanse.',

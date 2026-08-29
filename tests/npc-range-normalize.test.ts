@@ -5,6 +5,7 @@ import { describe, expect, it } from 'vitest';
 
 import { buildNpcAttackRadialOptions } from '../src/radial-menu/options.js';
 import { buildNpcPrintContext } from '../src/sheets/npc-print.js';
+import { sanitizeNpcAttackTargetingFields } from '../src/utils/npc-attack-model.js';
 
 describe('NPC Fernkampf / AoE sheet persistence rules', () => {
   it('Fern + low leftover meters still routes as ranged in radial', () => {
@@ -45,6 +46,37 @@ describe('NPC Fernkampf / AoE sheet persistence rules', () => {
     } as any);
     expect(opts[0].burstMeleeAoE).toBeFalsy();
     expect(opts[0].aoeShape).toBe('none');
+  });
+
+  it('melee AoE persists as around-self (reach 0) and shows as burst', () => {
+    const saved = sanitizeNpcAttackTargetingFields({
+      name: 'Burst',
+      npcRangeKind: 'melee',
+      npcRangeMeters: 4,
+      npcAoeRadiusM: 3,
+    });
+    expect(saved.npcRangeMeters).toBe(0);
+    expect(saved.npcAoeShape).toBe('radius');
+
+    const opts = buildNpcAttackRadialOptions({
+      type: 'npc',
+      system: {
+        npcBaseAttack: {
+          name: 'Burst',
+          attackDiceCount: 6,
+          damageDiceCount: 4,
+          npcRangeKind: 'melee',
+          npcRangeMeters: 0,
+          npcAoeShape: 'radius',
+          npcAoeRadiusM: 3,
+          npcAttacksPerRound: 1,
+        },
+        attackValues: [],
+      },
+    } as any);
+    expect(opts[0].burstMeleeAoE).toBe(true);
+    expect(opts[0].burstMeleeRadiusMeters).toBe(3);
+    expect(opts[0].meleeReachMeters).toBe(0);
   });
 
   it('print sheet shows Short/Long range text, not the range() helper list', () => {

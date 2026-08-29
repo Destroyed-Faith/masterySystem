@@ -239,14 +239,15 @@ describe('deriveConceptPlan', () => {
     expect(plan.kitMode).toBe('identical');
     expect(plan.kits).toHaveLength(1);
     expect(plan.phasePlans.reduce((s, p) => s + p.stat.hp, 0)).toBe(90);
-    expect(plan.boss.mr).toBe(4);
     expect(plan.phasePlans[0].stat.armor).toBe(4);
+    expect(plan.boss.mr).toBeGreaterThanOrEqual(1);
     const cycle = plan.phasePlans[0].cycle.filter((c) => !c.isSummon);
     expect(cycle).toHaveLength(2);
     expect(cycle.some((c) => !!c.aoe)).toBe(true);
     expect(cycle.some((c) => !c.aoe)).toBe(true);
     expect(cycle.every((c) => c.damageDiceCount === 4)).toBe(true);
-    expect(cycle.filter((c) => c.rangeKind === 'melee').every((c) => c.rangeMeters === 2)).toBe(true);
+    expect(cycle.filter((c) => c.rangeKind === 'melee' && !c.aoe).every((c) => c.rangeMeters === 2)).toBe(true);
+    expect(cycle.filter((c) => !!c.aoe).every((c) => c.rangeMeters === 0)).toBe(true);
 
     const payloads = listEncounterBossPayloads('Zweihand-Wache', plan);
     expect(payloads).toHaveLength(3);
@@ -260,6 +261,64 @@ describe('deriveConceptPlan', () => {
     expect(rows.map((r) => r.basicId)).toEqual(['guard', 'counterattack']);
     expect(payloads[0].system.npcReactionSlots).toBe(2);
     expect(Array.isArray(payloads[0].system.npcReactions)).toBe(true);
+  });
+
+  it('keeps specials, martial AoE range, and armor in a playable band', () => {
+    const party = testParty();
+    const plan = deriveConceptPlan(
+      party,
+      normalizeConcept({
+        ...defaultConcept(),
+        rank: 'major',
+        style: 'martial',
+        primarySpecial: 'lacerate',
+        weaponProfile: 'two-hand',
+        attackShape: 'single-and-aoe',
+        bossCount: 3,
+      }),
+      seededRng(61),
+    );
+    const cycle = plan.phasePlans[0].cycle.filter((c) => !c.isSummon);
+    expect(cycle.some((c) => !!c.aoe)).toBe(true);
+    for (const row of cycle) {
+      if (row.special) expect(row.specialValue).toBeLessThanOrEqual(5);
+      expect(row.damageDiceCount).toBeLessThanOrEqual(10);
+      if (row.aoe) {
+        expect(row.rangeKind).toBe('melee');
+        expect(row.rangeMeters).toBe(0);
+        expect(row.aoe.radiusM).toBe(3);
+      }
+    }
+    expect(plan.phasePlans[0].stat.armor).toBeGreaterThan(plan.boss.mr);
+    expect(plan.phasePlans.reduce((s, p) => s + p.stat.hp, 0)).toBeLessThan(1000);
+  });
+
+  it('caps enemy MR at party median + 1, even on mythic', () => {
+    const rng = seededRng(71);
+    const partyMr2 = buildPartyMetrics([
+      member({ actorId: '1', name: 'A', mr: 2 }, rng),
+      member({ actorId: '2', name: 'B', mr: 2 }, rng),
+    ]);
+    const partyMr3 = buildPartyMetrics([
+      member({ actorId: '1', name: 'A', mr: 3 }, rng),
+      member({ actorId: '2', name: 'B', mr: 3 }, rng),
+    ]);
+    const mythic = normalizeConcept({ ...defaultConcept(), rank: 'mythic' });
+    const plan2 = deriveConceptPlan(partyMr2, mythic, seededRng(71));
+    const plan3 = deriveConceptPlan(partyMr3, mythic, seededRng(73));
+    expect(plan2.boss.mr).toBe(3);
+    expect(plan3.boss.mr).toBe(4);
+    expect(plan2.notes.some((n) => /Vorsicht/i.test(n) && /Maximum/i.test(n))).toBe(true);
+    const adds = deriveAddsPlan(
+      partyMr2,
+      normalizeConcept({
+        ...defaultConcept(),
+        adds: { ...defaultConcept().adds, enabled: true, durability: 'elite', pressure: 'lethal' },
+      }),
+      seededRng(75),
+    );
+    expect(adds).not.toBeNull();
+    expect(adds!.design.mr).toBeLessThanOrEqual(3);
   });
 
   it('distinct kits start as separate editable copies', () => {
@@ -339,19 +398,14 @@ describe('buildThreatReport', () => {
     }
   });
 
-  it('exactly one boss cycle attack per phase carries stress damage (1–2d8)', () => {
+  it('every boss cycle attack deals 1d8 stress', () => {
     const party = testParty();
     for (const preset of ARCHETYPE_PRESETS) {
       const plan = deriveConceptPlan(party, preset.concept, seededRng(47));
       for (const phase of plan.phasePlans) {
-        const stressRows = phase.cycle.filter((c) => (c.stressD8 ?? 0) > 0);
-        expect(stressRows.length).toBe(1);
-        expect(stressRows[0].stressD8!).toBeGreaterThanOrEqual(1);
-        expect(stressRows[0].stressD8!).toBeLessThanOrEqual(2);
-        // major/mythic bosses hit the mind harder
-        if (preset.concept.rank === 'major' || preset.concept.rank === 'mythic') {
-          expect(stressRows[0].stressD8).toBe(2);
-        }
+        const attackRows = phase.cycle.filter((c) => !c.isSummon);
+        expect(attackRows.length).toBeGreaterThan(0);
+        expect(attackRows.every((c) => c.stressD8 === 1)).toBe(true);
       }
     }
   });

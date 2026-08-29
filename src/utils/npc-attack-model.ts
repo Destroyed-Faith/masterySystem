@@ -70,8 +70,6 @@ export function resolveNpcAttackTargeting(atk: AttackValue | null | undefined): 
   const rangeKind = String(atk?.npcRangeKind || '').toLowerCase();
   const isRanged = rangeKind === 'ranged';
   const metersRaw = Math.floor(Number(atk?.npcRangeMeters));
-  const reachM =
-    Number.isFinite(metersRaw) && metersRaw > 0 ? Math.min(8, Math.max(1, metersRaw)) : 2;
   // Long = absolute max selectable range. Short = gifted full-pool band (not a floor).
   const rangedMaxM =
     Number.isFinite(metersRaw) && metersRaw > 0 ? Math.min(48, Math.max(8, metersRaw)) : 24;
@@ -86,6 +84,11 @@ export function resolveNpcAttackTargeting(atk: AttackValue | null | undefined): 
   const aoeRad = Math.max(0, Math.floor(Number(atk?.npcAoeRadiusM) || 0));
   const hasAoe = aoeRad >= 2;
   const burstMeleeAoE = !isRanged && hasAoe;
+  const reachM = burstMeleeAoE
+    ? 0
+    : Number.isFinite(metersRaw) && metersRaw > 0
+      ? Math.min(8, Math.max(1, metersRaw))
+      : 2;
   const rangedZone = isRanged && hasAoe;
   return {
     isRanged,
@@ -136,6 +139,16 @@ export function sanitizeNpcAttackTargetingFields<T extends Record<string, any>>(
   out.npcRangeKind = isRanged ? 'ranged' : 'melee';
 
   const metersRaw = Math.floor(Number(out.npcRangeMeters));
+  const rad = Math.floor(Number(out.npcAoeRadiusM));
+  const hasAoe = Number.isFinite(rad) && rad >= 2;
+  if (hasAoe) {
+    out.npcAoeRadiusM = rad;
+    out.npcAoeShape = 'radius';
+  } else {
+    out.npcAoeRadiusM = 0;
+    out.npcAoeShape = 'none';
+  }
+
   if (isRanged) {
     const maxM =
       Number.isFinite(metersRaw) && metersRaw >= 8 ? Math.min(48, metersRaw) : 24;
@@ -147,18 +160,13 @@ export function sanitizeNpcAttackTargetingFields<T extends Record<string, any>>(
     out.npcRangeMeters = maxM;
     out.npcRangeMinMeters = minM;
   } else {
-    out.npcRangeMeters =
-      Number.isFinite(metersRaw) && metersRaw >= 1 && metersRaw <= 8 ? metersRaw : 2;
+    // Melee burst is around self — no extra reach band.
+    out.npcRangeMeters = hasAoe
+      ? 0
+      : Number.isFinite(metersRaw) && metersRaw >= 1 && metersRaw <= 8
+        ? metersRaw
+        : 2;
     out.npcRangeMinMeters = 0;
-  }
-
-  const rad = Math.floor(Number(out.npcAoeRadiusM));
-  if (Number.isFinite(rad) && rad >= 2) {
-    out.npcAoeRadiusM = rad;
-    out.npcAoeShape = 'radius';
-  } else {
-    out.npcAoeRadiusM = 0;
-    out.npcAoeShape = 'none';
   }
   return out as T;
 }

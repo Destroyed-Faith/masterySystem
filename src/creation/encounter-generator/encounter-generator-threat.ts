@@ -210,6 +210,17 @@ export function buildThreatReport(
       `${bodies} Hauptgegner handeln unabhängig — Action Economy und Fokus-Druck sind höher als bei einem einzelnen Boss.`,
     );
   }
+  const partyMr = Math.max(1, Math.round(party.medianMR || 1));
+  const mrCap = Math.min(8, partyMr + 1);
+  if (plan.boss.mr > mrCap) {
+    warnings.push(
+      `Stopp: Gegner-MR ${plan.boss.mr} liegt über dem Maximum (Gruppen-MR ${partyMr} + 1 = ${mrCap}).`,
+    );
+  } else if (plan.boss.mr >= mrCap) {
+    warnings.push(
+      `Vorsicht: Gegner-MR ist ${plan.boss.mr} — das Maximum für diese Gruppe (MR ${partyMr} + 1). Höher geht nicht.`,
+    );
+  }
 
   return {
     hitChanceLowEvade: pct(hitLow),

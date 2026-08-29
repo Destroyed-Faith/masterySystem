@@ -118,9 +118,11 @@ export function splitHpAcrossPhases(totalHp: number, phases: number): number[] {
 export function evadeToMrAgility(
   targetEvade: number,
   minMr: number,
+  maxMr = 8,
 ): { mr: number; agility: number; realizedEvade: number } {
   const target = Math.max(0, Math.round(targetEvade));
-  const mr = clamp(Math.max(Math.floor(minMr), Math.ceil(target / 4)), 1, 8);
+  const hi = clamp(Math.round(maxMr), 1, 8);
+  const mr = clamp(Math.max(Math.floor(minMr), Math.ceil(target / 4)), 1, hi);
   const realizedEvade = mr * 4;
   return { mr, agility: 2, realizedEvade };
 }
@@ -186,9 +188,10 @@ function buildBoss(
   phases: number,
   rng: Rng,
 ): EnemyStatBlock {
-  const bossMr = clamp(party.medianMR + params.bossMrOffset, 1, 8);
+  const mrCap = clamp(party.medianMR + 1, 1, 8);
+  const bossMr = clamp(party.medianMR + params.bossMrOffset, 1, mrCap);
   const desiredEvade = quantile(party.pooledAttackTotals, 1 - params.partyHitRateVsBoss);
-  const { mr, agility, realizedEvade } = evadeToMrAgility(desiredEvade, bossMr);
+  const { mr, agility, realizedEvade } = evadeToMrAgility(desiredEvade, bossMr, mrCap);
   const armor = mr;
 
   // Party DPS vs this boss → total effective HP for the target time-to-kill.
@@ -247,9 +250,10 @@ function buildMinion(
   params: DifficultyParams,
   rng: Rng,
 ): EnemyStatBlock {
-  const minionMr = clamp(party.medianMR - 1, 1, 8);
+  const mrCap = clamp(party.medianMR + 1, 1, 8);
+  const minionMr = clamp(party.medianMR - 1, 1, mrCap);
   const desiredEvade = quantile(party.pooledAttackTotals, 1 - 0.85);
-  const { mr, agility, realizedEvade } = evadeToMrAgility(desiredEvade, minionMr);
+  const { mr, agility, realizedEvade } = evadeToMrAgility(desiredEvade, minionMr, mrCap);
   const armor = mr;
 
   // One-shot target: HP at the chosen percentile of party single-hit damage.
